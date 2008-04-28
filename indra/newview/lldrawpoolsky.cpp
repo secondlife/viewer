@@ -113,10 +113,6 @@ void LLDrawPoolSky::render(S32 pass)
 	LLVector3 origin = LLViewerCamera::getInstance()->getOrigin();
 	glTranslatef(origin.mV[0], origin.mV[1], origin.mV[2]);
 
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	glDisableClientState(GL_NORMAL_ARRAY);
-
 	S32 face_count = (S32)mDrawFace.size();
 
 	for (S32 i = 0; i < llmin(6, face_count); ++i)
@@ -160,8 +156,6 @@ void LLDrawPoolSky::render(S32 pass)
 		// renderHeavenlyBody(1, hbfaces[1]);
 	}
 
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-
 	glPopMatrix();
 }
 
@@ -184,8 +178,6 @@ void LLDrawPoolSky::renderSkyCubeFace(U8 side)
 		glColor4f(1, 1, 1, LLSkyTex::getInterpVal()); // lighting is disabled
 		face.renderIndexed();
 	}
-
-	mIndicesDrawn += face.getIndicesCount();
 }
 
 void LLDrawPoolSky::renderHeavenlyBody(U8 hb, LLFace* face)
@@ -198,7 +190,6 @@ void LLDrawPoolSky::renderHeavenlyBody(U8 hb, LLFace* face)
 	LLColor4 color(mHB[hb]->getInterpColor());
 	LLOverrideFaceColor override(this, color);
 	face->renderIndexed();
-	mIndicesDrawn += face->getIndicesCount();
 }
 
 
@@ -215,7 +206,6 @@ void LLDrawPoolSky::renderSunHalo(LLFace* face)
 
 	LLOverrideFaceColor override(this, color);
 	face->renderIndexed();
-	mIndicesDrawn += face->getIndicesCount();
 }
 
 

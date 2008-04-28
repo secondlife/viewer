@@ -29,16 +29,20 @@ LLFloaterHUD::LLFloaterHUD()
 :	LLFloater("floater_hud"),
 	mWebBrowser(0)
 {
+	// Create floater from its XML definition
+	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_hud.xml");
+	
 	// Don't grab the focus as it will impede performing in-world actions
 	// while using the HUD
-	setAutoFocus(FALSE);
+	setIsChrome(TRUE);
+
+	// Chrome doesn't show the window title by default, but here we
+	// want to show it.
+	setTitleVisible(true);
 	
 	// Opaque background since we never get the focus
 	setBackgroundOpaque(TRUE);
 
-	// Create floater from its XML definition
-	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_hud.xml");
-	
 	// Position floater based on saved location
 	LLRect saved_position_rect = gSavedSettings.getRect("FloaterHUDRect");
 	reshape(saved_position_rect.getWidth(), saved_position_rect.getHeight(), FALSE);
@@ -47,11 +51,13 @@ LLFloaterHUD::LLFloaterHUD()
 	mWebBrowser = getChild<LLWebBrowserCtrl>("floater_hud_browser" );
 	if (mWebBrowser)
 	{
-		// Always refresh the browser
-		mWebBrowser->setAlwaysRefresh(true);
-
 		// Open links in internal browser
 		mWebBrowser->setOpenInExternalBrowser(false);
+
+		// This is a "chrome" floater, so we don't want anything to
+		// take focus (as the user needs to be able to walk with 
+		// arrow keys during tutorial).
+		mWebBrowser->setTakeFocusOnClick(false);
 
 		LLString language(gSavedSettings.getString("Language"));
 		if(language == "default")
@@ -109,10 +115,4 @@ void LLFloaterHUD::show()
 void LLFloaterHUD::close()
 {
 	if (sInstance) sInstance->close();
-}
-
-void LLFloaterHUD::onFocusReceived()
-{
-	// Never get the focus
-	setFocus(FALSE);
 }

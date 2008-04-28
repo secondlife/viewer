@@ -255,7 +255,6 @@ void LLCone::render(S32 level_of_detail)
 	// center object at 0
 	glTranslatef(0.f, 0.f, - height / 2.0f);
 
-	LLVertexBuffer::unbind();
 	drawSide(level_of_detail);
 	drawBottom(level_of_detail);
 

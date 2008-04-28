@@ -31,12 +31,9 @@
 #include "linden_common.h"
 
 #include "llvolumemgr.h"
+#include "llmemtype.h"
 #include "llvolume.h"
 
-
-//#define DEBUG_VOLUME
-
-//LLVolumeMgr* gVolumeMgr = 0;
 
 const F32 BASE_THRESHOLD = 0.03f;
 
@@ -70,11 +67,6 @@ LLVolumeMgr::~LLVolumeMgr()
 
 BOOL LLVolumeMgr::cleanup()
 {
-	#ifdef DEBUG_VOLUME
-	{
-		lldebugs << "LLVolumeMgr::cleanup()" << llendl;
-	}
-	#endif
 	BOOL no_refs = TRUE;
 	if (mDataMutex)
 	{
@@ -85,14 +77,11 @@ BOOL LLVolumeMgr::cleanup()
 		 iter != end; iter++)
 	{
 		LLVolumeLODGroup *volgroupp = iter->second;
-		if (volgroupp->getNumRefs() != 1)
+		if (volgroupp->cleanupRefs() == false)
 		{
-			llwarns << "Volume group " << volgroupp << " has " 
-					<< volgroupp->getNumRefs() << " remaining refs" << llendl;
-			llwarns << volgroupp->getParams() << llendl;
 			no_refs = FALSE;
 		}
- 		volgroupp->unref();// this );
+ 		delete volgroupp;
 	}
 	mVolumeLODGroups.clear();
 	if (mDataMutex)
@@ -102,10 +91,11 @@ BOOL LLVolumeMgr::cleanup()
 	return no_refs;
 }
 
-// whatever calls getVolume() never owns the LLVolume* and
-// cannot keep references for long since it may be deleted
-// later.  For best results hold it in an LLPointer<LLVolume>.
-LLVolume *LLVolumeMgr::getVolume(const LLVolumeParams &volume_params, const S32 detail)
+// Always only ever store the results of refVolume in a LLPointer
+// Note however that LLVolumeLODGroup that contains the volume
+//  also holds a LLPointer so the volume will only go away after
+//  anything holding the volume and the LODGroup are destroyed
+LLVolume* LLVolumeMgr::refVolume(const LLVolumeParams &volume_params, const S32 detail)
 {
 	LLVolumeLODGroup* volgroupp;
 	if (mDataMutex)
@@ -121,17 +111,11 @@ LLVolume *LLVolumeMgr::getVolume(const LLVolumeParams &volume_params, const S32 
 	{
 		volgroupp = iter->second;
 	}
-	volgroupp->ref();
 	if (mDataMutex)
 	{
 		mDataMutex->unlock();
 	}
-	#ifdef DEBUG_VOLUME
-	{
-		lldebugs << "LLVolumeMgr::getVolume() " << (*this) << llendl;
-	}
-	#endif
-	return volgroupp->getLOD(detail);
+	return volgroupp->getLODVolume(detail);
 }
 
 // virtual
@@ -154,15 +138,14 @@ LLVolumeLODGroup* LLVolumeMgr::getGroup( const LLVolumeParams& volume_params ) c
 	return volgroupp;
 }
 
-// virtual
-void LLVolumeMgr::cleanupVolume(LLVolume *volumep)
+void LLVolumeMgr::unrefVolume(LLVolume *volumep)
 {
 	if (volumep->isUnique())
 	{
 		// TomY: Don't need to manage this volume. It is a unique instance.
 		return;
 	}
-	LLVolumeParams* params = (LLVolumeParams*) &(volumep->getParams());
+	const LLVolumeParams* params = &(volumep->getParams());
 	if (mDataMutex)
 	{
 		mDataMutex->lock();
@@ -182,11 +165,10 @@ void LLVolumeMgr::cleanupVolume(LLVolume *volumep)
 		LLVolumeLODGroup* volgroupp = iter->second;
 
 		volgroupp->derefLOD(volumep);
-		volgroupp->unref();// this );
-		if (volgroupp->getNumRefs() == 1)
+		if (volgroupp->getNumRefs() == 0)
 		{
 			mVolumeLODGroups.erase(params);
-			volgroupp->unref();// this );
+			delete volgroupp;
 		}
 	}
 	if (mDataMutex)
@@ -194,40 +176,21 @@ void LLVolumeMgr::cleanupVolume(LLVolume *volumep)
 		mDataMutex->unlock();
 	}
 
-	#ifdef DEBUG_VOLUME
-	{
-		lldebugs << "LLVolumeMgr::cleanupVolume() " << (*this) << llendl;
-	}
-	#endif
 }
 
-#ifdef DEBUG_VOLUME
-S32 LLVolumeMgr::getTotalRefCount() const
+// protected
+void LLVolumeMgr::insertGroup(LLVolumeLODGroup* volgroup)
 {
-	S32 total_ref_count = 0;
-	for ( volume_lod_group_map_t::const_iterator iter = mVolumeLODGroups.begin(),
-			 end = mVolumeLODGroups.end();
-		 iter != end; iter++)
-	{
-		total_ref_count += iter->second->getTotalVolumeRefCount();
-	}
-	return total_ref_count;
+	mVolumeLODGroups[volgroup->getVolumeParams()] = volgroup;
 }
-
-S32 LLVolumeMgr::getGroupCount() const
-{
-	return mVolumeLODGroups.size();
-}
-#endif
 
 // protected
 LLVolumeLODGroup* LLVolumeMgr::createNewGroup(const LLVolumeParams& volume_params)
 {
-	LLVolumeLODGroup* group = new LLVolumeLODGroup(volume_params);
-	const LLVolumeParams* params = &(group->getParams());
-	mVolumeLODGroups[params] = group;
- 	group->ref(); // initial reference
-	return group;
+	LLMemType m1(LLMemType::MTYPE_VOLUME);
+	LLVolumeLODGroup* volgroup = new LLVolumeLODGroup(volume_params);
+	insertGroup(volgroup);
+	return volgroup;
 }
 
 // virtual
@@ -272,9 +235,8 @@ std::ostream& operator<<(std::ostream& s, const LLVolumeMgr& volume_mgr)
 		volume_mgr.mDataMutex->lock();
 	}
 
-	LLVolumeMgr::volume_lod_group_map_iter iter = volume_mgr.mVolumeLODGroups.begin();
-	LLVolumeMgr::volume_lod_group_map_iter end  = volume_mgr.mVolumeLODGroups.end();
-	for ( ; iter != end; ++iter)
+	for (LLVolumeMgr::volume_lod_group_map_t::const_iterator iter = volume_mgr.mVolumeLODGroups.begin();
+		 iter != volume_mgr.mVolumeLODGroups.end(); ++iter)
 	{
 		LLVolumeLODGroup *volgroupp = iter->second;
 		total_refs += volgroupp->getNumRefs();
@@ -291,72 +253,78 @@ std::ostream& operator<<(std::ostream& s, const LLVolumeMgr& volume_mgr)
 }
 
 LLVolumeLODGroup::LLVolumeLODGroup(const LLVolumeParams &params)
+	: mVolumeParams(params),
+	  mRefs(0)
 {
-	S32 i;
-	mParams = params;
-
-	for (i = 0; i < NUM_LODS; i++)
+	for (S32 i = 0; i < NUM_LODS; i++)
 	{
 		mLODRefs[i] = 0;
-		// no need to initialize mVolumeLODs, they are smart pointers
-		//mVolumeLODs[i] = NULL;
 		mAccessCount[i] = 0;
 	}
 }
 
-#ifdef DEBUG_VOLUME
-S32 LLVolumeLODGroup::getTotalVolumeRefCount() const
-{
-	S32 total_ref_count = 0;
-	for (S32 i = 0; i < NUM_LODS; i++)
-	{
-		total_ref_count += mLODRefs[i];
-	}
-	return total_ref_count;
-}
-#endif
-
-// protected
 LLVolumeLODGroup::~LLVolumeLODGroup()
 {
-	destroy();
-}
-
-// protected
-void LLVolumeLODGroup::destroy()
-{
 	for (S32 i = 0; i < NUM_LODS; i++)
 	{
-		// remember that mVolumeLODs are smart pointers!
-		mVolumeLODs[i] = NULL;
+		llassert_always(mLODRefs[i] == 0);
 	}
 }
 
-LLVolume * LLVolumeLODGroup::getLOD(const S32 detail)
+// Called from LLVolumeMgr::cleanup
+bool LLVolumeLODGroup::cleanupRefs()
+{
+	bool res = true;
+	if (mRefs != 0)
+	{
+		llwarns << "Volume group has remaining refs:" << getNumRefs() << llendl;
+		mRefs = 0;
+		for (S32 i = 0; i < NUM_LODS; i++)
+		{
+			if (mLODRefs[i] > 0)
+			{
+				llwarns << " LOD " << i << " refs = " << mLODRefs[i] << llendl;
+				mLODRefs[i] = 0;
+				mVolumeLODs[i] = NULL;
+			}
+		}
+		llwarns << *getVolumeParams() << llendl;
+		res = false;
+	}
+	return res;
+}
+
+LLVolume* LLVolumeLODGroup::getLODVolume(const S32 detail)
 {
 	llassert(detail >=0 && detail < NUM_LODS);
 	mAccessCount[detail]++;
 	
-	if (!mLODRefs[detail])
+	mRefs++;
+	if (mVolumeLODs[detail].isNull())
 	{
-		mVolumeLODs[detail] = new LLVolume(mParams, mDetailScales[detail]);
+		LLMemType m1(LLMemType::MTYPE_VOLUME);
+		mVolumeLODs[detail] = new LLVolume(mVolumeParams, mDetailScales[detail]);
 	}
 	mLODRefs[detail]++;
-	return mVolumeLODs[detail].get();
+	return mVolumeLODs[detail];
 }
 
 BOOL LLVolumeLODGroup::derefLOD(LLVolume *volumep)
 {
-	S32 i;
-	for (i = 0; i < NUM_LODS; i++)
+	llassert_always(mRefs > 0);
+	mRefs--;
+	for (S32 i = 0; i < NUM_LODS; i++)
 	{
 		if (mVolumeLODs[i] == volumep)
 		{
+			llassert_always(mLODRefs[i] > 0);
 			mLODRefs[i]--;
+#if 1 // SJB: Possible opt: keep other lods around
 			if (!mLODRefs[i])
 			{
 				mVolumeLODs[i] = NULL;
 			}
+#endif
 			return TRUE;
 		}
 	}
@@ -428,7 +396,7 @@ F32 LLVolumeLODGroup::dump()
 std::ostream& operator<<(std::ostream& s, const LLVolumeLODGroup& volgroup)
 {
 	s << "{ numRefs=" << volgroup.getNumRefs();
-	s << ", mParams=" << volgroup.mParams;
+	s << ", mParams=" << volgroup.getVolumeParams();
 	s << " }";
 	 
 	return s;

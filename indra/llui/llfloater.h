@@ -146,6 +146,7 @@ public:
 	const LLString&	getTitle() const;
 	void			setShortTitle( const LLString& short_title );
 	LLString		getShortTitle();
+	void			setTitleVisible(bool visible);
 	virtual void	setMinimized(BOOL b);
 	void			moveResizeHandlesToFront();
 	void			addDependentFloater(LLFloater* dependent, BOOL reposition = TRUE);

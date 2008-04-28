@@ -216,13 +216,11 @@ void LLDrawPoolAvatar::beginFootShadow()
 	}
 
 	gPipeline.enableLightsFullbright(LLColor4(1,1,1,1));
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 
 void LLDrawPoolAvatar::endFootShadow()
 {
 	gPipeline.enableLightsDynamic();
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 
 void LLDrawPoolAvatar::beginRigid()
@@ -247,16 +245,11 @@ void LLDrawPoolAvatar::beginRigid()
 	{
 		sVertexProgram = NULL;
 	}
-
-	glEnableClientState(GL_NORMAL_ARRAY);
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 
 void LLDrawPoolAvatar::endRigid()
 {
 	sShaderLevel = mVertexShaderLevel;
-	glDisableClientState(GL_NORMAL_ARRAY);
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	if (sVertexProgram != NULL)
 	{
 		sVertexProgram->unbind();
@@ -265,9 +258,6 @@ void LLDrawPoolAvatar::endRigid()
 
 void LLDrawPoolAvatar::beginSkinned()
 {
-	glEnableClientState(GL_NORMAL_ARRAY);
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-
 	if (sShaderLevel > 0)
 	{
 		if (LLPipeline::sUnderWaterRender)
@@ -295,8 +285,7 @@ void LLDrawPoolAvatar::beginSkinned()
 	if (sShaderLevel > 0)  // for hardware blending
 	{
 		sRenderingSkinned = TRUE;
-		glClientActiveTextureARB(GL_TEXTURE1_ARB);
-
+		
 		sVertexProgram->bind();
 		if (sShaderLevel >= SHADER_LEVEL_CLOTH)
 		{
@@ -331,7 +320,6 @@ void LLDrawPoolAvatar::endSkinned()
 		sRenderingSkinned = FALSE;
 		sVertexProgram->disableTexture(LLShaderMgr::BUMP_MAP);
 		glActiveTextureARB(GL_TEXTURE0_ARB);
-		glClientActiveTextureARB(GL_TEXTURE0_ARB);
 		disable_vertex_weighting(sVertexProgram->mAttribute[LLShaderMgr::AVATAR_WEIGHT]);
 		if (sShaderLevel >= SHADER_LEVEL_BUMP)
 		{
@@ -356,10 +344,6 @@ void LLDrawPoolAvatar::endSkinned()
 	}
 
 	glActiveTextureARB(GL_TEXTURE0_ARB);
-	glClientActiveTextureARB(GL_TEXTURE0_ARB);
-
-	glDisableClientState(GL_NORMAL_ARRAY);
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 
 
@@ -438,7 +422,7 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 		}
 		else if (gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_FOOT_SHADOWS))
 		{
-			mIndicesDrawn += avatarp->renderFootShadows();	
+			avatarp->renderFootShadows();	
 		}
 		return;
 	}
@@ -451,7 +435,7 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 	if (pass == 1)
 	{
 		// render rigid meshes (eyeballs) first
-		mIndicesDrawn += avatarp->renderRigid();
+		avatarp->renderRigid();
 		return;
 	}
 	
@@ -548,7 +532,7 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 			color.setColor(1.0f, 1.0f, 1.0f, 1.0f);
 		}
 
-		mIndicesDrawn += avatarp->renderSkinned(AVATAR_RENDER_PASS_SINGLE);
+		avatarp->renderSkinned(AVATAR_RENDER_PASS_SINGLE);
 	}
 }
 
@@ -609,9 +593,6 @@ void LLDrawPoolAvatar::renderForSelect()
 		return;
 	}
 
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_NORMAL_ARRAY);
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	sVertexProgram = &gAvatarPickProgram;
 	if (sShaderLevel > 0)
 	{
@@ -624,13 +605,12 @@ void LLDrawPoolAvatar::renderForSelect()
 
 	if ((sShaderLevel > 0) && !gUseGLPick)  // for hardware blending
 	{
-		glClientActiveTextureARB(GL_TEXTURE0_ARB);
 		sRenderingSkinned = TRUE;
 		sVertexProgram->bind();
 		enable_vertex_weighting(sVertexProgram->mAttribute[LLShaderMgr::AVATAR_WEIGHT]);
 	}
 	
-	mIndicesDrawn += avatarp->renderSkinned(AVATAR_RENDER_PASS_SINGLE);
+	avatarp->renderSkinned(AVATAR_RENDER_PASS_SINGLE);
 
 	// if we're in software-blending, remember to set the fence _after_ we draw so we wait till this rendering is done
 	if ((sShaderLevel > 0) && !gUseGLPick)
@@ -645,8 +625,6 @@ void LLDrawPoolAvatar::renderForSelect()
 
 	// restore texture mode
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-	glDisableClientState(GL_NORMAL_ARRAY);
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 
 //-----------------------------------------------------------------------------

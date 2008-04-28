@@ -953,7 +953,7 @@ U32 LLControlGroup::saveToFile(const LLString& filename, BOOL nondefault_only)
 	return num_saved;
 }
 
-U32 LLControlGroup::loadFromFile(const LLString& filename, BOOL require_declaration, eControlType declare_as)
+U32 LLControlGroup::loadFromFile(const LLString& filename)
 {
 	LLString name;
 	LLSD settings;
@@ -965,24 +965,47 @@ U32 LLControlGroup::loadFromFile(const LLString& filename, BOOL require_declarat
 		llwarns << "Cannot find file " << filename << " to load." << llendl;
 		return 0;
 	}
+
 	S32 ret = LLSDSerialize::fromXML(settings, infile);
+
 	if (ret <= 0)
 	{
 		infile.close();
 		llwarns << "Unable to open LLSD control file " << filename << ". Trying Legacy Method." << llendl;		
-		return loadFromFileLegacy(filename, require_declaration, declare_as);
+		return loadFromFileLegacy(filename, TRUE, TYPE_STRING);
 	}
 
-	U32		validitems = 0;
+	U32	validitems = 0;
 	int persist = 1;
 	for(LLSD::map_const_iterator itr = settings.beginMap(); itr != settings.endMap(); ++itr)
 	{
 		name = (*itr).first;
 		control_map = (*itr).second;
 		
-		if(control_map.has("Persist")) persist = control_map["Persist"].asInteger();
+		if(control_map.has("Persist")) 
+		{
+			persist = control_map["Persist"].asInteger();
+		}
 		
-		declareControl(name, typeStringToEnum(control_map["Type"].asString()), control_map["Value"], control_map["Comment"].asString(), persist);
+		// If the control exists just set the value from the input file.
+		LLControlVariable* existing_control = getControl(name);
+		if(existing_control)
+		{
+			// Check persistence. If not persisted, we shouldn't be loading.
+			if(existing_control->isPersisted())
+			{
+				existing_control->setValue(control_map["Value"]);
+			}
+		}
+		else
+		{
+			declareControl(name, 
+						   typeStringToEnum(control_map["Type"].asString()), 
+						   control_map["Value"], 
+						   control_map["Comment"].asString(), 
+						   persist
+						   );
+		}
 		
 		++validitems;
 	}

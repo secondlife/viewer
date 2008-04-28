@@ -68,9 +68,6 @@ void LLDrawPoolGround::render(S32 pass)
 		return;
 	}	
 	
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	glEnableClientState(GL_VERTEX_ARRAY);
-
 	LLGLSPipelineSkyBox gls_skybox;
 	LLImageGL::unbindTexture(0, GL_TEXTURE_2D);
 	LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);

@@ -1326,8 +1326,9 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 		close();
 		OSMessageBox(
 					 "Second Life is unable to run because your video card drivers\n"
-					 "are out of date or unsupported. Please make sure you have\n"
-					 "the latest video card drivers installed.\n\n"
+					 "did not install properly, are out of date, or are for unsupported\n" 
+					 "hardware. Please make sure you have the latest video card drivers\n"
+					 "and even if you do have the latest, try reinstalling them.\n\n"
 					 "If you continue to receive this message, contact customer service.",
 					 "Error",
 					 OSMB_OK);
@@ -1836,6 +1837,10 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 			break;
 		}
 		case WM_IME_SETCONTEXT:
+			if (gDebugWindowProc)
+			{
+				llinfos << "WM_IME_SETCONTEXT" << llendl;
+			}
 			if (LLWinImm::isAvailable() && window_imp->mPreeditor)
 			{
 				l_param &= ~ISC_SHOWUICOMPOSITIONWINDOW;
@@ -1844,6 +1849,10 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 			break;
 
 		case WM_IME_STARTCOMPOSITION:
+			if (gDebugWindowProc)
+			{
+				llinfos << "WM_IME_STARTCOMPOSITION" << llendl;
+			}
 			if (LLWinImm::isAvailable() && window_imp->mPreeditor)
 			{
 				window_imp->handleStartCompositionMessage();
@@ -1852,6 +1861,10 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 			break;
 
 		case WM_IME_ENDCOMPOSITION:
+			if (gDebugWindowProc)
+			{
+				llinfos << "WM_IME_ENDCOMPOSITION" << llendl;
+			}
 			if (LLWinImm::isAvailable() && window_imp->mPreeditor)
 			{
 				return 0;
@@ -1859,6 +1872,10 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 			break;
 
 		case WM_IME_COMPOSITION:
+			if (gDebugWindowProc)
+			{
+				llinfos << "WM_IME_COMPOSITION" << llendl;
+			}
 			if (LLWinImm::isAvailable() && window_imp->mPreeditor)
 			{
 				window_imp->handleCompositionMessage(l_param);
@@ -1867,6 +1884,10 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 			break;
 
 		case WM_IME_REQUEST:
+			if (gDebugWindowProc)
+			{
+				llinfos << "WM_IME_REQUEST" << llendl;
+			}
 			if (LLWinImm::isAvailable() && window_imp->mPreeditor)
 			{
 				LRESULT result = 0;

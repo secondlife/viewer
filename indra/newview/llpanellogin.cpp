@@ -951,6 +951,7 @@ void LLPanelLogin::loadLoginPage()
 	{
 		LLAppViewer::instance()->resetURIs();
 		gGridChoice = (EGridInfo)grid_index;
+		gSavedSettings.setString("GridChoice", gGridInfo[gGridChoice].mLabel);
 		gViewerWindow->setMenuBackgroundColor(false, 
 			!LLAppViewer::instance()->isInProductionGrid());
 		gLoginMenuBarView->setBackgroundColor(gMenuBarView->getBackgroundColor());

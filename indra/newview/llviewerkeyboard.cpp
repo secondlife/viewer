@@ -88,8 +88,6 @@ static void agent_handle_doubletap_run(EKeystate s, LLAgent::EDoubleTapRunMode m
 {
 	if (KEYSTATE_UP == s)
 	{
-		// Releasing a walk-key resets the double-tap timer
-		gAgent.mDoubleTapRunTimer.reset();
 		if (gAgent.mDoubleTapRunMode == mode &&
 		    gAgent.getRunning() &&
 		    !gAgent.getAlwaysRun())
@@ -98,17 +96,23 @@ static void agent_handle_doubletap_run(EKeystate s, LLAgent::EDoubleTapRunMode m
 			gAgent.clearRunning();
 			gAgent.sendWalkRun(gAgent.getRunning());
 		}
-		gAgent.mDoubleTapRunMode = mode;
 	}
 	else if (gAllowTapTapHoldRun &&
 		 KEYSTATE_DOWN == s &&
-		 gAgent.mDoubleTapRunMode == mode &&
-		 gAgent.mDoubleTapRunTimer.getElapsedTimeF32() < NUDGE_TIME)
+		 !gAgent.getRunning())
 	{
-		// Same walk-key was pushed again quickly; this is a double-tap
-		// so engage temporary running.
-		gAgent.setRunning();
-		gAgent.sendWalkRun(gAgent.getRunning());
+		if (gAgent.mDoubleTapRunMode == mode &&
+		    gAgent.mDoubleTapRunTimer.getElapsedTimeF32() < NUDGE_TIME)
+		{
+			// Same walk-key was pushed again quickly; this is a
+			// double-tap so engage temporary running.
+			gAgent.setRunning();
+			gAgent.sendWalkRun(gAgent.getRunning());
+		}
+
+		// Pressing any walk-key resets the double-tap timer
+		gAgent.mDoubleTapRunTimer.reset();
+		gAgent.mDoubleTapRunMode = mode;
 	}
 }
 

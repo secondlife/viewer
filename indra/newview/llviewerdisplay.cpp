@@ -886,6 +886,11 @@ void render_ui_and_swap()
 	LLGLState::checkStates();
 #endif
 	
+	glPushMatrix();
+	glLoadMatrixd(gGLLastModelView);
+	glh::matrix4f saved_view = glh_get_current_modelview();
+	glh_set_current_modelview(glh_copy_matrix(gGLLastModelView));
+	
 	{
 		BOOL to_texture = gPipeline.canUseVertexShaders() &&
 							LLPipeline::sRenderGlow &&
@@ -936,6 +941,9 @@ void render_ui_and_swap()
 
 		LLVertexBuffer::stopRender();
 	}
+
+	glh_set_current_modelview(saved_view);
+	glPopMatrix();
 }
 
 void render_ui_and_swap_if_needed()
@@ -1029,11 +1037,6 @@ void render_ui_3d()
 	// NOTE: zbuffer is cleared before we get here by LLDrawPoolHUD,
 	//		 so 3d elements requiring Z buffer are moved to LLDrawPoolHUD
 	//
-
-	// Render selections
-	//glDisableClientState(GL_COLOR_ARRAY);
-	//glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	//glDisableClientState(GL_NORMAL_ARRAY);
 
 	/////////////////////////////////////////////////////////////
 	//

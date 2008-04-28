@@ -1759,7 +1759,7 @@ void LLScrollListCtrl::draw()
 	if (mBackgroundVisible)
 	{
 		LLGLSNoTexture no_texture;
-		glColor4fv( getEnabled() ? mBgWriteableColor.mV : mBgReadOnlyColor.mV );
+		gGL.color4fv( getEnabled() ? mBgWriteableColor.mV : mBgReadOnlyColor.mV );
 		gl_rect_2d(background);
 	}
 

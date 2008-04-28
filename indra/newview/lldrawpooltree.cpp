@@ -67,9 +67,6 @@ void LLDrawPoolTree::prerender()
 void LLDrawPoolTree::beginRenderPass(S32 pass)
 {
 	LLFastTimer t(LLFastTimer::FTM_RENDER_TREES);
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_NORMAL_ARRAY);
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	glAlphaFunc(GL_GREATER, 0.5f);
 	
 	if (LLPipeline::sUnderWaterRender)
@@ -110,9 +107,7 @@ void LLDrawPoolTree::endRenderPass(S32 pass)
 {
 	LLFastTimer t(LLFastTimer::FTM_RENDER_TREES);
 	glAlphaFunc(GL_GREATER, 0.01f);
-	glDisableClientState(GL_NORMAL_ARRAY);
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-
+	
 	if (gPipeline.canUseWindLightShadersOnObjects())
 	{
 		shader->unbind();
@@ -126,9 +121,6 @@ void LLDrawPoolTree::renderForSelect()
 		return;
 	}
 
-	glEnableClientState (GL_VERTEX_ARRAY);
-	glEnableClientState (GL_TEXTURE_COORD_ARRAY);
-	
 	LLOverrideFaceColor color(this, 1.f, 1.f, 1.f, 1.f);
 
 	LLGLSObjectSelectAlpha gls_alpha;
@@ -155,7 +147,6 @@ void LLDrawPoolTree::renderForSelect()
 	gGL.blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-	glDisableClientState (GL_TEXTURE_COORD_ARRAY);
 }
 
 void LLDrawPoolTree::renderTree(BOOL selecting)
@@ -278,8 +269,6 @@ void LLDrawPoolTree::renderTree(BOOL selecting)
 			//glPopMatrix();
 		}
 	}
-
-	addIndicesDrawn(indices_drawn);
 }
 
 BOOL LLDrawPoolTree::verify() const

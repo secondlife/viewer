@@ -168,7 +168,7 @@ glh::matrix4f glh_get_current_projection()
 	return glh_copy_matrix(gGLProjection);
 }
 
-void glh_copy_matrix(glh::matrix4f& src, GLdouble* dst)
+void glh_copy_matrix(const glh::matrix4f& src, GLdouble* dst)
 {
 	for (U32 i = 0; i < 16; i++)
 	{
@@ -176,7 +176,7 @@ void glh_copy_matrix(glh::matrix4f& src, GLdouble* dst)
 	}
 }
 
-void glh_set_current_modelview(glh::matrix4f& mat)
+void glh_set_current_modelview(const glh::matrix4f& mat)
 {
 	glh_copy_matrix(mat, gGLModelView);
 }
@@ -2144,9 +2144,9 @@ void render_hud_elements()
 		LLViewerParcelMgr::getInstance()->renderParcelCollision();
 	
 		// Render debugging beacons.
-		gObjectList.renderObjectBeacons();
-		LLHUDObject::renderAll();
-		gObjectList.resetObjectBeacons();
+		//gObjectList.renderObjectBeacons();
+		//LLHUDObject::renderAll();
+		//gObjectList.resetObjectBeacons();
 	}
 	else if (gForceRenderLandFence)
 	{
@@ -2253,10 +2253,10 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 	//
 	//
 
-	glEnableClientState(GL_VERTEX_ARRAY);
-
 	stop_glerror();
 	gFrameStats.start(LLFrameStats::RENDER_SYNC);
+
+	glEnableClientState(GL_VERTEX_ARRAY);
 
 	// Do verification of GL state
 #ifndef LL_RELEASE_FOR_DOWNLOAD
@@ -2377,10 +2377,10 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 							break;
 						}
 						
-						p->resetTrianglesDrawn();
 						p->render(i);
 					}
 					poolp->endRenderPass(i);
+					LLVertexBuffer::unbind();
 #ifndef LL_RELEASE_FOR_DOWNLOAD
 #	if LL_DEBUG_GL
 					GLint depth;
@@ -2413,6 +2413,7 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 		}
 	}
 
+	LLVertexBuffer::unbind();
 #ifndef LL_RELEASE_FOR_DOWNLOAD
 	LLGLState::checkStates();
 	LLGLState::checkTextureChannels();
@@ -2452,6 +2453,15 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 	LLVertexBuffer::stopRender();
 	LLVertexBuffer::unbind();
 	
+	if (!LLPipeline::sReflectionRender && gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI))
+	{
+		gGL.start();
+		// Render debugging beacons.
+		gObjectList.renderObjectBeacons();
+		LLHUDObject::renderAll();
+		gObjectList.resetObjectBeacons();
+		gGL.stop();
+	}
 
 	//HACK: preserve/restore matrices around HUD render
 	if (gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_HUD))
@@ -2472,15 +2482,9 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 
 void LLPipeline::renderGeomDeferred()
 {
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	glEnableClientState(GL_NORMAL_ARRAY);
-	glEnableClientState(GL_COLOR_ARRAY);
 	gDeferredDiffuseProgram.bind();
 	gPipeline.renderObjects(LLRenderPass::PASS_SIMPLE, LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD | LLVertexBuffer::MAP_COLOR | LLVertexBuffer::MAP_NORMAL, TRUE);
 	gDeferredDiffuseProgram.unbind();
-	glDisableClientState(GL_COLOR_ARRAY);
-	glDisableClientState(GL_NORMAL_ARRAY);
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 
 void LLPipeline::addTrianglesDrawn(S32 count)
@@ -2505,11 +2509,6 @@ void LLPipeline::renderDebug()
 	assertInitialized();
 
 	gGL.start();
-
-	// Disable all client state
-    //glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-    //glDisableClientState(GL_NORMAL_ARRAY);
-	//glDisableClientState(GL_COLOR_ARRAY);
 
 	gGLLastMatrix = NULL;
 	glLoadMatrixd(gGLModelView);
@@ -2603,8 +2602,6 @@ void LLPipeline::renderForSelect(std::set<LLViewerObject*>& objects)
 	LLGLDepthTest gls_depth(GL_TRUE,GL_TRUE);
 	disableLights();
 	
-    glEnableClientState ( GL_VERTEX_ARRAY );
-
 	//for each drawpool
 #ifndef LL_RELEASE_FOR_DOWNLOAD
 	LLGLState::checkStates();
@@ -2619,7 +2616,7 @@ void LLPipeline::renderForSelect(std::set<LLViewerObject*>& objects)
 		{
 			LLFacePool* face_pool = (LLFacePool*) poolp;
 			face_pool->renderForSelect();
-	
+			LLVertexBuffer::unbind();
 			gGLLastMatrix = NULL;
 			glLoadMatrixd(gGLModelView);
 
@@ -2635,7 +2632,6 @@ void LLPipeline::renderForSelect(std::set<LLViewerObject*>& objects)
 		}
 	}	
 
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	LLGLEnable alpha_test(GL_ALPHA_TEST);
 	if (gPickTransparent)
 	{
@@ -2759,10 +2755,10 @@ void LLPipeline::renderForSelect(std::set<LLViewerObject*>& objects)
 	}
 
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-	glDisableClientState( GL_TEXTURE_COORD_ARRAY );
 	
+	LLVertexBuffer::unbind();
 	LLVertexBuffer::stopRender();
-
+	
 	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 }
 
@@ -4866,6 +4862,12 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 {
 	if (LLPipeline::sWaterReflections && assertInitialized() && LLDrawPoolWater::sNeedsReflectionUpdate)
 	{
+#ifndef LL_RELEASE_FOR_DOWNLOAD
+		LLGLState::checkStates();
+		LLGLState::checkTextureChannels();
+		LLGLState::checkClientArrays();
+#endif
+
 		LLCamera camera = camera_in;
 		camera.setFar(camera.getFar()*0.87654321f);
 		LLPipeline::sReflectionRender = TRUE;
@@ -5052,6 +5054,12 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 		LLDrawPoolWater::sNeedsDistortionUpdate = FALSE;
 		LLViewerCamera::getInstance()->setUserClipPlane(LLPlane(-pnorm, -pd));
 		LLPipeline::sUseOcclusion = occlusion;
+		
+#ifndef LL_RELEASE_FOR_DOWNLOAD
+		LLGLState::checkStates();
+		LLGLState::checkTextureChannels();
+		LLGLState::checkClientArrays();
+#endif
 	}
 }
 

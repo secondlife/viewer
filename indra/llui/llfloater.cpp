@@ -923,6 +923,7 @@ void LLFloater::setFocus( BOOL b )
 	}
 }
 
+// virtual
 void LLFloater::setIsChrome(BOOL is_chrome)
 {
 	// chrome floaters don't take focus at all
@@ -939,6 +940,12 @@ void LLFloater::setIsChrome(BOOL is_chrome)
 		mDragHandle->setTitleVisible(!is_chrome);
 	
 	LLPanel::setIsChrome(is_chrome);
+}
+
+void LLFloater::setTitleVisible(bool visible)
+{
+	if (mDragHandle)
+		mDragHandle->setTitleVisible(visible);
 }
 
 // Change the draw style to account for the foreground state.

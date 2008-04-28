@@ -67,8 +67,9 @@ BOOL compute_min_max(LLMatrix4& box, LLVector2& min, LLVector2& max); // Shouldn
 bool LLRayAABB(const LLVector3 &center, const LLVector3 &size, const LLVector3& origin, const LLVector3& dir, LLVector3 &coord, F32 epsilon = 0);
 BOOL LLLineSegmentAABB(const LLVector3& start, const LLVector3& end, const LLVector3& center, const LLVector3& size);
 BOOL setup_hud_matrices(BOOL for_select);
+glh::matrix4f glh_copy_matrix(GLdouble* src);
 glh::matrix4f glh_get_current_modelview();
-void glh_set_current_modelview(glh::matrix4f& mat);
+void glh_set_current_modelview(const glh::matrix4f& mat);
 glh::matrix4f glh_get_current_projection();
 void glh_set_current_projection(glh::matrix4f& mat);
 glh::matrix4f gl_ortho(GLfloat left, GLfloat right, GLfloat bottom, GLfloat top, GLfloat znear, GLfloat zfar);

@@ -4897,12 +4897,12 @@ BOOL menu_check_build_tool( void* user_data )
 void handle_reload_settings(void*)
 {
 	gSavedSettings.resetToDefaults();
-	gSavedSettings.loadFromFile(gSavedSettings.getString("ClientSettingsFile"), TRUE);
+	gSavedSettings.loadFromFile(gSavedSettings.getString("ClientSettingsFile"));
 
 	llinfos << "Loading colors from colors.xml" << llendl;
 	std::string color_file = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,"colors.xml");
 	gColors.resetToDefaults();
-	gColors.loadFromFile(color_file, FALSE, TYPE_COL4U);
+	gColors.loadFromFileLegacy(color_file, FALSE, TYPE_COL4U);
 }
 
 class LLWorldSetHomeLocation : public view_listener_t

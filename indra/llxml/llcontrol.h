@@ -213,7 +213,7 @@ public:
 	// as the given type.
 	U32	loadFromFileLegacy(const LLString& filename, BOOL require_declaration = TRUE, eControlType declare_as = TYPE_STRING);
  	U32 saveToFile(const LLString& filename, BOOL nondefault_only);
- 	U32	loadFromFile(const LLString& filename, BOOL require_declaration = TRUE, eControlType declare_as = TYPE_STRING);
+ 	U32	loadFromFile(const LLString& filename);
 	void	resetToDefaults();
 
 	

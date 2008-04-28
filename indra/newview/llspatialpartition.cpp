@@ -1906,9 +1906,8 @@ void pushVerts(LLDrawInfo* params, U32 mask)
 {
 	LLRenderPass::applyModelMatrix(*params);
 	params->mVertexBuffer->setBuffer(mask);
-	U16* indicesp = (U16*) params->mVertexBuffer->getIndicesPointer();
-	glDrawRangeElements(params->mParticle ? GL_POINTS : GL_TRIANGLES, params->mStart, params->mEnd, params->mCount,
-					GL_UNSIGNED_SHORT, indicesp+params->mOffset);
+	params->mVertexBuffer->drawRange(params->mParticle ? LLVertexBuffer::POINTS : LLVertexBuffer::TRIANGLES,
+								params->mStart, params->mEnd, params->mCount, params->mOffset);
 }
 
 void pushVerts(LLSpatialGroup* group, U32 mask)
@@ -1932,13 +1931,11 @@ void pushVerts(LLFace* face, U32 mask)
 	if (buffer)
 	{
 		buffer->setBuffer(mask);
-		U16* indicesp = (U16*) buffer->getIndicesPointer();
 		U16 start = face->getGeomStart();
 		U16 end = start + face->getGeomCount()-1;
 		U32 count = face->getIndicesCount();
 		U16 offset = face->getIndicesStart();
-
-		glDrawRangeElements(GL_TRIANGLES, start, end, count, GL_UNSIGNED_SHORT, indicesp + offset);
+		buffer->drawRange(LLVertexBuffer::TRIANGLES, start, end, count, offset);
 	}
 
 }
@@ -1948,9 +1945,7 @@ void pushBufferVerts(LLVertexBuffer* buffer, U32 mask)
 	if (buffer)
 	{
 		buffer->setBuffer(mask);
-		U16* indicesp = (U16*) buffer->getIndicesPointer();
-		glDrawRangeElements(GL_TRIANGLES, 0, buffer->getRequestedVerts(), buffer->getRequestedIndices(),
-							GL_UNSIGNED_SHORT, indicesp);
+		buffer->drawRange(LLVertexBuffer::TRIANGLES, 0, buffer->getRequestedVerts()-1, buffer->getRequestedIndices(), 0);
 	}
 }
 
@@ -1999,9 +1994,8 @@ void pushVertsColorCoded(LLSpatialGroup* group, U32 mask)
 			LLRenderPass::applyModelMatrix(*params);
 			glColor4f(colors[col].mV[0], colors[col].mV[1], colors[col].mV[2], 0.5f);
 			params->mVertexBuffer->setBuffer(mask);
-			U16* indicesp = (U16*) params->mVertexBuffer->getIndicesPointer();
-			glDrawRangeElements(params->mParticle ? GL_POINTS : GL_TRIANGLES, params->mStart, params->mEnd, params->mCount,
-							GL_UNSIGNED_SHORT, indicesp+params->mOffset);
+			params->mVertexBuffer->drawRange(params->mParticle ? LLVertexBuffer::POINTS : LLVertexBuffer::TRIANGLES,
+				params->mStart, params->mEnd, params->mCount, params->mOffset);
 			col = (col+1)%col_count;
 		}
 	}
@@ -2070,8 +2064,7 @@ void renderOctree(LLSpatialGroup* group)
 						face->mVertexBuffer->setBuffer(LLVertexBuffer::MAP_VERTEX);
 						//drawBox((face->mExtents[0] + face->mExtents[1])*0.5f,
 						//		(face->mExtents[1]-face->mExtents[0])*0.5f);
-						glDrawElements(GL_TRIANGLES, face->getIndicesCount(), GL_UNSIGNED_SHORT, 
-							((U16*) face->mVertexBuffer->getIndicesPointer())+face->getIndicesStart());
+						face->mVertexBuffer->draw(LLVertexBuffer::TRIANGLES, face->getIndicesCount(), face->getIndicesStart());
 					}
 				}
 

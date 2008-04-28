@@ -115,7 +115,6 @@ LLDrawPool::LLDrawPool(const U32 type)
 	sNumDrawPools++;
 	mId = sNumDrawPools;
 	mVertexShaderLevel = 0;
-	mIndicesDrawn = 0;
 }
 
 LLDrawPool::~LLDrawPool()
@@ -136,24 +135,6 @@ void LLDrawPool::beginRenderPass( S32 pass )
 //virtual
 void LLDrawPool::endRenderPass( S32 pass )
 {
-	glDisableClientState ( GL_TEXTURE_COORD_ARRAY );
-	glDisableClientState ( GL_COLOR_ARRAY );
-	glDisableClientState ( GL_NORMAL_ARRAY );
-}
-
-U32 LLDrawPool::getTrianglesDrawn() const
-{
-	return mIndicesDrawn / 3;
-}
-
-void LLDrawPool::resetTrianglesDrawn()
-{
-	mIndicesDrawn = 0;
-}
-
-void LLDrawPool::addIndicesDrawn(const U32 indices)
-{
-	mIndicesDrawn += indices;
 }
 
 //=============================
@@ -224,7 +205,7 @@ void LLFacePool::drawLoop()
 {
 	if (!mDrawFace.empty())
 	{
-		mIndicesDrawn += drawLoop(mDrawFace);
+		drawLoop(mDrawFace);
 	}
 }
 
@@ -382,10 +363,6 @@ void LLRenderPass::renderTexture(U32 type, U32 mask)
 
 void LLRenderPass::pushBatches(U32 type, U32 mask, BOOL texture)
 {
-#if !LL_RELEASE_FOR_DOWNLOAD
-	LLGLState::checkClientArrays(mask);
-#endif
-
 	for (LLCullResult::drawinfo_list_t::iterator i = gPipeline.beginRenderMap(type); i != gPipeline.endRenderMap(type); ++i)	
 	{
 		LLDrawInfo* pparams = *i;
@@ -436,9 +413,7 @@ void LLRenderPass::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture)
 	if (params.mVertexBuffer.notNull())
 	{
 		params.mVertexBuffer->setBuffer(mask);
-		U16* indices_pointer = (U16*) params.mVertexBuffer->getIndicesPointer();
-		glDrawRangeElements(GL_TRIANGLES, params.mStart, params.mEnd, params.mCount,
-							GL_UNSIGNED_SHORT, indices_pointer+params.mOffset);
+		params.mVertexBuffer->drawRange(LLVertexBuffer::TRIANGLES, params.mStart, params.mEnd, params.mCount, params.mOffset);
 		gPipeline.addTrianglesDrawn(params.mCount/3);
 	}
 

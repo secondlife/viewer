@@ -5829,7 +5829,7 @@
     <key>RenderUseCleverUI</key>
         <map>
         <key>Comment</key>
-            <string>Turns on the \"clever\" UI rendering optimization.  It's a known performace gain (and enabled by default) on apple.</string>
+            <string>Turns on the \"clever\" UI rendering optimization. It's a known performace gain on apple.</string>
         <key>Persist</key>
             <integer>1</integer>
         <key>Type</key>
@@ -9825,17 +9825,6 @@
                 <integer>0</integer>
             </array>
 	    </map>
-    <key>AlertedUnsupportedHardware</key>
-		<map>
-		<key>Comment</key>
-			<string>Toggle that lets us tell the user he's on old hardware only once</string>
-		<key>Persist</key>
-			<integer>1</integer>
-		<key>Type</key>
-			<string>Boolean</string>
-		<key>Value</key>
-			<integer>0</integer>
-		</map>
     <key>RenderFastAlpha</key>
 		<map>
 		<key>Comment</key>

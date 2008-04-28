@@ -195,7 +195,7 @@ void LLVolumeImplFlexible::remapSections(LLFlexibleObjectSection *source, S32 so
 
 
 //-----------------------------------------------------------------------------
-void LLVolumeImplFlexible::setAttributesOfAllSections()
+void LLVolumeImplFlexible::setAttributesOfAllSections(LLVector3* inScale)
 {
 	LLVector2 bottom_scale, top_scale;
 	F32 begin_rot = 0, end_rot = 0;
@@ -215,8 +215,16 @@ void LLVolumeImplFlexible::setAttributesOfAllSections()
 	
 	S32 num_sections = 1 << mSimulateRes;
 
-	LLVector3 scale = mVO->mDrawable->getScale();
-									
+	LLVector3 scale;
+	if (inScale == (LLVector3*)NULL)
+	{
+		scale = mVO->mDrawable->getScale();
+	}
+	else
+	{
+		scale = *inScale;
+	}
+
 	mSection[0].mPosition = getAnchorPosition();
 	mSection[0].mDirection = LLVector3::z_axis * getFrameRotation();
 	mSection[0].mdPosition = mSection[0].mDirection;
@@ -297,7 +305,7 @@ BOOL LLVolumeImplFlexible::doIdleUpdate(LLAgent &agent, LLWorld &world, const F6
 		new_res = mRenderRes;
 	}
 
-	if (!mInitialized || (mSimulateRes != new_res))
+	if (!mInitialized)
 	{
 		mSimulateRes = new_res;
 		setAttributesOfAllSections();
@@ -644,7 +652,7 @@ void LLVolumeImplFlexible::doFlexibleRebuild()
 
 void LLVolumeImplFlexible::onSetScale(const LLVector3& scale, BOOL damped)
 {
-	setAttributesOfAllSections();
+	setAttributesOfAllSections((LLVector3*) &scale);
 }
 
 BOOL LLVolumeImplFlexible::doUpdateGeometry(LLDrawable *drawable)

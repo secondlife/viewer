@@ -138,7 +138,7 @@ class LLVolumeImplFlexible : public LLVolumeInterface
 		//--------------------------------------
 		// private methods
 		//--------------------------------------
-		void setAttributesOfAllSections	();
+		void setAttributesOfAllSections	(LLVector3* inScale = NULL);
 
 		void remapSections(LLFlexibleObjectSection *source, S32 source_sections,
 										 LLFlexibleObjectSection *dest, S32 dest_sections);

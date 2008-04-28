@@ -53,6 +53,7 @@
 #include "llviewerdisplay.h"
 #include "llviewercontrol.h"
 #include "llui.h"
+#include "llglimmediate.h"
 
 ///----------------------------------------------------------------------------
 /// Local function declarations, constants, enums, and typedefs
@@ -153,7 +154,7 @@ void LLFloaterAuction::draw()
 			}
 			{
 				LLGLSUIDefault gls_ui;
-				glColor3f(1.f, 1.f, 1.f);
+				gGL.color3f(1.f, 1.f, 1.f);
 				gl_draw_scaled_image(rect.mLeft,
 									 rect.mBottom,
 									 rect.getWidth(),

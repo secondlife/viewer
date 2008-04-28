@@ -167,7 +167,7 @@ public:
 	void		renderSelectedUV(const S32 offset = 0, const S32 count = 0);
 
 	void		renderForSelect(U32 data_mask = LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD);
-	void		renderSelected(LLImageGL *image, const LLColor4 &color, const S32 offset = 0, const S32 count = 0);
+	void		renderSelected(LLImageGL *image, const LLColor4 &color);
 
 	F32			getKey()					const	{ return mDistance; }
 

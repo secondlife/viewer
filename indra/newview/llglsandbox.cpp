@@ -1006,17 +1006,17 @@ void LLViewerObjectList::renderObjectBeacons()
 		return;
 	}
 
-	S32 i;
 	//const LLFontGL *font = LLResMgr::getInstance()->getRes(LLFONT_SANSSERIF);
 
 	LLGLSUIDefault gls_ui;
 
-	S32 last_line_width = -1;
-	
 	{
 		LLGLSNoTexture gls_ui_no_texture;
-		gGL.begin(GL_LINES);
-		for (i = 0; i < mDebugBeacons.count(); i++)
+
+		S32 last_line_width = -1;
+		// gGL.begin(GL_LINES); // Always happens in (line_width != last_line_width)
+		
+		for (S32 i = 0; i < mDebugBeacons.count(); i++)
 		{
 			const LLDebugBeacon &debug_beacon = mDebugBeacons[i];
 			LLColor4 color = debug_beacon.mColor;
@@ -1024,8 +1024,11 @@ void LLViewerObjectList::renderObjectBeacons()
 			S32 line_width = debug_beacon.mLineWidth;
 			if (line_width != last_line_width)
 			{
-				gGL.end();
-				gGL.flush();
+				if (i > 0)
+				{
+					gGL.end();
+					gGL.flush();
+				}
 				glLineWidth( (F32)line_width );
 				last_line_width = line_width;
 				gGL.begin(GL_LINES);
@@ -1049,17 +1052,21 @@ void LLViewerObjectList::renderObjectBeacons()
 		LLGLSNoTexture gls_ui_no_texture;
 		LLGLDepthTest gls_depth(GL_TRUE);
 		
-		gGL.begin(GL_LINES);
-		last_line_width = -1;
-		for (i = 0; i < mDebugBeacons.count(); i++)
+		S32 last_line_width = -1;
+		// gGL.begin(GL_LINES); // Always happens in (line_width != last_line_width)
+		
+		for (S32 i = 0; i < mDebugBeacons.count(); i++)
 		{
 			const LLDebugBeacon &debug_beacon = mDebugBeacons[i];
 
 			S32 line_width = debug_beacon.mLineWidth;
 			if (line_width != last_line_width)
 			{
-				gGL.end();
-				gGL.flush();
+				if (i > 0)
+				{
+					gGL.end();
+					gGL.flush();
+				}
 				glLineWidth( (F32)line_width );
 				last_line_width = line_width;
 				gGL.begin(GL_LINES);
@@ -1076,12 +1083,12 @@ void LLViewerObjectList::renderObjectBeacons()
 
 			draw_line_cube(0.10f, thisline);
 		}
+		
 		gGL.end();
-	
 		gGL.flush();
 		glLineWidth(1.f);
 
-		for (i = 0; i < mDebugBeacons.count(); i++)
+		for (S32 i = 0; i < mDebugBeacons.count(); i++)
 		{
 			LLDebugBeacon &debug_beacon = mDebugBeacons[i];
 			if (debug_beacon.mString == "")

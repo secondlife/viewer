@@ -71,7 +71,7 @@ public:
 	//allocate resources for rendering
 	//must be called before use
 	//multiple calls will release previously allocated resources
-	void allocate(U32 resx, U32 resy, U32 color_fmt, BOOL depth, U32 usage = GL_TEXTURE_2D, BOOL use_fbo = TRUE);
+	void allocate(U32 resx, U32 resy, U32 color_fmt, BOOL depth, U32 usage = GL_TEXTURE_2D, BOOL use_fbo = FALSE);
 
 	//allocate a depth texture
 	void allocateDepth();

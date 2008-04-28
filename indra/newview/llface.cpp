@@ -263,8 +263,14 @@ void LLFace::setDrawable(LLDrawable *drawable)
 
 void LLFace::setSize(const S32 num_vertices, const S32 num_indices)
 {
-	mGeomCount    = num_vertices;
-	mIndicesCount = num_indices;
+	if (mGeomCount != num_vertices ||
+		mIndicesCount != num_indices)
+	{
+		mGeomCount    = num_vertices;
+		mIndicesCount = num_indices;
+		mVertexBuffer = NULL;
+		mLastVertexBuffer = NULL;
+	}
 }
 
 //============================================================================
@@ -368,8 +374,6 @@ void LLFace::renderForSelect(U32 data_mask)
 #if !LL_RELEASE_FOR_DOWNLOAD
 		LLGLState::checkClientArrays(data_mask);
 #endif
-		U16* indicesp = (U16*) mVertexBuffer->getIndicesPointer() + mIndicesIndex;
-
 		if (gPickFaces && mTEOffset != -1)
 		{
 			// mask off high 4 bits (16 total possible faces)
@@ -386,40 +390,26 @@ void LLFace::renderForSelect(U32 data_mask)
 				{
 					glPushMatrix();
 					glMultMatrixf((float*) mDrawablep->getRegion()->mRenderMatrix.mMatrix);
-					glDrawElements(GL_TRIANGLES, mIndicesCount, GL_UNSIGNED_SHORT, indicesp); 
+					mVertexBuffer->draw(LLVertexBuffer::TRIANGLES, mIndicesCount, mIndicesIndex);
 					glPopMatrix();
 				}
 				else
 				{
-					glDrawElements(GL_TRIANGLES, mIndicesCount, GL_UNSIGNED_SHORT, indicesp); 
+					mVertexBuffer->draw(LLVertexBuffer::TRIANGLES, mIndicesCount, mIndicesIndex);
 				}
 			}
 			else
 			{
 				glPushMatrix();
 				glMultMatrixf((float*)getRenderMatrix().mMatrix);
-				glDrawElements(GL_TRIANGLES, mIndicesCount, GL_UNSIGNED_SHORT, indicesp); 
-				glPopMatrix();
-			}
-		}
-		else if (mGeomCount > 0)
-		{
-			if (isState(GLOBAL))
-			{
-				glDrawArrays(GL_TRIANGLES, mGeomIndex, mGeomCount); 
-			}
-			else
-			{
-				glPushMatrix();
-				glMultMatrixf((float*)getRenderMatrix().mMatrix);
-				glDrawArrays(GL_TRIANGLES, mGeomIndex, mGeomCount); 
+				mVertexBuffer->draw(LLVertexBuffer::TRIANGLES, mIndicesCount, mIndicesIndex);
 				glPopMatrix();
 			}
 		}
 	}
 }
 
-void LLFace::renderSelected(LLImageGL *imagep, const LLColor4& color, const S32 offset, const S32 count)
+void LLFace::renderSelected(LLImageGL *imagep, const LLColor4& color)
 {
 	if(mDrawablep.isNull() || mVertexBuffer.isNull())
 	{
@@ -443,27 +433,12 @@ void LLFace::renderSelected(LLImageGL *imagep, const LLColor4& color, const S32 
 			glMultMatrixf((GLfloat*)mDrawablep->getRegion()->mRenderMatrix.mMatrix);
 		}
 
-		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		glEnableClientState(GL_VERTEX_ARRAY);
-		glEnableClientState(GL_NORMAL_ARRAY);
-
 		mVertexBuffer->setBuffer(LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_NORMAL | LLVertexBuffer::MAP_TEXCOORD);
 #if !LL_RELEASE_FOR_DOWNLOAD
 		LLGLState::checkClientArrays(LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_NORMAL | LLVertexBuffer::MAP_TEXCOORD);
 #endif
-		U16* indicesp = ((U16*) mVertexBuffer->getIndicesPointer()) + mIndicesIndex;
-
-		if (count)
-		{
-			glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_SHORT, indicesp + offset); 
-		}
-		else
-		{
-			glDrawElements(GL_TRIANGLES, mIndicesCount, GL_UNSIGNED_SHORT, indicesp); 
-		}
-		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-		glDisableClientState(GL_NORMAL_ARRAY);
-		
+		mVertexBuffer->draw(LLVertexBuffer::TRIANGLES, mIndicesCount, mIndicesIndex);
+				
 		glPopMatrix();
 	}
 }
@@ -542,8 +517,6 @@ void LLFace::renderSelectedUV(const S32 offset, const S32 count)
 			}
 			else
 			{
-				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-				glEnableClientState(GL_VERTEX_ARRAY);
 				llassert(mGeomIndex >= 0);
 				if (count)
 				{
@@ -568,7 +541,6 @@ void LLFace::renderSelectedUV(const S32 offset, const S32 count)
 						glDrawArrays(GL_TRIANGLES, mGeomIndex, mGeomCount); 
 					}
 				}
-				glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 			}
 
 			glDisable(GL_POLYGON_OFFSET_FILL);
@@ -1251,16 +1223,7 @@ S32 LLFace::pushVertices(const U16* index_array) const
 {
 	if (mIndicesCount)
 	{
-		if (mGeomCount <= gGLManager.mGLMaxVertexRange && 
-			mIndicesCount <= (U32) gGLManager.mGLMaxIndexRange)
-		{
-			glDrawRangeElements(GL_TRIANGLES, mGeomIndex, mGeomIndex + mGeomCount-1, mIndicesCount, 
-									GL_UNSIGNED_SHORT, index_array + mIndicesIndex); 
-		}
-		else
-		{
-			glDrawElements(GL_TRIANGLES, mIndicesCount, GL_UNSIGNED_SHORT, index_array+mIndicesIndex);
-		}
+		mVertexBuffer->drawRange(LLVertexBuffer::TRIANGLES, mGeomIndex, mGeomIndex+mGeomCount-1, mIndicesCount, mIndicesIndex);
 		gPipeline.addTrianglesDrawn(mIndicesCount/3);
 	}
 

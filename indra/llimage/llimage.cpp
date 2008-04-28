@@ -768,8 +768,8 @@ void LLImageRaw::copyScaled( LLImageRaw* src )
 	LLMemType mt1((LLMemType::EMemType)mMemType);
 	LLImageRaw* dst = this;  // Just for clarity.
 
-	llassert( (1 == src->getComponents()) || (3 == src->getComponents()) || (4 == src->getComponents()) );
-	llassert( src->getComponents() == dst->getComponents() );
+	llassert_always( (1 == src->getComponents()) || (3 == src->getComponents()) || (4 == src->getComponents()) );
+	llassert_always( src->getComponents() == dst->getComponents() );
 
 	if( (src->getWidth() == dst->getWidth()) && (src->getHeight() == dst->getHeight()) )
 	{
@@ -779,6 +779,7 @@ void LLImageRaw::copyScaled( LLImageRaw* src )
 
 	// Vertical
 	S32 temp_data_size = src->getWidth() * dst->getHeight() * getComponents();
+	llassert_always(temp_data_size > 0);
 	U8* temp_buffer = new U8[ temp_data_size ];
 	for( S32 col = 0; col < src->getWidth(); col++ )
 	{

@@ -163,17 +163,11 @@ void LLDrawPoolWater::render(S32 pass)
 
 	LLGLDisable cullFace(GL_CULL_FACE);
 	
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_NORMAL_ARRAY);
-	
 	// Set up second pass first
-	glActiveTextureARB(GL_TEXTURE1_ARB);
 	mWaterImagep->addTextureStats(1024.f*1024.f);
 	mWaterImagep->bind(1);
-
-	glClientActiveTextureARB(GL_TEXTURE1_ARB);
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	glActiveTextureARB(GL_TEXTURE1_ARB);
+	
 	glEnable(GL_TEXTURE_2D); // Texture unit 1
 
 	LLVector3 camera_up = LLViewerCamera::getInstance()->getUpAxis();
@@ -215,7 +209,6 @@ void LLDrawPoolWater::render(S32 pass)
 	glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_ARB,		GL_PREVIOUS_ARB);
 	glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA_ARB,	GL_SRC_ALPHA);
 
-	glClientActiveTextureARB(GL_TEXTURE0_ARB);
 	glActiveTextureARB(GL_TEXTURE0_ARB);
 	
 	glClearStencil(1);
@@ -234,11 +227,9 @@ void LLDrawPoolWater::render(S32 pass)
 		}
 		face->bindTexture();
 		face->renderIndexed();
-		mIndicesDrawn += face->getIndicesCount();
 	}
 
 	// Now, disable texture coord generation on texture state 1
-	glClientActiveTextureARB(GL_TEXTURE1_ARB);
 	glActiveTextureARB(GL_TEXTURE1_ARB);
 	glDisable(GL_TEXTURE_2D); // Texture unit 1
 	glDisable(GL_TEXTURE_GEN_S); //texture unit 1
@@ -246,11 +237,9 @@ void LLDrawPoolWater::render(S32 pass)
 	LLImageGL::unbindTexture(1, GL_TEXTURE_2D);
 
 	// Disable texture coordinate and color arrays
-	glClientActiveTextureARB(GL_TEXTURE0_ARB);
 	glActiveTextureARB(GL_TEXTURE0_ARB);
 	LLImageGL::unbindTexture(0, GL_TEXTURE_2D);
 
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	stop_glerror();
 	
 	if (gSky.mVOSkyp->getCubeMap())
@@ -284,7 +273,6 @@ void LLDrawPoolWater::render(S32 pass)
 			if (face->getGeomCount() > 0)
 			{					
 				face->renderIndexed();
-				mIndicesDrawn += face->getIndicesCount();
 			}
 		}
 
@@ -310,9 +298,6 @@ void LLDrawPoolWater::render(S32 pass)
 		renderReflection(refl_face);
 	}
 
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	glDisableClientState(GL_NORMAL_ARRAY);
-	
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 }
 
@@ -338,16 +323,10 @@ void LLDrawPoolWater::renderReflection(LLFace* face)
 
 	LLGLSNoFog noFog;
 
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-
 	LLViewerImage::bindTexture(mHBTex[dr]);
 
 	LLOverrideFaceColor override(this, face->getFaceColor().mV);
 	face->renderIndexed();
-	mIndicesDrawn += face->getIndicesCount();
-
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 
 void LLDrawPoolWater::shade()
@@ -361,10 +340,6 @@ void LLDrawPoolWater::shade()
 		return;
 	}
 
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_NORMAL_ARRAY);
-	
 	LLGLDisable blend(GL_BLEND);
 
 	LLColor3 light_diffuse(0,0,0);
@@ -562,8 +537,6 @@ void LLDrawPoolWater::shade()
 					face->renderIndexed();
 				}
 			}
-						
-			mIndicesDrawn += face->getIndicesCount();
 		}
 	}
 	
@@ -576,8 +549,6 @@ void LLDrawPoolWater::shade()
 	shader->unbind();
 
 	glActiveTextureARB(GL_TEXTURE0_ARB);
-	glClientActiveTextureARB(GL_TEXTURE0_ARB);
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	glEnable(GL_TEXTURE_2D);
 	glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_FALSE);
 

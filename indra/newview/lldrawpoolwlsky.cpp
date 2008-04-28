@@ -159,9 +159,7 @@ void LLDrawPoolWLSky::renderStars(void) const
 	// combiners blending below requires something to be bound
 	// and we might as well only bind once.
 	//LLGLEnable gl_texture_2d(GL_TEXTURE_2D);
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	glDisableClientState(GL_NORMAL_ARRAY);
-
+	
 	gPipeline.disableLights();
 
 	if (!LLPipeline::sReflectionRender)
@@ -224,9 +222,6 @@ void LLDrawPoolWLSky::renderSkyClouds(F32 camHeightLocal) const
 
 void LLDrawPoolWLSky::renderHeavenlyBodies()
 {
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	glDisableClientState(GL_NORMAL_ARRAY);
 	LLGLSPipelineSkyBox gls_skybox;
 	LLGLEnable blend_on(GL_BLEND);
 	gPipeline.disableLights();
@@ -240,7 +235,6 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
 		LLColor4 color(gSky.mVOSkyp->getSun().getInterpColor());
 		LLFacePool::LLOverrideFaceColor color_override(this, color);
 		face->renderIndexed();
-		mIndicesDrawn += face->getIndicesCount();
 	}
 #endif
 
@@ -264,10 +258,7 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
 		
 		LLFacePool::LLOverrideFaceColor color_override(this, color);
 		face->renderIndexed();
-		mIndicesDrawn += face->getIndicesCount();
 	}
-
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 
 void LLDrawPoolWLSky::render(S32 pass)

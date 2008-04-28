@@ -121,6 +121,8 @@ static const struct mtv_display_info mtv_display_table[] =
 	{ LLMemType::MTYPE_VERTEX_DATA,		"Vertex Buffer",	&LLColor4::blue3 },
 	{ LLMemType::MTYPE_AVATAR,			"Avatar",			&LLColor4::purple1 },
 	{ LLMemType::MTYPE_REGIONS,			"Regions",			&LLColor4::blue1 },
+	{ LLMemType::MTYPE_VOLUME,			"Volume",			&LLColor4::pink1 },
+	{ LLMemType::MTYPE_PRIMITIVE,		"Profile",			&LLColor4::pink2 },
  	{ LLMemType::MTYPE_TEMP1,			"Temp1",			&LLColor4::red1 },
  	{ LLMemType::MTYPE_TEMP2,			"Temp2",			&LLColor4::magenta1 },
  	{ LLMemType::MTYPE_TEMP3,			"Temp3",			&LLColor4::red2 },

@@ -316,12 +316,8 @@ void LLDrawPoolBump::beginShiny(bool invisible)
 	mShiny = TRUE;
 	sVertexMask = VERTEX_MASK_SHINY;
 	// Second pass: environment map
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_NORMAL_ARRAY);
-	glEnableClientState(GL_COLOR_ARRAY);
 	if (!invisible && mVertexShaderLevel > 1)
 	{
-		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 		sVertexMask = VERTEX_MASK_SHINY | LLVertexBuffer::MAP_TEXCOORD;
 	}
 	
@@ -456,13 +452,7 @@ void LLDrawPoolBump::endShiny(bool invisible)
 	
 	LLImageGL::unbindTexture(0, GL_TEXTURE_2D);
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-	glDisableClientState(GL_NORMAL_ARRAY);
-	glDisableClientState(GL_COLOR_ARRAY);
-	if (!invisible && mVertexShaderLevel > 1)
-	{
-		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	}
-
+	
 	diffuse_channel = -1;
 	cube_channel = 0;
 	mShiny = FALSE;
@@ -479,10 +469,6 @@ void LLDrawPoolBump::beginFullbrightShiny()
 	sVertexMask = VERTEX_MASK_SHINY | LLVertexBuffer::MAP_TEXCOORD;
 
 	// Second pass: environment map
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_NORMAL_ARRAY);
-	glEnableClientState(GL_COLOR_ARRAY);
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	
 	if (LLPipeline::sUnderWaterRender)
 	{
@@ -564,9 +550,6 @@ void LLDrawPoolBump::endFullbrightShiny()
 	
 	LLImageGL::unbindTexture(0, GL_TEXTURE_2D);
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-	glDisableClientState(GL_NORMAL_ARRAY);
-	glDisableClientState(GL_COLOR_ARRAY);
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 
 	diffuse_channel = -1;
 	cube_channel = 0;
@@ -607,9 +590,7 @@ void LLDrawPoolBump::renderGroup(LLSpatialGroup* group, U32 type, U32 mask, BOOL
 		applyModelMatrix(params);
 
 		params.mVertexBuffer->setBuffer(mask);
-		U16* indices_pointer = (U16*) params.mVertexBuffer->getIndicesPointer();
-		glDrawRangeElements(GL_TRIANGLES, params.mStart, params.mEnd, params.mCount,
-							GL_UNSIGNED_SHORT, indices_pointer+params.mOffset);
+		params.mVertexBuffer->drawRange(LLVertexBuffer::TRIANGLES, params.mStart, params.mEnd, params.mCount, params.mOffset);
 		gPipeline.addTrianglesDrawn(params.mCount/3);
 	}
 }
@@ -670,8 +651,6 @@ void LLDrawPoolBump::beginBump()
 	// TEXTURE UNIT 0
 	// Output.rgb = texture at texture coord 0
 	glActiveTextureARB(GL_TEXTURE0_ARB);
-	glClientActiveTextureARB(GL_TEXTURE0_ARB);
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE,	GL_COMBINE_ARB);
 	glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB,	GL_REPLACE);
@@ -686,8 +665,6 @@ void LLDrawPoolBump::beginBump()
 
 	// TEXTURE UNIT 1
 	glActiveTextureARB(GL_TEXTURE1_ARB);
-	glClientActiveTextureARB(GL_TEXTURE1_ARB);
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
 	glEnable(GL_TEXTURE_2D); // Texture unit 1
 
@@ -752,15 +729,11 @@ void LLDrawPoolBump::endBump()
 
 	// Disable texture unit 1
 	glActiveTextureARB(GL_TEXTURE1_ARB);
-	glClientActiveTextureARB(GL_TEXTURE1_ARB);
 	glDisable(GL_TEXTURE_2D); // Texture unit 1
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	glTexEnvi (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 
 	// Disable texture unit 0
 	glActiveTextureARB(GL_TEXTURE0_ARB);
-	glClientActiveTextureARB(GL_TEXTURE0_ARB);
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	glTexEnvi (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 	
 	gGL.blendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
@@ -1091,10 +1064,6 @@ void LLBumpImageList::onSourceLoaded( BOOL success, LLViewerImage *src_vi, LLIma
 
 void LLDrawPoolBump::renderBump(U32 type, U32 mask)
 {	
-#if !LL_RELEASE_FOR_DOWNLOAD
-	LLGLState::checkClientArrays(mask);
-#endif
-
 	LLCullResult::drawinfo_list_t::iterator begin = gPipeline.beginRenderMap(type);
 	LLCullResult::drawinfo_list_t::iterator end = gPipeline.endRenderMap(type);
 
@@ -1178,11 +1147,8 @@ void LLDrawPoolBump::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture)
 	}
 	
 	params.mVertexBuffer->setBuffer(mask);
-	U16* indices_pointer = (U16*) params.mVertexBuffer->getIndicesPointer();
-	glDrawRangeElements(GL_TRIANGLES, params.mStart, params.mEnd, params.mCount,
-						GL_UNSIGNED_SHORT, indices_pointer+params.mOffset);
+	params.mVertexBuffer->drawRange(LLVertexBuffer::TRIANGLES, params.mStart, params.mEnd, params.mCount, params.mOffset);
 	gPipeline.addTrianglesDrawn(params.mCount/3);
-
 	if (params.mTextureMatrix)
 	{
 		if (mShiny)

@@ -41,8 +41,10 @@
 class LLVolumeParams;
 class LLVolumeLODGroup;
 
-class LLVolumeLODGroup : public LLThreadSafeRefCount
+class LLVolumeLODGroup
 {
+	LOG_CLASS(LLVolumeLODGroup);
+	
 public:
 	enum
 	{
@@ -50,29 +52,26 @@ public:
 	};
 
 	LLVolumeLODGroup(const LLVolumeParams &params);
+	~LLVolumeLODGroup();
+	bool cleanupRefs();
 
-	BOOL derefLOD(LLVolume *volumep);
 	static S32 getDetailFromTan(const F32 tan_angle);
 	static void getDetailProximity(const F32 tan_angle, F32 &to_lower, F32& to_higher);
 	static F32 getVolumeScaleFromDetail(const S32 detail);
 
-	LLVolume *getLOD(const S32 detail);
-	const LLVolumeParams& getParams() const { return mParams; };
+	LLVolume* getLODVolume(const S32 detail);
+	BOOL derefLOD(LLVolume *volumep);
+	S32 getNumRefs() const { return mRefs; }
+	
+	const LLVolumeParams* getVolumeParams() const { return &mVolumeParams; };
 
 	F32	dump();
 	friend std::ostream& operator<<(std::ostream& s, const LLVolumeLODGroup& volgroup);
 
-#ifdef DEBUG_VOLUME
-	S32 getTotalVolumeRefCount() const;
-#endif
-
 protected:
-	virtual ~LLVolumeLODGroup();
-	void destroy();
-	
-protected:
-	LLVolumeParams mParams;
+	LLVolumeParams mVolumeParams;
 
+	S32 mRefs;
 	S32 mLODRefs[NUM_LODS];
 	LLPointer<LLVolume> mVolumeLODs[NUM_LODS];
 	static F32 mDetailThresholds[NUM_LODS];
@@ -82,10 +81,6 @@ protected:
 
 class LLVolumeMgr
 {
-//public:
-//	static void initClass();
-//	static BOOL cleanupClass();
-	
 public:
 	LLVolumeMgr();
 	virtual ~LLVolumeMgr();
@@ -96,36 +91,26 @@ public:
 	// whatever calls getVolume() never owns the LLVolume* and
 	// cannot keep references for long since it may be deleted
 	// later.  For best results hold it in an LLPointer<LLVolume>.
-	LLVolume *getVolume(const LLVolumeParams &volume_params, const S32 detail);
-
-	void cleanupVolume(LLVolume *volumep);
+	LLVolume *refVolume(const LLVolumeParams &volume_params, const S32 detail);
+	void unrefVolume(LLVolume *volumep);
 
 	void dump();
 
 	// manually call this for mutex magic
 	void useMutex();
 
-#ifdef DEBUG_VOLUME
-	S32 getTotalRefCount() const;
-	S32 getGroupCount() const;
-#endif
 	friend std::ostream& operator<<(std::ostream& s, const LLVolumeMgr& volume_mgr);
 
 protected:
+	void insertGroup(LLVolumeLODGroup* volgroup);
+	// Overridden in llphysics/abstract/utils/llphysicsvolumemanager.h
 	virtual LLVolumeLODGroup* createNewGroup(const LLVolumeParams& volume_params);
 
 protected:
 	typedef std::map<const LLVolumeParams*, LLVolumeLODGroup*, LLVolumeParams::compare> volume_lod_group_map_t;
-	typedef volume_lod_group_map_t::const_iterator volume_lod_group_map_iter;
 	volume_lod_group_map_t mVolumeLODGroups;
 
 	LLMutex* mDataMutex;
-
-	// We need to be able to disable threadsafe checks to prevent 
-	// some unit_tests from blocking on failure
-	bool mThreadSafe;
 };
-
-//extern LLVolumeMgr* gVolumeMgr;
 
 #endif // LL_LLVOLUMEMGR_H

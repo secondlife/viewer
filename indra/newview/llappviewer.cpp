@@ -64,6 +64,7 @@
 #include "llurldispatcher.h"
 #include "llurlhistory.h"
 #include "llfirstuse.h"
+#include "llglimmediate.h"
 
 #include "llweb.h"
 #include "llsecondlifeurls.h"
@@ -416,10 +417,11 @@ static void settings_to_globals()
 static void settings_modify()
 {
 	LLRenderTarget::sUseFBO				= gSavedSettings.getBOOL("RenderUseFBO");
-	LLVOAvatar::sUseImpostors			= FALSE; //gSavedSettings.getBOOL("RenderUseImpostors");
+	LLVOAvatar::sUseImpostors			= gSavedSettings.getBOOL("RenderUseImpostors");
 	LLVOSurfacePatch::sLODFactor		= gSavedSettings.getF32("RenderTerrainLODFactor");
 	LLVOSurfacePatch::sLODFactor *= LLVOSurfacePatch::sLODFactor; //sqaure lod factor to get exponential range of [1,4]
-
+	gGL.setClever(gSavedSettings.getBOOL("RenderUseCleverUI"));
+	
 #if LL_VECTORIZE
 	if (gSysCPU.hasAltivec())
 	{
@@ -774,15 +776,6 @@ bool LLAppViewer::init()
 		return 1;
 	}
 	
-#if LL_DARWIN
-	// Display the release notes for the current version
-	if(!gHideLinks && gCurrentVersion != gLastRunVersion)
-	{
-		// Current version and last run version don't match exactly.  Display the release notes.
-		DisplayReleaseNotes();
-	}
-#endif
-
 	//
 	// Initialize the window
 	//
@@ -821,51 +814,55 @@ bool LLAppViewer::init()
 		return 0;
 	}
 
-	// alert the user if they are using unsupported hardware
-	if(!gSavedSettings.getBOOL("AlertedUnsupportedHardware"))
-	{
-		bool unsupported = false;
-		LLString::format_map_t args;
-		LLString minSpecs;
+
+	bool unsupported = false;
+	LLString::format_map_t args;
+	LLString minSpecs;
 		
-		// get cpu data from xml
-		std::stringstream minCPUString(LLAlertDialog::getTemplateMessage("UnsupportedCPUAmount"));
-		S32 minCPU = 0;
-		minCPUString >> minCPU;
+	// get cpu data from xml
+	std::stringstream minCPUString(LLAlertDialog::getTemplateMessage("UnsupportedCPUAmount"));
+	S32 minCPU = 0;
+	minCPUString >> minCPU;
 
-		// get RAM data from XML
-		std::stringstream minRAMString(LLAlertDialog::getTemplateMessage("UnsupportedRAMAmount"));
-		U64 minRAM = 0;
-		minRAMString >> minRAM;
-		minRAM = minRAM * 1024 * 1024;
+	// get RAM data from XML
+	std::stringstream minRAMString(LLAlertDialog::getTemplateMessage("UnsupportedRAMAmount"));
+	U64 minRAM = 0;
+	minRAMString >> minRAM;
+	minRAM = minRAM * 1024 * 1024;
 
-		if(!LLFeatureManager::getInstance()->isGPUSupported())
-		{
-			minSpecs += LLAlertDialog::getTemplateMessage("UnsupportedGPU");
-			minSpecs += "\n";
-			unsupported = true;
-		}
-		if(gSysCPU.getMhz() < minCPU)
-		{
-			minSpecs += LLAlertDialog::getTemplateMessage("UnsupportedCPU");
-			minSpecs += "\n";
-			unsupported = true;
-		}
-		if(gSysMemory.getPhysicalMemoryClamped() < minRAM)
-		{
-			minSpecs += LLAlertDialog::getTemplateMessage("UnsupportedRAM");
-			minSpecs += "\n";
-			unsupported = true;
-		}
+	if(!LLFeatureManager::getInstance()->isGPUSupported() && LLFeatureManager::getInstance()->getGPUClass() != GPU_CLASS_UNKNOWN)
+	{
+		minSpecs += LLAlertDialog::getTemplateMessage("UnsupportedGPU");
+		minSpecs += "\n";
+		unsupported = true;
+	}
+	if(gSysCPU.getMhz() < minCPU)
+	{
+		minSpecs += LLAlertDialog::getTemplateMessage("UnsupportedCPU");
+		minSpecs += "\n";
+		unsupported = true;
+	}
+	if(gSysMemory.getPhysicalMemoryClamped() < minRAM)
+	{
+		minSpecs += LLAlertDialog::getTemplateMessage("UnsupportedRAM");
+		minSpecs += "\n";
+		unsupported = true;
+	}
 
-		if(unsupported)
+	if (LLFeatureManager::getInstance()->getGPUClass() == GPU_CLASS_UNKNOWN)
+	{
+		gViewerWindow->alertXml("UnknownGPU");
+	} 
+		
+	if(unsupported)
+	{
+		if(!gSavedSettings.controlExists("WarnUnsupportedHardware") 
+			|| gSavedSettings.getBOOL("WarnUnsupportedHardware"))
 		{
 			args["MINSPECS"] = minSpecs;
 			gViewerWindow->alertXml("UnsupportedHardware", args );
-			
-			// turn off flag
-			gSavedSettings.setBOOL("AlertedUnsupportedHardware", TRUE);
 		}
+
 	}
 	
 	// Save the current version to the prefs file
@@ -1452,10 +1449,13 @@ void LLAppViewer::loadSettingsFromDirectory(ELLPath path_index)
 
 		LLString full_settings_path = gDirUtilp->getExpandedFilename(path_index, settings_file);
 
-		if(settings_name == sGlobalSettingsName)
+		if(settings_name == sGlobalSettingsName 
+			&& path_index == LL_PATH_USER_SETTINGS)
 		{
 			// The non-persistent setting, ClientSettingsFile, specifies a 
 			// custom name to use for the global settings file.
+			// Only apply this setting if this method is setting the 'Global' 
+			// settings from the user_settings path.
 			std::string custom_path;
 			if(gSettings[sGlobalSettingsName]->controlExists("ClientSettingsFile"))
 			{

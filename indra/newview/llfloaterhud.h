@@ -36,7 +36,7 @@ protected:
 	LLWebBrowserCtrl* mWebBrowser; ///< the actual web browser control
 
 	LLFloaterHUD(); ///< default constructor
-	virtual void onFocusReceived(); ///< called when we get the focus
+
 private:
 	static LLFloaterHUD* sInstance;
 };

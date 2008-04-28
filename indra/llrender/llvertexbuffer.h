@@ -84,6 +84,7 @@ public:
 
 	static void initClass(bool use_vbo);
 	static void cleanupClass();
+	static void setupClientArrays(U32 data_mask);
  	static void startRender(); //between start and stop render, no client copies will occur
 	static void stopRender(); //any buffer not copied to GL will be rendered from client memory
 	static void clientCopy(F64 max_time = 0.005); //copy data from client to GL
@@ -123,6 +124,15 @@ public:
 		MAP_UNMAPPED = 0x8000 // Indicates that buffer has been logically un-mapped
 	};
 	
+	enum {
+		TRIANGLES = 0,
+		TRIANGLE_STRIP,
+		TRIANGLE_FAN,
+		POINTS,
+		LINES,
+		LINE_STRIP,
+		NUM_MODES
+	};
 protected:
 	friend class LLGLImmediate;
 
@@ -194,6 +204,9 @@ public:
 	
 	void markDirty(U32 vert_index, U32 vert_count, U32 indices_index, U32 indices_count);
 
+	void draw(U32 mode, U32 count, U32 indices_offset) const;
+	void drawRange(U32 mode, U32 start, U32 end, U32 count, U32 indices_offset) const;
+
 protected:	
 	S32		mNumVerts;		// Number of vertices allocated
 	S32		mNumIndices;	// Number of indices allocated
@@ -241,6 +254,7 @@ public:
 		
 	static BOOL sEnableVBOs;
 	static S32 sTypeOffsets[TYPE_MAX];
+	static U32 sGLMode[NUM_MODES];
 	static U32 sGLRenderBuffer;
 	static U32 sGLRenderIndices;
 	static BOOL sVBOActive;

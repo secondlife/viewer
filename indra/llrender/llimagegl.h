@@ -131,6 +131,8 @@ public:
 	BOOL getUseDiscard() const { return mUseMipMaps && !mDontDiscard; }
 	BOOL getDontDiscard() const { return mDontDiscard; }
 
+	BOOL isValidForSculpt(S32 discard_level, S32 image_width, S32 image_height, S32 ncomponents) ;
+
 protected:
 	void init(BOOL usemipmaps);
 	virtual void cleanup(); // Clean up the LLImageGL so it can be reinitialized.  Be careful when using this in derived class destructors

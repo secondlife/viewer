@@ -667,6 +667,8 @@ void LLImagePreviewAvatar::setPreviewTarget(const char* joint_name, const char* 
 //-----------------------------------------------------------------------------
 BOOL LLImagePreviewAvatar::render()
 {
+	gGL.start();
+	
 	mNeedsUpdate = FALSE;
 	LLVOAvatar* avatarp = mDummyAvatar;
 
@@ -722,8 +724,6 @@ BOOL LLImagePreviewAvatar::render()
 		
 		avatarPoolp->renderAvatars(avatarp);  // renders only one avatar
 	}
-
-	gGL.start();
 
 	return TRUE;
 }
@@ -823,6 +823,8 @@ void LLImagePreviewSculpted::setPreviewTarget(LLImageRaw* imagep, F32 distance)
 //-----------------------------------------------------------------------------
 BOOL LLImagePreviewSculpted::render()
 {
+	gGL.start();
+	
 	mNeedsUpdate = FALSE;
 
 	LLGLSUIDefault def;
@@ -917,6 +919,8 @@ BOOL LLImagePreviewSculpted::render()
 		delete [] normals;
 	}
 
+	gGL.stop();
+	
 	return TRUE;
 }
 

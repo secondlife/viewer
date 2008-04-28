@@ -1061,7 +1061,7 @@ LLFloaterIMPanel::LLFloaterIMPanel(
 	mSessionUUID(session_id),
 	mVoiceChannel(NULL),
 	mSessionInitialized(FALSE),
-
+	mSessionStartMsgPos(0),
 	mOtherParticipantUUID(other_participant_id),
 	mDialog(dialog),
 	mTyping(FALSE),
@@ -1090,6 +1090,7 @@ LLFloaterIMPanel::LLFloaterIMPanel(
 	mSessionUUID(session_id),
 	mVoiceChannel(NULL),
 	mSessionInitialized(FALSE),
+	mSessionStartMsgPos(0),
 	mOtherParticipantUUID(other_participant_id),
 	mDialog(dialog),
 	mTyping(FALSE),
@@ -1182,6 +1183,7 @@ void LLFloaterIMPanel::init(const LLString& session_label)
 			//we don't need to need to wait for any responses
 			//so we're already initialized
 			mSessionInitialized = TRUE;
+			mSessionStartMsgPos = 0;
 		}
 		else
 		{

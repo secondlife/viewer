@@ -90,15 +90,10 @@ public:
 	virtual BOOL isFacePool() { return FALSE; }
 	virtual void resetDrawOrders() = 0;
 
-	U32	getTrianglesDrawn() const;
-	void resetTrianglesDrawn();
-	void addIndicesDrawn(const U32 indices);
-
 protected:
 	S32 mVertexShaderLevel;
 	S32	mId;
 	U32 mType;				// Type of draw pool
-	S32	mIndicesDrawn;
 };
 
 class LLRenderPass : public LLDrawPool

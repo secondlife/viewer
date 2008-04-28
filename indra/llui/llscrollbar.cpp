@@ -501,6 +501,13 @@ void LLScrollbar::draw()
 	}
 	else
 	{
+		// Background
+		rounded_rect_imagep->drawSolid(mOrientation == HORIZONTAL ? SCROLLBAR_SIZE : 0, 
+			mOrientation == VERTICAL ? SCROLLBAR_SIZE : 0,
+			mOrientation == HORIZONTAL ? getRect().getWidth() - 2 * SCROLLBAR_SIZE : getRect().getWidth(), 
+			mOrientation == VERTICAL ? getRect().getHeight() - 2 * SCROLLBAR_SIZE : getRect().getHeight(),
+			mTrackColor);
+
 		// Thumb
 		LLRect outline_rect = mThumbRect;
 		outline_rect.stretch(2);

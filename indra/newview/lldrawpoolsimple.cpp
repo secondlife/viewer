@@ -65,13 +65,10 @@ void LLDrawPoolGlow::render(S32 pass)
 		gPipeline.enableLightsFullbright(LLColor4(1,1,1,1));
 	}
 
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	LLGLDepthTest depth(GL_TRUE, GL_FALSE);
 	glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_TRUE);
 	renderTexture(LLRenderPass::PASS_GLOW, getVertexDataMask());
-
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-
+	
 	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
 	gGL.blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	
@@ -101,10 +98,6 @@ void LLDrawPoolSimple::prerender()
 void LLDrawPoolSimple::beginRenderPass(S32 pass)
 {
 	LLFastTimer t(LLFastTimer::FTM_RENDER_SIMPLE);
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	glEnableClientState(GL_NORMAL_ARRAY);
-	glEnableClientState(GL_COLOR_ARRAY);
 
 	if (LLPipeline::sUnderWaterRender)
 	{
@@ -136,7 +129,6 @@ void LLDrawPoolSimple::endRenderPass(S32 pass)
 {
 	LLFastTimer t(LLFastTimer::FTM_RENDER_SIMPLE);
 	LLRenderPass::endRenderPass(pass);
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 
 	if (mVertexShaderLevel > 0){
 
@@ -177,7 +169,6 @@ void LLDrawPoolSimple::render(S32 pass)
 		}
 		LLFastTimer t(LLFastTimer::FTM_RENDER_FULLBRIGHT);
 		U32 fullbright_mask = LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD | LLVertexBuffer::MAP_COLOR;
-		glDisableClientState(GL_NORMAL_ARRAY);
 		renderTexture(LLRenderPass::PASS_FULLBRIGHT, fullbright_mask);
 	}
 

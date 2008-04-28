@@ -821,7 +821,7 @@ U32 LLVOTree::drawBranchPipeline(LLMatrix4& matrix, U16* indicesp, S32 trunk_LOD
 
 				glLoadMatrixf((F32*) scale_mat.mMatrix);
  				glDrawElements(GL_TRIANGLES, sLODIndexCount[trunk_LOD], GL_UNSIGNED_SHORT, indicesp + sLODIndexOffset[trunk_LOD]);
-				
+				gPipeline.addTrianglesDrawn(LEAF_INDICES/3);
 				stop_glerror();
 				ret += sLODIndexCount[trunk_LOD];
 			}
@@ -871,7 +871,7 @@ U32 LLVOTree::drawBranchPipeline(LLMatrix4& matrix, U16* indicesp, S32 trunk_LOD
 			
 				glLoadMatrixf((F32*) scale_mat.mMatrix);
 				glDrawElements(GL_TRIANGLES, LEAF_INDICES, GL_UNSIGNED_SHORT, indicesp);
-							
+				gPipeline.addTrianglesDrawn(LEAF_INDICES/3);							
 				stop_glerror();
 				ret += LEAF_INDICES;
 			}
@@ -896,7 +896,7 @@ U32 LLVOTree::drawBranchPipeline(LLMatrix4& matrix, U16* indicesp, S32 trunk_LOD
 					
 		glLoadMatrixf((F32*) scale_mat.mMatrix);
 		glDrawElements(GL_TRIANGLES, LEAF_INDICES, GL_UNSIGNED_SHORT, indicesp);
-		
+		gPipeline.addTrianglesDrawn(LEAF_INDICES/3);
 		stop_glerror();
 		ret += LEAF_INDICES;
 

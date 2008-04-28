@@ -77,9 +77,6 @@ void LLDrawPoolAlpha::prerender()
 void LLDrawPoolAlpha::beginRenderPass(S32 pass)
 {
 	LLFastTimer t(LLFastTimer::FTM_RENDER_ALPHA);
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	glEnableClientState(GL_NORMAL_ARRAY);
-	glEnableClientState(GL_COLOR_ARRAY);
 	
 	if (LLPipeline::sUnderWaterRender)
 	{
@@ -128,8 +125,6 @@ void LLDrawPoolAlpha::render(S32 pass)
 		{
 			glUseProgramObjectARB(0);
 		}
-		glDisableClientState(GL_NORMAL_ARRAY);
-		glDisableClientState(GL_COLOR_ARRAY);
 		gPipeline.enableLightsFullbright(LLColor4(1,1,1,1));
 		glColor4f(1,0,0,1);
 		LLViewerImage::sSmokeImagep->addTextureStats(1024.f*1024.f);
@@ -141,10 +136,6 @@ void LLDrawPoolAlpha::render(S32 pass)
 
 void LLDrawPoolAlpha::renderAlpha(U32 mask)
 {
-#if !LL_RELEASE_FOR_DOWNLOAD
-	LLGLState::checkClientArrays(mask);
-#endif
-	
 	for (LLCullResult::sg_list_t::iterator i = gPipeline.beginAlphaGroups(); i != gPipeline.endAlphaGroups(); ++i)
 	{
 		LLSpatialGroup* group = *i;
@@ -182,9 +173,7 @@ void LLDrawPoolAlpha::renderAlphaHighlight(U32 mask)
 				LLRenderPass::applyModelMatrix(params);
 
 				params.mVertexBuffer->setBuffer(mask);
-				U16* indices_pointer = (U16*) params.mVertexBuffer->getIndicesPointer();
-				glDrawRangeElements(GL_TRIANGLES, params.mStart, params.mEnd, params.mCount,
-									GL_UNSIGNED_SHORT, indices_pointer+params.mOffset);
+				params.mVertexBuffer->drawRange(LLVertexBuffer::TRIANGLES, params.mStart, params.mEnd, params.mCount, params.mOffset);
 				gPipeline.addTrianglesDrawn(params.mCount/3);
 			}
 		}
@@ -303,9 +292,7 @@ void LLDrawPoolAlpha::renderGroupAlpha(LLSpatialGroup* group, U32 type, U32 mask
 		}
 
 		params.mVertexBuffer->setBuffer(mask);
-		U16* indices_pointer = (U16*) params.mVertexBuffer->getIndicesPointer();
-		glDrawRangeElements(GL_TRIANGLES, params.mStart, params.mEnd, params.mCount,
-							GL_UNSIGNED_SHORT, indices_pointer+params.mOffset);
+		params.mVertexBuffer->drawRange(LLVertexBuffer::TRIANGLES, params.mStart, params.mEnd, params.mCount, params.mOffset);
 		gPipeline.addTrianglesDrawn(params.mCount/3);
 
 		if (params.mTextureMatrix && texture && params.mTexture.notNull())

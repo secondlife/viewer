@@ -484,17 +484,12 @@ BOOL LLVOWLSky::updateGeometry(LLDrawable * drawable)
 
 void LLVOWLSky::drawStars(void)
 {
-	glEnableClientState(GL_COLOR_ARRAY);
-	
 	//  render the stars as a sphere centered at viewer camera 
 	if (mStarsVerts.notNull())
 	{
 		mStarsVerts->setBuffer(LLDrawPoolWLSky::STAR_VERTEX_DATA_MASK);
-		U16* indicesp = (U16*) mStarsVerts->getIndicesPointer();
-		glDrawElements(GL_POINTS, getStarsNumIndices(), GL_UNSIGNED_SHORT, indicesp);
+		mStarsVerts->draw(LLVertexBuffer::POINTS, getStarsNumIndices(), 0);
 	}
-
-	glDisableClientState(GL_COLOR_ARRAY);
 }
 
 void LLVOWLSky::drawDome(void)
@@ -507,19 +502,8 @@ void LLVOWLSky::drawDome(void)
 	LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
 
 	const U32 data_mask = LLDrawPoolWLSky::SKY_VERTEX_DATA_MASK;
-
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-
+	
 #if DOME_SLICES
-	//mFanVerts->setBuffer(data_mask);
-	//glDrawRangeElements(
-	//	GL_TRIANGLES,
-	//	0, getFanNumVerts()-1, getFanNumIndices(),
-	//	GL_UNSIGNED_SHORT,
-	//	mFanVerts->getIndicesPointer());
-
-	//gPipeline.addTrianglesDrawn(getFanNumIndices()/3);
-
 	std::vector< LLPointer<LLVertexBuffer> >::const_iterator strips_vbo_iter, end_strips;
 	end_strips = mStripsVerts.end();
 	for(strips_vbo_iter = mStripsVerts.begin(); strips_vbo_iter != end_strips; ++strips_vbo_iter)
@@ -528,13 +512,10 @@ void LLVOWLSky::drawDome(void)
 
 		strips_segment->setBuffer(data_mask);
 
-		glDrawRangeElements(
-			//GL_TRIANGLES,
-			GL_TRIANGLE_STRIP,
-			0, strips_segment->getRequestedVerts()-1, strips_segment->getRequestedIndices(),
-			GL_UNSIGNED_SHORT,
-			strips_segment->getIndicesPointer());
-		
+		strips_segment->drawRange(
+			LLVertexBuffer::TRIANGLE_STRIP, 
+			0, strips_segment->getRequestedVerts()-1, strips_segment->getRequestedIndices(), 
+			0);
 		gPipeline.addTrianglesDrawn(strips_segment->getRequestedIndices() - 2);
 	}
 
@@ -546,8 +527,6 @@ void LLVOWLSky::drawDome(void)
 		GL_UNSIGNED_SHORT,
 		mStripsVerts->getIndicesPointer());
 #endif
-
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 
 	LLVertexBuffer::unbind();
 }

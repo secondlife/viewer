@@ -34,6 +34,7 @@
 #include <set>
 
 #include "llerror.h"
+#include "llmemtype.h"
 
 #include "llvolumemgr.h"
 #include "v2math.h"
@@ -155,6 +156,8 @@ BOOL LLTriangleLineSegmentIntersect( const LLVector3& pt1, const LLVector3& pt2,
 
 LLProfile::Face* LLProfile::addCap(S16 faceID)
 {
+	LLMemType m1(LLMemType::MTYPE_VOLUME);
+	
 	Face *face   = vector_append(mFaces, 1);
 	
 	face->mIndex = 0;
@@ -167,6 +170,8 @@ LLProfile::Face* LLProfile::addCap(S16 faceID)
 
 LLProfile::Face* LLProfile::addFace(S32 i, S32 count, F32 scaleU, S16 faceID, BOOL flat)
 {
+	LLMemType m1(LLMemType::MTYPE_VOLUME);
+	
 	Face *face   = vector_append(mFaces, 1);
 	
 	face->mIndex = i;
@@ -182,8 +187,10 @@ LLProfile::Face* LLProfile::addFace(S32 i, S32 count, F32 scaleU, S16 faceID, BO
 // What is the bevel parameter used for? - DJS 04/05/02
 // Bevel parameter is currently unused but presumedly would support
 // filleted and chamfered corners
-void LLProfile::genNGon(S32 sides, F32 offset, F32 bevel, F32 ang_scale, S32 split)
+void LLProfile::genNGon(const LLProfileParams& params, S32 sides, F32 offset, F32 bevel, F32 ang_scale, S32 split)
 {
+	LLMemType m1(LLMemType::MTYPE_VOLUME);
+	
 	// Generate an n-sided "circular" path.
 	// 0 is (1,0), and we go counter-clockwise along a circular path from there.
 	const F32 tableScale[] = { 1, 1, 1, 0.5f, 0.707107f, 0.53f, 0.525f, 0.5f };
@@ -194,8 +201,8 @@ void LLProfile::genNGon(S32 sides, F32 offset, F32 bevel, F32 ang_scale, S32 spl
 	mMaxX = 0.f;
 	mMinX = 0.f;
 
-	F32 begin  = mParams.getBegin();
-	F32 end    = mParams.getEnd();
+	F32 begin  = params.getBegin();
+	F32 end    = params.getEnd();
 
 	t_step = 1.0f / sides;
 	ang_step = 2.0f*F_PI*t_step*ang_scale;
@@ -311,7 +318,7 @@ void LLProfile::genNGon(S32 sides, F32 offset, F32 bevel, F32 ang_scale, S32 spl
 			mConcave = FALSE;
 		}
 		mOpen = TRUE;
-		if (!isHollow())
+		if (params.getHollow() <= 0)
 		{
 			// put center point if not hollow.
 			mProfile.push_back(LLVector3(0,0,0));
@@ -327,7 +334,7 @@ void LLProfile::genNGon(S32 sides, F32 offset, F32 bevel, F32 ang_scale, S32 spl
 	mTotal = mProfile.size();
 }
 
-void LLProfile::genNormals()
+void LLProfile::genNormals(const LLProfileParams& params)
 {
 	S32 count = mProfile.size();
 
@@ -347,8 +354,7 @@ void LLProfile::genNormals()
 
 	LLVector2 pt0,pt1;
 
-	BOOL hollow;
-	hollow = isHollow();
+	BOOL hollow = (params.getHollow() > 0);
 
 	S32 i0, i1, i2, i3, i4;
 
@@ -428,7 +434,7 @@ void LLProfile::genNormals()
 // Hollow is percent of the original bounding box, not of this particular
 // profile's geometry.  Thus, a swept triangle needs lower hollow values than
 // a swept square.
-LLProfile::Face* LLProfile::addHole(BOOL flat, F32 sides, F32 offset, F32 box_hollow, F32 ang_scale, S32 split)
+LLProfile::Face* LLProfile::addHole(const LLProfileParams& params, BOOL flat, F32 sides, F32 offset, F32 box_hollow, F32 ang_scale, S32 split)
 {
 	// Note that addHole will NOT work for non-"circular" profiles, if we ever decide to use them.
 
@@ -436,11 +442,12 @@ LLProfile::Face* LLProfile::addHole(BOOL flat, F32 sides, F32 offset, F32 box_ho
 	mTotalOut = mTotal;
 
 	// Why is the "bevel" parameter -1? DJS 04/05/02
-	genNGon(llfloor(sides),offset,-1, ang_scale, split);
+	genNGon(params, llfloor(sides),offset,-1, ang_scale, split);
 
 	Face *face = addFace(mTotalOut, mTotal-mTotalOut,0,LL_FACE_INNER_SIDE, flat);
 
-	LLVector3 pt[128];
+	std::vector<LLVector3> pt;
+	pt.resize(mTotal) ;
 
 	for (S32 i=mTotalOut;i<mTotal;i++)
 	{
@@ -489,8 +496,10 @@ S32 sculpt_sides(F32 detail)
 }
 
 
-BOOL LLProfile::generate(BOOL path_open,F32 detail, S32 split, BOOL is_sculpted)
+BOOL LLProfile::generate(const LLProfileParams& params, BOOL path_open,F32 detail, S32 split, BOOL is_sculpted)
 {
+	LLMemType m1(LLMemType::MTYPE_VOLUME);
+	
 	if ((!mDirty) && (!is_sculpted))
 	{
 		return FALSE;
@@ -508,9 +517,9 @@ BOOL LLProfile::generate(BOOL path_open,F32 detail, S32 split, BOOL is_sculpted)
 
 	// Generate the face data
 	S32 i;
-	F32 begin = mParams.getBegin();
-	F32 end = mParams.getEnd();
-	F32 hollow = mParams.getHollow();
+	F32 begin = params.getBegin();
+	F32 end = params.getEnd();
+	F32 hollow = params.getHollow();
 
 	// Quick validation to eliminate some server crashes.
 	if (begin > end - 0.01f)
@@ -521,11 +530,11 @@ BOOL LLProfile::generate(BOOL path_open,F32 detail, S32 split, BOOL is_sculpted)
 
 	S32 face_num = 0;
 
-	switch (mParams.getCurveType() & LL_PCODE_PROFILE_MASK)
+	switch (params.getCurveType() & LL_PCODE_PROFILE_MASK)
 	{
 	case LL_PCODE_PROFILE_SQUARE:
 		{
-			genNGon(4,-0.375, 0, 1, split);
+			genNGon(params, 4,-0.375, 0, 1, split);
 			if (path_open)
 			{
 				addCap (LL_FACE_PATH_BEGIN);
@@ -544,20 +553,20 @@ BOOL LLProfile::generate(BOOL path_open,F32 detail, S32 split, BOOL is_sculpted)
 
 			if (hollow)
 			{
-				switch (mParams.getCurveType() & LL_PCODE_HOLE_MASK)
+				switch (params.getCurveType() & LL_PCODE_HOLE_MASK)
 				{
 				case LL_PCODE_HOLE_TRIANGLE:
 					// This offset is not correct, but we can't change it now... DK 11/17/04
-					addHole(TRUE, 3, -0.375f, hollow, 1.f, split);
+				  	addHole(params, TRUE, 3, -0.375f, hollow, 1.f, split);
 					break;
 				case LL_PCODE_HOLE_CIRCLE:
 					// TODO: Compute actual detail levels for cubes
-					addHole(FALSE, MIN_DETAIL_FACES * detail, -0.375f, hollow, 1.f);
+				  	addHole(params, FALSE, MIN_DETAIL_FACES * detail, -0.375f, hollow, 1.f);
 					break;
 				case LL_PCODE_HOLE_SAME:
 				case LL_PCODE_HOLE_SQUARE:
 				default:
-					addHole(TRUE, 4, -0.375f, hollow, 1.f, split);
+					addHole(params, TRUE, 4, -0.375f, hollow, 1.f, split);
 					break;
 				}
 			}
@@ -571,7 +580,7 @@ BOOL LLProfile::generate(BOOL path_open,F32 detail, S32 split, BOOL is_sculpted)
 	case  LL_PCODE_PROFILE_RIGHTTRI:
 	case  LL_PCODE_PROFILE_EQUALTRI:
 		{
-			genNGon(3,0, 0, 1, split);
+			genNGon(params, 3,0, 0, 1, split);
 			for (i = 0; i <(S32) mProfile.size(); i++)
 			{
 				// Scale by 3 to generate proper tex coords.
@@ -593,19 +602,19 @@ BOOL LLProfile::generate(BOOL path_open,F32 detail, S32 split, BOOL is_sculpted)
 				// because the triangle doesn't fill the bounding box.
 				F32 triangle_hollow = hollow / 2.f;
 
-				switch (mParams.getCurveType() & LL_PCODE_HOLE_MASK)
+				switch (params.getCurveType() & LL_PCODE_HOLE_MASK)
 				{
 				case LL_PCODE_HOLE_CIRCLE:
 					// TODO: Actually generate level of detail for triangles
-					addHole(FALSE, MIN_DETAIL_FACES * detail, 0, triangle_hollow, 1.f);
+					addHole(params, FALSE, MIN_DETAIL_FACES * detail, 0, triangle_hollow, 1.f);
 					break;
 				case LL_PCODE_HOLE_SQUARE:
-					addHole(TRUE, 4, 0, triangle_hollow, 1.f, split);
+					addHole(params, TRUE, 4, 0, triangle_hollow, 1.f, split);
 					break;
 				case LL_PCODE_HOLE_SAME:
 				case LL_PCODE_HOLE_TRIANGLE:
 				default:
-					addHole(TRUE, 3, 0, triangle_hollow, 1.f, split);
+					addHole(params, TRUE, 3, 0, triangle_hollow, 1.f, split);
 					break;
 				}
 			}
@@ -619,7 +628,7 @@ BOOL LLProfile::generate(BOOL path_open,F32 detail, S32 split, BOOL is_sculpted)
 			F32 circle_detail = MIN_DETAIL_FACES * detail;
 			if (hollow)
 			{
-				hole_type = mParams.getCurveType() & LL_PCODE_HOLE_MASK;
+				hole_type = params.getCurveType() & LL_PCODE_HOLE_MASK;
 				if (hole_type == LL_PCODE_HOLE_SQUARE)
 				{
 					// Snap to the next multiple of four sides,
@@ -633,7 +642,7 @@ BOOL LLProfile::generate(BOOL path_open,F32 detail, S32 split, BOOL is_sculpted)
 			if (is_sculpted)
 				sides = sculpt_sides(detail);
 			
-			genNGon(sides);
+			genNGon(params, sides);
 			
 			if (path_open)
 			{
@@ -654,15 +663,15 @@ BOOL LLProfile::generate(BOOL path_open,F32 detail, S32 split, BOOL is_sculpted)
 				switch (hole_type)
 				{
 				case LL_PCODE_HOLE_SQUARE:
-					addHole(TRUE, 4, 0, hollow, 1.f, split);
+					addHole(params, TRUE, 4, 0, hollow, 1.f, split);
 					break;
 				case LL_PCODE_HOLE_TRIANGLE:
-					addHole(TRUE, 3, 0, hollow, 1.f, split);
+					addHole(params, TRUE, 3, 0, hollow, 1.f, split);
 					break;
 				case LL_PCODE_HOLE_CIRCLE:
 				case LL_PCODE_HOLE_SAME:
 				default:
-					addHole(FALSE, circle_detail, 0, hollow, 1.f);
+					addHole(params, FALSE, circle_detail, 0, hollow, 1.f);
 					break;
 				}
 			}
@@ -677,7 +686,7 @@ BOOL LLProfile::generate(BOOL path_open,F32 detail, S32 split, BOOL is_sculpted)
 			F32 circle_detail = MIN_DETAIL_FACES * detail * 0.5f;
 			if (hollow)
 			{
-				hole_type = mParams.getCurveType() & LL_PCODE_HOLE_MASK;
+				hole_type = params.getCurveType() & LL_PCODE_HOLE_MASK;
 				if (hole_type == LL_PCODE_HOLE_SQUARE)
 				{
 					// Snap to the next multiple of four sides (div 2),
@@ -685,12 +694,12 @@ BOOL LLProfile::generate(BOOL path_open,F32 detail, S32 split, BOOL is_sculpted)
 					circle_detail = llceil(circle_detail / 2.0f) * 2.0f;
 				}
 			}
-			genNGon(llfloor(circle_detail), 0.5f, 0.f, 0.5f);
+			genNGon(params, llfloor(circle_detail), 0.5f, 0.f, 0.5f);
 			if (path_open)
 			{
 				addCap(LL_FACE_PATH_BEGIN);
 			}
-			if (mOpen && !mParams.getHollow())
+			if (mOpen && !params.getHollow())
 			{
 				addFace(0,mTotal-1,0,LL_FACE_OUTER_SIDE_0, FALSE);
 			}
@@ -704,21 +713,21 @@ BOOL LLProfile::generate(BOOL path_open,F32 detail, S32 split, BOOL is_sculpted)
 				switch (hole_type)
 				{
 				case LL_PCODE_HOLE_SQUARE:
-					addHole(TRUE, 2, 0.5f, hollow, 0.5f, split);
+					addHole(params, TRUE, 2, 0.5f, hollow, 0.5f, split);
 					break;
 				case LL_PCODE_HOLE_TRIANGLE:
-					addHole(TRUE, 3,  0.5f, hollow, 0.5f, split);
+					addHole(params, TRUE, 3,  0.5f, hollow, 0.5f, split);
 					break;
 				case LL_PCODE_HOLE_CIRCLE:
 				case LL_PCODE_HOLE_SAME:
 				default:
-					addHole(FALSE, circle_detail,  0.5f, hollow, 0.5f);
+					addHole(params, FALSE, circle_detail,  0.5f, hollow, 0.5f);
 					break;
 				}
 			}
 
 			// Special case for openness of sphere
-			if ((mParams.getEnd() - mParams.getBegin()) < 1.f)
+			if ((params.getEnd() - params.getBegin()) < 1.f)
 			{
 				mOpen = TRUE;
 			}
@@ -731,7 +740,7 @@ BOOL LLProfile::generate(BOOL path_open,F32 detail, S32 split, BOOL is_sculpted)
 		}
 		break;
 	default:
-	    llerrs << "Unknown profile: getCurveType()=" << mParams.getCurveType() << llendl;
+	    llerrs << "Unknown profile: getCurveType()=" << params.getCurveType() << llendl;
 		break;
 	};
 
@@ -754,7 +763,7 @@ BOOL LLProfile::generate(BOOL path_open,F32 detail, S32 split, BOOL is_sculpted)
 		}
 	}
 	
-	//genNormals();
+	//genNormals(params);
 
 	return TRUE;
 }
@@ -763,6 +772,8 @@ BOOL LLProfile::generate(BOOL path_open,F32 detail, S32 split, BOOL is_sculpted)
 
 BOOL LLProfileParams::importFile(FILE *fp)
 {
+	LLMemType m1(LLMemType::MTYPE_VOLUME);
+	
 	const S32 BUFSIZE = 16384;
 	char buffer[BUFSIZE];	/* Flawfinder: ignore */
 	// *NOTE: changing the size or type of these buffers will require
@@ -838,6 +849,8 @@ BOOL LLProfileParams::exportFile(FILE *fp) const
 
 BOOL LLProfileParams::importLegacyStream(std::istream& input_stream)
 {
+	LLMemType m1(LLMemType::MTYPE_VOLUME);
+	
 	const S32 BUFSIZE = 16384;
 	char buffer[BUFSIZE];	/* Flawfinder: ignore */
 	// *NOTE: changing the size or type of these buffers will require
@@ -929,6 +942,7 @@ bool LLProfileParams::fromLLSD(LLSD& sd)
 
 void LLProfileParams::copyParams(const LLProfileParams &params)
 {
+	LLMemType m1(LLMemType::MTYPE_VOLUME);
 	setCurveType(params.getCurveType());
 	setBegin(params.getBegin());
 	setEnd(params.getEnd());
@@ -940,22 +954,22 @@ LLPath::~LLPath()
 {
 }
 
-void LLPath::genNGon(S32 sides, F32 startOff, F32 end_scale, F32 twist_scale)
+void LLPath::genNGon(const LLPathParams& params, S32 sides, F32 startOff, F32 end_scale, F32 twist_scale)
 {
 	// Generates a circular path, starting at (1, 0, 0), counterclockwise along the xz plane.
 	const F32 tableScale[] = { 1, 1, 1, 0.5f, 0.707107f, 0.53f, 0.525f, 0.5f };
 
-	F32 revolutions = mParams.getRevolutions();
-	F32 skew		= mParams.getSkew();
+	F32 revolutions = params.getRevolutions();
+	F32 skew		= params.getSkew();
 	F32 skew_mag	= fabs(skew);
-	F32 hole_x		= mParams.getScaleX() * (1.0f - skew_mag);
-	F32 hole_y		= mParams.getScaleY();
+	F32 hole_x		= params.getScaleX() * (1.0f - skew_mag);
+	F32 hole_y		= params.getScaleY();
 
 	// Calculate taper begin/end for x,y (Negative means taper the beginning)
 	F32 taper_x_begin	= 1.0f;
-	F32 taper_x_end		= 1.0f - mParams.getTaperX();
+	F32 taper_x_end		= 1.0f - params.getTaperX();
 	F32	taper_y_begin	= 1.0f;
-	F32	taper_y_end		= 1.0f - mParams.getTaperY();
+	F32	taper_y_end		= 1.0f - params.getTaperY();
 
 	if ( taper_x_end > 1.0f )
 	{
@@ -983,7 +997,7 @@ void LLPath::genNGon(S32 sides, F32 startOff, F32 end_scale, F32 twist_scale)
 	// Now check the radius offset to calculate the start,end radius.  (Negative means
 	// decrease the start radius instead).
 	F32 radius_end    = radius_start;
-	F32 radius_offset = mParams.getRadiusOffset();
+	F32 radius_offset = params.getRadiusOffset();
 	if (radius_offset < 0.f)
 	{
 		radius_start *= 1.f + radius_offset;
@@ -994,7 +1008,7 @@ void LLPath::genNGon(S32 sides, F32 startOff, F32 end_scale, F32 twist_scale)
 	}	
 
 	// Is the path NOT a closed loop?
-	mOpen = ( (mParams.getEnd()*end_scale - mParams.getBegin() < 1.0f) ||
+	mOpen = ( (params.getEnd()*end_scale - params.getBegin() < 1.0f) ||
 		      (skew_mag > 0.001f) ||
 			  (fabs(taper_x_end - taper_x_begin) > 0.001f) ||
 			  (fabs(taper_y_end - taper_y_begin) > 0.001f) ||
@@ -1005,22 +1019,22 @@ void LLPath::genNGon(S32 sides, F32 startOff, F32 end_scale, F32 twist_scale)
 	PathPt *pt;
 	LLVector3 path_axis (1.f, 0.f, 0.f);
 	//LLVector3 twist_axis(0.f, 0.f, 1.f);
-	F32 twist_begin = mParams.getTwistBegin() * twist_scale;
-	F32 twist_end	= mParams.getTwist() * twist_scale;
+	F32 twist_begin = params.getTwistBegin() * twist_scale;
+	F32 twist_end	= params.getTwist() * twist_scale;
 
 	// We run through this once before the main loop, to make sure
 	// the path begins at the correct cut.
 	F32 step= 1.0f / sides;
-	F32 t	= mParams.getBegin();
+	F32 t	= params.getBegin();
 	pt		= vector_append(mPath, 1);
 	ang		= 2.0f*F_PI*revolutions * t;
 	s		= sin(ang)*lerp(radius_start, radius_end, t);	
 	c		= cos(ang)*lerp(radius_start, radius_end, t);
 
 
-	pt->mPos.setVec(0 + lerp(0,mParams.getShear().mV[0],s)
+	pt->mPos.setVec(0 + lerp(0,params.getShear().mV[0],s)
 					  + lerp(-skew ,skew, t) * 0.5f,
-					c + lerp(0,mParams.getShear().mV[1],s), 
+					c + lerp(0,params.getShear().mV[1],s), 
 					s);
 	pt->mScale.mV[VX] = hole_x * lerp(taper_x_begin, taper_x_end, t);
 	pt->mScale.mV[VY] = hole_y * lerp(taper_y_begin, taper_y_end, t);
@@ -1039,7 +1053,7 @@ void LLPath::genNGon(S32 sides, F32 startOff, F32 end_scale, F32 twist_scale)
 	t = ((S32)(t * sides)) / (F32)sides;
 
 	// Run through the non-cut dependent points.
-	while (t < mParams.getEnd())
+	while (t < params.getEnd())
 	{
 		pt		= vector_append(mPath, 1);
 
@@ -1047,9 +1061,9 @@ void LLPath::genNGon(S32 sides, F32 startOff, F32 end_scale, F32 twist_scale)
 		c   = cos(ang)*lerp(radius_start, radius_end, t);
 		s   = sin(ang)*lerp(radius_start, radius_end, t);
 
-		pt->mPos.setVec(0 + lerp(0,mParams.getShear().mV[0],s)
+		pt->mPos.setVec(0 + lerp(0,params.getShear().mV[0],s)
 					      + lerp(-skew ,skew, t) * 0.5f,
-						c + lerp(0,mParams.getShear().mV[1],s), 
+						c + lerp(0,params.getShear().mV[1],s), 
 						s);
 
 		pt->mScale.mV[VX] = hole_x * lerp(taper_x_begin, taper_x_end, t);
@@ -1066,15 +1080,15 @@ void LLPath::genNGon(S32 sides, F32 startOff, F32 end_scale, F32 twist_scale)
 	}
 
 	// Make one final pass for the end cut.
-	t = mParams.getEnd();
+	t = params.getEnd();
 	pt		= vector_append(mPath, 1);
 	ang = 2.0f*F_PI*revolutions * t;
 	c   = cos(ang)*lerp(radius_start, radius_end, t);
 	s   = sin(ang)*lerp(radius_start, radius_end, t);
 
-	pt->mPos.setVec(0 + lerp(0,mParams.getShear().mV[0],s)
+	pt->mPos.setVec(0 + lerp(0,params.getShear().mV[0],s)
 					  + lerp(-skew ,skew, t) * 0.5f,
-					c + lerp(0,mParams.getShear().mV[1],s), 
+					c + lerp(0,params.getShear().mV[1],s), 
 					s);
 	pt->mScale.mV[VX] = hole_x * lerp(taper_x_begin, taper_x_end, t);
 	pt->mScale.mV[VY] = hole_y * lerp(taper_y_begin, taper_y_end, t);
@@ -1117,8 +1131,10 @@ const LLVector2 LLPathParams::getEndScale() const
 	return end_scale;
 }
 
-BOOL LLPath::generate(F32 detail, S32 split, BOOL is_sculpted)
+BOOL LLPath::generate(const LLPathParams& params, F32 detail, S32 split, BOOL is_sculpted)
 {
+	LLMemType m1(LLMemType::MTYPE_VOLUME);
+	
 	if ((!mDirty) && (!is_sculpted))
 	{
 		return FALSE;
@@ -1137,13 +1153,13 @@ BOOL LLPath::generate(F32 detail, S32 split, BOOL is_sculpted)
 	mOpen = TRUE;
 
 	// Is this 0xf0 mask really necessary?  DK 03/02/05
-	switch (mParams.getCurveType() & 0xf0)
+	switch (params.getCurveType() & 0xf0)
 	{
 	default:
 	case LL_PCODE_PATH_LINE:
 		{
 			// Take the begin/end twist into account for detail.
-			np    = llfloor(fabs(mParams.getTwistBegin() - mParams.getTwist()) * 3.5f * (detail-0.5f)) + 2;
+			np    = llfloor(fabs(params.getTwistBegin() - params.getTwist()) * 3.5f * (detail-0.5f)) + 2;
 			if (np < split+2)
 			{
 				np = split+2;
@@ -1153,16 +1169,16 @@ BOOL LLPath::generate(F32 detail, S32 split, BOOL is_sculpted)
 			
 			mPath.resize(np);
 
-			LLVector2 start_scale = mParams.getBeginScale();
-			LLVector2 end_scale = mParams.getEndScale();
+			LLVector2 start_scale = params.getBeginScale();
+			LLVector2 end_scale = params.getEndScale();
 
 			for (S32 i=0;i<np;i++)
 			{
-				F32 t = lerp(mParams.getBegin(),mParams.getEnd(),(F32)i * mStep);
-				mPath[i].mPos.setVec(lerp(0,mParams.getShear().mV[0],t),
-									 lerp(0,mParams.getShear().mV[1],t),
+				F32 t = lerp(params.getBegin(),params.getEnd(),(F32)i * mStep);
+				mPath[i].mPos.setVec(lerp(0,params.getShear().mV[0],t),
+									 lerp(0,params.getShear().mV[1],t),
 									 t - 0.5f);
-				mPath[i].mRot.setQuat(lerp(F_PI * mParams.getTwistBegin(),F_PI * mParams.getTwist(),t),0,0,1);
+				mPath[i].mRot.setQuat(lerp(F_PI * params.getTwistBegin(),F_PI * params.getTwist(),t),0,0,1);
 				mPath[i].mScale.mV[0] = lerp(start_scale.mV[0],end_scale.mV[0],t);
 				mPath[i].mScale.mV[1] = lerp(start_scale.mV[1],end_scale.mV[1],t);
 				mPath[i].mTexT        = t;
@@ -1173,27 +1189,27 @@ BOOL LLPath::generate(F32 detail, S32 split, BOOL is_sculpted)
 	case LL_PCODE_PATH_CIRCLE:
 		{
 			// Increase the detail as the revolutions and twist increase.
-			F32 twist_mag = fabs(mParams.getTwistBegin() - mParams.getTwist());
+			F32 twist_mag = fabs(params.getTwistBegin() - params.getTwist());
 
-			S32 sides = (S32)llfloor(llfloor((MIN_DETAIL_FACES * detail + twist_mag * 3.5f * (detail-0.5f))) * mParams.getRevolutions());
+			S32 sides = (S32)llfloor(llfloor((MIN_DETAIL_FACES * detail + twist_mag * 3.5f * (detail-0.5f))) * params.getRevolutions());
 
 			if (is_sculpted)
 				sides = sculpt_sides(detail);
 			
-			genNGon(sides);
+			genNGon(params, sides);
 		}
 		break;
 
 	case LL_PCODE_PATH_CIRCLE2:
 		{
-			if (mParams.getEnd() - mParams.getBegin() >= 0.99f &&
-				mParams.getScaleX() >= .99f)
+			if (params.getEnd() - params.getBegin() >= 0.99f &&
+				params.getScaleX() >= .99f)
 			{
 				mOpen = FALSE;
 			}
 
-			//genNGon(llfloor(MIN_DETAIL_FACES * detail), 4.f, 0.f);
-			genNGon(llfloor(MIN_DETAIL_FACES * detail));
+			//genNGon(params, llfloor(MIN_DETAIL_FACES * detail), 4.f, 0.f);
+			genNGon(params, llfloor(MIN_DETAIL_FACES * detail));
 
 			F32 t     = 0.f;
 			F32 tStep = 1.0f / mPath.size();
@@ -1223,28 +1239,30 @@ BOOL LLPath::generate(F32 detail, S32 split, BOOL is_sculpted)
 		{
 			F32 t = (F32)i * mStep;
 			mPath[i].mPos.setVec(0,
-								lerp(0,   -sin(F_PI*mParams.getTwist()*t)*0.5f,t),
-								lerp(-0.5, cos(F_PI*mParams.getTwist()*t)*0.5f,t));
-			mPath[i].mScale.mV[0] = lerp(1,mParams.getScale().mV[0],t);
-			mPath[i].mScale.mV[1] = lerp(1,mParams.getScale().mV[1],t);
+								lerp(0,   -sin(F_PI*params.getTwist()*t)*0.5f,t),
+								lerp(-0.5, cos(F_PI*params.getTwist()*t)*0.5f,t));
+			mPath[i].mScale.mV[0] = lerp(1,params.getScale().mV[0],t);
+			mPath[i].mScale.mV[1] = lerp(1,params.getScale().mV[1],t);
 			mPath[i].mTexT  = t;
-			mPath[i].mRot.setQuat(F_PI * mParams.getTwist() * t,1,0,0);
+			mPath[i].mRot.setQuat(F_PI * params.getTwist() * t,1,0,0);
 		}
 
 		break;
 	};
 
-	if (mParams.getTwist() != mParams.getTwistBegin()) mOpen = TRUE;
+	if (params.getTwist() != params.getTwistBegin()) mOpen = TRUE;
 
-	//if ((int(fabsf(mParams.getTwist() - mParams.getTwistBegin())*100))%100 != 0) {
+	//if ((int(fabsf(params.getTwist() - params.getTwistBegin())*100))%100 != 0) {
 	//	mOpen = TRUE;
 	//}
 	
 	return TRUE;
 }
 
-BOOL LLDynamicPath::generate(F32 detail, S32 split, BOOL is_sculpted)
+BOOL LLDynamicPath::generate(const LLPathParams& params, F32 detail, S32 split, BOOL is_sculpted)
 {
+	LLMemType m1(LLMemType::MTYPE_VOLUME);
+	
 	mOpen = TRUE; // Draw end caps
 	if (getPathLength() == 0)
 	{
@@ -1266,6 +1284,8 @@ BOOL LLDynamicPath::generate(F32 detail, S32 split, BOOL is_sculpted)
 
 BOOL LLPathParams::importFile(FILE *fp)
 {
+	LLMemType m1(LLMemType::MTYPE_VOLUME);
+	
 	const S32 BUFSIZE = 16384;
 	char buffer[BUFSIZE];	/* Flawfinder: ignore */
 	// *NOTE: changing the size or type of these buffers will require
@@ -1410,6 +1430,8 @@ BOOL LLPathParams::exportFile(FILE *fp) const
 
 BOOL LLPathParams::importLegacyStream(std::istream& input_stream)
 {
+	LLMemType m1(LLMemType::MTYPE_VOLUME);
+	
 	const S32 BUFSIZE = 16384;
 	char buffer[BUFSIZE];	/* Flawfinder: ignore */
 	// *NOTE: changing the size or type of these buffers will require
@@ -1610,8 +1632,11 @@ LLProfile::~LLProfile()
 
 S32 LLVolume::sNumMeshPoints = 0;
 
-LLVolume::LLVolume(const LLVolumeParams &params, const F32 detail, const BOOL generate_single_face, const BOOL is_unique) : mParams(params)
+LLVolume::LLVolume(const LLVolumeParams &params, const F32 detail, const BOOL generate_single_face, const BOOL is_unique)
+	: mParams(params)
 {
+	LLMemType m1(LLMemType::MTYPE_VOLUME);
+	
 	mUnique = is_unique;
 	mFaceMask = 0x0;
 	mDetail = detail;
@@ -1620,16 +1645,14 @@ LLVolume::LLVolume(const LLVolumeParams &params, const F32 detail, const BOOL ge
 	// set defaults
 	if (mParams.getPathParams().getCurveType() == LL_PCODE_PATH_FLEXIBLE)
 	{
-		mPathp = new LLDynamicPath(mParams.getPathParams());
+		mPathp = new LLDynamicPath();
 	}
 	else
 	{
-		mPathp    = new LLPath(mParams.getPathParams());
+		mPathp = new LLPath();
 	}
-	mProfilep = new LLProfile(mParams.getProfileParams());
+	mProfilep = new LLProfile();
 
-	mNumVolumeFaces = 0;
-	mVolumeFaces = NULL;
 	mGenerateSingleFace = generate_single_face;
 
 	generate();
@@ -1642,11 +1665,7 @@ LLVolume::LLVolume(const LLVolumeParams &params, const F32 detail, const BOOL ge
 void LLVolume::resizePath(S32 length)
 {
 	mPathp->resizePath(length);
-	if (mVolumeFaces != NULL)
-	{
-		delete[] mVolumeFaces;
-		mVolumeFaces = NULL;
-	}
+	mVolumeFaces.clear();
 }
 
 void LLVolume::regen()
@@ -1665,15 +1684,14 @@ LLVolume::~LLVolume()
 	sNumMeshPoints -= mMesh.size();
 	delete mPathp;
 	delete mProfilep;
-	delete[] mVolumeFaces;
-
 	mPathp = NULL;
 	mProfilep = NULL;
-	mVolumeFaces = NULL;
+	mVolumeFaces.clear();
 }
 
 BOOL LLVolume::generate()
 {
+	LLMemType m1(LLMemType::MTYPE_VOLUME);
 	llassert_always(mProfilep);
 	
 	//Added 10.03.05 Dave Parks
@@ -1682,13 +1700,13 @@ BOOL LLVolume::generate()
 	// stretched due to twisting or scaling on the path.  
 	S32 split = (S32) ((mDetail)*0.66f);
 	
-	if (mPathp->mParams.getCurveType() == LL_PCODE_PATH_LINE &&
-		(mPathp->mParams.getScale().mV[0] != 1.0f ||
-		 mPathp->mParams.getScale().mV[1] != 1.0f) &&
-		(mProfilep->mParams.getCurveType() == LL_PCODE_PROFILE_SQUARE ||
-		 mProfilep->mParams.getCurveType() == LL_PCODE_PROFILE_ISOTRI ||
-		 mProfilep->mParams.getCurveType() == LL_PCODE_PROFILE_EQUALTRI ||
-		 mProfilep->mParams.getCurveType() == LL_PCODE_PROFILE_RIGHTTRI))
+	if (mParams.getPathParams().getCurveType() == LL_PCODE_PATH_LINE &&
+		(mParams.getPathParams().getScale().mV[0] != 1.0f ||
+		 mParams.getPathParams().getScale().mV[1] != 1.0f) &&
+		(mParams.getProfileParams().getCurveType() == LL_PCODE_PROFILE_SQUARE ||
+		 mParams.getProfileParams().getCurveType() == LL_PCODE_PROFILE_ISOTRI ||
+		 mParams.getProfileParams().getCurveType() == LL_PCODE_PROFILE_EQUALTRI ||
+		 mParams.getProfileParams().getCurveType() == LL_PCODE_PROFILE_RIGHTTRI))
 	{
 		split = 0;
 	}
@@ -1698,8 +1716,8 @@ BOOL LLVolume::generate()
 	F32 profile_detail = mDetail;
 	F32 path_detail = mDetail;
 	
-	U8 path_type = mPathp->mParams.getCurveType();
-	U8 profile_type = mProfilep->mParams.getCurveType();
+	U8 path_type = mParams.getPathParams().getCurveType();
+	U8 profile_type = mParams.getProfileParams().getCurveType();
 	
 	if (path_type == LL_PCODE_PATH_LINE && profile_type == LL_PCODE_PROFILE_CIRCLE)
 	{ //cylinders don't care about Z-Axis
@@ -1710,8 +1728,8 @@ BOOL LLVolume::generate()
 		mLODScaleBias.setVec(0.6f, 0.6f, 0.6f);
 	}
 	
-	BOOL regenPath = mPathp->generate(path_detail, split);
-	BOOL regenProf = mProfilep->generate(mPathp->isOpen(),profile_detail, split);
+	BOOL regenPath = mPathp->generate(mParams.getPathParams(), path_detail, split);
+	BOOL regenProf = mProfilep->generate(mParams.getProfileParams(), mPathp->isOpen(),profile_detail, split);
 
 	if (regenPath || regenProf ) 
 	{
@@ -1759,28 +1777,26 @@ BOOL LLVolume::generate()
 
 void LLVolume::createVolumeFaces()
 {
-	S32 i;
+	LLMemType m1(LLMemType::MTYPE_VOLUME);
 
 	if (mGenerateSingleFace)
 	{
-		mNumVolumeFaces = 0;
+		// do nothing
 	}
 	else
 	{
 		S32 num_faces = getNumFaces();
-		mNumVolumeFaces = num_faces;
 		BOOL partial_build = TRUE;
-		if (!mVolumeFaces)
+		if (num_faces != mVolumeFaces.size())
 		{
 			partial_build = FALSE;
-			mVolumeFaces = new LLVolumeFace[num_faces];
+			mVolumeFaces.resize(num_faces);
 		}
 		// Initialize volume faces with parameter data
-		for (i = 0; i < num_faces; i++)
+		for (S32 i = 0; i < (S32)mVolumeFaces.size(); i++)
 		{
-			LLVolumeFace &vf = mVolumeFaces[i];
-			LLProfile::Face &face = mProfilep->mFaces[i];
-			vf.mVolumep = this;
+			LLVolumeFace& vf = mVolumeFaces[i];
+			LLProfile::Face& face = mProfilep->mFaces[i];
 			vf.mBeginS = face.mIndex;
 			vf.mNumS = face.mCount;
 			vf.mBeginT = 0;
@@ -1788,7 +1804,7 @@ void LLVolume::createVolumeFaces()
 			vf.mID = i;
 
 			// Set the type mask bits correctly
-			if (mProfilep->isHollow())
+			if (mParams.getProfileParams().getHollow() > 0)
 			{
 				vf.mTypeMask |= LLVolumeFace::HOLLOW_MASK;
 			}
@@ -1835,9 +1851,10 @@ void LLVolume::createVolumeFaces()
 			}
 		}
 
-		for (i = 0; i < mNumVolumeFaces; i++)
+		for (face_list_t::iterator iter = mVolumeFaces.begin();
+			 iter != mVolumeFaces.end(); ++iter)
 		{
-			mVolumeFaces[i].create(partial_build);
+			(*iter).create(this, partial_build);
 		}
 	}
 }
@@ -1929,6 +1946,8 @@ F32 LLVolume::sculptGetSurfaceArea(U16 sculpt_width, U16 sculpt_height, S8 sculp
 // create placeholder shape
 void LLVolume::sculptGeneratePlaceholder()
 {
+	LLMemType m1(LLMemType::MTYPE_VOLUME);
+	
 	S32 sizeS = mPathp->mPath.size();
 	S32 sizeT = mProfilep->mProfile.size();
 	
@@ -1960,6 +1979,8 @@ void LLVolume::sculptGeneratePlaceholder()
 // create the vertices from the map
 void LLVolume::sculptGenerateMapVertices(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components, const U8* sculpt_data, U8 sculpt_type)
 {
+	LLMemType m1(LLMemType::MTYPE_VOLUME);
+	
 	S32 sizeS = mPathp->mPath.size();
 	S32 sizeT = mProfilep->mProfile.size();
 	
@@ -2029,18 +2050,19 @@ void LLVolume::sculptGenerateMapVertices(U16 sculpt_width, U16 sculpt_height, S8
 // sculpt replaces generate() for sculpted surfaces
 void LLVolume::sculpt(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components, const U8* sculpt_data, S32 sculpt_level)
 {
+	LLMemType m1(LLMemType::MTYPE_VOLUME);
     U8 sculpt_type = mParams.getSculptType();
 
 	BOOL data_is_empty = FALSE;
 
-	if (sculpt_width == 0 || sculpt_height == 0 || sculpt_components == 0 || sculpt_data == NULL)
+	if (sculpt_width == 0 || sculpt_height == 0 || sculpt_components < 3 || sculpt_data == NULL)
 	{
 		sculpt_level = -1;
 		data_is_empty = TRUE;
 	}
 
-	mPathp->generate(mDetail, 0, TRUE);
-	mProfilep->generate(mPathp->isOpen(), mDetail, 0, TRUE);
+	mPathp->generate(mParams.getPathParams(), mDetail, 0, TRUE);
+	mProfilep->generate(mParams.getProfileParams(), mPathp->isOpen(), mDetail, 0, TRUE);
 
 	S32 sizeS = mPathp->mPath.size();
 	S32 sizeT = mProfilep->mProfile.size();
@@ -2055,7 +2077,7 @@ void LLVolume::sculpt(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components,
 	mMesh.resize(sizeS * sizeT);
 	sNumMeshPoints += mMesh.size();
 	
-	if (sculptGetSurfaceArea(sculpt_width, sculpt_height, sculpt_components, sculpt_data) < SCULPT_MIN_AREA)
+	if (!data_is_empty && sculptGetSurfaceArea(sculpt_width, sculpt_height, sculpt_components, sculpt_data) < SCULPT_MIN_AREA)
 		data_is_empty = TRUE;
 
 	//generate vertex positions
@@ -2076,11 +2098,7 @@ void LLVolume::sculpt(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components,
 	mSculptLevel = sculpt_level;
 
 	// Delete any existing faces so that they get regenerated
-	if (mVolumeFaces)
-	{
-		delete[] mVolumeFaces;
-		mVolumeFaces = NULL;
-	}
+	mVolumeFaces.clear();
 	
 	createVolumeFaces();
 }
@@ -2140,6 +2158,7 @@ bool LLVolumeParams::operator<(const LLVolumeParams &params) const
 
 void LLVolumeParams::copyParams(const LLVolumeParams &params)
 {
+	LLMemType m1(LLMemType::MTYPE_VOLUME);
 	mProfileParams.copyParams(params.mProfileParams);
 	mPathParams.copyParams(params.mPathParams);
 	mSculptID = params.getSculptID();
@@ -2511,6 +2530,8 @@ bool LLVolumeParams::validate(U8 prof_curve, F32 prof_begin, F32 prof_end, F32 h
 
 S32 *LLVolume::getTriangleIndices(U32 &num_indices) const
 {
+	LLMemType m1(LLMemType::MTYPE_VOLUME);
+	
 	S32 expected_num_triangle_indices = getNumTriangleIndices();
 	if (expected_num_triangle_indices > MAX_VOLUME_TRIANGLE_INDICES)
 	{
@@ -2527,7 +2548,7 @@ S32 *LLVolume::getTriangleIndices(U32 &num_indices) const
 	// Counter-clockwise triangles are forward facing...
 
 	BOOL open = getProfile().isOpen();
-	BOOL hollow = getProfile().isHollow();
+	BOOL hollow = (mParams.getProfileParams().getHollow() > 0);
 	BOOL path_open = getPath().isOpen();
 	S32 size_s, size_s_out, size_t;
 	S32 s, t, i;
@@ -3133,7 +3154,7 @@ S32 *LLVolume::getTriangleIndices(U32 &num_indices) const
 S32 LLVolume::getNumTriangleIndices() const
 {
 	BOOL profile_open = getProfile().isOpen();
-	BOOL hollow = getProfile().isHollow();
+	BOOL hollow = (mParams.getProfileParams().getHollow() > 0);
 	BOOL path_open = getPath().isOpen();
 
 	S32 size_s, size_s_out, size_t;
@@ -3197,13 +3218,17 @@ void LLVolume::generateSilhouetteVertices(std::vector<LLVector3> &vertices,
 										  const LLMatrix4& mat,
 										  const LLMatrix3& norm_mat)
 {
+	LLMemType m1(LLMemType::MTYPE_VOLUME);
+	
 	vertices.clear();
 	normals.clear();
 	segments.clear();
 
 	//for each face
-	for (S32 i = 0; i < getNumVolumeFaces(); i++) {
-		LLVolumeFace face = this->getVolumeFace(i);
+	for (face_list_t::iterator iter = mVolumeFaces.begin();
+		 iter != mVolumeFaces.end(); ++iter)
+	{
+		const LLVolumeFace& face = *iter;
 	
 		if (face.mTypeMask & (LLVolumeFace::CAP_MASK)) {
 	
@@ -3386,9 +3411,9 @@ S32 LLVolume::lineSegmentIntersect(const LLVector3& start, LLVector3& end) const
 	
 	LLVector3 vec = end - start;
 	
-	for (U32 i = 0; i < (U32)getNumFaces(); i++)
+	for (S32 i = 0; i < getNumFaces(); i++)
 	{
-		LLVolumeFace face = getVolumeFace(i);
+		const LLVolumeFace& face = getVolumeFace(i);
 
 		for (U32 j = 0; j < face.mIndices.size()/3; j++) 
 		{
@@ -3531,6 +3556,8 @@ BOOL LLVolume::cleanupTriangleData( const S32 num_input_vertices,
 									S32 &num_output_triangles,
 									S32 **output_triangles)
 {
+	LLMemType m1(LLMemType::MTYPE_VOLUME);
+	
 	/* Testing: avoid any cleanup
 	static BOOL skip_cleanup = TRUE;
 	if ( skip_cleanup )
@@ -3752,6 +3779,8 @@ BOOL LLVolume::cleanupTriangleData( const S32 num_input_vertices,
 
 BOOL LLVolumeParams::importFile(FILE *fp)
 {
+	LLMemType m1(LLMemType::MTYPE_VOLUME);
+	
 	//llinfos << "importing volume" << llendl;
 	const S32 BUFSIZE = 16384;
 	char buffer[BUFSIZE];	/* Flawfinder: ignore */
@@ -3806,6 +3835,8 @@ BOOL LLVolumeParams::exportFile(FILE *fp) const
 
 BOOL LLVolumeParams::importLegacyStream(std::istream& input_stream)
 {
+	LLMemType m1(LLMemType::MTYPE_VOLUME);
+	
 	//llinfos << "importing volume" << llendl;
 	const S32 BUFSIZE = 16384;
 	// *NOTE: changing the size or type of this buffer will require
@@ -3845,6 +3876,8 @@ BOOL LLVolumeParams::importLegacyStream(std::istream& input_stream)
 
 BOOL LLVolumeParams::exportLegacyStream(std::ostream& output_stream) const
 {
+	LLMemType m1(LLMemType::MTYPE_VOLUME);
+	
 	output_stream <<"\tshape 0\n";
 	output_stream <<"\t{\n";
 	mPathParams.exportLegacyStream(output_stream);
@@ -3998,7 +4031,7 @@ LLFaceID LLVolume::generateFaceMask()
 {
 	LLFaceID new_mask = 0x0000;
 
-	switch(mProfilep->mParams.getCurveType() & LL_PCODE_PROFILE_MASK)
+	switch(mParams.getProfileParams().getCurveType() & LL_PCODE_PROFILE_MASK)
 	{
 	case LL_PCODE_PROFILE_CIRCLE:
 	case LL_PCODE_PROFILE_CIRCLE_HALF:
@@ -4006,7 +4039,7 @@ LLFaceID LLVolume::generateFaceMask()
 		break;
 	case LL_PCODE_PROFILE_SQUARE:
 		{
-			for(S32 side = (S32)(mProfilep->mParams.getBegin() * 4.f); side < llceil(mProfilep->mParams.getEnd() * 4.f); side++)
+			for(S32 side = (S32)(mParams.getProfileParams().getBegin() * 4.f); side < llceil(mParams.getProfileParams().getEnd() * 4.f); side++)
 			{
 				new_mask |= LL_FACE_OUTER_SIDE_0 << side;
 			}
@@ -4016,7 +4049,7 @@ LLFaceID LLVolume::generateFaceMask()
 	case LL_PCODE_PROFILE_EQUALTRI:
 	case LL_PCODE_PROFILE_RIGHTTRI:
 		{
-			for(S32 side = (S32)(mProfilep->mParams.getBegin() * 3.f); side < llceil(mProfilep->mParams.getEnd() * 3.f); side++)
+			for(S32 side = (S32)(mParams.getProfileParams().getBegin() * 3.f); side < llceil(mParams.getProfileParams().getEnd() * 3.f); side++)
 			{
 				new_mask |= LL_FACE_OUTER_SIDE_0 << side;
 			}
@@ -4028,7 +4061,7 @@ LLFaceID LLVolume::generateFaceMask()
 	}
 
 	// handle hollow objects
-	if (mProfilep->isHollow())
+	if (mParams.getProfileParams().getHollow() > 0)
 	{
 		new_mask |= LL_FACE_INNER_SIDE;
 	}
@@ -4130,7 +4163,7 @@ std::ostream& operator<<(std::ostream &s, const LLPath &path)
 
 std::ostream& operator<<(std::ostream &s, const LLVolume &volume)
 {
-	s << "{params = " << volume.mParams;
+	s << "{params = " << volume.getParams();
 	s << ", path = " << *volume.mPathp;
 	s << ", profile = " << *volume.mProfilep;
 	s << "}";
@@ -4140,7 +4173,7 @@ std::ostream& operator<<(std::ostream &s, const LLVolume &volume)
 
 std::ostream& operator<<(std::ostream &s, const LLVolume *volumep)
 {
-	s << "{params = " << volumep->mParams;
+	s << "{params = " << volumep->getParams();
 	s << ", path = " << *(volumep->mPathp);
 	s << ", profile = " << *(volumep->mProfilep);
 	s << "}";
@@ -4160,15 +4193,15 @@ LLVolumeFace::LLVolumeFace()
 }
 
 
-BOOL LLVolumeFace::create(BOOL partial_build)
+BOOL LLVolumeFace::create(LLVolume* volume, BOOL partial_build)
 {
 	if (mTypeMask & CAP_MASK)
 	{
-		return createCap(partial_build);
+		return createCap(volume, partial_build);
 	}
 	else if ((mTypeMask & END_MASK) || (mTypeMask & SIDE_MASK))
 	{
-		return createSide(partial_build);
+		return createSide(volume, partial_build);
 	}
 	else
 	{
@@ -4190,12 +4223,14 @@ void	LerpPlanarVertex(LLVolumeFace::VertexData& v0,
 	vout.mBinormal = v0.mBinormal;
 }
 
-BOOL LLVolumeFace::createUnCutCubeCap(BOOL partial_build)
+BOOL LLVolumeFace::createUnCutCubeCap(LLVolume* volume, BOOL partial_build)
 {
-	const std::vector<LLVolume::Point>& mesh = mVolumep->getMesh();
-	const std::vector<LLVector3>& profile = mVolumep->getProfile().mProfile;
-	S32 max_s = mVolumep->getProfile().getTotal();
-	S32 max_t = mVolumep->getPath().mPath.size();
+	LLMemType m1(LLMemType::MTYPE_VOLUME);
+	
+	const std::vector<LLVolume::Point>& mesh = volume->getMesh();
+	const std::vector<LLVector3>& profile = volume->getProfile().mProfile;
+	S32 max_s = volume->getProfile().getTotal();
+	S32 max_t = volume->getPath().mPath.size();
 
 	// S32 i;
 	S32 num_vertices = 0, num_indices = 0;
@@ -4296,23 +4331,24 @@ BOOL LLVolumeFace::createUnCutCubeCap(BOOL partial_build)
 }
 
 
-BOOL LLVolumeFace::createCap(BOOL partial_build)
+BOOL LLVolumeFace::createCap(LLVolume* volume, BOOL partial_build)
 {
+	LLMemType m1(LLMemType::MTYPE_VOLUME);
+	
 	if (!(mTypeMask & HOLLOW_MASK) && 
 		!(mTypeMask & OPEN_MASK) && 
-		((this->mVolumep->getParams().getPathParams().getBegin()==0.0f)&&
-		(this->mVolumep->getParams().getPathParams().getEnd()==1.0f))&&
-		(mVolumep->getProfile().mParams.getCurveType()==LL_PCODE_PROFILE_SQUARE &&
-			mVolumep->getPath().mParams.getCurveType()==LL_PCODE_PATH_LINE)	
+		((volume->getParams().getPathParams().getBegin()==0.0f)&&
+		(volume->getParams().getPathParams().getEnd()==1.0f))&&
+		(volume->getParams().getProfileParams().getCurveType()==LL_PCODE_PROFILE_SQUARE &&
+		 volume->getParams().getPathParams().getCurveType()==LL_PCODE_PATH_LINE)	
 		){
-		return createUnCutCubeCap(partial_build);
+		return createUnCutCubeCap(volume, partial_build);
 	}
 
-	S32 i;
 	S32 num_vertices = 0, num_indices = 0;
 
-	const std::vector<LLVolume::Point>& mesh = mVolumep->getMesh();
-	const std::vector<LLVector3>& profile = mVolumep->getProfile().mProfile;
+	const std::vector<LLVolume::Point>& mesh = volume->getMesh();
+	const std::vector<LLVector3>& profile = volume->getProfile().mProfile;
 
 	// All types of caps have the same number of vertices and indices
 	num_vertices = profile.size();
@@ -4325,8 +4361,8 @@ BOOL LLVolumeFace::createCap(BOOL partial_build)
 		mIndices.resize(num_indices);
 	}
 
-	S32 max_s = mVolumep->getProfile().getTotal();
-	S32 max_t = mVolumep->getPath().mPath.size();
+	S32 max_s = volume->getProfile().getTotal();
+	S32 max_t = volume->getPath().mPath.size();
 
 	mCenter.clearVec();
 
@@ -4350,7 +4386,7 @@ BOOL LLVolumeFace::createCap(BOOL partial_build)
 	LLVector3& max = mExtents[1];
 
 	// Copy the vertices into the array
-	for (i = 0; i < num_vertices; i++)
+	for (S32 i = 0; i < num_vertices; i++)
 	{
 		if (mTypeMask & TOP_MASK)
 		{
@@ -4414,7 +4450,7 @@ BOOL LLVolumeFace::createCap(BOOL partial_build)
 	}
 		
 	
-	for (i = 0; i < num_vertices; i++)
+	for (S32 i = 0; i < num_vertices; i++)
 	{
 		mVertices[i].mBinormal = binormal;
 		mVertices[i].mNormal = normal;
@@ -4435,7 +4471,7 @@ BOOL LLVolumeFace::createCap(BOOL partial_build)
 			// Does it matter if it's open or closed? - djs
 
 			S32 pt1 = 0, pt2 = num_vertices - 1;
-			i = 0;
+			S32 i = 0;
 			while (pt2 - pt1 > 1)
 			{
 				// Use the profile points instead of the mesh, since you want
@@ -4538,7 +4574,7 @@ BOOL LLVolumeFace::createCap(BOOL partial_build)
 			llassert(mTypeMask & BOTTOM_MASK);
 			S32 pt1 = 0, pt2 = num_vertices - 1;
 
-			i = 0;
+			S32 i = 0;
 			while (pt2 - pt1 > 1)
 			{
 				// Use the profile points instead of the mesh, since you want
@@ -4645,7 +4681,7 @@ BOOL LLVolumeFace::createCap(BOOL partial_build)
 				// SOLID OPEN TOP
 				// Generate indices
 				// This is a tri-fan, so we reuse the same first point for all triangles.
-				for (i = 0; i < (num_vertices - 2); i++)
+				for (S32 i = 0; i < (num_vertices - 2); i++)
 				{
 					mIndices[3*i] = num_vertices - 1;
 					mIndices[3*i+1] = i;
@@ -4655,7 +4691,7 @@ BOOL LLVolumeFace::createCap(BOOL partial_build)
 			else
 			{
 				// SOLID CLOSED TOP
-				for (i = 0; i < (num_vertices - 2); i++)
+				for (S32 i = 0; i < (num_vertices - 2); i++)
 				{				
 					//MSMSM fix these caps but only for the un-cut case
 					mIndices[3*i] = num_vertices - 1;
@@ -4671,7 +4707,7 @@ BOOL LLVolumeFace::createCap(BOOL partial_build)
 				// SOLID OPEN BOTTOM
 				// Generate indices
 				// This is a tri-fan, so we reuse the same first point for all triangles.
-				for (i = 0; i < (num_vertices - 2); i++)
+				for (S32 i = 0; i < (num_vertices - 2); i++)
 				{
 					mIndices[3*i] = num_vertices - 1;
 					mIndices[3*i+1] = i + 1;
@@ -4681,7 +4717,7 @@ BOOL LLVolumeFace::createCap(BOOL partial_build)
 			else
 			{
 				// SOLID CLOSED BOTTOM
-				for (i = 0; i < (num_vertices - 2); i++)
+				for (S32 i = 0; i < (num_vertices - 2); i++)
 				{
 					//MSMSM fix these caps but only for the un-cut case
 					mIndices[3*i] = num_vertices - 1;
@@ -4696,6 +4732,8 @@ BOOL LLVolumeFace::createCap(BOOL partial_build)
 
 void LLVolumeFace::createBinormals()
 {
+	LLMemType m1(LLMemType::MTYPE_VOLUME);
+	
 	if (!mHasBinormals)
 	{
 		//generate binormals
@@ -4737,16 +4775,18 @@ void LLVolumeFace::createBinormals()
 	}
 }
 
-BOOL LLVolumeFace::createSide(BOOL partial_build)
+BOOL LLVolumeFace::createSide(LLVolume* volume, BOOL partial_build)
 {
+	LLMemType m1(LLMemType::MTYPE_VOLUME);
+	
 	BOOL flat = mTypeMask & FLAT_MASK;
 	S32 num_vertices, num_indices;
 
-	const std::vector<LLVolume::Point>& mesh = mVolumep->getMesh();
-	const std::vector<LLVector3>& profile = mVolumep->getProfile().mProfile;
-	const std::vector<LLPath::PathPt>& path_data = mVolumep->getPath().mPath;
+	const std::vector<LLVolume::Point>& mesh = volume->getMesh();
+	const std::vector<LLVector3>& profile = volume->getProfile().mProfile;
+	const std::vector<LLPath::PathPt>& path_data = volume->getPath().mPath;
 
-	S32 max_s = mVolumep->getProfile().getTotal();
+	S32 max_s = volume->getProfile().getTotal();
 
 	S32 s, t, i;
 	F32 ss, tt;
@@ -4889,7 +4929,7 @@ BOOL LLVolumeFace::createSide(BOOL partial_build)
 				if (t < mNumT-2) {												//top right/top left neighbor face 
 					mEdge[cur_edge++] = (mNumS-1)*2*(t+1)+s*2+1;
 				}
-				else if (mNumT <= 3 || mVolumep->getPath().isOpen() == TRUE) { //no neighbor
+				else if (mNumT <= 3 || volume->getPath().isOpen() == TRUE) { //no neighbor
 					mEdge[cur_edge++] = -1;
 				}
 				else { //wrap on T
@@ -4898,7 +4938,7 @@ BOOL LLVolumeFace::createSide(BOOL partial_build)
 				if (s > 0) {													//top left/bottom left neighbor face
 					mEdge[cur_edge++] = (mNumS-1)*2*t+s*2-1;
 				}
-				else if (flat_face ||  mVolumep->getProfile().isOpen() == TRUE) { //no neighbor
+				else if (flat_face ||  volume->getProfile().isOpen() == TRUE) { //no neighbor
 					mEdge[cur_edge++] = -1;
 				}
 				else {	//wrap on S
@@ -4908,7 +4948,7 @@ BOOL LLVolumeFace::createSide(BOOL partial_build)
 				if (t > 0) {													//bottom left/bottom right neighbor face
 					mEdge[cur_edge++] = (mNumS-1)*2*(t-1)+s*2;
 				}
-				else if (mNumT <= 3 || mVolumep->getPath().isOpen() == TRUE) { //no neighbor
+				else if (mNumT <= 3 || volume->getPath().isOpen() == TRUE) { //no neighbor
 					mEdge[cur_edge++] = -1;
 				}
 				else { //wrap on T
@@ -4917,7 +4957,7 @@ BOOL LLVolumeFace::createSide(BOOL partial_build)
 				if (s < mNumS-2) {												//bottom right/top right neighbor face
 					mEdge[cur_edge++] = (mNumS-1)*2*t+(s+1)*2;
 				}
-				else if (flat_face || mVolumep->getProfile().isOpen() == TRUE) { //no neighbor
+				else if (flat_face || volume->getProfile().isOpen() == TRUE) { //no neighbor
 					mEdge[cur_edge++] = -1;
 				}
 				else { //wrap on S
@@ -4962,11 +5002,11 @@ BOOL LLVolumeFace::createSide(BOOL partial_build)
 	
 	BOOL s_bottom_converges = ((mVertices[0].mPosition - mVertices[mNumS*(mNumT-2)].mPosition).magVecSquared() < 0.000001f);
 	BOOL s_top_converges = ((mVertices[mNumS-1].mPosition - mVertices[mNumS*(mNumT-2)+mNumS-1].mPosition).magVecSquared() < 0.000001f);
-	U8 sculpt_type = mVolumep->getParams().getSculptType();
+	U8 sculpt_type = volume->getParams().getSculptType();
 
 	if (sculpt_type == LL_SCULPT_TYPE_NONE)  // logic for non-sculpt volumes
 	{
-		if (mVolumep->getPath().isOpen() == FALSE)
+		if (volume->getPath().isOpen() == FALSE)
 		{ //wrap normals on T
 			for (S32 i = 0; i < mNumS; i++)
 			{
@@ -4976,7 +5016,7 @@ BOOL LLVolumeFace::createSide(BOOL partial_build)
 			}
 		}
 
-		if ((mVolumep->getProfile().isOpen() == FALSE) && !(s_bottom_converges))
+		if ((volume->getProfile().isOpen() == FALSE) && !(s_bottom_converges))
 		{ //wrap normals on S
 			for (S32 i = 0; i < mNumT; i++)
 			{
@@ -4986,8 +5026,8 @@ BOOL LLVolumeFace::createSide(BOOL partial_build)
 			}
 		}
 	
-		if (mVolumep->getPathType() == LL_PCODE_PATH_CIRCLE &&
-			((mVolumep->getProfileType() & LL_PCODE_PROFILE_MASK) == LL_PCODE_PROFILE_CIRCLE_HALF))
+		if (volume->getPathType() == LL_PCODE_PATH_CIRCLE &&
+			((volume->getProfileType() & LL_PCODE_PROFILE_MASK) == LL_PCODE_PROFILE_CIRCLE_HALF))
 		{
 			if (s_bottom_converges)
 			{ //all lower S have same normal
@@ -5085,69 +5125,6 @@ BOOL LLVolumeFace::createSide(BOOL partial_build)
 
 	return TRUE;
 }
-
-// Static			
-BOOL LLVolumeFace::updateColors(LLColor4U *old_colors, const S32 num_old, const LLVolumeFace &old_vf,
-								LLStrider<LLColor4U> &new_colors, const S32 num_new, const LLVolumeFace &new_vf)
-{
-	if (new_vf.mTypeMask & CAP_MASK)
-	{
-		// These aren't interpolated correctly.  Need to fix when shadows go in...
-		F32 ratio = (F32)num_old / (F32)num_new;
-		S32 v = 0;
-		for (v = 0; v < num_new; v++)
-		{
-			new_colors[v] = old_colors[(S32)(v*ratio)];
-		}
-		return FALSE;
-	}
-	else if (new_vf.mTypeMask & END_MASK)
-	{
-		// These aren't interpolated correctly.  Need to fix when shadows go in...
-		F32 ratio = (F32)num_old / (F32)num_new;
-		S32 v = 0;
-		for (v = 0; v < num_new; v++)
-		{
-			new_colors[v] = old_colors[(S32)(v*ratio)];
-		}
-		return FALSE;
-	}
-	else if (new_vf.mTypeMask & SIDE_MASK)
-	{
-		S32 s, t;
-		F32 s_ratio = (F32)old_vf.mNumS / (F32)new_vf.mNumS;
-		F32 t_ratio = (F32)old_vf.mNumT / (F32)new_vf.mNumT;
-
-		S32 v = 0;
-		for (t = 0; t < new_vf.mNumT; t++)
-		{
-			F32 t_frac = t * t_ratio;
-			S32 old_t = (S32)t_frac;
-			S32 t_target = llmin(old_t + 1, (old_vf.mNumT - 1));
-			t_frac -= old_t;
-			for (s = 0; s < new_vf.mNumS; s++)
-			{
-				F32 s_frac = s * s_ratio;
-				S32 old_s = (S32)s_frac;
-				S32 s_target = llmin(old_s + 1, (old_vf.mNumS - 1));
-				s_frac -= old_s;
-
-				// Interpolate along s, then along t.
-				LLColor4U s_interp0 = old_colors[old_t *  old_vf.mNumS + old_s].multAll(1.f - s_frac).addClampMax(old_colors[old_t * old_vf.mNumS + s_target].multAll(s_frac));
-				LLColor4U s_interp1 = old_colors[t_target *  old_vf.mNumS + old_s].multAll(1.f - s_frac).addClampMax(old_colors[t_target * old_vf.mNumS + s_target].multAll(s_frac));
-				new_colors[v] = s_interp0.multAll(1.f - t_frac).addClampMax(s_interp1.multAll(t_frac));
-				v++;
-			}
-		}
-	}
-	else
-	{
-		llerrs << "Unknown/uninitialized face type!" << llendl;
-		return FALSE;
-	}
-	return TRUE;
-}
-
 
 // Finds binormal based on three vertices with texture coordinates.
 // Fills in dummy values if the triangle has degenerate texture coordinates.

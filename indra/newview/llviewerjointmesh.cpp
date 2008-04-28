@@ -501,21 +501,6 @@ int compare_int(const void *a, const void *b)
 	else return 0;
 }
 
-void llDrawRangeElements(GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid *indices)
-{
-	if (end-start+1 > (U32) gGLManager.mGLMaxVertexRange ||
-		count > gGLManager.mGLMaxIndexRange)
-	{
-		glDrawElements(mode,count,type,indices);
-	}
-	else
-	{
-		glDrawRangeElements(mode,start,end,count,type,indices);
-	}
-
-	gPipeline.addTrianglesDrawn(count/3);
-}
-
 //--------------------------------------------------------------------
 // LLViewerJointMesh::drawShape()
 //--------------------------------------------------------------------
@@ -626,7 +611,7 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass)
 	U32 start = mMesh->mFaceVertexOffset;
 	U32 end = start + mMesh->mFaceVertexCount - 1;
 	U32 count = mMesh->mFaceIndexCount;
-	U16* indicesp = ((U16*) mFace->mVertexBuffer->getIndicesPointer()) + mMesh->mFaceIndexOffset;
+	U32 offset = mMesh->mFaceIndexOffset;
 
 	if (mMesh->hasWeights())
 	{
@@ -636,23 +621,21 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass)
 			{
 				uploadJointMatrices();
 			}
-			llDrawRangeElements(GL_TRIANGLES, start, end, count, GL_UNSIGNED_SHORT, indicesp);
 		}
-		else
-		{
-			llDrawRangeElements(GL_TRIANGLES, start, end, count, GL_UNSIGNED_SHORT, indicesp);
-		}
+		
+		mFace->mVertexBuffer->drawRange(LLVertexBuffer::TRIANGLES, start, end, count, offset);
 	}
 	else
 	{
 		glPushMatrix();
 		LLMatrix4 jointToWorld = getWorldMatrix();
 		glMultMatrixf((GLfloat*)jointToWorld.mMatrix);
-		llDrawRangeElements(GL_TRIANGLES, start, end, count, GL_UNSIGNED_SHORT, indicesp);
+		mFace->mVertexBuffer->drawRange(LLVertexBuffer::TRIANGLES, start, end, count, offset);
 		glPopMatrix();
 	}
+	gPipeline.addTrianglesDrawn(count/3);
 
-	triangle_count += mMesh->mFaceIndexCount;
+	triangle_count += count;
 	
 	if (mTestImageName)
 	{

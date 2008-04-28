@@ -163,6 +163,8 @@ void LLVisualParamHint::preRender(BOOL clear_depth)
 //-----------------------------------------------------------------------------
 BOOL LLVisualParamHint::render()
 {
+	gGL.start();
+	
 	LLVisualParamReset::sDirty = TRUE;
 	LLVOAvatar* avatarp = gAgent.getAvatarObject();
 
@@ -223,6 +225,7 @@ BOOL LLVisualParamHint::render()
 	LLVector3 camera_pos = target_joint_pos + (camera_snapshot_offset * avatar_rotation);
 	
 	gGL.stop();
+	
 	LLViewerCamera::getInstance()->setAspect((F32)mWidth / (F32)mHeight);
 	LLViewerCamera::getInstance()->setOriginAndLookAt(
 		camera_pos,		// camera
@@ -238,7 +241,7 @@ BOOL LLVisualParamHint::render()
 		avatarPoolp->renderAvatars(avatarp);  // renders only one avatar
 	}
 	avatarp->setVisualParamWeight(mVisualParam, mLastParamWeight);
-	gGL.start();
+
 	return TRUE;
 }
 

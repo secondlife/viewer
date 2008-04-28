@@ -38,6 +38,7 @@
 #include "llglheaders.h"
 #include "llmemory.h"
 #include "llmemtype.h"
+#include "llglimmediate.h"
 
 //============================================================================
 
@@ -76,6 +77,141 @@ S32 LLVertexBuffer::sTypeOffsets[LLVertexBuffer::TYPE_MAX] =
 	sizeof(LLVector4), // TYPE_CLOTHWEIGHT,
 };
 
+U32 LLVertexBuffer::sGLMode[LLVertexBuffer::NUM_MODES] = 
+{
+	GL_TRIANGLES,
+	GL_TRIANGLE_STRIP,
+	GL_TRIANGLE_FAN,
+	GL_POINTS,
+	GL_LINES,
+	GL_LINE_STRIP
+};
+
+//static
+void LLVertexBuffer::setupClientArrays(U32 data_mask)
+{
+	if (LLGLImmediate::sStarted)
+	{
+		llerrs << "Cannot use LLGLImmediate and LLVertexBuffer simultaneously!" << llendl;
+	}
+
+	if (sLastMask != data_mask)
+	{
+		U32 mask[] =
+		{
+			MAP_VERTEX,
+			MAP_NORMAL,
+			MAP_TEXCOORD,
+			MAP_COLOR
+		};
+		
+		GLenum array[] =
+		{
+			GL_VERTEX_ARRAY,
+			GL_NORMAL_ARRAY,
+			GL_TEXTURE_COORD_ARRAY,
+			GL_COLOR_ARRAY
+		};
+
+		for (U32 i = 0; i < 4; ++i)
+		{
+			if (sLastMask & mask[i])
+			{ //was enabled
+				if (!(data_mask & mask[i]) && i > 0)
+				{ //needs to be disabled
+					glDisableClientState(array[i]);
+				}
+				else
+				{ //needs to be enabled, make sure it was (DEBUG TEMPORARY)
+					if (i > 0 && !glIsEnabled(array[i]))
+					{
+						llerrs << "Bad client state! " << array[i] << " disabled." << llendl;
+					}
+				}
+			}
+			else 
+			{	//was disabled
+				if (data_mask & mask[i])
+				{ //needs to be enabled
+					glEnableClientState(array[i]);
+				}
+				else if (glIsEnabled(array[i]))
+				{ //needs to be disabled, make sure it was (DEBUG TEMPORARY)
+					llerrs << "Bad client state! " << array[i] << " enabled." << llendl;
+				}
+			}
+		}
+
+		if (sLastMask & MAP_TEXCOORD2)
+		{
+			if (!(data_mask & MAP_TEXCOORD2))
+			{
+				glClientActiveTextureARB(GL_TEXTURE1_ARB);
+				glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+				glClientActiveTextureARB(GL_TEXTURE0_ARB);
+			}
+		}
+		else if (data_mask & MAP_TEXCOORD2)
+		{
+			glClientActiveTextureARB(GL_TEXTURE1_ARB);
+			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+			glClientActiveTextureARB(GL_TEXTURE0_ARB);
+		}
+
+		sLastMask = data_mask;
+	}
+}
+
+void LLVertexBuffer::drawRange(U32 mode, U32 start, U32 end, U32 count, U32 indices_offset) const
+{
+	if (start >= (U32) mRequestedNumVerts ||
+		end >= (U32) mRequestedNumVerts)
+	{
+		llerrs << "Bad vertex buffer draw range: [" << start << ", " << end << "]" << llendl;
+	}
+
+	if (indices_offset >= (U32) mRequestedNumIndices ||
+		indices_offset + count > (U32) mRequestedNumIndices)
+	{
+		llerrs << "Bad index buffer draw range: [" << indices_offset << ", " << indices_offset+count << "]" << llendl;
+	}
+
+	if (mGLIndices != sGLRenderIndices)
+	{
+		llerrs << "Wrong index buffer bound." << llendl;
+	}
+
+	if (mGLBuffer != sGLRenderBuffer)
+	{
+		llerrs << "Wrong vertex buffer bound." << llendl;
+	}
+
+	glDrawRangeElements(sGLMode[mode], start, end, count, GL_UNSIGNED_SHORT, 
+		((U16*) getIndicesPointer()) + indices_offset);
+}
+
+void LLVertexBuffer::draw(U32 mode, U32 count, U32 indices_offset) const
+{
+	if (indices_offset >= (U32) mRequestedNumIndices ||
+		indices_offset + count > (U32) mRequestedNumIndices)
+	{
+		llerrs << "Bad index buffer draw range: [" << indices_offset << ", " << indices_offset+count << "]" << llendl;
+	}
+
+	if (mGLIndices != sGLRenderIndices)
+	{
+		llerrs << "Wrong index buffer bound." << llendl;
+	}
+
+	if (mGLBuffer != sGLRenderBuffer)
+	{
+		llerrs << "Wrong vertex buffer bound." << llendl;
+	}
+
+	glDrawElements(sGLMode[mode], count, GL_UNSIGNED_SHORT,
+		((U16*) getIndicesPointer()) + indices_offset);
+}
+
 //static
 void LLVertexBuffer::initClass(bool use_vbo)
 {
@@ -102,7 +238,8 @@ void LLVertexBuffer::unbind()
 
 	sGLRenderBuffer = 0;
 	sGLRenderIndices = 0;
-	sLastMask = 0;
+
+	setupClientArrays(0);
 }
 
 //static
@@ -118,22 +255,14 @@ void LLVertexBuffer::cleanupClass()
 void LLVertexBuffer::startRender()
 {		
 	LLMemType mt(LLMemType::MTYPE_VERTEX_DATA);
-	if (sEnableVBOs)
-	{
-		glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
-		glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
-		sVBOActive = FALSE;
-		sIBOActive = FALSE;
-	}
-	
+
+	unbind();
 	sRenderActive = TRUE;
-	sGLRenderBuffer = 0;
-	sGLRenderIndices = 0;
-	sLastMask = 0;
 }
 
 void LLVertexBuffer::stopRender()
 {
+	unbind();
 	sRenderActive = FALSE;
 }
 
@@ -615,6 +744,16 @@ U8* LLVertexBuffer::mapBuffer(S32 access)
 			llerrs << "Mapped two VBOs at the same time!" << llendl;
 		}
 		sMapped = TRUE;*/
+		if (!mMappedData)
+		{
+			llerrs << "glMapBuffer returned NULL (no vertex data)" << llendl;
+		}
+
+		if (!mMappedIndexData)
+		{
+			llerrs << "glMapBuffer returned NULL (no index data)" << llendl;
+		}
+
 		sMappedCount++;
 	}
 	
@@ -666,7 +805,12 @@ template <class T,S32 type> struct VertexBufferStrider
 					strider_t& strider, 
 					S32 index)
 	{
-		vbo.mapBuffer();
+		if (vbo.mapBuffer() == NULL)
+		{
+			llwarns << "mapBuffer failed!" << llendl;
+			return FALSE;
+		}
+
 		if (type == LLVertexBuffer::TYPE_INDEX)
 		{
 			S32 stride = sizeof(T);
@@ -828,6 +972,8 @@ void LLVertexBuffer::setBuffer(U32 data_mask)
 			sIBOActive = FALSE;
 		}
 	}
+
+	setupClientArrays(data_mask);
 	
 	if (mGLIndices)
 	{
@@ -846,8 +992,6 @@ void LLVertexBuffer::setBuffer(U32 data_mask)
 			sSetCount++;
 		}
 	}
-
-	sLastMask = data_mask;
 }
 
 // virtual (default)
@@ -871,10 +1015,10 @@ void LLVertexBuffer::setupVertexBuffer(U32 data_mask) const
 	{
 		glClientActiveTextureARB(GL_TEXTURE1_ARB);
 		glTexCoordPointer(2,GL_FLOAT, stride, (void*)(base + mOffsets[TYPE_TEXCOORD2]));
+		glClientActiveTextureARB(GL_TEXTURE0_ARB);
 	}
 	if (data_mask & MAP_TEXCOORD)
 	{
-		glClientActiveTextureARB(GL_TEXTURE0_ARB);
 		glTexCoordPointer(2,GL_FLOAT, stride, (void*)(base + mOffsets[TYPE_TEXCOORD]));
 	}
 	if (data_mask & MAP_COLOR)

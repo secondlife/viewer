@@ -643,9 +643,8 @@ protected:
 class LLProfile
 {
 public:
-	LLProfile(const LLProfileParams &params)
-		: mParams(params),
-		  mOpen(FALSE),
+	LLProfile()
+		: mOpen(FALSE),
 		  mConcave(FALSE),
 		  mDirty(TRUE),
 		  mTotalOut(0),
@@ -657,15 +656,12 @@ public:
 
 	S32	 getTotal() const								{ return mTotal; }
 	S32	 getTotalOut() const							{ return mTotalOut; }	// Total number of outside points
-	BOOL isHollow() const								{ return (mParams.getHollow() > 0); }
 	BOOL isFlat(S32 face) const							{ return (mFaces[face].mCount == 2); }
 	BOOL isOpen() const									{ return mOpen; }
 	void setDirty()										{ mDirty     = TRUE; }
-	BOOL generate(BOOL path_open, F32 detail = 1.0f, S32 split = 0, BOOL is_sculpted = FALSE);
+	BOOL generate(const LLProfileParams& params, BOOL path_open, F32 detail = 1.0f, S32 split = 0, BOOL is_sculpted = FALSE);
 	BOOL isConcave() const								{ return mConcave; }
 public:
-	const LLProfileParams &mParams;
-
 	struct Face
 	{
 		S32       mIndex;
@@ -687,10 +683,10 @@ public:
 	friend std::ostream& operator<<(std::ostream &s, const LLProfile &profile);
 
 protected:
-	void genNormals();
-	void genNGon(S32 sides, F32 offset=0.0f, F32 bevel = 0.0f, F32 ang_scale = 1.f, S32 split = 0);
+	void genNormals(const LLProfileParams& params);
+	void genNGon(const LLProfileParams& params, S32 sides, F32 offset=0.0f, F32 bevel = 0.0f, F32 ang_scale = 1.f, S32 split = 0);
 
-	Face* addHole(BOOL flat, F32 sides, F32 offset, F32 box_hollow, F32 ang_scale, S32 split = 0);
+	Face* addHole(const LLProfileParams& params, BOOL flat, F32 sides, F32 offset, F32 box_hollow, F32 ang_scale, S32 split = 0);
 	Face* addCap (S16 faceID);
 	Face* addFace(S32 index, S32 count, F32 scaleU, S16 faceID, BOOL flat);
 
@@ -720,9 +716,8 @@ public:
 	};
 
 public:
-	LLPath(const LLPathParams &params)
-		: mParams(params),
-		  mOpen(FALSE),
+	LLPath()
+		: mOpen(FALSE),
 		  mTotal(0),
 		  mDirty(TRUE),
 		  mStep(1)
@@ -731,8 +726,8 @@ public:
 
 	virtual ~LLPath();
 
-	void genNGon(S32 sides, F32 offset=0.0f, F32 end_scale = 1.f, F32 twist_scale = 1.f);
-	virtual BOOL generate(F32 detail=1.0f, S32 split = 0, BOOL is_sculpted = FALSE);
+	void genNGon(const LLPathParams& params, S32 sides, F32 offset=0.0f, F32 end_scale = 1.f, F32 twist_scale = 1.f);
+	virtual BOOL generate(const LLPathParams& params, F32 detail=1.0f, S32 split = 0, BOOL is_sculpted = FALSE);
 
 	BOOL isOpen() const						{ return mOpen; }
 	F32 getStep() const						{ return mStep; }
@@ -745,7 +740,6 @@ public:
 	friend std::ostream& operator<<(std::ostream &s, const LLPath &path);
 
 public:
-	const LLPathParams &mParams;
 	std::vector<PathPt> mPath;
 
 protected:
@@ -758,8 +752,8 @@ protected:
 class LLDynamicPath : public LLPath
 {
 public:
-	LLDynamicPath(const LLPathParams &params) : LLPath(params) { }
-	BOOL generate(F32 detail=1.0f, S32 split = 0, BOOL is_sculpted = FALSE);
+	LLDynamicPath() : LLPath() { }
+	/*virtual*/ BOOL generate(const LLPathParams& params, F32 detail=1.0f, S32 split = 0, BOOL is_sculpted = FALSE);
 };
 
 // Yet another "face" class - caches volume-specific, but not instance-specific data for faces)
@@ -767,7 +761,7 @@ class LLVolumeFace
 {
 public:
 	LLVolumeFace();
-	BOOL create(BOOL partial_build = FALSE);
+	BOOL create(LLVolume* volume, BOOL partial_build = FALSE);
 	void createBinormals();
 
 	class VertexData
@@ -811,16 +805,11 @@ public:
 	std::vector<VertexData> mVertices;
 	std::vector<U16>	mIndices;
 	std::vector<S32>	mEdge;
-	LLVolume *mVolumep; // Deliberately NOT reference counted - djs 11/20/03 - otherwise would make an annoying circular reference
 
-	// Shouldn't need num_old and num_new, really - djs
-	static BOOL updateColors(LLColor4U *old_colors, const S32 num_old, const LLVolumeFace &old_face,
-							 LLStrider<LLColor4U> &new_colors, const S32 num_new, const LLVolumeFace &new_face);
-	
-protected:
-	BOOL createUnCutCubeCap(BOOL partial_build = FALSE);
-	BOOL createCap(BOOL partial_build = FALSE);
-	BOOL createSide(BOOL partial_build = FALSE);
+private:
+	BOOL createUnCutCubeCap(LLVolume* volume, BOOL partial_build = FALSE);
+	BOOL createCap(LLVolume* volume, BOOL partial_build = FALSE);
+	BOOL createSide(LLVolume* volume, BOOL partial_build = FALSE);
 };
 
 class LLVolume : public LLRefCount
@@ -848,12 +837,12 @@ public:
 
 	LLVolume(const LLVolumeParams &params, const F32 detail, const BOOL generate_single_face = FALSE, const BOOL is_unique = FALSE);
 	
-	U8 getProfileType()	const								{ return mProfilep->mParams.getCurveType(); }
-	U8 getPathType() const									{ return mPathp->mParams.getCurveType(); }
+	U8 getProfileType()	const								{ return mParams.getProfileParams().getCurveType(); }
+	U8 getPathType() const									{ return mParams.getPathParams().getCurveType(); }
 	S32	getNumFaces() const									{ return (S32)mProfilep->mFaces.size(); }
-	S32 getNumVolumeFaces() const							{ return mNumVolumeFaces; }
-	F32 getDetail() const								{ return mDetail; }
-	const LLVolumeParams & getParams() const				{ return mParams; }
+	S32 getNumVolumeFaces() const							{ return mVolumeFaces.size(); }
+	F32 getDetail() const									{ return mDetail; }
+	const LLVolumeParams& getParams() const					{ return mParams; }
 	LLVolumeParams getCopyOfParams() const					{ return mParams; }
 	const LLProfile& getProfile() const						{ return *mProfilep; }
 	LLPath& getPath() const									{ return *mPathp; }
@@ -932,8 +921,8 @@ protected:
 	std::vector<Point> mMesh;
 
 	BOOL mGenerateSingleFace;
-	S32 mNumVolumeFaces;
-	LLVolumeFace *mVolumeFaces;
+	typedef std::vector<LLVolumeFace> face_list_t;
+	face_list_t mVolumeFaces;
 };
 
 std::ostream& operator<<(std::ostream &s, const LLVolumeParams &volume_params);

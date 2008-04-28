@@ -32,6 +32,7 @@
 #include "linden_common.h"
 
 #include "material_codes.h"
+#include "llmemtype.h"
 #include "llerror.h"
 #include "message.h"
 #include "llprimitive.h"
@@ -178,7 +179,7 @@ LLPrimitive::~LLPrimitive()
 	// Cleanup handled by volume manager
 	if (mVolumep)
 	{
-		sVolumeManager->cleanupVolume(mVolumep);
+		sVolumeManager->unrefVolume(mVolumep);
 	}
 	mVolumep = NULL;
 }
@@ -187,6 +188,7 @@ LLPrimitive::~LLPrimitive()
 // static
 LLPrimitive *LLPrimitive::createPrimitive(LLPCode p_code)
 {
+	LLMemType m1(LLMemType::MTYPE_PRIMITIVE);
 	LLPrimitive *retval = new LLPrimitive();
 	
 	if (retval)
@@ -204,6 +206,7 @@ LLPrimitive *LLPrimitive::createPrimitive(LLPCode p_code)
 //===============================================================
 void LLPrimitive::init_primitive(LLPCode p_code)
 {
+	LLMemType m1(LLMemType::MTYPE_PRIMITIVE);
 	if (mNumTEs)
 	{
 		if (mTextureList)
@@ -246,6 +249,7 @@ void LLPrimitive::setNumTEs(const U8 num_tes)
 	// Right now, we don't try and preserve entries when the number of faces
 	// changes.
 
+	LLMemType m1(LLMemType::MTYPE_PRIMITIVE);
 	if (num_tes)
 	{
 		LLTextureEntry *new_tes;
@@ -914,6 +918,7 @@ S32	face_index_from_id(LLFaceID face_ID, const std::vector<LLProfile::Face>& fac
 
 BOOL LLPrimitive::setVolume(const LLVolumeParams &volume_params, const S32 detail, bool unique_volume)
 {
+	LLMemType m1(LLMemType::MTYPE_VOLUME);
 	LLVolume *volumep;
 	if (unique_volume)
 	{
@@ -935,10 +940,10 @@ BOOL LLPrimitive::setVolume(const LLVolumeParams &volume_params, const S32 detai
 			}
 		}
 
-		volumep = sVolumeManager->getVolume(volume_params, detail);
+		volumep = sVolumeManager->refVolume(volume_params, detail);
 		if (volumep == mVolumep)
 		{
-			sVolumeManager->cleanupVolume( volumep );  // LLVolumeMgr::getVolume() creates a reference, but we don't need a second one.
+			sVolumeManager->unrefVolume( volumep );  // LLVolumeMgr::refVolume() creates a reference, but we don't need a second one.
 			return TRUE;
 		}
 	}
@@ -981,7 +986,7 @@ BOOL LLPrimitive::setVolume(const LLVolumeParams &volume_params, const S32 detai
 
 
 	// build the new object
-	sVolumeManager->cleanupVolume(mVolumep);
+	sVolumeManager->unrefVolume(mVolumep);
 	mVolumep = volumep;
 	
 	U32 new_face_mask = mVolumep->mFaceMask;
