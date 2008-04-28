@@ -210,6 +210,13 @@ void LLFloaterChatterBox::onClose(bool app_quitting)
 	gSavedSettings.setBOOL("ShowCommunicate", FALSE);
 }
 
+void LLFloaterChatterBox::setMinimized(BOOL minimized)
+{
+	LLFloater::setMinimized(minimized);
+	// HACK: potentially need to toggle console
+	LLFloaterChat::getInstance()->updateConsoleVisibility();
+}
+
 void LLFloaterChatterBox::removeFloater(LLFloater* floaterp)
 {
 	if (floaterp->getName() == "chat floater")

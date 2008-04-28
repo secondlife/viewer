@@ -51,6 +51,7 @@ public:
 	/*virtual*/ void draw();
 	/*virtual*/ void onOpen();
 	/*virtual*/ void onClose(bool app_quitting);
+	/*virtual*/ void setMinimized(BOOL minimized);
 
 	/*virtual*/ void removeFloater(LLFloater* floaterp);
 	/*virtual*/ void addFloater(LLFloater* floaterp, 

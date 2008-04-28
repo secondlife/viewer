@@ -907,7 +907,7 @@ BOOL LLImagePreviewSculpted::render()
 		gGL.color3f(0.4f, 0.4f, 0.4f);
 		glVertexPointer(3, GL_FLOAT, 0, (void *)vertices);
 		glNormalPointer(GL_FLOAT, 0, (void *)normals);
-		glDrawRangeElements(GL_TRIANGLES, 0, num_indices-1, num_indices, GL_UNSIGNED_SHORT, (void *)indices);
+		glDrawRangeElements(GL_TRIANGLES, 0, num_vertices-1, num_indices, GL_UNSIGNED_SHORT, (void *)indices);
 		
 		gGL.popMatrix();
 		glDisableClientState(GL_NORMAL_ARRAY);

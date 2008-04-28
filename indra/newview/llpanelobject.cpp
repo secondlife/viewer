@@ -1815,7 +1815,7 @@ void LLPanelObject::clearCtrls()
 	mLabelRadiusOffset->setEnabled( FALSE );
 	mLabelRevolutions->setEnabled( FALSE );
 
-	childSetVisible("select_single", TRUE);
+	childSetVisible("select_single", FALSE);
 	childSetVisible("edit_object", TRUE);	
 	childSetEnabled("edit_object", FALSE);
 	

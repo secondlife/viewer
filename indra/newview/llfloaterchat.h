@@ -62,6 +62,8 @@ public:
 	virtual BOOL postBuild();
 	virtual void onClose(bool app_quitting);
 	virtual void onVisibilityChange(BOOL cur_visibility);
+	virtual void setMinimized(BOOL);
+	void updateConsoleVisibility();
 
 	static void setHistoryCursorAndScrollToEnd();
 	

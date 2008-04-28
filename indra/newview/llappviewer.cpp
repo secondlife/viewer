@@ -296,6 +296,7 @@ BOOL				gPrintMessagesThisFrame = FALSE;
 BOOL gRandomizeFramerate = FALSE;
 BOOL gPeriodicSlowFrame = FALSE;
 
+BOOL gCrashOnStartup = FALSE;
 BOOL gLLErrorActivated = FALSE;
 BOOL gLogoutInProgress = FALSE;
 ////////////////////////////////////////////////////////////
@@ -1621,12 +1622,6 @@ bool LLAppViewer::initConfiguration()
 	
 	// - selectively apply settings 
 
-	// If we have specified crash on startup, might as well do it now.
-	if(clp.hasOption("crashonstartup"))
-	{
-		LLAppViewer::instance()->forceErrorLLError();
-	}
-
 	// If the user has specified a alternate settings file name.
 	// Load	it now before loading the user_settings/settings.xml
 	if(clp.hasOption("settings"))
@@ -1726,7 +1721,13 @@ bool LLAppViewer::initConfiguration()
 
     initGridChoice();
 
-    // Handle slurl use. NOTE: Don't let SL-55321 reappear.
+	// If we have specified crash on startup, set the global so we'll trigger the crash at the right time
+	if(clp.hasOption("crashonstartup"))
+	{
+		gCrashOnStartup = TRUE;
+	}
+
+	// Handle slurl use. NOTE: Don't let SL-55321 reappear.
 
     // *FIX: This init code should be made more robust to prevent 
     // the issue SL-55321 from returning. One thought is to allow 
@@ -2021,6 +2022,7 @@ bool LLAppViewer::initConfiguration()
 	};
 
 	gLastRunVersion = gSavedSettings.getString("LastRunVersion");
+
 	return true; // Config was successful.
 }
 
@@ -2076,6 +2078,12 @@ bool LLAppViewer::initWindow()
 		gSavedSettings.saveToFile( gSavedSettings.getString("ClientSettingsFile"), TRUE );
 	}
 
+	//If we have a startup crash, it's usually near GL initialization, so simulate that.
+	if(gCrashOnStartup)
+	{
+		LLAppViewer::instance()->forceErrorLLError();
+	}
+
 	LLUI::sWindow = gViewerWindow->getWindow();
 
 	LLAlertDialog::parseAlerts("alerts.xml");
@@ -2089,6 +2097,7 @@ bool LLAppViewer::initWindow()
 
 	// show viewer window
 	gViewerWindow->mWindow->show();
+
 	
 	return true;
 }

@@ -9687,25 +9687,28 @@ U32 calc_shame(LLVOVolume* volume, std::set<LLUUID> &textures)
 			invisi = 1;
 		}
 
-		if (te->getBumpmap())
+		if (te)
 		{
-			bump = 1;
-		}
-		if (te->getShiny())
-		{
-			shiny = 1;
-		}
-		if (te->getGlow() > 0.f)
-		{
-			glow = 1;
-		}
-		if (face->mTextureMatrix != NULL)
-		{
-			animtex++;
-		}
-		if (te->getTexGen())
-		{
-			planar++;
+			if (te->getBumpmap())
+			{
+				bump = 1;
+			}
+			if (te->getShiny())
+			{
+				shiny = 1;
+			}
+			if (te->getGlow() > 0.f)
+			{
+				glow = 1;
+			}
+			if (face->mTextureMatrix != NULL)
+			{
+				animtex++;
+			}
+			if (te->getTexGen())
+			{
+				planar++;
+			}
 		}
 	}
 

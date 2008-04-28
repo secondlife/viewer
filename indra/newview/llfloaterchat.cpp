@@ -162,7 +162,7 @@ void LLFloaterChat::onClose(bool app_quitting)
 void LLFloaterChat::onVisibilityChange(BOOL new_visibility)
 {
 	// Hide the chat overlay when our history is visible.
-	gConsole->setVisible( !new_visibility );
+	updateConsoleVisibility();
 
 	// stop chat history tab from flashing when it appears
 	if (new_visibility)
@@ -171,6 +171,21 @@ void LLFloaterChat::onVisibilityChange(BOOL new_visibility)
 	}
 
 	LLFloater::onVisibilityChange(new_visibility);
+}
+
+void LLFloaterChat::setMinimized(BOOL minimized)
+{
+	LLFloater::setMinimized(minimized);
+	updateConsoleVisibility();
+}
+
+
+void LLFloaterChat::updateConsoleVisibility()
+{
+	// determine whether we should show console due to not being visible
+	gConsole->setVisible( !isInVisibleChain()								// are we not in part of UI being drawn?
+							|| isMinimized()								// are we minimized?
+							|| (getHost() && getHost()->isMinimized() ));	// are we hosted in a minimized floater?
 }
 
 void add_timestamped_line(LLViewerTextEditor* edit, const LLString& line, const LLColor4& color)
