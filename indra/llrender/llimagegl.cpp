@@ -628,7 +628,7 @@ void LLImageGL::setImage(const U8* data_in, BOOL data_hasmips)
 					{
 						S32 bytes = w * h * mComponents;
 						llassert(prev_mip_data);
-						llassert(prev_mip_size == bytes);
+						llassert(prev_mip_size == bytes*4);
 						U8* new_data = new U8[bytes];
 						llassert_always(new_data);
 						LLImageBase::generateMip(prev_mip_data, new_data, w, h, mComponents);

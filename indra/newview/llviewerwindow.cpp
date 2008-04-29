@@ -1259,8 +1259,8 @@ void LLViewerWindow::handleFocusLost(LLWindow *window)
 	}
 
 	// restore mouse cursor
-	gViewerWindow->showCursor();
-	gViewerWindow->getWindow()->setMouseClipping(FALSE);
+	showCursor();
+	getWindow()->setMouseClipping(FALSE);
 
 	// JC - Leave keyboard focus, so if you're popping in and out editing
 	// a script, you don't have to click in the editor again and again.
@@ -1435,7 +1435,7 @@ BOOL LLViewerWindow::handlePaint(LLWindow *window,  S32 x,  S32 y, S32 width,  S
 
 void LLViewerWindow::handleScrollWheel(LLWindow *window,  S32 clicks)
 {
-	gViewerWindow->handleScrollWheel( clicks );
+	handleScrollWheel( clicks );
 }
 
 void LLViewerWindow::handleWindowBlock(LLWindow *window)
