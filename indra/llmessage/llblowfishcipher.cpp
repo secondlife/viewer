@@ -30,8 +30,8 @@
  */
 
 #include "linden_common.h"
-
 #include "llblowfishcipher.h"
+#include <openssl/evp.h>
 
 
 LLBlowfishCipher::LLBlowfishCipher(const U8* secret, size_t secret_size)
@@ -49,11 +49,6 @@ LLBlowfishCipher::~LLBlowfishCipher()
 	delete [] mSecret;
 	mSecret = NULL;
 }
-
-
-#if LL_LINUX
-
-#include <openssl/evp.h>
 
 // virtual
 U32 LLBlowfishCipher::encrypt(const U8* src, U32 src_len, U8* dst, U32 dst_len)
@@ -133,29 +128,3 @@ U32 LLBlowfishCipher::requiredEncryptionSpace(U32 len) const
 	len -= (len % BLOCK_SIZE);
 	return len;
 }
-
-#else	// !LL_LINUX
-
-// virtual
-U32 LLBlowfishCipher::encrypt(const U8* src, U32 src_len, U8* dst, U32 dst_len)
-{
-	llerrs << "LLBlowfishCipher only supported on Linux" << llendl;
-	return 0;
-}
-
-// virtual
-U32 LLBlowfishCipher::decrypt(const U8* src, U32 src_len, U8* dst, U32 dst_len)
-{
-	llerrs << "LLBlowfishCipher only supported on Linux" << llendl;
-	return 0;
-}
-
-// virtual
-U32 LLBlowfishCipher::requiredEncryptionSpace(U32 len) const
-{
-	llerrs << "LLBlowfishCipher only supported on Linux" << llendl;
-	return 0;
-}
-
-#endif
-
