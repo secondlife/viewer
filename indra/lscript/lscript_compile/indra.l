@@ -12,6 +12,7 @@ FS			(f|F)
 #include "linden_common.h"
 // Deal with the fact that lex/yacc generates unreachable code
 #ifdef LL_WINDOWS
+#pragma warning (disable : 4018) // warning C4018: signed/unsigned mismatch
 #pragma warning (disable : 4702) // warning C4702: unreachable code
 #endif	//	LL_WINDOWS
 #include "llmath.h"
@@ -44,7 +45,10 @@ void parse_string();
 
 #define YYLMAX 16384
 #define YY_NEVER_INTERACTIVE 1 /* stops flex from calling isatty() */
- 
+#ifdef LL_WINDOWS
+#define isatty(x) 0 /* hack for bug in cygwin flex 2.5.35 */
+#endif
+
 #ifdef ECHO
 #undef ECHO
 #endif
