@@ -47,6 +47,7 @@
 #include "llhudmanager.h"
 #include "llinventorymodel.h"
 #include "llinventoryview.h"
+#include "llmutelist.h"
 #include "llnotify.h"
 #include "llpreviewnotecard.h"
 #include "llselectmgr.h"
@@ -1693,6 +1694,8 @@ void LLToolDragAndDrop::commitGiveInventoryItem(const LLUUID& to_agent,
 	effectp->setDuration(LL_HUD_DUR_SHORT);
 	effectp->setColor(LLColor4U(gAgent.getEffectColor()));
 	gFloaterTools->dirty();
+
+	LLMuteList::getInstance()->autoRemove(to_agent, LLMuteList::AR_INVENTORY);
 }
 
 void LLToolDragAndDrop::giveInventoryCategory(const LLUUID& to_agent,
@@ -1895,6 +1898,8 @@ void LLToolDragAndDrop::commitGiveInventoryCategory(const LLUUID& to_agent,
 		effectp->setDuration(LL_HUD_DUR_SHORT);
 		effectp->setColor(LLColor4U(gAgent.getEffectColor()));
 		gFloaterTools->dirty();
+
+		LLMuteList::getInstance()->autoRemove(to_agent, LLMuteList::AR_INVENTORY);
 	}
 }
 

@@ -1244,14 +1244,14 @@ BOOL LLTextEditor::handleHover(S32 x, S32 y, MASK mask)
 			const LLTextSegment* cur_segment = getSegmentAtLocalPos( x, y );
 			if( cur_segment )
 			{
-				if(cur_segment->getStyle().isLink())
+				if(cur_segment->getStyle()->isLink())
 				{
 					lldebugst(LLERR_USER_INPUT) << "hover handled by " << getName() << " (over link, inactive)" << llendl;		
 					getWindow()->setCursor(UI_CURSOR_HAND);
 					handled = TRUE;
 				}
 				else
-				if(cur_segment->getStyle().getIsEmbeddedItem())
+				if(cur_segment->getStyle()->getIsEmbeddedItem())
 				{
 					lldebugst(LLERR_USER_INPUT) << "hover handled by " << getName() << " (over embedded item, inactive)" << llendl;		
 					getWindow()->setCursor(UI_CURSOR_HAND);
@@ -2928,23 +2928,26 @@ void LLTextEditor::drawText()
 			S32 clipped_len =	clipped_end - seg_start;
 			if( clipped_len > 0 )
 			{
-				LLStyle style = cur_segment->getStyle();
-				if ( style.isImage() && (cur_segment->getStart() >= seg_start) && (cur_segment->getStart() <= clipped_end))
+				LLStyleSP style = cur_segment->getStyle();
+				if ( style->isImage() && (cur_segment->getStart() >= seg_start) && (cur_segment->getStart() <= clipped_end))
 				{
-					LLUIImagePtr image = style.getImage();
-					image->draw(llround(text_x), llround(text_y)+line_height-style.mImageHeight, style.mImageWidth, style.mImageHeight);
+					S32 style_image_height = style->mImageHeight;
+					S32 style_image_width = style->mImageWidth;
+					LLUIImagePtr image = style->getImage();
+					image->draw(llround(text_x), llround(text_y)+line_height-style_image_height, 
+						style_image_width, style_image_height);
 				}
 
-				if (cur_segment == mHoverSegment && style.getIsEmbeddedItem())
+				if (cur_segment == mHoverSegment && style->getIsEmbeddedItem())
 				{
-					style.mUnderline = TRUE;
+					style->mUnderline = TRUE;
 				}
 
 				S32 left_pos = llmin( mSelectionStart, mSelectionEnd );
 				
 				if ( (mParseHTML) && (left_pos > seg_start) && (left_pos < clipped_end) &&  mIsSelecting && (mSelectionStart == mSelectionEnd) )
 				{
-					mHTML = style.getLinkHREF();
+					mHTML = style->getLinkHREF();
 				}
 
 				drawClippedSegment( text, seg_start, clipped_end, text_x, text_y, selection_left, selection_right, style, &text_x );
@@ -2963,38 +2966,38 @@ void LLTextEditor::drawText()
 }
 
 // Draws a single text segment, reversing the color for selection if needed.
-void LLTextEditor::drawClippedSegment(const LLWString &text, S32 seg_start, S32 seg_end, F32 x, F32 y, S32 selection_left, S32 selection_right, const LLStyle& style, F32* right_x )
+void LLTextEditor::drawClippedSegment(const LLWString &text, S32 seg_start, S32 seg_end, F32 x, F32 y, S32 selection_left, S32 selection_right, const LLStyleSP& style, F32* right_x )
 {
-	if (!style.isVisible())
+	if (!style->isVisible())
 	{
 		return;
 	}
 
 	const LLFontGL* font = mGLFont;
 
-	LLColor4 color = style.getColor();
+	LLColor4 color = style->getColor();
 
-	if ( style.getFontString()[0] )
+	if ( style->getFontString()[0] )
 	{
-		font = LLResMgr::getInstance()->getRes(style.getFontID());
+		font = LLResMgr::getInstance()->getRes(style->getFontID());
 	}
 
 	U8 font_flags = LLFontGL::NORMAL;
 	
-	if (style.mBold)
+	if (style->mBold)
 	{
 		font_flags |= LLFontGL::BOLD;
 	}
-	if (style.mItalic)
+	if (style->mItalic)
 	{
 		font_flags |= LLFontGL::ITALIC;
 	}
-	if (style.mUnderline)
+	if (style->mUnderline)
 	{
 		font_flags |= LLFontGL::UNDERLINE;
 	}
 
-	if (style.getIsEmbeddedItem())
+	if (style->getIsEmbeddedItem())
 	{
 		if (mReadOnly)
 		{
@@ -3434,17 +3437,17 @@ void LLTextEditor::appendColoredText(const LLString &new_text,
 									 const LLColor4 &color,
 									 const LLString& font_name)
 {
-	LLStyle style;
-	style.setVisible(true);
-	style.setColor(color);
-	style.setFontName(font_name);
+	LLStyleSP style(new LLStyle);
+	style->setVisible(true);
+	style->setColor(color);
+	style->setFontName(font_name);
 	appendStyledText(new_text, allow_undo, prepend_newline, &style);
 }
 
 void LLTextEditor::appendStyledText(const LLString &new_text, 
 									 bool allow_undo, 
 									 bool prepend_newline,
-									 const LLStyle* style)
+									 const LLStyleSP *stylep)
 {
 	if(mParseHTML)
 	{
@@ -3453,17 +3456,17 @@ void LLTextEditor::appendStyledText(const LLString &new_text,
 		LLString text = new_text;
 		while ( findHTML(text, &start, &end) )
 		{
-			LLStyle html;
-			html.setVisible(true);
-			html.setColor(mLinkColor);
-			if (style)
+			LLStyleSP html(new LLStyle);
+			html->setVisible(true);
+			html->setColor(mLinkColor);
+			if (stylep)
 			{
-				html.setFontName(style->getFontString());
+				html->setFontName((*stylep)->getFontString());
 			}
-			html.mUnderline = TRUE;
+			html->mUnderline = TRUE;
 
-			if (start > 0) appendText(text.substr(0,start),allow_undo, prepend_newline, style);
-			html.setLinkHREF(text.substr(start,end-start));
+			if (start > 0) appendText(text.substr(0,start),allow_undo, prepend_newline, stylep);
+			html->setLinkHREF(text.substr(start,end-start));
 			appendText(text.substr(start, end-start),allow_undo, prepend_newline, &html);
 			if (end < (S32)text.length()) 
 			{
@@ -3475,17 +3478,17 @@ void LLTextEditor::appendStyledText(const LLString &new_text,
 				break;
 			}
 		}
-		if (end < (S32)text.length()) appendText(text,allow_undo, prepend_newline, style);	
+		if (end < (S32)text.length()) appendText(text,allow_undo, prepend_newline, stylep);
 	}
 	else
 	{
-		appendText(new_text, allow_undo, prepend_newline, style);
+		appendText(new_text, allow_undo, prepend_newline, stylep);
 	}
 }
 
 // Appends new text to end of document
 void LLTextEditor::appendText(const LLString &new_text, bool allow_undo, bool prepend_newline,
-							  const LLStyle* segment_style)
+							  const LLStyleSP *stylep)
 {
 	// Save old state
 	BOOL was_scrolled_to_bottom = (mScrollbar->getDocPos() == mScrollbar->getDocPosMax());
@@ -3513,11 +3516,11 @@ void LLTextEditor::appendText(const LLString &new_text, bool allow_undo, bool pr
 		append(utf8str_to_wstring(new_text), TRUE );
 	}
 
-	if (segment_style)
+	if (stylep)
 	{
 		S32 segment_start = old_length;
 		S32 segment_end = getLength();
-		LLTextSegment* segment = new LLTextSegment(*segment_style, segment_start, segment_end );
+		LLTextSegment* segment = new LLTextSegment(*stylep, segment_start, segment_end );
 		mSegments.push_back(segment);
 	}
 	
@@ -3803,8 +3806,8 @@ void LLTextEditor::findEmbeddedItemSegments()
 		in_text = TRUE;
 	}
 
-	LLStyle embedded_style;
-	embedded_style.setIsEmbeddedItem( TRUE );
+	LLStyleSP embedded_style(new LLStyle);
+	embedded_style->setIsEmbeddedItem( TRUE );
 
 	// Start with i just after the first embedded item
 	while ( text[idx] )
@@ -4003,7 +4006,7 @@ BOOL LLTextEditor::exportBuffer(LLString &buffer )
 LLTextSegment::LLTextSegment(S32 start) : mStart(start)
 {
 } 
-LLTextSegment::LLTextSegment( const LLStyle& style, S32 start, S32 end ) :
+LLTextSegment::LLTextSegment( const LLStyleSP& style, S32 start, S32 end ) :
 	mStyle( style ),
 	mStart( start),
 	mEnd( end ),
@@ -4011,9 +4014,8 @@ LLTextSegment::LLTextSegment( const LLStyle& style, S32 start, S32 end ) :
 	mIsDefault(FALSE)
 {
 }
-LLTextSegment::LLTextSegment(
-	const LLColor4& color, S32 start, S32 end, BOOL is_visible) :
-	mStyle( is_visible, color,"" ),
+LLTextSegment::LLTextSegment( const LLColor4& color, S32 start, S32 end, BOOL is_visible) :
+	mStyle(new LLStyle(is_visible,color,"")),
 	mStart( start),
 	mEnd( end ),
 	mToken(NULL),
@@ -4021,7 +4023,7 @@ LLTextSegment::LLTextSegment(
 {
 }
 LLTextSegment::LLTextSegment( const LLColor4& color, S32 start, S32 end ) :
-	mStyle( TRUE, color,"" ),
+	mStyle(new LLStyle(TRUE, color,"" )),
 	mStart( start),
 	mEnd( end ),
 	mToken(NULL),
@@ -4029,7 +4031,7 @@ LLTextSegment::LLTextSegment( const LLColor4& color, S32 start, S32 end ) :
 {
 }
 LLTextSegment::LLTextSegment( const LLColor3& color, S32 start, S32 end ) :
-	mStyle( TRUE, color,"" ),
+	mStyle(new LLStyle(TRUE, color,"" )),
 	mStart( start),
 	mEnd( end ),
 	mToken(NULL),

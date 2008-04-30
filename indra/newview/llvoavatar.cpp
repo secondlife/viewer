@@ -117,6 +117,7 @@
 #include "llglslshader.h"
 #include "llappviewer.h"
 #include "llsky.h"
+#include "llanimstatelabels.h"
 
 //#include "vtune/vtuneapi.h"
 
@@ -678,7 +679,8 @@ LLVOAvatar::LLVOAvatar(
 	mTexHairColor( NULL ),
 	mTexEyeColor( NULL ),
 	mNeedsSkin(FALSE),
-	mUpdatePeriod(1)
+	mUpdatePeriod(1),
+	mFullyLoadedInitialized(FALSE)
 {
 	LLMemType mt(LLMemType::MTYPE_AVATAR);
 	
@@ -2751,6 +2753,47 @@ BOOL LLVOAvatar::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 		LLCharacter::updateVisualParams();
 		dirtyMesh();
 	}
+
+	// update visibility when avatar is partially loaded
+	if (updateIsFullyLoaded()) // changed?
+	{
+		if (isFullyLoaded())
+		{
+			deleteParticleSource();
+		}
+		else
+		{
+			LLPartSysData particle_parameters;
+
+			// fancy particle cloud designed by Brent
+			particle_parameters.mPartData.mMaxAge            = 4.f;
+			particle_parameters.mPartData.mStartScale.mV[VX] = 0.8f;
+			particle_parameters.mPartData.mStartScale.mV[VX] = 0.8f;
+			particle_parameters.mPartData.mStartScale.mV[VY] = 1.0f;
+			particle_parameters.mPartData.mEndScale.mV[VX]   = 0.02f;
+			particle_parameters.mPartData.mEndScale.mV[VY]   = 0.02f;
+			particle_parameters.mPartData.mStartColor        = LLColor4(1, 1, 1, 0.5f);
+			particle_parameters.mPartData.mEndColor          = LLColor4(1, 1, 1, 0.0f);
+			particle_parameters.mPartData.mStartScale.mV[VX] = 0.8f;
+			LLViewerImage* cloud = gImageList.getImageFromFile("cloud-particle.j2c");
+			particle_parameters.mPartImageID                 = cloud->getID();
+			particle_parameters.mMaxAge                      = 0.f;
+			particle_parameters.mPattern                     = LLPartSysData::LL_PART_SRC_PATTERN_ANGLE_CONE;
+			particle_parameters.mInnerAngle                  = 3.14159f;
+			particle_parameters.mOuterAngle                  = 0.f;
+			particle_parameters.mBurstRate                   = 0.02f;
+			particle_parameters.mBurstRadius                 = 0.0f;
+			particle_parameters.mBurstPartCount              = 1;
+			particle_parameters.mBurstSpeedMin               = 0.1f;
+			particle_parameters.mBurstSpeedMax               = 1.f;
+			particle_parameters.mPartData.mFlags             = ( LLPartData::LL_PART_INTERP_COLOR_MASK | LLPartData::LL_PART_INTERP_SCALE_MASK |
+																 LLPartData::LL_PART_EMISSIVE_MASK | // LLPartData::LL_PART_FOLLOW_SRC_MASK |
+																 LLPartData::LL_PART_TARGET_POS_MASK );
+			
+			setParticleSource(particle_parameters, getID());
+		}
+	}
+	
 
 	// update wind effect
 	if ((LLShaderMgr::getVertexShaderLevel(LLShaderMgr::SHADER_AVATAR) >= LLDrawPoolAvatar::SHADER_LEVEL_CLOTH))
@@ -6685,6 +6728,89 @@ BOOL LLVOAvatar::isVisible()
 }
 
 
+// call periodically to keep isFullyLoaded up to date.
+// returns true if the value has changed.
+BOOL LLVOAvatar::updateIsFullyLoaded()
+{
+    // a "heuristic" to determine if we have enough avatar data to render
+    // (to avoid rendering a "Ruth" - DEV-3168)
+
+	BOOL loading = FALSE;
+
+	// do we have a shape?
+	if (visualParamWeightsAreDefault())
+	{
+		loading = TRUE;
+	}
+
+	// are our texture settings still default?
+	if ((getTEImage( TEX_HAIR )->getID() == IMG_DEFAULT))
+	{
+		loading = TRUE;
+	}
+	
+	// special case to keep nudity off orientation island -
+	// this is fragilely dependent on the compositing system,
+	// which gets available textures in the following order:
+	//
+	// 1) use the baked texture
+	// 2) use the layerset
+	// 3) use the previously baked texture
+	//
+	// on orientation island case (3) can show naked skin.
+	// so we test for that here:
+	//
+	// if we were previously unloaded, and we don't have enough
+	// texture info for our shirt/pants, stay unloaded:
+	if (!mPreviousFullyLoaded)
+	{
+		if ((!isLocalTextureDataAvailable(mLowerBodyLayerSet)) &&
+			(getTEImage(TEX_LOWER_BAKED)->getID() == IMG_DEFAULT_AVATAR))
+		{
+			loading = TRUE;
+		}
+
+		if ((!isLocalTextureDataAvailable(mUpperBodyLayerSet)) &&
+			(getTEImage(TEX_UPPER_BAKED)->getID() == IMG_DEFAULT_AVATAR))
+		{
+			loading = TRUE;
+		}
+	}
+
+	
+	// we wait a little bit before giving the all clear,
+	// to let textures settle down
+	const F32 PAUSE = 1.f;
+	if (loading)
+		mFullyLoadedTimer.reset();
+	
+	mFullyLoaded = (mFullyLoadedTimer.getElapsedTimeF32() > PAUSE);
+
+	
+	// did our loading state "change" from last call?
+	const S32 UPDATE_RATE = 30;
+	BOOL changed =
+		((mFullyLoaded != mPreviousFullyLoaded) ||         // if the value is different from the previous call
+		 (!mFullyLoadedInitialized) ||                     // if we've never been called before
+		 (mFullyLoadedFrameCounter % UPDATE_RATE == 0));   // every now and then issue a change
+
+	mPreviousFullyLoaded = mFullyLoaded;
+	mFullyLoadedInitialized = TRUE;
+	mFullyLoadedFrameCounter++;
+	
+	return changed;
+}
+
+
+BOOL LLVOAvatar::isFullyLoaded()
+{
+	if (gSavedSettings.getBOOL("RenderUnloadedAvatar"))
+		return TRUE;
+	else
+		return mFullyLoaded;
+}
+
+
 //-----------------------------------------------------------------------------
 // findMotion()
 //-----------------------------------------------------------------------------
@@ -8337,12 +8463,12 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 }
 
 // static
-void LLVOAvatar::getAnimLabels( LLDynamicArray<const char*>* labels )
+void LLVOAvatar::getAnimLabels( LLDynamicArray<std::string>* labels )
 {
 	S32 i;
 	for( i = 0; i < gUserAnimStatesCount; i++ )
 	{
-		labels->put( gUserAnimStates[i].mLabel );
+		labels->put( LLAnimStateLabels::getStateLabel( gUserAnimStates[i].mName ) );
 	}
 
 	// Special case to trigger away (AFK) state
@@ -8350,13 +8476,13 @@ void LLVOAvatar::getAnimLabels( LLDynamicArray<const char*>* labels )
 }
 
 // static 
-void LLVOAvatar::getAnimNames( LLDynamicArray<const char*>* names )
+void LLVOAvatar::getAnimNames( LLDynamicArray<std::string>* names )
 {
 	S32 i;
 
 	for( i = 0; i < gUserAnimStatesCount; i++ )
 	{
-		names->put( gUserAnimStates[i].mName );
+		names->put( std::string(gUserAnimStates[i].mName) );
 	}
 
 	// Special case to trigger away (AFK) state

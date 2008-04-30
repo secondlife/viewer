@@ -65,7 +65,8 @@ public:
 					EInstantMessage dialog = IM_NOTHING_SPECIAL,
 					U32 parent_estate_id = 0,
 					const LLUUID& region_id = LLUUID::null,
-					const LLVector3& position = LLVector3::zero);
+					const LLVector3& position = LLVector3::zero,
+					bool link_name = false);
 
 	void addSystemMessage(const LLUUID& session_id, const LLString& message_name, const LLString::format_map_t& args);
 
@@ -192,6 +193,7 @@ private:
 	// reduce 'hello' messages to the linden employees unlucky enough
 	// to have their calling card in the default inventory.
 	void noteOfflineUsers(LLFloaterIMPanel* panel, const LLDynamicArray<LLUUID>& ids);
+	void noteMutedUsers(LLFloaterIMPanel* panel, const LLDynamicArray<LLUUID>& ids);
 
 	void processIMTypingCore(const LLIMInfo* im_info, BOOL typing);
 

@@ -49,6 +49,8 @@ struct LLResourceData;
 // these flags are used to label info requests to the server
 const U32 BUG_REPORT_REQUEST 		= 0x01 << 0;
 const U32 COMPLAINT_REPORT_REQUEST 	= 0x01 << 1;
+const U32 OBJECT_PAY_REQUEST		= 0x01 << 2;
+
 
 // ************************************************************
 // THESE ENUMS ARE IN THE DATABASE!!!

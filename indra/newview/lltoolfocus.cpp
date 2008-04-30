@@ -57,6 +57,7 @@
 #include "llmorphview.h"
 
 // Globals
+BOOL gCameraBtnZoom = TRUE;
 BOOL gCameraBtnOrbit = FALSE;
 BOOL gCameraBtnPan = FALSE;
 
@@ -403,7 +404,7 @@ BOOL LLToolCamera::handleHover(S32 x, S32 y, MASK mask)
 			}
 			lldebugst(LLERR_USER_INPUT) << "hover handled by LLToolPan" << llendl;
 		}
-		else
+		else if (gCameraBtnZoom)
 		{
 			// Zoom tool
 			if (hasMouseCapture())

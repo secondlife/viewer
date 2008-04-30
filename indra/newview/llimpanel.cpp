@@ -48,16 +48,19 @@
 #include "llchat.h"
 #include "llconsole.h"
 #include "llfloater.h"
+#include "llfloatergroupinfo.h"
+#include "llimview.h"
 #include "llinventory.h"
 #include "llinventorymodel.h"
 #include "llinventoryview.h"
+#include "llfloateractivespeakers.h"
 #include "llfloateravatarinfo.h"
 #include "llfloaterchat.h"
 #include "llkeyboard.h"
 #include "lllineeditor.h"
+#include "llnotify.h"
 #include "llresmgr.h"
 #include "lltabcontainer.h"
-#include "llimview.h"
 #include "llviewertexteditor.h"
 #include "llviewermessage.h"
 #include "llviewerstats.h"
@@ -68,11 +71,8 @@
 #include "llfloaterhtml.h"
 #include "llweb.h"
 #include "llhttpclient.h"
-#include "llfloateractivespeakers.h" // LLSpeakerMgr
-#include "llfloatergroupinfo.h"
-#include "llsdutil.h"
-#include "llnotify.h"
 #include "llmutelist.h"
+#include "llstylemap.h"
 
 //
 // Constants
@@ -1454,24 +1454,20 @@ BOOL LLFloaterIMPanel::inviteToSession(const LLDynamicArray<LLUUID>& ids)
 	return TRUE;
 }
 
-void LLFloaterIMPanel::addHistoryLine(const LLUUID& source, const std::string &utf8msg, const LLColor4& color, bool log_to_file)
+void LLFloaterIMPanel::addHistoryLine(const std::string &utf8msg, const LLColor4& color, bool log_to_file, const LLUUID& source, const char *name)
 {
 	// start tab flashing when receiving im for background session from user
-	LLMultiFloater* hostp = getHost();
-	if( !isInVisibleChain() 
-		&& hostp 
-		&& source != gAgent.getID())
+	if (source != LLUUID::null)
 	{
-		hostp->setFloaterFlashing(this, TRUE);
+		LLMultiFloater* hostp = getHost();
+		if( !isInVisibleChain() 
+			&& hostp 
+			&& source != gAgent.getID())
+		{
+			hostp->setFloaterFlashing(this, TRUE);
+		}
 	}
 
-	addHistoryLine(utf8msg, color, log_to_file);
-	mSpeakers->speakerChatted(source);
-	mSpeakers->setSpeakerTyping(source, FALSE);
-}
-
-void LLFloaterIMPanel::addHistoryLine(const std::string &utf8msg, const LLColor4& color, bool log_to_file)
-{
 	// Now we're adding the actual line of text, so erase the 
 	// "Foo is typing..." text segment, and the optional timestamp
 	// if it was present. JC
@@ -1485,6 +1481,22 @@ void LLFloaterIMPanel::addHistoryLine(const std::string &utf8msg, const LLColor4
 		timestring = mHistoryEditor->appendTime(prepend_newline);
 		prepend_newline = false;
 	}
+
+	// 'name' is a sender name that we want to hotlink so that clicking on it opens a profile.
+	if (name != NULL) // If name exists, then add it to the front of the message.
+	{
+		// Don't hotlink any messages from the system (e.g. "Second Life:"), so just add those in plain text.
+		if (!strcmp(name,SYSTEM_FROM))
+		{
+			mHistoryEditor->appendColoredText(name,false,false,color);
+		}
+		else
+		{
+			// Convert the name to a hotlink and add to message.
+			const LLStyleSP &source_style = LLStyleMap::instance().lookup(source);
+			mHistoryEditor->appendStyledText(name, false, false, &source_style);
+		}
+	}
 	mHistoryEditor->appendColoredText(utf8msg, false, prepend_newline, color);
 	
 	if (log_to_file
@@ -1492,9 +1504,9 @@ void LLFloaterIMPanel::addHistoryLine(const std::string &utf8msg, const LLColor4
 	{
 		LLString histstr;
 		if (gSavedPerAccountSettings.getBOOL("IMLogTimestamp"))
-			histstr = LLLogChat::timestamp(gSavedPerAccountSettings.getBOOL("LogTimestampDate")) + utf8msg;
+			histstr = LLLogChat::timestamp(gSavedPerAccountSettings.getBOOL("LogTimestampDate")) + LLString(name) + utf8msg;
 		else
-			histstr = utf8msg;
+			histstr = LLString(name) + utf8msg;
 
 		LLLogChat::saveHistory(getTitle(),histstr);
 	}
@@ -1502,6 +1514,12 @@ void LLFloaterIMPanel::addHistoryLine(const std::string &utf8msg, const LLColor4
 	if (!isInVisibleChain())
 	{
 		mNumUnreadMessages++;
+	}
+
+	if (source != LLUUID::null)
+	{
+		mSpeakers->speakerChatted(source);
+		mSpeakers->setSpeakerTyping(source, FALSE);
 	}
 }
 
@@ -1836,6 +1854,11 @@ void deliver_message(const std::string& utf8_text,
 		(EInstantMessage)new_dialog,
 		im_session_id);
 	gAgent.sendReliableMessage();
+
+	if (LLMuteList::getInstance())
+	{
+		LLMuteList::getInstance()->autoRemove(other_participant_id, LLMuteList::AR_IM);
+	}
 }
 
 void LLFloaterIMPanel::sendMsg()
@@ -1888,7 +1911,7 @@ void LLFloaterIMPanel::sendMsg()
 
 				BOOL other_was_typing = mOtherTyping;
 
-				addHistoryLine(gAgent.getID(), history_echo, gSavedSettings.getColor("IMChatColor"));
+				addHistoryLine(history_echo, gSavedSettings.getColor("IMChatColor"), true, gAgent.getID());
 
 				if (other_was_typing) 
 				{
@@ -2187,6 +2210,5 @@ void LLFloaterIMPanel::onConfirmForceCloseError(S32 option, void* data)
 		if ( floaterp ) floaterp->close(FALSE);
 	}
 }
-
 
 

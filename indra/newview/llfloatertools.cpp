@@ -194,12 +194,16 @@ BOOL	LLFloaterTools::postBuild()
 	mBtnLand = getChild<LLButton>("button land" );
 	childSetAction("button land",LLFloaterTools::setEditTool, (void*)LLToolSelectLand::getInstance());
 	mTextStatus = getChild<LLTextBox>("text status");
-	mRadioZoom = getChild<LLCheckBoxCtrl>("radio zoom");
+
 	childSetCommitCallback("slider zoom",commit_slider_zoom,this);
+
+	mRadioZoom = getChild<LLCheckBoxCtrl>("radio zoom");
+	childSetCommitCallback("radio zoom",commit_radio_zoom,this);
 	mRadioOrbit = getChild<LLCheckBoxCtrl>("radio orbit");
 	childSetCommitCallback("radio orbit",commit_radio_orbit,this);
 	mRadioPan = getChild<LLCheckBoxCtrl>("radio pan");
 	childSetCommitCallback("radio pan",commit_radio_pan,this);
+
 	mRadioMove = getChild<LLCheckBoxCtrl>("radio move");
 	childSetCommitCallback("radio move",click_popup_grab_drag,this);
 	mRadioLift = getChild<LLCheckBoxCtrl>("radio lift");
@@ -492,6 +496,7 @@ void LLFloaterTools::dirty()
 // floater is closed.
 void LLFloaterTools::resetToolState()
 {
+	gCameraBtnZoom = TRUE;
 	gCameraBtnOrbit = FALSE;
 	gCameraBtnPan = FALSE;
 
@@ -524,7 +529,8 @@ void LLFloaterTools::updatePopup(LLCoordGL center, MASK mask)
 	mRadioOrbit	->setVisible( focus_visible );
 	mRadioPan	->setVisible( focus_visible );
 	childSetVisible("slider zoom", focus_visible);
-	
+	childSetEnabled("slider zoom", gCameraBtnZoom);
+
 	mRadioZoom	->set(	!gCameraBtnOrbit &&
 						!gCameraBtnPan &&
 						!(mask == MASK_ORBIT) &&
@@ -867,18 +873,21 @@ void click_popup_grab_spin(LLUICtrl*, void*)
 
 void commit_radio_zoom(LLUICtrl *, void*)
 {
+	gCameraBtnZoom = TRUE;
 	gCameraBtnOrbit = FALSE;
 	gCameraBtnPan = FALSE;
 }
 
 void commit_radio_orbit(LLUICtrl *, void*)
 {
+	gCameraBtnZoom = FALSE;
 	gCameraBtnOrbit = TRUE;
 	gCameraBtnPan = FALSE;
 }
 
 void commit_radio_pan(LLUICtrl *, void*)
 {
+	gCameraBtnZoom = FALSE;
 	gCameraBtnOrbit = FALSE;
 	gCameraBtnPan = TRUE;
 }

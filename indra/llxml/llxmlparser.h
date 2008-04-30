@@ -32,7 +32,9 @@
 #ifndef LL_LLXMLPARSER_H
 #define LL_LLXMLPARSER_H
 
-#define XML_STATIC
+#ifndef XML_STATIC
+#define XML_STATIC 1
+#endif
 #ifdef LL_STANDALONE
 #include <expat.h>
 #else

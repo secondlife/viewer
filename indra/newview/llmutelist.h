@@ -82,6 +82,15 @@ public:
 class LLMuteList : public LLSingleton<LLMuteList>
 {
 public:
+	// reasons for auto-unmuting a resident
+	enum EAutoReason 
+	{ 
+		AR_IM = 0,			// agent IMed a muted resident
+		AR_MONEY = 1,			// agent paid L$ to a muted resident
+		AR_INVENTORY = 2,	// agent offered inventory to a muted resident
+		AR_COUNT			// enum count
+	};
+
 	LLMuteList();
 	~LLMuteList();
 
@@ -98,6 +107,7 @@ public:
 
 	// Remove both normal and legacy mutes, for any or all properties.
 	BOOL remove(const LLMute& mute, U32 flags = 0);
+	BOOL autoRemove(const LLUUID& agent_id, const EAutoReason reason, const LLString& first_name = "", const LLString& last_name = "");
 	
 	// Name is required to test against legacy text-only mutes.
 	BOOL isMuted(const LLUUID& id, const LLString& name = LLString::null, U32 flags = 0) const;

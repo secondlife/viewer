@@ -3144,6 +3144,10 @@ void LLFolderView::draw()
 	{
 		closeAutoOpenedFolders();
 	}
+	if(gViewerWindow->hasKeyboardFocus(this) && !getVisible())
+	{
+		gViewerWindow->setKeyboardFocus( NULL );
+	}
 
 	// while dragging, update selection rendering to reflect single/multi drag status
 	if (LLToolDragAndDrop::getInstance()->hasMouseCapture())

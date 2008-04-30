@@ -211,6 +211,8 @@ public:
 	void			setEnableLineHistory( BOOL enabled ) { mHaveHistory = enabled; } // switches line history on or off 
 	void			updateHistory(); // stores current line in history
 
+	void			setReplaceNewlinesWithSpaces(BOOL replace);
+	
 private:
 	// private helper methods
 	void			removeChar();
@@ -310,6 +312,8 @@ private:
 	static LLPointer<LLUIImage> sImage;
 	// Instances that by default point to the statics but can be overidden in XML.
 	LLPointer<LLUIImage> mImage;
+
+	BOOL        mReplaceNewlinesWithSpaces; // if false, will replace pasted newlines with paragraph symbol.
 
 	// private helper class
 	class LLLineEditorRollback

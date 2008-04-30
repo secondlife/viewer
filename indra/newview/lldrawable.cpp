@@ -1170,11 +1170,13 @@ void LLSpatialBridge::setVisible(LLCamera& camera_in, std::vector<LLDrawable*>* 
 			LLSpatialGroup* group = av->getSpatialGroup();
 
 			BOOL impostor = objparent->isAvatar() && ((LLVOAvatar*) objparent)->isImpostor();
-
+			BOOL loaded   = objparent->isAvatar() && ((LLVOAvatar*) objparent)->isFullyLoaded();
+			
 			if (!group ||
 				av->getSpatialGroup()->mDistance > LLVOAvatar::sRenderDistance ||
 				LLDrawable::getCurrentFrame() - av->mVisible > 1 ||
-				impostor)
+				impostor ||
+				!loaded)
 			{
 				return;
 			}

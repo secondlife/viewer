@@ -67,8 +67,9 @@
 #include "llviewerstats.h"
 #include "llviewerwindow.h"		// busycount
 #include "llappviewer.h"			// gVFS
-
+#include "llanimstatelabels.h"
 #include "llresmgr.h"
+
 
 // *TODO: Translate?
 const char NONE_LABEL[] = "---";
@@ -592,7 +593,7 @@ void LLPreviewGesture::addAnimations()
 	for (i = 0; i < gUserAnimStatesCount; ++i)
 	{
 		// Use the user-readable name
-		const char* label = gUserAnimStates[i].mLabel;
+		std::string label = LLAnimStateLabels::getStateLabel( gUserAnimStates[i].mName );
 		const LLUUID& id = gUserAnimStates[i].mID;
 		combo->add(label, id);
 	}

@@ -227,13 +227,18 @@ public:
 
 struct LLAnimStateEntry
 {
-	LLAnimStateEntry(const char* label, const char* name, const LLUUID& id)
-	:	mLabel(label),
+	LLAnimStateEntry(const char* name, const LLUUID& id) :
 		mName(name),
 		mID(id)
-	{ }
+	{ 
+		// LABELS:
+		// Look to newview/LLAnimStateLabels.* for how to get the labels.
+		// The labels should no longer be stored in this structure. The server
+		// shouldn't care about the local friendly name of an animation, and
+		// this is common code.
+	}
 
-	const char* mLabel;
+
 	const char* mName;
 	const LLUUID mID;
 };

@@ -38,6 +38,7 @@
 #include "lldarray.h"
 #include "llinstantmessage.h"
 #include "llvoiceclient.h"
+#include "llstyle.h"
 
 class LLLineEditor;
 class LLViewerTextEditor;
@@ -202,13 +203,12 @@ public:
 	// Return TRUE if successful, otherwise FALSE.
 	BOOL inviteToSession(const LLDynamicArray<LLUUID>& agent_ids);
 
-	void addHistoryLine(const LLUUID& source,
-						const std::string &utf8msg, 
-						const LLColor4& color = LLColor4::white, 
-						bool log_to_file = true);
 	void addHistoryLine(const std::string &utf8msg, 
 						const LLColor4& color = LLColor4::white, 
-						bool log_to_file = true);
+						bool log_to_file = true,
+						const LLUUID& source = LLUUID::null,
+						const char *name = NULL);
+
 	void setInputFocus( BOOL b );
 
 	void selectAll();
@@ -357,6 +357,9 @@ private:
 	LLFrameTimer mLastKeystrokeTimer;
 
 	void disableWhileSessionStarting();
+
+	typedef std::map<LLUUID, LLStyleSP> styleMap;
+	static styleMap mStyleMap;
 };
 
 

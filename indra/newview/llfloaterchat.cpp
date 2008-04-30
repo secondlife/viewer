@@ -72,6 +72,7 @@
 #include "lltexteditor.h"
 #include "llfloaterhtml.h"
 #include "llweb.h"
+#include "llstylemap.h"
 
 // Used for LCD display
 extern void AddNewIMToLCD(const LLString &newLine);
@@ -188,13 +189,25 @@ void LLFloaterChat::updateConsoleVisibility()
 							|| (getHost() && getHost()->isMinimized() ));	// are we hosted in a minimized floater?
 }
 
-void add_timestamped_line(LLViewerTextEditor* edit, const LLString& line, const LLColor4& color)
+void add_timestamped_line(LLViewerTextEditor* edit, const LLChat &chat, const LLColor4& color)
 {
+	LLString line = chat.mText;
 	bool prepend_newline = true;
 	if (gSavedSettings.getBOOL("ChatShowTimestamps"))
 	{
 		edit->appendTime(prepend_newline);
 		prepend_newline = false;
+	}
+
+	// If the msg is not from an agent (not yourself though),
+	// extract out the sender name and replace it with the hotlinked name.
+	if (chat.mSourceType == CHAT_SOURCE_AGENT &&
+		chat.mFromID != LLUUID::null &&
+		(line.length() > chat.mFromName.length() && line.find(chat.mFromName,0) == 0))
+	{
+		line = line.substr(chat.mFromName.length());
+		const LLStyleSP &sourceStyle = LLStyleMap::instance().lookup(chat.mFromID);
+		edit->appendStyledText(chat.mFromName, false, false, &sourceStyle);
 	}
 	edit->appendColoredText(line, false, prepend_newline, color);
 }
@@ -243,14 +256,14 @@ void LLFloaterChat::addChatHistory(const LLChat& chat, bool log_to_file)
 	
 	if (!chat.mMuted)
 	{
-		add_timestamped_line(history_editor, chat.mText, color);
-		add_timestamped_line(history_editor_with_mute, chat.mText, color);
+		add_timestamped_line(history_editor, chat, color);
+		add_timestamped_line(history_editor_with_mute, chat, color);
 	}
 	else
 	{
 		// desaturate muted chat
 		LLColor4 muted_color = lerp(color, LLColor4::grey, 0.5f);
-		add_timestamped_line(history_editor_with_mute, chat.mText, color);
+		add_timestamped_line(history_editor_with_mute, chat, color);
 	}
 	
 	// add objects as transient speakers that can be muted

@@ -565,6 +565,8 @@ void LLComboBox::showList()
 
 	S32 min_width = getRect().getWidth();
 	S32 max_width = llmax(min_width, MAX_COMBO_WIDTH);
+	// make sure we have up to date content width metrics
+	mList->calcColumnWidths();
 	S32 list_width = llclamp(mList->getMaxContentWidth(), min_width, max_width);
 
 	if (mListPosition == BELOW)

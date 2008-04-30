@@ -83,6 +83,7 @@ LLIMMgr* gIMMgr = NULL;
 // *FIXME: make these all either UIStrings or Strings
 static LLString sOnlyUserMessage;
 static LLUIString sOfflineMessage;
+static LLString sMutedMessage;
 static LLUIString sInviteMessage;
 
 std::map<std::string,LLString> LLFloaterIM::sEventStringsMap;
@@ -161,6 +162,7 @@ BOOL LLFloaterIM::postBuild()
 	sOfflineMessage = getUIString("offline_message");
 
 	sInviteMessage = getUIString("invite_message");
+	sMutedMessage = childGetText("muted_message");
 
 	if ( sErrorStringsMap.find("generic") == sErrorStringsMap.end() )
 	{
@@ -400,10 +402,10 @@ void LLIMMgr::addMessage(
 	EInstantMessage dialog,
 	U32 parent_estate_id,
 	const LLUUID& region_id,
-	const LLVector3& position)
+	const LLVector3& position,
+	bool link_name) // If this is true, then we insert the name and link it to a profile
 {
 	LLUUID other_participant_id = target_id;
-	bool is_from_system = target_id.isNull() || !strcmp(from, SYSTEM_FROM);
 
 	// don't process muted IMs
 	if (LLMuteList::getInstance()->isMuted(
@@ -419,8 +421,6 @@ void LLIMMgr::addMessage(
 	{
 		other_participant_id = LLUUID::null;
 	}
-
-	
 
 	LLFloaterIMPanel* floater;
 	LLUUID new_session_id = session_id;
@@ -482,15 +482,17 @@ void LLIMMgr::addMessage(
 	}
 
 	// now add message to floater
-	if ( is_from_system ) // chat came from system
+	bool is_from_system = target_id.isNull() || !strcmp(from, SYSTEM_FROM);
+	const LLColor4& color = ( is_from_system ? 
+							  gSavedSettings.getColor4("SystemChatColor") : 
+							  gSavedSettings.getColor("IMChatColor"));
+	if ( !link_name )
 	{
-		floater->addHistoryLine(
-			msg,
-			gSavedSettings.getColor4("SystemChatColor"));
+		floater->addHistoryLine(msg,color); // No name to prepend, so just add the message normally
 	}
 	else
 	{
-		floater->addHistoryLine(other_participant_id, msg, gSavedSettings.getColor("IMChatColor"));
+		floater->addHistoryLine(msg, color, true, other_participant_id, from); // Insert linked name to front of message
 	}
 
 	LLFloaterChatterBox* chat_floater = LLFloaterChatterBox::getInstance(LLSD());
@@ -615,6 +617,8 @@ LLUUID LLIMMgr::addSession(
 
 		noteOfflineUsers(floater, ids);
 		LLFloaterChatterBox::showInstance(session_id);
+		noteMutedUsers(floater, ids);
+		LLFloaterChatterBox::getInstance(LLSD())->showFloater(floater);
 	}
 	else
 	{
@@ -659,6 +663,7 @@ LLUUID LLIMMgr::addSession(
 
 		noteOfflineUsers(floater, ids);
 		LLFloaterChatterBox::showInstance(session_id);
+		noteMutedUsers(floater, ids);
 	}
 	else
 	{
@@ -1232,6 +1237,31 @@ void LLIMMgr::noteOfflineUsers(
 	}
 }
 
+void LLIMMgr::noteMutedUsers(LLFloaterIMPanel* floater,
+								  const LLDynamicArray<LLUUID>& ids)
+{
+	S32 count = ids.count();
+	if(count > 0)
+	{
+		const LLRelationship* info = NULL;
+		LLAvatarTracker& at = LLAvatarTracker::instance();
+		for(S32 i = 0; i < count; ++i)
+		{
+			info = at.getBuddyInfo(ids.get(i));
+			char first[DB_FIRST_NAME_BUF_SIZE];		/*Flawfinder: ignore*/
+			char last[DB_LAST_NAME_BUF_SIZE];		/*Flawfinder: ignore*/
+			if(info && LLMuteList::getInstance() && LLMuteList::getInstance()->isMuted(ids.get(i))
+			   && gCacheName->getName(ids.get(i), first, last))
+			{
+				LLUIString muted = sMutedMessage;
+				muted.setArg("[FIRST]", first);
+				muted.setArg("[LAST]", last);
+				floater->addHistoryLine(muted);
+			}
+		}
+	}
+}
+
 void LLIMMgr::processIMTypingStart(const LLIMInfo* im_info)
 {
 	processIMTypingCore(im_info, TRUE);
@@ -1520,8 +1550,7 @@ public:
 			snprintf(
 				buffer,
 				sizeof(buffer),
-				"%s%s%s%s",
-				name.c_str(),
+				"%s%s%s",
 				separator_string,
 				saved,
 				(message.c_str() + message_offset)); /*Flawfinder: ignore*/
@@ -1540,7 +1569,8 @@ public:
 				IM_SESSION_INVITE,
 				message_params["parent_estate_id"].asInteger(),
 				message_params["region_id"].asUUID(),
-				ll_vector3_from_sd(message_params["position"]));
+				ll_vector3_from_sd(message_params["position"]),
+				true);
 
 			snprintf(
 				buffer,
@@ -1627,5 +1657,4 @@ LLHTTPRegistration<LLViewerChatterBoxSessionUpdate>
 LLHTTPRegistration<LLViewerChatterBoxInvitation>
     gHTTPRegistrationMessageChatterBoxInvitation(
 		"/message/ChatterBoxInvitation");
-
 

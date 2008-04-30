@@ -139,7 +139,7 @@ public:
 	void			insertText(const LLString &text);
 	// appends text at end
 	void 			appendText(const LLString &wtext, bool allow_undo, bool prepend_newline,
-							   const LLStyle* segment_style = NULL);
+							   const LLStyleSP *stylep = NULL);
 
 	void 			appendColoredText(const LLString &wtext, bool allow_undo, 
 									  bool prepend_newline,
@@ -148,7 +148,7 @@ public:
 	// if styled text starts a line, you need to prepend a newline.
 	void 			appendStyledText(const LLString &new_text, bool allow_undo, 
 									 bool prepend_newline,
-									 const LLStyle* style);
+									 const LLStyleSP *stylep = NULL);
 
 	// Removes text from the end of document
 	// Does not change highlight or cursor position.
@@ -429,7 +429,7 @@ private:
 	void			drawSelectionBackground();
 	void			drawCursor();
 	void			drawText();
-	void			drawClippedSegment(const LLWString &wtext, S32 seg_start, S32 seg_end, F32 x, F32 y, S32 selection_left, S32 selection_right, const LLStyle& color, F32* right_x);
+	void			drawClippedSegment(const LLWString &wtext, S32 seg_start, S32 seg_end, F32 x, F32 y, S32 selection_left, S32 selection_right, const LLStyleSP& color, F32* right_x);
 
 	//
 	// Data
@@ -528,7 +528,7 @@ class LLTextSegment
 public:
 	// for creating a compare value
 	LLTextSegment(S32 start);
-	LLTextSegment( const LLStyle& style, S32 start, S32 end );
+	LLTextSegment( const LLStyleSP& style, S32 start, S32 end );
 	LLTextSegment( const LLColor4& color, S32 start, S32 end, BOOL is_visible);
 	LLTextSegment( const LLColor4& color, S32 start, S32 end );
 	LLTextSegment( const LLColor3& color, S32 start, S32 end );
@@ -536,10 +536,10 @@ public:
 	S32					getStart() const					{ return mStart; }
 	S32					getEnd() const						{ return mEnd; }
 	void				setEnd( S32 end )					{ mEnd = end; }
-	const LLColor4&		getColor() const					{ return mStyle.getColor(); }
-	void 				setColor(const LLColor4 &color)		{ mStyle.setColor(color); }
-	const LLStyle&		getStyle() const					{ return mStyle; }
-	void 				setStyle(const LLStyle &style)		{ mStyle = style; }
+	const LLColor4&		getColor() const					{ return mStyle->getColor(); }
+	void 				setColor(const LLColor4 &color)		{ mStyle->setColor(color); }
+	const LLStyleSP&	getStyle() const					{ return mStyle; }
+	void 				setStyle(const LLStyleSP &style)	{ mStyle = style; }
 	void 				setIsDefault(BOOL b)   				{ mIsDefault = b; }
 	BOOL 				getIsDefault() const   				{ return mIsDefault; }
 	void				setToken( LLKeywordToken* token )	{ mToken = token; }
@@ -557,7 +557,7 @@ public:
 	};
 	
 private:
-	LLStyle     mStyle;
+	LLStyleSP	mStyle;
 	S32			mStart;
 	S32			mEnd;
 	LLKeywordToken* mToken;

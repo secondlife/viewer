@@ -102,6 +102,7 @@
 #include "audioengine.h"
 #include "llviewermenu.h"
 #include "llselectmgr.h"
+#include "lltrans.h"
 #include "lltracker.h"
 #include "llviewerparcelmgr.h"
 #include "llworldmapview.h"
@@ -2088,6 +2089,7 @@ bool LLAppViewer::initWindow()
 
 	LLAlertDialog::parseAlerts("alerts.xml");
 	LLNotifyBox::parseNotify("notify.xml");
+	LLTrans::parseStrings("strings.xml");
 
 	// Show watch cursor
 	gViewerWindow->setCursor(UI_CURSOR_WAIT);

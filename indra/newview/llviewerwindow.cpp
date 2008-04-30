@@ -4184,8 +4184,9 @@ void LLViewerWindow::movieSize(S32 new_width, S32 new_height)
 	if (  (size.mX != new_width + BORDERWIDTH)
 		||(size.mY != new_height + BORDERHEIGHT))
 	{
-		S32 x = gViewerWindow->getWindowWidth();
-		S32 y = gViewerWindow->getWindowHeight();
+		// use actual display dimensions, not virtual UI dimensions
+		S32 x = gViewerWindow->getWindowDisplayWidth();
+		S32 y = gViewerWindow->getWindowDisplayHeight();
 		BORDERWIDTH = size.mX - x;
 		BORDERHEIGHT = size.mY- y;
 		LLCoordScreen new_size(new_width + BORDERWIDTH, 

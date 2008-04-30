@@ -132,7 +132,8 @@ LLLineEditor::LLLineEditor(const LLString& name, const LLRect& rect,
 		mSelectAllonFocusReceived( FALSE ),
 		mPassDelete(FALSE),
 		mReadOnly(FALSE),
-		mImage( sImage )
+		mImage( sImage ),
+		mReplaceNewlinesWithSpaces( TRUE )
 {
 	llassert( max_length_bytes > 0 );
 
@@ -961,7 +962,7 @@ void LLLineEditor::paste()
 			LLWString clean_string(paste);
 			LLWString::replaceTabsWithSpaces(clean_string, 1);
 			//clean_string = wstring_detabify(paste, 1);
-			LLWString::replaceChar(clean_string, '\n', ' ');
+			LLWString::replaceChar(clean_string, '\n', mReplaceNewlinesWithSpaces ? ' ' : 182); // 182 == paragraph character
 
 			// Insert the string
 
@@ -2547,6 +2548,10 @@ S32 LLLineEditor::getPreeditFontSize() const
 	return llround(mGLFont->getLineHeight() * LLUI::sGLScaleFactor.mV[VY]);
 }
 
+void LLLineEditor::setReplaceNewlinesWithSpaces(BOOL replace)
+{
+	mReplaceNewlinesWithSpaces = replace;
+}
 
 static LLRegisterWidget<LLSearchEditor> r2("search_editor");
 

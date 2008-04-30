@@ -127,6 +127,7 @@
 #include "llsky.h"
 #include "llsrv.h"
 #include "llstatview.h"
+#include "lltrans.h"
 #include "llsurface.h"
 #include "lltexturecache.h"
 #include "lltexturefetch.h"
@@ -884,7 +885,7 @@ BOOL idle_startup()
 
 		// Poke the VFS, which could potentially block for a while if
 		// Windows XP is acting up
-		set_startup_status(0.07f, "Verifying cache files (can take 60-90 seconds)...", NULL);
+		set_startup_status(0.07f, LLTrans::getString("LoginVerifyingCache").c_str(), NULL);
 		display_startup();
 
 		gVFS->pokeFiles();
@@ -953,9 +954,10 @@ BOOL idle_startup()
 		}
 		sAuthUriNum = 0;
 		auth_method = "login_to_simulator";
-		auth_desc = "Logging in.  ";
-		auth_desc += LLAppViewer::instance()->getSecondLifeTitle();
-		auth_desc += " may appear frozen.  Please wait.";
+		
+		LLString::format_map_t args;
+		args["[APP_NAME]"] = LLAppViewer::instance()->getSecondLifeTitle();
+		auth_desc = LLTrans::getString("LoginInProgress", args).c_str();
 		LLStartUp::setStartupState( STATE_LOGIN_AUTHENTICATE );
 	}
 
@@ -1061,7 +1063,7 @@ BOOL idle_startup()
 		}
 		LLStartUp::setStartupState( STATE_LOGIN_PROCESS_RESPONSE );
 		progress += 0.01f;
-		set_startup_status(progress, "Processing Response...", auth_message.c_str());
+		set_startup_status(progress, LLTrans::getString("LoginProcessingResponse").c_str(), auth_message.c_str());
 		return do_normal_idle;
 	}
 
@@ -1096,11 +1098,11 @@ BOOL idle_startup()
 				auth_message = LLUserAuth::getInstance()->getResponse("message");
 				if(auth_method.substr(0, 5) == "login")
 				{
-					auth_desc.assign("Authenticating...");
+					auth_desc.assign(LLTrans::getString("LoginAuthenticating").c_str());
 				}
 				else
 				{
-					auth_desc.assign("Performing account maintenance...");
+					auth_desc.assign(LLTrans::getString("LoginMaintenance").c_str());
 				}
 				// ignoring the duration & options array for now.
 				// Go back to authenticate.
@@ -1213,9 +1215,9 @@ BOOL idle_startup()
 			} else {
 				sAuthUriNum++;
 				std::ostringstream s;
-				s << "Previous login attempt failed. Logging in, attempt "
-				  << (sAuthUriNum + 1) << ".  ";
-				auth_desc = s.str();
+				LLString::format_map_t args;
+				args["[NUMBER]"] = sAuthUriNum + 1;
+				auth_desc = LLTrans::getString("LoginAttempt", args).c_str();
 				LLStartUp::setStartupState( STATE_LOGIN_AUTHENTICATE );
 				return do_normal_idle;
 			}
@@ -1493,7 +1495,7 @@ BOOL idle_startup()
 	//---------------------------------------------------------------------
 	if (STATE_WORLD_INIT == LLStartUp::getStartupState())
 	{
-		set_startup_status(0.40f, "Initializing World...", gAgent.mMOTD.c_str());
+		set_startup_status(0.40f, LLTrans::getString("LoginInitializingWorld").c_str(), gAgent.mMOTD.c_str());
 		display_startup();
 		// We should have an agent id by this point.
 		llassert(!(gAgentID == LLUUID::null));
@@ -1709,7 +1711,7 @@ BOOL idle_startup()
 		for (int i = 0; i < DECODE_TIME_SEC; i++)
 		{
 			F32 frac = (F32)i / (F32)DECODE_TIME_SEC;
-			set_startup_status(0.45f + frac*0.1f, "Decoding images...", gAgent.mMOTD.c_str());
+			set_startup_status(0.45f + frac*0.1f, LLTrans::getString("LoginDecodingImages").c_str(), gAgent.mMOTD.c_str());
 			display_startup();
 			gImageList.decodeAllImages(1.f);
 		}
@@ -1754,7 +1756,7 @@ BOOL idle_startup()
 	if(STATE_WORLD_WAIT == LLStartUp::getStartupState())
 	{
 		//llinfos << "Waiting for simulator ack...." << llendl;
-		set_startup_status(0.59f, "Waiting for region handshake...", gAgent.mMOTD.c_str());
+		set_startup_status(0.59f, LLTrans::getString("LoginWaitingForRegionHandshake").c_str(), gAgent.mMOTD.c_str());
 		if(gGotUseCircuitCodeAck)
 		{
 			LLStartUp::setStartupState( STATE_AGENT_SEND );
@@ -1773,7 +1775,7 @@ BOOL idle_startup()
 	if (STATE_AGENT_SEND == LLStartUp::getStartupState())
 	{
 		llinfos << "Connecting to region..." << llendl;
-		set_startup_status(0.60f, "Connecting to region...", gAgent.mMOTD.c_str());
+		set_startup_status(0.60f, LLTrans::getString("LoginConnectingToRegion").c_str(), gAgent.mMOTD.c_str());
 		// register with the message system so it knows we're
 		// expecting this message
 		LLMessageSystem* msg = gMessageSystem;
@@ -2249,7 +2251,7 @@ BOOL idle_startup()
 		{
 			update_texture_fetch();
 			set_startup_status(0.f + 0.25f * wearables_time / MAX_WEARABLES_TIME,
-							 "Downloading clothing...",
+							 LLTrans::getString("LoginDownloadingClothing").c_str(),
 							 gAgent.mMOTD.c_str());
 		}
 		return do_normal_idle;

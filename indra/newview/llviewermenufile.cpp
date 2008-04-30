@@ -414,18 +414,6 @@ class LLFileTakeSnapshotToDisk : public view_listener_t
 	}
 };
 
-class LLFileSetWindowSize : public view_listener_t
-{
-	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
-	{
-		LLString size = userdata.asString();
-		S32 width, height;
-		sscanf(size.c_str(), "%d,%d", &width, &height);
-		LLViewerWindow::movieSize(width, height);
-		return true;
-	}
-};
-
 class LLFileQuit : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
@@ -1024,7 +1012,6 @@ void init_menu_file()
 	(new LLFileSaveTexture())->registerListener(gMenuHolder, "File.SaveTexture");
 	(new LLFileTakeSnapshot())->registerListener(gMenuHolder, "File.TakeSnapshot");
 	(new LLFileTakeSnapshotToDisk())->registerListener(gMenuHolder, "File.TakeSnapshotToDisk");
-	(new LLFileSetWindowSize())->registerListener(gMenuHolder, "File.SetWindowSize");
 	(new LLFileQuit())->registerListener(gMenuHolder, "File.Quit");
 
 	(new LLFileEnableUpload())->registerListener(gMenuHolder, "File.EnableUpload");

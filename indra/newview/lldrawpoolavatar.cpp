@@ -395,6 +395,31 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 		return;
 	}
 
+	if (!avatarp->isFullyLoaded())
+	{
+		
+		/* // debug code to draw a cube in place of avatar
+		LLGLSNoTexture gls_no_texture;
+		LLVector3 pos = avatarp->getPositionAgent();
+
+		gGL.color4f(1.0f, 0.0f, 0.0f, 0.8f);
+		gGL.begin(GL_LINES);
+		{
+			gGL.vertex3fv((pos - LLVector3(0.2f, 0.f, 0.f)).mV);
+			gGL.vertex3fv((pos + LLVector3(0.2f, 0.f, 0.f)).mV);
+			gGL.vertex3fv((pos - LLVector3(0.f, 0.2f, 0.f)).mV);
+			gGL.vertex3fv((pos + LLVector3(0.f, 0.2f, 0.f)).mV);
+			gGL.vertex3fv((pos - LLVector3(0.f, 0.f, 0.2f)).mV);
+			gGL.vertex3fv((pos + LLVector3(0.f, 0.f, 0.2f)).mV);
+		}
+		gGL.end();
+		*/
+
+		
+		// don't render please
+		return;
+	}
+
 	BOOL impostor = avatarp->isImpostor() && !single_avatar;
 
 	if (impostor && pass != 0)

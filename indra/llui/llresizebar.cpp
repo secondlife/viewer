@@ -50,6 +50,7 @@ LLResizeBar::LLResizeBar( const LLString& name, LLView* resizing_view, const LLR
 	mMaxSize( max_size ),
 	mSide( side ),
 	mSnappingEnabled(TRUE),
+	mAllowDoubleClickSnapping(TRUE),
 	mResizingView(resizing_view)
 {
 	// set up some generically good follow code.
@@ -260,27 +261,31 @@ BOOL LLResizeBar::handleDoubleClick(S32 x, S32 y, MASK mask)
 	LLRect orig_rect = mResizingView->getRect();
 	LLRect scaled_rect = orig_rect;
 
-	if (mSnappingEnabled)
+	if (mSnappingEnabled && mAllowDoubleClickSnapping)
 	{
 		switch( mSide )
 		{
 		case LEFT:
 			mResizingView->findSnapEdge(scaled_rect.mLeft, LLCoordGL(0, 0), SNAP_LEFT, SNAP_PARENT_AND_SIBLINGS, S32_MAX);
+			scaled_rect.mLeft = scaled_rect.mRight - llclamp(scaled_rect.getWidth(), mMinSize, mMaxSize);
 			break;
 		case TOP:
 			mResizingView->findSnapEdge(scaled_rect.mTop, LLCoordGL(0, 0), SNAP_TOP, SNAP_PARENT_AND_SIBLINGS, S32_MAX);
+			scaled_rect.mTop = scaled_rect.mBottom + llclamp(scaled_rect.getHeight(), mMinSize, mMaxSize);
 			break;
 		case RIGHT:
 			mResizingView->findSnapEdge(scaled_rect.mRight, LLCoordGL(0, 0), SNAP_RIGHT, SNAP_PARENT_AND_SIBLINGS, S32_MAX);
+			scaled_rect.mRight = scaled_rect.mLeft + llclamp(scaled_rect.getWidth(), mMinSize, mMaxSize);
 			break;
 		case BOTTOM:
 			mResizingView->findSnapEdge(scaled_rect.mBottom, LLCoordGL(0, 0), SNAP_BOTTOM, SNAP_PARENT_AND_SIBLINGS, S32_MAX);
+			scaled_rect.mBottom = scaled_rect.mTop - llclamp(scaled_rect.getHeight(), mMinSize, mMaxSize);
 			break;
 		}
+
+		mResizingView->userSetShape(scaled_rect);
 	}
 
-	mResizingView->reshape(scaled_rect.getWidth(), scaled_rect.getHeight());
-	mResizingView->setOrigin(scaled_rect.mLeft, scaled_rect.mBottom);
 	return TRUE;
 }
 

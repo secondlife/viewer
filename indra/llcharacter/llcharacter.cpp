@@ -377,6 +377,27 @@ void LLCharacter::clearVisualParamWeights()
 }
 
 //-----------------------------------------------------------------------------
+// BOOL visualParamWeightsAreDefault()
+//-----------------------------------------------------------------------------
+BOOL LLCharacter::visualParamWeightsAreDefault()
+{
+	for (LLVisualParam *param = getFirstVisualParam(); 
+		param;
+		param = getNextVisualParam())
+	{
+		if (param->getGroup() == VISUAL_PARAM_GROUP_TWEAKABLE)
+		{
+			if (param->getWeight() != param->getDefaultWeight())
+				return false;
+		}
+	}
+
+	return true;
+}
+
+
+
+//-----------------------------------------------------------------------------
 // getVisualParam()
 //-----------------------------------------------------------------------------
 LLVisualParam*	LLCharacter::getVisualParam(const char *param_name)

@@ -3163,6 +3163,21 @@ class LLWorldFly : public view_listener_t
 	}
 };
 
+class LLWorldEnableFly : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		BOOL sitting = FALSE;
+		if (gAgent.getAvatarObject())
+		{
+			sitting = gAgent.getAvatarObject()->mIsSitting;
+		}
+		gMenuHolder->findControl(userdata["control"].asString())->setValue(!sitting);
+		return true;
+	}
+};
+
+
 void handle_agent_stop_moving(void*)
 {
 	// stop agent
@@ -7766,6 +7781,7 @@ void initialize_menus()
 	addMenu(new LLWorldChat(), "World.Chat");
 	addMenu(new LLWorldAlwaysRun(), "World.AlwaysRun");
 	addMenu(new LLWorldFly(), "World.Fly");
+	addMenu(new LLWorldEnableFly(), "World.EnableFly");
 	addMenu(new LLWorldCreateLandmark(), "World.CreateLandmark");
 	addMenu(new LLWorldSetHomeLocation(), "World.SetHomeLocation");
 	addMenu(new LLWorldTeleportHome(), "World.TeleportHome");

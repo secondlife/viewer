@@ -62,6 +62,7 @@
 #include "llhudmanager.h"
 #include "llinventorymodel.h"
 #include "llmenugl.h"
+#include "llmutelist.h"
 #include "llstatusbar.h"
 #include "llsurface.h"
 #include "lltool.h"
@@ -4441,6 +4442,11 @@ void LLSelectMgr::processObjectPropertiesFamily(LLMessageSystem* msg, void** use
 			gCacheName->getFullName(owner_id, fullname);
 			reporterp->setPickedObjectProperties(name, fullname, owner_id);
 		}
+	}
+	else if (request_flags & OBJECT_PAY_REQUEST)
+	{
+		// check if the owner of the paid object is muted
+		LLMuteList::getInstance()->autoRemove(owner_id, LLMuteList::AR_MONEY);
 	}
 
 	// Now look through all of the hovered nodes

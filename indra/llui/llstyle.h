@@ -37,7 +37,7 @@
 #include "llfont.h"
 #include "llui.h"
 
-class LLStyle
+class LLStyle : public LLRefCount
 {
 public:
 	LLStyle();
@@ -45,8 +45,6 @@ public:
 	LLStyle(BOOL is_visible, const LLColor4 &color, const LLString& font_name);
 
 	LLStyle &operator=(const LLStyle &rhs);
-
-	virtual ~LLStyle() { }
 
 	virtual void init (BOOL is_visible, const LLColor4 &color, const LLString& font_name);
 
@@ -101,6 +99,9 @@ public:
 	S32         mImageWidth;
 	S32         mImageHeight;
 
+protected:
+	virtual ~LLStyle() { }
+
 private:
 	BOOL		mVisible;
 	LLColor4	mColor;
@@ -110,5 +111,7 @@ private:
 	LLUIImagePtr mImagep;
 	BOOL		mIsEmbeddedItem;
 };
+
+typedef LLPointer<LLStyle> LLStyleSP;
 
 #endif  // LL_LLSTYLE_H

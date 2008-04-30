@@ -207,6 +207,9 @@ public:
 	// set all morph weights to 0
 	void clearVisualParamWeights();
 
+	// see if all the weights are default
+	BOOL visualParamWeightsAreDefault();
+
 	// visual parameter accessors
 	LLVisualParam*	getFirstVisualParam()
 	{

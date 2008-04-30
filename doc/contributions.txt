@@ -8,6 +8,7 @@ Able Whitman
 	VWR-650
 	VWR-1460
 	VWR-1691
+	VWR-1735
 Adam Marker
     VWR-2755
 Aimee Trescothick
@@ -168,6 +169,7 @@ Jacek Antonelli
 	VWR-188
 	VWR-427
 	VWR-597
+	VWR-2448
 Joghert LeSabre
 	VWR-64
 Kage Pixel

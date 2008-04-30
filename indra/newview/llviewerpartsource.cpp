@@ -466,6 +466,25 @@ LLPointer<LLViewerPartSourceScript> LLViewerPartSourceScript::unpackPSS(LLViewer
 	}
 }
 
+
+/* static */
+LLPointer<LLViewerPartSourceScript> LLViewerPartSourceScript::createPSS(LLViewerObject *source_objp, const LLPartSysData& particle_parameters)
+{
+	LLMemType mt(LLMemType::MTYPE_PARTICLES);
+
+	LLPointer<LLViewerPartSourceScript> new_pssp = new LLViewerPartSourceScript(source_objp);
+
+	new_pssp->mPartSysData = particle_parameters;
+
+	if (new_pssp->mPartSysData.mTargetUUID.notNull())
+	{
+		LLViewerObject *target_objp = gObjectList.findObject(new_pssp->mPartSysData.mTargetUUID);
+		new_pssp->setTargetObject(target_objp);
+	}
+	return new_pssp;
+}
+
+
 void LLViewerPartSourceScript::setImage(LLViewerImage *imagep)
 {
 	LLMemType mt(LLMemType::MTYPE_PARTICLES);

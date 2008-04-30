@@ -144,6 +144,7 @@ BOOL LLChatBar::postBuild()
 		mInputEditor->setRevertOnEsc( FALSE );
 		mInputEditor->setIgnoreTab(TRUE);
 		mInputEditor->setPassDelete(TRUE);
+		mInputEditor->setReplaceNewlinesWithSpaces(FALSE);
 
 		mInputEditor->setMaxTextLength(1023);
 		mInputEditor->setEnableLineHistory(TRUE);

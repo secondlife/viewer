@@ -186,7 +186,10 @@ void LLFloaterAuction::onClickSnapshot(void* data)
 		self->mTransactionID.generate();
 		self->mImageID = self->mTransactionID.makeAssetID(gAgent.getSecureSessionID());
 
-		gViewerWindow->playSnapshotAnimAndSound();
+		if(!gSavedSettings.getBOOL("QuietSnapshotsToDisk"))
+		{
+			gViewerWindow->playSnapshotAnimAndSound();
+		}
 		llinfos << "Writing TGA..." << llendl;
 
 		LLPointer<LLImageTGA> tga = new LLImageTGA;

@@ -631,7 +631,7 @@ BOOL LLViewerTextEditor::handleToolTip(S32 x, S32 y, LLString& msg, LLRect* stic
 	if( cur_segment )
 	{
 		BOOL has_tool_tip = FALSE;
-		if( cur_segment->getStyle().getIsEmbeddedItem() )
+		if( cur_segment->getStyle()->getIsEmbeddedItem() )
 		{
 			LLWString wtip;
 			has_tool_tip = getEmbeddedItemToolTipAtPos(cur_segment->getStart(), wtip);
@@ -851,14 +851,14 @@ BOOL LLViewerTextEditor::handleHover(S32 x, S32 y, MASK mask)
 			const LLTextSegment* cur_segment = getSegmentAtLocalPos( x, y );
 			if( cur_segment )
 			{
-				if(cur_segment->getStyle().isLink())
+				if(cur_segment->getStyle()->isLink())
 				{
 					lldebugst(LLERR_USER_INPUT) << "hover handled by " << getName() << " (over link, inactive)" << llendl;		
 					getWindow()->setCursor(UI_CURSOR_HAND);
 					handled = TRUE;
 				}
 				else
-				if(cur_segment->getStyle().getIsEmbeddedItem())
+				if(cur_segment->getStyle()->getIsEmbeddedItem())
 				{
 					lldebugst(LLERR_USER_INPUT) << "hover handled by " << getName() << " (over embedded item, inactive)" << llendl;		
 					getWindow()->setCursor(UI_CURSOR_HAND);
@@ -970,10 +970,10 @@ BOOL LLViewerTextEditor::handleRightMouseDown(S32 x, S32 y, MASK mask)
 // 		const LLTextSegment* cur_segment = getSegmentAtLocalPos( x, y );
 // 		if( cur_segment )
 // 		{
-// 			if(cur_segment->getStyle().isLink())
+// 			if(cur_segment->getStyle()->isLink())
 // 			{
 // 				handled = TRUE;
-// 				mHTML = cur_segment->getStyle().getLinkHREF();
+// 				mHTML = cur_segment->getStyle()->getLinkHREF();
 // 			}
 // 		}
 // 	}
@@ -1008,7 +1008,7 @@ BOOL LLViewerTextEditor::handleDoubleClick(S32 x, S32 y, MASK mask)
 		if( allowsEmbeddedItems() )
 		{
 			const LLTextSegment* cur_segment = getSegmentAtLocalPos( x, y );
-			if( cur_segment && cur_segment->getStyle().getIsEmbeddedItem() )
+			if( cur_segment && cur_segment->getStyle()->getIsEmbeddedItem() )
 			{
 				if( openEmbeddedItemAtPos( cur_segment->getStart() ) )
 				{
@@ -1598,7 +1598,7 @@ LLView* LLViewerTextEditor::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlF
 	text_editor->initFromXML(node, parent);
 
 	// add text after all parameters have been set
-	text_editor->appendStyledText(text, FALSE, FALSE, NULL);
+	text_editor->appendStyledText(text, FALSE, FALSE);
 
 	return text_editor;
 }

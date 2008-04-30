@@ -429,26 +429,18 @@ void LLStatusBar::refresh()
 		childSetVisible("restrictpush", FALSE);
 	}
 
-	BOOL voice_enabled = gVoiceClient->voiceEnabled();
 	BOOL have_voice = parcel && parcel->getVoiceEnabled(); 
-	if (!voice_enabled)
+	if (have_voice)
 	{
 		childSetVisible("status_no_voice", FALSE);
 	}
 	else
 	{
-		if (have_voice)
-		{
-			childSetVisible("status_no_voice", FALSE);
-		}
-		else if (!have_voice)
-		{
-			childSetVisible("status_no_voice", TRUE);
-			childGetRect( "status_no_voice", buttonRect );
-			r.setOriginAndSize( x, y, buttonRect.getWidth(), buttonRect.getHeight());
-			childSetRect( "status_no_voice", r );
-			x += buttonRect.getWidth();
-		}
+		childSetVisible("status_no_voice", TRUE);
+		childGetRect( "status_no_voice", buttonRect );
+		r.setOriginAndSize( x, y, buttonRect.getWidth(), buttonRect.getHeight());
+		childSetRect( "status_no_voice", r );
+		x += buttonRect.getWidth();
 	}
 
 	BOOL canBuyLand = parcel

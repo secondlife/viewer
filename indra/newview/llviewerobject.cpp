@@ -4068,6 +4068,37 @@ BOOL LLViewerObject::isParticleSource() const
 	return !mPartSourcep.isNull() && !mPartSourcep->isDead();
 }
 
+void LLViewerObject::setParticleSource(const LLPartSysData& particle_parameters, const LLUUID& owner_id)
+{
+	if (mPartSourcep)
+	{
+		deleteParticleSource();
+	}
+
+	LLPointer<LLViewerPartSourceScript> pss = LLViewerPartSourceScript::createPSS(this, particle_parameters);
+	mPartSourcep = pss;
+	
+	if (mPartSourcep)
+	{
+		mPartSourcep->setOwnerUUID(owner_id);
+
+		if (mPartSourcep->getImage()->getID() != mPartSourcep->mPartSysData.mPartImageID)
+		{
+			LLViewerImage* image;
+			if (mPartSourcep->mPartSysData.mPartImageID == LLUUID::null)
+			{
+				image = gImageList.getImageFromFile("pixiesmall.tga");
+			}
+			else
+			{
+				image = gImageList.getImage(mPartSourcep->mPartSysData.mPartImageID);
+			}
+			mPartSourcep->setImage(image);
+		}
+	}
+	LLViewerPartSim::getInstance()->addPartSource(pss);
+}
+
 void LLViewerObject::unpackParticleSource(const S32 block_num, const LLUUID& owner_id)
 {
 	if (!mPartSourcep.isNull() && mPartSourcep->isDead())
