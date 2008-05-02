@@ -5823,6 +5823,7 @@ void LLAgent::teleportViaLure(const LLUUID& lure_id, BOOL godlike)
 		msg->addUUIDFast(_PREHASH_AgentID, getID());
 		msg->addUUIDFast(_PREHASH_SessionID, getSessionID());
 		msg->addUUIDFast(_PREHASH_LureID, lure_id);
+		// teleport_flags is a legacy field, now derived sim-side:
 		msg->addU32("TeleportFlags", teleport_flags);
 		sendReliableMessage();
 	}	

@@ -1278,10 +1278,6 @@ void lure_callback(S32 option, void* user_data)
 	case 0:
 		{
 			// accept
-			send_simple_im(info->mFromID,
-						   "",
-						   IM_LURE_ACCEPTED,
-						   info->mLureID);
 			gAgent.teleportViaLure(info->mLureID, info->mGodlike);
 		}
 		break;
