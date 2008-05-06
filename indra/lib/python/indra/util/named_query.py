@@ -47,6 +47,9 @@ except NameError:
 from indra.base import llsd
 from indra.base import config
 
+NQ_FILE_SUFFIX = config.get('named-query-file-suffix', '')
+NQ_FILE_SUFFIX_LEN  = len(NQ_FILE_SUFFIX)
+
 _g_named_manager = None
 
 def _init_g_named_manager(sql_dir = None):
@@ -98,6 +101,9 @@ class NamedQuery(object):
         a path to a file containing an llsd named query document."""
         self._stat_interval_seconds = 5  # 5 seconds
         self._name = name
+        if (filename is not None) \
+                and (NQ_FILE_SUFFIX != filename[-NQ_FILE_SUFFIX_LEN:]):
+            filename = filename + NQ_FILE_SUFFIX
         self._location = filename
         self._alternative = dict()
         self._last_mod_time = 0
