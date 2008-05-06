@@ -545,8 +545,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 
 		BOOL to_texture = !for_snapshot &&
 						gPipeline.canUseVertexShaders() &&
-						LLPipeline::sRenderGlow &&
-						gGLManager.mHasFramebufferObject;
+						LLPipeline::sRenderGlow;
 
 		// now do the swap buffer (just before rendering to framebuffer)
 		{ //swap and flush state from previous frame
@@ -893,8 +892,7 @@ void render_ui_and_swap()
 	
 	{
 		BOOL to_texture = gPipeline.canUseVertexShaders() &&
-							LLPipeline::sRenderGlow &&
-							gGLManager.mHasFramebufferObject;
+							LLPipeline::sRenderGlow;
 
 		if (to_texture)
 		{

@@ -33,6 +33,7 @@
 
 #include "llrendertarget.h"
 #include "llglimmediate.h"
+#include "llgl.h"
 
 
 BOOL LLRenderTarget::sUseFBO = FALSE;
@@ -148,6 +149,15 @@ void LLRenderTarget::bindTarget()
 	}
 
 	glViewport(0, 0, mResX, mResY);
+}
+
+// static
+void LLRenderTarget::unbindTarget()
+{
+	if (gGLManager.mHasFramebufferObject)
+	{
+		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+	}
 }
 
 void LLRenderTarget::clear()

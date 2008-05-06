@@ -2421,7 +2421,7 @@ public:
 	{
 		LLSpatialGroup* group = (LLSpatialGroup*) branch->getListener(0);
 
-		if (mCamera && !mCamera->AABBInFrustumNoFarClip(group->mBounds[0], group->mBounds[1]))
+		if (group->isState(LLSpatialGroup::GEOM_DIRTY) || (mCamera && !mCamera->AABBInFrustumNoFarClip(group->mBounds[0], group->mBounds[1])))
 		{
 			return;
 		}

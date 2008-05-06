@@ -149,10 +149,6 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask)
 
 void LLDrawPoolAlpha::renderAlphaHighlight(U32 mask)
 {
-#if !LL_RELEASE_FOR_DOWNLOAD
-	LLGLState::checkClientArrays(mask);
-#endif
-
 	for (LLCullResult::sg_list_t::iterator i = gPipeline.beginAlphaGroups(); i != gPipeline.endAlphaGroups(); ++i)
 	{
 		LLSpatialGroup* group = *i;

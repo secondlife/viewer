@@ -776,7 +776,7 @@ void LLFloaterTools::onClose(bool app_quitting)
 	setVisible(FALSE);
 	mTab->setVisible(FALSE);
 
-	LLViewerJoystick::getInstance()->moveAvatar(true);
+	LLViewerJoystick::getInstance()->moveAvatar(false);
 
     // Different from handle_reset_view in that it doesn't actually 
 	//   move the camera if EditCameraMovement is not set.

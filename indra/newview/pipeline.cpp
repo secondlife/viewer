@@ -1162,8 +1162,7 @@ void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result, S32 water_cl
 						!hasRenderType(LLPipeline::RENDER_TYPE_HUD) && 
 						!sReflectionRender &&
 						gPipeline.canUseVertexShaders() &&
-						sRenderGlow &&
-						gGLManager.mHasFramebufferObject;
+						sRenderGlow;
 
 	if (to_texture)
 	{
@@ -1243,7 +1242,7 @@ void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result, S32 water_cl
 	if (to_texture)
 	{
 		mScreen.flush();
-		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+		LLRenderTarget::unbindTarget();
 	}
 	else if (LLPipeline::sUseOcclusion > 1)
 	{
@@ -2257,6 +2256,8 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 	gFrameStats.start(LLFrameStats::RENDER_SYNC);
 
 	glEnableClientState(GL_VERTEX_ARRAY);
+
+	LLVertexBuffer::unbind();
 
 	// Do verification of GL state
 #ifndef LL_RELEASE_FOR_DOWNLOAD
@@ -4462,8 +4463,7 @@ void LLPipeline::bindScreenToTexture()
 void LLPipeline::renderBloom(BOOL for_snapshot)
 {
 	if (!(gPipeline.canUseVertexShaders() &&
-		sRenderGlow &&
-		gGLManager.mHasFramebufferObject))
+		sRenderGlow))
 	{
 		return;
 	}
@@ -4862,6 +4862,8 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 {
 	if (LLPipeline::sWaterReflections && assertInitialized() && LLDrawPoolWater::sNeedsReflectionUpdate)
 	{
+		LLVertexBuffer::unbind();
+
 #ifndef LL_RELEASE_FOR_DOWNLOAD
 		LLGLState::checkStates();
 		LLGLState::checkTextureChannels();
@@ -5039,7 +5041,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 		}
 		last_update = LLDrawPoolWater::sNeedsReflectionUpdate && LLDrawPoolWater::sNeedsDistortionUpdate;
 
-		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+		LLRenderTarget::unbindTarget();
 		LLPipeline::sReflectionRender = FALSE;
 
 		if (!LLRenderTarget::sUseFBO)

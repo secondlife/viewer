@@ -411,7 +411,8 @@ void LLFace::renderForSelect(U32 data_mask)
 
 void LLFace::renderSelected(LLImageGL *imagep, const LLColor4& color)
 {
-	if(mDrawablep.isNull() || mVertexBuffer.isNull())
+	if(mDrawablep.isNull() || mVertexBuffer.isNull() || mDrawablep->getSpatialGroup() == NULL ||
+		mDrawablep->getSpatialGroup()->isState(LLSpatialGroup::GEOM_DIRTY))
 	{
 		return;
 	}

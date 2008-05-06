@@ -2855,7 +2855,7 @@
         <key>Type</key>
             <string>Boolean</string>
         <key>Value</key>
-            <string>0</string>
+            <integer>0</integer>
         </map>
     <key>JoystickFlycamEnabled</key>
         <map>
@@ -6089,9 +6089,9 @@
             <string>Color4</string>
         <key>Value</key>
             <array>
-                <real>0.819999992847442626953125</real>
-                <real>0.819999992847442626953125</real>
-                <real>0.9900000095367431640625</real>
+                <real>0.8235294117</real>
+                <real>0.2745098039</real>
+                <real>0.2745098039</real>
                 <real>1</real>
             </array>
         </map>

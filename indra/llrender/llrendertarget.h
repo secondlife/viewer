@@ -83,6 +83,9 @@ public:
 	//bind target for rendering
 	//applies appropriate viewport
 	void bindTarget();
+
+	//unbind target for rendering
+	static void unbindTarget();
 	
 	//clear render targer, clears depth buffer if present,
 	//uses scissor rect if in copy-to-texture mode

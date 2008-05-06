@@ -1684,7 +1684,7 @@ void LLViewerWindow::initBase()
 	F32 gamma = gSavedSettings.getF32("RenderGamma");
 	if (gamma != 0.0f)
 	{
-		gViewerWindow->getWindow()->setGamma(gamma);
+		getWindow()->setGamma(gamma);
 	}
 
 	// Create global views
@@ -1953,7 +1953,7 @@ void LLViewerWindow::initWorldUI()
 
 		// Status bar
 		S32 menu_bar_height = gMenuBarView->getRect().getHeight();
-		LLRect root_rect = gViewerWindow->getRootView()->getRect();
+		LLRect root_rect = getRootView()->getRect();
 		LLRect status_rect(0, root_rect.getHeight(), root_rect.getWidth(), root_rect.getHeight() - menu_bar_height);
 		gStatusBar = new LLStatusBar("status", status_rect);
 		gStatusBar->setFollows(FOLLOWS_LEFT | FOLLOWS_RIGHT | FOLLOWS_TOP);
@@ -1965,10 +1965,10 @@ void LLViewerWindow::initWorldUI()
 
 		LLFloaterChatterBox::createInstance(LLSD());
 
-		gViewerWindow->getRootView()->addChild(gStatusBar);
+		getRootView()->addChild(gStatusBar);
 
 		// menu holder appears on top to get first pass at all mouse events
-		gViewerWindow->getRootView()->sendChildToFront(gMenuHolder);
+		getRootView()->sendChildToFront(gMenuHolder);
 	}
 }
 
@@ -2313,8 +2313,8 @@ void LLViewerWindow::draw()
 			int pos_y = sub_region / llceil(zoom_factor);
 			int pos_x = sub_region - (pos_y*llceil(zoom_factor));
 			// offset for this tile
-			glTranslatef((F32)gViewerWindow->getWindowWidth() * -(F32)pos_x, 
-						(F32)gViewerWindow->getWindowHeight() * -(F32)pos_y, 
+			glTranslatef((F32)getWindowWidth() * -(F32)pos_x, 
+						(F32)getWindowHeight() * -(F32)pos_y, 
 						0.f);
 			glScalef(zoom_factor, zoom_factor, 1.f);
 			LLUI::sGLScaleFactor *= zoom_factor;
@@ -2379,8 +2379,8 @@ void LLViewerWindow::draw()
 			const S32 DIST_FROM_TOP = 20;
 			LLFontGL::sSansSerifBig->renderUTF8(
 				mOverlayTitle, 0,
-				llround( gViewerWindow->getWindowWidth() * 0.5f),
-				gViewerWindow->getWindowHeight() - DIST_FROM_TOP,
+				llround( getWindowWidth() * 0.5f),
+				getWindowHeight() - DIST_FROM_TOP,
 				LLColor4(1, 1, 1, 0.4f),
 				LLFontGL::HCENTER, LLFontGL::TOP);
 		}
@@ -3534,8 +3534,8 @@ void LLViewerWindow::hitUIElementAsync(S32 x, S32 y_from_bot, MASK mask, void (*
 	// build orthogonal transform and picking viewport
 	// Perform pick on a PICK_DIAMETER x PICK_DIAMETER pixel region around cursor point.
 	// Don't limit the select distance for this pick.
-	gViewerWindow->setup2DRender();
-	const LLVector2& display_scale = gViewerWindow->getDisplayScale();
+	setup2DRender();
+	const LLVector2& display_scale = getDisplayScale();
 	glScalef(display_scale.mV[VX], display_scale.mV[VY], 1.f);
 
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
@@ -3549,7 +3549,7 @@ void LLViewerWindow::hitUIElementAsync(S32 x, S32 y_from_bot, MASK mask, void (*
 
 	// Draw the objects so the user can select them.
 	// The starting ID is 1, since land is zero.
-	//gViewerWindow->drawForSelect();
+	//drawForSelect();
 
 	stop_glerror();
 
@@ -3579,8 +3579,8 @@ void LLViewerWindow::performPick()
 	
 	// find pick region that is fully onscreen
 	LLCoordGL scaled_pick_point = mPickPoint;
-	scaled_pick_point.mX = llclamp(llround((F32)mPickPoint.mX * mDisplayScale.mV[VX]), PICK_HALF_WIDTH, gViewerWindow->getWindowDisplayWidth() - PICK_HALF_WIDTH);
-	scaled_pick_point.mY = llclamp(llround((F32)mPickPoint.mY * mDisplayScale.mV[VY]), PICK_HALF_WIDTH, gViewerWindow->getWindowDisplayHeight() - PICK_HALF_WIDTH);
+	scaled_pick_point.mX = llclamp(llround((F32)mPickPoint.mX * mDisplayScale.mV[VX]), PICK_HALF_WIDTH, getWindowDisplayWidth() - PICK_HALF_WIDTH);
+	scaled_pick_point.mY = llclamp(llround((F32)mPickPoint.mY * mDisplayScale.mV[VY]), PICK_HALF_WIDTH, getWindowDisplayHeight() - PICK_HALF_WIDTH);
 
 	glReadPixels(scaled_pick_point.mX - PICK_HALF_WIDTH, scaled_pick_point.mY - PICK_HALF_WIDTH, PICK_DIAMETER, PICK_DIAMETER, GL_RGBA, GL_UNSIGNED_BYTE, mPickBuffer);
 
@@ -4152,7 +4152,7 @@ BOOL LLViewerWindow::saveImageNumbered(LLImageRaw *raw, const LLString& extensio
 		filepath += extension;
 
 		struct stat stat_info;
-		err = gViewerWindow->mWindow->stat( filepath.c_str(), &stat_info );
+		err = mWindow->stat( filepath.c_str(), &stat_info );
 		i++;
 	}
 	while( -1 != err );  // search until the file is not found (i.e., stat() gives an error).
@@ -4177,6 +4177,7 @@ BOOL LLViewerWindow::saveImageNumbered(LLImageRaw *raw, const LLString& extensio
 static S32 BORDERHEIGHT = 0;
 static S32 BORDERWIDTH = 0;
 
+// static
 void LLViewerWindow::movieSize(S32 new_width, S32 new_height)
 {
 	LLCoordScreen size;
@@ -4657,7 +4658,7 @@ void LLViewerWindow::drawMouselookInstructions()
 	LLRect instructions_rect;
 	instructions_rect.setLeftTopAndSize( 
 		INSTRUCTIONS_PAD,
-		gViewerWindow->getWindowHeight() - INSTRUCTIONS_PAD,
+		getWindowHeight() - INSTRUCTIONS_PAD,
 		font->getWidth( instructions ) + 2 * INSTRUCTIONS_PAD,
 		llround(font->getLineHeight() + 2 * INSTRUCTIONS_PAD));
 
@@ -4980,11 +4981,11 @@ void LLViewerWindow::getTargetWindow(BOOL& fullscreen, S32& width, S32& height) 
 {
 	fullscreen = mWantFullscreen;
 	
-	if (gViewerWindow->mWindow
-	&&  gViewerWindow->mWindow->getFullscreen() == mWantFullscreen)
+	if (mWindow
+	&&  mWindow->getFullscreen() == mWantFullscreen)
 	{
-		width = gViewerWindow->getWindowDisplayWidth();
-		height = gViewerWindow->getWindowDisplayHeight();
+		width = getWindowDisplayWidth();
+		height = getWindowDisplayHeight();
 	}
 	else if (mWantFullscreen)
 	{
@@ -5001,14 +5002,14 @@ void LLViewerWindow::getTargetWindow(BOOL& fullscreen, S32& width, S32& height) 
 
 BOOL LLViewerWindow::checkSettings()
 {
-	BOOL is_fullscreen = gViewerWindow->mWindow->getFullscreen();
+	BOOL is_fullscreen = mWindow->getFullscreen();
 	if (is_fullscreen && !mWantFullscreen)
 	{
-		gViewerWindow->changeDisplaySettings(FALSE, 
-											 LLCoordScreen(gSavedSettings.getS32("WindowWidth"),
-														   gSavedSettings.getS32("WindowHeight")),
-											 TRUE,
-											 mShowFullscreenProgress);
+		changeDisplaySettings(FALSE, 
+							  LLCoordScreen(gSavedSettings.getS32("WindowWidth"),
+											gSavedSettings.getS32("WindowHeight")),
+							  TRUE,
+							  mShowFullscreenProgress);
 		return TRUE;
 	}
 	else if (!is_fullscreen && mWantFullscreen)
@@ -5022,11 +5023,11 @@ BOOL LLViewerWindow::checkSettings()
 		LLGLState::checkStates();
 		LLGLState::checkTextureChannels();
 #endif
-		gViewerWindow->changeDisplaySettings(TRUE, 
-											 LLCoordScreen(gSavedSettings.getS32("FullScreenWidth"),
-														   gSavedSettings.getS32("FullScreenHeight")),
-											 gSavedSettings.getBOOL("DisableVerticalSync"),
-											 mShowFullscreenProgress);
+		changeDisplaySettings(TRUE, 
+							  LLCoordScreen(gSavedSettings.getS32("FullScreenWidth"),
+											gSavedSettings.getS32("FullScreenHeight")),
+							  gSavedSettings.getBOOL("DisableVerticalSync"),
+							  mShowFullscreenProgress);
 
 #ifndef LL_RELEASE_FOR_DOWNLOAD
 		LLGLState::checkStates();

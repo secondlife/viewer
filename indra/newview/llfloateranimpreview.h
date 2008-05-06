@@ -106,6 +106,9 @@ public:
 									   LLAssetType::EType type,
 									   void* user_data,
 									   S32 status, LLExtStat ext_status);
+private:
+	void setAnimCallbacks() ;
+	
 protected:
 	void			draw();
 	void			resetMotion();

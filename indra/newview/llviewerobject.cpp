@@ -1861,9 +1861,14 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 	if (new_rot != mLastRot
 		|| new_angv != old_angv)
 	{
-		mLastRot = new_rot;
+		if (new_rot != mLastRot)
+		{
+			mLastRot = new_rot;
+			setRotation(new_rot);
+		}
+		
 		setChanged(ROTATED | SILHOUETTE);
-		setRotation(new_rot);
+		
 		resetRot();
 	}
 

@@ -158,6 +158,7 @@ static LLPointer<LLObjectSelection> sNullSelection;
 void LLSelectMgr::cleanupGlobals()
 {
 	sNullSelection = NULL;
+	LLSelectMgr::getInstance()->clearSelections();
 }
 
 LLObjectSelection *get_null_object_selection()

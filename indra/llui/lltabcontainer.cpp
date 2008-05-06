@@ -716,7 +716,6 @@ void LLTabContainer::addTabPanel(LLPanel* child,
 	child->setFollowsAll();
 	child->translate( tab_panel_rect.mLeft - child->getRect().mLeft, tab_panel_rect.mBottom - child->getRect().mBottom);
 	child->reshape( tab_panel_rect.getWidth(), tab_panel_rect.getHeight(), TRUE );
-	child->setBackgroundVisible( FALSE );  // No need to overdraw
 	// add this child later
 
 	child->setVisible( FALSE );  // Will be made visible when selected
@@ -1794,4 +1793,5 @@ void LLTabContainer::commitHoveredButton(S32 x, S32 y)
 		}
 	}
 }
+
 

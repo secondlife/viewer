@@ -114,6 +114,34 @@ LLFloaterAnimPreview::LLFloaterAnimPreview(const char* filename) :
 }
 
 //-----------------------------------------------------------------------------
+// setAnimCallbacks()
+//-----------------------------------------------------------------------------
+void LLFloaterAnimPreview::setAnimCallbacks()
+{
+	childSetCommitCallback("playback_slider", onSliderMove, this);
+	
+	childSetCommitCallback("preview_base_anim", onCommitBaseAnim, this);
+	childSetValue("preview_base_anim", "Standing");
+
+	childSetCommitCallback("priority", onCommitPriority, this);
+	childSetCommitCallback("loop_check", onCommitLoop, this);
+	childSetCommitCallback("loop_in_point", onCommitLoopIn, this);
+	childSetValidate("loop_in_point", validateLoopIn);
+	childSetCommitCallback("loop_out_point", onCommitLoopOut, this);
+	childSetValidate("loop_out_point", validateLoopOut);
+
+	childSetCommitCallback("hand_pose_combo", onCommitHandPose, this);
+	
+	childSetCommitCallback("emote_combo", onCommitEmote, this);
+	childSetValue("emote_combo", "[None]");
+
+	childSetCommitCallback("ease_in_time", onCommitEaseIn, this);
+	childSetValidate("ease_in_time", validateEaseIn);
+	childSetCommitCallback("ease_out_time", onCommitEaseOut, this);
+	childSetValidate("ease_out_time", validateEaseOut);
+}
+
+//-----------------------------------------------------------------------------
 // postBuild()
 //-----------------------------------------------------------------------------
 BOOL LLFloaterAnimPreview::postBuild()
@@ -172,29 +200,29 @@ BOOL LLFloaterAnimPreview::postBuild()
 	mStopButton->setScaleImage(TRUE);
 
 	r.set(r.mRight + PREVIEW_HPAD, y, getRect().getWidth() - PREVIEW_HPAD, y - BTN_HEIGHT);
-	childSetCommitCallback("playback_slider", onSliderMove, this);
+	//childSetCommitCallback("playback_slider", onSliderMove, this);
 
 	childHide("bad_animation_text");
 
-	childSetCommitCallback("preview_base_anim", onCommitBaseAnim, this);
-	childSetValue("preview_base_anim", "Standing");
+	//childSetCommitCallback("preview_base_anim", onCommitBaseAnim, this);
+	//childSetValue("preview_base_anim", "Standing");
 
-	childSetCommitCallback("priority", onCommitPriority, this);
-	childSetCommitCallback("loop_check", onCommitLoop, this);
-	childSetCommitCallback("loop_in_point", onCommitLoopIn, this);
-	childSetValidate("loop_in_point", validateLoopIn);
-	childSetCommitCallback("loop_out_point", onCommitLoopOut, this);
-	childSetValidate("loop_out_point", validateLoopOut);
+	//childSetCommitCallback("priority", onCommitPriority, this);
+	//childSetCommitCallback("loop_check", onCommitLoop, this);
+	//childSetCommitCallback("loop_in_point", onCommitLoopIn, this);
+	//childSetValidate("loop_in_point", validateLoopIn);
+	//childSetCommitCallback("loop_out_point", onCommitLoopOut, this);
+	//childSetValidate("loop_out_point", validateLoopOut);
 
-	childSetCommitCallback("hand_pose_combo", onCommitHandPose, this);
+	//childSetCommitCallback("hand_pose_combo", onCommitHandPose, this);
 	
-	childSetCommitCallback("emote_combo", onCommitEmote, this);
-	childSetValue("emote_combo", "[None]");
+	//childSetCommitCallback("emote_combo", onCommitEmote, this);
+	//childSetValue("emote_combo", "[None]");
 
-	childSetCommitCallback("ease_in_time", onCommitEaseIn, this);
-	childSetValidate("ease_in_time", validateEaseIn);
-	childSetCommitCallback("ease_out_time", onCommitEaseOut, this);
-	childSetValidate("ease_out_time", validateEaseOut);
+	//childSetCommitCallback("ease_in_time", onCommitEaseIn, this);
+	//childSetValidate("ease_in_time", validateEaseIn);
+	//childSetCommitCallback("ease_out_time", onCommitEaseOut, this);
+	//childSetValidate("ease_out_time", validateEaseOut);
 
 	if (!stricmp(strrchr(mFilename.c_str(), '.'), ".bvh"))
 	{
@@ -254,6 +282,8 @@ BOOL LLFloaterAnimPreview::postBuild()
 
 		if (success)
 		{
+			setAnimCallbacks() ;
+			
 			const LLBBoxLocal &pelvis_bbox = motionp->getPelvisBBox();
 
 			LLVector3 temp = pelvis_bbox.getCenter();
@@ -314,7 +344,7 @@ BOOL LLFloaterAnimPreview::postBuild()
 			}
 		}
 
-		setEnabled(FALSE);
+		//setEnabled(FALSE);
 		mMotionID.setNull();
 		mAnimPreview = NULL;
 	}

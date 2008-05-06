@@ -369,7 +369,8 @@ void LLVoiceVisualizer::render()
 		//---------------------------------------------------------------
 		// some gl state
 		//---------------------------------------------------------------
-		LLGLEnable blend( GL_BLEND );
+		LLGLSPipelineAlpha alpha_blend;
+		LLGLDepthTest depth(GL_TRUE, GL_FALSE);
 		
 		//-------------------------------------------------------------
 		// create coordinates of the geometry for the dot

@@ -491,6 +491,7 @@ void LLVertexBuffer::destroyGLBuffer()
 	}
 	
 	mGLBuffer = 0;
+	unbind();
 }
 
 void LLVertexBuffer::destroyGLIndices()
@@ -517,6 +518,7 @@ void LLVertexBuffer::destroyGLIndices()
 	}
 
 	mGLIndices = 0;
+	unbind();
 }
 
 void LLVertexBuffer::updateNumVerts(S32 nverts)
@@ -737,8 +739,11 @@ U8* LLVertexBuffer::mapBuffer(S32 access)
 	{
 		setBuffer(0);
 		mLocked = TRUE;
+		stop_glerror();
 		mMappedData = (U8*) glMapBufferARB(GL_ARRAY_BUFFER_ARB, GL_WRITE_ONLY_ARB);
+		stop_glerror();
 		mMappedIndexData = (U8*) glMapBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, GL_WRITE_ONLY_ARB);
+		stop_glerror();
 		/*if (sMapped)
 		{
 			llerrs << "Mapped two VBOs at the same time!" << llendl;
@@ -767,8 +772,11 @@ void LLVertexBuffer::unmapBuffer()
 	{
 		if (useVBOs() && mLocked)
 		{
+			stop_glerror();
 			glUnmapBufferARB(GL_ARRAY_BUFFER_ARB);
+			stop_glerror();
 			glUnmapBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB);
+			stop_glerror();
 
 			/*if (!sMapped)
 			{
@@ -907,7 +915,9 @@ void LLVertexBuffer::setBuffer(U32 data_mask)
 			{
 				llerrs << "VBO bound while another VBO mapped!" << llendl;
 			}*/
+			stop_glerror();
 			glBindBufferARB(GL_ARRAY_BUFFER_ARB, mGLBuffer);
+			stop_glerror();
 			sBindCount++;
 			sVBOActive = TRUE;
 			setup = TRUE; // ... or the bound buffer changed
@@ -918,7 +928,9 @@ void LLVertexBuffer::setBuffer(U32 data_mask)
 			{
 				llerrs << "VBO bound while another VBO mapped!" << llendl;
 			}*/
+			stop_glerror();
 			glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, mGLIndices);
+			stop_glerror();
 			sBindCount++;
 			sIBOActive = TRUE;
 		}
@@ -927,11 +939,15 @@ void LLVertexBuffer::setBuffer(U32 data_mask)
 		{
 			if (mGLBuffer)
 			{
+				stop_glerror();
 				glBufferDataARB(GL_ARRAY_BUFFER_ARB, getSize(), NULL, mUsage);
+				stop_glerror();
 			}
 			if (mGLIndices)
 			{
+				stop_glerror();
 				glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, getIndicesSize(), NULL, mUsage);
+				stop_glerror();
 			}
 
 			mEmpty = TRUE;
