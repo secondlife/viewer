@@ -695,6 +695,24 @@ LLIOPipe::EStatus LLFilterXMLRPCRequest2LLSD::process_impl(
 	buffer->readAfter(channels.in(), NULL, (U8*)buf, bytes);
 
 	//lldebugs << "xmlrpc request: " << buf << llendl;
+	
+	// Check the value in the buffer. XMLRPC_REQUEST_FromXML will report a error code 4 if 
+	// values that are less than 0x20 are passed to it, except
+	// 0x09: Horizontal tab; 0x0a: New Line; 0x0d: Carriage
+	U8* cur_pBuf = (U8*)buf;
+    U8 cur_char;
+	for (S32 i=0; i<bytes; i++) 
+	{
+        cur_char = *cur_pBuf;
+		if (   cur_char < 0x20
+            && 0x09 != cur_char
+            && 0x0a != cur_char
+            && 0x0d != cur_char )
+        {
+			*cur_pBuf = '?';
+        }
+		++cur_pBuf;
+	}
 
 	PUMP_DEBUG;
 	XMLRPC_REQUEST request = XMLRPC_REQUEST_FromXML(
