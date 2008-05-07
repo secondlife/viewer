@@ -215,8 +215,12 @@ class LLSDXMLFormatter(object):
     def format(self, something):
         return '<?xml version="1.0" ?>' + self.elt("llsd", self.generate(something))
 
+_g_xml_formatter = None
 def format_xml(something):
-    return LLSDXMLFormatter().format(something)
+    global _g_xml_formatter
+    if _g_xml_formatter is None:
+        _g_xml_formatter = LLSDXMLFormatter()
+    return _g_xml_formatter.format(something)
 
 class LLSDNotationFormatter(object):
     def __init__(self):

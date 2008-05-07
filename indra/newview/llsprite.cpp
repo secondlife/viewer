@@ -59,30 +59,18 @@ LLVector3 LLSprite::sNormal(0.0f,0.0f,0.0f);
 //////////////////////////////////////////////////////////////////////
 
 // A simple initialization
-LLSprite::LLSprite(const LLUUID &image_uuid)
+LLSprite::LLSprite(const LLUUID &image_uuid) :
+	mImageID(image_uuid),
+	mImagep(NULL),
+	mPitch(0.f),
+	mYaw(0.f),
+	mPosition(0.0f, 0.0f, 0.0f),
+	mFollow(TRUE),
+	mUseCameraUp(TRUE),
+	mColor(0.5f, 0.5f, 0.5f, 1.0f),
+	mTexMode(GL_REPLACE)
 {
-	mImageID = image_uuid;
-	mImagep = NULL;
-
 	setSize(1.0f, 1.0f);
-	setPosition(LLVector3(0.0f, 0.0f, 0.0f));
-	mTexMode = GL_REPLACE;
-	mColor.setVec(0.5f, 0.5f, 0.5f, 1.0f);
-	mFollow = TRUE;
-	mUseCameraUp = TRUE;
-}
-
-LLSprite::LLSprite(const LLUUID &image_uuid, const F32 width, const F32 height, const BOOL b_usemipmap)
-{
-	mImageID = image_uuid;
-	mImagep = NULL;
-
-	setSize(width,height);
-	setPosition(LLVector3(0.0f, 0.0f, 0.0f));
-	mTexMode = GL_REPLACE;
-	mColor.setVec(0.5f, 0.5f, 0.5f, 1.0f);
-	mFollow = TRUE;
-	mUseCameraUp = TRUE;
 }
 
 //////////////////////////////////////////////////////////////////////

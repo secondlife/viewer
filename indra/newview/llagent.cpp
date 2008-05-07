@@ -4770,6 +4770,9 @@ void LLAgent::buildFullnameAndTitle(std::string& name) const
 
 BOOL LLAgent::isInGroup(const LLUUID& group_id) const
 {
+	if (isGodlike())
+		return true;
+
 	S32 count = mGroups.count();
 	for(S32 i = 0; i < count; ++i)
 	{
@@ -4784,6 +4787,9 @@ BOOL LLAgent::isInGroup(const LLUUID& group_id) const
 // This implementation should mirror LLAgentInfo::hasPowerInGroup
 BOOL LLAgent::hasPowerInGroup(const LLUUID& group_id, U64 power) const
 {
+	if (isGodlike())
+		return true;
+
 	// GP_NO_POWERS can also mean no power is enough to grant an ability.
 	if (GP_NO_POWERS == power) return FALSE;
 
@@ -4805,6 +4811,9 @@ BOOL LLAgent::hasPowerInActiveGroup(U64 power) const
 
 U64 LLAgent::getPowerInGroup(const LLUUID& group_id) const
 {
+	if (isGodlike())
+		return GP_ALL_POWERS;
+	
 	S32 count = mGroups.count();
 	for(S32 i = 0; i < count; ++i)
 	{

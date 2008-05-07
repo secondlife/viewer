@@ -193,7 +193,7 @@ void LLPanelGroup::updateTabVisibility()
 		LLPanelGroupTab* panelp =
 			(LLPanelGroupTab*) mTabContainer->getPanelByIndex(i);
 
-		BOOL visible = panelp->isVisibleByAgent(&gAgent);
+		BOOL visible = panelp->isVisibleByAgent(&gAgent) || gAgent.isGodlike();
 		mTabContainer->enableTabButton(i, visible);
 
 		if ( !visible && mCurrentTab == panelp )

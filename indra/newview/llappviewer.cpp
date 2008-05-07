@@ -1966,11 +1966,12 @@ bool LLAppViewer::initConfiguration()
 				cmd += "linux-crash-logger.bin";
 #else // LL_SOLARIS
 				cmd += "bin/solaris-crash-logger";
-#endif
+#endif // LL_LINUX
 				char* const cmdargv[] =
 					{(char*)cmd.c_str(),
 					 (char*)"-previous",
 					 NULL};
+				fflush(NULL); // flush all buffers before the child inherits them
 				pid_t pid = fork();
 				if (pid == 0)
 				{ // child

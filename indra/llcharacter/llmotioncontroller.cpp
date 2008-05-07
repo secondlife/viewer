@@ -155,18 +155,19 @@ LLMotion *LLMotionRegistry::createMotion( const LLUUID &id )
 // LLMotionController()
 // Class Constructor
 //-----------------------------------------------------------------------------
-LLMotionController::LLMotionController(  )
+LLMotionController::LLMotionController()
+	: mTimeFactor(1.f),
+	  mCharacter(NULL),
+	  mTime(0.f),
+	  mTimeOffset(0.f),
+	  mLastTime(0.0f),
+	  mHasRunOnce(FALSE),
+	  mPaused(FALSE),
+	  mPauseTime(0.f),
+	  mTimeStep(0.f),
+	  mTimeStepCount(0),
+	  mLastInterp(0.f)
 {
-	mTime = 0.f;
-	mTimeOffset = 0.f;
-	mLastTime = 0.0f;
-	mHasRunOnce = FALSE;
-	mPaused = FALSE;
-	mPauseTime = 0.f;
-	mTimeStep = 0.f;
-	mTimeStepCount = 0;
-	mLastInterp = 0.f;
-	mTimeFactor = 1.f;
 }
 
 

@@ -1,33 +1,33 @@
 /** 
- * @file llstatusbar.cpp
- * @brief LLStatusBar class implementation
- *
- * $LicenseInfo:firstyear=2002&license=viewergpl$
- * 
- * Copyright (c) 2002-2007, Linden Research, Inc.
- * 
- * Second Life Viewer Source Code
- * The source code in this file ("Source Code") is provided by Linden Lab
- * to you under the terms of the GNU General Public License, version 2.0
- * ("GPL"), unless you have obtained a separate licensing agreement
- * ("Other License"), formally executed by you and Linden Lab.  Terms of
- * the GPL can be found in doc/GPL-license.txt in this distribution, or
- * online at http://secondlife.com/developers/opensource/gplv2
- * 
- * There are special exceptions to the terms and conditions of the GPL as
- * it is applied to this Source Code. View the full text of the exception
- * in the file doc/FLOSS-exception.txt in this software distribution, or
- * online at http://secondlife.com/developers/opensource/flossexception
- * 
- * By copying, modifying or distributing this software, you acknowledge
- * that you have read and understood your obligations described above,
- * and agree to abide by those obligations.
- * 
- * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
- * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
- * COMPLETENESS OR PERFORMANCE.
- * $/LicenseInfo$
- */
+* @file llstatusbar.cpp
+* @brief LLStatusBar class implementation
+*
+* $LicenseInfo:firstyear=2002&license=viewergpl$
+* 
+* Copyright (c) 2002-2007, Linden Research, Inc.
+* 
+* Second Life Viewer Source Code
+* The source code in this file ("Source Code") is provided by Linden Lab
+* to you under the terms of the GNU General Public License, version 2.0
+* ("GPL"), unless you have obtained a separate licensing agreement
+* ("Other License"), formally executed by you and Linden Lab.  Terms of
+* the GPL can be found in doc/GPL-license.txt in this distribution, or
+* online at http://secondlife.com/developers/opensource/gplv2
+* 
+* There are special exceptions to the terms and conditions of the GPL as
+* it is applied to this Source Code. View the full text of the exception
+* in the file doc/FLOSS-exception.txt in this software distribution, or
+* online at http://secondlife.com/developers/opensource/flossexception
+* 
+* By copying, modifying or distributing this software, you acknowledge
+* that you have read and understood your obligations described above,
+* and agree to abide by those obligations.
+* 
+* ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+* WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+* COMPLETENESS OR PERFORMANCE.
+* $/LicenseInfo$
+*/
 
 #include "llviewerprecompiledheaders.h"
 
@@ -121,10 +121,10 @@ const U32 LLStatusBar::MAX_DATE_STRING_LENGTH = 2000;
 
 LLStatusBar::LLStatusBar(const std::string& name, const LLRect& rect)
 :	LLPanel(name, LLRect(), FALSE),		// not mouse opaque
-	mBalance(0),
-	mHealth(100),
-	mSquareMetersCredit(0),
-	mSquareMetersCommitted(0)
+mBalance(0),
+mHealth(100),
+mSquareMetersCredit(0),
+mSquareMetersCommitted(0)
 {
 	// status bar can possible overlay menus?
 	setMouseOpaque(FALSE);
@@ -150,7 +150,7 @@ LLStatusBar::LLStatusBar(const std::string& name, const LLRect& rect)
 
 	mTextHealth = getChild<LLTextBox>("HealthText" );
 	mTextTime = getChild<LLTextBox>("TimeText" );
-	
+
 	childSetAction("scriptout", onClickScriptDebug, this);
 	childSetAction("health", onClickHealth, this);
 	childSetAction("no_fly", onClickFly, this);
@@ -233,8 +233,8 @@ void LLStatusBar::draw()
 	if (isBackgroundVisible())
 	{
 		gl_drop_shadow(0, getRect().getHeight(), getRect().getWidth(), 0, 
-				LLUI::sColorsGroup->getColor("ColorDropShadow"), 
-				LLUI::sConfigGroup->getS32("DropShadowFloater") );
+			LLUI::sColorsGroup->getColor("ColorDropShadow"), 
+			LLUI::sConfigGroup->getS32("DropShadowFloater") );
 	}
 	LLPanel::draw();
 }
@@ -252,7 +252,7 @@ void LLStatusBar::refresh()
 	mSGBandwidth->setThreshold(2, bwtotal);
 
 	// *TODO: Localize / translate time
-	
+
 	// Get current UTC time, adjusted for the user's clock
 	// being off.
 	U32 utc_time;
@@ -284,23 +284,23 @@ void LLStatusBar::refresh()
 	if (hour == 0) hour = 12;
 	std::ostringstream t;
 	t << std::setfill(' ') << std::setw(2) << hour << ":" 
-	  << std::setfill('0') << std::setw(2) << min 
-	  << " " << am_pm << " " << tz;
+		<< std::setfill('0') << std::setw(2) << min 
+		<< " " << am_pm << " " << tz;
 	mTextTime->setText(t.str());
 
 	// Year starts at 1900, set the tooltip to have the date
 	std::ostringstream date;
 	date	<< sDays[internal_time->tm_wday] << ", "
-			<< std::setfill('0') << std::setw(2) << internal_time->tm_mday << " "
-			<< sMonths[internal_time->tm_mon] << " "
-			<< internal_time->tm_year + 1900;
+		<< std::setfill('0') << std::setw(2) << internal_time->tm_mday << " "
+		<< sMonths[internal_time->tm_mon] << " "
+		<< internal_time->tm_year + 1900;
 	mTextTime->setToolTip(date.str());
 
 	LLRect r;
 	const S32 MENU_RIGHT = gMenuBarView->getRightmostMenuEdge();
 	S32 x = MENU_RIGHT + MENU_PARCEL_SPACING;
 	S32 y = 0;
-	
+
 	bool search_visible = gSavedSettings.getBOOL("ShowSearchBar");
 
 	// reshape menu bar to its content's width
@@ -394,8 +394,8 @@ void LLStatusBar::refresh()
 	BOOL no_scripts = FALSE;
 	if((region
 		&& ((region->getRegionFlags() & REGION_FLAGS_SKIP_SCRIPTS)
-			|| (region->getRegionFlags() & REGION_FLAGS_ESTATE_SKIP_SCRIPTS)))
-	   || (parcel && !parcel->getAllowOtherScripts()))
+		|| (region->getRegionFlags() & REGION_FLAGS_ESTATE_SKIP_SCRIPTS)))
+		|| (parcel && !parcel->getAllowOtherScripts()))
 	{
 		no_scripts = TRUE;
 	}
@@ -487,15 +487,15 @@ void LLStatusBar::refresh()
 
 		mRegionDetails.mTime = mTextTime->getText();
 		mRegionDetails.mBalance = mBalance;
-		mRegionDetails.mAccesString = region->getSimAccessString();
+		mRegionDetails.mAccessString = region->getSimAccessString();
 		mRegionDetails.mPing = region->getNetDetailsForLCD();
-		if (parcel && !parcel->getName().empty())
+		if (parcel)
 		{
 			location_name = region->getName()
 				+ llformat(" %d, %d, %d (%s) - %s", 
-						   pos_x, pos_y, pos_z,
-						   region->getSimAccessString(),
-						   parcel->getName().c_str());
+				pos_x, pos_y, pos_z,
+				region->getSimAccessString(),
+				parcel->getName().c_str());
 
 			// keep these around for the LCD to use
 			mRegionDetails.mRegionName = region->getName();
@@ -503,6 +503,7 @@ void LLStatusBar::refresh()
 			mRegionDetails.mX = pos_x;
 			mRegionDetails.mY = pos_y;
 			mRegionDetails.mZ = pos_z;
+
 			mRegionDetails.mArea = parcel->getArea();
 			mRegionDetails.mForSale = parcel->getForSale();
 			mRegionDetails.mTraffic = LLViewerParcelMgr::getInstance()->getDwelling();
@@ -557,7 +558,7 @@ void LLStatusBar::refresh()
 		// keep these around for the LCD to use
 		mRegionDetails.mRegionName = "Unknown";
 		mRegionDetails.mParcelName = "Unknown";
-		mRegionDetails.mAccesString = "Unknown";
+		mRegionDetails.mAccessString = "Unknown";
 		mRegionDetails.mX = 0;
 		mRegionDetails.mY = 0;
 		mRegionDetails.mZ = 0;
