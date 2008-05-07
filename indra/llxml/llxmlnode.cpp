@@ -55,7 +55,6 @@ BOOL LLXMLNode::sStripWhitespaceValues = FALSE;
 
 LLXMLNode::LLXMLNode() : 
 	mID(""),
-	mParser(NULL),
 	mIsAttribute(FALSE),
 	mVersionMajor(0), 
 	mVersionMinor(0), 
@@ -73,7 +72,6 @@ LLXMLNode::LLXMLNode() :
 
 LLXMLNode::LLXMLNode(const LLString& name, BOOL is_attribute) : 
 	mID(""),
-	mParser(NULL),
 	mIsAttribute(is_attribute),
 	mVersionMajor(0), 
 	mVersionMinor(0), 
@@ -91,7 +89,6 @@ LLXMLNode::LLXMLNode(const LLString& name, BOOL is_attribute) :
 
 LLXMLNode::LLXMLNode(LLStringTableEntry* name, BOOL is_attribute) : 
 	mID(""),
-	mParser(NULL),
 	mIsAttribute(is_attribute),
 	mVersionMajor(0), 
 	mVersionMinor(0), 

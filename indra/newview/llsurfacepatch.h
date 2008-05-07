@@ -44,17 +44,9 @@ class LLAgent;
 
 // A patch shouldn't know about its visibility since that really depends on the 
 // camera that is looking (or not looking) at it.  So, anything about a patch
-// that is specific to a camera should be in the class below.
-class LLPatchVisibilityInfo
+// that is specific to a camera should be in the struct below.
+struct LLPatchVisibilityInfo
 {
-public:
-	LLPatchVisibilityInfo() :
-		mbIsVisible(FALSE),
-		mDistance(0.f),
-		mRenderLevel(0),
-		mRenderStride(0) { };
-	~LLPatchVisibilityInfo() { };
-
 	BOOL mbIsVisible;
 	F32 mDistance;			// Distance from camera
 	S32 mRenderLevel;
@@ -161,7 +153,7 @@ protected:
 	// Pointer to the LLVOSurfacePatch object which is used in the new renderer.
 	LLPointer<LLVOSurfacePatch> mVObjp;
 
-	// All of the camera-dependent stuff should be in its own class...
+	// All of the camera-dependent stuff should be in its own structure...
 	LLPatchVisibilityInfo mVisInfo;
 
 	// pointers to beginnings of patch data fields

@@ -218,19 +218,6 @@ void LLVivoxProtocolParser::reset()
 	ignoringTags = false;
 	accumulateText = false;
 	textBuffer.clear();
-
-	energy = 0.f;
-	ignoreDepth = 0;
-	isChannel = false;
-	isEvent = false;
-	isLocallyMuted = false;
-	isModeratorMuted = false;
-	isSpeaking = false;
-	participantType = 0;
-	returnCode = 0;
-	state = 0;
-	statusCode = 0;
-	volume = 0;
 }
 
 //virtual 
@@ -1342,7 +1329,6 @@ void LLVoiceClient::stateMachine()
 
 							fakeargv[i] = NULL;
 							
-							fflush(NULL); // flush all buffers before the child inherits them
 							pid_t id = vfork();
 							if(id == 0)
 							{
@@ -3032,7 +3018,7 @@ void LLVoiceClient::muteListChanged()
 /////////////////////////////
 // Managing list of participants
 LLVoiceClient::participantState::participantState(const std::string &uri) : 
-	 mURI(uri), mPTT(false), mIsSpeaking(false), mIsModeratorMuted(false), mLastSpokeTimestamp(0.f), mPower(0.f), mVolume(0), mServiceType(serviceTypeUnknown),
+	 mURI(uri), mPTT(false), mIsSpeaking(false), mIsModeratorMuted(false), mPower(0.0), mServiceType(serviceTypeUnknown),
 	 mOnMuteList(false), mUserVolume(100), mVolumeDirty(false), mAvatarIDValid(false)
 {
 }

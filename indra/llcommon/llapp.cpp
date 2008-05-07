@@ -492,7 +492,6 @@ void LLApp::setDefaultChildCallback(LLAppChildCallback callback)
 
 pid_t LLApp::fork()
 {
-	fflush(NULL); // flush all buffers before the child inherits them
 	pid_t pid = ::fork();
 	if( pid < 0 )
 	{

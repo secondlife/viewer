@@ -1369,9 +1369,7 @@ bool LLFindWearables::operator()(LLInventoryCategory* cat,
 class LLRightClickInventoryFetchObserver : public LLInventoryFetchObserver
 {
 public:
-	LLRightClickInventoryFetchObserver() :
-		mCopyItems(false)
-	{ };
+	LLRightClickInventoryFetchObserver()  {};
 	LLRightClickInventoryFetchObserver(const LLUUID& cat_id, bool copy_items) :
 		mCatID(cat_id),
 		mCopyItems(copy_items)
@@ -2239,7 +2237,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 		if(accept && drop)
 		{
 			if (inv_item->getType() == LLAssetType::AT_GESTURE
-				&& gGestureManager.isGestureActive(inv_item->getUUID()) && move_is_into_trash)
+				&& gGestureManager.isGestureActive(inv_item->getUUID()))
 			{
 				gGestureManager.deactivateGesture(inv_item->getUUID());
 			}

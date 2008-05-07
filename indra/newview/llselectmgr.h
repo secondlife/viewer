@@ -558,14 +558,10 @@ public:
 	// returns TRUE if all the nodes are valid. Accumulates
 	// permissions in the parameter.
 	BOOL selectGetPermissions(LLPermissions& perm);
-	
-	// Get a bunch of useful sale information for the object(s) selected.
-	// "_mixed" is true if not all objects have the same setting.
-	void selectGetAggregateSaleInfo(U32 &num_for_sale,
-									BOOL &is_for_sale_mixed, 
-									BOOL &is_sale_price_mixed,
-									S32 &total_sale_price,
-									S32 &individual_sale_price);
+
+	// returns TRUE if anything is for sale. calculates the total
+	// price and stores that value in price.
+	BOOL selectIsForSale(S32& price);
 
 	// returns TRUE if all nodes are valid. 
 	BOOL selectGetCategory(LLCategory& category);

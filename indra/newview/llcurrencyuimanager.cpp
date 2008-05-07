@@ -122,7 +122,6 @@ LLCurrencyUIManager::Impl::Impl(LLPanel& dialog)
 	mError(false),
 	mUserCurrencyBuy(1000), mUserEnteredCurrencyBuy(false),
 	mSiteCurrencyEstimated(false),
-	  mSiteCurrencyEstimatedCost(0),
 	mBought(false),
 	mTransactionType(TransactionNone), mTransaction(0),
 	mCurrencyChanged(false)

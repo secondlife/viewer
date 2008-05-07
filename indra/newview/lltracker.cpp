@@ -90,8 +90,7 @@ LLTracker::LLTracker()
 	mHasLandmarkPosition(FALSE),
 	mLandmarkHasBeenVisited(FALSE),
 	mTrackedLocationName( "" ),
-	mIsTrackingLocation(FALSE),
-	mHasReachedLocation(FALSE)
+	mIsTrackingLocation(FALSE)
 { }
 
 

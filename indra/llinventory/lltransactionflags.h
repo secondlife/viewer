@@ -31,8 +31,6 @@
 #ifndef LL_LLTRANSACTIONFLAGS_H
 #define LL_LLTRANSACTIONFLAGS_H
 
-class LLUUID;
-
 typedef U8 TransactionFlags;
 
 // defined in common/llinventory/lltransactionflags.cpp

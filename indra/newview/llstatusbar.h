@@ -54,7 +54,7 @@ public:
 	LLRegionDetails() :
 		mRegionName("Unknown"),
 		mParcelName("Unknown"),
-		mAccessString("Unknown"),
+		mAccesString("Unknown"),
 		mX(0),
 		mY(0),
 		mZ(0),
@@ -68,7 +68,7 @@ public:
 	}
 	std::string mRegionName;
 	std::string	mParcelName;
-	std::string	mAccessString;
+	std::string	mAccesString;
 	S32		mX;
 	S32		mY;
 	S32		mZ;

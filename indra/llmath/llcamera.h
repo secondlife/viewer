@@ -115,12 +115,11 @@ protected:
 	LLPlane mWorldPlanes[PLANE_NUM];
 	LLPlane mHorizPlanes[HORIZ_PLANE_NUM];
 
-	struct frustum_plane
+	typedef struct 
 	{
-        frustum_plane() : mask(0) {}
 		LLPlane p;
 		U8 mask;
-	};
+	} frustum_plane;
 	frustum_plane mAgentPlanes[7];  //frustum planes in agent space a la gluUnproject (I'm a bastard, I know) - DaveP
 									
 	U32 mPlaneCount;  //defaults to 6, if setUserClipPlane is called, uses user supplied clip plane in

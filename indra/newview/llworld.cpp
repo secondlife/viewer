@@ -84,12 +84,13 @@ const F32 LLWorld::mWidthInMeters = mWidth * mScale;
 
 // allocate the stack
 LLWorld::LLWorld()
-:	mLandFarClip(DEFAULT_FAR_PLANE),
-	mLastPacketsIn(0),
-	mLastPacketsOut(0),
-	mLastPacketsLost(0),
-	mSpaceTimeUSec(0)
 {
+	mSpaceTimeUSec = 0;
+	mLastPacketsIn = 0;
+	mLastPacketsOut = 0;
+	mLastPacketsLost = 0;
+	mLandFarClip = DEFAULT_FAR_PLANE;
+
 	if (gNoRender)
 	{
 		return;

@@ -217,6 +217,9 @@ protected:
 	F32			mMetersPerGrid;				// Converts (i,j) indecies to distance
 	F32			mMetersPerEdge;				// = mMetersPerGrid * (mGridsPerEdge-1)
 
+	F32			mSurfaceTexScale;			// Scale factors for automatic tex coord generation
+	F32			mDetailTexScale;
+
 	LLPatchVertexArray mPVArray;
 
 	BOOL		mHasZData;				// We've received any patch data for this surface.

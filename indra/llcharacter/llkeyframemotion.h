@@ -224,11 +224,7 @@ protected:
 			mEaseOutStopTime(0.f), 
 			mUseTargetOffset(FALSE),
 			mConstraintType(TYPE_POINT),
-			mConstraintTargetType(TYPE_BODY),
-			mSourceConstraintVolume(0),
-			mTargetConstraintVolume(0),
-			mJointStateIndices(NULL)
-		{ };
+			mConstraintTargetType(TYPE_BODY) {};
 		~JointConstraintSharedData() { delete [] mJointStateIndices; }
 
 		S32						mSourceConstraintVolume;

@@ -564,8 +564,7 @@ void bind_keyboard_functions()
 	gViewerKeyboard.bindNamedFunction("start_gesture", start_gesture);
 }
 
-LLViewerKeyboard::LLViewerKeyboard() :
-	mNamedFunctionCount(0)
+LLViewerKeyboard::LLViewerKeyboard()
 {
 	for (S32 i = 0; i < MODE_COUNT; i++)
 	{

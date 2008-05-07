@@ -52,29 +52,28 @@ extern U64 gFrameTime;
 extern LLPipeline gPipeline;
 
 LLSurfacePatch::LLSurfacePatch() :
-	mHasReceivedData(FALSE),
-	mSTexUpdate(FALSE),
-	mDirty(FALSE),
-	mDirtyZStats(TRUE),
-	mHeightsGenerated(FALSE),
-	mDataOffset(0),
-	mDataZ(NULL),
-	mVObjp(NULL),
-	mOriginRegion(0.f, 0.f, 0.f),
-	mCenterRegion(0.f, 0.f, 0.f),
-	mMinZ(0.f),
-	mMaxZ(0.f),
-	mMeanZ(0.f),
-	mRadius(0.f),
-	mMinComposition(0.f),
-	mMaxComposition(0.f),
-	mMeanComposition(0.f),
-	// This flag is used to communicate between adjacent surfaces and is
-	// set to non-zero values by higher classes.  
-	mConnectedEdge(NO_EDGE),
-	mLastUpdateTime(0),
-	mSurfacep(NULL)
-{	
+						mDataZ(NULL),
+						mVObjp(NULL),
+						mLastUpdateTime(0),
+						mSurfacep(NULL)
+{
+	// This flag is used to communicate between adjacent surfaces and is set
+	// to non-zero values by higher classes.  
+	mConnectedEdge = NO_EDGE;
+	mCenterRegion = LLVector3(0.f, 0.f, 0.f);
+	mOriginRegion = LLVector3(0.f, 0.f, 0.f);
+	mHasReceivedData = FALSE;
+	mMinZ = 0.0f;
+	mMaxZ = 0.0f;
+	mMeanZ = 0.0f;
+	mMinComposition = 0.f;
+	mMeanComposition = 0.f;
+	mMaxComposition = 0.f;
+	mRadius = 0.f;
+	mDirty = FALSE;
+	mDirtyZStats = TRUE;
+	mHeightsGenerated = FALSE;
+	
 	S32 i;
 	for (i = 0; i < 8; i++)
 	{

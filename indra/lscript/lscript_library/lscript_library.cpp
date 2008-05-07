@@ -436,12 +436,10 @@ void LLScriptLibrary::init()
 	
 	addFunction(new LLScriptLibraryFunction(10.f, 0.f, dummy_func, "llStringTrim", "s", "si", "string llStringTrim(string src, integer trim_type)\nTrim leading and/or trailing spaces from a string.\nUses trim_type of STRING_TRIM, STRING_TRIM_HEAD or STRING_TRIM_TAIL."));
 	addFunction(new LLScriptLibraryFunction(10.f, 0.f, dummy_func, "llRegionSay", NULL, "is", "llRegionSay(integer channel, string msg)\nbroadcasts msg to entire region on channel (not 0.)"));
-	addFunction(new LLScriptLibraryFunction(10.f, 0.f, dummy_func, "llGetObjectDetails", "l", "kl", "list llGetObjectDetails(key id, list params)\nGets the object details specified in params for the object with key id.\nDetails are OBJECT_NAME, _DESC, _POS, _ROT, _VELOCITY, _OWNER, _GROUP, _CREATOR."));
-	addFunction(new LLScriptLibraryFunction(10.f, 0.f, dummy_func, "llSetClickAction", NULL, "i", "llSetClickAction(integer action)\nSets the action performed when a prim is clicked upon."));
 
-	addFunction(new LLScriptLibraryFunction(10.f, 0.f, dummy_func, "llGetRegionAgentCount", "i", NULL, "int llGetRegionAgentCount()\nreturns the number of agents in a region"));
-	addFunction(new LLScriptLibraryFunction(10.f, 1.f, dummy_func, "llTextBox", NULL, "ksi", "llTextBox(key avatar, string message, integer chat_channel\nShows a dialog box on the avatar's screen with the message.\nA text box asks for input, and if entered the text is chatted on chat_channel."));
-	addFunction(new LLScriptLibraryFunction(10.f, 0.f, dummy_func, "llGetAgentLanguage", "s", "k", "string llGetAgentLanguage(key id)\nGets the agents preferred language.."));
+	addFunction(new LLScriptLibraryFunction(10.f, 0.f, dummy_func, "llGetObjectDetails", "l", "kl", "list llGetObjectDetails(key id, list params)\nGets the object details specified in params for the object with key id.\nDetails are OBJECT_NAME, _DESC, _POS, _ROT, _VELOCITY, _OWNER, _GROUP, _CREATOR."));
+
+		addFunction(new LLScriptLibraryFunction(10.f, 0.f, dummy_func, "llSetClickAction", NULL, "i", "llSetClickAction(integer action)\nSets the action performed when a prim is clicked upon."));
 
 	// energy, sleep, dummy_func, name, return type, parameters, help text, gods-only
 

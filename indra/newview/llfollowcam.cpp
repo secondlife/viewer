@@ -264,7 +264,6 @@ LLFollowCam::LLFollowCam() : LLFollowCamParams()
 	mSubjectRotation					= LLQuaternion::DEFAULT;
 
 	mZoomedToMinimumDistance			= false;
-	mPitchCos = mPitchSin = 0.f;
 	mPitchSineAndCosineNeedToBeUpdated	= true; 
 
 	mSimulatedDistance = mDistance;

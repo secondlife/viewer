@@ -39,8 +39,15 @@
 
 const char LL_UNKNOWN_CHAR = '?';
 
-#if LL_DARWIN || LL_LINUX || LL_SOLARIS
-// Template specialization of char_traits for U16s. Only necessary on Mac and Linux (exists on Windows already)
+class LLVector3;
+class LLVector3d;
+class LLQuaternion;
+class LLUUID;
+class LLColor4;
+class LLColor4U;
+
+#if (LL_DARWIN || LL_SOLARIS || (LL_LINUX && __GNUC__ > 2))
+// Template specialization of char_traits for U16s. Only necessary on Mac for now (exists on Windows, unused/broken on Linux/gcc2.95)
 namespace std
 {
 template<>
@@ -159,13 +166,13 @@ public:
 // but it might be worthwhile to just go with two implementations (LLString and LLWString) of
 // an interface class, unless we can think of a good reason to have a std::basic_string polymorphic base
 
-// ****************************************************************
+//****************************************************************
 // NOTA BENE: do *NOT* dynamically allocate memory inside of LLStringBase as the {*()^#%*)#%W^*)#%*)STL implentation
 // of basic_string doesn't provide a virtual destructor.  If we need to allocate resources specific to LLString
 // then we should either customize std::basic_string to linden::basic_string or change LLString to be a wrapper
 // that contains an instance of std::basic_string.  Similarly, overriding methods defined in std::basic_string will *not*
 // be called in a polymorphic manner (passing an instance of basic_string to a particular function)
-// ****************************************************************
+//****************************************************************
 
 template <class T>
 class LLStringBase : public std::basic_string<T> 
@@ -189,6 +196,35 @@ public:
 	LLStringBase(const T* s);
 	LLStringBase(const T* s, size_type n);
 	LLStringBase(const T* s, size_type pos, size_type n );
+	
+#if LL_LINUX || LL_SOLARIS
+	void clear() { assign(null); }
+	
+	LLStringBase<T>& assign(const T* s);
+	LLStringBase<T>& assign(const T* s, size_type n); 
+	LLStringBase<T>& assign(const LLStringBase& s);
+	LLStringBase<T>& assign(size_type n, const T& c);
+	LLStringBase<T>& assign(const T* a, const T* b);
+	LLStringBase<T>& assign(typename LLStringBase<T>::iterator &it1, typename LLStringBase<T>::iterator &it2);
+	LLStringBase<T>& assign(typename LLStringBase<T>::const_iterator &it1, typename LLStringBase<T>::const_iterator &it2);
+
+    // workaround for bug in gcc2 STL headers.
+    #if ((__GNUC__ <= 2) && (!defined _STLPORT_VERSION))
+    const T* c_str () const
+    {
+        if (length () == 0)
+        {
+            static const T zero = 0;
+            return &zero;
+        }
+
+        //terminate ();
+        { string_char_traits<T>::assign(const_cast<T*>(data())[length()], string_char_traits<T>::eos()); }
+
+        return data ();
+    }
+    #endif
+#endif
 
 	bool operator==(const T* _Right) const { return _Right ? (std::basic_string<T>::compare(_Right) == 0) : this->empty(); }
 	
@@ -750,6 +786,78 @@ LLStringBase<T>::LLStringBase(const T* s, size_type pos, size_type n ) : std::ba
 		assign(LLStringBase<T>::null);
 	}
 }
+
+#if LL_LINUX || LL_SOLARIS
+template<class T> 
+LLStringBase<T>& LLStringBase<T>::assign(const T* s)
+{
+	if (s)
+	{
+		std::basic_string<T>::assign(s);
+	}
+	else
+	{
+		assign(LLStringBase<T>::null);
+	}
+	return *this;
+}
+
+template<class T> 
+LLStringBase<T>& LLStringBase<T>::assign(const T* s, size_type n)
+{
+	if (s)
+	{
+		std::basic_string<T>::assign(s, n);
+	}
+	else
+	{
+		assign(LLStringBase<T>::null);
+	}
+	return *this;
+}
+
+template<class T> 
+LLStringBase<T>& LLStringBase<T>::assign(const LLStringBase<T>& s)
+{
+	std::basic_string<T>::assign(s);
+	return *this;
+}
+
+template<class T> 
+LLStringBase<T>& LLStringBase<T>::assign(size_type n, const T& c)
+{
+    std::basic_string<T>::assign(n, c);
+    return *this;
+}
+
+template<class T> 
+LLStringBase<T>& LLStringBase<T>::assign(const T* a, const T* b)
+{
+    if (a > b)
+        assign(LLStringBase<T>::null);
+    else
+        assign(a, (size_type) (b-a));
+    return *this;
+}
+
+template<class T>
+LLStringBase<T>& LLStringBase<T>::assign(typename LLStringBase<T>::iterator &it1, typename LLStringBase<T>::iterator &it2)
+{
+    assign(LLStringBase<T>::null);
+    while(it1 != it2)
+        *this += *it1++;
+    return *this;
+}
+
+template<class T>
+LLStringBase<T>& LLStringBase<T>::assign(typename LLStringBase<T>::const_iterator &it1, typename LLStringBase<T>::const_iterator &it2)
+{
+    assign(LLStringBase<T>::null);
+    while(it1 != it2)
+        *this += *it1++;
+    return *this;
+}
+#endif
 
 //static
 template<class T> 

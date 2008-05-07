@@ -37,8 +37,7 @@
 #include "llsdmessagebuilder.h"
 #include "llsdutil.h"
 
-LLSDMessageReader::LLSDMessageReader() :
-	mMessageName(NULL)
+LLSDMessageReader::LLSDMessageReader()
 {
 }
 

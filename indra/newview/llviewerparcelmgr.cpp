@@ -112,20 +112,16 @@ struct LLGodForceOwnerData
 //
 LLViewerParcelMgr::LLViewerParcelMgr()
 :	mSelected(FALSE),
-	mRequestResult(0),
 	mWestSouth(),
 	mEastNorth(),
 	mSelectedDwell(0.f),
 	mAgentParcelSequenceID(-1),
-	mHoverRequestResult(0),
 	mHoverWestSouth(),
 	mHoverEastNorth(),
 	mRenderCollision(FALSE),
 	mRenderSelection(TRUE),
 	mCollisionBanned(0),
-	mCollisionTimer(),
-	mMediaParcelId(0),
-	mMediaRegionId(0)
+	mCollisionTimer()
 {
 	mCurrentParcel = new LLParcel();
 	mCurrentParcelSelection = new LLParcelSelection(mCurrentParcel);

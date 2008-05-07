@@ -687,12 +687,6 @@ LLPolyMesh::LLPolyMesh(LLPolyMeshSharedData *shared_data, LLPolyMesh *reference_
 	mAvatarp = NULL;
 	mVertexData = NULL;
 
-	mCurVertexCount = 0;
-	mFaceIndexCount = 0;
-	mFaceIndexOffset = 0;
-	mFaceVertexCount = 0;
-	mFaceVertexOffset = 0;
-
 	if (shared_data->isLOD() && reference_mesh)
 	{
 		mCoords = reference_mesh->mCoords;

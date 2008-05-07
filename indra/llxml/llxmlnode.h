@@ -49,13 +49,6 @@
 #include "llstringtable.h"
 
 
-class LLVector3;
-class LLVector3d;
-class LLQuaternion;
-class LLUUID;
-class LLColor4;
-class LLColor4U;
-
 
 struct CompareAttributes
 {

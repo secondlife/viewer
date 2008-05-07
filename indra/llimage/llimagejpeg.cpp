@@ -40,8 +40,7 @@ LLImageJPEG::LLImageJPEG()
 	LLImageFormatted(IMG_CODEC_JPEG),
 	mOutputBuffer( NULL ),
 	mOutputBufferSize( 0 ),
-	mEncodeQuality( 75 ), // on a scale from 1 to 100
-	mSetjmpBuffer()
+	mEncodeQuality( 75 ) 		// on a scale from 1 to 100
 {
 }
 

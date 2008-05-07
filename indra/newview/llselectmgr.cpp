@@ -2827,53 +2827,27 @@ void LLSelectMgr::selectForceDelete()
 		SEND_ONLY_ROOTS);
 }
 
-void LLSelectMgr::selectGetAggregateSaleInfo(U32 &num_for_sale,
-											 BOOL &is_for_sale_mixed, 
-											 BOOL &is_sale_price_mixed,
-											 S32 &total_sale_price,
-											 S32 &individual_sale_price)
+
+// returns TRUE if anything is for sale. calculates the total price
+// and stores that value in price.
+BOOL LLSelectMgr::selectIsForSale(S32& price)
 {
-	num_for_sale = 0;
-	is_for_sale_mixed = FALSE;
-	is_sale_price_mixed = FALSE;
-	total_sale_price = 0;
-	individual_sale_price = 0;
+	BOOL any_for_sale = FALSE;
+	price = 0;
 
-
-	// Empty set.
-	if (getSelection()->root_begin() == getSelection()->root_end())
-		return;
-	
-	LLSelectNode *node = *(getSelection()->root_begin());
-	const BOOL first_node_for_sale = node->mSaleInfo.isForSale();
-	const S32 first_node_sale_price = node->mSaleInfo.getSalePrice();
-	
 	for (LLObjectSelection::root_iterator iter = getSelection()->root_begin();
 		 iter != getSelection()->root_end(); iter++)
 	{
 		LLSelectNode* node = *iter;
-		const BOOL node_for_sale = node->mSaleInfo.isForSale();
-		const S32 node_sale_price = node->mSaleInfo.getSalePrice();
-		
-		// Set mixed if the fields don't match the first node's fields.
-		if (node_for_sale != first_node_for_sale) 
-			is_for_sale_mixed = TRUE;
-		if (node_sale_price != first_node_sale_price)
-			is_sale_price_mixed = TRUE;
-		
-		if (node_for_sale)
+		if (node->mSaleInfo.isForSale())
 		{
-			total_sale_price += node_sale_price;
-			num_for_sale ++;
+			price += node->mSaleInfo.getSalePrice();
+			any_for_sale = TRUE;
 		}
 	}
-	
-	individual_sale_price = first_node_sale_price;
-	if (is_for_sale_mixed)
-	{
-		is_sale_price_mixed = TRUE;
-		individual_sale_price = 0;
-	}
+
+	return any_for_sale;
+
 }
 
 // returns TRUE if all nodes are valid. method also stores an
@@ -3529,6 +3503,8 @@ void LLSelectMgr::selectionSetObjectCategory(const LLCategory& category)
 
 void LLSelectMgr::selectionSetObjectSaleInfo(const LLSaleInfo& sale_info)
 {
+	// Only one sale info at a time for now
+	if(mSelectedObjects->getRootObjectCount() != 1) return;
 	sendListToRegions("ObjectSaleInfo",
 					  packAgentAndSessionID,
 					  packObjectSaleInfo,

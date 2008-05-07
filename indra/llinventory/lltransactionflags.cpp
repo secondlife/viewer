@@ -95,16 +95,12 @@ std::string build_transfer_message_to_source(
 	const LLUUID& dest_id,
 	const std::string& dest_name,
 	S32 transaction_type,
-	const char* desc)
+	const char* description)
 {
-	std::string description(ll_safe_string(desc));
 	lldebugs << "build_transfer_message_to_source: " << amount << " "
 		<< source_id << " " << dest_id << " " << dest_name << " "
-		<< transaction_type << " "
-		<< (description.empty()?"(no desc)":description.c_str())
-		<< llendl;
-	if(source_id.isNull()) return description;
-	if((0 == amount) && description.empty()) return description;
+		<< (description?description:"(no desc)") << llendl;
+	if((0 == amount) || source_id.isNull()) return ll_safe_string(description);
 	std::ostringstream ostr;
 	if(dest_id.isNull())
 	{
@@ -127,7 +123,7 @@ std::string build_transfer_message_to_source(
 	else
 	{
 		ostr << "You paid " << dest_name << " L$" << amount;
-		append_reason(ostr, transaction_type, description.c_str());
+		append_reason(ostr, transaction_type, description);
 	}
 	ostr << ".";
 	return ostr.str();
@@ -143,8 +139,7 @@ std::string build_transfer_message_to_destination(
 {
 	lldebugs << "build_transfer_message_to_dest: " << amount << " "
 		<< dest_id << " " << source_id << " " << source_name << " "
-		<< transaction_type << " " << (description?description:"(no desc)")
-		<< llendl;
+		<< (description?description:"(no desc)") << llendl;
 	if(0 == amount) return std::string();
 	if(dest_id.isNull()) return ll_safe_string(description);
 	std::ostringstream ostr;

@@ -826,7 +826,7 @@ LLXMLNode *LLPermissions::exportFileXML() const
 {
 	LLXMLNode *ret = new LLXMLNode("permissions", FALSE);
 
-	ret->createChild("group_owned", TRUE)->setBoolValue(mIsGroupOwned);
+	ret->createChild("group_owned", TRUE)->setBoolValue(1, (const BOOL*)&mIsGroupOwned);
 
 	ret->createChild("base_mask", FALSE)->setByteValue(4, (U8*)&mMaskBase, LLXMLNode::ENCODING_HEX);
 	ret->createChild("owner_mask", FALSE)->setByteValue(4, (U8*)&mMaskOwner, LLXMLNode::ENCODING_HEX);
@@ -869,11 +869,7 @@ bool LLPermissions::importXML(LLXMLNode* node)
 		if (node->getChild("group_id", sub_node))
 			success = success && (1 == sub_node->getUUIDValue(1, &mGroup));
 		if (node->getChild("group_owned", sub_node))
-		{
-			BOOL tmpbool = FALSE;
-			success = success && (1 == sub_node->getBoolValue(1, &tmpbool));
-			mIsGroupOwned = (bool)tmpbool;
-		}
+			success = success && (1 == sub_node->getBoolValue(1, (BOOL*)&mIsGroupOwned));
 		if (!success)
 		{
 			lldebugs << "LLPermissions::importXML() failed for node named '" 

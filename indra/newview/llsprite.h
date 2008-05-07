@@ -49,6 +49,7 @@ class LLSprite
 {
 public:
 	LLSprite(const LLUUID &image_uuid);
+	LLSprite(const LLUUID &image_uuid, const F32 width, const F32 height, const BOOL b_usemipmap = TRUE);
 	~LLSprite();
 
 	void render(LLViewerCamera * camerap);

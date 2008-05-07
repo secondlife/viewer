@@ -98,8 +98,8 @@ BOOL LLPanelPermissions::postBuild()
 	
 	this->childSetCommitCallback("checkbox for sale",LLPanelPermissions::onCommitSaleInfo,this);
 
-	this->childSetCommitCallback("Edit Cost",LLPanelPermissions::onCommitSaleInfo,this);
-	this->childSetPrevalidate("Edit Cost",LLLineEditor::prevalidateNonNegativeS32);
+	this->childSetCommitCallback("EdCost",LLPanelPermissions::onCommitSaleInfo,this);
+	this->childSetPrevalidate("EdCost",LLLineEditor::prevalidateNonNegativeS32);
 
 	this->childSetCommitCallback("sale type",LLPanelPermissions::onCommitSaleType,this);
 	
@@ -229,10 +229,9 @@ void LLPanelPermissions::refresh()
 			RadioSaleType->setEnabled(FALSE);
 		}
 		
-		childSetEnabled("Cost",false);
-		childSetText("Cost",LLString(childGetText("Cost Default")));
-		childSetText("Edit Cost",LLString::null);
-		childSetEnabled("Edit Cost",false);
+		childSetEnabled("Price:  L$",false);
+		childSetText("EdCost",LLString::null);
+		childSetEnabled("EdCost",false);
 		
 		childSetEnabled("label click action",false);
 		LLComboBox*	ComboClickAction = getChild<LLComboBox>("clickaction");
@@ -406,92 +405,56 @@ void LLPanelPermissions::refresh()
 	childSetText("prim info",object_info_string);
 	childSetEnabled("prim info",true);
 
-	S32 total_sale_price = 0;
-	S32 individual_sale_price = 0;
-	BOOL is_for_sale_mixed = FALSE;
-	BOOL is_sale_price_mixed = FALSE;
-	U32 num_for_sale = FALSE;
-    LLSelectMgr::getInstance()->selectGetAggregateSaleInfo(num_for_sale,
-										   is_for_sale_mixed,
-										   is_sale_price_mixed,
-										   total_sale_price,
-										   individual_sale_price);
+	S32 price;
+	BOOL is_for_sale = LLSelectMgr::getInstance()->selectIsForSale(price);
+	if (!is_for_sale)
+	{
+		price = DEFAULT_PRICE;
+	}
 
-	const BOOL self_owned = (gAgent.getID() == mOwnerID);
-	const BOOL group_owned = LLSelectMgr::getInstance()->selectIsGroupOwned() ;
-	const BOOL public_owned = (mOwnerID.isNull() && !LLSelectMgr::getInstance()->selectIsGroupOwned());
-	const BOOL can_transfer = LLSelectMgr::getInstance()->selectGetRootsTransfer();
-	const BOOL can_copy = LLSelectMgr::getInstance()->selectGetRootsCopy();
+	BOOL self_owned = (gAgent.getID() == mOwnerID);
+	BOOL group_owned = LLSelectMgr::getInstance()->selectIsGroupOwned() ;
+	BOOL public_owned = (mOwnerID.isNull() && !LLSelectMgr::getInstance()->selectIsGroupOwned());
+	BOOL can_transfer = LLSelectMgr::getInstance()->selectGetRootsTransfer();
+	BOOL can_copy = LLSelectMgr::getInstance()->selectGetRootsCopy();
 
 	if(!owners_identical)
 	{
-		childSetEnabled("Cost",false);
-		childSetText("Edit Cost",LLString::null);
-		childSetEnabled("Edit Cost",false);
+		childSetEnabled("Price:  L$",false);
+		childSetText("EdCost",LLString::null);
+		childSetEnabled("EdCost",false);
 	}
-	// You own these objects.
 	else if(self_owned || (group_owned && gAgent.hasPowerInGroup(group_id,GP_OBJECT_SET_SALE)))
 	{
-		// If there are multiple items for sale then set text to PRICE PER UNIT.
-		if (num_for_sale > 1)
+		LLLineEditor*	EditPrice = getChild<LLLineEditor>("EdCost");
+		if(keyboard_focus_view != EditPrice)
 		{
-			childSetText("Cost",childGetText("Cost Per Unit"));
+			childSetText("EdCost",llformat("%d",price));
+		}
+		if(is_for_sale && is_one_object && can_transfer)
+		{
+			childSetEnabled("Price:  L$",true);
+			childSetEnabled("EdCost",true);
 		}
 		else
 		{
-			childSetText("Cost",childGetText("Cost Default"));
+			childSetEnabled("Price:  L$",false);
+			childSetEnabled("EdCost",false);
 		}
-		
-		LLLineEditor *editPrice = getChild<LLLineEditor>("Edit Cost");
-		if(keyboard_focus_view != editPrice)
-		{
-			// If the sale price is mixed then set the cost to MIXED, otherwise
-			// set to the actual cost.
-			if (num_for_sale > 0 && is_for_sale_mixed)
-			{
-				childSetText("Edit Cost",childGetText("Sale Mixed"));
-			}
-			else if (num_for_sale > 0 && is_sale_price_mixed)
-			{
-				childSetText("Edit Cost",childGetText("Cost Mixed"));
-			}
-			else 
-			{
-				childSetText("Edit Cost",llformat("%d",individual_sale_price));
-			}
-		}
-		// The edit fields are only enabled if you can sell this object
-		// and the sale price is not mixed.
-		bool enable_edit = (num_for_sale && can_transfer) ? !is_for_sale_mixed : false;
-		childSetEnabled("Cost",enable_edit);
-		childSetEnabled("Edit Cost",enable_edit);
 	}
-	// Someone, not you, owns these objects.
 	else if(!public_owned)
 	{
-		childSetEnabled("Cost",false);
-		childSetEnabled("Edit Cost",false);
-		
-		// Don't show a price if none of the items are for sale.
-		if (num_for_sale)
-			childSetText("Edit Cost",llformat("%d",total_sale_price));
-		else
-			childSetText("Edit Cost",LLString::null);
-
-		// If multiple items are for sale, set text to TOTAL PRICE.
-		if (num_for_sale > 1)
-			childSetText("Cost",childGetText("Cost Total"));
-		else
-			childSetText("Cost",childGetText("Cost Default"));
+		// ...someone, not you, owns it
+		childSetEnabled("Price:  L$",false);
+		childSetText("EdCost",llformat("%d",price));
+		childSetEnabled("EdCost",false);
 	}
-	// This is a public object.
 	else
 	{
-		childSetEnabled("Cost",false);
-		childSetText("Cost",childGetText("Cost Default"));
-		
-		childSetText("Edit Cost",LLString::null);
-		childSetEnabled("Edit Cost",false);
+		// ...public object
+		childSetEnabled("Price:  L$",false);
+		childSetText("EdCost",LLString::null);
+		childSetEnabled("EdCost",false);
 	}
 
 	// Enable and disable the permissions checkboxes
@@ -627,11 +590,8 @@ void LLPanelPermissions::refresh()
 
 	if (has_change_sale_ability && (owner_mask_on & PERM_TRANSFER))
 	{
-		childSetEnabled("checkbox for sale", can_transfer || (!can_transfer && num_for_sale));
-		// Set the checkbox to tentative if the prices of each object selected
-		// are not the same.
-		childSetTentative("checkbox for sale", is_for_sale_mixed);
-		childSetEnabled("sale type",num_for_sale && can_transfer && !is_sale_price_mixed);
+		childSetEnabled("checkbox for sale", can_transfer || (!can_transfer && is_for_sale));
+		childSetEnabled("sale type",is_for_sale && can_transfer);
 
 		childSetEnabled("Next owner can:", TRUE);
 		childSetEnabled("checkbox next owner can modify",base_mask_on & PERM_MODIFY);
@@ -773,23 +733,21 @@ void LLPanelPermissions::refresh()
 		if (valid_sale_info)
 		{
 			RadioSaleType->setSelectedIndex((S32)sale_type - 1);
-			RadioSaleType->setTentative(FALSE); // unfortunately this doesn't do anything at the moment.
 		}
 		else
 		{
 			// default option is sell copy, determined to be safest
 			RadioSaleType->setSelectedIndex((S32)LLSaleInfo::FS_COPY - 1);
-			RadioSaleType->setTentative(TRUE); // unfortunately this doesn't do anything at the moment.
 		}
 	}
 
-	childSetValue("checkbox for sale", num_for_sale != 0);
+	childSetValue("checkbox for sale", is_for_sale);
 
 	// HACK: There are some old objects in world that are set for sale,
 	// but are no-transfer.  We need to let users turn for-sale off, but only
 	// if for-sale is set.
 	bool cannot_actually_sell = !can_transfer || (!can_copy && sale_type == LLSaleInfo::FS_COPY);
-	if (num_for_sale && has_change_sale_ability && cannot_actually_sell)
+	if (is_for_sale && has_change_sale_ability && cannot_actually_sell)
 	{
 		childSetEnabled("checkbox for sale", true);
 	}
@@ -1013,10 +971,9 @@ void LLPanelPermissions::setAllSaleInfo()
 	llinfos << "LLPanelPermissions::setAllSaleInfo()" << llendl;
 	LLSaleInfo::EForSale sale_type = LLSaleInfo::FS_NOT;
 
-	LLCheckBoxCtrl *checkPurchase = getChild<LLCheckBoxCtrl>("checkbox for sale");
-	
-	// Set the sale type if the object(s) are for sale.
-	if(checkPurchase && checkPurchase->get())
+	LLCheckBoxCtrl*	mCheckPurchase = getChild<LLCheckBoxCtrl>("checkbox for sale");
+
+	if(mCheckPurchase && mCheckPurchase->get())
 	{
 		LLRadioGroup* RadioSaleType = getChild<LLRadioGroup>("sale type");
 		if(RadioSaleType)
@@ -1038,37 +995,23 @@ void LLPanelPermissions::setAllSaleInfo()
 			}
 		}
 	}
+	LLLineEditor*	mEditPrice = getChild<LLLineEditor>("EdCost");
 
 	S32 price = -1;
-	
-	LLLineEditor *editPrice = getChild<LLLineEditor>("Edit Cost");
-	if (editPrice)
+	if(mEditPrice)
 	{
-		// Don't extract the price if it's labeled as MIXED or is empty.
-		const char *editPriceString = editPrice->getText().c_str();
-		if (0 != strcmp(editPriceString,childGetText("Cost Mixed").c_str()) &&
-			0 != strcmp(editPriceString,""))
-		{
-			price = atoi(editPriceString);
-		}
-		else
-		{
-			price = DEFAULT_PRICE;
-		}
+		price = atoi(mEditPrice->getText().c_str());
 	}
-	// If somehow an invalid price, turn the sale off.
+	// Invalid data - turn off the sale
 	if (price < 0)
-		sale_type = LLSaleInfo::FS_NOT;
-
-	// Force the sale price of not-for-sale items to DEFAULT_PRICE.
-	if (sale_type == LLSaleInfo::FS_NOT)
 	{
-		price = DEFAULT_PRICE;
+		sale_type = LLSaleInfo::FS_NOT;
+		price = 0;
 	}
-	// Pack up the sale info and send the update.
+
 	LLSaleInfo sale_info(sale_type, price);
 	LLSelectMgr::getInstance()->selectionSetObjectSaleInfo(sale_info);
-	
+
 	// If turned off for-sale, make sure click-action buy is turned
 	// off as well
 	if (sale_type == LLSaleInfo::FS_NOT)

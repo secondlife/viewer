@@ -4182,13 +4182,13 @@ std::ostream& operator<<(std::ostream &s, const LLVolume *volumep)
 
 
 LLVolumeFace::LLVolumeFace()
-	: mID(0),
-	  mTypeMask(0),
-	  mBeginS(0),
-	  mBeginT(0),
-	  mNumS(0),
-	  mNumT(0)
 {
+	mTypeMask = 0;
+	mID = 0;
+	mBeginS = 0;
+	mBeginT = 0;
+	mNumS = 0;
+	mNumT = 0;
 	mHasBinormals = FALSE;
 }
 

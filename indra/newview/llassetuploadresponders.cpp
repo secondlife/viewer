@@ -76,7 +76,6 @@ LLAssetUploadResponder::LLAssetUploadResponder(const LLSD &post_data,
 											   const std::string& file_name)
 	: LLHTTPClient::Responder(),
 	  mPostData(post_data),
-	  mAssetType(LLAssetType::AT_NONE),
 	  mFileName(file_name)
 {
 }

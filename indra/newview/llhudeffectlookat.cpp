@@ -73,11 +73,8 @@ const F32 MAX_TIMEOUT = F32_MAX / 2.f;
 class LLAttention
 {
 public:
-	LLAttention()
-		: mTimeout(0.f),
-		  mPriority(0.f)
-	{}
-	LLAttention(F32 timeout, F32 priority, LLString name, LLColor3 color) :
+	LLAttention(){}
+	LLAttention(F32 timeout, F32 priority, char *name, LLColor3 color) :
 	  mTimeout(timeout), mPriority(priority), mName(name), mColor(color)
 	{
 	}

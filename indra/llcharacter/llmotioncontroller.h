@@ -227,10 +227,10 @@ protected:
 	F32					mLastTime;
 	BOOL				mHasRunOnce;
 	BOOL				mPaused;
-	F32					mPauseTime;
 	F32					mTimeStep;
 	S32					mTimeStepCount;
 	F32					mLastInterp;
+	F32					mPauseTime;
 
 	U8					mJointSignature[2][LL_CHARACTER_MAX_JOINTS];
 };

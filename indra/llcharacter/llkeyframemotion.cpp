@@ -71,15 +71,6 @@ static F32 MAX_CONSTRAINTS = 10;
 // JointMotionList
 //-----------------------------------------------------------------------------
 LLKeyframeMotion::JointMotionList::JointMotionList()
-	: mDuration(0.f),
-	  mLoop(FALSE),
-	  mLoopInPoint(0.f),
-	  mLoopOutPoint(0.f),
-	  mEaseInDuration(0.f),
-	  mEaseOutDuration(0.f),
-	  mBasePriority(LLJoint::LOW_PRIORITY),
-	  mHandPose(LLHandMotion::HAND_POSE_SPREAD),
-	  mMaxPriority(LLJoint::LOW_PRIORITY)
 {
 }
 
@@ -2125,19 +2116,11 @@ void LLKeyframeDataCache::clear()
 //-----------------------------------------------------------------------------
 LLKeyframeMotion::JointConstraint::JointConstraint(JointConstraintSharedData* shared_data) : mSharedData(shared_data) 
 {
-	mWeight = 0.f;
 	mTotalLength = 0.f;
 	mActive = FALSE;
 	mSourceVolume = NULL;
 	mTargetVolume = NULL;
 	mFixupDistanceRMS = 0.f;
-
-	int i;
-	for (i=0; i<MAX_CHAIN_LENGTH; ++i)
-	{
-		mJointLengths[i] = 0.f;
-		mJointLengthFractions[i] = 0.f;
-	}
 }
 
 //-----------------------------------------------------------------------------

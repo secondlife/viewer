@@ -57,10 +57,9 @@ public:
 //
 std::map<LLUUID, LLFloaterGroupInvite*> LLFloaterGroupInvite::impl::sInstances;
 
-LLFloaterGroupInvite::impl::impl(const LLUUID& group_id) :
-	mGroupID(group_id),
-	mInvitePanelp(NULL)
+LLFloaterGroupInvite::impl::impl(const LLUUID& group_id)
 {
+	mGroupID = group_id;
 }
 
 LLFloaterGroupInvite::impl::~impl()

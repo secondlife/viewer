@@ -67,7 +67,6 @@ LLKeyboard::LLKeyboard() : mCallbacks(NULL), mNumpadDistinct(ND_NUMLOCK_OFF)
 
 	mInsertMode = LL_KIM_INSERT;
 	mCurTranslatedKey = KEY_NONE;
-	mCurScanKey = KEY_NONE;
 
 	addKeyName(' ', "Space" );
 	addKeyName(KEY_RETURN, "Enter" );

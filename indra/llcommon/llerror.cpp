@@ -1006,15 +1006,18 @@ namespace LLError
 					<< "(" << site.mLine << ") : ";
 		}
 		
-	#if LL_WINDOWS
-		// DevStudio: __FUNCTION__ already includes the full class name
-	#else
-		if (site.mClassInfo != typeid(NoClassInfo))
+		if (message.find(functionName(site.mFunction)) == std::string::npos)
 		{
-			prefix << className(site.mClassInfo) << "::";
-		}
+	#if LL_WINDOWS
+			// DevStudio: __FUNCTION__ already includes the full class name
+	#else
+			if (site.mClassInfo != typeid(NoClassInfo))
+			{
+				prefix << className(site.mClassInfo) << "::";
+			}
 	#endif
-		prefix << site.mFunction << ": ";
+			prefix << site.mFunction << ": ";
+		}
 		
 		prefix << message;
 		message = prefix.str();

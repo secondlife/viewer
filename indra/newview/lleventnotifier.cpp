@@ -203,8 +203,7 @@ void LLEventNotifier::notifyCallback(S32 option, void *user_data)
 
 LLEventNotification::LLEventNotification() :
 	mEventID(0),
-	mEventName(""),
-	mEventDate(0)
+	mEventName("")
 {
 }
 
