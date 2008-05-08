@@ -1959,6 +1959,8 @@ void busy_message (LLMessageSystem* msg, LLUUID from_id)
 {
 	if (gAgent.getBusy())
 	{
+		std::string my_name;
+		gAgent.buildFullname(my_name);
 		LLString response = gSavedPerAccountSettings.getText("BusyModeResponse");
 		pack_instant_message(
 			gMessageSystem,
@@ -1966,10 +1968,10 @@ void busy_message (LLMessageSystem* msg, LLUUID from_id)
 			FALSE,
 			gAgent.getSessionID(),
 			from_id,
-			SYSTEM_FROM,
+			my_name.c_str(),
 			response.c_str(),
 			IM_ONLINE,
-			IM_CONSOLE_AND_CHAT_HISTORY);
+			IM_BUSY_AUTO_RESPONSE);
 		gAgent.sendReliableMessage();
 	}
 }
