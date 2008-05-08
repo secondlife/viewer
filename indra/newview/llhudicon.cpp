@@ -166,7 +166,7 @@ void LLHUDIcon::renderIcon(BOOL for_select)
 		LLViewerImage::bindTexture(mImagep);
 	}
 
-	gGL.begin(GL_QUADS);
+	gGL.begin(LLVertexBuffer::QUADS);
 	{
 		gGL.texCoord2f(0.f, 1.f);
 		gGL.vertex3fv(upper_left.mV);

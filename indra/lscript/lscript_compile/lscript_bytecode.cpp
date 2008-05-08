@@ -245,7 +245,7 @@ LLScriptScriptCodeChunk::~LLScriptScriptCodeChunk()
 	delete [] mCompleteCode;
 }
 
-void LLScriptScriptCodeChunk::build(FILE *efp, FILE *bcfp)
+void LLScriptScriptCodeChunk::build(LLFILE *efp, LLFILE *bcfp)
 {
 	S32 code_data_size = mRegisters->mCurrentOffset + 
 					 mGlobalVariables->mCurrentOffset +

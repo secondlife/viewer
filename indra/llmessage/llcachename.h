@@ -64,7 +64,7 @@ public:
 	void cancelCallback(const LLUUID& id, LLCacheNameCallback callback, void* user_data = NULL);
 
 	// janky old format. Remove after a while. Phoenix. 2008-01-30
-	void importFile(FILE* fp);
+	void importFile(LLFILE* fp);
 
 	// storing cache on disk; for viewer, in name.cache
 	bool importFile(std::istream& istr);

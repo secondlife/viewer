@@ -125,20 +125,17 @@ void display_startup()
 
 	// Required for HTML update in login screen
 	static S32 frame_count = 0;
-#ifndef LL_RELEASE_FOR_DOWNLOAD
+
 	LLGLState::checkStates();
 	LLGLState::checkTextureChannels();
-#endif
 
 	if (frame_count++ > 1) // make sure we have rendered a frame first
 	{
 		LLDynamicTexture::updateAllInstances();
 	}
 
-#ifndef LL_RELEASE_FOR_DOWNLOAD
 	LLGLState::checkStates();
 	LLGLState::checkTextureChannels();
-#endif
 
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	LLGLSUIDefault gls_ui;
@@ -147,14 +144,14 @@ void display_startup()
 	gViewerWindow->setup2DRender();
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 
-	gGL.start();
+	gGL.color4f(1,1,1,1);
 	gViewerWindow->draw();
-	gGL.stop();
+	gGL.flush();
 
-#ifndef LL_RELEASE_FOR_DOWNLOAD
+	LLVertexBuffer::unbind();
+
 	LLGLState::checkStates();
 	LLGLState::checkTextureChannels();
-#endif
 
 	gViewerWindow->mWindow->swapBuffers();
 	glClear(GL_DEPTH_BUFFER_BIT);
@@ -199,16 +196,11 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 
 	LLGLSDefault gls_default;
 	LLGLDepthTest gls_depth(GL_TRUE, GL_TRUE, GL_LEQUAL);
+	
+	LLVertexBuffer::unbind();
 
-	// No clue where this is getting unset, but safe enough to reset it here.
-	//this causes frame stalls, try real hard not to uncomment this line - DaveP
-	//LLGLState::resetTextureStates();
-	
-	
-#ifndef LL_RELEASE_FOR_DOWNLOAD
 	LLGLState::checkStates();
 	LLGLState::checkTextureChannels();
-#endif
 	
 	gPipeline.disableLights();
 	
@@ -233,10 +225,8 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 	gViewerWindow->performPick();
 	
 
-#ifndef LL_RELEASE_FOR_DOWNLOAD
 	LLGLState::checkStates();
 	LLGLState::checkTextureChannels();
-#endif
 	
 	//////////////////////////////////////////////////////////
 	//
@@ -676,7 +666,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		//		glTranslatef(0.f, 0.f, -LLViewerCamera::getInstance()->getNear());
 		//		glScalef(LLViewerCamera::getInstance()->getNear() * LLViewerCamera::getInstance()->getAspect() / sinf(LLViewerCamera::getInstance()->getView()), LLViewerCamera::getInstance()->getNear() / sinf(LLViewerCamera::getInstance()->getView()), 1.f);
 		//		gGL.color4fv(LLColor4::white.mV);
-		//		gGL.begin(GL_QUADS);
+		//		gGL.begin(LLVertexBuffer::QUADS);
 		//		{
 		//			gGL.vertex3f(floater_3d_rect.mLeft, floater_3d_rect.mBottom, 0.f);
 		//			gGL.vertex3f(floater_3d_rect.mLeft, floater_3d_rect.mTop, 0.f);
@@ -881,9 +871,7 @@ BOOL setup_hud_matrices(BOOL for_select)
 
 void render_ui_and_swap()
 {
-#ifndef LL_RELEASE_FOR_DOWNLOAD
 	LLGLState::checkStates();
-#endif
 	
 	glPushMatrix();
 	glLoadMatrixd(gGLLastModelView);
@@ -910,8 +898,8 @@ void render_ui_and_swap()
 	}
 
 	{
-		LLVertexBuffer::startRender();
-		gGL.start();
+		
+		gGL.color4f(1,1,1,1);
 		if (gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI))
 		{
 			LLFastTimer t(LLFastTimer::FTM_RENDER_UI);
@@ -919,17 +907,13 @@ void render_ui_and_swap()
 			if (!gDisconnected)
 			{
 				render_ui_3d();
-#ifndef LL_RELEASE_FOR_DOWNLOAD
 				LLGLState::checkStates();
-#endif
 			}
 
 			render_ui_2d();
-#ifndef LL_RELEASE_FOR_DOWNLOAD
 			LLGLState::checkStates();
-#endif
 		}
-		gGL.stop();
+		gGL.flush();
 
 		{
 			gViewerWindow->setup2DRender();
@@ -937,7 +921,7 @@ void render_ui_and_swap()
 			gViewerWindow->drawDebugText();
 		}
 
-		LLVertexBuffer::stopRender();
+		LLVertexBuffer::unbind();
 	}
 
 	glh_set_current_modelview(saved_view);
@@ -960,7 +944,7 @@ void render_ui_and_swap_if_needed()
 void renderCoordinateAxes()
 {
 	LLGLSNoTexture gls_no_texture;
-	gGL.begin(GL_LINES);
+	gGL.begin(LLVertexBuffer::LINES);
 		gGL.color3f(1.0f, 0.0f, 0.0f);   // i direction = X-Axis = red
 		gGL.vertex3f(0.0f, 0.0f, 0.0f);
 		gGL.vertex3f(2.0f, 0.0f, 0.0f);
@@ -1013,7 +997,7 @@ void draw_axes()
 	LLGLSNoTexture gls_no_texture;
 	// A vertical white line at origin
 	LLVector3 v = gAgent.getPositionAgent();
-	gGL.begin(GL_LINES);
+	gGL.begin(LLVertexBuffer::LINES);
 		gGL.color3f(1.0f, 1.0f, 1.0f); 
 		gGL.vertex3f(0.0f, 0.0f, 0.0f);
 		gGL.vertex3f(0.0f, 0.0f, 40.0f);
@@ -1119,7 +1103,7 @@ void render_ui_2d()
 
 void render_disconnected_background()
 {
-	gGL.start();
+	gGL.color4f(1,1,1,1);
 	if (!gDisconnectedImagep && gDisconnected)
 	{
 		llinfos << "Loading last bitmap..." << llendl;
@@ -1192,7 +1176,7 @@ void render_disconnected_background()
 		}
 		glPopMatrix();
 	}
-	gGL.stop();
+	gGL.flush();
 }
 
 void display_cleanup()

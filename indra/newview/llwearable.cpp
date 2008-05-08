@@ -185,7 +185,7 @@ const char* terse_F32_to_string( F32 f, char s[MAX_STRING] )		/* Flawfinder: ign
 	return r;
 }
 
-BOOL LLWearable::exportFile( FILE* file )
+BOOL LLWearable::exportFile( LLFILE* file )
 {
 	// header and version
 	if( fprintf( file, "LLWearable version %d\n", mDefinitionVersion ) < 0 )
@@ -266,7 +266,7 @@ BOOL LLWearable::exportFile( FILE* file )
 
 
 
-BOOL LLWearable::importFile( FILE* file )
+BOOL LLWearable::importFile( LLFILE* file )
 {
 	// *NOTE: changing the type or size of this buffer will require
 	// changes in the fscanf() code below. You would be better off
@@ -852,7 +852,7 @@ void LLWearable::saveNewAsset()
 	mAssetID.toString(new_asset_id_string);
 	char filename[LL_MAX_PATH];		/* Flawfinder: ignore */
 	snprintf(filename, LL_MAX_PATH, "%s.wbl", gDirUtilp->getExpandedFilename(LL_PATH_CACHE,new_asset_id_string).c_str());		/* Flawfinder: ignore */
-	FILE* fp = LLFile::fopen(filename, "wb");		/* Flawfinder: ignore */
+	LLFILE* fp = LLFile::fopen(filename, "wb");		/* Flawfinder: ignore */
 	BOOL successful_save = FALSE;
 	if(fp && exportFile(fp))
 	{

@@ -572,7 +572,7 @@ bool LLXMLNode::parseFile(
 	LLXMLNode* defaults_tree)
 {
 	// Read file
-	FILE* fp = LLFile::fopen(filename.c_str(), "rb");		/* Flawfinder: ignore */
+	LLFILE* fp = LLFile::fopen(filename.c_str(), "rb");		/* Flawfinder: ignore */
 	if (fp == NULL)
 	{
 		node = new LLXMLNode();
@@ -741,12 +741,12 @@ BOOL LLXMLNode::isFullyDefault()
 }
 
 // static
-void LLXMLNode::writeHeaderToFile(FILE *fOut)
+void LLXMLNode::writeHeaderToFile(LLFILE *fOut)
 {
 	fprintf(fOut, "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\" ?>\n");
 }
 
-void LLXMLNode::writeToFile(FILE *fOut, LLString indent)
+void LLXMLNode::writeToFile(LLFILE *fOut, LLString indent)
 {
 	if (isFullyDefault())
 	{

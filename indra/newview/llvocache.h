@@ -45,7 +45,7 @@ class LLVOCacheEntry : public LLDLinked<LLVOCacheEntry>
 {
 public:
 	LLVOCacheEntry(U32 local_id, U32 crc, LLDataPackerBinaryBuffer &dp);
-	LLVOCacheEntry(FILE *fp);
+	LLVOCacheEntry(LLFILE *fp);
 	LLVOCacheEntry();
 	~LLVOCacheEntry();
 
@@ -55,7 +55,7 @@ public:
 	S32 getCRCChangeCount() const	{ return mCRCChangeCount; }
 
 	void dump() const;
-	void writeToFile(FILE *fp) const;
+	void writeToFile(LLFILE *fp) const;
 	void assignCRC(U32 crc, LLDataPackerBinaryBuffer &dp);
 	LLDataPackerBinaryBuffer *getDP(U32 crc);
 	void recordHit();

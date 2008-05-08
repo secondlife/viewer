@@ -706,7 +706,7 @@ BOOL lscript_compile(const char* src_filename, const char* dst_filename,
 #ifdef EMERGENCY_DEBUG_PRINTOUTS
 			char compiled[256];
 			sprintf(compiled, "%s.o", src_filename);
-			FILE* compfile;
+			LLFILE* compfile;
 			compfile = LLFile::fopen(compiled, "w");
 #endif
 
@@ -733,7 +733,7 @@ BOOL lscript_compile(const char* src_filename, const char* dst_filename,
 #endif
 #ifdef EMIT_CIL_ASSEMBLER
 				const char* cil_output_file_name = dst_filename? dst_filename : "lscript.cil";
-				FILE* cilout = LLFile::fopen(cil_output_file_name, "w");
+				LLFILE* cilout = LLFile::fopen(cil_output_file_name, "w");
 				if(NULL == cilout)
 				{
 					fprintf(yyout, "Error opening cil output file %s\n", cil_output_file_name);

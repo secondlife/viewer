@@ -271,7 +271,7 @@ BOOL LLPolyMeshSharedData::loadMesh( const char *fileName )
 		llerrs << "Filename is Empty!" << llendl;
 		return FALSE;
 	}
-	FILE* fp = LLFile::fopen(fileName, "rb");			/*Flawfinder: ignore*/
+	LLFILE* fp = LLFile::fopen(fileName, "rb");			/*Flawfinder: ignore*/
 	if (!fp)
 	{
 		llerrs << "can't open: " << fileName << llendl;

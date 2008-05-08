@@ -4056,7 +4056,7 @@ U32 LLVOAvatar::renderSkinned(EAvatarRenderPass pass)
 		LLVector3 collide_point = slaved_pos;
 		collide_point.mV[VZ] -= foot_plane_normal.mV[VZ] * (dist_from_plane + COLLISION_TOLERANCE - FOOT_COLLIDE_FUDGE);
 
-		gGL.begin(GL_LINES);
+		gGL.begin(LLVertexBuffer::LINES);
 		{
 			F32 SQUARE_SIZE = 0.2f;
 			gGL.color4f(1.f, 0.f, 0.f, 1.f);
@@ -4229,10 +4229,10 @@ U32 LLVOAvatar::renderImpostor(LLColor4U color)
 	LLGLEnable test(GL_ALPHA_TEST);
 	glAlphaFunc(GL_GREATER, 0.f);
 
-	gGL.start();
+	gGL.color4f(1,1,1,1);
 	gGL.color4ubv(color.mV);
 	mImpostor.bindTexture();
-	gGL.begin(GL_QUADS);
+	gGL.begin(LLVertexBuffer::QUADS);
 	gGL.texCoord2f(0,0);
 	gGL.vertex3fv((pos+left-up).mV);
 	gGL.texCoord2f(1,0);
@@ -4242,7 +4242,7 @@ U32 LLVOAvatar::renderImpostor(LLColor4U color)
 	gGL.texCoord2f(0,1);
 	gGL.vertex3fv((pos+left+up).mV);
 	gGL.end();
-	gGL.stop();
+	gGL.flush();
 
 	return 6;
 }

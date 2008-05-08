@@ -53,7 +53,7 @@ const S32 SETTINGS_FILE_VERSION = 101;
 // Windows Message Handlers
 
 BOOL gFirstDialog = TRUE;	// Are we currently handling the Send/Don't Send dialog?
-FILE *gDebugFile = NULL;
+LLFILE *gDebugFile = NULL;
 
 WindowRef gWindow = NULL;
 EventHandlerRef gEventHandler = NULL;

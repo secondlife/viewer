@@ -36,135 +36,135 @@
 #include "linked_lists.h"
 
 // list of op code print functions
-void print_noop(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_pop(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_pops(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_popl(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_popv(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_popq(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_poparg(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_popip(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_popbp(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_popsp(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_popslr(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_noop(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_pop(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_pops(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_popl(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_popv(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_popq(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_poparg(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_popip(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_popbp(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_popsp(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_popslr(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
 
-void print_dup(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_dups(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_dupl(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_dupv(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_dupq(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_dup(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_dups(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_dupl(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_dupv(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_dupq(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
 
-void print_store(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_stores(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_storel(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_storev(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_storeq(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_storeg(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_storegs(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_storegl(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_storegv(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_storegq(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_loadp(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_loadsp(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_loadlp(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_loadvp(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_loadqp(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_loadgp(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_loadgsp(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_loadglp(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_loadgvp(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_loadgqp(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_store(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_stores(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_storel(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_storev(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_storeq(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_storeg(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_storegs(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_storegl(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_storegv(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_storegq(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_loadp(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_loadsp(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_loadlp(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_loadvp(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_loadqp(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_loadgp(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_loadgsp(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_loadglp(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_loadgvp(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_loadgqp(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
 
-void print_push(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_pushl(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_pushs(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_pushv(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_pushq(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_pushg(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_pushgl(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_pushgs(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_pushgv(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_pushgq(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_puship(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_pushbp(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_pushsp(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_pushargb(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_pushargi(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_pushargf(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_pushargs(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_pushargv(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_pushargq(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_pushe(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_pushev(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_pusheq(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_pusharge(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_push(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_pushl(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_pushs(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_pushv(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_pushq(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_pushg(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_pushgl(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_pushgs(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_pushgv(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_pushgq(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_puship(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_pushbp(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_pushsp(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_pushargb(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_pushargi(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_pushargf(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_pushargs(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_pushargv(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_pushargq(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_pushe(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_pushev(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_pusheq(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_pusharge(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
 
-void print_add(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_sub(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_mul(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_div(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_mod(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_add(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_sub(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_mul(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_div(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_mod(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
 
-void print_eq(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_neq(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_leq(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_geq(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_less(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_greater(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_eq(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_neq(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_leq(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_geq(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_less(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_greater(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
 
-void print_bitand(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_bitor(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_bitxor(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_booland(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_boolor(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_bitand(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_bitor(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_bitxor(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_booland(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_boolor(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
 
-void print_shl(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_shr(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_shl(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_shr(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
 
-void print_neg(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_bitnot(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_boolnot(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_neg(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_bitnot(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_boolnot(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
 
-void print_jump(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_jumpif(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_jumpnif(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_jump(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_jumpif(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_jumpnif(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
 
-void print_state(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_call(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_return(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_cast(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_stacktos(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_stacktol(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_state(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_call(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_return(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_cast(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_stacktos(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_stacktol(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
 
-void print_print(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_print(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
 
-void print_calllib(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
-void print_calllib_two_byte(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_calllib(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+void print_calllib_two_byte(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
 
 class LLScriptLSOParse
 {
 public:
-	LLScriptLSOParse(FILE *fp);
+	LLScriptLSOParse(LLFILE *fp);
 	LLScriptLSOParse(U8 *buffer);
 	~LLScriptLSOParse();
 
 	void initOpCodePrinting();
 
-	void printData(FILE *fp);
-	void printNameDesc(FILE *fp);
-	void printRegisters(FILE *fp);
-	void printGlobals(FILE *fp);
-	void printGlobalFunctions(FILE *fp);
-	void printStates(FILE *fp);
-	void printHeap(FILE *fp);
-	void printOpCodes(FILE *fp, S32 &offset, S32 tabs);
-	void printOpCodeRange(FILE *fp, S32 start, S32 end, S32 tabs);
+	void printData(LLFILE *fp);
+	void printNameDesc(LLFILE *fp);
+	void printRegisters(LLFILE *fp);
+	void printGlobals(LLFILE *fp);
+	void printGlobalFunctions(LLFILE *fp);
+	void printStates(LLFILE *fp);
+	void printHeap(LLFILE *fp);
+	void printOpCodes(LLFILE *fp, S32 &offset, S32 tabs);
+	void printOpCodeRange(LLFILE *fp, S32 start, S32 end, S32 tabs);
 
 	U8	*mRawData;
-	void (*mPrintOpCodes[0x100])(FILE *fp, U8 *buffer, S32 &offset, S32 tabs);
+	void (*mPrintOpCodes[0x100])(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
 };
 
 
-void lso_print_tabs(FILE *fp, S32 tabs);
+void lso_print_tabs(LLFILE *fp, S32 tabs);
 
 #endif

@@ -86,6 +86,7 @@ LLString gLastRunVersion;
 LLString gCurrentVersion;
 
 extern BOOL gResizeScreenTexture;
+extern BOOL gDebugGL;
 
 ////////////////////////////////////////////////////////////////////////////
 // Listeners
@@ -357,9 +358,15 @@ static bool handleRenderUseImpostorsChanged(const LLSD& newvalue)
 	return true;
 }
 
-static bool handleRenderUseCleverUIChanged(const LLSD& newvalue)
+static bool handleRenderDebugGLChanged(const LLSD& newvalue)
 {
-	gGL.setClever(newvalue.asBoolean());
+	gDebugGL = newvalue.asBoolean();
+	return true;
+}
+
+static bool handleRenderDebugPipelineChanged(const LLSD& newvalue)
+{
+	gDebugPipeline = newvalue.asBoolean();
 	return true;
 }
 
@@ -464,7 +471,8 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("RenderMaxVBOSize")->getSignal()->connect(boost::bind(&handleResetVertexBuffersChanged, _1));
 	gSavedSettings.getControl("RenderUseFBO")->getSignal()->connect(boost::bind(&handleRenderUseFBOChanged, _1));
 	gSavedSettings.getControl("RenderUseImpostors")->getSignal()->connect(boost::bind(&handleRenderUseImpostorsChanged, _1));
-	gSavedSettings.getControl("RenderUseCleverUI")->getSignal()->connect(boost::bind(&handleRenderUseCleverUIChanged, _1));
+	gSavedSettings.getControl("RenderDebugGL")->getSignal()->connect(boost::bind(&handleRenderDebugGLChanged, _1));
+	gSavedSettings.getControl("RenderDebugPipeline")->getSignal()->connect(boost::bind(&handleRenderDebugPipelineChanged, _1));
 	gSavedSettings.getControl("RenderResolutionDivisor")->getSignal()->connect(boost::bind(&handleRenderResolutionDivisorChanged, _1));
 	gSavedSettings.getControl("RenderDeferred")->getSignal()->connect(boost::bind(&handleSetShaderChanged, _1));
 	gSavedSettings.getControl("AvatarCompositeLimit")->getSignal()->connect(boost::bind(&handleCompositeLimitChanged, _1));

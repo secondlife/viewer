@@ -482,7 +482,7 @@ void LLToolBrushLand::renderOverlay(LLSurface& land, const LLVector3& pos_region
 	S32 j = (S32) pos_region.mV[VY];
 	S32 half_edge = llfloor(LAND_BRUSH_SIZE[mBrushIndex]);
 	
-	gGL.begin(GL_POINTS);
+	gGL.begin(LLVertexBuffer::POINTS);
 	for(S32 di = -half_edge; di <= half_edge; di++)
 	{
 		if((i+di) < 0 || (i+di) >= (S32)land.mGridsPerEdge) continue;

@@ -78,8 +78,8 @@ public:
 	void				removeFromAvatar( BOOL set_by_user )	{ LLWearable::removeFromAvatar( mType, set_by_user ); }
 	static void			removeFromAvatar( EWearableType type, BOOL set_by_user ); 
 
-	BOOL				exportFile(FILE* file);
-	BOOL				importFile(FILE* file);
+	BOOL				exportFile(LLFILE* file);
+	BOOL				importFile(LLFILE* file);
 
 	EWearableType		getType() const							{ return mType; }
 	void				setType( EWearableType type )			{ mType = type; }

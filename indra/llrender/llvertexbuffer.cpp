@@ -60,7 +60,6 @@ U32 LLVertexBuffer::sLastMask = 0;
 BOOL LLVertexBuffer::sVBOActive = FALSE;
 BOOL LLVertexBuffer::sIBOActive = FALSE;
 U32 LLVertexBuffer::sAllocatedBytes = 0;
-BOOL LLVertexBuffer::sRenderActive = FALSE;
 BOOL LLVertexBuffer::sMapped = FALSE;
 
 std::vector<U32> LLVertexBuffer::sDeleteList;
@@ -84,16 +83,18 @@ U32 LLVertexBuffer::sGLMode[LLVertexBuffer::NUM_MODES] =
 	GL_TRIANGLE_FAN,
 	GL_POINTS,
 	GL_LINES,
-	GL_LINE_STRIP
+	GL_LINE_STRIP,
+	GL_QUADS,
+	GL_LINE_LOOP,
 };
 
 //static
 void LLVertexBuffer::setupClientArrays(U32 data_mask)
 {
-	if (LLGLImmediate::sStarted)
+	/*if (LLGLImmediate::sStarted)
 	{
 		llerrs << "Cannot use LLGLImmediate and LLVertexBuffer simultaneously!" << llendl;
-	}
+	}*/
 
 	if (sLastMask != data_mask)
 	{
@@ -186,6 +187,11 @@ void LLVertexBuffer::drawRange(U32 mode, U32 start, U32 end, U32 count, U32 indi
 		llerrs << "Wrong vertex buffer bound." << llendl;
 	}
 
+	if (mode > NUM_MODES)
+	{
+		llerrs << "Invalid draw mode: " << mode << llendl;
+	}
+
 	glDrawRangeElements(sGLMode[mode], start, end, count, GL_UNSIGNED_SHORT, 
 		((U16*) getIndicesPointer()) + indices_offset);
 }
@@ -208,8 +214,35 @@ void LLVertexBuffer::draw(U32 mode, U32 count, U32 indices_offset) const
 		llerrs << "Wrong vertex buffer bound." << llendl;
 	}
 
+	if (mode > NUM_MODES)
+	{
+		llerrs << "Invalid draw mode: " << mode << llendl;
+	}
+
 	glDrawElements(sGLMode[mode], count, GL_UNSIGNED_SHORT,
 		((U16*) getIndicesPointer()) + indices_offset);
+}
+
+void LLVertexBuffer::drawArrays(U32 mode, U32 first, U32 count) const
+{
+	
+	if (first >= (U32) mRequestedNumVerts ||
+		first + count > (U32) mRequestedNumVerts)
+	{
+		llerrs << "Bad vertex buffer draw range: [" << first << ", " << first+count << "]" << llendl;
+	}
+
+	if (mGLBuffer != sGLRenderBuffer)
+	{
+		llerrs << "Wrong vertex buffer bound." << llendl;
+	}
+
+	if (mode > NUM_MODES)
+	{
+		llerrs << "Invalid draw mode: " << mode << llendl;
+	}
+
+	glDrawArrays(sGLMode[mode], first, count);
 }
 
 //static
@@ -246,24 +279,8 @@ void LLVertexBuffer::unbind()
 void LLVertexBuffer::cleanupClass()
 {
 	LLMemType mt(LLMemType::MTYPE_VERTEX_DATA);
-	startRender(); 
-	stopRender();
+	unbind();
 	clientCopy(); // deletes GL buffers
-}
-
-//static, call before rendering VBOs
-void LLVertexBuffer::startRender()
-{		
-	LLMemType mt(LLMemType::MTYPE_VERTEX_DATA);
-
-	unbind();
-	sRenderActive = TRUE;
-}
-
-void LLVertexBuffer::stopRender()
-{
-	unbind();
-	sRenderActive = FALSE;
 }
 
 void LLVertexBuffer::clientCopy(F64 max_time)
@@ -717,7 +734,7 @@ BOOL LLVertexBuffer::useVBOs() const
 		return FALSE;
 	}
 #endif
-	return sEnableVBOs; // && (!sRenderActive || !mLocked);
+	return sEnableVBOs;
 }
 
 //----------------------------------------------------------------------------
@@ -937,6 +954,22 @@ void LLVertexBuffer::setBuffer(U32 data_mask)
 		
 		if (mResized)
 		{
+			if (gDebugGL)
+			{
+				GLint buff;
+				glGetIntegerv(GL_ARRAY_BUFFER_BINDING_ARB, &buff);
+				if (buff != mGLBuffer)
+				{
+					llerrs << "Invalid GL vertex buffer bound: " << buff << llendl;
+				}
+
+				glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING_ARB, &buff);
+				if (buff != mGLIndices)
+				{
+					llerrs << "Invalid GL index buffer bound: " << buff << llendl;
+				}
+			}
+
 			if (mGLBuffer)
 			{
 				stop_glerror();
@@ -1000,10 +1033,6 @@ void LLVertexBuffer::setBuffer(U32 data_mask)
 		sGLRenderBuffer = mGLBuffer;
 		if (data_mask && setup)
 		{
-			if (!sRenderActive)
-			{
-				llwarns << "Vertex buffer set for rendering outside of render frame." << llendl;
-			}
 			setupVertexBuffer(data_mask); // subclass specific setup (virtual function)
 			sSetCount++;
 		}

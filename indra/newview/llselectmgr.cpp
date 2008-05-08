@@ -5280,7 +5280,7 @@ void LLSelectNode::renderOneSilhouette(const LLColor4 &color)
 
 			LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE, GL_GEQUAL);
 			glAlphaFunc(GL_GREATER, 0.01f);
-			gGL.begin(GL_LINES);
+			gGL.begin(LLVertexBuffer::LINES);
 			{
 				S32 i = 0;
 				for (S32 seg_num = 0; seg_num < (S32)mSilhouetteSegments.size(); seg_num++)
@@ -5301,7 +5301,7 @@ void LLSelectNode::renderOneSilhouette(const LLColor4 &color)
 
 		gGL.flush();
 		gGL.blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		gGL.begin(GL_TRIANGLES);
+		gGL.begin(LLVertexBuffer::TRIANGLES);
 		{
 			S32 i = 0;
 			for (S32 seg_num = 0; seg_num < (S32)mSilhouetteSegments.size(); seg_num++)

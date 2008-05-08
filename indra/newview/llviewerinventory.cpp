@@ -254,7 +254,7 @@ void LLViewerInventoryItem::packMessage(LLMessageSystem* msg) const
 	msg->addU32Fast(_PREHASH_CRC, crc);
 }
 // virtual
-BOOL LLViewerInventoryItem::importFile(FILE* fp)
+BOOL LLViewerInventoryItem::importFile(LLFILE* fp)
 {
 	BOOL rv = LLInventoryItem::importFile(fp);
 	mIsComplete = TRUE;
@@ -269,7 +269,7 @@ BOOL LLViewerInventoryItem::importLegacyStream(std::istream& input_stream)
 	return rv;
 }
 
-bool LLViewerInventoryItem::importFileLocal(FILE* fp)
+bool LLViewerInventoryItem::importFileLocal(LLFILE* fp)
 {
 	// TODO: convert all functions that return BOOL to return bool
 	bool rv = (LLInventoryItem::importFile(fp) ? true : false);
@@ -277,7 +277,7 @@ bool LLViewerInventoryItem::importFileLocal(FILE* fp)
 	return rv;
 }
 
-bool LLViewerInventoryItem::exportFileLocal(FILE* fp) const
+bool LLViewerInventoryItem::exportFileLocal(LLFILE* fp) const
 {
 	char uuid_str[UUID_STR_LENGTH];		/* Flawfinder: ignore */
 	fprintf(fp, "\tinv_item\t0\n\t{\n");
@@ -469,7 +469,7 @@ bool LLViewerInventoryCategory::fetchDescendents()
 	return false;
 }
 
-bool LLViewerInventoryCategory::importFileLocal(FILE* fp)
+bool LLViewerInventoryCategory::importFileLocal(LLFILE* fp)
 {
 	// *NOTE: This buffer size is hard coded into scanf() below.
 	char buffer[MAX_STRING];		/* Flawfinder: ignore */
@@ -538,7 +538,7 @@ bool LLViewerInventoryCategory::importFileLocal(FILE* fp)
 	return true;
 }
 
-bool LLViewerInventoryCategory::exportFileLocal(FILE* fp) const
+bool LLViewerInventoryCategory::exportFileLocal(LLFILE* fp) const
 {
 	char uuid_str[UUID_STR_LENGTH];		/* Flawfinder: ignore */
 	fprintf(fp, "\tinv_category\t0\n\t{\n");

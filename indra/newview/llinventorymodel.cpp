@@ -1810,7 +1810,7 @@ bool LLInventoryModel::loadSkeleton(
 		const S32 NO_VERSION = LLViewerInventoryCategory::VERSION_UNKNOWN;
 		std::string gzip_filename(inventory_filename);
 		gzip_filename.append(".gz");
-		FILE* fp = LLFile::fopen(gzip_filename.c_str(), "rb");		/*Flawfinder: ignore*/
+		LLFILE* fp = LLFile::fopen(gzip_filename.c_str(), "rb");		/*Flawfinder: ignore*/
 		bool remove_inventory_file = false;
 		if(fp)
 		{
@@ -2344,7 +2344,7 @@ bool LLInventoryModel::loadFromFile(
 		return false;
 	}
 	llinfos << "LLInventoryModel::loadFromFile(" << filename << ")" << llendl;
-	FILE* file = LLFile::fopen(filename, "rb");		/*Flawfinder: ignore*/
+	LLFILE* file = LLFile::fopen(filename, "rb");		/*Flawfinder: ignore*/
 	if(!file)
 	{
 		llinfos << "unable to load inventory from: " << filename << llendl;
@@ -2417,7 +2417,7 @@ bool LLInventoryModel::saveToFile(
 		return false;
 	}
 	llinfos << "LLInventoryModel::saveToFile(" << filename << ")" << llendl;
-	FILE* file = LLFile::fopen(filename, "wb");		/*Flawfinder: ignore*/
+	LLFILE* file = LLFile::fopen(filename, "wb");		/*Flawfinder: ignore*/
 	if(!file)
 	{
 		llwarns << "unable to save inventory to: " << filename << llendl;
@@ -3692,7 +3692,7 @@ BOOL decompress_file(const char* src_filename, const char* dst_filename)
 	BOOL rv = FALSE;
 	gzFile src = NULL;
 	U8* buffer = NULL;
-	FILE* dst = NULL;
+	LLFILE* dst = NULL;
 	S32 bytes = 0;
 	const S32 DECOMPRESS_BUFFER_SIZE = 32000;
 

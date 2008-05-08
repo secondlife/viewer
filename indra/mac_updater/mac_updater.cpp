@@ -727,7 +727,7 @@ void *updatethreadproc(void*)
 	char temp[PATH_MAX] = "";	/* Flawfinder: ignore */
 	// *NOTE: This buffer length is used in a scanf() below.
 	char deviceNode[1024] = "";	/* Flawfinder: ignore */
-	FILE *downloadFile = NULL;
+	LLFILE *downloadFile = NULL;
 	OSStatus err;
 	ProcessSerialNumber psn;
 	char target[PATH_MAX] = "";		/* Flawfinder: ignore */
@@ -942,7 +942,7 @@ void *updatethreadproc(void*)
 		
 		snprintf(temp, sizeof(temp), "SecondLife.dmg");		
 		
-		downloadFile = fopen(temp, "wb");		/* Flawfinder: ignore */
+		downloadFile = LLFile::fopen(temp, "wb");		/* Flawfinder: ignore */
 		if(downloadFile == NULL)
 		{
 			throw 0;

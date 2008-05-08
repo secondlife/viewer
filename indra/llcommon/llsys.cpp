@@ -293,7 +293,7 @@ U32 LLOSInfo::getProcessVirtualSizeKB()
 #if LL_WINDOWS
 #endif
 #if LL_LINUX
-	FILE* status_filep = LLFile::fopen("/proc/self/status", "rb");
+	LLFILE* status_filep = LLFile::fopen("/proc/self/status", "rb");
 	S32 numRead = 0;		
 	char buff[STATUS_SIZE];		/* Flawfinder: ignore */
 
@@ -336,7 +336,7 @@ U32 LLOSInfo::getProcessResidentSizeKB()
 #if LL_WINDOWS
 #endif
 #if LL_LINUX
-	FILE* status_filep = LLFile::fopen("/proc/self/status", "rb");
+	LLFILE* status_filep = LLFile::fopen("/proc/self/status", "rb");
 	if (status_filep != NULL)
 	{
 		S32 numRead = 0;
@@ -398,7 +398,7 @@ LLCPUInfo::LLCPUInfo()
 	
 #elif LL_LINUX
 	std::map< LLString, LLString > cpuinfo;
-	FILE* cpuinfo_fp = LLFile::fopen(CPUINFO_FILE, "rb");
+	LLFILE* cpuinfo_fp = LLFile::fopen(CPUINFO_FILE, "rb");
 	if(cpuinfo_fp)
 	{
 		char line[MAX_STRING];
@@ -486,7 +486,7 @@ void LLCPUInfo::stream(std::ostream& s) const
 	}
 #else
 	// *NOTE: This works on linux. What will it do on other systems?
-	FILE* cpuinfo = LLFile::fopen(CPUINFO_FILE, "rb");
+	LLFILE* cpuinfo = LLFile::fopen(CPUINFO_FILE, "rb");
 	if(cpuinfo)
 	{
 		char line[MAX_STRING];
@@ -621,7 +621,7 @@ void LLMemoryInfo::stream(std::ostream& s) const
         s << "Total Physical KB:  " << phys << std::endl;
 #else
 	// *NOTE: This works on linux. What will it do on other systems?
-	FILE* meminfo = LLFile::fopen(MEMINFO_FILE,"rb");
+	LLFILE* meminfo = LLFile::fopen(MEMINFO_FILE,"rb");
 	if(meminfo)
 	{
 		char line[MAX_STRING];		/* Flawfinder: ignore */
@@ -665,7 +665,7 @@ BOOL gunzip_file(const char *srcfile, const char *dstfile)
 	BOOL retval = FALSE;
 	gzFile src = NULL;
 	U8 buffer[UNCOMPRESS_BUFFER_SIZE];
-	FILE *dst = NULL;
+	LLFILE *dst = NULL;
 	S32 bytes = 0;
 	(void *) strcpy(tmpfile, dstfile);		/* Flawfinder: ignore */
 	(void *) strncat(tmpfile, ".t", sizeof(tmpfile) - strlen(tmpfile) -1);		/* Flawfinder: ignore */
@@ -700,7 +700,7 @@ BOOL gzip_file(const char *srcfile, const char *dstfile)
 	BOOL retval = FALSE;
 	U8 buffer[COMPRESS_BUFFER_SIZE];
 	gzFile dst = NULL;
-	FILE *src = NULL;
+	LLFILE *src = NULL;
 	S32 bytes = 0;
 	(void *) strcpy(tmpfile, dstfile);		/* Flawfinder: ignore */
 	(void *) strncat(tmpfile, ".t", sizeof(tmpfile) - strlen(tmpfile) -1);		/* Flawfinder: ignore */

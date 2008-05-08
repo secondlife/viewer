@@ -824,7 +824,7 @@ S32 LLViewerParcelOverlay::renderPropertyLines	()
 			continue;
 		}
 
-		gGL.begin(GL_TRIANGLE_STRIP);
+		gGL.begin(LLVertexBuffer::TRIANGLE_STRIP);
 
 		for (j = 0; j < vertex_per_edge; j++)
 		{
@@ -844,7 +844,7 @@ S32 LLViewerParcelOverlay::renderPropertyLines	()
 		colorp  = mColorArray  + BYTES_PER_COLOR   * i;
 		vertexp = mVertexArray + FLOATS_PER_VERTEX * i;
 
-		gGL.begin(GL_TRIANGLE_STRIP);
+		gGL.begin(LLVertexBuffer::TRIANGLE_STRIP);
 
 		for (j = 0; j < vertex_per_edge; j++)
 		{

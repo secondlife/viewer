@@ -101,8 +101,8 @@ public:
 
 	// file support - implemented here so that a minimal information
 	// set can be transmitted between simulator and viewer.
-// 	virtual BOOL importFile(FILE* fp);
-	virtual BOOL exportFile(FILE* fp, BOOL include_asset_key = TRUE) const;
+// 	virtual BOOL importFile(LLFILE* fp);
+	virtual BOOL exportFile(LLFILE* fp, BOOL include_asset_key = TRUE) const;
 
 	virtual BOOL importLegacyStream(std::istream& input_stream);
 	virtual BOOL exportLegacyStream(std::ostream& output_stream, BOOL include_asset_key = TRUE) const;
@@ -259,8 +259,8 @@ public:
 	// we want to detect network mangling somehow.
 	virtual BOOL unpackMessage(LLMessageSystem* msg, const char* block, S32 block_num = 0);
 	// file support
-	virtual BOOL importFile(FILE* fp);
-	virtual BOOL exportFile(FILE* fp, BOOL include_asset_key = TRUE) const;
+	virtual BOOL importFile(LLFILE* fp);
+	virtual BOOL exportFile(LLFILE* fp, BOOL include_asset_key = TRUE) const;
 
 	virtual BOOL importLegacyStream(std::istream& input_stream);
 	virtual BOOL exportLegacyStream(std::ostream& output_stream, BOOL include_asset_key = TRUE) const;
@@ -319,8 +319,8 @@ public:
 	bool fromLLSD(LLSD& sd);
 
 	// file support
-	virtual BOOL importFile(FILE* fp);
-	virtual BOOL exportFile(FILE* fp, BOOL include_asset_key = TRUE) const;
+	virtual BOOL importFile(LLFILE* fp);
+	virtual BOOL exportFile(LLFILE* fp, BOOL include_asset_key = TRUE) const;
 
 	virtual BOOL importLegacyStream(std::istream& input_stream);
 	virtual BOOL exportLegacyStream(std::ostream& output_stream, BOOL include_asset_key = TRUE) const;

@@ -1242,7 +1242,7 @@ void LLAssetStorage::legacyGetDataCallback(LLVFS *vfs, const LLUUID &uuid, LLAss
 		uuid.toString(uuid_str);
 		snprintf(filename,sizeof(filename),"%s.%s",gDirUtilp->getExpandedFilename(LL_PATH_CACHE,uuid_str).c_str(),LLAssetType::lookup(type));	/* Flawfinder: ignore */
 
-		FILE* fp = LLFile::fopen(filename, "wb");	/* Flawfinder: ignore */ 
+		LLFILE* fp = LLFile::fopen(filename, "wb");	/* Flawfinder: ignore */ 
 		if (fp)
 		{
 			const S32 buf_size = 65536;

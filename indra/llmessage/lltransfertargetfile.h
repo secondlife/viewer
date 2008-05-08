@@ -69,7 +69,7 @@ protected:
 
 	LLTransferTargetParamsFile mParams;
 
-	FILE *mFP;
+	LLFILE *mFP;
 };
 
 #endif // LL_LLTRANSFERTARGETFILE_H

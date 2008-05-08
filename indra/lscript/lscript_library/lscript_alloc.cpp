@@ -851,7 +851,7 @@ void lsa_print_heap(U8 *buffer)
 	printf("==========\n");
 }
 
-void lsa_fprint_heap(U8 *buffer, FILE *fp)
+void lsa_fprint_heap(U8 *buffer, LLFILE *fp)
 {
 	S32				offset = get_register(buffer, LREG_HR);
 	S32				readoffset;

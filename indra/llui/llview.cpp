@@ -1306,7 +1306,7 @@ void LLView::drawDebugRect()
 
 		gGL.color4fv( border_color.mV );
 
-		gGL.begin(GL_LINES);
+		gGL.begin(LLVertexBuffer::LINES);
 			gGL.vertex2i(0, debug_rect.getHeight() - 1);
 			gGL.vertex2i(0, 0);
 

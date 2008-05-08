@@ -550,6 +550,7 @@ void render_bbox(const LLVector3 &min, const LLVector3 &max);
 
 extern LLPipeline gPipeline;
 extern BOOL gRenderForSelect;
+extern BOOL gDebugPipeline;
 extern const LLMatrix4* gGLLastMatrix;
 
 #endif

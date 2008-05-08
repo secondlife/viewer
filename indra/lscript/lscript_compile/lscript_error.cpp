@@ -40,7 +40,7 @@ S32 gInternalLine = 0;
 
 LLScriptGenerateErrorText gErrorToText;
 
-void LLScriptFilePosition::fdotabs(FILE *fp, S32 tabs, S32 tabsize)
+void LLScriptFilePosition::fdotabs(LLFILE *fp, S32 tabs, S32 tabsize)
 {
 	S32 i;
 	for (i = 0; i < tabs * tabsize; i++)
@@ -75,25 +75,25 @@ char* gErrorText[LSERROR_EOF] = 	/*Flawfinder: ignore*/
 	"Declaration requires a new scope -- use { and }"
 };
 
-void LLScriptGenerateErrorText::writeWarning(FILE *fp, LLScriptFilePosition *pos, LSCRIPTWarnings warning)
+void LLScriptGenerateErrorText::writeWarning(LLFILE *fp, LLScriptFilePosition *pos, LSCRIPTWarnings warning)
 {
 	fprintf(fp, "(%d, %d) : WARNING : %s\n", pos->mLineNumber, pos->mColumnNumber, gWarningText[warning]);
 	mTotalWarnings++;
 }
 
-void LLScriptGenerateErrorText::writeWarning(FILE *fp, S32 line, S32 col, LSCRIPTWarnings warning)
+void LLScriptGenerateErrorText::writeWarning(LLFILE *fp, S32 line, S32 col, LSCRIPTWarnings warning)
 {
 	fprintf(fp, "(%d, %d) : WARNING : %s\n", line, col, gWarningText[warning]);
 	mTotalWarnings++;
 }
 
-void LLScriptGenerateErrorText::writeError(FILE *fp, LLScriptFilePosition *pos, LSCRIPTErrors error)
+void LLScriptGenerateErrorText::writeError(LLFILE *fp, LLScriptFilePosition *pos, LSCRIPTErrors error)
 {
 	fprintf(fp, "(%d, %d) : ERROR : %s\n", pos->mLineNumber, pos->mColumnNumber, gErrorText[error]);
 	mTotalErrors++;
 }
 
-void LLScriptGenerateErrorText::writeError(FILE *fp, S32 line, S32 col, LSCRIPTErrors error)
+void LLScriptGenerateErrorText::writeError(LLFILE *fp, S32 line, S32 col, LSCRIPTErrors error)
 {
 	fprintf(fp, "(%d, %d) : ERROR : %s\n", line, col, gErrorText[error]);
 	mTotalErrors++;

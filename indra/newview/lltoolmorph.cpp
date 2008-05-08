@@ -163,8 +163,6 @@ void LLVisualParamHint::preRender(BOOL clear_depth)
 //-----------------------------------------------------------------------------
 BOOL LLVisualParamHint::render()
 {
-	gGL.start();
-	
 	LLVisualParamReset::sDirty = TRUE;
 	LLVOAvatar* avatarp = gAgent.getAvatarObject();
 
@@ -224,7 +222,7 @@ BOOL LLVisualParamHint::render()
 		mVisualParam->getCameraElevation() );
 	LLVector3 camera_pos = target_joint_pos + (camera_snapshot_offset * avatar_rotation);
 	
-	gGL.stop();
+	gGL.flush();
 	
 	LLViewerCamera::getInstance()->setAspect((F32)mWidth / (F32)mHeight);
 	LLViewerCamera::getInstance()->setOriginAndLookAt(
@@ -241,7 +239,7 @@ BOOL LLVisualParamHint::render()
 		avatarPoolp->renderAvatars(avatarp);  // renders only one avatar
 	}
 	avatarp->setVisualParamWeight(mVisualParam, mLastParamWeight);
-
+	gGL.color4f(1,1,1,1);
 	return TRUE;
 }
 
@@ -258,7 +256,7 @@ void LLVisualParamHint::draw()
 	gGL.color4f(1.f, 1.f, 1.f, 1.f);
 
 	LLGLSUIDefault gls_ui;
-	gGL.begin(GL_QUADS);
+	gGL.begin(LLVertexBuffer::QUADS);
 	{
 		gGL.texCoord2i(0, 1);
 		gGL.vertex2i(0, mHeight);

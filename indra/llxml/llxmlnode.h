@@ -133,8 +133,8 @@ public:
 	static bool updateNode(
 	LLXMLNodePtr& node,
 	LLXMLNodePtr& update_node);
-	static void writeHeaderToFile(FILE *fOut);
-    void writeToFile(FILE *fOut, LLString indent = LLString());
+	static void writeHeaderToFile(LLFILE *fOut);
+    void writeToFile(LLFILE *fOut, LLString indent = LLString());
     void writeToOstream(std::ostream& output_stream, const LLString& indent = LLString());
 
     // Utility

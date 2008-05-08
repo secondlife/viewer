@@ -223,17 +223,18 @@ BOOL LLDynamicTexture::updateAllInstances()
 				glClear(GL_DEPTH_BUFFER_BIT);
 				gDisplaySwapBuffers = FALSE;
 				
+				
+				gGL.color4f(1,1,1,1);
 				dynamicTexture->preRender();	// Must be called outside of startRender()
 
-				LLVertexBuffer::startRender();
-								
 				if (dynamicTexture->render())
 				{
 					result = TRUE;
 					sNumRenders++;
 				}
-				LLVertexBuffer::stopRender();
-		
+				gGL.flush();
+				LLVertexBuffer::unbind();
+				
 				dynamicTexture->postRender(result);
 			}
 		}

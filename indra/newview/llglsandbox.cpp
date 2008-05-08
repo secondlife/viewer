@@ -358,7 +358,7 @@ void LLCompass::draw()
 		mBkgndTexture->bind();
 		gGL.color4f(1.0f, 1.0f, 1.0f, 1.0f);
 		
-		gGL.begin(GL_QUADS);
+		gGL.begin(LLVertexBuffer::QUADS);
 		
 		gGL.texCoord2f(1.f, 1.f);
 		gGL.vertex2i(width, height);
@@ -384,7 +384,7 @@ void LLCompass::draw()
 		mTexture->bind();
 		gGL.color4f(1.0f, 1.0f, 1.0f, 1.0f);
 		
-		gGL.begin(GL_QUADS);
+		gGL.begin(LLVertexBuffer::QUADS);
 		
 		gGL.texCoord2f(1.f, 1.f);
 		gGL.vertex2i(width, height);
@@ -428,7 +428,7 @@ void LLHorizontalCompass::draw()
 
 		mTexture->bind();
 		gGL.color4f(1.0f, 1.0f, 1.0f, 1.0f );
-		gGL.begin( GL_QUADS );
+		gGL.begin( LLVertexBuffer::QUADS );
 
 		gGL.texCoord2f(right, 1.f);
 		gGL.vertex2i(width, height);
@@ -479,11 +479,11 @@ void LLWind::renderVectors()
 			gGL.pushMatrix();
 			gGL.translatef((F32)i * region_width_meters/mSize, (F32)j * region_width_meters/mSize, 0.0);
 			gGL.color3f(0,1,0);
-			gGL.begin(GL_POINTS);
+			gGL.begin(LLVertexBuffer::POINTS);
 				gGL.vertex3f(0,0,0);
 			gGL.end();
 			gGL.color3f(1,0,0);
-			gGL.begin(GL_LINES);
+			gGL.begin(LLVertexBuffer::LINES);
 				gGL.vertex3f(x * 0.1f, y * 0.1f ,0.f);
 				gGL.vertex3f(x, y, 0.f);
 			gGL.end();
@@ -532,7 +532,7 @@ void LLViewerParcelMgr::renderRect(const LLVector3d &west_south_bottom_global,
 	gGL.color4f(1.f, 1.f, 0.f, 1.f);
 
 	// Cheat and give this the same pick-name as land
-	gGL.begin(GL_LINES);
+	gGL.begin(LLVertexBuffer::LINES);
 
 	gGL.vertex3f(west, north, nw_bottom);
 	gGL.vertex3f(west, north, nw_top);
@@ -549,7 +549,7 @@ void LLViewerParcelMgr::renderRect(const LLVector3d &west_south_bottom_global,
 	gGL.end();
 
 	gGL.color4f(1.f, 1.f, 0.f, 0.2f);
-	gGL.begin(GL_QUADS);
+	gGL.begin(LLVertexBuffer::QUADS);
 
 	gGL.vertex3f(west, north, nw_bottom);
 	gGL.vertex3f(west, north, nw_top);
@@ -616,7 +616,7 @@ void LLViewerParcelMgr::renderParcel(LLParcel* parcel )
 		gGL.color4f(0.f, 1.f, 1.f, 1.f);
 
 		// Cheat and give this the same pick-name as land
-		gGL.begin(GL_LINES);
+		gGL.begin(LLVertexBuffer::LINES);
 
 		gGL.vertex3f(west, north, nw_bottom);
 		gGL.vertex3f(west, north, nw_top);
@@ -633,7 +633,7 @@ void LLViewerParcelMgr::renderParcel(LLParcel* parcel )
 		gGL.end();
 
 		gGL.color4f(0.f, 1.f, 1.f, 0.2f);
-		gGL.begin(GL_QUADS);
+		gGL.begin(LLVertexBuffer::QUADS);
 
 		gGL.vertex3f(west, north, nw_bottom);
 		gGL.vertex3f(west, north, nw_top);
@@ -786,7 +786,7 @@ void LLViewerParcelMgr::renderHighlightSegments(const U8* segments, LLViewerRegi
 				if (!has_segments)
 				{
 					has_segments = true;
-					gGL.begin(GL_QUADS);
+					gGL.begin(LLVertexBuffer::QUADS);
 				}
 				renderOneSegment(x1, y1, x2, y2, PARCEL_POST_HEIGHT, SOUTH_MASK, regionp);
 			}
@@ -802,7 +802,7 @@ void LLViewerParcelMgr::renderHighlightSegments(const U8* segments, LLViewerRegi
 				if (!has_segments)
 				{
 					has_segments = true;
-					gGL.begin(GL_QUADS);
+					gGL.begin(LLVertexBuffer::QUADS);
 				}
 				renderOneSegment(x1, y1, x2, y2, PARCEL_POST_HEIGHT, WEST_MASK, regionp);
 			}
@@ -857,7 +857,7 @@ void LLViewerParcelMgr::renderCollisionSegments(U8* segments, BOOL use_pass, LLV
 		LLViewerImage::bindTexture(mBlockedImage);
 	}
 
-	gGL.begin(GL_QUADS);
+	gGL.begin(LLVertexBuffer::QUADS);
 
 	for (y = 0; y < STRIDE; y++)
 	{
@@ -1014,7 +1014,7 @@ void LLViewerObjectList::renderObjectBeacons()
 		LLGLSNoTexture gls_ui_no_texture;
 
 		S32 last_line_width = -1;
-		// gGL.begin(GL_LINES); // Always happens in (line_width != last_line_width)
+		// gGL.begin(LLVertexBuffer::LINES); // Always happens in (line_width != last_line_width)
 		
 		for (S32 i = 0; i < mDebugBeacons.count(); i++)
 		{
@@ -1031,7 +1031,7 @@ void LLViewerObjectList::renderObjectBeacons()
 				}
 				glLineWidth( (F32)line_width );
 				last_line_width = line_width;
-				gGL.begin(GL_LINES);
+				gGL.begin(LLVertexBuffer::LINES);
 			}
 
 			const LLVector3 &thisline = debug_beacon.mPositionAgent;
@@ -1053,7 +1053,7 @@ void LLViewerObjectList::renderObjectBeacons()
 		LLGLDepthTest gls_depth(GL_TRUE);
 		
 		S32 last_line_width = -1;
-		// gGL.begin(GL_LINES); // Always happens in (line_width != last_line_width)
+		// gGL.begin(LLVertexBuffer::LINES); // Always happens in (line_width != last_line_width)
 		
 		for (S32 i = 0; i < mDebugBeacons.count(); i++)
 		{
@@ -1069,7 +1069,7 @@ void LLViewerObjectList::renderObjectBeacons()
 				}
 				glLineWidth( (F32)line_width );
 				last_line_width = line_width;
-				gGL.begin(GL_LINES);
+				gGL.begin(LLVertexBuffer::LINES);
 			}
 
 			const LLVector3 &thisline = debug_beacon.mPositionAgent;

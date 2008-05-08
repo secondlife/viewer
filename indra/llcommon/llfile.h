@@ -42,6 +42,8 @@
 
 typedef FILE	LLFILE;
 
+#include <fstream>
+
 #ifdef LL_WINDOWS
 #define	USE_LLFILESTREAMS	1
 #else

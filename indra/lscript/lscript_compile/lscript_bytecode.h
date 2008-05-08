@@ -77,7 +77,7 @@ public:
 	LLScriptScriptCodeChunk(S32 total_size);
 	~LLScriptScriptCodeChunk();
 
-	void build(FILE *efp, FILE *bcfp);
+	void build(LLFILE *efp, LLFILE *bcfp);
 
 	LLScriptByteCodeChunk				*mRegisters;	
 	LLScriptByteCodeChunk				*mGlobalVariables;	

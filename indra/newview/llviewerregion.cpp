@@ -214,7 +214,7 @@ void LLViewerRegion::loadCache()
 		U32(mHandle>>32)/REGION_WIDTH_UNITS, 
 		U32(mHandle)/REGION_WIDTH_UNITS );
 
-	FILE* fp = LLFile::fopen(filename, "rb");		/* Flawfinder: ignore */
+	LLFILE* fp = LLFile::fopen(filename, "rb");		/* Flawfinder: ignore */
 	if (!fp)
 	{
 		// might not have a file, which is normal
@@ -303,7 +303,7 @@ void LLViewerRegion::saveCache()
 		U32(mHandle>>32)/REGION_WIDTH_UNITS, 
 		U32(mHandle)/REGION_WIDTH_UNITS );
 
-	FILE* fp = LLFile::fopen(filename, "wb");		/* Flawfinder: ignore */
+	LLFILE* fp = LLFile::fopen(filename, "wb");		/* Flawfinder: ignore */
 	if (!fp)
 	{
 		llwarns << "Unable to write cache file " << filename << llendl;

@@ -591,7 +591,7 @@ void upload_new_resource(const LLString& src_filename, std::string name,
 	{	 	
 		// This is a generic .lin resource file	 	
          asset_type = LLAssetType::AT_OBJECT;	 	
-         FILE* in = LLFile::fopen(src_filename.c_str(), "rb");		/* Flawfinder: ignore */	 	
+         LLFILE* in = LLFile::fopen(src_filename.c_str(), "rb");		/* Flawfinder: ignore */	 	
          if (in)	 	
          {	 	
                  // read in the file header	 	
@@ -676,7 +676,7 @@ void upload_new_resource(const LLString& src_filename, std::string name,
                  }	 	
 
                  // copy the file's data segment into another file for uploading	 	
-                 FILE* out = LLFile::fopen(filename.c_str(), "wb");		/* Flawfinder: ignore */	
+                 LLFILE* out = LLFile::fopen(filename.c_str(), "wb");		/* Flawfinder: ignore */	
                  if (out)	 	
                  {	 	
                          while((read = fread(buf, 1, 16384, in)))		/* Flawfinder: ignore */	 	

@@ -81,7 +81,7 @@ void LLBox::renderface(S32 which_face)
 		{7, 4, 0, 3}
 	};
 
-	gGL.begin(GL_QUADS);
+	gGL.begin(LLVertexBuffer::QUADS);
 		//gGL.normal3fv(&normals[which_face][0]);
 		gGL.texCoord2f(1,0);
 		gGL.vertex3fv(&mVertex[ faces[which_face][0] ][0]);

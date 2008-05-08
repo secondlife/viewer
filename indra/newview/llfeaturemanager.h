@@ -76,7 +76,7 @@ public:
 	void setFeatureAvailable(const char *name, const BOOL available);
 	void setRecommendedLevel(const char *name, const F32 level);
 
-	BOOL loadFeatureList(FILE *fp);
+	BOOL loadFeatureList(LLFILE *fp);
 
 	BOOL maskList(LLFeatureList &mask);
 

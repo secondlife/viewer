@@ -76,7 +76,7 @@ void LLLogChat::saveHistory(LLString filename, LLString line)
 		return;
 	}
 
-	FILE* fp = LLFile::fopen(LLLogChat::makeLogFileName(filename).c_str(), "a"); 		/*Flawfinder: ignore*/
+	LLFILE* fp = LLFile::fopen(LLLogChat::makeLogFileName(filename).c_str(), "a"); 		/*Flawfinder: ignore*/
 	if (!fp)
 	{
 		llinfos << "Couldn't open chat history log!" << llendl;
@@ -96,7 +96,7 @@ void LLLogChat::loadHistory(LLString filename , void (*callback)(ELogLineType,LL
 		llerrs << "Filename is Empty!" << llendl;
 	}
 
-	FILE* fptr = LLFile::fopen(makeLogFileName(filename).c_str(), "r");		/*Flawfinder: ignore*/
+	LLFILE* fptr = LLFile::fopen(makeLogFileName(filename).c_str(), "r");		/*Flawfinder: ignore*/
 	if (!fptr)
 	{
 		//LLUIString message = LLFloaterChat::getInstance()->getUIString("IM_logging_string");

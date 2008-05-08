@@ -391,7 +391,7 @@ void LLManip::renderGuidelines(BOOL draw_x, BOOL draw_y, BOOL draw_z)
 		if (draw_x)
 		{
 			gGL.color4f(1.f, 0.f, 0.f, LINE_ALPHA);
-			gGL.begin(GL_LINES);
+			gGL.begin(LLVertexBuffer::LINES);
 			gGL.vertex3f( -region_size, 0.f, 0.f );
 			gGL.vertex3f(  region_size, 0.f, 0.f );
 			gGL.end();
@@ -400,7 +400,7 @@ void LLManip::renderGuidelines(BOOL draw_x, BOOL draw_y, BOOL draw_z)
 		if (draw_y)
 		{
 			gGL.color4f(0.f, 1.f, 0.f, LINE_ALPHA);
-			gGL.begin(GL_LINES);
+			gGL.begin(LLVertexBuffer::LINES);
 			gGL.vertex3f( 0.f, -region_size, 0.f );
 			gGL.vertex3f( 0.f,  region_size, 0.f );
 			gGL.end();
@@ -409,7 +409,7 @@ void LLManip::renderGuidelines(BOOL draw_x, BOOL draw_y, BOOL draw_z)
 		if (draw_z)
 		{
 			gGL.color4f(0.f, 0.f, 1.f, LINE_ALPHA);
-			gGL.begin(GL_LINES);
+			gGL.begin(LLVertexBuffer::LINES);
 			gGL.vertex3f( 0.f, 0.f, -region_size );
 			gGL.vertex3f( 0.f, 0.f,  region_size );
 			gGL.end();

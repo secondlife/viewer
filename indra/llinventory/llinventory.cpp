@@ -217,7 +217,7 @@ BOOL LLInventoryObject::importLegacyStream(std::istream& input_stream)
 
 // exportFile should be replaced with exportLegacyStream
 // not sure whether exportLegacyStream(llofstream(fp)) would work, fp may need to get icramented...
-BOOL LLInventoryObject::exportFile(FILE* fp, BOOL) const
+BOOL LLInventoryObject::exportFile(LLFILE* fp, BOOL) const
 {
 	char uuid_str[UUID_STR_LENGTH];	/* Flawfinder: ignore */
 	fprintf(fp, "\tinv_object\t0\n\t{\n");
@@ -520,7 +520,7 @@ BOOL LLInventoryItem::unpackMessage(LLMessageSystem* msg, const char* block, S32
 }
 
 // virtual
-BOOL LLInventoryItem::importFile(FILE* fp)
+BOOL LLInventoryItem::importFile(LLFILE* fp)
 {
 	// *NOTE: Changing the buffer size will require changing the scanf
 	// calls below.
@@ -674,7 +674,7 @@ BOOL LLInventoryItem::importFile(FILE* fp)
 	return success;
 }
 
-BOOL LLInventoryItem::exportFile(FILE* fp, BOOL include_asset_key) const
+BOOL LLInventoryItem::exportFile(LLFILE* fp, BOOL include_asset_key) const
 {
 	char uuid_str[UUID_STR_LENGTH];	/* Flawfinder: ignore */
 	fprintf(fp, "\tinv_item\t0\n\t{\n");
@@ -1429,7 +1429,7 @@ void LLInventoryCategory::unpackMessage(LLMessageSystem* msg,
 }
 	
 // virtual
-BOOL LLInventoryCategory::importFile(FILE* fp)
+BOOL LLInventoryCategory::importFile(LLFILE* fp)
 {
 	// *NOTE: Changing the buffer size will require changing the scanf
 	// calls below.
@@ -1495,7 +1495,7 @@ BOOL LLInventoryCategory::importFile(FILE* fp)
 	return TRUE;
 }
 
-BOOL LLInventoryCategory::exportFile(FILE* fp, BOOL) const
+BOOL LLInventoryCategory::exportFile(LLFILE* fp, BOOL) const
 {
 	char uuid_str[UUID_STR_LENGTH];	/* Flawfinder: ignore */
 	fprintf(fp, "\tinv_category\t0\n\t{\n");

@@ -51,7 +51,7 @@ public:
 	LLPolyMorphData(char *morph_name);
 	~LLPolyMorphData();
 
-	BOOL			loadBinary(FILE* fp, LLPolyMeshSharedData *mesh);
+	BOOL			loadBinary(LLFILE* fp, LLPolyMeshSharedData *mesh);
 	char*			loadASCII(char* text, LLPolyMeshSharedData *mesh);
 	char*			getName() { return mName; }
 

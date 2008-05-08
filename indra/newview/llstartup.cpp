@@ -438,7 +438,7 @@ BOOL idle_startup()
 
 		std::string message_template_path = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,"message_template.msg");
 
-		FILE* found_template = NULL;
+		LLFILE* found_template = NULL;
 		found_template = LLFile::fopen(message_template_path.c_str(), "r");		/* Flawfinder: ignore */
 		if (found_template)
 		{
@@ -2439,7 +2439,7 @@ LLString load_password_from_disk()
 
 	std::string filepath = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS,
 													   "password.dat");
-	FILE* fp = LLFile::fopen(filepath.c_str(), "rb");		/* Flawfinder: ignore */
+	LLFILE* fp = LLFile::fopen(filepath.c_str(), "rb");		/* Flawfinder: ignore */
 	if (!fp)
 	{
 		return hashed_password;
@@ -2486,7 +2486,7 @@ void save_password_to_disk(const char* hashed_password)
 	}
 	else
 	{
-		FILE* fp = LLFile::fopen(filepath.c_str(), "wb");		/* Flawfinder: ignore */
+		LLFILE* fp = LLFile::fopen(filepath.c_str(), "wb");		/* Flawfinder: ignore */
 		if (!fp)
 		{
 			return;

@@ -1253,7 +1253,7 @@ void LLManipTranslate::renderSnapGuides()
 		{
 			LLColor4 line_color = setupSnapGuideRenderPass(pass);
 
-			gGL.begin(GL_LINES);
+			gGL.begin(LLVertexBuffer::LINES);
 			{
 				LLVector3 line_start = selection_center + (mSnapOffsetMeters * mSnapOffsetAxis) + (translate_axis * (guide_size_meters * 0.5f + offset_nearest_grid_unit));
 				LLVector3 line_end = selection_center + (mSnapOffsetMeters * mSnapOffsetAxis) - (translate_axis * (guide_size_meters * 0.5f + offset_nearest_grid_unit));
@@ -1329,7 +1329,7 @@ void LLManipTranslate::renderSnapGuides()
 				LLVector3 line_start = selection_center - mSnapOffsetAxis * mSnapOffsetMeters;
 				LLVector3 line_end = selection_center + mSnapOffsetAxis * mSnapOffsetMeters;
 
-				gGL.begin(GL_LINES);
+				gGL.begin(LLVertexBuffer::LINES);
 				{
 					gGL.color4f(line_color.mV[VX], line_color.mV[VY], line_color.mV[VZ], line_color.mV[VW]);
 
@@ -1339,7 +1339,7 @@ void LLManipTranslate::renderSnapGuides()
 				gGL.end();
 
 				// draw snap guide arrow
-				gGL.begin(GL_TRIANGLES);
+				gGL.begin(LLVertexBuffer::TRIANGLES);
 				{
 					gGL.color4f(line_color.mV[VX], line_color.mV[VY], line_color.mV[VZ], line_color.mV[VW]);
 
@@ -1594,7 +1594,7 @@ void LLManipTranslate::renderGrid(F32 x, F32 y, F32 size, F32 r, F32 g, F32 b, F
 
 	for (F32 xx = -size-d; xx < size+d; xx += d)
 	{
-		gGL.begin(GL_TRIANGLE_STRIP);
+		gGL.begin(LLVertexBuffer::TRIANGLE_STRIP);
 		for (F32 yy = -size-d; yy < size+d; yy += d)
 		{
 			float dx, dy, da;
@@ -1640,7 +1640,7 @@ void LLManipTranslate::highlightIntersection(LLVector3 normal,
 
 	GLuint stencil_mask = 0xFFFFFFFF;
 	//stencil in volumes
-	gGL.stop();
+	gGL.flush();
 	{
 		glStencilMask(stencil_mask);
 		glClearStencil(1);
@@ -1702,7 +1702,7 @@ void LLManipTranslate::highlightIntersection(LLVector3 normal,
 
 		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
 	}
-	gGL.start();
+	gGL.color4f(1,1,1,1);
 
 	gGL.pushMatrix();
 
@@ -1907,7 +1907,7 @@ void LLManipTranslate::renderTranslationHandles()
 					color1.setVec(0.f, 1.f, 0.f, 0.6f);
 					color2.setVec(0.f, 0.f, 1.f, 0.6f);
 				}
-				gGL.begin(GL_TRIANGLES);
+				gGL.begin(LLVertexBuffer::TRIANGLES);
 				{
 					gGL.color4fv(color1.mV);
 					gGL.vertex3f(0.f, mPlaneManipOffsetMeters * (-PLANE_TICK_SIZE * 0.25f), mPlaneManipOffsetMeters * (-PLANE_TICK_SIZE * 0.25f));
@@ -1922,7 +1922,7 @@ void LLManipTranslate::renderTranslationHandles()
 				gGL.end();
 
 				LLUI::setLineWidth(3.0f);
-				gGL.begin(GL_LINES);
+				gGL.begin(LLVertexBuffer::LINES);
 				{
 					gGL.color4f(0.f, 0.f, 0.f, 0.3f);
 					gGL.vertex3f(0.f, mPlaneManipOffsetMeters * -PLANE_TICK_SIZE * 0.25f,  mPlaneManipOffsetMeters * -PLANE_TICK_SIZE * 0.25f);
@@ -1962,7 +1962,7 @@ void LLManipTranslate::renderTranslationHandles()
 					color2.setVec(1.f, 0.f, 0.f, 0.6f);
 				}
 
-				gGL.begin(GL_TRIANGLES);
+				gGL.begin(LLVertexBuffer::TRIANGLES);
 				{
 					gGL.color4fv(color1.mV);
 					gGL.vertex3f(mPlaneManipOffsetMeters * (PLANE_TICK_SIZE * 0.25f), 0.f, mPlaneManipOffsetMeters * (PLANE_TICK_SIZE * 0.25f));
@@ -1977,7 +1977,7 @@ void LLManipTranslate::renderTranslationHandles()
 				gGL.end();
 
 				LLUI::setLineWidth(3.0f);
-				gGL.begin(GL_LINES);
+				gGL.begin(LLVertexBuffer::LINES);
 				{
 					gGL.color4f(0.f, 0.f, 0.f, 0.3f);
 					gGL.vertex3f(mPlaneManipOffsetMeters * -PLANE_TICK_SIZE * 0.25f,  0.f, mPlaneManipOffsetMeters * -PLANE_TICK_SIZE * 0.25f);
@@ -2041,7 +2041,7 @@ void LLManipTranslate::renderTranslationHandles()
 						color2.setVec(0.f, 0.8f, 0.f, 0.6f);
 					}
 				
-					gGL.begin(GL_TRIANGLES);
+					gGL.begin(LLVertexBuffer::TRIANGLES);
 					{
 						gGL.color4fv(color1.mV);
 						gGL.vertex3fv(v0.mV);
@@ -2056,7 +2056,7 @@ void LLManipTranslate::renderTranslationHandles()
 					gGL.end();
 
 					LLUI::setLineWidth(3.0f);
-					gGL.begin(GL_LINES);
+					gGL.begin(LLVertexBuffer::LINES);
 					{
 						gGL.color4f(0.f, 0.f, 0.f, 0.3f);
 						LLVector3 v12 = (v1 + v2) * .5f;
@@ -2190,7 +2190,7 @@ void LLManipTranslate::renderArrow(S32 which_arrow, S32 selected_arrow, F32 box_
 
 		{
 			LLUI::setLineWidth(2.0f);
-			gGL.begin(GL_LINES);
+			gGL.begin(LLVertexBuffer::LINES);
 				vec.mV[index] = box_size;
 				gGL.vertex3f(vec.mV[0], vec.mV[1], vec.mV[2]);
 

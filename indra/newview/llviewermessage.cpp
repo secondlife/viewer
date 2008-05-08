@@ -345,7 +345,7 @@ void export_complete()
 		gExporterRequestID.setNull();
 		gExportDirectory = "";
 
-		FILE* fXML = LLFile::fopen(gExportedFile.c_str(), "rb");		/* Flawfinder: ignore */
+		LLFILE* fXML = LLFile::fopen(gExportedFile.c_str(), "rb");		/* Flawfinder: ignore */
 		fseek(fXML, 0, SEEK_END);
 		long length = ftell(fXML);
 		fseek(fXML, 0, SEEK_SET);
@@ -390,7 +390,7 @@ void export_complete()
 			}
 		}
 
-		FILE* fXMLOut = LLFile::fopen(gExportedFile.c_str(), "wb");		/* Flawfinder: ignore */
+		LLFILE* fXMLOut = LLFile::fopen(gExportedFile.c_str(), "wb");		/* Flawfinder: ignore */
 		if (fwrite(buffer, 1, length, fXMLOut) != length)
 		{
 			llwarns << "Short write" << llendl;
@@ -446,7 +446,7 @@ void exported_j2c_complete(const LLTSCode status, void *user_data)
 	}
 	else
 	{
-		FILE* fIn = LLFile::fopen(filename.c_str(), "rb");		/* Flawfinder: ignore */
+		LLFILE* fIn = LLFile::fopen(filename.c_str(), "rb");		/* Flawfinder: ignore */
 		if (fIn) 
 		{
 			LLPointer<LLImageJ2C> ImageUtility = new LLImageJ2C;
@@ -481,7 +481,7 @@ void exported_j2c_complete(const LLTSCode status, void *user_data)
 			delete [] file_path;
 			//S32 name_len = output_file.length();
 			//strcpy(&output_file[name_len-3], "tga");
-			FILE* fOut = LLFile::fopen(output_file.c_str(), "wb");		/* Flawfinder: ignore */
+			LLFILE* fOut = LLFile::fopen(output_file.c_str(), "wb");		/* Flawfinder: ignore */
 			char md5_hash_string[33];		/* Flawfinder: ignore */
 			strcpy(md5_hash_string, "00000000000000000000000000000000");		/* Flawfinder: ignore */
 			if (fOut)

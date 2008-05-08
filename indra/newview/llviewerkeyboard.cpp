@@ -738,7 +738,7 @@ BOOL LLViewerKeyboard::bindKey(const S32 mode, const KEY key, const MASK mask, c
 
 S32 LLViewerKeyboard::loadBindings(const char *filename)
 {
-	FILE *fp;
+	LLFILE *fp;
 	const S32 BUFFER_SIZE = 2048;
 	char buffer[BUFFER_SIZE];	/* Flawfinder: ignore */
 	// *NOTE: This buffer size is hard coded into scanf() below.

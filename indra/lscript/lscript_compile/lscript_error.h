@@ -84,13 +84,13 @@ public:
 
 	virtual ~LLScriptFilePosition() {}
 
-	virtual void recurse(FILE *fp, S32 tabs, S32 tabsize, 
+	virtual void recurse(LLFILE *fp, S32 tabs, S32 tabsize, 
 						LSCRIPTCompilePass pass, LSCRIPTPruneType ptype, BOOL &prunearg, 
 						LLScriptScope *scope, LSCRIPTType &type, LSCRIPTType basetype, U64 &count, 
 						LLScriptByteCodeChunk *chunk, LLScriptByteCodeChunk *heap, S32 stacksize, LLScriptScopeEntry *entry, S32 entrycount, LLScriptLibData **ldata) = 0;
 	virtual S32 getSize() = 0;
 
-	void fdotabs(FILE *fp, S32 tabs, S32 tabsize);
+	void fdotabs(LLFILE *fp, S32 tabs, S32 tabsize);
 
 	S32 mLineNumber;
 	S32 mColumnNumber;
@@ -135,10 +135,10 @@ public:
 
 	void init() { mTotalErrors = 0; mTotalWarnings = 0; }
 
-	void writeWarning(FILE *fp, LLScriptFilePosition *pos, LSCRIPTWarnings warning);
-	void writeWarning(FILE *fp, S32 line, S32 col, LSCRIPTWarnings warning);
-	void writeError(FILE *fp, LLScriptFilePosition *pos, LSCRIPTErrors error);
-	void writeError(FILE *fp, S32 line, S32 col, LSCRIPTErrors error);
+	void writeWarning(LLFILE *fp, LLScriptFilePosition *pos, LSCRIPTWarnings warning);
+	void writeWarning(LLFILE *fp, S32 line, S32 col, LSCRIPTWarnings warning);
+	void writeError(LLFILE *fp, LLScriptFilePosition *pos, LSCRIPTErrors error);
+	void writeError(LLFILE *fp, S32 line, S32 col, LSCRIPTErrors error);
 
 	BOOL getErrors() { return mTotalErrors; }
 	BOOL getWarnings() { return mTotalWarnings; }

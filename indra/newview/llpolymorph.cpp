@@ -83,7 +83,7 @@ LLPolyMorphData::~LLPolyMorphData()
 //-----------------------------------------------------------------------------
 // loadBinary()
 //-----------------------------------------------------------------------------
-BOOL LLPolyMorphData::loadBinary(FILE *fp, LLPolyMeshSharedData *mesh)
+BOOL LLPolyMorphData::loadBinary(LLFILE *fp, LLPolyMeshSharedData *mesh)
 {
 	S32 numVertices;
 	S32 numRead;

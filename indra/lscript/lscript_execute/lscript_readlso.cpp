@@ -35,7 +35,7 @@
 #include "lscript_library.h"
 #include "lscript_alloc.h"
 
-LLScriptLSOParse::LLScriptLSOParse(FILE *fp)
+LLScriptLSOParse::LLScriptLSOParse(LLFILE *fp)
 {
 	U8  sizearray[4];
 	S32 filesize;
@@ -68,7 +68,7 @@ LLScriptLSOParse::~LLScriptLSOParse()
 	delete [] mRawData;
 }
 
-void LLScriptLSOParse::printData(FILE *fp)
+void LLScriptLSOParse::printData(LLFILE *fp)
 {
 	
 
@@ -86,14 +86,14 @@ void LLScriptLSOParse::printData(FILE *fp)
 	printHeap(fp);
 }
 
-void LLScriptLSOParse::printNameDesc(FILE *fp)
+void LLScriptLSOParse::printNameDesc(LLFILE *fp)
 {
 	fprintf(fp, "=============================\n\n");
 }
 
 S32 gMajorVersion = 0;
 
-void LLScriptLSOParse::printRegisters(FILE *fp)
+void LLScriptLSOParse::printRegisters(LLFILE *fp)
 {
 	// print out registers first
 	S32				i;
@@ -125,7 +125,7 @@ void LLScriptLSOParse::printRegisters(FILE *fp)
 	fprintf(fp, "=============================\n\n");
 }
 
-void LLScriptLSOParse::printGlobals(FILE *fp)
+void LLScriptLSOParse::printGlobals(LLFILE *fp)
 {
 	// print out registers first
 	S32				offset, varoffset;
@@ -195,7 +195,7 @@ void LLScriptLSOParse::printGlobals(FILE *fp)
 	fprintf(fp, "=============================\n\n");
 }
 
-void LLScriptLSOParse::printGlobalFunctions(FILE *fp)
+void LLScriptLSOParse::printGlobalFunctions(LLFILE *fp)
 {
 	// print out registers first
 	S32				i, offset;
@@ -284,7 +284,7 @@ void LLScriptLSOParse::printGlobalFunctions(FILE *fp)
 	fprintf(fp, "=============================\n\n");
 }
 
-void LLScriptLSOParse::printStates(FILE *fp)
+void LLScriptLSOParse::printStates(LLFILE *fp)
 {
 	// print out registers first
 	S32				i, offset;
@@ -637,7 +637,7 @@ void LLScriptLSOParse::printStates(FILE *fp)
 	fprintf(fp, "=============================\n\n");
 }
 
-void LLScriptLSOParse::printHeap(FILE *fp)
+void LLScriptLSOParse::printHeap(LLFILE *fp)
 {
 	// print out registers first
 
@@ -652,7 +652,7 @@ void LLScriptLSOParse::printHeap(FILE *fp)
 	fprintf(fp, "=============================\n\n");
 }
 
-void lso_print_tabs(FILE *fp, S32 tabs)
+void lso_print_tabs(LLFILE *fp, S32 tabs)
 {
 	S32 i;
 	for (i = 0; i < tabs; i++)
@@ -661,13 +661,13 @@ void lso_print_tabs(FILE *fp, S32 tabs)
 	}
 }
 
-void LLScriptLSOParse::printOpCodes(FILE *fp, S32 &offset, S32 tabs)
+void LLScriptLSOParse::printOpCodes(LLFILE *fp, S32 &offset, S32 tabs)
 {
 	U8 opcode = *(mRawData + offset);
 	mPrintOpCodes[opcode](fp, mRawData, offset, tabs);
 }
 
-void LLScriptLSOParse::printOpCodeRange(FILE *fp, S32 start, S32 end, S32 tabs)
+void LLScriptLSOParse::printOpCodeRange(LLFILE *fp, S32 start, S32 end, S32 tabs)
 {
 	while (start < end)
 	{
@@ -791,43 +791,43 @@ void LLScriptLSOParse::initOpCodePrinting()
 	mPrintOpCodes[LSCRIPTOpCodes[LOPC_CALLLIB_TWO_BYTE]] = print_calllib_two_byte;
 }
 
-void print_noop(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_noop(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	lso_print_tabs(fp, tabs);
 	fprintf(fp, "[0x%X]\tNOOP\n", offset++);
 }
 
-void print_pop(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_pop(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	lso_print_tabs(fp, tabs);
 	fprintf(fp, "[0x%X]\tPOP\n", offset++);
 }
 
-void print_pops(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_pops(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	lso_print_tabs(fp, tabs);
 	fprintf(fp, "[0x%X]\tPOPS\n", offset++);
 }
 
-void print_popl(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_popl(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	lso_print_tabs(fp, tabs);
 	fprintf(fp, "[0x%X]\tPOPL\n", offset++);
 }
 
-void print_popv(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_popv(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	lso_print_tabs(fp, tabs);
 	fprintf(fp, "[0x%X]\tPOPV\n", offset++);
 }
 
-void print_popq(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_popq(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	lso_print_tabs(fp, tabs);
 	fprintf(fp, "[0x%X]\tPOPQ\n", offset++);
 }
 
-void print_poparg(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_poparg(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	S32 arg;
 	lso_print_tabs(fp, tabs);
@@ -836,61 +836,61 @@ void print_poparg(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 	fprintf(fp, "%d\n", arg);
 }
 
-void print_popip(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_popip(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	lso_print_tabs(fp, tabs);
 	fprintf(fp, "[0x%X]\tPOPIP\n", offset++);
 }
 
-void print_popbp(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_popbp(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	lso_print_tabs(fp, tabs);
 	fprintf(fp, "[0x%X]\tPOPBP\n", offset++);
 }
 
-void print_popsp(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_popsp(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	lso_print_tabs(fp, tabs);
 	fprintf(fp, "[0x%X]\tPOPSP\n", offset++);
 }
 
-void print_popslr(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_popslr(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	lso_print_tabs(fp, tabs);
 	fprintf(fp, "[0x%X]\tPOPSLR\n", offset++);
 }
 
-void print_dup(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_dup(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	lso_print_tabs(fp, tabs);
 	fprintf(fp, "[0x%X]\tDUP\n", offset++);
 }
 
-void print_dups(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_dups(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	lso_print_tabs(fp, tabs);
 	fprintf(fp, "[0x%X]\tDUPS\n", offset++);
 }
 
-void print_dupl(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_dupl(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	lso_print_tabs(fp, tabs);
 	fprintf(fp, "[0x%X]\tDUPL\n", offset++);
 }
 
-void print_dupv(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_dupv(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	lso_print_tabs(fp, tabs);
 	fprintf(fp, "[0x%X]\tDUPV\n", offset++);
 }
 
-void print_dupq(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_dupq(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	lso_print_tabs(fp, tabs);
 	fprintf(fp, "[0x%X]\tDUPQ\n", offset++);
 }
 
-void print_store(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_store(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	S32 arg;
 	lso_print_tabs(fp, tabs);
@@ -899,7 +899,7 @@ void print_store(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 	fprintf(fp, "%d\n", arg);
 }
 
-void print_stores(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_stores(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	S32 arg;
 	lso_print_tabs(fp, tabs);
@@ -908,7 +908,7 @@ void print_stores(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 	fprintf(fp, "%d\n", arg);
 }
 
-void print_storel(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_storel(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	S32 arg;
 	lso_print_tabs(fp, tabs);
@@ -917,7 +917,7 @@ void print_storel(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 	fprintf(fp, "%d\n", arg);
 }
 
-void print_storev(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_storev(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	S32 arg;
 	lso_print_tabs(fp, tabs);
@@ -926,7 +926,7 @@ void print_storev(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 	fprintf(fp, "%d\n", arg);
 }
 
-void print_storeq(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_storeq(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	S32 arg;
 	lso_print_tabs(fp, tabs);
@@ -935,7 +935,7 @@ void print_storeq(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 	fprintf(fp, "%d\n", arg);
 }
 
-void print_storeg(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_storeg(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	S32 arg;
 	lso_print_tabs(fp, tabs);
@@ -944,7 +944,7 @@ void print_storeg(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 	fprintf(fp, "%d\n", arg + get_register(buffer, LREG_GVR));
 }
 
-void print_storegs(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_storegs(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	S32 arg;
 	lso_print_tabs(fp, tabs);
@@ -953,7 +953,7 @@ void print_storegs(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 	fprintf(fp, "%d\n", arg + get_register(buffer, LREG_GVR));
 }
 
-void print_storegl(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_storegl(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	S32 arg;
 	lso_print_tabs(fp, tabs);
@@ -962,7 +962,7 @@ void print_storegl(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 	fprintf(fp, "%d\n", arg + get_register(buffer, LREG_GVR));
 }
 
-void print_storegv(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_storegv(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	S32 arg;
 	lso_print_tabs(fp, tabs);
@@ -971,7 +971,7 @@ void print_storegv(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 	fprintf(fp, "%d\n", arg + get_register(buffer, LREG_GVR));
 }
 
-void print_storegq(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_storegq(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	S32 arg;
 	lso_print_tabs(fp, tabs);
@@ -980,7 +980,7 @@ void print_storegq(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 	fprintf(fp, "%d\n", arg + get_register(buffer, LREG_GVR));
 }
 
-void print_loadp(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_loadp(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	S32 arg;
 	lso_print_tabs(fp, tabs);
@@ -989,7 +989,7 @@ void print_loadp(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 	fprintf(fp, "%d\n", arg);
 }
 
-void print_loadsp(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_loadsp(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	S32 arg;
 	lso_print_tabs(fp, tabs);
@@ -998,7 +998,7 @@ void print_loadsp(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 	fprintf(fp, "%d\n", arg);
 }
 
-void print_loadlp(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_loadlp(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	S32 arg;
 	lso_print_tabs(fp, tabs);
@@ -1007,7 +1007,7 @@ void print_loadlp(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 	fprintf(fp, "%d\n", arg);
 }
 
-void print_loadvp(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_loadvp(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	S32 arg;
 	lso_print_tabs(fp, tabs);
@@ -1016,7 +1016,7 @@ void print_loadvp(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 	fprintf(fp, "%d\n", arg);
 }
 
-void print_loadqp(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_loadqp(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	S32 arg;
 	lso_print_tabs(fp, tabs);
@@ -1025,7 +1025,7 @@ void print_loadqp(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 	fprintf(fp, "%d\n", arg);
 }
 
-void print_loadgp(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_loadgp(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	S32 arg;
 	lso_print_tabs(fp, tabs);
@@ -1034,7 +1034,7 @@ void print_loadgp(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 	fprintf(fp, "%d\n", arg + get_register(buffer, LREG_GVR));
 }
 
-void print_loadgsp(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_loadgsp(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	S32 arg;
 	lso_print_tabs(fp, tabs);
@@ -1043,7 +1043,7 @@ void print_loadgsp(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 	fprintf(fp, "%d\n", arg + get_register(buffer, LREG_GVR));
 }
 
-void print_loadglp(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_loadglp(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	S32 arg;
 	lso_print_tabs(fp, tabs);
@@ -1052,7 +1052,7 @@ void print_loadglp(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 	fprintf(fp, "%d\n", arg + get_register(buffer, LREG_GVR));
 }
 
-void print_loadgvp(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_loadgvp(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	S32 arg;
 	lso_print_tabs(fp, tabs);
@@ -1061,7 +1061,7 @@ void print_loadgvp(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 	fprintf(fp, "%d\n", arg + get_register(buffer, LREG_GVR));
 }
 
-void print_loadgqp(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_loadgqp(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	S32 arg;
 	lso_print_tabs(fp, tabs);
@@ -1070,7 +1070,7 @@ void print_loadgqp(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 	fprintf(fp, "%d\n", arg + get_register(buffer, LREG_GVR));
 }
 
-void print_push(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_push(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	S32 arg;
 	lso_print_tabs(fp, tabs);
@@ -1079,7 +1079,7 @@ void print_push(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 	fprintf(fp, "%d\n", arg);
 }
 
-void print_pushs(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_pushs(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	S32 arg;
 	lso_print_tabs(fp, tabs);
@@ -1088,7 +1088,7 @@ void print_pushs(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 	fprintf(fp, "%d\n", arg);
 }
 
-void print_pushl(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_pushl(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	S32 arg;
 	lso_print_tabs(fp, tabs);
@@ -1097,7 +1097,7 @@ void print_pushl(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 	fprintf(fp, "%d\n", arg);
 }
 
-void print_pushv(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_pushv(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	S32 arg;
 	lso_print_tabs(fp, tabs);
@@ -1106,7 +1106,7 @@ void print_pushv(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 	fprintf(fp, "%d\n", arg);
 }
 
-void print_pushq(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_pushq(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	S32 arg;
 	lso_print_tabs(fp, tabs);
@@ -1115,7 +1115,7 @@ void print_pushq(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 	fprintf(fp, "%d\n", arg);
 }
 
-void print_pushg(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_pushg(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	S32 arg;
 	lso_print_tabs(fp, tabs);
@@ -1124,7 +1124,7 @@ void print_pushg(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 	fprintf(fp, "0x%X\n", arg + get_register(buffer, LREG_GVR));
 }
 
-void print_pushgs(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_pushgs(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	S32 arg;
 	lso_print_tabs(fp, tabs);
@@ -1133,7 +1133,7 @@ void print_pushgs(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 	fprintf(fp, "0x%X\n", arg + get_register(buffer, LREG_GVR));
 }
 
-void print_pushgl(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_pushgl(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	S32 arg;
 	lso_print_tabs(fp, tabs);
@@ -1142,7 +1142,7 @@ void print_pushgl(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 	fprintf(fp, "0x%X\n", arg + get_register(buffer, LREG_GVR));
 }
 
-void print_pushgv(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_pushgv(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	S32 arg;
 	lso_print_tabs(fp, tabs);
@@ -1151,7 +1151,7 @@ void print_pushgv(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 	fprintf(fp, "0x%X\n", arg + get_register(buffer, LREG_GVR));
 }
 
-void print_pushgq(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_pushgq(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	S32 arg;
 	lso_print_tabs(fp, tabs);
@@ -1160,25 +1160,25 @@ void print_pushgq(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 	fprintf(fp, "0x%X\n", arg + get_register(buffer, LREG_GVR));
 }
 
-void print_puship(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_puship(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	lso_print_tabs(fp, tabs);
 	fprintf(fp, "[0x%X]\tPUSHIP\n", offset++);
 }
 
-void print_pushbp(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_pushbp(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	lso_print_tabs(fp, tabs);
 	fprintf(fp, "[0x%X]\tPUSHBP\n", offset++);
 }
 
-void print_pushsp(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_pushsp(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	lso_print_tabs(fp, tabs);
 	fprintf(fp, "[0x%X]\tPUSHSP\n", offset++);
 }
 
-void print_pushargb(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_pushargb(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	U8 arg;
 	lso_print_tabs(fp, tabs);
@@ -1187,7 +1187,7 @@ void print_pushargb(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 	fprintf(fp, "%d\n", (U32)arg);
 }
 
-void print_pushargi(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_pushargi(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	S32 arg;
 	lso_print_tabs(fp, tabs);
@@ -1196,7 +1196,7 @@ void print_pushargi(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 	fprintf(fp, "%d\n", arg);
 }
 
-void print_pushargf(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_pushargf(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	F32 arg;
 	lso_print_tabs(fp, tabs);
@@ -1205,7 +1205,7 @@ void print_pushargf(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 	fprintf(fp, "%f\n", arg);
 }
 
-void print_pushargs(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_pushargs(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	char arg[1024];		/*Flawfinder: ignore*/
 	lso_print_tabs(fp, tabs);
@@ -1214,7 +1214,7 @@ void print_pushargs(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 	fprintf(fp, "%s\n", arg);
 }
 
-void print_pushargv(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_pushargv(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	LLVector3 arg;
 	lso_print_tabs(fp, tabs);
@@ -1223,7 +1223,7 @@ void print_pushargv(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 	fprintf(fp, "< %f, %f, %f >\n", arg.mV[VX], arg.mV[VY], arg.mV[VZ]);
 }
 
-void print_pushargq(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_pushargq(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	LLQuaternion arg;
 	lso_print_tabs(fp, tabs);
@@ -1232,25 +1232,25 @@ void print_pushargq(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 	fprintf(fp, "< %f, %f, %f, %f >\n", arg.mQ[VX], arg.mQ[VY], arg.mQ[VZ], arg.mQ[VS]);
 }
 
-void print_pushe(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_pushe(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	lso_print_tabs(fp, tabs);
 	fprintf(fp, "[0x%X]\tPUSHE\n", offset++);
 }
 
-void print_pushev(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_pushev(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	lso_print_tabs(fp, tabs);
 	fprintf(fp, "[0x%X]\tPUSHEV\n", offset++);
 }
 
-void print_pusheq(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_pusheq(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	lso_print_tabs(fp, tabs);
 	fprintf(fp, "[0x%X]\tPUSHEQ\n", offset++);
 }
 
-void print_pusharge(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_pusharge(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	S32 arg;
 	lso_print_tabs(fp, tabs);
@@ -1260,7 +1260,7 @@ void print_pusharge(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 }
 
 
-void print_add(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_add(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	U8 types;
 	U8 type1;
@@ -1273,7 +1273,7 @@ void print_add(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 	fprintf(fp, "%s, %s\n", LSCRIPTTypeNames[type1], LSCRIPTTypeNames[type2]);
 }
 
-void print_sub(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_sub(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	U8 types;
 	U8 type1;
@@ -1286,7 +1286,7 @@ void print_sub(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 	fprintf(fp, "%s, %s\n", LSCRIPTTypeNames[type1], LSCRIPTTypeNames[type2]);
 }
 
-void print_mul(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_mul(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	U8 types;
 	U8 type1;
@@ -1299,7 +1299,7 @@ void print_mul(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 	fprintf(fp, "%s, %s\n", LSCRIPTTypeNames[type1], LSCRIPTTypeNames[type2]);
 }
 
-void print_div(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_div(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	U8 types;
 	U8 type1;
@@ -1312,7 +1312,7 @@ void print_div(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 	fprintf(fp, "%s, %s\n", LSCRIPTTypeNames[type1], LSCRIPTTypeNames[type2]);
 }
 
-void print_mod(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_mod(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	U8 types;
 	U8 type1;
@@ -1325,7 +1325,7 @@ void print_mod(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 	fprintf(fp, "%s, %s\n", LSCRIPTTypeNames[type1], LSCRIPTTypeNames[type2]);
 }
 
-void print_eq(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_eq(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	U8 types;
 	U8 type1;
@@ -1338,7 +1338,7 @@ void print_eq(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 	fprintf(fp, "%s, %s\n", LSCRIPTTypeNames[type1], LSCRIPTTypeNames[type2]);
 }
 
-void print_neq(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_neq(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	U8 types;
 	U8 type1;
@@ -1351,7 +1351,7 @@ void print_neq(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 	fprintf(fp, "%s, %s\n", LSCRIPTTypeNames[type1], LSCRIPTTypeNames[type2]);
 }
 
-void print_leq(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_leq(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	U8 types;
 	U8 type1;
@@ -1364,7 +1364,7 @@ void print_leq(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 	fprintf(fp, "%s, %s\n", LSCRIPTTypeNames[type1], LSCRIPTTypeNames[type2]);
 }
 
-void print_geq(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_geq(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	U8 types;
 	U8 type1;
@@ -1377,7 +1377,7 @@ void print_geq(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 	fprintf(fp, "%s, %s\n", LSCRIPTTypeNames[type1], LSCRIPTTypeNames[type2]);
 }
 
-void print_less(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_less(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	U8 types;
 	U8 type1;
@@ -1390,7 +1390,7 @@ void print_less(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 	fprintf(fp, "%s, %s\n", LSCRIPTTypeNames[type1], LSCRIPTTypeNames[type2]);
 }
 
-void print_greater(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_greater(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	U8 types;
 	U8 type1;
@@ -1404,50 +1404,50 @@ void print_greater(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 }
 
 
-void print_bitand(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_bitand(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	lso_print_tabs(fp, tabs);
 	fprintf(fp, "[0x%X]\tBITAND\n", offset++);
 }
 
-void print_bitor(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_bitor(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	lso_print_tabs(fp, tabs);
 	fprintf(fp, "[0x%X]\tBITOR\n", offset++);
 }
 
-void print_bitxor(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_bitxor(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	lso_print_tabs(fp, tabs);
 	fprintf(fp, "[0x%X]\tBITXOR\n", offset++);
 }
 
-void print_booland(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_booland(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	lso_print_tabs(fp, tabs);
 	fprintf(fp, "[0x%X]\tBOOLAND\n", offset++);
 }
 
-void print_boolor(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_boolor(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	lso_print_tabs(fp, tabs);
 	fprintf(fp, "[0x%X]\tBOOLOR\n", offset++);
 }
 
-void print_shl(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_shl(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	lso_print_tabs(fp, tabs);
 	fprintf(fp, "[0x%X]\tSHL\n", offset++);
 }
 
-void print_shr(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_shr(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	lso_print_tabs(fp, tabs);
 	fprintf(fp, "[0x%X]\tSHR\n", offset++);
 }
 
 
-void print_neg(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_neg(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	U8 type;
 	lso_print_tabs(fp, tabs);
@@ -1456,19 +1456,19 @@ void print_neg(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 	fprintf(fp, "%s\n", LSCRIPTTypeNames[type]);
 }
 
-void print_bitnot(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_bitnot(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	lso_print_tabs(fp, tabs);
 	fprintf(fp, "[0x%X]\tBITNOT\n", offset++);
 }
 
-void print_boolnot(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_boolnot(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	lso_print_tabs(fp, tabs);
 	fprintf(fp, "[0x%X]\tBOOLNOT\n", offset++);
 }
 
-void print_jump(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_jump(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	S32 arg;
 	lso_print_tabs(fp, tabs);
@@ -1477,7 +1477,7 @@ void print_jump(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 	fprintf(fp, "%d\n", arg);
 }
 
-void print_jumpif(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_jumpif(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	S32 arg;
 	U8 type;
@@ -1488,7 +1488,7 @@ void print_jumpif(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 	fprintf(fp, "%s, %d\n", LSCRIPTTypeNames[type], arg);
 }
 
-void print_jumpnif(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_jumpnif(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	S32 arg;
 	U8 type;
@@ -1499,7 +1499,7 @@ void print_jumpnif(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 	fprintf(fp, "%s, %d\n", LSCRIPTTypeNames[type], arg);
 }
 
-void print_state(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_state(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	S32 arg;
 	lso_print_tabs(fp, tabs);
@@ -1508,7 +1508,7 @@ void print_state(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 	fprintf(fp, "%d\n", arg);
 }
 
-void print_call(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_call(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	S32 arg;
 	lso_print_tabs(fp, tabs);
@@ -1517,13 +1517,13 @@ void print_call(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 	fprintf(fp, "%d\n", arg);
 }
 
-void print_return(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_return(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	lso_print_tabs(fp, tabs);
 	fprintf(fp, "[0x%X]\tRETURN\n", offset++);
 }
 
-void print_cast(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_cast(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	U8 types;
 	U8 type1;
@@ -1536,7 +1536,7 @@ void print_cast(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 	fprintf(fp, "%s, %s\n", LSCRIPTTypeNames[type1], LSCRIPTTypeNames[type2]);
 }
 
-void print_stacktos(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_stacktos(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	S32 arg;
 	lso_print_tabs(fp, tabs);
@@ -1545,7 +1545,7 @@ void print_stacktos(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 	fprintf(fp, "%d\n", arg);
 }
 
-void print_stacktol(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_stacktol(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	S32 arg;
 	lso_print_tabs(fp, tabs);
@@ -1554,7 +1554,7 @@ void print_stacktol(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 	fprintf(fp, "%d\n", arg);
 }
 
-void print_print(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_print(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	lso_print_tabs(fp, tabs);
 	fprintf(fp, "[0x%X]\tPRINT ", offset++);
@@ -1562,7 +1562,7 @@ void print_print(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 	fprintf(fp, "%s\n", LSCRIPTTypeNames[type]);
 }
 
-void print_calllib(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_calllib(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	U8 arg;
 	lso_print_tabs(fp, tabs);
@@ -1572,7 +1572,7 @@ void print_calllib(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 }
 
 
-void print_calllib_two_byte(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
+void print_calllib_two_byte(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
 	U16 arg;
 	lso_print_tabs(fp, tabs);

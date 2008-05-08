@@ -118,7 +118,7 @@ inline void bytestream2alloc_entry(LLScriptAllocEntry &entry, U8 *buffer, S32 &o
 
 // create a heap from the HR to TM
 BOOL lsa_create_heap(U8 *heap_start, S32 size);
-void lsa_fprint_heap(U8 *buffer, FILE *fp);
+void lsa_fprint_heap(U8 *buffer, LLFILE *fp);
 
 void lsa_print_heap(U8 *buffer);
 

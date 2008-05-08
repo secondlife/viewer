@@ -84,7 +84,7 @@ U32 LLSaleInfo::getCRC32() const
 }
 
 
-BOOL LLSaleInfo::exportFile(FILE* fp) const
+BOOL LLSaleInfo::exportFile(LLFILE* fp) const
 {
 	fprintf(fp, "\tsale_info\t0\n\t{\n");
 	fprintf(fp, "\t\tsale_type\t%s\n", lookup(mSaleType));
@@ -158,7 +158,7 @@ BOOL LLSaleInfo::importXML(LLXMLNode* node)
 	return success;
 }
 
-BOOL LLSaleInfo::importFile(FILE* fp, BOOL& has_perm_mask, U32& perm_mask)
+BOOL LLSaleInfo::importFile(LLFILE* fp, BOOL& has_perm_mask, U32& perm_mask)
 {
 	has_perm_mask = FALSE;
 

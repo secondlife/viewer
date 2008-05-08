@@ -85,9 +85,7 @@ public:
 	static void initClass(bool use_vbo);
 	static void cleanupClass();
 	static void setupClientArrays(U32 data_mask);
- 	static void startRender(); //between start and stop render, no client copies will occur
-	static void stopRender(); //any buffer not copied to GL will be rendered from client memory
-	static void clientCopy(F64 max_time = 0.005); //copy data from client to GL
+ 	static void clientCopy(F64 max_time = 0.005); //copy data from client to GL
 	static void unbind(); //unbind any bound vertex buffer
 
 	//get the size of a vertex with the given typemask
@@ -131,6 +129,8 @@ public:
 		POINTS,
 		LINES,
 		LINE_STRIP,
+		QUADS,
+		LINE_LOOP,
 		NUM_MODES
 	};
 protected:
@@ -205,6 +205,7 @@ public:
 	void markDirty(U32 vert_index, U32 vert_count, U32 indices_index, U32 indices_count);
 
 	void draw(U32 mode, U32 count, U32 indices_offset) const;
+	void drawArrays(U32 mode, U32 offset, U32 count) const;
 	void drawRange(U32 mode, U32 start, U32 end, U32 count, U32 indices_offset) const;
 
 protected:	
@@ -244,7 +245,6 @@ protected:
 	std::vector<DirtyRegion> mDirtyRegions; //vector of dirty regions to rebuild
 
 public:
-	static BOOL sRenderActive;
 	static S32 sCount;
 	static S32 sGLCount;
 	static S32 sMappedCount;

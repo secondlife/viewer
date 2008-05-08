@@ -493,7 +493,7 @@ void LLFace::renderSelectedUV(const S32 offset, const S32 count)
 			glPolygonOffset(factor, bias);
 			if (sSafeRenderSelect)
 			{
-				gGL.begin(GL_TRIANGLES);
+				gGL.begin(LLVertexBuffer::TRIANGLES);
 				if (count)
 				{
 					for (S32 i = offset; i < offset + count; i++)

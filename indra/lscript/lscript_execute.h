@@ -367,7 +367,7 @@ public:
 class LLScriptExecute
 {
 public:
-	LLScriptExecute(FILE *fp);
+	LLScriptExecute(LLFILE *fp);
 	LLScriptExecute(U8 *buffer);
 	~LLScriptExecute();
 

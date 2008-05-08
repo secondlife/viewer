@@ -504,7 +504,7 @@ void LLHUDEffectLookAt::render()
 		glPushMatrix();
 		glTranslatef(target.mV[VX], target.mV[VY], target.mV[VZ]);
 		glScalef(0.3f, 0.3f, 0.3f);
-		gGL.begin(GL_LINES);
+		gGL.begin(LLVertexBuffer::LINES);
 		{
 			LLColor3 color = (*mAttentions)[mTargetType].mColor;
 			gGL.color3f(color.mV[VRED], color.mV[VGREEN], color.mV[VBLUE]);

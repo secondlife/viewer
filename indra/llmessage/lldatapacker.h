@@ -330,7 +330,7 @@ inline BOOL LLDataPackerAsciiBuffer::verifyLength(const S32 data_size, const cha
 class LLDataPackerAsciiFile : public LLDataPacker
 {
 public:
-	LLDataPackerAsciiFile(FILE *fp, const S32 indent = 2)
+	LLDataPackerAsciiFile(LLFILE *fp, const S32 indent = 2)
 	: 	LLDataPacker(),
 		mIndent(indent),
 		mFP(fp),
@@ -407,7 +407,7 @@ protected:
 
 protected:
 	S32 mIndent;
-	FILE *mFP;
+	LLFILE *mFP;
 	std::ostream* mOutputStream;
 	std::istream* mInputStream;
 };

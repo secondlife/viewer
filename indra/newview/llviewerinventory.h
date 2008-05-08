@@ -100,13 +100,13 @@ public:
 	//virtual void packMessage(LLMessageSystem* msg) const;
 	virtual BOOL unpackMessage(LLMessageSystem* msg, const char* block, S32 block_num = 0);
 	virtual BOOL unpackMessage(LLSD item);
-	virtual BOOL importFile(FILE* fp);
+	virtual BOOL importFile(LLFILE* fp);
 	virtual BOOL importLegacyStream(std::istream& input_stream);
 
 	// file handling on the viewer. These are not meant for anything
 	// other than cacheing.
-	bool exportFileLocal(FILE* fp) const;
-	bool importFileLocal(FILE* fp);
+	bool exportFileLocal(LLFILE* fp) const;
+	bool importFileLocal(LLFILE* fp);
 
 	// new methods
 	BOOL isComplete() const { return mIsComplete; }
@@ -182,8 +182,8 @@ public:
 
 	// file handling on the viewer. These are not meant for anything
 	// other than cacheing.
-	bool exportFileLocal(FILE* fp) const;
-	bool importFileLocal(FILE* fp);
+	bool exportFileLocal(LLFILE* fp) const;
+	bool importFileLocal(LLFILE* fp);
 
 protected:
 	LLUUID mOwnerID;

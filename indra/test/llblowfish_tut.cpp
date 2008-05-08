@@ -60,13 +60,13 @@ namespace tut
 		bool matchFile(const char* filename,
 				const std::string& data)
 		{
-			FILE* fp = fopen(filename, "rb");
+			LLFILE* fp = LLFile::fopen(filename, "rb");
 			if (!fp) 
 			{
 				// sometimes test is run inside the indra directory
 				std::string path = "test/";
 				path += filename;
-				fp = fopen(path.c_str(), "rb");
+				fp = LLFile::fopen(path.c_str(), "rb");
 			}
 			if (!fp)
 			{

@@ -63,7 +63,7 @@ LLVOCacheEntry::LLVOCacheEntry()
 }
 
 
-static inline void checkedRead(FILE *fp, void *data, size_t nbytes)
+static inline void checkedRead(LLFILE *fp, void *data, size_t nbytes)
 {
 	if (fread(data, 1, nbytes, fp) != nbytes)
 	{
@@ -72,7 +72,7 @@ static inline void checkedRead(FILE *fp, void *data, size_t nbytes)
 	}
 }
 
-LLVOCacheEntry::LLVOCacheEntry(FILE *fp)
+LLVOCacheEntry::LLVOCacheEntry(LLFILE *fp)
 {
 	S32 size;
 	checkedRead(fp, &mLocalID, sizeof(U32));
@@ -153,7 +153,7 @@ void LLVOCacheEntry::dump() const
 		<< llendl;
 }
 
-static inline void checkedWrite(FILE *fp, const void *data, size_t nbytes)
+static inline void checkedWrite(LLFILE *fp, const void *data, size_t nbytes)
 {
 	if (fwrite(data, 1, nbytes, fp) != nbytes)
 	{
@@ -161,7 +161,7 @@ static inline void checkedWrite(FILE *fp, const void *data, size_t nbytes)
 	}
 }
 
-void LLVOCacheEntry::writeToFile(FILE *fp) const
+void LLVOCacheEntry::writeToFile(LLFILE *fp) const
 {
 	checkedWrite(fp, &mLocalID, sizeof(U32));
 	checkedWrite(fp, &mCRC, sizeof(U32));

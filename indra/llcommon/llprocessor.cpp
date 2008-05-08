@@ -2230,7 +2230,7 @@ bool CProcessor::WriteInfoTextFile(const char *strFilename)
 		return false;
 
 	// Then we create a new file (CREATE_ALWAYS)
-	FILE *file = LLFile::fopen(strFilename, "w");	/* Flawfinder: ignore */	
+	LLFILE *file = LLFile::fopen(strFilename, "w");	/* Flawfinder: ignore */	
 	if (!file)
 		return false;
 

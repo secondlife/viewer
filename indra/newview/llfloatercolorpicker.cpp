@@ -545,7 +545,7 @@ void LLFloaterColorPicker::draw()
 	{
 		LLGLSNoTexture no_texture;
 		LLGLEnable(GL_CULL_FACE);
-		gGL.begin(GL_QUADS);
+		gGL.begin(LLVertexBuffer::QUADS);
 		{
 			gGL.color4f(0.f, 0.f, 0.f, CONTEXT_CONE_IN_ALPHA * mContextConeOpacity);
 			gGL.vertex2i(swatch_rect.mLeft, swatch_rect.mTop);

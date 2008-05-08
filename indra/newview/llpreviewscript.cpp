@@ -1262,7 +1262,7 @@ void LLPreviewLSL::saveIfNeeded()
 	std::string filepath = gDirUtilp->getExpandedFilename(LL_PATH_CACHE,asset_id.asString());
 	std::string filename = llformat("%s.lsl", filepath.c_str());
 
-	FILE* fp = LLFile::fopen(filename.c_str(), "wb");
+	LLFILE* fp = LLFile::fopen(filename.c_str(), "wb");
 	if(!fp)
 	{
 		llwarns << "Unable to write to " << filename << llendl;
@@ -1336,7 +1336,7 @@ void LLPreviewLSL::uploadAssetLegacy(const std::string& filename,
 		//system(command);
 
 		// load the error file into the error scrolllist
-		FILE* fp = LLFile::fopen(err_filename.c_str(), "r");
+		LLFILE* fp = LLFile::fopen(err_filename.c_str(), "r");
 		if(fp)
 		{
 			char buffer[MAX_STRING];		/*Flawfinder: ignore*/
@@ -1851,7 +1851,7 @@ void LLLiveLSLEditor::loadScriptText(const char* filename)
 		llerrs << "Filename is Empty!" << llendl;
 		return;
 	}
-	FILE* file = LLFile::fopen(filename, "rb");		/*Flawfinder: ignore*/
+	LLFILE* file = LLFile::fopen(filename, "rb");		/*Flawfinder: ignore*/
 	if(file)
 	{
 		// read in the whole file
@@ -2063,7 +2063,7 @@ void LLLiveLSLEditor::saveIfNeeded()
 	mItem->setTransactionID(tid);
 
 	// write out the data, and store it in the asset database
-	FILE* fp = LLFile::fopen(filename.c_str(), "wb");
+	LLFILE* fp = LLFile::fopen(filename.c_str(), "wb");
 	if(!fp)
 	{
 		llwarns << "Unable to write to " << filename << llendl;
@@ -2136,7 +2136,7 @@ void LLLiveLSLEditor::uploadAssetLegacy(const std::string& filename,
 	std::string dst_filename = llformat("%s.lso", filepath.c_str());
 	std::string err_filename = llformat("%s.out", filepath.c_str());
 
-	FILE *fp;
+	LLFILE *fp;
 	if(!lscript_compile(filename.c_str(),
 						dst_filename.c_str(),
 						err_filename.c_str(),

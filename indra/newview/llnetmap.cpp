@@ -287,7 +287,7 @@ void LLNetMap::draw()
 
 			// Draw using texture.
 			LLViewerImage::bindTexture(regionp->getLand().getSTexture());
-			gGL.begin(GL_QUADS);
+			gGL.begin(LLVertexBuffer::QUADS);
 				gGL.texCoord2f(0.f, 1.f);
 				gGL.vertex2f(left, top);
 				gGL.texCoord2f(0.f, 0.f);
@@ -304,7 +304,7 @@ void LLNetMap::draw()
 				if (regionp->getLand().getWaterTexture())
 				{
 					LLViewerImage::bindTexture(regionp->getLand().getWaterTexture());
-					gGL.begin(GL_QUADS);
+					gGL.begin(LLVertexBuffer::QUADS);
 						gGL.texCoord2f(0.f, 1.f);
 						gGL.vertex2f(left, top);
 						gGL.texCoord2f(0.f, 0.f);
@@ -354,7 +354,7 @@ void LLNetMap::draw()
 		F32 image_half_width = 0.5f*mObjectMapPixels;
 		F32 image_half_height = 0.5f*mObjectMapPixels;
 
-		gGL.begin(GL_QUADS);
+		gGL.begin(LLVertexBuffer::QUADS);
 			gGL.texCoord2f(0.f, 1.f);
 			gGL.vertex2f(map_center_agent.mV[VX] - image_half_width, image_half_height + map_center_agent.mV[VY]);
 			gGL.texCoord2f(0.f, 0.f);
@@ -463,7 +463,7 @@ void LLNetMap::draw()
 		{
 			gGL.color4fv(gFrustumMapColor.mV);
 
-			gGL.begin( GL_TRIANGLES  );
+			gGL.begin( LLVertexBuffer::TRIANGLES  );
 				gGL.vertex2f( ctr_x, ctr_y );
 				gGL.vertex2f( ctr_x - half_width_pixels, ctr_y + far_clip_pixels );
 				gGL.vertex2f( ctr_x + half_width_pixels, ctr_y + far_clip_pixels );
@@ -477,7 +477,7 @@ void LLNetMap::draw()
 			gGL.pushMatrix();
 				gGL.translatef( ctr_x, ctr_y, 0 );
 				glRotatef( atan2( LLViewerCamera::getInstance()->getAtAxis().mV[VX], LLViewerCamera::getInstance()->getAtAxis().mV[VY] ) * RAD_TO_DEG, 0.f, 0.f, -1.f);
-				gGL.begin( GL_TRIANGLES  );
+				gGL.begin( LLVertexBuffer::TRIANGLES  );
 					gGL.vertex2f( 0, 0 );
 					gGL.vertex2f( -half_width_pixels, far_clip_pixels );
 					gGL.vertex2f(  half_width_pixels, far_clip_pixels );

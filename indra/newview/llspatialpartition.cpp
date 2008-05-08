@@ -1646,7 +1646,7 @@ public:
 
 void drawBox(const LLVector3& c, const LLVector3& r)
 {
-	gGL.begin(GL_TRIANGLE_STRIP);
+	gGL.begin(LLVertexBuffer::TRIANGLE_STRIP);
 	//left front
 	gGL.vertex3fv((c+r.scaledVec(LLVector3(-1,1,-1))).mV);
 	gGL.vertex3fv((c+r.scaledVec(LLVector3(-1,1,1))).mV);
@@ -1665,7 +1665,7 @@ void drawBox(const LLVector3& c, const LLVector3& r)
 	gGL.end();
 	
 	//bottom
-	gGL.begin(GL_TRIANGLE_STRIP);
+	gGL.begin(LLVertexBuffer::TRIANGLE_STRIP);
 	gGL.vertex3fv((c+r.scaledVec(LLVector3(1,1,-1))).mV);
 	gGL.vertex3fv((c+r.scaledVec(LLVector3(1,-1,-1))).mV);
 	gGL.vertex3fv((c+r.scaledVec(LLVector3(-1,1,-1))).mV);
@@ -1673,7 +1673,7 @@ void drawBox(const LLVector3& c, const LLVector3& r)
 	gGL.end();
 
 	//top
-	gGL.begin(GL_TRIANGLE_STRIP);
+	gGL.begin(LLVertexBuffer::TRIANGLE_STRIP);
 	gGL.vertex3fv((c+r.scaledVec(LLVector3(1,1,1))).mV);
 	gGL.vertex3fv((c+r.scaledVec(LLVector3(-1,1,1))).mV);
 	gGL.vertex3fv((c+r.scaledVec(LLVector3(1,-1,1))).mV);
@@ -1688,7 +1688,7 @@ void drawBoxOutline(const LLVector3& pos, const LLVector3& size)
 	LLVector3 v3 = size.scaledVec(LLVector3(-1,-1,1));
 	LLVector3 v4 = size.scaledVec(LLVector3( 1,-1,1));
 
-	gGL.begin(GL_LINES); 
+	gGL.begin(LLVertexBuffer::LINES); 
 	
 	//top
 	gGL.vertex3fv((pos+v1).mV);
@@ -2032,7 +2032,7 @@ void renderOctree(LLSpatialGroup* group)
 			drawBoxOutline(group->mObjectBounds[0], group->mObjectBounds[1]);
 			gGL.flush();
 			glLineWidth(1.f);
-			gGL.stop();
+			gGL.flush();
 			for (LLSpatialGroup::element_iter i = group->getData().begin(); i != group->getData().end(); ++i)
 			{
 				LLDrawable* drawable = *i;
@@ -2074,7 +2074,7 @@ void renderOctree(LLSpatialGroup* group)
 				}
 			}
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-			gGL.start();
+			gGL.color4f(1,1,1,1);
 		}
 	}
 	else
@@ -2313,7 +2313,7 @@ void renderPoints(LLDrawable* drawablep)
 	LLGLDepthTest depth(GL_FALSE, GL_FALSE);
 	if (drawablep->getNumFaces())
 	{
-		gGL.begin(GL_POINTS);
+		gGL.begin(LLVertexBuffer::POINTS);
 		gGL.color3f(1,1,1);
 		LLVector3 center(drawablep->getPositionGroup());
 		for (S32 i = 0; i < drawablep->getNumFaces(); i++)
@@ -2405,14 +2405,14 @@ public:
 			if (group->mSpatialPartition->mRenderByGroup &&
 				gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_OCCLUSION))
 			{
-				gGL.stop();
+				gGL.flush();
 				glPushMatrix();
 				gGLLastMatrix = NULL;
 				glLoadMatrixd(gGLModelView);
 				renderVisibility(group, mCamera);
 				gGLLastMatrix = NULL;
 				glPopMatrix();
-				gGL.start();
+				gGL.color4f(1,1,1,1);
 			}
 		}
 	}

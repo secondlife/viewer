@@ -550,7 +550,7 @@ BOOL LLMuteList::loadFromFile(const LLString& filename)
 		return FALSE;
 	}
 
-	FILE* fp = LLFile::fopen(filename.c_str(), "rb");		/*Flawfinder: ignore*/
+	LLFILE* fp = LLFile::fopen(filename.c_str(), "rb");		/*Flawfinder: ignore*/
 	if (!fp)
 	{
 		llwarns << "Couldn't open mute list " << filename << llendl;
@@ -600,7 +600,7 @@ BOOL LLMuteList::saveToFile(const LLString& filename)
 		return FALSE;
 	}
 
-	FILE* fp = LLFile::fopen(filename.c_str(), "wb");		/*Flawfinder: ignore*/
+	LLFILE* fp = LLFile::fopen(filename.c_str(), "wb");		/*Flawfinder: ignore*/
 	if (!fp)
 	{
 		llwarns << "Couldn't open mute list " << filename << llendl;

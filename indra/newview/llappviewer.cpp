@@ -222,6 +222,7 @@ extern OSStatus DisplayReleaseNotes(void);
 
 extern BOOL gRandomizeFramerate;
 extern BOOL gPeriodicSlowFrame;
+extern BOOL gDebugGL;
 
 ////////////////////////////////////////////////////////////
 // All from the last globals push...
@@ -421,7 +422,8 @@ static void settings_modify()
 	LLVOAvatar::sUseImpostors			= gSavedSettings.getBOOL("RenderUseImpostors");
 	LLVOSurfacePatch::sLODFactor		= gSavedSettings.getF32("RenderTerrainLODFactor");
 	LLVOSurfacePatch::sLODFactor *= LLVOSurfacePatch::sLODFactor; //sqaure lod factor to get exponential range of [1,4]
-	gGL.setClever(gSavedSettings.getBOOL("RenderUseCleverUI"));
+	gDebugGL = gSavedSettings.getBOOL("RenderDebugGL");
+	gDebugPipeline = gSavedSettings.getBOOL("RenderDebugPipeline");
 	
 #if LL_VECTORIZE
 	if (gSysCPU.hasAltivec())
@@ -2977,7 +2979,7 @@ void LLAppViewer::loadNameCache()
 
 	// Try to load from the legacy format. This should go away after a
 	// while. Phoenix 2008-01-30
-	FILE* name_cache_fp = LLFile::fopen(name_cache.c_str(), "r");		// Flawfinder: ignore
+	LLFILE* name_cache_fp = LLFile::fopen(name_cache.c_str(), "r");		// Flawfinder: ignore
 	if (name_cache_fp)
 	{
 		gCacheName->importFile(name_cache_fp);

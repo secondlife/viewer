@@ -248,7 +248,7 @@ void LLViewBorder::drawTextureTrapezoid( F32 degrees, S32 width, S32 length, F32
 		gGL.translatef(start_x, start_y, 0.f);
 		glRotatef( degrees, 0, 0, 1 );
 
-		gGL.begin(GL_QUADS);
+		gGL.begin(LLVertexBuffer::QUADS);
 		{
 			//      width, width   /---------\ length-width, width		//
 			//	   			      /           \							//

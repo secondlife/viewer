@@ -1206,12 +1206,12 @@ U32 LLViewerObjectList::renderObjectsForSelect(LLCamera &camera, BOOL pick_parce
 	//
 	// Render pass for selected objects
 	//
-	gGL.start();	
+	gGL.color4f(1,1,1,1);	
 	gViewerWindow->renderSelections( TRUE, pick_parcel_wall, FALSE );
 
 	// render pickable ui elements, like names, etc.
 	LLHUDObject::renderAllForSelect();
-	gGL.stop();
+	gGL.flush();
 
 	gRenderForSelect = FALSE;
 

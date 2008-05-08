@@ -77,7 +77,7 @@ BOOL LLXmlParser::parseFile(const std::string &path)
 	
 	BOOL success = TRUE;
 
-	FILE* file = LLFile::fopen(path.c_str(), "rb");		/* Flawfinder: ignore */
+	LLFILE* file = LLFile::fopen(path.c_str(), "rb");		/* Flawfinder: ignore */
 	if( !file )
 	{
 		snprintf( mAuxErrorString, sizeof(mAuxErrorString), "Couldn't open file %s", path.c_str());	/* Flawfinder: ignore */
@@ -393,7 +393,7 @@ int main()
 {
   char buf[1024];
 
-  FILE* file = LLFile::fopen("test.xml", "rb");
+  LLFILE* file = LLFile::fopen("test.xml", "rb");
   if( !file )
   {
 	  return 1;

@@ -393,13 +393,13 @@ void LLVoiceVisualizer::render()
 		//-------------------------------------------------------------
 		gGL.color4fv( LLColor4( 1.0f, 1.0f, 1.0f, DOT_OPACITY ).mV );	
 		
-		gGL.begin( GL_TRIANGLE_STRIP );
+		gGL.begin( LLVertexBuffer::TRIANGLE_STRIP );
 			gGL.texCoord2i( 0,	0	); gGL.vertex3fv( bottomLeft.mV );
 			gGL.texCoord2i( 1,	0	); gGL.vertex3fv( bottomRight.mV );
 			gGL.texCoord2i( 0,	1	); gGL.vertex3fv( topLeft.mV );
 		gGL.end();
 
-		gGL.begin( GL_TRIANGLE_STRIP );
+		gGL.begin( LLVertexBuffer::TRIANGLE_STRIP );
 			gGL.texCoord2i( 1,	0	); gGL.vertex3fv( bottomRight.mV );
 			gGL.texCoord2i( 1,	1	); gGL.vertex3fv( topRight.mV );
 			gGL.texCoord2i( 0,	1	); gGL.vertex3fv( topLeft.mV );
@@ -516,13 +516,13 @@ void LLVoiceVisualizer::render()
 				//---------------------------------------------------
 				// now, render the mofo
 				//---------------------------------------------------
-				gGL.begin( GL_TRIANGLE_STRIP );
+				gGL.begin( LLVertexBuffer::TRIANGLE_STRIP );
 					gGL.texCoord2i( 0, 0 ); gGL.vertex3fv( bottomLeft.mV );
 					gGL.texCoord2i( 1, 0 ); gGL.vertex3fv( bottomRight.mV );
 					gGL.texCoord2i( 0, 1 ); gGL.vertex3fv( topLeft.mV );
 				gGL.end();
 
-				gGL.begin( GL_TRIANGLE_STRIP );
+				gGL.begin( LLVertexBuffer::TRIANGLE_STRIP );
 					gGL.texCoord2i( 1, 0 ); gGL.vertex3fv( bottomRight.mV );
 					gGL.texCoord2i( 1, 1 ); gGL.vertex3fv( topRight.mV );
 					gGL.texCoord2i( 0, 1 ); gGL.vertex3fv( topLeft.mV );

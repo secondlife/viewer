@@ -381,7 +381,7 @@ void LLWorldMapView::draw()
 		glColorMask(TRUE, TRUE, TRUE, FALSE);
 		gGL.color4f(1.f, 1.f, 1.f, layer_alpha);
 
-		gGL.begin(GL_QUADS);
+		gGL.begin(LLVertexBuffer::QUADS);
 			gGL.texCoord2f(0.0f, 1.0f);
 			gGL.vertex3f(left, top, -1.0f);
 			gGL.texCoord2f(0.0f, 0.0f);
@@ -397,7 +397,7 @@ void LLWorldMapView::draw()
 		glColorMask(FALSE, FALSE, FALSE, TRUE);
 		gGL.color4f(1.f, 1.f, 1.f, 1.f);
 
-		gGL.begin(GL_QUADS);
+		gGL.begin(LLVertexBuffer::QUADS);
 			gGL.texCoord2f(0.0f, 1.0f);
 			gGL.vertex2f(left, top);
 			gGL.texCoord2f(0.0f, 0.0f);
@@ -538,7 +538,7 @@ void LLWorldMapView::draw()
 			F32 alpha = sim_alpha * info->mAlpha;
 			gGL.color4f(1.f, 1.0f, 1.0f, alpha);
 
-			gGL.begin(GL_QUADS);
+			gGL.begin(LLVertexBuffer::QUADS);
 				gGL.texCoord2f(0.f, 1.f);
 				gGL.vertex3f(left, top, 0.f);
 				gGL.texCoord2f(0.f, 0.f);
@@ -553,7 +553,7 @@ void LLWorldMapView::draw()
 			{
 				LLViewerImage::bindTexture(overlayimage);
 				gGL.color4f(1.f, 1.f, 1.f, alpha);
-				gGL.begin(GL_QUADS);
+				gGL.begin(LLVertexBuffer::QUADS);
 					gGL.texCoord2f(0.f, 1.f);
 					gGL.vertex3f(left, top, -0.5f);
 					gGL.texCoord2f(0.f, 0.f);
@@ -574,7 +574,7 @@ void LLWorldMapView::draw()
 				gGL.color4f(1.f, 1.f, 1.f, 1.f);
 
 				LLGLSNoTexture gls_no_texture;
-				gGL.begin(GL_QUADS);
+				gGL.begin(LLVertexBuffer::QUADS);
 					gGL.vertex2f(left, top);
 					gGL.vertex2f(left, bottom);
 					gGL.vertex2f(right, bottom);
@@ -593,7 +593,7 @@ void LLWorldMapView::draw()
 			gGL.color4f(0.2f, 0.0f, 0.0f, 0.4f);
 
 			LLGLSNoTexture gls_no_texture;
-			gGL.begin(GL_QUADS);
+			gGL.begin(LLVertexBuffer::QUADS);
 				gGL.vertex2f(left, top);
 				gGL.vertex2f(left, bottom);
 				gGL.vertex2f(right, bottom);
@@ -610,7 +610,7 @@ void LLWorldMapView::draw()
 			
 			LLGLSNoTexture gls_no_texture;
 			gGL.color3f(1.f, 0.f, 0.f);
-			gGL.begin(GL_LINES);
+			gGL.begin(LLVertexBuffer::LINES);
 				gGL.vertex2f(left, top);
 				gGL.vertex2f(right, bottom);
 				gGL.vertex2f(left, bottom);
@@ -971,7 +971,7 @@ void LLWorldMapView::drawFrustum()
 
 		// Draw triangle with more alpha in far pixels to make it 
 		// fade out in distance.
-		gGL.begin( GL_TRIANGLES  );
+		gGL.begin( LLVertexBuffer::TRIANGLES  );
 			gGL.color4f(1.f, 1.f, 1.f, 0.25f);
 			gGL.vertex2f( 0, 0 );
 
@@ -1181,7 +1181,7 @@ static void drawDot(F32 x_pixels, F32 y_pixels,
 		gGL.color4fv( color.mV );
 		LLUI::setLineWidth(1.5f);
 		F32 h_bar = relative_z > HEIGHT_THRESHOLD ? top : bottom; // horizontal bar Y
-		gGL.begin( GL_LINES );
+		gGL.begin( LLVertexBuffer::LINES );
 			gGL.vertex2f(center, top);
 			gGL.vertex2f(left, h_bar);
 			gGL.vertex2f(right, h_bar);

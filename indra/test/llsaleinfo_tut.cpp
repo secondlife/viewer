@@ -113,7 +113,7 @@ namespace tut
 	void llsaleinfo_test_t::test<2>()
 	{
 
-		FILE* fp = fopen("linden_file.dat","w+");
+		LLFILE* fp = LLFile::fopen("linden_file.dat","w+");
 		if(!fp)
 		{
 			llerrs << "file could not be opened\n" << llendl;
@@ -129,7 +129,7 @@ namespace tut
 		LLSaleInfo llsaleinfo1;
 		U32 perm_mask;
 		BOOL has_perm_mask;
-		fp = fopen("linden_file.dat","r");
+		fp = LLFile::fopen("linden_file.dat","r");
 		
 		if(!fp)
 		{

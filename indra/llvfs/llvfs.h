@@ -131,8 +131,8 @@ protected:
 	void sync(LLVFSFileBlock *block, BOOL remove = FALSE);
 	void presizeDataFile(const U32 size);
 
-	static FILE *openAndLock(const char *filename, const char *mode, BOOL read_lock);
-	static void unlockAndClose(FILE *fp);
+	static LLFILE *openAndLock(const char *filename, const char *mode, BOOL read_lock);
+	static void unlockAndClose(LLFILE *fp);
 	
 	// Can initiate LRU-based file removal to make space.
 	// The immune file block will not be removed.
@@ -153,8 +153,8 @@ protected:
 	typedef std::multimap<U32, LLVFSBlock*>	blocks_location_map_t;
 	blocks_location_map_t 	mFreeBlocksByLocation;
 
-	FILE *mDataFP;
-	FILE *mIndexFP;
+	LLFILE *mDataFP;
+	LLFILE *mIndexFP;
 
 	std::deque<S32> mIndexHoles;
 

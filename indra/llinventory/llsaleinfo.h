@@ -91,8 +91,8 @@ public:
 
 
 	// file serialization
-	BOOL exportFile(FILE* fp) const;
-	BOOL importFile(FILE* fp, BOOL& has_perm_mask, U32& perm_mask);
+	BOOL exportFile(LLFILE* fp) const;
+	BOOL importFile(LLFILE* fp, BOOL& has_perm_mask, U32& perm_mask);
 
 	BOOL exportLegacyStream(std::ostream& output_stream) const;
 	LLSD asLLSD() const;

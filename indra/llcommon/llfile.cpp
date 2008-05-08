@@ -160,7 +160,7 @@ LLFILE *	LLFile::_Fiopen(const char *filename, std::ios::openmode mode,int)	// p
 			| ios_base::binary,
 	0};
 
-	FILE *fp = 0;
+	LLFILE *fp = 0;
 	int n;
 	ios_base::openmode atendflag = mode & ios_base::ate;
 	ios_base::openmode norepflag = mode & ios_base::_Noreplace;
@@ -207,7 +207,7 @@ void llifstream::open(const char* _Filename,	/* Flawfinder: ignore */
 	int _Prot)
 {	// open a C stream with specified mode
 	
-	FILE* filep = LLFile::_Fiopen(_Filename,_Mode | ios_base::in, _Prot);
+	LLFILE* filep = LLFile::_Fiopen(_Filename,_Mode | ios_base::in, _Prot);
 	if(filep == NULL)
 	{
 		_Myios::setstate(ios_base::failbit);	/*Flawfinder: ignore*/
@@ -258,7 +258,7 @@ void llofstream::open(const char* _Filename,	/* Flawfinder: ignore */
 	int _Prot)	
 {	// open a C stream with specified mode
 
-	FILE* filep = LLFile::_Fiopen(_Filename,_Mode | ios_base::out, _Prot);
+	LLFILE* filep = LLFile::_Fiopen(_Filename,_Mode | ios_base::out, _Prot);
 	if(filep == NULL)
 	{
 		_Myios::setstate(ios_base::failbit);	/*Flawfinder: ignore*/

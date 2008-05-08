@@ -2243,7 +2243,7 @@ void LLViewerWindow::setMenuBackgroundColor(bool god_mode, bool dev_grid)
 
 void LLViewerWindow::drawDebugText()
 {
-	gGL.start();
+	gGL.color4f(1,1,1,1);
 	gGL.pushMatrix();
 	{
 		// scale view by UI global scale factor and aspect ratio correction factor
@@ -2251,7 +2251,7 @@ void LLViewerWindow::drawDebugText()
 		mDebugText->draw();
 	}
 	gGL.popMatrix();
-	gGL.stop();
+	gGL.flush();
 }
 
 void LLViewerWindow::draw()
@@ -5019,20 +5019,16 @@ BOOL LLViewerWindow::checkSettings()
 			return FALSE;
 		}
 		
-#ifndef LL_RELEASE_FOR_DOWNLOAD
 		LLGLState::checkStates();
 		LLGLState::checkTextureChannels();
-#endif
 		changeDisplaySettings(TRUE, 
 							  LLCoordScreen(gSavedSettings.getS32("FullScreenWidth"),
 											gSavedSettings.getS32("FullScreenHeight")),
 							  gSavedSettings.getBOOL("DisableVerticalSync"),
 							  mShowFullscreenProgress);
 
-#ifndef LL_RELEASE_FOR_DOWNLOAD
 		LLGLState::checkStates();
 		LLGLState::checkTextureChannels();
-#endif
 		return TRUE;
 	}
 	return FALSE;
@@ -5213,7 +5209,7 @@ void LLViewerWindow::drawPickBuffer() const
 {
 	if (mPickBuffer)
 	{
-		gGL.start();
+		gGL.color4f(1,1,1,1);
 		gGL.pushMatrix();
 		LLGLDisable no_blend(GL_BLEND);
 		LLGLDisable no_alpha_test(GL_ALPHA_TEST);
@@ -5249,7 +5245,7 @@ void LLViewerWindow::drawPickBuffer() const
 			llround((F32)mPickPoint.mY * mDisplayScale.mV[VY] + (F32)(PICK_HALF_WIDTH  + mPickOffset.mY) * 10.f),
 			FALSE);
 		gGL.popMatrix();
-		gGL.stop();
+		gGL.flush();
 	}
 }
 

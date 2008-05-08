@@ -544,7 +544,7 @@ void LLPermissions::unpackMessage(LLMessageSystem* msg, const char* block, S32 b
 // File support
 //
 
-BOOL LLPermissions::importFile(FILE* fp)
+BOOL LLPermissions::importFile(LLFILE* fp)
 {
 	init(LLUUID::null, LLUUID::null, LLUUID::null, LLUUID::null);
 	const S32 BUFSIZE = 16384;
@@ -648,7 +648,7 @@ BOOL LLPermissions::importFile(FILE* fp)
 }
 
 
-BOOL LLPermissions::exportFile(FILE* fp) const
+BOOL LLPermissions::exportFile(LLFILE* fp) const
 {
 	char uuid_str[256];	/* Flawfinder: ignore */
 

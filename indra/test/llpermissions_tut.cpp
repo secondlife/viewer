@@ -421,7 +421,7 @@ namespace tut
 	template<> template<>
 	void permission_object_t::test<20>()
 	{
-		FILE* fp = fopen("linden_file.dat","w+");
+		LLFILE* fp = LLFile::fopen("linden_file.dat","w+");
 		if(!fp)
 		{
 			llerrs << "file coudnt be opened\n" << llendl;
@@ -444,7 +444,7 @@ namespace tut
 
 		perm.exportFile(fp);
 		fclose(fp);	
-		fp = fopen("linden_file.dat","r+");
+		fp = LLFile::fopen("linden_file.dat","r+");
 		if(!fp)
 		{
 			llerrs << "file coudnt be opened\n" << llendl;

@@ -38,7 +38,7 @@
 class LLXfer_File : public LLXfer
 {
  protected:
- 	FILE *mFp;
+ 	LLFILE *mFp;
 	char mLocalFilename[LL_MAX_PATH];		/* Flawfinder : ignore */
 	char mRemoteFilename[LL_MAX_PATH];		/* Flawfinder : ignore */
 	ELLPath mRemotePath;

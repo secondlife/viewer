@@ -244,8 +244,6 @@ BOOL LLTexLayerSetBuffer::render()
 	BOOL upload_now = (gAgent.mNumPendingQueries == 0 && mNeedsUpload && mTexLayerSet->isLocalTextureDataFinal());
 	BOOL success = TRUE;
 
-	gGL.start();
-	
 	// Composite bump
 	if( mBumpTexName )
 	{
@@ -297,8 +295,6 @@ BOOL LLTexLayerSetBuffer::render()
 	glColorMask( GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE );
 	gGL.blendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );  
 
-	gGL.stop();
-	
 	// we have valid texture data now
 	mInitialized = TRUE;
 	mNeedsUpdate = FALSE;

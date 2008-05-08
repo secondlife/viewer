@@ -58,7 +58,7 @@ mDelay(120)
 
 #ifdef MEM_DUMP_DATA
 	// clear out file.
-	FILE *dump = fopen("memusagedump.txt", "w");
+	LLFILE *dump = LLFile::fopen("memusagedump.txt", "w");
 	fclose(dump);
 #endif
 }
@@ -262,7 +262,7 @@ void LLMemoryView::dumpData()
 		// reset timer
 		mDumpTimer.reset();
 		// append dump info to text file
-		FILE *dump = fopen("memusagedump.txt", "a");
+		LLFILE *dump = LLFile::fopen("memusagedump.txt", "a");
 
 		if (dump)
 		{

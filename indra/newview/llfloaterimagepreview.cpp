@@ -260,7 +260,7 @@ void LLFloaterImagePreview::draw()
 			}
 
 			gGL.color3f(1.f, 1.f, 1.f);
-			gGL.begin( GL_QUADS );
+			gGL.begin( LLVertexBuffer::QUADS );
 			{
 				gGL.texCoord2f(mPreviewImageRect.mLeft, mPreviewImageRect.mTop);
 				gGL.vertex2i(PREVIEW_HPAD, PREVIEW_TEXTURE_HEIGHT);
@@ -288,7 +288,7 @@ void LLFloaterImagePreview::draw()
 				else
 					mAvatarPreview->bindTexture();
 
-				gGL.begin( GL_QUADS );
+				gGL.begin( LLVertexBuffer::QUADS );
 				{
 					gGL.texCoord2f(0.f, 1.f);
 					gGL.vertex2i(PREVIEW_HPAD, PREVIEW_TEXTURE_HEIGHT);
@@ -667,8 +667,6 @@ void LLImagePreviewAvatar::setPreviewTarget(const char* joint_name, const char* 
 //-----------------------------------------------------------------------------
 BOOL LLImagePreviewAvatar::render()
 {
-	gGL.start();
-	
 	mNeedsUpdate = FALSE;
 	LLVOAvatar* avatarp = mDummyAvatar;
 
@@ -692,7 +690,7 @@ BOOL LLImagePreviewAvatar::render()
 	glMatrixMode(GL_MODELVIEW);
 	gGL.popMatrix();
 
-	gGL.stop();
+	gGL.flush();
 	LLVector3 target_pos = mTargetJoint->getWorldPosition();
 
 	LLQuaternion camera_rot = LLQuaternion(mCameraPitch, LLVector3::y_axis) * 
@@ -710,9 +708,9 @@ BOOL LLImagePreviewAvatar::render()
 	LLViewerCamera::getInstance()->setView(LLViewerCamera::getInstance()->getDefaultFOV() / mCameraZoom);
 	LLViewerCamera::getInstance()->setPerspective(FALSE, mOrigin.mX, mOrigin.mY, mWidth, mHeight, FALSE);
 
-	LLVertexBuffer::stopRender();
+	LLVertexBuffer::unbind();
 	avatarp->updateLOD();
-	LLVertexBuffer::startRender();
+	
 
 	if (avatarp->mDrawable.notNull())
 	{
@@ -725,6 +723,7 @@ BOOL LLImagePreviewAvatar::render()
 		avatarPoolp->renderAvatars(avatarp);  // renders only one avatar
 	}
 
+	gGL.color4f(1,1,1,1);
 	return TRUE;
 }
 
@@ -823,8 +822,6 @@ void LLImagePreviewSculpted::setPreviewTarget(LLImageRaw* imagep, F32 distance)
 //-----------------------------------------------------------------------------
 BOOL LLImagePreviewSculpted::render()
 {
-	gGL.start();
-	
 	mNeedsUpdate = FALSE;
 
 	LLGLSUIDefault def;
@@ -919,8 +916,6 @@ BOOL LLImagePreviewSculpted::render()
 		delete [] normals;
 	}
 
-	gGL.stop();
-	
 	return TRUE;
 }
 

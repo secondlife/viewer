@@ -52,6 +52,7 @@ class LLVolume;
 #include "llstrider.h"
 #include "v4coloru.h"
 #include "llmemory.h"
+#include "llfile.h"
 
 //============================================================================
 
@@ -229,8 +230,8 @@ public:
 	
 	void copyParams(const LLProfileParams &params);
 
-	BOOL importFile(FILE *fp);
-	BOOL exportFile(FILE *fp) const;
+	BOOL importFile(LLFILE *fp);
+	BOOL exportFile(LLFILE *fp) const;
 
 	BOOL importLegacyStream(std::istream& input_stream);
 	BOOL exportLegacyStream(std::ostream& output_stream) const;
@@ -354,8 +355,8 @@ public:
 
 	void copyParams(const LLPathParams &params);
 
-	BOOL importFile(FILE *fp);
-	BOOL exportFile(FILE *fp) const;
+	BOOL importFile(LLFILE *fp);
+	BOOL exportFile(LLFILE *fp) const;
 
 	BOOL importLegacyStream(std::istream& input_stream);
 	BOOL exportLegacyStream(std::ostream& output_stream) const;
@@ -545,8 +546,8 @@ public:
 	const LLPathParams &getPathParams() const {return mPathParams;}
 	LLPathParams &getPathParams() {return mPathParams;}
 
-	BOOL importFile(FILE *fp);
-	BOOL exportFile(FILE *fp) const;
+	BOOL importFile(LLFILE *fp);
+	BOOL exportFile(LLFILE *fp) const;
 
 	BOOL importLegacyStream(std::istream& input_stream);
 	BOOL exportLegacyStream(std::ostream& output_stream) const;

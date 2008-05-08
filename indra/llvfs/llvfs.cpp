@@ -597,7 +597,7 @@ LLVFS::LLVFS(const char *index_filename, const char *data_filename, const BOOL r
 			return;
 		}
 		sprintf(marker, "%s.open", mDataFilename);	/* Flawfinder: ignore */
-		FILE* marker_fp = LLFile::fopen(marker, "w");	/* Flawfinder: ignore */
+		LLFILE* marker_fp = LLFile::fopen(marker, "w");	/* Flawfinder: ignore */
 		if (marker_fp)
 		{
 			fclose(marker_fp);
@@ -2134,7 +2134,7 @@ void LLVFS::dumpFiles()
 //============================================================================
 
 // static
-FILE *LLVFS::openAndLock(const char *filename, const char *mode, BOOL read_lock)
+LLFILE *LLVFS::openAndLock(const char *filename, const char *mode, BOOL read_lock)
 {
 #if LL_WINDOWS
     	
@@ -2142,7 +2142,7 @@ FILE *LLVFS::openAndLock(const char *filename, const char *mode, BOOL read_lock)
     	
 #else
 
-	FILE *fp;
+	LLFILE *fp;
 	int fd;
 	
 	// first test the lock in a non-destructive way
@@ -2192,7 +2192,7 @@ FILE *LLVFS::openAndLock(const char *filename, const char *mode, BOOL read_lock)
 }
     
 // static
-void LLVFS::unlockAndClose(FILE *fp)
+void LLVFS::unlockAndClose(LLFILE *fp)
 {
 	if (fp)
 	{

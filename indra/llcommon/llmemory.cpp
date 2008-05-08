@@ -387,7 +387,7 @@ U64 getCurrentRSS()
 U64 getCurrentRSS()
 {
 	static const char statPath[] = "/proc/self/stat";
-	FILE *fp = fopen(statPath, "r");
+	LLFILE *fp = LLFile::fopen(statPath, "r");
 	U64 rss = 0;
 
 	if (fp == NULL)

@@ -110,7 +110,7 @@ void LLWearableList::processGetAssetReply( const char* filename, const LLAssetID
 	if( status >= 0 )
 	{
 		// read the file
-		FILE* fp = LLFile::fopen(filename, "rb");		/*Flawfinder: ignore*/
+		LLFILE* fp = LLFile::fopen(filename, "rb");		/*Flawfinder: ignore*/
 		if( !fp )
 		{
 			llinfos << "Bad Wearable Asset: unable to open file: '" << filename << "'" << llendl;

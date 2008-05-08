@@ -58,14 +58,14 @@ void fallbackDestroyLLImageJ2CImpl(LLImageJ2CImpl* impl)
 }
 
 /**
-sample error callback expecting a FILE* client object
+sample error callback expecting a LLFILE* client object
 */
 void error_callback(const char* msg, void*)
 {
 	lldebugs << "LLImageJ2CImpl error_callback: " << msg << llendl;
 }
 /**
-sample warning callback expecting a FILE* client object
+sample warning callback expecting a LLFILE* client object
 */
 void warning_callback(const char* msg, void*)
 {

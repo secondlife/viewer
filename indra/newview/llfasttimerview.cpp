@@ -978,7 +978,7 @@ void LLFastTimerView::draw()
 
 					gGL.color4f(0.5f,0.5f,0.5f,1);
 				
-					gGL.begin(GL_LINES);
+					gGL.begin(LLVertexBuffer::LINES);
 					gGL.vertex2i((S32)bar, graph_rect.mBottom);
 					gGL.vertex2i((S32)bar, graph_rect.mTop);
 					gGL.end();
@@ -1014,7 +1014,7 @@ void LLFastTimerView::draw()
 				}
 
 				gGL.color4f(col[0], col[1], col[2], alpha);				
-				gGL.begin(GL_LINE_STRIP);
+				gGL.begin(LLVertexBuffer::LINE_STRIP);
 				for (U32 j = 0; j < LLFastTimer::FTM_HISTORY_NUM; j++)
 				{
 					U64 ticks = ticks_sum[j+1][idx];

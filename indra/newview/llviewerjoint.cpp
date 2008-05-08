@@ -148,7 +148,7 @@ void LLViewerJoint::renderSkeleton(BOOL recursive)
 	//----------------------------------------------------------------
 	if (mComponents & SC_AXES)
 	{
-		gGL.begin(GL_LINES);
+		gGL.begin(LLVertexBuffer::LINES);
 		gGL.color3f( 1.0f, 0.0f, 0.0f );
 		gGL.vertex3f( 0.0f,            0.0f, 0.0f );
 		gGL.vertex3f( 0.1f, 0.0f, 0.0f );
@@ -170,7 +170,7 @@ void LLViewerJoint::renderSkeleton(BOOL recursive)
 	{
 		gGL.color3f( 1.0f, 1.0f, 0.0f );
 
-		gGL.begin(GL_TRIANGLES);
+		gGL.begin(LLVertexBuffer::TRIANGLES);
 
 		// joint top half
 		glNormal3f(nc, nc, nc);
@@ -360,7 +360,7 @@ void LLViewerJoint::drawBone()
 	// render the bone
 	gGL.color3f( 0.5f, 0.5f, 0.0f );
 
-	gGL.begin(GL_TRIANGLES);
+	gGL.begin(LLVertexBuffer::TRIANGLES);
 
 	gGL.vertex3f( length,     0.0f,       0.0f);
 	gGL.vertex3f( 0.0f,       boneSize,  0.0f);

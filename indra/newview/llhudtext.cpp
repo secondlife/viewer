@@ -317,7 +317,7 @@ void LLHUDText::renderText(BOOL for_select)
 				LLUI::translate(box_center_offset.mV[VX], box_center_offset.mV[VY], box_center_offset.mV[VZ]);
 				gGL.color4fv(bg_color.mV);
 				LLUI::setLineWidth(2.0);
-				gGL.begin(GL_LINES);
+				gGL.begin(LLVertexBuffer::LINES);
 				{
 					if (outside_width)
 					{

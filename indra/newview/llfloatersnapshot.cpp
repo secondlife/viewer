@@ -415,7 +415,7 @@ void LLSnapshotLivePreview::draw()
 		glPushMatrix();
 		{
 			glTranslatef((F32)rect.mLeft, (F32)rect.mBottom, 0.f);
-			gGL.begin(GL_QUADS);
+			gGL.begin(LLVertexBuffer::QUADS);
 			{
 				gGL.texCoord2f(uv_width, uv_height);
 				gGL.vertex2i(rect.getWidth(), rect.getHeight() );
@@ -478,7 +478,7 @@ void LLSnapshotLivePreview::draw()
 				S32 y2 = gViewerWindow->getWindowHeight();
 
 				LLGLSNoTexture no_texture;
-				gGL.begin(GL_QUADS);
+				gGL.begin(LLVertexBuffer::QUADS);
 				{
 					gGL.color4f(1.f, 1.f, 1.f, 0.f);
 					gGL.vertex2i(x1, y1);
@@ -509,7 +509,7 @@ void LLSnapshotLivePreview::draw()
 		LLGLSNoTexture no_texture;
 		gGL.color4f(1.f, 1.f, 1.f, 1.f);
 		LLRect outline_rect = mImageRect[mCurImageIndex];
-		gGL.begin(GL_QUADS);
+		gGL.begin(LLVertexBuffer::QUADS);
 		{
 			gGL.vertex2i(outline_rect.mLeft - BORDER_WIDTH, outline_rect.mTop + BORDER_WIDTH);
 			gGL.vertex2i(outline_rect.mRight + BORDER_WIDTH, outline_rect.mTop + BORDER_WIDTH);
@@ -555,7 +555,7 @@ void LLSnapshotLivePreview::draw()
 				LLRect& rect = mImageRect[old_image_index];
 				glTranslatef((F32)rect.mLeft, (F32)rect.mBottom - llround(getRect().getHeight() * 2.f * (fall_interp * fall_interp)), 0.f);
 				glRotatef(-45.f * fall_interp, 0.f, 0.f, 1.f);
-				gGL.begin(GL_QUADS);
+				gGL.begin(LLVertexBuffer::QUADS);
 				{
 					gGL.texCoord2f(uv_width, uv_height);
 					gGL.vertex2i(rect.getWidth(), rect.getHeight() );

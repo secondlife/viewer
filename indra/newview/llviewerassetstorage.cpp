@@ -202,7 +202,7 @@ if(!filename)
 	llinfos << "ASSET_ID: " << asset_id << llendl;
 
 	S32 size = 0;
-	FILE* fp = LLFile::fopen(filename, "rb");
+	LLFILE* fp = LLFile::fopen(filename, "rb");
 	if (fp)
 	{
 		fseek(fp, 0, SEEK_END);

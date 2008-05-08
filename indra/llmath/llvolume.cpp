@@ -770,7 +770,7 @@ BOOL LLProfile::generate(const LLProfileParams& params, BOOL path_open,F32 detai
 
 
 
-BOOL LLProfileParams::importFile(FILE *fp)
+BOOL LLProfileParams::importFile(LLFILE *fp)
 {
 	LLMemType m1(LLMemType::MTYPE_VOLUME);
 	
@@ -834,7 +834,7 @@ BOOL LLProfileParams::importFile(FILE *fp)
 }
 
 
-BOOL LLProfileParams::exportFile(FILE *fp) const
+BOOL LLProfileParams::exportFile(LLFILE *fp) const
 {
 	fprintf(fp,"\t\tprofile 0\n");
 	fprintf(fp,"\t\t{\n");
@@ -1282,7 +1282,7 @@ BOOL LLDynamicPath::generate(const LLPathParams& params, F32 detail, S32 split, 
 }
 
 
-BOOL LLPathParams::importFile(FILE *fp)
+BOOL LLPathParams::importFile(LLFILE *fp)
 {
 	LLMemType m1(LLMemType::MTYPE_VOLUME);
 	
@@ -1403,7 +1403,7 @@ BOOL LLPathParams::importFile(FILE *fp)
 }
 
 
-BOOL LLPathParams::exportFile(FILE *fp) const
+BOOL LLPathParams::exportFile(LLFILE *fp) const
 {
 	fprintf(fp, "\t\tpath 0\n");
 	fprintf(fp, "\t\t{\n");
@@ -3777,7 +3777,7 @@ BOOL LLVolume::cleanupTriangleData( const S32 num_input_vertices,
 }
 
 
-BOOL LLVolumeParams::importFile(FILE *fp)
+BOOL LLVolumeParams::importFile(LLFILE *fp)
 {
 	LLMemType m1(LLMemType::MTYPE_VOLUME);
 	
@@ -3822,7 +3822,7 @@ BOOL LLVolumeParams::importFile(FILE *fp)
 	return TRUE;
 }
 
-BOOL LLVolumeParams::exportFile(FILE *fp) const
+BOOL LLVolumeParams::exportFile(LLFILE *fp) const
 {
 	fprintf(fp,"\tshape 0\n");
 	fprintf(fp,"\t{\n");

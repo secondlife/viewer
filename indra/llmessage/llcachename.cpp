@@ -323,7 +323,7 @@ void LLCacheName::cancelCallback(const LLUUID& id, LLCacheNameCallback callback,
 	}
 }
 
-void LLCacheName::importFile(FILE* fp)
+void LLCacheName::importFile(LLFILE* fp)
 {
 	S32 count = 0;
 

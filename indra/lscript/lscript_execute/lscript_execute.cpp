@@ -61,7 +61,7 @@ char* LSCRIPTRunTimeFaultStrings[LSRF_EOF] =		/*Flawfinder: ignore*/
 //static
 S64 LLScriptExecute::sGlobalInstructionCount = 0;
 
-LLScriptExecute::LLScriptExecute(FILE *fp)
+LLScriptExecute::LLScriptExecute(LLFILE *fp)
 {
 	U8  sizearray[4];
 	S32 filesize;
@@ -3725,7 +3725,7 @@ void lscript_run(char *filename, BOOL b_debug)
 		BOOL b_state;
 		LLScriptExecute *execute = NULL;
 
-		FILE* file = LLFile::fopen(filename, "r");
+		LLFILE* file = LLFile::fopen(filename, "r");
 		if (file)
 		{
 			execute = new LLScriptExecute(file);
@@ -3734,7 +3734,7 @@ void lscript_run(char *filename, BOOL b_debug)
 		file = LLFile::fopen(filename, "r");
 		if (file)
 		{
-			FILE* fp = LLFile::fopen("lscript.parse", "w");		/*Flawfinder: ignore*/
+			LLFILE* fp = LLFile::fopen("lscript.parse", "w");		/*Flawfinder: ignore*/
 			LLScriptLSOParse *parse = new LLScriptLSOParse(file);
 			parse->printData(fp);
 			delete parse;

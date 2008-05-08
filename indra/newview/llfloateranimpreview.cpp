@@ -382,7 +382,7 @@ void LLFloaterAnimPreview::draw()
 		gGL.color3f(1.f, 1.f, 1.f);
 		mAnimPreview->bindTexture();
 
-		gGL.begin( GL_QUADS );
+		gGL.begin( LLVertexBuffer::QUADS );
 		{
 			gGL.texCoord2f(0.f, 1.f);
 			gGL.vertex2i(PREVIEW_HPAD, PREVIEW_TEXTURE_HEIGHT);
@@ -1068,8 +1068,6 @@ BOOL	LLPreviewAnimation::render()
 {
 	mNeedsUpdate = FALSE;
 	LLVOAvatar* avatarp = mDummyAvatar;
-
-	gGL.start();
 	
 	glMatrixMode(GL_PROJECTION);
 	gGL.pushMatrix();
@@ -1092,7 +1090,7 @@ BOOL	LLPreviewAnimation::render()
 	glMatrixMode(GL_MODELVIEW);
 	gGL.popMatrix();
 
-	gGL.stop();
+	gGL.flush();
 
 	LLVector3 target_pos = avatarp->mRoot.getWorldPosition();
 
@@ -1124,9 +1122,9 @@ BOOL	LLPreviewAnimation::render()
 		avatarp->updateMotion();
 	}
 	
-	LLVertexBuffer::stopRender();
+	LLVertexBuffer::unbind();
 	avatarp->updateLOD();
-	LLVertexBuffer::startRender();
+	
 
 	avatarp->mRoot.updateWorldMatrixChildren();
 
@@ -1140,6 +1138,7 @@ BOOL	LLPreviewAnimation::render()
 		avatarPoolp->renderAvatars(avatarp);  // renders only one avatar
 	}
 
+	gGL.color4f(1,1,1,1);
 	return TRUE;
 }
 

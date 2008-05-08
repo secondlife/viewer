@@ -351,7 +351,7 @@ namespace tut
 	{
 		F32 f_val = 44.44f, f_unpkval;
 
-		FILE* fp = fopen(TEST_FILE_NAME, "w+");
+		LLFILE* fp = LLFile::fopen(TEST_FILE_NAME, "w+");
 		if(!fp)
 		{
 			llerrs << "File couldnt be open" <<llendl;
@@ -406,7 +406,7 @@ namespace tut
 		LLVector4 unpkllvec4;
 		LLUUID unpkuuid;
 
-		FILE* fp = fopen(TEST_FILE_NAME,"w+");
+		LLFILE* fp = LLFile::fopen(TEST_FILE_NAME,"w+");
 		if(!fp)
 		{
 			llerrs << "File couldnt be open" <<llendl;

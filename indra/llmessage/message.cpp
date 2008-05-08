@@ -2419,7 +2419,7 @@ void process_deny_trusted_circuit(LLMessageSystem *msg, void **)
 void dump_prehash_files()
 {
 	U32 i;
-	FILE* fp = LLFile::fopen("../../indra/llmessage/message_prehash.h", "w");	/* Flawfinder: ignore */
+	LLFILE* fp = LLFile::fopen("../../indra/llmessage/message_prehash.h", "w");	/* Flawfinder: ignore */
 	if (fp)
 	{
 		fprintf(

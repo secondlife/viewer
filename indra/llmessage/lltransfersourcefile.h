@@ -74,7 +74,7 @@ protected:
 
 protected:
 	LLTransferSourceParamsFile mParams;
-	FILE *mFP;
+	LLFILE *mFP;
 };
 
 #endif // LL_LLTRANSFERSOURCEFILE_H

@@ -353,7 +353,7 @@ S32 LLXfer_File::processEOF()
 			}
 			else
 			{
-				//FILE* fp = LLFile::fopen(mTempFilename, "r");
+				//LLFILE* fp = LLFile::fopen(mTempFilename, "r");
 				//llwarns << "File " << mTempFilename << " does "
 				//		<< (!fp ? "not" : "" ) << " exit." << llendl;
 				//if(fp) fclose(fp);
@@ -424,8 +424,8 @@ U32 LLXfer_File::getXferTypeTag()
 S32 copy_file(const char* from, const char* to)
 {
 	S32 rv = 0;
-	FILE* in = LLFile::fopen(from, "rb");	/*Flawfinder: ignore*/
-	FILE* out = LLFile::fopen(to, "wb");	/*Flawfinder: ignore*/
+	LLFILE* in = LLFile::fopen(from, "rb");	/*Flawfinder: ignore*/
+	LLFILE* out = LLFile::fopen(to, "wb");	/*Flawfinder: ignore*/
 	if(in && out)
 	{
 		S32 read = 0;

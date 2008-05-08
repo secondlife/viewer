@@ -5334,6 +5334,28 @@
         <key>Value</key>
             <integer>0</integer>
         </map>
+     <key>RenderDebugGL</key>
+      <map>
+        <key>Comment</key>
+        <string>Enable strict GL debugging.</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>Boolean</string>
+        <key>Value</key>
+        <integer>0</integer>
+      </map>
+      <key>RenderDebugPipeline</key>
+      <map>
+        <key>Comment</key>
+        <string>Enable strict pipeline debugging.</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>Boolean</string>
+        <key>Value</key>
+        <integer>0</integer>
+      </map>
     <key>RenderDebugTextureBind</key>
         <map>
         <key>Comment</key>
@@ -5825,17 +5847,6 @@
             <string>Boolean</string>
         <key>Value</key>
             <integer>0</integer>
-        </map>
-    <key>RenderUseCleverUI</key>
-        <map>
-        <key>Comment</key>
-            <string>Turns on the \"clever\" UI rendering optimization. It's a known performace gain on apple.</string>
-        <key>Persist</key>
-            <integer>1</integer>
-        <key>Type</key>
-            <string>Boolean</string>
-        <key>Value</key>
-            <integer>1</integer>
         </map>
     <key>RenderUseFarClip</key>
         <map>
