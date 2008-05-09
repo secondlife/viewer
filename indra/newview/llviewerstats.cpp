@@ -53,6 +53,7 @@
 #include "llfasttimerview.h"
 #include "llviewerregion.h"
 #include "llfloaterhtml.h"
+#include "llviewerwindow.h"		// *TODO: remove, only used for width/height
 #include "llworld.h"
 #include "llfeaturemanager.h"
 #if LL_WINDOWS && LL_LCD_COMPILE
@@ -748,7 +749,12 @@ void send_stats()
 	// If the current revision is recent, ping the previous author before overriding
 	LLSD &misc = body["stats"]["misc"];
 
-	// misc["string_1"] = 
+	// Screen size so the UI team can figure out how big the widgets
+	// appear and use a "typical" size for end user tests.
+
+	S32 window_width = gViewerWindow->getWindowDisplayWidth();
+	S32 window_height = gViewerWindow->getWindowDisplayHeight();
+	misc["string_1"] = llformat("%.dx%d", window_width, window_height);
 	// misc["string_2"] = 
 	misc["int_1"] = LLFloaterDirectory::sOldSearchCount; // Steve: 1.18.6
 	misc["int_2"] = LLFloaterDirectory::sNewSearchCount; // Steve: 1.18.6

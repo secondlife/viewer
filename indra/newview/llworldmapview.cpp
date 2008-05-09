@@ -85,7 +85,6 @@ LLUIImagePtr LLWorldMapView::sTrackCircleImage = NULL;
 LLUIImagePtr LLWorldMapView::sTrackArrowImage = NULL;
 
 LLUIImagePtr LLWorldMapView::sClassifiedsImage = NULL;
-LLUIImagePtr LLWorldMapView::sPopularImage = NULL;
 LLUIImagePtr LLWorldMapView::sForSaleImage = NULL;
 
 F32 LLWorldMapView::sThresholdA = 48.f;
@@ -111,22 +110,21 @@ F32 CONE_SIZE = 0.6f;
 
 void LLWorldMapView::initClass()
 {
-	LLUUID image_id;
-	
 	sAvatarYouSmallImage =	LLUI::getUIImage("map_avatar_you_8.tga");
 	sAvatarSmallImage = 	LLUI::getUIImage("map_avatar_8.tga");
 	sAvatarLargeImage = 	LLUI::getUIImage("map_avatar_16.tga");
 	sAvatarAboveImage = 	LLUI::getUIImage("map_avatar_above_8.tga");
 	sAvatarBelowImage = 	LLUI::getUIImage("map_avatar_below_8.tga");
+
 	sHomeImage =			LLUI::getUIImage("map_home.tga");
 	sTelehubImage = 		LLUI::getUIImage("map_telehub.tga");
 	sInfohubImage = 		LLUI::getUIImage("map_infohub.tga");
 	sEventImage =			LLUI::getUIImage("map_event.tga");
 	sEventMatureImage =		LLUI::getUIImage("map_event_mature.tga");
+
 	sTrackCircleImage =		LLUI::getUIImage("map_track_16.tga");
 	sTrackArrowImage =		LLUI::getUIImage("direction_arrow.tga");
 	sClassifiedsImage =		LLUI::getUIImage("icon_top_pick.tga");
-	sPopularImage =			LLUI::getUIImage("icon_popular.tga");
 	sForSaleImage =			LLUI::getUIImage("icon_for_sale.tga");
 }
 
@@ -138,15 +136,16 @@ void LLWorldMapView::cleanupClass()
 	sAvatarLargeImage = NULL;
 	sAvatarAboveImage = NULL;
 	sAvatarBelowImage = NULL;
+
 	sTelehubImage = NULL;
 	sInfohubImage = NULL;
 	sHomeImage = NULL;
 	sEventImage = NULL;
 	sEventMatureImage = NULL;
+
 	sTrackCircleImage = NULL;
 	sTrackArrowImage = NULL;
 	sClassifiedsImage = NULL;
-	sPopularImage = NULL;
 	sForSaleImage = NULL;
 }
 
@@ -705,11 +704,6 @@ void LLWorldMapView::draw()
 		drawGenericItems(LLWorldMap::getInstance()->mClassifieds, sClassifiedsImage);
 	}
 
-	if (gSavedSettings.getBOOL("MapShowPopular"))
-	{
-		drawGenericItems(LLWorldMap::getInstance()->mPopular, sPopularImage);
-	}
-	
 	if (gSavedSettings.getBOOL("MapShowEvents"))
 	{
 		drawEvents();
@@ -1533,10 +1527,6 @@ void LLWorldMapView::handleClick(S32 x, S32 y, MASK mask,
 	{
 		(*it).mSelected = FALSE;
 	}
-	for (it = LLWorldMap::getInstance()->mPopular.begin(); it != LLWorldMap::getInstance()->mPopular.end(); ++it)
-	{
-		(*it).mSelected = FALSE;
-	}
 	for (it = LLWorldMap::getInstance()->mLandForSale.begin(); it != LLWorldMap::getInstance()->mLandForSale.end(); ++it)
 	{
 		(*it).mSelected = FALSE;
@@ -1574,21 +1564,6 @@ void LLWorldMapView::handleClick(S32 x, S32 y, MASK mask,
 					gFloaterWorldMap->trackEvent(event);
 					return;
 				}
-			}
-		}
-	}
-
-	if (gSavedSettings.getBOOL("MapShowPopular"))
-	{
-		for (it = LLWorldMap::getInstance()->mPopular.begin(); it != LLWorldMap::getInstance()->mPopular.end(); ++it)
-		{
-			LLItemInfo& popular = *it;
-
-			if (checkItemHit(x, y, popular, id, true))
-			{
-				*hit_type = MAP_ITEM_POPULAR;
-				mItemPicked = TRUE;
-				return;
 			}
 		}
 	}
@@ -1794,12 +1769,6 @@ BOOL LLWorldMapView::handleDoubleClick( S32 x, S32 y, MASK mask )
 				id.toString(uuid_str);
 				sscanf(&uuid_str[28], "%X", &event_id);
 				LLFloaterDirectory::showEvents(event_id);
-				break;
-			}
-		case MAP_ITEM_POPULAR:
-			{
-				gFloaterWorldMap->close();
-				LLFloaterDirectory::showPopular(id);
 				break;
 			}
 		case MAP_ITEM_LAND_FOR_SALE:

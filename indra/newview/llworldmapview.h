@@ -149,7 +149,6 @@ public:
 	static LLUIImagePtr	sTrackCircleImage;
 	static LLUIImagePtr	sTrackArrowImage;
 	static LLUIImagePtr	sClassifiedsImage;
-	static LLUIImagePtr	sPopularImage;
 	static LLUIImagePtr	sForSaleImage;
 
 	static F32		sThresholdA;

@@ -96,12 +96,17 @@ public:
     void sendClassifiedInfoRequest();
 	void sendClassifiedInfoUpdate();
 	void resetDirty();
-	void confirmPublish(S32 option);
 
     static void processClassifiedInfoReply(LLMessageSystem* msg, void**);
 
+	// Confirmation dialogs flow in this order
+	static void callbackConfirmMature(S32 option, void* data);
+	void confirmMature(S32 option);
+	void gotMature();
 	static void callbackGotPriceForListing(S32 option, LLString text, void* data);
 	static void callbackConfirmPublish(S32 option, void* data);
+	void confirmPublish(S32 option);
+
 	void sendClassifiedClickMessage(const char* type);
 
 protected:
@@ -154,7 +159,7 @@ protected:
 	LLTextEditor*	mDescEditor;
 	LLLineEditor*	mLocationEditor;
 	LLComboBox*		mCategoryCombo;
-	LLCheckBoxCtrl* mMatureCheck;
+	LLComboBox*		mMatureCombo;
 	LLCheckBoxCtrl* mAutoRenewCheck;
 
 	LLButton*    mUpdateBtn;

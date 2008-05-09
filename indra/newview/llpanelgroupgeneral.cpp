@@ -54,6 +54,11 @@
 #include "lltexturectrl.h"
 #include "llviewerwindow.h"
 
+// consts
+const S32 MATURE_CONTENT = 1;
+const S32 NON_MATURE_CONTENT = 2;
+const S32 DECLINE_TO_STATE = 0;
+
 // static
 void* LLPanelGroupGeneral::createTab(void* data)
 {
@@ -76,7 +81,7 @@ LLPanelGroupGeneral::LLPanelGroupGeneral(const std::string& name,
 	mBtnJoinGroup(NULL),
 	mListVisibleMembers(NULL),
 	mCtrlShowInGroupList(NULL),
-	mCtrlMature(NULL),
+	mComboMature(NULL),
 	mCtrlOpenEnrollment(NULL),
 	mCtrlEnrollmentFee(NULL),
 	mSpinEnrollmentFee(NULL),
@@ -156,14 +161,19 @@ BOOL LLPanelGroupGeneral::postBuild()
 		mCtrlShowInGroupList->setCallbackUserData(this);
 	}
 
-	mCtrlMature = getChild<LLCheckBoxCtrl>("mature", recurse);
-	if (mCtrlMature)
+	mComboMature = getChild<LLComboBox>("group_mature_check", recurse);	
+	if(mComboMature)
 	{
-		mCtrlMature->setCommitCallback(onCommitAny);
-		mCtrlMature->setCallbackUserData(this);
-		mCtrlMature->setVisible( !gAgent.isTeen() );
+		mComboMature->setCurrentByIndex(0);
+		mComboMature->setCommitCallback(onCommitAny);
+		mComboMature->setCallbackUserData(this);
+		if (gAgent.isTeen())
+		{
+			// Teens don't get to set mature flag. JC
+			mComboMature->setVisible(FALSE);
+			mComboMature->setCurrentByIndex(NON_MATURE_CONTENT);
+		}
 	}
-
 	mCtrlOpenEnrollment = getChild<LLCheckBoxCtrl>("open_enrollement", recurse);
 	if (mCtrlOpenEnrollment)
 	{
@@ -231,7 +241,7 @@ BOOL LLPanelGroupGeneral::postBuild()
 		mEditCharter->setEnabled(TRUE);
 
 		mCtrlShowInGroupList->setEnabled(TRUE);
-		mCtrlMature->setEnabled(TRUE);
+		mComboMature->setEnabled(TRUE);
 		mCtrlOpenEnrollment->setEnabled(TRUE);
 		mCtrlEnrollmentFee->setEnabled(TRUE);
 		mSpinEnrollmentFee->setEnabled(TRUE);
@@ -429,6 +439,16 @@ bool LLPanelGroupGeneral::apply(LLString& mesg)
 	if (has_power_in_group || mGroupID.isNull())
 	{
 		llinfos << "LLPanelGroupGeneral::apply" << llendl;
+
+		// Check to make sure mature has been set
+		if(mComboMature->getCurrentIndex() == DECLINE_TO_STATE)
+		{
+			LLString::format_map_t args;
+			gViewerWindow->alertXml("SetGroupMature", &callbackConfirmMatureApply,
+				new LLHandle<LLPanel>(getHandle()));
+			return false;
+		}
+
 		if (mGroupID.isNull())
 		{
 			// Validate the group name length.
@@ -446,13 +466,12 @@ bool LLPanelGroupGeneral::apply(LLString& mesg)
 			LLString::format_map_t args;
 			args["[MESSAGE]"] = mConfirmGroupCreateStr;
 			gViewerWindow->alertXml("GenericAlertYesCancel", args,
-				createGroupCallback,new LLHandle<LLPanel>(getHandle()));
+				createGroupCallback, new LLHandle<LLPanel>(getHandle()) );
 
 			return false;
 		}
 
 		LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
-
 		if (!gdatap)
 		{
 			mesg = "No group data found for group ";
@@ -468,11 +487,12 @@ bool LLPanelGroupGeneral::apply(LLString& mesg)
 		{
 			if (mEditCharter) gdatap->mCharter = mEditCharter->getText();
 			if (mInsignia) gdatap->mInsigniaID = mInsignia->getImageAssetID();
-			if (mCtrlMature)
+			if (mComboMature)
 			{
 				if (!gAgent.isTeen())
 				{
-					gdatap->mMaturePublish = mCtrlMature->get();
+					gdatap->mMaturePublish = 
+						mComboMature->getCurrentIndex() == MATURE_CONTENT;
 				}
 				else
 				{
@@ -523,6 +543,42 @@ void LLPanelGroupGeneral::cancel()
 	notifyObservers();
 }
 
+
+// static
+void LLPanelGroupGeneral::callbackConfirmMatureApply(S32 option, void* data)
+{
+	LLHandle<LLPanel>* handlep = (LLHandle<LLPanel>*)data;
+	LLPanelGroupGeneral* self = dynamic_cast<LLPanelGroupGeneral*>(handlep->get());
+	delete handlep;
+	if (self)
+	{
+		self->confirmMatureApply(option);
+	}
+}
+
+// invoked from callbackConfirmMature
+void LLPanelGroupGeneral::confirmMatureApply(S32 option)
+{
+	// 0 == Yes
+	// 1 == No
+	// 2 == Cancel
+	switch(option)
+	{
+	case 0:
+		mComboMature->setCurrentByIndex(MATURE_CONTENT);
+		break;
+	case 1:
+		mComboMature->setCurrentByIndex(NON_MATURE_CONTENT);
+		break;
+	default:
+		return;
+	}
+
+	// If we got here it means they set a valid value
+	LLString mesg = "";
+	apply(mesg);
+}
+
 // static
 void LLPanelGroupGeneral::createGroupCallback(S32 option, void* userdata)
 {
@@ -547,7 +603,7 @@ void LLPanelGroupGeneral::createGroupCallback(S32 option, void* userdata)
 												enrollment_fee,
 												self->mCtrlOpenEnrollment->get(),
 												false,
-												self->mCtrlMature->get());
+												self->mComboMature->getCurrentIndex() == MATURE_CONTENT);
 
 		}
 		break;
@@ -632,11 +688,18 @@ void LLPanelGroupGeneral::update(LLGroupChange gc)
 		mCtrlShowInGroupList->set(gdatap->mShowInList);
 		mCtrlShowInGroupList->setEnabled(mAllowEdit && can_change_ident);
 	}
-	if (mCtrlMature)
+	if (mComboMature)
 	{
-		mCtrlMature->set(gdatap->mMaturePublish);
-		mCtrlMature->setEnabled(mAllowEdit && can_change_ident);
-		mCtrlMature->setVisible( !gAgent.isTeen() );
+		if(gdatap->mMaturePublish)
+		{
+			mComboMature->setCurrentByIndex(MATURE_CONTENT);
+		}
+		else
+		{
+			mComboMature->setCurrentByIndex(NON_MATURE_CONTENT);
+		}
+		mComboMature->setEnabled(mAllowEdit && can_change_ident);
+		mComboMature->setVisible( !gAgent.isTeen() );
 	}
 	if (mCtrlOpenEnrollment) 
 	{
@@ -820,7 +883,7 @@ void LLPanelGroupGeneral::updateChanged()
 		mInsignia,
 		mEditCharter,
 		mCtrlShowInGroupList,
-		mCtrlMature,
+		mComboMature,
 		mCtrlOpenEnrollment,
 		mCtrlEnrollmentFee,
 		mSpinEnrollmentFee,

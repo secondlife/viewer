@@ -515,7 +515,7 @@ public:
 
 	virtual void changed(U32 mask)
 	{
-		// JAMESDEBUG disabled for now - slows down client or causes crashes
+		// JC - Disabled for now - slows down client or causes crashes
 		// in inventory code.
 		//
 		// Also, this may not be faster than just rebuilding the menu each time.
@@ -739,7 +739,7 @@ void init_menus()
 	// TomY TODO convert these two
 	LLMenuGL*menu;
 
-	// JAMESDEBUG - Maybe we don't want a global landmark menu
+	// JC - Maybe we don't want a global landmark menu
 	/*
 	menu = new LLMenuGL(LANDMARK_MENU_NAME);
 	// Defer init_landmark_menu() until inventory observer reports that we actually

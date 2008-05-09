@@ -172,7 +172,6 @@ void LLWorldMap::eraseItems()
 		mInfohubs.clear();
 		mPGEvents.clear();
 		mMatureEvents.clear();
-		mPopular.clear();
 		mLandForSale.clear();
 		mClassifieds.clear();
 	}
@@ -297,12 +296,6 @@ void LLWorldMap::setCurrentLayer(S32 layer, bool request_layer)
 	{
 		// Request for events (mature)
 		sendItemRequest(MAP_ITEM_MATURE_EVENT);
-	}
-
-	if (mPopular.size() == 0)
-	{
-		// Request for popular
-		sendItemRequest(MAP_ITEM_POPULAR);
 	}
 
 	if (mLandForSale.size() == 0)
@@ -761,12 +754,6 @@ void LLWorldMap::processMapItemReply(LLMessageSystem* msg, void**)
 				{
 					LLWorldMap::getInstance()->mMatureEvents.push_back(new_item);
 				}
-				break;
-			}
-			case MAP_ITEM_POPULAR: // popular
-			{
-				new_item.mPosGlobal.mdV[VZ] = (F64)extra2;
-				LLWorldMap::getInstance()->mPopular.push_back(new_item);
 				break;
 			}
 			case MAP_ITEM_LAND_FOR_SALE: // land for sale

@@ -58,6 +58,7 @@ public:
 	virtual bool apply(LLString& mesg);
 	virtual void cancel();
 	static void createGroupCallback(S32 option, void* user_data);
+	static void callbackConfirmMatureApply(S32 option, void* data);
 	
 	virtual void update(LLGroupChange gc);
 	
@@ -80,6 +81,7 @@ private:
 
 	void updateMembers();
 	void updateChanged();
+	void confirmMatureApply(S32 option);
 
 	BOOL			mPendingMemberUpdate;
 	BOOL			mChanged;
@@ -101,7 +103,6 @@ private:
 
 	// Options (include any updates in updateChanged)
 	LLCheckBoxCtrl	*mCtrlShowInGroupList;
-	LLCheckBoxCtrl	*mCtrlMature;
 	LLCheckBoxCtrl	*mCtrlOpenEnrollment;
 	LLCheckBoxCtrl	*mCtrlEnrollmentFee;
 	LLSpinCtrl      *mSpinEnrollmentFee;
@@ -109,6 +110,7 @@ private:
 	LLCheckBoxCtrl  *mCtrlListGroup;
 	LLTextBox       *mActiveTitleLabel;
 	LLComboBox		*mComboActiveTitle;
+	LLComboBox		*mComboMature;
 
 	LLGroupMgrGroupData::member_list_t::iterator mMemberProgress;
 };

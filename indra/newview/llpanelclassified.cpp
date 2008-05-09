@@ -71,6 +71,9 @@
 #include "llappviewer.h"	// abortQuit()
 
 const S32 MINIMUM_PRICE_FOR_LISTING = 50;	// L$
+const S32 MATURE_CONTENT = 1;
+const S32 NON_MATURE_CONTENT = 2;
+const S32 DECLINE_TO_STATE = 0;
 
 //static
 std::list<LLPanelClassified*> LLPanelClassified::sAllPanels;
@@ -162,7 +165,7 @@ LLPanelClassified::LLPanelClassified(bool in_finder, bool from_search)
 	mDescEditor(NULL),
 	mLocationEditor(NULL),
 	mCategoryCombo(NULL),
-	mMatureCheck(NULL),
+	mMatureCombo(NULL),
 	mAutoRenewCheck(NULL),
 	mUpdateBtn(NULL),
 	mTeleportBtn(NULL),
@@ -276,13 +279,15 @@ BOOL LLPanelClassified::postBuild()
 	mCategoryCombo->setCommitCallback(onCommitAny);
 	mCategoryCombo->setCallbackUserData(this);
 
-	mMatureCheck = getChild<LLCheckBoxCtrl>( "classified_mature_check");
-	mMatureCheck->setCommitCallback(onCommitAny);
-	mMatureCheck->setCallbackUserData(this);
+	mMatureCombo = getChild<LLComboBox>( "classified_mature_check");
+	mMatureCombo->setCurrentByIndex(0);
+	mMatureCombo->setCommitCallback(onCommitAny);
+	mMatureCombo->setCallbackUserData(this);
 	if (gAgent.isTeen())
 	{
 		// Teens don't get to set mature flag. JC
-		mMatureCheck->setVisible(FALSE);
+		mMatureCombo->setVisible(FALSE);
+		mMatureCombo->setCurrentByIndex(NON_MATURE_CONTENT);
 	}
 
 	if (!mInFinder)
@@ -532,7 +537,7 @@ void LLPanelClassified::sendClassifiedInfoUpdate()
 	msg->addU32Fast(_PREHASH_ParentEstate, 0);
 	msg->addUUIDFast(_PREHASH_SnapshotID, mSnapshotCtrl->getImageAssetID());
 	msg->addVector3dFast(_PREHASH_PosGlobal, mPosGlobal);
-	BOOL mature = mMatureCheck->get();
+	BOOL mature = mMatureCombo->getCurrentIndex() == MATURE_CONTENT;
 	BOOL auto_renew = FALSE;
 	if (mAutoRenewCheck) 
 	{
@@ -656,7 +661,14 @@ void LLPanelClassified::processClassifiedInfoReply(LLMessageSystem *msg, void **
 		self->mLocationChanged = false;
 
 		self->mCategoryCombo->setCurrentByIndex(category - 1);
-		self->mMatureCheck->set(mature);
+		if(mature)
+		{
+			self->mMatureCombo->setCurrentByIndex(MATURE_CONTENT);
+		}
+		else
+		{
+			self->mMatureCombo->setCurrentByIndex(NON_MATURE_CONTENT);
+		}
 		if (self->mAutoRenewCheck)
 		{
 			self->mAutoRenewCheck->set(auto_renew);
@@ -722,8 +734,8 @@ void LLPanelClassified::refresh()
 		mCategoryCombo->setEnabled(godlike);
 		mCategoryCombo->setVisible(godlike);
 
-		mMatureCheck->setEnabled(godlike);
-		mMatureCheck->setVisible(godlike);
+		mMatureCombo->setEnabled(godlike);
+		mMatureCombo->setVisible(godlike);
 
 		// Jesse (who is the only one who uses this, as far as we can tell
 		// Says that he does not want a set location button - he has used it
@@ -742,7 +754,7 @@ void LLPanelClassified::refresh()
 		//mPriceEditor->setEnabled(is_self);
 		mCategoryCombo->setEnabled(is_self);
 
-		mMatureCheck->setEnabled(is_self);
+		mMatureCombo->setEnabled(is_self);
 
 		if (mAutoRenewCheck)
 		{
@@ -775,15 +787,60 @@ void LLPanelClassified::onClickUpdate(void* data)
 		return;
 	};
 
-	// if already paid for, just do the update
-	if (self->mPaidFor)
+	// If user has not set mature, do not allow publish
+	if(self->mMatureCombo->getCurrentIndex() == DECLINE_TO_STATE)
 	{
-		callbackConfirmPublish(0, self);
+		LLString::format_map_t args;
+		gViewerWindow->alertXml("SetClassifiedMature", &callbackConfirmMature, self);
+		return;
+	}
+
+	// Mature content flag is set, proceed
+	self->gotMature();
+}
+
+// static
+void LLPanelClassified::callbackConfirmMature(S32 option, void* data)
+{
+	LLPanelClassified* self = (LLPanelClassified*)data;
+	self->confirmMature(option);
+}
+
+// invoked from callbackConfirmMature
+void LLPanelClassified::confirmMature(S32 option)
+{
+	// 0 == Yes
+	// 1 == No
+	// 2 == Cancel
+	switch(option)
+	{
+	case 0:
+		mMatureCombo->setCurrentByIndex(MATURE_CONTENT);
+		break;
+	case 1:
+		mMatureCombo->setCurrentByIndex(NON_MATURE_CONTENT);
+		break;
+	default:
+		return;
+	}
+	
+	// If we got here it means they set a valid value
+	gotMature();
+}
+
+// Called after we have determined whether this classified has
+// mature content or not.
+void LLPanelClassified::gotMature()
+{
+	// if already paid for, just do the update
+	if (mPaidFor)
+	{
+		callbackConfirmPublish(0, this);
 	}
 	else
 	{
 		// Ask the user how much they want to pay
-		LLFloaterPriceForListing::show( callbackGotPriceForListing, self );
+		LLFloaterPriceForListing::show( callbackGotPriceForListing, this );
 	}
 }
 
@@ -830,8 +887,8 @@ void LLPanelClassified::resetDirty()
 	mLocationChanged = false;
 	if (mCategoryCombo)
 		mCategoryCombo->resetDirty();
-	if (mMatureCheck)
-		mMatureCheck->resetDirty();
+	if (mMatureCombo)
+		mMatureCombo->resetDirty();
 	if (mAutoRenewCheck)
 		mAutoRenewCheck->resetDirty();
 }
@@ -948,7 +1005,7 @@ BOOL LLPanelClassified::checkDirty()
 	if	( mLocationEditor )			mDirty |= mLocationEditor->isDirty();
 	if  ( mLocationChanged )		mDirty |= TRUE;
 	if	( mCategoryCombo )			mDirty |= mCategoryCombo->isDirty();
-	if	( mMatureCheck )			mDirty |= mMatureCheck->isDirty();
+	if	( mMatureCombo )			mDirty |= mMatureCombo->isDirty();
 	if	( mAutoRenewCheck )			mDirty |= mAutoRenewCheck->isDirty();
 
 	return mDirty;

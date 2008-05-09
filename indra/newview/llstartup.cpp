@@ -2983,7 +2983,7 @@ void register_viewer_callbacks(LLMessageSystem* msg)
 	//msg->setHandlerFunc("DirPicksReply",  LLPanelDirBrowser::processDirPicksReply);
 	msg->setHandlerFunc("DirClassifiedReply",  LLPanelDirBrowser::processDirClassifiedReply);
 	msg->setHandlerFunc("DirLandReply",   LLPanelDirBrowser::processDirLandReply);
-	msg->setHandlerFunc("DirPopularReply",LLPanelDirBrowser::processDirPopularReply);
+	//msg->setHandlerFunc("DirPopularReply",LLPanelDirBrowser::processDirPopularReply);
 
 	msg->setHandlerFunc("AvatarPickerReply", LLFloaterAvatarPicker::processAvatarPickerReply);
 
