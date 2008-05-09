@@ -282,7 +282,6 @@ void LLHUDObject::renderAll()
 		}
 	}
 
-	// cleanup any leftover client state, etc
 	LLVertexBuffer::unbind();
 }
 

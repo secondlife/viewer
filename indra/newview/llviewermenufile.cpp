@@ -436,25 +436,31 @@ void handle_upload(void* data)
 void handle_compress_image(void*)
 {
 	LLFilePicker& picker = LLFilePicker::instance();
-	if (picker.getOpenFile(LLFilePicker::FFLOAD_IMAGE))
+	if (picker.getMultipleOpenFiles(LLFilePicker::FFLOAD_IMAGE))
 	{
-		std::string infile(picker.getFirstFile());
-		std::string outfile = infile + ".j2c";
-
-		llinfos << "Input:  " << infile << llendl;
-		llinfos << "Output: " << outfile << llendl;
-
-		BOOL success;
-
-		success = LLViewerImageList::createUploadFile(infile, outfile, IMG_CODEC_TGA);
-
-		if (success)
+		const char* input_file = picker.getFirstFile();
+		while (input_file)
 		{
-			llinfos << "Compression complete" << llendl;
-		}
-		else
-		{
-			llinfos << "Compression failed: " << LLImageBase::getLastError() << llendl;
+			std::string infile(input_file);
+			std::string outfile = infile + ".j2c";
+
+			llinfos << "Input:  " << infile << llendl;
+			llinfos << "Output: " << outfile << llendl;
+
+			BOOL success;
+
+			success = LLViewerImageList::createUploadFile(infile, outfile, IMG_CODEC_TGA);
+
+			if (success)
+			{
+				llinfos << "Compression complete" << llendl;
+			}
+			else
+			{
+				llinfos << "Compression failed: " << LLImageBase::getLastError() << llendl;
+			}
+
+			input_file = picker.getNextFile();
 		}
 	}
 }

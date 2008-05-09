@@ -66,6 +66,7 @@ public:
 	virtual LLXMLNodePtr getXML(bool save_children = true) const;
 	static LLView* fromXML(LLXMLNodePtr node, LLView *parent, class LLUICtrlFactory *factory);
 
+	virtual void    forceSetValue(const LLSD& value ) ;
 	virtual void	setValue(const LLSD& value );
 	virtual LLSD	getValue() const { return mValue; }
 			F32		get() const { return (F32)getValue().asReal(); }
@@ -87,6 +88,7 @@ public:
 	virtual void	setIncrement(F32 inc)			{ mIncrement = inc; }
 	virtual F32		getMinValue()			{ return mMinValue ; }
 	virtual F32 	getMaxValue()			{ return mMaxValue ; }
+	virtual F32     getIncrement()          { return mIncrement ; }
 
 	void			setLabel(const LLStringExplicit& label);
 	void			setLabelColor(const LLColor4& c)			{ mTextEnabledColor = c; }

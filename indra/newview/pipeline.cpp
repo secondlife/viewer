@@ -1643,6 +1643,8 @@ void LLPipeline::stateSort(LLCamera& camera, LLCullResult &result)
 	LLFastTimer ftm(LLFastTimer::FTM_STATESORT);
 	LLMemType mt(LLMemType::MTYPE_PIPELINE);
 
+	//LLVertexBuffer::unbind();
+
 	grabReferences(result);
 
 	{
@@ -2465,6 +2467,8 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 			gGLProjection[i] = saved_projection[i];
 		}
 	}
+
+	LLVertexBuffer::unbind();
 
 	LLGLState::checkStates();
 	LLGLState::checkTextureChannels();
@@ -4759,7 +4763,6 @@ void LLPipeline::renderBloom(BOOL for_snapshot)
 		
 		LLGLDisable blend(GL_BLEND);
 
-
 		//tex unit 0
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_ARB);
 		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB, GL_REPLACE);
@@ -4805,6 +4808,8 @@ void LLPipeline::renderBloom(BOOL for_snapshot)
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
+
+	LLVertexBuffer::unbind();
 
 	LLGLState::checkStates();
 	LLGLState::checkTextureChannels();

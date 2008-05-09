@@ -48,6 +48,8 @@
 #include "llagent.h"
 #include "llviewercamera.h"
 #include "llviewerimagelist.h"
+#include "llselectmgr.h"
+#include "llfloatertools.h"
 #include "llglheaders.h"
 
 const U8  OVERLAY_IMG_COMPONENTS = 4;
@@ -839,31 +841,34 @@ S32 LLViewerParcelOverlay::renderPropertyLines	()
 
 		gGL.end();
 
-		LLGLDepthTest depth(GL_TRUE, GL_FALSE, GL_GREATER);
-		
-		colorp  = mColorArray  + BYTES_PER_COLOR   * i;
-		vertexp = mVertexArray + FLOATS_PER_VERTEX * i;
-
-		gGL.begin(LLVertexBuffer::TRIANGLE_STRIP);
-
-		for (j = 0; j < vertex_per_edge; j++)
+		if (LLSelectMgr::sRenderHiddenSelections && gFloaterTools && gFloaterTools->getVisible())
 		{
-			U8 color[4];
-			color[0] = colorp[0];
-			color[1] = colorp[1];
-			color[2] = colorp[2];
-			color[3] = colorp[3]/4;
+			LLGLDepthTest depth(GL_TRUE, GL_FALSE, GL_GREATER);
+			
+			colorp  = mColorArray  + BYTES_PER_COLOR   * i;
+			vertexp = mVertexArray + FLOATS_PER_VERTEX * i;
 
-			gGL.color4ubv(color);
-			gGL.vertex3fv(vertexp);
+			gGL.begin(LLVertexBuffer::TRIANGLE_STRIP);
 
-			colorp  += BYTES_PER_COLOR;
-			vertexp += FLOATS_PER_VERTEX;			
+			for (j = 0; j < vertex_per_edge; j++)
+			{
+				U8 color[4];
+				color[0] = colorp[0];
+				color[1] = colorp[1];
+				color[2] = colorp[2];
+				color[3] = colorp[3]/4;
+
+				gGL.color4ubv(color);
+				gGL.vertex3fv(vertexp);
+
+				colorp  += BYTES_PER_COLOR;
+				vertexp += FLOATS_PER_VERTEX;			
+			}
+
+			drawn += vertex_per_edge;
+
+			gGL.end();
 		}
-
-		drawn += vertex_per_edge;
-
-		gGL.end();
 		
 	}
 

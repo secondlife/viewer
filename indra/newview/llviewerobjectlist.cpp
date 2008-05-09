@@ -1212,6 +1212,7 @@ U32 LLViewerObjectList::renderObjectsForSelect(LLCamera &camera, BOOL pick_parce
 	// render pickable ui elements, like names, etc.
 	LLHUDObject::renderAllForSelect();
 	gGL.flush();
+	LLVertexBuffer::unbind();
 
 	gRenderForSelect = FALSE;
 

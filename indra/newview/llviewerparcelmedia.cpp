@@ -103,6 +103,12 @@ void LLViewerParcelMedia::update(LLParcel* parcel)
 			// we're in a parcel
 			bool new_parcel = false;
 			S32 parcelid = parcel->getLocalID();
+			
+			if(!gAgent.getRegion())
+			{
+				llerrs << "gAgent's region is NULL." << llendl ;				
+			}
+
 			LLUUID regionid = gAgent.getRegion()->getRegionID();
 			if (parcelid != sMediaParcelLocalID || regionid != sMediaRegionID)
 			{

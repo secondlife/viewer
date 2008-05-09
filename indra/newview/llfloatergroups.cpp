@@ -466,7 +466,7 @@ void init_group_list(LLScrollListCtrl* ctrl, const LLUUID& highlight_id, U64 pow
 		LLSD element;
 		element["id"] = LLUUID::null;
 		element["columns"][0]["column"] = "name";
-		element["columns"][0]["value"] = "none";
+		element["columns"][0]["value"] = "none"; // *TODO: Translate
 		element["columns"][0]["font"] = "SANSSERIF";
 		element["columns"][0]["font-style"] = style;
 

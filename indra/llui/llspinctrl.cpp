@@ -249,6 +249,18 @@ void LLSpinCtrl::setValue(const LLSD& value )
 	}
 }
 
+//no matter if Editor has the focus, update the value
+void LLSpinCtrl::forceSetValue(const LLSD& value )
+{
+	F32 v = (F32)value.asReal();
+	if (mValue != v || !mbHasBeenSet)
+	{
+		mbHasBeenSet = TRUE;
+		mValue = v;
+		
+		updateEditor();
+	}
+}
 
 void LLSpinCtrl::clear()
 {

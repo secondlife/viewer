@@ -1823,7 +1823,6 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 		}
 		break;
 	case IM_BUSY_AUTO_RESPONSE:
-		// fix for JIRA issue VWR-20 submitted 13-JAN-2007 - Paul Churchill
 		if (is_muted)
 		{
 			lldebugs << "Ignoring busy response from " << from_id << llendl;
@@ -1831,8 +1830,9 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 		}
 		else
 		{
-			// original code resumes
-			gIMMgr->addMessage(session_id, from_id, name, message);
+			// TODO: after LLTrans hits release, get "busy response" into translatable file
+			snprintf(buffer, sizeof(buffer), "%s (%s): %s", name, "busy response", (message+message_offset)); /* Flawfinder: ignore */
+			gIMMgr->addMessage(session_id, from_id, name, buffer);
 		}
 		break;
 		

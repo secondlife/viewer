@@ -65,11 +65,21 @@
 // helper class to watch the inventory. 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-class LLPropertiesObserver : public LLInventoryObserver, public LLSingleton<LLPropertiesObserver>
+// Ugh. This can't be a singleton because it needs to remove itself
+//  from the inventory observer list when destroyed, which could
+//  happen after gInventory has already been destroyed if a singleton.
+// Instead, do our own ref counting and create / destroy it as needed
+class LLPropertiesObserver : public LLInventoryObserver
 {
 public:
-	LLPropertiesObserver() {}
-	virtual ~LLPropertiesObserver() {}
+	LLPropertiesObserver()
+	{
+		gInventory.addObserver(this);
+	}
+	virtual ~LLPropertiesObserver()
+	{
+		gInventory.removeObserver(this);
+	}
 	virtual void changed(U32 mask);
 };
 
@@ -88,7 +98,10 @@ void LLPropertiesObserver::changed(U32 mask)
 /// Class LLFloaterProperties
 ///----------------------------------------------------------------------------
 
+// static
 LLFloaterProperties::instance_map LLFloaterProperties::sInstances;
+LLPropertiesObserver* LLFloaterProperties::sPropertiesObserver = NULL;
+S32 LLFloaterProperties::sPropertiesObserverCount = 0;
 
 // static
 LLFloaterProperties* LLFloaterProperties::find(const LLUUID& item_id,
@@ -145,12 +158,12 @@ LLFloaterProperties::LLFloaterProperties(const std::string& name, const LLRect& 
 {
 	LLUICtrlFactory::getInstance()->buildFloater(this,"floater_inventory_item_properties.xml");
 
-	// hack to make sure these floaters are observing the inventory.
-	if(!gInventory.containsObserver(LLPropertiesObserver::getInstance()))
+	if (!sPropertiesObserver)
 	{
-		// Note: this is where gPropertiesObserver used to be constructed.
-		gInventory.addObserver(LLPropertiesObserver::getInstance());
+		sPropertiesObserver = new LLPropertiesObserver;
 	}
+	sPropertiesObserverCount++;
+	
 	// add the object to the static structure
 	LLUUID key = mItemID ^ mObjectID;
 	sInstances.insert(instance_map::value_type(key, this));
@@ -192,6 +205,12 @@ LLFloaterProperties::~LLFloaterProperties()
 	if(it != sInstances.end())
 	{
 		sInstances.erase(it);
+	}
+	sPropertiesObserverCount--;
+	if (!sPropertiesObserverCount)
+	{
+		delete sPropertiesObserver;
+		sPropertiesObserver = NULL;
 	}
 }
 

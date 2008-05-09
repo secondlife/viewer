@@ -1044,8 +1044,8 @@ BOOL LLImageGL::readBackRaw(S32 discard_level, LLImageRaw* imageraw, bool compre
 
 	S32 gl_discard = discard_level - mCurrentDiscardLevel;
 
-	llverify(bindTextureInternal(0));
-	
+	llverify(bindTextureInternal(0));	
+
 	LLGLint glwidth = 0;
 	glGetTexLevelParameteriv(mTarget, gl_discard, GL_TEXTURE_WIDTH, (GLint*)&glwidth);
 	if (glwidth == 0)
@@ -1067,40 +1067,63 @@ BOOL LLImageGL::readBackRaw(S32 discard_level, LLImageRaw* imageraw, bool compre
 		llerrs << llformat("LLImageGL::readBackRaw: bogus params: %d x %d x %d",width,height,ncomponents) << llendl;
 	}
 	
-	BOOL return_result = TRUE ;
 	LLGLint is_compressed = 0;
 	if (compressed_ok)
 	{
 		glGetTexLevelParameteriv(mTarget, is_compressed, GL_TEXTURE_COMPRESSED, (GLint*)&is_compressed);
 	}
+	
+	//-----------------------------------------------------------------------------------------------
+	GLenum error ;
+	while((error = glGetError()) != GL_NO_ERROR)
+	{
+		llwarns << "GL Error happens before reading back texture. Error code: " << error << llendl ;
+	}
+	//-----------------------------------------------------------------------------------------------
+
 	if (is_compressed)
 	{
 		LLGLint glbytes;
 		glGetTexLevelParameteriv(mTarget, gl_discard, GL_TEXTURE_COMPRESSED_IMAGE_SIZE, (GLint*)&glbytes);
-		imageraw->allocateDataSize(width, height, ncomponents, glbytes);
-		glGetCompressedTexImageARB(mTarget, gl_discard, (GLvoid*)(imageraw->getData()));
-		if(glGetError() != GL_NO_ERROR)
+		if(!imageraw->allocateDataSize(width, height, ncomponents, glbytes))
 		{
-			llwarns << "Error happens when reading back the compressed texture image." << llendl ;
-			imageraw->deleteData() ;
-			return_result = FALSE ;
+			llwarns << "Memory allocation failed for reading back texture. Size is: " << glbytes << llendl ;
+			llwarns << "width: " << width << "height: " << height << "components: " << ncomponents << llendl ;
+			return FALSE ;
 		}
-		stop_glerror();
+
+		glGetCompressedTexImageARB(mTarget, gl_discard, (GLvoid*)(imageraw->getData()));		
+		//stop_glerror();
 	}
 	else
 	{
-		imageraw->allocateDataSize(width, height, ncomponents);
-		glGetTexImage(GL_TEXTURE_2D, gl_discard, mFormatPrimary, mFormatType, (GLvoid*)(imageraw->getData()));
-		if(glGetError() != GL_NO_ERROR)
+		if(!imageraw->allocateDataSize(width, height, ncomponents))
 		{
-			llwarns << "Error happens when reading back the texture image." << llendl ;
-			imageraw->deleteData() ;
-			return_result = FALSE ;
+			llwarns << "Memory allocation failed for reading back texture." << llendl ;
+			llwarns << "width: " << width << "height: " << height << "components: " << ncomponents << llendl ;
+			return FALSE ;
 		}
-		stop_glerror();
+		
+		glGetTexImage(GL_TEXTURE_2D, gl_discard, mFormatPrimary, mFormatType, (GLvoid*)(imageraw->getData()));		
+		//stop_glerror();
 	}
 		
-	return return_result ;
+	//-----------------------------------------------------------------------------------------------
+	if((error = glGetError()) != GL_NO_ERROR)
+	{
+		llwarns << "GL Error happens after reading back texture. Error code: " << error << llendl ;
+		imageraw->deleteData() ;
+
+		while((error = glGetError()) != GL_NO_ERROR)
+		{
+			llwarns << "GL Error happens after reading back texture. Error code: " << error << llendl ;
+		}
+
+		return FALSE ;
+	}
+	//-----------------------------------------------------------------------------------------------
+	
+	return TRUE ;
 }
 
 void LLImageGL::destroyGLTexture()

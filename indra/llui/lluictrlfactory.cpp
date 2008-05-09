@@ -104,8 +104,15 @@ static LLRegisterWidget<LLUICtrlLocate> r2("pad");
 // LLUICtrlFactory()
 //-----------------------------------------------------------------------------
 LLUICtrlFactory::LLUICtrlFactory()
+	: mDummyPanel(NULL)
 {
 	setupPaths();
+}
+
+LLUICtrlFactory::~LLUICtrlFactory()
+{
+	delete mDummyPanel;
+	mDummyPanel = NULL;
 }
 
 void LLUICtrlFactory::setupPaths()
@@ -428,10 +435,6 @@ void LLUICtrlFactory::rebuild()
 
 LLView *LLUICtrlFactory::createCtrlWidget(LLPanel *parent, LLXMLNodePtr node)
 {
-	// panel for holding dummy widgets, so they have a parent for layout purposes, etc.
-	// does not manage lifetime of child widgets
-	static LLPanel dummy_panel;
-
 	LLString ctrl_type = node->getName()->mString;
 	LLString::toLower(ctrl_type);
 	
@@ -445,7 +448,11 @@ LLView *LLUICtrlFactory::createCtrlWidget(LLPanel *parent, LLXMLNodePtr node)
 
 	if (parent == NULL)
 	{
-		parent = &dummy_panel;
+		if (mDummyPanel == NULL)
+		{
+			mDummyPanel = new LLPanel;
+		}
+		parent = mDummyPanel;
 	}
 	LLView *ctrl = func(node, parent, this);
 

@@ -47,6 +47,8 @@ class LLLineEditor;
 class LLRadioGroup;
 class LLTextBox;
 
+class LLPropertiesObserver;
+
 class LLFloaterProperties : public LLFloater
 {
 public:
@@ -94,6 +96,8 @@ protected:
 
 	typedef std::map<LLUUID, LLFloaterProperties*, lluuid_less> instance_map;
 	static instance_map sInstances;
+	static LLPropertiesObserver* sPropertiesObserver;
+	static S32 sPropertiesObserverCount;
 };
 
 class LLMultiProperties : public LLMultiFloater

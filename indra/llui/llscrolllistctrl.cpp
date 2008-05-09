@@ -1117,9 +1117,7 @@ BOOL LLScrollListCtrl::selectItemRange( S32 first_index, S32 last_index )
 			if( itemp->getEnabled() )
 			{
 				selectItem(itemp, FALSE);
-				success = TRUE;
-				if (!success)
-					mOriginalSelection = first_index;
+				success = TRUE;				
 			}
 		}
 		else
@@ -1198,7 +1196,7 @@ void LLScrollListCtrl::deleteItems(const LLSD& sd)
 				mLastSelected = NULL;
 			}
 			delete itemp;
-			mItemList.erase(iter++);
+			iter = mItemList.erase(iter);
 		}
 		else
 		{

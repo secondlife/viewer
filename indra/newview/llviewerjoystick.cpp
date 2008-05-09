@@ -228,7 +228,37 @@ void LLViewerJoystick::init(bool autoenable)
 			mDriverState = JDS_UNINITIALIZED;
 		}
 	}
+
+	// Autoenable the joystick for recognized devices if nothing was connected previously
+	if (!autoenable)
+	{
+		autoenable = gSavedSettings.getString("JoystickInitialized").empty() ? true : false;
+	}
 	updateEnabled(autoenable);
+	
+	if (mDriverState == JDS_INITIALIZED)
+	{
+		// A Joystick device is plugged in
+		if (isLikeSpaceNavigator())
+		{
+			// It's a space navigator, we have defaults for it.
+			if (gSavedSettings.getString("JoystickInitialized") != "SpaceNavigator")
+			{
+				// Only set the defaults if we haven't already (in case they were overridden)
+				setSNDefaults();
+				gSavedSettings.setString("JoystickInitialized", "SpaceNavigator");
+			}
+		}
+		else
+		{
+			// It's not a Space Navigator
+			gSavedSettings.setString("JoystickInitialized", "UnknownDevice");
+		}
+	}
+	else
+	{
+		// No device connected, don't change any settings
+	}
 	
 	llinfos << "ndof: mDriverState=" << mDriverState << "; mNdofDev=" 
 			<< mNdofDev << "; libinit=" << libinit << llendl;

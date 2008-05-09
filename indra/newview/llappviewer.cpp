@@ -875,15 +875,7 @@ bool LLAppViewer::init()
 	gSimFrames = (F32)gFrameCount;
 
 	LLViewerJoystick::getInstance()->init(false);
-	if (LLViewerJoystick::getInstance()->isLikeSpaceNavigator())
-	{
-		if (gSavedSettings.getString("JoystickInitialized") != "SpaceNavigator")
-		{
-			LLFloaterJoystick::setSNDefaults();
-			gSavedSettings.setString("JoystickInitialized", "SpaceNavigator");
-		}
-	}
-	
+
 	return true;
 }
 

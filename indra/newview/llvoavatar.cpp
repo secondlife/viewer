@@ -4048,7 +4048,10 @@ U32 LLVOAvatar::renderSkinned(EAvatarRenderPass pass)
 	}
 
 	// render collision normal
-	if (sShowFootPlane && mDrawable.notNull())
+	// *NOTE: this is disabled (there is no UI for enabling sShowFootPlane) due
+	// to DEV-14477.  the code is left here to aid in tracking down the cause
+	// of the crash in the future. -brad
+	if (!gRenderForSelect && sShowFootPlane && mDrawable.notNull())
 	{
 		LLVector3 slaved_pos = mDrawable->getPositionAgent();
 		LLVector3 foot_plane_normal(mFootPlane.mV[VX], mFootPlane.mV[VY], mFootPlane.mV[VZ]);
@@ -4076,7 +4079,9 @@ U32 LLVOAvatar::renderSkinned(EAvatarRenderPass pass)
 			gGL.vertex3f(collide_point.mV[VX], collide_point.mV[VY], collide_point.mV[VZ]);
 			gGL.vertex3f(collide_point.mV[VX] + mFootPlane.mV[VX], collide_point.mV[VY] + mFootPlane.mV[VY], collide_point.mV[VZ] + mFootPlane.mV[VZ]);
 
-		}gGL.end();
+		}
+		gGL.end();
+		gGL.flush();
 	}
 	//--------------------------------------------------------------------
 	// render all geomety attached to the skeleton

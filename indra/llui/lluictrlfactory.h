@@ -46,7 +46,7 @@ class LLUICtrlFactory : public LLSingleton<LLUICtrlFactory>
 public:
 	LLUICtrlFactory();
 	// do not call!  needs to be public so run-time can clean up the singleton
-	virtual ~LLUICtrlFactory() {}
+	virtual ~LLUICtrlFactory();
 
 	void setupPaths();
 
@@ -88,6 +88,8 @@ private:
 	std::deque<const LLCallbackMap::map_t*> mFactoryStack;
 
 	static std::vector<LLString> mXUIPaths;
+
+	LLPanel* mDummyPanel;
 };
 
 

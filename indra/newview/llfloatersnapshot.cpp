@@ -1694,13 +1694,13 @@ void LLFloaterSnapshot::Impl::resetSnapshotSizeOnUI(LLFloaterSnapshot *view, S32
 	LLSpinCtrl *sctrl = view->getChild<LLSpinCtrl>("snapshot_width") ;
 	if(sctrl)
 	{
-		sctrl->setValue(width) ;
+		sctrl->forceSetValue(width) ;
 	}
 
 	sctrl = view->getChild<LLSpinCtrl>("snapshot_height") ;
 	if(sctrl)
 	{
-		sctrl->setValue(height) ;
+		sctrl->forceSetValue(height) ;
 	}
 
 	gSavedSettings.setS32("LastSnapshotWidth", width);
@@ -1727,8 +1727,30 @@ void LLFloaterSnapshot::Impl::onCommitCustomResolution(LLUICtrl *ctrl, void* dat
 			
 			if (w != curw || h != curh)
 			{
+				BOOL update_ = FALSE ;
+				//if to upload a snapshot, process spinner input in a special way.
+				if(LLSnapshotLivePreview::SNAPSHOT_TEXTURE == gSavedSettings.getS32("LastSnapshotType"))
+				{
+					S32 spinner_increment = (S32)((LLSpinCtrl*)ctrl)->getIncrement() ;
+					S32 dw = w - curw ;
+					S32 dh = h - curh ;
+					dw = (dw == spinner_increment) ? 1 : ((dw == -spinner_increment) ? -1 : 0) ;
+					dh = (dh == spinner_increment) ? 1 : ((dh == -spinner_increment) ? -1 : 0) ;
+
+					if(dw)
+					{
+						w = (dw > 0) ? curw << dw : curw >> -dw ;
+						update_ = TRUE ;
+					}
+					if(dh)
+					{
+						h = (dh > 0) ? curh << dh : curh >> -dh ;
+						update_ = TRUE ;
+					}
+				}
+
 				previewp->setMaxImageSize((S32)((LLSpinCtrl *)ctrl)->getMaxValue()) ;
-				if(checkImageSize(previewp, w, h, w != curw, previewp->getMaxImageSize()))
+				if(checkImageSize(previewp, w, h, w != curw, previewp->getMaxImageSize()) || update_)
 				{
 					resetSnapshotSizeOnUI(view, w, h) ;
 				}

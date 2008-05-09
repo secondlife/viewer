@@ -357,7 +357,7 @@ void LLDrawPoolTerrain::renderFullShader()
 
 void LLDrawPoolTerrain::renderFull4TU()
 {
-		glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_NORMAL_ARRAY);
 
 	// Hack! Get the region that this draw pool is rendering from!
@@ -388,8 +388,7 @@ void LLDrawPoolTerrain::renderFull4TU()
 	glActiveTextureARB(GL_TEXTURE0_ARB);
 	LLViewerImage::bindTexture(detail_texture0p,0);
 	glClientActiveTextureARB(GL_TEXTURE0_ARB);
-
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	
 	glEnable(GL_TEXTURE_GEN_S);
 	glEnable(GL_TEXTURE_GEN_T);
 	glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
@@ -467,6 +466,8 @@ void LLDrawPoolTerrain::renderFull4TU()
 	glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB_ARB,		GL_SRC_COLOR);
 
 	glActiveTextureARB(GL_TEXTURE0_ARB);
+	glClientActiveTextureARB(GL_TEXTURE0_ARB);
+
 	// GL_BLEND disabled by default
 	drawLoop();
 
@@ -576,11 +577,13 @@ void LLDrawPoolTerrain::renderFull4TU()
 	glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA_ARB,	GL_SRC_ALPHA);
 
 	glActiveTextureARB(GL_TEXTURE0_ARB);
+	glClientActiveTextureARB(GL_TEXTURE0_ARB);
 	{
 		LLGLEnable blend(GL_BLEND);
 		drawLoop();
 	}
 
+	LLVertexBuffer::unbind();
 	// Disable multitexture
 	LLImageGL::unbindTexture(3, GL_TEXTURE_2D);
 	glActiveTextureARB(GL_TEXTURE3_ARB);

@@ -1064,7 +1064,7 @@ void init_client_menu(LLMenuGL* menu)
 	
 	menu->appendSeparator(); 
 	
-	menu->append(new LLMenuItemCallGL("Compress Image...", 
+	menu->append(new LLMenuItemCallGL("Compress Images...", 
 		&handle_compress_image, NULL, NULL));
 
 	menu->append(new LLMenuItemCheckGL("Limit Select Distance", 
@@ -1507,7 +1507,8 @@ void init_debug_avatar_menu(LLMenuGL* menu)
 	menu->append(new LLMenuItemToggleGL("Disable LOD", &LLViewerJoint::sDisableLOD));
 	menu->append(new LLMenuItemToggleGL("Debug Character Vis", &LLVOAvatar::sDebugInvisible));
 	//menu->append(new LLMenuItemToggleGL("Show Attachment Points", &LLVOAvatar::sShowAttachmentPoints));
-	menu->append(new LLMenuItemToggleGL("Show Collision Plane", &LLVOAvatar::sShowFootPlane));
+	//diabling collision plane due to DEV-14477 -brad
+	//menu->append(new LLMenuItemToggleGL("Show Collision Plane", &LLVOAvatar::sShowFootPlane));
 	menu->append(new LLMenuItemToggleGL("Show Collision Skeleton", &LLVOAvatar::sShowCollisionVolumes));
 	menu->append(new LLMenuItemToggleGL( "Display Agent Target", &LLAgent::sDebugDisplayTarget));
 	menu->append(new LLMenuItemToggleGL( "Debug Rotation", &gDebugAvatarRotation));
