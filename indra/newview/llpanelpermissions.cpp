@@ -327,6 +327,7 @@ void LLPanelPermissions::refresh()
 
 	// update group text field
 	childSetEnabled("Group:",true);
+	childSetText("Group Name",LLString::null);
 	LLUUID group_id;
 	BOOL groups_identical = LLSelectMgr::getInstance()->selectGetGroup(group_id);
 	if (groups_identical)
@@ -337,6 +338,16 @@ void LLPanelPermissions::refresh()
 			mLabelGroupName->setEnabled(TRUE);
 		}
 	}
+	else
+	{
+		if(mLabelGroupName)
+		{
+			mLabelGroupName->setNameID(LLUUID::null, TRUE);
+			mLabelGroupName->refresh(LLUUID::null, "", "", TRUE);
+			mLabelGroupName->setEnabled(FALSE);
+		}
+	}
+	
 	childSetEnabled("button set group",owners_identical && (mOwnerID == gAgent.getID()));
 
 	// figure out the contents of the name, description, & category
@@ -854,7 +865,7 @@ void callback_deed_to_group(S32 option, void*)
 	{
 		LLUUID group_id;
 		BOOL groups_identical = LLSelectMgr::getInstance()->selectGetGroup(group_id);
-		if(groups_identical && (gAgent.hasPowerInGroup(group_id, GP_OBJECT_DEED)))
+		if(group_id.notNull() && groups_identical && (gAgent.hasPowerInGroup(group_id, GP_OBJECT_DEED)))
 		{
 			LLSelectMgr::getInstance()->sendOwner(LLUUID::null, group_id, FALSE);
 //			LLViewerStats::getInstance()->incStat(LLViewerStats::ST_RELEASE_COUNT);

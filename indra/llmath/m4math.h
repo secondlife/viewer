@@ -1,6 +1,6 @@
 /** 
  * @file m4math.h
- * @brief LLMatrix3 class header file.
+ * @brief LLMatrix4 class header file.
  *
  * $LicenseInfo:firstyear=2000&license=viewergpl$
  * 
@@ -101,9 +101,13 @@ class LLMatrix4
 public:
 	F32	mMatrix[NUM_VALUES_IN_MAT4][NUM_VALUES_IN_MAT4];
 
-	LLMatrix4();										// Initializes Matrix to identity matrix
+	// Initializes Matrix to identity matrix
+	LLMatrix4()
+	{
+		setIdentity();
+	}
 	explicit LLMatrix4(const F32 *mat);								// Initializes Matrix to values in mat
-	explicit LLMatrix4(const LLMatrix3 &mat);						// Initializes Matrix to valuee in mat and sets position to (0,0,0)
+	explicit LLMatrix4(const LLMatrix3 &mat);						// Initializes Matrix to values in mat and sets position to (0,0,0)
 	explicit LLMatrix4(const LLQuaternion &q);						// Initializes Matrix with rotation q and sets position to (0,0,0)
 
 	LLMatrix4(const LLMatrix3 &mat, const LLVector4 &pos);	// Initializes Matrix to values in mat and pos
@@ -239,12 +243,6 @@ public:
 
 	friend std::ostream&	 operator<<(std::ostream& s, const LLMatrix4 &a);	// Stream a
 };
-
-
-inline LLMatrix4::LLMatrix4()
-{
-	setIdentity();
-}
 
 inline const LLMatrix4&	LLMatrix4::setIdentity()
 {

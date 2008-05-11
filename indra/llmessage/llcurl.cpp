@@ -674,8 +674,9 @@ std::string LLCurl::strerror(CURLcode errorcode)
 // For generating a simple request for data
 // using one multi and one easy per request 
 
-LLCurlRequest::LLCurlRequest()
-	: mActiveMulti(NULL)
+LLCurlRequest::LLCurlRequest() :
+	mActiveMulti(NULL),
+	mActiveRequestCount(0)
 {
 }
 

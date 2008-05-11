@@ -38,11 +38,17 @@
 
 BOOL LLRenderTarget::sUseFBO = FALSE;
 
-LLRenderTarget::LLRenderTarget()
+LLRenderTarget::LLRenderTarget() :
+	mResX(0),
+	mResY(0),
+	mTex(0),
+	mFBO(0),
+	mDepth(0),
+	mStencil(0),
+	mUseDepth(FALSE),
+	mRenderDepth(FALSE),
+	mUsage(GL_TEXTURE_2D)
 {
-	mResX = mResY = mTex = mFBO = mDepth = 0;
-	mUseDepth = FALSE;
-	mUsage = GL_TEXTURE_2D;
 }
 
 LLRenderTarget::~LLRenderTarget()

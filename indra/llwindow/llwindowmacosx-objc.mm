@@ -47,6 +47,8 @@ void setupCocoa()
 	
 	if(!inited)
 	{
+		NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+		
 		// This is a bit of voodoo taken from the Apple sample code "CarbonCocoa_PictureCursor":
 		//   http://developer.apple.com/samplecode/CarbonCocoa_PictureCursor/index.html
 		
@@ -55,6 +57,8 @@ void setupCocoa()
 
 		//	Must first call [[[NSWindow alloc] init] release] to get the NSWindow machinery set up so that NSCursor can use a window to cache the cursor image
 		[[[NSWindow alloc] init] release];
+
+		[pool release];
 	}
 }
 
@@ -82,8 +86,10 @@ OSErr releaseImageCursor(CursorRef ref)
 {
 	if( ref != NULL )
 	{
+		NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 		NSCursor *cursor = (NSCursor*)ref;
 		[cursor release];
+		[pool release];
 	}
 	else
 	{
@@ -97,8 +103,10 @@ OSErr setImageCursor(CursorRef ref)
 {
 	if( ref != NULL )
 	{
+		NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 		NSCursor *cursor = (NSCursor*)ref;
 		[cursor set];
+		[pool release];
 	}
 	else
 	{

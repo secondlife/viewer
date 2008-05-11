@@ -68,13 +68,10 @@ public:
 	static BOOL sShowDebugAlpha;
 
 private:
-	S32 mDiffuse;
 	LLGLSLShader* current_shader;
 	LLGLSLShader* target_shader;
 	LLGLSLShader* simple_shader;
-	LLGLSLShader* simple_lod_shader;
 	LLGLSLShader* fullbright_shader;	
-	LLGLSLShader* fullbright_lod_shader;
 };
 
 class LLDrawPoolAlphaPostWater : public LLDrawPoolAlpha

@@ -761,7 +761,17 @@ public:
 class LLVolumeFace
 {
 public:
-	LLVolumeFace();
+	LLVolumeFace() : 
+		mID(0),
+		mTypeMask(0),
+		mHasBinormals(FALSE),
+		mBeginS(0),
+		mBeginT(0),
+		mNumS(0),
+		mNumT(0)
+	{
+	}
+
 	BOOL create(LLVolume* volume, BOOL partial_build = FALSE);
 	void createBinormals();
 

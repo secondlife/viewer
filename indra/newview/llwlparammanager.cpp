@@ -299,7 +299,7 @@ void LLWLParamManager::propagateParameters(void)
 	LLVector4 sunDir;
 	LLVector4 moonDir;
 
-	// set the sun direction from mSunAngle and mEastAngle
+	// set the sun direction from SunAngle and EastAngle
 	F32 sinTheta = sin(mCurParams.getEastAngle());
 	F32 cosTheta = cos(mCurParams.getEastAngle());
 

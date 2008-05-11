@@ -83,22 +83,25 @@ const F32 LLWorld::mWidthInMeters = mWidth * mScale;
 //
 
 // allocate the stack
-LLWorld::LLWorld()
+LLWorld::LLWorld() :
+	mLandFarClip(DEFAULT_FAR_PLANE),
+	mLastPacketsIn(0),
+	mLastPacketsOut(0),
+	mLastPacketsLost(0),
+	mMinRegionX(0),
+	mMaxRegionX(0),
+	mMinRegionY(0),
+	mMaxRegionY(0),
+	mSpaceTimeUSec(0)
 {
-	mSpaceTimeUSec = 0;
-	mLastPacketsIn = 0;
-	mLastPacketsOut = 0;
-	mLastPacketsLost = 0;
-	mLandFarClip = DEFAULT_FAR_PLANE;
+	for (S32 i = 0; i < 8; i++)
+	{
+		mEdgeWaterObjects[i] = NULL;
+	}
 
 	if (gNoRender)
 	{
 		return;
-	}
-
-	for (S32 i = 0; i < 8; i++)
-	{
-		mEdgeWaterObjects[i] = NULL;
 	}
 
 	LLPointer<LLImageRaw> raw = new LLImageRaw(1,1,4);

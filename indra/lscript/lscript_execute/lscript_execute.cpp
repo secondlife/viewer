@@ -3040,40 +3040,6 @@ BOOL run_return(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id)
 	return FALSE;
 }
 
-S32 axtoi(char *hexStg)
-{
-  S32 n = 0;         // position in string
-  S32 m = 0;         // position in digit[] to shift
-  S32 count;         // loop index
-  S32 intValue = 0;  // integer value of hex string
-  S32 digit[9];      // hold values to convert
-  while (n < 8)
-  {
-     if (hexStg[n]=='\0')
-        break;
-     if (hexStg[n] > 0x29 && hexStg[n] < 0x40 ) //if 0 to 9
-        digit[n] = hexStg[n] & 0x0f;            //convert to int
-     else if (hexStg[n] >='a' && hexStg[n] <= 'f') //if a to f
-        digit[n] = (hexStg[n] & 0x0f) + 9;      //convert to int
-     else if (hexStg[n] >='A' && hexStg[n] <= 'F') //if A to F
-        digit[n] = (hexStg[n] & 0x0f) + 9;      //convert to int
-     else break;
-    n++;
-  }
-  count = n;
-  m = n - 1;
-  n = 0;
-  while(n < count)
-  {
-     // digit[n] is value of hex digit at position n
-     // (m << 2) is the number of positions to shift
-     // OR the bits into return value
-     intValue = intValue | (digit[n] << (m << 2));
-     m--;   // adjust the position to set
-     n++;   // next digit to process
-  }
-  return (intValue);
-}
 
 
 BOOL run_cast(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id)

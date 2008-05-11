@@ -2510,11 +2510,7 @@ BOOL LLSelectMgr::selectGetGroup(LLUUID& result_id)
 			}
 		}
 	}
-	if (first_id.isNull())
-	{
-		return FALSE;
-	}
-	
+
 	result_id = first_id;
 
 	return identical;

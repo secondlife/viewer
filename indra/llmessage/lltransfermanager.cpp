@@ -1336,7 +1336,9 @@ BOOL LLTransferSourceParamsInvItem::unpackParams(LLDataPacker &dp)
 }
 
 LLTransferSourceParamsEstate::LLTransferSourceParamsEstate() :
-	LLTransferSourceParams(LLTST_SIM_ESTATE), mEstateAssetType(ET_NONE)
+	LLTransferSourceParams(LLTST_SIM_ESTATE),
+	mEstateAssetType(ET_NONE),
+	mAssetType(LLAssetType::AT_NONE)
 {
 }
 

@@ -315,18 +315,16 @@ public:
 	F32 mDensitySliderValue;
 
 private:
-	// our parameter manager singleton instance
-	static LLWaterParamManager * sInstance;
-
-private:
-
 	LLVector4 mWaterPlane;
 	F32 mWaterFogKS;
+
+	// our parameter manager singleton instance
+	static LLWaterParamManager * sInstance;
 };
 
 inline void LLWaterParamManager::setDensitySliderValue(F32 val)
 {
-	val /= 10;
+	val /= 10.0f;
 	val = 1.0f - val;
 	val *= val * val;
 //	val *= val;

@@ -172,6 +172,7 @@ Jacek Antonelli
 	VWR-427
 	VWR-597
 	VWR-2448
+	VWR-3605
 Joghert LeSabre
 	VWR-64
 Kage Pixel
@@ -293,6 +294,8 @@ Robin Cornelius
 	VWR-2488
 Ryozu Kojima
 	VWR-287
+Sammy Frederix
+	VWR-6186
 Scrippy Scofield
 	VWR-3748
 Seg Baphomet

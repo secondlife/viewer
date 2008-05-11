@@ -238,7 +238,8 @@ private:
 template <class INDEX_T, class DATA_T, S32 BINARY_DEPTH>
 inline LLPtrSkipMap<INDEX_T, DATA_T, BINARY_DEPTH>::LLPtrSkipMap()
 	:	mInsertFirst(NULL),
-		mEquals(defaultEquals)
+		mEquals(defaultEquals),
+		mNumberOfSteps(0)
 {
 	if (BINARY_DEPTH < 2)
 	{
@@ -259,7 +260,8 @@ template <class INDEX_T, class DATA_T, S32 BINARY_DEPTH>
 inline LLPtrSkipMap<INDEX_T, DATA_T, BINARY_DEPTH>::LLPtrSkipMap(insert_func insert_first, 
 																 equals_func equals) 
 :	mInsertFirst(insert_first),
-	mEquals(equals)
+	mEquals(equals),
+	mNumberOfSteps(0)
 {
 	if (BINARY_DEPTH < 2)
 	{

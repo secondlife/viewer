@@ -4181,18 +4181,6 @@ std::ostream& operator<<(std::ostream &s, const LLVolume *volumep)
 }
 
 
-LLVolumeFace::LLVolumeFace()
-{
-	mTypeMask = 0;
-	mID = 0;
-	mBeginS = 0;
-	mBeginT = 0;
-	mNumS = 0;
-	mNumT = 0;
-	mHasBinormals = FALSE;
-}
-
-
 BOOL LLVolumeFace::create(LLVolume* volume, BOOL partial_build)
 {
 	if (mTypeMask & CAP_MASK)

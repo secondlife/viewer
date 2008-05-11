@@ -390,7 +390,7 @@ public:
 	/**
 	 * Options for output
 	 */
-	enum e_formatter_options_type
+	typedef enum e_formatter_options_type
 	{
 		OPTIONS_NONE = 0,
 		OPTIONS_PRETTY = 1

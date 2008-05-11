@@ -207,7 +207,7 @@ protected:
 	F32				mDiskRadius;
 	BOOL			mDraw;					// FALSE - do not draw.
 	F32				mHorizonVisibility;		// number [0, 1] due to how horizon
-	F32				mVisibility;			// same but due to other objects being in frong.
+	F32				mVisibility;			// same but due to other objects being in throng.
 	BOOL			mVisible;
 	static F32		sInterpVal;
 	LLVector3		mQuadCorner[4];
@@ -217,10 +217,12 @@ protected:
 
 public:
 	LLHeavenBody(const F32 rad) :
-			mDirectionCached(LLVector3(0,0,0)), mDirection(LLVector3(0,0,0)),
-			mDiskRadius(rad), mDraw(FALSE),
-			mHorizonVisibility(1), mVisibility(1)
-
+		mDirectionCached(LLVector3(0,0,0)),
+		mDirection(LLVector3(0,0,0)),
+		mIntensity(0.f),
+		mDiskRadius(rad), mDraw(FALSE),
+		mHorizonVisibility(1.f), mVisibility(1.f),
+		mVisible(FALSE)
 	{
 		mColor.setToBlack();
 		mColorCached.setToBlack();
@@ -260,7 +262,6 @@ public:
 	}
 	BOOL isVisible() const								{ return mVisible; }
 	void setVisible(const BOOL v)						{ mVisible = v; }
-
 
 	const F32& getIntensity() const						{ return mIntensity; }
 	void setIntensity(const F32 c)						{ mIntensity = c; }
@@ -311,19 +312,19 @@ LL_FORCE_INLINE LLColor3 calc_air_sca_sea_level()
 
 const LLColor3 gAirScaSeaLevel = calc_air_sca_sea_level();
 const F32 AIR_SCA_INTENS = color_intens(gAirScaSeaLevel);	
-const F32 AIR_SCA_AVG = AIR_SCA_INTENS / 3;	
+const F32 AIR_SCA_AVG = AIR_SCA_INTENS / 3.f;
 
 class LLHaze
 {
 public:
-	LLHaze() : mG(0), mFalloff(1) {mSigSca.setToBlack();}
-	LLHaze(const F32 g, const LLColor3& sca, const F32 fo = 2) : 
-			mG(g), mSigSca(0.25f/F_PI * sca), mFalloff(fo), mAbsCoef(0)
+	LLHaze() : mG(0), mFalloff(1), mAbsCoef(0.f) {mSigSca.setToBlack();}
+	LLHaze(const F32 g, const LLColor3& sca, const F32 fo = 2.f) : 
+			mG(g), mSigSca(0.25f/F_PI * sca), mFalloff(fo), mAbsCoef(0.f)
 	{
 		mAbsCoef = color_intens(mSigSca) / AIR_SCA_INTENS;
 	}
 
-	LLHaze(const F32 g, const F32 sca, const F32 fo = 2) : mG(g),
+	LLHaze(const F32 g, const F32 sca, const F32 fo = 2.f) : mG(g),
 			mSigSca(0.25f/F_PI * LLColor3(sca, sca, sca)), mFalloff(fo)
 	{
 		mAbsCoef = 0.01f * sca / AIR_SCA_AVG;

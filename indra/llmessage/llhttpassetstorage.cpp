@@ -334,6 +334,8 @@ void LLHTTPAssetRequest::finishCompressedUpload()
 
 size_t LLHTTPAssetRequest::readCompressedData(void* data, size_t size)
 {
+	llassert(mZInitialized);
+
 	mZStream.next_out = (Bytef*)data;
 	mZStream.avail_out = size;
 

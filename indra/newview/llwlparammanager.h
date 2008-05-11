@@ -199,8 +199,6 @@ public:
 public:
 
 	// helper variables
-	F32 mSunAngle;
-	F32 mEastAngle;
 	LLWLAnimator mAnimator;
 
 	/// actual direction of the sun
@@ -216,9 +214,6 @@ public:
 
 	// list of params and how they're cycled for days
 	LLWLDayCycle mDay;
-
-	// length of the day in seconds
-	F32 mLengthOfDay;
 
 	LLWLParamSet mCurParams;
 

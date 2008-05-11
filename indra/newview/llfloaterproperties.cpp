@@ -441,7 +441,7 @@ void LLFloaterProperties::refreshFromItem(LLInventoryItem* item)
 		
 		perm_string = "G";
 		perm_string += overwrite_group ? "*: " : ": ";
-		perm_string += perm_string += mask_to_string(group_mask);
+		perm_string += mask_to_string(group_mask);
 		childSetText("GroupMaskDebug",perm_string);
 		childSetVisible("GroupMaskDebug",TRUE);
 		

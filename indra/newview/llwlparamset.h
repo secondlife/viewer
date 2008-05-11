@@ -132,18 +132,10 @@ public:
 	/// get the star brightness value;
 	F32 getStarBrightness();	
 	
-	/// set the star's brightness
-	/// \param val brightness value
 	void setSunAngle(F32 val);
-	
-	/// get the star brightness value;
 	F32 getSunAngle();	
 	
-	/// set the star's brightness
-	/// \param val brightness value
 	void setEastAngle(F32 val);
-	
-	/// get the star brightness value;
 	F32 getEastAngle();	
 	
 							

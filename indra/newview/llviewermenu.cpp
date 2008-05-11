@@ -401,8 +401,8 @@ void handle_duplicate_in_place(void*);
 void handle_repeat_duplicate(void*);
 
 void handle_export(void*);
-void handle_deed_object_to_group(void*);
-BOOL enable_deed_object_to_group(void*);
+// void handle_deed_object_to_group(void*);
+// BOOL enable_deed_object_to_group(void*);
 void handle_object_owner_self(void*);
 void handle_object_owner_permissive(void*);
 void handle_object_lock(void*);
@@ -3498,6 +3498,7 @@ void handle_repeat_duplicate(void*)
 	LLSelectMgr::getInstance()->repeatDuplicate();
 }
 
+/* dead code 30-apr-2008
 void handle_deed_object_to_group(void*)
 {
 	LLUUID group_id;
@@ -3522,6 +3523,8 @@ BOOL enable_deed_object_to_group(void*)
 	}
 	return FALSE;
 }
+
+*/
 
 
 /*

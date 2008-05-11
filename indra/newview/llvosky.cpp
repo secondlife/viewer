@@ -194,11 +194,13 @@ inline void color_gamma_correct(LLColor3 &col)
 
 S32 LLSkyTex::sComponents = 4;
 S32 LLSkyTex::sResolution = 64;
-F32	LLSkyTex::sInterpVal = 0.f;
+F32 LLSkyTex::sInterpVal = 0.f;
 S32 LLSkyTex::sCurrent = 0;
 
 
-LLSkyTex::LLSkyTex()
+LLSkyTex::LLSkyTex() :
+	mSkyData(NULL),
+	mSkyDirs(NULL)
 {
 }
 

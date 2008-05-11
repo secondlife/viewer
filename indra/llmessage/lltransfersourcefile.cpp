@@ -153,7 +153,9 @@ BOOL LLTransferSourceFile::unpackParams(LLDataPacker &dp)
 }
 
 
-LLTransferSourceParamsFile::LLTransferSourceParamsFile() : LLTransferSourceParams(LLTST_FILE)
+LLTransferSourceParamsFile::LLTransferSourceParamsFile() :
+	LLTransferSourceParams(LLTST_FILE),
+	mDeleteOnCompletion(FALSE)
 {
 }
 

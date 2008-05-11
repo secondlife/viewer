@@ -49,13 +49,13 @@ class LLCharacter;
 class LLMotion
 {
 public:
-	enum LLMotionBlendType
+	typedef enum LLMotionBlendType
 	{
 		NORMAL_BLEND,
 		ADDITIVE_BLEND
 	};
 
-	enum LLMotionInitStatus
+	typedef enum LLMotionInitStatus
 	{
 		STATUS_FAILURE,
 		STATUS_SUCCESS,

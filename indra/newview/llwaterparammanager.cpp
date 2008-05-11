@@ -75,7 +75,8 @@ LLWaterParamManager::LLWaterParamManager() :
 	mBlurMultiplier(0.1f, "blurMultiplier"),
 	mWave1Dir(.5f, .5f, "wave1Dir"),
 	mWave2Dir(.5f, .5f, "wave2Dir"),
-	mDensitySliderValue(1.0f)
+	mDensitySliderValue(1.0f),
+	mWaterFogKS(1.0f)
 {
 }
 
@@ -255,8 +256,8 @@ void LLWaterParamManager::update(LLViewerCamera * cam)
 	if(gPipeline.canUseVertexShaders()) 
 	{
 		//transform water plane to eye space
-		glh::vec3f norm(0, 0, 1);
-		glh::vec3f p(0, 0, gAgent.getRegion()->getWaterHeight()+0.1f);
+		glh::vec3f norm(0.f, 0.f, 1.f);
+		glh::vec3f p(0.f, 0.f, gAgent.getRegion()->getWaterHeight()+0.1f);
 		
 		F32 modelView[16];
 		for (U32 i = 0; i < 16; i++)

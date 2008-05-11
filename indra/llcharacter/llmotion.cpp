@@ -47,22 +47,20 @@
 // LLMotion()
 // Class Constructor
 //-----------------------------------------------------------------------------
-LLMotion::LLMotion( const LLUUID &id )
+LLMotion::LLMotion( const LLUUID &id ) :
+	mStopped(TRUE),
+	mActive(FALSE),
+	mID(id),
+	mActivationTimestamp(0.f),
+	mStopTimestamp(0.f),
+	mSendStopTimestamp(F32_MAX),
+	mResidualWeight(0.f),
+	mFadeWeight(1.f),
+	mDeactivateCallback(NULL),
+	mDeactivateCallbackUserData(NULL)
 {
-	mActivationTimestamp = 0.f;
-	mStopTimestamp = 0.f;
-	mSendStopTimestamp = F32_MAX;
-	mResidualWeight = 0.f;
-	mFadeWeight = 1.f;
-	mStopped = TRUE;
-	mActive = FALSE;
-	mDeactivateCallback = NULL;
-
-	memset(&mJointSignature[0][0], 0, sizeof(U8) * LL_CHARACTER_MAX_JOINTS);
-	memset(&mJointSignature[1][0], 0, sizeof(U8) * LL_CHARACTER_MAX_JOINTS);
-	memset(&mJointSignature[2][0], 0, sizeof(U8) * LL_CHARACTER_MAX_JOINTS);	
-
-	mID = id;
+	for (int i=0; i<3; ++i)
+		memset(&mJointSignature[i][0], 0, sizeof(U8) * LL_CHARACTER_MAX_JOINTS);
 }
 
 //-----------------------------------------------------------------------------
