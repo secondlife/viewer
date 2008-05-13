@@ -385,6 +385,13 @@ bool LLURLRequest::configure()
 		rv = true;
 		break;
 
+	case HTTP_MOVE:
+		// Set the handle for an http post
+		mDetail->mCurlRequest->setoptString(CURLOPT_CUSTOMREQUEST, "MOVE");
+		// *NOTE: should we check for the Destination header?
+		rv = true;
+		break;
+
 	default:
 		llwarns << "Unhandled URLRequest action: " << mAction << llendl;
 		break;

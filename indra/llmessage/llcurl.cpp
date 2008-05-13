@@ -885,6 +885,7 @@ void LLCurlEasyRequest::sendRequest(const std::string& url)
 {
 	llassert_always(!mRequestSent);
 	mRequestSent = true;
+	lldebugs << url << llendl;
 	if (mEasy)
 	{
 		mEasy->setHeaders();

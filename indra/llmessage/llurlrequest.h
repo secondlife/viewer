@@ -76,6 +76,7 @@ public:
 		HTTP_PUT,
 		HTTP_POST,
 		HTTP_DELETE,
+		HTTP_MOVE, // Caller will need to set 'Destination' header
 		REQUEST_ACTION_COUNT
 	};
 

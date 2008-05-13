@@ -199,14 +199,15 @@ namespace
 	LLPumpIO* theClientPump = NULL;
 }
 
-static void request(const std::string& url,
-					LLURLRequest::ERequestAction method,
-					Injector* body_injector,
-					LLCurl::ResponderPtr responder,
-					const LLSD& headers = LLSD(),
-					const F32 timeout = HTTP_REQUEST_EXPIRY_SECS,
-					S32 offset = 0,
-					S32 bytes = 0)
+static void request(
+	const std::string& url,
+	LLURLRequest::ERequestAction method,
+	Injector* body_injector,
+	LLCurl::ResponderPtr responder,
+	const F32 timeout = HTTP_REQUEST_EXPIRY_SECS,
+	const LLSD& headers = LLSD(),
+	S32 offset = 0,
+	S32 bytes = 0)
 {
 	if (!LLHTTPClient::hasPump())
 	{
@@ -237,7 +238,7 @@ static void request(const std::string& url,
                 req->useProxy(FALSE);
             }
             header << iter->first << ": " << iter->second.asString() ;
-            llinfos << "header = " << header.str() << llendl;
+            lldebugs << "header = " << header.str() << llendl;
             req->addHeader(header.str().c_str());
         }
     }
@@ -275,7 +276,16 @@ void LLHTTPClient::getByteRange(const std::string& url,
 								const LLSD& headers,
 								const F32 timeout)
 {
-    request(url, LLURLRequest::HTTP_GET, NULL, responder, LLSD(), timeout, offset, bytes);
+	// *FIX: Why is the headers argument ignored? Phoenix 2008-04-28
+    request(
+		url,
+		LLURLRequest::HTTP_GET,
+		NULL,
+		responder,
+		timeout,
+		LLSD(), 	// WTF? Shouldn't this be used?
+		offset,
+		bytes);
 }
 
 void LLHTTPClient::head(const std::string& url, ResponderPtr responder, const F32 timeout)
@@ -285,11 +295,11 @@ void LLHTTPClient::head(const std::string& url, ResponderPtr responder, const F3
 
 void LLHTTPClient::get(const std::string& url, ResponderPtr responder, const LLSD& headers, const F32 timeout)
 {
-	request(url, LLURLRequest::HTTP_GET, NULL, responder, headers, timeout);
+	request(url, LLURLRequest::HTTP_GET, NULL, responder, timeout, headers);
 }
 void LLHTTPClient::getHeaderOnly(const std::string& url, ResponderPtr responder, const LLSD& headers, const F32 timeout)
 {
-	request(url, LLURLRequest::HTTP_HEAD, NULL, responder, headers, timeout);
+	request(url, LLURLRequest::HTTP_HEAD, NULL, responder, timeout, headers);
 }
 void LLHTTPClient::getHeaderOnly(const std::string& url, ResponderPtr responder, const F32 timeout)
 {
@@ -406,12 +416,6 @@ void LLHTTPClient::post(const std::string& url, const U8* data, S32 size, Respon
 	request(url, LLURLRequest::HTTP_POST, new RawInjector(data, size), responder, timeout);
 }
 
-void LLHTTPClient::del(const std::string& url, ResponderPtr responder, const F32 timeout)
-{
-	request(url, LLURLRequest::HTTP_DELETE, NULL, responder, timeout);
-}
-
-#if 1
 void LLHTTPClient::postFile(const std::string& url, const std::string& filename, ResponderPtr responder, const F32 timeout)
 {
 	request(url, LLURLRequest::HTTP_POST, new FileInjector(filename), responder, timeout);
@@ -422,7 +426,28 @@ void LLHTTPClient::postFile(const std::string& url, const LLUUID& uuid,
 {
 	request(url, LLURLRequest::HTTP_POST, new VFileInjector(uuid, asset_type), responder, timeout);
 }
-#endif
+
+// static
+void LLHTTPClient::del(
+	const std::string& url,
+	ResponderPtr responder,
+	const F32 timeout)
+{
+	request(url, LLURLRequest::HTTP_DELETE, NULL, responder, timeout);
+}
+
+// static
+void LLHTTPClient::move(
+	const std::string& url,
+	const std::string& destination,
+	ResponderPtr responder,
+	const F32 timeout)
+{
+	LLSD headers;
+	headers["Destination"] = destination;
+	request(url, LLURLRequest::HTTP_MOVE, NULL, responder, timeout, headers);
+}
+
 
 void LLHTTPClient::setPump(LLPumpIO& pump)
 {

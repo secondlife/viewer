@@ -60,7 +60,8 @@ public:
 	typedef LLCurl::Responder Responder;
 	typedef LLCurl::ResponderPtr ResponderPtr;
 
-	// non-blocking
+	/** @name non-blocking API */
+	//@{
 	static void head(const std::string& url, ResponderPtr, const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
 	static void getByteRange(const std::string& url, S32 offset, S32 bytes, ResponderPtr, const LLSD& headers=LLSD(), const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
 	static void get(const std::string& url, ResponderPtr, const LLSD& headers = LLSD(), const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
@@ -70,12 +71,33 @@ public:
 	static void getHeaderOnly(const std::string& url, ResponderPtr, const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
 	static void getHeaderOnly(const std::string& url, ResponderPtr, const LLSD& headers, const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
 
-	///< non-blocking
 	static void post(const std::string& url, const LLSD& body, ResponderPtr, const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
 	static void post(const std::string& url, const U8* data, S32 size, ResponderPtr responder, const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
 	static void postFile(const std::string& url, const std::string& filename, ResponderPtr, const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
 	static void postFile(const std::string& url, const LLUUID& uuid,
 		LLAssetType::EType asset_type, ResponderPtr responder, const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
+
+	static void del(
+		const std::string& url,
+		ResponderPtr responder,
+		const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
+		///< sends a DELETE method, but we can't call it delete in c++
+	
+	/**
+	 * @brief Send a MOVE webdav method
+	 *
+	 * @param url The complete serialized (and escaped) url to get.
+	 * @param destination The complete serialized destination url.
+	 * @param responder The responder that will handle the result.
+	 * @param timeout The number of seconds to give the server to respond.
+	 */
+	static void move(
+		const std::string& url,
+		const std::string& destination,
+		ResponderPtr responder,
+		const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
+
+	//@}
 
 	/**
 	 * @brief Blocking HTTP get that returns an LLSD map of status and body.
@@ -85,9 +107,7 @@ public:
 	 */
 	static LLSD blockingGet(const std::string& url);
 
-	static void del(const std::string& url, ResponderPtr, const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
-		///< sends a DELETE method, but we can't call it delete in c++
-	
+
 	
 	static void setPump(LLPumpIO& pump);
 		///< must be called before any of the above calls are made
