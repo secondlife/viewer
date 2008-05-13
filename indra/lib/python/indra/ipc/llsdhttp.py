@@ -60,21 +60,22 @@ def postFile(url, filename):
     return post_(url, llsd_body)
 
 
+# deprecated in favor of get_
 def getStatus(url, use_proxy=False):
     status, _headers, _body = get_(url, use_proxy=use_proxy)
     return status
 
-
+# deprecated in favor of put_
 def putStatus(url, data):
     status, _headers, _body = put_(url, data)
     return status
 
-
+# deprecated in favor of delete_
 def deleteStatus(url):
     status, _headers, _body = delete_(url)
     return status
 
-
+# deprecated in favor of post_
 def postStatus(url, data):
     status, _headers, _body = post_(url, data)
     return status

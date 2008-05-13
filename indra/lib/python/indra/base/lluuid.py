@@ -74,21 +74,29 @@ class UUID(object):
     hexip = ''.join(["%04x" % long(i) for i in ip.split('.')])
     lastid = ''
 
-    def __init__(self, string_with_uuid=None):
+    def __init__(self, possible_uuid=None):
         """
-        Initialize to first valid UUID in string argument,
-        or to null UUID if none found or string is not supplied.
+        Initialize to first valid UUID in argument (if a string),
+        or to null UUID if none found or argument is not supplied.
+
+        If the argument is a UUID, the constructed object will be a copy of it.
         """
         self._bits = "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-        if string_with_uuid:
-            uuid_match = UUID.uuid_regex.search(string_with_uuid)
-            if uuid_match:
-                uuid_string = uuid_match.group()
-                s = string.replace(uuid_string, '-', '')
-                self._bits = _int2binstr(string.atol(s[:8],16),4) + \
-                             _int2binstr(string.atol(s[8:16],16),4) + \
-                             _int2binstr(string.atol(s[16:24],16),4) + \
-                             _int2binstr(string.atol(s[24:],16),4) 
+        if possible_uuid is None:
+            return
+
+        if isinstance(possible_uuid, type(self)):
+            self.set(possible_uuid)
+            return
+
+        uuid_match = UUID.uuid_regex.search(possible_uuid)
+        if uuid_match:
+            uuid_string = uuid_match.group()
+            s = string.replace(uuid_string, '-', '')
+            self._bits = _int2binstr(string.atol(s[:8],16),4) + \
+                         _int2binstr(string.atol(s[8:16],16),4) + \
+                         _int2binstr(string.atol(s[16:24],16),4) + \
+                         _int2binstr(string.atol(s[24:],16),4) 
 
     def __len__(self):
         """

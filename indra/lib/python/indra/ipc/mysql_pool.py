@@ -1,6 +1,6 @@
 """\
 @file mysql_pool.py
-@brief Uses saranwrap to implement a pool of nonblocking database connections to a mysql server.
+@brief Thin wrapper around eventlet.db_pool that chooses MySQLdb and Tpool.
 
 $LicenseInfo:firstyear=2007&license=mit$
 
@@ -26,44 +26,14 @@ THE SOFTWARE.
 $/LicenseInfo$
 """
 
-import os
-
-from eventlet.pools import Pool
-from eventlet.processes import DeadProcess
-from indra.ipc import saranwrap
-
 import MySQLdb
+from eventlet import db_pool
 
-# method 2: better -- admits the existence of the pool
-# dbp = my_db_connector.get()
-# dbh = dbp.get()
-# dbc = dbh.cursor()
-# dbc.execute(named_query)
-# dbc.close()
-# dbp.put(dbh)
-
-class DatabaseConnector(object):
-    """\
-@brief This is an object which will maintain a collection of database
-connection pools keyed on host,databasename"""
+class DatabaseConnector(db_pool.DatabaseConnector):
     def __init__(self, credentials, min_size = 0, max_size = 4, *args, **kwargs):
-        """\
-        @brief constructor
-        @param min_size the minimum size of a child pool.
-        @param max_size the maximum size of a child pool."""
-        self._min_size = min_size
-        self._max_size = max_size
-        self._args = args
-        self._kwargs = kwargs
-        self._credentials = credentials  # this is a map of hostname to username/password
-        self._databases = {}
+        super(DatabaseConnector, self).__init__(MySQLdb, credentials, min_size, max_size, conn_pool=db_pool.ConnectionPool, *args, **kwargs)
 
-    def credentials_for(self, host):
-        if host in self._credentials:
-            return self._credentials[host]
-        else:
-            return self._credentials.get('default', None)
-
+    # get is extended relative to eventlet.db_pool to accept a port argument
     def get(self, host, dbname, port=3306):
         key = (host, dbname, port)
         if key not in self._databases:
@@ -77,28 +47,32 @@ connection pools keyed on host,databasename"""
 
         return self._databases[key]
 
-
-class ConnectionPool(Pool):
+class ConnectionPool(db_pool.TpooledConnectionPool):
     """A pool which gives out saranwrapped MySQLdb connections from a pool
     """
+
     def __init__(self, min_size = 0, max_size = 4, *args, **kwargs):
-        self._args = args
-        self._kwargs = kwargs
-        Pool.__init__(self, min_size, max_size)
+        super(ConnectionPool, self).__init__(MySQLdb, min_size, max_size, *args, **kwargs)
 
-    def create(self):
-        return saranwrap.wrap(MySQLdb).connect(*self._args, **self._kwargs)
-
-    def put(self, conn):
-        # rollback any uncommitted changes, so that the next process
-        # has a clean slate.  This also pokes the process to see if
-        # it's dead or None
-        try:
-            conn.rollback()
-        except (AttributeError, DeadProcess), e:
-            conn = self.create()
-        # TODO figure out if we're still connected to the database
-        if conn is not None:
-            Pool.put(self, conn)
-        else:
-            self.current_size -= 1
+    def get(self):
+        conn = super(ConnectionPool, self).get()
+        # annotate the connection object with the details on the
+        # connection; this is used elsewhere to check that you haven't
+        # suddenly changed databases in midstream while making a
+        # series of queries on a connection.
+        arg_names = ['host','user','passwd','db','port','unix_socket','conv','connect_timeout',
+         'compress', 'named_pipe', 'init_command', 'read_default_file', 'read_default_group',
+         'cursorclass', 'use_unicode', 'charset', 'sql_mode', 'client_flag', 'ssl',
+         'local_infile']
+        # you could have constructed this connectionpool with a mix of
+        # keyword and non-keyword arguments, but we want to annotate
+        # the connection object with a dict so it's easy to check
+        # against so here we are converting the list of non-keyword
+        # arguments (in self._args) into a dict of keyword arguments,
+        # and merging that with the actual keyword arguments
+        # (self._kwargs).  The arg_names variable lists the
+        # constructor arguments for MySQLdb Connection objects.
+        converted_kwargs = dict([ (arg_names[i], arg) for i, arg in enumerate(self._args) ])
+        converted_kwargs.update(self._kwargs)
+        conn.connection_parameters = converted_kwargs
+        return conn

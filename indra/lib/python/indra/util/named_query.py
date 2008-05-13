@@ -60,6 +60,11 @@ def _init_g_named_manager(sql_dir = None):
     because it's tricky to control the config from inside a test."""
     if sql_dir is None:
         sql_dir = config.get('named-query-base-dir')
+
+    # extra fallback directory in case config doesn't return what we want
+    if sql_dir is None:
+        sql_dir = os.path.dirname(__file__) + "../../../../web/dataservice/sql"
+
     global _g_named_manager
     _g_named_manager = NamedQueryManager(
         os.path.abspath(os.path.realpath(sql_dir)))

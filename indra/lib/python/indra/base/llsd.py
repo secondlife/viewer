@@ -33,14 +33,7 @@ import time
 import types
 import re
 
-#from cElementTree import fromstring ## This does not work under Windows
-try:
-    ## This is the old name of elementtree, for use with 2.3
-    from elementtree.ElementTree import fromstring
-except ImportError:
-    ## This is the name of elementtree under python 2.5
-    from xml.etree.ElementTree import fromstring
-
+from indra.util.fastest_elementtree import fromstring
 from indra.base import lluuid
 
 int_regex = re.compile("[-+]?\d+")
@@ -65,6 +58,39 @@ class uri(str):
 
 BOOL_TRUE = ('1', '1.0', 'true')
 BOOL_FALSE = ('0', '0.0', 'false', '')
+
+
+def format_datestr(v):
+    """ Formats a datetime object into the string format shared by xml and notation serializations."""
+    second_str = ""
+    if v.microsecond > 0:
+        seconds = v.second + float(v.microsecond) / 1000000
+        second_str = "%05.2f" % seconds
+    else:
+        second_str = "%d" % v.second
+    return '%s%sZ' % (v.strftime('%Y-%m-%dT%H:%M:'), second_str)
+
+
+def parse_datestr(datestr):
+    """Parses a datetime object from the string format shared by xml and notation serializations."""
+    if datestr == "":
+        return datetime.datetime(1970, 1, 1)
+    
+    match = re.match(date_regex, datestr)
+    if not match:
+        raise LLSDParseError("invalid date string '%s'." % datestr)
+    
+    year = int(match.group('year'))
+    month = int(match.group('month'))
+    day = int(match.group('day'))
+    hour = int(match.group('hour'))
+    minute = int(match.group('minute'))
+    second = int(match.group('second'))
+    seconds_float = match.group('second_float')
+    microsecond = 0
+    if seconds_float:
+        microsecond = int(seconds_float[1:]) * 10000
+    return datetime.datetime(year, month, day, hour, minute, second, microsecond)
 
 
 def bool_to_python(node):
@@ -99,8 +125,7 @@ def date_to_python(node):
     val = node.text or ''
     if not val:
         val = "1970-01-01T00:00:00Z"
-    return datetime.datetime(
-        *time.strptime(val, '%Y-%m-%dT%H:%M:%SZ')[:6])
+    return parse_datestr(val)
 
 def uri_to_python(node):
     val = node.text or ''
@@ -194,7 +219,7 @@ class LLSDXMLFormatter(object):
     def URI(self, v):
         return self.elt('uri', self.xml_esc(str(v)))
     def DATE(self, v):
-        return self.elt('date', v.strftime('%Y-%m-%dT%H:%M:%SZ'))
+        return self.elt('date', format_datestr(v))
     def ARRAY(self, v):
         return self.elt('array', ''.join([self.generate(item) for item in v]))
     def MAP(self, v):
@@ -261,13 +286,7 @@ class LLSDNotationFormatter(object):
     def URI(self, v):
         return 'l"%s"' % str(v).replace("\\", "\\\\").replace('"', '\\"')
     def DATE(self, v):
-        second_str = ""
-        if v.microsecond > 0:
-            seconds = v.second + float(v.microsecond) / 1000000
-            second_str = "%05.2f" % seconds
-        else:
-            second_str = "%d" % v.second
-        return 'd"%s%sZ"' % (v.strftime('%Y-%m-%dT%H:%M:'), second_str)
+        return 'd"%s"' % format_datestr(v)
     def ARRAY(self, v):
         return "[%s]" % ','.join([self.generate(item) for item in v])
     def MAP(self, v):
@@ -476,10 +495,11 @@ class LLSDNotationParser(object):
     integer: i####
     real: r####
     uuid: u####
-    string: "g'day" | 'have a "nice" day' | s(size)"raw data"
+    string: "g\'day" | 'have a "nice" day' | s(size)"raw data"
     uri: l"escaped"
     date: d"YYYY-MM-DDTHH:MM:SS.FFZ"
-    binary: b##"ff3120ab1" | b(size)"raw data" """
+    binary: b##"ff3120ab1" | b(size)"raw data"
+    """
     def __init__(self):
         pass
 
@@ -542,7 +562,6 @@ class LLSDNotationParser(object):
         elif cc == 'b':
             raise LLSDParseError("binary notation not yet supported")
         else:
-            print cc
             raise LLSDParseError("invalid token at index %d: %d" % (
                 self._index - 1, ord(cc)))
 
@@ -623,25 +642,7 @@ class LLSDNotationParser(object):
         delim = self._buffer[self._index]
         self._index += 1
         datestr = self._parse_string(delim)
-
-        if datestr == "":
-            return datetime.datetime(1970, 1, 1)
-            
-        match = re.match(date_regex, datestr)
-        if not match:
-            raise LLSDParseError("invalid date string '%s'." % datestr)
-
-        year = int(match.group('year'))
-        month = int(match.group('month'))
-        day = int(match.group('day'))
-        hour = int(match.group('hour'))
-        minute = int(match.group('minute'))
-        second = int(match.group('second'))
-        seconds_float = match.group('second_float')
-        microsecond = 0
-        if seconds_float:
-            microsecond = int(seconds_float[1:]) * 10000
-        return datetime.datetime(year, month, day, hour, minute, second, microsecond)
+        return parse_datestr(datestr)
 
     def _parse_real(self):
         match = re.match(real_regex, self._buffer[self._index:])
@@ -666,7 +667,7 @@ class LLSDNotationParser(object):
         return int( self._buffer[start:end] )
 
     def _parse_string(self, delim):
-        """ string: "g'day" | 'have a "nice" day' | s(size)"raw data" """
+        """ string: "g\'day" | 'have a "nice" day' | s(size)"raw data" """
         rv = ""
 
         if delim in ("'", '"'):
@@ -835,22 +836,17 @@ class LLSD(object):
 
 undef = LLSD(None)
 
-# register converters for stacked, if stacked is available
+# register converters for llsd in mulib, if it is available
 try:
-    from mulib import stacked
+    from mulib import stacked, mu
     stacked.NoProducer()  # just to exercise stacked
+    mu.safe_load(None)    # just to exercise mu
 except:
-    print "Couldn't import mulib.stacked, not registering LLSD converters"
+    # mulib not available, don't print an error message since this is normal
+    pass
 else:
-    def llsd_convert_json(llsd_stuff, request):
-        callback = request.get_header('callback')
-        if callback is not None:
-            ## See Yahoo's ajax documentation for information about using this
-            ## callback style of programming
-            ## http://developer.yahoo.com/common/json.html#callbackparam
-            req.write("%s(%s)" % (callback, simplejson.dumps(llsd_stuff)))
-        else:
-            req.write(simplejson.dumps(llsd_stuff))
+    mu.add_parser(parse, 'application/llsd+xml')
+    mu.add_parser(parse, 'application/llsd+binary')
 
     def llsd_convert_xml(llsd_stuff, request):
         request.write(format_xml(llsd_stuff))
@@ -859,8 +855,6 @@ else:
         request.write(format_binary(llsd_stuff))
 
     for typ in [LLSD, dict, list, tuple, str, int, float, bool, unicode, type(None)]:
-        stacked.add_producer(typ, llsd_convert_json, 'application/json')
-
         stacked.add_producer(typ, llsd_convert_xml, 'application/llsd+xml')
         stacked.add_producer(typ, llsd_convert_xml, 'application/xml')
         stacked.add_producer(typ, llsd_convert_xml, 'text/xml')

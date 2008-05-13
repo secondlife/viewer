@@ -185,6 +185,11 @@ namespace {
 	};
 
 	LLSD::String ImplBoolean::asString() const
+		// *NOTE: The reason that false is not converted to "false" is
+		// because that would break roundtripping,
+		// e.g. LLSD(false).asString().asBoolean().  There are many
+		// reasons for wanting LLSD("false").asBoolean() == true, such
+		// as "everything else seems to work that way".
 		{ return mValue ? "true" : ""; }
 
 

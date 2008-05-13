@@ -167,6 +167,9 @@ void LLCurl::Responder::completed(U32 status, const std::string& reason, const L
 	}
 	else
 	{
+		// *NOTE: This is kind of messed up. This should probably call
+		// the full error method which then provides a default impl
+		// which calls the thinner method.
 		error(status, reason);
 	}
 }
