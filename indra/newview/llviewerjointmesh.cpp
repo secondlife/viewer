@@ -870,9 +870,9 @@ void LLViewerJointMesh::updateVectorize()
 		case 1: vp = "SSE"; break;
 		default: vp = "COMPILER DEFAULT"; break;
 	}
-	llinfos << "Vectorization         : " << ( vectorizeEnable ? "ENABLED" : "DISABLED" ) << llendl ;
-	llinfos << "Vector Processor      : " << vp << llendl ;
-	llinfos << "Vectorized Skinning   : " << ( vectorizeSkin ? "ENABLED" : "DISABLED" ) << llendl ;
+	LL_INFOS("AppInit") << "Vectorization         : " << ( vectorizeEnable ? "ENABLED" : "DISABLED" ) << LL_ENDL ;
+	LL_INFOS("AppInit") << "Vector Processor      : " << vp << LL_ENDL ;
+	LL_INFOS("AppInit") << "Vectorized Skinning   : " << ( vectorizeSkin ? "ENABLED" : "DISABLED" ) << LL_ENDL ;
 	if(vectorizeEnable && vectorizeSkin)
 	{
 		switch(sVectorizeProcessor)

@@ -111,7 +111,7 @@ void LLWLParamManager::loadPresets(const LLString& file_name)
 	if(file_name != "") 
 	{
 		LLString path_name(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "windlight", file_name));
-		llinfos << "Loading WindLight settings from " << path_name << llendl;
+		LL_INFOS2("AppInit", "Shaders") << "Loading WindLight settings from " << path_name << LL_ENDL;
 
 		llifstream presetsXML(path_name.c_str());
 	
@@ -137,7 +137,7 @@ void LLWLParamManager::loadPresets(const LLString& file_name)
 	else
 	{
 		LLString path_name(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "windlight/skies", ""));
-		llinfos << "Loading WindLight settings from " << path_name << llendl;
+		LL_INFOS2("AppInit", "Shaders") << "Loading WindLight settings from " << path_name << LL_ENDL;
 	
 		//mParamList.clear();
 		
@@ -147,7 +147,7 @@ void LLWLParamManager::loadPresets(const LLString& file_name)
 			std::string name;
 			found = gDirUtilp->getNextFileInDir(path_name, "*.xml", name, false);
 
-			llinfos << "name: " << name << llendl;
+			LL_DEBUGS2("AppInit", "Shaders") << "name: " << name << LL_ENDL;
 			
 			// if we have one
 			if(found) 
@@ -162,7 +162,7 @@ void LLWLParamManager::loadPresets(const LLString& file_name)
 				std::string sky_name = unescaped_name.substr(0, unescaped_name.size() - 4);
 			
 				LLString cur_path(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "windlight/skies", name));
-				llinfos << "Loading sky from " << cur_path << llendl;
+				LL_DEBUGS2("AppInit", "Shaders") << "Loading sky from " << cur_path << LL_ENDL;
 				
 				std::ifstream sky_xml(cur_path.c_str());
 				if (sky_xml)

@@ -120,7 +120,7 @@ namespace
 			// don't spam when agent communication disconnected already
 			if (status != 410)
 			{
-				llwarns << "error status " << status
+				LL_WARNS("Messaging") << "error status " << status
 						<< " for message " << mMessageName
 						<< " reason " << reason << llendl;
 			}
@@ -176,7 +176,7 @@ void LLTrustedMessageService::post(LLHTTPNode::ResponsePtr response,
 		  gMessageSystem->isTrustedMessage(name)))
 		 && !gMessageSystem->isTrustedSender(LLHost(sender)))
 	{
-		llwarns << "trusted message POST to /trusted-message/" 
+		LL_WARNS("Messaging") << "trusted message POST to /trusted-message/" 
 				<< name << " from unknown or untrusted sender "
 				<< sender << llendl;
 		response->status(403, "Unknown or untrusted sender");
@@ -326,14 +326,14 @@ LLMessageSystem::LLMessageSystem(const char *filename, U32 port,
 		mbError = TRUE;
 		mErrorCode = error;
 	}
-	//llinfos <<  << "*** port: " << mPort << llendl;
+//	LL_DEBUGS("Messaging") <<  << "*** port: " << mPort << llendl;
 
 	//
 	// Create the data structure that we can poll on
 	//
 	if (!gAPRPoolp)
 	{
-		llerrs << "No APR pool before message system initialization!" << llendl;
+		LL_ERRS("Messaging") << "No APR pool before message system initialization!" << llendl;
 		ll_init_apr();
 	}
 	apr_socket_t *aprSocketp = NULL;
@@ -369,7 +369,7 @@ void LLMessageSystem::loadTemplateFile(const char* filename)
 {
 	if(!filename)
 	{
-		llerrs << "No template filename specified" << llendl;
+		LL_ERRS("Messaging") << "No template filename specified" << llendl;
 		mbError = TRUE;
 		return;
 	}
@@ -377,7 +377,7 @@ void LLMessageSystem::loadTemplateFile(const char* filename)
 	std::string template_body;
 	if(!_read_file_into_string(template_body, filename))
 	{
-		llwarns << "Failed to open template: " << filename << llendl;
+		LL_WARNS("Messaging") << "Failed to open template: " << filename << llendl;
 		mbError = TRUE;
 		return;
 	}
@@ -588,7 +588,7 @@ BOOL LLMessageSystem::checkMessages( S64 frame_count )
 			// Ones that are non-zero but below the minimum packet size are worrisome.
 			if (receive_size > 0)
 			{
-				llwarns << "Invalid (too short) packet discarded " << receive_size << llendl;
+				LL_WARNS("Messaging") << "Invalid (too short) packet discarded " << receive_size << llendl;
 				callExceptionFunc(MX_PACKET_TOO_SHORT);
 			}
 			// no data in packet receive buffer
@@ -612,7 +612,7 @@ BOOL LLMessageSystem::checkMessages( S64 frame_count )
 				{
 					// mal-formed packet. ignore it and continue with
 					// the next one
-					llwarns << "Malformed packet received. Packet size "
+					LL_WARNS("Messaging") << "Malformed packet received. Packet size "
 						<< receive_size << " with invalid no. of acks " << acks
 						<< llendl;
 					valid_packet = FALSE;
@@ -642,7 +642,7 @@ BOOL LLMessageSystem::checkMessages( S64 frame_count )
 					memcpy(&mem_id, &mTrueReceiveBuffer[true_rcv_size], /* Flawfinder: ignore*/
 					     sizeof(TPACKETID));
 					packet_id = ntohl(mem_id);
-					//llinfos << "got ack: " << packet_id << llendl;
+					//LL_INFOS("Messaging") << "got ack: " << packet_id << llendl;
 					cdp->ackReliablePacket(packet_id);
 				}
 				if (!cdp->getUnackedPacketCount())
@@ -671,7 +671,7 @@ BOOL LLMessageSystem::checkMessages( S64 frame_count )
 						// TESTING CODE
 						//if(mCircuitInfo.mCurrentCircuit->mHost != host)
 						//{
-						//	llwarns << "DISCARDED PACKET HOST MISMATCH! HOST: "
+						//	LL_WARNS("Messaging") << "DISCARDED PACKET HOST MISMATCH! HOST: "
 						//			<< host << " CIRCUIT: "
 						//			<< mCircuitInfo.mCurrentCircuit->mHost
 						//			<< llendl;
@@ -681,7 +681,7 @@ BOOL LLMessageSystem::checkMessages( S64 frame_count )
 						cdp->collectRAck(mCurrentRecvPacketID);
 					}
 								 
-					//llinfos << "Discarding duplicate resend from " << host << llendl;
+					LL_DEBUGS("Messaging") << "Discarding duplicate resend from " << host << llendl;
 					if(mVerboseLog)
 					{
 						std::ostringstream str;
@@ -693,7 +693,7 @@ BOOL LLMessageSystem::checkMessages( S64 frame_count )
 							<< " resent "
 							<< ((acks > 0) ? "acks" : "")
 							<< " DISCARD DUPLICATE";
-						llinfos << str.str() << llendl;
+						LL_INFOS("Messaging") << str.str() << llendl;
 					}
 					mPacketsIn++;
 					valid_packet = FALSE;
@@ -740,7 +740,7 @@ BOOL LLMessageSystem::checkMessages( S64 frame_count )
 				valid_packet &&
 				mTemplateMessageReader->isBanned(cdp && cdp->getTrusted()))
 			{
-				llwarns << "LLMessageSystem::checkMessages "
+				LL_WARNS("Messaging") << "LLMessageSystem::checkMessages "
 					<< "received banned message "
 					<< mTemplateMessageReader->getMessageName()
 					<< " from "
@@ -764,7 +764,7 @@ BOOL LLMessageSystem::checkMessages( S64 frame_count )
 			if (valid_packet)
 			{
 				// enable this for output of message names
-				//llinfos << "< \"" << mTemplateMessageReader->getMessageName()
+				//LL_INFOS("Messaging") << "< \"" << mTemplateMessageReader->getMessageName()
 						//<< "\"" << llendl;
 
 				/* Code for dumping the complete contents of a message.  Keep for future use in optimizing messages.
@@ -773,23 +773,23 @@ BOOL LLMessageSystem::checkMessages( S64 frame_count )
 					static char* object_update = LLMessageStringTable::getInstance()->getString("ObjectUpdate");
 					if(object_update == mTemplateMessageReader->getMessageName() )
 					{
-						llinfos << "ObjectUpdate:" << llendl;
+						LL_INFOS("Messaging") << "ObjectUpdate:" << llendl;
 						U32 i;
-						llinfos << "    Zero Encoded: " << zero_unexpanded_size << llendl;
+						LL_INFOS("Messaging") << "    Zero Encoded: " << zero_unexpanded_size << llendl;
 						for( i = 0; i<zero_unexpanded_size; i++ )
 						{
-							llinfos << "     " << i << ": " << (U32) zero_unexpanded_buffer[i] << llendl;
+							LL_INFOS("Messaging") << "     " << i << ": " << (U32) zero_unexpanded_buffer[i] << llendl;
 						}
-						llinfos << "" << llendl;
+						LL_INFOS("Messaging") << "" << llendl;
 
-						llinfos << "    Zero Unencoded: " << receive_size << llendl;
+						LL_INFOS("Messaging") << "    Zero Unencoded: " << receive_size << llendl;
 						for( i = 0; i<receive_size; i++ )
 						{
-							llinfos << "     " << i << ": " << (U32) buffer[i] << llendl;
+							LL_INFOS("Messaging") << "     " << i << ": " << (U32) buffer[i] << llendl;
 						}
-						llinfos << "" << llendl;
+						LL_INFOS("Messaging") << "" << llendl;
 
-						llinfos << "    Blocks and variables: " << llendl;
+						LL_INFOS("Messaging") << "    Blocks and variables: " << llendl;
 						S32 byte_count = 0;
 						for (LLMessageTemplate::message_block_map_t::iterator
 								 iter = mCurrentRMessageTemplate->mMemberBlocks.begin(),
@@ -807,7 +807,7 @@ BOOL LLMessageSystem::checkMessages( S64 frame_count )
 								
 								if( getNumberOfBlocksFast( block_name ) < 1 )
 								{
-									llinfos << var_name << " has no blocks" << llendl;
+									LL_INFOS("Messaging") << var_name << " has no blocks" << llendl;
 								}
 								for( S32 blocknum = 0; blocknum < getNumberOfBlocksFast( block_name ); blocknum++ )
 								{
@@ -820,7 +820,7 @@ BOOL LLMessageSystem::checkMessages( S64 frame_count )
 									if (!msg_block_data)
 									{
 										sprintf(errmsg, "Block %s #%d not in message %s", block_name, blocknum, mCurrentRMessageData->mName);
-										llerrs << errmsg << llendl;
+										LL_ERRS("Messaging") << errmsg << llendl;
 									}
 
 									LLMsgVarData vardata = msg_block_data->mMemberVarData[vnamep];
@@ -828,7 +828,7 @@ BOOL LLMessageSystem::checkMessages( S64 frame_count )
 									if (!vardata.getName())
 									{
 										sprintf(errmsg, "Variable %s not in message %s block %s", vnamep, mCurrentRMessageData->mName, bnamep);
-										llerrs << errmsg << llendl;
+										LL_ERRS("Messaging") << errmsg << llendl;
 									}
 
 									const S32 vardata_size = vardata.getSize();
@@ -837,17 +837,17 @@ BOOL LLMessageSystem::checkMessages( S64 frame_count )
 										for( i = 0; i < vardata_size; i++ )
 										{
 											byte_count++;
-											llinfos << block_name << " " << var_name << " [" << blocknum << "][" << i << "]= " << (U32)(((U8*)vardata.getData())[i]) << llendl;
+											LL_INFOS("Messaging") << block_name << " " << var_name << " [" << blocknum << "][" << i << "]= " << (U32)(((U8*)vardata.getData())[i]) << llendl;
 										}
 									}
 									else
 									{
-										llinfos << block_name << " " << var_name << " [" << blocknum << "] 0 bytes" << llendl;
+										LL_INFOS("Messaging") << block_name << " " << var_name << " [" << blocknum << "] 0 bytes" << llendl;
 									}
 								}
 							}
 						}
-						llinfos << "Byte count =" << byte_count << llendl;
+						LL_INFOS("Messaging") << "Byte count =" << byte_count << llendl;
 					}
 				}
 				*/
@@ -871,7 +871,7 @@ BOOL LLMessageSystem::checkMessages( S64 frame_count )
 			{
 				if (mbProtected  && (!cdp))
 				{
-					llwarns << "Invalid Packet from invalid circuit " << host << llendl;
+					LL_WARNS("Messaging") << "Invalid Packet from invalid circuit " << host << llendl;
 					mOffCircuitPackets++;
 				}
 				else
@@ -944,7 +944,7 @@ void LLMessageSystem::processAcks()
 
 		if (!mDenyTrustedCircuitSet.empty())
 		{
-			llinfos << "Sending queued DenyTrustedCircuit messages." << llendl;
+			LL_INFOS("Messaging") << "Sending queued DenyTrustedCircuit messages." << llendl;
 			for (host_set_t::iterator hostit = mDenyTrustedCircuitSet.begin(); hostit != mDenyTrustedCircuitSet.end(); ++hostit)
 			{
 				reallySendDenyTrustedCircuit(*hostit);
@@ -1176,7 +1176,7 @@ LLHTTPClient::ResponderPtr LLMessageSystem::createResponder(const std::string& n
 	{
 		// These messages aren't really unreliable, they just weren't
 		// explicitly sent as reliable, so they don't have a callback
-//		llwarns << "LLMessageSystem::sendMessage: Sending unreliable "
+//		LL_WARNS("Messaging") << "LLMessageSystem::sendMessage: Sending unreliable "
 //				<< mMessageBuilder->getMessageName() << " message via HTTP"
 //				<< llendl;
 		return new LLFnPtrResponder(
@@ -1213,10 +1213,10 @@ S32 LLMessageSystem::sendMessage(const LLHost &host)
 			// yup! don't send packets to an unknown circuit
 			if(mVerboseLog)
 			{
-				llinfos << "MSG: -> " << host << "\tUNKNOWN CIRCUIT:\t"
+				LL_INFOS_ONCE("Messaging") << "MSG: -> " << host << "\tUNKNOWN CIRCUIT:\t"
 						<< mMessageBuilder->getMessageName() << llendl;
 			}
-			llwarns << "sendMessage - Trying to send "
+			LL_WARNS_ONCE("Messaging") << "sendMessage - Trying to send "
 					<< mMessageBuilder->getMessageName() << " on unknown circuit "
 					<< host << llendl;
 			return 0;
@@ -1236,10 +1236,10 @@ S32 LLMessageSystem::sendMessage(const LLHost &host)
 			// nope. don't send to dead circuits
 			if(mVerboseLog)
 			{
-				llinfos << "MSG: -> " << host << "\tDEAD CIRCUIT\t\t"
+				LL_INFOS("Messaging") << "MSG: -> " << host << "\tDEAD CIRCUIT\t\t"
 						<< mMessageBuilder->getMessageName() << llendl;
 			}
-			llwarns << "sendMessage - Trying to send message "
+			LL_WARNS("Messaging") << "sendMessage - Trying to send message "
 					<< mMessageBuilder->getMessageName() << " to dead circuit "
 					<< host << llendl;
 			return 0;
@@ -1283,7 +1283,7 @@ S32 LLMessageSystem::sendMessage(const LLHost &host)
 		if((mMessageBuilder->getMessageName() != _PREHASH_ChildAgentUpdate)
 		   && (mMessageBuilder->getMessageName() != _PREHASH_SendXferPacket))
 		{
-			llwarns << "sendMessage - Trying to send "
+			LL_WARNS("Messaging") << "sendMessage - Trying to send "
 					<< ((buffer_length > 4000) ? "EXTRA " : "")
 					<< "BIG message " << mMessageBuilder->getMessageName() << " - "
 					<< buffer_length << llendl;
@@ -1348,7 +1348,7 @@ S32 LLMessageSystem::sendMessage(const LLHost &host)
 				// append_acout_count is incorrect or that
 				// MAX_BUFFER_SIZE has fallen below MTU which is bad
 				// and probably programmer error.
-			    llerrs << "Buffer packing failed due to size.." << llendl;
+			    LL_ERRS("Messaging") << "Buffer packing failed due to size.." << llendl;
 			}
 		}
 
@@ -1389,13 +1389,9 @@ S32 LLMessageSystem::sendMessage(const LLHost &host)
 			std::ostream_iterator<TPACKETID> append(str, " ");
 			std::copy(acks.begin(), acks.end(), append);
 		}
-		llinfos << str.str() << llendl;
+		LL_INFOS("Messaging") << str.str() << llendl;
 	}
 
-	/*lldebugst(LLERR_MESSAGE) << "MessageSent at: " << (S32)totalTime() 
-							 << "," << mMessageBuilder->getMessageName()
-							 << " to " << host 
-							 << llendl;*/
 
 	mPacketsOut++;
 	mBytesOut += buffer_length;
@@ -1417,7 +1413,7 @@ void LLMessageSystem::logMsgFromInvalidCircuit( const LLHost& host, BOOL recv_re
 			<< nullToEmpty(mMessageReader->getMessageName())
 			<< (recv_reliable ? " reliable" : "")
  			<< " REJECTED";
-		llinfos << str.str() << llendl;
+		LL_INFOS("Messaging") << str.str() << llendl;
 	}
 	// nope!
 	// cout << "Rejecting unexpected message " << mCurrentMessageTemplate->mName << " from " << hex << ip << " , " << dec << port << endl;
@@ -1425,7 +1421,7 @@ void LLMessageSystem::logMsgFromInvalidCircuit( const LLHost& host, BOOL recv_re
 	// Keep track of rejected messages as well
 	if (mNumMessageCounts >= MAX_MESSAGE_COUNT_NUM)
 	{
-		llwarns << "Got more than " << MAX_MESSAGE_COUNT_NUM << " packets without clearing counts" << llendl;
+		LL_WARNS("Messaging") << "Got more than " << MAX_MESSAGE_COUNT_NUM << " packets without clearing counts" << llendl;
 	}
 	else
 	{
@@ -1444,13 +1440,13 @@ S32 LLMessageSystem::sendMessage(
 {
 	if (!(host.isOk()))
 	{
-		llwarns << "trying to send message to invalid host"	<< llendl;
+		LL_WARNS("Messaging") << "trying to send message to invalid host"	<< llendl;
 		return 0;
 	}
 	newMessage(name);	
 	if (mMessageBuilder != mLLSDMessageBuilder)
 	{
-		llwarns << "trying to send llsd message when builder is not LLSD!"
+		LL_WARNS("Messaging") << "trying to send llsd message when builder is not LLSD!"
 				<< llendl;
 		return 0;
 	}
@@ -1466,7 +1462,7 @@ void LLMessageSystem::logTrustedMsgFromUntrustedCircuit( const LLHost& host )
 	// if it's received on a trusted circuit. JC
 	if (strcmp(mMessageReader->getMessageName(), "RequestTrustedCircuit"))
 	{
-		llwarns << "Received trusted message on untrusted circuit. "
+		LL_WARNS("Messaging") << "Received trusted message on untrusted circuit. "
 				<< "Will reply with deny. "
 				<< "Message: " << nullToEmpty(mMessageReader->getMessageName())
 				<< " Host: " << host << llendl;
@@ -1474,7 +1470,7 @@ void LLMessageSystem::logTrustedMsgFromUntrustedCircuit( const LLHost& host )
 
 	if (mNumMessageCounts >= MAX_MESSAGE_COUNT_NUM)
 	{
-		llwarns << "got more than " << MAX_MESSAGE_COUNT_NUM
+		LL_WARNS("Messaging") << "got more than " << MAX_MESSAGE_COUNT_NUM
 			<< " packets without clearing counts"
 			<< llendl;
 	}
@@ -1494,7 +1490,7 @@ void LLMessageSystem::logValidMsg(LLCircuitData *cdp, const LLHost& host, BOOL r
 {
 	if (mNumMessageCounts >= MAX_MESSAGE_COUNT_NUM)
 	{
-		llwarns << "Got more than " << MAX_MESSAGE_COUNT_NUM << " packets without clearing counts" << llendl;
+		LL_WARNS("Messaging") << "Got more than " << MAX_MESSAGE_COUNT_NUM << " packets without clearing counts" << llendl;
 	}
 	else
 	{
@@ -1523,7 +1519,7 @@ void LLMessageSystem::logValidMsg(LLCircuitData *cdp, const LLHost& host, BOOL r
 			<< (recv_reliable ? " reliable" : "")
 			<< (recv_resent ? " resent" : "")
 			<< (recv_acks ? " acks" : "");
-		llinfos << str.str() << llendl;
+		LL_INFOS("Messaging") << str.str() << llendl;
 	}
 }
 
@@ -1533,48 +1529,48 @@ void LLMessageSystem::sanityCheck()
 
 //	if (!mCurrentRMessageData)
 //	{
-//		llerrs << "mCurrentRMessageData is NULL" << llendl;
+//		LL_ERRS("Messaging") << "mCurrentRMessageData is NULL" << llendl;
 //	}
 
 //	if (!mCurrentRMessageTemplate)
 //	{
-//		llerrs << "mCurrentRMessageTemplate is NULL" << llendl;
+//		LL_ERRS("Messaging") << "mCurrentRMessageTemplate is NULL" << llendl;
 //	}
 
 //	if (!mCurrentRTemplateBlock)
 //	{
-//		llerrs << "mCurrentRTemplateBlock is NULL" << llendl;
+//		LL_ERRS("Messaging") << "mCurrentRTemplateBlock is NULL" << llendl;
 //	}
 
 //	if (!mCurrentRDataBlock)
 //	{
-//		llerrs << "mCurrentRDataBlock is NULL" << llendl;
+//		LL_ERRS("Messaging") << "mCurrentRDataBlock is NULL" << llendl;
 //	}
 
 //	if (!mCurrentSMessageData)
 //	{
-//		llerrs << "mCurrentSMessageData is NULL" << llendl;
+//		LL_ERRS("Messaging") << "mCurrentSMessageData is NULL" << llendl;
 //	}
 
 //	if (!mCurrentSMessageTemplate)
 //	{
-//		llerrs << "mCurrentSMessageTemplate is NULL" << llendl;
+//		LL_ERRS("Messaging") << "mCurrentSMessageTemplate is NULL" << llendl;
 //	}
 
 //	if (!mCurrentSTemplateBlock)
 //	{
-//		llerrs << "mCurrentSTemplateBlock is NULL" << llendl;
+//		LL_ERRS("Messaging") << "mCurrentSTemplateBlock is NULL" << llendl;
 //	}
 
 //	if (!mCurrentSDataBlock)
 //	{
-//		llerrs << "mCurrentSDataBlock is NULL" << llendl;
+//		LL_ERRS("Messaging") << "mCurrentSDataBlock is NULL" << llendl;
 //	}
 }
 
 void LLMessageSystem::showCircuitInfo()
 {
-	llinfos << mCircuitInfo << llendl;
+	LL_INFOS("Messaging") << mCircuitInfo << llendl;
 }
 
 
@@ -1624,7 +1620,7 @@ void LLMessageSystem::enableCircuit(const LLHost &host, BOOL trusted)
 
 void LLMessageSystem::disableCircuit(const LLHost &host)
 {
-	llinfos << "LLMessageSystem::disableCircuit for " << host << llendl;
+	LL_INFOS("Messaging") << "LLMessageSystem::disableCircuit for " << host << llendl;
 	U32 code = gMessageSystem->findCircuitCode( host );
 
 	// Don't need to do this, as we're removing the circuit info anyway - djs 01/28/03
@@ -1637,7 +1633,7 @@ void LLMessageSystem::disableCircuit(const LLHost &host)
 		code_session_map_t::iterator it = mCircuitCodes.find(code);
 		if(it != mCircuitCodes.end())
 		{
-			llinfos << "Circuit " << code << " removed from list" << llendl;
+			LL_INFOS("Messaging") << "Circuit " << code << " removed from list" << llendl;
 			//mCircuitCodes.removeData(code);
 			mCircuitCodes.erase(it);
 		}
@@ -1653,7 +1649,7 @@ void LLMessageSystem::disableCircuit(const LLHost &host)
 			U32 old_port = (U32)(ip_port & (U64)0xFFFFFFFF);
 			U32 old_ip = (U32)(ip_port >> 32);
 
-			llinfos << "Host " << LLHost(old_ip, old_port) << " circuit " << code << " removed from lookup table" << llendl;
+			LL_INFOS("Messaging") << "Host " << LLHost(old_ip, old_port) << " circuit " << code << " removed from lookup table" << llendl;
 			gMessageSystem->mIPPortToCircuitCode.erase(ip_port);
 		}
 		mCircuitInfo.removeCircuitData(host);
@@ -1663,7 +1659,7 @@ void LLMessageSystem::disableCircuit(const LLHost &host)
 		// Sigh, since we can open circuits which don't have circuit
 		// codes, it's possible for this to happen...
 		
-		llwarns << "Couldn't find circuit code for " << host << llendl;
+		LL_WARNS("Messaging") << "Couldn't find circuit code for " << host << llendl;
 	}
 
 }
@@ -1694,7 +1690,7 @@ BOOL LLMessageSystem::checkCircuitBlocked(const U32 circuit)
 
 	if (!host.isOk())
 	{
-		//llinfos << "checkCircuitBlocked: Unknown circuit " << circuit << llendl;
+		LL_DEBUGS("Messaging") << "checkCircuitBlocked: Unknown circuit " << circuit << llendl;
 		return TRUE;
 	}
 
@@ -1705,7 +1701,7 @@ BOOL LLMessageSystem::checkCircuitBlocked(const U32 circuit)
 	}
 	else
 	{
-		llinfos << "checkCircuitBlocked(circuit): Unknown host - " << host << llendl;
+		LL_INFOS("Messaging") << "checkCircuitBlocked(circuit): Unknown host - " << host << llendl;
 		return FALSE;
 	}
 }
@@ -1716,7 +1712,7 @@ BOOL LLMessageSystem::checkCircuitAlive(const U32 circuit)
 
 	if (!host.isOk())
 	{
-		//llinfos << "checkCircuitAlive: Unknown circuit " << circuit << llendl;
+		LL_DEBUGS("Messaging") << "checkCircuitAlive: Unknown circuit " << circuit << llendl;
 		return FALSE;
 	}
 
@@ -1727,7 +1723,7 @@ BOOL LLMessageSystem::checkCircuitAlive(const U32 circuit)
 	}
 	else
 	{
-		llinfos << "checkCircuitAlive(circuit): Unknown host - " << host << llendl;
+		LL_INFOS("Messaging") << "checkCircuitAlive(circuit): Unknown host - " << host << llendl;
 		return FALSE;
 	}
 }
@@ -1741,7 +1737,7 @@ BOOL LLMessageSystem::checkCircuitAlive(const LLHost &host)
 	}
 	else
 	{
-		//llinfos << "checkCircuitAlive(host): Unknown host - " << host << llendl;
+		LL_DEBUGS("Messaging") << "checkCircuitAlive(host): Unknown host - " << host << llendl;
 		return FALSE;
 	}
 }
@@ -1891,7 +1887,7 @@ void LLMessageSystem::processAssignCircuitCode(LLMessageSystem* msg, void**)
 	msg->getUUIDFast(_PREHASH_CircuitCode, _PREHASH_SessionID, session_id);
 	if(session_id != msg->getMySessionID())
 	{
-		llwarns << "AssignCircuitCode, bad session id. Expecting "
+		LL_WARNS("Messaging") << "AssignCircuitCode, bad session id. Expecting "
 				<< msg->getMySessionID() << " but got " << session_id
 				<< llendl;
 		return;
@@ -1900,11 +1896,11 @@ void LLMessageSystem::processAssignCircuitCode(LLMessageSystem* msg, void**)
 	msg->getU32Fast(_PREHASH_CircuitCode, _PREHASH_Code, code);
 	if (!code)
 	{
-		llerrs << "Assigning circuit code of zero!" << llendl;
+		LL_ERRS("Messaging") << "Assigning circuit code of zero!" << llendl;
 	}
 	
 	msg->mOurCircuitCode = code;
-	llinfos << "Circuit code " << code << " assigned." << llendl;
+	LL_INFOS("Messaging") << "Circuit code " << code << " assigned." << llendl;
 }
 */
 
@@ -1928,20 +1924,20 @@ bool LLMessageSystem::addCircuitCode(U32 code, const LLUUID& session_id)
 {
 	if(!code)
 	{
-		llwarns << "addCircuitCode: zero circuit code" << llendl;
+		LL_WARNS("Messaging") << "addCircuitCode: zero circuit code" << llendl;
 		return false;
 	}
 	code_session_map_t::iterator it = mCircuitCodes.find(code);
 	if(it == mCircuitCodes.end())
 	{
-		llinfos << "New circuit code " << code << " added" << llendl;
+		LL_INFOS("Messaging") << "New circuit code " << code << " added" << llendl;
 		//msg->mCircuitCodes[circuit_code] = circuit_code;
 		
 		mCircuitCodes.insert(code_session_map_t::value_type(code, session_id));
 	}
 	else
 	{
-		llinfos << "Duplicate circuit code " << code << " added" << llendl;
+		LL_INFOS("Messaging") << "Duplicate circuit code " << code << " added" << llendl;
 	}
 	return true;
 }
@@ -1973,7 +1969,7 @@ void LLMessageSystem::processUseCircuitCode(LLMessageSystem* msg,
 		if(it == msg->mCircuitCodes.end())
 		{
 			// Whoah, abort!  We don't know anything about this circuit code.
-			llwarns << "UseCircuitCode for " << circuit_code_in
+			LL_WARNS("Messaging") << "UseCircuitCode for " << circuit_code_in
 					<< " received without AddCircuitCode message - aborting"
 					<< llendl;
 			return;
@@ -1985,7 +1981,7 @@ void LLMessageSystem::processUseCircuitCode(LLMessageSystem* msg,
 		msg->getUUIDFast(_PREHASH_CircuitCode, _PREHASH_SessionID, session_id);
 		if(session_id != (*it).second)
 		{
-			llwarns << "UseCircuitCode unmatched session id. Got "
+			LL_WARNS("Messaging") << "UseCircuitCode unmatched session id. Got "
 					<< session_id << " but expected " << (*it).second
 					<< llendl;
 			return;
@@ -2000,7 +1996,7 @@ void LLMessageSystem::processUseCircuitCode(LLMessageSystem* msg,
 			if ((ip_port_old == ip_port_in) && (circuit_code_old == circuit_code_in))
 			{
 				// Current information is the same as incoming info, ignore
-				llinfos << "Got duplicate UseCircuitCode for circuit " << circuit_code_in << " to " << msg->getSender() << llendl;
+				LL_INFOS("Messaging") << "Got duplicate UseCircuitCode for circuit " << circuit_code_in << " to " << msg->getSender() << llendl;
 				return;
 			}
 
@@ -2010,25 +2006,25 @@ void LLMessageSystem::processUseCircuitCode(LLMessageSystem* msg,
 			msg->mIPPortToCircuitCode.erase(ip_port_old);
 			U32 old_port = (U32)(ip_port_old & (U64)0xFFFFFFFF);
 			U32 old_ip = (U32)(ip_port_old >> 32);
-			llinfos << "Removing derelict lookup entry for circuit " << circuit_code_old << " to " << LLHost(old_ip, old_port) << llendl;
+			LL_INFOS("Messaging") << "Removing derelict lookup entry for circuit " << circuit_code_old << " to " << LLHost(old_ip, old_port) << llendl;
 		}
 
 		if (circuit_code_old)
 		{
 			LLHost cur_host(ip, port);
 
-			llwarns << "Disabling existing circuit for " << cur_host << llendl;
+			LL_WARNS("Messaging") << "Disabling existing circuit for " << cur_host << llendl;
 			msg->disableCircuit(cur_host);
 			if (circuit_code_old == circuit_code_in)
 			{
-				llwarns << "Asymmetrical circuit to ip/port lookup!" << llendl;
-				llwarns << "Multiple circuit codes for " << cur_host << " probably!" << llendl;
-				llwarns << "Permanently disabling circuit" << llendl;
+				LL_WARNS("Messaging") << "Asymmetrical circuit to ip/port lookup!" << llendl;
+				LL_WARNS("Messaging") << "Multiple circuit codes for " << cur_host << " probably!" << llendl;
+				LL_WARNS("Messaging") << "Permanently disabling circuit" << llendl;
 				return;
 			}
 			else
 			{
-				llwarns << "Circuit code changed for " << msg->getSender()
+				LL_WARNS("Messaging") << "Circuit code changed for " << msg->getSender()
 						<< " from " << circuit_code_old << " to "
 						<< circuit_code_in << llendl;
 			}
@@ -2070,7 +2066,7 @@ void LLMessageSystem::processUseCircuitCode(LLMessageSystem* msg,
 		msg->mIPPortToCircuitCode[ip_port_in] = circuit_code_in;
 		msg->mCircuitCodeToIPPort[circuit_code_in] = ip_port_in;
 
-		llinfos << "Circuit code " << circuit_code_in << " from "
+		LL_INFOS("Messaging") << "Circuit code " << circuit_code_in << " from "
 				<< msg->getSender() << " for agent " << id << " in session "
 				<< session_id << llendl;
 
@@ -2083,7 +2079,7 @@ void LLMessageSystem::processUseCircuitCode(LLMessageSystem* msg,
 	}
 	else
 	{
-		llwarns << "Got zero circuit code in use_circuit_code" << llendl;
+		LL_WARNS("Messaging") << "Got zero circuit code in use_circuit_code" << llendl;
 	}
 }
 
@@ -2105,7 +2101,7 @@ void LLMessageSystem::processError(LLMessageSystem* msg, void**)
 	msg->getString("Data", "Message", MTUBYTES, buffer);
 	error_message.assign(buffer);
 
-	llwarns << "Message error from " << msg->getSender() << " - "
+	LL_WARNS("Messaging") << "Message error from " << msg->getSender() << " - "
 		<< error_code << " " << error_token << " " << error_id << " \""
 		<< error_system << "\" \"" << error_message << "\"" << llendl;
 }
@@ -2143,7 +2139,7 @@ void LLMessageSystem::dispatch(
 				gMessageSystem->mMessageTemplates.end()) &&
 		!LLMessageConfig::isValidMessage(msg_name))
 	{
-		llwarns << "Ignoring unknown message " << msg_name << llendl;
+		LL_WARNS("Messaging") << "Ignoring unknown message " << msg_name << llendl;
 		responsep->notFound("Invalid message name");
 		return;
 	}
@@ -2153,12 +2149,12 @@ void LLMessageSystem::dispatch(
 	const LLHTTPNode* handler =	messageRootNode().traverse(path, context);
 	if (!handler)
 	{
-		llwarns	<< "LLMessageService::dispatch > no handler for "
+		LL_WARNS("Messaging")	<< "LLMessageService::dispatch > no handler for "
 				<< path << llendl;
 		return;
 	}
 	// enable this for output of message names
-	//llinfos << "< \"" << msg_name << "\"" << llendl;
+	//LL_INFOS("Messaging") << "< \"" << msg_name << "\"" << llendl;
 	//lldebugs << "data: " << LLSDNotationStreamer(message) << llendl;	   
 
 	handler->post(responsep, context, message);
@@ -2177,9 +2173,9 @@ static void check_for_unrecognized_messages(
 
 		if (templates.find(name) == templates.end())
 		{
-			llinfos << "    " << type
+			LL_INFOS("AppInit") << "    " << type
 				<< " ban list contains unrecognized message "
-				<< name << llendl;
+				<< name << LL_ENDL;
 		}
 	}
 }
@@ -2187,7 +2183,7 @@ static void check_for_unrecognized_messages(
 void LLMessageSystem::setMessageBans(
 		const LLSD& trusted, const LLSD& untrusted)
 {
-	llinfos << "LLMessageSystem::setMessageBans:" << llendl;
+	LL_DEBUGS("AppInit") << "LLMessageSystem::setMessageBans:" << LL_ENDL;
 	bool any_set = false;
 
 	for (message_template_name_map_t::iterator iter = mMessageTemplates.begin(),
@@ -2207,17 +2203,17 @@ void LLMessageSystem::setMessageBans(
 
 		if (ban_from_trusted  ||  ban_from_untrusted)
 		{
-			llinfos << "    " << name << " banned from "
+			LL_INFOS("AppInit") << "    " << name << " banned from "
 				<< (ban_from_trusted ? "TRUSTED " : " ")
 				<< (ban_from_untrusted ? "UNTRUSTED " : " ")
-				<< llendl;
+				<< LL_ENDL;
 			any_set = true;
 		}
 	}
 
 	if (!any_set) 
 	{
-		llinfos << "    no messages banned" << llendl;
+		LL_DEBUGS("AppInit") << "    no messages banned" << LL_ENDL;
 	}
 
 	check_for_unrecognized_messages("trusted", trusted, mMessageTemplates);
@@ -2267,7 +2263,7 @@ S32 LLMessageSystem::sendError(
 	}
 	else
 	{
-		llwarns << "Data and message were too large -- data removed."
+		LL_WARNS("Messaging") << "Data and message were too large -- data removed."
 			<< llendl;
 		addBinaryData("Data", NULL, 0);
 	}
@@ -2288,7 +2284,7 @@ void	process_packet_ack(LLMessageSystem *msgsystem, void** /*user_data*/)
 		for (S32 i = 0; i < ack_count; i++)
 		{
 			msgsystem->getU32Fast(_PREHASH_Packets, _PREHASH_ID, packet_id, i);
-//			llinfos << "ack recvd' from " << host << " for packet " << (TPACKETID)packet_id << llendl;
+//			LL_DEBUGS("Messaging") << "ack recvd' from " << host << " for packet " << (TPACKETID)packet_id << llendl;
 			cdp->ackReliablePacket(packet_id);
 		}
 		if (!cdp->getUnackedPacketCount())
@@ -2309,12 +2305,12 @@ void process_log_messages(LLMessageSystem* msg, void**)
 	
 	if (log_message)
 	{
-		llinfos << "Starting logging via message" << llendl;
+		LL_INFOS("Messaging") << "Starting logging via message" << llendl;
 		msg->startLogging();
 	}
 	else
 	{
-		llinfos << "Stopping logging via message" << llendl;
+		LL_INFOS("Messaging") << "Stopping logging via message" << llendl;
 		msg->stopLogging();
 	}
 }*/
@@ -2333,7 +2329,7 @@ void process_create_trusted_circuit(LLMessageSystem *msg, void **)
 	LLCircuitData *cdp = msg->mCircuitInfo.findCircuit(msg->getSender());
 	if (!cdp)
 	{
-		llwarns << "Attempt to create trusted circuit without circuit data: "
+		LL_WARNS("Messaging") << "Attempt to create trusted circuit without circuit data: "
 				<< msg->getSender() << llendl;
 		return;
 	}
@@ -2358,7 +2354,7 @@ void process_create_trusted_circuit(LLMessageSystem *msg, void **)
 	if(msg->isMatchingDigestForWindowAndUUIDs(their_digest, TRUST_TIME_WINDOW, local_id, remote_id))
 	{
 		cdp->setTrusted(TRUE);
-		llinfos << "Trusted digest from " << msg->getSender() << llendl;
+		LL_INFOS("Messaging") << "Trusted digest from " << msg->getSender() << llendl;
 		return;
 	}
 	else if (cdp->getTrusted())
@@ -2367,13 +2363,13 @@ void process_create_trusted_circuit(LLMessageSystem *msg, void **)
 		// This means that this could just be the result of a stale deny sent from a while back, and
 		// the message system is being slow.  Don't bother sending the deny, as it may continually
 		// ping-pong back and forth on a very hosed circuit.
-		llwarns << "Ignoring bad digest from known trusted circuit: " << their_digest
+		LL_WARNS("Messaging") << "Ignoring bad digest from known trusted circuit: " << their_digest
 			<< " host: " << msg->getSender() << llendl;
 		return;
 	}
 	else
 	{
-		llwarns << "Bad digest from known circuit: " << their_digest
+		LL_WARNS("Messaging") << "Bad digest from known circuit: " << their_digest
 				<< " host: " << msg->getSender() << llendl;
 		msg->sendDenyTrustedCircuit(msg->getSender());
 		return;
@@ -2410,7 +2406,7 @@ void process_deny_trusted_circuit(LLMessageSystem *msg, void **)
 	// spin.
 	// *TODO: probably should keep a count of number of resends
 	// per circuit, and stop resending after a while.
-	llinfos << "Got DenyTrustedCircuit. Sending CreateTrustedCircuit to "
+	LL_INFOS("Messaging") << "Got DenyTrustedCircuit. Sending CreateTrustedCircuit to "
 			<< msg->getSender() << llendl;
 	msg->sendCreateTrustedCircuit(msg->getSender(), local_id, remote_id);
 }
@@ -2499,7 +2495,7 @@ BOOL start_messaging_system(
 
 	if (!gMessageSystem)
 	{
-		llerrs << "Messaging system initialization failed." << llendl;
+		LL_ERRS("AppInit") << "Messaging system initialization failed." << LL_ENDL;
 		return FALSE;
 	}
 
@@ -2518,12 +2514,12 @@ BOOL start_messaging_system(
 	{
 		if (gMessageSystem->mMessageFileVersionNumber != gPrehashVersionNumber)
 		{
-			llinfos << "Message template version does not match prehash version number" << llendl;
-			llinfos << "Run simulator with -prehash command line option to rebuild prehash data" << llendl;
+			LL_INFOS("AppInit") << "Message template version does not match prehash version number" << LL_ENDL;
+			LL_INFOS("AppInit") << "Run simulator with -prehash command line option to rebuild prehash data" << llendl;
 		}
 		else
 		{
-			llinfos << "Message template version matches prehash version number" << llendl;
+			LL_DEBUGS("AppInit") << "Message template version matches prehash version number" << llendl;
 		}
 	}
 
@@ -2569,7 +2565,7 @@ void LLMessageSystem::startLogging()
 	str << "\t<-\tincoming message" <<std::endl;
 	str << "\t->\toutgoing message" << std::endl;
 	str << "     <>        host           size    zero      id name";
-	llinfos << str.str() << llendl;
+	LL_INFOS("Messaging") << str.str() << llendl;
 }
 
 void LLMessageSystem::stopLogging()
@@ -2577,7 +2573,7 @@ void LLMessageSystem::stopLogging()
 	if(mVerboseLog)
 	{
 		mVerboseLog = FALSE;
-		llinfos << "END MESSAGE LOG" << llendl;
+		LL_INFOS("Messaging") << "END MESSAGE LOG" << llendl;
 	}
 }
 
@@ -2683,7 +2679,7 @@ void end_messaging_system()
 
 		std::ostringstream str;
 		gMessageSystem->summarizeLogs(str);
-		llinfos << str.str().c_str() << llendl;
+		LL_INFOS("Messaging") << str.str().c_str() << llendl;
 
 		delete gMessageSystem;
 		gMessageSystem = NULL;
@@ -2735,7 +2731,7 @@ void LLMessageSystem::dumpReceiveCounts()
 
 	if(mNumMessageCounts > 0)
 	{
-		llinfos << "Dump: " << mNumMessageCounts << " messages processed in " << mReceiveTime << " seconds" << llendl;
+		LL_DEBUGS("Messaging") << "Dump: " << mNumMessageCounts << " messages processed in " << mReceiveTime << " seconds" << llendl;
 		for (message_template_name_map_t::const_iterator iter = mMessageTemplates.begin(),
 				 end = mMessageTemplates.end();
 			 iter != end; iter++)
@@ -2743,7 +2739,7 @@ void LLMessageSystem::dumpReceiveCounts()
 			const LLMessageTemplate* mt = iter->second;
 			if (mt->mReceiveCount > 0)
 			{
-				llinfos << "Num: " << std::setw(3) << mt->mReceiveCount << " Bytes: " << std::setw(6) << mt->mReceiveBytes
+				LL_INFOS("Messaging") << "Num: " << std::setw(3) << mt->mReceiveCount << " Bytes: " << std::setw(6) << mt->mReceiveBytes
 						<< " Invalid: " << std::setw(3) << mt->mReceiveInvalid << " " << mt->mName << " " << llround(100 * mt->mDecodeTimeThisFrame / mReceiveTime) << "%" << llendl;
 			}
 		}
@@ -2860,7 +2856,7 @@ S32 LLMessageSystem::zeroCodeExpand(U8** data, S32* data_size)
 {
 	if ((*data_size ) < LL_MINIMUM_VALID_PACKET_SIZE)
 	{
-		llwarns << "zeroCodeExpand() called with data_size of " << *data_size
+		LL_WARNS("Messaging") << "zeroCodeExpand() called with data_size of " << *data_size
 			<< llendl;
 	}
 
@@ -2900,7 +2896,7 @@ S32 LLMessageSystem::zeroCodeExpand(U8** data, S32* data_size)
 	{
 		if (outptr > (&mEncodedRecvBuffer[MAX_BUFFER_SIZE-1]))
 		{
-			llwarns << "attempt to write past reasonable encoded buffer size 1" << llendl;
+			LL_WARNS("Messaging") << "attempt to write past reasonable encoded buffer size 1" << llendl;
 			callExceptionFunc(MX_WROTE_PAST_BUFFER_SIZE);
 			outptr = mEncodedRecvBuffer;					
 			break;
@@ -2912,7 +2908,7 @@ S32 LLMessageSystem::zeroCodeExpand(U8** data, S32* data_size)
 				*outptr++ = *inptr++;
   				if (outptr > (&mEncodedRecvBuffer[MAX_BUFFER_SIZE-256]))
   				{
-  					llwarns << "attempt to write past reasonable encoded buffer size 2" << llendl;
+  					LL_WARNS("Messaging") << "attempt to write past reasonable encoded buffer size 2" << llendl;
 					callExceptionFunc(MX_WROTE_PAST_BUFFER_SIZE);
 					outptr = mEncodedRecvBuffer;
 					count = -1;
@@ -2931,7 +2927,7 @@ S32 LLMessageSystem::zeroCodeExpand(U8** data, S32* data_size)
 			{
   				if (outptr > (&mEncodedRecvBuffer[MAX_BUFFER_SIZE-(*inptr)]))
 				{
-  					llwarns << "attempt to write past reasonable encoded buffer size 3" << llendl;
+  					LL_WARNS("Messaging") << "attempt to write past reasonable encoded buffer size 3" << llendl;
 					callExceptionFunc(MX_WROTE_PAST_BUFFER_SIZE);
 					outptr = mEncodedRecvBuffer;					
 				}
@@ -2954,7 +2950,7 @@ void LLMessageSystem::addTemplate(LLMessageTemplate *templatep)
 {
 	if (mMessageTemplates.count(templatep->mName) > 0)
 	{	
-		llerrs << templatep->mName << " already  used as a template name!"
+		LL_ERRS("Messaging") << templatep->mName << " already  used as a template name!"
 			<< llendl;
 	}
 	mMessageTemplates[templatep->mName] = templatep;
@@ -2971,7 +2967,7 @@ void LLMessageSystem::setHandlerFuncFast(const char *name, void (*handler_func)(
 	}
 	else
 	{
-		llerrs << name << " is not a known message name!" << llendl;
+		LL_ERRS("Messaging") << name << " is not a known message name!" << llendl;
 	}
 }
 
@@ -2983,7 +2979,7 @@ bool LLMessageSystem::callHandler(const char *name,
 	iter = mMessageTemplates.find(name);
 	if(iter == mMessageTemplates.end())
 	{
-		llwarns << "LLMessageSystem::callHandler: unknown message " 
+		LL_WARNS("Messaging") << "LLMessageSystem::callHandler: unknown message " 
 			<< name << llendl;
 		return false;
 	}
@@ -2991,7 +2987,7 @@ bool LLMessageSystem::callHandler(const char *name,
 	const LLMessageTemplate* msg_template = iter->second;
 	if (msg_template->isBanned(trustedSource))
 	{
-		llwarns << "LLMessageSystem::callHandler: banned message " 
+		LL_WARNS("Messaging") << "LLMessageSystem::callHandler: banned message " 
 			<< name 
 			<< " from "
 			<< (trustedSource ? "trusted " : "untrusted ")
@@ -3131,7 +3127,7 @@ bool LLMessageSystem::generateDigestForWindowAndUUIDs(char* digest, const S32 wi
 	std::string shared_secret = get_shared_secret();
 	if(shared_secret.empty())
 	{
-		llerrs << "Trying to generate complex digest on a machine without a shared secret!" << llendl;
+		LL_ERRS("Messaging") << "Trying to generate complex digest on a machine without a shared secret!" << llendl;
 	}
 
 	U32 now = time(NULL);
@@ -3150,7 +3146,7 @@ bool LLMessageSystem::isMatchingDigestForWindowAndUUIDs(const char* digest, cons
 	std::string shared_secret = get_shared_secret();
 	if(shared_secret.empty())
 	{
-		llerrs << "Trying to compare complex digests on a machine without a shared secret!" << llendl;
+		LL_ERRS("Messaging") << "Trying to compare complex digests on a machine without a shared secret!" << llendl;
 	}
 	
 	char our_digest[MD5HEX_STR_SIZE];	/* Flawfinder: ignore */
@@ -3197,7 +3193,7 @@ bool LLMessageSystem::generateDigestForWindow(char* digest, const S32 window) co
 	std::string shared_secret = get_shared_secret();
 	if(shared_secret.empty())
 	{
-		llerrs << "Trying to generate simple digest on a machine without a shared secret!" << llendl;
+		LL_ERRS("Messaging") << "Trying to generate simple digest on a machine without a shared secret!" << llendl;
 	}
 
 	U32 now = time(NULL);
@@ -3216,7 +3212,7 @@ bool LLMessageSystem::isMatchingDigestForWindow(const char* digest, S32 const wi
 	std::string shared_secret = get_shared_secret();
 	if(shared_secret.empty())
 	{
-		llerrs << "Trying to compare simple digests on a machine without a shared secret!" << llendl;
+		LL_ERRS("Messaging") << "Trying to compare simple digests on a machine without a shared secret!" << llendl;
 	}
 	
 	char our_digest[MD5HEX_STR_SIZE];	/* Flawfinder: ignore */
@@ -3250,12 +3246,12 @@ void LLMessageSystem::sendCreateTrustedCircuit(const LLHost &host, const LLUUID 
 	char digest[MD5HEX_STR_SIZE];	/* Flawfinder: ignore */
 	if (id1.isNull())
 	{
-		llwarns << "Can't send CreateTrustedCircuit to " << host << " because we don't have the local end point ID" << llendl;
+		LL_WARNS("Messaging") << "Can't send CreateTrustedCircuit to " << host << " because we don't have the local end point ID" << llendl;
 		return;
 	}
 	if (id2.isNull())
 	{
-		llwarns << "Can't send CreateTrustedCircuit to " << host << " because we don't have the remote end point ID" << llendl;
+		LL_WARNS("Messaging") << "Can't send CreateTrustedCircuit to " << host << " because we don't have the remote end point ID" << llendl;
 		return;
 	}
 	generateDigestForWindowAndUUIDs(digest, TRUST_TIME_WINDOW, id1, id2);
@@ -3263,7 +3259,7 @@ void LLMessageSystem::sendCreateTrustedCircuit(const LLHost &host, const LLUUID 
 	nextBlockFast(_PREHASH_DataBlock);
 	addUUIDFast(_PREHASH_EndPointID, id1);
 	addBinaryDataFast(_PREHASH_Digest, digest, MD5HEX_STR_BYTES);
-	llinfos << "xmitting digest: " << digest << " Host: " << host << llendl;
+	LL_INFOS("Messaging") << "xmitting digest: " << digest << " Host: " << host << llendl;
 	sendMessage(host);
 }
 
@@ -3277,10 +3273,10 @@ void LLMessageSystem::reallySendDenyTrustedCircuit(const LLHost &host)
 	LLCircuitData *cdp = mCircuitInfo.findCircuit(host);
 	if (!cdp)
 	{
-		llwarns << "Not sending DenyTrustedCircuit to host without a circuit." << llendl;
+		LL_WARNS("Messaging") << "Not sending DenyTrustedCircuit to host without a circuit." << llendl;
 		return;
 	}
-	llinfos << "Sending DenyTrustedCircuit to " << host << llendl;
+	LL_INFOS("Messaging") << "Sending DenyTrustedCircuit to " << host << llendl;
 	newMessageFast(_PREHASH_DenyTrustedCircuit);
 	nextBlockFast(_PREHASH_DataBlock);
 	addUUIDFast(_PREHASH_EndPointID, cdp->getLocalEndPointID());
@@ -3301,7 +3297,7 @@ void LLMessageSystem::establishBidirectionalTrust(const LLHost &host, S64 frame_
 	std::string shared_secret = get_shared_secret();
 	if(shared_secret.empty())
 	{
-		llerrs << "Trying to establish bidirectional trust on a machine without a shared secret!" << llendl;
+		LL_ERRS("Messaging") << "Trying to establish bidirectional trust on a machine without a shared secret!" << llendl;
 	}
 	LLTimer timeout;
 
@@ -3353,8 +3349,8 @@ void LLMessageSystem::establishBidirectionalTrust(const LLHost &host, S64 frame_
 
 void LLMessageSystem::dumpPacketToLog()
 {
-	llwarns << "Packet Dump from:" << mPacketRing.getLastSender() << llendl;
-	llwarns << "Packet Size:" << mTrueReceiveSize << llendl;
+	LL_WARNS("Messaging") << "Packet Dump from:" << mPacketRing.getLastSender() << llendl;
+	LL_WARNS("Messaging") << "Packet Size:" << mTrueReceiveSize << llendl;
 	char line_buffer[256];		/* Flawfinder: ignore */
 	S32 i;
 	S32 cur_line_pos = 0;
@@ -3369,13 +3365,13 @@ void LLMessageSystem::dumpPacketToLog()
 		if (cur_line_pos >= 16)
 		{
 			cur_line_pos = 0;
-			llwarns << "PD:" << cur_line << "PD:" << line_buffer << llendl;
+			LL_WARNS("Messaging") << "PD:" << cur_line << "PD:" << line_buffer << llendl;
 			cur_line++;
 		}
 	}
 	if (cur_line_pos)
 	{
-		llwarns << "PD:" << cur_line << "PD:" << line_buffer << llendl;
+		LL_WARNS("Messaging") << "PD:" << cur_line << "PD:" << line_buffer << llendl;
 	}
 }
 
@@ -3919,7 +3915,7 @@ void LLMessageSystem::getStringFast(const char *block, const char *var,
 {
 	if(buffer_size <= 0)
 	{
-		llwarns << "buffer_size <= 0" << llendl;
+		LL_WARNS("Messaging") << "buffer_size <= 0" << llendl;
 	}
 	mMessageReader->getString(block, var, buffer_size, s, blocknum);
 }

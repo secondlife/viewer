@@ -492,21 +492,21 @@ bool LLDir::setCacheDir(const std::string &path)
 
 void LLDir::dumpCurrentDirectories()
 {
-	llinfos << "Current Directories:" << llendl;
+	LL_DEBUGS2("AppInit","Directories") << "Current Directories:" << LL_ENDL;
 
-	llinfos << "  CurPath:               " << getCurPath() << llendl;
-	llinfos << "  AppName:               " << getAppName() << llendl;
-	llinfos << "  ExecutableFilename:    " << getExecutableFilename() << llendl;
-	llinfos << "  ExecutableDir:         " << getExecutableDir() << llendl;
-	llinfos << "  ExecutablePathAndName: " << getExecutablePathAndName() << llendl;
-	llinfos << "  WorkingDir:            " << getWorkingDir() << llendl;
-	llinfos << "  AppRODataDir:          " << getAppRODataDir() << llendl;
-	llinfos << "  OSUserDir:             " << getOSUserDir() << llendl;
-	llinfos << "  OSUserAppDir:          " << getOSUserAppDir() << llendl;
-	llinfos << "  LindenUserDir:         " << getLindenUserDir() << llendl;
-	llinfos << "  TempDir:               " << getTempDir() << llendl;
-	llinfos << "  CAFile:				 " << getCAFile() << llendl;
-	llinfos << "  SkinDir:               " << getSkinDir() << llendl;
+	LL_DEBUGS2("AppInit","Directories") << "  CurPath:               " << getCurPath() << LL_ENDL;
+	LL_DEBUGS2("AppInit","Directories") << "  AppName:               " << getAppName() << LL_ENDL;
+	LL_DEBUGS2("AppInit","Directories") << "  ExecutableFilename:    " << getExecutableFilename() << LL_ENDL;
+	LL_DEBUGS2("AppInit","Directories") << "  ExecutableDir:         " << getExecutableDir() << LL_ENDL;
+	LL_DEBUGS2("AppInit","Directories") << "  ExecutablePathAndName: " << getExecutablePathAndName() << LL_ENDL;
+	LL_DEBUGS2("AppInit","Directories") << "  WorkingDir:            " << getWorkingDir() << LL_ENDL;
+	LL_DEBUGS2("AppInit","Directories") << "  AppRODataDir:          " << getAppRODataDir() << LL_ENDL;
+	LL_DEBUGS2("AppInit","Directories") << "  OSUserDir:             " << getOSUserDir() << LL_ENDL;
+	LL_DEBUGS2("AppInit","Directories") << "  OSUserAppDir:          " << getOSUserAppDir() << LL_ENDL;
+	LL_DEBUGS2("AppInit","Directories") << "  LindenUserDir:         " << getLindenUserDir() << LL_ENDL;
+	LL_DEBUGS2("AppInit","Directories") << "  TempDir:               " << getTempDir() << LL_ENDL;
+	LL_DEBUGS2("AppInit","Directories") << "  CAFile:				 " << getCAFile() << LL_ENDL;
+	LL_DEBUGS2("AppInit","Directories") << "  SkinDir:               " << getSkinDir() << LL_ENDL;
 }
 
 

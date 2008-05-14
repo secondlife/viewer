@@ -202,7 +202,7 @@ void give_money(const LLUUID& uuid, LLViewerRegion* region, S32 amount, BOOL is_
 {
 	if(0 == amount) return;
 	amount = abs(amount);
-	llinfos << "give_money(" << uuid << "," << amount << ")"<< llendl;
+	LL_INFOS("Messaging") << "give_money(" << uuid << "," << amount << ")"<< LL_ENDL;
 	if(can_afford_transaction(amount))
 	{
 //		gStatusBar->debitBalance(amount);
@@ -242,7 +242,7 @@ void send_complete_agent_movement(const LLHost& sim_host)
 void process_logout_reply(LLMessageSystem* msg, void**)
 {
 	// The server has told us it's ok to quit.
-	llinfos << "process_logout_reply" << llendl;
+	LL_DEBUGS("Messaging") << "process_logout_reply" << LL_ENDL;
 
 	LLUUID agent_id;
 	msg->getUUID("AgentData", "AgentID", agent_id);
@@ -250,7 +250,7 @@ void process_logout_reply(LLMessageSystem* msg, void**)
 	msg->getUUID("AgentData", "SessionID", session_id);
 	if((agent_id != gAgent.getID()) || (session_id != gAgent.getSessionID()))
 	{
-		llwarns << "Bogus Logout Reply" << llendl;
+		LL_WARNS("Messaging") << "Bogus Logout Reply" << LL_ENDL;
 	}
 
 	LLInventoryModel::update_map_t parents;
@@ -268,7 +268,7 @@ void process_logout_reply(LLMessageSystem* msg, void**)
 
 		// We do not need to track the asset ids, just account for an
 		// updated inventory version.
-		llinfos << "process_logout_reply itemID=" << item_id << llendl;
+		LL_INFOS("Messaging") << "process_logout_reply itemID=" << item_id << LL_ENDL;
 		LLInventoryItem* item = gInventory.getItem( item_id );
 		if( item )
 		{
@@ -277,7 +277,7 @@ void process_logout_reply(LLMessageSystem* msg, void**)
 		}
 		else
 		{
-			llinfos << "process_logout_reply item not found: " << item_id << llendl;
+			LL_INFOS("Messaging") << "process_logout_reply item not found: " << item_id << LL_ENDL;
 		}
 	}
     LLAppViewer::instance()->forceQuit();
@@ -300,15 +300,15 @@ void process_layer_data(LLMessageSystem *mesgsys, void **user_data)
 	size = mesgsys->getSizeFast(_PREHASH_LayerData, _PREHASH_Data);
 	if (0 == size)
 	{
-		llwarns << "Layer data has zero size." << llendl;
+		LL_WARNS("Messaging") << "Layer data has zero size." << LL_ENDL;
 		return;
 	}
 	if (size < 0)
 	{
 		// getSizeFast() is probably trying to tell us about an error
-		llwarns << "getSizeFast() returned negative result: "
+		LL_WARNS("Messaging") << "getSizeFast() returned negative result: "
 			<< size
-			<< llendl;
+			<< LL_ENDL;
 		return;
 	}
 	U8 *datap = new U8[size];
@@ -353,7 +353,7 @@ void export_complete()
 		size_t nread = fread(buffer, 1, length, fXML);
 		if (nread < (size_t) length)
 		{
-			llwarns << "Short read" << llendl;
+			LL_WARNS("Messaging") << "Short read" << LL_ENDL;
 		}
 		buffer[nread] = '\0';
 		fclose(fXML);
@@ -375,12 +375,12 @@ void export_complete()
 					
 					LLUUID image_uuid(image_uuid_str);
 
-					llinfos << "Found UUID: " << image_uuid << llendl;
+					LL_INFOS("Messaging") << "Found UUID: " << image_uuid << LL_ENDL;
 
 					std::map<LLUUID, LLString>::iterator itor = gImageChecksums.find(image_uuid);
 					if (itor != gImageChecksums.end())
 					{
-						llinfos << "Replacing with checksum: " << itor->second << llendl;
+						LL_INFOS("Messaging") << "Replacing with checksum: " << itor->second << LL_ENDL;
 						if (itor->second.c_str() != NULL)
 							{
 								memcpy(&pos_check[10], itor->second.c_str(), 32);		/* Flawfinder: ignore */
@@ -393,7 +393,7 @@ void export_complete()
 		LLFILE* fXMLOut = LLFile::fopen(gExportedFile.c_str(), "wb");		/* Flawfinder: ignore */
 		if (fwrite(buffer, 1, length, fXMLOut) != length)
 		{
-			llwarns << "Short write" << llendl;
+			LL_WARNS("Messaging") << "Short write" << LL_ENDL;
 		}
 		fclose(fXMLOut);
 
@@ -407,14 +407,14 @@ void exported_item_complete(const LLTSCode status, void *user_data)
 
 	if (status < LLTS_OK)
 	{
-		llinfos << "Export failed!" << llendl;
+		LL_WARNS("Messaging") << "Export failed!" << LL_ENDL;
 	}
 	else
 	{
 		++current_object_count;
 		if (current_image_count == exported_image_count && current_object_count == exported_object_count)
 		{
-			llinfos << "*** Export complete ***" << llendl;
+			LL_INFOS("Messaging") << "*** Export complete ***" << LL_ENDL;
 
 			export_complete();
 		}
@@ -442,7 +442,7 @@ void exported_j2c_complete(const LLTSCode status, void *user_data)
 
 	if (status < LLTS_OK)
 	{
-		llinfos << "Image download failed!" << llendl;
+		LL_WARNS("Messaging") << "Image download failed!" << LL_ENDL;
 	}
 	else
 	{
@@ -458,7 +458,7 @@ void exported_j2c_complete(const LLTSCode status, void *user_data)
 			U8 *buffer = ImageUtility->allocateData(length);
 			if (fread(buffer, 1, length, fIn) != length)
 			{
-				llwarns << "Short read" << llendl;
+				LL_WARNS("Messaging") << "Short read" << LL_ENDL;
 			}
 			fclose(fIn);
 			LLFile::remove(filename.c_str());
@@ -488,7 +488,7 @@ void exported_j2c_complete(const LLTSCode status, void *user_data)
 			{
 				if (fwrite(data, 1, data_size, fOut) != data_size)
 				{
-					llwarns << "Short write" << llendl;
+					LL_WARNS("Messaging") << "Short write" << LL_ENDL;
 				}
 				fseek(fOut, 0, SEEK_SET);
 				fclose(fOut);
@@ -504,7 +504,7 @@ void exported_j2c_complete(const LLTSCode status, void *user_data)
 	++current_image_count;
 	if (current_image_count == exported_image_count && current_object_count == exported_object_count)
 	{
-		llinfos << "*** Export textures complete ***" << llendl;
+		LL_INFOS("Messaging") << "*** Export textures complete ***" << LL_ENDL;
 			export_complete();
 	}
 	else
@@ -533,7 +533,7 @@ void process_places_reply(LLMessageSystem* msg, void** data)
 	}
 	else
 	{
-		llwarns << "Got invalid PlacesReply message" << llendl;
+		LL_WARNS("Messaging") << "Got invalid PlacesReply message" << LL_ENDL;
 	}
 }
 
@@ -705,7 +705,7 @@ public:
 	virtual ~LLDiscardAgentOffer() {}
 	virtual void done()
 	{
-		lldebugs << "LLDiscardAgentOffer::done()" << llendl;
+		LL_DEBUGS("Messaging") << "LLDiscardAgentOffer::done()" << LL_ENDL;
 		LLUUID trash_id;
 		trash_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_TRASH);
 		bool notify = false;
@@ -729,9 +729,9 @@ public:
 		}
 		else
 		{
-			llwarns << "DiscardAgentOffer unable to find: "
+			LL_WARNS("Messaging") << "DiscardAgentOffer unable to find: "
 					<< (trash_id.isNull() ? "trash " : "")
-					<< (mObjectID.isNull() ? "object" : "") << llendl;
+					<< (mObjectID.isNull() ? "object" : "") << LL_ENDL;
 		}
 		gInventory.removeObserver(this);
 		if(notify)
@@ -766,14 +766,14 @@ bool check_offer_throttle(const std::string& from_name, bool check_only)
 	
 	if(gThrottleTimer.checkExpirationAndReset(OFFER_THROTTLE_TIME))
 	{
-		//llinfos << "Throttle Expired" << llendl;
+		LL_DEBUGS("Messaging") << "Throttle Expired" << LL_ENDL;
 		throttle_count=1;
 		throttle_logged=false;
 		return true;
 	}
 	else //has not expired
 	{
-		//llinfos << "Throttle Not Expired, Count: " << throttle_count << llendl;
+		LL_DEBUGS("Messaging") << "Throttle Not Expired, Count: " << throttle_count << LL_ENDL;
 		// When downloading the initial inventory we get a lot of new items
 		// coming in and can't tell that from spam.  JC
 		if (LLStartUp::getStartupState() >= STATE_STARTED
@@ -821,7 +821,7 @@ void open_offer(const std::vector<LLUUID>& items, const std::string& from_name)
 		item = gInventory.getItem(*it);
 		if(!item)
 		{
-			llwarns << "Unable to show inventory item: " << *it << llendl;
+			LL_WARNS("Messaging") << "Unable to show inventory item: " << *it << LL_ENDL;
 			continue;
 		}
 		if(gInventory.isObjectDescendentOf(*it, trash_id))
@@ -880,7 +880,7 @@ void open_offer(const std::vector<LLUUID>& items, const std::string& from_name)
 		//don't dick with highlight while the user is working
 		//if(inventory_has_focus && !user_is_away)
 		//	break;
-		//llinfos << "Highlighting" << item->getUUID()  << llendl;
+		LL_DEBUGS("Messaging") << "Highlighting" << item->getUUID()  << LL_ENDL;
 		//highlight item
 
 		LLUICtrl* focus_ctrl = gFocusMgr.getKeyboardFocus();
@@ -1041,8 +1041,8 @@ void inventory_offer_callback(S32 button, void* user_data)
 		}
 
 		// we will want to open this item when it comes back.
-		lldebugs << "Initializing an opener for tid: " << info->mTransactionID
-				 << llendl;
+		LL_DEBUGS("Messaging") << "Initializing an opener for tid: " << info->mTransactionID
+				 << LL_ENDL;
 		switch (info->mIM)
 		{
 		case IM_INVENTORY_OFFERED:
@@ -1075,7 +1075,7 @@ void inventory_offer_callback(S32 button, void* user_data)
 		}
 		break;
 		default:
-			llwarns << "inventory_offer_callback: unknown offer type" << llendl;
+			LL_WARNS("Messaging") << "inventory_offer_callback: unknown offer type" << LL_ENDL;
 			break;
 		}	// end switch (info->mIM)
 		break;
@@ -1187,11 +1187,11 @@ void inventory_offer_handler(LLOfferInfo* info, BOOL from_task)
 	}
 	else
 	{
-		llwarns << "LLAssetType::lookupHumanReadable() returned NULL - probably bad asset type: " << info->mType << llendl;
+		LL_WARNS("Messaging") << "LLAssetType::lookupHumanReadable() returned NULL - probably bad asset type: " << info->mType << LL_ENDL;
 		args["[OBJECTTYPE]"] = "";
 
 		// This seems safest, rather than propagating bogosity
-		llwarns << "Forcing an inventory-decline for probably-bad asset type." << llendl;
+		LL_WARNS("Messaging") << "Forcing an inventory-decline for probably-bad asset type." << LL_ENDL;
 		inventory_offer_callback(IOR_DECLINE, info);
 		return;
 	}
@@ -1424,7 +1424,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 
 			snprintf(buffer, sizeof(buffer), "%s%s", separator_string, (message+message_offset));		/* Flawfinder: ignore */
 	
-			llinfos << "process_improved_im: session_id( " << session_id << " ), from_id( " << from_id << " )" << llendl;
+			LL_INFOS("Messaging") << "process_improved_im: session_id( " << session_id << " ), from_id( " << from_id << " )" << LL_ENDL;
 
 			// add to IM panel, but do not bother the user
 			gIMMgr->addMessage(
@@ -1480,7 +1480,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			}
 			snprintf(buffer, sizeof(buffer), "%s%s%s", separator_string, saved,(message+message_offset));		/* Flawfinder: ignore */
 
-			llinfos << "process_improved_im: session_id( " << session_id << " ), from_id( " << from_id << " )" << llendl;
+			LL_INFOS("Messaging") << "process_improved_im: session_id( " << session_id << " ), from_id( " << from_id << " )" << LL_ENDL;
 
 			if (!is_muted || is_linden)
 			{
@@ -1538,7 +1538,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 	case IM_GROUP_NOTICE:
 	case IM_GROUP_NOTICE_REQUESTED:
 		{
-			llinfos << "Received IM_GROUP_NOTICE message." << llendl;
+			LL_INFOS("Messaging") << "Received IM_GROUP_NOTICE message." << LL_ENDL;
 			// Read the binary bucket for more information.
 			struct notice_bucket_header_t
 			{
@@ -1557,7 +1557,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			if ( (binary_bucket_size < (S32)((sizeof(notice_bucket_header_t) + sizeof(U8))))
 				|| (binary_bucket[binary_bucket_size - 1] != '\0') )
 			{
-				llwarns << "Malformed group notice binary bucket" << llendl;
+				LL_WARNS("Messaging") << "Malformed group notice binary bucket" << LL_ENDL;
 				break;
 			}
 
@@ -1623,7 +1623,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			}
 			else
 			{
-				llinfos << "Received IM_GROUP_INVITATION message." << llendl;
+				LL_INFOS("Messaging") << "Received IM_GROUP_INVITATION message." << LL_ENDL;
 				// Read the binary bucket for more information.
 				struct invite_bucket_t
 				{
@@ -1634,7 +1634,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				// Make sure the binary bucket is the correct size.
 				if (binary_bucket_size != sizeof(invite_bucket_t))
 				{
-					llwarns << "Malformed group invite binary bucket" << llendl;
+					LL_WARNS("Messaging") << "Malformed group invite binary bucket" << LL_ENDL;
 					break;
 				}
 
@@ -1673,7 +1673,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 
 				if (sizeof(offer_agent_bucket_t) != binary_bucket_size)
 				{
-					llwarns << "Malformed inventory offer from agent" << llendl;
+					LL_WARNS("Messaging") << "Malformed inventory offer from agent" << LL_ENDL;
 					break;
 				}
 				bucketp = (struct offer_agent_bucket_t*) &binary_bucket[0];
@@ -1684,7 +1684,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			{
 				if (sizeof(S8) != binary_bucket_size)
 				{
-					llwarns << "Malformed inventory offer from object" << llendl;
+					LL_WARNS("Messaging") << "Malformed inventory offer from object" << LL_ENDL;
 					break;
 				}
 				info->mType = (LLAssetType::EType) binary_bucket[0];
@@ -1745,7 +1745,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 
 	case IM_GROUP_ELECTION_DEPRECATED:
 	{
-		llwarns << "Received IM: IM_GROUP_ELECTION_DEPRECATED" << llendl;
+		LL_WARNS("Messaging") << "Received IM: IM_GROUP_ELECTION_DEPRECATED" << LL_ENDL;
 	}
 	break;
 	
@@ -1825,7 +1825,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 	case IM_BUSY_AUTO_RESPONSE:
 		if (is_muted)
 		{
-			lldebugs << "Ignoring busy response from " << from_id << llendl;
+			LL_DEBUGS("Messaging") << "Ignoring busy response from " << from_id << LL_ENDL;
 			return;
 		}
 		else
@@ -1873,16 +1873,16 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			// URLs sent by scripts (i.e. llLoadURL)
 			if (binary_bucket_size <= 0)
 			{
-				llwarns << "bad binary_bucket_size: "
+				LL_WARNS("Messaging") << "bad binary_bucket_size: "
 					<< binary_bucket_size
-					<< " - aborting function." << llendl;
+					<< " - aborting function." << LL_ENDL;
 				return;
 			}
 
 			char* url = new char[binary_bucket_size];
 			if (url == NULL)
 			{
-				llerrs << "Memory Allocation failed" << llendl;
+				LL_ERRS("Messaging") << "Memory Allocation failed" << LL_ENDL;
 				return;
 			}
 
@@ -1943,8 +1943,8 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 		break;
 
 	default:
-		llwarns << "Instant message calling for unknown dialog "
-				<< (S32)dialog << llendl;
+		LL_WARNS("Messaging") << "Instant message calling for unknown dialog "
+				<< (S32)dialog << LL_ENDL;
 		break;
 	}
 
@@ -2072,7 +2072,7 @@ void callingcard_offer_callback(S32 option, void* user_data)
 void process_offer_callingcard(LLMessageSystem* msg, void**)
 {
 	// someone has offered to form a friendship
-	lldebugs << "callingcard offer" << llendl;
+	LL_DEBUGS("Messaging") << "callingcard offer" << LL_ENDL;
 
 	LLUUID source_id;
 	msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_AgentID, source_id);
@@ -2117,7 +2117,7 @@ void process_offer_callingcard(LLMessageSystem* msg, void**)
 	}
 	else
 	{
-		llwarns << "Calling card offer from an unknown source." << llendl;
+		LL_WARNS("Messaging") << "Calling card offer from an unknown source." << LL_ENDL;
 	}
 
 	delete offerdata; // !=NULL if we didn't give ownership away
@@ -2310,10 +2310,10 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 				break;
 			case CHAT_TYPE_START:
 			case CHAT_TYPE_STOP:
-				llwarns << "Got chat type start/stop in main chat processing." << llendl;
+				LL_WARNS("Messaging") << "Got chat type start/stop in main chat processing." << LL_ENDL;
 				break;
 			default:
-				llwarns << "Unknown type " << chat.mChatType << " in chat!" << llendl;
+				LL_WARNS("Messaging") << "Unknown type " << chat.mChatType << " in chat!" << LL_ENDL;
 				verb = " say, ";
 				break;
 			}
@@ -2406,7 +2406,7 @@ void process_teleport_progress(LLMessageSystem* msg, void**)
 	if((gAgent.getID() != agent_id)
 	   || (gAgent.getTeleportState() == LLAgent::TELEPORT_NONE))
 	{
-		llwarns << "Unexpected teleport progress message." << llendl;
+		LL_WARNS("Messaging") << "Unexpected teleport progress message." << LL_ENDL;
 		return;
 	}
 	U32 teleport_flags = 0x0;
@@ -2421,7 +2421,7 @@ void process_teleport_progress(LLMessageSystem* msg, void**)
 	}
 	char buffer[MAX_STRING];		/* Flawfinder: ignore */
 	msg->getString("Info", "Message", MAX_STRING, buffer);
-	lldebugs << "teleport progress: " << buffer << llendl;
+	LL_DEBUGS("Messaging") << "teleport progress: " << buffer << LL_ENDL;
 
 	//Sorta hacky...default to using simulator raw messages
 	//if we don't find the coresponding mapping in our progress mappings
@@ -2545,12 +2545,12 @@ BOOL LLPostTeleportNotifiers::tick()
 // We're going to pretend to be a new agent
 void process_teleport_finish(LLMessageSystem* msg, void**)
 {
-	//llinfos << "Got teleport location message" << llendl;
+	LL_DEBUGS("Messaging") << "Got teleport location message" << LL_ENDL;
 	LLUUID agent_id;
 	msg->getUUIDFast(_PREHASH_Info, _PREHASH_AgentID, agent_id);
 	if (agent_id != gAgent.getID())
 	{
-		llwarns << "Got teleport notification for wrong agent!" << llendl;
+		LL_WARNS("Messaging") << "Got teleport notification for wrong agent!" << LL_ENDL;
 		return;
 	}
 
@@ -2618,8 +2618,8 @@ void process_teleport_finish(LLMessageSystem* msg, void**)
 */
 
 	// now, use the circuit info to tell simulator about us!
-	llinfos << "process_teleport_finish() Enabling "
-			<< sim_host << " with code " << msg->mOurCircuitCode << llendl;
+	LL_INFOS("Messaging") << "process_teleport_finish() Enabling "
+			<< sim_host << " with code " << msg->mOurCircuitCode << LL_ENDL;
 	msg->newMessageFast(_PREHASH_UseCircuitCode);
 	msg->nextBlockFast(_PREHASH_CircuitCode);
 	msg->addU32Fast(_PREHASH_Code, msg->getOurCircuitCode());
@@ -2680,12 +2680,12 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 	msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_SessionID, session_id);
 	if((gAgent.getID() != agent_id) || (gAgent.getSessionID() != session_id))
 	{
-		llwarns << "Incorrect id in process_agent_movement_complete()"
-				<< llendl;
+		LL_WARNS("Messaging") << "Incorrect id in process_agent_movement_complete()"
+				<< LL_ENDL;
 		return;
 	}
 
-	llinfos << "process_agent_movement_complete()" << llendl;
+	LL_DEBUGS("Messaging") << "process_agent_movement_complete()" << LL_ENDL;
 
 	// *TODO: check timestamp to make sure the movement compleation
 	// makes sense.
@@ -2704,7 +2704,7 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 	{
 		// Could happen if you were immediately god-teleported away on login,
 		// maybe other cases.  Continue, but warn.  JC
-		llwarns << "agent_movement_complete() with NULL avatarp." << llendl;
+		LL_WARNS("Messaging") << "agent_movement_complete() with NULL avatarp." << LL_ENDL;
 	}
 
 	F32 x, y;
@@ -2714,19 +2714,19 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 	{
 		if (gAgent.getRegion())
 		{
-			llwarns << "current region " << gAgent.getRegion()->getOriginGlobal() << llendl;
+			LL_WARNS("Messaging") << "current region " << gAgent.getRegion()->getOriginGlobal() << LL_ENDL;
 		}
 
-		llwarns << "Agent being sent to invalid home region: " 
+		LL_WARNS("Messaging") << "Agent being sent to invalid home region: " 
 			<< x << ":" << y 
 			<< " current pos " << gAgent.getPositionGlobal()
-			<< llendl;
+			<< LL_ENDL;
 		LLAppViewer::instance()->forceDisconnect("You were sent to an invalid region.");
 		return;
 
 	}
 
-	llinfos << "Changing home region to " << x << ":" << y << llendl;
+	LL_INFOS("Messaging") << "Changing home region to " << x << ":" << y << LL_ENDL;
 
 	// set our upstream host the new simulator and shuffle things as
 	// appropriate.
@@ -2846,11 +2846,11 @@ void process_crossed_region(LLMessageSystem* msg, void**)
 	msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_SessionID, session_id);
 	if((gAgent.getID() != agent_id) || (gAgent.getSessionID() != session_id))
 	{
-		llwarns << "Incorrect id in process_crossed_region()"
-				<< llendl;
+		LL_WARNS("Messaging") << "Incorrect id in process_crossed_region()"
+				<< LL_ENDL;
 		return;
 	}
-	llinfos << "process_crossed_region()" << llendl;
+	LL_INFOS("Messaging") << "process_crossed_region()" << LL_ENDL;
 
 	U32 sim_ip;
 	msg->getIPAddrFast(_PREHASH_RegionData, _PREHASH_SimIP, sim_ip);
@@ -2978,24 +2978,24 @@ void send_agent_update(BOOL force_send, BOOL send_reliable)
 /*
 		if (head_rot_chg < THRESHOLD_HEAD_ROT_QDOT)
 		{
-			//llinfos << "head rot " << head_rotation << llendl;
-			llinfos << "head_rot_chg = " << head_rot_chg << llendl;
+			//LL_INFOS("Messaging") << "head rot " << head_rotation << LL_ENDL;
+			LL_INFOS("Messaging") << "head_rot_chg = " << head_rot_chg << LL_ENDL;
 		}
 		if (cam_rot_chg.magVec() > ROTATION_THRESHOLD) 
 		{
-			llinfos << "cam rot " <<  cam_rot_chg.magVec() << llendl;
+			LL_INFOS("Messaging") << "cam rot " <<  cam_rot_chg.magVec() << LL_ENDL;
 		}
 		if (cam_center_chg.magVec() > TRANSLATE_THRESHOLD)
 		{
-			llinfos << "cam center " << cam_center_chg.magVec() << llendl;
+			LL_INFOS("Messaging") << "cam center " << cam_center_chg.magVec() << LL_ENDL;
 		}
 //		if (drag_delta_chg.magVec() > TRANSLATE_THRESHOLD)
 //		{
-//			llinfos << "drag delta " << drag_delta_chg.magVec() << llendl;
+//			LL_INFOS("Messaging") << "drag delta " << drag_delta_chg.magVec() << LL_ENDL;
 //		}
 		if (control_flag_change)
 		{
-			llinfos << "dcf = " << control_flag_change << llendl;
+			LL_INFOS("Messaging") << "dcf = " << control_flag_change << LL_ENDL;
 		}
 */
 
@@ -3044,7 +3044,7 @@ void send_agent_update(BOOL force_send, BOOL send_reliable)
 
 //		if (camera_pos_agent.mV[VY] > 255.f)
 //		{
-//			llinfos << "Sending camera center " << camera_pos_agent << llendl;
+//			LL_INFOS("Messaging") << "Sending camera center " << camera_pos_agent << LL_ENDL;
 //		}
 		
 		msg->addVector3Fast(_PREHASH_CameraCenter, camera_pos_agent);
@@ -3059,12 +3059,12 @@ void send_agent_update(BOOL force_send, BOOL send_reliable)
 		{
 			if (control_flags & AGENT_CONTROL_LBUTTON_DOWN)
 			{
-				llinfos << "AgentUpdate left button down" << llendl;
+				LL_INFOS("Messaging") << "AgentUpdate left button down" << LL_ENDL;
 			}
 
 			if (control_flags & AGENT_CONTROL_LBUTTON_UP)
 			{
-				llinfos << "AgentUpdate left button up" << llendl;
+				LL_INFOS("Messaging") << "AgentUpdate left button up" << LL_ENDL;
 			}
 		}
 
@@ -3079,7 +3079,7 @@ void send_agent_update(BOOL force_send, BOOL send_reliable)
 			gAgent.sendReliableMessage();
 		}
 
-		//llinfos << "agent " << avatar_pos_agent << " cam " << camera_pos_agent << llendl;
+//		LL_DEBUGS("Messaging") << "agent " << avatar_pos_agent << " cam " << camera_pos_agent << LL_ENDL;
 
 		// Copy the old data 
 		last_head_rot = head_rotation;
@@ -3192,13 +3192,13 @@ void process_kill_object(LLMessageSystem *mesgsys, void **user_data)
 											gMessageSystem->getSenderPort());
 		if (id == LLUUID::null)
 		{
-			//llinfos << "Unknown kill for local " << local_id << llendl;
+			LL_DEBUGS("Messaging") << "Unknown kill for local " << local_id << LL_ENDL;
 			gObjectList.mNumUnknownKills++;
 			continue;
 		}
 		else
 		{
-			//llinfos << "Kill message for local " << local_id << llendl;
+			LL_DEBUGS("Messaging") << "Kill message for local " << local_id << LL_ENDL;
 		}
 
 		LLSelectMgr::getInstance()->removeObjectFromSelections(id);
@@ -3228,7 +3228,7 @@ void process_kill_object(LLMessageSystem *mesgsys, void **user_data)
 			}
 			else
 			{
-				llwarns << "Object in UUID lookup, but not on object list in kill!" << llendl;
+				LL_WARNS("Messaging") << "Object in UUID lookup, but not on object list in kill!" << LL_ENDL;
 				gObjectList.mNumUnknownKills++;
 			}
 		}
@@ -3257,8 +3257,8 @@ void process_time_synch(LLMessageSystem *mesgsys, void **user_data)
 
 	LLWorld::getInstance()->setSpaceTimeUSec(space_time_usec);
 
-	//lldebugs << "time_synch() - " << sun_direction << ", " << sun_ang_velocity
-	//		 << ", " << phase << llendl;
+	//LL_DEBUGS("Messaging") << "time_synch() - " << sun_direction << ", " << sun_ang_velocity
+	//		 << ", " << phase << LL_ENDL;
 
 	gSky.setSunPhase(phase);
 	gSky.setSunTargetDirection(sun_direction, sun_ang_velocity);
@@ -3510,7 +3510,8 @@ void process_sim_stats(LLMessageSystem *msg, void **user_data)
 			LLViewerStats::getInstance()->mPhysicsMemoryAllocated.addValue(stat_value);
 			break;
 		default:
-// 			llwarns << "Unknown stat id" << stat_id << llendl;
+			// Used to be a commented out warning.
+ 			LL_DEBUGS("Messaging") << "Unknown stat id" << stat_id << LL_ENDL;
 		  break;
 		}
 	}
@@ -3577,7 +3578,7 @@ void process_avatar_animation(LLMessageSystem *mesgsys, void **user_data)
 	if (!avatarp)
 	{
 		// no agent by this ID...error?
-		llwarns << "Received animation state for unknown avatar" << uuid << llendl;
+		LL_WARNS("Messaging") << "Received animation state for unknown avatar" << uuid << LL_ENDL;
 		return;
 	}
 
@@ -3595,7 +3596,7 @@ void process_avatar_animation(LLMessageSystem *mesgsys, void **user_data)
 			mesgsys->getUUIDFast(_PREHASH_AnimationList, _PREHASH_AnimID, animation_id, i);
 			mesgsys->getS32Fast(_PREHASH_AnimationList, _PREHASH_AnimSequenceID, anim_sequence_id, i);
 
-			//llinfos << "Anim sequence ID: " << anim_sequence_id << llendl;
+			LL_DEBUGS("Messaging") << "Anim sequence ID: " << anim_sequence_id << LL_ENDL;
 
 			avatarp->mSignaledAnimations[animation_id] = anim_sequence_id;
 
@@ -3655,7 +3656,7 @@ void process_avatar_appearance(LLMessageSystem *mesgsys, void **user_data)
 	}
 	else
 	{
-		llwarns << "avatar_appearance sent for unknown avatar " << uuid << llendl;
+		LL_WARNS("Messaging") << "avatar_appearance sent for unknown avatar " << uuid << LL_ENDL;
 	}
 }
 
@@ -3721,7 +3722,7 @@ void process_avatar_sit_response(LLMessageSystem *mesgsys, void **user_data)
 	}
 	else
 	{
-		llwarns << "Received sit approval for unknown object " << sitObjectID << llendl;
+		LL_WARNS("Messaging") << "Received sit approval for unknown object " << sitObjectID << LL_ENDL;
 	}
 }
 
@@ -3871,13 +3872,13 @@ void process_name_value(LLMessageSystem *mesgsys, void **user_data)
 		for (i = 0; i < num_blocks; i++)
 		{
 			mesgsys->getStringFast(_PREHASH_NameValueData, _PREHASH_NVPair, NAME_VALUE_BUF_SIZE, temp_str, i);
-			llinfos << "Added to object Name Value: " << temp_str << llendl;
+			LL_INFOS("Messaging") << "Added to object Name Value: " << temp_str << LL_ENDL;
 			object->addNVPair(temp_str);
 		}
 	}
 	else
 	{
-		llinfos << "Can't find object " << id << " to add name value pair" << llendl;
+		LL_INFOS("Messaging") << "Can't find object " << id << " to add name value pair" << LL_ENDL;
 	}
 }
 
@@ -3897,13 +3898,13 @@ void process_remove_name_value(LLMessageSystem *mesgsys, void **user_data)
 		for (i = 0; i < num_blocks; i++)
 		{
 			mesgsys->getStringFast(_PREHASH_NameValueData, _PREHASH_NVPair, NAME_VALUE_BUF_SIZE, temp_str, i);
-			llinfos << "Removed from object Name Value: " << temp_str << llendl;
+			LL_INFOS("Messaging") << "Removed from object Name Value: " << temp_str << LL_ENDL;
 			object->removeNVPair(temp_str);
 		}
 	}
 	else
 	{
-		llinfos << "Can't find object " << id << " to remove name value pair" << llendl;
+		LL_INFOS("Messaging") << "Can't find object " << id << " to remove name value pair" << LL_ENDL;
 	}
 }
 
@@ -3983,8 +3984,8 @@ void process_money_balance_reply( LLMessageSystem* msg, void** )
 	msg->getS32("MoneyData", "SquareMetersCredit", credit);
 	msg->getS32("MoneyData", "SquareMetersCommitted", committed);
 	msg->getStringFast(_PREHASH_MoneyData, _PREHASH_Description,	STD_STRING_BUF_SIZE,	desc);
-	llinfos << "L$, credit, committed: " << balance << " " << credit << " "
-			<< committed << llendl;
+	LL_INFOS("Messaging") << "L$, credit, committed: " << balance << " " << credit << " "
+			<< committed << LL_ENDL;
 
 	if (gStatusBar)
 	{
@@ -4028,10 +4029,10 @@ void process_money_balance_reply( LLMessageSystem* msg, void** )
 		const S32 POP_FRONT_SIZE = 12;
 		if(recent.size() > MAX_LOOKBACK)
 		{
-			lldebugs << "Removing oldest transaction records" << llendl;
+			LL_DEBUGS("Messaging") << "Removing oldest transaction records" << LL_ENDL;
 			recent.erase(recent.begin(), recent.begin() + POP_FRONT_SIZE);
 		}
-		//lldebugs << "Pushing back transaction " << tid << llendl;
+		//LL_DEBUGS("Messaging") << "Pushing back transaction " << tid << LL_ENDL;
 		recent.push_back(tid);
 	}
 }
@@ -4476,9 +4477,9 @@ void process_script_question(LLMessageSystem *msg, void **user_data)
 	switch (question_throttle.noteAction(throttle_owner_name))
 	{
 		case LLStringThrottle::THROTTLE_NEWLY_BLOCKED:
-			llinfos << "process_script_question throttled"
+			LL_INFOS("Messaging") << "process_script_question throttled"
 					<< " owner_name:" << owner_name
-					<< llendl;
+					<< LL_ENDL;
 			// Fall through
 
 		case LLStringThrottle::THROTTLE_BLOCKED:
@@ -4540,7 +4541,7 @@ void process_script_question(LLMessageSystem *msg, void **user_data)
 
 void process_derez_container(LLMessageSystem *msg, void**)
 {
-	llwarns << "call to deprecated process_derez_container" << llendl;
+	LL_WARNS("Messaging") << "call to deprecated process_derez_container" << LL_ENDL;
 }
 
 void container_inventory_arrived(LLViewerObject* object,
@@ -4548,7 +4549,7 @@ void container_inventory_arrived(LLViewerObject* object,
 								 S32 serial_num,
 								 void* data)
 {
-	llinfos << "container_inventory_arrived()" << llendl;
+	LL_DEBUGS("Messaging") << "container_inventory_arrived()" << LL_ENDL;
 	if( gAgent.cameraMouselook() )
 	{
 		gAgent.changeCameraToDefault();
@@ -4694,7 +4695,7 @@ void process_teleport_local(LLMessageSystem *msg,void**)
 	msg->getUUIDFast(_PREHASH_Info, _PREHASH_AgentID, agent_id);
 	if (agent_id != gAgent.getID())
 	{
-		llwarns << "Got teleport notification for wrong agent!" << llendl;
+		LL_WARNS("Messaging") << "Got teleport notification for wrong agent!" << LL_ENDL;
 		return;
 	}
 
@@ -4924,8 +4925,8 @@ void process_user_info_reply(LLMessageSystem* msg, void**)
 	msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_AgentID, agent_id);
 	if(agent_id != gAgent.getID())
 	{
-		llwarns << "process_user_info_reply - "
-				<< "wrong agent id." << llendl;
+		LL_WARNS("Messaging") << "process_user_info_reply - "
+				<< "wrong agent id." << LL_ENDL;
 	}
 	
 	BOOL im_via_email;
@@ -5133,7 +5134,7 @@ void process_load_url(LLMessageSystem* msg, void**)
 	if (LLMuteList::getInstance()->isMuted(infop->mObjectID, infop->mObjectName) ||
 	    LLMuteList::getInstance()->isMuted(infop->mOwnerID))
 	{
-		llinfos<<"Ignoring load_url from muted object/owner."<<llendl;
+		LL_INFOS("Messaging")<<"Ignoring load_url from muted object/owner."<<LL_ENDL;
 		delete infop;
 		infop = NULL;
 		return;
@@ -5162,7 +5163,7 @@ void process_initiate_download(LLMessageSystem* msg, void**)
 	msg->getUUID("AgentData", "AgentID", agent_id);
 	if (agent_id != gAgent.getID())
 	{
-		llwarns << "Initiate download for wrong agent" << llendl;
+		LL_WARNS("Messaging") << "Initiate download for wrong agent" << LL_ENDL;
 		return;
 	}
 
@@ -5288,7 +5289,7 @@ void onCovenantLoadComplete(LLVFS *vfs,
 					LLAssetType::EType type,
 					void* user_data, S32 status, LLExtStat ext_status)
 {
-	llinfos << "onCovenantLoadComplete()" << llendl;
+	LL_DEBUGS("Messaging") << "onCovenantLoadComplete()" << LL_ENDL;
 	std::string covenant_text;
 	if(0 == status)
 	{
@@ -5299,7 +5300,7 @@ void onCovenantLoadComplete(LLVFS *vfs,
 		char* buffer = new char[file_length+1];
 		if (buffer == NULL)
 		{
-			llerrs << "Memory Allocation failed" << llendl;
+			LL_ERRS("Messaging") << "Memory Allocation failed" << LL_ENDL;
 			return;
 		}
 
@@ -5316,7 +5317,7 @@ void onCovenantLoadComplete(LLVFS *vfs,
 						       file_length+1);
 			if( !editor->importBuffer( buffer ) )
 			{
-				llwarns << "Problem importing estate covenant." << llendl;
+				LL_WARNS("Messaging") << "Problem importing estate covenant." << LL_ENDL;
 				covenant_text = "Problem importing estate covenant.";
 			}
 			else
@@ -5329,7 +5330,7 @@ void onCovenantLoadComplete(LLVFS *vfs,
 		}
 		else
 		{
-			llwarns << "Problem importing estate covenant: Covenant file format error." << llendl;
+			LL_WARNS("Messaging") << "Problem importing estate covenant: Covenant file format error." << LL_ENDL;
 			covenant_text = "Problem importing estate covenant: Covenant file format error.";
 		}
 	}
@@ -5351,7 +5352,7 @@ void onCovenantLoadComplete(LLVFS *vfs,
 			covenant_text = "Unable to load estate covenant at this time.";
 		}
 		
-		llwarns << "Problem loading notecard: " << status << llendl;
+		LL_WARNS("Messaging") << "Problem loading notecard: " << status << LL_ENDL;
 	}
 	LLPanelEstateCovenant::updateCovenantText(covenant_text, asset_uuid);
 	LLPanelLandCovenant::updateCovenantText(covenant_text);
@@ -5369,7 +5370,7 @@ void process_feature_disabled_message(LLMessageSystem* msg, void**)
 	msg->getUUIDFast(_PREHASH_FailureInfo,_PREHASH_AgentID,agentID);
 	msg->getUUIDFast(_PREHASH_FailureInfo,_PREHASH_TransactionID,transactionID);
 	
-	llwarns << "Blacklisted Feature Response:" << &messageText[0] << llendl;
+	LL_WARNS("Messaging") << "Blacklisted Feature Response:" << &messageText[0] << LL_ENDL;
 }
 
 // ------------------------------------------------------------

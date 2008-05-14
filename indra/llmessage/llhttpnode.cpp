@@ -426,8 +426,8 @@ void LLHTTPRegistrar::buildAllServices(LLHTTPNode& root)
     FactoryMap::const_iterator end = map.end();
     for (; i != end; ++i)
     {
-		llinfos << "LLHTTPRegistrar::buildAllServices adding node for path "
-			<< i->first << llendl;
+		LL_DEBUGS("AppInit") << "LLHTTPRegistrar::buildAllServices adding node for path "
+			<< i->first << LL_ENDL;
 		
         root.addNode(i->first, i->second->build());
     }

@@ -248,7 +248,7 @@ LLVFS::LLVFS(const char *index_filename, const char *data_filename, const BOOL r
 	mDataFilename = new char[strlen(data_filename) + 1];	/* Flawfinder: ignore */
 	if (mIndexFilename == NULL || mDataFilename  == NULL)
 	{
-		llerrs << "Memory Allocation Failure" << llendl;
+		LL_ERRS("VFS") << "Memory Allocation Failure" << LL_ENDL;
 		return;
 	}
 	strcpy(mIndexFilename, index_filename);	/* Flawfinder: ignore */
@@ -261,7 +261,7 @@ LLVFS::LLVFS(const char *index_filename, const char *data_filename, const BOOL r
     	
 		if (mReadOnly)
 		{
-			llwarns << "Can't find " << mDataFilename << " to open read-only VFS" << llendl;
+			LL_WARNS("VFS") << "Can't find " << mDataFilename << " to open read-only VFS" << LL_ENDL;
 			mValid = VFSVALID_BAD_CANNOT_OPEN_READONLY;
 			return;
 		}
@@ -274,18 +274,18 @@ LLVFS::LLVFS(const char *index_filename, const char *data_filename, const BOOL r
 		}
 		else
 		{
-			llwarns << "Can't open VFS data file " << mDataFilename << " attempting to use alternate" << llendl;
+			LL_WARNS("VFS") << "Can't open VFS data file " << mDataFilename << " attempting to use alternate" << LL_ENDL;
     
 			char *temp_index = new char[strlen(mIndexFilename) + 10];	/* Flawfinder: ignore */
 			if (!temp_index)
 			{
-				llerrs << "Out of the memory in LLVFS::LLVFS(const char *index_filename, const char *data_filename, const BOOL read_only, const U32 presize, const BOOL remove_after_crash)" << llendl;
+				LL_ERRS("VFS") << "Out of the memory in LLVFS::LLVFS()" << LL_ENDL;
 				return;
 			}
 			char *temp_data = new char[strlen(mDataFilename) + 10];	/* Flawfinder: ignore */
 			if (!temp_data)
 			{
-				llerrs << "Out of the memory in LLVFS::LLVFS(const char *index_filename, const char *data_filename, const BOOL read_only, const U32 presize, const BOOL remove_after_crash)" << llendl;
+				LL_ERRS("VFS") << "Out of the memory in LLVFS::LLVFS()" << LL_ENDL;
 				return;
 			}
 
@@ -310,7 +310,7 @@ LLVFS::LLVFS(const char *index_filename, const char *data_filename, const BOOL r
     
 			if (! mDataFP)
 			{
-				llwarns << "Couldn't open vfs data file after trying many alternates" << llendl;
+				LL_WARNS("VFS") << "Couldn't open vfs data file after trying many alternates" << LL_ENDL;
 				mValid = VFSVALID_BAD_CANNOT_CREATE;
 				delete[] temp_index;
 				delete[] temp_data;
@@ -338,7 +338,7 @@ LLVFS::LLVFS(const char *index_filename, const char *data_filename, const BOOL r
 		char* marker = new char[strlen(mDataFilename) + strlen(".open") + 1];	/* Flawfinder: ignore */
 		if (!marker )
 		{
-			llerrs << "Out of memory in LLVFS::LLVFS(const char *index_filename, const char *data_filename, const BOOL read_only, const U32 presize, const BOOL remove_after_crash)" << llendl;
+			LL_ERRS("VFS") << "Out of memory in LLVFS::LLVFS()" << LL_ENDL;
 			return;
 		}
 		sprintf(marker, "%s.open", mDataFilename);	/* Flawfinder: ignore */
@@ -348,7 +348,7 @@ LLVFS::LLVFS(const char *index_filename, const char *data_filename, const BOOL r
 			unlockAndClose(mDataFP);
 			mDataFP = NULL;
 
-			llwarns << "VFS: File left open on last run, removing old VFS file " << mDataFilename << llendl;
+			LL_WARNS("VFS") << "VFS: File left open on last run, removing old VFS file " << mDataFilename << LL_ENDL;
 			LLFile::remove(mIndexFilename);
 			LLFile::remove(mDataFilename);
 			LLFile::remove(marker);
@@ -356,7 +356,7 @@ LLVFS::LLVFS(const char *index_filename, const char *data_filename, const BOOL r
 			mDataFP = openAndLock(mDataFilename, "w+b", FALSE);
 			if (!mDataFP)
 			{
-				llwarns << "Can't open VFS data file in crash recovery" << llendl;
+				LL_WARNS("VFS") << "Can't open VFS data file in crash recovery" << LL_ENDL;
 				mValid = VFSVALID_BAD_CANNOT_CREATE;
 				return;
 			}
@@ -414,9 +414,9 @@ LLVFS::LLVFS(const char *index_filename, const char *data_filename, const BOOL r
 			if (block->mLength && block->mSize > 0)
 			{
 				// this is corrupt, not empty
-				llwarns << "VFS corruption: " << block->mFileID << " (" << block->mFileType << ") at index " << block->mIndexLocation << " DS: " << data_size << llendl;
-				llwarns << "Length: " << block->mLength << "\tLocation: " << block->mLocation << "\tSize: " << block->mSize << llendl;
-				llwarns << "File has bad data - VFS removed" << llendl;
+				LL_WARNS("VFS") << "VFS corruption: " << block->mFileID << " (" << block->mFileType << ") at index " << block->mIndexLocation << " DS: " << data_size << LL_ENDL;
+				LL_WARNS("VFS") << "Length: " << block->mLength << "\tLocation: " << block->mLocation << "\tSize: " << block->mSize << LL_ENDL;
+				LL_WARNS("VFS") << "File has bad data - VFS removed" << LL_ENDL;
 
 				delete[] buffer;
 				delete block;
@@ -481,13 +481,13 @@ LLVFS::LLVFS(const char *index_filename, const char *data_filename, const BOOL r
 				if (cur_file_block->mLocation == last_file_block->mLocation
 					&& cur_file_block->mLength == last_file_block->mLength)
 				{
-					llwarns << "VFS: removing duplicate entry"
+					LL_WARNS("VFS") << "VFS: removing duplicate entry"
 						<< " at " << cur_file_block->mLocation 
 						<< " length " << cur_file_block->mLength 
 						<< " size " << cur_file_block->mSize
 						<< " ID " << cur_file_block->mFileID 
 						<< " type " << cur_file_block->mFileType 
-						<< llendl;
+						<< LL_ENDL;
 
 					// Duplicate entries.  Nuke them both for safety.
 					mFileBlocks.erase(*cur_file_block);	// remove ID/type entry
@@ -528,12 +528,12 @@ LLVFS::LLVFS(const char *index_filename, const char *data_filename, const BOOL r
 					mDataFP = NULL;
 					LLFile::remove( mDataFilename );
 
-					llwarns << "VFS: overlapping entries"
+					LL_WARNS("VFS") << "VFS: overlapping entries"
 						<< " at " << cur_file_block->mLocation 
 						<< " length " << cur_file_block->mLength 
 						<< " ID " << cur_file_block->mFileID 
 						<< " type " << cur_file_block->mFileType 
-						<< llendl;
+						<< LL_ENDL;
 					mValid = VFSVALID_BAD_CORRUPT;
 					return;
 				}
@@ -563,7 +563,7 @@ LLVFS::LLVFS(const char *index_filename, const char *data_filename, const BOOL r
 	{
 		if (mReadOnly)
 		{
-			llwarns << "Can't find " << mIndexFilename << " to open read-only VFS" << llendl;
+			LL_WARNS("VFS") << "Can't find " << mIndexFilename << " to open read-only VFS" << LL_ENDL;
 			mValid = VFSVALID_BAD_CANNOT_OPEN_READONLY;
 			return;
 		}
@@ -572,7 +572,7 @@ LLVFS::LLVFS(const char *index_filename, const char *data_filename, const BOOL r
 		mIndexFP = openAndLock(mIndexFilename, "w+b", FALSE);
 		if (!mIndexFP)
 		{
-			llwarns << "Couldn't open an index file for the VFS, probably a sharing violation!" << llendl;
+			LL_WARNS("VFS") << "Couldn't open an index file for the VFS, probably a sharing violation!" << LL_ENDL;
 
 			unlockAndClose( mDataFP );
 			mDataFP = NULL;
@@ -593,7 +593,7 @@ LLVFS::LLVFS(const char *index_filename, const char *data_filename, const BOOL r
 		char* marker = new char[strlen(mDataFilename) + strlen(".open") + 1];
 		if (!marker)
 		{
-			llerrs << "Out of memory in LLVFS::LLVFS(const char *index_filename, const char *data_filename, const BOOL read_only, const U32 presize, const BOOL remove_after_crash)" << llendl;
+			LL_ERRS("VFS") << "Out of memory in LLVFS::LLVFS()" << LL_ENDL;
 			return;
 		}
 		sprintf(marker, "%s.open", mDataFilename);	/* Flawfinder: ignore */
@@ -607,7 +607,8 @@ LLVFS::LLVFS(const char *index_filename, const char *data_filename, const BOOL r
 		marker = NULL;
 	}
 
-	llinfos << "VFS: Using index file " << mIndexFilename << " and data file " << mDataFilename << llendl;
+	LL_WARNS("VFS") << "Using index file " << mIndexFilename << LL_ENDL;
+	LL_WARNS("VFS") << "Using data file " << mDataFilename << LL_ENDL;
 
 	mValid = VFSVALID_OK;
 }
@@ -616,7 +617,7 @@ LLVFS::~LLVFS()
 {
 	if (mDataMutex->isLocked())
 	{
-		llerrs << "LLVFS destroyed with mutex locked" << llendl;
+		LL_ERRS("VFS") << "LLVFS destroyed with mutex locked" << LL_ENDL;
 	}
 	
 	unlockAndClose(mIndexFP);
@@ -642,7 +643,7 @@ LLVFS::~LLVFS()
 		char* marker_file = new char[strlen(mDataFilename) + strlen(".open") + 1];
 		if (marker_file == NULL)
 		{
-			llerrs << "Memory Allocation Failure" << llendl;
+			LL_ERRS("VFS") << "Memory Allocation Failure" << LL_ENDL;
 			return;
 		}
 		sprintf(marker_file, "%s.open", mDataFilename);	/* Flawfinder: ignore */

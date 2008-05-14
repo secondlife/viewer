@@ -79,7 +79,7 @@ LONG WINAPI viewer_windows_exception_handler(struct _EXCEPTION_POINTERS *excepti
 	// Generate a minidump if we can.
 	// Before we wake the error thread...
 	// Which will start the crash reporting.
-	LLWinDebug::handleException(exception_infop);
+	LLWinDebug::generateCrashStacks(exception_infop);
 	
 	// Flag status to error, so thread_error starts its work
 	LLApp::setError();
@@ -119,27 +119,11 @@ int APIENTRY WINMAIN(HINSTANCE hInstance,
 
 	LLAppViewerWin32* viewer_app_ptr = new LLAppViewerWin32(lpCmdLine);
 
-	// *FIX:Mani This method is poorly named, since the exception
-	// is now handled by LLApp. 
-	bool ok = LLWinDebug::setupExceptionHandler(); 
+	LLWinDebug::initExceptionHandler(viewer_windows_exception_handler); 
 	
-	// Actually here's the exception setup.
-	LPTOP_LEVEL_EXCEPTION_FILTER prev_filter;
-	prev_filter = SetUnhandledExceptionFilter(viewer_windows_exception_handler);
-	if (!prev_filter)
-	{
-		llwarns << "Our exception handler (" << (void *)LLWinDebug::handleException << ") replaced with NULL!" << llendl;
-		ok = FALSE;
-	}
-	if (prev_filter != LLWinDebug::handleException)
-	{
-		llwarns << "Our exception handler (" << (void *)LLWinDebug::handleException << ") replaced with " << prev_filter << "!" << llendl;
-		ok = FALSE;
-	}
-
 	viewer_app_ptr->setErrorHandler(LLAppViewer::handleViewerCrash);
 
-	ok = viewer_app_ptr->init();
+	bool ok = viewer_app_ptr->init();
 	if(!ok)
 	{
 		llwarns << "Application init failed." << llendl;
@@ -327,14 +311,14 @@ bool LLAppViewerWin32::initHardwareTest()
 
 		LLSplashScreen::update("Detecting hardware...");
 
-		llinfos << "Attempting to poll DirectX for hardware info" << llendl;
+		LL_DEBUGS("AppInit") << "Attempting to poll DirectX for hardware info" << LL_ENDL;
 		gDXHardware.setWriteDebugFunc(write_debug_dx);
 		BOOL probe_ok = gDXHardware.getInfo(vram_only);
 
 		if (!probe_ok
 			&& gSavedSettings.getWarning("AboutDirectX9"))
 		{
-			llinfos << "DirectX probe failed, alerting user." << llendl;
+			LL_WARNS("AppInit") << "DirectX probe failed, alerting user." << LL_ENDL;
 
 			// Warn them that runnin without DirectX 9 will
 			// not allow us to tell them about driver issues
@@ -355,13 +339,13 @@ bool LLAppViewerWin32::initHardwareTest()
 				OSMB_YESNO);
 			if (OSBTN_NO== button)
 			{
-				llinfos << "User quitting after failed DirectX 9 detection" << llendl;
+				LL_INFOS("AppInit") << "User quitting after failed DirectX 9 detection" << LL_ENDL;
 				LLWeb::loadURLExternal(DIRECTX_9_URL);
 				return false;
 			}
 			gSavedSettings.setWarning("AboutDirectX9", FALSE);
 		}
-		llinfos << "Done polling DirectX for hardware info" << llendl;
+		LL_DEBUGS("AppInit") << "Done polling DirectX for hardware info" << LL_ENDL;
 
 		// Only probe once after installation
 		gSavedSettings.setBOOL("ProbeHardwareOnStartup", FALSE);
@@ -373,13 +357,13 @@ bool LLAppViewerWin32::initHardwareTest()
 		LLSplashScreen::update(splash_msg.str().c_str());
 	}
 
-	if (!LLWinDebug::setupExceptionHandler())
+	if (!LLWinDebug::checkExceptionHandler())
 	{
-		llwarns << " Someone took over my exception handler (post hardware probe)!" << llendl;
+		LL_WARNS("AppInit") << " Someone took over my exception handler (post hardware probe)!" << LL_ENDL;
 	}
 
 	gGLManager.mVRAM = gDXHardware.getVRAM();
-	llinfos << "Detected VRAM: " << gGLManager.mVRAM << llendl;
+	LL_INFOS("AppInit") << "Detected VRAM: " << gGLManager.mVRAM << LL_ENDL;
 
 	return true;
 }

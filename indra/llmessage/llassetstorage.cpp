@@ -318,7 +318,7 @@ LLAssetStorage::~LLAssetStorage()
 
 void LLAssetStorage::setUpstream(const LLHost &upstream_host)
 {
-	llinfos << "AssetStorage: Setting upstream provider to " << upstream_host << llendl;
+	LL_DEBUGS("AppInit") << "AssetStorage: Setting upstream provider to " << upstream_host << LL_ENDL;
 	
 	mUpstreamHost = upstream_host;
 }

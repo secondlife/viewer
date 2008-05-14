@@ -1096,7 +1096,9 @@ void init_client_menu(LLMenuGL* menu)
 	{
 		LLMenuGL* sub = NULL;
 		sub = new LLMenuGL("Debugging");
+#if LL_WINDOWS
         sub->append(new LLMenuItemCallGL("Force Breakpoint", &force_error_breakpoint, NULL, NULL, 'B', MASK_CONTROL | MASK_ALT));
+#endif
 		sub->append(new LLMenuItemCallGL("Force LLError And Crash", &force_error_llerror));
         sub->append(new LLMenuItemCallGL("Force Bad Memory Access", &force_error_bad_memory_access));
 		sub->append(new LLMenuItemCallGL("Force Infinite Loop", &force_error_infinite_loop));

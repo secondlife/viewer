@@ -87,7 +87,7 @@ LLWaterParamManager::~LLWaterParamManager()
 void LLWaterParamManager::loadAllPresets(const LLString& file_name)
 {
 	LLString path_name(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "windlight/water", ""));
-	llinfos << "Loading water settings from " << path_name << llendl;
+	LL_INFOS2("AppInit", "Shaders") << "Loading water settings from " << path_name << LL_ENDL;
 
 	//mParamList.clear();
 	
@@ -97,7 +97,7 @@ void LLWaterParamManager::loadAllPresets(const LLString& file_name)
 		std::string name;
 		found = gDirUtilp->getNextFileInDir(path_name, "*.xml", name, false);
 
-		llinfos << "name: " << name << llendl;
+		LL_DEBUGS2("AppInit", "Shaders") << "name: " << name << LL_ENDL;
 		
 		// if we have one
 		if(found) 
@@ -112,7 +112,7 @@ void LLWaterParamManager::loadAllPresets(const LLString& file_name)
 			std::string water_name = unescaped_name.substr(0, unescaped_name.size() - 4);
 		
 			LLString cur_path(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "windlight/water", name));
-			llinfos << "Loading water from " << cur_path << llendl;
+			LL_DEBUGS2("AppInit", "Shaders") << "Loading water from " << cur_path << LL_ENDL;
 			
 			std::ifstream water_xml(cur_path.c_str());
 			if (water_xml)

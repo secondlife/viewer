@@ -45,23 +45,23 @@
 	
 	Code can log messages with constuctions like this:
 	
-		llinfos << "request to fizzbip agent " << agent_id
-			<< " denied due to timeout" << llendl;
+		LL_INFOS("StringTag") << "request to fizzbip agent " << agent_id
+			<< " denied due to timeout" << LL_ENDL;
 		
 	Messages can be logged to one of four increasing levels of concern,
 	using one of four "streams":
 
-		lldebugs	- debug messages that are normally supressed
-		llinfos		- informational messages that are normall shown
-		llwarns		- warning messages that singal a problem
-		llerrs		- error messages that are major, unrecoverable failures
+		LL_DEBUGS("StringTag")	- debug messages that are normally supressed
+		LL_INFOS("StringTag")	- informational messages that are normall shown
+		LL_WARNS("StringTag")	- warning messages that singal a problem
+		LL_ERRS("StringTag")	- error messages that are major, unrecoverable failures
 		
-	The later (llerrs) automatically crashes the process after the message
+	The later (LL_ERRS("StringTag")) automatically crashes the process after the message
 	is logged.
 	
 	Note that these "streams" are actually #define magic.  Rules for use:
 		* they cannot be used as normal streams, only to start a message
-		* messages written to them MUST be terminated with llendl
+		* messages written to them MUST be terminated with LL_ENDL
 		* between the opening and closing, the << operator is indeed
 		  writing onto a std::ostream, so all conversions and stream
 		  formating are available
@@ -85,7 +85,7 @@
 		{
 			if (i > 100)
 			{
-				llwanrs << "called with a big value for i: " << i << llendl; 
+				LL_WARNS("FooBarTag") << "called with a big value for i: " << i << LL_ENDL; 
 			}
 			...
 		}
@@ -100,7 +100,7 @@
 	
 	Lastly, logging is now very efficient in both compiled code and execution
 	when skipped.  There is no need to wrap messages, even debugging ones, in
-	#ifdef _DEBUG constructs.  lldebugs messages are compiled into all builds,
+	#ifdef _DEBUG constructs.  LL_DEBUGS("StringTag") messages are compiled into all builds,
 	even release.  Which means you can use them to help debug even when deployed
 	to a real grid.
 */
@@ -144,7 +144,7 @@ namespace LLError
 		// intended for public use.
 	public:
 		CallSite(ELevel, const char* file, int line,
-				const std::type_info& class_info, const char* function);
+				const std::type_info& class_info, const char* function, const char* broadTag, const char* narrowTag, bool printOnce);
 						
 		bool shouldLog()
 			{ return mCached ? mShouldLog : Log::shouldLog(*this); }
@@ -156,9 +156,12 @@ namespace LLError
 		// these describe the call site and never change
 		const ELevel			mLevel;
 		const char* const		mFile;
-		const int				mLine;
-		const std::type_info&	mClassInfo;
+		const int			mLine;
+		const std::type_info&   	mClassInfo;
 		const char* const		mFunction;
+		const char* const		mBroadTag;
+		const char* const		mNarrowTag;
+		const bool			mPrintOnce;
 		
 		// these implement a cache of the call to shouldLog()
 		bool mCached;
@@ -200,39 +203,66 @@ typedef LLError::NoClassInfo _LL_CLASS_TO_LOG;
 	See top of file for common usage.	
 */
 
-#define lllog(level) \
+#define lllog(level, broadTag, narrowTag, once) \
 	{ \
 		static LLError::CallSite _site( \
-			level, __FILE__, __LINE__, typeid(_LL_CLASS_TO_LOG), __FUNCTION__);\
+			level, __FILE__, __LINE__, typeid(_LL_CLASS_TO_LOG), __FUNCTION__, broadTag, narrowTag, once);\
 		if (_site.shouldLog()) \
 		{ \
 			std::ostringstream* _out = LLError::Log::out(); \
 			(*_out)
-	
+
+// DEPRECATED: Don't call directly, use LL_ENDL instead, which actually looks like a macro
 #define llendl \
 			LLError::End(); \
 			LLError::Log::flush(_out, _site); \
 		} \
 	}
 
-#define llinfos		lllog(LLError::LEVEL_INFO)
-#define lldebugs	lllog(LLError::LEVEL_DEBUG)
-#define llwarns		lllog(LLError::LEVEL_WARN)
-#define llerrs		lllog(LLError::LEVEL_ERROR)
-
+// DEPRECATED: Use the new macros that allow tags and *look* like macros.
+#define lldebugs	lllog(LLError::LEVEL_DEBUG, NULL, NULL, false)
+#define llinfos		lllog(LLError::LEVEL_INFO, NULL, NULL, false)
+#define llwarns		lllog(LLError::LEVEL_WARN, NULL, NULL, false)
+#define llerrs		lllog(LLError::LEVEL_ERROR, NULL, NULL, false)
 #define llcont		(*_out)
+
+// NEW Macros for debugging, allow the passing of a string tag
+
+// One Tag
+#define LL_DEBUGS(broadTag)	lllog(LLError::LEVEL_DEBUG, broadTag, NULL, false)
+#define LL_INFOS(broadTag)	lllog(LLError::LEVEL_INFO, broadTag, NULL, false)
+#define LL_WARNS(broadTag)	lllog(LLError::LEVEL_WARN, broadTag, NULL, false)
+#define LL_ERRS(broadTag)	lllog(LLError::LEVEL_ERROR, broadTag, NULL, false)
+// Two Tags
+#define LL_DEBUGS2(broadTag, narrowTag)	lllog(LLError::LEVEL_DEBUG, broadTag, narrowTag, false)
+#define LL_INFOS2(broadTag, narrowTag)	lllog(LLError::LEVEL_INFO, broadTag, narrowTag, false)
+#define LL_WARNS2(broadTag, narrowTag)	lllog(LLError::LEVEL_WARN, broadTag, narrowTag, false)
+#define LL_ERRS2(broadTag, narrowTag)	lllog(LLError::LEVEL_ERROR, broadTag, narrowTag, false)
+
+// Only print the log message once (good for warnings or infos that would otherwise
+// spam the log file over and over, such as tighter loops).
+#define LL_DEBUGS_ONCE(broadTag)	lllog(LLError::LEVEL_DEBUG, broadTag, NULL, true)
+#define LL_INFOS_ONCE(broadTag)	lllog(LLError::LEVEL_INFO, broadTag, NULL, true)
+#define LL_WARNS_ONCE(broadTag)	lllog(LLError::LEVEL_WARN, broadTag, NULL, true)
+#define LL_DEBUGS2_ONCE(broadTag, narrowTag)	lllog(LLError::LEVEL_DEBUG, broadTag, narrowTag, true)
+#define LL_INFOS2_ONCE(broadTag, narrowTag)	lllog(LLError::LEVEL_INFO, broadTag, narrowTag, true)
+#define LL_WARNS2_ONCE(broadTag, narrowTag)	lllog(LLError::LEVEL_WARN, broadTag, narrowTag, true)
+
+#define LL_ENDL llendl
+#define LL_CONT	(*_out)
+
 	/*
 		Use this construct if you need to do computation in the middle of a
 		message:
 		
-			llinfos << "the agent " << agend_id;
+			LL_INFOS("AgentGesture") << "the agent " << agend_id;
 			switch (f)
 			{
-				case FOP_SHRUGS:	llcont << "shrugs";				break;
-				case FOP_TAPS:		llcont << "points at " << who;	break;
-				case FOP_SAYS:		llcont << "says " << message;	break;
+				case FOP_SHRUGS:	LL_CONT << "shrugs";				break;
+				case FOP_TAPS:		LL_CONT << "points at " << who;	break;
+				case FOP_SAYS:		LL_CONT << "says " << message;	break;
 			}
-			llcont << " for " << t << " seconds" << llendl;
+			LL_CONT << " for " << t << " seconds" << LL_ENDL;
 		
 		Such computation is done iff the message will be logged.
 	*/

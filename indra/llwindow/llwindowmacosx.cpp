@@ -359,7 +359,7 @@ BOOL LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits
 
 	if (mFullscreen && (mOldDisplayMode == NULL))
 	{
-		llinfos << "createContext: setting up fullscreen " << width << "x" << height << llendl;
+		LL_INFOS("Window") << "createContext: setting up fullscreen " << width << "x" << height << LL_ENDL;
 
 		// NOTE: The refresh rate will be REPORTED AS 0 for many DVI and notebook displays.  Plan accordingly.
 		double refresh = getDictDouble (CGDisplayCurrentMode (mDisplay),  kCGDisplayRefreshRate);
@@ -380,18 +380,18 @@ BOOL LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits
 				U32 closestWidth = 0;
 				int i;
 
-				llinfos << "createContext: searching for a display mode, original aspect is " << mOriginalAspectRatio << llendl;
+				LL_DEBUGS("Window") << "createContext: searching for a display mode, original aspect is " << mOriginalAspectRatio << LL_ENDL;
 
 				for(i=0; i < resolutionCount; i++)
 				{
 					F32 aspect = (F32)resolutionList[i].mWidth / (F32)resolutionList[i].mHeight;
 
-					llinfos << "createContext: width " << resolutionList[i].mWidth << " height " << resolutionList[i].mHeight << " aspect " << aspect << llendl;
+					LL_DEBUGS("Window") << "createContext: width " << resolutionList[i].mWidth << " height " << resolutionList[i].mHeight << " aspect " << aspect << LL_ENDL;
 
 					if( (resolutionList[i].mHeight >= 700) && (resolutionList[i].mHeight <= 800) &&
 						(fabs(aspect - mOriginalAspectRatio) < fabs(closestAspect - mOriginalAspectRatio)))
 					{
-						llinfos << " (new closest mode) " << llendl;
+						LL_DEBUGS("Window") << " (new closest mode) " << LL_ENDL;
 
 						// This is the closest mode we've seen yet.
 						closestWidth = resolutionList[i].mWidth;
@@ -437,7 +437,7 @@ BOOL LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits
 
 			if (refDisplayMode)
 			{
-				llinfos << "createContext: switching display resolution" << llendl;
+				LL_DEBUGS("Window") << "createContext: switching display resolution" << LL_ENDL;
 				mOldDisplayMode = CGDisplayCurrentMode (mDisplay);
 				CGDisplaySwitchToMode (mDisplay, refDisplayMode);
 				//				CFRelease(refDisplayMode);
@@ -452,11 +452,11 @@ BOOL LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits
 			mFullscreenBits    = CGDisplayBitsPerPixel(mDisplay);
 			mFullscreenRefresh = llround(getDictDouble (CGDisplayCurrentMode (mDisplay),  kCGDisplayRefreshRate));
 
-			llinfos << "Running at " << mFullscreenWidth
+			LL_INFOS("Window") << "Running at " << mFullscreenWidth
 				<< "x"   << mFullscreenHeight
 				<< "x"   << mFullscreenBits
 				<< " @ " << mFullscreenRefresh
-				<< llendl;
+				<< LL_ENDL;
 		}
 		else
 		{
@@ -480,7 +480,7 @@ BOOL LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits
 		//int				displayHeight = CGDisplayPixelsHigh(mDisplay);
 		//const int		menuBarPlusTitleBar = 44;   // Ugly magic number.
 
-		llinfos << "createContext: creating window" << llendl;
+		LL_DEBUGS("Window") << "createContext: creating window" << LL_ENDL;
 
 		window_rect.left = (long) x;
 		window_rect.right = (long) x + width;
@@ -534,7 +534,7 @@ BOOL LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits
 		err = NewTSMDocument(1, types, &mTSMDocument, 0);
 		if (err != noErr)
 		{
-			llwarns << "createContext: couldn't create a TSMDocument (" << err << ")" << llendl;
+			LL_WARNS("Window") << "createContext: couldn't create a TSMDocument (" << err << ")" << LL_ENDL;
 		}
 		if (mTSMDocument)
 		{
@@ -575,7 +575,7 @@ BOOL LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits
 						AGL_NONE
 				};
 
-				llinfos << "createContext: creating fullscreen pixelformat" << llendl;
+				LL_DEBUGS("Window") << "createContext: creating fullscreen pixelformat" << LL_ENDL;
 
 				GDHandle gdhDisplay = NULL;
 				err = DMGetGDeviceByDisplayID ((DisplayIDType)mDisplay, &gdhDisplay, false);
@@ -602,7 +602,7 @@ BOOL LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits
 						AGL_NONE
 				};
 
-				llinfos << "createContext: creating windowed pixelformat" << llendl;
+				LL_DEBUGS("Window") << "createContext: creating windowed pixelformat" << LL_ENDL;
 
 				mPixelFormat = aglChoosePixelFormat(NULL, 0, windowedAttrib);
 
@@ -622,7 +622,7 @@ BOOL LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits
 
 		if(mPixelFormat)
 		{
-			llinfos << "createContext: creating GL context" << llendl;
+			LL_DEBUGS("Window") << "createContext: creating GL context" << LL_ENDL;
 			mContext = aglCreateContext(mPixelFormat, NULL);
 		}
 
@@ -670,7 +670,7 @@ BOOL LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits
 	{
 		// We successfully captured the display.  Use a fullscreen drawable
 
-		llinfos << "createContext: attaching fullscreen drawable" << llendl;
+		LL_DEBUGS("Window") << "createContext: attaching fullscreen drawable" << LL_ENDL;
 
 #if CAPTURE_ALL_DISPLAYS
 		// Capture all displays (may want to do this for final build)
@@ -688,7 +688,7 @@ BOOL LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits
 	}
 	else if(!mFullscreen && (mWindow != NULL))
 	{
-		llinfos << "createContext: attaching windowed drawable" << llendl;
+		LL_DEBUGS("Window") << "createContext: attaching windowed drawable" << LL_ENDL;
 
 		// We created a window.  Use it as the drawable.
 		if(!aglSetDrawable(mContext, GetWindowPort (mWindow)))
@@ -705,7 +705,7 @@ BOOL LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits
 
 	if(mContext != NULL)
 	{
-		llinfos << "createContext: setting current context" << llendl;
+		LL_DEBUGS("Window") << "createContext: setting current context" << LL_ENDL;
 
 		if (!aglSetCurrentContext(mContext))
 		{
@@ -759,11 +759,11 @@ BOOL LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits
 		return FALSE;
 	}
 
-	llinfos << "GL buffer: Color Bits " << S32(colorBits)
+	LL_INFOS("GLInit") << "GL buffer: Color Bits " << S32(colorBits)
 		<< " Alpha Bits " << S32(alphaBits)
 		<< " Depth Bits " << S32(depthBits)
 		<< " Stencil Bits" << S32(stencilBits)
-		<< llendl;
+		<< LL_ENDL;
 
 	if (colorBits < 32)
 	{
@@ -798,12 +798,12 @@ BOOL LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits
 	GLint frames_per_swap = 0;
 	if (disable_vsync)
 	{
-		llinfos << "Disabling vertical sync" << llendl;
+		LL_DEBUGS("GLInit") << "Disabling vertical sync" << LL_ENDL;
 		frames_per_swap = 0;
 	}
 	else
 	{
-		llinfos << "Keeping vertical sync" << llendl;
+		LL_DEBUGS("GLinit") << "Keeping vertical sync" << LL_ENDL;
 		frames_per_swap = 1;
 	}
 	aglSetInteger(mContext, AGL_SWAP_INTERVAL, &frames_per_swap);  
@@ -818,11 +818,11 @@ BOOL LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits
 
 		if (cgl_err != kCGLNoError )
 		{
-			llinfos << "Multi-threaded OpenGL not available." << llendl;
+			LL_DEBUGS("GLInit") << "Multi-threaded OpenGL not available." << LL_ENDL;
 		}    
 		else
 		{
-			llinfos << "Multi-threaded OpenGL enabled." << llendl;
+			LL_DEBUGS("GLInit") << "Multi-threaded OpenGL enabled." << LL_ENDL;
 		}
 	}
 
@@ -869,11 +869,11 @@ BOOL LLWindowMacOSX::switchContext(BOOL fullscreen, const LLCoordScreen &size, B
 			mFullscreenBits    = CGDisplayBitsPerPixel(mDisplay);
 			mFullscreenRefresh = llround(getDictDouble (CGDisplayCurrentMode (mDisplay),  kCGDisplayRefreshRate));
 
-			llinfos << "Switched resolution to " << mFullscreenWidth
+			LL_INFOS("Window") << "Switched resolution to " << mFullscreenWidth
 				<< "x"   << mFullscreenHeight
 				<< "x"   << mFullscreenBits
 				<< " @ " << mFullscreenRefresh
-				<< llendl;
+				<< LL_ENDL;
 
 			// Update the GL context to the new screen size
 			if (!aglUpdateContext(mContext))
@@ -943,7 +943,7 @@ void LLWindowMacOSX::destroyContext()
 	// Unhook the GL context from any drawable it may have
 	if(mContext != NULL)
 	{
-		llinfos << "destroyContext: unhooking drawable " << llendl;
+		LL_DEBUGS("Window") << "destroyContext: unhooking drawable " << LL_ENDL;
 
 		aglSetCurrentContext (NULL);
 		aglSetDrawable(mContext, NULL);
@@ -952,7 +952,7 @@ void LLWindowMacOSX::destroyContext()
 	// Make sure the display resolution gets restored
 	if(mOldDisplayMode != NULL)
 	{
-		llinfos << "destroyContext: restoring display resolution " << llendl;
+		LL_DEBUGS("Window") << "destroyContext: restoring display resolution " << LL_ENDL;
 
 		CGDisplaySwitchToMode (mDisplay, mOldDisplayMode);
 
@@ -978,7 +978,7 @@ void LLWindowMacOSX::destroyContext()
 	// Clean up the pixel format
 	if(mPixelFormat != NULL)
 	{
-		llinfos << "destroyContext: destroying pixel format " << llendl;
+		LL_DEBUGS("Window") << "destroyContext: destroying pixel format " << LL_ENDL;
 		aglDestroyPixelFormat(mPixelFormat);
 		mPixelFormat = NULL;
 	}
@@ -986,14 +986,14 @@ void LLWindowMacOSX::destroyContext()
 	// Remove any Carbon Event handlers we installed
 	if(mGlobalHandlerRef != NULL)
 	{
-		llinfos << "destroyContext: removing global event handler" << llendl;
+		LL_DEBUGS("Window") << "destroyContext: removing global event handler" << LL_ENDL;
 		RemoveEventHandler(mGlobalHandlerRef);
 		mGlobalHandlerRef = NULL;
 	}
 
 	if(mWindowHandlerRef != NULL)
 	{
-		llinfos << "destroyContext: removing window event handler" << llendl;
+		LL_DEBUGS("Window") << "destroyContext: removing window event handler" << LL_ENDL;
 		RemoveEventHandler(mWindowHandlerRef);
 		mWindowHandlerRef = NULL;
 	}
@@ -1001,7 +1001,7 @@ void LLWindowMacOSX::destroyContext()
 	// Cleanup any TSM document we created.
 	if(mTSMDocument != NULL)
 	{
-		llinfos << "destroyContext: deleting TSM document" << llendl;
+		LL_DEBUGS("Window") << "destroyContext: deleting TSM document" << LL_ENDL;
 		DeactivateTSMDocument(mTSMDocument);
 		DeleteTSMDocument(mTSMDocument);
 		mTSMDocument = NULL;
@@ -1010,7 +1010,7 @@ void LLWindowMacOSX::destroyContext()
 	// Close the window
 	if(mWindow != NULL)
 	{
-		llinfos << "destroyContext: disposing window" << llendl;
+		LL_DEBUGS("Window") << "destroyContext: disposing window" << LL_ENDL;
 		DisposeWindow(mWindow);
 		mWindow = NULL;
 	}
@@ -1018,7 +1018,7 @@ void LLWindowMacOSX::destroyContext()
 	// Clean up the GL context
 	if(mContext != NULL)
 	{
-		llinfos << "destroyContext: destroying GL context" << llendl;
+		LL_DEBUGS("Window") << "destroyContext: destroying GL context" << LL_ENDL;
 		aglDestroyContext(mContext);
 		mContext = NULL;
 	}

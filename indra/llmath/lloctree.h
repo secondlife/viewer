@@ -38,9 +38,9 @@
 #include <set>
 
 #ifdef LL_RELEASE_FOR_DOWNLOAD
-#define OCT_ERRS llwarns
+#define OCT_ERRS LL_WARNS("OctreeErrors")
 #else
-#define OCT_ERRS llerrs
+#define OCT_ERRS LL_ERRS("OctreeErrors")
 #endif
 
 #define LL_OCTREE_PARANOIA_CHECK 0

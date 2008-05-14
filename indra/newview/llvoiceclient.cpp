@@ -268,7 +268,7 @@ LLIOPipe::EStatus LLVivoxProtocolParser::process_impl(
 			}
 			else
 			{
-				llinfos << "parsing: " << mInput.substr(start, delim - start) << llendl;
+				LL_INFOS("Voice") << "parsing: " << mInput.substr(start, delim - start) << LL_ENDL;
 			}
 		}
 		
@@ -287,12 +287,12 @@ LLIOPipe::EStatus LLVivoxProtocolParser::process_impl(
 	if(start != 0)
 		mInput = mInput.substr(start);
 
-//	llinfos << "at end, mInput is: " << mInput << llendl;
+	LL_DEBUGS("Voice") << "at end, mInput is: " << mInput << LL_ENDL;
 	
 	if(!gVoiceClient->mConnected)
 	{
 		// If voice has been disabled, we just want to close the socket.  This does so.
-		llinfos << "returning STATUS_STOP" << llendl;
+		LL_INFOS("Voice") << "returning STATUS_STOP" << LL_ENDL;
 		return STATUS_STOP;
 	}
 	
@@ -366,17 +366,17 @@ void LLVivoxProtocolParser::StartTag(const char *tag, const char **attr)
 				}
 			}
 		}
-		//llinfos << tag << " (" << responseDepth << ")"  << llendl;
+		LL_DEBUGS("Voice") << tag << " (" << responseDepth << ")"  << LL_ENDL;
 	}
 	else
 	{
 		if (ignoringTags)
 		{
-			//llinfos << "ignoring tag " << tag << " (depth = " << responseDepth << ")" << llendl;
+			LL_DEBUGS("Voice") << "ignoring tag " << tag << " (depth = " << responseDepth << ")" << LL_ENDL;
 		}
 		else
 		{
-			//llinfos << tag << " (" << responseDepth << ")"  << llendl;
+			LL_DEBUGS("Voice") << tag << " (" << responseDepth << ")"  << LL_ENDL;
 	
 			// Ignore the InputXml stuff so we don't get confused
 			if (strcmp("InputXml", tag) == 0)
@@ -385,7 +385,7 @@ void LLVivoxProtocolParser::StartTag(const char *tag, const char **attr)
 				ignoreDepth = responseDepth;
 				accumulateText = false;
 
-				//llinfos << "starting ignore, ignoreDepth is " << ignoreDepth << llendl;
+				LL_DEBUGS("Voice") << "starting ignore, ignoreDepth is " << ignoreDepth << LL_ENDL;
 			}
 			else if (strcmp("CaptureDevices", tag) == 0)
 			{
@@ -413,18 +413,18 @@ void LLVivoxProtocolParser::EndTag(const char *tag)
 	{
 		if (ignoreDepth == responseDepth)
 		{
-			//llinfos << "end of ignore" << llendl;
+			LL_DEBUGS("Voice") << "end of ignore" << LL_ENDL;
 			ignoringTags = false;
 		}
 		else
 		{
-			//llinfos << "ignoring tag " << tag << " (depth = " << responseDepth << ")" << llendl;
+			LL_DEBUGS("Voice") << "ignoring tag " << tag << " (depth = " << responseDepth << ")" << LL_ENDL;
 		}
 	}
 	
 	if (!ignoringTags)
 	{
-		//llinfos << "processing tag " << tag << " (depth = " << responseDepth << ")" << llendl;
+		LL_DEBUGS("Voice") << "processing tag " << tag << " (depth = " << responseDepth << ")" << LL_ENDL;
 
 		// Closing a tag. Finalize the text we've accumulated and reset
 		if (strcmp("ReturnCode", tag) == 0)
@@ -531,7 +531,7 @@ void LLVivoxProtocolParser::CharData(const char *buffer, int length)
 
 void LLVivoxProtocolParser::processResponse(std::string tag)
 {
-	//llinfos << tag << llendl;
+	LL_DEBUGS("Voice") << tag << LL_ENDL;
 
 	if (isEvent)
 	{
@@ -700,9 +700,9 @@ private:
 
 void LLVoiceClientCapResponder::error(U32 status, const std::string& reason)
 {
-	llwarns << "LLVoiceClientCapResponder::error("
+	LL_WARNS("Voice") << "LLVoiceClientCapResponder::error("
 		<< status << ": " << reason << ")"
-		<< llendl;
+		<< LL_ENDL;
 }
 
 void LLVoiceClientCapResponder::result(const LLSD& content)
@@ -710,8 +710,8 @@ void LLVoiceClientCapResponder::result(const LLSD& content)
 	LLSD::map_const_iterator iter;
 	for(iter = content.beginMap(); iter != content.endMap(); ++iter)
 	{
-		llinfos << "LLVoiceClientCapResponder::result got " 
-			<< iter->first << llendl;
+		LL_DEBUGS("Voice") << "LLVoiceClientCapResponder::result got " 
+			<< iter->first << LL_ENDL;
 	}
 
 	if ( content.has("voice_credentials") )
@@ -918,7 +918,7 @@ bool LLVoiceClient::writeString(const std::string &str)
 		apr_size_t size = (apr_size_t)str.size();
 		apr_size_t written = size;
 	
-//		llinfos << "sending: " << str << llendl;
+		LL_DEBUGS("Voice") << "sending: " << str << LL_ENDL;
 
 		// MBW -- XXX -- check return code - sockets will fail (broken, etc.)
 		err = apr_socket_send(
@@ -941,7 +941,7 @@ bool LLVoiceClient::writeString(const std::string &str)
 		{
 			// Assume any socket error means something bad.  For now, just close the socket.
 			char buf[MAX_STRING];
-			llwarns << "apr error " << err << " ("<< apr_strerror(err, buf, MAX_STRING) << ") sending data to vivox daemon." << llendl;
+			LL_WARNS("Voice") << "apr error " << err << " ("<< apr_strerror(err, buf, MAX_STRING) << ") sending data to vivox daemon." << LL_ENDL;
 			daemonDied();
 		}
 	}
@@ -965,7 +965,7 @@ void LLVoiceClient::connectorCreate()
 	
 	if(savedLogLevel != "-1")
 	{
-		llinfos << "creating connector with logging enabled" << llendl;
+		LL_DEBUGS("Voice") << "creating connector with logging enabled" << LL_ENDL;
 		loglevel = "10";
 		logpath = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "");
 	}
@@ -1014,7 +1014,7 @@ void LLVoiceClient::userAuthorized(const std::string& firstName, const std::stri
 	mAccountDisplayName += " ";
 	mAccountDisplayName += lastName;
 
-	llinfos << "name \"" << mAccountDisplayName << "\" , ID " << agentID << llendl;
+	LL_INFOS("Voice") << "name \"" << mAccountDisplayName << "\" , ID " << agentID << LL_ENDL;
 
 	std::string gridname = gGridName;
 	LLString::toLower(gridname);
@@ -1065,13 +1065,13 @@ void LLVoiceClient::login(
 	if((getState() >= stateLoggingIn) && (getState() < stateLoggedOut))
 	{
 		// Already logged in.  This is an internal error.
-		llerrs << "called from wrong state." << llendl;
+		LL_ERRS("Voice") << "Can't login again. Called from wrong state." << LL_ENDL;
 	}
 	else if ( accountName != mAccountName )
 	{
 		//TODO: error?
-		llinfos << "Wrong account name! " << accountName
-				<< " instead of " << mAccountName << llendl;
+		LL_WARNS("Voice") << "Wrong account name! " << accountName
+				<< " instead of " << mAccountName << LL_ENDL;
 	}
 	else
 	{
@@ -1167,7 +1167,7 @@ const char *LLVoiceClientStatusObserver::status2string(LLVoiceClientStatusObserv
 
 void LLVoiceClient::setState(state inState)
 {
-	llinfos << "entering state " << state2string(inState) << llendl;
+	LL_DEBUGS("Voice") << "entering state " << state2string(inState) << LL_ENDL;
 	
 	mState = inState;
 }
@@ -1188,7 +1188,7 @@ void LLVoiceClient::stateMachine()
 			if(!mConnected)
 			{
 				// if voice was turned off after the daemon was launched but before we could connect to it, we may need to issue a kill.
-				llinfos << "Disabling voice before connection to daemon, terminating." << llendl;
+				LL_INFOS("Voice") << "Disabling voice before connection to daemon, terminating." << LL_ENDL;
 				killGateway();
 			}
 			
@@ -1213,7 +1213,7 @@ void LLVoiceClient::stateMachine()
 			std::string regionName = region->getName();
 			std::string capURI = region->getCapability("ParcelVoiceInfoRequest");
 		
-//			llinfos << "Region name = \"" << regionName <<"\", " << "parcel local ID = " << parcelLocalID << llendl;
+			LL_DEBUGS("Voice") << "Region name = \"" << regionName <<"\", " << "parcel local ID = " << parcelLocalID << LL_ENDL;
 
 			// The region name starts out empty and gets filled in later.  
 			// Also, the cap gets filled in a short time after the region cross, but a little too late for our purposes.
@@ -1277,7 +1277,7 @@ void LLVoiceClient::stateMachine()
 						args += " -ll ";
 						args += loglevel;
 						
-//						llinfos << "Args for SLVoice: " << args << llendl;
+						LL_DEBUGS("Voice") << "Args for SLVoice: " << args << LL_ENDL;
 
 #if LL_WINDOWS
 						PROCESS_INFORMATION pinfo;
@@ -1349,7 +1349,7 @@ void LLVoiceClient::stateMachine()
 					}	
 					else
 					{
-						llinfos << exe_path << "not found." << llendl
+						LL_INFOS("Voice") << exe_path << "not found." << LL_ENDL
 					}	
 				}
 				else
@@ -1376,7 +1376,7 @@ void LLVoiceClient::stateMachine()
 		break;
 		
 		case stateDaemonLaunched:
-//			llinfos << "Connecting to vivox daemon" << llendl;
+			LL_DEBUGS("Voice") << "Connecting to vivox daemon" << LL_ENDL;
 			if(mUpdateTimer.hasExpired())
 			{
 				mUpdateTimer.setTimerExpirySec(CONNECT_THROTTLE_SECONDS);
@@ -1533,7 +1533,7 @@ void LLVoiceClient::stateMachine()
 					
 					if(mTuningMicVolumeDirty)
 					{
-						llinfos << "setting tuning mic level to " << mTuningMicVolume << llendl;
+						LL_INFOS("Voice") << "setting tuning mic level to " << mTuningMicVolume << LL_ENDL;
 						stream
 						<< "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Aux.SetMicLevel.1\">"
 						<< "<Level>" << mTuningMicVolume << "</Level>"
@@ -1584,12 +1584,12 @@ void LLVoiceClient::stateMachine()
 			
 			if(mLoginRetryCount > MAX_LOGIN_RETRIES)
 			{
-				llinfos << "too many login retries, giving up." << llendl;
+				LL_WARNS("Voice") << "too many login retries, giving up." << LL_ENDL;
 				setState(stateLoginFailed);
 			}
 			else
 			{
-				llinfos << "will retry login in " << LOGIN_RETRY_SECONDS << " seconds." << llendl;
+				LL_INFOS("Voice") << "will retry login in " << LOGIN_RETRY_SECONDS << " seconds." << LL_ENDL;
 				mUpdateTimer.start();
 				mUpdateTimer.setTimerExpirySec(LOGIN_RETRY_SECONDS);
 				setState(stateLoginRetryWait);
@@ -1849,7 +1849,7 @@ void LLVoiceClient::stateMachine()
 
 		case stateJoinSessionFailed:
 			// Transition to error state.  Send out any notifications here.
-			llwarns << "stateJoinSessionFailed: (" << mVivoxErrorStatusCode << "): " << mVivoxErrorStatusString << llendl;
+			LL_WARNS("Voice") << "stateJoinSessionFailed: (" << mVivoxErrorStatusCode << "): " << mVivoxErrorStatusString << LL_ENDL;
 			notifyStatusObservers(LLVoiceClientStatusObserver::ERROR_UNKNOWN);
 			setState(stateJoinSessionFailedWaiting);
 		break;
@@ -1869,8 +1869,7 @@ void LLVoiceClient::stateMachine()
 
 	        case stateMicTuningNoLogin:
 			// *TODO: Implement me.
-			llwarns << "stateMicTuningNoLogin not handled"
-				<< llendl;
+			LL_WARNS("Voice") << "stateMicTuningNoLogin not handled" << LL_ENDL;
 		break;
 	}
 
@@ -1939,7 +1938,7 @@ void LLVoiceClient::channelGetListSendMessage()
 
 void LLVoiceClient::sessionCreateSendMessage()
 {
-	llinfos << "requesting join: " << mNextSessionURI << llendl;
+	LL_DEBUGS("Voice") << "requesting join: " << mNextSessionURI << LL_ENDL;
 
 	mSessionURI = mNextSessionURI;
 	mNonSpatialChannel = !mNextSessionSpatial;
@@ -1979,7 +1978,7 @@ void LLVoiceClient::sessionCreateSendMessage()
 
 void LLVoiceClient::sessionConnectSendMessage()
 {
-	llinfos << "connecting to session handle: " << mNextSessionHandle << llendl;
+	LL_DEBUGS("Voice") << "connecting to session handle: " << mNextSessionHandle << LL_ENDL;
 	
 	mSessionHandle = mNextSessionHandle;
 	mSessionURI = mNextP2PSessionURI;
@@ -2008,7 +2007,7 @@ void LLVoiceClient::sessionTerminate()
 
 void LLVoiceClient::sessionTerminateSendMessage()
 {
-	llinfos << "leaving session: " << mSessionURI << llendl;
+	LL_DEBUGS("Voice") << "leaving session: " << mSessionURI << LL_ENDL;
 
 	switch(getState())
 	{
@@ -2027,7 +2026,7 @@ void LLVoiceClient::sessionTerminateSendMessage()
 			}
 			else
 			{
-				llwarns << "called with no session handle" << llendl;	
+				LL_WARNS("Voice") << "called with no session handle" << LL_ENDL;	
 				setState(stateSessionTerminated);
 			}
 		break;
@@ -2037,14 +2036,14 @@ void LLVoiceClient::sessionTerminateSendMessage()
 		break;
 		
 		default:
-			llwarns << "called from unknown state" << llendl;
+			LL_WARNS("Voice") << "called from unknown state" << LL_ENDL;
 		break;
 	}
 }
 
 void LLVoiceClient::sessionTerminateByHandle(std::string &sessionHandle)
 {
-	llinfos << "Sending Session.Terminate with handle " << sessionHandle << llendl;	
+	LL_DEBUGS("Voice") << "Sending Session.Terminate with handle " << sessionHandle << LL_ENDL;	
 
 	std::ostringstream stream;
 	stream
@@ -2079,14 +2078,14 @@ void LLVoiceClient::getRenderDevicesSendMessage()
 void LLVoiceClient::clearCaptureDevices()
 {
 	// MBW -- XXX -- do something here
-	llinfos << "called" << llendl;
+	LL_DEBUGS("Voice") << "called" << LL_ENDL;
 	mCaptureDevices.clear();
 }
 
 void LLVoiceClient::addCaptureDevice(const std::string& name)
 {
 	// MBW -- XXX -- do something here
-	llinfos << name << llendl;
+	LL_DEBUGS("Voice") << name << LL_ENDL;
 
 	mCaptureDevices.push_back(name);
 }
@@ -2119,14 +2118,14 @@ void LLVoiceClient::setCaptureDevice(const std::string& name)
 void LLVoiceClient::clearRenderDevices()
 {
 	// MBW -- XXX -- do something here
-	llinfos << "called" << llendl;
+	LL_DEBUGS("Voice") << "called" << LL_ENDL;
 	mRenderDevices.clear();
 }
 
 void LLVoiceClient::addRenderDevice(const std::string& name)
 {
 	// MBW -- XXX -- do something here
-	llinfos << name << llendl;
+	LL_DEBUGS("Voice") << name << LL_ENDL;
 	mRenderDevices.push_back(name);
 }
 
@@ -2210,7 +2209,7 @@ void LLVoiceClient::tuningRenderStopSendMessage()
 
 void LLVoiceClient::tuningCaptureStartSendMessage(int duration)
 {
-	llinfos << "sending CaptureAudioStart" << llendl;
+	LL_DEBUGS("Voice") << "sending CaptureAudioStart" << LL_ENDL;
 	
 	std::ostringstream stream;
 	stream
@@ -2223,7 +2222,7 @@ void LLVoiceClient::tuningCaptureStartSendMessage(int duration)
 
 void LLVoiceClient::tuningCaptureStopSendMessage()
 {
-	llinfos << "sending CaptureAudioStop" << llendl;
+	LL_DEBUGS("Voice") << "sending CaptureAudioStop" << LL_ENDL;
 	
 	std::ostringstream stream;
 	stream
@@ -2296,7 +2295,7 @@ void LLVoiceClient::refreshDeviceLists(bool clearCurrentList)
 void LLVoiceClient::daemonDied()
 {
 	// The daemon died, so the connection is gone.  Reset everything and start over.
-	llwarns << "Connection to vivox daemon lost.  Resetting state."<< llendl;
+	LL_WARNS("Voice") << "Connection to vivox daemon lost.  Resetting state."<< LL_ENDL;
 
 	closeSocket();
 	removeAllParticipants();
@@ -2332,7 +2331,7 @@ void LLVoiceClient::sendPositionalUpdate(void)
 		u = mAvatarRot.getUpRow();
 		a = mAvatarRot.getFwdRow();
 			
-//		llinfos << "Sending speaker position " << mSpeakerPosition << llendl;
+		LL_DEBUGS("Voice") << "Sending speaker position " << mAvatarPosition << LL_ENDL;
 
 		stream 
 			<< "<Position>"
@@ -2395,7 +2394,7 @@ void LLVoiceClient::sendPositionalUpdate(void)
 		u = earRot.getUpRow();
 		a = earRot.getFwdRow();
 
-//		llinfos << "Sending listener position " << mListenerPosition << llendl;
+		LL_DEBUGS("Voice") << "Sending listener position " << earPosition << LL_ENDL;
 
 		stream 
 			<< "<Position>"
@@ -2435,7 +2434,7 @@ void LLVoiceClient::sendPositionalUpdate(void)
 		// NOTE that the state of "PTT" is the inverse of "local mute".
 		//   (i.e. when PTT is true, we send a mute command with "false", and vice versa)
 		
-//		llinfos << "Sending MuteLocalMic command with parameter " << (mPTT?"false":"true") << llendl;
+		LL_DEBUGS("Voice") << "Sending MuteLocalMic command with parameter " << (mPTT?"false":"true") << LL_ENDL;
 
 		stream << "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Connector.MuteLocalMic.1\">"
 			<< "<ConnectorHandle>" << mConnectorHandle << "</ConnectorHandle>"
@@ -2456,7 +2455,7 @@ void LLVoiceClient::sendPositionalUpdate(void)
 			{
 				int volume = p->mOnMuteList?0:p->mUserVolume;
 				
-				llinfos << "Setting volume for avatar " << p->mAvatarID << " to " << volume << llendl;
+				LL_INFOS("Voice") << "Setting volume for avatar " << p->mAvatarID << " to " << volume << LL_ENDL;
 				
 				// Send a mute/unumte command for the user (actually "volume for me").
 				stream << "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Session.SetParticipantVolumeForMe.1\">"
@@ -2473,7 +2472,7 @@ void LLVoiceClient::sendPositionalUpdate(void)
 	if(mSpeakerMuteDirty)
 	{
 		const char *muteval = ((mSpeakerVolume == -100)?"true":"false");
-		llinfos << "Setting speaker mute to " << muteval  << llendl;
+		LL_INFOS("Voice") << "Setting speaker mute to " << muteval  << LL_ENDL;
 		
 		stream << "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Connector.MuteLocalSpeaker.1\">"
 			<< "<ConnectorHandle>" << mConnectorHandle << "</ConnectorHandle>"
@@ -2483,7 +2482,7 @@ void LLVoiceClient::sendPositionalUpdate(void)
 	
 	if(mSpeakerVolumeDirty)
 	{
-		llinfos << "Setting speaker volume to " << mSpeakerVolume  << llendl;
+		LL_INFOS("Voice") << "Setting speaker volume to " << mSpeakerVolume  << LL_ENDL;
 
 		stream << "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Connector.SetLocalSpeakerVolume.1\">"
 			<< "<ConnectorHandle>" << mConnectorHandle << "</ConnectorHandle>"
@@ -2493,7 +2492,7 @@ void LLVoiceClient::sendPositionalUpdate(void)
 	
 	if(mMicVolumeDirty)
 	{
-		llinfos << "Setting mic volume to " << mMicVolume  << llendl;
+		LL_INFOS("Voice") << "Setting mic volume to " << mMicVolume  << LL_ENDL;
 
 		stream << "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Connector.SetLocalMicVolume.1\">"
 			<< "<ConnectorHandle>" << mConnectorHandle << "</ConnectorHandle>"
@@ -2530,7 +2529,7 @@ void LLVoiceClient::sendPositionalUpdate(void)
 
 void LLVoiceClient::buildSetCaptureDevice(std::ostringstream &stream)
 {
-	llinfos << "Setting input device = \"" << mCaptureDevice << "\"" << llendl;
+	LL_DEBUGS("Voice") << "Setting input device = \"" << mCaptureDevice << "\"" << LL_ENDL;
 	
 	stream 
 	<< "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Aux.SetCaptureDevice.1\">"
@@ -2541,7 +2540,7 @@ void LLVoiceClient::buildSetCaptureDevice(std::ostringstream &stream)
 
 void LLVoiceClient::buildSetRenderDevice(std::ostringstream &stream)
 {
-	llinfos << "Setting output device = \"" << mRenderDevice << "\"" << llendl;
+	LL_DEBUGS("Voice") << "Setting output device = \"" << mRenderDevice << "\"" << LL_ENDL;
 
 	stream
 	<< "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Aux.SetRenderDevice.1\">"
@@ -2557,7 +2556,7 @@ void LLVoiceClient::connectorCreateResponse(int statusCode, std::string &statusS
 {	
 	if(statusCode != 0)
 	{
-		llwarns << "Connector.Create response failure: " << statusString << llendl;
+		LL_WARNS("Voice") << "Connector.Create response failure: " << statusString << LL_ENDL;
 		setState(stateConnectorFailed);
 	}
 	else
@@ -2573,19 +2572,19 @@ void LLVoiceClient::connectorCreateResponse(int statusCode, std::string &statusS
 
 void LLVoiceClient::loginResponse(int statusCode, std::string &statusString, std::string &accountHandle)
 { 
-	llinfos << "Account.Login response (" << statusCode << "): " << statusString << llendl;
+	LL_DEBUGS("Voice") << "Account.Login response (" << statusCode << "): " << statusString << LL_ENDL;
 	
 	// Status code of 20200 means "bad password".  We may want to special-case that at some point.
 	
 	if ( statusCode == 401 )
 	{
 		// Login failure which is probably caused by the delay after a user's password being updated.
-		llinfos << "Account.Login response failure (" << statusCode << "): " << statusString << llendl;
+		LL_INFOS("Voice") << "Account.Login response failure (" << statusCode << "): " << statusString << LL_ENDL;
 		setState(stateLoginRetry);
 	}
 	else if(statusCode != 0)
 	{
-		llwarns << "Account.Login response failure (" << statusCode << "): " << statusString << llendl;
+		LL_WARNS("Voice") << "Account.Login response failure (" << statusCode << "): " << statusString << LL_ENDL;
 		setState(stateLoginFailed);
 	}
 	else
@@ -2604,7 +2603,7 @@ void LLVoiceClient::channelGetListResponse(int statusCode, std::string &statusSt
 {
 	if(statusCode != 0)
 	{
-		llwarns << "Account.ChannelGetList response failure: " << statusString << llendl;
+		LL_WARNS("Voice") << "Account.ChannelGetList response failure: " << statusString << LL_ENDL;
 		switchChannel();
 	}
 	else
@@ -2614,12 +2613,12 @@ void LLVoiceClient::channelGetListResponse(int statusCode, std::string &statusSt
 		if(uri.empty())
 		{	
 			// Lookup failed, can't join a channel for this area.
-			llinfos << "failed to map channel name: " << mChannelName << llendl;
+			LL_INFOS("Voice") << "failed to map channel name: " << mChannelName << LL_ENDL;
 		}
 		else
 		{
 			// We have a sip URL for this area.
-			llinfos << "mapped channel " << mChannelName << " to URI "<< uri << llendl;
+			LL_INFOS("Voice") << "mapped channel " << mChannelName << " to URI "<< uri << LL_ENDL;
 		}
 		
 		// switchChannel with an empty uri string will do the right thing (leave channel and not rejoin)
@@ -2631,13 +2630,13 @@ void LLVoiceClient::sessionCreateResponse(int statusCode, std::string &statusStr
 {	
 	if(statusCode != 0)
 	{
-		llwarns << "Session.Create response failure (" << statusCode << "): " << statusString << llendl;
+		LL_WARNS("Voice") << "Session.Create response failure (" << statusCode << "): " << statusString << LL_ENDL;
 //		if(statusCode == 1015)
 //		{
 //			if(getState() == stateJoiningSession)
 //			{
 //				// this happened during a real join.  Going to sessionTerminated should cause a retry in appropriate cases.
-//				llwarns << "session handle \"" << sessionHandle << "\", mSessionStateEventHandle \"" << mSessionStateEventHandle << "\""<< llendl;
+//				LL_WARNS("Voice") << "session handle \"" << sessionHandle << "\", mSessionStateEventHandle \"" << mSessionStateEventHandle << "\""<< LL_ENDL;
 //				if(!sessionHandle.empty())
 //				{
 //					// This session is bad.  Terminate it.
@@ -2659,7 +2658,7 @@ void LLVoiceClient::sessionCreateResponse(int statusCode, std::string &statusStr
 //			else
 //			{
 //				// We didn't think we were in the middle of a join.  Don't change state.
-//				llwarns << "Not in stateJoiningSession, ignoring" << llendl;
+//				LL_WARNS("Voice") << "Not in stateJoiningSession, ignoring" << LL_ENDL;
 //			}
 //		}
 //		else
@@ -2671,7 +2670,7 @@ void LLVoiceClient::sessionCreateResponse(int statusCode, std::string &statusStr
 	}
 	else
 	{
-		llinfos << "Session.Create response received (success), session handle is " << sessionHandle << llendl;
+		LL_DEBUGS("Voice") << "Session.Create response received (success), session handle is " << sessionHandle << LL_ENDL;
 		if(getState() == stateJoiningSession)
 		{
 			// This is also grabbed in the SessionStateChangeEvent handler, but it might be useful to have it early...
@@ -2689,10 +2688,10 @@ void LLVoiceClient::sessionConnectResponse(int statusCode, std::string &statusSt
 {
 	if(statusCode != 0)
 	{
-		llwarns << "Session.Connect response failure (" << statusCode << "): " << statusString << llendl;
+		LL_WARNS("Voice") << "Session.Connect response failure (" << statusCode << "): " << statusString << LL_ENDL;
 //		if(statusCode == 1015)
 //		{
-//			llwarns << "terminating existing session" << llendl;
+//			LL_WARNS("Voice") << "terminating existing session" << LL_ENDL;
 //			sessionTerminate();
 //		}
 //		else
@@ -2704,7 +2703,7 @@ void LLVoiceClient::sessionConnectResponse(int statusCode, std::string &statusSt
 	}
 	else
 	{
-		llinfos << "Session.Connect response received (success)" << llendl;
+		LL_DEBUGS("Voice") << "Session.Connect response received (success)" << LL_ENDL;
 	}
 }
 
@@ -2712,7 +2711,7 @@ void LLVoiceClient::sessionTerminateResponse(int statusCode, std::string &status
 {	
 	if(statusCode != 0)
 	{
-		llwarns << "Session.Terminate response failure: (" << statusCode << "): " << statusString << llendl;
+		LL_WARNS("Voice") << "Session.Terminate response failure: (" << statusCode << "): " << statusString << LL_ENDL;
 		if(getState() == stateLeavingSession)
 		{
 			// This is probably "(404): Server reporting Failure. Not a member of this conference."
@@ -2727,7 +2726,7 @@ void LLVoiceClient::logoutResponse(int statusCode, std::string &statusString)
 {	
 	if(statusCode != 0)
 	{
-		llwarns << "Account.Logout response failure: " << statusString << llendl;
+		LL_WARNS("Voice") << "Account.Logout response failure: " << statusString << LL_ENDL;
 		// MBW -- XXX -- Should this ever fail?  do we care if it does?
 	}
 	
@@ -2741,7 +2740,7 @@ void LLVoiceClient::connectorShutdownResponse(int statusCode, std::string &statu
 {
 	if(statusCode != 0)
 	{
-		llwarns << "Connector.InitiateShutdown response failure: " << statusString << llendl;
+		LL_WARNS("Voice") << "Connector.InitiateShutdown response failure: " << statusString << LL_ENDL;
 		// MBW -- XXX -- Should this ever fail?  do we care if it does?
 	}
 	
@@ -2765,7 +2764,7 @@ void LLVoiceClient::sessionStateChangeEvent(
 	switch(state)
 	{
 		case 4:	// I see this when joining the session
-			llinfos << "joined session " << uriString << ", name " << nameString << " handle " << mNextSessionHandle << llendl;
+			LL_INFOS("Voice") << "joined session " << uriString << ", name " << nameString << " handle " << mNextSessionHandle << LL_ENDL;
 
 			// Session create succeeded, move forward.
 			mSessionStateEventHandle = sessionHandle;
@@ -2778,23 +2777,23 @@ void LLVoiceClient::sessionStateChangeEvent(
 					setState(stateSessionJoined);
 					//RN: the uriString being returned by vivox here is actually your account uri, not the channel
 					// you are attempting to join, so ignore it
-					//llinfos << "received URI " << uriString << "(previously " << mSessionURI << ")" << llendl;
+					//LL_DEBUGS("Voice") << "received URI " << uriString << "(previously " << mSessionURI << ")" << LL_ENDL;
 					//mSessionURI = uriString;
 				}
 			}
 			else if(sessionHandle == mNextSessionHandle)
 			{
-//				llinfos << "received URI " << uriString << ", name " << nameString << " for next session (handle " << mNextSessionHandle << ")" << llendl;
+//				LL_DEBUGS("Voice") << "received URI " << uriString << ", name " << nameString << " for next session (handle " << mNextSessionHandle << ")" << LL_ENDL;
 			}
 			else
 			{
-				llwarns << "joining unknown session handle " << sessionHandle << ", URI " << uriString << ", name " << nameString << llendl;
+				LL_WARNS("Voice") << "joining unknown session handle " << sessionHandle << ", URI " << uriString << ", name " << nameString << LL_ENDL;
 				// MBW -- XXX -- Should we send a Session.Terminate here?
 			}
 			
 		break;
 		case 5:	// I see this when leaving the session
-			llinfos << "left session " << uriString << ", name " << nameString << " handle " << mNextSessionHandle << llendl;
+			LL_INFOS("Voice") << "left session " << uriString << ", name " << nameString << " handle " << mNextSessionHandle << LL_ENDL;
 
 			// Set the session handle to the empty string.  If we get back to stateJoiningSession, we'll want to wait for the new session handle.
 			if(sessionHandle == mSessionHandle)
@@ -2822,17 +2821,17 @@ void LLVoiceClient::sessionStateChangeEvent(
 					case stateJoinSessionFailed:
 					case stateJoinSessionFailedWaiting:
 						// normal transition
-						llinfos << "left session " << sessionHandle << "in state " << state2string(getState()) << llendl;
+						LL_INFOS("Voice") << "left session " << sessionHandle << "in state " << state2string(getState()) << LL_ENDL;
 						setState(stateSessionTerminated);
 					break;
 					
 					case stateSessionTerminated:
 						// this will happen sometimes -- there are cases where we send the terminate and then go straight to this state.
-						llwarns << "left session " << sessionHandle << "in state " << state2string(getState()) << llendl;
+						LL_WARNS("Voice") << "left session " << sessionHandle << "in state " << state2string(getState()) << LL_ENDL;
 					break;
 					
 					default:
-						llwarns << "unexpected SessionStateChangeEvent (left session) in state " << state2string(getState()) << llendl;
+						LL_WARNS("Voice") << "unexpected SessionStateChangeEvent (left session) in state " << state2string(getState()) << LL_ENDL;
 						setState(stateSessionTerminated);
 					break;
 				}
@@ -2843,14 +2842,14 @@ void LLVoiceClient::sessionStateChangeEvent(
 			}
 			else
 			{
-				llinfos << "leaving unknown session handle " << sessionHandle << ", URI " << uriString << ", name " << nameString << llendl;
+				LL_INFOS("Voice") << "leaving unknown session handle " << sessionHandle << ", URI " << uriString << ", name " << nameString << LL_ENDL;
 			}
 
 			mSessionStateEventHandle.clear();
 			mSessionStateEventURI.clear();
 		break;
 		default:
-			llwarns << "unknown state: " << state << llendl;
+			LL_WARNS("Voice") << "unknown state: " << state << LL_ENDL;
 		break;
 	}
 }
@@ -2861,7 +2860,7 @@ void LLVoiceClient::loginStateChangeEvent(
 		std::string &statusString, 
 		int state)
 {
-	llinfos << "state is " << state << llendl;
+	LL_DEBUGS("Voice") << "state is " << state << LL_ENDL;
 	/*
 		According to Mike S., status codes for this event are:
 		login_state_logged_out=0,
@@ -2882,7 +2881,8 @@ void LLVoiceClient::loginStateChangeEvent(
 		break;
 		
 		default:
-//			llwarns << "unknown state: " << state << llendl;
+			//Used to be a commented out warning
+			LL_DEBUGS("Voice") << "unknown state: " << state << LL_ENDL;
 		break;
 	}
 }
@@ -2894,13 +2894,13 @@ void LLVoiceClient::sessionNewEvent(
 		std::string &nameString, 
 		std::string &uriString)
 {
-//	llinfos << "state is " << state << llendl;
+	LL_DEBUGS("Voice") << "state is " << state << LL_ENDL;
 	
 	switch(state)
 	{
 		case 0:
 			{
-				llinfos << "session handle = " << eventSessionHandle << ", name = " << nameString << ", uri = " << uriString << llendl;
+				LL_DEBUGS("Voice") << "session handle = " << eventSessionHandle << ", name = " << nameString << ", uri = " << uriString << LL_ENDL;
 
 				LLUUID caller_id;
 				if(IDFromName(nameString, caller_id))
@@ -2918,13 +2918,13 @@ void LLVoiceClient::sessionNewEvent(
 				}
 				else
 				{
-					llwarns << "Could not generate caller id from uri " << uriString << llendl;
+					LL_WARNS("Voice") << "Could not generate caller id from uri " << uriString << LL_ENDL;
 				}
 			}
 		break;
 		
 		default:
-			llwarns << "unknown state: " << state << llendl;
+			LL_WARNS("Voice") << "unknown state: " << state << LL_ENDL;
 		break;
 	}
 }
@@ -2939,7 +2939,7 @@ void LLVoiceClient::participantStateChangeEvent(
 		int participantType)
 {
 	participantState *participant = NULL;
-	llinfos << "state is " << state << llendl;
+	LL_DEBUGS("Voice") << "state is " << state << LL_ENDL;
 
 	switch(state)
 	{
@@ -2948,8 +2948,8 @@ void LLVoiceClient::participantStateChangeEvent(
 			if(participant)
 			{
 				participant->mName = nameString;
-				llinfos << "added participant \"" << participant->mName 
-						<< "\" (" << participant->mAvatarID << ")"<< llendl;
+				LL_DEBUGS("Voice") << "added participant \"" << participant->mName 
+						<< "\" (" << participant->mAvatarID << ")"<< LL_ENDL;
 			}
 		break;
 		case 9:	// I see this when a participant leaves
@@ -2960,7 +2960,7 @@ void LLVoiceClient::participantStateChangeEvent(
 			}
 		break;
 		default:
-//			llwarns << "unknown state: " << state << llendl;
+			LL_DEBUGS("Voice") << "unknown state: " << state << LL_ENDL;
 		break;
 	}
 }
@@ -2990,13 +2990,13 @@ void LLVoiceClient::participantPropertiesEvent(
 	}
 	else
 	{
-		llwarns << "unknown participant: " << uriString << llendl;
+		LL_WARNS("Voice") << "unknown participant: " << uriString << LL_ENDL;
 	}
 }
 
 void LLVoiceClient::auxAudioPropertiesEvent(F32 energy)
 {
-//	llinfos << "got energy " << energy << llendl;
+	LL_DEBUGS("Voice") << "got energy " << energy << LL_ENDL;
 	mTuningEnergy = energy;
 }
 
@@ -3054,7 +3054,7 @@ LLVoiceClient::participantState *LLVoiceClient::addParticipant(const std::string
 			}
 		}
 		
-		llinfos << "participant \"" << result->mURI << "\" added." << llendl;
+		LL_DEBUGS("Voice") << "participant \"" << result->mURI << "\" added." << LL_ENDL;
 	}
 	
 	return result;
@@ -3080,7 +3080,7 @@ void LLVoiceClient::removeParticipant(LLVoiceClient::participantState *participa
 	{
 		participantMap::iterator iter = mParticipantMap.find(participant->mURI);
 				
-		llinfos << "participant \"" << participant->mURI <<  "\" (" << participant->mAvatarID << ") removed." << llendl;
+		LL_DEBUGS("Voice") << "participant \"" << participant->mURI <<  "\" (" << participant->mAvatarID << ") removed." << LL_ENDL;
 
 		mParticipantMap.erase(iter);
 		delete participant;
@@ -3090,7 +3090,7 @@ void LLVoiceClient::removeParticipant(LLVoiceClient::participantState *participa
 
 void LLVoiceClient::removeAllParticipants()
 {
-	llinfos << "called" << llendl;
+	LL_DEBUGS("Voice") << "called" << LL_ENDL;
 
 	while(!mParticipantMap.empty())
 	{
@@ -3173,7 +3173,7 @@ void LLVoiceClient::clearChannelMap(void)
 
 void LLVoiceClient::addChannelMapEntry(std::string &name, std::string &uri)
 {
-//	llinfos << "Adding channel name mapping: " << name << " -> " << uri << llendl;
+	LL_DEBUGS("Voice") << "Adding channel name mapping: " << name << " -> " << uri << LL_ENDL;
 	mChannelMap.insert(channelMap::value_type(name, uri));
 }
 
@@ -3196,7 +3196,7 @@ void LLVoiceClient::parcelChanged()
 	if(getState() >= stateLoggedIn)
 	{
 		// If the user is logged in, start a channel lookup.
-		llinfos << "sending ParcelVoiceInfoRequest (" << mCurrentRegionName << ", " << mCurrentParcelLocalID << ")" << llendl;
+		LL_DEBUGS("Voice") << "sending ParcelVoiceInfoRequest (" << mCurrentRegionName << ", " << mCurrentParcelLocalID << ")" << LL_ENDL;
 
 		std::string url = gAgent.getRegion()->getCapability("ParcelVoiceInfoRequest");
 		LLSD data;
@@ -3208,7 +3208,7 @@ void LLVoiceClient::parcelChanged()
 	else
 	{
 		// The transition to stateLoggedIn needs to kick this off again.
-		llinfos << "not logged in yet, deferring" << llendl;
+		LL_INFOS("Voice") << "not logged in yet, deferring" << LL_ENDL;
 	}
 }
 
@@ -3220,7 +3220,7 @@ void LLVoiceClient::switchChannel(
 {
 	bool needsSwitch = false;
 	
-	llinfos << "called in state " << state2string(getState()) << " with uri \"" << uri << "\"" << llendl;
+	LL_DEBUGS("Voice") << "called in state " << state2string(getState()) << " with uri \"" << uri << "\"" << LL_ENDL;
 	
 	switch(getState())
 	{
@@ -3259,12 +3259,12 @@ void LLVoiceClient::switchChannel(
 		if(uri.empty())
 		{
 			// Leave any channel we may be in
-			llinfos << "leaving channel" << llendl;
+			LL_DEBUGS("Voice") << "leaving channel" << LL_ENDL;
 			notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_VOICE_DISABLED);
 		}
 		else
 		{
-			llinfos << "switching to channel " << uri << llendl;
+			LL_DEBUGS("Voice") << "switching to channel " << uri << LL_ENDL;
 		}
 		
 		if(getState() <= stateNoChannel)
@@ -3313,12 +3313,12 @@ void LLVoiceClient::setSpatialChannel(
 	mSpatialSessionURI = uri;
 	mAreaVoiceDisabled = mSpatialSessionURI.empty();
 
-	llinfos << "got spatial channel uri: \"" << uri << "\"" << llendl;
+	LL_DEBUGS("Voice") << "got spatial channel uri: \"" << uri << "\"" << LL_ENDL;
 	
 	if(mNonSpatialChannel || !mNextSessionSpatial)
 	{
 		// User is in a non-spatial chat or joining a non-spatial chat.  Don't switch channels.
-		llinfos << "in non-spatial chat, not switching channels" << llendl;
+		LL_INFOS("Voice") << "in non-spatial chat, not switching channels" << LL_ENDL;
 	}
 	else
 	{
@@ -3560,7 +3560,7 @@ void LLVoiceClient::leaveChannel(void)
 {
 	if(getState() == stateRunning)
 	{
-//		llinfos << "leaving channel for teleport/logout" << llendl;
+		LL_DEBUGS("Voice") << "leaving channel for teleport/logout" << LL_ENDL;
 		mChannelName.clear();
 		sessionTerminate();
 	}
@@ -3669,7 +3669,7 @@ void LLVoiceClient::setEarLocation(S32 loc)
 {
 	if(mEarLocation != loc)
 	{
-		llinfos << "Setting mEarLocation to " << loc << llendl;
+		LL_DEBUGS("Voice") << "Setting mEarLocation to " << loc << LL_ENDL;
 		
 		mEarLocation = loc;
 		mSpatialCoordsDirty = true;
@@ -3678,7 +3678,7 @@ void LLVoiceClient::setEarLocation(S32 loc)
 
 void LLVoiceClient::setVoiceVolume(F32 volume)
 {
-//	llinfos << "volume is " << volume << llendl;
+	LL_DEBUGS("Voice") << "volume is " << volume << LL_ENDL;
 
 	// incoming volume has the range [0.0 ... 1.0], with 0.5 as the default.
 	// Map it as follows: 0.0 -> -100, 0.5 -> 24, 1.0 -> 50
@@ -3727,7 +3727,7 @@ void LLVoiceClient::setVivoxDebugServerName(std::string &serverName)
 
 void LLVoiceClient::keyDown(KEY key, MASK mask)
 {	
-//	llinfos << "key is " << LLKeyboard::stringFromKey(key) << llendl;
+	LL_DEBUGS("Voice") << "key is " << LLKeyboard::stringFromKey(key) << LL_ENDL;
 
 	if (gKeyboard->getKeyRepeated(key))
 	{
@@ -4021,7 +4021,7 @@ void LLVoiceClient::notifyStatusObservers(LLVoiceClientStatusObserver::EStatusTy
 		mVivoxErrorStatusCode = 0;
 	}
 	
-	llinfos << " " << LLVoiceClientStatusObserver::status2string(status)  << ", session URI " << mSessionURI << llendl;
+	LL_DEBUGS("Voice") << " " << LLVoiceClientStatusObserver::status2string(status)  << ", session URI " << mSessionURI << LL_ENDL;
 
 	for (status_observer_set_t::iterator it = mStatusObservers.begin();
 		it != mStatusObservers.end();

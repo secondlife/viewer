@@ -1,0 +1,47 @@
+<llsd>
+	<map>
+		<!-- default-level can be ALL, DEBUG, INFO, WARN, ERROR, or NONE -->
+		<key>default-level</key>    <string>INFO</string>
+		<key>print-location</key>   <boolean>false</boolean>
+		<key>settings</key>
+			<array>
+				<!-- sample entry for changing settings on specific items -->
+				<map>
+					<key>level</key><string>INFO</string>
+					<key>functions</key>
+						<array>
+						</array>
+					<key>classes</key>
+						<array>
+						</array>
+					<key>files</key>
+						<array>
+						</array>
+					<key>tags</key>
+						<array>
+							<string>AppInit</string>
+							<string>SystemInfo</string>
+							<string>TextureCache</string>
+							<string>AppCache</string>
+							<string>Window</string>
+							<string>RenderInit</string>
+						</array>
+				</map>
+				<map>
+					<key>level</key><string>DEBUG</string>
+					<key>functions</key>
+						<array>
+						</array>
+					<key>classes</key>
+						<array>
+						</array>
+					<key>files</key>
+						<array>
+						</array>
+					<key>tags</key>
+						<array>
+						</array>
+				</map>
+			</array>
+	</map>
+</llsd>

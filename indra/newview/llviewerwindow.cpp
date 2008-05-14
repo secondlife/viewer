@@ -1529,9 +1529,9 @@ LLViewerWindow::LLViewerWindow(
 		ignore_pixel_depth,
 		gSavedSettings.getU32("RenderFSAASamples"));
 #if LL_WINDOWS
-	if (!LLWinDebug::setupExceptionHandler())
+	if (!LLWinDebug::checkExceptionHandler())
 	{
-		llwarns << " Someone took over my exception handler (post createWindow)!" << llendl;
+		LL_WARNS("Window") << " Someone took over my exception handler (post createWindow)!" << LL_ENDL;
 	}
 #endif
 
@@ -1542,8 +1542,8 @@ LLViewerWindow::LLViewerWindow(
 		llwarns << "Unable to create window, be sure screen is set at 32-bit color and your graphics driver is configured correctly.  See README-linux.txt or README-solaris.txt for further information."
 				<< llendl;
 #else
-		llwarns << "Unable to create window, be sure screen is set at 32-bit color in Control Panels->Display->Settings"
-				<< llendl;
+		LL_WARNS("Window") << "Unable to create window, be sure screen is set at 32-bit color in Control Panels->Display->Settings"
+				<< LL_ENDL;
 #endif
         LLAppViewer::instance()->forceExit(1);
 	}
@@ -1569,7 +1569,7 @@ LLViewerWindow::LLViewerWindow(
 	// We want to set this stuff up BEFORE we initialize the pipeline, so we can turn off
 	// stuff like AGP if we think that it'll crash the viewer.
 	//
-	llinfos << "Loading feature tables." << llendl;
+	LL_DEBUGS("Window") << "Loading feature tables." << LL_ENDL;
 
 	LLFeatureManager::getInstance()->init();
 
@@ -4939,7 +4939,7 @@ void LLViewerWindow::restoreGL(const LLString& progress_message)
 		}
 		llinfos << "...Restoring GL done" << llendl;
 #if LL_WINDOWS
-		if (SetUnhandledExceptionFilter(LLWinDebug::handleException) != LLWinDebug::handleException)
+		if(!LLWinDebug::checkExceptionHandler())
 		{
 			llwarns << " Someone took over my exception handler (post restoreGL)!" << llendl;
 		}

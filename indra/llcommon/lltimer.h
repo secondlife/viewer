@@ -87,11 +87,11 @@ public:
 	void setLastClockCount(U64 current_count);		// Sets the timer so that the next elapsed call will be relative to this time
 	void setTimerExpirySec(F32 expiration);
 	BOOL checkExpirationAndReset(F32 expiration);
-	BOOL hasExpired();
+	BOOL hasExpired() const;
 	F32 getElapsedTimeAndResetF32();	// Returns elapsed time in seconds with reset
 	F64 getElapsedTimeAndResetF64();
 
-	F32 getRemainingTimeF32();
+	F32 getRemainingTimeF32() const;
 
 	static BOOL knownBadTimer();
 

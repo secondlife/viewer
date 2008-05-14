@@ -418,7 +418,7 @@ void LLDrawable::makeStatic(BOOL warning_enabled)
 
 		if (mParent.notNull() && mParent->isActive() && warning_enabled)
 		{
-			llwarns << "Drawable becamse static with active parent!" << llendl;
+			LL_WARNS_ONCE("Drawable") << "Drawable becomes static with active parent!" << LL_ENDL;
 		}
 		
 		S32 child_count = mVObjp->mChildList.size();

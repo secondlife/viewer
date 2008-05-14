@@ -50,9 +50,9 @@
 #include "llsdserialize.h"
 
 #if LL_RELEASE_FOR_DOWNLOAD
-#define CONTROL_ERRS llwarns
+#define CONTROL_ERRS LL_WARNS("ControlErrors")
 #else
-#define CONTROL_ERRS llerrs
+#define CONTROL_ERRS LL_ERRS("ControlErrors")
 #endif
 
 //this defines the current version of the settings file

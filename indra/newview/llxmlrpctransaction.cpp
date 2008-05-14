@@ -569,10 +569,10 @@ F64 LLXMLRPCTransaction::transferRate()
 	
 	double rate_bits_per_sec = impl.mTransferInfo.mSpeedDownload * 8.0;
 	
-	llinfos << "Buffer size:   " << impl.mResponseText.size() << " B" << llendl;
-	llinfos << "Transfer size: " << impl.mTransferInfo.mSizeDownload << " B" << llendl;
-	llinfos << "Transfer time: " << impl.mTransferInfo.mTotalTime << " s" << llendl;
-	llinfos << "Transfer rate: " << rate_bits_per_sec / 1000.0 << " Kb/s" << llendl;
+	LL_INFOS("AppInit") << "Buffer size:   " << impl.mResponseText.size() << " B" << LL_ENDL;
+	LL_DEBUGS("AppInit") << "Transfer size: " << impl.mTransferInfo.mSizeDownload << " B" << LL_ENDL;
+	LL_DEBUGS("AppInit") << "Transfer time: " << impl.mTransferInfo.mTotalTime << " s" << LL_ENDL;
+	LL_INFOS("AppInit") << "Transfer rate: " << rate_bits_per_sec / 1000.0 << " Kb/s" << LL_ENDL;
 
 	return rate_bits_per_sec;
 }

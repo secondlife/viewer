@@ -38,10 +38,36 @@
 class LLWinDebug
 {
 public:
-	static BOOL setupExceptionHandler();
 
-	static LONG WINAPI handleException(struct _EXCEPTION_POINTERS *pExceptionInfo);
+
+	/** 
+	* @brief initialize the llwindebug exception filter callback
+	* 
+	* Hand a windows unhandled exception filter to LLWinDebug
+	* This method should only be called to change the
+	* exception filter used by llwindebug.
+	*
+	* Setting filter_func to NULL will clear any custom filters.
+	**/
+	static void initExceptionHandler(LPTOP_LEVEL_EXCEPTION_FILTER filter_func);
+
+	/** 
+	* @brief check the status of the exception filter.
+	*
+	* Resets unhandled exception filter to the filter specified 
+	* w/ initExceptionFilter). 
+	* Returns false if the exception filter was modified.
+	*
+	* *NOTE:Mani In the past mozlib has been accused of
+	* overriding the exception filter. If the mozlib filter 
+	* is required, perhaps we can chain calls from our 
+	* filter to mozlib's.
+	**/
+	static bool checkExceptionHandler();
+
+	static void generateCrashStacks(struct _EXCEPTION_POINTERS *pExceptionInfo = NULL);
 	static void writeDumpToFile(MINIDUMP_TYPE type, MINIDUMP_EXCEPTION_INFORMATION *ExInfop, const char *filename);
+private:
 };
 
 #endif // LL_LLWINDEBUG_H

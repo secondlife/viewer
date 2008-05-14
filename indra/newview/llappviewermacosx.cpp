@@ -47,7 +47,7 @@
 #include "llfloaterworldmap.h"
 #include "llurldispatcher.h"
 #include <Carbon/Carbon.h>
-
+#include "lldir.h"
 namespace 
 {
 	// The command line args stored.
@@ -197,12 +197,13 @@ void LLAppViewerMacOSX::handleCrashReporting()
 {
 	// Macintosh
 	LLString command_str;
-	command_str = "open crashreporter.app";
+	command_str += "open crashreporter.app";	
+	
+	clear_signals();
+	llinfos << "Launching crash reporter using: '" << command_str << "'" << llendl;
 	system(command_str.c_str());		/* Flawfinder: ignore */
-		
-	// Sometimes signals don't seem to quit the viewer.  
-	// Make sure we exit so as to not totally confuse the user.
-	exit(1);
+	llinfos << "returned from crash reporter... dying" << llendl;	
+	_exit(1);
 }
 
 std::string LLAppViewerMacOSX::generateSerialNumber()

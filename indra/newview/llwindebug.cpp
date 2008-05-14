@@ -35,7 +35,6 @@
 
 #include <tchar.h>
 #include <tlhelp32.h>
-#include "llappviewer.h"
 #include "llwindebug.h"
 #include "llviewercontrol.h"
 #include "lldir.h"
@@ -105,6 +104,8 @@ typedef BOOL (WINAPI *MINIDUMPWRITEDUMP)(HANDLE hProcess, DWORD dwPid, HANDLE hF
 MINIDUMPWRITEDUMP f_mdwp = NULL;
 
 #undef UNICODE
+
+static LPTOP_LEVEL_EXCEPTION_FILTER gFilterFunc = NULL;
 
 HMODULE	hDbgHelp;
 
@@ -554,14 +555,13 @@ void LLMemoryReserve::release()
 static LLMemoryReserve gEmergencyMemoryReserve;
 
 // static
-BOOL LLWinDebug::setupExceptionHandler()
+void  LLWinDebug::initExceptionHandler(LPTOP_LEVEL_EXCEPTION_FILTER filter_func)
 {
 
-	static BOOL s_first_run = TRUE;
+	static bool s_first_run = true;
 	// Load the dbghelp dll now, instead of waiting for the crash.
 	// Less potential for stack mangling
 
-	BOOL ok = TRUE;
 	if (s_first_run)
 	{
 		// First, try loading from the directory that the app resides in.
@@ -576,15 +576,7 @@ BOOL LLWinDebug::setupExceptionHandler()
 
 		if (!hDll)
 		{
-			llwarns << "Couldn't find dbghelp.dll!" << llendl;
-
-			std::string msg = "Couldn't find dbghelp.dll at ";
-			msg += local_dll_name;
-			msg += "!\n";
-
-			//write_debug(msg.c_str());
-
-			ok = FALSE;
+			LL_WARNS("AppInit") << "Couldn't find dbghelp.dll!" << LL_ENDL;
 		}
 		else
 		{
@@ -592,18 +584,15 @@ BOOL LLWinDebug::setupExceptionHandler()
 
 			if (!f_mdwp)
 			{
-				//write_debug("No MiniDumpWriteDump!\n");
 				FreeLibrary(hDll);
 				hDll = NULL;
-				ok = FALSE;
 			}
 		}
 
 		gEmergencyMemoryReserve.reserve();
-	}
 
-	LPTOP_LEVEL_EXCEPTION_FILTER prev_filter;
-	prev_filter = SetUnhandledExceptionFilter(LLWinDebug::handleException);
+		s_first_run = false;
+	}
 
 	// Try to get Tool Help library functions.
 	HMODULE hKernel32;
@@ -612,26 +601,44 @@ BOOL LLWinDebug::setupExceptionHandler()
 	Module32First_ = (MODULE32_FIRST)GetProcAddress(hKernel32, "Module32FirstW");
 	Module32Next_ = (MODULE32_NEST)GetProcAddress(hKernel32, "Module32NextW");
 
-	if (s_first_run)
+    LPTOP_LEVEL_EXCEPTION_FILTER prev_filter;
+	prev_filter = SetUnhandledExceptionFilter(filter_func);
+
+	if(prev_filter != gFilterFunc)
 	{
-		// We're fine, this is the first run.
-		s_first_run = FALSE;
-		return ok;
+		LL_WARNS("AppInit") 
+			<< "Replacing unknown exception (" << (void *)prev_filter << ") with (" << (void *)filter_func << ") !" << LL_ENDL;
 	}
-	if (!prev_filter)
+	
+	gFilterFunc = filter_func;
+}
+
+bool LLWinDebug::checkExceptionHandler()
+{
+	bool ok = true;
+	LPTOP_LEVEL_EXCEPTION_FILTER prev_filter;
+	prev_filter = SetUnhandledExceptionFilter(gFilterFunc);
+
+	if (prev_filter != gFilterFunc)
 	{
-		llwarns << "Our exception handler (" << (void *)LLWinDebug::handleException << ") replaced with NULL!" << llendl;
-		ok = FALSE;
+		LL_WARNS("AppInit") << "Our exception handler (" << (void *)gFilterFunc << ") replaced with " << prev_filter << "!" << LL_ENDL;
+		ok = false;
 	}
-	if (prev_filter != LLWinDebug::handleException)
+
+	if (prev_filter == NULL)
 	{
-		llwarns << "Our exception handler (" << (void *)LLWinDebug::handleException << ") replaced with " << prev_filter << "!" << llendl;
 		ok = FALSE;
+		if (gFilterFunc == NULL)
+		{
+			LL_WARNS("AppInit") << "Exception handler uninitialized." << LL_ENDL;
+		}
+		else
+		{
+			LL_WARNS("AppInit") << "Our exception handler (" << (void *)gFilterFunc << ") replaced with NULL!" << LL_ENDL;
+		}
 	}
 
 	return ok;
-	// Internal builds don't mess with exception handling.
-	//return TRUE;
 }
 
 void LLWinDebug::writeDumpToFile(MINIDUMP_TYPE type, MINIDUMP_EXCEPTION_INFORMATION *ExInfop, const char *filename)
@@ -644,7 +651,7 @@ void LLWinDebug::writeDumpToFile(MINIDUMP_TYPE type, MINIDUMP_EXCEPTION_INFORMAT
 	else
 	{
 		std::string dump_path = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,
-															   filename);
+																	   filename);
 
 		HANDLE hFile = CreateFileA(dump_path.c_str(),
 									GENERIC_WRITE,
@@ -672,20 +679,26 @@ void LLWinDebug::writeDumpToFile(MINIDUMP_TYPE type, MINIDUMP_EXCEPTION_INFORMAT
 }
 
 // static
-LONG LLWinDebug::handleException(struct _EXCEPTION_POINTERS *exception_infop)
+void LLWinDebug::generateCrashStacks(struct _EXCEPTION_POINTERS *exception_infop)
 {
-	// *NOTE:Mani - This method is no longer the initial exception handler.
-	// It is called from viewer_windows_exception_handler() and other places.
+	// *NOTE:Mani - This method is no longer the exception handler.
+	// Its called from viewer_windows_exception_handler() and other places.
 
 	// 
 	// Let go of a bunch of reserved memory to give library calls etc
 	// a chance to execute normally in the case that we ran out of
 	// memory.
 	//
-	gEmergencyMemoryReserve.release();
+	LLSD info;
+	std::string dump_path = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,
+												"SecondLifeException");
+	std::string log_path = dump_path + ".log";
 
 	if (exception_infop)
 	{
+		// Since there is exception info... Release the hounds.
+		gEmergencyMemoryReserve.release();
+
 		if(gSavedSettings.getControl("SaveMinidump") != NULL && gSavedSettings.getBOOL("SaveMinidump"))
 		{
 			_MINIDUMP_EXCEPTION_INFORMATION ExInfo;
@@ -698,67 +711,34 @@ LONG LLWinDebug::handleException(struct _EXCEPTION_POINTERS *exception_infop)
 			writeDumpToFile((MINIDUMP_TYPE)(MiniDumpWithDataSegs | MiniDumpWithIndirectlyReferencedMemory), &ExInfo, "SecondLifePlus.dmp");
 		}
 
-
-		std::string dump_path = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,
-															   "SecondLifeException");
-
-		std::string log_path = dump_path + ".log";
-
-		LLSD info;
 		info = Get_Exception_Info(exception_infop);
+	}
 
+	LLSD threads;
+    std::vector<DWORD> thread_ids;
+    GetProcessThreadIDs(GetCurrentProcessId(), thread_ids);
 
-        LLSD threads;
-        std::vector<DWORD> thread_ids;
-        GetProcessThreadIDs(GetCurrentProcessId(), thread_ids);
-
-        for(std::vector<DWORD>::iterator th_itr = thread_ids.begin(); 
-                 th_itr != thread_ids.end();
-                 ++th_itr)
+    for(std::vector<DWORD>::iterator th_itr = thread_ids.begin(); 
+                th_itr != thread_ids.end();
+                ++th_itr)
+    {
+        LLSD thread_info;
+        if(*th_itr != GetCurrentThreadId())
         {
-            LLSD thread_info;
-            if(*th_itr != GetCurrentThreadId())
-            {
-                GetThreadCallStack(*th_itr, thread_info);
-            }
-
-            if(thread_info)
-            {
-                
-                threads[llformat("ID %d", *th_itr)] = thread_info;
-            }
+            GetThreadCallStack(*th_itr, thread_info);
         }
 
+        if(thread_info)
+        {
+            threads[llformat("ID %d", *th_itr)] = thread_info;
+        }
+    }
 
-        info["Threads"] = threads;
+    info["Threads"] = threads;
 
-        if (info)
-		{
-			std::ofstream out_file(log_path.c_str());
-			LLSDSerialize::toPrettyXML(info, out_file);
-			out_file.close();
-		}
-	}
-	else
-	{
-		// We're calling this due to a network error, not due to an actual exception.
-		// It doesn't realy matter what we return.
-		return EXCEPTION_CONTINUE_SEARCH;
-	}
-
-	//handle viewer crash must be called here since
-	//we don't return handling of the application 
-	//back to the process. 
-	LLAppViewer::handleViewerCrash();
-
-	//
-	// At this point, we always want to exit the app.  There's no graceful
-	// recovery for an unhandled exception.
-	// 
-	// Just kill the process.
-	LONG retval = EXCEPTION_EXECUTE_HANDLER;
-	
-	return retval;
+	std::ofstream out_file(log_path.c_str());
+	LLSDSerialize::toPrettyXML(info, out_file);
+	out_file.close();
 }
 
 #endif

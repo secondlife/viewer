@@ -54,7 +54,7 @@ void ll_init_apr()
 
 void ll_cleanup_apr()
 {
-	llinfos << "Cleaning up APR" << llendl;
+	LL_INFOS("APR") << "Cleaning up APR" << LL_ENDL;
 
 	if (gLogMutexp)
 	{
@@ -118,7 +118,7 @@ bool ll_apr_warn_status(apr_status_t status)
 	if(APR_SUCCESS == status) return false;
 #ifndef LL_WINDOWS
 	char buf[MAX_STRING];	/* Flawfinder: ignore */
-	llwarns << "APR: " << apr_strerror(status, buf, MAX_STRING) << llendl;
+	LL_WARNS_ONCE("APR") << "APR: " << apr_strerror(status, buf, MAX_STRING) << LL_ENDL;
 #endif
 	return true;
 }
@@ -294,7 +294,7 @@ bool ll_apr_file_remove(const LLString& filename, apr_pool_t* pool)
 	s = apr_file_remove(filename.c_str(), pool);
 	if (s != APR_SUCCESS)
 	{
-		lldebugs << "ll_apr_file_remove failed on file: " << filename << llendl;
+		LL_DEBUGS("APR") << "ll_apr_file_remove failed on file: " << filename << LL_ENDL;
 		ll_apr_warn_status(s);
 		return false;
 	}
@@ -308,7 +308,7 @@ bool ll_apr_file_rename(const LLString& filename, const LLString& newname, apr_p
 	s = apr_file_rename(filename.c_str(), newname.c_str(), pool);
 	if (s != APR_SUCCESS)
 	{
-		lldebugs << "ll_apr_file_rename failed on file: " << filename << llendl;
+		LL_DEBUGS("APR") << "ll_apr_file_rename failed on file: " << filename << LL_ENDL;
 		ll_apr_warn_status(s);
 		return false;
 	}
@@ -365,7 +365,7 @@ bool ll_apr_dir_make(const LLString& dirname, apr_pool_t* pool)
 	s = apr_dir_make(dirname.c_str(), APR_FPROT_OS_DEFAULT, pool);
 	if (s != APR_SUCCESS)
 	{
-		lldebugs << "ll_apr_dir_make failed on file: " << dirname << llendl;
+		LL_DEBUGS("APR") << "ll_apr_dir_make failed on file: " << dirname << LL_ENDL;
 		ll_apr_warn_status(s);
 		return false;
 	}
@@ -379,7 +379,7 @@ bool ll_apr_dir_remove(const LLString& dirname, apr_pool_t* pool)
 	s = apr_file_remove(dirname.c_str(), pool);
 	if (s != APR_SUCCESS)
 	{
-		lldebugs << "ll_apr_dir_remove failed on file: " << dirname << llendl;
+		LL_DEBUGS("APR") << "ll_apr_dir_remove failed on file: " << dirname << LL_ENDL;
 		ll_apr_warn_status(s);
 		return false;
 	}

@@ -35,7 +35,7 @@
 class LLTextureCache;
 class LLWorkerThread;
 class LLTextureFetch;
-
+class LLWatchdogTimeout;
 class LLCommandLineParser;
 
 class LLAppViewer : public LLApp
@@ -137,6 +137,11 @@ public:
 
 	std::string getSettingsFileName(const std::string& file);
 
+	// For thread debugging. 
+	// llstartup needs to control this.
+	// llworld, send_agent_pause() also controls this.
+	void startMainloopTimeout(F32 secs = -1.0f);
+	void stopMainloopTimeout();
 
 protected:
 	virtual bool initWindow(); // Initialize the viewer's window.
@@ -207,6 +212,8 @@ private:
     bool mLogoutRequestSent;			// Disconnect message sent to simulator, no longer safe to send messages to the sim.
     S32 mYieldTime;
 	LLSD mSettingsFileList;
+
+	LLWatchdogTimeout* mMainloopTimeout;
 };
 
 // consts from viewer.h

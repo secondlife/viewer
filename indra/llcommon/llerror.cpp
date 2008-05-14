@@ -408,6 +408,8 @@ namespace LLError
 		LevelMap functionLevelMap;
 		LevelMap classLevelMap;
 		LevelMap fileLevelMap;
+		LevelMap tagLevelMap;
+		std::map<std::string, unsigned int> uniqueLogMessages;
 		
 		LLError::FatalFunction crashFunction;
 		LLError::TimeFunction timeFunction;
@@ -494,11 +496,17 @@ namespace LLError
 namespace LLError
 {
 	CallSite::CallSite(ELevel level,
-					const char* file, int line,
-					const std::type_info& class_info, const char* function)
+					const char* file,
+					int line,
+					const std::type_info& class_info, 
+					const char* function, 
+					const char* broadTag, 
+					const char* narrowTag,
+					bool printOnce)
 		: mLevel(level), mFile(file), mLine(line),
 		  mClassInfo(class_info), mFunction(function),
-		  mCached(false), mShouldLog(false)
+		  mCached(false), mShouldLog(false), 
+		  mBroadTag(broadTag), mNarrowTag(narrowTag), mPrintOnce(printOnce)
 		{ }
 
 
@@ -552,6 +560,15 @@ namespace
 #endif
 
 		LogControlFile& e = LogControlFile::fromDirectory(dir);
+
+		// NOTE: We want to explicitly load the file before we add it to the event timer
+		// that checks for changes to the file.  Else, we're not actually loading the file yet,
+		// and most of the initialization happens without any attention being paid to the
+		// log control file.  Not to mention that when it finally gets checked later,
+		// all log statements that have been evaluated already become dirty and need to be
+		// evaluated for printing again.  So, make sure to call checkAndReload()
+		// before addToEventTimer().
+		e.checkAndReload();
 		e.addToEventTimer();
 	}
 }
@@ -625,6 +642,14 @@ namespace LLError
 		g.invalidateCallSites();
 		s.fileLevelMap[file_name] = level;
 	}
+
+	void setTagLevel(const std::string& tag_name, ELevel level)
+	{
+		Globals& g = Globals::get();
+		Settings& s = Settings::get();
+		g.invalidateCallSites();
+		s.tagLevelMap[tag_name] = level;
+	}
 }
 
 namespace {
@@ -674,6 +699,8 @@ namespace LLError
 		s.functionLevelMap.clear();
 		s.classLevelMap.clear();
 		s.fileLevelMap.clear();
+		s.tagLevelMap.clear();
+		s.uniqueLogMessages.clear();
 		
 		setPrintLocation(config["print-location"]);
 		setDefaultLevel(decodeLevel(config["default-level"]));
@@ -689,6 +716,7 @@ namespace LLError
 			setLevels(s.functionLevelMap,	entry["functions"],	level);
 			setLevels(s.classLevelMap,		entry["classes"],	level);
 			setLevels(s.fileLevelMap,		entry["files"],		level);
+			setLevels(s.tagLevelMap,		entry["tags"],		level);
 		}
 	}
 }
@@ -850,7 +878,7 @@ namespace {
 			return false;
 		}
 		
-		level = i->second;
+			level = i->second;
 		return true;
 	}
 	
@@ -929,9 +957,15 @@ namespace LLError
 
 		ELevel compareLevel = s.defaultLevel;
 
-		checkLevelMap(s.functionLevelMap, function_name, compareLevel)
+		// The most specific match found will be used as the log level,
+		// since the computation short circuits.
+		// So, in increasing order of importance:
+		// Default < Broad Tag < File < Class < Function < Narrow Tag
+		((site.mNarrowTag != NULL) ? checkLevelMap(s.tagLevelMap, site.mNarrowTag, compareLevel) : false)
+		|| checkLevelMap(s.functionLevelMap, function_name, compareLevel)
 		|| checkLevelMap(s.classLevelMap, class_name, compareLevel)
-		|| checkLevelMap(s.fileLevelMap, abbreviateFile(site.mFile), compareLevel);
+		|| checkLevelMap(s.fileLevelMap, abbreviateFile(site.mFile), compareLevel)
+		|| ((site.mBroadTag != NULL) ? checkLevelMap(s.tagLevelMap, site.mBroadTag, compareLevel) : false);
 
 		site.mCached = true;
 		g.addCallSite(site);
@@ -1017,6 +1051,29 @@ namespace LLError
 			}
 	#endif
 			prefix << site.mFunction << ": ";
+		}
+
+		if (site.mPrintOnce)
+		{
+			std::map<std::string, unsigned int>::iterator messageIter = s.uniqueLogMessages.find(message);
+			if (messageIter != s.uniqueLogMessages.end())
+			{
+				messageIter->second++;
+				unsigned int num_messages = messageIter->second;
+				if (num_messages == 10 || num_messages == 50 || (num_messages % 100) == 0)
+				{
+					prefix << "ONCE (" << num_messages << "th time seen): ";
+				} 
+				else
+				{
+					return;
+				}
+			}
+			else 
+			{
+				prefix << "ONCE: ";
+				s.uniqueLogMessages[message] = 1;
+			}
 		}
 		
 		prefix << message;

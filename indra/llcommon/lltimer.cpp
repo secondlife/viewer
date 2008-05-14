@@ -334,7 +334,7 @@ void  LLTimer::setTimerExpirySec(F32 expiration)
 		+ (U64)((F32)(expiration * gClockFrequency));
 }
 
-F32 LLTimer::getRemainingTimeF32()
+F32 LLTimer::getRemainingTimeF32() const
 {
 	U64 cur_ticks = get_clock_count();
 	if (cur_ticks > mExpirationTicks)
@@ -359,7 +359,7 @@ BOOL  LLTimer::checkExpirationAndReset(F32 expiration)
 }
 
 
-BOOL  LLTimer::hasExpired()
+BOOL  LLTimer::hasExpired() const
 {
 	return (get_clock_count() >= mExpirationTicks)
 		? TRUE : FALSE;
@@ -560,4 +560,5 @@ void LLEventTimer::updateClass()
 		}
 	}
 }
+
 

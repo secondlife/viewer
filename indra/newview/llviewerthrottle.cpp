@@ -182,9 +182,9 @@ void LLViewerThrottleGroup::dump()
 	S32 i;
 	for (i = 0; i < TC_EOF; i++)
 	{
-		llinfos << LLViewerThrottle::sNames[i] << ": " << mThrottles[i] << llendl;
+		LL_DEBUGS("Throttle") << LLViewerThrottle::sNames[i] << ": " << mThrottles[i] << LL_ENDL;
 	}
-	llinfos << "Total: " << mThrottleTotal << llendl;
+	LL_DEBUGS("Throttle") << "Total: " << mThrottleTotal << LL_ENDL;
 }
 
 class LLBPSListener : public LLSimpleListener

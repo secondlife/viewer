@@ -95,7 +95,7 @@ void LLFeatureList::addFeature(const char *name, const BOOL available, const F32
 {
 	if (mFeatures.count(name))
 	{
-		llwarns << "LLFeatureList::Attempting to add preexisting feature " << name << llendl;
+		LL_WARNS("RenderInit") << "LLFeatureList::Attempting to add preexisting feature " << name << LL_ENDL;
 	}
 
 	LLFeatureInfo fi(name, available, level);
@@ -109,7 +109,7 @@ BOOL LLFeatureList::isFeatureAvailable(const char *name)
 		return mFeatures[name].mAvailable;
 	}
 
-	llwarns << "Feature " << name << " not on feature list!" << llendl;
+	LL_WARNS("RenderInit") << "Feature " << name << " not on feature list!" << LL_ENDL;
 	
 	// changing this to TRUE so you have to explicitly disable 
 	// something for it to be disabled
@@ -123,7 +123,7 @@ F32 LLFeatureList::getRecommendedValue(const char *name)
 		return mFeatures[name].mRecommendedLevel;
 	}
 
-	llwarns << "Feature " << name << " not on feature list or not available!" << llendl;
+	LL_WARNS("RenderInit") << "Feature " << name << " not on feature list or not available!" << LL_ENDL;
 	return 0;
 }
 
@@ -146,46 +146,46 @@ BOOL LLFeatureList::maskList(LLFeatureList &mask)
 		//
 		if (!mFeatures.count(mask_fi.mName))
 		{
-			llwarns << "Feature " << mask_fi.mName << " in mask not in top level!" << llendl;
+			LL_WARNS("RenderInit") << "Feature " << mask_fi.mName << " in mask not in top level!" << LL_ENDL;
 			continue;
 		}
 
 		LLFeatureInfo &cur_fi = mFeatures[mask_fi.mName];
 		if (mask_fi.mAvailable && !cur_fi.mAvailable)
 		{
-			llwarns << "Mask attempting to reenabling disabled feature, ignoring " << cur_fi.mName << llendl;
+			LL_WARNS("RenderInit") << "Mask attempting to reenabling disabled feature, ignoring " << cur_fi.mName << LL_ENDL;
 			continue;
 		}
 		cur_fi.mAvailable = mask_fi.mAvailable;
 		cur_fi.mRecommendedLevel = llmin(cur_fi.mRecommendedLevel, mask_fi.mRecommendedLevel);
-#ifndef LL_RELEASE_FOR_DOWNLOAD
-		llinfos << "Feature mask " << mask.mName
+		LL_DEBUGS("RenderInit") << "Feature mask " << mask.mName
 				<< " Feature " << mask_fi.mName
 				<< " Mask: " << mask_fi.mRecommendedLevel
-				<< " Now: " << cur_fi.mRecommendedLevel << llendl;
-#endif
+				<< " Now: " << cur_fi.mRecommendedLevel << LL_ENDL;
 	}
 
-#if 0 && !LL_RELEASE_FOR_DOWNLOAD
-	llinfos << "After applying mask " << mask.mName << llendl;
-	dump();
-#endif
+	LL_DEBUGS("RenderInit") << "After applying mask " << mask.mName << std::endl;
+		// Will conditionally call dump only if the above message will be logged, thanks 
+		// to it being wrapped by the LL_DEBUGS and LL_ENDL macros.
+		dump();
+	LL_CONT << LL_ENDL;
+
 	return TRUE;
 }
 
 void LLFeatureList::dump()
 {
-	llinfos << "Feature list: " << mName << llendl;
-	llinfos << "--------------" << llendl;
+	LL_DEBUGS("RenderInit") << "Feature list: " << mName << LL_ENDL;
+	LL_DEBUGS("RenderInit") << "--------------" << LL_ENDL;
 
 	LLFeatureInfo fi;
 	feature_map_t::iterator feature_it;
 	for (feature_it = mFeatures.begin(); feature_it != mFeatures.end(); ++feature_it)
 	{
 		fi = feature_it->second;
-		llinfos << fi.mName << "\t\t" << fi.mAvailable << ":" << fi.mRecommendedLevel << llendl;
+		LL_DEBUGS("RenderInit") << fi.mName << "\t\t" << fi.mAvailable << ":" << fi.mRecommendedLevel << LL_ENDL;
 	}
-	llinfos << llendl;
+	LL_DEBUGS("RenderInit") << LL_ENDL;
 }
 
 LLFeatureList *LLFeatureManager::findMask(const char *name)
@@ -203,10 +203,10 @@ BOOL LLFeatureManager::maskFeatures(const char *name)
 	LLFeatureList *maskp = findMask(name);
 	if (!maskp)
 	{
-// 		llwarns << "Unknown feature mask " << name << llendl;
+ 		LL_DEBUGS("RenderInit") << "Unknown feature mask " << name << LL_ENDL;
 		return FALSE;
 	}
-	llinfos << "Applying Feature Mask: " << name << llendl;
+	LL_DEBUGS("RenderInit") << "Applying Feature Mask: " << name << LL_ENDL;
 	return maskList(*maskp);
 }
 
@@ -236,7 +236,7 @@ BOOL LLFeatureManager::loadFeatureTables()
 
 	if (!file)
 	{
-		llwarns << "Unable to open feature table!" << llendl;
+		LL_WARNS("RenderInit") << "Unable to open feature table!" << LL_ENDL;
 		return FALSE;
 	}
 
@@ -245,7 +245,7 @@ BOOL LLFeatureManager::loadFeatureTables()
 	file >> version;
 	if (strcmp(name, "version"))
 	{
-		llwarns << data_path << " does not appear to be a valid feature table!" << llendl;
+		LL_WARNS("RenderInit") << data_path << " does not appear to be a valid feature table!" << LL_ENDL;
 		return FALSE;
 	}
 
@@ -285,7 +285,7 @@ BOOL LLFeatureManager::loadFeatureTables()
 			file >> name;
 			if (mMaskList.count(name))
 			{
-				llerrs << "Overriding mask " << name << ", this is invalid!" << llendl;
+				LL_ERRS("RenderInit") << "Overriding mask " << name << ", this is invalid!" << LL_ENDL;
 			}
 
 			flp = new LLFeatureList(name);
@@ -295,7 +295,7 @@ BOOL LLFeatureManager::loadFeatureTables()
 		{
 			if (!flp)
 			{
-				llerrs << "Specified parameter before <list> keyword!" << llendl;
+				LL_ERRS("RenderInit") << "Specified parameter before <list> keyword!" << LL_ENDL;
 			}
 			S32 available;
 			F32 recommended;
@@ -327,7 +327,7 @@ void LLFeatureManager::loadGPUClass()
 
 	if (!file)
 	{
-		llwarns << "Unable to open GPU table: " << data_path << "!" << llendl;
+		LL_WARNS("RenderInit") << "Unable to open GPU table: " << data_path << "!" << LL_ENDL;
 		return;
 	}
 
@@ -398,7 +398,7 @@ void LLFeatureManager::loadGPUClass()
 		{
 			// if we found it, stop!
 			file.close();
-			llinfos << "GPU is " << label << llendl;
+			LL_INFOS("RenderInit") << "GPU is " << label << llendl;
 			mGPUString = label;
 			mGPUClass = (EGPUClass) strtol(cls.c_str(), NULL, 10);
 			mGPUSupported = (BOOL) strtol(supported.c_str(), NULL, 10);
@@ -408,7 +408,7 @@ void LLFeatureManager::loadGPUClass()
 	}
 	file.close();
 
-	llwarns << "Couldn't match GPU to a class: " << gGLManager.getRawGLString() << llendl;
+	LL_WARNS("RenderInit") << "Couldn't match GPU to a class: " << gGLManager.getRawGLString() << LL_ENDL;
 }
 
 void LLFeatureManager::cleanupFeatureTables()
@@ -546,7 +546,7 @@ void LLFeatureManager::applyBaseMasks()
 	LLFeatureList* maskp = findMask("all");
 	if(maskp == NULL)
 	{
-		llwarns << "AHH! No \"all\" in feature table!" << llendl;
+		LL_WARNS("RenderInit") << "AHH! No \"all\" in feature table!" << LL_ENDL;
 		return;
 	}
 
@@ -563,12 +563,12 @@ void LLFeatureManager::applyBaseMasks()
 			"Class3"
 		};
 
-		llinfos << "Setting GPU Class to " << class_table[mGPUClass] << llendl;
+		LL_INFOS("RenderInit") << "Setting GPU Class to " << class_table[mGPUClass] << LL_ENDL;
 		maskFeatures(class_table[mGPUClass]);
 	}
 	else
 	{
-		llinfos << "Setting GPU Class to Unknown" << llendl;
+		LL_INFOS("RenderInit") << "Setting GPU Class to Unknown" << LL_ENDL;
 		maskFeatures("Unknown");
 	}
 

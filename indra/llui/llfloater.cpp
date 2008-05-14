@@ -832,8 +832,14 @@ void LLFloater::setMinimized(BOOL minimize)
 
 		for (S32 i = 0; i < 4; i++)
 		{
-			if (mResizeBar[i]) mResizeBar[i]->setEnabled(FALSE);
-			if (mResizeHandle[i]) mResizeHandle[i]->setEnabled(FALSE);
+			if (mResizeBar[i] != NULL)
+			{
+				mResizeBar[i]->setEnabled(FALSE);
+			}
+			if (mResizeHandle[i] != NULL)
+			{
+				mResizeHandle[i]->setEnabled(FALSE);
+			}
 		}
 
 		mMinimized = TRUE;
@@ -875,8 +881,14 @@ void LLFloater::setMinimized(BOOL minimize)
 
 		for (S32 i = 0; i < 4; i++)
 		{
-			if (mResizeBar[i]) mResizeBar[i]->setEnabled(isResizable());
-			if (mResizeHandle[i]) mResizeHandle[i]->setEnabled(isResizable());
+			if (mResizeBar[i] != NULL)
+			{
+				mResizeBar[i]->setEnabled(isResizable());
+			}
+			if (mResizeHandle[i] != NULL)
+			{
+				mResizeHandle[i]->setEnabled(isResizable());
+			}
 		}
 
 		mMinimized = FALSE;

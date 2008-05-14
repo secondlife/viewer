@@ -1023,8 +1023,8 @@ S64 LLTextureCache::initCache(ELLPath location, S64 max_size, BOOL read_only)
 		sCacheMaxTexturesSize = max_size;
 	max_size -= sCacheMaxTexturesSize;
 	
-	llinfos << "TEXTURE CACHE: Headers: " << sCacheMaxEntries
-			<< " Textures size: " << sCacheMaxTexturesSize/(1024*1024) << " MB" << llendl;
+	LL_INFOS("TextureCache") << "Headers: " << sCacheMaxEntries
+			<< " Textures size: " << sCacheMaxTexturesSize/(1024*1024) << " MB" << LL_ENDL;
 
 	setDirNames(location);
 	
@@ -1161,7 +1161,7 @@ void LLTextureCache::purgeTextures(bool validate)
 	S32 num_entries = filesize / sizeof(Entry);
 	if (num_entries * (S32)sizeof(Entry) != filesize)
 	{
-		llwarns << "Bad cache file: " << mTexturesDirEntriesFileName << " Purging." << llendl;
+		LL_WARNS("TextureCache") << "Bad cache file: " << mTexturesDirEntriesFileName << " Purging." << LL_ENDL;
 		purgeAllTextures(false);
 		return;
 	}
@@ -1175,19 +1175,19 @@ void LLTextureCache::purgeTextures(bool validate)
 										 (U8*)entries, 0, num_entries*sizeof(Entry));
 	if (bytes_read != filesize)
 	{
-		llwarns << "Bad cache file (2): " << mTexturesDirEntriesFileName << " Purging." << llendl;
+		LL_WARNS("TextureCache") << "Bad cache file (2): " << mTexturesDirEntriesFileName << " Purging." << LL_ENDL;
 		purgeAllTextures(false);
 		return;
 	}
 	
-	llinfos << "TEXTURE CACHE: Reading Entries..." << llendl;
+	LL_DEBUGS("TextureCache") << "TEXTURE CACHE: Reading Entries..." << LL_ENDL;
 	
 	std::map<LLUUID, S32> entry_idx_map;
 	S64 total_size = 0;
 	for (S32 idx=0; idx<num_entries; idx++)
 	{
 		const LLUUID& id = entries[idx].mID;
-// 		llinfos << "Entry: " << id << " Size: " << entries[i].mSize << " Time: " << entries[i].mTime << llendl;
+ 		LL_DEBUGS("TextureCache") << "Entry: " << id << " Size: " << entries[idx].mSize << " Time: " << entries[idx].mTime << LL_ENDL;
 		std::map<LLUUID, S32>::iterator iter = entry_idx_map.find(id);
 		if (iter != entry_idx_map.end())
 		{
@@ -1206,7 +1206,7 @@ void LLTextureCache::purgeTextures(bool validate)
 		validate_idx = gSavedSettings.getU32("CacheValidateCounter");
 		U32 next_idx = (++validate_idx) % 256;
 		gSavedSettings.setU32("CacheValidateCounter", next_idx);
-		llinfos << "TEXTURE CACHE: Validating: " << validate_idx << llendl;
+		LL_DEBUGS("TextureCache") << "TEXTURE CACHE: Validating: " << validate_idx << LL_ENDL;
 	}
 	
 	S64 min_cache_size = (sCacheMaxTexturesSize * 9) / 10;
@@ -1230,12 +1230,12 @@ void LLTextureCache::purgeTextures(bool validate)
 			S32 uuididx = entries[idx].mID.mData[0];
 			if (uuididx == validate_idx)
 			{
-// 				llinfos << "Validating: " << filename << "Size: " << entries[idx].mSize << llendl;
+ 				LL_DEBUGS("TextureCache") << "Validating: " << filename << "Size: " << entries[idx].mSize << LL_ENDL;
 				S32 bodysize = ll_apr_file_size(filename, NULL);
 				if (bodysize != entries[idx].mSize)
 				{
-					llwarns << "TEXTURE CACHE BODY HAS BAD SIZE: " << bodysize << " != " << entries[idx].mSize
-							<< filename << llendl;
+					LL_WARNS("TextureCache") << "TEXTURE CACHE BODY HAS BAD SIZE: " << bodysize << " != " << entries[idx].mSize
+							<< filename << LL_ENDL;
 					purge_entry = true;
 				}
 			}
@@ -1243,7 +1243,7 @@ void LLTextureCache::purgeTextures(bool validate)
 		if (purge_entry)
 		{
 			purge_count++;
-//	 		llinfos << "PURGING: " << filename << llendl;
+	 		LL_DEBUGS("TextureCache") << "PURGING: " << filename << LL_ENDL;
 			ll_apr_file_remove(filename, NULL);
 			total_size -= entries[idx].mSize;
 			entries[idx].mSize = 0;
@@ -1259,7 +1259,7 @@ void LLTextureCache::purgeTextures(bool validate)
 	}
 	num_entries = next_idx;
 
-	llinfos << "TEXTURE CACHE: Writing Entries: " << num_entries << llendl;
+	LL_DEBUGS("TextureCache") << "TEXTURE CACHE: Writing Entries: " << num_entries << LL_ENDL;
 	
 	ll_apr_file_remove(mTexturesDirEntriesFileName, NULL);
 	ll_apr_file_write_ex(mTexturesDirEntriesFileName, NULL,
@@ -1276,7 +1276,7 @@ void LLTextureCache::purgeTextures(bool validate)
 	
 	delete[] entries;
 	
-	llinfos << "TEXTURE CACHE:"
+	LL_INFOS("TextureCache") << "TEXTURE CACHE:"
 			<< " PURGED: " << purge_count
 			<< " ENTRIES: " << num_entries
 			<< " CACHE SIZE: " << total_size / 1024*1024 << " MB"

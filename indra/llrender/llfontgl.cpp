@@ -241,7 +241,7 @@ bool LLFontGL::loadFaceFallback(LLFontList *fontlistp, const LLString& fontname,
 			font_path = sys_path + *token_iter;
 			if (!fontp->loadFace(font_path, point_size, sVertDPI, sHorizDPI, 2, TRUE))
 			{
-				llwarns << "Couldn't load font " << *token_iter << llendl;
+				LL_INFOS_ONCE("ViewerImages") << "Couldn't load font " << *token_iter << LL_ENDL;
 				delete fontp;
 				fontp = NULL;
 			}
@@ -268,7 +268,7 @@ bool LLFontGL::loadFace(LLFontGL *fontp, const LLString& fontname, const F32 poi
 		font_path = sys_path + fontname;
 		if (!fontp->loadFace(font_path, point_size, sVertDPI, sHorizDPI, 2, FALSE))
 		{
-			llwarns << "Couldn't load font " << fontname << llendl;
+			LL_WARNS("ViewerImages") << "Couldn't load font " << fontname << LL_ENDL;
 			return false;
 		}
 	}

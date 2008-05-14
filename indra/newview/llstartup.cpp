@@ -265,8 +265,8 @@ namespace
 						  const char* message, const LLSD& body, 
 						  LLHTTPClient::ResponderPtr response) const
 		{
-			llwarns << " attemped to send " << message << " to " << host
-					<< " with null sender" << llendl;
+			LL_WARNS("AppInit") << " attemped to send " << message << " to " << host
+					<< " with null sender" << LL_ENDL;
 		}
 	};
 }
@@ -428,13 +428,13 @@ BOOL idle_startup()
 
 		if (ll_init_ares() == NULL)
 		{
-			llerrs << "Could not start address resolution system" << llendl;
+			LL_ERRS("AppInit") << "Could not start address resolution system" << LL_ENDL;
 		}
 		
 		//
 		// Initialize messaging system
 		//
-		llinfos << "Initializing messaging system..." << llendl;
+		LL_DEBUGS("AppInit") << "Initializing messaging system..." << LL_ENDL;
 
 		std::string message_template_path = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,"message_template.msg");
 
@@ -496,7 +496,7 @@ BOOL idle_startup()
 
 			if (gSavedSettings.getBOOL("LogMessages"))
 			{
-				llinfos << "Message logging activated!" << llendl;
+				LL_DEBUGS("AppInit") << "Message logging activated!" << LL_ENDL;
 				msg->startLogging();
 			}
 
@@ -521,13 +521,13 @@ BOOL idle_startup()
             F32 outBandwidth = gSavedSettings.getF32("OutBandwidth"); 
 			if (inBandwidth != 0.f)
 			{
-				llinfos << "Setting packetring incoming bandwidth to " << inBandwidth << llendl;
+				LL_DEBUGS("AppInit") << "Setting packetring incoming bandwidth to " << inBandwidth << LL_ENDL;
 				msg->mPacketRing.setUseInThrottle(TRUE);
 				msg->mPacketRing.setInBandwidth(inBandwidth);
 			}
 			if (outBandwidth != 0.f)
 			{
-				llinfos << "Setting packetring outgoing bandwidth to " << outBandwidth << llendl;
+				LL_DEBUGS("AppInit") << "Setting packetring outgoing bandwidth to " << outBandwidth << LL_ENDL;
 				msg->mPacketRing.setUseOutThrottle(TRUE);
 				msg->mPacketRing.setOutBandwidth(outBandwidth);
 			}
@@ -558,7 +558,7 @@ BOOL idle_startup()
 				BOOL init = gAudiop->init(kAUDIO_NUM_SOURCES, window_handle);
 				if(!init)
 				{
-					llwarns << "Unable to initialize audio engine" << llendl;
+					LL_WARNS("AppInit") << "Unable to initialize audio engine" << LL_ENDL;
 				}
 				gAudiop->setMuted(TRUE);
 			}
@@ -566,7 +566,7 @@ BOOL idle_startup()
 
 		if (LLTimer::knownBadTimer())
 		{
-			llwarns << "Unreliable timers detected (may be bad PCI chipset)!!" << llendl;
+			LL_WARNS("AppInit") << "Unreliable timers detected (may be bad PCI chipset)!!" << LL_ENDL;
 		}
 
 		//
@@ -639,7 +639,7 @@ BOOL idle_startup()
 	//---------------------------------------------------------------------
 	if (STATE_MEDIA_INIT == LLStartUp::getStartupState())
 	{
-		llinfos << "Initializing Multimedia...." << llendl;
+		LL_DEBUGS("AppInit") << "Initializing Multimedia...." << LL_ENDL;
 		set_startup_status(0.03f, "Initializing Multimedia...", gAgent.mMOTD.c_str());
 		display_startup();
 		LLViewerMedia::initClass();
@@ -657,7 +657,7 @@ BOOL idle_startup()
 	if (STATE_LOGIN_SHOW == LLStartUp::getStartupState())
 	{		
 
-		llinfos << "Initializing Window" << llendl;
+		LL_DEBUGS("AppInit") << "Initializing Window" << LL_ENDL;
 		
 		gViewerWindow->getWindow()->setCursor(UI_CURSOR_ARROW);
 		// Push our window frontmost
@@ -668,11 +668,13 @@ BOOL idle_startup()
 		if (show_connect_box)
 		{
 			// Load all the name information out of the login view
-			LLPanelLogin::getFields(firstname, lastname, password, remember_password);
+			// NOTE: Hits "Attempted getFields with no login view shown" warning, since we don't
+			// show the login view until login_show() is called below.  
+			// LLPanelLogin::getFields(firstname, lastname, password, remember_password);
 
 			if (gNoRender)
 			{
-				llerrs << "Need to autologin or use command line with norender!" << llendl;
+				LL_ERRS("AppInit") << "Need to autologin or use command line with norender!" << LL_ENDL;
 			}
 			// Make sure the process dialog doesn't hide things
 			gViewerWindow->setShowProgress(FALSE);
@@ -765,7 +767,7 @@ BOOL idle_startup()
 			}
 			gSavedSettings.setBOOL("RememberPassword", remember_password);
 
-			llinfos << "Attempting login as: " << firstname << " " << lastname << llendl;
+			LL_INFOS("AppInit") << "Attempting login as: " << firstname << " " << lastname << LL_ENDL;
 			gDebugInfo["LoginName"] = firstname + " " + lastname;	
 		}
 
@@ -911,7 +913,6 @@ BOOL idle_startup()
 		gDebugInfo["GridName"] = gGridInfo[gGridChoice].mLabel;
 
 		// *Note: this is where gUserAuth used to be created.
-
 		requested_options.clear();
 		requested_options.push_back("inventory-root");
 		requested_options.push_back("inventory-skeleton");
@@ -963,7 +964,7 @@ BOOL idle_startup()
 
 	if (STATE_LOGIN_AUTHENTICATE == LLStartUp::getStartupState())
 	{
-		lldebugs << "STATE_LOGIN_AUTHENTICATE" << llendl;
+		LL_DEBUGS("AppInit") << "STATE_LOGIN_AUTHENTICATE" << LL_ENDL;
 		set_startup_status(progress, auth_desc.c_str(), auth_message.c_str());
 		progress += 0.02f;
 		display_startup();
@@ -1023,7 +1024,7 @@ BOOL idle_startup()
 
 	if(STATE_LOGIN_NO_DATA_YET == LLStartUp::getStartupState())
 	{
-		//lldebugs << "STATE_LOGIN_NO_DATA_YET" << llendl;
+		LL_DEBUGS("AppInit") << "STATE_LOGIN_NO_DATA_YET" << LL_ENDL;
 		// If we get here we have gotten past the potential stall
 		// in curl, so take "may appear frozen" out of progress bar. JC
 		auth_desc = "Logging in...";
@@ -1037,7 +1038,7 @@ BOOL idle_startup()
 		LLUserAuth::UserAuthcode error = LLUserAuth::getInstance()->authResponse();
 		if(LLUserAuth::E_NO_RESPONSE_YET == error)
 		{
-			//llinfos << "waiting..." << llendl;
+			LL_DEBUGS("AppInit") << "waiting..." << LL_ENDL;
 			return do_normal_idle;
 		}
 		LLStartUp::setStartupState( STATE_LOGIN_DOWNLOADING );
@@ -1048,7 +1049,7 @@ BOOL idle_startup()
 
 	if(STATE_LOGIN_DOWNLOADING == LLStartUp::getStartupState())
 	{
-		lldebugs << "STATE_LOGIN_DOWNLOADING" << llendl;
+		LL_DEBUGS("AppInit") << "STATE_LOGIN_DOWNLOADING" << LL_ENDL;
 		// Process messages to keep from dropping circuit.
 		LLMessageSystem* msg = gMessageSystem;
 		while (msg->checkAllMessages(gFrameCount, gServicePump))
@@ -1058,7 +1059,7 @@ BOOL idle_startup()
 		LLUserAuth::UserAuthcode error = LLUserAuth::getInstance()->authResponse();
 		if(LLUserAuth::E_DOWNLOADING == error)
 		{
-			//llinfos << "downloading..." << llendl;
+			LL_DEBUGS("AppInit") << "downloading..." << LL_ENDL;
 			return do_normal_idle;
 		}
 		LLStartUp::setStartupState( STATE_LOGIN_PROCESS_RESPONSE );
@@ -1069,7 +1070,7 @@ BOOL idle_startup()
 
 	if(STATE_LOGIN_PROCESS_RESPONSE == LLStartUp::getStartupState())
 	{
-		lldebugs << "STATE_LOGIN_PROCESS_RESPONSE" << llendl;
+		LL_DEBUGS("AppInit") << "STATE_LOGIN_PROCESS_RESPONSE" << LL_ENDL;
 		std::ostringstream emsg;
 		BOOL quit = FALSE;
 		const char* login_response = NULL;
@@ -1091,7 +1092,7 @@ BOOL idle_startup()
 			}
 			else if(login_response && (0 == strcmp(login_response, "indeterminate")))
 			{
-				llinfos << "Indeterminate login..." << llendl;
+				LL_INFOS("AppInit") << "Indeterminate login..." << LL_ENDL;
 				sAuthUris = LLSRV::rewriteURI(LLUserAuth::getInstance()->getResponse("next_url"));
 				sAuthUriNum = 0;
 				auth_method = LLUserAuth::getInstance()->getResponse("next_method");
@@ -1138,7 +1139,7 @@ BOOL idle_startup()
 				{
 					if (show_connect_box)
 					{
-						llinfos << "Need tos agreement" << llendl;
+						LL_DEBUGS("AppInit") << "Need tos agreement" << LL_ENDL;
 						LLStartUp::setStartupState( STATE_UPDATE_CHECK );
 						LLFloaterTOS* tos_dialog = LLFloaterTOS::show(LLFloaterTOS::TOS_TOS,
 																	message_response);
@@ -1155,7 +1156,7 @@ BOOL idle_startup()
 				{
 					if (show_connect_box)
 					{
-						llinfos << "Need critical message" << llendl;
+						LL_DEBUGS("AppInit") << "Need critical message" << LL_ENDL;
 						LLStartUp::setStartupState( STATE_UPDATE_CHECK );
 						LLFloaterTOS* tos_dialog = LLFloaterTOS::show(LLFloaterTOS::TOS_CRITICAL_MESSAGE,
 																	message_response);
@@ -1190,7 +1191,7 @@ BOOL idle_startup()
 				}
 				if(reason_response && (0 == strcmp(reason_response, "optional")))
 				{
-					llinfos << "Login got optional update" << llendl;
+					LL_DEBUGS("AppInit") << "Login got optional update" << LL_ENDL;
 					auth_message = LLUserAuth::getInstance()->getResponse("message");
 					if (show_connect_box)
 					{
@@ -1453,8 +1454,8 @@ BOOL idle_startup()
 			{
 				if (gNoRender)
 				{
-					llinfos << "Bad login - missing return values" << llendl;
-					llinfos << emsg << llendl;
+					LL_WARNS("AppInit") << "Bad login - missing return values" << LL_ENDL;
+					LL_WARNS("AppInit") << emsg << LL_ENDL;
 					exit(0);
 				}
 				// Bounce back to the login screen.
@@ -1473,8 +1474,8 @@ BOOL idle_startup()
 		{
 			if (gNoRender)
 			{
-				llinfos << "Failed to login!" << llendl;
-				llinfos << emsg << llendl;
+				LL_WARNS("AppInit") << "Failed to login!" << LL_ENDL;
+				LL_WARNS("AppInit") << emsg << LL_ENDL;
 				exit(0);
 			}
 			// Bounce back to the login screen.
@@ -1543,11 +1544,11 @@ BOOL idle_startup()
 		LLWorld::getInstance()->addRegion(first_sim_handle, first_sim);
 
 		LLViewerRegion *regionp = LLWorld::getInstance()->getRegionFromHandle(first_sim_handle);
-		llinfos << "Adding initial simulator " << regionp->getOriginGlobal() << llendl;
+		LL_INFOS("AppInit") << "Adding initial simulator " << regionp->getOriginGlobal() << LL_ENDL;
 		
 		LLStartUp::setStartupState( STATE_SEED_GRANTED_WAIT );
 		regionp->setSeedCapability(first_sim_seed_cap);
-		llinfos << "Waiting for seed grant ...." << llendl;
+		LL_DEBUGS("AppInit") << "Waiting for seed grant ...." << LL_ENDL;
 		
 		// Set agent's initial region to be the one we just created.
 		gAgent.setRegion(regionp);
@@ -1615,7 +1616,7 @@ BOOL idle_startup()
 		//
 		// Set message handlers
 		//
-		llinfos << "Initializing communications..." << llendl;
+		LL_INFOS("AppInit") << "Initializing communications..." << LL_ENDL;
 
 		// register callbacks for messages. . . do this after initial handshake to make sure that we don't catch any unwanted
 		register_viewer_callbacks(gMessageSystem);
@@ -1664,7 +1665,7 @@ BOOL idle_startup()
 
 		// Sets up the parameters for the first simulator
 
-		llinfos << "Initializing camera..." << llendl;
+		LL_DEBUGS("AppInit") << "Initializing camera..." << LL_ENDL;
 		gFrameTime    = totalTime();
 		F32 last_time = gFrameTimeSeconds;
 		gFrameTimeSeconds = (S64)(gFrameTime - gStartTime)/SEC_TO_MICROSEC;
@@ -1699,12 +1700,12 @@ BOOL idle_startup()
 		// Initialize global class data needed for surfaces (i.e. textures)
 		if (!gNoRender)
 		{
-			llinfos << "Initializing sky..." << llendl;
+			LL_DEBUGS("AppInit") << "Initializing sky..." << LL_ENDL;
 			// Initialize all of the viewer object classes for the first time (doing things like texture fetches.
 			gSky.init(initial_sun_direction);
 		}
 
-		llinfos << "Decoding images..." << llendl;
+		LL_DEBUGS("AppInit") << "Decoding images..." << LL_ENDL;
 		// For all images pre-loaded into viewer cache, decode them.
 		// Need to do this AFTER we init the sky
 		const S32 DECODE_TIME_SEC = 2;
@@ -1722,14 +1723,14 @@ BOOL idle_startup()
 		LLMessageSystem* msg = gMessageSystem;
 		if (!msg->mOurCircuitCode)
 		{
-			llwarns << "Attempting to connect to simulator with a zero circuit code!" << llendl;
+			LL_WARNS("AppInit") << "Attempting to connect to simulator with a zero circuit code!" << LL_ENDL;
 		}
 
 		gUseCircuitCallbackCalled = FALSE;
 
 		msg->enableCircuit(first_sim, TRUE);
 		// now, use the circuit info to tell simulator about us!
-		llinfos << "viewer: UserLoginLocationReply() Enabling " << first_sim << " with code " << msg->mOurCircuitCode << llendl;
+		LL_INFOS("AppInit") << "viewer: UserLoginLocationReply() Enabling " << first_sim << " with code " << msg->mOurCircuitCode << LL_ENDL;
 		msg->newMessageFast(_PREHASH_UseCircuitCode);
 		msg->nextBlockFast(_PREHASH_CircuitCode);
 		msg->addU32Fast(_PREHASH_Code, msg->mOurCircuitCode);
@@ -1755,7 +1756,7 @@ BOOL idle_startup()
 	//---------------------------------------------------------------------
 	if(STATE_WORLD_WAIT == LLStartUp::getStartupState())
 	{
-		//llinfos << "Waiting for simulator ack...." << llendl;
+		LL_DEBUGS("AppInit") << "Waiting for simulator ack...." << LL_ENDL;
 		set_startup_status(0.59f, LLTrans::getString("LoginWaitingForRegionHandshake").c_str(), gAgent.mMOTD.c_str());
 		if(gGotUseCircuitCodeAck)
 		{
@@ -1774,7 +1775,7 @@ BOOL idle_startup()
 	//---------------------------------------------------------------------
 	if (STATE_AGENT_SEND == LLStartUp::getStartupState())
 	{
-		llinfos << "Connecting to region..." << llendl;
+		LL_DEBUGS("AppInit") << "Connecting to region..." << LL_ENDL;
 		set_startup_status(0.60f, LLTrans::getString("LoginConnectingToRegion").c_str(), gAgent.mMOTD.c_str());
 		// register with the message system so it knows we're
 		// expecting this message
@@ -1826,8 +1827,8 @@ BOOL idle_startup()
 			}
 			else
 			{
-				//llinfos << "Awaiting AvatarInitComplete, got "
-				//<< msg->getMessageName() << llendl;
+				LL_DEBUGS("AppInit") << "Awaiting AvatarInitComplete, got "
+				<< msg->getMessageName() << LL_ENDL;
 			}
 		}
 		msg->processAcks();
@@ -1879,7 +1880,7 @@ BOOL idle_startup()
  		{
  			if(!gInventory.loadSkeleton(options, gInventoryLibraryOwner))
  			{
- 				llwarns << "Problem loading inventory-skel-lib" << llendl;
+ 				LL_WARNS("AppInit") << "Problem loading inventory-skel-lib" << LL_ENDL;
  			}
  		}
  		options.clear();
@@ -1887,8 +1888,7 @@ BOOL idle_startup()
  		{
  			if(!gInventory.loadSkeleton(options, gAgent.getID()))
  			{
- 				llwarns << "Problem loading inventory-skel-targets"
-						<< llendl;
+ 				LL_WARNS("AppInit") << "Problem loading inventory-skel-targets" << LL_ENDL;
  			}
  		}
 
@@ -2040,17 +2040,17 @@ BOOL idle_startup()
 			if (rate_bps > FASTER_RATE_BPS
 				&& rate_bps > max_bandwidth)
 			{
-				llinfos << "Fast network connection, increasing max bandwidth to " 
+				LL_DEBUGS("AppInit") << "Fast network connection, increasing max bandwidth to " 
 					<< FASTER_RATE_BPS/1024.f 
-					<< " kbps" << llendl;
+					<< " kbps" << LL_ENDL;
 				gViewerThrottle.setMaxBandwidth(FASTER_RATE_BPS / 1024.f);
 			}
 			else if (rate_bps > FAST_RATE_BPS
 				&& rate_bps > max_bandwidth)
 			{
-				llinfos << "Fast network connection, increasing max bandwidth to " 
+				LL_DEBUGS("AppInit") << "Fast network connection, increasing max bandwidth to " 
 					<< FAST_RATE_BPS/1024.f 
-					<< " kbps" << llendl;
+					<< " kbps" << LL_ENDL;
 				gViewerThrottle.setMaxBandwidth(FAST_RATE_BPS / 1024.f);
 			}
 		}
@@ -2082,8 +2082,8 @@ BOOL idle_startup()
 			LLUserAuth::options_t gesture_options;
 			if (LLUserAuth::getInstance()->getOptions("gestures", gesture_options))
 			{
-				llinfos << "Gesture Manager loading " << gesture_options.size()
-					<< llendl;
+				LL_DEBUGS("AppInit") << "Gesture Manager loading " << gesture_options.size()
+					<< LL_ENDL;
 				std::vector<LLUUID> item_ids;
 				LLUserAuth::options_t::iterator resp_it;
 				for (resp_it = gesture_options.begin();
@@ -2136,7 +2136,7 @@ BOOL idle_startup()
 		msg->setHandlerFuncFast(_PREHASH_AttachedSound,				process_attached_sound);
 		msg->setHandlerFuncFast(_PREHASH_AttachedSoundGainChange,	process_attached_sound_gain_change);
 
-		llinfos << "Initialization complete" << llendl;
+		LL_DEBUGS("AppInit") << "Initialization complete" << LL_ENDL;
 
 		gRenderStartTime.reset();
 		gForegroundTime.reset();
@@ -2273,7 +2273,7 @@ BOOL idle_startup()
 		gViewerWindow->showCursor();
 		gViewerWindow->getWindow()->resetBusyCount();
 		gViewerWindow->getWindow()->setCursor(UI_CURSOR_ARROW);
-		//llinfos << "Done releasing bitmap" << llendl;
+		LL_DEBUGS("AppInit") << "Done releasing bitmap" << LL_ENDL;
 		gViewerWindow->setShowProgress(FALSE);
 		gViewerWindow->setProgressCancelButtonVisible(FALSE, "");
 
@@ -2295,7 +2295,7 @@ BOOL idle_startup()
 		if (gSavedSettings.getBOOL("StatsAutoRun"))
 		{
 			LLUUID id;
-			llinfos << "Starting automatic playback" << llendl;
+			LL_DEBUGS("AppInit") << "Starting automatic playback" << LL_ENDL;
 			gAgentPilot.startPlayback();
 		}
 
@@ -2311,9 +2311,9 @@ BOOL idle_startup()
 		// Unmute audio if desired and setup volumes.
 		// This is a not-uncommon crash site, so surround it with
 		// llinfos output to aid diagnosis.
-		llinfos << "Doing first audio_update_volume..." << llendl;
+		LL_INFOS("AppInit") << "Doing first audio_update_volume..." << LL_ENDL;
 		audio_update_volume();
-		llinfos << "Done first audio_update_volume." << llendl;
+		LL_INFOS("AppInit") << "Done first audio_update_volume." << LL_ENDL;
 
 		// reset keyboard focus to sane state of pointing at world
 		gFocusMgr.setKeyboardFocus(NULL);
@@ -2322,10 +2322,12 @@ BOOL idle_startup()
 		gDebugView->mFastTimerView->setVisible(TRUE);
 #endif
 
+		LLAppViewer::instance()->startMainloopTimeout();
+
 		return do_normal_idle;
 	}
 
-	llwarns << "Reached end of idle_startup for state " << LLStartUp::getStartupState() << llendl;
+	LL_WARNS("AppInit") << "Reached end of idle_startup for state " << LLStartUp::getStartupState() << LL_ENDL;
 	return do_normal_idle;
 }
 
@@ -2335,7 +2337,7 @@ BOOL idle_startup()
 
 void login_show()
 {
-	llinfos << "Initializing Login Screen" << llendl;
+	LL_INFOS("AppInit") << "Initializing Login Screen" << LL_ENDL;
 
 #ifdef LL_RELEASE_FOR_DOWNLOAD
 	BOOL bUseDebugLogin = gSavedSettings.getBOOL("UseDebugLogin");
@@ -2349,7 +2351,7 @@ void login_show()
 
 	// UI textures have been previously loaded in doPreloadImages()
 	
-	llinfos << "Setting Servers" << llendl;
+	LL_DEBUGS("AppInit") << "Setting Servers" << LL_ENDL;
 
 	if( GRID_INFO_OTHER == gGridChoice )
 	{
@@ -2418,7 +2420,7 @@ void login_callback(S32 option, void *userdata)
 	}
 	else
 	{
-		llwarns << "Unknown login button clicked" << llendl;
+		LL_WARNS("AppInit") << "Unknown login button clicked" << LL_ENDL;
 	}
 }
 
@@ -2503,7 +2505,7 @@ void save_password_to_disk(const char* hashed_password)
 
 		if (fwrite(buffer, HASHED_LENGTH, 1, fp) != 1)
 		{
-			llwarns << "Short write" << llendl;
+			LL_WARNS("AppInit") << "Short write" << LL_ENDL;
 		}
 
 		fclose(fp);
@@ -2553,7 +2555,7 @@ void first_run_dialog_callback(S32 option, void* userdata)
 {
 	if (0 == option)
 	{
-		llinfos << "First run dialog cancelling" << llendl;
+		LL_DEBUGS("AppInit") << "First run dialog cancelling" << LL_ENDL;
 		LLWeb::loadURL( CREATE_ACCOUNT_URL );
 	}
 
@@ -2586,7 +2588,7 @@ void login_alert_status(S32 option, void* user_data)
             LLStartUp::setStartupState( STATE_LOGIN_CLEANUP );
             break;
         default:
-            llwarns << "Missing case in login_alert_status switch" << llendl;
+            LL_WARNS("AppInit") << "Missing case in login_alert_status switch" << LL_ENDL;
     }
 
 	LLPanelLogin::giveFocus();
@@ -2704,7 +2706,7 @@ void update_dialog_callback(S32 option, void *userdata)
 	if (update_exe_path.empty())
 	{
 		// We're hosed, bail
-		llwarns << "LLDir::getTempFilename() failed" << llendl;
+		LL_WARNS("AppInit") << "LLDir::getTempFilename() failed" << LL_ENDL;
 		LLAppViewer::instance()->forceQuit();
 		return;
 	}
@@ -2715,14 +2717,14 @@ void update_dialog_callback(S32 option, void *userdata)
 	updater_source += gDirUtilp->getDirDelimiter();
 	updater_source += "updater.exe";
 
-	llinfos << "Calling CopyFile source: " << updater_source.c_str()
+	LL_DEBUGS("AppInit") << "Calling CopyFile source: " << updater_source.c_str()
 			<< " dest: " << update_exe_path
-			<< llendl;
+			<< LL_ENDL;
 
 
 	if (!CopyFileA(updater_source.c_str(), update_exe_path.c_str(), FALSE))
 	{
-		llinfos << "Unable to copy the updater!" << llendl;
+		LL_WARNS("AppInit") << "Unable to copy the updater!" << LL_ENDL;
 		LLAppViewer::instance()->forceQuit();
 		return;
 	}
@@ -2760,14 +2762,14 @@ void update_dialog_callback(S32 option, void *userdata)
 		params << " -program \"" << program_name << "\"";
 	}
 
-	llinfos << "Calling updater: " << update_exe_path << " " << params.str() << llendl;
+	LL_DEBUGS("AppInit") << "Calling updater: " << update_exe_path << " " << params.str() << LL_ENDL;
 
 	//Explicitly remove the marker file, otherwise we pass the lock onto the child process and things get weird.
 	LLAppViewer::instance()->removeMarkerFile(); // In case updater fails
 	
 	// Use spawn() to run asynchronously
 	int retval = _spawnl(_P_NOWAIT, update_exe_path.c_str(), update_exe_path.c_str(), params.str().c_str(), NULL);
-	llinfos << "Spawn returned " << retval << llendl;
+	LL_DEBUGS("AppInit") << "Spawn returned " << retval << LL_ENDL;
 
 #elif LL_DARWIN
 	// if a sim name was passed in via command line parameter (typically through a SLURL)
@@ -2785,7 +2787,7 @@ void update_dialog_callback(S32 option, void *userdata)
 	update_exe_path += LLAppViewer::instance()->getSecondLifeTitle();
 	update_exe_path += "\" &";
 
-	llinfos << "Calling updater: " << update_exe_path << llendl;
+	LL_DEBUGS("AppInit") << "Calling updater: " << update_exe_path << LL_ENDL;
 	
 	// *REMOVE:Mani The following call is handled through ~LLAppViewer.
  	// remove_marker_file(); // In case updater fails
@@ -2815,7 +2817,7 @@ void use_circuit_callback(void**, S32 result)
 		if (result)
 		{
 			// Make sure user knows something bad happened. JC
-			llinfos << "Backing up to login screen!" << llendl;
+			LL_WARNS("AppInit") << "Backing up to login screen!" << LL_ENDL;
 			gViewerWindow->alertXml("LoginPacketNeverReceived",
 				login_alert_status, NULL);
 			reset_login();
@@ -3662,10 +3664,10 @@ void init_start_screen(S32 location_id)
 	if (gStartImageGL.notNull())
 	{
 		gStartImageGL = NULL;
-		llinfos << "re-initializing start screen" << llendl;
+		LL_INFOS("AppInit") << "re-initializing start screen" << LL_ENDL;
 	}
 
-	llinfos << "Loading startup bitmap..." << llendl;
+	LL_DEBUGS("AppInit") << "Loading startup bitmap..." << LL_ENDL;
 
 	LLString temp_str = gDirUtilp->getLindenUserDir() + gDirUtilp->getDirDelimiter();
 
@@ -3684,12 +3686,12 @@ void init_start_screen(S32 location_id)
 	// driver bug
 	if(!gSavedSettings.getBOOL("UseStartScreen"))
 	{
-		llinfos << "Bitmap load disabled" << llendl;
+		LL_INFOS("AppInit")  << "Bitmap load disabled" << LL_ENDL;
 		return;
 	}
 	else if(!start_image_bmp->load(temp_str) )
 	{
-		llinfos << "Bitmap load failed" << llendl;
+		LL_WARNS("AppInit") << "Bitmap load failed" << LL_ENDL;
 		return;
 	}
 
@@ -3700,7 +3702,7 @@ void init_start_screen(S32 location_id)
 	LLPointer<LLImageRaw> raw = new LLImageRaw;
 	if (!start_image_bmp->decode(raw, 0.0f))
 	{
-		llinfos << "Bitmap decode failed" << llendl;
+		LL_WARNS("AppInit") << "Bitmap decode failed" << LL_ENDL;
 		gStartImageGL = NULL;
 		return;
 	}
@@ -3713,7 +3715,7 @@ void init_start_screen(S32 location_id)
 // frees the bitmap
 void release_start_screen()
 {
-	//llinfos << "Releasing bitmap..." << llendl;
+	LL_DEBUGS("AppInit") << "Releasing bitmap..." << LL_ENDL;
 	gStartImageGL = NULL;
 }
 
@@ -3721,7 +3723,7 @@ void release_start_screen()
 // static
 void LLStartUp::setStartupState( S32 state )
 {
-	llinfos << "Startup state changing from " << gStartupState << " to " << state << llendl;
+	LL_INFOS("AppInit") << "Startup state changing from " << gStartupState << " to " << state << LL_ENDL;
 	gStartupState = state;
 }
 

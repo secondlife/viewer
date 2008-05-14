@@ -68,6 +68,7 @@ class LLPanelLogin:
 	public LLPanel,
 	public LLWebBrowserCtrlObserver
 {
+	LOG_CLASS(LLPanelLogin);
 public:
 	LLPanelLogin(const LLRect &rect, BOOL show_server, 
 				void (*callback)(S32 option, void* user_data),
