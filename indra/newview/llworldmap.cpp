@@ -67,6 +67,7 @@ LLSimInfo::LLSimInfo()
 :	mHandle(0),
 	mName(),
 	mAgentsUpdateTime(0),
+	mShowAgentLocations(FALSE),
 	mAccess(0x0),
 	mRegionFlags(0x0),
 	mWaterHeight(0.f),

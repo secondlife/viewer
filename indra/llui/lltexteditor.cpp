@@ -4003,7 +4003,11 @@ BOOL LLTextEditor::exportBuffer(LLString &buffer )
 //////////////////////////////////////////////////////////////////////////
 // LLTextSegment
 
-LLTextSegment::LLTextSegment(S32 start) : mStart(start)
+LLTextSegment::LLTextSegment(S32 start) :
+	mStart(start),
+	mEnd(0),
+	mToken(NULL),
+	mIsDefault(FALSE)
 {
 } 
 LLTextSegment::LLTextSegment( const LLStyleSP& style, S32 start, S32 end ) :

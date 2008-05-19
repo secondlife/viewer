@@ -189,15 +189,20 @@ class LLProfileParams
 {
 public:
 	LLProfileParams()
+		: mCurveType(LL_PCODE_PROFILE_SQUARE),
+		  mBegin(0.f),
+		  mEnd(1.f),
+		  mHollow(0.f),
+		  mCRC(0)
 	{
-		mCurveType = LL_PCODE_PROFILE_SQUARE;
-		mBegin     = 0.f;
-		mEnd       = 1.f;
-		mHollow    = 0.f;
 	}
 
 	LLProfileParams(U8 curve, F32 begin, F32 end, F32 hollow)
-		: mCurveType(curve), mBegin(begin), mEnd(end), mHollow(hollow)
+		: mCurveType(curve),
+		  mBegin(begin),
+		  mEnd(end),
+		  mHollow(hollow),
+		  mCRC(0)
 	{
 	}
 
@@ -222,6 +227,7 @@ public:
 			temp_f32 = 1.f;
 		}
 		mHollow = temp_f32;
+		mCRC = 0;
 	}
 
 	bool operator==(const LLProfileParams &params) const;
@@ -309,27 +315,36 @@ class LLPathParams
 {
 public:
 	LLPathParams()
+		:
+		mCurveType(LL_PCODE_PATH_LINE),
+		mBegin(0.f),
+		mEnd(1.f),
+		mScale(1.f,1.f),
+		mShear(0.f,0.f),
+		mTwistBegin(0.f),
+		mTwistEnd(0.f),
+		mRadiusOffset(0.f),
+		mTaper(0.f,0.f),
+		mRevolutions(1.f),
+		mSkew(0.f),
+		mCRC(0)
 	{
-		mBegin     = 0.f;
-		mEnd       = 1.f;
-		mScale.setVec(1.f,1.f);
-		mShear.setVec(0.f,0.f);
-		mCurveType = LL_PCODE_PATH_LINE;
-		mTwistBegin		= 0.f;
-		mTwistEnd     	= 0.f;
-		mRadiusOffset	= 0.f;
-		mTaper.setVec(0.f,0.f);
-		mRevolutions	= 1.f;
-		mSkew			= 0.f;
 	}
 
 	LLPathParams(U8 curve, F32 begin, F32 end, F32 scx, F32 scy, F32 shx, F32 shy, F32 twistend, F32 twistbegin, F32 radiusoffset, F32 tx, F32 ty, F32 revolutions, F32 skew)
-		: mCurveType(curve), mBegin(begin), mEnd(end), mTwistBegin(twistbegin), mTwistEnd(twistend), 
-		  mRadiusOffset(radiusoffset), mRevolutions(revolutions), mSkew(skew)
+		: mCurveType(curve),
+		  mBegin(begin),
+		  mEnd(end),
+		  mScale(scx,scy),
+		  mShear(shx,shy),
+		  mTwistBegin(twistbegin),
+		  mTwistEnd(twistend), 
+		  mRadiusOffset(radiusoffset),
+		  mTaper(tx,ty),
+		  mRevolutions(revolutions),
+		  mSkew(skew),
+		  mCRC(0)
 	{
-		mScale.setVec(scx,scy);
-		mShear.setVec(shx,shy);
-		mTaper.setVec(tx,ty);
 	}
 
 	LLPathParams(U8 curve, U16 begin, U16 end, U8 scx, U8 scy, U8 shx, U8 shy, U8 twistend, U8 twistbegin, U8 radiusoffset, U8 tx, U8 ty, U8 revolutions, U8 skew)
@@ -347,6 +362,8 @@ public:
 		mTaper.setVec(U8_TO_F32(tx) * TAPER_QUANTA,U8_TO_F32(ty) * TAPER_QUANTA);
 		mRevolutions = ((F32)revolutions) * REV_QUANTA + 1.0f;
 		mSkew = U8_TO_F32(skew) * SCALE_QUANTA;
+
+		mCRC = 0;
 	}
 
 	bool operator==(const LLPathParams &params) const;
@@ -525,6 +542,7 @@ class LLVolumeParams
 {
 public:
 	LLVolumeParams()
+		: mSculptType(LL_SCULPT_TYPE_NONE)
 	{
 	}
 
@@ -649,7 +667,9 @@ public:
 		  mConcave(FALSE),
 		  mDirty(TRUE),
 		  mTotalOut(0),
-		  mTotal(2)
+		  mTotal(2),
+		  mMinX(0.f),
+		  mMaxX(0.f)
 	{
 	}
 
@@ -678,8 +698,6 @@ public:
 	std::vector<Face>      mFaces;
 	std::vector<LLVector3> mEdgeNormals;
 	std::vector<LLVector3> mEdgeCenters;
-	F32			  mMaxX;
-	F32			  mMinX;
 
 	friend std::ostream& operator<<(std::ostream &s, const LLProfile &profile);
 
@@ -698,6 +716,9 @@ protected:
 
 	S32			  mTotalOut;
 	S32			  mTotal;
+
+	F32			  mMaxX;
+	F32			  mMinX;
 };
 
 //-------------------------------------------------------------------

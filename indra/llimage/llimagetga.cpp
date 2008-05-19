@@ -63,7 +63,30 @@ LLImageTGA::LLImageTGA()
 	  mColorMapStart( 0 ),
 	  mColorMapLength( 0 ),
 	  mColorMapBytesPerEntry( 0 ),
-	  mIs15Bit( FALSE )
+	  mIs15Bit( FALSE ),
+
+	  mAttributeBits(0),
+	  mColorMapDepth(0),
+	  mColorMapIndexHi(0),
+	  mColorMapIndexLo(0),
+	  mColorMapLengthHi(0),
+	  mColorMapLengthLo(0),
+	  mColorMapType(0),
+	  mDataOffset(0),
+	  mHeightHi(0),
+	  mHeightLo(0),
+	  mIDLength(0),
+	  mImageType(0),
+	  mInterleave(0),
+	  mOriginRightBit(0),
+	  mOriginTopBit(0),
+	  mPixelSize(0),
+	  mWidthHi(0),
+	  mWidthLo(0),
+	  mXOffsetHi(0),
+	  mXOffsetLo(0),
+	  mYOffsetHi(0),
+	  mYOffsetLo(0)
 {
 }
 

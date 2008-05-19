@@ -1505,6 +1505,7 @@ void LLViewerObjectList::findOrphans(LLViewerObject* objectp, U32 ip, U32 port)
 ////////////////////////////////////////////////////////////////////////////
 
 LLViewerObjectList::OrphanInfo::OrphanInfo()
+	: mParentInfo(0)
 {
 }
 

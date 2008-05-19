@@ -188,6 +188,7 @@ LLJointStateBlender::LLJointStateBlender()
 	{
 		mJointStates[i] = NULL;
 		mPriorities[i] = S32_MIN;
+		mAdditiveBlends[i] = FALSE;
 	}
 }
 
@@ -458,6 +459,7 @@ void LLJointStateBlender::resetCachedJoint()
 //-----------------------------------------------------------------------------
 
 LLPoseBlender::LLPoseBlender()
+	: mNextPoseSlot(0)
 {
 }
 

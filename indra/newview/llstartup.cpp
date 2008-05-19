@@ -174,6 +174,11 @@
 #include "llpostprocess.h"
 #include "llwlparammanager.h"
 #include "llwaterparammanager.h"
+#include "llagentlanguage.h"
+
+#if LL_LIBXUL_ENABLED
+#include "llmozlib.h"
+#endif // LL_LIBXUL_ENABLED
 
 #if LL_WINDOWS
 #include "llwindebug.h"
@@ -469,7 +474,7 @@ BOOL idle_startup()
 		}
 		else
 		{
-			LLAppViewer::instance()->earlyExit("Unable to initialize communications.");
+			LLAppViewer::instance()->earlyExit("Message Template " + message_template_path + " not found.");
 		}
 
 		if(gMessageSystem && gMessageSystem->isOK())
@@ -2147,6 +2152,10 @@ BOOL idle_startup()
 		// JC - 7/20/2002
 		gViewerWindow->sendShapeToSim();
 
+		// Inform simulator of our language preference
+		LLAgentLanguage::update();
+
+		
 		// Ignore stipend information for now.  Money history is on the web site.
 		// if needed, show the L$ history window
 		//if (stipend_since_login && !gNoRender)

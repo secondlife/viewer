@@ -88,10 +88,6 @@ LLWorld::LLWorld() :
 	mLastPacketsIn(0),
 	mLastPacketsOut(0),
 	mLastPacketsLost(0),
-	mMinRegionX(0),
-	mMaxRegionX(0),
-	mMinRegionY(0),
-	mMaxRegionY(0),
 	mSpaceTimeUSec(0)
 {
 	for (S32 i = 0; i < 8; i++)

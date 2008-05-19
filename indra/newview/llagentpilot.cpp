@@ -45,12 +45,15 @@ LLAgentPilot gAgentPilot;
 
 BOOL LLAgentPilot::sLoop = TRUE;
 
-LLAgentPilot::LLAgentPilot()
+LLAgentPilot::LLAgentPilot() :
+	mNumRuns(-1),
+	mQuitAfterRuns(FALSE),
+	mRecording(FALSE),
+	mLastRecordTime(0.f),
+	mStarted(FALSE),
+	mPlaying(FALSE),
+	mCurrentAction(0)
 {
-	mRecording = FALSE;
-	mPlaying = FALSE;
-	mStarted = FALSE;
-	mNumRuns = -1;
 }
 
 LLAgentPilot::~LLAgentPilot()

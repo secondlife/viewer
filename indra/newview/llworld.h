@@ -170,22 +170,17 @@ private:
 	S32 mLastPacketsOut;
 	S32 mLastPacketsLost;
 
+	U64 mSpaceTimeUSec;
+
 	////////////////////////////
 	//
 	// Data for "Fake" objects
 	//
 
-	// Used to define the "Square" which we need to fill in
-	U32 mMinRegionX;
-	U32 mMaxRegionX;
-	U32 mMinRegionY;
-	U32 mMaxRegionY;
-
 	std::list<LLVOWater*> mHoleWaterObjects;
 	LLPointer<LLVOWater> mEdgeWaterObjects[8];
 
 	LLPointer<LLViewerImage> mDefaultWaterTexturep;
-	U64 mSpaceTimeUSec;
 };
 
 

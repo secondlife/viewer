@@ -61,6 +61,9 @@ bool agentCanRemoveFromRole(const LLUUID& group_id,
 bool agentCanAddToRole(const LLUUID& group_id,
 					   const LLUUID& role_id)
 {
+	if (gAgent.isGodlike())
+		return true;
+    
 	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(group_id);
 	if (!gdatap) 
 	{
@@ -177,9 +180,6 @@ BOOL LLPanelGroupRoles::postBuild()
 
 BOOL LLPanelGroupRoles::isVisibleByAgent(LLAgent* agentp)
 {
-	if (agentp->isGodlike())
-		return TRUE;
-	
 	/* This power was removed to make group roles simpler
 	return agentp->hasPowerInGroup(mGroupID, 
 								   GP_ROLE_CREATE |
@@ -1130,6 +1130,9 @@ void LLPanelGroupMembersSubTab::handleMemberSelect()
 		}
 	}
 	mAssignedRolesList->setEnabled(TRUE);
+
+	if (gAgent.isGodlike())
+		can_eject_members = TRUE;
 
 	if (!can_eject_members && !member_is_owner)
 	{

@@ -212,7 +212,8 @@ public:
 		mMaxContentWidth(0),
 		mIndex(-1), 
 		mParentCtrl(NULL), 
-		mHeader(NULL) 
+		mHeader(NULL),
+		mFontAlignment(LLFontGL::LEFT)
 	{ }
 
 	LLScrollListColumn(const LLSD &sd)
@@ -260,6 +261,7 @@ public:
 		mIndex = -1;
 		mParentCtrl = NULL;
 		mHeader = NULL;
+		mFontAlignment = LLFontGL::LEFT;
 	}
 
 	// Public data is fine so long as this remains a simple struct-like data class.

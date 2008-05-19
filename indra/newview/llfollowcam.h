@@ -169,8 +169,6 @@ public:
 	// protected members of FollowCam
 	//------------------------------------------
 protected:
-	F32		mPositionLagTimeScale;		// derived from mPositionLag
-	F32		mFocusLagTimeScale;			// derived from mFocusLag
 	F32		mPitchCos;					// derived from mPitch
 	F32		mPitchSin;					// derived from mPitch
 	LLGlobalVec		mSimulatedPositionGlobal;		// where the camera is (global coordinates), simulated

@@ -139,9 +139,16 @@ BOOL LLKeyframeWalkMotion::onUpdate(F32 time, U8* joint_mask)
 // LLWalkAdjustMotion()
 // Class Constructor
 //-----------------------------------------------------------------------------
-LLWalkAdjustMotion::LLWalkAdjustMotion(const LLUUID &id) : LLMotion(id)
+LLWalkAdjustMotion::LLWalkAdjustMotion(const LLUUID &id) :
+	LLMotion(id),
+	mLastTime(0.f),
+	mAvgCorrection(0.f),
+	mSpeedAdjust(0.f),
+	mAnimSpeed(0.f),
+	mAvgSpeed(0.f),
+	mRelativeDir(0.f),
+	mAnkleOffset(0.f)
 {
-	mLastTime = 0.f;
 	mName = "walk_adjust";
 
 	mPelvisState = new LLJointState;
@@ -349,7 +356,8 @@ void LLWalkAdjustMotion::onDeactivate()
 // LLFlyAdjustMotion::LLFlyAdjustMotion()
 //-----------------------------------------------------------------------------
 LLFlyAdjustMotion::LLFlyAdjustMotion(const LLUUID &id)
-	: LLMotion(id)
+	: LLMotion(id),
+	  mRoll(0.f)
 {
 	mName = "fly_adjust";
 

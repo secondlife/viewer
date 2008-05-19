@@ -93,7 +93,7 @@ private:
 
 	U32 mFinalSize;
 
-	BOOL mHasBKGD;
+	bool mHasBKGD;
 	png_color_16p mBackgroundColor;
 
 	F64 mGamma;
