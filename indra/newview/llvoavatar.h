@@ -283,7 +283,18 @@ public:
 										U32 block_num,
 										const EObjectUpdateType update_type,
 										LLDataPacker *dp);
-	virtual BOOL idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time);
+	/*virtual*/ BOOL idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time);
+	void idleUpdateVoiceVisualizer(bool voice_enabled);
+	void idleUpdateMisc(bool detailed_update);
+	void idleUpdateAppearanceAnimation();
+	void idleUpdateLipSync(bool voice_enabled);
+	void idleUpdateLoadingEffect();
+	void idleUpdateWindEffect();
+	void idleUpdateNameTag(const LLVector3& root_pos_last);
+	void idleUpdateRenderCost();
+	void idleUpdateTractorBeam();
+	void idleUpdateBelowWater();
+
 	virtual BOOL updateLOD();
 	void setFootPlane(const LLVector4 &plane) { mFootPlane = plane; }
 	/*virtual*/ BOOL    isActive() const; // Whether this object needs to do an idleUpdate.
@@ -1008,7 +1019,6 @@ protected:
 	LLHost			getObjectHost() const;
 	S32				getLocalDiscardLevel( S32 index);
 	
-	void			shame();  //generate shame metric
 //Ventrella
 	//-----------------------------------------------------------------------------------------------
 	// the Voice Visualizer is responsible for detecting the user's voice signal, and when the

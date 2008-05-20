@@ -3879,6 +3879,8 @@ BOOL LLMenuBarGL::handleAcceleratorKey(KEY key, MASK mask)
 		}
 		else
 		{
+			// close menus originating from other menu bars when first opening menu via keyboard
+			LLMenuGL::sMenuContainer->hideMenus();
 			highlightNextItem(NULL);
 			LLMenuGL::setKeyboardMode(TRUE);
 		}
@@ -3921,13 +3923,38 @@ BOOL LLMenuBarGL::handleJumpKey(KEY key)
 	return TRUE;
 }
 
+BOOL LLMenuBarGL::handleMouseDown(S32 x, S32 y, MASK mask)
+{
+	// clicks on menu bar closes existing menus from other contexts but leave
+	// own menu open so that we get toggle behavior
+	if (!getHighlightedItem() || !getHighlightedItem()->isActive())
+	{
+		LLMenuGL::sMenuContainer->hideMenus();
+	}
+
+	return LLMenuGL::handleMouseDown(x, y, mask);
+}
+
+BOOL LLMenuBarGL::handleRightMouseDown(S32 x, S32 y, MASK mask)
+{
+	// clicks on menu bar closes existing menus from other contexts but leave
+	// own menu open so that we get toggle behavior
+	if (!getHighlightedItem() || !getHighlightedItem()->isActive())
+	{
+		LLMenuGL::sMenuContainer->hideMenus();
+	}
+
+	return LLMenuGL::handleMouseDown(x, y, mask);
+}
+
+
 void LLMenuBarGL::draw()
 {
 	LLMenuItemGL* itemp = getHighlightedItem();
 	// If we are in mouse-control mode and the mouse cursor is not hovering over
-	// the current highlighted menu item and it isn't open, then remove the highlight.
-	// This is done via a polling mechanism here, as we don't receive notifications when
-	// the mouse cursor moves off of us
+	// the current highlighted menu item and it isn't open, then remove the
+	// highlight. This is done via a polling mechanism here, as we don't receive
+    // notifications when the mouse cursor moves off of us
 	if (itemp && !itemp->isOpen() && !itemp->getHover() && !LLMenuGL::getKeyboardMode())
 	{
 		clearHoverItem();
@@ -3954,6 +3981,9 @@ void LLMenuBarGL::checkMenuTrigger()
 			}
 			else
 			{
+				// close menus originating from other menu bars
+				LLMenuGL::sMenuContainer->hideMenus();
+
 				highlightNextItem(NULL);
 				LLMenuGL::setKeyboardMode(TRUE);
 			}
@@ -4362,6 +4392,7 @@ LLTearOffMenu* LLTearOffMenu::create(LLMenuGL* menup)
 	// keep onscreen
 	gFloaterView->adjustToFitScreen(tearoffp, FALSE);
 	tearoffp->open();	/* Flawfinder: ignore */
+
 	return tearoffp;
 }
 

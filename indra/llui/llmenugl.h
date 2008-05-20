@@ -499,7 +499,7 @@ public:
 	void setDropShadowed( const BOOL shadowed );
 
 	void setParentMenuItem( LLMenuItemGL* parent_menu_item ) { mParentMenuItem = parent_menu_item; }
-	LLMenuItemGL* getParentMenuItem() { return mParentMenuItem; }
+	LLMenuItemGL* getParentMenuItem() const { return mParentMenuItem; }
 
 	void setTornOff(BOOL torn_off);
 	BOOL getTornOff() { return mTornOff; }
@@ -690,6 +690,8 @@ public:
 	virtual BOOL handleAcceleratorKey(KEY key, MASK mask);
 	virtual BOOL handleKeyHere(KEY key, MASK mask);
 	virtual BOOL handleJumpKey(KEY key);
+	virtual BOOL handleMouseDown(S32 x, S32 y, MASK mask);
+	virtual BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
 
 	// rearrange the child rects so they fit the shape of the menu
 	// bar.

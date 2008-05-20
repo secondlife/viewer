@@ -1601,12 +1601,48 @@ BOOL LLFloaterIMPanel::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 	BOOL accepted = FALSE;
 	switch(cargo_type)
 	{
-	case DAD_CALLINGCARD:
-		accepted = dropCallingCard((LLInventoryItem*)cargo_data, drop);
-		break;
-	case DAD_CATEGORY:
-		accepted = dropCategory((LLInventoryCategory*)cargo_data, drop);
-		break;
+		case DAD_CALLINGCARD:
+		{
+			accepted = dropCallingCard((LLInventoryItem*)cargo_data, drop);
+			break;
+		}
+		case DAD_CATEGORY:
+		{
+			accepted = dropCategory((LLInventoryCategory*)cargo_data, drop);
+			break;
+		}
+
+		// See stdenums.h
+		case DAD_TEXTURE:
+		case DAD_SOUND:
+		// DAD_CALLINGCARD above
+		case DAD_LANDMARK:
+		case DAD_SCRIPT:
+		case DAD_CLOTHING:
+		case DAD_OBJECT:
+		case DAD_NOTECARD:
+		// DAD_CATEGORY above
+		case DAD_BODYPART:
+		case DAD_ANIMATION:
+		case DAD_GESTURE:
+		{
+			if (mDialog == IM_NOTHING_SPECIAL)
+			{
+				// See LLDropTarget for similar code.
+				LLViewerInventoryItem* inv_item = (LLViewerInventoryItem*)cargo_data;
+				if(gInventory.getItem(inv_item->getUUID())
+				   && LLToolDragAndDrop::isInventoryGiveAcceptable(inv_item))
+				{
+					accepted = true;
+					if(drop)
+					{
+						LLToolDragAndDrop::giveInventory(mOtherParticipantUUID, inv_item);
+					}
+				}
+			}
+			break;
+		}
+		
 	default:
 		break;
 	}

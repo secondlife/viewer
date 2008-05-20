@@ -2465,12 +2465,32 @@ BOOL LLVOAvatar::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 	// animate the character
 	// store off last frame's root position to be consistent with camera position
 	LLVector3 root_pos_last = mRoot.getWorldPosition();
-	BOOL detailed_update = updateCharacter(agent);
-	bool voiceEnabled = gVoiceClient->getVoiceEnabled( mID ) && gVoiceClient->inProximalChannel();
+	bool detailed_update = updateCharacter(agent);
+	bool voice_enabled = gVoiceClient->getVoiceEnabled( mID ) && gVoiceClient->inProximalChannel();
 
+	if (gNoRender)
+	{
+		return TRUE;
+	}
+
+	idleUpdateVoiceVisualizer( voice_enabled );
+	idleUpdateMisc( detailed_update );
+	idleUpdateAppearanceAnimation();
+	idleUpdateLipSync( voice_enabled );
+	idleUpdateLoadingEffect();
+	idleUpdateBelowWater();	// wind effect uses this
+	idleUpdateWindEffect();
+	idleUpdateNameTag( root_pos_last );
+	idleUpdateRenderCost();
+	idleUpdateTractorBeam();
+	return TRUE;
+}
+
+void LLVOAvatar::idleUpdateVoiceVisualizer(bool voice_enabled)
+{
 	// disable voice visualizer when in mouselook
-	mVoiceVisualizer->setVoiceEnabled( voiceEnabled && !(mIsSelf && gAgent.cameraMouselook()) );
-	if ( voiceEnabled )
+	mVoiceVisualizer->setVoiceEnabled( voice_enabled && !(mIsSelf && gAgent.cameraMouselook()) );
+	if ( voice_enabled )
 	{		
 		//----------------------------------------------------------------
 		// Only do gesture triggering for your own avatar, and only when you're in a proximal channel.
@@ -2552,7 +2572,10 @@ BOOL LLVOAvatar::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 		mVoiceVisualizer->setVoiceSourceWorldPosition( mRoot.getWorldPosition() + headOffset );
 		
 	}//if ( voiceEnabled )
-		
+}		
+
+void LLVOAvatar::idleUpdateMisc(bool detailed_update)
+{
 	if (LLVOAvatar::sJointDebug)
 	{
 		llinfos << getFullname() << ": joint touches: " << LLJoint::sNumTouches << " updates: " << LLJoint::sNumUpdates << llendl;
@@ -2560,11 +2583,6 @@ BOOL LLVOAvatar::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 
 	LLJoint::sNumUpdates = 0;
 	LLJoint::sNumTouches = 0;
-
-	if (gNoRender)
-	{
-		return TRUE;
-	}
 
 	// *NOTE: this is necessary for the floating name text above your head.
 	if (mDrawable.notNull())
@@ -2661,7 +2679,10 @@ BOOL LLVOAvatar::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 	{
 		gPipeline.markMoved(mDrawable, TRUE);
 	}
+}
 
+void LLVOAvatar::idleUpdateAppearanceAnimation()
+{
 	// update morphing params
 	if (mAppearanceAnimating)
 	{
@@ -2724,9 +2745,12 @@ BOOL LLVOAvatar::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 		}
 		dirtyMesh();
 	}
+}
 
+void LLVOAvatar::idleUpdateLipSync(bool voice_enabled)
+{
 	// Use the Lipsync_Ooh and Lipsync_Aah morphs for lip sync
-	if ( voiceEnabled && (gVoiceClient->lipSyncEnabled() > 0) && gVoiceClient->getIsSpeaking( mID ) )
+	if ( voice_enabled && (gVoiceClient->lipSyncEnabled() > 0) && gVoiceClient->getIsSpeaking( mID ) )
 	{
 		F32 ooh_morph_amount = 0.0f;
 		F32 aah_morph_amount = 0.0f;
@@ -2753,7 +2777,10 @@ BOOL LLVOAvatar::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 		LLCharacter::updateVisualParams();
 		dirtyMesh();
 	}
+}
 
+void LLVOAvatar::idleUpdateLoadingEffect()
+{
 	// update visibility when avatar is partially loaded
 	if (updateIsFullyLoaded()) // changed?
 	{
@@ -2793,8 +2820,10 @@ BOOL LLVOAvatar::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 			setParticleSource(particle_parameters, getID());
 		}
 	}
-	
+}	
 
+void LLVOAvatar::idleUpdateWindEffect()
+{
 	// update wind effect
 	if ((LLShaderMgr::getVertexShaderLevel(LLShaderMgr::SHADER_AVATAR) >= LLDrawPoolAvatar::SHADER_LEVEL_CLOTH))
 	{
@@ -2849,7 +2878,10 @@ BOOL LLVOAvatar::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 			mRipplePhase = fmodf(mRipplePhase, F_TWO_PI);
 		}
 	}
+}
 
+void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
+{
 	// update chat bubble
 	//--------------------------------------------------------------------
 	// draw text label over characters head
@@ -2862,9 +2894,10 @@ BOOL LLVOAvatar::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 	const F32 time_visible = mTimeVisible.getElapsedTimeF32();
 	const F32 NAME_SHOW_TIME = gSavedSettings.getF32("RenderNameShowTime");	// seconds
 	const F32 FADE_DURATION = gSavedSettings.getF32("RenderNameFadeDuration"); // seconds
+	BOOL visible_avatar = isVisible() || mNeedsAnimUpdate;
 	BOOL visible_chat = gSavedSettings.getBOOL("UseChatBubbles") && (mChats.size() || mTyping);
 	BOOL render_name =	visible_chat ||
-						(visible &&
+						(visible_avatar &&
 						((sRenderName == RENDER_NAME_ALWAYS) ||
 						(sRenderName == RENDER_NAME_FADE && time_visible < NAME_SHOW_TIME)));
 	// If it's your own avatar, don't draw in mouselook, and don't
@@ -3159,15 +3192,16 @@ BOOL LLVOAvatar::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 		mNameText = NULL;
 		sNumVisibleChatBubbles--;
 	}
+}
 
-	shame();
-
+void LLVOAvatar::idleUpdateTractorBeam()
+{
 	//--------------------------------------------------------------------
 	// draw tractor beam when editing objects
 	//--------------------------------------------------------------------
 	if (!mIsSelf)
 	{
-		return TRUE;
+		return;
 	}
 
 	// This is only done for yourself (maybe it should be in the agent?)
@@ -3228,15 +3262,16 @@ BOOL LLVOAvatar::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 			mBeamTimer.reset();
 		}
 	}
+}
 
+void LLVOAvatar::idleUpdateBelowWater()
+{
 	F32 avatar_height = (F32)(getPositionGlobal().mdV[VZ]);
 
 	F32 water_height;
 	water_height = getRegion()->getWaterHeight();
 
 	mBelowWater =  avatar_height < water_height;
-	
-	return TRUE;
 }
 
 void LLVOAvatar::slamPosition()
@@ -9853,7 +9888,7 @@ U32 calc_shame(LLVOVolume* volume, std::set<LLUUID> &textures)
 	return shame;
 }
 
-void LLVOAvatar::shame()
+void LLVOAvatar::idleUpdateRenderCost()
 {
 	if (!gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_SHAME))
 	{

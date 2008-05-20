@@ -147,6 +147,8 @@ public:
 	
 	void setOnSelectCallback(LLUICtrlCallback cb)	{ mOnSelectCallback = cb; }
 
+	void setShowLoadingPlaceholder(BOOL showLoadingPlaceholder);
+
 private:
 	BOOL allowDrop(LLInventoryItem* item);
 	BOOL doDrop(LLInventoryItem* item);
@@ -175,6 +177,8 @@ private:
 	LLViewBorder*			 mBorder;
 	BOOL					 mValid;
 	BOOL					 mDirty;
+	BOOL					 mShowLoadingPlaceholder;
+	LLString				 mLoadingPlaceholderString;
 };
 
 // XUI HACK: When floaters converted, switch this file to lltexturepicker.h/cpp

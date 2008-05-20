@@ -382,6 +382,7 @@ void LLChatBar::sendChat( EChatType type )
 	LLWString text;
 	if (mInputEditor) text = mInputEditor->getWText();
 	LLWString::trim(text);
+	LLWString::replaceChar(text,182,'\n'); // Convert paragraph symbols back into newlines.
 
 	if (!text.empty())
 	{

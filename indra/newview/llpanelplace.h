@@ -74,6 +74,8 @@ public:
 			const LLVector3d& pos_global);
 	static void processParcelInfoReply(LLMessageSystem* msg, void**);
 
+	LLTextureCtrl *getSnapshotCtrl() const { return mSnapshotCtrl; }
+
 protected:
 	static void onClickTeleport(void* data);
 	static void onClickMap(void* data);

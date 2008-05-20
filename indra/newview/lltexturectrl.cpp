@@ -65,6 +65,7 @@
 #include "llviewercontrol.h"
 #include "llglheaders.h"
 #include "lluictrlfactory.h"
+#include "lltrans.h"
 
 
 static const S32 CLOSE_BTN_WIDTH = 100;
@@ -908,7 +909,8 @@ LLTextureCtrl::LLTextureCtrl(
 	mCanApplyImmediately( FALSE ),
 	mNeedsRawImageData( FALSE ),
 	mValid( TRUE ),
-	mDirty( FALSE )
+	mDirty( FALSE ),
+	mShowLoadingPlaceholder( FALSE )
 {
 	mCaption = new LLTextBox( label, 
 		LLRect( 0, BTN_HEIGHT_SMALL, getRect().getWidth(), 0 ),
@@ -939,6 +941,7 @@ LLTextureCtrl::LLTextureCtrl(
 	addChild(mBorder);
 
 	setEnabled(TRUE); // for the tooltip
+	mLoadingPlaceholderString = LLTrans::getString("texture_loading");
 }
 
 
@@ -1007,6 +1010,11 @@ LLView* LLTextureCtrl::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactor
 	texture_picker->initFromXML(node, parent);
 
 	return texture_picker;
+}
+
+void LLTextureCtrl::setShowLoadingPlaceholder(BOOL showLoadingPlaceholder)
+{
+	mShowLoadingPlaceholder = showLoadingPlaceholder;
 }
 
 void LLTextureCtrl::setCaption(const LLString& caption)
@@ -1318,6 +1326,22 @@ void LLTextureCtrl::draw()
 	}
 
 	mTentativeLabel->setVisible( !mTexturep.isNull() && getTentative() );
+	
+	if ( mTexturep.notNull() &&
+		 (mShowLoadingPlaceholder == TRUE) && 
+		 (mTexturep->getDiscardLevel() != 1) &&
+		 (mTexturep->getDiscardLevel() != 0))
+	{
+		LLFontGL* font = LLFontGL::sSansSerifBig;
+		font->renderUTF8(
+			mLoadingPlaceholderString, 0,
+			llfloor(interior.mLeft+10), 
+			llfloor(interior.mTop-20),
+			LLColor4::white,
+			LLFontGL::LEFT,
+			LLFontGL::BASELINE,
+			LLFontGL::DROP_SHADOW);
+	}
 
 	LLUICtrl::draw();
 }

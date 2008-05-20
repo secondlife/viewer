@@ -187,6 +187,8 @@ public:
 
 	typedef std::vector<U64> handle_list_t;
 	handle_list_t mVisibleRegions; // set every frame
+
+	static std::map<std::string,LLString> sStringsMap;
 };
 
 #endif

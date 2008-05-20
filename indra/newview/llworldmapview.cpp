@@ -61,6 +61,7 @@
 #include "llviewerwindow.h"
 #include "llworldmap.h"
 #include "llappviewer.h"				// Only for constants!
+#include "lltrans.h"
 
 #include "llglheaders.h"
 
@@ -98,6 +99,7 @@ S32 LLWorldMapView::sTrackingArrowY = 0;
 F32 LLWorldMapView::sPixelsPerMeter = 1.f;
 F32 CONE_SIZE = 0.6f;
 
+std::map<std::string,LLString> LLWorldMapView::sStringsMap;
 
 #define SIM_NULL_MAP_SCALE 1 // width in pixels, where we start drawing "null" sims
 #define SIM_MAP_AGENT_SCALE 2 // width in pixels, where we start drawing agents
@@ -126,6 +128,9 @@ void LLWorldMapView::initClass()
 	sTrackArrowImage =		LLUI::getUIImage("direction_arrow.tga");
 	sClassifiedsImage =		LLUI::getUIImage("icon_top_pick.tga");
 	sForSaleImage =			LLUI::getUIImage("icon_for_sale.tga");
+	
+	sStringsMap["loading"] = LLTrans::getString("texture_loading");
+	sStringsMap["offline"] = LLTrans::getString("worldmap_offline");
 }
 
 // static
@@ -638,7 +643,7 @@ void LLWorldMapView::draw()
 			//			LLViewerRegion::accessToShortString(info->mAccess) );
 			if (info->mAccess == SIM_ACCESS_DOWN)
 			{
-				snprintf(mesg, MAX_STRING, "%s (Offline)", info->mName.c_str());		/* Flawfinder: ignore */
+				snprintf(mesg, MAX_STRING, "%s (%s)", info->mName.c_str(), sStringsMap["offline"].c_str());		/* Flawfinder: ignore */
 			}
 			else
 			{
@@ -656,6 +661,21 @@ void LLWorldMapView::draw()
 				LLFontGL::LEFT,
 				LLFontGL::BASELINE,
 				LLFontGL::DROP_SHADOW);
+			
+			// If map texture is still loading,
+			// display "Loading" placeholder text.
+			if (simimage->getDiscardLevel() != 1 &&
+				simimage->getDiscardLevel() != 0)
+			{
+				font->renderUTF8(
+					sStringsMap["loading"].c_str(), 0,
+					llfloor(left + 18), 
+					llfloor(top - 25),
+					LLColor4::white,
+					LLFontGL::LEFT,
+					LLFontGL::BASELINE,
+					LLFontGL::DROP_SHADOW);			
+			}
 		}
 	}
 #endif
