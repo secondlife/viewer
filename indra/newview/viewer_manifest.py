@@ -471,11 +471,11 @@ class LinuxManifest(ViewerManifest):
 
                 # Fix access permissions
                 self.run_command("""
-                find %(dst)s -type d | xargs chmod 755;
-                find %(dst)s -type f -perm 0700 | xargs chmod 0755;
-                find %(dst)s -type f -perm 0500 | xargs chmod 0555;
-                find %(dst)s -type f -perm 0600 | xargs chmod 0644;
-                find %(dst)s -type f -perm 0400 | xargs chmod 0444;
+                find %(dst)s -type d | xargs --no-run-if-empty chmod 755;
+                find %(dst)s -type f -perm 0700 | xargs --no-run-if-empty chmod 0755;
+                find %(dst)s -type f -perm 0500 | xargs --no-run-if-empty chmod 0555;
+                find %(dst)s -type f -perm 0600 | xargs --no-run-if-empty chmod 0644;
+                find %(dst)s -type f -perm 0400 | xargs --no-run-if-empty chmod 0444;
                 true""" %  {'dst':self.get_dst_prefix() })
 
                 # temporarily move directory tree so that it has the right name in the tarfile
