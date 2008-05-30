@@ -58,6 +58,20 @@
 
 #include "llcommandlineparser.h"
 
+//*FIX:Mani - This hack is to fix a linker issue with libndofdev.lib
+// The lib was compiled under VS2005 - in VS2003 we need to remap assert
+#ifdef LL_DEBUG
+#ifdef LL_MSVC7 
+extern "C" {
+    void _wassert(const wchar_t * _Message, const wchar_t *_File, unsigned _Line)
+    {
+        llerrs << _Message << llendl;
+    }
+}
+#endif
+#endif
+
+
 LONG WINAPI viewer_windows_exception_handler(struct _EXCEPTION_POINTERS *exception_infop)
 {
     // *NOTE:Mani - this code is stolen from LLApp, where its never actually used.
