@@ -37,6 +37,13 @@
 #include "llsdmessagebuilder.h"
 #include "llsdutil.h"
 
+#include "v3math.h"
+#include "v4math.h"
+#include "v3dmath.h"
+#include "v2math.h"
+#include "llquaternion.h"
+#include "v4color.h"
+
 LLSDMessageReader::LLSDMessageReader() :
 	mMessageName(NULL)
 {

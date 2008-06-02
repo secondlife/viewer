@@ -35,35 +35,34 @@
 #define LL_LLSDUTIL_H
 
 #include "llsd.h"
-#include "../llmath/v3math.h"
-#include "../llmath/v4math.h"
-#include "../llmath/v3dmath.h"
-#include "../llmath/v2math.h"
-#include "../llmath/llquaternion.h"
-#include "../llmath/v4color.h"
-#include "../llprimitive/lltextureanim.h"
 
 // vector3
+class LLVector3;
 LLSD ll_sd_from_vector3(const LLVector3& vec);
 LLVector3 ll_vector3_from_sd(const LLSD& sd, S32 start_index = 0);
 
 // vector4
+class LLVector4;
 LLSD ll_sd_from_vector4(const LLVector4& vec);
 LLVector4 ll_vector4_from_sd(const LLSD& sd, S32 start_index = 0);
 
 // vector3d (double)
+class LLVector3d;
 LLSD ll_sd_from_vector3d(const LLVector3d& vec);
 LLVector3d ll_vector3d_from_sd(const LLSD& sd, S32 start_index = 0);
 
 // vector2
+class LLVector2;
 LLSD ll_sd_from_vector2(const LLVector2& vec);
 LLVector2 ll_vector2_from_sd(const LLSD& sd);
 
 // Quaternion
+class LLQuaternion;
 LLSD ll_sd_from_quaternion(const LLQuaternion& quat);
 LLQuaternion ll_quaternion_from_sd(const LLSD& sd);
 
 // color4
+class LLColor4;
 LLSD ll_sd_from_color4(const LLColor4& c);
 LLColor4 ll_color4_from_sd(const LLSD& sd);
 

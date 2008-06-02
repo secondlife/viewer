@@ -68,7 +68,7 @@ public:
 	//
 	// CREATORS
 	//
-	LLViewerWindow(char* title, char* name, S32 x, S32 y, S32 width, S32 height, BOOL fullscreen, BOOL ignore_pixel_depth);
+	LLViewerWindow(const char* title, const char* name, S32 x, S32 y, S32 width, S32 height, BOOL fullscreen, BOOL ignore_pixel_depth);
 	virtual ~LLViewerWindow();
 
 	void			initGLDefaults();

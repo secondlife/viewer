@@ -32,7 +32,7 @@
 #ifndef LL_LLIMAGEJPEG_H
 #define LL_LLIMAGEJPEG_H
 
-#include <setjmp.h>
+#include <csetjmp>
 
 #include "llimage.h"
 

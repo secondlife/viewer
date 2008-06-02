@@ -93,7 +93,11 @@ LLDir_Linux::LLDir_Linux()
 	mExecutablePathAndName = "";
 	mExecutableDir = tmp_str;
 	mWorkingDir = tmp_str;
+#ifdef APP_RO_DATA_DIR
+	mAppRODataDir = APP_RO_DATA_DIR;
+#else
 	mAppRODataDir = tmp_str;
+#endif
 	mOSUserDir = getCurrentUserHome(tmp_str);
 	mOSUserAppDir = "";
 	mLindenUserDir = tmp_str;

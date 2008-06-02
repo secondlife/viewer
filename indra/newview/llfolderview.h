@@ -79,7 +79,7 @@ public:
 	virtual const LLString& getName() const = 0;
 	virtual const LLString& getDisplayName() const = 0;
 	virtual const LLUUID& getUUID() const = 0;
-	virtual U32 getCreationDate() const = 0;	// UTC seconds
+	virtual time_t getCreationDate() const = 0;	// UTC seconds
 	virtual PermissionMask getPermissionMask() const = 0;
 	virtual LLUIImagePtr getIcon() const = 0;
 	virtual LLFontGL::StyleFlags getLabelStyle() const = 0;
@@ -198,10 +198,10 @@ public:
 	void setFilterPermissions(PermissionMask perms);
 	PermissionMask getFilterPermissions() const { return mFilterOps.mPermissions; }
 
-	void setDateRange(U32 min_date, U32 max_date);
+	void setDateRange(time_t min_date, time_t max_date);
 	void setDateRangeLastLogoff(BOOL sl);
-	U32 getMinDate() const { return mFilterOps.mMinDate; }
-	U32 getMaxDate() const { return mFilterOps.mMaxDate; }
+	time_t getMinDate() const { return mFilterOps.mMinDate; }
+	time_t getMaxDate() const { return mFilterOps.mMaxDate; }
 
 	void setHoursAgo(U32 hours);
 	U32 getHoursAgo() const { return mFilterOps.mHoursAgo; }
@@ -246,8 +246,8 @@ protected:
 	struct filter_ops
 	{
 		U32			mFilterTypes;
-		U32			mMinDate;
-		U32			mMaxDate;
+		time_t		mMinDate;
+		time_t		mMaxDate;
 		U32			mHoursAgo;
 		EFolderShow	mShowFolderState;
 		PermissionMask	mPermissions;
@@ -464,7 +464,7 @@ public:
 	const char* getLabel() const { return mLabel.c_str(); }
 
 	// Used for sorting, like getLabel() above.
-	virtual U32 getCreationDate() const { return mCreationDate; }
+	virtual time_t getCreationDate() const { return mCreationDate; }
 	
 	LLFolderViewFolder* getParentFolder( void ) { return mParentFolder; }
 	const LLFolderViewFolder* getParentFolder( void ) const { return mParentFolder; }
@@ -555,7 +555,7 @@ protected:
 	F32			mCurHeight;
 	F32			mTargetHeight;
 	F32			mAutoOpenCountdown;
-	U32			mSubtreeCreationDate;
+	time_t		mSubtreeCreationDate;
 	ETrash		mAmTrash;
 	S32			mLastArrangeGeneration;
 	S32			mLastCalculatedWidth;
@@ -702,7 +702,7 @@ public:
 								   LLString& tooltip_msg);
 	virtual void draw();
 
-	U32 getCreationDate() const;
+	time_t getCreationDate() const;
 	bool isTrash();
 };
 

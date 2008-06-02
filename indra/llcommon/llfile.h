@@ -50,13 +50,21 @@ typedef FILE	LLFILE;
 #define	USE_LLFILESTREAMS	0
 #endif
 
+#include <sys/stat.h>
 
 #if LL_WINDOWS
 // windows version of stat function and stat data structure are called _stat
 typedef struct _stat	llstat;
 #else
-#include <sys/stat.h>
 typedef struct stat		llstat;
+#endif
+
+#ifndef S_ISREG
+# define S_ISREG(x) (((x) & S_IFMT) == S_IFREG)
+#endif
+
+#ifndef S_ISDIR
+# define S_ISDIR(x) (((x) & S_IFMT) == S_IFDIR)
 #endif
 
 class	LLFile
@@ -74,7 +82,10 @@ public:
 	static	int		remove(const char* filename);
 	static	int		rename(const char* filename,const char*	newname);
 	static	int		stat(const char*	filename,llstat*	file_status);
+	static	bool	isdir(const char*	filename);
+	static	bool	isfile(const char*	filename);
 	static	LLFILE *	_Fiopen(const char *filename, std::ios::openmode mode,int);	// protection currently unused
+	static  const char * tmpdir();
 };
 
 

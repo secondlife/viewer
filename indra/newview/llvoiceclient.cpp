@@ -39,7 +39,11 @@
 #include "llvoavatar.h"
 #include "llbufferstream.h"
 #include "llfile.h"
-#include "expat/expat.h"
+#ifdef LL_STANDALONE
+# include "expat.h"
+#else
+# include "expat/expat.h"
+#endif
 #include "llcallbacklist.h"
 #include "llviewerregion.h"
 #include "llviewernetwork.h"		// for gGridChoice
@@ -58,10 +62,10 @@
 #include "llviewerwindow.h"
 
 // for base64 decoding
-#include "apr-1/apr_base64.h"
+#include "apr_base64.h"
 
 // for SHA1 hash
-#include "apr-1/apr_sha1.h"
+#include "apr_sha1.h"
 
 // If we are connecting to agni AND the user's last name is "Linden", join this channel instead of looking up the sim name.
 // If we are connecting to agni and the user's last name is NOT "Linden", disable voice.
@@ -1265,12 +1269,18 @@ void LLVoiceClient::stateMachine()
 				if(true)
 				{
 					// Launch the voice daemon
-					std::string exe_path = gDirUtilp->getAppRODataDir();
+					
+					// *FIX:Mani - Using the executable dir instead 
+					// of mAppRODataDir, the working directory from which the app
+					// is launched.
+					//std::string exe_path = gDirUtilp->getAppRODataDir();
+					std::string exe_path = gDirUtilp->getExecutableDir();
 					exe_path += gDirUtilp->getDirDelimiter();
 #if LL_WINDOWS
 					exe_path += "SLVoice.exe";
+#elif LL_DARWIN
+					exe_path += "../Resources/SLVoice";
 #else
-					// This will be the same for mac and linux
 					exe_path += "SLVoice";
 #endif
 					// See if the vivox executable exists
@@ -1363,7 +1373,7 @@ void LLVoiceClient::stateMachine()
 					}	
 					else
 					{
-						LL_INFOS("Voice") << exe_path << "not found." << LL_ENDL
+						LL_INFOS("Voice") << exe_path << "not found." << LL_ENDL;
 					}	
 				}
 				else

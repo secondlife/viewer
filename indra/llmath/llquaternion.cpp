@@ -791,7 +791,7 @@ LLQuaternion mayaQ(F32 xRot, F32 yRot, F32 zRot, LLQuaternion::Order order)
 
 const char *OrderToString( const LLQuaternion::Order order )
 {
-	char *p = NULL;
+	const char *p = NULL;
 	switch( order )
 	{
 	default:

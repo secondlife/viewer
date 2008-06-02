@@ -69,24 +69,25 @@ namespace tut
         time_t sometime;
         time(&sometime);
         some_date = LLDate((F64) sometime);
-        struct tm result;
-        char expected[255], *actual;
+        struct tm *result;
+        char expected[255];
+		std::string actual;
         
-        gmtime_r((time_t *)&sometime, &result);
+        result = gmtime(&sometime);
         /*
-        std::cout << " seconds: "<< result.tm_sec 
-                  << ", minutes: " << result.tm_min
-                  << ", hours: " << result.tm_hour
-                  << ", day of the month: " << result.tm_mday
-                  << ", month: " << result.tm_mon
-                  << ", year: " << result.tm_year
-                  << ", day of the week: " << result.tm_wday
-                  << ", day in the year: " << result.tm_yday
-                  << ", DST: " << result.tm_isdst << std::endl;
+        std::cout << " seconds: "<< result->tm_sec 
+                  << ", minutes: " << result->tm_min
+                  << ", hours: " << result->tm_hour
+                  << ", day of the month: " << result->tm_mday
+                  << ", month: " << result->tm_mon
+                  << ", year: " << result->tm_year
+                  << ", day of the week: " << result->tm_wday
+                  << ", day in the year: " << result->tm_yday
+                  << ", DST: " << result->tm_isdst << std::endl;
         */
-        strftime(expected, 255, "%A, %d %h %Y %H:%M:%S GMT", &result);
-        actual = (char *) some_date.asRFC1123().c_str();
+        strftime(expected, 255, "%A, %d %b %Y %H:%M:%S GMT", result);
+        actual = some_date.asRFC1123();
         // probably not a good idea to use strcmp but this is just a unit test
-        ensure("Current time in RFC 1123", (strcmp(expected, actual) == 0));
+        ensure("Current time in RFC 1123", (strcmp(expected, actual.c_str()) == 0));
     }
 }

@@ -33,7 +33,7 @@
 #include "llimagej2coj.h"
 
 // this is defined so that we get static linking.
-#include "openjpeg/openjpeg.h"
+#include "openjpeg.h"
 
 #include "lltimer.h"
 #include "llmemory.h"
@@ -268,12 +268,12 @@ BOOL LLImageJ2COJ::encodeImpl(LLImageJ2C &base, const LLImageRaw &raw_image, con
 
 	if (!comment_text)
 	{
-		parameters.cp_comment = "";
+		parameters.cp_comment = (char *) "";
 	}
 	else
 	{
 		// Awful hacky cast, too lazy to copy right now.
-		parameters.cp_comment = (char *)comment_text;
+		parameters.cp_comment = (char *) comment_text;
 	}
 
 	//

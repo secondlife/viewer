@@ -68,7 +68,7 @@ LLViewerInventoryItem::LLViewerInventoryItem(const LLUUID& uuid,
 											 const LLString& desc,
 											 const LLSaleInfo& sale_info,
 											 U32 flags,
-											 S32 creation_date_utc) :
+											 time_t creation_date_utc) :
 	LLInventoryItem(uuid, parent_uuid, perm, asset_uuid, type, inv_type,
 					name, desc, sale_info, flags, creation_date_utc),
 	mIsComplete(TRUE)
@@ -290,7 +290,7 @@ bool LLViewerInventoryItem::exportFileLocal(LLFILE* fp) const
 	const char* inv_type_str = LLInventoryType::lookup(mInventoryType);
 	if(inv_type_str) fprintf(fp, "\t\tinv_type\t%s\n", inv_type_str);
 	fprintf(fp, "\t\tname\t%s|\n", mName.c_str());
-	fprintf(fp, "\t\tcreation_date\t%d\n", mCreationDate);
+	fprintf(fp, "\t\tcreation_date\t%d\n", (S32) mCreationDate);
 	fprintf(fp,"\t}\n");
 	return true;
 }

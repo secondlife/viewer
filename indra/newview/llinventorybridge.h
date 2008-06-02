@@ -164,7 +164,7 @@ public:
 	virtual const LLString& getName() const;
 	virtual const LLString& getDisplayName() const;
 	virtual PermissionMask getPermissionMask() const;
-	virtual U32 getCreationDate() const;
+	virtual time_t getCreationDate() const;
 	virtual LLFontGL::StyleFlags getLabelStyle() const
 	{
 		return LLFontGL::NORMAL;
@@ -239,7 +239,7 @@ public:
 	virtual const LLString& getDisplayName() const;
 	virtual LLString getLabelSuffix() const;
 	virtual PermissionMask getPermissionMask() const;
-	virtual U32 getCreationDate() const;
+	virtual time_t getCreationDate() const;
 	virtual BOOL isItemRenameable() const;
 	virtual BOOL renameItem(const LLString& new_name);
 	virtual BOOL removeItem();

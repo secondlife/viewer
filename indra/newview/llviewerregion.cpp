@@ -478,7 +478,7 @@ std::string LLViewerRegion::regionFlagsToString(U32 flags)
 }
 
 // *TODO:Translate
-char* SIM_ACCESS_STR[] = { "Free Trial",
+const char* SIM_ACCESS_STR[] = { "Free Trial",
 						   "PG",
 						   "Mature",
 						   "Offline",
@@ -1309,8 +1309,9 @@ class BaseCapabilitiesComplete : public LLHTTPClient::Responder
 {
 	LOG_CLASS(BaseCapabilitiesComplete);
 public:
-    BaseCapabilitiesComplete(LLViewerRegion* region)
-		: mRegion(region)
+    BaseCapabilitiesComplete(LLViewerRegion* region, LLSD requestedCaps)
+		: mRegion(region),
+		  mRequestedCaps(requestedCaps)
     { }
 
     void error(U32 statusNum, const std::string& reason)
@@ -1326,8 +1327,16 @@ public:
     void result(const LLSD& content)
     {
 		LLSD::map_const_iterator iter;
+		
 		for(iter = content.beginMap(); iter != content.endMap(); ++iter)
 		{
+			if (iter->second.asString().empty())
+			{
+				llwarns << "BaseCapabilitiesComplete::result EMPTY capability "
+						<< iter->first << llendl;
+				continue;
+			}
+
 			mRegion->setCapability(iter->first, iter->second);
 			LL_DEBUGS2("AppInit", "Capabilities") << "got capability for " 
 				<< iter->first << LL_ENDL;
@@ -1340,6 +1349,21 @@ public:
 			}
 		}
 		
+		LLSD::array_const_iterator fail;
+		for (fail = mRequestedCaps.beginArray();
+			 fail != mRequestedCaps.endArray();
+			 ++fail)
+		{
+			std::string cap = fail->asString();
+			
+			if (mRegion->getCapability(cap).empty() &&
+				!LLViewerRegion::isSpecialCapabilityName(cap))
+			{
+				llwarns << "BaseCapabilitiesComplete::result FAILED to get "
+						<< "capability " << cap << llendl;
+			}
+		}
+		
 		if (STATE_SEED_GRANTED_WAIT == LLStartUp::getStartupState())
 		{
 			LLStartUp::setStartupState( STATE_SEED_CAP_GRANTED );
@@ -1347,14 +1371,16 @@ public:
 	}
 
     static boost::intrusive_ptr<BaseCapabilitiesComplete> build(
-								LLViewerRegion* region)
+		LLViewerRegion* region,
+		LLSD requestedCaps)
     {
 		return boost::intrusive_ptr<BaseCapabilitiesComplete>(
-							 new BaseCapabilitiesComplete(region));
+			new BaseCapabilitiesComplete(region, requestedCaps));
     }
 
 private:
 	LLViewerRegion* mRegion;
+	LLSD mRequestedCaps;
 };
 
 
@@ -1409,7 +1435,8 @@ void LLViewerRegion::setSeedCapability(const std::string& url)
 
 	llinfos << "posting to seed " << url << llendl;
 
-	LLHTTPClient::post(url, capabilityNames, BaseCapabilitiesComplete::build(this));
+	LLHTTPClient::post(url, capabilityNames,
+					   BaseCapabilitiesComplete::build(this, capabilityNames));
 }
 
 void LLViewerRegion::setCapability(const std::string& name, const std::string& url)
@@ -1428,6 +1455,11 @@ void LLViewerRegion::setCapability(const std::string& name, const std::string& u
 	{
 		mCapabilities[name] = url;
 	}
+}
+
+bool LLViewerRegion::isSpecialCapabilityName(const std::string &name)
+{
+	return name == "EventQueueGet" || name == "UntrustedSimulatorMessage";
 }
 
 std::string LLViewerRegion::getCapability(const std::string& name) const

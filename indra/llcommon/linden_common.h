@@ -45,9 +45,10 @@
 #include <iostream>
 #include <fstream>
 
-// Work around stupid Microsoft STL warning
+// Work Microsoft compiler warnings
 #ifdef LL_WINDOWS
-#pragma warning (disable : 4702) // warning C4702: unreachable code
+#pragma warning (disable : 4702) // unreachable code
+#pragma warning (disable : 4244) // conversion from time_t to S32
 #endif	//	LL_WINDOWS
 
 #include <algorithm>

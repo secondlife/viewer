@@ -56,8 +56,8 @@
 #include "llviewerwindow.h"		// *TODO: remove, only used for width/height
 #include "llworld.h"
 #include "llfeaturemanager.h"
-#if LL_WINDOWS && LL_LCD_COMPILE
-	#include "lllcd.h"
+#if LL_LCD_COMPILE
+#include "lllcd.h"
 #endif
 
 
@@ -597,7 +597,7 @@ void update_statistics(U32 frame_count)
 	LLViewerImageList::sTextureBits = 0;
 	LLViewerImageList::sTexturePackets = 0;
 
-#if LL_WINDOWS && LL_LCD_COMPILE
+#if LL_LCD_COMPILE
 	bool LCDenabled = gLcdScreen->Enabled();
 	LLViewerStats::getInstance()->setStat(LLViewerStats::ST_LOGITECH_LCD, LCDenabled);
 #else

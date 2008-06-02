@@ -29,8 +29,6 @@
  * $/LicenseInfo$
  */
 
-#if LL_DARWIN
-
 #include "linden_common.h"
 
 #include <Carbon/Carbon.h>
@@ -42,10 +40,6 @@
 #include "llgl.h"
 #include "llstring.h"
 #include "lldir.h"
-#include "llviewercontrol.h"
-
-#include "llglheaders.h"
-
 #include "indra_constants.h"
 
 #include "llwindowmacosx-objc.h"
@@ -65,6 +59,8 @@ const S32	MAX_NUM_RESOLUTIONS = 32;
 //
 // LLWindowMacOSX
 //
+
+BOOL LLWindowMacOSX::sUseMultGL = FALSE;
 
 // Cross-platform bits:
 
@@ -242,7 +238,7 @@ static LLWindowMacOSX *gWindowImplementation = NULL;
 
 
 
-LLWindowMacOSX::LLWindowMacOSX(char *title, char *name, S32 x, S32 y, S32 width,
+LLWindowMacOSX::LLWindowMacOSX(const char *title, const char *name, S32 x, S32 y, S32 width,
 							   S32 height, U32 flags,
 							   BOOL fullscreen, BOOL clearBg,
 							   BOOL disable_vsync, BOOL use_gl,
@@ -809,7 +805,7 @@ BOOL LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits
 	aglSetInteger(mContext, AGL_SWAP_INTERVAL, &frames_per_swap);  
 
 	//enable multi-threaded OpenGL
-	if (gSavedSettings.getBOOL("RenderAppleUseMultGL"))
+	if (sUseMultGL)
 	{
 		CGLError cgl_err;
 		CGLContextObj ctx = CGLGetCurrentContext();
@@ -3286,7 +3282,7 @@ void *LLWindowMacOSX::getPlatformWindow()
 		dummywindowref = NewCWindow(
 			NULL,
 			&window_rect,
-			"\p",
+			(ConstStr255Param) "\p",
 			false,				// Create the window invisible.  
 			zoomDocProc,		// Window with a grow box and a zoom box
 			kLastWindowOfClass,		// create it behind other windows
@@ -3402,5 +3398,3 @@ std::string LLWindowMacOSX::getFontListSans()
 	// The third filename is in UTF8, but it shows up in the font menu as "STHeiti Light"
 	return "\xE3\x83\x92\xE3\x83\xA9\xE3\x82\xAD\xE3\x82\x99\xE3\x83\x8E\xE8\xA7\x92\xE3\x82\xB3\xE3\x82\x99 Pro W3.otf;\xE3\x83\x92\xE3\x83\xA9\xE3\x82\xAD\xE3\x82\x99\xE3\x83\x8E\xE8\xA7\x92\xE3\x82\xB3\xE3\x82\x99 ProN W3.otf;AppleGothic.dfont;AppleGothic.ttf;\xe5\x8d\x8e\xe6\x96\x87\xe7\xbb\x86\xe9\xbb\x91.ttf";
 }
-
-#endif // LL_DARWIN

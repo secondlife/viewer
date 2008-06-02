@@ -45,19 +45,19 @@
 
 #if LL_LINUX
 # include <dlfcn.h>		// RTLD_LAZY
-# include <execinfo.h>            // backtrace - glibc only
-# ifndef LL_ELFBIN
-#  define LL_ELFBIN 1
-# endif // LL_ELFBIN
-# if LL_ELFBIN
-#  include <cxxabi.h>         // for symbol demangling
-#  include "ELFIO.h"          // for better backtraces
-# endif // LL_ELFBIN
+# include <execinfo.h>  // backtrace - glibc only
 #elif LL_SOLARIS
 # include <sys/types.h>
 # include <unistd.h>
 # include <fcntl.h>
 # include <ucontext.h>
+#endif
+
+#ifdef LL_ELFBIN
+# ifdef __GNUC__
+#  include <cxxabi.h>			// for symbol demangling
+# endif
+# include "ELFIO/ELFIO.h"		// for better backtraces
 #endif
 
 namespace
@@ -338,25 +338,25 @@ void LLAppViewerLinux::handleCrashReporting()
 	if (CRASH_BEHAVIOR_NEVER_SEND != LLAppViewer::instance()->getCrashBehavior())
 	{	
 		// launch the actual crash logger
-		char* ask_dialog = "-dialog";
+		const char* ask_dialog = "-dialog";
 		if (CRASH_BEHAVIOR_ASK != LLAppViewer::instance()->getCrashBehavior())
 			ask_dialog = ""; // omit '-dialog' option
 		std::string cmd =gDirUtilp->getAppRODataDir();
 		cmd += gDirUtilp->getDirDelimiter();
 		cmd += "linux-crash-logger.bin";
-		char* const cmdargv[] =
-			{(char*)cmd.c_str(),
+		const char * cmdargv[] =
+			{cmd.c_str(),
 			 ask_dialog,
-			 (char*)"-user",
+			 "-user",
 			 (char*)gGridName.c_str(),
-			 (char*)"-name",
-			 (char*)LLAppViewer::instance()->getSecondLifeTitle().c_str(),
+			 "-name",
+			 LLAppViewer::instance()->getSecondLifeTitle().c_str(),
 			 NULL};
 		fflush(NULL);
 		pid_t pid = fork();
 		if (pid == 0)
 		{ // child
-			execv(cmd.c_str(), cmdargv);		/* Flawfinder: ignore */
+			execv(cmd.c_str(), (char* const*) cmdargv);		/* Flawfinder: ignore */
 			llwarns << "execv failure when trying to start " << cmd << llendl;
 			_exit(1); // avoid atexit()
 		} 

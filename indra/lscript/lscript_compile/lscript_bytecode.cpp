@@ -101,7 +101,7 @@ void LLScriptByteCodeChunk::addU16(U16 data)
 	addBytes(temp, 2);
 }
 
-void LLScriptByteCodeChunk::addBytes(U8 *bytes, S32 size)
+void LLScriptByteCodeChunk::addBytes(const U8 *bytes, S32 size)
 {
 	if (mCodeChunk)
 	{
@@ -118,7 +118,7 @@ void LLScriptByteCodeChunk::addBytes(U8 *bytes, S32 size)
 	mCurrentOffset += size;
 }
 
-void LLScriptByteCodeChunk::addBytes(char *bytes, S32 size)
+void LLScriptByteCodeChunk::addBytes(const char *bytes, S32 size)
 {
 	if (mCodeChunk)
 	{

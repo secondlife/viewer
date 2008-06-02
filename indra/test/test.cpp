@@ -43,8 +43,8 @@
 #include "llerrorcontrol.h"
 #include "lltut.h"
 
-#include <apr-1/apr_pools.h>
-#include <apr-1/apr_getopt.h>
+#include "apr_pools.h"
+#include "apr_getopt.h"
 
 // the CTYPE_WORKAROUND is needed for linux dev stations that don't
 // have the broken libc6 packages needed by our out-of-date static 
@@ -62,13 +62,14 @@ namespace tut
 class LLTestCallback : public tut::callback
 {
 public:
-	LLTestCallback(bool verbose_mode) :
+	LLTestCallback(bool verbose_mode, std::ostream *stream) :
 		mVerboseMode(verbose_mode),
 		mTotalTests(0),
 		mPassedTests(0),
 		mFailedTests(0),
 		mSkippedTests(0),
-		mSkipedFailTests(0)
+		mSkippedFailTests(0),
+		mStream(stream)
 	{
 	}
 
@@ -109,7 +110,7 @@ public:
 			out << "skipped";
 			break;
 		case tut::test_result::skip_fail:
-			++mSkipedFailTests;
+			++mSkippedFailTests;
 			out << "skipped known failure";
 			break;
 		default:
@@ -122,34 +123,57 @@ public:
 			{
 				out << ": '" << tr.message << "'";
 			}
+			if (mStream)
+			{
+				*mStream << out.str() << std::endl;
+			}
+			
 			std::cout << out.str() << std::endl;
 		}
 	}
 
 	void run_completed()
 	{
-		std::cout << std::endl;
-		std::cout << "Total Tests:   " << mTotalTests << std::endl;
-		std::cout << "Passed Tests: " << mPassedTests << std::endl;
+		if (mStream)
+		{
+			run_completed_(*mStream);
+		}
+		run_completed_(std::cout);
+
+		if (mFailedTests > 0)
+		{
+			exit(1);
+		}
+	}
+	
+private:
+	void run_completed_(std::ostream &stream)
+	{
+		stream << std::endl;
+		stream << "Total Tests:   " << mTotalTests << std::endl;
+		stream << "Passed Tests: " << mPassedTests << std::endl;
+
+		stream << std::endl;
+		stream << "Total Tests:   " << mTotalTests << std::endl;
+		stream << "Passed Tests: " << mPassedTests << std::endl;
 		
 		if (mSkippedTests > 0)
 		{
-			std::cout << "Skipped Tests: " << mSkippedTests << std::endl;
+			stream << "Skipped Tests: " << mSkippedTests << std::endl;
 		}
 
-		if (mSkipedFailTests > 0)
+		if (mSkippedFailTests > 0)
 		{
-			std::cout << "Skipped known failures: " << mSkipedFailTests
+			stream << "Skipped known failures: " << mSkippedFailTests
 				<< std::endl;
 		}
 
 		if(mFailedTests > 0)
 		{
-			std::cout << "*********************************" << std::endl;
-			std::cout << "Failed Tests:   " << mFailedTests << std::endl;
-			std::cout << "Please report or fix the problem." << std::endl;
-			std::cout << "*********************************" << std::endl;
-			exit(1);
+			stream << "*********************************" << std::endl;
+			stream << "Failed Tests:   " << mFailedTests << std::endl;
+			stream << "Please report or fix the problem." << std::endl;
+			stream << "*********************************" << std::endl;
 		}
 	}
 
@@ -159,7 +183,8 @@ protected:
 	int mPassedTests;
 	int mFailedTests;
 	int mSkippedTests;
-	int mSkipedFailTests;
+	int mSkippedFailTests;
+	std::ostream *mStream;
 };
 
 static const apr_getopt_option_t TEST_CL_OPTIONS[] =
@@ -168,7 +193,9 @@ static const apr_getopt_option_t TEST_CL_OPTIONS[] =
 	{"list", 'l', 0, "List available test groups."},
 	{"verbose", 'v', 0, "Verbose output."},
 	{"group", 'g', 1, "Run test group specified by option argument."},
+	{"output", 'o', 1, "Write output to the named file."},
 	{"skip", 's', 1, "Skip test number specified by option argument. Only works when a specific group is being tested"},
+	{"touch", 't', 1, "Touch the given file if all tests succeed"},
 	{"wait", 'w', 0, "Wait for input before exit."},
 	{"debug", 'd', 0, "Emit full debug logs."},
 	{0, 0, 0, 0}
@@ -256,6 +283,9 @@ int main(int argc, char **argv)
 	apr_status_t apr_err;
 	const char* opt_arg = NULL;
 	int opt_id = 0;
+	std::ofstream *output = NULL;
+	const char *touch = NULL;
+	
 	while(true)
 	{
 		apr_err = apr_getopt_long(os, TEST_CL_OPTIONS, &opt_id, &opt_arg);
@@ -285,6 +315,13 @@ int main(int argc, char **argv)
 		case 'v':
 			verbose_mode = true;
 			break;
+		case 'o':
+			output = new std::ofstream;
+			output->open(opt_arg);
+			break;
+		case 't':
+			touch = opt_arg;
+			break;
 		case 'w':
 			wait_at_exit = true;
 			break;
@@ -301,7 +338,7 @@ int main(int argc, char **argv)
 	}
 
 	// run the tests
-	LLTestCallback callback(verbose_mode);
+	LLTestCallback callback(verbose_mode, output);
 	tut::runner.get().set_callback(&callback);
 	
 	if(test_group.empty())
@@ -317,6 +354,20 @@ int main(int argc, char **argv)
 	{
 		std::cerr << "Waiting for input before exiting..." << std::endl;
 		std::cin.get();
+	}
+	
+	if (output)
+	{
+		output->close();
+		delete output;
+	}
+
+	if (touch)
+	{
+		std::ofstream s;
+		s.open(touch);
+		s << "ok" << std::endl;
+		s.close();
 	}
 	
 	apr_terminate();

@@ -33,6 +33,7 @@
 #define LL_LLPTRSKIPLIST_H
 
 #include "llerror.h"
+#include "llrand.h"
 //#include "vmath.h"
 #include "llrand.h"
 

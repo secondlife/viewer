@@ -325,8 +325,8 @@ class LLWindowManager
 {
 public:
 	static LLWindow* createWindow(
-		char *title,
-		char *name,
+		const char *title,
+		const char *name,
 		LLCoordScreen upper_left = LLCoordScreen(10, 10),
 		LLCoordScreen size = LLCoordScreen(320, 240),
 		U32 flags = 0,
@@ -336,7 +336,7 @@ public:
 		BOOL use_gl = TRUE,
 		BOOL ignore_pixel_depth = FALSE);
 	static LLWindow *createWindow(
-		char* title, char* name, S32 x, S32 y, S32 width, S32 height,
+		const char* title, const char* name, S32 x, S32 y, S32 width, S32 height,
 		U32 flags = 0,
 		BOOL fullscreen = FALSE,
 		BOOL clearBg = FALSE,

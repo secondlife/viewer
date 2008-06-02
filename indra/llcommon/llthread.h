@@ -36,7 +36,7 @@
 #include "llapp.h"
 #include "llmemory.h"
 
-#include "apr-1/apr_thread_cond.h"
+#include "apr_thread_cond.h"
 
 class LLThread;
 class LLMutex;

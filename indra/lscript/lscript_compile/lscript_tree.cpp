@@ -9804,7 +9804,7 @@ void LLScriptScript::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompilePa
 			mGlobalScope = new LLScriptScope(gScopeStringTable);
 			// zeroth, add library functions to global scope
 			S32 i;
-			char *arg;
+			const char *arg;
 			LLScriptScopeEntry *sentry;
 			for (i = 0; i < gScriptLibrary.mNextNumber; i++)
 			{

@@ -37,10 +37,10 @@ XPStyle on                  ; add an XP manifest to the installer
 ;; (these files are in the same place as the nsi template but the python script generates a new nsi file in the 
 ;; application directory so we have to add a path to these include files)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-!include "installers\windows\lang_de.nsi"
-!include "installers\windows\lang_en-us.nsi"
-!include "installers\windows\lang_ja.nsi"
-!include "installers\windows\lang_ko.nsi"
+!include "%%SOURCE%%\installers\windows\lang_de.nsi"
+!include "%%SOURCE%%\installers\windows\lang_en-us.nsi"
+!include "%%SOURCE%%\installers\windows\lang_ja.nsi"
+!include "%%SOURCE%%\installers\windows\lang_ko.nsi"
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Tweak for different servers/builds (this placeholder is replaced by viewer_manifest.py)
@@ -51,8 +51,8 @@ Name ${INSTNAME}
 SubCaption 0 $(LicenseSubTitleSetup)	; override "license agreement" text
 
 BrandingText " "						; bottom of window text
-Icon res\install_icon.ico				; our custom icon
-UninstallIcon res\uninstall_icon.ico    ; our custom icon
+Icon %%SOURCE%%\res\install_icon.ico	; our custom icon
+UninstallIcon %%SOURCE%%\res\uninstall_icon.ico    ; our custom icon
 WindowIcon on							; show our icon in left corner
 BGGradient off							; no big background window
 CRCCheck on								; make sure CRC is OK

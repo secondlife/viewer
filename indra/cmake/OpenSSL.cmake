@@ -1,0 +1,21 @@
+# -*- cmake -*-
+
+set(OpenSSL_FIND_QUIETLY ON)
+set(OpenSSL_FIND_REQUIRED ON)
+
+if (STANDALONE)
+  include(FindOpenSSL)
+else (STANDALONE)
+  if (WINDOWS)
+    set(OPENSSL_LIBRARIES ssleay32 libeay32)
+  else (WINDOWS)
+    set(OPENSSL_LIBRARIES ssl)
+  endif (WINDOWS)
+  set(OPENSSL_INCLUDE_DIRS ${LIBS_PREBUILT_DIR}/${LL_ARCH_DIR}/include)
+endif (STANDALONE)
+
+if (LINUX)
+  set(CRYPTO_LIBRARIES crypto)
+elseif (DARWIN)
+  set(CRYPTO_LIBRARIES llcrypto)
+endif (LINUX)

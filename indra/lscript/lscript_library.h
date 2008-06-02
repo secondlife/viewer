@@ -43,16 +43,16 @@ class LLScriptLibData;
 class LLScriptLibraryFunction
 {
 public:
-	LLScriptLibraryFunction(F32 eu, F32 st, void (*exec_func)(LLScriptLibData *, LLScriptLibData *, const LLUUID &), char *name, char *ret_type, char *args, char *desc, BOOL god_only = FALSE);
+	LLScriptLibraryFunction(F32 eu, F32 st, void (*exec_func)(LLScriptLibData *, LLScriptLibData *, const LLUUID &), const char *name, const char *ret_type, const char *args, const char *desc, BOOL god_only = FALSE);
 	~LLScriptLibraryFunction();
 
 	F32  mEnergyUse;
 	F32  mSleepTime;
 	void (*mExecFunc)(LLScriptLibData *, LLScriptLibData *, const LLUUID &);
-	char *mName;
-	char *mReturnType;
-	char *mArgs;
-	char *mDesc;
+	const char *mName;
+	const char *mReturnType;
+	const char *mArgs;
+	const char *mDesc;
 	BOOL mGodOnly;
 };
 
@@ -65,7 +65,7 @@ public:
 	void init();
 
 	void addFunction(LLScriptLibraryFunction *func);
-	void assignExec(char *name, void (*exec_func)(LLScriptLibData *, LLScriptLibData *, const LLUUID &));
+	void assignExec(const char *name, void (*exec_func)(LLScriptLibData *, LLScriptLibData *, const LLUUID &));
 
 	S32						mNextNumber;
 	LLScriptLibraryFunction	**mFunctions;
@@ -365,7 +365,7 @@ public:
 	void print(std::ostream &s, BOOL b_prepend_comma);
 	void print_separator(std::ostream& ostr, BOOL b_prepend_sep, char* sep);
 
-	void setFromCSV(char *src)
+	void setFromCSV(const char *src)
 	{
 		mType = LST_STRING;
 		mString = new char[strlen(src) + 1];	/* Flawfinder: ignore */
@@ -389,25 +389,6 @@ public:
 	{
 		mKey = new char[UUID_STR_LENGTH];
 		id.toString(mKey);
-	}
-
-	LLScriptLibData(char *string) : mType(LST_STRING), mInteger(0), mFP(0.f), mKey(NULL), mString(NULL), mVec(), mQuat(), mListp(NULL)
-	{
-		if (!string)
-		{
-			mString = new char[1];
-			mString[0] = 0;
-		}
-		else
-		{
-			mString = new char[strlen(string) + 1];	/* Flawfinder: ignore */
-			if (mString == NULL)
-			{
-				llerrs << "Memory Allocation Failed" << llendl;
-				return;
-			}
-			strcpy(mString, string);	/* Flawfinder: ignore */
-		}
 	}
 
 	LLScriptLibData(const char *string) : mType(LST_STRING), mInteger(0), mFP(0.f), mKey(NULL), mString(NULL), mVec(), mQuat(), mListp(NULL)

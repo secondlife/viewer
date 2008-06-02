@@ -32,6 +32,10 @@
  * $/LicenseInfo$
  */
 
+#if LL_WINDOWS
+#include <windows.h>
+#endif
+
 #include "linden_common.h"
 #include "llfile.h"
 #include "llstring.h"
@@ -126,6 +130,50 @@ int	LLFile::stat(const char* filename, llstat* filestatus)
 #else
 	return ::stat(filename,filestatus);
 #endif
+}
+
+bool LLFile::isdir(const char *filename)
+{
+	llstat st;
+	
+	return stat(filename, &st) == 0 && S_ISDIR(st.st_mode);
+}
+
+bool LLFile::isfile(const char *filename)
+{
+	llstat st;
+	
+	return stat(filename, &st) == 0 && S_ISREG(st.st_mode);
+}
+
+const char *LLFile::tmpdir()
+{
+	static std::string utf8path;
+
+	if (utf8path.empty())
+	{
+		char sep;
+#if LL_WINDOWS
+		sep = '\\';
+
+		DWORD len = GetTempPathW(0, L"");
+		llutf16string utf16path;
+		utf16path.resize(len + 1);
+		len = GetTempPathW(static_cast<DWORD>(utf16path.size()), &utf16path[0]);
+		utf8path = utf16str_to_utf8str(utf16path);
+#else
+		sep = '/';
+
+		char *env = getenv("TMPDIR");
+
+		utf8path = env ? env : "/tmp/";
+#endif
+		if (utf8path[utf8path.size() - 1] != sep)
+		{
+			utf8path += sep;
+		}
+	}
+	return utf8path.c_str();
 }
 
 

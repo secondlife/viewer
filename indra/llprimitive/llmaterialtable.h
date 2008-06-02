@@ -79,12 +79,12 @@ public:
 	F32			mDamageModifier;	// modifier on KE based damage
 	F32			mEPModifier;		// modifier on mass based EP total
 
-	LLMaterialInfo(U8 mcode, char* name, const LLUUID &uuid)
+	LLMaterialInfo(U8 mcode, const char* name, const LLUUID &uuid)
 	{
 		init(mcode,name,uuid);
 	};
 
-	void init(U8 mcode, char* name, const LLUUID &uuid)
+	void init(U8 mcode, const char* name, const LLUUID &uuid)
 	{
 		mName[0] = 0;
 		mDensity = 1000.f;             // default to 1000.0 (water)
@@ -150,7 +150,7 @@ public:
 
 	void initBasicTable();
 
-	BOOL add(U8 mcode, char* name, const LLUUID &uuid);	                 
+	BOOL add(U8 mcode, const char* name, const LLUUID &uuid);	                 
 	BOOL addCollisionSound(U8 mcode, U8 mcode2, const LLUUID &uuid);
 	BOOL addSlidingSound(U8 mcode, U8 mcode2, const LLUUID &uuid);
 	BOOL addRollingSound(U8 mcode, U8 mcode2, const LLUUID &uuid);

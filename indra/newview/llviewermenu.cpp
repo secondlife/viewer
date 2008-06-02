@@ -6982,7 +6982,7 @@ void handle_grab_texture(void* data)
 						   PERM_NONE,
 						   PERM_NONE,
 						   next_owner_perm);
-			S32 creation_date_now = time_corrected();
+			time_t creation_date_now = time_corrected();
 			LLPointer<LLViewerInventoryItem> item
 				= new LLViewerInventoryItem(item_id,
 											folder_id,

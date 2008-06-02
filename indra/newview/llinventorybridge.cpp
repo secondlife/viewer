@@ -180,7 +180,7 @@ PermissionMask LLInvFVBridge::getPermissionMask() const
 }
 
 // Folders don't have creation dates.
-U32 LLInvFVBridge::getCreationDate() const
+time_t LLInvFVBridge::getCreationDate() const
 {
 	return 0;
 }
@@ -894,7 +894,7 @@ LLString LLItemBridge::getLabelSuffix() const
 	return suffix;
 }
 
-U32 LLItemBridge::getCreationDate() const
+time_t LLItemBridge::getCreationDate() const
 {
 	LLViewerInventoryItem* item = getItem();
 	if (item)

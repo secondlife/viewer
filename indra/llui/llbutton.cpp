@@ -39,13 +39,10 @@
 
 // Project includes
 #include "llkeyboard.h"
-#include "llgl.h"
 #include "llui.h"
 #include "lluiconstants.h"
-//#include "llcallbacklist.h"
 #include "llresmgr.h"
 #include "llcriticaldamp.h"
-#include "llglheaders.h"
 #include "llfocusmgr.h"
 #include "llwindow.h"
 #include "llglimmediate.h"

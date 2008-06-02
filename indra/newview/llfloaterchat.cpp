@@ -355,7 +355,7 @@ void LLFloaterChat::addChat(const LLChat& chat,
 			chat.mChatType == CHAT_TYPE_DEBUG_MSG
 			&& !gSavedSettings.getBOOL("ScriptErrorsAsChat");
 
-#if LL_WINDOWS && LL_LCD_COMPILE
+#if LL_LCD_COMPILE
 	// add into LCD displays
 	if (!invisible_script_debug_chat)
 	{

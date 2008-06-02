@@ -277,14 +277,14 @@ public:
 class LLScriptScopeEntry
 {
 public:
-	LLScriptScopeEntry(char *identifier, LSCRIPTIdentifierType idtype, LSCRIPTType type, S32 count = 0)
+	LLScriptScopeEntry(const char *identifier, LSCRIPTIdentifierType idtype, LSCRIPTType type, S32 count = 0)
 		: mIdentifier(identifier), mIDType(idtype), mType(type), mOffset(0), mSize(0), mAssignable(NULL), mCount(count), mLibraryNumber(0)
 	{
 	}
 
 	~LLScriptScopeEntry() {}
 
-	char						*mIdentifier;
+	const char					*mIdentifier;
 	LSCRIPTIdentifierType		mIDType;
 	LSCRIPTType					mType;
 	S32							mOffset;
@@ -309,9 +309,9 @@ public:
 		mEntryMap.deleteAllData();
 	}
 
-	LLScriptScopeEntry *addEntry(char *identifier, LSCRIPTIdentifierType idtype, LSCRIPTType type)
+	LLScriptScopeEntry *addEntry(const char *identifier, LSCRIPTIdentifierType idtype, LSCRIPTType type)
 	{
-		char *name = mSTable->addString(identifier);
+		const char *name = mSTable->addString(identifier);
 		if (!mEntryMap.checkData(name))
 		{
 			if (idtype == LIT_FUNCTION)
@@ -329,9 +329,9 @@ public:
 		}
 	}
 
-	BOOL checkEntry(char *identifier)
+	BOOL checkEntry(const char *identifier)
 	{
-		char *name = mSTable->addString(identifier);
+		const char *name = mSTable->addString(identifier);
 		if (mEntryMap.checkData(name))
 		{
 			return TRUE;
@@ -343,9 +343,9 @@ public:
 		}
 	}
 
-	LLScriptScopeEntry *findEntry(char *identifier)
+	LLScriptScopeEntry *findEntry(const char *identifier)
 	{
-		char			*name = mSTable->addString(identifier);
+		const char		*name = mSTable->addString(identifier);
 		LLScriptScope	*scope = this;
 
 		while (scope)
@@ -360,9 +360,9 @@ public:
 		return NULL;
 	}
 
-	LLScriptScopeEntry *findEntryTyped(char *identifier, LSCRIPTIdentifierType idtype)
+	LLScriptScopeEntry *findEntryTyped(const char *identifier, LSCRIPTIdentifierType idtype)
 	{
-		char			*name = mSTable->addString(identifier);
+		const char		*name = mSTable->addString(identifier);
 		LLScriptScope	*scope = this;
 
 		while (scope)
@@ -397,7 +397,7 @@ public:
 		mParentScope = scope;
 	}
 
-	LLMap<char *, LLScriptScopeEntry *>	mEntryMap;
+	LLMap<const char *, LLScriptScopeEntry *>	mEntryMap;
 	LLScriptScope						*mParentScope;
 	LLStringTable						*mSTable;
 	S32									mFunctionCount;

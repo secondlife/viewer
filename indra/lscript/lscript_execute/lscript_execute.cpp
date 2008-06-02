@@ -43,7 +43,7 @@
 void (*binary_operations[LST_EOF][LST_EOF])(U8 *buffer, LSCRIPTOpCodesEnum opcode);
 void (*unary_operations[LST_EOF])(U8 *buffer, LSCRIPTOpCodesEnum opcode);
 
-char* LSCRIPTRunTimeFaultStrings[LSRF_EOF] =		/*Flawfinder: ignore*/
+const char* LSCRIPTRunTimeFaultStrings[LSRF_EOF] =		/*Flawfinder: ignore*/
 {
 	"invalid",				//	LSRF_INVALID,
 	"Math Error",			//	LSRF_MATH,
@@ -296,7 +296,7 @@ void LLScriptExecute::setStateEventOpcoodeStartSafely( S32 state, LSCRIPTStateEv
 
 S32 lscript_push_variable(LLScriptLibData *data, U8 *buffer);
 
-U32 LLScriptExecute::run(BOOL b_print, const LLUUID &id, char **errorstr, BOOL &state_transition)
+U32 LLScriptExecute::run(BOOL b_print, const LLUUID &id, const char **errorstr, BOOL &state_transition)
 {
 	//  is there a fault?
 	//	if yes, print out message and exit
@@ -3687,7 +3687,7 @@ void lscript_run(char *filename, BOOL b_debug)
 	}
 	else
 	{
-		char *error;
+		const char *error;
 		BOOL b_state;
 		LLScriptExecute *execute = NULL;
 

@@ -31,6 +31,8 @@
 #ifndef LL_STDTYPES_H
 #define LL_STDTYPES_H
 
+#include <cfloat>
+
 typedef signed char			S8;
 typedef unsigned char			U8;
 typedef signed short			S16;

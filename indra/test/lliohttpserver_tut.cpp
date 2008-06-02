@@ -125,7 +125,7 @@ namespace tut
 			pump->addChain(chain, DEFAULT_CHAIN_EXPIRY_SECS);
 
 			pumpPipe(pump, 10);
-			if(mResponse && (! timeout)) 
+			if(mResponse.notNull() && (! timeout)) 
 			{
 				mResponse->result(mResult);
 				mResponse = NULL;
@@ -138,7 +138,7 @@ namespace tut
 			delete pump;
 			apr_pool_destroy(pool);
 
-			if(mResponse && timeout)
+			if(mResponse.notNull() && timeout)
 			{
 				mResponse->result(mResult);
 				mResponse = NULL;

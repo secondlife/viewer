@@ -4576,7 +4576,7 @@ void container_inventory_arrived(LLViewerObject* object,
 				LLInventoryItem* item = (LLInventoryItem*)(obj);
 				LLUUID item_id;
 				item_id.generate();
-				S32 creation_date_utc = time_corrected();
+				time_t creation_date_utc = time_corrected();
 				LLPointer<LLViewerInventoryItem> new_item
 					= new LLViewerInventoryItem(item_id,
 												cat_id,
@@ -4616,7 +4616,7 @@ void container_inventory_arrived(LLViewerObject* object,
 
 		LLUUID item_id;
 		item_id.generate();
-		S32 creation_date_utc = time_corrected();
+		time_t creation_date_utc = time_corrected();
 		LLPointer<LLViewerInventoryItem> new_item
 			= new LLViewerInventoryItem(item_id, category,
 										item->getPermissions(),

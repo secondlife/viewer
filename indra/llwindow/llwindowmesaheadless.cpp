@@ -29,14 +29,11 @@
  * $/LicenseInfo$
  */
 
-#if LL_MESA_HEADLESS
-
 #include "linden_common.h"
 #include "indra_constants.h"
 
 #include "llwindowmesaheadless.h"
 #include "llgl.h"
-#include "llglheaders.h"
 
 #define MESA_CHANNEL_TYPE GL_UNSIGNED_SHORT
 #define MESA_CHANNEL_SIZE 2
@@ -46,7 +43,7 @@ U16 *gMesaBuffer = NULL;
 //
 // LLWindowMesaHeadless
 //
-LLWindowMesaHeadless::LLWindowMesaHeadless(char *title, char *name, S32 x, S32 y, S32 width, S32 height,
+LLWindowMesaHeadless::LLWindowMesaHeadless(const char *title, const char *name, S32 x, S32 y, S32 width, S32 height,
 							 U32 flags,  BOOL fullscreen, BOOL clearBg,
 							 BOOL disable_vsync, BOOL use_gl, BOOL ignore_pixel_depth)
 	: LLWindow(fullscreen, flags)
@@ -83,5 +80,3 @@ void LLWindowMesaHeadless::swapBuffers()
 {
 	glFinish();
 }
-
-#endif

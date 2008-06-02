@@ -56,8 +56,8 @@ public:
 
 	void addByte(U8 byte);
 	void addU16(U16 data);
-	void addBytes(U8 *bytes, S32 size);
-	void addBytes(char *bytes, S32 size);
+	void addBytes(const U8 *bytes, S32 size);
+	void addBytes(const char *bytes, S32 size);
 	void addBytes(S32 size);
 	void addBytesDontInc(S32 size);
 	void addInteger(S32 value);

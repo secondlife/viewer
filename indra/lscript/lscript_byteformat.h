@@ -515,7 +515,7 @@ typedef enum e_lscript_runtime_faults
 	LSRF_EOF
 } LSCRIPTRunTimeFaults;
 
-extern char* LSCRIPTRunTimeFaultStrings[LSRF_EOF]; 	/*Flawfinder: ignore*/
+extern const char* LSCRIPTRunTimeFaultStrings[LSRF_EOF]; 	/*Flawfinder: ignore*/
 
 const S32 LSCRIPTRunTimeFaultBits[LSRF_EOF] =
 {

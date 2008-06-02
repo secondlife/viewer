@@ -41,10 +41,8 @@
 #include "llcriticaldamp.h"
 #include "llkeyboard.h"
 #include "llui.h"
-//#include "llviewerimagelist.h"
 #include "llfocusmgr.h"
 #include "llwindow.h"
-#include "llglheaders.h"
 #include "llcontrol.h"
 #include "llglimmediate.h"
 

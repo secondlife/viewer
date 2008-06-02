@@ -161,7 +161,7 @@ S32 get_checker_number(char checker)
 }
 
 // check token based on passed simplified regular expression
-BOOL	b_check_token(const char *token, char *regexp)
+BOOL	b_check_token(const char *token, const char *regexp)
 {
 	S32 tptr, rptr = 0;
 	S32 current_checker, next_checker = 0;

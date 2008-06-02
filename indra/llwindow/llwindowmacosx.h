@@ -120,7 +120,7 @@ public:
 
 protected:
 	LLWindowMacOSX(
-		char *title, char *name, int x, int y, int width, int height, U32 flags,
+		const char *title, const char *name, int x, int y, int width, int height, U32 flags,
 		BOOL fullscreen, BOOL clearBg, BOOL disable_vsync, BOOL use_gl,
 		BOOL ignore_pixel_depth,
 		U32 fsaa_samples);
@@ -203,6 +203,8 @@ protected:
 	LangCode	mTSMLangCode;
 	LLPreeditor*	mPreeditor;
 	
+	static BOOL	sUseMultGL;
+
 	friend class LLWindowManager;
 };
 

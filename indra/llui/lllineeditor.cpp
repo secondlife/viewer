@@ -39,7 +39,6 @@
 #include "llmath.h"
 #include "llfontgl.h"
 #include "llgl.h"
-#include "sound_ids.h"
 #include "lltimer.h"
 
 //#include "llclipboard.h"

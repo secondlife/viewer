@@ -372,7 +372,7 @@ public:
 	~LLScriptExecute();
 
 	void init();
-	U32 run(BOOL b_print, const LLUUID &id, char **errorstr, BOOL &state_transition);
+	U32 run(BOOL b_print, const LLUUID &id, const char **errorstr, BOOL &state_transition);
 
 	BOOL (*mExecuteFuncs[0x100])(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id);
 

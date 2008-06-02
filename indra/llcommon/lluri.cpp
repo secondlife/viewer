@@ -38,7 +38,7 @@
 #include "llsd.h"
 #include <iomanip>
   
-#include "../llmath/lluuid.h"
+#include "lluuid.h"
 
 // system includes
 #include <boost/tokenizer.hpp>

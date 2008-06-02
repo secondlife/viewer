@@ -283,7 +283,7 @@ void LLFolderViewItem::refresh()
 		const char* label = mListener->getDisplayName().c_str();
 		mLabel = label ? label : "";
 		setIcon(mListener->getIcon());
-		U32 creation_date = mListener->getCreationDate();
+		time_t creation_date = mListener->getCreationDate();
 		if (mCreationDate != creation_date)
 		{
 			mCreationDate = mListener->getCreationDate();
@@ -1745,7 +1745,7 @@ void LLFolderViewFolder::sortBy(U32 order)
 
 	if (order & LLInventoryFilter::SO_DATE)
 	{
-		U32 latest = 0;
+		time_t latest = 0;
 		
 		if (!mItems.empty())
 		{
@@ -2203,9 +2203,9 @@ void LLFolderViewFolder::draw()
 	mExpanderHighlighted = FALSE;
 }
 
-U32 LLFolderViewFolder::getCreationDate() const
+time_t LLFolderViewFolder::getCreationDate() const
 {
-	return llmax<U32>(mCreationDate, mSubtreeCreationDate);
+	return llmax<time_t>(mCreationDate, mSubtreeCreationDate);
 }
 
 
@@ -4400,8 +4400,8 @@ bool LLInventorySort::operator()(LLFolderViewItem* a, LLFolderViewItem* b)
 	{
 		// BUG: This is very very slow.  The getCreationDate() is log n in number
 		// of inventory items.
-		U32 first_create = a->getCreationDate();
-		U32 second_create = b->getCreationDate();
+		time_t first_create = a->getCreationDate();
+		time_t second_create = b->getCreationDate();
 		if (first_create == second_create)
 		{
 			return (LLString::compareDict(a->getLabel(), b->getLabel()) < 0);
@@ -4495,8 +4495,8 @@ LLInventoryFilter::LLInventoryFilter(const LLString& name) :
 	mNeedTextRebuild(TRUE)
 {
 	mFilterOps.mFilterTypes = 0xffffffff;
-	mFilterOps.mMinDate = 0;
-	mFilterOps.mMaxDate = U32_MAX;
+	mFilterOps.mMinDate = time_min();
+	mFilterOps.mMaxDate = time_max();
 	mFilterOps.mHoursAgo = 0;
 	mFilterOps.mShowFolderState = SHOW_NON_EMPTY_FOLDERS;
 	mFilterOps.mPermissions = PERM_NONE;
@@ -4524,10 +4524,10 @@ LLInventoryFilter::~LLInventoryFilter()
 
 BOOL LLInventoryFilter::check(LLFolderViewItem* item) 
 {
-	U32 earliest;
+	time_t earliest;
 
 	earliest = time_corrected() - mFilterOps.mHoursAgo * 3600;
-	if (mFilterOps.mMinDate && mFilterOps.mMinDate < earliest)
+	if (mFilterOps.mMinDate > time_min() && mFilterOps.mMinDate < earliest)
 	{
 		earliest = mFilterOps.mMinDate;
 	}
@@ -4570,8 +4570,8 @@ BOOL LLInventoryFilter::isActive()
 	return mFilterOps.mFilterTypes != 0xffffffff 
 		|| mFilterSubString.size() 
 		|| mFilterOps.mPermissions != PERM_NONE 
-		|| mFilterOps.mMinDate != 0 
-		|| mFilterOps.mMaxDate != U32_MAX
+		|| mFilterOps.mMinDate != time_min()
+		|| mFilterOps.mMaxDate != time_max()
 		|| mFilterOps.mHoursAgo != 0;
 }
 
@@ -4667,7 +4667,7 @@ void LLInventoryFilter::setFilterPermissions(PermissionMask perms)
 	}
 }
 
-void LLInventoryFilter::setDateRange(U32 min_date, U32 max_date)
+void LLInventoryFilter::setDateRange(time_t min_date, time_t max_date)
 {
 	mFilterOps.mHoursAgo = 0;
 	if (mFilterOps.mMinDate != min_date)
@@ -4686,19 +4686,20 @@ void LLInventoryFilter::setDateRangeLastLogoff(BOOL sl)
 {
 	if (sl && !isSinceLogoff())
 	{
-		setDateRange(mLastLogoff, U32_MAX);
+		setDateRange(mLastLogoff, time_max());
 		setModified();
 	}
 	if (!sl && isSinceLogoff())
 	{
-		setDateRange(0, U32_MAX);
+		setDateRange(0, time_max());
 		setModified();
 	}
 }
 
 BOOL LLInventoryFilter::isSinceLogoff()
 {
-	return (mFilterOps.mMinDate == mLastLogoff) && (mFilterOps.mMaxDate == U32_MAX);
+	return (mFilterOps.mMinDate == mLastLogoff) &&
+		(mFilterOps.mMaxDate == time_max());
 }
 
 void LLInventoryFilter::setHoursAgo(U32 hours)
@@ -4706,11 +4707,11 @@ void LLInventoryFilter::setHoursAgo(U32 hours)
 	if (mFilterOps.mHoursAgo != hours)
 	{
 		// *NOTE: need to cache last filter time, in case filter goes stale
-		BOOL less_restrictive = (mFilterOps.mMinDate == 0 && mFilterOps.mMaxDate == U32_MAX && hours > mFilterOps.mHoursAgo);
-		BOOL more_restrictive = (mFilterOps.mMinDate == 0 && mFilterOps.mMaxDate == U32_MAX && hours <= mFilterOps.mHoursAgo);
+		BOOL less_restrictive = (mFilterOps.mMinDate == time_min() && mFilterOps.mMaxDate == time_max() && hours > mFilterOps.mHoursAgo);
+		BOOL more_restrictive = (mFilterOps.mMinDate == time_min() && mFilterOps.mMaxDate == time_max() && hours <= mFilterOps.mHoursAgo);
 		mFilterOps.mHoursAgo = hours;
-		mFilterOps.mMinDate = 0;
-		mFilterOps.mMaxDate = U32_MAX;
+		mFilterOps.mMinDate = time_min();
+		mFilterOps.mMaxDate = time_max();
 		if (less_restrictive)
 		{
 			setModified(FILTER_LESS_RESTRICTIVE);
@@ -5011,7 +5012,7 @@ void LLInventoryFilter::fromLLSD(LLSD& data)
 
 	if(data.has("min_date") && data.has("max_date"))
 	{
-		setDateRange((U32)data["min_date"].asInteger(), (U32)data["max_date"].asInteger());
+		setDateRange(data["min_date"].asInteger(), data["max_date"].asInteger());
 	}
 
 	if(data.has("hours_ago"))

@@ -255,7 +255,7 @@ void LLStatusBar::refresh()
 
 	// Get current UTC time, adjusted for the user's clock
 	// being off.
-	U32 utc_time;
+	time_t utc_time;
 	utc_time = time_corrected();
 
 	// There's only one internal tm buffer.

@@ -168,7 +168,7 @@ namespace {
 	
 	private:
 		bool mTimestamp;
-		typedef enum ANSIState {ANSI_PROBE, ANSI_YES, ANSI_NO};
+		enum ANSIState {ANSI_PROBE, ANSI_YES, ANSI_NO};
 		ANSIState mUseANSI;
 		void colorANSI(const std::string color)
 		{

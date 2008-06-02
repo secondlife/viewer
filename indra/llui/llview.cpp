@@ -41,8 +41,6 @@
 #include "llevent.h"
 #include "llfontgl.h"
 #include "llfocusmgr.h"
-#include "llgl.h"
-#include "llglheaders.h"
 #include "llrect.h"
 #include "llstl.h"
 #include "llui.h"	// colors saved settings

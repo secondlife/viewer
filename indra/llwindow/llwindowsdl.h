@@ -134,7 +134,7 @@ public:
 
 protected:
 	LLWindowSDL(
-		char *title, int x, int y, int width, int height, U32 flags,
+		const char *title, int x, int y, int width, int height, U32 flags,
 		BOOL fullscreen, BOOL clearBg, BOOL disable_vsync, BOOL use_gl,
 		BOOL ignore_pixel_depth, U32 fsaa_samples);
 	~LLWindowSDL();

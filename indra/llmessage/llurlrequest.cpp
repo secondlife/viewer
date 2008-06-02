@@ -42,7 +42,7 @@
 #include "llpumpio.h"
 #include "llsd.h"
 #include "llstring.h"
-#include "apr-1/apr_env.h"
+#include "apr_env.h"
 
 static const U32 HTTP_STATUS_PIPE_ERROR = 499;
 

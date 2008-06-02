@@ -791,12 +791,12 @@ bool LLAppViewer::init()
 	//
 	initWindow();
 
-	#if LL_WINDOWS && LL_LCD_COMPILE
+#if LL_LCD_COMPILE
 		// start up an LCD window on a logitech keyboard, if there is one
 		HINSTANCE hInstance = GetModuleHandle(NULL);
 		gLcdScreen = new LLLCD(hInstance);
 		CreateLCDDebugWindows();
-	#endif
+#endif
 
 	gGLManager.getGLInfo(gDebugInfo);
 	gGLManager.printGLInfoString();
@@ -983,7 +983,7 @@ bool LLAppViewer::mainLoop()
 
 					LLFloaterSnapshot::update(); // take snapshots
 					
-#if LL_WINDOWS && LL_LCD_COMPILE
+#if LL_LCD_COMPILE
 					// update LCD Screen
 					gLcdScreen->UpdateDisplay();
 #endif
@@ -1239,7 +1239,7 @@ bool LLAppViewer::cleanup()
 	//	gDXHardware.cleanup();
 	//#endif // LL_WINDOWS
 
-#if LL_WINDOWS && LL_LCD_COMPILE
+#if LL_LCD_COMPILE
 	// shut down the LCD window on a logitech keyboard, if there is one
 	delete gLcdScreen;
 	gLcdScreen = NULL;

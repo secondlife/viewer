@@ -79,6 +79,14 @@ typedef std::multimap<LLString, LLXMLNodePtr > LLXMLNodeList;
 typedef std::multimap<const LLStringTableEntry *, LLXMLNodePtr > LLXMLChildList;
 typedef std::map<const LLStringTableEntry *, LLXMLNodePtr, CompareAttributes> LLXMLAttribList;
 
+class LLColor4;
+class LLColor4U;
+class LLQuaternion;
+class LLVector3;
+class LLVector3d;
+class LLVector4;
+class LLVector4U;
+
 struct LLXMLChildren
 {
 	LLXMLChildList map;			// Map of children names->pointers

@@ -42,10 +42,11 @@
 #endif
 
 #ifdef NAME_UNNAMED_NAMESPACE
-namespace LLSDUnnamedNamespace {
+namespace LLSDUnnamedNamespace 
 #else
-namespace {
+namespace 
 #endif
+{
 	class ImplMap;
 	class ImplArray;
 }
@@ -127,10 +128,10 @@ public:
 	virtual void erase(Integer)					{ }
 	virtual const LLSD& ref(Integer) const		{ return undef(); }
 
-	virtual LLSD::map_const_iterator beginMap() const { return LLSD::map_const_iterator(); }
-	virtual LLSD::map_const_iterator endMap() const { return LLSD::map_const_iterator(); }
-	virtual LLSD::array_const_iterator beginArray() const { return LLSD::array_const_iterator(); }
-	virtual LLSD::array_const_iterator endArray() const { return LLSD::array_const_iterator(); }
+	virtual LLSD::map_const_iterator beginMap() const { return endMap(); }
+	virtual LLSD::map_const_iterator endMap() const { static const std::map<String, LLSD> empty; return empty.end(); }
+	virtual LLSD::array_const_iterator beginArray() const { return endArray(); }
+	virtual LLSD::array_const_iterator endArray() const { static const std::vector<LLSD> empty; return empty.end(); }
 
 	static const LLSD& undef();
 	
@@ -139,10 +140,11 @@ public:
 };
 
 #ifdef NAME_UNNAMED_NAMESPACE
-namespace LLSDUnnamedNamespace {
+namespace LLSDUnnamedNamespace 
 #else
-namespace {
+namespace 
 #endif
+{
 	template<LLSD::Type T, class Data, class DataRef = Data>
 	class ImplBase : public LLSD::Impl
 		///< This class handles most of the work for a subclass of Impl
@@ -655,10 +657,11 @@ U32 LLSD::Impl::sOutstandingCount = 0;
 
 
 #ifdef NAME_UNNAMED_NAMESPACE
-namespace LLSDUnnamedNamespace {
+namespace LLSDUnnamedNamespace 
 #else
-namespace {
+namespace 
 #endif
+{
 	inline LLSD::Impl& safe(LLSD::Impl* impl)
 		{ return LLSD::Impl::safe(impl); }
 		

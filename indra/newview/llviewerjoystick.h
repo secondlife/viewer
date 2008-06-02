@@ -34,8 +34,6 @@
 
 #include "stdtypes.h"
 
-#define LIB_NDOF (LL_WINDOWS || LL_DARWIN)
-
 #if LIB_NDOF
 #include "ndofdev_external.h"
 #else

@@ -40,11 +40,11 @@
 
 #include <boost/noncopyable.hpp>
 
-#include "apr-1/apr_thread_proc.h"
-#include "apr-1/apr_thread_mutex.h"
-#include "apr-1/apr_getopt.h"
-#include "apr-1/apr_signal.h"
-#include "apr-1/apr_atomic.h"
+#include "apr_thread_proc.h"
+#include "apr_thread_mutex.h"
+#include "apr_getopt.h"
+#include "apr_signal.h"
+#include "apr_atomic.h"
 #include "llstring.h"
 
 extern apr_thread_mutex_t* gLogMutexp;

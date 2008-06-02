@@ -36,13 +36,11 @@
 #include "lltexteditor.h"
 
 #include "llfontgl.h"
-#include "llgl.h"
 #include "llglimmediate.h"
 #include "llui.h"
 #include "lluictrlfactory.h"
 #include "llrect.h"
 #include "llfocusmgr.h"
-#include "sound_ids.h"
 #include "lltimer.h"
 #include "llmath.h"
 
@@ -58,7 +56,6 @@
 #include "llcontrol.h"
 #include "llimagegl.h"
 #include "llwindow.h"
-#include "llglheaders.h"
 #include <queue>
 
 // 

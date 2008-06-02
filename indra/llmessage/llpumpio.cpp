@@ -36,7 +36,7 @@
 
 #include <map>
 #include <set>
-#include "apr-1/apr_poll.h"
+#include "apr_poll.h"
 
 #include "llapr.h"
 #include "llmemtype.h"
@@ -49,7 +49,7 @@
 //#define LL_DEBUG_PIPE_TYPE_IN_PUMP 1
 //#define LL_DEBUG_POLL_FILE_DESCRIPTORS 1
 #if LL_DEBUG_POLL_FILE_DESCRIPTORS
-#include "apr-1/apr_portable.h"
+#include "apr_portable.h"
 #endif
 #endif
 
@@ -261,7 +261,7 @@ bool LLPumpIO::addChain(
 bool LLPumpIO::setTimeoutSeconds(F32 timeout)
 {
 	// If no chain is running, return failure.
-	if(current_chain_t() == mCurrentChain)
+	if(mRunningChains.end() == mCurrentChain)
 	{
 		return false;
 	}
@@ -365,7 +365,7 @@ S32 LLPumpIO::setLock()
 	// lock the runner at the same time.
 
 	// If no chain is running, return failure.
-	if(current_chain_t() == mCurrentChain)
+	if(mRunningChains.end() == mCurrentChain)
 	{
 		return 0;
 	}
@@ -414,7 +414,7 @@ bool LLPumpIO::sleepChain(F64 seconds)
 bool LLPumpIO::copyCurrentLinkInfo(links_t& links) const
 {
 	LLMemType m1(LLMemType::MTYPE_IO_PUMP);
-	if(current_chain_t() == mCurrentChain)
+	if(mRunningChains.end() == mCurrentChain)
 	{
 		return false;
 	}
@@ -584,6 +584,7 @@ void LLPumpIO::pump(const S32& poll_timeout)
 		}
 		PUMP_DEBUG;
 		mCurrentChain = run_chain;
+		
 		if((*run_chain).mDescriptors.empty())
 		{
 			// if there are no conditionals, just process this chain.
@@ -702,7 +703,7 @@ void LLPumpIO::pump(const S32& poll_timeout)
 
 	PUMP_DEBUG;
 	// null out the chain
-	mCurrentChain = current_chain_t();
+	mCurrentChain = mRunningChains.end();
 	END_PUMP_DEBUG;
 }
 

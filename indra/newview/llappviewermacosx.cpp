@@ -65,7 +65,12 @@ int main( int argc, char **argv )
 #endif
 
 	// Set the working dir to <bundle>/Contents/Resources
-	(void) chdir(gDirUtilp->getAppRODataDir().c_str());
+	if (chdir(gDirUtilp->getAppRODataDir().c_str()) == -1)
+	{
+		llwarns << "Could not change directory to "
+				<< gDirUtilp->getAppRODataDir() << ": " << strerror(errno)
+				<< llendl;
+	}
 
 	LLAppViewerMacOSX* viewer_app_ptr = new LLAppViewerMacOSX();
 

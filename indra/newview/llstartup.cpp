@@ -41,8 +41,8 @@
 
 #include "audioengine.h"
 
-#if LL_FMOD
-#include "audioengine_fmod.h"
+#ifdef LL_FMOD
+# include "audioengine_fmod.h"
 #endif
 
 #include "llares.h"
@@ -545,7 +545,7 @@ BOOL idle_startup()
 
 		if (FALSE == gSavedSettings.getBOOL("NoAudio"))
 		{
-#if LL_FMOD
+#ifdef LL_FMOD
 			gAudiop = (LLAudioEngine *) new LLAudioEngine_FMOD();
 #else
 			gAudiop = NULL;

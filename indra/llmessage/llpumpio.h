@@ -39,7 +39,7 @@
 #include <sys/param.h>
 #endif
 
-#include "apr-1/apr_pools.h"
+#include "apr_pools.h"
 #include "llbuffer.h"
 #include "llframetimer.h"
 #include "lliopipe.h"

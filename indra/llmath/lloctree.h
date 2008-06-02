@@ -37,7 +37,7 @@
 #include <vector>
 #include <set>
 
-#ifdef LL_RELEASE_FOR_DOWNLOAD
+#if LL_RELEASE_WITH_DEBUG_INFO || LL_DEBUG
 #define OCT_ERRS LL_WARNS("OctreeErrors")
 #else
 #define OCT_ERRS LL_ERRS("OctreeErrors")

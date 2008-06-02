@@ -341,7 +341,7 @@ bool LLCrashLoggerWindows::mainLoop()
 		ShowWindow(gHwndReport, SW_SHOW );
 		
 		MSG msg;
-		msg.wParam = 0;
+		memset(&msg, 0, sizeof(msg));
 		while (!LLApp::isQuitting() && GetMessage(&msg, NULL, 0, 0))
 		{
 			TranslateMessage(&msg);

@@ -1229,7 +1229,7 @@ void LLGroupMoneySalesTabEventHandler::processReply(LLMessageSystem* msg,
 
 			if (amount != 0)
 			{
-				char* verb;
+				const char* verb;
 
 				switch(type)
 				{

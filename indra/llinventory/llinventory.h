@@ -132,7 +132,7 @@ protected:
 	LLSaleInfo mSaleInfo;
 	LLInventoryType::EType mInventoryType;
 	U32 mFlags;
-	S32 mCreationDate;	// seconds from 1/1/1970, UTC
+	time_t mCreationDate;	// seconds from 1/1/1970, UTC
 
 public:
 
@@ -237,7 +237,7 @@ public:
 	const LLSaleInfo& getSaleInfo() const;
 	LLInventoryType::EType getInventoryType() const;
 	U32 getFlags() const;
-	S32 getCreationDate() const;
+	time_t getCreationDate() const;
 	U32 getCRC32() const; // really more of a checksum.
 	
 	// mutators - will not call updateServer(), and will never fail
@@ -248,7 +248,7 @@ public:
 	void setPermissions(const LLPermissions& perm);
 	void setInventoryType(LLInventoryType::EType inv_type);
 	void setFlags(U32 flags);
-	void setCreationDate(S32 creation_date_utc);
+	void setCreationDate(time_t creation_date_utc);
 
 	// Put this inventory item onto the current outgoing mesage. It
 	// assumes you have already called nextBlock().

@@ -212,6 +212,7 @@ public:
 	void setSeedCapability(const std::string& url);
 	void setCapability(const std::string& name, const std::string& url);
 	std::string getCapability(const std::string& name) const;
+	static bool isSpecialCapabilityName(const std::string &name);
 	void logActiveCapabilities() const;
 
 	const LLHost	&getHost() const			{ return mHost; }

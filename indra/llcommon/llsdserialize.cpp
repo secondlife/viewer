@@ -37,7 +37,7 @@
 #include "llstreamtools.h" // for fullread
 
 #include <iostream>
-#include "apr-1/apr_base64.h"
+#include "apr_base64.h"
 
 #if !LL_WINDOWS
 #include <netinet/in.h> // htonl & ntohl

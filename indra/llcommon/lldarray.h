@@ -32,7 +32,6 @@
 #ifndef LL_LLDARRAY_H
 #define LL_LLDARRAY_H
 
-#include "llmath.h"
 #include "llerror.h"
 
 #include <vector>

@@ -64,7 +64,9 @@ namespace tut
 									   LL_VERSION_MINOR,        
 									   LL_VERSION_PATCH,        
 									   FALSE,        
-									   "notasharedsecret");
+									   "notasharedsecret",
+									   NULL,
+									   false);
 				//init_prehash_data();
 				init = true;
 			}

@@ -468,14 +468,14 @@ void LLScriptLibrary::init()
 
 	//addFunction(new LLScriptLibraryFunction(10.f, 0.f, dummy_func, "llSetForSale", "i", "ii", "integer llSetForSale(integer selltype, integer price)\nSets this object for sale in mode selltype for price.  Returns TRUE if successfully set for sale."));
 
-LLScriptLibraryFunction::LLScriptLibraryFunction(F32 eu, F32 st, void (*exec_func)(LLScriptLibData *, LLScriptLibData *, const LLUUID &), char *name, char *ret_type, char *args, char *desc, BOOL god_only)
+LLScriptLibraryFunction::LLScriptLibraryFunction(F32 eu, F32 st, void (*exec_func)(LLScriptLibData *, LLScriptLibData *, const LLUUID &), const char *name, const char *ret_type, const char *args, const char *desc, BOOL god_only)
 		: mEnergyUse(eu), mSleepTime(st), mExecFunc(exec_func), mName(name), mReturnType(ret_type), mArgs(args), mGodOnly(god_only)
 {
-	mDesc = new char[512];
+	char *mDesc_ = new char[512];
 	if (mSleepTime)
 	{
 		snprintf(	/* Flawfinder: ignore */
-			mDesc,
+			mDesc_,
 			512,
 			"%s\nSleeps script for %.1f seconds.",
 			desc,
@@ -483,9 +483,10 @@ LLScriptLibraryFunction::LLScriptLibraryFunction(F32 eu, F32 st, void (*exec_fun
 	}
 	else
 	{
-		strncpy(mDesc, desc, 512);	/* Flawfinder: ignore */
-		mDesc[511] = '\0'; // just in case.
+		strncpy(mDesc_, desc, 512);	/* Flawfinder: ignore */
+		mDesc_[511] = '\0'; // just in case.
 	}
+	mDesc = mDesc_;
 }
 
 LLScriptLibraryFunction::~LLScriptLibraryFunction()
@@ -509,7 +510,7 @@ void LLScriptLibrary::addFunction(LLScriptLibraryFunction *func)
 	mNextNumber++;
 }
 
-void LLScriptLibrary::assignExec(char *name, void (*exec_func)(LLScriptLibData *, LLScriptLibData *, const LLUUID &))
+void LLScriptLibrary::assignExec(const char *name, void (*exec_func)(LLScriptLibData *, LLScriptLibData *, const LLUUID &))
 {
 	S32 i;
 	for (i = 0; i < mNextNumber; i++)

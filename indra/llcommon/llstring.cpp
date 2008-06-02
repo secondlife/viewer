@@ -70,7 +70,7 @@ bool _read_file_into_string(std::string& str, const char* filename)
 	llifstream ifs(filename, llifstream::binary);
 	if (!ifs.is_open())
 	{
-		llinfos << "Unable to open file" << filename << llendl;
+		llinfos << "Unable to open file " << filename << llendl;
 		return false;
 	}
 

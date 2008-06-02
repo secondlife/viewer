@@ -116,10 +116,16 @@ LLDir_Win32::LLDir_Win32()
 	GetCurrentDirectory(MAX_PATH, w_str);
 	mExecutableDir = utf16str_to_utf8str(llutf16string(w_str));
 #endif
+	
+	mAppRODataDir = getCurPath();
+	// *FIX:Mani - The following is the old way we did things. I'm keeping this around
+	// in case there is some really good reason to make mAppRODataDir == mExecutableDir
+	/*
 	if (strstr(mExecutableDir.c_str(), "indra\\newview"))
 		mAppRODataDir = getCurPath();
 	else
 		mAppRODataDir = mExecutableDir;
+	*/
 }
 
 LLDir_Win32::~LLDir_Win32()

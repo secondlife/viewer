@@ -31,7 +31,7 @@
 #include "linden_common.h"
 #include "llapr.h"
 
-#include "apr-1/apr_portable.h"
+#include "apr_portable.h"
 
 #include "llthread.h"
 

@@ -1056,12 +1056,10 @@ struct lru_data
 		typedef const lru_data* lru_data_ptr;
 		bool operator()(const lru_data_ptr& a, const lru_data_ptr& b) const
 		{
-			if (a->time > b->time)
-				return true;
-			else if (b->time > a->time)
-				return false;
+			if(a->time == b->time)
+				return (a->index < b->index);
 			else
-				return a->index < b->index;
+				return (a->time >= b->time);
 		}
 	};				
 };

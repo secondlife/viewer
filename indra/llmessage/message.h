@@ -284,7 +284,8 @@ public:
 public:
 	// Read file and build message templates
 	LLMessageSystem(const char *filename, U32 port, S32 version_major,
-		S32 version_minor, S32 version_patch);
+					S32 version_minor, S32 version_patch,
+					bool failure_is_fatal = true);
 
 	~LLMessageSystem();
 
@@ -294,7 +295,7 @@ public:
 	// Read file and build message templates filename must point to a
 	// valid string which specifies the path of a valid linden
 	// template.
-	void loadTemplateFile(const char* filename);
+	void loadTemplateFile(const char* filename, bool failure_is_fatal);
 
 
 	// methods for building, sending, receiving, and handling messages
@@ -764,16 +765,17 @@ extern LLMessageSystem	*gMessageSystem;
 
 // Must specific overall system version, which is used to determine
 // if a patch is available in the message template checksum verification.
-// Return TRUE if able to initialize system.
-BOOL start_messaging_system(
+// Return true if able to initialize system.
+bool start_messaging_system(
 	const std::string& template_name,
 	U32 port, 
 	S32 version_major,
 	S32 version_minor,
 	S32 version_patch,
-	BOOL b_dump_prehash_file,
+	bool b_dump_prehash_file,
 	const std::string& secret,
-	const LLUseCircuitCodeResponder* responder = NULL);
+	const LLUseCircuitCodeResponder* responder = NULL,
+	bool failure_is_fatal = true);
 
 void end_messaging_system();
 

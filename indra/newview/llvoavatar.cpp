@@ -9030,7 +9030,7 @@ void LLVOAvatar::dumpLocalTextures()
 {
 	llinfos << "Local Textures:" << llendl;
 
-	char* names[] = {
+	const char* names[] = {
 		"Shirt     ",
 		"UpperTatoo",
 		"Pants     ",

@@ -75,14 +75,6 @@
 #include "llscrollcontainer.h"
 #include "llfloaterhardwaresettings.h"
 
-#if LL_WINDOWS
-// for Logitech LCD keyboards / speakers
-#ifndef LL_LOGITECH_LCD_H
-#include "lllogitechlcd.h"
-#endif
-extern LLLCD	*gLcdScreen; 
-#endif
-
 const S32 PREF_BORDER = 4;
 const S32 PREF_PAD = 5;
 const S32 PREF_BUTTON_WIDTH = 70;
@@ -174,7 +166,7 @@ LLPreferenceCore::LLPreferenceCore(LLTabContainer* tab_container, LLButton * def
 	mTabContainer->addTabPanel(mPrefsIM->getPanel(), mPrefsIM->getPanel()->getLabel(), FALSE, onTabChanged, mTabContainer);
 	mPrefsIM->getPanel()->setDefaultBtn(default_btn);
 
-#if LL_WINDOWS && LL_LCD_COMPILE
+#if LL_LCD_COMPILE
 
 	// only add this option if we actually have a logitech keyboard / speaker set
 	if (gLcdScreen->Enabled())
@@ -264,7 +256,7 @@ void LLPreferenceCore::apply()
 	LLFloaterHardwareSettings::instance()->apply();
 
 	mWebPanel->apply();
-#if LL_WINDOWS && LL_LCD_COMPILE
+#if LL_LCD_COMPILE
 	// only add this option if we actually have a logitech keyboard / speaker set
 	if (gLcdScreen->Enabled())
 	{
@@ -291,7 +283,7 @@ void LLPreferenceCore::cancel()
 	LLFloaterHardwareSettings::instance()->cancel();
 
 	mWebPanel->cancel();
-#if LL_WINDOWS && LL_LCD_COMPILE
+#if LL_LCD_COMPILE
 	// only add this option if we actually have a logitech keyboard / speaker set
 	if (gLcdScreen->Enabled())
 	{

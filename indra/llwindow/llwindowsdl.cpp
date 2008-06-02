@@ -41,8 +41,6 @@
 #include "lldir.h"
 #include "llfindlocale.h"
 
-#include "llglheaders.h"
-
 #include "indra_constants.h"
 
 #if LL_GTK
@@ -219,7 +217,7 @@ BOOL check_for_card(const char* RENDERER, const char* bad_card)
 
 
 
-LLWindowSDL::LLWindowSDL(char *title, S32 x, S32 y, S32 width,
+LLWindowSDL::LLWindowSDL(const char *title, S32 x, S32 y, S32 width,
 							   S32 height, U32 flags,
 							   BOOL fullscreen, BOOL clearBg,
 							   BOOL disable_vsync, BOOL use_gl,

@@ -1491,7 +1491,7 @@ BOOL LLViewerWindow::handleDeviceChange(LLWindow *window)
 // Classes
 //
 LLViewerWindow::LLViewerWindow(
-	char* title, char* name,
+	const char* title, const char* name,
 	S32 x, S32 y,
 	S32 width, S32 height,
 	BOOL fullscreen, BOOL ignore_pixel_depth)

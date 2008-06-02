@@ -331,7 +331,7 @@ void LLMaterialTable::initBasicTable()
 	}
 }
 
-BOOL LLMaterialTable::add(U8 mcode, char* name, const LLUUID &uuid)
+BOOL LLMaterialTable::add(U8 mcode, const char* name, const LLUUID &uuid)
 {
 	LLMaterialInfo *infop;
 

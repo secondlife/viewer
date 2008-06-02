@@ -1546,7 +1546,7 @@ void LLToolDragAndDrop::dropInventory(LLViewerObject* hit_obj,
 	}
 
 	LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(item);
-	S32 creation_date = time_corrected();
+	time_t creation_date = time_corrected();
 	new_item->setCreationDate(creation_date);
 
 	if(!item->getPermissions().allowCopyBy(gAgent.getID()))

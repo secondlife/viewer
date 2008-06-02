@@ -55,8 +55,6 @@
 #include "llbutton.h"
 
 // LLLayoutStack
-#include "llgl.h"
-#include "llglheaders.h"
 #include "llresizebar.h"
 #include "llcriticaldamp.h"
 

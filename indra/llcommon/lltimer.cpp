@@ -429,10 +429,9 @@ BOOL LLTimer::knownBadTimer()
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-U32 time_corrected()
+time_t time_corrected()
 {
-	U32 corrected_time = (U32)time(NULL) + gUTCOffset;
-	return corrected_time;
+	return time(NULL) + gUTCOffset;
 }
 
 
@@ -452,27 +451,25 @@ BOOL is_daylight_savings()
 }
 
 
-struct tm* utc_to_pacific_time(S32 utc_time, BOOL pacific_daylight_time)
+struct tm* utc_to_pacific_time(time_t utc_time, BOOL pacific_daylight_time)
 {
-	time_t unix_time = (time_t)utc_time;
-
 	S32 pacific_offset_hours;
 	if (pacific_daylight_time)
 	{
-		pacific_offset_hours = -7;
+		pacific_offset_hours = 7;
 	}
 	else
 	{
-		pacific_offset_hours = -8;
+		pacific_offset_hours = 8;
 	}
 
 	// We subtract off the PST/PDT offset _before_ getting
 	// "UTC" time, because this will handle wrapping around
 	// for 5 AM UTC -> 10 PM PDT of the previous day.
-	unix_time += pacific_offset_hours * MIN_PER_HOUR * SEC_PER_MIN;
+	utc_time -= pacific_offset_hours * MIN_PER_HOUR * SEC_PER_MIN;
  
 	// Internal buffer to PST/PDT (see above)
-	struct tm* internal_time = gmtime(&unix_time);
+	struct tm* internal_time = gmtime(&utc_time);
 
 	/*
 	// Don't do this, this won't correctly tell you if daylight savings is active in CA or not.

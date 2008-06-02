@@ -44,7 +44,6 @@
 #include "lltextbox.h"
 #include "llkeyboard.h"
 #include "llmath.h"
-#include "sound_ids.h"
 #include "audioengine.h"
 #include "llcontrol.h"
 #include "llfocusmgr.h"

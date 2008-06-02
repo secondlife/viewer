@@ -103,7 +103,7 @@ public:
 	/*virtual*/ void *getPlatformWindow() { return 0; };
 	/*virtual*/ void bringToFront() {};
 	
-	LLWindowMesaHeadless(char *title, char *name, S32 x, S32 y, S32 width, S32 height,
+	LLWindowMesaHeadless(const char *title, const char *name, S32 x, S32 y, S32 width, S32 height,
 				  U32 flags,  BOOL fullscreen, BOOL clearBg,
 				  BOOL disable_vsync, BOOL use_gl, BOOL ignore_pixel_depth);
 	~LLWindowMesaHeadless();

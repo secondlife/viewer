@@ -75,14 +75,14 @@ public:
 	//void setEventName(std::string &event_name);
 	U32					getEventID() const				{ return mEventID; }
 	const std::string	&getEventName() const			{ return mEventName; }
-	U32					getEventDate() const			{ return mEventDate; }
+	time_t				getEventDate() const			{ return mEventDate; }
 	const std::string	&getEventDateStr() const		{ return mEventDateStr; }
 	LLVector3d			getEventPosGlobal() const		{ return mEventPosGlobal; }
 protected:
 	U32			mEventID;			// EventID for this event
 	std::string	mEventName;
 	std::string mEventDateStr;
-	U32			mEventDate;
+	time_t		mEventDate;
 	LLVector3d	mEventPosGlobal;
 };
 

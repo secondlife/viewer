@@ -373,7 +373,7 @@ void LLFloaterProperties::refreshFromItem(LLInventoryItem* item)
 	//////////////////
 
 	// *TODO: Localize / translate this
-	time_t time_utc = (time_t)item->getCreationDate();
+	time_t time_utc = item->getCreationDate();
 	if (0 == time_utc)
 	{
 		childSetText("LabelAcquiredDate",getString("unknown"));

@@ -35,6 +35,7 @@
 #if LL_LINUX || LL_DARWIN
 #include <sys/time.h>
 #endif
+#include <limits.h>
 
 #include "stdtypes.h"
 
@@ -117,7 +118,35 @@ void ms_sleep(U32 ms);
 
 // Returns the correct UTC time in seconds, like time(NULL).
 // Useful on the viewer, which may have its local clock set wrong.
-U32 time_corrected();
+time_t time_corrected();
+
+static inline time_t time_min()
+{
+	if (sizeof(time_t) == 4)
+	{
+		return (time_t) INT_MIN;
+	} else {
+#ifdef LLONG_MIN
+		return (time_t) LLONG_MIN;
+#else
+		return (time_t) LONG_MIN;
+#endif
+	}
+}
+
+static inline time_t time_max()
+{
+	if (sizeof(time_t) == 4)
+	{
+		return (time_t) INT_MAX;
+	} else {
+#ifdef LLONG_MAX
+		return (time_t) LLONG_MAX;
+#else
+		return (time_t) LONG_MAX;
+#endif
+	}
+}
 
 // Correction factor used by time_corrected() above.
 extern S32 gUTCOffset;
@@ -131,7 +160,7 @@ BOOL is_daylight_savings();
 // S32 utc_time;
 // utc_time = time_corrected();
 // struct tm* internal_time = utc_to_pacific_time(utc_time, gDaylight);
-struct tm* utc_to_pacific_time(S32 utc_time, BOOL pacific_daylight_time);
+struct tm* utc_to_pacific_time(time_t utc_time, BOOL pacific_daylight_time);
 
 void microsecondsToTimecodeString(U64 current_time, char *tcstring);
 void secondsToTimecodeString(F32 current_time, char *tcstring);

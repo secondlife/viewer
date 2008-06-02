@@ -35,6 +35,8 @@
 #include "lltut.h"
 
 #include "llapr.h"
+#include "llmessageconfig.h"
+#include "llsdserialize.h"
 #include "llversionserver.h"
 #include "message.h"
 #include "message_prehash.h"
@@ -56,10 +58,13 @@ namespace tut
 {	
 	struct LLMessageSystemTestData 
 	{
+		std::string mTestConfigDir;
+		std::string mSep;
+
 		LLMessageSystemTestData()
 		{
 			static bool init = false;
-			if(! init)
+			if(!init)
 			{
 				ll_init_apr();
 				//init_prehash_data();
@@ -72,7 +77,25 @@ namespace tut
 								   LL_VERSION_MINOR,        
 								   LL_VERSION_PATCH,        
 								   FALSE,        
-								   "notasharedsecret");
+								   "notasharedsecret",
+								   NULL,
+								   false);
+			// generate temp dir
+			std::ostringstream ostr;
+#if LL_WINDOWS
+			mSep = "\\";
+			ostr << "C:" << mSep;
+#else
+			mSep = "/";
+			ostr << mSep << "tmp" << mSep;
+#endif
+			LLUUID random;
+			random.generate();
+			ostr << "message-test-" << random;
+			mTestConfigDir = ostr.str();
+			LLFile::mkdir(mTestConfigDir.c_str());
+			writeConfigFile(LLSD());
+			LLMessageConfig::initClass("simulator", ostr.str());
 		}
 
 		~LLMessageSystemTestData()
@@ -80,6 +103,28 @@ namespace tut
 			// not end_messaging_system()
 			delete gMessageSystem;
 			gMessageSystem = NULL;
+
+			// rm contents of temp dir
+			std::ostringstream ostr;
+			ostr << mTestConfigDir << mSep << "message.xml";
+			int rmfile = LLFile::remove(ostr.str().c_str());
+			ensure_equals("rmfile value", rmfile, 0);
+
+			// rm temp dir
+			int rmdir = LLFile::rmdir(mTestConfigDir.c_str());
+			ensure_equals("rmdir value", rmdir, 0);
+		}
+
+		void writeConfigFile(const LLSD& config)
+		{
+			std::ostringstream ostr;
+			ostr << mTestConfigDir << mSep << "message.xml";
+			llofstream file(ostr.str().c_str());
+			if (file.is_open())
+			{
+				LLSDSerialize::toPrettyXML(config, file);
+			}
+			file.close();
 		}
 	};
 	

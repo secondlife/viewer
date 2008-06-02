@@ -47,7 +47,7 @@ LLString LLLogChat::makeLogFileName(LLString filename)
 
 LLString LLLogChat::timestamp(bool withdate)
 {
-	U32 utc_time;
+	time_t utc_time;
 	utc_time = time_corrected();
 
 	// There's only one internal tm buffer.

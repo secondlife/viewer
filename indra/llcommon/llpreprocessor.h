@@ -64,6 +64,9 @@
 	#ifndef LL_MSVC
 		#define LL_MSVC 1
 	#endif
+	#if _MSC_VER < 1400
+		#define LL_MSVC7 //Visual C++ 2003 or earlier
+	#endif
 #endif
 
 // Deal with minor differences on Unixy OSes.
@@ -104,9 +107,7 @@ using snprintf_hack::snprintf;
 #if defined(LL_WINDOWS)
 #define BOOST_REGEX_NO_LIB 1
 #define CURL_STATICLIB 1
-
-#define LL_LCD_COMPILE 1
-
+#define XML_STATIC
 #endif	//	LL_WINDOWS
 
 

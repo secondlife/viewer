@@ -225,7 +225,7 @@ BOOL LLFeatureManager::loadFeatureTables()
 	data_path += gDirUtilp->getDirDelimiter();
 
 	data_path += FEATURE_TABLE_FILENAME;
-
+	lldebugs << "Looking for feature table in " << data_path << llendl;
 
 	char	name[MAX_STRING+1];	 /*Flawfinder: ignore*/
 
@@ -252,7 +252,7 @@ BOOL LLFeatureManager::loadFeatureTables()
 	mTableVersion = version;
 
 	LLFeatureList *flp = NULL;
-	while (!file.eof())
+	while (!file.eof() && file.good())
 	{
 		char buffer[MAX_STRING];		 /*Flawfinder: ignore*/
 		name[0] = 0;

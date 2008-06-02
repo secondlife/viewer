@@ -32,9 +32,7 @@
 
 #include "linden_common.h"
 
-#include "llgl.h"
 #include "llglimmediate.h"
-
 #include "llscrollcontainer.h"
 #include "llscrollbar.h"
 #include "llui.h"
@@ -44,8 +42,6 @@
 #include "llframetimer.h"
 #include "lluictrlfactory.h"
 #include "llfontgl.h"
-
-#include "llglheaders.h"
 
 ///----------------------------------------------------------------------------
 /// Local function declarations, constants, enums, and typedefs

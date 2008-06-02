@@ -81,7 +81,7 @@
 #include <sstream>
 #include <iterator>
 #include <xmlrpc-epi/xmlrpc.h>
-#include "apr-1/apr_base64.h"
+#include "apr_base64.h"
 
 #include "llbuffer.h"
 #include "llbufferstream.h"

@@ -42,10 +42,9 @@
 
 #include <string>
 #include <sstream>
-#include <boost/regex.hpp>
 
-#include "apr-1/apr_pools.h"
-#include "apr-1/apr_network_io.h"
+#include "apr_pools.h"
+#include "apr_network_io.h"
 
 #include "llapr.h"
 #include "llbase32.h"	// IM-to-email address
@@ -66,8 +65,6 @@ static apr_pool_t* gMailPool;
 static apr_sockaddr_t* gSockAddr;
 static apr_socket_t* gMailSocket;
 
-// According to RFC2822
-static const boost::regex valid_subject_chars("[\\x1-\\x9\\xb\\xc\\xe-\\x7f]*");
 bool connect_smtp();
 void disconnect_smtp();
  
@@ -173,6 +170,22 @@ void LLMail::enable(bool mail_enabled)
 	gMailEnabled = mail_enabled;
 }
 
+// Test a subject line for RFC2822 compliance.
+static bool valid_subject_chars(const char *subject)
+{
+	for (; *subject != '\0'; subject++)
+	{
+		unsigned char c = *subject;
+
+		if (c == '\xa' || c == '\xd' || c > '\x7f')
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
 // static
 std::string LLMail::buildSMTPTransaction(
 	const char* from_name,
@@ -187,7 +200,7 @@ std::string LLMail::buildSMTPTransaction(
 			<< " from address." << llendl;
 		return std::string();
 	}
-	if(! boost::regex_match(subject, valid_subject_chars))
+	if(!valid_subject_chars(subject))
 	{
 		llinfos << "send_mail build_smtp_transaction reject: bad subject header: "
 			<< "to=<" << to_address

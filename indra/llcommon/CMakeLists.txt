@@ -1,0 +1,188 @@
+# -*- cmake -*-
+
+project(llcommon)
+
+include(00-Common)
+include(LLCommon)
+
+include_directories(
+    ${EXPAT_INCLUDE_DIRS}
+    ${LLCOMMON_INCLUDE_DIRS}
+    ${ZLIB_INCLUDE_DIRS}
+    )
+
+set(llcommon_SOURCE_FILES
+    llapp.cpp
+    llapr.cpp
+    llassettype.cpp
+    llbase32.cpp
+    llbase64.cpp
+    llcommon.cpp
+    llcrc.cpp
+    llcriticaldamp.cpp
+    lldate.cpp
+    llerror.cpp
+    llerrorthread.cpp
+    llevent.cpp
+    llfasttimer.cpp
+    llfile.cpp
+    llfindlocale.cpp
+    llfixedbuffer.cpp
+    llformat.cpp
+    llframetimer.cpp
+    llheartbeat.cpp
+    llindraconfigfile.cpp
+    llliveappconfig.cpp
+    lllivefile.cpp
+    lllog.cpp
+    llmd5.cpp
+    llmemory.cpp
+    llmemorystream.cpp
+    llmetrics.cpp
+    llmortician.cpp
+    llprocessor.cpp
+    llqueuedthread.cpp
+    llrand.cpp
+    llrun.cpp
+    llsd.cpp
+    llsdserialize.cpp
+    llsdserialize_xml.cpp
+    llsdutil.cpp
+    llsecondlifeurls.cpp
+    llstat.cpp
+    llstreamtools.cpp
+    llstring.cpp
+    llstringtable.cpp
+    llsys.cpp
+    llthread.cpp
+    lltimer.cpp
+    lluri.cpp
+    lluuid.cpp
+    llworkerthread.cpp
+    metaclass.cpp
+    metaproperty.cpp
+    reflective.cpp
+    timing.cpp
+    u64.cpp
+    )
+    
+set(llcommon_HEADER_FILES
+    CMakeLists.txt
+
+    bitpack.h
+    ctype_workaround.h
+    doublelinkedlist.h
+    imageids.h
+    indra_constants.h
+    linden_common.h
+    linked_lists.h
+    llagentconstants.h
+    llapp.h
+    llapr.h
+    llassettype.h
+    llassoclist.h
+    llavatarconstants.h
+    llbase32.h
+    llbase64.h
+    llboost.h
+    llchat.h
+    llclickaction.h
+    llcommon.h
+    llcrc.h
+    llcriticaldamp.h
+    lldarray.h
+    lldarrayptr.h
+    lldate.h
+    lldefs.h
+    lldepthstack.h
+    lldlinked.h
+    lldqueueptr.h
+    llendianswizzle.h
+    llenum.h
+    llerror.h
+    llerrorcontrol.h
+    llerrorlegacy.h
+    llerrorthread.h
+    llevent.h
+    lleventemitter.h
+    llextendedstatus.h
+    llfasttimer.h
+    llfile.h
+    llfindlocale.h
+    llfixedbuffer.h
+    llformat.h
+    llframetimer.h
+    llhash.h
+    llheartbeat.h
+    llindexedqueue.h
+    llindraconfigfile.h
+    llkeythrottle.h
+    lllinkedqueue.h
+    llliveappconfig.h
+    lllivefile.h
+    lllocalidhashmap.h
+    lllog.h
+    lllslconstants.h
+    llmap.h
+    llmd5.h
+    llmemory.h
+    llmemorystream.h
+    llmemtype.h
+    llmetrics.h
+    llmortician.h
+    llnametable.h
+    llpreprocessor.h
+    llpriqueuemap.h
+    llprocessor.h
+    llptrskiplist.h
+    llptrskipmap.h
+    llqueuedthread.h
+    llrand.h
+    llrun.h
+    llsd.h
+    llsdserialize.h
+    llsdserialize_xml.h
+    llsdutil.h
+    llsecondlifeurls.h
+    llsimplehash.h
+    llskiplist.h
+    llskipmap.h
+    llstack.h
+    llstat.h
+    llstatenums.h
+    llstl.h
+    llstreamtools.h
+    llstrider.h
+    llstring.h
+    llstringtable.h
+    llsys.h
+    llthread.h
+    lltimer.h
+    lluri.h
+    lluuid.h
+    lluuidhashmap.h
+    llversionserver.h
+    llversionviewer.h
+    llworkerthread.h
+    metaclass.h
+    metaclasst.h
+    metaproperty.h
+    metapropertyt.h
+    processor.h
+    reflective.h
+    reflectivet.h
+    roles_constants.h
+    stdenums.h
+    stdtypes.h
+    string_table.h
+    timer.h
+    timing.h
+    u64.h
+    )
+
+set_source_files_properties(${llcommon_HEADER_FILES}
+                            PROPERTIES HEADER_FILE_ONLY TRUE)
+
+list(APPEND llcommon_SOURCE_FILES ${llcommon_HEADER_FILES})
+
+add_library (llcommon ${llcommon_SOURCE_FILES})

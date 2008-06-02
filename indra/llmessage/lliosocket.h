@@ -43,8 +43,8 @@
  */
 
 #include "lliopipe.h"
-#include "apr-1/apr_pools.h"
-#include "apr-1/apr_network_io.h"
+#include "apr_pools.h"
+#include "apr_network_io.h"
 #include "llchainio.h"
 
 class LLHost;

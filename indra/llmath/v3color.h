@@ -174,6 +174,10 @@ inline LLColor3::LLColor3(const F32 *vec)
 	mV[VZ] = vec[VZ];
 }
 
+#if LL_WINDOWS
+# pragma warning( disable : 4996 ) // strncpy teh sux0r
+#endif
+
 inline LLColor3::LLColor3(char* color_string) // takes a string of format "RRGGBB" where RR is hex 00..FF 
 {
 	if (strlen(color_string) <  6)		/* Flawfinder: ignore */

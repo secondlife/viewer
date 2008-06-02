@@ -292,7 +292,7 @@ namespace tut
 		delete message;
 	}
 
-	void LLMessageTemplateParserTestObject::test<8>()
+	template<> template<> void LLMessageTemplateParserTestObject::test<8>()
 		// tests message parsing on RezMultipleAttachmentsFromInv, a possibly-faulty message
 	{
 		std::string message_skel(

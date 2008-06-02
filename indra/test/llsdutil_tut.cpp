@@ -33,9 +33,15 @@
 
 #include "linden_common.h"
 #include "lltut.h"
-#include "v3color.h"
-#include "v4math.h"
 #include "m4math.h"
+#include "v2math.h"
+#include "v2math.h"
+#include "v3color.h"
+#include "v3math.h"
+#include "v3dmath.h"
+#include "v4coloru.h"
+#include "v4math.h"
+#include "llquaternion.h"
 #include "llsdutil.h"
 
 

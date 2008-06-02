@@ -33,6 +33,10 @@
 #include <tut/tut.h>
 #include "linden_common.h"
 #include "lltut.h"
+#include "v3dmath.h"
+#include "v3math.h"
+#include "v4math.h"
+#include "llquaternion.h"
 
 #include "message.h"
 #include "llsdmessagereader.h"

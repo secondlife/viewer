@@ -1,0 +1,5 @@
+# -*- cmake -*-
+
+if (NOT STANDALONE)
+  set(GLEXT_INCLUDE_DIR ${LIBS_PREBUILT_DIR}/${LL_ARCH_DIR}/include)
+endif (NOT STANDALONE)

@@ -49,13 +49,13 @@ void LLScriptFilePosition::fdotabs(LLFILE *fp, S32 tabs, S32 tabsize)
 	}
 }
 
-char* gWarningText[LSWARN_EOF] = 	 	/*Flawfinder: ignore*/
+const char* gWarningText[LSWARN_EOF] = 	 	/*Flawfinder: ignore*/
 {
 	"INVALID",
 	"Dead code found beyond return statement"
 };
 
-char* gErrorText[LSERROR_EOF] = 	/*Flawfinder: ignore*/
+const char* gErrorText[LSERROR_EOF] = 	/*Flawfinder: ignore*/
 {
 	"INVALID",
 	"Syntax error",

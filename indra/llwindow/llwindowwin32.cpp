@@ -54,8 +54,6 @@
 #include "llstring.h"
 #include "lldir.h"
 
-#include "llglheaders.h"
-
 #include "indra_constants.h"
 
 #include "llpreeditor.h"
@@ -359,7 +357,7 @@ LLWinImm::~LLWinImm()
 }
 
 
-LLWindowWin32::LLWindowWin32(char *title, char *name, S32 x, S32 y, S32 width,
+LLWindowWin32::LLWindowWin32(const char *title, const char *name, S32 x, S32 y, S32 width,
 							 S32 height, U32 flags, 
 							 BOOL fullscreen, BOOL clearBg,
 							 BOOL disable_vsync, BOOL use_gl,

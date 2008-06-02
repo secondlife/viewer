@@ -41,7 +41,7 @@ LLEventInfo::cat_map LLEventInfo::sCategories;
 LLEventInfo::LLEventInfo(F32 global_x, F32 global_y, 
 						 const char* name, 
 						 U32 id,
-						 S32 unix_time,
+						 time_t unix_time,
 						 U32 event_flags)
 :	mName( name ),
 	mID( id ),
@@ -91,7 +91,9 @@ void LLEventInfo::unpack(LLMessageSystem *msg)
 	msg->getU32("EventData","Duration",duration);
 	mDuration = duration;
 
-	msg->getU32("EventData", "DateUTC", mUnixTime);
+	U32 date;
+	msg->getU32("EventData", "DateUTC", date);
+	mUnixTime = date;
 
 	msg->getString("EventData", "Desc", MAX_DESC_LENGTH, buffer);
 	mDesc = buffer;

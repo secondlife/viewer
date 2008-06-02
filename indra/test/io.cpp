@@ -36,7 +36,7 @@
 
 #include <iterator>
 
-#include <apr-1/apr_pools.h>
+#include "apr_pools.h"
 
 #include "llbuffer.h"
 #include "llbufferstream.h"
@@ -706,6 +706,9 @@ namespace tut
 	template<> template<>
 	void bas_object::test<10>()
 	{
+//#if LL_WINDOWS && _MSC_VER >= 1400
+//        skip_fail("Fails on VS2005 due to broken LLSDSerialize::fromNotation() parser.");
+//#endif
 		const char LOGIN_STREAM[] = "{'method':'login', 'parameter': [ {"
 										"'uri': 'sl-am:kellys.region.siva.lindenlab.com/location?start=url&px=128&py=128&pz=128&lx=0&ly=0&lz=0'}, "
 										"{'version': i1}, {'texture_data': [ '61d724fb-ad79-f637-2186-5cf457560daa', '6e38b9be-b7cc-e77a-8aec-029a42b0b416', "
@@ -791,6 +794,9 @@ namespace tut
 	template<> template<>
 	void bas_object::test<12>()
 	{
+//#if LL_WINDOWS && _MSC_VER >= 1400
+//        skip_fail("Fails on VS2005 due to broken LLSDSerialize::fromNotation() parser.");
+//#endif
 		std::string val = "{!'foo':[i1,'hi',{@'bar'#:[$i2%,^'baz'&]*}+]=}";
 		std::istringstream istr;
 		istr.str(val);
@@ -1309,6 +1315,9 @@ namespace tut
 	template<> template<>
 	void rpc_server_object::test<2>()
 	{
+//#if LL_WINDOWS && _MSC_VER >= 1400
+//        skip_fail("Fails on VS2005 due to broken LLSDSerialize::fromNotation() parser.");
+//#endif
 		std::string uri("sl-am:66.150.244.180:12035/location?start=region&px=70.9247&py=254.378&pz=38.7304&lx=-0.043753&ly=-0.999042&lz=0");
 		std::stringstream stream;
 		stream << "{'task_id':ucc706f2d-0b68-68f8-11a4-f1043ff35ca0}\n{\n\tname\tObject|\n\tpermissions 0\n}";
@@ -1397,6 +1406,9 @@ namespace tut
 	template<> template<>
 	void rpc_server_object::test<3>()
 	{
+//#if LL_WINDOWS && _MSC_VER >= 1400
+//        skip_fail("Fails on VS2005 due to broken LLSDSerialize::fromNotation() parser.");
+//#endif
 		std::string uri("sl-am:66.150.244.180:12035/location?start=region&px=70.9247&py=254.378&pz=38.7304&lx=-0.043753&ly=-0.999042&lz=0");
 
 		LLBufferArray buffer;

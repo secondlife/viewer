@@ -445,7 +445,7 @@ void LLMuteList::updateRemove(const LLMute& mute)
 
 void notify_automute_callback(const LLUUID& agent_id, const char* first_name, const char* last_name, BOOL is_group, void* user_data)
 {
-	U32 temp_data = (U32)user_data;
+	U32 temp_data = (U32) (uintptr_t) user_data;
 	LLMuteList::EAutoReason reason = (LLMuteList::EAutoReason)temp_data;
 	LLUIString auto_message;
 

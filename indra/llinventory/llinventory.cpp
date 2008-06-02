@@ -364,7 +364,7 @@ const LLString& LLInventoryItem::getDescription() const
 	return mDescription;
 }
 
-S32 LLInventoryItem::getCreationDate() const
+time_t LLInventoryItem::getCreationDate() const
 {
 	return mCreationDate;
 }
@@ -422,7 +422,7 @@ void LLInventoryItem::setFlags(U32 flags)
 	mFlags = flags;
 }
 
-void LLInventoryItem::setCreationDate(S32 creation_date_utc)
+void LLInventoryItem::setCreationDate(time_t creation_date_utc)
 {
 	mCreationDate = creation_date_utc;
 }
@@ -496,7 +496,9 @@ BOOL LLInventoryItem::unpackMessage(LLMessageSystem* msg, const char* block, S32
 	mDescription.assign(desc);
 	LLString::replaceNonstandardASCII(mDescription, ' ');
 
-	msg->getS32(block, "CreationDate", mCreationDate, block_num);
+	S32 date;
+	msg->getS32(block, "CreationDate", date, block_num);
+	mCreationDate = date;
 
 	U32 local_crc = getCRC32();
 	U32 remote_crc = 0;
@@ -653,7 +655,9 @@ BOOL LLInventoryItem::importFile(LLFILE* fp)
 		}
 		else if(0 == strcmp("creation_date", keyword))
 		{
-			sscanf(valuestr, "%d", &mCreationDate);
+			S32 date;
+			sscanf(valuestr, "%d", &date);
+			mCreationDate = date;
 		}
 		else
 		{
@@ -716,7 +720,7 @@ BOOL LLInventoryItem::exportFile(LLFILE* fp, BOOL include_asset_key) const
 	mSaleInfo.exportFile(fp);
 	fprintf(fp, "\t\tname\t%s|\n", mName.c_str());
 	fprintf(fp, "\t\tdesc\t%s|\n", mDescription.c_str());
-	fprintf(fp, "\t\tcreation_date\t%d\n", mCreationDate);
+	fprintf(fp, "\t\tcreation_date\t%d\n", (S32) mCreationDate);
 	fprintf(fp,"\t}\n");
 	return TRUE;
 }
@@ -854,7 +858,9 @@ BOOL LLInventoryItem::importLegacyStream(std::istream& input_stream)
 		}
 		else if(0 == strcmp("creation_date", keyword))
 		{
-			sscanf(valuestr, "%d", &mCreationDate);
+			S32 date;
+			sscanf(valuestr, "%d", &date);
+			mCreationDate = date;
 		}
 		else
 		{
@@ -956,7 +962,7 @@ LLSD LLInventoryItem::asLLSD() const
 	sd[INV_SALE_INFO_LABEL] = mSaleInfo;
 	sd[INV_NAME_LABEL] = mName;
 	sd[INV_DESC_LABEL] = mDescription;
-	sd[INV_CREATION_DATE_LABEL] = mCreationDate;
+	sd[INV_CREATION_DATE_LABEL] = (S32) mCreationDate;
 
 	return sd;
 }
@@ -1052,7 +1058,7 @@ bool LLInventoryItem::fromLLSD(LLSD& sd)
 	w = INV_CREATION_DATE_LABEL;
 	if (sd.has(w))
 	{
-		mCreationDate = sd[w];
+		mCreationDate = sd[w].asInteger();
 	}
 
 	// Need to convert 1.0 simstate files to a useful inventory type
@@ -1116,7 +1122,8 @@ LLXMLNode *LLInventoryItem::exportFileXML(BOOL include_asset_key) const
 	ret->createChild("name", FALSE)->setStringValue(1, &temp);
 	temp.assign(mDescription);
 	ret->createChild("description", FALSE)->setStringValue(1, &temp);
-	ret->createChild("creation_date", FALSE)->setIntValue(1, &mCreationDate);
+	S32 date = mCreationDate;
+	ret->createChild("creation_date", FALSE)->setIntValue(1, &date);
 
 	return ret;
 }
@@ -1159,7 +1166,12 @@ BOOL LLInventoryItem::importXML(LLXMLNode* node)
 		if (node->getChild("description", sub_node))
 			mDescription = sub_node->getValue();
 		if (node->getChild("creation_date", sub_node))
-			success = success && (1 == sub_node->getIntValue(1, &mCreationDate));
+		{
+			S32 date = 0;
+			success = success && (1 == sub_node->getIntValue(1, &date));
+			mCreationDate = date;
+		}
+		
 		if (!success)
 		{
 			lldebugs << "LLInventory::importXML() failed for node named '" 
@@ -1615,7 +1627,7 @@ LLSD ll_create_sd_from_inventory_item(LLPointer<LLInventoryItem> item)
 	rv[INV_INVENTORY_TYPE_LABEL] =
 		LLInventoryType::lookup(item->getInventoryType());
 	rv[INV_FLAGS_LABEL] = (S32)item->getFlags();
-	rv[INV_CREATION_DATE_LABEL] = item->getCreationDate();
+	rv[INV_CREATION_DATE_LABEL] = (S32)item->getCreationDate();
 	return rv;
 }
 

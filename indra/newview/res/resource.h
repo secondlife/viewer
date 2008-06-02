@@ -30,7 +30,7 @@
 
 //{{NO_DEPENDENCIES}}
 // Microsoft Visual C++ generated include file.
-// Used by newViewRes.rc
+// Used by viewerRes.rc
 //
 #define IDREMOVE                        3
 #define IDI_LL_ICON                     103

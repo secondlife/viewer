@@ -417,8 +417,8 @@ void LLSplashScreen::hide()
 static std::set<LLWindow*> sWindowList;
 
 LLWindow* LLWindowManager::createWindow(
-	char *title,
-	char *name,
+	const char *title,
+	const char *name,
 	LLCoordScreen upper_left,
 	LLCoordScreen size,
 	U32 flags,
@@ -434,7 +434,7 @@ LLWindow* LLWindowManager::createWindow(
 }
 
 LLWindow* LLWindowManager::createWindow(
-	char *title, char *name, S32 x, S32 y, S32 width, S32 height, U32 flags,
+	const char *title, const char *name, S32 x, S32 y, S32 width, S32 height, U32 flags,
 	BOOL fullscreen, 
 	BOOL clearBg,
 	BOOL disable_vsync,

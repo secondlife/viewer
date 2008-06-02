@@ -31,8 +31,6 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#ifdef LL_WINDOWS
-
 #include <tchar.h>
 #include <tlhelp32.h>
 #include "llwindebug.h"
@@ -740,5 +738,3 @@ void LLWinDebug::generateCrashStacks(struct _EXCEPTION_POINTERS *exception_infop
 	LLSDSerialize::toPrettyXML(info, out_file);
 	out_file.close();
 }
-
-#endif

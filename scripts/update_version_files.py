@@ -100,7 +100,7 @@ re_map['indra/llcommon/llversionserver.h'] = \
       'const S32 LL_VERSION_BUILD = %(SERVER_VER_BUILD)s;'),
      ('const char \* const LL_CHANNEL = "(.+)";',
       'const char * const LL_CHANNEL = "%(SERVER_CHANNEL)s";'))
-re_map['indra/newview/res/newViewRes.rc'] = \
+re_map['indra/newview/res/viewerRes.rc'] = \
     (('FILEVERSION [0-9,]+',
       'FILEVERSION %(VER_MAJOR)s,%(VER_MINOR)s,%(VER_PATCH)s,%(VER_BUILD)s'),
      ('PRODUCTVERSION [0-9,]+',

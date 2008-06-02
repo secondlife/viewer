@@ -46,9 +46,9 @@
 #include <sstream>
 
 #include "llapr.h"
-#include "apr-1/apr_portable.h"
-#include "apr-1/apr_network_io.h"
-#include "apr-1/apr_poll.h"
+#include "apr_portable.h"
+#include "apr_network_io.h"
+#include "apr_poll.h"
 
 // linden library headers
 #include "indra_constants.h"
@@ -289,7 +289,8 @@ void LLMessageSystem::init()
 LLMessageSystem::LLMessageSystem(const char *filename, U32 port, 
 								 S32 version_major,
 								 S32 version_minor,
-								 S32 version_patch)
+								 S32 version_patch,
+								 bool failure_is_fatal)
 {
 	init();
 
@@ -306,7 +307,7 @@ LLMessageSystem::LLMessageSystem(const char *filename, U32 port,
 
 	mCircuitPrintFreq = 60.f;		// seconds
 
-	loadTemplateFile(filename);
+	loadTemplateFile(filename, failure_is_fatal);
 
 	mTemplateMessageBuilder = new LLTemplateMessageBuilder(mMessageTemplates);
 	mLLSDMessageBuilder = new LLSDMessageBuilder();
@@ -365,7 +366,8 @@ LLMessageSystem::LLMessageSystem(const char *filename, U32 port,
 
 
 // Read file and build message templates
-void LLMessageSystem::loadTemplateFile(const char* filename)
+void LLMessageSystem::loadTemplateFile(const char* filename,
+									   bool failure_is_fatal)
 {
 	if(!filename)
 	{
@@ -377,7 +379,11 @@ void LLMessageSystem::loadTemplateFile(const char* filename)
 	std::string template_body;
 	if(!_read_file_into_string(template_body, filename))
 	{
-		LL_WARNS("Messaging") << "Failed to open template: " << filename << llendl;
+		if (failure_is_fatal) {
+			LL_ERRS("Messaging") << "Failed to open template: " << filename << llendl;
+		} else {
+			LL_WARNS("Messaging") << "Failed to open template: " << filename << llendl;
+		}
 		mbError = TRUE;
 		return;
 	}
@@ -2475,22 +2481,24 @@ void dump_prehash_files()
 	}
 }
 
-BOOL start_messaging_system(
+bool start_messaging_system(
 	const std::string& template_name,
 	U32 port,
 	S32 version_major,
 	S32 version_minor,
 	S32 version_patch,
-	BOOL b_dump_prehash_file,
+	bool b_dump_prehash_file,
 	const std::string& secret,
-	const LLUseCircuitCodeResponder* responder)
+	const LLUseCircuitCodeResponder* responder,
+	bool failure_is_fatal)
 {
 	gMessageSystem = new LLMessageSystem(
 		template_name.c_str(),
 		port, 
 		version_major, 
 		version_minor, 
-		version_patch);
+		version_patch,
+		failure_is_fatal);
 	g_shared_secret.assign(secret);
 
 	if (!gMessageSystem)

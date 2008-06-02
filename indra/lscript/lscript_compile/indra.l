@@ -19,11 +19,7 @@ FS			(f|F)
 #include "lscript_tree.h"
 #include "lscript_typecheck.h"
 #include "lscript_resource.h"
-#if LL_WINDOWS
-#include "ytab.h"
-#else
-#include "indra.y.h"
-#endif
+#include "indra.y.hpp"
 #include "lltimer.h"
 #include "indra_constants.h"
 #include "llagentconstants.h"

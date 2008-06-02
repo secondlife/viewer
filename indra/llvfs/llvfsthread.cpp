@@ -30,7 +30,6 @@
  */
 
 #include "linden_common.h"
-#include "llmath.h"
 #include "llvfsthread.h"
 #include "llstl.h"
 

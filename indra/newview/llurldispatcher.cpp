@@ -163,11 +163,13 @@ bool LLURLDispatcherImpl::dispatchRightClick(const std::string& url)
 // static
 bool LLURLDispatcherImpl::dispatchHelp(const std::string& url, BOOL right_mouse)
 {
+#if LL_LIBXUL_ENABLED
 	if (matchPrefix(url, SLURL_SL_HELP_PREFIX))
 	{
 		gViewerHtmlHelp.show();
 		return true;
 	}
+#endif
 	return false;
 }
 

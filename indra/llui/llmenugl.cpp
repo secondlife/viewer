@@ -46,7 +46,6 @@
 #include "llmenugl.h"
 
 #include "llmath.h"
-#include "llgl.h"
 #include "llglimmediate.h"
 #include "llfocusmgr.h"
 #include "llfont.h"
@@ -59,7 +58,6 @@
 #include "llresmgr.h"
 #include "llui.h"
 
-#include "llglheaders.h"
 #include "llstl.h"
 
 #include "v2math.h"

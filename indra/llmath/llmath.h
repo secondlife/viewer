@@ -33,8 +33,7 @@
 #define LLMATH_H
 
 #include <cmath>
-//#include <math.h>
-//#include <stdlib.h>
+#include <cstdlib>
 #include "lldefs.h"
 
 // work around for Windows & older gcc non-standard function names.
@@ -102,13 +101,13 @@ inline BOOL is_approx_zero( F32 f ) { return (-F_APPROXIMATELY_ZERO < f) && (f <
 inline BOOL is_approx_equal(F32 x, F32 y)
 {
 	const S32 COMPARE_MANTISSA_UP_TO_BIT = 0x02;
-	return (abs((S32) ((U32&)x - (U32&)y) ) < COMPARE_MANTISSA_UP_TO_BIT);
+	return (std::abs((S32) ((U32&)x - (U32&)y) ) < COMPARE_MANTISSA_UP_TO_BIT);
 }
 
 inline BOOL is_approx_equal(F64 x, F64 y)
 {
 	const S64 COMPARE_MANTISSA_UP_TO_BIT = 0x02;
-	return (abs((S32) ((U64&)x - (U64&)y) ) < COMPARE_MANTISSA_UP_TO_BIT);
+	return (std::abs((S32) ((U64&)x - (U64&)y) ) < COMPARE_MANTISSA_UP_TO_BIT);
 }
 
 inline BOOL is_approx_equal_fraction(F32 x, F32 y, U32 frac_bits)
@@ -155,17 +154,17 @@ inline BOOL is_approx_equal_fraction(F64 x, F64 y, U32 frac_bits)
 
 inline S32 llabs(const S32 a)
 {
-	return S32(labs(a));
+	return S32(std::labs(a));
 }
 
 inline F32 llabs(const F32 a)
 {
-	return F32(fabs(a));
+	return F32(std::fabs(a));
 }
 
 inline F64 llabs(const F64 a)
 {
-	return F64(fabs(a));
+	return F64(std::fabs(a));
 }
 
 inline S32 lltrunc( F32 f )

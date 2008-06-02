@@ -41,24 +41,18 @@
 #include "audioengine.h"
 #include "v2math.h"
 #include "v4color.h"
-#include "llgl.h"
 #include "llglimmediate.h"
 #include "llrect.h"
 #include "llimagegl.h"
-//#include "llviewerimage.h"
 #include "lldir.h"
 #include "llfontgl.h"
 
 // Project includes
-//#include "audioengine.h"
 #include "llcontrol.h"
-//#include "llstartup.h"
 #include "llui.h"
 #include "llview.h"
 #include "lllineeditor.h"
 #include "llwindow.h"
-
-#include "llglheaders.h"
 
 //
 // Globals

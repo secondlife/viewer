@@ -62,7 +62,7 @@ public:
 						  const LLString& desc,
 						  const LLSaleInfo& sale_info,
 						  U32 flags,
-						  S32 creation_date_utc);
+						  time_t creation_date_utc);
 
 	// construct a viewer inventory item which has the minimal amount
 	// of information to use in the UI.

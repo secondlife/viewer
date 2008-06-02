@@ -35,7 +35,7 @@
 #include <iostream>
 #include <deque>
 
-#include "apr-1/apr_base64.h"
+#include "apr_base64.h"
 
 extern "C"
 {
