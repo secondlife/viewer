@@ -56,7 +56,8 @@ class Demo_ArchManifest(llmanifest.LLManifest):
 class TestLLManifest(unittest.TestCase):
     mode='static'
     def setUp(self):
-        self.m = llmanifest.LLManifest("src", "dst", {'grid':'default', 'platform':'darwin', 'version':(1,2,3,4)})
+        self.m = llmanifest.LLManifest({'source':'src', 'dest':'dst', 'grid':'default', 'platform':'darwin', 'version':(1,2,3,4),
+                                        'artwork':'art', 'build':'build'})
 
     def testproperwindowspath(self):
         self.assertEqual(llmanifest.proper_windows_path("C:\Program Files", "cygwin"),"/cygdrive/c/Program Files")
