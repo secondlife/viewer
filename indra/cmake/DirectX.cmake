@@ -6,6 +6,7 @@ if (VIEWER AND WINDOWS)
             "C:/Program Files/Microsoft DirectX SDK (March 2008)/Include"
             "C:/Program Files/Microsoft DirectX SDK (November 2007)/Include"
             "C:/DX90SDK/Include"
+            "C:/Program Files/DX90SDK/Include"
             )
   if (DIRECTX_INCLUDE_DIR)
     include_directories(${DIRECTX_INCLUDE_DIR})
@@ -21,7 +22,7 @@ if (VIEWER AND WINDOWS)
             "$ENV{DXSDK_DIR}/Lib/x86"
             "C:/Program Files/Microsoft DirectX SDK (March 2008)/Lib/x86"
             "C:/Program Files/Microsoft DirectX SDK (November 2007)/Lib/x86"
-            "C:/DX90SDK/Lib"
+            "C:/Program Files/DX90SDK/Lib"
             )
   if (DIRECTX_LIBRARY_DIR)
     if (DIRECTX_FIND_QUIETLY)
