@@ -22,6 +22,7 @@ if (VIEWER AND WINDOWS)
             "$ENV{DXSDK_DIR}/Lib/x86"
             "C:/Program Files/Microsoft DirectX SDK (March 2008)/Lib/x86"
             "C:/Program Files/Microsoft DirectX SDK (November 2007)/Lib/x86"
+            "C:/DX90SDK/Lib"
             "C:/Program Files/DX90SDK/Lib"
             )
   if (DIRECTX_LIBRARY_DIR)
