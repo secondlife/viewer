@@ -48,7 +48,8 @@ put_ = suite.put_
 request = suite.request
 request_ = suite.request_
 
-for x in (httpc.ConnectionError, httpc.NotFound, httpc.Forbidden):
+# import every httpc error exception into our namespace for convenience
+for x in httpc.status_to_error_map.itervalues():
     globals()[x.__name__] = x
 
 
