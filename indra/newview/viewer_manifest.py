@@ -216,7 +216,7 @@ class WindowsManifest(ViewerManifest):
             self.end_prefix()
 
         # pull in the crash logger and updater from other projects
-        self.path(src=self.find_existing_file(
+        self.path(src=self.find_existing_file( # tag:"crash-logger" here as a cue to the exporter
                 "../win_crash_logger/debug/windows-crash-logger.exe",
                 "../win_crash_logger/release/windows-crash-logger.exe",
                 "../win_crash_logger/relwithdebinfo/windows-crash-logger.exe"),
