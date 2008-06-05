@@ -397,28 +397,45 @@ class DarwinSetup(UnixSetup):
 
 
 class WindowsSetup(PlatformSetup):
+    gens = {
+        'vc71' : {
+            'gen' : r'Visual Studio 7 .NET 2003',
+            'ver' : r'7.1'
+            },
+        'vc80' : {
+            'gen' : r'Visual Studio 8 2005',
+            'ver' : r'8.0'
+            },
+        'vc90' : {
+            'gen' : r'Visual Studio 9 2008',
+            'ver' : r'9.0'
+            }
+        }
+    gens['vs2003'] = gens['vc71']
+    gens['vs2005'] = gens['vc80']
+    gens['vs2008'] = gens['vc90']
+
     def __init__(self):
         super(WindowsSetup, self).__init__()
-        self.gens = {
-            'vc71' : {
-                'gen' : r'Visual Studio 7 .NET 2003',
-                'ver' : r'7.1'
-                },
-            'vc80' : {
-                'gen' : r'Visual Studio 8 2005',
-                'ver' : r'8.0'
-                },
-            'vc90' : {
-                'gen' : r'Visual Studio 9 2008',
-                'ver' : r'9.0'
-                }
-            }
-        self.gens['vs2003'] = self.gens['vc71']
-        self.gens['vs2005'] = self.gens['vc80']
-        self.gens['vs2008'] = self.gens['vc90']
-
-        self.generator = 'vc71'
+        self._generator = None
         self.incredibuild = False
+
+    def _get_generator(self):
+        if self._generator is None:
+            for version in 'vc71 vc80 vc90'.split():
+                if self.find_visual_studio(version):
+                    self._generator = version
+                    print 'Building with ', self.gens[version]['gen']
+                    break
+            else:
+                print >> sys.stderr, 'Cannot find a Visual Studio installation!'
+                eys.exit(1)
+        return self._generator
+
+    def _set_generator(self, gen):
+        self._generator = gen
+
+    generator = property(_get_generator, _set_generator)
 
     def os(self):
         return 'win32'
@@ -441,19 +458,14 @@ class WindowsSetup(PlatformSetup):
                 '-DUNATTENDED:BOOL=%(unattended)s '
                 '%(opts)s "%(dir)s"' % args)
 
-    def get_build_cmd(self):
-        if self.incredibuild:
-            config = self.build_type
-            if self.gens[self.generator]['ver'] in [ r'8.0', r'9.0' ]:
-                config = '\"%s|Win32\"' % config
-
-            return "buildconsole Secondlife.sln /build %s" % config
-
-        value = ""
+    def find_visual_studio(self, gen=None):
+        if gen is None:
+            gen = self._generator
+        gen = gen.lower()
         try:
             import _winreg
             key_str = (r'SOFTWARE\Microsoft\VisualStudio\%s\Setup\VS' %
-                       self.gens[self.generator.lower()]['ver'])
+                       self.gens[gen]['ver'])
             value_str = (r'EnvironmentDirectory')
             print ('Reading VS environment from HKEY_LOCAL_MACHINE\%s\%s' %
                    (key_str, value_str))
@@ -463,11 +475,22 @@ class WindowsSetup(PlatformSetup):
             key = _winreg.OpenKey(reg, key_str)
             value = _winreg.QueryValueEx(key, value_str)[0]
             print 'Found: %s' % value
+            return value
         except WindowsError, err:
-            print "Didn't find Visual Studio installation."
+            print >> sys.stderr, "Didn't find ", self.gens[gen]['name']
+            return ''
+
+    def get_build_cmd(self):
+        if self.incredibuild:
+            config = self.build_type
+            if self.gens[self.generator]['ver'] in [ r'8.0', r'9.0' ]:
+                config = '\"%s|Win32\"' % config
+
+            return "buildconsole Secondlife.sln /build %s" % config
 
         # devenv.com is CLI friendly, devenv.exe... not so much.
-        return '"' + value + 'devenv.com" Secondlife.sln /build %s' % self.build_type
+        return ('"%sdevenv.com" Secondlife.sln /build %s' % 
+                (self.find_visual_studio(), self.build_type))
 
     # this override of run exists because the PlatformSetup version
     # uses Unix/Mac only calls. Freakin' os module!
