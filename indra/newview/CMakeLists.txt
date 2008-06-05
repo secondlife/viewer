@@ -1211,6 +1211,9 @@ if (LLKDU_LIBRARY)
   add_dependencies(secondlife-bin ${LLKDU_LIBRARY})
 endif (LLKDU_LIBRARY)
 
+set(PACKAGE OFF CACHE BOOL
+    "Add a package target that builds an installer package.")
+
 if (WINDOWS)
     if(MSVC71)
         set(release_flags "/MAP:Release/secondlife-bin.map /MAPINFO:LINES")
@@ -1267,7 +1270,6 @@ if (WINDOWS)
       add_dependencies(secondlife-bin copy_win_scripts)
     endif (EXISTS ${CMAKE_SOURCE_DIR}/copy_win_scripts)
         
-    add_custom_target(package ALL DEPENDS ${CMAKE_CFG_INTDIR}/touched.bat)
     add_custom_command(
         OUTPUT ${CMAKE_CFG_INTDIR}/touched.bat
         COMMAND ${PYTHON_EXECUTABLE}
@@ -1282,7 +1284,10 @@ if (WINDOWS)
               --touch=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/touched.bat
         DEPENDS secondlife-bin ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
         )
-    add_dependencies(package windows-updater windows-crash-logger)
+    if (PACKAGE)
+      add_custom_target(package ALL DEPENDS ${CMAKE_CFG_INTDIR}/touched.bat)
+      add_dependencies(package windows-updater windows-crash-logger)
+    endif (PACKAGE)
 endif (WINDOWS)
 
 target_link_libraries(secondlife-bin
@@ -1421,7 +1426,9 @@ if (DARWIN)
     DEPENDS secondlife-bin ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
     )
 
-  add_custom_target(package DEPENDS "${CMAKE_CFG_INTDIR}/.${product}.touched")
+  if (PACKAGE)
+    add_custom_target(package DEPENDS "${CMAKE_CFG_INTDIR}/.${product}.touched")
+  endif (PACKAGE)
 endif (DARWIN)
 
 if (INSTALL)

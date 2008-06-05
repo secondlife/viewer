@@ -477,7 +477,7 @@ class WindowsSetup(PlatformSetup):
             print 'Found: %s' % value
             return value
         except WindowsError, err:
-            print >> sys.stderr, "Didn't find ", self.gens[gen]['name']
+            print >> sys.stderr, "Didn't find ", self.gens[gen]['gen']
             return ''
 
     def get_build_cmd(self):
