@@ -3013,6 +3013,7 @@ void LLAppViewer::idle()
 	static LLTimer idle_timer;
 
 	LLFrameTimer::updateFrameTime();
+	LLFrameTimer::updateFrameCount();
 	LLEventTimer::updateClass();
 	LLCriticalDamp::updateInterpolants();
 	LLMortician::updateClass();

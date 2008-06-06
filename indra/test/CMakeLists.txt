@@ -55,6 +55,7 @@ set(test_SOURCE_FILES
     llsdutil_tut.cpp
     llservicebuilder_tut.cpp
     llstreamtools_tut.cpp
+    llstring_tut.cpp
     lltemplatemessagebuilder_tut.cpp
     lltiming_tut.cpp
     lltut.cpp

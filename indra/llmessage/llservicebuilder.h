@@ -38,11 +38,24 @@
 
 class LLSD;
 
+/**
+ * @brief  Format format string according to rules for RUSS.
+ *
+ * This function appears alongside the service builder since the
+ * algorithm was originally implemented there. This can eventually be
+ * moved when someone wants to take the time.
+ * @see https://osiris.lindenlab.com/mediawiki/index.php/Recursive_URL_Substitution_Syntax
+ * @param format_str The input string to format.
+ * @param context A map used for string substitutions.
+ * @return Returns the formatted string. If no match is found for a
+ * substitution target, the braces remain intact.
+ */
+std::string russ_format(const std::string& format_str, const LLSD& context);
+
 /** 
  * @class LLServiceBuilder
  * @brief This class builds urls for us to use when making web service calls.
  */
-
 class LLServiceBuilder
 {
 	LOG_CLASS(LLServiceBuilder);

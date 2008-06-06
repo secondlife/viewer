@@ -67,10 +67,14 @@ public:
 		return sTotalSeconds;
 	}
 
-	// Call this method once per frame to update the current frame time.
+	// Call this method once per frame to update the current frame time.   This is actually called
+	// at some other times as well
 	static void updateFrameTime();
 
-	static S32  getFrameCount()						{ return sFrameCount; }
+	// Call this method once, and only once, per frame to update the current frame count.
+	static void updateFrameCount()					{ sFrameCount++; }
+
+	static U32  getFrameCount()						{ return sFrameCount; }
 
 	static F32	getFrameDeltaTimeF32();
 

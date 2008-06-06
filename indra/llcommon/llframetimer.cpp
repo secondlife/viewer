@@ -53,7 +53,6 @@ void LLFrameTimer::updateFrameTime()
 	sTotalTime = total_time;
 	sTotalSeconds = U64_to_F64(sTotalTime) * USEC_TO_SEC_F64;
 	sFrameTime = U64_to_F64(sTotalTime - sStartTotalTime) * USEC_TO_SEC_F64;
-	sFrameCount++;
 } 
 
 void LLFrameTimer::start()

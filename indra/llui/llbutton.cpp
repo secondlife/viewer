@@ -321,7 +321,7 @@ BOOL LLButton::handleMouseDown(S32 x, S32 y, MASK mask)
 	}
 
 	mMouseDownTimer.start();
-	mMouseDownFrame = LLFrameTimer::getFrameCount();
+	mMouseDownFrame = (S32) LLFrameTimer::getFrameCount();
 	
 	if (getSoundFlags() & MOUSE_DOWN)
 	{
@@ -385,7 +385,7 @@ BOOL LLButton::handleHover(S32 x, S32 y, MASK mask)
 	if (mMouseDownTimer.getStarted() && NULL != mHeldDownCallback)
 	{
 		F32 elapsed = getHeldDownTime();
-		if( mHeldDownDelay <= elapsed && mHeldDownFrameDelay <= LLFrameTimer::getFrameCount() - mMouseDownFrame)
+		if( mHeldDownDelay <= elapsed && mHeldDownFrameDelay <= (S32)LLFrameTimer::getFrameCount() - mMouseDownFrame)
 		{
 			mHeldDownCallback( mCallbackUserData );		
 		}

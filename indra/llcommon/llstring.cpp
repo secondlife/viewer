@@ -929,6 +929,32 @@ namespace LLStringFn
 			}
 		}
 	}
+
+	// https://wiki.lindenlab.com/wiki/Unicode_Guidelines has details on
+	// allowable code points for XML. Specifically, they are:
+	// 0x09, 0x0a, 0x0d, and 0x20 on up.  JC
+	std::string strip_invalid_xml(const std::string& input)
+	{
+		std::string output;
+		output.reserve( input.size() );
+		std::string::const_iterator it = input.begin();
+		while (it != input.end())
+		{
+			// Must compare as unsigned for >=
+			// Test most likely match first
+			const unsigned char c = (unsigned char)*it;
+			if (   c >= (unsigned char)0x20   // SPACE
+				|| c == (unsigned char)0x09   // TAB
+				|| c == (unsigned char)0x0a   // LINE_FEED
+				|| c == (unsigned char)0x0d ) // CARRIAGE_RETURN
+			{
+				output.push_back(c);
+			}
+			++it;
+		}
+		return output;
+	}
+
 }
 
 

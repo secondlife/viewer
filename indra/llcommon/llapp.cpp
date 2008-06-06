@@ -224,6 +224,7 @@ LLSD LLApp::getOptionData(OptionPriority level)
 void LLApp::stepFrame()
 {
 	LLFrameTimer::updateFrameTime();
+	LLFrameTimer::updateFrameCount();
 	LLEventTimer::updateClass();
 	mRunner.run();
 }

@@ -545,6 +545,13 @@ namespace LLStringFn
 	 */
 	void replace_nonprintable_and_pipe(std::basic_string<llwchar>& str,
 									   llwchar replacement);
+
+	/**
+	 * @brief Remove all characters that are not allowed in XML 1.0.
+	 * Returns a copy of the string with those characters removed.
+	 * Works with US ASCII and UTF-8 encoded strings.  JC
+	 */
+	std::string strip_invalid_xml(const std::string& input);
 }
 
 ////////////////////////////////////////////////////////////
@@ -739,17 +746,9 @@ LLStringBase<T>::LLStringBase(const T* s, size_type n ) : std::basic_string<T>()
 
 // Init from a substring
 template<class T> 
-LLStringBase<T>::LLStringBase(const T* s, size_type pos, size_type n ) : std::basic_string<T>()
-{
-	if( s )
-	{
-		assign(s + pos, n);
-	}
-	else
-	{
-		assign(LLStringBase<T>::null);
-	}
-}
+LLStringBase<T>::LLStringBase(const T* s, size_type pos, size_type n )
+: std::basic_string<T>( (s ? s : std::basic_string<T>() ), pos, n )
+{ }
 
 //static
 template<class T> 

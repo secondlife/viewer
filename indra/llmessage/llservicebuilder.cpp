@@ -111,10 +111,13 @@ std::string LLServiceBuilder::buildServiceURI(
 	const std::string& service_name,
 	const LLSD& option_map)
 {
-	std::string service_url = buildServiceURI(service_name);
-    
-	// Find the Service Name
-	if(!service_url.empty() && option_map.isMap())
+	return russ_format(buildServiceURI(service_name), option_map);
+}
+
+std::string russ_format(const std::string& format_str, const LLSD& context)
+{
+	std::string service_url(format_str);
+	if(!service_url.empty() && context.isMap())
 	{
 		// throw in a ridiculously large limiter to make sure we don't
 		// loop forever with bad input.
@@ -134,9 +137,9 @@ std::string LLServiceBuilder::buildServiceURI(
 			std::string::iterator end(service_url.end());
 			std::string::iterator deepest_node(service_url.end());
 			std::string::iterator deepest_node_end(service_url.end());
-			//parse out the variables to replace by going through {}s one at a time,
-			// starting with the "deepest" in series {{}},
-			// and otherwise replacing right-to-left
+			// parse out the variables to replace by going through {}s
+			// one at a time, starting with the "deepest" in series
+			// {{}}, and otherwise replacing right-to-left
 			for(; iter != end; ++iter)
 			{
 				switch(*iter)
@@ -171,7 +174,7 @@ std::string LLServiceBuilder::buildServiceURI(
 			// params and straight string substitution, so it's a
 			// known distance of 2 to skip the directive.
 			std::string key(deepest_node + 2, deepest_node_end);
-			LLSD value = option_map[key];
+			LLSD value = context[key];
 			switch(*(deepest_node + 1))
 			{
 			case '$':
@@ -184,7 +187,9 @@ std::string LLServiceBuilder::buildServiceURI(
 				}
 				else
 				{
-					llwarns << "Unknown key: " << key << " in option map: " << LLSDOStreamer<LLSDNotationFormatter>(option_map) << llendl;
+					llwarns << "Unknown key: " << key << " in option map: "
+						<< LLSDOStreamer<LLSDNotationFormatter>(context)
+						<< llendl;
 					keep_looping = false;
 				}
 				break;
@@ -212,50 +217,3 @@ std::string LLServiceBuilder::buildServiceURI(
 	}
 	return service_url;
 }
-
-
-
-// Old, not as good implementation. Phoenix 2007-10-15
-#if 0
-		// Do brace replacements - NOT CURRENTLY RECURSIVE
-		for(LLSD::map_const_iterator option_itr = option_map.beginMap();
-			option_itr != option_map.endMap();
-			++option_itr)
-		{
-			std::string variable_name = "{$";
-			variable_name.append((*option_itr).first);
-			variable_name.append("}");
-			std::string::size_type find_pos = service_url.find(variable_name);
-			if(find_pos != std::string::npos)
-			{
-				service_url.replace(
-					find_pos,
-					variable_name.length(),
-					(*option_itr).second.asString());
-				continue;
-			}
-			variable_name.assign("{%");
-			variable_name.append((*option_itr).first);
-			variable_name.append("}");
-			find_pos = service_url.find(variable_name);
-			if(find_pos != std::string::npos)
-			{
-				std::string query_str = LLURI::mapToQueryString(
-					(*option_itr).second);
-				service_url.replace(
-					find_pos,
-					variable_name.length(),
-					query_str);
-			}
-		}
-	}
-
-	if (service_url.find('{') != std::string::npos)
-	{
-		llwarns << "Constructed a likely bogus service URL: " << service_url
-				<< llendl;
-	}
-
-	return service_url;
-}
-#endif

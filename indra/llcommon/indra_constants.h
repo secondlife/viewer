@@ -38,7 +38,11 @@
 // At 45 Hz collisions seem stable and objects seem
 // to settle down at a reasonable rate.
 // JC 3/18/2003
-const F32 PHYSICS_TIMESTEP = 1.f / 45.f;
+
+// const F32 PHYSICS_TIMESTEP = 1.f / 45.f;
+// This must be a #define due to anal retentive restrictions on const expressions
+// CG 2008-06-05
+#define PHYSICS_TIMESTEP (1.f / 45.f)
 
 const F32 COLLISION_TOLERANCE = 0.1f;
 const F32 HALF_COLLISION_TOLERANCE = COLLISION_TOLERANCE * 0.5f;
@@ -50,9 +54,9 @@ const U32 DAYS_PER_LINDEN_YEAR		= 11;
 const U32 SEC_PER_LINDEN_DAY		= HOURS_PER_LINDEN_DAY * 60 * 60;
 const U32 SEC_PER_LINDEN_YEAR		= DAYS_PER_LINDEN_YEAR * SEC_PER_LINDEN_DAY;
 
-const F32 REGION_WIDTH_METERS = 256.f;
-const S32 REGION_WIDTH_UNITS = 256;
-const U32 REGION_WIDTH_U32 = 256;
+static const F32 REGION_WIDTH_METERS = 256.f;
+static const S32 REGION_WIDTH_UNITS = 256;
+static const U32 REGION_WIDTH_U32 = 256;
 
 const F32 REGION_HEIGHT_METERS = 4096.f;
 

@@ -52,6 +52,7 @@ LLFloaterCamera::LLFloaterCamera(const LLSD& val)
 {
 	setIsChrome(TRUE);
 	
+	// For now, only used for size and tooltip strings
 	const BOOL DONT_OPEN = FALSE;
 	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_camera.xml", NULL, DONT_OPEN);
 	
