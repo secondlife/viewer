@@ -39,6 +39,7 @@ import re
 import shutil
 import socket
 import sys
+import commands
 
 class CommandError(Exception):
     pass
@@ -535,16 +536,13 @@ class WindowsSetup(PlatformSetup):
             finally:
                 os.chdir(cwd)
                 
-    
 class CygwinSetup(WindowsSetup):
     def __init__(self):
         super(CygwinSetup, self).__init__()
         self.generator = 'vc71'
 
     def cmake_commandline(self, src_dir, build_dir, opts, simple):
-        dos_dir = src_dir.split('/')[2:]
-        dos_dir[0] = dos_dir[0] + ":"
-        dos_dir = '/'.join(dos_dir)
+        dos_dir = commands.getoutput("cygpath -w %s" % src_dir)
         args = dict(
             dir=dos_dir,
             generator=self.gens[self.generator.lower()]['gen'],
