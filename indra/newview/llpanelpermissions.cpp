@@ -230,7 +230,7 @@ void LLPanelPermissions::refresh()
 		}
 		
 		childSetEnabled("Cost",false);
-		childSetText("Cost",LLString(childGetText("Cost Default")));
+		childSetText("Cost",getString("Cost Default"));
 		childSetText("Edit Cost",LLString::null);
 		childSetEnabled("Edit Cost",false);
 		
@@ -446,11 +446,11 @@ void LLPanelPermissions::refresh()
 		// If there are multiple items for sale then set text to PRICE PER UNIT.
 		if (num_for_sale > 1)
 		{
-			childSetText("Cost",childGetText("Cost Per Unit"));
+			childSetText("Cost",getString("Cost Per Unit"));
 		}
 		else
 		{
-			childSetText("Cost",childGetText("Cost Default"));
+			childSetText("Cost",getString("Cost Default"));
 		}
 		
 		LLLineEditor *editPrice = getChild<LLLineEditor>("Edit Cost");
@@ -460,11 +460,11 @@ void LLPanelPermissions::refresh()
 			// set to the actual cost.
 			if (num_for_sale > 0 && is_for_sale_mixed)
 			{
-				childSetText("Edit Cost",childGetText("Sale Mixed"));
+				childSetText("Edit Cost",getString("Sale Mixed"));
 			}
 			else if (num_for_sale > 0 && is_sale_price_mixed)
 			{
-				childSetText("Edit Cost",childGetText("Cost Mixed"));
+				childSetText("Edit Cost",getString("Cost Mixed"));
 			}
 			else 
 			{
@@ -491,15 +491,15 @@ void LLPanelPermissions::refresh()
 
 		// If multiple items are for sale, set text to TOTAL PRICE.
 		if (num_for_sale > 1)
-			childSetText("Cost",childGetText("Cost Total"));
+			childSetText("Cost",getString("Cost Total"));
 		else
-			childSetText("Cost",childGetText("Cost Default"));
+			childSetText("Cost",getString("Cost Default"));
 	}
 	// This is a public object.
 	else
 	{
 		childSetEnabled("Cost",false);
-		childSetText("Cost",childGetText("Cost Default"));
+		childSetText("Cost",getString("Cost Default"));
 		
 		childSetText("Edit Cost",LLString::null);
 		childSetEnabled("Edit Cost",false);
@@ -1057,7 +1057,7 @@ void LLPanelPermissions::setAllSaleInfo()
 	{
 		// Don't extract the price if it's labeled as MIXED or is empty.
 		const char *editPriceString = editPrice->getText().c_str();
-		if (0 != strcmp(editPriceString,childGetText("Cost Mixed").c_str()) &&
+		if (0 != strcmp(editPriceString,getString("Cost Mixed").c_str()) &&
 			0 != strcmp(editPriceString,""))
 		{
 			price = atoi(editPriceString);
