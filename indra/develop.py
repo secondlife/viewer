@@ -508,10 +508,11 @@ class WindowsSetup(PlatformSetup):
         PlatformSetup.run_cmake(self, args)
         if self.unattended == 'FALSE':
             for build_dir in self.build_dirs():
-                vstool_cmd = ('tools\\vstool\\VSTool.exe'
-                             ' --solution %s\\SecondLife.sln'
-                             ' --config RelWithDebInfo'
-                             ' --startup secondlife-bin' % build_dir)
+                vstool_cmd = os.path.join('tools','vstool','VSTool.exe') \
+                             + ' --solution ' \
+                             + os.path.join(build_dir,'SecondLife.sln') \
+                             + ' --config RelWithDebInfo' \
+                             + ' --startup secondlife-bin'
                 print 'Running %r in %r' % (vstool_cmd, os.getcwd())
                 self.run(vstool_cmd)        
         
@@ -538,6 +539,7 @@ class WindowsSetup(PlatformSetup):
 class CygwinSetup(WindowsSetup):
     def __init__(self):
         super(CygwinSetup, self).__init__()
+        self.generator = 'vc71'
 
     def cmake_commandline(self, src_dir, build_dir, opts, simple):
         dos_dir = src_dir.split('/')[2:]
@@ -642,7 +644,7 @@ def main(arguments):
                 raise CommandError('clean takes no arguments')
             setup.cleanup()
         else:
-            print >> sys.stderr, 'Error: unknown command', repr(arg)
+            print >> sys.stderr, 'Error: unknown command', repr(cmd)
             print >> sys.stderr, "(run 'develop.py --help' for help)"
             sys.exit(1)
     except CommandError, err:
