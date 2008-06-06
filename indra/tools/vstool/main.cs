@@ -16,43 +16,70 @@ namespace VSTool
     {
         public static object GetProperty(object from_obj, string prop_name)
         {
-            Type objType = from_obj.GetType();
-            return objType.InvokeMember(
-                prop_name,
-                BindingFlags.GetProperty, null,
-                from_obj,
-                null);
+            try
+            {
+                Type objType = from_obj.GetType();
+                return objType.InvokeMember(
+                    prop_name,
+                    BindingFlags.GetProperty, null,
+                    from_obj,
+                    null);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Error getting property: \"{0}\"", prop_name);
+                Console.WriteLine(e.Message);
+                throw e;
+            }
         }
 
         public static object SetProperty(object from_obj, string prop_name, object new_value)
         {
-            object[] args = { new_value };
-            Type objType = from_obj.GetType();
-            return objType.InvokeMember(
-                prop_name,
-                BindingFlags.DeclaredOnly |
-                BindingFlags.Public |
-                BindingFlags.NonPublic |
-                BindingFlags.Instance |
-                BindingFlags.SetProperty,
-                null,
-                from_obj,
-                args);
+            try
+            {
+                object[] args = { new_value };
+                Type objType = from_obj.GetType();
+                return objType.InvokeMember(
+                    prop_name,
+                    BindingFlags.DeclaredOnly |
+                    BindingFlags.Public |
+                    BindingFlags.NonPublic |
+                    BindingFlags.Instance |
+                    BindingFlags.SetProperty,
+                    null,
+                    from_obj,
+                    args);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Error setting property: \"{0}\"", prop_name);
+                Console.WriteLine(e.Message);
+                throw e;
+            }
         }
 
         public static object CallMethod(object from_obj, string method_name, params object[] args)
         {
-            Type objType = from_obj.GetType();
-            return objType.InvokeMember(
-                method_name,
-                BindingFlags.DeclaredOnly |
-                BindingFlags.Public |
-                BindingFlags.NonPublic |
-                BindingFlags.Instance |
-                BindingFlags.InvokeMethod,
-                null,
-                from_obj,
-                args);
+            try
+            {
+                Type objType = from_obj.GetType();
+                return objType.InvokeMember(
+                    method_name,
+                    BindingFlags.DeclaredOnly |
+                    BindingFlags.Public |
+                    BindingFlags.NonPublic |
+                    BindingFlags.Instance |
+                    BindingFlags.InvokeMethod,
+                    null,
+                    from_obj,
+                    args);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Error calling method \"{0}\"", method_name);
+                Console.WriteLine(e.Message);
+                throw e;
+            }
         }
     };
 
@@ -77,6 +104,8 @@ namespace VSTool
         static string startup_project = null;
         static string config = null;
 
+        static object dte = null;
+        static object solution = null;
 
         /// <summary>
 		/// The main entry point for the application.
@@ -86,125 +115,98 @@ namespace VSTool
 		{
             bool need_save = false;
 
-            parse_command_line(args);
-
-            Console.WriteLine("Opening solution: {0}", solution_name);
-
-            bool found_open_solution = true;
-
-            Console.WriteLine("Looking for existing VisualStudio instance...");
-
-            // Get an instance of the currently running Visual Studio .NET IDE.
-            object dte = null;
-
-            // dte = (EnvDTE.DTE)System.Runtime.InteropServices.Marshal.GetActiveObject("VisualStudio.DTE.7.1");
-            string full_solution_name = System.IO.Path.GetFullPath(solution_name);
-            if (false == use_new_vs)
+            try
             {
-                dte = GetIDEInstance(full_solution_name);
-            }
+                parse_command_line(args);
 
-            object sol = null;
+                Console.WriteLine("Opening solution: {0}", solution_name);
 
-            if (dte == null)
-            {
-                try
+                bool found_open_solution = GetDTEAndSolution();
+
+                // Walk through all of the projects in the solution
+                // and list the type of each project.
+                foreach (DictionaryEntry p in projectDict)
                 {
-                    Console.WriteLine("  Didn't find open solution, now opening new VisualStudio instance...");
-                    Console.WriteLine("  Reading .sln file version...");
-                    string version = GetSolutionVersion(full_solution_name);
-
-                    Console.WriteLine("  Opening VS version: {0}...", version);
-                    string progid = GetVSProgID(version);
-
-                    Type objType = Type.GetTypeFromProgID(progid);
-                    dte = System.Activator.CreateInstance(objType);
-    
-                    Console.WriteLine("  Opening solution...");
-
-                    sol = ViaCOM.GetProperty(dte, "Solution");
-                    object[] openArgs = {full_solution_name};
-                    ViaCOM.CallMethod(sol, "Open", openArgs);
-                }
-                catch( Exception e )
-                {
-                    Console.WriteLine(e.Message);
-                    Console.WriteLine("Quitting do error opening: {0}", full_solution_name);
-                    return;
-                }
-                found_open_solution = false;
-            }
-
-            if (sol == null)
-            {
-                sol = ViaCOM.GetProperty(dte, "Solution");
-            }
-
-            // Walk through all of the projects in the solution
-            // and list the type of each project.
-            foreach(DictionaryEntry p in projectDict)
-            {
-                string project_name = (string)p.Key;
-                string working_dir = (string)p.Value;
-                if(SetProjectWorkingDir(sol, project_name, working_dir))
-                {
-                    need_save = true;
-                }
-            }
-
-            if(config != null)
-            {
-                try
-                {
-                    object solBuild = ViaCOM.GetProperty(sol, "SolutionBuild");
-                    object solCfgs = ViaCOM.GetProperty(solBuild, "SolutionConfigurations");
-                    object[] itemArgs = { (object)config };
-                    object solCfg = ViaCOM.CallMethod(solCfgs, "Item", itemArgs);
-                    ViaCOM.CallMethod(solCfg, "Activate", null);
-                    need_save = true;
-                }
-                catch( Exception e )
-                {
-                    Console.WriteLine(e.Message);
-                }
-            }
-
-            if (startup_project != null)
-            {
-                try
-                {
-                    // You need the 'unique name of the project to set StartupProjects.
-                    // find the project by generic name.
-                    object prjs = ViaCOM.GetProperty(sol, "Projects");
-                    object count = ViaCOM.GetProperty(prjs, "Count");
-                    for(int i = 1; i <= (int)count; ++i)
+                    string project_name = (string)p.Key;
+                    string working_dir = (string)p.Value;
+                    if (SetProjectWorkingDir(solution, project_name, working_dir))
                     {
-                        object[] itemArgs = { (object)i };
-                        object prj = ViaCOM.CallMethod(prjs, "Item", itemArgs);
-                        object prjName = ViaCOM.GetProperty(prj, "Name");
-                        if (0 == string.Compare((string)prjName, startup_project, ignore_case))
-                        {
-                            object solBuild = ViaCOM.GetProperty(sol, "SolutionBuild");
-                            ViaCOM.SetProperty(solBuild, "StartupProjects", ViaCOM.GetProperty(prj, "UniqueName"));
-                            need_save = true;
-                            break;
-                        }
+                        need_save = true;
                     }
                 }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e.Message);
-                }
-            }
 
-            if(need_save)
-            {
-                if(found_open_solution == false)
+                if (config != null)
                 {
-                    ViaCOM.CallMethod(sol, "Close", null);
+                    try
+                    {
+                        object solBuild = ViaCOM.GetProperty(solution, "SolutionBuild");
+                        object solCfgs = ViaCOM.GetProperty(solBuild, "SolutionConfigurations");
+                        object[] itemArgs = { (object)config };
+                        object solCfg = ViaCOM.CallMethod(solCfgs, "Item", itemArgs);
+                        ViaCOM.CallMethod(solCfg, "Activate", null);
+                        need_save = true;
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e.Message);
+                    }
                 }
-                Console.WriteLine("Finished!");
+
+                if (startup_project != null)
+                {
+                    try
+                    {
+                        // You need the 'unique name of the project to set StartupProjects.
+                        // find the project by generic name.
+                        object prjs = ViaCOM.GetProperty(solution, "Projects");
+                        object count = ViaCOM.GetProperty(prjs, "Count");
+                        for (int i = 1; i <= (int)count; ++i)
+                        {
+                            object[] itemArgs = { (object)i };
+                            object prj = ViaCOM.CallMethod(prjs, "Item", itemArgs);
+                            object prjName = ViaCOM.GetProperty(prj, "Name");
+                            if (0 == string.Compare((string)prjName, startup_project, ignore_case))
+                            {
+                                object solBuild = ViaCOM.GetProperty(solution, "SolutionBuild");
+                                ViaCOM.SetProperty(solBuild, "StartupProjects", ViaCOM.GetProperty(prj, "UniqueName"));
+                                need_save = true;
+                                break;
+                            }
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e.Message);
+                    }
+                }
+
+                if (need_save)
+                {
+                    if (found_open_solution == false)
+                    {
+                        ViaCOM.CallMethod(solution, "Close", null);
+                    }
+                }
             }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+            finally
+            {
+                if (solution != null)
+                {
+                    Marshal.ReleaseComObject(solution);
+                    solution = null;
+                }
+
+                if (dte != null)
+                {
+                    Marshal.ReleaseComObject(dte);
+                    dte = null;
+                }
+            }
+            Console.WriteLine("Finished!");
         }
 
         public static bool parse_command_line(string[] args)
@@ -283,6 +285,59 @@ namespace VSTool
                 throw e;
             }
             return true;
+        }
+
+        public static bool GetDTEAndSolution()
+        {
+            bool found_open_solution = true;
+
+            Console.WriteLine("Looking for existing VisualStudio instance...");
+
+            // Get an instance of the currently running Visual Studio .NET IDE.
+            // dte = (EnvDTE.DTE)System.Runtime.InteropServices.Marshal.GetActiveObject("VisualStudio.DTE.7.1");
+            string full_solution_name = System.IO.Path.GetFullPath(solution_name);
+            if (false == use_new_vs)
+            {
+                dte = GetIDEInstance(full_solution_name);
+            }
+
+            if (dte == null)
+            {
+                try
+                {
+                    Console.WriteLine("  Didn't find open solution, now opening new VisualStudio instance...");
+                    Console.WriteLine("  Reading .sln file version...");
+                    string version = GetSolutionVersion(full_solution_name);
+
+                    Console.WriteLine("  Opening VS version: {0}...", version);
+                    string progid = GetVSProgID(version);
+
+                    Type objType = Type.GetTypeFromProgID(progid);
+                    dte = System.Activator.CreateInstance(objType);
+
+                    Console.WriteLine("  Opening solution...");
+
+                    solution = ViaCOM.GetProperty(dte, "Solution");
+                    object[] openArgs = { full_solution_name };
+                    ViaCOM.CallMethod(solution, "Open", openArgs);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                    Console.WriteLine("Quitting do to error opening: {0}", full_solution_name);
+                    solution = null;
+                    dte = null;
+                    return found_open_solution;
+                }
+                found_open_solution = false;
+            }
+
+            if (solution == null)
+            {
+                solution = ViaCOM.GetProperty(dte, "Solution");
+            }
+
+            return found_open_solution;
         }
 
         /// <summary>
