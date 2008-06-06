@@ -37,7 +37,7 @@
 #include <cassert>
 #include <boost/tokenizer.hpp>
 
-#include "llglimmediate.h"
+#include "llrender.h"
 #include "llevent.h"
 #include "llfontgl.h"
 #include "llfocusmgr.h"

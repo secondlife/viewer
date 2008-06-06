@@ -1341,13 +1341,13 @@ bool LLTextureFetch::createRequest(const LLString& filename, const LLUUID& id, c
 	}
 
 	S32 desired_size;
-	if ((desired_discard == 0) && worker && worker->mFileSize)
+	if (desired_discard == 0)
 	{
 		// if we want the entire image, and we know its size, then get it all
 		// (calcDataSizeJ2C() below makes assumptions about how the image
 		// was compressed - this code ensures that when we request the entire image,
 		// we really do get it.)
-		desired_size = worker->mFileSize;
+		desired_size = MAX_IMAGE_DATA_SIZE;
 	}
 	else if (w*h*c > 0)
 	{
@@ -1358,17 +1358,11 @@ bool LLTextureFetch::createRequest(const LLString& filename, const LLUUID& id, c
 	}
 	else
 	{
-		if (desired_discard == 0)
-		{
-			// If we want all of the image, request the maximum possible data
-			desired_size = MAX_IMAGE_DATA_SIZE;
-		}
-		else
-		{
-			desired_size = FIRST_PACKET_SIZE;
-			desired_discard = MAX_DISCARD_LEVEL;
-		}
+		desired_size = FIRST_PACKET_SIZE;
+		desired_discard = MAX_DISCARD_LEVEL;
 	}
+
+	
 	if (worker)
 	{
 		if (worker->wasAborted())

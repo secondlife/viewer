@@ -30,7 +30,7 @@
 
 #include "linden_common.h"
 #include "llviewborder.h"
-#include "llglimmediate.h"
+#include "llrender.h"
 #include "llfocusmgr.h"
 
 static LLRegisterWidget<LLViewBorder> r("view_border");

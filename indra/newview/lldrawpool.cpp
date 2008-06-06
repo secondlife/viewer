@@ -32,7 +32,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "lldrawpool.h"
-#include "llglimmediate.h"
+#include "llrender.h"
 #include "llfasttimer.h"
 #include "llviewercontrol.h"
 

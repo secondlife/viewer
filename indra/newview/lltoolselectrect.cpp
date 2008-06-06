@@ -36,7 +36,7 @@
 
 // Library includes
 #include "llgl.h"
-#include "llglimmediate.h"
+#include "llrender.h"
 #include "lldarray.h"
 
 // Viewer includes

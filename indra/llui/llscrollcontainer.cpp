@@ -32,7 +32,7 @@
 
 #include "linden_common.h"
 
-#include "llglimmediate.h"
+#include "llrender.h"
 #include "llscrollcontainer.h"
 #include "llscrollbar.h"
 #include "llui.h"

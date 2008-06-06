@@ -97,7 +97,6 @@ protected:
 	S32 mMouseY;
 	S32 mBrushIndex;
 	BOOL mGotHover;
-	BOOL mLastShowParcelOwners;
 	BOOL mBrushSelected;
 	// Order doesn't matter and we do check for existance of regions, so use a set
 	region_list_t mLastAffectedRegions;

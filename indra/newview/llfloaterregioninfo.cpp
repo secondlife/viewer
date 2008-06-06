@@ -1147,7 +1147,7 @@ BOOL LLPanelRegionTextureInfo::validateTextureSizes()
 		{
 
 			LLString::format_map_t args;
-			args["[TEXTURE_NUM]"] = i+1;
+			args["[TEXTURE_NUM]"] = llformat("%d",i+1);
 			args["[TEXTURE_SIZE_X]"] = llformat("%d",width);
 			args["[TEXTURE_SIZE_Y]"] = llformat("%d",height);
 			gViewerWindow->alertXml("InvalidTerrainSize", args);

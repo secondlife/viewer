@@ -36,7 +36,7 @@
 #include "llmath.h"
 #include "v3math.h"
 #include "llgl.h"
-#include "llglimmediate.h"
+#include "llrender.h"
 #include "llprimitive.h"
 #include "llview.h"
 #include "llviewerimagelist.h"

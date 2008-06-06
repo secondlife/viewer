@@ -208,6 +208,9 @@ public:
 
 	U32	getPacketsLost() const;
 
+	void setHttpResponderPtrNULL() {mHttpResponderPtr = NULL ;}
+	const LLHTTPClient::ResponderPtr getHttpResponderPtr() const {return mHttpResponderPtr ;}
+
 	// Get/set named capability URLs for this region.
 	void setSeedCapability(const std::string& url);
 	void setCapability(const std::string& name, const std::string& url);
@@ -374,6 +377,8 @@ protected:
 private:
 	//spatial partitions for objects in this region
 	std::vector<LLSpatialPartition*> mObjectPartition;
+
+	LLHTTPClient::ResponderPtr  mHttpResponderPtr ;
 };
 
 inline BOOL LLViewerRegion::getAllowDamage() const

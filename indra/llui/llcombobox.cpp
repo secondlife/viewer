@@ -783,8 +783,18 @@ BOOL LLComboBox::handleKeyHere(KEY key, MASK mask)
 			mList->highlightNthItem(mList->getItemIndex(last_selected_item));
 		}
 		result = mList->handleKeyHere(key, mask);
+
+		// will only see return key if it is originating from line editor
+		// since the dropdown button eats the key
+		if (key == KEY_RETURN)
+		{
+			// don't show list and don't eat key input when committing
+			// free-form text entry with RETURN since user already knows
+            // what they are trying to select
+			return FALSE;
+		}
 		// if selection has changed, pop open list
-		if (mList->getLastSelectedItem() != last_selected_item)
+		else if (mList->getLastSelectedItem() != last_selected_item)
 		{
 			showList();
 		}

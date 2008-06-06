@@ -141,7 +141,7 @@ class LLVoiceVisualizer : public LLHUDEffect
 	// private static members 
 	//---------------------------------------------------
 
-		static U32	  sLipSyncEnabled;		 // 0 disabled, 1 babble loop
+		static BOOL	  sLipSyncEnabled;		 // 0 disabled, 1 babble loop
 		static bool	  sPrefsInitialized;	 // the first instance will initialize the static members
 		static F32*	  sOoh;					 // the babble loop of amplitudes for the ooh morph
 		static F32*	  sAah;					 // the babble loop of amplitudes for the ooh morph

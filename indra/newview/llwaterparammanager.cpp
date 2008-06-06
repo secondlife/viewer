@@ -407,7 +407,7 @@ F32 LLWaterParamManager::getFogDensity(void)
 	F32 fogDensity = mCurParams.getFloat("waterFogDensity", err);
 	
 	// modify if we're underwater
-	const F32 water_height = gAgent.getRegion()->getWaterHeight();
+	const F32 water_height = gAgent.getRegion() ? gAgent.getRegion()->getWaterHeight() : 0.f;
 	F32 camera_height = gAgent.getCameraPositionAgent().mV[2];
 	if(camera_height <= water_height)
 	{

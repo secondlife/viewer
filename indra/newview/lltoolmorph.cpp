@@ -33,7 +33,7 @@
 
 // File includes
 #include "lltoolmorph.h" 
-#include "llglimmediate.h"
+#include "llrender.h"
 
 // Library includes
 #include "audioengine.h"

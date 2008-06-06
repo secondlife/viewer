@@ -39,6 +39,9 @@
 #include "lllfsthread.h"
 #include "llviewercontrol.h"
 
+// Included to allow LLTextureCache::purgeTextures() to pause watchdog timeout
+#include "llappviewer.h" 
+
 #define USE_LFS_READ 0
 #define USE_LFS_WRITE 0
 
@@ -1153,6 +1156,9 @@ void LLTextureCache::purgeTextures(bool validate)
 		return;
 	}
 
+	// *FIX:Mani - watchdog off.
+	LLAppViewer::instance()->pauseMainloopTimeout();
+
 	LLMutexLock lock(&mHeaderMutex);
 	
 	S32 filesize = ll_apr_file_size(mTexturesDirEntriesFileName, NULL);
@@ -1273,6 +1279,9 @@ void LLTextureCache::purgeTextures(bool validate)
 	llassert(mTexturesSizeTotal == total_size);
 	
 	delete[] entries;
+
+	// *FIX:Mani - watchdog back on.
+	LLAppViewer::instance()->resumeMainloopTimeout();
 	
 	LL_INFOS("TextureCache") << "TEXTURE CACHE:"
 			<< " PURGED: " << purge_count

@@ -375,7 +375,7 @@ void LLFloaterBuyCurrency::buyCurrency(const std::string& name, S32 price)
 	{
 		LLStringBase<char>::format_map_t args;
 		args["[NAME]"] = name.c_str();
-		args["[PRICE]"] = price;
+		args["[PRICE]"] = llformat("%d", price);
 		gViewerWindow->alertXml("NotEnoughCurrency", args);
 		return;
 	}

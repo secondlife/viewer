@@ -41,7 +41,7 @@
 
 #include "llmath.h"
 #include "llgl.h"
-#include "llglimmediate.h"
+#include "llrender.h"
 
 
 //----------------------------------------------------------------------------
@@ -60,6 +60,8 @@ S32 LLImageGL::sCount					= 0;
 
 BOOL LLImageGL::sGlobalUseAnisotropic	= FALSE;
 F32 LLImageGL::sLastFrameTime			= 0.f;
+
+BOOL LLImageGL::sRefCheck = TRUE ;
 
 std::set<LLImageGL*> LLImageGL::sImageList;
 
@@ -130,13 +132,13 @@ void LLImageGL::bindExternalTexture(LLGLuint gl_name, S32 stage, LLGLenum bind_t
 	gGL.flush();
 	if (stage > 0)
 	{
-		glActiveTextureARB(GL_TEXTURE0_ARB + stage);
+		gGL.getTexUnit(stage)->activate();
 	}
 	glBindTexture(bind_target, gl_name);
 	sCurrentBoundTextures[stage] = gl_name;
 	if (stage > 0)
 	{
-		glActiveTextureARB(GL_TEXTURE0_ARB);
+		gGL.getTexUnit(0)->activate();
 	}
 }
 
@@ -149,9 +151,9 @@ void LLImageGL::unbindTexture(S32 stage, LLGLenum bind_target)
 		gGL.flush();
 		if (stage > 0)
 		{
-			glActiveTextureARB(GL_TEXTURE0_ARB + stage);
+			gGL.getTexUnit(stage)->activate();
 			glBindTexture(GL_TEXTURE_2D, 0);
-			glActiveTextureARB(GL_TEXTURE0_ARB);
+			gGL.getTexUnit(0)->activate();
 		}
 		else
 		{
@@ -276,7 +278,10 @@ LLImageGL::LLImageGL(const LLImageRaw* imageraw, BOOL usemipmaps)
 	setSize(0, 0, 0);
 	sImageList.insert(this);
 	sCount++;
+
+	sRefCheck = FALSE ;
 	createGLTexture(0, imageraw); 
+	sRefCheck = TRUE ;
 }
 
 LLImageGL::~LLImageGL()
@@ -304,7 +309,9 @@ void LLImageGL::init(BOOL usemipmaps)
 	mIsResident       = 0;
 	mClampS			  = FALSE;
 	mClampT			  = FALSE;
-	mMipFilterNearest  = FALSE;
+	mClampR			  = FALSE;
+	mMagFilterNearest  = FALSE;
+	mMinFilterNearest  = FALSE;
 	mWidth				= 0;
 	mHeight				= 0;
 	mComponents			= 0;
@@ -331,17 +338,19 @@ void LLImageGL::cleanup()
 
 //----------------------------------------------------------------------------
 
+//this function is used to check the size of a texture image.
+//so dim should be a positive number
 static bool check_power_of_two(S32 dim)
 {
-	while(dim > 1)
+	if(dim < 0)
 	{
-		if (dim & 1)
-		{
-			return false;
-		}
-		dim >>= 1;
+		return false ;
 	}
-	return true;
+	if(!dim)//0 is a power-of-two number
+	{
+		return true ;
+	}
+	return !(dim & (dim - 1)) ;
 }
 
 //static
@@ -418,6 +427,8 @@ void LLImageGL::dump()
 
 BOOL LLImageGL::bindTextureInternal(const S32 stage) const
 {
+	llassert_always(!sRefCheck || (getNumRefs() > 0 && getNumRefs() < 100000)) ;	
+	
 	if (gGLManager.mIsDisabled)
 	{
 		llwarns << "Trying to bind a texture while GL is disabled!" << llendl;
@@ -439,7 +450,7 @@ BOOL LLImageGL::bindTextureInternal(const S32 stage) const
 		gGL.flush();
 		if (stage > 0)
 		{
-			glActiveTextureARB(GL_TEXTURE0_ARB + stage);
+			gGL.getTexUnit(stage)->activate();
 		}
 	
 		glBindTexture(mBindTarget, mTexName);
@@ -448,7 +459,7 @@ BOOL LLImageGL::bindTextureInternal(const S32 stage) const
 
 		if (stage > 0)
 		{
-			glActiveTextureARB(GL_TEXTURE0_ARB);
+			gGL.getTexUnit(0)->activate();
 		}
 		
 		if (mLastBindTime != sLastFrameTime)
@@ -466,12 +477,12 @@ BOOL LLImageGL::bindTextureInternal(const S32 stage) const
 		gGL.flush();
 		if (stage > 0)
 		{
-			glActiveTextureARB(GL_TEXTURE0_ARB+stage);
+			gGL.getTexUnit(stage)->activate();
 		}
 		glBindTexture(mBindTarget, 0);
 		if (stage > 0)
 		{
-			glActiveTextureARB(GL_TEXTURE0_ARB+stage);
+			gGL.getTexUnit(0)->activate();
 		}
 		sCurrentBoundTextures[stage] = 0;
 		return FALSE;
@@ -941,7 +952,7 @@ BOOL LLImageGL::createGLTexture(S32 discard_level, const U8* data_in, BOOL data_
 	setImage(data_in, data_hasmips);
 
 	setClamp(mClampS, mClampT);
-	setMipFilterNearest(mMipFilterNearest);
+	setMipFilterNearest(mMagFilterNearest);
 	
 	// things will break if we don't unbind after creation
 	unbindTexture(0, mBindTarget);
@@ -1044,7 +1055,22 @@ BOOL LLImageGL::readBackRaw(S32 discard_level, LLImageRaw* imageraw, bool compre
 
 	S32 gl_discard = discard_level - mCurrentDiscardLevel;
 
+	//explicitly unbind texture 
+	LLImageGL::unbindTexture(0, mTarget);
 	llverify(bindTextureInternal(0));	
+
+	if (gDebugGL)
+	{
+		if (mTarget == GL_TEXTURE_2D)
+		{
+			GLint texname;
+			glGetIntegerv(GL_TEXTURE_BINDING_2D, &texname);
+			if (texname != mTexName)
+			{
+				llerrs << "Invalid texture bound!" << llendl;
+			}
+		}
+	}
 
 	LLGLint glwidth = 0;
 	glGetTexLevelParameteriv(mTarget, gl_discard, GL_TEXTURE_WIDTH, (GLint*)&glwidth);
@@ -1153,25 +1179,55 @@ void LLImageGL::destroyGLTexture()
 
 //----------------------------------------------------------------------------
 
+void LLImageGL::glClampCubemap (BOOL clamps, BOOL clampt, BOOL clampr)
+{
+	glTexParameteri (GL_TEXTURE_CUBE_MAP_ARB, GL_TEXTURE_WRAP_S, clamps ? GL_CLAMP_TO_EDGE : GL_REPEAT);
+	glTexParameteri (GL_TEXTURE_CUBE_MAP_ARB, GL_TEXTURE_WRAP_T, clamps ? GL_CLAMP_TO_EDGE : GL_REPEAT);
+	glTexParameteri (GL_TEXTURE_CUBE_MAP_ARB, GL_TEXTURE_WRAP_R, clamps ? GL_CLAMP_TO_EDGE : GL_REPEAT);
+}
+
+void LLImageGL::glClamp (BOOL clamps, BOOL clampt)
+{
+	if (mTexName != 0)
+	{
+		glTexParameteri (mBindTarget, GL_TEXTURE_WRAP_S, clamps ? GL_CLAMP_TO_EDGE : GL_REPEAT);
+		glTexParameteri (mBindTarget, GL_TEXTURE_WRAP_T, clampt ? GL_CLAMP_TO_EDGE : GL_REPEAT);
+	}
+}
+
+void LLImageGL::setClampCubemap (BOOL clamps, BOOL clampt, BOOL clampr)
+{
+	mClampS = clamps;
+	mClampT = clampt;
+	mClampR = clampr;
+	glClampCubemap (clamps, clampt, clampr);
+}
+
 void LLImageGL::setClamp(BOOL clamps, BOOL clampt)
 {
 	mClampS = clamps;
 	mClampT = clampt;
-	if (mTexName != 0)
-	{
-		glTexParameteri(mBindTarget, GL_TEXTURE_WRAP_S, clamps ? GL_CLAMP_TO_EDGE : GL_REPEAT);
-		glTexParameteri(mBindTarget, GL_TEXTURE_WRAP_T, clampt ? GL_CLAMP_TO_EDGE : GL_REPEAT);
-	}
-	stop_glerror();
+	glClamp (clamps, clampt);
 }
 
-void LLImageGL::setMipFilterNearest(BOOL nearest, BOOL min_nearest)
+void LLImageGL::overrideClamp (BOOL clamps, BOOL clampt)
 {
-	mMipFilterNearest = nearest;
+	glClamp (clamps, clampt);
+}
+
+void LLImageGL::restoreClamp (void)
+{
+	glClamp (mClampS, mClampT);
+}
+
+void LLImageGL::setMipFilterNearest(BOOL mag_nearest, BOOL min_nearest)
+{
+	mMagFilterNearest = mag_nearest;
+	mMinFilterNearest = min_nearest;
 
 	if (mTexName != 0)
 	{
-		if (min_nearest)
+		if (mMinFilterNearest)
 		{
 			glTexParameteri(mBindTarget, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		}
@@ -1183,7 +1239,7 @@ void LLImageGL::setMipFilterNearest(BOOL nearest, BOOL min_nearest)
 		{
 			glTexParameteri(mBindTarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		}
-		if (mMipFilterNearest)
+		if (mMagFilterNearest)
 		{
 			glTexParameteri(mBindTarget, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		}
@@ -1193,7 +1249,7 @@ void LLImageGL::setMipFilterNearest(BOOL nearest, BOOL min_nearest)
 		}
 		if (gGLManager.mHasAnisotropic)
 		{
-			if (sGlobalUseAnisotropic && !mMipFilterNearest)
+			if (sGlobalUseAnisotropic && !mMagFilterNearest)
 			{
 				F32 largest_anisotropy;
 				glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &largest_anisotropy);

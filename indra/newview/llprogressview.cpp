@@ -36,7 +36,7 @@
 #include "indra_constants.h"
 #include "llmath.h"
 #include "llgl.h"
-#include "llglimmediate.h"
+#include "llrender.h"
 #include "llui.h"
 #include "llfontgl.h"
 #include "llimagegl.h"

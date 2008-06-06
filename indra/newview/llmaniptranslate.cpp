@@ -38,7 +38,7 @@
 #include "llmaniptranslate.h"
 
 #include "llgl.h"
-#include "llglimmediate.h"
+#include "llrender.h"
 
 #include "llagent.h"
 #include "llbbox.h"
@@ -1535,10 +1535,10 @@ void LLManipTranslate::renderSnapGuides()
 					LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE, GL_GREATER);
 					glBindTexture(GL_TEXTURE_2D, sGridTex);
 					gGL.flush();
-					gGL.blendFunc(GL_ZERO, GL_ONE_MINUS_SRC_ALPHA);
+					gGL.blendFunc(LLRender::BF_ZERO, LLRender::BF_ONE_MINUS_SOURCE_ALPHA);
 					renderGrid(u,v,tiles,0.9f, 0.9f, 0.9f,a*0.15f);
 					gGL.flush();
-					gGL.blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+					gGL.setSceneBlendType(LLRender::BT_ALPHA);
 				}
 				
 				{
@@ -1649,7 +1649,7 @@ void LLManipTranslate::highlightIntersection(LLVector3 normal,
 		LLGLEnable stencil(GL_STENCIL_TEST);
 		LLGLDepthTest depth (GL_TRUE, GL_FALSE, GL_ALWAYS);
 		glStencilFunc(GL_ALWAYS, 0, stencil_mask);
-		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+		gGL.setColorMask(false, false);
 		LLImageGL::unbindTexture(0);
 		glColor4f(1,1,1,1);
 
@@ -1700,7 +1700,7 @@ void LLManipTranslate::highlightIntersection(LLVector3 normal,
 			LLPipeline::toggleRenderType(LLPipeline::RENDER_TYPE_CLOUDS);
 		}
 
-		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
+		gGL.setColorMask(true, false);
 	}
 	gGL.color4f(1,1,1,1);
 

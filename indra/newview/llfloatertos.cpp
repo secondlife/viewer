@@ -215,7 +215,7 @@ LLFloaterTOS::~LLFloaterTOS()
 	LLWebBrowserCtrl* web_browser = getChild<LLWebBrowserCtrl>("tos_html");
 	if ( web_browser )
 	{
-		web_browser->addObserver( this );		
+		web_browser->remObserver( this );		
 	};
 
 	// tell the responder we're not here anymore

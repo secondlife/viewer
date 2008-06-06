@@ -39,7 +39,7 @@
 #include "llviewercontrol.h"
 
 #include "llgl.h"
-#include "llglimmediate.h"
+#include "llrender.h"
 #include "llglheaders.h"
 #include "llparcel.h"
 #include "llui.h"

@@ -102,7 +102,7 @@ LLStyle &LLStyle::operator=(const LLStyle &rhs)
 		mItalic = rhs.mItalic;
 		mBold = rhs.mBold;
 		mUnderline = rhs.mUnderline;
-		mDropShadow = rhs.mUnderline;
+		mDropShadow = rhs.mDropShadow;
 		mIsEmbeddedItem = rhs.mIsEmbeddedItem;
 	}
 	

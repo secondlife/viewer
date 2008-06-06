@@ -43,7 +43,7 @@
 #include "llviewerregion.h"
 #include "llcamera.h"
 #include "pipeline.h"
-#include "llglimmediate.h"
+#include "llrender.h"
 #include "lloctree.h"
 
 const F32 SG_OCCLUSION_FUDGE = 1.01f;
@@ -60,6 +60,7 @@ const F32 SG_OCCLUSION_FUDGE = 1.01f;
 
 static U32 sZombieGroups = 0;
 U32 LLSpatialGroup::sNodeCount = 0;
+BOOL LLSpatialGroup::sNoDelete = FALSE;
 
 static F32 sLastMaxTexPriority = 1.f;
 static F32 sCurMaxTexPriority = 1.f;
@@ -295,6 +296,11 @@ S32 LLSphereAABB(const LLVector3& center, const LLVector3& size, const LLVector3
 
 LLSpatialGroup::~LLSpatialGroup()
 {
+	if (sNoDelete)
+	{
+		llerrs << "Illegal deletion of LLSpatialGroup!" << llendl;
+	}
+
 	if (isState(DEAD))
 	{
 		sZombieGroups--;
@@ -2006,7 +2012,7 @@ void renderOctree(LLSpatialGroup* group)
 	//render solid object bounding box, color
 	//coded by buffer usage and activity
 	LLGLDepthTest depth(GL_TRUE, GL_FALSE);
-	gGL.blendFunc(GL_SRC_ALPHA, GL_ONE);
+	gGL.setSceneBlendType(LLRender::BT_ADD_WITH_ALPHA);
 	LLVector4 col;
 	if (group->mBuilt > 0.f)
 	{
@@ -2094,7 +2100,7 @@ void renderOctree(LLSpatialGroup* group)
 	drawBox(group->mObjectBounds[0], group->mObjectBounds[1]*1.01f+LLVector3(0.001f, 0.001f, 0.001f));
 	
 	glDepthMask(GL_TRUE);
-	gGL.blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	gGL.setSceneBlendType(LLRender::BT_ALPHA);
 
 	if (group->mBuilt <= 0.f)
 	{
@@ -2122,7 +2128,7 @@ void renderOctree(LLSpatialGroup* group)
 void renderVisibility(LLSpatialGroup* group, LLCamera* camera)
 {
 	LLGLEnable blend(GL_BLEND);
-	gGL.blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	gGL.setSceneBlendType(LLRender::BT_ALPHA);
 	LLGLEnable cull(GL_CULL_FACE);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
@@ -2498,7 +2504,7 @@ void LLSpatialPartition::renderDebug()
 	
 	LLGLDisable cullface(GL_CULL_FACE);
 	LLGLEnable blend(GL_BLEND);
-	gGL.blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	gGL.setSceneBlendType(LLRender::BT_ALPHA);
 	LLImageGL::unbindTexture(0);
 	gPipeline.disableLights();
 
@@ -2619,7 +2625,10 @@ LLDrawInfo::LLDrawInfo(U16 start, U16 end, U32 count, U32 offset,
 
 LLDrawInfo::~LLDrawInfo()	
 {
-
+	if (LLSpatialGroup::sNoDelete)
+	{
+		llerrs << "LLDrawInfo deleted illegally!" << llendl;
+	}
 }
 
 LLVertexBuffer* LLGeometryManager::createVertexBuffer(U32 type_mask, U32 usage)
@@ -2813,7 +2822,16 @@ void LLCullResult::pushDrawInfo(U32 type, LLDrawInfo* draw_info)
 }
 
 
-
+void LLCullResult::assertDrawMapsEmpty()
+{
+	for (U32 i = 0; i < LLRenderPass::NUM_RENDER_TYPES; i++)
+	{
+		if (mRenderMapSize[i] != 0)
+		{
+			llerrs << "Stale LLDrawInfo's in LLCullResult!" << llendl;
+		}
+	}
+}
 
 
 

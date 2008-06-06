@@ -90,7 +90,7 @@ void LLDrawPoolSky::render(S32 pass)
 		{
 			// Ironically, we must support shader objects to be
 			// able to use this call.
-			glUseProgramObjectARB(0);
+			LLGLSLShader::bindNoShader();
 		}
 		mShader = NULL;
 	}

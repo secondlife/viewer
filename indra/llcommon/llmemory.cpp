@@ -314,72 +314,77 @@ U64 getCurrentRSS()
 
 #elif defined(LL_DARWIN)
 
-static U32 getPageSize()
-{
-	int ctl[2] = { CTL_HW, HW_PAGESIZE };
-	int page_size;
-	size_t size = sizeof(page_size);
+// This can cause bad stalls! Replace with fast version
 
-	if (sysctl(ctl, 2, &page_size, &size, NULL, 0) == -1)
-	{
-		llwarns << "Couldn't get page size" << llendl;
-		return 0;
-	} else {
-		return page_size;
-	}
-}
+// static U32 getPageSize()
+// {
+// 	int ctl[2] = { CTL_HW, HW_PAGESIZE };
+// 	int page_size;
+// 	size_t size = sizeof(page_size);
+
+// 	if (sysctl(ctl, 2, &page_size, &size, NULL, 0) == -1)
+// 	{
+// 		llwarns << "Couldn't get page size" << llendl;
+// 		return 0;
+// 	} else {
+// 		return page_size;
+// 	}
+// }
 
 U64 getCurrentRSS()
 {
-	task_t task = mach_task_self();
-	vm_address_t addr = VM_MIN_ADDRESS;
-	vm_size_t size = 0;
-	U64 residentPages = 0;
+	// Stalls!!!
+	
+// 	task_t task = mach_task_self();
+// 	vm_address_t addr = VM_MIN_ADDRESS;
+// 	vm_size_t size = 0;
+// 	U64 residentPages = 0;
 
-	while (true)
-	{
-		mach_msg_type_number_t bcount = VM_REGION_BASIC_INFO_COUNT;
-		vm_region_basic_info binfo;
-		mach_port_t bobj;
-		kern_return_t ret;
+// 	while (true)
+// 	{
+// 		mach_msg_type_number_t bcount = VM_REGION_BASIC_INFO_COUNT;
+// 		vm_region_basic_info binfo;
+// 		mach_port_t bobj;
+// 		kern_return_t ret;
 		
-		addr += size;
+// 		addr += size;
 		
-		ret = vm_region(task, &addr, &size, VM_REGION_BASIC_INFO,
-						(vm_region_info_t) &binfo, &bcount, &bobj);
+// 		ret = vm_region(task, &addr, &size, VM_REGION_BASIC_INFO,
+// 						(vm_region_info_t) &binfo, &bcount, &bobj);
 		
-		if (ret != KERN_SUCCESS)
-		{
-			break;
-		}
+// 		if (ret != KERN_SUCCESS)
+// 		{
+// 			break;
+// 		}
 		
-		if (bobj != MACH_PORT_NULL)
-		{
-			mach_port_deallocate(task, bobj);
-		}
+// 		if (bobj != MACH_PORT_NULL)
+// 		{
+// 			mach_port_deallocate(task, bobj);
+// 		}
 		
-		mach_msg_type_number_t ecount = VM_REGION_EXTENDED_INFO_COUNT;
-		vm_region_extended_info einfo;
-		mach_port_t eobj;
+// 		mach_msg_type_number_t ecount = VM_REGION_EXTENDED_INFO_COUNT;
+// 		vm_region_extended_info einfo;
+// 		mach_port_t eobj;
 
-		ret = vm_region(task, &addr, &size, VM_REGION_EXTENDED_INFO,
-						(vm_region_info_t) &einfo, &ecount, &eobj);
+// 		ret = vm_region(task, &addr, &size, VM_REGION_EXTENDED_INFO,
+// 						(vm_region_info_t) &einfo, &ecount, &eobj);
 
-		if (ret != KERN_SUCCESS)
-		{
-			llwarns << "vm_region failed" << llendl;
-			return 0;
-		}
+// 		if (ret != KERN_SUCCESS)
+// 		{
+// 			llwarns << "vm_region failed" << llendl;
+// 			return 0;
+// 		}
 		
-		if (eobj != MACH_PORT_NULL)
-		{
-			mach_port_deallocate(task, eobj);
-		}
+// 		if (eobj != MACH_PORT_NULL)
+// 		{
+// 			mach_port_deallocate(task, eobj);
+// 		}
 
-		residentPages += einfo.pages_resident;
-	}
+// 		residentPages += einfo.pages_resident;
+// 	}
 
-	return residentPages * getPageSize();
+// 	return residentPages * getPageSize();
+	return 0;
 }
 
 #elif defined(LL_LINUX)

@@ -127,6 +127,7 @@ class LLSpatialGroup : public LLOctreeListener<LLDrawable>
 	friend class LLSpatialPartition;
 public:
 	static U32 sNodeCount;
+	static BOOL sNoDelete; //deletion of spatial groups and draw info not allowed if TRUE
 
 	typedef std::vector<LLPointer<LLSpatialGroup> > sg_vector_t;
 	typedef std::set<LLPointer<LLSpatialGroup> > sg_set_t;
@@ -421,13 +422,15 @@ public:
 	void pushDrawable(LLDrawable* drawable);
 	void pushBridge(LLSpatialBridge* bridge);
 	void pushDrawInfo(U32 type, LLDrawInfo* draw_info);
-
+	
 	U32 getVisibleGroupsSize()		{ return mVisibleGroupsSize; }
 	U32	getAlphaGroupsSize()		{ return mAlphaGroupsSize; }
 	U32	getDrawableGroupsSize()		{ return mDrawableGroupsSize; }
 	U32	getVisibleListSize()		{ return mVisibleListSize; }
 	U32	getVisibleBridgeSize()		{ return mVisibleBridgeSize; }
 	U32	getRenderMapSize(U32 type)	{ return mRenderMapSize[type]; }
+
+	void assertDrawMapsEmpty();
 
 private:
 	U32					mVisibleGroupsSize;

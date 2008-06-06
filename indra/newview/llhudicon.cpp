@@ -34,7 +34,7 @@
 #include "llhudicon.h"
 
 #include "llgl.h"
-#include "llglimmediate.h"
+#include "llrender.h"
 
 #include "llviewerobject.h"
 #include "lldrawable.h"

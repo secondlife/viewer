@@ -36,6 +36,7 @@
 
 #include "imageids.h"
 #include "llfasttimer.h"
+#include "llrender.h"
 
 #include "llagent.h"
 #include "llapr.h"
@@ -545,17 +546,7 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass)
 		else
 		{
 			glColor4f(0.7f, 0.6f, 0.3f, 1.f);
-			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE,		GL_COMBINE_ARB);
-			glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB,		GL_INTERPOLATE_ARB);
-
-			glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB,		GL_PREVIOUS_ARB);
-			glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB_ARB,		GL_SRC_COLOR);
-
-			glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB_ARB,		GL_TEXTURE);
-			glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB_ARB,		GL_SRC_COLOR);
-			
-			glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_RGB_ARB,		GL_TEXTURE);
-			glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_RGB_ARB,		GL_ONE_MINUS_SRC_ALPHA);
+			gGL.getTexUnit(0)->setTextureColorBlend(LLTexUnit::TBO_LERP_TEX_ALPHA, LLTexUnit::TBS_TEX_COLOR, LLTexUnit::TBS_PREV_COLOR);
 		}
 	}
 	else if( mLayerSet )
@@ -573,12 +564,10 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass)
 	else
 	if ( mTexture.notNull() )
 	{
-		mTexture->bind();
-		if (!mTexture->getClampS()) {
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		}
-		if (!mTexture->getClampT()) {
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		if (!mTexture->getClampS() || !mTexture->getClampT())
+		{
+			mTexture->bind();
+			mTexture->overrideClamp (TRUE, TRUE);
 		}
 	}
 	else
@@ -590,15 +579,8 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass)
 	{
 		if (isTransparent())
 		{
-			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE,		GL_COMBINE_ARB);
-			glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB,		GL_REPLACE);
-			glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA_ARB,		GL_MODULATE);
-
-			glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB,		GL_PREVIOUS_ARB);
-			glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB_ARB,		GL_SRC_COLOR);
-
-			glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_ARB,		GL_TEXTURE);  // GL_TEXTURE_ENV_COLOR is set in renderPass1
-			glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA_ARB,	GL_SRC_ALPHA);
+			gGL.getTexUnit(0)->setTextureColorBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_PREV_COLOR);
+			gGL.getTexUnit(0)->setTextureAlphaBlend(LLTexUnit::TBO_MULT, LLTexUnit::TBS_TEX_ALPHA, LLTexUnit::TBS_CONST_ALPHA);
 		}
 		else
 		{
@@ -639,16 +621,13 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass)
 	
 	if (mTestImageName)
 	{
-		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+		gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
 	}
 
-	if (mTexture.notNull()) {
-		if (!mTexture->getClampS()) {
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		}
-		if (!mTexture->getClampT()) {
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		}
+	if (mTexture.notNull())
+	{
+		mTexture->bind();
+		mTexture->restoreClamp();
 	}
 
 	return triangle_count;

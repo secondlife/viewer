@@ -1072,6 +1072,29 @@ namespace LLError
 				s.uniqueLogMessages[message] = 1;
 			}
 		}
+
+		if (site.mPrintOnce)
+		{
+			std::map<std::string, unsigned int>::iterator messageIter = s.uniqueLogMessages.find(message);
+			if (messageIter != s.uniqueLogMessages.end())
+			{
+				messageIter->second++;
+				unsigned int num_messages = messageIter->second;
+				if (num_messages == 10 || num_messages == 50 || (num_messages % 100) == 0)
+				{
+					prefix << "ONCE (" << num_messages << "th time seen): ";
+				} 
+				else
+				{
+					return;
+				}
+			}
+			else 
+			{
+				prefix << "ONCE: ";
+				s.uniqueLogMessages[message] = 1;
+			}
+		}
 		
 		prefix << message;
 		message = prefix.str();

@@ -305,7 +305,7 @@ BOOL LLVolumeImplFlexible::doIdleUpdate(LLAgent &agent, LLWorld &world, const F6
 		new_res = mRenderRes;
 	}
 
-	if (!mInitialized)
+	if (!mInitialized || (mSimulateRes != new_res))
 	{
 		mSimulateRes = new_res;
 		setAttributesOfAllSections();

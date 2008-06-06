@@ -52,7 +52,7 @@
 #include "llworld.h"
 #include "pipeline.h"
 #include "llglslshader.h"
-#include "llglimmediate.h"
+#include "llrender.h"
 
 const F32 DETAIL_SCALE = 1.f/16.f;
 int DebugDetailMap = 0;
@@ -69,14 +69,16 @@ LLDrawPoolTerrain::LLDrawPoolTerrain(LLViewerImage *texturep) :
 	sDetailScale = 1.f/gSavedSettings.getF32("RenderTerrainScale");
 	sDetailMode = gSavedSettings.getS32("RenderTerrainDetail");
 	mAlphaRampImagep = gImageList.getImageFromFile("alpha_gradient.tga",
-												   TRUE, TRUE, GL_ALPHA8, GL_ALPHA,
-												   LLUUID("e97cf410-8e61-7005-ec06-629eba4cd1fb"));
+													TRUE, TRUE, GL_ALPHA8, GL_ALPHA,
+													LLUUID("e97cf410-8e61-7005-ec06-629eba4cd1fb"));
+
 	mAlphaRampImagep->bind(0);
 	mAlphaRampImagep->setClamp(TRUE, TRUE);
 
 	m2DAlphaRampImagep = gImageList.getImageFromFile("alpha_gradient_2d.j2c",
 													TRUE, TRUE, GL_ALPHA8, GL_ALPHA,
 													LLUUID("38b86f85-2575-52a9-a531-23108d8da837"));
+
 	m2DAlphaRampImagep->bind(0);
 	m2DAlphaRampImagep->setClamp(TRUE, TRUE);
 	
@@ -239,7 +241,7 @@ void LLDrawPoolTerrain::renderFullShader()
 	//
 	S32 detail0 = sShader->enableTexture(LLShaderMgr::TERRAIN_DETAIL0);
 	LLViewerImage::bindTexture(detail_texture0p,detail0);
-	glActiveTextureARB(GL_TEXTURE0_ARB);
+	gGL.getTexUnit(0)->activate();
 
 	glEnable(GL_TEXTURE_GEN_S);
 	glEnable(GL_TEXTURE_GEN_T);
@@ -259,7 +261,7 @@ void LLDrawPoolTerrain::renderFullShader()
 	LLViewerImage::bindTexture(detail_texture1p,detail1);
 	
 	/// ALPHA TEXTURE COORDS 0:
-	glActiveTextureARB(GL_TEXTURE1_ARB);
+	gGL.getTexUnit(1)->activate();
 	glMatrixMode(GL_TEXTURE);
 	glLoadIdentity();
 	glMatrixMode(GL_MODELVIEW);
@@ -271,7 +273,7 @@ void LLDrawPoolTerrain::renderFullShader()
 	glEnable(GL_TEXTURE_2D);
 	
 	/// ALPHA TEXTURE COORDS 1:
-	glActiveTextureARB(GL_TEXTURE2_ARB);
+	gGL.getTexUnit(2)->activate();
 	glMatrixMode(GL_TEXTURE);
 	glLoadIdentity();
 	glTranslatef(-2.f, 0.f, 0.f);
@@ -284,7 +286,7 @@ void LLDrawPoolTerrain::renderFullShader()
 	LLViewerImage::bindTexture(detail_texture3p,detail3);
 	
 	/// ALPHA TEXTURE COORDS 2:
-	glActiveTextureARB(GL_TEXTURE3_ARB);
+	gGL.getTexUnit(3)->activate();
 	glMatrixMode(GL_TEXTURE);
 	glLoadIdentity();
 	glTranslatef(-1.f, 0.f, 0.f);
@@ -307,7 +309,7 @@ void LLDrawPoolTerrain::renderFullShader()
 	sShader->disableTexture(LLShaderMgr::TERRAIN_DETAIL3);
 
 	LLImageGL::unbindTexture(alpha_ramp, GL_TEXTURE_2D);
-	glActiveTextureARB(GL_TEXTURE4_ARB);	
+	gGL.getTexUnit(4)->activate();
 	glDisable(GL_TEXTURE_2D); // Texture unit 4
 	glDisable(GL_TEXTURE_GEN_S);
 	glDisable(GL_TEXTURE_GEN_T);
@@ -316,7 +318,7 @@ void LLDrawPoolTerrain::renderFullShader()
 	glMatrixMode(GL_MODELVIEW);
 
 	LLImageGL::unbindTexture(detail3, GL_TEXTURE_2D);
-	glActiveTextureARB(GL_TEXTURE3_ARB);
+	gGL.getTexUnit(3)->activate();
 	glDisable(GL_TEXTURE_2D);	
 	glDisable(GL_TEXTURE_GEN_S);
 	glDisable(GL_TEXTURE_GEN_T);
@@ -325,7 +327,7 @@ void LLDrawPoolTerrain::renderFullShader()
 	glMatrixMode(GL_MODELVIEW);
 
 	LLImageGL::unbindTexture(detail2, GL_TEXTURE_2D);
-	glActiveTextureARB(GL_TEXTURE2_ARB);
+	gGL.getTexUnit(2)->activate();
 	glDisable(GL_TEXTURE_2D);		
 	glDisable(GL_TEXTURE_GEN_S);
 	glDisable(GL_TEXTURE_GEN_T);
@@ -334,7 +336,7 @@ void LLDrawPoolTerrain::renderFullShader()
 	glMatrixMode(GL_MODELVIEW);
 
 	LLImageGL::unbindTexture(detail1, GL_TEXTURE_2D);
-	glActiveTextureARB(GL_TEXTURE1_ARB);
+	gGL.getTexUnit(1)->activate();
 	glDisable(GL_TEXTURE_2D);		
 	glDisable(GL_TEXTURE_GEN_S);
 	glDisable(GL_TEXTURE_GEN_T);
@@ -346,7 +348,7 @@ void LLDrawPoolTerrain::renderFullShader()
 	// Restore Texture Unit 0 defaults
 	
 	LLImageGL::unbindTexture(detail0, GL_TEXTURE_2D);
-	glActiveTextureARB(GL_TEXTURE0_ARB);
+	gGL.getTexUnit(0)->activate();
 	glEnable(GL_TEXTURE_2D);
 	glDisable(GL_TEXTURE_GEN_S);
 	glDisable(GL_TEXTURE_GEN_T);
@@ -377,7 +379,7 @@ void LLDrawPoolTerrain::renderFull4TU()
 	tp0.setVec(sDetailScale, 0.0f, 0.0f, offset_x);
 	tp1.setVec(0.0f, sDetailScale, 0.0f, offset_y);
 
-	gGL.blendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
+	gGL.blendFunc(LLRender::BF_ONE_MINUS_SOURCE_ALPHA, LLRender::BF_SOURCE_ALPHA);
 	
 	//----------------------------------------------------------------------------
 	// Pass 1/1
@@ -385,7 +387,7 @@ void LLDrawPoolTerrain::renderFull4TU()
 	//
 	// Stage 0: detail texture 0
 	//
-	glActiveTextureARB(GL_TEXTURE0_ARB);
+	gGL.getTexUnit(0)->activate();
 	LLViewerImage::bindTexture(detail_texture0p,0);
 	glClientActiveTextureARB(GL_TEXTURE0_ARB);
 	
@@ -397,36 +399,27 @@ void LLDrawPoolTerrain::renderFull4TU()
 	glTexGenfv(GL_S, GL_OBJECT_PLANE, tp0.mV);
 	glTexGenfv(GL_T, GL_OBJECT_PLANE, tp1.mV);
 
-	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE,		GL_COMBINE_ARB);
-	glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB,		GL_REPLACE);
-
-	glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB,		GL_TEXTURE);
-	glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB_ARB,		GL_SRC_COLOR);
+	gGL.getTexUnit(0)->setTextureColorBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_TEX_COLOR);
 
 	//
 	// Stage 1: Generate alpha ramp for detail0/detail1 transition
 	//
+
 	LLViewerImage::bindTexture(m2DAlphaRampImagep,1);
-	glActiveTextureARB(GL_TEXTURE1_ARB);
+	gGL.getTexUnit(1)->activate();
 	glEnable(GL_TEXTURE_2D); // Texture unit 1
 	glClientActiveTextureARB(GL_TEXTURE1_ARB);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
 	// Care about alpha only
-	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE,		GL_COMBINE_ARB);
-	glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB,		GL_REPLACE);
-	glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA_ARB,		GL_REPLACE);
-
-	glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB,		GL_PREVIOUS);
-	glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB_ARB,		GL_SRC_COLOR);
-	glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_ARB,		GL_TEXTURE);
-	glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA_ARB,	GL_SRC_ALPHA);
+	gGL.getTexUnit(1)->setTextureColorBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_PREV_COLOR);
+	gGL.getTexUnit(1)->setTextureAlphaBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_TEX_ALPHA);
 
 	//
 	// Stage 2: Interpolate detail1 with existing based on ramp
 	//
 	LLViewerImage::bindTexture(detail_texture1p,2);
-	glActiveTextureARB(GL_TEXTURE2_ARB);
+	gGL.getTexUnit(2)->activate();
 	glEnable(GL_TEXTURE_2D); // Texture unit 2
 	glClientActiveTextureARB(GL_TEXTURE2_ARB);
 
@@ -438,34 +431,20 @@ void LLDrawPoolTerrain::renderFull4TU()
 	glTexGenfv(GL_S, GL_OBJECT_PLANE, tp0.mV);
 	glTexGenfv(GL_T, GL_OBJECT_PLANE, tp1.mV);
 
-	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE,		GL_COMBINE_ARB);
-	glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB,		GL_INTERPOLATE);
-
-	glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB,		GL_PREVIOUS_ARB);
-	glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB_ARB,		GL_SRC_COLOR);
-	glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB_ARB,		GL_TEXTURE);
-	glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB_ARB,		GL_SRC_COLOR);
-	glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_RGB_ARB,		GL_PREVIOUS_ARB);
-	glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_RGB_ARB,		GL_SRC_ALPHA);
+	gGL.getTexUnit(2)->setTextureColorBlend(LLTexUnit::TBO_LERP_PREV_ALPHA, LLTexUnit::TBS_PREV_COLOR, LLTexUnit::TBS_TEX_COLOR);
 
 	//
 	// Stage 3: Modulate with primary (vertex) color for lighting
 	//
 	LLViewerImage::bindTexture(detail_texture1p,3); // bind any texture
-	glActiveTextureARB(GL_TEXTURE3_ARB);
+	gGL.getTexUnit(3)->activate();
 	glEnable(GL_TEXTURE_2D); // Texture unit 3
 	glClientActiveTextureARB(GL_TEXTURE3_ARB);
 
 	// Set alpha texture and do lighting modulation
-	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE,		GL_COMBINE_ARB);
-	glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB,		GL_MODULATE);
+	gGL.getTexUnit(3)->setTextureColorBlend(LLTexUnit::TBO_MULT, LLTexUnit::TBS_PREV_COLOR, LLTexUnit::TBS_VERT_COLOR);
 
-	glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB,		GL_PREVIOUS);
-	glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB_ARB,		GL_SRC_COLOR);
-	glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB_ARB,		GL_PRIMARY_COLOR_ARB);
-	glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB_ARB,		GL_SRC_COLOR);
-
-	glActiveTextureARB(GL_TEXTURE0_ARB);
+	gGL.getTexUnit(0)->activate();
 	glClientActiveTextureARB(GL_TEXTURE0_ARB);
 
 	// GL_BLEND disabled by default
@@ -476,7 +455,7 @@ void LLDrawPoolTerrain::renderFull4TU()
 
 	// Stage 0: Write detail3 into base
 	//
-	glActiveTextureARB(GL_TEXTURE0_ARB);
+	gGL.getTexUnit(0)->activate();
 	LLViewerImage::bindTexture(detail_texture3p,0);
 	glClientActiveTextureARB(GL_TEXTURE0_ARB);
 
@@ -488,18 +467,13 @@ void LLDrawPoolTerrain::renderFull4TU()
 	glTexGenfv(GL_S, GL_OBJECT_PLANE, tp0.mV);
 	glTexGenfv(GL_T, GL_OBJECT_PLANE, tp1.mV);
 
-	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE,		GL_COMBINE_ARB);
-	glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB,		GL_REPLACE);
-
-	glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB,		GL_TEXTURE);
-	glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB_ARB,		GL_SRC_COLOR);
-
+	gGL.getTexUnit(0)->setTextureColorBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_TEX_COLOR);
 
 	//
 	// Stage 1: Generate alpha ramp for detail2/detail3 transition
 	//
 	LLViewerImage::bindTexture(m2DAlphaRampImagep,1);
-	glActiveTextureARB(GL_TEXTURE1_ARB);
+	gGL.getTexUnit(1)->activate();
 	glEnable(GL_TEXTURE_2D); // Texture unit 1
 	glClientActiveTextureARB(GL_TEXTURE1_ARB);
 
@@ -511,25 +485,20 @@ void LLDrawPoolTerrain::renderFull4TU()
 	glTranslatef(-2.f, 0.f, 0.f);
 
 	// Care about alpha only
-	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE,		GL_COMBINE_ARB);
-	glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB,		GL_REPLACE);
-	glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA_ARB,		GL_REPLACE);
-
-	glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB,		GL_PREVIOUS);
-	glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB_ARB,		GL_SRC_COLOR);
-	glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_ARB,		GL_TEXTURE);
-	glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA_ARB,	GL_SRC_ALPHA);
+	gGL.getTexUnit(1)->setTextureColorBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_PREV_COLOR);
+	gGL.getTexUnit(1)->setTextureAlphaBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_TEX_ALPHA);
 
 
 	//
 	// Stage 2: Interpolate detail2 with existing based on ramp
 	//
 	LLViewerImage::bindTexture(detail_texture2p,2);
-	glActiveTextureARB(GL_TEXTURE2_ARB);
+	gGL.getTexUnit(2)->activate();
 	glEnable(GL_TEXTURE_2D); // Texture unit 2
-	glClientActiveTextureARB(GL_TEXTURE2_ARB);
 
+	glClientActiveTextureARB(GL_TEXTURE2_ARB);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+
 	glEnable(GL_TEXTURE_GEN_S);
 	glEnable(GL_TEXTURE_GEN_T);
 	glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
@@ -537,26 +506,16 @@ void LLDrawPoolTerrain::renderFull4TU()
 	glTexGenfv(GL_S, GL_OBJECT_PLANE, tp0.mV);
 	glTexGenfv(GL_T, GL_OBJECT_PLANE, tp1.mV);
 
-	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE,		GL_COMBINE_ARB);
-	glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB,		GL_INTERPOLATE);
-
-	glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB,		GL_PREVIOUS_ARB);
-	glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB_ARB,		GL_SRC_COLOR);
-	glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB_ARB,		GL_TEXTURE);
-	glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB_ARB,		GL_SRC_COLOR);
-	glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_RGB_ARB,		GL_PREVIOUS_ARB);
-	glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_RGB_ARB,		GL_ONE_MINUS_SRC_ALPHA);
-	
+	gGL.getTexUnit(2)->setTextureColorBlend(LLTexUnit::TBO_LERP_PREV_ALPHA, LLTexUnit::TBS_TEX_COLOR, LLTexUnit::TBS_PREV_COLOR);	
 
 	//
 	// Stage 3: Generate alpha ramp for detail1/detail2 transition
 	//
 	LLViewerImage::bindTexture(m2DAlphaRampImagep,3);
-	glActiveTextureARB(GL_TEXTURE3_ARB);
-	
+	gGL.getTexUnit(3)->activate();
 	glEnable(GL_TEXTURE_2D); // Texture unit 3
-	glClientActiveTextureARB(GL_TEXTURE3_ARB);
 
+	glClientActiveTextureARB(GL_TEXTURE3_ARB);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
 	// Set the texture matrix
@@ -565,18 +524,10 @@ void LLDrawPoolTerrain::renderFull4TU()
 	glTranslatef(-1.f, 0.f, 0.f);
   
 	// Set alpha texture and do lighting modulation
-	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE,		GL_COMBINE_ARB);
-	glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB,		GL_MODULATE);
-	glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA_ARB,		GL_REPLACE);
+	gGL.getTexUnit(3)->setTextureColorBlend(LLTexUnit::TBO_MULT, LLTexUnit::TBS_PREV_COLOR, LLTexUnit::TBS_VERT_COLOR);
+	gGL.getTexUnit(3)->setTextureAlphaBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_TEX_ALPHA);
 
-	glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB,		GL_PREVIOUS);
-	glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB_ARB,		GL_SRC_COLOR);
-	glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB_ARB,		GL_PRIMARY_COLOR_ARB);
-	glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB_ARB,		GL_SRC_COLOR);
-	glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_ARB,		GL_TEXTURE);
-	glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA_ARB,	GL_SRC_ALPHA);
-
-	glActiveTextureARB(GL_TEXTURE0_ARB);
+	gGL.getTexUnit(0)->activate();
 	glClientActiveTextureARB(GL_TEXTURE0_ARB);
 	{
 		LLGLEnable blend(GL_BLEND);
@@ -586,19 +537,21 @@ void LLDrawPoolTerrain::renderFull4TU()
 	LLVertexBuffer::unbind();
 	// Disable multitexture
 	LLImageGL::unbindTexture(3, GL_TEXTURE_2D);
-	glActiveTextureARB(GL_TEXTURE3_ARB);
+	gGL.getTexUnit(3)->activate();
 	glClientActiveTextureARB(GL_TEXTURE3_ARB);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	glDisable(GL_TEXTURE_2D); // Texture unit 3
+
 	glMatrixMode(GL_TEXTURE);
 	glLoadIdentity();
 	glMatrixMode(GL_MODELVIEW);
 
 	LLImageGL::unbindTexture(2, GL_TEXTURE_2D);
-	glActiveTextureARB(GL_TEXTURE2_ARB);
+	gGL.getTexUnit(2)->activate();
 	glClientActiveTextureARB(GL_TEXTURE2_ARB);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	glDisable(GL_TEXTURE_2D); // Texture unit 2
+
 	glDisable(GL_TEXTURE_GEN_S);
 	glDisable(GL_TEXTURE_GEN_T);
 	glMatrixMode(GL_TEXTURE);
@@ -606,33 +559,34 @@ void LLDrawPoolTerrain::renderFull4TU()
 	glMatrixMode(GL_MODELVIEW);
 
 	LLImageGL::unbindTexture(1, GL_TEXTURE_2D);
-	glActiveTextureARB(GL_TEXTURE1_ARB);
-	glClientActiveTextureARB(GL_TEXTURE1_ARB);
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	gGL.getTexUnit(1)->activate();
+ 	glClientActiveTextureARB(GL_TEXTURE1_ARB);
+ 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	glDisable(GL_TEXTURE_2D); // Texture unit 1
+
 	glMatrixMode(GL_TEXTURE);
 	glLoadIdentity();
 	glMatrixMode(GL_MODELVIEW);
 
 	// Restore blend state
-	gGL.blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	gGL.setSceneBlendType(LLRender::BT_ALPHA);
 	
 	//----------------------------------------------------------------------------
 	// Restore Texture Unit 0 defaults
 	
-	glActiveTextureARB(GL_TEXTURE0_ARB);
+	gGL.getTexUnit(0)->activate();
 	LLImageGL::unbindTexture(0, GL_TEXTURE_2D);
 	glClientActiveTextureARB(GL_TEXTURE0_ARB);
-	glActiveTextureARB(GL_TEXTURE0_ARB);
+	gGL.getTexUnit(0)->activate();
+	glDisableClientState(GL_NORMAL_ARRAY);
+
 	glDisable(GL_TEXTURE_GEN_S);
 	glDisable(GL_TEXTURE_GEN_T);
 	glMatrixMode(GL_TEXTURE);
 	glLoadIdentity();
 	glMatrixMode(GL_MODELVIEW);
 
-	// Restore non Texture Unit specific defaults
-	glDisableClientState(GL_NORMAL_ARRAY);
-	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+	gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
 }
 
 void LLDrawPoolTerrain::renderFull2TU()
@@ -654,7 +608,7 @@ void LLDrawPoolTerrain::renderFull2TU()
 	tp0.setVec(sDetailScale, 0.0f, 0.0f, offset_x);
 	tp1.setVec(0.0f, sDetailScale, 0.0f, offset_y);
 
-	gGL.blendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
+	gGL.blendFunc(LLRender::BF_ONE_MINUS_SOURCE_ALPHA, LLRender::BF_SOURCE_ALPHA);
 	
 	//----------------------------------------------------------------------------
 	// Pass 1/4
@@ -671,13 +625,7 @@ void LLDrawPoolTerrain::renderFull2TU()
 	glTexGenfv(GL_S, GL_OBJECT_PLANE, tp0.mV);
 	glTexGenfv(GL_T, GL_OBJECT_PLANE, tp1.mV);
 
-	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE,		GL_COMBINE_ARB);
-	glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB,		GL_MODULATE);
-
-	glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB,		GL_TEXTURE);
-	glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB_ARB,		GL_SRC_COLOR);
-	glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB_ARB,		GL_PRIMARY_COLOR_ARB);
-	glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB_ARB,		GL_SRC_COLOR);
+	gGL.getTexUnit(0)->setTextureColorBlend(LLTexUnit::TBO_MULT, LLTexUnit::TBS_TEX_COLOR, LLTexUnit::TBS_VERT_COLOR);
 
 	drawLoop();
 
@@ -693,22 +641,17 @@ void LLDrawPoolTerrain::renderFull2TU()
 	glDisable(GL_TEXTURE_GEN_T);
 	
 	// Care about alpha only
-	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE,		GL_COMBINE_ARB);
-	glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB,		GL_REPLACE);
-	glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA_ARB,		GL_REPLACE);
-
-	glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB,		GL_PREVIOUS);
-	glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB_ARB,		GL_SRC_COLOR);
-	glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_ARB,		GL_TEXTURE);
-	glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA_ARB,	GL_SRC_ALPHA);
+	gGL.getTexUnit(0)->setTextureColorBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_PREV_COLOR);
+	gGL.getTexUnit(0)->setTextureAlphaBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_TEX_ALPHA);
 
 
 	//
 	// Stage 1: Write detail1
 	//
 	LLViewerImage::bindTexture(detail_texture1p,1); // Texture unit 1
-	glActiveTextureARB(GL_TEXTURE1_ARB);
+	gGL.getTexUnit(1)->activate();
 	glEnable(GL_TEXTURE_2D);		// Texture unit 1
+
 	glEnable(GL_TEXTURE_GEN_S);
 	glEnable(GL_TEXTURE_GEN_T);
 	glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
@@ -716,18 +659,10 @@ void LLDrawPoolTerrain::renderFull2TU()
 	glTexGenfv(GL_S, GL_OBJECT_PLANE, tp0.mV);
 	glTexGenfv(GL_T, GL_OBJECT_PLANE, tp1.mV);
 
-	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE,		GL_COMBINE_ARB);
-	glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB,		GL_MODULATE);
-	glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA_ARB,		GL_REPLACE);
+	gGL.getTexUnit(1)->setTextureColorBlend(LLTexUnit::TBO_MULT, LLTexUnit::TBS_TEX_COLOR, LLTexUnit::TBS_VERT_COLOR);
+	gGL.getTexUnit(1)->setTextureAlphaBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_PREV_ALPHA);
 
-	glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB,		GL_TEXTURE);
-	glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB_ARB,		GL_SRC_COLOR);
-	glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB_ARB,		GL_PRIMARY_COLOR_ARB);
-	glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB_ARB,		GL_SRC_COLOR);
-	glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_ARB,		GL_PREVIOUS);
-	glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA_ARB,	GL_SRC_ALPHA);
-
-	glActiveTextureARB(GL_TEXTURE0_ARB);
+	gGL.getTexUnit(0)->activate();
 	{
 		LLGLEnable blend(GL_BLEND);
 		drawLoop();
@@ -739,26 +674,21 @@ void LLDrawPoolTerrain::renderFull2TU()
 	// Stage 0: Generate alpha ramp for detail1/detail2 transition
 	//
 	LLViewerImage::bindTexture(m2DAlphaRampImagep,0);
+
 	// Set the texture matrix
 	glMatrixMode(GL_TEXTURE);
 	glLoadIdentity();
 	glTranslatef(-1.f, 0.f, 0.f);
 
 	// Care about alpha only
-	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE,		GL_COMBINE_ARB);
-	glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB,		GL_REPLACE);
-	glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA_ARB,		GL_REPLACE);
-
-	glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB,		GL_PREVIOUS);
-	glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB_ARB,		GL_SRC_COLOR);
-	glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_ARB,		GL_TEXTURE);
-	glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA_ARB,	GL_SRC_ALPHA);
+	gGL.getTexUnit(0)->setTextureColorBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_PREV_COLOR);
+	gGL.getTexUnit(0)->setTextureAlphaBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_TEX_ALPHA);
 
 	//
 	// Stage 1: Write detail2
 	//
-	
 	LLViewerImage::bindTexture(detail_texture2p,1);
+	gGL.getTexUnit(1)->activate();
 	glEnable(GL_TEXTURE_2D); // Texture unit 1
 	
 	glEnable(GL_TEXTURE_GEN_S);
@@ -768,16 +698,8 @@ void LLDrawPoolTerrain::renderFull2TU()
 	glTexGenfv(GL_S, GL_OBJECT_PLANE, tp0.mV);
 	glTexGenfv(GL_T, GL_OBJECT_PLANE, tp1.mV);
 
-	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE,		GL_COMBINE_ARB);
-	glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB,		GL_MODULATE);
-	glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA_ARB,		GL_REPLACE);
-
-	glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB,		GL_TEXTURE);
-	glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB_ARB,		GL_SRC_COLOR);
-	glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB_ARB,		GL_PRIMARY_COLOR_ARB);
-	glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB_ARB,		GL_SRC_COLOR);
-	glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_ARB,		GL_PREVIOUS);
-	glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA_ARB,	GL_SRC_ALPHA);
+	gGL.getTexUnit(1)->setTextureColorBlend(LLTexUnit::TBO_MULT, LLTexUnit::TBS_TEX_COLOR, LLTexUnit::TBS_VERT_COLOR);
+	gGL.getTexUnit(1)->setTextureAlphaBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_PREV_ALPHA);
 
 	{
 		LLGLEnable blend(GL_BLEND);
@@ -790,27 +712,22 @@ void LLDrawPoolTerrain::renderFull2TU()
 	//
 	// Stage 0: Generate alpha ramp for detail2/detail3 transition
 	//
-	LLViewerImage::bindTexture(m2DAlphaRampImagep,0);
+	gGL.getTexUnit(0)->activate();
+	LLViewerImage::bindTexture(m2DAlphaRampImagep,0);	
 	// Set the texture matrix
 	glMatrixMode(GL_TEXTURE);
 	glLoadIdentity();
 	glTranslatef(-2.f, 0.f, 0.f);
 
 	// Care about alpha only
-	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE,		GL_COMBINE_ARB);
-	glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB,		GL_REPLACE);
-	glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA_ARB,		GL_REPLACE);
-
-	glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB,		GL_PREVIOUS);
-	glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB_ARB,		GL_SRC_COLOR);
-	glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_ARB,		GL_TEXTURE);
-	glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA_ARB,	GL_SRC_ALPHA);
+	gGL.getTexUnit(0)->setTextureColorBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_PREV_COLOR);
+	gGL.getTexUnit(0)->setTextureAlphaBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_TEX_ALPHA);
 
 	// Stage 1: Write detail3
-
 	LLViewerImage::bindTexture(detail_texture3p,1);
-	glActiveTextureARB(GL_TEXTURE1_ARB);
+	gGL.getTexUnit(1)->activate();
 	glEnable(GL_TEXTURE_2D); // Texture unit 1
+
 	glEnable(GL_TEXTURE_GEN_S);
 	glEnable(GL_TEXTURE_GEN_T);
 	glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
@@ -818,30 +735,24 @@ void LLDrawPoolTerrain::renderFull2TU()
 	glTexGenfv(GL_S, GL_OBJECT_PLANE, tp0.mV);
 	glTexGenfv(GL_T, GL_OBJECT_PLANE, tp1.mV);
 
-	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE,		GL_COMBINE_ARB);
-	glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB,		GL_MODULATE);
-	glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA_ARB,		GL_REPLACE);
+	gGL.getTexUnit(1)->setTextureColorBlend(LLTexUnit::TBO_MULT, LLTexUnit::TBS_TEX_COLOR, LLTexUnit::TBS_VERT_COLOR);
+	gGL.getTexUnit(1)->setTextureAlphaBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_PREV_ALPHA);
 
-	glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB,		GL_TEXTURE);
-	glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB_ARB,		GL_SRC_COLOR);
-	glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB_ARB,		GL_PRIMARY_COLOR_ARB);
-	glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB_ARB,		GL_SRC_COLOR);
-	glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_ARB,		GL_PREVIOUS);
-	glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA_ARB,	GL_SRC_ALPHA);
-
-	glActiveTextureARB(GL_TEXTURE0_ARB);
+	gGL.getTexUnit(0)->activate();
 	{
 		LLGLEnable blend(GL_BLEND);
 		drawLoop();
 	}
 	
 	// Restore blend state
-	gGL.blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	gGL.setSceneBlendType(LLRender::BT_ALPHA);
 	
 	// Disable multitexture
+	
 	LLImageGL::unbindTexture(1, GL_TEXTURE_2D);
-	glActiveTextureARB(GL_TEXTURE1_ARB);
+	gGL.getTexUnit(1)->activate();
 	glDisable(GL_TEXTURE_2D); // Texture unit 1
+
 	glDisable(GL_TEXTURE_GEN_S);
 	glDisable(GL_TEXTURE_GEN_T);
 	glMatrixMode(GL_TEXTURE);
@@ -851,18 +762,16 @@ void LLDrawPoolTerrain::renderFull2TU()
 	//----------------------------------------------------------------------------
 	// Restore Texture Unit 0 defaults
 	
-	glActiveTextureARB(GL_TEXTURE0_ARB);
+	gGL.getTexUnit(0)->activate();
 	LLImageGL::unbindTexture(0, GL_TEXTURE_2D);
 
-	glActiveTextureARB(GL_TEXTURE0_ARB);
+	gGL.getTexUnit(0)->activate();
 	glDisable(GL_TEXTURE_GEN_S);
 	glDisable(GL_TEXTURE_GEN_T);
 	glMatrixMode(GL_TEXTURE);
 	glLoadIdentity();
 	glMatrixMode(GL_MODELVIEW);
-
-	// Restore non Texture Unit specific defaults
-	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+	gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
 }
 
 
@@ -877,7 +786,7 @@ void LLDrawPoolTerrain::renderSimple()
 	mTexturep->addTextureStats(1024.f*1024.f);
 	mTexturep->bind(0);
 
-	glActiveTextureARB(GL_TEXTURE0_ARB);
+	gGL.getTexUnit(0)->activate();
 	glEnable(GL_TEXTURE_2D); // Texture unit 2
 	
 	LLVector3 origin_agent = mDrawFace[0]->getDrawable()->getVObj()->getRegion()->getOriginAgent();
@@ -892,13 +801,7 @@ void LLDrawPoolTerrain::renderSimple()
 	glTexGenfv(GL_S, GL_OBJECT_PLANE, tp0.mV);
 	glTexGenfv(GL_T, GL_OBJECT_PLANE, tp1.mV);
 	
-	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE,		GL_COMBINE_ARB);
-	glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB,		GL_MODULATE);
-
-	glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB,		GL_TEXTURE);
-	glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB_ARB,		GL_SRC_COLOR);
-	glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB_ARB,		GL_PRIMARY_COLOR_ARB);
-	glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB_ARB,		GL_SRC_COLOR);
+	gGL.getTexUnit(0)->setTextureColorBlend(LLTexUnit::TBO_MULT, LLTexUnit::TBS_TEX_COLOR, LLTexUnit::TBS_VERT_COLOR);
 
 	drawLoop();
 
@@ -906,15 +809,13 @@ void LLDrawPoolTerrain::renderSimple()
 	// Restore Texture Unit 0 defaults
 	
 	LLImageGL::unbindTexture(0, GL_TEXTURE_2D);
-	glActiveTextureARB(GL_TEXTURE0_ARB);
+	gGL.getTexUnit(0)->activate();
 	glDisable(GL_TEXTURE_GEN_S);
 	glDisable(GL_TEXTURE_GEN_T);
 	glMatrixMode(GL_TEXTURE);
 	glLoadIdentity();
 	glMatrixMode(GL_MODELVIEW);
-
-	// Restore non Texture Unit specific defaults
-	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+	gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
 }
 
 //============================================================================

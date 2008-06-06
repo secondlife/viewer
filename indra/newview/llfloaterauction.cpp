@@ -53,7 +53,7 @@
 #include "llviewerdisplay.h"
 #include "llviewercontrol.h"
 #include "llui.h"
-#include "llglimmediate.h"
+#include "llrender.h"
 
 ///----------------------------------------------------------------------------
 /// Local function declarations, constants, enums, and typedefs

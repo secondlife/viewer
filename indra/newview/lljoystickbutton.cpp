@@ -36,7 +36,7 @@
 // Library includes
 #include "llcoord.h"
 #include "indra_constants.h"
-#include "llglimmediate.h"
+#include "llrender.h"
 
 // Project includes
 #include "llui.h"

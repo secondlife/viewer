@@ -127,7 +127,7 @@ public:
 	{
 		mSignal(mValues.back());
 	}
-	BOOL llsd_compare(const LLSD& a, const LLSD& b);
+	bool llsd_compare(const LLSD& a, const LLSD& b);
 };
 
 //const U32 STRING_CACHE_SIZE = 10000;

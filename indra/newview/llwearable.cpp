@@ -846,7 +846,7 @@ struct LLWearableSaveData
 void LLWearable::saveNewAsset()
 {
 //	llinfos << "LLWearable::saveNewAsset() type: " << getTypeName() << llendl;
-	//dump();
+	//llinfos << *this << llendl;
 
 	char new_asset_id_string[UUID_STR_LENGTH];		/* Flawfinder: ignore */
 	mAssetID.toString(new_asset_id_string);
@@ -949,31 +949,32 @@ BOOL LLWearable::isMatchedToInventoryItem( LLViewerInventoryItem* item )
 		( mSaleInfo == item->getSaleInfo() );
 }
 
-void LLWearable::dump()
+std::ostream& operator<<(std::ostream &s, const LLWearable &w)
 {
-	llinfos << "wearable " << LLWearable::typeToTypeName( mType ) << llendl;
-	llinfos << "    Name: " << mName << llendl;
-	llinfos << "    Desc: " << mDescription << llendl;
-	//mPermissions
-	//mSaleInfo
+	s << "wearable " << LLWearable::typeToTypeName( w.mType ) << "\n";
+	s << "    Name: " << w.mName << "\n";
+	s << "    Desc: " << w.mDescription << "\n";
+	//w.mPermissions
+	//w.mSaleInfo
 
-	llinfos << "    Params:" << llendl;
-	for (param_map_t::iterator iter = mVisualParamMap.begin();
-		 iter != mVisualParamMap.end(); ++iter)
+	s << "    Params:" << "\n";
+	for (LLWearable::param_map_t::const_iterator iter = w.mVisualParamMap.begin();
+		 iter != w.mVisualParamMap.end(); ++iter)
 	{
 		S32 param_id = iter->first;
 		F32 param_weight = iter->second;
-		llinfos << "        " << param_id << " " << param_weight << llendl;
+		s << "        " << param_id << " " << param_weight << "\n";
 	}
 
-	llinfos << "    Textures:" << llendl;
-	for (te_map_t::iterator iter = mTEMap.begin();
-		 iter != mTEMap.end(); ++iter)
+	s << "    Textures:" << "\n";
+	for (LLWearable::te_map_t::const_iterator iter = w.mTEMap.begin();
+		 iter != w.mTEMap.end(); ++iter)
 	{
 		S32 te = iter->first;
-		LLUUID& image_id = iter->second;
-		llinfos << "        " << te << " " << image_id << llendl;
+		const LLUUID& image_id = iter->second;
+		s << "        " << te << " " << image_id << "\n";
 	}
+	return s;
 }
 
 

@@ -58,36 +58,45 @@
 //this defines the current version of the settings file
 const S32 CURRENT_VERSION = 101;
 
-BOOL LLControlVariable::llsd_compare(const LLSD& a, const LLSD & b)
+bool LLControlVariable::llsd_compare(const LLSD& a, const LLSD & b)
 {
+	bool result = false;
 	switch (mType)
 	{
 	case TYPE_U32:
 	case TYPE_S32:
-		return a.asInteger() == b.asInteger();
+		result = a.asInteger() == b.asInteger();
+		break;
 	case TYPE_BOOLEAN:
-		return a.asBoolean() == b.asBoolean();
+		result = a.asBoolean() == b.asBoolean();
+		break;
 	case TYPE_F32:
-		return a.asReal() == b.asReal();
+		result = a.asReal() == b.asReal();
+		break;
 	case TYPE_VEC3:
 	case TYPE_VEC3D:
-		return LLVector3d(a) == LLVector3d(b);
+		result = LLVector3d(a) == LLVector3d(b);
+		break;
 	case TYPE_RECT:
-		return LLRect(a) == LLRect(b);
+		result = LLRect(a) == LLRect(b);
+		break;
 	case TYPE_COL4:
-		return LLColor4(a) == LLColor4(b);
+		result = LLColor4(a) == LLColor4(b);
+		break;
 	case TYPE_COL3:
-		return LLColor3(a) == LLColor3(b);
+		result = LLColor3(a) == LLColor3(b);
+		break;
 	case TYPE_COL4U:
-		return LLColor4U(a) == LLColor4U(b);
+		result = LLColor4U(a) == LLColor4U(b);
+		break;
 	case TYPE_STRING:
-		return a.asString() == b.asString();
+		result = a.asString() == b.asString();
+		break;
 	default:
-		// no-op
 		break;
 	}
 
-	return FALSE;
+	return result;
 }
 
 LLControlVariable::LLControlVariable(const LLString& name, eControlType type,
@@ -114,14 +123,34 @@ LLControlVariable::~LLControlVariable()
 
 void LLControlVariable::setValue(const LLSD& value, bool saved_value)
 {
-    bool value_changed = llsd_compare(getValue(), value) == FALSE;
+	// *FIX:MEP - The following is needed to make the LLSD::ImplString 
+	// work with boolean controls...
+	LLSD storable_value;
+	if(TYPE_BOOLEAN == type() && value.isString())
+	{
+		BOOL temp;
+		if(LLString::convertToBOOL(value.asString(), temp)) 
+		{
+			storable_value = temp;
+		}
+		else
+		{
+			storable_value = FALSE;
+		}
+	}
+	else
+	{
+		storable_value = value;
+	}
+
+	bool value_changed = llsd_compare(getValue(), storable_value) == FALSE;
 	if(saved_value)
 	{
     	// If we're going to save this value, return to default but don't fire
 		resetToDefault(false);
-	    if (llsd_compare(mValues.back(), value) == FALSE)
+	    if (llsd_compare(mValues.back(), storable_value) == FALSE)
 	    {
-		    mValues.push_back(value);
+		    mValues.push_back(storable_value);
 	    }
 	}
     else
@@ -129,7 +158,7 @@ void LLControlVariable::setValue(const LLSD& value, bool saved_value)
         // This is a unsaved value. Its needs to reside at
         // mValues[2] (or greater). It must not affect 
         // the result of getSaveValue()
-	    if (llsd_compare(mValues.back(), value) == FALSE)
+	    if (llsd_compare(mValues.back(), storable_value) == FALSE)
 	    {
             while(mValues.size() > 2)
             {
@@ -144,13 +173,14 @@ void LLControlVariable::setValue(const LLSD& value, bool saved_value)
             }
 
             // Add the 'un-save' value.
-            mValues.push_back(value);
+            mValues.push_back(storable_value);
 	    }
     }
 
+
     if(value_changed)
     {
-        mSignal(value); 
+        mSignal(storable_value); 
     }
 }
 
@@ -1145,5 +1175,6 @@ void main()
 	delete baz;
 }
 #endif
+
 
 

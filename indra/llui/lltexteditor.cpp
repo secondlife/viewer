@@ -36,7 +36,7 @@
 #include "lltexteditor.h"
 
 #include "llfontgl.h"
-#include "llglimmediate.h"
+#include "llrender.h"
 #include "llui.h"
 #include "lluictrlfactory.h"
 #include "llrect.h"

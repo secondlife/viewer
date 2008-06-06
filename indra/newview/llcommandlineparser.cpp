@@ -291,12 +291,15 @@ bool LLCommandLineParser::parseAndStoreResults(po::command_line_parser& clp)
     }
     catch(LLCLPLastOption&) 
     {
-        // Continue without parsing.
-		std::string msg = "Found tokens past last option. Ignoring.";
-        llwarns << msg << llendl;
-		mErrorMsg = msg;
-        // boost::po will have stored a mal-formed option. 
+		// This exception means a token was read after an option 
+		// that must be the last option was reached (see url and slurl options)
+
+        // boost::po will have stored a malformed option. 
         // All such options will be removed below.
+		// The last option read, the last_option option, and its value
+		// are put into the error message.
+		std::string last_option;
+		std::string last_value;
         for(po::variables_map::iterator i = gVariableMap.begin(); i != gVariableMap.end();)
         {
             po::variables_map::iterator tempI = i++;
@@ -304,7 +307,27 @@ bool LLCommandLineParser::parseAndStoreResults(po::command_line_parser& clp)
             {
                 gVariableMap.erase(tempI);
             }
+			else
+			{
+				last_option = tempI->first;
+		        LLCommandLineParser::token_vector_t* tv = 
+				    boost::any_cast<LLCommandLineParser::token_vector_t>(&(tempI->second.value())); 
+				if(!tv->empty())
+				{
+					last_value = (*tv)[tv->size()-1];
+				}
+			}
         }
+
+		// Continue without parsing.
+		std::ostringstream msg;
+		msg << "Caught Error: Found options after last option: " 
+			<< last_option << " "
+			<< last_value;
+
+        llwarns << msg.str() << llendl;
+		mErrorMsg = msg.str();
+        return false;
     } 
     return true;
 }

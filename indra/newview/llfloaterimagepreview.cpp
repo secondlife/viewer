@@ -43,7 +43,7 @@
 #include "llcombobox.h"
 #include "lldrawable.h"
 #include "lldrawpoolavatar.h"
-#include "llglimmediate.h"
+#include "llrender.h"
 #include "llface.h"
 #include "lltextbox.h"
 #include "lltoolmgr.h"

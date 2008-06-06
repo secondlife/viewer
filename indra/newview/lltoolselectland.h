@@ -74,7 +74,6 @@ protected:
 	LLVector3d		mWestSouthBottom;		// global coords, from drag
 	LLVector3d		mEastNorthTop;			// global coords, from drag
 
-	BOOL			mLastShowParcelOwners;	// store last Show Parcel Owners setting
 	LLSafeHandle<LLParcelSelection> mSelection;		// hold on to a parcel selection
 };
 

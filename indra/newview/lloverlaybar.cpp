@@ -37,7 +37,7 @@
 #include "lloverlaybar.h"
 
 #include "audioengine.h"
-#include "llglimmediate.h"
+#include "llrender.h"
 #include "llagent.h"
 #include "llbutton.h"
 #include "llchatbar.h"

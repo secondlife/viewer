@@ -39,7 +39,7 @@
 
 // Project includes
 #include "llui.h"
-#include "llglimmediate.h"
+#include "llrender.h"
 #include "lluiconstants.h"
 #include "llviewerwindow.h"
 #include "llviewercontrol.h"

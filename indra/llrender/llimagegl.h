@@ -81,6 +81,10 @@ protected:
 	virtual ~LLImageGL();
 	BOOL bindTextureInternal(const S32 stage = 0) const;
 
+private:
+	void glClamp (BOOL clamps, BOOL clampt);
+	void glClampCubemap (BOOL clamps, BOOL clampt, BOOL clampr = FALSE);
+
 public:
 	virtual void dump();	// debugging info to llinfos
 	virtual BOOL bind(const S32 stage = 0) const;
@@ -99,8 +103,11 @@ public:
 	BOOL readBackRaw(S32 discard_level, LLImageRaw* imageraw, bool compressed_ok); 
 	void destroyGLTexture();
 	
+	void setClampCubemap (BOOL clamps, BOOL clampt, BOOL clampr = FALSE);
 	void setClamp(BOOL clamps, BOOL clampt);
-	void setMipFilterNearest(BOOL nearest, BOOL min_nearest = FALSE);
+	void overrideClamp (BOOL clamps, BOOL clampt);
+	void restoreClamp (void);
+	void setMipFilterNearest(BOOL mag_nearest, BOOL min_nearest = FALSE);
 	void setExplicitFormat(LLGLint internal_format, LLGLenum primary_format, LLGLenum type_format = 0, BOOL swap_bytes = FALSE);
 	void dontDiscard() { mDontDiscard = 1; }
 
@@ -117,7 +124,8 @@ public:
 	
 	BOOL getClampS() const { return mClampS; }
 	BOOL getClampT() const { return mClampT; }
-	BOOL getMipFilterNearest() const { return mMipFilterNearest; }
+	BOOL getClampR() const { return mClampR; }
+	BOOL getMipFilterNearest() const { return mMagFilterNearest; }
 	
 	BOOL getHasGLTexture() const { return mTexName != 0; }
 	LLGLuint getTexName() const { return mTexName; }
@@ -167,7 +175,9 @@ protected:
 
 	S8 mClampS;					// Need to save clamp state
 	S8 mClampT;
-	S8 mMipFilterNearest;		// if TRUE, set magfilter to GL_NEAREST
+	S8 mClampR;
+	S8 mMagFilterNearest;		// if TRUE, set magfilter to GL_NEAREST
+	S8 mMinFilterNearest;		// if TRUE, set minfilter to GL_NEAREST
 	
 	LLGLint  mFormatInternal; // = GL internalformat
 	LLGLenum mFormatPrimary;  // = GL format (pixel data format)
@@ -197,6 +207,9 @@ public:
 #else
 	BOOL getMissed() const { return FALSE; };
 #endif
+
+private://paranoia error check
+	static BOOL sRefCheck ;
 };
 
 #endif // LL_LLIMAGEGL_H

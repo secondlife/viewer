@@ -77,8 +77,6 @@ public:
 	// Report true if under the control of a debugger. A null-op default.
 	virtual bool beingDebugged() { return false; } 
 
-	S32 getCrashBehavior() const { return mCrashBehavior; } 
-	void setCrashBehavior(S32 cb);
 	virtual void handleCrashReporting() = 0; // What to do with crash report?
 	virtual void handleSyncCrashTrace() = 0; // any low-level crash-prep that has to happen in the context of the crashing thread before the crash report is delivered.
 	static void handleViewerCrash(); // Hey! The viewer crashed. Do this, soon.
@@ -96,13 +94,6 @@ public:
 	const LLString& getSecondLifeTitle() const; // The Second Life title.
 	const LLString& getWindowTitle() const; // The window display name.
 
-    // Helpers for URIs
-    void addLoginURI(const std::string& uri);
-    void setHelperURI(const std::string& uri);
-    const std::vector<std::string>& getLoginURIs() const;
-    const std::string& getHelperURI() const;
-    void resetURIs() const;
-
     void forceDisconnect(const LLString& msg); // Force disconnection, with a message to the user.
     void badNetworkHandler(); // Cause a crash state due to bad network packet.
 
@@ -111,8 +102,6 @@ public:
 
     void loadNameCache();
     void saveNameCache();
-
-    bool isInProductionGrid();
 
 	void removeMarkerFile(bool leave_logout_marker = false);
 	
@@ -138,10 +127,13 @@ public:
 	std::string getSettingsFileName(const std::string& file);
 
 	// For thread debugging. 
-	// llstartup needs to control this.
-	// llworld, send_agent_pause() also controls this.
-	void startMainloopTimeout(F32 secs = -1.0f);
-	void stopMainloopTimeout();
+	// llstartup needs to control init.
+	// llworld, send_agent_pause() also controls pause/resume.
+	void initMainloopTimeout(const std::string& state, F32 secs = -1.0f);
+	void destroyMainloopTimeout();
+	void pauseMainloopTimeout();
+	void resumeMainloopTimeout(const std::string& state = "", F32 secs = -1.0f);
+	void pingMainloopTimeout(const std::string& state, F32 secs = -1.0f);
 
 protected:
 	virtual bool initWindow(); // Initialize the viewer's window.
@@ -159,6 +151,7 @@ private:
 
 	bool initThreads(); // Initialize viewer threads, return false on failure.
 	bool initConfiguration(); // Initialize settings from the command line/config file.
+	void initGridChoice();
 
 	bool initCache(); // Initialize local client cache.
 	void purgeCache(); // Clear the local cache. 
@@ -192,7 +185,6 @@ private:
 
 	
 	LLOSInfo mSysOSInfo; 
-	S32 mCrashBehavior;
 	bool mReportedCrash;
 
 	// Thread objects.
@@ -293,6 +285,7 @@ extern BOOL		gUseWireframe;
 extern LLVFS	*gStaticVFS;
 
 extern LLMemoryInfo gSysMemory;
+extern U64 gMemoryAllocated;
 
 extern LLString gLastVersionChannel;
 

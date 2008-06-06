@@ -57,13 +57,15 @@ struct LLWearableArrivedData
 		mAssetType( asset_type ),
 		mCallback( asset_arrived_callback ), 
 		mUserdata( userdata ),
-		mName( wearable_name )
+		mName( wearable_name ),
+		mRetries(0)
 		{}
 
 	LLAssetType::EType mAssetType;
 	void	(*mCallback)(LLWearable*, void* userdata);
 	void*	mUserdata;
 	LLString mName;
+	S32	mRetries;
 };
 
 
@@ -99,12 +101,12 @@ void LLWearableList::getAsset( const LLAssetID& assetID, const LLString& wearabl
 // static
 void LLWearableList::processGetAssetReply( const char* filename, const LLAssetID& uuid, void* userdata, S32 status, LLExtStat ext_status )
 {
-	BOOL success = FALSE;
 	LLWearableArrivedData* data = (LLWearableArrivedData*) userdata;
-
+	LLWearable* wearable = NULL; // NULL indicates failure
+	
 	if( !filename )
 	{
-		llinfos << "Bad Wearable Asset: missing file." << llendl;
+		LL_WARNS("Wearable") << "Bad Wearable Asset: missing file." << LL_ENDL;
 	}
 	else
 	if( status >= 0 )
@@ -113,38 +115,16 @@ void LLWearableList::processGetAssetReply( const char* filename, const LLAssetID
 		LLFILE* fp = LLFile::fopen(filename, "rb");		/*Flawfinder: ignore*/
 		if( !fp )
 		{
-			llinfos << "Bad Wearable Asset: unable to open file: '" << filename << "'" << llendl;
+			LL_WARNS("Wearable") << "Bad Wearable Asset: unable to open file: '" << filename << "'" << LL_ENDL;
 		}
 		else
 		{
-			LLWearable *wearable = new LLWearable(uuid);
-			if( wearable->importFile( fp ) )
+			wearable = new LLWearable(uuid);
+			bool res = wearable->importFile( fp );
+			if (!res)
 			{
-//				llinfos << "processGetAssetReply()" << llendl;
-//				wearable->dump();
-
-				gWearableList.mList[ uuid ] = wearable;
-				if( data->mCallback )
-				{
-					data->mCallback( wearable, data->mUserdata );
-				}
-				success = TRUE;
-			}
-			else
-			{
-				LLString::format_map_t args;
-				// *TODO:translate
-				args["[TYPE]"] = LLAssetType::lookupHumanReadable(data->mAssetType);
-				if (data->mName.empty())
-				{
-					LLNotifyBox::showXml("FailedToLoadWearableUnnamed", args);
-				}
-				else
-				{
-					args["[DESC]"] = data->mName;
-					LLNotifyBox::showXml("FailedToLoadWearable", args);
-				}
 				delete wearable;
+				wearable = NULL;
 			}
 
 			fclose( fp );
@@ -162,44 +142,64 @@ void LLWearableList::processGetAssetReply( const char* filename, const LLAssetID
 		}
 		LLViewerStats::getInstance()->incStat( LLViewerStats::ST_DOWNLOAD_FAILED );
 
-		llwarns << "Wearable download failed: " << LLAssetStorage::getErrorString( status ) << " " << uuid << llendl;
+		LL_WARNS("Wearable") << "Wearable download failed: " << LLAssetStorage::getErrorString( status ) << " " << uuid << LL_ENDL;
 		switch( status )
 		{
 		  case LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE:
 		  {
-			  LLString::format_map_t args;
-			  // *TODO:translate
-			  args["[TYPE]"] = LLAssetType::lookupHumanReadable(data->mAssetType);
-			  if (data->mName.empty())
-			  {
-				  LLNotifyBox::showXml("FailedToFindWearableUnnamed", args);
-			  }
-			  else
-			  {
-				  args["[DESC]"] = data->mName;
-				  LLNotifyBox::showXml("FailedToFindWearable", args);
-			  }
-
-			  // Asset does not exist in the database.
-			  // Can't load asset, so return NULL
-			  if( data->mCallback )
-			  {
-				  data->mCallback( NULL, data->mUserdata );
-			  }
+			  // Fail
 			  break;
 		  }
 		  default:
 		  {
-			  // Try again
-			  gAssetStorage->getAssetData(uuid,
-										  data->mAssetType,
-										  LLWearableList::processGetAssetReply,
-										  userdata);  // re-use instead of deleting.
-			  return;
+			  static const S32 MAX_RETRIES = 3;
+			  if (data->mRetries < MAX_RETRIES)
+			  {
+				  // Try again
+				  data->mRetries++;
+				  gAssetStorage->getAssetData(uuid,
+											  data->mAssetType,
+											  LLWearableList::processGetAssetReply,
+											  userdata);  // re-use instead of deleting.
+				  return;
+			  }
+			  else
+			  {
+				  // Fail
+				  break;
+			  }
 		  }
 		}
 	}
 
+	if (wearable) // success
+	{
+		gWearableList.mList[ uuid ] = wearable;
+		LL_DEBUGS("Wearable") << "processGetAssetReply()" << LL_ENDL;
+		LL_DEBUGS("Wearable") << wearable << LL_ENDL;
+	}
+	else
+	{
+		LLString::format_map_t args;
+		// *TODO:translate
+		args["[TYPE]"] = LLAssetType::lookupHumanReadable(data->mAssetType);
+		if (data->mName.empty())
+		{
+			LLNotifyBox::showXml("FailedToFindWearableUnnamed", args);
+		}
+		else
+		{
+			args["[DESC]"] = data->mName;
+			LLNotifyBox::showXml("FailedToFindWearable", args);
+		}
+	}
+	// Always call callback; wearable will be NULL if we failed
+	{
+		if( data->mCallback )
+		{
+			data->mCallback( wearable, data->mUserdata );
+		}
+	}
 	delete data;
 }
 

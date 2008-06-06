@@ -960,12 +960,12 @@ void LLTerrainPartition::getGeometry(LLSpatialGroup* group)
 	LLStrider<LLColor4U> colors;
 	LLStrider<U16> indices;
 
-	buffer->getVertexStrider(vertices);
-	buffer->getNormalStrider(normals);
-	buffer->getTexCoordStrider(texcoords);
-	buffer->getTexCoord2Strider(texcoords2);
-	buffer->getColorStrider(colors);
-	buffer->getIndexStrider(indices);
+	llassert_always(buffer->getVertexStrider(vertices));
+	llassert_always(buffer->getNormalStrider(normals));
+	llassert_always(buffer->getTexCoordStrider(texcoords));
+	llassert_always(buffer->getTexCoord2Strider(texcoords2));
+	llassert_always(buffer->getColorStrider(colors));
+	llassert_always(buffer->getIndexStrider(indices));
 
 	U32 indices_index = 0;
 	U32 index_offset = 0;

@@ -38,7 +38,7 @@
 #include "v3math.h"
 #include "llquaternion.h"
 #include "llgl.h"
-#include "llglimmediate.h"
+#include "llrender.h"
 #include "v4color.h"
 #include "llprimitive.h"
 

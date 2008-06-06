@@ -40,7 +40,7 @@
 #include "llfocusmgr.h"
 #include "llfontgl.h"
 #include "llgl.h" 
-#include "llglimmediate.h"
+#include "llrender.h"
 #include "llinventory.h"
 
 #include "llcallbacklist.h"
@@ -349,10 +349,10 @@ void LLFolderViewItem::arrangeFromRoot()
 // UI. If open is TRUE, then folders are opened up along the way to
 // the selection.
 void LLFolderViewItem::setSelectionFromRoot(LLFolderViewItem* selection,
-											BOOL open,					/* Flawfinder: ignore */
+											BOOL openitem,
 											BOOL take_keyboard_focus)
 {
-	getRoot()->setSelection(selection, open, take_keyboard_focus);		/* Flawfinder: ignore */
+	getRoot()->setSelection(selection, openitem, take_keyboard_focus);
 }
 
 // helper function to change the selection from the root.
@@ -368,7 +368,7 @@ void LLFolderViewItem::extendSelectionFromRoot(LLFolderViewItem* selection)
 	getRoot()->extendSelection(selection, NULL, selected_items);
 }
 
-EInventorySortGroup LLFolderViewItem::getSortGroup() 
+EInventorySortGroup LLFolderViewItem::getSortGroup()  const
 { 
 	return SG_ITEM; 
 }
@@ -442,7 +442,7 @@ void LLFolderViewItem::dirtyFilter()
 // means 'deselect' for a leaf item. Do this optimization after
 // multiple selection is implemented to make sure it all plays nice
 // together.
-BOOL LLFolderViewItem::setSelection(LLFolderViewItem* selection, BOOL open, BOOL take_keyboard_focus)
+BOOL LLFolderViewItem::setSelection(LLFolderViewItem* selection, BOOL openitem, BOOL take_keyboard_focus)
 {
 	if( selection == this )
 	{
@@ -548,7 +548,7 @@ void LLFolderViewItem::buildContextMenu(LLMenuGL& menu, U32 flags)
 	}
 }
 
-void LLFolderViewItem::open( void )		/* Flawfinder: ignore */
+void LLFolderViewItem::openItem( void )
 {
 	if( mListener )
 	{
@@ -989,9 +989,6 @@ LLFolderViewFolder::LLFolderViewFolder( const LLString& name, LLUIImagePtr icon,
 	mMostFilteredDescendantGeneration(-1)
 {
 	mType = "(folder)";
-
-	//mItems.setInsertBefore( &sort_item_name );
-	//mFolders.setInsertBefore( &folder_insert_before );
 }
 
 // Destroys the object
@@ -1000,10 +997,6 @@ LLFolderViewFolder::~LLFolderViewFolder( void )
 	// The LLView base class takes care of object destruction. make sure that we
 	// don't have mouse or keyboard focus
 	gFocusMgr.releaseFocusIfNeeded( this ); // calls onCommit()
-
-	//mItems.reset();
-	//mItems.removeAllNodes();
-	//mFolders.removeAllNodes();
 }
 
 // addToFolder() returns TRUE if it succeeds. FALSE otherwise
@@ -1048,9 +1041,7 @@ S32 LLFolderViewFolder::arrange( S32* width, S32* height, S32 filter_generation)
 			// Add sizes of children
 			S32 parent_item_height = getRect().getHeight();
 
-			folders_t::iterator fit = mFolders.begin();
-			folders_t::iterator fend = mFolders.end();
-			for(; fit < fend; ++fit)
+			for(folders_t::iterator fit = mFolders.begin(); fit != mFolders.end(); ++fit)
 			{
 				LLFolderViewFolder* folderp = (*fit);
 				if (getRoot()->getDebugFilters())
@@ -1076,9 +1067,8 @@ S32 LLFolderViewFolder::arrange( S32* width, S32* height, S32 filter_generation)
 					folderp->setOrigin( 0, child_top - folderp->getRect().getHeight() );
 				}
 			}
-			items_t::iterator iit = mItems.begin();
-			items_t::iterator iend = mItems.end();
-			for(;iit < iend; ++iit)
+			for(items_t::iterator iit = mItems.begin();
+				iit != mItems.end(); ++iit)
 			{
 				LLFolderViewItem* itemp = (*iit);
 				if (getRoot()->getDebugFilters())
@@ -1354,7 +1344,7 @@ BOOL LLFolderViewFolder::hasFilteredDescendants()
 
 // Passes selection information on to children and record selection
 // information if necessary.
-BOOL LLFolderViewFolder::setSelection(LLFolderViewItem* selection, BOOL open,		/* Flawfinder: ignore */
+BOOL LLFolderViewFolder::setSelection(LLFolderViewItem* selection, BOOL openitem,
 									  BOOL take_keyboard_focus)
 {
 	BOOL rv = FALSE;
@@ -1378,7 +1368,7 @@ BOOL LLFolderViewFolder::setSelection(LLFolderViewItem* selection, BOOL open,		/
 		 iter != mFolders.end();)
 	{
 		folders_t::iterator fit = iter++;
-		if((*fit)->setSelection(selection, open, take_keyboard_focus))		/* Flawfinder: ignore */
+		if((*fit)->setSelection(selection, openitem, take_keyboard_focus))
 		{
 			rv = TRUE;
 			child_selected = TRUE;
@@ -1389,14 +1379,14 @@ BOOL LLFolderViewFolder::setSelection(LLFolderViewItem* selection, BOOL open,		/
 		 iter != mItems.end();)
 	{
 		items_t::iterator iit = iter++;
-		if((*iit)->setSelection(selection, open, take_keyboard_focus))		/* Flawfinder: ignore */
+		if((*iit)->setSelection(selection, openitem, take_keyboard_focus))
 		{
 			rv = TRUE;
 			child_selected = TRUE;
 			mNumDescendantsSelected++;
 		}
 	}
-	if(open && child_selected)		/* Flawfinder: ignore */
+	if(openitem && child_selected)
 	{
 		setOpenArrangeRecursively(TRUE);
 	}
@@ -1636,10 +1626,8 @@ void LLFolderViewFolder::destroyView()
 	while (!mFolders.empty())
 	{
 		LLFolderViewFolder *folderp = mFolders.back();
-		folderp->destroyView();
+		folderp->destroyView(); // removes entry from mFolders
 	}
-
-	mFolders.clear();
 
 	deleteAllChildren();
 	
@@ -1711,11 +1699,11 @@ void LLFolderViewFolder::extractItem( LLFolderViewItem* item )
 // This is only called for renaming an object because it won't work for date
 void LLFolderViewFolder::resort(LLFolderViewItem* item)
 {
-	std::sort(mItems.begin(), mItems.end(), mSortFunction);
-	std::sort(mFolders.begin(), mFolders.end(), mSortFunction);
+	mItems.sort(mSortFunction);
+	mFolders.sort(mSortFunction);
 }
 
-bool LLFolderViewFolder::isTrash()
+bool LLFolderViewFolder::isTrash() const
 {
 	if (mAmTrash == LLFolderViewFolder::UNKNOWN)
 	{
@@ -1740,8 +1728,8 @@ void LLFolderViewFolder::sortBy(U32 order)
 		(*fit)->sortBy(order);
 	}
 
-	std::sort(mFolders.begin(), mFolders.end(), mSortFunction);
-	std::sort(mItems.begin(), mItems.end(), mSortFunction);
+	mFolders.sort(mSortFunction);
+	mItems.sort(mSortFunction);
 
 	if (order & LLInventoryFilter::SO_DATE)
 	{
@@ -1776,12 +1764,12 @@ void LLFolderViewFolder::setItemSortOrder(U32 ordering)
 			(*fit)->setItemSortOrder(ordering);
 		}
 
-		std::sort(mFolders.begin(), mFolders.end(), mSortFunction);
-		std::sort(mItems.begin(), mItems.end(), mSortFunction);
+		mFolders.sort(mSortFunction);
+		mItems.sort(mSortFunction);
 	}
 }
 
-EInventorySortGroup LLFolderViewFolder::getSortGroup()
+EInventorySortGroup LLFolderViewFolder::getSortGroup() const
 {
 	if (isTrash())
 	{
@@ -1928,16 +1916,16 @@ void LLFolderViewFolder::toggleOpen()
 }
 
 // Force a folder open or closed
-void LLFolderViewFolder::setOpen(BOOL open)		/* Flawfinder: ignore */
+void LLFolderViewFolder::setOpen(BOOL openitem)
 {
-	setOpenArrangeRecursively(open);		/* Flawfinder: ignore */
+	setOpenArrangeRecursively(openitem);
 }
 
-void LLFolderViewFolder::setOpenArrangeRecursively(BOOL open, ERecurseType recurse)		/* Flawfinder: ignore */
+void LLFolderViewFolder::setOpenArrangeRecursively(BOOL openitem, ERecurseType recurse)
 {
 	BOOL was_open = mIsOpen;
-	mIsOpen = open;		/* Flawfinder: ignore */
-	if(!was_open && open)		/* Flawfinder: ignore */
+	mIsOpen = openitem;
+	if(!was_open && openitem)
 	{
 		if(mListener)
 		{
@@ -1951,12 +1939,12 @@ void LLFolderViewFolder::setOpenArrangeRecursively(BOOL open, ERecurseType recur
 			 iter != mFolders.end();)
 		{
 			folders_t::iterator fit = iter++;
-			(*fit)->setOpenArrangeRecursively(open, RECURSE_DOWN);		/* Flawfinder: ignore */
+			(*fit)->setOpenArrangeRecursively(openitem, RECURSE_DOWN);		/* Flawfinder: ignore */
 		}
 	}
 	if (mParentFolder && (recurse == RECURSE_UP || recurse == RECURSE_UP_DOWN))
 	{
-		mParentFolder->setOpenArrangeRecursively(open, RECURSE_UP);		/* Flawfinder: ignore */
+		mParentFolder->setOpenArrangeRecursively(openitem, RECURSE_UP);
 	}
 	
 	if (was_open != mIsOpen)
@@ -1989,7 +1977,7 @@ BOOL LLFolderViewFolder::handleDragAndDropFromChild(MASK mask,
 	return TRUE;
 }
 
-void LLFolderViewFolder::open( void )		/* Flawfinder: ignore */
+void LLFolderViewFolder::openItem( void )
 {
 	toggleOpen();
 }
@@ -2687,10 +2675,10 @@ void LLFolderView::openFolder(const LLString& foldername)
 	}
 }
 
-void LLFolderView::setOpenArrangeRecursively(BOOL open, ERecurseType recurse)		/* Flawfinder: ignore */
+void LLFolderView::setOpenArrangeRecursively(BOOL openitem, ERecurseType recurse)
 {
 	// call base class to do proper recursion
-	LLFolderViewFolder::setOpenArrangeRecursively(open, recurse);		/* Flawfinder: ignore */
+	LLFolderViewFolder::setOpenArrangeRecursively(openitem, recurse);
 	// make sure root folder is always open
 	mIsOpen = TRUE;
 }
@@ -2866,7 +2854,7 @@ LLFolderViewItem* LLFolderView::getCurSelectedItem( void )
 
 
 // Record the selected item and pass it down the hierachy.
-BOOL LLFolderView::setSelection(LLFolderViewItem* selection, BOOL open,		/* Flawfinder: ignore */
+BOOL LLFolderView::setSelection(LLFolderViewItem* selection, BOOL openitem,
 								BOOL take_keyboard_focus)
 {
 	if( selection == this )
@@ -2888,8 +2876,8 @@ BOOL LLFolderView::setSelection(LLFolderViewItem* selection, BOOL open,		/* Flaw
 		addToSelectionList(selection);
 	}
 
-	BOOL rv = LLFolderViewFolder::setSelection(selection, open, take_keyboard_focus);
-	if(open && selection)
+	BOOL rv = LLFolderViewFolder::setSelection(selection, openitem, take_keyboard_focus);
+	if(openitem && selection)
 	{
 		selection->getParentFolder()->requestArrange();
 	}
@@ -3349,7 +3337,7 @@ void LLFolderView::openSelectedItems( void )
 	{
 		if (mSelectedItems.size() == 1)
 		{
-			mSelectedItems.front()->open();		/* Flawfinder: ignore */
+			mSelectedItems.front()->openItem();
 		}
 		else
 		{
@@ -3371,7 +3359,7 @@ void LLFolderView::openSelectedItems( void )
 					LLFloater::setFloaterHost(multi_propertiesp);
 				else
 					LLFloater::setFloaterHost(multi_previewp);
-				(*item_it)->open();
+				(*item_it)->openItem();
 			}
 
 			LLFloater::setFloaterHost(NULL);
@@ -4358,7 +4346,7 @@ bool LLInventorySort::updateSort(U32 order)
 	return false;
 }
 
-bool LLInventorySort::operator()(LLFolderViewItem* a, LLFolderViewItem* b)
+bool LLInventorySort::operator()(const LLFolderViewItem* const& a, const LLFolderViewItem* const& b)
 {
 	// We sort by name if we aren't sorting by date
 	// OR if these are folders and we are sorting folders by name.

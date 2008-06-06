@@ -41,7 +41,7 @@
 #include "pipeline.h"
 #include "llspatialpartition.h"
 #include "llglslshader.h"
-#include "llglimmediate.h"
+#include "llrender.h"
 
 
 static LLGLSLShader* simple_shader = NULL;
@@ -52,7 +52,7 @@ void LLDrawPoolGlow::render(S32 pass)
 	LLFastTimer t(LLFastTimer::FTM_RENDER_GLOW);
 	LLGLEnable blend(GL_BLEND);
 	LLGLDisable test(GL_ALPHA_TEST);
-	gGL.blendFunc(GL_ONE, GL_ONE);
+	gGL.setSceneBlendType(LLRender::BT_ADD);
 	
 	U32 shader_level = LLShaderMgr::getVertexShaderLevel(LLShaderMgr::SHADER_OBJECT);
 
@@ -66,11 +66,11 @@ void LLDrawPoolGlow::render(S32 pass)
 	}
 
 	LLGLDepthTest depth(GL_TRUE, GL_FALSE);
-	glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_TRUE);
+	gGL.setColorMask(false, true);
 	renderTexture(LLRenderPass::PASS_GLOW, getVertexDataMask());
 	
-	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
-	gGL.blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	gGL.setColorMask(true, false);
+	gGL.setSceneBlendType(LLRender::BT_ALPHA);
 	
 	if (shader_level > 0 && fullbright_shader)
 	{
@@ -120,7 +120,7 @@ void LLDrawPoolSimple::beginRenderPass(S32 pass)
 		// don't use shaders!
 		if (gGLManager.mHasShaderObjects)
 		{
-			glUseProgramObjectARB(0);
+			LLGLSLShader::bindNoShader();
 		}		
 	}
 }
@@ -140,7 +140,7 @@ void LLDrawPoolSimple::render(S32 pass)
 {
 	LLGLDisable blend(GL_BLEND);
 	LLGLState alpha_test(GL_ALPHA_TEST, gPipeline.canUseWindLightShadersOnObjects());
-	glAlphaFunc(GL_GREATER, 0.5f);
+	gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.5f);
 
 	{ //render simple
 		LLFastTimer t(LLFastTimer::FTM_RENDER_SIMPLE);
@@ -152,7 +152,7 @@ void LLDrawPoolSimple::render(S32 pass)
 		LLFastTimer t(LLFastTimer::FTM_RENDER_GRASS);
 		LLGLEnable test(GL_ALPHA_TEST);
 		LLGLEnable blend(GL_BLEND);
-		gGL.blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		gGL.setSceneBlendType(LLRender::BT_ALPHA);
 		//render grass
 		LLRenderPass::renderTexture(LLRenderPass::PASS_GRASS, getVertexDataMask());
 	}			
@@ -172,6 +172,6 @@ void LLDrawPoolSimple::render(S32 pass)
 		renderTexture(LLRenderPass::PASS_FULLBRIGHT, fullbright_mask);
 	}
 
-	glAlphaFunc(GL_GREATER, 0.01f);
+	gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
 }
 

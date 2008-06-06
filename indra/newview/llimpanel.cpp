@@ -1488,14 +1488,15 @@ void LLFloaterIMPanel::addHistoryLine(const std::string &utf8msg, const LLColor4
 		// Don't hotlink any messages from the system (e.g. "Second Life:"), so just add those in plain text.
 		if (!strcmp(name,SYSTEM_FROM))
 		{
-			mHistoryEditor->appendColoredText(name,false,false,color);
+			mHistoryEditor->appendColoredText(name,false,prepend_newline,color);
 		}
 		else
 		{
 			// Convert the name to a hotlink and add to message.
 			const LLStyleSP &source_style = LLStyleMap::instance().lookup(source);
-			mHistoryEditor->appendStyledText(name, false, false, &source_style);
+			mHistoryEditor->appendStyledText(name,false,prepend_newline,&source_style);
 		}
+		prepend_newline = false;
 	}
 	mHistoryEditor->appendColoredText(utf8msg, false, prepend_newline, color);
 	

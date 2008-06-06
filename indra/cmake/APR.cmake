@@ -20,16 +20,16 @@ else (STANDALONE)
       ${CMAKE_SOURCE_DIR}/../libraries/i686-win32/lib/release
       )
     set(APR_LIBRARIES 
-      debug ${WINLIBS_PREBUILT_DEBUG_DIR}/apr-1
-      optimized ${WINLIBS_PREBUILT_RELEASE_DIR}/apr-1
+      debug ${WINLIBS_PREBUILT_DEBUG_DIR}/apr-1.lib
+      optimized ${WINLIBS_PREBUILT_RELEASE_DIR}/apr-1.lib
       )
     set(APRUTIL_LIBRARIES 
-      debug ${WINLIBS_PREBUILT_DEBUG_DIR}/aprutil-1
-      optimized ${WINLIBS_PREBUILT_RELEASE_DIR}/aprutil-1
+      debug ${WINLIBS_PREBUILT_DEBUG_DIR}/aprutil-1.lib
+      optimized ${WINLIBS_PREBUILT_RELEASE_DIR}/aprutil-1.lib
       )
     set(APRICONV_LIBRARIES 
-      debug ${WINLIBS_PREBUILT_DEBUG_DIR}/apriconv-1
-      optimized ${WINLIBS_PREBUILT_RELEASE_DIR}/apriconv-1
+      debug ${WINLIBS_PREBUILT_DEBUG_DIR}/apriconv-1.lib
+      optimized ${WINLIBS_PREBUILT_RELEASE_DIR}/apriconv-1.lib
       )
   elseif (DARWIN)
     set(APR_LIBRARIES 

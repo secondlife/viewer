@@ -118,7 +118,7 @@ public:
 
 	static void			setCurrentDefinitionVersion( S32 version ) { LLWearable::sCurrentDefinitionVersion = version; }
 
-	void				dump();
+	friend std::ostream& operator<<(std::ostream &s, const LLWearable &w);
 
 private:
 	static S32			sCurrentDefinitionVersion;	// Depends on the current state of the avatar_lad.xml.

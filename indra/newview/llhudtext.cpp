@@ -33,7 +33,7 @@
 
 #include "llhudtext.h"
 
-#include "llglimmediate.h"
+#include "llrender.h"
 
 #include "llagent.h"
 #include "llviewercontrol.h"
@@ -308,7 +308,6 @@ void LLHUDText::renderText(BOOL for_select)
 				}
 				LLUI::popMatrix();
 
-				
 				LLImageGL::unbindTexture(0);
 				LLGLDepthTest gls_depth(mZCompare ? GL_TRUE : GL_FALSE, GL_FALSE);
 				
@@ -375,7 +374,7 @@ void LLHUDText::renderText(BOOL for_select)
 		
 	// Render label
 	{
-		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+		gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
 
 		for(std::vector<LLHUDTextSegment>::iterator segment_iter = mLabelSegments.begin();
 			segment_iter != mLabelSegments.end(); ++segment_iter )

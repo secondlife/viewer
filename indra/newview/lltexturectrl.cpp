@@ -34,7 +34,7 @@
 
 #include "lltexturectrl.h"
 
-#include "llglimmediate.h"
+#include "llrender.h"
 #include "llagent.h"
 #include "llviewerimagelist.h"
 #include "llcheckboxctrl.h"

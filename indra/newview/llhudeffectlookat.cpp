@@ -33,7 +33,7 @@
 
 #include "llhudeffectlookat.h"
 
-#include "llglimmediate.h"
+#include "llrender.h"
 
 #include "message.h"
 #include "llagent.h"

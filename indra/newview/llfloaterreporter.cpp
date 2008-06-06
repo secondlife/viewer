@@ -81,7 +81,7 @@
 #include "llselectmgr.h"
 #include "llviewerbuild.h"
 #include "lluictrlfactory.h"
-#include "llappviewer.h"
+#include "llviewernetwork.h"
 
 #include "llassetuploadresponders.h"
 
@@ -656,7 +656,7 @@ LLSD LLFloaterReporter::gatherReport()
 	mCopyrightWarningSeen = FALSE;
 
 	std::ostringstream summary;
-    if (!LLAppViewer::instance()->isInProductionGrid())
+	if (!LLViewerLogin::getInstance()->isInProductionGrid())
 	{
 		summary << "Preview ";
 	}
@@ -898,7 +898,7 @@ void LLFloaterReporter::takeScreenshot()
 						mResourceDatap->mAssetInfo.mType);
 
 	// store in the image list so it doesn't try to fetch from the server
-	LLViewerImage* image_in_list = new LLViewerImage(mResourceDatap->mAssetInfo.mUuid, TRUE);
+	LLPointer<LLViewerImage> image_in_list = new LLViewerImage(mResourceDatap->mAssetInfo.mUuid, TRUE);
 	image_in_list->createGLTexture(0, raw);
 	gImageList.addImage(image_in_list); 
 

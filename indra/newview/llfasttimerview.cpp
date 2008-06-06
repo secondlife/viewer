@@ -37,7 +37,7 @@
 #include "llrect.h"
 #include "llerror.h"
 #include "llgl.h"
-#include "llglimmediate.h"
+#include "llrender.h"
 #include "llmath.h"
 #include "llfontgl.h"
 

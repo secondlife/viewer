@@ -45,7 +45,7 @@
 #include "llcriticaldamp.h"
 #include "llfocusmgr.h"
 #include "llwindow.h"
-#include "llglimmediate.h"
+#include "llrender.h"
 
 static LLRegisterWidget<LLButton> r("button");
 
@@ -571,9 +571,9 @@ void LLButton::draw()
 			mImagep->draw(getLocalRect(), getEnabled() ? mImageColor : mDisabledImageColor  );
 			if (mCurGlowStrength > 0.01f)
 			{
-				glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+				gGL.setSceneBlendType(LLRender::BT_ADD_WITH_ALPHA);
 				mImagep->drawSolid(0, 0, getRect().getWidth(), getRect().getHeight(), LLColor4(1.f, 1.f, 1.f, mCurGlowStrength));
-				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+				gGL.setSceneBlendType(LLRender::BT_ALPHA);
 			}
 		}
 		else
@@ -581,9 +581,9 @@ void LLButton::draw()
 			mImagep->draw(0, 0, getEnabled() ? mImageColor : mDisabledImageColor );
 			if (mCurGlowStrength > 0.01f)
 			{
-				glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+				gGL.setSceneBlendType(LLRender::BT_ADD_WITH_ALPHA);
 				mImagep->drawSolid(0, 0, LLColor4(1.f, 1.f, 1.f, mCurGlowStrength));
-				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+				gGL.setSceneBlendType(LLRender::BT_ALPHA);
 			}
 		}
 	}

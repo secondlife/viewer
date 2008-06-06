@@ -46,7 +46,7 @@
 #include "llcombobox.h"
 #include "lldrawable.h"
 #include "lldrawpoolavatar.h"
-#include "llglimmediate.h"
+#include "llrender.h"
 #include "llface.h"
 #include "llkeyframemotion.h"
 #include "lllineeditor.h"
@@ -1037,7 +1037,7 @@ LLPreviewAnimation::LLPreviewAnimation(S32 width, S32 height) : LLDynamicTexture
 	mDummyAvatar = (LLVOAvatar*)gObjectList.createObjectViewer(LL_PCODE_LEGACY_AVATAR, gAgent.getRegion());
 	mDummyAvatar->createDrawable(&gPipeline);
 	mDummyAvatar->mIsDummy = TRUE;
-	mDummyAvatar->mSpecialRenderMode = 1;
+	mDummyAvatar->mSpecialRenderMode = 2;
 	mDummyAvatar->setPositionAgent(LLVector3::zero);
 	mDummyAvatar->slamPosition();
 	mDummyAvatar->updateJointLODs();
@@ -1135,6 +1135,7 @@ BOOL	LLPreviewAnimation::render()
 	if (avatarp->mDrawable.notNull())
 	{
 		LLDrawPoolAvatar *avatarPoolp = (LLDrawPoolAvatar *)avatarp->mDrawable->getFace(0)->getPool();
+		avatarp->dirtyMesh();
 		avatarPoolp->renderAvatars(avatarp);  // renders only one avatar
 	}
 

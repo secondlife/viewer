@@ -33,6 +33,8 @@
 #include "llviewerprecompiledheaders.h"
 #include "llwatchdog.h"
 
+const U32 WATCHDOG_SLEEP_TIME_USEC = 1000000;
+
 // This class runs the watchdog timing thread.
 class LLWatchdogTimerThread : public LLThread
 {
@@ -74,6 +76,7 @@ LLWatchdogEntry::LLWatchdogEntry()
 
 LLWatchdogEntry::~LLWatchdogEntry()
 {
+	stop();
 }
 
 void LLWatchdogEntry::start()
@@ -87,8 +90,11 @@ void LLWatchdogEntry::stop()
 }
 
 // LLWatchdogTimeout
+const std::string UNINIT_STRING = "uninitialized";
+
 LLWatchdogTimeout::LLWatchdogTimeout() : 
-	mTimeout(0.0f) 
+	mTimeout(0.0f),
+	mPingState(UNINIT_STRING)
 {
 }
 
@@ -101,35 +107,46 @@ bool LLWatchdogTimeout::isAlive() const
 	return (mTimer.getStarted() && !mTimer.hasExpired()); 
 }
 
+void LLWatchdogTimeout::reset()
+{
+	mTimer.setTimerExpirySec(mTimeout); 
+}
+
 void LLWatchdogTimeout::setTimeout(F32 d) 
 {
 	mTimeout = d;
 }
 
-void LLWatchdogTimeout::start() 
+void LLWatchdogTimeout::start(const std::string& state) 
 {
 	// Order of operation is very impmortant here.
 	// After LLWatchdogEntry::start() is called
 	// LLWatchdogTimeout::isAlive() will be called asynchronously. 
 	mTimer.start(); 
-	mTimer.setTimerExpirySec(mTimeout); 
+	ping(state);
 	LLWatchdogEntry::start();
 }
+
 void LLWatchdogTimeout::stop() 
 {
 	LLWatchdogEntry::stop();
 	mTimer.stop();
 }
 
-void LLWatchdogTimeout::ping() 
+void LLWatchdogTimeout::ping(const std::string& state) 
 { 
-	mTimer.setTimerExpirySec(mTimeout); 
+	if(!state.empty())
+	{
+		mPingState = state;
+	}
+	reset();
 }
 
-// LlWatchdog
+// LLWatchdog
 LLWatchdog::LLWatchdog() :
 	mSuspectsAccessMutex(NULL),
-	mTimer(NULL)
+	mTimer(NULL),
+	mLastClockCount(0)
 {
 }
 
@@ -139,55 +156,112 @@ LLWatchdog::~LLWatchdog()
 
 void LLWatchdog::add(LLWatchdogEntry* e)
 {
-	mSuspectsAccessMutex->lock();
+	lockThread();
 	mSuspects.insert(e);
-	mSuspectsAccessMutex->unlock();
+	unlockThread();
 }
 
 void LLWatchdog::remove(LLWatchdogEntry* e)
 {
-	mSuspectsAccessMutex->lock();
+	lockThread();
     mSuspects.erase(e);
-	mSuspectsAccessMutex->unlock();
+	unlockThread();
 }
 
 void LLWatchdog::init()
 {
-	mSuspectsAccessMutex = new LLMutex(NULL);
-	mTimer = new LLWatchdogTimerThread();
-	mTimer->setSleepTime(1000);
-	mTimer->start();
+	if(!mSuspectsAccessMutex && !mTimer)
+	{
+		mSuspectsAccessMutex = new LLMutex(NULL);
+		mTimer = new LLWatchdogTimerThread();
+		mTimer->setSleepTime(WATCHDOG_SLEEP_TIME_USEC / 1000);
+		mLastClockCount = LLTimer::getTotalTime();
+
+		// mTimer->start() kicks off the thread, any code after
+		// start needs to use the mSuspectsAccessMutex
+		mTimer->start();
+	}
 }
 
 void LLWatchdog::cleanup()
 {
-	mTimer->stop();
-	delete mTimer;
-	delete mSuspectsAccessMutex;
+	if(mTimer)
+	{
+		mTimer->stop();
+		delete mTimer;
+		mTimer = NULL;
+	}
+
+	if(mSuspectsAccessMutex)
+	{
+		delete mSuspectsAccessMutex;
+		mSuspectsAccessMutex = NULL;
+	}
+
+	mLastClockCount = 0;
 }
 
 void LLWatchdog::run()
 {
-	mSuspectsAccessMutex->lock();
+	lockThread();
+
+	// Check the time since the last call to run...
+	// If the time elapsed is two times greater than the regualr sleep time
+	// reset the active timeouts.
+	const U32 TIME_ELAPSED_MULTIPLIER = 2;
+	U64 current_time = LLTimer::getTotalTime();
+	U64 current_run_delta = current_time - mLastClockCount;
+	mLastClockCount = current_time;
 	
-	SuspectsRegistry::iterator result = 
-		std::find_if(mSuspects.begin(), 
-			mSuspects.end(), 
-			std::not1(std::mem_fun(&LLWatchdogEntry::isAlive))
-			);
-
-	if(result != mSuspects.end())
+	if(current_run_delta > (WATCHDOG_SLEEP_TIME_USEC * TIME_ELAPSED_MULTIPLIER))
 	{
-		// error!!!
-		mTimer->stop();
+		llinfos << "Watchdog thread delayed: resetting entries." << llendl;
+		std::for_each(mSuspects.begin(), 
+			mSuspects.end(), 
+			std::mem_fun(&LLWatchdogEntry::reset)
+			);
+	}
+	else
+	{
+		SuspectsRegistry::iterator result = 
+			std::find_if(mSuspects.begin(), 
+				mSuspects.end(), 
+				std::not1(std::mem_fun(&LLWatchdogEntry::isAlive))
+				);
 
-		llinfos << "Watchdog detected error:" << llendl;
+		if(result != mSuspects.end())
+		{
+			// error!!!
+			if(mTimer)
+			{
+				mTimer->stop();
+			}
+
+			llinfos << "Watchdog detected error:" << llendl;
 #ifdef LL_WINDOWS
-		RaiseException(0,0,0,0);
+			RaiseException(0,0,0,0);
 #else
-		raise(SIGQUIT);
+			raise(SIGQUIT);
 #endif
+		}
 	}
 
-	mSuspectsAccessMutex->unlock();
+
+	unlockThread();
+}
+
+void LLWatchdog::lockThread()
+{
+	if(mSuspectsAccessMutex != NULL)
+	{
+		mSuspectsAccessMutex->lock();
+	}
+}
+
+void LLWatchdog::unlockThread()
+{
+	if(mSuspectsAccessMutex != NULL)
+	{
+		mSuspectsAccessMutex->unlock();
+	}
 }

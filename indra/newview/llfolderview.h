@@ -295,7 +295,7 @@ public:
 	bool updateSort(U32 order);
 	U32 getSort() { return mSortOrder; }
 
-	bool operator()(LLFolderViewItem* a, LLFolderViewItem* b);
+	bool operator()(const LLFolderViewItem* const& a, const LLFolderViewItem* const& b);
 private:
 	U32  mSortOrder;
 	bool mByDate;
@@ -361,7 +361,7 @@ protected:
 	// the specified selected item appropriately for display and use
 	// in the UI. If open is TRUE, then folders are opened up along
 	// the way to the selection.
-	void setSelectionFromRoot(LLFolderViewItem* selection, BOOL open,		/* Flawfinder: ignore */
+	void setSelectionFromRoot(LLFolderViewItem* selection, BOOL openitem,
 		BOOL take_keyboard_focus = TRUE);
 
 	// helper function to change the selection from the root.
@@ -390,7 +390,7 @@ public:
 	enum { ARRANGE = TRUE, DO_NOT_ARRANGE = FALSE };
 	virtual BOOL addToFolder(LLFolderViewFolder* folder, LLFolderView* root);
 
-	virtual EInventorySortGroup getSortGroup();
+	virtual EInventorySortGroup getSortGroup() const;
 
 	// Finds width and height of this object and it's children.  Also
 	// makes sure that this view and it's children are the right size.
@@ -409,7 +409,7 @@ public:
 	// ignore. Returns TRUE if this object was affected. If open is
 	// TRUE, then folders are opened up along the way to the
 	// selection.
-	virtual BOOL setSelection(LLFolderViewItem* selection, BOOL open,		/* Flawfinder: ignore */
+	virtual BOOL setSelection(LLFolderViewItem* selection, BOOL openitem,
 		BOOL take_keyboard_focus);
 
 	// This method is used to toggle the selection of an item. If
@@ -479,7 +479,7 @@ public:
 	void rename(const LLString& new_name);
 
 	// open
-	virtual void open( void );		/* Flawfinder: ignore */
+	virtual void openItem( void );
 	virtual void preview(void);
 
 	// Show children (unfortunate that this is called "open")
@@ -544,8 +544,8 @@ public:
 	} ETrash;
 
 protected:
-	typedef std::vector<LLFolderViewItem*> items_t;
-	typedef std::vector<LLFolderViewFolder*> folders_t;
+	typedef std::list<LLFolderViewItem*> items_t;
+	typedef std::list<LLFolderViewFolder*> folders_t;
 	items_t mItems;
 	folders_t mFolders;
 	LLInventorySort	mSortFunction;
@@ -556,7 +556,7 @@ protected:
 	F32			mTargetHeight;
 	F32			mAutoOpenCountdown;
 	time_t		mSubtreeCreationDate;
-	ETrash		mAmTrash;
+	mutable ETrash mAmTrash;
 	S32			mLastArrangeGeneration;
 	S32			mLastCalculatedWidth;
 	S32			mCompletedFilterGeneration;
@@ -590,7 +590,7 @@ public:
 	BOOL needsArrange();
 
 	// Returns the sort group (system, trash, folder) for this folder.
-	virtual EInventorySortGroup getSortGroup();
+	virtual EInventorySortGroup getSortGroup() const;
 
 	virtual void	setCompletedFilterGeneration(S32 generation, BOOL recurse_up);
 	virtual S32		getCompletedFilterGeneration() { return mCompletedFilterGeneration; }
@@ -606,8 +606,8 @@ public:
 	// Passes selection information on to children and record
 	// selection information if necessary. Returns TRUE if this object
 	// (or a child) was affected.
-	virtual BOOL setSelection(LLFolderViewItem* selection, BOOL open,		/* Flawfinder: ignore */
-		BOOL take_keyboard_focus);
+	virtual BOOL setSelection(LLFolderViewItem* selection, BOOL openitem,
+							  BOOL take_keyboard_focus);
 
 	// This method is used to change the selection of an item. If
 	// selection is 'this', then note selection as true. Returns TRUE
@@ -660,7 +660,7 @@ public:
 	virtual void toggleOpen();
 
 	// Force a folder open or closed
-	virtual void setOpen(BOOL open = TRUE);		/* Flawfinder: ignore */
+	virtual void setOpen(BOOL openitem = TRUE);
 
 	// Called when a child is refreshed.
 	// don't rearrange child folder contents unless explicitly requested
@@ -670,7 +670,7 @@ public:
 	// method was written because the list iterators destroy the state
 	// of other iterations, thus, we can't arrange while iterating
 	// through the children (such as when setting which is selected.
-	virtual void setOpenArrangeRecursively(BOOL open, ERecurseType recurse = RECURSE_NO);		/* Flawfinder: ignore */
+	virtual void setOpenArrangeRecursively(BOOL openitem, ERecurseType recurse = RECURSE_NO);
 
 	// Get the current state of the folder.
 	virtual BOOL isOpen() { return mIsOpen; }
@@ -686,7 +686,7 @@ public:
 	void applyFunctorRecursively(LLFolderViewFunctor& functor);
 	virtual void applyListenerFunctorRecursively(LLFolderViewListenerFunctor& functor);
 
-	virtual void open( void );		/* Flawfinder: ignore */
+	virtual void openItem( void );
 	virtual BOOL addItem(LLFolderViewItem* item); 
 	virtual BOOL addFolder( LLFolderViewFolder* folder);
 
@@ -703,7 +703,7 @@ public:
 	virtual void draw();
 
 	time_t getCreationDate() const;
-	bool isTrash();
+	bool isTrash() const;
 };
 
 
@@ -752,7 +752,7 @@ public:
 	void openFolder(const LLString& foldername);
 
 	virtual void toggleOpen() {};
-	virtual void setOpenArrangeRecursively(BOOL open, ERecurseType recurse);		/* Flawfinder: ignore */
+	virtual void setOpenArrangeRecursively(BOOL openitem, ERecurseType recurse);
 	virtual BOOL addFolder( LLFolderViewFolder* folder);
 
 	// Finds width and height of this object and it's children.  Also
@@ -769,7 +769,7 @@ public:
 	virtual LLFolderViewItem* getCurSelectedItem( void );
 
 	// Record the selected item and pass it down the hierachy.
-	virtual BOOL setSelection(LLFolderViewItem* selection, BOOL open,		/* Flawfinder: ignore */
+	virtual BOOL setSelection(LLFolderViewItem* selection, BOOL openitem,
 		BOOL take_keyboard_focus);
 
 	// This method is used to toggle the selection of an item. Walks

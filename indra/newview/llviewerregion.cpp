@@ -76,7 +76,74 @@ extern BOOL gNoRender;
 const F32 WATER_TEXTURE_SCALE = 8.f;			//  Number of times to repeat the water texture across a region
 const S16 MAX_MAP_DIST = 10;
 
+class BaseCapabilitiesComplete : public LLHTTPClient::Responder
+{
+	LOG_CLASS(BaseCapabilitiesComplete);
+public:
+    BaseCapabilitiesComplete(LLViewerRegion* region)
+		: mRegion(region)
+    { }
+	virtual ~BaseCapabilitiesComplete()
+	{
+		if(mRegion)
+		{
+			mRegion->setHttpResponderPtrNULL() ;
+		}
+	}
 
+	void setRegion(LLViewerRegion* region)
+	{
+		mRegion = region ;
+	}
+
+    void error(U32 statusNum, const std::string& reason)
+    {
+		LL_WARNS2("AppInit", "Capabilities") << statusNum << ": " << reason << LL_ENDL;
+		
+		if (STATE_SEED_GRANTED_WAIT == LLStartUp::getStartupState())
+		{
+			LLStartUp::setStartupState( STATE_SEED_CAP_GRANTED );
+		}
+    }
+
+    void result(const LLSD& content)
+    {
+		if(!mRegion || this != mRegion->getHttpResponderPtr())//region is removed or responder is not created.
+		{
+			return ;
+		}
+
+		LLSD::map_const_iterator iter;
+		for(iter = content.beginMap(); iter != content.endMap(); ++iter)
+		{
+			mRegion->setCapability(iter->first, iter->second);
+			LL_DEBUGS2("AppInit", "Capabilities") << "got capability for " 
+				<< iter->first << LL_ENDL;
+
+			/* HACK we're waiting for the ServerReleaseNotes */
+			if ((iter->first == "ServerReleaseNotes") && (LLFloaterReleaseMsg::sDisplayMessage))
+			{
+				LLFloaterReleaseMsg::show();
+				LLFloaterReleaseMsg::sDisplayMessage = false;
+			}
+		}
+		
+		if (STATE_SEED_GRANTED_WAIT == LLStartUp::getStartupState())
+		{
+			LLStartUp::setStartupState( STATE_SEED_CAP_GRANTED );
+		}
+	}
+
+    static boost::intrusive_ptr<BaseCapabilitiesComplete> build(
+								LLViewerRegion* region)
+    {
+		return boost::intrusive_ptr<BaseCapabilitiesComplete>(
+							 new BaseCapabilitiesComplete(region));
+    }
+
+private:
+	LLViewerRegion* mRegion;
+};
 
 
 LLViewerRegion::LLViewerRegion(const U64 &handle,
@@ -103,7 +170,6 @@ LLViewerRegion::LLViewerRegion(const U64 &handle,
 	mEventPoll(NULL)
 {
 	mWidth = region_width_meters;
-
 	mOriginGlobal = from_region_handle(handle); 
 	updateRenderMatrix();
 
@@ -170,10 +236,13 @@ void LLViewerRegion::initStats()
 	mAlive = FALSE;					// can become false if circuit disconnects
 }
 
-
-
 LLViewerRegion::~LLViewerRegion() 
 {
+	if(mHttpResponderPtr)
+	{
+		(static_cast<BaseCapabilitiesComplete*>(mHttpResponderPtr.get()))->setRegion(NULL) ;
+	}
+
 	gVLManager.cleanupData(this);
 	// Can't do this on destruction, because the neighbor pointers might be invalid.
 	// This should be reference counted...
@@ -1303,87 +1372,6 @@ void LLViewerRegion::unpackRegionHandshake()
 	msg->sendReliable(host);
 }
 
-
-
-class BaseCapabilitiesComplete : public LLHTTPClient::Responder
-{
-	LOG_CLASS(BaseCapabilitiesComplete);
-public:
-    BaseCapabilitiesComplete(LLViewerRegion* region, LLSD requestedCaps)
-		: mRegion(region),
-		  mRequestedCaps(requestedCaps)
-    { }
-
-    void error(U32 statusNum, const std::string& reason)
-    {
-		LL_WARNS2("AppInit", "Capabilities") << statusNum << ": " << reason << LL_ENDL;
-		
-		if (STATE_SEED_GRANTED_WAIT == LLStartUp::getStartupState())
-		{
-			LLStartUp::setStartupState( STATE_SEED_CAP_GRANTED );
-		}
-    }
-
-    void result(const LLSD& content)
-    {
-		LLSD::map_const_iterator iter;
-		
-		for(iter = content.beginMap(); iter != content.endMap(); ++iter)
-		{
-			if (iter->second.asString().empty())
-			{
-				llwarns << "BaseCapabilitiesComplete::result EMPTY capability "
-						<< iter->first << llendl;
-				continue;
-			}
-
-			mRegion->setCapability(iter->first, iter->second);
-			LL_DEBUGS2("AppInit", "Capabilities") << "got capability for " 
-				<< iter->first << LL_ENDL;
-
-			/* HACK we're waiting for the ServerReleaseNotes */
-			if ((iter->first == "ServerReleaseNotes") && (LLFloaterReleaseMsg::sDisplayMessage))
-			{
-				LLFloaterReleaseMsg::show();
-				LLFloaterReleaseMsg::sDisplayMessage = false;
-			}
-		}
-		
-		LLSD::array_const_iterator fail;
-		for (fail = mRequestedCaps.beginArray();
-			 fail != mRequestedCaps.endArray();
-			 ++fail)
-		{
-			std::string cap = fail->asString();
-			
-			if (mRegion->getCapability(cap).empty() &&
-				!LLViewerRegion::isSpecialCapabilityName(cap))
-			{
-				llwarns << "BaseCapabilitiesComplete::result FAILED to get "
-						<< "capability " << cap << llendl;
-			}
-		}
-		
-		if (STATE_SEED_GRANTED_WAIT == LLStartUp::getStartupState())
-		{
-			LLStartUp::setStartupState( STATE_SEED_CAP_GRANTED );
-		}
-	}
-
-    static boost::intrusive_ptr<BaseCapabilitiesComplete> build(
-		LLViewerRegion* region,
-		LLSD requestedCaps)
-    {
-		return boost::intrusive_ptr<BaseCapabilitiesComplete>(
-			new BaseCapabilitiesComplete(region, requestedCaps));
-    }
-
-private:
-	LLViewerRegion* mRegion;
-	LLSD mRequestedCaps;
-};
-
-
 void LLViewerRegion::setSeedCapability(const std::string& url)
 {
   if (getCapability("Seed") == url)
@@ -1435,8 +1423,8 @@ void LLViewerRegion::setSeedCapability(const std::string& url)
 
 	llinfos << "posting to seed " << url << llendl;
 
-	LLHTTPClient::post(url, capabilityNames,
-					   BaseCapabilitiesComplete::build(this, capabilityNames));
+	mHttpResponderPtr = BaseCapabilitiesComplete::build(this) ;
+	LLHTTPClient::post(url, capabilityNames, mHttpResponderPtr);
 }
 
 void LLViewerRegion::setCapability(const std::string& name, const std::string& url)

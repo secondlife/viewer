@@ -50,6 +50,9 @@ Alissa Sabre
         VWR-6430
         VWR-1843
         VWR-6668
+        VWR-7153
+        VWR-7168
+        VWR-7087
 Angus Boyd
 	VWR-592
 Argent Stonecutter

@@ -45,7 +45,7 @@
 #include "llviewerimage.h"
 #include "llviewerimagelist.h"
 #include "llvoiceclient.h"
-#include "llglimmediate.h"
+#include "llrender.h"
 
 //brent's wave image
 //29de489d-0491-fb00-7dab-f9e686d31e83
@@ -94,7 +94,7 @@ static bool handleVoiceVisualizerPrefsChanged(const LLSD& newvalue)
 // Initialize the statics
 //------------------------------------------------------------------
 bool LLVoiceVisualizer::sPrefsInitialized	= false;
-U32	 LLVoiceVisualizer::sLipSyncEnabled		= 0;
+BOOL LLVoiceVisualizer::sLipSyncEnabled		= FALSE;
 F32* LLVoiceVisualizer::sOoh				= NULL;
 F32* LLVoiceVisualizer::sAah				= NULL;
 U32	 LLVoiceVisualizer::sOohs				= 0;
@@ -225,7 +225,7 @@ void LLVoiceVisualizer::setSpeakingAmplitude( F32 a )
 //---------------------------------------------------
 void LLVoiceVisualizer::setPreferences( )
 {
-	sLipSyncEnabled = gSavedSettings.getU32("LipSyncEnabled");
+	sLipSyncEnabled = gSavedSettings.getBOOL("LipSyncEnabled");
 	sOohAahRate		= gSavedSettings.getF32("LipSyncOohAahRate");
 
 	std::string oohString = gSavedSettings.getString("LipSyncOoh");
@@ -290,7 +290,7 @@ void LLVoiceVisualizer::lipStringToF32s ( std::string& in_string, F32*& out_F32s
 //--------------------------------------------------------------------------
 void LLVoiceVisualizer::lipSyncOohAah( F32& ooh, F32& aah )
 {
-	if( ( sLipSyncEnabled == 1 ) && mCurrentlySpeaking )
+	if( ( sLipSyncEnabled == TRUE ) && mCurrentlySpeaking )
 	{
 		U32 transfer_index = (U32) (sOohPowerTransfersf * mSpeakingAmplitude);
 		if (transfer_index < 0)

@@ -207,10 +207,11 @@ LLVector2 LLSurfacePatch::getTexCoords(const U32 x, const U32 y) const
 void LLSurfacePatch::eval(const U32 x, const U32 y, const U32 stride, LLVector3 *vertex, LLVector3 *normal,
 						  LLVector2 *tex0, LLVector2 *tex1)
 {
-	if (!mSurfacep || !mSurfacep->getRegion())
+	if (!mSurfacep || !mSurfacep->getRegion() || !mSurfacep->getGridsPerEdge())
 	{
 		return; // failsafe
 	}
+	llassert_always(vertex && normal && tex0 && tex1);
 	
 	U32 surface_stride = mSurfacep->getGridsPerEdge();
 	U32 point_offset = x + y*surface_stride;

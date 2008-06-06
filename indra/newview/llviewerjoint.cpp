@@ -37,7 +37,7 @@
 #include "llviewerjoint.h"
 
 #include "llgl.h"
-#include "llglimmediate.h"
+#include "llrender.h"
 #include "llmath.h"
 #include "llglheaders.h"
 #include "llrendersphere.h"
@@ -272,12 +272,12 @@ U32 LLViewerJoint::render( F32 pixelArea, BOOL first_pass )
 					triangle_count += drawShape( pixelArea, first_pass);
 				}
 				// second pass writes to z buffer only
-				glColorMask(FALSE, FALSE, FALSE, FALSE);
+				gGL.setColorMask(false, false);
 				{
 					triangle_count += drawShape( pixelArea, FALSE );
 				}
 				// third past respects z buffer and writes color
-				glColorMask(TRUE, TRUE, TRUE, FALSE);
+				gGL.setColorMask(true, false);
 				{
 					LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
 					triangle_count += drawShape( pixelArea, FALSE );

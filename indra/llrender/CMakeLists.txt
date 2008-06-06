@@ -23,11 +23,10 @@ set(llrender_SOURCE_FILES
     llfont.cpp
     llfontgl.cpp
     llgldbg.cpp
-    llglimmediate.cpp
     llimagegl.cpp
+    llrender.cpp
     llrendertarget.cpp
     llvertexbuffer.cpp
-    llvertexprogramgl.cpp
     )
     
 set(llrender_HEADER_FILES
@@ -36,11 +35,10 @@ set(llrender_HEADER_FILES
     llfontgl.h
     llfont.h
     llgldbg.h
-    llglimmediate.h
     llimagegl.h
+    llrender.h
     llrendertarget.h
     llvertexbuffer.h
-    llvertexprogramgl.h
     )
 
 set_source_files_properties(${llrender_HEADER_FILES}

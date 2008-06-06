@@ -49,7 +49,7 @@
       <key>count</key>
       <integer>1</integer>
       <key>map-to</key>
-      <string>GridChoice</string>
+      <string>CmdLineGridChoice</string>
     </map>
 
     <key>loginuri</key>
@@ -61,7 +61,7 @@
       <key>compose</key>
       <boolean>true</boolean>
       <key>map-to</key>
-      <string>LoginURI</string>
+      <string>CmdLineLoginURI</string>
     </map>
 
     <key>helperuri</key>
@@ -71,7 +71,7 @@
       <key>count</key>
       <integer>1</integer>
       <key>map-to</key>
-      <string>HelperURI</string>
+      <string>CmdLineHelperURI</string>
     </map>
 
     <key>debugviews</key>

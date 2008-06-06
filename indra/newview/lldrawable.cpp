@@ -122,6 +122,7 @@ void LLDrawable::destroy()
 		sNumZombieDrawables--;
 	}
 
+	LLFace::sDeleteLock = mFaces.size() ;
 	std::for_each(mFaces.begin(), mFaces.end(), DeletePointer());
 	mFaces.clear();
 		
@@ -184,6 +185,7 @@ void LLDrawable::cleanupReferences()
 {
 	LLFastTimer t(LLFastTimer::FTM_PIPELINE);
 	
+	LLFace::sDeleteLock = mFaces.size() ;
 	std::for_each(mFaces.begin(), mFaces.end(), DeletePointer());
 	mFaces.clear();
 
@@ -277,6 +279,7 @@ void LLDrawable::setNumFaces(const S32 newFaces, LLFacePool *poolp, LLViewerImag
 	}
 	else if (newFaces < (S32)mFaces.size())
 	{
+		LLFace::sDeleteLock = (S32)mFaces.size() - newFaces ;
 		std::for_each(mFaces.begin() + newFaces, mFaces.end(), DeletePointer());
 		mFaces.erase(mFaces.begin() + newFaces, mFaces.end());
 	}
@@ -288,6 +291,8 @@ void LLDrawable::setNumFaces(const S32 newFaces, LLFacePool *poolp, LLViewerImag
 			addFace(poolp, texturep);
 		}
 	}
+
+	llassert_always(mFaces.size() == newFaces);
 }
 
 void LLDrawable::setNumFacesFast(const S32 newFaces, LLFacePool *poolp, LLViewerImage *texturep)
@@ -298,6 +303,7 @@ void LLDrawable::setNumFacesFast(const S32 newFaces, LLFacePool *poolp, LLViewer
 	}
 	else if (newFaces < (S32)mFaces.size())
 	{
+		LLFace::sDeleteLock = (S32)mFaces.size() - newFaces ;
 		std::for_each(mFaces.begin() + newFaces, mFaces.end(), DeletePointer());
 		mFaces.erase(mFaces.begin() + newFaces, mFaces.end());
 	}
@@ -309,6 +315,8 @@ void LLDrawable::setNumFacesFast(const S32 newFaces, LLFacePool *poolp, LLViewer
 			addFace(poolp, texturep);
 		}
 	}
+
+	llassert_always(mFaces.size() == newFaces) ;
 }
 
 void LLDrawable::mergeFaces(LLDrawable* src)
@@ -329,8 +337,13 @@ void LLDrawable::deleteFaces(S32 offset, S32 count)
 {
 	face_list_t::iterator face_begin = mFaces.begin() + offset;
 	face_list_t::iterator face_end = face_begin + count;
+
+	S32 end = (S32)mFaces.size() ;
+	LLFace::sDeleteLock = count ;
 	std::for_each(face_begin, face_end, DeletePointer());
 	mFaces.erase(face_begin, face_end);
+
+	llassert_always(mFaces.size() == end - count) ;
 }
 
 void LLDrawable::update()

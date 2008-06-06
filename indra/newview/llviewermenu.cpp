@@ -700,7 +700,7 @@ void init_menus()
 	gPopupMenuView->setBackgroundColor( color );
 
 	// If we are not in production, use a different color to make it apparent.
-	if (LLAppViewer::instance()->isInProductionGrid())
+	if (LLViewerLogin::getInstance()->isInProductionGrid())
 	{
 		color = gColors.getColor( "MenuBarBgColor" );
 	}
@@ -722,7 +722,7 @@ void init_menus()
 	gViewerWindow->getRootView()->addChild(gMenuHolder);
    
     gViewerWindow->setMenuBackgroundColor(false, 
-        LLAppViewer::instance()->isInProductionGrid());
+        LLViewerLogin::getInstance()->isInProductionGrid());
 
 	// *TODO:Get the cost info from the server
 	const LLString upload_cost("10");
@@ -969,7 +969,7 @@ void init_client_menu(LLMenuGL* menu)
 
 
 #ifdef TOGGLE_HACKED_GODLIKE_VIEWER
-	if (!LLAppViewer::instance()->isInProductionGrid())
+	if (!LLViewerLogin::getInstance()->isInProductionGrid())
 	{
 		menu->append(new LLMenuItemCheckGL("Hacked Godmode",
 										   &handle_toggle_hacked_godmode,
@@ -1191,7 +1191,7 @@ void init_debug_ui_menu(LLMenuGL* menu)
 	menu->append(new LLMenuItemCallGL( "Dump Focus Holder", &handle_dump_focus, NULL, NULL, 'F', MASK_ALT | MASK_CONTROL));
 	menu->append(new LLMenuItemCallGL( "Print Selected Object Info",	&print_object_info, NULL, NULL, 'P', MASK_CONTROL|MASK_SHIFT ));
 	menu->append(new LLMenuItemCallGL( "Print Agent Info",			&print_agent_nvpairs, NULL, NULL, 'P', MASK_SHIFT ));
-	menu->append(new LLMenuItemCallGL( "Texture Memory Stats",  &output_statistics, NULL, NULL, 'M', MASK_SHIFT | MASK_ALT | MASK_CONTROL));
+	menu->append(new LLMenuItemCallGL( "Memory Stats",  &output_statistics, NULL, NULL, 'M', MASK_SHIFT | MASK_ALT | MASK_CONTROL));
 	menu->append(new LLMenuItemCheckGL("Double-Click Auto-Pilot", 
 		menu_toggle_control, NULL, menu_check_control, 
 		(void*)"DoubleClickAutoPilot"));
@@ -1498,6 +1498,7 @@ void init_debug_avatar_menu(LLMenuGL* menu)
 
 	menu->appendMenu(sub_menu);
 
+	menu->append(new LLMenuItemCheckGL("Enable Lip Sync (Beta)", menu_toggle_control, NULL, menu_check_control, (void*)"LipSyncEnabled"));
 	menu->append(new LLMenuItemToggleGL("Tap-Tap-Hold To Run", &gAllowTapTapHoldRun));
 	menu->append(new LLMenuItemCallGL("Force Params to Default", &LLAgent::clearVisualParams, NULL));
 	menu->append(new LLMenuItemCallGL("Reload Vertex Shader", &reload_vertex_shader, NULL));
@@ -2762,7 +2763,7 @@ void set_god_level(U8 god_level)
     if(gViewerWindow)
     {
         gViewerWindow->setMenuBackgroundColor(god_level > GOD_NOT,
-            LLAppViewer::instance()->isInProductionGrid());
+            LLViewerLogin::getInstance()->isInProductionGrid());
     }
 
     LLString::format_map_t args;
@@ -4099,7 +4100,7 @@ BOOL enable_take()
 		return TRUE;
 #else
 # ifdef TOGGLE_HACKED_GODLIKE_VIEWER
-		if (!LLAppViewer::instance()->isInProductionGrid() 
+		if (!LLViewerLogin::getInstance()->isInProductionGrid() 
             && gAgent.isGodlike())
 		{
 			return TRUE;
@@ -4656,7 +4657,7 @@ class LLObjectEnableDelete : public view_listener_t
 			TRUE;
 #else
 # ifdef TOGGLE_HACKED_GODLIKE_VIEWER
-			(!LLAppViewer::instance()->isInProductionGrid()
+			(!LLViewerLogin::getInstance()->isInProductionGrid()
              && gAgent.isGodlike()) ||
 # endif
 			LLSelectMgr::getInstance()->canDoDelete();
@@ -6514,7 +6515,7 @@ class LLToolsEnableTakeCopy : public view_listener_t
 			all_valid = true;
 #ifndef HACKED_GODLIKE_VIEWER
 # ifdef TOGGLE_HACKED_GODLIKE_VIEWER
-			if (LLAppViewer::instance()->isInProductionGrid()
+			if (LLViewerLogin::getInstance()->isInProductionGrid()
                 || !gAgent.isGodlike())
 # endif
 			{
@@ -6618,7 +6619,7 @@ BOOL enable_save_into_inventory(void*)
 	return TRUE;
 #else
 # ifdef TOGGLE_HACKED_GODLIKE_VIEWER
-	if (!LLAppViewer::instance()->isInProductionGrid()
+	if (!LLViewerLogin::getInstance()->isInProductionGrid()
         && gAgent.isGodlike())
 	{
 		return TRUE;

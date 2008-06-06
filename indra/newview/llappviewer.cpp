@@ -64,7 +64,7 @@
 #include "llurldispatcher.h"
 #include "llurlhistory.h"
 #include "llfirstuse.h"
-#include "llglimmediate.h"
+#include "llrender.h"
 
 #include "llweb.h"
 #include "llsecondlifeurls.h"
@@ -192,24 +192,6 @@
 // viewer.cpp - these are only used in viewer, should be easily moved.
 extern void disable_win_error_reporting();
 
-//#define APPLE_PREVIEW // Define this if you're doing a preview build on the Mac
-#if LL_RELEASE_FOR_DOWNLOAD
-// Default userserver for production builds is agni
-#ifndef APPLE_PREVIEW
-static EGridInfo GridDefaultChoice = GRID_INFO_AGNI;
-#else
-static EGridInfo GridDefaultChoice = GRID_INFO_ADITI;
-#endif
-#else
-// Default userserver for development builds is none
-static EGridInfo GridDefaultChoice = GRID_INFO_NONE;
-#endif
-
-#if LL_WINDOWS
-extern void create_console();
-#endif
-
-
 #if LL_DARWIN
 #include <Carbon/Carbon.h>
 extern void init_apple_menu(const char* product);
@@ -287,6 +269,7 @@ BOOL				gUseWireframe = FALSE;
 LLVFS* gStaticVFS = NULL;
 
 LLMemoryInfo gSysMemory;
+U64 gMemoryAllocated = 0; // updated in display_stats() in llviewerdisplay.cpp
 
 LLString gLastVersionChannel;
 
@@ -303,6 +286,7 @@ BOOL gPeriodicSlowFrame = FALSE;
 BOOL gCrashOnStartup = FALSE;
 BOOL gLLErrorActivated = FALSE;
 BOOL gLogoutInProgress = FALSE;
+
 ////////////////////////////////////////////////////////////
 // Internal globals... that should be removed.
 static LLString gArgs;
@@ -338,6 +322,48 @@ void idle_afk_check()
 	}
 }
 
+//this function checks if the system can allocate (num_chunk)MB memory successfully.
+//if this check fails, the allocated memory is NOT freed.
+void idle_mem_check(S32 num_chunk)
+{
+	//this flag signals if memory allocation check is necessary
+	static BOOL check = TRUE ;
+
+	if(!check) //if memory check fails before, do not repeat it.
+	{
+		return ;
+	}
+	check = FALSE ; //before memory check for this frame, turn off check signal for the next frame. 
+
+	S32 i = 0 ;
+	char**p = new char*[num_chunk] ;
+	if(!p)
+	{
+		return ;
+	}
+	for(i = 0 ; i < num_chunk ; i++)
+	{
+		//1MB per chunk
+		//if the allocation fails, the system should catch it.
+		p[i] = new char[1024 * 1024] ;
+
+		if(!p[i]) //in case that system try-catch is turned off
+		{
+			return ;
+		}
+	}
+
+	//release memory if the allocation check does not fail.
+	for(i = 0 ; i < num_chunk ; i++)
+	{
+		delete[] p[i] ;	
+	}
+	delete[] p ;
+
+	//memory check for this frame succeeds, turn on next frame check.
+	check = TRUE ;
+}
+
 // A callback set in LLAppViewer::init()
 static void ui_audio_callback(const LLUUID& uuid)
 {
@@ -367,6 +393,24 @@ void request_initial_instant_messages()
 		gAgent.sendReliableMessage();
 		requested = TRUE;
 	}
+}
+
+// A settings system callback for CrashSubmitBehavior
+bool handleCrashSubmitBehaviorChanged(const LLSD& newvalue)
+{
+	S32 cb = newvalue.asInteger();
+	const S32 NEVER_SUBMIT_REPORT = 2;
+	if(cb == NEVER_SUBMIT_REPORT)
+	{
+// 		LLWatchdog::getInstance()->cleanup(); // SJB: cleaning up a running watchdog is unsafe
+		LLAppViewer::instance()->destroyMainloopTimeout();
+	}
+	else if(gSavedSettings.getBOOL("WatchdogEnabled") == TRUE)
+	{
+// 		LLWatchdog::getInstance()->init();
+// 		LLAppViewer::instance()->initMainloopTimeout("Mainloop Resume");
+	}
+	return true;
 }
 
 // Use these strictly for things that are constructed at startup,
@@ -464,72 +508,32 @@ static void settings_modify()
 	gSavedSettings.setBOOL("PTTCurrentlyEnabled", TRUE); //gSavedSettings.getBOOL("EnablePushToTalk"));
 }
 
-void initGridChoice()
+void LLAppViewer::initGridChoice()
 {
-    LLString gridChoice = gSavedSettings.getString("GridChoice");
-    if(!gridChoice.empty())
-		// Used to show first chunk of each argument passed in the 
-		// window title.
-    {
-        // find the grid choice from the user setting.
-        int gridIndex = GRID_INFO_NONE; 
-        for(;gridIndex < GRID_INFO_OTHER; ++gridIndex )
-        {
-            if(0 == LLString::compareInsensitive(gGridInfo[gridIndex].mLabel, gridChoice.c_str()))
-            {
-                gGridChoice = (EGridInfo)gridIndex;
+	// Load	up the initial grid	choice from:
+	//	- hard coded defaults...
+	//	- command line settings...
+	//	- if dev build,	persisted settings...
 
-                if(GRID_INFO_LOCAL == gGridChoice)
-                {
-                    gGridName = LOOPBACK_ADDRESS_STRING;
-                    break;
-                }
-                else
-                {
-                    gGridName = gGridInfo[gGridChoice].mName;
-                    break;
-                }
-            }
-        }
+	// Set the "grid choice", this is specified	by command line.
+	std::string	grid_choice	= gSavedSettings.getString("CmdLineGridChoice");
+	LLViewerLogin::getInstance()->setGridChoice(grid_choice);
 
-        if(GRID_INFO_OTHER == gridIndex)
-        {
-                // *FIX:MEP Can and should we validate that this is an IP address?
-                gGridChoice = (EGridInfo)gridIndex;
-                gGridName = llformat("%s", gSavedSettings.getString("GridChoice").c_str());
-
-        }
-    }
-
-
-#if !LL_RELEASE_FOR_DOWNLOAD
-	if (gGridChoice == GRID_INFO_NONE)
+	// Load last server choice by default 
+	// ignored if the command line grid	choice has been	set
+	if(grid_choice.empty())
 	{
-		// Development version: load last server choice by default (overridden by cmd line args)
-		S32 server = gSavedSettings.getS32("ServerChoice");
-		if (server != 0)
-			gGridChoice = (EGridInfo)llclamp(server, 0, (S32)GRID_INFO_COUNT - 1);
-		if (server == GRID_INFO_OTHER)
+		S32	server = gSavedSettings.getS32("ServerChoice");
+		server = llclamp(server, 0,	(S32)GRID_INFO_COUNT - 1);
+		if(server == GRID_INFO_OTHER)
 		{
 			LLString custom_server = gSavedSettings.getString("CustomServer");
-			if (custom_server.empty())
-			{
-				gGridName = "none";
-			}
-			else
-			{
-				gGridName = custom_server.c_str();
-			}
+			LLViewerLogin::getInstance()->setGridChoice(custom_server);
 		}
-
-        gSavedSettings.setString("GridChoice", gGridInfo[gGridChoice].mLabel);
-	}
-#endif
-
-	if (gGridChoice == GRID_INFO_NONE)
-	{
-		gGridChoice = GridDefaultChoice;
-        gSavedSettings.setString("GridChoice", gGridInfo[gGridChoice].mLabel);
+		else if(server != 0)
+		{
+			LLViewerLogin::getInstance()->setGridChoice((EGridInfo)server);
+		}
 	}
 }
 
@@ -577,7 +581,6 @@ LLTextureFetch* LLAppViewer::sTextureFetch = NULL;
 
 LLAppViewer::LLAppViewer() : 
 	mMarkerFile(NULL),
-	mCrashBehavior(CRASH_BEHAVIOR_ASK),
 	mReportedCrash(false),
 	mNumSessions(0),
 	mPurgeCache(false),
@@ -586,7 +589,8 @@ LLAppViewer::LLAppViewer() :
 	mSavedFinalSnapshot(false),
 	mQuitRequested(false),
 	mLogoutRequestSent(false),
-	mYieldTime(-1)
+	mYieldTime(-1),
+	mMainloopTimeout(NULL)
 {
 	if(NULL != sInstance)
 	{
@@ -594,15 +598,11 @@ LLAppViewer::LLAppViewer() :
 	}
 
 	sInstance = this;
-
-	// Initialize the mainloop timeout. 
-	mMainloopTimeout = new LLWatchdogTimeout();
 }
 
 LLAppViewer::~LLAppViewer()
 {
-	// Initialize the mainloop timeout. 
-	delete mMainloopTimeout;
+	destroyMainloopTimeout();
 
 	// If we got to this destructor somehow, the app didn't hang.
 	removeMarkerFile();
@@ -610,13 +610,6 @@ LLAppViewer::~LLAppViewer()
 
 bool LLAppViewer::init()
 {
-    // *NOTE:Mani - LLCurl::initClass is not thread safe. 
-    // Called before threads are created.
-    LLCurl::initClass();
-
-    initThreads();
-
-
 	//
 	// Start of the application
 	//
@@ -629,7 +622,6 @@ bool LLAppViewer::init()
 	// that touches files should really go through the lldir API
 	gDirUtilp->initAppDirs("SecondLife");
 
-
 	initLogging();
 	
 	//
@@ -637,6 +629,12 @@ bool LLAppViewer::init()
 	//
     if (!initConfiguration())
 		return false;
+
+    // *NOTE:Mani - LLCurl::initClass is not thread safe. 
+    // Called before threads are created.
+    LLCurl::initClass();
+
+    initThreads();
 
     writeSystemInfo();
 
@@ -888,10 +886,6 @@ bool LLAppViewer::init()
 
 bool LLAppViewer::mainLoop()
 {
-	mMainloopTimeout = new LLWatchdogTimeout();
-	// *FIX:Mani - Make this a setting, once new settings exist in this branch.
-	mMainloopTimeout->setTimeout(5);
-	
 	//-------------------------------------------
 	// Run main loop until time to quit
 	//-------------------------------------------
@@ -920,6 +914,8 @@ bool LLAppViewer::mainLoop()
 		{
 			LLFastTimer t(LLFastTimer::FTM_FRAME);
 			
+			pingMainloopTimeout("Main:GatherInput");
+			
 			{
 				LLFastTimer t2(LLFastTimer::FTM_MESSAGES);
 			#if LL_WINDOWS
@@ -940,8 +936,13 @@ bool LLAppViewer::mainLoop()
 			}
 #endif
 
+			//at the beginning of every frame, check if the system can successfully allocate 10 * 1 MB memory.
+			idle_mem_check(10) ;
+
 			if (!LLApp::isExiting())
 			{
+				pingMainloopTimeout("Main:JoystickKeyboard");
+				
 				// Scan keyboard for movement keys.  Command keys and typing
 				// are handled by windows callbacks.  Don't do this until we're
 				// done initializing.  JC
@@ -956,6 +957,8 @@ bool LLAppViewer::mainLoop()
 					gKeyboard->scanKeyboard();
 				}
 
+				pingMainloopTimeout("Main:Messages");
+				
 				// Update state based on messages, user input, object idle.
 				{
 					LLFastTimer t3(LLFastTimer::FTM_IDLE);
@@ -972,24 +975,33 @@ bool LLAppViewer::mainLoop()
 
 				if (gDoDisconnect && (LLStartUp::getStartupState() == STATE_STARTED))
 				{
+					pauseMainloopTimeout();
 					saveFinalSnapshot();
 					disconnectViewer();
+					resumeMainloopTimeout();
 				}
 
 				// Render scene.
 				if (!LLApp::isExiting())
 				{
+					pingMainloopTimeout("Main:Display");
 					display();
 
+					pingMainloopTimeout("Main:Snapshot");
 					LLFloaterSnapshot::update(); // take snapshots
 					
 #if LL_LCD_COMPILE
 					// update LCD Screen
+					pingMainloopTimeout("Main:LCD");
 					gLcdScreen->UpdateDisplay();
 #endif
 				}
 
 			}
+
+			pingMainloopTimeout("Main:Sleep");
+			
+			pauseMainloopTimeout();
 
 			// Sleep and run background threads
 			{
@@ -1073,7 +1085,9 @@ bool LLAppViewer::mainLoop()
 				//LLVFSThread::sLocal->pause(); // Prevent the VFS thread from running while rendering.
 				//LLLFSThread::sLocal->pause(); // Prevent the LFS thread from running while rendering.
 
-				mMainloopTimeout->ping();
+				resumeMainloopTimeout();
+	
+				pingMainloopTimeout("Main:End");
 			}
 						
 		}
@@ -1098,7 +1112,7 @@ bool LLAppViewer::mainLoop()
 	
 	delete gServicePump;
 
-	mMainloopTimeout->stop();
+	destroyMainloopTimeout();
 
 	llinfos << "Exiting main_loop" << llendflush;
 
@@ -1400,7 +1414,12 @@ bool LLAppViewer::initThreads()
 	static const bool enable_threads = true;
 #endif
 
-	LLWatchdog::getInstance()->init();
+	const S32 NEVER_SUBMIT_REPORT = 2;
+	if(TRUE == gSavedSettings.getBOOL("WatchdogEnabled") 
+		&& (gCrashSettings.getS32(CRASH_BEHAVIOR_SETTING) != NEVER_SUBMIT_REPORT))
+	{
+		LLWatchdog::getInstance()->init();
+	}
 
 	LLVFSThread::initClass(enable_threads && true);
 	LLLFSThread::initClass(enable_threads && true);
@@ -1555,6 +1574,19 @@ bool LLAppViewer::initConfiguration()
 	gSavedSettings.setString("FontSansSerifFallback",
 				 LLWindow::getFontListSans());
 #endif
+
+	//*FIX:Mani - Set default to disabling watchdog mainloop 
+	// timeout for mac and linux. There is no call stack info 
+	// on these platform to help debug.
+#ifndef	LL_RELEASE_FOR_DOWNLOAD
+	gSavedSettings.setBOOL("WatchdogEnabled", FALSE);
+#endif
+
+#ifndef LL_WINDOWS
+	gSavedSettings.setBOOL("WatchdogEnabled", FALSE);
+#endif
+
+	gCrashSettings.getControl(CRASH_BEHAVIOR_SETTING)->getSignal()->connect(boost::bind(&handleCrashSubmitBehaviorChanged, _1));	
 
 	// These are warnings that appear on the first experience of that condition.
 	// They are already set in the settings_default.xml file, but still need to be added to LLFirstUse
@@ -1785,18 +1817,6 @@ bool LLAppViewer::initConfiguration()
 	            LLURLSimString::setString(slurl);
             }
         }
-    }
-
-    const LLControlVariable* loginuri = gSavedSettings.getControl("LoginURI");
-    if(loginuri && LLString::null != loginuri->getValue().asString())
-    {   
-        addLoginURI(loginuri->getValue().asString());
-    }
-
-    const LLControlVariable* helperuri = gSavedSettings.getControl("HelperURI");
-    if(helperuri && LLString::null != helperuri->getValue().asString())
-    {   
-        setHelperURI(helperuri->getValue().asString());
     }
 
     const LLControlVariable* skinfolder = gSavedSettings.getControl("SkinFolder");
@@ -2180,10 +2200,6 @@ void LLAppViewer::cleanupSavedSettings()
 	{
 		gSavedSettings.setF32("RenderFarClip", gAgent.mDrawDistance);
 	}
-
-	// *REMOVE: This is now done via LLAppViewer::setCrashBehavior()
-	// Left vestigially in case I borked it.
-	// gCrashSettings.setS32(CRASH_BEHAVIOR_SETTING, gCrashBehavior);
 }
 
 void LLAppViewer::removeCacheFiles(const char* file_mask)
@@ -2210,8 +2226,15 @@ void LLAppViewer::writeSystemInfo()
 	gDebugInfo["CPUInfo"]["CPUSSE"] = gSysCPU.hasSSE();
 	gDebugInfo["CPUInfo"]["CPUSSE2"] = gSysCPU.hasSSE2();
 	
-	gDebugInfo["RAMInfo"] = llformat("%u", gSysMemory.getPhysicalMemoryKB());
+	gDebugInfo["RAMInfo"]["Physical"] = (LLSD::Integer)(gSysMemory.getPhysicalMemoryKB());
+	gDebugInfo["RAMInfo"]["Allocated"] = (LLSD::Integer)(gMemoryAllocated>>10); // MB -> KB
 	gDebugInfo["OSInfo"] = getOSInfo().getOSStringSimple();
+		
+	// *FIX:Mani - move this ddown in llappviewerwin32
+#ifdef LL_WINDOWS
+	DWORD thread_id = GetCurrentThreadId();
+	gDebugInfo["MainloopThreadID"] = (S32)thread_id;
+#endif
 
 	// Dump some debugging info
 	LL_INFOS("SystemInfo") << gSecondLife
@@ -2242,7 +2265,10 @@ void LLAppViewer::handleSyncViewerCrash()
 void LLAppViewer::handleViewerCrash()
 {
 	llinfos << "Handle viewer crash entry." << llendl;
-	
+
+	// Make sure the watchdog gets turned off...
+// 	LLWatchdog::getInstance()->cleanup(); // SJB: This causes the Watchdog to hang for an extra 20-40s?!
+
 	LLAppViewer* pApp = LLAppViewer::instance();
 	if (pApp->beingDebugged())
 	{
@@ -2297,6 +2323,12 @@ void LLAppViewer::handleViewerCrash()
 		gDebugInfo["CurrentRegion"] = gAgent.getRegion()->getName();
 	}
 
+	if(LLAppViewer::instance()->mMainloopTimeout)
+	{
+		gDebugInfo["MainloopTimeoutState"] = LLAppViewer::instance()->mMainloopTimeout->getState();
+	}
+	
+    
 	//Write out the crash status file
 	//Use marker file style setup, as that's the simplest, especially since
 	//we're already in a crash situation	
@@ -2359,12 +2391,6 @@ void LLAppViewer::handleViewerCrash()
 
 	return;
 }
-
-void LLAppViewer::setCrashBehavior(S32 cb) 
-{ 
-	mCrashBehavior = cb; 
-	gCrashSettings.setS32(CRASH_BEHAVIOR_SETTING, mCrashBehavior);
-} 
 
 bool LLAppViewer::anotherInstanceRunning()
 {
@@ -2822,61 +2848,6 @@ const LLString& LLAppViewer::getWindowTitle() const
 	return gWindowTitle;
 }
 
-void LLAppViewer::resetURIs() const
-{
-    // Clear URIs when picking a new server
-	gLoginURIs.clear();
-	gHelperURI.clear();
-}
-
-const std::vector<std::string>& LLAppViewer::getLoginURIs() const
-{
-	if (gLoginURIs.empty())
-	{
-		// not specified on the command line, use value from table
-		gLoginURIs.push_back(gGridInfo[gGridChoice].mLoginURI);
-	}
-	return gLoginURIs;
-}
-
-const std::string& LLAppViewer::getHelperURI() const
-{
-	if (gHelperURI.empty())
-	{
-		// not specified on the command line, use value from table
-		gHelperURI = gGridInfo[gGridChoice].mHelperURI;
-	}
-	return gHelperURI;
-}
-
-void LLAppViewer::addLoginURI(const std::string& uri)
-{
-	// *NOTE:Mani - login uri trumps the --grid (gGridChoice) setting.
-	// Update gGridChoice to reflect the loginURI setting.
-    gLoginURIs.push_back(uri);
-	
-	const std::string& top_uri = getLoginURIs()[0];
-	int i = 0;
-	for(; i < GRID_INFO_COUNT; ++i)
-	{
-		if(top_uri == gGridInfo[i].mLoginURI)
-		{
-			gGridChoice = (EGridInfo)i;
-			break;
-		}
-	}
-
-	if(GRID_INFO_COUNT == i)
-	{
-		gGridChoice = GRID_INFO_OTHER;
-	}
-}
-
-void LLAppViewer::setHelperURI(const std::string& uri)
-{
-    gHelperURI = uri;
-}
-
 // Callback from a dialog indicating user was logged out.  
 void finish_disconnect(S32 option, void* userdata)
 {
@@ -3013,15 +2984,6 @@ void LLAppViewer::saveNameCache()
 		gCacheName->exportFile(cache_file);
 	}
 }
-
-bool LLAppViewer::isInProductionGrid()
-{
-	// *NOTE:Mani This used to compare GRID_INFO_AGNI to gGridChoice,
-	// but it seems that loginURI trumps that.
-	const std::string& loginURI = getLoginURIs()[0];
-	return (loginURI == gGridInfo[GRID_INFO_AGNI].mLoginURI);
-}
-
 
 /*!	@brief		This class is an LLFrameTimer that can be created with
 				an elapsed time that starts counting up from the given value
@@ -3531,6 +3493,8 @@ static F32 CheckMessagesMaxTime = CHECK_MESSAGES_DEFAULT_MAX_TIME;
 
 void LLAppViewer::idleNetwork()
 {
+	pingMainloopTimeout("idleNetwork");
+
 	gObjectList.mNumNewObjects = 0;
 	S32 total_decoded = 0;
 
@@ -3716,18 +3680,58 @@ void LLAppViewer::forceErrorSoftwareException()
     throw; 
 }
 
-void LLAppViewer::startMainloopTimeout(F32 secs)
+void LLAppViewer::initMainloopTimeout(const std::string& state, F32 secs)
 {
-	if(secs < 0.0f)
+	if(!mMainloopTimeout)
 	{
-		secs = gSavedSettings.getF32("MainloopTimeoutDefault");
+		mMainloopTimeout = new LLWatchdogTimeout();
+		resumeMainloopTimeout(state, secs);
 	}
-	
-	mMainloopTimeout->setTimeout(secs);
-	mMainloopTimeout->start();
 }
 
-void LLAppViewer::stopMainloopTimeout()
+void LLAppViewer::destroyMainloopTimeout()
 {
-	mMainloopTimeout->stop();
+	if(mMainloopTimeout)
+	{
+		delete mMainloopTimeout;
+		mMainloopTimeout = NULL;
+	}
 }
+
+void LLAppViewer::resumeMainloopTimeout(const std::string& state, F32 secs)
+{
+	if(mMainloopTimeout)
+	{
+		if(secs < 0.0f)
+		{
+			secs = gSavedSettings.getF32("MainloopTimeoutDefault");
+		}
+		
+		mMainloopTimeout->setTimeout(secs);
+		mMainloopTimeout->start(state);
+	}
+}
+
+void LLAppViewer::pauseMainloopTimeout()
+{
+	if(mMainloopTimeout)
+	{
+		mMainloopTimeout->stop();
+	}
+}
+
+void LLAppViewer::pingMainloopTimeout(const std::string& state, F32 secs)
+{
+	if(mMainloopTimeout)
+	{
+		if(secs < 0.0f)
+		{
+			secs = gSavedSettings.getF32("MainloopTimeoutDefault");
+		}
+
+		mMainloopTimeout->setTimeout(secs);
+		mMainloopTimeout->ping(state);
+	}
+}
+
+

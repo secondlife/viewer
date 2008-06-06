@@ -36,7 +36,7 @@
 #include "lldarray.h"
 #include "llfontgl.h"
 #include "llgl.h"
-#include "llglimmediate.h"
+#include "llrender.h"
 #include "llinventory.h"
 #include "llmemory.h"
 #include "llstring.h"

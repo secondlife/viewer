@@ -40,7 +40,7 @@
 #include "llcriticaldamp.h"
 #include "lluictrlfactory.h"
 #include "lltabcontainervertical.h"
-#include "llglimmediate.h"
+#include "llrender.h"
 
 const F32 SCROLL_STEP_TIME = 0.4f;
 const F32 SCROLL_DELAY_TIME = 0.5f;

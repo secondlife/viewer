@@ -71,7 +71,6 @@ extern "C" {
 #endif
 #endif
 
-
 LONG WINAPI viewer_windows_exception_handler(struct _EXCEPTION_POINTERS *exception_infop)
 {
     // *NOTE:Mani - this code is stolen from LLApp, where its never actually used.
@@ -421,9 +420,10 @@ void LLAppViewerWin32::handleCrashReporting()
 	exe_path += "win_crash_logger.exe";
 
 	std::string arg_string = "-user ";
-	arg_string += gGridName;
-
-	switch(getCrashBehavior())
+	arg_string += LLViewerLogin::getInstance()->getGridLabel();
+	
+	S32 cb = gCrashSettings.getS32(CRASH_BEHAVIOR_SETTING);
+	switch(cb)
 	{
 	case CRASH_BEHAVIOR_ASK:
 	default:

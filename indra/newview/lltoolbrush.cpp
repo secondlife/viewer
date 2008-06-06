@@ -35,7 +35,7 @@
 #include "lltoolselectland.h"
 
 #include "llgl.h"
-#include "llglimmediate.h"
+#include "llrender.h"
 
 #include "message.h"
 
@@ -94,7 +94,6 @@ LLToolBrushLand::LLToolBrushLand()
 	mMouseX( 0 ),
 	mMouseY(0),
 	mGotHover(FALSE),
-	mLastShowParcelOwners(FALSE),
 	mBrushSelected(FALSE)
 {
 	mBrushIndex = gSavedSettings.getS32("RadioLandBrushSize");
@@ -104,7 +103,8 @@ void LLToolBrushLand::modifyLandAtPointGlobal(const LLVector3d &pos_global,
 											  MASK mask)
 {
 	S32 radioAction = gSavedSettings.getS32("RadioLandBrushAction");
-
+	
+	mLastAffectedRegions.clear();
 	determineAffectedRegions(mLastAffectedRegions, pos_global);
 	for(region_list_t::iterator iter = mLastAffectedRegions.begin();
 		iter != mLastAffectedRegions.end(); ++iter)
@@ -418,8 +418,6 @@ void LLToolBrushLand::handleSelect()
 	gFloaterTools->setStatusText("modifyland");
 //	if (!mBrushSelected)
 	{
-		mLastShowParcelOwners = gSavedSettings.getBOOL("ShowParcelOwners");
-		gSavedSettings.setBOOL("ShowParcelOwners", mLastShowParcelOwners);
 		mBrushSelected = TRUE;
 	}
 }
@@ -431,8 +429,6 @@ void LLToolBrushLand::handleDeselect()
 	{
 		gEditMenuHandler = NULL;
 	}
-	mLastShowParcelOwners = gSavedSettings.getBOOL("ShowParcelOwners");
-	gSavedSettings.setBOOL("ShowParcelOwners", mLastShowParcelOwners);
 	LLViewerParcelMgr::getInstance()->setSelectionVisible(TRUE);
 	mBrushSelected = FALSE;
 }

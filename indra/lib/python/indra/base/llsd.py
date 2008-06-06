@@ -247,6 +247,78 @@ def format_xml(something):
         _g_xml_formatter = LLSDXMLFormatter()
     return _g_xml_formatter.format(something)
 
+class LLSDXMLPrettyFormatter(LLSDXMLFormatter):
+    def __init__(self, indent_atom = None):
+        # Call the super class constructor so that we have the type map
+        super(LLSDXMLPrettyFormatter, self).__init__()
+
+        # Override the type map to use our specialized formatters to
+        # emit the pretty output.
+        self.type_map[list] = self.PRETTY_ARRAY
+        self.type_map[tuple] = self.PRETTY_ARRAY
+        self.type_map[types.GeneratorType] = self.PRETTY_ARRAY,
+        self.type_map[dict] = self.PRETTY_MAP
+
+        # Private data used for indentation.
+        self._indent_level = 1
+        if indent_atom is None:
+            self._indent_atom = '  '
+        else:
+            self._indent_atom = indent_atom
+
+    def _indent(self):
+        "Return an indentation based on the atom and indentation level."
+        return self._indent_atom * self._indent_level
+
+    def PRETTY_ARRAY(self, v):
+        rv = []
+        rv.append('<array>\n')
+        self._indent_level = self._indent_level + 1
+        rv.extend(["%s%s\n" %
+                   (self._indent(),
+                    self.generate(item))
+                   for item in v])
+        self._indent_level = self._indent_level - 1
+        rv.append(self._indent())
+        rv.append('</array>')
+        return ''.join(rv)
+
+    def PRETTY_MAP(self, v):
+        rv = []
+        rv.append('<map>\n')
+        self._indent_level = self._indent_level + 1
+        keys = v.keys()
+        keys.sort()
+        rv.extend(["%s%s\n%s%s\n" %
+                   (self._indent(),
+                    self.elt('key', key),
+                    self._indent(),
+                    self.generate(v[key]))
+                   for key in keys])
+        self._indent_level = self._indent_level - 1
+        rv.append(self._indent())
+        rv.append('</map>')
+        return ''.join(rv)
+
+    def format(self, something):
+        data = []
+        data.append('<?xml version="1.0" ?>\n<llsd>')
+        data.append(self.generate(something))
+        data.append('</llsd>\n')
+        return '\n'.join(data)
+
+def format_pretty_xml(something):
+    """@brief Serialize a python object as 'pretty' llsd xml.
+
+    The output conforms to the LLSD DTD, unlike the output from the
+    standard python xml.dom DOM::toprettyxml() method which does not
+    preserve significant whitespace. 
+    This function is not necessarily suited for serializing very large
+    objects. It is not optimized by the cllsd module, and sorts on
+    dict (llsd map) keys alphabetically to ease human reading.
+    """
+    return LLSDXMLPrettyFormatter().format(something)
+
 class LLSDNotationFormatter(object):
     def __init__(self):
         self.type_map = {
@@ -834,6 +906,7 @@ class LLSD(object):
 
     parse = staticmethod(parse)
     toXML = staticmethod(format_xml)
+    toPrettyXML = staticmethod(format_pretty_xml)
     toBinary = staticmethod(format_binary)
     toNotation = staticmethod(format_notation)
 

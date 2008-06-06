@@ -36,7 +36,7 @@
 // library includes
 #include "llmath.h"
 #include "llgl.h"
-#include "llglimmediate.h"
+#include "llrender.h"
 #include "v4color.h"
 #include "llprimitive.h"
 #include "llview.h"

@@ -38,7 +38,7 @@
 #include "llmath.h"		// clampf()
 #include "llregionhandle.h"
 #include "lleventflags.h"
-#include "llglimmediate.h"
+#include "llrender.h"
 
 #include "llagent.h"
 #include "llcallingcard.h"
@@ -307,17 +307,17 @@ void LLWorldMapView::draw()
 
 		// Clear the background alpha to 0
 		gGL.flush();
-		glColorMask(FALSE, FALSE, FALSE, TRUE);
-		glAlphaFunc(GL_GEQUAL, 0.00f);
-		gGL.blendFunc(GL_ONE, GL_ZERO);
+		gGL.setColorMask(false, true);
+		gGL.setAlphaRejectSettings(LLRender::CF_GREATER_EQUAL, 0.f);
+		gGL.setSceneBlendType(LLRender::BT_REPLACE);
 		gGL.color4f(0.0f, 0.0f, 0.0f, 0.0f);
 		gl_rect_2d(0, height, width, 0);
 	}
 
 	gGL.flush();
-	glAlphaFunc(GL_GEQUAL, 0.01f);
-	glColorMask(TRUE, TRUE, TRUE, TRUE);
-	gGL.blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
+	gGL.setColorMask(true, true);
+	gGL.setSceneBlendType(LLRender::BT_ALPHA);
 
 	F32 layer_alpha = 1.f;
 
@@ -382,7 +382,7 @@ void LLWorldMapView::draw()
 		// Draw map image into RGB
 		//gGL.blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		gGL.flush();
-		glColorMask(TRUE, TRUE, TRUE, FALSE);
+		gGL.setColorMask(true, false);
 		gGL.color4f(1.f, 1.f, 1.f, layer_alpha);
 
 		gGL.begin(LLVertexBuffer::QUADS);
@@ -398,7 +398,7 @@ void LLWorldMapView::draw()
 
 		// draw an alpha of 1 where the sims are visible
 		gGL.flush();
-		glColorMask(FALSE, FALSE, FALSE, TRUE);
+		gGL.setColorMask(false, true);
 		gGL.color4f(1.f, 1.f, 1.f, 1.f);
 
 		gGL.begin(LLVertexBuffer::QUADS);
@@ -414,8 +414,8 @@ void LLWorldMapView::draw()
 	}
 
 	gGL.flush();
-	glAlphaFunc(GL_GEQUAL, 0.01f);
-	glColorMask(TRUE, TRUE, TRUE, TRUE);
+	gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
+	gGL.setColorMask(true, true);
 
 #if 1
 	F32 sim_alpha = 1.f;
@@ -538,7 +538,7 @@ void LLWorldMapView::draw()
 			LLGLSUIDefault gls_ui;
 			LLViewerImage::bindTexture(simimage);
 
-			gGL.blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			gGL.setSceneBlendType(LLRender::BT_ALPHA);
 			F32 alpha = sim_alpha * info->mAlpha;
 			gGL.color4f(1.f, 1.0f, 1.0f, alpha);
 
@@ -573,8 +573,8 @@ void LLWorldMapView::draw()
 			{
 				// draw an alpha of 1 where the sims are visible (except NULL sims)
 				gGL.flush();
-				gGL.blendFunc(GL_ONE, GL_ZERO);
-				glColorMask(FALSE, FALSE, FALSE, TRUE);
+				gGL.setSceneBlendType(LLRender::BT_REPLACE);
+				gGL.setColorMask(false, true);
 				gGL.color4f(1.f, 1.f, 1.f, 1.f);
 
 				LLGLSNoTexture gls_no_texture;
@@ -586,14 +586,14 @@ void LLWorldMapView::draw()
 				gGL.end();
 
 				gGL.flush();
-				glColorMask(TRUE, TRUE, TRUE, TRUE);
+				gGL.setColorMask(true, true);
 			}
 		}
 
 		if (info->mAccess == SIM_ACCESS_DOWN)
 		{
 			// Draw a transparent red square over down sims
-			gGL.blendFunc(GL_DST_ALPHA, GL_SRC_ALPHA);
+			gGL.blendFunc(LLRender::BF_DEST_ALPHA, LLRender::BF_SOURCE_ALPHA);
 			gGL.color4f(0.2f, 0.0f, 0.0f, 0.4f);
 
 			LLGLSNoTexture gls_no_texture;
@@ -610,7 +610,7 @@ void LLWorldMapView::draw()
 			&& info->mAccess > SIM_ACCESS_PG
 			&& gAgent.isTeen())
 		{
-			gGL.blendFunc(GL_DST_ALPHA, GL_ZERO);
+			gGL.blendFunc(LLRender::BF_DEST_ALPHA, LLRender::BF_ZERO);
 			
 			LLGLSNoTexture gls_no_texture;
 			gGL.color3f(1.f, 0.f, 0.f);
@@ -686,14 +686,14 @@ void LLWorldMapView::draw()
 	LLGLSUIDefault gls_ui;
 	{
 		LLGLSNoTexture gls_no_texture;
-		glAlphaFunc(GL_GEQUAL, 0.0f);
-		gGL.blendFunc(GL_ONE_MINUS_DST_ALPHA, GL_DST_ALPHA);
+		gGL.setAlphaRejectSettings(LLRender::CF_GREATER_EQUAL, 0.f);
+		gGL.blendFunc(LLRender::BF_ONE_MINUS_DEST_ALPHA, LLRender::BF_DEST_ALPHA);
 		gGL.color4fv( mBackgroundColor.mV );
 		gl_rect_2d(0, height, width, 0);
 	}
 	
-	glAlphaFunc(GL_GEQUAL, 0.01f);
-	gGL.blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
+	gGL.setSceneBlendType(LLRender::BT_ALPHA);
 
 	// Infohubs
 	if (gSavedSettings.getBOOL("MapShowInfohubs"))   //(gMapScale >= sThresholdB)

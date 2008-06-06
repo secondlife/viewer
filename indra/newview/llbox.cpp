@@ -34,7 +34,7 @@
 #include "llbox.h"
 
 #include "llgl.h"
-#include "llglimmediate.h"
+#include "llrender.h"
 #include "llglheaders.h"
 
 LLBox		gBox;

@@ -38,7 +38,7 @@
 #include "llui.h"
 #include "llmath.h"		// clampf()
 #include "llfocusmgr.h"
-#include "llglimmediate.h"
+#include "llrender.h"
 
 #include "llagent.h"
 #include "llcallingcard.h"
@@ -299,7 +299,7 @@ void LLNetMap::draw()
 			gGL.end();
 
 			// Draw water
-			glAlphaFunc(GL_GREATER, ABOVE_WATERLINE_ALPHA / 255.f );
+			gGL.setAlphaRejectSettings(LLRender::CF_GREATER, ABOVE_WATERLINE_ALPHA / 255.f);
 			{
 				if (regionp->getLand().getWaterTexture())
 				{
@@ -316,7 +316,7 @@ void LLNetMap::draw()
 					gGL.end();
 				}
 			}
-			glAlphaFunc(GL_GREATER,0.01f);
+			gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
 		}
 		
 

@@ -37,6 +37,7 @@
 #include "indra_constants.h"
 
 // viewer includes
+#include "llagent.h"	// for gAgent.inPrelude()
 #include "llnotify.h"
 #include "llviewercontrol.h"
 #include "llui.h"
@@ -107,12 +108,14 @@ void LLFirstUse::useBalanceDecrease(S32 delta)
 // static
 void LLFirstUse::useSit()
 {
-	if (gSavedSettings.getWarning("FirstSit"))
-	{
-		gSavedSettings.setWarning("FirstSit", FALSE);
+	// Our orientation island uses sitting to teach vehicle driving
+	// so just never show this message. JC
+	//if (gSavedSettings.getWarning("FirstSit"))
+	//{
+	//	gSavedSettings.setWarning("FirstSit", FALSE);
 
-		LLNotifyBox::showXml("FirstSit");
-	}
+	//	LLNotifyBox::showXml("FirstSit");
+	//}
 }
 
 // static
@@ -168,11 +171,16 @@ void LLFirstUse::useTeleport()
 // static
 void LLFirstUse::useOverrideKeys()
 {
-	if (gSavedSettings.getWarning("FirstOverrideKeys"))
+	// Our orientation island uses key overrides to teach vehicle driving
+	// so don't show this message until you get off OI. JC
+	if (!gAgent.inPrelude())
 	{
-		gSavedSettings.setWarning("FirstOverrideKeys", FALSE);
+		if (gSavedSettings.getWarning("FirstOverrideKeys"))
+		{
+			gSavedSettings.setWarning("FirstOverrideKeys", FALSE);
 
-		LLNotifyBox::showXml("FirstOverrideKeys");
+			LLNotifyBox::showXml("FirstOverrideKeys");
+		}
 	}
 }
 

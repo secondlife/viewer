@@ -309,6 +309,7 @@ BOOL LLToolPie::pickAndShowMenu(S32 x, S32 y, MASK mask, BOOL always_show)
 	}
 	else if (mHitObjectID == gAgent.getID() )
 	{
+		llassert_always(gPieSelf) ;
 		gPieSelf->show(x, y, mPieMouseButtonDown);
 	}
 	else if (object)

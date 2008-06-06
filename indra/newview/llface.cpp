@@ -42,7 +42,7 @@
 
 #include "lldrawpoolbump.h"
 #include "llgl.h"
-#include "llglimmediate.h"
+#include "llrender.h"
 #include "lllightconstants.h"
 #include "llsky.h"
 #include "llviewercamera.h"
@@ -57,6 +57,7 @@
 extern BOOL gPickFaces;
 
 BOOL LLFace::sSafeRenderSelect = TRUE; // FALSE
+S32  LLFace::sDeleteLock = 0 ;
 
 #define DOTVEC(a,b) (a.mV[0]*b.mV[0] + a.mV[1]*b.mV[1] + a.mV[2]*b.mV[2])
 
@@ -177,6 +178,9 @@ void LLFace::init(LLDrawable* drawablep, LLViewerObject* objp)
 
 void LLFace::destroy()
 {
+	llassert_always(sDeleteLock >= 1);
+	--sDeleteLock;
+	
 	mDrawablep = NULL;
 	mVObjp = NULL;
 
@@ -468,6 +472,7 @@ void LLFace::renderSelectedUV(const S32 offset, const S32 count)
 			if (pass == 0)
 			{
 				LLViewerImage::bindTexture(red_blue_imagep);
+				red_blue_imagep->setMipFilterNearest (TRUE, TRUE);
 			}
 			else // pass == 1
 			{
@@ -476,9 +481,8 @@ void LLFace::renderSelectedUV(const S32 offset, const S32 count)
 				glMatrixMode(GL_TEXTURE);
 				glPushMatrix();
 				glScalef(256.f, 256.f, 1.f);
+				green_imagep->setMipFilterNearest (TRUE, TRUE);
 			}
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
 
 			if (!isState(GLOBAL))

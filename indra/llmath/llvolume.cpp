@@ -4789,6 +4789,11 @@ BOOL LLVolumeFace::createSide(LLVolume* volume, BOOL partial_build)
 		mIndices.resize(num_indices);
 		mEdge.resize(num_indices);
 	}
+	else
+	{
+		mHasBinormals = FALSE;
+	}
+
 
 	LLVector3& face_min = mExtents[0];
 	LLVector3& face_max = mExtents[1];

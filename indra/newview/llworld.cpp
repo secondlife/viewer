@@ -1113,7 +1113,7 @@ void send_agent_pause()
 {
 	// *NOTE:Mani Pausing the mainloop timeout. Otherwise a long modal event may cause
 	// the thread monitor to timeout.
-	LLAppViewer::instance()->stopMainloopTimeout();
+	LLAppViewer::instance()->pauseMainloopTimeout();
 	
 	// Note: used to check for LLWorld initialization before it became a singleton.
 	// Rather than just remove this check I'm changing it to assure that the message 
@@ -1171,7 +1171,7 @@ void send_agent_resume()
 	// Reset the FPS counter to avoid an invalid fps
 	LLViewerStats::getInstance()->mFPSStat.start();
 
-	LLAppViewer::instance()->startMainloopTimeout();
+	LLAppViewer::instance()->resumeMainloopTimeout();
 }
 
 

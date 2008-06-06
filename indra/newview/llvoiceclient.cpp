@@ -850,7 +850,7 @@ LLVoiceClient::LLVoiceClient()
 	setCaptureDevice(captureDevice);
 	std::string renderDevice = gSavedSettings.getString("VoiceOutputAudioDevice");
 	setRenderDevice(renderDevice);
-	mLipSyncEnabled = gSavedSettings.getU32("LipSyncEnabled");
+	mLipSyncEnabled = gSavedSettings.getBOOL("LipSyncEnabled");
 	
 	mTuningMode = false;
 	mTuningEnergy = 0.0f;
@@ -1033,13 +1033,7 @@ void LLVoiceClient::userAuthorized(const std::string& firstName, const std::stri
 
 	LL_INFOS("Voice") << "name \"" << mAccountDisplayName << "\" , ID " << agentID << LL_ENDL;
 
-	std::string gridname = gGridName;
-	LLString::toLower(gridname);
-	if((gGridChoice == GRID_INFO_AGNI) || 
-		((gGridChoice == GRID_INFO_OTHER) && (gridname.find("agni") != std::string::npos)))
-	{
-		sConnectingToAgni = true;
-	}
+	sConnectingToAgni = LLViewerLogin::getInstance()->isInProductionGrid();
 
 	// MBW -- XXX -- Enable this when the bhd.vivox.com server gets a real ssl cert.	
 	if(sConnectingToAgni)
@@ -3632,12 +3626,12 @@ bool LLVoiceClient::voiceEnabled()
 	return gSavedSettings.getBOOL("EnableVoiceChat") && !gSavedSettings.getBOOL("CmdLineDisableVoice");
 }
 
-void LLVoiceClient::setLipSyncEnabled(U32 enabled)
+void LLVoiceClient::setLipSyncEnabled(BOOL enabled)
 {
 	mLipSyncEnabled = enabled;
 }
 
-U32 LLVoiceClient::lipSyncEnabled()
+BOOL LLVoiceClient::lipSyncEnabled()
 {
 	   
 	if ( mVoiceEnabled && stateDisabled != getState() )
@@ -3646,7 +3640,7 @@ U32 LLVoiceClient::lipSyncEnabled()
 	}
 	else
 	{
-		return 0;
+		return FALSE;
 	}
 }
 

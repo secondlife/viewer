@@ -39,7 +39,7 @@
 #include "lldbstrings.h"
 #include "lleconomy.h"
 #include "llgl.h"
-#include "llglimmediate.h"
+#include "llrender.h"
 #include "llpermissions.h"
 #include "llpermissionsflags.h"
 #include "llundo.h"
@@ -1038,19 +1038,21 @@ void LLSelectMgr::getGrid(LLVector3& origin, LLQuaternion &rotation, LLVector3 &
 
 	if (mGridMode == GRID_MODE_LOCAL && mSelectedObjects->getObjectCount())
 	{
-		LLViewerObject* root = getSelectedParentObject(mSelectedObjects->getFirstObject());
+		//LLViewerObject* root = getSelectedParentObject(mSelectedObjects->getFirstObject());
 		LLBBox bbox = mSavedSelectionBBox;
 		mGridOrigin = mSavedSelectionBBox.getCenterAgent();
 		mGridScale = mSavedSelectionBBox.getExtentLocal() * 0.5f;
 
-		if(mSelectedObjects->getObjectCount() < 2 || !root || root->mDrawable.isNull())
+		// DEV-12570 Just taking the saved selection box rotation prevents
+		// wild rotations of linked sets while in local grid mode
+		//if(mSelectedObjects->getObjectCount() < 2 || !root || root->mDrawable.isNull())
 		{
 			mGridRotation = mSavedSelectionBBox.getRotation();
 		}
-		else //set to the root object
+		/*else //set to the root object
 		{
 			mGridRotation = root->getRenderRotation();			
-		}
+		}*/
 	}
 	else if (mGridMode == GRID_MODE_REF_OBJECT && first_grid_object && first_grid_object->mDrawable.notNull())
 	{
@@ -4806,7 +4808,7 @@ void LLSelectMgr::updateSilhouettes()
 		objectp->clearChanged(LLXform::MOVED | LLXform::SILHOUETTE);
 	}
 	
-	//glAlphaFunc(GL_GREATER, 0.01f);
+	//gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
 }
 
 void LLSelectMgr::renderSilhouettes(BOOL for_hud)
@@ -4818,7 +4820,7 @@ void LLSelectMgr::renderSilhouettes(BOOL for_hud)
 
 	LLViewerImage::bindTexture(mSilhouetteImagep);
 	LLGLSPipelineSelection gls_select;
-	glAlphaFunc(GL_GREATER, 0.0f);
+	gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.f);
 	LLGLEnable blend(GL_BLEND);
 	LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
 
@@ -4846,11 +4848,21 @@ void LLSelectMgr::renderSilhouettes(BOOL for_hud)
 	if (mSelectedObjects->getNumNodes())
 	{
 		LLUUID inspect_item_id = LLFloaterInspect::getSelectedUUID();
+		
 		for (S32 pass = 0; pass < 2; pass++)
 		{
+			LLObjectSelection::iterator end_ = mSelectedObjects->end();		
+			S32 num_nodes = mSelectedObjects->getNumNodes() ;
+			LLObjectSelection::iterator prev_iter = mSelectedObjects->end();		
 			for (LLObjectSelection::iterator iter = mSelectedObjects->begin();
 				 iter != mSelectedObjects->end(); iter++)
 			{
+				llassert_always(end_ == mSelectedObjects->end()) ;//mSelectedObjects should not grow
+				llassert_always(prev_iter != iter) ; //iter should move
+				llassert_always(num_nodes > 0) ; //iter should not circle inside mSelectedObjects.
+				num_nodes-- ;
+				prev_iter = iter ;
+
 				LLSelectNode* node = *iter;
 				LLViewerObject* objectp = node->getObject();
 				if (!objectp)
@@ -4924,7 +4936,7 @@ void LLSelectMgr::renderSilhouettes(BOOL for_hud)
 	}
 
 	mSilhouetteImagep->unbindTexture(0, GL_TEXTURE_2D);
-	glAlphaFunc(GL_GREATER, 0.01f);
+	gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
 }
 
 void LLSelectMgr::generateSilhouette(LLSelectNode* nodep, const LLVector3& view_point)
@@ -5289,7 +5301,7 @@ void LLSelectNode::renderOneSilhouette(const LLColor4 &color)
 		if (LLSelectMgr::sRenderHiddenSelections) // && gFloaterTools && gFloaterTools->getVisible())
 		{
 			gGL.flush();
-			gGL.blendFunc(GL_SRC_COLOR, GL_ONE);
+			gGL.blendFunc(LLRender::BF_SOURCE_COLOR, LLRender::BF_ONE);
 			LLGLEnable fog(GL_FOG);
 			glFogi(GL_FOG_MODE, GL_LINEAR);
 			float d = (LLViewerCamera::getInstance()->getPointOfInterest()-LLViewerCamera::getInstance()->getOrigin()).magVec();
@@ -5299,7 +5311,7 @@ void LLSelectNode::renderOneSilhouette(const LLColor4 &color)
 			glFogfv(GL_FOG_COLOR, fogCol.mV);
 
 			LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE, GL_GEQUAL);
-			glAlphaFunc(GL_GREATER, 0.01f);
+			gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
 			gGL.begin(LLVertexBuffer::LINES);
 			{
 				S32 i = 0;
@@ -5320,7 +5332,7 @@ void LLSelectNode::renderOneSilhouette(const LLColor4 &color)
 		}
 
 		gGL.flush();
-		gGL.blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		gGL.setSceneBlendType(LLRender::BT_ALPHA);
 		gGL.begin(LLVertexBuffer::TRIANGLES);
 		{
 			S32 i = 0;

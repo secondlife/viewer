@@ -605,8 +605,6 @@ LLWindowWin32::LLWindowWin32(const char *title, const char *name, S32 x, S32 y, 
 	// Initialize (boot strap) the Language text input management,
 	// based on the system's (or user's) default settings.
 	allowLanguageTextInput(NULL, FALSE);
-
-	SetTimer( mWindowHandle, 0, 1000 / 30, NULL ); // 30 fps timer
 }
 
 
@@ -1349,6 +1347,8 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 	//make sure multi sampling is disabled by default
 	glDisable(GL_MULTISAMPLE_ARB);
 
+	//register joystick timer callback
+	SetTimer( mWindowHandle, 0, 1000 / 30, NULL ); // 30 fps timer
 
 	// ok to post quit messages now
 	mPostQuit = TRUE;

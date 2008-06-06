@@ -38,7 +38,7 @@
 #include "llviewercontrol.h"
 #include "lldrawable.h"
 #include "llgl.h"
-#include "llglimmediate.h"
+#include "llrender.h"
 #include "llvoavatar.h"
 #include "llvolume.h"
 #include "pipeline.h"

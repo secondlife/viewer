@@ -36,7 +36,7 @@
 #include "llfontgl.h"
 #include "llsys.h"
 #include "llgl.h"
-#include "llglimmediate.h"
+#include "llrender.h"
 #include "v3dmath.h"
 #include "llmath.h"
 #include "lldir.h"

@@ -207,7 +207,8 @@ void add_timestamped_line(LLViewerTextEditor* edit, const LLChat &chat, const LL
 	{
 		line = line.substr(chat.mFromName.length());
 		const LLStyleSP &sourceStyle = LLStyleMap::instance().lookup(chat.mFromID);
-		edit->appendStyledText(chat.mFromName, false, false, &sourceStyle);
+		edit->appendStyledText(chat.mFromName, false, prepend_newline, &sourceStyle);
+		prepend_newline = false;
 	}
 	edit->appendColoredText(line, false, prepend_newline, color);
 }

@@ -40,7 +40,7 @@
 #include "lllfsthread.h"
 #include "llui.h"
 #include "llimageworker.h"
-#include "llglimmediate.h"
+#include "llrender.h"
 
 #include "llhoverview.h"
 #include "llselectmgr.h"

@@ -61,8 +61,7 @@ LLToolSelectLand::LLToolSelectLand( )
 	mDragEndY(0),
 	mMouseOutsideSlop(FALSE),
 	mWestSouthBottom(),
-	mEastNorthTop(),
-	mLastShowParcelOwners(FALSE)
+	mEastNorthTop()
 { }
 
 LLToolSelectLand::~LLToolSelectLand()
@@ -216,17 +215,12 @@ void LLToolSelectLand::render()
 void LLToolSelectLand::handleSelect()
 {
 	gFloaterTools->setStatusText("selectland");
-	mLastShowParcelOwners = gSavedSettings.getBOOL("ShowParcelOwners");
-	gSavedSettings.setBOOL("ShowParcelOwners", mLastShowParcelOwners);
 }
 
 
 void LLToolSelectLand::handleDeselect()
 {
 	mSelection = NULL;
-	mLastShowParcelOwners = gSavedSettings.getBOOL("ShowParcelOwners");
-	//LLViewerParcelMgr::getInstance()->deselectLand();
-	gSavedSettings.setBOOL("ShowParcelOwners", mLastShowParcelOwners);
 }
 
 

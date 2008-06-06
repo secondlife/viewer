@@ -133,83 +133,77 @@ void LLLoginHandler::parse(const LLSD& queryMap)
 	mFirstName = queryMap["first_name"].asString();
 	mLastName = queryMap["last_name"].asString();
 	
+	EGridInfo grid_choice = GRID_INFO_NONE;
 	if (queryMap["grid"].asString() == "aditi")
 	{
-		gGridChoice = GRID_INFO_ADITI;
+		grid_choice = GRID_INFO_ADITI;
 	}
 	else if (queryMap["grid"].asString() == "agni")
 	{
-		gGridChoice = GRID_INFO_AGNI;
+		grid_choice = GRID_INFO_AGNI;
 	}
 	else if (queryMap["grid"].asString() == "siva")
 	{
-		gGridChoice = GRID_INFO_SIVA;
+		grid_choice = GRID_INFO_SIVA;
 	}
 	else if (queryMap["grid"].asString() == "durga")
 	{
-		gGridChoice = GRID_INFO_DURGA;
+		grid_choice = GRID_INFO_DURGA;
 	}
 	else if (queryMap["grid"].asString() == "shakti")
 	{
-		gGridChoice = GRID_INFO_SHAKTI;
+		grid_choice = GRID_INFO_SHAKTI;
 	}
 	else if (queryMap["grid"].asString() == "soma")
 	{
-		gGridChoice = GRID_INFO_SOMA;
+		grid_choice = GRID_INFO_SOMA;
 	}
 	else if (queryMap["grid"].asString() == "ganga")
 	{
-		gGridChoice = GRID_INFO_GANGA;
+		grid_choice = GRID_INFO_GANGA;
 	}
 	else if (queryMap["grid"].asString() == "vaak")
 	{
-		gGridChoice = GRID_INFO_VAAK;
+		grid_choice = GRID_INFO_VAAK;
 	}
 	else if (queryMap["grid"].asString() == "uma")
 	{
-		gGridChoice = GRID_INFO_UMA;
+		grid_choice = GRID_INFO_UMA;
 	}
 	else if (queryMap["grid"].asString() == "mohini")
 	{
-		gGridChoice = GRID_INFO_MOHINI;
+		grid_choice = GRID_INFO_MOHINI;
 	}
 	else if (queryMap["grid"].asString() == "yami")
 	{
-		gGridChoice = GRID_INFO_YAMI;
+		grid_choice = GRID_INFO_YAMI;
 	}
 	else if (queryMap["grid"].asString() == "nandi")
 	{
-		gGridChoice = GRID_INFO_NANDI;
+		grid_choice = GRID_INFO_NANDI;
 	}
 	else if (queryMap["grid"].asString() == "mitra")
 	{
-		gGridChoice = GRID_INFO_MITRA;
+		grid_choice = GRID_INFO_MITRA;
 	}
 	else if (queryMap["grid"].asString() == "radha")
 	{
-		gGridChoice = GRID_INFO_RADHA;
+		grid_choice = GRID_INFO_RADHA;
 	}
 	else if (queryMap["grid"].asString() == "ravi")
 	{
-		gGridChoice = GRID_INFO_RAVI;
+		grid_choice = GRID_INFO_RAVI;
 	}
 	else if (queryMap["grid"].asString() == "aruna")
 	{
-		gGridChoice = GRID_INFO_ARUNA;
+		grid_choice = GRID_INFO_ARUNA;
 	}
-#if !LL_RELEASE_FOR_DOWNLOAD
-	if (gGridChoice > GRID_INFO_NONE && gGridChoice < GRID_INFO_LOCAL)
+
+	if(grid_choice != GRID_INFO_NONE)
 	{
-		gSavedSettings.setS32("ServerChoice", gGridChoice);
+		LLViewerLogin::getInstance()->setGridChoice(grid_choice);
 	}
-#endif
-	
- 	if (LLAppViewer::instance()->getLoginURIs().size() == 0)
- 	{
-		gGridName = gGridInfo[gGridChoice].mName;		/* Flawfinder: ignore */
- 	    LLAppViewer::instance()->resetURIs();
- 	}	    
-	
+
 	LLString startLocation = queryMap["location"].asString();
 
 	if (startLocation == "specify")
@@ -296,7 +290,15 @@ class LLIamHereLogin : public LLHTTPClient::Responder
 		{
 			mParent = parentIn;
 		};
-		
+
+		// We don't actually expect LLSD back, so need to override completedRaw
+		virtual void completedRaw(U32 status, const std::string& reason,
+								  const LLChannelDescriptors& channels,
+								  const LLIOPipe::buffer_ptr_t& buffer)
+		{
+			completed(status, reason, LLSD()); // will call result() or error()
+		}
+	
 		virtual void result( const LLSD& content )
 		{
 			if ( mParent )
@@ -794,7 +796,7 @@ BOOL LLPanelLogin::getServer(LLString &server, S32 &domain_name)
 
 			if ((S32)GRID_INFO_OTHER == domain_name)
 			{
-				server = gGridName;
+				server = LLViewerLogin::getInstance()->getGridLabel();
 			}
 		}
 		else
@@ -942,24 +944,16 @@ void LLPanelLogin::loadLoginPage()
 	LLString grid;
 	S32 grid_index;
 	getServer( grid, grid_index );
-	if( grid_index != (S32)GRID_INFO_OTHER )
-	{
-		grid = gGridInfo[grid_index].mLabel;
-	}
 
-	if(gGridChoice != (EGridInfo)grid_index)
+	gViewerWindow->setMenuBackgroundColor(false, !LLViewerLogin::getInstance()->isInProductionGrid());
+	gLoginMenuBarView->setBackgroundColor(gMenuBarView->getBackgroundColor());
+
+	if (!grid.empty())
 	{
-		LLAppViewer::instance()->resetURIs();
-		gGridChoice = (EGridInfo)grid_index;
-		gSavedSettings.setString("GridChoice", gGridInfo[gGridChoice].mLabel);
-		gViewerWindow->setMenuBackgroundColor(false, 
-			!LLAppViewer::instance()->isInProductionGrid());
-		gLoginMenuBarView->setBackgroundColor(gMenuBarView->getBackgroundColor());
+		char* curl_grid = curl_escape(grid.c_str(), 0);
+		oStr << "&grid=" << curl_grid;
+		curl_free(curl_grid);
 	}
-    
-	char* curl_grid = curl_escape(grid.c_str(), 0);
-	oStr << "&grid=" << curl_grid;
-	curl_free(curl_grid);
 
 #if USE_VIEWER_AUTH
 	LLURLSimString::sInstance.parse();
@@ -1087,15 +1081,6 @@ void LLPanelLogin::onClickConnect(void *)
 		if (!first.empty() && !last.empty())
 		{
 			// has both first and last name typed
-
-			// store off custom server entry, if currently selected
-			LLComboBox* combo = sInstance->getChild<LLComboBox>("server_combo");
-			S32 selected_server = combo->getValue();
-			if (selected_server == GRID_INFO_NONE)
-			{
-				LLString custom_server = combo->getValue().asString();
-				gSavedSettings.setString("CustomServer", custom_server);
-			}
 			sInstance->mCallback(0, sInstance->mCallbackData);
 		}
 		else
@@ -1180,6 +1165,26 @@ void LLPanelLogin::onPassKey(LLLineEditor* caller, void* user_data)
 // static
 void LLPanelLogin::onSelectServer(LLUICtrl*, void*)
 {
+	// The user twiddled with the grid choice ui.
+	// apply the selection to the grid setting.
+	LLString grid;
+	S32 grid_index;
+	getServer( grid, grid_index );
+
+	// This new seelction will override preset uris
+	// from the command line.
+	LLViewerLogin* vl = LLViewerLogin::getInstance();
+	vl->resetURIs();
+	if(grid_index != GRID_INFO_OTHER)
+	{
+		vl->setGridChoice((EGridInfo)grid_index);
+		grid = vl->getGridLabel();
+	}
+	else
+	{
+		vl->setGridChoice(grid);
+	}
+
 	// grid changed so show new splash screen (possibly)
 	loadLoginPage();
 }

@@ -69,7 +69,7 @@
 #include "llappviewer.h"
 #include "llvosurfacepatch.h"
 #include "llvowlsky.h"
-#include "llglimmediate.h"
+#include "llrender.h"
 
 #ifdef TOGGLE_HACKED_GODLIKE_VIEWER
 BOOL 				gHackGodmode = FALSE;
@@ -433,7 +433,7 @@ bool handleVoiceClientPrefsChanged(const LLSD& newvalue)
 		gVoiceClient->setCaptureDevice(inputDevice);
 		std::string outputDevice = gSavedSettings.getString("VoiceOutputAudioDevice");
 		gVoiceClient->setRenderDevice(outputDevice);
-		gVoiceClient->setLipSyncEnabled(gSavedSettings.getU32("LipSyncEnabled"));
+		gVoiceClient->setLipSyncEnabled(gSavedSettings.getBOOL("LipSyncEnabled"));
 	}
 	return true;
 }

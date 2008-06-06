@@ -820,22 +820,28 @@ BOOL idle_startup()
 			LLString server_label;
 			S32 domain_name_index;
 			BOOL user_picked_server = LLPanelLogin::getServer( server_label, domain_name_index );
-			gGridChoice = (EGridInfo) domain_name_index;
-			gSavedSettings.setS32("ServerChoice", gGridChoice);
-			if (gGridChoice == GRID_INFO_OTHER)
+			if((EGridInfo)domain_name_index == GRID_INFO_OTHER)
 			{
-				gGridName = server_label;/* Flawfinder: ignore */
+				// Since the grid chosen was an 'other', set the choice by string. 
+				LLViewerLogin::getInstance()->setGridChoice(server_label);
+			}
+			else
+			{
+				// Set the choice according to index.
+				LLViewerLogin::getInstance()->setGridChoice((EGridInfo)domain_name_index);
 			}
 			
 			if ( user_picked_server )
-			{   // User picked a grid from the popup, so clear the stored urls and they will be re-generated from gGridChoice
+			{   // User picked a grid from the popup, so clear the 
+				// stored uris and they will be re-generated from the GridChoice
 				sAuthUris.clear();
-				LLAppViewer::instance()->resetURIs();
+				LLViewerLogin::getInstance()->resetURIs();
 			}
 			
 			LLString location;
 			LLPanelLogin::getLocation( location );
 			LLURLSimString::setString( location );
+
 			// END TODO
 			LLPanelLogin::close();
 		}
@@ -915,7 +921,7 @@ BOOL idle_startup()
 	if(STATE_LOGIN_AUTH_INIT == LLStartUp::getStartupState())
 	{
 //#define LL_MINIMIAL_REQUESTED_OPTIONS
-		gDebugInfo["GridName"] = gGridInfo[gGridChoice].mLabel;
+		gDebugInfo["GridName"] = LLViewerLogin::getInstance()->getGridLabel();
 
 		// *Note: this is where gUserAuth used to be created.
 		requested_options.clear();
@@ -949,7 +955,8 @@ BOOL idle_startup()
 			gSavedSettings.setBOOL("UseDebugMenus", TRUE);
 			requested_options.push_back("god-connect");
 		}
-		const std::vector<std::string>& uris = LLAppViewer::instance()->getLoginURIs();
+		std::vector<std::string> uris;
+		LLViewerLogin::getInstance()->getLoginURIs(uris);
 		std::vector<std::string>::const_iterator iter, end;
 		for (iter = uris.begin(), end = uris.end(); iter != end; ++iter)
 		{
@@ -1222,7 +1229,7 @@ BOOL idle_startup()
 				sAuthUriNum++;
 				std::ostringstream s;
 				LLString::format_map_t args;
-				args["[NUMBER]"] = sAuthUriNum + 1;
+				args["[NUMBER]"] = llformat("%d", sAuthUriNum + 1);
 				auth_desc = LLTrans::getString("LoginAttempt", args).c_str();
 				LLStartUp::setStartupState( STATE_LOGIN_AUTHENTICATE );
 				return do_normal_idle;
@@ -1276,7 +1283,6 @@ BOOL idle_startup()
 				   save_password_to_disk(NULL);
 			}
 			gSavedSettings.setBOOL("RememberPassword", remember_password);
-			gSavedSettings.setBOOL("LoginLastLocation", gSavedSettings.getBOOL("LoginLastLocation"));
 
 			text = LLUserAuth::getInstance()->getResponse("agent_access");
 			if(text && (text[0] == 'M'))
@@ -2331,7 +2337,7 @@ BOOL idle_startup()
 		gDebugView->mFastTimerView->setVisible(TRUE);
 #endif
 
-		LLAppViewer::instance()->startMainloopTimeout();
+		LLAppViewer::instance()->initMainloopTimeout("Mainloop Init");
 
 		return do_normal_idle;
 	}
@@ -2362,33 +2368,13 @@ void login_show()
 	
 	LL_DEBUGS("AppInit") << "Setting Servers" << LL_ENDL;
 
-	if( GRID_INFO_OTHER == gGridChoice )
-	{
-		   LLPanelLogin::addServer( gGridName.c_str(), GRID_INFO_OTHER );
-	}
-	else
-	{
-		   LLPanelLogin::addServer( gGridInfo[gGridChoice].mLabel, gGridChoice );
-	}
+	LLPanelLogin::addServer(LLViewerLogin::getInstance()->getGridLabel().c_str(), LLViewerLogin::getInstance()->getGridChoice());
 
-	// Arg!  We hate loops!
-	LLPanelLogin::addServer( gGridInfo[GRID_INFO_ADITI].mLabel,        GRID_INFO_ADITI );
-	LLPanelLogin::addServer( gGridInfo[GRID_INFO_AGNI].mLabel, GRID_INFO_AGNI );
-	LLPanelLogin::addServer( gGridInfo[GRID_INFO_ARUNA].mLabel,        GRID_INFO_ARUNA );
-	LLPanelLogin::addServer( gGridInfo[GRID_INFO_DURGA].mLabel,        GRID_INFO_DURGA );
-	LLPanelLogin::addServer( gGridInfo[GRID_INFO_GANGA].mLabel,        GRID_INFO_GANGA );
-	LLPanelLogin::addServer( gGridInfo[GRID_INFO_MITRA].mLabel,       GRID_INFO_MITRA );
-	LLPanelLogin::addServer( gGridInfo[GRID_INFO_MOHINI].mLabel,       GRID_INFO_MOHINI );
-	LLPanelLogin::addServer( gGridInfo[GRID_INFO_NANDI].mLabel,       GRID_INFO_NANDI );
-	LLPanelLogin::addServer( gGridInfo[GRID_INFO_RADHA].mLabel,       GRID_INFO_RADHA );
-	LLPanelLogin::addServer( gGridInfo[GRID_INFO_RAVI].mLabel,       GRID_INFO_RAVI );
-	LLPanelLogin::addServer( gGridInfo[GRID_INFO_SIVA].mLabel, GRID_INFO_SIVA );
-	LLPanelLogin::addServer( gGridInfo[GRID_INFO_SHAKTI].mLabel,       GRID_INFO_SHAKTI );
-	LLPanelLogin::addServer( gGridInfo[GRID_INFO_SOMA].mLabel, GRID_INFO_SOMA );
-	LLPanelLogin::addServer( gGridInfo[GRID_INFO_UMA].mLabel,  GRID_INFO_UMA );
-	LLPanelLogin::addServer( gGridInfo[GRID_INFO_VAAK].mLabel, GRID_INFO_VAAK );
-	LLPanelLogin::addServer( gGridInfo[GRID_INFO_YAMI].mLabel, GRID_INFO_YAMI );
-	LLPanelLogin::addServer( gGridInfo[GRID_INFO_LOCAL].mLabel,        GRID_INFO_LOCAL );
+	LLViewerLogin* vl = LLViewerLogin::getInstance();
+	for(int grid_index = GRID_INFO_ADITI; grid_index < GRID_INFO_OTHER; ++grid_index)
+	{
+		LLPanelLogin::addServer(vl->getKnownGridLabel((EGridInfo)grid_index).c_str(), grid_index);
+	}
 }
 
 // Callback for when login screen is closed.  Option 0 = connect, option 1 = quit.
@@ -2705,7 +2691,7 @@ void update_dialog_callback(S32 option, void *userdata)
 #endif
 	// *TODO change userserver to be grid on both viewer and sim, since
 	// userserver no longer exists.
-	query_map["userserver"] = gGridName;
+	query_map["userserver"] = LLViewerLogin::getInstance()->getGridLabel();
 	query_map["channel"] = gSavedSettings.getString("VersionChannelName");
 	// *TODO constantize this guy
 	LLURI update_url = LLURI::buildHTTP("secondlife.com", 80, "update.php", query_map);
@@ -2798,9 +2784,6 @@ void update_dialog_callback(S32 option, void *userdata)
 
 	LL_DEBUGS("AppInit") << "Calling updater: " << update_exe_path << LL_ENDL;
 	
-	// *REMOVE:Mani The following call is handled through ~LLAppViewer.
- 	// remove_marker_file(); // In case updater fails
-
 	// Run the auto-updater.
 	system(update_exe_path.c_str());		/* Flawfinder: ignore */
 	
@@ -2808,10 +2791,6 @@ void update_dialog_callback(S32 option, void *userdata)
 	OSMessageBox("Automatic updating is not yet implemented for Linux.\n"
 		"Please download the latest version from www.secondlife.com.",
 		NULL, OSMB_OK);
-
-	// *REMOVE:Mani The following call is handled through ~LLAppViewer.
-	// remove_marker_file();
-	
 #endif
 	LLAppViewer::instance()->forceQuit();
 }

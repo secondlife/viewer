@@ -1841,7 +1841,7 @@ F32 LLVOVolume::getBinRadius()
 		}
 		else
 		{
-			radius = 32.f;
+			radius = llmax(mDrawable->getRadius(), 32.f);
 		}
 	}
 	else

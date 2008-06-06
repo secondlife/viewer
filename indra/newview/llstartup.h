@@ -15,7 +15,7 @@
  * online at http://secondlife.com/developers/opensource/gplv2
  * 
  * There are special exceptions to the terms and conditions of the GPL as
- * it is applied to this Source Code. View the full text of the exception
+ * it is applied to this Source Code. View the full textof the exception
  * in the file doc/FLOSS-exception.txt in this software distribution, or
  * online at http://secondlife.com/developers/opensource/flossexception
  * 

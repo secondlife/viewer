@@ -42,7 +42,7 @@
 #include "llcheckboxctrl.h"
 #include "llclipboard.h"
 #include "llfocusmgr.h"
-#include "llglimmediate.h"
+#include "llrender.h"
 #include "llresmgr.h"
 #include "llscrollbar.h"
 #include "llstring.h"
@@ -1110,6 +1110,8 @@ BOOL LLScrollListCtrl::selectItemRange( S32 first_index, S32 last_index )
 	for (item_list::iterator iter = mItemList.begin(); iter != mItemList.end(); iter++)
 	{
 		LLScrollListItem *itemp = *iter;
+	
+		llassert_always(itemp) ;
 		if( index >= first_index && index <= last_index )
 		{
 			if( itemp->getEnabled() )

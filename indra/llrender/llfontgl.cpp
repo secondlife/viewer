@@ -36,7 +36,7 @@
 #include "llfont.h"
 #include "llfontgl.h"
 #include "llgl.h"
-#include "llglimmediate.h"
+#include "llrender.h"
 #include "v4color.h"
 #include "llstl.h"
 
@@ -665,7 +665,8 @@ S32 LLFontGL::render(const LLWString &wstr,
 	
 	mImageGLp->bind(0);
 	
- 	gGL.blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // Not guaranteed to be set correctly
+ 	// Not guaranteed to be set correctly
+	gGL.setSceneBlendType(LLRender::BT_ALPHA);
 	
 	cur_x = ((F32)x * sScaleX);
 	cur_y = ((F32)y * sScaleY);

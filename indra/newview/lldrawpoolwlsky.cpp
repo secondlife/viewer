@@ -44,7 +44,7 @@
 #include "llagent.h"
 #include "llviewerregion.h"
 #include "llface.h"
-#include "llglimmediate.h"
+#include "llrender.h"
 
 LLPointer<LLImageGL> LLDrawPoolWLSky::sCloudNoiseTexture = NULL;
 
@@ -153,7 +153,7 @@ void LLDrawPoolWLSky::renderStars(void) const
 {
 	LLGLSPipelineSkyBox gls_sky;
 	LLGLEnable blend(GL_BLEND);
-	gGL.blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	gGL.setSceneBlendType(LLRender::BT_ALPHA);
 	
 	// *NOTE: have to have bound the cloud noise texture already since register
 	// combiners blending below requires something to be bound
@@ -176,16 +176,8 @@ void LLDrawPoolWLSky::renderStars(void) const
 
 	// gl_FragColor.rgb = gl_Color.rgb;
 	// gl_FragColor.a = gl_Color.a * star_alpha.a;
-	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_ARB);
-	glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB, GL_REPLACE);
-	glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA_ARB, GL_MODULATE);
-	glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB, GL_PREVIOUS);
-	glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB_ARB, GL_SRC_COLOR);
-	glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_ARB, GL_PREVIOUS);
-	glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA_ARB, GL_SRC_ALPHA);
-	glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_ALPHA_ARB, GL_CONSTANT);
-	glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_ALPHA_ARB, GL_SRC_ALPHA);
-	glTexEnvf(GL_TEXTURE_ENV, GL_ALPHA_SCALE, 2.0f);
+	gGL.getTexUnit(0)->setTextureColorBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_PREV_COLOR);
+	gGL.getTexUnit(0)->setTextureAlphaBlend(LLTexUnit::TBO_MULT_X2, LLTexUnit::TBS_PREV_ALPHA, LLTexUnit::TBS_CONST_ALPHA);
 	glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, star_alpha.mV);
 
 	gSky.mVOWLSkyp->drawStars();
@@ -193,8 +185,7 @@ void LLDrawPoolWLSky::renderStars(void) const
 	glPointSize(1.f);
 
 	// and disable the combiner states
-	glTexEnvf(GL_TEXTURE_ENV, GL_ALPHA_SCALE, 1.0f);
-	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+	gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
 }
 
 void LLDrawPoolWLSky::renderSkyClouds(F32 camHeightLocal) const
@@ -208,7 +199,7 @@ void LLDrawPoolWLSky::renderSkyClouds(F32 camHeightLocal) const
 
 		LLGLEnable blend(GL_BLEND);
 		LLGLSBlendFunc blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glAlphaFunc(GL_GREATER, 0.01f);
+		gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
 
 		sCloudNoiseTexture->bind();
 		shader->bind();

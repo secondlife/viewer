@@ -36,7 +36,7 @@
 // indra includes
 #include "llparcel.h"
 #include "llgl.h"
-#include "llglimmediate.h"
+#include "llrender.h"
 #include "v4color.h"
 #include "v2math.h"
 
@@ -71,7 +71,7 @@ LLViewerParcelOverlay::LLViewerParcelOverlay(LLViewerRegion* region, F32 region_
 	mTexture = new LLImageGL(FALSE);
 	mImageRaw = new LLImageRaw(mParcelGridsPerEdge, mParcelGridsPerEdge, OVERLAY_IMG_COMPONENTS);
 	mTexture->createGLTexture(0, mImageRaw);
-	glActiveTextureARB(GL_TEXTURE0_ARB);
+	gGL.getTexUnit(0)->activate();
 	mTexture->bind(0);
 	mTexture->setClamp(TRUE, TRUE);
 	mTexture->setMipFilterNearest(TRUE);

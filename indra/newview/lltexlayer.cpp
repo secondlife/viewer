@@ -52,7 +52,7 @@
 #include "llxmltree.h"
 #include "pipeline.h"
 #include "v4coloru.h"
-#include "llglimmediate.h"
+#include "llrender.h"
 
 //#include "../tools/imdebug/imdebug.h"
 
@@ -239,6 +239,9 @@ BOOL LLTexLayerSetBuffer::render()
 {
 	U8* baked_bump_data = NULL;
 
+	// Default color mask for tex layer render
+	gGL.setColorMask(true, true);
+
 	// do we need to upload, and do we have sufficient data to create an uploadable composite?
 	// When do we upload the texture if gAgent.mNumPendingQueries is non-zero?
 	BOOL upload_now = (gAgent.mNumPendingQueries == 0 && mNeedsUpload && mTexLayerSet->isLocalTextureDataFinal());
@@ -292,8 +295,8 @@ BOOL LLTexLayerSetBuffer::render()
 	}
 
 	// reset GL state
-	glColorMask( GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE );
-	gGL.blendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );  
+	gGL.setColorMask(true, true);
+	gGL.setSceneBlendType(LLRender::BT_ALPHA);
 
 	// we have valid texture data now
 	mInitialized = TRUE;
@@ -756,6 +759,7 @@ BOOL LLTexLayerSet::render( S32 x, S32 y, S32 width, S32 height )
 
 	LLGLSUIDefault gls_ui;
 	LLGLDepthTest gls_depth(GL_FALSE, GL_FALSE);
+	gGL.setColorMask(true, true);
 
 	// composite color layers
 	for( layer_list_t::iterator iter = mLayerList.begin(); iter != mLayerList.end(); iter++ )
@@ -774,8 +778,8 @@ BOOL LLTexLayerSet::render( S32 x, S32 y, S32 width, S32 height )
 	{
 		LLGLSNoAlphaTest gls_no_alpha_test;
 		gGL.flush();
-		glColorMask( GL_FALSE, GL_FALSE, GL_FALSE, GL_TRUE );
-		gGL.blendFunc( GL_ONE, GL_ZERO );
+		gGL.setColorMask(false, true);
+		gGL.setSceneBlendType(LLRender::BT_REPLACE);
 
 		{
 			LLImageGL* image_gl = gTexStaticImageList.getImageGL( getInfo()->mStaticAlphaFileName, TRUE );
@@ -793,8 +797,8 @@ BOOL LLTexLayerSet::render( S32 x, S32 y, S32 width, S32 height )
 		LLImageGL::unbindTexture(0, GL_TEXTURE_2D);
 
 		gGL.flush();
-		glColorMask( GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE );
-		gGL.blendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+		gGL.setColorMask(true, true);
+		gGL.setSceneBlendType(LLRender::BT_ALPHA);
 	}
 	else 
 	if( getInfo()->mClearAlpha )
@@ -803,12 +807,12 @@ BOOL LLTexLayerSet::render( S32 x, S32 y, S32 width, S32 height )
 		LLGLSNoTextureNoAlphaTest gls_no_alpha;
 		gGL.color4f( 0.f, 0.f, 0.f, 1.f );
 		gGL.flush();
-		glColorMask( GL_FALSE, GL_FALSE, GL_FALSE, GL_TRUE );
+		gGL.setColorMask(false, true);
 
 		gl_rect_2d_simple( width, height );
 		
 		gGL.flush();
-		glColorMask( GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE );
+		gGL.setColorMask(true, true);
 	}
 	stop_glerror();
 
@@ -836,11 +840,11 @@ BOOL LLTexLayerSet::renderBump( S32 x, S32 y, S32 width, S32 height )
 	// Set the alpha channel to one (clean up after previous blending)
 	LLGLSNoTextureNoAlphaTest gls_no_texture_no_alpha;
 	gGL.color4f( 0.f, 0.f, 0.f, 1.f );
-	glColorMask( GL_FALSE, GL_FALSE, GL_FALSE, GL_TRUE );
+	gGL.setColorMask(false, true);
 
 	gl_rect_2d_simple( width, height );
 	
-	glColorMask( GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE );
+	gGL.setColorMask(true, true);
 	stop_glerror();
 
 	return success;
@@ -1330,7 +1334,7 @@ BOOL LLTexLayer::render( S32 x, S32 y, S32 width, S32 height )
 		renderAlphaMasks( x, y, width, height, &net_color );
 		alpha_mask_specified = TRUE;
 		gGL.flush();
-		gGL.blendFunc( GL_DST_ALPHA, GL_ONE_MINUS_DST_ALPHA );
+		gGL.blendFunc(LLRender::BF_DEST_ALPHA, LLRender::BF_ONE_MINUS_DEST_ALPHA);
 	}
 
 	gGL.color4fv( net_color.mV);
@@ -1338,7 +1342,7 @@ BOOL LLTexLayer::render( S32 x, S32 y, S32 width, S32 height )
 	if( getInfo()->mWriteAllChannels )
 	{
 		gGL.flush();
-		gGL.blendFunc( GL_ONE, GL_ZERO );
+		gGL.setSceneBlendType(LLRender::BT_REPLACE);
 	}
 
 	if( (getInfo()->mLocalTexture != -1) && !getInfo()->mUseLocalTextureAlphaOnly )
@@ -1401,7 +1405,7 @@ BOOL LLTexLayer::render( S32 x, S32 y, S32 width, S32 height )
 	{
 		// Restore standard blend func value
 		gGL.flush();
-		gGL.blendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+		gGL.setSceneBlendType(LLRender::BT_ALPHA);
 		stop_glerror();
 	}
 
@@ -1506,7 +1510,7 @@ BOOL LLTexLayer::renderAlphaMasks( S32 x, S32 y, S32 width, S32 height, LLColor4
 
 	llassert( !mParamAlphaList.empty() );
 
-	glColorMask( GL_FALSE, GL_FALSE, GL_FALSE, GL_TRUE );
+	gGL.setColorMask(false, true);
 
 	alpha_list_t::iterator iter = mParamAlphaList.begin();
 	LLTexLayerParamAlpha* first_param = *iter;
@@ -1518,7 +1522,7 @@ BOOL LLTexLayer::renderAlphaMasks( S32 x, S32 y, S32 width, S32 height, LLColor4
 	
 		// Clear the alpha
 		gGL.flush();
-		gGL.blendFunc( GL_ONE, GL_ZERO );
+		gGL.setSceneBlendType(LLRender::BT_REPLACE);
 
 		gGL.color4f( 0.f, 0.f, 0.f, 0.f );
 		gl_rect_2d_simple( width, height );
@@ -1536,7 +1540,7 @@ BOOL LLTexLayer::renderAlphaMasks( S32 x, S32 y, S32 width, S32 height, LLColor4
 
 	// Approximates a min() function
 	gGL.flush();
-	gGL.blendFunc( GL_DST_ALPHA, GL_ZERO );
+	gGL.blendFunc(LLRender::BF_DEST_ALPHA, LLRender::BF_ZERO);
 
 	// Accumulate the alpha component of the texture
 	if( getInfo()->mLocalTexture != -1 )
@@ -1601,7 +1605,7 @@ BOOL LLTexLayer::renderAlphaMasks( S32 x, S32 y, S32 width, S32 height, LLColor4
 
 	LLGLSUIDefault gls_ui;
 
-	glColorMask( GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE );
+	gGL.setColorMask(true, true);
 	
 	if (!mMorphMasksValid && !mMaskedMorphs.empty())
 	{
@@ -1963,11 +1967,11 @@ BOOL LLTexLayerParamAlpha::render( S32 x, S32 y, S32 width, S32 height )
 	gGL.flush();
 	if( getInfo()->mMultiplyBlend )
 	{
-		gGL.blendFunc( GL_DST_ALPHA, GL_ZERO ); // Multiplication: approximates a min() function
+		gGL.blendFunc(LLRender::BF_DEST_ALPHA, LLRender::BF_ZERO); // Multiplication: approximates a min() function
 	}
 	else
 	{
-		gGL.blendFunc( GL_ONE, GL_ONE );  // Addition: approximates a max() function
+		gGL.setSceneBlendType(LLRender::BT_ADD);  // Addition: approximates a max() function
 	}
 
 	if( !getInfo()->mStaticImageFileName.empty() && !mStaticImageInvalid)

@@ -32,7 +32,7 @@
 #include "linden_common.h"
 
 #include "llrendertarget.h"
-#include "llglimmediate.h"
+#include "llrender.h"
 #include "llgl.h"
 
 
@@ -181,6 +181,7 @@ void LLRenderTarget::clear()
 	{
 		LLGLEnable scissor(GL_SCISSOR_TEST);
 		glScissor(0, 0, mResX, mResY);
+		stop_glerror();
 		glClear(mask);
 	}
 }

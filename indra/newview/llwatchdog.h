@@ -48,6 +48,7 @@ public:
 	// This may mean that resources used by 
 	// isAlive and other method may need synchronization.
 	virtual bool isAlive() const = 0;
+	virtual void reset() = 0;
 	virtual void start();
 	virtual void stop();
 };
@@ -59,15 +60,18 @@ public:
 	virtual ~LLWatchdogTimeout();
 
 	/* virtual */ bool isAlive() const;
-	/* virtual */ void start(); 
+	/* virtual */ void reset();
+	/* virtual */ void start(const std::string& state); 
 	/* virtual */ void stop();
 
 	void setTimeout(F32 d);
-	void ping();
+	void ping(const std::string& state);
+	const std::string& getState() {return mPingState; }
 
 private:
 	LLTimer mTimer;
 	F32 mTimeout;
+	std::string mPingState;
 };
 
 class LLWatchdogTimerThread; // Defined in the cpp
@@ -86,10 +90,14 @@ public:
 	void cleanup();
     
 private:
+	void lockThread();
+	void unlockThread();
+
 	typedef std::set<LLWatchdogEntry*> SuspectsRegistry;
 	SuspectsRegistry mSuspects;
 	LLMutex* mSuspectsAccessMutex;
 	LLWatchdogTimerThread* mTimer;
+	U64 mLastClockCount;
 };
 
 #endif // LL_LLTHREADWATCHDOG_H

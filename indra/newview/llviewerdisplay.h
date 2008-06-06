@@ -40,6 +40,7 @@ void display_cleanup();
 void display(BOOL rebuild = TRUE, F32 zoom_factor = 1.f, int subfield = 0, BOOL for_snapshot = FALSE);
 
 extern BOOL gDisplaySwapBuffers;
+extern BOOL gDepthDirty;
 extern BOOL	gTeleportDisplay;
 extern LLFrameTimer	gTeleportDisplayTimer;
 extern BOOL			gForceRenderLandFence;

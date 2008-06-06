@@ -59,18 +59,44 @@ enum EGridInfo
 	GRID_INFO_COUNT
 };
 
-
-struct LLGridData
+/**
+ * @brief A class to manage the viewer's login state.
+ * 
+ **/
+class LLViewerLogin : public LLSingleton<LLViewerLogin>
 {
-	const char* mLabel;
-	const char* mName;
-	const char* mLoginURI;
-	const char* mHelperURI;
-};
+public:
+	LLViewerLogin();
 
-extern EGridInfo gGridChoice;
-extern LLGridData gGridInfo[];
-extern LLString gGridName;		/* Flawfinder: ignore */
+	void setGridChoice(EGridInfo grid);
+	void setGridChoice(const std::string& grid_name);
+	void resetURIs();
+
+	/**
+	* @brief Get the enumeration of the grid choice.
+	* Should only return values > 0 && < GRID_INFO_COUNT
+	**/
+	EGridInfo getGridChoice() const;
+
+	/**
+	* @brief Get a readable label for the grid choice.
+	* Returns the readable name for the grid choice. 
+	* If the grid is 'other', returns something
+	* the string used to specifiy the grid.
+	**/
+	std::string getGridLabel() const; 
+
+	std::string getKnownGridLabel(EGridInfo grid_index) const; 
+
+	void getLoginURIs(std::vector<std::string>& uris) const;
+	std::string getHelperURI() const;
+
+	bool isInProductionGrid();
+
+private:
+	EGridInfo mGridChoice;
+	std::string mGridName;
+};
 
 const S32 MAC_ADDRESS_BYTES = 6;
 extern unsigned char gMACAddress[MAC_ADDRESS_BYTES];		/* Flawfinder: ignore */

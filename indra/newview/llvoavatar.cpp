@@ -37,7 +37,7 @@
 
 #include "llvoavatar.h"
 
-#include "llglimmediate.h"
+#include "llrender.h"
 #include "audioengine.h"
 #include "imageids.h"
 #include "indra_constants.h"
@@ -2750,7 +2750,7 @@ void LLVOAvatar::idleUpdateAppearanceAnimation()
 void LLVOAvatar::idleUpdateLipSync(bool voice_enabled)
 {
 	// Use the Lipsync_Ooh and Lipsync_Aah morphs for lip sync
-	if ( voice_enabled && (gVoiceClient->lipSyncEnabled() > 0) && gVoiceClient->getIsSpeaking( mID ) )
+	if ( voice_enabled && (gVoiceClient->lipSyncEnabled()) && gVoiceClient->getIsSpeaking( mID ) )
 	{
 		F32 ooh_morph_amount = 0.0f;
 		F32 aah_morph_amount = 0.0f;
@@ -4158,23 +4158,23 @@ U32 LLVOAvatar::renderTransparent()
 	BOOL first_pass = FALSE;
 	if( isWearingWearableType( WT_SKIRT ) )
 	{
-		glAlphaFunc(GL_GREATER,0.25f);
+		gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.25f);
 		num_indices += mSkirtLOD.render(mAdjustedPixelArea, FALSE);
 		first_pass = FALSE;
-		glAlphaFunc(GL_GREATER,0.01f);
+		gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
 	}
 
 	if (!mIsSelf || gAgent.needsRenderHead())
 	{
 		if (LLPipeline::sImpostorRender)
 		{
-			glAlphaFunc(GL_GREATER, 0.5f);
+			gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.5f);
 		}
 		num_indices += mEyeLashLOD.render(mAdjustedPixelArea, first_pass);
 		num_indices += mHairLOD.render(mAdjustedPixelArea, FALSE);
 		if (LLPipeline::sImpostorRender)
 		{
-			glAlphaFunc(GL_GREATER, 0.01f);
+			gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
 		}
 	}
 
@@ -4267,7 +4267,7 @@ U32 LLVOAvatar::renderImpostor(LLColor4U color)
 	up *= mImpostorDim.mV[1];
 
 	LLGLEnable test(GL_ALPHA_TEST);
-	glAlphaFunc(GL_GREATER, 0.f);
+	gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.f);
 
 	gGL.color4f(1,1,1,1);
 	gGL.color4ubv(color.mV);

@@ -34,7 +34,7 @@
 #include "llhudeffectpointat.h"
 
 #include "llgl.h"
-#include "llglimmediate.h"
+#include "llrender.h"
 
 #include "llagent.h"
 #include "lldrawable.h"

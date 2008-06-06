@@ -37,6 +37,7 @@
 #include "llviewercontrol.h"
 #include "llcriticaldamp.h"
 #include "llfasttimer.h"
+#include "llrender.h"
 
 #include "llcubemap.h"
 #include "llsky.h"
@@ -93,7 +94,7 @@ void LLDrawPoolAlpha::beginRenderPass(S32 pass)
 	{
 		// Start out with no shaders.
 		current_shader = target_shader = NULL;
-		glUseProgramObjectARB(0);
+		LLGLSLShader::bindNoShader();
 	}
 	gPipeline.enableLightsDynamic();
 }
@@ -105,7 +106,7 @@ void LLDrawPoolAlpha::endRenderPass( S32 pass )
 
 	if(gPipeline.canUseWindLightShaders()) 
 	{
-		glUseProgramObjectARB(0);
+		LLGLSLShader::bindNoShader();
 	}
 }
 
@@ -123,7 +124,7 @@ void LLDrawPoolAlpha::render(S32 pass)
 	{
 		if(gPipeline.canUseWindLightShaders()) 
 		{
-			glUseProgramObjectARB(0);
+			LLGLSLShader::bindNoShader();
 		}
 		gPipeline.enableLightsFullbright(LLColor4(1,1,1,1));
 		glColor4f(1,0,0,1);
@@ -207,18 +208,17 @@ void LLDrawPoolAlpha::renderGroupAlpha(LLSpatialGroup* group, U32 type, U32 mask
 		{
 			return;
 		}
-		// *TODO - Uhhh, we should always be doing some type of alpha rejection.  These should probably both be 0.01f
-		glAlphaFunc(GL_GREATER, 0.f);
+		gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
 	}
 	else
 	{
 		if (LLPipeline::sImpostorRender)
 		{
-			glAlphaFunc(GL_GREATER, 0.5f);
+			gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.5f);
 		}
 		else
 		{
-			glAlphaFunc(GL_GREATER, 0.01f);
+			gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
 		}
 	}
 
@@ -230,7 +230,8 @@ void LLDrawPoolAlpha::renderGroupAlpha(LLSpatialGroup* group, U32 type, U32 mask
 
 		if (texture && params.mTexture.notNull())
 		{
-			glActiveTextureARB(GL_TEXTURE0_ARB);
+			llassert_always(gGL.getTexUnit(0)) ;
+			gGL.getTexUnit(0)->activate();
 			params.mTexture->bind();
 			params.mTexture->addTextureStats(params.mVSize);
 			if (params.mTextureMatrix)
@@ -283,7 +284,7 @@ void LLDrawPoolAlpha::renderGroupAlpha(LLSpatialGroup* group, U32 type, U32 mask
 		}
 		else if (!use_shaders && current_shader != NULL)
 		{
-			glUseProgramObjectARB(0);
+			LLGLSLShader::bindNoShader();
 			current_shader = NULL;
 		}
 

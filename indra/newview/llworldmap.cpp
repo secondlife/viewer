@@ -161,6 +161,11 @@ void LLWorldMap::reset()
 
 	mNeighborMapWidth = 0;
 	mNeighborMapHeight = 0;
+
+	for (S32 i=0; i<MAP_SIM_IMAGE_TYPES; i++)
+	{
+		mMapLayers[i].clear();
+	}
 }
 
 void LLWorldMap::eraseItems()

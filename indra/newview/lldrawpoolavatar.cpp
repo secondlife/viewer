@@ -32,7 +32,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "lldrawpoolavatar.h"
-#include "llglimmediate.h"
+#include "llrender.h"
 
 #include "llvoavatar.h"
 #include "m3math.h"
@@ -299,7 +299,7 @@ void LLDrawPoolAvatar::beginSkinned()
 		}
 		
 		sVertexProgram->enableTexture(LLShaderMgr::BUMP_MAP);
-		glActiveTextureARB(GL_TEXTURE0_ARB);
+		gGL.getTexUnit(0)->activate();
 	}
 	else
 	{
@@ -319,7 +319,7 @@ void LLDrawPoolAvatar::endSkinned()
 	{
 		sRenderingSkinned = FALSE;
 		sVertexProgram->disableTexture(LLShaderMgr::BUMP_MAP);
-		glActiveTextureARB(GL_TEXTURE0_ARB);
+		gGL.getTexUnit(0)->activate();
 		disable_vertex_weighting(sVertexProgram->mAttribute[LLShaderMgr::AVATAR_WEIGHT]);
 		if (sShaderLevel >= SHADER_LEVEL_BUMP)
 		{
@@ -343,7 +343,7 @@ void LLDrawPoolAvatar::endSkinned()
 		}
 	}
 
-	glActiveTextureARB(GL_TEXTURE0_ARB);
+	gGL.getTexUnit(0)->activate();
 }
 
 
@@ -395,7 +395,7 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 		return;
 	}
 
-	if (!avatarp->isFullyLoaded())
+	if (!single_avatar && !avatarp->isFullyLoaded())
 	{
 		
 		/* // debug code to draw a cube in place of avatar
@@ -599,22 +599,12 @@ void LLDrawPoolAvatar::renderForSelect()
 	BOOL impostor = avatarp->isImpostor();
 	if (impostor)
 	{
-		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE,		GL_COMBINE_ARB);
-		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB,		GL_REPLACE);
-		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA_ARB,		GL_MODULATE);
-
-		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB,		GL_PRIMARY_COLOR);
-		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB_ARB,		GL_SRC_COLOR);
-
-		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_ARB,		GL_TEXTURE);
-		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA_ARB,	GL_SRC_ALPHA);
-
-		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_ALPHA_ARB,		GL_PRIMARY_COLOR_ARB);
-		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_ALPHA_ARB,	GL_SRC_ALPHA);
+		gGL.getTexUnit(0)->setTextureColorBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_VERT_COLOR);
+		gGL.getTexUnit(0)->setTextureAlphaBlend(LLTexUnit::TBO_MULT, LLTexUnit::TBS_TEX_ALPHA, LLTexUnit::TBS_VERT_ALPHA);
 
 		avatarp->renderImpostor(color);
 
-		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+		gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
 		return;
 	}
 
@@ -623,8 +613,8 @@ void LLDrawPoolAvatar::renderForSelect()
 	{
 		gAvatarMatrixParam = sVertexProgram->mUniform[LLShaderMgr::AVATAR_MATRIX];
 	}
-	glAlphaFunc(GL_GEQUAL, 0.2f);
-	gGL.blendFunc(GL_ONE, GL_ZERO);
+	gGL.setAlphaRejectSettings(LLRender::CF_GREATER_EQUAL, 0.2f);
+	gGL.setSceneBlendType(LLRender::BT_REPLACE);
 
 	glColor4ubv(color.mV);
 
@@ -645,11 +635,11 @@ void LLDrawPoolAvatar::renderForSelect()
 		disable_vertex_weighting(sVertexProgram->mAttribute[LLShaderMgr::AVATAR_WEIGHT]);
 	}
 
-	glAlphaFunc(GL_GREATER, 0.01f);
-	gGL.blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
+	gGL.setSceneBlendType(LLRender::BT_ALPHA);
 
 	// restore texture mode
-	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+	gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
 }
 
 //-----------------------------------------------------------------------------
