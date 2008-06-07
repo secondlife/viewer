@@ -555,7 +555,7 @@ public:
 	LLColor4U getFadeColor() const						{ return mFadeColor; }
 	F32 getFogRatio() const								{ return mFogRatio; }
 	void setCloudDensity(F32 cloud_density)				{ mCloudDensity = cloud_density; }
-	void setWind ( const LLVector3& wind )				{ mWind = wind.magVec(); }
+	void setWind ( const LLVector3& wind )				{ mWind = wind.length(); }
 
 	const LLVector3 &getCameraPosAgent() const			{ return mCameraPosAgent; }
 	LLVector3 getEarthCenter() const					{ return mEarthCenter; }

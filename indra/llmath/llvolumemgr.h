@@ -59,7 +59,7 @@ public:
 	static void getDetailProximity(const F32 tan_angle, F32 &to_lower, F32& to_higher);
 	static F32 getVolumeScaleFromDetail(const S32 detail);
 
-	LLVolume* getLODVolume(const S32 detail);
+	LLVolume* refLOD(const S32 detail);
 	BOOL derefLOD(LLVolume *volumep);
 	S32 getNumRefs() const { return mRefs; }
 	

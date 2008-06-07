@@ -95,6 +95,10 @@ class LLVector3d
 		F64		magVecSquared() const;		// Returns magnitude squared of LLVector3d
 		inline F64		normVec();					// Normalizes and returns the magnitude of LLVector3d
 
+		F64 length() const;			// Returns magnitude of LLVector3d
+		F64 lengthSquared() const;	// Returns magnitude squared of LLVector3d
+		inline F64 normalize();		// Normalizes and returns the magnitude of LLVector3d
+
 		const LLVector3d&	rotVec(const F64 angle, const LLVector3d &vec);	// Rotates about vec by angle radians
 		const LLVector3d&	rotVec(const F64 angle, const F64 x, const F64 y, const F64 z);		// Rotates about x,y,z by angle radians
 		const LLVector3d&	rotVec(const LLMatrix3 &mat);				// Rotates by LLMatrix4 mat
@@ -261,6 +265,28 @@ inline F64 LLVector3d::normVec(void)
 	return (mag);
 }
 
+inline F64 LLVector3d::normalize(void)
+{
+	F64 mag = fsqrtf(mdV[0]*mdV[0] + mdV[1]*mdV[1] + mdV[2]*mdV[2]);
+	F64 oomag;
+
+	if (mag > FP_MAG_THRESHOLD)
+	{
+		oomag = 1.f/mag;
+		mdV[0] *= oomag;
+		mdV[1] *= oomag;
+		mdV[2] *= oomag;
+	}
+	else
+	{
+		mdV[0] = 0.f;
+		mdV[1] = 0.f;
+		mdV[2] = 0.f;
+		mag = 0;
+	}
+	return (mag);
+}
+
 // LLVector3d Magnitude and Normalization Functions
 
 inline F64	LLVector3d::magVec(void) const
@@ -269,6 +295,16 @@ inline F64	LLVector3d::magVec(void) const
 }
 
 inline F64	LLVector3d::magVecSquared(void) const
+{
+	return mdV[0]*mdV[0] + mdV[1]*mdV[1] + mdV[2]*mdV[2];
+}
+
+inline F64	LLVector3d::length(void) const
+{
+	return fsqrtf(mdV[0]*mdV[0] + mdV[1]*mdV[1] + mdV[2]*mdV[2]);
+}
+
+inline F64	LLVector3d::lengthSquared(void) const
 {
 	return mdV[0]*mdV[0] + mdV[1]*mdV[1] + mdV[2]*mdV[2];
 }
@@ -416,8 +452,8 @@ inline F64 angle_between(const LLVector3d& a, const LLVector3d& b)
 {
 	LLVector3d an = a;
 	LLVector3d bn = b;
-	an.normVec();
-	bn.normVec();
+	an.normalize();
+	bn.normalize();
 	F64 cosine = an * bn;
 	F64 angle = (cosine >= 1.0f) ? 0.0f :
 				(cosine <= -1.0f) ? F_PI :
@@ -429,8 +465,8 @@ inline BOOL are_parallel(const LLVector3d &a, const LLVector3d &b, const F64 eps
 {
 	LLVector3d an = a;
 	LLVector3d bn = b;
-	an.normVec();
-	bn.normVec();
+	an.normalize();
+	bn.normalize();
 	F64 dot = an * bn;
 	if ( (1.0f - fabs(dot)) < epsilon)
 	{
@@ -443,7 +479,7 @@ inline BOOL are_parallel(const LLVector3d &a, const LLVector3d &b, const F64 eps
 inline LLVector3d projected_vec(const LLVector3d &a, const LLVector3d &b)
 {
 	LLVector3d project_axis = b;
-	project_axis.normVec();
+	project_axis.normalize();
 	return project_axis * (a * project_axis);
 }
 

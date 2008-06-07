@@ -418,7 +418,7 @@ BOOL LLWorld::positionRegionValidGlobal(const LLVector3d &pos_global)
 F32 LLWorld::getMinAllowedZ(LLViewerObject* object)
 {
 	F32 land_height = resolveLandHeightGlobal(object->getPositionGlobal());
-	F32 radius = 0.5f * object->getScale().magVec();
+	F32 radius = 0.5f * object->getScale().length();
 	return land_height - radius;
 }
 
@@ -497,7 +497,7 @@ F32 LLWorld::resolveStepHeightGlobal(const LLVOAvatar* avatarp, const LLVector3d
 	}
 	
 	// calculate the length of the segment
-	F32 segment_length = (F32)((point_a - point_b).magVec());
+	F32 segment_length = (F32)((point_a - point_b).length());
 	if (0.0f == segment_length)
 	{
 		intersection = point_a;
@@ -775,7 +775,7 @@ void LLWorld::printPacketsLost()
 		{
 			LLVector3d range = regionp->getCenterGlobal() - gAgent.getPositionGlobal();
 				
-			llinfos << regionp->getHost() << ", range: " << range.magVec()
+			llinfos << regionp->getHost() << ", range: " << range.length()
 					<< " packets lost: " << cdp->getPacketsLost() << llendl;
 		}
 	}

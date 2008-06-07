@@ -525,7 +525,7 @@ public:
 
 	BOOL			sitCameraEnabled() { return mSitCameraEnabled; }
 
-	F32				getCurrentCameraBuildOffset() { return (F32)mCameraFocusOffset.magVec(); }
+	F32				getCurrentCameraBuildOffset() { return (F32)mCameraFocusOffset.length(); }
 
 	// look at behavior
 	BOOL			setLookAt(ELookAtType target_type, LLViewerObject *object = NULL, LLVector3 position = LLVector3::zero);

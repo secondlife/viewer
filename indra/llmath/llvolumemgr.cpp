@@ -115,7 +115,7 @@ LLVolume* LLVolumeMgr::refVolume(const LLVolumeParams &volume_params, const S32 
 	{
 		mDataMutex->unlock();
 	}
-	return volgroupp->getLODVolume(detail);
+	return volgroupp->refLOD(detail);
 }
 
 // virtual
@@ -294,7 +294,7 @@ bool LLVolumeLODGroup::cleanupRefs()
 	return res;
 }
 
-LLVolume* LLVolumeLODGroup::getLODVolume(const S32 detail)
+LLVolume* LLVolumeLODGroup::refLOD(const S32 detail)
 {
 	llassert(detail >=0 && detail < NUM_LODS);
 	mAccessCount[detail]++;

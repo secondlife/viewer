@@ -870,7 +870,7 @@ void LLPipeline::allocDrawable(LLViewerObject *vobj)
 	
 	//encompass completely sheared objects by taking 
 	//the most extreme point possible (<1,1,0.5>)
-	drawable->setRadius(LLVector3(1,1,0.5f).scaleVec(vobj->getScale()).magVec());
+	drawable->setRadius(LLVector3(1,1,0.5f).scaleVec(vobj->getScale()).length());
 	if (vobj->isOrphaned())
 	{
 		drawable->setState(LLDrawable::FORCE_INVISIBLE);
@@ -1124,7 +1124,7 @@ void LLPipeline::updateMove()
 F32 LLPipeline::calcPixelArea(LLVector3 center, LLVector3 size, LLCamera &camera)
 {
 	LLVector3 lookAt = center - camera.getOrigin();
-	F32 dist = lookAt.magVec();
+	F32 dist = lookAt.length();
 
 	//ramp down distance for nearby objects
 	if (dist < 16.f)
@@ -1135,7 +1135,7 @@ F32 LLPipeline::calcPixelArea(LLVector3 center, LLVector3 size, LLCamera &camera
 	}
 
 	//get area of circle around node
-	F32 app_angle = atanf(size.magVec()/dist);
+	F32 app_angle = atanf(size.length()/dist);
 	F32 radius = app_angle*LLDrawable::sCurPixelAngle;
 	return radius*radius * 3.14159f;
 }
@@ -3123,7 +3123,7 @@ static F32 calc_light_dist(LLVOVolume* light, const LLVector3& cam_pos, F32 max_
 	F32 radius = light->getLightRadius();
 	BOOL selected = light->isSelected();
 	LLVector3 dpos = light->getRenderPosition() - cam_pos;
-	F32 dist2 = dpos.magVecSquared();
+	F32 dist2 = dpos.lengthSquared();
 	if (!selected && dist2 > (max_dist + radius)*(max_dist + radius))
 	{
 		return max_dist;
@@ -5143,7 +5143,7 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
 	//glh::matrix4f ortho = gl_ortho(-tdim.mV[0], tdim.mV[0], -tdim.mV[1], tdim.mV[1], 1.0, 256.0);
-	F32 distance = (pos-camera.getOrigin()).magVec();
+	F32 distance = (pos-camera.getOrigin()).length();
 	F32 fov = atanf(tdim.mV[1]/distance)*2.f*RAD_TO_DEG;
 	F32 aspect = tdim.mV[0]/tdim.mV[1]; //128.f/256.f;
 	glh::matrix4f persp = gl_perspective(fov, aspect, 1.f, 256.f);

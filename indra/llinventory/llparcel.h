@@ -514,7 +514,7 @@ public:
 	S32 getSimWidePrimCount() const { return mSimWidePrimCount; }
 
 	// this parcel only (not simwide)
-	S32		getMaxPrimCapacity() const	{ return mMaxPrimCapacity; }
+	S32		getMaxPrimCapacity() const	{ return mMaxPrimCapacity; }	// Does not include prim bonus
 	S32		getPrimCount() const		{ return mOwnerPrimCount + mGroupPrimCount + mOtherPrimCount + mSelectedPrimCount; }
 	S32		getOwnerPrimCount() const	{ return mOwnerPrimCount; }
 	S32		getGroupPrimCount() const	{ return mGroupPrimCount; }
@@ -525,7 +525,7 @@ public:
 
 	S32		getCleanOtherTime() const			{ return mCleanOtherTime; }
 
-	void	setMaxPrimCapacity(S32 max) { mMaxPrimCapacity = max; }
+	void	setMaxPrimCapacity(S32 max) { mMaxPrimCapacity = max; }		// Does not include prim bonus
 	// simwide
 	void	setSimWideMaxPrimCapacity(S32 current)	{ mSimWideMaxPrimCapacity = current; }
 	void setSimWidePrimCount(S32 current) { mSimWidePrimCount = current; }
@@ -604,7 +604,7 @@ protected:
 	F32					mPassHours;
 	LLVector3			mAABBMin;
 	LLVector3			mAABBMax;
-	S32					mMaxPrimCapacity;
+	S32					mMaxPrimCapacity;		// Prims allowed on parcel, does not include prim bonus
 	S32					mSimWidePrimCount;
 	S32					mSimWideMaxPrimCapacity;
 	//S32					mSimWidePrimCorrection;
