@@ -1229,7 +1229,7 @@ if (WINDOWS)
         )
 
     # sets the 'working directory' for debugging from visual studio.
-        if (NOT UNATTENDED)
+    if (NOT UNATTENDED)
         add_custom_command(
             TARGET secondlife-bin PRE_BUILD
             COMMAND ${CMAKE_SOURCE_DIR}/tools/vstool/vstool.exe
@@ -1241,7 +1241,7 @@ if (WINDOWS)
               ${CMAKE_CURRENT_SOURCE_DIR}
             COMMENT "Setting the secondlife-bin working directory for debugging."
             )
-        endif (NOT UNATTENDED)
+    endif (NOT UNATTENDED)
 
     add_custom_command(
         TARGET secondlife-bin PRE_BUILD
