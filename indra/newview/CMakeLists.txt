@@ -1189,8 +1189,7 @@ if (FMOD)
         INSTALL_NAME_DIR "@executable_path/../Resources"
         )
     endif (DARWIN)
-    set(FMODWRAPPER_LIBRARIES fmodwrapper)
-    list(APPEND viewer_LIBRARIES fmodwrapper)
+    set(FMODWRAPPER_LIBRARY fmodwrapper)
     target_link_libraries(fmodwrapper ${fmodwrapper_needed_LIBRARIES})
   endif (NOT WINDOWS)
 endif (FMOD)
@@ -1313,7 +1312,7 @@ target_link_libraries(secondlife-bin
     ${BOOST_REGEX_LIBRARY}
     ${BOOST_SIGNALS_LIBRARY}
     ${OPENGL_LIBRARIES}
-    ${FMODWRAPPER_LIBRARIES}
+    ${FMODWRAPPER_LIBRARY}
     ${OPENGL_LIBRARIES}
     ${MOZLIB_LIBRARIES}
     ${SDL_LIBRARY}
@@ -1411,23 +1410,22 @@ if (DARWIN)
     DEPENDS secondlife-bin ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
     )
 
-  add_custom_command(
-    OUTPUT ${CMAKE_CFG_INTDIR}/.${product}.touched
-    COMMAND ${PYTHON_EXECUTABLE}
-    ARGS
-      ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
-      --configuration=${CMAKE_CFG_INTDIR}
-      --channel=${VIEWER_CHANNEL}
-      --source=${CMAKE_CURRENT_SOURCE_DIR}
-      --artwork=${ARTWORK_DIR}
-      --build=${CMAKE_CURRENT_BINARY_DIR}
-      --dest=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/${product}.app
-      --touch=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/.${product}.touched
-    DEPENDS secondlife-bin ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
-    )
-
   if (PACKAGE)
-    add_custom_target(package DEPENDS "${CMAKE_CFG_INTDIR}/.${product}.touched")
+    add_custom_target(package
+      COMMAND
+        ${PYTHON_EXECUTABLE}
+        ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
+        --configuration=${CMAKE_CFG_INTDIR}
+        --channel=${VIEWER_CHANNEL}
+        --source=${CMAKE_CURRENT_SOURCE_DIR}
+        --artwork=${ARTWORK_DIR}
+        --build=${CMAKE_CURRENT_BINARY_DIR}
+        --dest=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/${product}.app
+        --touch=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/.${product}.touched
+      DEPENDS
+        secondlife-bin
+        ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
+      )
   endif (PACKAGE)
 endif (DARWIN)
 
