@@ -5,6 +5,7 @@ if (VIEWER AND WINDOWS)
             "$ENV{DXSDK_DIR}/Include"
             "C:/Program Files/Microsoft DirectX SDK (March 2008)/Include"
             "C:/Program Files/Microsoft DirectX SDK (November 2007)/Include"
+            "C:/Program Files/Microsoft DirectX SDK (August 2007)/Include"
             "C:/DX90SDK/Include"
             "C:/Program Files/DX90SDK/Include"
             )
@@ -22,6 +23,7 @@ if (VIEWER AND WINDOWS)
             "$ENV{DXSDK_DIR}/Lib/x86"
             "C:/Program Files/Microsoft DirectX SDK (March 2008)/Lib/x86"
             "C:/Program Files/Microsoft DirectX SDK (November 2007)/Lib/x86"
+            "C:/Program Files/Microsoft DirectX SDK (August 2007)/Lib/x86"
             "C:/DX90SDK/Lib"
             "C:/Program Files/DX90SDK/Lib"
             )
