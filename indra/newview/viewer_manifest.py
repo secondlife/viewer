@@ -402,8 +402,7 @@ class DarwinManifest(ViewerManifest):
                 self.path("../../libraries/universal-darwin/lib_release/libllkdu.dylib", "libllkdu.dylib")
                 
                 #libfmodwrapper.dylib
-                self.path('fmodwrapper/%s/libfmodwrapper.dylib' %
-                          self.args['configuration'], 'libfmodwrapper.dylib')
+                self.path(self.args['configuration'] + "/libfmodwrapper.dylib", "libfmodwrapper.dylib")
 
                 # command line arguments for connecting to the proper grid
                 self.put_in_file(self.flags_list(), 'arguments.txt')
