@@ -109,8 +109,8 @@ class PlatformSetup(object):
             unattended=self.unattended,
             type=self.build_type.upper(),
             )
-        if simple:
-            return 'cmake %(opts)s %(dir)r' % args
+        #if simple:
+        #    return 'cmake %(opts)s %(dir)r' % args
         return ('cmake -DCMAKE_BUILD_TYPE:STRING=%(type)s '
                 '-DSTANDALONE:BOOL=%(standalone)s '
                 '-DUNATTENDED:BOOL=%(unattended)s '
@@ -262,8 +262,11 @@ class LinuxSetup(UnixSetup):
                 gcc41 = distcc + self.find_in_path('g++-4.1', 'g++', True)
                 args.update({'cxx': ' '.join(gcc41), 'server':'FALSE',
                              'viewer':'TRUE'})
-        if simple:
-            return 'cmake %(opts)s %(dir)r' % args
+        #if simple:
+        #    return (('cmake %(opts)s '
+        #             '-DSERVER:BOOL=%(server)s ' 
+        #             '-DVIEWER:BOOL=%(viewer)s '
+        #             '%(dir)r') % args)
         cmd = (('cmake -DCMAKE_BUILD_TYPE:STRING=%(type)s '
                 '-G %(generator)r -DSERVER:BOOL=%(server)s '
                 '-DVIEWER:BOOL=%(viewer)s -DSTANDALONE:BOOL=%(standalone)s '
@@ -371,8 +374,8 @@ class DarwinSetup(UnixSetup):
             unattended=self.unattended,
             type=self.build_type.upper()
             )
-        if simple:
-            return 'cmake %(opts)s %(dir)r' % args
+        #if simple:
+        #    return 'cmake %(opts)s %(dir)r' % args
         return ('cmake -G %(generator)r '
                 '-DCMAKE_BUILD_TYPE:STRING=%(type)s '
                 '-DSTANDALONE:BOOL=%(standalone)s '
@@ -452,8 +455,8 @@ class WindowsSetup(PlatformSetup):
             standalone=self.standalone,
             unattended=self.unattended,
             )
-        if simple:
-            return 'cmake %(opts)s "%(dir)s"' % args
+        #if simple:
+        #    return 'cmake %(opts)s "%(dir)s"' % args
         return ('cmake -G "%(generator)s" '
                 '-DSTANDALONE:BOOL=%(standalone)s '
                 '-DUNATTENDED:BOOL=%(unattended)s '
@@ -550,8 +553,8 @@ class CygwinSetup(WindowsSetup):
             standalone=self.standalone,
             unattended=self.unattended,
             )
-        if simple:
-            return 'cmake %(opts)s "%(dir)s"' % args
+        #if simple:
+        #    return 'cmake %(opts)s "%(dir)s"' % args
         return ('cmake -G "%(generator)s" '
                 '-DUNATTENDED:BOOl=%(unattended)s '
                 '-DSTANDALONE:BOOL=%(standalone)s '
