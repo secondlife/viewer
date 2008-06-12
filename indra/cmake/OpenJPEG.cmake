@@ -1,4 +1,5 @@
 # -*- cmake -*-
+include(Prebuilt)
 
 set(OPENJPEG_FIND_QUIETLY ON)
 set(OPENJPEG_FIND_REQUIRED ON)
@@ -6,6 +7,7 @@ set(OPENJPEG_FIND_REQUIRED ON)
 if (STANDALONE)
   include(FindOpenJPEG)
 else (STANDALONE)
+  use_prebuilt_binary(openjpeg)
   
   if(WINDOWS)
     # Windows has differently named release and debug openjpeg(d) libs.

@@ -34,7 +34,6 @@ $/LicenseInfo$
 """
 
 import copy
-import errno
 import md5
 import optparse
 import os
@@ -73,18 +72,18 @@ class InstallFile(object):
     def __str__(self):
         return "ifile{%s:%s}" % (self.pkgname, self.url)
 
-    def _is_md5_match(self):
-        hasher = md5.new(file(self.filename).read())
+    def _is_md5sum_match(self):
+        hasher = md5.new(file(self.filename, 'rb').read())
         if hasher.hexdigest() == self.md5sum:
             return  True
         return False
 
     def is_match(self, platform):
         """@brief Test to see if this ifile is part of platform
-@param platform The target platform. Eg, win32 or linux/i686/gcc/3.3
-@return Returns True if the ifile is in the platform.
+        @param platform The target platform. Eg, windows or linux/i686/gcc/3.3
+        @return Returns True if the ifile is in the platform.
         """
-        if self.platform_path == 'common':
+        if self.platform_path[0] == 'common':
             return True
         req_platform_path = platform.split('/')
         #print "platform:",req_platform_path
@@ -96,21 +95,20 @@ class InstallFile(object):
                 return False
         #print "match!"
         return True
-                               
 
     def fetch_local(self):
-        print "Looking for:",self.filename
+        #print "Looking for:",self.filename
         if not os.path.exists(self.filename):
-            print "not there -- fetching"
-        elif self.md5sum and not self._is_md5_match():
-            print "Found, but md5 does not match."
+            pass
+        elif self.md5sum and not self._is_md5sum_match():
+            print "md5 mismatch:", self.filename
             os.remove(self.filename)
         else:
-            print "Found matching package"
+            print "Found matching package:", self.filename
             return
         print "Downloading",self.url,"to local file",self.filename
         urllib.urlretrieve(self.url, self.filename)
-        if self.md5sum and not self._is_md5_match():
+        if self.md5sum and not self._is_md5sum_match():
             raise RuntimeError("Error matching md5 for %s" % self.url)
 
 class LicenseDefinition(object):
@@ -121,7 +119,7 @@ class LicenseDefinition(object):
         #   blessed : ...
         # }
         self._definition = definition
-    
+
 
 class BinaryDefinition(object):
     def __init__(self, definition):
@@ -138,7 +136,7 @@ class BinaryDefinition(object):
 
     def _ifiles_from_path(self, tree, pkgname, cache_dir, path):
         ifiles = []
-        if tree.has_key('url'):
+        if 'url' in tree:
             ifiles.append(InstallFile(
                 pkgname,
                 tree['url'],
@@ -159,10 +157,10 @@ class BinaryDefinition(object):
 
     def ifiles(self, pkgname, platform, cache_dir):
         """@brief return a list of appropriate InstallFile instances to install
-@param pkgname The name of the package to be installed, eg 'tut'
-@param platform The target platform. Eg, win32 or linux/i686/gcc/3.3
-@param cache_dir The directory to cache downloads.
-@return Returns a list of InstallFiles which are part of this install
+        @param pkgname The name of the package to be installed, eg 'tut'
+        @param platform The target platform. Eg, windows or linux/i686/gcc/3.3
+        @param cache_dir The directory to cache downloads.
+        @return Returns a list of InstallFiles which are part of this install
         """
         if 'packages' not in self._definition:
             return []
@@ -172,13 +170,16 @@ class BinaryDefinition(object):
             cache_dir)
         if platform == 'all':
             return all_ifiles
-        return [ifile for ifile in all_ifiles if ifile.is_match(platform)]
+        #print "Considering", len(all_ifiles), "packages for", pkgname
+        # split into 2 lines because pychecker thinks it might return none.
+        files = [ifile for ifile in all_ifiles if ifile.is_match(platform)]
+        return files
 
 class InstalledPackage(object):
     def __init__(self, definition):
         # looks like:
-        # { url1 : [file1,file2,...],
-        #   url2 : [file1,file2,...],...
+        # { url1 : { files: [file1,file2,...], md5sum:... },
+        #   url2 : { files: [file1,file2,...], md5sum:... },...
         # }
         self._installed = {}
         for url in definition:
@@ -188,13 +189,23 @@ class InstalledPackage(object):
         return self._installed.keys()
 
     def files_in(self, url):
-        return self._installed[url]
+        return self._installed[url].get('files', [])
+
+    def get_md5sum(self, url):
+        return self._installed[url].get('md5sum', None)
 
     def remove(self, url):
         self._installed.pop(url)
 
     def add_files(self, url, files):
-        self._installed[url] = files
+        if url not in self._installed:
+            self._installed[url] = {}
+        self._installed[url]['files'] = files
+
+    def set_md5sum(self, url, md5sum):
+        if url not in self._installed:
+            self._installed[url] = {}
+        self._installed[url]['md5sum'] = md5sum
 
 class Installer(object):
     def __init__(self, install_filename, installed_filename, dryrun):
@@ -203,17 +214,17 @@ class Installer(object):
         self._installed_filename = installed_filename
         self._installed_changed = False
         self._dryrun = dryrun
-        self._binaries = {}
+        self._installables = {}
         self._licenses = {}
         self._installed = {}
         self.load()
 
     def load(self):
         if os.path.exists(self._install_filename):
-            install = llsd.parse(file(self._install_filename).read())
+            install = llsd.parse(file(self._install_filename, 'rb').read())
             try:
                 for name in install['binaries']:
-                    self._binaries[name] = BinaryDefinition(
+                    self._installables[name] = BinaryDefinition(
                         install['binaries'][name])
             except KeyError:
                 pass
@@ -223,7 +234,7 @@ class Installer(object):
             except KeyError:
                 pass
         if os.path.exists(self._installed_filename):
-            installed = llsd.parse(file(self._installed_filename).read())
+            installed = llsd.parse(file(self._installed_filename, 'rb').read())
             try:
                 bins = installed['binaries']
                 for name in bins:
@@ -234,7 +245,7 @@ class Installer(object):
     def _write(self, filename, state):
         print "Writing state to",filename
         if not self._dryrun:
-            file(filename, 'w').write(llsd.format_xml(state))
+            file(filename, 'wb').write(llsd.format_pretty_xml(state))
 
     def save(self):
         if self._install_changed:
@@ -242,10 +253,10 @@ class Installer(object):
             state['licenses'] = {}
             for name in self._licenses:
                 state['licenses'][name] = self._licenses[name]._definition
-            #print "self._binaries:",self._binaries
+            #print "self._installables:",self._installables
             state['binaries'] = {}
-            for name in self._binaries:
-                state['binaries'][name] = self._binaries[name]._definition
+            for name in self._installables:
+                state['binaries'][name] = self._installables[name]._definition
             self._write(self._install_filename, state)
         if self._installed_changed:
             state = {}
@@ -256,92 +267,146 @@ class Installer(object):
                 bin[name] = self._installed[name]._installed
             self._write(self._installed_filename, state)
 
-    def is_license_info_valid(self):
-        valid = True
-        for bin in self._binaries:
-            binary = self._binaries[bin]._definition
-            if not binary.has_key('license'):
-                valid = False
-                print >>sys.stderr, "No license info for binary", bin + '.'
-                continue
-            if binary['license'] not in self._licenses:
-                valid = False
-                lic = binary['license']
-                print >>sys.stderr, "Missing license info for '" + lic + "'",
-                print >>sys.stderr, 'in binary', bin + '.'
-        return valid
+    def is_valid_license(self, bin):
+        "@brief retrun true if we have valid license info for binary."
+        binary = self._installables[bin]._definition
+        if 'license' not in binary:
+            print >>sys.stderr, "No license info found for", bin
+            print >>sys.stderr, 'Please add the license with the',
+            print >>sys.stderr, '--add-installable option. See', sys.argv[0], '--help'
+            return False
+        if binary['license'] not in self._licenses:
+            lic = binary['license']
+            print >>sys.stderr, "Missing license info for '" + lic + "'.",
+            print >>sys.stderr, 'Please add the license with the',
+            print >>sys.stderr, '--add-license option. See', sys.argv[0],
+            print >>sys.stderr, '--help'
+            return False
+        return True
+
+    def list_installables(self):
+        "Return a list of all known binaries."
+        return self._installables.keys()
 
     def detail_binary(self, name):
         "Return a binary definition detail"
-        try:
-            detail = self._binaries[name]._definition
-            return detail
-        except KeyError:
-            return None
+        return self._installables[name]._definition
 
-    def _update_field(self, binary, field):
+    def list_licenses(self):
+        "Return a list of all known licenses."
+        return self._licenses.keys()
+
+    def detail_license(self, name):
+        "Return a license definition detail"
+        return self._licenses[name]._definition
+
+    def list_installed(self):
+        "Return a list of installed packages."
+        return self._installed.keys()
+
+    def _update_field(self, binary, field, value):
         """Given a block and a field name, add or update it.
         @param binary[in,out] a dict containing all the details about a binary.
         @param field the name of the field to update.
+        @param value the value of the field to update; if omitted, interview
+                     will ask for value.
         """
-        if binary.has_key(field):
-            print "Update value for '" + field + "'"
-            print "(Leave blank to keep current value)"
-            print "Current Value:  '" + binary[field] + "'"
-        else:
-            print "Specify value for '" + field + "'"
-        value = raw_input("Enter New Value: ")
-        if binary.has_key(field) and not value:
-            pass
-        elif value:
+        if value:
             binary[field] = value
+        else:
+            if field in binary:
+                print "Update value for '" + field + "'"
+                print "(Leave blank to keep current value)"
+                print "Current Value:  '" + binary[field] + "'"
+            else:
+                print "Specify value for '" + field + "'"
+            new_value = raw_input("Enter New Value: ")
+            if field in binary and not new_value:
+                pass
+            elif new_value:
+                binary[field] = new_value
 
-    def _add_package(self, binary):
-        """Add an url for a platform path to the binary.
-        @param binary[in,out] a dict containing all the details about a binary."""
-        print """\
-Please enter a new package location and url. Some examples:
-common -- specify a package for all platforms
-linux -- specify a package for all arch and compilers on linux
-darwin/universal -- specify a mac os x universal
-win32/i686/vs/2003 -- specify a windows visual studio 2003 package"""
-        target = raw_input("Package path: ")
-        url = raw_input("Package URL:  ")
-        md5sum = raw_input("Package md5:  ")
-        path = target.split('/')
-        if not binary.has_key('packages'):
+        self._install_changed = True
+        return True
+
+    def _update_installable(self, name, platform, url, md5sum):
+        """Update installable entry with specific package information.
+        @param binary[in,out] a dict containing all the details about a binary.
+        @param platform Platform info, i.e. linux/i686, windows/i686 etc.
+        @param url URL of tar file
+        @param md5sum md5sum of tar file
+        """
+        binary  = self._installables[name]._definition
+        path = platform.split('/')
+        if 'packages' not in  binary:
             binary['packages'] = {}
         update = binary['packages']
         for child in path:
-            if not update.has_key(child):
+            if child not in update:
                 update[child] = {}
             parent = update
             update = update[child]
         parent[child]['url'] = llsd.uri(url)
         parent[child]['md5sum'] = md5sum
 
-    def adopt_binary(self, name):
-        "Interactively pull a new binary into the install"
-        if not self._binaries.has_key(name):
-            print "Adding binary '" + name + "'."
-            self._binaries[name] = BinaryDefinition({})
-        else:
-            print "Updating binary '" + name + "'."
-        binary  = self._binaries[name]._definition
-        for field in ('copyright', 'license', 'description'):
-            self._update_field(binary, field)
-        self._add_package(binary)
-        print "Adopted binary '" + name + "':"
-        pprint.pprint(self._binaries[name])
         self._install_changed = True
         return True
 
-    def orphan_binary(self, name):
-        self._binaries.pop(name)
+
+    def add_installable_package(self, name, **kwargs):
+        """Add an url for a platform path to the binary.
+        @param binary[in,out] a dict containing all the details about a binary.
+        """
+        platform_help_str = """\
+Please enter a new package location and url. Some examples:
+common -- specify a package for all platforms
+linux -- specify a package for all arch and compilers on linux
+darwin/universal -- specify a mac os x universal
+windows/i686/vs/2003 -- specify a windows visual studio 2003 package"""
+        if name not in self._installables:
+            print "Error: must add library with --add-installable or " \
+                  +"--add-installable-metadata before using " \
+                  +"--add-installable-package option"
+            return False
+        else:
+            print "Updating binary '" + name + "'."
+        for arg in ('platform', 'url', 'md5sum'):
+            if not kwargs[arg]:
+                if arg == 'platform': print platform_help_str
+                kwargs[arg] = raw_input("Package "+arg+":")
+        path = kwargs['platform'].split('/')
+
+        return self._update_installable(name, kwargs['platform'], 
+                        kwargs['url'], kwargs['md5sum'])
+
+    def add_installable_metadata(self, name, **kwargs):
+        """Interactively add (only) library metadata into install, 
+        w/o adding binary"""
+        if name not in self._installables:
+            print "Adding installable '" + name + "'."
+            self._installables[name] = BinaryDefinition({})
+        else:
+            print "Updating installable '" + name + "'."
+        binary  = self._installables[name]._definition
+        for field in ('copyright', 'license', 'description'):
+            self._update_field(binary, field, kwargs[field])
+        print "Added installable '" + name + "':"
+        pprint.pprint(self._installables[name])
+
+        return True
+
+    def add_installable(self, name, **kwargs):
+        "Interactively pull a new binary into the install"
+        ret_a = self.add_installable_metadata(name, **kwargs)
+        ret_b = self.add_installable_package(name, **kwargs)
+        return (ret_a and ret_b)
+
+    def remove_installable(self, name):
+        self._installables.pop(name)
         self._install_changed = True
 
     def add_license(self, name, text, url):
-        if self._licenses.has_key(name):
+        if name in self._licenses:
             print "License '" + name + "' being overwritten."
         definition = {}
         if url:
@@ -358,47 +423,77 @@ win32/i686/vs/2003 -- specify a windows visual studio 2003 package"""
         self._licenses.pop(name)
         self._install_changed = True
 
-    def _determine_install_set(self, ifiles):
-        """@brief determine what to install
-@param ifiles A list of InstallFile instances which are necessary for this install
-@return Returns the tuple (ifiles to install, ifiles to remove)"""
-        installed_list = []
-        for package in self._installed:
-            installed_list.extend(self._installed[package].urls())
-        installed_set = set(installed_list)
-        #print "installed_set:",installed_set
-        install_list = [ifile.url for ifile in ifiles]
-        install_set = set(install_list)
-        #print "install_set:",install_set
-        remove_set = installed_set.difference(install_set)
-        to_remove = [ifile for ifile in ifiles if ifile.url in remove_set]
-        #print "to_remove:",to_remove
-        install_set = install_set.difference(installed_set)
-        to_install = [ifile for ifile in ifiles if ifile.url in install_set]
-        #print "to_install:",to_install
-        return to_install, to_remove
-
-    def _build_ifiles(self, platform, cache_dir):
-        """@brief determine what files to install and remove
-@param platform The target platform. Eg, win32 or linux/i686/gcc/3.3
-@param cache_dir The directory to cache downloads.
-@return Returns the tuple (ifiles to install, ifiles to remove)"""
-        ifiles = []
-        for bin in self._binaries:
-            ifiles.extend(self._binaries[bin].ifiles(bin, platform, cache_dir))
-        return self._determine_install_set(ifiles)
-        
-    def _remove(self, to_remove):
+    def _uninstall(self, binaries):
+        """@brief Do the actual removal of files work.
+        *NOTE: This method is not transactionally safe -- ie, if it
+        raises an exception, internal state may be inconsistent. How
+        should we address this?
+        @param binaries The package names to remove
+        """
         remove_file_list = []
-        for ifile in to_remove:
-            remove_file_list.extend(
-                self._installed[ifile.pkgname].files_in(ifile.url))
-            self._installed[ifile.pkgname].remove(ifile.url)
-            self._installed_changed = True
+        for pkgname in binaries:
+            for url in self._installed[pkgname].urls():
+                remove_file_list.extend(
+                    self._installed[pkgname].files_in(url))
+                self._installed[pkgname].remove(url)
+                if not self._dryrun:
+                    self._installed_changed = True
+            if not self._dryrun:
+                self._installed.pop(pkgname)
+        remove_dir_set = set()
         for filename in remove_file_list:
             print "rm",filename
             if not self._dryrun:
-                os.remove(filename)
+                if os.path.exists(filename):
+                    remove_dir_set.add(os.path.dirname(filename))
+                    os.remove(filename)
+        for dirname in remove_dir_set:
+            try:
+                os.removedirs(dirname)
+            except OSError:
+                # This is just for cleanup, so we don't care about
+                # normal failures.
+                pass
+
+    def uninstall(self, binaries, install_dir):
+        """@brief Remove the packages specified.
+        @param binaries The package names to remove
+        @param install_dir The directory to work from
+        """
+        print "uninstall",binaries,"from",install_dir
+        cwd = os.getcwdu()
+        os.chdir(install_dir)
+        try:
+            self._uninstall(binaries)
+        finally:
+            os.chdir(cwd)
+
+    def _build_ifiles(self, platform, cache_dir):
+        """@brief determine what files to install
+        @param platform The target platform. Eg, windows or linux/i686/gcc/3.3
+        @param cache_dir The directory to cache downloads.
+        @return Returns the ifiles to install
+        """
+        ifiles = []
+        for bin in self._installables:
+            ifiles.extend(self._installables[bin].ifiles(bin, platform, cache_dir))
+        to_install = []
+        #print "self._installed",self._installed
+        for ifile in ifiles:
+            if ifile.pkgname not in self._installed:
+                to_install.append(ifile)
+            elif ifile.url not in self._installed[ifile.pkgname].urls():
+                to_install.append(ifile)
+            elif ifile.md5sum != self._installed[ifile.pkgname].get_md5sum(ifile.url):
+                # *TODO: We may want to uninstall the old version too
+                # when we detect it is installed, but the md5 sum is
+                # different.
+                to_install.append(ifile)
+            else:
+                #print "Installation up to date:",ifile.pkgname,ifile.platform_path
+                pass
+        #print "to_install",to_install
+        return to_install
 
     def _install(self, to_install, install_dir):
         for ifile in to_install:
@@ -411,30 +506,40 @@ win32/i686/vs/2003 -- specify a windows visual studio 2003 package"""
                     tar.extractall(path=install_dir)
                 except AttributeError:
                     _extractall(tar, path=install_dir)
-            if self._installed.has_key(ifile.pkgname):
-                self._installed[ifile.pkgname].add_files(ifile.url, tar.getnames())
+            if ifile.pkgname in self._installed:
+                self._installed[ifile.pkgname].add_files(
+                    ifile.url,
+                    tar.getnames())
+                self._installed[ifile.pkgname].set_md5sum(
+                    ifile.url,
+                    ifile.md5sum)
             else:
                 # *HACK: this understands the installed package syntax.
-                definition = { ifile.url : tar.getnames() }
+                definition = { ifile.url :
+                               {'files': tar.getnames(),
+                                'md5sum' : ifile.md5sum } }
                 self._installed[ifile.pkgname] = InstalledPackage(definition)
             self._installed_changed = True
 
-    def do_install(self, platform, install_dir, cache_dir):
+    def install(self, binaries, platform, install_dir, cache_dir):
         """@brief Do the installation for for the platform.
-@param platform The target platform. Eg, win32 or linux/i686/gcc/3.3
-@param install_dir The root directory to install into. Created if missing.
-@param cache_dir The directory to cache downloads. Created if missing."""
-        if not self._binaries:
-            raise RuntimeError("No binaries to install. Please add them.")
+        @param binaries The requested binaries to install.
+        @param platform The target platform. Eg, windows or linux/i686/gcc/3.3
+        @param install_dir The root directory to install into. Created
+        if missing.
+        @param cache_dir The directory to cache downloads. Created if
+        missing.
+        """
+        # The ordering of steps in the method is to help reduce the
+        # likelihood that we break something.
         _mkdir(install_dir)
         _mkdir(cache_dir)
-        to_install, to_remove = self._build_ifiles(platform, cache_dir)
+        to_install = self._build_ifiles(platform, cache_dir)
 
-        # we do this in multiple steps reduce the likelyhood to have a
-        # bad install.
+        # Filter for files which we actually requested to install.
+        to_install = [ifl for ifl in to_install if ifl.pkgname in binaries]
         for ifile in to_install:
             ifile.fetch_local()
-        self._remove(to_remove)
         self._install(to_install, install_dir)
 
 
@@ -485,35 +590,61 @@ def _extractall(tar, path=".", members=None):
 
 def _mkdir(directory):
     "Safe, repeatable way to make a directory."
-    try:
+    if not os.path.exists(directory):
         os.makedirs(directory)
-    except OSError, e:
-        if e[0] != errno.EEXIST:
-            raise
 
 def _get_platform():
     "Return appropriate platform packages for the environment."
     platform_map = {
         'darwin': 'darwin',
         'linux2': 'linux',
-        'win32' : 'win32',
-        'cygwin' : 'win32',
+        'win32' : 'windows',
+        'cygwin' : 'windows',
         'solaris' : 'solaris'
         }
     return platform_map[sys.platform]
 
-def main():
+def _getuser():
+    "Get the user"
+    try:
+        # Unix-only.
+        import getpass
+        return getpass.getuser()
+    except ImportError:
+        import win32api
+        return win32api.GetUserName()
+
+def _default_binary_cache():
+    """In general, the binary files do not change much, so find a host/user
+    specific location to cache files."""
+    user = _getuser()
+    cache_dir = "/var/tmp/%s/install.cache" % user
+    if _get_platform() == 'windows':
+        import tempfile
+        cache_dir = os.path.join(tempfile.gettempdir(), \
+                                 'install.cache.%s' % user)
+    return cache_dir
+
+
+def parse_args():
     parser = optparse.OptionParser(
-        usage="usage: %prog [options]",
+        usage="usage: %prog [options] [binary1 [binary2 [binary3...]]]",
         formatter = helpformatter.Formatter(),
         description="""This script fetches and installs binary packages.
+It also handles uninstalling those packages and manages the mapping between
+packages and their license.
 
 The process is to open and read an install manifest file which specifies
-what files should be installed. For each file in the manifest:
+what files should be installed. For each binary to be installed.
  * make sure it has a license
  * check the installed version
  ** if not installed and needs to be, download and install
  ** if installed version differs, download & install
+
+If no binaries are specified on the command line, then the defaut
+behavior is to install all known binaries appropriate for the platform
+specified or uninstall all binaries if --uninstall is set. You can specify
+more than one binary on the command line.
 
 When specifying a platform, you can specify 'all' to install all
 packages, or any platform of the form:
@@ -521,7 +652,7 @@ packages, or any platform of the form:
 OS[/arch[/compiler[/compiler_version]]]
 
 Where the supported values for each are:
-OS: darwin, linux, win32, solaris
+OS: darwin, linux, windows, solaris
 arch: i686, x86_64, ppc, universal
 compiler: vs, gcc
 compiler_version: 2003, 2005, 2008, 3.3, 3.4, 4.0, etc.
@@ -529,8 +660,8 @@ compiler_version: 2003, 2005, 2008, 3.3, 3.4, 4.0, etc.
 No checks are made to ensure a valid combination of platform
 parts. Some exmples of valid platforms:
 
-win32
-win32/i686/vs/2005
+windows
+windows/i686/vs/2005
 linux/x86_64/gcc/3.3
 linux/x86_64/gcc/4.0
 darwin/universal/gcc/4.0
@@ -554,18 +685,24 @@ darwin/universal/gcc/4.0
         dest='installed_filename',
         help='The file used to record what is installed.')
     parser.add_option(
+        '--export-manifest', 
+        action='store_true',
+        default=False,
+        dest='export_manifest',
+        help="Print the install manifest to stdout and exit.")
+    parser.add_option(
         '-p', '--platform', 
         type='string',
         default=_get_platform(),
         dest='platform',
         help="""Override the automatically determined platform. \
-You can specify 'all' to do a complete installation of all binaries.""")
+You can specify 'all' to do a installation of binaries for all platforms.""")
     parser.add_option(
         '--cache-dir', 
         type='string',
-        default=join(base_dir, '.install.cache'),
+        default=_default_binary_cache(),
         dest='cache_dir',
-        help='Where to download files.')
+        help='Where to download files. Default: %s'%(_default_binary_cache()))
     parser.add_option(
         '--install-dir', 
         type='string',
@@ -573,11 +710,29 @@ You can specify 'all' to do a complete installation of all binaries.""")
         dest='install_dir',
         help='Where to unpack the installed files.')
     parser.add_option(
+        '--list-installed', 
+        action='store_true',
+        default=False,
+        dest='list_installed',
+        help="List the installed package names and exit.")
+    parser.add_option(
         '--skip-license-check', 
         action='store_false',
         default=True,
         dest='check_license',
         help="Do not perform the license check.")
+    parser.add_option(
+        '--list-licenses', 
+        action='store_true',
+        default=False,
+        dest='list_licenses',
+        help="List known licenses and exit.")
+    parser.add_option(
+        '--detail-license', 
+        type='string',
+        default=None,
+        dest='detail_license',
+        help="Get detailed information on specified license and exit.")
     parser.add_option(
         '--add-license', 
         type='string',
@@ -587,12 +742,6 @@ You can specify 'all' to do a complete installation of all binaries.""")
 license. Specify --license-url if the license is remote or specify \
 --license-text, otherwse the license text will be read from standard \
 input.""")
-    parser.add_option(
-        '--remove-license', 
-        type='string',
-        default=None,
-        dest='remove_license',
-        help="Remove a named license.")
     parser.add_option(
         '--license-url', 
         type='string',
@@ -608,33 +757,104 @@ Ignored if --add-license is not specified.""")
         help="""Put the text into an added license. \
 Ignored if --add-license is not specified.""")
     parser.add_option(
-        '--orphan', 
+        '--remove-license', 
         type='string',
         default=None,
-        dest='orphan',
+        dest='remove_license',
+        help="Remove a named license.")
+    parser.add_option(
+        '--remove-installable', 
+        type='string',
+        default=None,
+        dest='remove_installable',
         help="Remove a binary from the install file.")
     parser.add_option(
-        '--adopt', 
+        '--add-installable', 
         type='string',
         default=None,
-        dest='adopt',
+        dest='add_installable',
         help="""Add a binary into the install file. Argument is the name of \
 the binary to add.""")
+    parser.add_option(
+        '--add-installable-metadata', 
+        type='string',
+        default=None,
+        dest='add_installable_metadata',
+        help="""Add package for library into the install file. Argument is \
+the name of the library to add.""")
+    parser.add_option(
+        '--installable-copyright', 
+        type='string',
+        default=None,
+        dest='installable_copyright',
+        help="""Copyright for specified new package. Ignored if \
+--add-installable is not specified.""")
+    parser.add_option(
+        '--installable-license', 
+        type='string',
+        default=None,
+        dest='installable_license',
+        help="""Name of license for specified new package. Ignored if \
+--add-installable is not specified.""")
+    parser.add_option(
+        '--installable-description', 
+        type='string',
+        default=None,
+        dest='installable_description',
+        help="""Description for specified new package. Ignored if \
+--add-installable is not specified.""")
+    parser.add_option(
+        '--add-installable-package', 
+        type='string',
+        default=None,
+        dest='add_installable_package',
+        help="""Add package for library into the install file. Argument is \
+the name of the library to add.""")
+    parser.add_option(
+        '--package-platform', 
+        type='string',
+        default=None,
+        dest='package_platform',
+        help="""Platform for specified new package. \
+Ignored if --add-installable or --add-installable-package is not specified.""")
+    parser.add_option(
+        '--package-url', 
+        type='string',
+        default=None,
+        dest='package_url',
+        help="""URL for specified package. \
+Ignored if --add-installable or --add-installable-package is not specified.""")
+    parser.add_option(
+        '--package-md5', 
+        type='string',
+        default=None,
+        dest='package_md5',
+        help="""md5sum for new package. \
+Ignored if --add-installable or --add-installable-package is not specified.""")
     parser.add_option(
         '--list', 
         action='store_true',
         default=False,
-        dest='list_binaries',
-        help="List the binaries in the install manifest")
+        dest='list_installables',
+        help="List the binaries in the install manifest and exit.")
     parser.add_option(
-        '--details', 
+        '--detail', 
         type='string',
         default=None,
         dest='detail_binary',
-        help="Get detailed information on specified binary.")
-    options, args = parser.parse_args()
+        help="Get detailed information on specified binary and exit.")
+    parser.add_option(
+        '--uninstall', 
+        action='store_true',
+        default=False,
+        dest='uninstall',
+        help="""Remove the binaries specified in the arguments. Just like \
+during installation, if no binaries are listed then all installed binaries \
+are removed.""")
+    return parser.parse_args()
 
-
+def main():
+    options, args = parse_args()
     installer = Installer(
         options.install_filename,
         options.installed_filename,
@@ -643,17 +863,39 @@ the binary to add.""")
     #
     # Handle the queries for information
     #
-    if options.list_binaries:
-        print "binary list:",installer._binaries.keys()
+    if options.list_installed:
+        print "installed list:", installer.list_installed()
+        return 0
+    if options.list_installables:
+        print "binary list:", installer.list_installables()
         return 0
     if options.detail_binary:
-        detail = installer.detail_binary(options.detail_binary)
-        if detail:
+        try:
+            detail = installer.detail_binary(options.detail_binary)
             print "Detail on binary",options.detail_binary+":"
             pprint.pprint(detail)
-        else:
+        except KeyError:
             print "Bianry '"+options.detail_binary+"' not found in",
             print "install file."
+        return 0
+    if options.list_licenses:
+        print "license list:", installer.list_licenses()
+        return 0
+    if options.detail_license:
+        try:
+            detail = installer.detail_license(options.detail_license)
+            print "Detail on license",options.detail_license+":"
+            pprint.pprint(detail)
+        except KeyError:
+            print "License '"+options.detail_binary+"' not defined in",
+            print "install file."
+        return 0
+    if options.export_manifest:
+        # *HACK: just re-parse the install manifest and pretty print
+        # it. easier than looking at the datastructure designed for
+        # actually determining what to install
+        install = llsd.parse(file(options.install_filename, 'rb').read())
+        pprint.pprint(install)
         return 0
 
     #
@@ -668,26 +910,70 @@ the binary to add.""")
             return 1
     elif options.remove_license:
         installer.remove_license(options.remove_license)
-    elif options.orphan:
-        installer.orphan_binary(options.orphan)
-    elif options.adopt:
-        if not installer.adopt_binary(options.adopt):
+    elif options.remove_installable:
+        installer.remove_installable(options.remove_installable)
+    elif options.add_installable:
+        if not installer.add_installable(
+            options.add_installable,
+            copyright=options.installable_copyright,
+            license=options.installable_license,
+            description=options.installable_description,
+            platform=options.package_platform,
+            url=options.package_url,
+            md5sum=options.package_md5):
             return 1
+    elif options.add_installable_metadata:
+        if not installer.add_installable_metadata(
+            options.add_installable_metadata,
+            copyright=options.installable_copyright,
+            license=options.installable_license,
+            description=options.installable_description):
+            return 1
+    elif options.add_installable_package:
+        if not installer.add_installable_package(
+            options.add_installable_package,
+            platform=options.package_platform,
+            url=options.package_url,
+            md5sum=options.package_md5):
+            return 1
+    elif options.uninstall:
+        # Do not bother to check license if we're uninstalling.
+        all_installed = installer.list_installed()
+        if not len(args):
+            uninstall_installables = all_installed
+        else:
+            # passed in on the command line. We'll need to verify we
+            # know about them here.
+            uninstall_installables = args
+            for binary in uninstall_installables:
+                if binary not in all_installed:
+                    raise RuntimeError('Binary not installed: %s' % (binary,))
+        installer.uninstall(uninstall_installables, options.install_dir)
     else:
+        # Determine what binaries should be installed. If they were
+        # passed in on the command line, use them, otherwise install
+        # all known binaries.
+        all_installables = installer.list_installables()
+        if not len(args):
+            install_installables = all_installables
+        else:
+            # passed in on the command line. We'll need to verify we
+            # know about them here.
+            install_installables = args
+            for binary in install_installables:
+                if binary not in all_installables:
+                    raise RuntimeError('Unknown binary: %s' % (binary,))
         if options.check_license:
-            if not installer.is_license_info_valid():
-                print >>sys.stderr, 'Please add or correct the license',
-                print >>sys.stderr, 'information in',
-                print >>sys.stderr, options.install_filename + '.'
-                print >>sys.stderr, "You can also use the --add-license",
-                print >>sys.stderr, "option. See", sys.argv[0], "--help"
-                return 1
+            # *TODO: check against a list of 'known good' licenses.
+            # *TODO: check for urls which conflict -- will lead to
+            # problems.
+            for binary in install_installables:
+                if not installer.is_valid_license(binary):
+                    return 1
 
-        # *TODO: check against a list of 'known good' licenses.
-        # *TODO: check for urls which conflict -- will lead to
-        # problems.
-
-        installer.do_install(
+        # Do the work of installing the requested binaries.
+        installer.install(
+            install_installables,
             options.platform,
             options.install_dir,
             options.cache_dir)
@@ -697,4 +983,5 @@ the binary to add.""")
     return 0
 
 if __name__ == '__main__':
+    #print sys.argv
     sys.exit(main())

@@ -1,10 +1,12 @@
 # -*- cmake -*-
+include(Prebuilt)
 
 if (STANDALONE)
   include(FindPkgConfig)
 
   pkg_check_modules(FREETYPE REQUIRED freetype2)
 else (STANDALONE)
+  use_prebuilt_binary(freetype)
   if (LINUX)
     set(FREETYPE_INCLUDE_DIRS
         ${LIBS_PREBUILT_DIR}/${LL_ARCH_DIR}/include)

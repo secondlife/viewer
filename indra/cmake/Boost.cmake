@@ -1,4 +1,5 @@
 # -*- cmake -*-
+include(Prebuilt)
 
 set(Boost_FIND_QUIETLY ON)
 set(Boost_FIND_REQUIRED ON)
@@ -10,6 +11,7 @@ if (STANDALONE)
   set(BOOST_REGEX_LIBRARY boost_regex-mt)
   set(BOOST_SIGNALS_LIBRARY boost_signals-mt)
 else (STANDALONE)
+  use_prebuilt_binary(boost)
   set(Boost_INCLUDE_DIRS ${LIBS_PREBUILT_DIR}/include)
 
   if (WINDOWS)

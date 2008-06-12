@@ -1,4 +1,5 @@
 # -*- cmake -*-
+include(Prebuilt)
 
 set(XMLRPCEPI_FIND_QUIETLY ON)
 set(XMLRPCEPI_FIND_REQUIRED ON)
@@ -6,6 +7,7 @@ set(XMLRPCEPI_FIND_REQUIRED ON)
 if (STANDALONE)
   include(FindXmlRpcEpi)
 else (STANDALONE)
+    use_prebuilt_binary(xmlrpc-epi)
     if (WINDOWS)
         set(XMLRPCEPI_LIBRARIES xmlrpcepi)
     else (WINDOWS)

@@ -1,4 +1,5 @@
 # -*- cmake -*-
+include(Prebuilt)
 
 if (STANDALONE)
   include(FindPkgConfig)
@@ -7,6 +8,7 @@ if (STANDALONE)
   pkg_check_modules(VORBISENC REQUIRED vorbisenc)
   pkg_check_modules(VORBISFILE REQUIRED vorbisfile)
 else (STANDALONE)
+  use_prebuilt_binary(ogg-vorbis)
   set(VORBIS_INCLUDE_DIRS ${LIBS_PREBUILT_DIR}/include)
   set(VORBISENC_INCLUDE_DIRS ${VORBIS_INCLUDE_DIRS})
   set(VORBISFILE_INCLUDE_DIRS ${VORBIS_INCLUDE_DIRS})

@@ -1,6 +1,7 @@
 # -*- cmake -*-
 
 include(OpenGL)
+include(Prebuilt)
 
 if (STANDALONE)
   include(FindSDL)
@@ -12,6 +13,8 @@ if (STANDALONE)
       SDL_LIBRARY
       )
 else (STANDALONE)
+  use_prebuilt_binary(SDL)
+  use_prebuilt_binary(mesa)
   if (LINUX AND VIEWER)
     set (SDL_FOUND TRUE)
     set (SDL_INCLUDE_DIR ${LIBS_PREBUILT_DIR}/i686-linux)

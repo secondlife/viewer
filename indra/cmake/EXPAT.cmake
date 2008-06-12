@@ -1,4 +1,5 @@
 # -*- cmake -*-
+include(Prebuilt)
 
 set(EXPAT_FIND_QUIETLY ON)
 set(EXPAT_FIND_REQUIRED ON)
@@ -6,6 +7,7 @@ set(EXPAT_FIND_REQUIRED ON)
 if (STANDALONE)
   include(FindEXPAT)
 else (STANDALONE)
+    use_prebuilt_binary(expat)
     if (WINDOWS)
         set(EXPAT_LIBRARIES libexpatMT)
     else (WINDOWS)

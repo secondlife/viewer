@@ -2,16 +2,19 @@
 
 include(Python)
 
-macro (use_prebuilt_library _lib)
+macro (use_prebuilt_binary _binary)
   if (NOT STANDALONE)
-    exec_program(${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}
-                 ARGS
-                 --install-dir=${LIBS_PREBUILT_DIR} ${_lib}/${ARCH}
-                 RETURN_VALUE _installed
-                 )
-    if (NOT _installed)
+    execute_process(COMMAND ${PYTHON_EXECUTABLE}
+                    install.py 
+                    --install-dir=${CMAKE_SOURCE_DIR}/..
+                    ${_binary}
+                    WORKING_DIRECTORY ${SCRIPTS_DIR}
+                    RESULT_VARIABLE _installed
+                    )
+    if (NOT _installed EQUAL 0)
       message(FATAL_ERROR
-              "Failed to download or unpack prebuilt ${_lib} for ${ARCH}")
-    endif (NOT _installed)
+              "Failed to download or unpack prebuilt '${_binary}'."
+              " Process returned ${_installed}.")
+    endif (NOT _installed EQUAL 0)
   endif (NOT STANDALONE)
-endmacro (use_prebuilt_library _lib)
+endmacro (use_prebuilt_binary _binary)

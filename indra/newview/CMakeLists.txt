@@ -33,6 +33,7 @@ include(TemplateCheck)
 include(UI)
 include(UnixInstall)
 include(LLKDU)
+include(ViewerMiscLibs)
 
 include_directories(
     ${ELFIO_INCLUDE_DIR}

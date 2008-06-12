@@ -1,4 +1,5 @@
 # -*- cmake -*-
+include(Prebuilt)
 
 set(CURL_FIND_QUIETLY ON)
 set(CURL_FIND_REQUIRED ON)
@@ -6,6 +7,7 @@ set(CURL_FIND_REQUIRED ON)
 if (STANDALONE)
   include(FindCURL)
 else (STANDALONE)
+  use_prebuilt_binary(curl)
   if (WINDOWS)
     set(CURL_LIBRARIES 
     debug libcurld

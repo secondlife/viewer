@@ -1,6 +1,8 @@
 # -*- cmake -*-
+include(Prebuilt)
 
 if (NOT STANDALONE AND EXISTS ${LIBS_CLOSED_DIR}/llkdu)
+  use_prebuilt_binary(kdu)
   if (WINDOWS)
     set(KDU_LIBRARY debug kdu_cored optimized kdu_core)
   elseif (LINUX)

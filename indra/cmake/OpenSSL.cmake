@@ -1,4 +1,5 @@
 # -*- cmake -*-
+include(Prebuilt)
 
 set(OpenSSL_FIND_QUIETLY ON)
 set(OpenSSL_FIND_REQUIRED ON)
@@ -6,6 +7,7 @@ set(OpenSSL_FIND_REQUIRED ON)
 if (STANDALONE)
   include(FindOpenSSL)
 else (STANDALONE)
+  use_prebuilt_binary(openSSL)
   if (WINDOWS)
     set(OPENSSL_LIBRARIES ssleay32 libeay32)
   else (WINDOWS)

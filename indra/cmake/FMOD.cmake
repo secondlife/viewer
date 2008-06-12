@@ -1,4 +1,7 @@
 # -*- cmake -*-
+include(Prebuilt)
+
+use_prebuilt_binary(fmod)
 
 find_library(FMOD_LIBRARY
              NAMES fmod fmodvc fmod-3.75

@@ -1,10 +1,12 @@
 # -*- cmake -*-
+include(Prebuilt)
 
 set(ELFIO_FIND_QUIETLY ON)
 
 if (STANDALONE)
   include(FindELFIO)
 elseif (LINUX)
+  use_prebuilt_binary(elfio)
   set(ELFIO_LIBRARIES ELFIO)
   set(ELFIO_INCLUDE_DIR ${LIBS_PREBUILT_DIR}/include)
 endif (STANDALONE)

@@ -1,4 +1,5 @@
 # -*- cmake -*-
+include(Prebuilt)
 
 if (STANDALONE)
   include(FindPkgConfig)
@@ -30,6 +31,7 @@ if (STANDALONE)
     add_definitions(${${pkg}_CFLAGS_OTHERS})
   endforeach(pkg)
 else (STANDALONE)
+  use_prebuilt_binary(gtk-atk-pango-glib)
   if (LINUX)
     set(UI_LIBRARIES
         atk-1.0

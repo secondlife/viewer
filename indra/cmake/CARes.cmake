@@ -1,5 +1,6 @@
 # -*- cmake -*-
 include(Linking)
+include(Prebuilt)
 
 set(CARES_FIND_QUIETLY ON)
 set(CARES_FIND_REQUIRED ON)
@@ -7,6 +8,7 @@ set(CARES_FIND_REQUIRED ON)
 if (STANDALONE)
   include(FindCARes)
 else (STANDALONE)
+    use_prebuilt_binary(ares)
     if (WINDOWS)
         set(CARES_LIBRARIES areslib)
     elseif (DARWIN)

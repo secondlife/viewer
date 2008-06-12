@@ -1,8 +1,10 @@
 # -*- cmake -*-
+include(Prebuilt)
 
 if (STANDALONE)
   include(FindGooglePerfTools)
 else (STANDALONE)
+  use_prebuilt_binary(google)
   if (LINUX)
     set(TCMALLOC_LIBRARIES tcmalloc)
     set(STACKTRACE_LIBRARIES stacktrace)

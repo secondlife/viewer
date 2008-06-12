@@ -2,6 +2,7 @@
 
 include(BerkeleyDB)
 include(Linking)
+include(Prebuilt)
 
 set(APR_FIND_QUIETLY ON)
 set(APR_FIND_REQUIRED ON)
@@ -12,6 +13,7 @@ set(APRUTIL_FIND_REQUIRED ON)
 if (STANDALONE)
   include(FindAPR)
 else (STANDALONE)
+  use_prebuilt_binary(apr_suite)
   if (WINDOWS)
     set(WINLIBS_PREBUILT_DEBUG_DIR 
       ${CMAKE_SOURCE_DIR}/../libraries/i686-win32/lib/debug

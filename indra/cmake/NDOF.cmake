@@ -1,4 +1,7 @@
 # -*- cmake -*-
+include(Prebuilt)
+
+use_prebuilt_binary(ndofdev)
 
 if (WINDOWS OR DARWIN)
   add_definitions(-DLIB_NDOF=1)
