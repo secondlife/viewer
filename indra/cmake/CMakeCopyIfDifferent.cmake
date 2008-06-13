@@ -35,7 +35,7 @@ FOREACH(SRC ${ARGN})
         DEPENDS ${FROM}
         COMMENT "Copying ${SRCFILE} ${TO_DIR}"
         )
-    SET(AddTargets ${AddTargets} ${TARGET})
+    SET(AddTargets ${AddTargets} ${TO})
 ENDFOREACH(SRC ${ARGN})
 SET(${TARGETS} ${AddTargets})
 ENDMACRO(COPY_IF_DIFFERENT FROM_DIR TO_DIR TARGETS)

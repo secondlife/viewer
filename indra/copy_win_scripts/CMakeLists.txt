@@ -20,9 +20,9 @@ set(file-list
     )
 
 foreach(file ${file-list})
-    if(EXISTS ${file})    
-        set(win_scripts-files ${win_scripts-files} file)
-    endif(EXISTS ${file})
+    if(EXISTS ${win_scripts-src}/${file})    
+        set(win_scripts-files ${win_scripts-files} ${file})
+    endif(EXISTS ${win_scripts-src}/${file})
 endforeach(file ${file-list})
     
 copy_if_different(
