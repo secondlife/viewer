@@ -18,21 +18,21 @@
             <key>md5sum</key>
             <string>7b147162449c216a016dc2bfe2a4380c</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/GL-darwin-20080610.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/GL-darwin-20080610.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
             <string>d78e3e4d8c33e5233d88ec8096307ee8</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/GL-linux-20080610.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/GL-linux-20080610.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
             <key>md5sum</key>
             <string>e0736f3f17fe980ef68b8a65ef90011d</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/GL-windows-20080611.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/GL-windows-20080611.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -51,21 +51,21 @@
             <key>md5sum</key>
             <string>d7500212b654e9380c4dc24166285407</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/SDL-1.2.5-darwin-20080610.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/SDL-1.2.5-darwin-20080610.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
             <string>c7f3da1da96ccc1f26ec92634e7771b8</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/SDL-1.2.5-linux-20080610.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/SDL-1.2.5-linux-20080610.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
             <key>md5sum</key>
             <string>1c081cc35730919781e23b916a56722e</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/SDL-1.2.5-windows-20080611.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/SDL-1.2.5-windows-20080611.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -80,21 +80,21 @@
             <key>md5sum</key>
             <string>ee3014eda3d5f912c1e3ec21bbdddcaf</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/apr_suite-1.2.8-darwin-20080610.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/apr_suite-1.2.8-darwin-20080610.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
             <string>4b0f2cc3ec66162be6cf0b13186bc838</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/apr_suite-1.2.8-linux-20080610.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/apr_suite-1.2.8-linux-20080610.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
             <key>md5sum</key>
             <string>979257a1b24d9200be58872d9c658114</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/apr_suite-1.2.8-windows-20080611.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/apr_suite-1.2.8-windows-20080611.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -113,21 +113,21 @@
             <key>md5sum</key>
             <string>19aae45edfd29a269cd10af7729489e7</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/ares-1.3.0-darwin-20080610.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/ares-1.3.0-darwin-20080610.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
             <string>8b163aa08cf4a5b70f93519137fa6cf0</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/ares-1.3.0-linux-20080610.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/ares-1.3.0-linux-20080610.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
             <key>md5sum</key>
             <string>bbbe5e5f8504125e2ab813f666fd61ba</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/ares-1.3.0-windows-20080611.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/ares-1.3.0-windows-20080611.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -155,21 +155,21 @@
             <key>md5sum</key>
             <string>4afb62f563bb2fd9d43fc071e2eeb167</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/boost-1.32.0-darwin-20080610.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/boost-1.32.0-darwin-20080610.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
             <string>14aba81fa0993e420882314a3fea5127</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/boost-1.32.0-linux-20080610.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/boost-1.32.0-linux-20080610.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
             <key>md5sum</key>
             <string>2b627d2a598f883950c21bae52738176</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/boost-1.32.0-windows-20080611.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/boost-1.32.0-windows-20080611.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -188,21 +188,21 @@
             <key>md5sum</key>
             <string>722c0e0eccf28b00e0f759362ef81ddf</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/curl-7.16.0-darwin-20080610.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/curl-7.16.0-darwin-20080610.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
             <string>cd89f34324acf1222078298974c1dfb3</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/curl-7.16.0-linux-20080610.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/curl-7.16.0-linux-20080610.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
             <key>md5sum</key>
             <string>08d17bc997494a852537b0c7b4425d47</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/curl-7.16.0-windows-20080611.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/curl-7.16.0-windows-20080611.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -217,7 +217,7 @@
             <key>md5sum</key>
             <string>e4f5109f8c119613d7b2c3706d786e43</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/elfio-1.0.3-linux-20080610.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/elfio-1.0.3-linux-20080610.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -236,21 +236,21 @@
             <key>md5sum</key>
             <string>93760196ea3e851b1a334743816e189d</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/expat-1.95.8-darwin-20080610.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/expat-1.95.8-darwin-20080610.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
             <string>8e990a9e3c30c7c37c147ac0df70a323</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/expat-1.95.8-linux-20080610.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/expat-1.95.8-linux-20080610.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
             <key>md5sum</key>
             <string>e58538aae9982209e095bbf6660c8d6b</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/expat-1.95.8-windows-20080611.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/expat-1.95.8-windows-20080611.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -269,21 +269,21 @@
             <key>md5sum</key>
             <string>d13cc275db503492fc87c7b36c1c49d3</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/fmod-3.75-darwin-20080610.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/fmod-3.75-darwin-20080610.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
             <string>85caf188852f2cfede49ff12a3d928d5</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/fmod-3.75-linux-20080610.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/fmod-3.75-linux-20080610.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
             <key>md5sum</key>
             <string>1a55dec2907821f5f785648a660126c3</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/fmod-3.75-windows-20080611.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/fmod-3.75-windows-20080611.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -298,7 +298,7 @@
             <key>md5sum</key>
             <string>6630fea6b036f3e937608b3d4186adfa</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/fontconfig-2.2.3-linux-20080610.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/fontconfig-2.2.3-linux-20080610.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -317,21 +317,21 @@
             <key>md5sum</key>
             <string>b34eb8af0a2b736a1d70d8b32b3e009d</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/freetype-2.1.5-darwin-20080610.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/freetype-2.1.5-darwin-20080610.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
             <string>a52b44f89b7422c565da5f4a5c7f582c</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/freetype-2.1.5-linux-20080610.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/freetype-2.1.5-linux-20080610.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
             <key>md5sum</key>
             <string>5b1aae54ea3313a9f424719323eb5ad3</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/freetype-2.1.5-windows-20080611.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/freetype-2.1.5-windows-20080611.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -350,21 +350,21 @@
             <key>md5sum</key>
             <string>64ea2fca2ca9457b9305ec416c574a61</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/glh_linear-darwin-20080610.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/glh_linear-darwin-20080610.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
             <string>6fd9c490b7460e2b433381050495e48e</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/glh_linear-linux-20080610.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/glh_linear-linux-20080610.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
             <key>md5sum</key>
             <string>e286dc9f7ce90856a7ac291874b6fc34</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/glh_linear-windows-20080611.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/glh_linear-windows-20080611.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -379,7 +379,7 @@
             <key>md5sum</key>
             <string>6df3889822deb8b80ac6f6d421a35137</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/google-linux-20080610.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/google-linux-20080610.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -394,7 +394,7 @@
             <key>md5sum</key>
             <string>5e0e4ee938b56a118c90d51447009ba9</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/gstreamer-linux-20080610.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/gstreamer-linux-20080610.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -413,14 +413,14 @@
             <key>md5sum</key>
             <string>72801a23b43586b822c8a1dfc1a6e313</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/gtk-atk-pango-glib-linux-20080610.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/gtk-atk-pango-glib-linux-20080610.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
             <key>md5sum</key>
             <string>492b04de6ba02167cef7a04e8dc5e748</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/gtk-atk-pango-glib-windows-20080611.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/gtk-atk-pango-glib-windows-20080611.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -439,21 +439,21 @@
             <key>md5sum</key>
             <string>7d3d2d71c08729fe881a059af1d9b938</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/havok-4.6-darwin-20080610.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/havok-4.6-darwin-20080610.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
             <string>36a892b451b5cbc8f72d6f1153f55cf8</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/havok-4.6-linux-20080610.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/havok-4.6-linux-20080610.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
             <key>md5sum</key>
             <string>b63a2f20df43c68062c6b8e77a2da455</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/havok-4.6-windows-20080611.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/havok-4.6-windows-20080611.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -472,21 +472,21 @@
             <key>md5sum</key>
             <string>62cc07ef64f31f493f55e618c915125b</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/jpeglib-6b-darwin-20080610.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/jpeglib-6b-darwin-20080610.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
             <string>6bb623a88116002124686248ebd35fd9</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/jpeglib-6b-linux-20080610.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/jpeglib-6b-linux-20080610.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
             <key>md5sum</key>
             <string>b28852df715401eae575ccd9d5c84cf1</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/jpeglib-6b-windows-20080611.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/jpeglib-6b-windows-20080611.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -505,21 +505,21 @@
             <key>md5sum</key>
             <string>a351af91b5a102d1b6fe95b5d1ab4347</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/kdu-5.2.1-darwin-20080610.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/kdu-5.2.1-darwin-20080610.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
             <string>155ecb6f704c1082aa6565537ada024b</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/kdu-5.2.1-linux-20080610.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/kdu-5.2.1-linux-20080610.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
             <key>md5sum</key>
             <string>5cd4c0db91e3687290de685203634ab8</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/kdu-5.2.1-windows-20080611.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/kdu-5.2.1-windows-20080611.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -538,21 +538,21 @@
             <key>md5sum</key>
             <string>2e41f3710b5769e58d2e00944feb7bee</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/libpng-1.2.18-darwin-20080610.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/libpng-1.2.18-darwin-20080610.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
             <string>642dd0ba1fa7ac55fae555cd622b36f6</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/libpng-1.2.18-linux-20080610.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/libpng-1.2.18-linux-20080610.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
             <key>md5sum</key>
             <string>0274c3d4a3b7cce8eede207348438f3b</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/libpng-1.2.18-windows-20080611.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/libpng-1.2.18-windows-20080611.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -571,7 +571,7 @@
             <key>md5sum</key>
             <string>8c39ea5d1feebbe9b8ee5d5933eeabe5</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/libstdc++-6.0-linux-20080610.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/libstdc++-6.0-linux-20080610.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -590,7 +590,7 @@
             <key>md5sum</key>
             <string>cf68933edc8d556d6901179a7993bbc0</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/libuuid-linux-20080610.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/libuuid-linux-20080610.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -605,7 +605,7 @@
             <key>md5sum</key>
             <string>3a71ea5ff924e70c6786ef2c202f553b</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/libxml-2.6.24-linux-20080610.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/libxml-2.6.24-linux-20080610.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -620,21 +620,21 @@
             <key>md5sum</key>
             <string>e2969baf0e39f6a586141a75c3360330</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/llmozlib-darwin-20080610.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/llmozlib-darwin-20080610.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
             <string>55ab8be3f18e27095f7ecae7d90804d5</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/llmozlib-linux-20080610.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/llmozlib-linux-20080610.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
             <key>md5sum</key>
             <string>73a0bc8ea770a4035175161d2b1e903f</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/llmozlib-windows-20080611.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/llmozlib-windows-20080611.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -653,14 +653,14 @@
             <key>md5sum</key>
             <string>461891f44070780d9ca0b26988b6f44e</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/mesa-7.0-linux-20080610.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/mesa-7.0-linux-20080610.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
             <key>md5sum</key>
             <string>e0a27aef7b2de0d5c78c753f72214e8d</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/mesa-7.0-windows-20080611.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/mesa-7.0-windows-20080611.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -675,14 +675,14 @@
             <key>md5sum</key>
             <string>a60de9d31aa3dfab8851f8c2dfa3f8dc</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/mysql-darwin-20080610.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/mysql-darwin-20080610.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
             <key>md5sum</key>
             <string>813e8621ca3cd5a720f709620927070f</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/mysql-windows-20080611.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/mysql-windows-20080611.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -701,21 +701,21 @@
             <key>md5sum</key>
             <string>dae6e00c7eed6bacdecd639c4f5cef1d</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/ndofdev-darwin-20080610.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/ndofdev-darwin-20080610.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
             <string>ccaf379968c886258d5390d06ff1a2c0</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/ndofdev-linux-20080610.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/ndofdev-linux-20080610.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
             <key>md5sum</key>
             <string>af8249252bcd3782606bf17cdc145ea4</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/ndofdev-windows-20080611.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/ndofdev-windows-20080611.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -734,21 +734,21 @@
             <key>md5sum</key>
             <string>59d3f15d89d9433f931f480878f46d4c</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/ogg-vorbis-1.03-1.1.2-darwin-20080610.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/ogg-vorbis-1.03-1.1.2-darwin-20080610.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
             <string>54a29d28fbce6dd6abb875975a42acf1</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/ogg-vorbis-1.03-1.1.2-linux-20080610.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/ogg-vorbis-1.03-1.1.2-linux-20080610.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
             <key>md5sum</key>
             <string>2800543038e88c233976a2301e67325f</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/ogg-vorbis-1.03-1.1.2-windows-20080611.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/ogg-vorbis-1.03-1.1.2-windows-20080611.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -763,21 +763,21 @@
             <key>md5sum</key>
             <string>5da0ef41618a024795508f5c93d61754</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/openSSL-0.9.7c-darwin-20080610.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/openSSL-0.9.7c-darwin-20080610.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
             <string>fb54b93f881e587363b134f42e2f1c0b</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/openSSL-0.9.7c-linux-20080610.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/openSSL-0.9.7c-linux-20080610.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
             <key>md5sum</key>
             <string>0f0e8ea5014f2112f2d04a85a0b8720e</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/openSSL-0.9.7c-windows-20080611.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/openSSL-0.9.7c-windows-20080611.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -796,21 +796,21 @@
             <key>md5sum</key>
             <string>e169d2372539fc96b72dc59aa7a656e6</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/openjpeg-1.2-darwin-20080610.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/openjpeg-1.2-darwin-20080610.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
             <string>8b2733f8e4b7d58db7392d7a6837675f</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/openjpeg-1.2-linux-20080610.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/openjpeg-1.2-linux-20080610.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
             <key>md5sum</key>
             <string>9f7ae7023fad3c823a303c57610973c5</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/openjpeg-1.2-windows-20080611.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/openjpeg-1.2-windows-20080611.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -829,7 +829,7 @@
             <key>md5sum</key>
             <string>7a2e6fc89b1ef027f3a36ebb46fb0c8a</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/quicktime-windows-20080611.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/quicktime-windows-20080611.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -848,21 +848,21 @@
             <key>md5sum</key>
             <string>f54131b5f228e805c64c2e4e6c96579a</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/smartheap-6.0.2-darwin-20080610.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/smartheap-6.0.2-darwin-20080610.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
             <string>499208522bf7d7843e1d014d64214e06</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/smartheap-6.0.2-linux-20080610.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/smartheap-6.0.2-linux-20080610.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
             <key>md5sum</key>
             <string>78fd47017f21d11eae43bca3e38a3e1e</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/smartheap-6.0.2-windows-20080611.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/smartheap-6.0.2-windows-20080611.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -881,21 +881,21 @@
             <key>md5sum</key>
             <string>fe8045e47dc505786e1d45d480190f96</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/tut-darwin-20080610.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/tut-darwin-20080610.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
             <string>2e28af0b6124a472b9aac6f2225dca8d</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/tut-linux-20080610.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/tut-linux-20080610.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
             <key>md5sum</key>
             <string>953cc124943a05e474687a127d2e88d9</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/tut-windows-20080611.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/tut-windows-20080611.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -914,7 +914,7 @@
             <key>md5sum</key>
             <string>6353aff33d7d03b22055aec76f53a866</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/unistd-windows-20080611.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/unistd-windows-20080611.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -931,21 +931,21 @@
             <key>md5sum</key>
             <string>121199818b827e147179c3d3494815e1</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/vivox-darwin-20080610.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/vivox-darwin-20080610.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
             <string>c58f03002a9c452d4c8cb1874d3ac44b</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/vivox-linux-20080610.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/vivox-linux-20080610.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
             <key>md5sum</key>
             <string>fce352d6d99233b2dac1cd51add0f0d1</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/vivox-windows-20080611.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/vivox-windows-20080611.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -964,21 +964,21 @@
             <key>md5sum</key>
             <string>d116c41b95ec41adee7bbfdbf2c74ffb</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/xmlrpc-epi-0.51-darwin-20080610.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/xmlrpc-epi-0.51-darwin-20080610.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
             <string>dd08d9f03c9fb84406aa31494e4e5663</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/xmlrpc-epi-0.51-linux-20080610.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/xmlrpc-epi-0.51-linux-20080610.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
             <key>md5sum</key>
             <string>e904dd2653fdb9dac15cc452a74f4bcb</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/xmlrpc-epi-0.51-windows-20080611.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/xmlrpc-epi-0.51-windows-20080611.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -997,7 +997,7 @@
             <key>md5sum</key>
             <string>99be09df2ec92282293761cd9ae242ac</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/zlib-1.1.4-darwin-20080610.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/zlib-1.1.4-darwin-20080610.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
@@ -1006,19 +1006,19 @@
               <key>md5sum</key>
               <string>7efbde55728369e76ab9d46bff60c87f</string>
               <key>url</key>
-              <uri>http://codex.lindenlab.com/~aaronb/install_pkgs/zlib-1.2.1-linux-i686.tar.gz</uri>
+              <uri>http://int.codex.lindenlab.com/~aaronb/install_pkgs/zlib-1.2.1-linux-i686.tar.gz</uri>
             </map>
             <key>md5sum</key>
             <string>a93da3d0a1fcf05c70d545991e0be227</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/zlib-1.1.4-linux-20080610.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/zlib-1.1.4-linux-20080610.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
             <key>md5sum</key>
             <string>7058b7aeded6d8bb10bd0de8539f8392</string>
             <key>url</key>
-            <uri>http://user.lindenlab.com/~jenn/install_pkgs/zlib-1.1.4-windows-20080611.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~jenn/install_pkgs/zlib-1.1.4-windows-20080611.tar.bz2</uri>
           </map>
         </map>
       </map>
