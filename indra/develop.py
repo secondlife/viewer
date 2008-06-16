@@ -208,12 +208,14 @@ class UnixSetup(PlatformSetup):
 
     def arch(self):
         cpu = os.uname()[-1]
-        if cpu.endswith('86'):
+        if cpu.endswith('386'):
+            cpu = 'i386'
+        elif cpu.endswith('86'):
             cpu = 'i686'
         elif cpu in ('athlon',):
             cpu = 'i686'
         elif cpu == 'Power Macintosh':
-            cpu = 'powerpc'
+            cpu = 'ppc'
         return cpu
         
 
@@ -361,26 +363,31 @@ class DarwinSetup(UnixSetup):
         return 'darwin'
 
     def arch(self):
-        return 'universal'
+        if self.unattended == 'TRUE':
+            return 'universal'
+        else:
+            return UnixSetup.arch(self)
 
     def cmake_commandline(self, src_dir, build_dir, opts, simple):
-        arches = ''
         args = dict(
-            arches=arches,
             dir=src_dir,
             generator=self.generator,
             opts=quote(opts),
             standalone=self.standalone,
             unattended=self.unattended,
+            universal='',
             type=self.build_type.upper()
             )
+        if self.unattended == 'TRUE':
+            args['universal'] = '-DCMAKE_OSX_ARCHITECTURES:STRING=\'i386;ppc\''
         #if simple:
         #    return 'cmake %(opts)s %(dir)r' % args
         return ('cmake -G %(generator)r '
                 '-DCMAKE_BUILD_TYPE:STRING=%(type)s '
                 '-DSTANDALONE:BOOL=%(standalone)s '
                 '-DUNATTENDED:BOOL=%(unattended)s '
-                '%(arches)s %(opts)s %(dir)r' % args)
+                '%(universal)s '
+                '%(opts)s %(dir)r' % args)
 
     def run_build(self, opts, targets):
         cwd = os.getcwd()

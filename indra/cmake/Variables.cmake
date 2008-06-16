@@ -52,11 +52,22 @@ endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(DARWIN 1)
-  set(ARCH universal)
+  # set this dynamically from the build system now -
+  # NOTE: wont have a distributable build unless you add this on the configure line with:
+  # -DCMAKE_OSX_ARCHITECTURES:STRING='i386;ppc'
+  #set(CMAKE_OSX_ARCHITECTURES i386;ppc)
+  set(CMAKE_OSX_SYSROOT /Developer/SDKs/MacOSX10.4u.sdk)
+  if (CMAKE_OSX_ARCHITECTURES MATCHES "i386" AND CMAKE_OSX_ARCHITECTURES MATCHES "ppc")
+    set(ARCH universal)
+  else (CMAKE_OSX_ARCHITECTURES MATCHES "i386" AND CMAKE_OSX_ARCHITECTURES MATCHES "ppc")
+    if (${CMAKE_SYSTEM_PROCESSOR} MATCHES "ppc")
+      set(ARCH ppc)
+    else (${CMAKE_SYSTEM_PROCESSOR} MATCHES "ppc")
+      set(ARCH i386)
+    endif (${CMAKE_SYSTEM_PROCESSOR} MATCHES "ppc")
+  endif (CMAKE_OSX_ARCHITECTURES MATCHES "i386" AND CMAKE_OSX_ARCHITECTURES MATCHES "ppc")
   set(LL_ARCH ${ARCH}_darwin)
   set(LL_ARCH_DIR ${ARCH}-darwin)
-  set(CMAKE_OSX_ARCHITECTURES i386;ppc)
-  set(CMAKE_OSX_SYSROOT /Developer/SDKs/MacOSX10.4u.sdk)
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 
 
