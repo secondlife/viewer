@@ -67,7 +67,7 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     endif (${CMAKE_SYSTEM_PROCESSOR} MATCHES "ppc")
   endif (CMAKE_OSX_ARCHITECTURES MATCHES "i386" AND CMAKE_OSX_ARCHITECTURES MATCHES "ppc")
   set(LL_ARCH ${ARCH}_darwin)
-  set(LL_ARCH_DIR ${ARCH}-darwin)
+  set(LL_ARCH_DIR universal-darwin)
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 
 
