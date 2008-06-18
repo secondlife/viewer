@@ -52,6 +52,9 @@ request_ = suite.request_
 for x in httpc.status_to_error_map.itervalues():
     globals()[x.__name__] = x
 
+for x in (httpc.ConnectionError,):
+    globals()[x.__name__] = x
+
 
 def postFile(url, filename):
     f = open(filename)
