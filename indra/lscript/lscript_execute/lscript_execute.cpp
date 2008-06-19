@@ -2309,14 +2309,24 @@ void list_list_operation(U8 *buffer, LSCRIPTOpCodesEnum opcode)
 	}
 }
 
+static U8 safe_op_index(U8 index)
+{
+	if(index >= LST_EOF)
+	{
+		// Operations on LST_NULL will always be unknown_operation.
+		index = LST_NULL;
+	}
+	return index;
+}
+
 BOOL run_add(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id)
 {
 	if (b_print)
 		printf("[0x%X]\tADD ", offset);
 	offset++;
 	U8 arg = safe_instruction_bytestream2byte(buffer, offset);
-	U8 arg1 = arg >> 4;
-	U8 arg2 = arg & 0xf;
+	U8 arg1 = safe_op_index(arg >> 4);
+	U8 arg2 = safe_op_index(arg & 0xf);
 	if (b_print)
 	{
 		print_type(arg1);
@@ -2334,8 +2344,8 @@ BOOL run_sub(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id)
 		printf("[0x%X]\tSUB ", offset);
 	offset++;
 	U8 arg = safe_instruction_bytestream2byte(buffer, offset);
-	U8 arg1 = arg >> 4;
-	U8 arg2 = arg & 0xf;
+	U8 arg1 = safe_op_index(arg >> 4);
+	U8 arg2 = safe_op_index(arg & 0xf);
 	if (b_print)
 	{
 		print_type(arg1);
@@ -2352,8 +2362,8 @@ BOOL run_mul(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id)
 		printf("[0x%X]\tMUL ", offset);
 	offset++;
 	U8 arg = safe_instruction_bytestream2byte(buffer, offset);
-	U8 arg1 = arg >> 4;
-	U8 arg2 = arg & 0xf;
+	U8 arg1 = safe_op_index(arg >> 4);
+	U8 arg2 = safe_op_index(arg & 0xf);
 	if (b_print)
 	{
 		print_type(arg1);
@@ -2370,8 +2380,8 @@ BOOL run_div(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id)
 		printf("[0x%X]\tDIV ", offset);
 	offset++;
 	U8 arg = safe_instruction_bytestream2byte(buffer, offset);
-	U8 arg1 = arg >> 4;
-	U8 arg2 = arg & 0xf;
+	U8 arg1 = safe_op_index(arg >> 4);
+	U8 arg2 = safe_op_index(arg & 0xf);
 	if (b_print)
 	{
 		print_type(arg1);
@@ -2388,8 +2398,8 @@ BOOL run_mod(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id)
 		printf("[0x%X]\tMOD ", offset);
 	offset++;
 	U8 arg = safe_instruction_bytestream2byte(buffer, offset);
-	U8 arg1 = arg >> 4;
-	U8 arg2 = arg & 0xf;
+	U8 arg1 = safe_op_index(arg >> 4);
+	U8 arg2 = safe_op_index(arg & 0xf);
 	if (b_print)
 	{
 		print_type(arg1);
@@ -2407,8 +2417,8 @@ BOOL run_eq(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id)
 		printf("[0x%X]\tEQ ", offset);
 	offset++;
 	U8 arg = safe_instruction_bytestream2byte(buffer, offset);
-	U8 arg1 = arg >> 4;
-	U8 arg2 = arg & 0xf;
+	U8 arg1 = safe_op_index(arg >> 4);
+	U8 arg2 = safe_op_index(arg & 0xf);
 	if (b_print)
 	{
 		print_type(arg1);
@@ -2425,8 +2435,8 @@ BOOL run_neq(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id)
 		printf("[0x%X]\tNEQ ", offset);
 	offset++;
 	U8 arg = safe_instruction_bytestream2byte(buffer, offset);
-	U8 arg1 = arg >> 4;
-	U8 arg2 = arg & 0xf;
+	U8 arg1 = safe_op_index(arg >> 4);
+	U8 arg2 = safe_op_index(arg & 0xf);
 	if (b_print)
 	{
 		print_type(arg1);
@@ -2443,8 +2453,8 @@ BOOL run_leq(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id)
 		printf("[0x%X]\tLEQ ", offset);
 	offset++;
 	U8 arg = safe_instruction_bytestream2byte(buffer, offset);
-	U8 arg1 = arg >> 4;
-	U8 arg2 = arg & 0xf;
+	U8 arg1 = safe_op_index(arg >> 4);
+	U8 arg2 = safe_op_index(arg & 0xf);
 	if (b_print)
 	{
 		print_type(arg1);
@@ -2461,8 +2471,8 @@ BOOL run_geq(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id)
 		printf("[0x%X]\tGEQ ", offset);
 	offset++;
 	U8 arg = safe_instruction_bytestream2byte(buffer, offset);
-	U8 arg1 = arg >> 4;
-	U8 arg2 = arg & 0xf;
+	U8 arg1 = safe_op_index(arg >> 4);
+	U8 arg2 = safe_op_index(arg & 0xf);
 	if (b_print)
 	{
 		print_type(arg1);
@@ -2479,8 +2489,8 @@ BOOL run_less(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id)
 		printf("[0x%X]\tLESS ", offset);
 	offset++;
 	U8 arg = safe_instruction_bytestream2byte(buffer, offset);
-	U8 arg1 = arg >> 4;
-	U8 arg2 = arg & 0xf;
+	U8 arg1 = safe_op_index(arg >> 4);
+	U8 arg2 = safe_op_index(arg & 0xf);
 	if (b_print)
 	{
 		print_type(arg1);
@@ -2497,8 +2507,8 @@ BOOL run_greater(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id)
 		printf("[0x%X]\tGREATER ", offset);
 	offset++;
 	U8 arg = safe_instruction_bytestream2byte(buffer, offset);
-	U8 arg1 = arg >> 4;
-	U8 arg2 = arg & 0xf;
+	U8 arg1 = safe_op_index(arg >> 4);
+	U8 arg2 = safe_op_index(arg & 0xf);
 	if (b_print)
 	{
 		print_type(arg1);
@@ -2640,13 +2650,12 @@ void quaternion_operation(U8 *buffer, LSCRIPTOpCodesEnum opcode)
 	}
 }
 
-
 BOOL run_neg(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id)
 {
 	if (b_print)
 		printf("[0x%X]\tNEG ", offset);
 	offset++;
-	U8 arg = safe_instruction_bytestream2byte(buffer, offset);
+	U8 arg = safe_op_index(safe_instruction_bytestream2byte(buffer, offset));
 	if (b_print)
 	{
 		print_type(arg);
