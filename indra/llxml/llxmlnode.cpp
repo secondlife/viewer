@@ -492,7 +492,7 @@ void XMLCALL XMLData(void *userData,
 			return;
 		}
 	}
-	value.append(LLString(s, 0, len));
+	value.append(std::string(s, len));
 	current_node->setValue(value);
 }
 
