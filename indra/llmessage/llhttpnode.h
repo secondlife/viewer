@@ -82,33 +82,79 @@ public:
 	*/
 	//@{
 public:	
-		virtual LLSD get() const;
-		virtual LLSD put(const LLSD& input) const;
-		virtual LLSD post(const LLSD& input) const;
 
-		virtual LLSD del(const LLSD& context) const;
+	virtual LLSD get() const;
+	virtual LLSD put(const LLSD& input) const;
+	virtual LLSD post(const LLSD& input) const;
+	virtual LLSD del(const LLSD& context) const;
 
-		class Response : public LLRefCount
-		{
-		protected:
-			virtual ~Response();
+	class Response : public LLRefCount
+	{
+	protected:
+		virtual ~Response();
 
-		public:
-			virtual void result(const LLSD&) = 0;
-			virtual void status(S32 code, const std::string& message) = 0;
+	public:
+		/**
+		 * @brief Return the LLSD content and a 200 OK.
+		 */
+		virtual void result(const LLSD&) = 0;
 
-			void status(S32 code);
-			void notFound(const std::string& message);
-			void notFound();
-			void methodNotAllowed();
-		};
+		/**
+		 * @brief return status code and reason string on http header,
+		 * but do not return a payload.
+		 */
+		virtual void status(S32 code, const std::string& message) = 0;
 
-		typedef LLPointer<Response> ResponsePtr;
+		/**
+		 * @brief Return no body, just status code and 'UNKNOWN ERROR'.
+		 */
+		void status(S32 code);
 
-		virtual void get(ResponsePtr, const LLSD& context) const;
-		virtual void put(ResponsePtr, const LLSD& context, const LLSD& input) const;
-		virtual void post(ResponsePtr, const LLSD& context, const LLSD& input) const;
-		virtual void del(ResponsePtr, const LLSD& context) const;
+		void notFound(const std::string& message);
+		void notFound();
+		void methodNotAllowed();
+
+		/**
+		 * @breif Add a name: value http header.
+		 *
+		 * No effort is made to ensure the response is a valid http
+		 * header.
+		 * The headers are stored as a map of header name : value.
+		 * Though HTTP allows the same header name to be transmitted
+		 * more than once, this implementation only stores a header
+		 * name once.
+		 * @param name The name of the header, eg, "Content-Encoding"
+		 * @param value The value of the header, eg, "gzip"
+		 */
+		void addHeader(const std::string& name, const std::string& value);
+
+	protected:
+		/**
+		 * @brief Headers to be sent back with the HTTP response.
+		 *
+		 * Protected class membership since derived classes are
+		 * expected to use it and there is no use case yet for other
+		 * uses. If such a use case arises, I suggest making a
+		 * headers() public method, and moving this member data into
+		 * private.
+		 */
+		LLSD mHeaders;
+	};
+
+
+	typedef LLPointer<Response> ResponsePtr;
+
+	virtual void get(ResponsePtr, const LLSD& context) const;
+	virtual void put(
+		ResponsePtr,
+		const LLSD& context,
+		const LLSD& input) const;
+	virtual void post(
+		ResponsePtr,
+		const LLSD& context,
+		const LLSD& input) const;
+	virtual void del(ResponsePtr, const LLSD& context) const;
+	virtual void options(ResponsePtr, const LLSD& context) const;
 	//@}
 	
 

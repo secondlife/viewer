@@ -327,6 +327,23 @@ namespace tut
 		ensure_starts_with("large echo status", result, "HTTP/1.0 200 OK\r\n");
 	}
 
+	template<> template<>
+	void HTTPServiceTestObject::test<8>()
+	{
+		// test the OPTIONS http method -- the default implementation
+		// should return the X-Documentation-URL
+		std::ostringstream http_request;
+		http_request << "OPTIONS /  HTTP/1.0\r\nHost: localhost\r\n\r\n";
+		bool timeout = false;
+		std::string result = makeRequest("/", http_request.str(), timeout);
+		ensure_starts_with("OPTIONS verb ok", result, "HTTP/1.0 200 OK\r\n");
+		ensure_contains(
+			"Doc url header exists",
+			result,
+			"X-Documentation-URL: http://localhost");
+	}
+
+
 	/* TO DO:
 		test generation of not found and method not allowed errors
 	*/

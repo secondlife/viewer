@@ -63,7 +63,6 @@ set(cmake_SOURCE_FILES
     PNG.cmake
     Python.cmake
     QuickTime.cmake
-    Smartheap.cmake
     TemplateCheck.cmake
     UI.cmake
     UnixInstall.cmake

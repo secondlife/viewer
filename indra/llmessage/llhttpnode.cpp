@@ -174,6 +174,26 @@ LLSD LLHTTPNode::del(const LLSD&) const
 	throw NotImplemented();
 }
 
+// virtual
+void  LLHTTPNode::options(ResponsePtr response, const LLSD& context) const
+{
+	//llinfos << "options context: " << context << llendl;
+
+	// default implementation constructs an url to the documentation.
+	std::string host = context[CONTEXT_REQUEST]["headers"]["host"].asString();
+	if(host.empty())
+	{
+		response->status(400, "Bad Request -- need Host header");
+		return;
+	}
+	std::ostringstream ostr;
+	ostr << "http://" << host << "/web/server/api";
+	ostr << context[CONTEXT_REQUEST]["path"].asString();
+	static const std::string DOC_HEADER("X-Documentation-URL");
+	response->addHeader(DOC_HEADER, ostr.str());
+	response->status(200, "OK");
+}
+
 
 // virtual
 LLHTTPNode* LLHTTPNode::getChild(const std::string& name, LLSD& context) const
@@ -384,6 +404,13 @@ void LLHTTPNode::Response::notFound()
 void LLHTTPNode::Response::methodNotAllowed()
 {
 	status(405, "Method Not Allowed");
+}
+
+void LLHTTPNode::Response::addHeader(
+	const std::string& name,
+	const std::string& value)
+{
+	mHeaders[name] = value;
 }
 
 void LLHTTPNode::describe(Description& desc) const

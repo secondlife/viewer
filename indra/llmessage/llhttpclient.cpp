@@ -205,9 +205,7 @@ static void request(
 	Injector* body_injector,
 	LLCurl::ResponderPtr responder,
 	const F32 timeout = HTTP_REQUEST_EXPIRY_SECS,
-	const LLSD& headers = LLSD(),
-	S32 offset = 0,
-	S32 bytes = 0)
+	const LLSD& headers = LLSD())
 {
 	if (!LLHTTPClient::hasPump())
 	{
@@ -216,7 +214,7 @@ static void request(
 	}
 	LLPumpIO::chain_t chain;
 
-	LLURLRequest *req = new LLURLRequest(method, url);
+	LLURLRequest* req = new LLURLRequest(method, url);
 	req->checkRootCertificate(true);
 
     // Insert custom headers is the caller sent any
@@ -235,7 +233,7 @@ static void request(
             //to not use the proxy (read: llurlrequest.cpp)
             if ((iter->first == "Pragma") && (iter->second.asString() == ""))
             {
-                req->useProxy(FALSE);
+                req->useProxy(false);
             }
             header << iter->first << ": " << iter->second.asString() ;
             lldebugs << "header = " << header.str() << llendl;
@@ -258,34 +256,27 @@ static void request(
    		chain.push_back(LLIOPipe::ptr_t(body_injector));
 	}
 
-	if (method == LLURLRequest::HTTP_GET && (offset > 0 || bytes > 0))
-	{
-		std::string range = llformat("Range: bytes=%d-%d", offset,offset+bytes-1);
-		req->addHeader(range.c_str());
-   	}
-	
 	chain.push_back(LLIOPipe::ptr_t(req));
 
 	theClientPump->addChain(chain, timeout);
 }
 
 
-void LLHTTPClient::getByteRange(const std::string& url,
-								S32 offset, S32 bytes,
-								ResponderPtr responder,
-								const LLSD& headers,
-								const F32 timeout)
+void LLHTTPClient::getByteRange(
+	const std::string& url,
+	S32 offset,
+	S32 bytes,
+	ResponderPtr responder,
+	const LLSD& hdrs,
+	const F32 timeout)
 {
-	// *FIX: Why is the headers argument ignored? Phoenix 2008-04-28
-    request(
-		url,
-		LLURLRequest::HTTP_GET,
-		NULL,
-		responder,
-		timeout,
-		LLSD(), 	// WTF? Shouldn't this be used?
-		offset,
-		bytes);
+	LLSD headers = hdrs;
+	if(offset > 0 || bytes > 0)
+	{
+		std::string range = llformat("bytes=%d-%d", offset, offset+bytes-1);
+		headers["Range"] = range;
+	}
+    request(url,LLURLRequest::HTTP_GET, NULL, responder, timeout, headers);
 }
 
 void LLHTTPClient::head(const std::string& url, ResponderPtr responder, const F32 timeout)

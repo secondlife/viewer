@@ -57,10 +57,13 @@
 static const char HTTP_VERSION_STR[] = "HTTP/1.0";
 static const std::string CONTEXT_REQUEST("request");
 static const std::string CONTEXT_RESPONSE("response");
+static const std::string CONTEXT_VERB("verb");
+static const std::string CONTEXT_HEADERS("headers");
 static const std::string HTTP_VERB_GET("GET");
 static const std::string HTTP_VERB_PUT("PUT");
 static const std::string HTTP_VERB_POST("POST");
 static const std::string HTTP_VERB_DELETE("DELETE");
+static const std::string HTTP_VERB_OPTIONS("OPTIONS");
 
 static LLIOHTTPServer::timing_callback_t sTimingCallback = NULL;
 static void* sTimingCallbackData = NULL;
@@ -130,6 +133,7 @@ private:
 	LLSD mGoodResult;
 	S32 mStatusCode;
 	std::string mStatusMessage;	
+	LLSD mHeaders;
 };
 
 LLIOPipe::EStatus LLHTTPPipe::process_impl(
@@ -164,7 +168,7 @@ LLIOPipe::EStatus LLHTTPPipe::process_impl(
 		static LLTimer timer;
 		timer.reset();
 
-		std::string verb = context[CONTEXT_REQUEST]["verb"];
+		std::string verb = context[CONTEXT_REQUEST][CONTEXT_VERB];
 		if(verb == HTTP_VERB_GET)
 		{
 			mNode.get(LLHTTPNode::ResponsePtr(mResponse), context);
@@ -184,6 +188,10 @@ LLIOPipe::EStatus LLHTTPPipe::process_impl(
 		else if(verb == HTTP_VERB_DELETE)
 		{
 			mNode.del(LLHTTPNode::ResponsePtr(mResponse), context);
+		}		
+		else if(verb == HTTP_VERB_OPTIONS)
+		{
+			mNode.options(LLHTTPNode::ResponsePtr(mResponse), context);
 		}		
 		else 
 		{
@@ -231,7 +239,9 @@ LLIOPipe::EStatus LLHTTPPipe::process_impl(
 
 		case STATE_GOOD_RESULT:
 		{
-			context[CONTEXT_RESPONSE]["contentType"] = "application/xml";
+			LLSD headers = mHeaders;
+			headers["Content-Type"] = "application/xml";
+			context[CONTEXT_RESPONSE][CONTEXT_HEADERS] = headers;
 			LLBufferStream ostr(channels, buffer.get());
 			LLSDSerialize::toXML(mGoodResult, ostr);
 
@@ -240,7 +250,9 @@ LLIOPipe::EStatus LLHTTPPipe::process_impl(
 
 		case STATE_STATUS_RESULT:
 		{
-			context[CONTEXT_RESPONSE]["contentType"] = "text/plain";
+			LLSD headers = mHeaders;
+			headers["Content-Type"] = "text/plain";
+			context[CONTEXT_RESPONSE][CONTEXT_HEADERS] = headers;
 			context[CONTEXT_RESPONSE]["statusCode"] = mStatusCode;
 			context[CONTEXT_RESPONSE]["statusMessage"] = mStatusMessage;
 			LLBufferStream ostr(channels, buffer.get());
@@ -287,6 +299,7 @@ void LLHTTPPipe::Response::result(const LLSD& r)
 	mPipe->mStatusMessage = "OK";
 	mPipe->mGoodResult = r;
 	mPipe->mState = STATE_GOOD_RESULT;
+	mPipe->mHeaders = mHeaders;
 	mPipe->unlockChain();	
 }
 
@@ -302,6 +315,7 @@ void LLHTTPPipe::Response::status(S32 code, const std::string& message)
 	mPipe->mStatusCode = code;
 	mPipe->mStatusMessage = message;
 	mPipe->mState = STATE_STATUS_RESULT;
+	mPipe->mHeaders = mHeaders;
 	mPipe->unlockChain();
 }
 
@@ -389,16 +403,23 @@ LLIOPipe::EStatus LLHTTPResponseHeader::process_impl(
 		}
 		
 		ostr << HTTP_VERSION_STR << " " << code << " " << message << "\r\n";
-		
-		std::string type = context[CONTEXT_RESPONSE]["contentType"].asString();
-		if (!type.empty())
-		{
-			ostr << "Content-Type: " << type << "\r\n";
-		}
 		S32 content_length = buffer->countAfter(channels.in(), NULL);
 		if(0 < content_length)
 		{
 			ostr << "Content-Length: " << content_length << "\r\n";
+		}
+		// *NOTE: This guard can go away once the LLSD static map
+		// iterator is available. Phoenix. 2008-05-09
+		LLSD headers = context[CONTEXT_RESPONSE][CONTEXT_HEADERS];
+		if(headers.isDefined())
+		{
+			LLSD::map_iterator iter = headers.beginMap();
+			LLSD::map_iterator end = headers.endMap();
+			for(; iter != end; ++iter)
+			{
+				ostr << (*iter).first << ": " << (*iter).second.asString()
+					<< "\r\n";
+			}
 		}
 		ostr << "\r\n";
 
@@ -606,11 +627,12 @@ LLIOPipe::EStatus LLHTTPResponder::process_impl(
 				read_next_line = true;
 				LLMemoryStream header((U8*)buf, len);
 				header >> mVerb;
-				
+
 				if((HTTP_VERB_GET == mVerb)
 				   || (HTTP_VERB_POST == mVerb)
 				   || (HTTP_VERB_PUT == mVerb)
-				   || (HTTP_VERB_DELETE == mVerb))
+				   || (HTTP_VERB_DELETE == mVerb)
+				   || (HTTP_VERB_OPTIONS == mVerb))
 				{
 					header >> mAbsPathAndQuery;
 					header >> mVersion;
@@ -721,7 +743,7 @@ LLIOPipe::EStatus LLHTTPResponder::process_impl(
 	{
 		// hey, hey, we should have everything now, so we pass it to
 		// a content handler.
-		context[CONTEXT_REQUEST]["verb"] = mVerb;
+		context[CONTEXT_REQUEST][CONTEXT_VERB] = mVerb;
 		const LLHTTPNode* node = mRootNode.traverse(mPath, context);
 		if(node)
 		{
@@ -765,7 +787,7 @@ LLIOPipe::EStatus LLHTTPResponder::process_impl(
 				= mBuildContext["remote-host"];
 			context[CONTEXT_REQUEST]["remote-port"]
 				= mBuildContext["remote-port"];
-			context[CONTEXT_REQUEST]["headers"] = mHeaders;
+			context[CONTEXT_REQUEST][CONTEXT_HEADERS] = mHeaders;
 
 			const LLChainIOFactory* protocolHandler
 				= node->getProtocolHandler();

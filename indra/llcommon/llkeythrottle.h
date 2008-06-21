@@ -55,28 +55,31 @@ class LLKeyThrottleImpl
 protected:
 	struct Entry {
 		U32		count;
-		BOOL	blocked;
+		bool	blocked;
 
-		Entry() : count(0), blocked(FALSE) { }
+		Entry() : count(0), blocked(false) { }
 	};
 
 	typedef std::map<T, Entry> EntryMap;
 
-	EntryMap * prevMap;
-	EntryMap * currMap;
+	EntryMap* prevMap;
+	EntryMap* currMap;
 	
 	U32 countLimit;
 		// maximum number of keys allowed per interval
 		
 	U64 intervalLength;		// each map covers this time period (usec or frame number)
 	U64 startTime;			// start of the time period (usec or frame number)
-	
 		// currMap started counting at this time
 		// prevMap covers the previous interval
 	
-	LLKeyThrottleImpl() : prevMap(0), currMap(0),
-			      countLimit(0), intervalLength(1),
-			      startTime(0) { };
+	LLKeyThrottleImpl() :
+		prevMap(NULL),
+		currMap(NULL),
+		countLimit(0),
+		intervalLength(1),
+		startTime(0)
+	{}
 
 	static U64 getTime()
 	{
@@ -93,7 +96,9 @@ template< class T >
 class LLKeyThrottle
 {
 public:
-	LLKeyThrottle(U32 limit, F32 interval, BOOL realtime = TRUE)	// realtime = FALSE for frame-based throttle, TRUE for usec real-time throttle
+	// @param realtime = FALSE for frame-based throttle, TRUE for usec
+	// real-time throttle
+	LLKeyThrottle(U32 limit, F32 interval, BOOL realtime = TRUE)	
 		: m(* new LLKeyThrottleImpl<T>)
 	{
 		setParameters( limit, interval, realtime );
@@ -149,7 +154,7 @@ public:
 		}
 
 		U32 prevCount = 0;
-		BOOL prevBlocked = FALSE;
+		bool prevBlocked = false;
 
 		typename LLKeyThrottleImpl<T>::EntryMap::const_iterator prev = m.prevMap->find(id);
 		if (prev != m.prevMap->end())
@@ -198,17 +203,17 @@ public:
 		noteAction(id);
 		typename LLKeyThrottleImpl<T>::Entry& curr = (*m.currMap)[id];
 		curr.count = llmax(m.countLimit, curr.count);
-		curr.blocked = TRUE;
+		curr.blocked = true;
 	}
 
-	// returns TRUE if key is blocked
-	BOOL isThrottled(const T& id) const
+	// returns true if key is blocked
+	bool isThrottled(const T& id) const
 	{
 		if (m.currMap->empty()
 			&& m.prevMap->empty())
 		{
 			// most of the time we'll fall in here
-			return FALSE;
+			return false;
 		}
 
 		// NOTE, we ignore the case where id is in the map but the map is stale.  
@@ -226,7 +231,7 @@ public:
 		{
 			return entry->second.blocked;
 		}
-		return FALSE;
+		return false;
 	}
 
 	// Get the throttling parameters

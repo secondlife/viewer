@@ -84,17 +84,31 @@ public:
 			return((200 <= status) && (status < 300));
 		}
 		
+		virtual void error(
+			U32 status,
+			const std::string& reason,
+			const LLSD& content);
+			//< called by completed() on bad status 
+
 		virtual void error(U32 status, const std::string& reason);
-			// called with non-200 status codes
+			//< called by default error(status, reason, content)
 		
 		virtual void result(const LLSD& content);
-		
-		// Override point for clients that may want to use this class when the response is some other format besides LLSD
-		virtual void completedRaw(U32 status, const std::string& reason,
-								  const LLChannelDescriptors& channels,
-								  const LLIOPipe::buffer_ptr_t& buffer);
+			//< called by completed for good status codes.
 
-		virtual void completed(U32 status, const std::string& reason, const LLSD& content);
+		virtual void completedRaw(
+			U32 status,
+			const std::string& reason,
+			const LLChannelDescriptors& channels,
+			const LLIOPipe::buffer_ptr_t& buffer);
+			/**< Override point for clients that may want to use this
+			   class when the response is some other format besides LLSD
+			*/
+
+		virtual void completed(
+			U32 status,
+			const std::string& reason,
+			const LLSD& content);
 			/**< The default implemetnation calls
 				either:
 				* result(), or

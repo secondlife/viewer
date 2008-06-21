@@ -113,6 +113,15 @@ LLCurl::Responder::~Responder()
 }
 
 // virtual
+void LLCurl::Responder::error(
+	U32 status,
+	const std::string& reason,
+	const LLSD&)
+{
+	error(status, reason);
+}
+
+// virtual
 void LLCurl::Responder::error(U32 status, const std::string& reason)
 {
 	llinfos << status << ": " << reason << llendl;
@@ -124,38 +133,16 @@ void LLCurl::Responder::result(const LLSD& content)
 }
 
 // virtual
-void LLCurl::Responder::completedRaw(U32 status, const std::string& reason,
-									 const LLChannelDescriptors& channels,
-									 const LLIOPipe::buffer_ptr_t& buffer)
+void LLCurl::Responder::completedRaw(
+	U32 status,
+	const std::string& reason,
+	const LLChannelDescriptors& channels,
+	const LLIOPipe::buffer_ptr_t& buffer)
 {
-	if (isGoodStatus(status))
-	{
-		LLSD content;
-		LLBufferStream istr(channels, buffer.get());
-		LLSDSerialize::fromXML(content, istr);
-/*
-		const S32 parseError = -1;
-		if(LLSDSerialize::fromXML(content, istr) == parseError)
-		{
-			mStatus = 498;
-			mReason = "Client Parse Error";
-		}
-*/
-		completed(status, reason, content);
-	}
-	else if (status == 400)
-	{
-		// Get reason from buffer
-		char tbuf[4096];
-		S32 len = 4096;
-		buffer->readAfter(channels.in(), NULL, (U8*)tbuf, len);
-		tbuf[len] = 0;
-		completed(status, std::string(tbuf), LLSD());
-	}
-	else
-	{
-		completed(status, reason, LLSD());
-	}
+	LLSD content;
+	LLBufferStream istr(channels, buffer.get());
+	LLSDSerialize::fromXML(content, istr);
+	completed(status, reason, content);
 }
 
 // virtual
@@ -167,10 +154,7 @@ void LLCurl::Responder::completed(U32 status, const std::string& reason, const L
 	}
 	else
 	{
-		// *NOTE: This is kind of messed up. This should probably call
-		// the full error method which then provides a default impl
-		// which calls the thinner method.
-		error(status, reason);
+		error(status, reason, content);
 	}
 }
 
