@@ -880,10 +880,18 @@ def main():
     # Handle the queries for information
     #
     if options.list_installed:
-        print "installed list:", installer.list_installed()
+        print "installed list:"
+        inst = installer.list_installed()
+        inst.sort()
+        for i in inst:
+            print ' ', i
         return 0
     if options.list_installables:
-        print "installable list:", installer.list_installables()
+        print "installable list:",
+        inst = installer.list_installables()
+        inst.sort()
+        for i in inst:
+            print ' ', i
         return 0
     if options.detail_installable:
         try:
