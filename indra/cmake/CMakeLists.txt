@@ -16,6 +16,7 @@ set(cmake_SOURCE_FILES
     CARes.cmake
     CURL.cmake
     CMakeCopyIfDifferent.cmake
+    CopyWinLibs.cmake
     DirectX.cmake
     ELFIO.cmake
     EXPAT.cmake
@@ -62,11 +63,13 @@ set(cmake_SOURCE_FILES
     OpenSSL.cmake
     PNG.cmake
     Python.cmake
+    Prebuilt.cmake
     QuickTime.cmake
     TemplateCheck.cmake
     UI.cmake
     UnixInstall.cmake
     Variables.cmake
+    WindowsDevLibsCopy.cmake
     XmlRpcEpi.cmake
     ZLIB.cmake
     )

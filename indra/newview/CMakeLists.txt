@@ -34,6 +34,10 @@ include(UnixInstall)
 include(LLKDU)
 include(ViewerMiscLibs)
 
+if (WINDOWS)
+    include(CopyWinLibs)
+endif (WINDOWS)
+
 include_directories(
     ${ELFIO_INCLUDE_DIR}
     ${LLAUDIO_INCLUDE_DIRS}
@@ -1173,6 +1177,52 @@ set_source_files_properties(${viewer_XUI_FILES}
 
 list(APPEND viewer_SOURCE_FILES ${viewer_XUI_FILES})
 
+set(viewer_APPSETTINGS_FILES
+    app_settings/anim.ini
+    app_settings/cmd_line.xml
+    app_settings/colors.xml
+    app_settings/colors_base.xml
+    app_settings/grass.xml
+    app_settings/high_graphics.xml
+    app_settings/keys.ini
+    app_settings/keywords.ini
+    app_settings/logcontrol.xml
+    app_settings/low_graphics.xml
+    app_settings/mid_graphics.xml
+    app_settings/settings.xml
+    app_settings/settings_crash_behavior.xml
+    app_settings/settings_files.xml
+    app_settings/settings_per_account.xml
+    app_settings/std_bump.ini
+    app_settings/trees.xml
+    app_settings/ultra_graphics.xml
+    app_settings/viewerart.xml
+    ${CMAKE_SOURCE_DIR}/../etc/message.xml
+    ${CMAKE_SOURCE_DIR}/../scripts/messages/message_template.msg
+    )
+
+source_group("App Settings" FILES ${viewer_APPSETTINGS_FILES})
+
+set_source_files_properties(${viewer_APPSETTINGS_FILES}
+                            PROPERTIES HEADER_FILE_ONLY TRUE)
+
+list(APPEND viewer_SOURCE_FILES ${viewer_APPSETTINGS_FILES})
+
+set(viewer_CHARACTER_FILES
+    character/attentions.xml
+    character/attentionsN.xml
+    character/avatar_lad.xml
+    character/avatar_skeleton.xml
+    character/genepool.xml
+    )
+
+source_group("Character File" FILES ${viewer_CHARACTER_FILES})
+
+set_source_files_properties(${viewer_CHARACTER_FILES}
+                            PROPERTIES HEADER_FILE_ONLY TRUE)
+
+list(APPEND viewer_SOURCE_FILES ${viewer_CHARACTER_FILES})
+
 if (FMOD)
   set_source_files_properties(llstartup.cpp PROPERTIES COMPILE_FLAGS -DLL_FMOD)
 
@@ -1253,18 +1303,8 @@ if (WINDOWS)
         COMMENT "Copying message_template.msg to the runtime folder."
         )
 
-    add_custom_command(
-        TARGET secondlife-bin POST_BUILD
-        COMMAND ${PYTHON_EXECUTABLE}
-        ARGS
-          "${CMAKE_CURRENT_SOURCE_DIR}/postbuild_win32.py"
-          "${CMAKE_COMMAND} -E copy_if_different"
-          "${CMAKE_CFG_INTDIR}"
-          "${CMAKE_CURRENT_BINARY_DIR}"
-        DEPENDS secondlife-bin
-        COMMENT "Copying pre-built binaries to development folder."
-        )
-
+    add_dependencies(secondlife-bin copy_win_libs)
+    
     if (EXISTS ${CMAKE_SOURCE_DIR}/copy_win_scripts)
       add_dependencies(secondlife-bin copy_win_scripts)
     endif (EXISTS ${CMAKE_SOURCE_DIR}/copy_win_scripts)
