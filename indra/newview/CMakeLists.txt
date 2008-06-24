@@ -385,7 +385,6 @@ set(viewer_SOURCE_FILES
     llviewerparceloverlay.cpp
     llviewerpartsim.cpp
     llviewerpartsource.cpp
-    llviewerprecompiledheaders.cpp
     llviewerregion.cpp
     llviewerstats.cpp
     llviewertexteditor.cpp
@@ -892,6 +891,24 @@ if (WINDOWS)
          llwindebug.h
          )
 
+    # precompiled header configuration
+    # llviewerprecompiledheaders.cpp generates
+    # the .pch file.
+    # All sources added to viewer_SOURCE_FILES 
+    # at this point use it.
+    set_source_files_properties(llviewerprecompiledheaders.cpp
+        PROPERTIES
+        COMPILE_FLAGS "/Ycllviewerprecompiledheaders.h"
+        )        
+    foreach( src_file ${viewer_SOURCE_FILES} )
+        set_source_files_properties(
+            ${src_file}
+            PROPERTIES
+            COMPILE_FLAGS "/Yullviewerprecompiledheaders.h"
+            )        
+    endforeach( src_file ${viewer_SOURCE_FILES} )
+    list(APPEND viewer_SOURCE_FILES llviewerprecompiledheaders.cpp)
+    
     # Add resource files to the project.
     # viewerRes.rc is the only buildable file, but
     # the rest are all dependencies of it.
@@ -1304,7 +1321,7 @@ if (WINDOWS)
         )
 
     add_dependencies(secondlife-bin copy_win_libs)
-    
+
     if (EXISTS ${CMAKE_SOURCE_DIR}/copy_win_scripts)
       add_dependencies(secondlife-bin copy_win_scripts)
     endif (EXISTS ${CMAKE_SOURCE_DIR}/copy_win_scripts)
