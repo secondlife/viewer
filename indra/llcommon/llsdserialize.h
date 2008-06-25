@@ -83,6 +83,18 @@ public:
 	 */
 	S32 parse(std::istream& istr, LLSD& data, S32 max_bytes);
 
+	/** Like parse(), but uses a different call (istream.getline()) to read by lines
+	 *  This API is better suited for XML, where the parse cannot tell
+	 *  where the document actually ends.
+	 */
+	S32 parseLines(std::istream& istr, LLSD& data);
+
+	/** 
+	 * @brief Resets the parser so parse() or parseLines() can be called again for another <llsd> chunk.
+	 */
+	void reset()	{ doReset();	};
+
+
 protected:
 	/** 
 	 * @brief Pure virtual base for doing the parse.
@@ -99,6 +111,11 @@ protected:
 	 * data. Returns PARSE_FAILURE (-1) on parse failure.
 	 */
 	virtual S32 doParse(std::istream& istr, LLSD& data) const = 0;
+
+	/** 
+	 * @brief Virtual default function for resetting the parser
+	 */
+	virtual void doReset()	{};
 
 	/* @name Simple istream helper methods 
 	 *
@@ -191,6 +208,11 @@ protected:
 	 * @brief The maximum number of bytes left to be parsed.
 	 */
 	mutable S32 mMaxBytesLeft;
+	
+	/**
+	 * @brief Use line-based reading to get text
+	 */
+	bool mParseLines;
 };
 
 /** 
@@ -300,6 +322,11 @@ protected:
 	 * data. Returns PARSE_FAILURE (-1) on parse failure.
 	 */
 	virtual S32 doParse(std::istream& istr, LLSD& data) const;
+
+	/** 
+	 * @brief Virtual default function for resetting the parser
+	 */
+	virtual void doReset();
 
 private:
 	class Impl;
@@ -674,7 +701,7 @@ public:
 		U32 options = LLSDFormatter::OPTIONS_NONE);
 
 	/**
-	 * @breif Examine a stream, and parse 1 sd object out based on contents.
+	 * @brief Examine a stream, and parse 1 sd object out based on contents.
 	 *
 	 * @param sd [out] The data found on the stream
 	 * @param str The incoming stream
@@ -718,12 +745,22 @@ public:
 		return f->format(sd, str, LLSDFormatter::OPTIONS_PRETTY);
 	}
 
-	static S32 fromXML(LLSD& sd, std::istream& str)
+	static S32 fromXMLEmbedded(LLSD& sd, std::istream& str)
 	{
 		// no need for max_bytes since xml formatting is not
 		// subvertable by bad sizes.
 		LLPointer<LLSDXMLParser> p = new LLSDXMLParser;
 		return p->parse(str, sd, LLSDSerialize::SIZE_UNLIMITED);
+	}
+	static S32 fromXMLDocument(LLSD& sd, std::istream& str)
+	{
+		LLPointer<LLSDXMLParser> p = new LLSDXMLParser();
+		return p->parseLines(str, sd);
+	}
+	static S32 fromXML(LLSD& sd, std::istream& str)
+	{
+		return fromXMLEmbedded(sd, str);
+//		return fromXMLDocument(sd, str);
 	}
 
 	/*

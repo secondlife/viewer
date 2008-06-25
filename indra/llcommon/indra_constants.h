@@ -78,7 +78,7 @@ enum LAND_STAT_REPORT_TYPE
 const U32 STAT_FILTER_MASK	= 0x1FFFFFFF;
 
 // Default maximum number of tasks/prims per region.
-const U32 MAX_TASKS_PER_REGION = 15000;
+const U32 DEFAULT_MAX_REGION_WIDE_PRIM_COUNT = 15000;
 
 const 	F32 	MIN_AGENT_DEPTH			= 0.30f;
 const 	F32 	DEFAULT_AGENT_DEPTH 	= 0.45f;

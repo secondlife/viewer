@@ -146,12 +146,15 @@ bool LLSDSerialize::deserialize(LLSD& sd, std::istream& str, S32 max_bytes)
 	 * Create the parser as appropriate
 	 */
 	if (legacy_no_header)
-	{
-		LLSDXMLParser* x = new LLSDXMLParser;
-		x->parsePart(hdr_buf, inbuf);
-		p = x;
+	{	// Create a LLSD XML parser, and parse the first chunk read above
+		LLSDXMLParser* x = new LLSDXMLParser();
+		x->parsePart(hdr_buf, inbuf);	// Parse the first part that was already read
+		x->parseLines(str, sd);			// Parse the rest of it
+		delete x;
+		return true;
 	}
-	else if (header == LLSD_BINARY_HEADER)
+
+	if (header == LLSD_BINARY_HEADER)
 	{
 		p = new LLSDBinaryParser;
 	}
@@ -300,7 +303,8 @@ static const char BINARY_FALSE_SERIAL = '0';
 /**
  * LLSDParser
  */
-LLSDParser::LLSDParser() : mCheckLimits(true), mMaxBytesLeft(0)
+LLSDParser::LLSDParser()
+	: mCheckLimits(true), mMaxBytesLeft(0), mParseLines(false)
 {
 }
 
@@ -312,6 +316,15 @@ S32 LLSDParser::parse(std::istream& istr, LLSD& data, S32 max_bytes)
 {
 	mCheckLimits = (LLSDSerialize::SIZE_UNLIMITED == max_bytes) ? false : true;
 	mMaxBytesLeft = max_bytes;
+	return doParse(istr, data);
+}
+
+
+// Parse using routine to get() lines, faster than parse()
+S32 LLSDParser::parseLines(std::istream& istr, LLSD& data)
+{
+	mCheckLimits = false;
+	mParseLines = true;
 	return doParse(istr, data);
 }
 

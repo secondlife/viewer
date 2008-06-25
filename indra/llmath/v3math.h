@@ -74,6 +74,7 @@ class LLVector3
 
 		inline BOOL isFinite() const;									// checks to see if all values of LLVector3 are finite
 		BOOL		clamp(F32 min, F32 max);		// Clamps all values to (min,max), returns TRUE if data changed
+		BOOL		clampLength( F32 length_limit );					// Scales vector to limit length to a value
 
 		void		quantize16(F32 lowerxy, F32 upperxy, F32 lowerz, F32 upperz);	// changes the vector to reflect quatization
 		void		quantize8(F32 lowerxy, F32 upperxy, F32 lowerz, F32 upperz);	// changes the vector to reflect quatization

@@ -37,6 +37,9 @@
 #include "lltimer.h"
 #include "llframetimer.h"
 
+// Set this if longer stats are needed
+#define ENABLE_LONG_TIME_STATS	0
+
 //
 // Accumulates statistics for an arbitrary length of time.
 // Does this by maintaining a chain of accumulators, each one
@@ -52,19 +55,22 @@ protected:
 
 public:
 	enum TimeScale {
+		SCALE_100MS,
 		SCALE_SECOND,
 		SCALE_MINUTE,
 		SCALE_TWO_MINUTE,
+#if ENABLE_LONG_TIME_STATS
 		SCALE_HOUR,
 		SCALE_DAY,
 		SCALE_WEEK,
-
+#endif
 		NUM_SCALES
 	};
 
 	F32 meanValue(TimeScale scale) const;
 		// see the subclasses for the specific meaning of value
 
+	F32 meanValueOverLast100ms()  const { return meanValue(SCALE_100MS);  }
 	F32 meanValueOverLastSecond() const	{ return meanValue(SCALE_SECOND); }
 	F32 meanValueOverLastMinute() const	{ return meanValue(SCALE_MINUTE); }
 

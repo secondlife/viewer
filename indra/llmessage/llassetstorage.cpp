@@ -42,6 +42,7 @@
 #include "llstring.h"
 #include "lldir.h"
 #include "llsd.h"
+#include "llframetimer.h"
 
 // this library includes
 #include "message.h"
@@ -59,6 +60,9 @@ LLAssetStorage *gAssetStorage = NULL;
 LLMetrics *LLAssetStorage::metric_recipient = NULL;
 
 const LLUUID CATEGORIZE_LOST_AND_FOUND_ID("00000000-0000-0000-0000-000000000010");
+
+const U64 TOXIC_ASSET_LIFETIME = (120 * 1000000);		// microseconds
+
 
 ///----------------------------------------------------------------------------
 /// LLAssetInfo
@@ -314,6 +318,9 @@ LLAssetStorage::~LLAssetStorage()
 		// unregister our callbacks with the message system
 		gMessageSystem->setHandlerFuncFast(_PREHASH_AssetUploadComplete, NULL, NULL);
 	}
+
+	// Clear the toxic asset map
+	mToxicAssetMap.clear();
 }
 
 void LLAssetStorage::setUpstream(const LLHost &upstream_host)
@@ -1233,7 +1240,11 @@ void LLAssetStorage::legacyGetDataCallback(LLVFS *vfs, const LLUUID &uuid, LLAss
 	LLLegacyAssetRequest *legacy = (LLLegacyAssetRequest *)user_data;
 	char filename[LL_MAX_PATH] = "";	/* Flawfinder: ignore */ 
 
-	if (! status)
+	// Check if the asset is marked toxic, and don't load bad stuff
+	BOOL toxic = gAssetStorage->isAssetToxic( uuid );
+
+	if ( !status
+		&& !toxic )
 	{
 		LLVFile file(vfs, uuid, type);
 
@@ -1431,3 +1442,56 @@ void LLAssetStorage::reportMetric( const LLUUID& asset_id, const LLAssetType::ET
 		metric_recipient->recordEvent(metric_name, message, success);
 	}
 }
+
+
+// Check if an asset is in the toxic map.  If it is, the entry is updated
+BOOL	LLAssetStorage::isAssetToxic( const LLUUID& uuid )
+{
+	BOOL is_toxic = FALSE;
+
+	if ( !uuid.isNull() )
+	{
+		toxic_asset_map_t::iterator iter = mToxicAssetMap.find( uuid );
+		if ( iter != mToxicAssetMap.end() )
+		{	// Found toxic asset
+			(*iter).second = LLFrameTimer::getTotalTime() + TOXIC_ASSET_LIFETIME;
+			is_toxic = TRUE;
+		} 
+	}
+	return is_toxic;
+}
+
+
+
+
+// Clean the toxic asset list, remove old entries
+void	LLAssetStorage::flushOldToxicAssets( BOOL force_it )
+{
+	// Scan and look for old entries
+	U64 now = LLFrameTimer::getTotalTime();
+	toxic_asset_map_t::iterator iter = mToxicAssetMap.begin();
+	while ( iter != mToxicAssetMap.end() )
+	{
+		if ( force_it
+			|| (*iter).second < now )
+		{	// Too old - remove it
+			mToxicAssetMap.erase( iter++ );
+		}
+		else
+		{
+			iter++;
+		}
+	}
+}
+
+
+// Add an item to the toxic asset map
+void	LLAssetStorage::markAssetToxic( const LLUUID& uuid )
+{	
+	if ( !uuid.isNull() )
+	{
+		// Set the value to the current time.  Creates a new entry if needed
+		mToxicAssetMap[ uuid ] = LLFrameTimer::getTotalTime() + TOXIC_ASSET_LIFETIME;
+	}
+}
+

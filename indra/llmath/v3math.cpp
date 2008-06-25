@@ -73,6 +73,72 @@ BOOL LLVector3::clamp(F32 min, F32 max)
 	return ret;
 }
 
+// Clamps length to an upper limit.  
+// Returns TRUE if the data changed
+BOOL LLVector3::clampLength( F32 length_limit )
+{
+	BOOL changed = FALSE;
+
+	F32 len = length();
+	if (llfinite(len))
+	{
+		if ( len > length_limit)
+		{
+			normalize();
+			if (length_limit < 0.f)
+			{
+				length_limit = 0.f;
+			}
+			mV[0] *= length_limit;
+			mV[1] *= length_limit;
+			mV[2] *= length_limit;
+			changed = TRUE;
+		}
+	}
+	else
+	{	// this vector may still be salvagable
+		F32 max_abs_component = 0.f;
+		for (S32 i = 0; i < 3; ++i)
+		{
+			F32 abs_component = fabs(mV[i]);
+			if (llfinite(abs_component))
+			{
+				if (abs_component > max_abs_component)
+				{
+					max_abs_component = abs_component;
+				}
+			}
+			else
+			{
+				// no it can't be salvaged --> clear it
+				clear();
+				changed = TRUE;
+				break;
+			}
+		}
+		if (!changed)
+		{
+			// yes it can be salvaged -->
+			// bring the components down before we normalize
+			mV[0] /= max_abs_component;
+			mV[1] /= max_abs_component;
+			mV[2] /= max_abs_component;
+			normalize();
+
+			if (length_limit < 0.f)
+			{
+				length_limit = 0.f;
+			}
+			mV[0] *= length_limit;
+			mV[1] *= length_limit;
+			mV[2] *= length_limit;
+		}
+	}
+
+	return changed;
+}
+
+
 // Sets all values to absolute value of their original values
 // Returns TRUE if data changed
 BOOL LLVector3::abs()

@@ -262,12 +262,13 @@ public:
 	~Impl();
 	
 	S32 parse(std::istream& input, LLSD& data);
+	S32 parseLines(std::istream& input, LLSD& data);
 
 	void parsePart(const char *buf, int len);
 	
-private:
 	void reset();
-	
+
+private:
 	void startElementHandler(const XML_Char* name, const XML_Char** attributes);
 	void endElementHandler(const XML_Char* name);
 	void characterDataHandler(const XML_Char* data, int length);
@@ -307,8 +308,8 @@ private:
 	LLSD mResult;
 	S32 mParseCount;
 	
-	bool mInLLSDElement;
-	bool mGracefullStop;
+	bool mInLLSDElement;			// true if we're on LLSD
+	bool mGracefullStop;			// true if we found the </llsd
 	
 	typedef std::deque<LLSD*> LLSDRefStack;
 	LLSDRefStack mStack;
@@ -319,15 +320,12 @@ private:
 	
 	std::string mCurrentKey;
 	std::ostringstream mCurrentContent;
-
-	bool mPreStaged;
 };
 
 
 LLSDXMLParser::Impl::Impl()
 {
 	mParser = XML_ParserCreate(NULL);
-	mPreStaged = false;
 	reset();
 }
 
@@ -336,7 +334,7 @@ LLSDXMLParser::Impl::~Impl()
 	XML_ParserFree(mParser);
 }
 
-bool is_eol(char c)
+inline bool is_eol(char c)
 {
 	return (c == '\n' || c == '\r');
 }
@@ -356,9 +354,9 @@ static unsigned get_till_eol(std::istream& input, char *buf, unsigned bufsize)
 	unsigned count = 0;
 	while (count < bufsize && input.good())
 	{
-		input.get(buf[count]);
-		count++;
-		if (is_eol(buf[count - 1]))
+		char c = input.get();
+		buf[count++] = c;
+		if (is_eol(c))
 			break;
 	}
 	return count;
@@ -366,7 +364,6 @@ static unsigned get_till_eol(std::istream& input, char *buf, unsigned bufsize)
 
 S32 LLSDXMLParser::Impl::parse(std::istream& input, LLSD& data)
 {
-	reset();
 	XML_Status status;
 	
 	static const int BUFFER_SIZE = 1024;
@@ -420,14 +417,86 @@ S32 LLSDXMLParser::Impl::parse(std::istream& input, LLSD& data)
 	return mParseCount;
 }
 
-void LLSDXMLParser::Impl::reset()
+
+S32 LLSDXMLParser::Impl::parseLines(std::istream& input, LLSD& data)
 {
-	if (mPreStaged)
+	XML_Status status = XML_STATUS_OK;
+
+	data = LLSD();
+
+	static const int BUFFER_SIZE = 1024;
+
+	//static char last_buffer[ BUFFER_SIZE ];
+	//std::streamsize last_num_read;
+
+	// Must get rid of any leading \n, otherwise the stream gets into an error/eof state
+	clear_eol(input);
+
+	while( !mGracefullStop
+		&& input.good() 
+		&& !input.eof())
 	{
-		mPreStaged = false;
-		return;
+		void* buffer = XML_GetBuffer(mParser, BUFFER_SIZE);
+		/*
+		 * If we happened to end our last buffer right at the end of the llsd, but the
+		 * stream is still going we will get a null buffer here.  Check for mGracefullStop.
+		 * -- I don't think this is actually true - zero 2008-05-09
+		 */
+		if (!buffer)
+		{
+			break;
+		}
+		
+		// Get one line
+		input.getline((char*)buffer, BUFFER_SIZE);
+		std::streamsize num_read = input.gcount();
+
+		//memcpy( last_buffer, buffer, num_read );
+		//last_num_read = num_read;
+
+		if ( num_read > 0 )
+		{
+			if (!input.good() )
+			{	// Clear state that's set when we run out of buffer
+				input.clear();
+			}
+		
+			// Don't parse the NULL at the end which might be added if \n was absorbed by getline()
+			char * text = (char *) buffer;
+			if ( text[num_read - 1] == 0)
+			{
+				num_read--;
+			}
+		}
+
+		status = XML_ParseBuffer(mParser, num_read, false);
+		if (status == XML_STATUS_ERROR)
+		{
+			break;
+		}
 	}
 
+	if (status != XML_STATUS_ERROR
+		&& !mGracefullStop)
+	{	// Parse last bit
+		status = XML_ParseBuffer(mParser, 0, true);
+	}
+	
+	if (status == XML_STATUS_ERROR  
+		&& !mGracefullStop)
+	{
+		llinfos << "LLSDXMLParser::Impl::parseLines: XML_STATUS_ERROR" << llendl;
+		return LLSDParser::PARSE_FAILURE;
+	}
+
+	clear_eol(input);
+	data = mResult;
+	return mParseCount;
+}
+
+
+void LLSDXMLParser::Impl::reset()
+{
 	mResult.clear();
 	mParseCount = 0;
 
@@ -476,14 +545,15 @@ LLSDXMLParser::Impl::findAttribute(const XML_Char* name, const XML_Char** pairs)
 
 void LLSDXMLParser::Impl::parsePart(const char* buf, int len)
 {
-	void * buffer = XML_GetBuffer(mParser, len);
-	if (buffer != NULL && buf != NULL)
+	if ( buf != NULL 
+		&& len > 0 )
 	{
-		memcpy(buffer, buf, len);
+		XML_Status status = XML_Parse(mParser, buf, len, false);
+		if (status == XML_STATUS_ERROR)
+		{
+			llinfos << "Unexpected XML parsing error at start" << llendl;
+		}
 	}
-	XML_ParseBuffer(mParser, len, false);
-
-	mPreStaged = true;
 }
 
 void LLSDXMLParser::Impl::startElementHandler(const XML_Char* name, const XML_Char** attributes)
@@ -738,5 +808,17 @@ void LLSDXMLParser::parsePart(const char *buf, int len)
 // virtual
 S32 LLSDXMLParser::doParse(std::istream& input, LLSD& data) const
 {
-	return impl.parse(input, data);	
+	if (mParseLines)
+	{
+		// Use line-based reading (faster code)
+		return impl.parseLines(input, data);
+	}
+
+	return impl.parse(input, data);
+}
+
+//	virtual 
+void LLSDXMLParser::doReset()
+{
+	impl.reset();
 }

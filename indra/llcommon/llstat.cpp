@@ -76,10 +76,11 @@ public:
 
 U64 LLStatAccum::impl::sScaleTimes[IMPL_NUM_SCALES] =
 {
+	USEC_PER_SEC / 10,				// 100 millisec
 	USEC_PER_SEC * 1,				// seconds
 	USEC_PER_SEC * 60,				// minutes
-	USEC_PER_SEC * 60 * 2				// minutes
-#if 0
+	USEC_PER_SEC * 60 * 2			// two minutes
+#if ENABLE_LONG_TIME_STATS
 	// enable these when more time scales are desired
 	USEC_PER_SEC * 60*60,			// hours
 	USEC_PER_SEC * 24*60*60,		// days
