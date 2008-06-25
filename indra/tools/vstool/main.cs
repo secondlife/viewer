@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
@@ -12,6 +13,95 @@ using Microsoft.CSharp;
 
 namespace VSTool
 {
+    // The MessageFilter class comes from:
+    // http://msdn.microsoft.com/en-us/library/ms228772(VS.80).aspx
+    // It allows vstool to get timing error messages from 
+    // visualstudio and handle them.
+    public class MessageFilter : IOleMessageFilter
+    {
+        //
+        // Class containing the IOleMessageFilter
+        // thread error-handling functions.
+
+        // Start the filter.
+        public static void Register()
+        {
+            IOleMessageFilter newFilter = new MessageFilter(); 
+            IOleMessageFilter oldFilter = null; 
+            CoRegisterMessageFilter(newFilter, out oldFilter);
+        }
+
+        // Done with the filter, close it.
+        public static void Revoke()
+        {
+            IOleMessageFilter oldFilter = null; 
+            CoRegisterMessageFilter(null, out oldFilter);
+        }
+
+        //
+        // IOleMessageFilter functions.
+        // Handle incoming thread requests.
+        int IOleMessageFilter.HandleInComingCall(int dwCallType, 
+          System.IntPtr hTaskCaller, int dwTickCount, System.IntPtr 
+          lpInterfaceInfo) 
+        {
+            //Return the flag SERVERCALL_ISHANDLED.
+            return 0;
+        }
+
+        // Thread call was rejected, so try again.
+        int IOleMessageFilter.RetryRejectedCall(System.IntPtr 
+          hTaskCallee, int dwTickCount, int dwRejectType)
+        {
+            if (dwRejectType == 2)
+            // flag = SERVERCALL_RETRYLATER.
+            {
+                // Retry the thread call immediately if return >=0 & 
+                // <100.
+                return 99;
+            }
+            // Too busy; cancel call.
+            return -1;
+        }
+
+        int IOleMessageFilter.MessagePending(System.IntPtr hTaskCallee, 
+          int dwTickCount, int dwPendingType)
+        {
+            //Return the flag PENDINGMSG_WAITDEFPROCESS.
+            return 2; 
+        }
+
+        // Implement the IOleMessageFilter interface.
+        [DllImport("Ole32.dll")]
+        private static extern int 
+          CoRegisterMessageFilter(IOleMessageFilter newFilter, out 
+          IOleMessageFilter oldFilter);
+    }
+
+    [ComImport(), Guid("00000016-0000-0000-C000-000000000046"), 
+    InterfaceTypeAttribute(ComInterfaceType.InterfaceIsIUnknown)]
+    interface IOleMessageFilter 
+    {
+        [PreserveSig]
+        int HandleInComingCall( 
+            int dwCallType, 
+            IntPtr hTaskCaller, 
+            int dwTickCount, 
+            IntPtr lpInterfaceInfo);
+
+        [PreserveSig]
+        int RetryRejectedCall( 
+            IntPtr hTaskCallee, 
+            int dwTickCount,
+            int dwRejectType);
+
+        [PreserveSig]
+        int MessagePending( 
+            IntPtr hTaskCallee, 
+            int dwTickCount,
+            int dwPendingType);
+    }
+
     class ViaCOM
     {
         public static object GetProperty(object from_obj, string prop_name)
@@ -111,86 +201,62 @@ namespace VSTool
 		/// The main entry point for the application.
 		/// </summary>
 		[STAThread]
-		static void Main(string[] args)
+		static int Main(string[] args)
 		{
+            int retVal = 0;
             bool need_save = false;
 
             try
             {
                 parse_command_line(args);
 
-                Console.WriteLine("Opening solution: {0}", solution_name);
+                Console.WriteLine("Editing solution: {0}", solution_name);
 
                 bool found_open_solution = GetDTEAndSolution();
 
-                // Walk through all of the projects in the solution
-                // and list the type of each project.
-                foreach (DictionaryEntry p in projectDict)
+                if (dte == null || solution == null)
                 {
-                    string project_name = (string)p.Key;
-                    string working_dir = (string)p.Value;
-                    if (SetProjectWorkingDir(solution, project_name, working_dir))
-                    {
-                        need_save = true;
-                    }
+                    retVal = 1;
                 }
-
-                if (config != null)
+                else
                 {
-                    try
-                    {
-                        object solBuild = ViaCOM.GetProperty(solution, "SolutionBuild");
-                        object solCfgs = ViaCOM.GetProperty(solBuild, "SolutionConfigurations");
-                        object[] itemArgs = { (object)config };
-                        object solCfg = ViaCOM.CallMethod(solCfgs, "Item", itemArgs);
-                        ViaCOM.CallMethod(solCfg, "Activate", null);
-                        need_save = true;
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine(e.Message);
-                    }
-                }
+                    MessageFilter.Register();
 
-                if (startup_project != null)
-                {
-                    try
+                    // Walk through all of the projects in the solution
+                    // and list the type of each project.
+                    foreach (DictionaryEntry p in projectDict)
                     {
-                        // You need the 'unique name of the project to set StartupProjects.
-                        // find the project by generic name.
-                        object prjs = ViaCOM.GetProperty(solution, "Projects");
-                        object count = ViaCOM.GetProperty(prjs, "Count");
-                        for (int i = 1; i <= (int)count; ++i)
+                        string project_name = (string)p.Key;
+                        string working_dir = (string)p.Value;
+                        if (SetProjectWorkingDir(solution, project_name, working_dir))
                         {
-                            object[] itemArgs = { (object)i };
-                            object prj = ViaCOM.CallMethod(prjs, "Item", itemArgs);
-                            object prjName = ViaCOM.GetProperty(prj, "Name");
-                            if (0 == string.Compare((string)prjName, startup_project, ignore_case))
-                            {
-                                object solBuild = ViaCOM.GetProperty(solution, "SolutionBuild");
-                                ViaCOM.SetProperty(solBuild, "StartupProjects", ViaCOM.GetProperty(prj, "UniqueName"));
-                                need_save = true;
-                                break;
-                            }
+                            need_save = true;
                         }
                     }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine(e.Message);
-                    }
-                }
 
-                if (need_save)
-                {
-                    if (found_open_solution == false)
+                    if (config != null)
                     {
-                        ViaCOM.CallMethod(solution, "Close", null);
+                        need_save = SetActiveConfig(config);
+                    }
+
+                    if (startup_project != null)
+                    {
+                        need_save = SetStartupProject(startup_project);
+                    }
+
+                    if (need_save)
+                    {
+                        if (found_open_solution == false)
+                        {
+                            ViaCOM.CallMethod(solution, "Close", null);
+                        }
                     }
                 }
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
+                retVal = 1;
             }
             finally
             {
@@ -205,8 +271,10 @@ namespace VSTool
                     Marshal.ReleaseComObject(dte);
                     dte = null;
                 }
+
+                MessageFilter.Revoke();
             }
-            Console.WriteLine("Finished!");
+            return retVal;
         }
 
         public static bool parse_command_line(string[] args)
@@ -305,17 +373,16 @@ namespace VSTool
             {
                 try
                 {
-                    Console.WriteLine("  Didn't find open solution, now opening new VisualStudio instance...");
+                    Console.WriteLine("  Didn't find open solution, starting new background VisualStudio instance...");
                     Console.WriteLine("  Reading .sln file version...");
                     string version = GetSolutionVersion(full_solution_name);
 
-                    Console.WriteLine("  Opening VS version: {0}...", version);
+                    Console.WriteLine("  Using version: {0}...", version);
                     string progid = GetVSProgID(version);
 
                     Type objType = Type.GetTypeFromProgID(progid);
                     dte = System.Activator.CreateInstance(objType);
-
-                    Console.WriteLine("  Opening solution...");
+                    Console.WriteLine("  Reading solution: \"{0}\"", full_solution_name);
 
                     solution = ViaCOM.GetProperty(dte, "Solution");
                     object[] openArgs = { full_solution_name };
@@ -551,7 +618,7 @@ namespace VSTool
                         // the VCProjectEngine types from a different version than the one built 
                         // with. ie, VisualStudio.DTE.7.1 objects can't be converted in a project built 
                         // in VS 8.0. To avoid this problem, we can use the com object interfaces directly, 
-                        // with out the type casting. Its tedious code, but it seems to work.
+                        // without the type casting. Its tedious code, but it seems to work.
 
                         // oCfgs should be assigned to a 'Project.Configurations' collection.
                         object oCfgs = ViaCOM.GetProperty(ViaCOM.GetProperty(prj, "Object"), "Configurations");
@@ -575,10 +642,70 @@ namespace VSTool
             catch( Exception e )
             {
                 Console.WriteLine(e.Message);
-                Console.WriteLine("Failed settings working dir for project, {0}.", project_name);
+                Console.WriteLine("Failed to set working dir for project, {0}.", project_name);
             }
 
             return made_change;
+        }
+
+        public static bool SetStartupProject(string startup_project)
+        {
+            bool result = false;
+            try
+            {
+                // You need the 'unique name of the project to set StartupProjects.
+                // find the project by generic name.
+                Console.WriteLine("Trying to set \"{0}\" to the startup project", startup_project);
+                object prjs = ViaCOM.GetProperty(solution, "Projects");
+                object count = ViaCOM.GetProperty(prjs, "Count");
+                for (int i = 1; i <= (int)count; ++i)
+                {
+                    object[] itemArgs = { (object)i };
+                    object prj = ViaCOM.CallMethod(prjs, "Item", itemArgs);
+                    object prjName = ViaCOM.GetProperty(prj, "Name");
+                    if (0 == string.Compare((string)prjName, startup_project, ignore_case))
+                    {
+                        object solBuild = ViaCOM.GetProperty(solution, "SolutionBuild");
+                        ViaCOM.SetProperty(solBuild, "StartupProjects", ViaCOM.GetProperty(prj, "UniqueName"));
+                        Console.WriteLine("  Success!");
+                        result = true;
+                        break;
+                    }
+                }
+
+                if (result == false)
+                {
+                    Console.WriteLine("  Could not find project \"{0}\" in the solution.", startup_project);
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("  Failed to set the startup project!");
+                Console.WriteLine(e.Message);
+            }
+            return result;
+        }
+
+        public static bool SetActiveConfig(string config)
+        {
+            bool result = false;
+            try
+            {
+                Console.WriteLine("Trying to set active config to \"{0}\"", config);
+                object solBuild = ViaCOM.GetProperty(solution, "SolutionBuild");
+                object solCfgs = ViaCOM.GetProperty(solBuild, "SolutionConfigurations");
+                object[] itemArgs = { (object)config };
+                object solCfg = ViaCOM.CallMethod(solCfgs, "Item", itemArgs);
+                ViaCOM.CallMethod(solCfg, "Activate", null);
+                Console.WriteLine("  Success!");
+                result = true;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("  Failed to set \"{0}\" as the active config.", config);
+                Console.WriteLine(e.Message);
+            }
+            return result;
         }
     }
 }
