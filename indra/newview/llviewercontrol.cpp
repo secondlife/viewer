@@ -76,14 +76,14 @@ BOOL 				gHackGodmode = FALSE;
 #endif
 
 
-std::map<LLString, LLControlGroup*> gSettings;
+std::map<std::string, LLControlGroup*> gSettings;
 LLControlGroup gSavedSettings;	// saved at end of session
 LLControlGroup gSavedPerAccountSettings; // saved at end of session
 LLControlGroup gColors;			// read-only
 LLControlGroup gCrashSettings;	// saved at end of session
 
-LLString gLastRunVersion;
-LLString gCurrentVersion;
+std::string gLastRunVersion;
+std::string gCurrentVersion;
 
 extern BOOL gResizeScreenTexture;
 extern BOOL gDebugGL;
@@ -271,7 +271,7 @@ static bool handleAudioStreamMusicChanged(const LLSD& newvalue)
 				// otherwise music will briefly stop
 				if ( !gAudiop->isInternetStreamPlaying() )
 				{
-					gAudiop->startInternetStream(LLViewerParcelMgr::getInstance()->getAgentParcel()->getMusicURL().c_str());
+					gAudiop->startInternetStream(LLViewerParcelMgr::getInstance()->getAgentParcel()->getMusicURL());
 				}
 			}
 		}
@@ -385,7 +385,7 @@ static bool handleDebugViewsChanged(const LLSD& newvalue)
 static bool handleLogFileChanged(const LLSD& newvalue)
 {
 	std::string log_filename = newvalue.asString();
-	LLFile::remove(log_filename.c_str());
+	LLFile::remove(log_filename);
 	LLError::logToFile(log_filename);
 	return true;
 }

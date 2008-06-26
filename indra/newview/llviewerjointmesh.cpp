@@ -307,7 +307,7 @@ void LLViewerJointMesh::setMesh( LLPolyMesh *mesh )
 		U32 jn;
 		for (jn = 0; jn < numJointNames; jn++)
 		{
-			//llinfos << "Setting up joint " << jointNames[jn].c_str() << llendl;
+			//llinfos << "Setting up joint " << jointNames[jn] << llendl;
 			LLViewerJoint* joint = (LLViewerJoint*)(getRoot()->findJoint(jointNames[jn]) );
 			mSkinJoints[jn].setupSkinJoint( joint );
 		}

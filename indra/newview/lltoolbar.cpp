@@ -75,7 +75,7 @@
 	class LLFakeResizeHandle : public LLResizeHandle
 	{
 	public:
-		LLFakeResizeHandle(const LLString& name, const LLRect& rect, S32 min_width, S32 min_height, ECorner corner = RIGHT_BOTTOM )
+		LLFakeResizeHandle(const std::string& name, const LLRect& rect, S32 min_width, S32 min_height, ECorner corner = RIGHT_BOTTOM )
 		: LLResizeHandle(name, rect, min_width, min_height, corner )
 		{
 			
@@ -169,7 +169,7 @@ BOOL LLToolBar::postBuild()
 	if(mResizeHandle == NULL)
 	{
 		LLRect rect(0, 0, RESIZE_HANDLE_WIDTH, RESIZE_HANDLE_HEIGHT);
-		mResizeHandle = new LLFakeResizeHandle(LLString(""), rect, RESIZE_HANDLE_WIDTH, RESIZE_HANDLE_HEIGHT);
+		mResizeHandle = new LLFakeResizeHandle(std::string(""), rect, RESIZE_HANDLE_WIDTH, RESIZE_HANDLE_HEIGHT);
 		this->addChildAtEnd(mResizeHandle);
 		LLLayoutStack* toolbar_stack = getChild<LLLayoutStack>("toolbar_stack");
 		toolbar_stack->reshape(toolbar_stack->getRect().getWidth() - RESIZE_HANDLE_WIDTH, toolbar_stack->getRect().getHeight());
@@ -191,7 +191,7 @@ BOOL LLToolBar::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 									 EDragAndDropType cargo_type,
 									 void* cargo_data,
 									 EAcceptance* accept,
-									 LLString& tooltip_msg)
+									 std::string& tooltip_msg)
 {
 	LLButton* inventory_btn = getChild<LLButton>("inventory_btn");
 	if (!inventory_btn) return FALSE;
@@ -356,7 +356,7 @@ void LLToolBar::updateCommunicateList()
 		LLFloaterIMPanel* im_floaterp = (LLFloaterIMPanel*)floater_handle_it->get();
 		if (im_floaterp)
 		{
-			LLString floater_title = im_floaterp->getNumUnreadMessages() > 0 ? "*" : "";
+			std::string floater_title = im_floaterp->getNumUnreadMessages() > 0 ? "*" : "";
 			floater_title.append(im_floaterp->getShortTitle());
 			itemp = communicate_button->add(floater_title, im_floaterp->getSessionID(), ADD_TOP);
 			if (im_floaterp  == frontmost_floater)

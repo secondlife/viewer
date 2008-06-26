@@ -50,7 +50,7 @@ struct LLWearableArrivedData
 {
 	LLWearableArrivedData( 
 		LLAssetType::EType asset_type,
-		const LLString& wearable_name,
+		const std::string& wearable_name,
 		void(*asset_arrived_callback)(LLWearable*, void* userdata),
 		void* userdata ) 
 		:
@@ -64,7 +64,7 @@ struct LLWearableArrivedData
 	LLAssetType::EType mAssetType;
 	void	(*mCallback)(LLWearable*, void* userdata);
 	void*	mUserdata;
-	LLString mName;
+	std::string mName;
 	S32	mRetries;
 };
 
@@ -79,7 +79,7 @@ LLWearableList::~LLWearableList()
 	mList.clear();
 }
 
-void LLWearableList::getAsset( const LLAssetID& assetID, const LLString& wearable_name, LLAssetType::EType asset_type, void(*asset_arrived_callback)(LLWearable*, void* userdata), void* userdata )
+void LLWearableList::getAsset( const LLAssetID& assetID, const std::string& wearable_name, LLAssetType::EType asset_type, void(*asset_arrived_callback)(LLWearable*, void* userdata), void* userdata )
 {
 	llassert( (asset_type == LLAssetType::AT_CLOTHING) || (asset_type == LLAssetType::AT_BODYPART) );
 	LLWearable* instance = get_if_there(mList, assetID, (LLWearable*)NULL );
@@ -112,7 +112,7 @@ void LLWearableList::processGetAssetReply( const char* filename, const LLAssetID
 	if( status >= 0 )
 	{
 		// read the file
-		LLFILE* fp = LLFile::fopen(filename, "rb");		/*Flawfinder: ignore*/
+		LLFILE* fp = LLFile::fopen(std::string(filename), "rb");		/*Flawfinder: ignore*/
 		if( !fp )
 		{
 			LL_WARNS("Wearable") << "Bad Wearable Asset: unable to open file: '" << filename << "'" << LL_ENDL;
@@ -130,7 +130,7 @@ void LLWearableList::processGetAssetReply( const char* filename, const LLAssetID
 			fclose( fp );
 			if(filename)
 			{
-				LLFile::remove(filename);
+				LLFile::remove(std::string(filename));
 			}
 		}
 	}
@@ -138,7 +138,7 @@ void LLWearableList::processGetAssetReply( const char* filename, const LLAssetID
 	{
 		if(filename)
 		{
-			LLFile::remove(filename);
+			LLFile::remove(std::string(filename));
 		}
 		LLViewerStats::getInstance()->incStat( LLViewerStats::ST_DOWNLOAD_FAILED );
 
@@ -180,7 +180,7 @@ void LLWearableList::processGetAssetReply( const char* filename, const LLAssetID
 	}
 	else
 	{
-		LLString::format_map_t args;
+		LLStringUtil::format_map_t args;
 		// *TODO:translate
 		args["[TYPE]"] = LLAssetType::lookupHumanReadable(data->mAssetType);
 		if (data->mName.empty())
@@ -290,7 +290,7 @@ LLWearable* LLWearableList::createNewWearable( EWearableType type )
 	LLWearable* wearable = new LLWearable( tid );
 	wearable->setType( type );
 	
-	LLString name = "New ";
+	std::string name = "New ";
 	name.append( wearable->getTypeLabel() );
 	wearable->setName( name );
 

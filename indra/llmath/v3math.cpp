@@ -326,15 +326,15 @@ const LLVector3& operator*=(LLVector3 &a, const LLQuaternion &rot)
 }
 
 // static 
-BOOL LLVector3::parseVector3(const char* buf, LLVector3* value)
+BOOL LLVector3::parseVector3(const std::string& buf, LLVector3* value)
 {
-	if( buf == NULL || buf[0] == '\0' || value == NULL)
+	if( buf.empty() || value == NULL)
 	{
 		return FALSE;
 	}
 
 	LLVector3 v;
-	S32 count = sscanf( buf, "%f %f %f", v.mV + 0, v.mV + 1, v.mV + 2 );
+	S32 count = sscanf( buf.c_str(), "%f %f %f", v.mV + 0, v.mV + 1, v.mV + 2 );
 	if( 3 == count )
 	{
 		value->setVec( v );

@@ -48,17 +48,18 @@
 
 static const F32 SOME_BIG_NUMBER = 1000.0f;
 static const F32 SOME_BIG_NEG_NUMBER = -1000.0f;
-static const char* PARCEL_OWNERSHIP_STATUS_STRING[LLParcel::OS_COUNT] =
+static const std::string PARCEL_OWNERSHIP_STATUS_STRING[LLParcel::OS_COUNT+1] =
 {
     "leased",
     "lease_pending",
-    "abandoned"
+    "abandoned",
+    "none"
 };
 
 // NOTE: Adding parcel categories also requires updating:
 // * newview/app_settings/floater_directory.xml category combobox
 // * Web site "create event" tools
-static const char* PARCEL_CATEGORY_STRING[LLParcel::C_COUNT] =
+static const std::string PARCEL_CATEGORY_STRING[LLParcel::C_COUNT] =
 {
     "none",
     "linden",
@@ -75,7 +76,7 @@ static const char* PARCEL_CATEGORY_STRING[LLParcel::C_COUNT] =
     "stage",
     "other",
 };
-static const char* PARCEL_CATEGORY_UI_STRING[LLParcel::C_COUNT + 1] =
+static const std::string PARCEL_CATEGORY_UI_STRING[LLParcel::C_COUNT + 1] =
 {
     "None",
     "Linden Location",
@@ -94,7 +95,7 @@ static const char* PARCEL_CATEGORY_UI_STRING[LLParcel::C_COUNT + 1] =
     "Any",	 // valid string for parcel searches
 };
 
-static const char* PARCEL_ACTION_STRING[LLParcel::A_COUNT + 1] =
+static const std::string PARCEL_ACTION_STRING[LLParcel::A_COUNT + 1] =
 {
     "create",
     "release",
@@ -132,14 +133,14 @@ const U64 SEVEN_DAYS_IN_USEC = U64L(604800000000);
 const S32 EXTEND_GRACE_IF_MORE_THAN_SEC = 100000;
 
 
-const char* ownership_status_to_string(LLParcel::EOwnershipStatus status);
-LLParcel::EOwnershipStatus ownership_string_to_status(const char* s);
+const std::string& ownership_status_to_string(LLParcel::EOwnershipStatus status);
+LLParcel::EOwnershipStatus ownership_string_to_status(const std::string& s);
 //const char* revert_action_to_string(LLParcel::ESaleTimerExpireAction action);
 //LLParcel::ESaleTimerExpireAction revert_string_to_action(const char* s);
-const char* category_to_string(LLParcel::ECategory category);
-const char* category_to_ui_string(LLParcel::ECategory category);
-LLParcel::ECategory category_string_to_category(const char* s);
-LLParcel::ECategory category_ui_string_to_category(const char* s);
+const std::string& category_to_string(LLParcel::ECategory category);
+const std::string& category_to_ui_string(LLParcel::ECategory category);
+LLParcel::ECategory category_string_to_category(const std::string& s);
+LLParcel::ECategory category_ui_string_to_category(const std::string& s);
 
 LLParcel::LLParcel()
 {
@@ -207,12 +208,12 @@ void LLParcel::init(const LLUUID &owner_id,
 	setParcelFlag(PF_ALLOW_DAMAGE,    damage);
 
 	mSalePrice			= 10000;
-	setName(NULL);
-	setDesc(NULL);
-	setMusicURL(NULL);
-	setMediaURL(NULL);
-	setMediaDesc(NULL);
-	setMediaType(NULL);
+	setName(LLStringUtil::null);
+	setDesc(LLStringUtil::null);
+	setMusicURL(LLStringUtil::null);
+	setMediaURL(LLStringUtil::null);
+	setMediaDesc(LLStringUtil::null);
+	setMediaType(LLStringUtil::null);
 	mMediaID.setNull();
 	mMediaAutoScale = 0;
 	mMediaLoop = TRUE;
@@ -271,22 +272,7 @@ void LLParcel::overrideParcelFlags(U32 flags)
 {
     mParcelFlags = flags;
 }
-void set_std_string(const char* src, std::string& dest)
-{
-	if(src)
-	{
-		dest.assign(src);
-	}
-	else
-	{
-#if (LL_LINUX && __GNUC__ < 3)
-		dest.assign(std::string(""));
-#else
-		dest.clear();
-#endif
-	}
-}
-void LLParcel::setName(const LLString& name)
+void LLParcel::setName(const std::string& name)
 {
     // The escaping here must match the escaping in the database
     // abstraction layer.
@@ -294,7 +280,7 @@ void LLParcel::setName(const LLString& name)
     LLStringFn::replace_nonprintable(mName, LL_UNKNOWN_CHAR);
 }
 
-void LLParcel::setDesc(const LLString& desc)
+void LLParcel::setDesc(const std::string& desc)
 {
     // The escaping here must match the escaping in the database
     // abstraction layer.
@@ -302,7 +288,7 @@ void LLParcel::setDesc(const LLString& desc)
     mDesc = rawstr_to_utf8(mDesc);
 }
 
-void LLParcel::setMusicURL(const LLString& url)
+void LLParcel::setMusicURL(const std::string& url)
 {
     mMusicURL = url;
     // The escaping here must match the escaping in the database
@@ -312,7 +298,7 @@ void LLParcel::setMusicURL(const LLString& url)
     LLStringFn::replace_nonprintable(mMusicURL, LL_UNKNOWN_CHAR);
 }
 
-void LLParcel::setMediaURL(const LLString& url)
+void LLParcel::setMediaURL(const std::string& url)
 {
     mMediaURL = url;
     // The escaping here must match the escaping in the database
@@ -322,24 +308,24 @@ void LLParcel::setMediaURL(const LLString& url)
     LLStringFn::replace_nonprintable(mMediaURL, LL_UNKNOWN_CHAR);
 }
 
-void LLParcel::setMediaDesc(const char* desc)
+void LLParcel::setMediaDesc(const std::string& desc)
 {
 	// The escaping here must match the escaping in the database
 	// abstraction layer.
-	set_std_string(desc, mMediaDesc);
+	mMediaDesc = desc;
 	mMediaDesc = rawstr_to_utf8(mMediaDesc);
 }
-void LLParcel::setMediaType(const char* type)
+void LLParcel::setMediaType(const std::string& type)
 {
 	// The escaping here must match the escaping in the database
 	// abstraction layer.
-	set_std_string(type, mMediaType);
+	mMediaType = type;
 	mMediaType = rawstr_to_utf8(mMediaType);
 
 	// This code attempts to preserve legacy movie functioning
 	if(mMediaType.empty() && ! mMediaURL.empty())
 	{
-		setMediaType("video/vnd.secondlife.qt.legacy");
+		setMediaType(std::string("video/vnd.secondlife.qt.legacy"));
 	}
 }
 void LLParcel::setMediaWidth(S32 width)
@@ -578,7 +564,7 @@ BOOL LLParcel::importStream(std::istream& input_stream)
 	while (input_stream.good())
 	{
 		skip_comments_and_emptyspace(input_stream);
-		LLString line, keyword, value;
+		std::string line, keyword, value;
 		get_line(line, input_stream, MAX_STRING);
 		get_keyword_and_value(keyword, value, line);
 
@@ -588,19 +574,19 @@ BOOL LLParcel::importStream(std::istream& input_stream)
 		}
 		else if ("parcel_id" == keyword)
 		{
-			mID.set(value.c_str());
+			mID.set(value);
 		}
 		else if ("status" == keyword)
 		{
-			mStatus = ownership_string_to_status(value.c_str());
+			mStatus = ownership_string_to_status(value);
 		}
 		else if ("category" == keyword)
 		{
-			mCategory = category_string_to_category(value.c_str());
+			mCategory = category_string_to_category(value);
 		}
 		else if ("local_id" == keyword)
 		{
-			LLString::convertToS32(value, mLocalID);
+			LLStringUtil::convertToS32(value, mLocalID);
 		}
 		else if ("name" == keyword)
 		{
@@ -620,65 +606,65 @@ BOOL LLParcel::importStream(std::istream& input_stream)
 		}
 		else if ("media_desc" == keyword)
 		{
-			setMediaDesc( value.c_str() );
+			setMediaDesc( value );
 		}
 		else if ("media_type" == keyword)
 		{
-			setMediaType( value.c_str() );
+			setMediaType( value );
 		}
 		else if ("media_width" == keyword)
 		{
 			S32 width;
-			LLString::convertToS32(value, width);
+			LLStringUtil::convertToS32(value, width);
 			setMediaWidth( width );
 		}
 		else if ("media_height" == keyword)
 		{
 			S32 height;
-			LLString::convertToS32(value, height);
+			LLStringUtil::convertToS32(value, height);
 			setMediaHeight( height );
 		}
 		else if ("media_id" == keyword)
 		{
-			mMediaID.set( value.c_str() );
+			mMediaID.set( value );
 		}
 		else if ("media_auto_scale" == keyword)
 		{
-			LLString::convertToU8(value, mMediaAutoScale);
+			LLStringUtil::convertToU8(value, mMediaAutoScale);
 		}
 		else if ("media_loop" == keyword)
 		{
-			LLString::convertToU8(value, mMediaLoop);
+			LLStringUtil::convertToU8(value, mMediaLoop);
 		}
 		else if ("obscure_media" == keyword)
 		{
-			LLString::convertToU8(value, mObscureMedia);
+			LLStringUtil::convertToU8(value, mObscureMedia);
 		}		
 		else if ("obscure_music" == keyword)
 		{
-			LLString::convertToU8(value, mObscureMusic);
+			LLStringUtil::convertToU8(value, mObscureMusic);
 		}		
 		else if ("owner_id" == keyword)
 		{
-			mOwnerID.set( value.c_str() );
+			mOwnerID.set( value );
 		}
 		else if ("group_owned" == keyword)
 		{
-			LLString::convertToBOOL(value, mGroupOwned);
+			LLStringUtil::convertToBOOL(value, mGroupOwned);
 		}
 		else if ("clean_other_time" == keyword)
 		{
 			S32 time;
-			LLString::convertToS32(value, time);
+			LLStringUtil::convertToS32(value, time);
 			setCleanOtherTime(time);
 		}
 		else if ("auth_buyer_id" == keyword)
 		{
-			mAuthBuyerID.set(value.c_str());
+			mAuthBuyerID.set(value);
 		}
 		else if ("snapshot_id" == keyword)
 		{
-			mSnapshotID.set(value.c_str());
+			mSnapshotID.set(value);
 		}
 		else if ("user_location" == keyword)
 		{
@@ -697,7 +683,7 @@ BOOL LLParcel::importStream(std::istream& input_stream)
 		else if ("landing_type" == keyword)
 		{
 			S32 landing_type = 0;
-			LLString::convertToS32(value, landing_type);
+			LLStringUtil::convertToS32(value, landing_type);
 			mLandingType = (ELandingType) landing_type;
 		}
 		else if ("join_neighbors" == keyword)
@@ -706,7 +692,7 @@ BOOL LLParcel::importStream(std::istream& input_stream)
 		}
 		else if ("revert_sale" == keyword)
 		{
-			LLString::convertToS32(value, secs_until_revert);
+			LLStringUtil::convertToS32(value, secs_until_revert);
 			if (secs_until_revert > 0)
 			{
 				mSaleTimerExpires.start();
@@ -715,7 +701,7 @@ BOOL LLParcel::importStream(std::istream& input_stream)
 		}
 		else if("extended_grace" == keyword)
 		{
-			LLString::convertToS32(value, mGraceExtension);
+			LLStringUtil::convertToS32(value, mGraceExtension);
 		}
 		else if ("user_list_type" == keyword)
 		{
@@ -723,147 +709,147 @@ BOOL LLParcel::importStream(std::istream& input_stream)
 		}
 		else if("auction_id" == keyword)
 		{
-			LLString::convertToU32(value, mAuctionID);
+			LLStringUtil::convertToU32(value, mAuctionID);
 		}
 		else if ("allow_modify" == keyword)
 		{
-			LLString::convertToU32(value, setting);
+			LLStringUtil::convertToU32(value, setting);
 			setParcelFlag(PF_CREATE_OBJECTS, setting);
 		}
 		else if ("allow_group_modify" == keyword)
 		{
-			LLString::convertToU32(value, setting);
+			LLStringUtil::convertToU32(value, setting);
 			setParcelFlag(PF_CREATE_GROUP_OBJECTS, setting);
 		}
 		else if ("allow_all_object_entry" == keyword)
 		{
-			LLString::convertToU32(value, setting);
+			LLStringUtil::convertToU32(value, setting);
 			setParcelFlag(PF_ALLOW_ALL_OBJECT_ENTRY, setting);
 		}
 		else if ("allow_group_object_entry" == keyword)
 		{
-			LLString::convertToU32(value, setting);
+			LLStringUtil::convertToU32(value, setting);
 			setParcelFlag(PF_ALLOW_GROUP_OBJECT_ENTRY, setting);
 		}
 		else if ("allow_deed_to_group" == keyword)
 		{
-			LLString::convertToU32(value, setting);
+			LLStringUtil::convertToU32(value, setting);
 			setParcelFlag(PF_ALLOW_DEED_TO_GROUP, setting);
 		}
 		else if("contribute_with_deed" == keyword)
 		{
-			LLString::convertToU32(value, setting);
+			LLStringUtil::convertToU32(value, setting);
 			setParcelFlag(PF_CONTRIBUTE_WITH_DEED, setting);
 		}
 		else if ("allow_terraform" == keyword)
 		{
-			LLString::convertToU32(value, setting);
+			LLStringUtil::convertToU32(value, setting);
 			setParcelFlag(PF_ALLOW_TERRAFORM, setting);
 		}
 		else if ("allow_damage" == keyword)
 		{
-			LLString::convertToU32(value, setting);
+			LLStringUtil::convertToU32(value, setting);
 			setParcelFlag(PF_ALLOW_DAMAGE, setting);
 		}
 		else if ("allow_fly" == keyword)
 		{
-			LLString::convertToU32(value, setting);
+			LLStringUtil::convertToU32(value, setting);
 			setParcelFlag(PF_ALLOW_FLY, setting);
 		}
 		else if ("allow_landmark" == keyword)
 		{
-			LLString::convertToU32(value, setting);
+			LLStringUtil::convertToU32(value, setting);
 			setParcelFlag(PF_ALLOW_LANDMARK, setting);
 		}
 		else if ("sound_local" == keyword)
 		{
-			LLString::convertToU32(value, setting);
+			LLStringUtil::convertToU32(value, setting);
 			setParcelFlag(PF_SOUND_LOCAL, setting);
 		}
 		else if ("allow_group_scripts" == keyword)
 		{
-			LLString::convertToU32(value, setting);
+			LLStringUtil::convertToU32(value, setting);
 			setParcelFlag(PF_ALLOW_GROUP_SCRIPTS, setting);
 		}
 		else if ("allow_voice_chat" == keyword)
 		{
-			LLString::convertToU32(value, setting);
+			LLStringUtil::convertToU32(value, setting);
 			setParcelFlag(PF_ALLOW_VOICE_CHAT, setting);
 		}
 		else if ("use_estate_voice_chan" == keyword)
 		{
-			LLString::convertToU32(value, setting);
+			LLStringUtil::convertToU32(value, setting);
 			setParcelFlag(PF_USE_ESTATE_VOICE_CHAN, setting);
 		}
 		else if ("allow_scripts" == keyword)
 		{
-			LLString::convertToU32(value, setting);
+			LLStringUtil::convertToU32(value, setting);
 			setParcelFlag(PF_ALLOW_OTHER_SCRIPTS, setting);
 		}
 		else if ("for_sale" == keyword)
 		{
-			LLString::convertToU32(value, setting);
+			LLStringUtil::convertToU32(value, setting);
 			setParcelFlag(PF_FOR_SALE, setting);
 		}
 		else if ("sell_w_objects" == keyword)
 		{
-			LLString::convertToU32(value, setting);
+			LLStringUtil::convertToU32(value, setting);
 			setParcelFlag(PF_SELL_PARCEL_OBJECTS, setting);
 		}
 		else if ("use_pass_list" == keyword)
 		{
-			LLString::convertToU32(value, setting);
+			LLStringUtil::convertToU32(value, setting);
 			setParcelFlag(PF_USE_PASS_LIST, setting);
 		}
 		else if ("show_directory" == keyword)
 		{
-			LLString::convertToU32(value, setting);
+			LLStringUtil::convertToU32(value, setting);
 			setParcelFlag(PF_SHOW_DIRECTORY, setting);
 		}
 		else if ("allow_publish" == keyword)
 		{
-			LLString::convertToU32(value, setting);
+			LLStringUtil::convertToU32(value, setting);
 			setParcelFlag(PF_ALLOW_PUBLISH, setting);
 		}
 		else if ("mature_publish" == keyword)
 		{
-			LLString::convertToU32(value, setting);
+			LLStringUtil::convertToU32(value, setting);
 			setParcelFlag(PF_MATURE_PUBLISH, setting);
 		}
 		else if ("claim_date" == keyword)
 		{
 			// BUG: This will fail when time rolls over in 2038.
 			S32 time;
-			LLString::convertToS32(value, time);
+			LLStringUtil::convertToS32(value, time);
 			mClaimDate = time;
 		}
 		else if ("claim_price" == keyword)
 		{
-			LLString::convertToS32(value, mClaimPricePerMeter);
+			LLStringUtil::convertToS32(value, mClaimPricePerMeter);
 		}
 		else if ("rent_price" == keyword)
 		{
-			LLString::convertToS32(value, mRentPricePerMeter);
+			LLStringUtil::convertToS32(value, mRentPricePerMeter);
 		}
 		else if ("discount_rate" == keyword)
 		{
-			LLString::convertToF32(value, mDiscountRate);
+			LLStringUtil::convertToF32(value, mDiscountRate);
 		}
 		else if ("draw_distance" == keyword)
 		{
-			LLString::convertToF32(value, mDrawDistance);
+			LLStringUtil::convertToF32(value, mDrawDistance);
 		}
 		else if ("sale_price" == keyword)
 		{
-			LLString::convertToS32(value, mSalePrice);
+			LLStringUtil::convertToS32(value, mSalePrice);
 		}
 		else if ("pass_price" == keyword)
 		{
-			LLString::convertToS32(value, mPassPrice);
+			LLStringUtil::convertToS32(value, mPassPrice);
 		}
 		else if ("pass_hours" == keyword)
 		{
-			LLString::convertToF32(value, mPassHours);
+			LLStringUtil::convertToF32(value, mPassHours);
 		}
 		else if ("box" == keyword)
 		{
@@ -876,17 +862,17 @@ BOOL LLParcel::importStream(std::istream& input_stream)
 		}
 		else if ("use_access_group" == keyword)
 		{
-			LLString::convertToU32(value, setting);
+			LLStringUtil::convertToU32(value, setting);
 			setParcelFlag(PF_USE_ACCESS_GROUP, setting);
 		}
 		else if ("use_access_list" == keyword)
 		{
-			LLString::convertToU32(value, setting);
+			LLStringUtil::convertToU32(value, setting);
 			setParcelFlag(PF_USE_ACCESS_LIST, setting);
 		}
 		else if ("use_ban_list" == keyword)
 		{
-			LLString::convertToU32(value, setting);
+			LLStringUtil::convertToU32(value, setting);
 			setParcelFlag(PF_USE_BAN_LIST, setting);
 		}
 		else if ("group_name" == keyword)
@@ -895,7 +881,7 @@ BOOL LLParcel::importStream(std::istream& input_stream)
 		}
 		else if ("group_id" == keyword)
 		{
-			mGroupID.set( value.c_str() );
+			mGroupID.set( value );
 		}
 		// TODO: DEPRECATED FLAG
 		// Flag removed from simstate files in 1.11.1
@@ -903,7 +889,7 @@ BOOL LLParcel::importStream(std::istream& input_stream)
 		// no longer exists anywhere in simstate files.
 		else if ("require_identified" == keyword)
 		{
-			// LLString::convertToU32(value, setting);
+			// LLStringUtil::convertToU32(value, setting);
 			// setParcelFlag(PF_DENY_ANONYMOUS, setting);
 		}
 		// TODO: DEPRECATED FLAG
@@ -912,39 +898,39 @@ BOOL LLParcel::importStream(std::istream& input_stream)
 		// no longer exists anywhere in simstate files.
 		else if ("require_transacted" == keyword)
 		{
-			// LLString::convertToU32(value, setting);
+			// LLStringUtil::convertToU32(value, setting);
 			// setParcelFlag(PF_DENY_ANONYMOUS, setting);
 			// setParcelFlag(PF_DENY_IDENTIFIED, setting);
 		}
 		else if ("restrict_pushobject" == keyword)
 		{
-			LLString::convertToU32(value, setting);
+			LLStringUtil::convertToU32(value, setting);
 			setParcelFlag(PF_RESTRICT_PUSHOBJECT, setting);
 		}
 		else if ("deny_anonymous" == keyword)
 		{
-			LLString::convertToU32(value, setting);
+			LLStringUtil::convertToU32(value, setting);
 			setParcelFlag(PF_DENY_ANONYMOUS, setting);
 		}
 		else if ("deny_identified" == keyword)
 		{
-// 			LLString::convertToU32(value, setting);
+// 			LLStringUtil::convertToU32(value, setting);
 // 			setParcelFlag(PF_DENY_IDENTIFIED, setting);
 		}
 		else if ("deny_transacted" == keyword)
 		{
-// 			LLString::convertToU32(value, setting);
+// 			LLStringUtil::convertToU32(value, setting);
 // 			setParcelFlag(PF_DENY_TRANSACTED, setting);
 		}
         else if ("deny_age_unverified" == keyword)
         {
-            LLString::convertToU32(value, setting);
+            LLStringUtil::convertToU32(value, setting);
             setParcelFlag(PF_DENY_AGEUNVERIFIED, setting);
         }
         else if ("access_list" == keyword)
         {
             S32 entry_count = 0;
-            LLString::convertToS32(value, entry_count);
+            LLStringUtil::convertToS32(value, entry_count);
             for (S32 i = 0; i < entry_count; i++)
             {
                 LLAccessEntry entry;
@@ -957,7 +943,7 @@ BOOL LLParcel::importStream(std::istream& input_stream)
         else if ("ban_list" == keyword)
         {
             S32 entry_count = 0;
-            LLString::convertToS32(value, entry_count);
+            LLStringUtil::convertToS32(value, entry_count);
             for (S32 i = 0; i < entry_count; i++)
             {
                 LLAccessEntry entry;
@@ -971,7 +957,7 @@ BOOL LLParcel::importStream(std::istream& input_stream)
         {
             /*
              S32 entry_count = 0;
-             LLString::convertToS32(value, entry_count);
+             LLStringUtil::convertToS32(value, entry_count);
              for (S32 i = 0; i < entry_count; i++)
              {
                  LLAccessEntry entry;
@@ -985,7 +971,7 @@ BOOL LLParcel::importStream(std::istream& input_stream)
         {
             // legacy - put into access list
             S32 entry_count = 0;
-            LLString::convertToS32(value, entry_count);
+            LLStringUtil::convertToS32(value, entry_count);
             for (S32 i = 0; i < entry_count; i++)
             {
                 LLAccessEntry entry;
@@ -1061,7 +1047,7 @@ BOOL LLParcel::importAccessEntry(std::istream& input_stream, LLAccessEntry* entr
     while (input_stream.good())
     {
         skip_comments_and_emptyspace(input_stream);
-        LLString line, keyword, value;
+        std::string line, keyword, value;
         get_line(line, input_stream, MAX_STRING);
         get_keyword_and_value(keyword, value, line);
         
@@ -1071,7 +1057,7 @@ BOOL LLParcel::importAccessEntry(std::istream& input_stream, LLAccessEntry* entr
         }
         else if ("id" == keyword)
         {
-            entry->mID.set( value.c_str() );
+            entry->mID.set( value );
         }
         else if ("name" == keyword)
         {
@@ -1080,13 +1066,13 @@ BOOL LLParcel::importAccessEntry(std::istream& input_stream, LLAccessEntry* entr
         else if ("time" == keyword)
         {
             S32 when;
-            LLString::convertToS32(value, when);
+            LLStringUtil::convertToS32(value, when);
             entry->mTime = when;
         }
         else if ("flags" == keyword)
         {
             U32 setting;
-            LLString::convertToU32(value, setting);
+            LLStringUtil::convertToU32(value, setting);
             entry->mFlags = setting;
         }
         else
@@ -1101,7 +1087,7 @@ BOOL LLParcel::importAccessEntry(std::istream& input_stream, LLAccessEntry* entr
 BOOL LLParcel::exportStream(std::ostream& output_stream)
 {
 	S32 setting;
-	char id_string[MAX_STRING];	/* Flawfinder: ignore */
+	std::string id_string;
 
 	std::ios::fmtflags old_flags = output_stream.flags();
 	output_stream.setf(std::ios::showpoint);
@@ -1377,17 +1363,17 @@ void LLParcel::packMessage(LLSD& msg)
 
 void LLParcel::unpackMessage(LLMessageSystem* msg)
 {
-    char buffer[256]; /* Flawfinder: ignore */
+	std::string buffer;
 	
     msg->getU32Fast( _PREHASH_ParcelData,_PREHASH_ParcelFlags, mParcelFlags );
     msg->getS32Fast( _PREHASH_ParcelData,_PREHASH_SalePrice, mSalePrice );
-    msg->getStringFast( _PREHASH_ParcelData,_PREHASH_Name, 256, buffer );
+    msg->getStringFast( _PREHASH_ParcelData,_PREHASH_Name, buffer );
     setName(buffer);
-    msg->getStringFast( _PREHASH_ParcelData,_PREHASH_Desc, 256, buffer );
+    msg->getStringFast( _PREHASH_ParcelData,_PREHASH_Desc, buffer );
     setDesc(buffer);
-    msg->getStringFast( _PREHASH_ParcelData,_PREHASH_MusicURL, 256, buffer );
+    msg->getStringFast( _PREHASH_ParcelData,_PREHASH_MusicURL, buffer );
     setMusicURL(buffer);
-    msg->getStringFast( _PREHASH_ParcelData,_PREHASH_MediaURL, 256, buffer );
+    msg->getStringFast( _PREHASH_ParcelData,_PREHASH_MediaURL, buffer );
     setMediaURL(buffer);
     
     // non-optimized version
@@ -1412,9 +1398,9 @@ void LLParcel::unpackMessage(LLMessageSystem* msg)
 	// Note: the message has been converted to TCP
 	if(msg->getNumberOfBlocks("MediaData") > 0)
 	{
-		msg->getString("MediaData", "MediaDesc", 256, buffer);
+		msg->getString("MediaData", "MediaDesc", buffer);
 		setMediaDesc(buffer);
-		msg->getString("MediaData", "MediaType", 256, buffer);
+		msg->getString("MediaData", "MediaType", buffer);
 		setMediaType(buffer);
 		msg->getS32("MediaData", "MediaWidth", mMediaWidth);
 		msg->getS32("MediaData", "MediaHeight", mMediaHeight);
@@ -1424,8 +1410,8 @@ void LLParcel::unpackMessage(LLMessageSystem* msg)
 	}
 	else
 	{
-		setMediaType("video/vnd.secondlife.qt.legacy");
-		setMediaDesc("No Description available without Server Upgrade");
+		setMediaType(std::string("video/vnd.secondlife.qt.legacy"));
+		setMediaDesc(std::string("No Description available without Server Upgrade"));
 		mMediaLoop = true;
 		mObscureMedia = true;
 		mObscureMusic = true;
@@ -1688,37 +1674,37 @@ BOOL LLParcel::removeFromBanList(const LLUUID& agent_id)
 }
 
 // static
-const char* LLParcel::getOwnershipStatusString(EOwnershipStatus status)
+const std::string& LLParcel::getOwnershipStatusString(EOwnershipStatus status)
 {
     return ownership_status_to_string(status);
 }
 
 // static
-const char* LLParcel::getCategoryString(ECategory category)
+const std::string& LLParcel::getCategoryString(ECategory category)
 {
     return category_to_string(category);
 }
 
 // static
-const char* LLParcel::getCategoryUIString(ECategory category)
+const std::string& LLParcel::getCategoryUIString(ECategory category)
 {
     return category_to_ui_string(category);
 }
 
 // static
-LLParcel::ECategory LLParcel::getCategoryFromString(const char* string)
+LLParcel::ECategory LLParcel::getCategoryFromString(const std::string& string)
 {
     return category_string_to_category(string);
 }
 
 // static
-LLParcel::ECategory LLParcel::getCategoryFromUIString(const char* string)
+LLParcel::ECategory LLParcel::getCategoryFromUIString(const std::string& string)
 {
     return category_ui_string_to_category(string);
 }
 
 // static
-const char* LLParcel::getActionString(LLParcel::EAction action)
+const std::string& LLParcel::getActionString(LLParcel::EAction action)
 {
     S32 index = 0;
     if((action >= 0) && (action < LLParcel::A_COUNT))
@@ -1851,19 +1837,19 @@ BOOL LLParcel::isBuyerAuthorized(const LLUUID& buyer_id) const
 void LLParcel::clearParcel()
 {
 	overrideParcelFlags(PF_DEFAULT);
-	setName(NULL);
-	setDesc(NULL);
-	setMediaURL(NULL);
-	setMediaType(NULL);
+	setName(LLStringUtil::null);
+	setDesc(LLStringUtil::null);
+	setMediaURL(LLStringUtil::null);
+	setMediaType(LLStringUtil::null);
 	setMediaID(LLUUID::null);
-    setMediaDesc(NULL);
+    setMediaDesc(LLStringUtil::null);
 	setMediaAutoScale(0);
 	setMediaLoop(TRUE);
 	mObscureMedia = 1;
 	mObscureMusic = 1;
 	mMediaWidth = 0;
 	mMediaHeight = 0;
-	setMusicURL(NULL);
+	setMusicURL(LLStringUtil::null);
 	setInEscrow(FALSE);
 	setAuthorizedBuyerID(LLUUID::null);
 	setCategory(C_NONE);
@@ -1887,20 +1873,20 @@ void LLParcel::dump()
     llinfos << "	 desc <" << mDesc << ">" << llendl;
 }
 
-const char* ownership_status_to_string(LLParcel::EOwnershipStatus status)
+const std::string& ownership_status_to_string(LLParcel::EOwnershipStatus status)
 {
     if(status >= 0 && status < LLParcel::OS_COUNT)
     {
         return PARCEL_OWNERSHIP_STATUS_STRING[status];
     }
-    return "none";
+    return PARCEL_OWNERSHIP_STATUS_STRING[LLParcel::OS_COUNT];
 }
 
-LLParcel::EOwnershipStatus ownership_string_to_status(const char* s)
+LLParcel::EOwnershipStatus ownership_string_to_status(const std::string& s)
 {
     for(S32 i = 0; i < LLParcel::OS_COUNT; ++i)
     {
-        if(0 == strcmp(s, PARCEL_OWNERSHIP_STATUS_STRING[i]))
+        if(s == PARCEL_OWNERSHIP_STATUS_STRING[i])
         {
             return (LLParcel::EOwnershipStatus)i;
         }
@@ -1930,7 +1916,7 @@ LLParcel::EOwnershipStatus ownership_string_to_status(const char* s)
 // return LLParcel::STEA_REVERT;
 //}
     
-const char* category_to_string(LLParcel::ECategory category)
+const std::string& category_to_string(LLParcel::ECategory category)
 {
     S32 index = 0;
     if((category >= 0) && (category < LLParcel::C_COUNT))
@@ -1940,7 +1926,7 @@ const char* category_to_string(LLParcel::ECategory category)
     return PARCEL_CATEGORY_STRING[index];
 }
 
-const char* category_to_ui_string(LLParcel::ECategory category)
+const std::string& category_to_ui_string(LLParcel::ECategory category)
 {
     S32 index = 0;
     if((category >= 0) && (category < LLParcel::C_COUNT))
@@ -1955,11 +1941,11 @@ const char* category_to_ui_string(LLParcel::ECategory category)
     return PARCEL_CATEGORY_UI_STRING[index];
 }
 
-LLParcel::ECategory category_string_to_category(const char* s)
+LLParcel::ECategory category_string_to_category(const std::string& s)
 {
     for(S32 i = 0; i < LLParcel::C_COUNT; ++i)
     {
-        if(0 == strcmp(s, PARCEL_CATEGORY_STRING[i]))
+        if(s == PARCEL_CATEGORY_STRING[i])
         {
             return (LLParcel::ECategory)i;
         }
@@ -1968,11 +1954,11 @@ LLParcel::ECategory category_string_to_category(const char* s)
     return LLParcel::C_NONE;
 }
 
-LLParcel::ECategory category_ui_string_to_category(const char* s)
+LLParcel::ECategory category_ui_string_to_category(const std::string& s)
 {
     for(S32 i = 0; i < LLParcel::C_COUNT; ++i)
     {
-        if(0 == strcmp(s, PARCEL_CATEGORY_UI_STRING[i]))
+        if(s == PARCEL_CATEGORY_UI_STRING[i])
         {
             return (LLParcel::ECategory)i;
         }

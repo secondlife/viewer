@@ -127,9 +127,9 @@ std::ostream& operator<<(std::ostream& s, const LLCPUInfo& info);
 std::ostream& operator<<(std::ostream& s, const LLMemoryInfo& info);
 
 // gunzip srcfile into dstfile.  Returns FALSE on error.
-BOOL gunzip_file(const char *srcfile, const char *dstfile);
+BOOL gunzip_file(const std::string& srcfile, const std::string& dstfile);
 // gzip srcfile into dstfile.  Returns FALSE on error.
-BOOL gzip_file(const char *srcfile, const char *dstfile);
+BOOL gzip_file(const std::string& srcfile, const std::string& dstfile);
 
 extern LLCPUInfo gSysCPU;
 

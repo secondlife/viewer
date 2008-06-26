@@ -41,7 +41,7 @@ class LLSlider : public LLUICtrl
 {
 public:
 	LLSlider( 
-		const LLString& name,
+		const std::string& name,
 		const LLRect& rect,
 		void (*on_commit_callback)(LLUICtrl* ctrl, void* userdata),
 		void* callback_userdata,
@@ -50,7 +50,7 @@ public:
 		F32 max_value,
 		F32 increment,
 		BOOL volume, //TODO: create a "volume" slider sub-class or just use image art, no?  -MG
-		const LLString& control_name = LLString::null );
+		const std::string& control_name = LLStringUtil::null );
 
 	virtual LLXMLNodePtr getXML(bool save_children = true) const;
 	static  LLView* fromXML(LLXMLNodePtr node, LLView *parent, class LLUICtrlFactory *factory);

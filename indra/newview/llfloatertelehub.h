@@ -68,7 +68,7 @@ private:
 
 private:
 	LLUUID mTelehubObjectID;	// null if no telehub
-	LLString mTelehubObjectName;
+	std::string mTelehubObjectName;
 	LLVector3 mTelehubPos;	// region local, fallback if viewer can't see the object
 	LLQuaternion mTelehubRot;
 

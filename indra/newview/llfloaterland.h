@@ -288,7 +288,7 @@ protected:
 	BOOL			mFirstReply;
 
 	uuid_list_t		mSelectedOwners;
-	LLString		mSelectedName;
+	std::string		mSelectedName;
 	S32				mSelectedCount;
 	BOOL			mSelectedIsGroup;
 

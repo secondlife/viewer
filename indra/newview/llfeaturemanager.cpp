@@ -75,23 +75,21 @@ const char FEATURE_TABLE_FILENAME[] = "featuretable.txt";
 
 const char GPU_TABLE_FILENAME[] = "gpu_table.txt";
 
-LLFeatureInfo::LLFeatureInfo(const char *name, const BOOL available, const F32 level) : mValid(TRUE)
+LLFeatureInfo::LLFeatureInfo(const std::string& name, const BOOL available, const F32 level)
+	: mValid(TRUE), mName(name), mAvailable(available), mRecommendedLevel(level)
 {
-	mName = name;
-	mAvailable = available;
-	mRecommendedLevel = level;
 }
 
-LLFeatureList::LLFeatureList(const char *name)
+LLFeatureList::LLFeatureList(const std::string& name)
+	: mName(name)
 {
-	mName = name;
 }
 
 LLFeatureList::~LLFeatureList()
 {
 }
 
-void LLFeatureList::addFeature(const char *name, const BOOL available, const F32 level)
+void LLFeatureList::addFeature(const std::string& name, const BOOL available, const F32 level)
 {
 	if (mFeatures.count(name))
 	{
@@ -102,7 +100,7 @@ void LLFeatureList::addFeature(const char *name, const BOOL available, const F32
 	mFeatures[name] = fi;
 }
 
-BOOL LLFeatureList::isFeatureAvailable(const char *name)
+BOOL LLFeatureList::isFeatureAvailable(const std::string& name)
 {
 	if (mFeatures.count(name))
 	{
@@ -116,7 +114,7 @@ BOOL LLFeatureList::isFeatureAvailable(const char *name)
 	return TRUE;
 }
 
-F32 LLFeatureList::getRecommendedValue(const char *name)
+F32 LLFeatureList::getRecommendedValue(const std::string& name)
 {
 	if (mFeatures.count(name) && isFeatureAvailable(name))
 	{
@@ -188,7 +186,7 @@ void LLFeatureList::dump()
 	LL_DEBUGS("RenderInit") << LL_ENDL;
 }
 
-LLFeatureList *LLFeatureManager::findMask(const char *name)
+LLFeatureList *LLFeatureManager::findMask(const std::string& name)
 {
 	if (mMaskList.count(name))
 	{
@@ -198,7 +196,7 @@ LLFeatureList *LLFeatureManager::findMask(const char *name)
 	return NULL;
 }
 
-BOOL LLFeatureManager::maskFeatures(const char *name)
+BOOL LLFeatureManager::maskFeatures(const std::string& name)
 {
 	LLFeatureList *maskp = findMask(name);
 	if (!maskp)
@@ -227,12 +225,11 @@ BOOL LLFeatureManager::loadFeatureTables()
 	data_path += FEATURE_TABLE_FILENAME;
 	lldebugs << "Looking for feature table in " << data_path << llendl;
 
-	char	name[MAX_STRING+1];	 /*Flawfinder: ignore*/
-
 	llifstream file;
+	std::string name;
 	U32		version;
 	
-	file.open(data_path.c_str()); 	 /*Flawfinder: ignore*/
+	file.open(data_path); 	 /*Flawfinder: ignore*/
 
 	if (!file)
 	{
@@ -243,7 +240,7 @@ BOOL LLFeatureManager::loadFeatureTables()
 	// Check file version
 	file >> name;
 	file >> version;
-	if (strcmp(name, "version"))
+	if (name != "version")
 	{
 		LL_WARNS("RenderInit") << data_path << " does not appear to be a valid feature table!" << LL_ENDL;
 		return FALSE;
@@ -255,27 +252,24 @@ BOOL LLFeatureManager::loadFeatureTables()
 	while (!file.eof() && file.good())
 	{
 		char buffer[MAX_STRING];		 /*Flawfinder: ignore*/
-		name[0] = 0;
 
 		file >> name;
 		
-		if (strlen(name) >= 2 && 	 /*Flawfinder: ignore*/
-			name[0] == '/' && 
-			name[1] == '/')
+		if (name.substr(0,2) == "//")
 		{
 			// This is a comment.
 			file.getline(buffer, MAX_STRING);
 			continue;
 		}
 
-		if (strlen(name) == 0)		 /*Flawfinder: ignore*/
+		if (name.empty())
 		{
 			// This is a blank line
 			file.getline(buffer, MAX_STRING);
 			continue;
 		}
 
-		if (!strcmp(name, "list"))
+		if (name == "list")
 		{
 			if (flp)
 			{
@@ -323,7 +317,7 @@ void LLFeatureManager::loadGPUClass()
 
 	llifstream file;
 		
-	file.open(data_path.c_str()); 		 /*Flawfinder: ignore*/
+	file.open(data_path); 		 /*Flawfinder: ignore*/
 
 	if (!file)
 	{
@@ -491,19 +485,19 @@ void LLFeatureManager::applyFeatures(bool skipFeatures)
 		// handle all the different types
 		if(ctrl->isType(TYPE_BOOLEAN))
 		{
-			gSavedSettings.setBOOL(mIt->first, (BOOL)getRecommendedValue(mIt->first.c_str()));
+			gSavedSettings.setBOOL(mIt->first, (BOOL)getRecommendedValue(mIt->first));
 		}
 		else if (ctrl->isType(TYPE_S32))
 		{
-			gSavedSettings.setS32(mIt->first, (S32)getRecommendedValue(mIt->first.c_str()));
+			gSavedSettings.setS32(mIt->first, (S32)getRecommendedValue(mIt->first));
 		}
 		else if (ctrl->isType(TYPE_U32))
 		{
-			gSavedSettings.setU32(mIt->first, (U32)getRecommendedValue(mIt->first.c_str()));
+			gSavedSettings.setU32(mIt->first, (U32)getRecommendedValue(mIt->first));
 		}
 		else if (ctrl->isType(TYPE_F32))
 		{
-			gSavedSettings.setF32(mIt->first, (F32)getRecommendedValue(mIt->first.c_str()));
+			gSavedSettings.setF32(mIt->first, (F32)getRecommendedValue(mIt->first));
 		}
 		else
 		{
@@ -618,7 +612,7 @@ void LLFeatureManager::applyBaseMasks()
 	}
 
 	//llinfos << "Masking features from gpu table match: " << gpustr << llendl;
-	maskFeatures(gpustr.c_str());
+	maskFeatures(gpustr);
 
 	// now mask cpu type ones
 	if (gSysMemory.getPhysicalMemoryClamped() <= 256*1024*1024)

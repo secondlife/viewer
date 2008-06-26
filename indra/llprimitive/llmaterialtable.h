@@ -67,7 +67,7 @@ class LLMaterialInfo
 {
 public:
 	U8		    mMCode;
-	char		mName[LLMATERIAL_INFO_NAME_LENGTH];	/* Flawfinder: ignore */
+	std::string	mName;
 	LLUUID		mDefaultTextureID;
 	LLUUID		mShatterSoundID;
 	F32         mDensity;           // kg/m^3
@@ -79,24 +79,20 @@ public:
 	F32			mDamageModifier;	// modifier on KE based damage
 	F32			mEPModifier;		// modifier on mass based EP total
 
-	LLMaterialInfo(U8 mcode, const char* name, const LLUUID &uuid)
+	LLMaterialInfo(U8 mcode, const std::string& name, const LLUUID &uuid)
 	{
 		init(mcode,name,uuid);
 	};
 
-	void init(U8 mcode, const char* name, const LLUUID &uuid)
+	void init(U8 mcode, const std::string& name, const LLUUID &uuid)
 	{
-		mName[0] = 0;
 		mDensity = 1000.f;             // default to 1000.0 (water)
 		mHPModifier = 1.f;
 		mDamageModifier = 1.f;
 		mEPModifier = 1.f;
 
 		mMCode = mcode;
-		if (name)
-		{
-			LLString::copy(mName,name,LLMATERIAL_INFO_NAME_LENGTH);
-		}
+		mName = name;
 		mDefaultTextureID = uuid;		
 	};
 
@@ -150,7 +146,7 @@ public:
 
 	void initBasicTable();
 
-	BOOL add(U8 mcode, const char* name, const LLUUID &uuid);	                 
+	BOOL add(U8 mcode, const std::string& name, const LLUUID &uuid);	                 
 	BOOL addCollisionSound(U8 mcode, U8 mcode2, const LLUUID &uuid);
 	BOOL addSlidingSound(U8 mcode, U8 mcode2, const LLUUID &uuid);
 	BOOL addRollingSound(U8 mcode, U8 mcode2, const LLUUID &uuid);
@@ -160,10 +156,10 @@ public:
 	BOOL addRestitution(U8 mcode, const F32 &restitution);
 	BOOL addDamageAndEnergy(U8 mcode, const F32 &hp_mod, const F32 &damage_mod, const F32 &ep_mod);
 
-	LLUUID getDefaultTextureID(char* name);					// LLUUID::null if not found
+	LLUUID getDefaultTextureID(const std::string& name);					// LLUUID::null if not found
 	LLUUID getDefaultTextureID(U8 mcode);					// LLUUID::null if not found
-	U8     getMCode(const char* name);						// 0 if not found
-	char*  getName(U8 mcode);
+	U8     getMCode(const std::string& name);						// 0 if not found
+	std::string getName(U8 mcode);
 
 	F32 getDensity(U8 mcode);						        // kg/m^3, 0 if not found
 	F32 getFriction(U8 mcode);						        // physics values

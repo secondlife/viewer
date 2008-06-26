@@ -261,12 +261,12 @@ BOOL LLPolyMeshSharedData::allocateJointNames( U32 numJointNames )
 //--------------------------------------------------------------------
 // LLPolyMeshSharedData::loadMesh()
 //--------------------------------------------------------------------
-BOOL LLPolyMeshSharedData::loadMesh( const char *fileName )
+BOOL LLPolyMeshSharedData::loadMesh( const std::string& fileName )
 {
 	//-------------------------------------------------------------------------
 	// Open the file
 	//-------------------------------------------------------------------------
-	if(!fileName)
+	if(fileName.empty())
 	{
 		llerrs << "Filename is Empty!" << llendl;
 		return FALSE;
@@ -595,7 +595,7 @@ BOOL LLPolyMeshSharedData::loadMesh( const char *fileName )
 					// we reached the end of the morphs
 					break;
 				}
-				LLPolyMorphData* morph_data = new LLPolyMorphData(morphName);
+				LLPolyMorphData* morph_data = new LLPolyMorphData(std::string(morphName));
 
 				BOOL result = morph_data->loadBinary(fp, this);
 
@@ -761,7 +761,7 @@ LLPolyMesh::~LLPolyMesh()
 //-----------------------------------------------------------------------------
 // LLPolyMesh::getMesh()
 //-----------------------------------------------------------------------------
-LLPolyMesh *LLPolyMesh::getMesh(const LLString &name, LLPolyMesh* reference_mesh)
+LLPolyMesh *LLPolyMesh::getMesh(const std::string &name, LLPolyMesh* reference_mesh)
 {
 	//-------------------------------------------------------------------------
 	// search for an existing mesh by this name
@@ -777,8 +777,8 @@ LLPolyMesh *LLPolyMesh::getMesh(const LLString &name, LLPolyMesh* reference_mesh
 	//-------------------------------------------------------------------------
 	// if not found, create a new one, add it to the list
 	//-------------------------------------------------------------------------
-	char full_path[LL_MAX_PATH];		/*Flawfinder: ignore*/
-	snprintf(full_path, LL_MAX_PATH, "%s", (gDirUtilp->getExpandedFilename(LL_PATH_CHARACTER,name.c_str())).c_str());			/* Flawfinder: ignore */
+	std::string full_path;
+	full_path = gDirUtilp->getExpandedFilename(LL_PATH_CHARACTER,name);
 
 	LLPolyMeshSharedData *mesh_data = new LLPolyMeshSharedData();
 	if (reference_mesh)
@@ -935,7 +935,7 @@ void LLPolyMesh::initializeForMorph()
 //-----------------------------------------------------------------------------
 // getMorphData()
 //-----------------------------------------------------------------------------
-LLPolyMorphData*	LLPolyMesh::getMorphData(const char *morph_name)
+LLPolyMorphData*	LLPolyMesh::getMorphData(const std::string& morph_name)
 {
 	if (!mSharedData)
 		return NULL;
@@ -943,7 +943,7 @@ LLPolyMorphData*	LLPolyMesh::getMorphData(const char *morph_name)
 		 iter != mSharedData->mMorphData.end(); ++iter)
 	{
 		LLPolyMorphData *morph_data = *iter;
-		if (!strcmp(morph_data->getName(), morph_name))
+		if (morph_data->getName() == morph_name)
 		{
 			return morph_data;
 		}
@@ -1009,7 +1009,7 @@ BOOL LLPolySkeletalDistortionInfo::parseXml(LLXmlTreeNode* node)
 	{
 		if (bone->hasName("bone"))
 		{
-			LLString name;
+			std::string name;
 			LLVector3 scale;
 			LLVector3 pos;
 			BOOL haspos = FALSE;

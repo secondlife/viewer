@@ -41,7 +41,7 @@ public:
 	// callback definition.
 	typedef void* (*callback_t)(void* data);
 	
-	typedef std::map<LLString, LLCallbackMap> map_t;
+	typedef std::map<std::string, LLCallbackMap> map_t;
 	typedef map_t::iterator map_iter_t;
 	typedef map_t::const_iterator map_const_iter_t;
 

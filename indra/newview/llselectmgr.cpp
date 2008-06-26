@@ -1955,12 +1955,13 @@ void LLSelectMgr::selectionSetClickAction(U8 action)
 // godlike requests
 //-----------------------------------------------------------------------------
 
-typedef std::pair<const LLString, const LLString> godlike_request_t;
-void LLSelectMgr::sendGodlikeRequest(const LLString& request, const LLString& param)
+typedef std::pair<const std::string, const std::string> godlike_request_t;
+
+void LLSelectMgr::sendGodlikeRequest(const std::string& request, const std::string& param)
 {
 	// If the agent is neither godlike nor an estate owner, the server
 	// will reject the request.
-	LLString message_type;
+	std::string message_type;
 	if (gAgent.isGodlike())
 	{
 		message_type = "GodlikeMessage";
@@ -1993,7 +1994,7 @@ void LLSelectMgr::packGodlikeHead(void* user_data)
 	msg->addUUID("TransactionID", LLUUID::null);
 	godlike_request_t* data = (godlike_request_t*)user_data;
 	msg->nextBlock("MethodData");
-	msg->addString("Method", data->first.c_str());
+	msg->addString("Method", data->first);
 	msg->addUUID("Invoice", LLUUID::null);
 
 	// The parameters used to be restricted to either string or
@@ -2011,8 +2012,7 @@ void LLSelectMgr::packGodlikeHead(void* user_data)
 // static
 void LLSelectMgr::packObjectIDAsParam(LLSelectNode* node, void *)
 {
-	char buf [MAX_STRING];		/* Flawfinder: ignore */
-	snprintf(buf, MAX_STRING, "%u", node->getObject()->getLocalID());			/* Flawfinder: ignore */
+	std::string buf = llformat("%u", node->getObject()->getLocalID());
 	gMessageSystem->nextBlock("ParamList");
 	gMessageSystem->addString("Parameter", buf);
 }
@@ -2304,7 +2304,7 @@ BOOL LLSelectMgr::selectGetRootsCopy()
 // selectGetCreator()
 // Creator information only applies to root objects.
 //-----------------------------------------------------------------------------
-BOOL LLSelectMgr::selectGetCreator(LLUUID& result_id, LLString& name)
+BOOL LLSelectMgr::selectGetCreator(LLUUID& result_id, std::string& name)
 {
 	BOOL identical = TRUE;
 	BOOL first = TRUE;
@@ -2356,7 +2356,7 @@ BOOL LLSelectMgr::selectGetCreator(LLUUID& result_id, LLString& name)
 // selectGetOwner()
 // Owner information only applies to roots.
 //-----------------------------------------------------------------------------
-BOOL LLSelectMgr::selectGetOwner(LLUUID& result_id, LLString& name)
+BOOL LLSelectMgr::selectGetOwner(LLUUID& result_id, std::string& name)
 {
 	BOOL identical = TRUE;
 	BOOL first = TRUE;
@@ -2424,7 +2424,7 @@ BOOL LLSelectMgr::selectGetOwner(LLUUID& result_id, LLString& name)
 // selectGetLastOwner()
 // Owner information only applies to roots.
 //-----------------------------------------------------------------------------
-BOOL LLSelectMgr::selectGetLastOwner(LLUUID& result_id, LLString& name)
+BOOL LLSelectMgr::selectGetLastOwner(LLUUID& result_id, std::string& name)
 {
 	BOOL identical = TRUE;
 	BOOL first = TRUE;
@@ -3471,7 +3471,7 @@ void LLSelectMgr::deselectAllIfTooFar()
 }
 
 
-void LLSelectMgr::selectionSetObjectName(const LLString& name)
+void LLSelectMgr::selectionSetObjectName(const std::string& name)
 {
 	// we only work correctly if 1 object is selected.
 	if(mSelectedObjects->getRootObjectCount() == 1)
@@ -3479,7 +3479,7 @@ void LLSelectMgr::selectionSetObjectName(const LLString& name)
 		sendListToRegions("ObjectName",
 						  packAgentAndSessionID,
 						  packObjectName,
-						  (void*)name.c_str(),
+						  (void*)(new std::string(name)),
 						  SEND_ONLY_ROOTS);
 	}
 	else if(mSelectedObjects->getObjectCount() == 1)
@@ -3487,12 +3487,12 @@ void LLSelectMgr::selectionSetObjectName(const LLString& name)
 		sendListToRegions("ObjectName",
 						  packAgentAndSessionID,
 						  packObjectName,
-						  (void*)name.c_str(),
+						  (void*)(new std::string(name)),
 						  SEND_INDIVIDUALS);
 	}
 }
 
-void LLSelectMgr::selectionSetObjectDescription(const LLString& desc)
+void LLSelectMgr::selectionSetObjectDescription(const std::string& desc)
 {
 	// we only work correctly if 1 object is selected.
 	if(mSelectedObjects->getRootObjectCount() == 1)
@@ -3500,7 +3500,7 @@ void LLSelectMgr::selectionSetObjectDescription(const LLString& desc)
 		sendListToRegions("ObjectDescription",
 						  packAgentAndSessionID,
 						  packObjectDescription,
-						  (void*)desc.c_str(),
+						  (void*)(new std::string(desc)),
 						  SEND_ONLY_ROOTS);
 	}
 	else if(mSelectedObjects->getObjectCount() == 1)
@@ -3508,7 +3508,7 @@ void LLSelectMgr::selectionSetObjectDescription(const LLString& desc)
 		sendListToRegions("ObjectDescription",
 						  packAgentAndSessionID,
 						  packObjectDescription,
-						  (void*)desc.c_str(),
+						  (void*)(new std::string(desc)),
 						  SEND_INDIVIDUALS);
 	}
 }
@@ -3993,22 +3993,26 @@ void LLSelectMgr::packObjectLocalID(LLSelectNode* node, void *)
 // static
 void LLSelectMgr::packObjectName(LLSelectNode* node, void* user_data)
 {
-	char* name = (char*)user_data;
-	if(!name) return;
-	gMessageSystem->nextBlockFast(_PREHASH_ObjectData);
-	gMessageSystem->addU32Fast(_PREHASH_LocalID, node->getObject()->getLocalID());
-	gMessageSystem->addStringFast(_PREHASH_Name, name);
+	const std::string* name = (const std::string*)user_data;
+	if(!name->empty())
+	{
+		gMessageSystem->nextBlockFast(_PREHASH_ObjectData);
+		gMessageSystem->addU32Fast(_PREHASH_LocalID, node->getObject()->getLocalID());
+		gMessageSystem->addStringFast(_PREHASH_Name, *name);
+	}
+	delete name;
 }
 
 // static
-void LLSelectMgr::packObjectDescription(LLSelectNode* node,
-										void* user_data)
+void LLSelectMgr::packObjectDescription(LLSelectNode* node, void* user_data)
 {
-	char* desc = (char*)user_data;
-	if(!desc) return;
-	gMessageSystem->nextBlockFast(_PREHASH_ObjectData);
-	gMessageSystem->addU32Fast(_PREHASH_LocalID, node->getObject()->getLocalID());
-	gMessageSystem->addStringFast(_PREHASH_Description, desc);
+	const std::string* desc = (const std::string*)user_data;
+	if(!desc->empty())
+	{
+		gMessageSystem->nextBlockFast(_PREHASH_ObjectData);
+		gMessageSystem->addU32Fast(_PREHASH_LocalID, node->getObject()->getLocalID());
+		gMessageSystem->addStringFast(_PREHASH_Description, *desc);
+	}
 }
 
 // static
@@ -4057,7 +4061,7 @@ void LLSelectMgr::packPermissions(LLSelectNode* node, void *user_data)
 // Utility function to send some information to every region containing
 // an object on the selection list.  We want to do this to reduce the total
 // number of packets sent by the viewer.
-void LLSelectMgr::sendListToRegions(const LLString& message_name,
+void LLSelectMgr::sendListToRegions(const std::string& message_name,
 									void (*pack_header)(void *user_data), 
 									void (*pack_body)(LLSelectNode* node, void *user_data), 
 									void *user_data,
@@ -4297,15 +4301,15 @@ void LLSelectMgr::processObjectProperties(LLMessageSystem* msg, void** user_data
 
 		msg->getUUIDFast(_PREHASH_ObjectData, _PREHASH_LastOwnerID, last_owner_id, i);
 
-		char name[DB_INV_ITEM_NAME_BUF_SIZE];		/* Flawfinder: ignore */
-		msg->getStringFast(_PREHASH_ObjectData, _PREHASH_Name, DB_INV_ITEM_NAME_BUF_SIZE, name, i);
-		char desc[DB_INV_ITEM_DESC_BUF_SIZE];		/* Flawfinder: ignore */
-		msg->getStringFast(_PREHASH_ObjectData, _PREHASH_Description, DB_INV_ITEM_DESC_BUF_SIZE, desc, i);
+		std::string name;
+		msg->getStringFast(_PREHASH_ObjectData, _PREHASH_Name, name, i);
+		std::string desc;
+		msg->getStringFast(_PREHASH_ObjectData, _PREHASH_Description, desc, i);
 
-		char touch_name[DB_INV_ITEM_NAME_BUF_SIZE];		/* Flawfinder: ignore */
-		msg->getStringFast(_PREHASH_ObjectData, _PREHASH_TouchName, DB_INV_ITEM_NAME_BUF_SIZE, touch_name, i);
-		char sit_name[DB_INV_ITEM_DESC_BUF_SIZE];		/* Flawfinder: ignore */
-		msg->getStringFast(_PREHASH_ObjectData, _PREHASH_SitName, DB_INV_ITEM_DESC_BUF_SIZE, sit_name, i);
+		std::string touch_name;
+		msg->getStringFast(_PREHASH_ObjectData, _PREHASH_TouchName, touch_name, i);
+		std::string sit_name;
+		msg->getStringFast(_PREHASH_ObjectData, _PREHASH_SitName, sit_name, i);
 
 		//unpack TE IDs
 		std::vector<LLUUID> texture_ids;
@@ -4448,11 +4452,11 @@ void LLSelectMgr::processObjectPropertiesFamily(LLMessageSystem* msg, void** use
 	msg->getUUIDFast(_PREHASH_ObjectData, _PREHASH_LastOwnerID, last_owner_id );
 
 	// unpack name & desc
-	char name[DB_INV_ITEM_NAME_BUF_SIZE];		/* Flawfinder: ignore */
-	msg->getStringFast(_PREHASH_ObjectData, _PREHASH_Name, DB_INV_ITEM_NAME_BUF_SIZE, name);
+	std::string name;
+	msg->getStringFast(_PREHASH_ObjectData, _PREHASH_Name, name);
 
-	char desc[DB_INV_ITEM_DESC_BUF_SIZE];		/* Flawfinder: ignore */
-	msg->getStringFast(_PREHASH_ObjectData, _PREHASH_Description, DB_INV_ITEM_DESC_BUF_SIZE, desc);
+	std::string desc;
+	msg->getStringFast(_PREHASH_ObjectData, _PREHASH_Description, desc);
 
 	// the reporter widget askes the server for info about picked objects
 	if (request_flags & (COMPLAINT_REPORT_REQUEST | BUG_REPORT_REQUEST))
@@ -4961,10 +4965,10 @@ LLSelectNode::LLSelectNode(LLViewerObject* object, BOOL glow)
 	mValid			= FALSE;
 	mPermissions	= new LLPermissions();
 	mInventorySerial = 0;
-	mName = LLString::null;
-	mDescription = LLString::null;
-	mTouchName = LLString::null;
-	mSitName = LLString::null;
+	mName = LLStringUtil::null;
+	mDescription = LLStringUtil::null;
+	mTouchName = LLStringUtil::null;
+	mSitName = LLStringUtil::null;
 	mSilhouetteExists = FALSE;
 	mDuplicated = FALSE;
 

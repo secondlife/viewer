@@ -128,7 +128,7 @@ bool LLSaleInfo::fromLLSD(LLSD& sd, BOOL& has_perm_mask, U32& perm_mask)
 LLXMLNode *LLSaleInfo::exportFileXML() const
 {
 	LLXMLNode *ret = new LLXMLNode("sale_info", FALSE);
-	LLString type_str = lookup(mSaleType);
+	std::string type_str = ll_safe_string( lookup(mSaleType));
 	ret->createChild("type", TRUE)->setStringValue(1, &type_str);
 	ret->createChild("price", TRUE)->setIntValue(1, &mSalePrice);
 	return ret;

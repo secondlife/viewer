@@ -52,8 +52,8 @@ public:
 	// LLPanelGroupTab
 	static void* createTab(void* data);
 	virtual void activate();
-	//virtual bool needsApply(LLString& mesg);
-	//virtual bool apply(LLString& mesg);
+	//virtual bool needsApply(std::string& mesg);
+	//virtual bool apply(std::string& mesg);
 	//virtual void update();
 	
 	virtual BOOL postBuild();
@@ -63,11 +63,11 @@ public:
 
 	static void processGroupNoticesListReply(LLMessageSystem* msg, void** data);
 
-	void showNotice(const char* subject,
-							const char* message,
-							const bool& has_inventory,
-							const char* inventory_name,
-							LLOfferInfo* inventory_offer);
+	void showNotice(const std::string& subject,
+					const std::string& message,
+					const bool& has_inventory,
+					const std::string& inventory_name,
+					LLOfferInfo* inventory_offer);
 
 private:
 	static void onClickRemoveAttachment(void* data);

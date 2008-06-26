@@ -49,7 +49,7 @@ public:
 
 	virtual BOOL		hasNext() const = 0;
 
-	virtual BOOL		packString(const char *value, const char *name) = 0;
+	virtual BOOL		packString(const std::string& value, const char *name) = 0;
 	virtual BOOL		unpackString(std::string& value, const char *name) = 0;
 
 	virtual BOOL		packBinaryData(const U8 *value, S32 size, const char *name) = 0;
@@ -127,7 +127,7 @@ public:
 	{
 	}
 
-	/*virtual*/ BOOL		packString(const char *value, const char *name);
+	/*virtual*/ BOOL		packString(const std::string& value, const char *name);
 	/*virtual*/ BOOL		unpackString(std::string& value, const char *name);
 
 	/*virtual*/ BOOL		packBinaryData(const U8 *value, S32 size, const char *name);
@@ -229,7 +229,7 @@ public:
 		mWriteEnabled = FALSE;
 	}
 
-	/*virtual*/ BOOL		packString(const char *value, const char *name);
+	/*virtual*/ BOOL		packString(const std::string& value, const char *name);
 	/*virtual*/ BOOL		unpackString(std::string& value, const char *name);
 
 	/*virtual*/ BOOL		packBinaryData(const U8 *value, S32 size, const char *name);
@@ -358,7 +358,7 @@ public:
 	{
 	}
 
-	/*virtual*/ BOOL		packString(const char *value, const char *name);
+	/*virtual*/ BOOL		packString(const std::string& value, const char *name);
 	/*virtual*/ BOOL		unpackString(std::string& value, const char *name);
 
 	/*virtual*/ BOOL		packBinaryData(const U8 *value, S32 size, const char *name);

@@ -41,7 +41,7 @@
 class LLScrollingPanel : public LLPanel
 {
 public:
-	LLScrollingPanel(const LLString& name, const LLRect& rect) : LLPanel(name, rect) { }
+	LLScrollingPanel(const std::string& name, const LLRect& rect) : LLPanel(name, rect) { }
 	virtual void updatePanel(BOOL allow_modify) = 0;
 };
 
@@ -52,7 +52,7 @@ public:
 class LLScrollingPanelList : public LLUICtrl
 {
 public:
-	LLScrollingPanelList(const LLString& name, const LLRect& rect)
+	LLScrollingPanelList(const std::string& name, const LLRect& rect)
 		:	LLUICtrl(name, rect, TRUE, NULL, NULL, FOLLOWS_LEFT | FOLLOWS_BOTTOM ) {}
 
 	virtual void setValue(const LLSD& value) {};

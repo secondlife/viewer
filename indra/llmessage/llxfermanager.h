@@ -143,8 +143,8 @@ class LLXferManager
 
 // file requesting routines
 // .. to file
-	virtual void requestFile(const char* local_filename,
-							 const char* remote_filename,
+	virtual void requestFile(const std::string& local_filename,
+							 const std::string& remote_filename,
 							 ELLPath remote_path,
 							 const LLHost& remote_host,
  							 BOOL delete_remote_on_completion,
@@ -153,7 +153,7 @@ class LLXferManager
 							 BOOL use_big_packets = FALSE);
 
 // .. to memory
-	virtual void requestFile(const char* remote_filename, 
+	virtual void requestFile(const std::string& remote_filename, 
 							 ELLPath remote_path,
 							 const LLHost &remote_host,
  							 BOOL delete_remote_on_completion,

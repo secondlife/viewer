@@ -42,7 +42,7 @@ public:
 	/*virtual*/ void packParams(LLDataPacker &dp) const;
 	/*virtual*/ BOOL unpackParams(LLDataPacker &dp);
 
-	void setFilename(const LLString &filename)		{ mFilename = filename; }
+	void setFilename(const std::string &filename)		{ mFilename = filename; }
 	std::string getFilename() const					{ return mFilename; }
 
 	void setDeleteOnCompletion(BOOL enabled)		{ mDeleteOnCompletion = enabled; }

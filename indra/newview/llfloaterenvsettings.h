@@ -95,7 +95,7 @@ public:
 	void syncMenu();
 
 	/// convert the present time to a digital clock time
-	LLString timeToString(F32 curTime);
+	std::string timeToString(F32 curTime);
 
 private:
 	// one instance on the inside

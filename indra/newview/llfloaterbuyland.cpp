@@ -198,7 +198,7 @@ private:
 };
 
 static void cacheNameUpdateRefreshesBuyLand(const LLUUID&,
-	const char*, const char*, BOOL, void* data)
+	const std::string&, const std::string&, BOOL, void* data)
 {
 	LLFloaterBuyLandUI* ui = LLFloaterBuyLandUI::soleInstance(false);
 	if (ui)
@@ -321,7 +321,7 @@ LLFloaterBuyLandUI* LLFloaterBuyLandUI::soleInstance(bool createIfNeeded)
 #pragma warning(disable : 4355)
 #endif 
 LLFloaterBuyLandUI::LLFloaterBuyLandUI()
-:	LLFloater("Buy Land"),
+:	LLFloater(std::string("Buy Land")),
 	mParcel(0),
 	mBought(false),
 	mParcelValid(false), mSiteValid(false),
@@ -455,7 +455,7 @@ void LLFloaterBuyLandUI::updateParcelInfo()
 	bool haveEnoughCash = mParcelPrice <= mAgentCashBalance;
 	S32 cashBuy = haveEnoughCash ? 0 : (mParcelPrice - mAgentCashBalance);
 	mCurrency.setAmount(cashBuy, true);
-	mCurrency.setZeroMessage(haveEnoughCash ? getString("none_needed") : "");
+	mCurrency.setZeroMessage(haveEnoughCash ? getString("none_needed") : LLStringUtil::null);
 
 	// checks that we can buy the land
 
@@ -810,7 +810,7 @@ void LLFloaterBuyLandUI::updateNames()
 
 	if (!parcelp)
 	{
-		mParcelSellerName = "";
+		mParcelSellerName = LLStringUtil::null;
 		return;
 	}
 	
@@ -1014,7 +1014,7 @@ void LLFloaterBuyLandUI::refreshUI()
 		{
 			childSetText("info_parcel", mParcelLocation);
 
-			LLString::format_map_t string_args;
+			LLStringUtil::format_map_t string_args;
 			string_args["[AMOUNT]"] = llformat("%d", mParcelActualArea);
 			string_args["[AMOUNT2]"] = llformat("%d", mParcelSupportedObjects);
 		
@@ -1033,8 +1033,8 @@ void LLFloaterBuyLandUI::refreshUI()
 		else
 		{
 			childSetText("info_parcel", getString("no_parcel_selected"));
-			childSetText("info_size", LLString::null);
-			childSetText("info_price", LLString::null);
+			childSetText("info_size", LLStringUtil::null);
+			childSetText("info_price", LLStringUtil::null);
 		}
 		
 		childSetText("info_action",
@@ -1056,7 +1056,7 @@ void LLFloaterBuyLandUI::refreshUI()
 	// error section
 	if (showingError)
 	{
-		mChildren.setBadge("step_error",
+		mChildren.setBadge(std::string("step_error"),
 			mCannotBuyIsError
 				? LLViewChildren::BADGE_ERROR
 				: LLViewChildren::BADGE_WARN);
@@ -1084,7 +1084,7 @@ void LLFloaterBuyLandUI::refreshUI()
 	// section one: account
 	if (!showingError)
 	{
-		mChildren.setBadge("step_1",
+		mChildren.setBadge(std::string("step_1"),
 			mSiteMembershipUpgrade
 				? LLViewChildren::BADGE_NOTE
 				: LLViewChildren::BADGE_OK);
@@ -1127,7 +1127,7 @@ void LLFloaterBuyLandUI::refreshUI()
 	// section two: land use fees
 	if (!showingError)
 	{
-		mChildren.setBadge("step_2",
+		mChildren.setBadge(std::string("step_2"),
 			mSiteLandUseUpgrade
 				? LLViewChildren::BADGE_NOTE
 				: LLViewChildren::BADGE_OK);
@@ -1137,15 +1137,15 @@ void LLFloaterBuyLandUI::refreshUI()
 		
 		if (mIsForGroup)
 		{
-			LLString::format_map_t string_args;
-			string_args["[GROUP]"] = LLString(gAgent.mGroupName);
+			LLStringUtil::format_map_t string_args;
+			string_args["[GROUP]"] = std::string(gAgent.mGroupName);
 
 			message += getString("insufficient_land_credits", string_args);
 				
 		}
 		else
 		{
-			LLString::format_map_t string_args;
+			LLStringUtil::format_map_t string_args;
 			string_args["[BUYER]"] = llformat("%d", mAgentCommittedTier);
 			message += getString("land_holdings", string_args);
 		}
@@ -1156,7 +1156,7 @@ void LLFloaterBuyLandUI::refreshUI()
 		}
 		else if (mParcelBillableArea == mParcelActualArea)
 		{
-			LLString::format_map_t string_args;
+			LLStringUtil::format_map_t string_args;
 			string_args["[AMOUNT]"] = llformat("%d", mParcelActualArea);
 			message += getString("parcel_meters", string_args);
 		}
@@ -1165,13 +1165,13 @@ void LLFloaterBuyLandUI::refreshUI()
 
 			if (mParcelBillableArea > mParcelActualArea)
 			{	
-				LLString::format_map_t string_args;
+				LLStringUtil::format_map_t string_args;
 				string_args["[AMOUNT]"] = llformat("%d", mParcelBillableArea);
 				message += getString("premium_land", string_args);
 			}
 			else
 			{
-				LLString::format_map_t string_args;
+				LLStringUtil::format_map_t string_args;
 				string_args["[AMOUNT]"] = llformat("%d", mParcelBillableArea);
 				message += getString("discounted_land", string_args);
 			}
@@ -1201,7 +1201,7 @@ void LLFloaterBuyLandUI::refreshUI()
 
 	if (!showingError)
 	{
-		mChildren.setBadge("step_3",
+		mChildren.setBadge(std::string("step_3"),
 			!willHaveEnough
 				? LLViewChildren::BADGE_WARN
 				: mCurrency.getAmount() > 0
@@ -1220,14 +1220,14 @@ void LLFloaterBuyLandUI::refreshUI()
 
 		if (haveEnough)
 		{
-			LLString::format_map_t string_args;
+			LLStringUtil::format_map_t string_args;
 			string_args["[AMOUNT]"] = llformat("%d", mAgentCashBalance);
 
 			childSetText("currency_reason", getString("have_enough_lindens", string_args));
 		}
 		else
 		{
-			LLString::format_map_t string_args;
+			LLStringUtil::format_map_t string_args;
 			string_args["[AMOUNT]"] = llformat("%d", mAgentCashBalance);
 			string_args["[AMOUNT2]"] = llformat("%d", mParcelPrice - mAgentCashBalance);
 			
@@ -1238,7 +1238,7 @@ void LLFloaterBuyLandUI::refreshUI()
 		
 		if (willHaveEnough)
 		{
-			LLString::format_map_t string_args;
+			LLStringUtil::format_map_t string_args;
 			string_args["[AMOUNT]"] = llformat("%d", finalBalance);
 
 			childSetText("currency_balance", getString("balance_left", string_args));
@@ -1246,7 +1246,7 @@ void LLFloaterBuyLandUI::refreshUI()
 		}
 		else
 		{
-			LLString::format_map_t string_args;
+			LLStringUtil::format_map_t string_args;
 			string_args["[AMOUNT]"] = llformat("%d", mParcelPrice - mAgentCashBalance);
 	
 			childSetText("currency_balance", getString("balance_needed", string_args));
@@ -1311,14 +1311,14 @@ void LLFloaterBuyLandUI::startBuyPreConfirm()
 	}
 	if (mCurrency.getAmount() > 0)
 	{
-		LLString::format_map_t string_args;
+		LLStringUtil::format_map_t string_args;
 		string_args["[AMOUNT]"] = llformat("%d", mCurrency.getAmount());
 		string_args["[AMOUNT2]"] = llformat("%#.2f", mCurrency.getEstimate() / 100.0);
 		
 		action += getString("buy_for_US", string_args);
 	}
 
-	LLString::format_map_t string_args;
+	LLStringUtil::format_map_t string_args;
 	string_args["[AMOUNT]"] = llformat("%d", mParcelPrice);
 	string_args["[SELLER]"] = mParcelSellerName;
 	action += getString("pay_to_for_land", string_args);

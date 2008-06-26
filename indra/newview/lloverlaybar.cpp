@@ -87,7 +87,7 @@ void* LLOverlayBar::createMediaRemote(void* userdata)
 void* LLOverlayBar::createVoiceRemote(void* userdata)
 {
 	LLOverlayBar *self = (LLOverlayBar*)userdata;	
-	self->mVoiceRemote = new LLVoiceRemoteCtrl("voice_remote");
+	self->mVoiceRemote = new LLVoiceRemoteCtrl(std::string("voice_remote"));
 	return self->mVoiceRemote;
 }
 
@@ -379,7 +379,7 @@ void LLOverlayBar::toggleMusicPlay(void*)
 				// stream is stopped, it doesn't return the right thing - commenting out for now.
 	// 			if ( gAudiop->isInternetStreamPlaying() == 0 )
 				{
-					gAudiop->startInternetStream(parcel->getMusicURL().c_str());
+					gAudiop->startInternetStream(parcel->getMusicURL());
 				}
 			}
 		}

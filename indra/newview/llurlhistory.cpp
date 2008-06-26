@@ -43,13 +43,13 @@ const int MAX_URL_COUNT = 10;
 /////////////////////////////////////////////////////////////////////////////
 
 // static
-bool LLURLHistory::loadFile(const LLString& filename)
+bool LLURLHistory::loadFile(const std::string& filename)
 {
 	LLSD data;
 	{
-		LLString temp_str = gDirUtilp->getLindenUserDir() + gDirUtilp->getDirDelimiter();
+		std::string temp_str = gDirUtilp->getLindenUserDir() + gDirUtilp->getDirDelimiter();
 
-		llifstream file((temp_str + filename).c_str());
+		llifstream file((temp_str + filename));
 
 		if (file.is_open())
 		{
@@ -71,10 +71,10 @@ bool LLURLHistory::loadFile(const LLString& filename)
 }
 
 // static
-bool LLURLHistory::saveFile(const LLString& filename)
+bool LLURLHistory::saveFile(const std::string& filename)
 {
-	LLString temp_str = gDirUtilp->getLindenUserDir() + gDirUtilp->getDirDelimiter();
-	llofstream out((temp_str + filename).c_str());
+	std::string temp_str = gDirUtilp->getLindenUserDir() + gDirUtilp->getDirDelimiter();
+	llofstream out((temp_str + filename));
 	if (!out.good())
 	{
 		llwarns << "Unable to open " << filename << " for output." << llendl;

@@ -79,7 +79,7 @@ class LLFirstUse
 {
 public:
 	// Add a config variable to be reset on resetFirstUse()
-	static void addConfigVariable(const LLString& var);
+	static void addConfigVariable(const std::string& var);
 	
 	// Sets all controls back to show the dialogs.
 	static void disableFirstUse();
@@ -107,7 +107,7 @@ public:
 	static void useMedia();
 	
 protected:
-	static std::set<LLString> sConfigVariables;
+	static std::set<std::string> sConfigVariables;
 };
 
 #endif

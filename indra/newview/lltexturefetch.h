@@ -55,7 +55,7 @@ public:
 
 	bool createRequest(const LLUUID& id, const LLHost& host, F32 priority,
 					   S32 w, S32 h, S32 c, S32 discard, bool needs_aux);
-	bool createRequest(const LLString& filename, const LLUUID& id, const LLHost& host, F32 priority,
+	bool createRequest(const std::string& filename, const LLUUID& id, const LLHost& host, F32 priority,
 					   S32 w, S32 h, S32 c, S32 discard, bool needs_aux);
 	void deleteRequest(const LLUUID& id, bool cancel);
 	bool getRequestFinished(const LLUUID& id, S32& discard_level,

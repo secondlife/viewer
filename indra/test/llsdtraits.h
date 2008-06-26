@@ -84,10 +84,6 @@ LLSDTraits<LLSD::String>::LLSDTraits()
 { }
 
 template<>
-class LLSDTraits<LLString> : public LLSDTraits<LLSD::String>
-{ };
-
-template<>
 class LLSDTraits<const char*> : public LLSDTraits<LLSD::String>
 { };
 

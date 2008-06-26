@@ -937,15 +937,15 @@ void LLQuaternion::unpackFromVector3( const LLVector3& vec )
 	}
 }
 
-BOOL LLQuaternion::parseQuat(const char* buf, LLQuaternion* value)
+BOOL LLQuaternion::parseQuat(const std::string& buf, LLQuaternion* value)
 {
-	if( buf == NULL || buf[0] == '\0' || value == NULL)
+	if( buf.empty() || value == NULL)
 	{
 		return FALSE;
 	}
 
 	LLQuaternion quat;
-	S32 count = sscanf( buf, "%f %f %f %f", quat.mQ + 0, quat.mQ + 1, quat.mQ + 2, quat.mQ + 3 );
+	S32 count = sscanf( buf.c_str(), "%f %f %f %f", quat.mQ + 0, quat.mQ + 1, quat.mQ + 2, quat.mQ + 3 );
 	if( 4 == count )
 	{
 		value->set( quat );

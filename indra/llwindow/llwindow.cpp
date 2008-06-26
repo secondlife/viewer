@@ -58,13 +58,13 @@ BOOL gDebugClicks = FALSE;
 BOOL gDebugWindowProc = FALSE;
 
 const S32 gURLProtocolWhitelistCount = 3;
-const char* gURLProtocolWhitelist[] = { "file", "http", "https" };
+const std::string gURLProtocolWhitelist[] = { "file:", "http:", "https:" };
 
 // CP: added a handler list - this is what's used to open the protocol and is based on registry entry
 //	   only meaningful difference currently is that file: protocols are opened using http:
 //	   since no protocol handler exists in registry for file:
 //     Important - these lists should match - protocol to handler
-const char* gURLProtocolWhitelistHandler[] = { "http", "http", "https" };	
+const std::string gURLProtocolWhitelistHandler[] = { "http", "http", "https" };	
 
 BOOL LLWindowCallbacks::handleTranslatedKeyDown(const KEY key, const MASK mask, BOOL repeated)
 {
@@ -203,7 +203,7 @@ BOOL LLWindowCallbacks::handleDeviceChange(LLWindow *window)
 	return FALSE;
 }
 
-S32 OSMessageBox(const char* text, const char* caption, U32 type)
+S32 OSMessageBox(const std::string& text, const std::string& caption, U32 type)
 {
 	// Properly hide the splash screen when displaying the message box
 	BOOL was_visible = FALSE;
@@ -389,7 +389,7 @@ void LLSplashScreen::show()
 }
 
 //static
-void LLSplashScreen::update(const char* str)
+void LLSplashScreen::update(const std::string& str)
 {
 	LLSplashScreen::show();
 	if (gSplashScreenp)
@@ -417,8 +417,8 @@ void LLSplashScreen::hide()
 static std::set<LLWindow*> sWindowList;
 
 LLWindow* LLWindowManager::createWindow(
-	const char *title,
-	const char *name,
+	const std::string& title,
+	const std::string& name,
 	LLCoordScreen upper_left,
 	LLCoordScreen size,
 	U32 flags,
@@ -434,7 +434,7 @@ LLWindow* LLWindowManager::createWindow(
 }
 
 LLWindow* LLWindowManager::createWindow(
-	const char *title, const char *name, S32 x, S32 y, S32 width, S32 height, U32 flags,
+	const std::string& title, const std::string& name, S32 x, S32 y, S32 width, S32 height, U32 flags,
 	BOOL fullscreen, 
 	BOOL clearBg,
 	BOOL disable_vsync,

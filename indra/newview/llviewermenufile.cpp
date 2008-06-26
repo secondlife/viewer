@@ -92,6 +92,47 @@ class LLFileEnableUpload : public view_listener_t
 	}
 };
 
+//============================================================================
+
+#if LL_WINDOWS
+static std::string SOUND_EXTENSIONS = "wav";
+static std::string IMAGE_EXTENSIONS = "tga bmp jpg jpeg png";
+static std::string ANIM_EXTENSIONS =  "bvh";
+#ifdef _CORY_TESTING
+static std::string GEOMETRY_EXTENSIONS = "slg";
+#endif
+static std::string XML_EXTENSIONS = "xml";
+static std::string SLOBJECT_EXTENSIONS = "slobject";
+#endif
+static std::string ALL_FILE_EXTENSIONS = "*.*";
+
+std::string build_extensions_string(LLFilePicker::ELoadFilter filter)
+{
+	switch(filter)
+	{
+#if LL_WINDOWS
+	case LLFilePicker::FFLOAD_IMAGE:
+		return IMAGE_EXTENSIONS;
+	case LLFilePicker::FFLOAD_WAV:
+		return SOUND_EXTENSIONS;
+	case LLFilePicker::FFLOAD_ANIM:
+		return ANIM_EXTENSIONS;
+	case LLFilePicker::FFLOAD_SLOBJECT:
+		return SLOBJECT_EXTENSIONS;
+#ifdef _CORY_TESTING
+	case LLFilePicker::FFLOAD_GEOMETRY:
+		return GEOMETRY_EXTENSIONS;
+#endif
+	case LLFilePicker::FFLOAD_XML:
+	    return XML_EXTENSIONS;
+	case LLFilePicker::FFLOAD_ALL:
+		return ALL_FILE_EXTENSIONS;
+#endif
+    default:
+	return ALL_FILE_EXTENSIONS;
+	}
+}
+
 /**
    char* upload_pick(void* data)
 
@@ -100,7 +141,7 @@ class LLFileEnableUpload : public view_listener_t
    returns the string to the full path filename, else returns NULL.
    Data is the load filter for the type of file as defined in LLFilePicker.
 **/
-const char* upload_pick(void* data)
+const std::string upload_pick(void* data)
 {
  	if( gAgent.cameraMouselook() )
 	{
@@ -123,23 +164,23 @@ const char* upload_pick(void* data)
 	if (!picker.getOpenFile(type))
 	{
 		llinfos << "Couldn't import objects from file" << llendl;
-		return NULL;
+		return std::string();
 	}
 
- 	const char* filename = picker.getFirstFile();
-	const char* ext = strrchr(filename, '.');
+	
+	const std::string& filename = picker.getFirstFile();
+	std::string ext = gDirUtilp->getExtension(filename);
 
 	//strincmp doesn't like NULL pointers
-	if (ext == NULL)
+	if (ext.empty())
 	{
-		const char* short_name = strrchr(filename,
-										 *gDirUtilp->getDirDelimiter().c_str());
+		std::string short_name = gDirUtilp->getBaseFileName(filename);
 		
 		// No extension
-		LLStringBase<char>::format_map_t args;
-		args["[FILE]"] = LLString(short_name + 1);
+		LLStringUtil::format_map_t args;
+		args["[FILE]"] = short_name;
 		gViewerWindow->alertXml("NoFileExtension", args);
-		return NULL;
+		return std::string();
 	}
 	else
 	{
@@ -148,8 +189,7 @@ const char* upload_pick(void* data)
 		//if the extension is valid
 
 		//now grab the set of valid file extensions
-		const char* valids = build_extensions_string(type);
-		std::string valid_extensions = std::string(valids);
+		std::string valid_extensions = build_extensions_string(type);
 
 		BOOL ext_valid = FALSE;
 		
@@ -165,10 +205,9 @@ const char* upload_pick(void* data)
 			 token_iter != tokens.end() && ext_valid != TRUE;
 			 ++token_iter)
 		{
-			const char* cur_token = token_iter->c_str();
+			const std::string& cur_token = *token_iter;
 
-			if (0 == strnicmp(cur_token, ext, strlen(cur_token)) ||		/* Flawfinder: ignore */
-				0 == strnicmp(cur_token, "*.*", strlen(cur_token))) 		/* Flawfinder: ignore */
+			if (cur_token == ext || cur_token == "*.*")
 			{
 				//valid extension
 				//or the acceptable extension is any
@@ -180,11 +219,11 @@ const char* upload_pick(void* data)
 		{
 			//should only get here if the extension exists
 			//but is invalid
-			LLStringBase<char>::format_map_t args;
+			LLStringUtil::format_map_t args;
 			args["[EXTENSION]"] = ext;
-			args["[VALIDS]"] = valids;
+			args["[VALIDS]"] = valid_extensions;
 			gViewerWindow->alertXml("InvalidFileExtension", args);
-			return NULL;
+			return std::string();
 		}
 	}//end else (non-null extension)
 
@@ -195,14 +234,14 @@ const char* upload_pick(void* data)
 	if (type == LLFilePicker::FFLOAD_WAV)
 	{
 		// pre-qualify wavs to make sure the format is acceptable
-		char error_msg[MAX_STRING];		/* Flawfinder: ignore */	
+		std::string error_msg;
 		if (check_for_invalid_wav_formats(filename,error_msg))
 		{
 			llinfos << error_msg << ": " << filename << llendl;
-			LLStringBase<char>::format_map_t args;
+			LLStringUtil::format_map_t args;
 			args["[FILE]"] = filename;
 			gViewerWindow->alertXml( error_msg, args );
-			return NULL;
+			return std::string();
 		}
 	}//end if a wave/sound file
 
@@ -214,8 +253,8 @@ class LLFileUploadImage : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		const char* filename = upload_pick((void *)LLFilePicker::FFLOAD_IMAGE);
-		if (filename)
+		std::string filename = upload_pick((void *)LLFilePicker::FFLOAD_IMAGE);
+		if (!filename.empty())
 		{
 			LLFloaterImagePreview* floaterp = new LLFloaterImagePreview(filename);
 			LLUICtrlFactory::getInstance()->buildFloater(floaterp, "floater_image_preview.xml");
@@ -228,8 +267,8 @@ class LLFileUploadSound : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		const char* filename = upload_pick((void*)LLFilePicker::FFLOAD_WAV);
-		if (filename)
+		std::string filename = upload_pick((void*)LLFilePicker::FFLOAD_WAV);
+		if (!filename.empty())
 		{
 			LLFloaterNameDesc* floaterp = new LLFloaterNameDesc(filename);
 			LLUICtrlFactory::getInstance()->buildFloater(floaterp, "floater_sound_preview.xml");
@@ -242,8 +281,8 @@ class LLFileUploadAnim : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		const char* filename = upload_pick((void*)LLFilePicker::FFLOAD_ANIM);
-		if (filename)
+		const std::string filename = upload_pick((void*)LLFilePicker::FFLOAD_ANIM);
+		if (!filename.empty())
 		{
 			LLFloaterAnimPreview* floaterp = new LLFloaterAnimPreview(filename);
 			LLUICtrlFactory::getInstance()->buildFloater(floaterp, "floater_animation_preview.xml");
@@ -274,27 +313,18 @@ class LLFileUploadBulk : public view_listener_t
 		LLFilePicker& picker = LLFilePicker::instance();
 		if (picker.getMultipleOpenFiles())
 		{
-			const char* filename = picker.getFirstFile();
-			const char* name = picker.getDirname();
-
-			LLString asset_name = name;
-			LLString::replaceNonstandardASCII( asset_name, '?' );
-			LLString::replaceChar(asset_name, '|', '?');
-			LLString::stripNonprintable(asset_name);
-			LLString::trim(asset_name);
-
-			char* asset_name_str = (char*)asset_name.c_str();
-			char* end_p = strrchr(asset_name_str, '.');		 // strip extension if exists
-			if( !end_p )
-			{
-				end_p = asset_name_str + strlen( asset_name_str );		/* Flawfinder: ignore */
-			}
-				
-			S32 len = llmin( (S32) (DB_INV_ITEM_NAME_STR_LEN), (S32) (end_p - asset_name_str) );
-
-			asset_name = asset_name.substr( 0, len );
-
+			const std::string& filename = picker.getFirstFile();
+			std::string name = gDirUtilp->getBaseFileName(filename, true);
+			
+			std::string asset_name = name;
+			LLStringUtil::replaceNonstandardASCII( asset_name, '?' );
+			LLStringUtil::replaceChar(asset_name, '|', '?');
+			LLStringUtil::stripNonprintable(asset_name);
+			LLStringUtil::trim(asset_name);
+			
 			upload_new_resource(filename, asset_name, asset_name, 0, LLAssetType::AT_NONE, LLInventoryType::IT_NONE); // file
+			// *NOTE: Ew, we don't iterate over the file list here,
+			// we handle the next files in upload_done_callback()
 		}
 		else
 		{
@@ -304,11 +334,11 @@ class LLFileUploadBulk : public view_listener_t
 	}
 };
 
-void upload_error(const char* error_message, const char* label, const std::string filename, const LLStringBase<char>::format_map_t args) 
+void upload_error(const std::string& error_message, const std::string& label, const std::string& filename, const LLStringUtil::format_map_t args) 
 {
 	llwarns << error_message << llendl;
 	gViewerWindow->alertXml(label, args);
-	if(remove(filename.c_str()) == -1)
+	if(LLFile::remove(filename) == -1)
 	{
 		lldebugs << "unable to remove temp file" << llendl;
 	}
@@ -425,8 +455,8 @@ class LLFileQuit : public view_listener_t
 
 void handle_upload(void* data)
 {
-	const char* filename = upload_pick(data);
-	if (filename)
+	const std::string filename = upload_pick(data);
+	if (!filename.empty())
 	{
 		LLFloaterNameDesc* floaterp = new LLFloaterNameDesc(filename);
 		LLUICtrlFactory::getInstance()->buildFloater(floaterp, "floater_name_description.xml");
@@ -438,10 +468,9 @@ void handle_compress_image(void*)
 	LLFilePicker& picker = LLFilePicker::instance();
 	if (picker.getMultipleOpenFiles(LLFilePicker::FFLOAD_IMAGE))
 	{
-		const char* input_file = picker.getFirstFile();
-		while (input_file)
+		std::string infile = picker.getFirstFile();
+		while (!infile.empty())
 		{
-			std::string infile(input_file);
 			std::string outfile = infile + ".j2c";
 
 			llinfos << "Input:  " << infile << llendl;
@@ -460,59 +489,54 @@ void handle_compress_image(void*)
 				llinfos << "Compression failed: " << LLImageBase::getLastError() << llendl;
 			}
 
-			input_file = picker.getNextFile();
+			infile = picker.getNextFile();
 		}
 	}
 }
 
-void upload_new_resource(const LLString& src_filename, std::string name,
+void upload_new_resource(const std::string& src_filename, std::string name,
 						 std::string desc, S32 compression_info,
 						 LLAssetType::EType destination_folder_type,
 						 LLInventoryType::EType inv_type,
 						 U32 next_owner_perm,
-						 const LLString& display_name,
+						 const std::string& display_name,
 						 LLAssetStorage::LLStoreAssetCallback callback,
 						 void *userdata)
 {	
 	// Generate the temporary UUID.
-	LLString filename = gDirUtilp->getTempFilename();
+	std::string filename = gDirUtilp->getTempFilename();
 	LLTransactionID tid;
 	LLAssetID uuid;
 	
-	LLStringBase<char>::format_map_t args;
+	LLStringUtil::format_map_t args;
 
-	LLString ext = src_filename.substr(src_filename.find_last_of('.'));
+	std::string exten = gDirUtilp->getExtension(src_filename);
+
 	LLAssetType::EType asset_type = LLAssetType::AT_NONE;
-	char error_message[MAX_STRING];		/* Flawfinder: ignore */	
-	error_message[0] = '\0';
-	LLString temp_str;
+	std::string error_message;
 
 	BOOL error = FALSE;
 	
-	if (ext.empty())
+	if (exten.empty())
 	{
-		LLString::size_type offset = filename.find_last_of(gDirUtilp->getDirDelimiter());
-		if (offset != LLString::npos)
-			offset++;
-		LLString short_name = filename.substr(offset);
+		std::string short_name = gDirUtilp->getBaseFileName(filename);
 		
 		// No extension
-		snprintf(error_message,		/* Flawfinder: ignore */
-				MAX_STRING,
+		error_message = llformat(
 				"No file extension for the file: '%s'\nPlease make sure the file has a correct file extension",
 				short_name.c_str());
 		args["[FILE]"] = short_name;
  		upload_error(error_message, "NofileExtension", filename, args);
 		return;
 	}
-	else if( LLString::compareInsensitive(ext.c_str(),".bmp") == 0 )
+	else if( exten == "bmp")
 	{
 		asset_type = LLAssetType::AT_TEXTURE;
 		if (!LLViewerImageList::createUploadFile(src_filename,
 												 filename,
 												 IMG_CODEC_BMP ))
 		{
-			snprintf(error_message, MAX_STRING, "Problem with file %s:\n\n%s\n",		/* Flawfinder: ignore */
+			error_message = llformat( "Problem with file %s:\n\n%s\n",
 					src_filename.c_str(), LLImageBase::getLastError().c_str());
 			args["[FILE]"] = src_filename;
 			args["[ERROR]"] = LLImageBase::getLastError();
@@ -520,14 +544,14 @@ void upload_new_resource(const LLString& src_filename, std::string name,
 			return;
 		}
 	}
-	else if( LLString::compareInsensitive(ext.c_str(),".tga") == 0 )
+	else if( exten == "tga")
 	{
 		asset_type = LLAssetType::AT_TEXTURE;
 		if (!LLViewerImageList::createUploadFile(src_filename,
 												 filename,
 												 IMG_CODEC_TGA ))
 		{
-			snprintf(error_message, MAX_STRING, "Problem with file %s:\n\n%s\n",		/* Flawfinder: ignore */
+			error_message = llformat("Problem with file %s:\n\n%s\n",
 					src_filename.c_str(), LLImageBase::getLastError().c_str());
 			args["[FILE]"] = src_filename;
 			args["[ERROR]"] = LLImageBase::getLastError();
@@ -535,14 +559,14 @@ void upload_new_resource(const LLString& src_filename, std::string name,
 			return;
 		}
 	}
-	else if( LLString::compareInsensitive(ext.c_str(),".jpg") == 0 || LLString::compareInsensitive(ext.c_str(),".jpeg") == 0)
+	else if( exten == "jpg" || exten == "jpeg")
 	{
 		asset_type = LLAssetType::AT_TEXTURE;
 		if (!LLViewerImageList::createUploadFile(src_filename,
 												 filename,
 												 IMG_CODEC_JPEG ))
 		{
-			snprintf(error_message, MAX_STRING, "Problem with file %s:\n\n%s\n",		/* Flawfinder: ignore */
+			error_message = llformat("Problem with file %s:\n\n%s\n",
 					src_filename.c_str(), LLImageBase::getLastError().c_str());
 			args["[FILE]"] = src_filename;
 			args["[ERROR]"] = LLImageBase::getLastError();
@@ -550,14 +574,14 @@ void upload_new_resource(const LLString& src_filename, std::string name,
 			return;
 		}
 	}
- 	else if( LLString::compareInsensitive(ext.c_str(),".png") == 0 )
+ 	else if( exten == "png")
  	{
  		asset_type = LLAssetType::AT_TEXTURE;
  		if (!LLViewerImageList::createUploadFile(src_filename,
  												 filename,
  												 IMG_CODEC_PNG ))
  		{
- 			sprintf(error_message, "Problem with file %s:\n\n%s\n",
+ 			error_message = llformat("Problem with file %s:\n\n%s\n",
  					src_filename.c_str(), LLImageBase::getLastError().c_str());
  			args["[FILE]"] = src_filename;
  			args["[ERROR]"] = LLImageBase::getLastError();
@@ -565,27 +589,27 @@ void upload_new_resource(const LLString& src_filename, std::string name,
  			return;
  		}
  	}
-	else if(LLString::compareInsensitive(ext.c_str(),".wav") == 0)
+	else if(exten == "wav")
 	{
 		asset_type = LLAssetType::AT_SOUND;  // tag it as audio
 		S32 encode_result = 0;
 
 		llinfos << "Attempting to encode wav as an ogg file" << llendl;
 
-		encode_result = encode_vorbis_file(src_filename.c_str(), filename.c_str());
+		encode_result = encode_vorbis_file(src_filename, filename);
 		
 		if (LLVORBISENC_NOERR != encode_result)
 		{
 			switch(encode_result)
 			{
 				case LLVORBISENC_DEST_OPEN_ERR:
-                    snprintf(error_message, MAX_STRING, "Couldn't open temporary compressed sound file for writing: %s\n", filename.c_str());		/* Flawfinder: ignore */
+				    error_message = llformat( "Couldn't open temporary compressed sound file for writing: %s\n", filename.c_str());
 					args["[FILE]"] = filename;
 					upload_error(error_message, "CannotOpenTemporarySoundFile", filename, args);
 					break;
 
 				default:	
-				  snprintf(error_message, MAX_STRING, "Unknown vorbis encode failure on: %s\n", src_filename.c_str());		/* Flawfinder: ignore */
+				  error_message = llformat("Unknown vorbis encode failure on: %s\n", src_filename.c_str());
 					args["[FILE]"] = src_filename;
 					upload_error(error_message, "UnknownVorbisEncodeFailure", filename, args);
 					break;	
@@ -593,11 +617,11 @@ void upload_new_resource(const LLString& src_filename, std::string name,
 			return;
 		}
 	}
-	else if(LLString::compareInsensitive(ext.c_str(),".tmp") == 0)	 	
+	else if(exten == "tmp")	 	
 	{	 	
 		// This is a generic .lin resource file	 	
          asset_type = LLAssetType::AT_OBJECT;	 	
-         LLFILE* in = LLFile::fopen(src_filename.c_str(), "rb");		/* Flawfinder: ignore */	 	
+         LLFILE* in = LLFile::fopen(src_filename, "rb");		/* Flawfinder: ignore */	 	
          if (in)	 	
          {	 	
                  // read in the file header	 	
@@ -627,7 +651,7 @@ void upload_new_resource(const LLString& src_filename, std::string name,
                                          if (EOF == tokens_read)	 	
                                          {	 	
                                                  fclose(in);	 	
-                                                 snprintf(error_message, MAX_STRING, "corrupt resource file: %s", src_filename.c_str());		/* Flawfinder: ignore */
+                                                 error_message = llformat("corrupt resource file: %s", src_filename.c_str());
 												 args["[FILE]"] = src_filename;
 												 upload_error(error_message, "CorruptResourceFile", filename, args);
                                                  return;
@@ -655,7 +679,7 @@ void upload_new_resource(const LLString& src_filename, std::string name,
                          else	 	
                          {	 	
                                  fclose(in);	 	
-                                 snprintf(error_message, MAX_STRING, "unknown linden resource file version in file: %s", src_filename.c_str());		/* Flawfinder: ignore */
+                                 error_message = llformat("unknown linden resource file version in file: %s", src_filename.c_str());
 								 args["[FILE]"] = src_filename;
 								 upload_error(error_message, "UnknownResourceFileVersion", filename, args);
                                  return;
@@ -682,7 +706,7 @@ void upload_new_resource(const LLString& src_filename, std::string name,
                  }	 	
 
                  // copy the file's data segment into another file for uploading	 	
-                 LLFILE* out = LLFile::fopen(filename.c_str(), "wb");		/* Flawfinder: ignore */	
+                 LLFILE* out = LLFile::fopen(filename, "wb");		/* Flawfinder: ignore */	
                  if (out)	 	
                  {	 	
                          while((read = fread(buf, 1, 16384, in)))		/* Flawfinder: ignore */	 	
@@ -697,7 +721,7 @@ void upload_new_resource(const LLString& src_filename, std::string name,
                  else	 	
                  {	 	
                          fclose(in);	 	
-                         snprintf(error_message, MAX_STRING, "Unable to create output file: %s", filename.c_str());		/* Flawfinder: ignore */
+                         error_message = llformat( "Unable to create output file: %s", filename.c_str());
 						 args["[FILE]"] = filename;
 						 upload_error(error_message, "UnableToCreateOutputFile", filename, args);
                          return;
@@ -710,16 +734,17 @@ void upload_new_resource(const LLString& src_filename, std::string name,
                  llinfos << "Couldn't open .lin file " << src_filename << llendl;	 	
          }	 	
 	}
-	else if (LLString::compareInsensitive(ext.c_str(),".bvh") == 0)
+	else if (exten == "bvh")
 	{
-		snprintf(error_message, MAX_STRING, "We do not currently support bulk upload of animation files\n");		/* Flawfinder: ignore */
+		error_message = llformat("We do not currently support bulk upload of animation files\n");
 		upload_error(error_message, "DoNotSupportBulkAnimationUpload", filename, args);
 		return;
 	}
 	else
 	{
 		// Unknown extension
-		snprintf(error_message, MAX_STRING, "Unknown file extension %s\nExpected .wav, .tga, .bmp, .jpg, .jpeg, or .bvh", ext.c_str());		/* Flawfinder: ignore */
+		// *TODO: Translate?
+		error_message = llformat("Unknown file extension .%s\nExpected .wav, .tga, .bmp, .jpg, .jpeg, or .bvh", exten.c_str());
 		error = TRUE;;
 	}
 
@@ -748,14 +773,14 @@ void upload_new_resource(const LLString& src_filename, std::string name,
 		}
 		else
 		{
-			snprintf(error_message, MAX_STRING, "Unable to access output file: %s", filename.c_str());		/* Flawfinder: ignore */
+			error_message = llformat( "Unable to access output file: %s", filename.c_str());
 			error = TRUE;
 		}
 	}
 
 	if (!error)
 	{
-		LLString t_disp_name = display_name;
+		std::string t_disp_name = display_name;
 		if (t_disp_name.empty())
 		{
 			t_disp_name = src_filename;
@@ -767,10 +792,10 @@ void upload_new_resource(const LLString& src_filename, std::string name,
 	else
 	{
 		llwarns << error_message << llendl;
-		LLStringBase<char>::format_map_t args;
+		LLStringUtil::format_map_t args;
 		args["[ERROR_MESSAGE]"] = error_message;
 		gViewerWindow->alertXml("ErrorMessage", args);
-		if(LLFile::remove(filename.c_str()) == -1)
+		if(LLFile::remove(filename) == -1)
 		{
 			lldebugs << "unable to remove temp file" << llendl;
 		}
@@ -799,7 +824,7 @@ void upload_done_callback(const LLUUID& uuid, void* user_data, S32 result, LLExt
 			{
 				LLFloaterBuyCurrency::buyCurrency(
 					llformat("Uploading %s costs",
-						data->mAssetInfo.getName().c_str()),
+							 data->mAssetInfo.getName().c_str()), // *TODO: Translate
 					upload_cost);
 				is_balance_sufficient = FALSE;
 			}
@@ -852,9 +877,9 @@ void upload_done_callback(const LLUUID& uuid, void* user_data, S32 result, LLExt
 	}
 	else // 	if(result >= 0)
 	{
-		LLStringBase<char>::format_map_t args;
+		LLStringUtil::format_map_t args;
 		args["[FILE]"] = LLInventoryType::lookupHumanReadable(data->mInventoryType);
-		args["[REASON]"] = LLString(LLAssetStorage::getErrorString(result));
+		args["[REASON]"] = std::string(LLAssetStorage::getErrorString(result));
 		gViewerWindow->alertXml("CannotUploadReason", args);
 	}
 
@@ -864,27 +889,14 @@ void upload_done_callback(const LLUUID& uuid, void* user_data, S32 result, LLExt
 	// *NOTE: This is a pretty big hack. What this does is check the
 	// file picker if there are any more pending uploads. If so,
 	// upload that file.
-	const char* next_file = LLFilePicker::instance().getNextFile();
-	if(is_balance_sufficient && next_file)
+	const std::string& next_file = LLFilePicker::instance().getNextFile();
+	if(is_balance_sufficient && !next_file.empty())
 	{
-		const char* name = LLFilePicker::instance().getDirname();
-
-		LLString asset_name = name;
-		LLString::replaceNonstandardASCII( asset_name, '?' );
-		LLString::replaceChar(asset_name, '|', '?');
-		LLString::stripNonprintable(asset_name);
-		LLString::trim(asset_name);
-
-		char* asset_name_str = (char*)asset_name.c_str();
-		char* end_p = strrchr(asset_name_str, '.');		 // strip extension if exists
-		if( !end_p )
-		{
-			end_p = asset_name_str + strlen( asset_name_str );		/* Flawfinder: ignore */
-		}
-			
-		S32 len = llmin( (S32) (DB_INV_ITEM_NAME_STR_LEN), (S32) (end_p - asset_name_str) );
-
-		asset_name = asset_name.substr( 0, len );
+		std::string asset_name = gDirUtilp->getBaseFileName(next_file, true);
+		LLStringUtil::replaceNonstandardASCII( asset_name, '?' );
+		LLStringUtil::replaceChar(asset_name, '|', '?');
+		LLStringUtil::stripNonprintable(asset_name);
+		LLStringUtil::trim(asset_name);
 
 		upload_new_resource(next_file, asset_name, asset_name,	// file
 							0, LLAssetType::AT_NONE, LLInventoryType::IT_NONE);
@@ -897,7 +909,7 @@ void upload_new_resource(const LLTransactionID &tid, LLAssetType::EType asset_ty
 						 LLAssetType::EType destination_folder_type,
 						 LLInventoryType::EType inv_type,
 						 U32 next_owner_perm,
-						 const LLString& display_name,
+						 const std::string& display_name,
 						 LLAssetStorage::LLStoreAssetCallback callback,
 						 void *userdata)
 {
@@ -922,8 +934,8 @@ void upload_new_resource(const LLTransactionID &tid, LLAssetType::EType asset_ty
 	{
 		inv_type = LLInventoryType::defaultForAssetType(asset_type);
 	}
-	LLString::stripNonprintable(name);
-	LLString::stripNonprintable(desc);
+	LLStringUtil::stripNonprintable(name);
+	LLStringUtil::stripNonprintable(desc);
 	if(name.empty())
 	{
 		name = "(No Name)";
@@ -934,7 +946,7 @@ void upload_new_resource(const LLTransactionID &tid, LLAssetType::EType asset_ty
 	}
 	
 	// At this point, we're ready for the upload.
-	LLString upload_message = "Uploading...\n\n";
+	std::string upload_message = "Uploading...\n\n";
 	upload_message.append(display_name);
 	LLUploadDialog::modalUploadDialog(upload_message);
 

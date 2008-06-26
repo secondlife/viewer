@@ -51,7 +51,7 @@
 //
 
 LLToolSelectLand::LLToolSelectLand( )
-:	LLTool( "Parcel" ),
+:	LLTool( std::string("Parcel") ),
 	mDragStartGlobal(),
 	mDragEndGlobal(),
 	mDragEndValid(FALSE),

@@ -489,7 +489,7 @@ void LLGestureManager::playGesture(const LLUUID& item_id)
 // and (as a minor side effect) has multiple spaces in a row replaced by single spaces.
 BOOL LLGestureManager::triggerAndReviseString(const std::string &utf8str, std::string* revised_string)
 {
-	LLString tokenized = LLString(utf8str.c_str());
+	std::string tokenized = utf8str;
 
 	BOOL found_gestures = FALSE;
 	BOOL first_token = TRUE;
@@ -507,8 +507,8 @@ BOOL LLGestureManager::triggerAndReviseString(const std::string &utf8str, std::s
 		// Only pay attention to the first gesture in the string.
 		if( !found_gestures )
 		{
-			LLString cur_token_lower = cur_token;
-			LLString::toLower(cur_token_lower);
+			std::string cur_token_lower = cur_token;
+			LLStringUtil::toLower(cur_token_lower);
 
 			// collect gestures that match
 			std::vector <LLMultiGesture *> matching;
@@ -520,7 +520,7 @@ BOOL LLGestureManager::triggerAndReviseString(const std::string &utf8str, std::s
 				// Gesture asset data might not have arrived yet
 				if (!gesture) continue;
 				
-				if (!stricmp(gesture->mTrigger.c_str(), cur_token_lower.c_str()))
+				if (gesture->mTrigger == cur_token_lower)
 				{
 					matching.push_back(gesture);
 				}
@@ -548,9 +548,9 @@ BOOL LLGestureManager::triggerAndReviseString(const std::string &utf8str, std::s
 						}
 
 						// Don't muck with the user's capitalization if we don't have to.
-						LLString output = gesture->mReplaceText.c_str();
-						LLString output_lower = output;
-						LLString::toLower(output_lower);
+						std::string output = gesture->mReplaceText;
+						std::string output_lower = output;
+						LLStringUtil::toLower(output_lower);
 						if( cur_token_lower == output_lower )
 						{
 							if (revised_string)
@@ -958,7 +958,7 @@ void LLGestureManager::onLoadComplete(LLVFS *vfs,
 					&& gGestureManager.mDeactivateSimilarNames.length() > 0)
 				{
 					// we're done with this set of deactivations
-					LLString::format_map_t args;
+					LLStringUtil::format_map_t args;
 					args["[NAMES]"] = gGestureManager.mDeactivateSimilarNames;
 					LLNotifyBox::showXml("DeactivatedGesturesTrigger", args);
 				}
@@ -1123,9 +1123,9 @@ BOOL LLGestureManager::matchPrefix(const std::string& in_str, std::string* out_s
 				continue;
 			}
 
-			LLString trigger_trunc = trigger;
-			LLString::truncate(trigger_trunc, in_len);
-			if (!LLString::compareInsensitive(in_str.c_str(), trigger_trunc.c_str()))
+			std::string trigger_trunc = trigger;
+			LLStringUtil::truncate(trigger_trunc, in_len);
+			if (!LLStringUtil::compareInsensitive(in_str, trigger_trunc))
 			{
 				*out_str = trigger;
 				return TRUE;

@@ -42,27 +42,27 @@ public:
 	LLViewChildren(LLPanel& parent);
 	
 	// all views
-	void show(const char* id, bool visible = true);
-	void hide(const char* id) { show(id, false); }
+	void show(const std::string& id, bool visible = true);
+	void hide(const std::string& id) { show(id, false); }
 
-	void enable(const char* id, bool enabled = true);
-	void disable(const char* id) { enable(id, false); };
+	void enable(const std::string& id, bool enabled = true);
+	void disable(const std::string& id) { enable(id, false); };
 
 	//
 	// LLTextBox
-	void setText(const char* id,
+	void setText(const std::string& id,
 		const std::string& text, bool visible = true);
-	void setWrappedText(const char* id,
+	void setWrappedText(const std::string& id,
 		const std::string& text, bool visible = true);
 
 	// LLIconCtrl
 	enum Badge { BADGE_OK, BADGE_NOTE, BADGE_WARN, BADGE_ERROR };
 	
-	void setBadge(const char* id, Badge b, bool visible = true);
+	void setBadge(const std::string& id, Badge b, bool visible = true);
 
 	
 	// LLButton
-	void setAction(const char* id, void(*function)(void*), void* value);
+	void setAction(const std::string& id, void(*function)(void*), void* value);
 
 
 private:

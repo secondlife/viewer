@@ -46,9 +46,9 @@
 extern BOOL gDebugClicks;
 
 //static
-const LLString LLTool::sNameNull("null");
+const std::string LLTool::sNameNull("null");
 
-LLTool::LLTool( const LLString& name, LLToolComposite* composite ) :
+LLTool::LLTool( const std::string& name, LLToolComposite* composite ) :
 	mComposite( composite ),
 	mName(name)
 {
@@ -124,7 +124,7 @@ BOOL LLTool::handleRightMouseUp(S32 x, S32 y, MASK mask)
 	return FALSE;
 }
 
-BOOL LLTool::handleToolTip(S32 x, S32 y, LLString& msg, LLRect* sticky_rect_screen)
+BOOL LLTool::handleToolTip(S32 x, S32 y, std::string& msg, LLRect* sticky_rect_screen)
 {
 	// by default, didn't handle it
 	// llinfos << "LLTool::handleToolTip" << llendl;

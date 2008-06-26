@@ -124,8 +124,8 @@ BOOL LLMultiGesture::serialize(LLDataPacker& dp) const
 	dp.packS32(GESTURE_VERSION, "version");
 	dp.packU8(mKey, "key");
 	dp.packU32(mMask, "mask");
-	dp.packString(mTrigger.c_str(), "trigger");
-	dp.packString(mReplaceText.c_str(), "replace");
+	dp.packString(mTrigger, "trigger");
+	dp.packString(mReplaceText, "replace");
 
 	S32 count = (S32)mSteps.size();
 	dp.packS32(count, "step_count");
@@ -269,7 +269,7 @@ S32 LLGestureStepAnimation::getMaxSerialSize() const
 
 BOOL LLGestureStepAnimation::serialize(LLDataPacker& dp) const
 {
-	dp.packString(mAnimName.c_str(), "anim_name");
+	dp.packString(mAnimName, "anim_name");
 	dp.packUUID(mAnimAssetID, "asset_id");
 	dp.packU32(mFlags, "flags");
 	return TRUE;
@@ -344,7 +344,7 @@ S32 LLGestureStepSound::getMaxSerialSize() const
 
 BOOL LLGestureStepSound::serialize(LLDataPacker& dp) const
 {
-	dp.packString(mSoundName.c_str(), "sound_name");
+	dp.packString(mSoundName, "sound_name");
 	dp.packUUID(mSoundAssetID, "asset_id");
 	dp.packU32(mFlags, "flags");
 	return TRUE;
@@ -401,7 +401,7 @@ S32 LLGestureStepChat::getMaxSerialSize() const
 
 BOOL LLGestureStepChat::serialize(LLDataPacker& dp) const
 {
-	dp.packString(mChatText.c_str(), "chat_text");
+	dp.packString(mChatText, "chat_text");
 	dp.packU32(mFlags, "flags");
 	return TRUE;
 }

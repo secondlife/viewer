@@ -542,7 +542,7 @@ LLIOPipe::EStatus LLContextURLExtractor::process_impl(
 	// find the context url
 	if(context.has(CONTEXT_DEST_URI_SD_LABEL))
 	{
-		mRequest->setURL(context[CONTEXT_DEST_URI_SD_LABEL]);
+		mRequest->setURL(context[CONTEXT_DEST_URI_SD_LABEL].asString());
 		return STATUS_DONE;
 	}
 	return STATUS_ERROR;

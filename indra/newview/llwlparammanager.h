@@ -45,15 +45,15 @@ class LLGLSLShader;
 struct WLColorControl {
 	
 	F32 r, g, b, i;				/// the values
-	char const * name;			/// name to use to dereference params
+	std::string mName;			/// name to use to dereference params
 	std::string mSliderName;	/// name of the slider in menu
 	bool hasSliderName;			/// only set slider name for true color types
 	bool isSunOrAmbientColor;			/// flag for if it's the sun or ambient color controller
 	bool isBlueHorizonOrDensity;		/// flag for if it's the Blue Horizon or Density color controller
 
-	inline WLColorControl(F32 red, F32 green, F32 blue, F32 intensity, char const * n,
-		char const * sliderName = "")
-		: r(red), g(green), b(blue), i(intensity), name(n), mSliderName(sliderName)
+	inline WLColorControl(F32 red, F32 green, F32 blue, F32 intensity,
+						  const std::string& n, const std::string& sliderName = LLStringUtil::null)
+		: r(red), g(green), b(blue), i(intensity), mName(n), mSliderName(sliderName)
 	{
 		// if there's a slider name, say we have one
 		hasSliderName = false;
@@ -90,18 +90,18 @@ struct WLColorControl {
 	}
 
 	inline void update(LLWLParamSet & params) const {
-		params.set(name, r, g, b, i);
+		params.set(mName, r, g, b, i);
 	}
 };
 
 // float slider control
 struct WLFloatControl {
 	F32 x;
-	char const * name;
+	std::string mName;
 	F32 mult;
 
-	inline WLFloatControl(F32 val, char const * n, F32 m=1.0f)
-		: x(val), name(n), mult(m)
+	inline WLFloatControl(F32 val, const std::string& n, F32 m=1.0f)
+		: x(val), mName(n), mult(m)
 	{
 	}
 
@@ -116,7 +116,7 @@ struct WLFloatControl {
 	}
 
 	inline void update(LLWLParamSet & params) const {
-		params.set(name, x);
+		params.set(mName, x);
 	}
 };
 
@@ -129,16 +129,16 @@ public:
 	~LLWLParamManager();
 
 	/// load a preset file
-	void loadPresets(const LLString & fileName);
+	void loadPresets(const std::string & fileName);
 
 	/// save the preset file
-	void savePresets(const LLString & fileName);
+	void savePresets(const std::string & fileName);
 
 	/// load an individual preset into the sky
-	void loadPreset(const LLString & name);
+	void loadPreset(const std::string & name);
 
 	/// save the parameter presets to file
-	void savePreset(const LLString & name);
+	void savePreset(const std::string & name);
 
 	/// Set shader uniforms dirty, so they'll update automatically.
 	void propagateParameters(void);

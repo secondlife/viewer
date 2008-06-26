@@ -208,7 +208,7 @@ static const int FTV_DISPLAY_NUM  = (sizeof(ft_display_table)/sizeof(ft_display_
 S32 ft_display_idx[FTV_DISPLAY_NUM]; // line of table entry for display purposes (for collapse)
 
 LLFastTimerView::LLFastTimerView(const std::string& name, const LLRect& rect)
-	:	LLFloater(name, rect, "Fast Timers")
+	:	LLFloater(name, rect, std::string("Fast Timers"))
 {
 	setVisible(FALSE);
 	mDisplayMode = 0;
@@ -499,7 +499,7 @@ void LLFastTimerView::draw()
 		LLFontGL::sMonospace->renderUTF8(tdesc, 0, x, y, LLColor4::white, LLFontGL::LEFT, LLFontGL::TOP);
 		y -= (texth + 2);
 
-		LLFontGL::sMonospace->renderUTF8("[Right-Click log selected] [ALT-Click toggle counts] [ALT-SHIFT-Click sub hidden]",
+		LLFontGL::sMonospace->renderUTF8(std::string("[Right-Click log selected] [ALT-Click toggle counts] [ALT-SHIFT-Click sub hidden]"),
 										 0, x, y, LLColor4::white, LLFontGL::LEFT, LLFontGL::TOP);
 		y -= (texth + 2);
 	}
@@ -632,7 +632,7 @@ void LLFastTimerView::draw()
 		}
 		y -= (texth + 2);
 
-		textw = dx + LLFontGL::sMonospace->getWidth(ft_display_table[i].desc) + 40;
+		textw = dx + LLFontGL::sMonospace->getWidth(std::string(ft_display_table[i].desc)) + 40;
 		if (textw > legendwidth)
 			legendwidth = textw;
 	}
@@ -946,11 +946,13 @@ void LLFastTimerView::draw()
 			F32 ms = (F32)((F64)max_ticks * iclock_freq);
 			
 			//display y-axis range
-			LLString tdesc = mDisplayCalls ? 
-							llformat("%d calls", max_ticks) :
-							mDisplayHz ?
-							llformat("%d Hz", max_ticks) :
-							llformat("%4.2f ms", ms);
+			std::string tdesc;
+			 if (mDisplayCalls)
+				tdesc = llformat("%d calls", (int)max_ticks);
+			else if (mDisplayHz)
+				tdesc = llformat("%d Hz", (int)max_ticks);
+			else
+				tdesc = llformat("%4.2f ms", ms);
 							
 			x = graph_rect.mRight - LLFontGL::sMonospace->getWidth(tdesc)-5;
 			y = graph_rect.mTop - ((S32)LLFontGL::sMonospace->getLineHeight());
@@ -1063,7 +1065,7 @@ void LLFastTimerView::draw()
 				x = (graph_rect.mRight + graph_rect.mLeft)/2;
 				y = graph_rect.mBottom + 8;
 
-				LLFontGL::sMonospace->renderUTF8(ft_display_table[mHoverIndex].desc, 0, x, y, LLColor4::white,
+				LLFontGL::sMonospace->renderUTF8(std::string(ft_display_table[mHoverIndex].desc), 0, x, y, LLColor4::white,
 					LLFontGL::LEFT, LLFontGL::BOTTOM);
 			}					
 		}
@@ -1072,7 +1074,7 @@ void LLFastTimerView::draw()
 	// Output stats for clicked bar to log
 	if (mPrintStats >= 0)
 	{
-		LLString legend_stat;
+		std::string legend_stat;
 		S32 stat_num;
 		S32 first = 1;
 		for (stat_num = 0; stat_num < FTV_DISPLAY_NUM; stat_num++)
@@ -1086,7 +1088,7 @@ void LLFastTimerView::draw()
 		}
 		llinfos << legend_stat << llendl;
 
-		LLString timer_stat;
+		std::string timer_stat;
 		first = 1;
 		for (stat_num = 0; stat_num < FTV_DISPLAY_NUM; stat_num++)
 		{

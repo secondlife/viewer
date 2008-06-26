@@ -70,26 +70,25 @@ class LLFolderViewItem;
 class LLFolderView;
 class LLInventoryModel;
 class LLScrollableContainerView;
-typedef BOOL (*LLFolderSearchFunction)(LLFolderViewItem* first_item, const char *find_text, BOOL backward);
 
 class LLFolderViewEventListener
 {
 public:
 	virtual ~LLFolderViewEventListener( void ) {}
-	virtual const LLString& getName() const = 0;
-	virtual const LLString& getDisplayName() const = 0;
+	virtual const std::string& getName() const = 0;
+	virtual const std::string& getDisplayName() const = 0;
 	virtual const LLUUID& getUUID() const = 0;
 	virtual time_t getCreationDate() const = 0;	// UTC seconds
 	virtual PermissionMask getPermissionMask() const = 0;
 	virtual LLUIImagePtr getIcon() const = 0;
 	virtual LLFontGL::StyleFlags getLabelStyle() const = 0;
-	virtual LLString getLabelSuffix() const = 0;
+	virtual std::string getLabelSuffix() const = 0;
 	virtual void openItem( void ) = 0;
 	virtual void previewItem( void ) = 0;
 	virtual void selectItem(void) = 0;
 	virtual void showProperties(void) = 0;
 	virtual BOOL isItemRenameable() const = 0;
-	virtual BOOL renameItem(const LLString& new_name) = 0;
+	virtual BOOL renameItem(const std::string& new_name) = 0;
 	virtual BOOL isItemMovable( void ) = 0;		// Can be moved to another folder
 	virtual BOOL isItemRemovable( void ) = 0;	// Can be destroyed
 	virtual BOOL removeItem() = 0;
@@ -104,7 +103,7 @@ public:
 	virtual BOOL isUpToDate() const = 0;
 	virtual BOOL hasChildren() const = 0;
 	virtual LLInventoryType::EType getInventoryType() const = 0;
-	virtual void performAction(LLFolderView* folder, LLInventoryModel* model, LLString action) {}
+	virtual void performAction(LLFolderView* folder, LLInventoryModel* model, std::string action) {}
 
 	// This method should be called when a drag begins. returns TRUE
 	// if the drag can begin, otherwise FALSE.
@@ -186,14 +185,14 @@ public:
 	static const U32 SO_FOLDERS_BY_NAME = 2;
 	static const U32 SO_SYSTEM_FOLDERS_TO_TOP = 4;
 
-	LLInventoryFilter(const LLString& name);
+	LLInventoryFilter(const std::string& name);
 	virtual ~LLInventoryFilter();
 
 	void setFilterTypes(U32 types);
 	U32 getFilterTypes() const { return mFilterOps.mFilterTypes; }
 	
-	void setFilterSubString(const LLString& string);
-	const LLString getFilterSubString(BOOL trim = FALSE);
+	void setFilterSubString(const std::string& string);
+	const std::string getFilterSubString(BOOL trim = FALSE);
 
 	void setFilterPermissions(PermissionMask perms);
 	PermissionMask getFilterPermissions() const { return mFilterOps.mPermissions; }
@@ -220,8 +219,8 @@ public:
 	BOOL isModifiedAndClear();
 	BOOL isSinceLogoff();
 	void clearModified() { mModified = FALSE; mFilterBehavior = FILTER_NONE; }
-	const LLString getName() const { return mName; }
-	LLString getFilterText();
+	const std::string getName() const { return mName; }
+	std::string getFilterText();
 
 	void setFilterCount(S32 count) { mFilterCount = count; }
 	S32 getFilterCount() { return mFilterCount; }
@@ -255,9 +254,9 @@ protected:
 	filter_ops		mFilterOps;
 	filter_ops		mDefaultFilterOps;
 	std::string::size_type	mSubStringMatchOffset;
-	LLString		mFilterSubString;
+	std::string		mFilterSubString;
 	U32				mOrder;
-	const LLString	mName;
+	const std::string	mName;
 	S32				mFilterGeneration;
 	S32				mMustPassGeneration;
 	S32				mMinRequiredGeneration;
@@ -269,7 +268,7 @@ private:
 	U32 mLastLogoff;
 	BOOL mModified;
 	BOOL mNeedTextRebuild;
-	LLString mFilterText;
+	std::string mFilterText;
 };
 
 // These are grouping of inventory types.
@@ -329,9 +328,9 @@ protected:
 	static LLColor4				sSuffixColor;
 	static LLColor4				sSearchStatusColor;
 
-	LLString					mLabel;
-	LLString					mSearchableLabel;
-	LLString					mType;
+	std::string					mLabel;
+	std::string					mSearchableLabel;
+	std::string					mType;
 	S32							mLabelWidth;
 	U32							mCreationDate;
 	LLFolderViewFolder*			mParentFolder;
@@ -340,9 +339,9 @@ protected:
 	BOOL						mIsCurSelection;
 	BOOL						mSelectPending;
 	LLFontGL::StyleFlags		mLabelStyle;
-	LLString					mLabelSuffix;
+	std::string					mLabelSuffix;
 	LLUIImagePtr				mIcon;
-	LLString					mStatusText;
+	std::string					mStatusText;
 	BOOL						mHasVisibleChildren;
 	S32							mIndentation;
 	S32							mNumDescendantsSelected;
@@ -383,7 +382,7 @@ public:
 	void filterFromRoot( void );
 
 	// creation_date is in UTC seconds
-	LLFolderViewItem( const LLString& name, LLUIImagePtr icon, S32 creation_date, LLFolderView* root, LLFolderViewEventListener* listener );
+	LLFolderViewItem( const std::string& name, LLUIImagePtr icon, S32 creation_date, LLFolderView* root, LLFolderViewEventListener* listener );
 	virtual ~LLFolderViewItem( void );
 
 	// addToFolder() returns TRUE if it succeeds. FALSE otherwise
@@ -454,14 +453,14 @@ public:
 
 	// This method returns the actual name of the thing being
 	// viewed. This method will ask the viewed object itself.
-	const LLString& getName( void ) const;
+	const std::string& getName( void ) const;
 
-	const LLString& getSearchableLabel( void ) const;
+	const std::string& getSearchableLabel( void ) const;
 
 	// This method returns the label displayed on the view. This
 	// method was primarily added to allow sorting on the folder
 	// contents possible before the entire view has been constructed.
-	const char* getLabel() const { return mLabel.c_str(); }
+	const std::string& getLabel() const { return mLabel; }
 
 	// Used for sorting, like getLabel() above.
 	virtual time_t getCreationDate() const { return mCreationDate; }
@@ -476,7 +475,7 @@ public:
 	LLFolderViewEventListener* getListener( void ) { return mListener; }
 
 	// just rename the object.
-	void rename(const LLString& new_name);
+	void rename(const std::string& new_name);
 
 	// open
 	virtual void openItem( void );
@@ -519,7 +518,7 @@ public:
 								   EDragAndDropType cargo_type,
 								   void* cargo_data,
 								   EAcceptance* accept,
-								   LLString& tooltip_msg);
+								   std::string& tooltip_msg);
 };
 
 
@@ -570,7 +569,7 @@ public:
 		RECURSE_UP_DOWN
 	} ERecurseType;
 
-	LLFolderViewFolder( const LLString& name, LLUIImagePtr icon,
+	LLFolderViewFolder( const std::string& name, LLUIImagePtr icon,
 						LLFolderView* root,
 						LLFolderViewEventListener* listener );
 	virtual ~LLFolderViewFolder( void );
@@ -681,7 +680,7 @@ public:
 									EDragAndDropType cargo_type,
 									void* cargo_data,
 									EAcceptance* accept,
-									LLString& tooltip_msg);
+									std::string& tooltip_msg);
 
 	void applyFunctorRecursively(LLFolderViewFunctor& functor);
 	virtual void applyListenerFunctorRecursively(LLFolderViewListenerFunctor& functor);
@@ -699,7 +698,7 @@ public:
 								   EDragAndDropType cargo_type,
 								   void* cargo_data,
 								   EAcceptance* accept,
-								   LLString& tooltip_msg);
+								   std::string& tooltip_msg);
 	virtual void draw();
 
 	time_t getCreationDate() const;
@@ -724,7 +723,7 @@ public:
 
 	static F32 sAutoOpenTime;
 
-	LLFolderView( const LLString& name, LLUIImagePtr root_folder_icon, const LLRect& rect, 
+	LLFolderView( const std::string& name, LLUIImagePtr root_folder_icon, const LLRect& rect, 
 					const LLUUID& source_id, LLView *parent_view );
 	virtual ~LLFolderView( void );
 
@@ -739,7 +738,7 @@ public:
 	void setAllowMultiSelect(BOOL allow) { mAllowMultiSelect = allow; }
 
 	LLInventoryFilter* getFilter() { return &mFilter; }
-	const LLString getFilterSubString(BOOL trim = FALSE);
+	const std::string getFilterSubString(BOOL trim = FALSE);
 	U32 getFilterTypes() const { return mFilter.getFilterTypes(); }
 	PermissionMask getFilterPermissions() const { return mFilter.getFilterPermissions(); }
 	LLInventoryFilter::EFolderShow getShowFolderState() { return mFilter.getShowFolderState(); }
@@ -749,7 +748,7 @@ public:
 
 	// Close all folders in the view
 	void closeAllFolders();
-	void openFolder(const LLString& foldername);
+	void openFolder(const std::string& foldername);
 
 	virtual void toggleOpen() {};
 	virtual void setOpenArrangeRecursively(BOOL openitem, ERecurseType recurse);
@@ -839,7 +838,7 @@ public:
 								   EDragAndDropType cargo_type,
 								   void* cargo_data,
 								   EAcceptance* accept,
-								   LLString& tooltip_msg);
+								   std::string& tooltip_msg);
 	/*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 	/*virtual*/ void onFocusLost();
 	virtual BOOL handleScrollWheel(S32 x, S32 y, S32 clicks);
@@ -851,7 +850,7 @@ public:
 	void setScrollContainer( LLScrollableContainerView* parent ) { mScrollContainer = parent; }
 	LLRect getVisibleRect();
 
-	BOOL search(LLFolderViewItem* first_item, const LLString &search_string, BOOL backward);
+	BOOL search(LLFolderViewItem* first_item, const std::string &search_string, BOOL backward);
 	void setShowSelectionContext(BOOL show) { mShowSelectionContext = show; }
 	BOOL getShowSelectionContext();
 	void setShowSingleSelection(BOOL show);
@@ -910,7 +909,7 @@ protected:
 	LLFolderViewFolder*				mAutoOpenCandidate;
 	LLFrameTimer					mAutoOpenTimer;
 	LLFrameTimer					mSearchTimer;
-	LLString						mSearchString;
+	std::string						mSearchString;
 	LLInventoryFilter				mFilter;
 	BOOL							mShowSelectionContext;
 	BOOL							mShowSingleSelection;

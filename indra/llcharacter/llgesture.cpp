@@ -191,11 +191,11 @@ LLGestureList::LLGestureList()
 	mList.put(gesture);
 
 	gesture = new LLGesture(KEY_F4, MASK_NONE, "/boogie", 
-		LLUUID::null, "dance4", LLString::null );
+		LLUUID::null, "dance4", LLStringUtil::null );
 	mList.put(gesture);
 
 	gesture = new LLGesture(KEY_F5, MASK_SHIFT, "/tongue", 
-		LLUUID::null, "Express_Tongue_Out", LLString::null );
+		LLUUID::null, "Express_Tongue_Out", LLStringUtil::null );
 	mList.put(gesture);
 	*/
 }
@@ -219,9 +219,9 @@ void LLGestureList::deleteAll()
 // Iterates through space delimited tokens in string, triggering any gestures found.
 // Generates a revised string that has the found tokens replaced by their replacement strings
 // and (as a minor side effect) has multiple spaces in a row replaced by single spaces.
-BOOL LLGestureList::triggerAndReviseString(const LLString &string, LLString* revised_string)
+BOOL LLGestureList::triggerAndReviseString(const std::string &string, std::string* revised_string)
 {
-	LLString tokenized = string;
+	std::string tokenized = string;
 
 	BOOL found_gestures = FALSE;
 	BOOL first_token = TRUE;
@@ -237,8 +237,8 @@ BOOL LLGestureList::triggerAndReviseString(const LLString &string, LLString* rev
 
 		if( !found_gestures ) // Only pay attention to the first gesture in the string.
 		{
-			LLString cur_token_lower = *token_iter;
-			LLString::toLower(cur_token_lower);
+			std::string cur_token_lower = *token_iter;
+			LLStringUtil::toLower(cur_token_lower);
 
 			for (S32 i = 0; i < mList.count(); i++)
 			{
@@ -254,15 +254,15 @@ BOOL LLGestureList::triggerAndReviseString(const LLString &string, LLString* rev
 
 						// Don't muck with the user's capitalization if we don't have to.
 						const std::string& output = gesture->getOutputString();
-						LLString output_lower = LLString(output.c_str());
-						LLString::toLower(output_lower);
+						std::string output_lower = std::string(output.c_str());
+						LLStringUtil::toLower(output_lower);
 						if( cur_token_lower == output_lower )
 						{
 							revised_string->append(*token_iter);
 						}
 						else
 						{
-							revised_string->append(output.c_str());
+							revised_string->append(output);
 						}
 
 					}

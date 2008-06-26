@@ -73,7 +73,7 @@ LLColorSwatchCtrl::LLColorSwatchCtrl(const std::string& name, const LLRect& rect
 	// Scalable UI made this off-by-one, I don't know why. JC
 	LLRect border_rect(0, getRect().getHeight()-1, getRect().getWidth()-1, 0);
 	border_rect.mBottom += BTN_HEIGHT_SMALL;
-	mBorder = new LLViewBorder("border", border_rect, LLViewBorder::BEVEL_IN);
+	mBorder = new LLViewBorder(std::string("border"), border_rect, LLViewBorder::BEVEL_IN);
 	addChild(mBorder);
 
 	mAlphaGradientImage = LLUI::getUIImage("color_swatch_alpha.tga");
@@ -100,7 +100,7 @@ LLColorSwatchCtrl::LLColorSwatchCtrl(const std::string& name, const LLRect& rect
 	// Scalable UI made this off-by-one, I don't know why. JC
 	LLRect border_rect(0, getRect().getHeight()-1, getRect().getWidth()-1, 0);
 	border_rect.mBottom += BTN_HEIGHT_SMALL;
-	mBorder = new LLViewBorder("border", border_rect, LLViewBorder::BEVEL_IN);
+	mBorder = new LLViewBorder(std::string("border"), border_rect, LLViewBorder::BEVEL_IN);
 	addChild(mBorder);
 
 	mAlphaGradientImage = LLUI::getUIImage("color_swatch_alpha.tga");
@@ -351,10 +351,10 @@ LLXMLNodePtr LLColorSwatchCtrl::getXML(bool save_children) const
 
 LLView* LLColorSwatchCtrl::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory)
 {
-	LLString name("colorswatch");
+	std::string name("colorswatch");
 	node->getAttributeString("name", name);
 
-	LLString label;
+	std::string label;
 	node->getAttributeString("label", label);
 
 	LLColor4 color(1.f, 1.f, 1.f, 1.f);

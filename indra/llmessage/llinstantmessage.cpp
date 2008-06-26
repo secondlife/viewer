@@ -59,7 +59,7 @@ const S32 VOTE_UNANIMOUS = 2;
 const char EMPTY_BINARY_BUCKET[] = "";
 const S32 EMPTY_BINARY_BUCKET_SIZE = 1;
 const U32 NO_TIMESTAMP = 0;
-const char SYSTEM_FROM[] = "Second Life";
+const std::string SYSTEM_FROM("Second Life");
 const S32 IM_TTL = 1;
 
 
@@ -144,8 +144,8 @@ void LLIMInfo::packMessageBlock(LLMessageSystem* msg) const
 		mFromGroup,
 		LLUUID::null,
 		mToID,
-		mName.c_str(),
-		mMessage.c_str(),
+		mName,
+		mMessage,
 		mOffline,
 		mIMType,
 		mID,
@@ -163,8 +163,8 @@ void pack_instant_message(
 	BOOL from_group,
 	const LLUUID& session_id,
 	const LLUUID& to_id,
-	const char* name,
-	const char* message,
+	const std::string& name,
+	const std::string& message,
 	U8 offline,
 	EInstantMessage dialog,
 	const LLUUID& id,
@@ -202,8 +202,8 @@ void pack_instant_message_block(
 	BOOL from_group,
 	const LLUUID& session_id,
 	const LLUUID& to_id,
-	const char* name,
-	const char* message,
+	const std::string& name,
+	const std::string& message,
 	U8 offline,
 	EInstantMessage dialog,
 	const LLUUID& id,
@@ -229,10 +229,10 @@ void pack_instant_message_block(
 	msg->addU32Fast(_PREHASH_Timestamp, timestamp);
 	msg->addStringFast(_PREHASH_FromAgentName, name);
 	S32 bytes_left = MTUBYTES;
-	if(message)
+	if(!message.empty())
 	{
 		char buffer[MTUBYTES];
-		int num_written = snprintf(buffer, MTUBYTES, "%s", message);	/* Flawfinder: ignore */
+		int num_written = snprintf(buffer, MTUBYTES, "%s", message.c_str());	/* Flawfinder: ignore */
 		// snprintf returns number of bytes that would have been written
 		// had the output not being truncated. In that case, it will
 		// return either -1 or value >= passed in size value . So a check needs to be added
@@ -281,13 +281,9 @@ void LLIMInfo::unpackMessageBlock(LLMessageSystem* msg)
 	mIMType = (EInstantMessage) dialog;
 	msg->getUUIDFast(_PREHASH_MessageBlock, _PREHASH_ID, mID);
 	msg->getU32Fast(_PREHASH_MessageBlock, _PREHASH_Timestamp, mTimeStamp);
-	char name[DB_FULL_NAME_BUF_SIZE];	/*Flawfinder: ignore*/
-	msg->getStringFast(_PREHASH_MessageBlock, _PREHASH_FromAgentName, DB_FULL_NAME_BUF_SIZE, name);
-	mName.assign(name);
+	msg->getStringFast(_PREHASH_MessageBlock, _PREHASH_FromAgentName, mName);
 
-	char message[DB_IM_MSG_BUF_SIZE];	/*Flawfinder: ignore*/
-	msg->getStringFast(_PREHASH_MessageBlock, _PREHASH_Message, DB_IM_MSG_BUF_SIZE, message);
-	mMessage.assign(message);
+	msg->getStringFast(_PREHASH_MessageBlock, _PREHASH_Message, mMessage);
 
 	S32 binary_bucket_size = llmin(
 		MTUBYTES,

@@ -41,7 +41,7 @@ class LLMultiSlider : public LLUICtrl
 {
 public:
 	LLMultiSlider( 
-		const LLString& name,
+		const std::string& name,
 		const LLRect& rect,
 		void (*on_commit_callback)(LLUICtrl* ctrl, void* userdata),
 		void* callback_userdata,
@@ -53,17 +53,17 @@ public:
 		BOOL allow_overlap,
 		BOOL draw_track,
 		BOOL use_triangle,
-		const LLString& control_name = LLString::null );
+		const std::string& control_name = LLStringUtil::null );
 
 	virtual LLXMLNodePtr getXML(bool save_children = true) const;
 	static  LLView* fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
 
-	void			setSliderValue(const LLString& name, F32 value, BOOL from_event = FALSE);
-	F32				getSliderValue(const LLString& name) const;
+	void			setSliderValue(const std::string& name, F32 value, BOOL from_event = FALSE);
+	F32				getSliderValue(const std::string& name) const;
 
-	const LLString& getCurSlider() const					{ return mCurSlider; }
+	const std::string& getCurSlider() const					{ return mCurSlider; }
 	F32				getCurSliderValue() const				{ return getSliderValue(mCurSlider); }
-	void			setCurSlider(const LLString& name);
+	void			setCurSlider(const std::string& name);
 	void			setCurSliderValue(F32 val, BOOL from_event = false) { setSliderValue(mCurSlider, val, from_event); }
 
 	virtual void	setValue(const LLSD& value);
@@ -83,9 +83,9 @@ public:
 	void			setMouseUpCallback(	void (*cb)(LLUICtrl* ctrl, void* userdata) ) { mMouseUpCallback = cb; }
 
 	bool findUnusedValue(F32& initVal);
-	const LLString&	addSlider();
-	const LLString&	addSlider(F32 val);
-	void			deleteSlider(const LLString& name);
+	const std::string&	addSlider();
+	const std::string&	addSlider(F32 val);
+	void			deleteSlider(const std::string& name);
 	void			deleteCurSlider()			{ deleteSlider(mCurSlider); }
 	void			clear();
 
@@ -101,7 +101,7 @@ protected:
 	F32				mMinValue;
 	F32				mMaxValue;
 	F32				mIncrement;
-	LLString		mCurSlider;
+	std::string		mCurSlider;
 	static S32		mNameCounter;
 
 	S32				mMaxNumSliders;
@@ -112,7 +112,7 @@ protected:
 	S32				mMouseOffset;
 	LLRect			mDragStartThumbRect;
 
-	std::map<LLString, LLRect>	mThumbRects;
+	std::map<std::string, LLRect>	mThumbRects;
 	LLColor4		mTrackColor;
 	LLColor4		mThumbOutlineColor;
 	LLColor4		mThumbCenterColor;

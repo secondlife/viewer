@@ -65,13 +65,12 @@ const S32 PREF_BUTTON_HEIGHT = 16;
 // LLFloaterNameDesc()
 //-----------------------------------------------------------------------------
 LLFloaterNameDesc::LLFloaterNameDesc(const std::string& filename )
-	:
-	LLFloater("Name/Description Floater")
+	: LLFloater(std::string("Name/Description Floater"))
 {
 	mFilenameAndPath = filename;
-	mFilename.assign(strrchr( filename.c_str(), gDirUtilp->getDirDelimiter()[0]) + 1);
+	mFilename = gDirUtilp->getBaseFileName(filename, false);
 	// SL-5521 Maintain capitalization of filename when making the inventory item. JC
-	//LLString::toLower(mFilename);
+	//LLStringUtil::toLower(mFilename);
 	mIsAudio = FALSE;
 }
 
@@ -82,27 +81,18 @@ BOOL LLFloaterNameDesc::postBuild()
 {
 	LLRect r;
 
-	LLString asset_name = mFilename;
-	LLString::replaceNonstandardASCII( asset_name, '?' );
-	LLString::replaceChar(asset_name, '|', '?');
-	LLString::stripNonprintable(asset_name);
-	LLString::trim(asset_name);
+	std::string asset_name = mFilename;
+	LLStringUtil::replaceNonstandardASCII( asset_name, '?' );
+	LLStringUtil::replaceChar(asset_name, '|', '?');
+	LLStringUtil::stripNonprintable(asset_name);
+	LLStringUtil::trim(asset_name);
 
-	char* asset_name_str = (char*)asset_name.c_str();
-	char* end_p = strrchr(asset_name_str, '.');		 // strip extension if exists
-	if( !end_p )
-	{
-		end_p = asset_name_str + strlen( asset_name_str );		/* Flawfinder: ignore */
-	}
-	else
-	if( !stricmp( end_p, ".wav") )
+	std::string exten = gDirUtilp->getExtension(asset_name);
+	if (exten == "wav")
 	{
 		mIsAudio = TRUE;
 	}
-		
-	S32 len = llmin( (S32) (DB_INV_ITEM_NAME_STR_LEN), (S32) (end_p - asset_name_str) );
-
-	asset_name = asset_name.substr( 0, len );
+	asset_name = gDirUtilp->getBaseFileName(asset_name, true); // no extsntion
 
 	setTitle(mFilename);
 

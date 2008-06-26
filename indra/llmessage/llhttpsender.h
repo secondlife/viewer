@@ -45,7 +45,7 @@ class LLHTTPSender
 
 	/** @brief Send message to host with body, call response when done */ 
 	virtual void send(const LLHost& host, 
-					  const char* message, const LLSD& body, 
+					  const std::string& message, const LLSD& body, 
 					  LLHTTPClient::ResponderPtr response) const;
 
 	/** @brief Set sender for host, takes ownership of sender. */

@@ -331,10 +331,10 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		{
 			// Give up.  Don't keep the UI locked forever.
 			gAgent.setTeleportState( LLAgent::TELEPORT_NONE );
-			gAgent.setTeleportMessage("");
+			gAgent.setTeleportMessage(std::string());
 		}
 
-		const LLString& message = gAgent.getTeleportMessage();
+		const std::string& message = gAgent.getTeleportMessage();
 		switch( gAgent.getTeleportState() )
 		{
 		case LLAgent::TELEPORT_START:
@@ -363,7 +363,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		case LLAgent::TELEPORT_START_ARRIVAL:
 			// Transition to ARRIVING.  Viewer has received avatar update, etc., from destination simulator
 			gTeleportArrivalTimer.reset();
-			gViewerWindow->setProgressCancelButtonVisible(FALSE, "Cancel");
+			gViewerWindow->setProgressCancelButtonVisible(FALSE, std::string("Cancel")); //TODO: Translate
 			gViewerWindow->setProgressPercent(75.f);
 			gAgent.setTeleportState( LLAgent::TELEPORT_ARRIVING );
 			gAgent.setTeleportMessage(
@@ -380,7 +380,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 					arrival_fraction = 1.f;
 					gAgent.setTeleportState( LLAgent::TELEPORT_NONE );
 				}
-				gViewerWindow->setProgressCancelButtonVisible(FALSE, "Cancel");
+				gViewerWindow->setProgressCancelButtonVisible(FALSE, std::string("Cancel")); //TODO: Translate
 				gViewerWindow->setProgressPercent(  arrival_fraction * 25.f + 75.f);
 				gViewerWindow->setProgressString(message);
 			}
@@ -1155,12 +1155,8 @@ void render_disconnected_background()
 	{
 		llinfos << "Loading last bitmap..." << llendl;
 
-		char temp_str[MAX_PATH];		/* Flawfinder: ignore */
-		strncpy(temp_str, gDirUtilp->getLindenUserDir().c_str(), MAX_PATH -1);		/* Flawfinder: ignore */
-		temp_str[MAX_PATH -1] = '\0';
-		strncat(temp_str, gDirUtilp->getDirDelimiter().c_str(), MAX_PATH - strlen(temp_str) -1);		/* Flawfinder: ignore */
-
-		strcat(temp_str, SCREEN_LAST_FILENAME);		/* Flawfinder: ignore */
+		std::string temp_str;
+		temp_str = gDirUtilp->getLindenUserDir() + gDirUtilp->getDirDelimiter() + SCREEN_LAST_FILENAME;
 
 		LLPointer<LLImageBMP> image_bmp = new LLImageBMP;
 		if( !image_bmp->load(temp_str) )

@@ -76,7 +76,7 @@ public:
 	LLImagePreviewAvatar(S32 width, S32 height);
 	virtual ~LLImagePreviewAvatar();
 
-	void setPreviewTarget(const char* joint_name, const char *mesh_name, LLImageRaw* imagep, F32 distance, BOOL male);
+	void setPreviewTarget(const std::string& joint_name, const std::string& mesh_name, LLImageRaw* imagep, F32 distance, BOOL male);
 	void setTexture(U32 name) { mTextureName = name; }
 
 	BOOL	render();
@@ -102,7 +102,7 @@ protected:
 class LLFloaterImagePreview : public LLFloaterNameDesc
 {
 public:
-	LLFloaterImagePreview(const char* filename);
+	LLFloaterImagePreview(const std::string& filename);
 	virtual ~LLFloaterImagePreview();
 
 	virtual BOOL postBuild();
@@ -118,7 +118,7 @@ public:
 protected:
 	static void		onPreviewTypeCommit(LLUICtrl*,void*);
 	void			draw();
-	bool			loadImage(const char* filename);
+	bool			loadImage(const std::string& filename);
 
 	LLPointer<LLImageRaw> mRawImagep;
 	LLImagePreviewAvatar* mAvatarPreview;

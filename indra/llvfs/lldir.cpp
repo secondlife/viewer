@@ -100,7 +100,7 @@ S32 LLDir::deleteFilesInDir(const std::string &dirname, const std::string &mask)
 		S32 retry_count = 0;
 		while (retry_count < 5)
 		{
-			if (0 != LLFile::remove(fullpath.c_str()))
+			if (0 != LLFile::remove(fullpath))
 			{
 				result = errno;
 				llwarns << "Problem removing " << fullpath << " - errorcode: "
@@ -381,10 +381,44 @@ std::string LLDir::getExpandedFilename(ELLPath location, const std::string& subd
 	return expanded_filename;
 }
 
+std::string LLDir::getBaseFileName(const std::string& filepath, bool strip_exten) const
+{
+	std::size_t offset = filepath.find_last_of(getDirDelimiter());
+	offset = (offset == std::string::npos) ? 0 : offset+1;
+	std::string res = filepath.substr(offset, std::string::npos);
+	if (strip_exten)
+	{
+		offset = res.find_last_of('.');
+		if (offset != std::string::npos &&
+		    offset != 0) // if basename STARTS with '.', don't strip
+		{
+			res = res.substr(0, offset);
+		}
+	}
+	return res;
+}
+
+std::string LLDir::getDirName(const std::string& filepath) const
+{
+	std::size_t offset = filepath.find_last_of(getDirDelimiter());
+	S32 len = (offset == std::string::npos) ? 0 : offset;
+	std::string dirname = filepath.substr(0, len);
+	return dirname;
+}
+
+std::string LLDir::getExtension(const std::string& filepath) const
+{
+	std::string basename = getBaseFileName(filepath, false);
+	std::size_t offset = basename.find_last_of('.');
+	std::string exten = (offset == std::string::npos || offset == 0) ? "" : basename.substr(offset+1);
+	LLStringUtil::toLower(exten);
+	return exten;
+}
+
 std::string LLDir::getTempFilename() const
 {
 	LLUUID random_uuid;
-	char uuid_str[64];	/* Flawfinder: ignore */ 
+	std::string uuid_str;
 
 	random_uuid.generate();
 	random_uuid.toString(uuid_str);
@@ -404,15 +438,15 @@ void LLDir::setLindenUserDir(const std::string &first, const std::string &last)
 	{
 		// some platforms have case-sensitive filesystems, so be
 		// utterly consistent with our firstname/lastname case.
-		LLString firstlower(first);
-		LLString::toLower(firstlower);
-		LLString lastlower(last);
-		LLString::toLower(lastlower);
+		std::string firstlower(first);
+		LLStringUtil::toLower(firstlower);
+		std::string lastlower(last);
+		LLStringUtil::toLower(lastlower);
 		mLindenUserDir = getOSUserAppDir();
 		mLindenUserDir += mDirDelimiter;
-		mLindenUserDir += firstlower.c_str();
+		mLindenUserDir += firstlower;
 		mLindenUserDir += "_";
-		mLindenUserDir += lastlower.c_str();
+		mLindenUserDir += lastlower;
 	}
 	else
 	{
@@ -441,15 +475,15 @@ void LLDir::setPerAccountChatLogsDir(const std::string &first, const std::string
 	{
 		// some platforms have case-sensitive filesystems, so be
 		// utterly consistent with our firstname/lastname case.
-		LLString firstlower(first);
-		LLString::toLower(firstlower);
-		LLString lastlower(last);
-		LLString::toLower(lastlower);
+		std::string firstlower(first);
+		LLStringUtil::toLower(firstlower);
+		std::string lastlower(last);
+		LLStringUtil::toLower(lastlower);
 		mPerAccountChatLogsDir = getChatLogsDir();
 		mPerAccountChatLogsDir += mDirDelimiter;
-		mPerAccountChatLogsDir += firstlower.c_str();
+		mPerAccountChatLogsDir += firstlower;
 		mPerAccountChatLogsDir += "_";
-		mPerAccountChatLogsDir += lastlower.c_str();
+		mPerAccountChatLogsDir += lastlower;
 	}
 	else
 	{
@@ -476,13 +510,13 @@ bool LLDir::setCacheDir(const std::string &path)
 	}
 	else
 	{
-		LLFile::mkdir(path.c_str());
+		LLFile::mkdir(path);
 		std::string tempname = path + mDirDelimiter + "temp";
-		LLFILE* file = LLFile::fopen(tempname.c_str(),"wt");
+		LLFILE* file = LLFile::fopen(tempname,"wt");
 		if (file)
 		{
 			fclose(file);
-			LLFile::remove(tempname.c_str());
+			LLFile::remove(tempname);
 			mCacheDir = path;
 			return true;
 		}
@@ -515,15 +549,15 @@ void dir_exists_or_crash(const std::string &dir_name)
 #if LL_WINDOWS
 	// *FIX: lame - it doesn't do the same thing on windows. not so
 	// important since we don't deploy simulator to windows boxes.
-	LLFile::mkdir(dir_name.c_str(), 0700);
+	LLFile::mkdir(dir_name, 0700);
 #else
 	struct stat dir_stat;
-	if(0 != LLFile::stat(dir_name.c_str(), &dir_stat))
+	if(0 != LLFile::stat(dir_name, &dir_stat))
 	{
 		S32 stat_rv = errno;
 		if(ENOENT == stat_rv)
 		{
-		   if(0 != LLFile::mkdir(dir_name.c_str(), 0700))		// octal
+		   if(0 != LLFile::mkdir(dir_name, 0700))		// octal
 		   {
 			   llerrs << "Unable to create directory: " << dir_name << llendl;
 		   }

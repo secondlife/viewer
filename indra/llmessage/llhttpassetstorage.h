@@ -48,15 +48,15 @@ class LLHTTPAssetStorage : public LLAssetStorage
 public:
 	LLHTTPAssetStorage(LLMessageSystem *msg, LLXferManager *xfer,
 					   LLVFS *vfs, const LLHost &upstream_host,
-					   const char *web_host,
-					   const char *local_web_host,
-					   const char *host_name);
+					   const std::string& web_host,
+					   const std::string& local_web_host,
+					   const std::string& host_name);
 
 	LLHTTPAssetStorage(LLMessageSystem *msg, LLXferManager *xfer,
 					   LLVFS *vfs,
-					   const char *web_host,
-					   const char *local_web_host,
-					   const char *host_name);
+					   const std::string& web_host,
+					   const std::string& local_web_host,
+					   const std::string& host_name);
 
 
 	virtual ~LLHTTPAssetStorage();
@@ -74,7 +74,7 @@ public:
 		F64 timeout=LL_ASSET_STORAGE_TIMEOUT);
 
 	virtual void storeAssetData(
-		const char* filename,
+		const std::string& filename,
 		const LLUUID& asset_id,
 		LLAssetType::EType atype,
 		LLStoreAssetCallback callback,
@@ -99,7 +99,7 @@ public:
 	// Hack.  One off curl download an URL to a file.  Probably should be elsewhere.
 	// Only used by lldynamicstate.  The API is broken, and should be replaced with
 	// a generic HTTP file fetch - Doug 9/25/06
-	S32 getURLToFile(const LLUUID& uuid, LLAssetType::EType asset_type, const LLString &url, const char *filename, progress_callback callback, void *userdata);
+	S32 getURLToFile(const LLUUID& uuid, LLAssetType::EType asset_type, const std::string &url, const std::string& filename, progress_callback callback, void *userdata);
 	
 	LLAssetRequest* findNextRequest(request_list_t& pending, request_list_t& running);
 
@@ -135,7 +135,7 @@ protected:
 						   void *user_data, BOOL duplicate, BOOL is_priority);
 
 private:
-	void _init(const char *web_host, const char *local_web_host, const char* host_name);
+	void _init(const std::string& web_host, const std::string& local_web_host, const std::string& host_name);
 
 	// This will return the correct base URI for any http asset request
 	std::string getBaseURL(const LLUUID& asset_id, LLAssetType::EType asset_type);

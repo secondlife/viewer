@@ -84,7 +84,7 @@ void LLToolComposite::setCurrentTool( LLTool* new_tool )
 	}
 }
 
-LLToolComposite::LLToolComposite(const LLString& name)
+LLToolComposite::LLToolComposite(const std::string& name)
 	: LLTool(name),
 	  mCur(NULL), mDefault(NULL), mSelected(FALSE),
 	  mMouseDown(FALSE), mManip(NULL), mSelectRect(NULL)
@@ -129,7 +129,7 @@ void LLToolComposite::handleSelect()
 //----------------------------------------------------------------------------
 
 LLToolCompInspect::LLToolCompInspect()
-: LLToolComposite("Inspect")
+: LLToolComposite(std::string("Inspect"))
 {
 	mSelectRect		= new LLToolSelectRect(this);
 	mDefault = mSelectRect;
@@ -187,7 +187,7 @@ BOOL LLToolCompInspect::handleDoubleClick(S32 x, S32 y, MASK mask)
 //----------------------------------------------------------------------------
 
 LLToolCompTranslate::LLToolCompTranslate()
-	: LLToolComposite("Move")
+	: LLToolComposite(std::string("Move"))
 {
 	mManip		= new LLManipTranslate(this);
 	mSelectRect		= new LLToolSelectRect(this);
@@ -314,7 +314,7 @@ void LLToolCompTranslate::render()
 // LLToolCompScale
 
 LLToolCompScale::LLToolCompScale()
-	: LLToolComposite("Stretch")
+	: LLToolComposite(std::string("Stretch"))
 {
 	mManip = new LLManipScale(this);
 	mSelectRect = new LLToolSelectRect(this);
@@ -434,7 +434,7 @@ void LLToolCompScale::render()
 // LLToolCompCreate
 
 LLToolCompCreate::LLToolCompCreate()
-	: LLToolComposite("Create")
+	: LLToolComposite(std::string("Create"))
 {
 	mPlacer = new LLToolPlacer();
 	mSelectRect = new LLToolSelectRect(this);
@@ -514,7 +514,7 @@ BOOL LLToolCompCreate::handleMouseUp(S32 x, S32 y, MASK mask)
 // LLToolCompRotate
 
 LLToolCompRotate::LLToolCompRotate()
-	: LLToolComposite("Rotate")
+	: LLToolComposite(std::string("Rotate"))
 {
 	mManip = new LLManipRotate(this);
 	mSelectRect = new LLToolSelectRect(this);
@@ -633,11 +633,11 @@ void LLToolCompRotate::render()
 // LLToolCompGun
 
 LLToolCompGun::LLToolCompGun()
-	: LLToolComposite("Mouselook")
+	: LLToolComposite(std::string("Mouselook"))
 {
 	mGun = new LLToolGun(this);
 	mGrab = new LLToolGrab(this);
-	mNull = new LLTool("null", this);
+	mNull = new LLTool(std::string("null"), this);
 
 	setCurrentTool(mGun);
 	mDefault = mGun;

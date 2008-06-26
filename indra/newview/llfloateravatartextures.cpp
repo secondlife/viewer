@@ -40,7 +40,7 @@
 #include "llvoavatar.h"
 
 LLFloaterAvatarTextures::LLFloaterAvatarTextures(const LLUUID& id) : 
-	LLFloater("avatar_texture_debug"),
+	LLFloater(std::string("avatar_texture_debug")),
 	mID(id)
 {
 }
@@ -110,7 +110,7 @@ static void update_texture_ctrl(LLVOAvatar* avatarp,
 	if (id == IMG_DEFAULT_AVATAR)
 	{
 		ctrl->setImageAssetID(LLUUID::null);
-		ctrl->setToolTip(LLString("IMG_DEFAULT_AVATAR"));
+		ctrl->setToolTip(std::string("IMG_DEFAULT_AVATAR"));
 	}
 	else
 	{

@@ -541,7 +541,7 @@ void LLPreview::userSetShape(const LLRect& new_rect)
 // LLMultiPreview
 //
 
-LLMultiPreview::LLMultiPreview(const LLRect& rect) : LLMultiFloater("Preview", rect)
+LLMultiPreview::LLMultiPreview(const LLRect& rect) : LLMultiFloater(std::string("Preview"), rect)
 {
 	setCanResize(TRUE);
 }

@@ -439,9 +439,7 @@ bool LLMimeParser::Impl::parseHeaders(
 		std::string value(colon);
 		for(S32 ii = 0; ii < KNOWN_HEADER_COUNT; ++ii)
 		{
-			if(0 == LLString::compareInsensitive(
-				name.c_str(),
-				KNOWN_HEADER[ii].c_str()))
+			if(0 == LLStringUtil::compareInsensitive(name, KNOWN_HEADER[ii]))
 			{
 				name = KNOWN_HEADER[ii];
 				break;
@@ -525,7 +523,7 @@ void LLMimeParser::Impl::scanPastSeparator(
 		{
 			mContinue = false;
 		}
-		if(0 == LLString::compareStrings(mBuffer, separator.c_str()))
+		if(0 == LLStringUtil::compareStrings(std::string(mBuffer), separator))
 		{
 			found_separator = true;
 		}

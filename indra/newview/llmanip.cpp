@@ -92,7 +92,7 @@ void LLManip::rebuild(LLViewerObject* vobj)
 // LLManip
 
 
-LLManip::LLManip( const LLString& name, LLToolComposite* composite )
+LLManip::LLManip( const std::string& name, LLToolComposite* composite )
 	:
 	LLTool( name, composite ),
 	mInSnapRegime(FALSE),
@@ -422,7 +422,7 @@ void LLManip::renderGuidelines(BOOL draw_x, BOOL draw_y, BOOL draw_z)
 void LLManip::renderXYZ(const LLVector3 &vec) 
 {
 	const S32 PAD = 10;
-	char feedback_string[128];		/*Flawfinder: ignore*/
+	std::string feedback_string;
 	LLVector3 camera_pos = LLViewerCamera::getInstance()->getOrigin() + LLViewerCamera::getInstance()->getAtAxis();
 	S32 vertical_offset = gViewerWindow->getWindowHeight() / 2 - VERTICAL_OFFSET;
 	S32 window_center_x = gViewerWindow->getWindowWidth() / 2;
@@ -451,30 +451,30 @@ void LLManip::renderXYZ(const LLVector3 &vec)
 		LLLocale locale(LLLocale::USER_LOCALE);
 		LLGLDepthTest gls_depth(GL_FALSE);
 		// render drop shadowed text
-		snprintf(feedback_string, sizeof(feedback_string), "X: %.3f", vec.mV[VX]);			/* Flawfinder: ignore */
+		feedback_string = llformat("X: %.3f", vec.mV[VX]);
 		hud_render_text(utf8str_to_wstring(feedback_string), camera_pos, *LLResMgr::getInstance()->getRes( LLFONT_SANSSERIF ), LLFontGL::NORMAL, -102.f + 1.f, (F32)vertical_offset - 1.f, LLColor4::black, FALSE);
 
-		snprintf(feedback_string, sizeof(feedback_string), "Y: %.3f", vec.mV[VY]);			/* Flawfinder: ignore */
+		feedback_string = llformat("Y: %.3f", vec.mV[VY]);
 		hud_render_text(utf8str_to_wstring(feedback_string), camera_pos, *LLResMgr::getInstance()->getRes( LLFONT_SANSSERIF ), LLFontGL::NORMAL, -27.f + 1.f, (F32)vertical_offset - 1.f, LLColor4::black, FALSE);
 		
-		snprintf(feedback_string, sizeof(feedback_string), "Z: %.3f", vec.mV[VZ]);			/* Flawfinder: ignore */
+		feedback_string = llformat("Z: %.3f", vec.mV[VZ]);
 		hud_render_text(utf8str_to_wstring(feedback_string), camera_pos, *LLResMgr::getInstance()->getRes( LLFONT_SANSSERIF ), LLFontGL::NORMAL, 48.f + 1.f, (F32)vertical_offset - 1.f, LLColor4::black, FALSE);
 
 		// render text on top
-		snprintf(feedback_string, sizeof(feedback_string), "X: %.3f", vec.mV[VX]);			/* Flawfinder: ignore */
+		feedback_string = llformat("X: %.3f", vec.mV[VX]);
 		hud_render_text(utf8str_to_wstring(feedback_string), camera_pos, *LLResMgr::getInstance()->getRes( LLFONT_SANSSERIF ), LLFontGL::NORMAL, -102.f, (F32)vertical_offset, LLColor4(1.f, 0.5f, 0.5f, 1.f), FALSE);
 
 		glColor3f(0.5f, 1.f, 0.5f);
-		snprintf(feedback_string, sizeof(feedback_string), "Y: %.3f", vec.mV[VY]);			/* Flawfinder: ignore */
+		feedback_string = llformat("Y: %.3f", vec.mV[VY]);
 		hud_render_text(utf8str_to_wstring(feedback_string), camera_pos, *LLResMgr::getInstance()->getRes( LLFONT_SANSSERIF ), LLFontGL::NORMAL, -27.f, (F32)vertical_offset, LLColor4(0.5f, 1.f, 0.5f, 1.f), FALSE);
 		
 		glColor3f(0.5f, 0.5f, 1.f);
-		snprintf(feedback_string, sizeof(feedback_string), "Z: %.3f", vec.mV[VZ]);			/* Flawfinder: ignore */
+		feedback_string = llformat("Z: %.3f", vec.mV[VZ]);
 		hud_render_text(utf8str_to_wstring(feedback_string), camera_pos, *LLResMgr::getInstance()->getRes( LLFONT_SANSSERIF ), LLFontGL::NORMAL, 48.f, (F32)vertical_offset, LLColor4(0.5f, 0.5f, 1.f, 1.f), FALSE);
 	}
 }
 
-void LLManip::renderTickText(const LLVector3& pos, const char* text, const LLColor4 &color)
+void LLManip::renderTickText(const LLVector3& pos, const std::string& text, const LLColor4 &color)
 {
 	const LLFontGL* big_fontp = LLResMgr::getInstance()->getRes( LLFONT_SANSSERIF );
 
@@ -502,37 +502,37 @@ void LLManip::renderTickText(const LLVector3& pos, const char* text, const LLCol
 	glPopMatrix();
 }
 
-void LLManip::renderTickValue(const LLVector3& pos, F32 value, const char* suffix, const LLColor4 &color)
+void LLManip::renderTickValue(const LLVector3& pos, F32 value, const std::string& suffix, const LLColor4 &color)
 {
 	LLLocale locale(LLLocale::USER_LOCALE);
 
 	const LLFontGL* big_fontp = LLResMgr::getInstance()->getRes( LLFONT_SANSSERIF );
 	const LLFontGL* small_fontp = LLResMgr::getInstance()->getRes( LLFONT_SANSSERIF_SMALL );
 
-	char val_string[128];		/*Flawfinder: ignore*/
-	char fraction_string[128];		/*Flawfinder: ignore*/
+	std::string val_string;
+	std::string fraction_string;
 	F32 val_to_print = llround(value, 0.001f);
 	S32 fractional_portion = llround(fmodf(llabs(val_to_print), 1.f) * 100.f);
 	if (val_to_print < 0.f)
 	{
 		if (fractional_portion == 0)
 		{
-			snprintf(val_string, sizeof(val_string), "-%d%s", lltrunc(llabs(val_to_print)), suffix);			/* Flawfinder: ignore */
+			val_string = llformat("-%d%s", lltrunc(llabs(val_to_print)), suffix.c_str());
 		}
 		else
 		{
-			snprintf(val_string, sizeof(val_string), "-%d", lltrunc(llabs(val_to_print)));			/* Flawfinder: ignore */
+			val_string = llformat("-%d", lltrunc(llabs(val_to_print)));
 		}
 	}
 	else
 	{
 		if (fractional_portion == 0)
 		{
-			snprintf(val_string, sizeof(val_string), "%d%s", lltrunc(llabs(val_to_print)), suffix);			/* Flawfinder: ignore */
+			val_string = llformat("%d%s", lltrunc(llabs(val_to_print)), suffix.c_str());
 		}
 		else
 		{
-			snprintf(val_string, sizeof(val_string), "%d", lltrunc(val_to_print));			/* Flawfinder: ignore */
+			val_string = llformat("%d", lltrunc(val_to_print));
 		}
 	}
 
@@ -554,7 +554,7 @@ void LLManip::renderTickValue(const LLVector3& pos, F32 value, const char* suffi
 
 	if (fractional_portion != 0)
 	{
-		snprintf(fraction_string, sizeof(fraction_string), "%c%02d%s", LLResMgr::getInstance()->getDecimalPoint(), fractional_portion, suffix);			/* Flawfinder: ignore */
+		fraction_string = llformat("%c%02d%s", LLResMgr::getInstance()->getDecimalPoint(), fractional_portion, suffix.c_str());
 
 		gViewerWindow->setupViewport(1, -1);
 		hud_render_utf8text(val_string, render_pos, *big_fontp, LLFontGL::NORMAL, -1.f * big_fontp->getWidthF32(val_string), 3.f, shadow_color, hud_selection);

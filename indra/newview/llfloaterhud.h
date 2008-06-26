@@ -29,8 +29,8 @@ public:
 
 	static std::string sTutorialUrl;
 
-	static void show(); ///< show the HUD
-	static void close(); ///< close the HUD (destroys floater)
+	static void showHUD(); ///< show the HUD
+	static void closeHUD(); ///< close the HUD (destroys floater)
 
 protected:
 	LLWebBrowserCtrl* mWebBrowser; ///< the actual web browser control

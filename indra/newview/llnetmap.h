@@ -55,7 +55,7 @@ public:
 	virtual BOOL	handleDoubleClick( S32 x, S32 y, MASK mask );
 	virtual BOOL	handleRightMouseDown( S32 x, S32 y, MASK mask );
 	virtual BOOL	handleScrollWheel(S32 x, S32 y, S32 clicks);
-	virtual BOOL	handleToolTip( S32 x, S32 y, LLString& msg, LLRect* sticky_rect_screen );
+	virtual BOOL	handleToolTip( S32 x, S32 y, std::string& msg, LLRect* sticky_rect_screen );
 
 	void			setScale( F32 scale );
 	void			translatePan( F32 delta_x, F32 delta_y );

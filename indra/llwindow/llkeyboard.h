@@ -107,9 +107,9 @@ public:
 	EKeyboardInsertMode getInsertMode()	{ return mInsertMode; }
 	void toggleInsertMode();
 
-	static BOOL		maskFromString(const LLString& str, MASK *mask);		// False on failure
-	static BOOL		keyFromString(const LLString& str, KEY *key);			// False on failure
-	static LLString	stringFromKey(KEY key);
+	static BOOL		maskFromString(const std::string& str, MASK *mask);		// False on failure
+	static BOOL		keyFromString(const std::string& str, KEY *key);			// False on failure
+	static std::string stringFromKey(KEY key);
 
 	e_numpad_distinct getNumpadDistinct() { return mNumpadDistinct; }
 	void setNumpadDistinct(e_numpad_distinct val) { mNumpadDistinct = val; }
@@ -119,7 +119,7 @@ public:
 	S32				getKeyElapsedFrameCount( KEY key );  // Returns time in frames since key was pressed.
 
 protected:
-	void 			addKeyName(KEY key, const LLString& name);
+	void 			addKeyName(KEY key, const std::string& name);
 
 protected:
 	std::map<U16, KEY>	mTranslateKeyMap;		// Map of translations from OS keys to Linden KEYs
@@ -139,8 +139,8 @@ protected:
 
 	EKeyboardInsertMode mInsertMode;
 
-	static std::map<KEY,LLString> sKeysToNames;
-	static std::map<LLString,KEY> sNamesToKeys;
+	static std::map<KEY,std::string> sKeysToNames;
+	static std::map<std::string,KEY> sNamesToKeys;
 };
 
 extern LLKeyboard *gKeyboard;

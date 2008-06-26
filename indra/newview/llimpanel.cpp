@@ -86,9 +86,9 @@ const U32 DEFAULT_RETRIES_COUNT = 3;
 // Statics
 //
 //
-static LLString sTitleString = "Instant Message with [NAME]";
-static LLString sTypingStartString = "[NAME]: ...";
-static LLString sSessionStartString = "Starting session with [NAME] please wait.";
+static std::string sTitleString = "Instant Message with [NAME]";
+static std::string sTypingStartString = "[NAME]: ...";
+static std::string sSessionStartString = "Starting session with [NAME] please wait.";
 
 LLVoiceChannel::voice_channel_map_t LLVoiceChannel::sVoiceChannelMap;
 LLVoiceChannel::voice_channel_map_uri_t LLVoiceChannel::sVoiceChannelURIMap;
@@ -121,7 +121,7 @@ void session_starter_helper(
 	gAgent.buildFullname(name);
 
 	msg->addStringFast(_PREHASH_FromAgentName, name);
-	msg->addStringFast(_PREHASH_Message, LLString::null);
+	msg->addStringFast(_PREHASH_Message, LLStringUtil::null);
 	msg->addU32Fast(_PREHASH_ParentEstateID, 0);
 	msg->addUUIDFast(_PREHASH_RegionID, LLUUID::null);
 	msg->addVector3Fast(_PREHASH_Position, gAgent.getPositionAgent());
@@ -342,7 +342,7 @@ void LLVoiceCallCapResponder::result(const LLSD& content)
 //
 // LLVoiceChannel
 //
-LLVoiceChannel::LLVoiceChannel(const LLUUID& session_id, const LLString& session_name) : 
+LLVoiceChannel::LLVoiceChannel(const LLUUID& session_id, const std::string& session_name) : 
 	mSessionID(session_id), 
 	mState(STATE_NO_CHANNEL_INFO), 
 	mSessionName(session_name),
@@ -373,8 +373,8 @@ LLVoiceChannel::~LLVoiceChannel()
 }
 
 void LLVoiceChannel::setChannelInfo(
-	const LLString& uri,
-	const LLString& credentials)
+	const std::string& uri,
+	const std::string& credentials)
 {
 	setURI(uri);
 
@@ -563,7 +563,7 @@ LLVoiceChannel* LLVoiceChannel::getChannelByID(const LLUUID& session_id)
 }
 
 //static 
-LLVoiceChannel* LLVoiceChannel::getChannelByURI(LLString uri)
+LLVoiceChannel* LLVoiceChannel::getChannelByURI(std::string uri)
 {
 	voice_channel_map_uri_t::iterator found_it = sVoiceChannelURIMap.find(uri);
 	if (found_it == sVoiceChannelURIMap.end())
@@ -584,7 +584,7 @@ void LLVoiceChannel::updateSessionID(const LLUUID& new_session_id)
 	sVoiceChannelMap.insert(std::make_pair(mSessionID, this));
 }
 
-void LLVoiceChannel::setURI(LLString uri)
+void LLVoiceChannel::setURI(std::string uri)
 {
 	sVoiceChannelURIMap.erase(mURI);
 	mURI = uri;
@@ -654,7 +654,7 @@ void LLVoiceChannel::resume()
 // LLVoiceChannelGroup
 //
 
-LLVoiceChannelGroup::LLVoiceChannelGroup(const LLUUID& session_id, const LLString& session_name) : 
+LLVoiceChannelGroup::LLVoiceChannelGroup(const LLUUID& session_id, const std::string& session_name) : 
 	LLVoiceChannel(session_id, session_name)
 {
 	mRetries = DEFAULT_RETRIES_COUNT;
@@ -701,8 +701,8 @@ void LLVoiceChannelGroup::getChannelInfo()
 }
 
 void LLVoiceChannelGroup::setChannelInfo(
-	const LLString& uri,
-	const LLString& credentials)
+	const std::string& uri,
+	const std::string& credentials)
 {
 	setURI(uri);
 
@@ -795,7 +795,7 @@ void LLVoiceChannelGroup::handleError(EStatusType status)
 	{
 		LLNotifyBox::showXml(notify, mNotifyArgs);
 		// echo to im window
-		gIMMgr->addMessage(mSessionID, LLUUID::null, SYSTEM_FROM, LLNotifyBox::getTemplateMessage(notify, mNotifyArgs).c_str());
+		gIMMgr->addMessage(mSessionID, LLUUID::null, SYSTEM_FROM, LLNotifyBox::getTemplateMessage(notify, mNotifyArgs));
 	}
 
 	LLVoiceChannel::handleError(status);
@@ -822,7 +822,7 @@ void LLVoiceChannelGroup::setState(EState state)
 // LLVoiceChannelProximal
 //
 LLVoiceChannelProximal::LLVoiceChannelProximal() : 
-	LLVoiceChannel(LLUUID::null, LLString::null)
+	LLVoiceChannel(LLUUID::null, LLStringUtil::null)
 {
 	activate();
 }
@@ -914,7 +914,7 @@ void LLVoiceChannelProximal::deactivate()
 //
 // LLVoiceChannelP2P
 //
-LLVoiceChannelP2P::LLVoiceChannelP2P(const LLUUID& session_id, const LLString& session_name, const LLUUID& other_user_id) : 
+LLVoiceChannelP2P::LLVoiceChannelP2P(const LLUUID& session_id, const std::string& session_name, const LLUUID& other_user_id) : 
 		LLVoiceChannelGroup(session_id, session_name), 
 		mOtherUserID(other_user_id),
 		mReceivedCall(FALSE)
@@ -1000,7 +1000,7 @@ void LLVoiceChannelP2P::getChannelInfo()
 }
 
 // receiving session from other user who initiated call
-void LLVoiceChannelP2P::setSessionHandle(const LLString& handle)
+void LLVoiceChannelP2P::setSessionHandle(const std::string& handle)
 { 
 	BOOL needs_activate = FALSE;
 	if (callStarted())
@@ -1109,11 +1109,11 @@ LLFloaterIMPanel::LLFloaterIMPanel(
 }
 
 
-void LLFloaterIMPanel::init(const LLString& session_label)
+void LLFloaterIMPanel::init(const std::string& session_label)
 {
 	mSessionLabel = session_label;
 
-	LLString xml_filename;
+	std::string xml_filename;
 	switch(mDialog)
 	{
 	case IM_SESSION_GROUP_START:
@@ -1454,7 +1454,7 @@ BOOL LLFloaterIMPanel::inviteToSession(const LLDynamicArray<LLUUID>& ids)
 	return TRUE;
 }
 
-void LLFloaterIMPanel::addHistoryLine(const std::string &utf8msg, const LLColor4& color, bool log_to_file, const LLUUID& source, const char *name)
+void LLFloaterIMPanel::addHistoryLine(const std::string &utf8msg, const LLColor4& color, bool log_to_file, const LLUUID& source, const std::string& name)
 {
 	// start tab flashing when receiving im for background session from user
 	if (source != LLUUID::null)
@@ -1474,7 +1474,7 @@ void LLFloaterIMPanel::addHistoryLine(const std::string &utf8msg, const LLColor4
 	removeTypingIndicator(NULL);
 
 	// Actually add the line
-	LLString timestring;
+	std::string timestring;
 	bool prepend_newline = true;
 	if (gSavedSettings.getBOOL("IMShowTimestamps"))
 	{
@@ -1483,10 +1483,10 @@ void LLFloaterIMPanel::addHistoryLine(const std::string &utf8msg, const LLColor4
 	}
 
 	// 'name' is a sender name that we want to hotlink so that clicking on it opens a profile.
-	if (name != NULL) // If name exists, then add it to the front of the message.
+	if (!name.empty()) // If name exists, then add it to the front of the message.
 	{
 		// Don't hotlink any messages from the system (e.g. "Second Life:"), so just add those in plain text.
-		if (!strcmp(name,SYSTEM_FROM))
+		if (name == SYSTEM_FROM)
 		{
 			mHistoryEditor->appendColoredText(name,false,prepend_newline,color);
 		}
@@ -1503,11 +1503,11 @@ void LLFloaterIMPanel::addHistoryLine(const std::string &utf8msg, const LLColor4
 	if (log_to_file
 		&& gSavedPerAccountSettings.getBOOL("LogInstantMessages") ) 
 	{
-		LLString histstr;
+		std::string histstr;
 		if (gSavedPerAccountSettings.getBOOL("IMLogTimestamp"))
-			histstr = LLLogChat::timestamp(gSavedPerAccountSettings.getBOOL("LogTimestampDate")) + LLString(name) + utf8msg;
+			histstr = LLLogChat::timestamp(gSavedPerAccountSettings.getBOOL("LogTimestampDate")) + name + utf8msg;
 		else
-			histstr = LLString(name) + utf8msg;
+			histstr = name + utf8msg;
 
 		LLLogChat::saveHistory(getTitle(),histstr);
 	}
@@ -1597,7 +1597,7 @@ BOOL LLFloaterIMPanel::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 								  EDragAndDropType cargo_type,
 								  void* cargo_data,
 								  EAcceptance* accept,
-								  LLString& tooltip_msg)
+								  std::string& tooltip_msg)
 {
 	BOOL accepted = FALSE;
 	switch(cargo_type)
@@ -1812,7 +1812,7 @@ void LLFloaterIMPanel::onInputEditorFocusLost(LLFocusableElement* caller, void* 
 void LLFloaterIMPanel::onInputEditorKeystroke(LLLineEditor* caller, void* userdata)
 {
 	LLFloaterIMPanel* self = (LLFloaterIMPanel*)userdata;
-	LLString text = self->mInputEditor->getText();
+	std::string text = self->mInputEditor->getText();
 	if (!text.empty())
 	{
 		self->setTyping(TRUE);
@@ -1838,8 +1838,8 @@ void LLFloaterIMPanel::onClose(bool app_quitting)
 			FALSE,
 			gAgent.getSessionID(),
 			mOtherParticipantUUID,
-			name.c_str(), 
-			"",
+			name, 
+			LLStringUtil::null,
 			IM_ONLINE,
 			IM_SESSION_LEAVE,
 			mSessionUUID);
@@ -1885,8 +1885,8 @@ void deliver_message(const std::string& utf8_text,
 		FALSE,
 		gAgent.getSessionID(),
 		other_participant_id,
-		name.c_str(),
-		utf8_text.c_str(),
+		name,
+		utf8_text,
 		offline,
 		(EInstantMessage)new_dialog,
 		im_session_id);
@@ -1901,7 +1901,7 @@ void deliver_message(const std::string& utf8_text,
 void LLFloaterIMPanel::sendMsg()
 {
 	LLWString text = mInputEditor->getWText();
-	LLWString::trim(text);
+	LLWStringUtil::trim(text);
 	if (!gAgent.isGodlike() 
 		&& (mDialog == IM_NOTHING_SPECIAL)
 		&& mOtherParticipantUUID.isNull())
@@ -1930,13 +1930,8 @@ void LLFloaterIMPanel::sendMsg()
 				gAgent.buildFullname(history_echo);
 
 				// Look for IRC-style emotes here.
-				char tmpstr[5];		/* Flawfinder: ignore */
-				strncpy(tmpstr,
-						utf8_text.substr(0,4).c_str(),
-						sizeof(tmpstr) -1);		/* Flawfinder: ignore */
-				tmpstr[sizeof(tmpstr) -1] = '\0';
-				if (!strncmp(tmpstr, "/me ", 4) || 
-					!strncmp(tmpstr, "/me'", 4))
+				std::string prefix = utf8_text.substr(0, 4);
+				if (prefix == "/me " || prefix == "/me'")
 				{
 					utf8_text.replace(0,3,"");
 				}
@@ -1966,7 +1961,7 @@ void LLFloaterIMPanel::sendMsg()
 
 		LLViewerStats::getInstance()->incStat(LLViewerStats::ST_IM_COUNT);
 	}
-	mInputEditor->setText(LLString::null);
+	mInputEditor->setText(LLStringUtil::null);
 
 	// Don't need to actually send the typing stop message, the other
 	// client will infer it from receiving the message.
@@ -1989,7 +1984,7 @@ void LLFloaterIMPanel::processSessionUpdate(const LLSD& session_update)
 
 		if (voice_moderated)
 		{
-			setTitle(mSessionLabel + LLString(" ") + getString("moderated_chat_label"));
+			setTitle(mSessionLabel + std::string(" ") + getString("moderated_chat_label"));
 		}
 		else
 		{
@@ -2086,8 +2081,8 @@ void LLFloaterIMPanel::sendTypingState(BOOL typing)
 		FALSE,
 		gAgent.getSessionID(),
 		mOtherParticipantUUID,
-		name.c_str(),
-		"typing",
+		name,
+		std::string("typing"),
 		IM_ONLINE,
 		(typing ? IM_TYPING_START : IM_TYPING_STOP),
 		mSessionUUID);
@@ -2144,7 +2139,7 @@ void LLFloaterIMPanel::removeTypingIndicator(const LLIMInfo* im_info)
 }
 
 //static
-void LLFloaterIMPanel::chatFromLogFile(LLLogChat::ELogLineType type, LLString line, void* userdata)
+void LLFloaterIMPanel::chatFromLogFile(LLLogChat::ELogLineType type, std::string line, void* userdata)
 {
 	LLFloaterIMPanel* self = (LLFloaterIMPanel*)userdata;
 	LLUIString message = line;
@@ -2184,7 +2179,7 @@ void LLFloaterIMPanel::showSessionStartError(
 	//their own XML file which would be read in by any LLIMPanel
 	//post build function instead of repeating the same info
 	//in the group, adhoc and normal IM xml files.
-	LLString::format_map_t args;
+	LLStringUtil::format_map_t args;
 	args["[REASON]"] =
 		LLFloaterIM::sErrorStringsMap[error_string];
 	args["[RECIPIENT]"] = getTitle();
@@ -2200,7 +2195,7 @@ void LLFloaterIMPanel::showSessionEventError(
 	const std::string& event_string,
 	const std::string& error_string)
 {
-	LLString::format_map_t args;
+	LLStringUtil::format_map_t args;
 	args["[REASON]"] =
 		LLFloaterIM::sErrorStringsMap[error_string];
 	args["[EVENT]"] =
@@ -2215,7 +2210,7 @@ void LLFloaterIMPanel::showSessionEventError(
 void LLFloaterIMPanel::showSessionForceClose(
 	const std::string& reason_string)
 {
-	LLString::format_map_t args;
+	LLStringUtil::format_map_t args;
 
 	args["[NAME]"] = getTitle();
 	args["[REASON]"] = LLFloaterIM::sForceCloseSessionMap[reason_string];

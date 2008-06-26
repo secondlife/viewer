@@ -89,10 +89,10 @@ bool LLUrlWhiteList::load ()
 	clear ();
 
 	// build filename for each user
-	LLString resolvedFilename = gDirUtilp->getExpandedFilename ( LL_PATH_PER_SL_ACCOUNT, mFilename.c_str () );
+	std::string resolvedFilename = gDirUtilp->getExpandedFilename ( LL_PATH_PER_SL_ACCOUNT, mFilename );
 
 	// open a file for reading
-	llifstream file ( resolvedFilename.c_str () );
+	llifstream file ( resolvedFilename );
 	if ( file.is_open () )
 	{
 		// add each line in the file to the list
@@ -118,10 +118,10 @@ bool LLUrlWhiteList::load ()
 bool LLUrlWhiteList::save ()
 {
 	// build filename for each user
-	LLString resolvedFilename = gDirUtilp->getExpandedFilename ( LL_PATH_PER_SL_ACCOUNT, mFilename.c_str () );
+	std::string resolvedFilename = gDirUtilp->getExpandedFilename ( LL_PATH_PER_SL_ACCOUNT, mFilename );
 
 	// open a file for writing
-	llofstream file ( resolvedFilename.c_str () );
+	llofstream file ( resolvedFilename );
 	if ( file.is_open () )
 	{
 		// for each entry we have
@@ -149,9 +149,9 @@ bool LLUrlWhiteList::clear ()
 	return true;
 }
 
-LLString url_cleanup(LLString pattern)
+std::string url_cleanup(std::string pattern)
 {
-	LLString::trim(pattern);
+	LLStringUtil::trim(pattern);
 	S32 length = pattern.length();
 	S32 position = 0;
 	std::string::reverse_iterator it = pattern.rbegin();
@@ -164,7 +164,7 @@ LLString url_cleanup(LLString pattern)
 		{
 			// found second to last '/'
 			S32 desired_length = length - position;
-			LLString::truncate(pattern, desired_length);
+			LLStringUtil::truncate(pattern, desired_length);
 			break;
 		}
 		++position;
@@ -174,9 +174,9 @@ LLString url_cleanup(LLString pattern)
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-bool LLUrlWhiteList::addItem ( const LLString& itemIn, bool saveAfterAdd )
+bool LLUrlWhiteList::addItem ( const std::string& itemIn, bool saveAfterAdd )
 {
-	LLString item = url_cleanup(itemIn);
+	std::string item = url_cleanup(itemIn);
 	
 	mUrlList.push_back ( item );
 
@@ -189,7 +189,7 @@ bool LLUrlWhiteList::addItem ( const LLString& itemIn, bool saveAfterAdd )
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-bool LLUrlWhiteList::getFirst ( LLString& valueOut )
+bool LLUrlWhiteList::getFirst ( std::string& valueOut )
 {
 	if ( mUrlList.size () == 0 )
 		return false;
@@ -202,7 +202,7 @@ bool LLUrlWhiteList::getFirst ( LLString& valueOut )
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-bool LLUrlWhiteList::getNext ( LLString& valueOut )
+bool LLUrlWhiteList::getNext ( std::string& valueOut )
 {
 	if ( mCurIndex >= mUrlList.size () )
 		return false;
@@ -214,7 +214,7 @@ bool LLUrlWhiteList::getNext ( LLString& valueOut )
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-bool LLUrlWhiteList::containsMatch ( const LLString& patternIn )
+bool LLUrlWhiteList::containsMatch ( const std::string& patternIn )
 {
 	return false;
 }

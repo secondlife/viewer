@@ -35,7 +35,7 @@
 
 static LLRegisterWidget<LLViewBorder> r("view_border");
 
-LLViewBorder::LLViewBorder( const LLString& name, const LLRect& rect, EBevel bevel, EStyle style, S32 width )
+LLViewBorder::LLViewBorder( const std::string& name, const LLRect& rect, EBevel bevel, EStyle style, S32 width )
 	:
 	LLView( name, rect, FALSE ),
 	mBevel( bevel ),
@@ -277,9 +277,9 @@ BOOL LLViewBorder::getBevelFromAttribute(LLXMLNodePtr node, LLViewBorder::EBevel
 {
 	if (node->hasAttribute("bevel_style"))
 	{
-		LLString bevel_string;
+		std::string bevel_string;
 		node->getAttributeString("bevel_style", bevel_string);
-		LLString::toLower(bevel_string);
+		LLStringUtil::toLower(bevel_string);
 
 		if (bevel_string == "none")
 		{
@@ -306,7 +306,7 @@ BOOL LLViewBorder::getBevelFromAttribute(LLXMLNodePtr node, LLViewBorder::EBevel
 // static
 LLView* LLViewBorder::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory)
 {
-	LLString name("view_border");
+	std::string name("view_border");
 	node->getAttributeString("name", name);
 
 	LLViewBorder::EBevel bevel_style = LLViewBorder::BEVEL_IN;

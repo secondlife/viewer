@@ -87,9 +87,9 @@ public:
 		}
 		std::string getFilename()
 		{
-			char tbuf[40];	/* Flawfinder: ignore */
-			mFileID.toString(tbuf);
-			return std::string(tbuf);
+			std::string tstring;
+			mFileID.toString(tstring);
+			return tstring;
 		}
 		
 		/*virtual*/ bool processRequest();

@@ -61,7 +61,7 @@
 std::list<LLPanelPlace*> LLPanelPlace::sAllPanels;
 
 LLPanelPlace::LLPanelPlace()
-:	LLPanel("Places Panel"),
+:	LLPanel(std::string("Places Panel")),
 	mParcelID(),
 	mRequestedID(),
 	mRegionID(),
@@ -91,7 +91,7 @@ BOOL LLPanelPlace::postBuild()
     mNameEditor = getChild<LLTextBox>("name_editor");
 	// Text boxes appear to have a " " in them by default.  This breaks the
 	// emptiness test for filling in data from the network.  Slam to empty.
-	mNameEditor->setText( LLString::null );
+	mNameEditor->setText( LLStringUtil::null );
 
     mDescEditor = getChild<LLTextEditor>("desc_editor");
 
@@ -144,10 +144,10 @@ void LLPanelPlace::resetLocation()
 	mPosGlobal.clearVec();
 	mPosRegion.clearVec();
 	mAuctionID = 0;
-	mNameEditor->setText( LLString::null );
-	mDescEditor->setText( LLString::null );
-	mInfoEditor->setText( LLString::null );
-	mLocationEditor->setText( LLString::null );
+	mNameEditor->setText( LLStringUtil::null );
+	mDescEditor->setText( LLStringUtil::null );
+	mInfoEditor->setText( LLStringUtil::null );
+	mLocationEditor->setText( LLStringUtil::null );
 }
 
 void LLPanelPlace::setParcelID(const LLUUID& parcel_id)
@@ -187,7 +187,7 @@ void LLPanelPlace::sendParcelInfoRequest()
 void LLPanelPlace::setErrorStatus(U32 status, const std::string& reason)
 {
 	// We only really handle 404 and 499 errors
-	LLString error_text;
+	std::string error_text;
 	if(status == 404)
 	{	
 		error_text = getString("server_error_text");
@@ -205,15 +205,15 @@ void LLPanelPlace::processParcelInfoReply(LLMessageSystem *msg, void **)
 	LLUUID	agent_id;
 	LLUUID	parcel_id;
 	LLUUID	owner_id;
-	char	name[MAX_STRING];		/*Flawfinder: ignore*/
-	char	desc[MAX_STRING];		/*Flawfinder: ignore*/
+	std::string	name;
+	std::string	desc;
 	S32		actual_area;
 	S32		billable_area;
 	U8		flags;
 	F32		global_x;
 	F32		global_y;
 	F32		global_z;
-	char	sim_name[MAX_STRING];		/*Flawfinder: ignore*/
+	std::string	sim_name;
 	LLUUID	snapshot_id;
 	F32		dwell;
 	S32		sale_price;
@@ -232,15 +232,15 @@ void LLPanelPlace::processParcelInfoReply(LLMessageSystem *msg, void **)
 		}
 
 		msg->getUUID	("Data", "OwnerID", owner_id);
-		msg->getString	("Data", "Name", MAX_STRING, name);
-		msg->getString	("Data", "Desc", MAX_STRING, desc);
+		msg->getString	("Data", "Name", name);
+		msg->getString	("Data", "Desc", desc);
 		msg->getS32		("Data", "ActualArea", actual_area);
 		msg->getS32		("Data", "BillableArea", billable_area);
 		msg->getU8		("Data", "Flags", flags);
 		msg->getF32		("Data", "GlobalX", global_x);
 		msg->getF32		("Data", "GlobalY", global_y);
 		msg->getF32		("Data", "GlobalZ", global_z);
-		msg->getString	("Data", "SimName", MAX_STRING, sim_name);
+		msg->getString	("Data", "SimName", sim_name);
 		msg->getUUID	("Data", "SnapshotID", snapshot_id);
 		msg->getF32		("Data", "Dwell", dwell);
 		msg->getS32		("Data", "SalePrice", sale_price);
@@ -256,22 +256,20 @@ void LLPanelPlace::processParcelInfoReply(LLMessageSystem *msg, void **)
 
 		// Only assign the name and description if they are not empty and there is not a 
 		// value present (passed in from a landmark, e.g.)
-		std::string name_str(name);
-		std::string desc_str(desc);
 
-		if( !name_str.empty()
+		if( !name.empty()
 		   && self->mNameEditor && self->mNameEditor->getText().empty())
 		{
-			self->mNameEditor->setText(name_str);
+			self->mNameEditor->setText(name);
 		}
 
-		if( !desc_str.empty()
+		if( !desc.empty()
 			&& self->mDescEditor && self->mDescEditor->getText().empty())
 		{
-			self->mDescEditor->setText(desc_str);
+			self->mDescEditor->setText(desc);
 		}
 
-		LLString info_text;
+		std::string info_text;
 		LLUIString traffic = self->getUIString("traffic_text");
 		traffic.setArg("[TRAFFIC]", llformat("%d ", (int)dwell));
 		info_text = traffic;
@@ -296,7 +294,7 @@ void LLPanelPlace::processParcelInfoReply(LLMessageSystem *msg, void **)
 		}
 
 		// HACK: Flag 0x1 == mature region, otherwise assume PG
-		const char* rating = LLViewerRegion::accessToString(SIM_ACCESS_PG);
+		std::string rating = LLViewerRegion::accessToString(SIM_ACCESS_PG);
 		if (flags & 0x1)
 		{
 			rating = LLViewerRegion::accessToString(SIM_ACCESS_MATURE);
@@ -320,8 +318,8 @@ void LLPanelPlace::processParcelInfoReply(LLMessageSystem *msg, void **)
 			self->mPosGlobal.setVec(global_x, global_y, global_z);
 		}
 
-		LLString location = llformat("%s %d, %d, %d (%s)",
-			sim_name, region_x, region_y, region_z, rating);
+		std::string location = llformat("%s %d, %d, %d (%s)",
+										sim_name.c_str(), region_x, region_y, region_z, rating.c_str());
 		if (self->mLocationEditor)
 		{
 			self->mLocationEditor->setText(location);
@@ -430,8 +428,8 @@ void LLPanelPlace::callbackAuctionWebPage(S32 option, void* data)
 
 	if (0 == option)
 	{
-		char url[256];		/*Flawfinder: ignore*/
-		snprintf(url, sizeof(url), "%s%010d", AUCTION_URL, self->mAuctionID);			/* Flawfinder: ignore */
+		std::string url;
+		url = AUCTION_URL + llformat( "%010d", self->mAuctionID);
 
 		llinfos << "Loading auction page " << url << llendl;
 

@@ -56,7 +56,7 @@ extern BOOL gAllowSelectAvatar;
 const F32 SELECTION_ROTATION_TRESHOLD = 0.1f;
 
 LLToolSelect::LLToolSelect( LLToolComposite* composite )
-:	LLTool( "Select", composite ),
+:	LLTool( std::string("Select"), composite ),
 	mIgnoreGroup( FALSE )
 {
  }

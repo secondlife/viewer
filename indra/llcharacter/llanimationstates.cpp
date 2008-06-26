@@ -228,10 +228,10 @@ const char *LLAnimationLibrary::animStateToString( const LLUUID& state )
 //-----------------------------------------------------------------------------
 // Return the animation state for a given name
 //-----------------------------------------------------------------------------
-LLUUID LLAnimationLibrary::stringToAnimState( const char *name, BOOL allow_ids )
+LLUUID LLAnimationLibrary::stringToAnimState( const std::string& name, BOOL allow_ids )
 {
-	LLString lower_case_name(name);
-	LLString::toLower(lower_case_name);
+	std::string lower_case_name(name);
+	LLStringUtil::toLower(lower_case_name);
 
 	char *true_name = mAnimStringTable.checkString(lower_case_name.c_str());
 

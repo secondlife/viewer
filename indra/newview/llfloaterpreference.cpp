@@ -302,10 +302,7 @@ void LLPreferenceCore::onTabChanged(void* user_data, bool from_click)
 }
 
 
-void LLPreferenceCore::setPersonalInfo(
-	const char* visibility,
-	BOOL im_via_email,
-	const char* email)
+void LLPreferenceCore::setPersonalInfo(const std::string& visibility, bool im_via_email, const std::string& email)
 {
 	mPrefsIM->setPersonalInfo(visibility, im_via_email, email);
 }
@@ -435,7 +432,7 @@ void LLFloaterPreference::onBtnOK( void* userdata )
 		
 		std::string crash_settings_filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, CRASH_SETTINGS_FILE);
 		// save all settings, even if equals defaults
-		gCrashSettings.saveToFile(crash_settings_filename.c_str(), FALSE);
+		gCrashSettings.saveToFile(crash_settings_filename, FALSE);
 	}
 	else
 	{
@@ -488,15 +485,11 @@ void LLFloaterPreference::onBtnCancel( void* userdata )
 
 
 // static
-void LLFloaterPreference::updateUserInfo(
-	const char* visibility,
-	BOOL im_via_email,
-	const char* email)
+void LLFloaterPreference::updateUserInfo(const std::string& visibility, bool im_via_email, const std::string& email)
 {
 	if(sInstance && sInstance->mPreferenceCore)
 	{
-		sInstance->mPreferenceCore->setPersonalInfo(
-			visibility, im_via_email, email);
+		sInstance->mPreferenceCore->setPersonalInfo(visibility, im_via_email, email);
 	}
 }
 

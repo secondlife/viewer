@@ -162,8 +162,8 @@ BOOL is_daylight_savings();
 // struct tm* internal_time = utc_to_pacific_time(utc_time, gDaylight);
 struct tm* utc_to_pacific_time(time_t utc_time, BOOL pacific_daylight_time);
 
-void microsecondsToTimecodeString(U64 current_time, char *tcstring);
-void secondsToTimecodeString(F32 current_time, char *tcstring);
+void microsecondsToTimecodeString(U64 current_time, std::string& tcstring);
+void secondsToTimecodeString(F32 current_time, std::string& tcstring);
 
 // class for scheduling a function to be called at a given frequency (approximate, inprecise)
 class LLEventTimer 

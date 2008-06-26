@@ -67,7 +67,7 @@ void LLFloaterTopObjects::show()
 }
 
 LLFloaterTopObjects::LLFloaterTopObjects()
-:	LLFloater("top_objects"),
+:	LLFloater(std::string("top_objects")),
 	mInitialized(FALSE),
 	mtotalScore(0.f)
 {
@@ -124,7 +124,7 @@ BOOL LLFloaterTopObjects::postBuild()
 
 	mCurrentMode = STAT_REPORT_TOP_SCRIPTS;
 	mFlags = 0;
-	mFilter = "";
+	mFilter.clear();
 
 	return TRUE;
 }
@@ -164,8 +164,8 @@ void LLFloaterTopObjects::handleReply(LLMessageSystem *msg, void** data)
 		LLUUID task_id;
 		F32 location_x, location_y, location_z;
 		F32 score;
-		char name_buf[MAX_STRING];		/* Flawfinder: ignore */
-		char owner_buf[MAX_STRING];		/* Flawfinder: ignore */
+		std::string name_buf;
+		std::string owner_buf;
 
 		msg->getU32Fast(_PREHASH_ReportData, _PREHASH_TaskLocalID, task_local_id, block);
 		msg->getUUIDFast(_PREHASH_ReportData, _PREHASH_TaskID, task_id, block);
@@ -173,14 +173,14 @@ void LLFloaterTopObjects::handleReply(LLMessageSystem *msg, void** data)
 		msg->getF32Fast(_PREHASH_ReportData, _PREHASH_LocationY, location_y, block);
 		msg->getF32Fast(_PREHASH_ReportData, _PREHASH_LocationZ, location_z, block);
 		msg->getF32Fast(_PREHASH_ReportData, _PREHASH_Score, score, block);
-		msg->getStringFast(_PREHASH_ReportData, _PREHASH_TaskName, MAX_STRING, name_buf, block);
-		msg->getStringFast(_PREHASH_ReportData, _PREHASH_OwnerName, MAX_STRING, owner_buf, block);
+		msg->getStringFast(_PREHASH_ReportData, _PREHASH_TaskName, name_buf, block);
+		msg->getStringFast(_PREHASH_ReportData, _PREHASH_OwnerName, owner_buf, block);
 		
 		LLSD element;
 
 		element["id"] = task_id;
-		element["object_name"] = LLString(name_buf);
-		element["owner_name"] = LLString(owner_buf);
+		element["object_name"] = name_buf;
+		element["owner_name"] = owner_buf;
 		element["columns"][0]["column"] = "score";
 		element["columns"][0]["value"] = llformat("%0.3f", score);
 		element["columns"][0]["font"] = "SANSSERIF";
@@ -393,7 +393,7 @@ void LLFloaterTopObjects::onRefresh(void* data)
 {
 	U32 mode = STAT_REPORT_TOP_SCRIPTS;
 	U32 flags = 0;
-	LLString filter = "";
+	std::string filter = "";
 
 	if (sInstance)
 	{
@@ -418,7 +418,7 @@ void LLFloaterTopObjects::onRefresh(void* data)
 
 	if (sInstance)
 	{
-		sInstance->mFilter = "";
+		sInstance->mFilter.clear();
 		sInstance->mFlags = 0;
 	}
 }
@@ -451,8 +451,8 @@ void LLFloaterTopObjects::showBeacon()
 	LLScrollListItem* first_selected = list->getFirstSelected();
 	if (!first_selected) return;
 
-	LLString name = first_selected->getColumn(1)->getValue().asString();
-	LLString pos_string =  first_selected->getColumn(3)->getValue().asString();
+	std::string name = first_selected->getColumn(1)->getValue().asString();
+	std::string pos_string =  first_selected->getColumn(3)->getValue().asString();
 
 	F32 x, y, z;
 	S32 matched = sscanf(pos_string.c_str(), "<%g,%g,%g>", &x, &y, &z);
@@ -460,6 +460,6 @@ void LLFloaterTopObjects::showBeacon()
 
 	LLVector3 pos_agent(x, y, z);
 	LLVector3d pos_global = gAgent.getPosGlobalFromAgent(pos_agent);
-	LLString tooltip("");
+	std::string tooltip("");
 	LLTracker::trackLocation(pos_global, name, tooltip, LLTracker::LOCATION_ITEM);
 }

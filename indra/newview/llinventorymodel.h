@@ -292,7 +292,7 @@ public:
 
 	// Generates a string containing the path to the item specified by
 	// item_id.
-	void appendPath(const LLUUID& id, LLString& path);
+	void appendPath(const LLUUID& id, std::string& path);
 
 	// message handling functionality
 	static void registerCallbacks(LLMessageSystem* msg);
@@ -305,7 +305,7 @@ public:
 	// pass in a NULL to the 'name parameter.
 	LLUUID createNewCategory(const LLUUID& parent_id,
 							 LLAssetType::EType preferred_type,
-							 const LLString& name);
+							 const std::string& name);
 
 	// methods to load up inventory skeleton & meat. These are used
 	// during authentication. return true if everything parsed.
@@ -392,14 +392,12 @@ protected:
 	//void recalculateCloneInformation();
 
 	// file import/export.
-	static bool loadFromFile(
-		const char* filename,
-		cat_array_t& categories,
-		item_array_t& items); 
-	static bool saveToFile(
-		const char* filename,
-		const cat_array_t& categories,
-		const item_array_t& items); 
+	static bool loadFromFile(const std::string& filename,
+							 cat_array_t& categories,
+							 item_array_t& items); 
+	static bool saveToFile(const std::string& filename,
+						   const cat_array_t& categories,
+						   const item_array_t& items); 
 
 	// message handling functionality
 	//static void processUseCachedInventory(LLMessageSystem* msg, void**);
@@ -645,7 +643,7 @@ protected:
 class LLNameCategoryCollector : public LLInventoryCollectFunctor
 {
 public:
-	LLNameCategoryCollector(const char* name) : mName(name) {}
+	LLNameCategoryCollector(const std::string& name) : mName(name) {}
 	virtual ~LLNameCategoryCollector() {}
 	virtual bool operator()(LLInventoryCategory* cat,
 							LLInventoryItem* item);

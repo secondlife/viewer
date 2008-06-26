@@ -126,8 +126,8 @@ public:
 
 	virtual BOOL canDeprecate() { return FALSE; }
 
-	static LLString getHandPoseName(eHandPose pose);
-	static eHandPose getHandPose(LLString posename);
+	static std::string getHandPoseName(eHandPose pose);
+	static eHandPose getHandPose(std::string posename);
 
 public:
 	//-------------------------------------------------------------------------

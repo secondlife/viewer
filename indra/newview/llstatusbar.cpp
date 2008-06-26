@@ -179,9 +179,9 @@ mSquareMetersCommitted(0)
 	mSGBandwidth = new LLStatGraph("BandwidthGraph", r);
 	mSGBandwidth->setFollows(FOLLOWS_BOTTOM | FOLLOWS_RIGHT);
 	mSGBandwidth->setStat(&LLViewerStats::getInstance()->mKBitStat);
-	LLString text = childGetText("bandwidth_tooltip") + " ";
+	std::string text = childGetText("bandwidth_tooltip") + " ";
 	LLUIString bandwidth_tooltip = text;	// get the text from XML until this widget is XML driven
-	mSGBandwidth->setLabel(bandwidth_tooltip.getString().c_str());
+	mSGBandwidth->setLabel(bandwidth_tooltip.getString());
 	mSGBandwidth->setUnits("Kbps");
 	mSGBandwidth->setPrecision(0);
 	mSGBandwidth->setMouseOpaque(FALSE);
@@ -194,7 +194,7 @@ mSquareMetersCommitted(0)
 	mSGPacketLoss->setStat(&LLViewerStats::getInstance()->mPacketsLostPercentStat);
 	text = childGetText("packet_loss_tooltip") + " ";
 	LLUIString packet_loss_tooltip = text;	// get the text from XML until this widget is XML driven
-	mSGPacketLoss->setLabel(packet_loss_tooltip.getString().c_str());
+	mSGPacketLoss->setLabel(packet_loss_tooltip.getString());
 	mSGPacketLoss->setUnits("%");
 	mSGPacketLoss->setMin(0.f);
 	mSGPacketLoss->setMax(5.f);
@@ -348,7 +348,7 @@ void LLStatusBar::refresh()
 		childSetRect("health", r);
 		x += buttonRect.getWidth();
 
-		const S32 health_width = S32( LLFontGL::sSansSerifSmall->getWidth("100%") );
+		const S32 health_width = S32( LLFontGL::sSansSerifSmall->getWidth(std::string("100%")) );
 		r.set(x, y+TEXT_HEIGHT - 2, x+health_width, y);
 		mTextHealth->setRect(r);
 		x += health_width;
@@ -457,7 +457,7 @@ void LLStatusBar::refresh()
 		x += buttonRect.getWidth();
 	}
 
-	LLString location_name;
+	std::string location_name;
 	if (region)
 	{
 		const LLVector3& agent_pos_region = gAgent.getPositionAgent();
@@ -493,9 +493,9 @@ void LLStatusBar::refresh()
 		{
 			location_name = region->getName()
 				+ llformat(" %d, %d, %d (%s) - %s", 
-				pos_x, pos_y, pos_z,
-				region->getSimAccessString(),
-				parcel->getName().c_str());
+						   pos_x, pos_y, pos_z,
+						   region->getSimAccessString().c_str(),
+						   parcel->getName().c_str());
 
 			// keep these around for the LCD to use
 			mRegionDetails.mRegionName = region->getName();
@@ -537,7 +537,7 @@ void LLStatusBar::refresh()
 			location_name = region->getName()
 				+ llformat(" %d, %d, %d (%s)", 
 						   pos_x, pos_y, pos_z,
-						   region->getSimAccessString());
+						   region->getSimAccessString().c_str());
 			// keep these around for the LCD to use
 			mRegionDetails.mRegionName = region->getName();
 			mRegionDetails.mParcelName = "Unknown";
@@ -656,8 +656,8 @@ void LLStatusBar::creditBalance(S32 credit)
 
 void LLStatusBar::setBalance(S32 balance)
 {
-	LLString money_str = LLResMgr::getInstance()->getMonetaryString( balance );
-	LLString balance_str = "L$";
+	std::string money_str = LLResMgr::getInstance()->getMonetaryString( balance );
+	std::string balance_str = "L$";
 	balance_str += money_str;
 	mTextBalance->setText( balance_str );
 
@@ -822,14 +822,14 @@ static void onClickBuyLand(void*)
 void LLStatusBar::setupDate()
 {
 	// fill the day array with what's in the xui
-	LLString day_list = getString("StatBarDaysOfWeek");
+	std::string day_list = getString("StatBarDaysOfWeek");
 	size_t length = day_list.size();
 	
 	// quick input check
 	if(length < MAX_DATE_STRING_LENGTH)
 	{
 		// tokenize it and put it in the array
-		LLString cur_word;
+		std::string cur_word;
 		for(size_t i = 0; i < length; ++i)
 		{
 			if(day_list[i] == ':')
@@ -839,21 +839,21 @@ void LLStatusBar::setupDate()
 			}
 			else
 			{
-				cur_word.append(1, day_list.c_str()[i]);
+				cur_word.append(1, day_list[i]);
 			}
 		}
 		sDays.push_back(cur_word);
 	}
 	
 	// fill the day array with what's in the xui	
-	LLString month_list = getString( "StatBarMonthsOfYear" );
+	std::string month_list = getString( "StatBarMonthsOfYear" );
 	length = month_list.size();
 	
 	// quick input check
 	if(length < MAX_DATE_STRING_LENGTH)
 	{
 		// tokenize it and put it in the array
-		LLString cur_word;
+		std::string cur_word;
 		for(size_t i = 0; i < length; ++i)
 		{
 			if(month_list[i] == ':')
@@ -863,7 +863,7 @@ void LLStatusBar::setupDate()
 			}
 			else
 			{
-				cur_word.append(1, month_list.c_str()[i]);
+				cur_word.append(1, month_list[i]);
 			}
 		}
 		sMonths.push_back(cur_word);
@@ -892,7 +892,7 @@ void LLStatusBar::onCommitSearch(LLUICtrl*, void* data)
 void LLStatusBar::onClickSearch(void* data)
 {
 	LLStatusBar* self = (LLStatusBar*)data;
-	LLString search_text = self->childGetText("search_editor");
+	std::string search_text = self->childGetText("search_editor");
 	LLFloaterDirectory::showFindAll(search_text);
 }
 

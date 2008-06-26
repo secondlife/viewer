@@ -54,8 +54,8 @@ public:
 	// LLPanelGroupTab
 	static void* createTab(void* data);
 	virtual void activate();
-	virtual bool needsApply(LLString& mesg);
-	virtual bool apply(LLString& mesg);
+	virtual bool needsApply(std::string& mesg);
+	virtual bool apply(std::string& mesg);
 	virtual void cancel();
 	static void createGroupCallback(S32 option, void* user_data);
 	static void callbackConfirmMatureApply(S32 option, void* data);

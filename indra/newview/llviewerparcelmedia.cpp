@@ -120,7 +120,7 @@ void LLViewerParcelMedia::update(LLParcel* parcel)
 			}
 
 			std::string mediaUrl = std::string ( parcel->getMediaURL () );
-			LLString::trim(mediaUrl);
+			LLStringUtil::trim(mediaUrl);
 
 			// has something changed?
 			if (  ( LLViewerMedia::getMediaURL() != mediaUrl )
@@ -370,7 +370,7 @@ void LLViewerParcelMedia::processParcelMediaUpdate( LLMessageSystem *msg, void *
 		{
 			// temporarily store these new values in the parcel
 			parcel->setMediaURL(media_url);
-			parcel->setMediaType(media_type.c_str());
+			parcel->setMediaType(media_type);
 			parcel->setMediaID(media_id);
 			parcel->setMediaWidth(media_width);
 			parcel->setMediaHeight(media_height);

@@ -56,7 +56,7 @@
 LLFloaterBuyContents* LLFloaterBuyContents::sInstance = NULL;
 
 LLFloaterBuyContents::LLFloaterBuyContents()
-:	LLFloater("floater_buy_contents", "FloaterBuyContentsRect", "")
+:	LLFloater(std::string("floater_buy_contents"), std::string("FloaterBuyContentsRect"), LLStringUtil::null)
 {
 	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_buy_contents.xml");
 
@@ -109,7 +109,7 @@ void LLFloaterBuyContents::show(const LLSaleInfo& sale_info)
 	sInstance->center();
 
 	LLUUID owner_id;
-	LLString owner_name;
+	std::string owner_name;
 	BOOL owners_identical = LLSelectMgr::getInstance()->selectGetOwner(owner_id, owner_name);
 	if (!owners_identical)
 	{
@@ -223,7 +223,7 @@ void LLFloaterBuyContents::inventoryChanged(LLViewerObject* obj,
 			item_is_multi = TRUE;
 		}
 
-		LLString icon_name = get_item_icon_name(inv_item->getType(), 
+		std::string icon_name = get_item_icon_name(inv_item->getType(), 
 								 inv_item->getInventoryType(),
 								 inv_item->getFlags(),
 								 item_is_multi);
@@ -234,7 +234,7 @@ void LLFloaterBuyContents::inventoryChanged(LLViewerObject* obj,
 		// Append the permissions that you will acquire (not the current
 		// permissions).
 		U32 next_owner_mask = inv_item->getPermissions().getMaskNextOwner();
-		LLString text = (*it)->getName();
+		std::string text = (*it)->getName();
 
 		if (!(next_owner_mask & PERM_COPY))
 		{

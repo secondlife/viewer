@@ -32,29 +32,29 @@
 #include "linden_common.h"
 #include "lluistring.h"
 
-const LLString::format_map_t LLUIString::sNullArgs;
+const LLStringUtil::format_map_t LLUIString::sNullArgs;
 
 
-LLUIString::LLUIString(const LLString& instring, const LLString::format_map_t& args)
+LLUIString::LLUIString(const std::string& instring, const LLStringUtil::format_map_t& args)
 	: mOrig(instring),
 	  mArgs(args)
 {
 	format();
 }
 
-void LLUIString::assign(const LLString& s)
+void LLUIString::assign(const std::string& s)
 {
 	mOrig = s;
 	format();
 }
 
-void LLUIString::setArgList(const LLString::format_map_t& args)
+void LLUIString::setArgList(const LLStringUtil::format_map_t& args)
 {
 	mArgs = args;
 	format();
 }
 
-void LLUIString::setArg(const LLString& key, const LLString& replacement)
+void LLUIString::setArg(const std::string& key, const std::string& replacement)
 {
 	mArgs[key] = replacement;
 	format();
@@ -64,7 +64,7 @@ void LLUIString::truncate(S32 maxchars)
 {
 	if (mWResult.size() > (size_t)maxchars)
 	{
-		LLWString::truncate(mWResult, maxchars);
+		LLWStringUtil::truncate(mWResult, maxchars);
 		mResult = wstring_to_utf8str(mWResult);
 	}
 }
@@ -98,6 +98,6 @@ void LLUIString::clear()
 void LLUIString::format()
 {
 	mResult = mOrig;
-	LLString::format(mResult, mArgs);
+	LLStringUtil::format(mResult, mArgs);
 	mWResult = utf8str_to_wstring(mResult);
 }

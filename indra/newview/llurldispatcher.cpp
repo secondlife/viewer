@@ -326,7 +326,7 @@ void LLURLDispatcherImpl::regionHandleCallback(U64 region_handle, const std::str
 bool LLURLDispatcherImpl::matchPrefix(const std::string& url, const std::string& prefix)
 {
 	std::string test_prefix = url.substr(0, prefix.length());
-	LLString::toLower(test_prefix);
+	LLStringUtil::toLower(test_prefix);
 	return test_prefix == prefix;
 }
 

@@ -182,7 +182,7 @@ void LLPanelVolume::getState( )
 
 	BOOL owners_identical;
 	LLUUID owner_id;
-	LLString owner_name;
+	std::string owner_name;
 	owners_identical = LLSelectMgr::getInstance()->selectGetOwner(owner_id, owner_name);
 
 	// BUG? Check for all objects being editable?

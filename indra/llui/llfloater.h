@@ -86,8 +86,8 @@ public:
 	};
 	
 	LLFloater();
- 	LLFloater(const LLString& name); //simple constructor for data-driven initialization
-	LLFloater(	const LLString& name, const LLRect& rect, const LLString& title,
+ 	LLFloater(const std::string& name); //simple constructor for data-driven initialization
+	LLFloater(	const std::string& name, const LLRect& rect, const std::string& title,
 		BOOL resizable = FALSE,
 		S32 min_width = DEFAULT_MIN_WIDTH,
 		S32 min_height = DEFAULT_MIN_HEIGHT,
@@ -96,7 +96,7 @@ public:
 		BOOL close_btn = TRUE,
 		BOOL bordered = BORDER_NO);
 
-	LLFloater(	const LLString& name, const LLString& rect_control, const LLString& title,
+	LLFloater(	const std::string& name, const std::string& rect_control, const std::string& title,
 		BOOL resizable = FALSE,
 		S32 min_width = DEFAULT_MIN_WIDTH, 
 		S32 min_height = DEFAULT_MIN_HEIGHT,
@@ -119,7 +119,7 @@ public:
 
 	// Can be called multiple times to reset floater parameters.
 	// Deletes all children of the floater.
-	virtual void		initFloater(const LLString& title, BOOL resizable, 
+	virtual void		initFloater(const std::string& title, BOOL resizable, 
 						S32 min_width, S32 min_height, BOOL drag_on_left,
 						BOOL minimizable, BOOL close_btn);
 
@@ -142,10 +142,10 @@ public:
 
 	LLMultiFloater* getHost() { return (LLMultiFloater*)mHostHandle.get(); }
 
-	void			setTitle( const LLString& title );
-	const LLString&	getTitle() const;
-	void			setShortTitle( const LLString& short_title );
-	LLString		getShortTitle();
+	void			setTitle( const std::string& title );
+	const std::string&	getTitle() const;
+	void			setShortTitle( const std::string& short_title );
+	std::string		getShortTitle();
 	void			setTitleVisible(bool visible);
 	virtual void	setMinimized(BOOL b);
 	void			moveResizeHandlesToFront();
@@ -246,7 +246,7 @@ private:
 	BOOL			mMinimized;
 	BOOL			mForeground;
 	LLHandle<LLFloater>	mDependeeHandle;
-	LLString		mShortTitle;
+	std::string		mShortTitle;
 
 	BOOL			mFirstLook;			// TRUE if the _next_ time this floater is visible will be the first time in the session that it is visible.
 
@@ -272,11 +272,11 @@ private:
 
 	static LLMultiFloater* sHostp;
 	static BOOL		sEditModeEnabled;
-	static LLString	sButtonActiveImageNames[BUTTON_COUNT];
-	static LLString	sButtonInactiveImageNames[BUTTON_COUNT];
-	static LLString	sButtonPressedImageNames[BUTTON_COUNT];
-	static LLString	sButtonNames[BUTTON_COUNT];
-	static LLString	sButtonToolTips[BUTTON_COUNT];
+	static std::string	sButtonActiveImageNames[BUTTON_COUNT];
+	static std::string	sButtonInactiveImageNames[BUTTON_COUNT];
+	static std::string	sButtonPressedImageNames[BUTTON_COUNT];
+	static std::string	sButtonNames[BUTTON_COUNT];
+	static std::string	sButtonToolTips[BUTTON_COUNT];
 	typedef void (*click_callback)(void *);
 	static click_callback sButtonCallbacks[BUTTON_COUNT];
 
@@ -301,7 +301,7 @@ private:
 class LLFloaterView : public LLUICtrl
 {
 public:
-	LLFloaterView( const LLString& name, const LLRect& rect );
+	LLFloaterView( const std::string& name, const LLRect& rect );
 
 	/*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 	void reshapeFloater(S32 width, S32 height, BOOL called_from_parent, BOOL adjust_vertical);
@@ -361,9 +361,9 @@ class LLMultiFloater : public LLFloater
 public:
 	LLMultiFloater();
 	LLMultiFloater(LLTabContainer::TabPosition tab_pos);
-	LLMultiFloater(const LLString& name);
-	LLMultiFloater(const LLString& name, const LLRect& rect, LLTabContainer::TabPosition tab_pos = LLTabContainer::TOP, BOOL auto_resize = TRUE);
-	LLMultiFloater(const LLString& name, const LLString& rect_control, LLTabContainer::TabPosition tab_pos = LLTabContainer::TOP, BOOL auto_resize = TRUE);
+	LLMultiFloater(const std::string& name);
+	LLMultiFloater(const std::string& name, const LLRect& rect, LLTabContainer::TabPosition tab_pos = LLTabContainer::TOP, BOOL auto_resize = TRUE);
+	LLMultiFloater(const std::string& name, const std::string& rect_control, LLTabContainer::TabPosition tab_pos = LLTabContainer::TOP, BOOL auto_resize = TRUE);
 	virtual ~LLMultiFloater() {};
 
 	virtual BOOL postBuild();

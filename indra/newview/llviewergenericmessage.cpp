@@ -44,7 +44,7 @@
 LLDispatcher gGenericDispatcher;
 
 
-void send_generic_message(const char* method,
+void send_generic_message(const std::string& method,
 						  const std::vector<std::string>& strings,
 						  const LLUUID& invoice)
 {
@@ -69,7 +69,7 @@ void send_generic_message(const char* method,
 		for(; it != end; ++it)
 		{
 			msg->nextBlock("ParamList");
-			msg->addString("Parameter", (*it).c_str());
+			msg->addString("Parameter", *it);
 		}
 	}
 	gAgent.sendReliableMessage();

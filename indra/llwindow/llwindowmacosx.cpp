@@ -64,35 +64,11 @@ BOOL LLWindowMacOSX::sUseMultGL = FALSE;
 
 // Cross-platform bits:
 
-void show_window_creation_error(const char* title)
-{
-	llwarns << title << llendl;
-	/*
-	OSMessageBox(
-	"Second Life is unable to run because it can't set up your display.\n"
-	"We need to be able to make a 32-bit color window at 1024x768, with\n"
-	"an 8 bit alpha channel.\n"
-	"\n"
-	"First, be sure your monitor is set to True Color (32-bit) in\n"
-	"Start -> Control Panels -> Display -> Settings.\n"
-	"\n"
-	"Otherwise, this may be due to video card driver issues.\n"
-	"Please make sure you have the latest video card drivers installed.\n"
-	"ATI drivers are available at http://www.ati.com/\n"
-	"nVidia drivers are available at http://www.nvidia.com/\n"
-	"\n"
-	"If you continue to receive this message, contact customer service.",
-	title,
-	OSMB_OK);
-	*/
-}
-
 BOOL check_for_card(const char* RENDERER, const char* bad_card)
 {
 	if (!strnicmp(RENDERER, bad_card, strlen(bad_card)))
 	{
-		char buffer[1024];/* Flawfinder: ignore */
-		snprintf(buffer, sizeof(buffer), 
+		std::string buffer = llformat(
 			"Your video card appears to be a %s, which Second Life does not support.\n"
 			"\n"
 			"Second Life requires a video card with 32 Mb of memory or more, as well as\n"
@@ -106,7 +82,7 @@ BOOL check_for_card(const char* RENDERER, const char* bad_card)
 			"You can try to run Second Life, but it will probably crash or run\n"
 			"very slowly.  Try anyway?",
 			bad_card);
-		S32 button = OSMessageBox(buffer, "Unsupported video card", OSMB_YESNO);
+		S32 button = OSMessageBox(buffer.c_str(), "Unsupported video card", OSMB_YESNO);
 		if (OSBTN_YES == button)
 		{
 			return FALSE;
@@ -119,8 +95,6 @@ BOOL check_for_card(const char* RENDERER, const char* bad_card)
 
 	return FALSE;
 }
-
-
 
 // Switch to determine whether we capture all displays, or just the main one.
 // We may want to base this on the setting of _DEBUG...
@@ -238,7 +212,7 @@ static LLWindowMacOSX *gWindowImplementation = NULL;
 
 
 
-LLWindowMacOSX::LLWindowMacOSX(const char *title, const char *name, S32 x, S32 y, S32 width,
+LLWindowMacOSX::LLWindowMacOSX(const std::string& title, const std::string& name, S32 x, S32 y, S32 width,
 							   S32 height, U32 flags,
 							   BOOL fullscreen, BOOL clearBg,
 							   BOOL disable_vsync, BOOL use_gl,
@@ -285,8 +259,8 @@ LLWindowMacOSX::LLWindowMacOSX(const char *title, const char *name, S32 x, S32 y
 	mOriginalAspectRatio = (double)CGDisplayPixelsWide(mDisplay) / (double)CGDisplayPixelsHigh(mDisplay);
 
 	// Stash the window title
-	strcpy((char*)mWindowTitle + 1, title); /* Flawfinder: ignore */
-	mWindowTitle[0] = strlen(title);	/* Flawfinder: ignore */
+	strcpy((char*)mWindowTitle + 1, title.c_str()); /* Flawfinder: ignore */
+	mWindowTitle[0] = title.length();
 
 	mEventHandlerUPP = NewEventHandlerUPP(staticEventHandler);
 	mGlobalHandlerRef = NULL;
@@ -463,8 +437,7 @@ BOOL LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits
 			mFullscreenBits    = -1;
 			mFullscreenRefresh = -1;
 
-			char error[256];	/* Flawfinder: ignore */
-			snprintf(error, sizeof(error), "Unable to run fullscreen at %d x %d.\nRunning in window.", width, height);	
+			std::string error= llformat("Unable to run fullscreen at %d x %d.\nRunning in window.", width, height);	
 			OSMessageBox(error, "Error", OSMB_OK);
 		}
 	}
@@ -822,9 +795,6 @@ BOOL LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits
 		}
 	}
 
-	//make sure multisample starts off disabled
-	glDisable(GL_MULTISAMPLE_ARB);
-	
 	// Don't need to get the current gamma, since there's a call that restores it to the system defaults.
 	return TRUE;
 }
@@ -1606,11 +1576,6 @@ void LLWindowMacOSX::afterDialog()
 }
 
 
-S32 LLWindowMacOSX::stat(const char* file_name, struct stat* stat_info)
-{
-	return ::stat( file_name, stat_info );
-}
-
 void LLWindowMacOSX::flashIcon(F32 seconds)
 {
 	// Don't do this if we're already started, since this would try to install the NMRec twice.
@@ -1737,15 +1702,6 @@ BOOL LLWindowMacOSX::copyTextToClipboard(const LLWString &s)
 	}
 
 	return result;
-}
-
-
-BOOL LLWindowMacOSX::sendEmail(const char* address, const char* subject, const char* body_text,
-									   const char* attachment, const char* attachment_displayed_name )
-{
-	// MBW -- XXX -- Um... yeah.  I'll get to this later.
-
-	return false;
 }
 
 
@@ -1945,7 +1901,7 @@ BOOL LLWindowMacOSX::convertCoords(LLCoordGL from, LLCoordScreen *to)
 
 
 
-void LLWindowMacOSX::setupFailure(const char* text, const char* caption, U32 type)
+void LLWindowMacOSX::setupFailure(const std::string& text, const std::string& caption, U32 type)
 {
 	destroyContext();
 
@@ -3016,20 +2972,13 @@ void LLSplashScreenMacOSX::showImpl()
 #endif
 }
 
-void LLSplashScreenMacOSX::updateImpl(const char* mesg)
+void LLSplashScreenMacOSX::updateImpl(const std::string& mesg)
 {
 	if(mWindow != NULL)
 	{
 		CFStringRef string = NULL;
 
-		if(mesg != NULL)
-		{
-			string = CFStringCreateWithCString(NULL, mesg, kCFStringEncodingUTF8);
-		}
-		else
-		{
-			string = CFStringCreateWithCString(NULL, "", kCFStringEncodingUTF8);
-		}
+		string = CFStringCreateWithCString(NULL, mesg.c_str(), kCFStringEncodingUTF8);
 
 		if(string != NULL)
 		{
@@ -3064,7 +3013,7 @@ void LLSplashScreenMacOSX::hideImpl()
 
 
 
-S32 OSMessageBoxMacOSX(const char* text, const char* caption, U32 type)
+S32 OSMessageBoxMacOSX(const std::string& text, const std::string& caption, U32 type)
 {
 	S32 result = OSBTN_CANCEL;
 	SInt16 retval_mac = 1;
@@ -3075,23 +3024,8 @@ S32 OSMessageBoxMacOSX(const char* text, const char* caption, U32 type)
 	AlertType alertType = kAlertCautionAlert;
 	OSStatus err;
 
-	if(text != NULL)
-	{
-		explanationString = CFStringCreateWithCString(NULL, text, kCFStringEncodingUTF8);
-	}
-	else
-	{
-		explanationString = CFStringCreateWithCString(NULL, "", kCFStringEncodingUTF8);
-	}
-
-	if(caption != NULL)
-	{
-		errorString = CFStringCreateWithCString(NULL, caption, kCFStringEncodingUTF8);
-	}
-	else
-	{
-		errorString = CFStringCreateWithCString(NULL, "", kCFStringEncodingUTF8);
-	}
+	explanationString = CFStringCreateWithCString(NULL, text.c_str(), kCFStringEncodingUTF8);
+	errorString = CFStringCreateWithCString(NULL, caption.c_str(), kCFStringEncodingUTF8);
 
 	params.version = kStdCFStringAlertVersionOne;
 	params.movable = false;
@@ -3175,15 +3109,13 @@ S32 OSMessageBoxMacOSX(const char* text, const char* caption, U32 type)
 
 // Open a URL with the user's default web browser.
 // Must begin with protocol identifier.
-void spawn_web_browser(const char* escaped_url)
+void LLWindowMacOSX::spawnWebBrowser(const std::string& escaped_url)
 {
 	bool found = false;
 	S32 i;
 	for (i = 0; i < gURLProtocolWhitelistCount; i++)
 	{
-		S32 len = strlen(gURLProtocolWhitelist[i]);	/* Flawfinder: ignore */
-		if (!strncmp(escaped_url, gURLProtocolWhitelist[i], len)
-			&& escaped_url[len] == ':')
+		if (escaped_url.find(gURLProtocolWhitelist[i]) != std::string::npos)
 		{
 			found = true;
 			break;
@@ -3192,7 +3124,7 @@ void spawn_web_browser(const char* escaped_url)
 
 	if (!found)
 	{
-		llwarns << "spawn_web_browser() called for url with protocol not on whitelist: " << escaped_url << llendl;
+		llwarns << "spawn_web_browser called for url with protocol not on whitelist: " << escaped_url << llendl;
 		return;
 	}
 
@@ -3201,7 +3133,7 @@ void spawn_web_browser(const char* escaped_url)
 
 	llinfos << "Opening URL " << escaped_url << llendl;
 
-	CFStringRef	stringRef = CFStringCreateWithCString(NULL, escaped_url, kCFStringEncodingUTF8);
+	CFStringRef	stringRef = CFStringCreateWithCString(NULL, escaped_url.c_str(), kCFStringEncodingUTF8);
 	if (stringRef)
 	{
 		// This will succeed if the string is a full URL, including the http://

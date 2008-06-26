@@ -58,7 +58,7 @@ public:
 									 EDragAndDropType cargo_type,
 									 void* cargo_data,
 									 EAcceptance* accept,
-									 LLString& tooltip_msg);
+									 std::string& tooltip_msg);
 
 	// LLPanel
 	virtual BOOL postBuild();

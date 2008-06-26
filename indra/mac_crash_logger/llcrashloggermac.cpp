@@ -57,7 +57,7 @@ LLFILE *gDebugFile = NULL;
 
 WindowRef gWindow = NULL;
 EventHandlerRef gEventHandler = NULL;
-LLString gUserNotes = "";
+std::string gUserNotes = "";
 bool gSendReport = false;
 bool gRememberChoice = false;
 IBNibRef nib = NULL;
@@ -217,16 +217,16 @@ void LLCrashLoggerMac::gatherPlatformSpecificFiles()
 		if(FSRefMakePath(&folder, (UInt8*)&path, sizeof(path)) == noErr)
 		{
 			struct stat dw_stat;
-			LLString mBuf;
+			std::string mBuf;
 			bool isLeopard = false;
 			// Try the 10.3 path first...
-			LLString dw_file_name = LLString(path) + LLString("/CrashReporter/Second Life.crash.log");
+			std::string dw_file_name = std::string(path) + std::string("/CrashReporter/Second Life.crash.log");
 			int res = stat(dw_file_name.c_str(), &dw_stat);
 
 			if (res)
 			{
 				// Try the 10.2 one next...
-				dw_file_name = LLString(path) + LLString("/Second Life.crash.log");
+				dw_file_name = std::string(path) + std::string("/Second Life.crash.log");
 				res = stat(dw_file_name.c_str(), &dw_stat);
 			}
 	
@@ -235,8 +235,8 @@ void LLCrashLoggerMac::gatherPlatformSpecificFiles()
 				//10.5: Like 10.3+, except it puts the crash time in the file instead of dividing it up
 				//using asterisks. Get a directory listing, search for files starting with second life,
 				//use the last one found.
-				LLString old_file_name, current_file_name, pathname, mask;
-				pathname = LLString(path) + LLString("/CrashReporter/");
+				std::string old_file_name, current_file_name, pathname, mask;
+				pathname = std::string(path) + std::string("/CrashReporter/");
 				mask = "Second Life*";
 				while(gDirUtilp->getNextFileInDir(pathname, mask, current_file_name, false))
 				{
@@ -331,7 +331,7 @@ bool LLCrashLoggerMac::mainLoop()
 	return true;
 }
 
-void LLCrashLoggerMac::updateApplication(LLString message)
+void LLCrashLoggerMac::updateApplication(const std::string& message)
 {
 	LLCrashLogger::updateApplication();
 }

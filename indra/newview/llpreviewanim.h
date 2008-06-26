@@ -53,7 +53,7 @@ protected:
 	
 	LLAnimPauseRequest	mPauseRequest;
 	LLUUID		mItemID;
-	LLString	mTitle;
+	std::string	mTitle;
 	LLUUID		mObjectID;
 	LLButton*	mPlayBtn;
 	LLButton*	mAuditionBtn;

@@ -56,7 +56,7 @@ private:
 
 private:
 	LLUUID	mID;
-	LLString mTitle;
+	std::string mTitle;
 	LLTextureCtrl* mBakedHead;
 	LLTextureCtrl* mBakedEyes;
 	LLTextureCtrl* mBakedUpper;

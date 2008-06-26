@@ -37,7 +37,7 @@ class LLHost;
 class LLUUID;
 
 // agent_id/group_id, first_name, last_name, is_group, user_data
-typedef void (*LLCacheNameCallback)(const LLUUID&, const char*, const char*, BOOL, void*);
+typedef void (*LLCacheNameCallback)(const LLUUID&, const std::string&, const std::string&, BOOL, void*);
 
 // Here's the theory:
 // If you request a name that isn't in the cache, it returns "waiting"
@@ -75,7 +75,6 @@ public:
 	// last must be at least DB_LAST_NAME_BUF_SIZE characters.
 	// If not available, copies the string "waiting".
 	// Returns TRUE iff available.
-	BOOL getName(const LLUUID& id, char* first, char* last);
 	BOOL getName(const LLUUID& id, std::string& first, std::string& last);
 	BOOL getFullName(const LLUUID& id, std::string& fullname);
 	
@@ -83,7 +82,6 @@ public:
 	// provided. The caller must allocate at least
 	// DB_GROUP_NAME_BUF_SIZE characters. If not available, this
 	// method copies the string "waiting". Returns TRUE iff available.
-	BOOL getGroupName(const LLUUID& id, char* group);
 	BOOL getGroupName(const LLUUID& id, std::string& group);
 
 	// Call the callback with the group or avatar name.
@@ -107,7 +105,7 @@ public:
 	void dump();		// Dumps the contents of the cache
 	void dumpStats();	// Dumps the sizes of the cache and associated queues.
 
-	static LLString getDefaultName();
+	static std::string getDefaultName();
 
 private:
 

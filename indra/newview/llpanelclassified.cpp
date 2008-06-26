@@ -148,7 +148,7 @@ LLClassifiedTeleportHandler gClassifiedTeleportHandler;
 */
 
 LLPanelClassified::LLPanelClassified(bool in_finder, bool from_search)
-:	LLPanel("Classified Panel"),
+:	LLPanel(std::string("Classified Panel")),
 	mInFinder(in_finder),
 	mFromSearch(from_search),
 	mDirty(false),
@@ -313,7 +313,7 @@ BOOL LLPanelClassified::titleIsValid()
 {
 	// Disallow leading spaces, punctuation, etc. that screw up
 	// sort order.
-	const LLString& name = mNameEditor->getText();
+	const std::string& name = mNameEditor->getText();
 	if (name.empty())
 	{
 		gViewerWindow->alertXml("BlankClassifiedName");
@@ -379,7 +379,7 @@ BOOL LLPanelClassified::canClose()
 	if (mForceClose || !checkDirty()) 
 		return TRUE;
 
-	LLString::format_map_t args;
+	LLStringUtil::format_map_t args;
 	args["[NAME]"] = mNameEditor->getText();
 	LLAlertDialog::showXml("ClassifiedSave", args, saveCallback, this);
 	return FALSE;
@@ -576,33 +576,27 @@ void LLPanelClassified::processClassifiedInfoReply(LLMessageSystem *msg, void **
     LLUUID parcel_id;
     msg->getUUIDFast(_PREHASH_Data, _PREHASH_ParcelID, parcel_id);
 
-	char name[DB_PARCEL_NAME_SIZE];		/*Flawfinder: ignore*/
-	msg->getStringFast(_PREHASH_Data, _PREHASH_Name, DB_PARCEL_NAME_SIZE, name);
+	std::string name;
+	msg->getStringFast(_PREHASH_Data, _PREHASH_Name, name);
 
-	char desc[DB_PICK_DESC_SIZE];		/*Flawfinder: ignore*/
-	msg->getStringFast(_PREHASH_Data, _PREHASH_Desc, DB_PICK_DESC_SIZE, desc);
+	std::string desc;
+	msg->getStringFast(_PREHASH_Data, _PREHASH_Desc, desc);
 
 	LLUUID snapshot_id;
 	msg->getUUIDFast(_PREHASH_Data, _PREHASH_SnapshotID, snapshot_id);
 
     // "Location text" is actually the original
     // name that owner gave the parcel, and the location.
-	char buffer[256];		/*Flawfinder: ignore*/
-    LLString location_text;
+	std::string location_text;
 
-    msg->getStringFast(_PREHASH_Data, _PREHASH_ParcelName, 256, buffer);
-	if (buffer[0] != '\0')
+    msg->getStringFast(_PREHASH_Data, _PREHASH_ParcelName, location_text);
+	if (!location_text.empty())
 	{
-		location_text.assign(buffer);
 		location_text.append(", ");
 	}
-	else
-	{
-		location_text.assign("");
-	}
 
-	char sim_name[256];		/*Flawfinder: ignore*/
-	msg->getStringFast(_PREHASH_Data, _PREHASH_SimName, 256, sim_name);
+	std::string sim_name;
+	msg->getStringFast(_PREHASH_Data, _PREHASH_SimName, sim_name);
 
 	LLVector3d pos_global;
 	msg->getVector3dFast(_PREHASH_Data, _PREHASH_PosGlobal, pos_global);
@@ -610,8 +604,8 @@ void LLPanelClassified::processClassifiedInfoReply(LLMessageSystem *msg, void **
     S32 region_x = llround((F32)pos_global.mdV[VX]) % REGION_WIDTH_UNITS;
     S32 region_y = llround((F32)pos_global.mdV[VY]) % REGION_WIDTH_UNITS;
 	S32 region_z = llround((F32)pos_global.mdV[VZ]);
-   
-    snprintf(buffer, sizeof(buffer), "%s (%d, %d, %d)", sim_name, region_x, region_y, region_z);			/* Flawfinder: ignore */
+
+	std::string buffer = llformat("%s (%d, %d, %d)", sim_name.c_str(), region_x, region_y, region_z);
     location_text.append(buffer);
 
 	U8 flags;
@@ -654,8 +648,8 @@ void LLPanelClassified::processClassifiedInfoReply(LLMessageSystem *msg, void **
 		self->mPosGlobal = pos_global;
 
 		// Update UI controls
-        self->mNameEditor->setText(LLString(name));
-        self->mDescEditor->setText(LLString(desc));
+        self->mNameEditor->setText(name);
+        self->mDescEditor->setText(desc);
         self->mSnapshotCtrl->setImageAssetID(snapshot_id);
         self->mLocationEditor->setText(location_text);
 		self->mLocationChanged = false;
@@ -674,8 +668,8 @@ void LLPanelClassified::processClassifiedInfoReply(LLMessageSystem *msg, void **
 			self->mAutoRenewCheck->set(auto_renew);
 		}
 
-		LLString datestr = llformat("%02d/%02d/%d", now->tm_mon+1, now->tm_mday, now->tm_year+1900);
-		LLString::format_map_t string_args;
+		std::string datestr = llformat("%02d/%02d/%d", now->tm_mon+1, now->tm_mday, now->tm_year+1900);
+		LLStringUtil::format_map_t string_args;
 		string_args["[DATE]"] = datestr;
 		string_args["[AMT]"] = llformat("%d", price_for_listing);
 		self->childSetText("classified_info_text", self->getString("ad_placed_paid", string_args));
@@ -790,7 +784,7 @@ void LLPanelClassified::onClickUpdate(void* data)
 	// If user has not set mature, do not allow publish
 	if(self->mMatureCombo->getCurrentIndex() == DECLINE_TO_STATE)
 	{
-		LLString::format_map_t args;
+		LLStringUtil::format_map_t args;
 		gViewerWindow->alertXml("SetClassifiedMature", &callbackConfirmMature, self);
 		return;
 	}
@@ -845,7 +839,7 @@ void LLPanelClassified::gotMature()
 }
 
 // static
-void LLPanelClassified::callbackGotPriceForListing(S32 option, LLString text, void* data)
+void LLPanelClassified::callbackGotPriceForListing(S32 option, std::string text, void* data)
 {
 	LLPanelClassified* self = (LLPanelClassified*)data;
 
@@ -855,8 +849,8 @@ void LLPanelClassified::callbackGotPriceForListing(S32 option, LLString text, vo
 	S32 price_for_listing = strtol(text.c_str(), NULL, 10);
 	if (price_for_listing < MINIMUM_PRICE_FOR_LISTING)
 	{
-		LLString::format_map_t args;
-		LLString price_text = llformat("%d", MINIMUM_PRICE_FOR_LISTING);
+		LLStringUtil::format_map_t args;
+		std::string price_text = llformat("%d", MINIMUM_PRICE_FOR_LISTING);
 		args["[MIN_PRICE]"] = price_text;
 			
 		gViewerWindow->alertXml("MinClassifiedPrice", args);
@@ -867,7 +861,7 @@ void LLPanelClassified::callbackGotPriceForListing(S32 option, LLString text, vo
 	// update send
 	self->mPriceForListing = price_for_listing;
 
-	LLString::format_map_t args;
+	LLStringUtil::format_map_t args;
 	args["[AMOUNT]"] = llformat("%d", price_for_listing);
 	gViewerWindow->alertXml("PublishClassified", args, &callbackConfirmPublish, self);
 
@@ -907,7 +901,7 @@ void LLPanelClassified::confirmPublish(S32 option)
 	{
 		// TODO: enable this
 		//LLPanelDirClassifieds* panel = (LLPanelDirClassifieds*)getParent();
-		//panel->renameClassified(mClassifiedID, mNameEditor->getText().c_str());
+		//panel->renameClassified(mClassifiedID, mNameEditor->getText());
 	}
 	else
 	{
@@ -963,7 +957,7 @@ void LLPanelClassified::onClickProfile(void* data)
 void LLPanelClassified::onClickLandmark(void* data)
 {
     LLPanelClassified* self = (LLPanelClassified*)data;
-	create_landmark(self->mNameEditor->getText().c_str(), "", self->mPosGlobal);
+	create_landmark(self->mNameEditor->getText(), "", self->mPosGlobal);
 }
 */
 
@@ -975,7 +969,7 @@ void LLPanelClassified::onClickSet(void* data)
 	// Save location for later.
 	self->mPosGlobal = gAgent.getPositionGlobal();
 
-	LLString location_text;
+	std::string location_text;
 	location_text.assign("(will update after publish)");
 	location_text.append(", ");
 
@@ -1029,7 +1023,7 @@ void LLPanelClassified::focusReceived(LLFocusableElement* ctrl, void* data)
 }
 
 
-void LLPanelClassified::sendClassifiedClickMessage(const char* type)
+void LLPanelClassified::sendClassifiedClickMessage(const std::string& type)
 {
 	// You're allowed to click on your own ads to reassure yourself
 	// that the system is working.
@@ -1049,7 +1043,7 @@ void LLPanelClassified::sendClassifiedClickMessage(const char* type)
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 LLFloaterPriceForListing::LLFloaterPriceForListing()
-:	LLFloater("PriceForListing"),
+:	LLFloater(std::string("PriceForListing")),
 	mCallback(NULL),
 	mUserData(NULL)
 { }
@@ -1065,7 +1059,7 @@ BOOL LLFloaterPriceForListing::postBuild()
 	if (edit)
 	{
 		edit->setPrevalidate(LLLineEditor::prevalidateNonNegativeS32);
-		LLString min_price = llformat("%d", MINIMUM_PRICE_FOR_LISTING);
+		std::string min_price = llformat("%d", MINIMUM_PRICE_FOR_LISTING);
 		edit->setText(min_price);
 		edit->selectAll();
 		edit->setFocus(TRUE);
@@ -1080,7 +1074,7 @@ BOOL LLFloaterPriceForListing::postBuild()
 }
 
 //static
-void LLFloaterPriceForListing::show( void (*callback)(S32, LLString, void*), void* userdata)
+void LLFloaterPriceForListing::show( void (*callback)(S32, std::string, void*), void* userdata)
 {
 	LLFloaterPriceForListing *self = new LLFloaterPriceForListing();
 
@@ -1111,7 +1105,7 @@ void LLFloaterPriceForListing::buttonCore(S32 button, void* data)
 
 	if (self->mCallback)
 	{
-		LLString text = self->childGetText("price_edit");
+		std::string text = self->childGetText("price_edit");
 		self->mCallback(button, text, self->mUserData);
 		self->close();
 	}

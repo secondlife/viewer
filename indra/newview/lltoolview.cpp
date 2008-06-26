@@ -77,50 +77,50 @@ LLToolView::~LLToolView()
 }
 
 //*TODO:translate?
-void LLToolView::addTool(const LLString& icon_off, const LLString& icon_on, LLPanel* panel, LLTool* tool, LLView* hoverView, const char* label)
-{
-	llassert(tool);
+// void LLToolView::addTool(const std::string& icon_off, const std::string& icon_on, LLPanel* panel, LLTool* tool, LLView* hoverView, const char* label)
+// {
+// 	llassert(tool);
 
-	LLToolContainer* contain = new LLToolContainer(this);
+// 	LLToolContainer* contain = new LLToolContainer(this);
 
-	LLRect btn_rect = getButtonRect(mButtonCount);
+// 	LLRect btn_rect = getButtonRect(mButtonCount);
 
-	contain->mButton = new LLButton("ToolBtn",
-		btn_rect, 
-		icon_off,
-		icon_on, 
-		"",
-		&LLToolView::onClickToolButton,
-		contain,
-		LLFontGL::sSansSerif);
+// 	contain->mButton = new LLButton("ToolBtn",
+// 		btn_rect, 
+// 		icon_off,
+// 		icon_on, 
+// 		"",
+// 		&LLToolView::onClickToolButton,
+// 		contain,
+// 		LLFontGL::sSansSerif);
 
-	contain->mPanel = panel;
-	contain->mTool = tool;
+// 	contain->mPanel = panel;
+// 	contain->mTool = tool;
 
-	addChild(contain->mButton);
-	mButtonCount++;
+// 	addChild(contain->mButton);
+// 	mButtonCount++;
 
-	const S32 LABEL_TOP_SPACING = 0;
-	const LLFontGL* font = LLResMgr::getInstance()->getRes( LLFONT_SANSSERIF_SMALL );
-	S32 label_width = font->getWidth( label );
-	LLRect label_rect;
-	label_rect.setLeftTopAndSize( 
-		btn_rect.mLeft + btn_rect.getWidth() / 2 - label_width / 2,
-		btn_rect.mBottom - LABEL_TOP_SPACING,
-		label_width, 
-		llfloor(font->getLineHeight()));
-	addChild( new LLTextBox( "tool label", label_rect, label, font ) );
+// 	const S32 LABEL_TOP_SPACING = 0;
+// 	const LLFontGL* font = LLResMgr::getInstance()->getRes( LLFONT_SANSSERIF_SMALL );
+// 	S32 label_width = font->getWidth( label );
+// 	LLRect label_rect;
+// 	label_rect.setLeftTopAndSize( 
+// 		btn_rect.mLeft + btn_rect.getWidth() / 2 - label_width / 2,
+// 		btn_rect.mBottom - LABEL_TOP_SPACING,
+// 		label_width, 
+// 		llfloor(font->getLineHeight()));
+// 	addChild( new LLTextBox( "tool label", label_rect, label, font ) );
 
-	// Can optionally ignore panel
-	if (contain->mPanel)
-	{
-		contain->mPanel->setBackgroundVisible( FALSE );
-		contain->mPanel->setBorderVisible( FALSE );
-		addChild(contain->mPanel);
-	}
+// 	// Can optionally ignore panel
+// 	if (contain->mPanel)
+// 	{
+// 		contain->mPanel->setBackgroundVisible( FALSE );
+// 		contain->mPanel->setBorderVisible( FALSE );
+// 		addChild(contain->mPanel);
+// 	}
 
-	mContainList.push_back(contain);
-}
+// 	mContainList.push_back(contain);
+// }
 
 
 LLRect LLToolView::getButtonRect(S32 button_index)

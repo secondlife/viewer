@@ -74,10 +74,10 @@ S32 MENU_BAR_WIDTH = 0;
 /// Local function declarations, constants, enums, and typedefs
 ///============================================================================
 
-const LLString SEPARATOR_NAME("separator");
-const LLString TEAROFF_SEPARATOR_LABEL( "~~~~~~~~~~~" );
-const LLString SEPARATOR_LABEL( "-----------" );
-const LLString VERTICAL_SEPARATOR_LABEL( "|" );
+const std::string SEPARATOR_NAME("separator");
+const std::string TEAROFF_SEPARATOR_LABEL( "~~~~~~~~~~~" );
+const std::string SEPARATOR_LABEL( "-----------" );
+const std::string VERTICAL_SEPARATOR_LABEL( "|" );
 
 const S32 LABEL_BOTTOM_PAD_PIXELS = 2;
 
@@ -98,10 +98,10 @@ const U32 SEPARATOR_HEIGHT_PIXELS = 8;
 const S32 TEAROFF_SEPARATOR_HEIGHT_PIXELS = 10;
 const S32 MENU_ITEM_PADDING = 4;
 
-const LLString BOOLEAN_TRUE_PREFIX( "X" );
-const LLString BRANCH_SUFFIX( ">" );
-const LLString ARROW_UP  ("^^^^^^^");
-const LLString ARROW_DOWN("vvvvvvv");
+const std::string BOOLEAN_TRUE_PREFIX( "X" );
+const std::string BRANCH_SUFFIX( ">" );
+const std::string ARROW_UP  ("^^^^^^^");
+const std::string ARROW_DOWN("vvvvvvv");
 
 const F32 MAX_MOUSE_SLOPE_SUB_MENU = 0.9f;
 
@@ -130,7 +130,7 @@ const F32 ACTIVATE_HIGHLIGHT_TIME = 0.3f;
 ///============================================================================
 
 // Default constructor
-LLMenuItemGL::LLMenuItemGL( const LLString& name, const LLString& label, KEY key, MASK mask ) :
+LLMenuItemGL::LLMenuItemGL( const std::string& name, const std::string& label, KEY key, MASK mask ) :
 	LLView( name, TRUE ),
 	mJumpKey(KEY_NONE),
 	mAcceleratorKey( key ),
@@ -220,7 +220,7 @@ BOOL LLMenuItemGL::addToAcceleratorList(std::list <LLKeyBinding*> *listp)
 
 			// *NOTE: get calling code to throw up warning or route
 			// warning messages back to app-provided output
-			//	LLString warning;
+			//	std::string warning;
 			//	warning.append("Duplicate key binding <");
 			//	appendAcceleratorString( warning );
 			//	warning.append("> for menu items:\n    ");
@@ -250,7 +250,7 @@ BOOL LLMenuItemGL::addToAcceleratorList(std::list <LLKeyBinding*> *listp)
 
 // This function appends the character string representation of
 // the current accelerator key and mask to the provided string.
-void LLMenuItemGL::appendAcceleratorString( LLString& st ) const
+void LLMenuItemGL::appendAcceleratorString( std::string& st ) const
 {
 	// break early if this is a silly thing to do.
 	if( KEY_NONE == mAcceleratorKey )
@@ -286,7 +286,7 @@ void LLMenuItemGL::appendAcceleratorString( LLString& st ) const
 		st.append( "Shift-" );
 #endif
 
-	LLString keystr = LLKeyboard::stringFromKey( mAcceleratorKey );
+	std::string keystr = LLKeyboard::stringFromKey( mAcceleratorKey );
 	if ((mAcceleratorMask & MASK_NORMALKEYS) &&
 		(keystr[0] == '-' || keystr[0] == '='))
 	{
@@ -334,7 +334,7 @@ U32 LLMenuItemGL::getNominalWidth( void ) const
 	if( KEY_NONE != mAcceleratorKey )
 	{
 		width += ACCEL_PAD_PIXELS;
-		LLString temp;
+		std::string temp;
 		appendAcceleratorString( temp );
 		width += mFont->getWidth( temp );
 	}
@@ -346,7 +346,7 @@ U32 LLMenuItemGL::getNominalWidth( void ) const
 void LLMenuItemGL::buildDrawLabel( void )
 {
 	mDrawAccelLabel.clear();
-	LLString st = mDrawAccelLabel.getString();
+	std::string st = mDrawAccelLabel.getString();
 	appendAcceleratorString( st );
 	mDrawAccelLabel = st;
 }
@@ -491,8 +491,8 @@ void LLMenuItemGL::draw( void )
 	// underline "jump" key only when keyboard navigation has been initiated
 	if (getMenu()->jumpKeysActive() && LLMenuGL::getKeyboardMode())
 	{
-		LLString upper_case_label = mLabel.getString();
-		LLString::toUpper(upper_case_label);
+		std::string upper_case_label = mLabel.getString();
+		LLStringUtil::toUpper(upper_case_label);
 		std::string::size_type offset = upper_case_label.find(mJumpKey);
 		if (offset != std::string::npos)
 		{
@@ -506,7 +506,7 @@ void LLMenuItemGL::draw( void )
 	setHover(FALSE);
 }
 
-BOOL LLMenuItemGL::setLabelArg( const LLString& key, const LLStringExplicit& text )
+BOOL LLMenuItemGL::setLabelArg( const std::string& key, const LLStringExplicit& text )
 {
 	mLabel.setArg(key, text);
 	return TRUE;
@@ -521,9 +521,9 @@ BOOL LLMenuItemGL::setLabelArg( const LLString& key, const LLStringExplicit& tex
 class LLMenuItemSeparatorGL : public LLMenuItemGL
 {
 public:
-	LLMenuItemSeparatorGL( const LLString &name = SEPARATOR_NAME );
+	LLMenuItemSeparatorGL( const std::string &name = SEPARATOR_NAME );
 
-	virtual LLString getType() const	{ return "separator"; }
+	virtual std::string getType() const	{ return "separator"; }
 
 	// doIt() - do the primary funcationality of the menu item.
 	virtual void doIt( void ) {}
@@ -536,7 +536,7 @@ public:
 	virtual U32 getNominalHeight( void ) const { return SEPARATOR_HEIGHT_PIXELS; }
 };
 
-LLMenuItemSeparatorGL::LLMenuItemSeparatorGL( const LLString &name ) :
+LLMenuItemSeparatorGL::LLMenuItemSeparatorGL( const std::string &name ) :
 	LLMenuItemGL( name, SEPARATOR_LABEL )
 {
 }
@@ -615,7 +615,7 @@ LLMenuItemVerticalSeparatorGL::LLMenuItemVerticalSeparatorGL( void )
 // Class LLMenuItemTearOffGL
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 LLMenuItemTearOffGL::LLMenuItemTearOffGL(LLHandle<LLFloater> parent_floater_handle) : 
-	LLMenuItemGL("tear off", TEAROFF_SEPARATOR_LABEL), 
+	LLMenuItemGL(std::string("tear off"), TEAROFF_SEPARATOR_LABEL), 
 	mParentHandle(parent_floater_handle)
 {
 }
@@ -694,7 +694,7 @@ U32 LLMenuItemTearOffGL::getNominalHeight( void ) const
 class LLMenuItemBlankGL : public LLMenuItemGL
 {
 public:
-	LLMenuItemBlankGL( void ) :	LLMenuItemGL( "", "" )
+	LLMenuItemBlankGL( void ) :	LLMenuItemGL( LLStringUtil::null, LLStringUtil::null )
 	{
 		setEnabled(FALSE);
 	}
@@ -707,8 +707,8 @@ public:
 /// Class LLMenuItemCallGL
 ///============================================================================
 
-LLMenuItemCallGL::LLMenuItemCallGL( const LLString& name, 
-									const LLString& label, 
+LLMenuItemCallGL::LLMenuItemCallGL( const std::string& name, 
+									const std::string& label, 
 									menu_callback clicked_cb, 
 								    enabled_callback enabled_cb,
 									void* user_data,
@@ -725,7 +725,7 @@ LLMenuItemCallGL::LLMenuItemCallGL( const LLString& name,
 	if(!enabled) setEnabled(FALSE);
 }
 
-LLMenuItemCallGL::LLMenuItemCallGL( const LLString& name, 
+LLMenuItemCallGL::LLMenuItemCallGL( const std::string& name, 
 									menu_callback clicked_cb, 
 								    enabled_callback enabled_cb,
 									void* user_data,
@@ -742,8 +742,8 @@ LLMenuItemCallGL::LLMenuItemCallGL( const LLString& name,
 	if(!enabled) setEnabled(FALSE);
 }
 
-LLMenuItemCallGL::LLMenuItemCallGL(const LLString& name,
-								   const LLString& label,
+LLMenuItemCallGL::LLMenuItemCallGL(const std::string& name,
+								   const std::string& label,
 								   menu_callback clicked_cb,
 								   enabled_callback enabled_cb,
 								   label_callback label_cb,
@@ -761,7 +761,7 @@ LLMenuItemCallGL::LLMenuItemCallGL(const LLString& name,
 	if(!enabled) setEnabled(FALSE);
 }
 
-LLMenuItemCallGL::LLMenuItemCallGL(const LLString& name,
+LLMenuItemCallGL::LLMenuItemCallGL(const std::string& name,
 								   menu_callback clicked_cb,
 								   enabled_callback enabled_cb,
 								   label_callback label_cb,
@@ -779,7 +779,7 @@ LLMenuItemCallGL::LLMenuItemCallGL(const LLString& name,
 	if(!enabled) setEnabled(FALSE);
 }
 
-void LLMenuItemCallGL::setEnabledControl(LLString enabled_control, LLView *context)
+void LLMenuItemCallGL::setEnabledControl(std::string enabled_control, LLView *context)
 {
 	// Register new listener
 	if (!enabled_control.empty())
@@ -796,7 +796,7 @@ void LLMenuItemCallGL::setEnabledControl(LLString enabled_control, LLView *conte
 	}
 }
 
-void LLMenuItemCallGL::setVisibleControl(LLString visible_control, LLView *context)
+void LLMenuItemCallGL::setVisibleControl(std::string visible_control, LLView *context)
 {
 	// Register new listener
 	if (!visible_control.empty())
@@ -824,7 +824,7 @@ LLXMLNodePtr LLMenuItemCallGL::getXML(bool save_children) const
 	std::vector<LLListenerEntry>::iterator itor;
 	for (itor = listeners.begin(); itor != listeners.end(); ++itor)
 	{
-		LLString listener_name = findEventListener((LLSimpleListener*)itor->listener);
+		std::string listener_name = findEventListener((LLSimpleListener*)itor->listener);
 		if (!listener_name.empty())
 		{
 			LLXMLNodePtr child_node = node->createChild("on_click", FALSE);
@@ -862,7 +862,7 @@ void LLMenuItemCallGL::buildDrawLabel( void )
 	}
 	if(mLabelCallback)
 	{
-		LLString label;
+		std::string label;
 		mLabelCallback(label, mUserData);
 		mLabel = label;
 	}
@@ -894,8 +894,8 @@ BOOL LLMenuItemCallGL::handleAcceleratorKey( KEY key, MASK mask )
 /// Class LLMenuItemCheckGL
 ///============================================================================
 
-LLMenuItemCheckGL::LLMenuItemCheckGL ( const LLString& name, 
-									   const LLString& label,
+LLMenuItemCheckGL::LLMenuItemCheckGL ( const std::string& name, 
+									   const std::string& label,
 									   menu_callback clicked_cb,
 									   enabled_callback enabled_cb,
 									   check_callback check_cb,
@@ -907,7 +907,7 @@ LLMenuItemCheckGL::LLMenuItemCheckGL ( const LLString& name,
 {
 }
 
-LLMenuItemCheckGL::LLMenuItemCheckGL ( const LLString& name, 
+LLMenuItemCheckGL::LLMenuItemCheckGL ( const std::string& name, 
 									   menu_callback clicked_cb,
 									   enabled_callback enabled_cb,
 									   check_callback check_cb,
@@ -919,11 +919,11 @@ LLMenuItemCheckGL::LLMenuItemCheckGL ( const LLString& name,
 {
 }
 
-LLMenuItemCheckGL::LLMenuItemCheckGL ( const LLString& name, 
-									   const LLString& label,
+LLMenuItemCheckGL::LLMenuItemCheckGL ( const std::string& name, 
+									   const std::string& label,
 									   menu_callback clicked_cb,
 									   enabled_callback enabled_cb,
-									   LLString control_name,
+									   std::string control_name,
 									   LLView *context,
 									   void* user_data,
 									   KEY key, MASK mask ) :
@@ -947,7 +947,7 @@ void LLMenuItemCheckGL::setValue(const LLSD& value)
 	}
 }
 
-void LLMenuItemCheckGL::setCheckedControl(LLString checked_control, LLView *context)
+void LLMenuItemCheckGL::setCheckedControl(std::string checked_control, LLView *context)
 {
 	// Register new listener
 	if (!checked_control.empty())
@@ -990,14 +990,14 @@ void LLMenuItemCheckGL::buildDrawLabel( void )
 /// Class LLMenuItemToggleGL
 ///============================================================================
 
-LLMenuItemToggleGL::LLMenuItemToggleGL( const LLString& name, const LLString& label, BOOL* toggle,
+LLMenuItemToggleGL::LLMenuItemToggleGL( const std::string& name, const std::string& label, BOOL* toggle,
 										KEY key, MASK mask ) :
 	LLMenuItemGL( name, label, key, mask ),
 	mToggle( toggle )
 {
 }
 
-LLMenuItemToggleGL::LLMenuItemToggleGL( const LLString& name, BOOL* toggle,
+LLMenuItemToggleGL::LLMenuItemToggleGL( const std::string& name, BOOL* toggle,
 										KEY key, MASK mask ) :
 	LLMenuItemGL( name, name, key, mask ),
 	mToggle( toggle )
@@ -1017,7 +1017,7 @@ void LLMenuItemToggleGL::buildDrawLabel( void )
 		mDrawBoolLabel.clear();
 	}
 	mDrawAccelLabel.clear();
-	LLString st = mDrawAccelLabel;
+	std::string st = mDrawAccelLabel;
 	appendAcceleratorString( st );
 	mDrawAccelLabel = st;
 }
@@ -1033,7 +1033,7 @@ void LLMenuItemToggleGL::doIt( void )
 }
 
 
-LLMenuItemBranchGL::LLMenuItemBranchGL( const LLString& name, const LLString& label, LLMenuGL* branch,
+LLMenuItemBranchGL::LLMenuItemBranchGL( const std::string& name, const std::string& label, LLMenuGL* branch,
 										KEY key, MASK mask ) :
 	LLMenuItemGL( name, label, key, mask ),
 	mBranch( branch )
@@ -1043,7 +1043,7 @@ LLMenuItemBranchGL::LLMenuItemBranchGL( const LLString& name, const LLString& la
 }
 
 // virtual
-LLView* LLMenuItemBranchGL::getChildView(const LLString& name, BOOL recurse, BOOL create_if_missing) const
+LLView* LLMenuItemBranchGL::getChildView(const std::string& name, BOOL recurse, BOOL create_if_missing) const
 {
 	// richard: this is redundant with parent, remove
 	if (mBranch->getName() == name)
@@ -1109,7 +1109,7 @@ BOOL LLMenuItemBranchGL::addToAcceleratorList(std::list<LLKeyBinding*> *listp)
 void LLMenuItemBranchGL::buildDrawLabel( void )
 {
 	mDrawAccelLabel.clear();
-	LLString st = mDrawAccelLabel;
+	std::string st = mDrawAccelLabel;
 	appendAcceleratorString( st );
 	mDrawAccelLabel = st;
 	mDrawBranchLabel = BRANCH_SUFFIX;
@@ -1325,10 +1325,10 @@ class LLMenuItemBranchDownGL : public LLMenuItemBranchGL
 protected:
 
 public:
-	LLMenuItemBranchDownGL( const LLString& name, const LLString& label, LLMenuGL* branch,
+	LLMenuItemBranchDownGL( const std::string& name, const std::string& label, LLMenuGL* branch,
 							KEY key = KEY_NONE, MASK mask = MASK_NONE );
 
-	virtual LLString getType() const	{ return "menu"; }
+	virtual std::string getType() const	{ return "menu"; }
 
 	// returns the normal width of this control in pixels - this is
 	// used for calculating the widest item, as well as for horizontal
@@ -1356,8 +1356,8 @@ public:
 	virtual BOOL handleAcceleratorKey(KEY key, MASK mask);
 };
 
-LLMenuItemBranchDownGL::LLMenuItemBranchDownGL( const LLString& name,
-												const LLString& label,
+LLMenuItemBranchDownGL::LLMenuItemBranchDownGL( const std::string& name,
+												const std::string& label,
 												LLMenuGL* branch, 
 												KEY key, MASK mask ) :
 	LLMenuItemBranchGL( name, label, branch, key, mask )
@@ -1378,7 +1378,7 @@ U32 LLMenuItemBranchDownGL::getNominalWidth( void ) const
 void LLMenuItemBranchDownGL::buildDrawLabel( void )
 {
 	mDrawAccelLabel.clear();
-	LLString st = mDrawAccelLabel;
+	std::string st = mDrawAccelLabel;
 	appendAcceleratorString( st );
 	mDrawAccelLabel = st;
 }
@@ -1591,8 +1591,8 @@ void LLMenuItemBranchDownGL::draw( void )
 	// underline navigation key only when keyboard navigation has been initiated
 	if (getMenu()->jumpKeysActive() && LLMenuGL::getKeyboardMode())
 	{
-		LLString upper_case_label = mLabel.getString();
-		LLString::toUpper(upper_case_label);
+		std::string upper_case_label = mLabel.getString();
+		LLStringUtil::toUpper(upper_case_label);
 		std::string::size_type offset = upper_case_label.find(getJumpKey());
 		if (offset != std::string::npos)
 		{
@@ -1615,7 +1615,7 @@ void LLMenuItemBranchDownGL::draw( void )
 static LLRegisterWidget<LLMenuGL> r1("menu");
 
 // Default constructor
-LLMenuGL::LLMenuGL( const LLString& name, const LLString& label, LLHandle<LLFloater> parent_floater_handle )
+LLMenuGL::LLMenuGL( const std::string& name, const std::string& label, LLHandle<LLFloater> parent_floater_handle )
 :	LLUICtrl( name, LLRect(), FALSE, NULL, NULL ),
 	mBackgroundColor( sDefaultBackgroundColor ),
 	mBgVisible( TRUE ),
@@ -1640,7 +1640,7 @@ LLMenuGL::LLMenuGL( const LLString& name, const LLString& label, LLHandle<LLFloa
 	setTabStop(FALSE);
 }
 
-LLMenuGL::LLMenuGL( const LLString& label, LLHandle<LLFloater> parent_floater_handle )
+LLMenuGL::LLMenuGL( const std::string& label, LLHandle<LLFloater> parent_floater_handle )
 :	LLUICtrl( label, LLRect(), FALSE, NULL, NULL ),
 	mBackgroundColor( sDefaultBackgroundColor ),
 	mBgVisible( TRUE ),
@@ -1749,10 +1749,10 @@ void LLMenuGL::parseChildXML(LLXMLNodePtr child, LLView *parent, LLUICtrlFactory
 	{
 		LLMenuItemGL *item = NULL;
 
-		LLString type;
-		LLString item_name;
-		LLString source_label;
-		LLString item_label;
+		std::string type;
+		std::string item_name;
+		std::string source_label;
+		std::string item_label;
 		KEY		 jump_key = KEY_NONE;
 
 		child->getAttributeString("type", type);
@@ -1794,7 +1794,7 @@ void LLMenuGL::parseChildXML(LLXMLNodePtr child, LLView *parent, LLUICtrlFactory
 				child->getAttributeBOOL("useMacCtrl", useMacCtrl);
 #endif // LL_DARWIN
 				
-				LLString shortcut;
+				std::string shortcut;
 				child->getAttributeString("shortcut", shortcut);
 				if (shortcut.find("control") != shortcut.npos)
 				{
@@ -1815,7 +1815,7 @@ void LLMenuGL::parseChildXML(LLXMLNodePtr child, LLView *parent, LLUICtrlFactory
 					mask |= MASK_SHIFT;
 				}
 				S32 pipe_pos = shortcut.rfind("|");
-				LLString key_str = shortcut.substr(pipe_pos+1);
+				std::string key_str = shortcut.substr(pipe_pos+1);
 
 				KEY key = KEY_NONE;
 				LLKeyboard::keyFromString(key_str, &key);
@@ -1825,7 +1825,7 @@ void LLMenuGL::parseChildXML(LLXMLNodePtr child, LLView *parent, LLUICtrlFactory
 
 				if (child->hasName(LL_MENU_ITEM_CHECK_GL_TAG))
 				{
-					LLString control_name;
+					std::string control_name;
 					child->getAttributeString("control_name", control_name);
 
 					new_item = new LLMenuItemCheckGL(item_name, item_label, 0, 0, control_name, parent, 0, key, mask);
@@ -1834,15 +1834,15 @@ void LLMenuGL::parseChildXML(LLXMLNodePtr child, LLView *parent, LLUICtrlFactory
 					{
 						if (call_child->hasName("on_check"))
 						{
-							LLString callback_name;
-							LLString control_name = "";
+							std::string callback_name;
+							std::string control_name;
 							if (call_child->hasAttribute("function"))
 							{
 								call_child->getAttributeString("function", callback_name);
 
 								control_name = callback_name;
 
-								LLString callback_data = item_name;
+								std::string callback_data = item_name;
 								if (call_child->hasAttribute("userdata"))
 								{
 									call_child->getAttributeString("userdata", callback_data);
@@ -1888,10 +1888,10 @@ void LLMenuGL::parseChildXML(LLXMLNodePtr child, LLView *parent, LLUICtrlFactory
 				{
 					if (call_child->hasName("on_click"))
 					{
-						LLString callback_name;
+						std::string callback_name;
 						call_child->getAttributeString("function", callback_name);
 
-						LLString callback_data = item_name;
+						std::string callback_data = item_name;
 						if (call_child->hasAttribute("userdata"))
 						{
 							call_child->getAttributeString("userdata", callback_data);
@@ -1905,15 +1905,15 @@ void LLMenuGL::parseChildXML(LLXMLNodePtr child, LLView *parent, LLUICtrlFactory
 					}
 					if (call_child->hasName("on_enable"))
 					{
-						LLString callback_name;
-						LLString control_name = "";
+						std::string callback_name;
+						std::string control_name;
 						if (call_child->hasAttribute("function"))
 						{
 							call_child->getAttributeString("function", callback_name);
 
 							control_name = callback_name;
 
-							LLString callback_data = "";
+							std::string callback_data;
 							if (call_child->hasAttribute("userdata"))
 							{
 								call_child->getAttributeString("userdata", callback_data);
@@ -1945,15 +1945,15 @@ void LLMenuGL::parseChildXML(LLXMLNodePtr child, LLView *parent, LLUICtrlFactory
 					}
 					if (call_child->hasName("on_visible"))
 					{
-						LLString callback_name;
-						LLString control_name = "";
+						std::string callback_name;
+						std::string control_name;
 						if (call_child->hasAttribute("function"))
 						{
 							call_child->getAttributeString("function", callback_name);
 
 							control_name = callback_name;
 
-							LLString callback_data = "";
+							std::string callback_data;
 							if (call_child->hasAttribute("userdata"))
 							{
 								call_child->getAttributeString("userdata", callback_data);
@@ -2045,14 +2045,14 @@ BOOL LLMenuGL::isOpen()
 // static
 LLView* LLMenuGL::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory)
 {
-	LLString name("menu");
+	std::string name("menu");
 	node->getAttributeString("name", name);
 
-	LLString label = name;
+	std::string label = name;
 	node->getAttributeString("label", label);
 
 	// parse jump key out of label
-	LLString new_menu_label;
+	std::string new_menu_label;
 
 	typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
 	boost::char_separator<char> sep("_");
@@ -2132,7 +2132,7 @@ void LLMenuGL::arrange( void )
 		U32 max_width = getTornOff() ? U32_MAX : menu_region_rect.getWidth();
 		U32 max_height = getTornOff() ? U32_MAX : menu_region_rect.getHeight();
 		// *FIX: create the item first and then ask for its dimensions?
-		S32 spillover_item_width = PLAIN_PAD_PIXELS + LLFontGL::sSansSerif->getWidth( "More" );
+		S32 spillover_item_width = PLAIN_PAD_PIXELS + LLFontGL::sSansSerif->getWidth( std::string("More") );
 		S32 spillover_item_height = llround(LLFontGL::sSansSerif->getLineHeight()) + MENU_ITEM_PADDING;
 
 		if (mHorizontalLayout)
@@ -2249,13 +2249,13 @@ void LLMenuGL::createSpilloverBranch()
 		delete mSpilloverMenu;
 		// technically, you can't tear off spillover menus, but we're passing the handle
 		// along just to be safe
-		mSpilloverMenu = new LLMenuGL("More", "More", mParentFloaterHandle);
+		mSpilloverMenu = new LLMenuGL(std::string("More"), std::string("More"), mParentFloaterHandle);
 		mSpilloverMenu->updateParent(LLMenuGL::sMenuContainer);
 		// Inherit colors
 		mSpilloverMenu->setBackgroundColor( mBackgroundColor );
 		mSpilloverMenu->setCanTearOff(FALSE);
 
-		mSpilloverBranch = new LLMenuItemBranchGL("More", "More", mSpilloverMenu);
+		mSpilloverBranch = new LLMenuItemBranchGL(std::string("More"), std::string("More"), mSpilloverMenu);
 		mSpilloverBranch->setFontStyle(LLFontGL::ITALIC);
 	}
 }
@@ -2295,8 +2295,8 @@ void LLMenuGL::createJumpKeys()
 {
 	mJumpKeys.clear();
 
-	std::set<LLString> unique_words;
-	std::set<LLString> shared_words;
+	std::set<std::string> unique_words;
+	std::set<std::string> shared_words;
 
 	item_list_t::iterator item_it;
 	typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
@@ -2304,8 +2304,8 @@ void LLMenuGL::createJumpKeys()
 
 	for(item_it = mItems.begin(); item_it != mItems.end(); ++item_it)
 	{
-		LLString uppercase_label = (*item_it)->getLabel();
-		LLString::toUpper(uppercase_label);
+		std::string uppercase_label = (*item_it)->getLabel();
+		LLStringUtil::toUpper(uppercase_label);
 
 		tokenizer tokens(uppercase_label, sep);
 		tokenizer::iterator token_iter;
@@ -2350,8 +2350,8 @@ void LLMenuGL::createJumpKeys()
 		{
 			continue;
 		}
-		LLString uppercase_label = (*item_it)->getLabel();
-		LLString::toUpper(uppercase_label);
+		std::string uppercase_label = (*item_it)->getLabel();
+		LLStringUtil::toUpper(uppercase_label);
 
 		tokenizer tokens(uppercase_label, sep);
 		tokenizer::iterator token_iter;
@@ -2359,7 +2359,7 @@ void LLMenuGL::createJumpKeys()
 		BOOL found_key = FALSE;
 		for( token_iter = tokens.begin(); token_iter != tokens.end(); ++token_iter)
 		{
-			LLString uppercase_word = *token_iter;
+			std::string uppercase_word = *token_iter;
 
 			// this word is not shared with other menu entries...
 			if (shared_words.find(*token_iter) == shared_words.end())
@@ -2439,9 +2439,13 @@ BOOL LLMenuGL::append( LLMenuItemGL* item )
 }
 
 // add a separator to this menu
-BOOL LLMenuGL::appendSeparator( const LLString &separator_name )
+BOOL LLMenuGL::appendSeparator( const std::string &separator_name )
 {
-	LLMenuItemGL* separator = new LLMenuItemSeparatorGL(separator_name);
+	LLMenuItemGL* separator;
+	if (separator_name.empty())
+		separator = new LLMenuItemSeparatorGL(std::string("separator"));
+	else
+		separator = new LLMenuItemSeparatorGL(separator_name);
 	return append( separator );
 }
 
@@ -2478,7 +2482,7 @@ void LLMenuGL::setEnabledSubMenus(BOOL enable)
 
 // setItemEnabled() - pass the label and the enable flag for a menu
 // item. TRUE will make sure it's enabled, FALSE will disable it.
-void LLMenuGL::setItemEnabled( const LLString& name, BOOL enable )
+void LLMenuGL::setItemEnabled( const std::string& name, BOOL enable )
 {
 	item_list_t::iterator item_iter;
 	for (item_iter = mItems.begin(); item_iter != mItems.end(); ++item_iter)
@@ -2492,7 +2496,7 @@ void LLMenuGL::setItemEnabled( const LLString& name, BOOL enable )
 	}
 }
 
-void LLMenuGL::setItemVisible( const LLString& name, BOOL visible )
+void LLMenuGL::setItemVisible( const std::string& name, BOOL visible )
 {
 	item_list_t::iterator item_iter;
 	for (item_iter = mItems.begin(); item_iter != mItems.end(); ++item_iter)
@@ -2871,7 +2875,7 @@ void LLMenuGL::setVisible(BOOL visible)
 	}
 }
 
-LLMenuGL* LLMenuGL::getChildMenuByName(const LLString& name, BOOL recurse) const
+LLMenuGL* LLMenuGL::getChildMenuByName(const std::string& name, BOOL recurse) const
 {
 	LLView* view = getChildView(name, recurse, FALSE);
 	if (view)
@@ -2963,7 +2967,7 @@ void LLMenuGL::showPopup(LLView* spawning_view, LLMenuGL* menu, S32 x, S32 y)
 class LLPieMenuBranch : public LLMenuItemGL
 {
 public:
-	LLPieMenuBranch(const LLString& name, const LLString& label, LLPieMenu* branch);
+	LLPieMenuBranch(const std::string& name, const std::string& label, LLPieMenu* branch);
 
 	// called to rebuild the draw label
 	virtual void buildDrawLabel( void );
@@ -2977,8 +2981,8 @@ protected:
 	LLPieMenu* mBranch;
 };
 
-LLPieMenuBranch::LLPieMenuBranch(const LLString& name,
-								 const LLString& label,
+LLPieMenuBranch::LLPieMenuBranch(const std::string& name,
+								 const std::string& label,
 								 LLPieMenu* branch) 
 :	LLMenuItemGL( name, label, KEY_NONE, MASK_NONE ),
 	mBranch( branch )
@@ -3011,7 +3015,7 @@ void LLPieMenuBranch::buildDrawLabel( void )
 	}
 
 	mDrawAccelLabel.clear();
-	LLString st = mDrawAccelLabel;
+	std::string st = mDrawAccelLabel;
 	appendAcceleratorString( st );
 	mDrawAccelLabel = st;
 	
@@ -3037,7 +3041,7 @@ void LLPieMenuBranch::doIt( void )
 // class LLPieMenu
 // A circular menu of items, icons, etc.
 //-----------------------------------------------------------------------------
-LLPieMenu::LLPieMenu(const LLString& name, const LLString& label)
+LLPieMenu::LLPieMenu(const std::string& name, const std::string& label)
 :	LLMenuGL(name, label),
 	mFirstMouseDown(FALSE),
 	mUseInfiniteRadius(FALSE),
@@ -3052,7 +3056,7 @@ LLPieMenu::LLPieMenu(const LLString& name, const LLString& label)
 	setCanTearOff(FALSE);
 }
 
-LLPieMenu::LLPieMenu(const LLString& name)
+LLPieMenu::LLPieMenu(const std::string& name)
 :	LLMenuGL(name, name),
 	mFirstMouseDown(FALSE),
 	mUseInfiniteRadius(FALSE),
@@ -3076,9 +3080,9 @@ void LLPieMenu::initXML(LLXMLNodePtr node, LLView *context, LLUICtrlFactory *fac
 		if (child->hasName(LL_PIE_MENU_TAG))
 		{
 			// SUBMENU
-			LLString name("menu");
+			std::string name("menu");
 			child->getAttributeString("name", name);
-			LLString label(name);
+			std::string label(name);
 			child->getAttributeString("label", label);
 
 			LLPieMenu *submenu = new LLPieMenu(name, label);
@@ -3456,7 +3460,7 @@ BOOL LLPieMenu::append(LLMenuItemGL *item)
 }
 
 // virtual
-BOOL LLPieMenu::appendSeparator(const LLString &separator_name)
+BOOL LLPieMenu::appendSeparator(const std::string &separator_name)
 {
 	LLMenuItemGL* separator = new LLMenuItemBlankGL();
 	separator->setFont( LLFontGL::sSansSerifSmall );
@@ -3737,7 +3741,7 @@ void LLPieMenu::hide(BOOL item_selected)
 static LLRegisterWidget<LLMenuBarGL> r2("menu_bar");
 
 // Default constructor
-LLMenuBarGL::LLMenuBarGL( const LLString& name ) : LLMenuGL ( name, name )
+LLMenuBarGL::LLMenuBarGL( const std::string& name ) : LLMenuGL ( name, name )
 {
 	mHorizontalLayout = TRUE;
 	setCanTearOff(FALSE);
@@ -3782,7 +3786,7 @@ LLXMLNodePtr LLMenuBarGL::getXML(bool save_children) const
 
 LLView* LLMenuBarGL::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory)
 {
-	LLString name("menu");
+	std::string name("menu");
 	node->getAttributeString("name", name);
 
 	BOOL opaque = FALSE;
@@ -4039,7 +4043,7 @@ S32 LLMenuBarGL::getRightmostMenuEdge()
 }
 
 // add a vertical separator to this menu
-BOOL LLMenuBarGL::appendSeparator( const LLString &separator_name )
+BOOL LLMenuBarGL::appendSeparator( const std::string &separator_name )
 {
 	LLMenuItemGL* separator = new LLMenuItemVerticalSeparatorGL();
 	return append( separator );
@@ -4138,14 +4142,14 @@ BOOL LLMenuBarGL::handleHover( S32 x, S32 y, MASK mask )
 /// Class LLMenuHolderGL
 ///============================================================================
 LLMenuHolderGL::LLMenuHolderGL()
-:	LLPanel("Menu Holder")
+	:	LLPanel(std::string("Menu Holder"))
 {
 	setMouseOpaque(FALSE);
 	sItemActivationTimer.stop();
 	mCanHide = TRUE;
 }
 
-LLMenuHolderGL::LLMenuHolderGL(const LLString& name, const LLRect& rect, BOOL mouse_opaque, U32 follows) 
+LLMenuHolderGL::LLMenuHolderGL(const std::string& name, const LLRect& rect, BOOL mouse_opaque, U32 follows) 
 :	LLPanel(name, rect, FALSE)
 {
 	setMouseOpaque(mouse_opaque);

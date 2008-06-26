@@ -98,7 +98,7 @@ public:
 	static LLPCode sGrass;
 
 private:
-	void		addButton( const LLString& up_state, const LLString& down_state, LLPCode* pcode );
+	void		addButton( const std::string& up_state, const std::string& down_state, LLPCode* pcode );
 
 private:
 	static S32			sButtonsAdded;

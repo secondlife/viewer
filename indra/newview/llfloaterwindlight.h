@@ -61,9 +61,9 @@ public:
 
 	// help button stuff
 	static void onClickHelp(void* data);
-	void initHelpBtn(const char* name, const char* xml_alert);
+	void initHelpBtn(const std::string& name, const std::string& xml_alert);
 
-	static void newPromptCallback(S32 option, const LLString& text, void* userData);
+	static void newPromptCallback(S32 option, const std::string& text, void* userData);
 
 	/// general purpose callbacks for dealing with color controllers
 	static void onColorControlRMoved(LLUICtrl* ctrl, void* userData);

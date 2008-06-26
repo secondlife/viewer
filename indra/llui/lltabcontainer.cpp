@@ -65,7 +65,7 @@ const S32 TABCNTRV_PAD = 0;
 
 static LLRegisterWidget<LLTabContainer> r("tab_container");
 
-LLTabContainer::LLTabContainer(const LLString& name, const LLRect& rect, TabPosition pos,
+LLTabContainer::LLTabContainer(const std::string& name, const LLRect& rect, TabPosition pos,
 							   BOOL bordered, BOOL is_vertical )
 	: 
 	LLPanel(name, rect, bordered),
@@ -121,7 +121,7 @@ void LLTabContainer::reshape(S32 width, S32 height, BOOL called_from_parent)
 }
 
 //virtual
-LLView* LLTabContainer::getChildView(const LLString& name, BOOL recurse, BOOL create_if_missing) const
+LLView* LLTabContainer::getChildView(const std::string& name, BOOL recurse, BOOL create_if_missing) const
 {
 	tuple_list_t::const_iterator itor;
 	for (itor = mTabList.begin(); itor != mTabList.end(); ++itor)
@@ -460,7 +460,7 @@ BOOL LLTabContainer::handleMouseUp( S32 x, S32 y, MASK mask )
 }
 
 // virtual
-BOOL LLTabContainer::handleToolTip( S32 x, S32 y, LLString& msg, LLRect* sticky_rect )
+BOOL LLTabContainer::handleToolTip( S32 x, S32 y, std::string& msg, LLRect* sticky_rect )
 {
 	BOOL handled = LLPanel::handleToolTip( x, y, msg, sticky_rect );
 	if (!handled && getTabCount() > 0) 
@@ -604,7 +604,7 @@ LLXMLNodePtr LLTabContainer::getXML(bool save_children) const
 }
 
 // virtual
-BOOL LLTabContainer::handleDragAndDrop(S32 x, S32 y, MASK mask,	BOOL drop,	EDragAndDropType type, void* cargo_data, EAcceptance *accept, LLString	&tooltip)
+BOOL LLTabContainer::handleDragAndDrop(S32 x, S32 y, MASK mask,	BOOL drop,	EDragAndDropType type, void* cargo_data, EAcceptance *accept, std::string	&tooltip)
 {
 	BOOL has_scroll_arrows = (getMaxScrollPos() > 0);
 
@@ -656,7 +656,7 @@ BOOL LLTabContainer::handleDragAndDrop(S32 x, S32 y, MASK mask,	BOOL drop,	EDrag
 }
 
 void LLTabContainer::addTabPanel(LLPanel* child, 
-								 const LLString& label, 
+								 const std::string& label, 
 								 BOOL select, 
 								 void (*on_tab_clicked)(void*, bool), 
 								 void* userdata,
@@ -673,8 +673,8 @@ void LLTabContainer::addTabPanel(LLPanel* child,
 
 	// Store the original label for possible xml export.
 	child->setLabel(label);
-	LLString trimmed_label = label;
-	LLString::trim(trimmed_label);
+	std::string trimmed_label = label;
+	LLStringUtil::trim(trimmed_label);
 
 	S32 button_width = mMinTabWidth;
 	if (!mIsVertical)
@@ -723,8 +723,8 @@ void LLTabContainer::addTabPanel(LLPanel* child,
 
 	// Tab button
 	LLRect btn_rect;  // Note: btn_rect.mLeft is just a dummy.  Will be updated in draw().
-	LLString tab_img;
-	LLString tab_selected_img;
+	std::string tab_img;
+	std::string tab_selected_img;
 	S32 tab_fudge = 1;		//  To make new tab art look better, nudge buttons up 1 pel
 
 	if (mIsVertical)
@@ -755,21 +755,21 @@ void LLTabContainer::addTabPanel(LLPanel* child,
 		btn_rect.translate(0, -LLBUTTON_V_PAD-2);
 		textbox = new LLTextBox(trimmed_label, btn_rect, trimmed_label, font);
 		
-		btn = new LLButton("", LLRect(0,0,0,0));
+		btn = new LLButton(LLStringUtil::null, LLRect(0,0,0,0));
 	}
 	else
 	{
 		if (mIsVertical)
 		{
-			btn = new LLButton("vert tab button",
+			btn = new LLButton(std::string("vert tab button"),
 							   btn_rect,
-							   "",
-							   "", 
-							   "", 
+							   LLStringUtil::null,
+							   LLStringUtil::null, 
+							   LLStringUtil::null, 
 							   &LLTabContainer::onTabBtn, NULL,
 							   font,
 							   trimmed_label, trimmed_label);
-			btn->setImages("tab_left.tga", "tab_left_selected.tga");
+			btn->setImages(std::string("tab_left.tga"), std::string("tab_left_selected.tga"));
 			btn->setScaleImage(TRUE);
 			btn->setHAlign(LLFontGL::LEFT);
 			btn->setFollows(FOLLOWS_TOP | FOLLOWS_LEFT);
@@ -781,13 +781,13 @@ void LLTabContainer::addTabPanel(LLPanel* child,
 		}
 		else
 		{
-			LLString tooltip = trimmed_label;
+			std::string tooltip = trimmed_label;
 			tooltip += "\nAlt-Left arrow for previous tab";
 			tooltip += "\nAlt-Right arrow for next tab";
 
-			btn = new LLButton(LLString(child->getName()) + " tab",
+			btn = new LLButton(std::string(child->getName()) + " tab",
 							   btn_rect, 
-							   "", "", "",
+							   LLStringUtil::null, LLStringUtil::null, LLStringUtil::null,
 							   &LLTabContainer::onTabBtn, NULL, // set userdata below
 							   font,
 							   trimmed_label, trimmed_label );
@@ -844,7 +844,7 @@ void LLTabContainer::addTabPanel(LLPanel* child,
 	updateMaxScrollPos();
 }
 
-void LLTabContainer::addPlaceholder(LLPanel* child, const LLString& label)
+void LLTabContainer::addPlaceholder(LLPanel* child, const std::string& label)
 {
 	addTabPanel(child, label, FALSE, NULL, NULL, 0, TRUE);
 }
@@ -1011,7 +1011,7 @@ S32 LLTabContainer::getIndexForPanel(LLPanel* panel)
 	return -1;
 }
 
-S32 LLTabContainer::getPanelIndexByTitle(const LLString& title)
+S32 LLTabContainer::getPanelIndexByTitle(const std::string& title)
 {
 	for (S32 index = 0 ; index < (S32)mTabList.size(); index++)
 	{
@@ -1023,7 +1023,7 @@ S32 LLTabContainer::getPanelIndexByTitle(const LLString& title)
 	return -1;
 }
 
-LLPanel *LLTabContainer::getPanelByName(const LLString& name)
+LLPanel *LLTabContainer::getPanelByName(const std::string& name)
 {
 	for (S32 index = 0 ; index < (S32)mTabList.size(); index++)
 	{
@@ -1037,7 +1037,7 @@ LLPanel *LLTabContainer::getPanelByName(const LLString& name)
 }
 
 // Change the name of the button for the current tab.
-void LLTabContainer::setCurrentTabName(const LLString& name)
+void LLTabContainer::setCurrentTabName(const std::string& name)
 {
 	// Might not have a tab selected
 	if (mCurrentTabIdx < 0) return;
@@ -1211,7 +1211,7 @@ BOOL LLTabContainer::selectTab(S32 which)
 	return is_visible;
 }
 
-BOOL LLTabContainer::selectTabByName(const LLString& name)
+BOOL LLTabContainer::selectTabByName(const std::string& name)
 {
 	LLPanel* panel = getPanelByName(name);
 	if (!panel)
@@ -1275,7 +1275,7 @@ void LLTabContainer::setTabImage(LLPanel* child, std::string image_name, const L
 	}
 }
 
-void LLTabContainer::setTitle(const LLString& title)
+void LLTabContainer::setTitle(const std::string& title)
 {	
 	if (mTitleBox)
 	{
@@ -1283,14 +1283,14 @@ void LLTabContainer::setTitle(const LLString& title)
 	}
 }
 
-const LLString LLTabContainer::getPanelTitle(S32 index)
+const std::string LLTabContainer::getPanelTitle(S32 index)
 {
 	if (index >= 0 && index < (S32)mTabList.size())
 	{
 		LLButton* tab_button = mTabList[index]->mButton;
 		return tab_button->getLabelSelected();
 	}
-	return LLString::null;
+	return LLStringUtil::null;
 }
 
 void LLTabContainer::setTopBorderHeight(S32 height)
@@ -1328,7 +1328,7 @@ void LLTabContainer::setRightTabBtnOffset(S32 offset)
 	updateMaxScrollPos();
 }
 
-void LLTabContainer::setPanelTitle(S32 index, const LLString& title)
+void LLTabContainer::setPanelTitle(S32 index, const std::string& title)
 {
 	if (index >= 0 && index < getTabCount())
 	{
@@ -1434,7 +1434,7 @@ void LLTabContainer::onPrevBtnHeld( void* userdata )
 // static
 LLView* LLTabContainer::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory)
 {
-	LLString name("tab_container");
+	std::string name("tab_container");
 	node->getAttributeString("name", name);
 
 	// Figure out if we are creating a vertical or horizontal tab container.
@@ -1442,9 +1442,9 @@ LLView* LLTabContainer::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFacto
 	LLTabContainer::TabPosition tab_position = LLTabContainer::TOP;
 	if (node->hasAttribute("tab_position"))
 	{
-		LLString tab_position_string;
+		std::string tab_position_string;
 		node->getAttributeString("tab_position", tab_position_string);
-		LLString::toLower(tab_position_string);
+		LLStringUtil::toLower(tab_position_string);
 
 		if ("top" == tab_position_string)
 		{
@@ -1506,7 +1506,7 @@ LLView* LLTabContainer::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFacto
 		if (control && control->isPanel())
 		{
 			LLPanel* panelp = (LLPanel*)control;
-			LLString label;
+			std::string label;
 			child->getAttributeString("label", label);
 			if (label.empty())
 			{
@@ -1514,7 +1514,7 @@ LLView* LLTabContainer::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFacto
 			}
 			BOOL placeholder = FALSE;
 			child->getAttributeBOOL("placeholder", placeholder);
-			tab_container->addTabPanel(panelp, label.c_str(), false,
+			tab_container->addTabPanel(panelp, label, false,
 									   NULL, NULL, 0, placeholder);
 		}
 	}
@@ -1538,8 +1538,8 @@ void LLTabContainer::initButtons()
 		return; // Don't have a rect yet or already got called
 	}
 	
-	LLString out_id;
-	LLString in_id;
+	std::string out_id;
+	std::string in_id;
 
 	if (mIsVertical)
 	{
@@ -1555,16 +1555,16 @@ void LLTabContainer::initButtons()
 
 		out_id = "UIImgBtnScrollUpOutUUID";
 		in_id = "UIImgBtnScrollUpInUUID";
-		mPrevArrowBtn = new LLButton("Up Arrow", up_arrow_btn_rect,
-									 out_id, in_id, "",
+		mPrevArrowBtn = new LLButton(std::string("Up Arrow"), up_arrow_btn_rect,
+									 out_id, in_id, LLStringUtil::null,
 									 &onPrevBtn, this, NULL );
 		mPrevArrowBtn->setFollowsTop();
 		mPrevArrowBtn->setFollowsLeft();
 
 		out_id = "UIImgBtnScrollDownOutUUID";
 		in_id = "UIImgBtnScrollDownInUUID";
-		mNextArrowBtn = new LLButton("Down Arrow", down_arrow_btn_rect,
-									 out_id, in_id, "",
+		mNextArrowBtn = new LLButton(std::string("Down Arrow"), down_arrow_btn_rect,
+									 out_id, in_id, LLStringUtil::null,
 									 &onNextBtn, this, NULL );
 		mNextArrowBtn->setFollowsBottom();
 		mNextArrowBtn->setFollowsLeft();
@@ -1603,31 +1603,31 @@ void LLTabContainer::initButtons()
 
 		out_id = "UIImgBtnJumpLeftOutUUID";
 		in_id = "UIImgBtnJumpLeftInUUID";
-		mJumpPrevArrowBtn = new LLButton("Jump Left Arrow", jump_left_arrow_btn_rect,
-										 out_id, in_id, "",
+		mJumpPrevArrowBtn = new LLButton(std::string("Jump Left Arrow"), jump_left_arrow_btn_rect,
+										 out_id, in_id, LLStringUtil::null,
 										 &LLTabContainer::onJumpFirstBtn, this, LLFontGL::sSansSerif );
 		mJumpPrevArrowBtn->setFollowsLeft();
 
 		out_id = "UIImgBtnScrollLeftOutUUID";
 		in_id = "UIImgBtnScrollLeftInUUID";
-		mPrevArrowBtn = new LLButton("Left Arrow", left_arrow_btn_rect,
-									 out_id, in_id, "",
+		mPrevArrowBtn = new LLButton(std::string("Left Arrow"), left_arrow_btn_rect,
+									 out_id, in_id, LLStringUtil::null,
 									 &LLTabContainer::onPrevBtn, this, LLFontGL::sSansSerif );
 		mPrevArrowBtn->setHeldDownCallback(onPrevBtnHeld);
 		mPrevArrowBtn->setFollowsLeft();
 	
 		out_id = "UIImgBtnJumpRightOutUUID";
 		in_id = "UIImgBtnJumpRightInUUID";
-		mJumpNextArrowBtn = new LLButton("Jump Right Arrow", jump_right_arrow_btn_rect,
-										 out_id, in_id, "",
+		mJumpNextArrowBtn = new LLButton(std::string("Jump Right Arrow"), jump_right_arrow_btn_rect,
+										 out_id, in_id, LLStringUtil::null,
 										 &LLTabContainer::onJumpLastBtn, this,
 										 LLFontGL::sSansSerif);
 		mJumpNextArrowBtn->setFollowsRight();
 
 		out_id = "UIImgBtnScrollRightOutUUID";
 		in_id = "UIImgBtnScrollRightInUUID";
-		mNextArrowBtn = new LLButton("Right Arrow", right_arrow_btn_rect,
-									 out_id, in_id, "",
+		mNextArrowBtn = new LLButton(std::string("Right Arrow"), right_arrow_btn_rect,
+									 out_id, in_id, LLStringUtil::null,
 									 &LLTabContainer::onNextBtn, this,
 									 LLFontGL::sSansSerif);
 		mNextArrowBtn->setFollowsRight();

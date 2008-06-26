@@ -58,7 +58,7 @@ public:
 		F64 timeout=LL_ASSET_STORAGE_TIMEOUT);
 	
 	virtual void storeAssetData(
-		const char* filename,
+		const std::string& filename,
 		const LLTransactionID& tid,
 		LLAssetType::EType type,
 		LLStoreAssetCallback callback,

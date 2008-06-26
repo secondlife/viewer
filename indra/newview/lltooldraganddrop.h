@@ -55,7 +55,7 @@ public:
 	virtual BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleHover(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleKey(KEY key, MASK mask);
-	virtual BOOL	handleToolTip(S32 x, S32 y, LLString& msg, LLRect *sticky_rect_screen);
+	virtual BOOL	handleToolTip(S32 x, S32 y, std::string& msg, LLRect *sticky_rect_screen);
 	virtual void	onMouseCaptureLost();
 	virtual void	handleDeselect();
 
@@ -127,7 +127,7 @@ protected:
 	EAcceptance		mLastAccept;
 	BOOL			mDrop;
 	S32				mCurItemIndex;
-	LLString		mToolTipMsg;
+	std::string		mToolTipMsg;
 
 	// array of pointers to functions that implement the logic to
 	// dragging and dropping into the simulator.
@@ -187,7 +187,6 @@ protected:
 	//	LLViewerInventoryCategory::cat_array_t& cats,
 	//	LLViewerInventoryItem::item_array_t& items);
 
-	void createContainer(LLViewerInventoryItem::item_array_t &items, const char* preferred_name);
 	void dropObject(LLViewerObject* raycast_target,
 					BOOL bypass_sim_raycast,
 					BOOL from_task_inventory,

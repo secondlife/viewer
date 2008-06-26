@@ -69,6 +69,7 @@ class LLMessageReader
 	virtual void getIPAddr(const char *block, const char *var, U32 &ip, S32 blocknum = 0) = 0;
 	virtual void getIPPort(const char *block, const char *var, U16 &port, S32 blocknum = 0) = 0;
 	virtual void getString(const char *block, const char *var, S32 buffer_size, char *buffer, S32 blocknum = 0) = 0;
+	virtual void getString(const char *block, const char *var, std::string& outstr, S32 blocknum = 0) = 0;
 
 	virtual S32	getNumberOfBlocks(const char *blockname) = 0;
 	virtual S32	getSize(const char *blockname, const char *varname) = 0;

@@ -80,7 +80,7 @@ void LLWLParamSet::update(LLGLSLShader * shader) const
 		i != mParamValues.endMap();
 		++i)
 	{
-		const LLString& param = i->first;
+		const std::string& param = i->first;
 		
 		if(	param == "star_brightness" || param == "preset_num" || param == "sun_angle" ||
 			param == "east_angle" || param == "enable_cloud_scroll" ||
@@ -130,7 +130,7 @@ void LLWLParamSet::update(LLGLSLShader * shader) const
 	}
 }
 
-void LLWLParamSet::set(const char * paramName, float x) 
+void LLWLParamSet::set(const std::string& paramName, float x) 
 {	
 	// handle case where no array
 	if(mParamValues[paramName].isReal()) 
@@ -146,19 +146,19 @@ void LLWLParamSet::set(const char * paramName, float x)
 	}
 }
 
-void LLWLParamSet::set(const char * paramName, float x, float y) {
+void LLWLParamSet::set(const std::string& paramName, float x, float y) {
 	mParamValues[paramName][0] = x;
 	mParamValues[paramName][1] = y;
 }
 
-void LLWLParamSet::set(const char * paramName, float x, float y, float z) 
+void LLWLParamSet::set(const std::string& paramName, float x, float y, float z) 
 {
 	mParamValues[paramName][0] = x;
 	mParamValues[paramName][1] = y;
 	mParamValues[paramName][2] = z;
 }
 
-void LLWLParamSet::set(const char * paramName, float x, float y, float z, float w) 
+void LLWLParamSet::set(const std::string& paramName, float x, float y, float z, float w) 
 {
 	mParamValues[paramName][0] = x;
 	mParamValues[paramName][1] = y;
@@ -166,7 +166,7 @@ void LLWLParamSet::set(const char * paramName, float x, float y, float z, float 
 	mParamValues[paramName][3] = w;
 }
 
-void LLWLParamSet::set(const char * paramName, const float * val) 
+void LLWLParamSet::set(const std::string& paramName, const float * val) 
 {
 	mParamValues[paramName][0] = val[0];
 	mParamValues[paramName][1] = val[1];
@@ -174,7 +174,7 @@ void LLWLParamSet::set(const char * paramName, const float * val)
 	mParamValues[paramName][3] = val[3];
 }
 
-void LLWLParamSet::set(const char * paramName, const LLVector4 & val) 
+void LLWLParamSet::set(const std::string& paramName, const LLVector4 & val) 
 {
 	mParamValues[paramName][0] = val.mV[0];
 	mParamValues[paramName][1] = val.mV[1];
@@ -182,7 +182,7 @@ void LLWLParamSet::set(const char * paramName, const LLVector4 & val)
 	mParamValues[paramName][3] = val.mV[3];
 }
 
-void LLWLParamSet::set(const char * paramName, const LLColor4 & val) 
+void LLWLParamSet::set(const std::string& paramName, const LLColor4 & val) 
 {
 	mParamValues[paramName][0] = val.mV[0];
 	mParamValues[paramName][1] = val.mV[1];
@@ -190,7 +190,7 @@ void LLWLParamSet::set(const char * paramName, const LLColor4 & val)
 	mParamValues[paramName][3] = val.mV[3];
 }
 
-LLVector4 LLWLParamSet::getVector(const char * paramName, bool& error) 
+LLVector4 LLWLParamSet::getVector(const std::string& paramName, bool& error) 
 {
 	
 	// test to see if right type
@@ -211,7 +211,7 @@ LLVector4 LLWLParamSet::getVector(const char * paramName, bool& error)
 	return val;
 }
 
-F32 LLWLParamSet::getFloat(const char * paramName, bool& error) 
+F32 LLWLParamSet::getFloat(const std::string& paramName, bool& error) 
 {
 	
 	// test to see if right type

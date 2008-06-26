@@ -50,7 +50,7 @@ class LLXfer_VFile : public LLXfer
 
 	LLVFS *mVFS;
 
-	char mName[MAX_STRING];		/* Flawfinder : ignore */
+	std::string mName;
 
  public:
 	LLXfer_VFile ();
@@ -85,7 +85,7 @@ class LLXfer_VFile : public LLXfer
 
 	virtual U32 getXferTypeTag();
 
-	virtual const char *getName();
+	virtual std::string getFileName();
 };
 
 #endif

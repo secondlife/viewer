@@ -58,8 +58,8 @@ public:
 						  const LLUUID& asset_uuid,
 						  LLAssetType::EType type,
 						  LLInventoryType::EType inv_type,
-						  const LLString& name, 
-						  const LLString& desc,
+						  const std::string& name, 
+						  const std::string& desc,
 						  const LLSaleInfo& sale_info,
 						  U32 flags,
 						  time_t creation_date_utc);
@@ -69,7 +69,7 @@ public:
 	LLViewerInventoryItem(
 		const LLUUID& item_id,
 		const LLUUID& parent_id,
-		const char* name,
+		const std::string& name,
 		LLInventoryType::EType inv_type);
 
 	// construct an invalid and incomplete viewer inventory item.
@@ -149,7 +149,7 @@ protected:
 public:
 	LLViewerInventoryCategory(const LLUUID& uuid, const LLUUID& parent_uuid,
 							  LLAssetType::EType preferred_type,
-							  const LLString& name,
+							  const std::string& name,
 							  const LLUUID& owner_id);
 	LLViewerInventoryCategory(const LLUUID& owner_id);
 	// Create a copy of an inventory category from a pointer to another category
@@ -161,7 +161,6 @@ public:
 	virtual void removeFromServer();
 	virtual void updateParentOnServer(BOOL restamp_children) const;
 	virtual void updateServer(BOOL is_new) const;
-	//virtual BOOL unpackMessage(LLMessageSystem* msg, const char* block, S32 block_num = 0);
 
 	const LLUUID& getOwnerID() const { return mOwnerID; }
 

@@ -124,7 +124,7 @@ LLFloater* LLFloaterScriptDebug::addOutputWindow(const LLUUID &object_id)
 void LLFloaterScriptDebug::addScriptLine(const std::string &utf8mesg, const std::string &user_name, const LLColor4& color, const LLUUID& source_id)
 {
 	LLViewerObject* objectp = gObjectList.findObject(source_id);
-	LLString floater_label;
+	std::string floater_label;
 
 	if (objectp)
 	{
@@ -161,7 +161,7 @@ LLFloaterScriptDebugOutput::LLFloaterScriptDebugOutput()
 }
 
 LLFloaterScriptDebugOutput::LLFloaterScriptDebugOutput(const LLUUID& object_id)
-: LLFloater("script instance floater", LLRect(0, 200, 200, 0), "Script", TRUE), mObjectID(object_id)
+: LLFloater(std::string("script instance floater"), LLRect(0, 200, 200, 0), std::string("Script"), TRUE), mObjectID(object_id)
 {
 	S32 y = getRect().getHeight() - LLFLOATER_HEADER_SIZE - LLFLOATER_VPAD;
 	S32 x = LLFLOATER_HPAD;
@@ -172,8 +172,8 @@ LLFloaterScriptDebugOutput::LLFloaterScriptDebugOutput(const LLUUID& object_id)
 		y,
 		getRect().getWidth() - LLFLOATER_HPAD,
 				LLFLOATER_VPAD );
-	mHistoryEditor = new LLViewerTextEditor( "Chat History Editor", 
-										history_editor_rect, S32_MAX, "", LLFontGL::sSansSerif);
+	mHistoryEditor = new LLViewerTextEditor( std::string("Chat History Editor"), 
+										history_editor_rect, S32_MAX, LLStringUtil::null, LLFontGL::sSansSerif);
 	mHistoryEditor->setWordWrap( TRUE );
 	mHistoryEditor->setFollowsAll();
 	mHistoryEditor->setEnabled( FALSE );
@@ -181,7 +181,7 @@ LLFloaterScriptDebugOutput::LLFloaterScriptDebugOutput(const LLUUID& object_id)
 	addChild(mHistoryEditor);
 }
 
-void LLFloaterScriptDebugOutput::initFloater(const LLString& title, BOOL resizable, 
+void LLFloaterScriptDebugOutput::initFloater(const std::string& title, BOOL resizable, 
 						S32 min_width, S32 min_height, BOOL drag_on_left,
 						BOOL minimizable, BOOL close_btn)
 {
@@ -195,8 +195,8 @@ void LLFloaterScriptDebugOutput::initFloater(const LLString& title, BOOL resizab
 		y,
 		getRect().getWidth() - LLFLOATER_HPAD,
 				LLFLOATER_VPAD );
-	mHistoryEditor = new LLViewerTextEditor( "Chat History Editor", 
-										history_editor_rect, S32_MAX, "", LLFontGL::sSansSerif);
+	mHistoryEditor = new LLViewerTextEditor( std::string("Chat History Editor"), 
+										history_editor_rect, S32_MAX, LLStringUtil::null, LLFontGL::sSansSerif);
 	mHistoryEditor->setWordWrap( TRUE );
 	mHistoryEditor->setFollowsAll();
 	mHistoryEditor->setEnabled( FALSE );

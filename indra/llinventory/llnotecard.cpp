@@ -222,7 +222,7 @@ bool LLNotecard::importStream(std::istream& str)
 	if(success)
 	{
 		// Actually set the text
-		mText = text;
+		mText = std::string(text);
 	}
 
 	delete[] text;
@@ -281,22 +281,12 @@ bool LLNotecard::exportStream( std::ostream& out_stream )
 
 ////////////////////////////////////////////////////////////////////////////
 
-const std::vector<LLPointer<LLInventoryItem> >& LLNotecard::getItems() const
-{
-	return mItems;
-}
-
-LLString& LLNotecard::getText()
-{
-	return mText;
-}
-
 void LLNotecard::setItems(const std::vector<LLPointer<LLInventoryItem> >& items)
 {
 	mItems = items;
 }
 
-void LLNotecard::setText(const LLString& text)
+void LLNotecard::setText(const std::string& text)
 {
 	mText = text;
 }

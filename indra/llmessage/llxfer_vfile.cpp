@@ -74,10 +74,10 @@ void LLXfer_VFile::init (LLVFS *vfs, const LLUUID &local_id, LLAssetType::EType 
 
 	mVFile = NULL;
 
-	char id_string[UUID_STR_LENGTH];			/* Flawfinder : ignore */
+	std::string id_string;
 	mLocalID.toString(id_string);
 
-	snprintf(mName, sizeof(mName), "VFile %s:%s", id_string, LLAssetType::lookup(mType));		/* Flawfinder : ignore */
+	mName = llformat("VFile %s:%s", id_string.c_str(), LLAssetType::lookup(mType));
 }
 	
 ///////////////////////////////////////////////////////////
@@ -118,10 +118,10 @@ S32 LLXfer_VFile::initializeRequest(U64 xfer_id,
 	mCallbackDataHandle = user_data;
 	mCallbackResult = LL_ERR_NOERR;
 
-	char id_string[UUID_STR_LENGTH];		/* Flawfinder : ignore */
+	std::string id_string;
 	mLocalID.toString(id_string);
 
-	snprintf(mName, sizeof(mName), "VFile %s:%s", id_string, LLAssetType::lookup(mType));		/* Flawfinder : ignore */
+	mName = llformat("VFile %s:%s", id_string.c_str(), LLAssetType::lookup(mType));
 
 	llinfos << "Requesting " << mName << llendl;
 
@@ -328,7 +328,7 @@ BOOL LLXfer_VFile::matchesRemoteFile(const LLUUID &id, LLAssetType::EType type)
 
 //////////////////////////////////////////////////////////
 
-const char * LLXfer_VFile::getName() 
+std::string LLXfer_VFile::getFileName() 
 {
 	return mName;
 }

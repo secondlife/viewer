@@ -129,7 +129,7 @@ void ll_apr_assert_status(apr_status_t status)
 }
 
 // File I/O
-apr_file_t* ll_apr_file_open(const LLString& filename, apr_int32_t flags, S32* sizep, apr_pool_t* pool)
+apr_file_t* ll_apr_file_open(const std::string& filename, apr_int32_t flags, S32* sizep, apr_pool_t* pool)
 {
 	apr_file_t* apr_file;
 	apr_status_t s;
@@ -160,15 +160,15 @@ apr_file_t* ll_apr_file_open(const LLString& filename, apr_int32_t flags, S32* s
 
 	return apr_file;
 }
-apr_file_t* ll_apr_file_open(const LLString& filename, apr_int32_t flags, S32* sizep)
+apr_file_t* ll_apr_file_open(const std::string& filename, apr_int32_t flags, S32* sizep)
 {
 	return ll_apr_file_open(filename, flags, sizep, NULL);
 }
-apr_file_t* ll_apr_file_open(const LLString& filename, apr_int32_t flags, apr_pool_t* pool)
+apr_file_t* ll_apr_file_open(const std::string& filename, apr_int32_t flags, apr_pool_t* pool)
 {
 	return ll_apr_file_open(filename, flags, NULL, pool);
 }
-apr_file_t* ll_apr_file_open(const LLString& filename, apr_int32_t flags)
+apr_file_t* ll_apr_file_open(const std::string& filename, apr_int32_t flags)
 {
 	return ll_apr_file_open(filename, flags, NULL, NULL);
 }
@@ -188,7 +188,7 @@ S32 ll_apr_file_read(apr_file_t* apr_file, void *buf, S32 nbytes)
 	}
 }
 
-S32 ll_apr_file_read_ex(const LLString& filename, apr_pool_t* pool, void *buf, S32 offset, S32 nbytes)
+S32 ll_apr_file_read_ex(const std::string& filename, apr_pool_t* pool, void *buf, S32 offset, S32 nbytes)
 {
 	if (pool == NULL) pool = gAPRPoolp;
 	apr_file_t* filep = ll_apr_file_open(filename, APR_READ|APR_BINARY, pool);
@@ -230,7 +230,7 @@ S32 ll_apr_file_write(apr_file_t* apr_file, const void *buf, S32 nbytes)
 	}
 }
 
-S32 ll_apr_file_write_ex(const LLString& filename, apr_pool_t* pool, void *buf, S32 offset, S32 nbytes)
+S32 ll_apr_file_write_ex(const std::string& filename, apr_pool_t* pool, void *buf, S32 offset, S32 nbytes)
 {
 	if (pool == NULL) pool = gAPRPoolp;
 	apr_int32_t flags = APR_CREATE|APR_WRITE|APR_BINARY;
@@ -287,7 +287,7 @@ S32 ll_apr_file_seek(apr_file_t* apr_file, apr_seek_where_t where, S32 offset)
 	}
 }
 
-bool ll_apr_file_remove(const LLString& filename, apr_pool_t* pool)
+bool ll_apr_file_remove(const std::string& filename, apr_pool_t* pool)
 {
 	apr_status_t s;
 	if (pool == NULL) pool = gAPRPoolp;
@@ -301,7 +301,7 @@ bool ll_apr_file_remove(const LLString& filename, apr_pool_t* pool)
 	return true;
 }
 
-bool ll_apr_file_rename(const LLString& filename, const LLString& newname, apr_pool_t* pool)
+bool ll_apr_file_rename(const std::string& filename, const std::string& newname, apr_pool_t* pool)
 {
 	apr_status_t s;
 	if (pool == NULL) pool = gAPRPoolp;
@@ -315,7 +315,7 @@ bool ll_apr_file_rename(const LLString& filename, const LLString& newname, apr_p
 	return true;
 }
 
-bool ll_apr_file_exists(const LLString& filename, apr_pool_t* pool)
+bool ll_apr_file_exists(const std::string& filename, apr_pool_t* pool)
 {
 	apr_file_t* apr_file;
 	apr_status_t s;
@@ -332,7 +332,7 @@ bool ll_apr_file_exists(const LLString& filename, apr_pool_t* pool)
 	}
 }
 
-S32 ll_apr_file_size(const LLString& filename, apr_pool_t* pool)
+S32 ll_apr_file_size(const std::string& filename, apr_pool_t* pool)
 {
 	apr_file_t* apr_file;
 	apr_finfo_t info;
@@ -358,7 +358,7 @@ S32 ll_apr_file_size(const LLString& filename, apr_pool_t* pool)
 	}
 }
 
-bool ll_apr_dir_make(const LLString& dirname, apr_pool_t* pool)
+bool ll_apr_dir_make(const std::string& dirname, apr_pool_t* pool)
 {
 	apr_status_t s;
 	if (pool == NULL) pool = gAPRPoolp;
@@ -372,7 +372,7 @@ bool ll_apr_dir_make(const LLString& dirname, apr_pool_t* pool)
 	return true;
 }
 
-bool ll_apr_dir_remove(const LLString& dirname, apr_pool_t* pool)
+bool ll_apr_dir_remove(const std::string& dirname, apr_pool_t* pool)
 {
 	apr_status_t s;
 	if (pool == NULL) pool = gAPRPoolp;

@@ -64,7 +64,7 @@ void LLUploadDialog::modalUploadFinished()
 
 LLUploadDialog::LLUploadDialog( const std::string& msg)
 	:
-	LLPanel( "Uploading...", LLRect(0,100,100,0) )  // dummy rect.  Will reshape below.
+	LLPanel( std::string("Uploading..."), LLRect(0,100,100,0) )  // dummy rect.  Will reshape below.
 {
 	setBackgroundVisible( TRUE );
 
@@ -78,7 +78,7 @@ LLUploadDialog::LLUploadDialog( const std::string& msg)
 	LLRect msg_rect;
 	for (int line_num=0; line_num<16; ++line_num)
 	{
-		mLabelBox[line_num] = new LLTextBox( "Filename", msg_rect, "Filename", font );
+		mLabelBox[line_num] = new LLTextBox( std::string("Filename"), msg_rect, std::string("Filename"), font );
 		addChild(mLabelBox[line_num]);
 	}
 
@@ -116,9 +116,10 @@ void LLUploadDialog::setMessage( const std::string& msg)
 	char* token = strtok( temp_msg, "\n" );
 	while( token )
 	{
-		S32 cur_width = S32(font->getWidth(token) + 0.99f) + TEXT_PAD;
+		std::string tokstr(token);
+		S32 cur_width = S32(font->getWidth(tokstr) + 0.99f) + TEXT_PAD;
 		max_msg_width = llmax( max_msg_width, cur_width );
-		msg_lines.push_back( std::string( token ) );
+		msg_lines.push_back( tokstr );
 		token = strtok( NULL, "\n" );
 	}
 	delete[] temp_msg;

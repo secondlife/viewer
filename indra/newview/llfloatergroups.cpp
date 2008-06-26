@@ -389,7 +389,7 @@ void LLPanelGroups::leave()
 		if(i < count)
 		{
 			LLUUID* cb_data = new LLUUID((const LLUUID&)group_id);
-			LLString::format_map_t args;
+			LLStringUtil::format_map_t args;
 			args["[GROUP]"] = gAgent.mGroups.get(i).mName;
 			gViewerWindow->alertXml("GroupLeaveConfirmMember", args, callbackLeaveGroup, (void*)cb_data);
 		}
@@ -439,7 +439,7 @@ void init_group_list(LLScrollListCtrl* ctrl, const LLUUID& highlight_id, U64 pow
 		id = gAgent.mGroups.get(i).mID;
 		LLGroupData* group_datap = &gAgent.mGroups.get(i);
 		if ((group_datap->mPowers & powers_mask) != 0) {
-			LLString style = "NORMAL";
+			std::string style = "NORMAL";
 			if(highlight_id == id)
 			{
 				style = "BOLD";
@@ -458,7 +458,7 @@ void init_group_list(LLScrollListCtrl* ctrl, const LLUUID& highlight_id, U64 pow
 
 	// add "none" to list at top
 	{
-		LLString style = "NORMAL";
+		std::string style = "NORMAL";
 		if (highlight_id.isNull())
 		{
 			style = "BOLD";

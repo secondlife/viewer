@@ -81,12 +81,6 @@ public:
 	/*virtual*/ void delayInputProcessing() {};
 	/*virtual*/ void swapBuffers();
 
-	/*virtual*/ LLString getTempFileName() {return LLString(""); };
-	/*virtual*/ void deleteFile( const char* file_name ) {};
-	/*virtual*/ S32 stat( const char* file_name, struct stat* stat_info ) {return 0; };
-	/*virtual*/ BOOL sendEmail(const char* address,const char* subject,const char* body_text,const char* attachment=NULL, const char* attachment_displayed_name=NULL) { return FALSE; };
-
-
 	// handy coordinate space conversion routines
 	/*virtual*/ BOOL convertCoords(LLCoordScreen from, LLCoordWindow *to) { return FALSE; };
 	/*virtual*/ BOOL convertCoords(LLCoordWindow from, LLCoordScreen *to) { return FALSE; };
@@ -103,7 +97,7 @@ public:
 	/*virtual*/ void *getPlatformWindow() { return 0; };
 	/*virtual*/ void bringToFront() {};
 	
-	LLWindowMesaHeadless(const char *title, const char *name, S32 x, S32 y, S32 width, S32 height,
+	LLWindowMesaHeadless(const std::string& title, const std::string& name, S32 x, S32 y, S32 width, S32 height,
 				  U32 flags,  BOOL fullscreen, BOOL clearBg,
 				  BOOL disable_vsync, BOOL use_gl, BOOL ignore_pixel_depth);
 	~LLWindowMesaHeadless();
@@ -120,7 +114,7 @@ public:
 	virtual ~LLSplashScreenMesaHeadless() {};
 
 	/*virtual*/ void showImpl() {};
-	/*virtual*/ void updateImpl(const char* mesg) {};
+	/*virtual*/ void updateImpl(const std::string& mesg) {};
 	/*virtual*/ void hideImpl() {};
 
 };

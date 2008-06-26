@@ -64,9 +64,9 @@ public:
 	} EPreferredPosition;
 
 	LLComboBox(
-		const LLString& name, 
+		const std::string& name, 
 		const LLRect &rect,
-		const LLString& label,
+		const std::string& label,
 		void (*commit_callback)(LLUICtrl*, void*) = NULL,
 		void *callback_userdata = NULL
 		);
@@ -83,7 +83,7 @@ public:
 
 	virtual void	setEnabled(BOOL enabled);
 
-	virtual BOOL	handleToolTip(S32 x, S32 y, LLString& msg, LLRect* sticky_rect);
+	virtual BOOL	handleToolTip(S32 x, S32 y, std::string& msg, LLRect* sticky_rect);
 	virtual BOOL	handleKeyHere(KEY key, MASK mask);
 	virtual BOOL	handleUnicodeCharHere(llwchar uni_char);
 
@@ -107,10 +107,10 @@ public:
 	void			setAllowTextEntry(BOOL allow, S32 max_chars = 50, BOOL make_tentative = TRUE);
 	void			setTextEntry(const LLStringExplicit& text);
 
-	LLScrollListItem*	add(const LLString& name, EAddPosition pos = ADD_BOTTOM, BOOL enabled = TRUE);	// add item "name" to menu
-	LLScrollListItem*	add(const LLString& name, const LLUUID& id, EAddPosition pos = ADD_BOTTOM, BOOL enabled = TRUE);
-	LLScrollListItem*	add(const LLString& name, void* userdata, EAddPosition pos = ADD_BOTTOM, BOOL enabled = TRUE);
-	LLScrollListItem*	add(const LLString& name, LLSD value, EAddPosition pos = ADD_BOTTOM, BOOL enabled = TRUE);
+	LLScrollListItem*	add(const std::string& name, EAddPosition pos = ADD_BOTTOM, BOOL enabled = TRUE);	// add item "name" to menu
+	LLScrollListItem*	add(const std::string& name, const LLUUID& id, EAddPosition pos = ADD_BOTTOM, BOOL enabled = TRUE);
+	LLScrollListItem*	add(const std::string& name, void* userdata, EAddPosition pos = ADD_BOTTOM, BOOL enabled = TRUE);
+	LLScrollListItem*	add(const std::string& name, LLSD value, EAddPosition pos = ADD_BOTTOM, BOOL enabled = TRUE);
 	LLScrollListItem*	addSeparator(EAddPosition pos = ADD_BOTTOM);
 	BOOL			remove( S32 index );	// remove item by index, return TRUE if found and removed
 	void			removeall() { clearRows(); }
@@ -120,15 +120,15 @@ public:
 	// Select current item by name using selectItemByLabel.  Returns FALSE if not found.
 	BOOL			setSimple(const LLStringExplicit& name);
 	// Get name of current item. Returns an empty string if not found.
-	const LLString	getSimple() const;
+	const std::string	getSimple() const;
 	// Get contents of column x of selected row
-	const LLString getSelectedItemLabel(S32 column = 0) const;
+	const std::string getSelectedItemLabel(S32 column = 0) const;
 
 	// Sets the label, which doesn't have to exist in the label.
 	// This is probably a UI abuse.
 	void			setLabel(const LLStringExplicit& name);
 
-	BOOL			remove(const LLString& name);	// remove item "name", return TRUE if found and removed
+	BOOL			remove(const std::string& name);	// remove item "name", return TRUE if found and removed
 	
 	BOOL			setCurrentByIndex( S32 index );
 	S32				getCurrentIndex() const;
@@ -145,11 +145,11 @@ public:
 	// Overwrites the default column (See LLScrollListCtrl for format)
 	virtual void 	addColumn(const LLSD& column, EAddPosition pos = ADD_BOTTOM);
 	virtual void 	clearColumns();
-	virtual void	setColumnLabel(const LLString& column, const LLString& label);
+	virtual void	setColumnLabel(const std::string& column, const std::string& label);
 	virtual LLScrollListItem* addElement(const LLSD& value, EAddPosition pos = ADD_BOTTOM, void* userdata = NULL);
-	virtual LLScrollListItem* addSimpleElement(const LLString& value, EAddPosition pos = ADD_BOTTOM, const LLSD& id = LLSD());
+	virtual LLScrollListItem* addSimpleElement(const std::string& value, EAddPosition pos = ADD_BOTTOM, const LLSD& id = LLSD());
 	virtual void 	clearRows();
-	virtual void 	sortByColumn(LLString name, BOOL ascending);
+	virtual void 	sortByColumn(const std::string& name, BOOL ascending);
 
 	// LLCtrlSelectionInterface functions
 	virtual BOOL	getCanSelect() const				{ return TRUE; }
@@ -203,9 +203,9 @@ class LLFlyoutButton : public LLComboBox
 {
 public:
 	LLFlyoutButton(
-		const LLString& name, 
+		const std::string& name, 
 		const LLRect &rect,
-		const LLString& label,
+		const std::string& label,
 		void (*commit_callback)(LLUICtrl*, void*) = NULL,
 		void *callback_userdata = NULL);
 

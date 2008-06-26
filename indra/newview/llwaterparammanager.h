@@ -44,12 +44,12 @@ const F32 WATER_FOG_LIGHT_CLAMP = 0.3f;
 struct WaterColorControl {
 	
 	F32 mR, mG, mB, mA, mI;			/// the values
-	char const * mName;				/// name to use to dereference params
+	std::string mName;				/// name to use to dereference params
 	std::string mSliderName;		/// name of the slider in menu
 	bool mHasSliderName;			/// only set slider name for true color types
 
 	inline WaterColorControl(F32 red, F32 green, F32 blue, F32 alpha,
-		F32 intensity, char const * n, char const * sliderName = "")
+							 F32 intensity, const std::string& n, const std::string& sliderName = LLStringUtil::null)
 		: mR(red), mG(green), mB(blue), mA(alpha), mI(intensity), mName(n), mSliderName(sliderName)
 	{
 		// if there's a slider name, say we have one
@@ -104,10 +104,10 @@ struct WaterVector3Control
 	F32 mY;
 	F32 mZ;
 
-	char const * mName;
+	std::string mName;
 
 	// basic constructor
-	inline WaterVector3Control(F32 valX, F32 valY, F32 valZ, char const * n)
+	inline WaterVector3Control(F32 valX, F32 valY, F32 valZ, const std::string& n)
 		: mX(valX), mY(valY), mZ(valZ), mName(n)
 	{
 	}
@@ -133,10 +133,10 @@ struct WaterVector2Control
 	F32 mX;
 	F32 mY;
 
-	char const * mName;
+	std::string mName;
 
 	// basic constructor
-	inline WaterVector2Control(F32 valX, F32 valY, char const * n)
+	inline WaterVector2Control(F32 valX, F32 valY, const std::string& n)
 		: mX(valX), mY(valY), mName(n)
 	{
 	}
@@ -159,10 +159,10 @@ struct WaterVector2Control
 struct WaterFloatControl 
 {
 	F32 mX;
-	char const * mName;
+	std::string mName;
 	F32 mMult;
 
-	inline WaterFloatControl(F32 val, char const * n, F32 m=1.0f)
+	inline WaterFloatControl(F32 val, const std::string& n, F32 m=1.0f)
 		: mX(val), mName(n), mMult(m)
 	{
 	}
@@ -189,10 +189,10 @@ struct WaterFloatControl
 struct WaterExpFloatControl 
 {
 	F32 mExp;
-	char const * mName;
+	std::string mName;
 	F32 mBase;
 
-	inline WaterExpFloatControl(F32 val, char const * n, F32 b)
+	inline WaterExpFloatControl(F32 val, const std::string& n, F32 b)
 		: mExp(val), mName(n), mBase(b)
 	{
 	}
@@ -225,13 +225,13 @@ public:
 	~LLWaterParamManager();
 
 	/// load a preset file
-	void loadAllPresets(const LLString & fileName);
+	void loadAllPresets(const std::string & fileName);
 
 	/// load an individual preset into the sky
-	void loadPreset(const LLString & name);
+	void loadPreset(const std::string & name);
 
 	/// save the parameter presets to file
-	void savePreset(const LLString & name);
+	void savePreset(const std::string & name);
 
 	/// send the parameters to the shaders
 	void propagateParameters(void);

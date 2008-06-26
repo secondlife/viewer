@@ -143,8 +143,8 @@ public:
 	static void cleanupVOClasses();
 
 	void			addNVPair(const std::string& data);
-	BOOL			removeNVPair(const char *name);
-	LLNameValue		*getNVPair(const char *name) const;			// null if no name value pair by that name
+	BOOL			removeNVPair(const std::string& name);
+	LLNameValue*	getNVPair(const std::string& name) const;			// null if no name value pair by that name
 
 	// Object create and update functions
 	virtual BOOL	idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time);
@@ -326,8 +326,8 @@ public:
 	U8 getMediaType() const;
 	void setMediaType(U8 media_type);
 
-	const LLString& getMediaURL() const;
-	void setMediaURL(const LLString& media_url);
+	std::string getMediaURL() const;
+	void setMediaURL(const std::string& media_url);
 
 	BOOL getMediaPassedWhitelist() const;
 	void setMediaPassedWhitelist(BOOL passed);
@@ -550,7 +550,7 @@ protected:
 	//
 
 	static void processTaskInvFile(void** user_data, S32 error_code, LLExtStat ext_status);
-	void loadTaskInvFile(const char* filename);
+	void loadTaskInvFile(const std::string& filename);
 	void doInventoryCallback();
 	
 	BOOL isOnMap();
@@ -657,7 +657,7 @@ class LLViewerObjectMedia
 public:
 	LLViewerObjectMedia() : mMediaURL(), mPassedWhitelist(FALSE), mMediaType(0) { }
 
-	LLString mMediaURL;	// for web pages on surfaces, one per prim
+	std::string mMediaURL;	// for web pages on surfaces, one per prim
 	BOOL mPassedWhitelist;	// user has OK'd display
 	U8 mMediaType;			// see LLTextureEntry::WEB_PAGE, etc.
 };

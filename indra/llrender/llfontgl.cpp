@@ -48,7 +48,7 @@ F32 LLFontGL::sHorizDPI = 96.f;
 F32 LLFontGL::sScaleX = 1.f;
 F32 LLFontGL::sScaleY = 1.f;
 BOOL LLFontGL::sDisplayFont = TRUE ;
-LLString LLFontGL::sAppDir;
+std::string LLFontGL::sAppDir;
 
 LLFontGL* LLFontGL::sMonospace = NULL;
 LLFontGL* LLFontGL::sSansSerifSmall = NULL;
@@ -93,7 +93,7 @@ F32 llfont_round_y(F32 y)
 }
 
 // static
-U8 LLFontGL::getStyleFromString(const LLString &style)
+U8 LLFontGL::getStyleFromString(const std::string &style)
 {
 	S32 ret = 0;
 	if (style.find("NORMAL") != style.npos)
@@ -166,9 +166,9 @@ void LLFontGL::reset()
 }
 
 // static 
-LLString LLFontGL::getFontPathSystem()
+std::string LLFontGL::getFontPathSystem()
 {
-	LLString system_path;
+	std::string system_path;
 
 	// Try to figure out where the system's font files are stored.
 	char *system_root = NULL;
@@ -199,9 +199,9 @@ LLString LLFontGL::getFontPathSystem()
 
 
 // static 
-LLString LLFontGL::getFontPathLocal()
+std::string LLFontGL::getFontPathLocal()
 {
-	LLString local_path;
+	std::string local_path;
 
 	// Backup files if we can't load from system fonts directory.
 	// We could store this in an end-user writable directory to allow
@@ -220,10 +220,10 @@ LLString LLFontGL::getFontPathLocal()
 }
 
 //static
-bool LLFontGL::loadFaceFallback(LLFontList *fontlistp, const LLString& fontname, const F32 point_size)
+bool LLFontGL::loadFaceFallback(LLFontList *fontlistp, const std::string& fontname, const F32 point_size)
 {
-	LLString local_path = getFontPathLocal();
-	LLString sys_path = getFontPathSystem();
+	std::string local_path = getFontPathLocal();
+	std::string sys_path = getFontPathSystem();
 	
 	// The fontname string may contain multiple font file names separated by semicolons.
 	// Break it apart and try loading each one, in order.
@@ -235,7 +235,7 @@ bool LLFontGL::loadFaceFallback(LLFontList *fontlistp, const LLString& fontname,
 	for(token_iter = tokens.begin(); token_iter != tokens.end(); ++token_iter)
 	{
 		LLFont *fontp = new LLFont();
-		LLString font_path = local_path + *token_iter;
+		std::string font_path = local_path + *token_iter;
 		if (!fontp->loadFace(font_path, point_size, sVertDPI, sHorizDPI, 2, TRUE))
 		{
 			font_path = sys_path + *token_iter;
@@ -258,13 +258,13 @@ bool LLFontGL::loadFaceFallback(LLFontList *fontlistp, const LLString& fontname,
 }
 
 //static
-bool LLFontGL::loadFace(LLFontGL *fontp, const LLString& fontname, const F32 point_size, LLFontList *fallback_fontp)
+bool LLFontGL::loadFace(LLFontGL *fontp, const std::string& fontname, const F32 point_size, LLFontList *fallback_fontp)
 {
-	LLString local_path = getFontPathLocal();
-	LLString font_path = local_path + fontname;
+	std::string local_path = getFontPathLocal();
+	std::string font_path = local_path + fontname;
 	if (!fontp->loadFace(font_path, point_size, sVertDPI, sHorizDPI, 2, FALSE))
 	{
-		LLString sys_path = getFontPathSystem();
+		std::string sys_path = getFontPathSystem();
 		font_path = sys_path + fontname;
 		if (!fontp->loadFace(font_path, point_size, sVertDPI, sHorizDPI, 2, FALSE))
 		{
@@ -280,12 +280,12 @@ bool LLFontGL::loadFace(LLFontGL *fontp, const LLString& fontname, const F32 poi
 
 // static
 BOOL LLFontGL::initDefaultFonts(F32 screen_dpi, F32 x_scale, F32 y_scale,
-				const LLString& monospace_file, F32 monospace_size,
-				const LLString& sansserif_file,
-				const LLString& sanserif_fallback_file, F32 ss_fallback_scale,
+				const std::string& monospace_file, F32 monospace_size,
+				const std::string& sansserif_file,
+				const std::string& sanserif_fallback_file, F32 ss_fallback_scale,
 				F32 small_size, F32 medium_size, F32 big_size, F32 huge_size,
-				const LLString& sansserif_bold_file, F32 bold_size,
-				const LLString& app_dir)
+				const std::string& sansserif_bold_file, F32 bold_size,
+				const std::string& app_dir)
 {
 	BOOL failed = FALSE;
 	sVertDPI = (F32)llfloor(screen_dpi * y_scale);
@@ -554,7 +554,7 @@ BOOL LLFontGL::addChar(const llwchar wch)
 }
 
 
-S32 LLFontGL::renderUTF8(const LLString &text, const S32 offset, 
+S32 LLFontGL::renderUTF8(const std::string &text, const S32 offset, 
 					 const F32 x, const F32 y,
 					 const LLColor4 &color,
 					 const HAlign halign, const VAlign valign,
@@ -726,7 +726,7 @@ S32 LLFontGL::render(const LLWString &wstr,
 		if (getWidthF32(wstr.c_str(), 0, max_chars) * sScaleX > scaled_max_pixels)
 		{
 			// use four dots for ellipsis width to generate padding
-			const LLWString dots(utf8str_to_wstring(LLString("....")));
+			const LLWString dots(utf8str_to_wstring(std::string("....")));
 			scaled_max_pixels = llmax(0, scaled_max_pixels - llround(getWidthF32(dots.c_str())));
 			draw_ellipses = TRUE;
 		}
@@ -879,7 +879,7 @@ S32 LLFontGL::render(const LLWString &wstr,
 		//glLoadIdentity();
 		//gGL.translatef(sCurOrigin.mX, sCurOrigin.mY, 0.0f);
 		//glScalef(sScaleX, sScaleY, 1.f);
-		renderUTF8("...", 
+		renderUTF8(std::string("..."), 
 				0,
 				cur_x / sScaleX, (F32)y,
 				color,
@@ -902,7 +902,7 @@ LLImageGL *LLFontGL::getImageGL() const
 	return mImageGLp;
 }
 
-S32 LLFontGL::getWidth(const LLString& utf8text) const
+S32 LLFontGL::getWidth(const std::string& utf8text) const
 {
 	LLWString wtext = utf8str_to_wstring(utf8text);
 	return getWidth(wtext.c_str(), 0, S32_MAX);
@@ -913,7 +913,7 @@ S32 LLFontGL::getWidth(const llwchar* wchars) const
 	return getWidth(wchars, 0, S32_MAX);
 }
 
-S32 LLFontGL::getWidth(const LLString& utf8text, const S32 begin_offset, const S32 max_chars) const
+S32 LLFontGL::getWidth(const std::string& utf8text, const S32 begin_offset, const S32 max_chars) const
 {
 	LLWString wtext = utf8str_to_wstring(utf8text);
 	return getWidth(wtext.c_str(), begin_offset, max_chars);
@@ -925,7 +925,7 @@ S32 LLFontGL::getWidth(const llwchar* wchars, const S32 begin_offset, const S32 
 	return llround(width);
 }
 
-F32 LLFontGL::getWidthF32(const LLString& utf8text) const
+F32 LLFontGL::getWidthF32(const std::string& utf8text) const
 {
 	LLWString wtext = utf8str_to_wstring(utf8text);
 	return getWidthF32(wtext.c_str(), 0, S32_MAX);
@@ -936,7 +936,7 @@ F32 LLFontGL::getWidthF32(const llwchar* wchars) const
 	return getWidthF32(wchars, 0, S32_MAX);
 }
 
-F32 LLFontGL::getWidthF32(const LLString& utf8text, const S32 begin_offset, const S32 max_chars ) const
+F32 LLFontGL::getWidthF32(const std::string& utf8text, const S32 begin_offset, const S32 max_chars ) const
 {
 	LLWString wtext = utf8str_to_wstring(utf8text);
 	return getWidthF32(wtext.c_str(), begin_offset, max_chars);
@@ -1312,7 +1312,7 @@ void LLFontGL::clearEmbeddedChars()
 	mEmbeddedChars.clear();
 }
 
-void LLFontGL::addEmbeddedChar( llwchar wc, LLImageGL* image, const LLString& label )
+void LLFontGL::addEmbeddedChar( llwchar wc, LLImageGL* image, const std::string& label )
 {
 	LLWString wlabel = utf8str_to_wstring(label);
 	addEmbeddedChar(wc, image, wlabel);
@@ -1429,40 +1429,40 @@ void LLFontGL::drawGlyph(const LLRectf& screen_rect, const LLRectf& uv_rect, con
 }
 
 // static
-LLString LLFontGL::nameFromFont(const LLFontGL* fontp)
+std::string LLFontGL::nameFromFont(const LLFontGL* fontp)
 {
 	if (fontp == sSansSerifHuge)
 	{
-		return LLString("SansSerifHuge");
+		return std::string("SansSerifHuge");
 	}
 	else if (fontp == sSansSerifSmall)
 	{
-		return LLString("SansSerifSmall");
+		return std::string("SansSerifSmall");
 	}
 	else if (fontp == sSansSerif)
 	{
-		return LLString("SansSerif");
+		return std::string("SansSerif");
 	}
 	else if (fontp == sSansSerifBig)
 	{
-		return LLString("SansSerifBig");
+		return std::string("SansSerifBig");
 	}
 	else if (fontp == sSansSerifBold)
 	{
-		return LLString("SansSerifBold");
+		return std::string("SansSerifBold");
 	}
 	else if (fontp == sMonospace)
 	{
-		return LLString("Monospace");
+		return std::string("Monospace");
 	}
 	else
 	{
-		return LLString();
+		return std::string();
 	}
 }
 
 // static
-LLFontGL* LLFontGL::fontFromName(const LLString& font_name)
+LLFontGL* LLFontGL::fontFromName(const std::string& font_name)
 {
 	LLFontGL* gl_font = NULL;
 	if (font_name == "SansSerifHuge")
@@ -1493,16 +1493,16 @@ LLFontGL* LLFontGL::fontFromName(const LLString& font_name)
 }
 
 // static
-LLString LLFontGL::nameFromHAlign(LLFontGL::HAlign align)
+std::string LLFontGL::nameFromHAlign(LLFontGL::HAlign align)
 {
-	if (align == LEFT)			return LLString("left");
-	else if (align == RIGHT)	return LLString("right");
-	else if (align == HCENTER)	return LLString("center");
-	else return LLString();
+	if (align == LEFT)			return std::string("left");
+	else if (align == RIGHT)	return std::string("right");
+	else if (align == HCENTER)	return std::string("center");
+	else return std::string();
 }
 
 // static
-LLFontGL::HAlign LLFontGL::hAlignFromName(const LLString& name)
+LLFontGL::HAlign LLFontGL::hAlignFromName(const std::string& name)
 {
 	LLFontGL::HAlign gl_hfont_align = LLFontGL::LEFT;
 	if (name == "left")
@@ -1522,17 +1522,17 @@ LLFontGL::HAlign LLFontGL::hAlignFromName(const LLString& name)
 }
 
 // static
-LLString LLFontGL::nameFromVAlign(LLFontGL::VAlign align)
+std::string LLFontGL::nameFromVAlign(LLFontGL::VAlign align)
 {
-	if (align == TOP)			return LLString("top");
-	else if (align == VCENTER)	return LLString("center");
-	else if (align == BASELINE)	return LLString("baseline");
-	else if (align == BOTTOM)	return LLString("bottom");
-	else return LLString();
+	if (align == TOP)			return std::string("top");
+	else if (align == VCENTER)	return std::string("center");
+	else if (align == BASELINE)	return std::string("baseline");
+	else if (align == BOTTOM)	return std::string("bottom");
+	else return std::string();
 }
 
 // static
-LLFontGL::VAlign LLFontGL::vAlignFromName(const LLString& name)
+LLFontGL::VAlign LLFontGL::vAlignFromName(const std::string& name)
 {
 	LLFontGL::VAlign gl_vfont_align = LLFontGL::BASELINE;
 	if (name == "top")

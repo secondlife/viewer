@@ -986,7 +986,7 @@ void *updatethreadproc(void*)
 		
 		// NOTE: we could add -private at the end of this command line to keep the image from showing up in the Finder,
 		//		but if our cleanup fails, this makes it much harder for the user to unmount the image.
-		LLString mountOutput;
+		std::string mountOutput;
 		FILE* mounter = popen("hdiutil attach SecondLife.dmg -mountpoint mnt", "r");		/* Flawfinder: ignore */
 		
 		if(mounter == NULL)

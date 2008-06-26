@@ -68,7 +68,7 @@ public:
 	//
 	// CREATORS
 	//
-	LLViewerWindow(const char* title, const char* name, S32 x, S32 y, S32 width, S32 height, BOOL fullscreen, BOOL ignore_pixel_depth);
+	LLViewerWindow(const std::string& title, const std::string& name, S32 x, S32 y, S32 width, S32 height, BOOL fullscreen, BOOL ignore_pixel_depth);
 	virtual ~LLViewerWindow();
 
 	void			initGLDefaults();
@@ -162,7 +162,7 @@ public:
 		// The 'target' is where the user wants the window to be. It may not be
 		// there yet, because we may be supressing fullscreen prior to login.
 
-	const LLString&	getInitAlert() { return mInitAlert; }
+	const std::string&	getInitAlert() { return mInitAlert; }
 	
 	//
 	// MANIPULATORS
@@ -177,10 +177,10 @@ public:
 	void			setShowProgress(const BOOL show);
 	BOOL			getShowProgress() const;
 	void			moveProgressViewToFront();
-	void			setProgressString(const LLString& string);
+	void			setProgressString(const std::string& string);
 	void			setProgressPercent(const F32 percent);
-	void			setProgressMessage(const LLString& msg);
-	void			setProgressCancelButtonVisible( BOOL b, const LLString&  label );
+	void			setProgressMessage(const std::string& msg);
+	void			setProgressCancelButtonVisible( BOOL b, const std::string& label = LLStringUtil::null );
 	LLProgressView *getProgressView() const;
 
 	void			updateObjectUnderCursor();
@@ -226,11 +226,11 @@ public:
 		SNAPSHOT_TYPE_OBJECT_ID
 	} ESnapshotType;
 
-	BOOL			saveSnapshot(const LLString&  filename, S32 image_width, S32 image_height, BOOL show_ui = TRUE, BOOL do_rebuild = FALSE, ESnapshotType type = SNAPSHOT_TYPE_COLOR);
+	BOOL			saveSnapshot(const std::string&  filename, S32 image_width, S32 image_height, BOOL show_ui = TRUE, BOOL do_rebuild = FALSE, ESnapshotType type = SNAPSHOT_TYPE_COLOR);
 	BOOL			rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_height, BOOL keep_window_aspect = TRUE, BOOL is_texture = FALSE,
 								BOOL show_ui = TRUE, BOOL do_rebuild = FALSE, ESnapshotType type = SNAPSHOT_TYPE_COLOR, S32 max_size = MAX_IMAGE_SIZE );
 	BOOL            thumbnailSnapshot(LLImageRaw *raw, S32 preview_width, S32 preview_height, BOOL show_ui, BOOL do_rebuild, ESnapshotType type) ;
-	BOOL		    saveImageNumbered(LLImageRaw *raw, const LLString& extension = LLString());
+	BOOL		    saveImageNumbered(LLImageRaw *raw, const std::string& extension = std::string());
 
 	void			playSnapshotAnimAndSound();
 	
@@ -278,12 +278,12 @@ public:
 
 	LLAlertDialog* alertXml(const std::string& xml_filename,
 				  LLAlertDialog::alert_callback_t callback = NULL, void* user_data = NULL);
-	LLAlertDialog* alertXml(const std::string& xml_filename, const LLString::format_map_t& args,
+	LLAlertDialog* alertXml(const std::string& xml_filename, const LLStringUtil::format_map_t& args,
 				  LLAlertDialog::alert_callback_t callback = NULL, void* user_data = NULL);
-	LLAlertDialog* alertXmlEditText(const std::string& xml_filename, const LLString::format_map_t& args,
+	LLAlertDialog* alertXmlEditText(const std::string& xml_filename, const LLStringUtil::format_map_t& args,
 						  LLAlertDialog::alert_callback_t callback, void* user_data,
 						  LLAlertDialog::alert_text_callback_t text_callback, void *text_data,
-						  const LLString::format_map_t& edit_args = LLString::format_map_t(),
+						  const LLStringUtil::format_map_t& edit_args = LLStringUtil::format_map_t(),
 						  BOOL draw_asterixes = FALSE);
 
 	static bool alertCallback(S32 modal);
@@ -298,7 +298,7 @@ private:
 	void			destroyWindow();
 	void			drawMouselookInstructions();
 	void			stopGL(BOOL save_state = TRUE);
-	void			restoreGL(const LLString& progress_message = LLString::null);
+	void			restoreGL(const std::string& progress_message = LLStringUtil::null);
 	void			initFonts(F32 zoom_factor = 1.f);
 	
 	void			analyzeHit(
@@ -354,20 +354,20 @@ protected:
 	BOOL			mPickPending;
 	void			(*mPickCallback)(S32 x, S32 y, MASK mask);
 
-	LLString		mOverlayTitle;		// Used for special titles such as "Second Life - Special E3 2003 Beta"
+	std::string		mOverlayTitle;		// Used for special titles such as "Second Life - Special E3 2003 Beta"
 
 	BOOL			mIgnoreActivate;
 	U8*				mPickBuffer;
 
-	LLString		mInitAlert;			// Window / GL initialization requires an alert
+	std::string		mInitAlert;			// Window / GL initialization requires an alert
 	
 	class LLDebugText* mDebugText; // Internal class for debug text
 
 protected:
-	static char		sSnapshotBaseName[LL_MAX_PATH];		/* Flawfinder: ignore */
-	static char		sSnapshotDir[LL_MAX_PATH];		/* Flawfinder: ignore */
+	static std::string sSnapshotBaseName;
+	static std::string sSnapshotDir;
 
-	static char		sMovieBaseName[LL_MAX_PATH];		/* Flawfinder: ignore */
+	static std::string sMovieBaseName;
 };	
 
 class LLBottomPanel : public LLPanel
@@ -391,7 +391,7 @@ void toggle_flying(void*);
 void toggle_first_person();
 void toggle_build(void*);
 void reset_viewer_state_on_sim(void);
-void update_saved_window_size(const LLString& control,S32 delta_width, S32 delta_height);
+void update_saved_window_size(const std::string& control,S32 delta_width, S32 delta_height);
 //
 // Constants
 //

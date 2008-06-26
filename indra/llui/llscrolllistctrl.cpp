@@ -83,7 +83,7 @@ struct SortScrollListItem
 			S32 order = sort_ascending ? 1 : -1; // ascending or descending sort for this column?
 			if (cell1 && cell2)
 			{
-				sort_result = order * LLString::compareDict(cell1->getValue().asString(), cell2->getValue().asString());
+				sort_result = order * LLStringUtil::compareDict(cell1->getValue().asString(), cell2->getValue().asString());
 				if (sort_result != 0)
 				{
 					break; // we have a sort order!
@@ -131,7 +131,7 @@ void LLScrollListIcon::setValue(const LLSD& value)
 	}
 	else
 	{
-		LLString value_string = value.asString();
+		std::string value_string = value.asString();
 		if (LLUUID::validate(value_string))
 		{
 			setValue(LLUUID(value_string));
@@ -237,7 +237,7 @@ void LLScrollListSeparator::draw(const LLColor4& color, const LLColor4& highligh
 //
 U32 LLScrollListText::sCount = 0;
 
-LLScrollListText::LLScrollListText( const LLString& text, const LLFontGL* font, S32 width, U8 font_style, LLFontGL::HAlign font_alignment, LLColor4& color, BOOL use_color, BOOL visible)
+LLScrollListText::LLScrollListText( const std::string& text, const LLFontGL* font, S32 width, U8 font_style, LLFontGL::HAlign font_alignment, LLColor4& color, BOOL use_color, BOOL visible)
 :	LLScrollListCell(width),
 	mText( text ),
 	mFont( font ),
@@ -416,9 +416,9 @@ void LLScrollListItem::setColumn( S32 column, LLScrollListCell *cell )
 	}
 }
 
-LLString LLScrollListItem::getContentsCSV() const
+std::string LLScrollListItem::getContentsCSV() const
 {
-	LLString ret;
+	std::string ret;
 
 	S32 count = getNumColumns();
 	for (S32 i=0; i<count; ++i)
@@ -474,7 +474,7 @@ void LLScrollListItem::setEnabled(BOOL b)
 //---------------------------------------------------------------------------
 // LLScrollListItemComment
 //---------------------------------------------------------------------------
-LLScrollListItemComment::LLScrollListItemComment(const LLString& comment_string, const LLColor4& color)
+LLScrollListItemComment::LLScrollListItemComment(const std::string& comment_string, const LLColor4& color)
 : LLScrollListItem(FALSE),
 	mColor(color)
 {
@@ -539,7 +539,7 @@ void LLScrollListItemSeparator::draw(const LLRect& rect, const LLColor4& fg_colo
 // LLScrollListCtrl
 //---------------------------------------------------------------------------
 
-LLScrollListCtrl::LLScrollListCtrl(const LLString& name, const LLRect& rect,
+LLScrollListCtrl::LLScrollListCtrl(const std::string& name, const LLRect& rect,
 	void (*commit_callback)(LLUICtrl* ctrl, void* userdata),
 	void* callback_user_data,
 	BOOL allow_multiple_selection,
@@ -603,12 +603,12 @@ LLScrollListCtrl::LLScrollListCtrl(const LLString& name, const LLRect& rect,
 		mItemListRect.mBottom,
 		SCROLLBAR_SIZE,
 		mItemListRect.getHeight());
-	mScrollbar = new LLScrollbar( "Scrollbar", scroll_rect,
-		LLScrollbar::VERTICAL,
-		getItemCount(),
-		mScrollLines,
-		mPageLines,
-		&LLScrollListCtrl::onScrollChange, this );
+	mScrollbar = new LLScrollbar( std::string("Scrollbar"), scroll_rect,
+								  LLScrollbar::VERTICAL,
+								  getItemCount(),
+								  mScrollLines,
+								  mPageLines,
+								  &LLScrollListCtrl::onScrollChange, this );
 	mScrollbar->setFollowsRight();
 	mScrollbar->setFollowsTop();
 	mScrollbar->setFollowsBottom();
@@ -621,7 +621,7 @@ LLScrollListCtrl::LLScrollListCtrl(const LLString& name, const LLRect& rect,
 	if (show_border)
 	{
 		LLRect border_rect( 0, getRect().getHeight(), getRect().getWidth(), 0 );
-		mBorder = new LLViewBorder( "dlg border", border_rect, LLViewBorder::BEVEL_IN, LLViewBorder::STYLE_LINE, 1 );
+		mBorder = new LLViewBorder( std::string("dlg border"), border_rect, LLViewBorder::BEVEL_IN, LLViewBorder::STYLE_LINE, 1 );
 		addChild(mBorder);
 	}
 
@@ -756,7 +756,7 @@ std::vector<LLScrollListItem*> LLScrollListCtrl::getAllData() const
 // returns first matching item
 LLScrollListItem* LLScrollListCtrl::getItem(const LLSD& sd) const
 {
-	LLString string_val = sd.asString();
+	std::string string_val = sd.asString();
 
 	item_list::const_iterator iter;
 	for(iter = mItemList.begin(); iter != mItemList.end(); iter++)
@@ -1398,7 +1398,7 @@ void LLScrollListCtrl::deselectAllItems(BOOL no_commit_on_change)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Use this to add comment text such as "Searching", which ignores column settings of list
 
-LLScrollListItem* LLScrollListCtrl::addCommentText(const LLString& comment_text, EAddPosition pos)
+LLScrollListItem* LLScrollListCtrl::addCommentText(const std::string& comment_text, EAddPosition pos)
 {
 	LLScrollListItem* item = NULL;
 	if (getItemCount() < mMaxItemCount)
@@ -1419,7 +1419,7 @@ LLScrollListItem* LLScrollListCtrl::addSeparator(EAddPosition pos)
 
 // Selects first enabled item of the given name.
 // Returns false if item not found.
-BOOL LLScrollListCtrl::selectItemByLabel(const LLString& label, BOOL case_sensitive)
+BOOL LLScrollListCtrl::selectItemByLabel(const std::string& label, BOOL case_sensitive)
 {
 	// ensure that no stale items are selected, even if we don't find a match
 	deselectAllItems(TRUE);
@@ -1429,10 +1429,10 @@ BOOL LLScrollListCtrl::selectItemByLabel(const LLString& label, BOOL case_sensit
 		return FALSE;
 	}
 
-	LLString target_text = label;
+	std::string target_text = label;
 	if (!case_sensitive)
 	{
-		LLString::toLower(target_text);
+		LLStringUtil::toLower(target_text);
 	}
 
 	BOOL found = FALSE;
@@ -1443,10 +1443,10 @@ BOOL LLScrollListCtrl::selectItemByLabel(const LLString& label, BOOL case_sensit
 	{
 		LLScrollListItem* item = *iter;
 		// Only select enabled items with matching names
-		LLString item_text = item->getColumn(0)->getValue().asString();
+		std::string item_text = item->getColumn(0)->getValue().asString();
 		if (!case_sensitive)
 		{
-			LLString::toLower(item_text);
+			LLStringUtil::toLower(item_text);
 		}
 		BOOL select = !found && item->getEnabled() && item_text == target_text;
 		if (select)
@@ -1466,7 +1466,7 @@ BOOL LLScrollListCtrl::selectItemByLabel(const LLString& label, BOOL case_sensit
 }
 
 
-BOOL LLScrollListCtrl::selectItemByPrefix(const LLString& target, BOOL case_sensitive)
+BOOL LLScrollListCtrl::selectItemByPrefix(const std::string& target, BOOL case_sensitive)
 {
 	return selectItemByPrefix(utf8str_to_wstring(target), case_sensitive);
 }
@@ -1503,7 +1503,7 @@ BOOL LLScrollListCtrl::selectItemByPrefix(const LLWString& target, BOOL case_sen
 		if (!case_sensitive)
 		{
 			// do comparisons in lower case
-			LLWString::toLower(target_trimmed);
+			LLWStringUtil::toLower(target_trimmed);
 		}
 
 		for (item_list::iterator iter = mItemList.begin(); iter != mItemList.end(); iter++)
@@ -1519,11 +1519,11 @@ BOOL LLScrollListCtrl::selectItemByPrefix(const LLWString& target, BOOL case_sen
 			LLWString item_label = utf8str_to_wstring(cellp->getValue().asString());
 			if (!case_sensitive)
 			{
-				LLWString::toLower(item_label);
+				LLWStringUtil::toLower(item_label);
 			}
 			// remove extraneous whitespace from searchable label
 			LLWString trimmed_label = item_label;
-			LLWString::trim(trimmed_label);
+			LLWStringUtil::trim(trimmed_label);
 			
 			BOOL select = item->getEnabled() && trimmed_label.compare(0, target_trimmed.size(), target_trimmed) == 0;
 
@@ -1547,7 +1547,7 @@ BOOL LLScrollListCtrl::selectItemByPrefix(const LLWString& target, BOOL case_sen
 	return found;
 }
 
-const LLString LLScrollListCtrl::getSelectedItemLabel(S32 column) const
+const std::string LLScrollListCtrl::getSelectedItemLabel(S32 column) const
 {
 	LLScrollListItem* item;
 
@@ -1557,14 +1557,14 @@ const LLString LLScrollListCtrl::getSelectedItemLabel(S32 column) const
 		return item->getColumn(column)->getValue().asString();
 	}
 
-	return LLString::null;
+	return LLStringUtil::null;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // "StringUUID" interface: use this when you're creating a list that contains non-unique strings each of which
 // has an associated, unique UUID, and only one of which can be selected at a time.
 
-LLScrollListItem* LLScrollListCtrl::addStringUUIDItem(const LLString& item_text, const LLUUID& id, EAddPosition pos, BOOL enabled, S32 column_width)
+LLScrollListItem* LLScrollListCtrl::addStringUUIDItem(const std::string& item_text, const LLUUID& id, EAddPosition pos, BOOL enabled, S32 column_width)
 {
 	LLScrollListItem* item = NULL;
 	if (getItemCount() < mMaxItemCount)
@@ -1792,7 +1792,7 @@ BOOL LLScrollListCtrl::handleScrollWheel(S32 x, S32 y, S32 clicks)
 	return handled;
 }
 
-BOOL LLScrollListCtrl::handleToolTip(S32 x, S32 y, LLString& msg, LLRect* sticky_rect_screen)
+BOOL LLScrollListCtrl::handleToolTip(S32 x, S32 y, std::string& msg, LLRect* sticky_rect_screen)
 {
 	S32 column_index = getColumnIndexFromOffset(x);
 	LLScrollListColumn* columnp = getColumn(column_index);
@@ -2532,7 +2532,7 @@ void LLScrollListCtrl::onScrollChange( S32 new_pos, LLScrollbar* scrollbar, void
 }
 
 
-void LLScrollListCtrl::sortByColumn(LLString name, BOOL ascending)
+void LLScrollListCtrl::sortByColumn(const std::string& name, BOOL ascending)
 {
 	if (name.empty())
 	{
@@ -2540,15 +2540,15 @@ void LLScrollListCtrl::sortByColumn(LLString name, BOOL ascending)
 		return;
 	}
 
-	std::map<LLString, LLScrollListColumn>::iterator itor = mColumns.find(name);
+	std::map<std::string, LLScrollListColumn>::iterator itor = mColumns.find(name);
 	if (itor != mColumns.end())
 	{
-		sortByColumn((*itor).second.mIndex, ascending);
+		sortByColumnIndex((*itor).second.mIndex, ascending);
 	}
 }
 
 // First column is column 0
-void  LLScrollListCtrl::sortByColumn(U32 column, BOOL ascending)
+void  LLScrollListCtrl::sortByColumnIndex(U32 column, BOOL ascending)
 {
 	if (setSort(column, ascending))
 	{
@@ -2575,7 +2575,7 @@ void LLScrollListCtrl::dirtyColumns()
 	// just in case someone indexes into it immediately
 	mColumnsIndexed.resize(mColumns.size());
 
-	std::map<LLString, LLScrollListColumn>::iterator column_itor;
+	std::map<std::string, LLScrollListColumn>::iterator column_itor;
 	for (column_itor = mColumns.begin(); column_itor != mColumns.end(); ++column_itor)
 	{
 		LLScrollListColumn *column = &column_itor->second;
@@ -2664,7 +2664,7 @@ LLXMLNodePtr LLScrollListCtrl::getXML(bool save_children) const
 
 	// Contents
 
-	std::map<LLString, LLScrollListColumn>::const_iterator itor;
+	std::map<std::string, LLScrollListColumn>::const_iterator itor;
 	std::vector<const LLScrollListColumn*> sorted_list;
 	sorted_list.resize(mColumns.size());
 	for (itor = mColumns.begin(); itor != mColumns.end(); ++itor)
@@ -2756,7 +2756,7 @@ void LLScrollListCtrl::setScrollListParameters(LLXMLNodePtr node)
 // static
 LLView* LLScrollListCtrl::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory)
 {
-	LLString name("scroll_list");
+	std::string name("scroll_list");
 	node->getAttributeString("name", name);
 
 	LLRect rect;
@@ -2806,7 +2806,7 @@ LLView* LLScrollListCtrl::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFac
 
 	if (sort_column >= 0)
 	{
-		scroll_list->sortByColumn(sort_column, sort_ascending);
+		scroll_list->sortByColumnIndex(sort_column, sort_ascending);
 	}
 
 	LLSD columns;
@@ -2817,19 +2817,19 @@ LLView* LLScrollListCtrl::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFac
 	{
 		if (child->hasName("column"))
 		{
-			LLString labelname("");
+			std::string labelname("");
 			child->getAttributeString("label", labelname);
 
-			LLString columnname(labelname);
+			std::string columnname(labelname);
 			child->getAttributeString("name", columnname);
 
-			LLString sortname(columnname);
+			std::string sortname(columnname);
 			child->getAttributeString("sort", sortname);
 		
 			BOOL sort_ascending = TRUE;
 			child->getAttributeBOOL("sort_ascending", sort_ascending);
 
-			LLString imagename;
+			std::string imagename;
 			child->getAttributeString("image", imagename);
 
 			BOOL columndynamicwidth = FALSE;
@@ -2838,7 +2838,7 @@ LLView* LLScrollListCtrl::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFac
 			S32 columnwidth = -1;
 			child->getAttributeS32("width", columnwidth);	
 
-			LLString tooltip;
+			std::string tooltip;
 			child->getAttributeString("tool_tip", tooltip);
 
 			if(!columndynamicwidth) total_static += llmax(0, columnwidth);
@@ -2883,15 +2883,15 @@ LLView* LLScrollListCtrl::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFac
 			{
 				if (row_child->hasName("column"))
 				{
-					LLString value = row_child->getTextContents();
+					std::string value = row_child->getTextContents();
 
-					LLString columnname("");
+					std::string columnname("");
 					row_child->getAttributeString("name", columnname);
 
-					LLString font("");
+					std::string font("");
 					row_child->getAttributeString("font", font);
 
-					LLString font_style("");
+					std::string font_style("");
 					row_child->getAttributeString("font-style", font_style);
 
 					row["columns"][column_idx]["column"] = columnname;
@@ -2905,7 +2905,7 @@ LLView* LLScrollListCtrl::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFac
 		}
 	}
 
-	LLString contents = node->getTextContents();
+	std::string contents = node->getTextContents();
 	if (!contents.empty())
 	{
 		typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
@@ -2915,7 +2915,7 @@ LLView* LLScrollListCtrl::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFac
 
 		while(token_iter != tokens.end())
 		{
-			const char* line = token_iter->c_str();
+			const std::string& line = *token_iter;
 			scroll_list->addSimpleElement(line);
 			++token_iter;
 		}
@@ -2929,7 +2929,7 @@ LLView* LLScrollListCtrl::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFac
 // virtual
 void	LLScrollListCtrl::copy()
 {
-	LLString buffer;
+	std::string buffer;
 
 	std::vector<LLScrollListItem*> items = getAllSelected();
 	std::vector<LLScrollListItem*>::iterator itor;
@@ -2999,7 +2999,7 @@ BOOL	LLScrollListCtrl::canDeselect() const
 
 void LLScrollListCtrl::addColumn(const LLSD& column, EAddPosition pos)
 {
-	LLString name = column["name"].asString();
+	std::string name = column["name"].asString();
 	// if no column name provided, just use ordinal as name
 	if (name.empty())
 	{
@@ -3030,7 +3030,7 @@ void LLScrollListCtrl::addColumn(const LLSD& column, EAddPosition pos)
 			S32 top = mItemListRect.mTop;
 			S32 left = mItemListRect.mLeft;
 			{
-				std::map<LLString, LLScrollListColumn>::iterator itor;
+				std::map<std::string, LLScrollListColumn>::iterator itor;
 				for (itor = mColumns.begin(); itor != mColumns.end(); ++itor)
 				{
 					if (itor->second.mIndex < new_column->mIndex &&
@@ -3040,7 +3040,7 @@ void LLScrollListCtrl::addColumn(const LLSD& column, EAddPosition pos)
 					}
 				}
 			}
-			LLString button_name = "btn_" + name;
+			std::string button_name = "btn_" + name;
 			S32 right = left+new_column->mWidth;
 			if (new_column->mIndex != (S32)mColumns.size()-1)
 			{
@@ -3101,7 +3101,7 @@ void LLScrollListCtrl::onClickColumn(void *userdata)
 		ascending = !parent->mSortColumns.back().second;
 	}
 
-	parent->sortByColumn(column_index, ascending);
+	parent->sortByColumnIndex(column_index, ascending);
 
 	if (parent->mOnSortChangedCallback)
 	{
@@ -3124,7 +3124,7 @@ BOOL LLScrollListCtrl::needsSorting()
 
 void LLScrollListCtrl::clearColumns()
 {
-	std::map<LLString, LLScrollListColumn>::iterator itor;
+	std::map<std::string, LLScrollListColumn>::iterator itor;
 	for (itor = mColumns.begin(); itor != mColumns.end(); ++itor)
 	{
 		LLColumnHeader *header = itor->second.mHeader;
@@ -3138,9 +3138,9 @@ void LLScrollListCtrl::clearColumns()
 	mSortColumns.clear();
 }
 
-void LLScrollListCtrl::setColumnLabel(const LLString& column, const LLString& label)
+void LLScrollListCtrl::setColumnLabel(const std::string& column, const std::string& label)
 {
-	std::map<LLString, LLScrollListColumn>::iterator itor = mColumns.find(column);
+	std::map<std::string, LLScrollListColumn>::iterator itor = mColumns.find(column);
 	if (itor != mColumns.end())
 	{
 		itor->second.mLabel = label;
@@ -3194,7 +3194,7 @@ LLScrollListItem* LLScrollListCtrl::addElement(const LLSD& value, EAddPosition p
 			// skip unused columns in item passed in
 			continue;
 		}
-		LLString column = (*itor)["column"].asString();
+		std::string column = (*itor)["column"].asString();
 
 		LLScrollListColumn* columnp = NULL;
 
@@ -3206,7 +3206,7 @@ LLScrollListItem* LLScrollListCtrl::addElement(const LLSD& value, EAddPosition p
 			column = new_name.str();
 		}
 
-		std::map<LLString, LLScrollListColumn>::iterator column_itor;
+		std::map<std::string, LLScrollListColumn>::iterator column_itor;
 		column_itor = mColumns.find(column);
 		if (column_itor != mColumns.end()) 
 		{
@@ -3239,9 +3239,9 @@ LLScrollListItem* LLScrollListCtrl::addElement(const LLSD& value, EAddPosition p
 		LLFontGL::HAlign font_alignment = columnp->mFontAlignment;
 
 		LLSD value = (*itor)["value"];
-		LLString fontname = (*itor)["font"].asString();
-		LLString fontstyle = (*itor)["font-style"].asString();
-		LLString type = (*itor)["type"].asString();
+		std::string fontname = (*itor)["font"].asString();
+		std::string fontstyle = (*itor)["font-style"].asString();
+		std::string type = (*itor)["type"].asString();
 		BOOL has_color = (*itor).has("color");
 		LLColor4 color = ((*itor)["color"]);
 		BOOL enabled = !(*itor).has("enabled") || (*itor)["enabled"].asBoolean() == true;
@@ -3264,8 +3264,8 @@ LLScrollListItem* LLScrollListCtrl::addElement(const LLSD& value, EAddPosition p
 		}
 		else if (type == "checkbox")
 		{
-			LLCheckBoxCtrl* ctrl = new LLCheckBoxCtrl("check",
-														LLRect(0, width, width, 0), " ");
+			LLCheckBoxCtrl* ctrl = new LLCheckBoxCtrl(std::string("check"),
+													  LLRect(0, width, width, 0), std::string(" "));
 			ctrl->setEnabled(enabled);
 			ctrl->setValue(value);
 			LLScrollListCheck* cell = new LLScrollListCheck(ctrl,width);
@@ -3308,7 +3308,7 @@ LLScrollListItem* LLScrollListCtrl::addElement(const LLSD& value, EAddPosition p
 		if (new_item->getColumn(column_idx) == NULL)
 		{
 			LLScrollListColumn* column_ptr = &column_it->second;
-			new_item->setColumn(column_idx, new LLScrollListText("", LLResMgr::getInstance()->getRes( LLFONT_SANSSERIF_SMALL ), column_ptr->mWidth, LLFontGL::NORMAL));
+			new_item->setColumn(column_idx, new LLScrollListText(LLStringUtil::null, LLResMgr::getInstance()->getRes( LLFONT_SANSSERIF_SMALL ), column_ptr->mWidth, LLFontGL::NORMAL));
 		}
 	}
 
@@ -3317,7 +3317,7 @@ LLScrollListItem* LLScrollListCtrl::addElement(const LLSD& value, EAddPosition p
 	return new_item;
 }
 
-LLScrollListItem* LLScrollListCtrl::addSimpleElement(const LLString& value, EAddPosition pos, const LLSD& id)
+LLScrollListItem* LLScrollListCtrl::addSimpleElement(const std::string& value, EAddPosition pos, const LLSD& id)
 {
 	LLSD entry_id = id;
 
@@ -3434,7 +3434,7 @@ void LLScrollListCtrl::onFocusLost()
 	LLUICtrl::onFocusLost();
 }
 
-LLColumnHeader::LLColumnHeader(const LLString& label, const LLRect &rect, LLScrollListColumn* column, const LLFontGL* fontp) : 
+LLColumnHeader::LLColumnHeader(const std::string& label, const LLRect &rect, LLScrollListColumn* column, const LLFontGL* fontp) : 
 	LLComboBox(label, rect, label, NULL, NULL), 
 	mColumn(column),
 	mOrigLabel(label),
@@ -3453,15 +3453,15 @@ LLColumnHeader::LLColumnHeader(const LLString& label, const LLRect &rect, LLScro
 
 	mButton->setCallbackUserData(this);
 
-	mAscendingText = "[LOW]...[HIGH](Ascending)";
-	mDescendingText = "[HIGH]...[LOW](Descending)";
+	mAscendingText = std::string("[LOW]...[HIGH](Ascending)"); // *TODO: Translate
+	mDescendingText = std::string("[HIGH]...[LOW](Descending)"); // *TODO: Translate
 
 	mList->reshape(llmax(mList->getRect().getWidth(), 110, getRect().getWidth()), mList->getRect().getHeight());
 
 	// resize handles on left and right
 	const S32 RESIZE_BAR_THICKNESS = 3;
 	mResizeBar = new LLResizeBar( 
-		"resizebar",
+		std::string("resizebar"),
 		this,
 		LLRect( getRect().getWidth() - RESIZE_BAR_THICKNESS, getRect().getHeight(), getRect().getWidth(), 0), 
 		MIN_COLUMN_WIDTH, S32_MAX, LLResizeBar::RIGHT );
@@ -3514,7 +3514,7 @@ BOOL LLColumnHeader::handleDoubleClick(S32 x, S32 y, MASK mask)
 	return TRUE;
 }
 
-void LLColumnHeader::setImage(const LLString &image_name)
+void LLColumnHeader::setImage(const std::string &image_name)
 {
 	if (mButton)
 	{
@@ -3567,8 +3567,8 @@ void LLColumnHeader::showList()
 		// move sort column over to this column and do initial sort
 		mColumn->mParentCtrl->sortByColumn(mColumn->mSortingColumn, mColumn->mParentCtrl->getSortAscending());
 
-		LLString low_item_text;
-		LLString high_item_text;
+		std::string low_item_text;
+		std::string high_item_text;
 
 		LLScrollListItem* itemp = mColumn->mParentCtrl->getFirstData();
 		if (itemp)
@@ -3604,11 +3604,11 @@ void LLColumnHeader::showList()
 			}
 		}
 
-		LLString::truncate(low_item_text, 3);
-		LLString::truncate(high_item_text, 3);
+		LLStringUtil::truncate(low_item_text, 3);
+		LLStringUtil::truncate(high_item_text, 3);
 
-		LLString ascending_string;
-		LLString descending_string;
+		std::string ascending_string;
+		std::string descending_string;
 
 		if (low_item_text.empty() || high_item_text.empty())
 		{

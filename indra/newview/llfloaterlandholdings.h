@@ -78,7 +78,7 @@ protected:
 	// Used to clear out the mParcelList's "Loading..." indicator
 	BOOL mFirstPacketReceived;
 
-	LLString mSortColumn;
+	std::string mSortColumn;
 	BOOL mSortAscending;
 };
 

@@ -120,7 +120,7 @@ void LLFocusMgr::setKeyboardFocus(LLUICtrl* new_focus, BOOL lock, BOOL keystroke
 		mFocusTimer.reset();
 
 		#ifdef _DEBUG
-			mKeyboardFocusName = new_focus ? new_focus->getName() : "none";
+			mKeyboardFocusName = new_focus ? new_focus->getName() : std::string("none");
 		#endif
 
 		// If we've got a default keyboard focus, and the caller is
@@ -202,7 +202,7 @@ void LLFocusMgr::removeKeyboardFocusWithoutCallback( const LLView* focus )
 	{
 		mKeyboardFocus = NULL;
 		#ifdef _DEBUG
-			mKeyboardFocusName = "none";
+			mKeyboardFocusName = std::string("none");
 		#endif
 	}
 }
@@ -243,7 +243,7 @@ void LLFocusMgr::setMouseCapture( LLMouseHandler* new_captor )
 		}
 
 		#ifdef _DEBUG
-			mMouseCaptorName = new_captor ? new_captor->getName() : "none";
+			mMouseCaptorName = new_captor ? new_captor->getName() : std::string("none");
 		#endif
 	}
 }
@@ -258,7 +258,7 @@ void LLFocusMgr::removeMouseCaptureWithoutCallback( const LLMouseHandler* captor
 	{
 		mMouseCaptor = NULL;
 		#ifdef _DEBUG
-			mMouseCaptorName = "none";
+			mMouseCaptorName = std::string("none");
 		#endif
 	}
 }
@@ -289,7 +289,7 @@ void LLFocusMgr::setTopCtrl( LLUICtrl* new_top  )
 		mTopCtrl = new_top;
 
 		#ifdef _DEBUG
-			mTopCtrlName = new_top ? new_top->getName() : "none";
+			mTopCtrlName = new_top ? new_top->getName() : std::string("none");
 		#endif
 
 		if (old_top)
@@ -305,7 +305,7 @@ void LLFocusMgr::removeTopCtrlWithoutCallback( const LLUICtrl* top_view )
 	{
 		mTopCtrl = NULL;
 		#ifdef _DEBUG
-			mTopCtrlName = "none";
+			mTopCtrlName = std::string("none");
 		#endif
 	}
 }

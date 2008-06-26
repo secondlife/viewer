@@ -106,7 +106,7 @@ class LLXfer
 	virtual void setXferSize (S32 data_size);
 	virtual S32  getMaxBufferSize();
 
-	virtual const char *getName();
+	virtual std::string getFileName();
 
 	virtual U32 getXferTypeTag();
 

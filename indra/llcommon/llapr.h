@@ -130,24 +130,24 @@ typedef LLAtomic32<S32> LLAtomicS32;
 #define LL_APR_WB (APR_CREATE|APR_TRUNCATE|APR_WRITE|APR_BINARY) // "wb"
 #define LL_APR_RPB (APR_READ|APR_WRITE|APR_BINARY) // "r+b"
 #define LL_APR_WPB (APR_CREATE|APR_TRUNCATE|APR_READ|APR_WRITE|APR_BINARY) // "w+b"
-apr_file_t* ll_apr_file_open(const LLString& filename, apr_int32_t flags, S32* sizep, apr_pool_t* pool);
-apr_file_t* ll_apr_file_open(const LLString& filename, apr_int32_t flags, S32* sizep);
-apr_file_t* ll_apr_file_open(const LLString& filename, apr_int32_t flags, apr_pool_t* pool);
-apr_file_t* ll_apr_file_open(const LLString& filename, apr_int32_t flags);
+apr_file_t* ll_apr_file_open(const std::string& filename, apr_int32_t flags, S32* sizep, apr_pool_t* pool);
+apr_file_t* ll_apr_file_open(const std::string& filename, apr_int32_t flags, S32* sizep);
+apr_file_t* ll_apr_file_open(const std::string& filename, apr_int32_t flags, apr_pool_t* pool);
+apr_file_t* ll_apr_file_open(const std::string& filename, apr_int32_t flags);
 // Returns actual offset, -1 if seek fails
 S32 ll_apr_file_seek(apr_file_t* apr_file, apr_seek_where_t where, S32 offset);
 // Returns bytes read/written, 0 if read/write fails:
 S32 ll_apr_file_read(apr_file_t* apr_file, void* buf, S32 nbytes);
-S32 ll_apr_file_read_ex(const LLString& filename, apr_pool_t* pool, void *buf, S32 offset, S32 nbytes);
+S32 ll_apr_file_read_ex(const std::string& filename, apr_pool_t* pool, void *buf, S32 offset, S32 nbytes);
 S32 ll_apr_file_write(apr_file_t* apr_file, const void* buf, S32 nbytes);
-S32 ll_apr_file_write_ex(const LLString& filename, apr_pool_t* pool, void *buf, S32 offset, S32 nbytes);
+S32 ll_apr_file_write_ex(const std::string& filename, apr_pool_t* pool, void *buf, S32 offset, S32 nbytes);
 // returns false if failure:
-bool ll_apr_file_remove(const LLString& filename, apr_pool_t* pool = NULL);
-bool ll_apr_file_rename(const LLString& filename, const LLString& newname, apr_pool_t* pool = NULL);
-bool ll_apr_file_exists(const LLString& filename, apr_pool_t* pool = NULL);
-S32 ll_apr_file_size(const LLString& filename, apr_pool_t* pool = NULL);
-bool ll_apr_dir_make(const LLString& dirname, apr_pool_t* pool = NULL);
-bool ll_apr_dir_remove(const LLString& dirname, apr_pool_t* pool = NULL);
+bool ll_apr_file_remove(const std::string& filename, apr_pool_t* pool = NULL);
+bool ll_apr_file_rename(const std::string& filename, const std::string& newname, apr_pool_t* pool = NULL);
+bool ll_apr_file_exists(const std::string& filename, apr_pool_t* pool = NULL);
+S32 ll_apr_file_size(const std::string& filename, apr_pool_t* pool = NULL);
+bool ll_apr_dir_make(const std::string& dirname, apr_pool_t* pool = NULL);
+bool ll_apr_dir_remove(const std::string& dirname, apr_pool_t* pool = NULL);
 
 /**
  * @brief Function which approprately logs error or remains quiet on

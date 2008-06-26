@@ -44,7 +44,7 @@ const F32 RESOLUTION_BUMP = 1.f;
 
 static LLRegisterWidget<LLIconCtrl> r("icon");
 
-LLIconCtrl::LLIconCtrl(const LLString& name, const LLRect &rect, const LLUUID &image_id)
+LLIconCtrl::LLIconCtrl(const std::string& name, const LLRect &rect, const LLUUID &image_id)
 :	LLUICtrl(name, 
 			 rect, 
 			 FALSE, // mouse opaque
@@ -56,7 +56,7 @@ LLIconCtrl::LLIconCtrl(const LLString& name, const LLRect &rect, const LLUUID &i
 	setTabStop(FALSE);
 }
 
-LLIconCtrl::LLIconCtrl(const LLString& name, const LLRect &rect, const LLString &image_name)
+LLIconCtrl::LLIconCtrl(const std::string& name, const LLRect &rect, const std::string &image_name)
 :	LLUICtrl(name, 
 			 rect, 
 			 FALSE, // mouse opaque
@@ -76,7 +76,7 @@ LLIconCtrl::~LLIconCtrl()
 }
 
 
-void LLIconCtrl::setImage(const LLString& image_name)
+void LLIconCtrl::setImage(const std::string& image_name)
 {
 	//RN: support UUIDs masquerading as strings
 	if (LLUUID::validate(image_name))
@@ -148,13 +148,13 @@ LLXMLNodePtr LLIconCtrl::getXML(bool save_children) const
 
 LLView* LLIconCtrl::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory)
 {
-	LLString name("icon");
+	std::string name("icon");
 	node->getAttributeString("name", name);
 
 	LLRect rect;
 	createRect(node, rect, parent, LLRect());
 
-	LLString image_name;
+	std::string image_name;
 	if (node->hasAttribute("image_name"))
 	{
 		node->getAttributeString("image_name", image_name);

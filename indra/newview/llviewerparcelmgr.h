@@ -237,7 +237,7 @@ public:
 	void sendParcelRelease();
 
 	// accessors for mAgentParcel
-	const LLString& getAgentParcelName() const;
+	const std::string& getAgentParcelName() const;
 
 	// Create a landmark at the "appropriate" location for the
 	// currently selected parcel.

@@ -59,7 +59,7 @@ HINSTANCE hInst= NULL;					// current instance
 TCHAR szTitle[MAX_LOADSTRING];				/* Flawfinder: ignore */		// The title bar text
 TCHAR szWindowClass[MAX_LOADSTRING];		/* Flawfinder: ignore */		// The title bar text
 
-LLString gProductName;
+std::string gProductName;
 HWND gHwndReport = NULL;	// Send/Don't Send dialog
 HWND gHwndProgress = NULL;	// Progress window
 HCURSOR gCursorArrow = NULL;
@@ -97,7 +97,7 @@ void write_debug(std::string& str)
 	write_debug(str.c_str());
 }
 
-void show_progress(const char* message)
+void show_progress(const std::string& message)
 {
 	std::wstring msg = wstring_to_utf16str(utf8str_to_wstring(message));
 	if (gHwndProgress)
@@ -198,7 +198,7 @@ bool handle_button_click(WORD button_id)
 						wbuffer, // pointer to buffer for text
 						20000 // maximum size of string
 						);
-		LLString user_text(ll_convert_wide_to_string(wbuffer));
+		std::string user_text(ll_convert_wide_to_string(wbuffer));
 		// Activate and show the window.
 		ShowWindow(gHwndProgress, SW_SHOW); 
 		// Try doing this second to make the progress window go frontmost.
@@ -357,10 +357,10 @@ bool LLCrashLoggerWindows::mainLoop()
 	return 0;
 }
 
-void LLCrashLoggerWindows::updateApplication(LLString message)
+void LLCrashLoggerWindows::updateApplication(const std::string& message)
 {
 	LLCrashLogger::updateApplication();
-	if(message != "") show_progress(message.c_str());
+	if(!message.empty()) show_progress(message);
 	update_messages();
 }
 

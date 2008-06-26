@@ -75,7 +75,7 @@ public:
 	public:
 		Request(LLLFSThread* thread,
 				handle_t handle, U32 priority, 
-				operation_t op, const LLString& filename,
+				operation_t op, const std::string& filename,
 				U8* buffer, S32 offset, S32 numbytes,
 				Responder* responder);
 
@@ -95,7 +95,7 @@ public:
 		{
 			return mBuffer;
 		}
-		const LLString& getFilename()
+		const std::string& getFilename()
 		{
 			return mFileName;
 		}
@@ -108,7 +108,7 @@ public:
 		LLLFSThread* mThread;
 		operation_t mOperation;
 		
-		LLString mFileName;
+		std::string mFileName;
 		
 		U8* mBuffer;	// dest for reads, source for writes, new UUID for rename
 		S32 mOffset;	// offset into file, -1 = append (WRITE only)
@@ -124,10 +124,10 @@ public:
 	~LLLFSThread();	
 
 	// Return a Request handle
-	handle_t read(const LLString& filename,	/* Flawfinder: ignore */ 
+	handle_t read(const std::string& filename,	/* Flawfinder: ignore */ 
 				  U8* buffer, S32 offset, S32 numbytes,
 				  Responder* responder, U32 pri=0);
-	handle_t write(const LLString& filename,
+	handle_t write(const std::string& filename,
 				   U8* buffer, S32 offset, S32 numbytes,
 				   Responder* responder, U32 pri=0);
 	

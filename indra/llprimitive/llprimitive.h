@@ -378,7 +378,7 @@ public:
 #endif
 	
 	LLPCode				getPCode() const			{ return mPrimitiveCode; }
-	const char *		getPCodeString() const		{ return pCodeToString(mPrimitiveCode); }
+	std::string			getPCodeString() const		{ return pCodeToString(mPrimitiveCode); }
 	const LLVector3&	getAngularVelocity() const	{ return mAngularVelocity; }
 	const LLVector3&	getVelocity() const			{ return mVelocity; }
 	const LLVector3&	getAcceleration() const		{ return mAcceleration; }
@@ -400,7 +400,7 @@ public:
 	void removeFlags(U32 flags) { mMiscFlags &= ~flags; }
 	U32 getFlags() const { return mMiscFlags; }
 
-	static const char *pCodeToString(const LLPCode pcode);
+	static std::string pCodeToString(const LLPCode pcode);
 	static LLPCode legacyToPCode(const U8 legacy);
 	static U8 pCodeToLegacy(const LLPCode pcode);
 	static bool getTESTAxes(const U8 face, U32* s_axis, U32* t_axis);

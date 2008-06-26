@@ -101,7 +101,7 @@ const U32 ARROW_TO_AXIS[4] =
 };
 
 LLManipTranslate::LLManipTranslate( LLToolComposite* composite )
-:	LLManip( "Move", composite ),
+:	LLManip( std::string("Move"), composite ),
 	mLastHoverMouseX(-1),
 	mLastHoverMouseY(-1),
 	mSendUpdateOnMouseUp(FALSE),
@@ -1412,11 +1412,11 @@ void LLManipTranslate::renderSnapGuides()
 				{
 					// rescale units to meters from multiple of grid scale
 					offset_val *= 2.f * grid_scale[ARROW_TO_AXIS[mManipPart]];
-					renderTickValue(text_origin, offset_val, "m", LLColor4(text_highlight, text_highlight, text_highlight, alpha));
+					renderTickValue(text_origin, offset_val, std::string("m"), LLColor4(text_highlight, text_highlight, text_highlight, alpha));
 				}
 				else
 				{
-					renderTickValue(text_origin, offset_val, "x", LLColor4(text_highlight, text_highlight, text_highlight, alpha));
+					renderTickValue(text_origin, offset_val, std::string("x"), LLColor4(text_highlight, text_highlight, text_highlight, alpha));
 				}
 			}
 		}

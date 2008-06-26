@@ -991,7 +991,7 @@ BOOL LLTexLayerInfo::parseXml(LLXmlTreeNode* node)
 	static LLStdStringHandle write_all_channels_string = LLXmlTree::addAttributeString("write_all_channels");
 	node->getFastAttributeBOOL( write_all_channels_string, mWriteAllChannels );
 
-	LLString render_pass_name;
+	std::string render_pass_name;
 	static LLStdStringHandle render_pass_string = LLXmlTree::addAttributeString("render_pass");
 	if( node->getFastAttributeString( render_pass_string, render_pass_name ) )
 	{
@@ -1019,7 +1019,7 @@ BOOL LLTexLayerInfo::parseXml(LLXmlTreeNode* node)
 		 texture_node;
 		 texture_node = node->getNextNamedChild())
 	{
-		LLString local_texture;
+		std::string local_texture;
 		static LLStdStringHandle tga_file_string = LLXmlTree::addAttributeString("tga_file");
 		static LLStdStringHandle local_texture_string = LLXmlTree::addAttributeString("local_texture");
 		static LLStdStringHandle file_is_mask_string = LLXmlTree::addAttributeString("file_is_mask");
@@ -1105,14 +1105,14 @@ BOOL LLTexLayerInfo::parseXml(LLXmlTreeNode* node)
 		 maskNode;
 		 maskNode = node->getNextNamedChild())
 	{
-		LLString morph_name;
+		std::string morph_name;
 		static LLStdStringHandle morph_name_string = LLXmlTree::addAttributeString("morph_name");
 		if (maskNode->getFastAttributeString(morph_name_string, morph_name))
 		{
 			BOOL invert = FALSE;
 			static LLStdStringHandle invert_string = LLXmlTree::addAttributeString("invert");
 			maskNode->getFastAttributeBOOL(invert_string, invert);			
-			mMorphNameList.push_back(std::pair<LLString,BOOL>(morph_name,invert));
+			mMorphNameList.push_back(std::pair<std::string,BOOL>(morph_name,invert));
 		}
 	}
 
@@ -1206,7 +1206,7 @@ BOOL LLTexLayer::setInfo(LLTexLayerInfo* info)
 			// morph target, need a better way of actually looking
 			// this up.
 			LLPolyMorphTarget *morph_param;
-			LLString *name = &(iter->first);
+			std::string *name = &(iter->first);
 			morph_param = (LLPolyMorphTarget *)(getTexLayerSet()->getAvatar()->getVisualParam(name->c_str()));
 			if (morph_param)
 			{
@@ -2244,11 +2244,11 @@ BOOL LLTexParamColorInfo::parseXml(LLXmlTreeNode *node)
 		return FALSE;
 	}
 
-	LLString op_string;
+	std::string op_string;
 	static LLStdStringHandle operation_string = LLXmlTree::addAttributeString("operation");
 	if( param_color_node->getFastAttributeString( operation_string, op_string ) )
 	{
-		LLString::toLower(op_string);
+		LLStringUtil::toLower(op_string);
 		if		( op_string == "add" ) 		mOperation = OP_ADD;
 		else if	( op_string == "multiply" )	mOperation = OP_MULTIPLY;
 		else if	( op_string == "blend" )	mOperation = OP_BLEND;
@@ -2465,7 +2465,7 @@ void LLTexStaticImageList::deleteCachedImages()
 
 // Returns an LLImageTGA that contains the encoded data from a tga file named file_name.
 // Caches the result to speed identical subsequent requests.
-LLImageTGA* LLTexStaticImageList::getImageTGA(const LLString& file_name)
+LLImageTGA* LLTexStaticImageList::getImageTGA(const std::string& file_name)
 {
 	const char *namekey = sImageNames.addString(file_name);
 	image_tga_map_t::iterator iter = mStaticImageListTGA.find(namekey);
@@ -2476,7 +2476,7 @@ LLImageTGA* LLTexStaticImageList::getImageTGA(const LLString& file_name)
 	else
 	{
 		std::string path;
-		path = gDirUtilp->getExpandedFilename(LL_PATH_CHARACTER,file_name.c_str());
+		path = gDirUtilp->getExpandedFilename(LL_PATH_CHARACTER,file_name);
 		LLPointer<LLImageTGA> image_tga = new LLImageTGA( path );
 		if( image_tga->getDataSize() > 0 )
 		{
@@ -2495,7 +2495,7 @@ LLImageTGA* LLTexStaticImageList::getImageTGA(const LLString& file_name)
 
 // Returns a GL Image (without a backing ImageRaw) that contains the decoded data from a tga file named file_name.
 // Caches the result to speed identical subsequent requests.
-LLImageGL* LLTexStaticImageList::getImageGL(const LLString& file_name, BOOL is_mask )
+LLImageGL* LLTexStaticImageList::getImageGL(const std::string& file_name, BOOL is_mask )
 {
 	LLPointer<LLImageGL> image_gl;
 	const char *namekey = sImageNames.addString(file_name);
@@ -2536,11 +2536,11 @@ LLImageGL* LLTexStaticImageList::getImageGL(const LLString& file_name, BOOL is_m
 
 // Reads a .tga file, decodes it, and puts the decoded data in image_raw.
 // Returns TRUE if successful.
-BOOL LLTexStaticImageList::loadImageRaw( const LLString& file_name, LLImageRaw* image_raw )
+BOOL LLTexStaticImageList::loadImageRaw( const std::string& file_name, LLImageRaw* image_raw )
 {
 	BOOL success = FALSE;
 	std::string path;
-	path = gDirUtilp->getExpandedFilename(LL_PATH_CHARACTER,file_name.c_str());
+	path = gDirUtilp->getExpandedFilename(LL_PATH_CHARACTER,file_name);
 	LLPointer<LLImageTGA> image_tga = new LLImageTGA( path );
 	if( image_tga->getDataSize() > 0 )
 	{

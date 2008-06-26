@@ -71,7 +71,7 @@ public:
 		// call periodically, for example, from draw()
 		// returns true if the UI needs to be updated
 	
-	void buy(const LLString& buy_msg);
+	void buy(const std::string& buy_msg);
 		// call to initiate the purchase
 	
 	bool inProcess();	// is a transaction in process

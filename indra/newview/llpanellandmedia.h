@@ -46,9 +46,9 @@ public:
 	/*virtual*/ ~LLPanelLandMedia();
 	/*virtual*/ BOOL postBuild();
 	void refresh();
-	void setMediaType(const LLString& media_type);
-	void setMediaURL(const LLString& media_type);
-	LLString getMediaURL();
+	void setMediaType(const std::string& media_type);
+	void setMediaURL(const std::string& media_type);
+	std::string getMediaURL();
 
 private:
 	void populateMIMECombo();

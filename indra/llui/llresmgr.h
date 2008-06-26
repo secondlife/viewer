@@ -71,11 +71,11 @@ public:
 	char				getMonetaryDecimalPoint() const;	
 	char				getMonetaryThousandsSeparator() const;
 	std::string			getMonetaryString( S32 input ) const;
-	void				getIntegerString( LLString& output, S32 input ) const;
+	void				getIntegerString( std::string& output, S32 input ) const;
 
 //	const char*			getRes( LLSTR_ID string_id ) const		{ return mStrings[ string_id ]; }
 	const LLFontGL*		getRes( LLFONT_ID font_id ) const		{ return mFonts[ font_id ]; }
-	const LLFontGL*		getRes( LLString font_id ) const;
+	const LLFontGL*		getRes( std::string font_id ) const;
 
 private:
 	LLLOCALE_ID			mLocale;
@@ -92,14 +92,14 @@ private:
 class LLLocale
 {
 public:
-	LLLocale(const LLString& locale_string);
+	LLLocale(const std::string& locale_string);
 	virtual ~LLLocale();
 
-	static const LLString USER_LOCALE;
-	static const LLString SYSTEM_LOCALE;
+	static const std::string USER_LOCALE;
+	static const std::string SYSTEM_LOCALE;
 
 private:
-	LLString	mPrevLocaleString;
+	std::string	mPrevLocaleString;
 };
 
 #endif  // LL_RESMGR_

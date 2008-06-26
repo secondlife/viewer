@@ -61,11 +61,11 @@ std::set<LLViewerImage*> LLTextureView::sDebugImages;
 
 ////////////////////////////////////////////////////////////////////////////
 
-static LLString title_string1a("Tex UUID Area  DDis(Req)  DecodePri(Fetch)     [download]        pk/max");
-static LLString title_string1b("Tex UUID Area  DDis(Req)  Fetch(DecodePri)     [download]        pk/max");
-static LLString title_string2("State");
-static LLString title_string3("Pkt Bnd");
-static LLString title_string4("  W x H (Dis) Mem");
+static std::string title_string1a("Tex UUID Area  DDis(Req)  DecodePri(Fetch)     [download]        pk/max");
+static std::string title_string1b("Tex UUID Area  DDis(Req)  Fetch(DecodePri)     [download]        pk/max");
+static std::string title_string2("State");
+static std::string title_string3("Pkt Bnd");
+static std::string title_string4("  W x H (Dis) Mem");
 
 static S32 title_x1 = 0;
 static S32 title_x2 = 440;
@@ -175,7 +175,7 @@ void LLTextureBar::draw()
 	// The texture UUID or name
 	// The progress bar for the texture, highlighted if it's being download
 	// Various numerical stats.
-	char tex_str[256];
+	std::string tex_str;
 	S32 left, right;
 	S32 top = 0;
 	S32 bottom = top + 6;
@@ -184,28 +184,28 @@ void LLTextureBar::draw()
 	LLGLSUIDefault gls_ui;
 	
 	// Name, pixel_area, requested pixel area, decode priority
-	char uuid_str[255];
+	std::string uuid_str;
 	mImagep->mID.toString(uuid_str);
-	uuid_str[8] = 0;
+	uuid_str = uuid_str.substr(0,7);
 	if (mTextureView->mOrderFetch)
 	{
-		sprintf(tex_str, "%s %7.0f %d(%d) 0x%08x(%8.0f)",
-				uuid_str,
-				mImagep->mMaxVirtualSize,
-				mImagep->mDesiredDiscardLevel,
-				mImagep->mRequestedDiscardLevel,
-				mImagep->mFetchPriority,
-				mImagep->getDecodePriority());
+		tex_str = llformat("%s %7.0f %d(%d) 0x%08x(%8.0f)",
+						   uuid_str.c_str(),
+						   mImagep->mMaxVirtualSize,
+						   mImagep->mDesiredDiscardLevel,
+						   mImagep->mRequestedDiscardLevel,
+						   mImagep->mFetchPriority,
+						   mImagep->getDecodePriority());
 	}
 	else
 	{
-		sprintf(tex_str, "%s %7.0f %d(%d) %8.0f(0x%08x)",
-				uuid_str,
-				mImagep->mMaxVirtualSize,
-				mImagep->mDesiredDiscardLevel,
-				mImagep->mRequestedDiscardLevel,
-				mImagep->getDecodePriority(),
-				mImagep->mFetchPriority);
+		tex_str = llformat("%s %7.0f %d(%d) %8.0f(0x%08x)",
+						   uuid_str.c_str(),
+						   mImagep->mMaxVirtualSize,
+						   mImagep->mDesiredDiscardLevel,
+						   mImagep->mRequestedDiscardLevel,
+						   mImagep->getDecodePriority(),
+						   mImagep->mFetchPriority);
 	}
 
 	LLFontGL::sMonospace->renderUTF8(tex_str, 0, title_x1, getRect().getHeight(),
@@ -213,7 +213,7 @@ void LLTextureBar::draw()
 
 	// State
 	// Hack: mirrored from lltexturefetch.cpp
-	struct { const char* desc; LLColor4 color; } fetch_state_desc[] = {
+	struct { const std::string desc; LLColor4 color; } fetch_state_desc[] = {
 		{ "---", LLColor4::red },	// INVALID
 		{ "INI", LLColor4::white },	// INIT
 		{ "DSK", LLColor4::cyan },	// LOAD_FROM_TEXTURE_CACHE
@@ -325,14 +325,14 @@ void LLTextureBar::draw()
 		LLGLSUIDefault gls_ui;
 		// draw the packet data
 // 		{
-// 			LLString num_str = llformat("%3d/%3d", mImagep->mLastPacket+1, mImagep->mPackets);
+// 			std::string num_str = llformat("%3d/%3d", mImagep->mLastPacket+1, mImagep->mPackets);
 // 			LLFontGL::sMonospace->renderUTF8(num_str, 0, bar_left + 100, getRect().getHeight(), color,
 // 											 LLFontGL::LEFT, LLFontGL::TOP);
 // 		}
 		
 		// draw the image size at the end
 		{
-			LLString num_str = llformat("%3dx%3d (%d) %7d", mImagep->getWidth(), mImagep->getHeight(),
+			std::string num_str = llformat("%3dx%3d (%d) %7d", mImagep->getWidth(), mImagep->getHeight(),
 										mImagep->getDiscardLevel(), mImagep->mTextureMemory);
 			LLFontGL::sMonospace->renderUTF8(num_str, 0, title_x4, getRect().getHeight(), color,
 											LLFontGL::LEFT, LLFontGL::TOP);
@@ -474,13 +474,13 @@ void LLGLTexMemBar::draw()
 	S32 dx1 = 0;
 	if (LLAppViewer::getTextureFetch()->mDebugPause)
 	{
-		LLFontGL::sMonospace->renderUTF8("!", 0, title_x1, line_height,
+		LLFontGL::sMonospace->renderUTF8(std::string("!"), 0, title_x1, line_height,
 										 text_color, LLFontGL::LEFT, LLFontGL::TOP);
 		dx1 += 8;
 	}
 	if (mTextureView->mFreezeView)
 	{
-		LLFontGL::sMonospace->renderUTF8("*", 0, title_x1, line_height,
+		LLFontGL::sMonospace->renderUTF8(std::string("*"), 0, title_x1, line_height,
 										 text_color, LLFontGL::LEFT, LLFontGL::TOP);
 		dx1 += 8;
 	}
@@ -713,8 +713,8 @@ void LLTextureView::draw()
 
 		/*
 		  count = gImageList.getNumImages();
-		  char info_string[512];
-		  sprintf(info_string, "Global Info:\nTexture Count: %d", count);
+		  std::string info_string;
+		  info_string = llformat("Global Info:\nTexture Count: %d", count);
 		  mInfoTextp->setText(info_string);
 		*/
 

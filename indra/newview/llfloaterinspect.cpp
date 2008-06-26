@@ -45,7 +45,7 @@
 LLFloaterInspect* LLFloaterInspect::sInstance = NULL;
 
 LLFloaterInspect::LLFloaterInspect(void) :
-	LLFloater("Inspect Object"),
+	LLFloater(std::string("Inspect Object")),
 	mDirty(FALSE)
 {
 	sInstance = this;
@@ -188,7 +188,7 @@ LLUUID LLFloaterInspect::getSelectedUUID()
 void LLFloaterInspect::refresh()
 {
 	LLUUID creator_id;
-	LLString creator_name;
+	std::string creator_name;
 	S32 pos = mObjectList->getScrollPos();
 	childSetEnabled("button owner", false);
 	childSetEnabled("button creator", false);
@@ -214,7 +214,7 @@ void LLFloaterInspect::refresh()
 		char time[MAX_STRING];
 		std::string owner_name, creator_name;
 		time_t timestamp = (time_t) (obj->mCreationDate/1000000);
-		LLString::copy(time, ctime(&timestamp), MAX_STRING);
+		LLStringUtil::copy(time, ctime(&timestamp), MAX_STRING);
 		time[24] = '\0';
 		gCacheName->getFullName(obj->mPermissions->getOwner(), owner_name);
 		gCacheName->getFullName(obj->mPermissions->getCreator(), creator_name);
@@ -225,7 +225,7 @@ void LLFloaterInspect::refresh()
 		// or top of the editable chain, for attachments
 		if(!(obj->getObject()->isRoot() || obj->getObject()->isRootEdit()))
 		{
-			row["columns"][0]["value"] = LLString("   ") + obj->mName;
+			row["columns"][0]["value"] = std::string("   ") + obj->mName;
 		}
 		else
 		{

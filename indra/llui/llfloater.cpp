@@ -56,14 +56,12 @@
 #include "lltabcontainer.h"
 #include "v2math.h"
 
-extern BOOL gNoRender;
-
 const S32 MINIMIZED_WIDTH = 160;
 const S32 CLOSE_BOX_FROM_TOP = 1;
 // use this to control "jumping" behavior when Ctrl-Tabbing
 const S32 TABBED_FLOATER_OFFSET = 0;
 
-LLString	LLFloater::sButtonActiveImageNames[BUTTON_COUNT] = 
+std::string	LLFloater::sButtonActiveImageNames[BUTTON_COUNT] = 
 {
 	"UIImgBtnCloseActiveUUID",		//BUTTON_CLOSE
 	"UIImgBtnRestoreActiveUUID",	//BUTTON_RESTORE
@@ -72,7 +70,7 @@ LLString	LLFloater::sButtonActiveImageNames[BUTTON_COUNT] =
 	"UIImgBtnCloseActiveUUID",		//BUTTON_EDIT
 };
 
-LLString	LLFloater::sButtonInactiveImageNames[BUTTON_COUNT] = 
+std::string	LLFloater::sButtonInactiveImageNames[BUTTON_COUNT] = 
 {
 	"UIImgBtnCloseInactiveUUID",	//BUTTON_CLOSE
 	"UIImgBtnRestoreInactiveUUID",	//BUTTON_RESTORE
@@ -81,7 +79,7 @@ LLString	LLFloater::sButtonInactiveImageNames[BUTTON_COUNT] =
 	"UIImgBtnCloseInactiveUUID",	//BUTTON_EDIT
 };
 
-LLString	LLFloater::sButtonPressedImageNames[BUTTON_COUNT] = 
+std::string	LLFloater::sButtonPressedImageNames[BUTTON_COUNT] = 
 {
 	"UIImgBtnClosePressedUUID",		//BUTTON_CLOSE
 	"UIImgBtnRestorePressedUUID",	//BUTTON_RESTORE
@@ -90,7 +88,7 @@ LLString	LLFloater::sButtonPressedImageNames[BUTTON_COUNT] =
 	"UIImgBtnClosePressedUUID",		//BUTTON_EDIT
 };
 
-LLString	LLFloater::sButtonNames[BUTTON_COUNT] = 
+std::string	LLFloater::sButtonNames[BUTTON_COUNT] = 
 {
 	"llfloater_close_btn",	//BUTTON_CLOSE
 	"llfloater_restore_btn",	//BUTTON_RESTORE
@@ -99,7 +97,7 @@ LLString	LLFloater::sButtonNames[BUTTON_COUNT] =
 	"llfloater_edit_btn",		//BUTTON_EDIT
 };
 
-LLString	LLFloater::sButtonToolTips[BUTTON_COUNT] = 
+std::string	LLFloater::sButtonToolTips[BUTTON_COUNT] = 
 {
 #ifdef LL_DARWIN
 	"Close (Cmd-W)",	//BUTTON_CLOSE
@@ -145,7 +143,7 @@ LLFloater::LLFloater() :
 	mHandle.bind(this);
 }
 
-LLFloater::LLFloater(const LLString& name)
+LLFloater::LLFloater(const std::string& name)
 :	LLPanel(name), mAutoFocus(TRUE) // automatically take focus when opened
 {
 	for (S32 i = 0; i < BUTTON_COUNT; i++)
@@ -153,12 +151,12 @@ LLFloater::LLFloater(const LLString& name)
 		mButtonsEnabled[i] = FALSE;
 		mButtons[i] = NULL;
 	}
-	LLString title; // null string
+	std::string title; // null string
 	initFloater(title, FALSE, DEFAULT_MIN_WIDTH, DEFAULT_MIN_HEIGHT, FALSE, TRUE, TRUE); // defaults
 }
 
 
-LLFloater::LLFloater(const LLString& name, const LLRect& rect, const LLString& title, 
+LLFloater::LLFloater(const std::string& name, const LLRect& rect, const std::string& title, 
 	BOOL resizable, 
 	S32 min_width, 
 	S32 min_height,
@@ -176,7 +174,7 @@ LLFloater::LLFloater(const LLString& name, const LLRect& rect, const LLString& t
 	initFloater( title, resizable, min_width, min_height, drag_on_left, minimizable, close_btn);
 }
 
-LLFloater::LLFloater(const LLString& name, const LLString& rect_control, const LLString& title, 
+LLFloater::LLFloater(const std::string& name, const std::string& rect_control, const std::string& title, 
 	BOOL resizable, 
 	S32 min_width, 
 	S32 min_height,
@@ -196,7 +194,7 @@ LLFloater::LLFloater(const LLString& name, const LLString& rect_control, const L
 
 
 // Note: Floaters constructed from XML call init() twice!
-void LLFloater::initFloater(const LLString& title,
+void LLFloater::initFloater(const std::string& title,
 					 BOOL resizable, S32 min_width, S32 min_height,
 					 BOOL drag_on_left, BOOL minimizable, BOOL close_btn)
 {
@@ -291,12 +289,12 @@ void LLFloater::initFloater(const LLString& title,
 			0, 0,
 			DRAG_HANDLE_WIDTH,
 			getRect().getHeight() - LLPANEL_BORDER_WIDTH - close_box_size);
-		mDragHandle = new LLDragHandleLeft("drag", drag_handle_rect, title );
+		mDragHandle = new LLDragHandleLeft(std::string("drag"), drag_handle_rect, title );
 	}
 	else // drag on top
 	{
 		LLRect drag_handle_rect( 0, getRect().getHeight(), getRect().getWidth(), 0 );
-		mDragHandle = new LLDragHandleTop( "Drag Handle", drag_handle_rect, title );
+		mDragHandle = new LLDragHandleTop( std::string("Drag Handle"), drag_handle_rect, title );
 	}
 	addChild(mDragHandle);
 
@@ -310,28 +308,28 @@ void LLFloater::initFloater(const LLString& title,
 		// Resize bars (sides)
 		const S32 RESIZE_BAR_THICKNESS = 3;
 		mResizeBar[LLResizeBar::LEFT] = new LLResizeBar( 
-			"resizebar_left",
+			std::string("resizebar_left"),
 			this,
 			LLRect( 0, getRect().getHeight(), RESIZE_BAR_THICKNESS, 0), 
 			min_width, S32_MAX, LLResizeBar::LEFT );
 		addChild( mResizeBar[0] );
 
 		mResizeBar[LLResizeBar::TOP] = new LLResizeBar( 
-			"resizebar_top",
+			std::string("resizebar_top"),
 			this,
 			LLRect( 0, getRect().getHeight(), getRect().getWidth(), getRect().getHeight() - RESIZE_BAR_THICKNESS), 
 			min_height, S32_MAX, LLResizeBar::TOP );
 		addChild( mResizeBar[1] );
 
 		mResizeBar[LLResizeBar::RIGHT] = new LLResizeBar( 
-			"resizebar_right",
+			std::string("resizebar_right"),
 			this,
 			LLRect( getRect().getWidth() - RESIZE_BAR_THICKNESS, getRect().getHeight(), getRect().getWidth(), 0), 
 			min_width, S32_MAX, LLResizeBar::RIGHT );
 		addChild( mResizeBar[2] );
 
 		mResizeBar[LLResizeBar::BOTTOM] = new LLResizeBar( 
-			"resizebar_bottom",
+			std::string("resizebar_bottom"),
 			this,
 			LLRect( 0, RESIZE_BAR_THICKNESS, getRect().getWidth(), 0), 
 			min_height, S32_MAX, LLResizeBar::BOTTOM );
@@ -340,28 +338,29 @@ void LLFloater::initFloater(const LLString& title,
 
 		// Resize handles (corners)
 		mResizeHandle[0] = new LLResizeHandle( 
-			"Resize Handle",
+			std::string("Resize Handle"),
 			LLRect( getRect().getWidth() - RESIZE_HANDLE_WIDTH, RESIZE_HANDLE_HEIGHT, getRect().getWidth(), 0),
 			min_width,
 			min_height,
 			LLResizeHandle::RIGHT_BOTTOM);
 		addChild(mResizeHandle[0]);
 
-		mResizeHandle[1] = new LLResizeHandle( "resize", 
+		mResizeHandle[1] = new LLResizeHandle(
+			std::string("resize"), 
 			LLRect( getRect().getWidth() - RESIZE_HANDLE_WIDTH, getRect().getHeight(), getRect().getWidth(), getRect().getHeight() - RESIZE_HANDLE_HEIGHT),
 			min_width,
 			min_height,
 			LLResizeHandle::RIGHT_TOP );
 		addChild(mResizeHandle[1]);
 		
-		mResizeHandle[2] = new LLResizeHandle( "resize", 
-			LLRect( 0, RESIZE_HANDLE_HEIGHT, RESIZE_HANDLE_WIDTH, 0 ),
-			min_width,
-			min_height,
-			LLResizeHandle::LEFT_BOTTOM );
+		mResizeHandle[2] = new LLResizeHandle( std::string("resize"), 
+											   LLRect( 0, RESIZE_HANDLE_HEIGHT, RESIZE_HANDLE_WIDTH, 0 ),
+											   min_width,
+											   min_height,
+											   LLResizeHandle::LEFT_BOTTOM );
 		addChild(mResizeHandle[2]);
 
-		mResizeHandle[3] = new LLResizeHandle( "resize", 
+		mResizeHandle[3] = new LLResizeHandle( std::string("resize"), 
 			LLRect( 0, getRect().getHeight(), RESIZE_HANDLE_WIDTH, getRect().getHeight() - RESIZE_HANDLE_HEIGHT ),
 			min_width,
 			min_height,
@@ -650,7 +649,7 @@ void LLFloater::applyRectControl()
 	}
 }
 
-void LLFloater::setTitle( const LLString& title )
+void LLFloater::setTitle( const std::string& title )
 {
 	if (gNoRender)
 	{
@@ -660,21 +659,21 @@ void LLFloater::setTitle( const LLString& title )
 		mDragHandle->setTitle( title );
 }
 
-const LLString& LLFloater::getTitle() const
+const std::string& LLFloater::getTitle() const
 {
-	return mDragHandle ? mDragHandle->getTitle() : LLString::null;
+	return mDragHandle ? mDragHandle->getTitle() : LLStringUtil::null;
 }
 
-void LLFloater::setShortTitle( const LLString& short_title )
+void LLFloater::setShortTitle( const std::string& short_title )
 {
 	mShortTitle = short_title;
 }
 
-LLString LLFloater::getShortTitle()
+std::string LLFloater::getShortTitle()
 {
 	if (mShortTitle.empty())
 	{
-		return mDragHandle ? mDragHandle->getTitle() : LLString::null;
+		return mDragHandle ? mDragHandle->getTitle() : LLStringUtil::null;
 	}
 	else
 	{
@@ -841,7 +840,7 @@ void LLFloater::setMinimized(BOOL minimize)
 				mResizeHandle[i]->setEnabled(FALSE);
 			}
 		}
-
+		
 		mMinimized = TRUE;
 
 		// Reshape *after* setting mMinimized
@@ -890,7 +889,7 @@ void LLFloater::setMinimized(BOOL minimize)
 				mResizeHandle[i]->setEnabled(isResizable());
 			}
 		}
-
+		
 		mMinimized = FALSE;
 
 		// Reshape *after* setting mMinimized
@@ -1484,28 +1483,28 @@ void	LLFloater::setCanResize(BOOL can_resize)
 		// Resize bars (sides)
 		const S32 RESIZE_BAR_THICKNESS = 3;
 		mResizeBar[0] = new LLResizeBar( 
-			"resizebar_left",
+			std::string("resizebar_left"),
 			this,
 			LLRect( 0, getRect().getHeight(), RESIZE_BAR_THICKNESS, 0), 
 			mMinWidth, S32_MAX, LLResizeBar::LEFT );
 		addChild( mResizeBar[0] );
 
 		mResizeBar[1] = new LLResizeBar( 
-			"resizebar_top",
+			std::string("resizebar_top"),
 			this,
 			LLRect( 0, getRect().getHeight(), getRect().getWidth(), getRect().getHeight() - RESIZE_BAR_THICKNESS), 
 			mMinHeight, S32_MAX, LLResizeBar::TOP );
 		addChild( mResizeBar[1] );
 
 		mResizeBar[2] = new LLResizeBar( 
-			"resizebar_right",
+			std::string("resizebar_right"),
 			this,
 			LLRect( getRect().getWidth() - RESIZE_BAR_THICKNESS, getRect().getHeight(), getRect().getWidth(), 0), 
 			mMinWidth, S32_MAX, LLResizeBar::RIGHT );
 		addChild( mResizeBar[2] );
 
 		mResizeBar[3] = new LLResizeBar( 
-			"resizebar_bottom",
+			std::string("resizebar_bottom"),
 			this,
 			LLRect( 0, RESIZE_BAR_THICKNESS, getRect().getWidth(), 0), 
 			mMinHeight, S32_MAX, LLResizeBar::BOTTOM );
@@ -1514,28 +1513,28 @@ void	LLFloater::setCanResize(BOOL can_resize)
 
 		// Resize handles (corners)
 		mResizeHandle[0] = new LLResizeHandle( 
-			"Resize Handle",
+			std::string("Resize Handle"),
 			LLRect( getRect().getWidth() - RESIZE_HANDLE_WIDTH, RESIZE_HANDLE_HEIGHT, getRect().getWidth(), 0),
 			mMinWidth,
 			mMinHeight,
 			LLResizeHandle::RIGHT_BOTTOM);
 		addChild(mResizeHandle[0]);
 
-		mResizeHandle[1] = new LLResizeHandle( "resize", 
+		mResizeHandle[1] = new LLResizeHandle( std::string("resize"), 
 			LLRect( getRect().getWidth() - RESIZE_HANDLE_WIDTH, getRect().getHeight(), getRect().getWidth(), getRect().getHeight() - RESIZE_HANDLE_HEIGHT),
 			mMinWidth,
 			mMinHeight,
 			LLResizeHandle::RIGHT_TOP );
 		addChild(mResizeHandle[1]);
 		
-		mResizeHandle[2] = new LLResizeHandle( "resize", 
-			LLRect( 0, RESIZE_HANDLE_HEIGHT, RESIZE_HANDLE_WIDTH, 0 ),
-			mMinWidth,
-			mMinHeight,
-			LLResizeHandle::LEFT_BOTTOM );
+		mResizeHandle[2] = new LLResizeHandle( std::string("resize"), 
+											   LLRect( 0, RESIZE_HANDLE_HEIGHT, RESIZE_HANDLE_WIDTH, 0 ),
+											   mMinWidth,
+											   mMinHeight,
+											   LLResizeHandle::LEFT_BOTTOM );
 		addChild(mResizeHandle[2]);
 
-		mResizeHandle[3] = new LLResizeHandle( "resize", 
+		mResizeHandle[3] = new LLResizeHandle( std::string("resize"), 
 			LLRect( 0, getRect().getHeight(), RESIZE_HANDLE_WIDTH, getRect().getHeight() - RESIZE_HANDLE_HEIGHT ),
 			mMinWidth,
 			mMinHeight,
@@ -1633,7 +1632,7 @@ void LLFloater::buildButtons()
 			btn_rect,
 			sButtonActiveImageNames[i],
 			sButtonPressedImageNames[i],
-			"",
+			LLStringUtil::null,
 			sButtonCallbacks[i],
 			this,
 			LLFontGL::sSansSerif);
@@ -1657,7 +1656,7 @@ void LLFloater::buildButtons()
 /////////////////////////////////////////////////////
 // LLFloaterView
 
-LLFloaterView::LLFloaterView( const LLString& name, const LLRect& rect )
+LLFloaterView::LLFloaterView( const std::string& name, const LLRect& rect )
 :	LLUICtrl( name, rect, FALSE, NULL, NULL, FOLLOWS_ALL ),
 	mFocusCycleMode(FALSE),
 	mSnapOffsetBottom(0)
@@ -2377,7 +2376,7 @@ LLMultiFloater::LLMultiFloater(LLTabContainer::TabPosition tab_pos) :
 
 }
 
-LLMultiFloater::LLMultiFloater(const LLString &name) :
+LLMultiFloater::LLMultiFloater(const std::string &name) :
 	LLFloater(name),
 	mTabContainer(NULL),
 	mTabPos(LLTabContainer::TOP),
@@ -2388,7 +2387,7 @@ LLMultiFloater::LLMultiFloater(const LLString &name) :
 }
 
 LLMultiFloater::LLMultiFloater(
-	const LLString& name,
+	const std::string& name,
 	const LLRect& rect,
 	LLTabContainer::TabPosition tab_pos,
 	BOOL auto_resize) : 
@@ -2399,7 +2398,7 @@ LLMultiFloater::LLMultiFloater(
 	mOrigMinWidth(0),
 	mOrigMinHeight(0)
 {
-	mTabContainer = new LLTabContainer("Preview Tabs", 
+	mTabContainer = new LLTabContainer(std::string("Preview Tabs"), 
 		LLRect(LLPANEL_BORDER_WIDTH, getRect().getHeight() - LLFLOATER_HEADER_SIZE, getRect().getWidth() - LLPANEL_BORDER_WIDTH, 0), 
 		mTabPos, 
 		FALSE, 
@@ -2414,8 +2413,8 @@ LLMultiFloater::LLMultiFloater(
 }
 
 LLMultiFloater::LLMultiFloater(
-	const LLString& name,
-	const LLString& rect_control,
+	const std::string& name,
+	const std::string& rect_control,
 	LLTabContainer::TabPosition tab_pos,
 	BOOL auto_resize) : 
 	LLFloater(name, rect_control, name),
@@ -2425,7 +2424,7 @@ LLMultiFloater::LLMultiFloater(
 	mOrigMinWidth(0),
 	mOrigMinHeight(0)
 {
-	mTabContainer = new LLTabContainer("Preview Tabs", 
+	mTabContainer = new LLTabContainer(std::string("Preview Tabs"), 
 		LLRect(LLPANEL_BORDER_WIDTH, getRect().getHeight() - LLFLOATER_HEADER_SIZE, getRect().getWidth() - LLPANEL_BORDER_WIDTH, 0), 
 		mTabPos, 
 		FALSE, 
@@ -2885,12 +2884,12 @@ LLXMLNodePtr LLFloater::getXML(bool save_children) const
 // static
 LLView* LLFloater::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory)
 {
-	LLString name("floater");
+	std::string name("floater");
 	node->getAttributeString("name", name);
 
 	LLFloater *floaterp = new LLFloater(name);
 
-	LLString filename;
+	std::string filename;
 	node->getAttributeString("filename", filename);
 
 	if (filename.empty())
@@ -2909,10 +2908,10 @@ LLView* LLFloater::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *f
 
 void LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory, BOOL open)	/* Flawfinder: ignore */
 {
-	LLString name(getName());
-	LLString title(getTitle());
-	LLString short_title(getShortTitle());
-	LLString rect_control("");
+	std::string name(getName());
+	std::string title(getTitle());
+	std::string short_title(getShortTitle());
+	std::string rect_control("");
 	BOOL resizable = isResizable();
 	S32 min_width = getMinWidth();
 	S32 min_height = getMinHeight();

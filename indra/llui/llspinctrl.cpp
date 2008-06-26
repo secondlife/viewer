@@ -53,11 +53,11 @@ const U32 MAX_STRING_LENGTH = 32;
 
 static LLRegisterWidget<LLSpinCtrl> r2("spinner");
  
-LLSpinCtrl::LLSpinCtrl(	const LLString& name, const LLRect& rect, const LLString& label, const LLFontGL* font,
+LLSpinCtrl::LLSpinCtrl(	const std::string& name, const LLRect& rect, const std::string& label, const LLFontGL* font,
 	void (*commit_callback)(LLUICtrl*, void*),
 	void* callback_user_data,
 	F32 initial_value, F32 min_value, F32 max_value, F32 increment,
-	const LLString& control_name,
+	const std::string& control_name,
 	S32 label_width)
 	:
 	LLUICtrl(name, rect, TRUE, commit_callback, callback_user_data, FOLLOWS_LEFT | FOLLOWS_TOP ),
@@ -82,7 +82,7 @@ LLSpinCtrl::LLSpinCtrl(	const LLString& name, const LLRect& rect, const LLString
 	if( !label.empty() )
 	{
 		LLRect label_rect( 0, centered_top, label_width, centered_bottom );
-		mLabelBox = new LLTextBox( "SpinCtrl Label", label_rect, label.c_str(), font );
+		mLabelBox = new LLTextBox( std::string("SpinCtrl Label"), label_rect, label, font );
 		addChild(mLabelBox);
 
 		btn_left += label_rect.mRight + SPINCTRL_SPACING;
@@ -92,14 +92,13 @@ LLSpinCtrl::LLSpinCtrl(	const LLString& name, const LLRect& rect, const LLString
 	
 	// Spin buttons
 	LLRect up_rect( btn_left, top, btn_right, top - SPINCTRL_BTN_HEIGHT );
-	LLString out_id = "UIImgBtnSpinUpOutUUID";
-	LLString in_id = "UIImgBtnSpinUpInUUID";
-	mUpBtn = new LLButton(
-		"SpinCtrl Up", up_rect,
-		out_id,
-		in_id,
-		"",
-		&LLSpinCtrl::onUpBtn, this, LLFontGL::sSansSerif );
+	std::string out_id = "UIImgBtnSpinUpOutUUID";
+	std::string in_id = "UIImgBtnSpinUpInUUID";
+	mUpBtn = new LLButton(std::string("SpinCtrl Up"), up_rect,
+								   out_id,
+								   in_id,
+								   LLStringUtil::null,
+								   &LLSpinCtrl::onUpBtn, this, LLFontGL::sSansSerif );
 	mUpBtn->setFollowsLeft();
 	mUpBtn->setFollowsBottom();
 	mUpBtn->setHeldDownCallback( &LLSpinCtrl::onUpBtn );
@@ -109,12 +108,11 @@ LLSpinCtrl::LLSpinCtrl(	const LLString& name, const LLRect& rect, const LLString
 	LLRect down_rect( btn_left, top - SPINCTRL_BTN_HEIGHT, btn_right, bottom );
 	out_id = "UIImgBtnSpinDownOutUUID";
 	in_id = "UIImgBtnSpinDownInUUID";
-	mDownBtn = new LLButton(
-		"SpinCtrl Down", down_rect,
-		out_id,
-		in_id,
-		"",
-		&LLSpinCtrl::onDownBtn, this, LLFontGL::sSansSerif );
+	mDownBtn = new LLButton(std::string("SpinCtrl Down"), down_rect,
+							out_id,
+							in_id,
+							LLStringUtil::null,
+							&LLSpinCtrl::onDownBtn, this, LLFontGL::sSansSerif );
 	mDownBtn->setFollowsLeft();
 	mDownBtn->setFollowsBottom();
 	mDownBtn->setHeldDownCallback( &LLSpinCtrl::onDownBtn );
@@ -122,10 +120,10 @@ LLSpinCtrl::LLSpinCtrl(	const LLString& name, const LLRect& rect, const LLString
 	addChild(mDownBtn);
 
 	LLRect editor_rect( btn_right + 1, centered_top, getRect().getWidth(), centered_bottom );
-	mEditor = new LLLineEditor( "SpinCtrl Editor", editor_rect, "",	font,
-		MAX_STRING_LENGTH,
-		&LLSpinCtrl::onEditorCommit, NULL, NULL, this,
-		&LLLineEditor::prevalidateFloat );
+	mEditor = new LLLineEditor( std::string("SpinCtrl Editor"), editor_rect, LLStringUtil::null, font,
+								MAX_STRING_LENGTH,
+								&LLSpinCtrl::onEditorCommit, NULL, NULL, this,
+								&LLLineEditor::prevalidateFloat );
 	mEditor->setFollowsLeft();
 	mEditor->setFollowsBottom();
 	mEditor->setFocusReceivedCallback( &LLSpinCtrl::onEditorGainFocus, this );
@@ -282,8 +280,8 @@ void LLSpinCtrl::updateEditor()
 //		displayed_value = 0.f;
 //	}
 
-	LLString format = llformat("%%.%df", mPrecision);
-	LLString text = llformat(format.c_str(), displayed_value);
+	std::string format = llformat("%%.%df", mPrecision);
+	std::string text = llformat(format.c_str(), displayed_value);
 	mEditor->setText( text );
 }
 
@@ -294,7 +292,7 @@ void LLSpinCtrl::onEditorCommit( LLUICtrl* caller, void *userdata )
 	LLSpinCtrl* self = (LLSpinCtrl*) userdata;
 	llassert( caller == self->mEditor );
 
-	LLString text = self->mEditor->getText();
+	std::string text = self->mEditor->getText();
 	if( LLLineEditor::postvalidateFloat( text ) )
 	{
 		LLLocale locale(LLLocale::USER_LOCALE);
@@ -493,10 +491,10 @@ LLXMLNodePtr LLSpinCtrl::getXML(bool save_children) const
 
 LLView* LLSpinCtrl::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory)
 {
-	LLString name("spinner");
+	std::string name("spinner");
 	node->getAttributeString("name", name);
 
-	LLString label;
+	std::string label;
 	node->getAttributeString("label", label);
 
 	LLRect rect;
@@ -539,7 +537,7 @@ LLView* LLSpinCtrl::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *
 							min_value, 
 							max_value, 
 							increment,
-							"",
+							LLStringUtil::null,
 							label_width);
 
 	spinner->setPrecision(precision);

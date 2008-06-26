@@ -3684,10 +3684,10 @@ BOOL run_print(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id)
 }
 
 
-void lscript_run(char *filename, BOOL b_debug)
+void lscript_run(const std::string& filename, BOOL b_debug)
 {
 	LLTimer	timer;
-	if (filename == NULL)
+	if (filename.empty())
 	{
 		llerrs << "filename is NULL" << llendl;
 		// Just reporting error is likely not enough. Need
@@ -3709,7 +3709,8 @@ void lscript_run(char *filename, BOOL b_debug)
 		file = LLFile::fopen(filename, "r");
 		if (file)
 		{
-			LLFILE* fp = LLFile::fopen("lscript.parse", "w");		/*Flawfinder: ignore*/
+			std::string parsefile("lscript.parse");
+			LLFILE* fp = LLFile::fopen(parsefile, "w");		/*Flawfinder: ignore*/
 			LLScriptLSOParse *parse = new LLScriptLSOParse(file);
 			parse->printData(fp);
 			delete parse;

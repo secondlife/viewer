@@ -467,7 +467,7 @@ void LLViewerObject::setNameValueList(const std::string& name_value_list)
 		if (end > start)
 		{
 			std::string tok = name_value_list.substr(start, end - start);
-			addNVPair(tok.c_str());
+			addNVPair(tok);
 		}
 		start = end+1;
 	}
@@ -955,12 +955,9 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 				S32 nv_size = mesgsys->getSizeFast(_PREHASH_ObjectData, block_num, _PREHASH_NameValue);
 				if (nv_size > 0)
 				{
-					char* name_value_list = new char[nv_size];
-					mesgsys->getStringFast(_PREHASH_ObjectData, _PREHASH_NameValue, nv_size, name_value_list, block_num);
-
+					std::string name_value_list;
+					mesgsys->getStringFast(_PREHASH_ObjectData, _PREHASH_NameValue, name_value_list, block_num);
 					setNameValueList(name_value_list);
-
-					delete [] name_value_list;
 				}
 
 				// Clear out any existing generic data
@@ -996,8 +993,8 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 						mText->setOnHUDAttachment(isHUDAttachment());
 					}
 
-					char temp_string[256];			/* Flawfinder: ignore */		// not MAX_STRING, must hold 255 chars + \0
-					mesgsys->getStringFast(_PREHASH_ObjectData, _PREHASH_Text, 256, temp_string, block_num );
+					std::string temp_string;
+					mesgsys->getStringFast(_PREHASH_ObjectData, _PREHASH_Text, temp_string, block_num );
 					
 					LLColor4U coloru;
 					mesgsys->getBinaryDataFast(_PREHASH_ObjectData, _PREHASH_TextColor, coloru.mV, 4, block_num);
@@ -1019,13 +1016,13 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 					mText = NULL;
 				}
 
-				char media_url[MAX_STRING+1];		/* Flawfinder: ignore */
-				mesgsys->getStringFast(_PREHASH_ObjectData, _PREHASH_MediaURL, MAX_STRING+1, media_url, block_num);
-				//if (media_url[0])
+				std::string media_url;
+				mesgsys->getStringFast(_PREHASH_ObjectData, _PREHASH_MediaURL, media_url, block_num);
+				//if (!media_url.empty())
 				//{
 				//	llinfos << "WEBONPRIM media_url " << media_url << llendl;
 				//}
-				if (!mMedia && media_url[0] != '\0')
+				if (!mMedia && !media_url.empty())
 				{
 					retval |= MEDIA_URL_ADDED;
 					mMedia = new LLViewerObjectMedia;
@@ -1035,7 +1032,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 				}
 				else if (mMedia)
 				{
-					if (media_url[0] == '\0')
+					if (media_url.empty())
 					{
 						retval |= MEDIA_URL_REMOVED;
 						delete mMedia;
@@ -1514,7 +1511,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 					std::string name_value_list;
 					dp->unpackString(name_value_list, "NV");
 
-					setNameValueList(name_value_list.c_str());
+					setNameValueList(name_value_list);
 				}
 
 				mTotalCRC = crc;
@@ -2386,7 +2383,7 @@ void LLViewerObject::fetchInventoryFromServer()
 struct LLFilenameAndTask
 {
 	LLUUID mTaskID;
-	char mFilename[MAX_STRING];  		/* Flawfinder: ignore */		// Just the filename, not the path
+	std::string mFilename;
 #ifdef _DEBUG
 	static S32 sCount;
 	LLFilenameAndTask()
@@ -2427,8 +2424,8 @@ void LLViewerObject::processTaskInv(LLMessageSystem* msg, void** user_data)
 	msg->getS16Fast(_PREHASH_InventoryData, _PREHASH_Serial, object->mInventorySerialNum);
 	LLFilenameAndTask* ft = new LLFilenameAndTask;
 	ft->mTaskID = task_id;
-	msg->getStringFast(_PREHASH_InventoryData, _PREHASH_Filename, MAX_STRING, ft->mFilename);
-	if(!ft->mFilename[0])
+	msg->getStringFast(_PREHASH_InventoryData, _PREHASH_Filename, ft->mFilename);
+	if(ft->mFilename.empty())
 	{
 		lldebugs << "Task has no inventory" << llendl;
 		// mock up some inventory to make a drop target.
@@ -2443,13 +2440,13 @@ void LLViewerObject::processTaskInv(LLMessageSystem* msg, void** user_data)
 		LLPointer<LLInventoryObject> obj;
 		obj = new LLInventoryObject(object->mID, LLUUID::null,
 									LLAssetType::AT_CATEGORY,
-									"Contents");
+									std::string("Contents"));
 		object->mInventory->push_front(obj);
 		object->doInventoryCallback();
 		delete ft;
 		return;
 	}
-	gXferManager->requestFile(gDirUtilp->getExpandedFilename(LL_PATH_CACHE, ft->mFilename).c_str(), 
+	gXferManager->requestFile(gDirUtilp->getExpandedFilename(LL_PATH_CACHE, ft->mFilename), 
 								ft->mFilename, LL_PATH_CACHE,
 								object->mRegionp->getHost(),
 								TRUE,
@@ -2477,12 +2474,12 @@ void LLViewerObject::processTaskInvFile(void** user_data, S32 error_code, LLExtS
 	delete ft;
 }
 
-void LLViewerObject::loadTaskInvFile(const char* filename)
+void LLViewerObject::loadTaskInvFile(const std::string& filename)
 {
 	LLMemType mt(LLMemType::MTYPE_OBJECT);
 	
 	std::string filename_and_local_path = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, filename);
-	llifstream ifs(filename_and_local_path.c_str());
+	llifstream ifs(filename_and_local_path);
 	if(ifs.good())
 	{
 		char buffer[MAX_STRING];	/* Flawfinder: ignore */
@@ -2519,7 +2516,7 @@ void LLViewerObject::loadTaskInvFile(const char* filename)
 			}
 		}
 		ifs.close();
-		LLFile::remove(filename_and_local_path.c_str());
+		LLFile::remove(filename_and_local_path);
 	}
 	else
 	{
@@ -2970,7 +2967,7 @@ void LLViewerObject::addNVPair(const std::string& data)
 	mNameValuePairs[nv->mName] = nv;
 }
 
-BOOL LLViewerObject::removeNVPair(const char *name)
+BOOL LLViewerObject::removeNVPair(const std::string& name)
 {
 	char* canonical_name = gNVNameTable.addString(name);
 
@@ -2989,7 +2986,7 @@ BOOL LLViewerObject::removeNVPair(const char *name)
 			gMessageSystem->addUUIDFast(_PREHASH_ID, mID);
 			
 			gMessageSystem->nextBlockFast(_PREHASH_NameValueData);
-			gMessageSystem->addStringFast(_PREHASH_NVPair, buffer.c_str());
+			gMessageSystem->addStringFast(_PREHASH_NVPair, buffer);
 
 			gMessageSystem->sendReliable( mRegionp->getHost() );
 */
@@ -3007,7 +3004,7 @@ BOOL LLViewerObject::removeNVPair(const char *name)
 }
 
 
-LLNameValue *LLViewerObject::getNVPair(const char *name) const
+LLNameValue *LLViewerObject::getNVPair(const std::string& name) const
 {
 	char		*canonical_name;
 
@@ -3394,7 +3391,7 @@ void LLViewerObject::setMediaType(U8 media_type)
 	}
 }
 
-const LLString& LLViewerObject::getMediaURL() const
+std::string LLViewerObject::getMediaURL() const
 {
 	if (mMedia)
 	{
@@ -3402,11 +3399,11 @@ const LLString& LLViewerObject::getMediaURL() const
 	}
 	else
 	{
-		return LLString::null;
+		return std::string();
 	}
 }
 
-void LLViewerObject::setMediaURL(const LLString& media_url)
+void LLViewerObject::setMediaURL(const std::string& media_url)
 {
 	LLMemType mt(LLMemType::MTYPE_OBJECT);
 	

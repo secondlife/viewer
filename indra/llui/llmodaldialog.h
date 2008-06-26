@@ -44,7 +44,7 @@ class LLModalDialog;
 class LLModalDialog : public LLFloater
 {
 public:
-	LLModalDialog( const LLString& title, S32 width, S32 height, BOOL modal = true );
+	LLModalDialog( const std::string& title, S32 width, S32 height, BOOL modal = true );
 	/*virtual*/ ~LLModalDialog();
 
 	/*virtual*/ void	open();	/* Flawfinder: ignore */

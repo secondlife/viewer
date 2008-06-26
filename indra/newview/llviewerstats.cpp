@@ -64,7 +64,7 @@
 class StatAttributes
 {
 public:
-	StatAttributes(const char *name,
+	StatAttributes(const char* name,
 				   const BOOL enabled,
 				   const BOOL is_timer)
 		: mName(name),
@@ -73,9 +73,9 @@ public:
 	{
 	}
 	
-	const char *mName;
-	const BOOL mEnabled;
-	const BOOL mIsTimer;
+	std::string mName;
+	BOOL mEnabled;
+	BOOL mIsTimer;
 };
 
 const StatAttributes STAT_INFO[LLViewerStats::ST_COUNT] =
@@ -331,17 +331,17 @@ void LLViewerStats::addToMessage(LLSD &body) const
 }
 
 // static
-const char *LLViewerStats::statTypeToText(EStatType type)
-{
-	if (type >= 0 && type < ST_COUNT)
-	{
-		return STAT_INFO[type].mName;
-	}
-	else
-	{
-		return "Unknown statistic";
-	}
-}
+// const std::string LLViewerStats::statTypeToText(EStatType type)
+// {
+// 	if (type >= 0 && type < ST_COUNT)
+// 	{
+// 		return STAT_INFO[type].mName;
+// 	}
+// 	else
+// 	{
+// 		return "Unknown statistic";
+// 	}
+// }
 
 // *NOTE:Mani The following methods used to exist in viewer.cpp
 // Moving them here, but not merging them into LLViewerStats yet.
@@ -679,7 +679,7 @@ void send_stats()
 	// send fps only for time app spends in foreground
 	agent["fps"] = (F32)gForegroundFrameCount / gForegroundTime.getElapsedTimeF32();
 	agent["version"] = gCurrentVersion;
-	LLString language(gSavedSettings.getString("Language"));
+	std::string language(gSavedSettings.getString("Language"));
 	if(language == "default") language = gSavedSettings.getString("SystemLanguage");	
 	agent["language"] = language;
 	

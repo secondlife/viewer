@@ -47,7 +47,7 @@ class LLTextBox;
 class LLToolComposite : public LLTool
 {
 public:
-	LLToolComposite(const LLString& name);
+	LLToolComposite(const std::string& name);
 
     virtual BOOL			handleMouseDown(S32 x, S32 y, MASK mask) = 0;	// Sets the current tool
     virtual BOOL			handleMouseUp(S32 x, S32 y, MASK mask);			// Returns to the default tool
@@ -97,7 +97,7 @@ protected:
 	LLToolSelectRect*		mSelectRect;
 
 public:
-	static const LLString sNameComp;
+	static const std::string sNameComp;
 };
 
 

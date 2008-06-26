@@ -286,7 +286,7 @@ void LLMessageSystem::init()
 }
 
 // Read file and build message templates
-LLMessageSystem::LLMessageSystem(const char *filename, U32 port, 
+LLMessageSystem::LLMessageSystem(const std::string& filename, U32 port, 
 								 S32 version_major,
 								 S32 version_minor,
 								 S32 version_patch,
@@ -366,10 +366,9 @@ LLMessageSystem::LLMessageSystem(const char *filename, U32 port,
 
 
 // Read file and build message templates
-void LLMessageSystem::loadTemplateFile(const char* filename,
-									   bool failure_is_fatal)
+void LLMessageSystem::loadTemplateFile(const std::string& filename, bool failure_is_fatal)
 {
-	if(!filename)
+	if(filename.empty())
 	{
 		LL_ERRS("Messaging") << "No template filename specified" << llendl;
 		mbError = TRUE;
@@ -692,9 +691,9 @@ BOOL LLMessageSystem::checkMessages( S64 frame_count )
 					{
 						std::ostringstream str;
 						str << "MSG: <- " << host;
-						char buffer[MAX_STRING]; /* Flawfinder: ignore*/
-						snprintf(buffer, MAX_STRING, "\t%6d\t%6d\t%6d ", receive_size, (mIncomingCompressedSize ? mIncomingCompressedSize : receive_size), mCurrentRecvPacketID);	/* Flawfinder: ignore */
-						str << buffer << "(unknown)"
+						std::string tbuf;
+						tbuf = llformat( "\t%6d\t%6d\t%6d ", receive_size, (mIncomingCompressedSize ? mIncomingCompressedSize : receive_size), mCurrentRecvPacketID);
+						str << tbuf << "(unknown)"
 							<< (recv_reliable ? " reliable" : "")
 							<< " resent "
 							<< ((acks > 0) ? "acks" : "")
@@ -822,10 +821,9 @@ BOOL LLMessageSystem::checkMessages( S64 frame_count )
 
 									LLMsgBlkData *msg_block_data = mCurrentRMessageData->mMemberBlocks[bnamep];
 
-									char errmsg[1024];
 									if (!msg_block_data)
 									{
-										sprintf(errmsg, "Block %s #%d not in message %s", block_name, blocknum, mCurrentRMessageData->mName);
+										std::string errmsg = llformat("Block %s #%d not in message %s", block_name, blocknum, mCurrentRMessageData->mName);
 										LL_ERRS("Messaging") << errmsg << llendl;
 									}
 
@@ -833,7 +831,7 @@ BOOL LLMessageSystem::checkMessages( S64 frame_count )
 
 									if (!vardata.getName())
 									{
-										sprintf(errmsg, "Variable %s not in message %s block %s", vnamep, mCurrentRMessageData->mName, bnamep);
+										std::string errmsg = llformat("Variable %s not in message %s block %s", vnamep, mCurrentRMessageData->mName, bnamep);
 										LL_ERRS("Messaging") << errmsg << llendl;
 									}
 
@@ -1384,8 +1382,8 @@ S32 LLMessageSystem::sendMessage(const LLHost &host)
 	{
 		std::ostringstream str;
 		str << "MSG: -> " << host;
-		char buffer[MAX_STRING];			/* Flawfinder: ignore */
-		snprintf(buffer, MAX_STRING, "\t%6d\t%6d\t%6d ", mSendSize, buffer_length, cdp->getPacketOutID());		/* Flawfinder: ignore */
+		std::string buffer;
+		buffer = llformat( "\t%6d\t%6d\t%6d ", mSendSize, buffer_length, cdp->getPacketOutID());
 		str << buffer
 			<< mMessageBuilder->getMessageName()
 			<< (mSendReliable ? " reliable " : "");
@@ -1413,8 +1411,8 @@ void LLMessageSystem::logMsgFromInvalidCircuit( const LLHost& host, BOOL recv_re
 	{
 		std::ostringstream str;
 		str << "MSG: <- " << host;
-		char buffer[MAX_STRING];			/* Flawfinder: ignore */
-		snprintf(buffer, MAX_STRING, "\t%6d\t%6d\t%6d ", mMessageReader->getMessageSize(), (mIncomingCompressedSize ? mIncomingCompressedSize: mMessageReader->getMessageSize()), mCurrentRecvPacketID);		/* Flawfinder: ignore */
+		std::string buffer;
+		buffer = llformat( "\t%6d\t%6d\t%6d ", mMessageReader->getMessageSize(), (mIncomingCompressedSize ? mIncomingCompressedSize: mMessageReader->getMessageSize()), mCurrentRecvPacketID);
 		str << buffer
 			<< nullToEmpty(mMessageReader->getMessageName())
 			<< (recv_reliable ? " reliable" : "")
@@ -1518,8 +1516,8 @@ void LLMessageSystem::logValidMsg(LLCircuitData *cdp, const LLHost& host, BOOL r
 	{
 		std::ostringstream str;
 		str << "MSG: <- " << host;
-		char buffer[MAX_STRING];			/* Flawfinder: ignore */
-		snprintf(buffer, MAX_STRING, "\t%6d\t%6d\t%6d ", mMessageReader->getMessageSize(), (mIncomingCompressedSize ? mIncomingCompressedSize : mMessageReader->getMessageSize()), mCurrentRecvPacketID);		/* Flawfinder: ignore */
+		std::string buffer;
+		buffer = llformat( "\t%6d\t%6d\t%6d ", mMessageReader->getMessageSize(), (mIncomingCompressedSize ? mIncomingCompressedSize : mMessageReader->getMessageSize()), mCurrentRecvPacketID);
 		str << buffer
 			<< nullToEmpty(mMessageReader->getMessageName())
 			<< (recv_reliable ? " reliable" : "")
@@ -2092,20 +2090,18 @@ void LLMessageSystem::processUseCircuitCode(LLMessageSystem* msg,
 // static
 void LLMessageSystem::processError(LLMessageSystem* msg, void**)
 {
-	char buffer[MTUBYTES];
 	S32 error_code = 0;
 	msg->getS32("Data", "Code", error_code);
 	std::string error_token;
-	msg->getString("Data", "Token", MTUBYTES, buffer);
-	error_token.assign(buffer);
+	msg->getString("Data", "Token", error_token);
+
 	LLUUID error_id;
 	msg->getUUID("Data", "ID", error_id);
 	std::string error_system;
-	msg->getString("Data", "System", MTUBYTES, buffer);
-	error_system.assign(buffer);
+	msg->getString("Data", "System", error_system);
+
 	std::string error_message;
-	msg->getString("Data", "Message", MTUBYTES, buffer);
-	error_message.assign(buffer);
+	msg->getString("Data", "Message", error_message);
 
 	LL_WARNS("Messaging") << "Message error from " << msg->getSender() << " - "
 		<< error_code << " " << error_token << " " << error_id << " \""
@@ -2421,7 +2417,8 @@ void process_deny_trusted_circuit(LLMessageSystem *msg, void **)
 void dump_prehash_files()
 {
 	U32 i;
-	LLFILE* fp = LLFile::fopen("../../indra/llmessage/message_prehash.h", "w");	/* Flawfinder: ignore */
+	std::string filename("../../indra/llmessage/message_prehash.h");
+	LLFILE* fp = LLFile::fopen(filename, "w");	/* Flawfinder: ignore */
 	if (fp)
 	{
 		fprintf(
@@ -2451,7 +2448,8 @@ void dump_prehash_files()
 		fprintf(fp, "\n\n#endif\n");
 		fclose(fp);
 	}
-	fp = LLFile::fopen("../../indra/llmessage/message_prehash.cpp", "w");	/* Flawfinder: ignore */
+	filename = std::string("../../indra/llmessage/message_prehash.cpp");
+	fp = LLFile::fopen(filename, "w");	/* Flawfinder: ignore */
 	if (fp)
 	{
 		fprintf(
@@ -2493,7 +2491,7 @@ bool start_messaging_system(
 	bool failure_is_fatal)
 {
 	gMessageSystem = new LLMessageSystem(
-		template_name.c_str(),
+		template_name,
 		port, 
 		version_major, 
 		version_minor, 
@@ -2587,79 +2585,79 @@ void LLMessageSystem::stopLogging()
 
 void LLMessageSystem::summarizeLogs(std::ostream& str)
 {
-	char buffer[MAX_STRING];  	/* Flawfinder: ignore */ 
-	char tmp_str[MAX_STRING];	 /* Flawfinder: ignore */ 
+ 	std::string buffer;
+	std::string tmp_str;
 	F32 run_time = mMessageSystemTimer.getElapsedTimeF32();
 	str << "START MESSAGE LOG SUMMARY" << std::endl;
-	snprintf(buffer, MAX_STRING, "Run time: %12.3f seconds", run_time);	/* Flawfinder: ignore */
+	buffer = llformat( "Run time: %12.3f seconds", run_time);
 
 	// Incoming
 	str << buffer << std::endl << "Incoming:" << std::endl;
-	U64_to_str(mTotalBytesIn, tmp_str, sizeof(tmp_str));
-	snprintf(buffer, MAX_STRING, "Total bytes received:      %20s (%5.2f kbits per second)", tmp_str, ((F32)mTotalBytesIn * 0.008f) / run_time);	/* Flawfinder: ignore */
+	tmp_str = U64_to_str(mTotalBytesIn);
+	buffer = llformat( "Total bytes received:      %20s (%5.2f kbits per second)", tmp_str.c_str(), ((F32)mTotalBytesIn * 0.008f) / run_time);
 	str << buffer << std::endl;
-	U64_to_str(mPacketsIn, tmp_str, sizeof(tmp_str));
-	snprintf(buffer, MAX_STRING, "Total packets received:    %20s (%5.2f packets per second)", tmp_str, ((F32) mPacketsIn / run_time));	/* Flawfinder: ignore */
+	tmp_str = U64_to_str(mPacketsIn);
+	buffer = llformat( "Total packets received:    %20s (%5.2f packets per second)", tmp_str.c_str(), ((F32) mPacketsIn / run_time));
 	str << buffer << std::endl;
-	snprintf(buffer, MAX_STRING, "Average packet size:       %20.0f bytes", (F32)mTotalBytesIn / (F32)mPacketsIn);	/* Flawfinder: ignore */
+	buffer = llformat( "Average packet size:       %20.0f bytes", (F32)mTotalBytesIn / (F32)mPacketsIn);
 	str << buffer << std::endl;
-	U64_to_str(mReliablePacketsIn, tmp_str, sizeof(tmp_str));
-	snprintf(buffer, MAX_STRING, "Total reliable packets:    %20s (%5.2f%%)", tmp_str, 100.f * ((F32) mReliablePacketsIn)/((F32) mPacketsIn + 1));		/* Flawfinder: ignore */
+	tmp_str = U64_to_str(mReliablePacketsIn);
+	buffer = llformat( "Total reliable packets:    %20s (%5.2f%%)", tmp_str.c_str(), 100.f * ((F32) mReliablePacketsIn)/((F32) mPacketsIn + 1));
 	str << buffer << std::endl;
-	U64_to_str(mCompressedPacketsIn, tmp_str, sizeof(tmp_str));
-	snprintf(buffer, MAX_STRING, "Total compressed packets:  %20s (%5.2f%%)", tmp_str, 100.f * ((F32) mCompressedPacketsIn)/((F32) mPacketsIn + 1));	/* Flawfinder: ignore */
+	tmp_str = U64_to_str(mCompressedPacketsIn);
+	buffer = llformat( "Total compressed packets:  %20s (%5.2f%%)", tmp_str.c_str(), 100.f * ((F32) mCompressedPacketsIn)/((F32) mPacketsIn + 1));
 	str << buffer << std::endl;
 	S64 savings = mUncompressedBytesIn - mCompressedBytesIn;
-	U64_to_str(savings, tmp_str, sizeof(tmp_str));
-	snprintf(buffer, MAX_STRING, "Total compression savings: %20s bytes", tmp_str);	/* Flawfinder: ignore */
+	tmp_str = U64_to_str(savings);
+	buffer = llformat( "Total compression savings: %20s bytes", tmp_str.c_str());
 	str << buffer << std::endl;
-	U64_to_str(savings/(mCompressedPacketsIn +1), tmp_str, sizeof(tmp_str));
-	snprintf(buffer, MAX_STRING, "Avg comp packet savings:   %20s (%5.2f : 1)", tmp_str, ((F32) mUncompressedBytesIn)/((F32) mCompressedBytesIn+1));	/* Flawfinder: ignore */
+	tmp_str = U64_to_str(savings/(mCompressedPacketsIn +1));
+	buffer = llformat( "Avg comp packet savings:   %20s (%5.2f : 1)", tmp_str.c_str(), ((F32) mUncompressedBytesIn)/((F32) mCompressedBytesIn+1));
 	str << buffer << std::endl;
-	U64_to_str(savings/(mPacketsIn+1), tmp_str, sizeof(tmp_str));
-	snprintf(buffer, MAX_STRING, "Avg overall comp savings:  %20s (%5.2f : 1)", tmp_str, ((F32) mTotalBytesIn + (F32) savings)/((F32) mTotalBytesIn + 1.f));	/* Flawfinder: ignore */
+	tmp_str = U64_to_str(savings/(mPacketsIn+1));
+	buffer = llformat( "Avg overall comp savings:  %20s (%5.2f : 1)", tmp_str.c_str(), ((F32) mTotalBytesIn + (F32) savings)/((F32) mTotalBytesIn + 1.f));
 
 	// Outgoing
 	str << buffer << std::endl << std::endl << "Outgoing:" << std::endl;
-	U64_to_str(mTotalBytesOut, tmp_str, sizeof(tmp_str));
-	snprintf(buffer, MAX_STRING, "Total bytes sent:          %20s (%5.2f kbits per second)", tmp_str, ((F32)mTotalBytesOut * 0.008f) / run_time );	/* Flawfinder: ignore */
+	tmp_str = U64_to_str(mTotalBytesOut);
+	buffer = llformat( "Total bytes sent:          %20s (%5.2f kbits per second)", tmp_str.c_str(), ((F32)mTotalBytesOut * 0.008f) / run_time );
 	str << buffer << std::endl;
-	U64_to_str(mPacketsOut, tmp_str, sizeof(tmp_str));
-	snprintf(buffer, MAX_STRING, "Total packets sent:        %20s (%5.2f packets per second)", tmp_str, ((F32)mPacketsOut / run_time));	/* Flawfinder: ignore */
+	tmp_str = U64_to_str(mPacketsOut);
+	buffer = llformat( "Total packets sent:        %20s (%5.2f packets per second)", tmp_str.c_str(), ((F32)mPacketsOut / run_time));
 	str << buffer << std::endl;
-	snprintf(buffer, MAX_STRING, "Average packet size:       %20.0f bytes", (F32)mTotalBytesOut / (F32)mPacketsOut);	/* Flawfinder: ignore */
+	buffer = llformat( "Average packet size:       %20.0f bytes", (F32)mTotalBytesOut / (F32)mPacketsOut);
 	str << buffer << std::endl;
-	U64_to_str(mReliablePacketsOut, tmp_str, sizeof(tmp_str));
-	snprintf(buffer, MAX_STRING, "Total reliable packets:    %20s (%5.2f%%)", tmp_str, 100.f * ((F32) mReliablePacketsOut)/((F32) mPacketsOut + 1));		/* Flawfinder: ignore */
+	tmp_str = U64_to_str(mReliablePacketsOut);
+	buffer = llformat( "Total reliable packets:    %20s (%5.2f%%)", tmp_str.c_str(), 100.f * ((F32) mReliablePacketsOut)/((F32) mPacketsOut + 1));
 	str << buffer << std::endl;
-	U64_to_str(mCompressedPacketsOut, tmp_str, sizeof(tmp_str));
-	snprintf(buffer, MAX_STRING, "Total compressed packets:  %20s (%5.2f%%)", tmp_str, 100.f * ((F32) mCompressedPacketsOut)/((F32) mPacketsOut + 1));		/* Flawfinder: ignore */
+	tmp_str = U64_to_str(mCompressedPacketsOut);
+	buffer = llformat( "Total compressed packets:  %20s (%5.2f%%)", tmp_str.c_str(), 100.f * ((F32) mCompressedPacketsOut)/((F32) mPacketsOut + 1));
 	str << buffer << std::endl;
 	savings = mUncompressedBytesOut - mCompressedBytesOut;
-	U64_to_str(savings, tmp_str, sizeof(tmp_str));
-	snprintf(buffer, MAX_STRING, "Total compression savings: %20s bytes", tmp_str);	/* Flawfinder: ignore */
+	tmp_str = U64_to_str(savings);
+	buffer = llformat( "Total compression savings: %20s bytes", tmp_str.c_str());
 	str << buffer << std::endl;
-	U64_to_str(savings/(mCompressedPacketsOut +1), tmp_str, sizeof(tmp_str));
-	snprintf(buffer, MAX_STRING, "Avg comp packet savings:   %20s (%5.2f : 1)", tmp_str, ((F32) mUncompressedBytesOut)/((F32) mCompressedBytesOut+1));		/* Flawfinder: ignore */
+	tmp_str = U64_to_str(savings/(mCompressedPacketsOut +1));
+	buffer = llformat( "Avg comp packet savings:   %20s (%5.2f : 1)", tmp_str.c_str(), ((F32) mUncompressedBytesOut)/((F32) mCompressedBytesOut+1));
 	str << buffer << std::endl;
-	U64_to_str(savings/(mPacketsOut+1), tmp_str, sizeof(tmp_str));
-	snprintf(buffer, MAX_STRING, "Avg overall comp savings:  %20s (%5.2f : 1)", tmp_str, ((F32) mTotalBytesOut + (F32) savings)/((F32) mTotalBytesOut + 1.f));		/* Flawfinder: ignore */
+	tmp_str = U64_to_str(savings/(mPacketsOut+1));
+	buffer = llformat( "Avg overall comp savings:  %20s (%5.2f : 1)", tmp_str.c_str(), ((F32) mTotalBytesOut + (F32) savings)/((F32) mTotalBytesOut + 1.f));
 	str << buffer << std::endl << std::endl;
-	snprintf(buffer, MAX_STRING, "SendPacket failures:       %20d", mSendPacketFailureCount);	/* Flawfinder: ignore */
+	buffer = llformat( "SendPacket failures:       %20d", mSendPacketFailureCount);
 	str << buffer << std::endl;
-	snprintf(buffer, MAX_STRING, "Dropped packets:           %20d", mDroppedPackets);	/* Flawfinder: ignore */
+	buffer = llformat( "Dropped packets:           %20d", mDroppedPackets);
 	str << buffer << std::endl;
-	snprintf(buffer, MAX_STRING, "Resent packets:            %20d", mResentPackets);	/* Flawfinder: ignore */
+	buffer = llformat( "Resent packets:            %20d", mResentPackets);
 	str << buffer << std::endl;
-	snprintf(buffer, MAX_STRING, "Failed reliable resends:   %20d", mFailedResendPackets);	/* Flawfinder: ignore */
+	buffer = llformat( "Failed reliable resends:   %20d", mFailedResendPackets);
 	str << buffer << std::endl;
-	snprintf(buffer, MAX_STRING, "Off-circuit rejected packets: %17d", mOffCircuitPackets);	/* Flawfinder: ignore */
+	buffer = llformat( "Off-circuit rejected packets: %17d", mOffCircuitPackets);
 	str << buffer << std::endl;
-	snprintf(buffer, MAX_STRING, "On-circuit invalid packets:   %17d", mInvalidOnCircuitPackets);		/* Flawfinder: ignore */
+	buffer = llformat( "On-circuit invalid packets:   %17d", mInvalidOnCircuitPackets);
 	str << buffer << std::endl << std::endl;
 
 	str << "Decoding: " << std::endl;
-	snprintf(buffer, MAX_STRING, "%35s%10s%10s%10s%10s", "Message", "Count", "Time", "Max", "Avg");	/* Flawfinder: ignore */
+	buffer = llformat( "%35s%10s%10s%10s%10s", "Message", "Count", "Time", "Max", "Avg");
 	str << buffer << std:: endl;	
 	F32 avg;
 	for (message_template_name_map_t::const_iterator iter = mMessageTemplates.begin(),
@@ -2670,7 +2668,7 @@ void LLMessageSystem::summarizeLogs(std::ostream& str)
 		if(mt->mTotalDecoded > 0)
 		{
 			avg = mt->mTotalDecodeTime / (F32)mt->mTotalDecoded;
-			snprintf(buffer, MAX_STRING, "%35s%10u%10f%10f%10f", mt->mName, mt->mTotalDecoded, mt->mTotalDecodeTime, mt->mMaxDecodeTimePerMsg, avg);	/* Flawfinder: ignore */
+			buffer = llformat( "%35s%10u%10f%10f%10f", mt->mName, mt->mTotalDecoded, mt->mTotalDecodeTime, mt->mMaxDecodeTimePerMsg, avg);
 			str << buffer << std::endl;
 		}
 	}
@@ -3933,6 +3931,20 @@ void LLMessageSystem::getString(const char *block, const char *var,
 {
 	getStringFast(LLMessageStringTable::getInstance()->getString(block), 
 				  LLMessageStringTable::getInstance()->getString(var), buffer_size, s, 
+				  blocknum);
+}
+
+void LLMessageSystem::getStringFast(const char *block, const char *var, 
+									std::string& outstr, S32 blocknum)
+{
+	mMessageReader->getString(block, var, outstr, blocknum);
+}
+
+void LLMessageSystem::getString(const char *block, const char *var, 
+								std::string& outstr, S32 blocknum )
+{
+	getStringFast(LLMessageStringTable::getInstance()->getString(block), 
+				  LLMessageStringTable::getInstance()->getString(var), outstr, 
 				  blocknum);
 }
 

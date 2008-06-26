@@ -87,15 +87,15 @@ public:
 	static const LLUUID& getTrackedLandmarkAssetID() { return instance()->mTrackedLandmarkAssetID; }
 	static const LLUUID& getTrackedLandmarkItemID()	 { return instance()->mTrackedLandmarkItemID; }
 
-	static void	trackAvatar( const LLUUID& avatar_id, const LLString& name );
-	static void	trackLandmark( const LLUUID& landmark_asset_id, const LLUUID& landmark_item_id , const LLString& name);
-	static void	trackLocation(const LLVector3d& pos, const LLString& full_name, const LLString& tooltip, ETrackingLocationType location_type = LOCATION_NOTHING);
+	static void	trackAvatar( const LLUUID& avatar_id, const std::string& name );
+	static void	trackLandmark( const LLUUID& landmark_asset_id, const LLUUID& landmark_item_id , const std::string& name);
+	static void	trackLocation(const LLVector3d& pos, const std::string& full_name, const std::string& tooltip, ETrackingLocationType location_type = LOCATION_NOTHING);
 
 	// returns global pos of tracked thing
 	static LLVector3d 	getTrackedPositionGlobal();
 
 	static BOOL 		hasLandmarkPosition();
-	static const LLString& getTrackedLocationName();
+	static const std::string& getTrackedLocationName();
 
 	static void drawHUDArrow();
 
@@ -107,8 +107,8 @@ public:
 	static LLTracker* sTrackerp;
 	static BOOL sCheesyBeacon;
 	
-	static const LLString& getLabel() { return instance()->mLabel; }
-	static const LLString& getToolTip() { return instance()->mToolTip; }
+	static const std::string& getLabel() { return instance()->mLabel; }
+	static const std::string& getToolTip() { return instance()->mToolTip; }
 protected:
 	LLTracker();
 	~LLTracker();
@@ -137,10 +137,10 @@ protected:
 
 	LLVector3d				mTrackedPositionGlobal;
 
-	LLString				mLabel;
-	LLString				mToolTip;
+	std::string				mLabel;
+	std::string				mToolTip;
 
-	LLString				mTrackedLandmarkName;
+	std::string				mTrackedLandmarkName;
 	LLUUID					mTrackedLandmarkAssetID;
 	LLUUID					mTrackedLandmarkItemID;
 	LLDynamicArray<LLUUID>	mLandmarkAssetIDList;
@@ -149,7 +149,7 @@ protected:
 	BOOL 					mHasLandmarkPosition;
 	BOOL					mLandmarkHasBeenVisited;
 
-	LLString				mTrackedLocationName;
+	std::string				mTrackedLocationName;
 	BOOL					mIsTrackingLocation;
 	BOOL					mHasReachedLocation;
 };

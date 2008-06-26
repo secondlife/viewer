@@ -75,7 +75,7 @@ struct CompareAttributes
 
 class LLXMLNode;
 typedef LLPointer<LLXMLNode> LLXMLNodePtr;
-typedef std::multimap<LLString, LLXMLNodePtr > LLXMLNodeList;
+typedef std::multimap<std::string, LLXMLNodePtr > LLXMLNodeList;
 typedef std::multimap<const LLStringTableEntry *, LLXMLNodePtr > LLXMLChildList;
 typedef std::map<const LLStringTableEntry *, LLXMLNodePtr, CompareAttributes> LLXMLAttribList;
 
@@ -122,7 +122,7 @@ protected:
 
 public:
 	LLXMLNode();
-	LLXMLNode(const LLString& name, BOOL is_attribute);
+	LLXMLNode(const char* name, BOOL is_attribute);
 	LLXMLNode(LLStringTableEntry* name, BOOL is_attribute);
 
 	BOOL isNull();
@@ -133,7 +133,7 @@ public:
 
     // Serialization
 	static bool parseFile(
-		LLString filename,
+		const std::string& filename,
 		LLXMLNodePtr& node, 
 		LLXMLNode* defaults_tree);
 	static bool parseBuffer(
@@ -149,16 +149,16 @@ public:
 	LLXMLNodePtr& node,
 	LLXMLNodePtr& update_node);
 	static void writeHeaderToFile(LLFILE *fOut);
-    void writeToFile(LLFILE *fOut, LLString indent = LLString());
-    void writeToOstream(std::ostream& output_stream, const LLString& indent = LLString());
+    void writeToFile(LLFILE *fOut, const std::string& indent = std::string());
+    void writeToOstream(std::ostream& output_stream, const std::string& indent = std::string());
 
     // Utility
-    void findName(const LLString& name, LLXMLNodeList &results);
+    void findName(const std::string& name, LLXMLNodeList &results);
     void findName(LLStringTableEntry* name, LLXMLNodeList &results);
-    void findID(const LLString& id, LLXMLNodeList &results);
+    void findID(const std::string& id, LLXMLNodeList &results);
 
 
-    virtual LLXMLNodePtr createChild(const LLString& name, BOOL is_attribute);
+    virtual LLXMLNodePtr createChild(const char* name, BOOL is_attribute);
     virtual LLXMLNodePtr createChild(LLStringTableEntry* name, BOOL is_attribute);
 
 
@@ -170,49 +170,49 @@ public:
     U32 getLongValue(U32 expected_length, U64 *array, Encoding encoding = ENCODING_DEFAULT);
     U32 getFloatValue(U32 expected_length, F32 *array, Encoding encoding = ENCODING_DEFAULT);
     U32 getDoubleValue(U32 expected_length, F64 *array, Encoding encoding = ENCODING_DEFAULT);
-    U32 getStringValue(U32 expected_length, LLString *array);
+    U32 getStringValue(U32 expected_length, std::string *array);
     U32 getUUIDValue(U32 expected_length, LLUUID *array);
     U32 getNodeRefValue(U32 expected_length, LLXMLNode **array);
 
-	BOOL hasAttribute(const LLString& name );
+	BOOL hasAttribute(const char* name );
 
-	BOOL getAttributeBOOL(const LLString& name, BOOL& value );
-	BOOL getAttributeU8(const LLString& name, U8& value );
-	BOOL getAttributeS8(const LLString& name, S8& value );
-	BOOL getAttributeU16(const LLString& name, U16& value );
-	BOOL getAttributeS16(const LLString& name, S16& value );
-	BOOL getAttributeU32(const LLString& name, U32& value );
-	BOOL getAttributeS32(const LLString& name, S32& value );
-	BOOL getAttributeF32(const LLString& name, F32& value );
-	BOOL getAttributeF64(const LLString& name, F64& value );
-	BOOL getAttributeColor(const LLString& name, LLColor4& value );
-	BOOL getAttributeColor4(const LLString& name, LLColor4& value );
-	BOOL getAttributeColor4U(const LLString& name, LLColor4U& value );
-	BOOL getAttributeVector3(const LLString& name, LLVector3& value );
-	BOOL getAttributeVector3d(const LLString& name, LLVector3d& value );
-	BOOL getAttributeQuat(const LLString& name, LLQuaternion& value );
-	BOOL getAttributeUUID(const LLString& name, LLUUID& value );
-	BOOL getAttributeString(const LLString& name, LLString& value );
+	BOOL getAttributeBOOL(const char* name, BOOL& value );
+	BOOL getAttributeU8(const char* name, U8& value );
+	BOOL getAttributeS8(const char* name, S8& value );
+	BOOL getAttributeU16(const char* name, U16& value );
+	BOOL getAttributeS16(const char* name, S16& value );
+	BOOL getAttributeU32(const char* name, U32& value );
+	BOOL getAttributeS32(const char* name, S32& value );
+	BOOL getAttributeF32(const char* name, F32& value );
+	BOOL getAttributeF64(const char* name, F64& value );
+	BOOL getAttributeColor(const char* name, LLColor4& value );
+	BOOL getAttributeColor4(const char* name, LLColor4& value );
+	BOOL getAttributeColor4U(const char* name, LLColor4U& value );
+	BOOL getAttributeVector3(const char* name, LLVector3& value );
+	BOOL getAttributeVector3d(const char* name, LLVector3d& value );
+	BOOL getAttributeQuat(const char* name, LLQuaternion& value );
+	BOOL getAttributeUUID(const char* name, LLUUID& value );
+	BOOL getAttributeString(const char* name, std::string& value );
 
     const ValueType& getType() const { return mType; }
     U32 getLength() const { return mLength; }
     U32 getPrecision() const { return mPrecision; }
-    const LLString& getValue() const { return mValue; }
-	LLString getTextContents() const;
+    const std::string& getValue() const { return mValue; }
+	std::string getTextContents() const;
     const LLStringTableEntry* getName() const { return mName; }
 	BOOL hasName(const char* name) const { return mName == gStringTable.checkStringEntry(name); }
-	BOOL hasName(LLString name) const { return mName == gStringTable.checkStringEntry(name.c_str()); }
-    const LLString& getID() const { return mID; }
+	BOOL hasName(const std::string& name) const { return mName == gStringTable.checkStringEntry(name.c_str()); }
+    const std::string& getID() const { return mID; }
 
     U32 getChildCount() const;
     // getChild returns a Null LLXMLNode (not a NULL pointer) if there is no such child.
     // This child has no value so any getTYPEValue() calls on it will return 0.
-    bool getChild(const LLString& name, LLXMLNodePtr& node, BOOL use_default_if_missing = TRUE);
+    bool getChild(const char* name, LLXMLNodePtr& node, BOOL use_default_if_missing = TRUE);
     bool getChild(const LLStringTableEntry* name, LLXMLNodePtr& node, BOOL use_default_if_missing = TRUE);
-    void getChildren(const LLString& name, LLXMLNodeList &children, BOOL use_default_if_missing = TRUE) const;
+    void getChildren(const char* name, LLXMLNodeList &children, BOOL use_default_if_missing = TRUE) const;
     void getChildren(const LLStringTableEntry* name, LLXMLNodeList &children, BOOL use_default_if_missing = TRUE) const;
 
-	bool getAttribute(const LLString& name, LLXMLNodePtr& node, BOOL use_default_if_missing = TRUE);
+	bool getAttribute(const char* name, LLXMLNodePtr& node, BOOL use_default_if_missing = TRUE);
 	bool getAttribute(const LLStringTableEntry* name, LLXMLNodePtr& node, BOOL use_default_if_missing = TRUE);
 
 	// The following skip over attributes
@@ -223,7 +223,7 @@ public:
 
 	// Setters
 
-	bool setAttributeString(const LLString& attr, const LLString& value);
+	bool setAttributeString(const char* attr, const std::string& value);
 	
 	void setBoolValue(const BOOL value)	{ setBoolValue(1, &value); }
 	void setByteValue(const U8 value, Encoding encoding = ENCODING_DEFAULT) { setByteValue(1, &value, encoding); }
@@ -232,7 +232,7 @@ public:
 	void setLongValue(const U64 value, Encoding encoding = ENCODING_DEFAULT) { setLongValue(1, &value, encoding); }
 	void setFloatValue(const F32 value, Encoding encoding = ENCODING_DEFAULT, U32 precision = 0) { setFloatValue(1, &value, encoding); }
 	void setDoubleValue(const F64 value, Encoding encoding = ENCODING_DEFAULT, U32 precision = 0) { setDoubleValue(1, &value, encoding); }
-	void setStringValue(const LLString value) { setStringValue(1, &value); }
+	void setStringValue(const std::string& value) { setStringValue(1, &value); }
 	void setUUIDValue(const LLUUID value) { setUUIDValue(1, &value); }
 	void setNodeRefValue(const LLXMLNode *value) { setNodeRefValue(1, &value); }
 
@@ -243,16 +243,16 @@ public:
 	void setLongValue(U32 length, const U64 *array, Encoding encoding = ENCODING_DEFAULT);
 	void setFloatValue(U32 length, const F32 *array, Encoding encoding = ENCODING_DEFAULT, U32 precision = 0);
 	void setDoubleValue(U32 length, const F64 *array, Encoding encoding = ENCODING_DEFAULT, U32 precision = 0);
-	void setStringValue(U32 length, const LLString *array);
+	void setStringValue(U32 length, const std::string *array);
 	void setUUIDValue(U32 length, const LLUUID *array);
 	void setNodeRefValue(U32 length, const LLXMLNode **array);
-	void setValue(const LLString& value);
-	void setName(const LLString& name);
+	void setValue(const std::string& value);
+	void setName(const std::string& name);
 	void setName(LLStringTableEntry* name);
 
 	// Escapes " (quot) ' (apos) & (amp) < (lt) > (gt)
 	// TomY TODO: Make this private
-	static LLString escapeXML(const LLString& xml);
+	static std::string escapeXML(const std::string& xml);
 
 	// Set the default node corresponding to this default node
 	void setDefault(LLXMLNode *default_node);
@@ -265,20 +265,20 @@ public:
 	// Delete any child nodes that aren't among the tree's children, recursive
 	void scrubToTree(LLXMLNode *tree);
 
-	BOOL deleteChildren(const LLString& name);
+	BOOL deleteChildren(const std::string& name);
 	BOOL deleteChildren(LLStringTableEntry* name);
 	void setAttributes(ValueType type, U32 precision, Encoding encoding, U32 length);
-	void appendValue(const LLString& value);
+// 	void appendValue(const std::string& value); // Unused
 
 	// Unit Testing
 	void createUnitTest(S32 max_num_children);
-	BOOL performUnitTest(LLString &error_buffer);
+	BOOL performUnitTest(std::string &error_buffer);
 
 protected:
 	BOOL removeChild(LLXMLNode* child);
 
 public:
-	LLString mID;				// The ID attribute of this node
+	std::string mID;				// The ID attribute of this node
 
 	XML_Parser *mParser;		// Temporary pointer while loading
 
@@ -301,7 +301,7 @@ public:
 	
 protected:
 	LLStringTableEntry *mName;		// The name of this node
-	LLString mValue;			// The value of this node (use getters/setters only)
+	std::string mValue;			// The value of this node (use getters/setters only)
 
 	LLXMLNodePtr mDefault;		// Mirror node in the default tree
 

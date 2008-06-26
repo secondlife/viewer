@@ -78,7 +78,7 @@ class LLVFS
 {
 public:
 	// Pass 0 to not presize
-	LLVFS(const char *index_filename, const char *data_filename, const BOOL read_only, const U32 presize, const BOOL remove_after_crash);
+	LLVFS(const std::string& index_filename, const std::string& data_filename, const BOOL read_only, const U32 presize, const BOOL remove_after_crash);
 	~LLVFS();
 
 	BOOL isValid() const			{ return (VFSVALID_OK == mValid); }
@@ -131,8 +131,8 @@ protected:
 	void sync(LLVFSFileBlock *block, BOOL remove = FALSE);
 	void presizeDataFile(const U32 size);
 
-	static LLFILE *openAndLock(const char *filename, const char *mode, BOOL read_lock);
-	static void unlockAndClose(LLFILE *fp);
+	static LLFILE *openAndLock(const std::string& filename, const char* mode, BOOL read_lock);
+	static void unlockAndClose(FILE *fp);
 	
 	// Can initiate LRU-based file removal to make space.
 	// The immune file block will not be removed.
@@ -158,8 +158,8 @@ protected:
 
 	std::deque<S32> mIndexHoles;
 
-	char *mIndexFilename;
-	char *mDataFilename;
+	std::string mIndexFilename;
+	std::string mDataFilename;
 	BOOL mReadOnly;
 
 	EVFSValid mValid;

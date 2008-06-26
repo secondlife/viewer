@@ -232,7 +232,7 @@ struct LLVFSFileBlock_less
 const S32 LLVFSFileBlock::SERIAL_SIZE = 34;
      
     
-LLVFS::LLVFS(const char *index_filename, const char *data_filename, const BOOL read_only, const U32 presize, const BOOL remove_after_crash)
+LLVFS::LLVFS(const std::string& index_filename, const std::string& data_filename, const BOOL read_only, const U32 presize, const BOOL remove_after_crash)
 :	mRemoveAfterCrash(remove_after_crash)
 {
 	mDataMutex = new LLMutex(0);
@@ -244,15 +244,8 @@ LLVFS::LLVFS(const char *index_filename, const char *data_filename, const BOOL r
 	}
 	mValid = VFSVALID_OK;
 	mReadOnly = read_only;
-	mIndexFilename = new char[strlen(index_filename) + 1];	/* Flawfinder: ignore */
-	mDataFilename = new char[strlen(data_filename) + 1];	/* Flawfinder: ignore */
-	if (mIndexFilename == NULL || mDataFilename  == NULL)
-	{
-		LL_ERRS("VFS") << "Memory Allocation Failure" << LL_ENDL;
-		return;
-	}
-	strcpy(mIndexFilename, index_filename);	/* Flawfinder: ignore */
-	strcpy(mDataFilename, data_filename);	/* Flawfinder: ignore */
+	mIndexFilename = index_filename;
+	mDataFilename = data_filename;
     
 	const char *file_mode = mReadOnly ? "rb" : "r+b";
     
@@ -276,23 +269,13 @@ LLVFS::LLVFS(const char *index_filename, const char *data_filename, const BOOL r
 		{
 			LL_WARNS("VFS") << "Can't open VFS data file " << mDataFilename << " attempting to use alternate" << LL_ENDL;
     
-			char *temp_index = new char[strlen(mIndexFilename) + 10];	/* Flawfinder: ignore */
-			if (!temp_index)
-			{
-				LL_ERRS("VFS") << "Out of the memory in LLVFS::LLVFS()" << LL_ENDL;
-				return;
-			}
-			char *temp_data = new char[strlen(mDataFilename) + 10];	/* Flawfinder: ignore */
-			if (!temp_data)
-			{
-				LL_ERRS("VFS") << "Out of the memory in LLVFS::LLVFS()" << LL_ENDL;
-				return;
-			}
+			std::string temp_index;
+			std::string temp_data;
 
 			for (U32 count = 0; count < 256; count++)
 			{
-				sprintf(temp_index, "%s.%u", mIndexFilename, count);	/* Flawfinder: ignore */
-				sprintf(temp_data, "%s.%u", mDataFilename, count);	/* Flawfinder: ignore */
+				temp_index = mIndexFilename + llformat(".%u",count);
+				temp_data = mDataFilename + llformat(".%u", count);
     
 				// try just opening, then creating, each alternate
 				if ((mDataFP = openAndLock(temp_data, "r+b", FALSE)))
@@ -312,14 +295,9 @@ LLVFS::LLVFS(const char *index_filename, const char *data_filename, const BOOL r
 			{
 				LL_WARNS("VFS") << "Couldn't open vfs data file after trying many alternates" << LL_ENDL;
 				mValid = VFSVALID_BAD_CANNOT_CREATE;
-				delete[] temp_index;
-				delete[] temp_data;
 				return;
 			}
 
-			delete[] mIndexFilename;
-			delete[] mDataFilename;
-    
 			mIndexFilename = temp_index;
 			mDataFilename = temp_data;
 		}
@@ -335,13 +313,7 @@ LLVFS::LLVFS(const char *index_filename, const char *data_filename, const BOOL r
 	if (!mReadOnly && mRemoveAfterCrash)
 	{
 		llstat marker_info;
-		char* marker = new char[strlen(mDataFilename) + strlen(".open") + 1];	/* Flawfinder: ignore */
-		if (!marker )
-		{
-			LL_ERRS("VFS") << "Out of memory in LLVFS::LLVFS()" << LL_ENDL;
-			return;
-		}
-		sprintf(marker, "%s.open", mDataFilename);	/* Flawfinder: ignore */
+		std::string marker = mDataFilename + ".open";
 		if (!LLFile::stat(marker, &marker_info))
 		{
 			// marker exists, kill the lock and the VFS files
@@ -366,8 +338,6 @@ LLVFS::LLVFS(const char *index_filename, const char *data_filename, const BOOL r
 				presizeDataFile(presize);
 			}
 		}
-		delete [] marker;
-		marker = NULL;
 	}
 
 	// determine the real file size
@@ -590,21 +560,13 @@ LLVFS::LLVFS(const char *index_filename, const char *data_filename, const BOOL r
 	// Open marker file to look for bad shutdowns
 	if (!mReadOnly && mRemoveAfterCrash)
 	{
-		char* marker = new char[strlen(mDataFilename) + strlen(".open") + 1];
-		if (!marker)
-		{
-			LL_ERRS("VFS") << "Out of memory in LLVFS::LLVFS()" << LL_ENDL;
-			return;
-		}
-		sprintf(marker, "%s.open", mDataFilename);	/* Flawfinder: ignore */
+		std::string marker = mDataFilename + ".open";
 		LLFILE* marker_fp = LLFile::fopen(marker, "w");	/* Flawfinder: ignore */
 		if (marker_fp)
 		{
 			fclose(marker_fp);
 			marker_fp = NULL;
 		}
-		delete [] marker;
-		marker = NULL;
 	}
 
 	LL_WARNS("VFS") << "Using index file " << mIndexFilename << LL_ENDL;
@@ -640,22 +602,9 @@ LLVFS::~LLVFS()
 	// Remove marker file
 	if (!mReadOnly && mRemoveAfterCrash)
 	{
-		char* marker_file = new char[strlen(mDataFilename) + strlen(".open") + 1];
-		if (marker_file == NULL)
-		{
-			LL_ERRS("VFS") << "Memory Allocation Failure" << LL_ENDL;
-			return;
-		}
-		sprintf(marker_file, "%s.open", mDataFilename);	/* Flawfinder: ignore */
-		LLFile::remove(marker_file);
-		delete [] marker_file;
-		marker_file = NULL;
+		std::string marker = mDataFilename + ".open";
+		LLFile::remove(marker);
 	}
-
-	delete[] mIndexFilename;
-	mIndexFilename = NULL;
-	delete[] mDataFilename;
-	mDataFilename = NULL;
 
 	delete mDataMutex;
 }
@@ -2042,9 +1991,9 @@ void LLVFS::dumpStatistics()
 }
 
 // Debug Only!
-LLString get_extension(LLAssetType::EType type)
+std::string get_extension(LLAssetType::EType type)
 {
-	LLString extension;
+	std::string extension;
 	switch(type)
 	{
 	  case LLAssetType::AT_TEXTURE:
@@ -2085,7 +2034,7 @@ void LLVFS::listFiles()
 		if (length != BLOCK_LENGTH_INVALID && size > 0)
 		{
 			LLUUID id = file_spec.mFileID;
-			LLString extension = get_extension(file_spec.mFileType);
+			std::string extension = get_extension(file_spec.mFileType);
 			llinfos << " File: " << id
 					<< " Type: " << LLAssetType::getDesc(file_spec.mFileType)
 					<< " Size: " << size
@@ -2117,8 +2066,8 @@ void LLVFS::dumpFiles()
 			getData(id, type, buffer, 0, size);
 			lockData();
 			
-			LLString extension = get_extension(type);
-			LLString filename = id.asString() + extension;
+			std::string extension = get_extension(type);
+			std::string filename = id.asString() + extension;
 			llinfos << " Writing " << filename << llendl;
 			apr_file_t* file = ll_apr_file_open(filename, LL_APR_WB);
 			ll_apr_file_write(file, buffer, size);
@@ -2135,7 +2084,7 @@ void LLVFS::dumpFiles()
 //============================================================================
 
 // static
-LLFILE *LLVFS::openAndLock(const char *filename, const char *mode, BOOL read_lock)
+LLFILE *LLVFS::openAndLock(const std::string& filename, const char* mode, BOOL read_lock)
 {
 #if LL_WINDOWS
     	
@@ -2153,7 +2102,7 @@ LLFILE *LLVFS::openAndLock(const char *filename, const char *mode, BOOL read_loc
         fl.l_start = 0;
         fl.l_len = 1;
 #else // !LL_SOLARIS
-	if (strstr(mode, "w"))
+	if (strchr(mode, 'w') != NULL)
 	{
 		fp = LLFile::fopen(filename, "rb");	/* Flawfinder: ignore */
 		if (fp)

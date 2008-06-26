@@ -87,8 +87,8 @@ static LLRegisterWidget<LLLineEditor> r1("line_editor");
 // Member functions
 //
  
-LLLineEditor::LLLineEditor(const LLString& name, const LLRect& rect,
-						   const LLString& default_text, const LLFontGL* font,
+LLLineEditor::LLLineEditor(const std::string& name, const LLRect& rect,
+						   const std::string& default_text, const LLFontGL* font,
 						   S32 max_length_bytes,
 						   void (*commit_callback)(LLUICtrl* caller, void* user_data ),
 						   void (*keystroke_callback)(LLLineEditor* caller, void* user_data ),
@@ -166,7 +166,7 @@ LLLineEditor::LLLineEditor(const LLString& name, const LLRect& rect,
 	// Scalable UI somehow made these rectangles off-by-one.
 	// I don't know why. JC
 	LLRect border_rect(0, getRect().getHeight()-1, getRect().getWidth()-1, 0);
-	mBorder = new LLViewBorder( "line ed border", border_rect, border_bevel, border_style, mBorderThickness );
+	mBorder = new LLViewBorder( std::string("line ed border"), border_rect, border_bevel, border_style, mBorderThickness );
 	addChild( mBorder );
 	mBorder->setFollows(FOLLOWS_LEFT|FOLLOWS_RIGHT|FOLLOWS_TOP|FOLLOWS_BOTTOM);
 
@@ -298,7 +298,7 @@ void LLLineEditor::setText(const LLStringExplicit &new_text)
 	// also consider entire string selected when mSelectAllonFocusReceived is set on an empty, focused line editor
 	all_selected = all_selected || (len == 0 && hasFocus() && mSelectAllonFocusReceived);
 
-	LLString truncated_utf8 = new_text;
+	std::string truncated_utf8 = new_text;
 	if (truncated_utf8.size() > (U32)mMaxLengthBytes)
 	{	
 		truncated_utf8 = utf8str_truncate(new_text, mMaxLengthBytes);
@@ -959,9 +959,9 @@ void LLLineEditor::paste()
 
 			// Clean up string (replace tabs and returns and remove characters that our fonts don't support.)
 			LLWString clean_string(paste);
-			LLWString::replaceTabsWithSpaces(clean_string, 1);
+			LLWStringUtil::replaceTabsWithSpaces(clean_string, 1);
 			//clean_string = wstring_detabify(paste, 1);
-			LLWString::replaceChar(clean_string, '\n', mReplaceNewlinesWithSpaces ? ' ' : 182); // 182 == paragraph character
+			LLWStringUtil::replaceChar(clean_string, '\n', mReplaceNewlinesWithSpaces ? ' ' : 182); // 182 == paragraph character
 
 			// Insert the string
 
@@ -1395,11 +1395,11 @@ void LLLineEditor::draw()
 {
 	S32 text_len = mText.length();
 
-	LLString saved_text;
+	std::string saved_text;
 	if (mDrawAsterixes)
 	{
 		saved_text = mText.getString();
-		LLString text;
+		std::string text;
 		for (S32 i = 0; i < mText.length(); i++)
 		{
 			text += '*';
@@ -1594,7 +1594,7 @@ void LLLineEditor::draw()
 				S32 cursor_right = cursor_left + UI_LINEEDITOR_CURSOR_THICKNESS;
 				if (LL_KIM_OVERWRITE == gKeyboard->getInsertMode() && !hasSelection())
 				{
-					const LLWString space(utf8str_to_wstring(LLString(" ")));
+					const LLWString space(utf8str_to_wstring(std::string(" ")));
 					S32 wswidth = mGLFont->getWidth(space.c_str());
 					S32 width = mGLFont->getWidth(mText.getWString().c_str(), getCursor(), 1) + 1;
 					cursor_right = cursor_left + llmax(wswidth, width);
@@ -1771,7 +1771,7 @@ BOOL LLLineEditor::prevalidateFloat(const LLWString &str)
 
 	BOOL success = TRUE;
 	LLWString trimmed = str;
-	LLWString::trim(trimmed);
+	LLWStringUtil::trim(trimmed);
 	S32 len = trimmed.length();
 	if( 0 < len )
 	{
@@ -1803,7 +1803,7 @@ BOOL LLLineEditor::prevalidateFloat(const LLWString &str)
 BOOL LLLineEditor::isPartOfWord(llwchar c) { return (c == '_') || isalnum(c); }
 
 // static
-BOOL LLLineEditor::postvalidateFloat(const LLString &str)
+BOOL LLLineEditor::postvalidateFloat(const std::string &str)
 {
 	LLLocale locale(LLLocale::USER_LOCALE);
 
@@ -1812,7 +1812,7 @@ BOOL LLLineEditor::postvalidateFloat(const LLString &str)
 	BOOL has_digit = FALSE;
 
 	LLWString trimmed = utf8str_to_wstring(str);
-	LLWString::trim(trimmed);
+	LLWStringUtil::trim(trimmed);
 	S32 len = trimmed.length();
 	if( 0 < len )
 	{
@@ -1872,7 +1872,7 @@ BOOL LLLineEditor::prevalidateInt(const LLWString &str)
 
 	BOOL success = TRUE;
 	LLWString trimmed = str;
-	LLWString::trim(trimmed);
+	LLWStringUtil::trim(trimmed);
 	S32 len = trimmed.length();
 	if( 0 < len )
 	{
@@ -1903,7 +1903,7 @@ BOOL LLLineEditor::prevalidatePositiveS32(const LLWString &str)
 	LLLocale locale(LLLocale::USER_LOCALE);
 
 	LLWString trimmed = str;
-	LLWString::trim(trimmed);
+	LLWStringUtil::trim(trimmed);
 	S32 len = trimmed.length();
 	BOOL success = TRUE;
 	if(0 < len)
@@ -1937,7 +1937,7 @@ BOOL LLLineEditor::prevalidateNonNegativeS32(const LLWString &str)
 	LLLocale locale(LLLocale::USER_LOCALE);
 
 	LLWString trimmed = str;
-	LLWString::trim(trimmed);
+	LLWStringUtil::trim(trimmed);
 	S32 len = trimmed.length();
 	BOOL success = TRUE;
 	if(0 < len)
@@ -2092,7 +2092,7 @@ LLXMLNodePtr LLLineEditor::getXML(bool save_children) const
 
 	if (mBorder)
 	{
-		LLString bevel;
+		std::string bevel;
 		switch(mBorder->getBevel())
 		{
 		default:
@@ -2103,7 +2103,7 @@ LLXMLNodePtr LLLineEditor::getXML(bool save_children) const
 		}
 		node->createChild("bevel_style", TRUE)->setStringValue(bevel);
 
-		LLString style;
+		std::string style;
 		switch(mBorder->getStyle())
 		{
 		default:
@@ -2140,7 +2140,7 @@ LLXMLNodePtr LLLineEditor::getXML(bool save_children) const
 // static
 LLView* LLLineEditor::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory)
 {
-	LLString name("line_editor");
+	std::string name("line_editor");
 	node->getAttributeString("name", name);
 
 	LLRect rect;
@@ -2151,15 +2151,15 @@ LLView* LLLineEditor::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory
 
 	LLFontGL* font = LLView::selectFont(node);
 
-	LLString text = node->getTextContents().substr(0, max_text_length - 1);
+	std::string text = node->getTextContents().substr(0, max_text_length - 1);
 
 	LLViewBorder::EBevel bevel_style = LLViewBorder::BEVEL_IN;
 	LLViewBorder::getBevelFromAttribute(node, bevel_style);
 	
 	LLViewBorder::EStyle border_style = LLViewBorder::STYLE_LINE;
-	LLString border_string;
+	std::string border_string;
 	node->getAttributeString("border_style", border_string);
-	LLString::toLower(border_string);
+	LLStringUtil::toLower(border_string);
 
 	if (border_string == "texture")
 	{
@@ -2185,7 +2185,7 @@ LLView* LLLineEditor::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory
 								border_style,
 								border_thickness);
 
-	LLString label;
+	std::string label;
 	if(node->getAttributeString("label", label))
 	{
 		line_editor->setLabel(label);
@@ -2215,10 +2215,10 @@ LLView* LLLineEditor::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory
 		line_editor->setSelectAllonFocusReceived(selectall);
 	}
 
-	LLString prevalidate;
+	std::string prevalidate;
 	if(node->getAttributeString("prevalidate", prevalidate))
 	{
-		LLString::toLower(prevalidate);
+		LLStringUtil::toLower(prevalidate);
 
 		if ("ascii" == prevalidate)
 		{
@@ -2270,11 +2270,11 @@ void LLLineEditor::cleanupClass()
 }
 
 /* static */ 
-LLPointer<LLUIImage> LLLineEditor::parseImage(LLString name, LLXMLNodePtr from, LLPointer<LLUIImage> def)
+LLPointer<LLUIImage> LLLineEditor::parseImage(std::string name, LLXMLNodePtr from, LLPointer<LLUIImage> def)
 {
-	LLString xml_name;
-	if (from->hasAttribute(name)) from->getAttributeString(name, xml_name);
-	if (xml_name == LLString::null) return def;
+	std::string xml_name;
+	if (from->hasAttribute(name.c_str())) from->getAttributeString(name.c_str(), xml_name);
+	if (xml_name == LLStringUtil::null) return def;
 	LLPointer<LLUIImage> image = LLUI::getUIImage(xml_name);
 	return image.isNull() ? def : image;
 }
@@ -2282,7 +2282,7 @@ LLPointer<LLUIImage> LLLineEditor::parseImage(LLString name, LLXMLNodePtr from, 
 void LLLineEditor::setColorParameters(LLXMLNodePtr node)
 {
 	// overrides default image if supplied.
-	mImage = parseImage("image", node, mImage);
+	mImage = parseImage(std::string("image"), node, mImage);
 
 	LLColor4 color;
 	if (LLUICtrlFactory::getAttributeColor(node,"cursor_color", color)) 
@@ -2315,13 +2315,13 @@ void LLLineEditor::setColorParameters(LLXMLNodePtr node)
 	}
 }
 
-BOOL LLLineEditor::setTextArg( const LLString& key, const LLStringExplicit& text )
+BOOL LLLineEditor::setTextArg( const std::string& key, const LLStringExplicit& text )
 {
 	mText.setArg(key, text);
 	return TRUE;
 }
 
-BOOL LLLineEditor::setLabelArg( const LLString& key, const LLStringExplicit& text )
+BOOL LLLineEditor::setLabelArg( const std::string& key, const LLStringExplicit& text )
 {
 	mLabel.setArg(key, text);
 	return TRUE;
@@ -2555,25 +2555,25 @@ void LLLineEditor::setReplaceNewlinesWithSpaces(BOOL replace)
 static LLRegisterWidget<LLSearchEditor> r2("search_editor");
 
 
-LLSearchEditor::LLSearchEditor(const LLString& name, 
+LLSearchEditor::LLSearchEditor(const std::string& name, 
 		const LLRect& rect,
 		S32 max_length_bytes,
-		void (*search_callback)(const LLString& search_string, void* user_data),
+		void (*search_callback)(const std::string& search_string, void* user_data),
 		void* userdata)
 	: 
 		LLUICtrl(name, rect, TRUE, NULL, userdata),
 		mSearchCallback(search_callback)
 {
 	LLRect search_edit_rect(0, getRect().getHeight(), getRect().getWidth(), 0);
-	mSearchEdit = new LLLineEditor("search edit",
-			search_edit_rect,
-			LLString::null,
-			NULL,
-			max_length_bytes,
-			NULL,
-			onSearchEdit,
-			NULL,
-			this);
+	mSearchEdit = new LLLineEditor(std::string("search edit"),
+								   search_edit_rect,
+								   LLStringUtil::null,
+								   NULL,
+								   max_length_bytes,
+								   NULL,
+								   onSearchEdit,
+								   NULL,
+								   this);
 
 	mSearchEdit->setFollowsAll();
 	mSearchEdit->setSelectAllonFocusReceived(TRUE);
@@ -2582,15 +2582,15 @@ LLSearchEditor::LLSearchEditor(const LLString& name,
 
 	S32 btn_width = rect.getHeight(); // button is square, and as tall as search editor
 	LLRect clear_btn_rect(rect.getWidth() - btn_width, rect.getHeight(), rect.getWidth(), 0);
-	mClearSearchButton = new LLButton("clear search", 
+	mClearSearchButton = new LLButton(std::string("clear search"), 
 								clear_btn_rect, 
-								"icn_clear_lineeditor.tga",
-								"UIImgBtnCloseInactiveUUID",
-								LLString::null,
+								std::string("icn_clear_lineeditor.tga"),
+								std::string("UIImgBtnCloseInactiveUUID"),
+								LLStringUtil::null,
 								onClearSearch,
 								this,
 								NULL,
-								LLString::null);
+								LLStringUtil::null);
 	mClearSearchButton->setFollowsRight();
 	mClearSearchButton->setFollowsTop();
 	mClearSearchButton->setImageColor(LLUI::sColorsGroup->getColor("TextFgTentativeColor"));
@@ -2614,13 +2614,13 @@ LLSD LLSearchEditor::getValue() const
 }
 
 //virtual
-BOOL LLSearchEditor::setTextArg( const LLString& key, const LLStringExplicit& text )
+BOOL LLSearchEditor::setTextArg( const std::string& key, const LLStringExplicit& text )
 {
 	return mSearchEdit->setTextArg(key, text);
 }
 
 //virtual
-BOOL LLSearchEditor::setLabelArg( const LLString& key, const LLStringExplicit& text )
+BOOL LLSearchEditor::setLabelArg( const std::string& key, const LLStringExplicit& text )
 {
 	return mSearchEdit->setLabelArg(key, text);
 }
@@ -2657,17 +2657,17 @@ void LLSearchEditor::onClearSearch(void* user_data)
 {
 	LLSearchEditor* search_editor = (LLSearchEditor*)user_data;
 
-	search_editor->setText(LLString::null);
+	search_editor->setText(LLStringUtil::null);
 	if (search_editor->mSearchCallback)
 	{
-		search_editor->mSearchCallback(LLString::null, search_editor->mCallbackUserData);
+		search_editor->mSearchCallback(LLStringUtil::null, search_editor->mCallbackUserData);
 	}
 }
 
 // static
 LLView* LLSearchEditor::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory)
 {
-	LLString name("search_editor");
+	std::string name("search_editor");
 	node->getAttributeString("name", name);
 
 	LLRect rect;
@@ -2676,14 +2676,14 @@ LLView* LLSearchEditor::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFacto
 	S32 max_text_length = 128;
 	node->getAttributeS32("max_length", max_text_length);
 
-	LLString text = node->getValue().substr(0, max_text_length - 1);
+	std::string text = node->getValue().substr(0, max_text_length - 1);
 
 	LLSearchEditor* search_editor = new LLSearchEditor(name,
 								rect, 
 								max_text_length,
 								NULL, NULL);
 
-	LLString label;
+	std::string label;
 	if(node->getAttributeString("label", label))
 	{
 		search_editor->mSearchEdit->setLabel(label);

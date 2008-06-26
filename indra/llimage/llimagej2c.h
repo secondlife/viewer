@@ -58,7 +58,7 @@ public:
 	BOOL encode(const LLImageRaw *raw_imagep, const char* comment_text, F32 encode_time=0.0);
 
 	BOOL validate(U8 *data, U32 file_size);
-	BOOL loadAndValidate(const LLString &filename);
+	BOOL loadAndValidate(const std::string &filename);
 
 	// Encode accessors
 	void setReversible(const BOOL reversible); // Use non-lossy?

@@ -69,7 +69,7 @@ public:
 	virtual BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleDoubleClick( S32 x, S32 y, MASK mask );
 	virtual BOOL	handleHover( S32 x, S32 y, MASK mask );
-	virtual BOOL	handleToolTip( S32 x, S32 y, LLString& msg, LLRect* sticky_rect_screen );
+	virtual BOOL	handleToolTip( S32 x, S32 y, std::string& msg, LLRect* sticky_rect_screen );
 
 	bool			checkItemHit(S32 x, S32 y, LLItemInfo& item, LLUUID* id, bool track);
 	void			handleClick(S32 x, S32 y, MASK mask, S32* hit_type, LLUUID* id);
@@ -95,9 +95,9 @@ public:
 
 	// Draw the tracking indicator, doing the right thing if it's outside
 	// the view area.
-	void			drawTracking( const LLVector3d& pos_global, 
-								  const LLColor4& color,
-								  BOOL draw_arrow = TRUE, LLString label = LLString(), LLString tooltip = "", S32 vert_offset = 0);
+	void			drawTracking( const LLVector3d& pos_global, const LLColor4& color, BOOL draw_arrow = TRUE,
+								  const std::string& label = std::string(), const std::string& tooltip = std::string(),
+								  S32 vert_offset = 0);
 	static void		drawTrackingArrow(const LLRect& view_rect, S32 x, S32 y, 
 									  const LLColor4& color,
 									  S32 arrow_size = DEFAULT_TRACKING_ARROW_SIZE);
@@ -188,7 +188,7 @@ public:
 	typedef std::vector<U64> handle_list_t;
 	handle_list_t mVisibleRegions; // set every frame
 
-	static std::map<std::string,LLString> sStringsMap;
+	static std::map<std::string,std::string> sStringsMap;
 };
 
 #endif

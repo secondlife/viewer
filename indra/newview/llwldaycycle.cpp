@@ -48,17 +48,17 @@ LLWLDayCycle::~LLWLDayCycle()
 {
 }
 
-void LLWLDayCycle::loadDayCycle(const LLString & fileName)
+void LLWLDayCycle::loadDayCycle(const std::string & fileName)
 {
 	// clear the first few things
 	mTimeMap.clear();
 
 	// now load the file
-	LLString pathName(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, 
+	std::string pathName(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, 
 		"windlight/days", fileName));
 	llinfos << "Loading DayCycle settings from " << pathName << llendl;
 	
-	llifstream day_cycle_xml(pathName.c_str());
+	llifstream day_cycle_xml(pathName);
 	if (day_cycle_xml.is_open())
 	{
 		// load and parse it
@@ -82,7 +82,7 @@ void LLWLDayCycle::loadDayCycle(const LLString & fileName)
 			if(!success)
 			{
 				// alert the user
-				LLString::format_map_t args;
+				LLStringUtil::format_map_t args;
 				args["[SKY]"] = day_data[i][1].asString();
 				gViewerWindow->alertXml("WLMissingSky", args);
 				continue;
@@ -96,11 +96,11 @@ void LLWLDayCycle::loadDayCycle(const LLString & fileName)
 	}
 }
 
-void LLWLDayCycle::saveDayCycle(const LLString & fileName)
+void LLWLDayCycle::saveDayCycle(const std::string & fileName)
 {
 	LLSD day_data(LLSD::emptyArray());
 
-	LLString pathName(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "windlight/days", fileName));
+	std::string pathName(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "windlight/days", fileName));
 	//llinfos << "Saving WindLight settings to " << pathName << llendl;
 
 	for(std::map<F32, std::string>::const_iterator mIt = mTimeMap.begin();
@@ -113,11 +113,10 @@ void LLWLDayCycle::saveDayCycle(const LLString & fileName)
 		day_data.append(key);
 	}
 
-	std::ofstream day_cycle_xml(pathName.c_str());
+	llofstream day_cycle_xml(pathName);
 	LLPointer<LLSDFormatter> formatter = new LLSDXMLFormatter();
 	formatter->format(day_data, day_cycle_xml, LLSDFormatter::OPTIONS_PRETTY);
-
-	//day_cycle_xml.close();
+	day_cycle_xml.close();
 }
 
 
@@ -127,7 +126,7 @@ void LLWLDayCycle::clearKeys()
 }
 
 
-bool LLWLDayCycle::addKey(F32 newTime, const LLString & paramName)
+bool LLWLDayCycle::addKey(F32 newTime, const std::string & paramName)
 {
 	// no adding negative time
 	if(newTime < 0) 
@@ -160,7 +159,7 @@ bool LLWLDayCycle::changeKeyTime(F32 oldTime, F32 newTime)
 	return addKey(newTime, name);
 }
 
-bool LLWLDayCycle::changeKeyParam(F32 time, const LLString & name)
+bool LLWLDayCycle::changeKeyParam(F32 time, const std::string & name)
 {
 	// just remove and add back
 	// make sure param exists
@@ -189,7 +188,7 @@ bool LLWLDayCycle::removeKey(F32 time)
 	return false;
 }
 
-bool LLWLDayCycle::getKey(const LLString & name, F32& key)
+bool LLWLDayCycle::getKey(const std::string & name, F32& key)
 {
 	// scroll through till we find the 
 	std::map<F32, std::string>::iterator mIt = mTimeMap.begin();
@@ -218,7 +217,7 @@ bool LLWLDayCycle::getKeyedParam(F32 time, LLWLParamSet& param)
 	return false;
 }
 
-bool LLWLDayCycle::getKeyedParamName(F32 time, LLString & name)
+bool LLWLDayCycle::getKeyedParamName(F32 time, std::string & name)
 {
 	// just scroll on through till you find it
 	std::map<F32, std::string>::iterator mIt = mTimeMap.find(time);

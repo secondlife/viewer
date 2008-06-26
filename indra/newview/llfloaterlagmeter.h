@@ -75,7 +75,7 @@ private:
 	LLTextBox * mServerText;
 	LLTextBox * mServerCause;
 
-	LLString::format_map_t mStringArgs;
+	LLStringUtil::format_map_t mStringArgs;
 };
 
 #endif

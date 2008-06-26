@@ -48,21 +48,21 @@ class LLUrlWhiteList
 		bool save ();
 
 		bool clear ();
-		bool addItem ( const LLString& itemIn, bool saveAfterAdd );
+		bool addItem ( const std::string& itemIn, bool saveAfterAdd );
 
-		bool containsMatch ( const LLString& patternIn );
+		bool containsMatch ( const std::string& patternIn );
 
-		bool getFirst ( LLString& valueOut );
-		bool getNext ( LLString& valueOut );
+		bool getFirst ( std::string& valueOut );
+		bool getNext ( std::string& valueOut );
 
 	private:
 		LLUrlWhiteList ();
 		static LLUrlWhiteList* sInstance;
 
-		typedef std::vector < LLString > string_list_t ;
+		typedef std::vector < std::string > string_list_t ;
 
 		bool mLoaded;
-		const LLString mFilename;
+		const std::string mFilename;
 		string_list_t mUrlList;
 		U32 mCurIndex;
 };

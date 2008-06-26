@@ -86,10 +86,10 @@ protected:
 	LLSliderCtrl*	mSlider3;
 	LLButton*		mAnimateButton;
 	LLTextBox*		mText;
-	LLString		mTitle;
+	std::string		mTitle;
 	BOOL			mAnimate;
 
-	static std::map<LLString, LLDebugVarMessageBox*> sInstances;
+	static std::map<std::string, LLDebugVarMessageBox*> sInstances;
 };
 
 #endif // LL_LLMESSAGEBOX_H

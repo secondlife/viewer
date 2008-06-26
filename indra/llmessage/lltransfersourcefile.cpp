@@ -67,7 +67,7 @@ void LLTransferSourceFile::initTransfer()
 		return;
 	}
 	// Look for the file.
-	mFP = LLFile::fopen(mParams.getFilename().c_str(), "rb");		/* Flawfinder: ignore */
+	mFP = LLFile::fopen(mParams.getFilename(), "rb");		/* Flawfinder: ignore */
 	if (!mFP)
 	{
 		sendTransferStatus(LLTS_ERROR);
@@ -134,9 +134,9 @@ void LLTransferSourceFile::completionCallback(const LLTSCode status)
 
 	}
 	// Delete the file iff the filename begins with "TEMP"
-	if (mParams.getDeleteOnCompletion() && memcmp(mParams.getFilename().c_str(), "TEMP", 4) == 0)
+	if (mParams.getDeleteOnCompletion() && mParams.getFilename().substr(0, 4) == "TEMP")
 	{
-		LLFile::remove(mParams.getFilename().c_str());
+		LLFile::remove(mParams.getFilename());
 	}
 }
 
@@ -162,7 +162,7 @@ LLTransferSourceParamsFile::LLTransferSourceParamsFile() :
 
 void LLTransferSourceParamsFile::packParams(LLDataPacker &dp) const
 {
-	dp.packString(mFilename.c_str(), "Filename");
+	dp.packString(mFilename, "Filename");
 	dp.packU8((U8)mDeleteOnCompletion, "Delete");
 }
 

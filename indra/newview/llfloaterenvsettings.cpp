@@ -53,7 +53,7 @@
 
 LLFloaterEnvSettings* LLFloaterEnvSettings::sEnvSettings = NULL;
 
-LLFloaterEnvSettings::LLFloaterEnvSettings() : LLFloater("Environment Settings Floater")
+LLFloaterEnvSettings::LLFloaterEnvSettings() : LLFloater(std::string("Environment Settings Floater"))
 {
 	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_env_settings.xml");
 	
@@ -110,7 +110,7 @@ void LLFloaterEnvSettings::syncMenu()
 
 	// sync the clock
 	F32 val = (F32)LLWLParamManager::instance()->mAnimator.getDayTime();
-	LLString timeStr = timeToString(val);
+	std::string timeStr = timeToString(val);
 
 	LLTextBox* textBox;
 	textBox = sEnvSettings->getChild<LLTextBox>("EnvTimeText");
@@ -308,7 +308,7 @@ void LLFloaterEnvSettings::onUseEstateTime(void* userData)
 	LLWLParamManager::instance()->mAnimator.mUseLindenTime = true;
 }
 
-LLString LLFloaterEnvSettings::timeToString(F32 curTime)
+std::string LLFloaterEnvSettings::timeToString(F32 curTime)
 {
 	S32 hours;
 	S32 min;

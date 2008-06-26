@@ -48,17 +48,17 @@ class LLIconCtrl
 : public LLUICtrl
 {
 public:
-	LLIconCtrl(const LLString& name, const LLRect &rect, const LLUUID &image_id);
-	LLIconCtrl(const LLString& name, const LLRect &rect, const LLString &image_name);
+	LLIconCtrl(const std::string& name, const LLRect &rect, const LLUUID &image_id);
+	LLIconCtrl(const std::string& name, const LLRect &rect, const std::string &image_name);
 	virtual ~LLIconCtrl();
 
 	// llview overrides
 	virtual void	draw();
 
-	void			setImage(const LLString& image_name);
+	void			setImage(const std::string& image_name);
 	void			setImage(const LLUUID& image_name);
 	const LLUUID	&getImage() const						{ return mImageID; }
-	LLString		getImageName() const						{ return mImageName; }
+	std::string		getImageName() const						{ return mImageName; }
 
 	// Takes a UUID, wraps get/setImage
 	virtual void	setValue(const LLSD& value );
@@ -71,7 +71,7 @@ public:
 
 private:
 	LLColor4		mColor;
-	LLString		mImageName;
+	std::string		mImageName;
 	LLUUID			mImageID;
 	LLPointer<LLUIImage>	mImagep;
 };

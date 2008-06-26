@@ -81,7 +81,7 @@ public:
 
 	static void refreshAll();
 
-	void showPanel(const LLString& panel_name);
+	void showPanel(const std::string& panel_name);
 
 	virtual void onClose(bool app_quitting);
 
@@ -164,7 +164,7 @@ public:
 	S32 getRedirectGridY() const;
 
 	// set internal checkboxes/spinners/combos 
-	void setSimName(char *name);
+	void setSimName(const std::string& name);
 	void setEstateID(U32 id);
 	void setParentEstateID(U32 id);
 	void setCheckFlags(U32 flags);
@@ -201,14 +201,14 @@ public:
 	void refresh();
 
 	static void onClickKickAll(void *data);
-	static void confirmKick(S32 option, const LLString& text, void* userdata);
+	static void confirmKick(S32 option, const std::string& text, void* userdata);
 	static void finishKick(S32 option, void* userdata);
 	static void onDragSunPhase(LLUICtrl *ctrl, void *userdata);
 	static void onClickFlushMapVisibilityCaches(void* data);
 	static void flushMapVisibilityCachesConfirm(S32 option, void* data);
 
 protected:
-	LLString        mKickMessage; // Message to send on kick
+	std::string        mKickMessage; // Message to send on kick
 };
 
 
@@ -268,8 +268,8 @@ public:
 
 	void refresh();
 
-	static void sendRequest(const char* request, 
-							const char* parameter, 
+	static void sendRequest(const std::string& request, 
+							const std::string& parameter, 
 							const LLHost& host);
 
 protected:

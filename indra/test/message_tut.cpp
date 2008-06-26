@@ -93,7 +93,7 @@ namespace tut
 			random.generate();
 			ostr << "message-test-" << random;
 			mTestConfigDir = ostr.str();
-			LLFile::mkdir(mTestConfigDir.c_str());
+			LLFile::mkdir(mTestConfigDir);
 			writeConfigFile(LLSD());
 			LLMessageConfig::initClass("simulator", ostr.str());
 		}
@@ -107,11 +107,11 @@ namespace tut
 			// rm contents of temp dir
 			std::ostringstream ostr;
 			ostr << mTestConfigDir << mSep << "message.xml";
-			int rmfile = LLFile::remove(ostr.str().c_str());
+			int rmfile = LLFile::remove(ostr.str());
 			ensure_equals("rmfile value", rmfile, 0);
 
 			// rm temp dir
-			int rmdir = LLFile::rmdir(mTestConfigDir.c_str());
+			int rmdir = LLFile::rmdir(mTestConfigDir);
 			ensure_equals("rmdir value", rmdir, 0);
 		}
 
@@ -119,7 +119,7 @@ namespace tut
 		{
 			std::ostringstream ostr;
 			ostr << mTestConfigDir << mSep << "message.xml";
-			llofstream file(ostr.str().c_str());
+			llofstream file(ostr.str());
 			if (file.is_open())
 			{
 				LLSDSerialize::toPrettyXML(config, file);

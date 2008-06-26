@@ -81,7 +81,7 @@ void LLFloaterTelehub::show()
 }
 
 LLFloaterTelehub::LLFloaterTelehub()
-:	LLFloater("telehub"),
+:	LLFloater(std::string("telehub")),
 	mTelehubObjectID(),
 	mTelehubObjectName(),
 	mTelehubPos(),
@@ -244,8 +244,8 @@ void LLFloaterTelehub::onClickRemoveSpawnPoint(void* data)
 	msg->nextBlock("ParamList");
 	msg->addString("Parameter", "spawnpoint remove");
 
-	char buffer[MAX_STRING];		/* Flawfinder: ignore */
-	snprintf(buffer, MAX_STRING, "%d", spawn_index);	/* Flawfinder: ignore */
+	std::string buffer;
+	buffer = llformat("%d", spawn_index);
 	msg->nextBlock("ParamList");
 	msg->addString("Parameter", buffer);
 
@@ -263,11 +263,8 @@ void LLFloaterTelehub::processTelehubInfo(LLMessageSystem* msg, void**)
 
 void LLFloaterTelehub::unpackTelehubInfo(LLMessageSystem* msg)
 {
-	char buffer[MAX_STRING];		/* Flawfinder: ignore */
-
 	msg->getUUID("TelehubBlock", "ObjectID", mTelehubObjectID);
-	msg->getString("TelehubBlock", "ObjectName", MAX_STRING, buffer);
-	mTelehubObjectName = buffer;
+	msg->getString("TelehubBlock", "ObjectName", mTelehubObjectName);
 	msg->getVector3("TelehubBlock", "TelehubPos", mTelehubPos);
 	msg->getQuat("TelehubBlock", "TelehubRot", mTelehubRot);
 
@@ -301,7 +298,7 @@ void LLFloaterTelehub::unpackTelehubInfo(LLMessageSystem* msg)
 		list->deleteAllItems();
 		for (S32 i = 0; i < mNumSpawn; i++)
 		{
-			LLString pos = llformat("%.1f, %.1f, %.1f", 
+			std::string pos = llformat("%.1f, %.1f, %.1f", 
 									mSpawnPointPos[i].mV[VX],
 									mSpawnPointPos[i].mV[VY],
 									mSpawnPointPos[i].mV[VZ]);

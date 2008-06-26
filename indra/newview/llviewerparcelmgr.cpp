@@ -83,7 +83,7 @@ LLPointer<LLViewerImage> sBlockedImage;
 LLPointer<LLViewerImage> sPassImage;
 
 // Local functions
-void optionally_start_music(const LLString& music_url);
+void optionally_start_music(const std::string& music_url);
 void callback_start_music(S32 option, void* data);
 void optionally_prepare_video(const LLParcel *parcelp);
 void callback_prepare_video(S32 option, void* data);
@@ -1211,22 +1211,21 @@ void LLViewerParcelMgr::makeLandmarkAtSelection()
 	LLVector3 west_south_bottom_region = region->getPosRegionFromGlobal( mWestSouth );
 	LLVector3 east_north_top_region = region->getPosRegionFromGlobal( mEastNorth );
 
-	LLString name("My Land");
-	char buffer[MAX_STRING];
+	std::string name("My Land");
+	std::string buffer;
 	S32 pos_x = (S32)floor((west_south_bottom_region.mV[VX] + east_north_top_region.mV[VX]) / 2.0f);
 	S32 pos_y = (S32)floor((west_south_bottom_region.mV[VY] + east_north_top_region.mV[VY]) / 2.0f);
-	sprintf(buffer, "%s in %s (%d, %d)",
+	buffer = llformat("%s in %s (%d, %d)",
 			name.c_str(),
 			region->getName().c_str(),
 			pos_x, pos_y);
 	name.assign(buffer);
 
-	const char* desc = "Claimed land";
-	create_landmark(name.c_str(), desc, global_center);
+	create_landmark(name, "Claimed land", global_center);
 }
 */
 
-const LLString& LLViewerParcelMgr::getAgentParcelName() const
+const std::string& LLViewerParcelMgr::getAgentParcelName() const
 {
 	return mAgentParcel->getName();
 }
@@ -1649,16 +1648,16 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 		{
 			if (parcel)
 			{
-				LLString music_url_raw = parcel->getMusicURL();
+				std::string music_url_raw = parcel->getMusicURL();
 
 				// Trim off whitespace from front and back
-				LLString music_url = music_url_raw;
-				LLString::trim(music_url);
+				std::string music_url = music_url_raw;
+				LLStringUtil::trim(music_url);
 
 				// On entering a new parcel, stop the last stream if the
 				// new parcel has a different music url.  (Empty URL counts
 				// as different.)
-				const char* stream_url = gAudiop->getInternetStreamURL();
+				const std::string& stream_url = gAudiop->getInternetStreamURL();
 
 				if (music_url.empty() || music_url != stream_url)
 				{
@@ -1673,10 +1672,10 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 							optionally_start_music(music_url);
 						}
 					}
-					else if (gAudiop->getInternetStreamURL()[0])
+					else if (!gAudiop->getInternetStreamURL().empty())
 					{
 						llinfos << "Stopping parcel music" << llendl;
-						gAudiop->startInternetStream(NULL);
+						gAudiop->startInternetStream(LLStringUtil::null);
 					}
 				}
 			}
@@ -1692,7 +1691,7 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 	};
 }
 
-void optionally_start_music(const LLString& music_url)
+void optionally_start_music(const std::string& music_url)
 {
 	if (gSavedSettings.getBOOL("AudioStreamingMusic"))
 	{
@@ -1703,7 +1702,7 @@ void optionally_start_music(const LLString& music_url)
 		// changed as part of SL-4878
 		if ( gOverlayBar && gOverlayBar->musicPlaying())
 		{
-			gAudiop->startInternetStream(music_url.c_str());
+			gAudiop->startInternetStream(music_url);
 		}
 	}
 }
@@ -1909,7 +1908,7 @@ void LLViewerParcelMgr::deedLandToGroup()
 {
 	std::string group_name;
 	gCacheName->getGroupName(mCurrentParcel->getGroupID(), group_name);
-	LLString::format_map_t args;
+	LLStringUtil::format_map_t args;
 	args["[AREA]"] = llformat("%d", mCurrentParcel->getArea());
 	args["[GROUP_NAME]"] = group_name;
 	if(mCurrentParcel->getContributeWithDeed())
@@ -1980,7 +1979,7 @@ void LLViewerParcelMgr::startReleaseLand()
 	if ((region->getRegionFlags() & REGION_FLAGS_BLOCK_LAND_RESELL)
 		&& !gAgent.isGodlike())
 	{
-		LLStringBase<char>::format_map_t args;
+		LLStringUtil::format_map_t args;
 		args["[REGION]"] = region->getName();
 		gViewerWindow->alertXml("CannotReleaseLandNoTransfer", args);
 		return;
@@ -1994,7 +1993,7 @@ void LLViewerParcelMgr::startReleaseLand()
 	}
 
 	// Compute claim price
-	LLStringBase<char>::format_map_t args;
+	LLStringUtil::format_map_t args;
 	args["[AREA]"] = llformat("%d",mCurrentParcel->getArea());
 	gViewerWindow->alertXml("ReleaseLandWarning", args,
 				releaseAlertCB, this);
@@ -2193,7 +2192,7 @@ void LLViewerParcelMgr::startDeedLandToGroup()
 		if((region->getRegionFlags() & REGION_FLAGS_BLOCK_LAND_RESELL)
 			&& (mCurrentParcel->getOwnerID() != region->getOwner()))
 		{
-			LLStringBase<char>::format_map_t args;
+			LLStringUtil::format_map_t args;
 			args["[REGION]"] = region->getName();
 			gViewerWindow->alertXml("CannotDeedLandNoTransfer", args);
 			return;

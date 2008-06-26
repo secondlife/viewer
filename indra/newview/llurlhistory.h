@@ -40,10 +40,10 @@ class LLURLHistory
 {
 public:
 	// Loads an xml file of URLs.  Currently only supports Parcel URL history
-	static bool loadFile(const LLString& filename);
+	static bool loadFile(const std::string& filename);
 
 	// Saves the current history to XML
-	static bool saveFile(const LLString& filename);
+	static bool saveFile(const std::string& filename);
 
 	static LLSD getURLHistory(const std::string& collection);
 

@@ -240,7 +240,8 @@ void LLPreviewTexture::draw()
 
 			if( mLoadingFullImage )
 			{
-				LLFontGL::sSansSerif->renderUTF8("Receiving:", 0,
+				// *TODO: Translate
+				LLFontGL::sSansSerif->renderUTF8(std::string("Receiving:"), 0,
 					interior.mLeft + 4, 
 					interior.mBottom + 4,
 					LLColor4::white, LLFontGL::LEFT, LLFontGL::BOTTOM,
@@ -276,7 +277,8 @@ void LLPreviewTexture::draw()
 			else
 			if( !mSavedFileTimer.hasExpired() )
 			{
-				LLFontGL::sSansSerif->renderUTF8("File Saved", 0,
+				// *TODO: Translate
+				LLFontGL::sSansSerif->renderUTF8(std::string("File Saved"), 0,
 					interior.mLeft + 4,
 					interior.mBottom + 4,
 					LLColor4::white, LLFontGL::LEFT, LLFontGL::BOTTOM,
@@ -349,13 +351,13 @@ void LLPreviewTexture::onFileLoadedForSave(BOOL success,
 		LLPointer<LLImageTGA> image_tga = new LLImageTGA;
 		if( !image_tga->encode( src ) )
 		{
-			LLStringBase<char>::format_map_t args;
+			LLStringUtil::format_map_t args;
 			args["[FILE]"] = self->mSaveFileName;
 			gViewerWindow->alertXml("CannotEncodeFile", args);
 		}
 		else if( !image_tga->save( self->mSaveFileName ) )
 		{
-			LLStringBase<char>::format_map_t args;
+			LLStringUtil::format_map_t args;
 			args["[FILE]"] = self->mSaveFileName;
 			gViewerWindow->alertXml("CannotWriteFile", args);
 		}

@@ -60,7 +60,7 @@ public:
 	U32 getCRC() const;
 	void update(U8 next_byte);
 	void update(const U8* buffer, size_t buffer_size);
-	void update(const char *filename);
+	void update(const std::string& filename);
 
 #ifdef _DEBUG
 	// This function runs tests to make sure the crc is

@@ -212,9 +212,9 @@ U32 LLVOVolume::processUpdateMessage(LLMessageSystem *mesgsys,
 				// Well, crap, there's something bogus in the data that we're unpacking.
 				dp->dumpBufferToLog();
 				llwarns << "Flushing cache files" << llendl;
-				char mask[LL_MAX_PATH];		/* Flawfinder: ignore */
-				snprintf(mask, LL_MAX_PATH, "%s*.slc", gDirUtilp->getDirDelimiter().c_str());		/* Flawfinder: ignore */
-				gDirUtilp->deleteFilesInDir(gDirUtilp->getExpandedFilename(LL_PATH_CACHE,"").c_str(),mask);
+				std::string mask;
+				mask = gDirUtilp->getDirDelimiter() + "*.slc";
+				gDirUtilp->deleteFilesInDir(gDirUtilp->getExpandedFilename(LL_PATH_CACHE,""), mask);
 // 				llerrs << "Bogus TE data in " << getID() << ", crashing!" << llendl;
 				llwarns << "Bogus TE data in " << getID() << llendl;
 			}

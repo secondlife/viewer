@@ -200,8 +200,8 @@ BOOL LLPanelFriends::postBuild()
 	refreshUI();
 
 	// primary sort = online status, secondary sort = name
-	mFriendsList->sortByColumn("friend_name", TRUE);
-	mFriendsList->sortByColumn("icon_online_status", FALSE);
+	mFriendsList->sortByColumn(std::string("friend_name"), TRUE);
+	mFriendsList->sortByColumn(std::string("icon_online_status"), FALSE);
 
 	return TRUE;
 }
@@ -274,7 +274,7 @@ BOOL LLPanelFriends::updateFriendItem(const LLUUID& agent_id, const LLRelationsh
 	std::string fullname;
 	BOOL have_name = gCacheName->getFullName(agent_id, fullname);
 
-	itemp->getColumn(LIST_ONLINE_STATUS)->setValue(info->isOnline() ? "icon_avatar_online.tga" : LLString::null);
+	itemp->getColumn(LIST_ONLINE_STATUS)->setValue(info->isOnline() ? std::string("icon_avatar_online.tga") : LLStringUtil::null);
 	itemp->getColumn(LIST_FRIEND_NAME)->setValue(fullname);
 	// render name of online friends in bold text
 	((LLScrollListText*)itemp->getColumn(LIST_FRIEND_NAME))->setFontStyle(info->isOnline() ? LLFontGL::BOLD : LLFontGL::NORMAL);	
@@ -443,7 +443,7 @@ void LLPanelFriends::refreshUI()
 	}
 	else
 	{
-		childSetText("friend_name_label", LLString::null);
+		childSetText("friend_name_label", LLStringUtil::null);
 	}
 
 
@@ -488,7 +488,7 @@ void LLPanelFriends::onSelectName(LLUICtrl* ctrl, void* user_data)
 //static
 void LLPanelFriends::onMaximumSelect(void* user_data)
 {
-	LLString::format_map_t args;
+	LLStringUtil::format_map_t args;
 	args["[MAX_SELECT]"] = llformat("%d", MAX_FRIEND_SELECT);
 	LLNotifyBox::showXml("MaxListSelectMessage", args);
 };
@@ -539,14 +539,14 @@ void LLPanelFriends::onClickIM(void* user_data)
 }
 
 // static
-void LLPanelFriends::requestFriendship(const LLUUID& target_id, const LLString& target_name)
+void LLPanelFriends::requestFriendship(const LLUUID& target_id, const std::string& target_name)
 {
 	// HACK: folder id stored as "message"
 	LLUUID calling_card_folder_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_CALLINGCARD);
 	std::string message = calling_card_folder_id.asString();
 	send_improved_im(target_id,
-					 target_name.c_str(),
-					 message.c_str(),
+					 target_name,
+					 message,
 					 IM_ONLINE,
 					 IM_FRIENDSHIP_OFFERED);
 }
@@ -593,7 +593,7 @@ void LLPanelFriends::requestFriendshipDialog(const LLUUID& id,
 	data->mName = name;
 	
 	// TODO: accept a line of text with this dialog
-	LLString::format_map_t args;
+	LLStringUtil::format_map_t args;
 	args["[NAME]"] = name;
 	gViewerWindow->alertXml("AddFriend", args, callbackAddFriend, data);
 }
@@ -617,10 +617,10 @@ void LLPanelFriends::onClickRemove(void* user_data)
 
 	//llinfos << "LLPanelFriends::onClickRemove()" << llendl;
 	LLDynamicArray<LLUUID> ids = panelp->getSelectedIDs();
-	LLStringBase<char>::format_map_t args;
+	LLStringUtil::format_map_t args;
 	if(ids.size() > 0)
 	{
-		LLString msgType = "RemoveFromFriends";
+		std::string msgType = "RemoveFromFriends";
 		if(ids.size() == 1)
 		{
 			LLUUID agent_id = ids[0];
@@ -670,7 +670,7 @@ void LLPanelFriends::confirmModifyRights(rights_map_t& ids, EGrantRevoke command
 {
 	if (ids.empty()) return;
 	
-	LLStringBase<char>::format_map_t args;
+	LLStringUtil::format_map_t args;
 	if(ids.size() > 0)
 	{
 		// copy map of ids onto heap

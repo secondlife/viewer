@@ -73,7 +73,7 @@ public:
 	};
 	
 	// Takes a string with potentially several flags, i.e. "NORMAL|BOLD|ITALIC"
-	static U8 getStyleFromString(const LLString &style);
+	static U8 getStyleFromString(const std::string &style);
 
 	LLFontGL();
 	LLFontGL(const LLFontGL &source);
@@ -85,24 +85,24 @@ public:
 	LLFontGL &operator=(const LLFontGL &source);
 
 	static BOOL initDefaultFonts(F32 screen_dpi, F32 x_scale, F32 y_scale,
-								 const LLString& monospace_file, F32 monospace_size,
-								 const LLString& sansserif_file,
-								 const LLString& sansserif_fallback_file, F32 ss_fallback_scale,
+								 const std::string& monospace_file, F32 monospace_size,
+								 const std::string& sansserif_file,
+								 const std::string& sansserif_fallback_file, F32 ss_fallback_scale,
 								 F32 small_size, F32 medium_size, F32 large_size, F32 huge_size,
-								 const LLString& sansserif_bold_file, F32 bold_size,
-								 const LLString& app_dir = LLString::null);
+								 const std::string& sansserif_bold_file, F32 bold_size,
+								 const std::string& app_dir = LLStringUtil::null);
 
 	static void	destroyDefaultFonts();
 	static void destroyGL();
 
-	static bool loadFaceFallback(LLFontList *fontp, const LLString& fontname, const F32 point_size);
-	static bool loadFace(LLFontGL *fontp, const LLString& fontname, const F32 point_size, LLFontList *fallback_fontp);
+	static bool loadFaceFallback(LLFontList *fontp, const std::string& fontname, const F32 point_size);
+	static bool loadFace(LLFontGL *fontp, const std::string& fontname, const F32 point_size, LLFontList *fallback_fontp);
 	/* virtual*/ BOOL loadFace(const std::string& filename,
 							    const F32 point_size, const F32 vert_dpi, const F32 horz_dpi,
 							    const S32 components, BOOL is_fallback);
 
 
-	S32 renderUTF8(const LLString &text, const S32 begin_offset,
+	S32 renderUTF8(const std::string &text, const S32 begin_offset,
 				   S32 x, S32 y,
 				   const LLColor4 &color) const
 	{
@@ -111,7 +111,7 @@ public:
 						  S32_MAX, S32_MAX, NULL, FALSE);
 	}
 	
-	S32 renderUTF8(const LLString &text, const S32 begin_offset,
+	S32 renderUTF8(const std::string &text, const S32 begin_offset,
 				   S32 x, S32 y,
 				   const LLColor4 &color,
 				   HAlign halign, VAlign valign, U8 style = NORMAL) const
@@ -122,7 +122,7 @@ public:
 	}
 	
 	// renderUTF8 does a conversion, so is slower!
-	S32 renderUTF8(const LLString &text,
+	S32 renderUTF8(const std::string &text,
 		S32 begin_offset,
 		F32 x, F32 y,
 		const LLColor4 &color,
@@ -162,14 +162,14 @@ public:
 	/*virtual*/ F32 getAscenderHeight() const	{ return (F32)llround(mAscender / sScaleY); }
 	/*virtual*/ F32 getDescenderHeight() const	{ return (F32)llround(mDescender / sScaleY); }
 	
-	virtual S32 getWidth(const LLString& utf8text) const;
+	virtual S32 getWidth(const std::string& utf8text) const;
 	virtual S32 getWidth(const llwchar* wchars) const;
-	virtual S32 getWidth(const LLString& utf8text, const S32 offset, const S32 max_chars ) const;
+	virtual S32 getWidth(const std::string& utf8text, const S32 offset, const S32 max_chars ) const;
 	virtual S32 getWidth(const llwchar* wchars, const S32 offset, const S32 max_chars, BOOL use_embedded = FALSE) const;
 
-	virtual F32 getWidthF32(const LLString& utf8text) const;
+	virtual F32 getWidthF32(const std::string& utf8text) const;
 	virtual F32 getWidthF32(const llwchar* wchars) const;
-	virtual F32 getWidthF32(const LLString& text, const S32 offset, const S32 max_chars ) const;
+	virtual F32 getWidthF32(const std::string& text, const S32 offset, const S32 max_chars ) const;
 	virtual F32 getWidthF32(const llwchar* wchars, const S32 offset, const S32 max_chars, BOOL use_embedded = FALSE ) const;
 
 	// The following are called often, frequently with large buffers, so do not use a string interface
@@ -191,18 +191,18 @@ public:
 
 	LLImageGL *getImageGL() const;
 
-	void	   addEmbeddedChar( llwchar wc, LLImageGL* image, const LLString& label);
+	void	   addEmbeddedChar( llwchar wc, LLImageGL* image, const std::string& label);
 	void	   addEmbeddedChar( llwchar wc, LLImageGL* image, const LLWString& label);
 	void	   removeEmbeddedChar( llwchar wc );
 
-	static LLString nameFromFont(const LLFontGL* fontp);
-	static LLFontGL* fontFromName(const LLString& name);
+	static std::string nameFromFont(const LLFontGL* fontp);
+	static LLFontGL* fontFromName(const std::string& name);
 
-	static LLString nameFromHAlign(LLFontGL::HAlign align);
-	static LLFontGL::HAlign hAlignFromName(const LLString& name);
+	static std::string nameFromHAlign(LLFontGL::HAlign align);
+	static LLFontGL::HAlign hAlignFromName(const std::string& name);
 
-	static LLString nameFromVAlign(LLFontGL::VAlign align);
-	static LLFontGL::VAlign vAlignFromName(const LLString& name);
+	static std::string nameFromVAlign(LLFontGL::VAlign align);
+	static LLFontGL::VAlign vAlignFromName(const std::string& name);
 
 	static void setFontDisplay(BOOL flag) { sDisplayFont = flag ; }
 
@@ -225,7 +225,7 @@ public:
 	static F32 sScaleX;
 	static F32 sScaleY;
 	static BOOL     sDisplayFont ;
-	static LLString sAppDir;			// For loading fonts
+	static std::string sAppDir;			// For loading fonts
 		
 	static LLFontGL*	sMonospace;		// medium
 	static LLFontList*	sMonospaceFallback;
@@ -249,8 +249,8 @@ public:
 
 protected:
 	/*virtual*/ BOOL addChar(const llwchar wch);
-	static LLString getFontPathLocal();
-	static LLString getFontPathSystem();	
+	static std::string getFontPathLocal();
+	static std::string getFontPathSystem();
 
 protected:
 	LLPointer<LLImageRaw>	mRawImageGLp;

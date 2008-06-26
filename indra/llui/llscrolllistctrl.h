@@ -65,7 +65,7 @@ public:
 	virtual S32				getWidth() const {return mWidth;}
 	virtual S32				getContentWidth() const { return 0; }
 	virtual S32				getHeight() const = 0;
-	virtual const LLSD		getValue() const { return LLString::null; }
+	virtual const LLSD		getValue() const { return LLStringUtil::null; }
 	virtual void			setValue(const LLSD& value) { }
 	virtual BOOL			getVisible() const { return TRUE; }
 	virtual void			setWidth(S32 width) { mWidth = width; }
@@ -100,7 +100,7 @@ public:
 class LLScrollListText : public LLScrollListCell
 {
 public:
-	LLScrollListText( const LLString& text, const LLFontGL* font, S32 width = 0, U8 font_style = LLFontGL::NORMAL, LLFontGL::HAlign font_alignment = LLFontGL::LEFT, LLColor4& color = LLColor4::black, BOOL use_color = FALSE, BOOL visible = TRUE);
+	LLScrollListText( const std::string& text, const LLFontGL* font, S32 width = 0, U8 font_style = LLFontGL::NORMAL, LLFontGL::HAlign font_alignment = LLFontGL::LEFT, LLColor4& color = LLColor4::black, BOOL use_color = FALSE, BOOL visible = TRUE);
 	/*virtual*/ ~LLScrollListText();
 
 	virtual void    draw(const LLColor4& color, const LLColor4& highlight_color) const;
@@ -145,7 +145,7 @@ public:
 	virtual void	draw(const LLColor4& color, const LLColor4& highlight_color) const;
 	virtual S32		getWidth() const;
 	virtual S32		getHeight() const			{ return mIcon ? mIcon->getHeight() : 0; }
-	virtual const LLSD		getValue() const { return mIcon.isNull() ? LLString::null : mIcon->getName(); }
+	virtual const LLSD		getValue() const { return mIcon.isNull() ? LLStringUtil::null : mIcon->getName(); }
 	virtual void	setColor(const LLColor4&);
 	virtual BOOL	isText()const { return FALSE; }
 	virtual void	setValue(const LLSD& value);
@@ -201,7 +201,7 @@ public:
 		mFontAlignment(LLFontGL::LEFT)
 	{ }
 
-	LLScrollListColumn(LLString name, LLString label, S32 width, F32 relwidth) : 
+	LLScrollListColumn(std::string name, std::string label, S32 width, F32 relwidth) : 
 		mName(name), 
 		mSortingColumn(name), 
         	mSortAscending(TRUE), 
@@ -267,10 +267,10 @@ public:
 	// Public data is fine so long as this remains a simple struct-like data class.
 	// If it ever gets any smarter than that, these should all become private
 	// with protected or public accessor methods added as needed. -MG
-	LLString			mName;
-	LLString			mSortingColumn;
+	std::string			mName;
+	std::string			mSortingColumn;
 	BOOL				mSortAscending;
-	LLString			mLabel;
+	std::string			mLabel;
 	S32					mWidth;
 	F32					mRelWidth;
 	BOOL				mDynamicWidth;
@@ -284,7 +284,7 @@ public:
 class LLColumnHeader : public LLComboBox
 {
 public:
-	LLColumnHeader(const LLString& label, const LLRect &rect, LLScrollListColumn* column, const LLFontGL *font = NULL);
+	LLColumnHeader(const std::string& label, const LLRect &rect, LLScrollListColumn* column, const LLFontGL *font = NULL);
 	~LLColumnHeader();
 
 	/*virtual*/ void draw();
@@ -294,12 +294,12 @@ public:
 	/*virtual*/ LLView*	findSnapEdge(S32& new_edge_val, const LLCoordGL& mouse_dir, ESnapEdge snap_edge, ESnapType snap_type, S32 threshold, S32 padding);
 	/*virtual*/ void userSetShape(const LLRect& new_rect);
 	
-	void setImage(const LLString &image_name);
+	void setImage(const std::string &image_name);
 	LLScrollListColumn* getColumn() { return mColumn; }
 	void setHasResizableElement(BOOL resizable);
 	BOOL canResize();
 	void enableResizeBar(BOOL enable);
-	LLString getLabel() { return mOrigLabel; }
+	std::string getLabel() { return mOrigLabel; }
 
 	static void onSelectSort(LLUICtrl* ctrl, void* user_data);
 	static void onClick(void* user_data);
@@ -309,7 +309,7 @@ public:
 private:
 	LLScrollListColumn* mColumn;
 	LLResizeBar*		mResizeBar;
-	LLString			mOrigLabel;
+	std::string			mOrigLabel;
 	LLUIString			mAscendingText;
 	LLUIString			mDescendingText;
 	BOOL				mShowSortOptions;
@@ -340,7 +340,7 @@ public:
 
 	// If width = 0, just use the width of the text.  Otherwise override with
 	// specified width in pixels.
-	void	addColumn( const LLString& text, const LLFontGL* font, S32 width = 0 , U8 font_style = LLFontGL::NORMAL, LLFontGL::HAlign font_alignment = LLFontGL::LEFT, BOOL visible = TRUE)
+	void	addColumn( const std::string& text, const LLFontGL* font, S32 width = 0 , U8 font_style = LLFontGL::NORMAL, LLFontGL::HAlign font_alignment = LLFontGL::LEFT, BOOL visible = TRUE)
 				{ mColumns.push_back( new LLScrollListText(text, font, width, font_style, font_alignment, LLColor4::black, FALSE, visible) ); }
 
 	void	addColumn( LLUIImagePtr icon, S32 width = 0 )
@@ -357,7 +357,7 @@ public:
 
 	LLScrollListCell *getColumn(const S32 i) const	{ if (0 <= i && i < (S32)mColumns.size()) { return mColumns[i]; } return NULL; }
 
-	LLString getContentsCSV() const;
+	std::string getContentsCSV() const;
 
 	virtual void draw(const LLRect& rect, const LLColor4& fg_color, const LLColor4& bg_color, const LLColor4& highlight_color, S32 column_padding);
 
@@ -377,7 +377,7 @@ private:
 class LLScrollListItemComment : public LLScrollListItem
 {
 public:
-	LLScrollListItemComment(const LLString& comment_string, const LLColor4& color);
+	LLScrollListItemComment(const std::string& comment_string, const LLColor4& color);
 
 	/*virtual*/ void draw(const LLRect& rect, const LLColor4& fg_color, const LLColor4& bg_color, const LLColor4& highlight_color, S32 column_padding);
 private:
@@ -397,7 +397,7 @@ class LLScrollListCtrl : public LLUICtrl, public LLEditMenuHandler,
 {
 public:
 	LLScrollListCtrl(
-		const LLString& name,
+		const std::string& name,
 		const LLRect& rect,
 		void (*commit_callback)(LLUICtrl*, void*),
 		void* callback_userdata,
@@ -416,14 +416,14 @@ public:
 	
 	// Sets an array of column descriptors
 	void 	   		setColumnHeadings(LLSD headings);
-	void   			sortByColumn(U32 column, BOOL ascending);
+	void   			sortByColumnIndex(U32 column, BOOL ascending);
 	
 	// LLCtrlListInterface functions
 	virtual S32  getItemCount() const;
 	// Adds a single column descriptor: ["name" : string, "label" : string, "width" : integer, "relwidth" : integer ]
 	virtual void addColumn(const LLSD& column, EAddPosition pos = ADD_BOTTOM);
 	virtual void clearColumns();
-	virtual void setColumnLabel(const LLString& column, const LLString& label);
+	virtual void setColumnLabel(const std::string& column, const std::string& label);
 
 	virtual LLScrollListColumn* getColumn(S32 index);
 	virtual S32 getNumColumns() const { return mColumnsIndexed.size(); }
@@ -435,7 +435,7 @@ public:
 	// Simple add element. Takes a single array of:
 	// [ "value" => value, "font" => font, "font-style" => style ]
 	virtual void clearRows(); // clears all elements
-	virtual void sortByColumn(LLString name, BOOL ascending);
+	virtual void sortByColumn(const std::string& name, BOOL ascending);
 
 	// These functions take and return an array of arrays of elements, as above
 	virtual void	setValue(const LLSD& value );
@@ -490,24 +490,24 @@ public:
 	S32				getItemIndex( LLScrollListItem* item ) const;
 	S32				getItemIndex( const LLUUID& item_id ) const;
 
-	LLScrollListItem* addCommentText( const LLString& comment_text, EAddPosition pos = ADD_BOTTOM);
+	LLScrollListItem* addCommentText( const std::string& comment_text, EAddPosition pos = ADD_BOTTOM);
 	LLScrollListItem* addSeparator(EAddPosition pos);
 
 	// "Simple" interface: use this when you're creating a list that contains only unique strings, only
 	// one of which can be selected at a time.
-	virtual LLScrollListItem* addSimpleElement(const LLString& value, EAddPosition pos = ADD_BOTTOM, const LLSD& id = LLSD());
+	virtual LLScrollListItem* addSimpleElement(const std::string& value, EAddPosition pos = ADD_BOTTOM, const LLSD& id = LLSD());
 
 
-	BOOL			selectItemByLabel( const LLString& item, BOOL case_sensitive = TRUE );		// FALSE if item not found
-	BOOL			selectItemByPrefix(const LLString& target, BOOL case_sensitive = TRUE);
+	BOOL			selectItemByLabel( const std::string& item, BOOL case_sensitive = TRUE );		// FALSE if item not found
+	BOOL			selectItemByPrefix(const std::string& target, BOOL case_sensitive = TRUE);
 	BOOL			selectItemByPrefix(const LLWString& target, BOOL case_sensitive = TRUE);
-	const LLString	getSelectedItemLabel(S32 column = 0) const;
+	const std::string	getSelectedItemLabel(S32 column = 0) const;
 	LLSD			getSelectedValue();
 
 	// DEPRECATED: Use LLSD versions of addCommentText() and getSelectedValue().
 	// "StringUUID" interface: use this when you're creating a list that contains non-unique strings each of which
 	// has an associated, unique UUID, and only one of which can be selected at a time.
-	LLScrollListItem*	addStringUUIDItem(const LLString& item_text, const LLUUID& id, EAddPosition pos = ADD_BOTTOM, BOOL enabled = TRUE, S32 column_width = 0);
+	LLScrollListItem*	addStringUUIDItem(const std::string& item_text, const LLUUID& id, EAddPosition pos = ADD_BOTTOM, BOOL enabled = TRUE, S32 column_width = 0);
 	LLUUID				getStringUUIDSelectedItem() const;
 
 	LLScrollListItem*	getFirstSelected() const;
@@ -565,7 +565,7 @@ public:
 	/*virtual*/ BOOL	handleKeyHere(KEY key, MASK mask);
 	/*virtual*/ BOOL	handleUnicodeCharHere(llwchar uni_char);
 	/*virtual*/ BOOL	handleScrollWheel(S32 x, S32 y, S32 clicks);
-	/*virtual*/ BOOL	handleToolTip(S32 x, S32 y, LLString& msg, LLRect* sticky_rect);
+	/*virtual*/ BOOL	handleToolTip(S32 x, S32 y, std::string& msg, LLRect* sticky_rect);
 	/*virtual*/ void	setEnabled(BOOL enabled);
 	/*virtual*/ void	setFocus( BOOL b );
 	/*virtual*/ void	onFocusReceived();
@@ -716,7 +716,7 @@ private:
 
 	BOOL			mSorted;
 	
-	typedef std::map<LLString, LLScrollListColumn> column_map_t;
+	typedef std::map<std::string, LLScrollListColumn> column_map_t;
 	column_map_t mColumns;
 
 	BOOL			mDirty;

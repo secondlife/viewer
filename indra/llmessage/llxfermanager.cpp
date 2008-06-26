@@ -406,8 +406,8 @@ U64 LLXferManager::registerXfer(const void *datap, const S32 length)
 
 ///////////////////////////////////////////////////////////
 
-void LLXferManager::requestFile(const char* local_filename,
-								const char* remote_filename,
+void LLXferManager::requestFile(const std::string& local_filename,
+								const std::string& remote_filename,
 								ELLPath remote_path,
 								const LLHost& remote_host,
 								BOOL delete_remote_on_completion,
@@ -444,7 +444,7 @@ void LLXferManager::requestFile(const char* local_filename,
 		// Note: according to AaronB, this is here to deal with locks on files that were
 		// in transit during a crash,
 		if(delete_remote_on_completion &&
-		   (strstr(remote_filename,".tmp") == &remote_filename[strlen(remote_filename)-4]))		/* Flawfinder : ignore */
+		   (remote_filename.substr(remote_filename.length()-4) == ".tmp"))
 		{
 			LLFile::remove(local_filename);
 		}
@@ -464,7 +464,7 @@ void LLXferManager::requestFile(const char* local_filename,
 	}
 }
 
-void LLXferManager::requestFile(const char* remote_filename,
+void LLXferManager::requestFile(const std::string& remote_filename,
 								ELLPath remote_path,
 								const LLHost& remote_host,
 								BOOL delete_remote_on_completion,
@@ -540,7 +540,7 @@ void LLXferManager::requestVFile(const LLUUID& local_id,
 
 /*
 void LLXferManager::requestXfer(
-								const char *local_filename, 
+								const std::string& local_filename, 
 								BOOL delete_remote_on_completion,
 								U64 xfer_id, 
 								const LLHost &remote_host, 
@@ -634,11 +634,11 @@ void LLXferManager::processReceiveData (LLMessageSystem *mesgsys, void ** /*user
 		// confirm it if it was a resend of the last one, since the confirmation might have gotten dropped
 		if (decodePacketNum(packetnum) == (xferp->mPacketNum - 1))
 		{
-			llinfos << "Reconfirming xfer " << xferp->mRemoteHost << ":" << xferp->getName() << " packet " << packetnum << llendl; 			sendConfirmPacket(mesgsys, id, decodePacketNum(packetnum), mesgsys->getSender());
+			llinfos << "Reconfirming xfer " << xferp->mRemoteHost << ":" << xferp->getFileName() << " packet " << packetnum << llendl; 			sendConfirmPacket(mesgsys, id, decodePacketNum(packetnum), mesgsys->getSender());
 		}
 		else
 		{
-			llinfos << "Ignoring xfer " << xferp->mRemoteHost << ":" << xferp->getName() << " recv'd packet " << packetnum << "; expecting " << xferp->mPacketNum << llendl;
+			llinfos << "Ignoring xfer " << xferp->mRemoteHost << ":" << xferp->getFileName() << " recv'd packet " << packetnum << "; expecting " << xferp->mPacketNum << llendl;
 		}
 		return;		
 	}
@@ -717,7 +717,7 @@ void LLXferManager::processFileRequest (LLMessageSystem *mesgsys, void ** /*user
 {
 		
 	U64 id;
-	char local_filename[MAX_STRING];		/* Flawfinder : ignore */
+	std::string local_filename;
 	ELLPath local_path = LL_PATH_NONE;
 	S32 result = LL_ERR_NOERR;
 	LLUUID	uuid;
@@ -732,7 +732,7 @@ void LLXferManager::processFileRequest (LLMessageSystem *mesgsys, void ** /*user
 	llinfos << "xfer request id: " << U64_to_str(id, U64_BUF, sizeof(U64_BUF))
 		   << " to " << mesgsys->getSender() << llendl;
 
-	mesgsys->getStringFast(_PREHASH_XferID, _PREHASH_Filename, MAX_STRING, local_filename);
+	mesgsys->getStringFast(_PREHASH_XferID, _PREHASH_Filename, local_filename);
 	
 	U8 local_path_u8;
 	mesgsys->getU8("XferID", "FilePath", local_path_u8);
@@ -780,7 +780,7 @@ void LLXferManager::processFileRequest (LLMessageSystem *mesgsys, void ** /*user
 			llerrs << "Xfer allcoation error" << llendl;
 		}
 	}
-	else if (strlen(local_filename))		/* Flawfinder : ignore */
+	else if (!local_filename.empty())
 	{
 		std::string expanded_filename = gDirUtilp->getExpandedFilename( local_path, local_filename );
 		llinfos << "starting file transfer: " <<  expanded_filename << " to " << mesgsys->getSender() << llendl;
@@ -923,7 +923,7 @@ void LLXferManager::retransmitUnackedPackets ()
 		{
 			if (xferp->mRetries > LL_PACKET_RETRY_LIMIT)
 			{
-				llinfos << "dropping xfer " << xferp->mRemoteHost << ":" << xferp->getName() << " packet retransmit limit exceeded, xfer dropped" << llendl;
+				llinfos << "dropping xfer " << xferp->mRemoteHost << ":" << xferp->getFileName() << " packet retransmit limit exceeded, xfer dropped" << llendl;
 				xferp->abort(LL_ERR_TCP_TIMEOUT);
 				delp = xferp;
 				xferp = xferp->mNext;
@@ -931,7 +931,7 @@ void LLXferManager::retransmitUnackedPackets ()
 			}
 			else
 			{
-				llinfos << "resending xfer " << xferp->mRemoteHost << ":" << xferp->getName() << " packet unconfirmed after: "<< et << " sec, packet " << xferp->mPacketNum << llendl;
+				llinfos << "resending xfer " << xferp->mRemoteHost << ":" << xferp->getFileName() << " packet unconfirmed after: "<< et << " sec, packet " << xferp->mPacketNum << llendl;
 				xferp->resendLastPacket();
 				xferp = xferp->mNext;
 			}
@@ -946,7 +946,7 @@ void LLXferManager::retransmitUnackedPackets ()
 		}
 		else if (xferp->mStatus == e_LL_XFER_ABORTED)
 		{
-			llwarns << "Removing aborted xfer " << xferp->mRemoteHost << ":" << xferp->getName() << llendl;
+			llwarns << "Removing aborted xfer " << xferp->mRemoteHost << ":" << xferp->getFileName() << llendl;
 			delp = xferp;
 			xferp = xferp->mNext;
 			removeXfer(delp,&mSendList);

@@ -81,7 +81,7 @@ LLLFSThread::~LLLFSThread()
 
 //----------------------------------------------------------------------------
 
-LLLFSThread::handle_t LLLFSThread::read(const LLString& filename,	/* Flawfinder: ignore */ 
+LLLFSThread::handle_t LLLFSThread::read(const std::string& filename,	/* Flawfinder: ignore */ 
 										U8* buffer, S32 offset, S32 numbytes,
 										Responder* responder, U32 priority)
 {
@@ -104,7 +104,7 @@ LLLFSThread::handle_t LLLFSThread::read(const LLString& filename,	/* Flawfinder:
 	return handle;
 }
 
-LLLFSThread::handle_t LLLFSThread::write(const LLString& filename,
+LLLFSThread::handle_t LLLFSThread::write(const std::string& filename,
 										 U8* buffer, S32 offset, S32 numbytes,
 										 Responder* responder, U32 priority)
 {
@@ -130,7 +130,7 @@ LLLFSThread::handle_t LLLFSThread::write(const LLString& filename,
 
 LLLFSThread::Request::Request(LLLFSThread* thread,
 							  handle_t handle, U32 priority,
-							  operation_t op, const LLString& filename,
+							  operation_t op, const std::string& filename,
 							  U8* buffer, S32 offset, S32 numbytes,
 							  Responder* responder) :
 	QueuedRequest(handle, priority, FLAG_AUTO_COMPLETE),

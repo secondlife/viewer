@@ -93,6 +93,11 @@ class LLDir
 	std::string getExpandedFilename(ELLPath location, const std::string &filename) const;
 	std::string getExpandedFilename(ELLPath location, const std::string &subdir, const std::string &filename) const;
 
+	// Base and Directory name extraction
+	std::string getBaseFileName(const std::string& filepath, bool strip_exten = false) const;
+	std::string getDirName(const std::string& filepath) const;
+	std::string getExtension(const std::string& filepath) const; // Excludes '.', e.g getExtension("foo.wav") == "wav"
+	
 	// random filename in common temporary directory
 	std::string getTempFilename() const;
 

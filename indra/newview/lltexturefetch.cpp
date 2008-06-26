@@ -235,7 +235,7 @@ private:
 	/*virtual*/ void startWork(S32 param); // called from addWork() (MAIN THREAD)
 	/*virtual*/ void endWork(S32 param, bool aborted); // called from doWork() (MAIN THREAD)
 
-	virtual LLString getName() { return LLString::null; }
+	virtual std::string getName() { return LLStringUtil::null; }
 	void resetFormattedData();
 	
 	void setImagePriority(F32 priority);
@@ -345,18 +345,18 @@ class LLTextureFetchLocalFileWorker : public LLTextureFetchWorker
 friend class LLTextureFetch;
 
 protected:
-	LLTextureFetchLocalFileWorker(LLTextureFetch* fetcher, const LLString& filename, const LLUUID& id, const LLHost& host,
+	LLTextureFetchLocalFileWorker(LLTextureFetch* fetcher, const std::string& filename, const LLUUID& id, const LLHost& host,
 						 F32 priority, S32 discard, S32 size)
 		:	LLTextureFetchWorker(fetcher, id, host, priority, discard, size),
 			mFileName(filename)
 	{}
 
 private:
-	/*virtual*/ LLString getName() { return mFileName; }
+	/*virtual*/ std::string getName() { return mFileName; }
 
 
 private:
-	LLString mFileName;
+	std::string mFileName;
 };
 
 
@@ -1313,10 +1313,10 @@ LLTextureFetch::~LLTextureFetch()
 bool LLTextureFetch::createRequest(const LLUUID& id, const LLHost& host, F32 priority,
 									S32 w, S32 h, S32 c, S32 desired_discard, bool needs_aux)
 {
-	return createRequest(LLString::null, id, host, priority, w, h, c, desired_discard, needs_aux);
+	return createRequest(LLStringUtil::null, id, host, priority, w, h, c, desired_discard, needs_aux);
 }
 
-bool LLTextureFetch::createRequest(const LLString& filename, const LLUUID& id, const LLHost& host, F32 priority,
+bool LLTextureFetch::createRequest(const std::string& filename, const LLUUID& id, const LLHost& host, F32 priority,
 								   S32 w, S32 h, S32 c, S32 desired_discard, bool needs_aux)
 {
 	if (mDebugPause)

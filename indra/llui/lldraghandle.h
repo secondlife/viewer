@@ -44,7 +44,7 @@ class LLTextBox;
 class LLDragHandle : public LLView
 {
 public:
-	LLDragHandle(const LLString& name, const LLRect& rect, const LLString& title );
+	LLDragHandle(const std::string& name, const LLRect& rect, const std::string& title );
 	virtual ~LLDragHandle() { setTitleBox(NULL); }
 
 	virtual void setValue(const LLSD& value);
@@ -55,8 +55,8 @@ public:
 	S32				getMaxTitleWidth() const { return mMaxTitleWidth; }
 	void			setTitleVisible(BOOL visible);
 
-	virtual void	setTitle( const LLString& title ) = 0;
-	virtual const LLString&	getTitle() const = 0;
+	virtual void	setTitle( const std::string& title ) = 0;
+	virtual const std::string&	getTitle() const = 0;
 
 	virtual BOOL	handleHover(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
@@ -88,10 +88,10 @@ class LLDragHandleTop
 : public LLDragHandle
 {
 public:
-	LLDragHandleTop(const LLString& name, const LLRect& rect, const LLString& title );
+	LLDragHandleTop(const std::string& name, const LLRect& rect, const std::string& title );
 
-	virtual void	setTitle( const LLString& title );
-	virtual const LLString& getTitle() const;
+	virtual void	setTitle( const std::string& title );
+	virtual const std::string& getTitle() const;
 	virtual void	draw();
 	virtual void	reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 
@@ -105,10 +105,10 @@ class LLDragHandleLeft
 : public LLDragHandle
 {
 public:
-	LLDragHandleLeft(const LLString& name, const LLRect& rect, const LLString& title );
+	LLDragHandleLeft(const std::string& name, const LLRect& rect, const std::string& title );
 
-	virtual void	setTitle( const LLString& title );
-	virtual const LLString& getTitle() const;
+	virtual void	setTitle( const std::string& title );
+	virtual const std::string& getTitle() const;
 	virtual void	draw();
 	virtual void	reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 

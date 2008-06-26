@@ -88,7 +88,7 @@ void LLViewerAssetStorage::storeAssetData(
 				// This can happen if there's a bug in our code or if the VFS has been corrupted.
 				llwarns << "LLViewerAssetStorage::storeAssetData()  Data _should_ already be in the VFS, but it's not! " << asset_id << llendl;
 				// LLAssetStorage metric: Zero size VFS
-				reportMetric( asset_id, asset_type, NULL, LLUUID::null, 0, MR_ZERO_SIZE, __FILE__, __LINE__, "The file didn't exist or was zero length (VFS - can't tell which)" );
+				reportMetric( asset_id, asset_type, LLStringUtil::null, LLUUID::null, 0, MR_ZERO_SIZE, __FILE__, __LINE__, "The file didn't exist or was zero length (VFS - can't tell which)" );
 
 				delete req;
 				if (callback)
@@ -102,7 +102,7 @@ void LLViewerAssetStorage::storeAssetData(
 				// LLAssetStorage metric: Successful Request
 				S32 size = mVFS->getSize(asset_id, asset_type);
 				const char *message = "Added to upload queue";
-				reportMetric( asset_id, asset_type, NULL, LLUUID::null, size, MR_OKAY, __FILE__, __LINE__, message );
+				reportMetric( asset_id, asset_type, LLStringUtil::null, LLUUID::null, size, MR_OKAY, __FILE__, __LINE__, message );
 
 				if(is_priority)
 				{
@@ -130,7 +130,7 @@ void LLViewerAssetStorage::storeAssetData(
 					llwarns << "Probable corruption in VFS file, aborting store asset data" << llendl;
 
 					// LLAssetStorage metric: VFS corrupt - bogus size
-					reportMetric( asset_id, asset_type, NULL, LLUUID::null, asset_size, MR_VFS_CORRUPTION, __FILE__, __LINE__, "VFS corruption" );
+					reportMetric( asset_id, asset_type, LLStringUtil::null, LLUUID::null, asset_size, MR_VFS_CORRUPTION, __FILE__, __LINE__, "VFS corruption" );
 
 					if (callback)
 					{
@@ -158,7 +158,7 @@ void LLViewerAssetStorage::storeAssetData(
 		{
 			llwarns << "AssetStorage: attempt to upload non-existent vfile " << asset_id << ":" << LLAssetType::lookup(asset_type) << llendl;
 			// LLAssetStorage metric: Zero size VFS
-			reportMetric( asset_id, asset_type, NULL, LLUUID::null, 0, MR_ZERO_SIZE, __FILE__, __LINE__, "The file didn't exist or was zero length (VFS - can't tell which)" );
+			reportMetric( asset_id, asset_type, LLStringUtil::null, LLUUID::null, 0, MR_ZERO_SIZE, __FILE__, __LINE__, "The file didn't exist or was zero length (VFS - can't tell which)" );
 			if (callback)
 			{
 				callback(asset_id, user_data,  LL_ERR_ASSET_REQUEST_NONEXISTENT_FILE, LL_EXSTAT_NONEXISTENT_FILE);
@@ -169,7 +169,7 @@ void LLViewerAssetStorage::storeAssetData(
 	{
 		llwarns << "Attempt to move asset store request upstream w/o valid upstream provider" << llendl;
 		// LLAssetStorage metric: Upstream provider dead
-		reportMetric( asset_id, asset_type, NULL, LLUUID::null, 0, MR_NO_UPSTREAM, __FILE__, __LINE__, "No upstream provider" );
+		reportMetric( asset_id, asset_type, LLStringUtil::null, LLUUID::null, 0, MR_NO_UPSTREAM, __FILE__, __LINE__, "No upstream provider" );
 		if (callback)
 		{
 			callback(asset_id, user_data, LL_ERR_CIRCUIT_GONE, LL_EXSTAT_NO_UPSTREAM);
@@ -178,7 +178,7 @@ void LLViewerAssetStorage::storeAssetData(
 }
 
 void LLViewerAssetStorage::storeAssetData(
-	const char* filename,
+	const std::string& filename,
 	const LLTransactionID& tid,
 	LLAssetType::EType asset_type,
 	LLStoreAssetCallback callback,
@@ -188,10 +188,10 @@ void LLViewerAssetStorage::storeAssetData(
 	bool user_waiting,
 	F64 timeout)
 {
-if(!filename)
+	if(filename.empty())
 	{
 		// LLAssetStorage metric: no filename
-		reportMetric( LLUUID::null, asset_type, "", LLUUID::null, 0, MR_VFS_CORRUPTION, __FILE__, __LINE__, "Filename missing" );
+		reportMetric( LLUUID::null, asset_type, LLStringUtil::null, LLUUID::null, 0, MR_VFS_CORRUPTION, __FILE__, __LINE__, "Filename missing" );
 		llerrs << "No filename specified" << llendl;
 		return;
 	}

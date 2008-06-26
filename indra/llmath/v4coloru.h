@@ -127,7 +127,7 @@ public:
 	inline void setVecScaleClamp(const LLColor3 &color);
 	inline void setVecScaleClamp(const LLColor4 &color);
 
-	static BOOL parseColor4U(const char* buf, LLColor4U* value);
+	static BOOL parseColor4U(const std::string& buf, LLColor4U* value);
 
 	static LLColor4U white;
 	static LLColor4U black;

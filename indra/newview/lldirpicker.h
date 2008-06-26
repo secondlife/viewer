@@ -64,8 +64,8 @@ public:
 	// calling this before main() is undefined
 	static LLDirPicker& instance( void ) { return sInstance; }
 
-	BOOL getDir(LLString* filename);
-	LLString getDirName();
+	BOOL getDir(std::string* filename);
+	std::string getDirName();
 
 	// clear any lists of buffers or whatever, and make sure the dir
 	// picker isn't locked.
@@ -94,9 +94,8 @@ private:
 	LLFilePicker *mFilePicker;
 #endif
 
-	char mDirs[DIRNAME_BUFFER_SIZE]; /*Flawfinder: ignore*/
-	LLString* mFileName;
-	LLString  mDir;
+	std::string* mFileName;
+	std::string  mDir;
 	BOOL mLocked;
 
 	static LLDirPicker sInstance;

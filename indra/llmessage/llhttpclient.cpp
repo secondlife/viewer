@@ -152,7 +152,7 @@ namespace
 		{
 			LLBufferStream ostream(channels, buffer.get());
 
-			llifstream fstream(mFilename.c_str(), std::iostream::binary | std::iostream::out);
+			llifstream fstream(mFilename, std::iostream::binary | std::iostream::out);
             fstream.seekg(0, std::ios::end);
             U32 fileSize = fstream.tellg();
             fstream.seekg(0, std::ios::beg);

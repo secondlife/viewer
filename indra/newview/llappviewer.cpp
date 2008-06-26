@@ -216,7 +216,7 @@ const F32 DEFAULT_AFK_TIMEOUT = 5.f * 60.f; // time with no input before user fl
 F32 gSimLastTime; // Used in LLAppViewer::init and send_stats()
 F32 gSimFrames;
 
-LLString gDisabledMessage; // Set in LLAppViewer::initConfiguration used in idle_startup
+std::string gDisabledMessage; // Set in LLAppViewer::initConfiguration used in idle_startup
 
 BOOL gHideLinks = FALSE; // Set in LLAppViewer::initConfiguration, used externally
 
@@ -271,7 +271,7 @@ LLVFS* gStaticVFS = NULL;
 LLMemoryInfo gSysMemory;
 U64 gMemoryAllocated = 0; // updated in display_stats() in llviewerdisplay.cpp
 
-LLString gLastVersionChannel;
+std::string gLastVersionChannel;
 
 LLVector3			gWindVec(3.0, 3.0, 0.0);
 LLVector3			gRelativeWindVec(0.0, 0.0, 0.0);
@@ -289,22 +289,22 @@ BOOL gLogoutInProgress = FALSE;
 
 ////////////////////////////////////////////////////////////
 // Internal globals... that should be removed.
-static LLString gArgs;
+static std::string gArgs;
 
-const char* MARKER_FILE_NAME = "SecondLife.exec_marker";
-const char* ERROR_MARKER_FILE_NAME = "SecondLife.error_marker";
-const char* LLERROR_MARKER_FILE_NAME = "SecondLife.llerror_marker";
-const char* LOGOUT_MARKER_FILE_NAME = "SecondLife.logout_marker";
+const std::string MARKER_FILE_NAME("SecondLife.exec_marker");
+const std::string ERROR_MARKER_FILE_NAME("SecondLife.error_marker");
+const std::string LLERROR_MARKER_FILE_NAME("SecondLife.llerror_marker");
+const std::string LOGOUT_MARKER_FILE_NAME("SecondLife.logout_marker");
 static BOOL gDoDisconnect = FALSE;
-static LLString gLaunchFileOnQuit;
+static std::string gLaunchFileOnQuit;
 
 //----------------------------------------------------------------------------
 // File scope definitons
 const char *VFS_DATA_FILE_BASE = "data.db2.x.";
 const char *VFS_INDEX_FILE_BASE = "index.db2.x.";
 
-static LLString gSecondLife;
-static LLString gWindowTitle;
+static std::string gSecondLife;
+static std::string gWindowTitle;
 #ifdef LL_WINDOWS
 	static char sWindowClass[] = "Second Life";
 #endif
@@ -527,7 +527,7 @@ void LLAppViewer::initGridChoice()
 		server = llclamp(server, 0,	(S32)GRID_INFO_COUNT - 1);
 		if(server == GRID_INFO_OTHER)
 		{
-			LLString custom_server = gSavedSettings.getString("CustomServer");
+			std::string custom_server = gSavedSettings.getString("CustomServer");
 			LLViewerLogin::getInstance()->setGridChoice(custom_server);
 		}
 		else if(server != 0)
@@ -659,7 +659,7 @@ bool LLAppViewer::init()
 
 	// Get the single value from the crash settings file, if it exists
 	std::string crash_settings_filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, CRASH_SETTINGS_FILE);
-	gCrashSettings.loadFromFile(crash_settings_filename.c_str());
+	gCrashSettings.loadFromFile(crash_settings_filename);
 
 	/////////////////////////////////////////////////
 	// OS-specific login dialogs
@@ -697,14 +697,14 @@ bool LLAppViewer::init()
 	}
 	
 	// Load art UUID information, don't require these strings to be declared in code.
-	LLString colors_base_filename = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "colors_base.xml");
+	std::string colors_base_filename = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "colors_base.xml");
 	LL_DEBUGS("InitInfo") << "Loading base colors from " << colors_base_filename << LL_ENDL;
-	gColors.loadFromFileLegacy(colors_base_filename.c_str(), FALSE, TYPE_COL4U);
+	gColors.loadFromFileLegacy(colors_base_filename, FALSE, TYPE_COL4U);
 
 	// Load overrides from user colors file
-	LLString user_colors_filename = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "colors.xml");
+	std::string user_colors_filename = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "colors.xml");
 	LL_DEBUGS("InitInfo") << "Loading user colors from " << user_colors_filename << LL_ENDL;
-	if (gColors.loadFromFileLegacy(user_colors_filename.c_str(), FALSE, TYPE_COL4U) == 0)
+	if (gColors.loadFromFileLegacy(user_colors_filename, FALSE, TYPE_COL4U) == 0)
 	{
 		LL_DEBUGS("InitInfo") << "Cannot load user colors from " << user_colors_filename << LL_ENDL;
 	}
@@ -731,7 +731,7 @@ bool LLAppViewer::init()
 	LLViewerJointMesh::updateVectorize();
 
 	// load MIME type -> media impl mappings
-	LLMIMETypes::parseMIMETypes( "mime_types.xml" ); 
+	LLMIMETypes::parseMIMETypes( std::string("mime_types.xml") ); 
 
 
 	// Copy settings to globals. *TODO: Remove or move to appropriage class initializers
@@ -778,8 +778,8 @@ bool LLAppViewer::init()
 			"If it continues to persist, you may need to completely uninstall " <<
 			gSecondLife << " and reinstall it.";
 		OSMessageBox(
-			msg.str().c_str(),
-			NULL,
+			msg.str(),
+			LLStringUtil::null,
 			OSMB_OK);
 		return 1;
 	}
@@ -803,12 +803,12 @@ bool LLAppViewer::init()
 	bind_keyboard_functions();
 
 	// Load Default bindings
-	if (!gViewerKeyboard.loadBindings(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,"keys.ini").c_str()))
+	if (!gViewerKeyboard.loadBindings(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,"keys.ini")))
 	{
 		LL_ERRS("InitInfo") << "Unable to open keys.ini" << LL_ENDL;
 	}
 	// Load Custom bindings (override defaults)
-	gViewerKeyboard.loadBindings(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,"custom_keys.ini").c_str());
+	gViewerKeyboard.loadBindings(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,"custom_keys.ini"));
 
 	// If we don't have the right GL requirements, exit.
 	if (!gGLManager.mHasRequirements && !gNoRender)
@@ -816,16 +816,16 @@ bool LLAppViewer::init()
 		// can't use an alert here since we're existing and
 		// all hell breaks lose.
 		OSMessageBox(
-			LLAlertDialog::getTemplateMessage("UnsupportedGLRequirements").c_str(),
-			NULL,
+			LLAlertDialog::getTemplateMessage("UnsupportedGLRequirements"),
+			LLStringUtil::null,
 			OSMB_OK);
 		return 0;
 	}
 
 
 	bool unsupported = false;
-	LLString::format_map_t args;
-	LLString minSpecs;
+	LLStringUtil::format_map_t args;
+	std::string minSpecs;
 		
 	// get cpu data from xml
 	std::stringstream minCPUString(LLAlertDialog::getTemplateMessage("UnsupportedCPUAmount"));
@@ -1300,7 +1300,7 @@ bool LLAppViewer::cleanup()
 
 	std::string crash_settings_filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, CRASH_SETTINGS_FILE);
 	// save all settings, even if equals defaults
-	gCrashSettings.saveToFile(crash_settings_filename.c_str(), FALSE);
+	gCrashSettings.saveToFile(crash_settings_filename, FALSE);
 
 	gSavedSettings.cleanup();
 	gColors.cleanup();
@@ -1315,9 +1315,8 @@ bool LLAppViewer::cleanup()
 	if (mPurgeOnExit)
 	{
 		llinfos << "Purging all cache files on exit" << llendflush;
-		char mask[LL_MAX_PATH];		/* Flawfinder: ignore */
-		snprintf(mask, LL_MAX_PATH, "%s*.*", gDirUtilp->getDirDelimiter().c_str());		/* Flawfinder: ignore */
-		gDirUtilp->deleteFilesInDir(gDirUtilp->getExpandedFilename(LL_PATH_CACHE,"").c_str(),mask);
+		std::string mask = gDirUtilp->getDirDelimiter() + "*.*";
+		gDirUtilp->deleteFilesInDir(gDirUtilp->getExpandedFilename(LL_PATH_CACHE,""),mask);
 	}
 
 	removeMarkerFile(); // Any crashes from here on we'll just have to ignore
@@ -1438,7 +1437,7 @@ bool LLAppViewer::initThreads()
 void errorCallback(const std::string &error_string)
 {
 #ifndef LL_RELEASE_FOR_DOWNLOAD
-	OSMessageBox(error_string.c_str(), "Fatal Error", OSMB_OK);
+	OSMessageBox(error_string, "Fatal Error", OSMB_OK);
 #endif
 
 	//Set the ErrorActivated global so we know to create a marker file
@@ -1459,12 +1458,12 @@ bool LLAppViewer::initLogging()
 	// Remove the last ".old" log file.
 	std::string old_log_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,
 							     "SecondLife.old");
-	LLFile::remove(old_log_file.c_str());
+	LLFile::remove(old_log_file);
 
 	// Rename current log file to ".old"
 	std::string log_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,
 							     "SecondLife.log");
-	LLFile::rename(log_file.c_str(), old_log_file.c_str());
+	LLFile::rename(log_file, old_log_file);
 
 	// Set the log file to SecondLife.log
 
@@ -1478,10 +1477,10 @@ void LLAppViewer::loadSettingsFromDirectory(ELLPath path_index)
 {	
 	for(LLSD::map_iterator itr = mSettingsFileList.beginMap(); itr != mSettingsFileList.endMap(); ++itr)
 	{
-		LLString settings_name = (*itr).first;
-		LLString settings_file = mSettingsFileList[settings_name].asString();
+		std::string settings_name = (*itr).first;
+		std::string settings_file = mSettingsFileList[settings_name].asString();
 
-		LLString full_settings_path = gDirUtilp->getExpandedFilename(path_index, settings_file);
+		std::string full_settings_path = gDirUtilp->getExpandedFilename(path_index, settings_file);
 
 		if(settings_name == sGlobalSettingsName 
 			&& path_index == LL_PATH_USER_SETTINGS)
@@ -1820,7 +1819,7 @@ bool LLAppViewer::initConfiguration()
     }
 
     const LLControlVariable* skinfolder = gSavedSettings.getControl("SkinFolder");
-    if(skinfolder && LLString::null != skinfolder->getValue().asString())
+    if(skinfolder && LLStringUtil::null != skinfolder->getValue().asString())
     {   
         gDirUtilp->setSkinFolder(skinfolder->getValue().asString());
     }
@@ -1871,8 +1870,8 @@ bool LLAppViewer::initConfiguration()
 		std::ostringstream msg;
 		msg << gSecondLife << " requires a processor with AltiVec (G4 or later).";
 		OSMessageBox(
-			msg.str().c_str(),
-			NULL,
+			msg.str(),
+			LLStringUtil::null,
 			OSMB_OK);
 		removeMarkerFile();
 		return false;
@@ -1886,14 +1885,14 @@ bool LLAppViewer::initConfiguration()
 	std::ostringstream splash_msg;
 	splash_msg << "Loading " << gSecondLife << "...";
 	LLSplashScreen::show();
-	LLSplashScreen::update(splash_msg.str().c_str());
+	LLSplashScreen::update(splash_msg.str());
 
 	//LLVolumeMgr::initClass();
 	LLVolumeMgr* volume_manager = new LLVolumeMgr();
 	volume_manager->useMutex();	// LLApp and LLMutex magic must be manually enabled
 	LLPrimitive::setVolumeManager(volume_manager);
 
-	// Note: this is where we used to initialize LLFeatureManager::getInstance()->.
+	// Note: this is where we used to initialize gFeatureManagerp.
 
 	gStartTime = totalTime();
 
@@ -1903,11 +1902,11 @@ bool LLAppViewer::initConfiguration()
 #if LL_RELEASE_FOR_DOWNLOAD
 	gWindowTitle = gSecondLife;
 #elif LL_DEBUG
-	gWindowTitle = gSecondLife + LLString(" [DEBUG] ") + gArgs;
+	gWindowTitle = gSecondLife + std::string(" [DEBUG] ") + gArgs;
 #else
-	gWindowTitle = gSecondLife + LLString(" ") + gArgs;
+	gWindowTitle = gSecondLife + std::string(" ") + gArgs;
 #endif
-	LLString::truncate(gWindowTitle, 255);
+	LLStringUtil::truncate(gWindowTitle, 255);
 
 	//RN: if we received a URL, hand it off to the existing instance
 	// don't call anotherInstanceRunning() when doing URL handoff, as
@@ -1948,8 +1947,8 @@ bool LLAppViewer::initConfiguration()
 				"Check your task bar for a minimized copy of the program.\n"
 				"If this message persists, restart your computer.",
 			OSMessageBox(
-				msg.str().c_str(),
-				NULL,
+				msg.str(),
+				LLStringUtil::null,
 				OSMB_OK);
 			return false;
 		}
@@ -1970,9 +1969,9 @@ bool LLAppViewer::initConfiguration()
 			std::string alert;
 			alert = gSecondLife;
 			alert += " Alert";
-			S32 choice = OSMessageBox(msg.str().c_str(),
-				alert.c_str(),
-				OSMB_YESNO);
+			S32 choice = OSMessageBox(msg.str(),
+									  alert,
+									  OSMB_YESNO);
 			if (OSBTN_YES == choice)
 			{
 				llinfos << "Sending crash report." << llendl;
@@ -2051,10 +2050,10 @@ bool LLAppViewer::initConfiguration()
 	}
 
    	// need to do this here - need to have initialized global settings first
-	LLString nextLoginLocation = gSavedSettings.getString( "NextLoginLocation" );
+	std::string nextLoginLocation = gSavedSettings.getString( "NextLoginLocation" );
 	if ( nextLoginLocation.length() )
 	{
-		LLURLSimString::setString( nextLoginLocation.c_str() );
+		LLURLSimString::setString( nextLoginLocation );
 	};
 
 	gLastRunVersion = gSavedSettings.getString("LastRunVersion");
@@ -2072,14 +2071,9 @@ bool LLAppViewer::initWindow()
 	// Hide the splash screen
 	LLSplashScreen::hide();
 
-	// HACK: Need a non-const char * for stupid window name (propagated deep down)
-	char window_title_str[256];		/* Flawfinder: ignore */
-	strncpy(window_title_str, gWindowTitle.c_str(), sizeof(window_title_str) - 1);		/* Flawfinder: ignore */
-	window_title_str[sizeof(window_title_str) - 1] = '\0';
-
 	// always start windowed
 	BOOL ignorePixelDepth = gSavedSettings.getBOOL("IgnorePixelDepth");
-	gViewerWindow = new LLViewerWindow(window_title_str, "Second Life",
+	gViewerWindow = new LLViewerWindow(gWindowTitle, "Second Life",
 		gSavedSettings.getS32("WindowX"), gSavedSettings.getS32("WindowY"),
 		gSavedSettings.getS32("WindowWidth"), gSavedSettings.getS32("WindowHeight"),
 		FALSE, ignorePixelDepth);
@@ -2143,7 +2137,7 @@ void LLAppViewer::closeDebug()
 {
 	std::string debug_filename = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"debug_info.log");
 	llinfos << "Opening debug file " << debug_filename << llendl;
-	std::ofstream out_file(debug_filename.c_str());
+	llofstream out_file(debug_filename);
 	LLSDSerialize::toPrettyXML(gDebugInfo, out_file);
 	out_file.close();
 }
@@ -2202,11 +2196,10 @@ void LLAppViewer::cleanupSavedSettings()
 	}
 }
 
-void LLAppViewer::removeCacheFiles(const char* file_mask)
+void LLAppViewer::removeCacheFiles(const std::string& file_mask)
 {
-	char mask[LL_MAX_PATH];		/* Flawfinder: ignore */
-	snprintf(mask, LL_MAX_PATH, "%s%s", gDirUtilp->getDirDelimiter().c_str(), file_mask);		/* Flawfinder: ignore */
-	gDirUtilp->deleteFilesInDir(gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "").c_str(), mask);
+	std::string mask = gDirUtilp->getDirDelimiter() + file_mask;
+	gDirUtilp->deleteFilesInDir(gDirUtilp->getExpandedFilename(LL_PATH_CACHE, ""), mask);
 }
 
 void LLAppViewer::writeSystemInfo()
@@ -2306,8 +2299,8 @@ void LLAppViewer::handleViewerCrash()
 	
 	gDebugInfo["SettingsFilename"] = gSavedSettings.getString("ClientSettingsFile");
 	gDebugInfo["CAFilename"] = gDirUtilp->getCAFile();
-	gDebugInfo["ViewerExePath"] = gDirUtilp->getExecutablePathAndName().c_str();
-	gDebugInfo["CurrentPath"] = gDirUtilp->getCurPath().c_str();
+	gDebugInfo["ViewerExePath"] = gDirUtilp->getExecutablePathAndName();
+	gDebugInfo["CurrentPath"] = gDirUtilp->getCurPath();
 	if(gLogoutInProgress)
 	{
 		gDebugInfo["LastExecEvent"] = LAST_EXEC_LOGOUT_CRASH;
@@ -2334,7 +2327,7 @@ void LLAppViewer::handleViewerCrash()
 	//we're already in a crash situation	
 	if (gDirUtilp)
 	{
-		LLString crash_file_name;
+		std::string crash_file_name;
 		if(gLLErrorActivated) crash_file_name = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,LLERROR_MARKER_FILE_NAME);
 		else crash_file_name = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,ERROR_MARKER_FILE_NAME);
 		llinfos << "Creating crash marker file " << crash_file_name << llendl;
@@ -2354,7 +2347,7 @@ void LLAppViewer::handleViewerCrash()
 	{
 		std::string filename;
 		filename = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "stats.log");
-		llofstream file(filename.c_str(), llofstream::binary);
+		llofstream file(filename, llofstream::binary);
 		if(file.good())
 		{
 			llinfos << "Handle viewer crash generating stats log." << llendl;
@@ -2443,9 +2436,9 @@ void LLAppViewer::initMarkerFile()
 	// These checks should also remove these files for the last 2 cases if they currently exist
 
 	//LLError/Error checks. Only one of these should ever happen at a time.
-	LLString logout_marker_file =  gDirUtilp->getExpandedFilename(LL_PATH_LOGS, LOGOUT_MARKER_FILE_NAME);
-	LLString llerror_marker_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, LLERROR_MARKER_FILE_NAME);
-	LLString error_marker_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, ERROR_MARKER_FILE_NAME);
+	std::string logout_marker_file =  gDirUtilp->getExpandedFilename(LL_PATH_LOGS, LOGOUT_MARKER_FILE_NAME);
+	std::string llerror_marker_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, LLERROR_MARKER_FILE_NAME);
+	std::string error_marker_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, ERROR_MARKER_FILE_NAME);
 
 	apr_file_t* fMarker = ll_apr_file_open(logout_marker_file, LL_APR_RB);
 	if(fMarker != NULL)
@@ -2580,11 +2573,11 @@ static void finish_early_exit(S32 option, void* userdata)
 	LLAppViewer::instance()->forceQuit();
 }
 
-void LLAppViewer::earlyExit(const LLString& msg)
+void LLAppViewer::earlyExit(const std::string& msg)
 {
    	llwarns << "app_early_exit: " << msg << llendl;
 	gDoDisconnect = TRUE;
-// 	LLStringBase<char>::format_map_t args;
+// 	LLStringUtil::format_map_t args;
 // 	args["[MESSAGE]"] = mesg;
 // 	gViewerWindow->alertXml("AppEarlyExit", args, finish_early_exit);
 	LLAlertDialog::showCritical(msg, finish_early_exit, NULL);
@@ -2626,8 +2619,8 @@ bool LLAppViewer::initCache()
 	}
 	
 	// Setup and verify the cache location
-	LLString cache_location = gSavedSettings.getString("CacheLocation");
-	LLString new_cache_location = gSavedSettings.getString("NewCacheLocation");
+	std::string cache_location = gSavedSettings.getString("CacheLocation");
+	std::string new_cache_location = gSavedSettings.getString("NewCacheLocation");
 	if (new_cache_location != cache_location)
 	{
 		gDirUtilp->setCacheDir(gSavedSettings.getString("CacheLocation"));
@@ -2681,12 +2674,12 @@ bool LLAppViewer::initCache()
 	srand(time(NULL));		// Flawfinder: ignore
 	U32 old_salt = gSavedSettings.getU32("VFSSalt");
 	U32 new_salt;
-	char old_vfs_data_file[LL_MAX_PATH];		// Flawfinder: ignore
-	char old_vfs_index_file[LL_MAX_PATH];	// Flawfinder: ignore		
-	char new_vfs_data_file[LL_MAX_PATH];		// Flawfinder: ignore
-	char new_vfs_index_file[LL_MAX_PATH];	// Flawfinder: ignore
-	char static_vfs_index_file[LL_MAX_PATH];	// Flawfinder: ignore
-	char static_vfs_data_file[LL_MAX_PATH];	// Flawfinder: ignore
+	std::string old_vfs_data_file;
+	std::string old_vfs_index_file;
+	std::string new_vfs_data_file;
+	std::string new_vfs_index_file;
+	std::string static_vfs_index_file;
+	std::string static_vfs_data_file;
 
 	if (gSavedSettings.getBOOL("AllowMultipleViewers"))
 	{
@@ -2701,9 +2694,7 @@ bool LLAppViewer::initCache()
 		} while( new_salt == old_salt );
 	}
 
-	snprintf(old_vfs_data_file,  LL_MAX_PATH, "%s%u",		// Flawfinder: ignore
-		gDirUtilp->getExpandedFilename(LL_PATH_CACHE,VFS_DATA_FILE_BASE).c_str(),
-		old_salt);
+	old_vfs_data_file = gDirUtilp->getExpandedFilename(LL_PATH_CACHE,VFS_DATA_FILE_BASE) + llformat("%u",old_salt);
 
 	// make sure this file exists
 	llstat s;
@@ -2722,29 +2713,18 @@ bool LLAppViewer::initCache()
 		std::string found_file;
 		if (gDirUtilp->getNextFileInDir(dir, mask, found_file, false))
 		{
-			snprintf(old_vfs_data_file, LL_MAX_PATH, "%s%s%s", dir.c_str(), gDirUtilp->getDirDelimiter().c_str(), found_file.c_str());		// Flawfinder: ignore
+			old_vfs_data_file = dir + gDirUtilp->getDirDelimiter() + found_file;
 
-			S32 start_pos;
-			S32 length = strlen(found_file.c_str());		/* Flawfinder: ignore*/
-			for (start_pos = length - 1; start_pos >= 0; start_pos--)
-			{
-				if (found_file[start_pos] == '.')
-				{
-					start_pos++;
-					break;
-				}
-			}
+			S32 start_pos = found_file.find_last_of('.');
 			if (start_pos > 0)
 			{
-				sscanf(found_file.c_str() + start_pos, "%d", &old_salt);
+				sscanf(found_file.substr(start_pos+1).c_str(), "%d", &old_salt);
 			}
 			LL_DEBUGS("AppCache") << "Default vfs data file not present, found: " << old_vfs_data_file << " Old salt: " << old_salt << llendl;
 		}
 	}
 
-	snprintf(old_vfs_index_file, LL_MAX_PATH, "%s%u",		// Flawfinder: ignore
-			gDirUtilp->getExpandedFilename(LL_PATH_CACHE,VFS_INDEX_FILE_BASE).c_str(),
-			old_salt);
+	old_vfs_index_file = gDirUtilp->getExpandedFilename(LL_PATH_CACHE,VFS_INDEX_FILE_BASE) + llformat("%u",old_salt);
 
 	stat_result = LLFile::stat(old_vfs_index_file, &s);
 	if (stat_result)
@@ -2773,18 +2753,11 @@ bool LLAppViewer::initCache()
 		gDirUtilp->deleteFilesInDir(dir, mask);
 	}
 
-	snprintf(new_vfs_data_file, LL_MAX_PATH, "%s%u",		// Flawfinder: ignore
-		gDirUtilp->getExpandedFilename(LL_PATH_CACHE,VFS_DATA_FILE_BASE).c_str(),
-		new_salt);
+	new_vfs_data_file = gDirUtilp->getExpandedFilename(LL_PATH_CACHE,VFS_DATA_FILE_BASE) + llformat("%u",new_salt);
+	new_vfs_index_file = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, VFS_INDEX_FILE_BASE) + llformat("%u",new_salt);
 
-	snprintf(new_vfs_index_file, LL_MAX_PATH, "%s%u", gDirUtilp->getExpandedFilename(LL_PATH_CACHE, VFS_INDEX_FILE_BASE).c_str(),		// Flawfinder: ignore
-		new_salt);
-
-
-	strncpy(static_vfs_data_file, gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,"static_data.db2").c_str(), LL_MAX_PATH -1);		// Flawfinder: ignore
-	static_vfs_data_file[LL_MAX_PATH -1] = '\0';
-	strncpy(static_vfs_index_file, gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,"static_index.db2").c_str(), LL_MAX_PATH -1);		// Flawfinder: ignore
-	static_vfs_index_file[LL_MAX_PATH -1] = '\0';
+	static_vfs_data_file = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,"static_data.db2");
+	static_vfs_index_file = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,"static_index.db2");
 
 	if (resize_vfs)
 	{
@@ -2835,15 +2808,15 @@ void LLAppViewer::purgeCache()
 	LL_INFOS("AppCache") << "Purging Cache and Texture Cache..." << llendl;
 	LLAppViewer::getTextureCache()->purgeCache(LL_PATH_CACHE);
 	std::string mask = gDirUtilp->getDirDelimiter() + "*.*";
-	gDirUtilp->deleteFilesInDir(gDirUtilp->getExpandedFilename(LL_PATH_CACHE,"").c_str(),mask);
+	gDirUtilp->deleteFilesInDir(gDirUtilp->getExpandedFilename(LL_PATH_CACHE,""),mask);
 }
 
-const LLString& LLAppViewer::getSecondLifeTitle() const
+const std::string& LLAppViewer::getSecondLifeTitle() const
 {
 	return gSecondLife;
 }
 
-const LLString& LLAppViewer::getWindowTitle() const 
+const std::string& LLAppViewer::getWindowTitle() const 
 {
 	return gWindowTitle;
 }
@@ -2864,7 +2837,7 @@ void finish_forced_disconnect(S32 /* option */, void* /* userdata */)
 }
 
 
-void LLAppViewer::forceDisconnect(const LLString& mesg)
+void LLAppViewer::forceDisconnect(const std::string& mesg)
 {
 	if (gDoDisconnect)
     {
@@ -2874,13 +2847,13 @@ void LLAppViewer::forceDisconnect(const LLString& mesg)
     }
 	
 	// Translate the message if possible
-	LLString big_reason = LLAgent::sTeleportErrorMessages[mesg];
+	std::string big_reason = LLAgent::sTeleportErrorMessages[mesg];
 	if ( big_reason.size() == 0 )
 	{
 		big_reason = mesg;
 	}
 
-	LLStringBase<char>::format_map_t args;
+	LLStringUtil::format_map_t args;
 	gDoDisconnect = TRUE;
 
 	if (LLStartUp::getStartupState() < STATE_STARTED)
@@ -2941,7 +2914,7 @@ void LLAppViewer::saveFinalSnapshot()
 		gSavedSettings.setBOOL("ShowParcelOwners", FALSE);
 		idle();
 
-		LLString snap_filename = gDirUtilp->getLindenUserDir();
+		std::string snap_filename = gDirUtilp->getLindenUserDir();
 		snap_filename += gDirUtilp->getDirDelimiter();
 		snap_filename += SCREEN_LAST_FILENAME;
 		// use full pixel dimensions of viewer window (not post-scale dimensions)
@@ -2956,7 +2929,7 @@ void LLAppViewer::loadNameCache()
 
 	std::string name_cache;
 	name_cache = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "name.cache");
-	llifstream cache_file(name_cache.c_str());
+	llifstream cache_file(name_cache);
 	if(cache_file.is_open())
 	{
 		if(gCacheName->importFile(cache_file)) return;
@@ -2964,7 +2937,7 @@ void LLAppViewer::loadNameCache()
 
 	// Try to load from the legacy format. This should go away after a
 	// while. Phoenix 2008-01-30
-	LLFILE* name_cache_fp = LLFile::fopen(name_cache.c_str(), "r");		// Flawfinder: ignore
+	LLFILE* name_cache_fp = LLFile::fopen(name_cache, "r");		// Flawfinder: ignore
 	if (name_cache_fp)
 	{
 		gCacheName->importFile(name_cache_fp);
@@ -2978,7 +2951,7 @@ void LLAppViewer::saveNameCache()
 
 	std::string name_cache;
 	name_cache = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "name.cache");
-	llofstream cache_file(name_cache.c_str());
+	llofstream cache_file(name_cache);
 	if(cache_file.is_open())
 	{
 		gCacheName->exportFile(cache_file);
@@ -3421,9 +3394,7 @@ void LLAppViewer::idleShutdown()
 		S32 finished_uploads = total_uploads - pending_uploads;
 		F32 percent = 100.f * finished_uploads / total_uploads;
 		gViewerWindow->setProgressPercent(percent);
-		char buffer[MAX_STRING];		// Flawfinder: ignore
-		snprintf(buffer, MAX_STRING, "Saving final data...");		// Flawfinder: ignore
-		gViewerWindow->setProgressString(buffer);
+		gViewerWindow->setProgressString("Saving final data...");
 		return;
 	}
 

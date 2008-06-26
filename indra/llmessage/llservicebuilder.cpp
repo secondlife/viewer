@@ -39,7 +39,7 @@
 void LLServiceBuilder::loadServiceDefinitionsFromFile(
 	const std::string& service_filename)
 {
-	llifstream service_file(service_filename.c_str(), std::ios::binary);
+	llifstream service_file(service_filename, std::ios::binary);
 	if(service_file.is_open())
 	{
 		LLSD service_data;

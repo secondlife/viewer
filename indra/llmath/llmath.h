@@ -35,6 +35,8 @@
 #include <cmath>
 #include <cstdlib>
 #include "lldefs.h"
+#include "llstl.h" // *TODO: Remove when LLString is gone
+#include "llstring.h" // *TODO: Remove when LLString is gone
 
 // work around for Windows & older gcc non-standard function names.
 #if LL_WINDOWS

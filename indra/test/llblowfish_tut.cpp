@@ -57,8 +57,8 @@ namespace tut
 			mInputSize = 36;
 		}
 
-		bool matchFile(const char* filename,
-				const std::string& data)
+		bool matchFile(const std::string& filename,
+					   const std::string& data)
 		{
 			LLFILE* fp = LLFile::fopen(filename, "rb");
 			if (!fp) 
@@ -66,7 +66,7 @@ namespace tut
 				// sometimes test is run inside the indra directory
 				std::string path = "test/";
 				path += filename;
-				fp = LLFile::fopen(path.c_str(), "rb");
+				fp = LLFile::fopen(path, "rb");
 			}
 			if (!fp)
 			{

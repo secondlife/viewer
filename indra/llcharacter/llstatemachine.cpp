@@ -206,7 +206,7 @@ LLFSMState* LLStateDiagram::getState(U32 state_id)
 	return NULL;
 }
 
-BOOL LLStateDiagram::saveDotFile(const char* filename)
+BOOL LLStateDiagram::saveDotFile(const std::string& filename)
 {
 	apr_file_t* dot_file = ll_apr_file_open(filename, LL_APR_W);
 

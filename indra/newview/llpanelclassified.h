@@ -103,11 +103,11 @@ public:
 	static void callbackConfirmMature(S32 option, void* data);
 	void confirmMature(S32 option);
 	void gotMature();
-	static void callbackGotPriceForListing(S32 option, LLString text, void* data);
+	static void callbackGotPriceForListing(S32 option, std::string text, void* data);
 	static void callbackConfirmPublish(S32 option, void* data);
 	void confirmPublish(S32 option);
 
-	void sendClassifiedClickMessage(const char* type);
+	void sendClassifiedClickMessage(const std::string& type);
 
 protected:
 	static void saveCallback(S32 option, void* data);
@@ -150,7 +150,7 @@ protected:
 	// yet for this classified?  That is, have they saved once?
 	BOOL mPaidFor;
 
-	LLString mSimName;
+	std::string mSimName;
 	LLVector3d mPosGlobal;
 
 	// Values the user may change
@@ -185,7 +185,7 @@ public:
 	virtual ~LLFloaterPriceForListing();
 	virtual BOOL postBuild();
 
-	static void show( void (*callback)(S32 option, LLString value, void* userdata), void* userdata );
+	static void show( void (*callback)(S32 option, std::string value, void* userdata), void* userdata );
 
 private:
 	static void onClickSetPrice(void*);
@@ -193,7 +193,7 @@ private:
 	static void buttonCore(S32 button, void* data);
 
 private:
-	void (*mCallback)(S32 option, LLString, void*);
+	void (*mCallback)(S32 option, std::string, void*);
 	void* mUserData;
 };
 

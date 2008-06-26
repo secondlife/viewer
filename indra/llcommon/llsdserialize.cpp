@@ -1230,8 +1230,7 @@ void LLSDFormatter::realFormat(const std::string& format)
 
 void LLSDFormatter::formatReal(LLSD::Real real, std::ostream& ostr) const
 {
-	char buffer[MAX_STRING];		/* Flawfinder: ignore */
-	snprintf(buffer, MAX_STRING, mRealFormat.c_str(), real);	/* Flawfinder: ignore */
+	std::string buffer = llformat(mRealFormat.c_str(), real);
 	ostr << buffer;
 }
 

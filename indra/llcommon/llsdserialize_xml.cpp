@@ -63,7 +63,7 @@ S32 LLSDXMLFormatter::format(const LLSD& data, std::ostream& ostr, U32 options) 
 {
 	std::streamsize old_precision = ostr.precision(25);
 
-	LLString post = "";
+	std::string post;
 	if (options & LLSDFormatter::OPTIONS_PRETTY)
 	{
 		post = "\n";
@@ -79,8 +79,8 @@ S32 LLSDXMLFormatter::format(const LLSD& data, std::ostream& ostr, U32 options) 
 S32 LLSDXMLFormatter::format_impl(const LLSD& data, std::ostream& ostr, U32 options, U32 level) const
 {
 	S32 format_count = 1;
-	LLString pre = "";
-	LLString post = "";
+	std::string pre;
+	std::string post;
 
 	if (options & LLSDFormatter::OPTIONS_PRETTY)
 	{

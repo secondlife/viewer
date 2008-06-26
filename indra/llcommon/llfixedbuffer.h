@@ -52,7 +52,7 @@ public:
 	std::deque<S32>			mLineLengths;
 
 	void clear(); // Clear the buffer, and reset it.
-	virtual void addLine(const LLString& utf8line);
+	virtual void addLine(const std::string& utf8line);
 	virtual void addLine(const LLWString& line);
 
 	// Get lines currently in the buffer, up to max_size chars, max_length lines

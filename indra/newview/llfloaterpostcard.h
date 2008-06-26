@@ -62,7 +62,7 @@ public:
 							   void *user_data,
 							   S32 result, LLExtStat ext_status);
 
-	static void updateUserInfo(const char *email);
+	static void updateUserInfo(const std::string& email);
 
 	static void onMsgFormFocusRecieved(LLFocusableElement* receiver, void* data);
 	static void missingSubjMsgAlertCallback(S32 option, void* data);

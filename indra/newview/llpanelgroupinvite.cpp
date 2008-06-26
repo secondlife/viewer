@@ -71,13 +71,13 @@ public:
 public:
 	LLUUID mGroupID;
 
-	LLString		mLoadingText;
+	std::string		mLoadingText;
 	LLNameListCtrl	*mInvitees;
 	LLComboBox      *mRoleNames;
 	LLButton		*mOKButton;
  	LLButton		*mRemoveButton;
 	LLTextBox		*mGroupName;
-	LLString		mOwnerWarning;
+	std::string		mOwnerWarning;
 	bool		mConfirmedOwnerInvite;
 
 	void (*mCloseCallback)(void* data);
@@ -158,7 +158,7 @@ void LLPanelGroupInvite::impl::submitInvitations()
 		// owner role: display confirmation and wait for callback
 		if ((role_id == gdatap->mOwnerRole) && (!mConfirmedOwnerInvite))
 		{
-			LLString::format_map_t args;
+			LLStringUtil::format_map_t args;
 			args["[MESSAGE]"] = mOwnerWarning;
 			gViewerWindow->alertXml("GenericAlertYesCancel", args, inviteOwnerCallback, this);
 			return; // we'll be called again if user confirms
@@ -395,8 +395,8 @@ void LLPanelGroupInvite::addUsers(std::vector<LLUUID>& agent_ids)
 		LLViewerObject* dest = gObjectList.findObject(agent_id);
 		if(dest && dest->isAvatar())
 		{
-			LLString fullname;
-			LLString::format_map_t args;
+			std::string fullname;
+			LLStringUtil::format_map_t args;
 			LLNameValue* nvfirst = dest->getNVPair("FirstName");
 			LLNameValue* nvlast = dest->getNVPair("LastName");
 			if(nvfirst && nvlast)

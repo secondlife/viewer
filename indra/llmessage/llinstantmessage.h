@@ -222,7 +222,7 @@ extern const char EMPTY_BINARY_BUCKET[];
 extern const S32 EMPTY_BINARY_BUCKET_SIZE;
 
 extern const U32 NO_TIMESTAMP;
-extern const char SYSTEM_FROM[];
+extern const std::string SYSTEM_FROM;
 
 // Number of retry attempts on sending the im.
 extern const S32 IM_TTL;
@@ -289,8 +289,8 @@ void pack_instant_message(
 	BOOL from_group,
 	const LLUUID& session_id,
 	const LLUUID& to_id,
-	const char* name,
-	const char* message,
+	const std::string& name,
+	const std::string& message,
 	U8 offline = IM_ONLINE,
 	EInstantMessage dialog = IM_NOTHING_SPECIAL,
 	const LLUUID& id = LLUUID::null,
@@ -307,8 +307,8 @@ void pack_instant_message_block(
 	BOOL from_group,
 	const LLUUID& session_id,
 	const LLUUID& to_id,
-	const char* name,
-	const char* message,
+	const std::string& name,
+	const std::string& message,
 	U8 offline = IM_ONLINE,
 	EInstantMessage dialog = IM_NOTHING_SPECIAL,
 	const LLUUID& id = LLUUID::null,

@@ -219,7 +219,7 @@ std::vector<LLListenerEntry> LLSimpleDispatcher::getListeners() const
 bool LLSimpleDispatcher::fireEvent(LLPointer<LLEvent> event, LLSD filter)
 {
 	std::vector<LLListenerEntry>::iterator itor;
-	LLString filter_string = filter.asString();
+	std::string filter_string = filter.asString();
 	for (itor=mListeners.begin(); itor!=mListeners.end(); ++itor)
 	{
 		LLListenerEntry& entry = *itor;

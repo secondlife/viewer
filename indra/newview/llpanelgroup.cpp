@@ -112,10 +112,10 @@ void LLPanelGroupTab::onClickHelp(void* user_data)
 void LLPanelGroupTab::handleClickHelp()
 {
 	// Display the help text.
-	LLString help_text( getHelpText() );
+	std::string help_text( getHelpText() );
 	if ( !help_text.empty() )
 	{
-		LLString::format_map_t args;
+		LLStringUtil::format_map_t args;
 		args["[MESSAGE]"] = help_text;
 		LLAlertDialog* dialogp = gViewerWindow->alertXml("GenericAlert", args);
 		if (dialogp)
@@ -323,7 +323,7 @@ void LLPanelGroup::tabChanged()
 	//based on if they need an apply
 	if ( mApplyBtn )
 	{
-		LLString mesg;
+		std::string mesg;
 		mApplyBtn->setEnabled(mCurrentTab->needsApply(mesg));
 	}
 }
@@ -402,7 +402,7 @@ BOOL LLPanelGroup::canClose()
 BOOL LLPanelGroup::attemptTransition()
 {
 	// Check if the current tab needs to be applied.
-	LLString mesg;
+	std::string mesg;
 	if (mCurrentTab && mCurrentTab->needsApply(mesg))
 	{
 		// If no message was provided, give a generic one.
@@ -411,7 +411,7 @@ BOOL LLPanelGroup::attemptTransition()
 			mesg = mDefaultNeedsApplyMesg;
 		}
 		// Create a notify box, telling the user about the unapplied tab.
-		LLString::format_map_t args;
+		LLStringUtil::format_map_t args;
 		args["[NEEDS_APPLY_MESSAGE]"] = mesg;
 		args["[WANT_APPLY_MESSAGE]"] = mWantApplyMesg;
 		gViewerWindow->alertXml("PanelGroupApply", args,
@@ -547,7 +547,7 @@ bool LLPanelGroup::apply()
 	LLPanelGroupTab* panelp = (LLPanelGroupTab*) mTabContainer->getCurrentPanel();
 	if (!panelp) return false;
 	
-	LLString mesg;
+	std::string mesg;
 	if ( !panelp->needsApply(mesg) )
 	{
 		// We don't need to apply anything.
@@ -557,7 +557,7 @@ bool LLPanelGroup::apply()
 
 	// Ignore the needs apply message.
 	// Try to do the actual apply.
-	LLString apply_mesg;
+	std::string apply_mesg;
 	if ( panelp->apply( apply_mesg ) )
 	{
 		// Everything worked.  We're done.
@@ -568,7 +568,7 @@ bool LLPanelGroup::apply()
 	// Inform the user.
 	if ( !apply_mesg.empty() )
 	{
-		LLString::format_map_t args;
+		LLStringUtil::format_map_t args;
 		args["[MESSAGE]"] = apply_mesg;
 		gViewerWindow->alertXml("GenericAlert", args);
 	}
@@ -595,7 +595,7 @@ void LLPanelGroup::draw()
 	}
 	if (mCurrentTab)
 	{
-		LLString mesg;
+		std::string mesg;
 		childSetEnabled("btn_apply", mCurrentTab->needsApply(mesg));
 	}
 
@@ -627,11 +627,11 @@ void LLPanelGroup::close()
 	}
 }
 
-void LLPanelGroup::showNotice(const char* subject,
-							const char* message,
-							const bool& has_inventory,
-							const char* inventory_name,
-							LLOfferInfo* inventory_offer)
+void LLPanelGroup::showNotice(const std::string& subject,
+							  const std::string& message,
+							  const bool& has_inventory,
+							  const std::string& inventory_name,
+							  LLOfferInfo* inventory_offer)
 {
 	if (mCurrentTab->getName() != "notices_tab")
 	{

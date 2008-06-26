@@ -103,7 +103,7 @@ void LLXfer::free ()
 
 S32 LLXfer::startSend (U64 xfer_id, const LLHost &remote_host)
 {
-	llwarns << "undifferentiated LLXfer::startSend for " << getName() << llendl;
+	llwarns << "undifferentiated LLXfer::startSend for " << getFileName() << llendl;
 	return (-1);
 }
 
@@ -119,7 +119,7 @@ void LLXfer::setXferSize (S32 xfer_size)
 
 S32 LLXfer::startDownload()
 {
-	llwarns << "undifferentiated LLXfer::startDownload for " << getName()
+	llwarns << "undifferentiated LLXfer::startDownload for " << getFileName()
 			<< llendl;
 	return (-1);
 }
@@ -293,13 +293,13 @@ S32 LLXfer::processEOF()
 
 	if (LL_ERR_NOERR == mCallbackResult)
 	{
-		llinfos << "xfer from " << mRemoteHost << " complete: " << getName()
+		llinfos << "xfer from " << mRemoteHost << " complete: " << getFileName()
 				<< llendl;
 	}
 	else
 	{
 		llinfos << "xfer from " << mRemoteHost << " failed, code "
-				<< mCallbackResult << ": " << getName() << llendl;
+				<< mCallbackResult << ": " << getFileName() << llendl;
 	}
 
 	if (mCallback)
@@ -327,7 +327,7 @@ void LLXfer::abort (S32 result_code)
 {
 	mCallbackResult = result_code;
 
-	llinfos << "Aborting xfer from " << mRemoteHost << " named " << getName()
+	llinfos << "Aborting xfer from " << mRemoteHost << " named " << getFileName()
 			<< " - error: " << result_code << llendl;
 
 	gMessageSystem->newMessageFast(_PREHASH_AbortXfer);
@@ -343,11 +343,9 @@ void LLXfer::abort (S32 result_code)
 
 ///////////////////////////////////////////////////////////
 
-const char * LLXfer::getName() 
+std::string LLXfer::getFileName() 
 {
-	static char tmp_str[256];		/* Flawfinder: ignore */
-
-	return (U64_to_str(mID, tmp_str, sizeof(tmp_str)));
+	return U64_to_str(mID);
 }
 
 ///////////////////////////////////////////////////////////
@@ -367,7 +365,7 @@ S32 LLXfer::getMaxBufferSize ()
 
 std::ostream& operator<< (std::ostream& os, LLXfer &hh)
 {
-	os << hh.getName() ;
+	os << hh.getFileName() ;
 	return os;
 }
 

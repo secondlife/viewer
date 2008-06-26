@@ -72,25 +72,25 @@ class LLButton
 {
 public:
 	// simple button with text label
-	LLButton(const LLString& name, const LLRect &rect, const LLString& control_name = LLString(), 
+	LLButton(const std::string& name, const LLRect &rect, const std::string& control_name = std::string(), 
 			 void (*on_click)(void*) = NULL, void *data = NULL);
 
-	LLButton(const LLString& name, const LLRect& rect, 
-			 const LLString &unselected_image,
-			 const LLString &selected_image,
-			 const LLString& control_name,	
+	LLButton(const std::string& name, const LLRect& rect, 
+			 const std::string &unselected_image,
+			 const std::string &selected_image,
+			 const std::string& control_name,	
 			 void (*click_callback)(void*),
 			 void *callback_data = NULL,
 			 const LLFontGL* mGLFont = NULL,
-			 const LLString& unselected_label = LLString::null,
-			 const LLString& selected_label = LLString::null );
+			 const std::string& unselected_label = LLStringUtil::null,
+			 const std::string& selected_label = LLStringUtil::null );
 
 	virtual ~LLButton();
-	void init(void (*click_callback)(void*), void *callback_data, const LLFontGL* font, const LLString& control_name);
+	void init(void (*click_callback)(void*), void *callback_data, const LLFontGL* font, const std::string& control_name);
 
 	
-	void			addImageAttributeToXML(LLXMLNodePtr node, const LLString& imageName,
-										const LLUUID&	imageID,const LLString&	xmlTagName) const;
+	void			addImageAttributeToXML(LLXMLNodePtr node, const std::string& imageName,
+										const LLUUID&	imageID,const std::string&	xmlTagName) const;
 	virtual LLXMLNodePtr getXML(bool save_children = true) const;
 	static LLView* fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
 
@@ -130,24 +130,24 @@ public:
 	void			setLeftHPad( S32 pad )					{ mLeftHPad = pad; }
 	void			setRightHPad( S32 pad )					{ mRightHPad = pad; }
 
-	const LLString	getLabelUnselected() const { return wstring_to_utf8str(mUnselectedLabel); }
-	const LLString	getLabelSelected() const { return wstring_to_utf8str(mSelectedLabel); }
+	const std::string	getLabelUnselected() const { return wstring_to_utf8str(mUnselectedLabel); }
+	const std::string	getLabelSelected() const { return wstring_to_utf8str(mSelectedLabel); }
 
-	void			setImageColor(const LLString& color_control);
+	void			setImageColor(const std::string& color_control);
 	void			setImageColor(const LLColor4& c);
 	virtual void	setColor(const LLColor4& c);
 
-	void			setImages(const LLString &image_name, const LLString &selected_name);
-	void			setDisabledImages(const LLString &image_name, const LLString &selected_name);
-	void			setDisabledImages(const LLString &image_name, const LLString &selected_name, const LLColor4& c);
+	void			setImages(const std::string &image_name, const std::string &selected_name);
+	void			setDisabledImages(const std::string &image_name, const std::string &selected_name);
+	void			setDisabledImages(const std::string &image_name, const std::string &selected_name, const LLColor4& c);
 	
-	void			setHoverImages(const LLString &image_name, const LLString &selected_name);
+	void			setHoverImages(const std::string &image_name, const std::string &selected_name);
 
 	void			setDisabledImageColor(const LLColor4& c)		{ mDisabledImageColor = c; }
 
 	void			setDisabledSelectedLabelColor( const LLColor4& c )	{ mDisabledSelectedLabelColor = c; }
 
-	void			setImageOverlay(const LLString &image_name, LLFontGL::HAlign alignment = LLFontGL::HCENTER, const LLColor4& color = LLColor4::white);
+	void			setImageOverlay(const std::string& image_name, LLFontGL::HAlign alignment = LLFontGL::HCENTER, const LLColor4& color = LLColor4::white);
 	LLPointer<LLUIImage> getImageOverlay() { return mImageOverlay; }
 	
 
@@ -155,7 +155,7 @@ public:
 	virtual LLSD	getValue() const;
 
 	void			setLabel( const LLStringExplicit& label);
-	virtual BOOL	setLabelArg( const LLString& key, const LLStringExplicit& text );
+	virtual BOOL	setLabelArg( const std::string& key, const LLStringExplicit& text );
 	void			setLabelUnselected(const LLStringExplicit& label);
 	void			setLabelSelected(const LLStringExplicit& label);
 	void			setDisabledLabel(const LLStringExplicit& disabled_label);
@@ -175,14 +175,14 @@ public:
 
 	void			setHoverGlowStrength(F32 strength) { mHoverGlowStrength = strength; }
 
-	void			setImageUnselected(const LLString &image_name);
-	const LLString& getImageUnselectedName() const { return mImageUnselectedName; }
-	void			setImageSelected(const LLString &image_name);
-	const LLString& getImageSelectedName() const { return mImageSelectedName; }
-	void			setImageHoverSelected(const LLString &image_name);
-	void			setImageHoverUnselected(const LLString &image_name);
-	void			setImageDisabled(const LLString &image_name);
-	void			setImageDisabledSelected(const LLString &image_name);
+	void			setImageUnselected(const std::string &image_name);
+	const std::string& getImageUnselectedName() const { return mImageUnselectedName; }
+	void			setImageSelected(const std::string &image_name);
+	const std::string& getImageSelectedName() const { return mImageSelectedName; }
+	void			setImageHoverSelected(const std::string &image_name);
+	void			setImageHoverUnselected(const std::string &image_name);
+	void			setImageDisabled(const std::string &image_name);
+	void			setImageDisabledSelected(const std::string &image_name);
 
 	void			setImageUnselected(LLPointer<LLUIImage> image);
 	void			setImageSelected(LLPointer<LLUIImage> image);
@@ -194,8 +194,8 @@ public:
 	void			setCommitOnReturn(BOOL commit) { mCommitOnReturn = commit; }
 	BOOL			getCommitOnReturn() const { return mCommitOnReturn; }
 
-	void			setHelpURLCallback(const LLString &help_url);
-	const LLString&	getHelpURL() const { return mHelpURL; }
+	void			setHelpURLCallback(const std::string &help_url);
+	const std::string&	getHelpURL() const { return mHelpURL; }
 
 protected:
 
@@ -257,12 +257,12 @@ private:
 	LLUUID			mImageHoverUnselectedID;
 	LLUUID			mImageDisabledID;
 	LLUUID			mImageDisabledSelectedID;
-	LLString		mImageUnselectedName;
-	LLString		mImageSelectedName;
-	LLString		mImageHoverSelectedName;
-	LLString		mImageHoverUnselectedName;
-	LLString		mImageDisabledName;
-	LLString		mImageDisabledSelectedName;
+	std::string		mImageUnselectedName;
+	std::string		mImageSelectedName;
+	std::string		mImageHoverSelectedName;
+	std::string		mImageHoverUnselectedName;
+	std::string		mImageDisabledName;
+	std::string		mImageDisabledSelectedName;
 
 	LLColor4		mHighlightColor;
 	LLColor4		mUnselectedBgColor;
@@ -291,7 +291,7 @@ private:
 	BOOL			mNeedsHighlight;
 	BOOL			mCommitOnReturn;
 
-	LLString		mHelpURL;
+	std::string		mHelpURL;
 
 	LLPointer<LLUIImage> mImagep;
 

@@ -42,11 +42,11 @@ public:
 		LOG_LINE,
 		LOG_END
 	};
-	static LLString timestamp(bool withdate = false);
-	static LLString makeLogFileName(LLString(filename));
-	static void saveHistory(LLString filename, LLString line);
-	static void loadHistory(LLString filename, 
-		                    void (*callback)(ELogLineType,LLString,void*), 
+	static std::string timestamp(bool withdate = false);
+	static std::string makeLogFileName(std::string(filename));
+	static void saveHistory(std::string filename, std::string line);
+	static void loadHistory(std::string filename, 
+		                    void (*callback)(ELogLineType,std::string,void*), 
 							void* userdata);
 };
 

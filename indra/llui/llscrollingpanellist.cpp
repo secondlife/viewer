@@ -141,7 +141,7 @@ void LLScrollingPanelList::draw()
 // static
 LLView* LLScrollingPanelList::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory)
 {
-    LLString name("scrolling_panel_list");
+    std::string name("scrolling_panel_list");
     node->getAttributeString("name", name);
 
     LLRect rect;

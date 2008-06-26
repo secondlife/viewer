@@ -80,7 +80,7 @@ LLTSCode LLTransferTargetFile::dataCallback(const S32 packet_id, U8 *in_datap, c
 
 	if (!mFP)
 	{
-		mFP = LLFile::fopen(mParams.mFilename.c_str(), "wb");		/* Flawfinder: ignore */		
+		mFP = LLFile::fopen(mParams.mFilename, "wb");		/* Flawfinder: ignore */		
 
 		if (!mFP)
 		{
@@ -122,7 +122,7 @@ void LLTransferTargetFile::completionCallback(const LLTSCode status)
 		if (mFP)
 		{
 			// Only need to remove file if we successfully opened it.
-			LLFile::remove(mParams.mFilename.c_str());
+			LLFile::remove(mParams.mFilename);
 		}
 	default:
 		break;

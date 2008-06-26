@@ -58,7 +58,7 @@ LLFloaterBuildOptions	*LLFloaterBuildOptions::sInstance = NULL;
 // Methods
 //
 LLFloaterBuildOptions::LLFloaterBuildOptions( )
-: LLFloater("build options floater")
+: LLFloater(std::string("build options floater"))
 {
 	sInstance = this;
 }

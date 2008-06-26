@@ -44,7 +44,7 @@ public:
 	enum ECorner { LEFT_TOP, LEFT_BOTTOM, RIGHT_TOP, RIGHT_BOTTOM };
 
 	
-	LLResizeHandle(const LLString& name, const LLRect& rect, S32 min_width, S32 min_height, ECorner corner = RIGHT_BOTTOM );
+	LLResizeHandle(const std::string& name, const LLRect& rect, S32 min_width, S32 min_height, ECorner corner = RIGHT_BOTTOM );
 
 	virtual void	draw();
 	virtual BOOL	handleHover(S32 x, S32 y, MASK mask);

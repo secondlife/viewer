@@ -99,7 +99,7 @@ S32 LLWorldMapView::sTrackingArrowY = 0;
 F32 LLWorldMapView::sPixelsPerMeter = 1.f;
 F32 CONE_SIZE = 0.6f;
 
-std::map<std::string,LLString> LLWorldMapView::sStringsMap;
+std::map<std::string,std::string> LLWorldMapView::sStringsMap;
 
 #define SIM_NULL_MAP_SCALE 1 // width in pixels, where we start drawing "null" sims
 #define SIM_MAP_AGENT_SCALE 2 // width in pixels, where we start drawing agents
@@ -172,40 +172,40 @@ LLWorldMapView::LLWorldMapView(const std::string& name, const LLRect& rect )
 	const S32 DIR_HEIGHT = 10;
 	LLRect major_dir_rect(  0, DIR_HEIGHT, DIR_WIDTH, 0 );
 
-	mTextBoxNorth = new LLTextBox( "N", major_dir_rect );
+	mTextBoxNorth = new LLTextBox( std::string("N"), major_dir_rect );
 	addChild( mTextBoxNorth );
 
 	LLColor4 minor_color( 1.f, 1.f, 1.f, .7f );
 	
-	mTextBoxEast =	new LLTextBox( "E", major_dir_rect );
+	mTextBoxEast =	new LLTextBox( std::string("E"), major_dir_rect );
 	mTextBoxEast->setColor( minor_color );
 	addChild( mTextBoxEast );
 	
 	major_dir_rect.mRight += 1 ;
-	mTextBoxWest =	new LLTextBox( "W", major_dir_rect );
+	mTextBoxWest =	new LLTextBox( std::string("W"), major_dir_rect );
 	mTextBoxWest->setColor( minor_color );
 	addChild( mTextBoxWest );
 	major_dir_rect.mRight -= 1 ;
 
-	mTextBoxSouth = new LLTextBox( "S", major_dir_rect );
+	mTextBoxSouth = new LLTextBox( std::string("S"), major_dir_rect );
 	mTextBoxSouth->setColor( minor_color );
 	addChild( mTextBoxSouth );
 
 	LLRect minor_dir_rect(  0, DIR_HEIGHT, DIR_WIDTH * 2, 0 );
 
-	mTextBoxSouthEast =	new LLTextBox( "SE", minor_dir_rect );
+	mTextBoxSouthEast =	new LLTextBox( std::string("SE"), minor_dir_rect );
 	mTextBoxSouthEast->setColor( minor_color );
 	addChild( mTextBoxSouthEast );
 	
-	mTextBoxNorthEast = new LLTextBox( "NE", minor_dir_rect );
+	mTextBoxNorthEast = new LLTextBox( std::string("NE"), minor_dir_rect );
 	mTextBoxNorthEast->setColor( minor_color );
 	addChild( mTextBoxNorthEast );
 	
-	mTextBoxSouthWest =	new LLTextBox( "SW", minor_dir_rect );
+	mTextBoxSouthWest =	new LLTextBox( std::string("SW"), minor_dir_rect );
 	mTextBoxSouthWest->setColor( minor_color );
 	addChild( mTextBoxSouthWest );
 
-	mTextBoxNorthWest = new LLTextBox( "NW", minor_dir_rect );
+	mTextBoxNorthWest = new LLTextBox( std::string("NW"), minor_dir_rect );
 	mTextBoxNorthWest->setColor( minor_color );
 	addChild( mTextBoxNorthWest );
 }
@@ -625,33 +625,31 @@ void LLWorldMapView::draw()
 		// Draw the region name in the lower left corner
 		LLFontGL* font = LLFontGL::sSansSerifSmall;
 
-		char mesg[MAX_STRING];		/* Flawfinder: ignore */
+		std::string mesg;
 		if (gMapScale < sThresholdA)
 		{
-			mesg[0] = '\0';
 		}
 		else if (gMapScale < sThresholdB)
 		{
-			//sprintf(mesg, "%d", info->mAgents);
-			mesg[0] = '\0';
+			//	mesg = llformat( info->mAgents);
 		}
 		else
 		{
-			//sprintf(mesg, "%d / %s (%s)",
+			//mesg = llformat("%d / %s (%s)",
 			//			info->mAgents,
 			//			info->mName.c_str(),
-			//			LLViewerRegion::accessToShortString(info->mAccess) );
+			//			LLViewerRegion::accessToShortString(info->mAccess).c_str() );
 			if (info->mAccess == SIM_ACCESS_DOWN)
 			{
-				snprintf(mesg, MAX_STRING, "%s (%s)", info->mName.c_str(), sStringsMap["offline"].c_str());		/* Flawfinder: ignore */
+				mesg = llformat( "%s (%s)", info->mName.c_str(), sStringsMap["offline"].c_str());
 			}
 			else
 			{
-				snprintf(mesg, MAX_STRING, "%s", info->mName.c_str());		/* Flawfinder: ignore */
+				mesg = info->mName;
 			}
 		}
 
-		if (mesg[0] != '\0')
+		if (!mesg.empty())
 		{
 			font->renderUTF8(
 				mesg, 0,
@@ -668,7 +666,7 @@ void LLWorldMapView::draw()
 				simimage->getDiscardLevel() != 0)
 			{
 				font->renderUTF8(
-					sStringsMap["loading"].c_str(), 0,
+					sStringsMap["loading"], 0,
 					llfloor(left + 18), 
 					llfloor(top - 25),
 					LLColor4::white,
@@ -1017,8 +1015,8 @@ LLVector3 LLWorldMapView::globalPosToView( const LLVector3d& global_pos )
 }
 
 
-void LLWorldMapView::drawTracking(const LLVector3d& pos_global, const LLColor4& color, 
-							BOOL draw_arrow, LLString label, LLString tooltip, S32 vert_offset )
+void LLWorldMapView::drawTracking(const LLVector3d& pos_global, const LLColor4& color, BOOL draw_arrow,
+								  const std::string& label, const std::string& tooltip, S32 vert_offset )
 {
 	LLVector3 pos_local = globalPosToView( pos_global );
 	S32 x = llround( pos_local.mV[VX] );
@@ -1108,7 +1106,7 @@ LLVector3d LLWorldMapView::viewPosToGlobal( S32 x, S32 y )
 }
 
 
-BOOL LLWorldMapView::handleToolTip( S32 x, S32 y, LLString& msg, LLRect* sticky_rect_screen )
+BOOL LLWorldMapView::handleToolTip( S32 x, S32 y, std::string& msg, LLRect* sticky_rect_screen )
 {
 	LLVector3d pos_global = viewPosToGlobal(x, y);
 
@@ -1120,7 +1118,7 @@ BOOL LLWorldMapView::handleToolTip( S32 x, S32 y, LLString& msg, LLRect* sticky_
 		std::string message = 
 			llformat("%s (%s)",
 					 info->mName.c_str(),
-					 LLViewerRegion::accessToString(info->mAccess));
+					 LLViewerRegion::accessToString(info->mAccess).c_str());
 
 		if (info->mAccess != SIM_ACCESS_DOWN)
 		{
@@ -1784,10 +1782,11 @@ BOOL LLWorldMapView::handleDoubleClick( S32 x, S32 y, MASK mask )
 			{
 				gFloaterWorldMap->close();
 				// This is an ungainly hack
-				char uuid_str[38];		/* Flawfinder: ignore */
+				std::string uuid_str;
 				S32 event_id;
 				id.toString(uuid_str);
-				sscanf(&uuid_str[28], "%X", &event_id);
+				uuid_str = uuid_str.substr(28);
+				sscanf(uuid_str.c_str(), "%X", &event_id);
 				LLFloaterDirectory::showEvents(event_id);
 				break;
 			}

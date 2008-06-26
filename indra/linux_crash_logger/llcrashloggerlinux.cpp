@@ -132,7 +132,7 @@ bool LLCrashLoggerLinux::mainLoop()
 	return true;
 }
 
-void LLCrashLoggerLinux::updateApplication(LLString message)
+void LLCrashLoggerLinux::updateApplication(const std::string& message)
 {
 	LLCrashLogger::updateApplication(message);
 }

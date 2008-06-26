@@ -65,7 +65,7 @@ LLFloaterWater* LLFloaterWater::sWaterMenu = NULL;
 
 std::set<std::string> LLFloaterWater::sDefaultPresets;
 
-LLFloaterWater::LLFloaterWater() : LLFloater("water floater")
+LLFloaterWater::LLFloaterWater() : LLFloater(std::string("water floater"))
 {
 	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_water.xml");
 	
@@ -85,14 +85,14 @@ LLFloaterWater::LLFloaterWater() : LLFloater("water floater")
 		comboBox->selectByValue(LLSD("Default"));
 	}
 
-	LLString def_water = getString("WLDefaultWaterNames");
+	std::string def_water = getString("WLDefaultWaterNames");
 
 	// no editing or deleting of the blank string
 	sDefaultPresets.insert("");
 	boost_tokenizer tokens(def_water, boost::char_separator<char>(":"));
 	for (boost_tokenizer::iterator token_iter = tokens.begin(); token_iter != tokens.end(); ++token_iter)
 	{
-		LLString tok(*token_iter);
+		std::string tok(*token_iter);
 		sDefaultPresets.insert(tok);
 	}
 
@@ -175,8 +175,8 @@ void LLFloaterWater::onClickHelp(void* data)
 {
 	LLFloaterWater* self = LLFloaterWater::instance();
 
-	const char* xml_alert = (const char*) data;
-	LLAlertDialog* dialogp = gViewerWindow->alertXml(xml_alert);
+	const std::string* xml_alert = (std::string*)data;
+	LLAlertDialog* dialogp = gViewerWindow->alertXml(*xml_alert);
 	if (dialogp)
 	{
 		LLFloater* root_floater = gFloaterView->getParentFloater(self);
@@ -185,14 +185,15 @@ void LLFloaterWater::onClickHelp(void* data)
 			root_floater->addDependentFloater(dialogp);
 		}
 	}
+	delete xml_alert;
 }
 
-void LLFloaterWater::initHelpBtn(const char* name, const char* xml_alert)
+void LLFloaterWater::initHelpBtn(const std::string& name, const std::string& xml_alert)
 {
-	childSetAction(name, onClickHelp, (void*)xml_alert);
+	childSetAction(name, onClickHelp, new std::string(xml_alert));
 }
 
-void LLFloaterWater::newPromptCallback(S32 option, const LLString& text, void* userData)
+void LLFloaterWater::newPromptCallback(S32 option, const std::string& text, void* userData)
 {
 	if(text == "")
 	{
@@ -207,13 +208,12 @@ void LLFloaterWater::newPromptCallback(S32 option, const LLString& text, void* u
 		// add the current parameters to the list
 		// see if it's there first
 		std::map<std::string, LLWaterParamSet>::iterator mIt = 
-			param_mgr->mParamList.find(text.c_str());
+			param_mgr->mParamList.find(text);
 
 		// if not there, add a new one
 		if(mIt == param_mgr->mParamList.end()) 
 		{
-			param_mgr->addParamSet(text.c_str(), 
-				param_mgr->mCurParams);
+			param_mgr->addParamSet(text, param_mgr->mCurParams);
 			comboBox->add(text);
 			comboBox->sortByName();
 
@@ -537,9 +537,9 @@ void LLFloaterWater::onColorControlIMoved(LLUICtrl* ctrl, void* userData)
 		}
 
 		// set the sliders to the new vals
-		sWaterMenu->childSetValue(rName.c_str(), colorControl->mR);
-		sWaterMenu->childSetValue(gName.c_str(), colorControl->mG);
-		sWaterMenu->childSetValue(bName.c_str(), colorControl->mB);
+		sWaterMenu->childSetValue(rName, colorControl->mR);
+		sWaterMenu->childSetValue(gName, colorControl->mG);
+		sWaterMenu->childSetValue(bName, colorControl->mB);
 	}
 
 	// now update the current parameters and send them to shaders
@@ -597,7 +597,7 @@ void LLFloaterWater::onNormalMapPicked(LLUICtrl* ctrl, void* userData)
 
 void LLFloaterWater::onNewPreset(void* userData)
 {
-	gViewerWindow->alertXmlEditText("NewWaterPreset", LLString::format_map_t(), 
+	gViewerWindow->alertXmlEditText("NewWaterPreset", LLStringUtil::format_map_t(), 
 		NULL, NULL, newPromptCallback, NULL);
 }
 
@@ -617,7 +617,7 @@ void LLFloaterWater::onSavePreset(void* userData)
 
 	// check to see if it's a default and shouldn't be overwritten
 	std::set<std::string>::iterator sIt = sDefaultPresets.find(
-		comboBox->getSelectedItemLabel().c_str());
+		comboBox->getSelectedItemLabel());
 	if(sIt != sDefaultPresets.end() && !gSavedSettings.getBOOL("WaterEditPresets")) 
 	{
 		gViewerWindow->alertXml("WLNoEditDefault");
@@ -653,7 +653,7 @@ void LLFloaterWater::onDeletePreset(void* userData)
 		return;
 	}
 
-	LLString::format_map_t args;
+	LLStringUtil::format_map_t args;
 	args["[SKY]"] = combo_box->getSelectedValue().asString();
 	gViewerWindow->alertXml("WLDeletePresetAlert", args, deleteAlertCallback, sWaterMenu);
 }
@@ -675,10 +675,10 @@ void LLFloaterWater::deleteAlertCallback(S32 option, void* userdata)
 			mult_sldr = day_cycle->getChild<LLMultiSliderCtrl>("WaterDayCycleKeys");
 		}
 
-		LLString name = combo_box->getSelectedValue().asString();
+		std::string name = combo_box->getSelectedValue().asString();
 
 		// check to see if it's a default and shouldn't be deleted
-		std::set<std::string>::iterator sIt = sDefaultPresets.find(name.c_str());
+		std::set<std::string>::iterator sIt = sDefaultPresets.find(name);
 		if(sIt != sDefaultPresets.end()) 
 		{
 			gViewerWindow->alertXml("WaterNoEditDefault");

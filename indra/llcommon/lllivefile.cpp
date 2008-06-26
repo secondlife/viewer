@@ -93,7 +93,7 @@ bool LLLiveFile::Impl::check()
 
 	// Stat the file to see if it exists and when it was last modified.
 	llstat stat_data;
-	int res = LLFile::stat(mFilename.c_str(), &stat_data);
+	int res = LLFile::stat(mFilename, &stat_data);
 
 	if (res)
 	{

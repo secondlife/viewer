@@ -84,14 +84,14 @@ private:
 	void showBeacon();
 
 private:
-	LLString mMethod;
+	std::string mMethod;
 
 	LLSD mObjectListData;
 	std::vector<LLUUID> mObjectListIDs;
 
 	U32 mCurrentMode;
 	U32 mFlags;
-	LLString mFilter;
+	std::string mFilter;
 
 	BOOL mInitialized;
 

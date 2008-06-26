@@ -36,13 +36,13 @@
 
 // functions
 BOOL idle_startup();
-LLString load_password_from_disk();
+std::string load_password_from_disk();
 void release_start_screen();
 void login_alert_done(S32 option, void* user_data);
 
 // constants, variables,  & enumerations
-extern const char* SCREEN_HOME_FILENAME;
-extern const char* SCREEN_LAST_FILENAME;
+extern std::string SCREEN_HOME_FILENAME;
+extern std::string SCREEN_LAST_FILENAME;
 
 enum EStartupState{
 	STATE_FIRST,					// Initial startup

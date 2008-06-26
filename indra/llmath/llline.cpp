@@ -7,6 +7,8 @@
  * $License$
  */
 
+#include "linden_common.h"
+
 #include "llline.h"
 #include "llrand.h"
 

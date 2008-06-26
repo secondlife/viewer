@@ -62,10 +62,10 @@ public:
 	static const llwchar LAST_EMBEDDED_CHAR =  0x10ffff;
 	static const S32 MAX_EMBEDDED_ITEMS = LAST_EMBEDDED_CHAR - FIRST_EMBEDDED_CHAR + 1;
 
-	LLTextEditor(const LLString& name,
+	LLTextEditor(const std::string& name,
 				 const LLRect& rect,
 				 S32 max_length,
-				 const LLString &default_text, 
+				 const std::string &default_text, 
 				 const LLFontGL* glfont = NULL,
 				 BOOL allow_embedded_items = FALSE);
 
@@ -85,10 +85,10 @@ public:
 	virtual BOOL	handleKeyHere(KEY key, MASK mask );
 	virtual BOOL	handleUnicodeCharHere(llwchar uni_char);
 
-	virtual BOOL	handleToolTip(S32 x, S32 y, LLString& msg, LLRect* sticky_rect);
+	virtual BOOL	handleToolTip(S32 x, S32 y, std::string& msg, LLRect* sticky_rect);
 	virtual BOOL	handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 									  EDragAndDropType cargo_type, void *cargo_data,
-									  EAcceptance *accept, LLString& tooltip_msg);
+									  EAcceptance *accept, std::string& tooltip_msg);
 	virtual void	onMouseCaptureLost();
 
 	// view overrides
@@ -123,9 +123,9 @@ public:
 	virtual void	deselect();
 	virtual BOOL	canDeselect() const;
 
-	void			selectNext(const LLString& search_text_in, BOOL case_insensitive, BOOL wrap = TRUE);
-	BOOL			replaceText(const LLString& search_text, const LLString& replace_text, BOOL case_insensitive, BOOL wrap = TRUE);
-	void			replaceTextAll(const LLString& search_text, const LLString& replace_text, BOOL case_insensitive);
+	void			selectNext(const std::string& search_text_in, BOOL case_insensitive, BOOL wrap = TRUE);
+	BOOL			replaceText(const std::string& search_text, const std::string& replace_text, BOOL case_insensitive, BOOL wrap = TRUE);
+	void			replaceTextAll(const std::string& search_text, const std::string& replace_text, BOOL case_insensitive);
 	
 	// Undo/redo stack
 	void			blockUndo();
@@ -136,17 +136,17 @@ public:
 	BOOL			allowsEmbeddedItems() const { return mAllowEmbeddedItems; }
 
 	// inserts text at cursor
-	void			insertText(const LLString &text);
+	void			insertText(const std::string &text);
 	// appends text at end
-	void 			appendText(const LLString &wtext, bool allow_undo, bool prepend_newline,
+	void 			appendText(const std::string &wtext, bool allow_undo, bool prepend_newline,
 							   const LLStyleSP *stylep = NULL);
 
-	void 			appendColoredText(const LLString &wtext, bool allow_undo, 
+	void 			appendColoredText(const std::string &wtext, bool allow_undo, 
 									  bool prepend_newline,
 									  const LLColor4 &color,
-									  const LLString& font_name = LLString::null);
+									  const std::string& font_name = LLStringUtil::null);
 	// if styled text starts a line, you need to prepend a newline.
-	void 			appendStyledText(const LLString &new_text, bool allow_undo, 
+	void 			appendStyledText(const std::string &new_text, bool allow_undo, 
 									 bool prepend_newline,
 									 const LLStyleSP *stylep = NULL);
 
@@ -162,10 +162,9 @@ public:
 
 	void			getCurrentLineAndColumn( S32* line, S32* col, BOOL include_wordwrap );
 
-	// Keywords support
-	void			loadKeywords(const LLString& filename,
-								 const LLDynamicArray<const char*>& funcs,
-								 const LLDynamicArray<const char*>& tooltips,
+	void			loadKeywords(const std::string& filename,
+								 const std::vector<std::string>& funcs,
+								 const std::vector<std::string>& tooltips,
 								 const LLColor3& func_color);
 	LLKeywords::keyword_iterator_t keywordsBegin()	{ return mKeywords.begin(); }
 	LLKeywords::keyword_iterator_t keywordsEnd()	{ return mKeywords.end(); }
@@ -195,8 +194,8 @@ public:
 	void			setCommitOnFocusLost(BOOL b)			{ mCommitOnFocusLost = b; }
 
 	// Hack to handle Notecards
-	virtual BOOL	importBuffer(const LLString& buffer );
-	virtual BOOL	exportBuffer(LLString& buffer );
+	virtual BOOL	importBuffer(const char* buffer, S32 length );
+	virtual BOOL	exportBuffer(std::string& buffer );
 
 	// If takes focus, will take keyboard focus on click.
 	void			setTakesFocus(BOOL b)					{ mTakesFocus = b; }
@@ -210,7 +209,7 @@ public:
 
 	// Callbacks
 	static void		setLinkColor(LLColor4 color) { mLinkColor = color; }
-	static void		setURLCallbacks(void (*callback1) (const char* url), 
+	static void		setURLCallbacks(void (*callback1) (const std::string& url), 
 									bool (*callback2) (const std::string& url),      
 									bool (*callback3) (const std::string& url)	) 
 									{ mURLcallback = callback1; mSecondlifeURLcallback = callback2; mSecondlifeURLcallbackRightClick = callback3;}
@@ -221,7 +220,7 @@ public:
 	void 			setValue(const LLSD& value);
 	LLSD 			getValue() const;
 
- 	const LLString&	getText() const;
+ 	const std::string&	getText() const;
 	
 	// Non-undoable
 	void			setText(const LLStringExplicit &utf8str);
@@ -261,7 +260,7 @@ protected:
 	void			updateTextRect();
 	const LLRect&	getTextRect() const { return mTextRect; }
 
-	void 			assignEmbedded(const LLString &s);
+	void 			assignEmbedded(const std::string &s);
 	BOOL 			truncate();				// Returns true if truncation occurs
 	
 	static BOOL		isPartOfWord(llwchar c) { return (c == '_') || isalnum(c); }
@@ -313,8 +312,8 @@ protected:
 	virtual void	bindEmbeddedChars(LLFontGL* font) const {}
 	virtual void	unbindEmbeddedChars(LLFontGL* font) const {}
 	
-	S32				findHTMLToken(const LLString &line, S32 pos, BOOL reverse) const;
-	BOOL			findHTML(const LLString &line, S32 *begin, S32 *end) const;
+	S32				findHTMLToken(const std::string &line, S32 pos, BOOL reverse) const;
+	BOOL			findHTML(const std::string &line, S32 *begin, S32 *end) const;
 
 	// Abstract inner base class representing an undoable editor command.
 	// Concrete sub-classes can be defined for operations such as insert, remove, etc.
@@ -399,7 +398,7 @@ protected:
 	S32				mLastSelectionY;
 
 	BOOL			mParseHTML;
-	LLString		mHTML;
+	std::string		mHTML;
 
 	typedef std::vector<LLTextSegment *> segment_list_t;
 	segment_list_t mSegments;
@@ -436,7 +435,7 @@ private:
 	//
 	LLKeywords		mKeywords;
 	static LLColor4 mLinkColor;
-	static void			(*mURLcallback) (const char* url);
+	static void			(*mURLcallback) (const std::string& url);
 	static bool			(*mSecondlifeURLcallback) (const std::string& url);
 	static bool			(*mSecondlifeURLcallbackRightClick) (const std::string& url);
 
@@ -447,7 +446,7 @@ private:
 	class LLTextCmdRemove;
 
 	LLWString		mWText;
-	mutable LLString mUTF8Text;
+	mutable std::string mUTF8Text;
 	mutable BOOL	mTextIsUpToDate;
 	
 	S32				mMaxTextByteLength;		// Maximum length mText is allowed to be in bytes
@@ -544,7 +543,7 @@ public:
 	BOOL 				getIsDefault() const   				{ return mIsDefault; }
 	void				setToken( LLKeywordToken* token )	{ mToken = token; }
 	LLKeywordToken*		getToken() const					{ return mToken; }
-	BOOL				getToolTip( LLString& msg ) const;
+	BOOL				getToolTip( std::string& msg ) const;
 
 	void				dump() const;
 

@@ -175,7 +175,7 @@ void LLManipScale::handleDeselect()
 
 LLManipScale::LLManipScale( LLToolComposite* composite )
 	: 
-	LLManip( "Scale", composite ),
+	LLManip( std::string("Scale"), composite ),
 	mBoxHandleSize( 1.f ),
 	mScaledBoxHandleSize( 1.f ),
 	mManipPart( LL_NO_PART ),
@@ -1751,7 +1751,7 @@ void LLManipScale::renderSnapGuides(const LLBBox& bbox)
 					text_highlight = 1.f;
 				}
 
-				renderTickValue(text_origin, tick_val, grid_mode == GRID_MODE_WORLD ? "m" : "x", LLColor4(text_highlight, text_highlight, text_highlight, alpha));
+				renderTickValue(text_origin, tick_val, grid_mode == GRID_MODE_WORLD ? std::string("m") : std::string("x"), LLColor4(text_highlight, text_highlight, text_highlight, alpha));
 			}
 		}
 
@@ -1803,7 +1803,7 @@ void LLManipScale::renderSnapGuides(const LLBBox& bbox)
 						text_highlight = 1.f;
 					}
 
-					renderTickValue(text_origin, tick_val, grid_mode == GRID_MODE_WORLD ? "m" : "x", LLColor4(text_highlight, text_highlight, text_highlight, alpha));
+					renderTickValue(text_origin, tick_val, grid_mode == GRID_MODE_WORLD ? std::string("m") : std::string("x"), LLColor4(text_highlight, text_highlight, text_highlight, alpha));
 				}
 			}
 		}

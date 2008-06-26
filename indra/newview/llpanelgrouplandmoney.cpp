@@ -62,7 +62,7 @@ public:
 								LLTextEditor* text_editor,
 								LLTabContainer* tab_containerp,
 								LLPanel* panelp,
-								const LLString& loading_text,
+								const std::string& loading_text,
 								const LLUUID& group_id,
 								S32 interval_length_days,
 								S32 max_interval_days);
@@ -94,7 +94,7 @@ public:
 									   LLTextEditor* text_editorp,
 									   LLTabContainer* tab_containerp,
 									   LLPanel* panelp,
-									   const LLString& loading_text,
+									   const std::string& loading_text,
 									   const LLUUID& group_id);
 	virtual ~LLGroupMoneyDetailsTabEventHandler();
 
@@ -111,7 +111,7 @@ public:
 									 LLTextEditor* text_editorp,
 									 LLTabContainer* tab_containerp,
 									 LLPanel* panelp,
-									 const LLString& loading_text,
+									 const std::string& loading_text,
 									 const LLUUID& group_id);
 	virtual ~LLGroupMoneySalesTabEventHandler();
 
@@ -125,7 +125,7 @@ public:
 	LLGroupMoneyPlanningTabEventHandler(LLTextEditor* text_editor,
 										LLTabContainer* tab_containerp,
 										LLPanel* panelp,
-										const LLString& loading_text,
+										const std::string& loading_text,
 										const LLUUID& group_id);
 	virtual ~LLGroupMoneyPlanningTabEventHandler();
 
@@ -306,7 +306,7 @@ int LLPanelGroupLandMoney::impl::getStoredContribution()
 // Fills in the text field with the contribution, contrib
 void LLPanelGroupLandMoney::impl::setYourContributionTextField(int contrib)
 {
-	LLString buffer = llformat("%d", contrib);
+	std::string buffer = llformat("%d", contrib);
 
 	if ( mYourContributionEditorp )
 	{
@@ -405,41 +405,40 @@ void LLPanelGroupLandMoney::impl::processGroupLand(LLMessageSystem* msg)
 			mMapButtonp->setEnabled(TRUE);
 		}
 
-		char name[MAX_STRING];		/*Flawfinder: ignore*/
-		char desc[MAX_STRING];		/*Flawfinder: ignore*/
+		std::string name;
+		std::string desc;
 		S32 actual_area;
 		S32 billable_area;
 		U8 flags;
 		F32 global_x;
 		F32 global_y;
-		char sim_name[MAX_STRING];		/*Flawfinder: ignore*/
+		std::string sim_name;
 		for(S32 i = first_block; i < count; ++i)
 		{
 			msg->getUUID("QueryData", "OwnerID", owner_id, i);
-			msg->getString("QueryData", "Name", MAX_STRING, name, i);
-			msg->getString("QueryData", "Desc", MAX_STRING, desc, i);
+			msg->getString("QueryData", "Name", name, i);
+			msg->getString("QueryData", "Desc", desc, i);
 			msg->getS32("QueryData", "ActualArea", actual_area, i);
 			msg->getS32("QueryData", "BillableArea", billable_area, i);
 			msg->getU8("QueryData", "Flags", flags, i);
 			msg->getF32("QueryData", "GlobalX", global_x, i);
 			msg->getF32("QueryData", "GlobalY", global_y, i);
-			msg->getString("QueryData", "SimName", MAX_STRING, sim_name, i);
+			msg->getString("QueryData", "SimName", sim_name, i);
 
 			S32 region_x = llround(global_x) % REGION_WIDTH_UNITS;
 			S32 region_y = llround(global_y) % REGION_WIDTH_UNITS;
-			char location[MAX_STRING];		/*Flawfinder: ignore*/
-			snprintf(location, MAX_STRING, "%s (%d, %d)", sim_name, region_x, region_y);			/* Flawfinder: ignore */
-			char area[MAX_STRING];		/*Flawfinder: ignore*/
+			std::string location = sim_name + llformat(" (%d, %d)", region_x, region_y);
+			std::string area;
 			if(billable_area == actual_area)
 			{
-				snprintf(area, MAX_STRING, "%d", billable_area);			/* Flawfinder: ignore */
+				area = llformat("%d", billable_area);
 			}
 			else
 			{
-				snprintf(area, MAX_STRING, "%d / %d", billable_area, actual_area);			/* Flawfinder: ignore */
+				area = llformat("%d / %d", billable_area, actual_area);	
 			}
-			char hidden[MAX_STRING];		/*Flawfinder: ignore*/
-			snprintf(hidden, MAX_STRING, "%f %f", global_x, global_y);			/* Flawfinder: ignore */
+			std::string hidden;
+			hidden = llformat("%f %f", global_x, global_y);
 
 			LLSD row;
 
@@ -563,12 +562,12 @@ void LLPanelGroupLandMoney::update(LLGroupChange gc)
 	mImplementationp->setYourContributionTextField(mImplementationp->getStoredContribution());
 }
 
-bool LLPanelGroupLandMoney::needsApply(LLString& mesg)
+bool LLPanelGroupLandMoney::needsApply(std::string& mesg)
 {
 	return mImplementationp->mNeedsApply;
 }
 
-bool LLPanelGroupLandMoney::apply(LLString& mesg)
+bool LLPanelGroupLandMoney::apply(std::string& mesg)
 {
 	if (!mImplementationp->applyContribution() )
 	{
@@ -679,7 +678,7 @@ BOOL LLPanelGroupLandMoney::postBuild()
 		}
 	}
 
-	LLString loading_text = getString("loading_txt");
+	std::string loading_text = getString("loading_txt");
 	
 	//pull out the widgets for the L$ details tab
 	earlierp = getChild<LLButton>("earlier_details_button", true);
@@ -777,7 +776,7 @@ public:
 		 LLButton* later_buttonp,
 		 LLTextEditor* text_editorp,
 		 LLPanel* tabpanelp,
-		 const LLString& loading_text,
+		 const std::string& loading_text,
 		 const LLUUID& group_id,
 		 S32 interval_length_days,
 		 S32 max_interval_days);
@@ -803,14 +802,14 @@ public:
 	LLButton*     mEarlierButtonp;
 	LLButton*     mLaterButtonp;
 
-	LLString mLoadingText;
+	std::string mLoadingText;
 };
 
 LLGroupMoneyTabEventHandler::impl::impl(LLButton* earlier_buttonp,
 										LLButton* later_buttonp,
 										LLTextEditor* text_editorp,
 										LLPanel* tabpanelp,
-										const LLString& loading_text,
+										const std::string& loading_text,
 										const LLUUID& group_id,
 										S32 interval_length_days,
 										S32 max_interval_days)
@@ -868,7 +867,7 @@ LLGroupMoneyTabEventHandler::LLGroupMoneyTabEventHandler(LLButton* earlier_butto
 														 LLTextEditor* text_editorp,
 														 LLTabContainer* tab_containerp,
 														 LLPanel* panelp,
-														 const LLString& loading_text,
+														 const std::string& loading_text,
 														 const LLUUID& group_id,
 														 S32 interval_length_days,
 														 S32 max_interval_days)
@@ -985,7 +984,7 @@ LLGroupMoneyDetailsTabEventHandler::LLGroupMoneyDetailsTabEventHandler(LLButton*
 																	   LLTextEditor* text_editorp,
 																	   LLTabContainer* tab_containerp,
 																	   LLPanel* panelp,
-																	   const LLString& loading_text,
+																	   const std::string& loading_text,
 																	   const LLUUID& group_id)
 	: LLGroupMoneyTabEventHandler(earlier_buttonp,
 								  later_buttonp,
@@ -1036,16 +1035,13 @@ void LLGroupMoneyDetailsTabEventHandler::processReply(LLMessageSystem* msg,
 		return;
 	}
 
-	char line[MAX_STRING];		/*Flawfinder: ignore*/
-	LLString text;
-
-	char start_date[MAX_STRING];		/*Flawfinder: ignore*/
+	std::string start_date;
 	S32 interval_days;
 	S32 current_interval;
 
 	msg->getS32Fast(_PREHASH_MoneyData, _PREHASH_IntervalDays, interval_days );
 	msg->getS32Fast(_PREHASH_MoneyData, _PREHASH_CurrentInterval, current_interval );
-	msg->getStringFast(_PREHASH_MoneyData, _PREHASH_StartDate, MAX_STRING, start_date);
+	msg->getStringFast(_PREHASH_MoneyData, _PREHASH_StartDate, start_date);
 
 	if ( interval_days != mImplementationp->mIntervalLength || 
 		 current_interval != mImplementationp->mCurrentInterval )
@@ -1055,23 +1051,22 @@ void LLGroupMoneyDetailsTabEventHandler::processReply(LLMessageSystem* msg,
 		return;
 	}
 
-	snprintf(line, MAX_STRING,  "%s\n\n", start_date);			/* Flawfinder: ignore */
-	text.append(line);
+	std::string text = start_date;
+	text.append("\n\n");
 
 	S32 total_amount = 0;
 	S32 transactions = msg->getNumberOfBlocksFast(_PREHASH_HistoryData);
 	for(S32 i = 0; i < transactions; i++)
 	{
-		S32			amount = 0;
-		char		desc[MAX_STRING];		/*Flawfinder: ignore*/
+		S32 amount = 0;
+		std::string desc;
 
-		msg->getStringFast(_PREHASH_HistoryData, _PREHASH_Description,	MAX_STRING, desc, i );
-		msg->getS32Fast(_PREHASH_HistoryData, _PREHASH_Amount,		amount, i);
+		msg->getStringFast(_PREHASH_HistoryData, _PREHASH_Description, desc, i );
+		msg->getS32Fast(_PREHASH_HistoryData, _PREHASH_Amount, amount, i);
 
 		if (amount != 0)
 		{
-			snprintf(line, MAX_STRING, "%-24s %6d\n", desc, amount );			/* Flawfinder: ignore */
-			text.append(line);
+			text.append(llformat("%-24s %6d\n", desc.c_str(), amount));
 		}
 		else
 		{
@@ -1083,8 +1078,7 @@ void LLGroupMoneyDetailsTabEventHandler::processReply(LLMessageSystem* msg,
 
 	text.append(1, '\n');
 
-	snprintf(line, MAX_STRING, "%-24s %6d\n", "Total", total_amount );			/* Flawfinder: ignore */
-	text.append(line);
+	text.append(llformat("%-24s %6d\n", "Total", total_amount));
 
 	if ( mImplementationp->mTextEditorp )
 	{
@@ -1125,7 +1119,7 @@ LLGroupMoneySalesTabEventHandler::LLGroupMoneySalesTabEventHandler(LLButton* ear
 																   LLTextEditor* text_editorp,
 																   LLTabContainer* tab_containerp,
 																   LLPanel* panelp,
-																   const LLString& loading_text,
+																   const std::string& loading_text,
 																   const LLUUID& group_id)
 	: LLGroupMoneyTabEventHandler(earlier_buttonp,
 								  later_buttonp,
@@ -1176,16 +1170,15 @@ void LLGroupMoneySalesTabEventHandler::processReply(LLMessageSystem* msg,
 		return;
 	}
 
-	char line[MAX_STRING];		/*Flawfinder: ignore*/
 	std::string text = mImplementationp->mTextEditorp->getText();
 
-	char start_date[MAX_STRING];		/*Flawfinder: ignore*/
+	std::string start_date;
 	S32 interval_days;
 	S32 current_interval;
 
 	msg->getS32Fast(_PREHASH_MoneyData, _PREHASH_IntervalDays, interval_days );
 	msg->getS32Fast(_PREHASH_MoneyData, _PREHASH_CurrentInterval, current_interval );
-	msg->getStringFast(_PREHASH_MoneyData, _PREHASH_StartDate, MAX_STRING, start_date);
+	msg->getStringFast(_PREHASH_MoneyData, _PREHASH_StartDate, start_date);
 
 	if (interval_days != mImplementationp->mIntervalLength ||
 	    current_interval != mImplementationp->mCurrentInterval)
@@ -1199,10 +1192,7 @@ void LLGroupMoneySalesTabEventHandler::processReply(LLMessageSystem* msg,
 	// Start with the date.
 	if (text == mImplementationp->mLoadingText)
 	{
-		text.clear();
-
-		snprintf(line, MAX_STRING, "%s\n\n", start_date); 			/* Flawfinder: ignore */
-		text.append(line);
+		text = start_date + "\n\n";
 	}
 
 	S32 transactions = msg->getNumberOfBlocksFast(_PREHASH_HistoryData);
@@ -1214,22 +1204,21 @@ void LLGroupMoneySalesTabEventHandler::processReply(LLMessageSystem* msg,
 	{
 		for(S32 i = 0; i < transactions; i++)
 		{
-			const S32 SHORT_STRING = 64;
-			char		time[SHORT_STRING];		/*Flawfinder: ignore*/
+			std::string	time;
 			S32			type = 0;
 			S32			amount = 0;
-			char		user[SHORT_STRING];		/*Flawfinder: ignore*/
-			char		item[SHORT_STRING];		/*Flawfinder: ignore*/
+			std::string	user;
+			std::string	item;
 
-			msg->getStringFast(_PREHASH_HistoryData, _PREHASH_Time,		SHORT_STRING, time, i);
-			msg->getStringFast(_PREHASH_HistoryData, _PREHASH_User,		SHORT_STRING, user, i );
+			msg->getStringFast(_PREHASH_HistoryData, _PREHASH_Time,		time, i);
+			msg->getStringFast(_PREHASH_HistoryData, _PREHASH_User,		user, i );
 			msg->getS32Fast(_PREHASH_HistoryData, _PREHASH_Type,		type, i);
-			msg->getStringFast(_PREHASH_HistoryData, _PREHASH_Item,		SHORT_STRING, item, i );
-			msg->getS32Fast(_PREHASH_HistoryData, _PREHASH_Amount,	amount, i);
+			msg->getStringFast(_PREHASH_HistoryData, _PREHASH_Item,		item, i );
+			msg->getS32Fast(_PREHASH_HistoryData, _PREHASH_Amount,		amount, i);
 
 			if (amount != 0)
 			{
-				const char* verb;
+				std::string verb;
 
 				switch(type)
 				{
@@ -1256,7 +1245,7 @@ void LLGroupMoneySalesTabEventHandler::processReply(LLMessageSystem* msg,
 					break;
 				}
 
-				snprintf(line, sizeof(line), "%s %6d - %s %s %s\n", time, amount, user, verb, item);			/* Flawfinder: ignore */
+				std::string line = llformat("%s %6d - %s %s %s\n", time.c_str(), amount, user.c_str(), verb.c_str(), item.c_str());
 				text.append(line);
 			}
 		}
@@ -1302,7 +1291,7 @@ void LLPanelGroupLandMoney::processGroupAccountTransactionsReply(LLMessageSystem
 LLGroupMoneyPlanningTabEventHandler::LLGroupMoneyPlanningTabEventHandler(LLTextEditor* text_editorp,
 																		 LLTabContainer* tab_containerp,
 																		 LLPanel* panelp,
-																		 const LLString& loading_text,
+																		 const std::string& loading_text,
 																		 const LLUUID& group_id)
 	: LLGroupMoneyTabEventHandler(NULL,
 								  NULL,
@@ -1353,12 +1342,11 @@ void LLGroupMoneyPlanningTabEventHandler::processReply(LLMessageSystem* msg,
 		return;
 	}
 
-	char line[MAX_STRING];		/*Flawfinder: ignore*/
-	LLString text;
+	std::string text;
 
-	char start_date[MAX_STRING];		/*Flawfinder: ignore*/
-	char last_stipend_date[MAX_STRING];		/*Flawfinder: ignore*/
-	char next_stipend_date[MAX_STRING];		/*Flawfinder: ignore*/
+	std::string start_date;
+	std::string last_stipend_date;
+	std::string next_stipend_date;
 	S32 interval_days;
 	S32 current_interval;
 	S32 balance;
@@ -1395,9 +1383,9 @@ void LLGroupMoneyPlanningTabEventHandler::processReply(LLMessageSystem* msg,
 	msg->getS32Fast(_PREHASH_MoneyData, _PREHASH_ParcelDirFeeEstimate, proj_parcel_dir_fee );
 	msg->getS32Fast(_PREHASH_MoneyData, _PREHASH_NonExemptMembers, non_exempt_members );
 
-	msg->getStringFast(_PREHASH_MoneyData, _PREHASH_StartDate, MAX_STRING, start_date);
-	msg->getStringFast(_PREHASH_MoneyData, _PREHASH_LastTaxDate, MAX_STRING, last_stipend_date);
-	msg->getStringFast(_PREHASH_MoneyData, _PREHASH_TaxDate, MAX_STRING, next_stipend_date);
+	msg->getStringFast(_PREHASH_MoneyData, _PREHASH_StartDate, start_date);
+	msg->getStringFast(_PREHASH_MoneyData, _PREHASH_LastTaxDate, last_stipend_date);
+	msg->getStringFast(_PREHASH_MoneyData, _PREHASH_TaxDate, next_stipend_date);
 
 	cur_total_tax = cur_object_tax + cur_light_tax + cur_land_tax + cur_group_tax +  cur_parcel_dir_fee;
 	proj_total_tax = proj_object_tax + proj_light_tax + proj_land_tax + proj_group_tax + proj_parcel_dir_fee;
@@ -1410,27 +1398,22 @@ void LLGroupMoneyPlanningTabEventHandler::processReply(LLMessageSystem* msg,
 		return;
 	}
 
-	snprintf(line, MAX_STRING, "Summary for this week, beginning on %s\n", start_date);			/* Flawfinder: ignore */
-	text.append(line);
+	text.append("Summary for this week, beginning on ");
+	text.append(start_date);
 
 	if (current_interval == 0)
 	{
-		snprintf(line, MAX_STRING, "The next stipend day is %s\n\n", next_stipend_date);			/* Flawfinder: ignore */
-		text.append(line);
-		snprintf(line, MAX_STRING, "%-24sL$%6d\n", "Balance", balance );			/* Flawfinder: ignore */
-		text.append(line);
-
+		text.append("The next stipend day is ");
+		text.append(next_stipend_date);
+		text.append("\n\n");
+		text.append(llformat("%-24sL$%6d\n", "Balance", balance ));
 		text.append(1, '\n');
 	}
 
-	snprintf(line, MAX_STRING,  "                      Group       Individual Share\n");			/* Flawfinder: ignore */
-	text.append(line);
-	snprintf(line, MAX_STRING,     "%-24s %6d      %6d \n", "Credits", total_credits, (S32)floor((F32)total_credits/(F32)non_exempt_members));			/* Flawfinder: ignore */
-	text.append(line);
-	snprintf(line, MAX_STRING,     "%-24s %6d      %6d \n", "Debits", total_debits,  (S32)floor((F32)total_debits/(F32)non_exempt_members));			/* Flawfinder: ignore */
-	text.append(line);
-	snprintf(line, MAX_STRING,     "%-24s %6d      %6d \n", "Total", total_credits + total_debits,  (S32)floor((F32)(total_credits + total_debits)/(F32)non_exempt_members));			/* Flawfinder: ignore */
-	text.append(line);
+	text.append( "                      Group       Individual Share\n");
+	text.append(llformat( "%-24s %6d      %6d \n", "Credits", total_credits, (S32)floor((F32)total_credits/(F32)non_exempt_members)));
+	text.append(llformat( "%-24s %6d      %6d \n", "Debits", total_debits, (S32)floor((F32)total_debits/(F32)non_exempt_members)));
+	text.append(llformat( "%-24s %6d      %6d \n", "Total", total_credits + total_debits,  (S32)floor((F32)(total_credits + total_debits)/(F32)non_exempt_members)));
 
 	if ( mImplementationp->mTextEditorp )
 	{

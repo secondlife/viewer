@@ -95,7 +95,7 @@ public:
 	void renderObjectsForMap(LLNetMap &netmap);
 	void renderObjectBounds(const LLVector3 &center);
 
-	void addDebugBeacon(const LLVector3 &pos_agent, const LLString &string,
+	void addDebugBeacon(const LLVector3 &pos_agent, const std::string &string,
 						const LLColor4 &color=LLColor4(1.f, 0.f, 0.f, 0.5f),
 						const LLColor4 &text_color=LLColor4(1.f, 1.f, 1.f, 1.f),
 						S32 line_width = 1);
@@ -225,7 +225,7 @@ public:
 	}
 
 	LLVector3 mPositionAgent;
-	LLString mString;
+	std::string mString;
 	LLColor4 mColor;
 	LLColor4 mTextColor;
 	S32 mLineWidth;

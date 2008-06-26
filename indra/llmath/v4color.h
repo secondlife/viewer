@@ -211,8 +211,8 @@ class LLColor4
 		static LLColor4 cyan5;
 		static LLColor4 cyan6;
 	
-		static BOOL parseColor(const char* buf, LLColor4* color);
-		static BOOL parseColor4(const char* buf, LLColor4* color);
+		static BOOL parseColor(const std::string& buf, LLColor4* color);
+		static BOOL parseColor4(const std::string& buf, LLColor4* color);
 
 		inline void clamp();
 };

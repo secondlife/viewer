@@ -237,7 +237,7 @@ LLSimInfo* LLWorldMap::simInfoFromHandle(const U64 handle)
 }
 
 
-LLSimInfo* LLWorldMap::simInfoFromName(const LLString& sim_name)
+LLSimInfo* LLWorldMap::simInfoFromName(const std::string& sim_name)
 {
 	LLSimInfo* sim_info = NULL;
 	if (!sim_name.empty())
@@ -246,7 +246,7 @@ LLSimInfo* LLWorldMap::simInfoFromName(const LLString& sim_name)
 		{
 			sim_info = (*it).second;
 			if (sim_info
-				&& (0 == LLString::compareInsensitive(sim_name.c_str(), sim_info->mName.c_str())) )
+				&& (0 == LLStringUtil::compareInsensitive(sim_name, sim_info->mName)) )
 			{
 				break;
 			}
@@ -256,7 +256,7 @@ LLSimInfo* LLWorldMap::simInfoFromName(const LLString& sim_name)
 	return sim_info;
 }
 
-bool LLWorldMap::simNameFromPosGlobal(const LLVector3d& pos_global, LLString & outSimName )
+bool LLWorldMap::simNameFromPosGlobal(const LLVector3d& pos_global, std::string & outSimName )
 {
 	bool gotSimName = true;
 
@@ -266,7 +266,7 @@ bool LLWorldMap::simNameFromPosGlobal(const LLVector3d& pos_global, LLString & o
 	if (it != mSimInfoMap.end())
 	{
 		LLSimInfo* info = (*it).second;
-		outSimName = info->mName.c_str();
+		outSimName = info->mName;
 	}
 	else
 	{
@@ -552,16 +552,16 @@ void LLWorldMap::processMapBlockReply(LLMessageSystem* msg, void**)
 	{
 		U16 x_regions;
 		U16 y_regions;
-		char name[MAX_STRING];		/* Flawfinder: ignore */
-		U8 access;		/* Flawfinder: ignore */
+		std::string name;
+		U8 accesscode;
 		U32 region_flags;
 		U8 water_height;
 		U8 agents;
 		LLUUID image_id;
 		msg->getU16Fast(_PREHASH_Data, _PREHASH_X, x_regions, block);
 		msg->getU16Fast(_PREHASH_Data, _PREHASH_Y, y_regions, block);
-		msg->getStringFast(_PREHASH_Data, _PREHASH_Name, MAX_STRING, name, block);
-		msg->getU8Fast(_PREHASH_Data, _PREHASH_Access, access, block);		/* Flawfinder: ignore */
+		msg->getStringFast(_PREHASH_Data, _PREHASH_Name, name, block);
+		msg->getU8Fast(_PREHASH_Data, _PREHASH_Access, accesscode, block);
 		msg->getU32Fast(_PREHASH_Data, _PREHASH_RegionFlags, region_flags, block);
 		msg->getU8Fast(_PREHASH_Data, _PREHASH_WaterHeight, water_height, block);
 		msg->getU8Fast(_PREHASH_Data, _PREHASH_Agents, agents, block);
@@ -572,7 +572,7 @@ void LLWorldMap::processMapBlockReply(LLMessageSystem* msg, void**)
 
 		U64 handle = to_region_handle(x_meters, y_meters);
 
-		if (access == 255)
+		if (accesscode == 255)
 		{
 			// This region doesn't exist
 			if (LLWorldMap::getInstance()->mIsTrackingUnknownLocation &&
@@ -611,7 +611,7 @@ void LLWorldMap::processMapBlockReply(LLMessageSystem* msg, void**)
 
 			siminfo->mHandle = handle;
 			siminfo->mName.assign( name );
-			siminfo->mAccess = access;		/* Flawfinder: ignore */
+			siminfo->mAccess = accesscode;
 			siminfo->mRegionFlags = region_flags;
 			siminfo->mWaterHeight = (F32) water_height;
 			siminfo->mMapImageID[agent_flags] = image_id;
@@ -655,9 +655,9 @@ void LLWorldMap::processMapBlockReply(LLMessageSystem* msg, void**)
 				
 		if(LLWorldMap::getInstance()->mSLURLCallback != NULL)
 		{
-			// Server returns definitive capitalization, SLURL might
-			// not have that.
-			if (!stricmp(LLWorldMap::getInstance()->mSLURLRegionName.c_str(), name) || (LLWorldMap::getInstance()->mSLURLRegionHandle == handle))
+			// Server returns definitive capitalization, SLURL might not have that.
+			if ((LLStringUtil::compareInsensitive(LLWorldMap::getInstance()->mSLURLRegionName, name)==0)
+				|| (LLWorldMap::getInstance()->mSLURLRegionHandle == handle))
 			{
 				url_callback_t callback = LLWorldMap::getInstance()->mSLURLCallback;
 
@@ -685,12 +685,12 @@ void LLWorldMap::processMapItemReply(LLMessageSystem* msg, void**)
 	for (S32 block=0; block<num_blocks; ++block)
 	{
 		U32 X, Y;
-		char name[MAX_STRING];		/* Flawfinder: ignore */
+		std::string name;
 		S32 extra, extra2;
 		LLUUID uuid;
 		msg->getU32Fast(_PREHASH_Data, _PREHASH_X, X, block);
 		msg->getU32Fast(_PREHASH_Data, _PREHASH_Y, Y, block);
-		msg->getStringFast(_PREHASH_Data, _PREHASH_Name, MAX_STRING, name, block);
+		msg->getStringFast(_PREHASH_Data, _PREHASH_Name, name, block);
 		msg->getUUIDFast(_PREHASH_Data, _PREHASH_ID, uuid, block);
 		msg->getS32Fast(_PREHASH_Data, _PREHASH_Extra, extra, block);
 		msg->getS32Fast(_PREHASH_Data, _PREHASH_Extra2, extra2, block);
@@ -735,7 +735,6 @@ void LLWorldMap::processMapItemReply(LLMessageSystem* msg, void**)
 			case MAP_ITEM_PG_EVENT: // events
 			case MAP_ITEM_MATURE_EVENT:
 			{
-				char buffer[32];		/* Flawfinder: ignore */
 				struct tm* timep;
 				// Convert to Pacific, based on server's opinion of whether
 				// it's daylight savings time there.
@@ -744,11 +743,10 @@ void LLWorldMap::processMapItemReply(LLMessageSystem* msg, void**)
 				S32 display_hour = timep->tm_hour % 12;
 				if (display_hour == 0) display_hour = 12;
 
-				snprintf(buffer, sizeof(buffer), "%d:%02d %s",		/* Flawfinder: ignore */
-					display_hour,
-					timep->tm_min,
-					(timep->tm_hour < 12 ? "AM" : "PM") );
-				new_item.mToolTip.assign( buffer );
+				new_item.mToolTip = llformat( "%d:%02d %s",
+											  display_hour,
+											  timep->tm_min,
+											  (timep->tm_hour < 12 ? "AM" : "PM") );
 
 				// HACK: store Z in extra2
 				new_item.mPosGlobal.mdV[VZ] = (F64)extra2;
@@ -824,7 +822,7 @@ void LLWorldMap::dump()
 		from_region_handle(handle, &x_pos, &y_pos);
 
 		llinfos << x_pos << "," << y_pos
-			<< " " << info->mName.c_str() 
+			<< " " << info->mName 
 			<< " " << (S32)info->mAccess
 			<< " " << std::hex << info->mRegionFlags << std::dec
 			<< " " << info->mWaterHeight

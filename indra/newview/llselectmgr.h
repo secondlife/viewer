@@ -159,8 +159,8 @@ public:
 	LLAggregatePermissions mAggregatePerm;
 	LLAggregatePermissions mAggregateTexturePerm;
 	LLAggregatePermissions mAggregateTexturePermOwner;
-	LLString		mName;
-	LLString		mDescription;
+	std::string		mName;
+	std::string		mDescription;
 	LLCategory		mCategory;
 	S16				mInventorySerial;
 	LLVector3		mSavedPositionLocal;	// for interactively modifying object position
@@ -176,8 +176,8 @@ public:
 	LLUUID			mItemID;
 	LLUUID			mFolderID;
 	LLUUID			mFromTaskID;
-	LLString		mTouchName;
-	LLString		mSitName;
+	std::string		mTouchName;
+	std::string		mSitName;
 	U64				mCreationDate;
 	std::vector<LLColor4>	mSavedColors;
 	std::vector<LLUUID>		mSavedTextures;
@@ -506,8 +506,8 @@ public:
 	void selectionSetGlow(const F32 glow);
 
 	void selectionSetObjectPermissions(U8 perm_field, BOOL set, U32 perm_mask, BOOL override = FALSE);
-	void selectionSetObjectName(const LLString& name);
-	void selectionSetObjectDescription(const LLString& desc);
+	void selectionSetObjectName(const std::string& name);
+	void selectionSetObjectDescription(const std::string& desc);
 	void selectionSetObjectCategory(const LLCategory& category);
 	void selectionSetObjectSaleInfo(const LLSaleInfo& sale_info);
 
@@ -520,7 +520,7 @@ public:
 					   U32 update_type);
 	void sendSelectionMove();
 
-	void sendGodlikeRequest(const LLString& request, const LLString& parameter);
+	void sendGodlikeRequest(const std::string& request, const std::string& parameter);
 
 
 	// will make sure all selected object meet current criteria, or deselect them otherwise
@@ -543,9 +543,9 @@ public:
 	// returns TRUE if selected objects can be copied.
 	BOOL selectGetRootsCopy();
 	
-	BOOL selectGetCreator(LLUUID& id, LLString& name);					// TRUE if all have same creator, returns id
-	BOOL selectGetOwner(LLUUID& id, LLString& name);					// TRUE if all objects have same owner, returns id
-	BOOL selectGetLastOwner(LLUUID& id, LLString& name);				// TRUE if all objects have same owner, returns id
+	BOOL selectGetCreator(LLUUID& id, std::string& name);					// TRUE if all have same creator, returns id
+	BOOL selectGetOwner(LLUUID& id, std::string& name);					// TRUE if all objects have same owner, returns id
+	BOOL selectGetLastOwner(LLUUID& id, std::string& name);				// TRUE if all objects have same owner, returns id
 
 	// returns TRUE if all are the same. id is stuffed with
 	// the value found if available.
@@ -646,7 +646,7 @@ private:
 	void addAsFamily(std::vector<LLViewerObject*>& objects, BOOL add_to_end = FALSE);
 	void generateSilhouette(LLSelectNode *nodep, const LLVector3& view_point);
 	// Send one message to each region containing an object on selection list.
-	void sendListToRegions(	const LLString& message_name,
+	void sendListToRegions(	const std::string& message_name,
 							void (*pack_header)(void *user_data), 
 							void (*pack_body)(LLSelectNode* node, void *user_data), 
 							void *user_data,

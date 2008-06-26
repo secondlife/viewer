@@ -68,19 +68,19 @@ LLFloaterAbout* LLFloaterAbout::sInstance = NULL;
 
 // Default constructor
 LLFloaterAbout::LLFloaterAbout() 
-:	LLFloater("floater_about", "FloaterAboutRect", "")
+:	LLFloater(std::string("floater_about"), std::string("FloaterAboutRect"), LLStringUtil::null)
 {
 	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_about.xml");
 
 	// Support for changing product name.
-	LLString title("About ");
+	std::string title("About ");
 	title += LLAppViewer::instance()->getSecondLifeTitle();
 	setTitle(title);
 
-	LLString support;
+	std::string support;
 
 	// Version string
-	LLString version = LLAppViewer::instance()->getSecondLifeTitle()
+	std::string version = LLAppViewer::instance()->getSecondLifeTitle()
 		+ llformat(" %d.%d.%d (%d) %s %s (%s)",
 				   LL_VERSION_MAJOR, LL_VERSION_MINOR, LL_VERSION_PATCH, LL_VIEWER_BUILD,
 				   __DATE__, __TIME__,
@@ -98,15 +98,15 @@ LLFloaterAbout::LLFloaterAbout()
 						llformat("%.1f, %.1f, %.1f ", pos.mdV[VX], pos.mdV[VY], pos.mdV[VZ]));
 		support.append(pos_text);
 
-		LLString region_text = llformat("in %s located at ",
-				gAgent.getRegion()->getName().c_str());
+		std::string region_text = llformat("in %s located at ",
+										gAgent.getRegion()->getName().c_str());
 		support.append(region_text);
 
-		char buffer[MAX_STRING];		/*Flawfinder: ignore*/
-		gAgent.getRegion()->getHost().getHostName(buffer, MAX_STRING);
+		std::string buffer;
+		buffer = gAgent.getRegion()->getHost().getHostName();
 		support.append(buffer);
 		support.append(" (");
-		gAgent.getRegion()->getHost().getString(buffer, MAX_STRING);
+		buffer = gAgent.getRegion()->getHost().getString();
 		support.append(buffer);
 		support.append(")\n");
 		support.append(gLastVersionChannel);
@@ -125,11 +125,11 @@ LLFloaterAbout::LLFloaterAbout()
 	U32 memory = gSysMemory.getPhysicalMemoryKB() / 1024;
 	// Moved hack adjustment to Windows memory size into llsys.cpp
 
-	LLString mem_text = llformat("Memory: %u MB\n", memory );
+	std::string mem_text = llformat("Memory: %u MB\n", memory );
 	support.append(mem_text);
 
 	support.append("OS Version: ");
-	support.append( LLAppViewer::instance()->getOSInfo().getOSString().c_str() );
+	support.append( LLAppViewer::instance()->getOSInfo().getOSString() );
 	support.append("\n");
 
 	support.append("Graphics Card Vendor: ");
@@ -151,7 +151,7 @@ LLFloaterAbout::LLFloaterAbout()
 		if (media_source)
 		{
 			support.append("LLMozLib Version: ");
-			support.append((const char*) media_source->getVersion().c_str());
+			support.append(media_source->getVersion());
 			support.append("\n");
 			mgr->destroySource(media_source);
 		}
@@ -159,7 +159,7 @@ LLFloaterAbout::LLFloaterAbout()
 
 	if (gPacketsIn > 0)
 	{
-		LLString packet_loss = llformat("Packets Lost: %.0f/%.0f (%.1f%%)", 
+		std::string packet_loss = llformat("Packets Lost: %.0f/%.0f (%.1f%%)", 
 			LLViewerStats::getInstance()->mPacketsLostStat.getCurrent(),
 			F32(gPacketsIn),
 			100.f*LLViewerStats::getInstance()->mPacketsLostStat.getCurrent() / F32(gPacketsIn) );

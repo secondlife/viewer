@@ -51,8 +51,8 @@
 //
 
 LLToolPipette::LLToolPipette()
-:	LLTool("Pipette"),
-mSuccess(TRUE)
+:	LLTool(std::string("Pipette")),
+	mSuccess(TRUE)
 { 
 	mSelectCallback = NULL;
 	mUserData = NULL;
@@ -95,7 +95,7 @@ BOOL LLToolPipette::handleHover(S32 x, S32 y, MASK mask)
 	return FALSE;
 }
 
-BOOL LLToolPipette::handleToolTip(S32 x, S32 y, LLString& msg, LLRect *sticky_rect_screen)
+BOOL LLToolPipette::handleToolTip(S32 x, S32 y, std::string& msg, LLRect *sticky_rect_screen)
 {
 	if (mTooltipMsg.empty())
 	{
@@ -133,7 +133,7 @@ void LLToolPipette::setSelectCallback(select_callback callback, void* user_data)
 	mUserData = user_data;
 }
 
-void LLToolPipette::setResult(BOOL success, const LLString& msg)
+void LLToolPipette::setResult(BOOL success, const std::string& msg)
 {
 	mTooltipMsg = msg;
 	mSuccess = success;

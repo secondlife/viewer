@@ -283,7 +283,7 @@ public:
 
 public:
 	// Read file and build message templates
-	LLMessageSystem(const char *filename, U32 port, S32 version_major,
+	LLMessageSystem(const std::string& filename, U32 port, S32 version_major,
 					S32 version_minor, S32 version_patch,
 					bool failure_is_fatal = true);
 
@@ -295,7 +295,7 @@ public:
 	// Read file and build message templates filename must point to a
 	// valid string which specifies the path of a valid linden
 	// template.
-	void loadTemplateFile(const char* filename, bool failure_is_fatal);
+	void loadTemplateFile(const std::string& filename, bool failure_is_fatal);
 
 
 	// methods for building, sending, receiving, and handling messages
@@ -516,6 +516,8 @@ public:
 	void	getIPPort(	const char *block, const char *var, U16 &port, S32 blocknum = 0);
 	void getStringFast(	const char *block, const char *var, S32 buffer_size, char *buffer, S32 blocknum = 0);
 	void	getString(	const char *block, const char *var, S32 buffer_size, char *buffer, S32 blocknum = 0);
+	void getStringFast(	const char *block, const char *var, std::string& outstr, S32 blocknum = 0);
+	void	getString(	const char *block, const char *var, std::string& outstr, S32 blocknum = 0);
 
 
 	// Utility functions to generate a replay-resistant digest check

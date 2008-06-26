@@ -43,10 +43,9 @@
 #include "message.h"
 
 // Constants
-// probably need a setUIString() call in the interface
-const char* const CN_WAITING = "(Loading...)"; // *TODO: translate
-const char* const CN_NOBODY = "(nobody)"; // *TODO: translate
-const char* const CN_NONE = "(none)"; // *TODO: translate
+static const std::string CN_WAITING("(Loading...)"); // *TODO: translate
+static const std::string CN_NOBODY("(nobody)"); // *TODO: translate
+static const std::string CN_NONE("(none)"); // *TODO: translate
 
 // llsd serialization constants
 static const std::string AGENTS("agents");
@@ -78,16 +77,13 @@ public:
 public:
 	bool mIsGroup;
 	U32 mCreateTime;	// unix time_t
-	char mFirstName[DB_FIRST_NAME_BUF_SIZE]; /*Flawfinder: ignore*/
-	char mLastName[DB_LAST_NAME_BUF_SIZE]; /*Flawfinder: ignore*/
-	char mGroupName[DB_GROUP_NAME_BUF_SIZE]; /*Flawfinder: ignore*/
+	std::string mFirstName;
+	std::string mLastName;
+	std::string mGroupName;
 };
 
 LLCacheNameEntry::LLCacheNameEntry()
 {
-	mFirstName[0] = '\0';
-	mLastName[0]  = '\0';
-	mGroupName[0] = '\0';
 }
 
 
@@ -235,7 +231,7 @@ public:
 	static void handleUUIDGroupNameRequest(LLMessageSystem* msg, void** userdata);
 	static void handleUUIDGroupNameReply(LLMessageSystem* msg, void** userdata);
 
-	void notifyObservers(const LLUUID& id, const char* first, const char* last, BOOL group);
+	void notifyObservers(const LLUUID& id, const std::string& first, const std::string& last, BOOL group);
 };
 
 
@@ -390,8 +386,8 @@ void LLCacheName::importFile(LLFILE* fp)
 		LLCacheNameEntry* entry = new LLCacheNameEntry();
 		entry->mIsGroup = false;
 		entry->mCreateTime = create_time;
-		LLString::copy(entry->mFirstName, firstname, DB_FIRST_NAME_BUF_SIZE);
-		LLString::copy(entry->mLastName, lastname, DB_LAST_NAME_BUF_SIZE);
+		entry->mFirstName = firstname;
+		entry->mLastName = lastname;
 		impl.mCache[id] = entry;
 
 		count++;
@@ -426,12 +422,8 @@ bool LLCacheName::importFile(std::istream& istr)
 		LLCacheNameEntry* entry = new LLCacheNameEntry();
 		entry->mIsGroup = false;
 		entry->mCreateTime = ctime;
-		std::string first = agent[FIRST].asString();
-		first.copy(entry->mFirstName, DB_FIRST_NAME_BUF_SIZE, 0);
-		entry->mFirstName[llmin(first.size(),(std::string::size_type)DB_FIRST_NAME_BUF_SIZE-1)] = '\0';
-		std::string last = agent[LAST].asString();
-		last.copy(entry->mLastName, DB_LAST_NAME_BUF_SIZE, 0);
-		entry->mLastName[llmin(last.size(),(std::string::size_type)DB_LAST_NAME_BUF_SIZE-1)] = '\0';
+		entry->mFirstName = agent[FIRST].asString();
+		entry->mLastName = agent[LAST].asString();
 		impl.mCache[id] = entry;
 		++count;
 	}
@@ -451,9 +443,7 @@ bool LLCacheName::importFile(std::istream& istr)
 		LLCacheNameEntry* entry = new LLCacheNameEntry();
 		entry->mIsGroup = true;
 		entry->mCreateTime = ctime;
-		std::string name = group[NAME].asString();
-		name.copy(entry->mGroupName, DB_GROUP_NAME_BUF_SIZE, 0);
-		entry->mGroupName[llmin(name.size(), (std::string::size_type)DB_GROUP_NAME_BUF_SIZE-1)] = '\0';
+		entry->mGroupName = group[NAME].asString();
 		impl.mCache[id] = entry;
 		++count;
 	}
@@ -471,8 +461,8 @@ void LLCacheName::exportFile(std::ostream& ostr)
 		// Only write entries for which we have valid data.
 		LLCacheNameEntry* entry = iter->second;
 		if(!entry
-		   || (NULL != strchr(entry->mFirstName, '?'))
-		   || (NULL != strchr(entry->mGroupName, '?')))
+		   || (std::string::npos != entry->mFirstName.find('?'))
+		   || (std::string::npos != entry->mGroupName.find('?')))
 		{
 			continue;
 		}
@@ -480,13 +470,13 @@ void LLCacheName::exportFile(std::ostream& ostr)
 		// store it
 		LLUUID id = iter->first;
 		std::string id_str = id.asString();
-		if(entry->mFirstName[0] && entry->mLastName[0])
+		if(!entry->mFirstName.empty() && !entry->mLastName.empty())
 		{
 			data[AGENTS][id_str][FIRST] = entry->mFirstName;
 			data[AGENTS][id_str][LAST] = entry->mLastName;
 			data[AGENTS][id_str][CTIME] = (S32)entry->mCreateTime;
 		}
-		else if(entry->mIsGroup && entry->mGroupName[0])
+		else if(entry->mIsGroup && !entry->mGroupName.empty())
 		{
 			data[GROUPS][id_str][NAME] = entry->mGroupName;
 			data[GROUPS][id_str][CTIME] = (S32)entry->mCreateTime;
@@ -534,16 +524,6 @@ BOOL LLCacheName::getFullName(const LLUUID& id, std::string& fullname)
 	return res;
 }
 
-// *TODO: Deprecate
-BOOL LLCacheName::getName(const LLUUID& id, char* first, char* last)
-{
-	std::string first_name, last_name;
-	BOOL res = getName(id, first_name, last_name);
-	strcpy(first, first_name.c_str());
-	strcpy(last, last_name.c_str());
-	return res;
-}
-
 BOOL LLCacheName::getGroupName(const LLUUID& id, std::string& group)
 {
 	if(id.isNull())
@@ -553,7 +533,7 @@ BOOL LLCacheName::getGroupName(const LLUUID& id, std::string& group)
 	}
 
 	LLCacheNameEntry* entry = get_ptr_in_map(impl.mCache,id);
-	if (entry && !entry->mGroupName[0])
+	if (entry && entry->mGroupName.empty())
 	{
 		// COUNTER-HACK to combat James' HACK in exportFile()...
 		// this group name was loaded from a name cache that did not
@@ -577,16 +557,6 @@ BOOL LLCacheName::getGroupName(const LLUUID& id, std::string& group)
 		return FALSE;
 	}
 }
-
-// *TODO: Deprecate
-BOOL LLCacheName::getGroupName(const LLUUID& id, char* group)
-{
-	std::string group_name;
-	BOOL res = getGroupName(id, group_name);
-	strcpy(group, group_name.c_str());
-	return res;
-}
-
 
 // TODO: Make the cache name callback take a SINGLE std::string,
 // not a separate first and last name.
@@ -716,9 +686,9 @@ void LLCacheName::dumpStats()
 }
 
 //static 
-LLString LLCacheName::getDefaultName()
+std::string LLCacheName::getDefaultName()
 {
-	return LLString(CN_WAITING);
+	return CN_WAITING;
 }
 
 void LLCacheName::Impl::processPendingAsks()
@@ -813,7 +783,7 @@ void LLCacheName::Impl::sendRequest(
 }
 
 void LLCacheName::Impl::notifyObservers(const LLUUID& id,
-	const char* first, const char* last, BOOL is_group)
+	const std::string& first, const std::string& last, BOOL is_group)
 {
 	for (Observers::const_iterator i = mObservers.begin(),
 								   end = mObservers.end();
@@ -917,19 +887,17 @@ void LLCacheName::Impl::processUUIDReply(LLMessageSystem* msg, bool isGroup)
 		entry->mCreateTime = (U32)time(NULL);
 		if (!isGroup)
 		{
-			msg->getStringFast(_PREHASH_UUIDNameBlock, _PREHASH_FirstName, DB_FIRST_NAME_BUF_SIZE, entry->mFirstName, i);
-			msg->getStringFast(_PREHASH_UUIDNameBlock, _PREHASH_LastName,  DB_LAST_NAME_BUF_SIZE, entry->mLastName, i);
+			msg->getStringFast(_PREHASH_UUIDNameBlock, _PREHASH_FirstName, entry->mFirstName, i);
+			msg->getStringFast(_PREHASH_UUIDNameBlock, _PREHASH_LastName,  entry->mLastName, i);
 		}
 		else
 		{
-			msg->getStringFast(_PREHASH_UUIDNameBlock, _PREHASH_GroupName, DB_GROUP_NAME_BUF_SIZE, entry->mGroupName, i);
+			msg->getStringFast(_PREHASH_UUIDNameBlock, _PREHASH_GroupName, entry->mGroupName, i);
 		}
 
 		if (!isGroup)
 		{
-			notifyObservers(id,
-							entry->mFirstName, entry->mLastName,
-							FALSE);
+			notifyObservers(id, entry->mFirstName, entry->mLastName, FALSE);
 		}
 		else
 		{

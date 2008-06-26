@@ -46,7 +46,7 @@
 LLFloaterPostProcess* LLFloaterPostProcess::sPostProcess = NULL;
 
 
-LLFloaterPostProcess::LLFloaterPostProcess() : LLFloater("Post-Process Floater")
+LLFloaterPostProcess::LLFloaterPostProcess() : LLFloater(std::string("Post-Process Floater"))
 {
 	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_post_process.xml");
 

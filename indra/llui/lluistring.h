@@ -1,7 +1,7 @@
 /** 
  * @file lluistring.h
  * @author: Steve Bennetts
- * @brief A fancy wrapper for LLString supporting argument substitutions.
+ * @brief A fancy wrapper for std::string supporting argument substitutions.
  *
  * $LicenseInfo:firstyear=2006&license=viewergpl$
  * 
@@ -47,15 +47,15 @@
 // LLUIString mMessage("Welcome [USERNAME] to [SECONDLIFE]!");
 // mMessage.setArg("[USERNAME]", "Steve");
 // mMessage.setArg("[SECONDLIFE]", "Second Life");
-// llinfos << mMessage.getString().c_str() << llendl; // outputs "Welcome Steve to Second Life"
+// llinfos << mMessage.getString() << llendl; // outputs "Welcome Steve to Second Life"
 // mMessage.setArg("[USERNAME]", "Joe");
-// llinfos << mMessage.getString().c_str() << llendl; // outputs "Welcome Joe to Second Life"
+// llinfos << mMessage.getString() << llendl; // outputs "Welcome Joe to Second Life"
 // mMessage = "Recepción a la [SECONDLIFE] [USERNAME]"
 // mMessage.setArg("[SECONDLIFE]", "Segunda Vida");
-// llinfos << mMessage.getString().c_str() << llendl; // outputs "Recepción a la Segunda Vida Joe"
+// llinfos << mMessage.getString() << llendl; // outputs "Recepción a la Segunda Vida Joe"
 
 // Implementation Notes:
-// Attempting to have operator[](const LLString& s) return mArgs[s] fails because we have
+// Attempting to have operator[](const std::string& s) return mArgs[s] fails because we have
 // to call format() after the assignment happens.
 
 class LLUIString
@@ -64,17 +64,17 @@ public:
 	// These methods all perform appropriate argument substitution
 	// and modify mOrig where appropriate
 	LLUIString() {}
-	LLUIString(const LLString& instring, const LLString::format_map_t& args);
-	LLUIString(const LLString& instring) { assign(instring); }
+	LLUIString(const std::string& instring, const LLStringUtil::format_map_t& args);
+	LLUIString(const std::string& instring) { assign(instring); }
 
-	void assign(const LLString& instring);
-	LLUIString& operator=(const LLString& s) { assign(s); return *this; }
+	void assign(const std::string& instring);
+	LLUIString& operator=(const std::string& s) { assign(s); return *this; }
 
-	void setArgList(const LLString::format_map_t& args);
-	void setArg(const LLString& key, const LLString& replacement);
+	void setArgList(const LLStringUtil::format_map_t& args);
+	void setArg(const std::string& key, const std::string& replacement);
 
-	const LLString& getString() const { return mResult; }
-	operator LLString() const { return mResult; }
+	const std::string& getString() const { return mResult; }
+	operator std::string() const { return mResult; }
 
 	const LLWString& getWString() const { return mWResult; }
 	operator LLWString() const { return mWResult; }
@@ -92,15 +92,15 @@ public:
 	void insert(S32 charidx, const LLWString& wchars);
 	void replace(S32 charidx, llwchar wc);
 	
-	static const LLString::format_map_t sNullArgs;
+	static const LLStringUtil::format_map_t sNullArgs;
 
 private:
 	void format();	
 	
-	LLString mOrig;
-	LLString mResult;
+	std::string mOrig;
+	std::string mResult;
 	LLWString mWResult; // for displaying
-	LLString::format_map_t mArgs;
+	LLStringUtil::format_map_t mArgs;
 };
 
 #endif // LL_LLUISTRING_H

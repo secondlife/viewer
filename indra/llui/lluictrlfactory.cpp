@@ -76,18 +76,18 @@ const S32 VPAD = 4;
 const S32 FLOATER_H_MARGIN = 15;
 const S32 MIN_WIDGET_HEIGHT = 10;
 
-std::vector<LLString> LLUICtrlFactory::mXUIPaths;
+std::vector<std::string> LLUICtrlFactory::mXUIPaths;
 
 // UI Ctrl class for padding
 class LLUICtrlLocate : public LLUICtrl
 {
 public:
-	LLUICtrlLocate() : LLUICtrl("locate", LLRect(0,0,0,0), FALSE, NULL, NULL) { setTabStop(FALSE); }
+	LLUICtrlLocate() : LLUICtrl(std::string("locate"), LLRect(0,0,0,0), FALSE, NULL, NULL) { setTabStop(FALSE); }
 	virtual void draw() { }
 
 	static LLView *fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory)
 	{
-		LLString name("pad");
+		std::string name("pad");
 		node->getAttributeString("name", name);
 
 		LLUICtrlLocate *new_ctrl = new LLUICtrlLocate();
@@ -117,7 +117,7 @@ LLUICtrlFactory::~LLUICtrlFactory()
 
 void LLUICtrlFactory::setupPaths()
 {
-	LLString filename = gDirUtilp->getExpandedFilename(LL_PATH_SKINS, "paths.xml");
+	std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_SKINS, "paths.xml");
 
 	LLXMLNodePtr root;
 	BOOL success  = LLXMLNode::parseFile(filename, root, NULL);
@@ -126,12 +126,12 @@ void LLUICtrlFactory::setupPaths()
 	if (success)
 	{
 		LLXMLNodePtr path;
-		LLString app_dir = gDirUtilp->getAppRODataDir();
+		std::string app_dir = gDirUtilp->getAppRODataDir();
 	
 		for (path = root->getFirstChild(); path.notNull(); path = path->getNextSibling())
 		{
 			LLUIString path_val_ui(path->getValue());
-			LLString language = "en-us";
+			std::string language = "en-us";
 			if (LLUI::sConfigGroup)
 			{
 				language = LLUI::sConfigGroup->getString("Language");
@@ -141,7 +141,7 @@ void LLUICtrlFactory::setupPaths()
 				}
 			}
 			path_val_ui.setArg("[Language]", language);
-			LLString fullpath = app_dir + path_val_ui.getString();
+			std::string fullpath = app_dir + path_val_ui.getString();
 
 			if (std::find(mXUIPaths.begin(), mXUIPaths.end(), fullpath) == mXUIPaths.end())
 			{
@@ -151,8 +151,8 @@ void LLUICtrlFactory::setupPaths()
 	}
 	else // parsing failed
 	{
-		LLString slash = gDirUtilp->getDirDelimiter();
-		LLString dir = gDirUtilp->getAppRODataDir() + slash + "skins" + slash + "xui" + slash + "en-us" + slash;
+		std::string slash = gDirUtilp->getDirDelimiter();
+		std::string dir = gDirUtilp->getAppRODataDir() + slash + "skins" + slash + "xui" + slash + "en-us" + slash;
 		llwarns << "XUI::config file unable to open." << llendl;
 		mXUIPaths.push_back(dir);
 	}
@@ -163,7 +163,7 @@ void LLUICtrlFactory::setupPaths()
 //-----------------------------------------------------------------------------
 // getLayeredXMLNode()
 //-----------------------------------------------------------------------------
-bool LLUICtrlFactory::getLayeredXMLNode(const LLString &filename, LLXMLNodePtr& root)
+bool LLUICtrlFactory::getLayeredXMLNode(const std::string &filename, LLXMLNodePtr& root)
 {
 	if (!LLXMLNode::parseFile(mXUIPaths.front() + filename, root, NULL))
 	{	
@@ -176,12 +176,12 @@ bool LLUICtrlFactory::getLayeredXMLNode(const LLString &filename, LLXMLNodePtr& 
 
 	LLXMLNodePtr updateRoot;
 
-	std::vector<LLString>::const_iterator itor;
+	std::vector<std::string>::const_iterator itor;
 
 	for (itor = mXUIPaths.begin(), ++itor; itor != mXUIPaths.end(); ++itor)
 	{
-		LLString nodeName;
-		LLString updateName;
+		std::string nodeName;
+		std::string updateName;
 
 		LLXMLNode::parseFile((*itor) + filename, updateRoot, NULL);
 	
@@ -201,7 +201,7 @@ bool LLUICtrlFactory::getLayeredXMLNode(const LLString &filename, LLXMLNodePtr& 
 //-----------------------------------------------------------------------------
 // buildFloater()
 //-----------------------------------------------------------------------------
-void LLUICtrlFactory::buildFloater(LLFloater* floaterp, const LLString &filename, 
+void LLUICtrlFactory::buildFloater(LLFloater* floaterp, const std::string& filename, 
 									const LLCallbackMap::map_t* factory_map, BOOL open) /* Flawfinder: ignore */
 {
 	LLXMLNodePtr root;
@@ -242,9 +242,9 @@ void LLUICtrlFactory::buildFloater(LLFloater* floaterp, const LLString &filename
 //-----------------------------------------------------------------------------
 // saveToXML()
 //-----------------------------------------------------------------------------
-S32 LLUICtrlFactory::saveToXML(LLView* viewp, const LLString& filename)
+S32 LLUICtrlFactory::saveToXML(LLView* viewp, const std::string& filename)
 {
-	llofstream out(filename.c_str());
+	llofstream out(filename);
 	if (!out.good())
 	{
 		llwarns << "Unable to open " << filename << " for output." << llendl;
@@ -264,7 +264,7 @@ S32 LLUICtrlFactory::saveToXML(LLView* viewp, const LLString& filename)
 //-----------------------------------------------------------------------------
 // buildPanel()
 //-----------------------------------------------------------------------------
-BOOL LLUICtrlFactory::buildPanel(LLPanel* panelp, const LLString &filename,
+BOOL LLUICtrlFactory::buildPanel(LLPanel* panelp, const std::string& filename,
 									const LLCallbackMap::map_t* factory_map)
 {
 	BOOL didPost = FALSE;
@@ -308,7 +308,7 @@ BOOL LLUICtrlFactory::buildPanel(LLPanel* panelp, const LLString &filename,
 //-----------------------------------------------------------------------------
 // buildMenu()
 //-----------------------------------------------------------------------------
-LLMenuGL *LLUICtrlFactory::buildMenu(const LLString &filename, LLView* parentp)
+LLMenuGL *LLUICtrlFactory::buildMenu(const std::string &filename, LLView* parentp)
 {
 	// TomY TODO: Break this function into buildMenu and buildMenuBar
 	LLXMLNodePtr root;
@@ -346,7 +346,7 @@ LLMenuGL *LLUICtrlFactory::buildMenu(const LLString &filename, LLView* parentp)
 //-----------------------------------------------------------------------------
 // buildMenu()
 //-----------------------------------------------------------------------------
-LLPieMenu *LLUICtrlFactory::buildPieMenu(const LLString &filename, LLView* parentp)
+LLPieMenu *LLUICtrlFactory::buildPieMenu(const std::string &filename, LLView* parentp)
 {
 	LLXMLNodePtr root;
 
@@ -362,7 +362,7 @@ LLPieMenu *LLUICtrlFactory::buildPieMenu(const LLString &filename, LLView* paren
 		return NULL;
 	}
 
-	LLString name("menu");
+	std::string name("menu");
 	root->getAttributeString("name", name);
 
 	LLPieMenu *menu = new LLPieMenu(name);
@@ -387,7 +387,7 @@ void LLUICtrlFactory::rebuild()
 		built_panel_it != mBuiltPanels.end();
 		++built_panel_it)
 	{
-		LLString filename = built_panel_it->second;
+		std::string filename = built_panel_it->second;
 		LLPanel* panelp = built_panel_it->first.get();
 		if (!panelp)
 		{
@@ -415,7 +415,7 @@ void LLUICtrlFactory::rebuild()
 		{
 			continue;
 		}
-		LLString filename = built_floater_it->second;
+		std::string filename = built_floater_it->second;
 		llinfos << "Rebuilding UI floater " << floaterp->getName()
 			<< " from " << filename
 			<< llendl;
@@ -435,8 +435,8 @@ void LLUICtrlFactory::rebuild()
 
 LLView *LLUICtrlFactory::createCtrlWidget(LLPanel *parent, LLXMLNodePtr node)
 {
-	LLString ctrl_type = node->getName()->mString;
-	LLString::toLower(ctrl_type);
+	std::string ctrl_type = node->getName()->mString;
+	LLStringUtil::toLower(ctrl_type);
 	
 	LLWidgetClassRegistry::factory_func_t func = LLWidgetClassRegistry::getInstance()->getCreatorFunc(ctrl_type);
 
@@ -477,7 +477,7 @@ LLView* LLUICtrlFactory::createWidget(LLPanel *parent, LLXMLNodePtr node)
 //-----------------------------------------------------------------------------
 // createFactoryPanel()
 //-----------------------------------------------------------------------------
-LLPanel* LLUICtrlFactory::createFactoryPanel(LLString name)
+LLPanel* LLUICtrlFactory::createFactoryPanel(const std::string& name)
 {
 	std::deque<const LLCallbackMap::map_t*>::iterator itor;
 	for (itor = mFactoryStack.begin(); itor != mFactoryStack.end(); ++itor)
@@ -499,10 +499,10 @@ LLPanel* LLUICtrlFactory::createFactoryPanel(LLString name)
 //-----------------------------------------------------------------------------
 
 //static
-BOOL LLUICtrlFactory::getAttributeColor(LLXMLNodePtr node, const LLString& name, LLColor4& color)
+BOOL LLUICtrlFactory::getAttributeColor(LLXMLNodePtr node, const std::string& name, LLColor4& color)
 {
-	LLString colorstring;
-	BOOL res = node->getAttributeString(name, colorstring);
+	std::string colorstring;
+	BOOL res = node->getAttributeString(name.c_str(), colorstring);
 	if (res && LLUI::sColorsGroup)
 	{
 		if (LLUI::sColorsGroup->controlExists(colorstring))
@@ -516,11 +516,11 @@ BOOL LLUICtrlFactory::getAttributeColor(LLXMLNodePtr node, const LLString& name,
 	}
 	if (!res)
 	{
-		res = LLColor4::parseColor(colorstring.c_str(), &color);
+		res = LLColor4::parseColor(colorstring, &color);
 	}	
 	if (!res)
 	{
-		res = node->getAttributeColor(name, color);
+		res = node->getAttributeColor(name.c_str(), color);
 	}
 	return res;
 }

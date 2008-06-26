@@ -52,7 +52,7 @@ public:
 	BOOL readPng(U8* src, LLImageRaw* rawImage, ImageInfo *infop = NULL);
 	BOOL writePng(const LLImageRaw* rawImage, U8* dst);
 	U32  getFinalSize();
-	LLString getErrorMessage();
+	const std::string& getErrorMessage();
 
 protected:
 	void normalizeImage();
@@ -98,7 +98,7 @@ private:
 
 	F64 mGamma;
 
-	LLString mErrorMessage;
+	std::string mErrorMessage;
 };
 
 #endif

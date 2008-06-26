@@ -120,7 +120,7 @@ public:
 public:
 	static void rebuild(LLViewerObject* vobj);
 	
-	LLManip( const LLString& name, LLToolComposite* composite );
+	LLManip( const std::string& name, LLToolComposite* composite );
 
 	virtual BOOL		handleMouseDownOnPart(S32 x, S32 y, MASK mask) = 0;
 	void				renderGuidelines(BOOL draw_x = TRUE, BOOL draw_y = TRUE, BOOL draw_z = TRUE);
@@ -143,8 +143,8 @@ protected:
 	void				getManipNormal(LLViewerObject* object, EManipPart manip, LLVector3 &normal);
 	BOOL				getManipAxis(LLViewerObject* object, EManipPart manip, LLVector3 &axis);
 	F32					getSubdivisionLevel(const LLVector3 &reference_point, const LLVector3 &translate_axis, F32 grid_scale, S32 min_pixel_spacing = MIN_DIVISION_PIXEL_WIDTH);
-	void				renderTickValue(const LLVector3& pos, F32 value, const char* suffix, const LLColor4 &color);
-	void				renderTickText(const LLVector3& pos, const char* suffix, const LLColor4 &color);
+	void				renderTickValue(const LLVector3& pos, F32 value, const std::string& suffix, const LLColor4 &color);
+	void				renderTickText(const LLVector3& pos, const std::string& suffix, const LLColor4 &color);
 	void				updateGridSettings();
 	BOOL				getMousePointOnPlaneGlobal(LLVector3d& point, S32 x, S32 y, LLVector3d origin, LLVector3 normal) const;
 	BOOL				getMousePointOnPlaneAgent(LLVector3& point, S32 x, S32 y, LLVector3 origin, LLVector3 normal);

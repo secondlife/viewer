@@ -87,7 +87,7 @@ public:
 	/*virtual*/ BOOL parseXml(LLXmlTreeNode* node);
 
 protected:
-	LLString				mStaticImageFileName;
+	std::string				mStaticImageFileName;
 	BOOL					mMultiplyBlend;
 	BOOL					mSkipIfZeroWeight;
 	F32						mDomain;
@@ -127,7 +127,7 @@ public:
 protected:
 	typedef std::vector<LLTexParamColorInfo *> color_info_list_t;
 	color_info_list_t		mColorInfoList;
-	LLString				mName;
+	std::string				mName;
 };
 
 //-----------------------------------------------------------------------------
@@ -144,10 +144,10 @@ public:
 	BOOL parseXml(LLXmlTreeNode* node);
 
 protected:
-	LLString				mBodyRegion;
+	std::string				mBodyRegion;
 	S32						mWidth;
 	S32						mHeight;
-	LLString				mStaticAlphaFileName;
+	std::string				mStaticAlphaFileName;
 	BOOL					mClearAlpha;		// Set alpha to 1 for this layerset (if there is no mStaticAlphaFileName)
 	
 	typedef std::vector<LLTexLayerInfo*> layer_info_list_t;
@@ -174,20 +174,20 @@ public:
 	BOOL parseXml(LLXmlTreeNode* node);
 
 protected:
-	LLString				mName;
+	std::string				mName;
 	
 	BOOL					mWriteAllChannels;  // Don't use masking.  Just write RGBA into buffer,
 	ERenderPass				mRenderPass;
 
-	LLString				mGlobalColor;
+	std::string				mGlobalColor;
 	LLColor4				mFixedColor;
 
 	S32						mLocalTexture;
-	LLString				mStaticImageFileName;
+	std::string				mStaticImageFileName;
 	BOOL					mStaticImageIsMask;
 	BOOL					mUseLocalTextureAlphaOnly;	// Ignore RGB channels from the input texture.  Use alpha as a mask
 
-	typedef std::vector<std::pair<LLString,BOOL> > morph_name_list_t;
+	typedef std::vector<std::pair<std::string,BOOL> > morph_name_list_t;
 	morph_name_list_t		mMorphNameList;
 
 	typedef std::vector<LLTexParamColorInfo*> color_info_list_t;
@@ -261,7 +261,7 @@ public:
 	
 	BOOL					render( S32 x, S32 y, S32 width, S32 height );
 	BOOL					renderBump( S32 x, S32 y, S32 width,S32 height );
-	BOOL					isBodyRegion( const char* region )		{ return mInfo->mBodyRegion == region; }
+	BOOL					isBodyRegion( const std::string& region ) { return mInfo->mBodyRegion == region; }
 	LLTexLayerSetBuffer*	getComposite();
 	void					requestUpdate();
 	void					requestUpload();
@@ -277,7 +277,7 @@ public:
 	void					deleteCaches();
 	void					gatherAlphaMasks(U8 *data, S32 width, S32 height);
 	void					applyMorphMask(U8* tex_data, S32 width, S32 height, S32 num_components);
-	const LLString&			getBodyRegion() 				{ return mInfo->mBodyRegion; }
+	const std::string		getBodyRegion() 				{ return mInfo->mBodyRegion; }
 	BOOL					hasComposite()					{ return (mComposite != NULL); }
 	void					setBump( BOOL b )				{ mHasBump = b; }
 	BOOL					hasBump()						{ return mHasBump; }
@@ -339,7 +339,7 @@ public:
 
 	void					invalidateMorphMasks();
 	ERenderPass				getRenderPass() 						{ return mInfo->mRenderPass; }
-	const LLString&			getGlobalColor() 						{ return mInfo->mGlobalColor; }
+	const std::string&			getGlobalColor() 						{ return mInfo->mGlobalColor; }
 	BOOL					findNetColor( LLColor4* color );
 	BOOL					renderImageRaw( U8* in_data, S32 in_width, S32 in_height, S32 in_components, S32 width, S32 height, BOOL is_mask );
 	BOOL					renderAlphaMasks(  S32 x, S32 y, S32 width, S32 height, LLColor4* colorp );
@@ -506,15 +506,15 @@ public:
 	LLTexStaticImageList();
 	~LLTexStaticImageList();
 
-	LLImageRaw*	getImageRaw( const LLString& file_name );
-	LLImageGL*	getImageGL( const LLString& file_name, BOOL is_mask  );
-	LLImageTGA*	getImageTGA( const LLString& file_name );
+	LLImageRaw*	getImageRaw( const std::string& file_name );
+	LLImageGL*	getImageGL( const std::string& file_name, BOOL is_mask  );
+	LLImageTGA*	getImageTGA( const std::string& file_name );
 
 	void		deleteCachedImages();
 	void		dumpByteCount();
 
 private:
-	BOOL		loadImageRaw( const LLString& file_name, LLImageRaw* image_raw );
+	BOOL		loadImageRaw( const std::string& file_name, LLImageRaw* image_raw );
 
 private:
 	static LLStringTable sImageNames;

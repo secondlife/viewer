@@ -55,7 +55,7 @@ const S32 RIGHT_PAD = BORDER_PAD + 32; // HACK: space for close btn and minimize
 
 S32 LLDragHandle::sSnapMargin = 5;
 
-LLDragHandle::LLDragHandle( const LLString& name, const LLRect& rect, const LLString& title )
+LLDragHandle::LLDragHandle( const std::string& name, const LLRect& rect, const std::string& title )
 :	LLView( name, rect, TRUE ),
 	mDragLastScreenX( 0 ),
 	mDragLastScreenY( 0 ),
@@ -94,27 +94,27 @@ void LLDragHandle::setTitleBox(LLTextBox* titlebox)
 	}
 }
 
-LLDragHandleTop::LLDragHandleTop(const LLString& name, const LLRect &rect, const LLString& title)
+LLDragHandleTop::LLDragHandleTop(const std::string& name, const LLRect &rect, const std::string& title)
 :	LLDragHandle(name, rect, title)
 {
 	setFollowsAll();
 	setTitle( title );
 }
 
-LLDragHandleLeft::LLDragHandleLeft(const LLString& name, const LLRect &rect, const LLString& title)
+LLDragHandleLeft::LLDragHandleLeft(const std::string& name, const LLRect &rect, const std::string& title)
 :	LLDragHandle(name, rect, title)
 {
 	setFollowsAll();
 	setTitle( title );
 }
 
-void LLDragHandleTop::setTitle(const LLString& title)
+void LLDragHandleTop::setTitle(const std::string& title)
 {
-	LLString trimmed_title = title;
-	LLString::trim(trimmed_title);
+	std::string trimmed_title = title;
+	LLStringUtil::trim(trimmed_title);
 
 	const LLFontGL* font = LLResMgr::getInstance()->getRes( LLFONT_SANSSERIF );
-	LLTextBox* titlebox = new LLTextBox( "Drag Handle Title", getRect(), trimmed_title, font );
+	LLTextBox* titlebox = new LLTextBox( std::string("Drag Handle Title"), getRect(), trimmed_title, font );
 	titlebox->setFollows(FOLLOWS_TOP | FOLLOWS_LEFT | FOLLOWS_RIGHT);
 	titlebox->setFontStyle(LLFontGL::DROP_SHADOW_SOFT);
 	
@@ -123,22 +123,22 @@ void LLDragHandleTop::setTitle(const LLString& title)
 }
 
 
-const LLString& LLDragHandleTop::getTitle() const
+const std::string& LLDragHandleTop::getTitle() const
 {
-	return getTitleBox() == NULL ? LLString::null : getTitleBox()->getText();
+	return getTitleBox() == NULL ? LLStringUtil::null : getTitleBox()->getText();
 }
 
 
-void LLDragHandleLeft::setTitle(const LLString& )
+void LLDragHandleLeft::setTitle(const std::string& )
 {
 	setTitleBox(NULL);
 	/* no title on left edge */
 }
 
 
-const LLString& LLDragHandleLeft::getTitle() const
+const std::string& LLDragHandleLeft::getTitle() const
 {
-	return LLString::null;
+	return LLStringUtil::null;
 }
 
 

@@ -44,8 +44,8 @@
 
 static LLRegisterWidget<LLRadioGroup> r("radio_group");
 
-LLRadioGroup::LLRadioGroup(const LLString& name, const LLRect& rect,
-						   const LLString& control_name,
+LLRadioGroup::LLRadioGroup(const std::string& name, const LLRect& rect,
+						   const std::string& control_name,
 						   LLUICtrlCallback callback,
 						   void* userdata,
 						   BOOL border)
@@ -56,7 +56,7 @@ LLRadioGroup::LLRadioGroup(const LLString& name, const LLRect& rect,
 	init(border);
 }
 
-LLRadioGroup::LLRadioGroup(const LLString& name, const LLRect& rect,
+LLRadioGroup::LLRadioGroup(const std::string& name, const LLRect& rect,
 						   S32 initial_index,
 						   LLUICtrlCallback callback,
 						   void* userdata,
@@ -71,7 +71,7 @@ void LLRadioGroup::init(BOOL border)
 {
 	if (border)
 	{
-		addChild( new LLViewBorder( "radio group border", 
+		addChild( new LLViewBorder( std::string("radio group border"), 
 									LLRect(0, getRect().getHeight(), getRect().getWidth(), 0), 
 									LLViewBorder::BEVEL_NONE, 
 									LLViewBorder::STYLE_LINE, 
@@ -252,7 +252,7 @@ void LLRadioGroup::draw()
 
 // When adding a button, we need to ensure that the radio
 // group gets a message when the button is clicked.
-LLRadioCtrl* LLRadioGroup::addRadioButton(const LLString& name, const LLString& label, const LLRect& rect, const LLFontGL* font )
+LLRadioCtrl* LLRadioGroup::addRadioButton(const std::string& name, const std::string& label, const LLRect& rect, const LLFontGL* font )
 {
 	// Highlight will get fixed in draw method above
 	LLRadioCtrl* radio = new LLRadioCtrl(name, rect, label, font,
@@ -298,7 +298,7 @@ void LLRadioGroup::onClickButton(LLUICtrl* ui_ctrl, void* userdata)
 
 void LLRadioGroup::setValue( const LLSD& value )
 {
-	LLString value_name = value.asString();
+	std::string value_name = value.asString();
 	int idx = 0;
 	for (button_list_t::const_iterator iter = mRadioButtons.begin();
 		 iter != mRadioButtons.end(); ++iter)
@@ -357,7 +357,7 @@ LLXMLNodePtr LLRadioGroup::getXML(bool save_children) const
 
 		LLXMLNodePtr child_node = radio->LLView::getXML();
 		child_node->setStringValue(radio->getLabel());
-		child_node->setName("radio_item");
+		child_node->setName(std::string("radio_item"));
 
 		node->addChild(child_node);
 	}
@@ -368,7 +368,7 @@ LLXMLNodePtr LLRadioGroup::getXML(bool save_children) const
 // static
 LLView* LLRadioGroup::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory)
 {
-	LLString name("radio_group");
+	std::string name("radio_group");
 	node->getAttributeString("name", name);
 
 	U32 initial_value = 0;
@@ -387,7 +387,7 @@ LLView* LLRadioGroup::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory
 		NULL,
 		draw_border);
 
-	const LLString& contents = node->getValue();
+	const std::string& contents = node->getValue();
 
 	LLRect group_rect = radio_group->getRect();
 
@@ -406,10 +406,10 @@ LLView* LLRadioGroup::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory
 	
 		while(token_iter != tokens.end())
 		{
-			const char* line = token_iter->c_str();
+			const std::string& line = *token_iter;
 			LLRect rect(HPAD, cur_y, group_rect.getWidth() - (2 * HPAD), cur_y - 15);
 			cur_y -= VPAD + 15;
-			radio_group->addRadioButton("radio", line, rect, font);
+			radio_group->addRadioButton(std::string("radio"), line, rect, font);
 			++token_iter;
 		}
 		llwarns << "Legacy radio group format used! Please convert to use <radio_item> tags!" << llendl;
@@ -425,10 +425,10 @@ LLView* LLRadioGroup::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory
 				LLRect item_rect;
 				createRect(child, item_rect, radio_group, rect);
 
-				LLString radioname("radio");
+				std::string radioname("radio");
 				child->getAttributeString("name", radioname);
-				LLString item_label = child->getTextContents();
-				LLRadioCtrl* radio = radio_group->addRadioButton(radioname, item_label.c_str(), item_rect, font);
+				std::string item_label = child->getTextContents();
+				LLRadioCtrl* radio = radio_group->addRadioButton(radioname, item_label, item_rect, font);
 
 				radio->initFromXML(child, radio_group);
 			}

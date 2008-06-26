@@ -57,7 +57,7 @@ std::string build_transfer_message_to_source(
 	const LLUUID& dest_id,
 	const std::string& dest_name,
 	S32 transaction_type,
-	const char* description);
+	const std::string& description);
 
 std::string build_transfer_message_to_destination(
 	S32 amount,
@@ -65,6 +65,6 @@ std::string build_transfer_message_to_destination(
 	const LLUUID& source_id,
 	const std::string& source_name,
 	S32 transaction_type,
-	const char* description);
+	const std::string& description);
 
 #endif // LL_LLTRANSACTIONFLAGS_H

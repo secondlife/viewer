@@ -188,7 +188,7 @@ public:
 	F64 GetCPUFrequency(unsigned int uiMeasureMSecs);
 	const ProcessorInfo *GetCPUInfo();
 	bool CPUInfoToText(char *strBuffer, unsigned int uiMaxLen);
-	bool WriteInfoTextFile(const char *strFilename);
+	bool WriteInfoTextFile(const std::string& strFilename);
 };
 
 

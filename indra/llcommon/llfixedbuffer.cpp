@@ -54,7 +54,7 @@ void LLFixedBuffer::clear()
 }
 
 
-void LLFixedBuffer::addLine(const LLString& utf8line)
+void LLFixedBuffer::addLine(const std::string& utf8line)
 {
 	LLWString wstring = utf8str_to_wstring(utf8line);
 	LLFixedBuffer::addLine(wstring);

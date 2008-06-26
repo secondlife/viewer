@@ -7,6 +7,8 @@
  * $License$
  */
 
+#include "linden_common.h"
+
 #include "llsphere.h"
 
 LLSphere::LLSphere()

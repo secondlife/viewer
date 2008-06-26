@@ -100,8 +100,8 @@ public:
 	static void onClickSelectAbuser (void *userdata);
 	static void closePickTool	(void *userdata);
 	static void uploadDoneCallback(const LLUUID &uuid, void* user_data, S32 result, LLExtStat ext_status);
-	static void addDescription(const LLString& description, LLMeanCollisionData *mcd = NULL);
-	static void setDescription(const LLString& description, LLMeanCollisionData *mcd = NULL);
+	static void addDescription(const std::string& description, LLMeanCollisionData *mcd = NULL);
+	static void setDescription(const std::string& description, LLMeanCollisionData *mcd = NULL);
 	
 	// returns a pointer to reporter of report_type
 	static LLFloaterReporter* getReporter(EReportType report_type);
@@ -111,7 +111,7 @@ public:
 	// static
 	static void processRegionInfo(LLMessageSystem* msg);
 	
-	void setPickedObjectProperties(const LLString& object_name, const LLString& owner_name, const LLUUID owner_id);
+	void setPickedObjectProperties(const std::string& object_name, const std::string& owner_name, const LLUUID owner_id);
 
 private:
 	void takeScreenshot();
@@ -137,7 +137,7 @@ private:
 	LLVector3		mPosition;
 	BOOL			mCopyrightWarningSeen;
 	std::list<LLMeanCollisionData*> mMCDList;
-	LLString		mDefaultSummary;
+	std::string		mDefaultSummary;
 	LLResourceData* mResourceDatap;
 };
 

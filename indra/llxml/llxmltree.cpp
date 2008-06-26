@@ -90,11 +90,11 @@ void LLXmlTree::dump()
 	}
 }
 
-void LLXmlTree::dumpNode( LLXmlTreeNode* node, const LLString& prefix )
+void LLXmlTree::dumpNode( LLXmlTreeNode* node, const std::string& prefix )
 {
 	node->dump( prefix );
 
-	LLString new_prefix = prefix + "    ";
+	std::string new_prefix = prefix + "    ";
 	for( LLXmlTreeNode* child = node->getFirstChild(); child; child = node->getNextChild() )
 	{
 		dumpNode( child, new_prefix );
@@ -121,7 +121,7 @@ LLXmlTreeNode::~LLXmlTreeNode()
 		delete *child_iter;
 }
  
-void LLXmlTreeNode::dump( const LLString& prefix )
+void LLXmlTreeNode::dump( const std::string& prefix )
 {
 	llinfos << prefix << mName ;
 	if( !mContents.empty() )
@@ -132,7 +132,7 @@ void LLXmlTreeNode::dump( const LLString& prefix )
 	for (iter=mAttributes.begin(); iter != mAttributes.end(); iter++)
 	{
 		LLStdStringHandle key = iter->first;
-		const LLString* value = iter->second;
+		const std::string* value = iter->second;
 		llcont << prefix << " " << key << "=" << (value->empty() ? "NULL" : *value);
 	}
 	llcont << llendl;
@@ -148,7 +148,7 @@ BOOL LLXmlTreeNode::hasAttribute(const std::string& name)
 void LLXmlTreeNode::addAttribute(const std::string& name, const std::string& value)
 {
 	LLStdStringHandle canonical_name = LLXmlTree::sAttributeKeys.addString( name );
-	const LLString *newstr = new LLString(value);
+	const std::string *newstr = new std::string(value);
 	mAttributes[canonical_name] = newstr; // insert + copy
 }
 
@@ -204,103 +204,103 @@ void LLXmlTreeNode::addChild(LLXmlTreeNode* child)
 
 BOOL LLXmlTreeNode::getFastAttributeBOOL(LLStdStringHandle canonical_name, BOOL& value)
 {
-	const LLString *s = getAttribute( canonical_name );
-	return s && LLString::convertToBOOL( *s, value );
+	const std::string *s = getAttribute( canonical_name );
+	return s && LLStringUtil::convertToBOOL( *s, value );
 }
 
 BOOL LLXmlTreeNode::getFastAttributeU8(LLStdStringHandle canonical_name, U8& value)
 {
-	const LLString *s = getAttribute( canonical_name );
-	return s && LLString::convertToU8( *s, value );
+	const std::string *s = getAttribute( canonical_name );
+	return s && LLStringUtil::convertToU8( *s, value );
 }
 
 BOOL LLXmlTreeNode::getFastAttributeS8(LLStdStringHandle canonical_name, S8& value)
 {
-	const LLString *s = getAttribute( canonical_name );
-	return s && LLString::convertToS8( *s, value );
+	const std::string *s = getAttribute( canonical_name );
+	return s && LLStringUtil::convertToS8( *s, value );
 }
 
 BOOL LLXmlTreeNode::getFastAttributeS16(LLStdStringHandle canonical_name, S16& value)
 {
-	const LLString *s = getAttribute( canonical_name );
-	return s && LLString::convertToS16( *s, value );
+	const std::string *s = getAttribute( canonical_name );
+	return s && LLStringUtil::convertToS16( *s, value );
 }
 
 BOOL LLXmlTreeNode::getFastAttributeU16(LLStdStringHandle canonical_name, U16& value)
 {
-	const LLString *s = getAttribute( canonical_name );
-	return s && LLString::convertToU16( *s, value );
+	const std::string *s = getAttribute( canonical_name );
+	return s && LLStringUtil::convertToU16( *s, value );
 }
 
 BOOL LLXmlTreeNode::getFastAttributeU32(LLStdStringHandle canonical_name, U32& value)
 {
-	const LLString *s = getAttribute( canonical_name );
-	return s && LLString::convertToU32( *s, value );
+	const std::string *s = getAttribute( canonical_name );
+	return s && LLStringUtil::convertToU32( *s, value );
 }
 
 BOOL LLXmlTreeNode::getFastAttributeS32(LLStdStringHandle canonical_name, S32& value)
 {
-	const LLString *s = getAttribute( canonical_name );
-	return s && LLString::convertToS32( *s, value );
+	const std::string *s = getAttribute( canonical_name );
+	return s && LLStringUtil::convertToS32( *s, value );
 }
 
 BOOL LLXmlTreeNode::getFastAttributeF32(LLStdStringHandle canonical_name, F32& value)
 {
-	const LLString *s = getAttribute( canonical_name );
-	return s && LLString::convertToF32( *s, value );
+	const std::string *s = getAttribute( canonical_name );
+	return s && LLStringUtil::convertToF32( *s, value );
 }
 
 BOOL LLXmlTreeNode::getFastAttributeF64(LLStdStringHandle canonical_name, F64& value)
 {
-	const LLString *s = getAttribute( canonical_name );
-	return s && LLString::convertToF64( *s, value );
+	const std::string *s = getAttribute( canonical_name );
+	return s && LLStringUtil::convertToF64( *s, value );
 }
 
 BOOL LLXmlTreeNode::getFastAttributeColor(LLStdStringHandle canonical_name, LLColor4& value)
 {
-	const LLString *s = getAttribute( canonical_name );
-	return s ? LLColor4::parseColor(s->c_str(), &value) : FALSE;
+	const std::string *s = getAttribute( canonical_name );
+	return s ? LLColor4::parseColor(*s, &value) : FALSE;
 }
 
 BOOL LLXmlTreeNode::getFastAttributeColor4(LLStdStringHandle canonical_name, LLColor4& value)
 {
-	const LLString *s = getAttribute( canonical_name );
-	return s ? LLColor4::parseColor4(s->c_str(), &value) : FALSE;
+	const std::string *s = getAttribute( canonical_name );
+	return s ? LLColor4::parseColor4(*s, &value) : FALSE;
 }
 
 BOOL LLXmlTreeNode::getFastAttributeColor4U(LLStdStringHandle canonical_name, LLColor4U& value)
 {
-	const LLString *s = getAttribute( canonical_name );
-	return s ? LLColor4U::parseColor4U(s->c_str(), &value ) : FALSE;
+	const std::string *s = getAttribute( canonical_name );
+	return s ? LLColor4U::parseColor4U(*s, &value ) : FALSE;
 }
 
 BOOL LLXmlTreeNode::getFastAttributeVector3(LLStdStringHandle canonical_name, LLVector3& value)
 {
-	const LLString *s = getAttribute( canonical_name );
-	return s ? LLVector3::parseVector3(s->c_str(), &value ) : FALSE;
+	const std::string *s = getAttribute( canonical_name );
+	return s ? LLVector3::parseVector3(*s, &value ) : FALSE;
 }
 
 BOOL LLXmlTreeNode::getFastAttributeVector3d(LLStdStringHandle canonical_name, LLVector3d& value)
 {
-	const LLString *s = getAttribute( canonical_name );
-	return s ? LLVector3d::parseVector3d(s->c_str(),  &value ) : FALSE;
+	const std::string *s = getAttribute( canonical_name );
+	return s ? LLVector3d::parseVector3d(*s,  &value ) : FALSE;
 }
 
 BOOL LLXmlTreeNode::getFastAttributeQuat(LLStdStringHandle canonical_name, LLQuaternion& value)
 {
-	const LLString *s = getAttribute( canonical_name );
-	return s ? LLQuaternion::parseQuat(s->c_str(), &value ) : FALSE;
+	const std::string *s = getAttribute( canonical_name );
+	return s ? LLQuaternion::parseQuat(*s, &value ) : FALSE;
 }
 
 BOOL LLXmlTreeNode::getFastAttributeUUID(LLStdStringHandle canonical_name, LLUUID& value)
 {
-	const LLString *s = getAttribute( canonical_name );
-	return s ? LLUUID::parseUUID(s->c_str(), &value ) : FALSE;
+	const std::string *s = getAttribute( canonical_name );
+	return s ? LLUUID::parseUUID(*s, &value ) : FALSE;
 }
 
-BOOL LLXmlTreeNode::getFastAttributeString(LLStdStringHandle canonical_name, LLString& value)
+BOOL LLXmlTreeNode::getFastAttributeString(LLStdStringHandle canonical_name, std::string& value)
 {
-	const LLString *s = getAttribute( canonical_name );
+	const std::string *s = getAttribute( canonical_name );
 	if( !s )
 	{
 		return FALSE;
@@ -409,7 +409,7 @@ BOOL LLXmlTreeNode::getAttributeUUID(const std::string& name, LLUUID& value)
 	return getFastAttributeUUID(canonical_name, value);
 }
 
-BOOL LLXmlTreeNode::getAttributeString(const std::string& name, LLString& value)
+BOOL LLXmlTreeNode::getAttributeString(const std::string& name, std::string& value)
 {
 	LLStdStringHandle canonical_name = LLXmlTree::sAttributeKeys.addString( name );
 	return getFastAttributeString(canonical_name, value);
@@ -437,7 +437,7 @@ The quick brown fox
   
 */
 
-LLString LLXmlTreeNode::getTextContents()
+std::string LLXmlTreeNode::getTextContents()
 {
 	std::string msg;
 	LLXmlTreeNode* p = getChildByName("p");
@@ -541,7 +541,7 @@ BOOL LLXmlTreeParser::parseFile(const std::string &path, LLXmlTreeNode** root, B
 
 const std::string& LLXmlTreeParser::tabs()
 {
-	static LLString s;
+	static std::string s;
 	s = "";
 	S32 num_tabs = getDepth() - 1;
 	for( S32 i = 0; i < num_tabs; i++)
@@ -602,8 +602,8 @@ void LLXmlTreeParser::endElement(const char* name)
 
 	if( !mCurrent->mContents.empty() )
 	{
-		LLString::trim(mCurrent->mContents);
-		LLString::removeCRLF(mCurrent->mContents);
+		LLStringUtil::trim(mCurrent->mContents);
+		LLStringUtil::removeCRLF(mCurrent->mContents);
 	}
 
 	mCurrent = mCurrent->getParent();
@@ -611,7 +611,8 @@ void LLXmlTreeParser::endElement(const char* name)
 
 void LLXmlTreeParser::characterData(const char *s, int len) 
 {
-	LLString str(s, len);
+	std::string str;
+	if (s) str = std::string(s, len);
 	if( mDump )
 	{
 		llinfos << tabs() << "CharacterData " << str << llendl;
@@ -659,7 +660,8 @@ void LLXmlTreeParser::defaultData(const char *s, int len)
 {
 	if( mDump )
 	{
-		LLString str(s, len);
+		std::string str;
+		if (s) str = std::string(s, len);
 		llinfos << tabs() << "defaultData " << str << llendl;
 	}
 }

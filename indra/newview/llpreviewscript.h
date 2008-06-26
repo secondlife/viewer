@@ -121,16 +121,16 @@ public:
 
 protected:
 	void deleteBridges();
-	void setHelpPage(const LLString& help_string);
+	void setHelpPage(const std::string& help_string);
 	void updateDynamicHelp(BOOL immediate = FALSE);
-	void addHelpItemToHistory(const LLString& help_string);
+	void addHelpItemToHistory(const std::string& help_string);
 
 	static void onErrorList(LLUICtrl*, void* user_data);
 
  	virtual const char *getTitleName() const { return "Script"; }
 
 private:
-	LLString		mSampleText;
+	std::string		mSampleText;
 	std::string		mHelpFile;
 	LLTextEditor*	mEditor;
 	void			(*mLoadCallback)(void* userdata);
@@ -253,7 +253,7 @@ protected:
 	static void onRunningCheckboxClicked(LLUICtrl*, void* userdata);
 	static void onReset(void* userdata);
 
-	void loadScriptText(const char* filename);
+// 	void loadScriptText(const std::string& filename); // unused
 	void loadScriptText(LLVFS *vfs, const LLUUID &uuid, LLAssetType::EType type);
 
 	static void onErrorList(LLUICtrl*, void* user_data);
@@ -278,8 +278,5 @@ protected:
 
 	static LLMap<LLUUID, LLLiveLSLEditor*> sInstances;
 };
-
-// name of help file for lsl
-extern const char HELP_LSL[];
 
 #endif  // LL_LLPREVIEWSCRIPT_H

@@ -162,12 +162,12 @@ const char* LLInventoryType::lookup(EType type)
 }
 
 // static
-LLInventoryType::EType LLInventoryType::lookup(const char* name)
+LLInventoryType::EType LLInventoryType::lookup(const std::string& name)
 {
 	for(S32 i = 0; i < IT_COUNT; ++i)
 	{
 		if((INVENTORY_TYPE_NAMES[i])
-		   && (0 == strcmp(name, INVENTORY_TYPE_NAMES[i])))
+		   && (name == INVENTORY_TYPE_NAMES[i]))
 		{
 			// match
 			return (EType)i;

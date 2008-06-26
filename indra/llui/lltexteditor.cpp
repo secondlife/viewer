@@ -86,7 +86,7 @@ const S32	PREEDIT_STANDOUT_POSITION = 2;
 const S32	PREEDIT_STANDOUT_THICKNESS = 2;
 
 LLColor4 LLTextEditor::mLinkColor = LLColor4::blue;
-void (* LLTextEditor::mURLcallback)(const char*)              = NULL;
+void (* LLTextEditor::mURLcallback)(const std::string&)   = NULL;
 bool (* LLTextEditor::mSecondlifeURLcallback)(const std::string&)   = NULL;
 bool (* LLTextEditor::mSecondlifeURLcallbackRightClick)(const std::string&)   = NULL;
 
@@ -104,7 +104,7 @@ public:
 	virtual BOOL execute( LLTextEditor* editor, S32* delta )
 	{
 		*delta = insert(editor, getPosition(), mWString );
-		LLWString::truncate(mWString, *delta);
+		LLWStringUtil::truncate(mWString, *delta);
 		//mWString = wstring_truncate(mWString, *delta);
 		return (*delta != 0);
 	}	
@@ -142,7 +142,7 @@ public:
 	virtual BOOL execute( LLTextEditor* editor, S32* delta )
 	{
 		*delta = insert(editor, getPosition(), mWString);
-		LLWString::truncate(mWString, *delta);
+		LLWStringUtil::truncate(mWString, *delta);
 		//mWString = wstring_truncate(mWString, *delta);
 		return (*delta != 0);
 	}
@@ -240,10 +240,10 @@ private:
 ///////////////////////////////////////////////////////////////////
 
 LLTextEditor::LLTextEditor(	
-	const LLString& name, 
+	const std::string& name, 
 	const LLRect& rect, 
 	S32 max_length,						// In bytes
-	const LLString &default_text, 
+	const std::string &default_text, 
 	const LLFontGL* font,
 	BOOL allow_embedded_items)
 	:	
@@ -308,7 +308,7 @@ LLTextEditor::LLTextEditor(
 		SCROLLBAR_SIZE,
 		getRect().getHeight() - 1);
 	S32 lines_in_doc = getLineCount();
-	mScrollbar = new LLScrollbar( "Scrollbar", scroll_rect,
+	mScrollbar = new LLScrollbar( std::string("Scrollbar"), scroll_rect,
 		LLScrollbar::VERTICAL,
 		lines_in_doc,						
 		0,						
@@ -322,7 +322,7 @@ LLTextEditor::LLTextEditor(
 	mScrollbar->setOnScrollEndCallback(mOnScrollEndCallback, mOnScrollEndData);
 	addChild(mScrollbar);
 
-	mBorder = new LLViewBorder( "text ed border", LLRect(0, getRect().getHeight(), getRect().getWidth(), 0), LLViewBorder::BEVEL_IN, LLViewBorder::STYLE_LINE, UI_TEXTEDITOR_BORDER );
+	mBorder = new LLViewBorder( std::string("text ed border"), LLRect(0, getRect().getHeight(), getRect().getWidth(), 0), LLViewBorder::BEVEL_IN, LLViewBorder::STYLE_LINE, UI_TEXTEDITOR_BORDER );
 	addChild( mBorder );
 
 	appendText(default_text, FALSE, FALSE);
@@ -330,7 +330,7 @@ LLTextEditor::LLTextEditor(
 	resetDirty();		// Update saved text state
 
 	mParseHTML=FALSE;
-	mHTML="";
+	mHTML.clear();
 }
 
 
@@ -493,7 +493,7 @@ BOOL LLTextEditor::truncate()
 
 void LLTextEditor::setText(const LLStringExplicit &utf8str)
 {
-	// LLString::removeCRLF(utf8str);
+	// LLStringUtil::removeCRLF(utf8str);
 	mUTF8Text = utf8str_removeCRLF(utf8str);
 	// mUTF8Text = utf8str;
 	mWText = utf8str_to_wstring(mUTF8Text);
@@ -535,7 +535,7 @@ void LLTextEditor::setValue(const LLSD& value)
 	setText(value.asString());
 }
 
-const LLString& LLTextEditor::getText() const
+const std::string& LLTextEditor::getText() const
 {
 	if (!mTextIsUpToDate)
 	{
@@ -588,7 +588,7 @@ void LLTextEditor::setHideScrollbarForShortDocs(BOOL b)
 	}
 }
 
-void LLTextEditor::selectNext(const LLString& search_text_in, BOOL case_insensitive, BOOL wrap)
+void LLTextEditor::selectNext(const std::string& search_text_in, BOOL case_insensitive, BOOL wrap)
 {
 	if (search_text_in.empty())
 	{
@@ -599,8 +599,8 @@ void LLTextEditor::selectNext(const LLString& search_text_in, BOOL case_insensit
 	LLWString search_text = utf8str_to_wstring(search_text_in);
 	if (case_insensitive)
 	{
-		LLWString::toLower(text);
-		LLWString::toLower(search_text);
+		LLWStringUtil::toLower(text);
+		LLWStringUtil::toLower(search_text);
 	}
 	
 	if (mIsSelecting)
@@ -638,7 +638,7 @@ void LLTextEditor::selectNext(const LLString& search_text_in, BOOL case_insensit
 	mSelectionStart = llmin((S32)getLength(), (S32)(mCursorPos + search_text.size()));
 }
 
-BOOL LLTextEditor::replaceText(const LLString& search_text_in, const LLString& replace_text,
+BOOL LLTextEditor::replaceText(const std::string& search_text_in, const std::string& replace_text,
 							   BOOL case_insensitive, BOOL wrap)
 {
 	BOOL replaced = FALSE;
@@ -656,8 +656,8 @@ BOOL LLTextEditor::replaceText(const LLString& search_text_in, const LLString& r
 
 		if (case_insensitive)
 		{
-			LLWString::toLower(selected_text);
-			LLWString::toLower(search_text);
+			LLWStringUtil::toLower(selected_text);
+			LLWStringUtil::toLower(search_text);
 		}
 
 		if (selected_text == search_text)
@@ -671,7 +671,7 @@ BOOL LLTextEditor::replaceText(const LLString& search_text_in, const LLString& r
 	return replaced;
 }
 
-void LLTextEditor::replaceTextAll(const LLString& search_text, const LLString& replace_text, BOOL case_insensitive)
+void LLTextEditor::replaceTextAll(const std::string& search_text, const std::string& replace_text, BOOL case_insensitive)
 {
 	S32 cur_pos = mScrollbar->getDocPos();
 
@@ -1058,7 +1058,7 @@ void LLTextEditor::selectAll()
 }
 
 
-BOOL LLTextEditor::handleToolTip(S32 x, S32 y, LLString& msg, LLRect* sticky_rect_screen)
+BOOL LLTextEditor::handleToolTip(S32 x, S32 y, std::string& msg, LLRect* sticky_rect_screen)
 {
 	for ( child_list_const_iter_t child_it = getChildList()->begin();
 		  child_it != getChildList()->end(); ++child_it)
@@ -1389,7 +1389,7 @@ BOOL LLTextEditor::handleDoubleClick(S32 x, S32 y, MASK mask)
 BOOL LLTextEditor::handleDragAndDrop(S32 x, S32 y, MASK mask,
 					  BOOL drop, EDragAndDropType cargo_type, void *cargo_data,
 					  EAcceptance *accept,
-					  LLString& tooltip_msg)
+					  std::string& tooltip_msg)
 {
 	*accept = ACCEPT_NO;
 
@@ -1876,7 +1876,7 @@ void LLTextEditor::paste()
 
 	// Clean up string (replace tabs and remove characters that our fonts don't support).
 	LLWString clean_string(paste);
-	LLWString::replaceTabsWithSpaces(clean_string, SPACES_PER_TAB);
+	LLWStringUtil::replaceTabsWithSpaces(clean_string, SPACES_PER_TAB);
 	if( mAllowEmbeddedItems )
 	{
 		const llwchar LF = 10;
@@ -2567,7 +2567,7 @@ void LLTextEditor::drawSelectionBackground()
 			{
 				// extend selection slightly beyond end of line
 				// to indicate selection of newline character (use "n" character to determine width)
-				const LLWString nstr(utf8str_to_wstring(LLString("n")));
+				const LLWString nstr(utf8str_to_wstring(std::string("n")));
 				line_endings.push(mTextRect.mLeft + mGLFont->getWidth(line, 0, line_end - line_start, mAllowEmbeddedItems) + mGLFont->getWidth(nstr.c_str()));
 			}
 			
@@ -2704,7 +2704,7 @@ void LLTextEditor::drawCursor()
 				if (LL_KIM_OVERWRITE == gKeyboard->getInsertMode() && !hasSelection())
 				{
 					cursor_left += CURSOR_THICKNESS;
-					const LLWString space(utf8str_to_wstring(LLString(" ")));
+					const LLWString space(utf8str_to_wstring(std::string(" ")));
 					F32 spacew = mGLFont->getWidthF32(space.c_str());
 					if (mCursorPos == line_end)
 					{
@@ -3080,7 +3080,7 @@ void LLTextEditor::onTabInto()
 // virtual
 void LLTextEditor::clear()
 {
-	setText(LLString::null);
+	setText(LLStringUtil::null);
 }
 
 // Start or stop the editor from accepting text-editing keystrokes
@@ -3408,7 +3408,7 @@ void LLTextEditor::autoIndent()
 }
 
 // Inserts new text at the cursor position
-void LLTextEditor::insertText(const LLString &new_text)
+void LLTextEditor::insertText(const std::string &new_text)
 {
 	BOOL enabled = getEnabled();
 	setEnabled( TRUE );
@@ -3428,11 +3428,11 @@ void LLTextEditor::insertText(const LLString &new_text)
 }
 
 
-void LLTextEditor::appendColoredText(const LLString &new_text, 
+void LLTextEditor::appendColoredText(const std::string &new_text, 
 									 bool allow_undo, 
 									 bool prepend_newline,
 									 const LLColor4 &color,
-									 const LLString& font_name)
+									 const std::string& font_name)
 {
 	LLStyleSP style(new LLStyle);
 	style->setVisible(true);
@@ -3441,7 +3441,7 @@ void LLTextEditor::appendColoredText(const LLString &new_text,
 	appendStyledText(new_text, allow_undo, prepend_newline, &style);
 }
 
-void LLTextEditor::appendStyledText(const LLString &new_text, 
+void LLTextEditor::appendStyledText(const std::string &new_text, 
 									 bool allow_undo, 
 									 bool prepend_newline,
 									 const LLStyleSP *stylep)
@@ -3450,7 +3450,7 @@ void LLTextEditor::appendStyledText(const LLString &new_text,
 	{
 
 		S32 start=0,end=0;
-		LLString text = new_text;
+		std::string text = new_text;
 		while ( findHTML(text, &start, &end) )
 		{
 			LLStyleSP html(new LLStyle);
@@ -3484,7 +3484,7 @@ void LLTextEditor::appendStyledText(const LLString &new_text,
 }
 
 // Appends new text to end of document
-void LLTextEditor::appendText(const LLString &new_text, bool allow_undo, bool prepend_newline,
+void LLTextEditor::appendText(const std::string &new_text, bool allow_undo, bool prepend_newline,
 							  const LLStyleSP *stylep)
 {
 	// Save old state
@@ -3504,7 +3504,7 @@ void LLTextEditor::appendText(const LLString &new_text, bool allow_undo, bool pr
 	if (getLength() != 0
 		&& prepend_newline)
 	{
-		LLString final_text = "\n";
+		std::string final_text = "\n";
 		final_text += new_text;
 		append(utf8str_to_wstring(final_text), TRUE);
 	}
@@ -3685,20 +3685,18 @@ void LLTextEditor::updateTextRect()
 		getRect().getHeight() - 2 * UI_TEXTEDITOR_BORDER - UI_TEXTEDITOR_V_PAD_TOP );
 }
 
-void LLTextEditor::loadKeywords(const LLString& filename,
-								const LLDynamicArray<const char*>& funcs,
-								const LLDynamicArray<const char*>& tooltips,
+void LLTextEditor::loadKeywords(const std::string& filename,
+								const std::vector<std::string>& funcs,
+								const std::vector<std::string>& tooltips,
 								const LLColor3& color)
 {
 	if(mKeywords.loadFromFile(filename))
 	{
-		S32 count = funcs.count();
-		LLString name;
+		S32 count = llmin(funcs.size(), tooltips.size());
 		for(S32 i = 0; i < count; i++)
 		{
-			name = funcs.get(i);
-			name = utf8str_trim(name);
-			mKeywords.addToken(LLKeywordToken::WORD, name.c_str(), color, tooltips.get(i) );
+			std::string name = utf8str_trim(funcs[i]);
+			mKeywords.addToken(LLKeywordToken::WORD, name, color, tooltips[i] );
 		}
 
 		mKeywords.findSegments( &mSegments, mWText, mDefaultColor );
@@ -3840,9 +3838,9 @@ BOOL LLTextEditor::handleMouseUpOverSegment(S32 x, S32 y, MASK mask)
 				//Special handling for slurls
 			if ( (mSecondlifeURLcallback!=NULL) && !(*mSecondlifeURLcallback)(mHTML) )
 			{
-				if (mURLcallback!=NULL) (*mURLcallback)(mHTML.c_str());
+				if (mURLcallback!=NULL) (*mURLcallback)(mHTML);
 			}
-			mHTML="";
+			mHTML.clear();
 		}
 	}
 
@@ -3894,7 +3892,7 @@ void LLTextEditor::setOnScrollEndCallback(void (*callback)(void*), void* userdat
 ///////////////////////////////////////////////////////////////////
 // Hack for Notecards
 
-BOOL LLTextEditor::importBuffer(const LLString& buffer )
+BOOL LLTextEditor::importBuffer(const char* buffer, S32 length )
 {
 	std::istringstream instream(buffer);
 	
@@ -3983,7 +3981,7 @@ BOOL LLTextEditor::importBuffer(const LLString& buffer )
 	return success;
 }
 
-BOOL LLTextEditor::exportBuffer(LLString &buffer )
+BOOL LLTextEditor::exportBuffer(std::string &buffer )
 {
 	std::ostringstream outstream(buffer);
 	
@@ -4016,7 +4014,7 @@ LLTextSegment::LLTextSegment( const LLStyleSP& style, S32 start, S32 end ) :
 {
 }
 LLTextSegment::LLTextSegment( const LLColor4& color, S32 start, S32 end, BOOL is_visible) :
-	mStyle(new LLStyle(is_visible,color,"")),
+	mStyle(new LLStyle(is_visible,color,LLStringUtil::null)),
 	mStart( start),
 	mEnd( end ),
 	mToken(NULL),
@@ -4024,7 +4022,7 @@ LLTextSegment::LLTextSegment( const LLColor4& color, S32 start, S32 end, BOOL is
 {
 }
 LLTextSegment::LLTextSegment( const LLColor4& color, S32 start, S32 end ) :
-	mStyle(new LLStyle(TRUE, color,"" )),
+	mStyle(new LLStyle(TRUE, color,LLStringUtil::null )),
 	mStart( start),
 	mEnd( end ),
 	mToken(NULL),
@@ -4032,7 +4030,7 @@ LLTextSegment::LLTextSegment( const LLColor4& color, S32 start, S32 end ) :
 {
 }
 LLTextSegment::LLTextSegment( const LLColor3& color, S32 start, S32 end ) :
-	mStyle(new LLStyle(TRUE, color,"" )),
+	mStyle(new LLStyle(TRUE, color,LLStringUtil::null )),
 	mStart( start),
 	mEnd( end ),
 	mToken(NULL),
@@ -4040,7 +4038,7 @@ LLTextSegment::LLTextSegment( const LLColor3& color, S32 start, S32 end ) :
 {
 }
 
-BOOL LLTextSegment::getToolTip(LLString& msg) const
+BOOL LLTextSegment::getToolTip(std::string& msg) const
 {
 	if (mToken && !mToken->getToolTip().empty())
 	{
@@ -4095,7 +4093,7 @@ LLXMLNodePtr LLTextEditor::getXML(bool save_children) const
 // static
 LLView* LLTextEditor::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory)
 {
-	LLString name("text_editor");
+	std::string name("text_editor");
 	node->getAttributeString("name", name);
 
 	LLRect rect;
@@ -4109,7 +4107,7 @@ LLView* LLTextEditor::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory
 
 	LLFontGL* font = LLView::selectFont(node);
 
-	LLString text = node->getTextContents().substr(0, max_text_length - 1);
+	std::string text = node->getTextContents().substr(0, max_text_length - 1);
 
 	LLTextEditor* text_editor = new LLTextEditor(name, 
 								rect,
@@ -4161,10 +4159,10 @@ void LLTextEditor::setTextEditorParameters(LLXMLNodePtr node)
 }
 
 ///////////////////////////////////////////////////////////////////
-S32 LLTextEditor::findHTMLToken(const LLString &line, S32 pos, BOOL reverse) const
+S32 LLTextEditor::findHTMLToken(const std::string &line, S32 pos, BOOL reverse) const
 {
-	LLString openers=" \t('\"[{<>";
-	LLString closers=" \t)'\"]}><;";
+	std::string openers=" \t('\"[{<>";
+	std::string closers=" \t)'\"]}><;";
 
 	S32 m2;
 	S32 retval;
@@ -4198,7 +4196,7 @@ S32 LLTextEditor::findHTMLToken(const LLString &line, S32 pos, BOOL reverse) con
 	return retval;
 }
 
-BOOL LLTextEditor::findHTML(const LLString &line, S32 *begin, S32 *end) const
+BOOL LLTextEditor::findHTML(const std::string &line, S32 *begin, S32 *end) const
 {
 	  
 	S32 m1,m2,m3;
@@ -4215,7 +4213,7 @@ BOOL LLTextEditor::findHTML(const LLString &line, S32 *begin, S32 *end) const
 		m2 = line.substr(*begin,(m1 - *begin)).find("http");
 		m3 = line.substr(*begin,(m1 - *begin)).find("secondlife");
 	
-		LLString badneighbors=".,<>?';\"][}{=-+_)(*&^%$#@!~`\t\r\n\\";
+		std::string badneighbors=".,<>?';\"][}{=-+_)(*&^%$#@!~`\t\r\n\\";
 	
 		if (m2 >= 0 || m3>=0)
 		{
@@ -4241,7 +4239,7 @@ BOOL LLTextEditor::findHTML(const LLString &line, S32 *begin, S32 *end) const
 
 			if ( ( *end - m1 ) > 2 && m1 > *begin)
 			{
-				LLString badneighbors=".,<>/?';\"][}{=-+_)(*&^%$#@!~`";
+				std::string badneighbors=".,<>/?';\"][}{=-+_)(*&^%$#@!~`";
 				m2 = badneighbors.find(line.substr(m1+1,1));
 				m3 = badneighbors.find(line.substr(m1-1,1));
 				if (m3<0 && m2<0)
@@ -4257,8 +4255,8 @@ BOOL LLTextEditor::findHTML(const LLString &line, S32 *begin, S32 *end) const
 	{
 		S32 strpos, strpos2;
 
-		LLString url     = line.substr(*begin,*end - *begin);
-		LLString slurlID = "slurl.com/secondlife/";
+		std::string url     = line.substr(*begin,*end - *begin);
+		std::string slurlID = "slurl.com/secondlife/";
 		strpos = url.find(slurlID);
 		
 		if (strpos < 0)

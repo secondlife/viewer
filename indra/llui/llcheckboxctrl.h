@@ -65,13 +65,13 @@ class LLCheckBoxCtrl
 : public LLUICtrl
 {
 public:
-	LLCheckBoxCtrl(const LLString& name, const LLRect& rect, const LLString& label,	
+	LLCheckBoxCtrl(const std::string& name, const LLRect& rect, const std::string& label,	
 		const LLFontGL* font = NULL,
 		void (*commit_callback)(LLUICtrl*, void*) = NULL,
 		void* callback_userdata = NULL,
 		BOOL initial_value = FALSE,
 		BOOL use_radio_style = FALSE, // if true, draw radio button style icons
-		const LLString& control_which = LLString::null);
+		const std::string& control_which = LLStringUtil::null);
 	virtual ~LLCheckBoxCtrl();
 
 	// LLView interface
@@ -93,7 +93,7 @@ public:
 	virtual void		setTentative(BOOL b)	{ mButton->setTentative(b); }
 	virtual BOOL		getTentative() const	{ return mButton->getTentative(); }
 
-	virtual BOOL		setLabelArg( const LLString& key, const LLStringExplicit& text );
+	virtual BOOL		setLabelArg( const std::string& key, const LLStringExplicit& text );
 
 	virtual void		clear();
 	virtual void		onCommit();
@@ -105,10 +105,10 @@ public:
 	void				setDisabledColor( const LLColor4 &color ) { mTextDisabledColor = color; }
 
 	void				setLabel( const LLStringExplicit& label );
-	LLString			getLabel() const;
+	std::string			getLabel() const;
 
-	virtual void		setControlName(const LLString& control_name, LLView* context);
-	virtual LLString 	getControlName() const;
+	virtual void		setControlName(const std::string& control_name, LLView* context);
+	virtual std::string 	getControlName() const;
 
 	static void			onButtonPress(void *userdata);
 

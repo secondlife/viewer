@@ -86,7 +86,7 @@ private:
 	LLUUID						mImageID;
 	LLPointer<LLViewerImage>		mImage;
 	BOOL				mLoadingFullImage;
-	LLString			mSaveFileName;
+	std::string			mSaveFileName;
 	LLFrameTimer		mSavedFileTimer;
 	BOOL                mShowKeepDiscard;
 	BOOL                mCopyToInv;

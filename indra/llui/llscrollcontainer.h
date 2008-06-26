@@ -59,10 +59,10 @@ public:
 	// scrollbars have priority for mouse and keyboard events.
 	enum SCROLL_ORIENTATION { VERTICAL, HORIZONTAL, SCROLLBAR_COUNT };
 
-	LLScrollableContainerView( const LLString& name, const LLRect& rect,
+	LLScrollableContainerView( const std::string& name, const LLRect& rect,
 							   LLView* scrolled_view, BOOL is_opaque = FALSE,
 							   const LLColor4& bg_color = LLColor4(0,0,0,0) );
-	LLScrollableContainerView( const LLString& name, const LLRect& rect,
+	LLScrollableContainerView( const std::string& name, const LLRect& rect,
 							   LLUICtrl* scrolled_ctrl, BOOL is_opaque = FALSE,
 							   const LLColor4& bg_color = LLColor4(0,0,0,0) );
 	virtual ~LLScrollableContainerView( void );
@@ -94,9 +94,9 @@ public:
 								   EDragAndDropType cargo_type,
 								   void* cargo_data,
 								   EAcceptance* accept,
-								   LLString& tooltip_msg);
+								   std::string& tooltip_msg);
 
-	virtual BOOL	handleToolTip(S32 x, S32 y, LLString& msg, LLRect* sticky_rect);
+	virtual BOOL	handleToolTip(S32 x, S32 y, std::string& msg, LLRect* sticky_rect);
 	virtual void	draw();
 
 	virtual LLXMLNodePtr getXML(bool save_children = true) const;

@@ -32,56 +32,56 @@
 #include "linden_common.h"
 #include "llsecondlifeurls.h"
 
-const char CREATE_ACCOUNT_URL[] = 
-	"http://secondlife.com/registration/";
+const std::string CREATE_ACCOUNT_URL ( 
+	"http://secondlife.com/registration/");
 
-const char MANAGE_ACCOUNT[] = 
-	"http://secondlife.com/account/";
+const std::string MANAGE_ACCOUNT ( 
+	"http://secondlife.com/account/");
 
-const char AUCTION_URL[] = 
-	"http://secondlife.com/auctions/auction-detail.php?id=";
+const std::string AUCTION_URL ( 
+	"http://secondlife.com/auctions/auction-detail.php?id=");
 
-const char EVENTS_URL[] = 
-	"http://secondlife.com/events/";
+const std::string EVENTS_URL ( 
+	"http://secondlife.com/events/");
 
-const char TIER_UP_URL[] = 
-	"http://secondlife.com/app/landtier";
+const std::string TIER_UP_URL ( 
+	"http://secondlife.com/app/landtier");
 
-const char LAND_URL[] = 
-	"http://secondlife.com/app/landtier";
+const std::string LAND_URL ( 
+	"http://secondlife.com/app/landtier");
 
-const char UPGRADE_TO_PREMIUM_URL[] =
-	"http://secondlife.com/app/upgrade/";
+const std::string UPGRADE_TO_PREMIUM_URL (
+	"http://secondlife.com/app/upgrade/");
 
-const char DIRECTX_9_URL[] = 
-	"http://secondlife.com/support/";
+const std::string DIRECTX_9_URL ( 
+	"http://secondlife.com/support/");
 
-const char AMD_AGP_URL[] = 
-	"http://secondlife.com/support/";
+const std::string AMD_AGP_URL ( 
+	"http://secondlife.com/support/");
 
-const char VIA_URL[] = 
-	"http://secondlife.com/support/";
+const std::string VIA_URL ( 
+	"http://secondlife.com/support/");
 
-const char SUPPORT_URL[] = 
-    "http://secondlife.com/support/";
+const std::string SUPPORT_URL ( 
+    "http://secondlife.com/support/");
 
-const char INTEL_CHIPSET_URL[] = 
-	"http://secondlife.com/support/";
+const std::string INTEL_CHIPSET_URL ( 
+	"http://secondlife.com/support/");
 
-const char SIS_CHIPSET_URL[] = 
-	"http://secondlife.com/support/";
+const std::string SIS_CHIPSET_URL ( 
+	"http://secondlife.com/support/");
 
-const char BLOGS_URL[] = 
-	"http://blog.secondlife.com/";
+const std::string BLOGS_URL ( 
+	"http://blog.secondlife.com/");
 
-const char BUY_CURRENCY_URL[] =
-	"http://secondlife.com/app/currency/";
+const std::string BUY_CURRENCY_URL (
+	"http://secondlife.com/app/currency/");
 
-const char LSL_DOC_URL[] =
-	"http://secondlife.com/app/lsldoc/";
+const std::string LSL_DOC_URL (
+	"http://secondlife.com/app/lsldoc/");
 
-const char SL_KB_URL[] =
-	"http://secondlife.com/knowledgebase/";
+const std::string SL_KB_URL (
+	"http://secondlife.com/knowledgebase/");
 
-const char RELEASE_NOTES[] = "releasenotes.txt";
+const std::string RELEASE_NOTES ( "releasenotes.txt");
 

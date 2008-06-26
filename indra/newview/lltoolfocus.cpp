@@ -69,7 +69,7 @@ const F32 FOCUS_OFFSET_FACTOR = 1.f;
 //
 
 LLToolCamera::LLToolCamera()
-:	LLTool("Camera"),
+:	LLTool(std::string("Camera")),
 	mAccumX(0),
 	mAccumY(0),
 	mMouseDownX(0),

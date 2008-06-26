@@ -128,7 +128,7 @@ public:
 	BOOL parseXml(LLXmlTreeNode* node);
 	
 protected:
-	LLString mName;
+	std::string mName;
 	BOOL mIsJoint;
 	LLVector3 mPos;
 	LLVector3 mRot;
@@ -194,10 +194,10 @@ protected:
 			mPolyMorphTargetInfoList.clear();
 		}
 
-		LLString 	mType;
+		std::string mType;
 		S32			mLOD;
-		LLString	mMeshFileName;
-		LLString	mReferenceMeshName;
+		std::string	mMeshFileName;
+		std::string	mReferenceMeshName;
 		F32			mMinPixelArea;
 		morph_info_list_t mPolyMorphTargetInfoList;
 	};
@@ -212,8 +212,8 @@ protected:
 		LLVOAvatarAttachmentInfo()
 			: mGroup(-1), mAttachmentID(-1), mPieMenuSlice(-1), mVisibleFirstPerson(FALSE),
 			  mIsHUDAttachment(FALSE), mHasPosition(FALSE), mHasRotation(FALSE) {}
-		LLString mName;
-		LLString mJointName;
+		std::string mName;
+		std::string mJointName;
 		LLVector3 mPosition;
 		LLVector3 mRotationEuler;
 		S32 mGroup;
@@ -277,7 +277,7 @@ public:
 	//--------------------------------------------------------------------
 	static void initClass();	// Initialize data that's only inited once per class.
 	static void cleanupClass();	// Cleanup data that's only inited once per class.
-	static BOOL parseSkeletonFile(const LLString& filename);
+	static BOOL parseSkeletonFile(const std::string& filename);
 	virtual U32 processUpdateMessage(	LLMessageSystem *mesgsys,
 										void **user_data,
 										U32 block_num,
@@ -454,7 +454,7 @@ public:
 	void			stopTyping() { mTyping = FALSE; }
 
 	// Returns "FirstName LastName"
-	LLString		getFullname() const;
+	std::string		getFullname() const;
 
 	//--------------------------------------------------------------------
 	// internal (pseudo-private) functions
@@ -510,7 +510,7 @@ public:
 
 	BOOL isWearingAttachment( const LLUUID& inv_item_id );
 	LLViewerObject* getWornAttachment( const LLUUID& inv_item_id );
-	const LLString getAttachedPointName(const LLUUID& inv_item_id);
+	const std::string getAttachedPointName(const LLUUID& inv_item_id);
 
 	static LLVOAvatar* findAvatarFromAttachment( LLViewerObject* obj );
 
@@ -541,7 +541,7 @@ public:
 	//--------------------------------------------------------------------
 	// texture compositing (used only by the LLTexLayer series of classes)
 	//--------------------------------------------------------------------
-	LLColor4		getGlobalColor( const LLString& color_name );
+	LLColor4		getGlobalColor( const std::string& color_name );
 	BOOL			isLocalTextureDataAvailable( LLTexLayerSet* layerset );
 	BOOL			isLocalTextureDataFinal( LLTexLayerSet* layerset );
 	ETextureIndex	getBakedTE( LLTexLayerSet* layerset );
@@ -600,11 +600,6 @@ public:
 	// State of deferred character building
 	//--------------------------------------------------------------------
 	BOOL mIsBuilt;
-
-	//--------------------------------------------------------------------
-	// avatar definition name
-	//--------------------------------------------------------------------
-	char mAvatarDefinition[64];		/* Flawfinder: ignore */
 
 	//--------------------------------------------------------------------
 	// skeleton for skinned avatar
@@ -694,7 +689,7 @@ public:
 	LLViewerJointMesh		mSkirtMesh3;
 	LLViewerJointMesh		mSkirtMesh4;
 
-	typedef std::multimap<LLString, LLPolyMesh*> mesh_map_t;
+	typedef std::multimap<std::string, LLPolyMesh*> mesh_map_t;
 	mesh_map_t				mMeshes;
 
 	//--------------------------------------------------------------------
@@ -924,7 +919,7 @@ protected:
 	F32		mAdjustedPixelArea;
 
 	LLWString mNameString;
-	LLString  mTitle;
+	std::string  mTitle;
 	BOOL	  mNameAway;
 	BOOL	  mNameBusy;
 	BOOL	  mNameMute;
@@ -932,8 +927,7 @@ protected:
 	BOOL	  mVisibleChat;
 	BOOL      mRenderGroupTitles;
 
-
-	LLString  mDebugText;
+	std::string  mDebugText;
 	U64		  mLastRegionHandle;
 	LLFrameTimer mRegionCrossingTimer;
 	S32		  mRegionCrossingCount;
@@ -1013,7 +1007,7 @@ protected:
 	static void		onInitialBakedTextureLoaded( BOOL success, LLViewerImage *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata );
 	static void		onBakedTextureLoaded(BOOL success, LLViewerImage *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata);
 	void			useBakedTexture(const LLUUID& id);
-	void			dumpAvatarTEs(const char* context);
+	void			dumpAvatarTEs(const std::string& context);
 	void			removeMissingBakedTextures();
 	LLTexLayerSet*	getLayerSet(ETextureIndex index) const;
 	LLHost			getObjectHost() const;

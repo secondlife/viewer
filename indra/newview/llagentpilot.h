@@ -51,8 +51,8 @@ public:
 	LLAgentPilot();
 	virtual ~LLAgentPilot();
 
-	void load(const char *filename);
-	void save(const char *filename);
+	void load(const std::string& filename);
+	void save(const std::string& filename);
 
 	void startRecord();
 	void stopRecord();

@@ -40,7 +40,7 @@ LLCapHTTPSender::LLCapHTTPSender(const std::string& cap) :
 }
 
 //virtual 
-void LLCapHTTPSender::send(const LLHost& host, const char* message, 
+void LLCapHTTPSender::send(const LLHost& host, const std::string& message, 
 								  const LLSD& body, 
 								  LLHTTPClient::ResponderPtr response) const
 {

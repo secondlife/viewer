@@ -78,16 +78,16 @@ LLInventoryObject::LLInventoryObject(
 	const LLUUID& uuid,
 	const LLUUID& parent_uuid,
 	LLAssetType::EType type,
-	const LLString& name) :
+	const std::string& name) :
 	mUUID(uuid),
 	mParentUUID(parent_uuid),
 	mType(type),
 	mName(name)
 {
-	LLString::replaceNonstandardASCII(mName, ' ');
-	LLString::replaceChar(mName, '|', ' ');
-	LLString::trim(mName);
-	LLString::truncate(mName, DB_INV_ITEM_NAME_STR_LEN);
+	LLStringUtil::replaceNonstandardASCII(mName, ' ');
+	LLStringUtil::replaceChar(mName, '|', ' ');
+	LLStringUtil::trim(mName);
+	LLStringUtil::truncate(mName, DB_INV_ITEM_NAME_STR_LEN);
 }
 
 LLInventoryObject::LLInventoryObject() :
@@ -117,7 +117,7 @@ const LLUUID& LLInventoryObject::getParentUUID() const
 	return mParentUUID;
 }
 
-const LLString& LLInventoryObject::getName() const
+const std::string& LLInventoryObject::getName() const
 {
 	return mName;
 }
@@ -132,13 +132,13 @@ void LLInventoryObject::setUUID(const LLUUID& new_uuid)
 	mUUID = new_uuid;
 }
 
-void LLInventoryObject::rename(const LLString& n)
+void LLInventoryObject::rename(const std::string& n)
 {
-	LLString new_name(n);
-	LLString::replaceNonstandardASCII(new_name, ' ');
-	LLString::replaceChar(new_name, '|', ' ');
-	LLString::trim(new_name);
-	LLString::truncate(new_name, DB_INV_ITEM_NAME_STR_LEN);
+	std::string new_name(n);
+	LLStringUtil::replaceNonstandardASCII(new_name, ' ');
+	LLStringUtil::replaceChar(new_name, '|', ' ');
+	LLStringUtil::trim(new_name);
+	LLStringUtil::truncate(new_name, DB_INV_ITEM_NAME_STR_LEN);
 
 	if( new_name != mName )
 	{
@@ -201,10 +201,10 @@ BOOL LLInventoryObject::importLegacyStream(std::istream& input_stream)
 				" %254s %254[^|]",
 				keyword, valuestr);
 			mName.assign(valuestr);
-			LLString::replaceNonstandardASCII(mName, ' ');
-			LLString::replaceChar(mName, '|', ' ');
-			LLString::trim(mName);
-			LLString::truncate(mName, DB_INV_ITEM_NAME_STR_LEN);
+			LLStringUtil::replaceNonstandardASCII(mName, ' ');
+			LLStringUtil::replaceChar(mName, '|', ' ');
+			LLStringUtil::trim(mName);
+			LLStringUtil::truncate(mName, DB_INV_ITEM_NAME_STR_LEN);
 		}
 		else
 		{
@@ -219,12 +219,12 @@ BOOL LLInventoryObject::importLegacyStream(std::istream& input_stream)
 // not sure whether exportLegacyStream(llofstream(fp)) would work, fp may need to get icramented...
 BOOL LLInventoryObject::exportFile(LLFILE* fp, BOOL) const
 {
-	char uuid_str[UUID_STR_LENGTH];	/* Flawfinder: ignore */
+	std::string uuid_str;
 	fprintf(fp, "\tinv_object\t0\n\t{\n");
 	mUUID.toString(uuid_str);
-	fprintf(fp, "\t\tobj_id\t%s\n", uuid_str);
+	fprintf(fp, "\t\tobj_id\t%s\n", uuid_str.c_str());
 	mParentUUID.toString(uuid_str);
-	fprintf(fp, "\t\tparent_id\t%s\n", uuid_str);
+	fprintf(fp, "\t\tparent_id\t%s\n", uuid_str.c_str());
 	fprintf(fp, "\t\ttype\t%s\n", LLAssetType::lookup(mType));
 	fprintf(fp, "\t\tname\t%s|\n", mName.c_str());
 	fprintf(fp,"\t}\n");
@@ -233,7 +233,7 @@ BOOL LLInventoryObject::exportFile(LLFILE* fp, BOOL) const
 
 BOOL LLInventoryObject::exportLegacyStream(std::ostream& output_stream, BOOL) const
 {
-	char uuid_str[UUID_STR_LENGTH];	/* Flawfinder: ignore */
+	std::string uuid_str;
 	output_stream <<  "\tinv_object\t0\n\t{\n";
 	mUUID.toString(uuid_str);
 	output_stream << "\t\tobj_id\t" << uuid_str << "\n";
@@ -276,8 +276,8 @@ LLInventoryItem::LLInventoryItem(
 	const LLUUID& asset_uuid,
 	LLAssetType::EType type,
 	LLInventoryType::EType inv_type,
-	const LLString& name, 
-	const LLString& desc,
+	const std::string& name, 
+	const std::string& desc,
 	const LLSaleInfo& sale_info,
 	U32 flags,
 	S32 creation_date_utc) :
@@ -290,8 +290,8 @@ LLInventoryItem::LLInventoryItem(
 	mFlags(flags),
 	mCreationDate(creation_date_utc)
 {
-	LLString::replaceNonstandardASCII(mDescription, ' ');
-	LLString::replaceChar(mDescription, '|', ' ');
+	LLStringUtil::replaceNonstandardASCII(mDescription, ' ');
+	LLStringUtil::replaceChar(mDescription, '|', ' ');
 }
 
 LLInventoryItem::LLInventoryItem() :
@@ -359,7 +359,7 @@ void LLInventoryItem::setAssetUUID(const LLUUID& asset_id)
 }
 
 
-const LLString& LLInventoryItem::getDescription() const
+const std::string& LLInventoryItem::getDescription() const
 {
 	return mDescription;
 }
@@ -396,11 +396,11 @@ U32 LLInventoryItem::getCRC32() const
 }
 
 
-void LLInventoryItem::setDescription(const LLString& d)
+void LLInventoryItem::setDescription(const std::string& d)
 {
-	LLString new_desc(d);
-	LLString::replaceNonstandardASCII(new_desc, ' ');
-	LLString::replaceChar(new_desc, '|', ' ');
+	std::string new_desc(d);
+	LLStringUtil::replaceNonstandardASCII(new_desc, ' ');
+	LLStringUtil::replaceChar(new_desc, '|', ' ');
 	if( new_desc != mDescription )
 	{
 		mDescription = new_desc;
@@ -486,15 +486,11 @@ BOOL LLInventoryItem::unpackMessage(LLMessageSystem* msg, const char* block, S32
 
 	mSaleInfo.unpackMultiMessage(msg, block, block_num);
 
-	char name[DB_INV_ITEM_NAME_BUF_SIZE];	/* Flawfinder: ignore */
-	msg->getStringFast(block, _PREHASH_Name, DB_INV_ITEM_NAME_BUF_SIZE, name, block_num);
-	mName.assign(name);
-	LLString::replaceNonstandardASCII(mName, ' ');
+	msg->getStringFast(block, _PREHASH_Name, mName, block_num);
+	LLStringUtil::replaceNonstandardASCII(mName, ' ');
 
-	char desc[DB_INV_ITEM_DESC_BUF_SIZE];	/* Flawfinder: ignore */
-	msg->getStringFast(block, _PREHASH_Description, DB_INV_ITEM_DESC_BUF_SIZE, desc, block_num);
-	mDescription.assign(desc);
-	LLString::replaceNonstandardASCII(mDescription, ' ');
+	msg->getStringFast(block, _PREHASH_Description, mDescription, block_num);
+	LLStringUtil::replaceNonstandardASCII(mDescription, ' ');
 
 	S32 date;
 	msg->getS32(block, "CreationDate", date, block_num);
@@ -604,7 +600,7 @@ BOOL LLInventoryItem::importFile(LLFILE* fp)
 		}
 		else if(0 == strcmp("inv_type", keyword))
 		{
-			mInventoryType = LLInventoryType::lookup(valuestr);
+			mInventoryType = LLInventoryType::lookup(std::string(valuestr));
 		}
 		else if(0 == strcmp("flags", keyword))
 		{
@@ -626,8 +622,8 @@ BOOL LLInventoryItem::importFile(LLFILE* fp)
 			}
 
 			mName.assign(valuestr);
-			LLString::replaceNonstandardASCII(mName, ' ');
-			LLString::replaceChar(mName, '|', ' ');
+			LLStringUtil::replaceNonstandardASCII(mName, ' ');
+			LLStringUtil::replaceChar(mName, '|', ' ');
 		}
 		else if(0 == strcmp("desc", keyword))
 		{
@@ -644,7 +640,7 @@ BOOL LLInventoryItem::importFile(LLFILE* fp)
 			}
 
 			mDescription.assign(valuestr);
-			LLString::replaceNonstandardASCII(mDescription, ' ');
+			LLStringUtil::replaceNonstandardASCII(mDescription, ' ');
 			/* TODO -- ask Ian about this code
 			const char *donkey = mDescription.c_str();
 			if (donkey[0] == '|')
@@ -680,12 +676,12 @@ BOOL LLInventoryItem::importFile(LLFILE* fp)
 
 BOOL LLInventoryItem::exportFile(LLFILE* fp, BOOL include_asset_key) const
 {
-	char uuid_str[UUID_STR_LENGTH];	/* Flawfinder: ignore */
+	std::string uuid_str;
 	fprintf(fp, "\tinv_item\t0\n\t{\n");
 	mUUID.toString(uuid_str);
-	fprintf(fp, "\t\titem_id\t%s\n", uuid_str);
+	fprintf(fp, "\t\titem_id\t%s\n", uuid_str.c_str());
 	mParentUUID.toString(uuid_str);
-	fprintf(fp, "\t\tparent_id\t%s\n", uuid_str);
+	fprintf(fp, "\t\tparent_id\t%s\n", uuid_str.c_str());
 	mPermissions.exportFile(fp);
 
 	// Check for permissions to see the asset id, and if so write it
@@ -697,7 +693,7 @@ BOOL LLInventoryItem::exportFile(LLFILE* fp, BOOL include_asset_key) const
 		   || (mAssetUUID.isNull()))
 		{
 			mAssetUUID.toString(uuid_str);
-			fprintf(fp, "\t\tasset_id\t%s\n", uuid_str);
+			fprintf(fp, "\t\tasset_id\t%s\n", uuid_str.c_str());
 		}
 		else
 		{
@@ -705,13 +701,13 @@ BOOL LLInventoryItem::exportFile(LLFILE* fp, BOOL include_asset_key) const
 			LLXORCipher cipher(MAGIC_ID.mData, UUID_BYTES);
 			cipher.encrypt(shadow_id.mData, UUID_BYTES);
 			shadow_id.toString(uuid_str);
-			fprintf(fp, "\t\tshadow_id\t%s\n", uuid_str);
+			fprintf(fp, "\t\tshadow_id\t%s\n", uuid_str.c_str());
 		}
 	}
 	else
 	{
 		LLUUID::null.toString(uuid_str);
-		fprintf(fp, "\t\tasset_id\t%s\n", uuid_str);
+		fprintf(fp, "\t\tasset_id\t%s\n", uuid_str.c_str());
 	}
 	fprintf(fp, "\t\ttype\t%s\n", LLAssetType::lookup(mType));
 	const char* inv_type_str = LLInventoryType::lookup(mInventoryType);
@@ -807,7 +803,7 @@ BOOL LLInventoryItem::importLegacyStream(std::istream& input_stream)
 		}
 		else if(0 == strcmp("inv_type", keyword))
 		{
-			mInventoryType = LLInventoryType::lookup(valuestr);
+			mInventoryType = LLInventoryType::lookup(std::string(valuestr));
 		}
 		else if(0 == strcmp("flags", keyword))
 		{
@@ -829,8 +825,8 @@ BOOL LLInventoryItem::importLegacyStream(std::istream& input_stream)
 			}
 
 			mName.assign(valuestr);
-			LLString::replaceNonstandardASCII(mName, ' ');
-			LLString::replaceChar(mName, '|', ' ');
+			LLStringUtil::replaceNonstandardASCII(mName, ' ');
+			LLStringUtil::replaceChar(mName, '|', ' ');
 		}
 		else if(0 == strcmp("desc", keyword))
 		{
@@ -847,7 +843,7 @@ BOOL LLInventoryItem::importLegacyStream(std::istream& input_stream)
 			}
 
 			mDescription.assign(valuestr);
-			LLString::replaceNonstandardASCII(mDescription, ' ');
+			LLStringUtil::replaceNonstandardASCII(mDescription, ' ');
 			/* TODO -- ask Ian about this code
 			const char *donkey = mDescription.c_str();
 			if (donkey[0] == '|')
@@ -883,7 +879,7 @@ BOOL LLInventoryItem::importLegacyStream(std::istream& input_stream)
 
 BOOL LLInventoryItem::exportLegacyStream(std::ostream& output_stream, BOOL include_asset_key) const
 {
-	char uuid_str[UUID_STR_LENGTH];	/* Flawfinder: ignore */
+	std::string uuid_str;
 	output_stream << "\tinv_item\t0\n\t{\n";
 	mUUID.toString(uuid_str);
 	output_stream << "\t\titem_id\t" << uuid_str << "\n";
@@ -920,8 +916,8 @@ BOOL LLInventoryItem::exportLegacyStream(std::ostream& output_stream, BOOL inclu
 	const char* inv_type_str = LLInventoryType::lookup(mInventoryType);
 	if(inv_type_str) 
 		output_stream << "\t\tinv_type\t" << inv_type_str << "\n";
-	char buffer[32];	/* Flawfinder: ignore */
-	snprintf(buffer, sizeof(buffer), "\t\tflags\t%08x\n", mFlags);		/* Flawfinder: ignore */
+	std::string buffer;
+	buffer = llformat( "\t\tflags\t%08x\n", mFlags);
 	output_stream << buffer;
 	mSaleInfo.exportLegacyStream(output_stream);
 	output_stream << "\t\tname\t" << mName.c_str() << "|\n";
@@ -1030,12 +1026,12 @@ bool LLInventoryItem::fromLLSD(LLSD& sd)
 	w = INV_ASSET_TYPE_LABEL;
 	if (sd.has(w))
 	{
-		mType = LLAssetType::lookup(sd[w].asString().c_str());
+		mType = LLAssetType::lookup(sd[w].asString());
 	}
 	w = INV_INVENTORY_TYPE_LABEL;
 	if (sd.has(w))
 	{
-		mInventoryType = LLInventoryType::lookup(sd[w].asString().c_str());
+		mInventoryType = LLInventoryType::lookup(sd[w].asString());
 	}
 	w = INV_FLAGS_LABEL;
 	if (sd.has(w))
@@ -1046,14 +1042,14 @@ bool LLInventoryItem::fromLLSD(LLSD& sd)
 	if (sd.has(w))
 	{
 		mName = sd[w].asString();
-		LLString::replaceNonstandardASCII(mName, ' ');
-		LLString::replaceChar(mName, '|', ' ');
+		LLStringUtil::replaceNonstandardASCII(mName, ' ');
+		LLStringUtil::replaceChar(mName, '|', ' ');
 	}
 	w = INV_DESC_LABEL;
 	if (sd.has(w))
 	{
 		mDescription = sd[w].asString();
-		LLString::replaceNonstandardASCII(mDescription, ' ');
+		LLStringUtil::replaceNonstandardASCII(mDescription, ' ');
 	}
 	w = INV_CREATION_DATE_LABEL;
 	if (sd.has(w))
@@ -1107,21 +1103,21 @@ LLXMLNode *LLInventoryItem::exportFileXML(BOOL include_asset_key) const
 		}
 	}
 
-	LLString type_str = LLAssetType::lookup(mType);
-	LLString inv_type_str = LLInventoryType::lookup(mInventoryType);
+	std::string type_str = LLAssetType::lookup(mType);
+	std::string inv_type_str = LLInventoryType::lookup(mInventoryType);
 
-	ret->createChild("asset_type", FALSE)->setStringValue(1, &type_str);
-	ret->createChild("inventory_type", FALSE)->setStringValue(1, &inv_type_str);
+	ret->createChild("asset_type", FALSE)->setStringValue(type_str);
+	ret->createChild("inventory_type", FALSE)->setStringValue(inv_type_str);
 	S32 tmp_flags = (S32) mFlags;
 	ret->createChild("flags", FALSE)->setByteValue(4, (U8*)(&tmp_flags), LLXMLNode::ENCODING_HEX);
 
 	mSaleInfo.exportFileXML()->setParent(ret);
 
-	LLString temp;
+	std::string temp;
 	temp.assign(mName);
-	ret->createChild("name", FALSE)->setStringValue(1, &temp);
+	ret->createChild("name", FALSE)->setStringValue(temp);
 	temp.assign(mDescription);
-	ret->createChild("description", FALSE)->setStringValue(1, &temp);
+	ret->createChild("description", FALSE)->setStringValue(temp);
 	S32 date = mCreationDate;
 	ret->createChild("creation_date", FALSE)->setIntValue(1, &date);
 
@@ -1150,9 +1146,9 @@ BOOL LLInventoryItem::importXML(LLXMLNode* node)
 			cipher.decrypt(mAssetUUID.mData, UUID_BYTES);
 		}
 		if (node->getChild("asset_type", sub_node))
-			mType = LLAssetType::lookup(sub_node->getValue().c_str());
+			mType = LLAssetType::lookup(sub_node->getValue());
 		if (node->getChild("inventory_type", sub_node))
-			mInventoryType = LLInventoryType::lookup(sub_node->getValue().c_str());
+			mInventoryType = LLInventoryType::lookup(sub_node->getValue());
 		if (node->getChild("flags", sub_node))
 		{
 			S32 tmp_flags = 0;
@@ -1198,32 +1194,32 @@ S32 LLInventoryItem::packBinaryBucket(U8* bin_bucket, LLPermissions* perm_overri
 
 	// describe the inventory item
 	char* buffer = (char*) bin_bucket;
-	char creator_id_str[UUID_STR_LENGTH];	/* Flawfinder: ignore */
+	std::string creator_id_str;
 
 	perm.getCreator().toString(creator_id_str);
-	char owner_id_str[UUID_STR_LENGTH];	/* Flawfinder: ignore */
+	std::string owner_id_str;
 	perm.getOwner().toString(owner_id_str);
-	char last_owner_id_str[UUID_STR_LENGTH];	/* Flawfinder: ignore */
+	std::string last_owner_id_str;
 	perm.getLastOwner().toString(last_owner_id_str);
-	char group_id_str[UUID_STR_LENGTH];	/* Flawfinder: ignore */
+	std::string group_id_str;
 	perm.getGroup().toString(group_id_str);
-	char asset_id_str[UUID_STR_LENGTH];	/* Flawfinder: ignore */
+	std::string asset_id_str;
 	getAssetUUID().toString(asset_id_str);
 	S32 size = sprintf(buffer,	/* Flawfinder: ignore */
 					   "%d|%d|%s|%s|%s|%s|%s|%x|%x|%x|%x|%x|%s|%s|%d|%d|%x",
 					   getType(),
 					   getInventoryType(),
 					   getName().c_str(),
-					   creator_id_str,
-					   owner_id_str,
-					   last_owner_id_str,
-					   group_id_str,
+					   creator_id_str.c_str(),
+					   owner_id_str.c_str(),
+					   last_owner_id_str.c_str(),
+					   group_id_str.c_str(),
 					   perm.getMaskBase(),
 					   perm.getMaskOwner(),
 					   perm.getMaskGroup(),
 					   perm.getMaskEveryone(),
 					   perm.getMaskNextOwner(),
-					   asset_id_str,
+					   asset_id_str.c_str(),
 					   getDescription().c_str(),
 					   getSaleInfo().getSaleType(),
 					   getSaleInfo().getSalePrice(),
@@ -1274,7 +1270,7 @@ void LLInventoryItem::unpackBinaryBucket(U8* bin_bucket, S32 bin_bucket_size)
 	inv_type = (LLInventoryType::EType)(atoi((*(iter++)).c_str()));
 	setInventoryType( inv_type );
 
-	LLString name((*(iter++)).c_str());
+	std::string name((*(iter++)).c_str());
 	rename( name );
 	
 	LLUUID creator_id((*(iter++)).c_str());
@@ -1295,7 +1291,7 @@ void LLInventoryItem::unpackBinaryBucket(U8* bin_bucket, S32 bin_bucket_size)
 	LLUUID asset_id((*(iter++)).c_str());
 	setAssetUUID(asset_id);
 
-	LLString desc((*(iter++)).c_str());
+	std::string desc((*(iter++)).c_str());
 	setDescription(desc);
 	
 	LLSaleInfo::EForSale sale_type;
@@ -1314,7 +1310,7 @@ void LLInventoryItem::unpackBinaryBucket(U8* bin_bucket, S32 bin_bucket_size)
 // returns TRUE if a should appear before b
 BOOL item_dictionary_sort( LLInventoryItem* a, LLInventoryItem* b )
 {
-	return (LLString::compareDict( a->getName().c_str(), b->getName().c_str() ) < 0);
+	return (LLStringUtil::compareDict( a->getName().c_str(), b->getName().c_str() ) < 0);
 }
 
 // returns TRUE if a should appear before b
@@ -1332,7 +1328,7 @@ LLInventoryCategory::LLInventoryCategory(
 	const LLUUID& uuid,
 	const LLUUID& parent_uuid,
 	LLAssetType::EType preferred_type,
-	const LLString& name) :
+	const std::string& name) :
 	LLInventoryObject(uuid, parent_uuid, LLAssetType::AT_CATEGORY, name),
 	mPreferredType(preferred_type)
 {
@@ -1418,8 +1414,8 @@ bool LLInventoryCategory::fromLLSD(LLSD& sd)
     if (sd.has(w))
     {
         mName = sd[w].asString();
-        LLString::replaceNonstandardASCII(mName, ' ');
-        LLString::replaceChar(mName, '|', ' ');
+        LLStringUtil::replaceNonstandardASCII(mName, ' ');
+        LLStringUtil::replaceChar(mName, '|', ' ');
     }
     return true;
 }
@@ -1434,10 +1430,8 @@ void LLInventoryCategory::unpackMessage(LLMessageSystem* msg,
 	S8 type;
 	msg->getS8Fast(block, _PREHASH_Type, type, block_num);
 	mPreferredType = static_cast<LLAssetType::EType>(type);
-	char name[DB_INV_ITEM_NAME_BUF_SIZE];	/* Flawfinder: ignore */
-	msg->getStringFast(block, _PREHASH_Name, DB_INV_ITEM_NAME_BUF_SIZE, name, block_num);
-	mName.assign(name);
-	LLString::replaceNonstandardASCII(mName, ' ');
+	msg->getStringFast(block, _PREHASH_Name, mName, block_num);
+	LLStringUtil::replaceNonstandardASCII(mName, ' ');
 }
 	
 // virtual
@@ -1495,8 +1489,8 @@ BOOL LLInventoryCategory::importFile(LLFILE* fp)
 				" %254s %254[^|]",
 				keyword, valuestr);
 			mName.assign(valuestr);
-			LLString::replaceNonstandardASCII(mName, ' ');
-			LLString::replaceChar(mName, '|', ' ');
+			LLStringUtil::replaceNonstandardASCII(mName, ' ');
+			LLStringUtil::replaceChar(mName, '|', ' ');
 		}
 		else
 		{
@@ -1509,12 +1503,12 @@ BOOL LLInventoryCategory::importFile(LLFILE* fp)
 
 BOOL LLInventoryCategory::exportFile(LLFILE* fp, BOOL) const
 {
-	char uuid_str[UUID_STR_LENGTH];	/* Flawfinder: ignore */
+	std::string uuid_str;
 	fprintf(fp, "\tinv_category\t0\n\t{\n");
 	mUUID.toString(uuid_str);
-	fprintf(fp, "\t\tcat_id\t%s\n", uuid_str);
+	fprintf(fp, "\t\tcat_id\t%s\n", uuid_str.c_str());
 	mParentUUID.toString(uuid_str);
-	fprintf(fp, "\t\tparent_id\t%s\n", uuid_str);
+	fprintf(fp, "\t\tparent_id\t%s\n", uuid_str.c_str());
 	fprintf(fp, "\t\ttype\t%s\n", LLAssetType::lookup(mType));
 	fprintf(fp, "\t\tpref_type\t%s\n", LLAssetType::lookup(mPreferredType));
 	fprintf(fp, "\t\tname\t%s|\n", mName.c_str());
@@ -1574,8 +1568,8 @@ BOOL LLInventoryCategory::importLegacyStream(std::istream& input_stream)
 				" %254s %254[^|]",
 				keyword, valuestr);
 			mName.assign(valuestr);
-			LLString::replaceNonstandardASCII(mName, ' ');
-			LLString::replaceChar(mName, '|', ' ');
+			LLStringUtil::replaceNonstandardASCII(mName, ' ');
+			LLStringUtil::replaceChar(mName, '|', ' ');
 		}
 		else
 		{
@@ -1588,7 +1582,7 @@ BOOL LLInventoryCategory::importLegacyStream(std::istream& input_stream)
 
 BOOL LLInventoryCategory::exportLegacyStream(std::ostream& output_stream, BOOL) const
 {
-	char uuid_str[UUID_STR_LENGTH];	/* Flawfinder: ignore */
+	std::string uuid_str;
 	output_stream << "\tinv_category\t0\n\t{\n";
 	mUUID.toString(uuid_str);
 	output_stream << "\t\tcat_id\t" << uuid_str << "\n";
@@ -1638,7 +1632,7 @@ LLPointer<LLInventoryItem> ll_create_item_from_sd(const LLSD& sd_item)
 	rv->setParent(sd_item[INV_PARENT_ID_LABEL].asUUID());
 	rv->rename(sd_item[INV_NAME_LABEL].asString());
 	rv->setType(
-		LLAssetType::lookup(sd_item[INV_ASSET_TYPE_LABEL].asString().c_str()));
+		LLAssetType::lookup(sd_item[INV_ASSET_TYPE_LABEL].asString()));
 	if (sd_item.has("shadow_id"))
 	{
 		LLUUID asset_id = sd_item["shadow_id"];
@@ -1655,7 +1649,7 @@ LLPointer<LLInventoryItem> ll_create_item_from_sd(const LLSD& sd_item)
 	rv->setPermissions(ll_permissions_from_sd(sd_item[INV_PERMISSIONS_LABEL]));
 	rv->setInventoryType(
 		LLInventoryType::lookup(
-			sd_item[INV_INVENTORY_TYPE_LABEL].asString().c_str()));
+			sd_item[INV_INVENTORY_TYPE_LABEL].asString()));
 	rv->setFlags((U32)(sd_item[INV_FLAGS_LABEL].asInteger()));
 	rv->setCreationDate(sd_item[INV_CREATION_DATE_LABEL].asInteger());
 	return rv;
@@ -1690,9 +1684,9 @@ LLPointer<LLInventoryCategory> ll_create_category_from_sd(const LLSD& sd_cat)
 	rv->setParent(sd_cat[INV_PARENT_ID_LABEL].asUUID());
 	rv->rename(sd_cat[INV_NAME_LABEL].asString());
 	rv->setType(
-		LLAssetType::lookup(sd_cat[INV_ASSET_TYPE_LABEL].asString().c_str()));
+		LLAssetType::lookup(sd_cat[INV_ASSET_TYPE_LABEL].asString()));
 	rv->setPreferredType(
 		LLAssetType::lookup(
-			sd_cat[INV_PREFERRED_TYPE_LABEL].asString().c_str()));
+			sd_cat[INV_PREFERRED_TYPE_LABEL].asString()));
 	return rv;
 }

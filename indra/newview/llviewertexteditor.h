@@ -42,10 +42,10 @@ class LLViewerTextEditor : public LLTextEditor
 {
 	
 public:
-	LLViewerTextEditor(const LLString& name,
+	LLViewerTextEditor(const std::string& name,
 					   const LLRect& rect,
 					   S32 max_length,
-					   const LLString& default_text = LLString(),
+					   const std::string& default_text = std::string(),
 					   const LLFontGL* glfont = NULL,
 					   BOOL allow_embedded_items = FALSE);
 
@@ -62,28 +62,28 @@ public:
 	virtual BOOL	handleHover(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleDoubleClick(S32 x, S32 y, MASK mask );
 
-	virtual BOOL	handleToolTip(S32 x, S32 y, LLString& msg, LLRect* sticky_rect);
+	virtual BOOL	handleToolTip(S32 x, S32 y, std::string& msg, LLRect* sticky_rect);
 	virtual BOOL	handleDragAndDrop(S32 x, S32 y, MASK mask,
 										BOOL drop, EDragAndDropType cargo_type, 
-										void *cargo_data, EAcceptance *accept, LLString& tooltip_msg);
+										void *cargo_data, EAcceptance *accept, std::string& tooltip_msg);
 
   	const class LLInventoryItem* getDragItem() const { return mDragItem; }
-	virtual BOOL 	importBuffer(const LLString& buffer);
+	virtual BOOL 	importBuffer(const char* buffer, S32 length);
 	virtual bool	importStream(std::istream& str);
-	virtual BOOL 	exportBuffer(LLString& buffer);
+	virtual BOOL 	exportBuffer(std::string& buffer);
 	void setNotecardInfo(const LLUUID& notecard_item_id, const LLUUID& object_id)
 	{
 		mNotecardInventoryID = notecard_item_id;
 		mObjectID = object_id;
 	}
 	
-	void setASCIIEmbeddedText(const LLString& instr);
-	void setEmbeddedText(const LLString& instr);
-	LLString getEmbeddedText();
+	void setASCIIEmbeddedText(const std::string& instr);
+	void setEmbeddedText(const std::string& instr);
+	std::string getEmbeddedText();
 	
 	// Appends Second Life time, small font, grey.
 	// If this starts a line, you need to prepend a newline.
-	LLString appendTime(bool prepend_newline);
+	std::string appendTime(bool prepend_newline);
 
 	void copyInventory(const LLInventoryItem* item, U32 callback_id = 0);
 

@@ -39,7 +39,7 @@
 #include "llfocusmgr.h"
 #include "llwindow.h"
 
-LLResizeBar::LLResizeBar( const LLString& name, LLView* resizing_view, const LLRect& rect, S32 min_size, S32 max_size, Side side )
+LLResizeBar::LLResizeBar( const std::string& name, LLView* resizing_view, const LLRect& rect, S32 min_size, S32 max_size, Side side )
 	:
 	LLView( name, rect, TRUE ),
 	mDragLastScreenX( 0 ),

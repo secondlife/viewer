@@ -46,7 +46,7 @@ static LLRegisterWidget<LLSlider> r2("volume_slider");
 
 
 LLSlider::LLSlider( 
-	const LLString& name,
+	const std::string& name,
 	const LLRect& rect,
 	void (*on_commit_callback)(LLUICtrl* ctrl, void* userdata),
 	void* callback_userdata,
@@ -55,7 +55,7 @@ LLSlider::LLSlider(
 	F32 max_value,
 	F32 increment,
 	BOOL volume,
-	const LLString& control_name)
+	const std::string& control_name)
 	:
 	LLUICtrl( name, rect, TRUE,	on_commit_callback, callback_userdata, 
 		FOLLOWS_LEFT | FOLLOWS_TOP),
@@ -303,7 +303,7 @@ LLXMLNodePtr LLSlider::getXML(bool save_children) const
 //static
 LLView* LLSlider::fromXML(LLXMLNodePtr node, LLView *parent, class LLUICtrlFactory *factory)
 {
-	LLString name("slider_bar");
+	std::string name("slider_bar");
 	node->getAttributeString("name", name);
 
 	LLRect rect;

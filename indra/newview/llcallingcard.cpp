@@ -78,7 +78,7 @@ public:
 	
 public:
 	LLUUID mAvatarID;
-	LLString mName;
+	std::string mName;
 	LLVector3d mGlobalPositionEstimate;
 	bool mHaveInfo;
 	bool mHaveCoarseInfo;
@@ -240,7 +240,7 @@ void LLAvatarTracker::getDegreesAndDist(F32& rot,
 	rot = F32(RAD_TO_DEG * atan2(to_vec.mdV[VY], to_vec.mdV[VX]));
 }
 
-const LLString& LLAvatarTracker::getName()
+const std::string& LLAvatarTracker::getName()
 {
 	if(mTrackingData)
 	{
@@ -248,7 +248,7 @@ const LLString& LLAvatarTracker::getName()
 	}
 	else
 	{
-		return LLString::null;
+		return LLStringUtil::null;
 	}
 }
 
@@ -592,7 +592,7 @@ void LLAvatarTracker::processChange(LLMessageSystem* msg)
 				if((mBuddyInfo[agent_id]->getRightsGrantedFrom() ^  new_rights) & LLRelationship::GRANT_MODIFY_OBJECTS)
 				{
 					std::string first, last;
-					LLStringBase<char>::format_map_t args;
+					LLStringUtil::format_map_t args;
 					if(gCacheName->getName(agent_id, first, last))
 					{
 						args["[FIRST_NAME]"] = first;
@@ -638,7 +638,7 @@ void LLAvatarTracker::processNotify(LLMessageSystem* msg, bool online)
 			tracking_id = mTrackingData->mAvatarID;
 		}
 		BOOL notify = FALSE;
-		LLString::format_map_t args;
+		LLStringUtil::format_map_t args;
 		for(S32 i = 0; i < count; ++i)
 		{
 			msg->getUUIDFast(_PREHASH_AgentBlock, _PREHASH_AgentID, agent_id, i);

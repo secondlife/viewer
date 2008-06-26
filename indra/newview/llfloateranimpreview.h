@@ -70,7 +70,7 @@ protected:
 class LLFloaterAnimPreview : public LLFloaterNameDesc
 {
 public:
-	LLFloaterAnimPreview(const char* filename);
+	LLFloaterAnimPreview(const std::string& filename);
 	virtual ~LLFloaterAnimPreview();
 	
 	BOOL postBuild();
@@ -126,7 +126,7 @@ protected:
 	BOOL				mEnabled;
 	LLAnimPauseRequest	mPauseRequest;
 
-	std::map<LLString, LLUUID>	mIDList;
+	std::map<std::string, LLUUID>	mIDList;
 
 	static S32 sUploadAmount;
 };

@@ -232,7 +232,7 @@ void LLVOTree::initClass()
 
 			if (!success)
 			{
-				LLString name;
+				std::string name;
 				static LLStdStringHandle name_string = LLXmlTree::addAttributeString("name");
 				tree_def->getFastAttributeString(name_string, name);
 				llwarns << "Incomplete definition of tree " << name << llendl;
@@ -240,22 +240,20 @@ void LLVOTree::initClass()
 		}
 		
 		BOOL have_all_trees = TRUE;
-		LLString err;
-		char buffer[10];		/* Flawfinder: ignore */
+		std::string err;
 
 		for (S32 i=0;i<sMaxTreeSpecies;++i)
 		{
 			if (!sSpeciesTable.count(i))
 			{
-				snprintf(buffer,10," %d",i);		/* Flawfinder: ignore */
-				err.append(buffer);
+				err.append(llformat(" %d",i));
 				have_all_trees = FALSE;
 			}
 		}
 
 		if (!have_all_trees) 
 		{
-			LLStringBase<char>::format_map_t args;
+			LLStringUtil::format_map_t args;
 			args["[SPECIES]"] = err;
 			gViewerWindow->alertXml("ErrorUndefinedTrees", args );
 		}

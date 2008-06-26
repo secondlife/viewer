@@ -61,10 +61,10 @@ LLFloaterCamera::LLFloaterCamera(const LLSD& val)
 	S32 left = 16;
 	
 	const S32 ROTATE_WIDTH = 64;
-	mRotate = new LLJoystickCameraRotate("cam rotate stick", 
+	mRotate = new LLJoystickCameraRotate(std::string("cam rotate stick"), 
 										 LLRect( left, top, left + ROTATE_WIDTH, bottom ),
-										 "cam_rotate_out.tga",
-										 "cam_rotate_in.tga" );
+										 std::string("cam_rotate_out.tga"),
+										 std::string("cam_rotate_in.tga") );
 	mRotate->setFollows(FOLLOWS_TOP | FOLLOWS_LEFT);
 	mRotate->setHeldDownDelay(CAMERA_BUTTON_DELAY);
 	mRotate->setToolTip( getString("rotate_tooltip") );
@@ -75,11 +75,11 @@ LLFloaterCamera::LLFloaterCamera(const LLSD& val)
 	
 	const S32 ZOOM_WIDTH = 16;
 	mZoom = new LLJoystickCameraZoom( 
-									 "zoom",
+									 std::string("zoom"),
 									 LLRect( left, top, left + ZOOM_WIDTH, bottom ),
-									 "cam_zoom_out.tga",
-									 "cam_zoom_plus_in.tga",
-									 "cam_zoom_minus_in.tga");
+									 std::string("cam_zoom_out.tga"),
+									 std::string("cam_zoom_plus_in.tga"),
+									 std::string("cam_zoom_minus_in.tga"));
 	mZoom->setFollows(FOLLOWS_TOP | FOLLOWS_LEFT);
 	mZoom->setHeldDownDelay(CAMERA_BUTTON_DELAY);
 	mZoom->setToolTip( getString("zoom_tooltip") );
@@ -89,10 +89,10 @@ LLFloaterCamera::LLFloaterCamera(const LLSD& val)
 	left += ZOOM_WIDTH;
 	
 	const S32 TRACK_WIDTH = 64;
-	mTrack = new LLJoystickCameraTrack("cam track stick", 
+	mTrack = new LLJoystickCameraTrack(std::string("cam track stick"), 
 									   LLRect( left, top, left + TRACK_WIDTH, bottom ),
-									   "cam_tracking_out.tga",
-									   "cam_tracking_in.tga");
+									   std::string("cam_tracking_out.tga"),
+									   std::string("cam_tracking_in.tga"));
 	mTrack->setFollows(FOLLOWS_TOP | FOLLOWS_LEFT);
 	mTrack->setHeldDownDelay(CAMERA_BUTTON_DELAY);
 	mTrack->setToolTip( getString("move_tooltip") );

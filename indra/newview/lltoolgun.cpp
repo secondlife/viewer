@@ -48,8 +48,7 @@
 #include "lltoolgrab.h"
 
 LLToolGun::LLToolGun( LLToolComposite* composite )
-	:
-	LLTool( "gun", composite )
+:	LLTool( std::string("gun"), composite )
 {
 }
 

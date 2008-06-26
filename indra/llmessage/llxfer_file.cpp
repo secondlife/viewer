@@ -47,17 +47,17 @@
 const U32 LL_MAX_XFER_FILE_BUFFER = 65536;
 
 // local function to copy a file
-S32 copy_file(const char* from, const char* to);
+S32 copy_file(const std::string& from, const std::string& to);
 
 ///////////////////////////////////////////////////////////
 
 LLXfer_File::LLXfer_File (S32 chunk_size)
 : LLXfer(chunk_size)
 {
-	init(LLString::null, FALSE, chunk_size);
+	init(LLStringUtil::null, FALSE, chunk_size);
 }
 
-LLXfer_File::LLXfer_File (const LLString& local_filename, BOOL delete_local_on_completion, S32 chunk_size)
+LLXfer_File::LLXfer_File (const std::string& local_filename, BOOL delete_local_on_completion, S32 chunk_size)
 : LLXfer(chunk_size)
 {
 	init(local_filename, delete_local_on_completion, chunk_size);
@@ -72,24 +72,24 @@ LLXfer_File::~LLXfer_File ()
 
 ///////////////////////////////////////////////////////////
 
-void LLXfer_File::init (const LLString& local_filename, BOOL delete_local_on_completion, S32 chunk_size)
+void LLXfer_File::init (const std::string& local_filename, BOOL delete_local_on_completion, S32 chunk_size)
 {
 
 	mFp = NULL;
-	mLocalFilename[0] = 0;
-	mRemoteFilename[0] = 0;
+	mLocalFilename.clear();
+	mRemoteFilename.clear();
 	mRemotePath = LL_PATH_NONE;
-	mTempFilename[0] = 0;
+	mTempFilename.clear();
 	mDeleteLocalOnCompletion = FALSE;
 	mDeleteRemoteOnCompletion = FALSE;
 
 	if (!local_filename.empty())
 	{
-		strncpy(mLocalFilename, local_filename.c_str(), LL_MAX_PATH-1);
-		mLocalFilename[LL_MAX_PATH-1] = '\0'; // stupid strncpy.
+		mLocalFilename =  local_filename.substr(0,LL_MAX_PATH-1);
 
 		// You can only automatically delete .tmp file as a safeguard against nasty messages.
-		mDeleteLocalOnCompletion = (delete_local_on_completion && (strstr(mLocalFilename,".tmp") == &mLocalFilename[strlen(mLocalFilename)-4]));		/* Flawfinder : ignore */
+		std::string exten = mLocalFilename.substr(mLocalFilename.length()-4, 4);
+		mDeleteLocalOnCompletion = (delete_local_on_completion && exten == ".tmp");
 	}
 }
 	
@@ -121,8 +121,8 @@ void LLXfer_File::free ()
 ///////////////////////////////////////////////////////////
 
 S32 LLXfer_File::initializeRequest(U64 xfer_id,
-				   const LLString& local_filename,
-				   const LLString& remote_filename,
+				   const std::string& local_filename,
+				   const std::string& remote_filename,
 				   ELLPath remote_path,
 				   const LLHost& remote_host,
 				   BOOL delete_remote_on_completion,
@@ -132,15 +132,13 @@ S32 LLXfer_File::initializeRequest(U64 xfer_id,
  	S32 retval = 0;  // presume success
 	
 	mID = xfer_id;
-	strncpy(mLocalFilename, local_filename.c_str(), LL_MAX_PATH-1);
-	mLocalFilename[LL_MAX_PATH-1] = '\0'; // stupid strncpy.
-	strncpy(mRemoteFilename,remote_filename.c_str(), LL_MAX_PATH-1);
-	mRemoteFilename[LL_MAX_PATH-1] = '\0'; // stupid strncpy.
+	mLocalFilename = local_filename;
+	mRemoteFilename = remote_filename;
 	mRemotePath = remote_path;
 	mRemoteHost = remote_host;
 	mDeleteRemoteOnCompletion = delete_remote_on_completion;
 
-	snprintf(mTempFilename, sizeof(mTempFilename), "%s",gDirUtilp->getTempFilename().c_str());	/* Flawfinder: ignore */
+	mTempFilename = gDirUtilp->getTempFilename();
 
 	mCallback = callback;
 	mCallbackDataHandle = user_data;
@@ -343,7 +341,7 @@ S32 LLXfer_File::processEOF()
 				if(copy_file(mTempFilename, mLocalFilename) == 0)
 				{
 					llinfos << "Rename across mounts; copying+unlinking the file instead." << llendl;
-					unlink(mTempFilename);
+					unlink(mTempFilename.c_str());
 				}
 				else
 				{
@@ -384,14 +382,14 @@ S32 LLXfer_File::processEOF()
 
 ///////////////////////////////////////////////////////////
 
-BOOL LLXfer_File::matchesLocalFilename(const LLString& filename) 
+BOOL LLXfer_File::matchesLocalFilename(const std::string& filename) 
 {
 	return (filename == mLocalFilename);
 }
 
 ///////////////////////////////////////////////////////////
 
-BOOL LLXfer_File::matchesRemoteFilename(const LLString& filename, ELLPath remote_path) 
+BOOL LLXfer_File::matchesRemoteFilename(const std::string& filename, ELLPath remote_path) 
 {
 	return ((filename == mRemoteFilename) && (remote_path == mRemotePath));
 }
@@ -399,9 +397,9 @@ BOOL LLXfer_File::matchesRemoteFilename(const LLString& filename, ELLPath remote
 
 ///////////////////////////////////////////////////////////
 
-const char * LLXfer_File::getName() 
+std::string LLXfer_File::getFileName() 
 {
-	return (mLocalFilename);
+	return mLocalFilename;
 }
 
 ///////////////////////////////////////////////////////////
@@ -421,7 +419,7 @@ U32 LLXfer_File::getXferTypeTag()
 // function. It does not really spam enough information, but is useful
 // for this cpp file, because this should never be called in a
 // production environment.
-S32 copy_file(const char* from, const char* to)
+S32 copy_file(const std::string& from, const std::string& to)
 {
 	S32 rv = 0;
 	LLFILE* in = LLFile::fopen(from, "rb");	/*Flawfinder: ignore*/

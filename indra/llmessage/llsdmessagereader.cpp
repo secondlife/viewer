@@ -243,6 +243,12 @@ void LLSDMessageReader::getString(const char *block, const char *var,
 	buffer[data_size] = '\0';
 }
 
+//virtual 
+void LLSDMessageReader::getString(const char *block, const char *var, 
+						   std::string& outstr, S32 blocknum)
+{
+	outstr = getLLSD(mMessage, block, var, blocknum).asString();
+}
 
 //virtual 
 S32	LLSDMessageReader::getNumberOfBlocks(const char *blockname)

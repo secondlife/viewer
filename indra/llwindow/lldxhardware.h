@@ -53,7 +53,7 @@ protected:
 class LLDXDriverFile
 {
 public:
-	LLString dump();
+	std::string dump();
 
 public:
 	std::string mFilepath;
@@ -103,7 +103,7 @@ public:
 	// ANY of them to match and return.
 	// LLDXDevice *findDevice(const std::string &vendor, const std::string &devices);
 
-	// LLString dumpDevices();
+	// std::string dumpDevices();
 public:
 	typedef std::map<std::string, LLDXDevice *> device_map_t;
 	// device_map_t mDevices;

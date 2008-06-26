@@ -36,7 +36,7 @@
 
 static LLRegisterWidget<LLTextBox> r("text");
 
-LLTextBox::LLTextBox(const LLString& name, const LLRect& rect, const LLString& text,
+LLTextBox::LLTextBox(const std::string& name, const LLRect& rect, const std::string& text,
 					 const LLFontGL* font, BOOL mouse_opaque)
 :	LLUICtrl(name, rect, mouse_opaque, NULL, NULL, FOLLOWS_LEFT | FOLLOWS_TOP ),
 	mFontGL(font ? font : LLFontGL::sSansSerifSmall),
@@ -63,7 +63,7 @@ LLTextBox::LLTextBox(const LLString& name, const LLRect& rect, const LLString& t
 	setTabStop(FALSE);
 }
 
-LLTextBox::LLTextBox(const LLString& name, const LLString& text, F32 max_width,
+LLTextBox::LLTextBox(const std::string& name, const std::string& text, F32 max_width,
 					 const LLFontGL* font, BOOL mouse_opaque) :
 	LLUICtrl(name, LLRect(0, 0, 1, 1), mouse_opaque, NULL, NULL, FOLLOWS_LEFT | FOLLOWS_TOP),	
 	mFontGL(font ? font : LLFontGL::sSansSerifSmall),
@@ -91,7 +91,7 @@ LLTextBox::LLTextBox(const LLString& name, const LLString& text, F32 max_width,
 	setTabStop(FALSE);
 }
 
-LLTextBox::LLTextBox(const LLString& name_and_label, const LLRect& rect) :
+LLTextBox::LLTextBox(const std::string& name_and_label, const LLRect& rect) :
 	LLUICtrl(name_and_label, rect, TRUE, NULL, NULL, FOLLOWS_LEFT | FOLLOWS_TOP),	
 	mFontGL(LLFontGL::sSansSerifSmall),
 	mTextColor(LLUI::sColorsGroup->getColor("LabelTextColor")),
@@ -113,7 +113,7 @@ LLTextBox::LLTextBox(const LLString& name_and_label, const LLRect& rect) :
 	setTabStop(FALSE);
 }
 
-LLTextBox::LLTextBox(const LLString& name_and_label) :
+LLTextBox::LLTextBox(const std::string& name_and_label) :
 	LLUICtrl(name_and_label, LLRect(0, 0, 1, 1), TRUE, NULL, NULL, FOLLOWS_LEFT | FOLLOWS_TOP),	
 	mFontGL(LLFontGL::sSansSerifSmall),
 	mTextColor(LLUI::sColorsGroup->getColor("LabelTextColor")),
@@ -211,15 +211,15 @@ void LLTextBox::setLineLengths()
 {
 	mLineLengthList.clear();
 	
-	LLString::size_type  cur = 0;
-	LLString::size_type  len = mText.getWString().size();
+	std::string::size_type  cur = 0;
+	std::string::size_type  len = mText.getWString().size();
 
 	while (cur < len) 
 	{
-		LLString::size_type end = mText.getWString().find('\n', cur);
-		LLString::size_type runLen;
+		std::string::size_type end = mText.getWString().find('\n', cur);
+		std::string::size_type runLen;
 		
-		if (end == LLString::npos)
+		if (end == std::string::npos)
 		{
 			runLen = len - cur;
 			cur = len;
@@ -276,7 +276,7 @@ void LLTextBox::setWrappedText(const LLStringExplicit& in_text, F32 max_width)
 		}
 	}
 
-	LLString final_text = wstring_to_utf8str(final_wtext);
+	std::string final_text = wstring_to_utf8str(final_wtext);
 	setText(final_text);
 }
 
@@ -316,7 +316,7 @@ S32 LLTextBox::getTextPixelHeight()
 }
 
 
-BOOL LLTextBox::setTextArg( const LLString& key, const LLStringExplicit& text )
+BOOL LLTextBox::setTextArg( const std::string& key, const LLStringExplicit& text )
 {
 	mText.setArg(key, text);
 	setLineLengths();
@@ -451,11 +451,11 @@ LLXMLNodePtr LLTextBox::getXML(bool save_children) const
 // static
 LLView* LLTextBox::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory)
 {
-	LLString name("text_box");
+	std::string name("text_box");
 	node->getAttributeString("name", name);
 	LLFontGL* font = LLView::selectFont(node);
 
-	LLString text = node->getTextContents();
+	std::string text = node->getTextContents();
 
 	LLTextBox* text_box = new LLTextBox(name,
 		LLRect(),
@@ -469,7 +469,7 @@ LLView* LLTextBox::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *f
 
 	text_box->initFromXML(node, parent);
 
-	LLString font_style;
+	std::string font_style;
 	if (node->getAttributeString("font-style", font_style))
 	{
 		text_box->mFontStyle = LLFontGL::getStyleFromString(font_style);

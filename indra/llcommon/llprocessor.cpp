@@ -2216,12 +2216,12 @@ bool CProcessor::CPUInfoToText(char *strBuffer, unsigned int uiMaxLen)
 	return true;
 }
 
-// bool CProcessor::WriteInfoTextFile(const char *strFilename)
+// bool CProcessor::WriteInfoTextFile(const std::string& strFilename)
 // ===========================================================
 // Takes use of CProcessor::CPUInfoToText and saves the string to a
 // file
 ///////////////////////////////////////////////////////////////////
-bool CProcessor::WriteInfoTextFile(const char *strFilename)
+bool CProcessor::WriteInfoTextFile(const std::string& strFilename)
 {
 	char buf[16384];	/* Flawfinder: ignore */	
 

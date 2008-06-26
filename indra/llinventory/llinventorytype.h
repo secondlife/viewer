@@ -72,7 +72,7 @@ public:
 	};
 
 	// machine transation between type and strings
-	static EType lookup(const char* name);
+	static EType lookup(const std::string& name);
 	static const char* lookup(EType type);
 
 	// translation from a type to a human readable form.

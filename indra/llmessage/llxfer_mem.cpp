@@ -55,7 +55,7 @@ LLXfer_Mem::~LLXfer_Mem ()
 
 void LLXfer_Mem::init ()
 {
-	mRemoteFilename[0] = '\0';
+	mRemoteFilename.clear();
 	mRemotePath = LL_PATH_NONE;
 	mDeleteRemoteOnCompletion = FALSE;
 }
@@ -120,7 +120,7 @@ S32 LLXfer_Mem::startSend (U64 xfer_id, const LLHost &remote_host)
 	mID = xfer_id;
    	mPacketNum = -1;
 
-//	cout << "Sending file: " << getName() << endl;
+//	cout << "Sending file: " << getFileName() << endl;
 
 	mStatus = e_LL_XFER_PENDING;
 
@@ -135,7 +135,7 @@ S32 LLXfer_Mem::processEOF()
 
 	mStatus = e_LL_XFER_COMPLETE;
 
-	llinfos << "xfer complete: " << getName() << llendl;
+	llinfos << "xfer complete: " << getFileName() << llendl;
 
 	if (mCallback)
 	{
@@ -165,8 +165,7 @@ S32 LLXfer_Mem::initializeRequest(U64 xfer_id,
 	mCallbackDataHandle = user_data;
 	mCallbackResult = LL_ERR_NOERR;
 
-	strncpy(mRemoteFilename, remote_filename.c_str(), LL_MAX_PATH-1);
-	mRemoteFilename[LL_MAX_PATH-1] = '\0'; // stupid strncpy.
+	mRemoteFilename = remote_filename;
 	mRemotePath = remote_path;
 	mDeleteRemoteOnCompletion = delete_remote_on_completion;
 

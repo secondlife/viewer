@@ -707,7 +707,7 @@ LLIOPipe::EStatus LLHTTPResponder::process_impl(
 					read_next_line = true;
 					std::string name(buf, pos_colon - buf);
 					std::string value(pos_colon + 2);
-					LLString::toLower(name);
+					LLStringUtil::toLower(name);
 					if("content-length" == name)
 					{
 						lldebugs << "Content-Length: " << value << llendl;
@@ -715,7 +715,7 @@ LLIOPipe::EStatus LLHTTPResponder::process_impl(
 					}
 					else
 					{
-						LLString::trimTail(value);
+						LLStringUtil::trimTail(value);
 						mHeaders[name] = value;
 					}
 				}

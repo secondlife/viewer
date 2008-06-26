@@ -66,34 +66,15 @@ LLHost::LLHost(const std::string& ip_and_port)
 	}
 }
 
-void LLHost::getString(char* buffer, S32 length) const
+std::string LLHost::getString() const
 {
-	if (((U32) length) < MAXADDRSTR + 1 + 5)
-	{
-		llerrs << "LLHost::getString - string too short" << llendl;
-		return;
-	}
-
-	snprintf(buffer, length, "%s:%u", u32_to_ip_string(mIP), mPort); 	/* Flawfinder: ignore */
-}
-
-void LLHost::getIPString(char* buffer, S32 length) const
-{
-	if ( ((U32) length) < MAXADDRSTR)
-	{
-		llerrs << "LLHost::getIPString - string too short" << llendl;
-		return;
-	}
-
-	snprintf(buffer, length, "%s", u32_to_ip_string(mIP));	/* Flawfinder: ignore */
+	return llformat("%s:%u", u32_to_ip_string(mIP), mPort);
 }
 
 
 std::string LLHost::getIPandPort() const
 {
-	char buffer[MAXADDRSTR + 1 + 5];	/*Flawfinder: ignore*/
-	getString(buffer, sizeof(buffer));
-	return buffer;
+	return getString();
 }
 
 
@@ -102,35 +83,6 @@ std::string LLHost::getIPString() const
 	return std::string( u32_to_ip_string( mIP ) );
 }
 
-
-void LLHost::getHostName(char *buf, S32 len) const
-{
-	hostent *he;
-
-	if (INVALID_HOST_IP_ADDRESS == mIP)
-	{
-		llwarns << "LLHost::getHostName() : Invalid IP address" << llendl;
-		buf[0] = '\0';
-		return;
-	}
-	he = gethostbyaddr((char *)&mIP, sizeof(mIP), AF_INET);
-	if (!he)
-	{
-#if LL_WINDOWS
-		llwarns << "LLHost::getHostName() : Couldn't find host name for address " << mIP << ", Error: " 
-			<< WSAGetLastError() << llendl;
-#else
-		llwarns << "LLHost::getHostName() : Couldn't find host name for address " << mIP << ", Error: " 
-			<< h_errno << llendl;
-#endif
-		buf[0] = '\0';						
-	}
-	else
-	{
-		strncpy(buf, he->h_name, len); /*Flawfinder: ignore*/
-		buf[len-1] = '\0';
-	}
-}
 
 std::string LLHost::getHostName() const
 {
@@ -158,28 +110,20 @@ std::string LLHost::getHostName() const
 	}
 }
 
-BOOL LLHost::setHostByName(const char *string)
+BOOL LLHost::setHostByName(const std::string& hostname)
 {
 	hostent *he;
-	char local_name[MAX_STRING];  /*Flawfinder: ignore*/
+	std::string local_name(hostname);
 
-	if (strlen(string)+1 > MAX_STRING) /*Flawfinder: ignore*/
-	{
-		llerrs << "LLHost::setHostByName() : Address string is too long: " 
-			<< string << llendl;
-	}
-
-	strncpy(local_name, string,MAX_STRING);  /*Flawfinder: ignore*/
-	local_name[MAX_STRING-1] = '\0';
 #if LL_WINDOWS
 	// We may need an equivalent for Linux, but not sure - djs
-	_strupr(local_name);
+	LLStringUtil::toUpper(local_name);
 #endif
 
-	he = gethostbyname(local_name);	
+	he = gethostbyname(local_name.c_str());	
 	if(!he) 
 	{
-		U32 ip_address = inet_addr(string);
+		U32 ip_address = inet_addr(hostname.c_str());
 		he = gethostbyaddr((char *)&ip_address, sizeof(ip_address), AF_INET);
 	}
 

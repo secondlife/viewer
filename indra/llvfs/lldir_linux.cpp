@@ -142,8 +142,8 @@ void LLDir_Linux::initAppDirs(const std::string &app_name)
 {
 	mAppName = app_name;
 
-	LLString upper_app_name(app_name);
-	LLString::toUpper(upper_app_name);
+	std::string upper_app_name(app_name);
+	LLStringUtil::toUpper(upper_app_name);
 
 	char* app_home_env = getenv((upper_app_name + "_USER_DIR").c_str());	/* Flawfinder: ignore */ 
 	if (app_home_env)
@@ -157,14 +157,14 @@ void LLDir_Linux::initAppDirs(const std::string &app_name)
 		mOSUserAppDir = mOSUserDir;
 		mOSUserAppDir += "/";
 		mOSUserAppDir += ".";
-		LLString lower_app_name(app_name);
-		LLString::toLower(lower_app_name);
+		std::string lower_app_name(app_name);
+		LLStringUtil::toLower(lower_app_name);
 		mOSUserAppDir += lower_app_name;
 	}
 
 	// create any directories we expect to write to.
 
-	int res = LLFile::mkdir(mOSUserAppDir.c_str());
+	int res = LLFile::mkdir(mOSUserAppDir);
 	if (res == -1)
 	{
 		if (errno != EEXIST)
@@ -175,7 +175,7 @@ void LLDir_Linux::initAppDirs(const std::string &app_name)
 		}
 	}
 
-	res = LLFile::mkdir(getExpandedFilename(LL_PATH_LOGS,"").c_str());
+	res = LLFile::mkdir(getExpandedFilename(LL_PATH_LOGS,""));
 	if (res == -1)
 	{
 		if (errno != EEXIST)
@@ -184,7 +184,7 @@ void LLDir_Linux::initAppDirs(const std::string &app_name)
 		}
 	}
 	
-	res = LLFile::mkdir(getExpandedFilename(LL_PATH_USER_SETTINGS,"").c_str());
+	res = LLFile::mkdir(getExpandedFilename(LL_PATH_USER_SETTINGS,""));
 	if (res == -1)
 	{
 		if (errno != EEXIST)
@@ -193,7 +193,7 @@ void LLDir_Linux::initAppDirs(const std::string &app_name)
 		}
 	}
 	
-	res = LLFile::mkdir(getExpandedFilename(LL_PATH_CACHE,"").c_str());
+	res = LLFile::mkdir(getExpandedFilename(LL_PATH_CACHE,""));
 	if (res == -1)
 	{
 		if (errno != EEXIST)
@@ -202,7 +202,7 @@ void LLDir_Linux::initAppDirs(const std::string &app_name)
 		}
 	}
 	
-	res = LLFile::mkdir(getExpandedFilename(LL_PATH_MOZILLA_PROFILE,"").c_str());
+	res = LLFile::mkdir(getExpandedFilename(LL_PATH_MOZILLA_PROFILE,""));
 	if (res == -1)
 	{
 		if (errno != EEXIST)

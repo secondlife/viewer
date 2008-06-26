@@ -86,8 +86,6 @@ const S32 MAP_SCALE_MIN = 35;	// in pixels per sim
 const S32 MAP_SCALE_MAX = 180;	// in pixels per sim
 const S32 MAP_SCALE_INCREMENT = 5;
 
-const char MAP_TITLE[] = "";
-
 const S32 NETMAP_MIN_WIDTH = 128;
 const S32 NETMAP_MIN_HEIGHT = 128;
 
@@ -118,8 +116,8 @@ LLFloaterMap *gFloaterMap = NULL;
 LLFloaterMap::LLFloaterMap(const std::string& name)
 	:
 	LLFloater(name, 
-				"FloaterMiniMapRect", 
-				MAP_TITLE, 
+				std::string("FloaterMiniMapRect"), 
+			    LLStringUtil::null, 
 				TRUE, 
 				FLOATERMAP_MIN_WIDTH, 
 				FLOATERMAP_MIN_HEIGHT_LARGE, 

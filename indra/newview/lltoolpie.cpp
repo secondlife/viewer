@@ -81,7 +81,7 @@ static ECursorType cursor_from_parcel_media(U8 click_action);
 
 
 LLToolPie::LLToolPie()
-:	LLTool("Select"),
+:	LLTool(std::string("Select")),
 	mPieMouseButtonDown( FALSE ),
 	mGrabMouseButtonDown( FALSE ),
 	mHitLand( FALSE ),
@@ -327,15 +327,15 @@ BOOL LLToolPie::pickAndShowMenu(S32 x, S32 y, MASK mask, BOOL always_show)
 
 			// Object is an avatar, so check for mute by id.
 			LLVOAvatar* avatar = (LLVOAvatar*)object;
-			LLString name = avatar->getFullname();
+			std::string name = avatar->getFullname();
 			if (LLMuteList::getInstance()->isMuted(avatar->getID(), name))
 			{
-				gMenuHolder->childSetText("Avatar Mute", LLString("Unmute")); // *TODO:Translate
+				gMenuHolder->childSetText("Avatar Mute", std::string("Unmute")); // *TODO:Translate
 				//gMutePieMenu->setLabel("Unmute");
 			}
 			else
 			{
-				gMenuHolder->childSetText("Avatar Mute", LLString("Mute")); // *TODO:Translate
+				gMenuHolder->childSetText("Avatar Mute", std::string("Mute")); // *TODO:Translate
 				//gMutePieMenu->setLabel("Mute");
 			}
 
@@ -348,7 +348,7 @@ BOOL LLToolPie::pickAndShowMenu(S32 x, S32 y, MASK mask, BOOL always_show)
 		else
 		{
 			// BUG: What about chatting child objects?
-			LLString name;
+			std::string name;
 			LLSelectNode* node = LLSelectMgr::getInstance()->getSelection()->getFirstRootNode();
 			if (node)
 			{
@@ -356,12 +356,12 @@ BOOL LLToolPie::pickAndShowMenu(S32 x, S32 y, MASK mask, BOOL always_show)
 			}
 			if (LLMuteList::getInstance()->isMuted(object->getID(), name))
 			{
-				gMenuHolder->childSetText("Object Mute", LLString("Unmute")); // *TODO:Translate
+				gMenuHolder->childSetText("Object Mute", std::string("Unmute")); // *TODO:Translate
 				//gMuteObjectPieMenu->setLabel("Unmute");
 			}
 			else
 			{
-				gMenuHolder->childSetText("Object Mute", LLString("Mute")); // *TODO:Translate
+				gMenuHolder->childSetText("Object Mute", std::string("Mute")); // *TODO:Translate
 				//gMuteObjectPieMenu->setLabel("Mute");
 			}
 			
@@ -761,7 +761,7 @@ static void handle_click_action_open_media(LLPointer<LLViewerObject> objectp)
 
 	std::string media_url = std::string ( parcel->getMediaURL () );
 	std::string media_type = std::string ( parcel->getMediaType() );
-	LLString::trim(media_url);
+	LLStringUtil::trim(media_url);
 
 	// Get the scheme, see if that is handled as well.
 	LLURI uri(media_url);
@@ -790,7 +790,7 @@ static ECursorType cursor_from_parcel_media(U8 click_action)
 
 	std::string media_url = std::string ( parcel->getMediaURL () );
 	std::string media_type = std::string ( parcel->getMediaType() );
-	LLString::trim(media_url);
+	LLStringUtil::trim(media_url);
 
 	// Get the scheme, see if that is handled as well.
 	LLURI uri(media_url);

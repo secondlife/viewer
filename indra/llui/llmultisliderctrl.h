@@ -55,9 +55,9 @@ class LLSlider;
 class LLMultiSliderCtrl : public LLUICtrl
 {
 public:
-	LLMultiSliderCtrl(const LLString& name, 
+	LLMultiSliderCtrl(const std::string& name, 
 		const LLRect& rect, 
-		const LLString& label, 
+		const std::string& label, 
 		const LLFontGL* font,
 		S32 slider_left,
 		S32 text_left,
@@ -68,22 +68,22 @@ public:
 		F32 initial_value, F32 min_value, F32 max_value, F32 increment,
 		S32 max_sliders, BOOL allow_overlap, BOOL draw_track,
 		BOOL use_triangle,
-		const LLString& control_which = LLString::null );
+		const std::string& control_which = LLStringUtil::null );
 
 	virtual ~LLMultiSliderCtrl();
 	virtual LLXMLNodePtr getXML(bool save_children = true) const;
 	static LLView* fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
 
-	F32				getSliderValue(const LLString& name) const;
-	void			setSliderValue(const LLString& name, F32 v, BOOL from_event = FALSE);
+	F32				getSliderValue(const std::string& name) const;
+	void			setSliderValue(const std::string& name, F32 v, BOOL from_event = FALSE);
 
 	virtual void	setValue(const LLSD& value );
 	virtual LLSD	getValue() const		{ return mMultiSlider->getValue(); }
-	virtual BOOL	setLabelArg( const LLString& key, const LLStringExplicit& text );
+	virtual BOOL	setLabelArg( const std::string& key, const LLStringExplicit& text );
 
-	const LLString& getCurSlider() const					{ return mMultiSlider->getCurSlider(); }
+	const std::string& getCurSlider() const					{ return mMultiSlider->getCurSlider(); }
 	F32				getCurSliderValue() const				{ return mCurValue; }
-	void			setCurSlider(const LLString& name);		
+	void			setCurSlider(const std::string& name);		
 	void			setCurSliderValue(F32 val, BOOL from_event = false) { setSliderValue(mMultiSlider->getCurSlider(), val, from_event); }
 
 	virtual void	setMinValue(LLSD min_value)	{ setMinValue((F32)min_value.asReal()); }
@@ -99,15 +99,15 @@ public:
 	void			setIncrement(F32 increment) {mMultiSlider->setIncrement(increment);}
 
 	/// for adding and deleting sliders
-	const LLString&	addSlider();
-	const LLString&	addSlider(F32 val);
-	void			deleteSlider(const LLString& name);
+	const std::string&	addSlider();
+	const std::string&	addSlider(F32 val);
+	void			deleteSlider(const std::string& name);
 	void			deleteCurSlider()			{ deleteSlider(mMultiSlider->getCurSlider()); }
 
 	F32				getMinValue() { return mMultiSlider->getMinValue(); }
 	F32				getMaxValue() { return mMultiSlider->getMaxValue(); }
 
-	void			setLabel(const LLString& label)				{ if (mLabelBox) mLabelBox->setText(label); }
+	void			setLabel(const std::string& label)				{ if (mLabelBox) mLabelBox->setText(label); }
 	void			setLabelColor(const LLColor4& c)			{ mTextEnabledColor = c; }
 	void			setDisabledLabelColor(const LLColor4& c)	{ mTextDisabledColor = c; }
 
@@ -119,8 +119,8 @@ public:
 	virtual void	setTentative(BOOL b);			// marks value as tentative
 	virtual void	onCommit();						// mark not tentative, then commit
 
-	virtual void		setControlName(const LLString& control_name, LLView* context);
-	virtual LLString 	getControlName() const;
+	virtual void		setControlName(const std::string& control_name, LLView* context);
+	virtual std::string 	getControlName() const;
 	
 	static void		onSliderCommit(LLUICtrl* caller, void* userdata);
 	static void		onSliderMouseDown(LLUICtrl* caller,void* userdata);

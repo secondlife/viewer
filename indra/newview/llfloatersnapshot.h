@@ -69,7 +69,7 @@ private:
 class LLSnapshotFloaterView : public LLFloaterView
 {
 public:
-	LLSnapshotFloaterView( const LLString& name, const LLRect& rect );
+	LLSnapshotFloaterView( const std::string& name, const LLRect& rect );
 	virtual ~LLSnapshotFloaterView();
 
 	/*virtual*/	BOOL handleKey(KEY key, MASK mask, BOOL called_from_parent);

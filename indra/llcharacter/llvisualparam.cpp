@@ -89,7 +89,7 @@ BOOL LLVisualParamInfo::parseXml(LLXmlTreeNode *node)
 	}
 	
 	// attribute: sex
-	LLString sex = "both";
+	std::string sex = "both";
 	static LLStdStringHandle sex_string = LLXmlTree::addAttributeString("sex");
 	node->getFastAttributeString( sex_string, sex ); // optional
 	if( sex == "both" )
@@ -127,7 +127,7 @@ BOOL LLVisualParamInfo::parseXml(LLXmlTreeNode *node)
 
 	// JC - make sure the display name includes the capitalization in the XML file,
 	// not the lowercased version.
-	LLString::toLower(mName);
+	LLStringUtil::toLower(mName);
 
 	// attribute: label_min
 	static LLStdStringHandle label_min_string = LLXmlTree::addAttributeString("label_min");

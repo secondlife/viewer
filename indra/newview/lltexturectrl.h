@@ -81,7 +81,7 @@ public:
 	virtual BOOL	handleDragAndDrop(S32 x, S32 y, MASK mask,
 						BOOL drop, EDragAndDropType cargo_type, void *cargo_data,
 						EAcceptance *accept,
-						LLString& tooltip_msg);
+						std::string& tooltip_msg);
 	virtual BOOL	handleHover(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleUnicodeCharHere(llwchar uni_char);
 
@@ -103,8 +103,8 @@ public:
 
 	// LLTextureCtrl interface
 	void			showPicker(BOOL take_focus);
-	void			setLabel(const LLString& label);
-	const LLString&	getLabel() const							{ return mLabel; }
+	void			setLabel(const std::string& label);
+	const std::string&	getLabel() const							{ return mLabel; }
 
 	void			setAllowNoTexture( BOOL b )					{ mAllowNoTexture = b; }
 	bool			getAllowNoTexture() const					{ return mAllowNoTexture; }
@@ -116,10 +116,10 @@ public:
 
 	void			setDefaultImageAssetID( const LLUUID& id )	{ mDefaultImageAssetID = id; }
 
-	const LLString&	getDefaultImageName() const					{ return mDefaultImageName; }
+	const std::string&	getDefaultImageName() const					{ return mDefaultImageName; }
 	const LLUUID&	getDefaultImageAssetID() const				{ return mDefaultImageAssetID; }
 
-	void			setCaption(const LLString& caption);
+	void			setCaption(const std::string& caption);
 	void			setCanApplyImmediately(BOOL b);
 
 	void			setImmediateFilterPermMask(PermissionMask mask)
@@ -163,11 +163,11 @@ private:
 	LLUUID					 mImageItemID;
 	LLUUID					 mImageAssetID;
 	LLUUID					 mDefaultImageAssetID;
-	LLString				 mDefaultImageName;
+	std::string				 mDefaultImageName;
 	LLHandle<LLFloater>			 mFloaterHandle;
 	LLTextBox*				 mTentativeLabel;
 	LLTextBox*				 mCaption;
-	LLString				 mLabel;
+	std::string				 mLabel;
 	BOOL					 mAllowNoTexture; // If true, the user can select "none" as an option
 	LLCoordGL				 mLastFloaterLeftTop;
 	PermissionMask			 mImmediateFilterPermMask;
@@ -178,7 +178,7 @@ private:
 	BOOL					 mValid;
 	BOOL					 mDirty;
 	BOOL					 mShowLoadingPlaceholder;
-	LLString				 mLoadingPlaceholderString;
+	std::string				 mLoadingPlaceholderString;
 };
 
 // XUI HACK: When floaters converted, switch this file to lltexturepicker.h/cpp

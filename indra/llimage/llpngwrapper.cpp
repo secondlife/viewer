@@ -389,7 +389,7 @@ U32 LLPngWrapper::getFinalSize()
 }
 
 // Get last error message, if any
-LLString LLPngWrapper::getErrorMessage()
+const std::string& LLPngWrapper::getErrorMessage()
 {
 	return mErrorMessage;
 }

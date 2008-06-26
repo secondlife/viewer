@@ -86,10 +86,10 @@ LLPanel::LLPanel()
 : mRectControl()
 {
 	init();
-	setName("panel");
+	setName(std::string("panel"));
 }
 
-LLPanel::LLPanel(const LLString& name)
+LLPanel::LLPanel(const std::string& name)
 :	LLUICtrl(name, LLRect(0, 0, 0, 0), TRUE, NULL, NULL),
 	mRectControl()
 {
@@ -97,7 +97,7 @@ LLPanel::LLPanel(const LLString& name)
 }
 
 
-LLPanel::LLPanel(const LLString& name, const LLRect& rect, BOOL bordered)
+LLPanel::LLPanel(const std::string& name, const LLRect& rect, BOOL bordered)
 :	LLUICtrl(name, rect, TRUE, NULL, NULL),
 	mRectControl()
 {
@@ -109,7 +109,7 @@ LLPanel::LLPanel(const LLString& name, const LLRect& rect, BOOL bordered)
 }
 
 
-LLPanel::LLPanel(const LLString& name, const LLString& rect_control, BOOL bordered)
+LLPanel::LLPanel(const std::string& name, const std::string& rect_control, BOOL bordered)
 :	LLUICtrl(name, LLUI::sConfigGroup->getRect(rect_control), TRUE, NULL, NULL),
 	mRectControl( rect_control )
 {
@@ -141,7 +141,7 @@ void LLPanel::addBorder(LLViewBorder::EBevel border_bevel,
 						LLViewBorder::EStyle border_style, S32 border_thickness)
 {
 	removeBorder();
-	mBorder = new LLViewBorder( "panel border", 
+	mBorder = new LLViewBorder( std::string("panel border"), 
 								LLRect(0, getRect().getHeight(), getRect().getWidth(), 0), 
 								border_bevel, border_style, border_thickness );
 	mBorder->setSaveToXML(false);
@@ -246,7 +246,7 @@ void LLPanel::setDefaultBtn(LLButton* btn)
 	}
 }
 
-void LLPanel::setDefaultBtn(const LLString& id)
+void LLPanel::setDefaultBtn(const std::string& id)
 {
 	LLButton *button = getChild<LLButton>(id);
 	if (button)
@@ -344,14 +344,14 @@ BOOL LLPanel::checkRequirements()
 {
 	if (!mRequirementsError.empty())
 	{
-		LLString::format_map_t args;
+		LLStringUtil::format_map_t args;
 		args["[COMPONENTS]"] = mRequirementsError;
 		args["[FLOATER]"] = getName();
 
 		llwarns << getName() << " failed requirements check on: \n"  
 				<< mRequirementsError << llendl;
 			
-		alertXml("FailedRequirementsCheck", args);
+		alertXml(std::string("FailedRequirementsCheck"), args);
 		mRequirementsError.clear();
 		return FALSE;
 	}
@@ -360,7 +360,7 @@ BOOL LLPanel::checkRequirements()
 }
 
 //static
-void LLPanel::alertXml(LLString label, LLString::format_map_t args)
+void LLPanel::alertXml(const std::string& label, LLStringUtil::format_map_t args)
 {
 	sAlertQueue.push(LLAlertInfo(label,args));
 }
@@ -460,7 +460,7 @@ LLXMLNodePtr LLPanel::getXML(bool save_children) const
 
 LLView* LLPanel::fromXML(LLXMLNodePtr node, LLView* parent, LLUICtrlFactory *factory)
 {
-	LLString name("panel");
+	std::string name("panel");
 	node->getAttributeString("name", name);
 
 	LLPanel* panelp = factory->createFactoryPanel(name);
@@ -489,7 +489,7 @@ LLView* LLPanel::fromXML(LLXMLNodePtr node, LLView* parent, LLUICtrlFactory *fac
 
 BOOL LLPanel::initPanelXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory)
 {
-	LLString name = getName();
+	std::string name = getName();
 	node->getAttributeString("name", name);
 	setName(name);
 
@@ -497,7 +497,7 @@ BOOL LLPanel::initPanelXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *f
 
 	initChildrenXML(node, factory);
 
-	LLString xml_filename;
+	std::string xml_filename;
 	node->getAttributeString("filename", xml_filename);
 
 	BOOL didPost;
@@ -536,7 +536,7 @@ void LLPanel::initChildrenXML(LLXMLNodePtr node, LLUICtrlFactory* factory)
 		// look for string declarations for programmatic text
 		if (child->hasName("string"))
 		{
-			LLString string_name;
+			std::string string_name;
 			child->getAttributeString("name", string_name);
 			if (!string_name.empty())
 			{
@@ -564,9 +564,9 @@ void LLPanel::setPanelParameters(LLXMLNodePtr node, LLView* parent)
 		LLViewBorder::getBevelFromAttribute(node, bevel_style);
 
 		LLViewBorder::EStyle border_style = LLViewBorder::STYLE_LINE;
-		LLString border_string;
+		std::string border_string;
 		node->getAttributeString("border_style", border_string);
-		LLString::toLower(border_string);
+		LLStringUtil::toLower(border_string);
 
 		if (border_string == "texture")
 		{
@@ -601,12 +601,12 @@ void LLPanel::setPanelParameters(LLXMLNodePtr node, LLView* parent)
 	LLUICtrlFactory::getAttributeColor(node,"bg_alpha_color", color);
 	setTransparentColor(color);
 
-	LLString label = getLabel();
+	std::string label = getLabel();
 	node->getAttributeString("label", label);
 	setLabel(label);
 }
 
-LLString LLPanel::getString(const LLString& name, const LLString::format_map_t& args) const
+std::string LLPanel::getString(const std::string& name, const LLStringUtil::format_map_t& args) const
 {
 	ui_string_map_t::const_iterator found_it = mUIStrings.find(name);
 	if (found_it != mUIStrings.end())
@@ -616,7 +616,7 @@ LLString LLPanel::getString(const LLString& name, const LLString::format_map_t& 
 		formatted_string.setArgList(args);
 		return formatted_string.getString();
 	}
-	LLString err_str("Failed to find string " + name + " in panel " + getName());
+	std::string err_str("Failed to find string " + name + " in panel " + getName()); //*TODO: Translate
 	// *TODO: once the QAR-369 ui-cleanup work on settings is in we need to change the following line to be
 	//if(LLUI::sConfigGroup->getBOOL("QAMode"))
 	if(LLUI::sQAMode)
@@ -627,10 +627,10 @@ LLString LLPanel::getString(const LLString& name, const LLString::format_map_t& 
 	{
 		llwarns << err_str << llendl;
 	}
-	return LLString::null;
+	return LLStringUtil::null;
 }
 
-LLUIString LLPanel::getUIString(const LLString& name) const
+LLUIString LLPanel::getUIString(const std::string& name) const
 {
 	ui_string_map_t::const_iterator found_it = mUIStrings.find(name);
 	if (found_it != mUIStrings.end())
@@ -638,11 +638,11 @@ LLUIString LLPanel::getUIString(const LLString& name) const
 		return found_it->second;
 	}
 	llerrs << "Failed to find string " << name << " in panel " << getName() << llendl;
-	return LLUIString(LLString::null);
+	return LLUIString(LLStringUtil::null);
 }
 
 
-void LLPanel::childSetVisible(const LLString& id, bool visible)
+void LLPanel::childSetVisible(const std::string& id, bool visible)
 {
 	LLView* child = getChild<LLView>(id);
 	if (child)
@@ -651,7 +651,7 @@ void LLPanel::childSetVisible(const LLString& id, bool visible)
 	}
 }
 
-bool LLPanel::childIsVisible(const LLString& id) const
+bool LLPanel::childIsVisible(const std::string& id) const
 {
 	LLView* child = getChild<LLView>(id);
 	if (child)
@@ -661,7 +661,7 @@ bool LLPanel::childIsVisible(const LLString& id) const
 	return false;
 }
 
-void LLPanel::childSetEnabled(const LLString& id, bool enabled)
+void LLPanel::childSetEnabled(const std::string& id, bool enabled)
 {
 	LLView* child = getChild<LLView>(id);
 	if (child)
@@ -670,7 +670,7 @@ void LLPanel::childSetEnabled(const LLString& id, bool enabled)
 	}
 }
 
-void LLPanel::childSetTentative(const LLString& id, bool tentative)
+void LLPanel::childSetTentative(const std::string& id, bool tentative)
 {
 	LLView* child = getChild<LLView>(id);
 	if (child)
@@ -679,7 +679,7 @@ void LLPanel::childSetTentative(const LLString& id, bool tentative)
 	}
 }
 
-bool LLPanel::childIsEnabled(const LLString& id) const
+bool LLPanel::childIsEnabled(const std::string& id) const
 {
 	LLView* child = getChild<LLView>(id);
 	if (child)
@@ -690,7 +690,7 @@ bool LLPanel::childIsEnabled(const LLString& id) const
 }
 
 
-void LLPanel::childSetToolTip(const LLString& id, const LLString& msg)
+void LLPanel::childSetToolTip(const std::string& id, const std::string& msg)
 {
 	LLView* child = getChild<LLView>(id);
 	if (child)
@@ -699,7 +699,7 @@ void LLPanel::childSetToolTip(const LLString& id, const LLString& msg)
 	}
 }
 
-void LLPanel::childSetRect(const LLString& id, const LLRect& rect)
+void LLPanel::childSetRect(const std::string& id, const LLRect& rect)
 {
 	LLView* child = getChild<LLView>(id);
 	if (child)
@@ -708,7 +708,7 @@ void LLPanel::childSetRect(const LLString& id, const LLRect& rect)
 	}
 }
 
-bool LLPanel::childGetRect(const LLString& id, LLRect& rect) const
+bool LLPanel::childGetRect(const std::string& id, LLRect& rect) const
 {
 	LLView* child = getChild<LLView>(id);
 	if (child)
@@ -719,7 +719,7 @@ bool LLPanel::childGetRect(const LLString& id, LLRect& rect) const
 	return false;
 }
 
-void LLPanel::childSetFocus(const LLString& id, BOOL focus)
+void LLPanel::childSetFocus(const std::string& id, BOOL focus)
 {
 	LLUICtrl* child = getChild<LLUICtrl>(id, true);
 	if (child)
@@ -728,7 +728,7 @@ void LLPanel::childSetFocus(const LLString& id, BOOL focus)
 	}
 }
 
-BOOL LLPanel::childHasFocus(const LLString& id)
+BOOL LLPanel::childHasFocus(const std::string& id)
 {
 	LLUICtrl* child = getChild<LLUICtrl>(id, true);
 	if (child)
@@ -743,7 +743,7 @@ BOOL LLPanel::childHasFocus(const LLString& id)
 }
 
 
-void LLPanel::childSetFocusChangedCallback(const LLString& id, void (*cb)(LLFocusableElement*, void*), void* user_data)
+void LLPanel::childSetFocusChangedCallback(const std::string& id, void (*cb)(LLFocusableElement*, void*), void* user_data)
 {
 	LLUICtrl* child = getChild<LLUICtrl>(id, true);
 	if (child)
@@ -752,7 +752,7 @@ void LLPanel::childSetFocusChangedCallback(const LLString& id, void (*cb)(LLFocu
 	}
 }
 
-void LLPanel::childSetCommitCallback(const LLString& id, void (*cb)(LLUICtrl*, void*), void *userdata )
+void LLPanel::childSetCommitCallback(const std::string& id, void (*cb)(LLUICtrl*, void*), void *userdata )
 {
 	LLUICtrl* child = getChild<LLUICtrl>(id, true);
 	if (child)
@@ -762,7 +762,7 @@ void LLPanel::childSetCommitCallback(const LLString& id, void (*cb)(LLUICtrl*, v
 	}
 }
 
-void LLPanel::childSetDoubleClickCallback(const LLString& id, void (*cb)(void*), void *userdata )
+void LLPanel::childSetDoubleClickCallback(const std::string& id, void (*cb)(void*), void *userdata )
 {
 	LLUICtrl* child = getChild<LLUICtrl>(id, true);
 	if (child)
@@ -775,7 +775,7 @@ void LLPanel::childSetDoubleClickCallback(const LLString& id, void (*cb)(void*),
 	}
 }
 
-void LLPanel::childSetValidate(const LLString& id, BOOL (*cb)(LLUICtrl*, void*))
+void LLPanel::childSetValidate(const std::string& id, BOOL (*cb)(LLUICtrl*, void*))
 {
 	LLUICtrl* child = getChild<LLUICtrl>(id, true);
 	if (child)
@@ -784,7 +784,7 @@ void LLPanel::childSetValidate(const LLString& id, BOOL (*cb)(LLUICtrl*, void*))
 	}
 }
 
-void LLPanel::childSetUserData(const LLString& id, void* userdata)
+void LLPanel::childSetUserData(const std::string& id, void* userdata)
 {
 	LLUICtrl* child = getChild<LLUICtrl>(id, true);
 	if (child)
@@ -793,7 +793,7 @@ void LLPanel::childSetUserData(const LLString& id, void* userdata)
 	}
 }
 
-void LLPanel::childSetColor(const LLString& id, const LLColor4& color)
+void LLPanel::childSetColor(const std::string& id, const LLColor4& color)
 {
 	LLUICtrl* child = getChild<LLUICtrl>(id, true);
 	if (child)
@@ -802,7 +802,7 @@ void LLPanel::childSetColor(const LLString& id, const LLColor4& color)
 	}
 }
 
-LLCtrlSelectionInterface* LLPanel::childGetSelectionInterface(const LLString& id) const
+LLCtrlSelectionInterface* LLPanel::childGetSelectionInterface(const std::string& id) const
 {
 	LLUICtrl* child = getChild<LLUICtrl>(id, true);
 	if (child)
@@ -812,7 +812,7 @@ LLCtrlSelectionInterface* LLPanel::childGetSelectionInterface(const LLString& id
 	return NULL;
 }
 
-LLCtrlListInterface* LLPanel::childGetListInterface(const LLString& id) const
+LLCtrlListInterface* LLPanel::childGetListInterface(const std::string& id) const
 {
 	LLUICtrl* child = getChild<LLUICtrl>(id, true);
 	if (child)
@@ -822,7 +822,7 @@ LLCtrlListInterface* LLPanel::childGetListInterface(const LLString& id) const
 	return NULL;
 }
 
-LLCtrlScrollInterface* LLPanel::childGetScrollInterface(const LLString& id) const
+LLCtrlScrollInterface* LLPanel::childGetScrollInterface(const std::string& id) const
 {
 	LLUICtrl* child = getChild<LLUICtrl>(id, true);
 	if (child)
@@ -832,7 +832,7 @@ LLCtrlScrollInterface* LLPanel::childGetScrollInterface(const LLString& id) cons
 	return NULL;
 }
 
-void LLPanel::childSetValue(const LLString& id, LLSD value)
+void LLPanel::childSetValue(const std::string& id, LLSD value)
 {
 	LLView* child = getChild<LLView>(id, true);
 	if (child)
@@ -841,7 +841,7 @@ void LLPanel::childSetValue(const LLString& id, LLSD value)
 	}
 }
 
-LLSD LLPanel::childGetValue(const LLString& id) const
+LLSD LLPanel::childGetValue(const std::string& id) const
 {
 	LLView* child = getChild<LLView>(id, true);
 	if (child)
@@ -852,7 +852,7 @@ LLSD LLPanel::childGetValue(const LLString& id) const
 	return LLSD();
 }
 
-BOOL LLPanel::childSetTextArg(const LLString& id, const LLString& key, const LLStringExplicit& text)
+BOOL LLPanel::childSetTextArg(const std::string& id, const std::string& key, const LLStringExplicit& text)
 {
 	LLUICtrl* child = getChild<LLUICtrl>(id, true);
 	if (child)
@@ -862,7 +862,7 @@ BOOL LLPanel::childSetTextArg(const LLString& id, const LLString& key, const LLS
 	return FALSE;
 }
 
-BOOL LLPanel::childSetLabelArg(const LLString& id, const LLString& key, const LLStringExplicit& text)
+BOOL LLPanel::childSetLabelArg(const std::string& id, const std::string& key, const LLStringExplicit& text)
 {
 	LLView* child = getChild<LLView>(id);
 	if (child)
@@ -872,7 +872,7 @@ BOOL LLPanel::childSetLabelArg(const LLString& id, const LLString& key, const LL
 	return FALSE;
 }
 
-BOOL LLPanel::childSetToolTipArg(const LLString& id, const LLString& key, const LLStringExplicit& text)
+BOOL LLPanel::childSetToolTipArg(const std::string& id, const std::string& key, const LLStringExplicit& text)
 {
 	LLView* child = getChildView(id, true, FALSE);
 	if (child)
@@ -882,7 +882,7 @@ BOOL LLPanel::childSetToolTipArg(const LLString& id, const LLString& key, const 
 	return FALSE;
 }
 
-void LLPanel::childSetMinValue(const LLString& id, LLSD min_value)
+void LLPanel::childSetMinValue(const std::string& id, LLSD min_value)
 {
 	LLUICtrl* child = getChild<LLUICtrl>(id, true);
 	if (child)
@@ -891,7 +891,7 @@ void LLPanel::childSetMinValue(const LLString& id, LLSD min_value)
 	}
 }
 
-void LLPanel::childSetMaxValue(const LLString& id, LLSD max_value)
+void LLPanel::childSetMaxValue(const std::string& id, LLSD max_value)
 {
 	LLUICtrl* child = getChild<LLUICtrl>(id, true);
 	if (child)
@@ -900,7 +900,7 @@ void LLPanel::childSetMaxValue(const LLString& id, LLSD max_value)
 	}
 }
 
-void LLPanel::childShowTab(const LLString& id, const LLString& tabname, bool visible)
+void LLPanel::childShowTab(const std::string& id, const std::string& tabname, bool visible)
 {
 	LLTabContainer* child = getChild<LLTabContainer>(id);
 	if (child)
@@ -909,7 +909,7 @@ void LLPanel::childShowTab(const LLString& id, const LLString& tabname, bool vis
 	}
 }
 
-LLPanel *LLPanel::childGetVisibleTab(const LLString& id) const
+LLPanel *LLPanel::childGetVisibleTab(const std::string& id) const
 {
 	LLTabContainer* child = getChild<LLTabContainer>(id);
 	if (child)
@@ -919,7 +919,7 @@ LLPanel *LLPanel::childGetVisibleTab(const LLString& id) const
 	return NULL;
 }
 
-void LLPanel::childSetTabChangeCallback(const LLString& id, const LLString& tabname, void (*on_tab_clicked)(void*, bool), void *userdata)
+void LLPanel::childSetTabChangeCallback(const std::string& id, const std::string& tabname, void (*on_tab_clicked)(void*, bool), void *userdata)
 {
 	LLTabContainer* child = getChild<LLTabContainer>(id);
 	if (child)
@@ -933,7 +933,7 @@ void LLPanel::childSetTabChangeCallback(const LLString& id, const LLString& tabn
 	}
 }
 
-void LLPanel::childSetKeystrokeCallback(const LLString& id, void (*keystroke_callback)(LLLineEditor* caller, void* user_data), void *user_data)
+void LLPanel::childSetKeystrokeCallback(const std::string& id, void (*keystroke_callback)(LLLineEditor* caller, void* user_data), void *user_data)
 {
 	LLLineEditor* child = getChild<LLLineEditor>(id);
 	if (child)
@@ -946,7 +946,7 @@ void LLPanel::childSetKeystrokeCallback(const LLString& id, void (*keystroke_cal
 	}
 }
 
-void LLPanel::childSetPrevalidate(const LLString& id, BOOL (*func)(const LLWString &) )
+void LLPanel::childSetPrevalidate(const std::string& id, BOOL (*func)(const LLWString &) )
 {
 	LLLineEditor* child = getChild<LLLineEditor>(id);
 	if (child)
@@ -955,7 +955,7 @@ void LLPanel::childSetPrevalidate(const LLString& id, BOOL (*func)(const LLWStri
 	}
 }
 
-void LLPanel::childSetWrappedText(const LLString& id, const LLString& text, bool visible)
+void LLPanel::childSetWrappedText(const std::string& id, const std::string& text, bool visible)
 {
 	LLTextBox* child = getChild<LLTextBox>(id);
 	if (child)
@@ -965,7 +965,7 @@ void LLPanel::childSetWrappedText(const LLString& id, const LLString& text, bool
 	}
 }
 
-void LLPanel::childSetAction(const LLString& id, void(*function)(void*), void* value)
+void LLPanel::childSetAction(const std::string& id, void(*function)(void*), void* value)
 {
 	LLButton* button = getChild<LLButton>(id);
 	if (button)
@@ -974,7 +974,7 @@ void LLPanel::childSetAction(const LLString& id, void(*function)(void*), void* v
 	}
 }
 
-void LLPanel::childSetActionTextbox(const LLString& id, void(*function)(void*))
+void LLPanel::childSetActionTextbox(const std::string& id, void(*function)(void*))
 {
 	LLTextBox* textbox = getChild<LLTextBox>(id);
 	if (textbox)
@@ -983,7 +983,7 @@ void LLPanel::childSetActionTextbox(const LLString& id, void(*function)(void*))
 	}
 }
 
-void LLPanel::childSetControlName(const LLString& id, const LLString& control_name)
+void LLPanel::childSetControlName(const std::string& id, const std::string& control_name)
 {
 	LLView* view = getChild<LLView>(id);
 	if (view)
@@ -993,7 +993,7 @@ void LLPanel::childSetControlName(const LLString& id, const LLString& control_na
 }
 
 //virtual
-LLView* LLPanel::getChildView(const LLString& name, BOOL recurse, BOOL create_if_missing) const
+LLView* LLPanel::getChildView(const std::string& name, BOOL recurse, BOOL create_if_missing) const
 {
 	// just get child, don't try to create a dummy one
 	LLView* view = LLUICtrl::getChildView(name, recurse, FALSE);
@@ -1008,7 +1008,7 @@ LLView* LLPanel::getChildView(const LLString& name, BOOL recurse, BOOL create_if
 	return view;
 }
 
-void LLPanel::childNotFound(const LLString& id) const
+void LLPanel::childNotFound(const std::string& id) const
 {
 	if (mExpectedMembers.find(id) == mExpectedMembers.end())
 	{
@@ -1022,7 +1022,7 @@ void LLPanel::childDisplayNotFound()
 	{
 		return;
 	}
-	LLString msg;
+	std::string msg;
 	expected_members_list_t::iterator itor;
 	for (itor=mNewExpectedMembers.begin(); itor!=mNewExpectedMembers.end(); ++itor)
 	{
@@ -1031,7 +1031,7 @@ void LLPanel::childDisplayNotFound()
 		mExpectedMembers.insert(*itor);
 	}
 	mNewExpectedMembers.clear();
-	LLString::format_map_t args;
+	LLStringUtil::format_map_t args;
 	args["[CONTROLS]"] = msg;
 	LLAlertDialog::showXml("FloaterNotFound", args);
 }
@@ -1071,7 +1071,7 @@ struct LLLayoutStack::LLEmbeddedPanel
 		{
 			min_dim = mMinWidth;
 		}
-		mResizeBar = new LLResizeBar("resizer", mPanel, LLRect(), min_dim, S32_MAX, side);
+		mResizeBar = new LLResizeBar(std::string("resizer"), mPanel, LLRect(), min_dim, S32_MAX, side);
 		mResizeBar->setEnableSnapping(FALSE);
 		// panels initialized as hidden should not start out partially visible
 		if (!mPanel->getVisible())
@@ -1166,7 +1166,7 @@ LLXMLNodePtr LLLayoutStack::getXML(bool save_children) const
 //static 
 LLView* LLLayoutStack::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory)
 {
-	LLString orientation_string("vertical");
+	std::string orientation_string("vertical");
 	node->getAttributeString("orientation", orientation_string);
 
 	eLayoutOrientation orientation = VERTICAL;
@@ -1190,7 +1190,7 @@ LLView* LLLayoutStack::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactor
 	// don't allow negative spacing values
 	layout_stackp->mPanelSpacing = llmax(layout_stackp->mPanelSpacing, 0);
 
-	LLString name("stack");
+	std::string name("stack");
 	node->getAttributeString("name", name);
 
 	layout_stackp->setName(name);
@@ -1223,7 +1223,7 @@ LLView* LLLayoutStack::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactor
 			BOOL user_resize = FALSE;
 			child->getAttributeBOOL("user_resize", user_resize);
 
-			LLPanel* panelp = new LLPanel("auto_panel");
+			LLPanel* panelp = new LLPanel(std::string("auto_panel"));
 			LLView* new_child = factory->createWidget(panelp, child);
 			if (new_child)
 			{

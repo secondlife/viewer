@@ -51,11 +51,10 @@ public:
 
 	void setNameID(const LLUUID& name_id, BOOL is_group);
 
-	void refresh(const LLUUID& id, const char* first, const char* last,
-				 BOOL is_group);
+	void refresh(const LLUUID& id, const std::string& first, const std::string& last, BOOL is_group);
 
-	static void refreshAll(const LLUUID& id, const char* firstname,
-						   const char* lastname, BOOL is_group);
+	static void refreshAll(const LLUUID& id, const std::string& firstname,
+						   const std::string& lastname, BOOL is_group);
 
 private:
 	static std::set<LLNameBox*> sInstances;

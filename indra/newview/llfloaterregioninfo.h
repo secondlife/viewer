@@ -102,7 +102,7 @@ protected:
 class LLPanelRegionInfo : public LLPanel
 {
 public:
-	LLPanelRegionInfo() : LLPanel("Region Info Panel") {}
+	LLPanelRegionInfo() : LLPanel(std::string("Region Info Panel")) {}
 	static void onBtnSet(void* user_data);
 	static void onChangeChildCtrl(LLUICtrl* ctrl, void* user_data);
 	static void onChangeAnything(LLUICtrl* ctrl, void* user_data);
@@ -114,13 +114,13 @@ public:
 	virtual BOOL postBuild();
 	virtual void updateChild(LLUICtrl* child_ctrl);
 	
-	void enableButton(const char* btn_name, BOOL enable = TRUE);
-	void disableButton(const char* btn_name);
+	void enableButton(const std::string& btn_name, BOOL enable = TRUE);
+	void disableButton(const std::string& btn_name);
 	
 protected:
-	void initCtrl(const char* name);
-	void initTextCtrl(const char* name);
-	void initHelpBtn(const char* name, const char* xml_alert);
+	void initCtrl(const std::string& name);
+	void initTextCtrl(const std::string& name);
+	void initHelpBtn(const std::string& name, const std::string& xml_alert);
 
 	// Callback for all help buttons, data is name of XML alert to show.
 	static void onClickHelp(void* data);
@@ -133,7 +133,7 @@ protected:
 	//typedef std::vector<U32> integers_t;
 	void sendEstateOwnerMessage(
 					 LLMessageSystem* msg,
-					 const char* request,
+					 const std::string& request,
 					 const LLUUID& invoice,
 					 const strings_t& strings);
 	
@@ -164,7 +164,7 @@ protected:
 	static void onClickKickAll(void* userdata);
 	static void onKickAllCommit(S32 option, void* userdata);
 	static void onClickMessage(void* userdata);
-	static void onMessageCommit(S32 option, const LLString& text, void* userdata);
+	static void onMessageCommit(S32 option, const std::string& text, void* userdata);
 	static void onClickManageTelehub(void* data);
 };
 
@@ -276,11 +276,11 @@ public:
 	static void addAllowedGroup2(LLUUID id, void* data);
 
 	// Core methods for all above add/remove button clicks
-	static void accessAddCore(U32 operation_flag, const char* dialog_name);
+	static void accessAddCore(U32 operation_flag, const std::string& dialog_name);
 	static void accessAddCore2(S32 option, void* data);
 	static void accessAddCore3(const std::vector<std::string>& names, const std::vector<LLUUID>& ids, void* data);
 
-	static void accessRemoveCore(U32 operation_flag, const char* dialog_name, const char* list_ctrl_name);
+	static void accessRemoveCore(U32 operation_flag, const std::string& dialog_name, const std::string& list_ctrl_name);
 	static void accessRemoveCore2(S32 option, void* data);
 
 	// used for both add and remove operations
@@ -292,7 +292,7 @@ public:
 
 	static void onKickUserCommit(const std::vector<std::string>& names, const std::vector<LLUUID>& ids, void* userdata);
 	static void onClickMessageEstate(void* data);
-	static void onMessageCommit(S32 option, const LLString& text, void* data);
+	static void onMessageCommit(S32 option, const std::string& text, void* data);
 	
 	LLPanelEstateInfo();
 	~LLPanelEstateInfo() {}
@@ -337,8 +337,8 @@ public:
 	// llmessage/llcachename.h:LLCacheNameCallback
 	static void callbackCacheName(
 		const LLUUID& id,
-		const char* first,
-		const char* last,
+		const std::string& first,
+		const std::string& last,
 		BOOL is_group,
 		void*);
 
@@ -377,7 +377,7 @@ public:
 	BOOL handleDragAndDrop(S32 x, S32 y, MASK mask,
 						   BOOL drop, EDragAndDropType cargo_type,
 						   void *cargo_data, EAcceptance *accept,
-						   LLString& tooltip_msg);
+						   std::string& tooltip_msg);
 	static void confirmChangeCovenantCallback(S32 option, void* userdata);
 	static void resetCovenantID(void* userdata);
 	static void confirmResetCovenantCallback(S32 option, void* userdata);

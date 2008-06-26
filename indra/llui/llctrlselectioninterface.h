@@ -84,16 +84,16 @@ public:
 	
 	virtual void addColumn(const LLSD& column, EAddPosition pos = ADD_BOTTOM) = 0;
 	virtual void clearColumns() = 0;
-	virtual void setColumnLabel(const LLString& column, const LLString& label) = 0;
+	virtual void setColumnLabel(const std::string& column, const std::string& label) = 0;
 	// TomY TODO: Document this
 	virtual LLScrollListItem* addElement(const LLSD& value, EAddPosition pos = ADD_BOTTOM, void* userdata = NULL) = 0;
 
-	LLScrollListItem* addSimpleElement(const LLString& value); // defaults to bottom
-	LLScrollListItem* addSimpleElement(const LLString& value, EAddPosition pos); // defaults to no LLSD() id
-	virtual LLScrollListItem* addSimpleElement(const LLString& value, EAddPosition pos, const LLSD& id) = 0;
+	LLScrollListItem* addSimpleElement(const std::string& value); // defaults to bottom
+	LLScrollListItem* addSimpleElement(const std::string& value, EAddPosition pos); // defaults to no LLSD() id
+	virtual LLScrollListItem* addSimpleElement(const std::string& value, EAddPosition pos, const LLSD& id) = 0;
 
 	virtual void clearRows() = 0;
-	virtual void sortByColumn(LLString name, BOOL ascending) = 0;
+	virtual void sortByColumn(const std::string& name, BOOL ascending) = 0;
 };
 
 class LLCtrlScrollInterface

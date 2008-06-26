@@ -81,14 +81,14 @@ LLIMMgr* gIMMgr = NULL;
 // Statics
 //
 // *FIXME: make these all either UIStrings or Strings
-static LLString sOnlyUserMessage;
+static std::string sOnlyUserMessage;
 static LLUIString sOfflineMessage;
-static LLString sMutedMessage;
+static std::string sMutedMessage;
 static LLUIString sInviteMessage;
 
-std::map<std::string,LLString> LLFloaterIM::sEventStringsMap;
-std::map<std::string,LLString> LLFloaterIM::sErrorStringsMap;
-std::map<std::string,LLString> LLFloaterIM::sForceCloseSessionMap;
+std::map<std::string,std::string> LLFloaterIM::sEventStringsMap;
+std::map<std::string,std::string> LLFloaterIM::sErrorStringsMap;
+std::map<std::string,std::string> LLFloaterIM::sForceCloseSessionMap;
 
 //
 // Helper Functions
@@ -97,7 +97,7 @@ std::map<std::string,LLString> LLFloaterIM::sForceCloseSessionMap;
 // returns true if a should appear before b
 //static BOOL group_dictionary_sort( LLGroupData* a, LLGroupData* b )
 //{
-//	return (LLString::compareDict( a->mName, b->mName ) < 0);
+//	return (LLStringUtil::compareDict( a->mName, b->mName ) < 0);
 //}
 
 
@@ -269,13 +269,13 @@ class LLIMMgr::LLIMSessionInvite
 public:
 	LLIMSessionInvite(
 		const LLUUID& session_id,
-		const LLString& session_name,
+		const std::string& session_name,
 		const LLUUID& caller_id,
-		const LLString& caller_name,
+		const std::string& caller_name,
 		EInstantMessage type,
 		EInvitationType inv_type,
-		const LLString& session_handle,
-		const LLString& notify_box) : 
+		const std::string& session_handle,
+		const std::string& notify_box) : 
 		mSessionID(session_id),
 		mSessionName(session_name),
 		mCallerID(caller_id),
@@ -287,13 +287,13 @@ public:
 	{};
 
 	LLUUID		mSessionID;
-	LLString	mSessionName;
+	std::string	mSessionName;
 	LLUUID		mCallerID;
-	LLString	mCallerName;
+	std::string	mCallerName;
 	EInstantMessage mType;
 	EInvitationType mInvType;
-	LLString	mSessionHandle;
-	LLString	mNotifyBox;
+	std::string	mSessionHandle;
+	std::string	mNotifyBox;
 };
 
 
@@ -396,9 +396,9 @@ LLIMMgr::~LLIMMgr()
 void LLIMMgr::addMessage(
 	const LLUUID& session_id,
 	const LLUUID& target_id,
-	const char* from,
-	const char* msg,
-	const char* session_name,
+	const std::string& from,
+	const std::string& msg,
+	const std::string& session_name,
 	EInstantMessage dialog,
 	U32 parent_estate_id,
 	const LLUUID& region_id,
@@ -443,8 +443,8 @@ void LLIMMgr::addMessage(
 	// create IM window as necessary
 	if(!floater)
 	{
-		const char* name = from;
-		if(session_name && (strlen(session_name)>1))
+		std::string name = from;
+		if(!session_name.empty() && session_name.size()>1)
 		{
 			name = session_name;
 		}
@@ -482,7 +482,7 @@ void LLIMMgr::addMessage(
 	}
 
 	// now add message to floater
-	bool is_from_system = target_id.isNull() || !strcmp(from, SYSTEM_FROM);
+	bool is_from_system = target_id.isNull() || (from == SYSTEM_FROM);
 	const LLColor4& color = ( is_from_system ? 
 							  gSavedSettings.getColor4("SystemChatColor") : 
 							  gSavedSettings.getColor("IMChatColor"));
@@ -518,7 +518,7 @@ void LLIMMgr::addMessage(
 	}
 }
 
-void LLIMMgr::addSystemMessage(const LLUUID& session_id, const LLString& message_name, const LLString::format_map_t& args)
+void LLIMMgr::addSystemMessage(const LLUUID& session_id, const std::string& message_name, const LLStringUtil::format_map_t& args)
 {
 	LLUIString message;
 	
@@ -542,7 +542,7 @@ void LLIMMgr::addSystemMessage(const LLUUID& session_id, const LLString& message
 			message = floaterp->getUIString(message_name);
 			message.setArgList(args);
 
-			gIMMgr->addMessage(session_id, LLUUID::null, SYSTEM_FROM, message.getString().c_str());
+			gIMMgr->addMessage(session_id, LLUUID::null, SYSTEM_FROM, message.getString());
 		}
 	}
 }
@@ -576,7 +576,7 @@ BOOL LLIMMgr::isIMSessionOpen(const LLUUID& uuid)
 
 LLUUID LLIMMgr::addP2PSession(const std::string& name,
 							const LLUUID& other_participant_id,
-							const LLString& voice_session_handle)
+							const std::string& voice_session_handle)
 {
 	LLUUID session_id = addSession(name, IM_NOTHING_SPECIAL, other_participant_id);
 
@@ -692,12 +692,12 @@ void LLIMMgr::removeSession(const LLUUID& session_id)
 
 void LLIMMgr::inviteToSession(
 	const LLUUID& session_id, 
-	const LLString& session_name, 
+	const std::string& session_name, 
 	const LLUUID& caller_id, 
-	const LLString& caller_name,
+	const std::string& caller_name,
 	EInstantMessage type,
 	EInvitationType inv_type,
-	const LLString& session_handle)
+	const std::string& session_handle)
 {
 	//ignore invites from muted residents
 	if (LLMuteList::getInstance()->isMuted(caller_id))
@@ -705,7 +705,7 @@ void LLIMMgr::inviteToSession(
 		return;
 	}
 
-	LLString notify_box_type;
+	std::string notify_box_type;
 
 	BOOL ad_hoc_invite = FALSE;
 	if(type == IM_SESSION_P2P_INVITE)
@@ -769,11 +769,11 @@ void LLIMMgr::inviteToSession(
 	{
 		if (caller_name.empty())
 		{
-			gCacheName->getName(caller_id, onInviteNameLookup, invite);
+			gCacheName->get(caller_id, FALSE, onInviteNameLookup, invite);
 		}
 		else
 		{
-			LLString::format_map_t args;
+			LLStringUtil::format_map_t args;
 			args["[NAME]"] = caller_name;
 			args["[GROUP]"] = session_name;
 
@@ -792,14 +792,14 @@ void LLIMMgr::inviteToSession(
 }
 
 //static 
-void LLIMMgr::onInviteNameLookup(const LLUUID& id, const char* first, const char* last, BOOL is_group, void* userdata)
+void LLIMMgr::onInviteNameLookup(const LLUUID& id, const std::string& first, const std::string& last, BOOL is_group, void* userdata)
 {
 	LLIMSessionInvite* invite = (LLIMSessionInvite*)userdata;
 
-	invite->mCallerName = llformat("%s %s", first, last);
+	invite->mCallerName = first + " " + last;
 	invite->mSessionName = invite->mCallerName;
 
-	LLString::format_map_t args;
+	LLStringUtil::format_map_t args;
 	args["[NAME]"] = invite->mCallerName;
 
 	LLNotifyBox::showXml(
@@ -1248,8 +1248,7 @@ void LLIMMgr::noteMutedUsers(LLFloaterIMPanel* floater,
 		for(S32 i = 0; i < count; ++i)
 		{
 			info = at.getBuddyInfo(ids.get(i));
-			char first[DB_FIRST_NAME_BUF_SIZE];		/*Flawfinder: ignore*/
-			char last[DB_LAST_NAME_BUF_SIZE];		/*Flawfinder: ignore*/
+			std::string first, last;
 			if(info && LLMuteList::getInstance() && LLMuteList::getInstance()->isMuted(ids.get(i))
 			   && gCacheName->getName(ids.get(i), first, last))
 			{
@@ -1413,7 +1412,7 @@ public:
 					  const LLSD& input) const
 	{
 		LLUUID session_id;
-		LLString reason;
+		std::string reason;
 
 		session_id = input["body"]["session_id"].asUUID();
 		reason = input["body"]["reason"].asString();
@@ -1495,7 +1494,6 @@ public:
 			{
 				return;
 			}
-			char buffer[DB_IM_MSG_BUF_SIZE * 2];  /* Flawfinder: ignore */
 			LLChat chat;
 
 			std::string message = message_params["message"].asString();
@@ -1511,19 +1509,18 @@ public:
 			BOOL is_busy = gAgent.getBusy();
 			BOOL is_muted = LLMuteList::getInstance()->isMuted(
 				from_id,
-				name.c_str(),
+				name,
 				LLMute::flagTextChat);
 
-			BOOL is_linden = LLMuteList::getInstance()->isLinden(
-				name.c_str());
-			char separator_string[3]=": ";		/* Flawfinder: ignore */
+			BOOL is_linden = LLMuteList::getInstance()->isLinden(name);
+			std::string separator_string(": ");
 			int message_offset=0;
 
 			//Handle IRC styled /me messages.
-			if (!strncmp(message.c_str(), "/me ", 4) ||
-				!strncmp(message.c_str(), "/me'", 4))
+			std::string prefix = message.substr(0, 4);
+			if (prefix == "/me " || prefix == "/me'")
 			{
-				strcpy(separator_string,"");	   /* Flawfinder: ignore */
+				separator_string = "";
 				message_offset = 3;
 			}
 			
@@ -1537,23 +1534,12 @@ public:
 			}
 
 			// standard message, not from system
-			char saved[MAX_STRING];		/* Flawfinder: ignore */
-			saved[0] = '\0';
+			std::string saved;
 			if(offline == IM_OFFLINE)
 			{
-				char time_buf[TIME_STR_LENGTH]; /* Flawfinder: ignore */
-				snprintf(saved,		/* Flawfinder: ignore */
-						 MAX_STRING, 
-						 "(Saved %s) ", 
-						 formatted_time(timestamp, time_buf));
+				saved = llformat("(Saved %s) ", formatted_time(timestamp).c_str());
 			}
-			snprintf(
-				buffer,
-				sizeof(buffer),
-				"%s%s%s",
-				separator_string,
-				saved,
-				(message.c_str() + message_offset)); /*Flawfinder: ignore*/
+			std::string buffer = separator_string + saved + message.substr(message_offset);
 
 			BOOL is_this_agent = FALSE;
 			if(from_id == gAgentID)
@@ -1563,24 +1549,16 @@ public:
 			gIMMgr->addMessage(
 				session_id,
 				from_id,
-				name.c_str(),
+				name,
 				buffer,
-				(char*)&bin_bucket[0],
+				std::string((char*)&bin_bucket[0]),
 				IM_SESSION_INVITE,
 				message_params["parent_estate_id"].asInteger(),
 				message_params["region_id"].asUUID(),
 				ll_vector3_from_sd(message_params["position"]),
 				true);
 
-			snprintf(
-				buffer,
-				sizeof(buffer),
-				"IM: %s%s%s%s",
-				name.c_str(),
-				separator_string,
-				saved,
-				(message.c_str()+message_offset)); /* Flawfinder: ignore */
-			chat.mText = buffer;
+			chat.mText = std::string("IM: ") + name + separator_string + saved + message.substr(message_offset);
 			LLFloaterChat::addChat(chat, TRUE, is_this_agent);
 
 			//K now we want to accept the invitation

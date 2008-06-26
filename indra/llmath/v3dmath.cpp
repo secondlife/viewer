@@ -132,15 +132,15 @@ const LLVector3d&	LLVector3d::rotVec(F64 angle, F64 x, F64 y, F64 z)
 }
 
 
-BOOL LLVector3d::parseVector3d(const char* buf, LLVector3d* value)
+BOOL LLVector3d::parseVector3d(const std::string& buf, LLVector3d* value)
 {
-	if( buf == NULL || buf[0] == '\0' || value == NULL)
+	if( buf.empty() || value == NULL)
 	{
 		return FALSE;
 	}
 
 	LLVector3d v;
-	S32 count = sscanf( buf, "%lf %lf %lf", v.mdV + 0, v.mdV + 1, v.mdV + 2 );
+	S32 count = sscanf( buf.c_str(), "%lf %lf %lf", v.mdV + 0, v.mdV + 1, v.mdV + 2 );
 	if( 3 == count )
 	{
 		value->setVec( v );

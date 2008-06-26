@@ -97,15 +97,15 @@ void LLImageBase::sanityCheck()
 	}
 }
 
-LLString LLImageBase::sLastErrorMessage;
+std::string LLImageBase::sLastErrorMessage;
 BOOL LLImageBase::sSizeOverride = FALSE;
 
-BOOL LLImageBase::setLastError(const LLString& message, const LLString& filename) 
+BOOL LLImageBase::setLastError(const std::string& message, const std::string& filename) 
 {
 	sLastErrorMessage = message;
-	if (filename != "")
+	if (!filename.empty())
 	{
-		sLastErrorMessage += LLString(" FILE:");
+		sLastErrorMessage += " FILE:";
 		sLastErrorMessage += filename;
 	}
 	llwarns << sLastErrorMessage << llendl;
@@ -250,7 +250,7 @@ LLImageRaw::LLImageRaw(U8 *data, U16 width, U16 height, S8 components)
 	++sRawImageCount;
 }
 
-LLImageRaw::LLImageRaw(const LLString &filename, bool j2c_lowest_mip_only)
+LLImageRaw::LLImageRaw(const std::string& filename, bool j2c_lowest_mip_only)
 	: LLImageBase()
 {
 	createFromFile(filename, j2c_lowest_mip_only);
@@ -1107,25 +1107,25 @@ file_extensions[] =
 };
 #define NUM_FILE_EXTENSIONS sizeof(file_extensions)/sizeof(file_extensions[0])
 
-static LLString find_file(LLString &name, S8 *codec)
+static std::string find_file(std::string &name, S8 *codec)
 {
-	LLString tname;
+	std::string tname;
 	for (int i=0; i<(int)(NUM_FILE_EXTENSIONS); i++)
 	{
-		tname = name + "." + LLString(file_extensions[i].exten);
-		llifstream ifs(tname.c_str(), llifstream::binary);
+		tname = name + "." + std::string(file_extensions[i].exten);
+		llifstream ifs(tname, llifstream::binary);
 		if (ifs.is_open())
 		{
 			ifs.close();
 			if (codec)
 				*codec = file_extensions[i].codec;
-			return LLString(file_extensions[i].exten);
+			return std::string(file_extensions[i].exten);
 		}
 	}
-	return LLString("");
+	return std::string("");
 }
 
-EImageCodec LLImageBase::getCodecFromExtension(const LLString& exten)
+EImageCodec LLImageBase::getCodecFromExtension(const std::string& exten)
 {
 	for (int i=0; i<(int)(NUM_FILE_EXTENSIONS); i++)
 	{
@@ -1135,19 +1135,19 @@ EImageCodec LLImageBase::getCodecFromExtension(const LLString& exten)
 	return IMG_CODEC_INVALID;
 }
 
-bool LLImageRaw::createFromFile(const LLString &filename, bool j2c_lowest_mip_only)
+bool LLImageRaw::createFromFile(const std::string &filename, bool j2c_lowest_mip_only)
 {
-	LLString name = filename;
+	std::string name = filename;
 	size_t dotidx = name.rfind('.');
 	S8 codec = IMG_CODEC_INVALID;
-	LLString exten;
+	std::string exten;
 	
 	deleteData(); // delete any existing data
 
-	if (dotidx != LLString::npos)
+	if (dotidx != std::string::npos)
 	{
 		exten = name.substr(dotidx+1);
-		LLString::toLower(exten);
+		LLStringUtil::toLower(exten);
 		codec = getCodecFromExtension(exten);
 	}
 	else
@@ -1160,7 +1160,7 @@ bool LLImageRaw::createFromFile(const LLString &filename, bool j2c_lowest_mip_on
 		return false; // format not recognized
 	}
 
-	llifstream ifs(name.c_str(), llifstream::binary);
+	llifstream ifs(name, llifstream::binary);
 	if (!ifs.is_open())
 	{
 		// SJB: changed from llinfos to lldebugs to reduce spam
@@ -1302,11 +1302,11 @@ LLImageFormatted* LLImageFormatted::createFromType(S8 codec)
 }
 
 // static
-LLImageFormatted* LLImageFormatted::createFromExtension(const LLString& instring)
+LLImageFormatted* LLImageFormatted::createFromExtension(const std::string& instring)
 {
-	LLString exten;
+	std::string exten;
 	size_t dotidx = instring.rfind('.');
-	if (dotidx != LLString::npos)
+	if (dotidx != std::string::npos)
 	{
 		exten = instring.substr(dotidx+1);
 	}
@@ -1463,7 +1463,7 @@ void LLImageFormatted::appendData(U8 *data, S32 size)
 
 //----------------------------------------------------------------------------
 
-BOOL LLImageFormatted::load(const LLString &filename)
+BOOL LLImageFormatted::load(const std::string &filename)
 {
 	resetLastError();
 
@@ -1500,14 +1500,14 @@ BOOL LLImageFormatted::load(const LLString &filename)
 	return res;
 }
 
-BOOL LLImageFormatted::save(const LLString &filename)
+BOOL LLImageFormatted::save(const std::string &filename)
 {
 	resetLastError();
 
 	apr_file_t* apr_file = ll_apr_file_open(filename, LL_APR_WB);
 	if (!apr_file)
 	{
-		setLastError("Unable to open file for reading", filename);
+		setLastError("Unable to open file for writing", filename);
 		return FALSE;
 	}
 	

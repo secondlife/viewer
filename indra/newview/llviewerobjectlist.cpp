@@ -717,17 +717,17 @@ void LLViewerObjectList::update(LLAgent &agent, LLWorld &world)
 	/*
 	// Debugging code for viewing orphans, and orphaned parents
 	LLUUID id;
-	char id_str[UUID_STR_LENGTH + 20];
 	for (i = 0; i < mOrphanParents.count(); i++)
 	{
 		id = sIndexAndLocalIDToUUID[mOrphanParents[i]];
 		LLViewerObject *objectp = findObject(id);
 		if (objectp)
 		{
-			sprintf(id_str, "Par:    ");
-			objectp->mID.toString(id_str + 5);
+			std::string id_str;
+			objectp->mID.toString(id_str);
+			std::string tmpstr = std::string("Par:    ") + id_str;
 			addDebugBeacon(objectp->getPositionAgent(),
-							id_str,
+							tmpstr,
 							LLColor4(1.f,0.f,0.f,1.f),
 							LLColor4(1.f,1.f,1.f,1.f));
 		}
@@ -740,20 +740,22 @@ void LLViewerObjectList::update(LLAgent &agent, LLWorld &world)
 		LLViewerObject *objectp = findObject(oi.mChildInfo);
 		if (objectp)
 		{
+			std::string id_str;
+			objectp->mID.toString(id_str);
+			std::string tmpstr;
 			if (objectp->getParent())
 			{
-				sprintf(id_str, "ChP:     ");
+				tmpstr = std::string("ChP:    ") + id_str;
 				text_color = LLColor4(0.f, 1.f, 0.f, 1.f);
 			}
 			else
 			{
-				sprintf(id_str, "ChNoP:    ");
+				tmpstr = std::string("ChNoP:    ") + id_str;
 				text_color = LLColor4(1.f, 0.f, 0.f, 1.f);
 			}
 			id = sIndexAndLocalIDToUUID[oi.mParentInfo];
-			objectp->mID.toString(id_str + 8);
 			addDebugBeacon(objectp->getPositionAgent() + LLVector3(0.f, 0.f, -0.25f),
-							id_str,
+							tmpstr,
 							LLColor4(0.25f,0.25f,0.25f,1.f),
 							text_color);
 		}
@@ -1236,7 +1238,7 @@ LLViewerObject *LLViewerObjectList::getSelectedObject(const U32 object_id)
 }
 
 void LLViewerObjectList::addDebugBeacon(const LLVector3 &pos_agent,
-										const LLString &string,
+										const std::string &string,
 										const LLColor4 &color,
 										const LLColor4 &text_color,
 										S32 line_width)

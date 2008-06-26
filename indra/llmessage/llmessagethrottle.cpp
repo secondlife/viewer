@@ -110,7 +110,7 @@ void LLMessageThrottle::pruneEntries()
 	}
 }
 
-BOOL LLMessageThrottle::addViewerAlert(const LLUUID& to, const char* mesg)
+BOOL LLMessageThrottle::addViewerAlert(const LLUUID& to, const std::string& mesg)
 {
 	message_list_t* message_list = &(mMessageList[MTC_VIEWER_ALERT]);
 
@@ -144,7 +144,7 @@ BOOL LLMessageThrottle::addViewerAlert(const LLUUID& to, const char* mesg)
 	}
 }
 
-BOOL LLMessageThrottle::addAgentAlert(const LLUUID& agent, const LLUUID& task, const char* mesg)
+BOOL LLMessageThrottle::addAgentAlert(const LLUUID& agent, const LLUUID& task, const std::string& mesg)
 {
 	message_list_t* message_list = &(mMessageList[MTC_AGENT_ALERT]);
 

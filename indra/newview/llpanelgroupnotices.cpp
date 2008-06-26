@@ -80,7 +80,7 @@ public:
 								   EDragAndDropType cargo_type,
 								   void* cargo_data,
 								   EAcceptance* accept,
-								   LLString& tooltip_msg);
+								   std::string& tooltip_msg);
 protected:
 	LLPanelGroupNotices* mGroupNoticesPanel;
 	LLUUID	mGroupID;
@@ -103,7 +103,7 @@ BOOL LLGroupDropTarget::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 									 EDragAndDropType cargo_type,
 									 void* cargo_data,
 									 EAcceptance* accept,
-									 LLString& tooltip_msg)
+									 std::string& tooltip_msg)
 {
 	BOOL handled = FALSE;
 
@@ -168,14 +168,14 @@ BOOL LLGroupDropTarget::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 //-----------------------------------------------------------------------------
 // LLPanelGroupNotices
 //-----------------------------------------------------------------------------
-char* build_notice_date(const time_t& the_time, char* buffer)
+std::string build_notice_date(const time_t& the_time)
 {
 	time_t t = the_time;
 	if (!t) time(&t);
 	tm* lt = localtime(&t);
 	//for some reason, the month is off by 1.  See other uses of
 	//"local" time in the code...
-	snprintf(buffer, NOTICE_DATE_STRING_SIZE, "%i/%i/%i", lt->tm_mon + 1, lt->tm_mday, lt->tm_year + 1900);		/*Flawfinder: ignore*/
+	std::string buffer = llformat("%i/%i/%i", lt->tm_mon + 1, lt->tm_mday, lt->tm_year + 1900);
 	return buffer;
 }
 
@@ -316,7 +316,7 @@ void LLPanelGroupNotices::setItem(LLPointer<LLInventoryItem> inv_item)
 		item_is_multi = TRUE;
 	};
 
-	LLString icon_name = get_item_icon_name(inv_item->getType(),
+	std::string icon_name = get_item_icon_name(inv_item->getType(),
 										inv_item->getInventoryType(),
 										inv_item->getFlags(),
 										item_is_multi );
@@ -362,8 +362,8 @@ void LLPanelGroupNotices::onClickSendMessage(void* data)
 	}
 	send_group_notice(
 			self->mGroupID,
-			self->mCreateSubject->getText().c_str(),
-			self->mCreateMessage->getText().c_str(),
+			self->mCreateSubject->getText(),
+			self->mCreateMessage->getText(),
 			self->mInventoryItem);
 
 	self->mCreateMessage->clear();
@@ -442,8 +442,8 @@ void LLPanelGroupNotices::processGroupNoticesListReply(LLMessageSystem* msg, voi
 void LLPanelGroupNotices::processNotices(LLMessageSystem* msg)
 {
 	LLUUID id;
-	char subj[MAX_STRING];		/*Flawfinder: ignore*/
-	char name[MAX_STRING];		/*Flawfinder: ignore*/
+	std::string subj;
+	std::string name;
 	U32 timestamp;
 	BOOL has_attachment;
 	U8 asset_type;
@@ -461,8 +461,8 @@ void LLPanelGroupNotices::processNotices(LLMessageSystem* msg)
 			return;
 		}
 			
-		msg->getString("Data","Subject",MAX_STRING,subj,i);
-		msg->getString("Data","FromName",MAX_STRING,name,i);
+		msg->getString("Data","Subject",subj,i);
+		msg->getString("Data","FromName",name,i);
 		msg->getBOOL("Data","HasAttachment",has_attachment,i);
 		msg->getU8("Data","AssetType",asset_type,i);
 		msg->getU32("Data","Timestamp",timestamp,i);
@@ -474,7 +474,7 @@ void LLPanelGroupNotices::processNotices(LLMessageSystem* msg)
 		row["columns"][0]["column"] = "icon";
 		if (has_attachment)
 		{
-			LLString icon_name = get_item_icon_name(
+			std::string icon_name = get_item_icon_name(
 									(LLAssetType::EType)asset_type,
 									LLInventoryType::IT_NONE,FALSE, FALSE);
 			row["columns"][0]["type"] = "icon";
@@ -487,12 +487,11 @@ void LLPanelGroupNotices::processNotices(LLMessageSystem* msg)
 		row["columns"][2]["column"] = "from";
 		row["columns"][2]["value"] = name;
 
-		char buffer[NOTICE_DATE_STRING_SIZE];		/*Flawfinder: ignore*/
-		build_notice_date(t, buffer);
+		std::string buffer = build_notice_date(t);
 		row["columns"][3]["column"] = "date";
 		row["columns"][3]["value"] = buffer;
 
-		snprintf(buffer, 30, "%u", timestamp);			/* Flawfinder: ignore */
+		buffer = llformat( "%u", timestamp);
 		row["columns"][4]["column"] = "sort";
 		row["columns"][4]["value"] = buffer;
 
@@ -522,16 +521,16 @@ void LLPanelGroupNotices::onSelectNotice(LLUICtrl* ctrl, void* data)
 	lldebugs << "Item " << item->getUUID() << " selected." << llendl;
 }
 
-void LLPanelGroupNotices::showNotice(const char* subject,
-										const char* message,
-										const bool& has_inventory,
-										const char* inventory_name,
-										LLOfferInfo* inventory_offer)
+void LLPanelGroupNotices::showNotice(const std::string& subject,
+									 const std::string& message,
+									 const bool& has_inventory,
+									 const std::string& inventory_name,
+									 LLOfferInfo* inventory_offer)
 {
 	arrangeNoticeView(VIEW_PAST_NOTICE);
 
-	if(mViewSubject) mViewSubject->setText(LLString(subject));
-	if(mViewMessage) mViewMessage->setText(LLString(message));
+	if(mViewSubject) mViewSubject->setText(subject);
+	if(mViewMessage) mViewMessage->setText(message);
 	
 	if (mInventoryOffer)
 	{
@@ -544,7 +543,7 @@ void LLPanelGroupNotices::showNotice(const char* subject,
 	{
 		mInventoryOffer = inventory_offer;
 
-		LLString icon_name = get_item_icon_name(mInventoryOffer->mType,
+		std::string icon_name = get_item_icon_name(mInventoryOffer->mType,
 												LLInventoryType::IT_TEXTURE,
 												0, FALSE);
 

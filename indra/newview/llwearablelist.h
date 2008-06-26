@@ -46,7 +46,7 @@ public:
 
 	void				getAsset( 
 							const LLAssetID& assetID,
-							const LLString& wearable_name,
+							const std::string& wearable_name,
 							LLAssetType::EType asset_type,
 							void(*asset_arrived_callback)(LLWearable*, void* userdata),
 							void* userdata );
@@ -56,7 +56,7 @@ public:
 	LLWearable*			createCopy( LLWearable* old_wearable );
 	LLWearable*			createNewWearable( EWearableType type );
 	
-	// Pseudo-private
+	// Callback
 	static void	 	    processGetAssetReply(const char* filename, const LLAssetID& assetID, void* user_data, S32 status, LLExtStat ext_status);
 
 protected:

@@ -143,28 +143,22 @@ LLOSInfo::LLOSInfo() :
 
 			std::string csdversion = utf16str_to_utf8str(osvi.szCSDVersion);
 			// Display version, service pack (if any), and build number.
-			char tmp[MAX_STRING];		/* Flawfinder: ignore */
+			std::string tmpstr;
 			if(osvi.dwMajorVersion <= 4)
 			{
-				snprintf(	/* Flawfinder: ignore */
-					tmp,
-					sizeof(tmp),
-					"version %d.%d %s (Build %d)",
-					osvi.dwMajorVersion,
-					osvi.dwMinorVersion,
-					csdversion.c_str(),
-					(osvi.dwBuildNumber & 0xffff));
+				tmpstr = llformat("version %d.%d %s (Build %d)",
+								  osvi.dwMajorVersion,
+								  osvi.dwMinorVersion,
+								  csdversion.c_str(),
+								  (osvi.dwBuildNumber & 0xffff));
 			}
 			else
 			{
-				snprintf(	/* Flawfinder: ignore */
-					tmp,
-					sizeof(tmp),
-					"%s (Build %d)",
-					csdversion.c_str(),
-					(osvi.dwBuildNumber & 0xffff));	 
+				tmpstr = llformat("%s (Build %d)",
+								  csdversion.c_str(),
+								  (osvi.dwBuildNumber & 0xffff));
 			}
-			mOSString = mOSStringSimple + tmp;
+			mOSString = mOSStringSimple + tmpstr;
 		}
 		break;
 
@@ -397,7 +391,7 @@ LLCPUInfo::LLCPUInfo()
 	mCPUString = out.str();
 	
 #elif LL_LINUX
-	std::map< LLString, LLString > cpuinfo;
+	std::map< std::string, std::string > cpuinfo;
 	LLFILE* cpuinfo_fp = LLFile::fopen(CPUINFO_FILE, "rb");
 	if(cpuinfo_fp)
 	{
@@ -420,21 +414,21 @@ LLCPUInfo::LLCPUInfo()
 			if (nlspot == NULL)
 				nlspot = line + strlen( line ); // Fallback to terminating NUL
 			std::string linename( line, tabspot );
-			LLString llinename(linename);
-			LLString::toLower(llinename);
+			std::string llinename(linename);
+			LLStringUtil::toLower(llinename);
 			std::string lineval( spacespot + 1, nlspot );
 			cpuinfo[ llinename ] = lineval;
 		}
 		fclose(cpuinfo_fp);
 	}
 # if LL_X86
-	LLString flags = " " + cpuinfo["flags"] + " ";
-	LLString::toLower(flags);
+	std::string flags = " " + cpuinfo["flags"] + " ";
+	LLStringUtil::toLower(flags);
 	mHasSSE = ( flags.find( " sse " ) != std::string::npos );
 	mHasSSE2 = ( flags.find( " sse2 " ) != std::string::npos );
 	
 	F64 mhz;
-	if (LLString::convertToF64(cpuinfo["cpu mhz"], mhz)
+	if (LLStringUtil::convertToF64(cpuinfo["cpu mhz"], mhz)
 	    && 200.0 < mhz && mhz < 10000.0)
 	{
 		mCPUMhz = (S32)llrint(mhz);
@@ -658,18 +652,17 @@ std::ostream& operator<<(std::ostream& s, const LLMemoryInfo& info)
 	return s;
 }
 
-BOOL gunzip_file(const char *srcfile, const char *dstfile)
+BOOL gunzip_file(const std::string& srcfile, const std::string& dstfile)
 {
-	char tmpfile[LL_MAX_PATH];		/* Flawfinder: ignore */
+	std::string tmpfile;
 	const S32 UNCOMPRESS_BUFFER_SIZE = 32768;
 	BOOL retval = FALSE;
 	gzFile src = NULL;
 	U8 buffer[UNCOMPRESS_BUFFER_SIZE];
 	LLFILE *dst = NULL;
 	S32 bytes = 0;
-	(void *) strcpy(tmpfile, dstfile);		/* Flawfinder: ignore */
-	(void *) strncat(tmpfile, ".t", sizeof(tmpfile) - strlen(tmpfile) -1);		/* Flawfinder: ignore */
-	src = gzopen(srcfile, "rb");
+	tmpfile = dstfile + ".t";
+	src = gzopen(srcfile.c_str(), "rb");
 	if (! src) goto err;
 	dst = LLFile::fopen(tmpfile, "wb");		/* Flawfinder: ignore */
 	if (! dst) goto err;
@@ -693,18 +686,17 @@ err:
 	return retval;
 }
 
-BOOL gzip_file(const char *srcfile, const char *dstfile)
+BOOL gzip_file(const std::string& srcfile, const std::string& dstfile)
 {
 	const S32 COMPRESS_BUFFER_SIZE = 32768;
-	char tmpfile[LL_MAX_PATH];		/* Flawfinder: ignore */
+	std::string tmpfile;
 	BOOL retval = FALSE;
 	U8 buffer[COMPRESS_BUFFER_SIZE];
 	gzFile dst = NULL;
 	LLFILE *src = NULL;
 	S32 bytes = 0;
-	(void *) strcpy(tmpfile, dstfile);		/* Flawfinder: ignore */
-	(void *) strncat(tmpfile, ".t", sizeof(tmpfile) - strlen(tmpfile) -1);		/* Flawfinder: ignore */
-	dst = gzopen(tmpfile, "wb");		/* Flawfinder: ignore */
+	tmpfile = dstfile + ".t";
+	dst = gzopen(tmpfile.c_str(), "wb");		/* Flawfinder: ignore */
 	if (! dst) goto err;
 	src = LLFile::fopen(srcfile, "rb");		/* Flawfinder: ignore */
 	if (! src) goto err;

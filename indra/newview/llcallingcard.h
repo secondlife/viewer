@@ -101,7 +101,7 @@ public:
 	LLVector3d getGlobalPos();
 
 	// Get the name passed in, returns null string if uninitialized.
-	const LLString& getName();
+	const std::string& getName();
 
 	// Get the avatar being tracked, returns LLUUID::null if uninitialized
 	const LLUUID& getAvatarID();

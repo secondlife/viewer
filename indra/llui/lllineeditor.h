@@ -63,9 +63,9 @@ class LLLineEditor
 {
 
 public:
-	LLLineEditor(const LLString& name, 
+	LLLineEditor(const std::string& name, 
 				 const LLRect& rect,
-				 const LLString& default_text = LLString::null,
+				 const std::string& default_text = LLStringUtil::null,
 				 const LLFontGL* glfont = NULL,
 				 S32 max_length_bytes = 254,
 				 void (*commit_callback)(LLUICtrl* caller, void* user_data) = NULL,
@@ -132,13 +132,13 @@ public:
 	// assumes UTF8 text
 	virtual void	setValue(const LLSD& value ) { setText(value.asString()); }
 	virtual LLSD	getValue() const { return LLSD(getText()); }
-	virtual BOOL	setTextArg( const LLString& key, const LLStringExplicit& text );
-	virtual BOOL	setLabelArg( const LLString& key, const LLStringExplicit& text );
+	virtual BOOL	setTextArg( const std::string& key, const LLStringExplicit& text );
+	virtual BOOL	setLabelArg( const std::string& key, const LLStringExplicit& text );
 
 	void			setLabel(const LLStringExplicit &new_label) { mLabel = new_label; }
 	void			setText(const LLStringExplicit &new_text);
 
-	const LLString& getText() const		{ return mText.getString(); }
+	const std::string& getText() const		{ return mText.getString(); }
 	const LLWString& getWText() const	{ return mText.getWString(); }
 	S32				getLength() const	{ return mText.length(); }
 
@@ -205,7 +205,7 @@ public:
 	static BOOL		prevalidatePrintableNoSpace(const LLWString &str);
 	static BOOL		prevalidateASCII(const LLWString &str);
 
-	static BOOL		postvalidateFloat(const LLString &str);
+	static BOOL		postvalidateFloat(const std::string &str);
 
 	// line history support:
 	void			setEnableLineHistory( BOOL enabled ) { mHaveHistory = enabled; } // switches line history on or off 
@@ -242,12 +242,12 @@ private:
 
 protected:
 	LLUIString		mText;					// The string being edited.
-	LLString		mPrevText;				// Saved string for 'ESC' revert
+	std::string		mPrevText;				// Saved string for 'ESC' revert
 	LLUIString		mLabel;					// text label that is visible when no user text provided
 
 	// line history support:
 	BOOL		mHaveHistory;				// flag for enabled line history
-	std::vector<LLString> mLineHistory;		// line history storage
+	std::vector<std::string> mLineHistory;		// line history storage
 	U32			mCurrentHistoryLine;		// currently browsed history line
 
 	LLViewBorder* mBorder;
@@ -307,7 +307,7 @@ protected:
 private:
 	// Utility on top of LLUI::getUIImage, looks up a named image in a given XML node and returns it if possible
 	// or returns a given default image if anything in the process fails.
-	static LLPointer<LLUIImage> parseImage(LLString name, LLXMLNodePtr from, LLPointer<LLUIImage> def);
+	static LLPointer<LLUIImage> parseImage(std::string name, LLXMLNodePtr from, LLPointer<LLUIImage> def);
 	// Global instance used as default for member instance below.
 	static LLPointer<LLUIImage> sImage;
 	// Instances that by default point to the statics but can be overidden in XML.
@@ -341,10 +341,10 @@ private:
 			ed->mPrevText = mText;
 		}
 
-		LLString getText()   { return mText; }
+		std::string getText()   { return mText; }
 
 	private:
-		LLString mText;
+		std::string mText;
 		S32		mCursorPos;
 		S32		mScrollHPos;
 		BOOL	mIsSelecting;
@@ -362,10 +362,10 @@ private:
 class LLSearchEditor : public LLUICtrl
 {
 public:
-	LLSearchEditor(const LLString& name, 
+	LLSearchEditor(const std::string& name, 
 		const LLRect& rect,
 		S32 max_length_bytes,
-		void (*search_callback)(const LLString& search_string, void* user_data),
+		void (*search_callback)(const std::string& search_string, void* user_data),
 		void* userdata);
 
 	virtual ~LLSearchEditor() {}
@@ -376,13 +376,13 @@ public:
 
 	void setText(const LLStringExplicit &new_text) { mSearchEdit->setText(new_text); }
 
-	void setSearchCallback(void (*search_callback)(const LLString& search_string, void* user_data), void* data) { mSearchCallback = search_callback; mCallbackUserData = data; }
+	void setSearchCallback(void (*search_callback)(const std::string& search_string, void* user_data), void* data) { mSearchCallback = search_callback; mCallbackUserData = data; }
 
 	// LLUICtrl interface
 	virtual void	setValue(const LLSD& value );
 	virtual LLSD	getValue() const;
-	virtual BOOL	setTextArg(  const LLString& key, const LLStringExplicit& text );
-	virtual BOOL	setLabelArg( const LLString& key, const LLStringExplicit& text );
+	virtual BOOL	setTextArg( const std::string& key, const LLStringExplicit& text );
+	virtual BOOL	setLabelArg( const std::string& key, const LLStringExplicit& text );
 	virtual void	clear();
 
 private:
@@ -391,7 +391,7 @@ private:
 
 	LLLineEditor* mSearchEdit;
 	class LLButton* mClearSearchButton;
-	void (*mSearchCallback)(const LLString& search_string, void* user_data);
+	void (*mSearchCallback)(const std::string& search_string, void* user_data);
 
 };
 

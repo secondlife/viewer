@@ -59,7 +59,7 @@ static void onConfirmAlert(S32 option, void* data)
 }
 
 static void onConfirmAlertPassword(
-	S32 option, const LLString& text, void* data)
+	S32 option, const std::string& text, void* data)
 {
 	LLConfirmationManager::ListenerBase* listener
 		= (LLConfirmationManager::ListenerBase*)data;
@@ -77,7 +77,7 @@ void LLConfirmationManager::confirm(Type type,
 	const std::string& action,
 	ListenerBase* listener)
 {
-	LLString::format_map_t args;
+	LLStringUtil::format_map_t args;
 	args["[ACTION]"] = action;
 
 	switch (type)
@@ -91,7 +91,7 @@ void LLConfirmationManager::confirm(Type type,
 		  gViewerWindow->alertXmlEditText("ConfirmPurchasePassword", args,
 										  NULL, NULL,
 										  onConfirmAlertPassword, listener,
-										  LLString::format_map_t(),
+										  LLStringUtil::format_map_t(),
 										  TRUE);
 		  break;
 		case TYPE_NONE:

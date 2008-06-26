@@ -61,7 +61,7 @@ enum InventoryOfferResponse
 
 BOOL can_afford_transaction(S32 cost);
 void give_money(const LLUUID& uuid, LLViewerRegion* region, S32 amount, BOOL is_group = FALSE,
-				S32 trx_type = TRANS_GIFT, const LLString& desc = LLString::null);
+				S32 trx_type = TRANS_GIFT, const std::string& desc = LLStringUtil::null);
 void busy_message (LLMessageSystem* msg, LLUUID from_id);
 
 void process_logout_reply(LLMessageSystem* msg, void**);
@@ -139,13 +139,13 @@ void process_teleport_local(LLMessageSystem *msg,void**);
 void process_user_sim_location_reply(LLMessageSystem *msg,void**);
 
 void send_simple_im(const LLUUID& to_id,
-					const char* message,
+					const std::string& message,
 					EInstantMessage dialog = IM_NOTHING_SPECIAL,
 					const LLUUID& id = LLUUID::null);
 
 void send_group_notice(const LLUUID& group_id,
-					   const char* subject,
-					   const char* message,
+					   const std::string& subject,
+					   const std::string& message,
 					   const LLInventoryItem* item);
 
 void handle_lure(const LLUUID& invitee);
@@ -154,8 +154,8 @@ void handle_lure(LLDynamicArray<LLUUID>& ids);
 // always from gAgent and 
 // routes through the gAgent's current simulator
 void send_improved_im(const LLUUID& to_id,
-					const char* name,
-					const char* message,
+					const std::string& name,
+					const std::string& message,
 					U8 offline = IM_ONLINE,
 					EInstantMessage dialog = IM_NOTHING_SPECIAL,
 					const LLUUID& id = LLUUID::null,
@@ -165,18 +165,15 @@ void send_improved_im(const LLUUID& to_id,
 
 void process_user_info_reply(LLMessageSystem* msg, void**);
 
-// method to format the time. Buffer should be at least
-// TIME_STR_LENGTH long, and the function reutnrs buffer (for use in
-// sprintf and the like)
-const S32 TIME_STR_LENGTH = 30;
-char* formatted_time(const time_t& the_time, char* buffer);
+// method to format the time. 
+std::string formatted_time(const time_t& the_time);
 
 void send_places_query(const LLUUID& query_id,
 					   const LLUUID& trans_id,
-					   const char* query_text,
+					   const std::string& query_text,
 					   U32 query_flags,
 					   S32 category, 
-					   const char* sim_name);
+					   const std::string& sim_name);
 void process_script_dialog(LLMessageSystem* msg, void**);
 void process_load_url(LLMessageSystem* msg, void**);
 void process_script_teleport_request(LLMessageSystem* msg, void**);
@@ -185,12 +182,6 @@ void onCovenantLoadComplete(LLVFS *vfs,
 							const LLUUID& asset_uuid,
 							LLAssetType::EType type,
 							void* user_data, S32 status, LLExtStat ext_status);
-void callbackCacheEstateOwnerName(
-		const LLUUID& id,
-		const char* first,
-		const char* last,
-		BOOL is_group,
-		void*);
 
 // calling cards
 void process_offer_callingcard(LLMessageSystem* msg, void**);
@@ -214,8 +205,8 @@ struct LLOfferInfo
 	LLUUID mFolderID;
 	LLUUID mObjectID;
 	LLAssetType::EType mType;
-	LLString mFromName;
-	LLString mDesc;
+	std::string mFromName;
+	std::string mDesc;
 	LLHost mHost;
 };
 

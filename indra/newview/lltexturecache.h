@@ -83,7 +83,7 @@ public:
 	void purgeCache(ELLPath location);
 	S64 initCache(ELLPath location, S64 maxsize, BOOL read_only);
 
-	handle_t readFromCache(const LLString& local_filename, const LLUUID& id, U32 priority, S32 offset, S32 size,
+	handle_t readFromCache(const std::string& local_filename, const LLUUID& id, U32 priority, S32 offset, S32 size,
 						   ReadResponder* responder);
 
 	handle_t readFromCache(const LLUUID& id, U32 priority, S32 offset, S32 size,

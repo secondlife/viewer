@@ -69,7 +69,7 @@ LLKeywords::~LLKeywords()
 	std::for_each(mDelimiterTokenList.begin(), mDelimiterTokenList.end(), DeletePointer());
 }
 
-BOOL LLKeywords::loadFromFile( const LLString& filename )
+BOOL LLKeywords::loadFromFile( const std::string& filename )
 {
 	mLoaded = FALSE;
 
@@ -80,7 +80,7 @@ BOOL LLKeywords::loadFromFile( const LLString& filename )
 	char	buffer[BUFFER_SIZE];	/* Flawfinder: ignore */
 
 	llifstream file;
-	file.open(filename.c_str());	/* Flawfinder: ignore */
+	file.open(filename);	/* Flawfinder: ignore */
 	if( file.fail() )
 	{
 		llinfos << "LLKeywords::loadFromFile()  Unable to open file: " << filename << llendl;
@@ -106,52 +106,51 @@ BOOL LLKeywords::loadFromFile( const LLString& filename )
 	}
 
 	// start of line (SOL)
-	const char SOL_COMMENT[] = "#";
-	const char SOL_WORD[] = "[word ";
-	const char SOL_LINE[] = "[line ";
-	const char SOL_ONE_SIDED_DELIMITER[] = "[one_sided_delimiter ";
-	const char SOL_TWO_SIDED_DELIMITER[] = "[two_sided_delimiter ";
+	std::string SOL_COMMENT("#");
+	std::string SOL_WORD("[word ");
+	std::string SOL_LINE("[line ");
+	std::string SOL_ONE_SIDED_DELIMITER("[one_sided_delimiter ");
+	std::string SOL_TWO_SIDED_DELIMITER("[two_sided_delimiter ");
 
 	LLColor3 cur_color( 1, 0, 0 );
 	LLKeywordToken::TOKEN_TYPE cur_type = LLKeywordToken::WORD;
 
 	while (!file.eof())
 	{
+		buffer[0] = 0;
 		file.getline( buffer, BUFFER_SIZE );
-		if( !strncmp( buffer, SOL_COMMENT, strlen(SOL_COMMENT) ) )	/* Flawfinder: ignore */
+		std::string line(buffer);
+		if( line.find(SOL_COMMENT) == 0 )
 		{
 			continue;
 		}
-		else
-		if( !strncmp( buffer, SOL_WORD, strlen(SOL_WORD) ) )	/* Flawfinder: ignore */
+		else if( line.find(SOL_WORD) == 0 )
 		{
-			cur_color = readColor( buffer + strlen(SOL_WORD) );	/* Flawfinder: ignore */
+			cur_color = readColor( line.substr(SOL_WORD.size()) );
 			cur_type = LLKeywordToken::WORD;
 			continue;
 		}
-		else
-		if( !strncmp( buffer, SOL_LINE, strlen(SOL_LINE) ) )	/* Flawfinder: ignore */
+		else if( line.find(SOL_LINE) == 0 )
 		{
-			cur_color = readColor( buffer + strlen(SOL_LINE) );	/* Flawfinder: ignore */
+			cur_color = readColor( line.substr(SOL_LINE.size()) );
 			cur_type = LLKeywordToken::LINE;
 			continue;
 		}
-		else
-		if( !strncmp( buffer, SOL_TWO_SIDED_DELIMITER, strlen(SOL_TWO_SIDED_DELIMITER) ) )	/* Flawfinder: ignore */
+		else if( line.find(SOL_TWO_SIDED_DELIMITER) == 0 )
 		{
-			cur_color = readColor( buffer + strlen(SOL_TWO_SIDED_DELIMITER) );	/* Flawfinder: ignore */
+			cur_color = readColor( line.substr(SOL_TWO_SIDED_DELIMITER.size()) );
 			cur_type = LLKeywordToken::TWO_SIDED_DELIMITER;
 			continue;
 		}
-		if( !strncmp( buffer, SOL_ONE_SIDED_DELIMITER, strlen(SOL_ONE_SIDED_DELIMITER) ) )	/* Flawfinder: ignore */
+		else if( line.find(SOL_ONE_SIDED_DELIMITER) == 0 )	
 		{
-			cur_color = readColor( buffer + strlen(SOL_ONE_SIDED_DELIMITER) );	/* Flawfinder: ignore */
+			cur_color = readColor( line.substr(SOL_ONE_SIDED_DELIMITER.size()) );
 			cur_type = LLKeywordToken::ONE_SIDED_DELIMITER;
 			continue;
 		}
 
-		LLString token_buffer( buffer );
-		LLString::trim(token_buffer);
+		std::string token_buffer( line );
+		LLStringUtil::trim(token_buffer);
 		
 		typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
 		boost::char_separator<char> sep_word("", " \t");
@@ -161,26 +160,26 @@ BOOL LLKeywords::loadFromFile( const LLString& filename )
 		if( !token_buffer.empty() && token_word_iter != word_tokens.end() )
 		{
 			// first word is keyword
-			LLString keyword = (*token_word_iter);
-			LLString::trim(keyword);
+			std::string keyword = (*token_word_iter);
+			LLStringUtil::trim(keyword);
 
 			// following words are tooltip
-			LLString tool_tip;
+			std::string tool_tip;
 			while (++token_word_iter != word_tokens.end())
 			{
 				tool_tip += (*token_word_iter);
 			}
-			LLString::trim(tool_tip);
+			LLStringUtil::trim(tool_tip);
 			
 			if( !tool_tip.empty() )
 			{
 				// Replace : with \n for multi-line tool tips.
-				LLString::replaceChar( tool_tip, ':', '\n' );
+				LLStringUtil::replaceChar( tool_tip, ':', '\n' );
 				addToken(cur_type, keyword, cur_color, tool_tip );
 			}
 			else
 			{
-				addToken(cur_type, keyword, cur_color, NULL );
+				addToken(cur_type, keyword, cur_color, LLStringUtil::null );
 			}
 		}
 	}
@@ -193,9 +192,9 @@ BOOL LLKeywords::loadFromFile( const LLString& filename )
 
 // Add the token as described
 void LLKeywords::addToken(LLKeywordToken::TOKEN_TYPE type,
-						  const LLString& key_in,
+						  const std::string& key_in,
 						  const LLColor3& color,
-						  const LLString& tool_tip_in )
+						  const std::string& tool_tip_in )
 {
 	LLWString key = utf8str_to_wstring(key_in);
 	LLWString tool_tip = utf8str_to_wstring(tool_tip_in);
@@ -219,7 +218,7 @@ void LLKeywords::addToken(LLKeywordToken::TOKEN_TYPE type,
 	}
 }
 
-LLColor3 LLKeywords::readColor( const LLString& s )
+LLColor3 LLKeywords::readColor( const std::string& s )
 {
 	F32 r, g, b;
 	r = g = b = 0.0f;
@@ -296,7 +295,6 @@ void LLKeywords::findSegments(std::vector<LLTextSegment *>* seg_list, const LLWS
 						}
 						S32 seg_end = cur - base;
 						
-						//llinfos << "Seg: [" << (char*)LLString( base, seg_start, seg_end-seg_start) << "]" << llendl;
 						LLTextSegment* text_segment = new LLTextSegment( cur_token->getColor(), seg_start, seg_end );
 						text_segment->setToken( cur_token );
 						insertSegment( seg_list, text_segment, text_len, defaultColor);
@@ -406,7 +404,6 @@ void LLKeywords::findSegments(std::vector<LLTextSegment *>* seg_list, const LLWS
 					}
 
 
-					//llinfos << "Seg: [" << (char*)LLString( base, seg_start, seg_end-seg_start ) << "]" << llendl;
 					LLTextSegment* text_segment = new LLTextSegment( cur_delimiter->getColor(), seg_start, seg_end );
 					text_segment->setToken( cur_delimiter );
 					insertSegment( seg_list, text_segment, text_len, defaultColor);
@@ -518,7 +515,7 @@ void LLKeywordToken::dump()
 		mColor.mV[VX] << ", " <<
 		mColor.mV[VY] << ", " <<
 		mColor.mV[VZ] << "] [" <<
-		mToken.c_str() << "]" <<
+		wstring_to_utf8str(mToken) << "]" <<
 		llendl;
 }
 

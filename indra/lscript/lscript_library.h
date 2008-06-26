@@ -387,8 +387,10 @@ public:
 
 	LLScriptLibData(const LLUUID &id) : mType(LST_KEY), mInteger(0), mFP(0.f), mKey(NULL), mString(NULL), mVec(), mQuat(), mListp(NULL)
 	{
-		mKey = new char[UUID_STR_LENGTH];
-		id.toString(mKey);
+		std::string idstr;
+		id.toString(idstr);
+		mKey = new char[idstr.length()+1];
+		LLStringUtil::copy(mKey,idstr.c_str(),idstr.length()+1);
 	}
 
 	LLScriptLibData(const char *string) : mType(LST_STRING), mInteger(0), mFP(0.f), mKey(NULL), mString(NULL), mVec(), mQuat(), mListp(NULL)

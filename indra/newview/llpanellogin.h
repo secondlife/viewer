@@ -58,8 +58,8 @@ class LLLoginHandler : public LLCommandHandler
 	void parse(const LLSD& queryMap);
 
 	LLUUID mWebLoginKey;
-	LLString mFirstName;
-	LLString mLastName;
+	std::string mFirstName;
+	std::string mLastName;
 };
 
 extern LLLoginHandler gLoginHandler;
@@ -86,14 +86,14 @@ public:
 	static void setFields(const std::string& firstname, const std::string& lastname, 
 		const std::string& password, BOOL remember);
 
-	static void addServer(const char *server, S32 domain_name);
+	static void addServer(const std::string& server, S32 domain_name);
 	static void refreshLocation( bool force_visible );
 
-	static void getFields(LLString &firstname, LLString &lastname,
-		LLString &password, BOOL &remember);
+	static void getFields(std::string& firstname, std::string& lastname,
+						  std::string& password, BOOL& remember);
 
-	static BOOL getServer(LLString &server, S32& domain_name);
-	static void getLocation(LLString &location);
+	static BOOL getServer(std::string& server, S32& domain_name);
+	static void getLocation(std::string& location);
 
 	static void close();
 

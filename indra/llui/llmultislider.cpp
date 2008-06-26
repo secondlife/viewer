@@ -54,7 +54,7 @@ const S32 EXTRA_TRIANGLE_HEIGHT = -2;
 S32 LLMultiSlider::mNameCounter = 0;
 
 LLMultiSlider::LLMultiSlider( 
-	const LLString& name,
+	const std::string& name,
 	const LLRect& rect,
 	void (*on_commit_callback)(LLUICtrl* ctrl, void* userdata),
 	void* callback_userdata,
@@ -66,7 +66,7 @@ LLMultiSlider::LLMultiSlider(
 	BOOL allow_overlap,
 	BOOL draw_track,
 	BOOL use_triangle,
-	const LLString& control_name)
+	const std::string& control_name)
 	:
 	LLUICtrl( name, rect, TRUE,	on_commit_callback, callback_userdata, 
 		FOLLOWS_LEFT | FOLLOWS_TOP),
@@ -91,7 +91,7 @@ LLMultiSlider::LLMultiSlider(
 	mMouseUpCallback( NULL )
 {
 	mValue.emptyMap();
-	mCurSlider = LLString::null;
+	mCurSlider = LLStringUtil::null;
 
 	// properly handle setting the starting thumb rect
 	// do it this way to handle both the operating-on-settings
@@ -100,7 +100,7 @@ LLMultiSlider::LLMultiSlider(
 	setValue(getValue());
 }
 
-void LLMultiSlider::setSliderValue(const LLString& name, F32 value, BOOL from_event)
+void LLMultiSlider::setSliderValue(const std::string& name, F32 value, BOOL from_event)
 {
 	// exit if not there
 	if(!mValue.has(name)) {
@@ -174,30 +174,30 @@ void LLMultiSlider::setValue(const LLSD& value)
 	}
 }
 
-F32 LLMultiSlider::getSliderValue(const LLString& name) const
+F32 LLMultiSlider::getSliderValue(const std::string& name) const
 {
 	return (F32)mValue[name].asReal();
 }
 
-void LLMultiSlider::setCurSlider(const LLString& name)
+void LLMultiSlider::setCurSlider(const std::string& name)
 {
 	if(mValue.has(name)) {
 		mCurSlider = name;
 	}
 }
 
-const LLString& LLMultiSlider::addSlider()
+const std::string& LLMultiSlider::addSlider()
 {
 	return addSlider(mInitialValue);
 }
 
-const LLString& LLMultiSlider::addSlider(F32 val)
+const std::string& LLMultiSlider::addSlider(F32 val)
 {
 	std::stringstream newName;
 	F32 initVal = val;
 
 	if(mValue.size() >= mMaxNumSliders) {
-		return LLString::null;
+		return LLStringUtil::null;
 	}
 
 	// create a new name
@@ -206,7 +206,7 @@ const LLString& LLMultiSlider::addSlider(F32 val)
 
 	bool foundOne = findUnusedValue(initVal);
 	if(!foundOne) {
-		return LLString::null;
+		return LLStringUtil::null;
 	}
 
 	// add a new thumb rect
@@ -269,7 +269,7 @@ bool LLMultiSlider::findUnusedValue(F32& initVal)
 }
 
 
-void LLMultiSlider::deleteSlider(const LLString& name)
+void LLMultiSlider::deleteSlider(const std::string& name)
 {
 	// can't delete last slider
 	if(mValue.size() <= 0) {
@@ -282,7 +282,7 @@ void LLMultiSlider::deleteSlider(const LLString& name)
 
 	// set to the last created
 	if(mValue.size() > 0) {
-		std::map<LLString, LLRect>::iterator mIt = mThumbRects.end();
+		std::map<std::string, LLRect>::iterator mIt = mThumbRects.end();
 		mIt--;
 		mCurSlider = mIt->first;
 	}
@@ -365,7 +365,7 @@ BOOL LLMultiSlider::handleMouseDown(S32 x, S32 y, MASK mask)
 	else
 	{
 		// scroll through thumbs to see if we have a new one selected and select that one
-		std::map<LLString, LLRect>::iterator mIt = mThumbRects.begin();
+		std::map<std::string, LLRect>::iterator mIt = mThumbRects.begin();
 		for(; mIt != mThumbRects.end(); mIt++) {
 			
 			// check if inside.  If so, set current slider and continue
@@ -425,8 +425,8 @@ void LLMultiSlider::draw()
 {
 	LLColor4 curThumbColor;
 
-	std::map<LLString, LLRect>::iterator mIt;
-	std::map<LLString, LLRect>::iterator curSldrIt;
+	std::map<std::string, LLRect>::iterator mIt;
+	std::map<std::string, LLRect>::iterator curSldrIt;
 
 	// Draw background and thumb.
 
@@ -582,7 +582,7 @@ LLXMLNodePtr LLMultiSlider::getXML(bool save_children) const
 //static
 LLView* LLMultiSlider::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory)
 {
-	LLString name("multi_slider_bar");
+	std::string name("multi_slider_bar");
 	node->getAttributeString("name", name);
 
 	LLRect rect;

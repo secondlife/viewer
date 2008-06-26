@@ -52,18 +52,18 @@ LLViewChildren::LLViewChildren(LLPanel& parent)
 }
 
 
-void LLViewChildren::show(const char* id, bool visible)
+void LLViewChildren::show(const std::string& id, bool visible)
 {
 	mParent.childSetVisible(id, visible);
 }
 
-void LLViewChildren::enable(const char* id, bool enabled)
+void LLViewChildren::enable(const std::string& id, bool enabled)
 {
 	mParent.childSetEnabled(id, enabled);
 }
 
 void LLViewChildren::setText(
-	const char* id, const std::string& text, bool visible)
+	const std::string& id, const std::string& text, bool visible)
 {
 	LLTextBox* child = mParent.getChild<LLTextBox>(id);
 	if (child)
@@ -74,7 +74,7 @@ void LLViewChildren::setText(
 }
 
 void LLViewChildren::setWrappedText(
-	const char* id, const std::string& text, bool visible)
+	const std::string& id, const std::string& text, bool visible)
 {
 	LLTextBox* child = mParent.getChild<LLTextBox>(id);
 	if (child)
@@ -84,7 +84,7 @@ void LLViewChildren::setWrappedText(
 	}
 }
 
-void LLViewChildren::setBadge(const char* id, Badge badge, bool visible)
+void LLViewChildren::setBadge(const std::string& id, Badge badge, bool visible)
 {
 	LLIconCtrl* child = mParent.getChild<LLIconCtrl>(id);
 	if (child)
@@ -93,15 +93,15 @@ void LLViewChildren::setBadge(const char* id, Badge badge, bool visible)
 		switch (badge)
 		{
 			default:
-			case BADGE_OK:		child->setImage("badge_ok.j2c");	break;
-			case BADGE_NOTE:	child->setImage("badge_note.j2c");	break;
-			case BADGE_WARN:	child->setImage("badge_warn.j2c");	break;
-			case BADGE_ERROR:	child->setImage("badge_error.j2c");	break;
+			case BADGE_OK:		child->setImage(std::string("badge_ok.j2c"));	break;
+			case BADGE_NOTE:	child->setImage(std::string("badge_note.j2c"));	break;
+			case BADGE_WARN:	child->setImage(std::string("badge_warn.j2c"));	break;
+			case BADGE_ERROR:	child->setImage(std::string("badge_error.j2c"));	break;
 		}
 	}
 }
 
-void LLViewChildren::setAction(const char* id,
+void LLViewChildren::setAction(const std::string& id,
 	void(*function)(void*), void* value)
 {
 	LLButton* button = mParent.getChild<LLButton>(id);

@@ -66,7 +66,7 @@ std::set<std::string> LLFloaterWindLight::sDefaultPresets;
 
 static const F32 WL_SUN_AMBIENT_SLIDER_SCALE = 3.0f;
 
-LLFloaterWindLight::LLFloaterWindLight() : LLFloater("windlight floater")
+LLFloaterWindLight::LLFloaterWindLight() : LLFloater(std::string("windlight floater"))
 {
 	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_windlight_options.xml");
 	
@@ -83,21 +83,21 @@ LLFloaterWindLight::LLFloaterWindLight() : LLFloater("windlight floater")
 		}
 
 		// entry for when we're in estate time
-		comboBox->add("");
+		comboBox->add(LLStringUtil::null);
 
 		// set defaults on combo boxes
 		comboBox->selectByValue(LLSD("Default"));
 	}
 
 	// add the list of presets
-	LLString def_days = getString("WLDefaultSkyNames");
+	std::string def_days = getString("WLDefaultSkyNames");
 
 	// no editing or deleting of the blank string
 	sDefaultPresets.insert("");
 	boost_tokenizer tokens(def_days, boost::char_separator<char>(":"));
 	for (boost_tokenizer::iterator token_iter = tokens.begin(); token_iter != tokens.end(); ++token_iter)
 	{
-		LLString tok(*token_iter);
+		std::string tok(*token_iter);
 		sDefaultPresets.insert(tok);
 	}
 
@@ -233,8 +233,8 @@ void LLFloaterWindLight::onClickHelp(void* data)
 {
 	LLFloaterWindLight* self = LLFloaterWindLight::instance();
 
-	const char* xml_alert = (const char*) data;
-	LLAlertDialog* dialogp = gViewerWindow->alertXml(xml_alert);
+	const std::string* xml_alert = (std::string*)data;
+	LLAlertDialog* dialogp = gViewerWindow->alertXml(*xml_alert);
 	if (dialogp)
 	{
 		LLFloater* root_floater = gFloaterView->getParentFloater(self);
@@ -243,15 +243,15 @@ void LLFloaterWindLight::onClickHelp(void* data)
 			root_floater->addDependentFloater(dialogp);
 		}
 	}		
-	
+	delete xml_alert;
 }
 
-void LLFloaterWindLight::initHelpBtn(const char* name, const char* xml_alert)
+void LLFloaterWindLight::initHelpBtn(const std::string& name, const std::string& xml_alert)
 {
-	childSetAction(name, onClickHelp, (void*)xml_alert);
+	childSetAction(name, onClickHelp, new std::string(xml_alert));
 }
 
-void LLFloaterWindLight::newPromptCallback(S32 option, const LLString& text, void* userData)
+void LLFloaterWindLight::newPromptCallback(S32 option, const std::string& text, void* userData)
 {
 	if(text == "")
 	{
@@ -274,12 +274,12 @@ void LLFloaterWindLight::newPromptCallback(S32 option, const LLString& text, voi
 		// add the current parameters to the list
 		// see if it's there first
 		std::map<std::string, LLWLParamSet>::iterator mIt = 
-			LLWLParamManager::instance()->mParamList.find(text.c_str());
+			LLWLParamManager::instance()->mParamList.find(text);
 
 		// if not there, add a new one
 		if(mIt == LLWLParamManager::instance()->mParamList.end()) 
 		{
-			LLWLParamManager::instance()->addParamSet(text.c_str(), 
+			LLWLParamManager::instance()->addParamSet(text, 
 				LLWLParamManager::instance()->mCurParams);
 			comboBox->add(text);
 			comboBox->sortByName();
@@ -290,7 +290,7 @@ void LLFloaterWindLight::newPromptCallback(S32 option, const LLString& text, voi
 			{
 				comboBox->remove(0);
 			}
-			comboBox->add("");
+			comboBox->add(LLStringUtil::null);
 
 			comboBox->setSelectedByValue(text, true);
 			if(LLFloaterDayCycle::isOpen()) 
@@ -319,7 +319,7 @@ void LLFloaterWindLight::syncMenu()
 	//std::map<std::string, LLVector4> & currentParams = param_mgr->mCurParams.mParamValues;
 
 	// blue horizon
-	param_mgr->mBlueHorizon = currentParams.getVector(param_mgr->mBlueHorizon.name, err);
+	param_mgr->mBlueHorizon = currentParams.getVector(param_mgr->mBlueHorizon.mName, err);
 	childSetValue("WLBlueHorizonR", param_mgr->mBlueHorizon.r / 2.0);
 	childSetValue("WLBlueHorizonG", param_mgr->mBlueHorizon.g / 2.0);
 	childSetValue("WLBlueHorizonB", param_mgr->mBlueHorizon.b / 2.0);
@@ -329,18 +329,18 @@ void LLFloaterWindLight::syncMenu()
 				param_mgr->mBlueHorizon.b / 2.0)));
 
 	// haze density, horizon, mult, and altitude
-	param_mgr->mHazeDensity = currentParams.getVector(param_mgr->mHazeDensity.name, err);
+	param_mgr->mHazeDensity = currentParams.getVector(param_mgr->mHazeDensity.mName, err);
 	childSetValue("WLHazeDensity", param_mgr->mHazeDensity.r);
-	param_mgr->mHazeHorizon = currentParams.getVector(param_mgr->mHazeHorizon.name, err);
+	param_mgr->mHazeHorizon = currentParams.getVector(param_mgr->mHazeHorizon.mName, err);
 	childSetValue("WLHazeHorizon", param_mgr->mHazeHorizon.r);
-	param_mgr->mDensityMult = currentParams.getVector(param_mgr->mDensityMult.name, err);
+	param_mgr->mDensityMult = currentParams.getVector(param_mgr->mDensityMult.mName, err);
 	childSetValue("WLDensityMult", param_mgr->mDensityMult.x * 
 		param_mgr->mDensityMult.mult);
-	param_mgr->mMaxAlt = currentParams.getVector(param_mgr->mMaxAlt.name, err);
+	param_mgr->mMaxAlt = currentParams.getVector(param_mgr->mMaxAlt.mName, err);
 	childSetValue("WLMaxAltitude", param_mgr->mMaxAlt.x);
 
 	// blue density
-	param_mgr->mBlueDensity = currentParams.getVector(param_mgr->mBlueDensity.name, err);
+	param_mgr->mBlueDensity = currentParams.getVector(param_mgr->mBlueDensity.mName, err);
 	childSetValue("WLBlueDensityR", param_mgr->mBlueDensity.r / 2.0);
 	childSetValue("WLBlueDensityG", param_mgr->mBlueDensity.g / 2.0);
 	childSetValue("WLBlueDensityB", param_mgr->mBlueDensity.b / 2.0);
@@ -351,7 +351,7 @@ void LLFloaterWindLight::syncMenu()
 	// Lighting
 	
 	// sunlight
-	param_mgr->mSunlight = currentParams.getVector(param_mgr->mSunlight.name, err);
+	param_mgr->mSunlight = currentParams.getVector(param_mgr->mSunlight.mName, err);
 	childSetValue("WLSunlightR", param_mgr->mSunlight.r / WL_SUN_AMBIENT_SLIDER_SCALE);
 	childSetValue("WLSunlightG", param_mgr->mSunlight.g / WL_SUN_AMBIENT_SLIDER_SCALE);
 	childSetValue("WLSunlightB", param_mgr->mSunlight.b / WL_SUN_AMBIENT_SLIDER_SCALE);
@@ -360,12 +360,12 @@ void LLFloaterWindLight::syncMenu()
 		std::max(param_mgr->mSunlight.g / WL_SUN_AMBIENT_SLIDER_SCALE, param_mgr->mSunlight.b / WL_SUN_AMBIENT_SLIDER_SCALE)));
 
 	// glow
-	param_mgr->mGlow = currentParams.getVector(param_mgr->mGlow.name, err);
+	param_mgr->mGlow = currentParams.getVector(param_mgr->mGlow.mName, err);
 	childSetValue("WLGlowR", 2 - param_mgr->mGlow.r / 20.0f);
 	childSetValue("WLGlowB", -param_mgr->mGlow.b / 5.0f);
 		
 	// ambient
-	param_mgr->mAmbient = currentParams.getVector(param_mgr->mAmbient.name, err);
+	param_mgr->mAmbient = currentParams.getVector(param_mgr->mAmbient.mName, err);
 	childSetValue("WLAmbientR", param_mgr->mAmbient.r / WL_SUN_AMBIENT_SLIDER_SCALE);
 	childSetValue("WLAmbientG", param_mgr->mAmbient.g / WL_SUN_AMBIENT_SLIDER_SCALE);
 	childSetValue("WLAmbientB", param_mgr->mAmbient.b / WL_SUN_AMBIENT_SLIDER_SCALE);
@@ -379,7 +379,7 @@ void LLFloaterWindLight::syncMenu()
 	// Clouds
 
 	// Cloud Color
-	param_mgr->mCloudColor = currentParams.getVector(param_mgr->mCloudColor.name, err);
+	param_mgr->mCloudColor = currentParams.getVector(param_mgr->mCloudColor.mName, err);
 	childSetValue("WLCloudColorR", param_mgr->mCloudColor.r);
 	childSetValue("WLCloudColorG", param_mgr->mCloudColor.g);
 	childSetValue("WLCloudColorB", param_mgr->mCloudColor.b);
@@ -388,20 +388,20 @@ void LLFloaterWindLight::syncMenu()
 		std::max(param_mgr->mCloudColor.g, param_mgr->mCloudColor.b)));
 
 	// Cloud
-	param_mgr->mCloudMain = currentParams.getVector(param_mgr->mCloudMain.name, err);
+	param_mgr->mCloudMain = currentParams.getVector(param_mgr->mCloudMain.mName, err);
 	childSetValue("WLCloudX", param_mgr->mCloudMain.r);
 	childSetValue("WLCloudY", param_mgr->mCloudMain.g);
 	childSetValue("WLCloudDensity", param_mgr->mCloudMain.b);
 
 	// Cloud Detail
-	param_mgr->mCloudDetail = currentParams.getVector(param_mgr->mCloudDetail.name, err);
+	param_mgr->mCloudDetail = currentParams.getVector(param_mgr->mCloudDetail.mName, err);
 	childSetValue("WLCloudDetailX", param_mgr->mCloudDetail.r);
 	childSetValue("WLCloudDetailY", param_mgr->mCloudDetail.g);
 	childSetValue("WLCloudDetailDensity", param_mgr->mCloudDetail.b);
 
 	// Cloud extras
-	param_mgr->mCloudCoverage = currentParams.getVector(param_mgr->mCloudCoverage.name, err);
-	param_mgr->mCloudScale = currentParams.getVector(param_mgr->mCloudScale.name, err);
+	param_mgr->mCloudCoverage = currentParams.getVector(param_mgr->mCloudCoverage.mName, err);
+	param_mgr->mCloudScale = currentParams.getVector(param_mgr->mCloudScale.mName, err);
 	childSetValue("WLCloudCoverage", param_mgr->mCloudCoverage.x);
 	childSetValue("WLCloudScale", param_mgr->mCloudScale.x);
 
@@ -430,12 +430,12 @@ void LLFloaterWindLight::syncMenu()
 	childSetValue("WLCloudScrollX", param_mgr->mCurParams.getCloudScrollX() - 10.0f);
 	childSetValue("WLCloudScrollY", param_mgr->mCurParams.getCloudScrollY() - 10.0f);
 
-	param_mgr->mDistanceMult = currentParams.getVector(param_mgr->mDistanceMult.name, err);
+	param_mgr->mDistanceMult = currentParams.getVector(param_mgr->mDistanceMult.mName, err);
 	childSetValue("WLDistanceMult", param_mgr->mDistanceMult.x);
 
 	// Tweak extras
 
-	param_mgr->mWLGamma = currentParams.getVector(param_mgr->mWLGamma.name, err);
+	param_mgr->mWLGamma = currentParams.getVector(param_mgr->mWLGamma.mName, err);
 	childSetValue("WLGamma", param_mgr->mWLGamma.x);
 
 	childSetValue("WLStarAlpha", param_mgr->mCurParams.getStarBrightness());
@@ -653,24 +653,24 @@ void LLFloaterWindLight::onColorControlIMoved(LLUICtrl* ctrl, void* userData)
 		// divide sun color vals by three
 		if(colorControl->isSunOrAmbientColor) 
 		{
-			sWindLight->childSetValue(rName.c_str(), colorControl->r/3);
-			sWindLight->childSetValue(gName.c_str(), colorControl->g/3);
-			sWindLight->childSetValue(bName.c_str(), colorControl->b/3);	
+			sWindLight->childSetValue(rName, colorControl->r/3);
+			sWindLight->childSetValue(gName, colorControl->g/3);
+			sWindLight->childSetValue(bName, colorControl->b/3);	
 		
 		} 
 		else if(colorControl->isBlueHorizonOrDensity) 
 		{
-			sWindLight->childSetValue(rName.c_str(), colorControl->r/2);
-			sWindLight->childSetValue(gName.c_str(), colorControl->g/2);
-			sWindLight->childSetValue(bName.c_str(), colorControl->b/2);	
+			sWindLight->childSetValue(rName, colorControl->r/2);
+			sWindLight->childSetValue(gName, colorControl->g/2);
+			sWindLight->childSetValue(bName, colorControl->b/2);	
 		
 		} 
 		else 
 		{
 			// set the sliders to the new vals
-			sWindLight->childSetValue(rName.c_str(), colorControl->r);
-			sWindLight->childSetValue(gName.c_str(), colorControl->g);
-			sWindLight->childSetValue(bName.c_str(), colorControl->b);
+			sWindLight->childSetValue(rName, colorControl->r);
+			sWindLight->childSetValue(gName, colorControl->g);
+			sWindLight->childSetValue(bName, colorControl->b);
 		}
 	}
 
@@ -785,7 +785,7 @@ void LLFloaterWindLight::onStarAlphaMoved(LLUICtrl* ctrl, void* userData)
 
 void LLFloaterWindLight::onNewPreset(void* userData)
 {
-	gViewerWindow->alertXmlEditText("NewSkyPreset", LLString::format_map_t(), 
+	gViewerWindow->alertXmlEditText("NewSkyPreset", LLStringUtil::format_map_t(), 
 		NULL, NULL, newPromptCallback, NULL);
 }
 
@@ -803,7 +803,7 @@ void LLFloaterWindLight::onSavePreset(void* userData)
 
 	// check to see if it's a default and shouldn't be overwritten
 	std::set<std::string>::iterator sIt = sDefaultPresets.find(
-		comboBox->getSelectedItemLabel().c_str());
+		comboBox->getSelectedItemLabel());
 	if(sIt != sDefaultPresets.end() && !gSavedSettings.getBOOL("SkyEditPresets")) 
 	{
 		gViewerWindow->alertXml("WLNoEditDefault");
@@ -841,7 +841,7 @@ void LLFloaterWindLight::onDeletePreset(void* userData)
 		return;
 	}
 
-	LLString::format_map_t args;
+	LLStringUtil::format_map_t args;
 	args["[SKY]"] = combo_box->getSelectedValue().asString();
 	gViewerWindow->alertXml("WLDeletePresetAlert", args, deleteAlertCallback, sWindLight);
 }
@@ -865,10 +865,10 @@ void LLFloaterWindLight::deleteAlertCallback(S32 option, void* userdata)
 			mult_sldr = day_cycle->getChild<LLMultiSliderCtrl>("WLDayCycleKeys");
 		}
 
-		LLString name(combo_box->getSelectedValue().asString());
+		std::string name(combo_box->getSelectedValue().asString());
 
 		// check to see if it's a default and shouldn't be deleted
-		std::set<std::string>::iterator sIt = sDefaultPresets.find(name.c_str());
+		std::set<std::string>::iterator sIt = sDefaultPresets.find(name);
 		if(sIt != sDefaultPresets.end()) 
 		{
 			gViewerWindow->alertXml("WLNoEditDefault");

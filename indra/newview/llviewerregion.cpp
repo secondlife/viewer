@@ -276,12 +276,9 @@ void LLViewerRegion::loadCache()
 
 	LLVOCacheEntry *entry;
 
-	char filename[256];		/* Flawfinder: ignore */
-	snprintf(filename, sizeof(filename), "%s%sobjects_%d_%d.slc", 		/* Flawfinder: ignore */
-		gDirUtilp->getExpandedFilename(LL_PATH_CACHE,"").c_str(), 
-		gDirUtilp->getDirDelimiter().c_str(),
-		U32(mHandle>>32)/REGION_WIDTH_UNITS, 
-		U32(mHandle)/REGION_WIDTH_UNITS );
+	std::string filename;
+	filename = gDirUtilp->getExpandedFilename(LL_PATH_CACHE,"") + gDirUtilp->getDirDelimiter() +
+		llformat("objects_%d_%d.slc",U32(mHandle>>32)/REGION_WIDTH_UNITS, U32(mHandle)/REGION_WIDTH_UNITS );
 
 	LLFILE* fp = LLFile::fopen(filename, "rb");		/* Flawfinder: ignore */
 	if (!fp)
@@ -365,12 +362,9 @@ void LLViewerRegion::saveCache()
 		return;
 	}
 
-	char filename[256];		/* Flawfinder: ignore */
-	snprintf(filename, sizeof(filename), "%s%sobjects_%d_%d.slc", 		/* Flawfinder: ignore */
-		gDirUtilp->getExpandedFilename(LL_PATH_CACHE,"").c_str(), 
-		gDirUtilp->getDirDelimiter().c_str(),
-		U32(mHandle>>32)/REGION_WIDTH_UNITS, 
-		U32(mHandle)/REGION_WIDTH_UNITS );
+	std::string filename;
+	filename = gDirUtilp->getExpandedFilename(LL_PATH_CACHE,"") + gDirUtilp->getDirDelimiter() +
+		llformat("sobjects_%d_%d.slc", U32(mHandle>>32)/REGION_WIDTH_UNITS, U32(mHandle)/REGION_WIDTH_UNITS );
 
 	LLFILE* fp = LLFile::fopen(filename, "wb");		/* Flawfinder: ignore */
 	if (!fp)
@@ -495,9 +489,8 @@ LLVector3 LLViewerRegion::getCenterAgent() const
 	return gAgent.getPosAgentFromGlobal(mCenterGlobal);
 }
 
-void LLViewerRegion::setRegionNameAndZone(const char* name_and_zone)
+void LLViewerRegion::setRegionNameAndZone	(const std::string& name_zone)
 {
-	LLString name_zone(name_and_zone);
 	std::string::size_type pipe_pos = name_zone.find('|');
 	S32 length   = name_zone.size();
 	if (pipe_pos != std::string::npos)
@@ -511,8 +504,8 @@ void LLViewerRegion::setRegionNameAndZone(const char* name_and_zone)
 		mZoning = "";
 	}
 
-	LLString::stripNonprintable(mName);
-	LLString::stripNonprintable(mZoning);
+	LLStringUtil::stripNonprintable(mName);
+	LLStringUtil::stripNonprintable(mZoning);
 }
 
 BOOL LLViewerRegion::canManageEstate() const
@@ -522,7 +515,7 @@ BOOL LLViewerRegion::canManageEstate() const
 		|| gAgent.getID() == getOwner();
 }
 
-const char* LLViewerRegion::getSimAccessString() const
+const std::string LLViewerRegion::getSimAccessString() const
 {
 	return accessToString(mSimAccess);
 }
@@ -554,9 +547,9 @@ const char* SIM_ACCESS_STR[] = { "Free Trial",
 						   "Unknown" };
 							
 // static
-const char* LLViewerRegion::accessToString(U8 access)		/* Flawfinder: ignore */
+std::string LLViewerRegion::accessToString(U8 sim_access)
 {
-	switch(access)		/* Flawfinder: ignore */
+	switch(sim_access)
 	{
 	case SIM_ACCESS_TRIAL:
 		return SIM_ACCESS_STR[0];
@@ -577,28 +570,28 @@ const char* LLViewerRegion::accessToString(U8 access)		/* Flawfinder: ignore */
 }
 
 // static
-U8 LLViewerRegion::stringToAccess(const char* access_str)
+U8 LLViewerRegion::stringToAccess(const std::string& access_str)
 {
-	U8 access = SIM_ACCESS_MIN;
-	if (0 == strcmp(access_str, SIM_ACCESS_STR[0]))
+	U8 sim_access = SIM_ACCESS_MIN;
+	if (access_str == SIM_ACCESS_STR[0])
 	{
-		access = SIM_ACCESS_TRIAL;
+		sim_access = SIM_ACCESS_TRIAL;
 	}
-	else if (0 == strcmp(access_str, SIM_ACCESS_STR[1]))
+	else if (access_str == SIM_ACCESS_STR[1])
 	{
-		access = SIM_ACCESS_PG;
+		sim_access = SIM_ACCESS_PG;
 	}
-	else if (0 == strcmp(access_str, SIM_ACCESS_STR[2]))
+	else if (access_str == SIM_ACCESS_STR[2])
 	{
-		access = SIM_ACCESS_MATURE;
+		sim_access = SIM_ACCESS_MATURE;
 	}
-	return access;		/* Flawfinder: ignore */
+	return sim_access;
 }
 
 // static
-const char* LLViewerRegion::accessToShortString(U8 access)		/* Flawfinder: ignore */
+std::string LLViewerRegion::accessToShortString(U8 sim_access)
 {
-	switch(access)		/* Flawfinder: ignore */
+	switch(sim_access)		/* Flawfinder: ignore */
 	{
 	case SIM_ACCESS_PG:
 		return "PG";
@@ -1277,10 +1270,9 @@ void LLViewerRegion::unpackRegionHandshake()
 {
 	LLMessageSystem *msg = gMessageSystem;
 
-	const S32 SIM_NAME_BUF = 256;
 	U32 region_flags;
 	U8 sim_access;
-	char sim_name[SIM_NAME_BUF];		/* Flawfinder: ignore */
+	std::string sim_name;
 	LLUUID sim_owner;
 	BOOL is_estate_manager;
 	F32 water_height;
@@ -1289,7 +1281,7 @@ void LLViewerRegion::unpackRegionHandshake()
 
 	msg->getU32		("RegionInfo", "RegionFlags", region_flags);
 	msg->getU8		("RegionInfo", "SimAccess", sim_access);
-	msg->getString	("RegionInfo", "SimName", SIM_NAME_BUF, sim_name);
+	msg->getString	("RegionInfo", "SimName", sim_name);
 	msg->getUUID	("RegionInfo", "SimOwner", sim_owner);
 	msg->getBOOL	("RegionInfo", "IsEstateManager", is_estate_manager);
 	msg->getF32		("RegionInfo", "WaterHeight", water_height);

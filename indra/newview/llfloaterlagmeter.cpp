@@ -45,12 +45,12 @@
 #include "llfocusmgr.h"
 #include "lltextbox.h"
 
-const LLString LAG_CRITICAL_IMAGE_NAME = "lag_status_critical.tga";
-const LLString LAG_WARNING_IMAGE_NAME  = "lag_status_warning.tga";
-const LLString LAG_GOOD_IMAGE_NAME     = "lag_status_good.tga";
+const std::string LAG_CRITICAL_IMAGE_NAME = "lag_status_critical.tga";
+const std::string LAG_WARNING_IMAGE_NAME  = "lag_status_warning.tga";
+const std::string LAG_GOOD_IMAGE_NAME     = "lag_status_good.tga";
 
 LLFloaterLagMeter::LLFloaterLagMeter(const LLSD& key)
-	:	LLFloater("floater_lagmeter")
+	:	LLFloater(std::string("floater_lagmeter"))
 {
 	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_lagmeter.xml");
 
@@ -70,7 +70,7 @@ LLFloaterLagMeter::LLFloaterLagMeter(const LLSD& key)
 	mServerText = getChild<LLTextBox>("server_text");
 	mServerCause = getChild<LLTextBox>("server_lag_cause");
 
-	LLString config_string = getString("client_frame_rate_critical_fps", mStringArgs);
+	std::string config_string = getString("client_frame_rate_critical_fps", mStringArgs);
 	mClientFrameTimeCritical = 1.0f / (float)atof( config_string.c_str() );
 	config_string = getString("client_frame_rate_warning_fps", mStringArgs);
 	mClientFrameTimeWarning = 1.0f / (float)atof( config_string.c_str() );
@@ -152,7 +152,7 @@ void LLFloaterLagMeter::determineClient()
 	{
 		mClientButton->setImageUnselected(LAG_GOOD_IMAGE_NAME);
 		mClientText->setText( getString("client_frame_time_window_bg_msg", mStringArgs) );
-		mClientCause->setText( LLString::null );
+		mClientCause->setText( LLStringUtil::null );
 	}
 	else if(client_frame_time >= mClientFrameTimeCritical)
 	{
@@ -170,7 +170,7 @@ void LLFloaterLagMeter::determineClient()
 	{
 		mClientButton->setImageUnselected(LAG_GOOD_IMAGE_NAME);
 		mClientText->setText( getString("client_frame_time_normal_msg", mStringArgs) );
-		mClientCause->setText( LLString::null );
+		mClientCause->setText( LLStringUtil::null );
 	}	
 
 	if(find_cause)
@@ -241,7 +241,7 @@ void LLFloaterLagMeter::determineNetwork()
 	}
 	else
 	{
-		mNetworkCause->setText( LLString::null );
+		mNetworkCause->setText( LLStringUtil::null );
 	}
 }
 
@@ -266,7 +266,7 @@ void LLFloaterLagMeter::determineServer()
 	{
 		mServerButton->setImageUnselected(LAG_GOOD_IMAGE_NAME);
 		mServerText->setText( getString("server_frame_time_normal_msg", mStringArgs) );
-		mServerCause->setText( LLString::null );
+		mServerCause->setText( LLStringUtil::null );
 	}	
 
 	if(find_cause)

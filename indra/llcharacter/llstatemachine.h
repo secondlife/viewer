@@ -115,7 +115,7 @@ protected:
 
 public:
 	// save the graph in a DOT file for rendering and visualization
-	BOOL saveDotFile(const char* filename);
+	BOOL saveDotFile(const std::string& filename);
 };
 
 class LLStateMachine

@@ -54,8 +54,8 @@ protected:
 protected:
 	BOOL        mIsAudio;
 
-	LLString		mFilenameAndPath;
-	LLString		mFilename;
+	std::string		mFilenameAndPath;
+	std::string		mFilename;
 
 	static void		onBtnOK(void*);
 	static void		onBtnCancel(void*);

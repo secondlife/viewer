@@ -176,7 +176,7 @@ void LLViewerLogin::setGridChoice(const std::string& grid_name)
         int grid_index = GRID_INFO_NONE; 
         for(;grid_index < GRID_INFO_OTHER; ++grid_index)
         {
-            if(0 == LLString::compareInsensitive(gGridInfo[grid_index].mLabel, grid_name.c_str()))
+            if(0 == LLStringUtil::compareInsensitive(gGridInfo[grid_index].mLabel, grid_name))
             {
 				// Founding a matching label in the list...
 				setGridChoice((EGridInfo)grid_index);
@@ -301,7 +301,7 @@ bool LLViewerLogin::isInProductionGrid()
 	// but it seems that loginURI trumps that.
 	std::vector<std::string> uris;
 	getLoginURIs(uris);
-	LLString::toLower(uris[0]);
+	LLStringUtil::toLower(uris[0]);
 	if((uris[0].find("agni") != std::string::npos))
 	{
 		return true;

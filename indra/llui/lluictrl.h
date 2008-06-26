@@ -69,7 +69,7 @@ public:
 	typedef BOOL (*LLUICtrlValidate)(LLUICtrl* ctrl, void* userdata);
 
 	LLUICtrl();
-	LLUICtrl( const LLString& name, const LLRect& rect, BOOL mouse_opaque,
+	LLUICtrl( const std::string& name, const LLRect& rect, BOOL mouse_opaque,
 		LLUICtrlCallback callback,
 		void* callback_userdata,
 		U32 reshape=FOLLOWS_NONE);
@@ -78,7 +78,7 @@ public:
 	// LLView interface
 	/*virtual*/ void	initFromXML(LLXMLNodePtr node, LLView* parent);
 	/*virtual*/ LLXMLNodePtr getXML(bool save_children = true) const;
-	/*virtual*/ BOOL	setLabelArg( const LLString& key, const LLStringExplicit& text );
+	/*virtual*/ BOOL	setLabelArg( const std::string& key, const LLStringExplicit& text );
 	/*virtual*/ void	onFocusReceived();
 	/*virtual*/ void	onFocusLost();
 	/*virtual*/ BOOL	isCtrl() const;
@@ -97,7 +97,7 @@ public:
 	virtual class LLCtrlScrollInterface* getScrollInterface();
 
 	virtual LLSD	getValue() const;
-	virtual BOOL	setTextArg(  const LLString& key, const LLStringExplicit& text );
+	virtual BOOL	setTextArg(  const std::string& key, const LLStringExplicit& text );
 	virtual void	setIsChrome(BOOL is_chrome);
 
 	virtual BOOL	acceptsTextInput() const; // Defaults to false

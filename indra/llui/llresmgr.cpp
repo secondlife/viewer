@@ -292,7 +292,7 @@ std::string LLResMgr::getMonetaryString( S32 input ) const
 	BOOL negative_before = negative && (conv->n_sign_posn != 2);
 	BOOL negative_after = negative && (conv->n_sign_posn == 2);
 
-	LLString digits = llformat("%u", abs(input));
+	std::string digits = llformat("%u", abs(input));
 	if( !grouping || !grouping[0] )
 	{
 		if( negative_before )
@@ -378,10 +378,10 @@ std::string LLResMgr::getMonetaryString( S32 input ) const
 	return output;
 }
 
-void LLResMgr::getIntegerString( LLString& output, S32 input ) const
+void LLResMgr::getIntegerString( std::string& output, S32 input ) const
 {
 	S32 fraction = 0;
-	LLString fraction_string;
+	std::string fraction_string;
 	S32 remaining_count = input;
 	while(remaining_count > 0)
 	{
@@ -415,16 +415,16 @@ void LLResMgr::getIntegerString( LLString& output, S32 input ) const
 	}
 }
 
-const LLString LLFONT_ID_NAMES[] =
+const std::string LLFONT_ID_NAMES[] =
 {
-	LLString("OCRA"),
-	LLString("SANSSERIF"),
-	LLString("SANSSERIF_SMALL"),
-	LLString("SANSSERIF_BIG"),
-	LLString("SMALL"),
+	std::string("OCRA"),
+	std::string("SANSSERIF"),
+	std::string("SANSSERIF_SMALL"),
+	std::string("SANSSERIF_BIG"),
+	std::string("SMALL"),
 };
 
-const LLFontGL* LLResMgr::getRes( LLString font_id ) const
+const LLFontGL* LLResMgr::getRes( std::string font_id ) const
 {
 	for (S32 i=0; i<LLFONT_COUNT; ++i)
 	{
@@ -437,21 +437,21 @@ const LLFontGL* LLResMgr::getRes( LLString font_id ) const
 }
 
 #if LL_WINDOWS
-const LLString LLLocale::USER_LOCALE("English_United States.1252");// = LLString::null;
-const LLString LLLocale::SYSTEM_LOCALE("English_United States.1252");
+const std::string LLLocale::USER_LOCALE("English_United States.1252");// = LLStringUtil::null;
+const std::string LLLocale::SYSTEM_LOCALE("English_United States.1252");
 #elif LL_DARWIN
-const LLString LLLocale::USER_LOCALE("en_US.iso8859-1");// = LLString::null;
-const LLString LLLocale::SYSTEM_LOCALE("en_US.iso8859-1");
+const std::string LLLocale::USER_LOCALE("en_US.iso8859-1");// = LLStringUtil::null;
+const std::string LLLocale::SYSTEM_LOCALE("en_US.iso8859-1");
 #elif LL_SOLARIS
-const LLString LLLocale::USER_LOCALE("en_US.ISO8859-1");
-const LLString LLLocale::SYSTEM_LOCALE("C");
+const std::string LLLocale::USER_LOCALE("en_US.ISO8859-1");
+const std::string LLLocale::SYSTEM_LOCALE("C");
 #else // LL_LINUX likes this
-const LLString LLLocale::USER_LOCALE("en_US.utf8");
-const LLString LLLocale::SYSTEM_LOCALE("C");
+const std::string LLLocale::USER_LOCALE("en_US.utf8");
+const std::string LLLocale::SYSTEM_LOCALE("C");
 #endif
 
 
-LLLocale::LLLocale(const LLString& locale_string)
+LLLocale::LLLocale(const std::string& locale_string)
 {
 	mPrevLocaleString = setlocale( LC_ALL, NULL );
 	char* new_locale_string = setlocale( LC_ALL, locale_string.c_str());

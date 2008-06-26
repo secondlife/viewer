@@ -106,7 +106,9 @@ public:
 	friend std::istream&	 operator>>(std::istream& s, LLUUID &uuid);
 
 	void toString(char *out) const;		// Does not allocate memory, needs 36 characters (including \0)
+	void toString(std::string& out) const;
 	void toCompressedString(char *out) const;	// Does not allocate memory, needs 17 characters (including \0)
+	void toCompressedString(std::string& out) const;
 
 	std::string asString() const;
 	std::string getString() const;
@@ -115,14 +117,13 @@ public:
 	U32 getCRC32() const;
 
 	static BOOL validate(const std::string& in_string); // Validate that the UUID string is legal.
-	static BOOL validate(const char *in_string); // Validate that the UUID string is legal.
 
 	static const LLUUID null;
 
 	static U32 getRandomSeed();
 	static S32 getNodeID(unsigned char * node_id);
 
-	static BOOL parseUUID(const char* buf, LLUUID* value);
+	static BOOL parseUUID(const std::string& buf, LLUUID* value);
 	
 	U8 mData[UUID_BYTES];
 };

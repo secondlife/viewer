@@ -38,7 +38,14 @@
  * @param str The string to parse.
  * @return Returns the first U64 value found in the string or 0 on failure.
  */
-U64 str_to_U64(const char* str);
+U64 str_to_U64(const std::string& str);
+
+/**
+ * @brief Given a U64 value, return a printable representation.
+ * @param value The U64 to turn into a printable character array.
+ * @return Returns the result string.
+ */
+std::string U64_to_str(U64 value);
 
 /**
  * @brief Given a U64 value, return a printable representation.

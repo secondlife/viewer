@@ -376,7 +376,6 @@ F32 LLVolumeLODGroup::getVolumeScaleFromDetail(const S32 detail)
 
 F32 LLVolumeLODGroup::dump()
 {
-	char dump_str[255];		/* Flawfinder: ignore */
 	F32 usage = 0.f;
 	for (S32 i = 0; i < NUM_LODS; i++)
 	{
@@ -387,7 +386,7 @@ F32 LLVolumeLODGroup::dump()
 	}
 	usage = usage / (F32)NUM_LODS;
 
-	snprintf(dump_str, sizeof(dump_str), "%.3f %d %d %d %d", usage, mAccessCount[0], mAccessCount[1], mAccessCount[2], mAccessCount[3]);	/* Flawfinder: ignore */
+	std::string dump_str = llformat("%.3f %d %d %d %d", usage, mAccessCount[0], mAccessCount[1], mAccessCount[2], mAccessCount[3]);
 
 	llinfos << dump_str << llendl;
 	return usage;

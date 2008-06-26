@@ -172,7 +172,7 @@ void LLVOGrass::initClass()
 
 		if (newGrass->mTextureID.isNull())
 		{
-			LLString textureName;
+			std::string textureName;
 
 			static LLStdStringHandle texture_name_string = LLXmlTree::addAttributeString("texture_name");
 			success &= grass_def->getFastAttributeString(texture_name_string, textureName);
@@ -203,7 +203,7 @@ void LLVOGrass::initClass()
 
 		if (!success)
 		{
-			LLString name;
+			std::string name;
 			static LLStdStringHandle name_string = LLXmlTree::addAttributeString("name");
 			grass_def->getFastAttributeString(name_string, name);
 			llwarns << "Incomplete definition of grass " << name << llendl;
@@ -211,22 +211,20 @@ void LLVOGrass::initClass()
 	}
 
 	BOOL have_all_grass = TRUE;
-	LLString err;
-	char buffer[10];		/* Flawfinder: ignore */
+	std::string err;
 
 	for (S32 i=0;i<sMaxGrassSpecies;++i)
 	{
 		if (!sSpeciesTable.count(i))
 		{
-			snprintf(buffer,10," %d",i);		/* Flawfinder: ignore */
-			err.append(buffer);
+			err.append(llformat(" %d",i));
 			have_all_grass = FALSE;
 		}
 	}
 
 	if (!have_all_grass) 
 	{
-		LLStringBase<char>::format_map_t args;
+		LLStringUtil::format_map_t args;
 		args["[SPECIES]"] = err;
 		gViewerWindow->alertXml("ErrorUndefinedGrasses", args, alert_done );
 	}

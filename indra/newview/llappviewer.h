@@ -63,7 +63,7 @@ public:
 	void forceQuit(); // Puts the viewer into 'shutting down without error' mode.
 	void requestQuit(); // Request a quit. A kinder, gentler quit.
 	void userQuit(); // The users asks to quit. Confirm, then requestQuit()
-    void earlyExit(const LLString& msg); // Display an error dialog and forcibly quit.
+    void earlyExit(const std::string& msg); // Display an error dialog and forcibly quit.
     void forceExit(S32 arg); // exit() immediately (after some cleanup).
     void abortQuit();  // Called to abort a quit request.
 
@@ -91,10 +91,10 @@ public:
 	
 	bool getPurgeCache() const { return mPurgeCache; }
 	
-	const LLString& getSecondLifeTitle() const; // The Second Life title.
-	const LLString& getWindowTitle() const; // The window display name.
+	const std::string& getSecondLifeTitle() const; // The Second Life title.
+	const std::string& getWindowTitle() const; // The window display name.
 
-    void forceDisconnect(const LLString& msg); // Force disconnection, with a message to the user.
+    void forceDisconnect(const std::string& msg); // Force disconnection, with a message to the user.
     void badNetworkHandler(); // Cause a crash state due to bad network packet.
 
 	bool hasSavedFinalSnapshot() { return mSavedFinalSnapshot; }
@@ -157,7 +157,7 @@ private:
 	void purgeCache(); // Clear the local cache. 
 
 	void cleanupSavedSettings(); // Sets some config data to current or default values during cleanup.
-	void removeCacheFiles(const char *filemask); // Deletes cached files the match the given wildcard.
+	void removeCacheFiles(const std::string& filemask); // Deletes cached files the match the given wildcard.
 
 	void writeSystemInfo(); // Write system info to "debug_info.log"
 
@@ -177,10 +177,10 @@ private:
 
     bool mSecondInstance; // Is this a second instance of the app?
 
-	LLString mMarkerFileName;
+	std::string mMarkerFileName;
 	apr_file_t* mMarkerFile; // A file created to indicate the app is running.
 
-	LLString mLogoutMarkerFileName;
+	std::string mLogoutMarkerFileName;
 	apr_file_t* mLogoutMarkerFile; // A file created to indicate the app is running.
 
 	
@@ -217,7 +217,7 @@ const S32 AGENT_UPDATES_PER_SECOND  = 10;
 // "// llstartup" indicates that llstartup is the only client for this global.
 
 extern BOOL gHandleKeysAsync; // gSavedSettings used by llviewerdisplay.cpp & llviewermenu.cpp
-extern LLString gDisabledMessage; // llstartup
+extern std::string gDisabledMessage; // llstartup
 extern BOOL gHideLinks; // used by llpanellogin, lllfloaterbuycurrency, llstartup
 extern LLSD gDebugInfo;
 
@@ -287,7 +287,7 @@ extern LLVFS	*gStaticVFS;
 extern LLMemoryInfo gSysMemory;
 extern U64 gMemoryAllocated;
 
-extern LLString gLastVersionChannel;
+extern std::string gLastVersionChannel;
 
 extern LLVector3 gWindVec;
 extern LLVector3 gRelativeWindVec;

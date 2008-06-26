@@ -44,10 +44,10 @@
 #include "llappviewer.h"
 
 // static
-std::set<LLString> LLFirstUse::sConfigVariables;
+std::set<std::string> LLFirstUse::sConfigVariables;
 
 // static
-void LLFirstUse::addConfigVariable(const LLString& var)
+void LLFirstUse::addConfigVariable(const std::string& var)
 {
 	//Don't add the warning, now that we're storing the default in the settings_default.xml file
 	//gSavedSettings.addWarning(var);
@@ -58,7 +58,7 @@ void LLFirstUse::addConfigVariable(const LLString& var)
 void LLFirstUse::disableFirstUse()
 {
 	// Set all first-use warnings to disabled
-	for (std::set<LLString>::iterator iter = sConfigVariables.begin();
+	for (std::set<std::string>::iterator iter = sConfigVariables.begin();
 		 iter != sConfigVariables.end(); ++iter)
 	{
 		gSavedSettings.setWarning(*iter, FALSE);
@@ -69,7 +69,7 @@ void LLFirstUse::disableFirstUse()
 void LLFirstUse::resetFirstUse()
 {
 	// Set all first-use warnings to disabled
-	for (std::set<LLString>::iterator iter = sConfigVariables.begin();
+	for (std::set<std::string>::iterator iter = sConfigVariables.begin();
 		 iter != sConfigVariables.end(); ++iter)
 	{
 		gSavedSettings.setWarning(*iter, TRUE);
@@ -84,7 +84,7 @@ void LLFirstUse::useBalanceIncrease(S32 delta)
 	{
 		gSavedSettings.setWarning("FirstBalanceIncrease", FALSE);
 
-		LLString::format_map_t args;
+		LLStringUtil::format_map_t args;
 		args["[AMOUNT]"] = llformat("%d",delta);
 		LLNotifyBox::showXml("FirstBalanceIncrease", args);
 	}
@@ -98,7 +98,7 @@ void LLFirstUse::useBalanceDecrease(S32 delta)
 	{
 		gSavedSettings.setWarning("FirstBalanceDecrease", FALSE);
 
-		LLString::format_map_t args;
+		LLStringUtil::format_map_t args;
 		args["[AMOUNT]"] = llformat("%d",-delta);
 		LLNotifyBox::showXml("FirstBalanceDecrease", args);
 	}
@@ -220,7 +220,7 @@ void LLFirstUse::useSandbox()
 	{
 		gSavedSettings.setWarning("FirstSandbox", FALSE);
 
-		LLString::format_map_t args;
+		LLStringUtil::format_map_t args;
 		args["[HOURS]"] = llformat("%d",SANDBOX_CLEAN_FREQ);
 		args["[TIME]"] = llformat("%d",SANDBOX_FIRST_CLEAN_HOUR);
 		LLNotifyBox::showXml("FirstSandbox", args);

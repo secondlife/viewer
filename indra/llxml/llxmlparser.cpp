@@ -45,7 +45,7 @@ LLXmlParser::LLXmlParser()
 	mParser( NULL ),
 	mDepth( 0 )
 {
-	strcpy( mAuxErrorString, "no error" );		/* Flawfinder: ignore */
+	mAuxErrorString = "no error";
 
 	// Override the document's declared encoding.
 	mParser = XML_ParserCreate(NULL);
@@ -77,10 +77,10 @@ BOOL LLXmlParser::parseFile(const std::string &path)
 	
 	BOOL success = TRUE;
 
-	LLFILE* file = LLFile::fopen(path.c_str(), "rb");		/* Flawfinder: ignore */
+	LLFILE* file = LLFile::fopen(path, "rb");		/* Flawfinder: ignore */
 	if( !file )
 	{
-		snprintf( mAuxErrorString, sizeof(mAuxErrorString), "Couldn't open file %s", path.c_str());	/* Flawfinder: ignore */
+		mAuxErrorString = llformat( "Couldn't open file %s", path.c_str());
 		success = FALSE;
 	}
 	else
@@ -94,7 +94,7 @@ BOOL LLXmlParser::parseFile(const std::string &path)
 		void* buffer = XML_GetBuffer(mParser, buffer_size);
 		if( !buffer ) 
 		{
-			snprintf( mAuxErrorString, sizeof(mAuxErrorString), "Unable to allocate XML buffer while reading file %s", path.c_str() );	/* Flawfinder: ignore */
+			mAuxErrorString = llformat( "Unable to allocate XML buffer while reading file %s", path.c_str() );
 			success = FALSE;
 			goto exit_label;
 		}
@@ -102,14 +102,14 @@ BOOL LLXmlParser::parseFile(const std::string &path)
 		bytes_read = (S32)fread(buffer, 1, buffer_size, file);
 		if( bytes_read <= 0 )
 		{
-			snprintf( mAuxErrorString, sizeof(mAuxErrorString), "Error while reading file  %s", path.c_str() );	/* Flawfinder: ignore */
+			mAuxErrorString = llformat( "Error while reading file  %s", path.c_str() );
 			success = FALSE;
 			goto exit_label;
 		}
 		
 		if( !XML_ParseBuffer(mParser, bytes_read, TRUE ) )
 		{
-			snprintf( mAuxErrorString, sizeof(mAuxErrorString), "Error while parsing file  %s", path.c_str() );	/* Flawfinder: ignore */
+			mAuxErrorString = llformat( "Error while parsing file  %s", path.c_str() );
 			success = FALSE;
 		}
 
@@ -146,7 +146,7 @@ const char* LLXmlParser::getErrorString()
 	const char* error_string = XML_ErrorString(XML_GetErrorCode( mParser ));
 	if( !error_string )
 	{
-		error_string = mAuxErrorString;
+		error_string = mAuxErrorString.c_str();
 	}
 	return error_string;
 }

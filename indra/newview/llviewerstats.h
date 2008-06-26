@@ -185,8 +185,6 @@ public:
 	
 	void addToMessage(LLSD &body) const;
 
-	static const char *statTypeToText(EStatType type);
-
 private:
 	F64	mStats[ST_COUNT];
 

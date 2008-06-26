@@ -178,7 +178,7 @@ bool LLAppViewerMacOSX::initParseCommandLine(LLCommandLineParser& clp)
 	char path[MAX_PATH];
 	if(CFURLGetFileSystemRepresentation(url, false, (UInt8 *)path, sizeof(path)))
 	{
-		LLString lang;
+		std::string lang;
 		if(_read_file_into_string(lang, path))		/* Flawfinder: ignore*/
 		{
             LLControlVariable* c = gSavedSettings.getControl("SystemLanguage");
@@ -201,7 +201,7 @@ void LLAppViewerMacOSX::handleSyncCrashTrace()
 void LLAppViewerMacOSX::handleCrashReporting()
 {
 	// Macintosh
-	LLString command_str;
+	std::string command_str;
 	command_str += "open crashreporter.app";	
 	
 	clear_signals();
@@ -331,7 +331,7 @@ OSStatus DisplayReleaseNotes(void)
 		id.signature = 'text';
 		id.id = 0;
 
-		LLString releaseNotesText;
+		std::string releaseNotesText;
 		
 		_read_file_into_string(releaseNotesText, "releasenotes.txt");		// Flawfinder: ignore
 

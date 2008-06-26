@@ -42,11 +42,11 @@ class LLStyle : public LLRefCount
 public:
 	LLStyle();
 	LLStyle(const LLStyle &style);
-	LLStyle(BOOL is_visible, const LLColor4 &color, const LLString& font_name);
+	LLStyle(BOOL is_visible, const LLColor4 &color, const std::string& font_name);
 
 	LLStyle &operator=(const LLStyle &rhs);
 
-	virtual void init (BOOL is_visible, const LLColor4 &color, const LLString& font_name);
+	virtual void init (BOOL is_visible, const LLColor4 &color, const std::string& font_name);
 
 	virtual const LLColor4& getColor() const { return mColor; }
 	virtual void setColor(const LLColor4 &color) { mColor = color; }
@@ -54,12 +54,12 @@ public:
 	virtual BOOL isVisible() const;
 	virtual void setVisible(BOOL is_visible);
 
-	virtual const LLString& getFontString() const { return mFontName; }
-	virtual void setFontName(const LLString& fontname);
+	virtual const std::string& getFontString() const { return mFontName; }
+	virtual void setFontName(const std::string& fontname);
 	virtual LLFONT_ID getFontID() const { return mFontID; }
 
-	virtual const LLString& getLinkHREF() const { return mLink; }
-	virtual void setLinkHREF(const LLString& href);
+	virtual const std::string& getLinkHREF() const { return mLink; }
+	virtual void setLinkHREF(const std::string& href);
 	virtual BOOL isLink() const;
 
 	virtual LLUIImagePtr getImage() const;
@@ -105,9 +105,9 @@ protected:
 private:
 	BOOL		mVisible;
 	LLColor4	mColor;
-	LLString	mFontName;
+	std::string	mFontName;
 	LLFONT_ID   mFontID;
-	LLString	mLink;
+	std::string	mLink;
 	LLUIImagePtr mImagep;
 	BOOL		mIsEmbeddedItem;
 };

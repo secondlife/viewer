@@ -115,7 +115,7 @@ void LLFloaterGodTools::refreshAll()
 
 
 LLFloaterGodTools::LLFloaterGodTools()
-:	LLFloater("godtools floater"),
+:	LLFloater(std::string("godtools floater")),
 	mCurrentHost(LLHost::invalid),
 	mUpdateTimer()
 {
@@ -224,7 +224,7 @@ void LLFloaterGodTools::show(void *)
 	}
 }
 
-void LLFloaterGodTools::showPanel(const LLString& panel_name)
+void LLFloaterGodTools::showPanel(const std::string& panel_name)
 {
 	childShowTab("GodTools Tabs", panel_name);
 	open();	/*Flawfinder: ignore*/
@@ -258,7 +258,7 @@ void LLFloaterGodTools::processRegionInfo(LLMessageSystem* msg)
 	U32 region_flags;
 	U8 sim_access;
 	U8 agent_limit;
-	char sim_name[MAX_STRING];		/*Flawfinder: ignore*/
+	std::string sim_name;
 	U32 estate_id;
 	U32 parent_estate_id;
 	F32 water_height;
@@ -271,7 +271,7 @@ void LLFloaterGodTools::processRegionInfo(LLMessageSystem* msg)
 	S32 redirect_grid_y;
 	LLUUID cache_id;
 
-	msg->getStringFast(_PREHASH_RegionInfo, _PREHASH_SimName, MAX_STRING, sim_name);
+	msg->getStringFast(_PREHASH_RegionInfo, _PREHASH_SimName, sim_name);
 	msg->getU32Fast(_PREHASH_RegionInfo, _PREHASH_EstateID, estate_id);
 	msg->getU32Fast(_PREHASH_RegionInfo, _PREHASH_ParentEstateID, parent_estate_id);
 	msg->getU32Fast(_PREHASH_RegionInfo, _PREHASH_RegionFlags, region_flags);
@@ -375,7 +375,7 @@ void LLFloaterGodTools::sendGodUpdateRegionInfo()
 		msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
 		msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
 		msg->nextBlockFast(_PREHASH_RegionInfo);
-		msg->addStringFast(_PREHASH_SimName, rtool->getSimName().c_str());
+		msg->addStringFast(_PREHASH_SimName, rtool->getSimName());
 		msg->addU32Fast(_PREHASH_EstateID, rtool->getEstateID());
 		msg->addU32Fast(_PREHASH_ParentEstateID, rtool->getParentEstateID());
 		msg->addU32Fast(_PREHASH_RegionFlags, computeRegionFlags());
@@ -707,7 +707,7 @@ S32 LLPanelRegionTools::getPricePerMeter() const
 	return childGetValue("land cost");
 }
 
-void LLPanelRegionTools::setSimName(char *name)
+void LLPanelRegionTools::setSimName(const std::string& name)
 {
 	childSetValue("region name", name);
 }
@@ -924,13 +924,13 @@ void LLPanelGridTools::onClickKickAll(void* userdata)
 	gFloaterView->getNewFloaterPosition(&left, &top);
 	LLRect rect(left, top, left+400, top-300);
 
-	gViewerWindow->alertXmlEditText("KickAllUsers", LLString::format_map_t(),
+	gViewerWindow->alertXmlEditText("KickAllUsers", LLStringUtil::format_map_t(),
 									NULL, NULL,
 									LLPanelGridTools::confirmKick, self);
 }
 
 
-void LLPanelGridTools::confirmKick(S32 option, const LLString& text, void* userdata)
+void LLPanelGridTools::confirmKick(S32 option, const std::string& text, void* userdata)
 {
 	LLPanelGridTools* self = (LLPanelGridTools*) userdata;
 
@@ -957,7 +957,7 @@ void LLPanelGridTools::finishKick(S32 option, void* userdata)
 		msg->addUUIDFast(_PREHASH_GodSessionID, gAgent.getSessionID());
 		msg->addUUIDFast(_PREHASH_AgentID,   LL_UUID_ALL_AGENTS );
 		msg->addU32("KickFlags", KICK_FLAGS_DEFAULT );
-		msg->addStringFast(_PREHASH_Reason,    self->mKickMessage.c_str() );
+		msg->addStringFast(_PREHASH_Reason,    self->mKickMessage );
 		gAgent.sendReliableMessage();
 	}
 }
@@ -1182,7 +1182,7 @@ void LLPanelObjectTools::onClickDeletePublicOwnedBy(void* userdata)
 		panelp->mSimWideDeletesFlags = 
 			SWD_SCRIPTED_ONLY | SWD_OTHERS_LAND_ONLY;
 
-		LLStringBase<char>::format_map_t args;
+		LLStringUtil::format_map_t args;
 		args["[AVATAR_NAME]"] = panelp->childGetValue("target_avatar_name").asString();
 
 		gViewerWindow->alertXml( "GodDeleteAllScriptedPublicObjectsByUser",
@@ -1201,7 +1201,7 @@ void LLPanelObjectTools::onClickDeleteAllScriptedOwnedBy(void* userdata)
 	{
 		panelp->mSimWideDeletesFlags = SWD_SCRIPTED_ONLY;
 
-		LLStringBase<char>::format_map_t args;
+		LLStringUtil::format_map_t args;
 		args["[AVATAR_NAME]"] = panelp->childGetValue("target_avatar_name").asString();
 
 		gViewerWindow->alertXml( "GodDeleteAllScriptedObjectsByUser",
@@ -1220,7 +1220,7 @@ void LLPanelObjectTools::onClickDeleteAllOwnedBy(void* userdata)
 	{
 		panelp->mSimWideDeletesFlags = 0;
 
-		LLStringBase<char>::format_map_t args;
+		LLStringUtil::format_map_t args;
 		args["[AVATAR_NAME]"] = panelp->childGetValue("target_avatar_name").asString();
 
 		gViewerWindow->alertXml( "GodDeleteAllObjectsByUser",
@@ -1260,12 +1260,12 @@ void LLPanelObjectTools::onClickSetBySelection(void* data)
 	LLSelectNode* node = LLSelectMgr::getInstance()->getSelection()->getFirstRootNode(NULL, non_root_ok);
 	if (!node) return;
 
-	LLString owner_name;
+	std::string owner_name;
 	LLUUID owner_id;
 	LLSelectMgr::getInstance()->selectGetOwner(owner_id, owner_name);
 
 	panelp->mTargetAvatar = owner_id;
-	LLString name = "Object " + node->mName + " owned by " + owner_name;
+	std::string name = "Object " + node->mName + " owned by " + owner_name;
 	panelp->childSetValue("target_avatar_name", name);
 }
 
@@ -1314,8 +1314,8 @@ void LLPanelObjectTools::onApplyChanges(void* userdata)
 // LLPanelRequestTools
 // --------------------
 
-const char SELECTION[] = "Selection";
-const char AGENT_REGION[] = "Agent Region";
+const std::string SELECTION = "Selection";
+const std::string AGENT_REGION = "Agent Region";
 
 LLPanelRequestTools::LLPanelRequestTools(const std::string& name):
 	LLPanel(name)
@@ -1348,7 +1348,7 @@ void LLPanelRequestTools::refresh()
 		 iter != LLWorld::getInstance()->mActiveRegionList.end(); ++iter)
 	{
 		LLViewerRegion* regionp = *iter;
-		LLString name = regionp->getName();
+		std::string name = regionp->getName();
 		if (!name.empty())
 		{
 			list->addSimpleElement(name);
@@ -1366,8 +1366,8 @@ void LLPanelRequestTools::refresh()
 
 
 // static
-void LLPanelRequestTools::sendRequest(const char *request, 
-									  const char *parameter, 
+void LLPanelRequestTools::sendRequest(const std::string& request, 
+									  const std::string& parameter, 
 									  const LLHost& host)
 {
 	llinfos << "Sending request '" << request << "', '"
@@ -1437,7 +1437,7 @@ void LLPanelRequestTools::sendRequest(const LLHost& host)
 	std::string req = childGetValue("request");
 	if (req == "terrain download")
 	{
-		gXferManager->requestFile("terrain.raw", "terrain.raw", LL_PATH_NONE,
+		gXferManager->requestFile(std::string("terrain.raw"), std::string("terrain.raw"), LL_PATH_NONE,
 								  host,
 								  FALSE,
 								  terrain_download_done,
@@ -1446,7 +1446,7 @@ void LLPanelRequestTools::sendRequest(const LLHost& host)
 	else
 	{
 		req = req.substr(0, req.find_first_of(" "));
-		sendRequest(req.c_str(), childGetValue("parameter").asString().c_str(), host);
+		sendRequest(req, childGetValue("parameter").asString(), host);
 	}
 }
 

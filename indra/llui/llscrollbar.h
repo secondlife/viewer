@@ -51,7 +51,7 @@ class LLScrollbar
 public:
 	enum ORIENTATION { HORIZONTAL, VERTICAL };
 
-	LLScrollbar(const LLString& name, LLRect rect,
+	LLScrollbar(const std::string& name, LLRect rect,
 		ORIENTATION orientation,
 		S32 doc_size, S32 doc_pos, S32 page_size,
 		void(*change_callback)( S32 new_pos, LLScrollbar* self, void* userdata ),
@@ -69,7 +69,7 @@ public:
 	virtual BOOL	handleHover(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleScrollWheel(S32 x, S32 y, S32 clicks);
 	virtual BOOL	handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop, 
-		EDragAndDropType cargo_type, void *cargo_data, EAcceptance *accept, LLString &tooltip_msg);
+		EDragAndDropType cargo_type, void *cargo_data, EAcceptance *accept, std::string &tooltip_msg);
 
 	virtual void	reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 

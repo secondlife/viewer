@@ -61,7 +61,7 @@
 
 // Default constructor
 LLToolIndividual::LLToolIndividual()
-	: LLTool("Individual")
+: LLTool(std::string("Individual"))
 {
 }
 

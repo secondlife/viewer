@@ -72,7 +72,7 @@ LLFloaterAuction* LLFloaterAuction::sInstance = NULL;
 
 // Default constructor
 LLFloaterAuction::LLFloaterAuction() :
-	LLFloater("floater_auction"),
+	LLFloater(std::string("floater_auction")),
 	mParcelID(-1)
 {
 	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_auction.xml");
@@ -128,7 +128,7 @@ void LLFloaterAuction::initialize()
 		}
 		else
 		{
-			childSetText("parcel_text", LLString::null);
+			childSetText("parcel_text", LLStringUtil::null);
 		}
 		mParcelID = -1;
 		childSetEnabled("snapshot_btn", false);
@@ -224,14 +224,14 @@ void LLFloaterAuction::onClickOK(void* data)
 		LLSD parcel_name = self->childGetValue("parcel_text");
 
 	// create the asset
-		LLString* name = new LLString(parcel_name.asString());
+		std::string* name = new std::string(parcel_name.asString());
 		gAssetStorage->storeAssetData(self->mTransactionID, LLAssetType::AT_IMAGE_TGA,
 									&auction_tga_upload_done,
 									(void*)name,
 									FALSE);
 		self->getWindow()->incBusyCount();
 
-		LLString* j2c_name = new LLString(parcel_name.asString());
+		std::string* j2c_name = new std::string(parcel_name.asString());
 		gAssetStorage->storeAssetData(self->mTransactionID, LLAssetType::AT_TEXTURE,
 								   &auction_j2c_upload_done,
 								   (void*)j2c_name,
@@ -268,7 +268,7 @@ void LLFloaterAuction::onClickOK(void* data)
 
 void auction_tga_upload_done(const LLUUID& asset_id, void* user_data, S32 status, LLExtStat ext_status) // StoreAssetData callback (fixed)
 {
-	LLString* name = (LLString*)(user_data);
+	std::string* name = (std::string*)(user_data);
 	llinfos << "Upload of asset '" << *name << "' " << asset_id
 			<< " returned " << status << llendl;
 	delete name;
@@ -281,7 +281,7 @@ void auction_tga_upload_done(const LLUUID& asset_id, void* user_data, S32 status
 	}
 	else
 	{
-		LLStringBase<char>::format_map_t args;
+		LLStringUtil::format_map_t args;
 		args["[REASON]"] = std::string(LLAssetStorage::getErrorString(status));
 		gViewerWindow->alertXml("UploadAuctionSnapshotFail", args);
 	}
@@ -289,7 +289,7 @@ void auction_tga_upload_done(const LLUUID& asset_id, void* user_data, S32 status
 
 void auction_j2c_upload_done(const LLUUID& asset_id, void* user_data, S32 status, LLExtStat ext_status) // StoreAssetData callback (fixed)
 {
-	LLString* name = (LLString*)(user_data);
+	std::string* name = (std::string*)(user_data);
 	llinfos << "Upload of asset '" << *name << "' " << asset_id
 			<< " returned " << status << llendl;
 	delete name;
@@ -302,7 +302,7 @@ void auction_j2c_upload_done(const LLUUID& asset_id, void* user_data, S32 status
 	}
 	else
 	{
-		LLStringBase<char>::format_map_t args;
+		LLStringUtil::format_map_t args;
 		args["[REASON]"] = std::string(LLAssetStorage::getErrorString(status));
 		gViewerWindow->alertXml("UploadAuctionSnapshotFail", args);
 	}

@@ -88,6 +88,8 @@ public:
 						   S32 blocknum = 0);
 	virtual void getString(const char *block, const char *var, 
 						   S32 buffer_size, char *buffer, S32 blocknum = 0);
+	virtual void getString(const char *block, const char *var,  std::string& outstr,
+						   S32 blocknum = 0);
 
 	virtual S32	getNumberOfBlocks(const char *blockname);
 	virtual S32	getSize(const char *blockname, const char *varname);

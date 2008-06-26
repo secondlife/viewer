@@ -99,8 +99,8 @@ bool LLControlVariable::llsd_compare(const LLSD& a, const LLSD & b)
 	return result;
 }
 
-LLControlVariable::LLControlVariable(const LLString& name, eControlType type,
-							 LLSD initial, const LLString& comment,
+LLControlVariable::LLControlVariable(const std::string& name, eControlType type,
+							 LLSD initial, const std::string& comment,
 							 BOOL persist)
 	: mName(name),
 	  mComment(comment),
@@ -129,7 +129,7 @@ void LLControlVariable::setValue(const LLSD& value, bool saved_value)
 	if(TYPE_BOOLEAN == type() && value.isString())
 	{
 		BOOL temp;
-		if(LLString::convertToBOOL(value.asString(), temp)) 
+		if(LLStringUtil::convertToBOOL(value.asString(), temp)) 
 		{
 			storable_value = temp;
 		}
@@ -206,7 +206,7 @@ LLSD LLControlVariable::getSaveValue() const
 	return mValues[0];
 }
 
-LLControlVariable*	LLControlGroup::getControl(const LLString& name)
+LLControlVariable*	LLControlGroup::getControl(const std::string& name)
 {
 	ctrl_name_table_t::iterator iter = mNameTable.find(name);
 	return iter == mNameTable.end() ? NULL : iter->second;
@@ -242,7 +242,7 @@ void LLControlGroup::cleanup()
 	mNameTable.clear();
 }
 
-eControlType LLControlGroup::typeStringToEnum(const LLString& typestr)
+eControlType LLControlGroup::typeStringToEnum(const std::string& typestr)
 {
 	for(int i = 0; i < (int)TYPE_COUNT; ++i)
 	{
@@ -251,12 +251,12 @@ eControlType LLControlGroup::typeStringToEnum(const LLString& typestr)
 	return (eControlType)-1;
 }
 
-LLString LLControlGroup::typeEnumToString(eControlType typeenum)
+std::string LLControlGroup::typeEnumToString(eControlType typeenum)
 {
 	return mTypeString[typeenum];
 }
 
-BOOL LLControlGroup::declareControl(const LLString& name, eControlType type, const LLSD initial_val, const LLString& comment, BOOL persist)
+BOOL LLControlGroup::declareControl(const std::string& name, eControlType type, const LLSD initial_val, const std::string& comment, BOOL persist)
 {
 	if(mNameTable.find(name) != mNameTable.end())
 	{
@@ -270,67 +270,67 @@ BOOL LLControlGroup::declareControl(const LLString& name, eControlType type, con
 	return TRUE;
 }
 
-BOOL LLControlGroup::declareU32(const LLString& name, const U32 initial_val, const LLString& comment, BOOL persist)
+BOOL LLControlGroup::declareU32(const std::string& name, const U32 initial_val, const std::string& comment, BOOL persist)
 {
 	return declareControl(name, TYPE_U32, (LLSD::Integer) initial_val, comment, persist);
 }
 
-BOOL LLControlGroup::declareS32(const LLString& name, const S32 initial_val, const LLString& comment, BOOL persist)
+BOOL LLControlGroup::declareS32(const std::string& name, const S32 initial_val, const std::string& comment, BOOL persist)
 {
 	return declareControl(name, TYPE_S32, initial_val, comment, persist);
 }
 
-BOOL LLControlGroup::declareF32(const LLString& name, const F32 initial_val, const LLString& comment, BOOL persist)
+BOOL LLControlGroup::declareF32(const std::string& name, const F32 initial_val, const std::string& comment, BOOL persist)
 {
 	return declareControl(name, TYPE_F32, initial_val, comment, persist);
 }
 
-BOOL LLControlGroup::declareBOOL(const LLString& name, const BOOL initial_val, const LLString& comment, BOOL persist)
+BOOL LLControlGroup::declareBOOL(const std::string& name, const BOOL initial_val, const std::string& comment, BOOL persist)
 {
 	return declareControl(name, TYPE_BOOLEAN, initial_val, comment, persist);
 }
 
-BOOL LLControlGroup::declareString(const LLString& name, const LLString& initial_val, const LLString& comment, BOOL persist)
+BOOL LLControlGroup::declareString(const std::string& name, const std::string& initial_val, const std::string& comment, BOOL persist)
 {
 	return declareControl(name, TYPE_STRING, initial_val, comment, persist);
 }
 
-BOOL LLControlGroup::declareVec3(const LLString& name, const LLVector3 &initial_val, const LLString& comment, BOOL persist)
+BOOL LLControlGroup::declareVec3(const std::string& name, const LLVector3 &initial_val, const std::string& comment, BOOL persist)
 {
 	return declareControl(name, TYPE_VEC3, initial_val.getValue(), comment, persist);
 }
 
-BOOL LLControlGroup::declareVec3d(const LLString& name, const LLVector3d &initial_val, const LLString& comment, BOOL persist)
+BOOL LLControlGroup::declareVec3d(const std::string& name, const LLVector3d &initial_val, const std::string& comment, BOOL persist)
 {
 	return declareControl(name, TYPE_VEC3D, initial_val.getValue(), comment, persist);
 }
 
-BOOL LLControlGroup::declareRect(const LLString& name, const LLRect &initial_val, const LLString& comment, BOOL persist)
+BOOL LLControlGroup::declareRect(const std::string& name, const LLRect &initial_val, const std::string& comment, BOOL persist)
 {
 	return declareControl(name, TYPE_RECT, initial_val.getValue(), comment, persist);
 }
 
-BOOL LLControlGroup::declareColor4U(const LLString& name, const LLColor4U &initial_val, const LLString& comment, BOOL persist )
+BOOL LLControlGroup::declareColor4U(const std::string& name, const LLColor4U &initial_val, const std::string& comment, BOOL persist )
 {
 	return declareControl(name, TYPE_COL4U, initial_val.getValue(), comment, persist);
 }
 
-BOOL LLControlGroup::declareColor4(const LLString& name, const LLColor4 &initial_val, const LLString& comment, BOOL persist )
+BOOL LLControlGroup::declareColor4(const std::string& name, const LLColor4 &initial_val, const std::string& comment, BOOL persist )
 {
 	return declareControl(name, TYPE_COL4, initial_val.getValue(), comment, persist);
 }
 
-BOOL LLControlGroup::declareColor3(const LLString& name, const LLColor3 &initial_val, const LLString& comment, BOOL persist )
+BOOL LLControlGroup::declareColor3(const std::string& name, const LLColor3 &initial_val, const std::string& comment, BOOL persist )
 {
 	return declareControl(name, TYPE_COL3, initial_val.getValue(), comment, persist);
 }
 
-BOOL LLControlGroup::declareLLSD(const LLString& name, const LLSD &initial_val, const LLString& comment, BOOL persist )
+BOOL LLControlGroup::declareLLSD(const std::string& name, const LLSD &initial_val, const std::string& comment, BOOL persist )
 {
 	return declareControl(name, TYPE_LLSD, initial_val, comment, persist);
 }
 
-BOOL LLControlGroup::getBOOL(const LLString& name)
+BOOL LLControlGroup::getBOOL(const std::string& name)
 {
 	LLControlVariable* control = getControl(name);
 	
@@ -343,7 +343,7 @@ BOOL LLControlGroup::getBOOL(const LLString& name)
 	}
 }
 
-S32 LLControlGroup::getS32(const LLString& name)
+S32 LLControlGroup::getS32(const std::string& name)
 {
 	LLControlVariable* control = getControl(name);
 	
@@ -356,7 +356,7 @@ S32 LLControlGroup::getS32(const LLString& name)
 	}
 }
 
-U32 LLControlGroup::getU32(const LLString& name)
+U32 LLControlGroup::getU32(const std::string& name)
 {
 	LLControlVariable* control = getControl(name);
 	
@@ -369,7 +369,7 @@ U32 LLControlGroup::getU32(const LLString& name)
 	}
 }
 
-F32 LLControlGroup::getF32(const LLString& name)
+F32 LLControlGroup::getF32(const std::string& name)
 {
 	LLControlVariable* control = getControl(name);
 	
@@ -382,16 +382,16 @@ F32 LLControlGroup::getF32(const LLString& name)
 	}
 }
 
-LLString LLControlGroup::findString(const LLString& name)
+std::string LLControlGroup::findString(const std::string& name)
 {
 	LLControlVariable* control = getControl(name);
 	
 	if (control && control->isType(TYPE_STRING))
 		return control->get().asString();
-	return LLString::null;
+	return LLStringUtil::null;
 }
 
-LLString LLControlGroup::getString(const LLString& name)
+std::string LLControlGroup::getString(const std::string& name)
 {
 	LLControlVariable* control = getControl(name);
 	
@@ -400,24 +400,24 @@ LLString LLControlGroup::getString(const LLString& name)
 	else
 	{
 		CONTROL_ERRS << "Invalid string control " << name << llendl;
-		return LLString::null;
+		return LLStringUtil::null;
 	}
 }
 
-LLWString LLControlGroup::getWString(const LLString& name)
+LLWString LLControlGroup::getWString(const std::string& name)
 {
 	return utf8str_to_wstring(getString(name));
 }
 
-LLString LLControlGroup::getText(const LLString& name)
+std::string LLControlGroup::getText(const std::string& name)
 {
-	LLString utf8_string = getString(name);
-	LLString::replaceChar(utf8_string, '^', '\n');
-	LLString::replaceChar(utf8_string, '%', ' ');
+	std::string utf8_string = getString(name);
+	LLStringUtil::replaceChar(utf8_string, '^', '\n');
+	LLStringUtil::replaceChar(utf8_string, '%', ' ');
 	return (utf8_string);
 }
 
-LLVector3 LLControlGroup::getVector3(const LLString& name)
+LLVector3 LLControlGroup::getVector3(const std::string& name)
 {
 	LLControlVariable* control = getControl(name);
 	
@@ -430,7 +430,7 @@ LLVector3 LLControlGroup::getVector3(const LLString& name)
 	}
 }
 
-LLVector3d LLControlGroup::getVector3d(const LLString& name)
+LLVector3d LLControlGroup::getVector3d(const std::string& name)
 {
 	LLControlVariable* control = getControl(name);
 	
@@ -443,7 +443,7 @@ LLVector3d LLControlGroup::getVector3d(const LLString& name)
 	}
 }
 
-LLRect LLControlGroup::getRect(const LLString& name)
+LLRect LLControlGroup::getRect(const std::string& name)
 {
 	LLControlVariable* control = getControl(name);
 	
@@ -457,7 +457,7 @@ LLRect LLControlGroup::getRect(const LLString& name)
 }
 
 
-LLColor4 LLControlGroup::getColor(const LLString& name)
+LLColor4 LLControlGroup::getColor(const std::string& name)
 {
 	ctrl_name_table_t::const_iterator i = mNameTable.find(name);
 
@@ -489,7 +489,7 @@ LLColor4 LLControlGroup::getColor(const LLString& name)
 	}
 }
 
-LLColor4U LLControlGroup::getColor4U(const LLString& name)
+LLColor4U LLControlGroup::getColor4U(const std::string& name)
 {
 	LLControlVariable* control = getControl(name);
 	
@@ -502,7 +502,7 @@ LLColor4U LLControlGroup::getColor4U(const LLString& name)
 	}
 }
 
-LLColor4 LLControlGroup::getColor4(const LLString& name)
+LLColor4 LLControlGroup::getColor4(const std::string& name)
 {
 	LLControlVariable* control = getControl(name);
 	
@@ -515,7 +515,7 @@ LLColor4 LLControlGroup::getColor4(const LLString& name)
 	}
 }
 
-LLColor3 LLControlGroup::getColor3(const LLString& name)
+LLColor3 LLControlGroup::getColor3(const std::string& name)
 {
 	LLControlVariable* control = getControl(name);
 	
@@ -528,7 +528,7 @@ LLColor3 LLControlGroup::getColor3(const LLString& name)
 	}
 }
 
-LLSD LLControlGroup::getLLSD(const LLString& name)
+LLSD LLControlGroup::getLLSD(const std::string& name)
 {
 	LLControlVariable* control = getControl(name);
 	
@@ -538,7 +538,7 @@ LLSD LLControlGroup::getLLSD(const LLString& name)
 	return LLSD();
 }
 
-BOOL LLControlGroup::controlExists(const LLString& name)
+BOOL LLControlGroup::controlExists(const std::string& name)
 {
 	ctrl_name_table_t::iterator iter = mNameTable.find(name);
 	return iter != mNameTable.end();
@@ -548,7 +548,7 @@ BOOL LLControlGroup::controlExists(const LLString& name)
 // Set functions
 //-------------------------------------------------------------------
 
-void LLControlGroup::setBOOL(const LLString& name, BOOL val)
+void LLControlGroup::setBOOL(const std::string& name, BOOL val)
 {
 	LLControlVariable* control = getControl(name);
 	
@@ -563,7 +563,7 @@ void LLControlGroup::setBOOL(const LLString& name, BOOL val)
 }
 
 
-void LLControlGroup::setS32(const LLString& name, S32 val)
+void LLControlGroup::setS32(const std::string& name, S32 val)
 {
 	LLControlVariable* control = getControl(name);
 	
@@ -578,7 +578,7 @@ void LLControlGroup::setS32(const LLString& name, S32 val)
 }
 
 
-void LLControlGroup::setF32(const LLString& name, F32 val)
+void LLControlGroup::setF32(const std::string& name, F32 val)
 {
 	LLControlVariable* control = getControl(name);
 	
@@ -593,7 +593,7 @@ void LLControlGroup::setF32(const LLString& name, F32 val)
 }
 
 
-void LLControlGroup::setU32(const LLString& name, U32 val)
+void LLControlGroup::setU32(const std::string& name, U32 val)
 {
 	LLControlVariable* control = getControl(name);
 	
@@ -608,7 +608,7 @@ void LLControlGroup::setU32(const LLString& name, U32 val)
 }
 
 
-void LLControlGroup::setString(const LLString& name, const LLString &val)
+void LLControlGroup::setString(const std::string& name, const std::string &val)
 {
 	LLControlVariable* control = getControl(name);
 	
@@ -623,7 +623,7 @@ void LLControlGroup::setString(const LLString& name, const LLString &val)
 }
 
 
-void LLControlGroup::setVector3(const LLString& name, const LLVector3 &val)
+void LLControlGroup::setVector3(const std::string& name, const LLVector3 &val)
 {
 	LLControlVariable* control = getControl(name);
 	
@@ -637,7 +637,7 @@ void LLControlGroup::setVector3(const LLString& name, const LLVector3 &val)
 	}
 }
 
-void LLControlGroup::setVector3d(const LLString& name, const LLVector3d &val)
+void LLControlGroup::setVector3d(const std::string& name, const LLVector3d &val)
 {
 	LLControlVariable* control = getControl(name);
 	
@@ -651,7 +651,7 @@ void LLControlGroup::setVector3d(const LLString& name, const LLVector3d &val)
 	}
 }
 
-void LLControlGroup::setRect(const LLString& name, const LLRect &val)
+void LLControlGroup::setRect(const std::string& name, const LLRect &val)
 {
 	LLControlVariable* control = getControl(name);
 
@@ -665,7 +665,7 @@ void LLControlGroup::setRect(const LLString& name, const LLRect &val)
 	}
 }
 
-void LLControlGroup::setColor4U(const LLString& name, const LLColor4U &val)
+void LLControlGroup::setColor4U(const std::string& name, const LLColor4U &val)
 {
 	LLControlVariable* control = getControl(name);
 	
@@ -679,7 +679,7 @@ void LLControlGroup::setColor4U(const LLString& name, const LLColor4U &val)
 	}
 }
 
-void LLControlGroup::setColor4(const LLString& name, const LLColor4 &val)
+void LLControlGroup::setColor4(const std::string& name, const LLColor4 &val)
 {
 	LLControlVariable* control = getControl(name);
 	
@@ -693,7 +693,7 @@ void LLControlGroup::setColor4(const LLString& name, const LLColor4 &val)
 	}
 }
 
-void LLControlGroup::setLLSD(const LLString& name, const LLSD& val)
+void LLControlGroup::setLLSD(const std::string& name, const LLSD& val)
 {
 	LLControlVariable* control = getControl(name);
 	
@@ -707,7 +707,7 @@ void LLControlGroup::setLLSD(const LLString& name, const LLSD& val)
 	}
 }
 
-void LLControlGroup::setValue(const LLString& name, const LLSD& val)
+void LLControlGroup::setValue(const std::string& name, const LLSD& val)
 {
 	if (name.empty())
 	{
@@ -731,9 +731,9 @@ void LLControlGroup::setValue(const LLString& name, const LLSD& val)
 //---------------------------------------------------------------
 
 // Returns number of controls loaded, so 0 if failure
-U32 LLControlGroup::loadFromFileLegacy(const LLString& filename, BOOL require_declaration, eControlType declare_as)
+U32 LLControlGroup::loadFromFileLegacy(const std::string& filename, BOOL require_declaration, eControlType declare_as)
 {
-	LLString name;
+	std::string name;
 
 	LLXmlTree xml_controls;
 
@@ -792,14 +792,14 @@ U32 LLControlGroup::loadFromFileLegacy(const LLString& filename, BOOL require_de
 			switch(declare_as)
 			{
 			case TYPE_COL4:
-				declareColor4(name, LLColor4::white, "", NO_PERSIST);
+				declareColor4(name, LLColor4::white, LLStringUtil::null, NO_PERSIST);
 				break;
 			case TYPE_COL4U:
-				declareColor4U(name, LLColor4U::white, "", NO_PERSIST);
+				declareColor4U(name, LLColor4U::white, LLStringUtil::null, NO_PERSIST);
 				break;
 			case TYPE_STRING:
 			default:
-				declareString(name, LLString::null, "", NO_PERSIST);
+				declareString(name, LLStringUtil::null, LLStringUtil::null, NO_PERSIST);
 				break;
 			}
 		}
@@ -851,12 +851,8 @@ U32 LLControlGroup::loadFromFileLegacy(const LLString& filename, BOOL require_de
 			break;
 		case TYPE_STRING:
 			{
-				LLString string;
+				std::string string;
 				child_nodep->getAttributeString("value", string);
-				if (string == LLString::null)
-				{
-					string = "";
-				}
 				control->set(string);
 				validitems++;
 			}
@@ -883,7 +879,7 @@ U32 LLControlGroup::loadFromFileLegacy(const LLString& filename, BOOL require_de
 		case TYPE_RECT:
 			{
 				//RN: hack to support reading rectangles from a string
-				LLString rect_string;
+				std::string rect_string;
 
 				child_nodep->getAttributeString("value", rect_string);
 				std::istringstream istream(rect_string);
@@ -937,7 +933,7 @@ U32 LLControlGroup::loadFromFileLegacy(const LLString& filename, BOOL require_de
 	return validitems;
 }
 
-U32 LLControlGroup::saveToFile(const LLString& filename, BOOL nondefault_only)
+U32 LLControlGroup::saveToFile(const std::string& filename, BOOL nondefault_only)
 {
 	LLSD settings;
 	int num_saved = 0;
@@ -967,7 +963,7 @@ U32 LLControlGroup::saveToFile(const LLString& filename, BOOL nondefault_only)
 		}
 	}
 	llofstream file;
-	file.open(filename.c_str());
+	file.open(filename);
 	if (file.is_open())
 	{
 		LLSDSerialize::toPrettyXML(settings, file);
@@ -983,13 +979,13 @@ U32 LLControlGroup::saveToFile(const LLString& filename, BOOL nondefault_only)
 	return num_saved;
 }
 
-U32 LLControlGroup::loadFromFile(const LLString& filename)
+U32 LLControlGroup::loadFromFile(const std::string& filename)
 {
-	LLString name;
+	std::string name;
 	LLSD settings;
 	LLSD control_map;
 	llifstream infile;
-	infile.open(filename.c_str());
+	infile.open(filename);
 	if(!infile.is_open())
 	{
 		llwarns << "Cannot find file " << filename << " to load." << llendl;
@@ -1067,10 +1063,10 @@ void LLControlGroup::applyToAll(ApplyFunctor* func)
 //============================================================================
 // First-use
 
-static LLString get_warn_name(const LLString& name)
+static std::string get_warn_name(const std::string& name)
 {
-	LLString warnname = "Warn" + name;
-	for (LLString::iterator iter = warnname.begin(); iter != warnname.end(); ++iter)
+	std::string warnname = "Warn" + name;
+	for (std::string::iterator iter = warnname.begin(); iter != warnname.end(); ++iter)
 	{
 		char c = *iter;
 		if (!isalnum(c))
@@ -1081,32 +1077,32 @@ static LLString get_warn_name(const LLString& name)
 	return warnname;
 }
 
-void LLControlGroup::addWarning(const LLString& name)
+void LLControlGroup::addWarning(const std::string& name)
 {
-	LLString warnname = get_warn_name(name);
+	std::string warnname = get_warn_name(name);
 	if(mNameTable.find(warnname) == mNameTable.end())
 	{
-		LLString comment = LLString("Enables ") + name + LLString(" warning dialog");
+		std::string comment = std::string("Enables ") + name + std::string(" warning dialog");
 		declareBOOL(warnname, TRUE, comment);
 		mWarnings.insert(warnname);
 	}
 }
 
-BOOL LLControlGroup::getWarning(const LLString& name)
+BOOL LLControlGroup::getWarning(const std::string& name)
 {
-	LLString warnname = get_warn_name(name);
+	std::string warnname = get_warn_name(name);
 	return getBOOL(warnname);
 }
 
-void LLControlGroup::setWarning(const LLString& name, BOOL val)
+void LLControlGroup::setWarning(const std::string& name, BOOL val)
 {
-	LLString warnname = get_warn_name(name);
+	std::string warnname = get_warn_name(name);
 	setBOOL(warnname, val);
 }
 
 void LLControlGroup::resetWarnings()
 {
-	for (std::set<LLString>::iterator iter = mWarnings.begin();
+	for (std::set<std::string>::iterator iter = mWarnings.begin();
 		 iter != mWarnings.end(); ++iter)
 	{
 		setBOOL(*iter, TRUE);

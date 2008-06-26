@@ -40,10 +40,10 @@ const S32 MAX_KEY_BINDINGS = 128; // was 60
 class LLNamedFunction
 {
 public:
-	LLNamedFunction() : mName(NULL), mFunction(NULL) { };
+	LLNamedFunction() : mFunction(NULL) { };
 	~LLNamedFunction() { };
 
-	const char *mName;
+	std::string	mName;
 	LLKeyFunc	mFunction;
 };
 
@@ -68,16 +68,16 @@ public:
 
 	BOOL			handleKey(KEY key, MASK mask, BOOL repeated);
 
-	void			bindNamedFunction(const char *name, LLKeyFunc func);
+	void			bindNamedFunction(const std::string& name, LLKeyFunc func);
 
-	S32				loadBindings(const char *filename);										// returns number bound, 0 on error
+	S32				loadBindings(const std::string& filename);										// returns number bound, 0 on error
 	EKeyboardMode	getMode();
 
-	BOOL			modeFromString(const char *string, S32 *mode);			// False on failure
+	BOOL			modeFromString(const std::string& string, S32 *mode);			// False on failure
 
 	void			scanKey(KEY key, BOOL key_down, BOOL key_up, BOOL key_level);
 protected:
-	BOOL			bindKey(const S32 mode, const KEY key, const MASK mask, const char *function_name);
+	BOOL			bindKey(const S32 mode, const KEY key, const MASK mask, const std::string& function_name);
 	S32				mNamedFunctionCount;
 	LLNamedFunction	mNamedFunctions[MAX_NAMED_FUNCTIONS];
 

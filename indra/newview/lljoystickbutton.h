@@ -49,7 +49,7 @@ class LLJoystick
 :	public LLButton
 {
 public:
-	LLJoystick(const LLString& name, LLRect rect,	const LLString &default_image,	const LLString &selected_image, EJoystickQuadrant initial);
+	LLJoystick(const std::string& name, LLRect rect,	const std::string &default_image,	const std::string &selected_image, EJoystickQuadrant initial);
 
 	virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
@@ -63,8 +63,8 @@ public:
 	void            setInitialQuadrant(EJoystickQuadrant initial) { mInitialQuadrant = initial; };
 	
 	virtual LLXMLNodePtr getXML(bool save_children = true) const;
-	static LLString nameFromQuadrant(const EJoystickQuadrant quadrant);
-	static EJoystickQuadrant quadrantFromName(const LLString& name);
+	static std::string nameFromQuadrant(const EJoystickQuadrant quadrant);
+	static EJoystickQuadrant quadrantFromName(const std::string& name);
 	static EJoystickQuadrant selectQuadrant(LLXMLNodePtr node);
 
 
@@ -90,7 +90,7 @@ class LLJoystickAgentTurn
 :	public LLJoystick
 {
 public:
-	LLJoystickAgentTurn(const LLString& name, LLRect rect, const LLString &default_image, const LLString &selected_image, EJoystickQuadrant initial)
+	LLJoystickAgentTurn(const std::string& name, LLRect rect, const std::string &default_image, const std::string &selected_image, EJoystickQuadrant initial)
 		: LLJoystick(name, rect, default_image, selected_image, initial)
 	{ }
 
@@ -106,7 +106,7 @@ class LLJoystickAgentSlide
 :	public LLJoystick
 {
 public:
-	LLJoystickAgentSlide(const LLString& name, LLRect rect, const LLString &default_image, const LLString &selected_image, EJoystickQuadrant initial)
+	LLJoystickAgentSlide(const std::string& name, LLRect rect, const std::string &default_image, const std::string &selected_image, EJoystickQuadrant initial)
 		: LLJoystick(name, rect, default_image, selected_image, initial)
 	{ }
 	
@@ -122,7 +122,7 @@ class LLJoystickCameraRotate
 :	public LLJoystick
 {
 public:
-	LLJoystickCameraRotate(const LLString& name, LLRect rect, const LLString &out_img, const LLString &in_img);
+	LLJoystickCameraRotate(const std::string& name, LLRect rect, const std::string &out_img, const std::string &in_img);
 
 	virtual void	setToggleState( BOOL left, BOOL top, BOOL right, BOOL bottom );
 
@@ -148,7 +148,7 @@ class LLJoystickCameraTrack
 :	public LLJoystickCameraRotate
 {
 public:
-	LLJoystickCameraTrack(const LLString& name, LLRect rect, const LLString &out_img, const LLString &in_img)
+	LLJoystickCameraTrack(const std::string& name, LLRect rect, const std::string &out_img, const std::string &in_img)
 		: LLJoystickCameraRotate(name, rect, out_img, in_img)
 	{ }
 
@@ -161,7 +161,7 @@ class LLJoystickCameraZoom
 :	public LLJoystick
 {
 public:
-	LLJoystickCameraZoom(const LLString& name, LLRect rect, const LLString &out_img, const LLString &plus_in_img, const LLString &minus_in_img);
+	LLJoystickCameraZoom(const std::string& name, LLRect rect, const std::string &out_img, const std::string &plus_in_img, const std::string &minus_in_img);
 
 	virtual void	setToggleState( BOOL top, BOOL bottom );
 

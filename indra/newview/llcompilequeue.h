@@ -66,7 +66,7 @@ public:
 
 protected:
 	LLFloaterScriptQueue(const std::string& name, const LLRect& rect,
-						 const char* title, const char* start_string);
+						 const std::string& title, const std::string& start_string);
 	virtual ~LLFloaterScriptQueue();
 
 	// This is the callback method for the viewer object currently
@@ -109,7 +109,7 @@ protected:
 	LLUUID mID;
 	static LLMap<LLUUID, LLFloaterScriptQueue*> sInstances;
 
-	const char* mStartString;
+	std::string mStartString;
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -144,7 +144,7 @@ protected:
 									   S32 status, LLExtStat ext_status);
 
 	// compile the file given and save it out.
-	void compile(const char* filename, const LLUUID& asset_id);
+	void compile(const std::string& filename, const LLUUID& asset_id);
 	
 	// remove any object in mScriptScripts with the matching uuid.
 	void removeItemByAssetID(const LLUUID& asset_id);

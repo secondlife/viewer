@@ -37,7 +37,7 @@ class LLUUID;
 class LLDispatcher;
 
 
-void send_generic_message(const char* method,
+void send_generic_message(const std::string& method,
 						  const std::vector<std::string>& strings,
 						  const LLUUID& invoice = LLUUID::null);
 

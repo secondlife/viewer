@@ -344,7 +344,7 @@ void LLPanelGroupGeneral::onClickJoin(void *userdata)
 	if (gdatap)
 	{
 		S32 cost = gdatap->mMembershipFee;
-		LLString::format_map_t args;
+		LLStringUtil::format_map_t args;
 		args["[COST]"] = llformat("%d", cost);
 		
 		if (can_afford_transaction(cost))
@@ -394,7 +394,7 @@ void LLPanelGroupGeneral::openProfile(void* data)
 	}
 }
 
-bool LLPanelGroupGeneral::needsApply(LLString& mesg)
+bool LLPanelGroupGeneral::needsApply(std::string& mesg)
 { 
 	mesg = getUIString("group_info_unchanged");
 	return mChanged || mGroupID.isNull();
@@ -432,7 +432,7 @@ void LLPanelGroupGeneral::draw()
 	}
 }
 
-bool LLPanelGroupGeneral::apply(LLString& mesg)
+bool LLPanelGroupGeneral::apply(std::string& mesg)
 {
 	BOOL has_power_in_group = gAgent.hasPowerInGroup(mGroupID,GP_GROUP_CHANGE_IDENTITY);
 
@@ -443,7 +443,7 @@ bool LLPanelGroupGeneral::apply(LLString& mesg)
 		// Check to make sure mature has been set
 		if(mComboMature->getCurrentIndex() == DECLINE_TO_STATE)
 		{
-			LLString::format_map_t args;
+			LLStringUtil::format_map_t args;
 			gViewerWindow->alertXml("SetGroupMature", &callbackConfirmMatureApply,
 				new LLHandle<LLPanel>(getHandle()));
 			return false;
@@ -463,7 +463,7 @@ bool LLPanelGroupGeneral::apply(LLString& mesg)
 				return false;
 			}
 
-			LLString::format_map_t args;
+			LLStringUtil::format_map_t args;
 			args["[MESSAGE]"] = mConfirmGroupCreateStr;
 			gViewerWindow->alertXml("GenericAlertYesCancel", args,
 				createGroupCallback, new LLHandle<LLPanel>(getHandle()) );
@@ -474,7 +474,8 @@ bool LLPanelGroupGeneral::apply(LLString& mesg)
 		LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
 		if (!gdatap)
 		{
-			mesg = "No group data found for group ";
+			// *TODO: Translate
+			mesg = std::string("No group data found for group ");
 			mesg.append(mGroupID.asString());
 			return false;
 		}
@@ -575,7 +576,7 @@ void LLPanelGroupGeneral::confirmMatureApply(S32 option)
 	}
 
 	// If we got here it means they set a valid value
-	LLString mesg = "";
+	std::string mesg = "";
 	apply(mesg);
 }
 
@@ -721,7 +722,7 @@ void LLPanelGroupGeneral::update(LLGroupChange gc)
 	}
 	if ( mBtnJoinGroup )
 	{
-		char fee_buff[20];		/*Flawfinder: ignore*/
+		std::string fee_buff;
 		bool visible;
 
 		visible = !is_member && gdatap->mOpenEnrollment;
@@ -729,9 +730,9 @@ void LLPanelGroupGeneral::update(LLGroupChange gc)
 
 		if ( visible )
 		{
-			snprintf(fee_buff, sizeof(fee_buff), "Join (L$%d)", gdatap->mMembershipFee);			/* Flawfinder: ignore */
-			mBtnJoinGroup->setLabelSelected(std::string(fee_buff));
-			mBtnJoinGroup->setLabelUnselected(std::string(fee_buff));
+			fee_buff = llformat( "Join (L$%d)", gdatap->mMembershipFee);
+			mBtnJoinGroup->setLabelSelected(fee_buff);
+			mBtnJoinGroup->setLabelUnselected(fee_buff);
 		}
 	}
 	if ( mBtnInfo )
@@ -825,7 +826,7 @@ void LLPanelGroupGeneral::updateMembers()
 			continue;
 		}
 		// Owners show up in bold.
-		LLString style = "NORMAL";
+		std::string style = "NORMAL";
 		if ( member->isOwner() )
 		{
 			style = "BOLD";

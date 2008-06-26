@@ -378,7 +378,7 @@ public:
 	 * AssetID version.
 	 */
 	virtual void storeAssetData(
-		const char* filename,
+		const std::string& filename,
 		const LLUUID& asset_id,
 		LLAssetType::EType type,
 		LLStoreAssetCallback callback,
@@ -392,7 +392,7 @@ public:
 	 * TransactionID version
 	 */
 	virtual void storeAssetData(
-		const char * filename,
+		const std::string& filename,
 		const LLTransactionID &transaction_id,
 		LLAssetType::EType type,
 		LLStoreAssetCallback callback,
@@ -451,9 +451,9 @@ protected:
 
 	static class LLMetrics *metric_recipient;
 
-	static void reportMetric( const LLUUID& asset_id, const LLAssetType::EType asset_type, const char *filename,
-					   const LLUUID& agent_id, S32 asset_size, EMetricResult result,
-					   const char *file, const S32 line, const char *message ); 
+	static void reportMetric( const LLUUID& asset_id, const LLAssetType::EType asset_type, const std::string& filename,
+							  const LLUUID& agent_id, S32 asset_size, EMetricResult result,
+							  const char* file, const S32 line, const std::string& message ); 
 public:
 	static void setMetricRecipient( LLMetrics *recip )
 	{

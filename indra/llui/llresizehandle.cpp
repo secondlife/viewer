@@ -43,7 +43,7 @@
 
 const S32 RESIZE_BORDER_WIDTH = 3;
 
-LLResizeHandle::LLResizeHandle( const LLString& name, const LLRect& rect, S32 min_width, S32 min_height, ECorner corner )
+LLResizeHandle::LLResizeHandle( const std::string& name, const LLRect& rect, S32 min_width, S32 min_height, ECorner corner )
 	:
 	LLView( name, rect, TRUE ),
 	mDragLastScreenX( 0 ),

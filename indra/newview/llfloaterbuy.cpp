@@ -52,7 +52,7 @@
 LLFloaterBuy* LLFloaterBuy::sInstance = NULL;
 
 LLFloaterBuy::LLFloaterBuy()
-:	LLFloater("floater_buy_object", "FloaterBuyRect", "")
+:	LLFloater(std::string("floater_buy_object"), std::string("FloaterBuyRect"), LLStringUtil::null)
 {
 	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_buy_object.xml");
 
@@ -132,7 +132,7 @@ void LLFloaterBuy::show(const LLSaleInfo& sale_info)
 	sInstance->setTitle(title);
 
 	LLUUID owner_id;
-	LLString owner_name;
+	std::string owner_name;
 	BOOL owners_identical = LLSelectMgr::getInstance()->selectGetOwner(owner_id, owner_name);
 	if (!owners_identical)
 	{
@@ -151,7 +151,7 @@ void LLFloaterBuy::show(const LLSaleInfo& sale_info)
 	LLSD row;
 
 	// Compute icon for this item
-	LLString icon_name = get_item_icon_name(LLAssetType::AT_OBJECT, 
+	std::string icon_name = get_item_icon_name(LLAssetType::AT_OBJECT, 
 									 LLInventoryType::IT_OBJECT,
 									 0x0, FALSE);
 
@@ -162,7 +162,7 @@ void LLFloaterBuy::show(const LLSaleInfo& sale_info)
 	// Append the permissions that you will acquire (not the current
 	// permissions).
 	U32 next_owner_mask = node->mPermissions->getMaskNextOwner();
-	LLString text = node->mName;
+	std::string text = node->mName;
 	if (!(next_owner_mask & PERM_COPY))
 	{
 		text.append(sInstance->getString("no_copy_text"));
@@ -256,7 +256,7 @@ void LLFloaterBuy::inventoryChanged(LLViewerObject* obj,
 			item_is_multi = TRUE;
 		}
 
-		LLString icon_name = get_item_icon_name(inv_item->getType(), 
+		std::string icon_name = get_item_icon_name(inv_item->getType(), 
 							 inv_item->getInventoryType(),
 							 inv_item->getFlags(),
 							 item_is_multi);
@@ -267,7 +267,7 @@ void LLFloaterBuy::inventoryChanged(LLViewerObject* obj,
 		// Append the permissions that you will acquire (not the current
 		// permissions).
 		U32 next_owner_mask = inv_item->getPermissions().getMaskNextOwner();
-		LLString text = obj->getName();
+		std::string text = obj->getName();
 		if (!(next_owner_mask & PERM_COPY))
 		{
 			text.append(" (no copy)");

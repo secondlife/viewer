@@ -62,11 +62,11 @@ public:
 	 * @param description The text description of the option usage.
 	 */
 	void addOptionDesc(
-					   const LLString& option_name, 
+					   const std::string& option_name, 
 					   boost::function1<void, const token_vector_t&> notify_callback = 0,
 					   unsigned int num_tokens = 0,
-					   const LLString& description = LLString::null,
-					   const LLString& short_name = LLString::null,
+					   const std::string& description = LLStringUtil::null,
+					   const std::string& short_name = LLStringUtil::null,
 					   bool composing = false,
 					   bool positional = false,
 					   bool last_option = false);
@@ -159,7 +159,7 @@ public:
 	 *
 	 * *FIX:Mani Specify config file format.
 	 */
-	void configure(const LLString& config_filename, 
+	void configure(const std::string& config_filename, 
 				   LLControlGroup* controlGroup);
 };
 

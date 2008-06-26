@@ -584,7 +584,7 @@ LLViewerKeyboard::LLViewerKeyboard() :
 }
 
 
-void LLViewerKeyboard::bindNamedFunction(const char *name, LLKeyFunc func)
+void LLViewerKeyboard::bindNamedFunction(const std::string& name, LLKeyFunc func)
 {
 	S32 i = mNamedFunctionCount;
 	mNamedFunctions[i].mName = name;
@@ -593,29 +593,29 @@ void LLViewerKeyboard::bindNamedFunction(const char *name, LLKeyFunc func)
 }
 
 
-BOOL LLViewerKeyboard::modeFromString(const char *string, S32 *mode)
+BOOL LLViewerKeyboard::modeFromString(const std::string& string, S32 *mode)
 {
-	if (!strcmp(string, "FIRST_PERSON"))
+	if (string == "FIRST_PERSON")
 	{
 		*mode = MODE_FIRST_PERSON;
 		return TRUE;
 	}
-	else if (!strcmp(string, "THIRD_PERSON"))
+	else if (string == "THIRD_PERSON")
 	{
 		*mode = MODE_THIRD_PERSON;
 		return TRUE;
 	}
-	else if (!strcmp(string, "EDIT"))
+	else if (string == "EDIT")
 	{
 		*mode = MODE_EDIT;
 		return TRUE;
 	}
-	else if (!strcmp(string, "EDIT_AVATAR"))
+	else if (string == "EDIT_AVATAR")
 	{
 		*mode = MODE_EDIT_AVATAR;
 		return TRUE;
 	}
-	else if (!strcmp(string, "SITTING"))
+	else if (string == "SITTING")
 	{
 		*mode = MODE_SITTING;
 		return TRUE;
@@ -663,11 +663,11 @@ BOOL LLViewerKeyboard::handleKey(KEY translated_key,  MASK translated_mask, BOOL
 
 
 
-BOOL LLViewerKeyboard::bindKey(const S32 mode, const KEY key, const MASK mask, const char *function_name)
+BOOL LLViewerKeyboard::bindKey(const S32 mode, const KEY key, const MASK mask, const std::string& function_name)
 {
 	S32 i,index;
 	void (*function)(EKeystate keystate) = NULL;
-	const char *name = NULL;
+	std::string name;
 
 	// Allow remapping of F2-F12
 	if (function_name[0] == 'F')
@@ -691,7 +691,7 @@ BOOL LLViewerKeyboard::bindKey(const S32 mode, const KEY key, const MASK mask, c
 	// Not remapped, look for a function
 	for (i = 0; i < mNamedFunctionCount; i++)
 	{
-		if (!strcmp(function_name, mNamedFunctions[i].mName))
+		if (function_name == mNamedFunctions[i].mName)
 		{
 			function = mNamedFunctions[i].mFunction;
 			name = mNamedFunctions[i].mName;
@@ -731,22 +731,20 @@ BOOL LLViewerKeyboard::bindKey(const S32 mode, const KEY key, const MASK mask, c
 	if (index == mBindingCount[mode])
 		mBindingCount[mode]++;
 
-	// printf("Bound key %c to %s\n", key, name);
-
 	return TRUE;
 }
 
 
-S32 LLViewerKeyboard::loadBindings(const char *filename)
+S32 LLViewerKeyboard::loadBindings(const std::string& filename)
 {
 	LLFILE *fp;
 	const S32 BUFFER_SIZE = 2048;
 	char buffer[BUFFER_SIZE];	/* Flawfinder: ignore */
 	// *NOTE: This buffer size is hard coded into scanf() below.
-	char mode_string[MAX_STRING];	/* Flawfinder: ignore */
-	char key_string[MAX_STRING];	/* Flawfinder: ignore */
-	char mask_string[MAX_STRING];	/* Flawfinder: ignore */
-	char function_string[MAX_STRING];	/* Flawfinder: ignore */
+	char mode_string[MAX_STRING] = "";	/* Flawfinder: ignore */
+	char key_string[MAX_STRING] = "";	/* Flawfinder: ignore */
+	char mask_string[MAX_STRING] = "";	/* Flawfinder: ignore */
+	char function_string[MAX_STRING] = "";	/* Flawfinder: ignore */
 	S32 mode = MODE_THIRD_PERSON;
 	KEY key = 0;
 	MASK mask = 0;
@@ -754,7 +752,7 @@ S32 LLViewerKeyboard::loadBindings(const char *filename)
 	S32 binding_count = 0;
 	S32 line_count = 0;
 
-	if(!filename)
+	if(filename.empty())
 	{
 		llerrs << " No filename specified" << llendl;
 		return 0;

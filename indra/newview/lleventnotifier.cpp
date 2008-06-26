@@ -77,7 +77,7 @@ void LLEventNotifier::update()
 
 			if (np->getEventDate() < (alert_time))
 			{
-				LLString::format_map_t args;
+				LLStringUtil::format_map_t args;
 				args["[NAME]"] = np->getEventName();
 				args["[DATE]"] = np->getEventDateStr();
 				LLNotifyBox::showXml("EventNotification", args, 

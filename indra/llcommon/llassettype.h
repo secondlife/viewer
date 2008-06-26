@@ -145,11 +145,13 @@ public:
 	};
 
 	// machine transation between type and strings
-	static EType lookup(const char* name);
+	static EType lookup(const char* name); // safe conversion to std::string, *TODO: deprecate
+	static EType lookup(const std::string& name);
 	static const char* lookup(EType type);
 
 	// translation from a type to a human readable form.
-	static EType lookupHumanReadable( const char* name );
+	static EType lookupHumanReadable( const char* name ); // safe conversion to std::string, *TODO: deprecate
+	static EType lookupHumanReadable( const std::string& name );
 	static const char* lookupHumanReadable(EType type);
 
 	static EDragAndDropType lookupDragAndDropType( EType );

@@ -60,21 +60,21 @@ public:
 		flagAll				= 0x0000000F		// Mask of all currently defined flags
 	};
 	
-	LLMute(const LLUUID& id, const LLString& name = LLString(), EType type = BY_NAME, U32 flags = 0) 
+	LLMute(const LLUUID& id, const std::string& name = std::string(), EType type = BY_NAME, U32 flags = 0) 
 	: mID(id), mName(name), mType(type),mFlags(flags) { }
 
 	// Returns name + suffix based on type
 	// For example:  "James Tester (resident)"
-	LLString getDisplayName() const;
+	std::string getDisplayName() const;
 	
 	// Converts a UI name into just the agent or object name
 	// For example: "James Tester (resident)" sets the name to "James Tester"
 	// and the type to AGENT.
-	void setFromDisplayName(const LLString& display_name);
+	void setFromDisplayName(const std::string& display_name);
 	
 public:
 	LLUUID		mID;	// agent or object id
-	LLString	mName;	// agent or object name
+	std::string	mName;	// agent or object name
 	EType		mType;	// needed for UI display of existing mutes
 	U32			mFlags;	// flags pertaining to this mute entry
 };
@@ -107,15 +107,15 @@ public:
 
 	// Remove both normal and legacy mutes, for any or all properties.
 	BOOL remove(const LLMute& mute, U32 flags = 0);
-	BOOL autoRemove(const LLUUID& agent_id, const EAutoReason reason, const LLString& first_name = "", const LLString& last_name = "");
+	BOOL autoRemove(const LLUUID& agent_id, const EAutoReason reason, const std::string& first_name = LLStringUtil::null, const std::string& last_name = LLStringUtil::null);
 	
 	// Name is required to test against legacy text-only mutes.
-	BOOL isMuted(const LLUUID& id, const LLString& name = LLString::null, U32 flags = 0) const;
+	BOOL isMuted(const LLUUID& id, const std::string& name = LLStringUtil::null, U32 flags = 0) const;
 	
 	// Alternate (convenience) form for places we don't need to pass the name, but do need flags
-	BOOL isMuted(const LLUUID& id, U32 flags) const { return isMuted(id, LLString::null, flags); };
+	BOOL isMuted(const LLUUID& id, U32 flags) const { return isMuted(id, LLStringUtil::null, flags); };
 	
-	BOOL isLinden(const LLString& name) const;
+	BOOL isLinden(const std::string& name) const;
 	
 	BOOL isLoaded() const { return mIsLoaded; }
 
@@ -131,8 +131,8 @@ public:
 	F32 getSavedResidentVolume(const LLUUID& id);
 
 private:
-	BOOL loadFromFile(const LLString& filename);
-	BOOL saveToFile(const LLString& filename);
+	BOOL loadFromFile(const std::string& filename);
+	BOOL saveToFile(const std::string& filename);
 
 	void setLoaded();
 	void notifyObservers();
@@ -164,7 +164,7 @@ private:
 	typedef std::set<LLMute, compare_by_id> mute_set_t;
 	mute_set_t mMutes;
 	
-	typedef std::set<LLString> string_set_t;
+	typedef std::set<std::string> string_set_t;
 	string_set_t mLegacyMutes;
 	
 	typedef std::set<LLMuteListObserver*> observer_set_t;

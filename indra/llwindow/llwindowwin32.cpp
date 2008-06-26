@@ -80,7 +80,7 @@ LLW32MsgCallback gAsyncMsgCallback = NULL;
 // LLWindowWin32
 //
 
-void show_window_creation_error(const char* title)
+void show_window_creation_error(const std::string& title)
 {
 	LL_WARNS("Window") << title << LL_ENDL;
 }
@@ -357,7 +357,7 @@ LLWinImm::~LLWinImm()
 }
 
 
-LLWindowWin32::LLWindowWin32(const char *title, const char *name, S32 x, S32 y, S32 width,
+LLWindowWin32::LLWindowWin32(const std::string& title, const std::string& name, S32 x, S32 y, S32 width,
 							 S32 height, U32 flags, 
 							 BOOL fullscreen, BOOL clearBg,
 							 BOOL disable_vsync, BOOL use_gl,
@@ -384,7 +384,7 @@ LLWindowWin32::LLWindowWin32(const char *title, const char *name, S32 x, S32 y, 
 	RECT			window_rect;
 
 	// Set the window title
-	if (!title)
+	if (title.empty())
 	{
 		mWindowTitle = new WCHAR[50];
 		wsprintf(mWindowTitle, L"OpenGL Window");
@@ -392,12 +392,12 @@ LLWindowWin32::LLWindowWin32(const char *title, const char *name, S32 x, S32 y, 
 	else
 	{
 		mWindowTitle = new WCHAR[256]; // Assume title length < 255 chars.
-		mbstowcs(mWindowTitle, title, 255);
+		mbstowcs(mWindowTitle, title.c_str(), 255);
 		mWindowTitle[255] = 0;
 	}
 
 	// Set the window class name
-	if (!name)
+	if (name.empty())
 	{
 		mWindowClassName = new WCHAR[50];
 		wsprintf(mWindowClassName, L"OpenGL Window");
@@ -405,7 +405,7 @@ LLWindowWin32::LLWindowWin32(const char *title, const char *name, S32 x, S32 y, 
 	else
 	{
 		mWindowClassName = new WCHAR[256]; // Assume title length < 255 chars.
-		mbstowcs(mWindowClassName, name, 255);
+		mbstowcs(mWindowClassName, name.c_str(), 255);
 		mWindowClassName[255] = 0;
 	}
 
@@ -569,8 +569,7 @@ LLWindowWin32::LLWindowWin32(const char *title, const char *name, S32 x, S32 y, 
 			mFullscreenBits    = -1;
 			mFullscreenRefresh = -1;
 
-			char error[256];	/* Flawfinder: ignore */
-			snprintf(error, sizeof(error), "Unable to run fullscreen at %d x %d.\nRunning in window.", width, height);	/* Flawfinder: ignore */
+			std::string error = llformat("Unable to run fullscreen at %d x %d.\nRunning in window.", width, height);
 			OSMessageBox(error, "Error", OSMB_OK);
 		}
 	}
@@ -2375,7 +2374,7 @@ BOOL LLWindowWin32::pasteTextFromClipboard(LLWString &dst)
 				if (utf16str)
 				{
 					dst = utf16str_to_wstring(utf16str);
-					LLWString::removeCRLF(dst);
+					LLWStringUtil::removeCRLF(dst);
 					GlobalUnlock(h_data);
 					success = TRUE;
 				}
@@ -2398,7 +2397,7 @@ BOOL LLWindowWin32::copyTextToClipboard(const LLWString& wstr)
 
 		// Provide a copy of the data in Unicode format.
 		LLWString sanitized_string(wstr);
-		LLWString::addCRLF(sanitized_string);
+		LLWStringUtil::addCRLF(sanitized_string);
 		llutf16string out_utf16 = wstring_to_utf16str(sanitized_string);
 		const size_t size_utf16 = (out_utf16.length() + 1) * sizeof(WCHAR);
 
@@ -2483,86 +2482,6 @@ BOOL LLWindowWin32::getClientRectInScreenSpace( RECT* rectp )
 	}
 
 	return success;
-}
-
-
-BOOL LLWindowWin32::sendEmail(const char* address, const char* subject, const char* body_text,
-									   const char* attachment, const char* attachment_displayed_name )
-{
-	// Based on "A SendMail() DLL" by Greg Turner, Windows Developer Magazine, Nov. 1997.
-	// See article for use of GetProcAddress
-	// No restrictions on use.
-
-	enum SendResult
-	{
-		LL_EMAIL_SUCCESS,
-		LL_EMAIL_MAPI_NOT_INSTALLED,	// No MAPI Server (eg Microsoft Exchange) installed
-		LL_EMAIL_MAPILOAD_FAILED,		// Load of MAPI32.DLL failed
-		LL_EMAIL_SEND_FAILED			// The message send itself failed
-	};
-
-	SendResult  result = LL_EMAIL_SUCCESS;
-
-	U32 mapi_installed = GetProfileInt(L"Mail", L"MAPI", 0);
-	if( !mapi_installed)
-	{
-		result = LL_EMAIL_MAPI_NOT_INSTALLED;
-	}
-	else
-	{
-		HINSTANCE hMAPIInst = LoadLibrary(L"MAPI32.DLL");	/* Flawfinder: ignore */
-		if(!hMAPIInst)
-		{
-			result =  LL_EMAIL_MAPILOAD_FAILED;
-		}
-		else
-		{
-			LPMAPISENDMAIL	pMAPISendMail   = (LPMAPISENDMAIL)	GetProcAddress(hMAPIInst, "MAPISendMail");
-
-			// Send the message
-			MapiRecipDesc recipients[1];
-			recipients[0].ulReserved = 0;
-			recipients[0].ulRecipClass = MAPI_TO;
-			recipients[0].lpszName = (char*)address;
-			recipients[0].lpszAddress = (char*)address;
-			recipients[0].ulEIDSize = 0;
-			recipients[0].lpEntryID = 0;
-
-			MapiFileDesc files[1];
-			files[0].ulReserved = 0;
-			files[0].flFlags = 0;				// non-OLE file
-			files[0].nPosition = -1;			// Leave file location in email unspecified.
-			files[0].lpszPathName = (char*)attachment; // Must be fully qualified name, including drive letter.
-			files[0].lpszFileName = (char*)attachment_displayed_name;		// If NULL, uses attachment as displayed name.
-			files[0].lpFileType = NULL;			// Recipient will have to figure out what kind of file this is.
-
-			MapiMessage msg;
-			memset(&msg, 0, sizeof(msg));
-			msg.lpszSubject         = (char*)subject;		// may be NULL
-			msg.lpszNoteText        = (char*)body_text;
-			msg.nRecipCount         = address ? 1 : 0;
-			msg.lpRecips            = address ? recipients : NULL;
-			msg.nFileCount			= attachment ? 1 : 0;
-			msg.lpFiles				= attachment ? files : NULL;
-
-			U32 success = pMAPISendMail(0, (U32) mWindowHandle, &msg, MAPI_DIALOG|MAPI_LOGON_UI|MAPI_NEW_SESSION, 0);
-			if(success != SUCCESS_SUCCESS)
-			{
-				result = LL_EMAIL_SEND_FAILED;
-			}
-
-			FreeLibrary(hMAPIInst);
-		}
-	}
-
-	return result == LL_EMAIL_SUCCESS;
-}
-
-
-S32 LLWindowWin32::stat(const char* file_name, struct stat* stat_info)
-{
-	llassert( sizeof(struct stat) == sizeof(struct _stat) );  // They are defined identically in sys/stat.h, but I'm paranoid.
-	return LLFile::stat( file_name, (struct _stat*) stat_info );
 }
 
 void LLWindowWin32::flashIcon(F32 seconds)
@@ -2802,12 +2721,12 @@ void LLSplashScreenWin32::showImpl()
 }
 
 
-void LLSplashScreenWin32::updateImpl(const char *mesg)
+void LLSplashScreenWin32::updateImpl(const std::string& mesg)
 {
 	if (!mWindow) return;
 
 	WCHAR w_mesg[1024];
-	mbstowcs(w_mesg, mesg, 1024);
+	mbstowcs(w_mesg, mesg.c_str(), 1024);
 
 	SendDlgItemMessage(mWindow,
 		666,		// HACK: text id
@@ -2839,7 +2758,7 @@ LRESULT CALLBACK LLSplashScreenWin32::windowProc(HWND h_wnd, UINT u_msg,
 // Helper Funcs
 //
 
-S32 OSMessageBoxWin32(const char* text, const char* caption, U32 type)
+S32 OSMessageBoxWin32(const std::string& text, const std::string& caption, U32 type)
 {
 	UINT uType;
 
@@ -2860,7 +2779,7 @@ S32 OSMessageBoxWin32(const char* text, const char* caption, U32 type)
 	}
 
 	// HACK! Doesn't properly handle wide strings!
-	int retval_win = MessageBoxA(NULL, text, caption, uType);
+	int retval_win = MessageBoxA(NULL, text.c_str(), caption.c_str(), uType);
 	S32 retval;
 
 	switch(retval_win)
@@ -2886,15 +2805,13 @@ S32 OSMessageBoxWin32(const char* text, const char* caption, U32 type)
 }
 
 
-void spawn_web_browser(const char* escaped_url )
+void LLWindowWin32::spawnWebBrowser(const std::string& escaped_url )
 {
 	bool found = false;
 	S32 i;
 	for (i = 0; i < gURLProtocolWhitelistCount; i++)
 	{
-		S32 len = strlen(gURLProtocolWhitelist[i]);	/* Flawfinder: ignore */
-		if (!strncmp(escaped_url, gURLProtocolWhitelist[i], len)
-			&& escaped_url[len] == ':')
+		if (escaped_url.find(gURLProtocolWhitelist[i]) == 0)
 		{
 			found = true;
 			break;
@@ -2930,10 +2847,9 @@ void spawn_web_browser(const char* escaped_url )
 	// Figure out the user's default web browser
 	// HKEY_CLASSES_ROOT\http\shell\open\command
 	/*
-	char reg_path_str[256];	// Flawfinder: ignore
-	snprintf(reg_path_str, sizeof(reg_path_str), "%s\\shell\\open\\command", gURLProtocolWhitelistHandler[i]);	// Flawfinder: ignore
+	std::string reg_path_str = gURLProtocolWhitelistHandler[i] + "\\shell\\open\\command";
 	WCHAR reg_path_wstr[256];
-	mbstowcs(reg_path_wstr, reg_path_str, sizeof(reg_path_wstr)/sizeof(reg_path_wstr[0]));
+	mbstowcs(reg_path_wstr, reg_path_str.c_str(), sizeof(reg_path_wstr)/sizeof(reg_path_wstr[0]));
 
 	HKEY key;
 	WCHAR browser_open_wstr[1024];

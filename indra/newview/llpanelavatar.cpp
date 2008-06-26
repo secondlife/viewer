@@ -111,7 +111,7 @@ public:
 								   EDragAndDropType cargo_type,
 								   void* cargo_data,
 								   EAcceptance* accept,
-								   LLString& tooltip_msg);
+								   std::string& tooltip_msg);
 	void setAgentID(const LLUUID &agent_id)		{ mAgentID = agent_id; }
 protected:
 	LLUUID mAgentID;
@@ -138,7 +138,7 @@ BOOL LLDropTarget::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 									 EDragAndDropType cargo_type,
 									 void* cargo_data,
 									 EAcceptance* accept,
-									 LLString& tooltip_msg)
+									 std::string& tooltip_msg)
 {
 	BOOL handled = FALSE;
 	if(getParent())
@@ -234,7 +234,7 @@ void LLPanelAvatarTab::draw()
 	LLPanel::draw();
 }
 
-void LLPanelAvatarTab::sendAvatarProfileRequestIfNeeded(const char* method)
+void LLPanelAvatarTab::sendAvatarProfileRequestIfNeeded(const std::string& method)
 {
 	if (!mDataRequested)
 	{
@@ -292,8 +292,8 @@ void LLPanelAvatarSecondLife::clearControls()
 	childSetValue("born", "");
 	childSetValue("acct", "");
 
-	childSetTextArg("partner_edit", "[FIRST]", LLString::null);
-	childSetTextArg("partner_edit", "[LAST]", LLString::null);
+	childSetTextArg("partner_edit", "[FIRST]", LLStringUtil::null);
+	childSetTextArg("partner_edit", "[LAST]", LLStringUtil::null);
 
 	mPartnerID = LLUUID::null;
 	
@@ -502,7 +502,7 @@ BOOL LLPanelAvatarAdvanced::postBuild()
 	mWantToCount = (8>kArraySize(mWantToCheck))?kArraySize(mWantToCheck):8;
 	for(S32 tt=0; tt < mWantToCount; ++tt)
 	{	
-		LLString ctlname = llformat("chk%d", tt);
+		std::string ctlname = llformat("chk%d", tt);
 		mWantToCheck[tt] = getChild<LLCheckBoxCtrl>(ctlname);
 	}	
 	mSkillsCount = (6>kArraySize(mSkillsCheck))?kArraySize(mSkillsCheck):6;
@@ -510,7 +510,7 @@ BOOL LLPanelAvatarAdvanced::postBuild()
 	for(S32 tt=0; tt < mSkillsCount; ++tt)
 	{
 		//Find the Skills checkboxes and save off thier controls
-		LLString ctlname = llformat("schk%d",tt);
+		std::string ctlname = llformat("schk%d",tt);
 		mSkillsCheck[tt] = getChild<LLCheckBoxCtrl>(ctlname);
 	}
 
@@ -545,7 +545,7 @@ void LLPanelAvatarWeb::enableControls(BOOL self)
 {	
 	childSetEnabled("url_edit",self);
 	childSetVisible("status_text",!self && !mURL.empty());
-	childSetText("status_text", LLString::null);
+	childSetText("status_text", LLStringUtil::null);
 }
 
 void LLPanelAvatarWeb::setWebURL(std::string url)
@@ -780,7 +780,7 @@ void LLPanelAvatarNotes::onCommitNotes(LLUICtrl*, void* userdata)
 //-----------------------------------------------------------------------------
 // LLPanelAvatarClassified()
 //-----------------------------------------------------------------------------
-LLPanelAvatarClassified::LLPanelAvatarClassified(const LLString& name, const LLRect& rect,
+LLPanelAvatarClassified::LLPanelAvatarClassified(const std::string& name, const LLRect& rect,
 									   LLPanelAvatar* panel_avatar)
 :	LLPanelAvatarTab(name, rect, panel_avatar)
 {
@@ -885,7 +885,7 @@ void LLPanelAvatarClassified::processAvatarClassifiedReply(LLMessageSystem* msg,
 	S32 block = 0;
 	S32 block_count = 0;
 	LLUUID classified_id;
-	char classified_name[DB_PICK_NAME_SIZE];		/*Flawfinder: ignore*/
+	std::string classified_name;
 	LLPanelClassified* panel_classified = NULL;
 
 	LLTabContainer* tabs = getChild<LLTabContainer>("classified tab");
@@ -897,7 +897,7 @@ void LLPanelAvatarClassified::processAvatarClassifiedReply(LLMessageSystem* msg,
 	for (block = 0; block < block_count; block++)
 	{
 		msg->getUUIDFast(_PREHASH_Data, _PREHASH_ClassifiedID, classified_id, block);
-		msg->getStringFast(_PREHASH_Data, _PREHASH_Name, DB_PICK_NAME_SIZE, classified_name, block);
+		msg->getStringFast(_PREHASH_Data, _PREHASH_Name, classified_name, block);
 
 		panel_classified = new LLPanelClassified(false, false);
 
@@ -969,7 +969,7 @@ void LLPanelAvatarClassified::onClickDelete(void* data)
 	}
 	if (!panel_classified) return;
 
-	LLStringBase<char>::format_map_t args;
+	LLStringUtil::format_map_t args;
 	args["[NAME]"] = panel_classified->getClassifiedName();
 	gViewerWindow->alertXml("DeleteClassified", args, callbackDelete, self);
 		
@@ -1054,7 +1054,7 @@ void LLPanelAvatarPicks::processAvatarPicksReply(LLMessageSystem* msg, void**)
 	S32 block = 0;
 	S32 block_count = 0;
 	LLUUID pick_id;
-	char pick_name[DB_PICK_NAME_SIZE];		/*Flawfinder: ignore*/
+	std::string pick_name;
 	LLPanelPick* panel_pick = NULL;
 
 	LLTabContainer* tabs =  getChild<LLTabContainer>("picks tab");
@@ -1070,7 +1070,7 @@ void LLPanelAvatarPicks::processAvatarPicksReply(LLMessageSystem* msg, void**)
 	for (block = 0; block < block_count; block++)
 	{
 		msg->getUUID("Data", "PickID", pick_id, block);
-		msg->getString("Data", "PickName", DB_PICK_NAME_SIZE, pick_name, block);
+		msg->getString("Data", "PickName", pick_name, block);
 
 		panel_pick = new LLPanelPick(FALSE);
 
@@ -1127,7 +1127,7 @@ void LLPanelAvatarPicks::onClickDelete(void* data)
 
 	if (!panel_pick) return;
 
-	LLString::format_map_t args;
+	LLStringUtil::format_map_t args;
 	args["[PICK]"] = panel_pick->getPickName();
 
 	gViewerWindow->alertXml("DeleteAvatarPick", args,
@@ -1275,7 +1275,7 @@ void LLPanelAvatar::setAvatar(LLViewerObject *avatarp)
 	LLNameValue *firstname = avatarp->getNVPair("FirstName");
 	LLNameValue *lastname = avatarp->getNVPair("LastName");
 
-	LLString name;
+	std::string name;
 	if (firstname && lastname)
 	{
 		name.assign( firstname->getString() );
@@ -1330,7 +1330,7 @@ void LLPanelAvatar::setOnlineStatus(EOnlineStatus online_status)
 	}
 }
 
-void LLPanelAvatar::setAvatarID(const LLUUID &avatar_id, const LLString &name,
+void LLPanelAvatar::setAvatarID(const LLUUID &avatar_id, const std::string &name,
 								EOnlineStatus online_status)
 {
 	if (avatar_id.isNull()) return;
@@ -1532,7 +1532,7 @@ void LLPanelAvatar::resetGroupList()
 				row["columns"][0]["width"] = 0;
 				group_list->addElement(row);
 			}
-			group_list->sortByColumn(0, TRUE);
+			group_list->sortByColumnIndex(0, TRUE);
 		}
 	}
 }
@@ -1742,9 +1742,9 @@ void LLPanelAvatar::processAvatarPropertiesReply(LLMessageSystem *msg, void**)
 	LLUUID	image_id;
 	LLUUID	fl_image_id;
 	LLUUID	partner_id;
-	char	about_text[DB_USER_ABOUT_BUF_SIZE];		/*Flawfinder: ignore*/
-	char	fl_about_text[DB_USER_FL_ABOUT_BUF_SIZE];		/*Flawfinder: ignore*/
-	char	born_on[DB_BORN_BUF_SIZE];		/*Flawfinder: ignore*/
+	std::string	about_text;
+	std::string	fl_about_text;
+	std::string	born_on;
 	S32		charter_member_size = 0;
 	BOOL	allow_publish = FALSE;
 	//BOOL	mature = FALSE;
@@ -1752,7 +1752,7 @@ void LLPanelAvatar::processAvatarPropertiesReply(LLMessageSystem *msg, void**)
 	BOOL	transacted = FALSE;
 	BOOL	age_verified = FALSE;
 	BOOL	online = FALSE;
-	char	profile_url[DB_USER_PROFILE_URL_BUF_SIZE];		/*Flawfinder: ignore*/
+	std::string	profile_url;
 
 	U32		flags = 0x0;
 
@@ -1780,10 +1780,10 @@ void LLPanelAvatar::processAvatarPropertiesReply(LLMessageSystem *msg, void**)
 		msg->getUUIDFast(  _PREHASH_PropertiesData,	_PREHASH_ImageID,		image_id );
 		msg->getUUIDFast(  _PREHASH_PropertiesData,	_PREHASH_FLImageID,	fl_image_id );
 		msg->getUUIDFast(_PREHASH_PropertiesData, _PREHASH_PartnerID, partner_id);
-		msg->getStringFast(_PREHASH_PropertiesData, _PREHASH_AboutText,	DB_USER_ABOUT_BUF_SIZE,		about_text );
-		msg->getStringFast(_PREHASH_PropertiesData, _PREHASH_FLAboutText,	DB_USER_FL_ABOUT_BUF_SIZE,		fl_about_text );
-		msg->getStringFast(_PREHASH_PropertiesData, _PREHASH_BornOn, DB_BORN_BUF_SIZE, born_on);
-		msg->getString("PropertiesData","ProfileURL", DB_USER_PROFILE_URL_BUF_SIZE, profile_url);
+		msg->getStringFast(_PREHASH_PropertiesData, _PREHASH_AboutText,	about_text );
+		msg->getStringFast(_PREHASH_PropertiesData, _PREHASH_FLAboutText, fl_about_text );
+		msg->getStringFast(_PREHASH_PropertiesData, _PREHASH_BornOn, born_on);
+		msg->getString("PropertiesData","ProfileURL", profile_url);
 		msg->getU32Fast(_PREHASH_PropertiesData, _PREHASH_Flags, flags);
 		
 		identified = (flags & AVATAR_IDENTIFIED);
@@ -1793,7 +1793,7 @@ void LLPanelAvatar::processAvatarPropertiesReply(LLMessageSystem *msg, void**)
 		online = (flags & AVATAR_ONLINE);
 		
 		U8 caption_index = 0;
-		LLString caption_text;
+		std::string caption_text;
 		charter_member_size = msg->getSize("PropertiesData", "CharterMember");
 		if(1 == charter_member_size)
 		{
@@ -1801,15 +1801,13 @@ void LLPanelAvatar::processAvatarPropertiesReply(LLMessageSystem *msg, void**)
 		}
 		else if(1 < charter_member_size)
 		{
-			char caption[MAX_STRING];		/*Flawfinder: ignore*/
-			msg->getString("PropertiesData", "CharterMember", MAX_STRING, caption);
-			caption_text = caption;
+			msg->getString("PropertiesData", "CharterMember", caption_text);
 		}
 		
 
 		if(caption_text.empty())
 		{
-			LLString::format_map_t args;
+			LLStringUtil::format_map_t args;
 			caption_text = self->mPanelSecondLife->getString("CaptionTextAcctInfo");
 			
 			const char* ACCT_TYPE[] = {
@@ -1821,7 +1819,7 @@ void LLPanelAvatar::processAvatarPropertiesReply(LLMessageSystem *msg, void**)
 			caption_index = llclamp(caption_index, (U8)0, (U8)(sizeof(ACCT_TYPE)/sizeof(ACCT_TYPE[0])-1));
 			args["[ACCTTYPE]"] = self->mPanelSecondLife->getString(ACCT_TYPE[caption_index]);
 
-			LLString payment_text = " ";
+			std::string payment_text = " ";
 			const S32 DEFAULT_CAPTION_LINDEN_INDEX = 3;
 			if(caption_index != DEFAULT_CAPTION_LINDEN_INDEX)
 			{			
@@ -1838,7 +1836,7 @@ void LLPanelAvatar::processAvatarPropertiesReply(LLMessageSystem *msg, void**)
 					payment_text = "NoPaymentInfoOnFile";
 				}
 				args["[PAYMENTINFO]"] = self->mPanelSecondLife->getString(payment_text);
-				LLString age_text = age_verified ? "AgeVerified" : "NotAgeVerified";
+				std::string age_text = age_verified ? "AgeVerified" : "NotAgeVerified";
 				// Do not display age verification status at this time
 				//args["[AGEVERIFICATION]"] = self->mPanelSecondLife->getString(age_text);
 				args["[AGEVERIFICATION]"] = " ";
@@ -1848,7 +1846,7 @@ void LLPanelAvatar::processAvatarPropertiesReply(LLMessageSystem *msg, void**)
 				args["[PAYMENTINFO]"] = " ";
 				args["[AGEVERIFICATION]"] = " ";
 			}
-			LLString::format(caption_text, args);
+			LLStringUtil::format(caption_text, args);
 		}
 		
 		self->mPanelSecondLife->childSetValue("acct", caption_text);
@@ -1858,7 +1856,7 @@ void LLPanelAvatar::processAvatarPropertiesReply(LLMessageSystem *msg, void**)
 
 		self->setOnlineStatus(online_status);
 
-		self->mPanelWeb->setWebURL(std::string(profile_url));
+		self->mPanelWeb->setWebURL(profile_url);
 
 		LLTextureCtrl*	image_ctrl = self->mPanelSecondLife->getChild<LLTextureCtrl>("img");
 		if(image_ctrl)
@@ -1893,10 +1891,10 @@ void LLPanelAvatar::processAvatarInterestsReply(LLMessageSystem *msg, void**)
 	LLUUID	avatar_id;	// target of this panel
 
 	U32		want_to_mask;
-	char	want_to_text[DB_USER_WANT_TO_BUF_SIZE];		/*Flawfinder: ignore*/
+	std::string	want_to_text;
 	U32		skills_mask;
-	char	skills_text[DB_USER_SKILLS_BUF_SIZE];		/*Flawfinder: ignore*/
-	char	languages_text[DB_USER_SKILLS_BUF_SIZE];		/*Flawfinder: ignore*/
+	std::string	skills_text;
+	std::string	languages_text;
 
 	//llinfos << "properties packet size " << msg->getReceiveSize() << llendl;
 
@@ -1912,10 +1910,10 @@ void LLPanelAvatar::processAvatarInterestsReply(LLMessageSystem *msg, void**)
 		}
 
 		msg->getU32Fast(   _PREHASH_PropertiesData,	_PREHASH_WantToMask,	want_to_mask );
-		msg->getStringFast(_PREHASH_PropertiesData, _PREHASH_WantToText,	DB_USER_WANT_TO_BUF_SIZE,	want_to_text );
+		msg->getStringFast(_PREHASH_PropertiesData, _PREHASH_WantToText,	want_to_text );
 		msg->getU32Fast(   _PREHASH_PropertiesData,	_PREHASH_SkillsMask,	skills_mask );
-		msg->getStringFast(_PREHASH_PropertiesData, _PREHASH_SkillsText,	DB_USER_SKILLS_BUF_SIZE,	skills_text );
-		msg->getString(_PREHASH_PropertiesData, "LanguagesText",	DB_USER_SKILLS_BUF_SIZE,	languages_text );
+		msg->getStringFast(_PREHASH_PropertiesData, _PREHASH_SkillsText,	skills_text );
+		msg->getString(_PREHASH_PropertiesData, "LanguagesText",			languages_text );
 
 		self->mPanelAdvanced->setWantSkills(want_to_mask, want_to_text, skills_mask, skills_text, languages_text);
 	}
@@ -1929,9 +1927,9 @@ void LLPanelAvatar::processAvatarGroupsReply(LLMessageSystem *msg, void**)
 	LLUUID	agent_id;	// your id
 	LLUUID	avatar_id;	// target of this panel
 	U64		group_powers;
-	char	group_title[DB_GROUP_TITLE_BUF_SIZE];		/*Flawfinder: ignore*/
+	std::string	group_title;
 	LLUUID	group_id;
-	char	group_name[DB_GROUP_NAME_BUF_SIZE];		/*Flawfinder: ignore*/
+	std::string	group_name;
 	LLUUID	group_insignia_id;
 
 	llinfos << "groups packet size " << msg->getReceiveSize() << llendl;
@@ -1956,19 +1954,19 @@ void LLPanelAvatar::processAvatarGroupsReply(LLMessageSystem *msg, void**)
 		S32 group_count = msg->getNumberOfBlocksFast(_PREHASH_GroupData);
 		if (0 == group_count)
 		{
-			if(group_list) group_list->addCommentText("None");
+			if(group_list) group_list->addCommentText(std::string("None")); // *TODO: Translate
 		}
 		else
 		{
 			for(S32 i = 0; i < group_count; ++i)
 			{
 				msg->getU64(    _PREHASH_GroupData, "GroupPowers",	group_powers, i );
-				msg->getStringFast(_PREHASH_GroupData, _PREHASH_GroupTitle,	DB_GROUP_TITLE_BUF_SIZE,	group_title, i );
-				msg->getUUIDFast(  _PREHASH_GroupData, _PREHASH_GroupID,		group_id, i);
-				msg->getStringFast(_PREHASH_GroupData, _PREHASH_GroupName,	DB_GROUP_NAME_BUF_SIZE,		group_name, i );
+				msg->getStringFast(_PREHASH_GroupData, _PREHASH_GroupTitle,	group_title, i );
+				msg->getUUIDFast(  _PREHASH_GroupData, _PREHASH_GroupID,	group_id, i);
+				msg->getStringFast(_PREHASH_GroupData, _PREHASH_GroupName,	group_name, i );
 				msg->getUUIDFast(  _PREHASH_GroupData, _PREHASH_GroupInsigniaID, group_insignia_id, i );
 
-				LLString group_string;
+				std::string group_string;
 				if (group_id.notNull())
 				{
 					group_string.assign(group_name);
@@ -1999,7 +1997,7 @@ void LLPanelAvatar::processAvatarGroupsReply(LLMessageSystem *msg, void**)
 				}
 			}
 		}
-		if(group_list) group_list->sortByColumn(0, TRUE);
+		if(group_list) group_list->sortByColumnIndex(0, TRUE);
 	}
 }
 
@@ -2036,7 +2034,7 @@ void LLPanelAvatar::sendAvatarPropertiesUpdate()
 	mPanelAdvanced->getWantSkills(&want_to_mask, want_to_text, &skills_mask, skills_text, languages_text);
 
 	LLUUID first_life_image_id;
-	LLString first_life_about_text;
+	std::string first_life_about_text;
 	if (mPanelFirstLife)
 	{
 		first_life_about_text = mPanelFirstLife->childGetValue("about").asString();
@@ -2047,7 +2045,7 @@ void LLPanelAvatar::sendAvatarPropertiesUpdate()
 		}
 	}
 
-	LLString about_text = mPanelSecondLife->childGetValue("about").asString();
+	std::string about_text = mPanelSecondLife->childGetValue("about").asString();
 
 	LLMessageSystem *msg = gMessageSystem;
 
@@ -2131,8 +2129,8 @@ void LLPanelAvatar::processAvatarNotesReply(LLMessageSystem *msg, void**)
 			continue;
 		}
 
-		char text[DB_USER_NOTE_SIZE];		/*Flawfinder: ignore*/
-		msg->getString("Data", "Notes", DB_USER_NOTE_SIZE, text);
+		std::string text;
+		msg->getString("Data", "Notes", text);
 		self->childSetValue("notes edit", text);
 		self->childSetEnabled("notes edit", true);
 		self->mHaveNotes = true;
@@ -2192,13 +2190,13 @@ void LLPanelAvatar::onClickKick(void* userdata)
 	gFloaterView->getNewFloaterPosition(&left, &top);
 	LLRect rect(left, top, left+400, top-300);
 
-	gViewerWindow->alertXmlEditText("KickUser", LLString::format_map_t(),
+	gViewerWindow->alertXmlEditText("KickUser", LLStringUtil::format_map_t(),
 									NULL, NULL,
 									LLPanelAvatar::finishKick, self);
 }
 
 // static
-void LLPanelAvatar::finishKick(S32 option, const LLString& text, void* userdata)
+void LLPanelAvatar::finishKick(S32 option, const std::string& text, void* userdata)
 {
 	LLPanelAvatar* self = (LLPanelAvatar*) userdata;
 
@@ -2220,13 +2218,13 @@ void LLPanelAvatar::finishKick(S32 option, const LLString& text, void* userdata)
 // static
 void LLPanelAvatar::onClickFreeze(void* userdata)
 {
-	gViewerWindow->alertXmlEditText("FreezeUser", LLString::format_map_t(),
+	gViewerWindow->alertXmlEditText("FreezeUser", LLStringUtil::format_map_t(),
 									NULL, NULL,
 									LLPanelAvatar::finishFreeze, userdata);
 }
 
 // static
-void LLPanelAvatar::finishFreeze(S32 option, const LLString& text, void* userdata)
+void LLPanelAvatar::finishFreeze(S32 option, const std::string& text, void* userdata)
 {
 	LLPanelAvatar* self = (LLPanelAvatar*) userdata;
 
@@ -2248,13 +2246,13 @@ void LLPanelAvatar::finishFreeze(S32 option, const LLString& text, void* userdat
 // static
 void LLPanelAvatar::onClickUnfreeze(void* userdata)
 {
-	gViewerWindow->alertXmlEditText("UnFreezeUser", LLString::format_map_t(),
+	gViewerWindow->alertXmlEditText("UnFreezeUser", LLStringUtil::format_map_t(),
 									NULL, NULL,
 									LLPanelAvatar::finishUnfreeze, userdata);
 }
 
 // static
-void LLPanelAvatar::finishUnfreeze(S32 option, const LLString& text, void* userdata)
+void LLPanelAvatar::finishUnfreeze(S32 option, const std::string& text, void* userdata)
 {
 	LLPanelAvatar* self = (LLPanelAvatar*) userdata;
 
@@ -2282,10 +2280,10 @@ void LLPanelAvatar::onClickCSR(void* userdata)
 	LLNameEditor* name_edit = self->getChild<LLNameEditor>("name");
 	if (!name_edit) return;
 
-	LLString name = name_edit->getText();
+	std::string name = name_edit->getText();
 	if (name.empty()) return;
 	
-	LLString url = "http://csr.lindenlab.com/agent/";
+	std::string url = "http://csr.lindenlab.com/agent/";
 	
 	// slow and stupid, but it's late
 	S32 len = name.length();
@@ -2308,21 +2306,21 @@ void LLPanelAvatar::onClickCSR(void* userdata)
 void*	LLPanelAvatar::createPanelAvatarSecondLife(void* data)
 {
 	LLPanelAvatar* self = (LLPanelAvatar*)data;
-	self->mPanelSecondLife = new LLPanelAvatarSecondLife("2nd Life",LLRect(),self);
+	self->mPanelSecondLife = new LLPanelAvatarSecondLife(std::string("2nd Life"),LLRect(),self);
 	return self->mPanelSecondLife;
 }
 
 void*	LLPanelAvatar::createPanelAvatarWeb(void*	data)
 {
 	LLPanelAvatar* self = (LLPanelAvatar*)data;
-	self->mPanelWeb = new LLPanelAvatarWeb("Web",LLRect(),self);
+	self->mPanelWeb = new LLPanelAvatarWeb(std::string("Web"),LLRect(),self);
 	return self->mPanelWeb;
 }
 
 void*	LLPanelAvatar::createPanelAvatarInterests(void*	data)
 {
 	LLPanelAvatar* self = (LLPanelAvatar*)data;
-	self->mPanelAdvanced = new LLPanelAvatarAdvanced("Interests",LLRect(),self);
+	self->mPanelAdvanced = new LLPanelAvatarAdvanced(std::string("Interests"),LLRect(),self);
 	return self->mPanelAdvanced;
 }
 
@@ -2330,27 +2328,27 @@ void*	LLPanelAvatar::createPanelAvatarInterests(void*	data)
 void*	LLPanelAvatar::createPanelAvatarPicks(void*	data)
 {
 	LLPanelAvatar* self = (LLPanelAvatar*)data;
-	self->mPanelPicks = new LLPanelAvatarPicks("Picks",LLRect(),self);
+	self->mPanelPicks = new LLPanelAvatarPicks(std::string("Picks"),LLRect(),self);
 	return self->mPanelPicks;
 }
 
 void*	LLPanelAvatar::createPanelAvatarClassified(void* data)
 {
 	LLPanelAvatar* self = (LLPanelAvatar*)data;
-	self->mPanelClassified = new LLPanelAvatarClassified("Classified",LLRect(),self);
+	self->mPanelClassified = new LLPanelAvatarClassified(std::string("Classified"),LLRect(),self);
 	return self->mPanelClassified;
 }
 
 void*	LLPanelAvatar::createPanelAvatarFirstLife(void*	data)
 {
 	LLPanelAvatar* self = (LLPanelAvatar*)data;
-	self->mPanelFirstLife = new LLPanelAvatarFirstLife("1st Life", LLRect(), self);
+	self->mPanelFirstLife = new LLPanelAvatarFirstLife(std::string("1st Life"), LLRect(), self);
 	return self->mPanelFirstLife;
 }
 
 void*	LLPanelAvatar::createPanelAvatarNotes(void*	data)
 {
 	LLPanelAvatar* self = (LLPanelAvatar*)data;
-	self->mPanelNotes = new LLPanelAvatarNotes("My Notes",LLRect(),self);
+	self->mPanelNotes = new LLPanelAvatarNotes(std::string("My Notes"),LLRect(),self);
 	return self->mPanelNotes;
 }

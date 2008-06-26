@@ -48,7 +48,7 @@ class LLWaterParamSet
 	friend class LLWaterParamManager;
 
 public:
-	LLString mName;	
+	std::string mName;	
 	
 private:
 
@@ -70,20 +70,20 @@ public:
 	/// Set a float parameter.
 	/// \param paramName	The name of the parameter to set.
 	/// \param x			The float value to set.
-	void set(const char * paramName, float x);
+	void set(const std::string& paramName, float x);
 
 	/// Set a float2 parameter.
 	/// \param paramName	The name of the parameter to set.
 	/// \param x			The x component's value to set.
 	/// \param y			The y component's value to set.
-	void set(const char * paramName, float x, float y);
+	void set(const std::string& paramName, float x, float y);
 
 	/// Set a float3 parameter.
 	/// \param paramName	The name of the parameter to set.
 	/// \param x			The x component's value to set.
 	/// \param y			The y component's value to set.
 	/// \param z			The z component's value to set.
-	void set(const char * paramName, float x, float y, float z);
+	void set(const std::string& paramName, float x, float y, float z);
 
 	/// Set a float4 parameter.
 	/// \param paramName	The name of the parameter to set.
@@ -91,42 +91,42 @@ public:
 	/// \param y			The y component's value to set.
 	/// \param z			The z component's value to set.
 	/// \param w			The w component's value to set.
-	void set(const char * paramName, float x, float y, float z, float w);
+	void set(const std::string& paramName, float x, float y, float z, float w);
 
 	/// Set a float4 parameter.
 	/// \param paramName	The name of the parameter to set.
 	/// \param val			An array of the 4 float values to set the parameter to.
-	void set(const char * paramName, const float * val);
+	void set(const std::string& paramName, const float * val);
 
 	/// Set a float4 parameter.
 	/// \param paramName	The name of the parameter to set.
 	/// \param val			A struct of the 4 float values to set the parameter to.
-	void set(const char * paramName, const LLVector4 & val);
+	void set(const std::string& paramName, const LLVector4 & val);
 
 	/// Set a float4 parameter.
 	/// \param paramName	The name of the parameter to set.
 	/// \param val			A struct of the 4 float values to set the parameter to.
-	void set(const char * paramName, const LLColor4 & val);
+	void set(const std::string& paramName, const LLColor4 & val);
 
 	/// Get a float4 parameter.
 	/// \param paramName	The name of the parameter to set.
 	/// \param error		A flag to set if it's not the proper return type
-	LLVector4 getVector4(const char * paramName, bool& error);
+	LLVector4 getVector4(const std::string& paramName, bool& error);
 
 	/// Get a float3 parameter.
 	/// \param paramName	The name of the parameter to set.
 	/// \param error		A flag to set if it's not the proper return type
-	LLVector3 getVector3(const char * paramName, bool& error);
+	LLVector3 getVector3(const std::string& paramName, bool& error);
 	
 	/// Get a float2 parameter.
 	/// \param paramName	The name of the parameter to set.
 	/// \param error		A flag to set if it's not the proper return type
-	LLVector2 getVector2(const char * paramName, bool& error);
+	LLVector2 getVector2(const std::string& paramName, bool& error);
 	
 	/// Get an integer parameter
 	/// \param paramName	The name of the parameter to set.
 	/// \param error		A flag to set if it's not the proper return type	
-	F32 getFloat(const char * paramName, bool& error);
+	F32 getFloat(const std::string& paramName, bool& error);
 		
 	/// interpolate two parameter sets
 	/// \param src			The parameter set to start with

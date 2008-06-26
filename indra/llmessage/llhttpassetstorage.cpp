@@ -81,8 +81,8 @@ class LLHTTPAssetRequest : public LLAssetRequest
 {
 public:
 	LLHTTPAssetRequest(LLHTTPAssetStorage *asp, const LLUUID &uuid, 
-					LLAssetType::EType type, LLAssetStorage::ERequestType rt,
-					const char *url, CURLM *curl_multi);
+					   LLAssetType::EType type, LLAssetStorage::ERequestType rt,
+					   const std::string& url, CURLM *curl_multi);
 	virtual ~LLHTTPAssetRequest();
 	
 	void setupCurlHandle();
@@ -103,7 +103,7 @@ public:
 
 	CURL  *mCurlHandle;
 	CURLM *mCurlMultiHandle;
-	char  *mURLBuffer;
+	std::string mURLBuffer;
 	struct curl_slist *mHTTPHeaders;
 	LLVFile *mVFile;
 	LLUUID  mTmpUUID;
@@ -122,7 +122,7 @@ LLHTTPAssetRequest::LLHTTPAssetRequest(LLHTTPAssetStorage *asp,
 						const LLUUID &uuid, 
 						LLAssetType::EType type, 
 						LLAssetStorage::ERequestType rt,
-						const char *url, 
+						const std::string& url, 
 						CURLM *curl_multi)
 	: LLAssetRequest(uuid, type),
 	mZInitialized(false)
@@ -137,11 +137,7 @@ LLHTTPAssetRequest::LLHTTPAssetRequest(LLHTTPAssetStorage *asp,
 	mZInputBuffer = NULL;
 	mZInputExhausted = false;
 	
-	mURLBuffer = new char[strlen(url) + 1]; /*Flawfinder: ignore*/
-	if (mURLBuffer)
-	{
-	    strcpy(mURLBuffer, url);	/*Flawfinder: ignore*/
-	}
+	mURLBuffer = url;
 }
 
 LLHTTPAssetRequest::~LLHTTPAssetRequest()
@@ -156,7 +152,6 @@ LLHTTPAssetRequest::~LLHTTPAssetRequest()
 	{
 		curl_slist_free_all(mHTTPHeaders);
 	}
-	delete[] mURLBuffer;
 	delete   mVFile;
 	finishCompressedUpload();
 }
@@ -242,7 +237,7 @@ void LLHTTPAssetRequest::setupCurlHandle()
 	mCurlHandle = curl_easy_init();
 	curl_easy_setopt(mCurlHandle, CURLOPT_NOSIGNAL, 1);
 	curl_easy_setopt(mCurlHandle, CURLOPT_NOPROGRESS, 1);
-	curl_easy_setopt(mCurlHandle, CURLOPT_URL, mURLBuffer);
+	curl_easy_setopt(mCurlHandle, CURLOPT_URL, mURLBuffer.c_str());
 	curl_easy_setopt(mCurlHandle, CURLOPT_PRIVATE, this);
 	if (LLAssetStorage::RT_DOWNLOAD == mRequestType)
 	{
@@ -400,9 +395,9 @@ size_t LLHTTPAssetRequest::curlCompressedUploadCallback(
 
 LLHTTPAssetStorage::LLHTTPAssetStorage(LLMessageSystem *msg, LLXferManager *xfer,
 									 LLVFS *vfs, const LLHost &upstream_host,
-									 const char *web_host,
-									 const char *local_web_host,
-									 const char *host_name)
+									 const std::string& web_host,
+									 const std::string& local_web_host,
+									 const std::string& host_name)
 	: LLAssetStorage(msg, xfer, vfs, upstream_host)
 {
 	_init(web_host, local_web_host, host_name);
@@ -410,15 +405,15 @@ LLHTTPAssetStorage::LLHTTPAssetStorage(LLMessageSystem *msg, LLXferManager *xfer
 
 LLHTTPAssetStorage::LLHTTPAssetStorage(LLMessageSystem *msg, LLXferManager *xfer,
 									   LLVFS *vfs,
-									   const char *web_host,
-									   const char *local_web_host,
-									   const char *host_name)
+									   const std::string& web_host,
+									   const std::string& local_web_host,
+									   const std::string& host_name)
 	: LLAssetStorage(msg, xfer, vfs)
 {
 	_init(web_host, local_web_host, host_name);
 }
 
-void LLHTTPAssetStorage::_init(const char *web_host, const char *local_web_host, const char* host_name)
+void LLHTTPAssetStorage::_init(const std::string& web_host, const std::string& local_web_host, const std::string& host_name)
 {
 	mBaseURL = web_host;
 	mLocalBaseURL = local_web_host;
@@ -470,7 +465,7 @@ void LLHTTPAssetStorage::storeAssetData(
 		{
 			message = "Added to upload queue";
 		}
-		reportMetric( uuid, type, NULL, requesting_agent_id, size, MR_OKAY, __FILE__, __LINE__, message );
+		reportMetric( uuid, type, LLStringUtil::null, requesting_agent_id, size, MR_OKAY, __FILE__, __LINE__, message );
 
 		// this will get picked up and transmitted in checkForTimeouts
 		if(store_local)
@@ -492,7 +487,7 @@ void LLHTTPAssetStorage::storeAssetData(
 		if (callback)
 		{
 			// LLAssetStorage metric: Zero size VFS
-			reportMetric( uuid, type, NULL, requesting_agent_id, 0, MR_ZERO_SIZE, __FILE__, __LINE__, "The file didn't exist or was zero length (VFS - can't tell which)" );
+			reportMetric( uuid, type, LLStringUtil::null, requesting_agent_id, 0, MR_ZERO_SIZE, __FILE__, __LINE__, "The file didn't exist or was zero length (VFS - can't tell which)" );
 			callback(uuid, user_data,  LL_ERR_ASSET_REQUEST_NONEXISTENT_FILE, LL_EXSTAT_NONEXISTENT_FILE);
 		}
 	}
@@ -500,7 +495,7 @@ void LLHTTPAssetStorage::storeAssetData(
 
 // virtual
 void LLHTTPAssetStorage::storeAssetData(
-	const char* filename,
+	const std::string& filename,
 	const LLUUID& asset_id,
 	LLAssetType::EType asset_type,
 	LLStoreAssetCallback callback,
@@ -597,7 +592,7 @@ LLSD LLHTTPAssetStorage::getPendingDetails(LLAssetStorage::ERequestType rt,
 			LLSD& pending = sd["requests"][i];
 			// See if this pending request is running.
 			const LLAssetRequest* req = findRequest(running, 
-									LLAssetType::lookup(pending["type"].asString().c_str()),
+									LLAssetType::lookup(pending["type"].asString()),
 									pending["asset_id"]);
 			if (req)
 			{
@@ -768,11 +763,11 @@ void LLHTTPAssetStorage::checkForTimeouts()
 		// Setup this curl download request
 		// We need to generate a new request here
 		// since the one in the list could go away
-		char tmp_url[MAX_STRING]; /*Flawfinder: ignore*/
-		char uuid_str[UUID_STR_LENGTH]; /*Flawfinder: ignore*/
+		std::string tmp_url;
+		std::string uuid_str;
 		req->getUUID().toString(uuid_str);
 		std::string base_url = getBaseURL(req->getUUID(), req->getType());
-		snprintf(tmp_url, sizeof(tmp_url), "%s/%36s.%s", base_url.c_str() , uuid_str, LLAssetType::lookup(req->getType()));	/* Flawfinder: ignore */
+		tmp_url = llformat("%s/%36s.%s", base_url.c_str() , uuid_str.c_str(), LLAssetType::lookup(req->getType()));
 
 		LLHTTPAssetRequest *new_req = new LLHTTPAssetRequest(this, req->getUUID(), 
 										req->getType(), RT_DOWNLOAD, tmp_url, mCurlMultiHandle);
@@ -805,12 +800,11 @@ void LLHTTPAssetStorage::checkForTimeouts()
 
 		bool do_compress = req->getType() == LLAssetType::AT_OBJECT;
 
-		char tmp_url[MAX_STRING];/*Flawfinder: ignore*/
-		char uuid_str[UUID_STR_LENGTH];/*Flawfinder: ignore*/
+		std::string tmp_url;
+		std::string uuid_str;
 		req->getUUID().toString(uuid_str);
-		snprintf(tmp_url, sizeof(tmp_url), 					/* Flawfinder: ignore */
-				do_compress ? "%s/%s.%s.gz" : "%s/%s.%s",
-				mBaseURL.c_str(), uuid_str, LLAssetType::lookup(req->getType())); 
+		tmp_url = mBaseURL + "/" + uuid_str + "." + LLAssetType::lookup(req->getType());
+		if (do_compress) tmp_url += ".gz";
 
 		LLHTTPAssetRequest *new_req = new LLHTTPAssetRequest(this, req->getUUID(), 
 									req->getType(), RT_UPLOAD, tmp_url, mCurlMultiHandle);
@@ -876,12 +870,12 @@ void LLHTTPAssetStorage::checkForTimeouts()
 		// setup this curl upload request
 		LLVFile file(mVFS, req->getUUID(), req->getType());
 
-		char tmp_url[MAX_STRING]; /*Flawfinder: ignore*/
-		char uuid_str[UUID_STR_LENGTH]; /*Flawfinder: ignore*/
+		std::string tmp_url;
+		std::string uuid_str;
 		req->getUUID().toString(uuid_str);
 		
 		// KLW - All temporary uploads are saved locally "http://localhost:12041/asset"
-		snprintf(tmp_url, sizeof(tmp_url), "%s/%36s.%s", mLocalBaseURL.c_str(), uuid_str, LLAssetType::lookup(req->getType())); 	/* Flawfinder: ignore */
+		tmp_url = llformat("%s/%36s.%s", mLocalBaseURL.c_str(), uuid_str.c_str(), LLAssetType::lookup(req->getType()));
 
 		LLHTTPAssetRequest *new_req = new LLHTTPAssetRequest(this, req->getUUID(), 
 										req->getType(), RT_LOCALUPLOAD, tmp_url, mCurlMultiHandle);
@@ -1160,7 +1154,7 @@ size_t LLHTTPAssetStorage::nullOutputCallback(void *data, size_t size, size_t nm
 
 // blocking asset fetch which bypasses the VFS
 // this is a very limited function for use by the simstate loader and other one-offs
-S32 LLHTTPAssetStorage::getURLToFile(const LLUUID& uuid, LLAssetType::EType asset_type, const LLString &url, const char *filename, progress_callback callback, void *userdata)
+S32 LLHTTPAssetStorage::getURLToFile(const LLUUID& uuid, LLAssetType::EType asset_type, const std::string &url, const std::string& filename, progress_callback callback, void *userdata)
 {
 	// *NOTE: There is no guarantee that the uuid and the asset_type match
 	// - not that it matters. - Doug
@@ -1174,7 +1168,7 @@ S32 LLHTTPAssetStorage::getURLToFile(const LLUUID& uuid, LLAssetType::EType asse
 	}
 
 	// make sure we use the normal curl setup, even though we don't really need a request object
-	LLHTTPAssetRequest req(this, uuid, asset_type, RT_DOWNLOAD, url.c_str(), mCurlMultiHandle);
+	LLHTTPAssetRequest req(this, uuid, asset_type, RT_DOWNLOAD, url, mCurlMultiHandle);
 	req.mFP = fp;
 	
 	req.setupCurlHandle();

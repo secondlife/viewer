@@ -60,10 +60,13 @@ LLAgentPilot::~LLAgentPilot()
 {
 }
 
-void LLAgentPilot::load(const char *filename)
+void LLAgentPilot::load(const std::string& filename)
 {
-	if(!filename) return;
-
+	if(filename.empty())
+	{
+		return;
+	}
+	
 	llifstream file(filename);
 
 	if (!file)
@@ -81,8 +84,7 @@ void LLAgentPilot::load(const char *filename)
 
 	file >> num_actions;
 
-	S32 i;
-	for (i = 0; i < num_actions; i++)
+	for (S32 i = 0; i < num_actions; i++)
 	{
 		S32 action_type;
 		Action new_action;
@@ -95,10 +97,10 @@ void LLAgentPilot::load(const char *filename)
 	file.close();
 }
 
-void LLAgentPilot::save(const char *filename)
+void LLAgentPilot::save(const std::string& filename)
 {
 	llofstream file;
-	file.open(filename);			/*Flawfinder: ignore*/
+	file.open(filename);
 
 	if (!file)
 	{
@@ -128,7 +130,7 @@ void LLAgentPilot::startRecord()
 void LLAgentPilot::stopRecord()
 {
 	gAgentPilot.addAction(STRAIGHT);
-	gAgentPilot.save(gSavedSettings.getString("StatsPilotFile").c_str());
+	gAgentPilot.save(gSavedSettings.getString("StatsPilotFile"));
 	mRecording = FALSE;
 }
 

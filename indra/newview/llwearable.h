@@ -69,7 +69,6 @@ public:
 	const LLAssetID&		getID() { return mAssetID; }
 	const LLTransactionID&		getTransactionID() { return mTransactionID; }
 
-	BOOL				readData( const char *buffer );
 	BOOL				isDirty();
 	BOOL				isOldVersion();
 
@@ -84,11 +83,11 @@ public:
 	EWearableType		getType() const							{ return mType; }
 	void				setType( EWearableType type )			{ mType = type; }
 
-	void				setName( const LLString& name )			{ mName = name; }
-	const LLString&		getName()								{ return mName; }
+	void				setName( const std::string& name )			{ mName = name; }
+	const std::string&	getName()								{ return mName; }
 
-	void				setDescription( const LLString& desc )	{ mDescription = desc; }
-	const LLString&		getDescription()						{ return mDescription; }
+	void				setDescription( const std::string& desc )	{ mDescription = desc; }
+	const std::string&	getDescription()						{ return mDescription; }
 
 	void				setPermissions( const LLPermissions& p ) { mPermissions = p; }
 	const LLPermissions& getPermissions()						{ return mPermissions; }
@@ -96,17 +95,17 @@ public:
 	void				setSaleInfo( const LLSaleInfo& info )	{ mSaleInfo = info; }
 	const LLSaleInfo&	getSaleInfo()							{ return mSaleInfo; }
 
-	const char*			getTypeLabel() const					{ return LLWearable::sTypeLabel[ mType ]; }
-	const char*			getTypeName() const						{ return LLWearable::sTypeName[ mType ]; }
+	const std::string&	getTypeLabel() const					{ return LLWearable::sTypeLabel[ mType ]; }
+	const std::string&	getTypeName() const						{ return LLWearable::sTypeName[ mType ]; }
 
 	void				setParamsToDefaults();
 	void				setTexturesToDefaults();
 
 	LLAssetType::EType	getAssetType() const					{ return LLWearable::typeToAssetType( mType ); }
 
-	static EWearableType typeNameToType( const LLString& type_name );
-	static const char*	typeToTypeName( EWearableType type )	{ return (type<WT_COUNT) ? LLWearable::sTypeName[type] : "invalid"; }
-	static const char*	typeToTypeLabel( EWearableType type )	{ return (type<WT_COUNT) ? LLWearable::sTypeLabel[type] : "invalid"; }
+	static EWearableType typeNameToType( const std::string& type_name );
+	static const std::string& typeToTypeName( EWearableType type )	{ return LLWearable::sTypeName[llmin(type,WT_COUNT)]; }
+	static const std::string& typeToTypeLabel( EWearableType type )	{ return LLWearable::sTypeLabel[llmin(type,WT_COUNT)]; }
 	static LLAssetType::EType typeToAssetType( EWearableType wearable_type );
 
 	void				saveNewAsset();
@@ -123,8 +122,8 @@ public:
 private:
 	static S32			sCurrentDefinitionVersion;	// Depends on the current state of the avatar_lad.xml.
 	S32					mDefinitionVersion;			// Depends on the state of the avatar_lad.xml when this asset was created.
-	LLString			mName;
-	LLString			mDescription;
+	std::string			mName;
+	std::string			mDescription;
 	LLPermissions		mPermissions;
 	LLSaleInfo			mSaleInfo;
 	LLAssetID mAssetID;
@@ -136,8 +135,8 @@ private:
 	typedef std::map<S32, LLUUID> te_map_t;
 	te_map_t mTEMap;				// maps TE to Image ID
 
-	static const char* sTypeName[ WT_COUNT ];
-	static const char* sTypeLabel[ WT_COUNT ];
+	static const std::string sTypeName[ WT_COUNT+1 ];
+	static const std::string sTypeLabel[ WT_COUNT+1 ];
 };
 
 #endif  // LL_LLWEARABLE_H

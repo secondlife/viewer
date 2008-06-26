@@ -89,8 +89,8 @@ class LLControlVariable
 	typedef boost::signal<void(const LLSD&)> signal_t;
 
 private:
-	LLString		mName;
-	LLString		mComment;
+	std::string		mName;
+	std::string		mComment;
 	eControlType	mType;
 	BOOL			mPersist;
 	std::vector<LLSD> mValues;
@@ -98,14 +98,14 @@ private:
 	signal_t mSignal;
 	
 public:
-	LLControlVariable(const LLString& name, eControlType type,
-					  LLSD initial, const LLString& comment,
+	LLControlVariable(const std::string& name, eControlType type,
+					  LLSD initial, const std::string& comment,
 					  BOOL persist = TRUE);
 
 	virtual ~LLControlVariable();
 	
-	const LLString& getName() const { return mName; }
-	const LLString& getComment() const { return mComment; }
+	const std::string& getName() const { return mName; }
+	const std::string& getComment() const { return mComment; }
 
 	eControlType type()		{ return mType; }
 	BOOL isType(eControlType tp) { return tp == mType; }
@@ -134,95 +134,95 @@ public:
 class LLControlGroup
 {
 protected:
-	typedef std::map<LLString, LLControlVariable* > ctrl_name_table_t;
+	typedef std::map<std::string, LLControlVariable* > ctrl_name_table_t;
 	ctrl_name_table_t mNameTable;
-	std::set<LLString> mWarnings;
-	LLString mTypeString[TYPE_COUNT];
+	std::set<std::string> mWarnings;
+	std::string mTypeString[TYPE_COUNT];
 
-	eControlType typeStringToEnum(const LLString& typestr);
-	LLString typeEnumToString(eControlType typeenum);	
+	eControlType typeStringToEnum(const std::string& typestr);
+	std::string typeEnumToString(eControlType typeenum);	
 public:
 	LLControlGroup();
 	~LLControlGroup();
 	void cleanup();
 	
-	LLControlVariable*	getControl(const LLString& name);
+	LLControlVariable*	getControl(const std::string& name);
 
 	struct ApplyFunctor
 	{
 		virtual ~ApplyFunctor() {};
-		virtual void apply(const LLString& name, LLControlVariable* control) = 0;
+		virtual void apply(const std::string& name, LLControlVariable* control) = 0;
 	};
 	void applyToAll(ApplyFunctor* func);
 	
-	BOOL declareControl(const LLString& name, eControlType type, const LLSD initial_val, const LLString& comment, BOOL persist);
-	BOOL declareU32(const LLString& name, U32 initial_val, const LLString& comment, BOOL persist = TRUE);
-	BOOL declareS32(const LLString& name, S32 initial_val, const LLString& comment, BOOL persist = TRUE);
-	BOOL declareF32(const LLString& name, F32 initial_val, const LLString& comment, BOOL persist = TRUE);
-	BOOL declareBOOL(const LLString& name, BOOL initial_val, const LLString& comment, BOOL persist = TRUE);
-	BOOL declareString(const LLString& name, const LLString &initial_val, const LLString& comment, BOOL persist = TRUE);
-	BOOL declareVec3(const LLString& name, const LLVector3 &initial_val,const LLString& comment,  BOOL persist = TRUE);
-	BOOL declareVec3d(const LLString& name, const LLVector3d &initial_val, const LLString& comment, BOOL persist = TRUE);
-	BOOL declareRect(const LLString& name, const LLRect &initial_val, const LLString& comment, BOOL persist = TRUE);
-	BOOL declareColor4U(const LLString& name, const LLColor4U &initial_val, const LLString& comment, BOOL persist = TRUE);
-	BOOL declareColor4(const LLString& name, const LLColor4 &initial_val, const LLString& comment, BOOL persist = TRUE);
-	BOOL declareColor3(const LLString& name, const LLColor3 &initial_val, const LLString& comment, BOOL persist = TRUE);
-	BOOL declareLLSD(const LLString& name, const LLSD &initial_val, const LLString& comment, BOOL persist = TRUE);
+	BOOL declareControl(const std::string& name, eControlType type, const LLSD initial_val, const std::string& comment, BOOL persist);
+	BOOL declareU32(const std::string& name, U32 initial_val, const std::string& comment, BOOL persist = TRUE);
+	BOOL declareS32(const std::string& name, S32 initial_val, const std::string& comment, BOOL persist = TRUE);
+	BOOL declareF32(const std::string& name, F32 initial_val, const std::string& comment, BOOL persist = TRUE);
+	BOOL declareBOOL(const std::string& name, BOOL initial_val, const std::string& comment, BOOL persist = TRUE);
+	BOOL declareString(const std::string& name, const std::string &initial_val, const std::string& comment, BOOL persist = TRUE);
+	BOOL declareVec3(const std::string& name, const LLVector3 &initial_val,const std::string& comment,  BOOL persist = TRUE);
+	BOOL declareVec3d(const std::string& name, const LLVector3d &initial_val, const std::string& comment, BOOL persist = TRUE);
+	BOOL declareRect(const std::string& name, const LLRect &initial_val, const std::string& comment, BOOL persist = TRUE);
+	BOOL declareColor4U(const std::string& name, const LLColor4U &initial_val, const std::string& comment, BOOL persist = TRUE);
+	BOOL declareColor4(const std::string& name, const LLColor4 &initial_val, const std::string& comment, BOOL persist = TRUE);
+	BOOL declareColor3(const std::string& name, const LLColor3 &initial_val, const std::string& comment, BOOL persist = TRUE);
+	BOOL declareLLSD(const std::string& name, const LLSD &initial_val, const std::string& comment, BOOL persist = TRUE);
 	
-	LLString 	findString(const LLString& name);
+	std::string 	findString(const std::string& name);
 
-	LLString 	getString(const LLString& name);
-	LLWString	getWString(const LLString& name);
-	LLString	getText(const LLString& name);
-	LLVector3	getVector3(const LLString& name);
-	LLVector3d	getVector3d(const LLString& name);
-	LLRect		getRect(const LLString& name);
-	BOOL		getBOOL(const LLString& name);
-	S32			getS32(const LLString& name);
-	F32			getF32(const LLString& name);
-	U32			getU32(const LLString& name);
-	LLSD        getLLSD(const LLString& name);
+	std::string 	getString(const std::string& name);
+	LLWString	getWString(const std::string& name);
+	std::string	getText(const std::string& name);
+	LLVector3	getVector3(const std::string& name);
+	LLVector3d	getVector3d(const std::string& name);
+	LLRect		getRect(const std::string& name);
+	BOOL		getBOOL(const std::string& name);
+	S32			getS32(const std::string& name);
+	F32			getF32(const std::string& name);
+	U32			getU32(const std::string& name);
+	LLSD        getLLSD(const std::string& name);
 
 
 	// Note: If an LLColor4U control exists, it will cast it to the correct
 	// LLColor4 for you.
-	LLColor4	getColor(const LLString& name);
-	LLColor4U	getColor4U(const LLString& name);
-	LLColor4	getColor4(const LLString& name);
-	LLColor3	getColor3(const LLString& name);
+	LLColor4	getColor(const std::string& name);
+	LLColor4U	getColor4U(const std::string& name);
+	LLColor4	getColor4(const std::string& name);
+	LLColor3	getColor3(const std::string& name);
 
-	void	setBOOL(const LLString& name, BOOL val);
-	void	setS32(const LLString& name, S32 val);
-	void	setF32(const LLString& name, F32 val);
-	void	setU32(const LLString& name, U32 val);
-	void	setString(const LLString&  name, const LLString& val);
-	void	setVector3(const LLString& name, const LLVector3 &val);
-	void	setVector3d(const LLString& name, const LLVector3d &val);
-	void	setRect(const LLString& name, const LLRect &val);
-	void	setColor4U(const LLString& name, const LLColor4U &val);
-	void	setColor4(const LLString& name, const LLColor4 &val);
-	void	setColor3(const LLString& name, const LLColor3 &val);
-	void    setLLSD(const LLString& name, const LLSD& val);
-	void	setValue(const LLString& name, const LLSD& val);
+	void	setBOOL(const std::string& name, BOOL val);
+	void	setS32(const std::string& name, S32 val);
+	void	setF32(const std::string& name, F32 val);
+	void	setU32(const std::string& name, U32 val);
+	void	setString(const std::string&  name, const std::string& val);
+	void	setVector3(const std::string& name, const LLVector3 &val);
+	void	setVector3d(const std::string& name, const LLVector3d &val);
+	void	setRect(const std::string& name, const LLRect &val);
+	void	setColor4U(const std::string& name, const LLColor4U &val);
+	void	setColor4(const std::string& name, const LLColor4 &val);
+	void	setColor3(const std::string& name, const LLColor3 &val);
+	void    setLLSD(const std::string& name, const LLSD& val);
+	void	setValue(const std::string& name, const LLSD& val);
 	
 	
-	BOOL    controlExists(const LLString& name);
+	BOOL    controlExists(const std::string& name);
 
 	// Returns number of controls loaded, 0 if failed
 	// If require_declaration is false, will auto-declare controls it finds
 	// as the given type.
-	U32	loadFromFileLegacy(const LLString& filename, BOOL require_declaration = TRUE, eControlType declare_as = TYPE_STRING);
- 	U32 saveToFile(const LLString& filename, BOOL nondefault_only);
- 	U32	loadFromFile(const LLString& filename);
+	U32	loadFromFileLegacy(const std::string& filename, BOOL require_declaration = TRUE, eControlType declare_as = TYPE_STRING);
+ 	U32 saveToFile(const std::string& filename, BOOL nondefault_only);
+ 	U32	loadFromFile(const std::string& filename);
 	void	resetToDefaults();
 
 	
 	// Ignorable Warnings
 	
 	// Add a config variable to be reset on resetWarnings()
-	void addWarning(const LLString& name);
-	BOOL getWarning(const LLString& name);
-	void setWarning(const LLString& name, BOOL val);
+	void addWarning(const std::string& name);
+	BOOL getWarning(const std::string& name);
+	void setWarning(const std::string& name, BOOL val);
 	
 	// Resets all ignorables
 	void resetWarnings();

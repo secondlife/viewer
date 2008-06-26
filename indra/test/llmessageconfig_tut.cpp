@@ -56,7 +56,7 @@ namespace tut
 			oStr << "/tmp/llmessage-config-test-" << random;
 #endif
 			mTestConfigDir = oStr.str();
-			LLFile::mkdir(mTestConfigDir.c_str());
+			LLFile::mkdir(mTestConfigDir);
 			writeConfigFile(LLSD());
 			LLMessageConfig::initClass("simulator", mTestConfigDir);
 		}
@@ -64,16 +64,16 @@ namespace tut
 		~LLMessageConfigTestData()
 		{
 			// rm contents of temp dir
-			int rmfile = LLFile::remove((mTestConfigDir + "/message.xml").c_str());
+			int rmfile = LLFile::remove((mTestConfigDir + "/message.xml"));
 			ensure_equals("rmfile value", rmfile, 0);
 			// rm temp dir
-			int rmdir = LLFile::rmdir(mTestConfigDir.c_str());
+			int rmdir = LLFile::rmdir(mTestConfigDir);
 			ensure_equals("rmdir value", rmdir, 0);
 		}
 
 		void writeConfigFile(const LLSD& config)
 		{
-			llofstream file((mTestConfigDir + "/message.xml").c_str());
+			llofstream file((mTestConfigDir + "/message.xml"));
 			if (file.is_open())
 			{
 				LLSDSerialize::toPrettyXML(config, file);

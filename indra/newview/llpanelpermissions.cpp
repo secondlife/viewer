@@ -135,7 +135,7 @@ void LLPanelPermissions::refresh()
 	LLButton*	BtnDeedToGroup = getChild<LLButton>("button deed");
 	if(BtnDeedToGroup)
 	{	
-		LLString deedText;
+		std::string deedText;
 		if (gSavedSettings.getWarning("DeedObject"))
 		{
 			deedText = getString("text deed continued");
@@ -165,33 +165,33 @@ void LLPanelPermissions::refresh()
 	{
 		// ...nothing selected
 		childSetEnabled("perm_modify",false);
-		childSetText("perm_modify",LLString::null);
+		childSetText("perm_modify",LLStringUtil::null);
 
 		childSetEnabled("Creator:",false);
-		childSetText("Creator Name",LLString::null);
+		childSetText("Creator Name",LLStringUtil::null);
 		childSetEnabled("Creator Name",false);
 		childSetEnabled("button creator profile",false);
 
 		childSetEnabled("Owner:",false);
-		childSetText("Owner Name",LLString::null);
+		childSetText("Owner Name",LLStringUtil::null);
 		childSetEnabled("Owner Name",false);
 		childSetEnabled("button owner profile",false);
 
 		childSetEnabled("Group:",false);
-		childSetText("Group Name",LLString::null);
+		childSetText("Group Name",LLStringUtil::null);
 		childSetEnabled("Group Name",false);
 		childSetEnabled("button set group",false);
 
-		childSetText("Object Name",LLString::null);
+		childSetText("Object Name",LLStringUtil::null);
 		childSetEnabled("Object Name",false);
 		childSetEnabled("Name:",false);
-		childSetText("Group Name",LLString::null);
+		childSetText("Group Name",LLStringUtil::null);
 		childSetEnabled("Group Name",false);
 		childSetEnabled("Description:",false);
-		childSetText("Object Description",LLString::null);
+		childSetText("Object Description",LLStringUtil::null);
 		childSetEnabled("Object Description",false);
  
-		childSetText("prim info",LLString::null);
+		childSetText("prim info",LLStringUtil::null);
 		childSetEnabled("prim info",false);
 
 		childSetEnabled("Permissions:",false);
@@ -231,7 +231,7 @@ void LLPanelPermissions::refresh()
 		
 		childSetEnabled("Cost",false);
 		childSetText("Cost",getString("Cost Default"));
-		childSetText("Edit Cost",LLString::null);
+		childSetText("Edit Cost",LLStringUtil::null);
 		childSetEnabled("Edit Cost",false);
 		
 		childSetEnabled("label click action",false);
@@ -260,7 +260,7 @@ void LLPanelPermissions::refresh()
 							|| LLSelectMgr::getInstance()->selectGetModify();
 	const LLView* keyboard_focus_view = gFocusMgr.getKeyboardFocus();
 	S32 string_index = 0;
-	LLString MODIFY_INFO_STRINGS[] =
+	std::string MODIFY_INFO_STRINGS[] =
 	{
 		getString("text modify info 1"),
 		getString("text modify info 2"),
@@ -283,7 +283,7 @@ void LLPanelPermissions::refresh()
 	// Update creator text field
 	childSetEnabled("Creator:",true);
 	BOOL creators_identical;
-	LLString creator_name;
+	std::string creator_name;
 	creators_identical = LLSelectMgr::getInstance()->selectGetCreator(mCreatorID,
 													  creator_name);
 
@@ -295,7 +295,7 @@ void LLPanelPermissions::refresh()
 	childSetEnabled("Owner:",true);
 
 	BOOL owners_identical;
-	LLString owner_name;
+	std::string owner_name;
 	owners_identical = LLSelectMgr::getInstance()->selectGetOwner(mOwnerID, owner_name);
 
 //	llinfos << "owners_identical " << (owners_identical ? "TRUE": "FALSE") << llendl;
@@ -309,7 +309,7 @@ void LLPanelPermissions::refresh()
 		else
 		{
 			// Display last owner if public
-			LLString last_owner_name;
+			std::string last_owner_name;
 			LLSelectMgr::getInstance()->selectGetLastOwner(mLastOwnerID, last_owner_name);
 
 			// It should never happen that the last owner is null and the owner
@@ -328,7 +328,7 @@ void LLPanelPermissions::refresh()
 
 	// update group text field
 	childSetEnabled("Group:",true);
-	childSetText("Group Name",LLString::null);
+	childSetText("Group Name",LLStringUtil::null);
 	LLUUID group_id;
 	BOOL groups_identical = LLSelectMgr::getInstance()->selectGetGroup(group_id);
 	if (groups_identical)
@@ -344,7 +344,7 @@ void LLPanelPermissions::refresh()
 		if(mLabelGroupName)
 		{
 			mLabelGroupName->setNameID(LLUUID::null, TRUE);
-			mLabelGroupName->refresh(LLUUID::null, "", "", TRUE);
+			mLabelGroupName->refresh(LLUUID::null, LLStringUtil::null, LLStringUtil::null, TRUE);
 			mLabelGroupName->setEnabled(FALSE);
 		}
 	}
@@ -393,16 +393,14 @@ void LLPanelPermissions::refresh()
 	S32 prim_count = LLSelectMgr::getInstance()->getSelection()->getObjectCount();
 	S32 obj_count = LLSelectMgr::getInstance()->getSelection()->getRootObjectCount();
 
-	LLString object_info_string;
+	std::string object_info_string;
 	if (1 == obj_count)
 	{
 		object_info_string.assign("1 Object, ");
 	}
 	else
 	{
-		char buffer[MAX_STRING];		/*Flawfinder: ignore*/
-		snprintf(buffer, MAX_STRING, "%d Objects, ", obj_count);			/* Flawfinder: ignore */
-		object_info_string.assign(buffer);
+		object_info_string = llformat( "%d Objects, ", obj_count);
 	}
 	if (1 == prim_count)
 	{
@@ -410,8 +408,8 @@ void LLPanelPermissions::refresh()
 	}
 	else
 	{
-		char buffer[MAX_STRING];		/*Flawfinder: ignore*/
-		snprintf(buffer, MAX_STRING, "%d Primitives", prim_count);			/* Flawfinder: ignore */
+		std::string buffer;
+		buffer = llformat( "%d Primitives", prim_count);
 		object_info_string.append(buffer);
 	}
 	childSetText("prim info",object_info_string);
@@ -437,7 +435,7 @@ void LLPanelPermissions::refresh()
 	if(!owners_identical)
 	{
 		childSetEnabled("Cost",false);
-		childSetText("Edit Cost",LLString::null);
+		childSetText("Edit Cost",LLStringUtil::null);
 		childSetEnabled("Edit Cost",false);
 	}
 	// You own these objects.
@@ -487,7 +485,7 @@ void LLPanelPermissions::refresh()
 		if (num_for_sale)
 			childSetText("Edit Cost",llformat("%d",total_sale_price));
 		else
-			childSetText("Edit Cost",LLString::null);
+			childSetText("Edit Cost",LLStringUtil::null);
 
 		// If multiple items are for sale, set text to TOTAL PRICE.
 		if (num_for_sale > 1)
@@ -501,7 +499,7 @@ void LLPanelPermissions::refresh()
 		childSetEnabled("Cost",false);
 		childSetText("Cost",getString("Cost Default"));
 		
-		childSetText("Edit Cost",LLString::null);
+		childSetText("Edit Cost",LLStringUtil::null);
 		childSetEnabled("Edit Cost",false);
 	}
 
@@ -871,7 +869,7 @@ void LLPanelPermissions::onClickGroup(void* data)
 {
 	LLPanelPermissions* panelp = (LLPanelPermissions*)data;
 	LLUUID owner_id;
-	LLString name;
+	std::string name;
 	BOOL owners_identical = LLSelectMgr::getInstance()->selectGetOwner(owner_id, name);
 	LLFloater* parent_floater = gFloaterView->getParentFloater(panelp);
 
@@ -1056,11 +1054,11 @@ void LLPanelPermissions::setAllSaleInfo()
 	if (editPrice)
 	{
 		// Don't extract the price if it's labeled as MIXED or is empty.
-		const char *editPriceString = editPrice->getText().c_str();
-		if (0 != strcmp(editPriceString,getString("Cost Mixed").c_str()) &&
-			0 != strcmp(editPriceString,""))
+		const std::string& editPriceString = editPrice->getText();
+		if (editPriceString != getString("Cost Mixed") &&
+			!editPriceString.empty())
 		{
-			price = atoi(editPriceString);
+			price = atoi(editPriceString.c_str());
 		}
 		else
 		{

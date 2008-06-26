@@ -41,7 +41,7 @@ public:
 	enum EBevel { BEVEL_IN, BEVEL_OUT, BEVEL_BRIGHT, BEVEL_NONE };
 	enum EStyle { STYLE_LINE, STYLE_TEXTURE };
 
-	LLViewBorder( const LLString& name, const LLRect& rect, EBevel bevel = BEVEL_OUT, EStyle style = STYLE_LINE, S32 width = 1 );
+	LLViewBorder( const std::string& name, const LLRect& rect, EBevel bevel = BEVEL_OUT, EStyle style = STYLE_LINE, S32 width = 1 );
 
 	virtual void setValue(const LLSD& val) { setRect(LLRect(val)); }
 

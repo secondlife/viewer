@@ -75,7 +75,7 @@ extern BOOL gDebugClicks;
 // Methods
 //
 LLToolGrab::LLToolGrab( LLToolComposite* composite )
-:	LLTool( "Grab", composite ),
+:	LLTool( std::string("Grab"), composite ),
 	mMode( GRAB_INACTIVE ),
 	mVerticalDragging( FALSE ),
 	mHitLand(FALSE),

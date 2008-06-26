@@ -26,7 +26,7 @@ std::string LLFloaterHUD::sTutorialUrl = "";
 
 // Default constructor
 LLFloaterHUD::LLFloaterHUD()
-:	LLFloater("floater_hud"),
+:	LLFloater(std::string("floater_hud")),
 	mWebBrowser(0)
 {
 	// Create floater from its XML definition
@@ -59,7 +59,7 @@ LLFloaterHUD::LLFloaterHUD()
 		// arrow keys during tutorial).
 		mWebBrowser->setTakeFocusOnClick(false);
 
-		LLString language(gSavedSettings.getString("Language"));
+		std::string language(gSavedSettings.getString("Language"));
 		if(language == "default")
 		{
 			language = gSavedSettings.getString("SystemLanguage");
@@ -97,7 +97,7 @@ LLFloaterHUD::~LLFloaterHUD()
 }
 
 // Show the HUD
-void LLFloaterHUD::show()
+void LLFloaterHUD::showHUD()
 {
 	// do not build the floater if there the url is empty
 	if (sTutorialUrl == "")
@@ -112,7 +112,7 @@ void LLFloaterHUD::show()
 	hud->setFrontmost(FALSE);
 }
 
-void LLFloaterHUD::close()
+void LLFloaterHUD::closeHUD()
 {
 	if (sInstance) sInstance->close();
 }

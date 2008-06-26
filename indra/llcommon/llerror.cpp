@@ -102,7 +102,7 @@ namespace {
 	public:
 		RecordToFile(const std::string& filename)
 		{
-			mFile.open(filename.c_str(), llofstream::out | llofstream::app);
+			mFile.open(filename, llofstream::out | llofstream::app);
 			if (!mFile)
 			{
 				llinfos << "Error setting log file to " << filename << llendl;
@@ -196,7 +196,7 @@ namespace {
 		virtual void recordMessage(LLError::ELevel level,
 									const std::string& message)
 		{
-			mBuffer.addLine(message.c_str());
+			mBuffer.addLine(message);
 		}
 	
 	private:
@@ -305,7 +305,7 @@ namespace
 		std::string file = dirBase + "logcontrol-dev.xml";
 		
 		llstat stat_info;
-		if (LLFile::stat(file.c_str(), &stat_info)) {
+		if (LLFile::stat(file, &stat_info)) {
 			// NB: stat returns non-zero if it can't read the file, for example
 			// if it doesn't exist.  LLFile has no better abstraction for 
 			// testing for file existence.
@@ -321,7 +321,7 @@ namespace
 		LLSD configuration;
 
 		{
-			llifstream file(filename().c_str());
+			llifstream file(filename());
 			if (file.is_open())
 			{
 				LLSDSerialize::fromXML(configuration, file);

@@ -138,7 +138,7 @@ LLFloaterSellLandUI* LLFloaterSellLandUI::soleInstance(bool createIfNeeded)
 }
 
 LLFloaterSellLandUI::LLFloaterSellLandUI()
-:	LLFloater("Sell Land"),
+:	LLFloater(std::string("Sell Land")),
 	mRegion(0)
 {
 }
@@ -243,7 +243,7 @@ void LLFloaterSellLandUI::updateParcelInfo()
 
 	if(mSellToBuyer)
 	{
-		LLString name;
+		std::string name;
 		gCacheName->getFullName(mAuthorizedBuyer, name);
 		childSetText("sell_to_agent", name);
 	}
@@ -251,12 +251,12 @@ void LLFloaterSellLandUI::updateParcelInfo()
 
 void LLFloaterSellLandUI::setBadge(const char* id, Badge badge)
 {
-	static LLString badgeOK("badge_ok.j2c");
-	static LLString badgeNote("badge_note.j2c");
-	static LLString badgeWarn("badge_warn.j2c");
-	static LLString badgeError("badge_error.j2c");
+	static std::string badgeOK("badge_ok.j2c");
+	static std::string badgeNote("badge_note.j2c");
+	static std::string badgeWarn("badge_warn.j2c");
+	static std::string badgeError("badge_error.j2c");
 	
-	LLString badgeName;
+	std::string badgeName;
 	switch (badge)
 	{
 		default:
@@ -283,7 +283,7 @@ void LLFloaterSellLandUI::refreshUI()
 	childSetText("info_parcel", parcelp->getName());
 	childSetTextArg("info_size", "[AREA]", llformat("%d", mParcelActualArea));
 
-	LLString price_str = childGetValue("price").asString();
+	std::string price_str = childGetValue("price").asString();
 	bool valid_price = false;
 	valid_price = (price_str != "") && LLLineEditor::prevalidateNonNegativeS32(utf8str_to_wstring(price_str));
 
@@ -331,7 +331,7 @@ void LLFloaterSellLandUI::refreshUI()
 	}
 
 	// Must select Sell To: Anybody, or User (with a specified username)
-	LLString sell_to = childGetValue("sell_to").asString();
+	std::string sell_to = childGetValue("sell_to").asString();
 	bool valid_sell_to = "select" != sell_to &&
 		("user" != sell_to || mAuthorizedBuyer.notNull());
 
@@ -370,7 +370,7 @@ void LLFloaterSellLandUI::onChangeValue(LLUICtrl *ctrl, void *userdata)
 {
 	LLFloaterSellLandUI *self = (LLFloaterSellLandUI *)userdata;
 
-	LLString sell_to = self->childGetValue("sell_to").asString();
+	std::string sell_to = self->childGetValue("sell_to").asString();
 
 	if (sell_to == "user")
 	{
@@ -481,7 +481,7 @@ void LLFloaterSellLandUI::doSellLand(void *userdata)
 			return;
 		}
 
-		LLStringBase<char>::format_map_t args;
+		LLStringUtil::format_map_t args;
 		args["[LAND_SIZE]"] = llformat("%d",area);
 		args["[SALE_PRICE]"] = llformat("%d",sale_price);
 		args["[NAME]"] = authorizedBuyerName;

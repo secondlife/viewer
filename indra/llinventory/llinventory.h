@@ -75,7 +75,7 @@ protected:
 	LLUUID mUUID;
 	LLUUID mParentUUID;
 	LLAssetType::EType mType;
-	LLString mName;
+	std::string mName;
 
 protected:
 	virtual ~LLInventoryObject( void );
@@ -83,19 +83,19 @@ protected:
 public:
 	MEM_TYPE_NEW(LLMemType::MTYPE_INVENTORY);
 	LLInventoryObject(const LLUUID& uuid, const LLUUID& parent_uuid,
-					  LLAssetType::EType type, const LLString& name);
+					  LLAssetType::EType type, const std::string& name);
 	LLInventoryObject();
 	void copyObject(const LLInventoryObject* other); // LLRefCount requires custom copy
 
 	// accessors
 	const LLUUID& getUUID() const;
 	const LLUUID& getParentUUID() const;
-	const LLString& getName() const;
+	const std::string& getName() const;
 	LLAssetType::EType getType() const;
 
 	// mutators - will not call updateServer();
 	void setUUID(const LLUUID& new_uuid);
-	void rename(const LLString& new_name);
+	void rename(const std::string& new_name);
 	void setParent(const LLUUID& new_parent);
 	void setType(LLAssetType::EType type);
 
@@ -128,7 +128,7 @@ public:
 protected:
 	LLPermissions mPermissions;
 	LLUUID mAssetUUID;
-	LLString mDescription;
+	std::string mDescription;
 	LLSaleInfo mSaleInfo;
 	LLInventoryType::EType mInventoryType;
 	U32 mFlags;
@@ -212,8 +212,8 @@ public:
 					const LLUUID& asset_uuid,
 					LLAssetType::EType type,
 					LLInventoryType::EType inv_type,
-					const LLString& name, 
-					const LLString& desc,
+					const std::string& name, 
+					const std::string& desc,
 					const LLSaleInfo& sale_info,
 					U32 flags,
 					S32 creation_date_utc);
@@ -233,7 +233,7 @@ public:
 	const LLPermissions& getPermissions() const;
 	const LLUUID& getCreatorUUID() const;
 	const LLUUID& getAssetUUID() const;
-	const LLString& getDescription() const;
+	const std::string& getDescription() const;
 	const LLSaleInfo& getSaleInfo() const;
 	LLInventoryType::EType getInventoryType() const;
 	U32 getFlags() const;
@@ -243,7 +243,7 @@ public:
 	// mutators - will not call updateServer(), and will never fail
 	// (though it may correct to sane values)
 	void setAssetUUID(const LLUUID& asset_id);
-	void setDescription(const LLString& new_desc);
+	void setDescription(const std::string& new_desc);
 	void setSaleInfo(const LLSaleInfo& sale_info);
 	void setPermissions(const LLPermissions& perm);
 	void setInventoryType(LLInventoryType::EType inv_type);
@@ -303,7 +303,7 @@ public:
 	MEM_TYPE_NEW(LLMemType::MTYPE_INVENTORY);
 	LLInventoryCategory(const LLUUID& uuid, const LLUUID& parent_uuid,
 						LLAssetType::EType preferred_type,
-						const LLString& name);
+						const std::string& name);
 	LLInventoryCategory();
 	LLInventoryCategory(const LLInventoryCategory* other);
 	void copyCategory(const LLInventoryCategory* other); // LLRefCount requires custom copy

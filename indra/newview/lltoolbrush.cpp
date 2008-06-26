@@ -89,7 +89,7 @@ const LLColor4 OVERLAY_COLOR(1.0f, 1.0f, 1.0f, 1.0f);
 
 // constructor
 LLToolBrushLand::LLToolBrushLand()
-:	LLTool("Land"),
+:	LLTool(std::string("Land")),
 	mStartingZ( 0.0f ),
 	mMouseX( 0 ),
 	mMouseY(0),
@@ -589,7 +589,7 @@ void LLToolBrushLand::alertNoTerraform(LLViewerRegion* regionp)
 {
 	if (!regionp) return;
 	
-	LLStringBase<char>::format_map_t args;
+	LLStringUtil::format_map_t args;
 	args["[REGION]"] = regionp->getName();
 	gViewerWindow->alertXml("RegionNoTerraforming", args);
 

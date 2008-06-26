@@ -365,7 +365,7 @@ std::string LLMail::encryptIMEmailAddress(const LLUUID& from_agent_id,
 	std::string address = LLBase32::encode(encrypted, encrypted_size);
 
 	// Make it more pretty for humans.
-	LLString::toLower(address);
+	LLStringUtil::toLower(address);
 
 	delete [] encrypted;
 

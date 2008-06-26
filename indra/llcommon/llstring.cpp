@@ -1,6 +1,6 @@
 /** 
  * @file llstring.cpp
- * @brief String utility functions and the LLString class.
+ * @brief String utility functions and the std::string class.
  *
  * $LicenseInfo:firstyear=2001&license=viewergpl$
  * 
@@ -47,6 +47,12 @@ std::string ll_safe_string(const char* in)
 	return std::string();
 }
 
+std::string ll_safe_string(const char* in, S32 maxlen)
+{
+	if(in) return std::string(in, maxlen);
+	return std::string();
+}
+
 U8 hex_as_nybble(char hex)
 {
 	if((hex >= '0') && (hex <= '9'))
@@ -65,7 +71,7 @@ U8 hex_as_nybble(char hex)
 }
 
 
-bool _read_file_into_string(std::string& str, const char* filename)
+bool _read_file_into_string(std::string& str, const std::string& filename)
 {
 	llifstream ifs(filename, llifstream::binary);
 	if (!ifs.is_open())
@@ -174,20 +180,6 @@ S32 utf16chars_to_wchar(const U16* inchars, llwchar* outchar)
 	return inchars - base;
 }
 
-S32 utf16chars_to_utf8chars(const U16* inchars, char* outchars, S32* nchars8p)
-{
-	// Get 32 bit char32
-	llwchar char32;
-	S32 nchars16 = utf16chars_to_wchar(inchars, &char32);
-	// Convert to utf8
-	S32 nchars8  = wchar_to_utf8chars(char32, outchars);
-	if (nchars8p)
-	{
-		*nchars8p = nchars8;
-	}
-	return nchars16;
-}
-
 llutf16string wstring_to_utf16str(const LLWString &utf32str, S32 len)
 {
 	llutf16string out;
@@ -216,7 +208,7 @@ llutf16string wstring_to_utf16str(const LLWString &utf32str)
 	return wstring_to_utf16str(utf32str, len);
 }
 
-llutf16string utf8str_to_utf16str ( const LLString& utf8str )
+llutf16string utf8str_to_utf16str ( const std::string& utf8str )
 {
 	LLWString wstr = utf8str_to_wstring ( utf8str );
 	return wstring_to_utf16str ( wstr );
@@ -492,210 +484,10 @@ std::string utf16str_to_utf8str(const llutf16string& utf16str, S32 len)
 	return wstring_to_utf8str(utf16str_to_wstring(utf16str, len), len);
 }
 
-
-//LLWString wstring_truncate(const LLWString &wstr, const S32 max_len)
-//{
-//	return wstr.substr(0, llmin((S32)wstr.length(), max_len));
-//}
-//
-//
-//LLWString wstring_trim(const LLWString &wstr)
-//{
-//	LLWString outstr;
-//	outstr = wstring_trimhead(wstr);
-//	outstr = wstring_trimtail(outstr);
-//	return outstr;
-//}
-//
-//
-//LLWString wstring_trimhead(const LLWString &wstr)
-//{
-//	if(wstr.empty())
-//	{
-//		return wstr;
-//	}
-//
-//    S32 i = 0;
-//	while((i < (S32)wstr.length()) && iswspace(wstr[i]))
-//	{
-//		i++;
-//	}
-//	return wstr.substr(i, wstr.length() - i);
-//}
-//
-//
-//LLWString wstring_trimtail(const LLWString &wstr)
-//{			
-//	if(wstr.empty())
-//	{
-//		return wstr;
-//	}
-//
-//	S32 len = (S32)wstr.length();
-//
-//	S32 i = len - 1;
-//	while (i >= 0 && iswspace(wstr[i]))
-//	{
-//		i--;
-//	}
-//
-//	if (i >= 0)
-//	{
-//		return wstr.substr(0, i + 1);
-//	}
-//	return wstr;
-//}
-//
-//
-//LLWString wstring_copyinto(const LLWString &dest, const LLWString &src, const S32 insert_offset)
-//{
-//	llassert( insert_offset <= (S32)dest.length() );
-//
-//	LLWString out_str = dest.substr(0, insert_offset);
-//	out_str += src;
-//	LLWString tail = dest.substr(insert_offset);
-//	out_str += tail;
-//
-//	return out_str;
-//}
-
-
-//LLWString wstring_detabify(const LLWString &wstr, const S32 num_spaces)
-//{
-//	LLWString out_str;
-//	// Replace tabs with spaces
-//	for (S32 i = 0; i < (S32)wstr.length(); i++)
-//	{
-//		if (wstr[i] == '\t')
-//		{
-//			for (S32 j = 0; j < num_spaces; j++)
-//				out_str += ' ';
-//		}
-//		else
-//		{
-//			out_str += wstr[i];
-//		}
-//	}
-//	return out_str;
-//}
-
-
-//LLWString wstring_makeASCII(const LLWString &wstr)
-//{
-//	// Replace non-ASCII chars with replace_char
-//	LLWString out_str = wstr;
-//	for (S32 i = 0; i < (S32)out_str.length(); i++)
-//	{
-//		if (out_str[i] > 0x7f)
-//		{
-//			out_str[i] = LL_UNKNOWN_CHAR;
-//		}
-//	}
-//	return out_str;
-//}
-
-
-//LLWString wstring_substChar(const LLWString &wstr, const llwchar target_char, const llwchar replace_char)
-//{
-//	// Replace all occurences of target_char with replace_char
-//	LLWString out_str = wstr;
-//	for (S32 i = 0; i < (S32)out_str.length(); i++)
-//	{
-//		if (out_str[i] == target_char)
-//		{
-//			out_str[i] = replace_char;
-//		}
-//	}
-//	return out_str;
-//}
-//
-//
-//LLWString wstring_tolower(const LLWString &wstr)
-//{
-//	LLWString out_str = wstr;
-//	for (S32 i = 0; i < (S32)out_str.length(); i++)
-//	{
-//		out_str[i] = towlower(out_str[i]);
-//	}
-//	return out_str;
-//}
-//
-//
-//LLWString wstring_convert_to_lf(const LLWString &wstr)
-//{
-//	const llwchar CR = 13;
-//	// Remove carriage returns from string with CRLF
-//	LLWString out_str;
-//
-//	for (S32 i = 0; i < (S32)wstr.length(); i++)
-//	{
-//		if (wstr[i] != CR)
-//		{
-//			out_str += wstr[i];
-//		}
-//	}
-//	return out_str;
-//}
-//
-//
-//LLWString wstring_convert_to_crlf(const LLWString &wstr)
-//{
-//	const llwchar LF = 10;
-//	const llwchar CR = 13;
-//	// Remove carriage returns from string with CRLF
-//	LLWString out_str;
-//
-//	for (S32 i = 0; i < (S32)wstr.length(); i++)
-//	{
-//		if (wstr[i] == LF)
-//		{
-//			out_str += CR;
-//		}
-//		out_str += wstr[i];
-//	}
-//	return out_str;
-//}
-
-
-//S32	wstring_compare_insensitive(const LLWString &lhs, const LLWString &rhs)
-//{
-//
-//	if (lhs == rhs)
-//	{
-//		return 0;
-//	}
-//
-//	if (lhs.empty())
-//	{
-//		return rhs.empty() ? 0 : 1;
-//	}
-//
-//	if (rhs.empty())
-//	{
-//		return -1;
-//	}
-//
-//#ifdef LL_LINUX
-//	// doesn't work because gcc 2.95 doesn't correctly implement c_str().  Sigh...
-//	llerrs << "wstring_compare_insensitive doesn't work on Linux!" << llendl;
-//	return 0;
-//#else
-//	LLWString lhs_lower = lhs;
-//	LLWString::toLower(lhs_lower);
-//	std::string lhs_lower = wstring_to_utf8str(lhs_lower);
-//	LLWString rhs_lower = lhs;
-//	LLWString::toLower(rhs_lower);
-//	std::string rhs_lower = wstring_to_utf8str(rhs_lower);
-//
-//	return strcmp(lhs_lower.c_str(), rhs_lower.c_str());
-//#endif
-//}
-
-
 std::string utf8str_trim(const std::string& utf8str)
 {
 	LLWString wstr = utf8str_to_wstring(utf8str);
-	LLWString::trim(wstr);
+	LLWStringUtil::trim(wstr);
 	return wstring_to_utf8str(wstr);
 }
 
@@ -703,7 +495,7 @@ std::string utf8str_trim(const std::string& utf8str)
 std::string utf8str_tolower(const std::string& utf8str)
 {
 	LLWString out_str = utf8str_to_wstring(utf8str);
-	LLWString::toLower(out_str);
+	LLWStringUtil::toLower(out_str);
 	return wstring_to_utf8str(out_str);
 }
 
@@ -712,7 +504,7 @@ S32 utf8str_compare_insensitive(const std::string& lhs, const std::string& rhs)
 {
 	LLWString wlhs = utf8str_to_wstring(lhs);
 	LLWString wrhs = utf8str_to_wstring(rhs);
-	return LLWString::compareInsensitive(wlhs.c_str(), wrhs.c_str());
+	return LLWStringUtil::compareInsensitive(wlhs, wrhs);
 }
 
 std::string utf8str_truncate(const std::string& utf8str, const S32 max_len)
@@ -756,7 +548,7 @@ std::string utf8str_substChar(
 	const llwchar replace_char)
 {
 	LLWString wstr = utf8str_to_wstring(utf8str);
-	LLWString::replaceChar(wstr, target_char, replace_char);
+	LLWStringUtil::replaceChar(wstr, target_char, replace_char);
 	//wstr = wstring_substChar(wstr, target_char, replace_char);
 	return wstring_to_utf8str(wstr);
 }
@@ -764,7 +556,7 @@ std::string utf8str_substChar(
 std::string utf8str_makeASCII(const std::string& utf8str)
 {
 	LLWString wstr = utf8str_to_wstring(utf8str);
-	LLWString::_makeASCII(wstr);
+	LLWStringUtil::_makeASCII(wstr);
 	return wstring_to_utf8str(wstr);
 }
 
@@ -964,19 +756,19 @@ namespace LLStringFn
 #ifdef _DEBUG
 
 template<class T> 
-void LLStringBase<T>::testHarness()
+void LLStringUtilBase<T>::testHarness()
 {
-	LLString s1;
+	std::string s1;
 	
 	llassert( s1.c_str() == NULL );
 	llassert( s1.size() == 0 );
 	llassert( s1.empty() );
 	
-	LLString s2( "hello");
+	std::string s2( "hello");
 	llassert( !strcmp( s2.c_str(), "hello" ) );
 	llassert( s2.size() == 5 ); 
 	llassert( !s2.empty() );
-	LLString s3( s2 );
+	std::string s3( s2 );
 
 	llassert( "hello" == s2 );
 	llassert( s2 == "hello" );
@@ -985,12 +777,12 @@ void LLStringBase<T>::testHarness()
 	llassert( "gello" != s2 );
 	llassert( s2 != "gello" );
 
-	LLString s4 = s2;
+	std::string s4 = s2;
 	llassert( !s4.empty() );
 	s4.empty();
 	llassert( s4.empty() );
 	
-	LLString s5("");
+	std::string s5("");
 	llassert( s5.empty() );
 	
 	llassert( isValidIndex(s5, 0) );
@@ -1004,8 +796,8 @@ void LLStringBase<T>::testHarness()
 	llassert( s4 == "hello again!hello again!" );
 	
 	
-	LLString s6 = s2 + " " + s2;
-	LLString s7 = s6;
+	std::string s6 = s2 + " " + s2;
+	std::string s7 = s6;
 	llassert( s6 == s7 );
 	llassert( !( s6 != s7) );
 	llassert( !(s6 < s7) );
@@ -1028,10 +820,10 @@ void LLStringBase<T>::testHarness()
 	s2.insert( 1, "awn, don't yel");
 	llassert( s2 == "yawn, don't yell");
 	
-	LLString s8 = s2.substr( 6, 5 );
+	std::string s8 = s2.substr( 6, 5 );
 	llassert( s8 == "don't"  );
 	
-	LLString s9 = "   \t\ntest  \t\t\n  ";
+	std::string s9 = "   \t\ntest  \t\t\n  ";
 	trim(s9);
 	llassert( s9 == "test"  );
 
@@ -1046,17 +838,17 @@ void LLStringBase<T>::testHarness()
 	llassert( s9 == "abc123&*(abc"  );
 
 
-	LLString s10( 10, 'x' );
+	std::string s10( 10, 'x' );
 	llassert( s10 == "xxxxxxxxxx" );
 
-	LLString s11( "monkey in the middle", 7, 2 );
+	std::string s11( "monkey in the middle", 7, 2 );
 	llassert( s11 == "in" );
 
-	LLString s12;  //empty
+	std::string s12;  //empty
 	s12 += "foo";
 	llassert( s12 == "foo" );
 
-	LLString s13;  //empty
+	std::string s13;  //empty
 	s13 += 'f';
 	llassert( s13 == "f" );
 }

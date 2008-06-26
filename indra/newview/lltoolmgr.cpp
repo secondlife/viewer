@@ -74,7 +74,7 @@ LLToolMgr::LLToolMgr()
 	mSelectedTool( NULL ),
 	mCurrentToolset( NULL )
 {
-	gToolNull = new LLTool(NULL);  // Does nothing
+	gToolNull = new LLTool(LLStringUtil::null);  // Does nothing
 	setCurrentTool(gToolNull);
 
 	gBasicToolset		= new LLToolset();

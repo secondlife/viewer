@@ -43,8 +43,8 @@
 LLKeyboard *gKeyboard = NULL;
 
 //static
-std::map<KEY,LLString> LLKeyboard::sKeysToNames;
-std::map<LLString,KEY> LLKeyboard::sNamesToKeys;
+std::map<KEY,std::string> LLKeyboard::sKeysToNames;
+std::map<std::string,KEY> LLKeyboard::sNamesToKeys;
 
 //
 // Class Implementation
@@ -144,11 +144,11 @@ LLKeyboard::~LLKeyboard()
 	// nothing
 }
 
-void LLKeyboard::addKeyName(KEY key, const LLString& name)
+void LLKeyboard::addKeyName(KEY key, const std::string& name)
 {
 	sKeysToNames[key] = name;
-	LLString nameuc = name;
-	LLString::toUpper(nameuc);
+	std::string nameuc = name;
+	LLStringUtil::toUpper(nameuc);
 	sNamesToKeys[nameuc] = key;
 }
 
@@ -294,9 +294,9 @@ S32 LLKeyboard::getKeyElapsedFrameCount(KEY key)
 }
 
 // static
-BOOL LLKeyboard::keyFromString(const LLString& str, KEY *key)
+BOOL LLKeyboard::keyFromString(const std::string& str, KEY *key)
 {
-	LLString instring(str);
+	std::string instring(str);
 	size_t length = instring.size();
 
 	if (length < 1)
@@ -318,7 +318,7 @@ BOOL LLKeyboard::keyFromString(const LLString& str, KEY *key)
 		}
 	}
 
-	LLString::toUpper(instring);
+	LLStringUtil::toUpper(instring);
 	KEY res = get_if_there(sNamesToKeys, instring, (KEY)0);
 	if (res != 0)
 	{
@@ -331,15 +331,15 @@ BOOL LLKeyboard::keyFromString(const LLString& str, KEY *key)
 
 
 // static
-LLString LLKeyboard::stringFromKey(KEY key)
+std::string LLKeyboard::stringFromKey(KEY key)
 {
-	LLString res = get_if_there(sKeysToNames, key, LLString::null);
+	std::string res = get_if_there(sKeysToNames, key, std::string());
 	if (res.empty())
 	{
 		char buffer[2];		/* Flawfinder: ignore */
 		buffer[0] = key;
 		buffer[1] = '\0';
-		res = LLString(buffer);
+		res = std::string(buffer);
 	}
 	return res;
 }
@@ -347,9 +347,9 @@ LLString LLKeyboard::stringFromKey(KEY key)
 
 
 //static
-BOOL LLKeyboard::maskFromString(const LLString& str, MASK *mask)
+BOOL LLKeyboard::maskFromString(const std::string& str, MASK *mask)
 {
-	LLString instring(str);
+	std::string instring(str);
 	if (instring == "NONE")
 	{
 		*mask = MASK_NONE;

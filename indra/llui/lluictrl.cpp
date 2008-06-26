@@ -98,7 +98,7 @@ LLUICtrl::LLUICtrl() :
 {
 }
 
-LLUICtrl::LLUICtrl(const LLString& name, const LLRect& rect, BOOL mouse_opaque,
+LLUICtrl::LLUICtrl(const std::string& name, const LLRect& rect, BOOL mouse_opaque,
 	void (*on_commit_callback)(LLUICtrl*, void*),
 	void* callback_userdata,
 	U32 reshape)
@@ -147,13 +147,13 @@ LLSD LLUICtrl::getValue() const
 }
 
 // virtual
-BOOL LLUICtrl::setTextArg( const LLString& key, const LLStringExplicit& text ) 
+BOOL LLUICtrl::setTextArg( const std::string& key, const LLStringExplicit& text ) 
 { 
 	return FALSE; 
 }
 
 // virtual
-BOOL LLUICtrl::setLabelArg( const LLString& key, const LLStringExplicit& text ) 
+BOOL LLUICtrl::setLabelArg( const std::string& key, const LLStringExplicit& text ) 
 { 
 	return FALSE; 
 }
@@ -495,7 +495,7 @@ LLUICtrl* LLUICtrl::findRootMostFocusRoot() const
 
 /*
 // Don't let the children handle the tool tip.  Handle it here instead.
-BOOL LLUICtrl::handleToolTip(S32 x, S32 y, LLString& msg, LLRect* sticky_rect_screen)
+BOOL LLUICtrl::handleToolTip(S32 x, S32 y, std::string& msg, LLRect* sticky_rect_screen)
 {
 	BOOL handled = FALSE;
 	if (getVisible() && pointInView( x, y ) ) 

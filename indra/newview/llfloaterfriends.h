@@ -79,7 +79,7 @@ public:
 
 	// Just request friendship, no dialog.
 	static void requestFriendship(const LLUUID& target_id,
-								  const LLString& target_name);
+								  const std::string& target_name);
 
 private:
 
@@ -138,7 +138,7 @@ private:
 	// member data
 	LLFriendObserver* mObserver;
 	LLUUID mAddFriendID;
-	LLString mAddFriendName;
+	std::string mAddFriendName;
 	LLScrollListCtrl* mFriendsList;
 	BOOL mShowMaxSelectWarning;
 	BOOL mAllowRightsChange;

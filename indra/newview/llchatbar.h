@@ -65,7 +65,7 @@ public:
 	void		setIgnoreArrowKeys(BOOL b);
 
 	BOOL		inputEditorHasFocus();
-	LLString	getCurrentChat();
+	std::string	getCurrentChat();
 
 	// since chat bar logic is reused for chat history
 	// gesture combo box might not be a direct child

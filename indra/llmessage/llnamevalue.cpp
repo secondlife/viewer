@@ -155,7 +155,7 @@ void LLNameValue::init(const char *name, const char *data, const char *type, con
 	else if (!strcmp(mStringType, "U64"))
 	{
 		mType = NVT_U64;
-		mNameValueReference.u64 = new U64(str_to_U64(data));
+		mNameValueReference.u64 = new U64(str_to_U64(ll_safe_string(data)));
 	}
 	else if (!strcmp(mStringType, "VEC3"))
 	{

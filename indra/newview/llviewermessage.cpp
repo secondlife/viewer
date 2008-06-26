@@ -159,6 +159,9 @@ extern BOOL gDebugClicks;
 void open_offer(const std::vector<LLUUID>& items, const std::string& from_name);
 void friendship_offer_callback(S32 option, void* user_data);
 bool check_offer_throttle(const std::string& from_name, bool check_only);
+void callbackCacheEstateOwnerName(const LLUUID& id,
+								  const std::string& first, const std::string& last,
+								  BOOL is_group, void*);
 
 //inventory offer throttle globals
 LLFrameTimer gThrottleTimer;
@@ -166,7 +169,7 @@ const U32 OFFER_THROTTLE_MAX_COUNT=5; //number of items per time period
 const F32 OFFER_THROTTLE_TIME=10.f; //time period in seconds
 
 //script permissions
-const LLString SCRIPT_QUESTIONS[SCRIPT_PERMISSION_EOF] = 
+const std::string SCRIPT_QUESTIONS[SCRIPT_PERMISSION_EOF] = 
 	{ 
 		"ScriptTakeMoney",
 		"ActOnControlInputs",
@@ -198,7 +201,7 @@ struct LLFriendshipOffer
 //
 
 void give_money(const LLUUID& uuid, LLViewerRegion* region, S32 amount, BOOL is_group,
-				S32 trx_type, const LLString& desc)
+				S32 trx_type, const std::string& desc)
 {
 	if(0 == amount) return;
 	amount = abs(amount);
@@ -219,7 +222,7 @@ void give_money(const LLUUID& uuid, LLViewerRegion* region, S32 amount, BOOL is_
 		msg->addU8Fast(_PREHASH_AggregatePermNextOwner, (U8)LLAggregatePermissions::AP_EMPTY);
 		msg->addU8Fast(_PREHASH_AggregatePermInventory, (U8)LLAggregatePermissions::AP_EMPTY);
 		msg->addS32Fast(_PREHASH_TransactionType, trx_type );
-		msg->addStringFast(_PREHASH_Description, desc.c_str());
+		msg->addStringFast(_PREHASH_Description, desc);
 		msg->sendReliable(region->getHost());
 	}
 	else
@@ -324,194 +327,191 @@ void process_layer_data(LLMessageSystem *mesgsys, void **user_data)
 	}
 }
 
-S32 exported_object_count = 0;
-S32 exported_image_count = 0;
-S32 current_object_count = 0;
-S32 current_image_count = 0;
+// S32 exported_object_count = 0;
+// S32 exported_image_count = 0;
+// S32 current_object_count = 0;
+// S32 current_image_count = 0;
 
-extern LLNotifyBox *gExporterNotify;
-extern LLUUID gExporterRequestID;
-extern LLString gExportDirectory;
+// extern LLNotifyBox *gExporterNotify;
+// extern LLUUID gExporterRequestID;
+// extern std::string gExportDirectory;
 
-extern LLUploadDialog *gExportDialog;
+// extern LLUploadDialog *gExportDialog;
 
-LLString gExportedFile;
+// std::string gExportedFile;
 
-std::map<LLUUID, LLString> gImageChecksums;
+// std::map<LLUUID, std::string> gImageChecksums;
 
-void export_complete()
-{
-		LLUploadDialog::modalUploadFinished();
-		gExporterRequestID.setNull();
-		gExportDirectory = "";
+// void export_complete()
+// {
+// 		LLUploadDialog::modalUploadFinished();
+// 		gExporterRequestID.setNull();
+// 		gExportDirectory = "";
 
-		LLFILE* fXML = LLFile::fopen(gExportedFile.c_str(), "rb");		/* Flawfinder: ignore */
-		fseek(fXML, 0, SEEK_END);
-		long length = ftell(fXML);
-		fseek(fXML, 0, SEEK_SET);
-		U8 *buffer = new U8[length + 1];
-		size_t nread = fread(buffer, 1, length, fXML);
-		if (nread < (size_t) length)
-		{
-			LL_WARNS("Messaging") << "Short read" << LL_ENDL;
-		}
-		buffer[nread] = '\0';
-		fclose(fXML);
+// 		LLFILE* fXML = LLFile::fopen(gExportedFile, "rb");		/* Flawfinder: ignore */
+// 		fseek(fXML, 0, SEEK_END);
+// 		long length = ftell(fXML);
+// 		fseek(fXML, 0, SEEK_SET);
+// 		U8 *buffer = new U8[length + 1];
+// 		size_t nread = fread(buffer, 1, length, fXML);
+// 		if (nread < (size_t) length)
+// 		{
+// 			llwarns << "Short read" << llendl;
+// 		}
+// 		buffer[nread] = '\0';
+// 		fclose(fXML);
 
-		char *pos = (char *)buffer;
-		while ((pos = strstr(pos+1, "<sl:image ")) != 0)
-		{
-			char *pos_check = strstr(pos, "checksum=\"");
+// 		char *pos = (char *)buffer;
+// 		while ((pos = strstr(pos+1, "<sl:image ")) != 0)
+// 		{
+// 			char *pos_check = strstr(pos, "checksum=\"");
 
-			if (pos_check)
-			{
-				char *pos_uuid = strstr(pos_check, "\">");
+// 			if (pos_check)
+// 			{
+// 				char *pos_uuid = strstr(pos_check, "\">");
 
-				if (pos_uuid)
-				{
-					char image_uuid_str[UUID_STR_SIZE];		/* Flawfinder: ignore */
-					memcpy(image_uuid_str, pos_uuid+2, UUID_STR_SIZE-1);		/* Flawfinder: ignore */
-					image_uuid_str[UUID_STR_SIZE-1] = 0;
+// 				if (pos_uuid)
+// 				{
+// 					char image_uuid_str[UUID_STR_SIZE];		/* Flawfinder: ignore */
+// 					memcpy(image_uuid_str, pos_uuid+2, UUID_STR_SIZE-1);		/* Flawfinder: ignore */
+// 					image_uuid_str[UUID_STR_SIZE-1] = 0;
 					
-					LLUUID image_uuid(image_uuid_str);
+// 					LLUUID image_uuid(image_uuid_str);
 
-					LL_INFOS("Messaging") << "Found UUID: " << image_uuid << LL_ENDL;
+// 					LL_INFOS("Messaging") << "Found UUID: " << image_uuid << LL_ENDL;
 
-					std::map<LLUUID, LLString>::iterator itor = gImageChecksums.find(image_uuid);
-					if (itor != gImageChecksums.end())
-					{
-						LL_INFOS("Messaging") << "Replacing with checksum: " << itor->second << LL_ENDL;
-						if (itor->second.c_str() != NULL)
-							{
-								memcpy(&pos_check[10], itor->second.c_str(), 32);		/* Flawfinder: ignore */
-							}
-					}
-				}
-			}
-		}
+// 					std::map<LLUUID, std::string>::iterator itor = gImageChecksums.find(image_uuid);
+// 					if (itor != gImageChecksums.end())
+// 					{
+// 						LL_INFOS("Messaging") << "Replacing with checksum: " << itor->second << LL_ENDL;
+// 						if (!itor->second.empty())
+// 						{
+// 							memcpy(&pos_check[10], itor->second.c_str(), 32);		/* Flawfinder: ignore */
+// 						}
+// 					}
+// 				}
+// 			}
+// 		}
 
-		LLFILE* fXMLOut = LLFile::fopen(gExportedFile.c_str(), "wb");		/* Flawfinder: ignore */
-		if (fwrite(buffer, 1, length, fXMLOut) != length)
-		{
-			LL_WARNS("Messaging") << "Short write" << LL_ENDL;
-		}
-		fclose(fXMLOut);
+// 		LLFILE* fXMLOut = LLFile::fopen(gExportedFile, "wb");		/* Flawfinder: ignore */
+// 		if (fwrite(buffer, 1, length, fXMLOut) != length)
+// 		{
+// 			LL_WARNS("Messaging") << "Short write" << LL_ENDL;
+// 		}
+// 		fclose(fXMLOut);
 
-		delete [] buffer;
-}
+// 		delete [] buffer;
+// }
 
 
-void exported_item_complete(const LLTSCode status, void *user_data)
-{
-	//LLString *filename = (LLString *)user_data;
+// void exported_item_complete(const LLTSCode status, void *user_data)
+// {
+// 	//std::string *filename = (std::string *)user_data;
 
-	if (status < LLTS_OK)
-	{
-		LL_WARNS("Messaging") << "Export failed!" << LL_ENDL;
-	}
-	else
-	{
-		++current_object_count;
-		if (current_image_count == exported_image_count && current_object_count == exported_object_count)
-		{
-			LL_INFOS("Messaging") << "*** Export complete ***" << LL_ENDL;
+// 	if (status < LLTS_OK)
+// 	{
+// 		LL_WARNS("Messaging") << "Export failed!" << LL_ENDL;
+// 	}
+// 	else
+// 	{
+// 		++current_object_count;
+// 		if (current_image_count == exported_image_count && current_object_count == exported_object_count)
+// 		{
+// 			LL_INFOS("Messaging") << "*** Export complete ***" << LL_ENDL;
 
-			export_complete();
-		}
-		else
-		{
-			gExportDialog->setMessage(llformat("Exported %d/%d object files, %d/%d textures.", current_object_count, exported_object_count, current_image_count, exported_image_count));
-		}
-	}
-}
+// 			export_complete();
+// 		}
+// 		else
+// 		{
+// 			gExportDialog->setMessage(llformat("Exported %d/%d object files, %d/%d textures.", current_object_count, exported_object_count, current_image_count, exported_image_count));
+// 		}
+// 	}
+// }
 
-struct exported_image_info
-{
-	LLUUID image_id;
-	LLString filename;
-	U32 image_num;
-};
+// struct exported_image_info
+// {
+// 	LLUUID image_id;
+// 	std::string filename;
+// 	U32 image_num;
+// };
 
-void exported_j2c_complete(const LLTSCode status, void *user_data)
-{
-	exported_image_info *info = (exported_image_info *)user_data;
-	LLUUID image_id = info->image_id;
-	U32 image_num = info->image_num;
-	LLString filename = info->filename;
-	delete info;
+// void exported_j2c_complete(const LLTSCode status, void *user_data)
+// {
+// 	exported_image_info *info = (exported_image_info *)user_data;
+// 	LLUUID image_id = info->image_id;
+// 	U32 image_num = info->image_num;
+// 	std::string filename = info->filename;
+// 	delete info;
 
-	if (status < LLTS_OK)
-	{
-		LL_WARNS("Messaging") << "Image download failed!" << LL_ENDL;
-	}
-	else
-	{
-		LLFILE* fIn = LLFile::fopen(filename.c_str(), "rb");		/* Flawfinder: ignore */
-		if (fIn) 
-		{
-			LLPointer<LLImageJ2C> ImageUtility = new LLImageJ2C;
-			LLPointer<LLImageTGA> TargaUtility = new LLImageTGA;
+// 	if (status < LLTS_OK)
+// 	{
+// 		LL_WARNS("Messaging") << "Image download failed!" << LL_ENDL;
+// 	}
+// 	else
+// 	{
+// 		LLFILE* fIn = LLFile::fopen(filename, "rb");		/* Flawfinder: ignore */
+// 		if (fIn) 
+// 		{
+// 			LLPointer<LLImageJ2C> ImageUtility = new LLImageJ2C;
+// 			LLPointer<LLImageTGA> TargaUtility = new LLImageTGA;
 
-			fseek(fIn, 0, SEEK_END);
-			S32 length = ftell(fIn);
-			fseek(fIn, 0, SEEK_SET);
-			U8 *buffer = ImageUtility->allocateData(length);
-			if (fread(buffer, 1, length, fIn) != length)
-			{
-				LL_WARNS("Messaging") << "Short read" << LL_ENDL;
-			}
-			fclose(fIn);
-			LLFile::remove(filename.c_str());
+// 			fseek(fIn, 0, SEEK_END);
+// 			S32 length = ftell(fIn);
+// 			fseek(fIn, 0, SEEK_SET);
+// 			U8 *buffer = ImageUtility->allocateData(length);
+// 			if (fread(buffer, 1, length, fIn) != length)
+// 			{
+// 				LL_WARNS("Messaging") << "Short read" << LL_ENDL;
+// 			}
+// 			fclose(fIn);
+// 			LLFile::remove(filename);
 
-			// Convert to TGA
-			LLPointer<LLImageRaw> image = new LLImageRaw();
+// 			// Convert to TGA
+// 			LLPointer<LLImageRaw> image = new LLImageRaw();
 
-			ImageUtility->updateData();
-			ImageUtility->decode(image, 100000.0f);
+// 			ImageUtility->updateData();
+// 			ImageUtility->decode(image, 100000.0f);
 			
-			TargaUtility->encode(image);
-			U8 *data = TargaUtility->getData();
-			S32 data_size = TargaUtility->getDataSize();
+// 			TargaUtility->encode(image);
+// 			U8 *data = TargaUtility->getData();
+// 			S32 data_size = TargaUtility->getDataSize();
 
-			char *file_path = new char[filename.size()+1];
-			strcpy(file_path, filename.c_str());		/* Flawfinder: ignore */
-			char *end = strrchr(file_path, gDirUtilp->getDirDelimiter()[0]);
-			end[0] = 0;
-			LLString output_file = llformat("%s/image-%03d.tga", file_path, image_num);//filename;
-			delete [] file_path;
-			//S32 name_len = output_file.length();
-			//strcpy(&output_file[name_len-3], "tga");
-			LLFILE* fOut = LLFile::fopen(output_file.c_str(), "wb");		/* Flawfinder: ignore */
-			char md5_hash_string[33];		/* Flawfinder: ignore */
-			strcpy(md5_hash_string, "00000000000000000000000000000000");		/* Flawfinder: ignore */
-			if (fOut)
-			{
-				if (fwrite(data, 1, data_size, fOut) != data_size)
-				{
-					LL_WARNS("Messaging") << "Short write" << LL_ENDL;
-				}
-				fseek(fOut, 0, SEEK_SET);
-				fclose(fOut);
-				fOut = LLFile::fopen(output_file.c_str(), "rb");		/* Flawfinder: ignore */
-				LLMD5 my_md5_hash(fOut);
-				my_md5_hash.hex_digest(md5_hash_string);
-			}
+// 			std::string file_path = gDirUtilp->getDirName(filename);
+			
+// 			std::string output_file = llformat("%s/image-%03d.tga", file_path.c_str(), image_num);//filename;
+// 			//S32 name_len = output_file.length();
+// 			//strcpy(&output_file[name_len-3], "tga");
+// 			LLFILE* fOut = LLFile::fopen(output_file, "wb");		/* Flawfinder: ignore */
+// 			char md5_hash_string[33];		/* Flawfinder: ignore */
+// 			strcpy(md5_hash_string, "00000000000000000000000000000000");		/* Flawfinder: ignore */
+// 			if (fOut)
+// 			{
+// 				if (fwrite(data, 1, data_size, fOut) != data_size)
+// 				{
+// 					LL_WARNS("Messaging") << "Short write" << LL_ENDL;
+// 				}
+// 				fseek(fOut, 0, SEEK_SET);
+// 				fclose(fOut);
+// 				fOut = LLFile::fopen(output_file, "rb");		/* Flawfinder: ignore */
+// 				LLMD5 my_md5_hash(fOut);
+// 				my_md5_hash.hex_digest(md5_hash_string);
+// 			}
 
-			gImageChecksums.insert(std::pair<LLUUID, LLString>(image_id, md5_hash_string));
-		}
-	}
+// 			gImageChecksums.insert(std::pair<LLUUID, std::string>(image_id, md5_hash_string));
+// 		}
+// 	}
 
-	++current_image_count;
-	if (current_image_count == exported_image_count && current_object_count == exported_object_count)
-	{
-		LL_INFOS("Messaging") << "*** Export textures complete ***" << LL_ENDL;
-			export_complete();
-	}
-	else
-	{
-		gExportDialog->setMessage(llformat("Exported %d/%d object files, %d/%d textures.", current_object_count, exported_object_count, current_image_count, exported_image_count));
-	}
-}
+// 	++current_image_count;
+// 	if (current_image_count == exported_image_count && current_object_count == exported_object_count)
+// 	{
+// 		LL_INFOS("Messaging") << "*** Export textures complete ***" << LL_ENDL;
+// 			export_complete();
+// 	}
+// 	else
+// 	{
+// 		gExportDialog->setMessage(llformat("Exported %d/%d object files, %d/%d textures.", current_object_count, exported_object_count, current_image_count, exported_image_count));
+// 	}
+//}
 
 void process_derez_ack(LLMessageSystem*, void**)
 {
@@ -581,7 +581,7 @@ void join_group_callback(S32 option, void* user_data)
 	if (option == 2 && data && !data->mGroupID.isNull())
 	{
 		LLFloaterGroupInfo::showFromUUID(data->mGroupID);
-		LLString::format_map_t args;
+		LLStringUtil::format_map_t args;
 		args["[MESSAGE]"] = data->mMessage;
 		LLNotifyBox::showXml("JoinGroup", args, &join_group_callback, data);
 		return;
@@ -599,7 +599,7 @@ void join_group_callback(S32 option, void* user_data)
 		else
 		{
 			delete_context_data = FALSE;
-			LLString::format_map_t args;
+			LLStringUtil::format_map_t args;
 			args["[NAME]"] = data->mName;
 			args["[INVITE]"] = data->mMessage;
 			LLAlertDialog::showXml("JoinedTooManyGroupsMember", args, join_group_callback, (void*)data);
@@ -613,7 +613,7 @@ void join_group_callback(S32 option, void* user_data)
 		if (data->mFee > 0)
 		{
 			delete_context_data = FALSE;
-			LLString::format_map_t args;
+			LLStringUtil::format_map_t args;
 			args["[COST]"] = llformat("%d", data->mFee);
 			// Set the fee to 0, so that we don't keep
 			// asking about a fee.
@@ -626,8 +626,8 @@ void join_group_callback(S32 option, void* user_data)
 		else
 		{
 			send_improved_im(data->mGroupID,
-							"name",
-							"message",
+							 std::string("name"),
+							 std::string("message"),
 							IM_ONLINE,
 							IM_GROUP_INVITATION_ACCEPT,
 							data->mTransactionID);
@@ -636,8 +636,8 @@ void join_group_callback(S32 option, void* user_data)
 	else if (data)
 	{
 		send_improved_im(data->mGroupID,
-						"name",
-						"message",
+						 std::string("name"),
+						 std::string("message"),
 						IM_ONLINE,
 						IM_GROUP_INVITATION_DECLINE,
 						data->mTransactionID);
@@ -754,7 +754,7 @@ bool check_offer_throttle(const std::string& from_name, bool check_only)
 	static U32 throttle_count;
 	static bool throttle_logged;
 	LLChat chat;
-	LLString log_message;
+	std::string log_message;
 
 	if (!gSavedSettings.getBOOL("ShowNewInventory"))
 		return false;
@@ -837,13 +837,13 @@ void open_offer(const std::vector<LLUUID>& items, const std::string& from_name)
 			switch(item->getType())
 			{
 			case LLAssetType::AT_NOTECARD:
-				open_notecard((LLViewerInventoryItem*)item, LLString("Note: ") + item->getName(), LLUUID::null, show_keep_discard, LLUUID::null, FALSE);
+				open_notecard((LLViewerInventoryItem*)item, std::string("Note: ") + item->getName(), LLUUID::null, show_keep_discard, LLUUID::null, FALSE);
 				break;
 			case LLAssetType::AT_LANDMARK:
-				open_landmark((LLViewerInventoryItem*)item, LLString("Landmark: ") + item->getName(), show_keep_discard, LLUUID::null, FALSE);
+				open_landmark((LLViewerInventoryItem*)item, std::string("Landmark: ") + item->getName(), show_keep_discard, LLUUID::null, FALSE);
 				break;
 			case LLAssetType::AT_TEXTURE:
-				open_texture(*it, LLString("Texture: ") + item->getName(), show_keep_discard, LLUUID::null, FALSE);
+				open_texture(*it, std::string("Texture: ") + item->getName(), show_keep_discard, LLUUID::null, FALSE);
 				break;
 			default:
 				break;
@@ -890,12 +890,12 @@ void open_offer(const std::vector<LLUUID>& items, const std::string& from_name)
 }
 
 void inventory_offer_mute_callback(const LLUUID& blocked_id,
-								   const char* first_name,
-								   const char* last_name,
+								   const std::string& first_name,
+								   const std::string& last_name,
 								   BOOL is_group,
 								   void* user_data)
 {
-	LLString from_name;
+	std::string from_name;
 	LLMute::EType type;
 
 	if (is_group)
@@ -906,9 +906,7 @@ void inventory_offer_mute_callback(const LLUUID& blocked_id,
 	else
 	{
 		type = LLMute::AGENT;
-		from_name += first_name;
-		from_name += " ";
-		from_name += last_name;
+		from_name = first_name + " " + last_name;
 	}
 
 	LLMute mute(blocked_id, from_name, type);
@@ -936,7 +934,7 @@ void inventory_offer_mute_callback(const LLUUID& blocked_id,
 void inventory_offer_callback(S32 button, void* user_data)
  {
 	LLChat chat;
-	LLString log_message;
+	std::string log_message;
 	LLOfferInfo* info = (LLOfferInfo*)user_data;
 	if(!info) return;
 
@@ -978,8 +976,8 @@ void inventory_offer_callback(S32 button, void* user_data)
 	}
 
 	// *TODO:translate
-	LLString from_string; // Used in the pop-up.
-	LLString chatHistory_string;  // Used in chat history.
+	std::string from_string; // Used in the pop-up.
+	std::string chatHistory_string;  // Used in chat history.
 	if (info->mFromObject == TRUE)
 	{
 		if (info->mFromGroup)
@@ -987,12 +985,12 @@ void inventory_offer_callback(S32 button, void* user_data)
 			std::string group_name;
 			if (gCacheName->getGroupName(info->mFromID, group_name))
 			{
-				from_string = LLString("An object named '") + info->mFromName + "' owned by the group '" + group_name + "'";
+				from_string = std::string("An object named '") + info->mFromName + "' owned by the group '" + group_name + "'";
 				chatHistory_string = info->mFromName + " owned by the group '" + group_name + "'";
 			}
 			else
 			{
-				from_string = LLString("An object named '") + info->mFromName + "' owned by an unknown group";
+				from_string = std::string("An object named '") + info->mFromName + "' owned by an unknown group";
 				chatHistory_string = info->mFromName + " owned by an unknown group";
 			}
 		}
@@ -1001,12 +999,12 @@ void inventory_offer_callback(S32 button, void* user_data)
 			std::string first_name, last_name;
 			if (gCacheName->getName(info->mFromID, first_name, last_name))
 			{
-				from_string = LLString("An object named '") + info->mFromName + "' owned by " + first_name + " " + last_name;
+				from_string = std::string("An object named '") + info->mFromName + "' owned by " + first_name + " " + last_name;
 				chatHistory_string = info->mFromName + " owned by " + first_name + " " + last_name;
 			}
 			else
 			{
-				from_string = LLString("An object named '") + info->mFromName + "' owned by an unknown user";
+				from_string = std::string("An object named '") + info->mFromName + "' owned by an unknown user";
 				chatHistory_string = info->mFromName + " owned by an unknown user";
 			}
 		}
@@ -1177,7 +1175,7 @@ void inventory_offer_handler(LLOfferInfo* info, BOOL from_task)
 		return;
 	}
 
-	LLString::format_map_t args;
+	LLStringUtil::format_map_t args;
 	args["[OBJECTNAME]"] = info->mDesc;
 	// must protect against a NULL return from lookupHumanReadable()
 	std::string typestr = ll_safe_string(LLAssetType::lookupHumanReadable(info->mType));
@@ -1285,7 +1283,7 @@ void lure_callback(S32 option, void* user_data)
 	default:
 		// decline
 		send_simple_im(info->mFromID,
-					   "",
+					   LLStringUtil::null,
 					   IM_LURE_DECLINED,
 					   info->mLureID);
 		break;
@@ -1317,16 +1315,16 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 	U8 d = 0;
 	LLUUID session_id;
 	U32 t;
-	char name[DB_FULL_NAME_BUF_SIZE];		/* Flawfinder: ignore */
-	char message[DB_IM_MSG_BUF_SIZE];		/* Flawfinder: ignore */
+	std::string name;
+	std::string message;
 	U32 parent_estate_id = 0;
 	LLUUID region_id;
 	LLVector3 position;
-	char buffer[DB_IM_MSG_BUF_SIZE * 2];		/* Flawfinder: ignore */
 	U8 binary_bucket[MTUBYTES];
 	S32 binary_bucket_size;
 	LLChat chat;
-
+	std::string buffer;
+	
 	// *TODO:translate - need to fix the full name to first/last (maybe)
 	msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_AgentID, from_id);
 	msg->getBOOLFast(_PREHASH_MessageBlock, _PREHASH_FromGroup, from_group);
@@ -1336,8 +1334,8 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 	msg->getUUIDFast(_PREHASH_MessageBlock, _PREHASH_ID, session_id);
 	msg->getU32Fast( _PREHASH_MessageBlock, _PREHASH_Timestamp, t);
 	//msg->getData("MessageBlock", "Count",		&count);
-	msg->getStringFast(_PREHASH_MessageBlock, _PREHASH_FromAgentName, DB_FULL_NAME_BUF_SIZE, name);
-	msg->getStringFast(_PREHASH_MessageBlock, _PREHASH_Message,		DB_IM_MSG_BUF_SIZE, message);
+	msg->getStringFast(_PREHASH_MessageBlock, _PREHASH_FromAgentName, name);
+	msg->getStringFast(_PREHASH_MessageBlock, _PREHASH_Message,		message);
 	msg->getU32Fast(_PREHASH_MessageBlock, _PREHASH_ParentEstateID, parent_estate_id);
 	msg->getUUIDFast(_PREHASH_MessageBlock, _PREHASH_RegionID, region_id);
 	msg->getVector3Fast(_PREHASH_MessageBlock, _PREHASH_Position, position);
@@ -1354,7 +1352,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 	chat.mMuted = is_muted && !is_linden;
 	chat.mFromID = from_id;
 	chat.mFromName = name;
-	chat.mSourceType = (from_id.isNull() || !strcmp(name, SYSTEM_FROM)) ? CHAT_SOURCE_SYSTEM : CHAT_SOURCE_AGENT;
+	chat.mSourceType = (from_id.isNull() || (name == std::string(SYSTEM_FROM))) ? CHAT_SOURCE_SYSTEM : CHAT_SOURCE_AGENT;
 
 	LLViewerObject *source = gObjectList.findObject(session_id); //Session ID is probably the wrong thing.
 	if (source)
@@ -1362,17 +1360,18 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 		is_owned_by_me = source->permYouOwner();
 	}
 
-	char separator_string[3]=": ";		/* Flawfinder: ignore */
-	int message_offset=0;
+	std::string separator_string(": ");
+	int message_offset = 0;
 
 		//Handle IRC styled /me messages.
-	if (!strncmp(message, "/me ", 4) || !strncmp(message, "/me'", 4))
+	std::string prefix = message.substr(0, 4);
+	if (prefix == "/me " || prefix == "/me'")
 	{
-		strcpy(separator_string,"");		/* Flawfinder: ignore */
-		message_offset=3;
+		separator_string = "";
+		message_offset = 3;
 	}
 
-	LLString::format_map_t args;
+	LLStringUtil::format_map_t args;
 	switch(dialog)
 	{
 	case IM_CONSOLE_AND_CHAT_HISTORY:
@@ -1395,7 +1394,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			// do nothing -- don't distract newbies in
 			// Prelude with global IMs
 		}
-		else if (offline == IM_ONLINE && !is_linden && is_busy && strcmp(name, SYSTEM_FROM))
+		else if (offline == IM_ONLINE && !is_linden && is_busy && name != SYSTEM_FROM)
 		{
 			// return a standard "busy" message, but only do it to online IM 
 			// (i.e. not other auto responses and not store-and-forward IM)
@@ -1405,15 +1404,15 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				// initiated by the other party) then...
 				std::string my_name;
 				gAgent.buildFullname(my_name);
-				LLString response = gSavedPerAccountSettings.getText("BusyModeResponse");
+				std::string response = gSavedPerAccountSettings.getText("BusyModeResponse");
 				pack_instant_message(
 					gMessageSystem,
 					gAgent.getID(),
 					FALSE,
 					gAgent.getSessionID(),
 					from_id,
-					my_name.c_str(),
-					response.c_str(),
+					my_name,
+					response,
 					IM_ONLINE,
 					IM_BUSY_AUTO_RESPONSE,
 					session_id);
@@ -1422,7 +1421,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 
 			// now store incoming IM in chat history
 
-			snprintf(buffer, sizeof(buffer), "%s%s", separator_string, (message+message_offset));		/* Flawfinder: ignore */
+			buffer = name + separator_string + message.substr(message_offset);
 	
 			LL_INFOS("Messaging") << "process_improved_im: session_id( " << session_id << " ), from_id( " << from_id << " )" << LL_ENDL;
 
@@ -1432,7 +1431,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				from_id,
 				name,
 				buffer,
-				NULL,
+				LLStringUtil::null,
 				dialog,
 				parent_estate_id,
 				region_id,
@@ -1440,16 +1439,14 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				true);
 
 			// pretend this is chat generated by self, so it does not show up on screen
-			snprintf(buffer, sizeof(buffer), "IM: %s%s%s", name, separator_string, (message+message_offset));		/* Flawfinder: ignore */
-			chat.mText = buffer;
+			chat.mText = std::string("IM: ") + name + separator_string + message.substr(message_offset);
 			LLFloaterChat::addChat( chat, TRUE, TRUE );
 		}
 		else if (from_id.isNull())
 		{
 			// Messages from "Second Life" ID don't go to IM history
 			// messages which should be routed to IM window come from a user ID with name=SYSTEM_NAME
-			snprintf(buffer, sizeof(buffer), "%s: %s", name, message);		/* Flawfinder: ignore */
-			chat.mText = buffer;
+			chat.mText = name + ": " + message;
 			LLFloaterChat::addChat(chat, FALSE, FALSE);
 		}
 		else if (to_id.isNull())
@@ -1462,23 +1459,19 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			// Treat like a system message and put in chat history.
 			// Claim to be from a local agent so it doesn't go into
 			// console.
-			snprintf(buffer, sizeof(buffer), "%s%s%s", name, separator_string, (message+message_offset));		/* Flawfinder: ignore */
-			chat.mText = buffer;
+			chat.mText = name + separator_string + message.substr(message_offset);
 			BOOL local_agent = TRUE;
 			LLFloaterChat::addChat(chat, FALSE, local_agent);
 		}
 		else
 		{
 			// standard message, not from system
-			char saved[MAX_STRING];		/* Flawfinder: ignore */
-			saved[0] = '\0';
+			std::string saved;
 			if(offline == IM_OFFLINE)
 			{
-				char time_buf[TIME_STR_LENGTH];		/* Flawfinder: ignore */
-				snprintf(saved, MAX_STRING, "(Saved %s) ",		/* Flawfinder: ignore */
-						formatted_time(timestamp, time_buf));
+				saved = llformat("(Saved %s) ", formatted_time(timestamp).c_str());
 			}
-			snprintf(buffer, sizeof(buffer), "%s%s%s", separator_string, saved,(message+message_offset));		/* Flawfinder: ignore */
+			buffer = separator_string + saved  + message.substr(message_offset);
 
 			LL_INFOS("Messaging") << "process_improved_im: session_id( " << session_id << " ), from_id( " << from_id << " )" << LL_ENDL;
 
@@ -1489,15 +1482,14 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 					from_id,
 					name,
 					buffer,
-					NULL,
+					LLStringUtil::null,
 					dialog,
 					parent_estate_id,
 					region_id,
 					position,
 					true);
-				snprintf(buffer, sizeof(buffer), "IM: %s%s%s%s", name, separator_string, saved, (message+message_offset));		/* Flawfinder: ignore */
+				chat.mText = std::string("IM: ") + name + separator_string + saved + message.substr(message_offset);
 
-				chat.mText = buffer;
 				BOOL local_agent = FALSE;
 				LLFloaterChat::addChat( chat, TRUE, local_agent );
 			}
@@ -1565,7 +1557,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			U8 has_inventory = notice_bin_bucket->header.has_inventory;
 			U8 asset_type = notice_bin_bucket->header.asset_type;
 			LLUUID group_id = notice_bin_bucket->header.group_id;
-			const char* item_name = (const char*) notice_bin_bucket->item_name;
+			std::string item_name = ll_safe_string((const char*) notice_bin_bucket->item_name);
 
 			// If there is inventory, give the user the inventory offer.
 			LLOfferInfo* info = NULL;
@@ -1597,18 +1589,18 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			tokenizer tokens(str, sep);
 			tokenizer::iterator iter = tokens.begin();
 
-			LLString subj(*iter++);
-			LLString mes(*iter++);
+			std::string subj(*iter++);
+			std::string mes(*iter++);
 
 			if (IM_GROUP_NOTICE == dialog)
 			{
 				subj += "\n";
 				mes = "\n\n" + mes;
-				LLGroupNotifyBox::show(subj.c_str(),mes.c_str(),name,group_id,t,has_inventory,item_name,info);
+				LLGroupNotifyBox::show(subj,mes,name,group_id,t,has_inventory,item_name,info);
 			}
 			else if (IM_GROUP_NOTICE_REQUESTED == dialog)
 			{
-				LLFloaterGroupInfo::showNotice(subj.c_str(),mes.c_str(),group_id,has_inventory,item_name,info);
+				LLFloaterGroupInfo::showNotice(subj,mes,group_id,has_inventory,item_name,info);
 			}
 		}
 		break;
@@ -1648,7 +1640,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				userdata->mMessage.assign(message);
 				userdata->mFee = membership_fee;
 
-				LLString::format_map_t args;
+				LLStringUtil::format_map_t args;
 				args["[MESSAGE]"] = message;
 				LLNotifyBox::showXml("JoinGroup", args,
 									 &join_group_callback,
@@ -1764,17 +1756,12 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 		}
 
 		// standard message, not from system
-		char saved[MAX_STRING];		/* Flawfinder: ignore */
-		saved[0] = '\0';
+		std::string saved;
 		if(offline == IM_OFFLINE)
 		{
-			char time_buf[TIME_STR_LENGTH];		/* Flawfinder: ignore */
-			snprintf(saved,		/* Flawfinder: ignore */
-					 MAX_STRING, 
-					 "(Saved %s) ", 
-					 formatted_time(timestamp, time_buf));
+			saved = llformat("(Saved %s) ", formatted_time(timestamp).c_str());
 		}
-		snprintf(buffer, sizeof(buffer), "%s%s%s", separator_string, saved, (message+message_offset));		/* Flawfinder: ignore */
+		buffer = separator_string + saved + message.substr(message_offset);
 		BOOL is_this_agent = FALSE;
 		if(from_id == gAgentID)
 		{
@@ -1785,15 +1772,14 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			from_id,
 			name,
 			buffer,
-			(char*)binary_bucket,
+			ll_safe_string((char*)binary_bucket),
 			IM_SESSION_INVITE,
 			parent_estate_id,
 			region_id,
 			position,
 			true);
 
-		snprintf(buffer, sizeof(buffer), "IM: %s%s%s%s", name, separator_string, saved, (message+message_offset));		/* Flawfinder: ignore */
-		chat.mText = buffer;
+		chat.mText = std::string("IM: ") + name + separator_string +  saved + message.substr(message_offset);
 		LLFloaterChat::addChat(chat, TRUE, is_this_agent);
 	}
 	break;
@@ -1803,10 +1789,9 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 		{
 			return;
 		}
-		snprintf(buffer, sizeof(buffer), "%s%s%s", name, separator_string, (message+message_offset));		/* Flawfinder: ignore */
+		chat.mText = name + separator_string + message.substr(message_offset);
 		// Note: lie to LLFloaterChat::addChat(), pretending that this is NOT an IM, because
 		// IMs from objcts don't open IM sessions.
-		chat.mText = buffer;
 		chat.mSourceType = CHAT_SOURCE_OBJECT;
 		LLFloaterChat::addChat(chat, FALSE, FALSE);
 		break;
@@ -1831,7 +1816,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 		else
 		{
 			// TODO: after LLTrans hits release, get "busy response" into translatable file
-			snprintf(buffer, sizeof(buffer), "%s (%s): %s", name, "busy response", (message+message_offset)); /* Flawfinder: ignore */
+			buffer = llformat("%s (%s): %s", name.c_str(), "busy response", message.substr(message_offset).c_str());
 			gIMMgr->addMessage(session_id, from_id, name, buffer);
 		}
 		break;
@@ -1961,15 +1946,15 @@ void busy_message (LLMessageSystem* msg, LLUUID from_id)
 	{
 		std::string my_name;
 		gAgent.buildFullname(my_name);
-		LLString response = gSavedPerAccountSettings.getText("BusyModeResponse");
+		std::string response = gSavedPerAccountSettings.getText("BusyModeResponse");
 		pack_instant_message(
 			gMessageSystem,
 			gAgent.getID(),
 			FALSE,
 			gAgent.getSessionID(),
 			from_id,
-			my_name.c_str(),
-			response.c_str(),
+			my_name,
+			response,
 			IM_ONLINE,
 			IM_BUSY_AUTO_RESPONSE);
 		gAgent.sendReliableMessage();
@@ -2085,7 +2070,7 @@ void process_offer_callingcard(LLMessageSystem* msg, void**)
 	offerdata->mHost = msg->getSender();
 
 	LLViewerObject* source = gObjectList.findObject(source_id);
-	LLString::format_map_t args;
+	LLStringUtil::format_map_t args;
 	std::string source_name;
 	if(source && source->isAvatar())
 	{
@@ -2138,8 +2123,8 @@ void process_decline_callingcard(LLMessageSystem* msg, void**)
 void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 {
 	LLChat		chat;
-	char		mesg[DB_CHAT_MSG_BUF_SIZE];		/* Flawfinder: ignore */
-	char		from_name[DB_FULL_NAME_BUF_SIZE];		/* Flawfinder: ignore */
+	std::string		mesg;
+	std::string		from_name;
 	U8			source_temp;
 	U8			type_temp;
 	U8			audible_temp;
@@ -2149,7 +2134,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 	BOOL		is_owned_by_me = FALSE;
 	LLViewerObject*	chatter;
 
-	msg->getString("ChatData", "FromName", DB_FULL_NAME_BUF_SIZE, from_name);
+	msg->getString("ChatData", "FromName", from_name);
 	chat.mFromName = from_name;
 	
 	msg->getUUID("ChatData", "SourceID", from_id);
@@ -2221,15 +2206,16 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 		std::string verb;
 
 		color.setVec(1.f,1.f,1.f,1.f);
-		msg->getStringFast(_PREHASH_ChatData, _PREHASH_Message, DB_CHAT_MSG_BUF_SIZE, mesg);
+		msg->getStringFast(_PREHASH_ChatData, _PREHASH_Message, mesg);
 
 		BOOL ircstyle = FALSE;
 
 		// Look for IRC-style emotes here so chatbubbles work
-		if (!strncmp(mesg, "/me ", 4) || !strncmp(mesg, "/me'", 4))
+		std::string prefix = mesg.substr(0, 4);
+		if (prefix == "/me " || prefix == "/me'")
 		{
 			chat.mText = from_name;
-			chat.mText += (mesg + 3);
+			chat.mText += mesg.substr(3);
 			ircstyle = TRUE;
 		}
 		else
@@ -2320,7 +2306,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 
 			if (is_self)
 			{
-				chat.mText = "You";
+				chat.mText = std::string("You");
 			}
 			else
 			{
@@ -2378,11 +2364,11 @@ void process_teleport_start(LLMessageSystem *msg, void**)
 
 	if (teleport_flags & TELEPORT_FLAGS_DISABLE_CANCEL)
 	{
-		gViewerWindow->setProgressCancelButtonVisible(FALSE, "");
+		gViewerWindow->setProgressCancelButtonVisible(FALSE);
 	}
 	else
 	{
-		gViewerWindow->setProgressCancelButtonVisible(TRUE, "Cancel");
+		gViewerWindow->setProgressCancelButtonVisible(TRUE, std::string("Cancel")); // *TODO: Translate
 	}
 
 	// Freeze the UI and show progress bar
@@ -2413,19 +2399,19 @@ void process_teleport_progress(LLMessageSystem* msg, void**)
 	msg->getU32("Info", "TeleportFlags", teleport_flags);
 	if (teleport_flags & TELEPORT_FLAGS_DISABLE_CANCEL)
 	{
-		gViewerWindow->setProgressCancelButtonVisible(FALSE, "");
+		gViewerWindow->setProgressCancelButtonVisible(FALSE);
 	}
 	else
 	{
-		gViewerWindow->setProgressCancelButtonVisible(TRUE, "Cancel");
+		gViewerWindow->setProgressCancelButtonVisible(TRUE, std::string("Cancel")); //TODO: Translate
 	}
-	char buffer[MAX_STRING];		/* Flawfinder: ignore */
-	msg->getString("Info", "Message", MAX_STRING, buffer);
+	std::string buffer;
+	msg->getString("Info", "Message", buffer);
 	LL_DEBUGS("Messaging") << "teleport progress: " << buffer << LL_ENDL;
 
 	//Sorta hacky...default to using simulator raw messages
 	//if we don't find the coresponding mapping in our progress mappings
-	LLString message = buffer;
+	std::string message = buffer;
 
 	if (LLAgent::sTeleportProgressMessages.find(buffer) != 
 		LLAgent::sTeleportProgressMessages.end() )
@@ -2467,7 +2453,7 @@ public:
 				LLInventoryModel::EXCLUDE_TRASH,
 				is_card);
 		}
-		LLString::format_map_t args;
+		LLStringUtil::format_map_t args;
 		if ( land_items.count() > 0 )
 		{	// Show notification that they can now teleport to landmarks.  Use a random landmark from the inventory
 			S32 random_land = ll_rand( land_items.count() - 1 );
@@ -2576,9 +2562,8 @@ void process_teleport_finish(LLMessageSystem* msg, void**)
 	msg->getU32Fast(_PREHASH_Info, _PREHASH_TeleportFlags, teleport_flags);
 	
 	
-	char seedCap[STD_STRING_BUF_SIZE];		/* Flawfinder: ignore */
-	msg->getStringFast(_PREHASH_Info, _PREHASH_SeedCapability,
-		STD_STRING_BUF_SIZE, seedCap);
+	std::string seedCap;
+	msg->getStringFast(_PREHASH_Info, _PREHASH_SeedCapability, seedCap);
 
 	// update home location if we are teleporting out of prelude - specific to teleporting to welcome area 
 	if((teleport_flags & TELEPORT_FLAGS_SET_HOME_TO_TARGET)
@@ -2631,7 +2616,7 @@ void process_teleport_finish(LLMessageSystem* msg, void**)
 	gAgent.setTeleportState( LLAgent::TELEPORT_MOVING );
 	gAgent.setTeleportMessage(LLAgent::sTeleportProgressMessages["contacting"]);
 
-	regionp->setSeedCapability(std::string(seedCap));
+	regionp->setSeedCapability(seedCap);
 
 	// Don't send camera updates to the new region until we're
 	// actually there...
@@ -2666,7 +2651,7 @@ void process_avatar_init_complete(LLMessageSystem* msg, void**)
 static void display_release_message(S32, void* data)
 {
 	std::string* msg = (std::string*)data;
-	LLFloaterReleaseMsg::displayMessage(msg->c_str());
+	LLFloaterReleaseMsg::displayMessage(*msg);
 	delete msg;
 }
 
@@ -2696,8 +2681,8 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 	U64 region_handle;
 	msg->getU64Fast(_PREHASH_Data, _PREHASH_RegionHandle, region_handle);
 	
-	char version_channel_char[MAX_STRING];
-	msg->getString("SimData", "ChannelVersion", MAX_STRING, version_channel_char);
+	std::string version_channel;
+	msg->getString("SimData", "ChannelVersion", version_channel);
 
 	LLVOAvatar* avatarp = gAgent.getAvatarObject();
 	if (!avatarp)
@@ -2832,9 +2817,9 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 	// send walk-vs-run status
 	gAgent.sendWalkRun(gAgent.getRunning() || gAgent.getAlwaysRun());
 
-	if (LLFloaterReleaseMsg::checkVersion(version_channel_char))
+	if (LLFloaterReleaseMsg::checkVersion(version_channel))
 	{
-		LLNotifyBox::showXml("ServerVersionChanged", display_release_message, new std::string(version_channel_char) );
+		LLNotifyBox::showXml("ServerVersionChanged", display_release_message, new std::string(version_channel) );
 	}
 }
 
@@ -2860,13 +2845,13 @@ void process_crossed_region(LLMessageSystem* msg, void**)
 	U64 region_handle;
 	msg->getU64Fast(_PREHASH_RegionData, _PREHASH_RegionHandle, region_handle);
 	
-	char seedCap[STD_STRING_BUF_SIZE];		/* Flawfinder: ignore */
-	msg->getStringFast(_PREHASH_RegionData, _PREHASH_SeedCapability, STD_STRING_BUF_SIZE, seedCap);
+	std::string seedCap;
+	msg->getStringFast(_PREHASH_RegionData, _PREHASH_SeedCapability, seedCap);
 
 	send_complete_agent_movement(sim_host);
 
 	LLViewerRegion* regionp = LLWorld::getInstance()->addRegion(region_handle, sim_host);
-	regionp->setSeedCapability(std::string(seedCap));
+	regionp->setSeedCapability(seedCap);
 }
 
 
@@ -3858,7 +3843,7 @@ void process_set_follow_cam_properties(LLMessageSystem *mesgsys, void **user_dat
 // Culled from newsim lltask.cpp
 void process_name_value(LLMessageSystem *mesgsys, void **user_data)
 {
-	char	temp_str[NAME_VALUE_BUF_SIZE];		/* Flawfinder: ignore */
+	std::string	temp_str;
 	LLUUID	id;
 	S32		i, num_blocks;
 
@@ -3871,7 +3856,7 @@ void process_name_value(LLMessageSystem *mesgsys, void **user_data)
 		num_blocks = mesgsys->getNumberOfBlocksFast(_PREHASH_NameValueData);
 		for (i = 0; i < num_blocks; i++)
 		{
-			mesgsys->getStringFast(_PREHASH_NameValueData, _PREHASH_NVPair, NAME_VALUE_BUF_SIZE, temp_str, i);
+			mesgsys->getStringFast(_PREHASH_NameValueData, _PREHASH_NVPair, temp_str, i);
 			LL_INFOS("Messaging") << "Added to object Name Value: " << temp_str << LL_ENDL;
 			object->addNVPair(temp_str);
 		}
@@ -3884,7 +3869,7 @@ void process_name_value(LLMessageSystem *mesgsys, void **user_data)
 
 void process_remove_name_value(LLMessageSystem *mesgsys, void **user_data)
 {
-	char	temp_str[NAME_VALUE_BUF_SIZE];		/* Flawfinder: ignore */
+	std::string	temp_str;
 	LLUUID	id;
 	S32		i, num_blocks;
 
@@ -3897,7 +3882,7 @@ void process_remove_name_value(LLMessageSystem *mesgsys, void **user_data)
 		num_blocks = mesgsys->getNumberOfBlocksFast(_PREHASH_NameValueData);
 		for (i = 0; i < num_blocks; i++)
 		{
-			mesgsys->getStringFast(_PREHASH_NameValueData, _PREHASH_NVPair, NAME_VALUE_BUF_SIZE, temp_str, i);
+			mesgsys->getStringFast(_PREHASH_NameValueData, _PREHASH_NVPair, temp_str, i);
 			LL_INFOS("Messaging") << "Removed from object Name Value: " << temp_str << LL_ENDL;
 			object->removeNVPair(temp_str);
 		}
@@ -3910,10 +3895,9 @@ void process_remove_name_value(LLMessageSystem *mesgsys, void **user_data)
 
 void process_kick_user(LLMessageSystem *msg, void** /*user_data*/)
 {
-	char message[2048];		/* Flawfinder: ignore */
-	message[0] = '\0';
+	std::string message;
 
-	msg->getStringFast(_PREHASH_UserInfo, _PREHASH_Reason, 2048, message);
+	msg->getStringFast(_PREHASH_UserInfo, _PREHASH_Reason, message);
 
 	LLAppViewer::instance()->forceDisconnect(message);
 }
@@ -3978,12 +3962,12 @@ void process_money_balance_reply( LLMessageSystem* msg, void** )
 	S32 balance = 0;
 	S32 credit = 0;
 	S32 committed = 0;
-	char desc[STD_STRING_BUF_SIZE] = "";		/* Flawfinder: ignore */
+	std::string desc;
 
 	msg->getS32("MoneyData", "MoneyBalance", balance);
 	msg->getS32("MoneyData", "SquareMetersCredit", credit);
 	msg->getS32("MoneyData", "SquareMetersCommitted", committed);
-	msg->getStringFast(_PREHASH_MoneyData, _PREHASH_Description,	STD_STRING_BUF_SIZE,	desc);
+	msg->getStringFast(_PREHASH_MoneyData, _PREHASH_Description, desc);
 	LL_INFOS("Messaging") << "L$, credit, committed: " << balance << " " << credit << " "
 			<< committed << LL_ENDL;
 
@@ -4013,13 +3997,13 @@ void process_money_balance_reply( LLMessageSystem* msg, void** )
 	LLUUID tid;
 	msg->getUUID("MoneyData", "TransactionID", tid);
 	static std::deque<LLUUID> recent;
-	if(desc[0] && gSavedSettings.getBOOL("NotifyMoneyChange")
+	if(!desc.empty() && gSavedSettings.getBOOL("NotifyMoneyChange")
 	   && (std::find(recent.rbegin(), recent.rend(), tid) == recent.rend()))
 	{
 		// Make the user confirm the transaction, since they might
 		// have missed something during an event.
 		// *TODO:translate
-		LLString::format_map_t args;
+		LLStringUtil::format_map_t args;
 		args["[MESSAGE]"] = desc;
 		LLNotifyBox::showXml("SystemMessage", args);
 
@@ -4039,8 +4023,8 @@ void process_money_balance_reply( LLMessageSystem* msg, void** )
 
 void process_agent_alert_message(LLMessageSystem* msgsystem, void** user_data)
 {
-	char buffer[MAX_STRING];		/* Flawfinder: ignore */
-	msgsystem->getStringFast(_PREHASH_AlertData, _PREHASH_Message, MAX_STRING, buffer);
+	std::string buffer;
+	msgsystem->getStringFast(_PREHASH_AlertData, _PREHASH_Message, buffer);
 	BOOL modal = FALSE;
 	msgsystem->getBOOL("AlertData", "Modal", modal);
 	process_alert_core(buffer, modal);
@@ -4048,8 +4032,8 @@ void process_agent_alert_message(LLMessageSystem* msgsystem, void** user_data)
 
 void process_alert_message(LLMessageSystem *msgsystem, void **user_data)
 {
-	char buffer[MAX_STRING];		/* Flawfinder: ignore */
-	msgsystem->getStringFast(_PREHASH_AlertData, _PREHASH_Message, MAX_STRING, buffer);
+	std::string buffer;
+	msgsystem->getStringFast(_PREHASH_AlertData, _PREHASH_Message, buffer);
 	BOOL modal = FALSE;
 	process_alert_core(buffer, modal);
 }
@@ -4068,7 +4052,7 @@ void process_alert_core(const std::string& message, BOOL modal)
 	else if( message == "Home position set." )
 	{
 		// save the home location image to disk
-		LLString snap_filename = gDirUtilp->getLindenUserDir();
+		std::string snap_filename = gDirUtilp->getLindenUserDir();
 		snap_filename += gDirUtilp->getDirDelimiter();
 		snap_filename += SCREEN_HOME_FILENAME;
 		gViewerWindow->saveSnapshot(snap_filename, gViewerWindow->getWindowDisplayWidth(), gViewerWindow->getWindowDisplayHeight(), FALSE, FALSE);
@@ -4093,19 +4077,19 @@ void process_alert_core(const std::string& message, BOOL modal)
 	else if (message[0] == '/')
 	{
 		// System message is important, show in upper-right box not tip
-		LLString text(message.substr(1));
-		LLString::format_map_t args;
+		std::string text(message.substr(1));
+		LLStringUtil::format_map_t args;
 		if (text.substr(0,17) == "RESTART_X_MINUTES")
 		{
 			S32 mins = 0;
-			LLString::convertToS32(text.substr(18), mins);
+			LLStringUtil::convertToS32(text.substr(18), mins);
 			args["[MINUTES]"] = llformat("%d",mins);
 			LLNotifyBox::showXml("RegionRestartMinutes", args);
 		}
 		else if (text.substr(0,17) == "RESTART_X_SECONDS")
 		{
 			S32 secs = 0;
-			LLString::convertToS32(text.substr(18), secs);
+			LLStringUtil::convertToS32(text.substr(18), secs);
 			args["[SECONDS]"] = llformat("%d",secs);
 			LLNotifyBox::showXml("RegionRestartSeconds", args);
 		}
@@ -4119,14 +4103,14 @@ void process_alert_core(const std::string& message, BOOL modal)
 	else if (modal)
 	{
 		// *TODO:translate
-		LLString::format_map_t args;
+		LLStringUtil::format_map_t args;
 		args["[ERROR_MESSAGE]"] = message;
 		gViewerWindow->alertXml("ErrorMessage", args);
 	}
 	else
 	{
 		// *TODO:translate
-		LLString::format_map_t args;
+		LLStringUtil::format_map_t args;
 		args["[MESSAGE]"] = message;
 		LLNotifyBox::showXml("SystemMessageTip", args);
 	}
@@ -4145,7 +4129,7 @@ void handle_show_mean_events(void *)
 	LLFloaterBump::show(NULL);
 }
 
-void mean_name_callback(const LLUUID &id, const char *first, const char *last, BOOL always_false, void* data)
+void mean_name_callback(const LLUUID &id, const std::string& first, const std::string& last, BOOL always_false, void* data)
 {
 	if (gNoRender)
 	{
@@ -4167,10 +4151,8 @@ void mean_name_callback(const LLUUID &id, const char *first, const char *last, B
 		LLMeanCollisionData *mcd = *iter;
 		if (mcd->mPerp == id)
 		{
-			strncpy(mcd->mFirstName, first, DB_FIRST_NAME_BUF_SIZE -1);		/* Flawfinder: ignore */
-			mcd->mFirstName[DB_FIRST_NAME_BUF_SIZE -1] = '\0';
-			strncpy(mcd->mLastName, last, DB_LAST_NAME_BUF_SIZE -1);		/* Flawfinder: ignore */
-			mcd->mLastName[DB_LAST_NAME_BUF_SIZE -1] = '\0';
+			mcd->mFirstName = first;
+			mcd->mLastName = last;
 		}
 	}
 }
@@ -4265,7 +4247,7 @@ void process_economy_data(LLMessageSystem *msg, void** /*user_data*/)
 class LLScriptQuestionCBData
 {
 public:
-	LLScriptQuestionCBData(const LLUUID &taskid, const LLUUID &itemid, const LLHost &sender, S32 questions, const char *object_name, const char *owner_name)
+	LLScriptQuestionCBData(const LLUUID &taskid, const LLUUID &itemid, const LLHost &sender, S32 questions, const std::string& object_name, const std::string& owner_name)
 		: mTaskID(taskid), mItemID(itemid), mSender(sender), mQuestions(questions), mObjectName(object_name), mOwnerName(owner_name)
 	{
 	}
@@ -4274,8 +4256,8 @@ public:
 	LLUUID mItemID;
 	LLHost mSender;
 	S32	   mQuestions;
-	LLString mObjectName;
-	LLString mOwnerName;
+	std::string mObjectName;
+	std::string mOwnerName;
 };
 
 void notify_cautioned_script_question(LLScriptQuestionCBData* cbdata, S32 orig_questions, BOOL granted)
@@ -4310,7 +4292,7 @@ void notify_cautioned_script_question(LLScriptQuestionCBData* cbdata, S32 orig_q
 			{
 				// got the region, so include the region and 3d coordinates of the object
 				notice.setArg("[REGIONNAME]", viewregion->getName());				
-				LLString formatpos = llformat("%.1f, %.1f,%.1f", objpos[VX], objpos[VY], objpos[VZ]);
+				std::string formatpos = llformat("%.1f, %.1f,%.1f", objpos[VX], objpos[VY], objpos[VZ]);
 				notice.setArg("[REGIONPOS]", formatpos);
 
 				foundpos = TRUE;
@@ -4328,7 +4310,7 @@ void notify_cautioned_script_question(LLScriptQuestionCBData* cbdata, S32 orig_q
 		// permission that has been flagged as a caution permission
 		BOOL caution = FALSE;
 		S32 count = 0;
-		LLString perms;
+		std::string perms;
 		for (S32 i = 0; i < SCRIPT_PERMISSION_EOF; i++)
 		{
 			if ((orig_questions & LSCRIPTRunTimePermissionBits[i]) && LLNotifyBox::getTemplateIsCaution(SCRIPT_QUESTIONS[i]))
@@ -4455,26 +4437,25 @@ void process_script_question(LLMessageSystem *msg, void **user_data)
 	LLUUID taskid;
 	LLUUID itemid;
 	S32		questions;
-	char object_name[255];		/* Flawfinder: ignore */
-	char owner_name[DB_FULL_NAME_BUF_SIZE];		/* Flawfinder: ignore */
+	std::string object_name;
+	std::string owner_name;
 
 	// taskid -> object key of object requesting permissions
 	msg->getUUIDFast(_PREHASH_Data, _PREHASH_TaskID, taskid );
 	// itemid -> script asset key of script requesting permissions
 	msg->getUUIDFast(_PREHASH_Data, _PREHASH_ItemID, itemid );
-	msg->getStringFast(_PREHASH_Data, _PREHASH_ObjectName, 255, object_name);
-	msg->getStringFast(_PREHASH_Data, _PREHASH_ObjectOwner, DB_FULL_NAME_BUF_SIZE, owner_name);
+	msg->getStringFast(_PREHASH_Data, _PREHASH_ObjectName, object_name);
+	msg->getStringFast(_PREHASH_Data, _PREHASH_ObjectOwner, owner_name);
 	msg->getS32Fast(_PREHASH_Data, _PREHASH_Questions, questions );
 
 	// don't display permission requests if this object is muted - JS.
 	if (LLMuteList::getInstance()->isMuted(taskid)) return;
 
 	// throttle excessive requests from any specific user's scripts
-	LLString throttle_owner_name = owner_name;
-	typedef LLKeyThrottle<LLString> LLStringThrottle;
+	typedef LLKeyThrottle<std::string> LLStringThrottle;
 	static LLStringThrottle question_throttle( LLREQUEST_PERMISSION_THROTTLE_LIMIT, LLREQUEST_PERMISSION_THROTTLE_INTERVAL );
 
-	switch (question_throttle.noteAction(throttle_owner_name))
+	switch (question_throttle.noteAction(owner_name))
 	{
 		case LLStringThrottle::THROTTLE_NEWLY_BLOCKED:
 			LL_INFOS("Messaging") << "process_script_question throttled"
@@ -4490,12 +4471,12 @@ void process_script_question(LLMessageSystem *msg, void **user_data)
 			break;
 	}
 
-	LLString script_question;
+	std::string script_question;
 	if (questions)
 	{
 		BOOL caution = FALSE;
 		S32 count = 0;
-		LLString::format_map_t args;
+		LLStringUtil::format_map_t args;
 		args["[OBJECTNAME]"] = object_name;
 		args["[NAME]"] = owner_name;
 
@@ -4563,7 +4544,7 @@ void container_inventory_arrived(LLViewerObject* object,
 		LLUUID cat_id;
 		cat_id = gInventory.createNewCategory(gAgent.getInventoryRootID(),
 											  LLAssetType::AT_NONE,
-											  "Acquired Items");
+											  std::string("Acquired Items")); //TODO: Translate
 
 		InventoryObjectList::const_iterator it = inventory->begin();
 		InventoryObjectList::const_iterator end = inventory->end();
@@ -4654,24 +4635,23 @@ void container_inventory_arrived(LLViewerObject* object,
 	}
 }
 
-// method to format the time. Buffer should be at least
-// TIME_STR_LENGTH long, and the function returns buffer (for use in
-// sprintf and the like)
-char* formatted_time(const time_t& the_time, char* buffer)
+// method to format the time.
+std::string formatted_time(const time_t& the_time)
 {
-	LLString::copy(buffer, ctime(&the_time), TIME_STR_LENGTH);
+	char buffer[30]; /* Flawfinder: ignore */
+	LLStringUtil::copy(buffer, ctime(&the_time), 30);
 	buffer[24] = '\0';
-	return buffer;
+	return std::string(buffer);
 }
 
 
 void process_teleport_failed(LLMessageSystem *msg, void**)
 {
-	char reason[STD_STRING_BUF_SIZE];		/* Flawfinder: ignore */
-	msg->getStringFast(_PREHASH_Info, _PREHASH_Reason, STD_STRING_BUF_SIZE, reason);
+	std::string reason;
+	msg->getStringFast(_PREHASH_Info, _PREHASH_Reason, reason);
 
-	LLStringBase<char>::format_map_t args;
-	LLString big_reason = LLAgent::sTeleportErrorMessages[reason];
+	LLStringUtil::format_map_t args;
+	std::string big_reason = LLAgent::sTeleportErrorMessages[reason];
 	if ( big_reason.size() > 0 )
 	{	// Substitute verbose reason from the local map
 		args["[REASON]"] = big_reason;
@@ -4735,14 +4715,14 @@ void process_teleport_local(LLMessageSystem *msg,void**)
 }
 
 void send_simple_im(const LLUUID& to_id,
-					const char* message,
+					const std::string& message,
 					EInstantMessage dialog,
 					const LLUUID& id)
 {
 	std::string my_name;
 	gAgent.buildFullname(my_name);
 	send_improved_im(to_id,
-					 my_name.c_str(),
+					 my_name,
 					 message,
 					 IM_ONLINE,
 					 dialog,
@@ -4753,8 +4733,8 @@ void send_simple_im(const LLUUID& to_id,
 }
 
 void send_group_notice(const LLUUID& group_id,
-					   const char* subject,
-					   const char* message,
+					   const std::string& subject,
+					   const std::string& message,
 					   const LLInventoryItem* item)
 {
 	// Put this notice into an instant message form.
@@ -4793,8 +4773,8 @@ void send_group_notice(const LLUUID& group_id,
 
 	send_improved_im(
 			group_id,
-			my_name.c_str(),
-			subject_and_message.str().c_str(),
+			my_name,
+			subject_and_message.str(),
 			IM_ONLINE,
 			IM_GROUP_NOTICE,
 			LLUUID::null,
@@ -4803,7 +4783,7 @@ void send_group_notice(const LLUUID& group_id,
 			bin_bucket_size);
 }
 
-void handle_lure_callback(S32 option, const LLString& text, void* userdata)
+void handle_lure_callback(S32 option, const std::string& text, void* userdata)
 {
 	LLDynamicArray<LLUUID>* invitees = (LLDynamicArray<LLUUID>*)userdata;
 
@@ -4816,7 +4796,7 @@ void handle_lure_callback(S32 option, const LLString& text, void* userdata)
 		msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
 		msg->nextBlockFast(_PREHASH_Info);
 		msg->addU8Fast(_PREHASH_LureType, (U8)0); // sim will fill this in.
-		msg->addStringFast(_PREHASH_Message, text.c_str());
+		msg->addStringFast(_PREHASH_Message, text);
 		for(LLDynamicArray<LLUUID>::iterator itr = invitees->begin(); itr != invitees->end(); ++itr)
 		{
 			msg->nextBlockFast(_PREHASH_TargetData);
@@ -4831,7 +4811,7 @@ void handle_lure_callback(S32 option, const LLString& text, void* userdata)
 
 void handle_lure_callback_godlike(S32 option, void* userdata)
 {
-	handle_lure_callback(option, LLString::null, userdata);
+	handle_lure_callback(option, LLStringUtil::null, userdata);
 }
 
 void handle_lure(const LLUUID& invitee)
@@ -4846,7 +4826,7 @@ void handle_lure(LLDynamicArray<LLUUID>& ids)
 {
 	LLDynamicArray<LLUUID>* userdata = new LLDynamicArray<LLUUID>(ids);
 
-	LLString::format_map_t edit_args;
+	LLStringUtil::format_map_t edit_args;
 	edit_args["[REGION]"] = gAgent.getRegion()->getName();
 	if (gAgent.isGodlike())
 	{
@@ -4864,8 +4844,8 @@ void handle_lure(LLDynamicArray<LLUUID>& ids)
 
 
 void send_improved_im(const LLUUID& to_id,
-							const char* name,
-							const char* message,
+							const std::string& name,
+							const std::string& message,
 							U8 offline,
 							EInstantMessage dialog,
 							const LLUUID& id,
@@ -4896,10 +4876,10 @@ void send_improved_im(const LLUUID& to_id,
 
 void send_places_query(const LLUUID& query_id,
 					   const LLUUID& trans_id,
-					   const char* query_text,
+					   const std::string& query_text,
 					   U32 query_flags,
 					   S32 category,
-					   const char* sim_name)
+					   const std::string& sim_name)
 {
 	LLMessageSystem* msg = gMessageSystem;
 
@@ -4931,12 +4911,10 @@ void process_user_info_reply(LLMessageSystem* msg, void**)
 	
 	BOOL im_via_email;
 	msg->getBOOLFast(_PREHASH_UserData, _PREHASH_IMViaEMail, im_via_email);
-	char email[DB_USER_EMAIL_ADDR_BUF_SIZE];		/* Flawfinder: ignore */
-	msg->getStringFast(_PREHASH_UserData, _PREHASH_EMail, DB_USER_EMAIL_ADDR_BUF_SIZE,
-					   email);
-	char dir_visibility[MAX_STRING];			/* Flawfinder: ignore */	
-	msg->getString(
-		"UserData", "DirectoryVisibility", MAX_STRING, dir_visibility);
+	std::string email;
+	msg->getStringFast(_PREHASH_UserData, _PREHASH_EMail, email);
+	std::string dir_visibility;
+	msg->getString( "UserData", "DirectoryVisibility", dir_visibility);
 
 	LLFloaterPreference::updateUserInfo(dir_visibility, im_via_email, email);
 	LLFloaterPostcard::updateUserInfo(email);
@@ -4957,7 +4935,7 @@ struct ScriptDialogInfo
 	LLHost mSender;
 	LLUUID mObjectID;
 	S32 mChatChannel;
-	std::vector<LLString> mButtons;
+	std::vector<std::string> mButtons;
 };
 
 void callback_script_dialog(S32 option, void* data)
@@ -4990,19 +4968,17 @@ void process_script_dialog(LLMessageSystem* msg, void**)
 
 	ScriptDialogInfo* info = new ScriptDialogInfo;
 
-	const S32 messageLength = SCRIPT_DIALOG_MAX_MESSAGE_SIZE + sizeof(SCRIPT_DIALOG_HEADER);
-	char message[messageLength]; 		/* Flawfinder: ignore */		// Account for size of "Script Dialog:\n"
-
-	char first_name[DB_FIRST_NAME_BUF_SIZE];		/* Flawfinder: ignore */
-	char last_name[DB_GROUP_NAME_BUF_SIZE];		/* Flawfinder: ignore */
-	char title[DB_INV_ITEM_NAME_BUF_SIZE];		/* Flawfinder: ignore */
+	std::string message; // Account for size of "Script Dialog:\n"
+	std::string first_name;
+	std::string last_name;
+	std::string title;
 	info->mSender = msg->getSender();
 
 	msg->getUUID("Data", "ObjectID", info->mObjectID);
-	msg->getString("Data", "FirstName", DB_FIRST_NAME_BUF_SIZE, first_name);
-	msg->getString("Data", "LastName", DB_LAST_NAME_BUF_SIZE, last_name);
-	msg->getString("Data", "ObjectName", DB_INV_ITEM_NAME_BUF_SIZE, title);
-	msg->getString("Data", "Message", SCRIPT_DIALOG_MAX_MESSAGE_SIZE, message);
+	msg->getString("Data", "FirstName", first_name);
+	msg->getString("Data", "LastName", last_name);
+	msg->getString("Data", "ObjectName", title);
+	msg->getString("Data", "Message", message);
 	msg->getS32("Data", "ChatChannel", info->mChatChannel);
 
 		// unused for now
@@ -5017,15 +4993,15 @@ void process_script_dialog(LLMessageSystem* msg, void**)
 
 	for (i = 0; i < button_count; i++)
 	{
-		char tdesc[SCRIPT_DIALOG_BUTTON_STR_SIZE+1];		/* Flawfinder: ignore */
-		msg->getString("Buttons", "ButtonLabel", SCRIPT_DIALOG_BUTTON_STR_SIZE + 1,  tdesc, i);
-		info->mButtons.push_back(LLString(tdesc));
+		std::string tdesc;
+		msg->getString("Buttons", "ButtonLabel", tdesc, i);
+		info->mButtons.push_back(tdesc);
 	}
 
-	LLStringBase<char>::format_map_t args;
+	LLStringUtil::format_map_t args;
 	args["[TITLE]"] = title;
 	args["[MESSAGE]"] = message;
-	if (strlen(first_name) > 0)		/* Flawfinder: ignore */
+	if (!first_name.empty())
 	{
 		args["[FIRST]"] = first_name;
 		args["[LAST]"] = last_name;
@@ -5051,9 +5027,9 @@ struct LoadUrlInfo
 	LLUUID mObjectID;
 	LLUUID mOwnerID;
 	BOOL mOwnerIsGroup;
-	char mObjectName[256];		/* Flawfinder: ignore */
-	char mMessage[256];		/* Flawfinder: ignore */
-	char mUrl[256];		/* Flawfinder: ignore */
+	std::string mObjectName;
+	std::string mMessage;
+	std::string mUrl;
 };
 
 std::vector<LoadUrlInfo*> gLoadUrlList;
@@ -5075,7 +5051,7 @@ void callback_load_url(S32 option, void* data)
 
 // We've got the name of the person who owns the object hurling the url.
 // Display confirmation dialog.
-void callback_load_url_name(const LLUUID& id, const char* first, const char* last, BOOL is_group, void* data)
+void callback_load_url_name(const LLUUID& id, const std::string& first, const std::string& last, BOOL is_group, void* data)
 {
 	std::vector<LoadUrlInfo*>::iterator it;
 	for (it = gLoadUrlList.begin(); it != gLoadUrlList.end(); )
@@ -5085,15 +5061,14 @@ void callback_load_url_name(const LLUUID& id, const char* first, const char* las
 		{
 			it = gLoadUrlList.erase(it);
 
-			std::string owner_name(first);
+			std::string owner_name;
 			if (is_group)
 			{
-				owner_name += " (group)";
+				owner_name = first + " (group)";
 			}
 			else
 			{
-				owner_name += " ";
-				owner_name += last;
+				owner_name = first + " " + last;
 			}
 
 			// For legacy name-only mutes.
@@ -5103,7 +5078,7 @@ void callback_load_url_name(const LLUUID& id, const char* first, const char* las
 				infop = NULL;
 				continue;
 			}
-			LLString::format_map_t args;
+			LLStringUtil::format_map_t args;
 			args["[URL]"] = infop->mUrl;
 			args["[MESSAGE]"] = infop->mMessage;
 			args["[OBJECTNAME]"] = infop->mObjectName;
@@ -5121,12 +5096,12 @@ void process_load_url(LLMessageSystem* msg, void**)
 {
 	LoadUrlInfo* infop = new LoadUrlInfo;
 
-	msg->getString("Data", "ObjectName", 256, infop->mObjectName);
+	msg->getString("Data", "ObjectName", infop->mObjectName);
 	msg->getUUID(  "Data", "ObjectID", infop->mObjectID);
 	msg->getUUID(  "Data", "OwnerID", infop->mOwnerID);
 	msg->getBOOL(  "Data", "OwnerIsGroup", infop->mOwnerIsGroup);
-	msg->getString("Data", "Message", 256, infop->mMessage);
-	msg->getString("Data", "URL", 256, infop->mUrl);
+	msg->getString("Data", "Message", infop->mMessage);
+	msg->getString("Data", "URL", infop->mUrl);
 
 	// URL is safety checked in load_url above
 
@@ -5149,8 +5124,8 @@ void process_load_url(LLMessageSystem* msg, void**)
 
 void callback_download_complete(void** data, S32 result, LLExtStat ext_status)
 {
-	LLString* filepath = (LLString*)data;
-	LLString::format_map_t args;
+	std::string* filepath = (std::string*)data;
+	LLStringUtil::format_map_t args;
 	args["[DOWNLOAD_PATH]"] = *filepath;
 	gViewerWindow->alertXml("FinishedRawDownload", args);
 	delete filepath;
@@ -5167,10 +5142,10 @@ void process_initiate_download(LLMessageSystem* msg, void**)
 		return;
 	}
 
-	char sim_filename[MAX_PATH];		/* Flawfinder: ignore */
-	char viewer_filename[MAX_PATH];		/* Flawfinder: ignore */
-	msg->getString("FileData", "SimFilename", MAX_PATH, sim_filename);
-	msg->getString("FileData", "ViewerFilename", MAX_PATH, viewer_filename);
+	std::string sim_filename;
+	std::string viewer_filename;
+	msg->getString("FileData", "SimFilename", sim_filename);
+	msg->getString("FileData", "ViewerFilename", viewer_filename);
 
 	gXferManager->requestFile(viewer_filename,
 		sim_filename,
@@ -5178,19 +5153,19 @@ void process_initiate_download(LLMessageSystem* msg, void**)
 		msg->getSender(),
 		FALSE,	// don't delete remote
 		callback_download_complete,
-		(void**)new LLString(viewer_filename));
+		(void**)new std::string(viewer_filename));
 }
 
 
 void process_script_teleport_request(LLMessageSystem* msg, void**)
 {
-	char object_name[256];	/* Flawfinder: ignore */		
-	char sim_name[256];		/* Flawfinder: ignore */
+	std::string object_name;
+	std::string sim_name;
 	LLVector3 pos;
 	LLVector3 look_at;
 
-	msg->getString("Data", "ObjectName", 255, object_name);
-	msg->getString(  "Data", "SimName", 255, sim_name);
+	msg->getString("Data", "ObjectName", object_name);
+	msg->getString("Data", "SimName", sim_name);
 	msg->getVector3("Data", "SimPosition", pos);
 	msg->getVector3("Data", "LookAt", look_at);
 
@@ -5206,11 +5181,11 @@ void process_script_teleport_request(LLMessageSystem* msg, void**)
 void process_covenant_reply(LLMessageSystem* msg, void**)
 {
 	LLUUID covenant_id, estate_owner_id;
-	char estate_name[MAX_STRING];		/* Flawfinder: ignore */
+	std::string estate_name;
 	U32 covenant_timestamp;
 	msg->getUUID("Data", "CovenantID", covenant_id);
 	msg->getU32("Data", "CovenantTimestamp", covenant_timestamp);
-	msg->getString("Data", "EstateName", MAX_STRING, estate_name);
+	msg->getString("Data", "EstateName", estate_name);
 	msg->getUUID("Data", "EstateOwnerID", estate_owner_id);
 
 	LLPanelEstateCovenant::updateEstateName(estate_name);
@@ -5218,11 +5193,7 @@ void process_covenant_reply(LLMessageSystem* msg, void**)
 	LLFloaterBuyLand::updateEstateName(estate_name);
 
 	// standard message, not from system
-	char last_modified[MAX_STRING];		/* Flawfinder: ignore */
-	last_modified[0] = '\0';
-	char time_buf[TIME_STR_LENGTH];		/* Flawfinder: ignore */
-	snprintf(last_modified, MAX_STRING, "Last Modified %s",		/* Flawfinder: ignore */
-	formatted_time((time_t)covenant_timestamp, time_buf));
+	std::string last_modified = std::string("Last Modified ") + formatted_time((time_t)covenant_timestamp);
 
 	LLPanelEstateCovenant::updateLastModified(last_modified);
 	LLPanelLandCovenant::updateLastModified(last_modified);
@@ -5262,12 +5233,9 @@ void process_covenant_reply(LLMessageSystem* msg, void**)
 	}
 }
 
-void callbackCacheEstateOwnerName(
-		const LLUUID& id,
-		const char* first,
-		const char* last,
-		BOOL is_group,
-		void*)
+void callbackCacheEstateOwnerName(const LLUUID& id,
+								  const std::string& first, const std::string& last,
+								  BOOL is_group, void*)
 {
 	std::string name;
 	
@@ -5277,9 +5245,7 @@ void callbackCacheEstateOwnerName(
 	}
 	else
 	{
-		name = first;
-		name += " ";
-		name += last;
+		name = first + " " + last;
 	}
 	LLPanelEstateCovenant::updateEstateOwnerName(name);
 	LLPanelLandCovenant::updateEstateOwnerName(name);
@@ -5314,10 +5280,10 @@ void onCovenantLoadComplete(LLVFS *vfs,
 		if( (file_length > 19) && !strncmp( buffer, "Linden text version", 19 ) )
 		{
 			LLViewerTextEditor* editor =
-				new LLViewerTextEditor("temp",
+				new LLViewerTextEditor(std::string("temp"),
 						       LLRect(0,0,0,0),
 						       file_length+1);
-			if( !editor->importBuffer( buffer ) )
+			if( !editor->importBuffer( buffer, file_length+1 ) )
 			{
 				LL_WARNS("Messaging") << "Problem importing estate covenant." << LL_ENDL;
 				covenant_text = "Problem importing estate covenant.";
@@ -5367,12 +5333,12 @@ void process_feature_disabled_message(LLMessageSystem* msg, void**)
 	// Handle Blacklisted feature simulator response...
 	LLUUID	agentID;
 	LLUUID	transactionID;
-	char	messageText[MAX_STRING];		/* Flawfinder: ignore */
-	msg->getStringFast(_PREHASH_FailureInfo,_PREHASH_ErrorMessage,MAX_STRING,&messageText[0],0);
+	std::string	messageText;
+	msg->getStringFast(_PREHASH_FailureInfo,_PREHASH_ErrorMessage, messageText,0);
 	msg->getUUIDFast(_PREHASH_FailureInfo,_PREHASH_AgentID,agentID);
 	msg->getUUIDFast(_PREHASH_FailureInfo,_PREHASH_TransactionID,transactionID);
 	
-	LL_WARNS("Messaging") << "Blacklisted Feature Response:" << &messageText[0] << LL_ENDL;
+	LL_WARNS("Messaging") << "Blacklisted Feature Response:" << messageText << LL_ENDL;
 }
 
 // ------------------------------------------------------------

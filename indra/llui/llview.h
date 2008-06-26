@@ -89,7 +89,7 @@ virtual void	setVisible(BOOL visible);
 		LLFloater, LLAlertDialog, LLMenuItemGL, LLModalDialog
 virtual void	setEnabled(BOOL enabled)	{ mEnabled = enabled; }
 		LLCheckBoxCtrl, LLComboBox, LLLineEditor, LLMenuGL, LLRadioGroup, etc
-virtual BOOL	setLabelArg( const LLString& key, const LLStringExplicit& text ) { return FALSE; }
+virtual BOOL	setLabelArg( const std::string& key, const LLStringExplicit& text ) { return FALSE; }
 		LLUICtrl, LLButton, LLCheckBoxCtrl, LLLineEditor, LLMenuGL, LLSliderCtrl
 virtual void	onVisibilityChange ( BOOL curVisibilityIn );
 		LLMenuGL
@@ -114,7 +114,7 @@ virtual BOOL	handleKey(KEY key, MASK mask, BOOL called_from_parent);
 		*
 virtual BOOL	handleUnicodeChar(llwchar uni_char, BOOL called_from_parent);
 		*
-virtual BOOL	handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,EDragAndDropType cargo_type,void* cargo_data,EAcceptance* accept,LLString& tooltip_msg);
+virtual BOOL	handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,EDragAndDropType cargo_type,void* cargo_data,EAcceptance* accept,std::string& tooltip_msg);
 		*
 virtual void	draw();
 		*
@@ -128,11 +128,11 @@ virtual void onFocusLost() {}
 		LLUICtrl, LLScrollListCtrl, LLMenuGL, LLLineEditor, LLComboBox
 virtual void onFocusReceived() {}
 		LLUICtrl, LLTextEditor, LLScrollListVtrl, LLMenuGL, LLLineEditor
-virtual LLView* getChildView(const LLString& name, BOOL recurse = TRUE, BOOL create_if_missing = TRUE) const;
+virtual LLView* getChildView(const std::string& name, BOOL recurse = TRUE, BOOL create_if_missing = TRUE) const;
 		LLTabContainer, LLPanel, LLMenuGL
-virtual void	setControlName(const LLString& control, LLView *context);
+virtual void	setControlName(const std::string& control, LLView *context);
 		LLSliderCtrl, LLCheckBoxCtrl
-virtual LLString getControlName() const { return mControlName; }
+virtual std::string getControlName() const { return mControlName; }
 		LLSliderCtrl, LLCheckBoxCtrl
 virtual bool	handleEvent(LLPointer<LLEvent> event, const LLSD& userdata);
 		LLMenuItem
@@ -154,11 +154,11 @@ class LLWidgetClassRegistry : public LLSingleton<LLWidgetClassRegistry>
 	friend class LLSingleton<LLWidgetClassRegistry>;
 public:
 	typedef LLView* (*factory_func_t)(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
-	typedef std::map<LLString, factory_func_t> factory_map_t;
+	typedef std::map<std::string, factory_func_t> factory_map_t;
 
-	void registerCtrl(const LLString& xml_tag, factory_func_t function);
-	BOOL isTagRegistered(const LLString& xml_tag);
-	factory_func_t getCreatorFunc(const LLString& xml_tag);
+	void registerCtrl(const std::string& xml_tag, factory_func_t function);
+	BOOL isTagRegistered(const std::string& xml_tag);
+	factory_func_t getCreatorFunc(const std::string& xml_tag);
 
 	// get (first) xml tag for a given class
 	template <class T> std::string getTag()
@@ -179,7 +179,7 @@ private:
 	LLWidgetClassRegistry();
 	virtual ~LLWidgetClassRegistry() {};
 
-	typedef std::set<LLString> ctrl_name_set_t;
+	typedef std::set<std::string> ctrl_name_set_t;
 	ctrl_name_set_t mUICtrlNames;
 
 	// map of xml tags to widget creator functions
@@ -252,8 +252,8 @@ public:
 	typedef child_tab_order_t::const_reverse_iterator	child_tab_order_const_reverse_iter_t;
 
 	LLView();
-	LLView(const LLString& name, BOOL mouse_opaque);
-	LLView(const LLString& name, const LLRect& rect, BOOL mouse_opaque, U32 follows=FOLLOWS_NONE);
+	LLView(const std::string& name, BOOL mouse_opaque);
+	LLView(const std::string& name, const LLRect& rect, BOOL mouse_opaque, U32 follows=FOLLOWS_NONE);
 
 	virtual ~LLView();
 
@@ -274,7 +274,7 @@ public:
 	BOOL		getMouseOpaque() const			{ return mMouseOpaque; }
 	void		setToolTip( const LLStringExplicit& msg );
 	BOOL		setToolTipArg( const LLStringExplicit& key, const LLStringExplicit& text );
-	void		setToolTipArgs( const LLString::format_map_t& args );
+	void		setToolTipArgs( const LLStringUtil::format_map_t& args );
 
 	virtual void setRect(const LLRect &rect);
 	void		setFollows(U32 flags)			{ mReshapeFlags = flags; }
@@ -288,11 +288,11 @@ public:
 	void		setFollowsAll()					{ mReshapeFlags |= FOLLOWS_ALL; }
 
 	void        setSoundFlags(U8 flags)			{ mSoundFlags = flags; }
-	void		setName(LLString name)			{ mName = name; }
+	void		setName(std::string name)			{ mName = name; }
 	void		setUseBoundingRect( BOOL use_bounding_rect );
 	BOOL		getUseBoundingRect();
 
-	const LLString& getToolTip() const			{ return mToolTipMsg.getString(); }
+	const std::string& getToolTip() const			{ return mToolTipMsg.getString(); }
 
 	void		sendChildToFront(LLView* child);
 	void		sendChildToBack(LLView* child);
@@ -340,7 +340,7 @@ public:
 	BOOL			getEnabled() const			{ return mEnabled; }
 	U8              getSoundFlags() const       { return mSoundFlags; }
 
-	virtual BOOL	setLabelArg( const LLString& key, const LLStringExplicit& text );
+	virtual BOOL	setLabelArg( const std::string& key, const LLStringExplicit& text );
 
 	virtual void	onVisibilityChange ( BOOL curVisibilityIn );
 
@@ -374,8 +374,8 @@ public:
 	S32			getChildCount()	const			{ return (S32)mChildList.size(); }
 	template<class _Pr3> void sortChildren(_Pr3 _Pred) { mChildList.sort(_Pred); }
 	BOOL		hasAncestor(const LLView* parentp) const;
-	BOOL		hasChild(const LLString& childname, BOOL recurse = FALSE) const;
-	BOOL 		childHasKeyboardFocus( const LLString& childname ) const;
+	BOOL		hasChild(const std::string& childname, BOOL recurse = FALSE) const;
+	BOOL 		childHasKeyboardFocus( const std::string& childname ) const;
 
 
 	//
@@ -403,9 +403,9 @@ public:
 									  EDragAndDropType cargo_type,
 									  void* cargo_data,
 									  EAcceptance* accept,
-									  LLString& tooltip_msg);
+									  std::string& tooltip_msg);
 
-	LLString getShowNamesToolTip();
+	std::string getShowNamesToolTip();
 
 	virtual void	draw();
 
@@ -439,19 +439,19 @@ public:
 	void localRectToScreen( const LLRect& local, LLRect* screen ) const;
 	
 	// Listener dispatching functions (Dispatcher deletes pointers to listeners on deregistration or destruction)
-	LLSimpleListener* getListenerByName(const LLString &callback_name);
-	void registerEventListener(LLString name, LLSimpleListener* function);
-	void deregisterEventListener(LLString name);
-	LLString findEventListener(LLSimpleListener *listener) const;
-	void addListenerToControl(LLEventDispatcher *observer, const LLString& name, LLSD filter, LLSD userdata);
+	LLSimpleListener* getListenerByName(const std::string& callback_name);
+	void registerEventListener(std::string name, LLSimpleListener* function);
+	void deregisterEventListener(std::string name);
+	std::string findEventListener(LLSimpleListener *listener) const;
+	void addListenerToControl(LLEventDispatcher *observer, const std::string& name, LLSD filter, LLSD userdata);
 
-	void addBoolControl(LLString name, bool initial_value);
-	LLControlVariable *getControl(LLString name);
-	LLControlVariable *findControl(LLString name);
+	void addBoolControl(const std::string& name, bool initial_value);
+	LLControlVariable *getControl(const std::string& name);
+	LLControlVariable *findControl(const std::string& name);
 
 	bool setControlValue(const LLSD& value);
-	virtual void	setControlName(const LLString& control, LLView *context);
-	virtual LLString getControlName() const { return mControlName; }
+	virtual void	setControlName(const std::string& control, LLView *context);
+	virtual std::string getControlName() const { return mControlName; }
 //	virtual bool	handleEvent(LLPointer<LLEvent> event, const LLSD& userdata);
 	virtual void	setValue(const LLSD& value);
 	virtual LLSD	getValue() const;
@@ -467,15 +467,15 @@ public:
 	/*virtual*/ BOOL	handleScrollWheel(S32 x, S32 y, S32 clicks);
 	/*virtual*/ BOOL	handleRightMouseDown(S32 x, S32 y, MASK mask);
 	/*virtual*/ BOOL	handleRightMouseUp(S32 x, S32 y, MASK mask);	
-	/*virtual*/ BOOL	handleToolTip(S32 x, S32 y, LLString& msg, LLRect* sticky_rect); // Display mToolTipMsg if no child handles it.
-	/*virtual*/ const LLString&	getName() const;
+	/*virtual*/ BOOL	handleToolTip(S32 x, S32 y, std::string& msg, LLRect* sticky_rect); // Display mToolTipMsg if no child handles it.
+	/*virtual*/ const std::string&	getName() const;
 	/*virtual*/ void	onMouseCaptureLost();
 	/*virtual*/ BOOL	hasMouseCapture();
 	/*virtual*/ BOOL isView(); // Hack to support LLFocusMgr
 	/*virtual*/ void	screenPointToLocal(S32 screen_x, S32 screen_y, S32* local_x, S32* local_y) const;
 	/*virtual*/ void	localPointToScreen(S32 local_x, S32 local_y, S32* screen_x, S32* screen_y) const;
 
-	template <class T> T* getChild(const LLString& name, BOOL recurse = TRUE, BOOL create_if_missing = TRUE) const
+	template <class T> T* getChild(const std::string& name, BOOL recurse = TRUE, BOOL create_if_missing = TRUE) const
 	{
 		LLView* child = getChildView(name, recurse, FALSE);
 		T* result = dynamic_cast<T*>(child);
@@ -495,22 +495,22 @@ public:
 		return result;
 	}
 
-	virtual LLView* getChildView(const LLString& name, BOOL recurse = TRUE, BOOL create_if_missing = TRUE) const;
+	virtual LLView* getChildView(const std::string& name, BOOL recurse = TRUE, BOOL create_if_missing = TRUE) const;
 
-	template <class T> T* createDummyWidget(const LLString& name) const
+	template <class T> T* createDummyWidget(const std::string& name) const
 	{
 		T* widget = getDummyWidget<T>(name);
 		if (!widget)
 		{
 			// get xml tag name corresponding to requested widget type (e.g. "button")
-			LLString xml_tag = LLWidgetClassRegistry::getInstance()->getTag<T>();
+			std::string xml_tag = LLWidgetClassRegistry::getInstance()->getTag<T>();
 			if (xml_tag.empty())
 			{
 				llwarns << "No xml tag registered for this class " << llendl;
 				return NULL;
 			}
 			// create dummy xml node (<button name="foo"/>)
-			LLXMLNodePtr new_node_ptr = new LLXMLNode(xml_tag, FALSE);
+			LLXMLNodePtr new_node_ptr = new LLXMLNode(xml_tag.c_str(), FALSE);
 			new_node_ptr->createChild("name", TRUE)->setStringValue(name);
 			
 			widget = dynamic_cast<T*>(createWidget(new_node_ptr));
@@ -530,7 +530,7 @@ public:
 		return widget;
 	}
 
-	template <class T> T* getDummyWidget(const LLString& name) const
+	template <class T> T* getDummyWidget(const std::string& name) const
 	{
 		dummy_widget_map_t::const_iterator found_it = mDummyWidgets.find(name);
 		if (found_it == mDummyWidgets.end())
@@ -554,17 +554,14 @@ public:
 	
 	// Only saves color if different from default setting.
 	static void addColorXML(LLXMLNodePtr node, const LLColor4& color,
-							const LLString& xml_name, const LLString& control_name);
-	static void saveColorToXML(std::ostream& out, const LLColor4& color,
-							   const LLString& xml_name, const LLString& control_name,
-							   const LLString& indent); // DEPRECATED
+							const char* xml_name, const char* control_name);
 	// Escapes " (quot) ' (apos) & (amp) < (lt) > (gt)
-	//static LLString escapeXML(const LLString& xml);
+	//static std::string escapeXML(const std::string& xml);
 	static LLWString escapeXML(const LLWString& xml);
 	
 	//same as above, but wraps multiple lines in quotes and prepends
 	//indent as leading white space on each line
-	static LLString escapeXML(const LLString& xml, LLString& indent);
+	static std::string escapeXML(const std::string& xml, std::string& indent);
 
 	// focuses the item in the list after the currently-focused item, wrapping if necessary
 	static	BOOL focusNext(LLView::child_list_t & result);
@@ -594,7 +591,7 @@ protected:
 											  EDragAndDropType type,
 											  void* data,
 											  EAcceptance* accept,
-											  LLString& tooltip_msg);
+											  std::string& tooltip_msg);
 
 	LLView*	childrenHandleHover(S32 x, S32 y, MASK mask);
 	LLView* childrenHandleMouseUp(S32 x, S32 y, MASK mask);
@@ -606,14 +603,14 @@ protected:
 
 	static bool controlListener(const LLSD& newvalue, LLHandle<LLView> handle, std::string type);
 
-	typedef std::map<LLString, LLControlVariable*> control_map_t;
+	typedef std::map<std::string, LLControlVariable*> control_map_t;
 	control_map_t mFloaterControls;
 
 private:
 	LLView*		mParentView;
 	child_list_t mChildList;
 
-	LLString	mName;
+	std::string	mName;
 	// location in pixels, relative to surrounding structure, bottom,left=0,0
 	LLRect		mRect;
 	LLRect		mBoundingRect;
@@ -643,12 +640,12 @@ private:
 
 	static LLWindow* sWindow;	// All root views must know about their window.
 
-	typedef std::map<LLString, LLPointer<LLSimpleListener> > dispatch_list_t;
+	typedef std::map<std::string, LLPointer<LLSimpleListener> > dispatch_list_t;
 	dispatch_list_t mDispatchList;
 
-	LLString		mControlName;
+	std::string		mControlName;
 
-	typedef std::map<LLString, LLView*> dummy_widget_map_t;
+	typedef std::map<std::string, LLView*> dummy_widget_map_t;
 	dummy_widget_map_t mDummyWidgets;
 
 	boost::signals::connection mControlConnection;
@@ -658,7 +655,7 @@ public:
 	static BOOL sDebugKeys;
 	static S32	sDepth;
 	static BOOL sDebugMouseHandling;
-	static LLString sMouseHandlerMessage;
+	static std::string sMouseHandlerMessage;
 	static S32	sSelectID;
 	static BOOL sEditingUI;
 	static LLView* sEditingUIView;

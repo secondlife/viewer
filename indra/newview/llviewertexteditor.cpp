@@ -108,7 +108,7 @@ public:
 					LLPreviewNotecard* preview;
 					preview = new LLPreviewNotecard("preview notecard", 
 													rect, 
-													LLString("Embedded Note: ") + item->getName(),
+													std::string("Embedded Note: ") + item->getName(),
 													item->getUUID(), 
 													LLUUID::null, 
 													item->getAssetUUID(),
@@ -561,10 +561,10 @@ struct LLNotecardCopyInfo
 // Member functions
 //
 
-LLViewerTextEditor::LLViewerTextEditor(const LLString& name, 
+LLViewerTextEditor::LLViewerTextEditor(const std::string& name, 
 									   const LLRect& rect, 
 									   S32 max_length, 
-									   const LLString& default_text, 
+									   const std::string& default_text, 
 									   const LLFontGL* font,
 									   BOOL allow_embedded_items)
 	: LLTextEditor(name, rect, max_length, default_text, font, allow_embedded_items),
@@ -581,7 +581,7 @@ LLViewerTextEditor::LLViewerTextEditor(const LLString& name,
 	//LLMenuGL* menu = LLUICtrlFactory::getInstance()->buildMenu("menu_slurl.xml", this);
 	//if (!menu)
 	//{
-	//	menu = new LLMenuGL("");
+	//	menu = new LLMenuGL(LLStringUtil::null);
 	//}
 	//menu->setBackgroundColor(gColors.getColor("MenuPopupBgColor"));
 	//// menu->setVisible(FALSE);
@@ -608,7 +608,7 @@ void LLViewerTextEditor::makePristine()
 
 ///////////////////////////////////////////////////////////////////
 
-BOOL LLViewerTextEditor::handleToolTip(S32 x, S32 y, LLString& msg, LLRect* sticky_rect_screen)
+BOOL LLViewerTextEditor::handleToolTip(S32 x, S32 y, std::string& msg, LLRect* sticky_rect_screen)
 {
 	for (child_list_const_iter_t child_iter = getChildList()->begin();
 			child_iter != getChildList()->end(); ++child_iter)
@@ -1068,7 +1068,7 @@ BOOL LLViewerTextEditor::handleDoubleClick(S32 x, S32 y, MASK mask)
 BOOL LLViewerTextEditor::handleDragAndDrop(S32 x, S32 y, MASK mask,
 					  BOOL drop, EDragAndDropType cargo_type, void *cargo_data,
 					  EAcceptance *accept,
-					  LLString& tooltip_msg)
+					  std::string& tooltip_msg)
 {
 	BOOL handled = FALSE;
 
@@ -1084,7 +1084,7 @@ BOOL LLViewerTextEditor::handleDragAndDrop(S32 x, S32 y, MASK mask,
 					if (drop)
 					{
 						LLInventoryItem *item = (LLInventoryItem *)cargo_data;
-						LLString name = item->getName();
+						std::string name = item->getName();
 						appendText(name, true, true);
 					}
 					*accept = ACCEPT_YES_COPY_SINGLE;
@@ -1165,7 +1165,7 @@ BOOL LLViewerTextEditor::handleDragAndDrop(S32 x, S32 y, MASK mask,
 	return handled;
 }
 
-void LLViewerTextEditor::setASCIIEmbeddedText(const LLString& instr)
+void LLViewerTextEditor::setASCIIEmbeddedText(const std::string& instr)
 {
 	LLWString wtext;
 	const U8* buffer = (U8*)(instr.c_str());
@@ -1187,7 +1187,7 @@ void LLViewerTextEditor::setASCIIEmbeddedText(const LLString& instr)
 	setWText(wtext);
 }
 
-void LLViewerTextEditor::setEmbeddedText(const LLString& instr)
+void LLViewerTextEditor::setEmbeddedText(const std::string& instr)
 {
 	LLWString wtext = utf8str_to_wstring(instr);
 	for (S32 i=0; i<(S32)wtext.size(); i++)
@@ -1202,7 +1202,7 @@ void LLViewerTextEditor::setEmbeddedText(const LLString& instr)
 	setWText(wtext);
 }
 
-LLString LLViewerTextEditor::getEmbeddedText()
+std::string LLViewerTextEditor::getEmbeddedText()
 {
 #if 1
 	// New version (Version 2)
@@ -1218,12 +1218,12 @@ LLString LLViewerTextEditor::getEmbeddedText()
 		}
 		outtextw.push_back(wch);
 	}
-	LLString outtext = wstring_to_utf8str(outtextw);
+	std::string outtext = wstring_to_utf8str(outtextw);
 	return outtext;
 #else
 	// Old version (Version 1)
 	mEmbeddedItemList->copyUsedCharsToIndexed();
-	LLString outtext;
+	std::string outtext;
 	for (S32 i=0; i<(S32)mWText.size(); i++)
 	{
 		llwchar wch = mWText[i];
@@ -1242,7 +1242,7 @@ LLString LLViewerTextEditor::getEmbeddedText()
 #endif
 }
 
-LLString LLViewerTextEditor::appendTime(bool prepend_newline)
+std::string LLViewerTextEditor::appendTime(bool prepend_newline)
 {
 	time_t utc_time;
 	utc_time = time_corrected();
@@ -1254,7 +1254,7 @@ LLString LLViewerTextEditor::appendTime(bool prepend_newline)
 	// it's daylight savings time there.
 	timep = utc_to_pacific_time(utc_time, gPacificDaylightTime);
 
-	LLString text = llformat("[%d:%02d]  ", timep->tm_hour, timep->tm_min);
+	std::string text = llformat("[%d:%02d]  ", timep->tm_hour, timep->tm_min);
 	appendColoredText(text, false, prepend_newline, LLColor4::grey);
 
 	return text;
@@ -1411,8 +1411,8 @@ void LLViewerTextEditor::openEmbeddedSound( LLInventoryItem* item )
 
 void LLViewerTextEditor::openEmbeddedLandmark( LLInventoryItem* item )
 {
-	LLString title =
-		LLString("  ") + LLLandmarkBridge::prefix()	+ item->getName();
+	std::string title =
+		std::string("  ") + LLLandmarkBridge::prefix()	+ item->getName();
 	open_landmark((LLViewerInventoryItem*)item, title, FALSE, item->getUUID(), TRUE);
 }
 
@@ -1519,13 +1519,13 @@ bool LLViewerTextEditor::hasEmbeddedInventory()
 
 ////////////////////////////////////////////////////////////////////////////
 
-BOOL LLViewerTextEditor::importBuffer( const LLString& buffer )
+BOOL LLViewerTextEditor::importBuffer( const char* buffer, S32 length )
 {
-	LLMemoryStream str((U8*)buffer.c_str(), buffer.length());
+	LLMemoryStream str((U8*)buffer, length);
 	return importStream(str);
 }
 
-BOOL LLViewerTextEditor::exportBuffer( LLString& buffer )
+BOOL LLViewerTextEditor::exportBuffer( std::string& buffer )
 {
 	LLNotecard nc(LLNotecard::MAX_SIZE);
 
@@ -1547,7 +1547,7 @@ BOOL LLViewerTextEditor::exportBuffer( LLString& buffer )
 
 LLView* LLViewerTextEditor::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory)
 {
-	LLString name("text_editor");
+	std::string name("text_editor");
 	node->getAttributeString("name", name);
 
 	LLRect rect;
@@ -1561,8 +1561,8 @@ LLView* LLViewerTextEditor::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlF
 
 	LLFontGL* font = LLView::selectFont(node);
 
-	// LLString text = node->getValue();
-	LLString text = node->getTextContents().substr(0, max_text_length - 1);
+	// std::string text = node->getValue();
+	std::string text = node->getTextContents().substr(0, max_text_length - 1);
 
 	if (text.size() > max_text_length)
 	{
@@ -1573,7 +1573,7 @@ LLView* LLViewerTextEditor::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlF
 	LLViewerTextEditor* text_editor = new LLViewerTextEditor(name, 
 								rect,
 								max_text_length,
-								"",
+								LLStringUtil::null,
 								font,
 								allow_embedded_items);
 

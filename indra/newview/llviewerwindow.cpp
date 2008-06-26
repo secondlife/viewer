@@ -112,7 +112,6 @@
 #include "llframestatview.h"
 #include "llgesturemgr.h"
 #include "llglheaders.h"
-#include "llhippo.h"
 #include "llhoverview.h"
 #include "llhudmanager.h"
 #include "llhudview.h"
@@ -289,10 +288,10 @@ static F32 temp2 = 20.f;
 LLCoordGL new_gl;
 #endif //SABINRIG
 
-char	LLViewerWindow::sSnapshotBaseName[LL_MAX_PATH];
-char	LLViewerWindow::sSnapshotDir[LL_MAX_PATH];
+std::string	LLViewerWindow::sSnapshotBaseName;
+std::string	LLViewerWindow::sSnapshotDir;
 
-char	LLViewerWindow::sMovieBaseName[LL_MAX_PATH];
+std::string	LLViewerWindow::sMovieBaseName;
 
 extern void toggle_debug_menus(void*);
 
@@ -665,7 +664,7 @@ BOOL LLViewerWindow::handleMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask
 	x = llround((F32)x / mDisplayScale.mV[VX]);
 	y = llround((F32)y / mDisplayScale.mV[VY]);
 
-	LLView::sMouseHandlerMessage = "";
+	LLView::sMouseHandlerMessage.clear();
 
 	if (gDebugClicks)
 	{
@@ -773,7 +772,7 @@ BOOL LLViewerWindow::handleDoubleClick(LLWindow *window,  LLCoordGL pos, MASK ma
 	x = llround((F32)x / mDisplayScale.mV[VX]);
 	y = llround((F32)y / mDisplayScale.mV[VY]);
 
-	LLView::sMouseHandlerMessage = "";
+	LLView::sMouseHandlerMessage.clear();
 
 	if (gDebugClicks)
 	{
@@ -853,7 +852,7 @@ BOOL LLViewerWindow::handleMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask)
 	x = llround((F32)x / mDisplayScale.mV[VX]);
 	y = llround((F32)y / mDisplayScale.mV[VY]);
 
-	LLView::sMouseHandlerMessage = "";
+	LLView::sMouseHandlerMessage.clear();
 
 	if (gDebugClicks)
 	{
@@ -944,7 +943,7 @@ BOOL LLViewerWindow::handleRightMouseDown(LLWindow *window,  LLCoordGL pos, MASK
 	x = llround((F32)x / mDisplayScale.mV[VX]);
 	y = llround((F32)y / mDisplayScale.mV[VY]);
 
-	LLView::sMouseHandlerMessage = "";
+	LLView::sMouseHandlerMessage.clear();
 
 	if (gDebugClicks)
 	{
@@ -1051,7 +1050,7 @@ BOOL LLViewerWindow::handleRightMouseUp(LLWindow *window,  LLCoordGL pos, MASK m
 	x = llround((F32)x / mDisplayScale.mV[VX]);
 	y = llround((F32)y / mDisplayScale.mV[VY]);
 
-	LLView::sMouseHandlerMessage = "";
+	LLView::sMouseHandlerMessage.clear();
 
 	// Don't care about caps lock for mouse events.
 	if (gDebugClicks)
@@ -1406,24 +1405,23 @@ BOOL LLViewerWindow::handlePaint(LLWindow *window,  S32 x,  S32 y, S32 width,  S
 		//SetBKColor(hdc, RGB(255, 255, 255));
 		FillRect(hdc, &wnd_rect, CreateSolidBrush(RGB(255, 255, 255)));
 
-		LLString name_str;
+		std::string name_str;
 		gAgent.getName(name_str);
 
-		S32 len;
-		char temp_str[255];		/* Flawfinder: ignore */
-		snprintf(temp_str, sizeof(temp_str), "%s FPS %3.1f Phy FPS %2.1f Time Dil %1.3f",		/* Flawfinder: ignore */
+		std::string temp_str;
+		temp_str = llformat( "%s FPS %3.1f Phy FPS %2.1f Time Dil %1.3f",		/* Flawfinder: ignore */
 				name_str.c_str(),
 				LLViewerStats::getInstance()->mFPSStat.getMeanPerSec(),
 				LLViewerStats::getInstance()->mSimPhysicsFPS.getPrev(0),
 				LLViewerStats::getInstance()->mSimTimeDilation.getPrev(0));
-		len = strlen(temp_str);		/* Flawfinder: ignore */
-		TextOutA(hdc, 0, 0, temp_str, len); 
+		S32 len = temp_str.length();
+		TextOutA(hdc, 0, 0, temp_str.c_str(), len); 
 
 
 		LLVector3d pos_global = gAgent.getPositionGlobal();
-		snprintf(temp_str, sizeof(temp_str), "Avatar pos %6.1lf %6.1lf %6.1lf", pos_global.mdV[0], pos_global.mdV[1], pos_global.mdV[2]);		/* Flawfinder: ignore */
-		len = strlen(temp_str);		/* Flawfinder: ignore */
-		TextOutA(hdc, 0, 25, temp_str, len); 
+		temp_str = llformat( "Avatar pos %6.1lf %6.1lf %6.1lf", pos_global.mdV[0], pos_global.mdV[1], pos_global.mdV[2]);
+		len = temp_str.length();
+		TextOutA(hdc, 0, 25, temp_str.c_str(), len); 
 
 		TextOutA(hdc, 0, 50, "Set \"DisableRendering FALSE\" in settings.ini file to reenable", 61);
 		EndPaint(window_handle, &ps); 
@@ -1492,7 +1490,7 @@ BOOL LLViewerWindow::handleDeviceChange(LLWindow *window)
 // Classes
 //
 LLViewerWindow::LLViewerWindow(
-	const char* title, const char* name,
+	const std::string& title, const std::string& name,
 	S32 x, S32 y,
 	S32 width, S32 height,
 	BOOL fullscreen, BOOL ignore_pixel_depth)
@@ -1515,9 +1513,9 @@ LLViewerWindow::LLViewerWindow(
 	mIgnoreActivate( FALSE )
 {
 	// Default to application directory.
-	strcpy(LLViewerWindow::sSnapshotBaseName, "Snapshot");	/* Flawfinder: ignore */
-	strcpy(LLViewerWindow::sMovieBaseName, "SLmovie");	/* Flawfinder: ignore */
-	LLViewerWindow::sSnapshotDir[0] = '\0';
+	LLViewerWindow::sSnapshotBaseName = "Snapshot";
+	LLViewerWindow::sMovieBaseName = "SLmovie";
+	LLViewerWindow::sSnapshotDir.clear();
 
 
 	// create window
@@ -1626,7 +1624,7 @@ LLViewerWindow::LLViewerWindow(
 	gShowOverlayTitle = gSavedSettings.getBOOL("ShowOverlayTitle");
 	mOverlayTitle = gSavedSettings.getString("OverlayTitle");
 	// Can't have spaces in settings.ini strings, so use underscores instead and convert them.
-	LLString::replaceChar(mOverlayTitle, '_', ' ');
+	LLStringUtil::replaceChar(mOverlayTitle, '_', ' ');
 
 	LLAlertDialog::setDisplayCallback(alertCallback); // call this before calling any modal dialogs
 
@@ -1757,7 +1755,7 @@ void LLViewerWindow::initBase()
 	mRootView->addChild(gNotifyBoxView, -2);
 
 	// Tooltips go above floaters
-	mToolTip = new LLTextBox( "tool tip", LLRect(0, 1, 1, 0 ) );
+	mToolTip = new LLTextBox( std::string("tool tip"), LLRect(0, 1, 1, 0 ) );
 	mToolTip->setHPad( 4 );
 	mToolTip->setVPad( 2 );
 	mToolTip->setColor( gColors.getColor( "ToolTipTextColor" ) );
@@ -1770,14 +1768,14 @@ void LLViewerWindow::initBase()
 	mToolTip->setVisible( FALSE );
 
 	// Add the progress bar view (startup view), which overrides everything
-	mProgressView = new LLProgressView("ProgressView", full_window);
+	mProgressView = new LLProgressView(std::string("ProgressView"), full_window);
 	mRootView->addChild(mProgressView);
 	setShowProgress(FALSE);
-	setProgressCancelButtonVisible(FALSE, "");
+	setProgressCancelButtonVisible(FALSE);
 }
 
 
-void adjust_rect_top_left(const LLString& control, const LLRect& window)
+void adjust_rect_top_left(const std::string& control, const LLRect& window)
 {
 	LLRect r = gSavedSettings.getRect(control);
 	if (r.mLeft == 0 && r.mBottom == 0)
@@ -1787,7 +1785,7 @@ void adjust_rect_top_left(const LLString& control, const LLRect& window)
 	}
 }
 
-void adjust_rect_top_center(const LLString& control, const LLRect& window)
+void adjust_rect_top_center(const std::string& control, const LLRect& window)
 {
 	LLRect r = gSavedSettings.getRect(control);
 	if (r.mLeft == 0 && r.mBottom == 0)
@@ -1800,7 +1798,7 @@ void adjust_rect_top_center(const LLString& control, const LLRect& window)
 	}
 }
 
-void adjust_rect_top_right(const LLString& control, const LLRect& window)
+void adjust_rect_top_right(const std::string& control, const LLRect& window)
 {
 	LLRect r = gSavedSettings.getRect(control);
 	if (r.mLeft == 0 && r.mBottom == 0)
@@ -1813,7 +1811,7 @@ void adjust_rect_top_right(const LLString& control, const LLRect& window)
 	}
 }
 
-void adjust_rect_bottom_center(const LLString& control, const LLRect& window)
+void adjust_rect_bottom_center(const std::string& control, const LLRect& window)
 {
 	LLRect r = gSavedSettings.getRect(control);
 	if (r.mLeft == 0 && r.mBottom == 0)
@@ -1829,7 +1827,7 @@ void adjust_rect_bottom_center(const LLString& control, const LLRect& window)
 	}
 }
 
-void adjust_rect_centered_partial_zoom(const LLString& control,
+void adjust_rect_centered_partial_zoom(const std::string& control,
 									   const LLRect& window)
 {
 	LLRect rect = gSavedSettings.getRect(control);
@@ -1905,7 +1903,7 @@ void LLViewerWindow::initWorldUI()
 		mRootView->addChild(gBottomPanel);
 
 		// View for hover information
-		gHoverView = new LLHoverView("gHoverView", full_window);
+		gHoverView = new LLHoverView(std::string("gHoverView"), full_window);
 		gHoverView->setVisible(TRUE);
 		mRootView->addChild(gHoverView);
 
@@ -1913,7 +1911,7 @@ void LLViewerWindow::initWorldUI()
 		// Map
 		//
 		// TODO: Move instance management into class
-		gFloaterMap = new LLFloaterMap("Map");
+		gFloaterMap = new LLFloaterMap(std::string("Map"));
 		gFloaterMap->setFollows(FOLLOWS_TOP|FOLLOWS_RIGHT);
 
 		// keep onscreen
@@ -1929,7 +1927,7 @@ void LLViewerWindow::initWorldUI()
 		LLRect morph_view_rect = full_window;
 		morph_view_rect.stretch( -STATUS_BAR_HEIGHT );
 		morph_view_rect.mTop = full_window.mTop - 32;
-		gMorphView = new LLMorphView("gMorphView", morph_view_rect );
+		gMorphView = new LLMorphView(std::string("gMorphView"), morph_view_rect );
 		mRootView->addChild(gMorphView);
 		gMorphView->setVisible(FALSE);
 
@@ -1956,7 +1954,7 @@ void LLViewerWindow::initWorldUI()
 		S32 menu_bar_height = gMenuBarView->getRect().getHeight();
 		LLRect root_rect = getRootView()->getRect();
 		LLRect status_rect(0, root_rect.getHeight(), root_rect.getWidth(), root_rect.getHeight() - menu_bar_height);
-		gStatusBar = new LLStatusBar("status", status_rect);
+		gStatusBar = new LLStatusBar(std::string("status"), status_rect);
 		gStatusBar->setFollows(FOLLOWS_LEFT | FOLLOWS_RIGHT | FOLLOWS_TOP);
 
 		gStatusBar->reshape(root_rect.getWidth(), gStatusBar->getRect().getHeight(), TRUE);
@@ -2211,7 +2209,7 @@ void LLViewerWindow::setNormalControlsVisible( BOOL visible )
 
 void LLViewerWindow::setMenuBackgroundColor(bool god_mode, bool dev_grid)
 {
-   	LLString::format_map_t args;
+   	LLStringUtil::format_map_t args;
     LLColor4 new_bg_color;
 
     if(god_mode && LLViewerLogin::getInstance()->isInProductionGrid())
@@ -2283,7 +2281,7 @@ void LLViewerWindow::draw()
 	if (gSavedSettings.getBOOL("DisplayTimecode"))
 	{
 		// draw timecode block
-		char text[256];		/* Flawfinder: ignore */
+		std::string text;
 
 		glLoadIdentity();
 
@@ -2455,15 +2453,6 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 			// Initialize visibility (and don't force visibility - use prefs)
 			LLPanelLogin::refreshLocation( false );
 		}
-	}
-
-	// Example "bug" for bug reporter web page
-	if ((MASK_SHIFT & mask) 
-		&& (MASK_ALT & mask)
-		&& (MASK_CONTROL & mask)
-		&& ('H' == key || 'h' == key))
-	{
-		trigger_hippo_bug(NULL);
 	}
 
 	// handle escape key
@@ -2663,7 +2652,7 @@ BOOL LLViewerWindow::handleUnicodeChar(llwchar uni_char, MASK mask)
 
 void LLViewerWindow::handleScrollWheel(S32 clicks)
 {
-	LLView::sMouseHandlerMessage = "";
+	LLView::sMouseHandlerMessage.clear();
 
 	gMouseIdleTimer.reset();
 
@@ -2739,7 +2728,7 @@ BOOL LLViewerWindow::handlePerFrameHover()
 {
 	static std::string last_handle_msg;
 
-	LLView::sMouseHandlerMessage = "";
+	LLView::sMouseHandlerMessage.clear();
 
 	//RN: fix for asynchronous notification of mouse leaving window not working
 	LLCoordWindow mouse_pos;
@@ -2880,9 +2869,9 @@ BOOL LLViewerWindow::handlePerFrameHover()
 			}
 			else if (LLView::sDebugMouseHandling)
 			{
-				if (last_handle_msg != "")
+				if (last_handle_msg != LLStringUtil::null)
 				{
-					last_handle_msg = "";
+					last_handle_msg.clear();
 					llinfos << "Hover not handled by view" << llendl;
 				}
 			}
@@ -2927,7 +2916,7 @@ BOOL LLViewerWindow::handlePerFrameHover()
 	//llinfos << (mToolTipBlocked ? "BLOCKED" : "NOT BLOCKED") << llendl;
 	// Show a new tool tip (or update one that is alrady shown)
 	BOOL tool_tip_handled = FALSE;
-	LLString tool_tip_msg;
+	std::string tool_tip_msg;
 	F32 tooltip_delay = gSavedSettings.getF32( "ToolTipDelay" );
 	//HACK: hack for tool-based tooltips which need to pop up more quickly
 	//Also for show xui names as tooltips debug mode
@@ -4060,14 +4049,14 @@ BOOL LLViewerWindow::mousePointOnLandGlobal(const S32 x, const S32 y, LLVector3d
 }
 
 // Saves an image to the harddrive as "SnapshotX" where X >= 1.
-BOOL LLViewerWindow::saveImageNumbered(LLImageRaw *raw, const LLString& extension_in)
+BOOL LLViewerWindow::saveImageNumbered(LLImageRaw *raw, const std::string& extension_in)
 {
 	if (! raw)
 	{
 		return FALSE;
 	}
 
-	LLString extension(extension_in);
+	std::string extension(extension_in);
 	if (extension.empty())
 	{
 		extension = (gSavedSettings.getBOOL("CompressSnapshotsToDisk")) ? ".j2c" : ".bmp";
@@ -4084,75 +4073,41 @@ BOOL LLViewerWindow::saveImageNumbered(LLImageRaw *raw, const LLString& extensio
 		pick_type = LLFilePicker::FFSAVE_ALL; // ???
 	
 	// Get a directory if this is the first time.
-	if (strlen(sSnapshotDir) == 0)		/* Flawfinder: ignore */
+	if (sSnapshotDir.empty())
 	{
-		LLString proposed_name( sSnapshotBaseName );
+		std::string proposed_name( sSnapshotBaseName );
 		proposed_name.append( extension );
 
 		// pick a directory in which to save
 		LLFilePicker& picker = LLFilePicker::instance();
-		if (!picker.getSaveFile(pick_type, proposed_name.c_str()))
+		if (!picker.getSaveFile(pick_type, proposed_name))
 		{
 			// Clicked cancel
 			return FALSE;
 		}
 
 		// Copy the directory + file name
-		char directory[LL_MAX_PATH];		/* Flawfinder: ignore */
-		strncpy(directory, picker.getFirstFile(), LL_MAX_PATH -1);		/* Flawfinder: ignore */
-		directory[LL_MAX_PATH -1] = '\0';
+		std::string filepath = picker.getFirstFile();
 
-		// Smash the file extension
-		S32 length = strlen(directory);		/* Flawfinder: ignore */
-		S32 index = length;
-
-		// Back up over extension
-		index -= extension.length();
-		if (index >= 0 && directory[index] == '.')
-		{
-			directory[index] = '\0';
-		}
-		else
-		{
-			index = length;
-		}
-
-		// Find trailing backslash
-		while (index >= 0 && directory[index] != gDirUtilp->getDirDelimiter()[0])
-		{
-			index--;
-		}
-
-		// If we found one, truncate the string there
-		if (index >= 0)
-		{
-			if (index + 1 <= length)
-			{
-				strncpy(LLViewerWindow::sSnapshotBaseName, directory + index + 1, LL_MAX_PATH -1);		/* Flawfinder: ignore */
-				LLViewerWindow::sSnapshotBaseName[LL_MAX_PATH -1] = '\0';
-			}
-
-			index++;
-			directory[index] = '\0';
-			strncpy(LLViewerWindow::sSnapshotDir, directory, LL_MAX_PATH -1);		/* Flawfinder: ignore */
-			LLViewerWindow::sSnapshotDir[LL_MAX_PATH -1] = '\0';
-		}
+		LLViewerWindow::sSnapshotBaseName = gDirUtilp->getBaseFileName(filepath, true);
+		LLViewerWindow::sSnapshotDir = gDirUtilp->getDirName(filepath);
 	}
 
 	// Look for an unused file name
-	LLString filepath;
+	std::string filepath;
 	S32 i = 1;
 	S32 err = 0;
 
 	do
 	{
 		filepath = sSnapshotDir;
+		filepath += gDirUtilp->getDirDelimiter();
 		filepath += sSnapshotBaseName;
 		filepath += llformat("_%.3d",i);
 		filepath += extension;
 
-		struct stat stat_info;
-		err = mWindow->stat( filepath.c_str(), &stat_info );
+		llstat stat_info;
+		err = LLFile::stat( filepath, &stat_info );
 		i++;
 	}
 	while( -1 != err );  // search until the file is not found (i.e., stat() gives an error).
@@ -4207,7 +4162,7 @@ void LLViewerWindow::movieSize(S32 new_width, S32 new_height)
 	}
 }
 
-BOOL LLViewerWindow::saveSnapshot( const LLString& filepath, S32 image_width, S32 image_height, BOOL show_ui, BOOL do_rebuild, ESnapshotType type)
+BOOL LLViewerWindow::saveSnapshot( const std::string& filepath, S32 image_width, S32 image_height, BOOL show_ui, BOOL do_rebuild, ESnapshotType type)
 {
 	llinfos << "Saving snapshot to: " << filepath << llendl;
 
@@ -4657,7 +4612,7 @@ void LLViewerWindow::destroyWindow()
 void LLViewerWindow::drawMouselookInstructions()
 {
 	// Draw instructions for mouselook ("Press ESC to leave Mouselook" in a box at the top of the screen.)
-	const char* instructions = "Press ESC to leave Mouselook.";
+	const std::string instructions = "Press ESC to leave Mouselook.";
 	const LLFontGL* font = LLResMgr::getInstance()->getRes( LLFONT_SANSSERIF );
 
 	const S32 INSTRUCTIONS_PAD = 5;
@@ -4816,7 +4771,7 @@ void LLViewerWindow::moveProgressViewToFront()
 	}
 }
 
-void LLViewerWindow::setProgressString(const LLString& string)
+void LLViewerWindow::setProgressString(const std::string& string)
 {
 	if (mProgressView)
 	{
@@ -4824,7 +4779,7 @@ void LLViewerWindow::setProgressString(const LLString& string)
 	}
 }
 
-void LLViewerWindow::setProgressMessage(const LLString& msg)
+void LLViewerWindow::setProgressMessage(const std::string& msg)
 {
 	if(mProgressView)
 	{
@@ -4840,7 +4795,7 @@ void LLViewerWindow::setProgressPercent(const F32 percent)
 	}
 }
 
-void LLViewerWindow::setProgressCancelButtonVisible( BOOL b, const LLString& label )
+void LLViewerWindow::setProgressCancelButtonVisible( BOOL b, const std::string& label )
 {
 	if (mProgressView)
 	{
@@ -4908,7 +4863,7 @@ void LLViewerWindow::stopGL(BOOL save_state)
 	}
 }
 
-void LLViewerWindow::restoreGL(const LLString& progress_message)
+void LLViewerWindow::restoreGL(const std::string& progress_message)
 {
 	if (gGLManager.mIsDisabled)
 	{
@@ -5146,7 +5101,7 @@ BOOL LLViewerWindow::changeDisplaySettings(BOOL fullscreen, LLCoordScreen size, 
 
 	if (!result_first_try)
 	{
-		LLStringBase<char>::format_map_t args;
+		LLStringUtil::format_map_t args;
 		args["[RESX]"] = llformat("%d",size.mX);
 		args["[RESY]"] = llformat("%d",size.mY);
 		alertXml("ResolutionSwitchFail", args);
@@ -5319,11 +5274,11 @@ bool LLViewerWindow::alertCallback(S32 modal)
 LLAlertDialog* LLViewerWindow::alertXml(const std::string& xml_filename,
 							  LLAlertDialog::alert_callback_t callback, void* user_data)
 {
-	LLString::format_map_t args;
+	LLStringUtil::format_map_t args;
 	return alertXml( xml_filename, args, callback, user_data );
 }
 
-LLAlertDialog* LLViewerWindow::alertXml(const std::string& xml_filename, const LLString::format_map_t& args,
+LLAlertDialog* LLViewerWindow::alertXml(const std::string& xml_filename, const LLStringUtil::format_map_t& args,
 							  LLAlertDialog::alert_callback_t callback, void* user_data)
 {
 	if (gNoRender)
@@ -5347,10 +5302,10 @@ LLAlertDialog* LLViewerWindow::alertXml(const std::string& xml_filename, const L
 	return LLAlertDialog::showXml( xml_filename, args, callback, user_data );
 }
 
-LLAlertDialog* LLViewerWindow::alertXmlEditText(const std::string& xml_filename, const LLString::format_map_t& args,
+LLAlertDialog* LLViewerWindow::alertXmlEditText(const std::string& xml_filename, const LLStringUtil::format_map_t& args,
 									  LLAlertDialog::alert_callback_t callback, void* user_data,
 									  LLAlertDialog::alert_text_callback_t text_callback, void *text_data,
-									  const LLString::format_map_t& edit_args, BOOL draw_asterixes)
+									  const LLStringUtil::format_map_t& edit_args, BOOL draw_asterixes)
 {
 	if (gNoRender)
 	{
@@ -5387,7 +5342,7 @@ LLAlertDialog* LLViewerWindow::alertXmlEditText(const std::string& xml_filename,
 ////////////////////////////////////////////////////////////////////////////
 
 LLBottomPanel::LLBottomPanel(const LLRect &rect) : 
-	LLPanel("", rect, FALSE),
+	LLPanel(LLStringUtil::null, rect, FALSE),
 	mIndicator(NULL)
 {
 	// bottom panel is focus root, so Tab moves through the toolbar and button bar, and overlay

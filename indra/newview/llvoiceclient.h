@@ -74,7 +74,7 @@ public:
 	virtual ~LLVoiceClientStatusObserver() { }
 	virtual void onChange(EStatusType status, const std::string &channelURI, bool proximal) = 0;
 
-	static const char *status2string(EStatusType inStatus);
+	static std::string status2string(EStatusType inStatus);
 };
 
 class LLVoiceClient: public LLSingleton<LLVoiceClient>
@@ -227,7 +227,7 @@ class LLVoiceClient: public LLSingleton<LLVoiceClient>
 		BOOL getPTTPressed(const LLUUID& id);			// This is the inverse of the "locally muted" property.
 		BOOL getOnMuteList(const LLUUID& id);
 		F32 getUserVolume(const LLUUID& id);
-		LLString getDisplayName(const LLUUID& id);
+		std::string getDisplayName(const LLUUID& id);
 		
 		// MBW -- XXX -- Not sure how to get this data out of the TVC
 		BOOL getUsingPTT(const LLUUID& id);
@@ -274,7 +274,7 @@ class LLVoiceClient: public LLSingleton<LLVoiceClient>
 		void addStatusObserver(LLVoiceClientStatusObserver* observer);
 		void removeStatusObserver(LLVoiceClientStatusObserver* observer);
 		
-		static void onAvatarNameLookup(const LLUUID& id, const char* first, const char* last, BOOL is_group, void* user_data);
+// 		static void onAvatarNameLookup(const LLUUID& id, const std::string& first, const std::string& last, BOOL is_group, void* user_data);
 		typedef std::vector<std::string> deviceList;
 
 		deviceList *getCaptureDevices();
@@ -357,7 +357,7 @@ class LLVoiceClient: public LLSingleton<LLVoiceClient>
 		
 		void setState(state inState);
 		state getState(void)  { return mState; };
-		static const char *state2string(state inState);
+		static std::string state2string(state inState);
 		
 		void stateMachine();
 		static void idle(void *user_data);

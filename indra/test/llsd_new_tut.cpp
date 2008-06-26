@@ -132,13 +132,11 @@ namespace tut
 		v = newUUID;	ensureTypeAndValue("set to new UUID", v, newUUID);
 		v = nullUUID;	ensureTypeAndValue("set to null again", v, nullUUID);
 		
-		// strings must be tested with three (!) types of string objects
+		// strings must be tested with two types of string objects
 		std::string s = "now is the time";
-		LLString ls = "for all good zorks";
-		const char* cs = "to come to the air of their planet";
+		const char* cs = "for all good zorks";
 
 		v = s;			ensureTypeAndValue("set to std::string", v, s);		
-		v = ls;			ensureTypeAndValue("set to LLString", v, ls);
 		v = cs;			ensureTypeAndValue("set to const char*", v, cs);
 	
 		LLDate epoch;
@@ -186,10 +184,10 @@ namespace tut
 						ensureTypeAndValue("construct std::string", ss1, "abc");
 		LLSD ss2 = std::string("abc");
 						ensureTypeAndValue("initialize std::string",ss2, "abc");
-		LLSD sl1(LLString("def"));
-						ensureTypeAndValue("construct LLString", sl1, "def");
-		LLSD sl2 = LLString("def");
-						ensureTypeAndValue("initialize LLString", sl2, "def");
+		LLSD sl1(std::string("def"));
+						ensureTypeAndValue("construct std::string", sl1, "def");
+		LLSD sl2 = std::string("def");
+						ensureTypeAndValue("initialize std::string", sl2, "def");
 		LLSD sc1("ghi");
 						ensureTypeAndValue("construct const char*", sc1, "ghi");
 		LLSD sc2 = "ghi";
@@ -432,10 +430,6 @@ namespace tut
 // SAD	s = v;				ensure_equals("assign to string", s, "  42.375");
 		s = (std::string)v;	ensure_equals("cast to string", s, "  42.375");
 
-		LLString t = "yo";
-// SAD	t = v;				ensure_equals("assign to LLString", t, "  42.375");
-		t = (LLString)v;	ensure_equals("cast to LLString", t, "  42.375");
-		
 		std::string uuidStr = "b1e50c2b-b627-4d23-8a86-a65d97b6319b";
 		v = uuidStr;
 		LLUUID u;
@@ -486,10 +480,10 @@ namespace tut
 						ensure_equals("contruct string", s1, "  42.375");
 						ensure_equals("initialize string", s2, "  42.375");
 
-		LLString t1(v);
-		LLString t2 = v.asString();		// SAD
-						ensure_equals("contruct LLString", t1, "  42.375");
-						ensure_equals("initialize LLString", t2, "  42.375");
+		std::string t1(v);
+		std::string t2 = v.asString();		// SAD
+						ensure_equals("contruct std::string", t1, "  42.375");
+						ensure_equals("initialize std::string", t2, "  42.375");
 
 		std::string uuidStr = "b1e50c2b-b627-4d23-8a86-a65d97b6319b";
 		v = uuidStr;

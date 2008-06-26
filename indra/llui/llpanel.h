@@ -51,10 +51,10 @@ const BOOL BORDER_NO = FALSE;
 
 struct LLAlertInfo
 {
-	LLString mLabel;
-	LLString::format_map_t mArgs;
+	std::string mLabel;
+	LLStringUtil::format_map_t mArgs;
 
-	LLAlertInfo(LLString label, LLString::format_map_t args) : mLabel(label), mArgs(args) { }
+	LLAlertInfo(std::string label, LLStringUtil::format_map_t args) : mLabel(label), mArgs(args) { }
 	LLAlertInfo(){}
 };
 
@@ -71,13 +71,13 @@ public:
 
 	// minimal constructor for data-driven initialization
 	LLPanel();
-	LLPanel(const LLString& name);
+	LLPanel(const std::string& name);
 
 	// Position and size not saved
-	LLPanel(const LLString& name, const LLRect& rect, BOOL bordered = TRUE);
+	LLPanel(const std::string& name, const LLRect& rect, BOOL bordered = TRUE);
 
 	// Position and size are saved to rect_control
-	LLPanel(const LLString& name, const LLString& rect_control, BOOL bordered = TRUE);	
+	LLPanel(const std::string& name, const std::string& rect_control, BOOL bordered = TRUE);	
 	
 	/*virtual*/ ~LLPanel();
 
@@ -87,7 +87,7 @@ public:
 	/*virtual*/ BOOL	handleKeyHere( KEY key, MASK mask );
 	/*virtual*/ LLXMLNodePtr getXML(bool save_children = true) const;
 	// Override to set not found list:
-	virtual LLView* getChildView(const LLString& name, BOOL recurse = TRUE, BOOL create_if_missing = TRUE) const;
+	virtual LLView* getChildView(const std::string& name, BOOL recurse = TRUE, BOOL create_if_missing = TRUE) const;
 
 	// From LLFocusableElement
 	/*virtual*/ void	setFocus( BOOL b );
@@ -105,7 +105,7 @@ public:
 	BOOL			hasBorder() const { return mBorder != NULL; }
 	void			setBorderVisible( BOOL b );
 
-	template <class T> void requires(LLString name)
+	template <class T> void requires(const std::string& name)
 	{
 		// check for widget with matching type and name
 		if (LLView::getChild<T>(name) == NULL)
@@ -115,7 +115,7 @@ public:
 	}
 	
 	// requires LLView by default
-	void requires(LLString name)
+	void requires(const std::string& name)
 	{
 		requires<LLView>(name);
 	}
@@ -130,13 +130,13 @@ public:
 	void			setBackgroundOpaque(BOOL b)		{ mBgOpaque = b; }
 	BOOL			isBackgroundOpaque() const { return mBgOpaque; }
 	void			setDefaultBtn(LLButton* btn = NULL);
-	void			setDefaultBtn(const LLString& id);
+	void			setDefaultBtn(const std::string& id);
 	void			updateDefaultBtn();
 	void			setLabel(const LLStringExplicit& label) { mLabel = label; }
-	LLString		getLabel() const { return mLabel; }
+	std::string		getLabel() const { return mLabel; }
 	
-	void            setRectControl(const LLString& rect_control) { mRectControl.assign(rect_control); }
-	const LLString&	getRectControl() const { return mRectControl; }
+	void            setRectControl(const std::string& rect_control) { mRectControl.assign(rect_control); }
+	const std::string&	getRectControl() const { return mRectControl; }
 	void			storeRectControl();
 
 	void			setCtrlsEnabled(BOOL b);
@@ -151,83 +151,83 @@ public:
 	void initChildrenXML(LLXMLNodePtr node, LLUICtrlFactory* factory);
 	void setPanelParameters(LLXMLNodePtr node, LLView *parentp);
 
-	LLString getString(const LLString& name, const LLString::format_map_t& args = LLUIString::sNullArgs) const;
-	LLUIString getUIString(const LLString& name) const;
+	std::string getString(const std::string& name, const LLStringUtil::format_map_t& args = LLUIString::sNullArgs) const;
+	LLUIString getUIString(const std::string& name) const;
 
 	// ** Wrappers for setting child properties by name ** -TomY
 
 	// LLView
-	void childSetVisible(const LLString& name, bool visible);
-	void childShow(const LLString& name) { childSetVisible(name, true); }
-	void childHide(const LLString& name) { childSetVisible(name, false); }
-	bool childIsVisible(const LLString& id) const;
-	void childSetTentative(const LLString& name, bool tentative);
+	void childSetVisible(const std::string& name, bool visible);
+	void childShow(const std::string& name) { childSetVisible(name, true); }
+	void childHide(const std::string& name) { childSetVisible(name, false); }
+	bool childIsVisible(const std::string& id) const;
+	void childSetTentative(const std::string& name, bool tentative);
 
-	void childSetEnabled(const LLString& name, bool enabled);
-	void childEnable(const LLString& name)	{ childSetEnabled(name, true); }
-	void childDisable(const LLString& name) { childSetEnabled(name, false); };
-	bool childIsEnabled(const LLString& id) const;
+	void childSetEnabled(const std::string& name, bool enabled);
+	void childEnable(const std::string& name)	{ childSetEnabled(name, true); }
+	void childDisable(const std::string& name) { childSetEnabled(name, false); };
+	bool childIsEnabled(const std::string& id) const;
 
-	void childSetToolTip(const LLString& id, const LLString& msg);
-	void childSetRect(const LLString& id, const LLRect &rect);
-	bool childGetRect(const LLString& id, LLRect& rect) const;
+	void childSetToolTip(const std::string& id, const std::string& msg);
+	void childSetRect(const std::string& id, const LLRect &rect);
+	bool childGetRect(const std::string& id, LLRect& rect) const;
 
 	// LLUICtrl
-	void childSetFocus(const LLString& id, BOOL focus = TRUE);
-	BOOL childHasFocus(const LLString& id);
-	void childSetFocusChangedCallback(const LLString& id, void (*cb)(LLFocusableElement*, void*), void* user_data = NULL);
+	void childSetFocus(const std::string& id, BOOL focus = TRUE);
+	BOOL childHasFocus(const std::string& id);
+	void childSetFocusChangedCallback(const std::string& id, void (*cb)(LLFocusableElement*, void*), void* user_data = NULL);
 	
-	void childSetCommitCallback(const LLString& id, void (*cb)(LLUICtrl*, void*), void* userdata = NULL );
-	void childSetDoubleClickCallback(const LLString& id, void (*cb)(void*), void* userdata = NULL );
-	void childSetValidate(const LLString& id, BOOL (*cb)(LLUICtrl*, void*) );
-	void childSetUserData(const LLString& id, void* userdata);
+	void childSetCommitCallback(const std::string& id, void (*cb)(LLUICtrl*, void*), void* userdata = NULL );
+	void childSetDoubleClickCallback(const std::string& id, void (*cb)(void*), void* userdata = NULL );
+	void childSetValidate(const std::string& id, BOOL (*cb)(LLUICtrl*, void*) );
+	void childSetUserData(const std::string& id, void* userdata);
 
-	void childSetColor(const LLString& id, const LLColor4& color);
+	void childSetColor(const std::string& id, const LLColor4& color);
 
-	LLCtrlSelectionInterface* childGetSelectionInterface(const LLString& id) const;
-	LLCtrlListInterface* childGetListInterface(const LLString& id) const;
-	LLCtrlScrollInterface* childGetScrollInterface(const LLString& id) const;
+	LLCtrlSelectionInterface* childGetSelectionInterface(const std::string& id) const;
+	LLCtrlListInterface* childGetListInterface(const std::string& id) const;
+	LLCtrlScrollInterface* childGetScrollInterface(const std::string& id) const;
 
 	// This is the magic bullet for data-driven UI
-	void childSetValue(const LLString& id, LLSD value);
-	LLSD childGetValue(const LLString& id) const;
+	void childSetValue(const std::string& id, LLSD value);
+	LLSD childGetValue(const std::string& id) const;
 
 	// For setting text / label replacement params, e.g. "Hello [NAME]"
 	// Not implemented for all types, defaults to noop, returns FALSE if not applicaple
-	BOOL childSetTextArg(const LLString& id, const LLString& key, const LLStringExplicit& text);
-	BOOL childSetLabelArg(const LLString& id, const LLString& key, const LLStringExplicit& text);
-	BOOL childSetToolTipArg(const LLString& id, const LLString& key, const LLStringExplicit& text);
+	BOOL childSetTextArg(const std::string& id, const std::string& key, const LLStringExplicit& text);
+	BOOL childSetLabelArg(const std::string& id, const std::string& key, const LLStringExplicit& text);
+	BOOL childSetToolTipArg(const std::string& id, const std::string& key, const LLStringExplicit& text);
 	
 	// LLSlider / LLMultiSlider / LLSpinCtrl
-	void childSetMinValue(const LLString& id, LLSD min_value);
-	void childSetMaxValue(const LLString& id, LLSD max_value);
+	void childSetMinValue(const std::string& id, LLSD min_value);
+	void childSetMaxValue(const std::string& id, LLSD max_value);
 
 	// LLTabContainer
-	void childShowTab(const LLString& id, const LLString& tabname, bool visible = true);
-	LLPanel *childGetVisibleTab(const LLString& id) const;
-	void childSetTabChangeCallback(const LLString& id, const LLString& tabname, void (*on_tab_clicked)(void*, bool), void *userdata);
+	void childShowTab(const std::string& id, const std::string& tabname, bool visible = true);
+	LLPanel *childGetVisibleTab(const std::string& id) const;
+	void childSetTabChangeCallback(const std::string& id, const std::string& tabname, void (*on_tab_clicked)(void*, bool), void *userdata);
 
 	// LLTextBox
-	void childSetWrappedText(const LLString& id, const LLString& text, bool visible = true);
+	void childSetWrappedText(const std::string& id, const std::string& text, bool visible = true);
 
 	// LLTextBox/LLTextEditor/LLLineEditor
-	void childSetText(const LLString& id, const LLStringExplicit& text) { childSetValue(id, LLSD(text)); }
-	LLString childGetText(const LLString& id) const { return childGetValue(id).asString(); }
+	void childSetText(const std::string& id, const LLStringExplicit& text) { childSetValue(id, LLSD(text)); }
+	std::string childGetText(const std::string& id) const { return childGetValue(id).asString(); }
 
 	// LLLineEditor
-	void childSetKeystrokeCallback(const LLString& id, void (*keystroke_callback)(LLLineEditor* caller, void* user_data), void *user_data);
-	void childSetPrevalidate(const LLString& id, BOOL (*func)(const LLWString &) );
+	void childSetKeystrokeCallback(const std::string& id, void (*keystroke_callback)(LLLineEditor* caller, void* user_data), void *user_data);
+	void childSetPrevalidate(const std::string& id, BOOL (*func)(const LLWString &) );
 
 	// LLButton
-	void childSetAction(const LLString& id, void(*function)(void*), void* value);
-	void childSetActionTextbox(const LLString& id, void(*function)(void*));
-	void childSetControlName(const LLString& id, const LLString& control_name);
+	void childSetAction(const std::string& id, void(*function)(void*), void* value);
+	void childSetActionTextbox(const std::string& id, void(*function)(void*));
+	void childSetControlName(const std::string& id, const std::string& control_name);
 
 	// Error reporting
-	void childNotFound(const LLString& id) const;
+	void childNotFound(const std::string& id) const;
 	void childDisplayNotFound();
 
-	static void		alertXml(LLString label, LLString::format_map_t args = LLString::format_map_t());
+	static void		alertXml(const std::string& label, LLStringUtil::format_map_t args = LLStringUtil::format_map_t());
 	static BOOL		nextAlert(LLAlertInfo &alert);
 	static LLView*	fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
 	
@@ -245,11 +245,11 @@ private:
 	virtual void	addCtrlAtEnd( LLUICtrl* ctrl, S32 tab_group);
 
 	// Unified error reporting for the child* functions
-	typedef std::set<LLString> expected_members_list_t;
+	typedef std::set<std::string> expected_members_list_t;
 	mutable expected_members_list_t mExpectedMembers;
 	mutable expected_members_list_t mNewExpectedMembers;
 
-	LLString		mRectControl;
+	std::string		mRectControl;
 	LLColor4		mBgColorAlpha;
 	LLColor4		mBgColorOpaque;
 	LLColor4		mDefaultBtnHighlight;
@@ -257,14 +257,14 @@ private:
 	BOOL			mBgOpaque;
 	LLViewBorder*	mBorder;
 	LLButton*		mDefaultBtn;
-	LLString		mLabel;
+	std::string		mLabel;
 	S32				mLastTabGroup;
 	LLRootHandle<LLPanel> mPanelHandle;
 
-	typedef std::map<LLString, LLUIString> ui_string_map_t;
+	typedef std::map<std::string, LLUIString> ui_string_map_t;
 	ui_string_map_t	mUIStrings;
 
-	LLString		mRequirementsError;
+	std::string		mRequirementsError;
 
 	typedef std::queue<LLAlertInfo> alert_queue_t;
 	static alert_queue_t sAlertQueue;

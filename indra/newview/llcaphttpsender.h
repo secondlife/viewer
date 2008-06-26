@@ -43,7 +43,7 @@ public:
 	/** @brief Send message via UntrustedMessage capability with body,
 		call response when done */ 
 	virtual void send(const LLHost& host, 
-					  const char* message, const LLSD& body, 
+					  const std::string& message, const LLSD& body, 
 					  LLHTTPClient::ResponderPtr response) const;
 
 private:

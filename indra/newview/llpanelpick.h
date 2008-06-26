@@ -103,7 +103,7 @@ protected:
 	BOOL mDataRequested;
 	BOOL mDataReceived;
 
-	LLString mSimName;
+	std::string mSimName;
     LLVector3d mPosGlobal;
 
     LLTextureCtrl*	mSnapshotCtrl;

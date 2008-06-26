@@ -171,9 +171,6 @@ S32 LLTemplateMessageReader::getNumberOfBlocks(const char *blockname)
 	
 	if (iter == mCurrentRMessageData->mMemberBlocks.end())
 	{
-//		sprintf(errmsg, "Block %s not in message %s", bnamep, mCurrentRMessageData->mName);
-//		llerrs << errmsg << llendl;
-//		return -1;
 		return 0;
 	}
 
@@ -431,6 +428,15 @@ inline void LLTemplateMessageReader::getString(const char *block, const char *va
 	s[0] = '\0';
 	getData(block, var, s, 0, blocknum, buffer_size);
 	s[buffer_size - 1] = '\0';
+}
+
+inline void LLTemplateMessageReader::getString(const char *block, const char *var, std::string& outstr, S32 blocknum )
+{
+	char s[MTUBYTES];
+	s[0] = '\0';
+	getData(block, var, s, 0, blocknum, MTUBYTES);
+	s[MTUBYTES - 1] = '\0';
+	outstr = s;
 }
 
 //virtual 

@@ -131,7 +131,7 @@ static inline BOOL do_basic_glibc_backtrace()
 
 	std::string strace_filename = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"stack_trace.log");
 	llinfos << "Opening stack trace file " << strace_filename << llendl;
-	LLFILE* StraceFile = LLFile::fopen(strace_filename.c_str(), "w");
+	LLFILE* StraceFile = LLFile::fopen(strace_filename, "w");
 	if (!StraceFile)
 	{
 		llinfos << "Opening stack trace file " << strace_filename << " failed. Using stderr." << llendl;
@@ -162,7 +162,7 @@ static inline BOOL do_basic_glibc_backtrace()
 
 	std::string strace_filename = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"stack_trace.log");
 	llinfos << "Opening stack trace file " << strace_filename << llendl;
-	LLFILE* StraceFile = LLFile::fopen(strace_filename.c_str(), "w");		// Flawfinder: ignore
+	LLFILE* StraceFile = LLFile::fopen(strace_filename, "w");		// Flawfinder: ignore
         if (!StraceFile)
 	{
 		llinfos << "Opening stack trace file " << strace_filename << " failed. Using stderr." << llendl;
@@ -200,7 +200,7 @@ static inline BOOL do_elfio_glibc_backtrace()
 
 	std::string strace_filename = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"stack_trace.log");
 	llinfos << "Opening stack trace file " << strace_filename << llendl;
-	LLFILE* StraceFile = LLFile::fopen(strace_filename.c_str(), "w");		// Flawfinder: ignore
+	LLFILE* StraceFile = LLFile::fopen(strace_filename, "w");		// Flawfinder: ignore
         if (!StraceFile)
 	{
 		llinfos << "Opening stack trace file " << strace_filename << " failed. Using stderr." << llendl;
@@ -429,7 +429,7 @@ bool LLAppViewerLinux::initLogging()
 	// Remove the last stack trace, if any
 	std::string old_stack_file =
 		gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"stack_trace.log");
-	LLFile::remove(old_stack_file.c_str());
+	LLFile::remove(old_stack_file);
 
 	return LLAppViewer::initLogging();
 }

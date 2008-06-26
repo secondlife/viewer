@@ -220,11 +220,11 @@ bool LLSocket::blockingConnect(const LLHost& host)
 {
 	if(!mSocket) return false;
 	apr_sockaddr_t* sa = NULL;
-	char ip_address[MAXADDRSTR];	/*Flawfinder: ignore*/
-	host.getIPString(ip_address, MAXADDRSTR);
+	std::string ip_address;
+	ip_address = host.getIPString();
 	if(ll_apr_warn_status(apr_sockaddr_info_get(
 		&sa,
-		ip_address,
+		ip_address.c_str(),
 		APR_UNSPEC,
 		host.getPort(),
 		0,

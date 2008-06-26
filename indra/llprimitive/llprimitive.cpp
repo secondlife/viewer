@@ -760,15 +760,14 @@ U8 LLPrimitive::pCodeToLegacy(const LLPCode pcode)
 
 // static
 // Don't crash or llerrs here!  This function is used for debug strings.
-const char * LLPrimitive::pCodeToString(const LLPCode pcode)
+std::string LLPrimitive::pCodeToString(const LLPCode pcode)
 {
-	static char pcode_string[255];	/* Flawfinder: ignore */
+	std::string pcode_string;
 
 	U8 base_code = pcode & LL_PCODE_BASE_MASK;
-	pcode_string[0] = 0;
 	if (!pcode)
 	{
-		snprintf(pcode_string, sizeof(pcode_string), "null");	/* Flawfinder: ignore */
+		pcode_string = "null";
 	}
 	else if ((base_code) == LL_PCODE_LEGACY)
 	{
@@ -776,66 +775,66 @@ const char * LLPrimitive::pCodeToString(const LLPCode pcode)
 		switch (pcode)
 		{
 		case LL_PCODE_LEGACY_GRASS:
-			snprintf(pcode_string, sizeof(pcode_string), "grass");	/* Flawfinder: ignore */
+		  pcode_string = "grass";
 			break;
 		case LL_PCODE_LEGACY_PART_SYS:
-			snprintf(pcode_string, sizeof(pcode_string), "particle system");	/* Flawfinder: ignore */
+		  pcode_string = "particle system";
 			break;
 		case LL_PCODE_LEGACY_AVATAR:
-			snprintf(pcode_string, sizeof(pcode_string), "avatar");	/* Flawfinder: ignore */
+		  pcode_string = "avatar";
 			break;
 		case LL_PCODE_LEGACY_TEXT_BUBBLE:
-			snprintf(pcode_string, sizeof(pcode_string), "text bubble");	/* Flawfinder: ignore */
+		  pcode_string = "text bubble";
 			break;
 		case LL_PCODE_LEGACY_TREE:
-			snprintf(pcode_string, sizeof(pcode_string), "tree");		/* Flawfinder: ignore */
+		  pcode_string = "tree";
 			break;
 		case LL_PCODE_TREE_NEW:
-			snprintf(pcode_string, sizeof(pcode_string), "tree_new");	/* Flawfinder: ignore */
+		  pcode_string = "tree_new";
 			break;
 		default:
-			snprintf(pcode_string, sizeof(pcode_string), "unknown legacy pcode %i",(U32)pcode);	/* Flawfinder: ignore */
+		  pcode_string = llformat( "unknown legacy pcode %i",(U32)pcode);
 		}
 	}
 	else
 	{
-		char shape[32];	/* Flawfinder: ignore */
-		char mask[32];	/* Flawfinder: ignore */
+		std::string shape;
+		std::string mask;
 		if (base_code == LL_PCODE_CUBE)
 		{
-			snprintf(shape, sizeof(shape), "cube");	/* Flawfinder: ignore */
+			shape = "cube";
 		}
 		else if (base_code == LL_PCODE_CYLINDER)
 		{
-			snprintf(shape, sizeof(shape), "cylinder");	/* Flawfinder: ignore */
+			shape = "cylinder";
 		}
 		else if (base_code == LL_PCODE_CONE)
 		{
-			snprintf(shape, sizeof(shape), "cone");	/* Flawfinder: ignore */
+			shape = "cone";
 		}
 		else if (base_code == LL_PCODE_PRISM)
 		{
-			snprintf(shape, sizeof(shape), "prism");	/* Flawfinder: ignore */
+			shape = "prism";
 		}
 		else if (base_code == LL_PCODE_PYRAMID)
 		{
-			snprintf(shape, sizeof(shape), "pyramid");		/* Flawfinder: ignore */
+			shape = "pyramid";
 		}
 		else if (base_code == LL_PCODE_SPHERE)
 		{
-			snprintf(shape, sizeof(shape), "sphere");		/* Flawfinder: ignore */
+			shape = "sphere";
 		}
 		else if (base_code == LL_PCODE_TETRAHEDRON)
 		{
-			snprintf(shape, sizeof(shape), "tetrahedron");		/* Flawfinder: ignore */
+			shape = "tetrahedron";
 		}
 		else if (base_code == LL_PCODE_VOLUME)
 		{
-			snprintf(shape, sizeof(shape), "volume");		/* Flawfinder: ignore */
+			shape = "volume";
 		}
 		else if (base_code == LL_PCODE_APP)
 		{
-			snprintf(shape, sizeof(shape), "app");		/* Flawfinder: ignore */
+			shape = "app";
 		}
 		else
 		{
@@ -845,34 +844,26 @@ const char * LLPrimitive::pCodeToString(const LLPCode pcode)
 		U8 mask_code = pcode & (~LL_PCODE_BASE_MASK);
 		if (base_code == LL_PCODE_APP)
 		{
-			snprintf(mask, sizeof(mask), "%x", mask_code);		/* Flawfinder: ignore */
+			mask = llformat( "%x", mask_code);
 		}
 		else if (mask_code & LL_PCODE_HEMI_MASK)
 		{
-			snprintf(mask, sizeof(mask), "hemi");		/* Flawfinder: ignore */
+			mask = "hemi";
 		}
 		else 
 		{
-			snprintf(mask, sizeof(mask), "%x", mask_code);		/* Flawfinder: ignore */
+			mask = llformat( "%x", mask_code);
 		}
-
-		// extra sanity against snprintf() being naturally crap
-		mask[sizeof(mask)-1] = '\0';
-		shape[sizeof(shape)-1] = '\0';
 
 		if (mask[0])
 		{
-			snprintf(pcode_string, sizeof(pcode_string), "%s-%s", shape, mask);		/* Flawfinder: ignore */
+			pcode_string = llformat( "%s-%s", shape.c_str(), mask.c_str());
 		}
 		else
 		{
-			snprintf(pcode_string, sizeof(pcode_string), "%s", shape);		/* Flawfinder: ignore */
+			pcode_string = llformat( "%s", shape.c_str());
 		}
 	}
-
-	// Be really sure that pcode_string is nul-terminated after we've
-	// been using crappy snprintf() to build it.
-	pcode_string[sizeof(pcode_string)-1] = '\0';
 
 	return pcode_string;
 }
@@ -993,7 +984,7 @@ BOOL LLPrimitive::setVolume(const LLVolumeParams &volume_params, const S32 detai
 	S32 i;
 
 	/*
-	LLString old_mask_string;
+	std::string old_mask_string;
 	for (i = 0; i < 9; i++)
 	{
 		if (old_face_mask & (1 << i))
@@ -1005,7 +996,7 @@ BOOL LLPrimitive::setVolume(const LLVolumeParams &volume_params, const S32 detai
 			old_mask_string.append("0");
 		}
 	}
-	LLString new_mask_string;
+	std::string new_mask_string;
 	for (i = 0; i < 9; i++)
 	{
 		if (new_face_mask & (1 << i))

@@ -33,7 +33,7 @@
 #include "llanimstatelabels.h"
 #include "lltrans.h"
 
-std::string LLAnimStateLabels::getStateLabel( const char *animName )
+std::string LLAnimStateLabels::getStateLabel( const char* animName )
 {
-	return LLTrans::getString("anim_" + LLString(animName) );
+	return LLTrans::getString(std::string("anim_") + std::string(animName) );
 }

@@ -47,7 +47,7 @@
 const S32 MIN_WIDTH = 200;
 const S32 MIN_HEIGHT = 340;
 const LLRect FLOATER_RECT(0, 380, 240, 0);
-const char FLOATER_TITLE[] = "Choose Resident";
+const std::string FLOATER_TITLE = "Choose Resident";
 
 // static
 LLFloaterAvatarPicker* LLFloaterAvatarPicker::sInstance = NULL;
@@ -83,7 +83,7 @@ LLFloaterAvatarPicker* LLFloaterAvatarPicker::show(callback_t callback,
 
 // Default constructor
 LLFloaterAvatarPicker::LLFloaterAvatarPicker() :
-	LLFloater("avatarpicker", FLOATER_RECT, FLOATER_TITLE, TRUE, MIN_WIDTH, MIN_HEIGHT),
+	LLFloater(std::string("avatarpicker"), FLOATER_RECT, FLOATER_TITLE, TRUE, MIN_WIDTH, MIN_HEIGHT),
 	mResultsReturned(FALSE),
 	mCallback(NULL),
 	mCallbackUserdata(NULL)
@@ -112,7 +112,7 @@ BOOL LLFloaterAvatarPicker::postBuild()
 
 	if (mListNames)
 	{
-		mListNames->addCommentText("No results");
+		mListNames->addCommentText(std::string("No results")); // *TODO: Translate
 	}
 
 	mInventoryPanel = getChild<LLInventoryPanel>("Inventory Panel");
@@ -260,7 +260,7 @@ void LLFloaterAvatarPicker::doSelectionChange(const std::deque<LLFolderViewItem*
 
 void LLFloaterAvatarPicker::find()
 {
-	const LLString& text = childGetValue("Edit").asString();
+	const std::string& text = childGetValue("Edit").asString();
 
 	mQueryID.generate();
 
@@ -279,7 +279,7 @@ void LLFloaterAvatarPicker::find()
 	if (mListNames)
 	{
 		mListNames->deleteAllItems();	
-		mListNames->addCommentText("Searching...");
+		mListNames->addCommentText(std::string("Searching..."));  // *TODO: Translate
 	}
 	
 	childSetEnabled("Select", FALSE);
@@ -305,8 +305,8 @@ void LLFloaterAvatarPicker::processAvatarPickerReply(LLMessageSystem* msg, void*
 	LLUUID	agent_id;
 	LLUUID	query_id;
 	LLUUID	avatar_id;
-	char	first_name[DB_FIRST_NAME_BUF_SIZE]; /*Flawfinder: ignore*/
-	char	last_name[DB_LAST_NAME_BUF_SIZE]; /*Flawfinder: ignore*/
+	std::string first_name;
+	std::string last_name;
 
 	msg->getUUID("AgentData", "AgentID", agent_id);
 	msg->getUUID("AgentData", "QueryID", query_id);
@@ -341,20 +341,20 @@ void LLFloaterAvatarPicker::processAvatarPickerReply(LLMessageSystem* msg, void*
 		for (S32 i = 0; i < num_new_rows; i++)
 		{			
 			msg->getUUIDFast(  _PREHASH_Data,_PREHASH_AvatarID,	avatar_id, i);
-			msg->getStringFast(_PREHASH_Data,_PREHASH_FirstName, DB_FIRST_NAME_BUF_SIZE, first_name, i);
-			msg->getStringFast(_PREHASH_Data,_PREHASH_LastName,	DB_LAST_NAME_BUF_SIZE, last_name, i);
+			msg->getStringFast(_PREHASH_Data,_PREHASH_FirstName, first_name, i);
+			msg->getStringFast(_PREHASH_Data,_PREHASH_LastName,	last_name, i);
 		
-			LLString avatar_name;
+			std::string avatar_name;
 			if (avatar_id.isNull())
 			{
-				LLString::format_map_t map;
+				LLStringUtil::format_map_t map;
 				map["[TEXT]"] = self->childGetText("Edit");
 				avatar_name = self->getString("NotFound", map);
 				self->mListNames->setEnabled(FALSE);
 			}
 			else
 			{
-				avatar_name = LLString(first_name) + " " + last_name;
+				avatar_name = first_name + " " + last_name;
 				self->mListNames->setEnabled(TRUE);
 				found_one = TRUE;
 			}

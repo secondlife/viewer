@@ -474,7 +474,7 @@ void LLViewerMedia::initClass()
 	LLMIMETypes::mime_info_map_t::const_iterator it;
 	for (it = LLMIMETypes::sMap.begin(); it != LLMIMETypes::sMap.end(); ++it)
 	{
-		const LLString& mime_type = it->first;
+		const std::string& mime_type = it->first;
 		const LLMIMETypes::LLMIMEInfo& info = it->second;
 		mm->addMimeTypeImplNameMap( mime_type, info.mImpl );
 	}

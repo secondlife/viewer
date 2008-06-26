@@ -192,7 +192,7 @@ public:
 
 std::set<LLSnapshotLivePreview*> LLSnapshotLivePreview::sList;
 LLSnapshotLivePreview::LLSnapshotLivePreview (const LLRect& rect) : 
-	LLView("snapshot_live_preview", rect, FALSE), 
+	LLView(std::string("snapshot_live_preview"), rect, FALSE), 
 	mColor(1.f, 0.f, 0.f, 0.5f), 
 	mCurImageIndex(0),
 	mRawImage(NULL),
@@ -1771,7 +1771,7 @@ void LLFloaterSnapshot::Impl::onCommitCustomResolution(LLUICtrl *ctrl, void* dat
 
 // Default constructor
 LLFloaterSnapshot::LLFloaterSnapshot()
-	: LLFloater("Snapshot Floater"),
+	: LLFloater(std::string("Snapshot Floater")),
 	  impl (*(new Impl))
 {
 }
@@ -1879,7 +1879,7 @@ void LLFloaterSnapshot::draw()
 		{
 			LLLocale locale(LLLocale::USER_LOCALE);
 
-			LLString bytes_string;
+			std::string bytes_string;
 			if (previewp->getSnapshotType() == LLSnapshotLivePreview::SNAPSHOT_POSTCARD && 
 				previewp->getDataSize() > MAX_POSTCARD_DATASIZE)
 			{
@@ -1894,7 +1894,7 @@ void LLFloaterSnapshot::draw()
 			
 			if (previewp->getSnapshotUpToDate())
 			{
-				LLString bytes_string;
+				std::string bytes_string;
 				LLResMgr::getInstance()->getIntegerString(bytes_string, (previewp->getDataSize()) >> 10 );
 				childSetTextArg("file_size_label", "[SIZE]", bytes_string);
 			}
@@ -1909,7 +1909,7 @@ void LLFloaterSnapshot::draw()
 		}
 		else
 		{
-			childSetTextArg("file_size_label", "[SIZE]", LLString("???"));
+			childSetTextArg("file_size_label", "[SIZE]", std::string("???"));
 			childSetEnabled("upload_btn", FALSE);
 			childSetEnabled("send_btn", FALSE);
 			childSetEnabled("save_btn", FALSE);
@@ -1917,7 +1917,7 @@ void LLFloaterSnapshot::draw()
 
 		BOOL ui_in_snapshot = gSavedSettings.getBOOL("RenderUIInSnapshot");
 		childSetValue("ui_check", ui_in_snapshot);
-		childSetToolTip("ui_check", "If selected shows the UI in the snapshot");
+		childSetToolTip("ui_check", std::string("If selected shows the UI in the snapshot"));
 	}
 
 	LLFloater::draw();
@@ -2025,7 +2025,7 @@ void LLFloaterSnapshot::update()
 
 //============================================================================
 
-LLSnapshotFloaterView::LLSnapshotFloaterView( const LLString& name, const LLRect& rect ) : LLFloaterView(name, rect)
+LLSnapshotFloaterView::LLSnapshotFloaterView( const std::string& name, const LLRect& rect ) : LLFloaterView(name, rect)
 {
 	setMouseOpaque(TRUE);
 	setEnabled(FALSE);

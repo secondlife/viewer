@@ -125,14 +125,15 @@ LLMaterialTable::~LLMaterialTable()
 
 void LLMaterialTable::initBasicTable()
 {
-	add(LL_MCODE_STONE,"Stone", LL_DEFAULT_STONE_UUID);	
-	add(LL_MCODE_METAL,"Metal", LL_DEFAULT_METAL_UUID);
-	add(LL_MCODE_GLASS,"Glass", LL_DEFAULT_GLASS_UUID);
-	add(LL_MCODE_WOOD,"Wood", LL_DEFAULT_WOOD_UUID);
-	add(LL_MCODE_FLESH,"Flesh", LL_DEFAULT_FLESH_UUID);
-	add(LL_MCODE_PLASTIC,"Plastic", LL_DEFAULT_PLASTIC_UUID);
-	add(LL_MCODE_RUBBER,"Rubber", LL_DEFAULT_RUBBER_UUID);
-	add(LL_MCODE_LIGHT,"Light", LL_DEFAULT_LIGHT_UUID);
+	// *TODO: Translate
+	add(LL_MCODE_STONE,std::string("Stone"), LL_DEFAULT_STONE_UUID);	
+	add(LL_MCODE_METAL,std::string("Metal"), LL_DEFAULT_METAL_UUID);
+	add(LL_MCODE_GLASS,std::string("Glass"), LL_DEFAULT_GLASS_UUID);
+	add(LL_MCODE_WOOD,std::string("Wood"), LL_DEFAULT_WOOD_UUID);
+	add(LL_MCODE_FLESH,std::string("Flesh"), LL_DEFAULT_FLESH_UUID);
+	add(LL_MCODE_PLASTIC,std::string("Plastic"), LL_DEFAULT_PLASTIC_UUID);
+	add(LL_MCODE_RUBBER,std::string("Rubber"), LL_DEFAULT_RUBBER_UUID);
+	add(LL_MCODE_LIGHT,std::string("Light"), LL_DEFAULT_LIGHT_UUID);
 
 	// specify densities for these materials. . . 
     // these were taken from http://www.mcelwee.net/html/densities_of_various_materials.html
@@ -331,7 +332,7 @@ void LLMaterialTable::initBasicTable()
 	}
 }
 
-BOOL LLMaterialTable::add(U8 mcode, const char* name, const LLUUID &uuid)
+BOOL LLMaterialTable::add(U8 mcode, const std::string& name, const LLUUID &uuid)
 {
 	LLMaterialInfo *infop;
 
@@ -466,13 +467,13 @@ BOOL LLMaterialTable::addDamageAndEnergy(U8 mcode, const F32 &hp_mod, const F32 
 	return FALSE;
 }
 
-LLUUID LLMaterialTable::getDefaultTextureID(char* name)
+LLUUID LLMaterialTable::getDefaultTextureID(const std::string& name)
 {
 	for (info_list_t::iterator iter = mMaterialInfoList.begin();
 		 iter != mMaterialInfoList.end(); ++iter)
 	{
 		LLMaterialInfo *infop = *iter;
-		if (!strcmp(name, infop->mName))
+		if (name == infop->mName)
 		{
 			return infop->mDefaultTextureID;
 		}
@@ -499,13 +500,13 @@ LLUUID LLMaterialTable::getDefaultTextureID(U8 mcode)
 }
 
 
-U8 LLMaterialTable::getMCode(const char* name)
+U8 LLMaterialTable::getMCode(const std::string& name)
 {
 	for (info_list_t::iterator iter = mMaterialInfoList.begin();
 		 iter != mMaterialInfoList.end(); ++iter)
 	{
 		LLMaterialInfo *infop = *iter;
-		if (!strcmp(name, infop->mName))
+		if (name == infop->mName)
 		{
 			return infop->mMCode;
 		}
@@ -515,7 +516,7 @@ U8 LLMaterialTable::getMCode(const char* name)
 }
 
 
-char* LLMaterialTable::getName(U8 mcode)
+std::string LLMaterialTable::getName(U8 mcode)
 {
 	mcode &= LL_MCODE_MASK;
 	for (info_list_t::iterator iter = mMaterialInfoList.begin();

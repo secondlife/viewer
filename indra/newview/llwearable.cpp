@@ -52,7 +52,7 @@
 S32 LLWearable::sCurrentDefinitionVersion = 1;
 
 // static
-const char* LLWearable::sTypeName[ WT_COUNT ] =
+const std::string LLWearable::sTypeName[ WT_COUNT+1 ] =
 {
 	"shape",
 	"skin",
@@ -66,11 +66,12 @@ const char* LLWearable::sTypeName[ WT_COUNT ] =
 	"gloves",
 	"undershirt",
 	"underpants",
-	"skirt"
+	"skirt",
+	"invalid"
 };
 
 // static
-const char* LLWearable::sTypeLabel[ WT_COUNT ] =
+const std::string LLWearable::sTypeLabel[ WT_COUNT+1 ] =
 {
 	"Shape",
 	"Skin",
@@ -84,7 +85,8 @@ const char* LLWearable::sTypeLabel[ WT_COUNT ] =
 	"Gloves",
 	"Undershirt",
 	"Underpants",
-	"Skirt"
+	"Skirt",
+	"invalid"
 };
 
 
@@ -136,7 +138,7 @@ LLWearable::~LLWearable()
 
 
 // static
-EWearableType LLWearable::typeNameToType( const LLString& type_name )
+EWearableType LLWearable::typeNameToType( const std::string& type_name )
 {
 	for( S32 i = 0; i < WT_COUNT; i++ )
 	{
@@ -149,37 +151,35 @@ EWearableType LLWearable::typeNameToType( const LLString& type_name )
 }
 
 
-const char* terse_F32_to_string( F32 f, char s[MAX_STRING] )		/* Flawfinder: ignore */
+std::string terse_F32_to_string( F32 f )
 {
-	char* r = s;
-	S32 len = snprintf( s, MAX_STRING, "%.2f", f );		/* Flawfinder: ignore */
+	std::string r = llformat( "%.2f", f );
 
 	// "1.20"  -> "1.2"
 	// "24.00" -> "24."
-	while( '0' == r[len - 1] )
+	S32 len = r.length();
+	while( len > 0 && '0' == r[len - 1] )
 	{
-		len--;  
-		r[len] = '\0';
+		r.erase(len-1, 1);
+		len--;
 	}
 
 	if( '.' == r[len - 1] )
 	{
 		// "24." -> "24"
-		len--;
-		r[len] = '\0';
+		r.erase(len-1, 1);
 	}
 	else
 	if( ('-' == r[0]) && ('0' == r[1]) )
 	{
 		// "-0.59" -> "-.59"
-		r++;
-		r[0] = '-';
+		r.erase(1, 1);
 	}
 	else
 	if( '0' == r[0] )
 	{
 		// "0.59" -> ".59"
-		r++;
+		r.erase(0, 1);
 	}
 
 	return r;
@@ -231,13 +231,12 @@ BOOL LLWearable::exportFile( LLFILE* file )
 		return FALSE;
 	}
 
-	char s[ MAX_STRING ];		/* Flawfinder: ignore */
 	for (param_map_t::iterator iter = mVisualParamMap.begin();
 		 iter != mVisualParamMap.end(); ++iter)
 	{
 		S32 param_id = iter->first;
 		F32 param_weight = iter->second;
-		if( fprintf( file, "%d %s\n", param_id, terse_F32_to_string( param_weight, s ) ) < 0 )
+		if( fprintf( file, "%d %s\n", param_id, terse_F32_to_string( param_weight ).c_str() ) < 0 )
 		{
 			return FALSE;
 		}
@@ -311,7 +310,7 @@ BOOL LLWearable::importFile( LLFILE* file )
 			return FALSE;
 		}
 		mName = text_buffer;
-		LLString::truncate(mName, DB_INV_ITEM_NAME_STR_LEN );
+		LLStringUtil::truncate(mName, DB_INV_ITEM_NAME_STR_LEN );
 	}
 
 	// description
@@ -334,7 +333,7 @@ BOOL LLWearable::importFile( LLFILE* file )
 			return FALSE;
 		}
 		mDescription = text_buffer;
-		LLString::truncate(mDescription, DB_INV_ITEM_DESC_STR_LEN );
+		LLStringUtil::truncate(mDescription, DB_INV_ITEM_DESC_STR_LEN );
 	}
 
 	// permissions
@@ -848,10 +847,10 @@ void LLWearable::saveNewAsset()
 //	llinfos << "LLWearable::saveNewAsset() type: " << getTypeName() << llendl;
 	//llinfos << *this << llendl;
 
-	char new_asset_id_string[UUID_STR_LENGTH];		/* Flawfinder: ignore */
+	std::string new_asset_id_string;
 	mAssetID.toString(new_asset_id_string);
-	char filename[LL_MAX_PATH];		/* Flawfinder: ignore */
-	snprintf(filename, LL_MAX_PATH, "%s.wbl", gDirUtilp->getExpandedFilename(LL_PATH_CACHE,new_asset_id_string).c_str());		/* Flawfinder: ignore */
+	std::string filename;
+	filename = gDirUtilp->getExpandedFilename(LL_PATH_CACHE,new_asset_id_string) + ".wbl";
 	LLFILE* fp = LLFile::fopen(filename, "wb");		/* Flawfinder: ignore */
 	BOOL successful_save = FALSE;
 	if(fp && exportFile(fp))
@@ -865,14 +864,10 @@ void LLWearable::saveNewAsset()
 	}
 	if(!successful_save)
 	{
-		char buffer[2*MAX_STRING];		/* Flawfinder: ignore */
-		snprintf(buffer,		/* Flawfinder: ignore */
-				sizeof(buffer),
-				"Unable to save '%s' to wearable file.",
-				mName.c_str());
+		std::string buffer = llformat("Unable to save '%s' to wearable file.", mName.c_str());
 		llwarns << buffer << llendl;
 		
-		LLStringBase<char>::format_map_t args;
+		LLStringUtil::format_map_t args;
 		args["[NAME]"] = mName;
 		gViewerWindow->alertXml("CannotSaveWearableOutOfSpace", args);
 		return;
@@ -910,7 +905,7 @@ void LLWearable::saveNewAsset()
 void LLWearable::onSaveNewAssetComplete(const LLUUID& new_asset_id, void* userdata, S32 status, LLExtStat ext_status) // StoreAssetData callback (fixed)
 {
 	LLWearableSaveData* data = (LLWearableSaveData*)userdata;
-	const char* type_name = LLWearable::typeToTypeName(data->mType);
+	const std::string& type_name = LLWearable::typeToTypeName(data->mType);
 	if(0 == status)
 	{
 		// Success
@@ -918,22 +913,18 @@ void LLWearable::onSaveNewAssetComplete(const LLUUID& new_asset_id, void* userda
 	}
 	else
 	{
-		char buffer[2*MAX_STRING];		/* Flawfinder: ignore */
-		snprintf(buffer,		/* Flawfinder: ignore */
-				sizeof(buffer),
-				"Unable to save %s to central asset store.",
-				type_name);
+		std::string buffer = llformat("Unable to save %s to central asset store.", type_name.c_str());
 		llwarns << buffer << " Status: " << status << llendl;
-		LLStringBase<char>::format_map_t args;
+		LLStringUtil::format_map_t args;
 		args["[NAME]"] = type_name;
 		gViewerWindow->alertXml("CannotSaveToAssetStore", args);
 	}
 
 	// Delete temp file
-	char new_asset_id_string[UUID_STR_LENGTH];		/* Flawfinder: ignore */
+	std::string new_asset_id_string;
 	new_asset_id.toString(new_asset_id_string);
-	char src_filename[LL_MAX_PATH];		/* Flawfinder: ignore */
-	snprintf(src_filename, LL_MAX_PATH, "%s.wbl", gDirUtilp->getExpandedFilename(LL_PATH_CACHE,new_asset_id_string).c_str());		/* Flawfinder: ignore */
+	std::string src_filename;
+	src_filename = gDirUtilp->getExpandedFilename(LL_PATH_CACHE,new_asset_id_string) + ".wbl";
 	LLFile::remove(src_filename);
 
 	// delete the context data

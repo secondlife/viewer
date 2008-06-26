@@ -74,7 +74,7 @@ LLFloaterTOS* LLFloaterTOS::show(ETOSType type, const std::string & message)
 
 
 LLFloaterTOS::LLFloaterTOS(ETOSType type, const std::string & message)
-:	LLModalDialog( " ", 100, 100 ),
+:	LLModalDialog( std::string(" "), 100, 100 ),
 	mType(type),
 	mMessage(message),
 	mWebBrowserWindowId( 0 ),

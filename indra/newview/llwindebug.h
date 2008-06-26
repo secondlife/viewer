@@ -66,7 +66,7 @@ public:
 	static bool checkExceptionHandler();
 
 	static void generateCrashStacks(struct _EXCEPTION_POINTERS *pExceptionInfo = NULL);
-	static void writeDumpToFile(MINIDUMP_TYPE type, MINIDUMP_EXCEPTION_INFORMATION *ExInfop, const char *filename);
+	static void writeDumpToFile(MINIDUMP_TYPE type, MINIDUMP_EXCEPTION_INFORMATION *ExInfop, const std::string& filename);
 private:
 };
 

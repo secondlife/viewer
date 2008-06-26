@@ -68,7 +68,7 @@ typedef enum e_chat_audible_level
 class LLChat
 {
 public:
-	LLChat(const LLString& text = LLString::null)
+	LLChat(const std::string& text = LLStringUtil::null)
 	:	mText(text),
 		mFromName(),
 		mFromID(),
@@ -80,8 +80,8 @@ public:
 		mPosAgent()
 	{ }
 	
-	LLString		mText;		// UTF-8 line of text
-	LLString		mFromName;	// agent or object name
+	std::string		mText;		// UTF-8 line of text
+	std::string		mFromName;	// agent or object name
 	LLUUID			mFromID;	// agent id or object id
 	EChatSourceType	mSourceType;
 	EChatType		mChatType;

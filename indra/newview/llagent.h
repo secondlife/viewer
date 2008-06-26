@@ -331,7 +331,7 @@ public:
 																	// of the agent in the absolute frame
 //	BOOL				getLookingAtAvatar() const;
 
-	void				getName(LLString& name);
+	void				getName(std::string& name);
 
 	const LLColor4		&getEffectColor();
 	void				setEffectColor(const LLColor4 &color);
@@ -563,8 +563,8 @@ public:
 
 	ETeleportState	getTeleportState() const			{ return mTeleportState; }
 	void			setTeleportState( ETeleportState state );
-	const LLString& getTeleportMessage() const { return mTeleportMessage; }
-	void setTeleportMessage(const LLString& message)
+	const std::string& getTeleportMessage() const { return mTeleportMessage; }
+	void setTeleportMessage(const std::string& message)
 	{
 		mTeleportMessage = message;
 	}
@@ -694,8 +694,8 @@ public:
 
 	U64				mGroupPowers;
 	BOOL			mHideGroupTitle;
-	char			mGroupTitle[DB_GROUP_TITLE_BUF_SIZE];	/*Flawfinder: ignore*/	// honorific, like "Sir"
-	char			mGroupName[DB_GROUP_NAME_BUF_SIZE];	/*Flawfinder: ignore*/
+	std::string		mGroupTitle; // honorific, like "Sir"
+	std::string		mGroupName;
 	LLUUID			mGroupID;
 	//LLUUID			mGroupInsigniaID;
 	LLUUID			mInventoryRootID;
@@ -719,12 +719,12 @@ public:
 
 	BOOL			mForceMouselook;
 
-	static void parseTeleportMessages(const LLString& xml_filename);
+	static void parseTeleportMessages(const std::string& xml_filename);
 	//we should really define ERROR and PROGRESS enums here
 	//but I don't really feel like doing that, so I am just going
 	//to expose the mappings....yup
-	static std::map<LLString, LLString> sTeleportErrorMessages;
-	static std::map<LLString, LLString> sTeleportProgressMessages;
+	static std::map<std::string, std::string> sTeleportErrorMessages;
+	static std::map<std::string, std::string> sTeleportProgressMessages;
 
 	LLFrameTimer mDoubleTapRunTimer;
 	EDoubleTapRunMode mDoubleTapRunMode;
@@ -736,7 +736,7 @@ private:
 	// Access or "maturity" level
 	U8				mAccess;	// SIM_ACCESS_MATURE or SIM_ACCESS_PG
 	ETeleportState	mTeleportState;
-	LLString		mTeleportMessage;
+	std::string		mTeleportMessage;
 
 	S32				mControlsTakenCount[TOTAL_CONTROLS];
 	S32				mControlsTakenPassedOnCount[TOTAL_CONTROLS];

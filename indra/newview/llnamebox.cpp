@@ -47,7 +47,7 @@ std::set<LLNameBox*> LLNameBox::sInstances;
 
 
 LLNameBox::LLNameBox(const std::string& name, const LLRect& rect, const LLUUID& name_id, BOOL is_group, const LLFontGL* font, BOOL mouse_opaque)
-:	LLTextBox(name, rect, "(retrieving)", font, mouse_opaque),
+:	LLTextBox(name, rect, std::string("(retrieving)"), font, mouse_opaque),
 	mNameID(name_id)
 {
 	LLNameBox::sInstances.insert(this);
@@ -57,7 +57,7 @@ LLNameBox::LLNameBox(const std::string& name, const LLRect& rect, const LLUUID& 
 	}
 	else
 	{
-		setText(LLString::null);
+		setText(LLStringUtil::null);
 	}
 }
 
@@ -84,26 +84,26 @@ void LLNameBox::setNameID(const LLUUID& name_id, BOOL is_group)
 	setText(name);
 }
 
-void LLNameBox::refresh(const LLUUID& id, const char* firstname,
-						   const char* lastname, BOOL is_group)
+void LLNameBox::refresh(const LLUUID& id, const std::string& firstname,
+						const std::string& lastname, BOOL is_group)
 {
 	if (id == mNameID)
 	{
-		LLString name;
-
-		name.assign(firstname);
+		std::string name;
 		if (!is_group)
 		{
-			name.append(1, ' ');
-			name.append(lastname);
+			name = firstname + " " + lastname;
 		}
-
+		else
+		{
+			name = firstname;
+		}
 		setText(name);
 	}
 }
 
-void LLNameBox::refreshAll(const LLUUID& id, const char* firstname,
-						   const char* lastname, BOOL is_group)
+void LLNameBox::refreshAll(const LLUUID& id, const std::string& firstname,
+						   const std::string& lastname, BOOL is_group)
 {
 	std::set<LLNameBox*>::iterator it;
 	for (it = LLNameBox::sInstances.begin();

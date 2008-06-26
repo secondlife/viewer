@@ -170,16 +170,16 @@ BOOL LLDataPacker::unpackFixed(F32 &value, const char *name,
 // LLDataPackerBinaryBuffer implementation
 //---------------------------------------------------------------------------
 
-BOOL LLDataPackerBinaryBuffer::packString(const char *value, const char *name)
+BOOL LLDataPackerBinaryBuffer::packString(const std::string& value, const char *name)
 {
 	BOOL success = TRUE;
-	S32 length = (S32)strlen(value) + 1; /*Flawfinder: ignore*/
+	S32 length = value.length()+1;
 
 	success &= verifyLength(length, name);
 
 	if (mWriteEnabled) 
 	{
-		htonmemcpy(mCurBufferp, value, MVT_VARIABLE, length);  
+		htonmemcpy(mCurBufferp, value.c_str(), MVT_VARIABLE, length);  
 	}
 	mCurBufferp += length;
 	return success;
@@ -577,18 +577,18 @@ void LLDataPackerBinaryBuffer::dumpBufferToLog()
 //---------------------------------------------------------------------------
 // LLDataPackerAsciiBuffer implementation
 //---------------------------------------------------------------------------
-BOOL LLDataPackerAsciiBuffer::packString(const char *value, const char *name)
+BOOL LLDataPackerAsciiBuffer::packString(const std::string& value, const char *name)
 {
 	BOOL success = TRUE;
 	writeIndentedName(name);
 	int numCopied = 0;
 	if (mWriteEnabled) 
 	{
-		numCopied = snprintf(mCurBufferp,getBufferSize()-getCurrentSize(),"%s\n", value);		/* Flawfinder: ignore */
+		numCopied = snprintf(mCurBufferp,getBufferSize()-getCurrentSize(),"%s\n", value.c_str());		/* Flawfinder: ignore */
 	}
 	else
 	{
-		numCopied = (S32)strlen(value) + 1; /*Flawfinder: ignore*/
+		numCopied = value.length() + 1; /*Flawfinder: ignore*/
 	}
 
 	// snprintf returns number of bytes that would have been written
@@ -1242,9 +1242,9 @@ BOOL LLDataPackerAsciiBuffer::packUUID(const LLUUID &value, const char *name)
 	int numCopied = 0;
 	if (mWriteEnabled)
 	{
-		char tmp_str[64]; /* Flawfinder: ignore */ 
+		std::string tmp_str;
 		value.toString(tmp_str);
-	    	numCopied = snprintf(mCurBufferp,getBufferSize()-getCurrentSize(),"%s\n", tmp_str);	/* Flawfinder: ignore */
+		numCopied = snprintf(mCurBufferp,getBufferSize()-getCurrentSize(),"%s\n", tmp_str.c_str());	/* Flawfinder: ignore */
 	}
 	else
 	{
@@ -1376,13 +1376,13 @@ std::string convertF32ToString(F32 val)
 //---------------------------------------------------------------------------
 // LLDataPackerAsciiFile implementation
 //---------------------------------------------------------------------------
-BOOL LLDataPackerAsciiFile::packString(const char *value, const char *name)
+BOOL LLDataPackerAsciiFile::packString(const std::string& value, const char *name)
 {
 	BOOL success = TRUE;
 	writeIndentedName(name);
 	if (mFP)
 	{
-		fprintf(mFP,"%s\n", value);	
+		fprintf(mFP,"%s\n", value.c_str());	
 	}
 	else if (mOutputStream)
 	{
@@ -1829,11 +1829,11 @@ BOOL LLDataPackerAsciiFile::packUUID(const LLUUID &value, const char *name)
 {
 	BOOL success = TRUE;
 	writeIndentedName(name);
-	char tmp_str[64]; /*Flawfinder: ignore */
+	std::string tmp_str;
 	value.toString(tmp_str);
 	if (mFP)
 	{
-		fprintf(mFP,"%s\n", tmp_str);
+		fprintf(mFP,"%s\n", tmp_str.c_str());
 	}
 	else if (mOutputStream)
 	{
@@ -1877,7 +1877,7 @@ void LLDataPackerAsciiFile::writeIndentedName(const char *name)
 	}
 	else if (mOutputStream)
 	{
-		*mOutputStream << indent_buf.c_str() << name << "\t";
+		*mOutputStream << indent_buf << name << "\t";
 	}
 }
 

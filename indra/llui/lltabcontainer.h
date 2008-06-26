@@ -55,7 +55,7 @@ public:
 		RIGHT_OF_CURRENT
 	} eInsertionPoint;
 
-	LLTabContainer( const LLString& name, const LLRect& rect, TabPosition pos,
+	LLTabContainer( const std::string& name, const LLRect& rect, TabPosition pos,
 					BOOL bordered, BOOL is_vertical);
 
 	/*virtual*/ ~LLTabContainer();
@@ -68,23 +68,23 @@ public:
 	/*virtual*/ BOOL handleMouseDown( S32 x, S32 y, MASK mask );
 	/*virtual*/ BOOL handleHover( S32 x, S32 y, MASK mask );
 	/*virtual*/ BOOL handleMouseUp( S32 x, S32 y, MASK mask );
-	/*virtual*/ BOOL handleToolTip(S32 x, S32 y, LLString& msg, LLRect* sticky_rect );
+	/*virtual*/ BOOL handleToolTip(S32 x, S32 y, std::string& msg, LLRect* sticky_rect );
 	/*virtual*/ BOOL handleKeyHere(KEY key, MASK mask);
 	/*virtual*/ BOOL handleDragAndDrop(S32 x, S32 y, MASK mask,	BOOL drop,
 									   EDragAndDropType type, void* cargo_data,
-									   EAcceptance* accept, LLString& tooltip);
+									   EAcceptance* accept, std::string& tooltip);
 	/*virtual*/ LLXMLNodePtr getXML(bool save_children = true) const;
-	/*virtual*/ LLView* getChildView(const LLString& name, BOOL recurse = TRUE, BOOL create_if_missing = TRUE) const;
+	/*virtual*/ LLView* getChildView(const std::string& name, BOOL recurse = TRUE, BOOL create_if_missing = TRUE) const;
 
 	void 		addTabPanel(LLPanel* child, 
-							const LLString& label, 
+							const std::string& label, 
 							BOOL select = FALSE,  
 							void (*on_tab_clicked)(void*, bool) = NULL, 
 							void* userdata = NULL,
 							S32 indent = 0,
 							BOOL placeholder = FALSE,
 							eInsertionPoint insertion_point = END);
-	void 		addPlaceholder(LLPanel* child, const LLString& label);
+	void 		addPlaceholder(LLPanel* child, const std::string& label);
 	void 		removeTabPanel( LLPanel* child );
 	void 		lockTabs(S32 num_tabs = 0);
 	void 		unlockTabs();
@@ -96,9 +96,9 @@ public:
 	S32			getTabCount();
 	LLPanel*	getPanelByIndex(S32 index);
 	S32			getIndexForPanel(LLPanel* panel);
-	S32			getPanelIndexByTitle(const LLString& title);
-	LLPanel*	getPanelByName(const LLString& name);
-	void		setCurrentTabName(const LLString& name);
+	S32			getPanelIndexByTitle(const std::string& title);
+	LLPanel*	getPanelByName(const std::string& name);
+	void		setCurrentTabName(const std::string& name);
 
 	void		selectFirstTab();
 	void		selectLastTab();
@@ -106,13 +106,13 @@ public:
 	 void		selectPrevTab();
 	BOOL 		selectTabPanel( LLPanel* child );
 	BOOL 		selectTab(S32 which);
-	BOOL 		selectTabByName(const LLString& title);
+	BOOL 		selectTabByName(const std::string& title);
 
 	BOOL        getTabPanelFlashing(LLPanel* child);
 	void		setTabPanelFlashing(LLPanel* child, BOOL state);
 	void 		setTabImage(LLPanel* child, std::string img_name, const LLColor4& color = LLColor4::white);
-	void		setTitle( const LLString& title );
-	const LLString getPanelTitle(S32 index);
+	void		setTitle( const std::string& title );
+	const std::string getPanelTitle(S32 index);
 
 	void		setTopBorderHeight(S32 height);
 	S32			getTopBorderHeight() const;
@@ -121,7 +121,7 @@ public:
 	void 		setTabUserData(LLPanel* tab, void* userdata);
 
 	void 		setRightTabBtnOffset( S32 offset );
-	void 		setPanelTitle(S32 index, const LLString& title);
+	void 		setPanelTitle(S32 index, const std::string& title);
 
 	TabPosition getTabPosition() const { return mTabPosition; }
 	void		setMinTabWidth(S32 width) { mMinTabWidth = width; }

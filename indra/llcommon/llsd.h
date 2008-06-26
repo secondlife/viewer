@@ -394,7 +394,7 @@ std::ostream& operator<<(std::ostream& s, const LLSD& llsd);
 		- as UTF8 encoded strings (making not like UUID<->String)
 		- as Base64 or Base96 encoded (making like UUID<->String)
 	- Conversions to std::string and LLUUID do not result in easy assignment
-		to std::string, LLString or LLUUID due to non-unique conversion paths
+		to std::string, std::string or LLUUID due to non-unique conversion paths
 */
 
 #endif // LL_LLSD_NEW_H

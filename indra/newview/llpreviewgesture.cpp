@@ -72,9 +72,9 @@
 
 
 // *TODO: Translate?
-const char NONE_LABEL[] = "---";
-const char SHIFT_LABEL[] = "Shift";
-const char CTRL_LABEL[] = "Ctrl";
+const std::string NONE_LABEL = "---";
+const std::string SHIFT_LABEL = "Shift";
+const std::string CTRL_LABEL = "Ctrl";
 
 void dialog_refresh_all();
 
@@ -111,7 +111,7 @@ struct SortItemPtrsByName
 {
 	bool operator()(const LLInventoryItem* i1, const LLInventoryItem* i2)
 	{
-		return (LLString::compareDict(i1->getName(), i2->getName()) < 0);
+		return (LLStringUtil::compareDict(i1->getName(), i2->getName()) < 0);
 	}
 };
 
@@ -203,7 +203,7 @@ BOOL LLPreviewGesture::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 										 EDragAndDropType cargo_type,
 										 void* cargo_data,
 										 EAcceptance* accept,
-										 LLString& tooltip_msg)
+										 std::string& tooltip_msg)
 {
 	BOOL handled = TRUE;
 	switch(cargo_type)
@@ -584,7 +584,7 @@ void LLPreviewGesture::addAnimations()
 
 	combo->removeall();
 	
-	LLString none_text = getString("none_text");
+	std::string none_text = getString("none_text");
 
 	combo->add(none_text, LLUUID::null);
 
@@ -639,7 +639,7 @@ void LLPreviewGesture::addSounds()
 	LLComboBox* combo = mSoundCombo;
 	combo->removeall();
 	
-	LLString none_text = getString("none_text");
+	std::string none_text = getString("none_text");
 
 	combo->add(none_text, LLUUID::null);
 
@@ -775,7 +775,7 @@ void LLPreviewGesture::refresh()
 	mWaitTimeCheck->setVisible(FALSE);
 	mWaitTimeEditor->setVisible(FALSE);
 
-	LLString optionstext;
+	std::string optionstext;
 	
 	if (have_step)
 	{
@@ -995,13 +995,13 @@ void LLPreviewGesture::loadUIFromGesture(LLMultiGesture* gesture)
 	{
 	default:
 	  case MASK_NONE:
-		mModifierCombo->setSimple( LLString(NONE_LABEL) );
+		mModifierCombo->setSimple( NONE_LABEL );
 		break;
 	  case MASK_SHIFT:
-		mModifierCombo->setSimple( LLString(SHIFT_LABEL) );
+		mModifierCombo->setSimple( SHIFT_LABEL );
 		break;
 	  case MASK_CONTROL:
-		mModifierCombo->setSimple( LLString(CTRL_LABEL) );
+		mModifierCombo->setSimple( CTRL_LABEL );
 		break;
 	}
 
@@ -1075,7 +1075,7 @@ void LLPreviewGesture::loadUIFromGesture(LLMultiGesture* gesture)
 // after the save finishes.
 struct LLSaveInfo
 {
-	LLSaveInfo(const LLUUID& item_id, const LLUUID& object_id, const LLString& desc,
+	LLSaveInfo(const LLUUID& item_id, const LLUUID& object_id, const std::string& desc,
 				const LLTransactionID tid)
 		: mItemUUID(item_id), mObjectUUID(object_id), mDesc(desc), mTransactionID(tid)
 	{
@@ -1083,7 +1083,7 @@ struct LLSaveInfo
 
 	LLUUID mItemUUID;
 	LLUUID mObjectUUID;
-	LLString mDesc;
+	std::string mDesc;
 	LLTransactionID mTransactionID;
 };
 
@@ -1274,7 +1274,7 @@ void LLPreviewGesture::onSaveComplete(const LLUUID& asset_uuid, void* user_data,
 	else
 	{
 		llwarns << "Problem saving gesture: " << status << llendl;
-		LLStringBase<char>::format_map_t args;
+		LLStringUtil::format_map_t args;
 		args["[REASON]"] = std::string(LLAssetStorage::getErrorString(status));
 		gViewerWindow->alertXml("GestureSaveFailedReason",args);
 	}
@@ -1290,7 +1290,7 @@ LLMultiGesture* LLPreviewGesture::createGesture()
 	gesture->mTrigger = mTriggerEditor->getText();
 	gesture->mReplaceText = mReplaceEditor->getText();
 
-	const LLString& modifier = mModifierCombo->getSimple();
+	const std::string& modifier = mModifierCombo->getSimple();
 	if (modifier == CTRL_LABEL)
 	{
 		gesture->mMask = MASK_CONTROL;
@@ -1310,8 +1310,8 @@ LLMultiGesture* LLPreviewGesture::createGesture()
 	}
 	else
 	{
-		const LLString& key_string = mKeyCombo->getSimple();
-		LLKeyboard::keyFromString(key_string.c_str(), &(gesture->mKey));
+		const std::string& key_string = mKeyCombo->getSimple();
+		LLKeyboard::keyFromString(key_string, &(gesture->mKey));
 	}
 
 	std::vector<LLScrollListItem*> data_list = mStepList->getAllData();
@@ -1609,19 +1609,19 @@ void LLPreviewGesture::onClickAdd(void* data)
 LLScrollListItem* LLPreviewGesture::addStep(const std::string& library_text)
 {
 	LLGestureStep* step = NULL;
-	if (!LLString::compareInsensitive(library_text.c_str(), "Animation"))
+	if (!LLStringUtil::compareInsensitive(library_text, "Animation"))
 	{
 		step = new LLGestureStepAnimation();
 	}
-	else if (!LLString::compareInsensitive(library_text.c_str(), "Sound"))
+	else if (!LLStringUtil::compareInsensitive(library_text, "Sound"))
 	{
 		step = new LLGestureStepSound();
 	}
-	else if (!LLString::compareInsensitive(library_text.c_str(), "Chat"))
+	else if (!LLStringUtil::compareInsensitive(library_text, "Chat"))
 	{
 		step = new LLGestureStepChat();
 	}
-	else if (!LLString::compareInsensitive(library_text.c_str(), "Wait"))
+	else if (!LLStringUtil::compareInsensitive(library_text, "Wait"))
 	{
 		step = new LLGestureStepWait();
 	}

@@ -345,10 +345,8 @@ BOOL LLKeyframeMotionParam::loadMotions()
 	// Load named file by concatenating the character prefix with the motion name.
 	// Load data into a buffer to be parsed.
 	//-------------------------------------------------------------------------
-	char path[LL_MAX_PATH];		/* Flawfinder: ignore */
-	snprintf( path,sizeof(path), "%s_%s.llp",
-		gDirUtilp->getExpandedFilename(LL_PATH_MOTIONS,mCharacter->getAnimationPrefix()).c_str(),
-		getName().c_str() );	
+	std::string path = gDirUtilp->getExpandedFilename(LL_PATH_MOTIONS,mCharacter->getAnimationPrefix())
+		+ "_" + getName() + ".llp";
 
 	//-------------------------------------------------------------------------
 	// open the file
@@ -435,7 +433,7 @@ BOOL LLKeyframeMotionParam::loadMotions()
 			return FALSE;
 		}
 
-		addKeyframeMotion(strA, gAnimLibrary.stringToAnimState(strA), strB, floatA);
+		addKeyframeMotion(strA, gAnimLibrary.stringToAnimState(std::string(strA)), strB, floatA);
 		if (isFirstMotion)
 		{
 			isFirstMotion = FALSE;

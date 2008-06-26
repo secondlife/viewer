@@ -218,20 +218,20 @@ protected:
 //----------------------------------------------------------------------------
 // LLCommandLineParser defintions
 //----------------------------------------------------------------------------
-void LLCommandLineParser::addOptionDesc(const LLString& option_name, 
+void LLCommandLineParser::addOptionDesc(const std::string& option_name, 
                                         boost::function1<void, const token_vector_t&> notify_callback,
                                         unsigned int token_count,
-                                        const LLString& description,
-                                        const LLString& short_name,
+                                        const std::string& description,
+                                        const std::string& short_name,
                                         bool composing,
                                         bool positional,
                                         bool last_option)
 {
     // Compose the name for boost::po. 
     // It takes the format "long_name, short name"
-    const LLString comma(",");
-    LLString boost_option_name = option_name;
-    if(short_name != LLString::null)
+    const std::string comma(",");
+    std::string boost_option_name = option_name;
+    if(short_name != LLStringUtil::null)
     {
         boost_option_name += comma;
         boost_option_name += short_name;
@@ -413,7 +413,7 @@ const LLCommandLineParser::token_vector_t& LLCommandLineParser::getOption(const 
 // LLControlGroupCLP defintions
 //----------------------------------------------------------------------------
 void setControlValueCB(const LLCommandLineParser::token_vector_t& value, 
-                       const LLString& opt_name, 
+                       const std::string& opt_name, 
                        LLControlGroup* ctrlGroup)
 {
     if(value.size() > 1)
@@ -442,7 +442,7 @@ void setControlValueCB(const LLCommandLineParser::token_vector_t& value,
             {
                 // There's a token. check the string for true/false/1/0 etc.
                 BOOL result = false;
-                BOOL gotSet = LLString::convertToBOOL(value[0], result);
+                BOOL gotSet = LLStringUtil::convertToBOOL(value[0], result);
                 if(gotSet)
                 {
                     ctrl->setValue(LLSD(result), false);
@@ -489,14 +489,14 @@ void setControlValueCB(const LLCommandLineParser::token_vector_t& value,
     }
 }
 
-void LLControlGroupCLP::configure(const LLString& config_filename, LLControlGroup* controlGroup)
+void LLControlGroupCLP::configure(const std::string& config_filename, LLControlGroup* controlGroup)
 {
     // This method reads the llsd based config file, and uses it to set 
     // members of a control group.
     LLSD clpConfigLLSD;
     
     llifstream input_stream;
-    input_stream.open(config_filename.c_str(), std::ios::in | std::ios::binary);
+    input_stream.open(config_filename, std::ios::in | std::ios::binary);
 
     if(input_stream.is_open())
     {
@@ -508,13 +508,13 @@ void LLControlGroupCLP::configure(const LLString& config_filename, LLControlGrou
             LLSD::String long_name = option_itr->first;
             LLSD option_params = option_itr->second;
             
-            LLString desc("n/a");
+            std::string desc("n/a");
             if(option_params.has("desc"))
             {
                 desc = option_params["desc"].asString();
             }
             
-            LLString short_name = LLString::null;
+            std::string short_name = LLStringUtil::null;
             if(option_params.has("short"))
             {
                 short_name = option_params["short"].asString();
@@ -547,7 +547,7 @@ void LLControlGroupCLP::configure(const LLString& config_filename, LLControlGrou
             boost::function1<void, const token_vector_t&> callback;
             if(option_params.has("map-to") && (NULL != controlGroup))
             {
-                LLString controlName = option_params["map-to"].asString();
+                std::string controlName = option_params["map-to"].asString();
                 callback = boost::bind(setControlValueCB, _1, 
                                        controlName, controlGroup);
             }

@@ -96,9 +96,9 @@ class LLStandardBumpmap
 {
 public: 
 	LLStandardBumpmap() : mLabel() {} 
-	LLStandardBumpmap( const char* label ) : mLabel(label) {}
+	LLStandardBumpmap( const std::string& label ) : mLabel(label) {}
 	
-	LLString	mLabel;
+	std::string	mLabel;
 	LLPointer<LLViewerImage> mImage;
 
 	static	U32 sStandardBumpmapCount;  // Number of valid values in gStandardBumpmapList[]

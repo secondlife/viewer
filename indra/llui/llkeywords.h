@@ -80,16 +80,16 @@ public:
 	LLKeywords();
 	~LLKeywords();
 
-	BOOL		loadFromFile(const LLString& filename);
+	BOOL		loadFromFile(const std::string& filename);
 	BOOL		isLoaded() const	{ return mLoaded; }
 
 	void		findSegments(std::vector<LLTextSegment *> *seg_list, const LLWString& text, const LLColor4 &defaultColor );
 
 	// Add the token as described
 	void addToken(LLKeywordToken::TOKEN_TYPE type,
-					const LLString& key,
+					const std::string& key,
 					const LLColor3& color,
-					const LLString& tool_tip = LLString::null);
+					const std::string& tool_tip = LLStringUtil::null);
 
 	typedef std::map<LLWString, LLKeywordToken*> word_token_map_t;
 	typedef word_token_map_t::const_iterator keyword_iterator_t;
@@ -101,7 +101,7 @@ public:
 #endif
 
 private:
-	LLColor3	readColor(const LLString& s);
+	LLColor3	readColor(const std::string& s);
 	void		insertSegment(std::vector<LLTextSegment *> *seg_list, LLTextSegment* new_segment, S32 text_len, const LLColor4 &defaultColor);
 
 	BOOL		mLoaded;

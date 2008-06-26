@@ -114,9 +114,9 @@ private:
 	focus_history_map_t mFocusHistory;
 
 	#ifdef _DEBUG
-		LLString		mMouseCaptorName;
-		LLString		mKeyboardFocusName;
-		LLString		mTopCtrlName;
+		std::string		mMouseCaptorName;
+		std::string		mKeyboardFocusName;
+		std::string		mTopCtrlName;
 	#endif
 };
 

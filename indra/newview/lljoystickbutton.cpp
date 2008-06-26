@@ -59,13 +59,13 @@ const F32 ORBIT_NUDGE_RATE = 0.05f; // fraction of normal speed
 // Public Methods
 //
 LLJoystick::LLJoystick(
-	const LLString& name, 
+	const std::string& name, 
 	LLRect rect,
-	const LLString &default_image,
-	const LLString &selected_image,
+	const std::string &default_image,
+	const std::string &selected_image,
 	EJoystickQuadrant initial_quadrant )
 	:	
-	LLButton(name, rect, default_image, selected_image, NULL, NULL),
+	LLButton(name, rect, default_image, selected_image, LLStringUtil::null, NULL, NULL),
 	mInitialQuadrant(initial_quadrant),
 	mInitialOffset(0, 0),
 	mLastMouse(0, 0),
@@ -196,27 +196,27 @@ EJoystickQuadrant LLJoystick::selectQuadrant(LLXMLNodePtr node)
 
 	if (node->hasAttribute("quadrant"))
 	{
-		LLString quadrant_name;
+		std::string quadrant_name;
 		node->getAttributeString("quadrant", quadrant_name);
 
-		quadrant = quadrantFromName(quadrant_name.c_str());
+		quadrant = quadrantFromName(quadrant_name);
 	}
 	return quadrant;
 }
 
 
-LLString LLJoystick::nameFromQuadrant(EJoystickQuadrant	quadrant)
+std::string LLJoystick::nameFromQuadrant(EJoystickQuadrant	quadrant)
 {
-	if (quadrant == JQ_ORIGIN)	    return LLString("origin");
-	else if (quadrant == JQ_UP)	    return LLString("up");
-	else if (quadrant == JQ_DOWN)	return LLString("down");
-	else if (quadrant == JQ_LEFT)	return LLString("left");
-	else if (quadrant == JQ_RIGHT)	return LLString("right");
-	else return LLString();
+	if (quadrant == JQ_ORIGIN)	    return std::string("origin");
+	else if (quadrant == JQ_UP)	    return std::string("up");
+	else if (quadrant == JQ_DOWN)	return std::string("down");
+	else if (quadrant == JQ_LEFT)	return std::string("left");
+	else if (quadrant == JQ_RIGHT)	return std::string("right");
+	else return std::string();
 }
 
 
-EJoystickQuadrant LLJoystick::quadrantFromName(const LLString& sQuadrant)
+EJoystickQuadrant LLJoystick::quadrantFromName(const std::string& sQuadrant)
 {
 	EJoystickQuadrant quadrant = JQ_RIGHT;
 
@@ -252,8 +252,8 @@ LLXMLNodePtr LLJoystick::getXML(bool save_children) const
 	node->createChild("halign", TRUE)->setStringValue(LLFontGL::nameFromHAlign(getHAlign()));
 	node->createChild("quadrant", TRUE)->setStringValue(nameFromQuadrant(mInitialQuadrant));
 
-	addImageAttributeToXML(node,getImageUnselectedName(),getImageUnselectedID(),"image_unselected");
-	addImageAttributeToXML(node,getImageSelectedName(),getImageSelectedID(),"image_selected");
+	addImageAttributeToXML(node,getImageUnselectedName(),getImageUnselectedID(),std::string("image_unselected"));
+	addImageAttributeToXML(node,getImageSelectedName(),getImageSelectedID(),std::string("image_selected"));
 	
 	node->createChild("scale_image", TRUE)->setBoolValue(getScaleImage());
 
@@ -328,13 +328,13 @@ void LLJoystickAgentTurn::onHeldDown()
 
 LLView* LLJoystickAgentTurn::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory)
 {
-	LLString name("button");
+	std::string name("button");
 	node->getAttributeString("name", name);
 
-	LLString	image_unselected;
+	std::string	image_unselected;
 	if (node->hasAttribute("image_unselected")) node->getAttributeString("image_unselected",image_unselected);
 	
-	LLString	image_selected;
+	std::string	image_selected;
 	if (node->hasAttribute("image_selected")) node->getAttributeString("image_selected",image_selected);
 
 	EJoystickQuadrant quad = JQ_ORIGIN;
@@ -437,13 +437,13 @@ void LLJoystickAgentSlide::onHeldDown()
 // static
 LLView* LLJoystickAgentSlide::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory)
 {
-	LLString name("button");
+	std::string name("button");
 	node->getAttributeString("name", name);
 
-	LLString	image_unselected;
+	std::string	image_unselected;
 	if (node->hasAttribute("image_unselected")) node->getAttributeString("image_unselected",image_unselected);
 	
-	LLString	image_selected;
+	std::string	image_selected;
 	if (node->hasAttribute("image_selected")) node->getAttributeString("image_selected",image_selected);
 	
 	
@@ -479,7 +479,7 @@ LLView* LLJoystickAgentSlide::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtr
 // LLJoystickCameraRotate
 //-------------------------------------------------------------------------------
 
-LLJoystickCameraRotate::LLJoystickCameraRotate(const LLString& name, LLRect rect, const LLString &out_img, const LLString &in_img)
+LLJoystickCameraRotate::LLJoystickCameraRotate(const std::string& name, LLRect rect, const std::string &out_img, const std::string &in_img)
 	: 
 	LLJoystick(name, rect, out_img, in_img, JQ_ORIGIN),
 	mInLeft( FALSE ),
@@ -716,9 +716,9 @@ void LLJoystickCameraTrack::onHeldDown()
 // LLJoystickCameraZoom
 //-------------------------------------------------------------------------------
 
-LLJoystickCameraZoom::LLJoystickCameraZoom(const LLString& name, LLRect rect, const LLString &out_img, const LLString &plus_in_img, const LLString &minus_in_img)
+LLJoystickCameraZoom::LLJoystickCameraZoom(const std::string& name, LLRect rect, const std::string &out_img, const std::string &plus_in_img, const std::string &minus_in_img)
 	: 
-	LLJoystick(name, rect, out_img, "", JQ_ORIGIN),
+	LLJoystick(name, rect, out_img, LLStringUtil::null, JQ_ORIGIN),
 	mInTop( FALSE ),
 	mInBottom( FALSE )
 {

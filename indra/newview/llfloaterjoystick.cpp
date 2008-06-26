@@ -46,7 +46,7 @@
 #include "llviewerjoystick.h"
 
 LLFloaterJoystick::LLFloaterJoystick(const LLSD& data)
-	: LLFloater("floater_joystick")
+	: LLFloater(std::string("floater_joystick"))
 {
 	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_joystick.xml");
 	center();

@@ -73,8 +73,6 @@ public:
 
 	static void		onClickToolButton(void* container);
 
-	void			addTool(const LLString& icon_off, const LLString& icon_on, LLPanel* panel, LLTool* tool, LLView* hoverView, const char* label);
-
 	LLView*			getCurrentHoverView();
 
 private:

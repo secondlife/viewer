@@ -52,11 +52,12 @@ public:
 	bool importStream(std::istream& str);
 	bool exportStream(std::ostream& str);
 
-	const std::vector<LLPointer<LLInventoryItem> >& getItems() const;
-	LLString& getText();
+	const std::vector<LLPointer<LLInventoryItem> >& getItems() const { return mItems; }
+	const std::string& getText() const { return mText; }
+	std::string& getText() { return mText; }
 
 	void setItems(const std::vector<LLPointer<LLInventoryItem> >& items);
-	void setText(const LLString& text);
+	void setText(const std::string& text);
 	S32 getVersion() { return mVersion; }
 	S32 getEmbeddedVersion() { return mEmbeddedVersion; }
 	
@@ -64,7 +65,7 @@ private:
 	bool importEmbeddedItemsStream(std::istream& str);
 	bool exportEmbeddedItemsStream(std::ostream& str);
 	std::vector<LLPointer<LLInventoryItem> > mItems;
-	LLString mText;
+	std::string mText;
 	S32 mMaxText;
 	S32 mVersion;
 	S32 mEmbeddedVersion;

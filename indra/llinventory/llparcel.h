@@ -207,12 +207,12 @@ public:
 
 	// MANIPULATORS
 	void generateNewID() { mID.generate(); }
-	void setName(const LLString& name);
-	void setDesc(const LLString& desc);
-	void setMusicURL(const LLString& url);
-	void setMediaURL(const LLString& url);
-	void setMediaType(const char* type);
-	void setMediaDesc(const char* desc);
+	void setName(const std::string& name);
+	void setDesc(const std::string& desc);
+	void setMusicURL(const std::string& url);
+	void setMediaURL(const std::string& url);
+	void setMediaType(const std::string& type);
+	void setMediaDesc(const std::string& desc);
 	void	setMediaID(const LLUUID& id) { mMediaID = id; }
 	void	setMediaAutoScale ( U8 flagIn ) { mMediaAutoScale = flagIn; }
 	void    setMediaLoop (U8 loop) { mMediaLoop = loop; }
@@ -266,7 +266,7 @@ public:
 	void	setDrawDistance(F32 dist)	{ mDrawDistance = dist; }
 	void	setSalePrice(S32 price)		{ mSalePrice = price; }
 	void	setGroupID(const LLUUID& id)	{ mGroupID = id; }
-	//void	setGroupName(const LLString& s)	{ mGroupName.assign(s); }
+	//void	setGroupName(const std::string& s)	{ mGroupName.assign(s); }
 	void	setPassPrice(S32 price)				{ mPassPrice = price; }
 	void	setPassHours(F32 hours)				{ mPassHours = hours; }
 
@@ -303,12 +303,12 @@ public:
 
 	// ACCESSORS
 	const LLUUID&	getID() const				{ return mID; }
-	const LLString&	getName() const			{ return mName; }
-	const LLString&	getDesc() const			{ return mDesc; }
-	const LLString&	getMusicURL() const		{ return mMusicURL; }
-	const LLString&	getMediaURL() const		{ return mMediaURL; }
-	const char*		getMediaDesc() const		{ return mMediaDesc.c_str(); }
-	const char*		getMediaType() const		{ return mMediaType.c_str(); }
+	const std::string&	getName() const			{ return mName; }
+	const std::string&	getDesc() const			{ return mDesc; }
+	const std::string&	getMusicURL() const		{ return mMusicURL; }
+	const std::string&	getMediaURL() const		{ return mMediaURL; }
+	const std::string&	getMediaDesc() const	{ return mMediaDesc; }
+	const std::string&	getMediaType() const	{ return mMediaType; }
 	const LLUUID&	getMediaID() const			{ return mMediaID; }
 	S32				getMediaWidth() const		{ return mMediaWidth; }
 	S32				getMediaHeight() const		{ return mMediaHeight; }
@@ -351,18 +351,18 @@ public:
 
 	// functions to deal with ownership status.
 	EOwnershipStatus getOwnershipStatus() const { return mStatus; }
-	static const char* getOwnershipStatusString(EOwnershipStatus status);
+	static const std::string& getOwnershipStatusString(EOwnershipStatus status);
 	void setOwnershipStatus(EOwnershipStatus status) { mStatus = status; }
 
 	// dealing with parcel category information
 	ECategory getCategory() const {return mCategory; }
-	static const char* getCategoryString(ECategory category);
-	static const char* getCategoryUIString(ECategory category);
-	static ECategory getCategoryFromString(const char* string);
-	static ECategory getCategoryFromUIString(const char* string);
+	static const std::string& getCategoryString(ECategory category);
+	static const std::string& getCategoryUIString(ECategory category);
+	static ECategory getCategoryFromString(const std::string& string);
+	static ECategory getCategoryFromUIString(const std::string& string);
 
 	// functions for parcel action (used for logging)
-	static const char* getActionString(EAction action);
+	static const std::string& getActionString(EAction action);
 
 	// dealing with sales and parcel conversion.
 	//
@@ -587,12 +587,12 @@ protected:
 	F32					mDrawDistance;
 	U32					mParcelFlags;
 	S32					mSalePrice;				// linden dollars
-	LLString 			mName;
-	LLString 			mDesc;
-	LLString 			mMusicURL;
-	LLString 			mMediaURL;
-	std::string mMediaDesc;
-	std::string mMediaType;
+	std::string			mName;
+	std::string			mDesc;
+	std::string			mMusicURL;
+	std::string			mMediaURL;
+	std::string			mMediaDesc;
+	std::string 		mMediaType;
 	S32					mMediaWidth;
 	S32					mMediaHeight;
 	U8					mMediaAutoScale;

@@ -85,12 +85,12 @@ public:
 	void friendsChanged();
 
 	// tracking methods
-	void			trackAvatar( const LLUUID& avatar_id, const LLString& name );
+	void			trackAvatar( const LLUUID& avatar_id, const std::string& name );
 	void			trackLandmark( const LLUUID& landmark_item_id ); 
 	void			trackLocation(const LLVector3d& pos);
 	void			trackEvent(const LLItemInfo &event_info);
 	void			trackGenericItem(const LLItemInfo &item);
-	void			trackURL(const LLString& region_name, S32 x_coord, S32 y_coord, S32 z_coord);
+	void			trackURL(const std::string& region_name, S32 x_coord, S32 y_coord, S32 z_coord);
 
 	static const LLUUID& getHomeID() { return sHomeID; }
 
@@ -177,8 +177,8 @@ protected:
 	LLInventoryObserver* mInventoryObserver;
 	LLFriendObserver* mFriendObserver;
 
-	LLString				mCompletingRegionName;
-	LLString				mLastRegionName;
+	std::string				mCompletingRegionName;
+	std::string				mLastRegionName;
 	BOOL					mWaitingForTracker;
 	BOOL					mExactMatch;
 
@@ -187,9 +187,9 @@ protected:
 
 	LLVector3d				mTrackedLocation;
 	LLTracker::ETrackingStatus mTrackedStatus;
-	LLString				mTrackedSimName;
-	LLString				mTrackedAvatarName;
-	LLString				mSLURL;
+	std::string				mTrackedSimName;
+	std::string				mTrackedAvatarName;
+	std::string				mSLURL;
 };
 
 extern LLFloaterWorldMap* gFloaterWorldMap;

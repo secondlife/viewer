@@ -52,20 +52,20 @@ public:
 	/*virtual*/ BOOL handleKeyHere(KEY key, MASK mask);
 	/*virtual*/ void setVisible(BOOL visible);
 
-	void setText(const LLString& text);
+	void setText(const std::string& text);
 	void setPercent(const F32 percent);
 
 	// Set it to NULL when you want to eliminate the message.
-	void setMessage(const LLString& msg);
+	void setMessage(const std::string& msg);
 	
-	void setCancelButtonVisible(BOOL b, const LLString& label);
+	void setCancelButtonVisible(BOOL b, const std::string& label);
 
 	static void onCancelButtonClicked( void* );
 
 protected:
 	F32 mPercentDone;
-	LLString mText;
-	LLString mMessage;
+	std::string mText;
+	std::string mMessage;
 	LLButton*	mCancelBtn;
 	LLFrameTimer	mFadeTimer;
 	LLFrameTimer mProgressTimer;

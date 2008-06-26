@@ -58,7 +58,7 @@ const F32 DYNAMIC_UPDATE_DURATION = 5.0f; // seconds
 LLViewerThrottle gViewerThrottle;
 
 // static
-const char *LLViewerThrottle::sNames[TC_EOF] = {
+const std:: string LLViewerThrottle::sNames[TC_EOF] = {
 							"Resend",
 							"Land",
 							"Wind",

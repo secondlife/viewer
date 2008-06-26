@@ -1,3 +1,4 @@
+
 /** 
  * @file llhudtext.cpp
  * @brief LLHUDText class implementation
@@ -921,8 +922,7 @@ void LLHUDText::setLOD(S32 lod)
 {
 	mLOD = lod;
 	//RN: uncomment this to visualize LOD levels
-	//char label[255];
-	//sprintf(label, "%d", lod);
+	//std::string label = llformat("%d", lod);
 	//setLabel(label);
 }
 

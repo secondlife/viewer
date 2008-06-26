@@ -100,7 +100,7 @@ void LLStandardBumpmap::restoreGL()
 	gStandardBumpmapList[LLStandardBumpmap::sStandardBumpmapCount++] = LLStandardBumpmap("Darkness");	// BE_DARKNESS
 
 	std::string file_name = gDirUtilp->getExpandedFilename( LL_PATH_APP_SETTINGS, "std_bump.ini" );
-	LLFILE* file = LLFile::fopen( file_name.c_str(), "rt" );	 /*Flawfinder: ignore*/
+	LLFILE* file = LLFile::fopen( file_name, "rt" );	 /*Flawfinder: ignore*/
 	if( !file )
 	{
 		llwarns << "Could not open std_bump <" << file_name << ">" << llendl;

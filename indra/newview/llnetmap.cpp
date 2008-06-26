@@ -114,52 +114,52 @@ LLNetMap::LLNetMap(
 	//mTextBoxNorth = new LLTextBox( "N", major_dir_rect );
 	//mTextBoxNorth->setFontStyle(LLFontGL::DROP_SHADOW_SOFT);
 	//addChild( mTextBoxNorth );
-	mTextBoxNorth =	new LLTextBox( "N", major_dir_rect );
+	mTextBoxNorth =	new LLTextBox( std::string("N"), major_dir_rect );
 	mTextBoxNorth->setColor( minor_color );
 	addChild( mTextBoxNorth );
 	
-	mTextBoxEast =	new LLTextBox( "E", major_dir_rect );
+	mTextBoxEast =	new LLTextBox( std::string("E"), major_dir_rect );
 	mTextBoxEast->setColor( minor_color );
 	addChild( mTextBoxEast );
 	
 	major_dir_rect.mRight += 1 ;
-	mTextBoxWest =	new LLTextBox( "W", major_dir_rect );
+	mTextBoxWest =	new LLTextBox( std::string("W"), major_dir_rect );
 	mTextBoxWest->setColor( minor_color );
 	addChild( mTextBoxWest );
 	major_dir_rect.mRight -= 1 ;
 
-	mTextBoxSouth = new LLTextBox( "S", major_dir_rect );
+	mTextBoxSouth = new LLTextBox( std::string("S"), major_dir_rect );
 	mTextBoxSouth->setColor( minor_color );
 	addChild( mTextBoxSouth );
 
-	mTextBoxSouthEast =	new LLTextBox( "SE", minor_dir_rect );
+	mTextBoxSouthEast =	new LLTextBox( std::string("SE"), minor_dir_rect );
 	mTextBoxSouthEast->setColor( minor_color );
 	addChild( mTextBoxSouthEast );
 	
-	mTextBoxNorthEast = new LLTextBox( "NE", minor_dir_rect );
+	mTextBoxNorthEast = new LLTextBox( std::string("NE"), minor_dir_rect );
 	mTextBoxNorthEast->setColor( minor_color );
 	addChild( mTextBoxNorthEast );
 	
-	mTextBoxSouthWest =	new LLTextBox( "SW", minor_dir_rect );
+	mTextBoxSouthWest =	new LLTextBox( std::string("SW"), minor_dir_rect );
 	mTextBoxSouthWest->setColor( minor_color );
 	addChild( mTextBoxSouthWest );
 
-	mTextBoxNorthWest = new LLTextBox( "NW", minor_dir_rect );
+	mTextBoxNorthWest = new LLTextBox( std::string("NW"), minor_dir_rect );
 	mTextBoxNorthWest->setColor( minor_color );
 	addChild( mTextBoxNorthWest );
 
 	// Right-click menu
 	LLMenuGL* menu;
-	menu = new LLMenuGL("popup");
+	menu = new LLMenuGL(std::string("popup"));
 	menu->setCanTearOff(FALSE);
-	menu->append(new LLMenuItemCallGL("Zoom Close", handleZoomLevel,
+	menu->append(new LLMenuItemCallGL(std::string("Zoom Close"), handleZoomLevel,
 										NULL, (void*)2) );
-	menu->append(new LLMenuItemCallGL("Zoom Medium", handleZoomLevel,
+	menu->append(new LLMenuItemCallGL(std::string("Zoom Medium"), handleZoomLevel,
 										NULL, (void*)1) );
-	menu->append(new LLMenuItemCallGL("Zoom Far", handleZoomLevel,
+	menu->append(new LLMenuItemCallGL(std::string("Zoom Far"), handleZoomLevel,
 										NULL, (void*)0) );
 	menu->appendSeparator();
-	menu->append(new LLMenuItemCallGL("Stop Tracking", &LLTracker::stopTracking,
+	menu->append(new LLMenuItemCallGL(std::string("Stop Tracking"), &LLTracker::stopTracking,
 										&LLTracker::isTracking, NULL) );
 	menu->setVisible(FALSE);
 	addChild(menu);
@@ -580,7 +580,7 @@ BOOL LLNetMap::handleScrollWheel(S32 x, S32 y, S32 clicks)
 	return TRUE;
 }
 
-BOOL LLNetMap::handleToolTip( S32 x, S32 y, LLString& msg, LLRect* sticky_rect_screen )
+BOOL LLNetMap::handleToolTip( S32 x, S32 y, std::string& msg, LLRect* sticky_rect_screen )
 {
 	BOOL handled = FALSE;
 	if (gDisconnected)
@@ -593,12 +593,12 @@ BOOL LLNetMap::handleToolTip( S32 x, S32 y, LLString& msg, LLRect* sticky_rect_s
 		msg.assign( region->getName() );
 
 #ifndef LL_RELEASE_FOR_DOWNLOAD
-		char buffer[MAX_STRING];		/*Flawfinder: ignore*/
+		std::string buffer;
 		msg.append("\n");
-		region->getHost().getHostName(buffer, MAX_STRING);
+		buffer = region->getHost().getHostName();
 		msg.append(buffer);
 		msg.append("\n");
-		region->getHost().getString(buffer, MAX_STRING);
+		buffer = region->getHost().getString();
 		msg.append(buffer);
 #endif
 		// *TODO: put this under the control of XUI so it can be

@@ -56,7 +56,7 @@ class LLUIImage;
 
 // UI colors
 extern const LLColor4 UI_VERTEX_COLOR;
-void make_ui_sound(const LLString& name);
+void make_ui_sound(const char* name);
 
 BOOL ui_point_in_rect(S32 x, S32 y, S32 left, S32 top, S32 right, S32 bottom);
 void gl_state_for_2d(S32 width, S32 height);
@@ -144,7 +144,7 @@ inline void gl_rect_2d_offset_local( const LLRect& rect, S32 pixel_offset, BOOL 
 // void init_tr();
 
 // Returns a string from the string table in the correct language
-// LLString tr(const LLString& english_chars);
+// std::string tr(const std::string& english_chars);
 
 // Used to hide the flashing text cursor when window doesn't have focus.
 extern BOOL gShowTextEditCursor;
@@ -164,7 +164,7 @@ public:
 						  LLImageProviderInterface* image_provider,
 						  LLUIAudioCallback audio_callback = NULL,
 						  const LLVector2 *scale_factor = NULL,
-						  const LLString& language = LLString::null);
+						  const std::string& language = LLStringUtil::null);
 	static void cleanupClass();
 
 	static void pushMatrix();
@@ -173,12 +173,12 @@ public:
 	static void translate(F32 x, F32 y, F32 z = 0.0f);
 
 	//helper functions (should probably move free standing rendering helper functions here)
-	static LLString locateSkin(const LLString& filename);
+	static std::string locateSkin(const std::string& filename);
 	static void setCursorPositionScreen(S32 x, S32 y);
 	static void setCursorPositionLocal(const LLView* viewp, S32 x, S32 y);
 	static void setScaleFactor(const LLVector2& scale_factor);
 	static void setLineWidth(F32 width);
-	static LLUIImage* getUIImage(const LLString& name);
+	static LLUIImage* getUIImage(const std::string& name);
 	static LLVector2 getWindowSize();
 	static void screenPointToGL(S32 screen_x, S32 screen_y, S32 *gl_x, S32 *gl_y);
 	static void glPointToScreen(S32 gl_x, S32 gl_y, S32 *screen_x, S32 *screen_y);
@@ -411,7 +411,7 @@ public:
 class LLUIImage : public LLRefCount
 {
 public:
-	LLUIImage(const LLString& name, LLPointer<LLImageGL> image);
+	LLUIImage(const std::string& name, LLPointer<LLImageGL> image);
 
 	void setClipRegion(const LLRectf& region);
 	void setScaleRegion(const LLRectf& region);
@@ -431,7 +431,7 @@ public:
 	void drawBorder(const LLRect& rect, const LLColor4& color, S32 border_width) const { drawBorder(rect.mLeft, rect.mBottom, rect.getWidth(), rect.getHeight(), color, border_width); }
 	void drawBorder(S32 x, S32 y, const LLColor4& color, S32 border_width) const { drawBorder(x, y, mImage->getWidth(0), mImage->getHeight(0), color, border_width); }
 	
-	const LLString& getName() const { return mName; }
+	const std::string& getName() const { return mName; }
 
 	S32 getWidth() const;
 	S32 getHeight() const;
@@ -441,7 +441,7 @@ public:
 	S32 getTextureHeight() const;
 
 protected:
-	LLString			mName;
+	std::string			mName;
 	LLRectf				mScaleRegion;
 	LLRectf				mClipRegion;
 	LLPointer<LLImageGL> mImage;
@@ -592,7 +592,7 @@ public:
 	LLImageProviderInterface() {};
 	virtual ~LLImageProviderInterface() {};
 
-	virtual LLUIImagePtr getUIImage(const LLString& name) = 0;
+	virtual LLUIImagePtr getUIImage(const std::string& name) = 0;
 	virtual LLUIImagePtr getUIImageByID(const LLUUID& id) = 0;
 	virtual void cleanUp() = 0;
 };

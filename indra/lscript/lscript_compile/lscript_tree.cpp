@@ -9704,8 +9704,7 @@ LLScriptScript::LLScriptScript(LLScritpGlobalStorage *globals,
 	mStates(states), mGlobalScope(NULL), mGlobals(NULL), mGlobalFunctions(NULL), mGodLike(FALSE)
 {
 	const char DEFAULT_BYTECODE_FILENAME[] = "lscript.lso";
-	strncpy(mBytecodeDest, DEFAULT_BYTECODE_FILENAME, sizeof(mBytecodeDest) -1); 	/*Flawfinder: ignore*/
-	mBytecodeDest[MAX_STRING-1] = '\0';
+	mBytecodeDest = DEFAULT_BYTECODE_FILENAME;
 	LLScriptGlobalVariable	*tvar;
 	LLScriptGlobalFunctions	*tfunc;
 	LLScritpGlobalStorage *temp;
@@ -9751,8 +9750,7 @@ LLScriptScript::LLScriptScript(LLScritpGlobalStorage *globals,
 
 void LLScriptScript::setBytecodeDest(const char* dst_filename)
 {
-	strncpy(mBytecodeDest, dst_filename, MAX_STRING); 	/*Flawfinder: ignore*/
-	mBytecodeDest[MAX_STRING-1] = '\0';
+	mBytecodeDest = ll_safe_string(dst_filename);
 }
 
 void print_cil_globals(LLFILE* fp, LLScriptGlobalVariable* global)

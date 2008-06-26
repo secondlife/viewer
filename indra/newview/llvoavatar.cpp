@@ -718,8 +718,6 @@ LLVOAvatar::LLVOAvatar(
 	mSpeed = 0.f;
 	setAnimationData("Speed", &mSpeed);
 
-	strcpy(mAvatarDefinition, AVATAR_DEFAULT_CHAR);		/* Flawfinder: ignore */
-
 	if (id == gAgentID)
 	{
 		mIsSelf = TRUE;
@@ -1358,9 +1356,9 @@ void LLVOAvatar::initClass()
 { 
 	LLVOAvatar::sMaxOtherAvatarsToComposite = gSavedSettings.getS32("AvatarCompositeLimit");
 
-	char xmlFile[MAX_PATH];		/* Flawfinder: ignore */
+	std::string xmlFile;
 
-	snprintf(xmlFile, MAX_PATH, "%s_lad.xml", gDirUtilp->getExpandedFilename(LL_PATH_CHARACTER,AVATAR_DEFAULT_CHAR).c_str());		/* Flawfinder: ignore */
+	xmlFile = gDirUtilp->getExpandedFilename(LL_PATH_CHARACTER,AVATAR_DEFAULT_CHAR) + "_lad.xml";
 	BOOL success = sXMLTree.parseFile( xmlFile, FALSE );
 	if (!success)
 	{
@@ -1383,7 +1381,7 @@ void LLVOAvatar::initClass()
 		llerrs << "Invalid avatar file header: " << xmlFile << llendl;
 	}
 	
-	LLString version;
+	std::string version;
 	static LLStdStringHandle version_string = LLXmlTree::addAttributeString("version");
 	if( !root->getFastAttributeString( version_string, version ) || (version != "1.0") )
 	{
@@ -1395,7 +1393,7 @@ void LLVOAvatar::initClass()
 	root->getFastAttributeS32( wearable_definition_version_string, wearable_def_version );
 	LLWearable::setCurrentDefinitionVersion( wearable_def_version );
 
-	LLString mesh_file_name;
+	std::string mesh_file_name;
 
 	LLXmlTreeNode* skeleton_node = root->getChildByName( "skeleton" );
 	if (!skeleton_node)
@@ -1404,7 +1402,7 @@ void LLVOAvatar::initClass()
 		return;
 	}
 	
-	LLString skeleton_file_name;
+	std::string skeleton_file_name;
 	static LLStdStringHandle file_name_string = LLXmlTree::addAttributeString("file_name");
 	if (!skeleton_node->getFastAttributeString(file_name_string, skeleton_file_name))
 	{
@@ -1569,7 +1567,7 @@ void LLVOAvatar::getSpatialExtents(LLVector3& newMin, LLVector3& newMax)
 //-----------------------------------------------------------------------------
 // parseSkeletonFile()
 //-----------------------------------------------------------------------------
-BOOL LLVOAvatar::parseSkeletonFile(const LLString& filename)
+BOOL LLVOAvatar::parseSkeletonFile(const std::string& filename)
 {
 	LLMemType mt(LLMemType::MTYPE_AVATAR);
 	
@@ -1596,7 +1594,7 @@ BOOL LLVOAvatar::parseSkeletonFile(const LLString& filename)
 		llerrs << "Invalid avatar skeleton file header: " << filename << llendl;
 	}
 
-	LLString version;
+	std::string version;
 	static LLStdStringHandle version_string = LLXmlTree::addAttributeString("version");
 	if( !root->getFastAttributeString( version_string, version ) || (version != "1.0") )
 	{
@@ -1815,7 +1813,6 @@ void LLVOAvatar::buildCharacter()
 		if ( mIsSelf )
 		{
 			llerrs << "Unable to load user's avatar" << llendl;
-			//set_avatar_character( &LLString(AVATAR_DEFAULT_CHAR));
 		}
 		else
 		{
@@ -1925,23 +1922,24 @@ void LLVOAvatar::buildCharacter()
 	//-------------------------------------------------------------------------
 	if (mIsSelf)
 	{
+		// *TODO: Translate
 		gAttachBodyPartPieMenus[0] = NULL;
-		gAttachBodyPartPieMenus[1] = new LLPieMenu("Right Arm >");
-		gAttachBodyPartPieMenus[2] = new LLPieMenu("Head >");
-		gAttachBodyPartPieMenus[3] = new LLPieMenu("Left Arm >");
+		gAttachBodyPartPieMenus[1] = new LLPieMenu(std::string("Right Arm >"));
+		gAttachBodyPartPieMenus[2] = new LLPieMenu(std::string("Head >"));
+		gAttachBodyPartPieMenus[3] = new LLPieMenu(std::string("Left Arm >"));
 		gAttachBodyPartPieMenus[4] = NULL;
-		gAttachBodyPartPieMenus[5] = new LLPieMenu("Left Leg >");
-		gAttachBodyPartPieMenus[6] = new LLPieMenu("Torso >");
-		gAttachBodyPartPieMenus[7] = new LLPieMenu("Right Leg >");
+		gAttachBodyPartPieMenus[5] = new LLPieMenu(std::string("Left Leg >"));
+		gAttachBodyPartPieMenus[6] = new LLPieMenu(std::string("Torso >"));
+		gAttachBodyPartPieMenus[7] = new LLPieMenu(std::string("Right Leg >"));
 
 		gDetachBodyPartPieMenus[0] = NULL;
-		gDetachBodyPartPieMenus[1] = new LLPieMenu("Right Arm >");
-		gDetachBodyPartPieMenus[2] = new LLPieMenu("Head >");
-		gDetachBodyPartPieMenus[3] = new LLPieMenu("Left Arm >");
+		gDetachBodyPartPieMenus[1] = new LLPieMenu(std::string("Right Arm >"));
+		gDetachBodyPartPieMenus[2] = new LLPieMenu(std::string("Head >"));
+		gDetachBodyPartPieMenus[3] = new LLPieMenu(std::string("Left Arm >"));
 		gDetachBodyPartPieMenus[4] = NULL;
-		gDetachBodyPartPieMenus[5] = new LLPieMenu("Left Leg >");
-		gDetachBodyPartPieMenus[6] = new LLPieMenu("Torso >");
-		gDetachBodyPartPieMenus[7] = new LLPieMenu("Right Leg >");
+		gDetachBodyPartPieMenus[5] = new LLPieMenu(std::string("Left Leg >"));
+		gDetachBodyPartPieMenus[6] = new LLPieMenu(std::string("Torso >"));
+		gDetachBodyPartPieMenus[7] = new LLPieMenu(std::string("Right Leg >"));
 
 		for (S32 i = 0; i < 8; i++)
 		{
@@ -2510,7 +2508,7 @@ void LLVOAvatar::idleUpdateVoiceVisualizer(bool voice_enabled)
 			{
 				if ( mCurrentGesticulationLevel != VOICE_GESTICULATION_LEVEL_OFF )
 				{
-					LLString gestureString = "unInitialized";
+					std::string gestureString = "unInitialized";
 					if ( mCurrentGesticulationLevel == 0 )	{ gestureString = "/voicelevel1";	}
 					else	if ( mCurrentGesticulationLevel == 1 )	{ gestureString = "/voicelevel2";	}
 					else	if ( mCurrentGesticulationLevel == 2 )	{ gestureString = "/voicelevel3";	}
@@ -4405,7 +4403,7 @@ void LLVOAvatar::updateTextures(LLAgent &agent)
 			{
 				llwarns << "LLVOAvatar::updateTextures No host for texture "
 					<< imagep->getID() << " for avatar "
-					<< (mIsSelf ? "<myself>" : getID().asString().c_str()) 
+					<< (mIsSelf ? "<myself>" : getID().asString()) 
 					<< " on host " << getRegion()->getHost() << llendl;
 			}
 			
@@ -5487,7 +5485,7 @@ BOOL LLVOAvatar::loadMeshNodes()
 		 iter != sAvatarInfo->mMeshInfoList.end(); iter++)
 	{
 		LLVOAvatarInfo::LLVOAvatarMeshInfo *info = *iter;
-		LLString &type = info->mType;
+		std::string &type = info->mType;
 		S32 lod = info->mLOD;
 
 		LLViewerJointMesh* mesh = NULL;
@@ -5687,7 +5685,7 @@ BOOL LLVOAvatar::loadMeshNodes()
 		}
 
 		// Multimap insert
-		mMeshes.insert(std::pair<LLString, LLPolyMesh*>(info->mMeshFileName, poly_mesh));
+		mMeshes.insert(std::make_pair(info->mMeshFileName, poly_mesh));
 	
 		mesh->setMesh( poly_mesh );
 
@@ -6402,7 +6400,7 @@ LLViewerObject* LLVOAvatar::getWornAttachment( const LLUUID& inv_item_id )
 	return NULL;
 }
 
-const LLString LLVOAvatar::getAttachedPointName(const LLUUID& inv_item_id)
+const std::string LLVOAvatar::getAttachedPointName(const LLUUID& inv_item_id)
 {
 	for (attachment_map_t::iterator iter = mAttachmentPoints.begin(); 
 		 iter != mAttachmentPoints.end(); )
@@ -6411,11 +6409,11 @@ const LLString LLVOAvatar::getAttachedPointName(const LLUUID& inv_item_id)
 		LLViewerJointAttachment* attachment = curiter->second;
 		if( attachment->getItemID() == inv_item_id )
 		{
-			return (LLString)attachment->getName();
+			return attachment->getName();
 		}
 	}
 
-	return LLString::null;
+	return LLStringUtil::null;
 }
 
 
@@ -6499,7 +6497,7 @@ void LLVOAvatar::updateComposites()
 	}
 }
 
-LLColor4 LLVOAvatar::getGlobalColor( const LLString& color_name )
+LLColor4 LLVOAvatar::getGlobalColor( const std::string& color_name )
 {
 	if( color_name=="skin_color" && mTexSkinColor )
 	{
@@ -8008,7 +8006,7 @@ LLColor4  LLVOAvatar::getClothesColor( ETextureIndex te )
 
 
 
-void LLVOAvatar::dumpAvatarTEs( const char* context )
+void LLVOAvatar::dumpAvatarTEs( const std::string& context )
 {
 	llinfos << (mIsSelf ? "Self: " : "Other: ") << context << llendl;
 	for( S32 i=0; i<TEX_NUM_ENTRIES; i++ )
@@ -8826,8 +8824,8 @@ void LLVOAvatar::dumpArchetypeXML( void* )
 	// only body parts, not clothing.
 	for( S32 type = WT_SHAPE; type <= WT_EYES; type++ )
 	{
-		const char* wearable_name = LLWearable::typeToTypeName( (EWearableType) type );
-		apr_file_printf( file, "\n\t\t<!-- wearable: %s -->\n", wearable_name );
+		const std::string& wearable_name = LLWearable::typeToTypeName( (EWearableType) type );
+		apr_file_printf( file, "\n\t\t<!-- wearable: %s -->\n", wearable_name.c_str() );
 
 		for( LLVisualParam* param = avatar->getFirstVisualParam(); param; param = avatar->getNextVisualParam() )
 		{
@@ -8847,9 +8845,9 @@ void LLVOAvatar::dumpArchetypeXML( void* )
 				LLViewerImage* te_image = avatar->getTEImage( te );
 				if( te_image )
 				{
-					char uuid_str[UUID_STR_LENGTH];		/* Flawfinder: ignore */
+					std::string uuid_str;
 					te_image->getID().toString( uuid_str );
-					apr_file_printf( file, "\t\t<texture te=\"%i\" uuid=\"%s\"/>\n", te, uuid_str);
+					apr_file_printf( file, "\t\t<texture te=\"%i\" uuid=\"%s\"/>\n", te, uuid_str.c_str());
 				}
 			}
 		}
@@ -9480,7 +9478,7 @@ BOOL LLVOAvatarInfo::parseXmlColorNodes(LLXmlTreeNode* root)
 		 color_node;
 		 color_node = root->getNextNamedChild())
 	{
-		LLString global_color_name;
+		std::string global_color_name;
 		static LLStdStringHandle name_string = LLXmlTree::addAttributeString("name");
 		if (color_node->getFastAttributeString( name_string, global_color_name ) )
 		{
@@ -9620,9 +9618,9 @@ void LLVOAvatar::updateRegion(LLViewerRegion *regionp)
 	}
 }
 
-LLString LLVOAvatar::getFullname() const
+std::string LLVOAvatar::getFullname() const
 {
-	LLString name;
+	std::string name;
 
 	LLNameValue* first = getNVPair("FirstName"); 
 	LLNameValue* last  = getNVPair("LastName"); 

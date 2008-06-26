@@ -66,7 +66,7 @@ enum
 //---------------------------------------------------------------------------
 
 LLPanelLandMedia::LLPanelLandMedia(LLParcelSelectionHandle& parcel)
-:	LLPanel("land_media_panel"), mParcel(parcel)
+:	LLPanel(std::string("land_media_panel")), mParcel(parcel)
 {
 }
 
@@ -170,7 +170,7 @@ void LLPanelLandMedia::refresh()
 		mMediaURLEdit->setText(parcel->getMediaURL());
 		mMediaURLEdit->setEnabled( FALSE );
 
-		mMediaDescEdit->setText(LLString(parcel->getMediaDesc()));
+		mMediaDescEdit->setText(parcel->getMediaDesc());
 		mMediaDescEdit->setEnabled( can_change_media );
 
 		std::string mime_type = parcel->getMediaType();
@@ -267,12 +267,12 @@ void LLPanelLandMedia::refresh()
 
 void LLPanelLandMedia::populateMIMECombo()
 {
-	LLString default_mime_type = "none/none";
-	LLString default_label;
+	std::string default_mime_type = "none/none";
+	std::string default_label;
 	LLMIMETypes::mime_widget_set_map_t::const_iterator it;
 	for (it = LLMIMETypes::sWidgetMap.begin(); it != LLMIMETypes::sWidgetMap.end(); ++it)
 	{
-		const LLString& mime_type = it->first;
+		const std::string& mime_type = it->first;
 		const LLMIMETypes::LLMIMEWidgetSet& info = it->second;
 		if (info.mDefaultMimeType == default_mime_type)
 		{
@@ -289,24 +289,24 @@ void LLPanelLandMedia::populateMIMECombo()
 	mMediaTypeCombo->add( default_label, default_mime_type, ADD_BOTTOM );
 }
 
-void LLPanelLandMedia::setMediaType(const LLString& mime_type)
+void LLPanelLandMedia::setMediaType(const std::string& mime_type)
 {
 	LLParcel *parcel = mParcel->getParcel();
 	if(parcel)
-		parcel->setMediaType(mime_type.c_str());
+		parcel->setMediaType(mime_type);
 
-	LLString media_key = LLMIMETypes::widgetType(mime_type);
+	std::string media_key = LLMIMETypes::widgetType(mime_type);
 	mMediaTypeCombo->setValue(media_key);
 	childSetText("mime_type", mime_type);
 }
 
-void LLPanelLandMedia::setMediaURL(const LLString& media_url)
+void LLPanelLandMedia::setMediaURL(const std::string& media_url)
 {
 	mMediaURLEdit->setText(media_url);
 	mMediaURLEdit->onCommit();
 }
 
-LLString LLPanelLandMedia::getMediaURL()
+std::string LLPanelLandMedia::getMediaURL()
 {
 	return mMediaURLEdit->getText();
 }
@@ -374,17 +374,17 @@ void LLPanelLandMedia::onCommitAny(LLUICtrl*, void *userdata)
 	}
 
 	// Remove leading/trailing whitespace (common when copying/pasting)
-	LLString::trim(music_url);
-	LLString::trim(media_url);
+	LLStringUtil::trim(music_url);
+	LLStringUtil::trim(media_url);
 
 	// Push data into current parcel
 	parcel->setParcelFlag(PF_ALLOW_VOICE_CHAT, voice_enabled);
 	parcel->setParcelFlag(PF_USE_ESTATE_VOICE_CHAN, voice_estate_chan);
 	parcel->setParcelFlag(PF_SOUND_LOCAL, sound_local);
-	parcel->setMusicURL(music_url.c_str());
-	parcel->setMediaURL(media_url.c_str());
-	parcel->setMediaType(mime_type.c_str());
-	parcel->setMediaDesc(media_desc.c_str());
+	parcel->setMusicURL(music_url);
+	parcel->setMediaURL(media_url);
+	parcel->setMediaType(mime_type);
+	parcel->setMediaDesc(media_desc);
 	parcel->setMediaWidth(media_width);
 	parcel->setMediaHeight(media_height);
 	parcel->setMediaID(media_id);

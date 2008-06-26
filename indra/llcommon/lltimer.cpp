@@ -483,7 +483,7 @@ struct tm* utc_to_pacific_time(time_t utc_time, BOOL pacific_daylight_time)
 }
 
 
-void microsecondsToTimecodeString(U64 current_time, char *tcstring)
+void microsecondsToTimecodeString(U64 current_time, std::string& tcstring)
 {
 	U64 hours;
 	U64 minutes;
@@ -501,11 +501,11 @@ void microsecondsToTimecodeString(U64 current_time, char *tcstring)
 	subframes = current_time / (U64)42;
 	subframes %= 100;
 
-	sprintf(tcstring,"%3.3d:%2.2d:%2.2d:%2.2d.%2.2d",(int)hours,(int)minutes,(int)seconds,(int)frames,(int)subframes);		/* Flawfinder: ignore */
+	tcstring = llformat("%3.3d:%2.2d:%2.2d:%2.2d.%2.2d",(int)hours,(int)minutes,(int)seconds,(int)frames,(int)subframes);
 }
 
 
-void secondsToTimecodeString(F32 current_time, char *tcstring)
+void secondsToTimecodeString(F32 current_time, std::string& tcstring)
 {
 	microsecondsToTimecodeString((U64)((F64)(SEC_TO_MICROSEC*current_time)), tcstring);
 }

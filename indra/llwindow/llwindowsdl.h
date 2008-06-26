@@ -92,11 +92,6 @@ public:
 	/*virtual*/ void gatherInput();
 	/*virtual*/ void swapBuffers();
 
-	/*virtual*/ LLString getTempFileName();
-	/*virtual*/ void deleteFile( const char* file_name );
-	/*virtual*/ S32 stat( const char* file_name, struct stat* stat_info );
-	/*virtual*/ BOOL sendEmail(const char* address,const char* subject,const char* body_text,const char* attachment=NULL, const char* attachment_displayed_name=NULL);
-
     /*virtual*/ void delayInputProcessing() { };
 
 	// handy coordinate space conversion routines
@@ -120,6 +115,8 @@ public:
 	/*virtual*/ void *getPlatformWindow();
 	/*virtual*/ void bringToFront();
 
+	/*virtual*/ void spawnWebBrowser(const std::string& escaped_url);
+	
 	static std::string getFontListSans();
 
 	// Not great that these are public, but they have to be accessible
@@ -134,7 +131,7 @@ public:
 
 protected:
 	LLWindowSDL(
-		const char *title, int x, int y, int width, int height, U32 flags,
+		const std::string& title, int x, int y, int width, int height, U32 flags,
 		BOOL fullscreen, BOOL clearBg, BOOL disable_vsync, BOOL use_gl,
 		BOOL ignore_pixel_depth, U32 fsaa_samples);
 	~LLWindowSDL();
@@ -164,7 +161,7 @@ protected:
 	// create or re-create the GL context/window.  Called from the constructor and switchContext().
 	BOOL createContext(int x, int y, int width, int height, int bits, BOOL fullscreen, BOOL disable_vsync);
 	void destroyContext();
-	void setupFailure(const char* text, const char* caption, U32 type);
+	void setupFailure(const std::string& text, const std::string& caption, U32 type);
 	void adjustCursorDecouple(bool warpingMouse = false);
 	void fixWindowSize(void);
 	U32 SDLCheckGrabbyKeys(SDLKey keysym, BOOL gain);
@@ -176,7 +173,7 @@ protected:
 	U32             mGrabbyKeyFlags;
 	int			mReallyCapturedCount;
 	SDL_Surface *	mWindow;
-	char * 		mWindowTitle;
+	std::string mWindowTitle;
 	double		mOriginalAspectRatio;
 	BOOL		mCursorDecoupled;
 	S32			mCursorLastEventDeltaX;
@@ -220,11 +217,11 @@ public:
 	virtual ~LLSplashScreenSDL();
 
 	/*virtual*/ void showImpl();
-	/*virtual*/ void updateImpl(const char* mesg);
+	/*virtual*/ void updateImpl(const std::string& mesg);
 	/*virtual*/ void hideImpl();
 };
 
-S32 OSMessageBoxSDL(const char* text, const char* caption, U32 type);
+S32 OSMessageBoxSDL(const std::string& text, const std::string& caption, U32 type);
 
 void load_url_external(const char* url);
 

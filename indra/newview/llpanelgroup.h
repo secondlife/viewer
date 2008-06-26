@@ -103,11 +103,11 @@ public:
 
 	void setAllowEdit(BOOL v) { mAllowEdit = v; }
 
-	void showNotice(const char* subject,
-							const char* message,
-							const bool& has_inventory,
-							const char* inventory_name,
-							LLOfferInfo* inventory_offer);
+	void showNotice(const std::string& subject,
+					const std::string& message,
+					const bool& has_inventory,
+					const std::string& inventory_name,
+					LLOfferInfo* inventory_offer);
 protected:
 	LLPanelGroupTab*		mCurrentTab;
 	LLPanelGroupTab*		mRequestedTab;
@@ -123,8 +123,8 @@ protected:
 	std::string mInitialTab;
 	std::string mFilename;
 
-	LLString mDefaultNeedsApplyMesg;
-	LLString mWantApplyMesg;
+	std::string mDefaultNeedsApplyMesg;
+	std::string mWantApplyMesg;
 
 	BOOL mAllowEdit;
 	BOOL mShowingNotifyDialog;
@@ -148,14 +148,14 @@ public:
 
 	// Asks if something needs to be applied.
 	// If returning true, this function should modify the message to the user.
-	virtual bool needsApply(LLString& mesg) { return false; }
+	virtual bool needsApply(std::string& mesg) { return false; }
 
 	// Asks if there is currently a modal dialog being shown.
 	virtual BOOL hasModal() { return mHasModal; }
 
 	// Request to apply current data.
 	// If returning fail, this function should modify the message to the user.
-	virtual bool apply(LLString& mesg) { return true; }
+	virtual bool apply(std::string& mesg) { return true; }
 
 	// Request a cancel of changes
 	virtual void cancel() { }
@@ -164,7 +164,7 @@ public:
 	virtual void update(LLGroupChange gc) { }
 
 	// This is the text to be displayed when a help button is pressed.
-	virtual LLString getHelpText() const { return mHelpText; }
+	virtual std::string getHelpText() const { return mHelpText; }
 
 	// Display anything returned by getHelpText
 	static void onClickHelp(void* data);
@@ -184,7 +184,7 @@ public:
 protected:
 	LLUUID	mGroupID;
 	LLTabContainer*	mTabContainer;
-	LLString	mHelpText;
+	std::string	mHelpText;
 
 	BOOL mAllowEdit;
 	BOOL mHasModal;

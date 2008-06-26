@@ -75,7 +75,7 @@ asset_info_t asset_types[] =
 LLAssetType::EType LLAssetType::getType(const std::string& sin)
 {
 	std::string s = sin;
-	LLString::toUpper(s);
+	LLStringUtil::toUpper(s);
 	for (S32 idx = 0; ;idx++)
 	{
 		asset_info_t* info = asset_types + idx;
@@ -181,9 +181,14 @@ const char* LLAssetType::lookup( LLAssetType::EType type )
 // static
 LLAssetType::EType LLAssetType::lookup( const char* name )
 {
+	return lookup(ll_safe_string(name));
+}
+
+LLAssetType::EType LLAssetType::lookup( const std::string& name )
+{
 	for( S32 i = 0; i < AT_COUNT; i++ )
 	{
-		if( 0 == strcmp(name, mAssetTypeNames[i]) )
+		if( name == mAssetTypeNames[i] )
 		{
 			// match
 			return (EType)i;
@@ -208,9 +213,14 @@ const char* LLAssetType::lookupHumanReadable(LLAssetType::EType type)
 // static
 LLAssetType::EType LLAssetType::lookupHumanReadable( const char* name )
 {
+	return lookupHumanReadable(ll_safe_string(name));
+}
+
+LLAssetType::EType LLAssetType::lookupHumanReadable( const std::string& name )
+{
 	for( S32 i = 0; i < AT_COUNT; i++ )
 	{
-		if( 0 == strcmp(name, mAssetTypeHumanNames[i]) )
+		if( name == mAssetTypeHumanNames[i] )
 		{
 			// match
 			return (EType)i;

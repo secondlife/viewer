@@ -71,7 +71,7 @@ BOOL LLViewerVisualParamInfo::parseXml(LLXmlTreeNode *node)
 	
 	// VIEWER SPECIFIC PARAMS
 	
-	LLString wearable;
+	std::string wearable;
 	static LLStdStringHandle wearable_string = LLXmlTree::addAttributeString("wearable");
 	if( node->getFastAttributeString( wearable_string, wearable) )
 	{

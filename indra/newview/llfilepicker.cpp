@@ -63,12 +63,14 @@ LLFilePicker LLFilePicker::sInstance;
 //
 // Implementation
 //
-#if LL_WINDOWS
+LLFilePicker::LLFilePicker()
+	: mCurrentFile(0),
+	  mLocked(FALSE)
 
-LLFilePicker::LLFilePicker() 
 {
 	reset();
 
+#if LL_WINDOWS
 	mOFN.lStructSize = sizeof(OPENFILENAMEW);
 	mOFN.hwndOwner = NULL;  // Set later
 	mOFN.hInstance = NULL;
@@ -87,12 +89,64 @@ LLFilePicker::LLFilePicker()
 	mOFN.lCustData = 0L;
 	mOFN.lpfnHook = NULL;
 	mOFN.lpTemplateName = NULL;
+#endif
+
+#if LL_DARWIN
+	memset(&mNavOptions, 0, sizeof(mNavOptions));
+	OSStatus	error = NavGetDefaultDialogCreationOptions(&mNavOptions);
+	if (error == noErr)
+	{
+		mNavOptions.modality = kWindowModalityAppModal;
+	}
+#endif
 }
 
 LLFilePicker::~LLFilePicker()
 {
 	// nothing
 }
+
+
+const std::string LLFilePicker::getFirstFile()
+{
+	mCurrentFile = 0;
+	return getNextFile();
+}
+
+const std::string LLFilePicker::getNextFile()
+{
+	if (mCurrentFile >= (S32)mFiles.size())
+	{
+		mLocked = FALSE;
+		return std::string();
+	}
+	else
+	{
+		return mFiles[mCurrentFile++];
+	}
+}
+
+const std::string LLFilePicker::getCurFile()
+{
+	if (mCurrentFile >= (S32)mFiles.size())
+	{
+		mLocked = FALSE;
+		return std::string();
+	}
+	else
+	{
+		return mFiles[mCurrentFile];
+	}
+}
+
+void LLFilePicker::reset()
+{
+	mLocked = FALSE;
+	mFiles.clear();
+	mCurrentFile = 0;
+}
+
+#if LL_WINDOWS
 
 BOOL LLFilePicker::setupFilter(ELoadFilter filter)
 {
@@ -150,7 +204,6 @@ BOOL LLFilePicker::getOpenFile(ELoadFilter filter)
 		return FALSE;
 	}
 	BOOL success = FALSE;
-	mMultiFile = FALSE;
 
 	// don't provide default file selection
 	mFilesW[0] = '\0';
@@ -165,13 +218,15 @@ BOOL LLFilePicker::getOpenFile(ELoadFilter filter)
 	
 	// Modal, so pause agent
 	send_agent_pause();
+
+	reset();
+	
 	// NOTA BENE: hitting the file dialog triggers a window focus event, destroying the selection manager!!
 	success = GetOpenFileName(&mOFN);
 	if (success)
 	{
-		LLString tstr = utf16str_to_utf8str(llutf16string(mFilesW));
-		memcpy(mFiles, tstr.c_str(), tstr.size()+1); /*Flawfinder: ignore*/
-		mCurrentFile = mFiles;
+		std::string filename = utf16str_to_utf8str(llutf16string(mFilesW));
+		mFiles.push_back(filename);
 	}
 	send_agent_resume();
 
@@ -187,7 +242,6 @@ BOOL LLFilePicker::getMultipleOpenFiles(ELoadFilter filter)
 		return FALSE;
 	}
 	BOOL success = FALSE;
-	mMultiFile = FALSE;
 
 	// don't provide default file selection
 	mFilesW[0] = '\0';
@@ -200,6 +254,8 @@ BOOL LLFilePicker::getMultipleOpenFiles(ELoadFilter filter)
 		OFN_EXPLORER | OFN_ALLOWMULTISELECT;
 
 	setupFilter(filter);
+
+	reset();
 	
 	// Modal, so pause agent
 	send_agent_pause();
@@ -212,31 +268,26 @@ BOOL LLFilePicker::getMultipleOpenFiles(ELoadFilter filter)
 		// lengths.
 		if( wcslen(mOFN.lpstrFile) > mOFN.nFileOffset )	/*Flawfinder: ignore*/
 		{
-			mMultiFile = FALSE;
-			mCurrentFile = mFiles;
-			LLString tstr = utf16str_to_utf8str(llutf16string(mFilesW));
-			memcpy(mFiles, tstr.c_str(), tstr.size()+1); /*Flawfinder: ignore*/
-
-			mCurrentFile = &mFiles[mOFN.nFileOffset];
+			std::string filename = utf16str_to_utf8str(llutf16string(mFilesW));
+			mFiles.push_back(filename);
 		}
 		else
 		{
-			mMultiFile = TRUE;
-			mCurrentFile = 0;
 			mLocked = TRUE;
 			WCHAR* tptrw = mFilesW;
-			char* tptr = mFiles;
-			memset( mFiles, 0, FILENAME_BUFFER_SIZE );
+			std::string dirname;
 			while(1)
 			{
 				if (*tptrw == 0 && *(tptrw+1) == 0) // double '\0'
 					break;
-				if (*tptrw == 0 && !mCurrentFile)
-					mCurrentFile = tptr+1;
-				S32 tlen16,tlen8;
-				tlen16 = utf16chars_to_utf8chars(tptrw, tptr, &tlen8);
-				tptrw += tlen16;
-				tptr += tlen8;
+				if (*tptrw == 0)
+					tptrw++; // shouldn't happen?
+				std::string filename = utf16str_to_utf8str(llutf16string(tptrw));
+				if (dirname.empty())
+					dirname = filename + "\\";
+				else
+					mFiles.push_back(dirname + filename);
+				tptrw += filename.size();
 			}
 		}
 	}
@@ -247,17 +298,16 @@ BOOL LLFilePicker::getMultipleOpenFiles(ELoadFilter filter)
 	return success;
 }
 
-BOOL LLFilePicker::getSaveFile(ESaveFilter filter, const char* filename)
+BOOL LLFilePicker::getSaveFile(ESaveFilter filter, const std::string& filename)
 {
 	if( mLocked )
 	{
 		return FALSE;
 	}
 	BOOL success = FALSE;
-	mMultiFile = FALSE;
 
 	mOFN.lpstrFile = mFilesW;
-	if (filename)
+	if (!filename.empty())
 	{
 		llutf16string tstring = utf8str_to_utf16str(filename);
 		wcsncpy(mFilesW, tstring.c_str(), FILENAME_BUFFER_SIZE);	}	/*Flawfinder: ignore*/
@@ -278,7 +328,7 @@ BOOL LLFilePicker::getSaveFile(ESaveFilter filter, const char* filename)
 			L"\0";
 		break;
 	case FFSAVE_WAV:
-		if (!filename)
+		if (filename.empty())
 		{
 			wcsncpy( mFilesW,L"untitled.wav", FILENAME_BUFFER_SIZE);	/*Flawfinder: ignore*/
 		}
@@ -288,7 +338,7 @@ BOOL LLFilePicker::getSaveFile(ESaveFilter filter, const char* filename)
 			L"\0";
 		break;
 	case FFSAVE_TGA:
-		if (!filename)
+		if (filename.empty())
 		{
 			wcsncpy( mFilesW,L"untitled.tga", FILENAME_BUFFER_SIZE);	/*Flawfinder: ignore*/
 		}
@@ -298,7 +348,7 @@ BOOL LLFilePicker::getSaveFile(ESaveFilter filter, const char* filename)
 			L"\0";
 		break;
 	case FFSAVE_BMP:
-		if (!filename)
+		if (filename.empty())
 		{
 			wcsncpy( mFilesW,L"untitled.bmp", FILENAME_BUFFER_SIZE);	/*Flawfinder: ignore*/
 		}
@@ -308,7 +358,7 @@ BOOL LLFilePicker::getSaveFile(ESaveFilter filter, const char* filename)
 			L"\0";
 		break;
 	case FFSAVE_AVI:
-		if (!filename)
+		if (filename.empty())
 		{
 			wcsncpy( mFilesW,L"untitled.avi", FILENAME_BUFFER_SIZE);	/*Flawfinder: ignore*/
 		}
@@ -318,7 +368,7 @@ BOOL LLFilePicker::getSaveFile(ESaveFilter filter, const char* filename)
 			L"\0";
 		break;
 	case FFSAVE_ANIM:
-		if (!filename)
+		if (filename.empty())
 		{
 			wcsncpy( mFilesW,L"untitled.xaf", FILENAME_BUFFER_SIZE);	/*Flawfinder: ignore*/
 		}
@@ -329,7 +379,7 @@ BOOL LLFilePicker::getSaveFile(ESaveFilter filter, const char* filename)
 		break;
 #ifdef _CORY_TESTING
 	case FFSAVE_GEOMETRY:
-		if (!filename)
+		if (filename.empty())
 		{
 			wcsncpy( mFilesW,L"untitled.slg", FILENAME_BUFFER_SIZE);	/*Flawfinder: ignore*/
 		}
@@ -340,7 +390,7 @@ BOOL LLFilePicker::getSaveFile(ESaveFilter filter, const char* filename)
 		break;
 #endif
 	case FFSAVE_XML:
-		if (!filename)
+		if (filename.empty())
 		{
 			wcsncpy( mFilesW,L"untitled.xml", FILENAME_BUFFER_SIZE);	/*Flawfinder: ignore*/
 		}
@@ -351,7 +401,7 @@ BOOL LLFilePicker::getSaveFile(ESaveFilter filter, const char* filename)
 			L"\0";
 		break;
 	case FFSAVE_COLLADA:
-		if (!filename)
+		if (filename.empty())
 		{
 			wcsncpy( mFilesW,L"untitled.collada", FILENAME_BUFFER_SIZE);	/*Flawfinder: ignore*/
 		}
@@ -361,7 +411,7 @@ BOOL LLFilePicker::getSaveFile(ESaveFilter filter, const char* filename)
 			L"\0";
 		break;
 	case FFSAVE_RAW:
-		if (!filename)
+		if (filename.empty())
 		{
 			wcsncpy( mFilesW,L"untitled.raw", FILENAME_BUFFER_SIZE);	/*Flawfinder: ignore*/
 		}
@@ -370,7 +420,7 @@ BOOL LLFilePicker::getSaveFile(ESaveFilter filter, const char* filename)
 							L"\0";
 		break;
 	case FFSAVE_J2C:
-		if (!filename)
+		if (filename.empty())
 		{
 			wcsncpy( mFilesW,L"untitled.j2c", FILENAME_BUFFER_SIZE);
 		}
@@ -387,6 +437,8 @@ BOOL LLFilePicker::getSaveFile(ESaveFilter filter, const char* filename)
 	mOFN.nMaxFile = SINGLE_FILENAME_BUFFER_SIZE;
 	mOFN.Flags = OFN_OVERWRITEPROMPT | OFN_NOCHANGEDIR | OFN_PATHMUSTEXIST;
 
+	reset();
+
 	// Modal, so pause agent
 	send_agent_pause();
 	{
@@ -394,9 +446,8 @@ BOOL LLFilePicker::getSaveFile(ESaveFilter filter, const char* filename)
 		success = GetSaveFileName(&mOFN);
 		if (success)
 		{
-			LLString tstr = utf16str_to_utf8str(llutf16string(mFilesW));
-			memcpy(mFiles, tstr.c_str(), tstr.size()+1);  /*Flawfinder: ignore*/
-			mCurrentFile = mFiles;
+			std::string filename = utf16str_to_utf8str(llutf16string(mFilesW));
+			mFiles.push_back(filename);
 		}
 		gKeyboard->resetKeys();
 	}
@@ -407,83 +458,7 @@ BOOL LLFilePicker::getSaveFile(ESaveFilter filter, const char* filename)
 	return success;
 }
 
-const char* LLFilePicker::getFirstFile()
-{
-	if(mMultiFile)
-	{
-		buildFilename();
-		return mFilename;
-	}
-	return mFiles;
-}
-
-const char* LLFilePicker::getNextFile()
-{
-	if(mMultiFile)
-	{
-		mCurrentFile += strlen(mCurrentFile) + 1;	/*Flawfinder: ignore*/
-		if( '\0' != mCurrentFile[0] )
-		{
-			buildFilename();
-			return mFilename;
-		}
-		else
-		{
-			mLocked = FALSE;
-		}
-	}
-	return NULL;
-}
-
-const char* LLFilePicker::getDirname()
-{
-	if( '\0' != mCurrentFile[0] )
-	{
-		return mCurrentFile;
-	}
-	return NULL;
-}
-
-void LLFilePicker::reset()
-{
-	mLocked = FALSE;
-	memset( mFiles, 0, FILENAME_BUFFER_SIZE );
-	memset( mFilename, 0, LL_MAX_PATH );
-	mCurrentFile = mFiles;
-}
-
-void LLFilePicker::buildFilename( void )
-{
-	strncpy( mFilename, mFiles, LL_MAX_PATH );
-	mFilename[LL_MAX_PATH-1] = '\0'; // stupid strncpy
-	S32 len = strlen( mFilename );
-
-	strncat(mFilename,gDirUtilp->getDirDelimiter().c_str(), sizeof(mFilename)-len+1);		/*Flawfinder: ignore*/
-	len += strlen(gDirUtilp->getDirDelimiter().c_str());	/*Flawfinder: ignore*/
-
-//	mFilename[len++] = '\\';
-	LLString::copy( mFilename + len, mCurrentFile, LL_MAX_PATH - len );
-}
-
 #elif LL_DARWIN
-
-LLFilePicker::LLFilePicker() 
-{
-	reset();
-
-	memset(&mNavOptions, 0, sizeof(mNavOptions));
-	OSStatus	error = NavGetDefaultDialogCreationOptions(&mNavOptions);
-	if (error == noErr)
-	{
-		mNavOptions.modality = kWindowModalityAppModal;
-	}
-	mFileIndex = 0;
-}
-
-LLFilePicker::~LLFilePicker()
-{
-	// nothing
-}
 
 Boolean LLFilePicker::navOpenFilterProc(AEDesc *theItem, void *info, void *callBackUD, NavFilterModes filterMode)
 {
@@ -589,8 +564,6 @@ OSStatus	LLFilePicker::doNavChooseDialog(ELoadFilter filter)
 	NavReplyRecord	navReply;
 
 	memset(&navReply, 0, sizeof(navReply));
-	mFiles[0] = '\0';
-	mFileVector.clear();
 	
 	// NOTE: we are passing the address of a local variable here.  
 	//   This is fine, because the object this call creates will exist for less than the lifetime of this function.
@@ -632,22 +605,20 @@ OSStatus	LLFilePicker::doNavChooseDialog(ELoadFilter filter)
 				error = FSRefMakePath(&fsRef, (UInt8*) path, sizeof(path));
 			
 			if (error == noErr)
-				mFileVector.push_back(LLString(path));
+				mFiles.push_back(std::string(path));
 		}
 	}
 	
 	return error;
 }
 
-OSStatus	LLFilePicker::doNavSaveDialog(ESaveFilter filter, const char* filename)
+OSStatus	LLFilePicker::doNavSaveDialog(ESaveFilter filter, const std::string& filename)
 {
 	OSStatus		error = noErr;
 	NavDialogRef	navRef = NULL;
 	NavReplyRecord	navReply;
 	
 	memset(&navReply, 0, sizeof(navReply));
-	mFiles[0] = '\0';
-	mFileVector.clear();
 	
 	// Setup the type, creator, and extension
 	OSType		type, creator;
@@ -719,8 +690,8 @@ OSStatus	LLFilePicker::doNavSaveDialog(ESaveFilter filter, const char* filename)
 		bool		hasExtension = true;
 		
 		// Create a CFString of the initial file name
-		if (filename)
-			nameString = CFStringCreateWithCString(NULL, filename, kCFStringEncodingUTF8);
+		if (!filename.empty())
+			nameString = CFStringCreateWithCString(NULL, filename.c_str(), kCFStringEncodingUTF8);
 		else
 			nameString = CFSTR("Untitled");
 			
@@ -786,7 +757,7 @@ OSStatus	LLFilePicker::doNavSaveDialog(ESaveFilter filter, const char* filename)
 				{
 					if (CFStringGetCString(navReply.saveFileName, newFileName, sizeof(newFileName), kCFStringEncodingUTF8))
 					{
-						mFileVector.push_back(LLString(path) + LLString("/") +  LLString(newFileName));
+						mFiles.push_back(std::string(path) + "/" +  std::string(newFileName));
 					}
 					else
 					{
@@ -806,13 +777,15 @@ OSStatus	LLFilePicker::doNavSaveDialog(ESaveFilter filter, const char* filename)
 
 BOOL LLFilePicker::getOpenFile(ELoadFilter filter)
 {
-	if( mLocked ) return FALSE;
-	mMultiFile = FALSE;
+	if( mLocked )
+		return FALSE;
+
 	BOOL success = FALSE;
 
 	OSStatus	error = noErr;
 	
-	mFileVector.clear();
+	reset();
+	
 	mNavOptions.optionFlags &= ~kNavAllowMultipleFiles;
 	// Modal, so pause agent
 	send_agent_pause();
@@ -822,7 +795,7 @@ BOOL LLFilePicker::getOpenFile(ELoadFilter filter)
 	send_agent_resume();
 	if (error == noErr)
 	{
-		if (mFileVector.size())
+		if (mFiles.size())
 			success = true;
 	}
 
@@ -833,13 +806,15 @@ BOOL LLFilePicker::getOpenFile(ELoadFilter filter)
 
 BOOL LLFilePicker::getMultipleOpenFiles(ELoadFilter filter)
 {
-	if( mLocked ) return FALSE;
-	mMultiFile = TRUE;
+	if( mLocked )
+		return FALSE;
+
 	BOOL success = FALSE;
 
 	OSStatus	error = noErr;
+
+	reset();
 	
-	mFileVector.clear();
 	mNavOptions.optionFlags |= kNavAllowMultipleFiles;
 	// Modal, so pause agent
 	send_agent_pause();
@@ -849,9 +824,9 @@ BOOL LLFilePicker::getMultipleOpenFiles(ELoadFilter filter)
 	send_agent_resume();
 	if (error == noErr)
 	{
-		if (mFileVector.size())
+		if (mFiles.size())
 			success = true;
-		if (mFileVector.size() > 1)
+		if (mFiles.size() > 1)
 			mLocked = TRUE;
 	}
 
@@ -860,38 +835,15 @@ BOOL LLFilePicker::getMultipleOpenFiles(ELoadFilter filter)
 	return success;
 }
 
-void LLFilePicker::getFilePath(SInt32 index)
+BOOL LLFilePicker::getSaveFile(ESaveFilter filter, const std::string& filename)
 {
-	mFiles[0] = 0;
-	if (mFileVector.size())
-	{
-		strncpy(mFiles, mFileVector[index].c_str(), sizeof(mFiles));
-		mFiles[sizeof(mFiles)-1] = '\0'; // stupid strncpy
-	}
-}
-
-void LLFilePicker::getFileName(SInt32 index)
-{
-	mFilename[0] = 0;
-	if (mFileVector.size())
-	{
-		char	*start = strrchr(mFileVector[index].c_str(), '/');
-		if (start && ((start + 1 - mFileVector[index].c_str()) < (mFileVector[index].size())))
-		{
-			strncpy(mFilename, start + 1, sizeof(mFilename));
-			mFilename[sizeof(mFilename)-1] = '\0';// stupid strncpy
-		}
-	}
-}
-
-BOOL LLFilePicker::getSaveFile(ESaveFilter filter, const char* filename)
-{
-	if( mLocked ) return FALSE;
+	if( mLocked )
+		return FALSE;
 	BOOL success = FALSE;
 	OSStatus	error = noErr;
 
-	mFileVector.clear();
-	mMultiFile = FALSE;
+	reset();
+	
 	mNavOptions.optionFlags &= ~kNavAllowMultipleFiles;
 
 	// Modal, so pause agent
@@ -902,7 +854,7 @@ BOOL LLFilePicker::getSaveFile(ESaveFilter filter, const char* filename)
 	send_agent_resume();
 	if (error == noErr)
 	{
-		if (mFileVector.size())
+		if (mFiles.size())
 			success = true;
 	}
 
@@ -911,98 +863,38 @@ BOOL LLFilePicker::getSaveFile(ESaveFilter filter, const char* filename)
 	return success;
 }
 
-const char* LLFilePicker::getFirstFile()
-{
-	mFileIndex = 0;
-	getFilePath(mFileIndex);
-	return mFiles;
-}
-
-const char* LLFilePicker::getNextFile()
-{
-	if(mMultiFile)
-	{
-		mFileIndex++;
-		if (mFileIndex < mFileVector.size())
-		{
-			getFilePath(mFileIndex);
-			return mFiles;
-		}
-		else
-		{
-			mLocked = FALSE;
-		}
-	}
-	return NULL;
-}
-
-const char* LLFilePicker::getDirname()
-{
-	if (mFileIndex < mFileVector.size())
-	{
-		getFileName(mFileIndex);
-		return mFilename;
-	}
-	return NULL;
-}
-
-void LLFilePicker::reset()
-{
-	mLocked = FALSE;
-	memset( mFiles, 0, FILENAME_BUFFER_SIZE );
-	memset( mFilename, 0, LL_MAX_PATH );
-	mCurrentFile = mFiles;
-
-	mFileIndex = 0;
-	mFileVector.clear();
-}
-
 #elif LL_LINUX
 
 # if LL_GTK
-// This caches the previously-accessed path for a given context of the file
-// chooser, for user convenience.
-std::map <std::string, std::string> LLFilePicker::sContextToPathMap;
 
-LLFilePicker::LLFilePicker() 
+// static
+void LLFilePicker::add_to_selectedfiles(gpointer data, gpointer user_data)
 {
-	reset();
-}
-
-LLFilePicker::~LLFilePicker()
-{
-}
-
-
-static void add_to_sfs(gpointer data, gpointer user_data)
-{
-	StoreFilenamesStruct *sfs = (StoreFilenamesStruct*) user_data;
+	LLFilePicker* picker = (LLFilePicker*) user_data;
 	gchar* filename_utf8 = g_filename_to_utf8((gchar*)data,
-						  -1, NULL,
-						  NULL,
-						  NULL);
-	sfs->fileVector.push_back(LLString(filename_utf8));
+						  -1, NULL, NULL, NULL);
+	picker->mFiles.push_back(std::string(filename_utf8));
+	lldebugs << "ADDED FILE " << filename_utf8 << llendl;
 	g_free(filename_utf8);
 }
 
-
-void chooser_responder(GtkWidget *widget,
-		       gint       response,
-		       gpointer user_data) {
-	StoreFilenamesStruct *sfs = (StoreFilenamesStruct*) user_data;
+// static
+void LLFilePicker::chooser_responder(GtkWidget *widget, gint response, gpointer user_data)
+{
+	LLFilePicker* picker = (LLFilePicker*)user_data;
 
 	lldebugs << "GTK DIALOG RESPONSE " << response << llendl;
 
 	if (response == GTK_RESPONSE_ACCEPT)
 	{
 		GSList *file_list = gtk_file_chooser_get_filenames(GTK_FILE_CHOOSER(widget));
-		g_slist_foreach(file_list, (GFunc)add_to_sfs, sfs);
+		g_slist_foreach(file_list, (GFunc)add_to_selectedfiles, user_data);
 		g_slist_foreach(file_list, (GFunc)g_free, NULL);
 		g_slist_free (file_list);
 	}
 
 	// set the default path for this usage context.
-	LLFilePicker::sContextToPathMap[sfs->contextName] =
+	picker->mContextToPathMap[picker->mCurContextName] =
 		gtk_file_chooser_get_current_folder(GTK_FILE_CHOOSER(widget));
 
 	gtk_widget_destroy(widget);
@@ -1010,8 +902,7 @@ void chooser_responder(GtkWidget *widget,
 }
 
 
-GtkWindow* LLFilePicker::buildFilePicker(bool is_save, bool is_folder,
-					 std::string context)
+GtkWindow* LLFilePicker::buildFilePicker(bool is_save, bool is_folder, std::string context)
 {
 	if (ll_try_gtk_init() &&
 	    ! gViewerWindow->getWindow()->getFullscreen())
@@ -1037,14 +928,13 @@ GtkWindow* LLFilePicker::buildFilePicker(bool is_save, bool is_folder,
 						   GTK_STOCK_OPEN),
 						   GTK_RESPONSE_ACCEPT,
 						  (gchar *)NULL);
-		mStoreFilenames.win = win;
-		mStoreFilenames.contextName = context;
+		mCurContextName = context;
 
 		// get the default path for this usage context if it's been
 		// seen before.
 		std::map<std::string,std::string>::iterator
-			this_path = sContextToPathMap.find(context);
-		if (this_path != sContextToPathMap.end())
+			this_path = mContextToPathMap.find(context);
+		if (this_path != mContextToPathMap.end())
 		{
 			gtk_file_chooser_set_current_folder
 				(GTK_FILE_CHOOSER(win),
@@ -1071,8 +961,8 @@ GtkWindow* LLFilePicker::buildFilePicker(bool is_save, bool is_folder,
 
 		g_signal_connect (GTK_FILE_CHOOSER(win),
 				  "response",
-				  G_CALLBACK(chooser_responder),
-				  &mStoreFilenames);
+				  G_CALLBACK(LLFilePicker::chooser_responder),
+				  this);
 
 		gtk_window_set_modal(GTK_WINDOW(win), TRUE);
 
@@ -1147,13 +1037,14 @@ static std::string add_imageload_filter_to_gtkchooser(GtkWindow *picker)
 }
 
 
-BOOL LLFilePicker::getSaveFile( ESaveFilter filter, const char* filename )
+BOOL LLFilePicker::getSaveFile( ESaveFilter filter, const std::string& filename )
 {
 	BOOL rtn = FALSE;
 
 	gViewerWindow->mWindow->beforeDialog();
 
 	reset();
+	
 	GtkWindow* picker = buildFilePicker(true, false, "savefile");
 
 	if (picker)
@@ -1210,7 +1101,7 @@ BOOL LLFilePicker::getSaveFile( ESaveFilter filter, const char* filename )
 		
 		gtk_window_set_title(GTK_WINDOW(picker), caption.c_str());
 
-		if (!filename)
+		if (filename.empty())
 		{
 			suggest_name += suggest_ext;
 
@@ -1221,13 +1112,13 @@ BOOL LLFilePicker::getSaveFile( ESaveFilter filter, const char* filename )
 		else
 		{
 			gtk_file_chooser_set_current_name
-				(GTK_FILE_CHOOSER(picker), filename);
+				(GTK_FILE_CHOOSER(picker), filename.c_str());
 		}
 
 		gtk_widget_show_all(GTK_WIDGET(picker));
 		gtk_main();
 
-		rtn = (mStoreFilenames.fileVector.size() == 1);
+		rtn = (mFiles.size() == 1);
 	}
 
 	gViewerWindow->mWindow->afterDialog();
@@ -1242,6 +1133,7 @@ BOOL LLFilePicker::getOpenFile( ELoadFilter filter )
 	gViewerWindow->mWindow->beforeDialog();
 
 	reset();
+	
 	GtkWindow* picker = buildFilePicker(false, false, "openfile");
 
 	if (picker)
@@ -1270,7 +1162,7 @@ BOOL LLFilePicker::getOpenFile( ELoadFilter filter )
 		gtk_widget_show_all(GTK_WIDGET(picker));
 		gtk_main();
 
-		rtn = (mStoreFilenames.fileVector.size() == 1);
+		rtn = (mFiles.size() == 1);
 	}
 
 	gViewerWindow->mWindow->afterDialog();
@@ -1285,6 +1177,7 @@ BOOL LLFilePicker::getMultipleOpenFiles( ELoadFilter filter )
 	gViewerWindow->mWindow->beforeDialog();
 
 	reset();
+	
 	GtkWindow* picker = buildFilePicker(false, false, "openfile");
 
 	if (picker)
@@ -1296,7 +1189,7 @@ BOOL LLFilePicker::getMultipleOpenFiles( ELoadFilter filter )
 
 		gtk_widget_show_all(GTK_WIDGET(picker));
 		gtk_main();
-		rtn = !mStoreFilenames.fileVector.empty();
+		rtn = !mFiles.empty();
 	}
 
 	gViewerWindow->mWindow->afterDialog();
@@ -1304,178 +1197,69 @@ BOOL LLFilePicker::getMultipleOpenFiles( ELoadFilter filter )
 	return rtn;
 }
 
-const char* LLFilePicker::getFirstFile()
-{
-	mNextFileIndex = 0;
-	return getNextFile();
-}
-
-const char* LLFilePicker::getNextFile()
-{
-	if (mStoreFilenames.fileVector.size() > mNextFileIndex)
-		return mStoreFilenames.fileVector[mNextFileIndex++].c_str();
-	else
-		return NULL;
-}
-
-const char* LLFilePicker::getDirname()
-{
-	// getDirname is badly named... it really means getBasename.
-	S32 index = mNextFileIndex - 1; // want index before the 'next' cursor
-	if (index >= 0 && index < (S32)mStoreFilenames.fileVector.size())
-	{
-		// we do this using C strings so we don't have to
-		// convert a LLString/std::string character offset into a
-		// byte-offset for the return (which is a C string anyway).
-		const char* dirsep = gDirUtilp->getDirDelimiter().c_str();
-		const char* fullpath = mStoreFilenames.fileVector[index].c_str();
-		const char* finalpart = NULL;
-		const char* thispart = fullpath;
-		// (Hmm, is the strstr of dirsep UTF-8-correct?  Yes, reckon.)
-		// Walk through the string looking for the final dirsep, i.e. /
-		do
-		{
-			thispart = strstr(thispart, dirsep);
-			if (NULL != thispart)
-				finalpart = thispart = &thispart[1];
-		}
-		while (NULL != thispart);
-		return finalpart;
-	}
-	else
-		return NULL;
-}
-
-void LLFilePicker::reset()
-{
-	mNextFileIndex = 0;
-	mStoreFilenames.win = NULL;
-	mStoreFilenames.fileVector.clear();
-}
-
 # else // LL_GTK
 
 // Hacky stubs designed to facilitate fake getSaveFile and getOpenFile with
 // static results, when we don't have a real filepicker.
 
-static LLString hackyfilename;
-
-LLFilePicker::LLFilePicker() 
+BOOL LLFilePicker::getSaveFile( ESaveFilter filter, const std::string& filename )
 {
 	reset();
-}
-
-LLFilePicker::~LLFilePicker()
-{
-}
-
-BOOL LLFilePicker::getSaveFile( ESaveFilter filter, const char* filename )
-{
+	
 	llinfos << "getSaveFile suggested filename is [" << filename
 		<< "]" << llendl;
-	if (filename && filename[0])
+	if (!filename.empty())
 	{
-		hackyfilename.assign(gDirUtilp->getLindenUserDir());
-		hackyfilename += gDirUtilp->getDirDelimiter();
-		hackyfilename += filename;
+		mFiles.push_back(gDirUtilp->getLindenUserDir() + gDirUtilp->getDirDelimiter() + filename);
 		return TRUE;
 	}
-	hackyfilename.clear();
 	return FALSE;
 }
 
 BOOL LLFilePicker::getOpenFile( ELoadFilter filter )
 {
+	reset();
+	
 	// HACK: Static filenames for 'open' until we implement filepicker
-	hackyfilename.assign(gDirUtilp->getLindenUserDir());
-	hackyfilename += gDirUtilp->getDirDelimiter();
-	hackyfilename += "upload";
+	std::string filename = gDirUtilp->getLindenUserDir() + gDirUtilp->getDirDelimiter() + "upload";
 	switch (filter)
 	{
-	case FFLOAD_WAV: hackyfilename += ".wav"; break;
-	case FFLOAD_IMAGE: hackyfilename += ".tga"; break;
-	case FFLOAD_ANIM: hackyfilename += ".bvh"; break;
+	case FFLOAD_WAV: filename += ".wav"; break;
+	case FFLOAD_IMAGE: filename += ".tga"; break;
+	case FFLOAD_ANIM: filename += ".bvh"; break;
 	default: break;
 	}
-	llinfos << "getOpenFile: Will try to open file: " << hackyfilename
-		<< llendl;
+	mFiles.push_back(filename);
+	llinfos << "getOpenFile: Will try to open file: " << hackyfilename << llendl;
 	return TRUE;
 }
 
 BOOL LLFilePicker::getMultipleOpenFiles( ELoadFilter filter )
 {
-	hackyfilename.clear();
+	reset();
 	return FALSE;
 }
 
-const char* LLFilePicker::getFirstFile()
-{
-	if (!hackyfilename.empty())
-	{
-		return hackyfilename.c_str();
-	}
-	return NULL;
-}
-
-const char* LLFilePicker::getNextFile()
-{
-	hackyfilename.clear();
-	return NULL;
-}
-
-const char* LLFilePicker::getDirname()
-{
-	return NULL;
-}
-
-void LLFilePicker::reset()
-{
-}
 #endif // LL_GTK
 
 #else // not implemented
 
-LLFilePicker::LLFilePicker() 
+BOOL LLFilePicker::getSaveFile( ESaveFilter filter, const std::string& filename )
 {
-	reset();
-}
-
-LLFilePicker::~LLFilePicker()
-{
-}
-
-BOOL LLFilePicker::getSaveFile( ESaveFilter filter, const char* filename )
-{
+	reset();	
 	return FALSE;
 }
 
 BOOL LLFilePicker::getOpenFile( ELoadFilter filter )
 {
+	reset();
 	return FALSE;
 }
 
 BOOL LLFilePicker::getMultipleOpenFiles( ELoadFilter filter )
 {
+	reset();
 	return FALSE;
-}
-
-const char* LLFilePicker::getFirstFile()
-{
-	return NULL;
-}
-
-const char* LLFilePicker::getNextFile()
-{
-	return NULL;
-}
-
-const char* LLFilePicker::getDirname()
-{
-	return NULL;
-}
-
-void LLFilePicker::reset()
-{
 }
 
 #endif

@@ -45,7 +45,7 @@ struct WLFloatControl;
 struct LLWLSkyKey
 {
 public:
-	LLString presetName;
+	std::string presetName;
 	F32 time;
 };
 
@@ -60,7 +60,7 @@ public:
 
 	/// help button stuff
 	static void onClickHelp(void* data);
-	void initHelpBtn(const char* name, const char* xml_alert);
+	void initHelpBtn(const std::string& name, const std::string& xml_alert);
 
 	/// initialize all
 	void initCallbacks(void);
@@ -93,7 +93,7 @@ public:
 	static void onAddKey(void* userData);
 
 	/// delete any and all reference to a preset
-	void deletePreset(LLString& presetName);
+	void deletePreset(std::string& presetName);
 
 	/// delete a key frame
 	static void onDeleteKey(void* userData);
@@ -129,7 +129,7 @@ public:
 	static void syncTrack();
 
 	/// add a slider to the track
-	static void addSliderKey(F32 time, const LLString& presetName);
+	static void addSliderKey(F32 time, const std::string& presetName);
 
 private:
 
@@ -137,7 +137,7 @@ private:
 	static LLFloaterDayCycle* sDayCycle;
 
 	// map of sliders to parameters
-	static std::map<LLString, LLWLSkyKey> sSliderToKey;
+	static std::map<std::string, LLWLSkyKey> sSliderToKey;
 
 	static const F32 sHoursPerDay;
 };

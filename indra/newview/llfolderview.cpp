@@ -118,7 +118,7 @@ LLColor4 LLFolderViewItem::sSuffixColor;
 LLColor4 LLFolderViewItem::sSearchStatusColor;
 
 // Default constructor
-LLFolderViewItem::LLFolderViewItem( const LLString& name, LLUIImagePtr icon,
+LLFolderViewItem::LLFolderViewItem( const std::string& name, LLUIImagePtr icon,
 								   S32 creation_date,
 								   LLFolderView* root,
 									LLFolderViewEventListener* listener ) :
@@ -137,7 +137,7 @@ LLFolderViewItem::LLFolderViewItem( const LLString& name, LLUIImagePtr icon,
 	mNumDescendantsSelected(0),
 	mFiltered(FALSE),
 	mLastFilterGeneration(-1),
-	mStringMatchOffset(LLString::npos),
+	mStringMatchOffset(std::string::npos),
 	mControlLabelRotation(0.f),
 	mRoot( root ),
 	mDragAndDropTarget(FALSE),
@@ -280,8 +280,7 @@ void LLFolderViewItem::refresh()
 {
 	if(mListener)
 	{
-		const char* label = mListener->getDisplayName().c_str();
-		mLabel = label ? label : "";
+		mLabel = mListener->getDisplayName();
 		setIcon(mListener->getIcon());
 		time_t creation_date = mListener->getCreationDate();
 		if (mCreationDate != creation_date)
@@ -292,9 +291,9 @@ void LLFolderViewItem::refresh()
 		mLabelStyle = mListener->getLabelStyle();
 		mLabelSuffix = mListener->getLabelSuffix();
 
-		LLString searchable_label(mLabel);
+		std::string searchable_label(mLabel);
 		searchable_label.append(mLabelSuffix);
-		LLString::toUpper(searchable_label);
+		LLStringUtil::toUpper(searchable_label);
 
 		if (mSearchableLabel.compare(searchable_label))
 		{
@@ -564,11 +563,11 @@ void LLFolderViewItem::preview( void )
 	}
 }
 
-void LLFolderViewItem::rename(const LLString& new_name)
+void LLFolderViewItem::rename(const std::string& new_name)
 {
 	if( !new_name.empty() )
 	{
-		mLabel = new_name.c_str();
+		mLabel = new_name;
 		if( mListener )
 		{
 			mListener->renameItem(new_name);
@@ -581,12 +580,12 @@ void LLFolderViewItem::rename(const LLString& new_name)
 	}
 }
 
-const LLString& LLFolderViewItem::getSearchableLabel() const
+const std::string& LLFolderViewItem::getSearchableLabel() const
 {
 	return mSearchableLabel;
 }
 
-const LLString& LLFolderViewItem::getName( void ) const
+const std::string& LLFolderViewItem::getName( void ) const
 {
 	if(mListener)
 	{
@@ -757,7 +756,7 @@ BOOL LLFolderViewItem::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 										 EDragAndDropType cargo_type,
 										 void* cargo_data,
 										 EAcceptance* accept,
-										 LLString& tooltip_msg)
+										 std::string& tooltip_msg)
 {
 	BOOL accepted = FALSE;
 	BOOL handled = FALSE;
@@ -922,7 +921,8 @@ void LLFolderViewItem::draw()
 
 		if ( mIsLoading && mTimeSinceRequestStart.getElapsedTimeF32() >= gSavedSettings.getF32("FolderLoadingMessageWaitTime") )
 		{
-			sFont->renderUTF8( "Loading... ", 0, text_left, y, sSearchStatusColor,
+			// *TODO: Translate
+			sFont->renderUTF8( std::string("Loading... "), 0, text_left, y, sSearchStatusColor,
 						LLFontGL::LEFT, LLFontGL::BOTTOM, mLabelStyle, S32_MAX, S32_MAX, &right_x, FALSE);
 			text_left = right_x;
 		}
@@ -937,13 +937,13 @@ void LLFolderViewItem::draw()
 								S32_MAX, S32_MAX, &right_x, FALSE );
 		}
 
-		if (mBoxImage.notNull() && mStringMatchOffset != LLString::npos)
+		if (mBoxImage.notNull() && mStringMatchOffset != std::string::npos)
 		{
 			// don't draw backgrounds for zero-length strings
 			S32 filter_string_length = mRoot->getFilterSubString().size();
 			if (filter_string_length > 0)
 			{
-				LLString combined_string = mLabel + mLabelSuffix;
+				std::string combined_string = mLabel + mLabelSuffix;
 				S32 left = llround(text_left) + sFont->getWidth(combined_string, 0, mStringMatchOffset) - 1;
 				S32 right = left + sFont->getWidth(combined_string, mStringMatchOffset, filter_string_length) + 2;
 				S32 bottom = llfloor(getRect().getHeight() - sFont->getLineHeight() - 3);
@@ -972,7 +972,7 @@ void LLFolderViewItem::draw()
 ///----------------------------------------------------------------------------
 
 // Default constructor
-LLFolderViewFolder::LLFolderViewFolder( const LLString& name, LLUIImagePtr icon,
+LLFolderViewFolder::LLFolderViewFolder( const std::string& name, LLUIImagePtr icon,
 										LLFolderView* root,
 										LLFolderViewEventListener* listener ): 
 	LLFolderViewItem( name, icon, 0, root, listener ),	// 0 = no create time
@@ -988,7 +988,7 @@ LLFolderViewFolder::LLFolderViewFolder( const LLString& name, LLUIImagePtr icon,
 	mCompletedFilterGeneration(-1),
 	mMostFilteredDescendantGeneration(-1)
 {
-	mType = "(folder)";
+	mType = std::string("(folder)");
 }
 
 // Destroys the object
@@ -1958,7 +1958,7 @@ BOOL LLFolderViewFolder::handleDragAndDropFromChild(MASK mask,
 						EDragAndDropType c_type,
 						void* cargo_data,
 						EAcceptance* accept,
-						LLString& tooltip_msg)
+						std::string& tooltip_msg)
 {
 	BOOL accepted = mListener && mListener->dragOrDrop(mask,drop,c_type,cargo_data);
 	if (accepted) 
@@ -2023,7 +2023,7 @@ BOOL LLFolderViewFolder::handleDragAndDrop(S32 x, S32 y, MASK mask,
 										   EDragAndDropType cargo_type,
 										   void* cargo_data,
 										   EAcceptance* accept,
-										   LLString& tooltip_msg)
+										   std::string& tooltip_msg)
 {
 	LLFolderView* root_view = getRoot();
 
@@ -2487,7 +2487,7 @@ void LLCloseAllFoldersFunctor::doItem(LLFolderViewItem* item)
 ///----------------------------------------------------------------------------
 
 // Default constructor
-LLFolderView::LLFolderView( const LLString& name, LLUIImagePtr root_folder_icon, 
+LLFolderView::LLFolderView( const std::string& name, LLUIImagePtr root_folder_icon, 
 						   const LLRect& rect, const LLUUID& source_id, LLView *parent_view ) :
 #if LL_WINDOWS
 #pragma warning( push )
@@ -2534,9 +2534,9 @@ LLFolderView::LLFolderView( const LLString& name, LLUIImagePtr root_folder_icon,
 	//clear label
 	// go ahead and render root folder as usual
 	// just make sure the label ("Inventory Folder") never shows up
-	mLabel = LLString::null;
+	mLabel = LLStringUtil::null;
 
-	mRenamer = new LLLineEditor("ren", getRect(), "", sFont,
+	mRenamer = new LLLineEditor(std::string("ren"), getRect(), LLStringUtil::null, sFont,
 								DB_INV_ITEM_NAME_STR_LEN,
 								&LLFolderView::commitRename,
 								NULL,
@@ -2553,7 +2553,7 @@ LLFolderView::LLFolderView( const LLString& name, LLUIImagePtr root_folder_icon,
 	LLMenuGL* menu = LLUICtrlFactory::getInstance()->buildMenu("menu_inventory.xml", parent_view);
 	if (!menu)
 	{
-		menu = new LLMenuGL("");
+		menu = new LLMenuGL(LLStringUtil::null);
 	}
 	menu->setBackgroundColor(gColors.getColor("MenuPopupBgColor"));
 	menu->setVisible(FALSE);
@@ -2665,7 +2665,7 @@ void LLFolderView::closeAllFolders()
 	setOpenArrangeRecursively(FALSE, LLFolderViewFolder::RECURSE_DOWN);
 }
 
-void LLFolderView::openFolder(const LLString& foldername)
+void LLFolderView::openFolder(const std::string& foldername)
 {
 	LLFolderViewFolder* inv = getChild<LLFolderViewFolder>(foldername);
 	if (inv)
@@ -2771,7 +2771,7 @@ S32 LLFolderView::arrange( S32* unused_width, S32* unused_height, S32 filter_gen
 	return llround(mTargetHeight);
 }
 
-const LLString LLFolderView::getFilterSubString(BOOL trim)
+const std::string LLFolderView::getFilterSubString(BOOL trim)
 {
 	return mFilter.getFilterSubString(trim);
 }
@@ -3119,7 +3119,7 @@ void LLFolderView::draw()
 {
 	if (mDebugFilters)
 	{
-		LLString current_filter_string = llformat("Current Filter: %d, Least Filter: %d, Auto-accept Filter: %d",
+		std::string current_filter_string = llformat("Current Filter: %d, Least Filter: %d, Auto-accept Filter: %d",
 										mFilter.getCurrentGeneration(), mFilter.getMinRequiredGeneration(), mFilter.getMustPassGeneration());
 		sSmallFont->renderUTF8(current_filter_string, 0, 2, 
 			getRect().getHeight() - sSmallFont->getLineHeight(), LLColor4(0.5f, 0.5f, 0.8f, 1.f), 
@@ -3169,12 +3169,12 @@ void LLFolderView::draw()
 	{
 		if (gInventory.backgroundFetchActive() || mCompletedFilterGeneration < mFilter.getMinRequiredGeneration())
 		{
-			mStatusText = "Searching..."; // *TODO:translate
+			mStatusText = std::string("Searching..."); // *TODO:translate
 			sFont->renderUTF8(mStatusText, 0, 2, 1, sSearchStatusColor, LLFontGL::LEFT, LLFontGL::TOP, LLFontGL::NORMAL, S32_MAX, S32_MAX, NULL, FALSE );
 		}
 		else
 		{
-			mStatusText = "No matching items found in inventory."; // *TODO:translate
+			mStatusText = std::string("No matching items found in inventory."); // *TODO:translate
 			sFont->renderUTF8(mStatusText, 0, 2, 1, sSearchStatusColor, LLFontGL::LEFT, LLFontGL::TOP, LLFontGL::NORMAL, S32_MAX, S32_MAX, NULL, FALSE );
 		}
 	}
@@ -3192,7 +3192,7 @@ void LLFolderView::finishRenamingItem( void )
 	}
 	if( mRenameItem )
 	{
-		mRenameItem->rename( mRenamer->getText().c_str() );
+		mRenameItem->rename( mRenamer->getText() );
 	}
 
 	mRenamer->setCommitOnFocusLost( FALSE );
@@ -3862,7 +3862,7 @@ BOOL LLFolderView::handleKeyHere( KEY key, MASK mask )
 			{
 				mSearchString.erase(mSearchString.size() - 1, 1);
 			}
-			search(getCurSelectedItem(), mSearchString.c_str(), FALSE);
+			search(getCurSelectedItem(), mSearchString, FALSE);
 			handled = TRUE;
 		}
 	}
@@ -3905,7 +3905,7 @@ BOOL LLFolderView::handleUnicodeCharHere(llwchar uni_char)
 		{
 			mSearchString += uni_char;
 		}
-		search(getCurSelectedItem(), mSearchString.c_str(), FALSE);
+		search(getCurSelectedItem(), mSearchString, FALSE);
 
 		handled = TRUE;
 	}
@@ -3956,14 +3956,14 @@ void LLFolderView::onFocusLost( )
 	LLUICtrl::onFocusLost();
 }
 
-BOOL LLFolderView::search(LLFolderViewItem* first_item, const LLString &search_string, BOOL backward)
+BOOL LLFolderView::search(LLFolderViewItem* first_item, const std::string &search_string, BOOL backward)
 {
 	// get first selected item
 	LLFolderViewItem* search_item = first_item;
 
 	// make sure search string is upper case
-	LLString upper_case_string = search_string;
-	LLString::toUpper(upper_case_string);
+	std::string upper_case_string = search_string;
+	LLStringUtil::toUpper(upper_case_string);
 
 	// if nothing selected, select first item in folder
 	if (!search_item)
@@ -3994,7 +3994,7 @@ BOOL LLFolderView::search(LLFolderViewItem* first_item, const LLString &search_s
 			}
 		}
 
-		const LLString current_item_label(search_item->getSearchableLabel());
+		const std::string current_item_label(search_item->getSearchableLabel());
 		S32 search_string_length = llmin(upper_case_string.size(), current_item_label.size());
 		if (!current_item_label.compare(0, search_string_length, upper_case_string))
 		{
@@ -4082,7 +4082,7 @@ BOOL LLFolderView::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 									 EDragAndDropType cargo_type,
 									 void* cargo_data, 
 									 EAcceptance* accept,
-									 LLString& tooltip_msg)
+									 std::string& tooltip_msg)
 {
 	mDragAndDropThisFrame = TRUE;
 	BOOL handled = LLView::handleDragAndDrop(x, y, mask, drop, cargo_type, cargo_data,
@@ -4374,7 +4374,7 @@ bool LLInventorySort::operator()(const LLFolderViewItem* const& a, const LLFolde
 
 	if (by_name)
 	{
-		S32 compare = LLString::compareDict(a->getLabel(), b->getLabel());
+		S32 compare = LLStringUtil::compareDict(a->getLabel(), b->getLabel());
 		if (0 == compare)
 		{
 			return (a->getCreationDate() > b->getCreationDate());
@@ -4392,7 +4392,7 @@ bool LLInventorySort::operator()(const LLFolderViewItem* const& a, const LLFolde
 		time_t second_create = b->getCreationDate();
 		if (first_create == second_create)
 		{
-			return (LLString::compareDict(a->getLabel(), b->getLabel()) < 0);
+			return (LLStringUtil::compareDict(a->getLabel(), b->getLabel()) < 0);
 		}
 		else
 		{
@@ -4477,7 +4477,7 @@ void LLFolderViewEventListener::arrangeAndSet(LLFolderViewItem* focus,
 ///----------------------------------------------------------------------------
 /// Class LLInventoryFilter
 ///----------------------------------------------------------------------------
-LLInventoryFilter::LLInventoryFilter(const LLString& name) :
+LLInventoryFilter::LLInventoryFilter(const std::string& name) :
 	mName(name),
 	mModified(FALSE),
 	mNeedTextRebuild(TRUE)
@@ -4492,7 +4492,7 @@ LLInventoryFilter::LLInventoryFilter(const LLString& name) :
 	mOrder = SO_FOLDERS_BY_NAME; // This gets overridden by a pref immediately
 
 	mSubStringMatchOffset = 0;
-	mFilterSubString = "";
+	mFilterSubString.clear();
 	mFilterGeneration = 0;
 	mMustPassGeneration = S32_MAX;
 	mMinRequiredGeneration = 0;
@@ -4524,15 +4524,15 @@ BOOL LLInventoryFilter::check(LLFolderViewItem* item)
 		earliest = 0;
 	}
 	LLFolderViewEventListener* listener = item->getListener();
-	mSubStringMatchOffset = mFilterSubString.size() ? item->getSearchableLabel().find(mFilterSubString) : LLString::npos;
+	mSubStringMatchOffset = mFilterSubString.size() ? item->getSearchableLabel().find(mFilterSubString) : std::string::npos;
 	BOOL passed = (0x1 << listener->getInventoryType() & mFilterOps.mFilterTypes || listener->getInventoryType() == LLInventoryType::IT_NONE)
-					&& (mFilterSubString.size() == 0 || mSubStringMatchOffset != LLString::npos)
+					&& (mFilterSubString.size() == 0 || mSubStringMatchOffset != std::string::npos)
 					&& ((listener->getPermissionMask() & mFilterOps.mPermissions) == mFilterOps.mPermissions)
 					&& (listener->getCreationDate() >= earliest && listener->getCreationDate() <= mFilterOps.mMaxDate);
 	return passed;
 }
 
-const LLString LLInventoryFilter::getFilterSubString(BOOL trim)
+const std::string LLInventoryFilter::getFilterSubString(BOOL trim)
 {
 	return mFilterSubString;
 }
@@ -4603,7 +4603,7 @@ void LLInventoryFilter::setFilterTypes(U32 types)
 	}
 }
 
-void LLInventoryFilter::setFilterSubString(const LLString& string)
+void LLInventoryFilter::setFilterSubString(const std::string& string)
 {
 	if (mFilterSubString != string)
 	{
@@ -4612,8 +4612,8 @@ void LLInventoryFilter::setFilterSubString(const LLString& string)
 		// appending new characters
 		BOOL more_restrictive = mFilterSubString.size() < string.size() && !string.substr(0, mFilterSubString.size()).compare(mFilterSubString);
 		mFilterSubString = string;
-		LLString::toUpper(mFilterSubString);
-		LLString::trimHead(mFilterSubString);
+		LLStringUtil::toUpper(mFilterSubString);
+		LLStringUtil::trimHead(mFilterSubString);
 
 		if (less_restrictive)
 		{
@@ -4808,7 +4808,7 @@ BOOL LLInventoryFilter::isFilterWith(LLInventoryType::EType t)
 	return mFilterOps.mFilterTypes & (0x01 << t);
 }
 
-LLString LLInventoryFilter::getFilterText()
+std::string LLInventoryFilter::getFilterText()
 {
 	if (!mNeedTextRebuild)
 	{
@@ -4816,12 +4816,12 @@ LLString LLInventoryFilter::getFilterText()
 	}
 
 	mNeedTextRebuild = FALSE;
-	LLString filtered_types;
-	LLString not_filtered_types;
+	std::string filtered_types;
+	std::string not_filtered_types;
 	BOOL filtered_by_type = FALSE;
 	BOOL filtered_by_all_types = TRUE;
 	S32 num_filter_types = 0;
-	mFilterText = "";
+	mFilterText.clear();
 
 	if (isFilterWith(LLInventoryType::IT_ANIMATION))
 	{
@@ -5020,7 +5020,7 @@ void LLInventoryFilter::fromLLSD(LLSD& data)
 
 	if(data.has("substring"))
 	{
-		setFilterSubString(LLString(data["substring"].asString()));
+		setFilterSubString(std::string(data["substring"].asString()));
 	}
 
 	if(data.has("sort_order"))

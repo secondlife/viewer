@@ -53,12 +53,12 @@ BOOL LLCtrlSelectionInterface::deselectByValue(LLSD value)
 LLCtrlListInterface::~LLCtrlListInterface()
 { }
 
-LLScrollListItem* LLCtrlListInterface::addSimpleElement(const LLString& value)
+LLScrollListItem* LLCtrlListInterface::addSimpleElement(const std::string& value)
 {
 	return addSimpleElement(value, ADD_BOTTOM, LLSD());
 }
 
-LLScrollListItem* LLCtrlListInterface::addSimpleElement(const LLString& value, EAddPosition pos)
+LLScrollListItem* LLCtrlListInterface::addSimpleElement(const std::string& value, EAddPosition pos)
 {
 	return addSimpleElement(value, pos, LLSD());
 }

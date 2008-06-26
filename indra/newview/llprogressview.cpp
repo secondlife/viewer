@@ -59,8 +59,8 @@ S32 gStartImageWidth = 1;
 S32 gStartImageHeight = 1;
 const F32 FADE_IN_TIME = 1.f;
 
-const LLString ANIMATION_FILENAME = "Login Sequence ";
-const LLString ANIMATION_SUFFIX = ".jpg";
+const std::string ANIMATION_FILENAME = "Login Sequence ";
+const std::string ANIMATION_SUFFIX = ".jpg";
 const F32 TOTAL_LOGIN_TIME = 10.f;	// seconds, wild guess at time from GL context to actual world view
 S32 gLastStartAnimationFrame = 0;	// human-style indexing, first image = 1
 const S32 ANIMATION_FRAMES = 1; //13;
@@ -78,12 +78,11 @@ LLProgressView::LLProgressView(const std::string& name, const LLRect &rect)
 		getRect().getWidth() - CANCEL_BTN_OFFSET - CANCEL_BTN_WIDTH, CANCEL_BTN_OFFSET,
 		CANCEL_BTN_WIDTH, BTN_HEIGHT );
 	
-	mCancelBtn = new LLButton( 
-		"Quit",
-		r,
-		"",
-		LLProgressView::onCancelButtonClicked,
-		NULL );
+	mCancelBtn = new LLButton(std::string("Quit"),
+							  r,
+							  std::string(""),
+							  LLProgressView::onCancelButtonClicked,
+							  NULL );
 	mCancelBtn->setFollows( FOLLOWS_RIGHT | FOLLOWS_BOTTOM );
 	addChild( mCancelBtn );
 	mFadeTimer.stop();
@@ -264,7 +263,7 @@ void LLProgressView::draw()
 	F32 alpha = 0.5f + 0.5f*0.5f*(1.f + (F32)sin(3.f*timer.getElapsedTimeF32()));
 	// background_color.mV[3] = background_color.mV[3]*alpha;
 
-	LLString top_line = LLAppViewer::instance()->getSecondLifeTitle();
+	std::string top_line = LLAppViewer::instance()->getSecondLifeTitle();
 
 	S32 bar_bottom = line_two_y - 30;
 	S32 bar_height = 18;
@@ -380,7 +379,7 @@ void LLProgressView::draw()
 	LLView::draw();
 }
 
-void LLProgressView::setText(const LLString& text)
+void LLProgressView::setText(const std::string& text)
 {
 	mText = text;
 }
@@ -390,12 +389,12 @@ void LLProgressView::setPercent(const F32 percent)
 	mPercentDone = llclamp(percent, 0.f, 100.f);
 }
 
-void LLProgressView::setMessage(const LLString& msg)
+void LLProgressView::setMessage(const std::string& msg)
 {
 	mMessage = msg;
 }
 
-void LLProgressView::setCancelButtonVisible(BOOL b, const LLString& label)
+void LLProgressView::setCancelButtonVisible(BOOL b, const std::string& label)
 {
 	mCancelBtn->setVisible( b );
 	mCancelBtn->setEnabled( b );

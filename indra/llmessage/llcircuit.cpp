@@ -184,7 +184,7 @@ LLCircuitData::~LLCircuitData()
 		std::ostream_iterator<TPACKETID> append(str, " ");
 		str << "MSG: -> " << mHost << "\tABORTING RELIABLE:\t";
 		std::copy(doomed.begin(), doomed.end(), append);
-		llinfos << str.str().c_str() << llendl;
+		llinfos << str.str() << llendl;
 	}
 }
 
@@ -204,7 +204,7 @@ void LLCircuitData::ackReliablePacket(TPACKETID packet_num)
 			std::ostringstream str;
 			str << "MSG: <- " << packetp->mHost << "\tRELIABLE ACKED:\t"
 				<< packetp->mPacketID;
-			llinfos << str.str().c_str() << llendl;
+			llinfos << str.str() << llendl;
 		}
 		if (packetp->mCallback)
 		{
@@ -238,7 +238,7 @@ void LLCircuitData::ackReliablePacket(TPACKETID packet_num)
 			std::ostringstream str;
 			str << "MSG: <- " << packetp->mHost << "\tRELIABLE ACKED:\t"
 				<< packetp->mPacketID;
-			llinfos << str.str().c_str() << llendl;
+			llinfos << str.str() << llendl;
 		}
 		if (packetp->mCallback)
 		{
@@ -342,7 +342,7 @@ S32 LLCircuitData::resendUnackedPackets(const F64 now)
 				std::ostringstream str;
 				str << "MSG: -> " << packetp->mHost
 					<< "\tRESENDING RELIABLE:\t" << packetp->mPacketID;
-				llinfos << str.str().c_str() << llendl;
+				llinfos << str.str() << llendl;
 			}
 
 			packetp->mBuffer[0] |= LL_RESENT_FLAG;  // tag packet id as being a resend	
@@ -403,7 +403,7 @@ S32 LLCircuitData::resendUnackedPackets(const F64 now)
 				std::ostringstream str;
 				str << "MSG: -> " << packetp->mHost << "\tABORTING RELIABLE:\t"
 					<< packetp->mPacketID;
-				llinfos << str.str().c_str() << llendl;
+				llinfos << str.str() << llendl;
 			}
 
 			if (packetp->mCallback)
@@ -710,7 +710,7 @@ void LLCircuitData::checkPacketInID(TPACKETID id, BOOL receive_resent)
 			{
 				std::ostringstream str;
 				str << "MSG: <- " << mHost << "\tRECOVERING LOST:\t" << id;
-				llinfos << str.str().c_str() << llendl;
+				llinfos << str.str() << llendl;
 			}
 			//			llinfos << "removing potential lost: " << id << llendl;
 			mPotentialLostPackets.erase(id);
@@ -729,7 +729,7 @@ void LLCircuitData::checkPacketInID(TPACKETID id, BOOL receive_resent)
 						std::ostringstream str;
 						str << "MSG: <- " << mHost << "\tPACKET GAP:\t"
 							<< index;
-						llinfos << str.str().c_str() << llendl;
+						llinfos << str.str() << llendl;
 					}
 
 //						llinfos << "adding potential lost: " << index << llendl;
@@ -747,7 +747,7 @@ void LLCircuitData::checkPacketInID(TPACKETID id, BOOL receive_resent)
 					std::ostringstream str;
 					str << "MSG: <- " << mHost << "\tPACKET GAP:\t"
 						<< id << " expected " << index;
-					llinfos << str.str().c_str() << llendl;
+					llinfos << str.str() << llendl;
 				}
 			}
 				
@@ -969,7 +969,7 @@ BOOL LLCircuitData::updateWatchDogTimers(LLMessageSystem *msgsys)
 				std::ostringstream str;
 				str << "MSG: <- " << mHost << "\tLOST PACKET:\t"
 					<< (*it).first;
-				llinfos << str.str().c_str() << llendl;
+				llinfos << str.str() << llendl;
 			}
 			mPotentialLostPackets.erase(it++);
 		}
@@ -1114,7 +1114,7 @@ void LLCircuit::sendAcks()
 				str << "MSG: -> " << cd->mHost << "\tPACKET ACKS:\t";
 				std::ostream_iterator<TPACKETID> append(str, " ");
 				std::copy(cd->mAcks.begin(), cd->mAcks.end(), append);
-				llinfos << str.str().c_str() << llendl;
+				llinfos << str.str() << llendl;
 			}
 
 			// empty out the acks list

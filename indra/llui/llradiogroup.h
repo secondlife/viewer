@@ -43,7 +43,7 @@
 class LLRadioCtrl : public LLCheckBoxCtrl 
 {
 public:
-	LLRadioCtrl(const LLString& name, const LLRect& rect, const LLString& label, const LLFontGL* font = NULL,
+	LLRadioCtrl(const std::string& name, const LLRect& rect, const std::string& label, const LLFontGL* font = NULL,
 		void (*commit_callback)(LLUICtrl*, void*) = NULL, void* callback_userdata = NULL) :
 				LLCheckBoxCtrl(name, rect, label, font, commit_callback, callback_userdata, FALSE, RADIO_STYLE)
 	{
@@ -67,15 +67,15 @@ public:
 	// Build a radio group.  The number (0...n-1) of the currently selected
 	// element will be stored in the named control.  After the control is
 	// changed the callback will be called.
-	LLRadioGroup(const LLString& name, const LLRect& rect, 
-		const LLString& control_name, 
+	LLRadioGroup(const std::string& name, const LLRect& rect, 
+		const std::string& control_name, 
 		LLUICtrlCallback callback = NULL,
 		void* userdata = NULL,
 		BOOL border = TRUE);
 
 	// Another radio group constructor, but this one doesn't rely on
 	// needing a control
-	LLRadioGroup(const LLString& name, const LLRect& rect,
+	LLRadioGroup(const std::string& name, const LLRect& rect,
 				 S32 initial_index,
 				 LLUICtrlCallback callback = NULL,
 				 void* userdata = NULL,
@@ -106,7 +106,7 @@ public:
 	// You must use this method to add buttons to a radio group.
 	// Don't use addChild -- it won't set the callback function
 	// correctly.
-	LLRadioCtrl* addRadioButton(const LLString& name, const LLString& label, const LLRect& rect, const LLFontGL* font);
+	LLRadioCtrl* addRadioButton(const std::string& name, const std::string& label, const LLRect& rect, const LLFontGL* font);
 	LLRadioCtrl* getRadioButton(const S32& index) { return mRadioButtons[index]; }
 	// Update the control as needed.  Userdata must be a pointer to the button.
 	static void onClickButton(LLUICtrl* radio, void* userdata);

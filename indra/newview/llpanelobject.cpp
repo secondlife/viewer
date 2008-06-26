@@ -99,7 +99,7 @@ enum {
 };
 
 //*TODO:translate (depricated, so very low priority)
-static const LLString LEGACY_FULLBRIGHT_DESC("Fullbright (Legacy)");
+static const std::string LEGACY_FULLBRIGHT_DESC("Fullbright (Legacy)");
 
 BOOL	LLPanelObject::postBuild()
 {
@@ -429,7 +429,7 @@ void LLPanelObject::getState( )
 
 	BOOL owners_identical;
 	LLUUID owner_id;
-	LLString owner_name;
+	std::string owner_name;
 	owners_identical = LLSelectMgr::getInstance()->selectGetOwner(owner_id, owner_name);
 
 	// BUG? Check for all objects being editable?
@@ -538,7 +538,7 @@ void LLPanelObject::getState( )
 				mComboMaterial->remove(LEGACY_FULLBRIGHT_DESC);
 			}
 			// *TODO:Translate
-			mComboMaterial->setSimple(LLString(LLMaterialTable::basic.getName(material_code)));
+			mComboMaterial->setSimple(std::string(LLMaterialTable::basic.getName(material_code)));
 		}
 	}
 	else
@@ -1191,10 +1191,10 @@ void LLPanelObject::onCommitMaterial( LLUICtrl* ctrl, void* userdata )
 	if (box)
 	{
 		// apply the currently selected material to the object
-		const LLString& material_name = box->getSimple();
+		const std::string& material_name = box->getSimple();
 		if (material_name != LEGACY_FULLBRIGHT_DESC)
 		{
-			U8 material_code = LLMaterialTable::basic.getMCode(material_name.c_str());
+			U8 material_code = LLMaterialTable::basic.getMCode(material_name);
 			LLSelectMgr::getInstance()->selectionSetMaterial(material_code);
 		}
 	}

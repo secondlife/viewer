@@ -163,9 +163,9 @@ void LLCRC::update(const U8* buffer, size_t buffer_size)
 	}
 }
 
-void LLCRC::update(const char* filename)
+void LLCRC::update(const std::string& filename)
 {
-	if (!filename)
+	if (filename.empty())
 	{
 		llerrs << "No filename specified" << llendl;
 		return;

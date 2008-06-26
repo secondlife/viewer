@@ -67,7 +67,7 @@ LLDirPicker::~LLDirPicker()
 	// nothing
 }
 
-BOOL LLDirPicker::getDir(LLString* filename)
+BOOL LLDirPicker::getDir(std::string* filename)
 {
 	if( mLocked )
 	{
@@ -114,7 +114,7 @@ BOOL LLDirPicker::getDir(LLString* filename)
 	return success;
 }
 
-LLString LLDirPicker::getDirName()
+std::string LLDirPicker::getDirName()
 {
 	return mDir;
 }
@@ -225,7 +225,7 @@ OSStatus	LLDirPicker::doNavChooseDialog()
 	return error;
 }
 
-BOOL LLDirPicker::getDir(LLString* filename)
+BOOL LLDirPicker::getDir(std::string* filename)
 {
 	if( mLocked ) return FALSE;
 	BOOL success = FALSE;
@@ -252,7 +252,7 @@ BOOL LLDirPicker::getDir(LLString* filename)
 	return success;
 }
 
-LLString LLDirPicker::getDirName()
+std::string LLDirPicker::getDirName()
 {
 	return mDir;
 }
@@ -260,7 +260,7 @@ LLString LLDirPicker::getDirName()
 void LLDirPicker::reset()
 {
 	mLocked = FALSE;
-	mDir    = NULL;
+	mDir.clear();
 }
 
 #elif LL_LINUX
@@ -283,7 +283,7 @@ void LLDirPicker::reset()
 		mFilePicker->reset();
 }
 
-BOOL LLDirPicker::getDir(LLString* filename)
+BOOL LLDirPicker::getDir(std::string* filename)
 {
 	reset();
 	if (mFilePicker)
@@ -296,19 +296,17 @@ BOOL LLDirPicker::getDir(LLString* filename)
 		   gtk_window_set_title(GTK_WINDOW(picker), "Choose Directory");
 		   gtk_widget_show_all(GTK_WIDGET(picker));
 		   gtk_main();
-		   return (NULL != mFilePicker->getFirstFile());
+		   return (!mFilePicker->getFirstFile().empty());
 		}
 	}
 	return FALSE;
 }
 
-LLString LLDirPicker::getDirName()
+std::string LLDirPicker::getDirName()
 {
 	if (mFilePicker)
 	{
-		const char* name = mFilePicker->getFirstFile();
-		if (name)
-			return name;
+		return mFilePicker->getFirstFile();
 	}
 	return "";
 }
@@ -329,12 +327,12 @@ void LLDirPicker::reset()
 {
 }
 
-BOOL LLDirPicker::getDir(LLString* filename)
+BOOL LLDirPicker::getDir(std::string* filename)
 {
 	return FALSE;
 }
 
-LLString LLDirPicker::getDirName()
+std::string LLDirPicker::getDirName()
 {
 	return "";
 }

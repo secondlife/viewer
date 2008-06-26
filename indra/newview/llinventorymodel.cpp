@@ -303,7 +303,7 @@ LLUUID LLInventoryModel::findCategoryUUIDForType(LLAssetType::EType t, bool crea
 		LLUUID root_id = gAgent.getInventoryRootID();
 		if(root_id.notNull())
 		{
-			rv = createNewCategory(root_id, t, NULL);
+			rv = createNewCategory(root_id, t, LLStringUtil::null);
 		}
 	}
 	return rv;
@@ -343,7 +343,7 @@ LLUUID LLInventoryModel::findCatUUID(LLAssetType::EType preferred_type)
 // based on preferred type. Returns the UUID of the new category.
 LLUUID LLInventoryModel::createNewCategory(const LLUUID& parent_id,
 										   LLAssetType::EType preferred_type,
-										   const LLString& pname)
+										   const std::string& pname)
 {
 	LLUUID id;
 	if(!isInventoryUsable())
@@ -353,7 +353,7 @@ LLUUID LLInventoryModel::createNewCategory(const LLUUID& parent_id,
 	}
 
 	id.generate();
-	LLString name = pname;
+	std::string name = pname;
 	if(!pname.empty())
 	{
 		name.assign(pname);
@@ -466,13 +466,13 @@ void LLInventoryModel::collectDescendentsIf(const LLUUID& id,
 
 // Generates a string containing the path to the item specified by
 // item_id.
-void LLInventoryModel::appendPath(const LLUUID& id, LLString& path)
+void LLInventoryModel::appendPath(const LLUUID& id, std::string& path)
 {
-	LLString temp;
+	std::string temp;
 	LLInventoryObject* obj = getObject(id);
 	LLUUID parent_id;
 	if(obj) parent_id = obj->getParentUUID();
-	LLString forward_slash("/");
+	std::string forward_slash("/");
 	while(obj)
 	{
 		obj = getCategory(parent_id);
@@ -1509,19 +1509,15 @@ void LLInventoryModel::cache(
 		items,
 		INCLUDE_TRASH,
 		can_cache);
-	char agent_id_str[UUID_STR_LENGTH];		/*Flawfinder: ignore*/
-	char inventory_filename[LL_MAX_PATH];		/*Flawfinder: ignore*/
+	std::string agent_id_str;
+	std::string inventory_filename;
 	agent_id.toString(agent_id_str);
 	std::string path(gDirUtilp->getExpandedFilename(LL_PATH_CACHE, agent_id_str));
-	snprintf(			/* Flawfinder: ignore */
-		inventory_filename,
-		LL_MAX_PATH,
-		CACHE_FORMAT_STRING,
-		path.c_str());
+	inventory_filename = llformat(CACHE_FORMAT_STRING, path.c_str());
 	saveToFile(inventory_filename, categories, items);
 	std::string gzip_filename(inventory_filename);
 	gzip_filename.append(".gz");
-	if(gzip_file(inventory_filename, gzip_filename.c_str()))
+	if(gzip_file(inventory_filename, gzip_filename))
 	{
 		lldebugs << "Successfully compressed " << inventory_filename << llendl;
 		LLFile::remove(inventory_filename);
@@ -1759,16 +1755,16 @@ bool LLInventoryModel::loadSkeleton(
 		response_t::const_iterator skel;
 		skel = (*it).find("name");
 		if(skel == no_response) goto clean_cat;
-		cat->rename(LLString((*skel).second.c_str()));
+		cat->rename(std::string((*skel).second));
 		skel = (*it).find("folder_id");
 		if(skel == no_response) goto clean_cat;
-		id.set((*skel).second.c_str());
+		id.set((*skel).second);
 		// if an id is null, it locks the viewer.
 		if(id.isNull()) goto clean_cat;
 		cat->setUUID(id);
 		skel = (*it).find("parent_id");
 		if(skel == no_response) goto clean_cat;
-		id.set((*skel).second.c_str());
+		id.set((*skel).second);
 		cat->setParent(id);
 		skel = (*it).find("type_default");
 		if(skel == no_response)
@@ -1798,25 +1794,21 @@ bool LLInventoryModel::loadSkeleton(
 	{
 		cat_array_t categories;
 		item_array_t items;
-		char owner_id_str[UUID_STR_LENGTH];		/*Flawfinder: ignore*/
+		std::string owner_id_str;
 		owner_id.toString(owner_id_str);
 		std::string path(gDirUtilp->getExpandedFilename(LL_PATH_CACHE, owner_id_str));
-		char inventory_filename[LL_MAX_PATH];		/*Flawfinder: ignore*/
-		snprintf(			/* Flawfinder: ignore */
-			inventory_filename,
-			LL_MAX_PATH,
-			CACHE_FORMAT_STRING,
-			path.c_str());
+		std::string inventory_filename;
+		inventory_filename = llformat(CACHE_FORMAT_STRING, path.c_str());
 		const S32 NO_VERSION = LLViewerInventoryCategory::VERSION_UNKNOWN;
 		std::string gzip_filename(inventory_filename);
 		gzip_filename.append(".gz");
-		LLFILE* fp = LLFile::fopen(gzip_filename.c_str(), "rb");		/*Flawfinder: ignore*/
+		LLFILE* fp = LLFile::fopen(gzip_filename, "rb");
 		bool remove_inventory_file = false;
 		if(fp)
 		{
 			fclose(fp);
 			fp = NULL;
-			if(gunzip_file(gzip_filename.c_str(), inventory_filename))
+			if(gunzip_file(gzip_filename, inventory_filename))
 			{
 				// we only want to remove the inventory file if it was
 				// gzipped before we loaded, and we successfully
@@ -1970,14 +1962,14 @@ bool LLInventoryModel::loadMeat(
 		response_t::const_iterator meat;
 		meat = (*it).find("name");
 		if(meat == no_response) goto clean_item;
-		item->rename(LLString((*meat).second.c_str()));
+		item->rename(std::string((*meat).second));
 		meat = (*it).find("item_id");
 		if(meat == no_response) goto clean_item;
-		id.set((*meat).second.c_str());
+		id.set((*meat).second);
 		item->setUUID(id);
 		meat = (*it).find("parent_id");
 		if(meat == no_response) goto clean_item;
-		id.set((*meat).second.c_str());
+		id.set((*meat).second);
 		item->setParent(id);
 		meat = (*it).find("type");
 		if(meat == no_response) goto clean_item;
@@ -1991,7 +1983,7 @@ bool LLInventoryModel::loadMeat(
 		}
 		meat = (*it).find("data_id");
 		if(meat == no_response) goto clean_item;
-		id.set((*meat).second.c_str());
+		id.set((*meat).second);
 		if(LLAssetType::AT_CALLINGCARD == type)
 		{
 			LLPermissions perm;
@@ -2236,16 +2228,16 @@ void LLInventoryModel::buildParentChildMap()
 struct LLUUIDAndName
 {
 	LLUUIDAndName() {}
-	LLUUIDAndName(const LLUUID& id, const LLString& name);
+	LLUUIDAndName(const LLUUID& id, const std::string& name);
 	bool operator==(const LLUUIDAndName& rhs) const;
 	bool operator<(const LLUUIDAndName& rhs) const;
 	bool operator>(const LLUUIDAndName& rhs) const;
 
 	LLUUID mID;
-	LLString mName;
+	std::string mName;
 };
 
-LLUUIDAndName::LLUUIDAndName(const LLUUID& id, const LLString& name) :
+LLUUIDAndName::LLUUIDAndName(const LLUUID& id, const std::string& name) :
 	mID(id), mName(name)
 {
 }
@@ -2333,12 +2325,11 @@ bool LLUUIDAndName::operator>(const LLUUIDAndName& rhs) const
 //}
 
 // static
-bool LLInventoryModel::loadFromFile(
-	const char* filename,
-	LLInventoryModel::cat_array_t& categories,
-	LLInventoryModel::item_array_t& items)
+bool LLInventoryModel::loadFromFile(const std::string& filename,
+									LLInventoryModel::cat_array_t& categories,
+									LLInventoryModel::item_array_t& items)
 {
-	if(!filename)
+	if(filename.empty())
 	{
 		llerrs << "Filename is Null!" << llendl;
 		return false;
@@ -2406,12 +2397,11 @@ bool LLInventoryModel::loadFromFile(
 }
 
 // static
-bool LLInventoryModel::saveToFile(
-	const char* filename,
-	const cat_array_t& categories,
-	const item_array_t& items)
+bool LLInventoryModel::saveToFile(const std::string& filename,
+								  const cat_array_t& categories,
+								  const item_array_t& items)
 {
-	if(!filename)
+	if(filename.empty())
 	{
 		llerrs << "Filename is Null!" << llendl;
 		return false;
@@ -2986,7 +2976,7 @@ void LLInventoryModel::processMoveInventoryItem(LLMessageSystem* msg, void**)
 
 	LLUUID item_id;
 	LLUUID folder_id;
-	char new_name[MAX_STRING];		/*Flawfinder: ignore*/
+	std::string new_name;
 	bool anything_changed = false;
 	S32 count = msg->getNumberOfBlocksFast(_PREHASH_InventoryData);
 	for(S32 i = 0; i < count; ++i)
@@ -2997,7 +2987,7 @@ void LLInventoryModel::processMoveInventoryItem(LLMessageSystem* msg, void**)
 		{
 			LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(item);
 			msg->getUUIDFast(_PREHASH_InventoryData, _PREHASH_FolderID, folder_id, i);
-			msg->getString("InventoryData", "NewName", MAX_STRING, new_name, i);
+			msg->getString("InventoryData", "NewName", new_name, i);
 
 			lldebugs << "moving item " << item_id << " to folder "
 					 << folder_id << llendl;
@@ -3009,7 +2999,7 @@ void LLInventoryModel::processMoveInventoryItem(LLMessageSystem* msg, void**)
 			gInventory.accountForUpdate(update);
 
 			new_item->setParent(folder_id);
-			if(strlen(new_name) > 0)		/*Flawfinder: ignore*/
+			if (new_name.length() > 0)
 			{
 				new_item->rename(new_name);
 			}
@@ -3199,7 +3189,7 @@ bool LLNameCategoryCollector::operator()(
 {
 	if(cat)
 	{
-		if (!LLString::compareInsensitive(mName.c_str(), cat->getName().c_str()))
+		if (!LLStringUtil::compareInsensitive(mName, cat->getName()))
 		{
 			return true;
 		}
@@ -3593,11 +3583,14 @@ void LLInventoryAddedObserver::changed(U32 mask)
 	// the network, figure out which item was updated.
 	// Code from Gigs Taggert, sin allowed by JC.
 	LLMessageSystem* msg = gMessageSystem;
-	const char* msg_name = msg->getMessageName();
-	if (!msg_name) return;
-
+	std::string msg_name = msg->getMessageName();
+	if (msg_name.empty())
+	{
+		return;
+	}
+	
 	// We only want newly created inventory items. JC
-	if ( strcmp(msg_name, "UpdateCreateInventoryItem") )
+	if ( msg_name != "UpdateCreateInventoryItem")
 	{
 		return;
 	}

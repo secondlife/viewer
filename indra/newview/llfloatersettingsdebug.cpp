@@ -41,7 +41,7 @@
 
 LLFloaterSettingsDebug* LLFloaterSettingsDebug::sInstance = NULL;
 
-LLFloaterSettingsDebug::LLFloaterSettingsDebug() : LLFloater("Configuration Editor")
+LLFloaterSettingsDebug::LLFloaterSettingsDebug() : LLFloater(std::string("Configuration Editor"))
 {
 }
 
@@ -58,7 +58,7 @@ BOOL LLFloaterSettingsDebug::postBuild()
 	{
 		LLComboBox* combo;
 		f(LLComboBox* c) : combo(c) {}
-		virtual void apply(const LLString& name, LLControlVariable* control)
+		virtual void apply(const std::string& name, LLControlVariable* control)
 		{
 			combo->add(name, (void*)control);
 		}
@@ -235,7 +235,7 @@ void LLFloaterSettingsDebug::updateControl(LLControlVariable* controlp)
 	spinner4->setVisible(FALSE);
 	color_swatch->setVisible(FALSE);
 	childSetVisible("val_text", FALSE);
-	mComment->setText(LLString::null);
+	mComment->setText(LLStringUtil::null);
 
 	if (controlp)
 	{
@@ -276,7 +276,7 @@ void LLFloaterSettingsDebug::updateControl(LLControlVariable* controlp)
 		{
 		  case TYPE_U32:
 			spinner1->setVisible(TRUE);
-			spinner1->setLabel(LLString("value")); // Debug, don't translate
+			spinner1->setLabel(std::string("value")); // Debug, don't translate
 			if (!spinner1->hasFocus())
 			{
 				spinner1->setValue(sd);
@@ -288,7 +288,7 @@ void LLFloaterSettingsDebug::updateControl(LLControlVariable* controlp)
 			break;
 		  case TYPE_S32:
 			spinner1->setVisible(TRUE);
-			spinner1->setLabel(LLString("value")); // Debug, don't translate
+			spinner1->setLabel(std::string("value")); // Debug, don't translate
 			if (!spinner1->hasFocus())
 			{
 				spinner1->setValue(sd);
@@ -300,7 +300,7 @@ void LLFloaterSettingsDebug::updateControl(LLControlVariable* controlp)
 			break;
 		  case TYPE_F32:
 			spinner1->setVisible(TRUE);
-			spinner1->setLabel(LLString("value")); // Debug, don't translate
+			spinner1->setLabel(std::string("value")); // Debug, don't translate
 			if (!spinner1->hasFocus())
 			{
 				spinner1->setPrecision(3);
@@ -332,11 +332,11 @@ void LLFloaterSettingsDebug::updateControl(LLControlVariable* controlp)
 			LLVector3 v;
 			v.setValue(sd);
 			spinner1->setVisible(TRUE);
-			spinner1->setLabel(LLString("X"));
+			spinner1->setLabel(std::string("X"));
 			spinner2->setVisible(TRUE);
-			spinner2->setLabel(LLString("Y"));
+			spinner2->setLabel(std::string("Y"));
 			spinner3->setVisible(TRUE);
-			spinner3->setLabel(LLString("Z"));
+			spinner3->setLabel(std::string("Z"));
 			if (!spinner1->hasFocus())
 			{
 				spinner1->setPrecision(3);
@@ -359,11 +359,11 @@ void LLFloaterSettingsDebug::updateControl(LLControlVariable* controlp)
 			LLVector3d v;
 			v.setValue(sd);
 			spinner1->setVisible(TRUE);
-			spinner1->setLabel(LLString("X"));
+			spinner1->setLabel(std::string("X"));
 			spinner2->setVisible(TRUE);
-			spinner2->setLabel(LLString("Y"));
+			spinner2->setLabel(std::string("Y"));
 			spinner3->setVisible(TRUE);
-			spinner3->setLabel(LLString("Z"));
+			spinner3->setLabel(std::string("Z"));
 			if (!spinner1->hasFocus())
 			{
 				spinner1->setPrecision(3);
@@ -386,13 +386,13 @@ void LLFloaterSettingsDebug::updateControl(LLControlVariable* controlp)
 			LLRect r;
 			r.setValue(sd);
 			spinner1->setVisible(TRUE);
-			spinner1->setLabel(LLString("Left"));
+			spinner1->setLabel(std::string("Left"));
 			spinner2->setVisible(TRUE);
-			spinner2->setLabel(LLString("Right"));
+			spinner2->setLabel(std::string("Right"));
 			spinner3->setVisible(TRUE);
-			spinner3->setLabel(LLString("Bottom"));
+			spinner3->setLabel(std::string("Bottom"));
 			spinner4->setVisible(TRUE);
-			spinner4->setLabel(LLString("Top"));
+			spinner4->setLabel(std::string("Top"));
 			if (!spinner1->hasFocus())
 			{
 				spinner1->setPrecision(0);
@@ -442,7 +442,7 @@ void LLFloaterSettingsDebug::updateControl(LLControlVariable* controlp)
 				color_swatch->set(LLColor4(sd), TRUE, FALSE);
 			}
 			spinner4->setVisible(TRUE);
-			spinner4->setLabel(LLString("Alpha"));
+			spinner4->setLabel(std::string("Alpha"));
 			if (!spinner4->hasFocus())
 			{
 				spinner4->setPrecision(3);
@@ -470,7 +470,7 @@ void LLFloaterSettingsDebug::updateControl(LLControlVariable* controlp)
 				color_swatch->set(LLColor4(clr), TRUE, FALSE);
 			}
 			spinner4->setVisible(TRUE);
-			spinner4->setLabel(LLString("Alpha"));
+			spinner4->setLabel(std::string("Alpha"));
 			if(!spinner4->hasFocus())
 			{
 				spinner4->setPrecision(0);
@@ -484,7 +484,7 @@ void LLFloaterSettingsDebug::updateControl(LLControlVariable* controlp)
 			break;
 		  }
 		  default:
-			mComment->setText(LLString("unknown"));
+			mComment->setText(std::string("unknown"));
 			break;
 		}
 	}

@@ -45,7 +45,7 @@ public:
 	// browser, depending on user settings.
 	static void loadURL(const std::string& url);
 	
-	static void loadURL(const char* url) { loadURL( std::string(url) ); }
+	static void loadURL(const char* url) { loadURL( ll_safe_string(url) ); }
 
 	// Loads unescaped url in external browser.
 	static void loadURLExternal(const std::string& url);

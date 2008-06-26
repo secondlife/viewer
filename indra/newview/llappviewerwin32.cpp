@@ -298,7 +298,7 @@ void LLAppViewerWin32::initConsole()
 
 void write_debug_dx(const char* str)
 {
-	LLString value = gDebugInfo["DXInfo"].asString();
+	std::string value = gDebugInfo["DXInfo"].asString();
 	value += str;
 	gDebugInfo["DXInfo"] = value;
 }
@@ -347,7 +347,7 @@ bool LLAppViewerWin32::initHardwareTest()
 				"\n"
 				"Do you wish to continue?\n";
 			S32 button = OSMessageBox(
-				msg.str().c_str(),
+				msg.str(),
 				"Warning",
 				OSMB_YESNO);
 			if (OSBTN_NO== button)
@@ -367,7 +367,7 @@ bool LLAppViewerWin32::initHardwareTest()
 		std::ostringstream splash_msg;
 		splash_msg << "Loading " << LLAppViewer::instance()->getSecondLifeTitle() << "...";
 
-		LLSplashScreen::update(splash_msg.str().c_str());
+		LLSplashScreen::update(splash_msg.str());
 	}
 
 	if (!LLWinDebug::checkExceptionHandler())

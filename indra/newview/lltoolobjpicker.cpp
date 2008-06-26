@@ -50,7 +50,7 @@
 
 
 LLToolObjPicker::LLToolObjPicker()
-:	LLTool( "ObjPicker", NULL ),
+:	LLTool( std::string("ObjPicker"), NULL ),
 	mPicked( FALSE ),
 	mHitObjectID( LLUUID::null ),
 	mExitCallback( NULL ),

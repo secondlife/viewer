@@ -71,10 +71,10 @@ public:
 protected:
 	S32					mID;				// ID associated with VisualParam
 	
-	LLString			mName;				// name (for internal purposes)
-	LLString			mDisplayName;		// name displayed to the user
-	LLString			mMinName;			// name associated with minimum value
-	LLString			mMaxName;			// name associated with maximum value
+	std::string			mName;				// name (for internal purposes)
+	std::string			mDisplayName;		// name displayed to the user
+	std::string			mMinName;			// name associated with minimum value
+	std::string			mMaxName;			// name associated with maximum value
 	EVisualParamGroup	mGroup;				// morph group for separating UI controls
 	F32					mMinWeight;			// minimum weight that can be assigned to this morph target
 	F32					mMaxWeight;			// maximum weight that can be assigned to this morph target
@@ -114,14 +114,14 @@ public:
 	S32						getID() 			{ return mID; }
 	void					setID(S32 id) 		{ llassert(!mInfo); mID = id; }
 	
-	const LLString&			getName() const 			{ return mInfo->mName; }
-	const LLString&			getDisplayName() const 		{ return mInfo->mDisplayName; }
-	const LLString&			getMaxDisplayName() const	{ return mInfo->mMaxName; }
-	const LLString&			getMinDisplayName() const	{ return mInfo->mMinName; }
+	const std::string&		getName() const 			{ return mInfo->mName; }
+	const std::string&		getDisplayName() const 		{ return mInfo->mDisplayName; }
+	const std::string&		getMaxDisplayName() const	{ return mInfo->mMaxName; }
+	const std::string&		getMinDisplayName() const	{ return mInfo->mMinName; }
 
-	void					setDisplayName(const LLString& s) 	 { mInfo->mDisplayName = s; }
-	void					setMaxDisplayName(const LLString& s) { mInfo->mMaxName = s; }
-	void					setMinDisplayName(const LLString& s) { mInfo->mMinName = s; }
+	void					setDisplayName(const std::string& s) 	 { mInfo->mDisplayName = s; }
+	void					setMaxDisplayName(const std::string& s) { mInfo->mMaxName = s; }
+	void					setMinDisplayName(const std::string& s) { mInfo->mMinName = s; }
 
 	EVisualParamGroup		getGroup() 			{ return mInfo->mGroup; }
 	F32						getMinWeight() 		{ return mInfo->mMinWeight; }

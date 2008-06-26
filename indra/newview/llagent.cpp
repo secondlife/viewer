@@ -236,8 +236,8 @@ BOOL LLAgent::sDebugDisplayTarget = FALSE;
 
 const F32 LLAgent::TYPING_TIMEOUT_SECS = 5.f;
 
-std::map<LLString, LLString> LLAgent::sTeleportErrorMessages;
-std::map<LLString, LLString> LLAgent::sTeleportProgressMessages;
+std::map<std::string, std::string> LLAgent::sTeleportErrorMessages;
+std::map<std::string, std::string> LLAgent::sTeleportProgressMessages;
 
 class LLAgentFriendObserver : public LLFriendObserver
 {
@@ -819,13 +819,10 @@ void LLAgent::setRegion(LLViewerRegion *regionp)
 	llassert(regionp);
 	if (mRegionp != regionp)
 	{
-		// JC - Avoid this, causes out-of-bounds array write deep within
-		// Windows.
-		// char host_name[MAX_STRING];
-		// regionp->getHost().getHostName(host_name, MAX_STRING);
+		// std::string host_name;
+		// host_name = regionp->getHost().getHostName();
 
-		char ip[MAX_STRING];		/*Flawfinder: ignore*/
-		regionp->getHost().getString(ip, MAX_STRING);
+		std::string ip = regionp->getHost().getString();
 		llinfos << "Moving agent into region: " << regionp->getName()
 				<< " located at " << ip << llendl;
 		if (mRegionp)
@@ -2092,7 +2089,7 @@ void LLAgent::setAFK()
 		if (gAFKMenu)
 		{
 			//*TODO:Translate
-			gAFKMenu->setLabel(LLString("Set Not Away"));
+			gAFKMenu->setLabel(std::string("Set Not Away"));
 		}
 	}
 }
@@ -2116,7 +2113,7 @@ void LLAgent::clearAFK()
 		if (gAFKMenu)
 		{
 			//*TODO:Translate
-			gAFKMenu->setLabel(LLString("Set Away"));
+			gAFKMenu->setLabel(std::string("Set Away"));
 		}
 	}
 }
@@ -2139,7 +2136,7 @@ void LLAgent::setBusy()
 	if (gBusyMenu)
 	{
 		//*TODO:Translate
-		gBusyMenu->setLabel(LLString("Set Not Busy"));
+		gBusyMenu->setLabel(std::string("Set Not Busy"));
 	}
 	LLFloaterMute::getInstance()->updateButtons();
 }
@@ -2154,7 +2151,7 @@ void LLAgent::clearBusy()
 	if (gBusyMenu)
 	{
 		//*TODO:Translate
-		gBusyMenu->setLabel(LLString("Set Busy"));
+		gBusyMenu->setLabel(std::string("Set Busy"));
 	}
 	LLFloaterMute::getInstance()->updateButtons();
 }
@@ -5113,9 +5110,8 @@ BOOL LLAgent::allowOperation(PermissionBit op,
 }
 
 
-void LLAgent::getName(LLString& name)
+void LLAgent::getName(std::string& name)
 {
-	// Note: assumes that name points to a buffer of at least DB_FULL_NAME_BUF_SIZE bytes.
 	name.clear();
 
 	if (mAvatarObject)
@@ -5198,8 +5194,8 @@ void LLAgent::processAgentDropGroup(LLMessageSystem *msg, void **)
 		{
 			gAgent.mGroupID.setNull();
 			gAgent.mGroupPowers = 0;
-			gAgent.mGroupName[0] = '\0';
-			gAgent.mGroupTitle[0] = '\0';
+			gAgent.mGroupName.clear();
+			gAgent.mGroupTitle.clear();
 		}
 		
 		// refresh all group information
@@ -5277,8 +5273,8 @@ class LLAgentDropGroupViewerNode : public LLHTTPNode
 				{
 					gAgent.mGroupID.setNull();
 					gAgent.mGroupPowers = 0;
-					gAgent.mGroupName[0] = '\0';
-					gAgent.mGroupTitle[0] = '\0';
+					gAgent.mGroupName.clear();
+					gAgent.mGroupTitle.clear();
 				}
 		
 				// refresh all group information
@@ -5330,7 +5326,6 @@ void LLAgent::processAgentGroupDataUpdate(LLMessageSystem *msg, void **)
 	LLGroupData group;
 	S32 index = -1;
 	bool need_floater_update = false;
-	char group_name[DB_GROUP_NAME_BUF_SIZE];		/*Flawfinder: ignore*/
 	for(S32 i = 0; i < count; ++i)
 	{
 		msg->getUUIDFast(_PREHASH_GroupData, _PREHASH_GroupID, group.mID, i);
@@ -5338,8 +5333,7 @@ void LLAgent::processAgentGroupDataUpdate(LLMessageSystem *msg, void **)
 		msg->getU64(_PREHASH_GroupData, "GroupPowers", group.mPowers, i);
 		msg->getBOOL(_PREHASH_GroupData, "AcceptNotices", group.mAcceptNotices, i);
 		msg->getS32(_PREHASH_GroupData, "Contribution", group.mContribution, i);
-		msg->getStringFast(_PREHASH_GroupData, _PREHASH_GroupName, DB_GROUP_NAME_BUF_SIZE, group_name, i);
-		group.mName.assign(group_name);
+		msg->getStringFast(_PREHASH_GroupData, _PREHASH_GroupName, group.mName, i);
 		
 		if(group.mID.notNull())
 		{
@@ -5437,7 +5431,7 @@ void LLAgent::processAgentDataUpdate(LLMessageSystem *msg, void **)
 		return;
 	}
 
-	msg->getStringFast(_PREHASH_AgentData, _PREHASH_GroupTitle, DB_GROUP_TITLE_BUF_SIZE, gAgent.mGroupTitle);
+	msg->getStringFast(_PREHASH_AgentData, _PREHASH_GroupTitle, gAgent.mGroupTitle);
 	LLUUID active_id;
 	msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_ActiveGroupID, active_id);
 
@@ -5446,13 +5440,13 @@ void LLAgent::processAgentDataUpdate(LLMessageSystem *msg, void **)
 	{
 		gAgent.mGroupID = active_id;
 		msg->getU64(_PREHASH_AgentData, "GroupPowers", gAgent.mGroupPowers);
-		msg->getString(_PREHASH_AgentData, _PREHASH_GroupName, DB_GROUP_NAME_BUF_SIZE, gAgent.mGroupName);
+		msg->getString(_PREHASH_AgentData, _PREHASH_GroupName, gAgent.mGroupName);
 	}
 	else
 	{
 		gAgent.mGroupID.setNull();
 		gAgent.mGroupPowers = 0;
-		gAgent.mGroupName[0] = '\0';
+		gAgent.mGroupName.clear();
 	}		
 
 	update_group_floaters(active_id);
@@ -6217,7 +6211,7 @@ void LLAgent::saveWearableAs(
 		return;
 	}
 	std::string trunc_name(new_name);
-	LLString::truncate(trunc_name, DB_INV_ITEM_NAME_STR_LEN);
+	LLStringUtil::truncate(trunc_name, DB_INV_ITEM_NAME_STR_LEN);
 	LLWearable* new_wearable = gWearableList.createCopyFromAvatar(
 		old_wearable,
 		trunc_name);
@@ -6251,7 +6245,7 @@ void LLAgent::saveWearableAs(
 	LLWearable* old_wearable = getWearable( type );
 	if( old_wearable )
 	{
-		LLString old_name = old_wearable->getName();
+		std::string old_name = old_wearable->getName();
 		old_wearable->setName( new_name );
 		LLWearable* new_wearable = gWearableList.createCopyFromAvatar( old_wearable );
 		old_wearable->setName( old_name );
@@ -6330,7 +6324,7 @@ void LLAgent::setWearableName( const LLUUID& item_id, const std::string& new_nam
 			LLWearable* old_wearable = mWearableEntry[i].mWearable;
 			llassert( old_wearable );
 
-			LLString old_name = old_wearable->getName();
+			std::string old_name = old_wearable->getName();
 			old_wearable->setName( new_name );
 			LLWearable* new_wearable = gWearableList.createCopy( old_wearable );
 			LLInventoryItem* item = gInventory.getItem(item_id);
@@ -6527,7 +6521,7 @@ void LLAgent::processAgentInitialWearablesUpdate( LLMessageSystem* mesgsys, void
 			{
 				gWearableList.getAsset( 
 					asset_id_array[i],
-					LLString::null,
+					LLStringUtil::null,
 					LLWearable::typeToAssetType( (EWearableType) i ), 
 					LLAgent::onInitialWearableAssetArrived, (void*)(intptr_t)i );
 			}
@@ -6769,7 +6763,7 @@ void LLAgent::makeNewOutfit(
 					new_name = new_folder_name;
 					new_name.append(" ");
 					new_name.append(old_wearable->getTypeLabel());
-					LLString::truncate(new_name, DB_INV_ITEM_NAME_STR_LEN);
+					LLStringUtil::truncate(new_name, DB_INV_ITEM_NAME_STR_LEN);
 					new_wearable->setName(new_name);
 				}
 
@@ -7470,7 +7464,7 @@ void LLAgent::observeFriends()
 	}
 }
 
-void LLAgent::parseTeleportMessages(const LLString& xml_filename)
+void LLAgent::parseTeleportMessages(const std::string& xml_filename)
 {
 	LLXMLNodePtr root;
 	BOOL success = LLUICtrlFactory::getLayeredXMLNode(xml_filename, root);
@@ -7488,8 +7482,8 @@ void LLAgent::parseTeleportMessages(const LLString& xml_filename)
 	{
 		if ( !message_set->hasName("message_set") ) continue;
 
-		std::map<LLString, LLString> *teleport_msg_map = NULL;
-		LLString message_set_name;
+		std::map<std::string, std::string> *teleport_msg_map = NULL;
+		std::string message_set_name;
 
 		if ( message_set->getAttributeString("name", message_set_name) )
 		{
@@ -7507,7 +7501,7 @@ void LLAgent::parseTeleportMessages(const LLString& xml_filename)
 
 		if ( !teleport_msg_map ) continue;
 
-		LLString message_name;
+		std::string message_name;
 		for (LLXMLNode* message_node = message_set->getFirstChild();
 			 message_node != NULL;
 			 message_node = message_node->getNextSibling())

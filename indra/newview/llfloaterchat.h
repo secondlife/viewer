@@ -77,7 +77,7 @@ public:
 	static void onClickMute(void *data);
 	static void onClickToggleShowMute(LLUICtrl* caller, void *data);
 	static void onClickToggleActiveSpeakers(void* userdata);
-	static void chatFromLogFile(LLLogChat::ELogLineType type,LLString line, void* userdata);
+	static void chatFromLogFile(LLLogChat::ELogLineType type,std::string line, void* userdata);
 	static void loadHistory();
 	static void* createSpeakersPanel(void* data);
 	static void* createChatPanel(void* data);

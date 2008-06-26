@@ -486,7 +486,7 @@ LLSD WINAPI Get_Exception_Info(PEXCEPTION_POINTERS pException)
 		
 		// Save instruction that caused exception.
 		/*
-		LLString str;
+		std::string str;
 		for (i = 0; i < 16; i++)
 			str += llformat(" %02X", PBYTE(E.ExceptionAddress)[i]);
 		info["Instruction"] = str;
@@ -639,7 +639,7 @@ bool LLWinDebug::checkExceptionHandler()
 	return ok;
 }
 
-void LLWinDebug::writeDumpToFile(MINIDUMP_TYPE type, MINIDUMP_EXCEPTION_INFORMATION *ExInfop, const char *filename)
+void LLWinDebug::writeDumpToFile(MINIDUMP_TYPE type, MINIDUMP_EXCEPTION_INFORMATION *ExInfop, const std::string& filename)
 {
 	if(f_mdwp == NULL || gDirUtilp == NULL) 
 	{
@@ -648,8 +648,7 @@ void LLWinDebug::writeDumpToFile(MINIDUMP_TYPE type, MINIDUMP_EXCEPTION_INFORMAT
 	}
 	else
 	{
-		std::string dump_path = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,
-																	   filename);
+		std::string dump_path = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, filename);
 
 		HANDLE hFile = CreateFileA(dump_path.c_str(),
 									GENERIC_WRITE,
@@ -734,7 +733,7 @@ void LLWinDebug::generateCrashStacks(struct _EXCEPTION_POINTERS *exception_infop
 
     info["Threads"] = threads;
 
-	std::ofstream out_file(log_path.c_str());
+	llofstream out_file(log_path);
 	LLSDSerialize::toPrettyXML(info, out_file);
 	out_file.close();
 }

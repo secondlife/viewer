@@ -82,13 +82,13 @@
 LLFloaterTools *gFloaterTools = NULL;
 
 
-const LLString PANEL_NAMES[LLFloaterTools::PANEL_COUNT] =
+const std::string PANEL_NAMES[LLFloaterTools::PANEL_COUNT] =
 {
-	LLString("General"), 	// PANEL_GENERAL,
-	LLString("Object"), 	// PANEL_OBJECT,
-	LLString("Features"),	// PANEL_FEATURES,
-	LLString("Texture"),	// PANEL_FACE,
-	LLString("Content"),	// PANEL_CONTENTS,
+	std::string("General"), 	// PANEL_GENERAL,
+	std::string("Object"), 	// PANEL_OBJECT,
+	std::string("Features"),	// PANEL_FEATURES,
+	std::string("Texture"),	// PANEL_FACE,
+	std::string("Content"),	// PANEL_CONTENTS,
 };
 
 // Local prototypes
@@ -158,7 +158,7 @@ void*	LLFloaterTools::createPanelContents(void* data)
 void*	LLFloaterTools::createPanelContentsInventory(void* data)
 {
 	LLFloaterTools* floater = (LLFloaterTools*)data;
-	floater->mPanelContents->mPanelInventory = new LLPanelInventory("ContentsInventory", LLRect());
+	floater->mPanelContents->mPanelInventory = new LLPanelInventory(std::string("ContentsInventory"), LLRect());
 	return floater->mPanelContents->mPanelInventory;
 }
 
@@ -166,7 +166,7 @@ void*	LLFloaterTools::createPanelContentsInventory(void* data)
 void*	LLFloaterTools::createPanelLandInfo(void* data)
 {
 	LLFloaterTools* floater = (LLFloaterTools*)data;
-	floater->mPanelLandInfo = new LLPanelLandInfo("land info panel");
+	floater->mPanelLandInfo = new LLPanelLandInfo(std::string("land info panel"));
 	return floater->mPanelLandInfo;
 }
 
@@ -236,7 +236,7 @@ BOOL	LLFloaterTools::postBuild()
 	// Create Buttons
 	//
 
-	static	const LLString	toolNames[]={
+	static	const std::string	toolNames[]={
 			"ToolCube",
 			"ToolPrism",
 			"ToolPyramid",
@@ -335,7 +335,7 @@ BOOL	LLFloaterTools::postBuild()
 // Create the popupview with a dummy center.  It will be moved into place
 // during LLViewerWindow's per-frame hover processing.
 LLFloaterTools::LLFloaterTools()
-:	LLFloater("toolbox floater"),
+:	LLFloater(std::string("toolbox floater")),
 	mBtnFocus(NULL),
 	mBtnMove(NULL),
 	mBtnEdit(NULL),
@@ -765,7 +765,7 @@ void LLFloaterTools::onOpen()
 	mParcelSelection = LLViewerParcelMgr::getInstance()->getFloatingParcelSelection();
 	mObjectSelection = LLSelectMgr::getInstance()->getEditSelection();
 	
-	gMenuBarView->setItemVisible("Tools", TRUE);
+	gMenuBarView->setItemVisible(std::string("Tools"), TRUE);
 	gMenuBarView->arrange();
 }
 
@@ -799,7 +799,7 @@ void LLFloaterTools::onClose(bool app_quitting)
 	// so manually reset tool to default (pie menu tool)
 	LLToolMgr::getInstance()->getCurrentToolset()->selectFirstTool();
 
-	gMenuBarView->setItemVisible("Tools", FALSE);
+	gMenuBarView->setItemVisible(std::string("Tools"), FALSE);
 	gMenuBarView->arrange();
 }
 

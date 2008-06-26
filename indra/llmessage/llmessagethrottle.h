@@ -64,8 +64,8 @@ public:
 	LLMessageThrottle();
 	~LLMessageThrottle();
 
-	BOOL addViewerAlert	(const LLUUID& to, const char* mesg);
-	BOOL addAgentAlert	(const LLUUID& agent, const LLUUID& task, const char* mesg);
+	BOOL addViewerAlert	(const LLUUID& to, const std::string& mesg);
+	BOOL addAgentAlert	(const LLUUID& agent, const LLUUID& task, const std::string& mesg);
 
 	void pruneEntries();
 

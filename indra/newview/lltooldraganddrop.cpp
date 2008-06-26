@@ -569,8 +569,7 @@ LLToolDragAndDrop::dragOrDrop3dImpl LLToolDragAndDrop::sDragAndDrop3d[DAD_COUNT]
 };
 
 LLToolDragAndDrop::LLToolDragAndDrop()
-	 :
-	 LLTool("draganddrop", NULL),
+:	 LLTool(std::string("draganddrop"), NULL),
 	 mDragStartX(0),
 	 mDragStartY(0),
 	 mSource(SOURCE_AGENT),
@@ -822,7 +821,7 @@ BOOL LLToolDragAndDrop::handleKey(KEY key, MASK mask)
 	return FALSE;
 }
 
-BOOL LLToolDragAndDrop::handleToolTip(S32 x, S32 y, LLString& msg, LLRect *sticky_rect_screen)
+BOOL LLToolDragAndDrop::handleToolTip(S32 x, S32 y, std::string& msg, LLRect *sticky_rect_screen)
 {
 	if (!mToolTipMsg.empty())
 	{
@@ -1169,7 +1168,7 @@ BOOL LLToolDragAndDrop::handleDropTextureProtections(LLViewerObject* hit_obj,
 	if (hit_obj->isInventoryDirty())
 	{
 		hit_obj->fetchInventoryFromServer();
-		LLString::format_map_t args;
+		LLStringUtil::format_map_t args;
 		args["[ERROR_MESSAGE]"] = "Unable to add texture.\nPlease wait a few seconds and try again.";
 		gViewerWindow->alertXml("ErrorMessage", args);
 		return FALSE;
@@ -1674,8 +1673,8 @@ void LLToolDragAndDrop::commitGiveInventoryItem(const LLUUID& to_agent,
 		FALSE,
 		gAgent.getSessionID(),
 		to_agent,
-		name.c_str(),
-		item->getName().c_str(),
+		name,
+		item->getName(),
 		IM_ONLINE,
 		IM_INVENTORY_OFFERED,
 		transaction_id,
@@ -1756,7 +1755,7 @@ void LLToolDragAndDrop::giveInventoryCategory(const LLUUID& to_agent,
 		{
 			LLGiveInventoryInfo* info = NULL;
 			info = new LLGiveInventoryInfo(to_agent, cat->getUUID());
-			LLStringBase<char>::format_map_t args;
+			LLStringUtil::format_map_t args;
 			args["[COUNT]"] = llformat("%d",giveable.countNoCopy());
 			gViewerWindow->alertXml("CannotCopyCountItems", args,
 				&LLToolDragAndDrop::handleCopyProtectedCategory,
@@ -1877,8 +1876,8 @@ void LLToolDragAndDrop::commitGiveInventoryCategory(const LLUUID& to_agent,
 			FALSE,
 			gAgent.getSessionID(),
 			to_agent,
-			name.c_str(),
-			cat->getName().c_str(),
+			name,
+			cat->getName(),
 			IM_ONLINE,
 			IM_INVENTORY_OFFERED,
 			transaction_id,
@@ -2990,11 +2989,11 @@ LLInventoryObject* LLToolDragAndDrop::locateMultipleInventory(LLViewerInventoryC
 }
 */
 
-void LLToolDragAndDrop::createContainer(LLViewerInventoryItem::item_array_t &items, const char* preferred_name )
-{
-	llwarns << "LLToolDragAndDrop::createContainer()" << llendl;
-	return;
-}
+// void LLToolDragAndDrop::createContainer(LLViewerInventoryItem::item_array_t &items, const char* preferred_name )
+// {
+// 	llwarns << "LLToolDragAndDrop::createContainer()" << llendl;
+// 	return;
+// }
 
 
 // utility functions

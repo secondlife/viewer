@@ -138,10 +138,10 @@ public:
 	LLSimInfo* simInfoFromPosGlobal(const LLVector3d& pos_global);
 
 	// Returns simulator information for named sim, or NULL if non-existent
-	LLSimInfo* simInfoFromName(const LLString& sim_name);
+	LLSimInfo* simInfoFromName(const std::string& sim_name);
 
 	// Gets simulator name for a global position, returns true if it was found
-	bool simNameFromPosGlobal(const LLVector3d& pos_global, LLString & outSimName );
+	bool simNameFromPosGlobal(const LLVector3d& pos_global, std::string& outSimName );
 
 	// Sets the current layer
 	void setCurrentLayer(S32 layer, bool request_layer = false);

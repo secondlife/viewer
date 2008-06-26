@@ -77,7 +77,7 @@ private:
 
 private:
 	ETOSType		mType;
-	LLString		mMessage;
+	std::string		mMessage;
 	int				mWebBrowserWindowId;
 	int				mLoadCompleteCount;
 

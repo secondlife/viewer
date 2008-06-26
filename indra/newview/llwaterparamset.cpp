@@ -87,7 +87,7 @@ LLWaterParamSet::LLWaterParamSet(void) :
 
 }
 
-void LLWaterParamSet::set(const char * paramName, float x) 
+void LLWaterParamSet::set(const std::string& paramName, float x) 
 {	
 	// handle case where no array
 	if(mParamValues[paramName].isReal()) 
@@ -103,19 +103,19 @@ void LLWaterParamSet::set(const char * paramName, float x)
 	}
 }
 
-void LLWaterParamSet::set(const char * paramName, float x, float y) {
+void LLWaterParamSet::set(const std::string& paramName, float x, float y) {
 	mParamValues[paramName][0] = x;
 	mParamValues[paramName][1] = y;
 }
 
-void LLWaterParamSet::set(const char * paramName, float x, float y, float z)
+void LLWaterParamSet::set(const std::string& paramName, float x, float y, float z)
 {
 	mParamValues[paramName][0] = x;
 	mParamValues[paramName][1] = y;
 	mParamValues[paramName][2] = z;
 }
 
-void LLWaterParamSet::set(const char * paramName, float x, float y, float z, float w) 
+void LLWaterParamSet::set(const std::string& paramName, float x, float y, float z, float w) 
 {
 	mParamValues[paramName][0] = x;
 	mParamValues[paramName][1] = y;
@@ -123,7 +123,7 @@ void LLWaterParamSet::set(const char * paramName, float x, float y, float z, flo
 	mParamValues[paramName][3] = w;
 }
 
-void LLWaterParamSet::set(const char * paramName, const float * val) 
+void LLWaterParamSet::set(const std::string& paramName, const float * val) 
 {
 	mParamValues[paramName][0] = val[0];
 	mParamValues[paramName][1] = val[1];
@@ -131,7 +131,7 @@ void LLWaterParamSet::set(const char * paramName, const float * val)
 	mParamValues[paramName][3] = val[3];
 }
 
-void LLWaterParamSet::set(const char * paramName, const LLVector4 & val) 
+void LLWaterParamSet::set(const std::string& paramName, const LLVector4 & val) 
 {
 	mParamValues[paramName][0] = val.mV[0];
 	mParamValues[paramName][1] = val.mV[1];
@@ -139,7 +139,7 @@ void LLWaterParamSet::set(const char * paramName, const LLVector4 & val)
 	mParamValues[paramName][3] = val.mV[3];
 }
 
-void LLWaterParamSet::set(const char * paramName, const LLColor4 & val) 
+void LLWaterParamSet::set(const std::string& paramName, const LLColor4 & val) 
 {
 	mParamValues[paramName][0] = val.mV[0];
 	mParamValues[paramName][1] = val.mV[1];
@@ -147,7 +147,7 @@ void LLWaterParamSet::set(const char * paramName, const LLColor4 & val)
 	mParamValues[paramName][3] = val.mV[3];
 }
 
-LLVector4 LLWaterParamSet::getVector4(const char * paramName, bool& error) 
+LLVector4 LLWaterParamSet::getVector4(const std::string& paramName, bool& error) 
 {
 	
 	// test to see if right type
@@ -168,7 +168,7 @@ LLVector4 LLWaterParamSet::getVector4(const char * paramName, bool& error)
 	return val;
 }
 
-LLVector3 LLWaterParamSet::getVector3(const char * paramName, bool& error) 
+LLVector3 LLWaterParamSet::getVector3(const std::string& paramName, bool& error) 
 {
 	
 	// test to see if right type
@@ -188,7 +188,7 @@ LLVector3 LLWaterParamSet::getVector3(const char * paramName, bool& error)
 	return val;
 }
 
-LLVector2 LLWaterParamSet::getVector2(const char * paramName, bool& error) 
+LLVector2 LLWaterParamSet::getVector2(const std::string& paramName, bool& error) 
 {
 	// test to see if right type
 	int ttest;
@@ -208,7 +208,7 @@ LLVector2 LLWaterParamSet::getVector2(const char * paramName, bool& error)
 	return val;
 }
 
-F32 LLWaterParamSet::getFloat(const char * paramName, bool& error) 
+F32 LLWaterParamSet::getFloat(const std::string& paramName, bool& error) 
 {
 	
 	// test to see if right type

@@ -70,7 +70,7 @@ const LLVector3 DEFAULT_OBJECT_SCALE(0.5f, 0.5f, 0.5f);
 LLPCode	LLToolPlacer::sObjectType = LL_PCODE_CUBE;
 
 LLToolPlacer::LLToolPlacer()
-:	LLTool( "Create" )
+:	LLTool( std::string("Create") )
 {
 }
 
@@ -570,7 +570,7 @@ LLToolPlacerPanel::LLToolPlacerPanel(const std::string& name, const LLRect& rect
 	*/
 }
 
-void LLToolPlacerPanel::addButton( const LLString& up_state, const LLString& down_state, LLPCode* pcode )
+void LLToolPlacerPanel::addButton( const std::string& up_state, const std::string& down_state, LLPCode* pcode )
 {
 	const S32 TOOL_SIZE = 32;
 	const S32 HORIZ_SPACING = TOOL_SIZE + 5;
@@ -593,11 +593,11 @@ void LLToolPlacerPanel::addButton( const LLString& up_state, const LLString& dow
 		TOOL_SIZE );
 
 	LLButton* btn = new LLButton(
-		"ToolPlacerOptBtn",
+		std::string("ToolPlacerOptBtn"),
 		rect,
 		up_state,
 		down_state,
-		"", &LLToolPlacerPanel::setObjectType,
+		LLStringUtil::null, &LLToolPlacerPanel::setObjectType,
 		pcode,
 		LLFontGL::sSansSerif);
 	btn->setFollowsBottom();

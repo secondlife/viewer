@@ -34,10 +34,10 @@
 #include "u64.h"
 
 
-U64 str_to_U64(const char *str)
+U64 str_to_U64(const std::string& str)
 {
 	U64 result = 0;
-	const char *aptr = strpbrk(str,"0123456789");
+	const char *aptr = strpbrk(str.c_str(),"0123456789");
 
 	if (!aptr)
 	{
@@ -54,8 +54,9 @@ U64 str_to_U64(const char *str)
 }
 
 
-char* U64_to_str(U64 value, char* result, S32 result_size) 
-{										
+std::string U64_to_str(U64 value) 
+{
+	std::string res;
 	U32 part1,part2,part3;
 	
 	part3 = (U32)(value % (U64)10000000);
@@ -70,30 +71,25 @@ char* U64_to_str(U64 value, char* result, S32 result_size)
 	
 	if (part1)
 	{
-		snprintf(	/* Flawfinder: ignore */
-			result,
-			result_size,
-			"%u%07u%07u",
-			part1,part2,part3);
+		res = llformat("%u%07u%07u",part1,part2,part3);
 	}
 	else if (part2)
 	{
-		snprintf(	/* Flawfinder: ignore */
-			result,
-			result_size,
-			"%u%07u",
-			part2,part3);
+		res = llformat("%u%07u",part2,part3);
 	}
 	else
 	{
-		snprintf(	/* Flawfinder: ignore */
-			result,
-			result_size,
-			"%u",
-			part3);		
+		res = llformat("%u",part3);	
 	}
-	return (result);
+	return res;
 } 
+
+char* U64_to_str(U64 value, char* result, S32 result_size) 
+{
+	std::string res = U64_to_str(value);
+	LLStringUtil::copy(result, res.c_str(), result_size);
+	return result;
+}
 
 F64 U64_to_F64(const U64 value)
 {

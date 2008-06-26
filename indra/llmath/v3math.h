@@ -148,7 +148,7 @@ class LLVector3
 
 		friend std::ostream&	 operator<<(std::ostream& s, const LLVector3 &a);		// Stream a
 
-		static BOOL parseVector3(const char* buf, LLVector3* value);
+		static BOOL parseVector3(const std::string& buf, LLVector3* value);
 };
 
 typedef LLVector3 LLSimLocalVec;

@@ -150,7 +150,7 @@ S32 LLVersion::getField(const S32 field_num)
 	}
 }
 
-LLString LLDXDriverFile::dump()
+std::string LLDXDriverFile::dump()
 {
 	if (gWriteDebug)
 	{
@@ -237,7 +237,7 @@ void LLDXHardware::cleanup()
 }
 
 /*
-LLString LLDXHardware::dumpDevices()
+std::string LLDXHardware::dumpDevices()
 {
 	if (gWriteDebug)
 	{

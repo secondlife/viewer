@@ -59,16 +59,16 @@ public:
 	// or agent id.
 	void addMessage(const LLUUID& session_id,
 					const LLUUID& target_id,
-					const char* from,
-					const char* msg,
-					const char* session_name = NULL,
+					const std::string& from,
+					const std::string& msg,
+					const std::string& session_name = LLStringUtil::null,
 					EInstantMessage dialog = IM_NOTHING_SPECIAL,
 					U32 parent_estate_id = 0,
 					const LLUUID& region_id = LLUUID::null,
 					const LLVector3& position = LLVector3::zero,
 					bool link_name = false);
 
-	void addSystemMessage(const LLUUID& session_id, const LLString& message_name, const LLString::format_map_t& args);
+	void addSystemMessage(const LLUUID& session_id, const std::string& message_name, const LLStringUtil::format_map_t& args);
 
 	// This method returns TRUE if the local viewer has a session
 	// currently open keyed to the uuid. The uuid can be keyed by
@@ -97,7 +97,7 @@ public:
 	// Creates a P2P session with the requisite handle for responding to voice calls
 	LLUUID addP2PSession(const std::string& name,
 					  const LLUUID& other_participant_id,
-					  const LLString& voice_session_handle);
+					  const std::string& voice_session_handle);
 
 	// This removes the panel referenced by the uuid, and then
 	// restores internal consistency. The internal pointer is not
@@ -106,12 +106,12 @@ public:
 
 	void inviteToSession(
 		const LLUUID& session_id, 
-		const LLString& session_name, 
+		const std::string& session_name, 
 		const LLUUID& caller, 
-		const LLString& caller_name,
+		const std::string& caller_name,
 		EInstantMessage type,
 		EInvitationType inv_type, 
-		const LLString& session_handle = LLString::null);
+		const std::string& session_handle = LLStringUtil::null);
 
 	//Updates a given session's session IDs.  Does not open,
 	//create or do anything new.  If the old session doesn't
@@ -198,7 +198,7 @@ private:
 	void processIMTypingCore(const LLIMInfo* im_info, BOOL typing);
 
 	static void inviteUserResponse(S32 option, void* user_data);
-	static void onInviteNameLookup(const LLUUID& id, const char* first, const char* last, BOOL is_group, void* userdata);
+	static void onInviteNameLookup(const LLUUID& id, const std::string& first, const std::string& last, BOOL is_group, void* userdata);
 
 private:
 	std::set<LLHandle<LLFloater> > mFloaters;
@@ -218,9 +218,9 @@ public:
 	LLFloaterIM();
 	/*virtual*/ BOOL postBuild();
 
-	static std::map<std::string,LLString> sEventStringsMap;
-	static std::map<std::string,LLString> sErrorStringsMap;
-	static std::map<std::string,LLString> sForceCloseSessionMap;
+	static std::map<std::string,std::string> sEventStringsMap;
+	static std::map<std::string,std::string> sErrorStringsMap;
+	static std::map<std::string,std::string> sForceCloseSessionMap;
 };
 
 // Globals

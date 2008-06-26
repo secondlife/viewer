@@ -50,7 +50,7 @@ void cleanup_menus();
 void show_debug_menus(); // checks for if menus should be shown first.
 void show_context_menu( S32 x, S32 y, MASK mask );
 void show_build_mode_context_menu(S32 x, S32 y, MASK mask);
-void load_url_local_file(const char *file_name);
+void load_url_local_file(const std::string& file_name);
 BOOL enable_save_into_inventory(void*);
 void handle_reset_view();
 void handle_cut(void*);
@@ -83,8 +83,8 @@ void menu_toggle_control( void* user_data );
 void check_toggle_control( LLUICtrl *, void* user_data );
 void confirm_replace_attachment(S32 option, void* user_data);
 void handle_detach_from_avatar(void* user_data);
-void attach_label(LLString& label, void* user_data);
-void detach_label(LLString& label, void* user_data);
+void attach_label(std::string& label, void* user_data);
+void detach_label(std::string& label, void* user_data);
 BOOL object_selected_and_point_valid(void* user_data);
 BOOL object_attached(void* user_data);
 void handle_detach(void*);
@@ -112,9 +112,6 @@ bool handle_go_to();
 // Export to XML or Collada
 void handle_export_selected( void * );
 
-//Retrieve a list of valid extensions for a given file "type"
-const char* build_extensions_string(LLFilePicker::ELoadFilter filter);
-
 // Pass in an empty string and this function will build a string that
 // describes buyer permissions.
 class LLSaleInfo;
@@ -137,7 +134,7 @@ protected:
 	LLSafeHandle<LLObjectSelection> mObjectSelection;
 };
 
-extern const LLString SAVE_INTO_INVENTORY;
+extern const std::string SAVE_INTO_INVENTORY;
 
 extern LLMenuBarGL*		gMenuBarView;
 //extern LLView*			gMenuBarHolder;

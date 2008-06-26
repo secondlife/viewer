@@ -343,7 +343,7 @@ public:
 	static void processEjectGroupMemberReply(LLMessageSystem* msg, void ** data);
 	static void processLeaveGroupReply(LLMessageSystem* msg, void ** data);
 
-	static bool parseRoleActions(const LLString& xml_filename);
+	static bool parseRoleActions(const std::string& xml_filename);
 
 	std::vector<LLRoleActionSet*> mRoleActionSets;
 

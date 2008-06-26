@@ -281,7 +281,7 @@ void LLPreviewNotecard::loadAsset()
 			mAssetID = item->getAssetUUID();
 			if(mAssetID.isNull())
 			{
-				editor->setText(LLString::null);
+				editor->setText(LLStringUtil::null);
 				editor->makePristine();
 				editor->setEnabled(TRUE);
 				mAssetStatus = PREVIEW_ASSET_LOADED;
@@ -341,7 +341,7 @@ void LLPreviewNotecard::loadAsset()
 	}
 	else
 	{
-		editor->setText(LLString::null);
+		editor->setText(LLStringUtil::null);
 		editor->makePristine();
 		editor->setEnabled(TRUE);
 		mAssetStatus = PREVIEW_ASSET_LOADED;
@@ -376,7 +376,7 @@ void LLPreviewNotecard::onLoadComplete(LLVFS *vfs,
 
 			if( (file_length > 19) && !strncmp( buffer, "Linden text version", 19 ) )
 			{
-				if( !previewEditor->importBuffer( buffer ) )
+				if( !previewEditor->importBuffer( buffer, file_length+1 ) )
 				{
 					llwarns << "Problem importing notecard" << llendl;
 				}
@@ -479,7 +479,7 @@ bool LLPreviewNotecard::saveIfNeeded(LLInventoryItem* copyitem)
 
 		LLVFile file(gVFS, asset_id, LLAssetType::AT_NOTECARD, LLVFile::APPEND);
 
-		LLString buffer;
+		std::string buffer;
 		if (!editor->exportBuffer(buffer))
 		{
 			return false;
@@ -601,15 +601,15 @@ void LLPreviewNotecard::onSaveComplete(const LLUUID& asset_uuid, void* user_data
 	else
 	{
 		llwarns << "Problem saving notecard: " << status << llendl;
-		LLStringBase<char>::format_map_t args;
+		LLStringUtil::format_map_t args;
 		args["[REASON]"] = std::string(LLAssetStorage::getErrorString(status));
 		gViewerWindow->alertXml("SaveNotecardFailReason",args);
 	}
 
-	char uuid_string[UUID_STR_LENGTH];		/*Flawfinder: ignore*/
+	std::string uuid_string;
 	asset_uuid.toString(uuid_string);
-	char filename[LL_MAX_PATH];		/*Flawfinder: ignore*/
-	snprintf(filename, LL_MAX_PATH, "%s.tmp", gDirUtilp->getExpandedFilename(LL_PATH_CACHE,uuid_string).c_str());			/* Flawfinder: ignore */
+	std::string filename;
+	filename = gDirUtilp->getExpandedFilename(LL_PATH_CACHE,uuid_string) + ".tmp";
 	LLFile::remove(filename);
 	delete info;
 }

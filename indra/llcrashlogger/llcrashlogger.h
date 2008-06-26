@@ -50,23 +50,23 @@ public:
 	bool saveCrashBehaviorSetting(S32 crash_behavior);
 	bool sendCrashLogs();
 	LLSD constructPostData();
-	virtual void updateApplication(LLString message = "");
+	virtual void updateApplication(const std::string& message = LLStringUtil::null);
 	virtual bool init();
 	virtual bool mainLoop() = 0;
 	virtual bool cleanup() { return true; }
-	void setUserText(LLString& text) { mCrashInfo["UserNotes"] = text; }
+	void setUserText(const std::string& text) { mCrashInfo["UserNotes"] = text; }
 	S32 getCrashBehavior() { return mCrashBehavior; }
-	bool runCrashLogPost(LLString host, LLSD data, LLString msg, int retries, int timeout);
+	bool runCrashLogPost(std::string host, LLSD data, std::string msg, int retries, int timeout);
 protected:
 	S32 mCrashBehavior;
 	BOOL mCrashInPreviousExec;
-	std::map<LLString, LLString> mFileMap;
-	LLString mGridName;
+	std::map<std::string, std::string> mFileMap;
+	std::string mGridName;
 	LLControlGroup mCrashSettings;
-	LLString mProductName;
+	std::string mProductName;
 	LLSD mCrashInfo;
-	LLString mCrashHost;
-	LLString mAltCrashHost;
+	std::string mCrashHost;
+	std::string mAltCrashHost;
 	LLSD mDebugLog;
 	bool mSentCrashLogs;
 };
@@ -78,7 +78,7 @@ public:
 	~LLCrashLoggerText(void) {}
 
 	virtual bool mainLoop();
-	virtual void updateApplication(LLString message = "");
+	virtual void updateApplication(const std::string& message = LLStringUtil::null);
 };
 
 

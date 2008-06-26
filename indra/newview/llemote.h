@@ -113,8 +113,6 @@ public:
 
 	virtual BOOL canDeprecate() { return FALSE; }
 
-	static BOOL	 getIndexFromName( const char* name, U32* index );
-
 protected:
 
 	LLCharacter*		mCharacter;

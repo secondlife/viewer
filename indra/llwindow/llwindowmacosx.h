@@ -86,12 +86,6 @@ public:
 	/*virtual*/ void delayInputProcessing() {};
 	/*virtual*/ void swapBuffers();
 
-	/*virtual*/ LLString getTempFileName();
-	/*virtual*/ void deleteFile( const char* file_name );
-	/*virtual*/ S32 stat( const char* file_name, struct stat* stat_info );
-	/*virtual*/ BOOL sendEmail(const char* address,const char* subject,const char* body_text,const char* attachment=NULL, const char* attachment_displayed_name=NULL);
-
-
 	// handy coordinate space conversion routines
 	/*virtual*/ BOOL convertCoords(LLCoordScreen from, LLCoordWindow *to);
 	/*virtual*/ BOOL convertCoords(LLCoordWindow from, LLCoordScreen *to);
@@ -115,12 +109,13 @@ public:
 	
 	/*virtual*/ void allowLanguageTextInput(LLPreeditor *preeditor, BOOL b);
 	/*virtual*/ void interruptLanguageTextInput();
+	/*virtual*/ void spawnWebBrowser(const std::string& escaped_url);
 
 	static std::string getFontListSans();
 
 protected:
 	LLWindowMacOSX(
-		const char *title, const char *name, int x, int y, int width, int height, U32 flags,
+		const std::string& title, const std::string& name, int x, int y, int width, int height, U32 flags,
 		BOOL fullscreen, BOOL clearBg, BOOL disable_vsync, BOOL use_gl,
 		BOOL ignore_pixel_depth,
 		U32 fsaa_samples);
@@ -154,7 +149,7 @@ protected:
 	// create or re-create the GL context/window.  Called from the constructor and switchContext().
 	BOOL createContext(int x, int y, int width, int height, int bits, BOOL fullscreen, BOOL disable_vsync);
 	void destroyContext();
-	void setupFailure(const char* text, const char* caption, U32 type);
+	void setupFailure(const std::string& text, const std::string& caption, U32 type);
 	static pascal OSStatus staticEventHandler (EventHandlerCallRef myHandler, EventRef event, void* userData);
 	OSStatus eventHandler (EventHandlerCallRef myHandler, EventRef event);
 	void adjustCursorDecouple(bool warpingMouse = false);
@@ -216,14 +211,14 @@ public:
 	virtual ~LLSplashScreenMacOSX();
 
 	/*virtual*/ void showImpl();
-	/*virtual*/ void updateImpl(const char* mesg);
+	/*virtual*/ void updateImpl(const std::string& mesg);
 	/*virtual*/ void hideImpl();
 
 private:
 	WindowRef   mWindow;
 };
 
-S32 OSMessageBoxMacOSX(const char* text, const char* caption, U32 type);
+S32 OSMessageBoxMacOSX(const std::string& text, const std::string& caption, U32 type);
 
 void load_url_external(const char* url);
 

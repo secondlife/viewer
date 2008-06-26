@@ -113,7 +113,7 @@ LLFloaterBuyCurrencyUI* LLFloaterBuyCurrencyUI::soleInstance(bool createIfNeeded
 #pragma warning(disable : 4355)
 #endif 
 LLFloaterBuyCurrencyUI::LLFloaterBuyCurrencyUI()
-:	LLFloater("Buy Currency"),
+:	LLFloater(std::string("Buy Currency")),
 	mChildren(*this),
 	mManager(*this)
 {
@@ -219,7 +219,7 @@ void LLFloaterBuyCurrencyUI::updateUI()
 	// error section
 	if (hasError)
 	{
-		mChildren.setBadge("step_error", LLViewChildren::BADGE_ERROR);
+		mChildren.setBadge(std::string("step_error"), LLViewChildren::BADGE_ERROR);
 		
 		LLTextBox* message = getChild<LLTextBox>("error_message");
 		if (message)
@@ -249,7 +249,7 @@ void LLFloaterBuyCurrencyUI::updateUI()
 	
 	if (!hasError)
 	{
-		mChildren.setBadge("step_1", LLViewChildren::BADGE_NOTE);
+		mChildren.setBadge(std::string("step_1"), LLViewChildren::BADGE_NOTE);
 
 		if (mManager.buying())
 		{
@@ -373,8 +373,8 @@ void LLFloaterBuyCurrency::buyCurrency(const std::string& name, S32 price)
 {
 	if (gHideLinks)
 	{
-		LLStringBase<char>::format_map_t args;
-		args["[NAME]"] = name.c_str();
+		LLStringUtil::format_map_t args;
+		args["[NAME]"] = name;
 		args["[PRICE]"] = llformat("%d", price);
 		gViewerWindow->alertXml("NotEnoughCurrency", args);
 		return;

@@ -44,7 +44,6 @@ class LLEventInfo
 {
 public:
 	LLEventInfo() {}
-	LLEventInfo(F32 global_x, F32 global_y, const char* name, U32 id, time_t unix_time, U32 event_flags);
 
 	void unpack(LLMessageSystem *msg);
 
@@ -58,7 +57,7 @@ public:
 	U32			mDuration;
 	std::string	mTimeStr;
 	LLUUID		mRunByID;
-	LLString	mSimName;
+	std::string	mSimName;
 	LLVector3d	mPosGlobal;
 	time_t		mUnixTime; // seconds from 1970
 	BOOL		mHasCover;

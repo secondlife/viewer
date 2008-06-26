@@ -691,10 +691,10 @@ BOOL lscript_compile(const char* src_filename, const char* dst_filename,
 	init_temp_jumps();
 	gAllocationManager = new LLScriptAllocationManager();
 
-	yyin = LLFile::fopen(src_filename, "r");
+	yyin = LLFile::fopen(std::string(src_filename), "r");
 	if (yyin)
 	{
-		yyout = LLFile::fopen(err_filename, "w");
+		yyout = LLFile::fopen(std::string(err_filename), "w");
 
 		// Reset the lexer's internal buffering.
 

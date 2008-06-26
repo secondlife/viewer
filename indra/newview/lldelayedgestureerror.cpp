@@ -98,7 +98,7 @@ void LLDelayedGestureError::onIdle(void *userdata)
 //static 
 bool LLDelayedGestureError::doDialog(const LLErrorEntry &ent, bool uuid_ok)
 {
-	LLStringBase<char>::format_map_t args;
+	LLStringUtil::format_map_t args;
 	LLInventoryItem *item = gInventory.getItem( ent.mItemID );
 
 	if ( item )
@@ -109,7 +109,7 @@ bool LLDelayedGestureError::doDialog(const LLErrorEntry &ent, bool uuid_ok)
 	{
 		if ( uuid_ok || ent.mTimer.getElapsedTimeF32() > MAX_NAME_WAIT_TIME )
 		{
-			args["[NAME]"] = LLString( ent.mItemID.asString() );
+			args["[NAME]"] = std::string( ent.mItemID.asString() );
 		}
 		else
 		{

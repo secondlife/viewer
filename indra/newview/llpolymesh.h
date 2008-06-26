@@ -134,7 +134,7 @@ private:
 	U32 getNumKB();
 
 	// Load mesh data from file
-	BOOL loadMesh( const char *fileName );
+	BOOL loadMesh( const std::string& fileName );
 
 public:
 	void genIndices(S32 offset);
@@ -171,7 +171,7 @@ public:
 	// Requests a mesh by name.
 	// If the mesh already exists in the global mesh table, it is returned,
 	// otherwise it is loaded from file, added to the table, and returned.
-	static LLPolyMesh *getMesh( const LLString &name, LLPolyMesh* reference_mesh = NULL);
+	static LLPolyMesh *getMesh( const std::string &name, LLPolyMesh* reference_mesh = NULL);
 
 	// Frees all loaded meshes.
 	// This should only be called once you know there are no outstanding
@@ -311,7 +311,7 @@ public:
 		return mSharedData->mJointNames;
 	}
 
-	LLPolyMorphData*	getMorphData(const char *morph_name);
+	LLPolyMorphData*	getMorphData(const std::string& morph_name);
 // 	void	removeMorphData(LLPolyMorphData *morph_target);
 // 	void	deleteAllMorphData();
 
@@ -362,7 +362,7 @@ protected:
 	LLPolyMesh				*mReferenceMesh;
 
 	// global mesh list
-	typedef std::map<LLString, LLPolyMeshSharedData*> LLPolyMeshSharedDataTable; 
+	typedef std::map<std::string, LLPolyMeshSharedData*> LLPolyMeshSharedDataTable; 
 	static LLPolyMeshSharedDataTable sGlobalSharedMeshList;
 
 	// Backlink only; don't make this an LLPointer.
@@ -375,12 +375,12 @@ protected:
 //-----------------------------------------------------------------------------
 struct LLPolySkeletalBoneInfo
 {
-	LLPolySkeletalBoneInfo(LLString &name, LLVector3 &scale, LLVector3 &pos, BOOL haspos)
+	LLPolySkeletalBoneInfo(std::string &name, LLVector3 &scale, LLVector3 &pos, BOOL haspos)
 		: mBoneName(name),
 		  mScaleDeformation(scale),
 		  mPositionDeformation(pos),
 		  mHasPositionDeformation(haspos) {}
-	LLString mBoneName;
+	std::string mBoneName;
 	LLVector3 mScaleDeformation;
 	LLVector3 mPositionDeformation;
 	BOOL mHasPositionDeformation;

@@ -105,7 +105,7 @@ void LLPanelVoiceDeviceSettings::draw()
 	{
 		for(S32 power_bar_idx = 0; power_bar_idx < 5; power_bar_idx++)
 		{
-			LLString view_name = llformat("%s%d", "bar", power_bar_idx);
+			std::string view_name = llformat("%s%d", "bar", power_bar_idx);
 			LLView* bar_view = getChild<LLView>(view_name);
 			if (bar_view)
 			{
@@ -260,7 +260,9 @@ void LLPanelVoiceDeviceSettings::onCommitOutputDevice(LLUICtrl* ctrl, void* user
 // LLFloaterVoiceDeviceSettings
 //
 
-LLFloaterVoiceDeviceSettings::LLFloaterVoiceDeviceSettings(const LLSD& seed) : LLFloater("floater_device_settings"), mDevicePanel(NULL)
+LLFloaterVoiceDeviceSettings::LLFloaterVoiceDeviceSettings(const LLSD& seed)
+	: LLFloater(std::string("floater_device_settings")),
+	  mDevicePanel(NULL)
 {
 	mFactoryMap["device_settings"] = LLCallbackMap(createPanelVoiceDeviceSettings, this);
 	// do not automatically open singleton floaters (as result of getInstance())

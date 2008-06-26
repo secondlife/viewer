@@ -285,7 +285,7 @@ void LLTracker::render3D()
 
 
 // static 
-void LLTracker::trackAvatar( const LLUUID& avatar_id, const LLString& name )
+void LLTracker::trackAvatar( const LLUUID& avatar_id, const std::string& name )
 {
 	instance()->stopTrackingLandmark();
 	instance()->stopTrackingLocation();
@@ -297,7 +297,7 @@ void LLTracker::trackAvatar( const LLUUID& avatar_id, const LLString& name )
 
 
 // static 
-void LLTracker::trackLandmark( const LLUUID& asset_id, const LLUUID& item_id, const LLString& name)
+void LLTracker::trackLandmark( const LLUUID& asset_id, const LLUUID& item_id, const std::string& name)
 {
 	instance()->stopTrackingAvatar();
 	instance()->stopTrackingLocation();
@@ -312,7 +312,7 @@ void LLTracker::trackLandmark( const LLUUID& asset_id, const LLUUID& item_id, co
 
 
 // static 
-void LLTracker::trackLocation(const LLVector3d& pos_global, const LLString& full_name, const LLString& tooltip, ETrackingLocationType location_type)
+void LLTracker::trackLocation(const LLVector3d& pos_global, const std::string& full_name, const std::string& tooltip, ETrackingLocationType location_type)
 {
 	instance()->stopTrackingAvatar();
 	instance()->stopTrackingLandmark();
@@ -398,7 +398,7 @@ BOOL LLTracker::hasLandmarkPosition()
 
 
 // static
-const LLString& LLTracker::getTrackedLocationName()
+const std::string& LLTracker::getTrackedLocationName()
 {
 	return instance()->mTrackedLocationName;
 }
@@ -557,8 +557,8 @@ void LLTracker::renderBeacon(LLVector3d pos_global,
 		//gCylinder.render(1000);
 	glPopMatrix();
 
-	char text[1024];		/* Flawfinder: ignore */
-	snprintf(text, sizeof(text), "%.0f m", to_vec.magVec());		/* Flawfinder: ignore */
+	std::string text;
+	text = llformat( "%.0f m", to_vec.magVec());
 
 	LLWString wstr;
 	wstr += utf8str_to_wstring(label);

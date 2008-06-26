@@ -50,13 +50,13 @@ class LLFeatureInfo
 {
 public:
 	LLFeatureInfo() : mValid(FALSE), mAvailable(FALSE), mRecommendedLevel(-1) {}
-	LLFeatureInfo(const char *name, const BOOL available, const F32 level);
+	LLFeatureInfo(const std::string& name, const BOOL available, const F32 level);
 
 	BOOL isValid() const	{ return mValid; };
 
 public:
 	BOOL		mValid;
-	LLString	mName;
+	std::string	mName;
 	BOOL		mAvailable;
 	F32			mRecommendedLevel;
 };
@@ -65,22 +65,22 @@ public:
 class LLFeatureList
 {
 public:
-	typedef std::map<LLString, LLFeatureInfo> feature_map_t;
+	typedef std::map<std::string, LLFeatureInfo> feature_map_t;
 
-	LLFeatureList(const char *name = "default");
+	LLFeatureList(const std::string& name);
 	virtual ~LLFeatureList();
 
-	BOOL isFeatureAvailable(const char *name);
-	F32 getRecommendedValue(const char *name);
+	BOOL isFeatureAvailable(const std::string& name);
+	F32 getRecommendedValue(const std::string& name);
 
-	void setFeatureAvailable(const char *name, const BOOL available);
-	void setRecommendedLevel(const char *name, const F32 level);
+	void setFeatureAvailable(const std::string& name, const BOOL available);
+	void setRecommendedLevel(const std::string& name, const F32 level);
 
 	BOOL loadFeatureList(LLFILE *fp);
 
 	BOOL maskList(LLFeatureList &mask);
 
-	void addFeature(const char *name, const BOOL available, const F32 level);
+	void addFeature(const std::string& name, const BOOL available, const F32 level);
 
 	feature_map_t& getFeatures()
 	{
@@ -89,7 +89,7 @@ public:
 
 	void dump();
 protected:
-	LLString	mName;
+	std::string	mName;
 	feature_map_t	mFeatures;
 };
 
@@ -97,13 +97,16 @@ protected:
 class LLFeatureManager : public LLFeatureList, public LLSingleton<LLFeatureManager>
 {
 public:
-	LLFeatureManager() : mInited(FALSE), mTableVersion(0), mSafe(FALSE), mGPUClass(GPU_CLASS_UNKNOWN) {}
+	LLFeatureManager() :
+		LLFeatureList("default"), mInited(FALSE), mTableVersion(0), mSafe(FALSE), mGPUClass(GPU_CLASS_UNKNOWN)
+	{
+	}
 	~LLFeatureManager() {cleanupFeatureTables();}
 
 	// initialize this by loading feature table and gpu table
 	void init();
 
-	void maskCurrentList(const char *name); // Mask the current feature list with the named list
+	void maskCurrentList(const std::string& name); // Mask the current feature list with the named list
 
 	BOOL loadFeatureTables();
 
@@ -117,8 +120,8 @@ public:
 	void setSafe(const BOOL safe)		{ mSafe = safe; }
 	BOOL isSafe() const					{ return mSafe; }
 
-	LLFeatureList *findMask(const char *name);
-	BOOL maskFeatures(const char *name);
+	LLFeatureList *findMask(const std::string& name);
+	BOOL maskFeatures(const std::string& name);
 
 	// set the graphics to low, medium, high, or ultra.
 	// skipFeatures forces skipping of mostly hardware settings
@@ -138,8 +141,8 @@ protected:
 	void initBaseMask();
 
 
-	std::map<LLString, LLFeatureList *> mMaskList;
-	std::set<LLString> mSkippedFeatures;
+	std::map<std::string, LLFeatureList *> mMaskList;
+	std::set<std::string> mSkippedFeatures;
 	BOOL		mInited;
 	S32			mTableVersion;
 	BOOL		mSafe;					// Reinitialize everything to the "safe" mask

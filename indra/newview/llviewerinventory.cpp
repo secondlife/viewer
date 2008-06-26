@@ -64,8 +64,8 @@ LLViewerInventoryItem::LLViewerInventoryItem(const LLUUID& uuid,
 											 const LLUUID& asset_uuid,
 											 LLAssetType::EType type,
 											 LLInventoryType::EType inv_type,
-											 const LLString& name,
-											 const LLString& desc,
+											 const std::string& name,
+											 const std::string& desc,
 											 const LLSaleInfo& sale_info,
 											 U32 flags,
 											 time_t creation_date_utc) :
@@ -77,7 +77,7 @@ LLViewerInventoryItem::LLViewerInventoryItem(const LLUUID& uuid,
 
 LLViewerInventoryItem::LLViewerInventoryItem(const LLUUID& item_id,
 											 const LLUUID& parent_id,
-											 const char* name,
+											 const std::string& name,
 											 LLInventoryType::EType inv_type) :
 	LLInventoryItem(),
 	mIsComplete(FALSE)
@@ -85,7 +85,7 @@ LLViewerInventoryItem::LLViewerInventoryItem(const LLUUID& item_id,
 	mUUID = item_id;
 	mParentUUID = parent_id;
 	mInventoryType = inv_type;
-	mName.assign(name);
+	mName = name;
 }
 
 LLViewerInventoryItem::LLViewerInventoryItem() :
@@ -279,12 +279,12 @@ bool LLViewerInventoryItem::importFileLocal(LLFILE* fp)
 
 bool LLViewerInventoryItem::exportFileLocal(LLFILE* fp) const
 {
-	char uuid_str[UUID_STR_LENGTH];		/* Flawfinder: ignore */
+	std::string uuid_str;
 	fprintf(fp, "\tinv_item\t0\n\t{\n");
 	mUUID.toString(uuid_str);
-	fprintf(fp, "\t\titem_id\t%s\n", uuid_str);
+	fprintf(fp, "\t\titem_id\t%s\n", uuid_str.c_str());
 	mParentUUID.toString(uuid_str);
-	fprintf(fp, "\t\tparent_id\t%s\n", uuid_str);
+	fprintf(fp, "\t\tparent_id\t%s\n", uuid_str.c_str());
 	mPermissions.exportFile(fp);
 	fprintf(fp, "\t\ttype\t%s\n", LLAssetType::lookup(mType));
 	const char* inv_type_str = LLInventoryType::lookup(mInventoryType);
@@ -327,7 +327,7 @@ void LLViewerInventoryItem::updateParentOnServer(BOOL restamp) const
 LLViewerInventoryCategory::LLViewerInventoryCategory(const LLUUID& uuid,
 													 const LLUUID& parent_uuid,
 													 LLAssetType::EType pref,
-													 const LLString& name,
+													 const std::string& name,
 													 const LLUUID& owner_id) :
 	LLInventoryCategory(uuid, parent_uuid, pref, name),
 	mOwnerID(owner_id),
@@ -518,8 +518,8 @@ bool LLViewerInventoryCategory::importFileLocal(LLFILE* fp)
 			sscanf(	/* Flawfinder: ignore */
 				buffer, " %254s %254[^|]", keyword, valuestr);
 			mName.assign(valuestr);
-			LLString::replaceNonstandardASCII(mName, ' ');
-			LLString::replaceChar(mName, '|', ' ');
+			LLStringUtil::replaceNonstandardASCII(mName, ' ');
+			LLStringUtil::replaceChar(mName, '|', ' ');
 		}
 		else if(0 == strcmp("owner_id", keyword))
 		{
@@ -540,17 +540,17 @@ bool LLViewerInventoryCategory::importFileLocal(LLFILE* fp)
 
 bool LLViewerInventoryCategory::exportFileLocal(LLFILE* fp) const
 {
-	char uuid_str[UUID_STR_LENGTH];		/* Flawfinder: ignore */
+	std::string uuid_str;
 	fprintf(fp, "\tinv_category\t0\n\t{\n");
 	mUUID.toString(uuid_str);
-	fprintf(fp, "\t\tcat_id\t%s\n", uuid_str);
+	fprintf(fp, "\t\tcat_id\t%s\n", uuid_str.c_str());
 	mParentUUID.toString(uuid_str);
-	fprintf(fp, "\t\tparent_id\t%s\n", uuid_str);
+	fprintf(fp, "\t\tparent_id\t%s\n", uuid_str.c_str());
 	fprintf(fp, "\t\ttype\t%s\n", LLAssetType::lookup(mType));
 	fprintf(fp, "\t\tpref_type\t%s\n", LLAssetType::lookup(mPreferredType));
 	fprintf(fp, "\t\tname\t%s|\n", mName.c_str());
 	mOwnerID.toString(uuid_str);
-	fprintf(fp, "\t\towner_id\t%s\n", uuid_str);
+	fprintf(fp, "\t\towner_id\t%s\n", uuid_str.c_str());
 	fprintf(fp, "\t\tversion\t%d\n", mVersion);
 	fprintf(fp,"\t}\n");
 	return true;
@@ -560,17 +560,6 @@ bool LLViewerInventoryCategory::exportFileLocal(LLFILE* fp) const
 /// Local function definitions
 ///----------------------------------------------------------------------------
 
-/*
-void inventory_reliable_callback(void**, S32 status)
-{
-	if(0 != status)
-	{
-		char buffer[MAX_STRING];
-		sprintf(buffer, "Reliable packet failure: %d", status);
-		llwarns << buffer << llendl;
-	}
-}
-*/
 LLInventoryCallbackManager *LLInventoryCallbackManager::sInstance = NULL;
 
 LLInventoryCallbackManager::LLInventoryCallbackManager() :
@@ -677,7 +666,7 @@ void CreateGestureCallback::fire(const LLUUID& inv_item)
 
 	if(!LLPreview::show(inv_item,FALSE))
 	{
-		LLPreviewGesture* preview = LLPreviewGesture::show(LLString("Gesture: ") + item->getName(), inv_item,  LLUUID::null);
+		LLPreviewGesture* preview = LLPreviewGesture::show(std::string("Gesture: ") + item->getName(), inv_item,  LLUUID::null);
 		// Force to be entirely onscreen.
 		gFloaterView->adjustToFitScreen(preview, FALSE);
 	}

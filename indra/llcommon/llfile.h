@@ -67,24 +67,27 @@ typedef struct stat		llstat;
 # define S_ISDIR(x) (((x) & S_IFMT) == S_IFDIR)
 #endif
 
+#include "llstring.h" // safe char* -> std::string conversion
+
 class	LLFile
 {
 public:
 	// All these functions take UTF8 path/filenames.
-	static	LLFILE*	fopen(const char* filename,const char* accessmode);	/* Flawfinder: ignore */
-	static	LLFILE*	_fsopen(const char* filename,const char* accessmode,int	sharingFlag);
+	static	LLFILE*	fopen(const std::string& filename,const char* accessmode);	/* Flawfinder: ignore */
+	static	LLFILE*	_fsopen(const std::string& filename,const char* accessmode,int	sharingFlag);
 
 	// perms is a permissions mask like 0777 or 0700.  In most cases it will
 	// be overridden by the user's umask.  It is ignored on Windows.
-	static	int		mkdir(const char* filename, int perms = 0700);
+	static	int		mkdir(const std::string& filename, int perms = 0700);
 
-	static	int		rmdir(const char* filename);
-	static	int		remove(const char* filename);
-	static	int		rename(const char* filename,const char*	newname);
-	static	int		stat(const char*	filename,llstat*	file_status);
-	static	bool	isdir(const char*	filename);
-	static	bool	isfile(const char*	filename);
-	static	LLFILE *	_Fiopen(const char *filename, std::ios::openmode mode,int);	// protection currently unused
+	static	int		rmdir(const std::string& filename);
+	static	int		remove(const std::string& filename);
+	static	int		rename(const std::string& filename,const std::string&	newname);
+	static	int		stat(const std::string&	filename,llstat*	file_status);
+	static	bool	isdir(const std::string&	filename);
+	static	bool	isfile(const std::string&	filename);
+	static	LLFILE *	_Fiopen(const std::string& filename, std::ios::openmode mode,int);	// protection currently unused
+
 	static  const char * tmpdir();
 };
 
@@ -104,7 +107,7 @@ public:
 	{	// construct unopened
 	}
 
-	explicit llifstream(const char *_Filename,
+	explicit llifstream(const std::string& _Filename,
 		ios_base::openmode _Mode = ios_base::in,
 		int _Prot = (int)ios_base::_Openprot);
 
@@ -121,7 +124,7 @@ public:
 		return _Filebuffer;
 	}
 	bool is_open() const;
-	void open(const char* _Filename,	/* Flawfinder: ignore */
+	void open(const std::string& _Filename,	/* Flawfinder: ignore */
 		ios_base::openmode _Mode = ios_base::in,
 		int _Prot = (int)ios_base::_Openprot);	
 	void close();
@@ -144,7 +147,7 @@ public:
 	{	// construct unopened
 	}
 
-	explicit llofstream(const char *_Filename,
+	explicit llofstream(const std::string& _Filename,
 		std::ios_base::openmode _Mode = ios_base::out,
 		int _Prot = (int)std::ios_base::_Openprot);
 	
@@ -165,7 +168,7 @@ public:
 
 	bool is_open() const;
 
-	void open(const char *_Filename,ios_base::openmode _Mode = ios_base::out,int _Prot = (int)ios_base::_Openprot);	/* Flawfinder: ignore */
+	void open(const std::string& _Filename,ios_base::openmode _Mode = ios_base::out,int _Prot = (int)ios_base::_Openprot);	/* Flawfinder: ignore */
 
 	void close();
 
@@ -178,8 +181,45 @@ private:
 
 #else
 //Use standard file streams on non windows platforms
-#define	llifstream	std::ifstream
-#define	llofstream	std::ofstream
+//#define	llifstream	std::ifstream
+//#define	llofstream	std::ofstream
+
+class	llifstream	:	public	std::ifstream
+{
+public:
+	llifstream() : std::ifstream()
+	{
+	}
+
+	explicit llifstream(const std::string& _Filename, std::_Ios_Openmode _Mode = in)
+		: std::ifstream(_Filename.c_str(), _Mode)
+	{
+	}
+	void open(const std::string& _Filename, std::_Ios_Openmode _Mode = in)	/* Flawfinder: ignore */
+	{
+		std::ifstream::open(_Filename.c_str(), _Mode);
+	}
+};
+
+
+class	llofstream	:	public	std::ofstream
+{
+public:
+	llofstream() : std::ofstream()
+	{
+	}
+
+	explicit llofstream(const std::string& _Filename, std::_Ios_Openmode _Mode = out)
+		: std::ofstream(_Filename.c_str(), _Mode)
+	{
+	}
+
+	void open(const std::string& _Filename, std::_Ios_Openmode _Mode = out)	/* Flawfinder: ignore */
+	{
+		std::ofstream::open(_Filename.c_str(), _Mode);
+	}
+
+};
 
 #endif
 

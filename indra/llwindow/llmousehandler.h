@@ -51,8 +51,8 @@ public:
 	virtual BOOL	handleDoubleClick(S32 x, S32 y, MASK mask) = 0;
 	virtual BOOL	handleRightMouseDown(S32 x, S32 y, MASK mask) = 0;
 	virtual BOOL	handleRightMouseUp(S32 x, S32 y, MASK mask) = 0;
-	virtual BOOL	handleToolTip(S32 x, S32 y, LLString& msg, LLRect* sticky_rect_screen) = 0;
-	virtual const LLString& getName() const = 0;
+	virtual BOOL	handleToolTip(S32 x, S32 y, std::string& msg, LLRect* sticky_rect_screen) = 0;
+	virtual const std::string& getName() const = 0;
 
 	virtual void	onMouseCaptureLost() = 0;
 

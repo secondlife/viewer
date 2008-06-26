@@ -42,7 +42,7 @@ public:
 	LLCrashLoggerLinux(void);
 	~LLCrashLoggerLinux(void);
 	virtual bool mainLoop();
-	virtual void updateApplication(LLString message = "");
+	virtual void updateApplication(const std::string& = LLStringUtil::null);
 	virtual void gatherPlatformSpecificFiles();
 };
 

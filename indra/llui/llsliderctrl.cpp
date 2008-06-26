@@ -53,8 +53,8 @@ const U32 MAX_STRING_LENGTH = 10;
 
 static LLRegisterWidget<LLSliderCtrl> r("slider");
  
-LLSliderCtrl::LLSliderCtrl(const LLString& name, const LLRect& rect, 
-						   const LLString& label,
+LLSliderCtrl::LLSliderCtrl(const std::string& name, const LLRect& rect, 
+						   const std::string& label,
 						   const LLFontGL* font,
 						   S32 label_width,
 						   S32 text_left,
@@ -64,7 +64,7 @@ LLSliderCtrl::LLSliderCtrl(const LLString& name, const LLRect& rect,
 						   void (*commit_callback)(LLUICtrl*, void*),
 						   void* callback_user_data,
 						   F32 initial_value, F32 min_value, F32 max_value, F32 increment,
-						   const LLString& control_which)
+						   const std::string& control_which)
 	: LLUICtrl(name, rect, TRUE, commit_callback, callback_user_data ),
 	  mFont(font),
 	  mShowText( show_text ),
@@ -93,7 +93,7 @@ LLSliderCtrl::LLSliderCtrl(const LLString& name, const LLRect& rect,
 			label_width = font->getWidth(label);
 		}
 		LLRect label_rect( left, top, label_width, bottom );
-		mLabelBox = new LLTextBox( "SliderCtrl Label", label_rect, label.c_str(), font );
+		mLabelBox = new LLTextBox( std::string("SliderCtrl Label"), label_rect, label, font );
 		addChild(mLabelBox);
 	}
 
@@ -105,12 +105,11 @@ LLSliderCtrl::LLSliderCtrl(const LLString& name, const LLRect& rect,
 
 	S32 slider_left = label_width ? label_width + SLIDERCTRL_SPACING : 0;
 	LLRect slider_rect( slider_left, top, slider_right, bottom );
-	mSlider = new LLSlider( 
-		"slider",
-		slider_rect, 
-		LLSliderCtrl::onSliderCommit, this, 
-		initial_value, min_value, max_value, increment, volume,
-		control_which );
+	mSlider = new LLSlider(std::string("slider"),
+						   slider_rect, 
+						   LLSliderCtrl::onSliderCommit, this, 
+						   initial_value, min_value, max_value, increment, volume,
+						   control_which );
 	addChild( mSlider );
 	
 	if( show_text )
@@ -118,11 +117,11 @@ LLSliderCtrl::LLSliderCtrl(const LLString& name, const LLRect& rect,
 		LLRect text_rect( text_left, top, getRect().getWidth(), bottom );
 		if( can_edit_text )
 		{
-			mEditor = new LLLineEditor( "SliderCtrl Editor", text_rect,
-				"", font,
-				MAX_STRING_LENGTH,
-				&LLSliderCtrl::onEditorCommit, NULL, NULL, this,
-				&LLLineEditor::prevalidateFloat );
+			mEditor = new LLLineEditor( std::string("SliderCtrl Editor"), text_rect,
+										LLStringUtil::null, font,
+										MAX_STRING_LENGTH,
+										&LLSliderCtrl::onEditorCommit, NULL, NULL, this,
+										&LLLineEditor::prevalidateFloat );
 			mEditor->setFollowsLeft();
 			mEditor->setFollowsBottom();
 			mEditor->setFocusReceivedCallback( &LLSliderCtrl::onEditorGainFocus, this );
@@ -134,7 +133,7 @@ LLSliderCtrl::LLSliderCtrl(const LLString& name, const LLRect& rect,
 		}
 		else
 		{
-			mTextBox = new LLTextBox( "SliderCtrl Text", text_rect,	"",	font);
+			mTextBox = new LLTextBox( std::string("SliderCtrl Text"), text_rect,	LLStringUtil::null,	font);
 			mTextBox->setFollowsLeft();
 			mTextBox->setFollowsBottom();
 			addChild(mTextBox);
@@ -162,7 +161,7 @@ void LLSliderCtrl::setValue(F32 v, BOOL from_event)
 	updateText();
 }
 
-BOOL LLSliderCtrl::setLabelArg( const LLString& key, const LLStringExplicit& text )
+BOOL LLSliderCtrl::setLabelArg( const std::string& key, const LLStringExplicit& text )
 {
 	BOOL res = FALSE;
 	if (mLabelBox)
@@ -192,11 +191,11 @@ void LLSliderCtrl::clear()
 	setValue(0.0f);
 	if( mEditor )
 	{
-		mEditor->setText( LLString::null );
+		mEditor->setText( LLStringUtil::null );
 	}
 	if( mTextBox )
 	{
-		mTextBox->setText( LLString::null );
+		mTextBox->setText( LLStringUtil::null );
 	}
 
 }
@@ -210,8 +209,8 @@ void LLSliderCtrl::updateText()
 		// Don't display very small negative values as -0.000
 		F32 displayed_value = (F32)(floor(getValueF32() * pow(10.0, (F64)mPrecision) + 0.5) / pow(10.0, (F64)mPrecision));
 
-		LLString format = llformat("%%.%df", mPrecision);
-		LLString text = llformat(format.c_str(), displayed_value);
+		std::string format = llformat("%%.%df", mPrecision);
+		std::string text = llformat(format.c_str(), displayed_value);
 		if( mEditor )
 		{
 			mEditor->setText( text );
@@ -233,7 +232,7 @@ void LLSliderCtrl::onEditorCommit( LLUICtrl* caller, void *userdata )
 	F32 val = self->mValue;
 	F32 saved_val = self->mValue;
 
-	LLString text = self->mEditor->getText();
+	std::string text = self->mEditor->getText();
 	if( LLLineEditor::postvalidateFloat( text ) )
 	{
 		LLLocale locale(LLLocale::USER_LOCALE);
@@ -450,10 +449,10 @@ LLXMLNodePtr LLSliderCtrl::getXML(bool save_children) const
 
 LLView* LLSliderCtrl::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory)
 {
-	LLString name("slider");
+	std::string name("slider");
 	node->getAttributeString("name", name);
 
-	LLString label;
+	std::string label;
 	node->getAttributeString("label", label);
 
 	LLRect rect;
@@ -499,13 +498,13 @@ LLView* LLSliderCtrl::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory
 	{
 		// calculate the size of the text box (log max_value is number of digits - 1 so plus 1)
 		if ( max_value )
-			text_left = font->getWidth("0") * ( static_cast < S32 > ( log10  ( max_value ) ) + precision + 1 );
+			text_left = font->getWidth(std::string("0")) * ( static_cast < S32 > ( log10  ( max_value ) ) + precision + 1 );
 
 		if ( increment < 1.0f )
-			text_left += font->getWidth(".");	// (mostly) take account of decimal point in value
+			text_left += font->getWidth(std::string("."));	// (mostly) take account of decimal point in value
 
 		if ( min_value < 0.0f || max_value < 0.0f )
-			text_left += font->getWidth("-");	// (mostly) take account of minus sign 
+			text_left += font->getWidth(std::string("-"));	// (mostly) take account of minus sign 
 
 		// padding to make things look nicer
 		text_left += 8;

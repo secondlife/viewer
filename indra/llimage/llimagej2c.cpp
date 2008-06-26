@@ -374,7 +374,7 @@ void LLImageJ2C::setReversible(const BOOL reversible)
 }
 
 
-BOOL LLImageJ2C::loadAndValidate(const LLString &filename)
+BOOL LLImageJ2C::loadAndValidate(const std::string &filename)
 {
 	resetLastError();
 

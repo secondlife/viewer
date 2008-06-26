@@ -111,8 +111,7 @@ bool LLDispatcher::unpackMessage(
 		LLDispatcher::sparam_t& parameters)
 {
 	char buf[MAX_STRING];	/*Flawfinder: ignore*/
-	msg->getStringFast(_PREHASH_MethodData, _PREHASH_Method, MAX_STRING, buf);
-	method.assign(buf);
+	msg->getStringFast(_PREHASH_MethodData, _PREHASH_Method, method);
 	msg->getUUIDFast(_PREHASH_MethodData, _PREHASH_Invoice, invoice);
 	S32 size;
 	S32 count = msg->getNumberOfBlocksFast(_PREHASH_ParamList);

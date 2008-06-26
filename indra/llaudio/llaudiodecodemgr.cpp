@@ -70,7 +70,7 @@ public:
 		LLPointer<LLVorbisDecodeState> mDecoder;
 	};
 	
-	LLVorbisDecodeState(const LLUUID &uuid, const LLString &out_filename);
+	LLVorbisDecodeState(const LLUUID &uuid, const std::string &out_filename);
 
 	BOOL initDecode();
 	BOOL decodeSection(); // Return TRUE if done.
@@ -93,7 +93,7 @@ protected:
 
 	std::vector<U8> mWAVBuffer;
 #if !defined(USE_WAV_VFILE)
-	LLString mOutFilename;
+	std::string mOutFilename;
 	LLLFSThread::handle_t mFileHandle;
 #endif
 	
@@ -166,7 +166,7 @@ long vfs_tell (void *datasource)
 	return file->tell();
 }
 
-LLVorbisDecodeState::LLVorbisDecodeState(const LLUUID &uuid, const LLString &out_filename)
+LLVorbisDecodeState::LLVorbisDecodeState(const LLUUID &uuid, const std::string &out_filename)
 {
 	mDone = FALSE;
 	mValid = FALSE;
@@ -583,14 +583,14 @@ void LLAudioDecodeMgr::Impl::processQueue(const F32 num_secs)
 
 				lldebugs << "Decoding " << uuid << " from audio queue!" << llendl;
 
-				char uuid_str[64];			/*Flawfinder: ignore*/
-				char d_path[LL_MAX_PATH];	/*Flawfinder: ignore*/
+				std::string uuid_str;
+				std::string d_path;
 
 				LLTimer timer;
 				timer.reset();
 
 				uuid.toString(uuid_str);
-				snprintf(d_path, LL_MAX_PATH, "%s.dsf", gDirUtilp->getExpandedFilename(LL_PATH_CACHE,uuid_str).c_str()); 	/* Flawfinder: ignore */
+				d_path = gDirUtilp->getExpandedFilename(LL_PATH_CACHE,uuid_str) + ".dsf";
 
 				mCurrentDecodep = new LLVorbisDecodeState(uuid, d_path);
 				if (!mCurrentDecodep->initDecode())

@@ -61,10 +61,10 @@ public:
 		mIP = ipv4_addr;
 	}
 
-	LLHost( const char *ipv4_addr, U32 port )
+	LLHost( const std::string& ipv4_addr, U32 port )
 	:	mPort( port )
 	{ 
-		mIP = ip_string_to_u32(ipv4_addr);
+		mIP = ip_string_to_u32(ipv4_addr.c_str());
 	}
 
 	explicit LLHost(const U64 ip_port)
@@ -82,11 +82,11 @@ public:
 
 	// MANIPULATORS
 	void	set( U32 ip, U32 port )				{ mIP = ip; mPort = port; }
-	void	set( const char* ipstr, U32 port )	{ mIP = ip_string_to_u32(ipstr); mPort = port; }
-	void	setAddress( const char* ipstr )		{ mIP = ip_string_to_u32(ipstr); }
+	void	set( const std::string& ipstr, U32 port )	{ mIP = ip_string_to_u32(ipstr.c_str()); mPort = port; }
+	void	setAddress( const std::string& ipstr )		{ mIP = ip_string_to_u32(ipstr.c_str()); }
 	void	setAddress( U32 ip )				{ mIP = ip; }
 	void	setPort( U32 port )					{ mPort = port; }
-	BOOL    setHostByName(const char *hname);
+	BOOL    setHostByName(const std::string& hname);
 
 	LLHost&	operator=(const LLHost &rhs);
 	void    invalidate()                        { mIP = INVALID_HOST_IP_ADDRESS; mPort = INVALID_PORT;};
@@ -96,10 +96,8 @@ public:
 	U32		getPort() const								{ return mPort; }
 	BOOL	isOk() const								{ return (mIP != INVALID_HOST_IP_ADDRESS) && (mPort != INVALID_PORT); }
 	size_t	hash() const								{ return (mIP << 16) | (mPort & 0xffff); }
-	void	getString(char* buffer, S32 length) const;	    // writes IP:port into buffer
-	void	getIPString(char* buffer, S32 length) const;	// writes IP into buffer
+	std::string getString() const;
 	std::string getIPString() const;
-	void    getHostName(char *buf, S32 len) const;
 	std::string getHostName() const;
 	std::string getIPandPort() const;
 

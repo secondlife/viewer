@@ -113,9 +113,9 @@ protected:
 	void setDataAndSize(U8 *data, S32 size) { mData = data; mDataSize = size; };
 	
 public:
-	static const LLString& getLastError() {return sLastErrorMessage;};
-	static void resetLastError() {sLastErrorMessage = LLString("No Error"); };
-	static BOOL setLastError(const LLString& message, const LLString& filename = LLString()); // returns FALSE
+	static const std::string& getLastError() {return sLastErrorMessage;};
+	static void resetLastError() {sLastErrorMessage = "No Error"; };
+	static BOOL setLastError(const std::string& message, const std::string& filename = std::string()); // returns FALSE
 
 	static void generateMip(const U8 *indata, U8* mipdata, int width, int height, S32 nchannels);
 	
@@ -125,7 +125,7 @@ public:
 
 	static void setSizeOverride(BOOL enabled) { sSizeOverride = enabled; }
 
-	static EImageCodec getCodecFromExtension(const LLString& exten);
+	static EImageCodec getCodecFromExtension(const std::string& exten);
 	
 private:
 	U8 *mData;
@@ -141,7 +141,7 @@ private:
 public:
 	S16 mMemType; // debug
 	
-	static LLString sLastErrorMessage;
+	static std::string sLastErrorMessage;
 
 	static BOOL sSizeOverride;
 };
@@ -157,7 +157,7 @@ public:
 	LLImageRaw(U16 width, U16 height, S8 components);
 	LLImageRaw(U8 *data, U16 width, U16 height, S8 components);
 	// Construct using createFromFile (used by tools)
-	LLImageRaw(const LLString& filename, bool j2c_lowest_mip_only = false);
+	LLImageRaw(const std::string& filename, bool j2c_lowest_mip_only = false);
 
 	/*virtual*/ void deleteData();
 	/*virtual*/ U8* allocateData(S32 size = -1);
@@ -218,7 +218,7 @@ public:
 
 protected:
 	// Create an image from a local file (generally used in tools)
-	bool createFromFile(const LLString& filename, bool j2c_lowest_mip_only = false);
+	bool createFromFile(const std::string& filename, bool j2c_lowest_mip_only = false);
 
 	void copyLineScaled( U8* in, U8* out, S32 in_pixel_len, S32 out_pixel_len, S32 in_pixel_step, S32 out_pixel_step );
 	void compositeRowScaled4onto3( U8* in, U8* out, S32 in_pixel_len, S32 out_pixel_len );
@@ -236,7 +236,7 @@ class LLImageFormatted : public LLImageBase
 {
 public:
 	static LLImageFormatted* createFromType(S8 codec);
-	static LLImageFormatted* createFromExtension(const LLString& instring);	
+	static LLImageFormatted* createFromExtension(const std::string& instring);	
 
 protected:
 	/*virtual*/ ~LLImageFormatted();
@@ -265,8 +265,8 @@ public:
 	// getRawDiscardLevel()by default returns mDiscardLevel, but may be overridden (LLImageJ2C)
 	virtual S8  getRawDiscardLevel() { return mDiscardLevel; }
 	
-	BOOL load(const LLString& filename);
-	BOOL save(const LLString& filename);
+	BOOL load(const std::string& filename);
+	BOOL save(const std::string& filename);
 
 	virtual BOOL updateData() = 0; // pure virtual
  	void setData(U8 *data, S32 size);

@@ -48,15 +48,14 @@ class LLViewerJointCollisionVolume;
 class LLPolyMorphData
 {
 public:
-	LLPolyMorphData(char *morph_name);
+	LLPolyMorphData(const std::string& morph_name);
 	~LLPolyMorphData();
 
 	BOOL			loadBinary(LLFILE* fp, LLPolyMeshSharedData *mesh);
-	char*			loadASCII(char* text, LLPolyMeshSharedData *mesh);
-	char*			getName() { return mName; }
+	const std::string& getName() { return mName; }
 
 public:
-	char*				mName;
+	std::string			mName;
 
 	// morphology
 	U32					mNumIndices;
@@ -98,10 +97,10 @@ protected:
 //-----------------------------------------------------------------------------
 struct LLPolyVolumeMorphInfo
 {
-	LLPolyVolumeMorphInfo(LLString &name, LLVector3 &scale, LLVector3 &pos)
+	LLPolyVolumeMorphInfo(std::string &name, LLVector3 &scale, LLVector3 &pos)
 		: mName(name), mScale(scale), mPos(pos) {};
 
-	LLString						mName;
+	std::string						mName;
 	LLVector3						mScale;
 	LLVector3						mPos;
 };
@@ -130,7 +129,7 @@ public:
 	/*virtual*/ BOOL parseXml(LLXmlTreeNode* node);
 
 protected:
-	LLString		mMorphName;
+	std::string		mMorphName;
 	BOOL			mIsClothingMorph;
 	typedef std::vector<LLPolyVolumeMorphInfo> volume_info_list_t;
 	volume_info_list_t mVolumeInfoList;	

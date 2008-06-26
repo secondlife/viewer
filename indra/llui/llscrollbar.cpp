@@ -47,7 +47,7 @@
 #include "llrender.h"
 
 LLScrollbar::LLScrollbar(
-		const LLString& name, LLRect rect,
+		const std::string& name, LLRect rect,
 		LLScrollbar::ORIENTATION orientation,
 		S32 doc_size, S32 doc_pos, S32 page_size,
 		void (*change_callback)( S32 new_pos, LLScrollbar* self, void* userdata ),
@@ -82,10 +82,10 @@ LLScrollbar::LLScrollbar(
 	
 	// Page up and page down buttons
 	LLRect line_up_rect;
-	LLString line_up_img;
-	LLString line_up_selected_img;
-	LLString line_down_img;
-	LLString line_down_selected_img;
+	std::string line_up_img;
+	std::string line_up_selected_img;
+	std::string line_down_img;
+	std::string line_down_selected_img;
 
 	LLRect line_down_rect;
 
@@ -111,10 +111,9 @@ LLScrollbar::LLScrollbar(
 		line_down_selected_img="UIImgBtnScrollRightInUUID";
 	}
 
-	LLButton* line_up_btn = new LLButton(
-		"Line Up", line_up_rect,
-		line_up_img, line_up_selected_img, "",
-		&LLScrollbar::onLineUpBtnPressed, this, LLFontGL::sSansSerif );
+	LLButton* line_up_btn = new LLButton(std::string("Line Up"), line_up_rect,
+										 line_up_img, line_up_selected_img, LLStringUtil::null,
+										 &LLScrollbar::onLineUpBtnPressed, this, LLFontGL::sSansSerif );
 	if( LLScrollbar::VERTICAL == mOrientation )
 	{
 		line_up_btn->setFollowsRight();
@@ -130,10 +129,9 @@ LLScrollbar::LLScrollbar(
 	line_up_btn->setTabStop(FALSE);
 	addChild(line_up_btn);
 
-	LLButton* line_down_btn = new LLButton(
-		"Line Down", line_down_rect,
-		line_down_img, line_down_selected_img, "",
-		&LLScrollbar::onLineDownBtnPressed, this, LLFontGL::sSansSerif );
+	LLButton* line_down_btn = new LLButton(std::string("Line Down"), line_down_rect,
+										   line_down_img, line_down_selected_img, LLStringUtil::null,
+										   &LLScrollbar::onLineDownBtnPressed, this, LLFontGL::sSansSerif );
 	line_down_btn->setFollowsRight();
 	line_down_btn->setFollowsBottom();
 	line_down_btn->setHeldDownCallback( &LLScrollbar::onLineDownBtnPressed );
@@ -417,7 +415,7 @@ BOOL LLScrollbar::handleScrollWheel(S32 x, S32 y, S32 clicks)
 }
 
 BOOL LLScrollbar::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
-									EDragAndDropType cargo_type, void *cargo_data, EAcceptance *accept, LLString &tooltip_msg)
+									EDragAndDropType cargo_type, void *cargo_data, EAcceptance *accept, std::string &tooltip_msg)
 {
 	// enable this to get drag and drop to control scrollbars
 	//if (!drop)

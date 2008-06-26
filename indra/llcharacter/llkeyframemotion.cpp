@@ -657,7 +657,7 @@ BOOL LLKeyframeMotion::onActivate()
 	// If the keyframe anim has an associated emote, trigger it. 
 	if( mEmoteName.length() > 0 )
 	{
-		mCharacter->startMotion( gAnimLibrary.stringToAnimState(mEmoteName.c_str()) );
+		mCharacter->startMotion( gAnimLibrary.stringToAnimState(mEmoteName) );
 	}
 
 	mLastLoopedTime = 0.f;
@@ -1710,7 +1710,7 @@ BOOL LLKeyframeMotion::serialize(LLDataPacker& dp) const
 	success &= dp.packU16(KEYFRAME_MOTION_SUBVERSION, "sub_version");
 	success &= dp.packS32(mJointMotionList->mBasePriority, "base_priority");
 	success &= dp.packF32(mJointMotionList->mDuration, "duration");
-	success &= dp.packString(mEmoteName.c_str(), "emote_name");
+	success &= dp.packString(mEmoteName, "emote_name");
 	success &= dp.packF32(mJointMotionList->mLoopInPoint, "loop_in_point");
 	success &= dp.packF32(mJointMotionList->mLoopOutPoint, "loop_out_point");
 	success &= dp.packS32(mJointMotionList->mLoop, "loop");
@@ -1722,7 +1722,7 @@ BOOL LLKeyframeMotion::serialize(LLDataPacker& dp) const
 	for (U32 i = 0; i < mJointMotionList->getNumJointMotions(); i++)
 	{
 		JointMotion* joint_motionp = mJointMotionList->getJointMotion(i);
-		success &= dp.packString(joint_motionp->mJointName.c_str(), "joint_name");
+		success &= dp.packString(joint_motionp->mJointName, "joint_name");
 		success &= dp.packS32(joint_motionp->mPriority, "joint_priority");
 		success &= dp.packS32(joint_motionp->mRotationCurve.mNumKeys, "num_rot_keys");
 

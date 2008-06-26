@@ -228,7 +228,7 @@ void LLPanelGroupRoles::handleClickSubTab()
 BOOL LLPanelGroupRoles::attemptTransition()
 {
 	// Check if the current tab needs to be applied.
-	LLString mesg;
+	std::string mesg;
 	if (mCurrentTab && mCurrentTab->needsApply(mesg))
 	{
 		// If no message was provided, give a generic one.
@@ -237,7 +237,7 @@ BOOL LLPanelGroupRoles::attemptTransition()
 			mesg = mDefaultNeedsApplyMesg;
 		}
 		// Create a notify box, telling the user about the unapplied tab.
-		LLString::format_map_t args;
+		LLStringUtil::format_map_t args;
 		args["[NEEDS_APPLY_MESSAGE]"] = mesg;
 		args["[WANT_APPLY_MESSAGE]"] = mWantApplyMesg;
 		gViewerWindow->alertXml("PanelGroupApply", args,
@@ -300,14 +300,14 @@ void LLPanelGroupRoles::handleNotifyCallback(S32 option)
 	case 0: // "Apply Changes"
 	{
 		// Try to apply changes, and switch to the requested tab.
-		LLString apply_mesg;
+		std::string apply_mesg;
 		if ( !apply( apply_mesg ) )
 		{
 			// There was a problem doing the apply.
 			if ( !apply_mesg.empty() )
 			{
 				mHasModal = TRUE;
-				LLString::format_map_t args;
+				LLStringUtil::format_map_t args;
 				args["[MESSAGE]"] = apply_mesg;
 				gViewerWindow->alertXml("GenericAlert", args, onModalClose, (void*) this);
 			}
@@ -350,7 +350,7 @@ void LLPanelGroupRoles::onModalClose(S32 option, void* user_data)
 }
 
 
-bool LLPanelGroupRoles::apply(LLString& mesg)
+bool LLPanelGroupRoles::apply(std::string& mesg)
 {
 	// Pass this along to the currently visible sub tab.
 	if (!mSubTabContainer) return false;
@@ -359,7 +359,7 @@ bool LLPanelGroupRoles::apply(LLString& mesg)
 	if (!panelp) return false;
 	
 	// Ignore the needs apply message.
-	LLString ignore_mesg;
+	std::string ignore_mesg;
 	if ( !panelp->needsApply(ignore_mesg) )
 	{
 		// We don't need to apply anything.
@@ -383,7 +383,7 @@ void LLPanelGroupRoles::cancel()
 }
 
 // Pass all of these messages to the currently visible sub tab.
-LLString LLPanelGroupRoles::getHelpText() const
+std::string LLPanelGroupRoles::getHelpText() const
 {
 	LLPanelGroupTab* panelp = (LLPanelGroupTab*) mSubTabContainer->getCurrentPanel();
 	if (panelp)
@@ -458,7 +458,7 @@ void LLPanelGroupRoles::deactivate()
 	if (panelp) panelp->deactivate();
 }
 
-bool LLPanelGroupRoles::needsApply(LLString& mesg)
+bool LLPanelGroupRoles::needsApply(std::string& mesg)
 {
 	LLPanelGroupTab* panelp = (LLPanelGroupTab*) mSubTabContainer->getCurrentPanel();
 	if (!panelp) return false;
@@ -606,15 +606,15 @@ void LLPanelGroupSubTab::onClickShowAll(void* user_data)
 void LLPanelGroupSubTab::handleClickShowAll()
 {
 	lldebugs << "LLPanelGroupSubTab::handleClickShowAll()" << llendl;
-	setSearchFilter( LLString::null );
+	setSearchFilter( LLStringUtil::null );
 	mShowAllButton->setEnabled(FALSE);
 }
 
-void LLPanelGroupSubTab::setSearchFilter(const LLString& filter)
+void LLPanelGroupSubTab::setSearchFilter(const std::string& filter)
 {
 	lldebugs << "LLPanelGroupSubTab::setSearchFilter() ==> '" << filter << "'" << llendl;
 	mSearchFilter = filter;
-	LLString::toLower(mSearchFilter);
+	LLStringUtil::toLower(mSearchFilter);
 	update(GC_ALL);
 }
 
@@ -656,7 +656,7 @@ bool LLPanelGroupSubTab::matchesActionSearchFilter(std::string action)
 	// If the search filter is empty, everything passes.
 	if (mSearchFilter.empty()) return true;
 
-	LLString::toLower(action);
+	LLStringUtil::toLower(action);
 	std::string::size_type match = action.find(mSearchFilter);
 
 	if (std::string::npos == match)
@@ -1338,7 +1338,7 @@ void LLPanelGroupMembersSubTab::deactivate()
 	LLPanelGroupSubTab::deactivate();
 }
 
-bool LLPanelGroupMembersSubTab::needsApply(LLString& mesg)
+bool LLPanelGroupMembersSubTab::needsApply(std::string& mesg)
 {
 	return mChanged;
 }
@@ -1357,7 +1357,7 @@ void LLPanelGroupMembersSubTab::cancel()
 	}
 }
 
-bool LLPanelGroupMembersSubTab::apply(LLString& mesg)
+bool LLPanelGroupMembersSubTab::apply(std::string& mesg)
 {
 	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
 	if (!gdatap)
@@ -1375,7 +1375,7 @@ bool LLPanelGroupMembersSubTab::apply(LLString& mesg)
 		if ( mNumOwnerAdditions > 0 )
 		{
 			LLRoleData rd;
-			LLStringBase<char>::format_map_t args;
+			LLStringUtil::format_map_t args;
 
 			if ( gdatap->getRoleData(gdatap->mOwnerRole, rd) )
 			{
@@ -1465,7 +1465,7 @@ bool LLPanelGroupMembersSubTab::matchesSearchFilter(const std::string& fullname)
 
 	// Create a full name, and compare it to the search filter.
 	std::string fullname_lc(fullname);
-	LLString::toLower(fullname_lc);
+	LLStringUtil::toLower(fullname_lc);
 
 	std::string::size_type match = fullname_lc.find(mSearchFilter);
 
@@ -1721,7 +1721,7 @@ void LLPanelGroupMembersSubTab::updateMembers()
 		else
 		{
 			mMembersList->setEnabled(FALSE);
-			mMembersList->addCommentText("No match.");
+			mMembersList->addCommentText(std::string("No match."));
 		}
 	}
 	else
@@ -1855,7 +1855,7 @@ void LLPanelGroupRolesSubTab::deactivate()
 	LLPanelGroupSubTab::deactivate();
 }
 
-bool LLPanelGroupRolesSubTab::needsApply(LLString& mesg)
+bool LLPanelGroupRolesSubTab::needsApply(std::string& mesg)
 {
 	lldebugs << "LLPanelGroupRolesSubTab::needsApply()" << llendl;
 
@@ -1865,7 +1865,7 @@ bool LLPanelGroupRolesSubTab::needsApply(LLString& mesg)
 			|| (gdatap && gdatap->pendingRoleChanges()));	// Pending role changes in the group
 }
 
-bool LLPanelGroupRolesSubTab::apply(LLString& mesg)
+bool LLPanelGroupRolesSubTab::apply(std::string& mesg)
 {
 	lldebugs << "LLPanelGroupRolesSubTab::apply()" << llendl;
 
@@ -1910,8 +1910,8 @@ bool LLPanelGroupRolesSubTab::matchesSearchFilter(std::string rolename, std::str
 	// If the search filter is empty, everything passes.
 	if (mSearchFilter.empty()) return true;
 
-	LLString::toLower(rolename);
-	LLString::toLower(roletitle);
+	LLStringUtil::toLower(rolename);
+	LLStringUtil::toLower(roletitle);
 	std::string::size_type match_name = rolename.find(mSearchFilter);
 	std::string::size_type match_title = roletitle.find(mSearchFilter);
 
@@ -1978,7 +1978,7 @@ void LLPanelGroupRolesSubTab::update(LLGroupChange gc)
 			}
 		}
 
-		mRolesList->sortByColumn("name", TRUE);
+		mRolesList->sortByColumn(std::string("name"), TRUE);
 
 		if ( (gdatap->mRoles.size() < (U32)MAX_ROLES)
 			&& gAgent.hasPowerInGroup(mGroupID, GP_ROLE_CREATE) )
@@ -2216,7 +2216,7 @@ void LLPanelGroupRolesSubTab::handleActionCheck(LLCheckBoxCtrl* check, bool forc
 			check->set(FALSE);
 
 			LLRoleData rd;
-			LLStringBase<char>::format_map_t args;
+			LLStringUtil::format_map_t args;
 
 			if ( gdatap->getRoleData(role_id, rd) )
 			{
@@ -2226,7 +2226,7 @@ void LLPanelGroupRolesSubTab::handleActionCheck(LLCheckBoxCtrl* check, bool forc
 				cb_data->mSelf = this;
 				cb_data->mCheck = check;
 				mHasModal = TRUE;
-				LLString warning = "AssignDangerousActionWarning";
+				std::string warning = "AssignDangerousActionWarning";
 				if (GP_ROLE_CHANGE_ACTIONS == power)
 				{
 					warning = "AssignDangerousAbilityWarning";
@@ -2404,7 +2404,7 @@ void LLPanelGroupRolesSubTab::handleDeleteRole()
 
 	if (role_item->getUUID().isNull() || role_item->getUUID() == gdatap->mOwnerRole)
 	{
-		LLString::format_map_t args;
+		LLStringUtil::format_map_t args;
 		args["[MESSAGE]"] = mRemoveEveryoneTxt;
 		LLNotifyBox::showXml("GenericNotify", args);
 		return;
@@ -2511,14 +2511,14 @@ void LLPanelGroupActionsSubTab::deactivate()
 	LLPanelGroupSubTab::deactivate();
 }
 
-bool LLPanelGroupActionsSubTab::needsApply(LLString& mesg)
+bool LLPanelGroupActionsSubTab::needsApply(std::string& mesg)
 {
 	lldebugs << "LLPanelGroupActionsSubTab::needsApply()" << llendl;
 
 	return false;
 }
 
-bool LLPanelGroupActionsSubTab::apply(LLString& mesg)
+bool LLPanelGroupActionsSubTab::apply(std::string& mesg)
 {
 	lldebugs << "LLPanelGroupActionsSubTab::apply()" << llendl;
 	return true;

@@ -86,7 +86,7 @@ LLAssetUploadResponder::~LLAssetUploadResponder()
 	if (!mFileName.empty())
 	{
 		// Delete temp file
-		LLFile::remove(mFileName.c_str());
+		LLFile::remove(mFileName);
 	}
 }
 
@@ -95,7 +95,7 @@ void LLAssetUploadResponder::error(U32 statusNum, const std::string& reason)
 {
 	llinfos << "LLAssetUploadResponder::error " << statusNum 
 			<< " reason: " << reason << llendl;
-	LLStringBase<char>::format_map_t args;
+	LLStringUtil::format_map_t args;
 	switch(statusNum)
 	{
 		case 400:
@@ -164,7 +164,7 @@ void LLAssetUploadResponder::uploadFailure(const LLSD& content)
 	}
 	else
 	{
-		LLStringBase<char>::format_map_t args;
+		LLStringUtil::format_map_t args;
 		args["[FILE]"] = (mFileName.empty() ? mVFileID.asString() : mFileName);
 		args["[REASON]"] = content["message"].asString();
 		gViewerWindow->alertXml("CannotUploadReason", args);
@@ -192,8 +192,8 @@ void LLNewAgentInventoryResponder::uploadComplete(const LLSD& content)
 {
 	lldebugs << "LLNewAgentInventoryResponder::result from capabilities" << llendl;
 
-	LLAssetType::EType asset_type = LLAssetType::lookup(mPostData["asset_type"].asString().c_str());
-	LLInventoryType::EType inventory_type = LLInventoryType::lookup(mPostData["inventory_type"].asString().c_str());
+	LLAssetType::EType asset_type = LLAssetType::lookup(mPostData["asset_type"].asString());
+	LLInventoryType::EType inventory_type = LLInventoryType::lookup(mPostData["inventory_type"].asString());
 
 	// Update L$ and ownership credit information
 	// since it probably changed on the server
@@ -209,7 +209,7 @@ void LLNewAgentInventoryResponder::uploadComplete(const LLSD& content)
 		gMessageSystem->addUUIDFast(_PREHASH_TransactionID, LLUUID::null );
 		gAgent.sendReliableMessage();
 
-		LLString::format_map_t args;
+		LLStringUtil::format_map_t args;
 		args["[AMOUNT]"] = llformat("%d",LLGlobalEconomy::Singleton::getInstance()->getPriceUpload());
 		LLNotifyBox::showXml("UploadPayment", args);
 	}
@@ -276,27 +276,16 @@ void LLNewAgentInventoryResponder::uploadComplete(const LLSD& content)
 	// *FIX: This is a pretty big hack. What this does is check the
 	// file picker if there are any more pending uploads. If so,
 	// upload that file.
-	const char* next_file = LLFilePicker::instance().getNextFile();
-	if(next_file)
+	std::string next_file = LLFilePicker::instance().getNextFile();
+	if(!next_file.empty())
 	{
-		const char* name = LLFilePicker::instance().getDirname();
+		std::string name = gDirUtilp->getBaseFileName(next_file, true);
 
-		LLString asset_name = name;
-		LLString::replaceNonstandardASCII( asset_name, '?' );
-		LLString::replaceChar(asset_name, '|', '?');
-		LLString::stripNonprintable(asset_name);
-		LLString::trim(asset_name);
-
-		char* asset_name_str = (char*)asset_name.c_str();
-		char* end_p = strrchr(asset_name_str, '.');		 // strip extension if exists
-		if( !end_p )
-		{
-			 end_p = asset_name_str + strlen( asset_name_str );			/*Flawfinder: ignore*/
-		}
-			
-		S32 len = llmin( (S32) (DB_INV_ITEM_NAME_STR_LEN), (S32) (end_p - asset_name_str) );
-
-		asset_name = asset_name.substr( 0, len );
+		std::string asset_name = name;
+		LLStringUtil::replaceNonstandardASCII( asset_name, '?' );
+		LLStringUtil::replaceChar(asset_name, '|', '?');
+		LLStringUtil::stripNonprintable(asset_name);
+		LLStringUtil::trim(asset_name);
 
 		upload_new_resource(next_file, asset_name, asset_name,
 							0, LLAssetType::AT_NONE, LLInventoryType::IT_NONE);

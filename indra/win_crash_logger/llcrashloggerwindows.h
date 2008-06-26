@@ -44,7 +44,7 @@ public:
 	~LLCrashLoggerWindows(void);
 	virtual bool init();
 	virtual bool mainLoop();
-	virtual void updateApplication(LLString message = "");
+	virtual void updateApplication(const std::string& message = LLStringUtil::null);
 	virtual bool cleanup();
 	virtual void gatherPlatformSpecificFiles();
 	//void annotateCallStack();

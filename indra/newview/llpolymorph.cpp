@@ -46,13 +46,9 @@ const F32 NORMAL_SOFTEN_FACTOR = 0.65f;
 //-----------------------------------------------------------------------------
 // LLPolyMorphData()
 //-----------------------------------------------------------------------------
-LLPolyMorphData::LLPolyMorphData(char *morph_name)
+LLPolyMorphData::LLPolyMorphData(const std::string& morph_name)
+	: mName(morph_name)
 {
-	llassert (morph_name);
-
-	mName = new char[strlen(morph_name) + 1];	/*Flawfinder: ignore*/
-	strcpy(mName, morph_name);	/*Flawfinder: ignore*/
-
 	mNumIndices = 0;
 	mCurrentIndex = 0;
 	mTotalDistortion = 0.f;
@@ -72,7 +68,6 @@ LLPolyMorphData::LLPolyMorphData(char *morph_name)
 //-----------------------------------------------------------------------------
 LLPolyMorphData::~LLPolyMorphData()
 {
-	delete [] mName;
 	delete [] mVertexIndices;
 	delete [] mCoords;
 	delete [] mNormals;
@@ -226,7 +221,7 @@ BOOL LLPolyMorphTargetInfo::parseXml(LLXmlTreeNode* node)
 		static LLStdStringHandle name_string = LLXmlTree::addAttributeString("name");
 		if (child_node->hasName("volume_morph"))
 		{
-			LLString volume_name;
+			std::string volume_name;
 			if (child_node->getFastAttributeString(name_string, volume_name))
 			{
 				LLVector3 scale;
@@ -284,10 +279,9 @@ BOOL LLPolyMorphTarget::setInfo(LLPolyMorphTargetInfo* info)
 	for (iter = getInfo()->mVolumeInfoList.begin(); iter != getInfo()->mVolumeInfoList.end(); iter++)
 	{
 		LLPolyVolumeMorphInfo *volume_info = &(*iter);
-		std::string vol_string(volume_info->mName);
 		for (S32 i = 0; i < avatarp->mNumCollisionVolumes; i++)
 		{
-			if (avatarp->mCollisionVolumes[i].getName() == vol_string)
+			if (avatarp->mCollisionVolumes[i].getName() == volume_info->mName)
 			{
 				mVolumeMorphs.push_back(LLPolyVolumeMorph(&avatarp->mCollisionVolumes[i],
 														  volume_info->mScale,
@@ -297,7 +291,7 @@ BOOL LLPolyMorphTarget::setInfo(LLPolyMorphTargetInfo* info)
 		}
 	}
 
-	mMorphData = mMesh->getMorphData(getInfo()->mMorphName.c_str());
+	mMorphData = mMesh->getMorphData(getInfo()->mMorphName);
 	if (!mMorphData)
 	{
 		llwarns << "No morph target named " << getInfo()->mMorphName << " found in mesh." << llendl;

@@ -48,9 +48,9 @@ const S32	SLIDERCTRL_HEIGHT		=  16;
 class LLSliderCtrl : public LLUICtrl
 {
 public:
-	LLSliderCtrl(const LLString& name, 
+	LLSliderCtrl(const std::string& name, 
 		const LLRect& rect, 
-		const LLString& label, 
+		const std::string& label, 
 		const LLFontGL* font,
 		S32 slider_left,
 		S32 text_left,
@@ -60,7 +60,7 @@ public:
 		void (*commit_callback)(LLUICtrl*, void*),
 		void* callback_userdata,
 		F32 initial_value, F32 min_value, F32 max_value, F32 increment,
-		const LLString& control_which = LLString::null );
+		const std::string& control_which = LLStringUtil::null );
 
 	virtual ~LLSliderCtrl() {} // Children all cleaned up by default view destructor.
 
@@ -72,7 +72,7 @@ public:
 
 	virtual void	setValue(const LLSD& value)	{ setValue((F32)value.asReal(), TRUE); }
 	virtual LLSD	getValue() const			{ return LLSD(getValueF32()); }
-	virtual BOOL	setLabelArg( const LLString& key, const LLStringExplicit& text );
+	virtual BOOL	setLabelArg( const std::string& key, const LLStringExplicit& text );
 
 	virtual void	setMinValue(LLSD min_value)	{ setMinValue((F32)min_value.asReal()); }
 	virtual void	setMaxValue(LLSD max_value)	{ setMaxValue((F32)max_value.asReal()); }
@@ -101,13 +101,13 @@ public:
 	virtual void	setTentative(BOOL b);			// marks value as tentative
 	virtual void	onCommit();						// mark not tentative, then commit
 
-	virtual void		setControlName(const LLString& control_name, LLView* context)
+	virtual void		setControlName(const std::string& control_name, LLView* context)
 	{
 		LLView::setControlName(control_name, context);
 		mSlider->setControlName(control_name, context);
 	}
 
-	virtual LLString 	getControlName() const { return mSlider->getControlName(); }
+	virtual std::string getControlName() const { return mSlider->getControlName(); }
 	
 	static void		onSliderCommit(LLUICtrl* caller, void* userdata);
 	static void		onSliderMouseDown(LLUICtrl* caller,void* userdata);

@@ -45,16 +45,16 @@ public:
 	// By default, follows top and left and is mouse-opaque.
 	// If no text, text = name.
 	// If no font, uses default system font.
-	LLTextBox(const LLString& name, const LLRect& rect, const LLString& text,
+	LLTextBox(const std::string& name, const LLRect& rect, const std::string& text,
 			  const LLFontGL* font = NULL, BOOL mouse_opaque = TRUE );
 
 	// Construct a textbox which handles word wrapping for us.
-	LLTextBox(const LLString& name, const LLString& text, F32 max_width = 200,
+	LLTextBox(const std::string& name, const std::string& text, F32 max_width = 200,
 			  const LLFontGL* font = NULL, BOOL mouse_opaque = TRUE );
 
 	// "Simple" constructors for text boxes that have the same name and label *TO BE DEPRECATED*
-	LLTextBox(const LLString& name_and_label, const LLRect& rect);
-	LLTextBox(const LLString& name_and_label);
+	LLTextBox(const std::string& name_and_label, const LLRect& rect);
+	LLTextBox(const std::string& name_and_label);
 
 	virtual ~LLTextBox() {}
 
@@ -95,13 +95,13 @@ public:
 
 	void			reshapeToFitText();
 
-	const LLString&	getText() const							{ return mText.getString(); }
+	const std::string&	getText() const							{ return mText.getString(); }
 	S32				getTextPixelWidth();
 	S32				getTextPixelHeight();
 
 	virtual void	setValue(const LLSD& value )			{ setText(value.asString()); }
 	virtual LLSD	getValue() const						{ return LLSD(getText()); }
-	virtual BOOL	setTextArg( const LLString& key, const LLStringExplicit& text );
+	virtual BOOL	setTextArg( const std::string& key, const LLStringExplicit& text );
 
 private:
 	void			setLineLengths();

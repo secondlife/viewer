@@ -132,7 +132,7 @@ class LLVector3d
 
 		friend std::ostream&	 operator<<(std::ostream& s, const LLVector3d &a);		// Stream a
 
-		static BOOL parseVector3d(const char* buf, LLVector3d* value);
+		static BOOL parseVector3d(const std::string& buf, LLVector3d* value);
 
 };
 

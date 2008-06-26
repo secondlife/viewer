@@ -52,11 +52,11 @@ public:
 	virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleHover(S32 x, S32 y, MASK mask);
-	virtual BOOL	handleToolTip(S32 x, S32 y, LLString& msg, LLRect *sticky_rect_screen);
+	virtual BOOL	handleToolTip(S32 x, S32 y, std::string& msg, LLRect *sticky_rect_screen);
 
 	typedef void (*select_callback)(const LLTextureEntry& te, void *data);
 	void setSelectCallback(select_callback callback, void* user_data);
-	void setResult(BOOL success, const LLString& msg);
+	void setResult(BOOL success, const std::string& msg);
 
 	static void pickCallback(S32 x, S32 y, MASK mask);
 
@@ -64,7 +64,7 @@ protected:
 	LLTextureEntry	mTextureEntry;
 	select_callback mSelectCallback;
 	BOOL			mSuccess;
-	LLString		mTooltipMsg;
+	std::string		mTooltipMsg;
 	void*			mUserData;
 };
 

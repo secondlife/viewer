@@ -39,17 +39,17 @@
 LLMIMETypes::mime_info_map_t LLMIMETypes::sMap;
 LLMIMETypes::mime_widget_set_map_t LLMIMETypes::sWidgetMap;
 
-LLString sDefaultLabel;
+std::string sDefaultLabel;
 	// Returned when we don't know what to do with the mime type
-LLString sDefaultWidgetType;
+std::string sDefaultWidgetType;
 	// Returned when we don't know what widget set to use
-LLString sDefaultImpl;
+std::string sDefaultImpl;
 	// Returned when we don't know what impl to use
 
 /////////////////////////////////////////////////////////////////////////////
 
 // static
-bool LLMIMETypes::parseMIMETypes(const LLString& xml_filename)
+bool LLMIMETypes::parseMIMETypes(const std::string& xml_filename)
 {
 	LLXMLNodePtr root;
 	bool success = LLUICtrlFactory::getLayeredXMLNode(xml_filename, root);
@@ -78,7 +78,7 @@ bool LLMIMETypes::parseMIMETypes(const LLString& xml_filename)
 		}
 		else if (node->hasName("mimetype") || node->hasName("scheme"))
 		{
-			LLString mime_type;
+			std::string mime_type;
 			node->getAttributeString("name", mime_type);
 			LLMIMEInfo info;
 			for (LLXMLNode* child = node->getFirstChild();
@@ -102,7 +102,7 @@ bool LLMIMETypes::parseMIMETypes(const LLString& xml_filename)
 		}
 		else if (node->hasName("widgetset"))
 		{
-			LLString set_name;
+			std::string set_name;
 			node->getAttributeString("name", set_name);
 			LLMIMEWidgetSet info;
 			for (LLXMLNode* child = node->getFirstChild();
@@ -149,7 +149,7 @@ bool LLMIMETypes::parseMIMETypes(const LLString& xml_filename)
 }
 
 // static
-LLString LLMIMETypes::translate(const LLString& mime_type)
+std::string LLMIMETypes::translate(const std::string& mime_type)
 {
 	mime_info_map_t::const_iterator it = sMap.find(mime_type);
 	if (it != sMap.end())
@@ -163,7 +163,7 @@ LLString LLMIMETypes::translate(const LLString& mime_type)
 }
 
 // static
-LLString LLMIMETypes::widgetType(const LLString& mime_type)
+std::string LLMIMETypes::widgetType(const std::string& mime_type)
 {
 	mime_info_map_t::const_iterator it = sMap.find(mime_type);
 	if (it != sMap.end())
@@ -177,7 +177,7 @@ LLString LLMIMETypes::widgetType(const LLString& mime_type)
 }
 
 // static
-LLString LLMIMETypes::implType(const LLString& mime_type)
+std::string LLMIMETypes::implType(const std::string& mime_type)
 {
 	mime_info_map_t::const_iterator it = sMap.find(mime_type);
 	if (it != sMap.end())
@@ -191,10 +191,10 @@ LLString LLMIMETypes::implType(const LLString& mime_type)
 }
 
 // static
-LLString LLMIMETypes::findIcon(const LLString& mime_type)
+std::string LLMIMETypes::findIcon(const std::string& mime_type)
 {
-	LLString icon = "";
-	LLString widget_type = LLMIMETypes::widgetType(mime_type);
+	std::string icon = "";
+	std::string widget_type = LLMIMETypes::widgetType(mime_type);
 	mime_widget_set_map_t::iterator it = sWidgetMap.find(widget_type);
 	if(it != sWidgetMap.end())
 	{
@@ -204,9 +204,9 @@ LLString LLMIMETypes::findIcon(const LLString& mime_type)
 }
 
 // static
-LLString LLMIMETypes::findDefaultMimeType(const LLString& widget_type)
+std::string LLMIMETypes::findDefaultMimeType(const std::string& widget_type)
 {
-	LLString mime_type = "none/none";
+	std::string mime_type = "none/none";
 	mime_widget_set_map_t::iterator it = sWidgetMap.find(widget_type);
 	if(it != sWidgetMap.end())
 	{
@@ -216,10 +216,10 @@ LLString LLMIMETypes::findDefaultMimeType(const LLString& widget_type)
 }
 
 // static
-LLString LLMIMETypes::findToolTip(const LLString& mime_type)
+std::string LLMIMETypes::findToolTip(const std::string& mime_type)
 {
-	LLString tool_tip = "";
-	LLString widget_type = LLMIMETypes::widgetType(mime_type);
+	std::string tool_tip = "";
+	std::string widget_type = LLMIMETypes::widgetType(mime_type);
 	mime_widget_set_map_t::iterator it = sWidgetMap.find(widget_type);
 	if(it != sWidgetMap.end())
 	{
@@ -229,10 +229,10 @@ LLString LLMIMETypes::findToolTip(const LLString& mime_type)
 }
 
 // static
-LLString LLMIMETypes::findPlayTip(const LLString& mime_type)
+std::string LLMIMETypes::findPlayTip(const std::string& mime_type)
 {
-	LLString play_tip = "";
-	LLString widget_type = LLMIMETypes::widgetType(mime_type);
+	std::string play_tip = "";
+	std::string widget_type = LLMIMETypes::widgetType(mime_type);
 	mime_widget_set_map_t::iterator it = sWidgetMap.find(widget_type);
 	if(it != sWidgetMap.end())
 	{
@@ -242,10 +242,10 @@ LLString LLMIMETypes::findPlayTip(const LLString& mime_type)
 }
 
 // static
-bool LLMIMETypes::findAllowResize(const LLString& mime_type)
+bool LLMIMETypes::findAllowResize(const std::string& mime_type)
 {
 	bool allow_resize = false;
-	LLString widget_type = LLMIMETypes::widgetType(mime_type);
+	std::string widget_type = LLMIMETypes::widgetType(mime_type);
 	mime_widget_set_map_t::iterator it = sWidgetMap.find(widget_type);
 	if(it != sWidgetMap.end())
 	{
@@ -255,10 +255,10 @@ bool LLMIMETypes::findAllowResize(const LLString& mime_type)
 }
 
 // static
-bool LLMIMETypes::findAllowLooping(const LLString& mime_type)
+bool LLMIMETypes::findAllowLooping(const std::string& mime_type)
 {
 	bool allow_looping = false;
-	LLString widget_type = LLMIMETypes::widgetType(mime_type);
+	std::string widget_type = LLMIMETypes::widgetType(mime_type);
 	mime_widget_set_map_t::iterator it = sWidgetMap.find(widget_type);
 	if(it != sWidgetMap.end())
 	{

@@ -51,7 +51,7 @@ void LLLiveAppConfig::loadFile()
 {
 	llinfos << "LLLiveAppConfig::loadFile(): reading from "
 		<< filename() << llendl;
-    llifstream file(filename().c_str());
+    llifstream file(filename());
 	LLSD config;
     if (file.is_open())
     {

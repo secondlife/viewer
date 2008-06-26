@@ -63,7 +63,7 @@
 std::list<LLPanelPick*> LLPanelPick::sAllPanels;
 
 LLPanelPick::LLPanelPick(BOOL top_pick)
-:	LLPanel("Top Picks Panel"),
+:	LLPanel(std::string("Top Picks Panel")),
 	mTopPick(top_pick),
 	mPickID(),
 	mCreatorID(),
@@ -292,33 +292,33 @@ void LLPanelPick::processPickInfoReply(LLMessageSystem *msg, void **)
     LLUUID parcel_id;
     msg->getUUID("Data", "ParcelID", parcel_id);
 
-	char name[DB_PARCEL_NAME_SIZE];		/*Flawfinder: ignore*/
-	msg->getString("Data", "Name", DB_PARCEL_NAME_SIZE, name);
+	std::string name;
+	msg->getString("Data", "Name", name);
 
-	char desc[DB_PICK_DESC_SIZE];		/*Flawfinder: ignore*/
-	msg->getString("Data", "Desc", DB_PICK_DESC_SIZE, desc);
+	std::string desc;
+	msg->getString("Data", "Desc", desc);
 
 	LLUUID snapshot_id;
 	msg->getUUID("Data", "SnapshotID", snapshot_id);
 
     // "Location text" is actually the owner name, the original
     // name that owner gave the parcel, and the location.
-	char buffer[256];		/*Flawfinder: ignore*/
-    LLString location_text;
-
-    msg->getString("Data", "User", 256, buffer);
-    location_text.assign(buffer);
+	std::string location_text;
+    msg->getString("Data", "User", location_text);
     location_text.append(", ");
 
-    msg->getString("Data", "OriginalName", 256, buffer);
-	if (buffer[0] != '\0')
+	std::string original_name;
+    msg->getString("Data", "OriginalName", original_name);
+	if (!original_name.empty())
 	{
-		location_text.append(buffer);
+		location_text.append(original_name);
 		location_text.append(", ");
 	}
 
-	char sim_name[256];		/*Flawfinder: ignore*/
-	msg->getString("Data", "SimName", 256, sim_name);
+	std::string sim_name;
+	msg->getString("Data", "SimName", sim_name);
+	location_text.append(sim_name);
+	location_text.append(" ");
 
 	LLVector3d pos_global;
 	msg->getVector3d("Data", "PosGlobal", pos_global);
@@ -327,7 +327,7 @@ void LLPanelPick::processPickInfoReply(LLMessageSystem *msg, void **)
     S32 region_y = llround((F32)pos_global.mdV[VY]) % REGION_WIDTH_UNITS;
 	S32 region_z = llround((F32)pos_global.mdV[VZ]);
    
-    location_text.append(llformat("%s (%d, %d, %d)", sim_name, region_x, region_y, region_z));
+    location_text.append(llformat("(%d, %d, %d)", region_x, region_y, region_z));
 
 	S32 sort_order;
     msg->getS32("Data", "SortOrder", sort_order);
@@ -355,8 +355,8 @@ void LLPanelPick::processPickInfoReply(LLMessageSystem *msg, void **)
 		self->mPosGlobal = pos_global;
 
 		// Update UI controls
-        self->mNameEditor->setText(LLString(name));
-        self->mDescEditor->setText(LLString(desc));
+        self->mNameEditor->setText(std::string(name));
+        self->mDescEditor->setText(std::string(desc));
         self->mSnapshotCtrl->setImageAssetID(snapshot_id);
         self->mLocationEditor->setText(location_text);
         self->mEnabledCheck->set(enabled);
@@ -448,7 +448,7 @@ void LLPanelPick::onClickMap(void* data)
 void LLPanelPick::onClickLandmark(void* data)
 {
     LLPanelPick* self = (LLPanelPick*)data;
-	create_landmark(self->mNameEditor->getText().c_str(), "", self->mPosGlobal);
+	create_landmark(self->mNameEditor->getText(), "", self->mPosGlobal);
 }
 */
 
@@ -460,7 +460,7 @@ void LLPanelPick::onClickSet(void* data)
 	// Save location for later.
 	self->mPosGlobal = gAgent.getPositionGlobal();
 
-	LLString location_text;
+	std::string location_text;
 	location_text.assign("(will update after save)");
 	location_text.append(", ");
 
@@ -500,7 +500,7 @@ void LLPanelPick::onCommitAny(LLUICtrl* ctrl, void* data)
 		/*if (self->mTopPick)
 		{
 			LLPanelDirPicks* panel = (LLPanelDirPicks*)self->getParent();
-			panel->renamePick(self->mPickID, self->mNameEditor->getText().c_str());
+			panel->renamePick(self->mPickID, self->mNameEditor->getText());
 		}
 		else
 		{*/

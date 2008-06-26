@@ -75,7 +75,7 @@ LLFloaterPostcard::instance_list_t LLFloaterPostcard::sInstances;
 ///----------------------------------------------------------------------------
 
 LLFloaterPostcard::LLFloaterPostcard(LLImageJPEG* jpeg, LLImageGL *img, const LLVector2& img_scale, const LLVector3d& pos_taken_global)
-:	LLFloater("Postcard Floater"),
+:	LLFloater(std::string("Postcard Floater")),
 	mJPEGImage(jpeg),
 	mViewerImage(img),
 	mImageScale(img_scale),
@@ -282,7 +282,7 @@ void LLFloaterPostcard::uploadCallback(const LLUUID& asset_id, void *user_data, 
 	
 	if (result)
 	{
-		LLStringBase<char>::format_map_t args;
+		LLStringUtil::format_map_t args;
 		args["[REASON]"] = std::string(LLAssetStorage::getErrorString(result));
 		gViewerWindow->alertXml("ErrorUploadingPostcard", args);
 	}
@@ -312,13 +312,13 @@ void LLFloaterPostcard::uploadCallback(const LLUUID& asset_id, void *user_data, 
 }
 
 // static
-void LLFloaterPostcard::updateUserInfo(const char *email)
+void LLFloaterPostcard::updateUserInfo(const std::string& email)
 {
 	for (instance_list_t::iterator iter = sInstances.begin();
 		 iter != sInstances.end(); ++iter)
 	{
 		LLFloaterPostcard *instance = *iter;
-		const LLString& text = instance->childGetValue("from_form").asString();
+		const std::string& text = instance->childGetValue("from_form").asString();
 		if (text.empty())
 		{
 			// there's no text in this field yet, pre-populate
@@ -336,7 +336,7 @@ void LLFloaterPostcard::onMsgFormFocusRecieved(LLFocusableElement* receiver, voi
 		if(msgForm && msgForm == receiver && msgForm->hasFocus() && !(self->mHasFirstMsgFocus))
 		{
 			self->mHasFirstMsgFocus = true;
-			msgForm->setText(LLString::null);
+			msgForm->setText(LLStringUtil::null);
 		}
 	}
 }

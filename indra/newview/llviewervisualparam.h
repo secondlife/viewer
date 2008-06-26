@@ -50,11 +50,11 @@ public:
 
 protected:
 	S32			mWearableType;
-	LLString	mEditGroup;
+	std::string	mEditGroup;
 	F32			mCamDist;
 	F32			mCamAngle;		// degrees
 	F32			mCamElevation;
-	LLString	mCamTargetName;
+	std::string	mCamTargetName;
 	F32			mEditGroupDisplayOrder;
 	BOOL		mShowSimple;	// show edit controls when in "simple ui" mode?
 	F32			mSimpleMin;		// when in simple UI, apply this minimum, range 0.f to 100.f
@@ -91,7 +91,7 @@ public:
 	// interface methods
 	F32					getDisplayOrder()			{ return getInfo()->mEditGroupDisplayOrder; }
 	S32					getWearableType() const		{ return getInfo()->mWearableType; }
-	const LLString&		getEditGroup() const		{ return getInfo()->mEditGroup; }
+	const std::string&	getEditGroup() const		{ return getInfo()->mEditGroup; }
 
 	F32					getCameraDistance()	const	{ return getInfo()->mCamDist; } 
 	F32					getCameraAngle() const		{ return getInfo()->mCamAngle; }  // degrees

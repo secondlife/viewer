@@ -52,7 +52,7 @@ LLHTTPSender::~LLHTTPSender()
 }
 
 //virtual 
-void LLHTTPSender::send(const LLHost& host, const char* name, 
+void LLHTTPSender::send(const LLHost& host, const std::string& name, 
 						const LLSD& body, 
 						LLHTTPClient::ResponderPtr response) const
 {

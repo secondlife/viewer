@@ -213,7 +213,7 @@ void LLFloaterURLEntry::onBtnOK( void* userdata )
 	}
 
 	// leading whitespace causes problems with the MIME-type detection so strip it
-	LLString::trim( media_url );
+	LLStringUtil::trim( media_url );
 
 	// First check the URL scheme
 	LLURI url(media_url);

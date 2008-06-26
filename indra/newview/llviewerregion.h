@@ -161,9 +161,9 @@ public:
 	const LLVector3d &getCenterGlobal() const	{ return mCenterGlobal; }
 	LLVector3 getCenterAgent() const;
 
-	void setRegionNameAndZone(const char* name_and_zone);
-	const LLString& getName() const				{ return mName; }
-	const LLString& getZoning() const			{ return mZoning; }
+	void setRegionNameAndZone(const std::string& name_and_zone);
+	const std::string& getName() const				{ return mName; }
+	const std::string& getZoning() const			{ return mZoning; }
 
 	void setOwner(const LLUUID& owner_id) { mOwnerID = owner_id; }
 	const LLUUID& getOwner() const { return mOwnerID; }
@@ -175,18 +175,18 @@ public:
 
 	void setSimAccess(U8 sim_access)			{ mSimAccess = sim_access; }
 	U8 getSimAccess() const						{ return mSimAccess; }
-	const char* getSimAccessString() const;
+	const std::string getSimAccessString() const;
 
 	// Returns "Sandbox", "Expensive", etc.
 	static std::string regionFlagsToString(U32 flags);
 
 	// Returns "Mature", "PG", etc.
-	static const char* accessToString(U8 access);
+	static std::string accessToString(U8 sim_access);
 
-	static U8 stringToAccess(const char* access_str);
+	static U8 stringToAccess(const std::string& access_str);
 
 	// Returns "M", "PG", etc.
-	static const char* accessToShortString(U8 access);		/* Flawfinder: ignore */
+	static std::string accessToShortString(U8 sim_access);
 
 	// helper function which just makes sure all interested parties
 	// can process the message.
@@ -320,8 +320,8 @@ protected:
 	F32			mTimeDilation;	// time dilation of physics simulation on simulator
 
 	// simulator name
-	LLString mName;
-	LLString mZoning;
+	std::string mName;
+	std::string mZoning;
 
 	// region/estate owner - usually null.
 	LLUUID mOwnerID;

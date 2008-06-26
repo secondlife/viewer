@@ -43,8 +43,8 @@
 // static
 std::list<LLModalDialog*> LLModalDialog::sModalStack;
 
-LLModalDialog::LLModalDialog( const LLString& title, S32 width, S32 height, BOOL modal )
-	: LLFloater( "modal container",
+LLModalDialog::LLModalDialog( const std::string& title, S32 width, S32 height, BOOL modal )
+	: LLFloater( std::string("modal container"),
 				 LLRect( 0, height, width, 0 ),
 				 title,
 				 FALSE, // resizable

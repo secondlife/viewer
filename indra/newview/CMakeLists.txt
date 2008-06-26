@@ -199,7 +199,6 @@ set(viewer_SOURCE_FILES
     llglslshader.cpp
     llgroupmgr.cpp
     llgroupnotify.cpp
-    llhippo.cpp
     llhoverview.cpp
     llhudeffectbeam.cpp
     llhudeffect.cpp
@@ -590,7 +589,6 @@ set(viewer_HEADER_FILES
     llglslshader.h
     llgroupmgr.h
     llgroupnotify.h
-    llhippo.h
     llhoverview.h
     llhudeffect.h
     llhudeffectbeam.h

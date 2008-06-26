@@ -40,7 +40,7 @@ class LLResizeBar : public LLView
 public:
 	enum Side { LEFT, TOP, RIGHT, BOTTOM };
 
-	LLResizeBar(const LLString& name, LLView* resizing_view, const LLRect& rect, S32 min_size, S32 max_size, Side side );
+	LLResizeBar(const std::string& name, LLView* resizing_view, const LLRect& rect, S32 min_size, S32 max_size, Side side );
 
 //	virtual void	draw();  No appearance
 	virtual BOOL	handleHover(S32 x, S32 y, MASK mask);

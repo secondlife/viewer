@@ -44,7 +44,7 @@
 using namespace std;
 
 // static
-int	LLFile::mkdir(const	char* dirname, int perms)
+int	LLFile::mkdir(const std::string& dirname, int perms)
 {
 #if LL_WINDOWS	
 	// permissions are ignored on Windows
@@ -52,12 +52,12 @@ int	LLFile::mkdir(const	char* dirname, int perms)
 	llutf16string utf16dirname = utf8str_to_utf16str(utf8dirname);
 	return _wmkdir(utf16dirname.c_str());
 #else
-	return ::mkdir(dirname, (mode_t)perms);
+	return ::mkdir(dirname.c_str(), (mode_t)perms);
 #endif
 }
 
 // static
-int	LLFile::rmdir(const	char* dirname)
+int	LLFile::rmdir(const std::string& dirname)
 {
 #if LL_WINDOWS	
 	// permissions are ignored on Windows
@@ -65,29 +65,29 @@ int	LLFile::rmdir(const	char* dirname)
 	llutf16string utf16dirname = utf8str_to_utf16str(utf8dirname);
 	return _wrmdir(utf16dirname.c_str());
 #else
-	return ::rmdir(dirname);
+	return ::rmdir(dirname.c_str());
 #endif
 }
 
 // static
-LLFILE*	LLFile::fopen(const	char* filename, const char* mode)	/* Flawfinder: ignore */
+LLFILE*	LLFile::fopen(const std::string& filename, const char* mode)	/* Flawfinder: ignore */
 {
 #if	LL_WINDOWS
 	std::string utf8filename = filename;
-	std::string utf8mode = mode;
+	std::string utf8mode = std::string(mode);
 	llutf16string utf16filename = utf8str_to_utf16str(utf8filename);
 	llutf16string utf16mode = utf8str_to_utf16str(utf8mode);
 	return _wfopen(utf16filename.c_str(),utf16mode.c_str());
 #else
-	return ::fopen(filename,mode);	/* Flawfinder: ignore */
+	return ::fopen(filename.c_str(),mode);	/* Flawfinder: ignore */
 #endif
 }
 
-LLFILE*	LLFile::_fsopen(const char* filename, const char* mode, int sharingFlag)
+LLFILE*	LLFile::_fsopen(const std::string& filename, const char* mode, int sharingFlag)
 {
 #if	LL_WINDOWS
 	std::string utf8filename = filename;
-	std::string utf8mode = mode;
+	std::string utf8mode = std::string(mode);
 	llutf16string utf16filename = utf8str_to_utf16str(utf8filename);
 	llutf16string utf16mode = utf8str_to_utf16str(utf8mode);
 	return _wfsopen(utf16filename.c_str(),utf16mode.c_str(),sharingFlag);
@@ -97,18 +97,18 @@ LLFILE*	LLFile::_fsopen(const char* filename, const char* mode, int sharingFlag)
 #endif
 }
 
-int	LLFile::remove(const char* filename)
+int	LLFile::remove(const std::string& filename)
 {
 #if	LL_WINDOWS
 	std::string utf8filename = filename;
 	llutf16string utf16filename = utf8str_to_utf16str(utf8filename);
 	return _wremove(utf16filename.c_str());
 #else
-	return ::remove(filename);
+	return ::remove(filename.c_str());
 #endif
 }
 
-int	LLFile::rename(const char* filename, const char* newname)
+int	LLFile::rename(const std::string& filename, const std::string& newname)
 {
 #if	LL_WINDOWS
 	std::string utf8filename = filename;
@@ -117,29 +117,29 @@ int	LLFile::rename(const char* filename, const char* newname)
 	llutf16string utf16newname = utf8str_to_utf16str(utf8newname);
 	return _wrename(utf16filename.c_str(),utf16newname.c_str());
 #else
-	return ::rename(filename,newname);
+	return ::rename(filename.c_str(),newname.c_str());
 #endif
 }
 
-int	LLFile::stat(const char* filename, llstat* filestatus)
+int	LLFile::stat(const std::string& filename, llstat* filestatus)
 {
 #if LL_WINDOWS
 	std::string utf8filename = filename;
 	llutf16string utf16filename = utf8str_to_utf16str(utf8filename);
 	return _wstat(utf16filename.c_str(),filestatus);
 #else
-	return ::stat(filename,filestatus);
+	return ::stat(filename.c_str(),filestatus);
 #endif
 }
 
-bool LLFile::isdir(const char *filename)
+bool LLFile::isdir(const std::string& filename)
 {
 	llstat st;
 	
 	return stat(filename, &st) == 0 && S_ISDIR(st.st_mode);
 }
 
-bool LLFile::isfile(const char *filename)
+bool LLFile::isfile(const std::string& filename)
 {
 	llstat st;
 	
@@ -181,7 +181,7 @@ const char *LLFile::tmpdir()
 
 #if USE_LLFILESTREAMS
 
-LLFILE *	LLFile::_Fiopen(const char *filename, std::ios::openmode mode,int)	// protection currently unused
+LLFILE *	LLFile::_Fiopen(const std::string& filename, std::ios::openmode mode,int)	// protection currently unused
 {	// open a file
 	static const char *mods[] =
 	{	// fopen mode strings corresponding to valid[i]
@@ -250,7 +250,7 @@ void llifstream::close()
 	}
 }
 
-void llifstream::open(const char* _Filename,	/* Flawfinder: ignore */
+void llifstream::open(const std::string& _Filename,	/* Flawfinder: ignore */
 	ios_base::openmode _Mode,
 	int _Prot)
 {	// open a C stream with specified mode
@@ -282,7 +282,7 @@ llifstream::~llifstream()
 	delete _Filebuffer;
 }
 
-llifstream::llifstream(const char *_Filename,
+llifstream::llifstream(const std::string& _Filename,
 	ios_base::openmode _Mode,
 	int _Prot)
 	: std::basic_istream< char , std::char_traits< char > >(NULL,true),_Filebuffer(NULL),_ShouldClose(false)
@@ -301,7 +301,7 @@ bool llofstream::is_open() const
 	return false;
 }
 
-void llofstream::open(const char* _Filename,	/* Flawfinder: ignore */
+void llofstream::open(const std::string& _Filename,	/* Flawfinder: ignore */
 	ios_base::openmode _Mode,
 	int _Prot)	
 {	// open a C stream with specified mode
@@ -327,7 +327,7 @@ void llofstream::close()
 	}
 }
 
-llofstream::llofstream(const char *_Filename,
+llofstream::llofstream(const std::string& _Filename,
 	std::ios_base::openmode _Mode,
 	int _Prot) 
 		: std::basic_ostream<char,std::char_traits < char > >(NULL,true),_Filebuffer(NULL),_ShouldClose(false)

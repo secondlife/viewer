@@ -38,54 +38,17 @@
 
 LLEventInfo::cat_map LLEventInfo::sCategories;
 
-LLEventInfo::LLEventInfo(F32 global_x, F32 global_y, 
-						 const char* name, 
-						 U32 id,
-						 time_t unix_time,
-						 U32 event_flags)
-:	mName( name ),
-	mID( id ),
-	mPosGlobal( global_x, global_y, 40.0 ),
-	mUnixTime( unix_time ),
-	mEventFlags(event_flags),
-	mSelected( FALSE )
-{
-	struct tm* timep;
-	// Convert to Pacific, based on server's opinion of whether
-	// it's daylight savings time there.
-	timep = utc_to_pacific_time(unix_time, gPacificDaylightTime);
-
-	S32 display_hour = timep->tm_hour % 12;
-	if (display_hour == 0) display_hour = 12;
-
-	mTimeStr = llformat("% 2d/% 2d % 2d:%02d %s",
-						timep->tm_mon+1,
-						timep->tm_year-100,
-						display_hour,
-						timep->tm_min,
-						(timep->tm_hour < 12 ? "AM" : "PM") );
-}
-
-
 void LLEventInfo::unpack(LLMessageSystem *msg)
 {
-	const U32 MAX_DESC_LENGTH = 1024;
-
 	U32 event_id;
 	msg->getU32("EventData", "EventID", event_id);
 	mID = event_id;
 
-	char buffer[MAX_DESC_LENGTH]; /*Flawfinder: ignore*/
-	msg->getString("EventData", "Name", MAX_DESC_LENGTH, buffer);
-	mName = buffer;
+	msg->getString("EventData", "Name", mName);
 
-	msg->getString("EventData", "Category", MAX_DESC_LENGTH, buffer);
-	mCategoryStr = buffer;
+	msg->getString("EventData", "Category", mCategoryStr);
 
-	msg->getString("EventData", "Date", MAX_DESC_LENGTH, buffer);
-	// *FIX: evil hack to let users know that we don't localize
-	// time information.  Hack!  This is WRONG.
-	mTimeStr = buffer;
+	msg->getString("EventData", "Date", mTimeStr);
 
 	U32 duration;
 	msg->getU32("EventData","Duration",duration);
@@ -95,10 +58,10 @@ void LLEventInfo::unpack(LLMessageSystem *msg)
 	msg->getU32("EventData", "DateUTC", date);
 	mUnixTime = date;
 
-	msg->getString("EventData", "Desc", MAX_DESC_LENGTH, buffer);
-	mDesc = buffer;
+	msg->getString("EventData", "Desc", mDesc);
 
-	msg->getString("EventData", "Creator", MAX_DESC_LENGTH, buffer);
+	std::string buffer;
+	msg->getString("EventData", "Creator", buffer);
 	mRunByID = LLUUID(buffer);
 
 	U32 foo;
@@ -112,9 +75,7 @@ void LLEventInfo::unpack(LLMessageSystem *msg)
 		mCover = cover;
 	}
 
-	char sim_name[256]; /*Flawfinder: ignore*/
-	msg->getString("EventData", "SimName", 256, sim_name);
-	mSimName.assign(sim_name);
+	msg->getString("EventData", "SimName", mSimName);
 
 	msg->getVector3d("EventData", "GlobalPos", mPosGlobal);
 

@@ -1110,7 +1110,7 @@ inline void safe_heap_bytestream_count_char(U8 *stream, S32 &offset)
 		;
 }
 
-inline void safe_instruction_char2bytestream(U8 *stream, S32 &offset, char *buffer)
+inline void safe_instruction_char2bytestream(U8 *stream, S32 &offset, const char* buffer)
 {
 	while (  (safe_instruction_check_address(stream, offset, 1))
 		   &&(*(stream + offset++) = *buffer++))

@@ -58,7 +58,7 @@ const F32 NUDGE_TIME = 0.25f;		// in seconds
 
 // protected
 LLFloaterMove::LLFloaterMove(const LLSD& key)
-:	LLFloater("move floater")
+:	LLFloater(std::string("move floater"))
 {
 	setIsChrome(TRUE);
 

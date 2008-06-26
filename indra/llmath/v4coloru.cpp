@@ -93,19 +93,19 @@ std::ostream& operator<<(std::ostream& s, const LLColor4U &a)
 }
 
 // static
-BOOL LLColor4U::parseColor4U(const char* buf, LLColor4U* value)
+BOOL LLColor4U::parseColor4U(const std::string& buf, LLColor4U* value)
 {
-	if( buf == NULL || buf[0] == '\0' || value == NULL)
+	if( buf.empty() || value == NULL)
 	{
 		return FALSE;
 	}
 
 	U32 v[4];
-	S32 count = sscanf( buf, "%u, %u, %u, %u", v + 0, v + 1, v + 2, v + 3 );
+	S32 count = sscanf( buf.c_str(), "%u, %u, %u, %u", v + 0, v + 1, v + 2, v + 3 );
 	if (1 == count )
 	{
 		// try this format
-		count = sscanf( buf, "%u %u %u %u", v + 0, v + 1, v + 2, v + 3 );
+		count = sscanf( buf.c_str(), "%u %u %u %u", v + 0, v + 1, v + 2, v + 3 );
 	}
 	if( 4 != count )
 	{

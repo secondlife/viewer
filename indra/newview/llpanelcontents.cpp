@@ -168,7 +168,7 @@ void LLPanelContents::onClickNewScript(void *userdata)
 			PERM_NONE,
 			PERM_NONE,
 			PERM_MOVE | PERM_TRANSFER);
-		LLString desc;
+		std::string desc;
 		LLAssetType::generateDescriptionFor(LLAssetType::AT_LSL_TEXT, desc);
 		LLPointer<LLViewerInventoryItem> new_item =
 			new LLViewerInventoryItem(
@@ -178,7 +178,7 @@ void LLPanelContents::onClickNewScript(void *userdata)
 				LLUUID::null,
 				LLAssetType::AT_LSL_TEXT,
 				LLInventoryType::IT_LSL,
-				LLString("New Script"),
+				std::string("New Script"),
 				desc,
 				LLSaleInfo::DEFAULT,
 				LLViewerInventoryItem::II_FLAGS_NONE,

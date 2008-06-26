@@ -84,7 +84,7 @@ void LLFloaterBump::show(void *contents)
 
 	if (gMeanCollisionList.empty())
 	{
-		LLString none_detected = sInstance->getString("none_detected");
+		std::string none_detected = sInstance->getString("none_detected");
 		LLSD row;
 		row["columns"][0]["value"] = none_detected;
 		row["columns"][0]["font"] = "SansSerifBold";
@@ -110,8 +110,7 @@ void LLFloaterBump::add(LLScrollListCtrl* list, LLMeanCollisionData* mcd)
 		new LLFloaterBump();
 	}
 	
-	if (!mcd->mFirstName[0]
-	||  list->getItemCount() >= 20)
+	if (mcd->mFirstName.empty() || list->getItemCount() >= 20)
 	{
 		return;
 	}
@@ -123,9 +122,9 @@ void LLFloaterBump::add(LLScrollListCtrl* list, LLMeanCollisionData* mcd)
 	// it's daylight savings time there.
 	timep = utc_to_pacific_time(mcd->mTime, gPacificDaylightTime);
 	
-	LLString time = llformat("[%d:%02d]", timep->tm_hour, timep->tm_min);
+	std::string time = llformat("[%d:%02d]", timep->tm_hour, timep->tm_min);
 
-	LLString action;
+	std::string action;
 	switch(mcd->mType)
 	{
 	case MEAN_BUMP:

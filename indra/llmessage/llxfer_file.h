@@ -39,25 +39,25 @@ class LLXfer_File : public LLXfer
 {
  protected:
  	LLFILE *mFp;
-	char mLocalFilename[LL_MAX_PATH];		/* Flawfinder : ignore */
-	char mRemoteFilename[LL_MAX_PATH];		/* Flawfinder : ignore */
+	std::string mLocalFilename;
+	std::string mRemoteFilename;
 	ELLPath mRemotePath;
-	char mTempFilename[LL_MAX_PATH];		/* Flawfinder : ignore */
+	std::string mTempFilename;
 
 	BOOL mDeleteLocalOnCompletion;
 	BOOL mDeleteRemoteOnCompletion;
 
  public:
 	LLXfer_File (S32 chunk_size);
-	LLXfer_File (const LLString& local_filename, BOOL delete_local_on_completion, S32 chunk_size);
+	LLXfer_File (const std::string& local_filename, BOOL delete_local_on_completion, S32 chunk_size);
 	virtual ~LLXfer_File();
 
-	virtual void init(const LLString& local_filename, BOOL delete_local_on_completion, S32 chunk_size);
+	virtual void init(const std::string& local_filename, BOOL delete_local_on_completion, S32 chunk_size);
 	virtual void free();
 
 	virtual S32 initializeRequest(U64 xfer_id,
-								  const LLString& local_filename,
-								  const LLString& remote_filename,
+								  const std::string& local_filename,
+								  const std::string& remote_filename,
 								  ELLPath remote_path,
 								  const LLHost& remote_host,
 								  BOOL delete_remote_on_completion,
@@ -72,14 +72,14 @@ class LLXfer_File : public LLXfer
 	virtual S32 suck(S32 start_position);
 	virtual S32 flush();
 
-	virtual BOOL matchesLocalFilename(const LLString& filename);
-	virtual BOOL matchesRemoteFilename(const LLString& filename, ELLPath remote_path);
+	virtual BOOL matchesLocalFilename(const std::string& filename);
+	virtual BOOL matchesRemoteFilename(const std::string& filename, ELLPath remote_path);
 
 	virtual S32  getMaxBufferSize();
 
 	virtual U32 getXferTypeTag();
 
-	virtual const char *getName();
+	virtual std::string getFileName();
 };
 
 #endif

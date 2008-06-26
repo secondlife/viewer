@@ -62,7 +62,7 @@ BOOL	LLView::sDebugRects = FALSE;
 BOOL	LLView::sDebugKeys = FALSE;
 S32		LLView::sDepth = 0;
 BOOL	LLView::sDebugMouseHandling = FALSE;
-LLString LLView::sMouseHandlerMessage;
+std::string LLView::sMouseHandlerMessage;
 S32	LLView::sSelectID = GL_NAME_UI_RESERVED;
 BOOL	LLView::sEditingUI = FALSE;
 BOOL	LLView::sForceReshape = FALSE;
@@ -90,7 +90,7 @@ LLView::LLView() :
 {
 }
 
-LLView::LLView(const LLString& name, BOOL mouse_opaque) :
+LLView::LLView(const std::string& name, BOOL mouse_opaque) :
 	mParentView(NULL),
 	mName(name),
 	mReshapeFlags(FOLLOWS_NONE),
@@ -109,7 +109,7 @@ LLView::LLView(const LLString& name, BOOL mouse_opaque) :
 
 
 LLView::LLView(
-	const LLString& name, const LLRect& rect, BOOL mouse_opaque, U32 reshape) :
+	const std::string& name, const LLRect& rect, BOOL mouse_opaque, U32 reshape) :
 	mParentView(NULL),
 	mName(name),
 	mRect(rect),
@@ -194,7 +194,7 @@ BOOL LLView::setToolTipArg(const LLStringExplicit& key, const LLStringExplicit& 
 	return TRUE;
 }
 
-void LLView::setToolTipArgs( const LLString::format_map_t& args )
+void LLView::setToolTipArgs( const LLStringUtil::format_map_t& args )
 {
 	mToolTipMsg.setArgList(args);
 }
@@ -221,9 +221,9 @@ BOOL LLView::getUseBoundingRect()
 }
 
 // virtual
-const LLString& LLView::getName() const
+const std::string& LLView::getName() const
 {
-	static const LLString unnamed("(no name)");
+	static const std::string unnamed("(no name)");
 	return mName.empty() ? unnamed : mName;
 }
 
@@ -460,7 +460,7 @@ void LLView::setEnabled(BOOL enabled)
 }
 
 //virtual
-BOOL LLView::setLabelArg( const LLString& key, const LLStringExplicit& text )
+BOOL LLView::setLabelArg( const std::string& key, const LLStringExplicit& text )
 {
 	return FALSE;
 }
@@ -666,11 +666,11 @@ BOOL LLView::handleHover(S32 x, S32 y, MASK mask)
 	return handled;
 }
 
-LLString LLView::getShowNamesToolTip()
+std::string LLView::getShowNamesToolTip()
 {
 	LLView* view = getParent();
-	LLString name;
-	LLString tool_tip = mName;
+	std::string name;
+	std::string tool_tip = mName;
 
 	while (view)
 	{
@@ -678,7 +678,7 @@ LLString LLView::getShowNamesToolTip()
 
 		if (name == "root") break;
 
-		if (view->getToolTip().find(".xml") != LLString::npos)
+		if (view->getToolTip().find(".xml") != std::string::npos)
 		{
 			tool_tip = view->getToolTip() + "/" +  tool_tip;
 			break;
@@ -695,11 +695,11 @@ LLString LLView::getShowNamesToolTip()
 }
 
 
-BOOL LLView::handleToolTip(S32 x, S32 y, LLString& msg, LLRect* sticky_rect_screen)
+BOOL LLView::handleToolTip(S32 x, S32 y, std::string& msg, LLRect* sticky_rect_screen)
 {
 	BOOL handled = FALSE;
 
-    LLString tool_tip;
+    std::string tool_tip;
 
 	for ( child_list_iter_t child_it = mChildList.begin(); child_it != mChildList.end(); ++child_it)
 	{
@@ -719,8 +719,8 @@ BOOL LLView::handleToolTip(S32 x, S32 y, LLString& msg, LLRect* sticky_rect_scre
 	tool_tip = mToolTipMsg.getString();
 	if (
 		LLUI::sShowXUINames &&
-		(tool_tip.find(".xml", 0) == LLString::npos) && 
-		(mName.find("Drag", 0) == LLString::npos))
+		(tool_tip.find(".xml", 0) == std::string::npos) && 
+		(mName.find("Drag", 0) == std::string::npos))
 	{
 		tool_tip = getShowNamesToolTip();
 	}
@@ -824,7 +824,7 @@ BOOL LLView::handleUnicodeCharHere(llwchar uni_char )
 BOOL LLView::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 							   EDragAndDropType cargo_type, void* cargo_data,
 							   EAcceptance* accept,
-							   LLString& tooltip_msg)
+							   std::string& tooltip_msg)
 {
 	// CRO this is an experiment to allow drag and drop into object inventory based on the DragAndDrop tool's permissions rather than the parent
 	BOOL handled = childrenHandleDragAndDrop( x, y, mask, drop,
@@ -847,7 +847,7 @@ LLView* LLView::childrenHandleDragAndDrop(S32 x, S32 y, MASK mask,
 									   EDragAndDropType cargo_type,
 									   void* cargo_data,
 									   EAcceptance* accept,
-									   LLString& tooltip_msg)
+									   std::string& tooltip_msg)
 {
 	LLView* handled_view = FALSE;
 	// CRO this is an experiment to allow drag and drop into object inventory based on the DragAndDrop tool's permissions rather than the parent
@@ -987,7 +987,7 @@ LLView* LLView::childrenHandleScrollWheel(S32 x, S32 y, S32 clicks)
 			{
 				if (sDebugMouseHandling)
 				{
-					sMouseHandlerMessage = LLString("->") + viewp->mName.c_str() + sMouseHandlerMessage;
+					sMouseHandlerMessage = std::string("->") + viewp->mName + sMouseHandlerMessage;
 				}
 
 				handled_view = viewp;
@@ -1015,7 +1015,7 @@ LLView* LLView::childrenHandleHover(S32 x, S32 y, MASK mask)
 			{
 				if (sDebugMouseHandling)
 				{
-					sMouseHandlerMessage = LLString("->") + viewp->mName.c_str() + sMouseHandlerMessage;
+					sMouseHandlerMessage = std::string("->") + viewp->mName + sMouseHandlerMessage;
 				}
 
 				handled_view = viewp;
@@ -1093,7 +1093,7 @@ LLView* LLView::childrenHandleMouseDown(S32 x, S32 y, MASK mask)
 		{
 			if (sDebugMouseHandling)
 			{
-				sMouseHandlerMessage = LLString("->") + viewp->mName.c_str() + sMouseHandlerMessage;
+				sMouseHandlerMessage = std::string("->") + viewp->mName + sMouseHandlerMessage;
 			}
 			handled_view = viewp;
 			break;
@@ -1120,7 +1120,7 @@ LLView* LLView::childrenHandleRightMouseDown(S32 x, S32 y, MASK mask)
 			{
 				if (sDebugMouseHandling)
 				{
-					sMouseHandlerMessage = LLString("->") + viewp->mName.c_str() + sMouseHandlerMessage;
+					sMouseHandlerMessage = std::string("->") + viewp->mName + sMouseHandlerMessage;
 				}
 				handled_view = viewp;
 				break;
@@ -1148,7 +1148,7 @@ LLView* LLView::childrenHandleDoubleClick(S32 x, S32 y, MASK mask)
 			{
 				if (sDebugMouseHandling)
 				{
-					sMouseHandlerMessage = LLString("->") + viewp->mName.c_str() + sMouseHandlerMessage;
+					sMouseHandlerMessage = std::string("->") + viewp->mName + sMouseHandlerMessage;
 				}
 				handled_view = viewp;
 				break;
@@ -1178,7 +1178,7 @@ LLView* LLView::childrenHandleMouseUp(S32 x, S32 y, MASK mask)
 			{
 				if (sDebugMouseHandling)
 				{
-					sMouseHandlerMessage = LLString("->") + viewp->mName.c_str() + sMouseHandlerMessage;
+					sMouseHandlerMessage = std::string("->") + viewp->mName + sMouseHandlerMessage;
 				}
 				handled_view = viewp;
 				break;
@@ -1205,7 +1205,7 @@ LLView* LLView::childrenHandleRightMouseUp(S32 x, S32 y, MASK mask)
 			{
 				if (sDebugMouseHandling)
 				{
-					sMouseHandlerMessage = LLString("->") + viewp->mName.c_str() + sMouseHandlerMessage;
+					sMouseHandlerMessage = std::string("->") + viewp->mName + sMouseHandlerMessage;
 				}
 				handled_view = viewp;
 				break;
@@ -1326,7 +1326,7 @@ void LLView::drawDebugRect()
 			gGL.color4fv( border_color.mV );
 			x = debug_rect.getWidth()/2;
 			y = debug_rect.getHeight()/2;
-			LLString debug_text = llformat("%s (%d x %d)", getName().c_str(),
+			std::string debug_text = llformat("%s (%d x %d)", getName().c_str(),
 										debug_rect.getWidth(), debug_rect.getHeight());
 			LLFontGL::sSansSerifSmall->renderUTF8(debug_text, 0, (F32)x, (F32)y, border_color,
 												LLFontGL::HCENTER, LLFontGL::BASELINE, LLFontGL::NORMAL,
@@ -1537,7 +1537,7 @@ BOOL LLView::hasAncestor(const LLView* parentp) const
 
 //-----------------------------------------------------------------------------
 
-BOOL LLView::childHasKeyboardFocus( const LLString& childname ) const
+BOOL LLView::childHasKeyboardFocus( const std::string& childname ) const
 {
 	LLView *child = getChildView(childname, TRUE, FALSE);
 	if (child)
@@ -1552,7 +1552,7 @@ BOOL LLView::childHasKeyboardFocus( const LLString& childname ) const
 
 //-----------------------------------------------------------------------------
 
-BOOL LLView::hasChild(const LLString& childname, BOOL recurse) const
+BOOL LLView::hasChild(const std::string& childname, BOOL recurse) const
 {
 	return getChildView(childname, recurse, FALSE) != NULL;
 }
@@ -1560,7 +1560,7 @@ BOOL LLView::hasChild(const LLString& childname, BOOL recurse) const
 //-----------------------------------------------------------------------------
 // getChildView()
 //-----------------------------------------------------------------------------
-LLView* LLView::getChildView(const LLString& name, BOOL recurse, BOOL create_if_missing) const
+LLView* LLView::getChildView(const std::string& name, BOOL recurse, BOOL create_if_missing) const
 {
 	//richard: should we allow empty names?
 	//if(name.empty())
@@ -1923,33 +1923,18 @@ LLView* LLView::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *fact
 
 // static
 void LLView::addColorXML(LLXMLNodePtr node, const LLColor4& color,
-							const LLString& xml_name, const LLString& control_name)
+							const char* xml_name, const char* control_name)
 {
-	if (color != LLUI::sColorsGroup->getColor(control_name))
+	if (color != LLUI::sColorsGroup->getColor(ll_safe_string(control_name)))
 	{
 		node->createChild(xml_name, TRUE)->setFloatValue(4, color.mV);
 	}
 }
 
-// static
-void LLView::saveColorToXML(std::ostream& out, const LLColor4& color,
-							const LLString& xml_name, const LLString& control_name,
-							const LLString& indent)
-{
-	if (color != LLUI::sColorsGroup->getColor(control_name))
-	{
-		out << indent << xml_name << "=\"" 
-			<< color.mV[VRED] << ", " 
-			<< color.mV[VGREEN] << ", " 
-			<< color.mV[VBLUE] << ", " 
-			<< color.mV[VALPHA] << "\"\n";
-	}
-}
-
 //static 
-LLString LLView::escapeXML(const LLString& xml, LLString& indent)
+std::string LLView::escapeXML(const std::string& xml, std::string& indent)
 {
-	LLString ret = indent + "\"" + LLXMLNode::escapeXML(xml);
+	std::string ret = indent + "\"" + LLXMLNode::escapeXML(xml);
 
 	//replace every newline with a close quote, new line, indent, open quote
 	size_t index = ret.size()-1;
@@ -2404,12 +2389,12 @@ LLView*	LLView::findSnapEdge(S32& new_edge_val, const LLCoordGL& mouse_dir, ESna
 // Listener dispatch functions
 //-----------------------------------------------------------------------------
 
-void LLView::registerEventListener(LLString name, LLSimpleListener* function)
+void LLView::registerEventListener(std::string name, LLSimpleListener* function)
 {
-	mDispatchList.insert(std::pair<LLString, LLSimpleListener*>(name, function));
+	mDispatchList.insert(std::pair<std::string, LLSimpleListener*>(name, function));
 }
 
-void LLView::deregisterEventListener(LLString name)
+void LLView::deregisterEventListener(std::string name)
 {
 	dispatch_list_t::iterator itor = mDispatchList.find(name);
 	if (itor != mDispatchList.end())
@@ -2418,7 +2403,7 @@ void LLView::deregisterEventListener(LLString name)
 	}
 }
 
-LLString LLView::findEventListener(LLSimpleListener *listener) const
+std::string LLView::findEventListener(LLSimpleListener *listener) const
 {
 	dispatch_list_t::const_iterator itor;
 	for (itor = mDispatchList.begin(); itor != mDispatchList.end(); ++itor)
@@ -2432,10 +2417,10 @@ LLString LLView::findEventListener(LLSimpleListener *listener) const
 	{
 		return mParentView->findEventListener(listener);
 	}
-	return LLString::null;
+	return LLStringUtil::null;
 }
 
-LLSimpleListener* LLView::getListenerByName(const LLString& callback_name)
+LLSimpleListener* LLView::getListenerByName(const std::string& callback_name)
 {
 	LLSimpleListener* callback = NULL;
 	dispatch_list_t::iterator itor = mDispatchList.find(callback_name);
@@ -2450,7 +2435,7 @@ LLSimpleListener* LLView::getListenerByName(const LLString& callback_name)
 	return callback;
 }
 
-LLControlVariable *LLView::findControl(LLString name)
+LLControlVariable *LLView::findControl(const std::string& name)
 {
 	control_map_t::iterator itor = mFloaterControls.find(name);
 	if (itor != mFloaterControls.end())
@@ -2494,7 +2479,7 @@ U32 LLView::createRect(LLXMLNodePtr node, LLRect &rect, LLView* parent_view, con
 		}
 	}
 
-	LLString rect_control;
+	std::string rect_control;
 	node->getAttributeString("rect_control", rect_control);
 	if (! rect_control.empty())
 	{
@@ -2655,14 +2640,14 @@ void LLView::initFromXML(LLXMLNodePtr node, LLView* parent)
 
 	if (node->hasAttribute("control_name"))
 	{
-		LLString control_name;
+		std::string control_name;
 		node->getAttributeString("control_name", control_name);
 		setControlName(control_name, NULL);
 	}
 
 	if (node->hasAttribute("tool_tip"))
 	{
-		LLString tool_tip_msg("");
+		std::string tool_tip_msg;
 		node->getAttributeString("tool_tip", tool_tip_msg);
 		setToolTip(tool_tip_msg);
 	}
@@ -2695,7 +2680,7 @@ void LLView::parseFollowsFlags(LLXMLNodePtr node)
 	{
 		setFollowsNone();
 
-		LLString follows;
+		std::string follows;
 		node->getAttributeString("follows", follows);
 
 		typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
@@ -2739,10 +2724,10 @@ LLFontGL* LLView::selectFont(LLXMLNodePtr node)
 
 	if (node->hasAttribute("font"))
 	{
-		LLString font_name;
+		std::string font_name;
 		node->getAttributeString("font", font_name);
 
-		gl_font = LLFontGL::fontFromName(font_name.c_str());
+		gl_font = LLFontGL::fontFromName(font_name);
 	}
 	return gl_font;
 }
@@ -2754,7 +2739,7 @@ LLFontGL::HAlign LLView::selectFontHAlign(LLXMLNodePtr node)
 
 	if (node->hasAttribute("halign"))
 	{
-		LLString horizontal_align_name;
+		std::string horizontal_align_name;
 		node->getAttributeString("halign", horizontal_align_name);
 		gl_hfont_align = LLFontGL::hAlignFromName(horizontal_align_name);
 	}
@@ -2768,7 +2753,7 @@ LLFontGL::VAlign LLView::selectFontVAlign(LLXMLNodePtr node)
 
 	if (node->hasAttribute("valign"))
 	{
-		LLString vert_align_name;
+		std::string vert_align_name;
 		node->getAttributeString("valign", vert_align_name);
 		gl_vfont_align = LLFontGL::vAlignFromName(vert_align_name);
 	}
@@ -2782,7 +2767,7 @@ LLFontGL::StyleFlags LLView::selectFontStyle(LLXMLNodePtr node)
 
 	if (node->hasAttribute("style"))
 	{
-		LLString style_flags_name;
+		std::string style_flags_name;
 		node->getAttributeString("style", style_flags_name);
 
 		if (style_flags_name == "normal")
@@ -2808,7 +2793,7 @@ LLFontGL::StyleFlags LLView::selectFontStyle(LLXMLNodePtr node)
 
 bool LLView::setControlValue(const LLSD& value)
 {
-	LLString ctrlname = getControlName();
+	std::string ctrlname = getControlName();
 	if (!ctrlname.empty())
 	{
 		LLUI::sConfigGroup->setValue(ctrlname, value);
@@ -2818,7 +2803,7 @@ bool LLView::setControlValue(const LLSD& value)
 }
 
 //virtual
-void LLView::setControlName(const LLString& control_name, LLView *context)
+void LLView::setControlName(const std::string& control_name, LLView *context)
 {
 	if (context == NULL)
 	{
@@ -2870,12 +2855,12 @@ bool LLView::controlListener(const LLSD& newvalue, LLHandle<LLView> handle, std:
 	return false;
 }
 
-void LLView::addBoolControl(LLString name, bool initial_value)
+void LLView::addBoolControl(const std::string& name, bool initial_value)
 {
-	mFloaterControls[name] = new LLControlVariable(name, TYPE_BOOLEAN, initial_value, "Internal floater control");
+	mFloaterControls[name] = new LLControlVariable(name, TYPE_BOOLEAN, initial_value, std::string("Internal floater control"));
 }
 
-LLControlVariable *LLView::getControl(LLString name)
+LLControlVariable *LLView::getControl(const std::string& name)
 {
 	control_map_t::iterator itor = mFloaterControls.find(name);
 	if (itor != mFloaterControls.end())
@@ -2910,20 +2895,20 @@ LLWidgetClassRegistry::LLWidgetClassRegistry()
 { 
 }
 
-void LLWidgetClassRegistry::registerCtrl(const LLString& tag, LLWidgetClassRegistry::factory_func_t function)
+void LLWidgetClassRegistry::registerCtrl(const std::string& tag, LLWidgetClassRegistry::factory_func_t function)
 { 
-	LLString lower_case_tag = tag;
-	LLString::toLower(lower_case_tag);
+	std::string lower_case_tag = tag;
+	LLStringUtil::toLower(lower_case_tag);
 	
 	mCreatorFunctions[lower_case_tag] = function;
 }
 
-BOOL LLWidgetClassRegistry::isTagRegistered(const LLString &tag)
+BOOL LLWidgetClassRegistry::isTagRegistered(const std::string &tag)
 { 
 	return mCreatorFunctions.find(tag) != mCreatorFunctions.end();
 }
 
-LLWidgetClassRegistry::factory_func_t LLWidgetClassRegistry::getCreatorFunc(const LLString& ctrl_type)
+LLWidgetClassRegistry::factory_func_t LLWidgetClassRegistry::getCreatorFunc(const std::string& ctrl_type)
 { 
 	factory_map_t::const_iterator found_it = mCreatorFunctions.find(ctrl_type);
 	if (found_it == mCreatorFunctions.end())

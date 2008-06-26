@@ -68,13 +68,13 @@ const S32 PREVIEW_TEXTURE_HEIGHT = 300;
 //-----------------------------------------------------------------------------
 // LLFloaterImagePreview()
 //-----------------------------------------------------------------------------
-LLFloaterImagePreview::LLFloaterImagePreview(const char* filename) : 
+LLFloaterImagePreview::LLFloaterImagePreview(const std::string& filename) : 
 	LLFloaterNameDesc(filename)
 {
 	mLastMouseX = 0;
 	mLastMouseY = 0;
 	mGLName = 0;
-	loadImage(mFilenameAndPath.c_str());
+	loadImage(mFilenameAndPath);
 }
 
 //-----------------------------------------------------------------------------
@@ -314,28 +314,25 @@ void LLFloaterImagePreview::draw()
 //-----------------------------------------------------------------------------
 // loadImage()
 //-----------------------------------------------------------------------------
-bool LLFloaterImagePreview::loadImage(const char *src_filename)
+bool LLFloaterImagePreview::loadImage(const std::string& src_filename)
 {
-	// U32 length = strlen(src_filename);
-	const char* ext = strrchr(src_filename, '.');
-	char error_message[MAX_STRING];
-	error_message[0] = '\0';
-
+	std::string exten = gDirUtilp->getExtension(src_filename);
+	
 	U32 codec = IMG_CODEC_INVALID;
-	LLString temp_str;
-	if( 0 == strnicmp(ext, ".bmp", 4) )
+	std::string temp_str;
+	if( exten == "bmp")
 	{
 		codec = IMG_CODEC_BMP;
 	}
-	else if( 0 == strnicmp(ext, ".tga", 4) )
+	else if( exten == "tga")
 	{
 		codec = IMG_CODEC_TGA;
 	}
-	else if( 0 == strnicmp(ext, ".jpg", 4) || 0 == strnicmp(ext, ".jpeg", 5))
+	else if( exten == "jpg" || exten == "jpeg")
 	{
 		codec = IMG_CODEC_JPEG;
 	}
-	else if( 0 == strnicmp(ext, ".png", 4) )
+	else if( exten == "png" )
 	{
 		codec = IMG_CODEC_PNG;
 	}
@@ -629,7 +626,7 @@ LLImagePreviewAvatar::~LLImagePreviewAvatar()
 }
 
 
-void LLImagePreviewAvatar::setPreviewTarget(const char* joint_name, const char* mesh_name, LLImageRaw* imagep, F32 distance, BOOL male) 
+void LLImagePreviewAvatar::setPreviewTarget(const std::string& joint_name, const std::string& mesh_name, LLImageRaw* imagep, F32 distance, BOOL male) 
 { 
 	mTargetJoint = mDummyAvatar->mRoot.findJoint(joint_name);
 	// clear out existing test mesh

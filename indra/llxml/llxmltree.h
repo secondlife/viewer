@@ -65,7 +65,7 @@ public:
 	LLXmlTreeNode*	getRoot() { return mRoot; }
 
 	void			dump();
-	void			dumpNode( LLXmlTreeNode* node, const LLString &prefix );
+	void			dumpNode( LLXmlTreeNode* node, const std::string& prefix );
 
 	static LLStdStringHandle addAttributeString( const std::string& name)
 	{
@@ -126,7 +126,7 @@ public:
 	BOOL			getFastAttributeVector3d(	LLStdStringHandle cannonical_name, LLVector3d& value );
 	BOOL			getFastAttributeQuat(		LLStdStringHandle cannonical_name, LLQuaternion& value );
 	BOOL			getFastAttributeUUID(		LLStdStringHandle cannonical_name, LLUUID& value );
-	BOOL			getFastAttributeString(		LLStdStringHandle cannonical_name, LLString& value );
+	BOOL			getFastAttributeString(		LLStdStringHandle cannonical_name, std::string& value );
 
 	// Normal versions find 'name' in LLXmlTree::sAttributeKeys then call fast versions
 	virtual BOOL		getAttributeBOOL(		const std::string& name, BOOL& value );
@@ -145,13 +145,13 @@ public:
 	virtual BOOL		getAttributeVector3d(	const std::string& name, LLVector3d& value );
 	virtual BOOL		getAttributeQuat(		const std::string& name, LLQuaternion& value );
 	virtual BOOL		getAttributeUUID(		const std::string& name, LLUUID& value );
-	virtual BOOL		getAttributeString(		const std::string& name, LLString& value );
+	virtual BOOL		getAttributeString(		const std::string& name, std::string& value );
 
-	const LLString& getContents()
+	const std::string& getContents()
 	{
 		return mContents;
 	}
-	LLString getTextContents();
+	std::string getTextContents();
 
 	LLXmlTreeNode*	getParent()							{ return mParent; }
 	LLXmlTreeNode*	getFirstChild();
@@ -161,7 +161,7 @@ public:
 	LLXmlTreeNode*  getNextNamedChild();				// returns next child with name, NULL if none
 
 protected:
-	const LLString* getAttribute( LLStdStringHandle name)
+	const std::string* getAttribute( LLStdStringHandle name)
 	{
 		attribute_map_t::iterator iter = mAttributes.find(name);
 		return (iter == mAttributes.end()) ? 0 : iter->second;
@@ -172,15 +172,15 @@ private:
 	void			appendContents( const std::string& str );
 	void			addChild( LLXmlTreeNode* child );
 
-	void			dump( const LLString& prefix );
+	void			dump( const std::string& prefix );
 
 protected:
-	typedef std::map<LLStdStringHandle, const LLString*> attribute_map_t;
+	typedef std::map<LLStdStringHandle, const std::string*> attribute_map_t;
 	attribute_map_t						mAttributes;
 
 private:
-	LLString							mName;
-	LLString							mContents;
+	std::string							mName;
+	std::string							mContents;
 	
 	typedef std::list<class LLXmlTreeNode *> child_list_t;
 	child_list_t						mChildList;

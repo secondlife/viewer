@@ -201,16 +201,16 @@ void LLHandMotion::onDeactivate()
 //-----------------------------------------------------------------------------
 // LLHandMotion::getHandPoseName()
 //-----------------------------------------------------------------------------
-LLString LLHandMotion::getHandPoseName(eHandPose pose)
+std::string LLHandMotion::getHandPoseName(eHandPose pose)
 {
 	if ((S32)pose < LLHandMotion::NUM_HAND_POSES && (S32)pose >= 0)
 	{
-		return gHandPoseNames[pose];
+		return std::string(gHandPoseNames[pose]);
 	}
-	return "";
+	return LLStringUtil::null;
 }
 
-LLHandMotion::eHandPose LLHandMotion::getHandPose(LLString posename)
+LLHandMotion::eHandPose LLHandMotion::getHandPose(std::string posename)
 {
 	for (S32 pose = 0; pose < LLHandMotion::NUM_HAND_POSES; ++pose)
 	{

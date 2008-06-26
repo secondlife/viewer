@@ -51,14 +51,14 @@ const U32 MAX_STRING_LENGTH = 10;
 static LLRegisterWidget<LLCheckBoxCtrl> r("check_box");
 
  
-LLCheckBoxCtrl::LLCheckBoxCtrl(const LLString& name, const LLRect& rect, 
-							    const LLString& label, 
+LLCheckBoxCtrl::LLCheckBoxCtrl(const std::string& name, const LLRect& rect, 
+							    const std::string& label, 
 								const LLFontGL* font,
 								void (*commit_callback)(LLUICtrl* ctrl, void* userdata),
 								void* callback_user_data,
 								BOOL initial_value,
 								BOOL use_radio_style,
-								const LLString& control_which)
+								const std::string& control_which)
 :	LLUICtrl(name, rect, TRUE, commit_callback, callback_user_data, FOLLOWS_LEFT | FOLLOWS_TOP),
 	mTextEnabledColor( LLUI::sColorsGroup->getColor( "LabelTextColor" ) ),
 	mTextDisabledColor( LLUI::sColorsGroup->getColor( "LabelDisabledColor" ) ),
@@ -93,13 +93,13 @@ LLCheckBoxCtrl::LLCheckBoxCtrl(const LLString& name, const LLRect& rect,
 
 	// *HACK Get rid of this with SL-55508... 
 	// this allows blank check boxes and radio boxes for now
-	LLString local_label = label;
+	std::string local_label = label;
 	if(local_label.empty())
 	{
 		local_label = " ";
 	}
 
-	mLabel = new LLTextBox( "CheckboxCtrl Label", label_rect, local_label.c_str(), mFont );
+	mLabel = new LLTextBox( std::string("CheckboxCtrl Label"), label_rect, local_label, mFont );
 	mLabel->setFollowsLeft();
 	mLabel->setFollowsBottom();
 	addChild(mLabel);
@@ -112,18 +112,17 @@ LLCheckBoxCtrl::LLCheckBoxCtrl(const LLString& name, const LLRect& rect,
 		LLCHECKBOXCTRL_VPAD,
 		LLCHECKBOXCTRL_BTN_SIZE + LLCHECKBOXCTRL_SPACING + text_width + LLCHECKBOXCTRL_HPAD,
 		llmax( text_height, LLCHECKBOXCTRL_BTN_SIZE ) + LLCHECKBOXCTRL_VPAD);
-	LLString active_true_id, active_false_id;
-	LLString inactive_true_id, inactive_false_id;
+	std::string active_true_id, active_false_id;
+	std::string inactive_true_id, inactive_false_id;
 	if (mRadioStyle)
 	{
 		active_true_id = "UIImgRadioActiveSelectedUUID";
 		active_false_id = "UIImgRadioActiveUUID";
 		inactive_true_id = "UIImgRadioInactiveSelectedUUID";
 		inactive_false_id = "UIImgRadioInactiveUUID";
-		mButton = new LLButton(
-			"Radio control button", btn_rect,
-			active_false_id, active_true_id, control_which,
-			&LLCheckBoxCtrl::onButtonPress, this, LLFontGL::sSansSerif ); 
+		mButton = new LLButton(std::string("Radio control button"), btn_rect,
+							   active_false_id, active_true_id, control_which,
+							   &LLCheckBoxCtrl::onButtonPress, this, LLFontGL::sSansSerif ); 
 		mButton->setDisabledImages( inactive_false_id, inactive_true_id );
 		mButton->setHoverGlowStrength(0.35f);
 	}
@@ -133,10 +132,9 @@ LLCheckBoxCtrl::LLCheckBoxCtrl(const LLString& name, const LLRect& rect,
 		active_true_id = "UIImgCheckboxActiveSelectedUUID";
 		inactive_true_id = "UIImgCheckboxInactiveSelectedUUID";
 		inactive_false_id = "UIImgCheckboxInactiveUUID";
-		mButton = new LLButton(
-			"Checkbox control button", btn_rect,
-			active_false_id, active_true_id, control_which,
-			&LLCheckBoxCtrl::onButtonPress, this, LLFontGL::sSansSerif ); 
+		mButton = new LLButton(std::string("Checkbox control button"), btn_rect,
+							   active_false_id, active_true_id, control_which,
+							   &LLCheckBoxCtrl::onButtonPress, this, LLFontGL::sSansSerif ); 
 		mButton->setDisabledImages( inactive_false_id, inactive_true_id );
 		mButton->setHoverGlowStrength(0.35f);
 	}
@@ -253,12 +251,12 @@ void LLCheckBoxCtrl::setLabel( const LLStringExplicit& label )
 	reshape(getRect().getWidth(), getRect().getHeight(), FALSE);
 }
 
-LLString LLCheckBoxCtrl::getLabel() const
+std::string LLCheckBoxCtrl::getLabel() const
 {
 	return mLabel->getText();
 }
 
-BOOL LLCheckBoxCtrl::setLabelArg( const LLString& key, const LLStringExplicit& text )
+BOOL LLCheckBoxCtrl::setLabelArg( const std::string& key, const LLStringExplicit& text )
 {
 	BOOL res = mLabel->setTextArg(key, text);
 	reshape(getRect().getWidth(), getRect().getHeight(), FALSE);
@@ -266,13 +264,13 @@ BOOL LLCheckBoxCtrl::setLabelArg( const LLString& key, const LLStringExplicit& t
 }
 
 //virtual
-LLString LLCheckBoxCtrl::getControlName() const
+std::string LLCheckBoxCtrl::getControlName() const
 {
 	return mButton->getControlName();
 }
 
 // virtual
-void LLCheckBoxCtrl::setControlName(const LLString& control_name, LLView* context)
+void LLCheckBoxCtrl::setControlName(const std::string& control_name, LLView* context)
 {
 	mButton->setControlName(control_name, context);
 }
@@ -307,7 +305,7 @@ LLXMLNodePtr LLCheckBoxCtrl::getXML(bool save_children) const
 
 	node->createChild("label", TRUE)->setStringValue(mLabel->getText());
 
-	LLString control_name = mButton->getControlName();
+	std::string control_name = mButton->getControlName();
 	
 	node->createChild("initial_value", TRUE)->setBoolValue(mInitialValue);
 
@@ -321,10 +319,10 @@ LLXMLNodePtr LLCheckBoxCtrl::getXML(bool save_children) const
 // static
 LLView* LLCheckBoxCtrl::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory)
 {
-	LLString name("checkbox");
+	std::string name("checkbox");
 	node->getAttributeString("name", name);
 
-	LLString label("");
+	std::string label("");
 	node->getAttributeString("label", label);
 
 	LLFontGL* font = LLView::selectFont(node);

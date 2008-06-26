@@ -79,7 +79,7 @@ const F32 MAX_CAMERA_ZOOM = 10.f;
 //-----------------------------------------------------------------------------
 // LLFloaterAnimPreview()
 //-----------------------------------------------------------------------------
-LLFloaterAnimPreview::LLFloaterAnimPreview(const char* filename) : 
+LLFloaterAnimPreview::LLFloaterAnimPreview(const std::string& filename) : 
 	LLFloaterNameDesc(filename)
 {
 	mLastSliderValue = 0.f;
@@ -174,28 +174,28 @@ BOOL LLFloaterAnimPreview::postBuild()
 	mPlayButton = getChild<LLButton>( "play_btn");
 	if (!mPlayButton)
 	{
-		mPlayButton = new LLButton("play_btn", LLRect(0,0,0,0));
+		mPlayButton = new LLButton(std::string("play_btn"), LLRect(0,0,0,0));
 	}
 	mPlayButton->setClickedCallback(onBtnPlay);
 	mPlayButton->setCallbackUserData(this);
 
-	mPlayButton->setImages("button_anim_play.tga",
-						   "button_anim_play_selected.tga");
-	mPlayButton->setDisabledImages("","");
+	mPlayButton->setImages(std::string("button_anim_play.tga"),
+						   std::string("button_anim_play_selected.tga"));
+	mPlayButton->setDisabledImages(LLStringUtil::null,LLStringUtil::null);
 
 	mPlayButton->setScaleImage(TRUE);
 
 	mStopButton = getChild<LLButton>( "stop_btn");
 	if (!mStopButton)
 	{
-		mStopButton = new LLButton("stop_btn", LLRect(0,0,0,0));
+		mStopButton = new LLButton(std::string("stop_btn"), LLRect(0,0,0,0));
 	}
 	mStopButton->setClickedCallback(onBtnStop);
 	mStopButton->setCallbackUserData(this);
 
-	mStopButton->setImages("button_anim_stop.tga",
-						   "button_anim_stop_selected.tga");
-	mStopButton->setDisabledImages("","");
+	mStopButton->setImages(std::string("button_anim_stop.tga"),
+						   std::string("button_anim_stop_selected.tga"));
+	mStopButton->setDisabledImages(LLStringUtil::null,LLStringUtil::null);
 
 	mStopButton->setScaleImage(TRUE);
 
@@ -224,7 +224,8 @@ BOOL LLFloaterAnimPreview::postBuild()
 	//childSetCommitCallback("ease_out_time", onCommitEaseOut, this);
 	//childSetValidate("ease_out_time", validateEaseOut);
 
-	if (!stricmp(strrchr(mFilename.c_str(), '.'), ".bvh"))
+	std::string exten = gDirUtilp->getExtension(mFilename);
+	if (exten == "bvh")
 	{
 		// loading a bvh file
 
@@ -312,10 +313,10 @@ BOOL LLFloaterAnimPreview::postBuild()
 			childSetValue("ease_in_time", LLSD(motionp->getEaseInDuration()));
 			childSetValue("ease_out_time", LLSD(motionp->getEaseOutDuration()));
 			setEnabled(TRUE);
-			char seconds_string[128];		/*Flawfinder: ignore*/
-			snprintf(seconds_string, sizeof(seconds_string), " - %.2f seconds", motionp->getDuration());	/* Flawfinder: ignore */
+			std::string seconds_string;
+			seconds_string = llformat(" - %.2f seconds", motionp->getDuration());
 
-			setTitle(mFilename + LLString(seconds_string));
+			setTitle(mFilename + std::string(seconds_string));
 		}
 		else
 		{
@@ -939,8 +940,8 @@ void LLFloaterAnimPreview::refresh()
 			if (avatarp->areAnimationsPaused())
 			{
 
-				mPlayButton->setImages("button_anim_play.tga",
-									   "button_anim_play_selected.tga");
+				mPlayButton->setImages(std::string("button_anim_play.tga"),
+									   std::string("button_anim_play_selected.tga"));
 
 			}
 			else
@@ -953,16 +954,16 @@ void LLFloaterAnimPreview::refresh()
 					childSetValue("playback_slider", fraction_complete);
 					mLastSliderValue = fraction_complete;
 				}
-				mPlayButton->setImages("button_anim_pause.tga",
-									   "button_anim_pause_selected.tga");
+				mPlayButton->setImages(std::string("button_anim_pause.tga"),
+									   std::string("button_anim_pause_selected.tga"));
 
 			}
 		}
 		else
 		{
 			mPauseRequest = avatarp->requestPause();
-			mPlayButton->setImages("button_anim_play.tga",
-								   "button_anim_play_selected.tga");
+			mPlayButton->setImages(std::string("button_anim_play.tga"),
+								   std::string("button_anim_play_selected.tga"));
 
 			mStopButton->setEnabled(FALSE);
 		}

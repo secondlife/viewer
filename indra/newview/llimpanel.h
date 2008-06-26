@@ -61,7 +61,7 @@ public:
 		STATE_CONNECTED
 	} EState;
 
-	LLVoiceChannel(const LLUUID& session_id, const LLString& session_name);
+	LLVoiceChannel(const LLUUID& session_id, const std::string& session_name);
 	virtual ~LLVoiceChannel();
 
 	/*virtual*/ void onChange(EStatusType status, const std::string &channelURI, bool proximal);
@@ -71,8 +71,8 @@ public:
 	virtual void deactivate();
 	virtual void activate();
 	virtual void setChannelInfo(
-		const LLString& uri,
-		const LLString& credentials);
+		const std::string& uri,
+		const std::string& credentials);
 	virtual void getChannelInfo();
 	virtual BOOL isActive();
 	virtual BOOL callStarted();
@@ -81,10 +81,10 @@ public:
 	EState getState() { return mState; }
 
 	void updateSessionID(const LLUUID& new_session_id);
-	const LLString::format_map_t& getNotifyArgs() { return mNotifyArgs; }
+	const LLStringUtil::format_map_t& getNotifyArgs() { return mNotifyArgs; }
 
 	static LLVoiceChannel* getChannelByID(const LLUUID& session_id);
-	static LLVoiceChannel* getChannelByURI(LLString uri);
+	static LLVoiceChannel* getChannelByURI(std::string uri);
 	static LLVoiceChannel* getCurrentVoiceChannel() { return sCurrentVoiceChannel; }
 	static void initClass();
 	
@@ -93,21 +93,21 @@ public:
 
 protected:
 	virtual void setState(EState state);
-	void setURI(LLString uri);
+	void setURI(std::string uri);
 
-	LLString	mURI;
-	LLString	mCredentials;
+	std::string	mURI;
+	std::string	mCredentials;
 	LLUUID		mSessionID;
 	EState		mState;
-	LLString	mSessionName;
-	LLString::format_map_t mNotifyArgs;
+	std::string	mSessionName;
+	LLStringUtil::format_map_t mNotifyArgs;
 	BOOL		mIgnoreNextSessionLeave;
 	LLHandle<LLPanel> mLoginNotificationHandle;
 
 	typedef std::map<LLUUID, LLVoiceChannel*> voice_channel_map_t;
 	static voice_channel_map_t sVoiceChannelMap;
 
-	typedef std::map<LLString, LLVoiceChannel*> voice_channel_map_uri_t;
+	typedef std::map<std::string, LLVoiceChannel*> voice_channel_map_uri_t;
 	static voice_channel_map_uri_t sVoiceChannelURIMap;
 
 	static LLVoiceChannel* sCurrentVoiceChannel;
@@ -118,15 +118,15 @@ protected:
 class LLVoiceChannelGroup : public LLVoiceChannel
 {
 public:
-	LLVoiceChannelGroup(const LLUUID& session_id, const LLString& session_name);
+	LLVoiceChannelGroup(const LLUUID& session_id, const std::string& session_name);
 
 	/*virtual*/ void handleStatusChange(EStatusType status);
 	/*virtual*/ void handleError(EStatusType status);
 	/*virtual*/ void activate();
 	/*virtual*/ void deactivate();
 	/*vritual*/ void setChannelInfo(
-		const LLString& uri,
-		const LLString& credentials);
+		const std::string& uri,
+		const std::string& credentials);
 	/*virtual*/ void getChannelInfo();
 
 protected:
@@ -154,20 +154,20 @@ public:
 class LLVoiceChannelP2P : public LLVoiceChannelGroup
 {
 public:
-	LLVoiceChannelP2P(const LLUUID& session_id, const LLString& session_name, const LLUUID& other_user_id);
+	LLVoiceChannelP2P(const LLUUID& session_id, const std::string& session_name, const LLUUID& other_user_id);
 
 	/*virtual*/ void handleStatusChange(EStatusType status);
 	/*virtual*/ void handleError(EStatusType status);
     /*virtual*/ void activate();
 	/*virtual*/ void getChannelInfo();
 
-	void setSessionHandle(const LLString& handle);
+	void setSessionHandle(const std::string& handle);
 
 protected:
 	virtual void setState(EState state);
 
 private:
-	LLString	mSessionHandle;
+	std::string	mSessionHandle;
 	LLUUID		mOtherUserID;
 	BOOL		mReceivedCall;
 };
@@ -207,7 +207,7 @@ public:
 						const LLColor4& color = LLColor4::white, 
 						bool log_to_file = true,
 						const LLUUID& source = LLUUID::null,
-						const char *name = NULL);
+						const std::string& name = LLStringUtil::null);
 
 	void setInputFocus( BOOL b );
 
@@ -221,7 +221,7 @@ public:
 	BOOL handleDragAndDrop(S32 x, S32 y, MASK mask,
 						   BOOL drop, EDragAndDropType cargo_type,
 						   void *cargo_data, EAcceptance *accept,
-						   LLString& tooltip_msg);
+						   std::string& tooltip_msg);
 
 	static void		onInputEditorFocusReceived( LLFocusableElement* caller, void* userdata );
 	static void		onInputEditorFocusLost(LLFocusableElement* caller, void* userdata);
@@ -257,7 +257,7 @@ public:
 
 	// Handle other participant in the session typing.
 	void processIMTyping(const LLIMInfo* im_info, BOOL typing);
-	static void chatFromLogFile(LLLogChat::ELogLineType type, LLString line, void* userdata);
+	static void chatFromLogFile(LLLogChat::ELogLineType type, std::string line, void* userdata);
 
 	//show error statuses to the user
 	void showSessionStartError(const std::string& error_string);
@@ -270,7 +270,7 @@ public:
 
 private:
 	// called by constructors
-	void init(const LLString& session_label);
+	void init(const std::string& session_label);
 
 	// Called by UI methods.
 	void sendMsg();
@@ -307,7 +307,7 @@ private:
 	//   911 ==> Gaurdian_Angel_Group_ID ^ gAgent.getID()
 	LLUUID mSessionUUID;
 
-	LLString mSessionLabel;
+	std::string mSessionLabel;
 	LLVoiceChannel*	mVoiceChannel;
 
 	BOOL mSessionInitialized;

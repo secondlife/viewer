@@ -155,7 +155,7 @@ protected:
 class LLTextureCacheLocalFileWorker : public LLTextureCacheWorker
 {
 public:
-	LLTextureCacheLocalFileWorker(LLTextureCache* cache, U32 priority, const LLString& filename, const LLUUID& id,
+	LLTextureCacheLocalFileWorker(LLTextureCache* cache, U32 priority, const std::string& filename, const LLUUID& id,
 						 U8* data, S32 datasize, S32 offset,
 						 S32 imagesize, // for writes
 						 LLTextureCache::Responder* responder) 
@@ -169,7 +169,7 @@ public:
 	virtual bool doWrite();
 	
 private:
-	LLString	mFileName;
+	std::string	mFileName;
 };
 
 bool LLTextureCacheLocalFileWorker::doRead()
@@ -180,7 +180,7 @@ bool LLTextureCacheLocalFileWorker::doRead()
 	{
 		mDataSize = local_size; // Only a complete file is valid
 
-		LLString extension = mFileName.substr(mFileName.size() - 3, 3);
+		std::string extension = mFileName.substr(mFileName.size() - 3, 3);
 
 		mImageFormat = LLImageBase::getCodecFromExtension(extension);
 
@@ -1033,12 +1033,12 @@ S64 LLTextureCache::initCache(ELLPath location, S64 max_size, BOOL read_only)
 	
 	if (!mReadOnly)
 	{
-		LLFile::mkdir(mTexturesDirName.c_str());
+		LLFile::mkdir(mTexturesDirName);
 		const char* subdirs = "0123456789abcdef";
 		for (S32 i=0; i<16; i++)
 		{
 			std::string dirname = mTexturesDirName + gDirUtilp->getDirDelimiter() + subdirs[i];
-			LLFile::mkdir(dirname.c_str());
+			LLFile::mkdir(dirname);
 		}
 	}
 	readHeaderCache();
@@ -1134,16 +1134,16 @@ void LLTextureCache::purgeAllTextures(bool purge_directories)
 		for (S32 i=0; i<16; i++)
 		{
 			std::string dirname = mTexturesDirName + delem + subdirs[i];
-			gDirUtilp->deleteFilesInDir(dirname.c_str(),mask);
+			gDirUtilp->deleteFilesInDir(dirname,mask);
 			if (purge_directories)
 			{
-				LLFile::rmdir(dirname.c_str());
+				LLFile::rmdir(dirname);
 			}
 		}
 		ll_apr_file_remove(mTexturesDirEntriesFileName, NULL);
 		if (purge_directories)
 		{
-			LLFile::rmdir(mTexturesDirName.c_str());
+			LLFile::rmdir(mTexturesDirName);
 		}
 	}
 	mTexturesSizeMap.clear();
@@ -1392,7 +1392,7 @@ S32 LLTextureCache::getHeaderCacheEntry(const LLUUID& id, bool touch, S32* image
 
 // Calls from texture pipeline thread (i.e. LLTextureFetch)
 
-LLTextureCache::handle_t LLTextureCache::readFromCache(const LLString& filename, const LLUUID& id, U32 priority,
+LLTextureCache::handle_t LLTextureCache::readFromCache(const std::string& filename, const LLUUID& id, U32 priority,
 													   S32 offset, S32 size, ReadResponder* responder)
 {
 	// Note: checking to see if an entry exists can cause a stall,

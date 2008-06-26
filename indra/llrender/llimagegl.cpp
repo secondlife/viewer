@@ -842,7 +842,7 @@ BOOL LLImageGL::createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S
 		llwarns << "Trying to create a texture while GL is disabled!" << llendl;
 		return FALSE;
 	}
-	llassert(gGLManager.mInited || gNoRender);
+	llassert(gGLManager.mInited);
 	stop_glerror();
 
 	if (discard_level < 0)

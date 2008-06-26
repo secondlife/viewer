@@ -55,15 +55,13 @@ class LLMeanCollisionData
 public:
 	LLMeanCollisionData(const LLUUID &victim, const LLUUID &perp, time_t time, EMeanCollisionType type, F32 mag)
 		: mVictim(victim), mPerp(perp), mTime(time), mType(type), mMag(mag)
-	{ mFirstName[0] = 0; mLastName[0] =  0; }
+	{
+	}
 	
 	LLMeanCollisionData(LLMeanCollisionData *mcd)
-		: mVictim(mcd->mVictim), mPerp(mcd->mPerp), mTime(mcd->mTime), mType(mcd->mType), mMag(mcd->mMag)
-	{ 
-		strncpy(mFirstName, mcd->mFirstName, sizeof(mFirstName) -1); /* Flawfinder: Ignore */
-		mFirstName[sizeof(mFirstName) -1] = '\0'; 
-		strncpy(mLastName, mcd->mLastName, sizeof(mLastName) -1); /* Flawfinder: Ignore */
-		mLastName[sizeof(mLastName) -1] = '\0';
+		: mVictim(mcd->mVictim), mPerp(mcd->mPerp), mTime(mcd->mTime), mType(mcd->mType), mMag(mcd->mMag),
+		  mFirstName(mcd->mFirstName), mLastName(mcd->mLastName)
+	{
 	}		
 	
 	friend std::ostream&	 operator<<(std::ostream& s, const LLMeanCollisionData &a)
@@ -96,8 +94,8 @@ public:
 	time_t mTime;
 	EMeanCollisionType mType;
 	F32	   mMag;
-	char   mFirstName[DB_FIRST_NAME_BUF_SIZE];		/* Flawfinder: Ignore */
-	char   mLastName[DB_LAST_NAME_BUF_SIZE];		/* Flawfinder: Ignore */
+	std::string mFirstName;
+	std::string mLastName;
 };
 
 

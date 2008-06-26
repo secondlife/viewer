@@ -47,7 +47,7 @@
 
 LLFloaterHardwareSettings* LLFloaterHardwareSettings::sHardwareSettings = NULL;
 
-LLFloaterHardwareSettings::LLFloaterHardwareSettings() : LLFloater("Hardware Settings Floater")
+LLFloaterHardwareSettings::LLFloaterHardwareSettings() : LLFloater(std::string("Hardware Settings Floater"))
 {
 	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_hardware_settings.xml");
 	

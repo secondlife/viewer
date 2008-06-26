@@ -39,7 +39,7 @@
 
 LLStyle::LLStyle()
 {
-	init(TRUE, LLColor4(0,0,0,1),"");
+	init(TRUE, LLColor4(0,0,0,1),LLStringUtil::null);
 }
 
 LLStyle::LLStyle(const LLStyle &style)
@@ -62,21 +62,21 @@ LLStyle::LLStyle(const LLStyle &style)
 	}
 	else
 	{
-		init(TRUE, LLColor4(0,0,0,1),"");
+		init(TRUE, LLColor4(0,0,0,1),LLStringUtil::null);
 	}
 }
 
-LLStyle::LLStyle(BOOL is_visible, const LLColor4 &color, const LLString& font_name)
+LLStyle::LLStyle(BOOL is_visible, const LLColor4 &color, const std::string& font_name)
 {
 	init(is_visible, color, font_name);
 }
 
-void LLStyle::init(BOOL is_visible, const LLColor4 &color, const LLString& font_name)
+void LLStyle::init(BOOL is_visible, const LLColor4 &color, const std::string& font_name)
 {
 	mVisible = is_visible;
 	mColor = color;
 	setFontName(font_name);
-	setLinkHREF("");
+	setLinkHREF(LLStringUtil::null);
 	mItalic = FALSE;
 	mBold = FALSE;
 	mUnderline = FALSE;
@@ -110,12 +110,12 @@ LLStyle &LLStyle::operator=(const LLStyle &rhs)
 }
 
 
-void LLStyle::setFontName(const LLString& fontname)
+void LLStyle::setFontName(const std::string& fontname)
 {
 	mFontName = fontname;
 
-	LLString fontname_lc = fontname;
-	LLString::toLower(fontname_lc);
+	std::string fontname_lc = fontname;
+	LLStringUtil::toLower(fontname_lc);
 	
 	mFontID = LLFONT_OCRA; // default
 	
@@ -138,7 +138,7 @@ void LLStyle::setFontName(const LLString& fontname)
 }
 
 
-void LLStyle::setLinkHREF(const LLString& href)
+void LLStyle::setLinkHREF(const std::string& href)
 {
 	mLink = href;
 }

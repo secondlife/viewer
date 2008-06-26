@@ -77,12 +77,12 @@ public:
 		: mTimeout(0.f),
 		  mPriority(0.f)
 	{}
-	LLAttention(F32 timeout, F32 priority, LLString name, LLColor3 color) :
+	LLAttention(F32 timeout, F32 priority, const std::string& name, LLColor3 color) :
 	  mTimeout(timeout), mPriority(priority), mName(name), mColor(color)
 	{
 	}
 	F32 mTimeout, mPriority;
-	LLString mName;
+	std::string mName;
 	LLColor3 mColor;
 };
 
@@ -150,7 +150,7 @@ static BOOL loadGender(LLXmlTreeNode* gender)
 	{
 		return FALSE;
 	}
-	LLString str;
+	std::string str;
 	gender->getAttributeString("name", str);
 	LLAttentionSet& attentions = (str.compare("Masculine") == 0) ? gBoyAttentions : gGirlAttentions;
 	for (LLXmlTreeNode* attention_node = gender->getChildByName( "param" );
@@ -189,9 +189,8 @@ static BOOL loadAttentions()
 	}
 	first_time = FALSE;
 	
-	char filename[MAX_PATH]; /*Flawfinder: ignore*/
-	strncpy(filename,gDirUtilp->getExpandedFilename(LL_PATH_CHARACTER,"attentions.xml").c_str(), sizeof(filename) -1);		/*Flawfinder: ignore*/	
-        filename[sizeof(filename) -1] = '\0';
+	std::string filename;
+	filename = gDirUtilp->getExpandedFilename(LL_PATH_CHARACTER,"attentions.xml");
 	LLXmlTree xml_tree;
 	BOOL success = xml_tree.parseFile( filename, FALSE );
 	if( !success )
@@ -213,7 +212,7 @@ static BOOL loadAttentions()
 		return FALSE;
 	}
 
-	LLString version;
+	std::string version;
 	static LLStdStringHandle version_string = LLXmlTree::addAttributeString("version");
 	if( !root->getFastAttributeString( version_string, version ) || (version != "1.0") )
 	{

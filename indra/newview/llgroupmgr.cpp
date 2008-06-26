@@ -821,8 +821,8 @@ void LLGroupMgr::processGroupMembersReply(LLMessageSystem* msg, void** data)
 	if (group_datap->mMemberCount > 0)
 	{
 		S32 contribution = 0;
-		char online_status[DB_DATETIME_BUF_SIZE];		/* Flawfinder: ignore */
-		char title[DB_GROUP_TITLE_BUF_SIZE];		/* Flawfinder: ignore */
+		std::string online_status;
+		std::string title;
 		U64 agent_powers = 0;
 		BOOL is_owner = FALSE;
 
@@ -834,8 +834,8 @@ void LLGroupMgr::processGroupMembersReply(LLMessageSystem* msg, void** data)
 			msg->getUUIDFast(_PREHASH_MemberData, _PREHASH_AgentID, member_id, i );
 			msg->getS32(_PREHASH_MemberData, _PREHASH_Contribution, contribution, i);
 			msg->getU64(_PREHASH_MemberData, "AgentPowers", agent_powers, i);
-			msg->getStringFast(_PREHASH_MemberData, _PREHASH_OnlineStatus, DB_DATETIME_BUF_SIZE, online_status, i);
-			msg->getString(_PREHASH_MemberData, "Title", DB_GROUP_TITLE_BUF_SIZE, title, i);
+			msg->getStringFast(_PREHASH_MemberData, _PREHASH_OnlineStatus, online_status, i);
+			msg->getString(_PREHASH_MemberData, "Title", title, i);
 			msg->getBOOL(_PREHASH_MemberData,"IsOwner",is_owner,i);
 
 			if (member_id.notNull())
@@ -844,8 +844,8 @@ void LLGroupMgr::processGroupMembersReply(LLMessageSystem* msg, void** data)
 				LLGroupMemberData* newdata = new LLGroupMemberData(member_id, 
 																	contribution, 
 																	agent_powers, 
-																	std::string(title),
-																	std::string(online_status),
+																	title,
+																	online_status,
 																	is_owner);
 #if LL_DEBUG
 				LLGroupMgrGroupData::member_list_t::iterator mit = group_datap->mMembers.find(member_id);
@@ -898,13 +898,13 @@ void LLGroupMgr::processGroupPropertiesReply(LLMessageSystem* msg, void** data)
 	}
 
 	LLUUID group_id;
-	char	name[DB_GROUP_NAME_BUF_SIZE];		/* Flawfinder: ignore */
-	char	charter[DB_GROUP_CHARTER_BUF_SIZE];		/* Flawfinder: ignore */
+	std::string	name;
+	std::string	charter;
 	BOOL	show_in_list = FALSE;
 	LLUUID	founder_id;
 	U64		powers_mask = GP_NO_POWERS;
 	S32		money = 0;
-	char	member_title[DB_GROUP_TITLE_BUF_SIZE];		/* Flawfinder: ignore */
+	std::string	member_title;
 	LLUUID	insignia_id;
 	LLUUID	owner_role;
 	U32		membership_fee = 0;
@@ -915,18 +915,18 @@ void LLGroupMgr::processGroupPropertiesReply(LLMessageSystem* msg, void** data)
 	BOOL	mature = FALSE;
 
 	msg->getUUIDFast(_PREHASH_GroupData, _PREHASH_GroupID, group_id );
-	msg->getUUIDFast(_PREHASH_GroupData, _PREHASH_FounderID,		founder_id);	
-	msg->getStringFast(_PREHASH_GroupData, _PREHASH_Name,			DB_GROUP_NAME_BUF_SIZE,	name );
-	msg->getStringFast(_PREHASH_GroupData, _PREHASH_Charter,			DB_GROUP_CHARTER_BUF_SIZE, charter );
-	msg->getBOOLFast(_PREHASH_GroupData, _PREHASH_ShowInList,		show_in_list );
-	msg->getStringFast(_PREHASH_GroupData, _PREHASH_MemberTitle, DB_GROUP_TITLE_BUF_SIZE, member_title );
-	msg->getUUIDFast(_PREHASH_GroupData,	_PREHASH_InsigniaID,			insignia_id );
-	msg->getU64Fast(_PREHASH_GroupData,		_PREHASH_PowersMask,			powers_mask );
-	msg->getU32Fast(_PREHASH_GroupData,		_PREHASH_MembershipFee,			membership_fee );
-	msg->getBOOLFast(_PREHASH_GroupData,	_PREHASH_OpenEnrollment,		open_enrollment );
-	msg->getS32Fast(_PREHASH_GroupData,		_PREHASH_GroupMembershipCount,	num_group_members);
-	msg->getS32(_PREHASH_GroupData,		"GroupRolesCount",		num_group_roles);
-	msg->getS32Fast(_PREHASH_GroupData,		_PREHASH_Money,					money);
+	msg->getUUIDFast(_PREHASH_GroupData, _PREHASH_FounderID, founder_id);	
+	msg->getStringFast(_PREHASH_GroupData, _PREHASH_Name, name );
+	msg->getStringFast(_PREHASH_GroupData, _PREHASH_Charter, charter );
+	msg->getBOOLFast(_PREHASH_GroupData, _PREHASH_ShowInList, show_in_list );
+	msg->getStringFast(_PREHASH_GroupData, _PREHASH_MemberTitle, member_title );
+	msg->getUUIDFast(_PREHASH_GroupData, _PREHASH_InsigniaID, insignia_id );
+	msg->getU64Fast(_PREHASH_GroupData, _PREHASH_PowersMask, powers_mask );
+	msg->getU32Fast(_PREHASH_GroupData, _PREHASH_MembershipFee, membership_fee );
+	msg->getBOOLFast(_PREHASH_GroupData, _PREHASH_OpenEnrollment, open_enrollment );
+	msg->getS32Fast(_PREHASH_GroupData, _PREHASH_GroupMembershipCount, num_group_members);
+	msg->getS32(_PREHASH_GroupData, "GroupRolesCount", num_group_roles);
+	msg->getS32Fast(_PREHASH_GroupData, _PREHASH_Money, money);
 	msg->getBOOL("GroupData", "AllowPublish", allow_publish);
 	msg->getBOOL("GroupData", "MaturePublish", mature);
 	msg->getUUID(_PREHASH_GroupData, "OwnerRole", owner_role);
@@ -979,9 +979,9 @@ void LLGroupMgr::processGroupRoleDataReply(LLMessageSystem* msg, void** data)
 
 	msg->getS32(_PREHASH_GroupData, "RoleCount", group_data->mRoleCount );
 
-	char	name[DB_GROUP_NAME_BUF_SIZE];		/* Flawfinder: ignore */
-	char	title[DB_GROUP_TITLE_BUF_SIZE];		/* Flawfinder: ignore */
-	char	desc[DB_GROUP_CHARTER_BUF_SIZE];		/* Flawfinder: ignore */
+	std::string	name;
+	std::string	title;
+	std::string	desc;
 	U64		powers = 0;
 	U32		member_count = 0;
 	LLUUID role_id;
@@ -992,9 +992,9 @@ void LLGroupMgr::processGroupRoleDataReply(LLMessageSystem* msg, void** data)
 	{
 		msg->getUUID("RoleData", "RoleID", role_id, i );
 		
-		msg->getString("RoleData","Name",DB_GROUP_NAME_BUF_SIZE,name,i);
-		msg->getString("RoleData","Title",DB_GROUP_TITLE_BUF_SIZE,title,i);
-		msg->getString("RoleData","Description",DB_GROUP_CHARTER_BUF_SIZE,desc,i);
+		msg->getString("RoleData","Name",name,i);
+		msg->getString("RoleData","Title",title,i);
+		msg->getString("RoleData","Description",desc,i);
 		msg->getU64("RoleData","Powers",powers,i);
 		msg->getU32("RoleData","Members",member_count,i);
 
@@ -1154,20 +1154,17 @@ void LLGroupMgr::processGroupTitlesReply(LLMessageSystem* msg, void** data)
 		return;
 	}
 
-	char title_buf[DB_GROUP_TITLE_BUF_SIZE];		/* Flawfinder: ignore */
-
 	LLGroupTitle title;
 
 	S32 i = 0;
 	S32 blocks = msg->getNumberOfBlocksFast(_PREHASH_GroupData);
 	for (i=0; i<blocks; ++i)
 	{
-		msg->getString("GroupData","Title",DB_GROUP_TITLE_BUF_SIZE,title_buf,i);
-		title.mTitle = title_buf;
+		msg->getString("GroupData","Title",title.mTitle,i);
 		msg->getUUID("GroupData","RoleID",title.mRoleID,i);
 		msg->getBOOL("GroupData","Selected",title.mSelected,i);
 
-		if (title_buf[0] != '\0')
+		if (!title.mTitle.empty())
 		{
 			lldebugs << "LLGroupMgr adding title: " << title.mTitle << ", " << title.mRoleID << ", " << (title.mSelected ? 'Y' : 'N') << llendl;
 			group_data->mTitles.push_back(title);
@@ -1243,12 +1240,12 @@ void LLGroupMgr::processCreateGroupReply(LLMessageSystem* msg, void ** data)
 {
 	LLUUID group_id;
 	BOOL success;
-	char message[MAX_STRING];		/* Flawfinder: ignore */
+	std::string message;
 
 	msg->getUUIDFast(_PREHASH_ReplyData, _PREHASH_GroupID, group_id );
 
 	msg->getBOOLFast(_PREHASH_ReplyData, _PREHASH_Success,	success );
-	msg->getStringFast(_PREHASH_ReplyData, _PREHASH_Message, MAX_STRING, message );
+	msg->getStringFast(_PREHASH_ReplyData, _PREHASH_Message, message );
 
 	if (success)
 	{
@@ -1274,7 +1271,7 @@ void LLGroupMgr::processCreateGroupReply(LLMessageSystem* msg, void ** data)
 	else
 	{
 		// *TODO:translate
-		LLString::format_map_t args;
+		LLStringUtil::format_map_t args;
 		args["[MESSAGE]"] = message;
 		gViewerWindow->alertXml("UnableToCreateGroup", args);
 	}
@@ -1723,7 +1720,7 @@ void LLGroupMgr::cancelGroupRoleChanges(const LLUUID& group_id)
 }
 
 //static
-bool LLGroupMgr::parseRoleActions(const LLString& xml_filename)
+bool LLGroupMgr::parseRoleActions(const std::string& xml_filename)
 {
 	LLXMLNodePtr root;
 
@@ -1747,7 +1744,7 @@ bool LLGroupMgr::parseRoleActions(const LLString& xml_filename)
 		LLRoleAction* role_action_data = new LLRoleAction();
 		
 		// name=
-		LLString action_set_name;
+		std::string action_set_name;
 		if (action_set->getAttributeString("name", action_set_name))
 		{
 			lldebugs << "Loading action set " << action_set_name << llendl;
@@ -1761,13 +1758,13 @@ bool LLGroupMgr::parseRoleActions(const LLString& xml_filename)
 			continue;
 		}
 		// description=
-		LLString set_description;
+		std::string set_description;
 		if (action_set->getAttributeString("description", set_description))
 		{
 			role_action_data->mDescription = set_description;
 		}
 		// long description=
-		LLString set_longdescription;
+		std::string set_longdescription;
 		if (action_set->getAttributeString("longdescription", set_longdescription))
 		{
 			role_action_data->mLongDescription = set_longdescription;
@@ -1788,7 +1785,7 @@ bool LLGroupMgr::parseRoleActions(const LLString& xml_filename)
 			LLRoleAction* role_action = new LLRoleAction();
 
 			// name=
-			LLString action_name;
+			std::string action_name;
 			if (action->getAttributeString("name", action_name))
 			{
 				lldebugs << "Loading action " << action_name << llendl;
@@ -1801,13 +1798,13 @@ bool LLGroupMgr::parseRoleActions(const LLString& xml_filename)
 				continue;
 			}
 			// description=
-			LLString description;
+			std::string description;
 			if (action->getAttributeString("description", description))
 			{
 				role_action->mDescription = description;
 			}
 			// long description=
-			LLString longdescription;
+			std::string longdescription;
 			if (action->getAttributeString("longdescription", longdescription))
 			{
 				role_action->mLongDescription = longdescription;

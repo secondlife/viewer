@@ -68,15 +68,6 @@
 #include "SDL/SDL_syswm.h"
 #endif
 
-#if LL_GTK
-// we use an aggregate structure so we can pass its pointer through a C callback
-typedef struct {
-	GtkWidget *win;
-	std::vector<LLString> fileVector;
-	std::string contextName;
-} StoreFilenamesStruct;
-#endif // LL_GTK
-
 class LLFilePicker
 {
 #ifdef LL_GTK
@@ -119,25 +110,26 @@ public:
 	};
 
 	// open the dialog. This is a modal operation
-	BOOL getSaveFile( ESaveFilter filter = FFSAVE_ALL, const char* filename = NULL );
+	BOOL getSaveFile( ESaveFilter filter = FFSAVE_ALL, const std::string& filename = LLStringUtil::null );
 	BOOL getOpenFile( ELoadFilter filter = FFLOAD_ALL );
 	BOOL getMultipleOpenFiles( ELoadFilter filter = FFLOAD_ALL );
 
 	// Get the filename(s) found. getFirstFile() sets the pointer to
 	// the start of the structure and allows the start of iteration.
-	const char* getFirstFile();
+	const std::string getFirstFile();
 
 	// getNextFile() increments the internal representation and
 	// returns the next file specified by the user. Returns NULL when
 	// no more files are left. Further calls to getNextFile() are
 	// undefined.
-	const char* getNextFile();
+	const std::string getNextFile();
 
-	// This utility function extracts the directory name but doesn't
-	// do any incrementing. This is currently only supported when
-	// you're opening multiple files.
-	const char* getDirname();
+	// This utility function extracts the current file name without
+	// doing any incrementing.
+	const std::string getCurFile();
 
+	// See llvfs/lldir.h : getBaseFileName and getDirName to extract base or directory names
+	
 	// clear any lists of buffers or whatever, and make sure the file
 	// picker isn't locked.
 	void reset();
@@ -150,11 +142,8 @@ private:
 		FILENAME_BUFFER_SIZE = 65000
 	};
 	
-	void buildFilename( void );
-
 #if LL_WINDOWS
 	OPENFILENAMEW mOFN;				// for open and save dialogs
-	char *mOpenFilter;
 	WCHAR mFilesW[FILENAME_BUFFER_SIZE];
 
 	BOOL setupFilter(ELoadFilter filter);
@@ -162,26 +151,26 @@ private:
 
 #if LL_DARWIN
 	NavDialogCreationOptions mNavOptions;
-	std::vector<LLString> mFileVector;
+	std::vector<std::string> mFileVector;
 	UInt32 mFileIndex;
 	
 	OSStatus doNavChooseDialog(ELoadFilter filter);
-	OSStatus doNavSaveDialog(ESaveFilter filter, const char* filename);
+	OSStatus doNavSaveDialog(ESaveFilter filter, const std::string& filename);
 	void getFilePath(SInt32 index);
 	void getFileName(SInt32 index);
 	static Boolean navOpenFilterProc(AEDesc *theItem, void *info, void *callBackUD, NavFilterModes filterMode);
 #endif
 
 #if LL_GTK
-	StoreFilenamesStruct mStoreFilenames;
-	U32 mNextFileIndex;
+	static void add_to_selectedfiles(gpointer data, gpointer user_data);
+	static void chooser_responder(GtkWidget *widget, gint response, gpointer user_data);
 	// we remember the last path that was accessed for a particular usage
-	static std::map <std::string, std::string> sContextToPathMap;
+	std::map <std::string, std::string> mContextToPathMap;
+	std::string mCurContextName;
 #endif
 
-	char mFiles[FILENAME_BUFFER_SIZE];	/*Flawfinder: ignore*/
-	char mFilename[LL_MAX_PATH];	/*Flawfinder: ignore*/
-	char* mCurrentFile;
+	std::vector<std::string> mFiles;
+	S32 mCurrentFile;
 	BOOL mLocked;
 	BOOL mMultiFile;
 

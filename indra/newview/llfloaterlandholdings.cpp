@@ -82,7 +82,7 @@ void LLFloaterLandHoldings::show(void*)
 
 // protected
 LLFloaterLandHoldings::LLFloaterLandHoldings()
-:	LLFloater("land holdings floater"),
+:	LLFloater(std::string("land holdings floater")),
 	mActualArea(0),
 	mBillableArea(0),
 	mFirstPacketReceived(FALSE),
@@ -183,28 +183,28 @@ void LLFloaterLandHoldings::processPlacesReply(LLMessageSystem* msg, void**)
 	}
 
 	LLUUID	owner_id;
-	char	name[MAX_STRING];		/* Flawfinder: ignore */
-	char	desc[MAX_STRING];		/* Flawfinder: ignore */
+	std::string	name;
+	std::string	desc;
 	S32		actual_area;
 	S32		billable_area;
 	U8		flags;
 	F32		global_x;
 	F32		global_y;
-	char	sim_name[MAX_STRING];		/* Flawfinder: ignore */
+	std::string	sim_name;
 
 	S32 i;
 	S32 count = msg->getNumberOfBlocks("QueryData");
 	for (i = 0; i < count; i++)
 	{
 		msg->getUUID("QueryData", "OwnerID", owner_id, i);
-		msg->getString("QueryData", "Name", MAX_STRING, name, i);
-		msg->getString("QueryData", "Desc", MAX_STRING, desc, i);
+		msg->getString("QueryData", "Name", name, i);
+		msg->getString("QueryData", "Desc", desc, i);
 		msg->getS32("QueryData", "ActualArea", actual_area, i);
 		msg->getS32("QueryData", "BillableArea", billable_area, i);
 		msg->getU8("QueryData", "Flags", flags, i);
 		msg->getF32("QueryData", "GlobalX", global_x, i);
 		msg->getF32("QueryData", "GlobalY", global_y, i);
-		msg->getString("QueryData", "SimName", MAX_STRING, sim_name, i);
+		msg->getString("QueryData", "SimName", sim_name, i);
 		
 		self->mActualArea += actual_area;
 		self->mBillableArea += billable_area;
@@ -212,21 +212,21 @@ void LLFloaterLandHoldings::processPlacesReply(LLMessageSystem* msg, void**)
 		S32 region_x = llround(global_x) % REGION_WIDTH_UNITS;
 		S32 region_y = llround(global_y) % REGION_WIDTH_UNITS;
 
-		char location[MAX_STRING];		/* Flawfinder: ignore */
-		snprintf(location, MAX_STRING, "%s (%d, %d)", sim_name, region_x, region_y);			/* Flawfinder: ignore */
+		std::string location;
+		location = llformat("%s (%d, %d)", sim_name.c_str(), region_x, region_y);
 
-		char area[MAX_STRING];		/* Flawfinder: ignore */
+		std::string area;
 		if(billable_area == actual_area)
 		{
-			snprintf(area, MAX_STRING, "%d", billable_area);			/* Flawfinder: ignore */
+			area = llformat("%d", billable_area);
 		}
 		else
 		{
-			snprintf(area, MAX_STRING, "%d / %d", billable_area, actual_area);			/* Flawfinder: ignore */
+			area = llformat("%d / %d", billable_area, actual_area);
 		}
 
-		char hidden[MAX_STRING];		/* Flawfinder: ignore */
-		snprintf(hidden, MAX_STRING, "%f %f", global_x, global_y);			/* Flawfinder: ignore */
+		std::string hidden;
+		hidden = llformat("%f %f", global_x, global_y);
 
 		LLSD element;
 		element["columns"][0]["column"] = "name";
@@ -256,7 +256,7 @@ void LLFloaterLandHoldings::buttonCore(S32 which)
 	S32 index = list->getFirstSelectedIndex();
 	if (index < 0) return;
 
-	LLString location = list->getSelectedItemLabel(3);
+	std::string location = list->getSelectedItemLabel(3);
 
 	F32 global_x = 0.f;
 	F32 global_y = 0.f;

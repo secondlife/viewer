@@ -158,7 +158,7 @@ public:
 	friend const char *OrderToString( const Order order );
 	friend Order StringToOrder( const char *str );
 
-	static BOOL parseQuat(const char* buf, LLQuaternion* value);
+	static BOOL parseQuat(const std::string& buf, LLQuaternion* value);
 
 	// For debugging, only
 	//static U32 mMultCount;

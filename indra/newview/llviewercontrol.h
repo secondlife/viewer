@@ -46,7 +46,7 @@ extern BOOL gHackGodmode;
 //setting variables are declared in this function
 void settings_setup_listeners();
 
-extern std::map<LLString, LLControlGroup*> gSettings;
+extern std::map<std::string, LLControlGroup*> gSettings;
 
 // for the graphics settings
 void create_graphics_group(LLControlGroup& group);
@@ -62,7 +62,7 @@ extern LLControlGroup gColors;
 extern LLControlGroup gCrashSettings;
 
 // Set after settings loaded
-extern LLString gLastRunVersion;
-extern LLString gCurrentVersion;
+extern std::string gLastRunVersion;
+extern std::string gCurrentVersion;
 
 #endif // LL_LLVIEWERCONTROL_H

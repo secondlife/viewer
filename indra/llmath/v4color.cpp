@@ -286,16 +286,14 @@ void LLColor4::calcHSL(F32* hue, F32* saturation, F32* luminance) const
 }
 
 // static
-BOOL LLColor4::parseColor(const char* buf, LLColor4* color)
+BOOL LLColor4::parseColor(const std::string& buf, LLColor4* color)
 {
-	if( buf == NULL || buf[0] == '\0' || color == NULL)
+	if( buf.empty() || color == NULL)
 	{
 		return FALSE;
 	}
 
-	LLString full_string(buf);
-
-	boost_tokenizer tokens(full_string, boost::char_separator<char>(", "));
+	boost_tokenizer tokens(buf, boost::char_separator<char>(", "));
 	boost_tokenizer::iterator token_iter = tokens.begin();
 	if (token_iter == tokens.end())
 	{
@@ -304,15 +302,15 @@ BOOL LLColor4::parseColor(const char* buf, LLColor4* color)
 
 	// Grab the first token into a string, since we don't know
 	// if this is a float or a color name.
-	LLString color_name( (*token_iter) );
+	std::string color_name( (*token_iter) );
 	++token_iter;
 
 	if (token_iter != tokens.end())
 	{
 		// There are more tokens to read.  This must be a vector.
 		LLColor4 v;
-		LLString::convertToF32( color_name,  v.mV[VX] );
-		LLString::convertToF32( *token_iter, v.mV[VY] );
+		LLStringUtil::convertToF32( color_name,  v.mV[VX] );
+		LLStringUtil::convertToF32( *token_iter, v.mV[VY] );
 		v.mV[VZ] = 0.0f;
 		v.mV[VW] = 1.0f;
 
@@ -320,18 +318,18 @@ BOOL LLColor4::parseColor(const char* buf, LLColor4* color)
 		if (token_iter == tokens.end())
 		{
 			// This is a malformed vector.
-			llwarns << "LLColor4::parseColor() malformed color " << full_string << llendl;
+			llwarns << "LLColor4::parseColor() malformed color " << buf << llendl;
 		}
 		else
 		{
 			// There is a z-component.
-			LLString::convertToF32( *token_iter, v.mV[VZ] );
+			LLStringUtil::convertToF32( *token_iter, v.mV[VZ] );
 
 			++token_iter;
 			if (token_iter != tokens.end())
 			{
 				// There is an alpha component.
-				LLString::convertToF32( *token_iter, v.mV[VW] );
+				LLStringUtil::convertToF32( *token_iter, v.mV[VW] );
 			}
 		}
 
@@ -615,19 +613,19 @@ BOOL LLColor4::parseColor(const char* buf, LLColor4* color)
 }
 
 // static
-BOOL LLColor4::parseColor4(const char* buf, LLColor4* value)
+BOOL LLColor4::parseColor4(const std::string& buf, LLColor4* value)
 {
-	if( buf == NULL || buf[0] == '\0' || value == NULL)
+	if( buf.empty() || value == NULL)
 	{
 		return FALSE;
 	}
 
 	LLColor4 v;
-	S32 count = sscanf( buf, "%f, %f, %f, %f", v.mV + 0, v.mV + 1, v.mV + 2, v.mV + 3 );
+	S32 count = sscanf( buf.c_str(), "%f, %f, %f, %f", v.mV + 0, v.mV + 1, v.mV + 2, v.mV + 3 );
 	if (1 == count )
 	{
 		// try this format
-		count = sscanf( buf, "%f %f %f %f", v.mV + 0, v.mV + 1, v.mV + 2, v.mV + 3 );
+		count = sscanf( buf.c_str(), "%f %f %f %f", v.mV + 0, v.mV + 1, v.mV + 2, v.mV + 3 );
 	}
 	if( 4 == count )
 	{

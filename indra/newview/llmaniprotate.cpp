@@ -86,7 +86,7 @@ const F32 MANIPULATOR_SCALE_HALF_LIFE = 0.07f;
 extern void handle_reset_rotation(void*);  // in LLViewerWindow
 
 LLManipRotate::LLManipRotate( LLToolComposite* composite )
-: 	LLManip( "Rotate", composite ),
+: 	LLManip( std::string("Rotate"), composite ),
 	mRotationCenter(),
 	mCenterScreen(),
 	mRotation(),
@@ -926,6 +926,7 @@ void LLManipRotate::renderSnapGuides()
 				}
 				gGL.end();
 
+				// *TODO: Translate
 				//RN: text rendering does own shadow pass, so only render once
 				if (pass == 1 && render_text && i % 16 == 0)
 				{
@@ -933,32 +934,32 @@ void LLManipRotate::renderSnapGuides()
 					{
 						if (i == 0)
 						{
-							renderTickText(text_point, mObjectSelection->isAttachment() ? "Forward" : "East", LLColor4::white);
+							renderTickText(text_point, mObjectSelection->isAttachment() ? std::string("Forward") : std::string("East"), LLColor4::white);
 						}
 						else if (i == 16)
 						{
 							if (constraint_axis.mV[VZ] > 0.f)
 							{
-								renderTickText(text_point, mObjectSelection->isAttachment() ? "Left" : "North", LLColor4::white);
+								renderTickText(text_point, mObjectSelection->isAttachment() ? std::string("Left") : std::string("North"), LLColor4::white);
 							}
 							else
 							{
-								renderTickText(text_point, mObjectSelection->isAttachment() ? "Right" : "South", LLColor4::white);
+								renderTickText(text_point, mObjectSelection->isAttachment() ? std::string("Right") : std::string("South"), LLColor4::white);
 							}
 						}
 						else if (i == 32)
 						{
-							renderTickText(text_point, mObjectSelection->isAttachment() ? "Back" : "West", LLColor4::white);
+							renderTickText(text_point, mObjectSelection->isAttachment() ? std::string("Back") : std::string("West"), LLColor4::white);
 						}
 						else
 						{
 							if (constraint_axis.mV[VZ] > 0.f)
 							{
-								renderTickText(text_point, mObjectSelection->isAttachment() ? "Right" : "South", LLColor4::white);
+								renderTickText(text_point, mObjectSelection->isAttachment() ? std::string("Right") : std::string("South"), LLColor4::white);
 							}
 							else
 							{
-								renderTickText(text_point, mObjectSelection->isAttachment() ? "Left" : "North", LLColor4::white);
+								renderTickText(text_point, mObjectSelection->isAttachment() ? std::string("Left") : std::string("North"), LLColor4::white);
 							}
 						}
 					}
@@ -966,32 +967,32 @@ void LLManipRotate::renderSnapGuides()
 					{
 						if (i == 0)
 						{
-							renderTickText(text_point, mObjectSelection->isAttachment() ? "Left" : "North", LLColor4::white);
+							renderTickText(text_point, mObjectSelection->isAttachment() ? std::string("Left") : std::string("North"), LLColor4::white);
 						}
 						else if (i == 16)
 						{
 							if (constraint_axis.mV[VX] > 0.f)
 							{
-								renderTickText(text_point, "Up", LLColor4::white);
+								renderTickText(text_point, std::string("Up"), LLColor4::white);
 							}
 							else
 							{
-								renderTickText(text_point, "Down", LLColor4::white);
+								renderTickText(text_point, std::string("Down"), LLColor4::white);
 							}
 						}
 						else if (i == 32)
 						{
-							renderTickText(text_point, mObjectSelection->isAttachment() ? "Right" : "South", LLColor4::white);
+							renderTickText(text_point, mObjectSelection->isAttachment() ? std::string("Right") : std::string("South"), LLColor4::white);
 						}
 						else
 						{
 							if (constraint_axis.mV[VX] > 0.f)
 							{
-								renderTickText(text_point, "Down", LLColor4::white);
+								renderTickText(text_point, std::string("Down"), LLColor4::white);
 							}
 							else
 							{
-								renderTickText(text_point, "Up", LLColor4::white);
+								renderTickText(text_point, std::string("Up"), LLColor4::white);
 							}
 						}
 					}
@@ -999,32 +1000,32 @@ void LLManipRotate::renderSnapGuides()
 					{
 						if (i == 0)
 						{
-							renderTickText(text_point, "Up", LLColor4::white);
+							renderTickText(text_point, std::string("Up"), LLColor4::white);
 						}
 						else if (i == 16)
 						{
 							if (constraint_axis.mV[VY] > 0.f)
 							{
-								renderTickText(text_point, mObjectSelection->isAttachment() ? "Forward" : "East", LLColor4::white);
+								renderTickText(text_point, mObjectSelection->isAttachment() ? std::string("Forward") : std::string("East"), LLColor4::white);
 							}
 							else
 							{
-								renderTickText(text_point, mObjectSelection->isAttachment() ? "Back" : "West", LLColor4::white);
+								renderTickText(text_point, mObjectSelection->isAttachment() ? std::string("Back") : std::string("West"), LLColor4::white);
 							}
 						}
 						else if (i == 32)
 						{
-							renderTickText(text_point, "Down", LLColor4::white);
+							renderTickText(text_point, std::string("Down"), LLColor4::white);
 						}
 						else
 						{
 							if (constraint_axis.mV[VY] > 0.f)
 							{
-								renderTickText(text_point, mObjectSelection->isAttachment() ? "Back" : "West", LLColor4::white);
+								renderTickText(text_point, mObjectSelection->isAttachment() ? std::string("Back") : std::string("West"), LLColor4::white);
 							}
 							else
 							{
-								renderTickText(text_point, mObjectSelection->isAttachment() ? "Forward" : "East", LLColor4::white);
+								renderTickText(text_point, mObjectSelection->isAttachment() ? std::string("Forward") : std::string("East"), LLColor4::white);
 							}
 						}
 					}

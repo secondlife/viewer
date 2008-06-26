@@ -77,7 +77,7 @@ public:
 
 	LLViewerThrottleGroup getThrottleGroup(const F32 bandwidth_kbps);
 
-	static const char* sNames[TC_EOF];		/* Flawfinder: ignore */
+	static const std::string sNames[TC_EOF];
 protected:
 	F32 mMaxBandwidth;
 	F32 mCurrentBandwidth;

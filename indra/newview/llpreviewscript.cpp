@@ -88,7 +88,7 @@
 #include "llpanelinventory.h"
 
 
-const char HELLO_LSL[] =
+const std::string HELLO_LSL =
 	"default\n"
 	"{\n"
 	"    state_entry()\n"
@@ -101,10 +101,10 @@ const char HELLO_LSL[] =
 	"        llSay(0, \"Touched.\");\n"
 	"    }\n"
 	"}\n";
-const char HELP_LSL[] = "lsl_guide.html";
+const std::string HELP_LSL = "lsl_guide.html";
 
-const char DEFAULT_SCRIPT_NAME[] = "New Script"; // *TODO:Translate?
-const char DEFAULT_SCRIPT_DESC[] = "(No Description)"; // *TODO:Translate?
+const std::string DEFAULT_SCRIPT_NAME = "New Script"; // *TODO:Translate?
+const std::string DEFAULT_SCRIPT_DESC = "(No Description)"; // *TODO:Translate?
 
 // Description and header information
 
@@ -173,7 +173,7 @@ private:
 LLFloaterScriptSearch* LLFloaterScriptSearch::sInstance = NULL;
 
 LLFloaterScriptSearch::LLFloaterScriptSearch(std::string title, LLRect rect, LLScriptEdCore* editor_core)
-		: LLFloater("script search",rect,title), mEditorCore(editor_core)
+	: LLFloater(std::string("script search"),rect,title), mEditorCore(editor_core)
 {
 	
 	LLUICtrlFactory::getInstance()->buildFloater(this,"floater_script_search.xml");
@@ -296,7 +296,7 @@ LLScriptEdCore::LLScriptEdCore(
 	void* userdata,
 	S32 bottom_pad)
 	:
-	LLPanel( "name", rect ),
+	LLPanel( std::string("name"), rect ),
 	mSampleText(sample),
 	mHelpFile ( help ),
 	mEditor( NULL ),
@@ -326,15 +326,15 @@ LLScriptEdCore::LLScriptEdCore(
 	mEditor->setEnabled(TRUE);
 	mEditor->setWordWrap(TRUE);
 
-	LLDynamicArray<const char*> funcs;
-	LLDynamicArray<const char*> tooltips;
+	std::vector<std::string> funcs;
+	std::vector<std::string> tooltips;
 	for (S32 i = 0; i < gScriptLibrary.mNextNumber; i++)
 	{
 		// Make sure this isn't a god only function, or the agent is a god.
 		if (!gScriptLibrary.mFunctions[i]->mGodOnly || gAgent.isGodlike())
 		{
-			funcs.put(gScriptLibrary.mFunctions[i]->mName);
-			tooltips.put(gScriptLibrary.mFunctions[i]->mDesc);
+			funcs.push_back(ll_safe_string(gScriptLibrary.mFunctions[i]->mName));
+			tooltips.push_back(ll_safe_string(gScriptLibrary.mFunctions[i]->mDesc));
 		}
 	}
 	LLColor3 color(0.5f, 0.0f, 0.15f);
@@ -458,7 +458,7 @@ void LLScriptEdCore::draw()
 	}
 	else
 	{
-		childSetText("line_col", LLString::null);
+		childSetText("line_col", LLStringUtil::null);
 	}
 
 	updateDynamicHelp();
@@ -517,18 +517,18 @@ void LLScriptEdCore::updateDynamicHelp(BOOL immediate)
 		}
 		if (immediate || (mLiveHelpTimer.getStarted() && mLiveHelpTimer.getElapsedTimeF32() > LIVE_HELP_REFRESH_TIME))
 		{
-			LLString help_string = mEditor->getText().substr(segment->getStart(), segment->getEnd() - segment->getStart());
+			std::string help_string = mEditor->getText().substr(segment->getStart(), segment->getEnd() - segment->getStart());
 			setHelpPage(help_string);
 			mLiveHelpTimer.stop();
 		}
 	}
 	else if (immediate)
 	{
-		setHelpPage("");
+		setHelpPage(LLStringUtil::null);
 	}
 }
 
-void LLScriptEdCore::setHelpPage(const LLString& help_string)
+void LLScriptEdCore::setHelpPage(const std::string& help_string)
 {
 	LLFloater* help_floater = mLiveHelpHandle.get();
 	if (!help_floater) return;
@@ -549,7 +549,7 @@ void LLScriptEdCore::setHelpPage(const LLString& help_string)
 
 }
 
-void LLScriptEdCore::addHelpItemToHistory(const LLString& help_string)
+void LLScriptEdCore::addHelpItemToHistory(const std::string& help_string)
 {
 	if (help_string.empty()) return;
 
@@ -640,7 +640,7 @@ void LLScriptEdCore::onHelpWebDialog(S32 option, void* userdata)
 	switch(option)
 	{
 	case 0:
-		load_url_local_file(corep->mHelpFile.c_str());
+		load_url_local_file(corep->mHelpFile);
 		break;
 	default:
 		break;
@@ -669,7 +669,7 @@ void LLScriptEdCore::onBtnDynamicHelp(void* userdata)
 		return;
 	}
 
-	live_help_floater = new LLFloater("lsl_help");
+	live_help_floater = new LLFloater(std::string("lsl_help"));
 	LLUICtrlFactory::getInstance()->buildFloater(live_help_floater, "floater_lsl_guide.xml");
 	((LLFloater*)corep->getParent())->addDependentFloater(live_help_floater, TRUE);
 	live_help_floater->childSetCommitCallback("lock_check", onCheckLock, userdata);
@@ -760,7 +760,7 @@ void LLScriptEdCore::onHelpComboCommit(LLUICtrl* ctrl, void* userdata)
 	LLFloater* live_help_floater = corep->mLiveHelpHandle.get();
 	if (live_help_floater)
 	{
-		LLString help_string = ctrl->getValue().asString();
+		std::string help_string = ctrl->getValue().asString();
 
 		corep->addHelpItemToHistory(help_string);
 
@@ -947,10 +947,10 @@ void LLScriptEdCore::onErrorList(LLUICtrl*, void* user_data)
 		S32 row = 0;
 		S32 column = 0;
 		const LLScrollListCell* cell = item->getColumn(0);
-		LLString line(cell->getValue().asString());
+		std::string line(cell->getValue().asString());
 		line.erase(0, 1);
-		LLString::replaceChar(line, ',',' ');
-		LLString::replaceChar(line, ')',' ');
+		LLStringUtil::replaceChar(line, ',',' ');
+		LLStringUtil::replaceChar(line, ')',' ');
 		sscanf(line.c_str(), "%d %d", &row, &column);
 		//llinfos << "LLScriptEdCore::onErrorList() - " << row << ", "
 		//<< column << llendl;
@@ -1047,10 +1047,10 @@ BOOL LLScriptEdCore::handleKeyHere(KEY key, MASK mask)
 struct LLScriptSaveInfo
 {
 	LLUUID mItemUUID;
-	LLString mDescription;
+	std::string mDescription;
 	LLTransactionID mTransactionID;
 
-	LLScriptSaveInfo(const LLUUID& uuid, const LLString& desc, LLTransactionID tid) :
+	LLScriptSaveInfo(const LLUUID& uuid, const std::string& desc, LLTransactionID tid) :
 		mItemUUID(uuid), mDescription(desc),  mTransactionID(tid) {}
 };
 
@@ -1117,8 +1117,9 @@ LLPreviewLSL::LLPreviewLSL(const std::string& name, const LLRect& rect,
 void LLPreviewLSL::callbackLSLCompileSucceeded()
 {
 	llinfos << "LSL Bytecode saved" << llendl;
-	mScriptEd->mErrorList->addCommentText("Compile successful!");
-	mScriptEd->mErrorList->addCommentText("Save complete.");
+	// *TODO: Translate
+	mScriptEd->mErrorList->addCommentText(std::string("Compile successful!"));
+	mScriptEd->mErrorList->addCommentText(std::string("Save complete."));
 	closeIfNeeded();
 }
 
@@ -1189,7 +1190,7 @@ void LLPreviewLSL::loadAsset()
 	}
 	else
 	{
-		mScriptEd->mEditor->setText(LLString(HELLO_LSL));
+		mScriptEd->mEditor->setText(std::string(HELLO_LSL));
 		mAssetStatus = PREVIEW_ASSET_LOADED;
 	}
 }
@@ -1260,9 +1261,9 @@ void LLPreviewLSL::saveIfNeeded()
 	tid.generate();
 	LLAssetID asset_id = tid.makeAssetID(gAgent.getSecureSessionID());
 	std::string filepath = gDirUtilp->getExpandedFilename(LL_PATH_CACHE,asset_id.asString());
-	std::string filename = llformat("%s.lsl", filepath.c_str());
+	std::string filename = filepath + ".lsl";
 
-	LLFILE* fp = LLFile::fopen(filename.c_str(), "wb");
+	LLFILE* fp = LLFile::fopen(filename, "wb");
 	if(!fp)
 	{
 		llwarns << "Unable to write to " << filename << llendl;
@@ -1274,7 +1275,7 @@ void LLPreviewLSL::saveIfNeeded()
 		return;
 	}
 
-	LLString utf8text = mScriptEd->mEditor->getText();
+	std::string utf8text = mScriptEd->mEditor->getText();
 	fputs(utf8text.c_str(), fp);
 	fclose(fp);
 	fp = NULL;
@@ -1315,7 +1316,7 @@ void LLPreviewLSL::uploadAssetLegacy(const std::string& filename,
 	LLScriptSaveInfo* info = new LLScriptSaveInfo(item_id,
 								descEditor->getText(),
 								tid);
-	gAssetStorage->storeAssetData(filename.c_str(),	tid,
+	gAssetStorage->storeAssetData(filename,	tid,
 								  LLAssetType::AT_LSL_TEXT,
 								  &LLPreviewLSL::onSaveComplete,
 								  info);
@@ -1332,15 +1333,15 @@ void LLPreviewLSL::uploadAssetLegacy(const std::string& filename,
 	{
 		llinfos << "Compile failed!" << llendl;
 		//char command[256];
-		//sprintf(command, "type %s\n", err_filename);
+		//sprintf(command, "type %s\n", err_filename.c_str());
 		//system(command);
 
 		// load the error file into the error scrolllist
-		LLFILE* fp = LLFile::fopen(err_filename.c_str(), "r");
+		LLFILE* fp = LLFile::fopen(err_filename, "r");
 		if(fp)
 		{
 			char buffer[MAX_STRING];		/*Flawfinder: ignore*/
-			LLString line;
+			std::string line;
 			while(!feof(fp)) 
 			{
 				if (fgets(buffer, MAX_STRING, fp) == NULL)
@@ -1354,7 +1355,7 @@ void LLPreviewLSL::uploadAssetLegacy(const std::string& filename,
 				else
 				{
 					line.assign(buffer);
-					LLString::stripNonprintable(line);
+					LLStringUtil::stripNonprintable(line);
 
 					LLSD row;
 					row["columns"][0]["value"] = line;
@@ -1374,7 +1375,7 @@ void LLPreviewLSL::uploadAssetLegacy(const std::string& filename,
 			getWindow()->incBusyCount();
 			mPendingUploads++;
 			LLUUID* this_uuid = new LLUUID(mItemUUID);
-			gAssetStorage->storeAssetData(dst_filename.c_str(),
+			gAssetStorage->storeAssetData(dst_filename,
 										  tid,
 										  LLAssetType::AT_LSL_BYTECODE,
 										  &LLPreviewLSL::onSaveBytecodeComplete,
@@ -1383,9 +1384,9 @@ void LLPreviewLSL::uploadAssetLegacy(const std::string& filename,
 	}
 
 	// get rid of any temp files left lying around
-	LLFile::remove(filename.c_str());
-	LLFile::remove(err_filename.c_str());
-	LLFile::remove(dst_filename.c_str());
+	LLFile::remove(filename);
+	LLFile::remove(err_filename);
+	LLFile::remove(dst_filename);
 }
 
 
@@ -1431,7 +1432,7 @@ void LLPreviewLSL::onSaveComplete(const LLUUID& asset_uuid, void* user_data, S32
 	else
 	{
 		llwarns << "Problem saving script: " << status << llendl;
-		LLStringBase<char>::format_map_t args;
+		LLStringUtil::format_map_t args;
 		args["[REASON]"] = std::string(LLAssetStorage::getErrorString(status));
 		gViewerWindow->alertXml("SaveScriptFailReason", args);
 	}
@@ -1469,7 +1470,7 @@ void LLPreviewLSL::onSaveBytecodeComplete(const LLUUID& asset_uuid, void* user_d
 	else
 	{
 		llwarns << "Problem saving LSL Bytecode (Preview)" << llendl;
-		LLStringBase<char>::format_map_t args;
+		LLStringUtil::format_map_t args;
 		args["[REASON]"] = std::string(LLAssetStorage::getErrorString(status));
 		gViewerWindow->alertXml("SaveBytecodeFailReason", args);
 	}
@@ -1661,8 +1662,9 @@ void LLLiveLSLEditor::callbackLSLCompileSucceeded(const LLUUID& task_id,
 												  bool is_script_running)
 {
 	lldebugs << "LSL Bytecode saved" << llendl;
-	mScriptEd->mErrorList->addCommentText("Compile successful!");
-	mScriptEd->mErrorList->addCommentText("Save complete.");
+	// *TODO: Translate
+	mScriptEd->mErrorList->addCommentText(std::string("Compile successful!"));
+	mScriptEd->mErrorList->addCommentText(std::string("Save complete."));
 	closeIfNeeded();
 }
 
@@ -1738,7 +1740,7 @@ void LLLiveLSLEditor::loadAsset(BOOL is_new)
 			}
 			else
 			{
-				mScriptEd->mEditor->setText(LLString::null);
+				mScriptEd->mEditor->setText(LLStringUtil::null);
 				mScriptEd->mEditor->makePristine();
 				mAssetStatus = PREVIEW_ASSET_LOADED;
 			}
@@ -1773,7 +1775,7 @@ void LLLiveLSLEditor::loadAsset(BOOL is_new)
 			// This may be better than having a accessible null pointer around,
 			// though this newly allocated object will most likely be replaced.
 			mItem = new LLViewerInventoryItem();
-			mScriptEd->mEditor->setText(LLString::null);
+			mScriptEd->mEditor->setText(LLStringUtil::null);
 			mScriptEd->mEditor->makePristine();
 			mScriptEd->mEditor->setEnabled(FALSE);
 			mAssetStatus = PREVIEW_ASSET_LOADED;
@@ -1781,8 +1783,8 @@ void LLLiveLSLEditor::loadAsset(BOOL is_new)
 	}
 	else
 	{
-		mScriptEd->mEditor->setText(LLString(HELLO_LSL));
-		//mScriptEd->mEditor->setText(LLString::null);
+		mScriptEd->mEditor->setText(std::string(HELLO_LSL));
+		//mScriptEd->mEditor->setText(LLStringUtil::null);
 		//mScriptEd->mEditor->makePristine();
 		LLPermissions perm;
 		perm.init(gAgent.getID(), gAgent.getID(), LLUUID::null, gAgent.getGroupID());
@@ -1844,37 +1846,38 @@ void LLLiveLSLEditor::onLoadComplete(LLVFS *vfs, const LLUUID& asset_id,
 	delete xored_id;
 }
 
-void LLLiveLSLEditor::loadScriptText(const char* filename)
-{
-	if(!filename)
-	{
-		llerrs << "Filename is Empty!" << llendl;
-		return;
-	}
-	LLFILE* file = LLFile::fopen(filename, "rb");		/*Flawfinder: ignore*/
-	if(file)
-	{
-		// read in the whole file
-		fseek(file, 0L, SEEK_END);
-		long file_length = ftell(file);
-		fseek(file, 0L, SEEK_SET);
-		char* buffer = new char[file_length+1];
-		size_t nread = fread(buffer, 1, file_length, file);
-		if (nread < (size_t) file_length)
-		{
-			llwarns << "Short read" << llendl;
-		}
-		buffer[nread] = '\0';
-		fclose(file);
-		mScriptEd->mEditor->setText(LLStringExplicit(buffer));
-		mScriptEd->mEditor->makePristine();
-		delete[] buffer;
-	}
-	else
-	{
-		llwarns << "Error opening " << filename << llendl;
-	}
-}
+// unused
+// void LLLiveLSLEditor::loadScriptText(const std::string& filename)
+// {
+// 	if(!filename)
+// 	{
+// 		llerrs << "Filename is Empty!" << llendl;
+// 		return;
+// 	}
+// 	LLFILE* file = LLFile::fopen(filename, "rb");		/*Flawfinder: ignore*/
+// 	if(file)
+// 	{
+// 		// read in the whole file
+// 		fseek(file, 0L, SEEK_END);
+// 		long file_length = ftell(file);
+// 		fseek(file, 0L, SEEK_SET);
+// 		char* buffer = new char[file_length+1];
+// 		size_t nread = fread(buffer, 1, file_length, file);
+// 		if (nread < (size_t) file_length)
+// 		{
+// 			llwarns << "Short read" << llendl;
+// 		}
+// 		buffer[nread] = '\0';
+// 		fclose(file);
+// 		mScriptEd->mEditor->setText(LLStringExplicit(buffer));
+// 		mScriptEd->mEditor->makePristine();
+// 		delete[] buffer;
+// 	}
+// 	else
+// 	{
+// 		llwarns << "Error opening " << filename << llendl;
+// 	}
+// }
 
 void LLLiveLSLEditor::loadScriptText(LLVFS *vfs, const LLUUID &uuid, LLAssetType::EType type)
 {
@@ -1974,7 +1977,8 @@ void LLLiveLSLEditor::draw()
 	{
 		// HACK: Display this information in the title bar.
 		// Really ought to put in main window.
-		setTitle("Script (object out of range)");
+		// *TODO: Translate
+		setTitle(std::string("Script (object out of range)"));
 		runningCheckbox->setEnabled(FALSE);
 		// object may have fallen out of range.
 		mHaveRunningInfo = FALSE;
@@ -2063,7 +2067,7 @@ void LLLiveLSLEditor::saveIfNeeded()
 	mItem->setTransactionID(tid);
 
 	// write out the data, and store it in the asset database
-	LLFILE* fp = LLFile::fopen(filename.c_str(), "wb");
+	LLFILE* fp = LLFile::fopen(filename, "wb");
 	if(!fp)
 	{
 		llwarns << "Unable to write to " << filename << llendl;
@@ -2074,7 +2078,7 @@ void LLLiveLSLEditor::saveIfNeeded()
 		mScriptEd->mErrorList->addElement(row);
 		return;
 	}
-	LLString utf8text = mScriptEd->mEditor->getText();
+	std::string utf8text = mScriptEd->mEditor->getText();
 
 	// Special case for a completely empty script - stuff in one space so it can store properly.  See SL-46889
 	if ( utf8text.size() == 0 )
@@ -2125,7 +2129,7 @@ void LLLiveLSLEditor::uploadAssetLegacy(const std::string& filename,
 	LLLiveLSLSaveData* data = new LLLiveLSLSaveData(mObjectID,
 													mItem,
 													is_running);
-	gAssetStorage->storeAssetData(filename.c_str(), tid,
+	gAssetStorage->storeAssetData(filename, tid,
 								  LLAssetType::AT_LSL_TEXT,
 								  &onSaveTextComplete,
 								  (void*)data,
@@ -2144,10 +2148,10 @@ void LLLiveLSLEditor::uploadAssetLegacy(const std::string& filename,
 	{
 		// load the error file into the error scrolllist
 		llinfos << "Compile failed!" << llendl;
-		if(NULL != (fp = LLFile::fopen(err_filename.c_str(), "r")))
+		if(NULL != (fp = LLFile::fopen(err_filename, "r")))
 		{
 			char buffer[MAX_STRING];		/*Flawfinder: ignore*/
-			LLString line;
+			std::string line;
 			while(!feof(fp)) 
 			{
 				
@@ -2162,7 +2166,7 @@ void LLLiveLSLEditor::uploadAssetLegacy(const std::string& filename,
 				else
 				{
 					line.assign(buffer);
-					LLString::stripNonprintable(line);
+					LLStringUtil::stripNonprintable(line);
 				
 					LLSD row;
 					row["columns"][0]["value"] = line;
@@ -2182,7 +2186,8 @@ void LLLiveLSLEditor::uploadAssetLegacy(const std::string& filename,
 	else
 	{
 		llinfos << "Compile worked!" << llendl;
-		mScriptEd->mErrorList->addCommentText("Compile successful, saving...");
+		// *TODO: Translate
+		mScriptEd->mErrorList->addCommentText(std::string("Compile successful, saving..."));
 		if(gAssetStorage)
 		{
 			llinfos << "LLLiveLSLEditor::saveAsset "
@@ -2193,7 +2198,7 @@ void LLLiveLSLEditor::uploadAssetLegacy(const std::string& filename,
 			data = new LLLiveLSLSaveData(mObjectID,
 										 mItem,
 										 is_running);
-			gAssetStorage->storeAssetData(dst_filename.c_str(),
+			gAssetStorage->storeAssetData(dst_filename,
 										  tid,
 										  LLAssetType::AT_LSL_BYTECODE,
 										  &LLLiveLSLEditor::onSaveBytecodeComplete,
@@ -2203,9 +2208,9 @@ void LLLiveLSLEditor::uploadAssetLegacy(const std::string& filename,
 	}
 
 	// get rid of any temp files left lying around
-	LLFile::remove(filename.c_str());
-	LLFile::remove(err_filename.c_str());
-	LLFile::remove(dst_filename.c_str());
+	LLFile::remove(filename);
+	LLFile::remove(err_filename);
+	LLFile::remove(dst_filename);
 
 	// If we successfully saved it, then we should be able to check/uncheck the running box!
 	LLCheckBoxCtrl* runningCheckbox = getChild<LLCheckBoxCtrl>( "running");
@@ -2220,7 +2225,7 @@ void LLLiveLSLEditor::onSaveTextComplete(const LLUUID& asset_uuid, void* user_da
 	if (status)
 	{
 		llwarns << "Unable to save text for a script." << llendl;
-		LLStringBase<char>::format_map_t args;
+		LLStringUtil::format_map_t args;
 		args["[REASON]"] = std::string(LLAssetStorage::getErrorString(status));
 		gViewerWindow->alertXml("CompileQueueSaveText", args);
 	}
@@ -2256,7 +2261,8 @@ void LLLiveLSLEditor::onSaveBytecodeComplete(const LLUUID& asset_uuid, void* use
 		if(self)
 		{
 			// Tell the user that the compile worked.
-			self->mScriptEd->mErrorList->addCommentText("Save complete.");
+			// *TODO: Translate
+			self->mScriptEd->mErrorList->addCommentText(std::string("Save complete."));
 			// close the window if this completes both uploads
 			self->getWindow()->decBusyCount();
 			self->mPendingUploads--;
@@ -2280,14 +2286,14 @@ void LLLiveLSLEditor::onSaveBytecodeComplete(const LLUUID& asset_uuid, void* use
 		llinfos << "Problem saving LSL Bytecode (Live Editor)" << llendl;
 		llwarns << "Unable to save a compiled script." << llendl;
 
-		LLStringBase<char>::format_map_t args;
+		LLStringUtil::format_map_t args;
 		args["[REASON]"] = std::string(LLAssetStorage::getErrorString(status));
 		gViewerWindow->alertXml("CompileQueueSaveBytecode", args);
 	}
 
 	std::string filepath = gDirUtilp->getExpandedFilename(LL_PATH_CACHE,asset_uuid.asString());
 	std::string dst_filename = llformat("%s.lso", filepath.c_str());
-	LLFile::remove(dst_filename.c_str());
+	LLFile::remove(dst_filename);
 	delete data;
 }
 

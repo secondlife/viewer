@@ -149,9 +149,9 @@ U32 janky_fast_random_seeded_bytes(U32 seed, U32 val)
 #endif
 
 // Common to all UUID implementations
-void LLUUID::toString(char *out) const
+void LLUUID::toString(std::string& out) const
 {
-	sprintf(out,
+	out = llformat(
 		"%02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%02x%02x%02x%02x%02x%02x",
 		(U8)(mData[0]),
 		(U8)(mData[1]),
@@ -171,6 +171,23 @@ void LLUUID::toString(char *out) const
 		(U8)(mData[15]));
 }
 
+// *TODO: deprecate
+void LLUUID::toString(char *out) const
+{
+	std::string buffer;
+	toString(buffer);
+	strcpy(out,buffer.c_str()); /* Flawfinder: ignore */
+}
+
+void LLUUID::toCompressedString(std::string& out) const
+{
+	char bytes[UUID_BYTES+1];
+	memcpy(bytes, mData, UUID_BYTES);		/* Flawfinder: ignore */
+	bytes[UUID_BYTES] = '\0';
+	out = bytes;
+}
+
+// *TODO: deprecate
 void LLUUID::toCompressedString(char *out) const
 {
 	memcpy(out, mData, UUID_BYTES);		/* Flawfinder: ignore */
@@ -184,38 +201,32 @@ std::string LLUUID::getString() const
 
 std::string LLUUID::asString() const
 {
-	char str[UUID_STR_SIZE];		/* Flawfinder: ignore */
+	std::string str;
 	toString(str);
-	return std::string(str);
+	return str;
+}
+
+BOOL LLUUID::set(const char* in_string, BOOL emit)
+{
+	return set(ll_safe_string(in_string));
 }
 
 BOOL LLUUID::set(const std::string& in_string, BOOL emit)
 {
-	return set(in_string.c_str(), emit);
-}
-
-BOOL LLUUID::set(const char *in_string, BOOL emit)
-{
 	BOOL broken_format = FALSE;
-	if (!in_string)
-	{
-		llerrs << "No string pointer in LLUUID::set!" << llendl;
-		setNull();
-		return FALSE;
-	}
 
 	// empty strings should make NULL uuid
-	if (!in_string[0])
+	if (in_string.empty())
 	{
 		setNull();
 		return TRUE;
 	}
 
-	if (strlen(in_string) != (UUID_STR_LENGTH - 1))		/* Flawfinder: ignore */
+	if (in_string.length() != (UUID_STR_LENGTH - 1))		/* Flawfinder: ignore */
 	{
 		// I'm a moron.  First implementation didn't have the right UUID format.
 		// Shouldn't see any of these any more
-		if (strlen(in_string) == (UUID_STR_LENGTH - 2))	/* Flawfinder: ignore */
+		if (in_string.length() == (UUID_STR_LENGTH - 2))	/* Flawfinder: ignore */
 		{
 			if(emit)
 			{
@@ -251,17 +262,17 @@ BOOL LLUUID::set(const char *in_string, BOOL emit)
 
 		mData[i] = 0;
 
-		if ((*(in_string + cur_pos) >= '0') && (*(in_string+cur_pos) <= '9'))
+		if ((in_string[cur_pos] >= '0') && (in_string[cur_pos] <= '9'))
 		{
-			mData[i] += (U8)(*(in_string + cur_pos) - '0');
+			mData[i] += (U8)(in_string[cur_pos] - '0');
 		}
-		else if ((*(in_string + cur_pos) >= 'a') && (*(in_string+cur_pos) <='f'))
+		else if ((in_string[cur_pos] >= 'a') && (in_string[cur_pos] <='f'))
 		{
-			mData[i] += (U8)(10 + *(in_string + cur_pos) - 'a');
+			mData[i] += (U8)(10 + in_string[cur_pos] - 'a');
 		}
-		else if ((*(in_string + cur_pos) >= 'A') && (*(in_string+cur_pos) <='F'))
+		else if ((in_string[cur_pos] >= 'A') && (in_string[cur_pos] <='F'))
 		{
-			mData[i] += (U8)(10 + *(in_string + cur_pos) - 'A');
+			mData[i] += (U8)(10 + in_string[cur_pos] - 'A');
 		}
 		else
 		{
@@ -276,17 +287,17 @@ BOOL LLUUID::set(const char *in_string, BOOL emit)
 		mData[i] = mData[i] << 4;
 		cur_pos++;
 
-		if ((*(in_string + cur_pos) >= '0') && (*(in_string+cur_pos) <= '9'))
+		if ((in_string[cur_pos] >= '0') && (in_string[cur_pos] <= '9'))
 		{
-			mData[i] += (U8)(*(in_string + cur_pos) - '0');
+			mData[i] += (U8)(in_string[cur_pos] - '0');
 		}
-		else if ((*(in_string + cur_pos) >= 'a') && (*(in_string+cur_pos) <='f'))
+		else if ((in_string[cur_pos] >= 'a') && (in_string[cur_pos] <='f'))
 		{
-			mData[i] += (U8)(10 + *(in_string + cur_pos) - 'a');
+			mData[i] += (U8)(10 + in_string[cur_pos] - 'a');
 		}
-		else if ((*(in_string + cur_pos) >= 'A') && (*(in_string+cur_pos) <='F'))
+		else if ((in_string[cur_pos] >= 'A') && (in_string[cur_pos] <='F'))
 		{
-			mData[i] += (U8)(10 + *(in_string + cur_pos) - 'A');
+			mData[i] += (U8)(10 + in_string[cur_pos] - 'A');
 		}
 		else
 		{
@@ -305,20 +316,11 @@ BOOL LLUUID::set(const char *in_string, BOOL emit)
 
 BOOL LLUUID::validate(const std::string& in_string)
 {
-	return validate(in_string.c_str());
-}
-
-BOOL LLUUID::validate(const char *in_string) 
-{
 	BOOL broken_format = FALSE;
-	if (!in_string)
-	{
-		return FALSE;
-	}
-	if (strlen(in_string) != (UUID_STR_LENGTH - 1))		/* Flawfinder: ignore */
+	if (in_string.length() != (UUID_STR_LENGTH - 1))		/* Flawfinder: ignore */
 	{
 		// I'm a moron.  First implementation didn't have the right UUID format.
-		if (strlen(in_string) == (UUID_STR_LENGTH - 2))		/* Flawfinder: ignore */
+		if (in_string.length() == (UUID_STR_LENGTH - 2))		/* Flawfinder: ignore */
 		{
 			broken_format = TRUE;
 		}
@@ -329,8 +331,7 @@ BOOL LLUUID::validate(const char *in_string)
 	}
 
 	U8 cur_pos = 0;
-	U32 i;
-	for (i = 0; i < 16; i++)
+	for (U32 i = 0; i < 16; i++)
 	{
 		if ((i == 4) || (i == 6) || (i == 8) || (i == 10))
 		{
@@ -342,13 +343,13 @@ BOOL LLUUID::validate(const char *in_string)
 			}
 		}
 
-		if ((*(in_string + cur_pos) >= '0') && (*(in_string+cur_pos) <= '9'))
+		if ((in_string[cur_pos] >= '0') && (in_string[cur_pos] <= '9'))
 		{
 		}
-		else if ((*(in_string + cur_pos) >= 'a') && (*(in_string+cur_pos) <='f'))
+		else if ((in_string[cur_pos] >= 'a') && (in_string[cur_pos] <='f'))
 		{
 		}
-		else if ((*(in_string + cur_pos) >= 'A') && (*(in_string+cur_pos) <='F'))
+		else if ((in_string[cur_pos] >= 'A') && (in_string[cur_pos] <='F'))
 		{
 		}
 		else
@@ -358,13 +359,13 @@ BOOL LLUUID::validate(const char *in_string)
 
 		cur_pos++;
 
-		if ((*(in_string + cur_pos) >= '0') && (*(in_string+cur_pos) <= '9'))
+		if ((in_string[cur_pos] >= '0') && (in_string[cur_pos] <= '9'))
 		{
 		}
-		else if ((*(in_string + cur_pos) >= 'a') && (*(in_string+cur_pos) <='f'))
+		else if ((in_string[cur_pos] >= 'a') && (in_string[cur_pos] <='f'))
 		{
 		}
-		else if ((*(in_string + cur_pos) >= 'A') && (*(in_string+cur_pos) <='F'))
+		else if ((in_string[cur_pos] >= 'A') && (in_string[cur_pos] <='F'))
 		{
 		}
 		else
@@ -412,8 +413,7 @@ LLUUID LLUUID::combine(const LLUUID &other) const
 
 std::ostream& operator<<(std::ostream& s, const LLUUID &uuid)
 {
-	char uuid_str[UUID_STR_LENGTH];
-
+	std::string uuid_str;
 	uuid.toString(uuid_str);
 	s << uuid_str;
 	return s;
@@ -428,7 +428,7 @@ std::istream& operator>>(std::istream &s, LLUUID &uuid)
 		s >> uuid_str[i];
 	}
 	uuid_str[i] = '\0';
-	uuid.set(uuid_str);
+	uuid.set(std::string(uuid_str));
 	return s;
 }
 
@@ -891,15 +891,15 @@ U32 LLUUID::getRandomSeed()
    return(*(U32 *)seed);
 }
 
-BOOL LLUUID::parseUUID(const char* buf, LLUUID* value)
+BOOL LLUUID::parseUUID(const std::string& buf, LLUUID* value)
 {
-	if( buf == NULL || buf[0] == '\0' || value == NULL)
+	if( buf.empty() || value == NULL)
 	{
 		return FALSE;
 	}
 
-	LLString temp( buf );
-	LLString::trim(temp);
+	std::string temp( buf );
+	LLStringUtil::trim(temp);
 	if( LLUUID::validate( temp ) )
 	{
 		value->set( temp );

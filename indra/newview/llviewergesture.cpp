@@ -126,7 +126,7 @@ void LLViewerGesture::doTrigger( BOOL send_chat )
 		}
 		else
 		{
-			LLUUID anim_id = gAnimLibrary.stringToAnimState(mAnimation.c_str());
+			LLUUID anim_id = gAnimLibrary.stringToAnimState(mAnimation);
 			gAgent.sendAnimationRequest(anim_id, ANIM_REQUEST_START);
 		}
 	}
@@ -161,8 +161,8 @@ BOOL LLViewerGestureList::matchPrefix(const std::string& in_str, std::string* ou
 {
 	S32 in_len = in_str.length();
 
-	LLString in_str_lc = in_str;
-	LLString::toLower(in_str_lc);
+	std::string in_str_lc = in_str;
+	LLStringUtil::toLower(in_str_lc);
 
 	for (S32 i = 0; i < count(); i++)
 	{
@@ -176,7 +176,7 @@ BOOL LLViewerGestureList::matchPrefix(const std::string& in_str, std::string* ou
 		}
 
 		std::string trigger_trunc = utf8str_truncate(trigger, in_len);
-		LLString::toLower(trigger_trunc);
+		LLStringUtil::toLower(trigger_trunc);
 		if (in_str_lc == trigger_trunc)
 		{
 			*out_str = trigger;

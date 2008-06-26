@@ -61,10 +61,10 @@ private:
 
 	struct LLErrorEntry
 	{
-		LLErrorEntry(const LLString& notify, const LLUUID &item) : mTimer(), mNotifyName(notify), mItemID(item) {}
+		LLErrorEntry(const std::string& notify, const LLUUID &item) : mTimer(), mNotifyName(notify), mItemID(item) {}
 
 		LLTimer mTimer;
-		LLString mNotifyName;
+		std::string mNotifyName;
 		LLUUID mItemID;
 	};
 

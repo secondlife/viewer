@@ -137,8 +137,8 @@ LLFloaterReporter::LLFloaterReporter(
 	if (pick_btn)
 	{
 		// XUI: Why aren't these in viewerart.ini?
-		pick_btn->setImages( "UIImgFaceUUID",
-							"UIImgFaceSelectedUUID" );
+		pick_btn->setImages( std::string("UIImgFaceUUID"),
+							std::string("UIImgFaceSelectedUUID") );
 		childSetAction("pick_btn", onClickObjPicker, this);
 	}
 
@@ -173,8 +173,8 @@ LLFloaterReporter::LLFloaterReporter(
 	setVisible(TRUE);
 
 	// Default text to be blank
-	childSetText("object_name", LLString::null);
-	childSetText("owner_name", LLString::null);
+	childSetText("object_name", LLStringUtil::null);
+	childSetText("owner_name", LLStringUtil::null);
 
 	childSetFocus("summary_edit");
 
@@ -308,7 +308,7 @@ void LLFloaterReporter::getObjectInfo(const LLUUID& object_id)
 			if (objectp->isAvatar())
 			{
 				// we have the information we need
-				LLString object_owner;
+				std::string object_owner;
 
 				LLNameValue* firstname = objectp->getNVPair("FirstName");
 				LLNameValue* lastname =  objectp->getNVPair("LastName");
@@ -391,10 +391,10 @@ void LLFloaterReporter::onClickSend(void *userdata)
 		{
 			if ( ! self->mCopyrightWarningSeen )
 			{
-				LLString details_lc = self->childGetText("details_edit");
-				LLString::toLower( details_lc );
-				LLString summary_lc = self->childGetText("summary_edit");
-				LLString::toLower( summary_lc );
+				std::string details_lc = self->childGetText("details_edit");
+				LLStringUtil::toLower( details_lc );
+				std::string summary_lc = self->childGetText("summary_edit");
+				LLStringUtil::toLower( summary_lc );
 				if ( details_lc.find( "copyright" ) != std::string::npos ||
 					summary_lc.find( "copyright" ) != std::string::npos )
 				{
@@ -457,8 +457,8 @@ void LLFloaterReporter::onClickObjPicker(void *userdata)
 	LLToolObjPicker::getInstance()->setExitCallback(LLFloaterReporter::closePickTool, self);
 	LLToolMgr::getInstance()->setTransientTool(LLToolObjPicker::getInstance());
 	self->mPicking = TRUE;
-	self->childSetText("object_name", LLString::null);
-	self->childSetText("owner_name", LLString::null);
+	self->childSetText("object_name", LLStringUtil::null);
+	self->childSetText("owner_name", LLStringUtil::null);
 	LLButton* pick_btn = self->getChild<LLButton>("pick_btn");
 	if (pick_btn) pick_btn->setToggleState(TRUE);
 }
@@ -517,7 +517,7 @@ void LLFloaterReporter::showFromMenu(EReportType report_type)
 		}
 
 		// grab the user's name
-		LLString fullname;
+		std::string fullname;
 		gAgent.buildFullname(fullname);
 		f->childSetText("reporter_field", fullname);
 	}
@@ -532,7 +532,7 @@ void LLFloaterReporter::showFromObject(const LLUUID& object_id)
 	f->setFocus(TRUE);
 
 	// grab the user's name
-	LLString fullname;
+	std::string fullname;
 	gAgent.buildFullname(fullname);
 	f->childSetText("reporter_field", fullname);
 
@@ -577,7 +577,7 @@ LLFloaterReporter* LLFloaterReporter::createNewBugReporter()
 	
 
 
-void LLFloaterReporter::setPickedObjectProperties(const LLString& object_name, const LLString& owner_name, const LLUUID owner_id)
+void LLFloaterReporter::setPickedObjectProperties(const std::string& object_name, const std::string& owner_name, const LLUUID owner_id)
 {
 	childSetText("object_name", object_name);
 	childSetText("owner_name", owner_name);
@@ -661,7 +661,7 @@ LLSD LLFloaterReporter::gatherReport()
 		summary << "Preview ";
 	}
 
-	LLString category_name;
+	std::string category_name;
 	LLComboBox* combo = getChild<LLComboBox>( "category_combo");
 	if (combo)
 	{
@@ -711,8 +711,8 @@ LLSD LLFloaterReporter::gatherReport()
 			<< LL_VERSION_PATCH << "."
 			<< LL_VIEWER_BUILD << std::endl << std::endl;
 	}
-	LLString object_name = childGetText("object_name");
-	LLString owner_name = childGetText("owner_name");
+	std::string object_name = childGetText("object_name");
+	std::string owner_name = childGetText("owner_name");
 	if (!object_name.empty() && !owner_name.empty())
 	{
 		details << "Object: " << object_name << "\n";
@@ -727,9 +727,8 @@ LLSD LLFloaterReporter::gatherReport()
 
 	details << childGetValue("details_edit").asString();
 
-	char version_string[MAX_STRING];		/* Flawfinder: ignore */
-	snprintf(version_string,				/* Flawfinder: ignore */
-			MAX_STRING,
+	std::string version_string;
+	version_string = llformat(
 			"%d.%d.%d %s %s %s %s",
 			LL_VERSION_MAJOR,
 			LL_VERSION_MINOR,
@@ -794,7 +793,7 @@ void LLFloaterReporter::sendReportViaLegacy(const LLSD & report)
 	msg->addString("AbuseRegionName", report["abuse-region-name"].asString());
 	msg->addUUID("AbuseRegionID", report["abuse-region-id"].asUUID());
 
-	msg->addStringFast(_PREHASH_Summary, report["summary"].asString().c_str());
+	msg->addStringFast(_PREHASH_Summary, report["summary"].asString());
 	msg->addString("VersionString", report["version-string"]);
 	msg->addStringFast(_PREHASH_Details, report["details"] );
 	
@@ -908,7 +907,7 @@ void LLFloaterReporter::takeScreenshot()
 	{
 		texture->setImageAssetID(mResourceDatap->mAssetInfo.mUuid);
 		texture->setDefaultImageAssetID(mResourceDatap->mAssetInfo.mUuid);
-		texture->setCaption("Screenshot");
+		texture->setCaption(std::string("Screenshot"));
 	}
 
 }
@@ -937,7 +936,7 @@ void LLFloaterReporter::uploadDoneCallback(const LLUUID &uuid, void *user_data, 
 
 	if(result < 0)
 	{
-		LLStringBase<char>::format_map_t args;
+		LLStringUtil::format_map_t args;
 		args["[REASON]"] = std::string(LLAssetStorage::getErrorString(result));
 		gViewerWindow->alertXml("ErrorUploadingReportScreenshot", args);
 
@@ -975,14 +974,14 @@ void LLFloaterReporter::uploadDoneCallback(const LLUUID &uuid, void *user_data, 
 void LLFloaterReporter::setPosBox(const LLVector3d &pos)
 {
 	mPosition.setVec(pos);
-	LLString pos_string = llformat("{%.1f, %.1f, %.1f}",
+	std::string pos_string = llformat("{%.1f, %.1f, %.1f}",
 		mPosition.mV[VX],
 		mPosition.mV[VY],
 		mPosition.mV[VZ]);
 	childSetText("pos_field", pos_string);
 }
 
-void LLFloaterReporter::setDescription(const LLString& description, LLMeanCollisionData *mcd)
+void LLFloaterReporter::setDescription(const std::string& description, LLMeanCollisionData *mcd)
 {
 	LLFloaterReporter *self = gReporterInstances[COMPLAINT_REPORT];
 	if (self)
@@ -998,7 +997,7 @@ void LLFloaterReporter::setDescription(const LLString& description, LLMeanCollis
 	}
 }
 
-void LLFloaterReporter::addDescription(const LLString& description, LLMeanCollisionData *mcd)
+void LLFloaterReporter::addDescription(const std::string& description, LLMeanCollisionData *mcd)
 {
 	LLFloaterReporter *self = gReporterInstances[COMPLAINT_REPORT];
 	if (self)

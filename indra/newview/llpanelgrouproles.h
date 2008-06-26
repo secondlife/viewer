@@ -78,12 +78,12 @@ public:
 	static void onModalClose(S32 option, void* user_data);
 
 	// Most of these messages are just passed on to the current sub-tab.
-	virtual LLString getHelpText() const;
+	virtual std::string getHelpText() const;
 	virtual void activate();
 	virtual void deactivate();
-	virtual bool needsApply(LLString& mesg);
+	virtual bool needsApply(std::string& mesg);
 	virtual BOOL hasModal();
-	virtual bool apply(LLString& mesg);
+	virtual bool apply(std::string& mesg);
 	virtual void cancel();
 	virtual void update(LLGroupChange gc);
 
@@ -97,8 +97,8 @@ protected:
 	BOOL					mFirstUse;
 	BOOL					mIgnoreTransition;
 
-	LLString				mDefaultNeedsApplyMesg;
-	LLString				mWantApplyMesg;
+	std::string				mDefaultNeedsApplyMesg;
+	std::string				mWantApplyMesg;
 };
 
 class LLPanelGroupSubTab : public LLPanelGroupTab
@@ -120,7 +120,7 @@ public:
 	static void onClickShowAll(void*);
 	void handleClickShowAll();
 
-	virtual void setSearchFilter( const LLString& filter );
+	virtual void setSearchFilter( const std::string& filter );
 
 	virtual void activate();
 	virtual void deactivate();
@@ -154,7 +154,7 @@ protected:
 	LLButton*		mSearchButton;
 	LLButton*		mShowAllButton;
 
-	LLString mSearchFilter;
+	std::string mSearchFilter;
 
 	icon_map_t	mActionIcons;
 
@@ -193,8 +193,8 @@ public:
 	virtual void activate();
 	virtual void deactivate();
 	virtual void cancel();
-	virtual bool needsApply(LLString& mesg);
-	virtual bool apply(LLString& mesg);
+	virtual bool needsApply(std::string& mesg);
+	virtual bool apply(std::string& mesg);
 	virtual void update(LLGroupChange gc);
 	void updateMembers();
 
@@ -238,8 +238,8 @@ public:
 
 	virtual void activate();
 	virtual void deactivate();
-	virtual bool needsApply(LLString& mesg);
-	virtual bool apply(LLString& mesg);
+	virtual bool needsApply(std::string& mesg);
+	virtual bool apply(std::string& mesg);
 	virtual void cancel();
 	bool matchesSearchFilter(std::string rolename, std::string roletitle);
 	virtual void update(LLGroupChange gc);
@@ -302,8 +302,8 @@ public:
 
 	virtual void activate();
 	virtual void deactivate();
-	virtual bool needsApply(LLString& mesg);
-	virtual bool apply(LLString& mesg);
+	virtual bool needsApply(std::string& mesg);
+	virtual bool apply(std::string& mesg);
 	virtual void update(LLGroupChange gc);
 
 	static void onActionSelect(LLUICtrl*, void*);
