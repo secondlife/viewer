@@ -38,9 +38,11 @@ import md5
 import optparse
 import os
 import pprint
+import shutil
 import sys
 import tarfile
-import urllib
+import tempfile
+import urllib2
 import urlparse
 
 from sets import Set as set, ImmutableSet as frozenset
@@ -107,7 +109,7 @@ class InstallFile(object):
             print "Found matching package:", self.filename
             return
         print "Downloading",self.url,"to local file",self.filename
-        urllib.urlretrieve(self.url, self.filename)
+        file(self.filename, 'wb').write(urllib2.urlopen(self.url).read())
         if self.md5sum and not self._is_md5sum_match():
             raise RuntimeError("Error matching md5 for %s" % self.url)
 
@@ -383,7 +385,7 @@ windows/i686/vs/2003 -- specify a windows visual studio 2003 package"""
                 if arg == 'platform': 
                     print platform_help_str
                 kwargs[arg] = raw_input("Package "+arg+":")
-        path = kwargs['platform'].split('/')
+        #path = kwargs['platform'].split('/')
 
         return self._update_installable(name, kwargs['platform'], 
                         kwargs['url'], kwargs['md5sum'])
@@ -420,12 +422,12 @@ windows/i686/vs/2003 -- specify a windows visual studio 2003 package"""
             self._licenses[name] = LicenseDefinition({})
         else:
             print "Updating license '" + name + "'."
-        license  = self._licenses[name]._definition
+        the_license  = self._licenses[name]._definition
         for field in ('url', 'text'):
             multiline = False
             if field == 'text':
                 multiline = True
-            self._update_field(license, field, kwargs[field], multiline)
+            self._update_field(the_license, field, kwargs[field], multiline)
         self._install_changed = True
         return True
 
@@ -512,7 +514,7 @@ windows/i686/vs/2003 -- specify a windows visual studio 2003 package"""
     def _install(self, to_install, install_dir):
         for ifile in to_install:
             tar = tarfile.open(ifile.filename, 'r')
-            print "Extracting",ifile.filename,"to destination",install_dir
+            print "Extracting",ifile.filename,"to",install_dir
             if not self._dryrun:
                 # *NOTE: try to call extractall, which first appears
                 # in python 2.5. Phoenix 2008-01-28
@@ -546,6 +548,8 @@ windows/i686/vs/2003 -- specify a windows visual studio 2003 package"""
         """
         # The ordering of steps in the method is to help reduce the
         # likelihood that we break something.
+        install_dir = os.path.realpath(install_dir)
+        cache_dir = os.path.realpath(cache_dir)
         _mkdir(install_dir)
         _mkdir(cache_dir)
         to_install = self._build_ifiles(platform, cache_dir)
@@ -555,6 +559,60 @@ windows/i686/vs/2003 -- specify a windows visual studio 2003 package"""
         for ifile in to_install:
             ifile.fetch_local()
         self._install(to_install, install_dir)
+
+class SCPOrHTTPHandler(urllib2.BaseHandler):
+    """Evil hack to allow both the build system and developers consume
+    proprietary binaries.
+    To use http, export the environment variable:
+    INSTALL_USE_HTTP_FOR_SCP=true
+    """
+    def __init__(self, scp_binary):
+        self._scp = scp_binary
+        self._dir = None
+
+    def scp_open(self, request):
+        #scp:codex.lindenlab.com:/local/share/install_pkgs/package.tar.bz2
+        remote = request.get_full_url()[4:]
+        if os.getenv('INSTALL_USE_HTTP_FOR_SCP', None) == 'true':
+            return self.do_http(remote)
+        try:
+            return self.do_scp(remote)
+        except:
+            self.cleanup()
+            raise
+
+    def do_http(self, remote):
+        url = remote.split(':',1)
+        if not url[1].startswith('/'):
+            # in case it's in a homedir or something
+            url.insert(1, '/')
+        url.insert(0, "http://")
+        url = ''.join(url)
+        print "Using HTTP:",url
+        return urllib2.urlopen(url)
+
+    def do_scp(self, remote):
+        if not self._dir:
+            self._dir = tempfile.mkdtemp()
+        local = os.path.join(self._dir, remote.split('/')[-1:][0])
+        command = []
+        for part in (self._scp, remote, local):
+            if ' ' in part:
+                # I hate shell escaping.
+                part.replace('\\', '\\\\')
+                part.replace('"', '\\"')
+                command.append('"%s"' % part)
+            else:
+                command.append(part)
+        #print "forking:", command
+        rv = os.system(' '.join(command))
+        if rv != 0:
+            raise RuntimeError("Cannot fetch: %s" % remote)
+        return file(local, 'rb')
+
+    def cleanup(self):
+        if self._dir:
+            shutil.rmtree(self._dir)
 
 
 #
@@ -634,7 +692,6 @@ def _default_installable_cache():
     user = _getuser()
     cache_dir = "/var/tmp/%s/install.cache" % user
     if _get_platform() == 'windows':
-        import tempfile
         cache_dir = os.path.join(tempfile.gettempdir(), \
                                  'install.cache.%s' % user)
     return cache_dir
@@ -866,6 +923,12 @@ Ignored if --add-installable or --add-installable-package is not specified.""")
         help="""Remove the installables specified in the arguments. Just like \
 during installation, if no installables are listed then all installed \
 installables are removed.""")
+    parser.add_option(
+        '--scp', 
+        type='string',
+        default='scp',
+        dest='scp',
+        help="Specify the path to your scp program.")
 
     return parser.parse_args()
 
@@ -880,18 +943,10 @@ def main():
     # Handle the queries for information
     #
     if options.list_installed:
-        print "installed list:"
-        inst = installer.list_installed()
-        inst.sort()
-        for i in inst:
-            print ' ', i
+        print "installed list:", installer.list_installed()
         return 0
     if options.list_installables:
-        print "installable list:",
-        inst = installer.list_installables()
-        inst.sort()
-        for i in inst:
-            print ' ', i
+        print "installable list:", installer.list_installables()
         return 0
     if options.detail_installable:
         try:
@@ -997,12 +1052,19 @@ def main():
                 if not installer.is_valid_license(installable):
                     return 1
 
+        # Set up the 'scp' handler
+        opener = urllib2.build_opener()
+        scp_or_http = SCPOrHTTPHandler(options.scp)
+        opener.add_handler(scp_or_http)
+        urllib2.install_opener(opener)
+
         # Do the work of installing the requested installables.
         installer.install(
             install_installables,
             options.platform,
             options.install_dir,
             options.cache_dir)
+        scp_or_http.cleanup()
 
     # save out any changes
     installer.save()
