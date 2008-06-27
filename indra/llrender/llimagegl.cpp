@@ -61,8 +61,6 @@ S32 LLImageGL::sCount					= 0;
 BOOL LLImageGL::sGlobalUseAnisotropic	= FALSE;
 F32 LLImageGL::sLastFrameTime			= 0.f;
 
-BOOL LLImageGL::sRefCheck = TRUE ;
-
 std::set<LLImageGL*> LLImageGL::sImageList;
 
 //----------------------------------------------------------------------------
@@ -279,9 +277,7 @@ LLImageGL::LLImageGL(const LLImageRaw* imageraw, BOOL usemipmaps)
 	sImageList.insert(this);
 	sCount++;
 
-	sRefCheck = FALSE ;
 	createGLTexture(0, imageraw); 
-	sRefCheck = TRUE ;
 }
 
 LLImageGL::~LLImageGL()
@@ -426,9 +422,7 @@ void LLImageGL::dump()
 //----------------------------------------------------------------------------
 
 BOOL LLImageGL::bindTextureInternal(const S32 stage) const
-{
-	llassert_always(!sRefCheck || (getNumRefs() > 0 && getNumRefs() < 100000)) ;	
-	
+{	
 	if (gGLManager.mIsDisabled)
 	{
 		llwarns << "Trying to bind a texture while GL is disabled!" << llendl;

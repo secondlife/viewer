@@ -438,7 +438,8 @@ void init_group_list(LLScrollListCtrl* ctrl, const LLUUID& highlight_id, U64 pow
 	{
 		id = gAgent.mGroups.get(i).mID;
 		LLGroupData* group_datap = &gAgent.mGroups.get(i);
-		if ((group_datap->mPowers & powers_mask) != 0) {
+		if ((powers_mask == GP_ALL_POWERS) || ((group_datap->mPowers & powers_mask) != 0))
+		{
 			std::string style = "NORMAL";
 			if(highlight_id == id)
 			{

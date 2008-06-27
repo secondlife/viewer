@@ -309,7 +309,13 @@ BOOL LLToolPie::pickAndShowMenu(S32 x, S32 y, MASK mask, BOOL always_show)
 	}
 	else if (mHitObjectID == gAgent.getID() )
 	{
-		llassert_always(gPieSelf) ;
+		if(!gPieSelf) 
+		{
+			//either at very early startup stage or at late quitting stage,
+			//this event is ignored.
+			return TRUE ;
+		}
+
 		gPieSelf->show(x, y, mPieMouseButtonDown);
 	}
 	else if (object)

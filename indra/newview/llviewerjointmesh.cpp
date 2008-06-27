@@ -873,7 +873,7 @@ void LLViewerJointMesh::updateVectorize()
 	}
 }
 
-void LLViewerJointMesh::updateGeometry()
+void LLViewerJointMesh::updateJointGeometry()
 {
 	if (!(mValid
 		  && mMesh

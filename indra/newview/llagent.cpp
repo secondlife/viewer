@@ -94,6 +94,7 @@
 #include "llsky.h"
 #include "llrendersphere.h"
 #include "llstatusbar.h"
+#include "llstartup.h"
 #include "llimview.h"
 #include "lltool.h"
 #include "lltoolfocus.h"
@@ -6432,7 +6433,6 @@ BOOL LLAgent::isWearingItem( const LLUUID& item_id )
 	return (getWearableFromWearableItem( item_id ) != NULL);
 }
 
-
 // static
 void LLAgent::processAgentInitialWearablesUpdate( LLMessageSystem* mesgsys, void** user_data )
 {
@@ -6471,8 +6471,12 @@ void LLAgent::processAgentInitialWearablesUpdate( LLMessageSystem* mesgsys, void
 			//avatar->createStandardWearables();
 
 			// no, deal with it by noting that we need to choose a
-			// gender.
-			gAgent.setGenderChosen(FALSE);
+			// gender, but only if an initial outfit load isn't happening.
+			// This whole check (num_wearables < 4) can probably be deleted. JC
+			if (gInitialOutfit.empty())
+			{
+				gAgent.setGenderChosen(FALSE);
+			}
 			return;
 		}
 

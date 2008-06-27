@@ -34,6 +34,8 @@
 //-----------------------------------------------------------------------------
 #include "linden_common.h"
 
+#include "llmemtype.h"
+
 #include "llmotioncontroller.h"
 #include "llkeyframemotion.h"
 #include "llmath.h"
@@ -50,32 +52,6 @@ const U32 MAX_MOTION_INSTANCES = 32;
 LLMotionRegistry LLMotionController::sRegistry;
 
 //-----------------------------------------------------------------------------
-// LLMotionTableEntry()
-//-----------------------------------------------------------------------------
-LLMotionTableEntry::LLMotionTableEntry()
-{ 
-	mConstructor = NULL; 
-	mID.setNull(); 
-}
-
-LLMotionTableEntry::LLMotionTableEntry(LLMotionConstructor constructor, const LLUUID& id)
-		: mConstructor(constructor), mID(id)
-{
-
-}
-
-//-----------------------------------------------------------------------------
-// create()
-//-----------------------------------------------------------------------------
-LLMotion* LLMotionTableEntry::create(const LLUUID &id)
-{
-	LLMotion* motionp = mConstructor(id);
-
-	return motionp;
-}
-
-
-//-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 // LLMotionRegistry class
 //-----------------------------------------------------------------------------
@@ -85,7 +61,7 @@ LLMotion* LLMotionTableEntry::create(const LLUUID &id)
 // LLMotionRegistry()
 // Class Constructor
 //-----------------------------------------------------------------------------
-LLMotionRegistry::LLMotionRegistry() : mMotionTable(LLMotionTableEntry::uuidEq, LLMotionTableEntry())
+LLMotionRegistry::LLMotionRegistry()
 {
 	
 }
@@ -97,19 +73,19 @@ LLMotionRegistry::LLMotionRegistry() : mMotionTable(LLMotionTableEntry::uuidEq, 
 //-----------------------------------------------------------------------------
 LLMotionRegistry::~LLMotionRegistry()
 {
-	mMotionTable.removeAll();
+	mMotionTable.clear();
 }
 
 
 //-----------------------------------------------------------------------------
 // addMotion()
 //-----------------------------------------------------------------------------
-BOOL LLMotionRegistry::addMotion( const LLUUID& id, LLMotionConstructor constructor )
+BOOL LLMotionRegistry::registerMotion( const LLUUID& id, LLMotionConstructor constructor )
 {
-//	llinfos << "Registering motion: " << name << llendl;
-	if (!mMotionTable.check(id))
+	//	llinfos << "Registering motion: " << name << llendl;
+	if (!is_in_map(mMotionTable, id))
 	{
-		mMotionTable.set(id, LLMotionTableEntry(constructor, id));
+		mMotionTable[id] = constructor;
 		return TRUE;
 	}
 	
@@ -121,7 +97,7 @@ BOOL LLMotionRegistry::addMotion( const LLUUID& id, LLMotionConstructor construc
 //-----------------------------------------------------------------------------
 void LLMotionRegistry::markBad( const LLUUID& id )
 {
-	mMotionTable.set(id, LLMotionTableEntry());
+	mMotionTable[id] = LLMotionConstructor(NULL);
 }
 
 //-----------------------------------------------------------------------------
@@ -129,17 +105,17 @@ void LLMotionRegistry::markBad( const LLUUID& id )
 //-----------------------------------------------------------------------------
 LLMotion *LLMotionRegistry::createMotion( const LLUUID &id )
 {
-	LLMotionTableEntry motion_entry = mMotionTable.get(id);
+	LLMotionConstructor constructor = get_if_there(mMotionTable, id, LLMotionConstructor(NULL));
 	LLMotion* motion = NULL;
 
-	if ( motion_entry.getID().isNull() )
+	if ( constructor == NULL )
 	{
 		// *FIX: need to replace with a better default scheme. RN
 		motion = LLKeyframeMotion::create(id);
 	}
 	else
 	{
-		motion = motion_entry.create(id);
+		motion = constructor(id);
 	}
 
 	return motion;
@@ -158,8 +134,8 @@ LLMotion *LLMotionRegistry::createMotion( const LLUUID &id )
 LLMotionController::LLMotionController()
 	: mTimeFactor(1.f),
 	  mCharacter(NULL),
-	  mTime(0.f),
-	  mTimeOffset(0.f),
+	  mAnimTime(0.f),
+	  mPrevTimerElapsed(0.f),
 	  mLastTime(0.0f),
 	  mHasRunOnce(FALSE),
 	  mPaused(FALSE),
@@ -180,6 +156,15 @@ LLMotionController::~LLMotionController()
 	deleteAllMotions();
 }
 
+void LLMotionController::incMotionCounts(S32& num_motions, S32& num_loading_motions, S32& num_loaded_motions, S32& num_active_motions, S32& num_deprecated_motions)
+{
+	num_motions += mAllMotions.size();
+	num_loading_motions += mLoadingMotions.size();
+	num_loaded_motions += mLoadedMotions.size();
+	num_active_motions += mActiveMotions.size();
+	num_deprecated_motions += mDeprecatedMotions.size();
+}
+
 //-----------------------------------------------------------------------------
 // deleteAllMotions()
 //-----------------------------------------------------------------------------
@@ -194,24 +179,38 @@ void LLMotionController::deleteAllMotions()
 }
 
 //-----------------------------------------------------------------------------
-// addLoadedMotion()
+// purgeExcessMotion()
 //-----------------------------------------------------------------------------
-void LLMotionController::addLoadedMotion(LLMotion* motionp)
+void LLMotionController::purgeExcessMotions()
 {
-	std::set<LLUUID> motions_to_kill;
+	if (mLoadedMotions.size() > MAX_MOTION_INSTANCES)
+	{
+		// clean up deprecated motions
+		for (motion_set_t::iterator deprecated_motion_it = mDeprecatedMotions.begin(); 
+			 deprecated_motion_it != mDeprecatedMotions.end(); )
+		{
+			motion_set_t::iterator cur_iter = deprecated_motion_it++;
+			LLMotion* cur_motionp = *cur_iter;
+			if (!isMotionActive(cur_motionp))
+			{
+				// Motion is deprecated so we know it's not cannonical,
+				//  we can safely remove the instance
+				removeMotionInstance(cur_motionp); // modifies mDeprecatedMotions
+				mDeprecatedMotions.erase(cur_iter);
+			}
+		}
+	}
 
-	// gather all inactive, loaded motions
+	std::set<LLUUID> motions_to_kill;
 	if (mLoadedMotions.size() > MAX_MOTION_INSTANCES)
 	{
 		// too many motions active this frame, kill all blenders
 		mPoseBlender.clearBlenders();
-
-		for (motion_list_t::iterator loaded_motion_it = mLoadedMotions.begin(); 
-			loaded_motion_it != mLoadedMotions.end(); 
-			++loaded_motion_it)
+		for (motion_set_t::iterator loaded_motion_it = mLoadedMotions.begin(); 
+			 loaded_motion_it != mLoadedMotions.end(); 
+			 ++loaded_motion_it)
 		{
 			LLMotion* cur_motionp = *loaded_motion_it;
-			
 			// motion isn't playing, delete it
 			if (!isMotionActive(cur_motionp))
 			{
@@ -219,7 +218,7 @@ void LLMotionController::addLoadedMotion(LLMotion* motionp)
 			}
 		}
 	}
-
+	
 	// clean up all inactive, loaded motions
 	for (std::set<LLUUID>::iterator motion_it = motions_to_kill.begin();
 		motion_it != motions_to_kill.end();
@@ -235,8 +234,28 @@ void LLMotionController::addLoadedMotion(LLMotion* motionp)
 		}
 	}
 
-	// add new motion to loaded list
-	mLoadedMotions.push_back(motionp);
+	if (mLoadedMotions.size() > 2*MAX_MOTION_INSTANCES)
+	{
+		LL_WARNS_ONCE("Animation") << "> " << 2*MAX_MOTION_INSTANCES << " Loaded Motions" << llendl;
+	}
+}
+
+//-----------------------------------------------------------------------------
+// deactivateStoppedMotions()
+//-----------------------------------------------------------------------------
+void LLMotionController::deactivateStoppedMotions()
+{
+	// Since we're hidden, deactivate any stopped motions.
+	for (motion_list_t::iterator iter = mActiveMotions.begin();
+		 iter != mActiveMotions.end(); )
+	{
+		motion_list_t::iterator curiter = iter++;
+		LLMotion* motionp = *curiter;
+		if (motionp->isStopped())
+		{
+			deactivateMotionInstance(motionp);
+		}
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -253,9 +272,10 @@ void LLMotionController::setTimeStep(F32 step)
 			 iter != mActiveMotions.end(); ++iter)
 		{
 			LLMotion* motionp = *iter;
-			motionp->mActivationTimestamp = (F32)llfloor(motionp->mActivationTimestamp / step) * step;
+			F32 activation_time = motionp->mActivationTimestamp;
+			motionp->mActivationTimestamp = (F32)(llfloor(activation_time / step)) * step;
 			BOOL stopped = motionp->isStopped();
-			motionp->setStopTime((F32)llfloor(motionp->getStopTime() / step) * step);
+			motionp->setStopTime((F32)(llfloor(motionp->getStopTime() / step)) * step);
 			motionp->setStopped(stopped);
 			motionp->mSendStopTimestamp = (F32)llfloor(motionp->mSendStopTimestamp / step) * step;
 		}
@@ -267,7 +287,6 @@ void LLMotionController::setTimeStep(F32 step)
 //-----------------------------------------------------------------------------
 void LLMotionController::setTimeFactor(F32 time_factor)
 { 
-	mTimeOffset += mTimer.getElapsedTimeAndResetF32() * mTimeFactor; 
 	mTimeFactor = time_factor; 
 }
 
@@ -281,11 +300,11 @@ void LLMotionController::setCharacter(LLCharacter *character)
 
 
 //-----------------------------------------------------------------------------
-// addMotion()
+// registerMotion()
 //-----------------------------------------------------------------------------
-BOOL LLMotionController::addMotion( const LLUUID& id, LLMotionConstructor constructor )
+BOOL LLMotionController::registerMotion( const LLUUID& id, LLMotionConstructor constructor )
 {
-	return sRegistry.addMotion(id, constructor);
+	return sRegistry.registerMotion(id, constructor);
 }
 
 //-----------------------------------------------------------------------------
@@ -294,10 +313,8 @@ BOOL LLMotionController::addMotion( const LLUUID& id, LLMotionConstructor constr
 void LLMotionController::removeMotion( const LLUUID& id)
 {
 	LLMotion* motionp = findMotion(id);
-	
-	removeMotionInstance(motionp);
-
 	mAllMotions.erase(id);
+	removeMotionInstance(motionp);
 }
 
 // removes instance of a motion from all runtime structures, but does
@@ -307,10 +324,11 @@ void LLMotionController::removeMotionInstance(LLMotion* motionp)
 {
 	if (motionp)
 	{
-		stopMotionInstance(motionp, TRUE);
-
+		llassert(findMotion(motionp->getID()) != motionp);
+		if (motionp->isActive())
+			motionp->deactivate();
 		mLoadingMotions.erase(motionp);
-		mLoadedMotions.remove(motionp);
+		mLoadedMotions.erase(motionp);
 		mActiveMotions.remove(motionp);
 		delete motionp;
 	}
@@ -321,6 +339,7 @@ void LLMotionController::removeMotionInstance(LLMotion* motionp)
 //-----------------------------------------------------------------------------
 LLMotion* LLMotionController::createMotion( const LLUUID &id )
 {
+	LLMemType mt(LLMemType::MTYPE_ANIMATION);
 	// do we have an instance of this motion for this character?
 	LLMotion *motion = findMotion(id);
 
@@ -354,8 +373,8 @@ LLMotion* LLMotionController::createMotion( const LLUUID &id )
 			mLoadingMotions.insert(motion);
 			break;
 		case LLMotion::STATUS_SUCCESS:
-			// add motion to our list
-			addLoadedMotion(motion);
+		    // add motion to our list
+		    mLoadedMotions.insert(motion);
 			break;
 		default:
 			llerrs << "Invalid initialization status" << llendl;
@@ -378,6 +397,7 @@ BOOL LLMotionController::startMotion(const LLUUID &id, F32 start_offset)
 	// motion that is stopping will be allowed to stop but
 	// replaced by a new instance of that motion
 	if (motion
+		&& !mPaused
 		&& motion->canDeprecate()
 		&& motion->getFadeWeight() > 0.01f // not LOD-ed out
 		&& (motion->isBlending() || motion->getStopTime() != 0.f))
@@ -404,7 +424,7 @@ BOOL LLMotionController::startMotion(const LLUUID &id, F32 start_offset)
 	}
 
 //	llinfos << "Starting motion " << name << llendl;
-	return activateMotionInstance(motion, mTime - start_offset);
+	return activateMotionInstance(motion, mAnimTime - start_offset);
 }
 
 
@@ -415,7 +435,6 @@ BOOL LLMotionController::stopMotionLocally(const LLUUID &id, BOOL stop_immediate
 {
 	// if already inactive, return false
 	LLMotion *motion = findMotion(id);
-
 	return stopMotionInstance(motion, stop_immediate);
 }
 
@@ -429,12 +448,7 @@ BOOL LLMotionController::stopMotionInstance(LLMotion* motion, BOOL stop_immediat
 	// If on active list, stop it
 	if (isMotionActive(motion) && !motion->isStopped())
 	{
-		// when using timesteps, set stop time to last frame's time, otherwise grab current timer value
-		// *FIX: should investigate this inconsistency...hints of obscure bugs
-
-		F32 stop_time = (mTimeStep != 0.f || mPaused) ? (mTime) : mTimeOffset + (mTimer.getElapsedTimeF32() * mTimeFactor);
-		motion->setStopTime(stop_time);
-
+		motion->setStopTime(mAnimTime);
 		if (stop_immediate)
 		{
 			deactivateMotionInstance(motion);
@@ -449,7 +463,6 @@ BOOL LLMotionController::stopMotionInstance(LLMotion* motion, BOOL stop_immediat
 
 	return FALSE;
 }
-
 
 //-----------------------------------------------------------------------------
 // updateRegularMotions()
@@ -474,6 +487,59 @@ void LLMotionController::resetJointSignatures()
 {
 	memset(&mJointSignature[0][0], 0, sizeof(U8) * LL_CHARACTER_MAX_JOINTS);
 	memset(&mJointSignature[1][0], 0, sizeof(U8) * LL_CHARACTER_MAX_JOINTS);
+}
+
+//-----------------------------------------------------------------------------
+// updateIdleMotion()
+// minimal updates for active motions
+//-----------------------------------------------------------------------------
+void LLMotionController::updateIdleMotion(LLMotion* motionp)
+{
+	if (motionp->isStopped() && mAnimTime > motionp->getStopTime() + motionp->getEaseOutDuration())
+	{
+		deactivateMotionInstance(motionp);
+	}
+	else if (motionp->isStopped() && mAnimTime > motionp->getStopTime())
+	{
+		// is this the first iteration in the ease out phase?
+		if (mLastTime <= motionp->getStopTime())
+		{
+			// store residual weight for this motion
+			motionp->mResidualWeight = motionp->getPose()->getWeight();
+		}
+	}
+	else if (mAnimTime > motionp->mSendStopTimestamp)
+	{
+		// notify character of timed stop event on first iteration past sendstoptimestamp
+		// this will only be called when an animation stops itself (runs out of time)
+		if (mLastTime <= motionp->mSendStopTimestamp)
+		{
+			mCharacter->requestStopMotion( motionp );
+			stopMotionInstance(motionp, FALSE);
+		}
+	}
+	else if (mAnimTime >= motionp->mActivationTimestamp)
+	{
+		if (mLastTime < motionp->mActivationTimestamp)
+		{
+			motionp->mResidualWeight = motionp->getPose()->getWeight();
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
+// updateIdleActiveMotions()
+// Call this instead of updateMotionsByType for hidden avatars
+//-----------------------------------------------------------------------------
+void LLMotionController::updateIdleActiveMotions()
+{
+	for (motion_list_t::iterator iter = mActiveMotions.begin();
+		 iter != mActiveMotions.end(); )
+	{
+		motion_list_t::iterator curiter = iter++;
+		LLMotion* motionp = *curiter;
+		updateIdleMotion(motionp);
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -531,36 +597,7 @@ void LLMotionController::updateMotionsByType(LLMotion::LLMotionBlendType anim_ty
 
 		if (!update_motion)
 		{
-			if (motionp->isStopped() && mTime > motionp->getStopTime() + motionp->getEaseOutDuration())
-			{
-				deactivateMotionInstance(motionp);
-			}
-			else if (motionp->isStopped() && mTime > motionp->getStopTime())
-			{
-				// is this the first iteration in the ease out phase?
-				if (mLastTime <= motionp->getStopTime())
-				{
-					// store residual weight for this motion
-					motionp->mResidualWeight = motionp->getPose()->getWeight();
-				}
-			}
-			else if (mTime > motionp->mSendStopTimestamp)
-			{
-				// notify character of timed stop event on first iteration past sendstoptimestamp
-				// this will only be called when an animation stops itself (runs out of time)
-				if (mLastTime <= motionp->mSendStopTimestamp)
-				{
-					mCharacter->requestStopMotion( motionp );
-					stopMotionInstance(motionp, FALSE);
-				}
-			}
-			else if (mTime >= motionp->mActivationTimestamp)
-			{
-				if (mLastTime < motionp->mActivationTimestamp)
-				{
-					motionp->mResidualWeight = motionp->getPose()->getWeight();
-				}
-			}
+			updateIdleMotion(motionp);
 			continue;
 		}
 
@@ -572,7 +609,7 @@ void LLMotionController::updateMotionsByType(LLMotion::LLMotionBlendType anim_ty
 			motionp->fadeOut();
 
 			//should we notify the simulator that this motion should be stopped (check even if skipped by LOD logic)
-			if (mTime > motionp->mSendStopTimestamp)
+			if (mAnimTime > motionp->mSendStopTimestamp)
 			{
 				// notify character of timed stop event on first iteration past sendstoptimestamp
 				// this will only be called when an animation stops itself (runs out of time)
@@ -585,7 +622,7 @@ void LLMotionController::updateMotionsByType(LLMotion::LLMotionBlendType anim_ty
 
 			if (motionp->getFadeWeight() < 0.01f)
 			{
-				if (motionp->isStopped() && mTime > motionp->getStopTime() + motionp->getEaseOutDuration())
+				if (motionp->isStopped() && mAnimTime > motionp->getStopTime() + motionp->getEaseOutDuration())
 				{
 					posep->setWeight(0.f);
 					deactivateMotionInstance(motionp);
@@ -601,7 +638,7 @@ void LLMotionController::updateMotionsByType(LLMotion::LLMotionBlendType anim_ty
 		//**********************
 		// MOTION INACTIVE
 		//**********************
-		if (motionp->isStopped() && mTime > motionp->getStopTime() + motionp->getEaseOutDuration())
+		if (motionp->isStopped() && mAnimTime > motionp->getStopTime() + motionp->getEaseOutDuration())
 		{
 			// this motion has gone on too long, deactivate it
 			// did we have a chance to stop it?
@@ -623,7 +660,7 @@ void LLMotionController::updateMotionsByType(LLMotion::LLMotionBlendType anim_ty
 		//**********************
 		// MOTION EASE OUT
 		//**********************
-		else if (motionp->isStopped() && mTime > motionp->getStopTime())
+		else if (motionp->isStopped() && mAnimTime > motionp->getStopTime())
 		{
 			// is this the first iteration in the ease out phase?
 			if (mLastTime <= motionp->getStopTime())
@@ -638,22 +675,22 @@ void LLMotionController::updateMotionsByType(LLMotion::LLMotionBlendType anim_ty
 			}
 			else
 			{
-				posep->setWeight(motionp->getFadeWeight() * motionp->mResidualWeight * cubic_step(1.f - ((mTime - motionp->getStopTime()) / motionp->getEaseOutDuration())));
+				posep->setWeight(motionp->getFadeWeight() * motionp->mResidualWeight * cubic_step(1.f - ((mAnimTime - motionp->getStopTime()) / motionp->getEaseOutDuration())));
 			}
 
 			// perform motion update
-			update_result = motionp->onUpdate(mTime - motionp->mActivationTimestamp, last_joint_signature);
+			update_result = motionp->onUpdate(mAnimTime - motionp->mActivationTimestamp, last_joint_signature);
 		}
 
 		//**********************
 		// MOTION ACTIVE
 		//**********************
-		else if (mTime > motionp->mActivationTimestamp + motionp->getEaseInDuration())
+		else if (mAnimTime > motionp->mActivationTimestamp + motionp->getEaseInDuration())
 		{
 			posep->setWeight(motionp->getFadeWeight());
 
 			//should we notify the simulator that this motion should be stopped?
-			if (mTime > motionp->mSendStopTimestamp)
+			if (mAnimTime > motionp->mSendStopTimestamp)
 			{
 				// notify character of timed stop event on first iteration past sendstoptimestamp
 				// this will only be called when an animation stops itself (runs out of time)
@@ -665,13 +702,13 @@ void LLMotionController::updateMotionsByType(LLMotion::LLMotionBlendType anim_ty
 			}
 
 			// perform motion update
-			update_result = motionp->onUpdate(mTime - motionp->mActivationTimestamp, last_joint_signature);
+			update_result = motionp->onUpdate(mAnimTime - motionp->mActivationTimestamp, last_joint_signature);
 		}
 
 		//**********************
 		// MOTION EASE IN
 		//**********************
-		else if (mTime >= motionp->mActivationTimestamp)
+		else if (mAnimTime >= motionp->mActivationTimestamp)
 		{
 			if (mLastTime < motionp->mActivationTimestamp)
 			{
@@ -684,10 +721,10 @@ void LLMotionController::updateMotionsByType(LLMotion::LLMotionBlendType anim_ty
 			else
 			{
 				// perform motion update
-				posep->setWeight(motionp->getFadeWeight() * motionp->mResidualWeight + (1.f - motionp->mResidualWeight) * cubic_step((mTime - motionp->mActivationTimestamp) / motionp->getEaseInDuration()));
+				posep->setWeight(motionp->getFadeWeight() * motionp->mResidualWeight + (1.f - motionp->mResidualWeight) * cubic_step((mAnimTime - motionp->mActivationTimestamp) / motionp->getEaseInDuration()));
 			}
 			// perform motion update
-			update_result = motionp->onUpdate(mTime - motionp->mActivationTimestamp, last_joint_signature);
+			update_result = motionp->onUpdate(mAnimTime - motionp->mActivationTimestamp, last_joint_signature);
 		}
 		else
 		{
@@ -698,7 +735,7 @@ void LLMotionController::updateMotionsByType(LLMotion::LLMotionBlendType anim_ty
 		// allow motions to deactivate themselves 
 		if (!update_result)
 		{
-			if (!motionp->isStopped() || motionp->getStopTime() > mTime)
+			if (!motionp->isStopped() || motionp->getStopTime() > mAnimTime)
 			{
 				// animation has stopped itself due to internal logic
 				// propagate this to the network
@@ -714,53 +751,11 @@ void LLMotionController::updateMotionsByType(LLMotion::LLMotionBlendType anim_ty
 	}
 }
 
-
 //-----------------------------------------------------------------------------
-// updateMotion()
+// updateLoadingMotions()
 //-----------------------------------------------------------------------------
-void LLMotionController::updateMotion()
+void LLMotionController::updateLoadingMotions()
 {
-	BOOL use_quantum = (mTimeStep != 0.f);
-
-	// Update timing info for this time step.
-	if (!mPaused)
-	{
-		F32 update_time = mTimeOffset + (mTimer.getElapsedTimeF32() * mTimeFactor);
-		if (use_quantum)
-		{
-			F32 time_interval = fmodf(update_time, mTimeStep);
-
-			// always animate *ahead* of actual time
-			S32 quantum_count = llmax(0, llfloor((update_time - time_interval) / mTimeStep)) + 1;
-			if (quantum_count == mTimeStepCount)
-			{
-				// we're still in same time quantum as before, so just interpolate and exit
-				if (!mPaused)
-				{
-					F32 interp = time_interval / mTimeStep;
-					mPoseBlender.interpolate(interp - mLastInterp);
-					mLastInterp = interp;
-				}
-				
-				return;
-			}
-			
-			// is calculating a new keyframe pose, make sure the last one gets applied
-			mPoseBlender.interpolate(1.f);
-			clearBlenders();
-
-			mTimeStepCount = quantum_count;
-			mLastTime = mTime;
-			mTime = (F32)quantum_count * mTimeStep;
-			mLastInterp = 0.f;
-		}
-		else
-		{
-			mLastTime = mTime;
-			mTime = update_time;
-		}
-	}
-
 	// query pending motions for completion
 	for (motion_set_t::iterator iter = mLoadingMotions.begin();
 		 iter != mLoadingMotions.end(); )
@@ -776,11 +771,11 @@ void LLMotionController::updateMotion()
 		{
 			mLoadingMotions.erase(curiter);
 			// add motion to our loaded motion list
-			addLoadedMotion(motionp);
+			mLoadedMotions.insert(motionp);
 			// this motion should be playing
 			if (!motionp->isStopped())
 			{
-				activateMotionInstance(motionp, mTime);
+				activateMotionInstance(motionp, mAnimTime);
 			}
 		}
 		else if (status == LLMotion::STATUS_FAILURE)
@@ -788,15 +783,79 @@ void LLMotionController::updateMotion()
 			llinfos << "Motion " << motionp->getID() << " init failed." << llendl;
 			sRegistry.markBad(motionp->getID());
 			mLoadingMotions.erase(curiter);
-
 			mAllMotions.erase(motionp->getID());
 			delete motionp;
 		}
 	}
+}
+
+//-----------------------------------------------------------------------------
+// call updateMotion() or updateMotionsMinimal() every frame
+//-----------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------
+// updateMotion()
+//-----------------------------------------------------------------------------
+void LLMotionController::updateMotions(bool force_update)
+{
+	BOOL use_quantum = (mTimeStep != 0.f);
+
+	// Always update mPrevTimerElapsed
+	F32 cur_time = mTimer.getElapsedTimeF32();
+	F32 delta_time = cur_time - mPrevTimerElapsed;
+	mPrevTimerElapsed = cur_time;
+	mLastTime = mAnimTime;
+
+	// Always cap the number of loaded motions
+	purgeExcessMotions();
+	
+	// Update timing info for this time step.
+	if (!mPaused)
+	{
+		F32 update_time = mAnimTime + delta_time * mTimeFactor;
+		if (use_quantum)
+		{
+			F32 time_interval = fmodf(update_time, mTimeStep);
+
+			// always animate *ahead* of actual time
+			S32 quantum_count = llmax(0, llfloor((update_time - time_interval) / mTimeStep)) + 1;
+			if (quantum_count == mTimeStepCount)
+			{
+				// we're still in same time quantum as before, so just interpolate and exit
+				if (!mPaused)
+				{
+					F32 interp = time_interval / mTimeStep;
+					mPoseBlender.interpolate(interp - mLastInterp);
+					mLastInterp = interp;
+				}
+
+				updateLoadingMotions();
+				return;
+			}
+			
+			// is calculating a new keyframe pose, make sure the last one gets applied
+			mPoseBlender.interpolate(1.f);
+			clearBlenders();
+
+			mTimeStepCount = quantum_count;
+			mAnimTime = (F32)quantum_count * mTimeStep;
+			mLastInterp = 0.f;
+		}
+		else
+		{
+			mAnimTime = update_time;
+		}
+	}
+
+	updateLoadingMotions();
 
 	resetJointSignatures();
 
-	if (!mPaused)
+	if (mPaused && !force_update)
+	{
+		updateIdleActiveMotions();
+	}
+	else
 	{
 		// update additive motions
 		updateAdditiveMotions();
@@ -819,6 +878,23 @@ void LLMotionController::updateMotion()
 //	llinfos << "Motion controller time " << motionTimer.getElapsedTimeF32() << llendl;
 }
 
+//-----------------------------------------------------------------------------
+// updateMotionsMinimal()
+// minimal update (e.g. while hidden)
+//-----------------------------------------------------------------------------
+void LLMotionController::updateMotionsMinimal()
+{
+	// Always update mPrevTimerElapsed
+	mPrevTimerElapsed = mTimer.getElapsedTimeF32();
+
+	purgeExcessMotions();
+	updateLoadingMotions();
+	resetJointSignatures();
+
+	deactivateStoppedMotions();
+
+	mHasRunOnce = TRUE;
+}
 
 //-----------------------------------------------------------------------------
 // activateMotionInstance()
@@ -841,7 +917,6 @@ BOOL LLMotionController::activateMotionInstance(LLMotion *motion, F32 time)
 	}
 
 	motion->mResidualWeight = motion->getPose()->getWeight();
-	motion->mActivationTimestamp = time;
 
 	// set stop time based on given duration and ease out time
 	if (motion->getDuration() != 0.f && !motion->getLoop())
@@ -862,13 +937,26 @@ BOOL LLMotionController::activateMotionInstance(LLMotion *motion, F32 time)
 	{
 		motion->mSendStopTimestamp = F32_MAX;
 	}
-
-	mActiveMotions.remove(motion); // in case it is already in the active list
+	
+	if (motion->isActive())
+	{
+		mActiveMotions.remove(motion);
+	}
 	mActiveMotions.push_front(motion);
 
-	motion->activate();
+	motion->activate(time);
 	motion->onUpdate(0.f, mJointSignature[1]);
 
+	if (mAnimTime >= motion->mSendStopTimestamp)
+	{
+		motion->setStopTime(motion->mSendStopTimestamp);
+		if (motion->mResidualWeight == 0.0f)
+		{
+			// bit of a hack; if newly activating a motion while easing out, weight should = 1
+			motion->mResidualWeight = 1.f;
+		}
+	}
+	
 	return TRUE;
 }
 
@@ -925,9 +1013,17 @@ bool LLMotionController::isMotionLoading(LLMotion* motion)
 //-----------------------------------------------------------------------------
 // findMotion()
 //-----------------------------------------------------------------------------
-LLMotion *LLMotionController::findMotion(const LLUUID& id)
+LLMotion* LLMotionController::findMotion(const LLUUID& id)
 {
-	return get_if_there<LLUUID, LLMotion*>(mAllMotions, id, NULL);
+	motion_map_t::iterator iter = mAllMotions.find(id);
+	if(iter == mAllMotions.end())
+	{
+		return NULL;
+	}
+	else
+	{
+		return iter->second;
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -935,16 +1031,12 @@ LLMotion *LLMotionController::findMotion(const LLUUID& id)
 //-----------------------------------------------------------------------------
 void LLMotionController::deactivateAllMotions()
 {
-	//They must all die, precious.
-	for (std::map<LLUUID, LLMotion*>::iterator iter = mAllMotions.begin();
+	for (motion_map_t::iterator iter = mAllMotions.begin();
 		 iter != mAllMotions.end(); iter++)
 	{
 		LLMotion* motionp = iter->second;
-		if (motionp) motionp->deactivate();
+		deactivateMotionInstance(motionp);
 	}
-
-	// delete all motion instances
-	deleteAllMotions();
 }
 
 
@@ -960,11 +1052,12 @@ void LLMotionController::flushAllMotions()
 	{
 		motion_list_t::iterator curiter = iter++;
 		LLMotion* motionp = *curiter;
-		F32 dtime = mTime - motionp->mActivationTimestamp;
+		F32 dtime = mAnimTime - motionp->mActivationTimestamp;
 		active_motions.push_back(std::make_pair(motionp->getID(),dtime));
-		motionp->deactivate();
+		motionp->deactivate(); // don't call deactivateMotionInstance() because we are going to reactivate it
 	}
-
+ 	mActiveMotions.clear();
+	
 	// delete all motion instances
 	deleteAllMotions();
 
@@ -983,12 +1076,11 @@ void LLMotionController::flushAllMotions()
 //-----------------------------------------------------------------------------
 // pause()
 //-----------------------------------------------------------------------------
-void LLMotionController::pause()
+void LLMotionController::pauseAllMotions()
 {
 	if (!mPaused)
 	{
 		//llinfos << "Pausing animations..." << llendl;
-		mPauseTime = mTimer.getElapsedTimeF32();
 		mPaused = TRUE;
 	}
 	
@@ -997,13 +1089,11 @@ void LLMotionController::pause()
 //-----------------------------------------------------------------------------
 // unpause()
 //-----------------------------------------------------------------------------
-void LLMotionController::unpause()
+void LLMotionController::unpauseAllMotions()
 {
 	if (mPaused)
 	{
 		//llinfos << "Unpausing animations..." << llendl;
-		mTimer.reset();
-		mTimer.setAge(mPauseTime);
 		mPaused = FALSE;
 	}
 }

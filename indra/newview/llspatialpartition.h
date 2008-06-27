@@ -66,7 +66,6 @@ public:
 
 	LLPointer<LLVertexBuffer> mVertexBuffer;
 	LLPointer<LLViewerImage> mTexture;
-	LLPointer<LLCubeMap> mReflectionMap;
 	LLColor4U mGlowColor;
 	S32 mDebugColor;
 	const LLMatrix4* mTextureMatrix;
@@ -262,7 +261,6 @@ public:
 	LLPointer<LLVertexBuffer> mVertexBuffer;
 	F32*					mOcclusionVerts;
 	GLuint					mOcclusionQuery;
-	LLPointer<LLCubeMap>	mReflectionMap;
 
 	U32 mBufferUsage;
 	draw_map_t mDrawMap;
@@ -314,8 +312,6 @@ public:
 	virtual void rebuildGeom(LLSpatialGroup* group);
 
 	S32 cull(LLCamera &camera, std::vector<LLDrawable *>* results = NULL, BOOL for_select = FALSE); // Cull on arbitrary frustum
-	void markReimage(LLSpatialGroup* group);
-	void processImagery(LLCamera* camera);
 	
 	BOOL isVisible(const LLVector3& v);
 	
@@ -326,23 +322,12 @@ public:
 	void restoreGL();
 	void resetVertexBuffers();
 	
-protected:
-	
-	typedef std::set<LLPointer<LLSpatialGroup> > spatial_group_set_t;
-	spatial_group_set_t mSpatialGroups;
-
-	typedef std::queue<LLPointer<LLSpatialGroup> > spatial_group_queue_t;
-	
-	//things that need an image update
-	spatial_group_queue_t mImageQueue;
-
 public:
 	LLSpatialGroup::OctreeNode* mOctree;
 	BOOL mOcclusionEnabled; // if TRUE, occlusion culling is performed
 	BOOL mInfiniteFarClip; // if TRUE, frustum culling ignores far clip plane
 	U32 mBufferUsage;
 	BOOL mRenderByGroup;
-	BOOL mImageEnabled;
 	U32 mLODSeed;
 	U32 mLODPeriod;	//number of frames between LOD updates for a given spatial group (staggered by mLODSeed)
 	U32 mVertexDataMask;

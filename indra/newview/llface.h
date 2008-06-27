@@ -296,9 +296,6 @@ public:
 				lhs->getTexture() < rhs->getTexture();
 		}
 	};
-
-public://paranoia check only
-	static S32 sDeleteLock ;
 };
 
 #endif // LL_LLFACE_H

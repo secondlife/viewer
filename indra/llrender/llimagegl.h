@@ -207,9 +207,6 @@ public:
 #else
 	BOOL getMissed() const { return FALSE; };
 #endif
-
-private://paranoia error check
-	static BOOL sRefCheck ;
 };
 
 #endif // LL_LLIMAGEGL_H

@@ -96,6 +96,33 @@ LLCrashLogger::~LLCrashLogger()
 
 }
 
+// TRIM_SIZE must remain larger than LINE_SEARCH_SIZE.
+const int TRIM_SIZE = 128000;
+const int LINE_SEARCH_DIST = 500;
+const std::string SKIP_TEXT = "\n ...Skipping... \n";
+void trimSLLog(std::string& sllog)
+{
+	if(sllog.length() > TRIM_SIZE * 2)
+	{
+		std::string::iterator head = sllog.begin() + TRIM_SIZE;
+		std::string::iterator tail = sllog.begin() + sllog.length() - TRIM_SIZE;
+		std::string::iterator new_head = std::find(head, head - LINE_SEARCH_DIST, '\n');
+		if(new_head != head - LINE_SEARCH_DIST)
+		{
+			head = new_head;
+		}
+
+		std::string::iterator new_tail = std::find(tail, tail + LINE_SEARCH_DIST, '\n');
+		if(new_tail != tail + LINE_SEARCH_DIST)
+		{
+			tail = new_tail;
+		}
+
+		sllog.erase(head, tail);
+		sllog.insert(head, SKIP_TEXT.begin(), SKIP_TEXT.end());
+	}
+}
+
 void LLCrashLogger::gatherFiles()
 {
 
@@ -129,7 +156,15 @@ void LLCrashLogger::gatherFiles()
 		LLSDSerialize::fromXML(mDebugLog, debug_log_file);
 		mFileMap["SecondLifeLog"] = mDebugLog["SLLog"].asString();
 		mFileMap["SettingsXml"] = mDebugLog["SettingsFilename"].asString();
-		LLCurl::setCAFile(mDebugLog["CAFilename"].asString());
+		if(mDebugLog.has("CAFilename"))
+		{
+			LLCurl::setCAFile(mDebugLog["CAFilename"].asString());
+		}
+		else
+		{
+			LLCurl::setCAFile(gDirUtilp->getCAFile());
+		}
+
 		llinfos << "Using log file from debug log " << mFileMap["SecondLifeLog"] << llendl;
 		llinfos << "Using settings file from debug log " << mFileMap["SettingsXml"] << llendl;
 	}
@@ -150,6 +185,17 @@ void LLCrashLogger::gatherFiles()
 		mCrashHost += mDebugLog["CurrentSimHost"].asString();
 		mCrashHost += ":12043/crash/report";
 	}
+	else if(mDebugLog.has("GridName"))
+	{
+		// This is a 'little' hacky, but its the best simple solution.
+		std::string grid_host = mDebugLog["GridName"].asString();
+		LLStringUtil::toLower(grid_host);
+
+		mCrashHost = "https://login.";
+		mCrashHost += grid_host;
+		mCrashHost += ".lindenlab.com:12043/crash/report";
+	}
+
 	// Use login servers as the alternate, since they are already load balanced and have a known name
 	mAltCrashHost = "https://login.agni.lindenlab.com:12043/crash/report";
 
@@ -169,7 +215,14 @@ void LLCrashLogger::gatherFiles()
 		}
 		std::stringstream s;
 		s << f.rdbuf();
-		mCrashInfo[(*itr).first] = s.str();
+
+		std::string crash_info = s.str();
+		if(itr->first == "SecondLifeLog")
+		{
+			trimSLLog(crash_info);
+		}
+
+		mCrashInfo[(*itr).first] = crash_info;
 	}
 }
 

@@ -871,8 +871,6 @@ void LLFloaterWorldMap::buildLandmarkIDLists()
 	{
 		list->selectItemRange(1, -1);
 		list->operateOnSelection(LLCtrlListInterface::OP_DELETE);
-
-		llassert_always(list->getItemCount() == 1) ;
 	}
 
 	mLandmarkItemIDList.reset();

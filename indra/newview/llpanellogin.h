@@ -92,8 +92,8 @@ public:
 	static void getFields(std::string& firstname, std::string& lastname,
 						  std::string& password, BOOL& remember);
 
-	static BOOL getServer(std::string& server, S32& domain_name);
-	static void getLocation(std::string& location);
+	static BOOL isGridComboDirty();
+	static void getLocation(std::string &location);
 
 	static void close();
 

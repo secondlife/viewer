@@ -194,6 +194,7 @@ void LLPreviewAnim::onClose(bool app_quitting)
 		
 		if (motion)
 		{
+			// *TODO: minor memory leak here, user data is never deleted (Use real callbacks)
 			motion->setDeactivateCallback(NULL, (void *)NULL);
 		}
 	}

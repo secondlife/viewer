@@ -76,6 +76,7 @@
 #include "llviewerinventory.h"
 #include "llviewerobjectlist.h"
 #include "llviewerwindow.h"
+#include "llvoavatar.h"
 #include "llwearable.h"
 #include "llwearablelist.h"
 #include "llviewermessage.h" 

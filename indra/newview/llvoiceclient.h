@@ -31,8 +31,6 @@
 #ifndef LL_VOICE_CLIENT_H
 #define LL_VOICE_CLIENT_H
 
-// This would create a circular reference -- just do a forward definition of necessary class names.
-//#include "llvoavatar.h"
 class LLVOAvatar;
 class LLVivoxProtocolParser;
 

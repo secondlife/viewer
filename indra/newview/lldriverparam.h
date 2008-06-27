@@ -32,8 +32,9 @@
 #ifndef LL_LLDRIVERPARAM_H
 #define LL_LLDRIVERPARAM_H
 
-#include "llvoavatar.h"
 #include "llviewervisualparam.h"
+
+class LLVOAvatar;
 
 //-----------------------------------------------------------------------------
 

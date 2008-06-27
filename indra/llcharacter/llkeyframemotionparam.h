@@ -126,15 +126,18 @@ protected:
 	//-------------------------------------------------------------------------
 	// new functions defined by this subclass
 	//-------------------------------------------------------------------------
-	typedef std::pair<LLMotion*, F32> ParameterizedMotion;
+	struct ParameterizedMotion
+	{
+		ParameterizedMotion(LLMotion* motion, F32 param) : mMotion(motion), mParam(param) {}
+		LLMotion* mMotion;
+		F32 mParam;
+	};
 	
 	// add a motion and associated parameter triplet
 	BOOL addKeyframeMotion(char *name, const LLUUID &id, char *param, F32 value);
 	
 	// set default motion for LOD and retrieving blend constants
 	void setDefaultKeyframeMotion(char *);
-
-	static BOOL sortFunc(ParameterizedMotion *new_motion, ParameterizedMotion *tested_motion);
 
 	BOOL loadMotions();
 
@@ -147,10 +150,10 @@ protected:
 	{
 		bool operator() (const ParameterizedMotion& a, const ParameterizedMotion& b) const
 		{
-			if (a.second != b.second)
-				return (a.second < b.second);
+			if (a.mParam != b.mParam)
+				return (a.mParam < b.mParam);
 			else
-				return a.first < b.first;
+				return a.mMotion < b.mMotion;
 		}
 	};
 	

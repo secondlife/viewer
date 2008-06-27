@@ -131,6 +131,8 @@ public:
 	F32 getSavedResidentVolume(const LLUUID& id);
 
 private:
+	void loadUserVolumes();
+	
 	BOOL loadFromFile(const std::string& filename);
 	BOOL saveToFile(const std::string& filename);
 
@@ -171,11 +173,12 @@ private:
 	observer_set_t mObservers;
 
 	BOOL mIsLoaded;
+	BOOL mUserVolumesLoaded;
 
 	friend class LLDispatchEmptyMuteList;
 
 	typedef std::map<LLUUID, F32> user_volume_map_t; 
-	static user_volume_map_t sUserVolumeSettings;
+	user_volume_map_t mUserVolumeSettings;
 };
 
 class LLMuteListObserver

@@ -842,8 +842,8 @@ void LLImageRaw::scale( S32 new_width, S32 new_height, BOOL scale_image_data )
 		U8*	temp_buffer	= new U8[ temp_data_size ];
 		if (!temp_buffer)
 		{
-			llerrs << "Out of memory in LLImageRaw::scale( S32 new_width, S32 new_height, BOOL scale_image_data )" << llendl;
-			return;
+			llerrs << "Out of memory in LLImageRaw::scale: old (w, h, c) = (" << old_width << ", " << old_height << ", " << (S32)getComponents() << 
+				") ; new (w, h, c) = (" << new_width << ", " << new_height << ", " << (S32)getComponents() << ")" << llendl;			
 		}
 		memcpy(temp_buffer,	getData(), temp_data_size);	/* Flawfinder: ignore */
 

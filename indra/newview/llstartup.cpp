@@ -816,26 +816,11 @@ BOOL idle_startup()
 
 		if (show_connect_box)
 		{
-			// TODO only set loginuri based on server choice if ! USE_VIEWER_AUTH
-			std::string server_label;
-			S32 domain_name_index;
-			BOOL user_picked_server = LLPanelLogin::getServer( server_label, domain_name_index );
-			if((EGridInfo)domain_name_index == GRID_INFO_OTHER)
+			if ( LLPanelLogin::isGridComboDirty() )
 			{
-				// Since the grid chosen was an 'other', set the choice by string. 
-				LLViewerLogin::getInstance()->setGridChoice(server_label);
-			}
-			else
-			{
-				// Set the choice according to index.
-				LLViewerLogin::getInstance()->setGridChoice((EGridInfo)domain_name_index);
-			}
-			
-			if ( user_picked_server )
-			{   // User picked a grid from the popup, so clear the 
-				// stored uris and they will be re-generated from the GridChoice
+				// User picked a grid from the popup, so clear the 
+				// stored uris and they will be reacquired from the grid choice.
 				sAuthUris.clear();
-				LLViewerLogin::getInstance()->resetURIs();
 			}
 			
 			std::string location;
@@ -2224,6 +2209,18 @@ BOOL idle_startup()
 	{
 		do_normal_idle = TRUE;
 		
+		// Avoid generic Ruth avatar in Orientation Island by starting
+		// our outfit load as soon as possible.  This will be replaced
+		// with a more definitive patch from featurettes-4 later. JC
+		if (gAgent.isFirstLogin()
+			&& !gInitialOutfit.empty()  // registration set up an outfit
+			&& gAgent.getAvatarObject()	// can't wear clothes until have obj
+			&& !gAgent.isGenderChosen() ) // nothing already loaded
+		{
+			llinfos << "Wearing initial outfit " << gInitialOutfit << llendl;
+			callback_choose_gender(-1, NULL);
+		}
+
 		F32 timeout_frac = timeout.getElapsedTimeF32()/PRECACHING_DELAY;
 		// wait precache-delay and for agent's avatar or a lot longer.
 		if(((timeout_frac > 1.f) && gAgent.getAvatarObject())
@@ -2234,7 +2231,7 @@ BOOL idle_startup()
 		else
 		{
 			update_texture_fetch();
-			set_startup_status(0.60f + 0.40f * timeout_frac,
+			set_startup_status(0.60f + 0.20f * timeout_frac,
 				"Loading world...",
 					gAgent.mMOTD);
 		}
@@ -2264,7 +2261,7 @@ BOOL idle_startup()
 		else
 		{
 			update_texture_fetch();
-			set_startup_status(0.f + 0.25f * wearables_time / MAX_WEARABLES_TIME,
+			set_startup_status(0.80f + 0.20f * wearables_time / MAX_WEARABLES_TIME,
 							 LLTrans::getString("LoginDownloadingClothing"),
 							 gAgent.mMOTD);
 		}

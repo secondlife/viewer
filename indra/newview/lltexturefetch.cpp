@@ -48,7 +48,6 @@
 #include "llviewerregion.h"
 
 //////////////////////////////////////////////////////////////////////////////
-
 //static
 class LLTextureFetchWorker : public LLWorkerClass
 {
@@ -435,6 +434,7 @@ LLTextureFetchWorker::LLTextureFetchWorker(LLTextureFetch* fetcher,
 
 LLTextureFetchWorker::~LLTextureFetchWorker()
 {
+	llassert_always(LLWorkerClass::sDeleteLock) ;
 // 	llinfos << "Destroy: " << mID
 // 			<< " Decoded=" << mDecodedDiscard
 // 			<< " Requested=" << mRequestedDiscard
@@ -1052,9 +1052,11 @@ bool LLTextureFetchWorker::processSimulatorPackets()
 {
 	if (mLastPacket >= mFirstPacket)
 	{
+		llassert_always(mFormattedImage) ;
 		S32 buffer_size = mFormattedImage->getDataSize();
 		for (S32 i = mFirstPacket; i<=mLastPacket; i++)
 		{
+			llassert_always(mPackets[i]) ;
 			buffer_size += mPackets[i]->mSize;
 		}
 		bool have_all_data = mLastPacket >= mTotalPackets-1;
@@ -1436,13 +1438,16 @@ void LLTextureFetch::removeFromNetworkQueue(LLTextureFetchWorker* worker)
 // call lockQueue() first!
 void LLTextureFetch::removeRequest(LLTextureFetchWorker* worker, bool cancel)
 {
-	mRequestMap.erase(worker->mID);
+	size_t erased_1 = mRequestMap.erase(worker->mID);
+	llassert_always(erased_1 > 0) ;
 	size_t erased = mNetworkQueue.erase(worker->mID);
 	if (cancel && erased > 0)
 	{
 		mCancelQueue[worker->mHost].insert(worker->mID);
 	}
-	worker->scheduleDelete();
+	llassert_always(!(worker->getFlags(LLWorkerClass::WCF_DELETE_REQUESTED))) ;
+
+	worker->scheduleDelete();	
 }
 
 // call lockQueue() first!

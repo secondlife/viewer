@@ -56,7 +56,6 @@ extern LLPipeline gPipeline;
 // LLViewerJointAttachment()
 //-----------------------------------------------------------------------------
 LLViewerJointAttachment::LLViewerJointAttachment() :
-mJoint(NULL),
 mAttachedObject(NULL),
 mVisibleInFirst(FALSE),
 mGroup(0),

@@ -57,30 +57,6 @@ class LLCharacter;
 //-----------------------------------------------------------------------------
 typedef LLMotion*(*LLMotionConstructor)(const LLUUID &id);
 
-class LLMotionTableEntry
-{
-public:
-	LLMotionTableEntry();
-	LLMotionTableEntry(LLMotionConstructor constructor, const LLUUID& id);
-	~LLMotionTableEntry(){};
-
-	LLMotion* create(const LLUUID& id);
-	static BOOL uuidEq(const LLUUID &uuid, const LLMotionTableEntry &id_pair)
-	{
-		if (uuid == id_pair.mID)
-		{
-			return TRUE;
-		}
-		return FALSE;
-	}
-
-	const LLUUID& getID() { return mID; }
-
-protected:
-	LLMotionConstructor		mConstructor;
-	LLUUID	mID;
-};
-
 class LLMotionRegistry
 {
 public:
@@ -92,7 +68,7 @@ public:
 
 	// adds motion classes to the registry
 	// returns true if successfull
-	BOOL addMotion( const LLUUID& id, LLMotionConstructor create);
+	BOOL registerMotion( const LLUUID& id, LLMotionConstructor create);
 
 	// creates a new instance of a named motion
 	// returns NULL motion is not registered
@@ -103,7 +79,8 @@ public:
 
 
 protected:
-	LLUUIDHashMap<LLMotionTableEntry, 32>	mMotionTable;
+	typedef std::map<LLUUID, LLMotionConstructor> motion_map_t;
+	motion_map_t mMotionTable;
 };
 
 //-----------------------------------------------------------------------------
@@ -130,7 +107,7 @@ public:
 	// registers a motion with the controller
 	// (actually just forwards call to motion registry)
 	// returns true if successfull
-	BOOL addMotion( const LLUUID& id, LLMotionConstructor create );
+	BOOL registerMotion( const LLUUID& id, LLMotionConstructor create );
 
 	// creates a motion from the registry
 	LLMotion *createMotion( const LLUUID &id );
@@ -151,11 +128,17 @@ public:
 	// returns true if successful
 	BOOL stopMotionLocally( const LLUUID &id, BOOL stop_immediate );
 
+	// Move motions from loading to loaded
+	void updateLoadingMotions();
+	
 	// update motions
 	// invokes the update handlers for each active motion
 	// activates sequenced motions
 	// deactivates terminated motions`
-	void updateMotion();
+	void updateMotions(bool force_update = false);
+
+	// minimal update (e.g. while hidden)
+	void updateMotionsMinimal();
 
 	void clearBlenders() { mPoseBlender.clearBlenders(); }
 
@@ -167,8 +150,8 @@ public:
 	void deactivateAllMotions();	
 
 	// pause and continue all motions
-	void pause();
-	void unpause();
+	void pauseAllMotions();
+	void unpauseAllMotions();
 	BOOL isPaused() { return mPaused; }
 
 	void setTimeStep(F32 step);
@@ -178,6 +161,8 @@ public:
 
 	motion_list_t& getActiveMotions() { return mActiveMotions; }
 
+	void incMotionCounts(S32& num_motions, S32& num_loading_motions, S32& num_loaded_motions, S32& num_active_motions, S32& num_deprecated_motions);
+	
 //protected:
 	bool isMotionActive( LLMotion *motion );
 	bool isMotionLoading( LLMotion *motion );
@@ -187,7 +172,6 @@ protected:
 	// internal operations act on motion instances directly
 	// as there can be duplicate motions per id during blending overlap
 	void deleteAllMotions();
-	void addLoadedMotion(LLMotion *motion);
 	BOOL activateMotionInstance(LLMotion *motion, F32 time);
 	BOOL deactivateMotionInstance(LLMotion *motion);
 	void deprecateMotionInstance(LLMotion* motion);
@@ -197,6 +181,10 @@ protected:
 	void updateAdditiveMotions();
 	void resetJointSignatures();
 	void updateMotionsByType(LLMotion::LLMotionBlendType motion_type);
+	void updateIdleMotion(LLMotion* motionp);
+	void updateIdleActiveMotions();
+	void purgeExcessMotions();
+	void deactivateStoppedMotions();
 
 protected:
 	F32					mTimeFactor;
@@ -210,20 +198,20 @@ protected:
 //	Animations are instantiated and immediately put in the mAllMotions map for their entire lifetime.
 //	If the animations depend on any asset data, the appropriate data is fetched from the data server,
 //	and the animation is put on the mLoadingMotions list.
-//	Once an animations is loaded, it will be initialized and put on the mLoadedMotions deque.
+//	Once an animations is loaded, it will be initialized and put on the mLoadedMotions list.
 //	Any animation that is currently playing also sits in the mActiveMotions list.
 
 	typedef std::map<LLUUID, LLMotion*> motion_map_t;
 	motion_map_t	mAllMotions;
 
 	motion_set_t		mLoadingMotions;
-	motion_list_t		mLoadedMotions;
+	motion_set_t		mLoadedMotions;
 	motion_list_t		mActiveMotions;
 	motion_set_t		mDeprecatedMotions;
 	
 	LLFrameTimer		mTimer;
-	F32					mTime;
-	F32					mTimeOffset;
+	F32					mPrevTimerElapsed;
+	F32					mAnimTime;
 	F32					mLastTime;
 	BOOL				mHasRunOnce;
 	BOOL				mPaused;

@@ -777,9 +777,8 @@ void LLPanelLogin::getFields(std::string &firstname, std::string &lastname, std:
 	remember = sInstance->childGetValue("remember_check");
 }
 
-
-// static.  Return TRUE if user made a choice from the popup
-BOOL LLPanelLogin::getServer(std::string &server, S32 &domain_name)
+// static
+BOOL LLPanelLogin::isGridComboDirty()
 {
 	BOOL user_picked = FALSE;
 	if (!sInstance)
@@ -789,25 +788,8 @@ BOOL LLPanelLogin::getServer(std::string &server, S32 &domain_name)
 	else
 	{
 		LLComboBox* combo = sInstance->getChild<LLComboBox>("server_combo");
-		LLSD combo_val = combo->getValue();
-		if (LLSD::TypeInteger == combo_val.type())
-		{
-			domain_name = combo->getValue().asInteger();
-
-			if ((S32)GRID_INFO_OTHER == domain_name)
-			{
-				server = LLViewerLogin::getInstance()->getGridLabel();
-			}
-		}
-		else
-		{
-			// no valid selection, return other
-			domain_name = (S32)GRID_INFO_OTHER;
-			server = combo_val.asString();
-		}
 		user_picked = combo->isDirty();
 	}
-
 	return user_picked;
 }
 
@@ -941,19 +923,13 @@ void LLPanelLogin::loadLoginPage()
 	curl_free(curl_version);
 
 	// Grid
-	std::string grid;
-	S32 grid_index;
-	getServer( grid, grid_index );
+	char* curl_grid = curl_escape(LLViewerLogin::getInstance()->getGridLabel().c_str(), 0);
+	oStr << "&grid=" << curl_grid;
+	curl_free(curl_grid);
 
 	gViewerWindow->setMenuBackgroundColor(false, !LLViewerLogin::getInstance()->isInProductionGrid());
 	gLoginMenuBarView->setBackgroundColor(gMenuBarView->getBackgroundColor());
 
-	if (!grid.empty())
-	{
-		char* curl_grid = curl_escape(grid.c_str(), 0);
-		oStr << "&grid=" << curl_grid;
-		curl_free(curl_grid);
-	}
 
 #if USE_VIEWER_AUTH
 	LLURLSimString::sInstance.parse();
@@ -1167,9 +1143,29 @@ void LLPanelLogin::onSelectServer(LLUICtrl*, void*)
 {
 	// The user twiddled with the grid choice ui.
 	// apply the selection to the grid setting.
-	std::string grid;
+	std::string grid_label;
 	S32 grid_index;
-	getServer( grid, grid_index );
+
+	LLComboBox* combo = sInstance->getChild<LLComboBox>("server_combo");
+	LLSD combo_val = combo->getValue();
+
+	if (LLSD::TypeInteger == combo_val.type())
+	{
+		grid_index = combo->getValue().asInteger();
+
+		if ((S32)GRID_INFO_OTHER == grid_index)
+		{
+			// This happens if the user specifies a custom grid
+			// via command line.
+			grid_label = combo->getSimple();
+		}
+	}
+	else
+	{
+		// no valid selection, return other
+		grid_index = (S32)GRID_INFO_OTHER;
+		grid_label = combo_val.asString();
+	}
 
 	// This new seelction will override preset uris
 	// from the command line.
@@ -1178,11 +1174,10 @@ void LLPanelLogin::onSelectServer(LLUICtrl*, void*)
 	if(grid_index != GRID_INFO_OTHER)
 	{
 		vl->setGridChoice((EGridInfo)grid_index);
-		grid = vl->getGridLabel();
 	}
 	else
 	{
-		vl->setGridChoice(grid);
+		vl->setGridChoice(grid_label);
 	}
 
 	// grid changed so show new splash screen (possibly)

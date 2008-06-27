@@ -230,7 +230,6 @@ void LLDrawPoolAlpha::renderGroupAlpha(LLSpatialGroup* group, U32 type, U32 mask
 
 		if (texture && params.mTexture.notNull())
 		{
-			llassert_always(gGL.getTexUnit(0)) ;
 			gGL.getTexUnit(0)->activate();
 			params.mTexture->bind();
 			params.mTexture->addTextureStats(params.mVSize);

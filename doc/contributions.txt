@@ -53,6 +53,7 @@ Alissa Sabre
         VWR-7153
         VWR-7168
         VWR-7087
+        VWR-7086
 Angus Boyd
 	VWR-592
 Argent Stonecutter
@@ -146,6 +147,7 @@ Ginko Bayliss
 	VWR-4
 Grazer Kline
 	VWR-1092
+	VWR-2113
 Gudmund Shepherd
 	VWR-1594
 Hamncheese Omlet
@@ -363,6 +365,8 @@ Tharax Ferraris
 Thraxis Epsilon
 	SVC-371
 	VWR-383
+Wilton Lundquist
+	VWR-7682
 Whoops Babii
 	VWR-631
 	VWR-1640

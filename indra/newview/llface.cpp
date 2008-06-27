@@ -57,7 +57,6 @@
 extern BOOL gPickFaces;
 
 BOOL LLFace::sSafeRenderSelect = TRUE; // FALSE
-S32  LLFace::sDeleteLock = 0 ;
 
 #define DOTVEC(a,b) (a.mV[0]*b.mV[0] + a.mV[1]*b.mV[1] + a.mV[2]*b.mV[2])
 
@@ -178,9 +177,6 @@ void LLFace::init(LLDrawable* drawablep, LLViewerObject* objp)
 
 void LLFace::destroy()
 {
-	llassert_always(sDeleteLock >= 1);
-	--sDeleteLock;
-	
 	mDrawablep = NULL;
 	mVObjp = NULL;
 

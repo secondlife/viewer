@@ -41,6 +41,7 @@
 #include "llfontgl.h"
 #include "llmemtype.h"
 
+#include "llcharacter.h"
 #include "llui.h"
 #include "llviewercontrol.h"
 #include "llstat.h"
@@ -120,6 +121,7 @@ static const struct mtv_display_info mtv_display_table[] =
 	{ LLMemType::MTYPE_SPACE_PARTITION,	"Space Partition",	&LLColor4::blue2 },
 	{ LLMemType::MTYPE_VERTEX_DATA,		"Vertex Buffer",	&LLColor4::blue3 },
 	{ LLMemType::MTYPE_AVATAR,			"Avatar",			&LLColor4::purple1 },
+	{ LLMemType::MTYPE_ANIMATION,		"Animation",		&LLColor4::purple3 },
 	{ LLMemType::MTYPE_REGIONS,			"Regions",			&LLColor4::blue1 },
 	{ LLMemType::MTYPE_VOLUME,			"Volume",			&LLColor4::pink1 },
 	{ LLMemType::MTYPE_PRIMITIVE,		"Profile",			&LLColor4::pink2 },
@@ -208,10 +210,25 @@ void LLMemoryView::draw()
 			if (textw > labelwidth)
 				labelwidth = textw;
 		}
+
+		S32 num_avatars = 0;
+		S32 num_motions = 0;
+		S32 num_loading_motions = 0;
+		S32 num_loaded_motions = 0;
+		S32 num_active_motions = 0;
+		S32 num_deprecated_motions = 0;
+		for (std::vector<LLCharacter*>::iterator iter = LLCharacter::sInstances.begin();
+			 iter != LLCharacter::sInstances.end(); ++iter)
+		{
+			num_avatars++;
+			(*iter)->getMotionController().incMotionCounts(num_motions, num_loading_motions, num_loaded_motions, num_active_motions, num_deprecated_motions);
+		}
+		
 		x = xleft;
-	        tdesc = llformat("Total Bytes: %d MB Overhead: %d KB",
-					 LLMemType::sTotalMem >> 20, LLMemType::sOverheadMem >> 10);
-         	LLFontGL::sMonospace->renderUTF8(tdesc, 0, x, y, LLColor4::white, LLFontGL::LEFT, LLFontGL::TOP);
+		tdesc = llformat("Total Bytes: %d MB Overhead: %d KB Avs %d Motions:%d Loading:%d Loaded:%d Active:%d Dep:%d",
+						 LLMemType::sTotalMem >> 20, LLMemType::sOverheadMem >> 10,
+						 num_avatars, num_motions, num_loading_motions, num_loaded_motions, num_active_motions, num_deprecated_motions);
+		LLFontGL::sMonospace->renderUTF8(tdesc, 0, x, y, LLColor4::white, LLFontGL::LEFT, LLFontGL::TOP);
 	}
 
 	// Bars

@@ -1429,11 +1429,6 @@ void init_debug_rendering_menu(LLMenuGL* menu)
 	item = new LLMenuItemCheckGL("Run Multiple Threads", menu_toggle_control, NULL, menu_check_control, (void*)"RunMultipleThreads");
 	menu->append(item);
 
-#ifndef LL_RELEASE_FOR_DOWNLOAD
-	item = new LLMenuItemCheckGL("Dynamic Reflections", menu_toggle_control, NULL, menu_check_control, (void*)"RenderDynamicReflections");
-	menu->append(item);
-#endif
-	
 	item = new LLMenuItemCheckGL("Cheesy Beacon", menu_toggle_control, NULL, menu_check_control, (void*)"CheesyBeacon");
 	menu->append(item);
 	

@@ -120,13 +120,8 @@ static LLGridData gGridInfo[GRID_INFO_COUNT] =
 	  "" }
 };
 
-#if LL_RELEASE_FOR_DOWNLOAD
-	// Default userserver for production builds is agni
-	const EGridInfo DEFAULT_GRID_CHOICE = GRID_INFO_AGNI;
-#else
-	// Default userserver for development builds is none
-	const EGridInfo DEFAULT_GRID_CHOICE = GRID_INFO_NONE;
-#endif
+const EGridInfo DEFAULT_GRID_CHOICE = GRID_INFO_AGNI;
+
 
 unsigned char gMACAddress[MAC_ADDRESS_BYTES];		/* Flawfinder: ignore */
 
@@ -142,7 +137,7 @@ void LLViewerLogin::setGridChoice(EGridInfo grid)
 		llerrs << "Invalid grid index specified." << llendl;
 	}
 
-	if(mGridChoice != grid)
+	if(mGridChoice != grid || gSavedSettings.getS32("ServerChoice") != grid)
 	{
 		mGridChoice = grid;
 		if(GRID_INFO_LOCAL == mGridChoice)

@@ -118,6 +118,9 @@ class LLWorkerClass
 {
 	friend class LLWorkerThread;
 	friend class LLWorkerThread::WorkRequest;
+
+public:
+	static BOOL sDeleteLock ;
 public:
 	typedef LLWorkerThread::handle_t handle_t;
 	enum FLAGS
@@ -178,6 +181,7 @@ private:
 	void setFlags(U32 flags) { mWorkFlags = mWorkFlags | flags; }
 	void clearFlags(U32 flags) { mWorkFlags = mWorkFlags & ~flags; }
 	U32  getFlags() { return mWorkFlags; }
+public:
 	bool getFlags(U32 flags) { return mWorkFlags & flags ? true : false; }
 	
 private:

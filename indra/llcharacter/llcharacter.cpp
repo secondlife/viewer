@@ -103,11 +103,11 @@ LLJoint *LLCharacter::getJoint( const std::string &name )
 }
 
 //-----------------------------------------------------------------------------
-// addMotion()
+// registerMotion()
 //-----------------------------------------------------------------------------
-BOOL LLCharacter::addMotion( const LLUUID& id, LLMotionConstructor create )
+BOOL LLCharacter::registerMotion( const LLUUID& id, LLMotionConstructor create )
 {
-	return mMotionController.addMotion(id, create);
+	return mMotionController.registerMotion(id, create);
 }
 
 //-----------------------------------------------------------------------------
@@ -119,7 +119,16 @@ void LLCharacter::removeMotion( const LLUUID& id )
 }
 
 //-----------------------------------------------------------------------------
-// getMotion()
+// findMotion()
+//-----------------------------------------------------------------------------
+LLMotion* LLCharacter::findMotion( const LLUUID &id )
+{
+	return mMotionController.findMotion( id );
+}
+
+//-----------------------------------------------------------------------------
+// createMotion()
+// NOTE: Always assign the result to a LLPointer!
 //-----------------------------------------------------------------------------
 LLMotion* LLCharacter::createMotion( const LLUUID &id )
 {
@@ -168,26 +177,24 @@ void LLCharacter::requestStopMotion( LLMotion* motion)
 
 
 //-----------------------------------------------------------------------------
-// updateMotion()
+// updateMotions()
 //-----------------------------------------------------------------------------
-void LLCharacter::updateMotion(BOOL force_update)
+void LLCharacter::updateMotions(e_update_t update_type)
 {
-	// unpause if we're forcing an update or
-	// number of outstanding pause requests has dropped
-	// to the initial one
-	if (mMotionController.isPaused() && 
-		(force_update || mPauseRequest->getNumRefs() == 1))
+	LLFastTimer t(LLFastTimer::FTM_UPDATE_ANIMATION);
+	if (update_type == HIDDEN_UPDATE)
 	{
-		mMotionController.unpause();
+		mMotionController.updateMotionsMinimal();
 	}
-
-	mMotionController.updateMotion();
-
-	// pause once again, after forced update, if there are outstanding
-	// pause requests
-	if (force_update && mPauseRequest->getNumRefs() > 1)
+	else
 	{
-		mMotionController.pause();
+		// unpause if the number of outstanding pause requests has dropped to the initial one
+		if (mMotionController.isPaused() && mPauseRequest->getNumRefs() == 1)
+		{
+			mMotionController.unpauseAllMotions();
+		}
+		bool force_update = (update_type == FORCE_UPDATE);
+		mMotionController.updateMotions(force_update);
 	}
 }
 
@@ -499,7 +506,7 @@ void LLCharacter::updateVisualParams()
  
 LLAnimPauseRequest LLCharacter::requestPause()
 {
-	mMotionController.pause();
+	mMotionController.pauseAllMotions();
 	return mPauseRequest;
 }
 

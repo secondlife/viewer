@@ -34,6 +34,7 @@
 #include "lldriverparam.h"
 
 #include "llfasttimer.h"
+#include "llvoavatar.h"
 
 //-----------------------------------------------------------------------------
 // LLDriverParamInfo

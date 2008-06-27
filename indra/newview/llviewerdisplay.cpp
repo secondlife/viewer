@@ -613,7 +613,6 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		if (!for_snapshot)
 		{
 			LLAppViewer::instance()->pingMainloopTimeout("Display:Imagery");
-			gPipeline.processImagery(*LLViewerCamera::getInstance());
 			gPipeline.generateWaterReflection(*LLViewerCamera::getInstance());
 		}
 
@@ -823,6 +822,7 @@ void render_hud_attachments()
 
 		//cull, sort, and render hud objects
 		static LLCullResult result;
+		LLSpatialGroup::sNoDelete = TRUE;
 		gPipeline.updateCull(hud_cam, result);
 
 		gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_BUMP);
@@ -833,6 +833,8 @@ void render_hud_attachments()
 		gPipeline.stateSort(hud_cam, result);
 
 		gPipeline.renderGeom(hud_cam);
+
+		LLSpatialGroup::sNoDelete = FALSE;
 
 		render_hud_elements();
 		//restore type mask

@@ -1215,6 +1215,12 @@ LLFloaterIMPanel::~LLFloaterIMPanel()
 	
 	delete mVoiceChannel;
 	mVoiceChannel = NULL;
+
+	//delete focus lost callback
+	if(mInputEditor)
+	{
+		mInputEditor->setFocusLostCallback( NULL );
+	}
 }
 
 BOOL LLFloaterIMPanel::postBuild() 

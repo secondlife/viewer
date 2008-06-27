@@ -1158,7 +1158,6 @@ void LLSpatialGroup::destroyGL()
 	mVertexBuffer = NULL;
 	mBufferMap.clear();
 
-	mReflectionMap = NULL;
 	clearDrawMap();
 
 	if (mOcclusionQuery)
@@ -1350,7 +1349,6 @@ LLSpatialPartition::LLSpatialPartition(U32 data_mask, U32 buffer_usage)
 	mDepthMask = FALSE;
 	mSlopRatio = 0.25f;
 	mRenderByGroup = TRUE;
-	mImageEnabled = FALSE;
 	mInfiniteFarClip = FALSE;
 
 	LLGLNamePool::registerPool(&sQueryPool);
@@ -1564,12 +1562,7 @@ public:
 
 	virtual void preprocess(LLSpatialGroup* group)
 	{
-		if (LLPipeline::sDynamicReflections &&
-			group->mOctreeNode->getSize().mdV[0] == 16.0 && 
-			group->mDistance < 64.f)
-		{
-			group->mSpatialPartition->markReimage(group);
-		}
+		
 	}
 	
 	virtual void processGroup(LLSpatialGroup* group)
@@ -1837,76 +1830,6 @@ BOOL earlyFail(LLCamera* camera, LLSpatialGroup* group)
 	return TRUE;
 }
 
-void LLSpatialPartition::markReimage(LLSpatialGroup* group)
-{
-	if (mImageEnabled && group->isState(LLSpatialGroup::IMAGE_DIRTY))
-	{	
-		if (!group->isState(LLSpatialGroup::IN_IMAGE_QUEUE))
-		{
-			group->setState(LLSpatialGroup::IN_IMAGE_QUEUE);
-			mImageQueue.push(group);
-		}
-	}
-}
-
-void LLSpatialPartition::processImagery(LLCamera* camera)
-{
-	if (!mImageEnabled)
-	{
-		return;
-	}
-
-	U32 process_count = 1;
-
-	S32 pull_count = (S32) mImageQueue.size();
-
-	while (process_count > 0 && pull_count > 0 && !mImageQueue.empty())
-	{
-		pull_count--;
-		LLPointer<LLSpatialGroup> group = mImageQueue.front();
-		mImageQueue.pop();
-		
-		if (group->isDead())
-		{
-			continue;
-		}
-
-		if (group->isState(LLSpatialGroup::GEOM_DIRTY))
-		{ //put it back
-			mImageQueue.push(group);	
-			continue;
-		}
-
-		group->clearState(LLSpatialGroup::IN_IMAGE_QUEUE);
-		if (LLPipeline::sDynamicReflections)
-		{
-			process_count--;
-			LLVector3 origin = group->mBounds[0];
-			/*LLVector3 at = camera->getOrigin()-origin;
-			at.normVec();
-			origin += at* (at * group->mBounds[1]);*/
-
-			LLCamera cube_cam;
-			cube_cam.setOrigin(origin);
-			cube_cam.setFar(64.f);
-
-			LLPointer<LLCubeMap> cube_map = group->mReflectionMap;
-			group->mReflectionMap = NULL;
-			if (cube_map.isNull())
-			{
-				cube_map = new LLCubeMap();
-				cube_map->initGL();
-			}
-
-			gPipeline.generateReflectionMap(gPipeline.mCubeBuffer, cube_cam);
-			gPipeline.blurReflectionMap(gPipeline.mCubeBuffer, cube_map);
-			group->mReflectionMap = cube_map;
-			group->setState(LLSpatialGroup::GEOM_DIRTY);
-		}
-
-		group->clearState(LLSpatialGroup::IMAGE_DIRTY);
-	}
-}
 
 void pushVerts(LLDrawInfo* params, U32 mask)
 {

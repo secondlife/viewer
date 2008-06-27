@@ -70,7 +70,7 @@ public:
     bool quitRequested() { return mQuitRequested; }
     bool logoutRequestSent() { return mLogoutRequestSent; }
 
-	void closeDebug();
+	void writeDebugInfo();
 
 	const LLOSInfo& getOSInfo() const { return mSysOSInfo; }
 

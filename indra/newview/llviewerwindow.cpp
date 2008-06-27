@@ -4477,7 +4477,6 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 			else
 			{
 				display(do_rebuild, scale_factor, subimage_x+(subimage_y*llceil(scale_factor)), use_fbo);
-				render_ui_and_swap();
 			}
 
 			S32 subimage_x_offset = llclamp(buffer_x_offset - (subimage_x * window_width), 0, window_width);

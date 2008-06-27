@@ -96,8 +96,6 @@ public:
 	void bindScreenToTexture();
 	void renderBloom(BOOL for_snapshot);
 
-	LLCubeMap* findReflectionMap(const LLVector3& location);
-
 	void init();
 	void cleanup();
 	BOOL isInit() { return mInitialized; };
@@ -183,7 +181,6 @@ public:
 	void renderGeom(LLCamera& camera, BOOL forceVBOUpdate = FALSE);
 	void renderGeomDeferred();
 
-	void processImagery(LLCamera& camera);
 	void generateWaterReflection(LLCamera& camera);
 	void renderHighlights();
 	void renderDebug();
@@ -371,7 +368,6 @@ public:
 	static BOOL				sUseFBO;
 	static BOOL				sUseFarClip;
 	static BOOL				sSkipUpdate; //skip lod updates
-	static BOOL				sDynamicReflections;
 	static BOOL				sWaterReflections;
 	static BOOL				sDynamicLOD;
 	static BOOL				sReflectionRender;

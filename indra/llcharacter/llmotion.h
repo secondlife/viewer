@@ -48,6 +48,8 @@ class LLCharacter;
 //-----------------------------------------------------------------------------
 class LLMotion
 {
+	friend class LLMotionController;
+	
 public:
 	enum LLMotionBlendType
 	{
@@ -73,10 +75,6 @@ public:
 	// functions to support MotionController and MotionRegistry
 	//-------------------------------------------------------------------------
 
-	// static constructor
-	// all subclasses must implement such a function and register it
-	static LLMotion *create(const LLUUID &id) { return NULL; }
-
 	// get the name of this instance
 	const std::string &getName() const { return mName; }
 
@@ -96,7 +94,7 @@ public:
 
 	F32 getStopTime() const { return mStopTimestamp; }
 
-	virtual void setStopTime(F32 time) { mStopTimestamp = time; mStopped = TRUE; }
+	virtual void setStopTime(F32 time);
 
 	BOOL isStopped() const { return mStopped; }
 
@@ -104,12 +102,18 @@ public:
 
 	BOOL isBlending();
 
-	void activate();
-
+	// Activation functions.
+	// It is OK for other classes to activate a motion,
+	// but only the controller can deactivate it.
+	// Thus, if mActive == TRUE, the motion *may* be on the controllers active list,
+	// but if mActive == FALSE, the motion is gauranteed not to be on the active list.
+protected:
+	// Used by LLMotionController only
 	void deactivate();
-
 	BOOL isActive() { return mActive; }
-
+public:
+	void activate(F32 time);
+	
 public:
 	//-------------------------------------------------------------------------
 	// animation callbacks to be implemented by subclasses
@@ -170,14 +174,13 @@ protected:
 	BOOL		mStopped;		// motion has been stopped;
 	BOOL		mActive;		// motion is on active list (can be stopped or not stopped)
 
-public:
 	//-------------------------------------------------------------------------
 	// these are set implicitly by the motion controller and
 	// may be referenced (read only) in the above handlers.
 	//-------------------------------------------------------------------------
 	std::string		mName;			// instance name assigned by motion controller
 	LLUUID			mID;
-
+	
 	F32 mActivationTimestamp;	// time when motion was activated
 	F32 mStopTimestamp;			// time when motion was told to stop
 	F32 mSendStopTimestamp;		// time when simulator should be told to stop this motion

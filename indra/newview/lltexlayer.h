@@ -40,7 +40,6 @@
 #include "lluuid.h"
 #include "llviewerimage.h"
 #include "llviewervisualparam.h"
-#include "llvoavatar.h"
 #include "llwearable.h"
 #include "v4color.h"
 #include "llfloater.h"

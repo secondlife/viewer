@@ -68,7 +68,6 @@ public:
 	// accessors
 	//
 
-	void setJoint (LLJoint* joint) { mJoint = joint; }
 	void setPieSlice(S32 pie_slice) { mPieSlice = pie_slice; }	
 	void setVisibleInFirstPerson(BOOL visibility) { mVisibleInFirst = visibility; }
 	BOOL getVisibleInFirstPerson() { return mVisibleInFirst; }
@@ -99,7 +98,6 @@ protected:
 	void calcLOD();
 	
 protected:
-	LLJoint*		mJoint;
 	// Backlink only; don't make this an LLPointer.
 	LLViewerObject*	mAttachedObject;
 	BOOL			mVisibleInFirst;

@@ -76,7 +76,7 @@ LLKeyframeMotionParam::~LLKeyframeMotionParam()
 		for (motion_list_t::iterator iter2 = motionList.begin(); iter2 != motionList.end(); ++iter2)
 		{
 			const ParameterizedMotion& paramMotion = *iter2;
-			delete paramMotion.first; // note - deletes the structure; ParameterizedMotion pair remains intact
+			delete paramMotion.mMotion;
 		}
 		motionList.clear();
 	}
@@ -102,32 +102,32 @@ LLMotion::LLMotionInitStatus LLKeyframeMotionParam::onInitialize(LLCharacter *ch
 		for (motion_list_t::iterator iter2 = motionList.begin(); iter2 != motionList.end(); ++iter2)
 		{
 			const ParameterizedMotion& paramMotion = *iter2;
+			LLMotion* motion = paramMotion.mMotion;
+			motion->onInitialize(character);
 
-			paramMotion.first->onInitialize(character);
-
-			if (paramMotion.first->getDuration() > mEaseInDuration)
+			if (motion->getDuration() > mEaseInDuration)
 			{
-				mEaseInDuration = paramMotion.first->getEaseInDuration();
+				mEaseInDuration = motion->getEaseInDuration();
 			}
 
-			if (paramMotion.first->getEaseOutDuration() > mEaseOutDuration)
+			if (motion->getEaseOutDuration() > mEaseOutDuration)
 			{
-				mEaseOutDuration = paramMotion.first->getEaseOutDuration();
+				mEaseOutDuration = motion->getEaseOutDuration();
 			}
 
-			if (paramMotion.first->getDuration() > mDuration)
+			if (motion->getDuration() > mDuration)
 			{
-				mDuration = paramMotion.first->getDuration();
+				mDuration = motion->getDuration();
 			}
 
-			if (paramMotion.first->getPriority() > mPriority)
+			if (motion->getPriority() > mPriority)
 			{
-				mPriority = paramMotion.first->getPriority();
+				mPriority = motion->getPriority();
 			}
 
-			LLPose *pose = paramMotion.first->getPose();
+			LLPose *pose = motion->getPose();
 
-			mPoseBlender.addMotion(paramMotion.first);
+			mPoseBlender.addMotion(motion);
 			for (LLJointState *jsp = pose->getFirstJointState(); jsp; jsp = pose->getNextJointState())
 			{
 				LLPose *blendedPose = mPoseBlender.getBlendedPose();
@@ -151,7 +151,7 @@ BOOL LLKeyframeMotionParam::onActivate()
 		for (motion_list_t::iterator iter2 = motionList.begin(); iter2 != motionList.end(); ++iter2)
 		{
 			const ParameterizedMotion& paramMotion = *iter2;
-			paramMotion.first->activate();
+			paramMotion.mMotion->activate(mActivationTimestamp);
 		}
 	}
 	return TRUE;
@@ -173,8 +173,8 @@ BOOL LLKeyframeMotionParam::onUpdate(F32 time, U8* joint_mask)
 		for (motion_list_t::iterator iter2 = motionList.begin(); iter2 != motionList.end(); ++iter2)
 		{
 			const ParameterizedMotion& paramMotion = *iter2;
-//			llinfos << "Weight for pose " << paramMotion.first->getName() << " is " << paramMotion.first->getPose()->getWeight() << llendl;
-			paramMotion.first->getPose()->setWeight(0.f);
+//			llinfos << "Weight for pose " << paramMotion.mMotion->getName() << " is " << paramMotion.mMotion->getPose()->getWeight() << llendl;
+			paramMotion.mMotion->getPose()->setWeight(0.f);
 		}
 	}
 
@@ -190,6 +190,7 @@ BOOL LLKeyframeMotionParam::onUpdate(F32 time, U8* joint_mask)
 			continue;
 		}
 
+		// DANGER! Do not modify mParameterizedMotions while using these pointers!
 		const ParameterizedMotion* firstMotion = NULL;
 		const ParameterizedMotion* secondMotion = NULL;
 
@@ -197,9 +198,9 @@ BOOL LLKeyframeMotionParam::onUpdate(F32 time, U8* joint_mask)
 		for (motion_list_t::iterator iter2 = motionList.begin(); iter2 != motionList.end(); ++iter2)
 		{
 			const ParameterizedMotion& paramMotion = *iter2;
-			paramMotion.first->onUpdate(time, joint_mask);
+			paramMotion.mMotion->onUpdate(time, joint_mask);
 			
-			F32 distToParam = paramMotion.second - *paramValue;
+			F32 distToParam = paramMotion.mParam - *paramValue;
 			
 			if ( distToParam <= 0.f)
 			{
@@ -227,12 +228,12 @@ BOOL LLKeyframeMotionParam::onUpdate(F32 time, U8* joint_mask)
 		LLPose *secondPose;
 
 		if (firstMotion)
-			firstPose = firstMotion->first->getPose();
+			firstPose = firstMotion->mMotion->getPose();
 		else
 			firstPose = NULL;
 
 		if (secondMotion)
-			secondPose = secondMotion->first->getPose();
+			secondPose = secondMotion->mMotion->getPose();
 		else
 			secondPose = NULL;
 		
@@ -243,7 +244,7 @@ BOOL LLKeyframeMotionParam::onUpdate(F32 time, U8* joint_mask)
 			{
 				firstPose->setWeight(weightFactor);
 			}
-			else if (firstMotion->second == secondMotion->second)
+			else if (firstMotion->mParam == secondMotion->mParam)
 			{
 				firstPose->setWeight(0.5f * weightFactor);
 				secondPose->setWeight(0.5f * weightFactor);
@@ -251,8 +252,8 @@ BOOL LLKeyframeMotionParam::onUpdate(F32 time, U8* joint_mask)
 			else
 			{
 				F32 first_weight = 1.f - 
-					((llclamp(*paramValue - firstMotion->second, 0.f, (secondMotion->second - firstMotion->second))) / 
-						(secondMotion->second - firstMotion->second));
+					((llclamp(*paramValue - firstMotion->mParam, 0.f, (secondMotion->mParam - firstMotion->mParam))) / 
+						(secondMotion->mParam - firstMotion->mParam));
 				first_weight = llclamp(first_weight, 0.f, 1.f);
 				
 				F32 second_weight = 1.f - first_weight;
@@ -290,7 +291,7 @@ void LLKeyframeMotionParam::onDeactivate()
 		for (motion_list_t::iterator iter2 = motionList.begin(); iter2 != motionList.end(); ++iter2)
 		{
 			const ParameterizedMotion& paramMotion = *iter2;
-			paramMotion.first->onDeactivate();
+			paramMotion.mMotion->onDeactivate();
 		}
 	}
 }
@@ -328,9 +329,9 @@ void LLKeyframeMotionParam::setDefaultKeyframeMotion(char *name)
 		for (motion_list_t::iterator iter2 = motionList.begin(); iter2 != motionList.end(); ++iter2)
 		{
 			const ParameterizedMotion& paramMotion = *iter2;
-			if (paramMotion.first->getName() == name)
+			if (paramMotion.mMotion->getName() == name)
 			{
-				mDefaultKeyframeMotion = paramMotion.first;
+				mDefaultKeyframeMotion = paramMotion.mMotion;
 			}
 		}
 	}

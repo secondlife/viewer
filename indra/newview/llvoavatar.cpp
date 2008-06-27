@@ -886,52 +886,53 @@ LLVOAvatar::LLVOAvatar(
 	if (LLCharacter::sInstances.size() == 1)
 	{
 		LLKeyframeMotion::setVFS(gStaticVFS);
-		addMotion( ANIM_AGENT_BUSY,						LLNullMotion::create );
-		addMotion( ANIM_AGENT_CROUCH,					LLKeyframeStandMotion::create );
-		addMotion( ANIM_AGENT_CROUCHWALK,				LLKeyframeWalkMotion::create );
-		addMotion( ANIM_AGENT_EXPRESS_AFRAID,			LLEmote::create );
-		addMotion( ANIM_AGENT_EXPRESS_ANGER,			LLEmote::create );
-		addMotion( ANIM_AGENT_EXPRESS_BORED,			LLEmote::create );
-		addMotion( ANIM_AGENT_EXPRESS_CRY,				LLEmote::create );
-		addMotion( ANIM_AGENT_EXPRESS_DISDAIN,			LLEmote::create );
-		addMotion( ANIM_AGENT_EXPRESS_EMBARRASSED,		LLEmote::create );
-		addMotion( ANIM_AGENT_EXPRESS_FROWN,			LLEmote::create );
-		addMotion( ANIM_AGENT_EXPRESS_KISS,				LLEmote::create );
-		addMotion( ANIM_AGENT_EXPRESS_LAUGH,			LLEmote::create );
-		addMotion( ANIM_AGENT_EXPRESS_OPEN_MOUTH,		LLEmote::create );
-		addMotion( ANIM_AGENT_EXPRESS_REPULSED,			LLEmote::create );
-		addMotion( ANIM_AGENT_EXPRESS_SAD,				LLEmote::create );
-		addMotion( ANIM_AGENT_EXPRESS_SHRUG,			LLEmote::create );
-		addMotion( ANIM_AGENT_EXPRESS_SMILE,			LLEmote::create );
-		addMotion( ANIM_AGENT_EXPRESS_SURPRISE,			LLEmote::create );
-		addMotion( ANIM_AGENT_EXPRESS_TONGUE_OUT,		LLEmote::create );
-		addMotion( ANIM_AGENT_EXPRESS_TOOTHSMILE,		LLEmote::create );
-		addMotion( ANIM_AGENT_EXPRESS_WINK,				LLEmote::create );
-		addMotion( ANIM_AGENT_EXPRESS_WORRY,			LLEmote::create );
-		addMotion( ANIM_AGENT_RUN,						LLKeyframeWalkMotion::create );
-		addMotion( ANIM_AGENT_STAND,					LLKeyframeStandMotion::create );
-		addMotion( ANIM_AGENT_STAND_1,					LLKeyframeStandMotion::create );
-		addMotion( ANIM_AGENT_STAND_2,					LLKeyframeStandMotion::create );
-		addMotion( ANIM_AGENT_STAND_3,					LLKeyframeStandMotion::create );
-		addMotion( ANIM_AGENT_STAND_4,					LLKeyframeStandMotion::create );
-		addMotion( ANIM_AGENT_STANDUP,					LLKeyframeFallMotion::create );
-		addMotion( ANIM_AGENT_TURNLEFT,					LLKeyframeWalkMotion::create );
-		addMotion( ANIM_AGENT_TURNRIGHT,				LLKeyframeWalkMotion::create );
-		addMotion( ANIM_AGENT_WALK,						LLKeyframeWalkMotion::create );
+		registerMotion( ANIM_AGENT_BUSY,					LLNullMotion::create );
+		registerMotion( ANIM_AGENT_CROUCH,					LLKeyframeStandMotion::create );
+		registerMotion( ANIM_AGENT_CROUCHWALK,				LLKeyframeWalkMotion::create );
+		registerMotion( ANIM_AGENT_EXPRESS_AFRAID,			LLEmote::create );
+		registerMotion( ANIM_AGENT_EXPRESS_ANGER,			LLEmote::create );
+		registerMotion( ANIM_AGENT_EXPRESS_BORED,			LLEmote::create );
+		registerMotion( ANIM_AGENT_EXPRESS_CRY,				LLEmote::create );
+		registerMotion( ANIM_AGENT_EXPRESS_DISDAIN,			LLEmote::create );
+		registerMotion( ANIM_AGENT_EXPRESS_EMBARRASSED,		LLEmote::create );
+		registerMotion( ANIM_AGENT_EXPRESS_FROWN,			LLEmote::create );
+		registerMotion( ANIM_AGENT_EXPRESS_KISS,			LLEmote::create );
+		registerMotion( ANIM_AGENT_EXPRESS_LAUGH,			LLEmote::create );
+		registerMotion( ANIM_AGENT_EXPRESS_OPEN_MOUTH,		LLEmote::create );
+		registerMotion( ANIM_AGENT_EXPRESS_REPULSED,		LLEmote::create );
+		registerMotion( ANIM_AGENT_EXPRESS_SAD,				LLEmote::create );
+		registerMotion( ANIM_AGENT_EXPRESS_SHRUG,			LLEmote::create );
+		registerMotion( ANIM_AGENT_EXPRESS_SMILE,			LLEmote::create );
+		registerMotion( ANIM_AGENT_EXPRESS_SURPRISE,		LLEmote::create );
+		registerMotion( ANIM_AGENT_EXPRESS_TONGUE_OUT,		LLEmote::create );
+		registerMotion( ANIM_AGENT_EXPRESS_TOOTHSMILE,		LLEmote::create );
+		registerMotion( ANIM_AGENT_EXPRESS_WINK,			LLEmote::create );
+		registerMotion( ANIM_AGENT_EXPRESS_WORRY,			LLEmote::create );
+		registerMotion( ANIM_AGENT_RUN,						LLKeyframeWalkMotion::create );
+		registerMotion( ANIM_AGENT_STAND,					LLKeyframeStandMotion::create );
+		registerMotion( ANIM_AGENT_STAND_1,					LLKeyframeStandMotion::create );
+		registerMotion( ANIM_AGENT_STAND_2,					LLKeyframeStandMotion::create );
+		registerMotion( ANIM_AGENT_STAND_3,					LLKeyframeStandMotion::create );
+		registerMotion( ANIM_AGENT_STAND_4,					LLKeyframeStandMotion::create );
+		registerMotion( ANIM_AGENT_STANDUP,					LLKeyframeFallMotion::create );
+		registerMotion( ANIM_AGENT_TURNLEFT,				LLKeyframeWalkMotion::create );
+		registerMotion( ANIM_AGENT_TURNRIGHT,				LLKeyframeWalkMotion::create );
+		registerMotion( ANIM_AGENT_WALK,					LLKeyframeWalkMotion::create );
 	
 		// motions without a start/stop bit
-		addMotion( ANIM_AGENT_BODY_NOISE,				LLBodyNoiseMotion::create );
-		addMotion( ANIM_AGENT_BREATHE_ROT,				LLBreatheMotionRot::create );
-		addMotion( ANIM_AGENT_EDITING,					LLEditingMotion::create	);
-		addMotion( ANIM_AGENT_EYE,						LLEyeMotion::create	);
-		addMotion( ANIM_AGENT_FEMALE_WALK,				LLKeyframeWalkMotion::create );
-		addMotion( ANIM_AGENT_FLY_ADJUST,				LLFlyAdjustMotion::create );
-		addMotion( ANIM_AGENT_HAND_MOTION,				LLHandMotion::create );
-		addMotion( ANIM_AGENT_HEAD_ROT,					LLHeadRotMotion::create );
-		addMotion( ANIM_AGENT_PELVIS_FIX,				LLPelvisFixMotion::create );
-		addMotion( ANIM_AGENT_SIT_FEMALE,				LLKeyframeMotion::create );
-		addMotion( ANIM_AGENT_TARGET,					LLTargetingMotion::create );
-		addMotion( ANIM_AGENT_WALK_ADJUST,				LLWalkAdjustMotion::create );
+		registerMotion( ANIM_AGENT_BODY_NOISE,				LLBodyNoiseMotion::create );
+		registerMotion( ANIM_AGENT_BREATHE_ROT,				LLBreatheMotionRot::create );
+		registerMotion( ANIM_AGENT_EDITING,					LLEditingMotion::create	);
+		registerMotion( ANIM_AGENT_EYE,						LLEyeMotion::create	);
+		registerMotion( ANIM_AGENT_FEMALE_WALK,				LLKeyframeWalkMotion::create );
+		registerMotion( ANIM_AGENT_FLY_ADJUST,				LLFlyAdjustMotion::create );
+		registerMotion( ANIM_AGENT_HAND_MOTION,				LLHandMotion::create );
+		registerMotion( ANIM_AGENT_HEAD_ROT,				LLHeadRotMotion::create );
+		registerMotion( ANIM_AGENT_PELVIS_FIX,				LLPelvisFixMotion::create );
+		registerMotion( ANIM_AGENT_SIT_FEMALE,				LLKeyframeMotion::create );
+		registerMotion( ANIM_AGENT_TARGET,					LLTargetingMotion::create );
+		registerMotion( ANIM_AGENT_WALK_ADJUST,				LLWalkAdjustMotion::create );
+
 	}
 
 	if (gNoRender)
@@ -3362,7 +3363,7 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 	// the rest should only be done occasionally for far away avatars
 	//--------------------------------------------------------------------
 
-	if (!mIsSelf && sUseImpostors && !mNeedsAnimUpdate && !sFreezeCounter)
+	if (!mIsSelf && !mIsDummy && sUseImpostors && !mNeedsAnimUpdate && !sFreezeCounter)
 	{
 		F32 impostor_area = 256.f*512.f*(8.125f - LLVOAvatar::sLODFactor*8.f);
 		if (LLMuteList::getInstance()->isMuted(getID()))
@@ -3383,22 +3384,13 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 
 		if (!visible)
 		{
-			if (!mMotionController.isPaused())
-			{
-				mMotionController.pause();
-				mMotionController.updateMotion();
-				mMotionController.unpause();
-			}
-			else
-			{			
-				mMotionController.updateMotion();
-			}
+			updateMotions(LLCharacter::HIDDEN_UPDATE);
 			return FALSE;
 		}
 	}
-
+	
 	// change animation time quanta based on avatar render load
-	if (!mIsSelf)
+	if (!mIsSelf && !mIsDummy)
 	{
 		F32 time_quantum = clamp_rescale((F32)sInstances.size(), 10.f, 35.f, 0.f, 0.25f);
 		F32 pixel_area_scale = clamp_rescale(mPixelArea, 100, 5000, 1.f, 0.f);
@@ -3672,10 +3664,10 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 	mSpeed = speed;
 
 	// update animations
-	{
-		LLFastTimer t(LLFastTimer::FTM_UPDATE_ANIMATION);
-		updateMotion();
-	}
+	if (mSpecialRenderMode == 1) // Animation Preview
+		updateMotions(LLCharacter::FORCE_UPDATE);
+	else
+		updateMotions(LLCharacter::NORMAL_UPDATE);
 
 	// update head position
 	updateHeadOffset();
@@ -3851,9 +3843,6 @@ void LLVOAvatar::updateVisibility()
 	}
 	else
 	{
-		// calculate avatar distance wrt head
-		mDrawable->updateDistance(*LLViewerCamera::getInstance());
-		
 		if (!mDrawable->getSpatialGroup() || mDrawable->getSpatialGroup()->isVisible())
 		{
 			visible = TRUE;
@@ -3870,8 +3859,7 @@ void LLVOAvatar::updateVisibility()
 				visible = FALSE;
 			}
 		}
-		else
-		if( !mFirstAppearanceMessageReceived )
+		else if( !mFirstAppearanceMessageReceived )
 		{
 			visible = FALSE;
 		}
@@ -4017,19 +4005,19 @@ U32 LLVOAvatar::renderSkinned(EAvatarRenderPass pass)
 		if (mNeedsSkin)
 		{
 			//generate animated mesh
-			mLowerBodyLOD.updateGeometry();
-			mUpperBodyLOD.updateGeometry();
+			mLowerBodyLOD.updateJointGeometry();
+			mUpperBodyLOD.updateJointGeometry();
 
 			if( isWearingWearableType( WT_SKIRT ) )
 			{
-				mSkirtLOD.updateGeometry();
+				mSkirtLOD.updateJointGeometry();
 			}
 
 			if (!mIsSelf || gAgent.needsRenderHead())
 			{
-				mEyeLashLOD.updateGeometry();
-				mHeadLOD.updateGeometry();
-				mHairLOD.updateGeometry();				
+				mEyeLashLOD.updateJointGeometry();
+				mHeadLOD.updateJointGeometry();
+				mHairLOD.updateJointGeometry();				
 			}
 			mNeedsSkin = FALSE;
 			
@@ -5789,6 +5777,7 @@ void LLVOAvatar::setPixelAreaAndAngle(LLAgent &agent)
 //-----------------------------------------------------------------------------
 BOOL LLVOAvatar::updateJointLODs()
 {
+	const F32 MAX_PIXEL_AREA = 100000000.f;
 	F32 lod_factor = (sLODFactor * AVATAR_LOD_TWEAK_RANGE + (1.f - AVATAR_LOD_TWEAK_RANGE));
 	F32 avatar_num_min_factor = clamp_rescale(sLODFactor, 0.f, 1.f, 0.25f, 0.6f);
 	F32 avatar_num_factor = clamp_rescale((F32)sNumVisibleAvatars, 8, 25, 1.f, avatar_num_min_factor);
@@ -5799,7 +5788,7 @@ BOOL LLVOAvatar::updateJointLODs()
 		{
 			if(gAgent.cameraCustomizeAvatar() || gAgent.cameraMouselook())
 			{
-				mAdjustedPixelArea = 1000000;
+				mAdjustedPixelArea = MAX_PIXEL_AREA;
 			}
 			else
 			{
@@ -5808,7 +5797,7 @@ BOOL LLVOAvatar::updateJointLODs()
 		}
 		else if (mIsDummy)
 		{
-			mAdjustedPixelArea = 1000000;
+			mAdjustedPixelArea = MAX_PIXEL_AREA;
 		}
 		else
 		{
@@ -6762,7 +6751,7 @@ void LLVOAvatar::dumpTotalLocalTextureByteCount()
 
 BOOL LLVOAvatar::isVisible()
 {
-	return mDrawable.notNull() && mDrawable->isVisible(); 
+	return mDrawable.notNull() && (mDrawable->isVisible() || mIsDummy); 
 }
 
 
@@ -9724,7 +9713,8 @@ BOOL LLVOAvatar::updateLOD()
 		mDrawable->clearState(LLDrawable::REBUILD_GEOMETRY);
 	}
 	
-
+	updateVisibility();
+	
 	return res;
 }
 

@@ -73,6 +73,8 @@ enum EStartupState{
 // exported symbols
 extern BOOL gAgentMovementCompleted;
 extern LLPointer<LLImageGL> gStartImageGL;
+extern std::string gInitialOutfit;
+extern std::string gInitialOutfitGender;	// "male" or "female"
 
 class LLStartUp
 {

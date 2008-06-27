@@ -36,6 +36,7 @@
 #include "llframecallbackmanager.h"
 #endif
 
+BOOL LLWorkerClass::sDeleteLock = FALSE ;
 //============================================================================
 // Run on MAIN thread
 
@@ -94,6 +95,7 @@ S32 LLWorkerThread::update(U32 max_time_ms)
 	{
 		(*iter)->abortWork(false);
 	}
+	LLWorkerClass::sDeleteLock = TRUE ;
 	for (std::vector<LLWorkerClass*>::iterator iter = delete_list.begin();
 		 iter != delete_list.end(); ++iter)
 	{
@@ -107,6 +109,7 @@ S32 LLWorkerThread::update(U32 max_time_ms)
 		}
 		delete *iter;
 	}
+	LLWorkerClass::sDeleteLock = FALSE ;
     // delete and aborted entries mean there's still work to do
 	res += delete_list.size() + abort_list.size();
 	return res;

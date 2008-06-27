@@ -402,13 +402,13 @@ bool handleCrashSubmitBehaviorChanged(const LLSD& newvalue)
 	const S32 NEVER_SUBMIT_REPORT = 2;
 	if(cb == NEVER_SUBMIT_REPORT)
 	{
-// 		LLWatchdog::getInstance()->cleanup(); // SJB: cleaning up a running watchdog is unsafe
+// 		LLWatchdog::getInstance()->cleanup(); // SJB: cleaning up a running watchdog thread is unsafe
 		LLAppViewer::instance()->destroyMainloopTimeout();
 	}
 	else if(gSavedSettings.getBOOL("WatchdogEnabled") == TRUE)
 	{
-// 		LLWatchdog::getInstance()->init();
-// 		LLAppViewer::instance()->initMainloopTimeout("Mainloop Resume");
+		// Don't re-enable the watchdog when we change the setting; this may get called before it's started
+// 		LLWatchdog::getInstance()->init();		
 	}
 	return true;
 }
@@ -530,7 +530,7 @@ void LLAppViewer::initGridChoice()
 			std::string custom_server = gSavedSettings.getString("CustomServer");
 			LLViewerLogin::getInstance()->setGridChoice(custom_server);
 		}
-		else if(server != 0)
+		else if(server != (S32)GRID_INFO_NONE)
 		{
 			LLViewerLogin::getInstance()->setGridChoice((EGridInfo)server);
 		}
@@ -1139,12 +1139,12 @@ bool LLAppViewer::cleanup()
 
 	llinfos << "Cleaning Up" << llendflush;
 
-	LLKeyframeDataCache::clear();
-	
 	// Must clean up texture references before viewer window is destroyed.
 	LLHUDObject::cleanupHUDObjects();
 	llinfos << "HUD Objects cleaned up" << llendflush;
 
+	LLKeyframeDataCache::clear();
+	
  	// End TransferManager before deleting systems it depends on (Audio, VFS, AssetStorage)
 #if 0 // this seems to get us stuck in an infinite loop...
 	gTransferManager.cleanup();
@@ -1321,7 +1321,7 @@ bool LLAppViewer::cleanup()
 
 	removeMarkerFile(); // Any crashes from here on we'll just have to ignore
 	
-	closeDebug();
+	writeDebugInfo();
 
 	// Let threads finish
 	LLTimer idleTimer;
@@ -1579,6 +1579,7 @@ bool LLAppViewer::initConfiguration()
 	// on these platform to help debug.
 #ifndef	LL_RELEASE_FOR_DOWNLOAD
 	gSavedSettings.setBOOL("WatchdogEnabled", FALSE);
+	gSavedSettings.setBOOL("QAMode", TRUE );
 #endif
 
 #ifndef LL_WINDOWS
@@ -1630,15 +1631,6 @@ bool LLAppViewer::initConfiguration()
 	// Do this *before* loading the settings file
 	LLAlertDialog::parseAlerts("alerts.xml", &gSavedSettings, TRUE);
 
-#if LL_DYNAMIC_FONT_DISCOVERY
-	// Linux does *dynamic* font discovery which is preferable to
-	// whatever got written-out into the config file last time.  This
-	// does remove the ability of the user to hand-define the fallbacks
-	// though, so from a config-management point of view this is hacky.
-	gSavedSettings.setString("FontSansSerifFallback",
-				 LLWindow::getFontListSans());
-#endif
-
 	// - read command line settings.
 	LLControlGroupCLP clp;
 	std::string	cmd_line_config	= gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,
@@ -1682,6 +1674,15 @@ bool LLAppViewer::initConfiguration()
 
 	// - load overrides from user_settings 
 	loadSettingsFromDirectory(LL_PATH_USER_SETTINGS);
+
+#if LL_DYNAMIC_FONT_DISCOVERY
+	// Linux does *dynamic* font discovery which is preferable to
+	// whatever got written-out into the config file last time.  This
+	// does remove the ability of the user to hand-define the fallbacks
+	// though, so from a config-management point of view this is hacky.
+	gSavedSettings.setString("FontSansSerifFallback",
+				 LLWindow::getFontListSans());
+#endif
 
 	// - apply command line settings 
 	clp.notify(); 
@@ -2133,7 +2134,7 @@ bool LLAppViewer::initWindow()
 	return true;
 }
 
-void LLAppViewer::closeDebug()
+void LLAppViewer::writeDebugInfo()
 {
 	std::string debug_filename = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"debug_info.log");
 	llinfos << "Opening debug file " << debug_filename << llendl;
@@ -2212,6 +2213,8 @@ void LLAppViewer::writeSystemInfo()
 	gDebugInfo["ClientInfo"]["PatchVersion"] = LL_VERSION_PATCH;
 	gDebugInfo["ClientInfo"]["BuildVersion"] = LL_VERSION_BUILD;
 
+	gDebugInfo["CAFilename"] = gDirUtilp->getCAFile();
+
 	gDebugInfo["CPUInfo"]["CPUString"] = gSysCPU.getCPUString();
 	gDebugInfo["CPUInfo"]["CPUFamily"] = gSysCPU.getFamily();
 	gDebugInfo["CPUInfo"]["CPUMhz"] = gSysCPU.getMhz();
@@ -2222,7 +2225,11 @@ void LLAppViewer::writeSystemInfo()
 	gDebugInfo["RAMInfo"]["Physical"] = (LLSD::Integer)(gSysMemory.getPhysicalMemoryKB());
 	gDebugInfo["RAMInfo"]["Allocated"] = (LLSD::Integer)(gMemoryAllocated>>10); // MB -> KB
 	gDebugInfo["OSInfo"] = getOSInfo().getOSStringSimple();
-		
+
+	// The user is not logged on yet, but record the current grid choice login url
+	// which may have been the intended grid. This can b
+	gDebugInfo["GridName"] = LLViewerLogin::getInstance()->getGridLabel();
+
 	// *FIX:Mani - move this ddown in llappviewerwin32
 #ifdef LL_WINDOWS
 	DWORD thread_id = GetCurrentThreadId();
@@ -2246,6 +2253,8 @@ void LLAppViewer::writeSystemInfo()
 	LL_INFOS("SystemInfo") << "Memory info:\n" << gSysMemory << LL_ENDL;
 	LL_INFOS("SystemInfo") << "OS: " << getOSInfo().getOSStringSimple() << LL_ENDL;
 	LL_INFOS("SystemInfo") << "OS info: " << getOSInfo() << LL_ENDL;
+
+	writeDebugInfo(); // Save out debug_info.log early, in case of crash.
 }
 
 void LLAppViewer::handleSyncViewerCrash()
@@ -2258,9 +2267,6 @@ void LLAppViewer::handleSyncViewerCrash()
 void LLAppViewer::handleViewerCrash()
 {
 	llinfos << "Handle viewer crash entry." << llendl;
-
-	// Make sure the watchdog gets turned off...
-// 	LLWatchdog::getInstance()->cleanup(); // SJB: This causes the Watchdog to hang for an extra 20-40s?!
 
 	LLAppViewer* pApp = LLAppViewer::instance();
 	if (pApp->beingDebugged())
@@ -2277,6 +2283,9 @@ void LLAppViewer::handleViewerCrash()
 	}
 	pApp->mReportedCrash = TRUE;
 
+	// Make sure the watchdog gets turned off...
+// 	pApp->destroyMainloopTimeout(); // SJB: Bah. This causes the crash handler to hang, not sure why.
+	
 	//We already do this in writeSystemInfo(), but we do it again here to make /sure/ we have a version
 	//to check against no matter what
 	gDebugInfo["ClientInfo"]["Name"] = gSavedSettings.getString("VersionChannelName");
@@ -2365,7 +2374,7 @@ void LLAppViewer::handleViewerCrash()
 	LLWorld::getInstance()->getInfo(gDebugInfo);
 
 	// Close the debug file
-	pApp->closeDebug();
+	pApp->writeDebugInfo();
 
 	LLError::logToFile("");
 

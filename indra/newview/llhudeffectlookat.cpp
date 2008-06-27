@@ -503,8 +503,8 @@ void LLHUDEffectLookAt::render()
 
 		LLVector3 target = mTargetPos + ((LLVOAvatar*)(LLViewerObject*)mSourceObject)->mHeadp->getWorldPosition();
 		glMatrixMode(GL_MODELVIEW);
-		glPushMatrix();
-		glTranslatef(target.mV[VX], target.mV[VY], target.mV[VZ]);
+		gGL.pushMatrix();
+		gGL.translatef(target.mV[VX], target.mV[VY], target.mV[VZ]);
 		glScalef(0.3f, 0.3f, 0.3f);
 		gGL.begin(LLVertexBuffer::LINES);
 		{
@@ -519,7 +519,7 @@ void LLHUDEffectLookAt::render()
 			gGL.vertex3f(0.f, 0.f, -1.f);
 			gGL.vertex3f(0.f, 0.f, 1.f);
 		} gGL.end();
-		glPopMatrix();
+		gGL.popMatrix();
 	}
 }
 

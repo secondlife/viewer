@@ -1952,7 +1952,6 @@ LLVolumePartition::LLVolumePartition()
 	mPartitionType = LLViewerRegion::PARTITION_VOLUME;
 	mSlopRatio = 0.25f;
 	mBufferUsage = GL_DYNAMIC_DRAW_ARB;
-	mImageEnabled = TRUE;
 }
 
 LLVolumeBridge::LLVolumeBridge(LLDrawable* drawablep)
@@ -2045,7 +2044,6 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 		draw_info->mGroup = group;
 		draw_info->mVSize = facep->getVirtualSize();
 		draw_vec.push_back(draw_info);
-		draw_info->mReflectionMap = group->mReflectionMap;
 		draw_info->mTextureMatrix = tex_mat;
 		draw_info->mModelMatrix = model_mat;
 		draw_info->mGlowColor.setVec(0,0,0,glow);
@@ -2162,20 +2160,6 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 	LLFastTimer ftm(LLFastTimer::FTM_REBUILD_VBO);	
 
 	LLFastTimer ftm2(LLFastTimer::FTM_REBUILD_VOLUME_VB);
-
-	//find reflection map
-	if (group->mSpatialPartition->mImageEnabled && LLPipeline::sDynamicReflections)
-	{
-		if (group->mReflectionMap.isNull())
-		{
-			LLSpatialGroup* parent = group->getParent();
-			while (parent && group->mReflectionMap.isNull())
-			{
-				group->mReflectionMap = parent->mReflectionMap;
-				parent = parent->getParent();
-			}
-		}
-	}
 
 	group->clearDrawMap();
 

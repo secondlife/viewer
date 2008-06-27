@@ -186,6 +186,7 @@ NVIDIA GeForce Go 6700			.*NVIDIA.*GeForce Go 67.*			1		1
 NVIDIA GeForce Go 6800			.*NVIDIA.*GeForce Go 68.*			1		1
 NVIDIA GeForce Go 7200			.*NVIDIA.*GeForce Go 72.*			1		1
 NVIDIA GeForce Go 7300			.*NVIDIA.*GeForce Go 73.*			1		1
+NVIDIA GeForce Go 7300 LE		.*NVIDIA.*GeForce Go 73.*LE.*		0		1
 NVIDIA GeForce Go 7400			.*NVIDIA.*GeForce Go 74.*			1		1
 NVIDIA GeForce Go 7600			.*NVIDIA.*GeForce Go 76.*			2		1
 NVIDIA GeForce Go 7700			.*NVIDIA.*GeForce Go 77.*			2		1
@@ -194,6 +195,7 @@ NVIDIA GeForce Go 7900			.*NVIDIA.*GeForce Go 79.*			2		1
 NVIDIA GeForce Go 6				.*GeForce Go 6.*					1		1
 NVIDIA GeForce PCX				.*GeForce PCX.*						0		1
 NVIDIA Generic					.*NVIDIA.*Unknown.*					0		0
+NVIDIA NV34						.*NVIDIA.*NV34.*					0		1
 NVIDIA NV43						.*NVIDIA.*NV43.*					1		1
 NVIDIA MCP78					.*NVIDIA.*MCP78.*					1		1
 NVIDIA Quadro2					.*Quadro2.*							0		1

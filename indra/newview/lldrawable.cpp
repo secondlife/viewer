@@ -122,7 +122,11 @@ void LLDrawable::destroy()
 		sNumZombieDrawables--;
 	}
 
-	LLFace::sDeleteLock = mFaces.size() ;
+	if (LLSpatialGroup::sNoDelete)
+	{
+		llerrs << "Illegal deletion of LLDrawable!" << llendl;
+	}
+
 	std::for_each(mFaces.begin(), mFaces.end(), DeletePointer());
 	mFaces.clear();
 		
@@ -185,7 +189,6 @@ void LLDrawable::cleanupReferences()
 {
 	LLFastTimer t(LLFastTimer::FTM_PIPELINE);
 	
-	LLFace::sDeleteLock = mFaces.size() ;
 	std::for_each(mFaces.begin(), mFaces.end(), DeletePointer());
 	mFaces.clear();
 
@@ -279,7 +282,6 @@ void LLDrawable::setNumFaces(const S32 newFaces, LLFacePool *poolp, LLViewerImag
 	}
 	else if (newFaces < (S32)mFaces.size())
 	{
-		LLFace::sDeleteLock = (S32)mFaces.size() - newFaces ;
 		std::for_each(mFaces.begin() + newFaces, mFaces.end(), DeletePointer());
 		mFaces.erase(mFaces.begin() + newFaces, mFaces.end());
 	}
@@ -303,7 +305,6 @@ void LLDrawable::setNumFacesFast(const S32 newFaces, LLFacePool *poolp, LLViewer
 	}
 	else if (newFaces < (S32)mFaces.size())
 	{
-		LLFace::sDeleteLock = (S32)mFaces.size() - newFaces ;
 		std::for_each(mFaces.begin() + newFaces, mFaces.end(), DeletePointer());
 		mFaces.erase(mFaces.begin() + newFaces, mFaces.end());
 	}
@@ -338,12 +339,8 @@ void LLDrawable::deleteFaces(S32 offset, S32 count)
 	face_list_t::iterator face_begin = mFaces.begin() + offset;
 	face_list_t::iterator face_end = face_begin + count;
 
-	S32 end = (S32)mFaces.size() ;
-	LLFace::sDeleteLock = count ;
 	std::for_each(face_begin, face_end, DeletePointer());
 	mFaces.erase(face_begin, face_end);
-
-	llassert_always(mFaces.size() == end - count) ;
 }
 
 void LLDrawable::update()
@@ -521,7 +518,7 @@ F32 LLDrawable::updateXform(BOOL undamped)
 	}
 
 	if ((mCurrentScale != target_scale) ||
-		(!isRoot() && (dist_squared >= MIN_INTERPOLATE_DISTANCE_SQUARED*camdist2)))
+		(!isRoot() && (dist_squared >= MIN_INTERPOLATE_DISTANCE_SQUARED) || !mVObjp->getAngularVelocity().isExactlyZero()))
 	{ //child prim moving or scale change requires immediate rebuild
 		gPipeline.markRebuild(this, LLDrawable::REBUILD_POSITION, TRUE);
 	}

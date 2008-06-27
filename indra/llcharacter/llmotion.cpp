@@ -127,6 +127,13 @@ void LLMotion::setDeactivateCallback( void (*cb)(void *), void* userdata )
 	mDeactivateCallbackUserData = userdata;
 }
 
+//virtual
+void LLMotion::setStopTime(F32 time)
+{
+	mStopTimestamp = time;
+	mStopped = TRUE;
+}
+
 BOOL LLMotion::isBlending()
 {
 	return mPose.getWeight() < 1.f;
@@ -135,8 +142,9 @@ BOOL LLMotion::isBlending()
 //-----------------------------------------------------------------------------
 // activate()
 //-----------------------------------------------------------------------------
-void LLMotion::activate()
+void LLMotion::activate(F32 time)
 {
+	mActivationTimestamp = time;
 	mStopped = FALSE;
 	mActive = TRUE;
 	onActivate();
@@ -150,7 +158,12 @@ void LLMotion::deactivate()
 	mActive = FALSE;
 	mPose.setWeight(0.f);
 
-	if (mDeactivateCallback) (*mDeactivateCallback)(mDeactivateCallbackUserData);
+	if (mDeactivateCallback)
+	{
+		(*mDeactivateCallback)(mDeactivateCallbackUserData);
+		mDeactivateCallback = NULL; // only call callback once
+		mDeactivateCallbackUserData = NULL;
+	}
 
 	onDeactivate();
 }

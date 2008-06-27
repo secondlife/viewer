@@ -1343,9 +1343,6 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 	SetWindowLong(mWindowHandle, GWL_USERDATA, (U32)this);
 	show();
 
-	//make sure multi sampling is disabled by default
-	glDisable(GL_MULTISAMPLE_ARB);
-
 	//register joystick timer callback
 	SetTimer( mWindowHandle, 0, 1000 / 30, NULL ); // 30 fps timer
 
@@ -1368,7 +1365,9 @@ void LLWindowWin32::moveWindow( const LLCoordScreen& position, const LLCoordScre
 	// if the window was already maximized, MoveWindow seems to still set the maximized flag even if
 	// the window is smaller than maximized.
 	// So we're going to do a restore first (which is a ShowWindow call) (SL-44655).
-	ShowWindow(mWindowHandle, SW_RESTORE);
+
+	// THIS CAUSES DEV-15484 and DEV-15949 
+	//ShowWindow(mWindowHandle, SW_RESTORE);
 	// NOW we can call MoveWindow
 	MoveWindow(mWindowHandle, position.mX, position.mY, size.mX, size.mY, TRUE);
 }

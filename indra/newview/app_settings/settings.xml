@@ -5797,17 +5797,6 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>RenderDynamicReflections</key>
-    <map>
-      <key>Comment</key>
-      <string>Generate a dynamic cube map for reflections (objects reflect their environment, experimental).</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
     <key>RenderFSAASamples</key>
     <map>
       <key>Comment</key>
@@ -9961,11 +9950,11 @@
       <key>Comment</key>
       <string>Controls whether the thread watchdog timer is activated.</string>
       <key>Persist</key>
-      <integer>1</integer>
+      <integer>0</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>1</integer>
+      <integer>0</integer>
     </map>
     <key>WaterEditPresets</key>
     <map>

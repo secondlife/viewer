@@ -4855,18 +4855,9 @@ void LLSelectMgr::renderSilhouettes(BOOL for_hud)
 		
 		for (S32 pass = 0; pass < 2; pass++)
 		{
-			LLObjectSelection::iterator end_ = mSelectedObjects->end();		
-			S32 num_nodes = mSelectedObjects->getNumNodes() ;
-			LLObjectSelection::iterator prev_iter = mSelectedObjects->end();		
 			for (LLObjectSelection::iterator iter = mSelectedObjects->begin();
 				 iter != mSelectedObjects->end(); iter++)
 			{
-				llassert_always(end_ == mSelectedObjects->end()) ;//mSelectedObjects should not grow
-				llassert_always(prev_iter != iter) ; //iter should move
-				llassert_always(num_nodes > 0) ; //iter should not circle inside mSelectedObjects.
-				num_nodes-- ;
-				prev_iter = iter ;
-
 				LLSelectNode* node = *iter;
 				LLViewerObject* objectp = node->getObject();
 				if (!objectp)

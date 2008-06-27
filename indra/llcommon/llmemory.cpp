@@ -36,12 +36,8 @@
 # include <psapi.h>
 #elif defined(LL_DARWIN)
 # include <sys/types.h>
-# include <sys/sysctl.h>
 # include <mach/task.h>
-# include <mach/vm_map.h>
 # include <mach/mach_init.h>
-# include <mach/vm_region.h>
-# include <mach/mach_port.h>
 #elif defined(LL_LINUX)
 # include <unistd.h>
 #endif
@@ -314,13 +310,18 @@ U64 getCurrentRSS()
 
 #elif defined(LL_DARWIN)
 
-// This can cause bad stalls! Replace with fast version
-
-// static U32 getPageSize()
-// {
-// 	int ctl[2] = { CTL_HW, HW_PAGESIZE };
-// 	int page_size;
-// 	size_t size = sizeof(page_size);
+/* 
+	The API used here is not capable of dealing with 64-bit memory sizes, but is available before 10.4.
+	
+	Once we start requiring 10.4, we can use the updated API, which looks like this:
+	
+	task_basic_info_64_data_t basicInfo;
+	mach_msg_type_number_t  basicInfoCount = TASK_BASIC_INFO_64_COUNT;
+	if (task_info(mach_task_self(), TASK_BASIC_INFO_64, (task_info_t)&basicInfo, &basicInfoCount) == KERN_SUCCESS)
+	
+	Of course, this doesn't gain us anything unless we start building the viewer as a 64-bit executable, since that's the only way
+	for our memory allocation to exceed 2^32.
+*/
 
 // 	if (sysctl(ctl, 2, &page_size, &size, NULL, 0) == -1)
 // 	{
@@ -333,58 +334,25 @@ U64 getCurrentRSS()
 
 U64 getCurrentRSS()
 {
-	// Stalls!!!
-	
-// 	task_t task = mach_task_self();
-// 	vm_address_t addr = VM_MIN_ADDRESS;
-// 	vm_size_t size = 0;
-// 	U64 residentPages = 0;
+	U64 residentSize = 0;
 
-// 	while (true)
-// 	{
-// 		mach_msg_type_number_t bcount = VM_REGION_BASIC_INFO_COUNT;
-// 		vm_region_basic_info binfo;
-// 		mach_port_t bobj;
-// 		kern_return_t ret;
-		
-// 		addr += size;
-		
-// 		ret = vm_region(task, &addr, &size, VM_REGION_BASIC_INFO,
-// 						(vm_region_info_t) &binfo, &bcount, &bobj);
-		
-// 		if (ret != KERN_SUCCESS)
-// 		{
-// 			break;
-// 		}
-		
-// 		if (bobj != MACH_PORT_NULL)
-// 		{
-// 			mach_port_deallocate(task, bobj);
-// 		}
-		
-// 		mach_msg_type_number_t ecount = VM_REGION_EXTENDED_INFO_COUNT;
-// 		vm_region_extended_info einfo;
-// 		mach_port_t eobj;
+	task_basic_info_data_t basicInfo;
+	mach_msg_type_number_t  basicInfoCount = TASK_BASIC_INFO_COUNT;
+	if (task_info(mach_task_self(), TASK_BASIC_INFO, (task_info_t)&basicInfo, &basicInfoCount) == KERN_SUCCESS)
+	{
+		residentSize = basicInfo.resident_size;
 
-// 		ret = vm_region(task, &addr, &size, VM_REGION_EXTENDED_INFO,
-// 						(vm_region_info_t) &einfo, &ecount, &eobj);
-
-// 		if (ret != KERN_SUCCESS)
-// 		{
-// 			llwarns << "vm_region failed" << llendl;
-// 			return 0;
-// 		}
+		// If we ever wanted it, the process virtual size is also available as:
+		// virtualSize = basicInfo.virtual_size;
 		
-// 		if (eobj != MACH_PORT_NULL)
-// 		{
-// 			mach_port_deallocate(task, eobj);
-// 		}
+//		llinfos << "resident size is " << residentSize << llendl;
+	}
+	else
+	{
+		llwarns << "task_info failed" << llendl;
+	}
 
-// 		residentPages += einfo.pages_resident;
-// 	}
-
-// 	return residentPages * getPageSize();
-	return 0;
+	return residentSize;
 }
 
 #elif defined(LL_LINUX)

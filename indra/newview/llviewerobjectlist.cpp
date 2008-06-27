@@ -685,7 +685,6 @@ void LLViewerObjectList::update(LLAgent &agent, LLWorld &world)
 			idle_iter != idle_list.end(); idle_iter++)
 		{
 			objectp = *idle_iter;
-			llassert_always(objectp) ;
 			if (!objectp->idleUpdate(agent, world, frame_time))
 			{
 				//  If Idle Update returns false, kill object!

@@ -331,8 +331,8 @@ void LLHUDEffectPointAt::render()
 		LLGLSNoTexture gls_no_texture;
 
 		LLVector3 target = mTargetPos + mSourceObject->getRenderPosition();
-		glPushMatrix();
-		glTranslatef(target.mV[VX], target.mV[VY], target.mV[VZ]);
+		gGL.pushMatrix();
+		gGL.translatef(target.mV[VX], target.mV[VY], target.mV[VZ]);
 		glScalef(0.3f, 0.3f, 0.3f);
 		gGL.begin(LLVertexBuffer::LINES);
 		{
@@ -346,7 +346,7 @@ void LLHUDEffectPointAt::render()
 			gGL.vertex3f(0.f, 0.f, -1.f);
 			gGL.vertex3f(0.f, 0.f, 1.f);
 		} gGL.end();
-		glPopMatrix();
+		gGL.popMatrix();
 	}
 }
 

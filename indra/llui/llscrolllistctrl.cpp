@@ -1107,11 +1107,15 @@ BOOL LLScrollListCtrl::selectItemRange( S32 first_index, S32 last_index )
 
 	BOOL success = FALSE;
 	S32 index = 0;
-	for (item_list::iterator iter = mItemList.begin(); iter != mItemList.end(); iter++)
+	for (item_list::iterator iter = mItemList.begin(); iter != mItemList.end(); )
 	{
 		LLScrollListItem *itemp = *iter;
-	
-		llassert_always(itemp) ;
+		if(!itemp)
+		{
+			iter = mItemList.erase(iter);
+			continue ;
+		}
+		
 		if( index >= first_index && index <= last_index )
 		{
 			if( itemp->getEnabled() )
@@ -1125,6 +1129,7 @@ BOOL LLScrollListCtrl::selectItemRange( S32 first_index, S32 last_index )
 			deselectItem(itemp);
 		}
 		index++;
+		iter++ ;
 	}
 
 	if (mCommitOnSelectionChange)

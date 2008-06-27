@@ -217,7 +217,6 @@ BOOL	LLPipeline::sDisableShaders = FALSE;
 BOOL	LLPipeline::sRenderBump = TRUE;
 BOOL	LLPipeline::sUseFarClip = TRUE;
 BOOL	LLPipeline::sSkipUpdate = FALSE;
-BOOL	LLPipeline::sDynamicReflections = FALSE;
 BOOL	LLPipeline::sWaterReflections = FALSE;
 BOOL	LLPipeline::sRenderGlow = FALSE;
 BOOL	LLPipeline::sReflectionRender = FALSE;
@@ -474,15 +473,14 @@ void LLPipeline::createGLBuffers()
 {
 	assertInitialized();
 
-	if (LLPipeline::sDynamicReflections ||
-		LLPipeline::sWaterReflections)
+	if (LLPipeline::sWaterReflections)
 	{ //water reflection texture
 		U32 res = (U32) gSavedSettings.getS32("RenderWaterRefResolution");
 			
 		mWaterRef.allocate(res,res,GL_RGBA,TRUE);
 		mWaterDis.allocate(res,res,GL_RGBA,TRUE);
 
-		if (LLPipeline::sDynamicReflections)
+#if 0 //cube map buffers (keep for future work)
 		{
 			//reflection map generation buffers
 			if (mCubeFrameBuffer == 0)
@@ -538,7 +536,9 @@ void LLPipeline::createGLBuffers()
 				}
 			}
 		}
+#endif
 	}
+
 
 	stop_glerror();
 
@@ -910,6 +910,15 @@ void LLPipeline::unlinkDrawable(LLDrawable *drawable)
 	}
 
 	mLights.erase(drawablep);
+	for (light_set_t::iterator iter = mNearbyLights.begin();
+				iter != mNearbyLights.end(); iter++)
+	{
+		if (iter->drawable == drawablep)
+		{
+			mNearbyLights.erase(iter);
+			break;
+		}
+	}
 }
 
 U32 LLPipeline::addObject(LLViewerObject *vobj)
@@ -1777,17 +1786,16 @@ void LLPipeline::stateSort(LLDrawable* drawablep, LLCamera& camera)
 	LLSpatialGroup* group = drawablep->getSpatialGroup();
 	if (!group || group->changeLOD())
 	{
-		if (!drawablep->isActive() && drawablep->isVisible())
+		if (drawablep->isVisible() && !sSkipUpdate)
 		{
-			if (!sSkipUpdate)
+			if (!drawablep->isActive())
 			{
 				drawablep->updateDistance(camera);
 			}
-		}
-		else if (drawablep->isAvatar() && drawablep->isVisible())
-		{
-			LLVOAvatar* vobj = (LLVOAvatar*) drawablep->getVObj().get();
-			vobj->updateVisibility();
+			else if (drawablep->isAvatar())
+			{
+				drawablep->updateDistance(camera); // calls vobj->updateLOD() which calls LLVOAvatar::updateVisibility()
+			}
 		}
 	}
 
@@ -3146,6 +3154,11 @@ static F32 calc_light_dist(LLVOVolume* light, const LLVector3& cam_pos, F32 max_
 void LLPipeline::calcNearbyLights(LLCamera& camera)
 {
 	assertInitialized();
+
+	if (LLPipeline::sReflectionRender)
+	{
+		return;
+	}
 
 	if (mLightingDetail >= 1)
 	{
@@ -4801,21 +4814,6 @@ void LLPipeline::renderBloom(BOOL for_snapshot)
 
 }
 
-void LLPipeline::processImagery(LLCamera& camera)
-{
-	for (LLWorld::region_list_t::iterator iter = LLWorld::getInstance()->getRegionList().begin(); 
-			iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
-	{
-		LLViewerRegion* region = *iter;
-		LLSpatialPartition* part = region->getSpatialPartition(LLViewerRegion::PARTITION_VOLUME);
-		if (part)
-		{
-			part->processImagery(&camera);	
-		}
-	}
-}
-
-
 inline float sgn(float a)
 {
     if (a > 0.0F) return (1.0F);
@@ -5024,26 +5022,6 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 		LLGLState::checkTextureChannels();
 		LLGLState::checkClientArrays();
 	}
-}
-
-LLCubeMap* LLPipeline::findReflectionMap(const LLVector3& location)
-{
-	LLViewerRegion* region = LLWorld::getInstance()->getRegionFromPosAgent(location);
-	if (region)
-	{
-		LLSpatialPartition* part = region->getSpatialPartition(LLViewerRegion::PARTITION_VOLUME);
-		if (part)
-		{
-			LLSpatialGroup::OctreeNode* node = part->mOctree->getNodeAt(LLVector3d(location), 32.0);
-			if (node)
-			{
-				LLSpatialGroup* group = (LLSpatialGroup*) node->getListener(0);
-				return group->mReflectionMap;
-			}
-		}
-	}
-
-	return NULL;
 }
 
 void LLPipeline::renderGroups(LLRenderPass* pass, U32 type, U32 mask, BOOL texture)

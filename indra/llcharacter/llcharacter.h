@@ -137,13 +137,16 @@ public:
 	//-------------------------------------------------------------------------
 	// registers a motion with the character
 	// returns true if successfull
-	BOOL addMotion( const LLUUID& id, LLMotionConstructor create );
+	BOOL registerMotion( const LLUUID& id, LLMotionConstructor create );
 
 	void removeMotion( const LLUUID& id );
 
-	// returns an instance of a registered motion
+	// returns an instance of a registered motion, creating one if necessary
 	LLMotion* createMotion( const LLUUID &id );
 
+	// returns an existing instance of a registered motion
+	LLMotion* findMotion( const LLUUID &id );
+	
 	// start a motion
 	// returns true if successful, false if an error occurred
 	virtual BOOL startMotion( const LLUUID& id, F32 start_offset = 0.f);
@@ -161,12 +164,16 @@ public:
 	virtual void requestStopMotion( LLMotion* motion );
 	
 	// periodic update function, steps the motion controller
-	void updateMotion(BOOL force_update = FALSE);
+	enum e_update_t { NORMAL_UPDATE, HIDDEN_UPDATE, FORCE_UPDATE };
+	void updateMotions(e_update_t update_type);
 
 	LLAnimPauseRequest requestPause();
 	BOOL areAnimationsPaused() { return mMotionController.isPaused(); }
 	void setAnimTimeFactor(F32 factor) { mMotionController.setTimeFactor(factor); }
 	void setTimeStep(F32 time_step) { mMotionController.setTimeStep(time_step); }
+
+	LLMotionController& getMotionController() { return mMotionController; }
+	
 	// Releases all motion instances which should result in
 	// no cached references to character joint data.  This is 
 	// useful if a character wants to rebuild it's skeleton.

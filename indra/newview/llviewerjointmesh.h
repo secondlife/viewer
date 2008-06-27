@@ -142,7 +142,7 @@ public:
 	/*virtual*/ void updateFaceSizes(U32 &num_vertices, U32& num_indices, F32 pixel_area);
 	/*virtual*/ void updateFaceData(LLFace *face, F32 pixel_area, BOOL damp_wind = FALSE);
 	/*virtual*/ BOOL updateLOD(F32 pixel_area, BOOL activate);
-	/*virtual*/ void updateGeometry();
+	/*virtual*/ void updateJointGeometry();
 	/*virtual*/ void dump();
 
 	void setIsTransparent(BOOL is_transparent) { mIsTransparent = is_transparent; }

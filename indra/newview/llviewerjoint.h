@@ -60,18 +60,18 @@ public:
 	// Primarily for debugging and character setup
 	// Derived classes may add text/graphic output.
 	// Draw skeleton graphic for debugging and character setup
-	virtual void renderSkeleton(BOOL recursive=TRUE);
+ 	void renderSkeleton(BOOL recursive=TRUE); // debug only (unused)
+
+	// Draws a bone graphic to the parent joint.
+	// Derived classes may add text/graphic output.
+	// Called by renderSkeleton().
+ 	void drawBone(); // debug only (unused)
 
 	// Render character hierarchy.
 	// Traverses the entire joint hierarchy, setting up
 	// transforms and calling the drawShape().
 	// Derived classes may add text/graphic output.
 	virtual U32 render( F32 pixelArea, BOOL first_pass = TRUE );	// Returns triangle count
-
-	// Draws a bone graphic to the parent joint.
-	// Derived classes may add text/graphic output.
-	// Called by renderSkeleton().
-	virtual void drawBone();
 
 	// Returns true if this object is transparent.
 	// This is used to determine in which order to draw objects.
@@ -127,7 +127,7 @@ public:
 	virtual void updateFaceSizes(U32 &num_vertices, U32& num_indices, F32 pixel_area);
 	virtual void updateFaceData(LLFace *face, F32 pixel_area, BOOL damp_wind = FALSE);
 	virtual BOOL updateLOD(F32 pixel_area, BOOL activate);
-	virtual void updateGeometry();
+	virtual void updateJointGeometry();
 	virtual void dump();
 
 	void setVisible( BOOL visible, BOOL recursive );

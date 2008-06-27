@@ -118,7 +118,6 @@ protected:
 	S32					mLastMouseY;
 	LLButton*			mPlayButton;
 	LLButton*			mStopButton;
-	F32					mLastSliderValue;
 	LLRect				mPreviewRect;
 	LLRectf				mPreviewImageRect;
 	LLAssetID			mMotionID;
