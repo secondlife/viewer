@@ -259,7 +259,7 @@ namespace tut
 	template<> template<>
 	void HTTPClientTestObject::test<1>()
 	{
-		LLHTTPClient::get("http://www.secondlife.com/", newResult());
+		LLHTTPClient::get("http://www.google.com/", newResult());
 		runThePump();
 		ensureStatusOK();
 		ensure("result object wasn't destroyed", mResultDeleted);
@@ -365,7 +365,7 @@ namespace tut
 	{
 		// This is testing for the presence of the Header in the returned results
 		// from an HTTP::get call.
-		LLHTTPClient::get("http://www.secondlife.com/", newResult());
+		LLHTTPClient::get("http://www.google.com/", newResult());
 		runThePump();
 		ensureStatusOK();
 		LLSD header = getHeader();
@@ -374,7 +374,7 @@ namespace tut
 	template<> template<>
 	void HTTPClientTestObject::test<9>()
 	{
-		LLHTTPClient::head("http://www.secondlife.com/", newResult());
+		LLHTTPClient::head("http://www.google.com/", newResult());
 		runThePump();
 		ensureStatusOK();
 		ensure("result object wasn't destroyed", mResultDeleted);
