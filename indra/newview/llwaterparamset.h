@@ -37,7 +37,7 @@
 
 #include "v4math.h"
 #include "v4color.h"
-#include "llglslshader.h"
+#include "llviewershadermgr.h"
 
 class LLFloaterWater;
 class LLWaterParamSet;

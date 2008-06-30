@@ -50,9 +50,6 @@
 #include "lltoolmgr.h"
 #include "llviewerjoystick.h"
 
-GLfloat gGLZFar;
-GLfloat gGLZNear;
-
 //glu pick matrix implementation borrowed from Mesa3D
 glh::matrix4f gl_pick_matrix(GLfloat x, GLfloat y, GLfloat width, GLfloat height, GLint* viewport)
 {
@@ -145,12 +142,6 @@ void LLViewerCamera::updateCameraLocation(const LLVector3 &center,
 	// update screen pixel area
 	mScreenPixelArea =(S32)((F32)mViewHeightInPixels * ((F32)mViewHeightInPixels * mAspect));
 }
-
-// Handy copies of last good GL matrices
-F64	gGLModelView[16];
-F64	gGLLastModelView[16];
-F64 gGLProjection[16];
-S32	gGLViewport[4];
 
 const LLMatrix4 &LLViewerCamera::getProjection() const
 {
@@ -342,9 +333,6 @@ void LLViewerCamera::setPerspective(BOOL for_selection,
 	{
 		gGLProjection[i] = proj_mat.m[i];
 	}
-
-	gGLZNear = z_near;
-	gGLZFar = z_far;
 
 	glMatrixMode( GL_MODELVIEW );
 

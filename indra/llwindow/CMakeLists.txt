@@ -45,16 +45,11 @@ set(llwindows_HEADER_FILES
     )
 
 set(viewer_SOURCE_FILES
-    llgl.cpp
     llwindow.cpp
     )
 
 set(viewer_HEADER_FILES
-    llgl.h
     llwindow.h
-    llglheaders.h
-    llglstates.h
-    llgltypes.h
     llpreeditor.h
     llmousehandler.h
     )
@@ -123,21 +118,10 @@ if (SERVER AND NOT WINDOWS AND NOT DARWIN)
   set(server_HEADER_FILES
        llwindowmesaheadless.h
        )
-  set(copied_SOURCES
-      llgl
+  copy_server_sources(
       llwindow
       )
 
-  foreach (PREFIX ${copied_SOURCES})
-    add_custom_command(
-        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${PREFIX}_server.cpp
-        COMMAND ${CMAKE_COMMAND}
-        ARGS -E copy ${CMAKE_CURRENT_SOURCE_DIR}/${PREFIX}.cpp
-             ${CMAKE_CURRENT_BINARY_DIR}/${PREFIX}_server.cpp
-        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${PREFIX}.cpp
-        )
-    list(APPEND server_SOURCE_FILES ${PREFIX}_server.cpp)
-  endforeach (PREFIX ${copied_SOURCES})
 
   set_source_files_properties(
     ${server_SOURCE_FILES}

@@ -68,6 +68,7 @@
 #include "llspatialpartition.h"
 #include "llappviewer.h"
 #include "llstartup.h"
+#include "llviewershadermgr.h"
 #include "llfasttimer.h"
 #include "llfloatertools.h"
 #include "llviewerimagelist.h"
@@ -531,7 +532,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		
 		gFrameStats.start(LLFrameStats::UPDATE_CULL);
 		S32 water_clip = 0;
-		if ((LLShaderMgr::getVertexShaderLevel(LLShaderMgr::SHADER_ENVIRONMENT) > 1) &&
+		if ((LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_ENVIRONMENT) > 1) &&
 			 gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_WATER))
 		{
 			if (LLViewerCamera::getInstance()->cameraUnderWater())

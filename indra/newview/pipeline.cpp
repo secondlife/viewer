@@ -93,7 +93,7 @@
 #include "llworld.h"
 #include "llcubemap.h"
 #include "lldebugmessagebox.h"
-#include "llglslshader.h"
+#include "llviewershadermgr.h"
 #include "llviewerjoystick.h"
 #include "llviewerdisplay.h"
 #include "llwlparammanager.h"
@@ -300,7 +300,7 @@ void LLPipeline::init()
 	
 	// Enable features
 		
-	LLShaderMgr::setShaders();
+	LLViewerShaderMgr::instance()->setShaders();
 
 	stop_glerror();
 }
@@ -565,7 +565,7 @@ void LLPipeline::restoreGL()
 
 	if (mVertexShadersEnabled)
 	{
-		LLShaderMgr::setShaders();
+		LLViewerShaderMgr::instance()->setShaders();
 	}
 
 	for (LLWorld::region_list_t::iterator iter = LLWorld::getInstance()->getRegionList().begin(); 
@@ -603,18 +603,18 @@ BOOL LLPipeline::canUseWindLightShaders() const
 {
 	return (!LLPipeline::sDisableShaders &&
 			gWLSkyProgram.mProgramObject != 0 &&
-			LLShaderMgr::getVertexShaderLevel(LLShaderMgr::SHADER_WINDLIGHT) > 1);
+			LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_WINDLIGHT) > 1);
 }
 
 BOOL LLPipeline::canUseWindLightShadersOnObjects() const
 {
 	return (canUseWindLightShaders() 
-		&& LLShaderMgr::getVertexShaderLevel(LLShaderMgr::SHADER_OBJECT) > 0);
+		&& LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_OBJECT) > 0);
 }
 
 void LLPipeline::unloadShaders()
 {
-	LLShaderMgr::unloadShaders();
+	LLViewerShaderMgr::instance()->unloadShaders();
 
 	mVertexShadersLoaded = 0;
 }
@@ -660,7 +660,7 @@ S32 LLPipeline::setLightingDetail(S32 level)
 
 		if (mVertexShadersLoaded == 1)
 		{
-			LLShaderMgr::setShaders();
+			LLViewerShaderMgr::instance()->setShaders();
 		}
 	}
 	return mLightingDetail;
@@ -1795,7 +1795,7 @@ void LLPipeline::stateSort(LLDrawable* drawablep, LLCamera& camera)
 			else if (drawablep->isAvatar())
 			{
 				drawablep->updateDistance(camera); // calls vobj->updateLOD() which calls LLVOAvatar::updateVisibility()
-			}
+		}
 		}
 	}
 
@@ -2192,10 +2192,10 @@ void LLPipeline::renderHighlights()
 	LLGLEnable color_mat(GL_COLOR_MATERIAL);
 	disableLights();
 
-	if ((LLShaderMgr::sVertexShaderLevel[LLShaderMgr::SHADER_INTERFACE] > 0))
+	if ((LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_INTERFACE) > 0))
 	{
 		gHighlightProgram.bind();
-		gHighlightProgram.vertexAttrib4f(LLShaderMgr::MATERIAL_COLOR,1,1,1,0.5f);
+		gHighlightProgram.vertexAttrib4f(LLViewerShaderMgr::MATERIAL_COLOR,1,1,1,0.5f);
 	}
 	
 	if (hasRenderDebugFeatureMask(RENDER_DEBUG_FEATURE_SELECTED))
@@ -2225,9 +2225,9 @@ void LLPipeline::renderHighlights()
 	{
 		// Paint 'em red!
 		color.setVec(1.f, 0.f, 0.f, 0.5f);
-		if ((LLShaderMgr::sVertexShaderLevel[LLShaderMgr::SHADER_INTERFACE] > 0))
+		if ((LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_INTERFACE) > 0))
 		{
-			gHighlightProgram.vertexAttrib4f(LLShaderMgr::MATERIAL_COLOR,1,0,0,0.5f);
+			gHighlightProgram.vertexAttrib4f(LLViewerShaderMgr::MATERIAL_COLOR,1,0,0,0.5f);
 		}
 		int count = mHighlightFaces.size();
 		for (S32 i = 0; i < count; i++)
@@ -2241,7 +2241,7 @@ void LLPipeline::renderHighlights()
 	// have touch-handlers.
 	mHighlightFaces.clear();
 
-	if (LLShaderMgr::sVertexShaderLevel[LLShaderMgr::SHADER_INTERFACE] > 0)
+	if (LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_INTERFACE) > 0)
 	{
 		gHighlightProgram.unbind();
 	}

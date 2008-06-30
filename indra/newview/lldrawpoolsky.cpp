@@ -46,7 +46,7 @@
 #include "llvosky.h"
 #include "llworld.h" // To get water height
 #include "pipeline.h"
-#include "llglslshader.h"
+#include "llviewershadermgr.h"
 
 LLDrawPoolSky::LLDrawPoolSky() :
 	LLFacePool(POOL_SKY), mShader(NULL)
@@ -60,7 +60,7 @@ LLDrawPool *LLDrawPoolSky::instancePool()
 
 void LLDrawPoolSky::prerender()
 {
-	mVertexShaderLevel = LLShaderMgr::getVertexShaderLevel(LLShaderMgr::SHADER_ENVIRONMENT);
+	mVertexShaderLevel = LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_ENVIRONMENT);
 	gSky.mVOSkyp->updateGeometry(gSky.mVOSkyp->mDrawable);
 }
 

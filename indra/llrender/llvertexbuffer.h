@@ -41,6 +41,7 @@
 #include "llmemory.h"
 #include <set>
 #include <vector>
+#include <list>
 
 //============================================================================
 // NOTES

@@ -33,6 +33,8 @@
 
 #include "llwaterparammanager.h"
 
+#include "llrender.h"
+
 #include "pipeline.h"
 #include "llsky.h"
 
@@ -205,9 +207,9 @@ void LLWaterParamManager::propagateParameters(void)
 	// bind the variables only if we're using shaders
 	if(gPipeline.canUseVertexShaders())
 	{
-		LLShaderMgr::shader_iter shaders_iter, end_shaders;
-		end_shaders = LLShaderMgr::endShaders();
-		for(shaders_iter = LLShaderMgr::beginShaders(); shaders_iter != end_shaders; ++shaders_iter)
+		LLViewerShaderMgr::shader_iter shaders_iter, end_shaders;
+		end_shaders = LLViewerShaderMgr::instance()->endShaders();
+		for(shaders_iter = LLViewerShaderMgr::instance()->beginShaders(); shaders_iter != end_shaders; ++shaders_iter)
 		{
 			if (shaders_iter->mProgramObject != 0
 				&& shaders_iter->mShaderGroup == LLGLSLShader::SG_WATER)
@@ -229,7 +231,7 @@ void LLWaterParamManager::updateShaderUniforms(LLGLSLShader * shader)
 {
 	if (shader->mShaderGroup == LLGLSLShader::SG_WATER)
 	{
-		shader->uniform4fv(LLShaderMgr::LIGHTNORM, 1, LLWLParamManager::instance()->getRotatedLightDir().mV);
+		shader->uniform4fv(LLViewerShaderMgr::LIGHTNORM, 1, LLWLParamManager::instance()->getRotatedLightDir().mV);
 		shader->uniform3fv("camPosLocal", 1, LLViewerCamera::getInstance()->getOrigin().mV);
 		shader->uniform4fv("waterFogColor", 1, LLDrawPoolWater::sWaterFogColor.mV);
 		shader->uniform4fv("waterPlane", 1, mWaterPlane.mV);
@@ -289,9 +291,9 @@ void LLWaterParamManager::update(LLViewerCamera * cam)
 		sunMoonDir.normVec();
 		mWaterFogKS = 1.f/llmax(sunMoonDir.mV[2], WATER_FOG_LIGHT_CLAMP);
 
-		LLShaderMgr::shader_iter shaders_iter, end_shaders;
-		end_shaders = LLShaderMgr::endShaders();
-		for(shaders_iter = LLShaderMgr::beginShaders(); shaders_iter != end_shaders; ++shaders_iter)
+		LLViewerShaderMgr::shader_iter shaders_iter, end_shaders;
+		end_shaders = LLViewerShaderMgr::instance()->endShaders();
+		for(shaders_iter = LLViewerShaderMgr::instance()->beginShaders(); shaders_iter != end_shaders; ++shaders_iter)
 		{
 			if (shaders_iter->mProgramObject != 0
 				&& shaders_iter->mShaderGroup == LLGLSLShader::SG_WATER)

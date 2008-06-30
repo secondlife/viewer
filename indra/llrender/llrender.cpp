@@ -36,6 +36,12 @@
 
 LLRender gGL;
 
+// Handy copies of last good GL matrices
+F64	gGLModelView[16];
+F64	gGLLastModelView[16];
+F64 gGLProjection[16];
+S32	gGLViewport[4];
+
 static const U32 LL_NUM_TEXTURE_LAYERS = 8; 
 
 static GLenum sGLCompareFunc[] =

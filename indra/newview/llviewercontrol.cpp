@@ -43,7 +43,7 @@
 #include "lldrawpoolterrain.h"
 #include "llflexibleobject.h"
 #include "llfeaturemanager.h"
-#include "llglslshader.h"
+#include "llviewershadermgr.h"
 #include "llnetmap.h"
 #include "llpanelgeneral.h"
 #include "llpanelinput.h"
@@ -114,7 +114,7 @@ static bool handleTerrainDetailChanged(const LLSD& newvalue)
 
 static bool handleSetShaderChanged(const LLSD& newvalue)
 {
-	LLShaderMgr::setShaders();
+	LLViewerShaderMgr::instance()->setShaders();
 	return true;
 }
 

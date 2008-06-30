@@ -281,13 +281,13 @@ void LLWLParamManager::updateShaderUniforms(LLGLSLShader * shader)
 
 	if (shader->mShaderGroup == LLGLSLShader::SG_DEFAULT)
 	{
-		shader->uniform4fv(LLShaderMgr::LIGHTNORM, 1, mRotatedLightDir.mV);
+		shader->uniform4fv(LLViewerShaderMgr::LIGHTNORM, 1, mRotatedLightDir.mV);
 		shader->uniform3fv("camPosLocal", 1, LLViewerCamera::getInstance()->getOrigin().mV);
 	} 
 
 	else if (shader->mShaderGroup == LLGLSLShader::SG_SKY)
 	{
-		shader->uniform4fv(LLShaderMgr::LIGHTNORM, 1, mClampedLightDir.mV);
+		shader->uniform4fv(LLViewerShaderMgr::LIGHTNORM, 1, mClampedLightDir.mV);
 	}
 
 	shader->uniform1f("scene_light_strength", mSceneLightStrength);
@@ -345,9 +345,9 @@ void LLWLParamManager::propagateParameters(void)
 	mCurParams.set("lightnorm", mLightDir);
 
 	// bind the variables for all shaders only if we're using WindLight
-	LLShaderMgr::shader_iter shaders_iter, end_shaders;
-	end_shaders = LLShaderMgr::endShaders();
-	for(shaders_iter = LLShaderMgr::beginShaders(); shaders_iter != end_shaders; ++shaders_iter) 
+	LLViewerShaderMgr::shader_iter shaders_iter, end_shaders;
+	end_shaders = LLViewerShaderMgr::instance()->endShaders();
+	for(shaders_iter = LLViewerShaderMgr::instance()->beginShaders(); shaders_iter != end_shaders; ++shaders_iter) 
 	{
 		if (shaders_iter->mProgramObject != 0
 			&& (gPipeline.canUseWindLightShaders()
@@ -408,9 +408,9 @@ void LLWLParamManager::update(LLViewerCamera * cam)
 		lightNorm3 *= LLQuaternion(-(camYaw + camYawDelta), LLVector3(0.f, 1.f, 0.f));
 		mRotatedLightDir = LLVector4(lightNorm3, 0.f);
 
-		LLShaderMgr::shader_iter shaders_iter, end_shaders;
-		end_shaders = LLShaderMgr::endShaders();
-		for(shaders_iter = LLShaderMgr::beginShaders(); shaders_iter != end_shaders; ++shaders_iter)
+		LLViewerShaderMgr::shader_iter shaders_iter, end_shaders;
+		end_shaders = LLViewerShaderMgr::instance()->endShaders();
+		for(shaders_iter = LLViewerShaderMgr::instance()->beginShaders(); shaders_iter != end_shaders; ++shaders_iter)
 		{
 			if (shaders_iter->mProgramObject != 0
 				&& (gPipeline.canUseWindLightShaders()

@@ -40,7 +40,7 @@
 #include "llsky.h"
 #include "pipeline.h"
 #include "llspatialpartition.h"
-#include "llglslshader.h"
+#include "llviewershadermgr.h"
 #include "llrender.h"
 
 
@@ -54,7 +54,7 @@ void LLDrawPoolGlow::render(S32 pass)
 	LLGLDisable test(GL_ALPHA_TEST);
 	gGL.setSceneBlendType(LLRender::BT_ADD);
 	
-	U32 shader_level = LLShaderMgr::getVertexShaderLevel(LLShaderMgr::SHADER_OBJECT);
+	U32 shader_level = LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_OBJECT);
 
 	if (shader_level > 0 && fullbright_shader)
 	{
@@ -92,7 +92,7 @@ LLDrawPoolSimple::LLDrawPoolSimple() :
 
 void LLDrawPoolSimple::prerender()
 {
-	mVertexShaderLevel = LLShaderMgr::getVertexShaderLevel(LLShaderMgr::SHADER_OBJECT);
+	mVertexShaderLevel = LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_OBJECT);
 }
 
 void LLDrawPoolSimple::beginRenderPass(S32 pass)
@@ -113,7 +113,7 @@ void LLDrawPoolSimple::beginRenderPass(S32 pass)
 	if (mVertexShaderLevel > 0)
 	{
 		simple_shader->bind();
-		simple_shader->uniform1f(LLShaderMgr::FULLBRIGHT, 0.f);
+		simple_shader->uniform1f(LLViewerShaderMgr::FULLBRIGHT, 0.f);
 	}
 	else 
 	{
@@ -161,7 +161,7 @@ void LLDrawPoolSimple::render(S32 pass)
 		if (mVertexShaderLevel > 0)
 		{
 			fullbright_shader->bind();
-			fullbright_shader->uniform1f(LLShaderMgr::FULLBRIGHT, 1.f);
+			fullbright_shader->uniform1f(LLViewerShaderMgr::FULLBRIGHT, 1.f);
 		}
 		else
 		{

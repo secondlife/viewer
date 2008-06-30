@@ -40,7 +40,7 @@
 #include "llvotree.h"
 #include "pipeline.h"
 #include "llviewercamera.h"
-#include "llglslshader.h"
+#include "llviewershadermgr.h"
 #include "llrender.h"
 
 S32 LLDrawPoolTree::sDiffTex = 0;
@@ -61,7 +61,7 @@ LLDrawPool *LLDrawPoolTree::instancePool()
 
 void LLDrawPoolTree::prerender()
 {
-	mVertexShaderLevel = LLShaderMgr::getVertexShaderLevel(LLShaderMgr::SHADER_OBJECT);
+	mVertexShaderLevel = LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_OBJECT);
 }
 
 void LLDrawPoolTree::beginRenderPass(S32 pass)

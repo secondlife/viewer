@@ -441,7 +441,7 @@ void LLVOSky::initCubeMap()
 	{
 		mCubeMap->init(images);
 	}
-	else if (gSavedSettings.getBOOL("RenderWater") && gGLManager.mHasCubeMap && LLFeatureManager::getInstance()->isFeatureAvailable("RenderCubeMap"))
+	else if (gSavedSettings.getBOOL("RenderWater") && gGLManager.mHasCubeMap && LLCubeMap::sUseCubeMaps)
 	{
 		mCubeMap = new LLCubeMap();
 		mCubeMap->init(images);
@@ -479,7 +479,7 @@ void LLVOSky::restoreGL()
 	calcAtmospherics();	
 
 	if (gSavedSettings.getBOOL("RenderWater") && gGLManager.mHasCubeMap
-	    && LLFeatureManager::getInstance()->isFeatureAvailable("RenderCubeMap"))
+	    && LLCubeMap::sUseCubeMaps)
 	{
 		LLCubeMap* cube_map = getCubeMap();
 

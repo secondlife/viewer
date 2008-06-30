@@ -408,7 +408,7 @@ bool handleCrashSubmitBehaviorChanged(const LLSD& newvalue)
 	else if(gSavedSettings.getBOOL("WatchdogEnabled") == TRUE)
 	{
 		// Don't re-enable the watchdog when we change the setting; this may get called before it's started
-// 		LLWatchdog::getInstance()->init();		
+// 		LLWatchdog::getInstance()->init();
 	}
 	return true;
 }
@@ -459,6 +459,8 @@ static void settings_to_globals()
 	gMiniMapScale = gSavedSettings.getF32("MiniMapScale");
 	gHandleKeysAsync = gSavedSettings.getBOOL("AsyncKeyboard");
 	LLHoverView::sShowHoverTips = gSavedSettings.getBOOL("ShowHoverTips");
+
+	LLCubeMap::sUseCubeMaps = LLFeatureManager::getInstance()->isFeatureAvailable("RenderCubeMap");
 }
 
 static void settings_modify()
@@ -2225,7 +2227,7 @@ void LLAppViewer::writeSystemInfo()
 	gDebugInfo["RAMInfo"]["Physical"] = (LLSD::Integer)(gSysMemory.getPhysicalMemoryKB());
 	gDebugInfo["RAMInfo"]["Allocated"] = (LLSD::Integer)(gMemoryAllocated>>10); // MB -> KB
 	gDebugInfo["OSInfo"] = getOSInfo().getOSStringSimple();
-
+		
 	// The user is not logged on yet, but record the current grid choice login url
 	// which may have been the intended grid. This can b
 	gDebugInfo["GridName"] = LLViewerLogin::getInstance()->getGridLabel();

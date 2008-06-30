@@ -51,7 +51,7 @@
 #include "llviewerimagelist.h" // To get alpha gradients
 #include "llworld.h"
 #include "pipeline.h"
-#include "llglslshader.h"
+#include "llviewershadermgr.h"
 #include "llrender.h"
 
 const F32 DETAIL_SCALE = 1.f/16.f;
@@ -101,7 +101,7 @@ LLDrawPool *LLDrawPoolTerrain::instancePool()
 
 void LLDrawPoolTerrain::prerender()
 {
-	mVertexShaderLevel = LLShaderMgr::getVertexShaderLevel(LLShaderMgr::SHADER_ENVIRONMENT);
+	mVertexShaderLevel = LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_ENVIRONMENT);
 	if (mVertexShaderLevel > 0)
 	{
 		sDetailMode = 1;
@@ -239,7 +239,7 @@ void LLDrawPoolTerrain::renderFullShader()
 	//
 	// detail texture 0
 	//
-	S32 detail0 = sShader->enableTexture(LLShaderMgr::TERRAIN_DETAIL0);
+	S32 detail0 = sShader->enableTexture(LLViewerShaderMgr::TERRAIN_DETAIL0);
 	LLViewerImage::bindTexture(detail_texture0p,detail0);
 	gGL.getTexUnit(0)->activate();
 
@@ -257,7 +257,7 @@ void LLDrawPoolTerrain::renderFullShader()
 	//
 	// detail texture 1
 	//
-	S32 detail1 = sShader->enableTexture(LLShaderMgr::TERRAIN_DETAIL1); 
+	S32 detail1 = sShader->enableTexture(LLViewerShaderMgr::TERRAIN_DETAIL1); 
 	LLViewerImage::bindTexture(detail_texture1p,detail1);
 	
 	/// ALPHA TEXTURE COORDS 0:
@@ -268,7 +268,7 @@ void LLDrawPoolTerrain::renderFullShader()
 	
 	// detail texture 2
 	//
-	S32 detail2 = sShader->enableTexture(LLShaderMgr::TERRAIN_DETAIL2);
+	S32 detail2 = sShader->enableTexture(LLViewerShaderMgr::TERRAIN_DETAIL2);
 	LLViewerImage::bindTexture(detail_texture2p,detail2);
 	glEnable(GL_TEXTURE_2D);
 	
@@ -282,7 +282,7 @@ void LLDrawPoolTerrain::renderFullShader()
 	//
 	// detail texture 3
 	//
-	S32 detail3 = sShader->enableTexture(LLShaderMgr::TERRAIN_DETAIL3);
+	S32 detail3 = sShader->enableTexture(LLViewerShaderMgr::TERRAIN_DETAIL3);
 	LLViewerImage::bindTexture(detail_texture3p,detail3);
 	
 	/// ALPHA TEXTURE COORDS 2:
@@ -295,18 +295,18 @@ void LLDrawPoolTerrain::renderFullShader()
 	//
 	// Alpha Ramp 
 	//
-	S32 alpha_ramp = sShader->enableTexture(LLShaderMgr::TERRAIN_ALPHARAMP);
+	S32 alpha_ramp = sShader->enableTexture(LLViewerShaderMgr::TERRAIN_ALPHARAMP);
 	LLViewerImage::bindTexture(m2DAlphaRampImagep,alpha_ramp);
 		
 	// GL_BLEND disabled by default
 	drawLoop();
 
 	// Disable multitexture
-	sShader->disableTexture(LLShaderMgr::TERRAIN_ALPHARAMP);
-	sShader->disableTexture(LLShaderMgr::TERRAIN_DETAIL0);
-	sShader->disableTexture(LLShaderMgr::TERRAIN_DETAIL1);
-	sShader->disableTexture(LLShaderMgr::TERRAIN_DETAIL2);
-	sShader->disableTexture(LLShaderMgr::TERRAIN_DETAIL3);
+	sShader->disableTexture(LLViewerShaderMgr::TERRAIN_ALPHARAMP);
+	sShader->disableTexture(LLViewerShaderMgr::TERRAIN_DETAIL0);
+	sShader->disableTexture(LLViewerShaderMgr::TERRAIN_DETAIL1);
+	sShader->disableTexture(LLViewerShaderMgr::TERRAIN_DETAIL2);
+	sShader->disableTexture(LLViewerShaderMgr::TERRAIN_DETAIL3);
 
 	LLImageGL::unbindTexture(alpha_ramp, GL_TEXTURE_2D);
 	gGL.getTexUnit(4)->activate();

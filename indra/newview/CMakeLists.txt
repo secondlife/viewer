@@ -85,7 +85,6 @@ set(viewer_SOURCE_FILES
     llconfirmationmanager.cpp
     llconsole.cpp
     llcontainerview.cpp
-    llcubemap.cpp
     llcurrencyuimanager.cpp
     llcylinder.cpp
     lldebugmessagebox.cpp
@@ -196,7 +195,6 @@ set(viewer_SOURCE_FILES
     llgesturemgr.cpp
     llgivemoney.cpp
     llglsandbox.cpp
-    llglslshader.cpp
     llgroupmgr.cpp
     llgroupnotify.cpp
     llhoverview.cpp
@@ -285,7 +283,6 @@ set(viewer_SOURCE_FILES
     llpatchvertexarray.cpp
     llpolymesh.cpp
     llpolymorph.cpp
-    llpostprocess.cpp
     llprefschat.cpp
     llprefsim.cpp
     llprefsvoice.cpp
@@ -299,7 +296,6 @@ set(viewer_SOURCE_FILES
     llpreviewtexture.cpp
     llprogressview.cpp
     llregionposition.cpp
-    llrendersphere.cpp
     llremoteparcelrequest.cpp
     llsavedsettingsglue.cpp
     llselectmgr.cpp
@@ -385,6 +381,7 @@ set(viewer_SOURCE_FILES
     llviewerpartsim.cpp
     llviewerpartsource.cpp
     llviewerregion.cpp
+    llviewershadermgr.cpp
     llviewerstats.cpp
     llviewertexteditor.cpp
     llviewertextureanim.cpp
@@ -475,7 +472,6 @@ set(viewer_HEADER_FILES
     llconfirmationmanager.h
     llconsole.h
     llcontainerview.h
-    llcubemap.h
     llcurrencyuimanager.h
     llcylinder.h
     lldebugmessagebox.h
@@ -586,7 +582,6 @@ set(viewer_HEADER_FILES
     llgenepool.h
     llgesturemgr.h
     llgivemoney.h
-    llglslshader.h
     llgroupmgr.h
     llgroupnotify.h
     llhoverview.h
@@ -674,7 +669,6 @@ set(viewer_HEADER_FILES
     llpanelweb.h
     llparcelselection.h
     llpatchvertexarray.h
-    llpostprocess.h
     llpolymesh.h
     llpolymorph.h
     llprefschat.h
@@ -691,7 +685,6 @@ set(viewer_HEADER_FILES
     llprogressview.h
     llregionposition.h
     llremoteparcelrequest.h
-    llrendersphere.h
     llresourcedata.h
     llsavedsettingsglue.h
     llselectmgr.h
@@ -778,6 +771,7 @@ set(viewer_HEADER_FILES
     llviewerpartsource.h
     llviewerprecompiledheaders.h
     llviewerregion.h
+    llviewershadermgr.h
     llviewerstats.h
     llviewertexteditor.h
     llviewertextureanim.h

@@ -114,7 +114,7 @@
 #include "llworld.h"
 #include "pipeline.h"
 #include "llspatialpartition.h"
-#include "llglslshader.h"
+#include "llviewershadermgr.h"
 #include "llappviewer.h"
 #include "llsky.h"
 #include "llanimstatelabels.h"
@@ -2824,7 +2824,7 @@ void LLVOAvatar::idleUpdateLoadingEffect()
 void LLVOAvatar::idleUpdateWindEffect()
 {
 	// update wind effect
-	if ((LLShaderMgr::getVertexShaderLevel(LLShaderMgr::SHADER_AVATAR) >= LLDrawPoolAvatar::SHADER_LEVEL_CLOTH))
+	if ((LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_AVATAR) >= LLDrawPoolAvatar::SHADER_LEVEL_CLOTH))
 	{
 		F32 hover_strength = 0.f;
 		F32 time_delta = mRippleTimer.getElapsedTimeF32() - mRippleTimeLast;
@@ -3388,7 +3388,7 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 			return FALSE;
 		}
 	}
-	
+
 	// change animation time quanta based on avatar render load
 	if (!mIsSelf && !mIsDummy)
 	{
@@ -4000,7 +4000,7 @@ U32 LLVOAvatar::renderSkinned(EAvatarRenderPass pass)
 		mDrawable->clearState(LLDrawable::REBUILD_GEOMETRY);
 	}
 
-	if (LLShaderMgr::getVertexShaderLevel(LLShaderMgr::SHADER_AVATAR) <= 0)
+	if (LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_AVATAR) <= 0)
 	{
 		if (mNeedsSkin)
 		{
@@ -9714,7 +9714,7 @@ BOOL LLVOAvatar::updateLOD()
 	}
 	
 	updateVisibility();
-	
+
 	return res;
 }
 
