@@ -30,8 +30,6 @@ IF (SCP_FOUND)
 ELSE (SCP_FOUND)
   IF (SCP_FIND_REQUIRED)
     MESSAGE(FATAL_ERROR "Could not find scp or pscp executable")
-  ELSE (SCP_FIND_REQUIRED)
-    MESSAGE(STATUS "Could not find scp or pscp executable")
   ENDIF (SCP_FIND_REQUIRED)
 ENDIF (SCP_FOUND)
 
