@@ -81,9 +81,9 @@ set(VIEWER ON CACHE BOOL "Build Second Life viewer.")
 
 set(STANDALONE OFF CACHE BOOL "Do not use Linden-supplied prebuilt libraries.")
 
-if (NOT STANDALONE AND EXISTS ${LIBS_PREBUILT_DIR}/include/havok)
+if (NOT STANDALONE AND EXISTS ${CMAKE_SOURCE_DIR}/llphysics)
     set(SERVER ON CACHE BOOL "Build Second Life server software.")
-endif (NOT STANDALONE AND EXISTS ${LIBS_PREBUILT_DIR}/include/havok)
+endif (NOT STANDALONE AND EXISTS ${CMAKE_SOURCE_DIR}/llphysics)
 
 if (LINUX AND SERVER AND VIEWER)
   MESSAGE(FATAL_ERROR "
