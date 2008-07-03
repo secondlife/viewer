@@ -1653,8 +1653,8 @@ bool LLAppViewer::initConfiguration()
 			<< "Error: " << clp.getErrorMessage();
 
 		OSMessageBox(
-			msg.str().c_str(),
-			NULL,
+			msg.str(),
+			LLStringUtil::null,
 			OSMB_OK);
 
 		return false;
