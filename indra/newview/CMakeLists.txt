@@ -1325,6 +1325,7 @@ if (WINDOWS)
           ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
           --configuration=${CMAKE_CFG_INTDIR}
           --channel=${VIEWER_CHANNEL}
+          --grid=${GRID}
           --source=${CMAKE_CURRENT_SOURCE_DIR}
               --artwork=${ARTWORK_DIR}
               --build=${CMAKE_CURRENT_BINARY_DIR}
@@ -1411,7 +1412,7 @@ if (LINUX)
       COMMAND ${PYTHON_EXECUTABLE}
       ARGS
         ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
-        --grid=agni
+        --grid=${GRID}
         --channel=${VIEWER_CHANNEL}
         --installer_name=${product}
         --arch=${ARCH}
@@ -1450,6 +1451,7 @@ if (DARWIN)
     COMMAND ${PYTHON_EXECUTABLE}
     ARGS
       ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
+      --grid=${GRID}
       --actions=copy
       --configuration=${CMAKE_CFG_INTDIR}
       --source=${CMAKE_CURRENT_SOURCE_DIR}
@@ -1464,6 +1466,7 @@ if (DARWIN)
       COMMAND
         ${PYTHON_EXECUTABLE}
         ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
+        --grid=${GRID}
         --configuration=${CMAKE_CFG_INTDIR}
         --channel=${VIEWER_CHANNEL}
         --source=${CMAKE_CURRENT_SOURCE_DIR}
