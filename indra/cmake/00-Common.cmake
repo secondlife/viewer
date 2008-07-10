@@ -105,9 +105,9 @@ if (LINUX)
   # treat as errors due to -Werror.  Quiet the most offensive and
   # widespread of them.
 
-  if (${GXX_VERSION} MATCHES "4.3")
+  if (${CXX_VERSION} MATCHES "4.3")
     add_definitions(-Wno-deprecated -Wno-parentheses)
-  endif (${GXX_VERSION} MATCHES "4.3")
+  endif (${CXX_VERSION} MATCHES "4.3")
 
   # End of hacks.
 
