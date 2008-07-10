@@ -65,6 +65,7 @@ class PlatformSetup(object):
     build_type = build_types['relwithdebinfo']
     standalone = 'FALSE'
     unattended = 'FALSE'
+    distcc = True
     cmake_opts = []
 
     def __init__(self):
@@ -255,13 +256,18 @@ class LinuxSetup(UnixSetup):
         if not self.is_internal_tree():
             args.update({'cxx':'g++', 'server':'FALSE', 'viewer':'TRUE'})
         else:
-            distcc = self.find_in_path('distcc')
+            if self.distcc:
+                distcc = self.find_in_path('distcc')
+                baseonly = True
+            else:
+                distcc = []
+                baseonly = False
             if 'server' in build_dir:
-                gcc33 = distcc + self.find_in_path('g++-3.3', 'g++', True)
+                gcc33 = distcc + self.find_in_path('g++-3.3', 'g++', baseonly)
                 args.update({'cxx':' '.join(gcc33), 'server':'TRUE',
                              'viewer':'FALSE'})
             else:
-                gcc41 = distcc + self.find_in_path('g++-4.1', 'g++', True)
+                gcc41 = distcc + self.find_in_path('g++-4.1', 'g++', baseonly)
                 args.update({'cxx': ' '.join(gcc41), 'server':'FALSE',
                              'viewer':'TRUE'})
         #if simple:
@@ -584,6 +590,7 @@ Options:
        --unattended     build unattended, do not invoke any tools requiring
                         a human response
   -t | --type=NAME      build type ("Debug", "Release", or "RelWithDebInfo")
+  -N | --no-distcc      disable use of distcc
   -G | --generator=NAME generator name
                         Windows: VC71 or VS2003 (default), VC80 (VS2005) or VC90 (VS2008)
                         Mac OS X: Xcode (default), Unix Makefiles
@@ -601,8 +608,8 @@ def main(arguments):
     try:
         opts, args = getopt.getopt(
             arguments,
-            '?ht:G:',
-            ['help', 'standalone', 'unattended', 'type=', 'incredibuild', 'generator='])
+            '?hNt:G:',
+            ['help', 'standalone', 'no-distcc', 'unattended', 'type=', 'incredibuild', 'generator='])
     except getopt.GetoptError, err:
         print >> sys.stderr, 'Error:', err
         sys.exit(1)
@@ -628,6 +635,8 @@ def main(arguments):
                 sys.exit(1)
         elif o in ('-G', '--generator'):
             setup.generator = a
+        elif o in ('-N', '--no-distcc'):
+            setup.distcc = False
         elif o in ('--incredibuild'):
             setup.incredibuild = True
         else:
