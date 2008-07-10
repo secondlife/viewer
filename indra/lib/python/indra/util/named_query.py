@@ -47,7 +47,7 @@ except NameError:
 from indra.base import llsd
 from indra.base import config
 
-NQ_FILE_SUFFIX = config.get('named-query-file-suffix', '')
+NQ_FILE_SUFFIX = config.get('named-query-file-suffix', '.nq')
 NQ_FILE_SUFFIX_LEN  = len(NQ_FILE_SUFFIX)
 
 _g_named_manager = None

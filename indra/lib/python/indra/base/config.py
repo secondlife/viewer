@@ -175,7 +175,12 @@ def load(indra_xml_file = None):
         indra_xml_file = realpath(
             dirname(realpath(__file__)) + "../../../../../../etc/indra.xml")
 
-    _g_config = IndraConfig(indra_xml_file)
+    try:
+        _g_config = IndraConfig(indra_xml_file)
+    except IOError:
+        # indra.xml was not openable, so let's initialize with an empty dict
+        # some code relies on config behaving this way
+        _g_config = IndraConfig(None)
 
 def dump(indra_xml_file, indra_cfg = None, update_in_mem=False):
     '''

@@ -140,6 +140,7 @@ if (EXISTS /etc/debian_version_FAIL)
     COMMAND ${PYTHON_EXECUTABLE}
     ARGS
       ${CMAKE_CURRENT_SOURCE_DIR}/test.py
+      --mode=static
       --output=${CMAKE_CURRENT_BINARY_DIR}/py_test_results.txt
       --touch=${CMAKE_CURRENT_BINARY_DIR}/py_tests_ok.txt
     DEPENDS test.py
