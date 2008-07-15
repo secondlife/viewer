@@ -143,11 +143,18 @@ const U64 GP_NOTICES_RECEIVE		= 0x1LL << 43;	// Receive Notices and View Notice 
 const U64 GP_PROPOSAL_START		= 0x1LL << 44;	// Start Proposal
 const U64 GP_PROPOSAL_VOTE		= 0x1LL << 45;	// Vote on Proposal
 
+// Group chat moderation related
+const U64 GP_SESSION_JOIN = 0x1LL << 16; //can join session
+const U64 GP_SESSION_VOICE = 0x1LL << 27; //can hear/talk
+const U64 GP_SESSION_MODERATOR = 0x1LL << 37; //can mute people's session
+
 const U64 GP_DEFAULT_MEMBER = GP_ACCOUNTING_ACCOUNTABLE
 								| GP_LAND_ALLOW_SET_HOME
 								| GP_NOTICES_RECEIVE
 								| GP_PROPOSAL_START
 								| GP_PROPOSAL_VOTE
+                                | GP_SESSION_JOIN
+								| GP_SESSION_VOICE
 								;
 
 const U64 GP_DEFAULT_OFFICER = GP_ACCOUNTING_ACCOUNTABLE
@@ -188,5 +195,8 @@ const U64 GP_DEFAULT_OFFICER = GP_ACCOUNTING_ACCOUNTABLE
 								| GP_PROPOSAL_VOTE
 								| GP_ROLE_ASSIGN_MEMBER_LIMITED
 								| GP_ROLE_PROPERTIES
+								| GP_SESSION_MODERATOR
+								| GP_SESSION_JOIN
+								| GP_SESSION_VOICE
 								;
 #endif

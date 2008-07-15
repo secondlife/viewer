@@ -1190,8 +1190,10 @@ BOOL LLParcel::exportStream(std::ostream& output_stream)
 	output_stream << "\t\t sound_local	   " << (getSoundLocal() ? 1 : 0)  << "\n";
 	output_stream << "\t\t allow_scripts    " << (getAllowOtherScripts()  ? 1 : 0)  << "\n";
 	output_stream << "\t\t allow_group_scripts    " << (getAllowGroupScripts()  ? 1 : 0)  << "\n";
-	output_stream << "\t\t allow_voice_chat    " << (getVoiceEnabled() ? 1 : 0) << "\n";
-	output_stream << "\t\t use_estate_voice_chan   " << (getVoiceUseEstateChannel() ? 1 : 0) << "\n";
+	output_stream << "\t\t use_estate_voice_chan		 " << (getParcelFlagUseEstateVoiceChannel() ? 1 : 0) << "\n";
+
+	output_stream << "\t\t allow_voice_chat    " << (getParcelFlagAllowVoice() ? 1 : 0) << "\n";
+	output_stream << "\t\t use_estate_voice_chan   " << (getParcelFlagUseEstateVoiceChannel() ? 1 : 0) << "\n";
 	output_stream << "\t\t for_sale         " << (getForSale()       ? 1 : 0)  << "\n";
 	output_stream << "\t\t sell_w_objects   " << (getSellWithObjects()	? 1 : 0)  << "\n";
 	output_stream << "\t\t draw_distance    " << mDrawDistance  << "\n";

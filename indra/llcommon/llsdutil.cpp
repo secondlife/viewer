@@ -184,8 +184,9 @@ char* ll_pretty_print_sd(const LLSD& sd)
 }
 
 //compares the structure of an LLSD to a template LLSD and stores the
-//"valid" values in a 3rd LLSD.  Default values are stored in the template
-//
+//"valid" values in a 3rd LLSD.  Default values pulled from the template
+//if the tested LLSD does not contain the key/value pair.
+//Excess values in the test LLSD are ignored in the resultant_llsd.
 //If the llsd to test has a specific key to a map and the values
 //are not of the same type, false is returned or if the LLSDs are not
 //of the same value.  Ordering of arrays matters

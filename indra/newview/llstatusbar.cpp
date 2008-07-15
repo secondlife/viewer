@@ -429,7 +429,7 @@ void LLStatusBar::refresh()
 		childSetVisible("restrictpush", FALSE);
 	}
 
-	BOOL have_voice = parcel && parcel->getVoiceEnabled(); 
+	BOOL have_voice = parcel && parcel->getParcelFlagAllowVoice(); 
 	if (have_voice)
 	{
 		childSetVisible("status_no_voice", FALSE);

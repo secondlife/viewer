@@ -150,9 +150,9 @@ void LLPanelLandMedia::refresh()
 		mCheckSoundLocal->set( parcel->getSoundLocal() );
 		mCheckSoundLocal->setEnabled( can_change_media );
 
-		if(parcel->getVoiceEnabled())
+		if(parcel->getParcelFlagAllowVoice())
 		{
-			if(parcel->getVoiceUseEstateChannel())
+			if(parcel->getParcelFlagUseEstateVoiceChannel())
 				mRadioVoiceChat->setSelectedIndex(kRadioVoiceChatEstate);
 			else
 				mRadioVoiceChat->setSelectedIndex(kRadioVoiceChatPrivate);

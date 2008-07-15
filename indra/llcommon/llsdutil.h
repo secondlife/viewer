@@ -92,9 +92,11 @@ char* ll_pretty_print_sd(const LLSD& sd);
 
 //compares the structure of an LLSD to a template LLSD and stores the
 //"valid" values in a 3rd LLSD. Default values
-//are pulled from the template.  Ordering of arrays matters
+//are pulled from the template.  Extra keys/values in the test
+//are ignored in the resultant LLSD.  Ordering of arrays matters
 //Returns false if the test is of same type but values differ in type
 //Otherwise, returns true
+
 BOOL compare_llsd_with_template(
 	const LLSD& llsd_to_test,
 	const LLSD& template_llsd,

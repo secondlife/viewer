@@ -2225,7 +2225,7 @@ void LLFloaterIMPanel::showSessionForceClose(
 		"ForceCloseChatterBoxSession",
 		args,
 		LLFloaterIMPanel::onConfirmForceCloseError,
-		this);
+		new LLUUID(mSessionUUID));
 
 }
 

@@ -1622,6 +1622,23 @@ void LLLineEditor::draw()
 			}
 		}
 
+		//draw label if no text is provided
+		//but we should draw it in a different color
+		//to give indication that it is not text you typed in
+		if (0 == mText.length() && mReadOnly)
+		{
+			mGLFont->render(mLabel.getWString(), 0,
+							mMinHPixels, (F32)text_bottom,
+							label_color,
+							LLFontGL::LEFT,
+							LLFontGL::BOTTOM,
+							LLFontGL::NORMAL,
+							S32_MAX,
+							mMaxHPixels - llround(rendered_pixels_right),
+							&rendered_pixels_right, FALSE);
+		}
+
+
 		// Draw children (border)
 		//mBorder->setVisible(TRUE);
 		mBorder->setKeyboardFocusHighlight( TRUE );
@@ -1634,10 +1651,11 @@ void LLLineEditor::draw()
 		// draw label if no text provided
 		if (0 == mText.length())
 		{
-			mGLFont->render(mLabel.getWString(), 0, 
+			mGLFont->render(mLabel.getWString(), 0,
 							mMinHPixels, (F32)text_bottom,
 							label_color,
-							LLFontGL::LEFT, LLFontGL::BOTTOM,
+							LLFontGL::LEFT,
+							LLFontGL::BOTTOM,
 							LLFontGL::NORMAL,
 							S32_MAX,
 							mMaxHPixels - llround(rendered_pixels_right),

@@ -444,9 +444,9 @@ public:
 					{ return (mParcelFlags & PF_FOR_SALE) ? TRUE : FALSE; }
 	BOOL	getSoundLocal() const
 					{ return (mParcelFlags & PF_SOUND_LOCAL) ? TRUE : FALSE; }
-	BOOL	getVoiceEnabled() const
+	BOOL	getParcelFlagAllowVoice() const
 					{ return (mParcelFlags & PF_ALLOW_VOICE_CHAT) ? TRUE : FALSE; }
-	BOOL	getVoiceUseEstateChannel() const
+	BOOL	getParcelFlagUseEstateVoiceChannel() const
 					{ return (mParcelFlags & PF_USE_ESTATE_VOICE_CHAN) ? TRUE : FALSE; }
 	BOOL	getAllowPublish() const
 					{ return (mParcelFlags & PF_ALLOW_PUBLISH) ? TRUE : FALSE; }

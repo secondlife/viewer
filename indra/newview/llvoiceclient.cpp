@@ -3426,16 +3426,13 @@ std::string LLVoiceClient::nameFromAvatar(LLVOAvatar *avatar)
 std::string LLVoiceClient::nameFromID(const LLUUID &uuid)
 {
 	std::string result;
-	std::string rawuuid;
-	uuid.toCompressedString(rawuuid);
-	
 	// Prepending this apparently prevents conflicts with reserved names inside the vivox and diamondware code.
 	result = "x";
 	
 	// Base64 encode and replace the pieces of base64 that are less compatible 
 	// with e-mail local-parts.
 	// See RFC-4648 "Base 64 Encoding with URL and Filename Safe Alphabet"
-	result += LLBase64::encode((const U8*)rawuuid.c_str(), UUID_BYTES);
+	result += LLBase64::encode(uuid.mData, UUID_BYTES);
 	LLStringUtil::replaceChar(result, '+', '-');
 	LLStringUtil::replaceChar(result, '/', '_');
 	
@@ -3467,8 +3464,6 @@ bool LLVoiceClient::IDFromName(const std::string name, LLUUID &uuid)
 		if(len == UUID_BYTES)
 		{
 			// The decode succeeded.  Stuff the bits into the result's UUID
-			// MBW -- XXX -- there's no analogue of LLUUID::toCompressedString that allows you to set a UUID from binary data.
-			// The data field is public, so we cheat thusly:
 			memcpy(uuid.mData, rawuuid, UUID_BYTES);
 			result = true;
 		}
@@ -4076,6 +4071,9 @@ class LLViewerParcelVoiceInfo : public LLHTTPNode
 		//the parcel you are in has changed something about its
 		//voice information
 
+		//this is a misnomer, as it can also be when you are not in
+		//a parcel at all.  Should really be something like
+		//LLViewerVoiceInfoChanged.....
 		if ( input.has("body") )
 		{
 			LLSD body = input["body"];
@@ -4085,6 +4083,11 @@ class LLViewerParcelVoiceInfo : public LLHTTPNode
 
 			//body["voice_credentials"] has "channel_uri" (str),
 			//body["voice_credentials"] has "channel_credentials" (str)
+
+			//if we really wanted to be extra careful,
+			//we'd check the supplied
+			//local parcel id to make sure it's for the same parcel
+			//we believe we're in
 			if ( body.has("voice_credentials") )
 			{
 				LLSD voice_credentials = body["voice_credentials"];

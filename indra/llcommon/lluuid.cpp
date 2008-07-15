@@ -184,7 +184,7 @@ void LLUUID::toCompressedString(std::string& out) const
 	char bytes[UUID_BYTES+1];
 	memcpy(bytes, mData, UUID_BYTES);		/* Flawfinder: ignore */
 	bytes[UUID_BYTES] = '\0';
-	out = bytes;
+	out.assign(bytes, UUID_BYTES);
 }
 
 // *TODO: deprecate
