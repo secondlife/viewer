@@ -808,11 +808,12 @@ void LLSDXMLParser::parsePart(const char *buf, int len)
 // virtual
 S32 LLSDXMLParser::doParse(std::istream& input, LLSD& data) const
 {
-	if (mParseLines)
-	{
+// Remove code - emergency fix DEV-17785 parsing newline failure
+//	if (mParseLines)
+//	{
 		// Use line-based reading (faster code)
-		return impl.parseLines(input, data);
-	}
+//		return impl.parseLines(input, data);
+//	}
 
 	return impl.parse(input, data);
 }

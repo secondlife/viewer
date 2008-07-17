@@ -324,7 +324,7 @@ S32 LLSDParser::parse(std::istream& istr, LLSD& data, S32 max_bytes)
 S32 LLSDParser::parseLines(std::istream& istr, LLSD& data)
 {
 	mCheckLimits = false;
-	mParseLines = true;
+	mParseLines = false;		// was true, Emergency fix DEV-17785 parsing newline failure
 	return doParse(istr, data);
 }
 
