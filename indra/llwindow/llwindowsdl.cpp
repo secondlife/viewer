@@ -64,7 +64,10 @@ extern "C" {
 
 extern BOOL gDebugWindowProc;
 
-const S32	MAX_NUM_RESOLUTIONS = 32;
+const S32 MAX_NUM_RESOLUTIONS = 200;
+
+// static variable for ATI mouse cursor crash work-around:
+static bool ATIbug = false;
 
 //
 // LLWindowSDL
@@ -1735,7 +1738,7 @@ LLWindow::LLWindowResolution* LLWindowSDL::getSupportedResolutions(S32 &num_reso
         if ( (modes != NULL) && (modes != ((SDL_Rect **) -1)) )
         {
             int count = 0;
-            while (*modes)  // they're sorted biggest to smallest, so find end...
+            while (*modes && count<MAX_NUM_RESOLUTIONS)  // they're sorted biggest to smallest, so find end...
             {
                 modes++;
                 count++;
@@ -2275,6 +2278,12 @@ static SDL_Cursor *makeSDLCursorFromBMP(const char *filename, int hotx, int hoty
 
 void LLWindowSDL::setCursor(ECursorType cursor)
 {
+	if (ATIbug) {
+		// cursor-updating is very flaky when this bug is
+		// present; do nothing.
+		return;
+	}
+
 	if (mCurrentCursor != cursor)
 	{
 		if (cursor < UI_CURSOR_COUNT)
@@ -2347,6 +2356,11 @@ void LLWindowSDL::initCursors()
 	mSDLCursors[UI_CURSOR_TOOLPAUSE] = makeSDLCursorFromBMP("toolpause.BMP",0,0);
 	mSDLCursors[UI_CURSOR_TOOLMEDIAOPEN] = makeSDLCursorFromBMP("toolmediaopen.BMP",0,0);
 	mSDLCursors[UI_CURSOR_PIPETTE] = makeSDLCursorFromBMP("lltoolpipette.BMP",2,28);
+
+	if (getenv("LL_ATI_MOUSE_CURSOR_BUG") != NULL) {
+		llinfos << "Disabling cursor updating due to LL_ATI_MOUSE_CURSOR_BUG" << llendl;
+		ATIbug = true;
+	}
 }
 
 void LLWindowSDL::quitCursors()

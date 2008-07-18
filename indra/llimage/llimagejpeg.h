@@ -52,8 +52,9 @@ protected:
 	virtual ~LLImageJPEG();
 	
 public:
-	LLImageJPEG();
+	LLImageJPEG(S32 quality = 75);
 
+	/*virtual*/ std::string getExtension() { return std::string("jpg"); }
 	/*virtual*/ BOOL updateData();
 	/*virtual*/ BOOL decode(LLImageRaw* raw_image, F32 decode_time);
 	/*virtual*/ BOOL encode(const LLImageRaw* raw_image, F32 encode_time);

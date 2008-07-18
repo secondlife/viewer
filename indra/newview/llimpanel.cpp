@@ -1644,12 +1644,13 @@ BOOL LLFloaterIMPanel::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 					if(drop)
 					{
 						LLToolDragAndDrop::giveInventory(mOtherParticipantUUID, inv_item);
+						LLStringUtil::format_map_t args;
+						gIMMgr->addSystemMessage(mSessionUUID, "inventory_item_offered", args);
 					}
 				}
 			}
 			break;
 		}
-		
 	default:
 		break;
 	}

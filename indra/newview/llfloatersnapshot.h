@@ -38,15 +38,23 @@
 #include "llimagegl.h"
 #include "llcharacter.h"
 
+
 class LLFloaterSnapshot : public LLFloater
 {
 public:
+	typedef enum e_snapshot_format
+	{
+		SNAPSHOT_FORMAT_PNG,
+		SNAPSHOT_FORMAT_JPEG,
+		SNAPSHOT_FORMAT_BMP
+	} ESnapshotFormat;
+
     LLFloaterSnapshot();
 	virtual ~LLFloaterSnapshot();
 
-	virtual BOOL postBuild();
-	virtual void draw();
-	virtual void onClose(bool app_quitting);
+	/*virtual*/ BOOL postBuild();
+	/*virtual*/ void draw();
+	/*virtual*/ void onClose(bool app_quitting);
 
 	static void show(void*);
 	static void hide(void*);
@@ -79,4 +87,5 @@ public:
 };
 
 extern LLSnapshotFloaterView* gSnapshotFloaterView;
+
 #endif // LL_LLFLOATERSNAPSHOT_H

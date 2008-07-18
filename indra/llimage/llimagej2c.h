@@ -45,6 +45,7 @@ public:
 	LLImageJ2C();
 
 	// Base class overrides
+	/*virtual*/ std::string getExtension() { return std::string("j2c"); }
 	/*virtual*/ BOOL updateData();
 	/*virtual*/ BOOL decode(LLImageRaw *raw_imagep, F32 decode_time);
 	/*virtual*/ BOOL decodeChannels(LLImageRaw *raw_imagep, F32 decode_time, S32 first_channel, S32 max_channel_count);

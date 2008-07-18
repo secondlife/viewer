@@ -209,8 +209,8 @@ static LLHost gAgentSimHost;
 static BOOL gSkipOptionalUpdate = FALSE;
 
 static bool gGotUseCircuitCodeAck = false;
-std::string gInitialOutfit;
-std::string gInitialOutfitGender;	// "male" or "female"
+static std::string sInitialOutfit;
+static std::string sInitialOutfitGender;	// "male" or "female"
 
 static bool gUseCircuitCallbackCalled = false;
 
@@ -347,8 +347,6 @@ BOOL idle_startup()
 	static BOOL stipend_since_login = FALSE;
 
 	static BOOL samename = FALSE;
-
-	BOOL do_normal_idle = FALSE;
 
 	// HACK: These are things from the main loop that usually aren't done
 	// until initialization is complete, but need to be done here for things
@@ -634,34 +632,26 @@ BOOL idle_startup()
 
 
 		// Go to the next startup state
-		LLStartUp::setStartupState( STATE_MEDIA_INIT );
-		return do_normal_idle;
+		LLStartUp::setStartupState( STATE_BROWSER_INIT );
+		return FALSE;
 	}
 
 	
-	//---------------------------------------------------------------------
-	// LLMediaEngine Init
-	//---------------------------------------------------------------------
-	if (STATE_MEDIA_INIT == LLStartUp::getStartupState())
+	if (STATE_BROWSER_INIT == LLStartUp::getStartupState())
 	{
-		LL_DEBUGS("AppInit") << "Initializing Multimedia...." << LL_ENDL;
-		set_startup_status(0.03f, "Initializing Multimedia...", gAgent.mMOTD);
+		LL_DEBUGS("AppInit") << "STATE_BROWSER_INIT" << LL_ENDL;
+		std::string msg = LLTrans::getString("LoginInitializingBrowser");
+		set_startup_status(0.03f, msg.c_str(), gAgent.mMOTD.c_str());
 		display_startup();
-		LLViewerMedia::initClass();
-		LLViewerParcelMedia::initClass();
-
-		if (gViewerWindow)
-		{
-			audio_update_volume(true);
-		}
+		LLViewerMedia::initBrowser();
 
 		LLStartUp::setStartupState( STATE_LOGIN_SHOW );
-		return do_normal_idle;
+		return FALSE;
 	}
 
-	if (STATE_LOGIN_SHOW == LLStartUp::getStartupState())
-	{		
 
+	if (STATE_LOGIN_SHOW == LLStartUp::getStartupState())
+	{
 		LL_DEBUGS("AppInit") << "Initializing Window" << LL_ENDL;
 		
 		gViewerWindow->getWindow()->setCursor(UI_CURSOR_ARROW);
@@ -723,7 +713,7 @@ BOOL idle_startup()
 		gLoginMenuBarView->setEnabled( TRUE );
 
 		timeout.reset();
-		return do_normal_idle;
+		return FALSE;
 	}
 
 	if (STATE_LOGIN_WAIT == LLStartUp::getStartupState())
@@ -733,7 +723,7 @@ BOOL idle_startup()
 
 		// Sleep so we don't spin the CPU
 		ms_sleep(1);
-		return do_normal_idle;
+		return FALSE;
 	}
 
 	if (STATE_LOGIN_CLEANUP == LLStartUp::getStartupState())
@@ -894,13 +884,13 @@ BOOL idle_startup()
 		// skipping over STATE_UPDATE_CHECK because that just waits for input
 		LLStartUp::setStartupState( STATE_LOGIN_AUTH_INIT );
 
-		return do_normal_idle;
+		return FALSE;
 	}
 
 	if (STATE_UPDATE_CHECK == LLStartUp::getStartupState())
 	{
 		// wait for user to give input via dialog box
-		return do_normal_idle;
+		return FALSE;
 	}
 
 	if(STATE_LOGIN_AUTH_INIT == LLStartUp::getStartupState())
@@ -1015,7 +1005,7 @@ BOOL idle_startup()
 		gAcceptTOS = FALSE;
 		gAcceptCriticalMessage = FALSE;
 		LLStartUp::setStartupState( STATE_LOGIN_NO_DATA_YET );
-		return do_normal_idle;
+		return FALSE;
 	}
 
 	if(STATE_LOGIN_NO_DATA_YET == LLStartUp::getStartupState())
@@ -1035,12 +1025,12 @@ BOOL idle_startup()
 		if(LLUserAuth::E_NO_RESPONSE_YET == error)
 		{
 			LL_DEBUGS("AppInit") << "waiting..." << LL_ENDL;
-			return do_normal_idle;
+			return FALSE;
 		}
 		LLStartUp::setStartupState( STATE_LOGIN_DOWNLOADING );
 		progress += 0.01f;
 		set_startup_status(progress, auth_desc, auth_message);
-		return do_normal_idle;
+		return FALSE;
 	}
 
 	if(STATE_LOGIN_DOWNLOADING == LLStartUp::getStartupState())
@@ -1056,12 +1046,12 @@ BOOL idle_startup()
 		if(LLUserAuth::E_DOWNLOADING == error)
 		{
 			LL_DEBUGS("AppInit") << "downloading..." << LL_ENDL;
-			return do_normal_idle;
+			return FALSE;
 		}
 		LLStartUp::setStartupState( STATE_LOGIN_PROCESS_RESPONSE );
 		progress += 0.01f;
 		set_startup_status(progress, LLTrans::getString("LoginProcessingResponse"), auth_message);
-		return do_normal_idle;
+		return FALSE;
 	}
 
 	if(STATE_LOGIN_PROCESS_RESPONSE == LLStartUp::getStartupState())
@@ -1104,7 +1094,7 @@ BOOL idle_startup()
 				// ignoring the duration & options array for now.
 				// Go back to authenticate.
 				LLStartUp::setStartupState( STATE_LOGIN_AUTHENTICATE );
-				return do_normal_idle;
+				return FALSE;
 			}
 			else
 			{
@@ -1216,7 +1206,7 @@ BOOL idle_startup()
 				args["[NUMBER]"] = llformat("%d", sAuthUriNum + 1);
 				auth_desc = LLTrans::getString("LoginAttempt", args);
 				LLStartUp::setStartupState( STATE_LOGIN_AUTHENTICATE );
-				return do_normal_idle;
+				return FALSE;
 			}
 			break;
 		}
@@ -1391,12 +1381,14 @@ BOOL idle_startup()
 				it = options[0].find("folder_name");
 				if(it != it_end)
 				{
-					gInitialOutfit = (*it).second;
+					// Initial outfit is a folder in your inventory,
+					// must be an exact folder-name match.
+					sInitialOutfit = (*it).second;
 				}
 				it = options[0].find("gender");
 				if (it != it_end)
 				{
-					gInitialOutfitGender = (*it).second;
+					sInitialOutfitGender = (*it).second;
 				}
 			}
 
@@ -1475,7 +1467,7 @@ BOOL idle_startup()
 			// Don't save an incorrect password to disk.
 			save_password_to_disk(NULL);
 		}
-		return do_normal_idle;
+		return FALSE;
 	}
 
 	//---------------------------------------------------------------------
@@ -1533,7 +1525,6 @@ BOOL idle_startup()
 		LLViewerRegion *regionp = LLWorld::getInstance()->getRegionFromHandle(first_sim_handle);
 		LL_INFOS("AppInit") << "Adding initial simulator " << regionp->getOriginGlobal() << LL_ENDL;
 		
-		LLStartUp::setStartupState( STATE_SEED_GRANTED_WAIT );
 		regionp->setSeedCapability(first_sim_seed_cap);
 		LL_DEBUGS("AppInit") << "Waiting for seed grant ...." << LL_ENDL;
 		
@@ -1545,16 +1536,28 @@ BOOL idle_startup()
 		gAgent.setPositionAgent(agent_start_position_region);
 
 		display_startup();
-		return do_normal_idle;
+		LLStartUp::setStartupState( STATE_MULTIMEDIA_INIT );
+		return FALSE;
 	}
 
+
+	//---------------------------------------------------------------------
+	// Load QuickTime/GStreamer and other multimedia engines, can be slow.
+	// Do it while we're waiting on the network for our seed capability. JC
+	//---------------------------------------------------------------------
+	if (STATE_MULTIMEDIA_INIT == LLStartUp::getStartupState())
+	{
+		LLStartUp::multimediaInit();
+		LLStartUp::setStartupState( STATE_SEED_GRANTED_WAIT );
+		return FALSE;
+	}
 
 	//---------------------------------------------------------------------
 	// Wait for Seed Cap Grant
 	//---------------------------------------------------------------------
 	if(STATE_SEED_GRANTED_WAIT == LLStartUp::getStartupState())
 	{
-		return do_normal_idle;
+		return FALSE;
 	}
 
 
@@ -1733,7 +1736,7 @@ BOOL idle_startup()
 
 		timeout.reset();
 
-		return do_normal_idle;
+		return FALSE;
 	}
 
 	//---------------------------------------------------------------------
@@ -1752,7 +1755,7 @@ BOOL idle_startup()
 		{
 		}
 		msg->processAcks();
-		return do_normal_idle;
+		return FALSE;
 	}
 
 	//---------------------------------------------------------------------
@@ -1791,7 +1794,7 @@ BOOL idle_startup()
 		LLStartUp::setStartupState( STATE_AGENT_WAIT );		// Go to STATE_AGENT_WAIT
 
 		timeout.reset();
-		return do_normal_idle;
+		return FALSE;
 	}
 
 	//---------------------------------------------------------------------
@@ -1823,7 +1826,7 @@ BOOL idle_startup()
 			LLStartUp::setStartupState( STATE_INVENTORY_SEND );
 		}
 
-		return do_normal_idle;
+		return FALSE;
 	}
 
 	//---------------------------------------------------------------------
@@ -2011,7 +2014,7 @@ BOOL idle_startup()
 		}
 
 		LLStartUp::setStartupState( STATE_MISC );
-		return do_normal_idle;
+		return FALSE;
 	}
 
 
@@ -2202,26 +2205,27 @@ BOOL idle_startup()
 
 		LLStartUp::setStartupState( STATE_PRECACHE );
 		timeout.reset();
-		return do_normal_idle;
+		return FALSE;
 	}
 
 	if (STATE_PRECACHE == LLStartUp::getStartupState())
 	{
-		do_normal_idle = TRUE;
-		
-		// Avoid generic Ruth avatar in Orientation Island by starting
-		// our outfit load as soon as possible.  This will be replaced
-		// with a more definitive patch from featurettes-4 later. JC
+		F32 timeout_frac = timeout.getElapsedTimeF32()/PRECACHING_DELAY;
+
+		// We now have an inventory skeleton, so if this is a user's first
+		// login, we can start setting up their clothing and avatar 
+		// appearance.  This helps to avoid the generic "Ruth" avatar in
+		// the orientation island tutorial experience. JC
 		if (gAgent.isFirstLogin()
-			&& !gInitialOutfit.empty()  // registration set up an outfit
-			&& gAgent.getAvatarObject()	// can't wear clothes until have obj
-			&& !gAgent.isGenderChosen() ) // nothing already loaded
+			&& !sInitialOutfit.empty()    // registration set up an outfit
+			&& !sInitialOutfitGender.empty() // and a gender
+			&& gAgent.getAvatarObject()	  // can't wear clothes without object
+			&& !gAgent.isGenderChosen() ) // nothing already loading
 		{
-			llinfos << "Wearing initial outfit " << gInitialOutfit << llendl;
-			callback_choose_gender(-1, NULL);
+			// Start loading the wearables, textures, gestures
+			LLStartUp::loadInitialOutfit( sInitialOutfit, sInitialOutfitGender );
 		}
 
-		F32 timeout_frac = timeout.getElapsedTimeF32()/PRECACHING_DELAY;
 		// wait precache-delay and for agent's avatar or a lot longer.
 		if(((timeout_frac > 1.f) && gAgent.getAvatarObject())
 		   || (timeout_frac > 3.f))
@@ -2231,48 +2235,79 @@ BOOL idle_startup()
 		else
 		{
 			update_texture_fetch();
-			set_startup_status(0.60f + 0.20f * timeout_frac,
+			set_startup_status(0.60f + 0.30f * timeout_frac,
 				"Loading world...",
 					gAgent.mMOTD);
 		}
 
-		return do_normal_idle;
+		return TRUE;
 	}
 
 	if (STATE_WEARABLES_WAIT == LLStartUp::getStartupState())
 	{
-		do_normal_idle = TRUE;
-
 		static LLFrameTimer wearables_timer;
 
 		const F32 wearables_time = wearables_timer.getElapsedTimeF32();
 		const F32 MAX_WEARABLES_TIME = 10.f;
 
-		if(gAgent.getWearablesLoaded() || !gAgent.isGenderChosen())
+		if (!gAgent.isGenderChosen())
 		{
+			// No point in waiting for clothing, we don't even
+			// know what gender we are.  Pop a dialog to ask and
+			// proceed to draw the world. JC
+			//
+			// *NOTE: We might hit this case even if we have an
+			// initial outfit, but if the load hasn't started
+			// already then something is wrong so fall back
+			// to generic outfits. JC
+			gViewerWindow->alertXml("WelcomeChooseSex",
+				callback_choose_gender, NULL);
 			LLStartUp::setStartupState( STATE_CLEANUP );
+			return TRUE;
 		}
-		else if (wearables_time > MAX_WEARABLES_TIME)
+		
+		if (wearables_time > MAX_WEARABLES_TIME)
 		{
+			// It's taken too long to load, show the world
 			gViewerWindow->alertXml("ClothingLoading");
 			LLViewerStats::getInstance()->incStat(LLViewerStats::ST_WEARABLES_TOO_LONG);
 			LLStartUp::setStartupState( STATE_CLEANUP );
+			return TRUE;
+		}
+
+		if (gAgent.isFirstLogin())
+		{
+			// wait for avatar to be completely loaded
+			if (gAgent.getAvatarObject()
+				&& gAgent.getAvatarObject()->isFullyLoaded())
+			{
+				//llinfos << "avatar fully loaded" << llendl;
+				LLStartUp::setStartupState( STATE_CLEANUP );
+				return TRUE;
+			}
 		}
 		else
 		{
-			update_texture_fetch();
-			set_startup_status(0.80f + 0.20f * wearables_time / MAX_WEARABLES_TIME,
-							 LLTrans::getString("LoginDownloadingClothing"),
-							 gAgent.mMOTD);
+			// OK to just get the wearables
+			if ( gAgent.getWearablesLoaded() )
+			{
+				// We have our clothing, proceed.
+				//llinfos << "wearables loaded" << llendl;
+				LLStartUp::setStartupState( STATE_CLEANUP );
+				return TRUE;
+			}
 		}
-		return do_normal_idle;
+
+		update_texture_fetch();
+		set_startup_status(0.9f + 0.1f * wearables_time / MAX_WEARABLES_TIME,
+						 LLTrans::getString("LoginDownloadingClothing").c_str(),
+						 gAgent.mMOTD.c_str());
+		return TRUE;
 	}
 
 	if (STATE_CLEANUP == LLStartUp::getStartupState())
 	{
 		set_startup_status(1.0, "", "");
-
-		do_normal_idle = TRUE;
 
 		// Let the map know about the inventory.
 		if(gFloaterWorldMap)
@@ -2299,9 +2334,6 @@ BOOL idle_startup()
 			gAgent.requestEnterGodMode();
 		}
 		
-		// On first start, ask user for gender
-		dialog_choose_gender_first_start();
-
 		// Start automatic replay if the flag is set.
 		if (gSavedSettings.getBOOL("StatsAutoRun"))
 		{
@@ -2335,11 +2367,11 @@ BOOL idle_startup()
 
 		LLAppViewer::instance()->initMainloopTimeout("Mainloop Init");
 
-		return do_normal_idle;
+		return TRUE;
 	}
 
 	LL_WARNS("AppInit") << "Reached end of idle_startup for state " << LLStartUp::getStartupState() << LL_ENDL;
-	return do_normal_idle;
+	return TRUE;
 }
 
 //
@@ -3548,55 +3580,47 @@ const std::string MALE_GESTURES_FOLDER = "Male Gestures";
 const std::string FEMALE_GESTURES_FOLDER = "Female Gestures";
 const std::string MALE_OUTFIT_FOLDER = "Male Shape & Outfit";
 const std::string FEMALE_OUTFIT_FOLDER = "Female Shape & Outfit";
-const S32 OPT_USE_INITIAL_OUTFIT = -2;
 const S32 OPT_CLOSED_WINDOW = -1;
 const S32 OPT_MALE = 0;
 const S32 OPT_FEMALE = 1;
 
 void callback_choose_gender(S32 option, void* userdata)
 {
-	S32 gender = OPT_FEMALE;
-	std::string outfit;
-	std::string gestures;
-	if (!gInitialOutfit.empty())
+	switch(option)
 	{
-		outfit = gInitialOutfit;
-		if (gInitialOutfitGender == "male")
-		{
-			gender = OPT_MALE;
-			gestures = MALE_GESTURES_FOLDER;
-		}
-		else
-		{
-			gender = OPT_FEMALE;
-			gestures = FEMALE_GESTURES_FOLDER;
-		}
+	case OPT_MALE:
+		LLStartUp::loadInitialOutfit( MALE_OUTFIT_FOLDER, "male" );
+		break;
+
+	case OPT_FEMALE:
+	case OPT_CLOSED_WINDOW:
+	default:
+		LLStartUp::loadInitialOutfit( FEMALE_OUTFIT_FOLDER, "female" );
+		break;
+	}
+}
+
+void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
+								   const std::string& gender_name )
+{
+	S32 gender = 0;
+	std::string gestures;
+	if (gender_name == "male")
+	{
+		gender = OPT_MALE;
+		gestures = MALE_GESTURES_FOLDER;
 	}
 	else
 	{
-		switch(option)
-		{
-		case OPT_MALE:
-			gender = OPT_MALE;
-			outfit = MALE_OUTFIT_FOLDER;
-			gestures = MALE_GESTURES_FOLDER;
-			break;
-
-		case OPT_FEMALE:
-		case OPT_CLOSED_WINDOW:
-		default:
-			gender = OPT_FEMALE;
-			outfit = FEMALE_OUTFIT_FOLDER;
-			gestures = FEMALE_GESTURES_FOLDER;
-			break;
-		}
+		gender = OPT_FEMALE;
+		gestures = FEMALE_GESTURES_FOLDER;
 	}
 
 	// try to find the outfit - if not there, create some default
 	// wearables.
 	LLInventoryModel::cat_array_t cat_array;
 	LLInventoryModel::item_array_t item_array;
-	LLNameCategoryCollector has_name(outfit);
+	LLNameCategoryCollector has_name(outfit_folder_name);
 	gInventory.collectDescendentsIf(LLUUID::null,
 									cat_array,
 									item_array,
@@ -3608,36 +3632,16 @@ void callback_choose_gender(S32 option, void* userdata)
 	}
 	else
 	{
-		wear_outfit_by_name(outfit);
+		wear_outfit_by_name(outfit_folder_name);
 	}
 	wear_outfit_by_name(gestures);
 	wear_outfit_by_name(COMMON_GESTURES_FOLDER);
 
-	typedef std::map<LLUUID, LLMultiGesture*> item_map_t;
-	item_map_t::iterator gestureIterator;
-
-	// Must be here so they aren't invisible if they close the window.
+	// This is really misnamed -- it means we have started loading
+	// an outfit/shape that will give the avatar a gender eventually. JC
 	gAgent.setGenderChosen(TRUE);
 }
-
-void dialog_choose_gender_first_start()
-{
-	if (!gNoRender
-		&& (!gAgent.isGenderChosen()))
-	{
-		if (!gInitialOutfit.empty())
-		{
-			gViewerWindow->alertXml("WelcomeNoClothes",
-				callback_choose_gender, NULL);
-		}
-		else
-		{	
-			gViewerWindow->alertXml("WelcomeChooseSex",
-				callback_choose_gender, NULL);
 			
-		}
-	}
-}
 
 // Loads a bitmap to display during load
 // location_id = 0 => last position
@@ -3734,6 +3738,19 @@ std::string LLStartUp::sSLURLCommand;
 bool LLStartUp::canGoFullscreen()
 {
 	return gStartupState >= STATE_WORLD_INIT;
+}
+
+// Initialize all plug-ins except the web browser (which was initialized
+// early, before the login screen). JC
+void LLStartUp::multimediaInit()
+{
+	LL_DEBUGS("AppInit") << "Initializing Multimedia...." << LL_ENDL;
+	std::string msg = LLTrans::getString("LoginInitializingMultimedia");
+	set_startup_status(0.50f, msg.c_str(), gAgent.mMOTD.c_str());
+	display_startup();
+
+	LLViewerMedia::initClass();
+	LLViewerParcelMedia::initClass();
 }
 
 bool LLStartUp::dispatchURL()

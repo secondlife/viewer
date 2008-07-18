@@ -560,6 +560,62 @@ windows/i686/vs/2003 -- specify a windows visual studio 2003 package"""
             ifile.fetch_local()
         self._install(to_install, install_dir)
 
+    def do_install(self, installables, platform, install_dir, cache_dir=None, 
+                   check_license=True, scp=None):
+        """Determine what installables should be installed. If they were
+        passed in on the command line, use them, otherwise install
+        all known installables.
+        """
+        if not cache_dir: 
+            cache_dir = _default_installable_cache()
+        all_installables = self.list_installables()
+        if not len(installables):
+            install_installables = all_installables
+        else:
+            # passed in on the command line. We'll need to verify we
+            # know about them here.
+            install_installables = installables
+            for installable in install_installables:
+                if installable not in all_installables:
+                    raise RuntimeError('Unknown installable: %s' % 
+                                       (installable,))
+        if check_license:
+            # *TODO: check against a list of 'known good' licenses.
+            # *TODO: check for urls which conflict -- will lead to
+            # problems.
+            for installable in install_installables:
+                if not self.is_valid_license(installable):
+                    return 1
+    
+        # Set up the 'scp' handler
+        opener = urllib2.build_opener()
+        scp_or_http = SCPOrHTTPHandler(scp)
+        opener.add_handler(scp_or_http)
+        urllib2.install_opener(opener)
+    
+        # Do the work of installing the requested installables.
+        self.install(
+            install_installables,
+            platform,
+            install_dir,
+            cache_dir)
+        scp_or_http.cleanup()
+    
+    def do_uninstall(self, installables, install_dir):
+        # Do not bother to check license if we're uninstalling.
+        all_installed = self.list_installed()
+        if not len(installables):
+            uninstall_installables = all_installed
+        else:
+            # passed in on the command line. We'll need to verify we
+            # know about them here.
+            uninstall_installables = installables
+            for installable in uninstall_installables:
+                if installable not in all_installed:
+                    raise RuntimeError('Installable not installed: %s' % 
+                                       (installable,))
+        self.uninstall(uninstall_installables, install_dir)
+
 class SCPOrHTTPHandler(urllib2.BaseHandler):
     """Evil hack to allow both the build system and developers consume
     proprietary binaries.
@@ -695,7 +751,6 @@ def _default_installable_cache():
         cache_dir = os.path.join(tempfile.gettempdir(), \
                                  'install.cache.%s' % user)
     return cache_dir
-
 
 def parse_args():
     parser = optparse.OptionParser(
@@ -954,7 +1009,7 @@ def main():
             print "Detail on installable",options.detail_installable+":"
             pprint.pprint(detail)
         except KeyError:
-            print "Binary '"+options.detail_installable+"' not found in",
+            print "Installable '"+options.detail_installable+"' not found in",
             print "install file."
         return 0
     if options.list_licenses:
@@ -1016,55 +1071,11 @@ def main():
             md5sum=options.package_md5):
             return 1
     elif options.uninstall:
-        # Do not bother to check license if we're uninstalling.
-        all_installed = installer.list_installed()
-        if not len(args):
-            uninstall_installables = all_installed
-        else:
-            # passed in on the command line. We'll need to verify we
-            # know about them here.
-            uninstall_installables = args
-            for installable in uninstall_installables:
-                if installable not in all_installed:
-                    raise RuntimeError('Binary not installed: %s' % 
-                                       (installable,))
-        installer.uninstall(uninstall_installables, options.install_dir)
+        installer.do_uninstall(args, options.install_dir)
     else:
-        # Determine what installables should be installed. If they were
-        # passed in on the command line, use them, otherwise install
-        # all known installables.
-        all_installables = installer.list_installables()
-        if not len(args):
-            install_installables = all_installables
-        else:
-            # passed in on the command line. We'll need to verify we
-            # know about them here.
-            install_installables = args
-            for installable in install_installables:
-                if installable not in all_installables:
-                    raise RuntimeError('Unknown installable: %s' % 
-                                       (installable,))
-        if options.check_license:
-            # *TODO: check against a list of 'known good' licenses.
-            # *TODO: check for urls which conflict -- will lead to
-            # problems.
-            for installable in install_installables:
-                if not installer.is_valid_license(installable):
-                    return 1
-
-        # Set up the 'scp' handler
-        opener = urllib2.build_opener()
-        scp_or_http = SCPOrHTTPHandler(options.scp)
-        opener.add_handler(scp_or_http)
-        urllib2.install_opener(opener)
-
-        # Do the work of installing the requested installables.
-        installer.install(
-            install_installables,
-            options.platform,
-            options.install_dir,
-            options.cache_dir)
-        scp_or_http.cleanup()
+        installer.do_install(args, options.platform, options.install_dir, 
+                             options.cache_dir, options.check_license, 
+                             options.scp) 
 
     # save out any changes
     installer.save()

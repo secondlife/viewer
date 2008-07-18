@@ -46,7 +46,7 @@ extern std::string SCREEN_LAST_FILENAME;
 
 enum EStartupState{
 	STATE_FIRST,					// Initial startup
-	STATE_MEDIA_INIT,               // Initialzie media library
+	STATE_BROWSER_INIT,             // Initialize web browser for login screen
 	STATE_LOGIN_SHOW,				// Show login screen
 	STATE_LOGIN_WAIT,				// Wait for user input at login screen
 	STATE_LOGIN_CLEANUP,			// Get rid of login screen and start login
@@ -57,6 +57,7 @@ enum EStartupState{
 	STATE_LOGIN_DOWNLOADING,		// Waiting for authentication replies to download
 	STATE_LOGIN_PROCESS_RESPONSE,	// Check authentication reply
 	STATE_WORLD_INIT,				// Start building the world
+	STATE_MULTIMEDIA_INIT,			// Init the rest of multimedia library
 	STATE_SEED_GRANTED_WAIT,		// Wait for seed cap grant
 	STATE_SEED_CAP_GRANTED,			// Have seed cap grant 
 	STATE_WORLD_WAIT,				// Waiting for simulator
@@ -86,6 +87,15 @@ public:
 	// Always use this to set gStartupState so changes are logged
 	static void	setStartupState( S32 state );
 	static S32	getStartupState()				{ return gStartupState;		};
+
+	static void multimediaInit();
+		// Initialize LLViewerMedia multimedia engine.
+
+	// outfit_folder_name can be a folder anywhere in your inventory, 
+	// but the name must be a case-sensitive exact match.
+	// gender_name is either "male" or "female"
+	static void loadInitialOutfit( const std::string& outfit_folder_name,
+								   const std::string& gender_name );
 
 	static bool dispatchURL();
 		// if we have a SLURL or sim string ("Ahern/123/45") that started

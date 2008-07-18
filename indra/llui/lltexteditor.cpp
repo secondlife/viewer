@@ -257,6 +257,7 @@ LLTextEditor::LLTextEditor(
 	mIsSelecting( FALSE ),
 	mSelectionStart( 0 ),
 	mSelectionEnd( 0 ),
+	mScrolledToBottom( FALSE ),
 	mOnScrollEndCallback( NULL ),
 	mOnScrollEndData( NULL ),
 	mCursorColor(		LLUI::sColorsGroup->getColor( "TextCursorColor" ) ),
@@ -3361,20 +3362,26 @@ void LLTextEditor::reshape(S32 width, S32 height, BOOL called_from_parent)
 {
 	LLView::reshape( width, height, called_from_parent );
 
-	// if scrolled to bottom, stay at bottom
-	// unless user is editing text
-	if (mScrolledToBottom && mTrackBottom && !hasFocus())
-	{
-		endOfDoc();
-	}
-
+	// do this first after reshape, because other things depend on
+	// up-to-date mTextRect
 	updateTextRect();
+	
+	updateLineStartList();
+
+	// propagate shape information to scrollbar
+	mScrollbar->setDocSize( getLineCount() );
 
 	S32 line_height = llround( mGLFont->getLineHeight() );
 	S32 page_lines = mTextRect.getHeight() / line_height;
 	mScrollbar->setPageSize( page_lines );
 
-	updateLineStartList();
+	// if scrolled to bottom, stay at bottom
+	// unless user is editing text
+	// do this after updating page size
+	if (mScrolledToBottom && mTrackBottom && !hasFocus())
+	{
+		endOfDoc();
+	}
 }
 
 void LLTextEditor::autoIndent()
@@ -3540,6 +3547,10 @@ void LLTextEditor::appendText(const std::string &new_text, bool allow_undo, bool
 	{
 		mSelectionStart = selection_start;
 		mSelectionEnd = selection_end;
+
+
+
+
 		mIsSelecting = was_selecting;
 		setCursorPos(cursor_pos);
 	}
@@ -3555,6 +3566,14 @@ void LLTextEditor::appendText(const std::string &new_text, bool allow_undo, bool
 	if( !allow_undo )
 	{
 		blockUndo();
+	}
+
+	// if scrolled to bottom, stay at bottom
+	// unless user is editing text
+	// do this after updating page size
+	if (mScrolledToBottom && mTrackBottom && !hasFocus())
+	{
+		endOfDoc();
 	}
 }
 

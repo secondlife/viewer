@@ -107,6 +107,8 @@ public:
 		FFSAVE_COLLADA = 10,
 		FFSAVE_RAW = 11,
 		FFSAVE_J2C = 12,
+		FFSAVE_PNG = 13,
+		FFSAVE_JPEG = 14,
 	};
 
 	// open the dialog. This is a modal operation

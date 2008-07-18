@@ -6438,20 +6438,9 @@ void LLAgent::processAgentInitialWearablesUpdate( LLMessageSystem* mesgsys, void
 {
 	// We should only receive this message a single time.  Ignore subsequent AgentWearablesUpdates
 	// that may result from AgentWearablesRequest having been sent more than once. 
-	static BOOL first = TRUE;
-	if( first )
-	{
-		first = FALSE;
-	}
-	else
-	{
-		return;
-	}
-	
-	if (gNoRender)
-	{
-		return;
-	}
+	static bool first = true;
+	if (!first) return;
+	first = false;
 
 	LLUUID agent_id;
 	gMessageSystem->getUUIDFast(_PREHASH_AgentData, _PREHASH_AgentID, agent_id );
@@ -6467,16 +6456,6 @@ void LLAgent::processAgentInitialWearablesUpdate( LLMessageSystem* mesgsys, void
 			// Transitional state.  Avatars should always have at least their body parts (hair, eyes, shape and skin).
 			// The fact that they don't have any here (only a dummy is sent) implies that this account existed
 			// before we had wearables, or that the database has gotten messed up.
-			// Deal with this by creating new body parts.
-			//avatar->createStandardWearables();
-
-			// no, deal with it by noting that we need to choose a
-			// gender, but only if an initial outfit load isn't happening.
-			// This whole check (num_wearables < 4) can probably be deleted. JC
-			if (gInitialOutfit.empty())
-			{
-				gAgent.setGenderChosen(FALSE);
-			}
 			return;
 		}
 

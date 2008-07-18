@@ -186,10 +186,8 @@ protected:
 
 	static void onClickChooseAvatar(void*);
 	static void callbackAvatarID(const std::vector<std::string>& names, const std::vector<LLUUID>& ids, void* data);
-	static void onClickReturnScriptedOtherLand(void*);
-	static void callbackReturnScriptedOtherLand(S32 option, void*);
-	static void onClickReturnScriptedAll(void*);
-	static void callbackReturnScriptedAll(S32 option, void*);
+	static void onClickReturn(void *);
+	static void callbackReturn(S32 option, void*);
 	static void onClickTopColliders(void*);
 	static void onClickTopScripts(void*);
 	static void onClickRestart(void* data);

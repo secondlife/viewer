@@ -122,6 +122,7 @@
 //#include "llblockencoder.h"
 #include "llimage.h"
 #include "llimagebmp.h"
+#include "llimagepng.h"
 #include "llimagej2c.h"
 #include "llimagejpeg.h"
 #include "llimagetga.h"

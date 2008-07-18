@@ -816,8 +816,7 @@ BOOL LLPanelRegionDebugInfo::postBuild()
 	initHelpBtn("restart_help",				"HelpRegionRestart");
 
 	childSetAction("choose_avatar_btn", onClickChooseAvatar, this);
-	childSetAction("return_scripted_other_land_btn", onClickReturnScriptedOtherLand, this);
-	childSetAction("return_scripted_all_btn", onClickReturnScriptedAll, this);
+	childSetAction("return_btn", onClickReturn, this);
 	childSetAction("top_colliders_btn", onClickTopColliders, this);
 	childSetAction("top_scripts_btn", onClickTopScripts, this);
 	childSetAction("restart_btn", onClickRestart, this);
@@ -832,10 +831,13 @@ bool LLPanelRegionDebugInfo::refreshFromRegion(LLViewerRegion* region)
 	BOOL allow_modify = gAgent.isGodlike() || (region && region->canManageEstate());
 	setCtrlsEnabled(allow_modify);
 	childDisable("apply_btn");
-
+	childDisable("target_avatar_name");
+	
 	childSetEnabled("choose_avatar_btn", allow_modify);
-	childSetEnabled("return_scripted_other_land_btn", allow_modify && !mTargetAvatar.isNull());
-	childSetEnabled("return_scripted_all_btn", allow_modify && !mTargetAvatar.isNull());
+	childSetEnabled("return_scripts", allow_modify && !mTargetAvatar.isNull());
+	childSetEnabled("return_other_land", allow_modify && !mTargetAvatar.isNull());
+	childSetEnabled("return_estate_wide", allow_modify && !mTargetAvatar.isNull());
+	childSetEnabled("return_btn", allow_modify && !mTargetAvatar.isNull());
 	childSetEnabled("top_colliders_btn", allow_modify);
 	childSetEnabled("top_scripts_btn", allow_modify);
 	childSetEnabled("restart_btn", allow_modify);
@@ -881,60 +883,55 @@ void LLPanelRegionDebugInfo::callbackAvatarID(const std::vector<std::string>& na
 }
 
 // static
-void LLPanelRegionDebugInfo::onClickReturnScriptedOtherLand(void* data)
+void LLPanelRegionDebugInfo::onClickReturn(void* data)
 {
 	LLPanelRegionDebugInfo* panelp = (LLPanelRegionDebugInfo*) data;
 	if (panelp->mTargetAvatar.isNull()) return;
 
 	LLStringUtil::format_map_t args;
 	args["[USER_NAME]"] = panelp->childGetValue("target_avatar_name").asString();
-	gViewerWindow->alertXml("ReturnScriptedOnOthersLand", args, callbackReturnScriptedOtherLand, data);
+	gViewerWindow->alertXml("EstateObjectReturn", args, callbackReturn, data);
 }
 
 // static
-void LLPanelRegionDebugInfo::callbackReturnScriptedOtherLand( S32 option, void* userdata )
+void LLPanelRegionDebugInfo::callbackReturn( S32 option, void* userdata )
 {
 	if (option != 0) return;
 
 	LLPanelRegionDebugInfo* self = (LLPanelRegionDebugInfo*) userdata;
 	if (!self->mTargetAvatar.isNull())
 	{
-		U32 flags = 0;
-		flags = flags | SWD_OTHERS_LAND_ONLY;
-		flags = flags | SWD_ALWAYS_RETURN_OBJECTS;
-		flags |= SWD_SCRIPTED_ONLY;
+		U32 flags = SWD_ALWAYS_RETURN_OBJECTS;
 
-		send_sim_wide_deletes(self->mTargetAvatar, flags);
+		if (self->childGetValue("return_scripts").asBoolean())
+		{
+			flags |= SWD_SCRIPTED_ONLY;
+		}
+		
+		if (self->childGetValue("return_other_land").asBoolean())
+		{
+			flags |= SWD_OTHERS_LAND_ONLY;
+		}
+
+		if (self->childGetValue("return_estate_wide").asBoolean())
+		{
+			// send as estate message - routed by spaceserver to all regions in estate
+			strings_t strings;
+			strings.push_back(llformat("%d", flags));
+			strings.push_back(self->mTargetAvatar.asString());
+
+			LLUUID invoice(LLFloaterRegionInfo::getLastInvoice());
+		
+			self->sendEstateOwnerMessage(gMessageSystem, "estateobjectreturn", invoice, strings);
+		}
+		else
+		{
+			// send to this simulator only
+			send_sim_wide_deletes(self->mTargetAvatar, flags);
+		}
 	}
 }
 
-// static
-void LLPanelRegionDebugInfo::onClickReturnScriptedAll(void* data)
-{
-	LLPanelRegionDebugInfo* panelp = (LLPanelRegionDebugInfo*) data;
-	if (panelp->mTargetAvatar.isNull()) return;
-	
-	
-	LLStringUtil::format_map_t args;
-	args["[USER_NAME]"] = panelp->childGetValue("target_avatar_name").asString();
-	gViewerWindow->alertXml("ReturnScriptedOnAllLand", args, callbackReturnScriptedAll, data);
-}
-
-// static
-void LLPanelRegionDebugInfo::callbackReturnScriptedAll( S32 option, void* userdata )
-{
-	if (option != 0) return;
-
-	LLPanelRegionDebugInfo* self = (LLPanelRegionDebugInfo*) userdata;
-	if (!self->mTargetAvatar.isNull())
-	{
-		U32 flags = 0;
-		flags |= SWD_ALWAYS_RETURN_OBJECTS;
-		flags |= SWD_SCRIPTED_ONLY;
-
-		send_sim_wide_deletes(self->mTargetAvatar, flags);
-	}
-}
 
 // static
 void LLPanelRegionDebugInfo::onClickTopColliders(void* data)

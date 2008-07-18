@@ -357,6 +357,26 @@ BOOL LLFilePicker::getSaveFile(ESaveFilter filter, const std::string& filename)
 			L"Bitmap Images (*.bmp)\0*.bmp\0" \
 			L"\0";
 		break;
+	case FFSAVE_PNG:
+		if (filename.empty())
+		{
+			wcsncpy( mFilesW,L"untitled.png", FILENAME_BUFFER_SIZE);	/*Flawfinder: ignore*/
+		}
+		mOFN.lpstrDefExt = L"png";
+		mOFN.lpstrFilter =
+			L"PNG Images (*.png)\0*.png\0" \
+			L"\0";
+		break;
+	case FFSAVE_JPEG:
+		if (filename.empty())
+		{
+			wcsncpy( mFilesW,L"untitled.jpeg", FILENAME_BUFFER_SIZE);	/*Flawfinder: ignore*/
+		}
+		mOFN.lpstrDefExt = L"jpeg";
+		mOFN.lpstrFilter =
+			L"JPEG Images (*.jpeg)\0*.jpeg\0" \
+			L"\0";
+		break;
 	case FFSAVE_AVI:
 		if (filename.empty())
 		{
@@ -642,7 +662,16 @@ OSStatus	LLFilePicker::doNavSaveDialog(ESaveFilter filter, const std::string& fi
 			creator = 'prvw';
 			extension = CFSTR(".bmp");
 			break;
-		
+		case FFSAVE_JPEG:
+			type = 'JPEG';
+			creator = 'prvw';
+			extension = CFSTR(".jpeg");
+			break;
+		case FFSAVE_PNG:
+			type = 'PNG ';
+			creator = 'prvw';
+			extension = CFSTR(".png");
+			break;
 		case FFSAVE_AVI:
 			type = '\?\?\?\?';
 			creator = '\?\?\?\?';

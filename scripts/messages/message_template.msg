@@ -1179,7 +1179,7 @@ version 2.0
 // simulator -> viewer
 // reliable
 {
-	ParcelObjectOwnersReply Low 57 Trusted Zerocoded
+	ParcelObjectOwnersReply Low 57 Trusted Zerocoded UDPDeprecated
 	{
 		Data			Variable
 		{	OwnerID			LLUUID			}
@@ -8767,7 +8767,7 @@ version 2.0
 // LandStatReply
 // Sent by the simulator in response to LandStatRequest
 {
-	LandStatReply Low 422 Trusted Unencoded
+	LandStatReply Low 422 Trusted Unencoded UDPDeprecated
 	{
 		RequestData	Single
 		{	ReportType			U32				}

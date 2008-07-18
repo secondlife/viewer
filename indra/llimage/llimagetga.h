@@ -45,6 +45,7 @@ public:
 	LLImageTGA();
 	LLImageTGA(const std::string& file_name);
 
+	/*virtual*/ std::string getExtension() { return std::string("tga"); }
 	/*virtual*/ BOOL updateData();
 	/*virtual*/ BOOL decode(LLImageRaw* raw_image, F32 decode_time=0.0);
 	/*virtual*/ BOOL encode(const LLImageRaw* raw_image, F32 encode_time=0.0);

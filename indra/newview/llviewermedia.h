@@ -34,11 +34,16 @@
 
 #include "llmediabase.h"	// for status codes
 
+class LLMediaManagerData;
 class LLUUID;
 
 class LLViewerMedia
 {
 	public:
+		// Special case early init for just web browser component
+		// so we can show login screen.  See .cpp file for details. JC
+		static void initBrowser();
+
 		static void initClass();
 		static void cleanupClass();
 
@@ -67,6 +72,10 @@ class LLViewerMedia
 		static void setMimeType(std::string mime_type);
 
 		static void updateImagesMediaStreams();
+
+	private:
+		// Fill in initialization data for LLMediaManager::initClass()
+		static void buildMediaManagerData( LLMediaManagerData* init_data );
 };
 
 #endif	// LLVIEWERMEDIA_H

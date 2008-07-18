@@ -102,6 +102,7 @@ private:
 public:
 	LLImageDXT();
 
+	/*virtual*/ std::string getExtension() { return std::string("dxt"); }
 	/*virtual*/ BOOL updateData();
 
 	/*virtual*/ BOOL decode(LLImageRaw* raw_image, F32 decode_time);

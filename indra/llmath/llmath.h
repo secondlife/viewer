@@ -477,8 +477,8 @@ inline F32 llsimple_angle(F32 angle)
 	return angle;
 }
 
-//calculate the nearesr power of two number for val, bounded by max_power_two
-inline U32 get_nearest_power_two(U32 val, U32 max_power_two)
+//SDK - Renamed this to get_lower_power_two, since this is what this actually does.
+inline U32 get_lower_power_two(U32 val, U32 max_power_two)
 {
 	if(!max_power_two)
 	{
@@ -493,4 +493,34 @@ inline U32 get_nearest_power_two(U32 val, U32 max_power_two)
 	
 	return max_power_two ;
 }
+
+// calculate next highest power of two, limited by max_power_two
+// This is taken from a brilliant little code snipped on http://acius2.blogspot.com/2007/11/calculating-next-power-of-2.html
+// Basically we convert the binary to a solid string of 1's with the same
+// number of digits, then add one.  We subtract 1 initially to handle
+// the case where the number passed in is actually a power of two.
+// WARNING: this only works with 32 bit ints.
+inline U32 get_next_power_two(U32 val, U32 max_power_two)
+{
+	if(!max_power_two)
+	{
+		max_power_two = 1 << 31 ;
+	}
+
+	if(val >= max_power_two)
+	{
+		return max_power_two;
+	}
+
+	val--;
+	val = (val >> 1) | val;
+	val = (val >> 2) | val;
+	val = (val >> 4) | val;
+	val = (val >> 8) | val;
+	val = (val >> 16) | val;
+	val++;
+
+	return val;
+}
+
 #endif

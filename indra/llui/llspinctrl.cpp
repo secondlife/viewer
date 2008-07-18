@@ -396,6 +396,12 @@ void LLSpinCtrl::setLabel(const LLStringExplicit& label)
 	}
 }
 
+void LLSpinCtrl::setAllowEdit(BOOL allow_edit)
+{
+	mEditor->setEnabled(allow_edit);
+	mAllowEdit = allow_edit;
+}
+
 void LLSpinCtrl::onTabInto()
 {
 	mEditor->onTabInto(); 
@@ -520,6 +526,9 @@ LLView* LLSpinCtrl::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *
 	S32 label_width = llmin(40, rect.getWidth() - 40);
 	node->getAttributeS32("label_width", label_width);
 
+	BOOL allow_text_entry = TRUE;
+	node->getAttributeBOOL("allow_text_entry", allow_text_entry);
+
 	LLUICtrlCallback callback = NULL;
 
 	if(label.empty())
@@ -543,6 +552,7 @@ LLView* LLSpinCtrl::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *
 	spinner->setPrecision(precision);
 
 	spinner->initFromXML(node, parent);
+	spinner->setAllowEdit(allow_text_entry);
 
 	return spinner;
 }

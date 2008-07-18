@@ -143,7 +143,9 @@ Gigs Taggart
 	VWR-1434
 	VWR-1987
 	VWR-2065
+	VWR-2491
 	VWR-2502
+	VWR-2331
 Ginko Bayliss
 	VWR-4
 Grazer Kline
@@ -154,6 +156,7 @@ Gudmund Shepherd
 Hamncheese Omlet
 	VWR-333
 Henri Beauchamp
+	VWR-1320
 	VWR-1406
 	VWR-4157
 Hikkoshi Sakai
@@ -262,6 +265,7 @@ Nicholaz Beresford
 	VWR-1721
 	VWR-1723
 	VWR-1732
+	VWR-1754
 	VWR-1769
 	VWR-1808
 	VWR-1861

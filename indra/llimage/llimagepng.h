@@ -42,9 +42,10 @@ protected:
 public:
 	LLImagePNG();
 
-	BOOL updateData();
-	BOOL decode(LLImageRaw* raw_image, F32 decode_time);
-	BOOL encode(const LLImageRaw* raw_image, F32 encode_time);
+	/*virtual*/ std::string getExtension() { return std::string("png"); }
+	/*virtual*/ BOOL updateData();
+	/*virtual*/ BOOL decode(LLImageRaw* raw_image, F32 decode_time);
+	/*virtual*/ BOOL encode(const LLImageRaw* raw_image, F32 encode_time);
 
 private:
 	U8* mTmpWriteBuffer;

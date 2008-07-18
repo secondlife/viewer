@@ -44,6 +44,7 @@
 #include "lllineeditor.h"
 #include "lltextbox.h"
 #include "lltracker.h"
+#include "llviewermessage.h"
 #include "llviewerparcelmgr.h"
 #include "llviewerregion.h"
 #include "lluictrlfactory.h"
@@ -51,6 +52,8 @@
 
 LLFloaterTopObjects* LLFloaterTopObjects::sInstance = NULL;
 
+// Globals
+// const U32 TIME_STR_LENGTH = 30;
 
 // static
 void LLFloaterTopObjects::show()
@@ -161,6 +164,7 @@ void LLFloaterTopObjects::handleReply(LLMessageSystem *msg, void** data)
 	for (S32 block = 0; block < block_count; ++block)
 	{
 		U32 task_local_id;
+		U32 time_stamp = 0;
 		LLUUID task_id;
 		F32 location_x, location_y, location_z;
 		F32 score;
@@ -175,7 +179,11 @@ void LLFloaterTopObjects::handleReply(LLMessageSystem *msg, void** data)
 		msg->getF32Fast(_PREHASH_ReportData, _PREHASH_Score, score, block);
 		msg->getStringFast(_PREHASH_ReportData, _PREHASH_TaskName, name_buf, block);
 		msg->getStringFast(_PREHASH_ReportData, _PREHASH_OwnerName, owner_buf, block);
-		
+		if(msg->getNumberOfBlocks("DataExtended"))
+		{
+			msg->getU32("DataExtended", "TimeStamp", time_stamp, block);
+		}
+
 		LLSD element;
 
 		element["id"] = task_id;
@@ -193,7 +201,10 @@ void LLFloaterTopObjects::handleReply(LLMessageSystem *msg, void** data)
 		element["columns"][3]["column"] = "location";
 		element["columns"][3]["value"] = llformat("<%0.1f,%0.1f,%0.1f>", location_x, location_y, location_z);
 		element["columns"][3]["font"] = "SANSSERIF";
-
+		element["columns"][3]["column"] = "time";
+		element["columns"][3]["value"] = formatted_time((time_t)time_stamp);
+		element["columns"][3]["font"] = "SANSSERIF";
+		
 		list->addElement(element);
 		
 		mObjectListData.append(element);

@@ -40,9 +40,7 @@
 #include "llimagebmp.h"
 #include "llimagetga.h"
 #include "llimagej2c.h"
-#if JPEG_SUPPORT
 #include "llimagejpeg.h"
-#endif
 #include "llimagepng.h"
 #include "llimagedxt.h"
 
@@ -1192,11 +1190,9 @@ bool LLImageRaw::createFromFile(const std::string &filename, bool j2c_lowest_mip
 	  case IMG_CODEC_TGA:
 		image = new LLImageTGA();
 		break;
-#if JPEG_SUPPORT
 	  case IMG_CODEC_JPEG:
 		image = new LLImageJPEG();
 		break;
-#endif
 	  case IMG_CODEC_J2C:
 		image = new LLImageJ2C();
 		break;
@@ -1280,19 +1276,17 @@ LLImageFormatted* LLImageFormatted::createFromType(S8 codec)
 	  case IMG_CODEC_TGA:
 		image = new LLImageTGA();
 		break;
-#if JPEG_SUPPORT
 	  case IMG_CODEC_JPEG:
 		image = new LLImageJPEG();
 		break;
-#endif
+	  case IMG_CODEC_PNG:
+		image = new LLImagePNG();
+		break;
 	  case IMG_CODEC_J2C:
 		image = new LLImageJ2C();
 		break;
 	  case IMG_CODEC_DXT:
 		image = new LLImageDXT();
-		break;
-	  case IMG_CODEC_PNG:
-		image = new LLImagePNG();
 		break;
 	  default:
 		image = NULL;

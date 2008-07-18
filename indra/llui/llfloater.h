@@ -151,8 +151,8 @@ public:
 	void			moveResizeHandlesToFront();
 	void			addDependentFloater(LLFloater* dependent, BOOL reposition = TRUE);
 	void			addDependentFloater(LLHandle<LLFloater> dependent_handle, BOOL reposition = TRUE);
-	LLFloater*      getDependee() { return (LLFloater*)mDependeeHandle.get(); }
-	void            removeDependentFloater(LLFloater* dependent);
+	LLFloater*		getDependee() { return (LLFloater*)mDependeeHandle.get(); }
+	void		removeDependentFloater(LLFloater* dependent);
 	BOOL			isMinimized()					{ return mMinimized; }
 	BOOL			isFrontmost();
 	BOOL			isDependent()					{ return !mDependeeHandle.isDead(); }
@@ -221,8 +221,8 @@ protected:
 	virtual void	bringToFront(S32 x, S32 y);
 	virtual void	setVisibleAndFrontmost(BOOL take_focus=TRUE);    
 	
-	void            setExpandedRect(const LLRect& rect) { mExpandedRect = rect; } // size when not minimized
-    const LLRect&    getExpandedRect() const { return mExpandedRect; }
+	void		setExpandedRect(const LLRect& rect) { mExpandedRect = rect; } // size when not minimized
+	const LLRect&	getExpandedRect() const { return mExpandedRect; }
 
 	void			setAutoFocus(BOOL focus) { mAutoFocus = focus; } // whether to automatically take focus when opened
 	LLDragHandle*	getDragHandle() const { return mDragHandle; }
@@ -236,11 +236,12 @@ private:
 	void			createMinimizeButton();
 	void			updateButtons();
 	void			buildButtons();
+	BOOL			offerClickToButton(S32 x, S32 y, MASK mask, EFloaterButtons index);
 
 	LLRect			mExpandedRect;
 	LLDragHandle*	mDragHandle;
 	LLResizeBar*	mResizeBar[4];
-	LLResizeHandle* mResizeHandle[4];
+	LLResizeHandle*	mResizeHandle[4];
 	LLButton		*mMinimizeButton;
 	BOOL			mCanTearOff;
 	BOOL			mMinimized;
@@ -259,7 +260,7 @@ private:
 	typedef std::set<LLHandle<LLFloater> > handle_set_t;
 	typedef std::set<LLHandle<LLFloater> >::iterator handle_set_iter_t;
 	handle_set_t	mDependents;
-	bool            mDragOnLeft;
+	bool			mDragOnLeft;
 
 	BOOL			mButtonsEnabled[BUTTON_COUNT];
 	LLButton*		mButtons[BUTTON_COUNT];
@@ -387,8 +388,8 @@ public:
 	virtual void selectNextFloater();
 	virtual void selectPrevFloater();
 
-	virtual LLFloater* getActiveFloater();
-	virtual BOOL       isFloaterFlashing(LLFloater* floaterp);
+	virtual LLFloater*	getActiveFloater();
+	virtual BOOL		isFloaterFlashing(LLFloater* floaterp);
 	virtual S32			getFloaterCount();
 
 	virtual void setFloaterFlashing(LLFloater* floaterp, BOOL flashing);

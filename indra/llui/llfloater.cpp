@@ -1082,38 +1082,37 @@ void LLFloater::removeDependentFloater(LLFloater* floaterp)
 	floaterp->mDependeeHandle = LLHandle<LLFloater>();
 }
 
+BOOL LLFloater::offerClickToButton(S32 x, S32 y, MASK mask, EFloaterButtons index)
+{
+	if( mButtonsEnabled[index] )
+	{
+		LLButton* my_butt = mButtons[index];
+		S32 local_x = x - my_butt->getRect().mLeft;
+		S32 local_y = y - my_butt->getRect().mBottom;
+
+		if (
+			my_butt->pointInView(local_x, local_y) &&
+			my_butt->handleMouseDown(local_x, local_y, mask))
+		{
+			// the button handled it
+			return TRUE;
+		}
+	}
+	return FALSE;
+}
+
 // virtual
 BOOL LLFloater::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	if( mMinimized )
 	{
-		// Offer the click to the close button.
-		if( mButtonsEnabled[BUTTON_CLOSE] )
-		{
-			S32 local_x = x - mButtons[BUTTON_CLOSE]->getRect().mLeft;
-			S32 local_y = y - mButtons[BUTTON_CLOSE]->getRect().mBottom;
-
-			if (mButtons[BUTTON_CLOSE]->pointInView(local_x, local_y)
-				&& mButtons[BUTTON_CLOSE]->handleMouseDown(local_x, local_y, mask))
-			{
-				// close button handled it, return
-				return TRUE;
-			}
-		}
-
-		// Offer the click to the restore button.
-		if( mButtonsEnabled[BUTTON_RESTORE] )
-		{
-			S32 local_x = x - mButtons[BUTTON_RESTORE]->getRect().mLeft;
-			S32 local_y = y - mButtons[BUTTON_RESTORE]->getRect().mBottom;
-
-			if (mButtons[BUTTON_RESTORE]->pointInView(local_x, local_y)
-				&& mButtons[BUTTON_RESTORE]->handleMouseDown(local_x, local_y, mask))
-			{
-				// restore button handled it, return
-				return TRUE;
-			}
-		}
+		// Offer the click to titlebar buttons.
+		// Note: this block and the offerClickToButton helper method can be removed
+		// because the parent container will handle it for us but we'll keep it here
+		// for safety until after reworking the panel code to manage hidden children.
+		if(offerClickToButton(x, y, mask, BUTTON_CLOSE)) return TRUE;
+		if(offerClickToButton(x, y, mask, BUTTON_RESTORE)) return TRUE;
+		if(offerClickToButton(x, y, mask, BUTTON_TEAR_OFF)) return TRUE;
 
 		// Otherwise pass to drag handle for movement
 		return mDragHandle->handleMouseDown(x, y, mask);
@@ -1248,6 +1247,7 @@ void LLFloater::onClickTearOff(void *userdata)
 		LLMultiFloater* new_host = (LLMultiFloater*)self->mLastHostHandle.get();
 		if (new_host)
 		{
+			self->setMinimized(FALSE); // to reenable minimize button if it was minimized
 			new_host->showFloater(self);
 			// make sure host is visible
 			new_host->open();
@@ -1420,31 +1420,15 @@ void LLFloater::draw()
 
 void	LLFloater::setCanMinimize(BOOL can_minimize)
 {
-	// removing minimize/restore button programmatically,
-	// go ahead and uniminimize floater
+	// if removing minimize/restore button programmatically,
+	// go ahead and unminimize floater
 	if (!can_minimize)
 	{
 		setMinimized(FALSE);
 	}
 
-	if (can_minimize)
-	{
-		if (isMinimized())
-		{
-			mButtonsEnabled[BUTTON_MINIMIZE] = FALSE;
-			mButtonsEnabled[BUTTON_RESTORE] = TRUE;
-		}
-		else
-		{
-			mButtonsEnabled[BUTTON_MINIMIZE] = TRUE;
-			mButtonsEnabled[BUTTON_RESTORE] = FALSE;
-		}
-	}
-	else
-	{
-		mButtonsEnabled[BUTTON_MINIMIZE] = FALSE;
-		mButtonsEnabled[BUTTON_RESTORE] = FALSE;
-	}
+	mButtonsEnabled[BUTTON_MINIMIZE] = can_minimize && !isMinimized();
+	mButtonsEnabled[BUTTON_RESTORE]  = can_minimize &&  isMinimized();
 
 	updateButtons();
 }

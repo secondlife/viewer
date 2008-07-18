@@ -54,6 +54,7 @@
 #include "llpanelvolume.h"
 #include "llpanelpermissions.h"
 #include "llselectmgr.h"
+#include "llslider.h"
 #include "llstatusbar.h"
 #include "lltabcontainer.h"
 #include "lltextbox.h"
@@ -106,6 +107,7 @@ void click_popup_rotate_reset(void*);
 void click_popup_rotate_right(void*);
 void click_popup_dozer_mode(LLUICtrl *, void *user);
 void click_popup_dozer_size(LLUICtrl *, void *user);
+void commit_slider_dozer_force(LLUICtrl *, void*);
 void click_dozer_size(LLUICtrl *, void*);
 void click_apply_to_selection(void*);
 void commit_radio_zoom(LLUICtrl *, void*);
@@ -308,6 +310,12 @@ BOOL	LLFloaterTools::postBuild()
 	childSetAction("button apply to selection",click_apply_to_selection,  (void*)0);
 	mCheckShowOwners = getChild<LLCheckBoxCtrl>("checkbox show owners");
 	childSetValue("checkbox show owners",gSavedSettings.getBOOL("ShowParcelOwners"));
+
+	mSliderDozerForce = getChild<LLSlider>("slider force");
+	childSetCommitCallback("slider force",commit_slider_dozer_force,  (void*)0);
+	// the setting stores the actual force multiplier, but the slider is logarithmic, so we convert here
+	childSetValue( "slider force", log10(gSavedSettings.getF32("LandBrushForce")));
+
 	childSetAction("button more", click_show_more, this);
 	childSetAction("button less", click_show_more, this);
 	mTab = getChild<LLTabContainer>("Object Info Tabs");
@@ -741,6 +749,11 @@ void LLFloaterTools::updatePopup(LLCoordGL center, MASK mask)
 	{
 		mCheckShowOwners	->setVisible( land_visible );
 	}
+	if (mSliderDozerForce)
+	{
+		mSliderDozerForce	->setVisible( land_visible );
+		childSetVisible("Strength:", land_visible);
+	}
 
 	//
 	// More panel visibility
@@ -938,6 +951,16 @@ void click_dozer_size(LLUICtrl *ctrl, void *user)
 	S32 size = ((LLComboBox*) ctrl)->getCurrentIndex();
 	gSavedSettings.setS32("RadioLandBrushSize", size);
 }
+
+void commit_slider_dozer_force(LLUICtrl *ctrl, void*)
+{
+	// the slider is logarithmic, so we exponentiate to get the actual force multiplier
+	F32 dozer_force = pow(10.f, (F32)ctrl->getValue().asReal());
+	gSavedSettings.setF32("LandBrushForce", dozer_force);
+}
+
+
+
 
 void click_apply_to_selection(void* user)
 {

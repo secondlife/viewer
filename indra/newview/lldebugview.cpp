@@ -60,7 +60,7 @@ LLDebugView::LLDebugView(const std::string& name, const LLRect &rect)
 {
 	LLRect r;
 
-	r.set(0, rect.getHeight() - 100, rect.getWidth()/2, 100);
+	r.set(10, rect.getHeight() - 100, rect.getWidth()/2, 100);
 	mDebugConsolep = new LLConsole("debug console", 20, r, -1, 0.f );
 	mDebugConsolep->setFollowsBottom();
 	mDebugConsolep->setFollowsLeft();

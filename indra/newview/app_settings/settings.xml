@@ -1079,16 +1079,16 @@
       <real>0.5</real>
     </map>
     <key>ChatFontSize</key>
-    <map>
-      <key>Comment</key>
-      <string>Size of chat text in chat console (0 = small, 1 = big)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
+        <map>
+        <key>Comment</key>
+            <string>Size of chat text in chat console (0 = small, 1 = medium, 2 = big)</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>S32</string>
+        <key>Value</key>
+            <integer>1</integer>
+        </map>
     <key>ChatFullWidth</key>
     <map>
       <key>Comment</key>
@@ -1123,16 +1123,16 @@
       <integer>1</integer>
     </map>
     <key>ChatPersistTime</key>
-    <map>
-      <key>Comment</key>
-      <string>Time for which chat stays visible in console (seconds)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>15.0</real>
-    </map>
+        <map>
+        <key>Comment</key>
+            <string>Time for which chat stays visible in console (seconds)</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>20</real>
+        </map>
     <key>ChatShowTimestamps</key>
     <map>
       <key>Comment</key>
@@ -1856,16 +1856,16 @@
       <integer>0</integer>
     </map>
     <key>ConsoleBackgroundOpacity</key>
-    <map>
-      <key>Comment</key>
-      <string>Opacity of chat console (0.0 = completely transparent, 1.0 = completely opaque)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>0.40000000596</real>
-    </map>
+        <map>
+        <key>Comment</key>
+            <string>Opacity of chat console (0.0 = completely transparent, 1.0 = completely opaque)</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>0.700</real>
+        </map>
     <key>ConsoleBufferSize</key>
     <map>
       <key>Comment</key>
@@ -5046,21 +5046,21 @@
       <integer>0</integer>
     </map>
     <key>ObjectChatColor</key>
-    <map>
-      <key>Comment</key>
-      <string>Color of chat messages from objects</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Color4</string>
-      <key>Value</key>
-      <array>
-        <real>0.699999988079</real>
-        <real>0.899999976158</real>
-        <real>0.699999988079</real>
-        <real>1.0</real>
-      </array>
-    </map>
+        <map>
+        <key>Comment</key>
+            <string>Color of chat messages from objects</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>Color4</string>
+        <key>Value</key>
+            <array>
+                <real>1</real>
+                <real>0.5</real>
+                <real>0.0</real>
+                <real>1</real>
+            </array>
+        </map>
     <key>OpenDebugStatAdvanced</key>
     <map>
       <key>Comment</key>
@@ -5599,6 +5599,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>LandBrushForce</key>
+        <map>
+        <key>Comment</key>
+            <string>Multiplier for land modification brush force.</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>1.0</real>
+        </map>
     <key>RecentItemsSortOrder</key>
     <map>
       <key>Comment</key>
@@ -6999,16 +7010,16 @@
       <integer>1</integer>
     </map>
     <key>ShowObjectUpdates</key>
-    <map>
-      <key>Comment</key>
-      <string>Show when update messages are received for individual objects</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
+        <map>
+        <key>Comment</key>
+            <string>Show when update messages are received for individual objects</string>
+        <key>Persist</key>
+            <integer>0</integer>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <integer>0</integer>
+        </map>
     <key>ShowOverlayTitle</key>
     <map>
       <key>Comment</key>
@@ -7346,6 +7357,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>SnapshotFormat</key>
+        <map>
+        <key>Comment</key>
+            <string>Save snapshots in this format (0 = PNG, 1 = JPEG, 2 = BMP)</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>S32</string>
+        <key>Value</key>
+            <integer>0</integer>
+        </map>
     <key>SnapshotPostcardLastResolution</key>
     <map>
       <key>Comment</key>

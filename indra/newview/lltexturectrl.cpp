@@ -910,7 +910,7 @@ LLTextureCtrl::LLTextureCtrl(
 	mNeedsRawImageData( FALSE ),
 	mValid( TRUE ),
 	mDirty( FALSE ),
-	mShowLoadingPlaceholder( FALSE )
+	mShowLoadingPlaceholder( TRUE )
 {
 	mCaption = new LLTextBox( label, 
 		LLRect( 0, BTN_HEIGHT_SMALL, getRect().getWidth(), 0 ),
@@ -1327,6 +1327,10 @@ void LLTextureCtrl::draw()
 
 	mTentativeLabel->setVisible( !mTexturep.isNull() && getTentative() );
 	
+	
+	// Show "Loading..." string on the top left corner while this texture is loading.
+	// Using the discard level, do not show the string if the texture is almost but not 
+	// fully loaded.
 	if ( mTexturep.notNull() &&
 		 (mShowLoadingPlaceholder == TRUE) && 
 		 (mTexturep->getDiscardLevel() != 1) &&

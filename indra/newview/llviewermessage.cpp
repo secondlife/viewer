@@ -1175,8 +1175,17 @@ void inventory_offer_handler(LLOfferInfo* info, BOOL from_task)
 		return;
 	}
 
+	// Strip any SLURL from the message display. (DEV-2754)
+	std::string msg = info->mDesc;
+	int indx = msg.find(" ( http://slurl.com/secondlife/");
+	if(indx >= 0)
+	{
+		LLStringUtil::truncate(msg, indx);
+	}
+	
 	LLStringUtil::format_map_t args;
-	args["[OBJECTNAME]"] = info->mDesc;
+	args["[OBJECTNAME]"] = msg;
+
 	// must protect against a NULL return from lookupHumanReadable()
 	std::string typestr = ll_safe_string(LLAssetType::lookupHumanReadable(info->mType));
 	if (!typestr.empty())

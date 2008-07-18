@@ -3242,11 +3242,19 @@ LLScrollListItem* LLScrollListCtrl::addElement(const LLSD& value, EAddPosition p
 		S32 index = columnp->mIndex;
 		S32 width = columnp->mWidth;
 		LLFontGL::HAlign font_alignment = columnp->mFontAlignment;
-
+		LLColor4 fcolor = LLColor4::black;
+		
 		LLSD value = (*itor)["value"];
 		std::string fontname = (*itor)["font"].asString();
 		std::string fontstyle = (*itor)["font-style"].asString();
 		std::string type = (*itor)["type"].asString();
+		
+		if ((*itor).has("font-color"))
+		{
+			LLSD sd_color = (*itor)["font-color"];
+			fcolor.setValue(sd_color);
+		}
+		
 		BOOL has_color = (*itor).has("color");
 		LLColor4 color = ((*itor)["color"]);
 		BOOL enabled = !(*itor).has("enabled") || (*itor)["enabled"].asBoolean() == true;
@@ -3291,7 +3299,7 @@ LLScrollListItem* LLScrollListCtrl::addElement(const LLSD& value, EAddPosition p
 		}
 		else
 		{
-			LLScrollListText* cell = new LLScrollListText(value.asString(), font, width, font_style, font_alignment);
+			LLScrollListText* cell = new LLScrollListText(value.asString(), font, width, font_style, font_alignment, fcolor, TRUE);
 			if (has_color)
 			{
 				cell->setColor(color);

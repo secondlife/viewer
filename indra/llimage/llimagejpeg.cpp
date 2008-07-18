@@ -35,13 +35,15 @@
 
 #include "llerror.h"
 
-LLImageJPEG::LLImageJPEG() 
+LLImageJPEG::LLImageJPEG(S32 quality) 
 	:
 	LLImageFormatted(IMG_CODEC_JPEG),
 	mOutputBuffer( NULL ),
 	mOutputBufferSize( 0 ),
-	mEncodeQuality( 75 ) // on a scale from 1 to 100
+	mEncodeQuality( quality ) // on a scale from 1 to 100
 {
+	// Including in initializer list above generates warning on VC2005
+	memset(mSetjmpBuffer, 0, sizeof(mSetjmpBuffer));
 }
 
 LLImageJPEG::~LLImageJPEG()

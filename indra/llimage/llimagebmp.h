@@ -44,6 +44,7 @@ protected:
 public:
 	LLImageBMP();
 
+	/*virtual*/ std::string getExtension() { return std::string("bmp"); }
 	/*virtual*/ BOOL updateData();
 	/*virtual*/ BOOL decode(LLImageRaw* raw_image, F32 decode_time);
 	/*virtual*/ BOOL encode(const LLImageRaw* raw_image, F32 encode_time);

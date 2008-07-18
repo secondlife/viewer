@@ -1517,7 +1517,6 @@ LLViewerWindow::LLViewerWindow(
 	LLViewerWindow::sMovieBaseName = "SLmovie";
 	LLViewerWindow::sSnapshotDir.clear();
 
-
 	// create window
 	mWindow = LLWindowManager::createWindow(
 		title, name, x, y, width, height, 0,
@@ -4049,14 +4048,14 @@ BOOL LLViewerWindow::mousePointOnLandGlobal(const S32 x, const S32 y, LLVector3d
 }
 
 // Saves an image to the harddrive as "SnapshotX" where X >= 1.
-BOOL LLViewerWindow::saveImageNumbered(LLImageRaw *raw, const std::string& extension_in)
+BOOL LLViewerWindow::saveImageNumbered(LLImageFormatted *image)
 {
-	if (! raw)
+	if (!image)
 	{
 		return FALSE;
 	}
 
-	std::string extension(extension_in);
+	std::string extension("." + image->getExtension());
 	if (extension.empty())
 	{
 		extension = (gSavedSettings.getBOOL("CompressSnapshotsToDisk")) ? ".j2c" : ".bmp";
@@ -4067,6 +4066,10 @@ BOOL LLViewerWindow::saveImageNumbered(LLImageRaw *raw, const std::string& exten
 		pick_type = LLFilePicker::FFSAVE_J2C;
 	else if (extension == ".bmp")
 		pick_type = LLFilePicker::FFSAVE_BMP;
+	else if (extension == ".jpg")
+		pick_type = LLFilePicker::FFSAVE_JPEG;
+	else if (extension == ".png")
+		pick_type = LLFilePicker::FFSAVE_PNG;
 	else if (extension == ".tga")
 		pick_type = LLFilePicker::FFSAVE_TGA;
 	else
@@ -4112,22 +4115,13 @@ BOOL LLViewerWindow::saveImageNumbered(LLImageRaw *raw, const std::string& exten
 	}
 	while( -1 != err );  // search until the file is not found (i.e., stat() gives an error).
 
-	LLPointer<LLImageFormatted> formatted_image = LLImageFormatted::createFromExtension(extension);
-	LLImageBase::setSizeOverride(TRUE);
-	BOOL success = formatted_image->encode(raw, 0.0f);
-	if( success )
-	{
-		success = formatted_image->save(filepath);
-	}
-	else
-	{
-		llwarns << "Unable to encode bmp snapshot" << llendl;
-	}
-	LLImageBase::setSizeOverride(FALSE);
-
-	return success;
+	return image->save(filepath);
 }
 
+void LLViewerWindow::resetSnapshotLoc()
+{
+	sSnapshotDir.clear();
+}
 
 static S32 BORDERHEIGHT = 0;
 static S32 BORDERWIDTH = 0;
@@ -4430,7 +4424,7 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 		image_buffer_x = llfloor(snapshot_width*scale_factor) ;
 		image_buffer_y = llfloor(snapshot_height *scale_factor) ;
 	}
-	raw->resize(image_buffer_x, image_buffer_y, type == SNAPSHOT_TYPE_DEPTH ? 4 : 3);
+	raw->resize(image_buffer_x, image_buffer_y, 3);
 	if(raw->isBufferInvalid())
 	{
 		return FALSE ;
@@ -4476,7 +4470,9 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 			}
 			else
 			{
-				display(do_rebuild, scale_factor, subimage_x+(subimage_y*llceil(scale_factor)), use_fbo);
+				display(do_rebuild, scale_factor, subimage_x+(subimage_y*llceil(scale_factor)), TRUE);
+				// Required for showing the GUI in snapshots?  See DEV-16350 for details. JC
+				render_ui_and_swap();
 			}
 
 			S32 subimage_x_offset = llclamp(buffer_x_offset - (subimage_x * window_width), 0, window_width);
@@ -4485,49 +4481,43 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 									llmax(0, (window_width * (subimage_x + 1)) - (buffer_x_offset + raw->getWidth())));
 			for(U32 out_y = 0; out_y < read_height ; out_y++)
 			{
+				S32 output_buffer_offset = ( 
+							(out_y * (raw->getWidth())) // ...plus iterated y...
+							+ (window_width * subimage_x) // ...plus subimage start in x...
+							+ (raw->getWidth() * window_height * subimage_y) // ...plus subimage start in y...
+							- output_buffer_offset_x // ...minus buffer padding x...
+							- (output_buffer_offset_y * (raw->getWidth()))  // ...minus buffer padding y...
+						) * raw->getComponents();
 				if (type == SNAPSHOT_TYPE_OBJECT_ID || type == SNAPSHOT_TYPE_COLOR)
 				{
 					glReadPixels(
 						subimage_x_offset, out_y + subimage_y_offset,
 						read_width, 1,
 						GL_RGB, GL_UNSIGNED_BYTE,
-						raw->getData() + // current output pixel is beginning of buffer...
-							( 
-								(out_y * (raw->getWidth())) // ...plus iterated y...
-								+ (window_width * subimage_x) // ...plus subimage start in x...
-								+ (raw->getWidth() * window_height * subimage_y) // ...plus subimage start in y...
-								- output_buffer_offset_x // ...minus buffer padding x...
-								- (output_buffer_offset_y * (raw->getWidth()))  // ...minus buffer padding y...
-							) * 3 // times 3 bytes per pixel
+						raw->getData() + output_buffer_offset
 					);
 				}
 				else // SNAPSHOT_TYPE_DEPTH
 				{
-					S32 output_buffer_offset = ( 
-								(out_y * (raw->getWidth())) // ...plus iterated y...
-								+ (window_width * subimage_x) // ...plus subimage start in x...
-								+ (raw->getWidth() * window_height * subimage_y) // ...plus subimage start in y...
-								- output_buffer_offset_x // ...minus buffer padding x...
-								- (output_buffer_offset_y * (raw->getWidth()))  // ...minus buffer padding y...
-							) * 4; // times 4 bytes per pixel
-
+					LLPointer<LLImageRaw> depth_line_buffer = new LLImageRaw(read_width, 1, sizeof(GL_FLOAT)); // need to store floating point values
 					glReadPixels(
 						subimage_x_offset, out_y + subimage_y_offset,
 						read_width, 1,
 						GL_DEPTH_COMPONENT, GL_FLOAT,
-						raw->getData() + output_buffer_offset// current output pixel is beginning of buffer...
+						depth_line_buffer->getData()// current output pixel is beginning of buffer...
 					);
 
-					for (S32 i = output_buffer_offset; i < output_buffer_offset + (S32)read_width * 4; i += 4)
+					for (S32 i = 0; i < (S32)read_width; i++)
 					{
-						F32 depth_float = *(F32*)(raw->getData() + i);
+						F32 depth_float = *(F32*)(depth_line_buffer->getData() + (i * sizeof(F32)));
 					
 						F32 linear_depth_float = 1.f / (depth_conversion_factor_1 - (depth_float * depth_conversion_factor_2));
 						U8 depth_byte = F32_to_U8(linear_depth_float, LLViewerCamera::getInstance()->getNear(), LLViewerCamera::getInstance()->getFar());
-						*(raw->getData() + i + 0) = depth_byte;
-						*(raw->getData() + i + 1) = depth_byte;
-						*(raw->getData() + i + 2) = depth_byte;
-						*(raw->getData() + i + 3) = 255;
+						//write converted scanline out to result image
+						for(S32 j = 0; j < raw->getComponents(); j++)
+						{
+							*(raw->getData() + output_buffer_offset + (i * raw->getComponents()) + j) = depth_byte;
+						}
 					}
 				}
 			}
@@ -4565,7 +4555,7 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 
 	// Pre-pad image to number of pixels such that the line length is a multiple of 4 bytes (for BMP encoding)
 	// Note: this formula depends on the number of components being 3.  Not obvious, but it's correct.	
-	image_width += (image_width * (type == SNAPSHOT_TYPE_DEPTH ? 4 : 3)) % 4 ;	
+	image_width += (image_width * 3) % 4;
 
 	// Resize image
 	if(llabs(image_width - image_buffer_x) > 4 || llabs(image_height - image_buffer_y) > 4)

@@ -434,7 +434,7 @@ void LLPanelLandGeneral::refresh()
 		mEditName->setText(LLStringUtil::null);
 
 		mEditDesc->setEnabled(FALSE);
-		mEditDesc->setText(LLStringUtil::null);
+		mEditDesc->setText(getString("no_selection_text"));
 
 		mTextSalePending->setText(LLStringUtil::null);
 		mTextSalePending->setEnabled(FALSE);
@@ -1430,6 +1430,7 @@ void LLPanelLandObjects::processParcelObjectOwnersReply(LLMessageSystem *msg, vo
 	LLUUID	owner_id;
 	BOOL	is_group_owned;
 	S32		object_count;
+	U32		most_recent_time = 0;
 	BOOL	is_online;
 	std::string object_count_str;
 	//BOOL b_need_refresh = FALSE;
@@ -1447,7 +1448,10 @@ void LLPanelLandObjects::processParcelObjectOwnersReply(LLMessageSystem *msg, vo
 		msg->getBOOLFast(_PREHASH_Data, _PREHASH_IsGroupOwned,	is_group_owned,	i);
 		msg->getS32Fast (_PREHASH_Data, _PREHASH_Count,			object_count,	i);
 		msg->getBOOLFast(_PREHASH_Data, _PREHASH_OnlineStatus,	is_online,		i);
-
+		if(msg->getNumberOfBlocks("DataExtended"))
+		{
+			msg->getU32("DataExtended", "TimeStamp", most_recent_time, i);
+		}
 		if (owner_id.isNull())
 		{
 			continue;
@@ -1474,6 +1478,9 @@ void LLPanelLandObjects::processParcelObjectOwnersReply(LLMessageSystem *msg, vo
 
 		object_count_str = llformat("%d", object_count);
 		row->addColumn(object_count_str, FONT);
+		
+		row->addColumn(formatted_time((time_t)most_recent_time), FONT);
+
 
 		if (is_group_owned)
 		{
@@ -2165,7 +2172,6 @@ LLPanelLandAccess::LLPanelLandAccess(LLParcelSelectionHandle& parcel)
 }
 
 
-
 BOOL LLPanelLandAccess::postBuild()
 {
 	childSetCommitCallback("public_access", onCommitPublicAccess, this);
@@ -2427,12 +2433,14 @@ void LLPanelLandAccess::refresh_ui()
 		childSetEnabled("AccessList", can_manage_allowed);
 		S32 allowed_list_count = parcel->mAccessList.size();
 		childSetEnabled("add_allowed", can_manage_allowed && allowed_list_count < PARCEL_MAX_ACCESS_LIST);
-		childSetEnabled("remove_allowed", can_manage_allowed && allowed_list_count > 0);
+		BOOL has_selected = mListAccess->getSelectionInterface()->getFirstSelectedIndex() >= 0;
+		childSetEnabled("remove_allowed", can_manage_allowed && has_selected);
 		
 		childSetEnabled("BannedList", can_manage_banned);
 		S32 banned_list_count = parcel->mBanList.size();
 		childSetEnabled("add_banned", can_manage_banned && banned_list_count < PARCEL_MAX_ACCESS_LIST);
-		childSetEnabled("remove_banned", can_manage_banned && banned_list_count > 0);
+		has_selected = mListBanned->getSelectionInterface()->getFirstSelectedIndex() >= 0;
+		childSetEnabled("remove_banned", can_manage_banned && has_selected);
 	}
 }
 		

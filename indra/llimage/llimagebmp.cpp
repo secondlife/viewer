@@ -644,10 +644,10 @@ BOOL LLImageBMP::encode(const LLImageRaw* raw_image, F32 encode_time)
 				break;
 			}
 
-			for( S32 i = 0; i < alignment_bytes; i++ )
-			{
-				*dst++ = 0;
-			}
+		}
+		for( S32 i = 0; i < alignment_bytes; i++ )
+		{
+			*dst++ = 0;
 		}
 	}
 

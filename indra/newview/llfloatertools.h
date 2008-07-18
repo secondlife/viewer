@@ -48,6 +48,7 @@ class LLPanelContents;
 class LLPanelFace;
 class LLPanelLandInfo;
 class LLComboBox;
+class LLSlider;
 class LLParcelSelection;
 class LLObjectSelection;
 
@@ -167,6 +168,7 @@ public:
 	LLCheckBoxCtrl	*mRadioDozerSmooth;
 	LLCheckBoxCtrl	*mRadioDozerNoise;
 	LLCheckBoxCtrl	*mRadioDozerRevert;
+	LLSlider		*mSliderDozerForce;
 
 	LLComboBox		*mComboDozerSize;
 	LLButton		*mBtnApplyToSelection;

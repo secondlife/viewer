@@ -93,6 +93,7 @@ public:
 	void			setLabel(const LLStringExplicit& label);
 	void			setLabelColor(const LLColor4& c)			{ mTextEnabledColor = c; }
 	void			setDisabledLabelColor(const LLColor4& c)	{ mTextDisabledColor = c; }
+	void			setAllowEdit(BOOL allow_edit);
 
 	virtual void	onTabInto();
 
@@ -134,6 +135,7 @@ private:
 	class LLButton*		mDownBtn;
 
 	BOOL			mbHasBeenSet;
+	BOOL			mAllowEdit;
 };
 
 #endif  // LL_LLSPINCTRL_H

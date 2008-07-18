@@ -255,6 +255,8 @@ public:
 
 	// New methods
 public:
+	// subclasses must return a prefered file extension (lowercase without a leading dot)
+	virtual std::string getExtension() = 0;
 	// calcHeaderSize() returns the maximum size of header;
 	//   0 indicates we don't know have a header and have to lead the entire file
 	virtual S32 calcHeaderSize() { return 0; };

@@ -360,7 +360,23 @@
 					<boolean>true</boolean>
 				</map>
 				
+				<key>ParcelObjectOwnersReply</key>
+				<map>
+					<key>flavor</key>
+					<string>llsd</string>
+					<key>trusted-sender</key>
+					<boolean>true</boolean>
+				</map>
+
 				<key>ParcelProperties</key>
+				<map>
+					<key>flavor</key>
+					<string>llsd</string>
+					<key>trusted-sender</key>
+					<boolean>true</boolean>
+				</map>
+
+				<key>LandStatReply</key>
 				<map>
 					<key>flavor</key>
 					<string>llsd</string>

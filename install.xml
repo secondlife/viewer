@@ -503,16 +503,16 @@
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>4db422310f3b35710e44f69ecda19195</string>
+            <string>9a91ecd80203a24fb347b1436155b013</string>
             <key>url</key>
-            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/kdu-5.2.1-darwin-20080613.tar.bz2</uri>
+            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/kdu-5.2.1-darwin-20080716.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>5a70296632fa973e6484f60de067088c</string>
+            <string>daadd8c268e16f8c5f6145be8596b8b8</string>
             <key>url</key>
-            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/kdu-5.2.1-linux-20080613.tar.bz2</uri>
+            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/kdu-5.2.1-linux-20080716.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
