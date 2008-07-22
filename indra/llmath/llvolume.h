@@ -906,13 +906,7 @@ public:
 	//get the face index of the face that intersects with the given line segment at the point 
 	//closest to start.  Moves end to the point of intersection.  Returns -1 if no intersection.
 	//Line segment must be in volume space.
-	S32 lineSegmentIntersect(const LLVector3& start, const LLVector3& end,
-							 S32 face = -1,                          // which face to check, -1 = ALL_SIDES
-							 LLVector3* intersection = NULL,         // return the intersection point
-							 LLVector2* tex_coord = NULL,            // return the texture coordinates of the intersection point
-							 LLVector3* normal = NULL,               // return the surface normal at the intersection point
-							 LLVector3* bi_normal = NULL             // return the surface bi-normal at the intersection point
-		);
+	S32 lineSegmentIntersect(const LLVector3& start, LLVector3& end) const;
 	
 	// The following cleans up vertices and triangles,
 	// getting rid of degenerate triangles and duplicate vertices,
@@ -972,11 +966,5 @@ LLVector3 calc_binormal_from_triangle(
 		const LLVector2& tex1,
 		const LLVector3& pos2,
 		const LLVector2& tex2);
-
-BOOL LLLineSegmentBoxIntersect(const LLVector3& start, const LLVector3& end, const LLVector3& center, const LLVector3& size);
-BOOL LLTriangleRayIntersect(const LLVector3& vert0, const LLVector3& vert1, const LLVector3& vert2, const LLVector3& orig, const LLVector3& dir,
-							F32* intersection_a, F32* intersection_b, F32* intersection_t, BOOL two_sided);
-	
-	
 
 #endif

@@ -53,6 +53,8 @@ static U32 sBufferUsage = GL_STREAM_DRAW_ARB;
 static U32 sShaderLevel = 0;
 static LLGLSLShader* sVertexProgram = NULL;
 
+extern BOOL gUseGLPick;
+
 F32 CLOTHING_GRAVITY_EFFECT = 0.7f;
 F32 CLOTHING_ACCEL_FORCE_FACTOR = 0.2f;
 const S32 NUM_TEST_AVATARS = 30;
@@ -564,6 +566,11 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 //-----------------------------------------------------------------------------
 void LLDrawPoolAvatar::renderForSelect()
 {
+	if (gUseGLPick)
+	{
+		return;
+	}
+	
 	if (!gRenderAvatar)
 	{
 		return;
@@ -611,7 +618,7 @@ void LLDrawPoolAvatar::renderForSelect()
 
 	glColor4ubv(color.mV);
 
-	if (sShaderLevel > 0)  // for hardware blending
+	if ((sShaderLevel > 0) && !gUseGLPick)  // for hardware blending
 	{
 		sRenderingSkinned = TRUE;
 		sVertexProgram->bind();
@@ -621,7 +628,7 @@ void LLDrawPoolAvatar::renderForSelect()
 	avatarp->renderSkinned(AVATAR_RENDER_PASS_SINGLE);
 
 	// if we're in software-blending, remember to set the fence _after_ we draw so we wait till this rendering is done
-	if (sShaderLevel > 0)
+	if ((sShaderLevel > 0) && !gUseGLPick)
 	{
 		sRenderingSkinned = FALSE;
 		sVertexProgram->unbind();

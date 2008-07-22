@@ -81,22 +81,14 @@ BOOL LLToolPlacer::raycastForNewObjPos( S32 x, S32 y, LLViewerObject** hit_obj, 
 
 	// Viewer-side pick to find the right sim to create the object on.  
 	// First find the surface the object will be created on.
-	LLPickInfo pick = gViewerWindow->pickImmediate(x, y, FALSE);
+	gViewerWindow->hitObjectOrLandGlobalImmediate(x, y, NULL, FALSE);
 	
 	// Note: use the frontmost non-flora version because (a) plants usually have lots of alpha and (b) pants' Havok
 	// representations (if any) are NOT the same as their viewer representation.
-	if (pick.mPickType == LLPickInfo::PICK_FLORA)
-	{
-		*hit_obj = NULL;
-		*hit_face = -1;
-	}
-	else
-	{
-		*hit_obj = pick.getObject();
-		*hit_face = pick.mObjectFace;
-	}
-	*b_hit_land = !(*hit_obj) && !pick.mPosGlobal.isExactlyZero();
-	LLVector3d land_pos_global = pick.mPosGlobal;
+	*hit_obj = gObjectList.findObject( gLastHitNonFloraObjectID );
+	*hit_face = gLastHitNonFloraObjectFace;
+	*b_hit_land = !(*hit_obj) && !gLastHitNonFloraPosGlobal.isExactlyZero();
+	LLVector3d land_pos_global = gLastHitNonFloraPosGlobal;
 
 	// Make sure there's a surface to place the new object on.
 	BOOL bypass_sim_raycast = FALSE;

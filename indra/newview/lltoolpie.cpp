@@ -84,48 +84,50 @@ LLToolPie::LLToolPie()
 :	LLTool(std::string("Select")),
 	mPieMouseButtonDown( FALSE ),
 	mGrabMouseButtonDown( FALSE ),
+	mHitLand( FALSE ),
+	mHitObjectID(),
 	mMouseOutsideSlop( FALSE )
 { }
 
 
 BOOL LLToolPie::handleMouseDown(S32 x, S32 y, MASK mask)
 {
+	gPickFaces = TRUE;
 	//left mouse down always picks transparent
-	gViewerWindow->pickAsync(x, y, mask, leftMouseCallback, TRUE, TRUE);
+	gViewerWindow->hitObjectOrLandGlobalAsync(x, y, mask, leftMouseCallback, 
+											  TRUE, TRUE);
 	mGrabMouseButtonDown = TRUE;
 	return TRUE;
 }
 
 // static
-void LLToolPie::leftMouseCallback(const LLPickInfo& pick_info)
+void LLToolPie::leftMouseCallback(S32 x, S32 y, MASK mask)
 {
-	LLToolPie::getInstance()->mPick = pick_info;
-	LLToolPie::getInstance()->pickAndShowMenu(FALSE);
+	LLToolPie::getInstance()->pickAndShowMenu(x, y, mask, FALSE);
 }
 
 BOOL LLToolPie::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
+	// Pick faces in case they select "Copy Texture" and need that info.
+	gPickFaces = TRUE;
 	// don't pick transparent so users can't "pay" transparent objects
-	gViewerWindow->pickAsync(x, y, mask, rightMouseCallback, FALSE);
+	gViewerWindow->hitObjectOrLandGlobalAsync(x, y, mask, rightMouseCallback,
+											  FALSE, TRUE);
 	mPieMouseButtonDown = TRUE; 
 	// don't steal focus from UI
 	return FALSE;
 }
 
 // static
-void LLToolPie::rightMouseCallback(const LLPickInfo& pick_info)
+void LLToolPie::rightMouseCallback(S32 x, S32 y, MASK mask)
 {
-	LLToolPie::getInstance()->mPick = pick_info;
-	LLToolPie::getInstance()->pickAndShowMenu(TRUE);
+	LLToolPie::getInstance()->pickAndShowMenu(x, y, mask, TRUE);
 }
 
 // True if you selected an object.
-BOOL LLToolPie::pickAndShowMenu(BOOL always_show)
+BOOL LLToolPie::pickAndShowMenu(S32 x, S32 y, MASK mask, BOOL always_show)
 {
-	S32 x = mPick.mMousePt.mX;
-	S32 y = mPick.mMousePt.mY;
-	MASK mask = mPick.mKeyMask;
-	if (!always_show && mPick.mPickType == LLPickInfo::PICK_PARCEL_WALL)
+	if (!always_show && gLastHitParcelWall)
 	{
 		LLParcel* parcel = LLViewerParcelMgr::getInstance()->getCollisionParcel();
 		if (parcel)
@@ -149,17 +151,24 @@ BOOL LLToolPie::pickAndShowMenu(BOOL always_show)
 	}
 
 	// didn't click in any UI object, so must have clicked in the world
-	LLViewerObject *object = mPick.getObject();
+	LLViewerObject *object = gViewerWindow->lastObjectHit();
 	LLViewerObject *parent = NULL;
 
-	if (mPick.mPickType != LLPickInfo::PICK_LAND)
+	mHitLand = !object && !gLastHitPosGlobal.isExactlyZero();
+	if (!mHitLand)
 	{
 		LLViewerParcelMgr::getInstance()->deselectLand();
 	}
 	
 	if (object)
 	{
+		mHitObjectID = object->mID;
+
 		parent = object->getRootEdit();
+	}
+	else
+	{
+		mHitObjectID.setNull();
 	}
 
 	BOOL touchable = (object && object->flagHandleTouch()) 
@@ -197,19 +206,19 @@ BOOL LLToolPie::pickAndShowMenu(BOOL always_show)
 			{
 				// pay event goes to object actually clicked on
 				sClickActionObject = object;
-				sLeftClickSelection = LLToolSelect::handleObjectSelection(mPick, FALSE, TRUE);
+				sLeftClickSelection = LLToolSelect::handleObjectSelection(object, MASK_NONE, FALSE, TRUE);
 				return TRUE;
 			}
 			break;
 		case CLICK_ACTION_BUY:
 			sClickActionObject = parent;
-			sLeftClickSelection = LLToolSelect::handleObjectSelection(mPick, FALSE, TRUE, TRUE);
+			sLeftClickSelection = LLToolSelect::handleObjectSelection(parent, MASK_NONE, FALSE, TRUE);
 			return TRUE;
 		case CLICK_ACTION_OPEN:
 			if (parent && parent->allowOpen())
 			{
 				sClickActionObject = parent;
-				sLeftClickSelection = LLToolSelect::handleObjectSelection(mPick, FALSE, TRUE, TRUE);
+				sLeftClickSelection = LLToolSelect::handleObjectSelection(parent, MASK_NONE, FALSE, TRUE);
 			}
 			return TRUE;
 		case CLICK_ACTION_PLAY:
@@ -230,13 +239,12 @@ BOOL LLToolPie::pickAndShowMenu(BOOL always_show)
 	{
 		gGrabTransientTool = this;
 		LLToolMgr::getInstance()->getCurrentToolset()->selectTool( LLToolGrab::getInstance() );
-		return LLToolGrab::getInstance()->handleObjectHit( mPick );
+		return LLToolGrab::getInstance()->handleObjectHit( object, x, y, mask);
 	}
 	
-	LLHUDIcon* last_hit_hud_icon = mPick.mHUDIcon;
-	if (!object && last_hit_hud_icon && last_hit_hud_icon->getSourceObject())
+	if (!object && gLastHitHUDIcon && gLastHitHUDIcon->getSourceObject())
 	{
-		LLFloaterScriptDebug::show(last_hit_hud_icon->getSourceObject()->getID());
+		LLFloaterScriptDebug::show(gLastHitHUDIcon->getSourceObject()->getID());
 	}
 
 	// If left-click never selects or spawns a menu
@@ -265,7 +273,7 @@ BOOL LLToolPie::pickAndShowMenu(BOOL always_show)
 			LLToolMgr::getInstance()->setTransientTool(LLToolCamera::getInstance());
 			gViewerWindow->hideCursor();
 			LLToolCamera::getInstance()->setMouseCapture(TRUE);
-			LLToolCamera::getInstance()->pickCallback(mPick);
+			LLToolCamera::getInstance()->pickCallback(gViewerWindow->getCurrentMouseX(), gViewerWindow->getCurrentMouseY(), mask);
 			gAgent.setFocusOnAvatar(TRUE, TRUE);
 
 			return TRUE;
@@ -284,22 +292,22 @@ BOOL LLToolPie::pickAndShowMenu(BOOL always_show)
 	}
 
 	// Can't ignore children here.
-	LLToolSelect::handleObjectSelection(mPick, FALSE, TRUE);
+	LLToolSelect::handleObjectSelection(object, mask, FALSE, TRUE);
 
 	// Spawn pie menu
-	if (mPick.mPickType == LLPickInfo::PICK_LAND)
+	if (mHitLand)
 	{
-		LLParcelSelectionHandle selection = LLViewerParcelMgr::getInstance()->selectParcelAt( mPick.mPosGlobal );
+		LLParcelSelectionHandle selection = LLViewerParcelMgr::getInstance()->selectParcelAt( gLastHitPosGlobal );
 		gMenuHolder->setParcelSelection(selection);
 		gPieLand->show(x, y, mPieMouseButtonDown);
 
 		// VEFFECT: ShowPie
 		LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_SPHERE, TRUE);
-		effectp->setPositionGlobal(mPick.mPosGlobal);
+		effectp->setPositionGlobal(gLastHitPosGlobal);
 		effectp->setColor(LLColor4U(gAgent.getEffectColor()));
 		effectp->setDuration(0.25f);
 	}
-	else if (mPick.mObjectID == gAgent.getID() )
+	else if (mHitObjectID == gAgent.getID() )
 	{
 		if(!gPieSelf) 
 		{
@@ -369,7 +377,7 @@ BOOL LLToolPie::pickAndShowMenu(BOOL always_show)
 			// Don't show when you click on someone else, it freaks them
 			// out.
 			LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_SPHERE, TRUE);
-			effectp->setPositionGlobal(mPick.mPosGlobal);
+			effectp->setPositionGlobal(gLastHitPosGlobal);
 			effectp->setColor(LLColor4U(gAgent.getEffectColor()));
 			effectp->setDuration(0.25f);
 		}
@@ -536,7 +544,7 @@ BOOL LLToolPie::handleHover(S32 x, S32 y, MASK mask)
 	LLViewerObject *parent = NULL;
 	if (gHoverView)
 	{
-		object = gViewerWindow->getHoverPick().getObject();
+		object = gHoverView->getLastHoverObject();
 	}
 
 	if (object)
@@ -573,7 +581,7 @@ BOOL LLToolPie::handleHover(S32 x, S32 y, MASK mask)
 
 BOOL LLToolPie::handleMouseUp(S32 x, S32 y, MASK mask)
 {
-	LLViewerObject* obj = mPick.getObject();
+	LLViewerObject* obj = gViewerWindow->lastObjectHit();
 	U8 click_action = final_click_action(obj);
 	if (click_action != CLICK_ACTION_NONE)
 	{
@@ -618,18 +626,18 @@ BOOL LLToolPie::handleDoubleClick(S32 x, S32 y, MASK mask)
 
 	if (gSavedSettings.getBOOL("DoubleClickAutoPilot"))
 	{
-		if (mPick.mPickType == LLPickInfo::PICK_LAND
-			&& !mPick.mPosGlobal.isExactlyZero())
+		if (gLastHitLand
+			&& !gLastHitPosGlobal.isExactlyZero())
 		{
 			handle_go_to();
 			return TRUE;
 		}
-		else if (mPick.mObjectID.notNull()
-				 && !mPick.mPosGlobal.isExactlyZero())
+		else if (gLastHitObjectID.notNull()
+				 && !gLastHitPosGlobal.isExactlyZero())
 		{
 			// Hit an object
 			// HACK: Call the last hit position the point we hit on the object
-			//gLastHitPosGlobal += gLastHitObjectOffset;
+			gLastHitPosGlobal += gLastHitObjectOffset;
 			handle_go_to();
 			return TRUE;
 		}
@@ -641,7 +649,7 @@ BOOL LLToolPie::handleDoubleClick(S32 x, S32 y, MASK mask)
 	objects gets you into trouble.
 
 	// If double-click on object or land, go there.
-	LLViewerObject *object = gViewerWindow->getLastPick().getObject();
+	LLViewerObject *object = gViewerWindow->lastObjectHit();
 	if (object)
 	{
 		if (object->isAvatar())
@@ -748,11 +756,10 @@ static void handle_click_action_open_media(LLPointer<LLViewerObject> objectp)
 	if (objectp.isNull()) return;
 
 	// did we hit a valid face on the object?
-	S32 face = LLToolPie::getInstance()->getPick().mObjectFace;
-	if( face < 0 || face >= objectp->getNumTEs() ) return;
+	if( gLastHitObjectFace < 0 || gLastHitObjectFace >= objectp->getNumTEs() ) return;
 		
 	// is media playing on this face?
-	if (!LLViewerMedia::isActiveMediaTexture(objectp->getTE(face)->getID()))
+	if (!LLViewerMedia::isActiveMediaTexture(objectp->getTE(gLastHitObjectFace)->getID()))
 	{
 		handle_click_action_play();
 		return;

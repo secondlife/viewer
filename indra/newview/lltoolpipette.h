@@ -41,7 +41,6 @@
 #include "lltextureentry.h"
 
 class LLViewerObject;
-class LLPickInfo;
 
 class LLToolPipette
 :	public LLTool, public LLSingleton<LLToolPipette>
@@ -59,7 +58,7 @@ public:
 	void setSelectCallback(select_callback callback, void* user_data);
 	void setResult(BOOL success, const std::string& msg);
 
-	static void pickCallback(const LLPickInfo& pick_info);
+	static void pickCallback(S32 x, S32 y, MASK mask);
 
 protected:
 	LLTextureEntry	mTextureEntry;

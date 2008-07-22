@@ -34,7 +34,6 @@
 #include "v3math.h"
 
 //#include "vmath.h"
-#include "v2math.h"
 #include "v4math.h"
 #include "m4math.h"
 #include "m3math.h"
@@ -269,13 +268,6 @@ const LLVector3&	LLVector3::setVec(const LLVector4 &vec)
 	mV[1] = vec.mV[1];
 	mV[2] = vec.mV[2];
 	return (*this);
-}
-
-LLVector3::LLVector3(const LLVector2 &vec)
-{
-	mV[VX] = (F32)vec.mV[VX];
-	mV[VY] = (F32)vec.mV[VY];
-	mV[VZ] = 0;
 }
 
 LLVector3::LLVector3(const LLVector3d &vec)

@@ -2188,7 +2188,6 @@ void LLPipeline::renderHighlights()
 
 	// Draw 3D UI elements here (before we clear the Z buffer in POOL_HUD)
 	// Render highlighted faces.
-	LLGLSPipelineAlpha gls_pipeline_alpha;
 	LLColor4 color(1.f, 1.f, 1.f, 0.5f);
 	LLGLEnable color_mat(GL_COLOR_MATERIAL);
 	disableLights();
@@ -2342,7 +2341,7 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 
 	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_PICKING))
 	{
-		gObjectList.renderObjectsForSelect(camera, gViewerWindow->getVirtualWindowRect());
+		gObjectList.renderObjectsForSelect(camera);
 	}
 	else if (gSavedSettings.getBOOL("RenderDeferred"))
 	{
@@ -2592,7 +2591,7 @@ void LLPipeline::renderDebug()
 	gGL.flush();
 }
 
-void LLPipeline::renderForSelect(std::set<LLViewerObject*>& objects, BOOL render_transparent, const LLRect& screen_rect)
+void LLPipeline::renderForSelect(std::set<LLViewerObject*>& objects)
 {
 	assertInitialized();
 
@@ -2645,7 +2644,7 @@ void LLPipeline::renderForSelect(std::set<LLViewerObject*>& objects, BOOL render
 	}	
 
 	LLGLEnable alpha_test(GL_ALPHA_TEST);
-	if (render_transparent)
+	if (gPickTransparent)
 	{
 		gGL.setAlphaRejectSettings(LLRender::CF_GREATER_EQUAL, 0.f);
 	}
@@ -2690,7 +2689,14 @@ void LLPipeline::renderForSelect(std::set<LLViewerObject*>& objects, BOOL render
 		glh::matrix4f save_proj(glh_get_current_projection());
 		glh::matrix4f save_model(glh_get_current_modelview());
 
-		setup_hud_matrices(screen_rect);
+		U32 viewport[4];
+
+		for (U32 i = 0; i < 4; i++)
+		{
+			viewport[i] = gGLViewport[i];
+		}
+		
+		setup_hud_matrices(TRUE);
 		for (LLVOAvatar::attachment_map_t::iterator iter = avatarp->mAttachmentPoints.begin(); 
 			 iter != avatarp->mAttachmentPoints.end(); )
 		{
@@ -2742,6 +2748,11 @@ void LLPipeline::renderForSelect(std::set<LLViewerObject*>& objects, BOOL render
 		glh_set_current_modelview(save_model);
 
 	
+		for (U32 i = 0; i < 4; i++)
+		{
+			gGLViewport[i] = viewport[i];
+		}
+		glViewport(gGLViewport[0], gGLViewport[1], gGLViewport[2], gGLViewport[3]);
 	}
 
 	gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
@@ -2749,6 +2760,11 @@ void LLPipeline::renderForSelect(std::set<LLViewerObject*>& objects, BOOL render
 	LLVertexBuffer::unbind();
 	
 	gGL.setColorMask(true, true);
+}
+
+void LLPipeline::renderFaceForUVSelect(LLFace* facep)
+{
+	if (facep) facep->renderSelectedUV();
 }
 
 void LLPipeline::rebuildPools()
@@ -3943,13 +3959,7 @@ BOOL LLPipeline::getProcessBeacons(void* data)
 	return sRenderProcessBeacons;
 }
 
-LLViewerObject* LLPipeline::lineSegmentIntersectInWorld(const LLVector3& start, const LLVector3& end,
-														S32* face_hit,
-														LLVector3* intersection,         // return the intersection point
-														LLVector2* tex_coord,            // return the texture coordinates of the intersection point
-														LLVector3* normal,               // return the surface normal at the intersection point
-														LLVector3* bi_normal             // return the surface bi-normal at the intersection point
-	)
+LLViewerObject* LLPipeline::pickObject(const LLVector3 &start, const LLVector3 &end, LLVector3 &collision)
 {
 	LLDrawable* drawable = NULL;
 
@@ -3957,45 +3967,10 @@ LLViewerObject* LLPipeline::lineSegmentIntersectInWorld(const LLVector3& start, 
 			iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
 	{
 		LLViewerRegion* region = *iter;
-
-		for (U32 j = 0; j < LLViewerRegion::NUM_PARTITIONS; j++)
-		{
-			if ((j == LLViewerRegion::PARTITION_VOLUME) || (j == LLViewerRegion::PARTITION_BRIDGE))  // only check these partitions for now
-			{
-				LLSpatialPartition* part = region->getSpatialPartition(j);
-				if (part)
-				{
-					LLDrawable* hit = part->lineSegmentIntersect(start, end, face_hit, intersection, tex_coord, normal, bi_normal);
-					if (hit)
-					{
-						drawable = hit;
-					}
-				}
-			}
-		}
-	}
-	return drawable ? drawable->getVObj().get() : NULL;
-}
-
-LLViewerObject* LLPipeline::lineSegmentIntersectInHUD(const LLVector3& start, const LLVector3& end,
-													  S32* face_hit,
-													  LLVector3* intersection,         // return the intersection point
-													  LLVector2* tex_coord,            // return the texture coordinates of the intersection point
-													  LLVector3* normal,               // return the surface normal at the intersection point
-													  LLVector3* bi_normal             // return the surface bi-normal at the intersection point
-	)
-{
-	LLDrawable* drawable = NULL;
-
-	for (LLWorld::region_list_t::iterator iter = LLWorld::getInstance()->getRegionList().begin(); 
-			iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
-	{
-		LLViewerRegion* region = *iter;
-
-		LLSpatialPartition* part = region->getSpatialPartition(LLViewerRegion::PARTITION_HUD);
+		LLSpatialPartition* part = region->getSpatialPartition(LLViewerRegion::PARTITION_VOLUME);
 		if (part)
 		{
-			LLDrawable* hit = part->lineSegmentIntersect(start, end, face_hit, intersection, tex_coord, normal, bi_normal);
+			LLDrawable* hit = part->pickDrawable(start, end, collision);
 			if (hit)
 			{
 				drawable = hit;

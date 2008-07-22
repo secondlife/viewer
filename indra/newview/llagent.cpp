@@ -133,6 +133,7 @@
 // end Ventrella
 
 extern LLMenuBarGL* gMenuBarView;
+extern U8 gLastPickAlpha;
 
 //drone wandering constants
 const F32 MAX_WANDER_TIME = 20.f;						// seconds
@@ -329,8 +330,6 @@ LLAgent::LLAgent()
 	mCameraZoomFraction(1.f),			// deprecated
 	mThirdPersonHeadOffset(0.f, 0.f, 1.f),
 	mSitCameraEnabled(FALSE),
-	mHUDTargetZoom(1.f),
-	mHUDCurZoom(1.f),
 	mFocusOnAvatar(TRUE),
 	mFocusGlobal(),
 	mFocusTargetGlobal(),
@@ -531,7 +530,10 @@ void LLAgent::resetView(BOOL reset_camera)
 		setFocusOnAvatar(TRUE, ANIMATE);
 	}
 
-	mHUDTargetZoom = 1.f;
+	if (mAvatarObject.notNull())
+	{
+		mAvatarObject->mHUDTargetZoom = 1.f;
+	}
 }
 
 // Handle any actions that need to be performed when the main app gains focus
@@ -1296,7 +1298,7 @@ LLQuaternion LLAgent::getQuat() const
 //-----------------------------------------------------------------------------
 // calcFocusOffset()
 //-----------------------------------------------------------------------------
-LLVector3 LLAgent::calcFocusOffset(LLViewerObject *object, S32 x, S32 y)
+LLVector3d LLAgent::calcFocusOffset(LLViewerObject *object, S32 x, S32 y)
 {
 	// calculate offset based on view direction
 	BOOL is_avatar = object->isAvatar();
@@ -1455,10 +1457,10 @@ LLVector3 LLAgent::calcFocusOffset(LLViewerObject *object, S32 x, S32 y)
 		
 		obj_rel = lerp(focus_delta, obj_rel, bias);
 		
-		return LLVector3(obj_rel);
+		return LLVector3d(obj_rel);
 	}
 
-	return LLVector3(focus_delta.mV[VX], focus_delta.mV[VY], focus_delta.mV[VZ]);
+	return LLVector3d(focus_delta.mV[VX], focus_delta.mV[VY], focus_delta.mV[VZ]);
 }
 
 //-----------------------------------------------------------------------------
@@ -1648,7 +1650,7 @@ F32 LLAgent::getCameraZoomFraction()
 	if (selection->getObjectCount() && selection->getSelectType() == SELECT_TYPE_HUD)
 	{
 		// already [0,1]
-		return mHUDTargetZoom;
+		return mAvatarObject->mHUDTargetZoom;
 	}
 	else if (mFocusOnAvatar && cameraThirdPerson())
 	{
@@ -1696,7 +1698,7 @@ void LLAgent::setCameraZoomFraction(F32 fraction)
 
 	if (selection->getObjectCount() && selection->getSelectType() == SELECT_TYPE_HUD)
 	{
-		mHUDTargetZoom = fraction;
+		mAvatarObject->mHUDTargetZoom = fraction;
 	}
 	else if (mFocusOnAvatar && cameraThirdPerson())
 	{
@@ -1806,7 +1808,7 @@ void LLAgent::cameraZoomIn(const F32 fraction)
 	if (selection->getObjectCount() && selection->getSelectType() == SELECT_TYPE_HUD)
 	{
 		// just update hud zoom level
-		mHUDTargetZoom /= fraction;
+		mAvatarObject->mHUDTargetZoom /= fraction;
 		return;
 	}
 
@@ -3755,7 +3757,7 @@ LLVector3d LLAgent::calcCameraPositionTargetGlobal(BOOL *hit_limit)
 
 					lag_interp *= u;
 
-					if (gViewerWindow->getLeftMouseDown() && gViewerWindow->getLastPick().mObjectID == mAvatarObject->getID())
+					if (gViewerWindow->getLeftMouseDown() && gLastHitObjectID == mAvatarObject->getID())
 					{
 						// disable camera lag when using mouse-directed steering
 						target_lag.clearVec();
@@ -4283,12 +4285,6 @@ void LLAgent::setFocusObject(LLViewerObject* object)
 //-----------------------------------------------------------------------------
 // setFocusGlobal()
 //-----------------------------------------------------------------------------
-void LLAgent::setFocusGlobal(const LLPickInfo& pick)
-{
-	setFocusGlobal(pick.mPosGlobal, pick.mObjectID);
-}
-
-
 void LLAgent::setFocusGlobal(const LLVector3d& focus, const LLUUID &object_id)
 {
 	setFocusObject(gObjectList.findObject(object_id));

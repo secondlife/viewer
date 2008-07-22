@@ -46,8 +46,6 @@ public:
 	virtual BOOL	handleHover(S32 x, S32 y, MASK mask);
 	virtual void	draw();							// draw the select rectangle
 
-	void handlePick(const LLPickInfo& pick);
-
 protected:
 	void			handleRectangleSelection(S32 x, S32 y, MASK mask);	// true if you selected one
 	BOOL			outsideSlop(S32 x, S32 y, S32 start_x, S32 start_y);

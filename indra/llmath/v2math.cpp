@@ -33,7 +33,6 @@
 
 //#include "vmath.h"
 #include "v2math.h"
-#include "v3math.h"
 #include "v4math.h"
 #include "m4math.h"
 #include "m3math.h"

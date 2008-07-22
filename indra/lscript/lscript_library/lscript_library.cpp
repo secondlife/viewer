@@ -442,14 +442,6 @@ void LLScriptLibrary::init()
 	addFunction(new LLScriptLibraryFunction(10.f, 0.f, dummy_func, "llGetRegionAgentCount", "i", NULL, "int llGetRegionAgentCount()\nreturns the number of agents in a region"));
 	addFunction(new LLScriptLibraryFunction(10.f, 1.f, dummy_func, "llTextBox", NULL, "ksi", "llTextBox(key avatar, string message, integer chat_channel\nShows a dialog box on the avatar's screen with the message.\nA text box asks for input, and if entered the text is chatted on chat_channel."));
 	addFunction(new LLScriptLibraryFunction(10.f, 0.f, dummy_func, "llGetAgentLanguage", "s", "k", "string llGetAgentLanguage(key id)\nGets the agents preferred language.."));
-	addFunction(new LLScriptLibraryFunction(10.f, 0.f, dummy_func, "llDetectedTouchUV", "v", "i", "vector llDetectedTouchUV(integer number)\nreturns the u and v coordinates in the first two components of a vector, for a triggered touch event"));
-	addFunction(new LLScriptLibraryFunction(10.f, 0.f, dummy_func, "llDetectedTouchFace", "i", "i", "integer llDetectedTouchFace(integer number)\nreturns the index of the face on the object for a triggered touch event"));
-	addFunction(new LLScriptLibraryFunction(10.f, 0.f, dummy_func, "llDetectedTouchPos", "v", "i", "vector llDetectedTouchPos(integer number)\nreturns the position touched for a triggered touch event"));
-	addFunction(new LLScriptLibraryFunction(10.f, 0.f, dummy_func, "llDetectedTouchNormal", "v", "i", "vector llDetectedTouchNormal(integer number)\nreturns the surface normal for a triggered touch event"));
-	addFunction(new LLScriptLibraryFunction(10.f, 0.f, dummy_func, "llDetectedTouchBinormal", "v", "i", "vector llDetectedTouchBinormal(integer number)\nreturns the surface binormal for a triggered touch event"));
-	addFunction(new LLScriptLibraryFunction(10.f, 0.f, dummy_func, "llDetectedTouchST", "v", "i", "vector llDetectedTouchST(integer number)\nreturns the s and t coordinates in the first two components of a vector, for a triggered touch event"));
-
-
 
 	// energy, sleep, dummy_func, name, return type, parameters, help text, gods-only
 

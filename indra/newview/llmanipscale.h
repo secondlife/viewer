@@ -76,6 +76,7 @@ public:
 	virtual BOOL	handleHover( S32 x, S32 y, MASK mask );
 	virtual void	render();
 	virtual void	handleSelect();
+	virtual void	handleDeselect();
 
 	virtual BOOL	handleMouseDownOnPart(S32 x, S32 y, MASK mask);
 	virtual void	highlightManipulators(S32 x, S32 y);	// decided which manipulator, if any, should be highlighted by mouse hover
@@ -139,6 +140,7 @@ private:
 
 	F32				mBoxHandleSize;		// The size of the handles at the corners of the bounding box
 	F32				mScaledBoxHandleSize; // handle size after scaling for selection feedback
+	EManipPart		mManipPart;
 	LLVector3d		mDragStartPointGlobal;
 	LLVector3d		mDragStartCenterGlobal;	// The center of the bounding box of all selected objects at time of drag start
 	LLVector3d		mDragPointGlobal;

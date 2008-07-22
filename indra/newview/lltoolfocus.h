@@ -34,8 +34,6 @@
 
 #include "lltool.h"
 
-class LLPickInfo;
-
 class LLToolCamera
 :	public LLTool, public LLSingleton<LLToolCamera>
 {
@@ -54,7 +52,7 @@ public:
 
 	virtual LLTool*	getOverrideTool(MASK mask) { return NULL; }
 
-	static void pickCallback(const LLPickInfo& pick_info);
+	static void pickCallback(S32 x, S32 y, MASK mask);
 	BOOL mouseSteerMode() { return mMouseSteering; }
 
 protected:

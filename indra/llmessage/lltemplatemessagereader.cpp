@@ -574,9 +574,7 @@ BOOL LLTemplateMessageReader::decodeData(const U8* buffer, const LLHost& sender 
 			// repeat number is a single byte
 			if (decode_pos >= mReceiveSize)
 			{
-				// commented out - hetgrid says that missing variable blocks
-				// at end of message are legal
-				// logRanOffEndOfPacket(sender, decode_pos, 1);
+				logRanOffEndOfPacket(sender, decode_pos, 1);
 
 				// default to 0 repeats
 				repeat_number = 0;

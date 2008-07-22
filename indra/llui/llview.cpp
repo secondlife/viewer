@@ -63,6 +63,7 @@ BOOL	LLView::sDebugKeys = FALSE;
 S32		LLView::sDepth = 0;
 BOOL	LLView::sDebugMouseHandling = FALSE;
 std::string LLView::sMouseHandlerMessage;
+S32	LLView::sSelectID = GL_NAME_UI_RESERVED;
 BOOL	LLView::sEditingUI = FALSE;
 BOOL	LLView::sForceReshape = FALSE;
 LLView*	LLView::sEditingUIView = NULL;

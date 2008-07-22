@@ -78,26 +78,18 @@ void dialog_refresh_all(void);
 
 BOOL LLToolSelectRect::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-	handlePick(gViewerWindow->pickImmediate(x, y, TRUE));
-
-	LLTool::handleMouseDown(x, y, mask);
-
-	return mPick.getObject().notNull();
-}
-
-void LLToolSelectRect::handlePick(const LLPickInfo& pick)
-{
-	mPick = pick;
-
 	// start dragging rectangle
 	setMouseCapture( TRUE );
 
-	mDragStartX = pick.mMousePt.mX;
-	mDragStartY = pick.mMousePt.mY;
-	mDragEndX = pick.mMousePt.mX;
-	mDragEndY = pick.mMousePt.mY;
+	mDragStartX = x;
+	mDragStartY = y;
+	mDragEndX = x;
+	mDragEndY = y;
 
 	mMouseOutsideSlop = FALSE;
+
+	LLToolSelect::handleMouseDown(x, y, mask);
+	return TRUE;
 }
 
 

@@ -2436,15 +2436,6 @@ version 2.0
 		{	LocalID				U32  }
 		{	GrabOffset			LLVector3 }
 	}
-	{
-		SurfaceInfo     Variable
-		{   UVCoord     LLVector3 }
-		{   STCoord     LLVector3 }
-       	{   FaceIndex   S32 }
-       	{   Position    LLVector3 }
-       	{   Normal      LLVector3 }
-       	{   Binormal    LLVector3 }
-	}
 }
 
 
@@ -2466,16 +2457,6 @@ version 2.0
 		{	GrabPosition		LLVector3	}	// LLVector3, region local
 		{	TimeSinceLast		U32	}
 	}
-	{
-		SurfaceInfo     Variable
-		{   UVCoord     LLVector3 }
-		{   STCoord     LLVector3 }
-       	{   FaceIndex   S32 }
-       	{   Position    LLVector3 }
-       	{   Normal      LLVector3 }
-       	{   Binormal    LLVector3 }
-	}
-
 }
 
 
@@ -2490,15 +2471,6 @@ version 2.0
 	{
 		ObjectData			Single
 		{	LocalID				U32  }
-	}
-	{
-		SurfaceInfo     Variable
-		{   UVCoord     LLVector3 }
-		{   STCoord     LLVector3 }
-       	{   FaceIndex   S32 }
-       	{   Position    LLVector3 }
-       	{   Normal      LLVector3 }
-       	{   Binormal    LLVector3 }
 	}
 }
 

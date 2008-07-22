@@ -108,10 +108,7 @@ public:
 	void updateAvatarVisibility();
 
 	// Selection related stuff
-	void renderObjectsForSelect(LLCamera &camera, const LLRect& screen_rect, BOOL pick_parcel_wall = FALSE, BOOL render_transparent = TRUE);
-	void generatePickList(LLCamera &camera);
-	void renderPickList(const LLRect& screen_rect, BOOL pick_parcel_wall, BOOL render_transparent);
-
+	U32 renderObjectsForSelect(LLCamera &camera, BOOL pick_parcel_wall = FALSE, BOOL keep_pick_list = FALSE);
 	LLViewerObject *getSelectedObject(const U32 object_id);
 
 	inline S32 getNumObjects() { return mObjects.count(); }

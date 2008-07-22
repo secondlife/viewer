@@ -183,11 +183,10 @@ public:
 
 	LLRectBase& setCenterAndSize(Type x, Type y, Type width, Type height)
 	{
-		// width and height could be odd, so favor top, right with extra pixel
 		mLeft = x - width/2;
+		mTop = y + height/2;
+		mRight = x + width/2;
 		mBottom = y - height/2;
-		mTop = mBottom + height;
-		mRight = mLeft + width;
 		return *this;
 	}
 

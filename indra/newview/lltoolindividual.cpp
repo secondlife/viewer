@@ -72,13 +72,13 @@ LLToolIndividual::~LLToolIndividual()
 
 BOOL LLToolIndividual::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-	gViewerWindow->pickAsync(x, y, mask, pickCallback);
+	gViewerWindow->hitObjectOrLandGlobalAsync(x, y, mask, pickCallback);
 	return TRUE;
 }
 
-void LLToolIndividual::pickCallback(const LLPickInfo& pick_info)
+void LLToolIndividual::pickCallback(S32 x, S32 y, MASK mask)
 {
-	LLViewerObject* obj = pick_info.getObject();
+	LLViewerObject* obj = gViewerWindow->lastObjectHit();
 	LLSelectMgr::getInstance()->deselectAll();
 	if(obj)
 	{

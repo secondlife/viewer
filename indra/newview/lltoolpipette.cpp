@@ -67,8 +67,9 @@ BOOL LLToolPipette::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	mSuccess = TRUE;
 	mTooltipMsg.clear();
+	gPickFaces = TRUE;
 	setMouseCapture(TRUE);
-	gViewerWindow->pickAsync(x, y, mask, pickCallback);
+	gViewerWindow->hitObjectOrLandGlobalAsync(x, y, mask, pickCallback);
 	return TRUE;
 }
 
@@ -87,7 +88,8 @@ BOOL LLToolPipette::handleHover(S32 x, S32 y, MASK mask)
 	gViewerWindow->setCursor(mSuccess ? UI_CURSOR_PIPETTE : UI_CURSOR_NO);
 	if (hasMouseCapture()) // mouse button is down
 	{
-		gViewerWindow->pickAsync(x, y, mask, pickCallback);
+		gPickFaces = TRUE;
+		gViewerWindow->hitObjectOrLandGlobalAsync(x, y, mask, pickCallback);
 		return TRUE;
 	}
 	return FALSE;
@@ -105,19 +107,19 @@ BOOL LLToolPipette::handleToolTip(S32 x, S32 y, std::string& msg, LLRect *sticky
 	return TRUE;
 }
 
-void LLToolPipette::pickCallback(const LLPickInfo& pick_info)
+void LLToolPipette::pickCallback(S32 x, S32 y, MASK mask)
 {
-	LLViewerObject* hit_obj	= pick_info.getObject();
+	LLViewerObject* hit_obj	= gViewerWindow->lastObjectHit();
 	LLSelectMgr::getInstance()->unhighlightAll();
 
 	// if we clicked on a face of a valid prim, save off texture entry data
 	if (hit_obj && 
 		hit_obj->getPCode() == LL_PCODE_VOLUME &&
-		pick_info.mObjectFace != -1)
+		gLastHitObjectFace != -1)
 	{
 		//TODO: this should highlight the selected face only
 		LLSelectMgr::getInstance()->highlightObjectOnly(hit_obj);
-		LLToolPipette::getInstance()->mTextureEntry = *hit_obj->getTE(pick_info.mObjectFace);
+		LLToolPipette::getInstance()->mTextureEntry = *hit_obj->getTE(gLastHitObjectFace);
 		if (LLToolPipette::getInstance()->mSelectCallback)
 		{
 			LLToolPipette::getInstance()->mSelectCallback(LLToolPipette::getInstance()->mTextureEntry, LLToolPipette::getInstance()->mUserData);

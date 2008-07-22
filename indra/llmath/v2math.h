@@ -33,7 +33,6 @@
 #define LL_V2MATH_H
 
 #include "llmath.h"
-#include "v3math.h"
 
 class LLVector4;
 class LLMatrix3;
@@ -50,10 +49,9 @@ class LLVector2
 
 		static LLVector2 zero;
 
-		LLVector2();							  // Initializes LLVector2 to (0, 0)
-		LLVector2(F32 x, F32 y);			      // Initializes LLVector2 to (x. y)
-		LLVector2(const F32 *vec);				  // Initializes LLVector2 to (vec[0]. vec[1])
-        explicit LLVector2(const LLVector3 &vec); // Initializes LLVector2 to (vec[0]. vec[1])
+		LLVector2();							// Initializes LLVector2 to (0, 0)
+		LLVector2(F32 x, F32 y);			    // Initializes LLVector2 to (x. y)
+		LLVector2(const F32 *vec);				// Initializes LLVector2 to (vec[0]. vec[1])
 		
 		// Clears LLVector2 to (0, 0).  DEPRECATED - prefer zeroVec.
 		void	clear();
@@ -137,12 +135,6 @@ inline LLVector2::LLVector2(const F32 *vec)
 {
 	mV[VX] = vec[VX];
 	mV[VY] = vec[VY];
-}
-
-inline LLVector2::LLVector2(const LLVector3 &vec)
-{
-	mV[VX] = vec.mV[VX];
-	mV[VY] = vec.mV[VY];
 }
 
 

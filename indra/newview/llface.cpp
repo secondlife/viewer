@@ -54,6 +54,8 @@
 
 #define LL_MAX_INDICES_COUNT 1000000
 
+extern BOOL gPickFaces;
+
 BOOL LLFace::sSafeRenderSelect = TRUE; // FALSE
 
 #define DOTVEC(a,b) (a.mV[0]*b.mV[0] + a.mV[1]*b.mV[1] + a.mV[2]*b.mV[2])
@@ -71,15 +73,14 @@ The resulting texture coordinate <u,v> is:
 	u = 2(B dot P)
 	v = 2(T dot P)
 */
-void planarProjection(LLVector2 &tc, const LLVector3& normal,
-					  const LLVector3 &mCenter, const LLVector3& vec)
+void planarProjection(LLVector2 &tc, const LLVolumeFace::VertexData &vd, const LLVector3 &mCenter, const LLVector3& vec)
 {	//DONE!
 	LLVector3 binormal;
-	float d = normal * LLVector3(1,0,0);
+	float d = vd.mNormal * LLVector3(1,0,0);
 	if (d >= 0.5f || d <= -0.5f)
 	{
 		binormal = LLVector3(0,1,0);
-		if (normal.mV[0] < 0)
+		if (vd.mNormal.mV[0] < 0)
 		{
 			binormal = -binormal;
 		}
@@ -87,19 +88,18 @@ void planarProjection(LLVector2 &tc, const LLVector3& normal,
 	else
 	{
         binormal = LLVector3(1,0,0);
-		if (normal.mV[1] > 0)
+		if (vd.mNormal.mV[1] > 0)
 		{
 			binormal = -binormal;
 		}
 	}
-	LLVector3 tangent = binormal % normal;
+	LLVector3 tangent = binormal % vd.mNormal;
 
 	tc.mV[1] = -((tangent*vec)*2 - 0.5f);
 	tc.mV[0] = 1.0f+((binormal*vec)*2 - 0.5f);
 }
 
-void sphericalProjection(LLVector2 &tc, const LLVector3& normal,
-						 const LLVector3 &mCenter, const LLVector3& vec)
+void sphericalProjection(LLVector2 &tc, const LLVolumeFace::VertexData &vd, const LLVector3 &mCenter, const LLVector3& vec)
 {	//BROKEN
 	/*tc.mV[0] = acosf(vd.mNormal * LLVector3(1,0,0))/3.14159f;
 	
@@ -110,7 +110,7 @@ void sphericalProjection(LLVector2 &tc, const LLVector3& normal,
 	}*/
 }
 
-void cylindricalProjection(LLVector2 &tc, const LLVector3& normal, const LLVector3 &mCenter, const LLVector3& vec)
+void cylindricalProjection(LLVector2 &tc, const LLVolumeFace::VertexData &vd, const LLVector3 &mCenter, const LLVector3& vec)
 {	//BROKEN
 	/*LLVector3 binormal;
 	float d = vd.mNormal * LLVector3(1,0,0);
@@ -374,7 +374,7 @@ void LLFace::renderForSelect(U32 data_mask)
 #if !LL_RELEASE_FOR_DOWNLOAD
 		LLGLState::checkClientArrays(data_mask);
 #endif
-		if (mTEOffset != -1)
+		if (gPickFaces && mTEOffset != -1)
 		{
 			// mask off high 4 bits (16 total possible faces)
 			color.mV[0] &= 0x0f;
@@ -419,11 +419,12 @@ void LLFace::renderSelected(LLImageGL *imagep, const LLColor4& color)
 
 	if (mGeomCount > 0 && mIndicesCount > 0)
 	{
-		gGL.color4fv(color.mV);
+		LLGLSPipelineAlpha gls_pipeline_alpha;
+		glColor4fv(color.mV);
 
 		LLViewerImage::bindTexture(imagep);
 	
-		gGL.pushMatrix();
+		glPushMatrix();
 		if (mDrawablep->isActive())
 		{
 			glMultMatrixf((GLfloat*)mDrawablep->getRenderMatrix().mMatrix);
@@ -433,49 +434,137 @@ void LLFace::renderSelected(LLImageGL *imagep, const LLColor4& color)
 			glMultMatrixf((GLfloat*)mDrawablep->getRegion()->mRenderMatrix.mMatrix);
 		}
 
-		mVertexBuffer->setBuffer(LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD);
+		mVertexBuffer->setBuffer(LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_NORMAL | LLVertexBuffer::MAP_TEXCOORD);
 #if !LL_RELEASE_FOR_DOWNLOAD
-		LLGLState::checkClientArrays(LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD);
+		LLGLState::checkClientArrays(LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_NORMAL | LLVertexBuffer::MAP_TEXCOORD);
 #endif
 		mVertexBuffer->draw(LLVertexBuffer::TRIANGLES, mIndicesCount, mIndicesIndex);
 				
-		gGL.popMatrix();
+		glPopMatrix();
 	}
 }
 
-
-/* removed in lieu of raycast uv detection
-void LLFace::renderSelectedUV()
+void LLFace::renderSelectedUV(const S32 offset, const S32 count)
 {
+#if 0
 	LLViewerImage* red_blue_imagep = gImageList.getImageFromFile("uv_test1.j2c", TRUE, TRUE);
 	LLViewerImage* green_imagep = gImageList.getImageFromFile("uv_test2.tga", TRUE, TRUE);
 
-	LLGLSUVSelect object_select;
-
-	// use red/blue gradient to get coarse UV coordinates
-	renderSelected(red_blue_imagep, LLColor4::white);
+	LLGLSObjectSelect object_select;
+	LLGLEnable blend(GL_BLEND);
 	
-	static F32 bias = 0.f;
-	static F32 factor = -10.f;
-	glPolygonOffset(factor, bias);
+	if (!mDrawPoolp || !getIndicesCount() || getIndicesStart() < 0)
+	{
+		return;
+	}
+	for (S32 pass = 0; pass < 2; pass++)
+	{
+		static F32 bias = 0.f;
+		static F32 factor = -10.f;
+		if (mGeomCount > 0)
+		{
+			gGL.color4fv(LLColor4::white.mV);
 
-	// add green dither pattern on top of red/blue gradient
-	gGL.blendFunc(LLRender::BF_ONE, LLRender::BF_ONE);
-	glMatrixMode(GL_TEXTURE);
-	glPushMatrix();
-	// make green pattern repeat once per texel in red/blue texture
-	glScalef(256.f, 256.f, 1.f);
-	glMatrixMode(GL_MODELVIEW);
+			if (pass == 0)
+			{
+				LLViewerImage::bindTexture(red_blue_imagep);
+				red_blue_imagep->setMipFilterNearest (TRUE, TRUE);
+			}
+			else // pass == 1
+			{
+				gGL.blendFunc(GL_ONE, GL_ONE);
+				LLViewerImage::bindTexture(green_imagep);
+				glMatrixMode(GL_TEXTURE);
+				glPushMatrix();
+				glScalef(256.f, 256.f, 1.f);
+				green_imagep->setMipFilterNearest (TRUE, TRUE);
+			}
 
-	renderSelected(green_imagep, LLColor4::white);
 
-	glMatrixMode(GL_TEXTURE);
-	glPopMatrix();
-	glMatrixMode(GL_MODELVIEW);
-	gGL.blendFunc(LLRender::BF_SOURCE_ALPHA, LLRender::BF_ONE_MINUS_SOURCE_ALPHA);
+			if (!isState(GLOBAL))
+			{
+				// Apply the proper transform for non-global objects.
+				glMatrixMode(GL_MODELVIEW);
+				glPushMatrix();
+				glMultMatrixf((float*)getRenderMatrix().mMatrix);
+			}
+
+			glEnable(GL_POLYGON_OFFSET_FILL);
+			glPolygonOffset(factor, bias);
+			if (sSafeRenderSelect)
+			{
+				gGL.begin(LLVertexBuffer::TRIANGLES);
+				if (count)
+				{
+					for (S32 i = offset; i < offset + count; i++)
+					{
+						LLVector2 tc = mDrawPoolp->getTexCoord(mDrawPoolp->getIndex(getIndicesStart() + i), 0);
+						gGL.texCoord2fv(tc.mV);
+						LLVector3 vertex = mDrawPoolp->getVertex(mDrawPoolp->getIndex(getIndicesStart() + i));
+						gGL.vertex3fv(vertex.mV);
+					}
+				}
+				else
+				{
+					for (U32 i = 0; i < getIndicesCount(); i++)
+					{
+						LLVector2 tc = mDrawPoolp->getTexCoord(mDrawPoolp->getIndex(getIndicesStart() + i), 0);
+						gGL.texCoord2fv(tc.mV);
+						LLVector3 vertex = mDrawPoolp->getVertex(mDrawPoolp->getIndex(getIndicesStart() + i));
+						gGL.vertex3fv(vertex.mV);
+					}
+				}
+				gGL.end();
+			}
+			else
+			{
+				llassert(mGeomIndex >= 0);
+				if (count)
+				{
+					if (mIndicesCount > 0)
+					{
+						glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_SHORT, getRawIndices() + offset); 
+					}
+					else
+					{
+						llerrs << "Rendering non-indexed volume face!" << llendl;
+						glDrawArrays(mPrimType, mGeomIndex, mGeomCount); 
+					}
+				}
+				else
+				{
+					if (mIndicesCount > 0)
+					{
+						glDrawElements(GL_TRIANGLES, mIndicesCount, GL_UNSIGNED_SHORT, getRawIndices()); 
+					}
+					else
+					{
+						glDrawArrays(GL_TRIANGLES, mGeomIndex, mGeomCount); 
+					}
+				}
+			}
+
+			glDisable(GL_POLYGON_OFFSET_FILL);
+			if (!isState(GLOBAL))
+			{
+				// Restore the tranform for non-global objects
+				glPopMatrix();
+			}
+			if (pass == 1)
+			{
+				glMatrixMode(GL_TEXTURE);
+				glPopMatrix();
+				glMatrixMode(GL_MODELVIEW);
+				gGL.blendFunc(GL_DST_ALPHA, GL_ONE_MINUS_DST_ALPHA);
+			}
+		}
+	}
+	
+	//restore blend func
+	gGL.blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+#endif
 }
 
-*/
 
 void LLFace::printDebugInfo() const
 {
@@ -670,69 +759,6 @@ BOOL LLFace::genVolumeBBoxes(const LLVolume &volume, S32 f,
 
 	return TRUE;
 }
-
-
-
-// convert surface coordinates to texture coordinates, based on
-// the values in the texture entry.  probably should be
-// integrated with getGeometryVolume() for its texture coordinate
-// generation - but i'll leave that to someone more familiar
-// with the implications.
-LLVector2 LLFace::surfaceToTexture(LLVector2 surface_coord, LLVector3 position, LLVector3 normal)
-{
-	LLVector2 tc = surface_coord;
-	
-	const LLTextureEntry *tep = getTextureEntry();
-
-	if (tep == NULL)
-	{
-		// can't do much without the texture entry
-		return surface_coord;
-	}
-
-	// see if we have a non-default mapping
-    U8 texgen = getTextureEntry()->getTexGen();
-	if (texgen != LLTextureEntry::TEX_GEN_DEFAULT)
-	{
-		LLVector3 center = mDrawablep->getVOVolume()->getVolume()->getVolumeFace(mTEOffset).mCenter;
-		
-		LLVector3 scale = (mDrawablep->getVOVolume()->isVolumeGlobal()) ? LLVector3(1,1,1) : mVObjp->getScale();
-		LLVector3 vec = position;
-		vec.scaleVec(scale);
-
-		switch (texgen)
-		{
-		case LLTextureEntry::TEX_GEN_PLANAR:
-			planarProjection(tc, normal, center, vec);
-			break;
-		case LLTextureEntry::TEX_GEN_SPHERICAL:
-			sphericalProjection(tc, normal, center, vec);
-			break;
-		case LLTextureEntry::TEX_GEN_CYLINDRICAL:
-			cylindricalProjection(tc, normal, center, vec);
-			break;
-		default:
-			break;
-		}		
-	}
-
-	if (mTextureMatrix)	// if we have a texture matrix, use it
-	{
-		LLVector3 tc3(tc);
-		tc3 = tc3 * *mTextureMatrix;
-		tc = LLVector2(tc3);
-	}
-	
-	else // otherwise use the texture entry parameters
-	{
-		xform(tc, cos(tep->getRotation()), sin(tep->getRotation()),
-			  tep->mOffsetS, tep->mOffsetT, tep->mScaleS, tep->mScaleT);
-	}
-
-	
-	return tc;
-}
-
 
 BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 							   const S32 &f,
@@ -1013,13 +1039,13 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 				switch (texgen)
 				{
 					case LLTextureEntry::TEX_GEN_PLANAR:
-						planarProjection(tc, vf.mVertices[i].mNormal, vf.mCenter, vec);
+						planarProjection(tc, vf.mVertices[i], vf.mCenter, vec);
 						break;
 					case LLTextureEntry::TEX_GEN_SPHERICAL:
-						sphericalProjection(tc, vf.mVertices[i].mNormal, vf.mCenter, vec);
+						sphericalProjection(tc, vf.mVertices[i], vf.mCenter, vec);
 						break;
 					case LLTextureEntry::TEX_GEN_CYLINDRICAL:
-						cylindricalProjection(tc, vf.mVertices[i].mNormal, vf.mCenter, vec);
+						cylindricalProjection(tc, vf.mVertices[i], vf.mCenter, vec);
 						break;
 					default:
 						break;

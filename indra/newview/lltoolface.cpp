@@ -82,16 +82,17 @@ BOOL LLToolFace::handleDoubleClick(S32 x, S32 y, MASK mask)
 
 BOOL LLToolFace::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-	gViewerWindow->pickAsync(x, y, mask, pickCallback);
+	gPickFaces = TRUE;
+	gViewerWindow->hitObjectOrLandGlobalAsync(x, y, mask, pickCallback);
 	return TRUE;
 }
 
-void LLToolFace::pickCallback(const LLPickInfo& pick_info)
+void LLToolFace::pickCallback(S32 x, S32 y, MASK mask)
 {
-	LLViewerObject* hit_obj	= pick_info.getObject();
+	LLViewerObject* hit_obj	= gViewerWindow->lastObjectHit();
 	if (hit_obj)
 	{
-		S32 hit_face = pick_info.mObjectFace;
+		S32 hit_face = gLastHitObjectFace;
 		
 		if (hit_obj->isAvatar())
 		{
@@ -101,7 +102,7 @@ void LLToolFace::pickCallback(const LLPickInfo& pick_info)
 
 		// ...clicked on a world object, try to pick the appropriate face
 
-		if (pick_info.mKeyMask & MASK_SHIFT)
+		if (mask & MASK_SHIFT)
 		{
 			// If object not selected, need to inform sim
 			if ( !hit_obj->isSelected() )
@@ -132,7 +133,7 @@ void LLToolFace::pickCallback(const LLPickInfo& pick_info)
 	}
 	else
 	{
-		if (!(pick_info.mKeyMask == MASK_SHIFT))
+		if (!(mask == MASK_SHIFT))
 		{
 			LLSelectMgr::getInstance()->deselectAll();
 		}

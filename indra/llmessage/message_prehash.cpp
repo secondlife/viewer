@@ -1371,7 +1371,4 @@ char* _PREHASH_OwnerMask = LLMessageStringTable::getInstance()->getString("Owner
 char* _PREHASH_TransferInventoryAck = LLMessageStringTable::getInstance()->getString("TransferInventoryAck");
 char* _PREHASH_RegionDenyAgeUnverified = LLMessageStringTable::getInstance()->getString("RegionDenyAgeUnverified");
 char* _PREHASH_AgeVerificationBlock = LLMessageStringTable::getInstance()->getString("AgeVerificationBlock");
-char* _PREHASH_UCoord = LLMessageStringTable::getInstance()->getString("UCoord");
-char* _PREHASH_VCoord = LLMessageStringTable::getInstance()->getString("VCoord");
-char* _PREHASH_FaceIndex = LLMessageStringTable::getInstance()->getString("FaceIndex");
 

@@ -988,37 +988,32 @@ void LLToolDragAndDrop::dragOrDrop3D( S32 x, S32 y, MASK mask, BOOL drop, EAccep
 	mDrop = drop;
 	if (mDrop)
 	{
+		gPickFaces = TRUE;
 		// don't allow drag and drop onto transparent objects
-		pickCallback(gViewerWindow->pickImmediate(x, y, FALSE));
+		gViewerWindow->hitObjectOrLandGlobalImmediate(x, y, pickCallback, FALSE);
 	}
 	else
 	{
+		// Don't pick faces during hover.  Nothing currently requires per-face
+		// data.
 		// don't allow drag and drop onto transparent objects
-		gViewerWindow->pickAsync(x, y, mask, pickCallback, FALSE);
+		gViewerWindow->hitObjectOrLandGlobalAsync(x, y, mask, pickCallback, FALSE);
 	}
 
 	*acceptance = mLastAccept;
 }
 
-void LLToolDragAndDrop::pickCallback(const LLPickInfo& pick_info)
+void LLToolDragAndDrop::pickCallback(S32 x, S32 y, MASK mask)
 {
 	EDropTarget target = DT_NONE;
 	S32	hit_face = -1;
 
-	LLViewerObject* hit_obj = pick_info.getObject();
+	LLViewerObject* hit_obj = gViewerWindow->lastNonFloraObjectHit();
 	LLSelectMgr::getInstance()->unhighlightAll();
 
 	// Treat attachments as part of the avatar they are attached to.
 	if (hit_obj)
 	{
-		// don't allow drag and drop on grass, trees, etc.
-		if(pick_info.mPickType == LLPickInfo::PICK_FLORA)
-		{
-			LLToolDragAndDrop::getInstance()->mCursor = UI_CURSOR_NO;
-			gViewerWindow->getWindow()->setCursor( LLToolDragAndDrop::getInstance()->mCursor );
-			return;
-		}
-
 		if(hit_obj->isAttachment() && !hit_obj->isHUDAttachment())
 		{
 			LLVOAvatar* avatar = LLVOAvatar::findAvatarFromAttachment( hit_obj );
@@ -1049,12 +1044,12 @@ void LLToolDragAndDrop::pickCallback(const LLPickInfo& pick_info)
 		else
 		{
 			target = DT_OBJECT;
-			hit_face = pick_info.mObjectFace;
+			hit_face = gLastHitNonFloraObjectFace;
 			// if any item being dragged will be applied to the object under our cursor
 			// highlight that object
 			for (S32 i = 0; i < (S32)LLToolDragAndDrop::getInstance()->mCargoIDs.size(); i++)
 			{
-				if (LLToolDragAndDrop::getInstance()->mCargoTypes[i] != DAD_OBJECT || (pick_info.mKeyMask & MASK_CONTROL))
+				if (LLToolDragAndDrop::getInstance()->mCargoTypes[i] != DAD_OBJECT || (mask & MASK_CONTROL))
 				{
 					LLSelectMgr::getInstance()->highlightObjectAndFamily(hit_obj);
 					break;
@@ -1062,7 +1057,7 @@ void LLToolDragAndDrop::pickCallback(const LLPickInfo& pick_info)
 			}
 		}
 	}
-	else if(pick_info.mPickType == LLPickInfo::PICK_LAND)
+	else if(gLastHitLand)
 	{
 		target = DT_LAND;
 		hit_face = -1;
@@ -1078,7 +1073,7 @@ void LLToolDragAndDrop::pickCallback(const LLPickInfo& pick_info)
 			(U32)LLToolDragAndDrop::getInstance()->mLastAccept,
 			(U32)callMemberFunction((*LLToolDragAndDrop::getInstance()), 
 				LLToolDragAndDrop::getInstance()->sDragAndDrop3d[LLToolDragAndDrop::getInstance()->mCargoTypes[LLToolDragAndDrop::getInstance()->mCurItemIndex]][target])
-				(hit_obj, hit_face, pick_info.mKeyMask, FALSE));
+				(hit_obj, hit_face, mask, FALSE));
 	}
 
 	if (LLToolDragAndDrop::getInstance()->mDrop && (U32)LLToolDragAndDrop::getInstance()->mLastAccept >= ACCEPT_YES_COPY_SINGLE)
@@ -1100,7 +1095,7 @@ void LLToolDragAndDrop::pickCallback(const LLPickInfo& pick_info)
 			// Call the right implementation function
 			(U32)callMemberFunction((*LLToolDragAndDrop::getInstance()), 
 				LLToolDragAndDrop::getInstance()->sDragAndDrop3d[LLToolDragAndDrop::getInstance()->mCargoTypes[LLToolDragAndDrop::getInstance()->mCurItemIndex]][target])
-				(hit_obj, hit_face, pick_info.mKeyMask, TRUE);
+				(hit_obj, hit_face, mask, TRUE);
 		}
 	}
 
@@ -1147,7 +1142,7 @@ void LLToolDragAndDrop::pickCallback(const LLPickInfo& pick_info)
 		llassert( FALSE );
 	}
 
-	LLToolDragAndDrop::getInstance()->mLastHitPos = pick_info.mPosGlobal;
+	LLToolDragAndDrop::getInstance()->mLastHitPos = gLastHitPosGlobal + gLastHitObjectOffset;
 	LLToolDragAndDrop::getInstance()->mLastCameraPos = gAgent.getCameraPositionGlobal();
 
 	gViewerWindow->getWindow()->setCursor( LLToolDragAndDrop::getInstance()->mCursor );

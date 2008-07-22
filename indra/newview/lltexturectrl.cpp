@@ -1452,15 +1452,13 @@ LLToolTexEyedropper::~LLToolTexEyedropper()
 
 BOOL LLToolTexEyedropper::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-	// this will affect framerate on mouse down
-	const LLPickInfo& pick = gViewerWindow->pickImmediate(x, y, FALSE);
-	LLViewerObject* hit_obj	= pick.getObject();
+	LLViewerObject* hit_obj	= gViewerWindow->lastObjectHit();
 	if (hit_obj && 
 		!hit_obj->isAvatar())
 	{
-		if( (0 <= pick.mObjectFace) && (pick.mObjectFace < hit_obj->getNumTEs()) )
+		if( (0 <= gLastHitObjectFace) && (gLastHitObjectFace < hit_obj->getNumTEs()) )
 		{
-			LLViewerImage* image = hit_obj->getTEImage( pick.mObjectFace );
+			LLViewerImage* image = hit_obj->getTEImage( gLastHitObjectFace );
 			if( image )
 			{
 				if( mCallback )

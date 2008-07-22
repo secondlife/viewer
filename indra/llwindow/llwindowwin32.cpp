@@ -1387,10 +1387,6 @@ BOOL LLWindowWin32::setCursorPosition(const LLCoordWindow position)
 		return FALSE;
 	}
 
-	LLCoordGL gl_pos;
-	convertCoords(position, &gl_pos);
-	mCallbacks->handleMouseMove(this, gl_pos, (MASK)0);
-	
 	return SetCursorPos(screen_pos.mX, screen_pos.mY);
 }
 

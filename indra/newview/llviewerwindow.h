@@ -60,70 +60,6 @@ class LLTextBox;
 class LLImageRaw;
 class LLHUDIcon;
 
-#define PICK_HALF_WIDTH 5
-#define PICK_DIAMETER (2 * PICK_HALF_WIDTH + 1)
-
-class LLPickInfo
-{
-public:
-	LLPickInfo();
-	LLPickInfo(const LLCoordGL& mouse_pos, 
-		const LLRect& screen_region,
-		MASK keyboard_mask, 
-		BOOL pick_transparent, 
-		BOOL pick_surface_info,
-		void (*pick_callback)(const LLPickInfo& pick_info));
-	~LLPickInfo();
-
-	void fetchResults();
-	LLPointer<LLViewerObject> getObject() const;
-	LLUUID getObjectID() const { return mObjectID; }
-	void drawPickBuffer() const;
-
-	static bool isFlora(LLViewerObject* object);
-
-	typedef enum e_pick_type
-	{
-		PICK_OBJECT,
-		PICK_FLORA,
-		PICK_LAND,
-		PICK_ICON,
-		PICK_PARCEL_WALL,
-		PICK_INVALID
-	} EPickType;
-
-public:
-	LLCoordGL		mMousePt;
-	MASK			mKeyMask;
-	void			(*mPickCallback)(const LLPickInfo& pick_info);
-
-	EPickType		mPickType;
-	LLCoordGL		mPickPt;
-	LLVector3d		mPosGlobal;
-	LLVector3		mObjectOffset;
-	LLUUID			mObjectID;
-	S32				mObjectFace;
-	LLHUDIcon*		mHUDIcon;
-	LLVector3       mIntersection;
-	LLVector2		mUVCoords;
-	LLVector2       mSTCoords;
-	LLCoordScreen	mXYCoords;
-	LLVector3		mNormal;
-	LLVector3		mBinormal;
-	BOOL			mPickTransparent;
-	LLRect			mScreenRegion;
-	void		    getSurfaceInfo();
-
-private:
-	void			updateXYCoords();
-
-	BOOL			mWantSurfaceInfo;   // do we populate mUVCoord, mNormal, mBinormal?
-	U8				mPickBuffer[PICK_DIAMETER * PICK_DIAMETER * 4];
-	F32				mPickDepthBuffer[PICK_DIAMETER * PICK_DIAMETER];
-	BOOL			mPickParcelWall;
-
-};
-
 #define MAX_IMAGE_SIZE 6144 //6 * 1024, max snapshot image size 6144 * 6144
 
 class LLViewerWindow : public LLWindowCallbacks
@@ -207,9 +143,6 @@ public:
 	BOOL			getLeftMouseDown()	const	{ return mLeftMouseDown; }
 	BOOL			getRightMouseDown()	const	{ return mRightMouseDown; }
 
-	const LLPickInfo&	getLastPick() const { return mLastPick; }
-	const LLPickInfo&	getHoverPick() const { return mHoverPick; }
-
 	LLUICtrl*		getTopCtrl() const;
 	BOOL			hasTopCtrl(LLView* view) const;
 
@@ -217,10 +150,10 @@ public:
 	void			setup3DRender();
 	void			setup2DRender();
 
+	BOOL			isPickPending()				{ return mPickPending; }
+
 	LLVector3		mouseDirectionGlobal(const S32 x, const S32 y) const;
 	LLVector3		mouseDirectionCamera(const S32 x, const S32 y) const;
-	LLVector3       mousePointHUD(const S32 x, const S32 y) const;
-		
 
 	// Is window of our application frontmost?
 	BOOL			getActive() const			{ return mActive; }
@@ -311,27 +244,20 @@ public:
 	void			renderSelections( BOOL for_gl_pick, BOOL pick_parcel_walls, BOOL for_hud );
 	void			performPick();
 
-	void			pickAsync(S32 x, S32 y_from_bot, MASK mask, void (*callback)(const LLPickInfo& pick_info),
-							  BOOL pick_transparent = FALSE, BOOL get_surface_info = FALSE);
-	LLPickInfo		pickImmediate(S32 x, S32 y, BOOL pick_transparent);
-	static void     hoverPickCallback(const LLPickInfo& pick_info);
+	void			hitObjectOrLandGlobalAsync(S32 x, S32 y_from_bot, MASK mask, void (*callback)(S32 x, S32 y, MASK mask), BOOL pick_transparent = FALSE, BOOL pick_parcel_walls = FALSE);
+	void			hitObjectOrLandGlobalImmediate(S32 x, S32 y, void (*callback)(S32 x, S32 y, MASK mask), BOOL pick_transparent);
 	
-	LLViewerObject* cursorIntersect(S32 mouse_x = -1, S32 mouse_y = -1, F32 depth = 512.f,
-									LLViewerObject *this_object = NULL,
-									S32 this_face = -1,
-									S32* face_hit = NULL,
-									LLVector3 *intersection = NULL,
-									LLVector2 *uv = NULL,
-									LLVector3 *normal = NULL,
-									LLVector3 *binormal = NULL);
-	
+	void			hitUIElementAsync(S32 x, S32 y_from_bot, MASK mask, void (*callback)(S32 x, S32 y, MASK mask));
+	void			hitUIElementImmediate(S32 x, S32 y, void (*callback)(S32 x, S32 y, MASK mask));
+
+	LLViewerObject*	getObjectUnderCursor(const F32 depth = 16.0f);
 	
 	// Returns a pointer to the last object hit
-	//LLViewerObject	*getObject();
-	//LLViewerObject  *lastNonFloraObjectHit();
+	LLViewerObject	*lastObjectHit();
+	LLViewerObject  *lastNonFloraObjectHit();
 
-	//const LLVector3d& getObjectOffset();
-	//const LLVector3d& lastNonFloraObjectHitOffset();
+	const LLVector3d& lastObjectHitOffset();
+	const LLVector3d& lastNonFloraObjectHitOffset();
 
 	// mousePointOnLand() returns true if found point
 	BOOL			mousePointOnLandGlobal(const S32 x, const S32 y, LLVector3d *land_pos_global);
@@ -380,7 +306,19 @@ private:
 	void			stopGL(BOOL save_state = TRUE);
 	void			restoreGL(const std::string& progress_message = LLStringUtil::null);
 	void			initFonts(F32 zoom_factor = 1.f);
-	void			schedulePick(LLPickInfo& pick_info);
+	
+	void			analyzeHit(
+						S32				x,				// input
+						S32				y_from_bot,		// input
+						LLViewerObject* objectp,		// input
+						U32				te_offset,		// input
+						LLUUID*			hit_object_id_p,// output
+						S32*			hit_face_p,		// output
+						LLVector3d*		hit_pos_p,		// output
+						BOOL*			hit_land,		// output
+						F32*			hit_u_coord,	// output
+						F32*			hit_v_coord);	// output
+
 	
 public:
 	LLWindow*		mWindow;						// graphical window object
@@ -416,14 +354,16 @@ protected:
 	BOOL			mSuppressToolbox;	// sometimes hide the toolbox, despite
 										// having a camera tool selected
 	BOOL			mHideCursorPermanent;	// true during drags, mouselook
-	LLPickInfo		mLastPick;
-	LLPickInfo		mHoverPick;
-	std::vector<LLPickInfo> mPicks;
-	LLRect			mPickScreenRegion; // area of frame buffer for rendering pick frames (generally follows mouse to avoid going offscreen)
+	LLCoordGL		mPickPoint;
+	LLCoordGL		mPickOffset;
+	MASK			mPickMask;
+	BOOL			mPickPending;
+	void			(*mPickCallback)(S32 x, S32 y, MASK mask);
 
 	std::string		mOverlayTitle;		// Used for special titles such as "Second Life - Special E3 2003 Beta"
 
 	BOOL			mIgnoreActivate;
+	U8*				mPickBuffer;
 
 	std::string		mInitAlert;			// Window / GL initialization requires an alert
 	
@@ -458,7 +398,9 @@ void toggle_first_person();
 void toggle_build(void*);
 void reset_viewer_state_on_sim(void);
 void update_saved_window_size(const std::string& control,S32 delta_width, S32 delta_height);
-
+//
+// Constants
+//
 
 
 //
@@ -472,15 +414,28 @@ extern LLFrameTimer		gMouseIdleTimer;		// how long has it been since the mouse l
 extern LLFrameTimer		gAwayTimer;				// tracks time before setting the avatar away state to true
 extern LLFrameTimer		gAwayTriggerTimer;		// how long the avatar has been away
 
+extern LLVector3d		gLastHitPosGlobal;
+extern LLVector3d		gLastHitObjectOffset;
+extern LLUUID			gLastHitObjectID;
+extern S32				gLastHitObjectFace;
+extern BOOL				gLastHitLand;
+extern F32				gLastHitUCoord;
+extern F32				gLastHitVCoord;
+
+
+extern LLVector3d		gLastHitNonFloraPosGlobal;
+extern LLVector3d		gLastHitNonFloraObjectOffset;
+extern LLUUID			gLastHitNonFloraObjectID;
+extern S32				gLastHitNonFloraObjectFace;
+
+extern S32				gLastHitUIElement;
+extern LLHUDIcon*		gLastHitHUDIcon;
+extern BOOL				gLastHitParcelWall;
 extern BOOL				gDebugSelect;
+extern BOOL				gPickFaces;
+extern BOOL				gPickTransparent;
 
 extern BOOL				gDebugFastUIRender;
-extern LLViewerObject*  gDebugRaycastObject;
-extern LLVector3        gDebugRaycastIntersection;
-extern LLVector2        gDebugRaycastTexCoord;
-extern LLVector3        gDebugRaycastNormal;
-extern LLVector3        gDebugRaycastBinormal;
-
 extern S32 CHAT_BAR_HEIGHT; 
 
 extern BOOL			gDisplayCameraPos;

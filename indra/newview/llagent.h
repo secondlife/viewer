@@ -95,7 +95,6 @@ class LLMessageSystem;
 class LLPermissions;
 class LLHost;
 class LLFriendObserver;
-class LLPickInfo;
 
 struct LLGroupData
 {
@@ -192,7 +191,6 @@ public:
 	void			changeCameraToFollow(BOOL animate = TRUE);
 	//end Ventrella
 
-	void			setFocusGlobal(const LLPickInfo& pick);
 	void			setFocusGlobal(const LLVector3d &focus, const LLUUID &object_id = LLUUID::null);
 	void			setFocusOnAvatar(BOOL focus, BOOL animate);
 	void			setCameraPosAndFocusGlobal(const LLVector3d& pos, const LLVector3d& focus, const LLUUID &object_id);
@@ -376,7 +374,7 @@ public:
 	void			sendAnimationRequests(LLDynamicArray<LLUUID> &anim_ids, EAnimRequest request);
 	void			sendAnimationRequest(const LLUUID &anim_id, EAnimRequest request);
 
-	LLVector3		calcFocusOffset(LLViewerObject *object, S32 x, S32 y);
+	LLVector3d		calcFocusOffset(LLViewerObject *object, S32 x, S32 y);
 	BOOL			calcCameraMinDistance(F32 &obj_min_distance);
 
 	void			startCameraAnimation();
@@ -713,9 +711,6 @@ public:
 
 	LLDynamicArray<LLGroupData> mGroups;
 
-	F32				mHUDTargetZoom;	// target zoom level for HUD objects (used when editing)
-	F32				mHUDCurZoom;	// current animated zoom level for HUD objects
-
 	BOOL			mInitialized;
 
 	static BOOL		sDebugDisplayTarget;
@@ -791,7 +786,6 @@ private:
 	LLVector3		mSitCameraFocus;				// root relative camera target when sitting
 	LLVector3d      mCameraSmoothingLastPositionGlobal;    
 	LLVector3d      mCameraSmoothingLastPositionAgent;    
-
 	
 	//Ventrella
 	LLVector3		mCameraUpVector;				// camera's up direction in world coordinates (determines the 'roll' of the view)

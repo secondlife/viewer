@@ -694,3 +694,5 @@ void LLViewerMedia::setMimeType(std::string mime_type)
 {
 	sViewerMediaImpl.mMimeType = mime_type;
 }
+
+

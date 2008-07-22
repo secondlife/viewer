@@ -145,18 +145,18 @@ LLToolCompInspect::~LLToolCompInspect()
 BOOL LLToolCompInspect::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	mMouseDown = TRUE;
-	gViewerWindow->pickAsync(x, y, mask, pickCallback);
+	gViewerWindow->hitObjectOrLandGlobalAsync(x, y, mask, pickCallback);
 	return TRUE;
 }
 
-void LLToolCompInspect::pickCallback(const LLPickInfo& pick_info)
+void LLToolCompInspect::pickCallback(S32 x, S32 y, MASK mask)
 {
-	LLViewerObject* hit_obj = pick_info.getObject();
+	LLViewerObject* hit_obj = gViewerWindow->lastObjectHit();
 
 	if (!LLToolCompInspect::getInstance()->mMouseDown)
 	{
 		// fast click on object, but mouse is already up...just do select
-		LLToolCompInspect::getInstance()->mSelectRect->handleObjectSelection(pick_info, gSavedSettings.getBOOL("EditLinkedParts"), FALSE);
+		LLToolCompInspect::getInstance()->mSelectRect->handleObjectSelection(hit_obj, mask, gSavedSettings.getBOOL("EditLinkedParts"), FALSE);
 		return;
 	}
 
@@ -167,13 +167,13 @@ void LLToolCompInspect::pickCallback(const LLPickInfo& pick_info)
 			LLEditMenuHandler::gEditMenuHandler = LLSelectMgr::getInstance();
 		}
 		LLToolCompInspect::getInstance()->setCurrentTool( LLToolCompInspect::getInstance()->mSelectRect );
-		LLToolCompInspect::getInstance()->mSelectRect->handlePick( pick_info );
+		LLToolCompInspect::getInstance()->mSelectRect->handleMouseDown( x, y, mask );
 
 	}
 	else
 	{
 		LLToolCompInspect::getInstance()->setCurrentTool( LLToolCompInspect::getInstance()->mSelectRect );
-		LLToolCompInspect::getInstance()->mSelectRect->handlePick( pick_info );
+		LLToolCompInspect::getInstance()->mSelectRect->handleMouseDown( x, y, mask);
 	}
 }
 
@@ -218,19 +218,19 @@ BOOL LLToolCompTranslate::handleHover(S32 x, S32 y, MASK mask)
 BOOL LLToolCompTranslate::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	mMouseDown = TRUE;
-	gViewerWindow->pickAsync(x, y, mask, pickCallback, TRUE);
+	gViewerWindow->hitObjectOrLandGlobalAsync(x, y, mask, pickCallback, TRUE);
 	return TRUE;
 }
 
-void LLToolCompTranslate::pickCallback(const LLPickInfo& pick_info)
+void LLToolCompTranslate::pickCallback(S32 x, S32 y, MASK mask)
 {
-	LLViewerObject* hit_obj = pick_info.getObject();
+	LLViewerObject* hit_obj = gViewerWindow->lastObjectHit();
 
-	LLToolCompTranslate::getInstance()->mManip->highlightManipulators(pick_info.mMousePt.mX, pick_info.mMousePt.mY);
+	LLToolCompTranslate::getInstance()->mManip->highlightManipulators(x, y);
 	if (!LLToolCompTranslate::getInstance()->mMouseDown)
 	{
 		// fast click on object, but mouse is already up...just do select
-		LLToolCompTranslate::getInstance()->mSelectRect->handleObjectSelection(pick_info, gSavedSettings.getBOOL("EditLinkedParts"), FALSE);
+		LLToolCompTranslate::getInstance()->mSelectRect->handleObjectSelection(hit_obj, mask, gSavedSettings.getBOOL("EditLinkedParts"), FALSE);
 		return;
 	}
 
@@ -246,12 +246,12 @@ void LLToolCompTranslate::pickCallback(const LLPickInfo& pick_info)
 		if(	LLManip::LL_NO_PART != LLToolCompTranslate::getInstance()->mManip->getHighlightedPart() && can_move)
 		{
 			LLToolCompTranslate::getInstance()->setCurrentTool( LLToolCompTranslate::getInstance()->mManip );
-			LLToolCompTranslate::getInstance()->mManip->handleMouseDownOnPart( pick_info.mMousePt.mX, pick_info.mMousePt.mY, pick_info.mKeyMask );
+			LLToolCompTranslate::getInstance()->mManip->handleMouseDownOnPart( x, y, mask );
 		}
 		else
 		{
 			LLToolCompTranslate::getInstance()->setCurrentTool( LLToolCompTranslate::getInstance()->mSelectRect );
-			LLToolCompTranslate::getInstance()->mSelectRect->handlePick( pick_info );
+			LLToolCompTranslate::getInstance()->mSelectRect->handleMouseDown( x, y, mask );
 
 			// *TODO: add toggle to trigger old click-drag functionality
 			// LLToolCompTranslate::getInstance()->mManip->handleMouseDownOnPart( XY_part, x, y, mask);
@@ -260,7 +260,7 @@ void LLToolCompTranslate::pickCallback(const LLPickInfo& pick_info)
 	else
 	{
 		LLToolCompTranslate::getInstance()->setCurrentTool( LLToolCompTranslate::getInstance()->mSelectRect );
-		LLToolCompTranslate::getInstance()->mSelectRect->handlePick( pick_info );
+		LLToolCompTranslate::getInstance()->mSelectRect->handleMouseDown( x, y, mask);
 	}
 }
 
@@ -342,19 +342,19 @@ BOOL LLToolCompScale::handleHover(S32 x, S32 y, MASK mask)
 BOOL LLToolCompScale::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	mMouseDown = TRUE;
-	gViewerWindow->pickAsync(x, y, mask, pickCallback);
+	gViewerWindow->hitObjectOrLandGlobalAsync(x, y, mask, pickCallback);
 	return TRUE;
 }
 
-void LLToolCompScale::pickCallback(const LLPickInfo& pick_info)
+void LLToolCompScale::pickCallback(S32 x, S32 y, MASK mask)
 {
-	LLViewerObject* hit_obj = pick_info.getObject();
+	LLViewerObject* hit_obj = gViewerWindow->lastObjectHit();
 
-	LLToolCompScale::getInstance()->mManip->highlightManipulators(pick_info.mMousePt.mX, pick_info.mMousePt.mY);
+	LLToolCompScale::getInstance()->mManip->highlightManipulators(x, y);
 	if (!LLToolCompScale::getInstance()->mMouseDown)
 	{
 		// fast click on object, but mouse is already up...just do select
-		LLToolCompScale::getInstance()->mSelectRect->handleObjectSelection(pick_info, gSavedSettings.getBOOL("EditLinkedParts"), FALSE);
+		LLToolCompScale::getInstance()->mSelectRect->handleObjectSelection(hit_obj, mask, gSavedSettings.getBOOL("EditLinkedParts"), FALSE);
 
 		return;
 	}
@@ -368,18 +368,18 @@ void LLToolCompScale::pickCallback(const LLPickInfo& pick_info)
 		if(	LLManip::LL_NO_PART != LLToolCompScale::getInstance()->mManip->getHighlightedPart() )
 		{
 			LLToolCompScale::getInstance()->setCurrentTool( LLToolCompScale::getInstance()->mManip );
-			LLToolCompScale::getInstance()->mManip->handleMouseDownOnPart( pick_info.mMousePt.mX, pick_info.mMousePt.mY, pick_info.mKeyMask );
+			LLToolCompScale::getInstance()->mManip->handleMouseDownOnPart( x, y, mask );
 		}
 		else
 		{
 			LLToolCompScale::getInstance()->setCurrentTool( LLToolCompScale::getInstance()->mSelectRect );
-			LLToolCompScale::getInstance()->mSelectRect->handlePick( pick_info );
+			LLToolCompScale::getInstance()->mSelectRect->handleMouseDown( x, y, mask );
 		}
 	}
 	else
 	{
 		LLToolCompScale::getInstance()->setCurrentTool( LLToolCompScale::getInstance()->mSelectRect );
-		LLToolCompScale::getInstance()->mSelectRect->handlePick( pick_info );
+		LLToolCompScale::getInstance()->mCur->handleMouseDown( x, y, mask );
 	}
 }
 
@@ -457,15 +457,15 @@ BOOL LLToolCompCreate::handleMouseDown(S32 x, S32 y, MASK mask)
 	BOOL handled = FALSE;
 	mMouseDown = TRUE;
 
-	if ( (mask == MASK_SHIFT) || (mask == MASK_CONTROL) )
-	{
-		gViewerWindow->pickAsync(x, y, mask, pickCallback);
-		handled = TRUE;
-	}
-	else
+	if ( !(mask == MASK_SHIFT) && !(mask == MASK_CONTROL) )
 	{
 		setCurrentTool( mPlacer );
 		handled = mPlacer->placeObject( x, y, mask );
+	}
+	else
+	{
+		gViewerWindow->hitObjectOrLandGlobalAsync(x, y, mask, pickCallback);
+		handled = TRUE;
 	}
 	
 	mObjectPlacedOnMouseDown = TRUE;
@@ -473,15 +473,15 @@ BOOL LLToolCompCreate::handleMouseDown(S32 x, S32 y, MASK mask)
 	return TRUE;
 }
 
-void LLToolCompCreate::pickCallback(const LLPickInfo& pick_info)
+void LLToolCompCreate::pickCallback(S32 x, S32 y, MASK mask)
 {
 	// *NOTE: We mask off shift and control, so you cannot
 	// multi-select multiple objects with the create tool.
-	MASK mask = (pick_info.mKeyMask & ~MASK_SHIFT);
+	mask = (mask & ~MASK_SHIFT);
 	mask = (mask & ~MASK_CONTROL);
 
 	LLToolCompCreate::getInstance()->setCurrentTool( LLToolCompCreate::getInstance()->mSelectRect );
-	LLToolCompCreate::getInstance()->mSelectRect->handlePick( pick_info );
+	LLToolCompCreate::getInstance()->mSelectRect->handleMouseDown( x, y, mask);
 }
 
 BOOL LLToolCompCreate::handleDoubleClick(S32 x, S32 y, MASK mask)
@@ -543,19 +543,19 @@ BOOL LLToolCompRotate::handleHover(S32 x, S32 y, MASK mask)
 BOOL LLToolCompRotate::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	mMouseDown = TRUE;
-	gViewerWindow->pickAsync(x, y, mask, pickCallback);
+	gViewerWindow->hitObjectOrLandGlobalAsync(x, y, mask, pickCallback);
 	return TRUE;
 }
 
-void LLToolCompRotate::pickCallback(const LLPickInfo& pick_info)
+void LLToolCompRotate::pickCallback(S32 x, S32 y, MASK mask)
 {
-	LLViewerObject* hit_obj = pick_info.getObject();
+	LLViewerObject* hit_obj = gViewerWindow->lastObjectHit();
 
-	LLToolCompRotate::getInstance()->mManip->highlightManipulators(pick_info.mMousePt.mX, pick_info.mMousePt.mY);
+	LLToolCompRotate::getInstance()->mManip->highlightManipulators(x, y);
 	if (!LLToolCompRotate::getInstance()->mMouseDown)
 	{
 		// fast click on object, but mouse is already up...just do select
-		LLToolCompRotate::getInstance()->mSelectRect->handleObjectSelection(pick_info, gSavedSettings.getBOOL("EditLinkedParts"), FALSE);
+		LLToolCompRotate::getInstance()->mSelectRect->handleObjectSelection(hit_obj, mask, gSavedSettings.getBOOL("EditLinkedParts"), FALSE);
 		return;
 	}
 	
@@ -568,18 +568,18 @@ void LLToolCompRotate::pickCallback(const LLPickInfo& pick_info)
 		if(	LLManip::LL_NO_PART != LLToolCompRotate::getInstance()->mManip->getHighlightedPart() )
 		{
 			LLToolCompRotate::getInstance()->setCurrentTool( LLToolCompRotate::getInstance()->mManip );
-			LLToolCompRotate::getInstance()->mManip->handleMouseDownOnPart( pick_info.mMousePt.mX, pick_info.mMousePt.mY, pick_info.mKeyMask );
+			LLToolCompRotate::getInstance()->mManip->handleMouseDownOnPart( x, y, mask );
 		}
 		else
 		{
 			LLToolCompRotate::getInstance()->setCurrentTool( LLToolCompRotate::getInstance()->mSelectRect );
-			LLToolCompRotate::getInstance()->mSelectRect->handlePick( pick_info );
+			LLToolCompRotate::getInstance()->mSelectRect->handleMouseDown( x, y, mask );
 		}
 	}
 	else
 	{
 		LLToolCompRotate::getInstance()->setCurrentTool( LLToolCompRotate::getInstance()->mSelectRect );
-		LLToolCompRotate::getInstance()->mSelectRect->handlePick( pick_info );
+		LLToolCompRotate::getInstance()->mCur->handleMouseDown( x, y, mask );
 	}
 }
 

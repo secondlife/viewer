@@ -67,8 +67,6 @@ public:
 
 	U8 getType() const { return mType; }
 
-	LLVector3d getPositionGlobal() const { return mPositionGlobal; }
-
 	static LLHUDObject *addHUDObject(const U8 type);
 	static LLHUDEffect *addHUDEffect(const U8 type);
 	static void updateAll();
