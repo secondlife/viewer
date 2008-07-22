@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel label="Pacto" name="Covenant">
+	<text name="covenant_help_text">
+		Cambiar las informaciones de pacto irá a mostrar todas las parcelas en la propiedad.
+	</text>
+	<text name="region_name_lbl">
+		Región:
+	</text>
+	<text name="region_name_text">
+		(desconocido)
+	</text>
+	<text name="estate_name_lbl">
+		Propiedad:
+	</text>
+	<text name="estate_name_text">
+		(desconocido)
+	</text>
+	<text name="covenent_instructions">
+		Arrastre y suelte una tarjeta de anotación
+para mudar el pacto
+para esta propiedad.
+	</text>
+	<button label="?" name="covenant_help" />
+	<button label="Restaurar" name="reset_covenant" />
+	<text name="estate_owner_lbl">
+		Dueño de la propiedad:
+	</text>
+	<text name="estate_owner_text">
+		(desconocido)
+	</text>
+	<text name="resellable_clause">
+		Terreno comprado en esta región podrá o no ser revendido.
+	</text>
+	<text name="changeable_clause">
+		Terreno comprado en esta región podrá o no ser unido o subdividido.
+	</text>
+	<text_editor name="covenant_editor">
+		Cargando...
+	</text_editor>
+	<text name="can_resell">
+		Terreno comprado en esta región podrá ser revendido.
+	</text>
+	<text name="can_not_resell">
+		Terreno comprado en esta región no podrá ser revendido.
+	</text>
+	<text name="can_change">
+		Terreno comprado en esta región podrá ser unido o subdividido.
+	</text>
+	<text name="can_not_change">
+		Terreno comprado en esta región no podrá ser unido o subdividido.
+	</text>
+</panel>

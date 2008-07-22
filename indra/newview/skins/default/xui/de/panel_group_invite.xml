@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel label="Mitglied einladen" name="invite_panel">
+	<text name="help_text">
+		Sie können mehrere Einwohner zu Ihrer
+Gruppe einladen. Klicken Sie auf
+&apos;Personenauswahl öffnen&apos;.
+	</text>
+	<button label="Personenauswahl öffnen" name="add_button" tool_tip="" />
+	<name_list name="invitee_list"
+	     tool_tip="Halten Sie zur Mehrfachauswahl die Strg-Taste gedrückt und klicken Sie auf die Einwohnernamen." />
+	<button label="Auswahl aus Liste löschen" name="remove_button"
+	     tool_tip="Die oben ausgewählten Einwohner von der Einladungsliste entfernen." />
+	<text>
+		Wählen Sie eine Rolle aus:
+	</text>
+	<text name="role_text">
+		Wählen Sie eine Rolle aus:
+	</text>
+	<combo_box name="role_name"
+	     tool_tip="Wählen Sie aus der Liste der Rollen, die Sie an Mitglieder vergeben dürfen." />
+	<button label="Einladungen versenden" name="ok_button" />
+	<button label="Abbrechen" name="cancel_button" />
+	<string name="confirm_invite_owner_str">
+		Möchten Sie wirklich (einen) neue(n) Eigentümer einladen? Dies kann nicht rückgängig gemacht werden!
+	</string>
+	<text name="loading">
+		(wird geladen...)
+	</text>
+</panel>

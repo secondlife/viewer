@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="Postcard" title="Enviar tarjeta">
+	<text name="to_label">
+		Destinatario de email:
+	</text>
+	<text name="from_label">
+		Su email:
+	</text>
+	<text name="name_label">
+		Su nombre:
+	</text>
+	<text name="subject_label">
+		Asunto:
+	</text>
+	<text name="msg_label">
+		Mensaje:
+	</text>
+	<check_box label="Publicar en la web" name="allow_publish_check"
+	     tool_tip="Publicar esta tarjeta en la internet." />
+	<check_box label="Contenido adulto" name="mature_check"
+	     tool_tip="Esta tarjeta posee contenido adulto." />
+	<button label="?" name="publish_help_btn" />
+	<text name="fine_print">
+		Si el destinatario juntarse a Second Life, usted ganará un bono de referencia.
+	</text>
+	<button label="Cancelar" name="cancel_btn" />
+	<button label="Enviar" name="send_btn" />
+</floater>

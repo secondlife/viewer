@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel label="Gráficos" name="Display panel">
+	<check_box label="Executar em Janela" name="windowed mode" />
+	<text type="string" length="1" name="Fullscreen Aspect Ratio:">
+		Aparência de Tela Cheia:
+	</text>
+	<text type="string" length="1" name="(width / height)">
+		(largura / altura)
+	</text>
+	<combo_box name="aspect_ratio">
+		<combo_item type="string" length="1" name="4:3(StandardCRT)">
+			4:3 (CRT Padrão)
+		</combo_item>
+		<combo_item type="string" length="1" name="5:4(1280x1024LCD)">
+			5:4 (1280x1024 LCD)
+		</combo_item>
+		<combo_item type="string" length="1" name="16:9(Widescreen)">
+			16:9 (Widescreen)
+		</combo_item>
+	</combo_box>
+	<check_box label="Auto detectar" name="aspect_auto_detect" />
+	<text type="string" length="1" name="UI Size:">
+		Tamanho da interface:
+	</text>
+	<text type="string" length="1" name="(meters, lower is faster)">
+		(metros, menor é mais rápido)
+	</text>
+	<text type="string" length="1" name="text2">
+		Mostrar Opções:
+	</text>
+	<check_box label="Usar resolução de escala independente" name="ui_auto_scale" />
+	<spinner label="Desenhar Distância:" name="draw_distance" />
+	<check_box label="Mostrar Avatar em Mouselook" name="avfp" />
+	<text name="resolution_format">
+		[RES_X] x [RES_Y]
+	</text>
+	<text name="aspect_ratio_text">
+		[NUM]:[DEN]
+	</text>
+</panel>

@@ -257,6 +257,10 @@ public:
 		{
 			mFontAlignment = (LLFontGL::HAlign)llclamp(sd.get("halign").asInteger(), (S32)LLFontGL::LEFT, (S32)LLFontGL::HCENTER);
 		}
+		else
+		{
+			mFontAlignment = LLFontGL::LEFT;
+		}
 
 		mIndex = -1;
 		mParentCtrl = NULL;

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel label="Propiedad" name="Estate">
+	<text name="estate_help_text">
+		Cambiar las configuraciones en esta pestaña afectará todas las regiones en la propiedad.
+	</text>
+	<text name="estate_text">
+		Propiedad:
+	</text>
+	<text name="estate_name">
+		(desconocido)
+	</text>
+	<text name="owner_text">
+		Propietario:
+	</text>
+	<text name="estate_owner">
+		(desconocido)
+	</text>
+	<text name="estate_manager_label">
+		Gerentes de propiedad:
+	</text>
+	<button label="?" name="estate_manager_help" />
+	<button label="Adicionar..." name="add_estate_manager_btn" />
+	<button label="Remover..." name="remove_estate_manager_btn" />
+	<check_box label="Usar horario global" name="use_global_time_check" />
+	<button label="?" name="use_global_time_help" />
+	<check_box label="Sol fijo" name="fixed_sun_check" />
+	<button label="?" name="fixed_sun_help" />
+	<slider label="Fase" name="sun_hour_slider" />
+	<check_box label="Public Access" name="externally_visible_check" />
+	<button label="?" name="externally_visible_help" />
+	<check_box label="Permitir teletransporte directo" name="allow_direct_teleport" />
+	<button label="?" name="allow_direct_teleport_help" />
+	<text name="region_text_lbl">
+		Negar acceso en el estado de pago:
+	</text>
+	<check_box label="Permitir informaciones de pago en archivo" name="deny_anonymous" />
+	<check_box label="Rechazar informaciones de pago en archivo" name="deny_identified" />
+	<check_box label="Rechazar informaciones de pago usadas" name="deny_transacted" />
+	<button label="Aplicar" name="apply_btn" />
+	<text name="allow_resident_label">
+		Residentes permitidos:
+	</text>
+	<button label="?" name="allow_resident_help" />
+	<button label="Adicionar..." name="add_allowed_avatar_btn" />
+	<button label="Remover..." name="remove_allowed_avatar_btn" />
+	<text name="allow_group_label">
+		Grupos permitidos:
+	</text>
+	<button label="?" name="allow_group_help" />
+	<button label="Adicionar..." name="add_allowed_group_btn" />
+	<button label="Remover..." name="remove_allowed_group_btn" />
+	<text name="ban_resident_label">
+		Residentes desterrados:
+	</text>
+	<button label="?" name="ban_resident_help" />
+	<button label="Adicionar..." name="add_banned_avatar_btn" />
+	<button label="Remover..." name="remove_banned_avatar_btn" />
+	<button label="Enviar mensaje para propiedad..." name="message_estate_btn" />
+	<button label="Expulsar a usuario de la propiedad..." name="kick_user_from_estate_btn" />
+</panel>

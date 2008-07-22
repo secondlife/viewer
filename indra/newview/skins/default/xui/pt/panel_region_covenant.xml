@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel label="Corretagem" name="Covenant">
+	<text name="covenant_help_text">
+		As mudanças à informação do convénio mostrarão em todos os pacotes na propriedade.
+	</text>
+	<text name="region_name_lbl">
+		Região:
+	</text>
+	<text name="region_name_text">
+		(desconhecido)
+	</text>
+	<text name="estate_name_lbl">
+		Propriedade:
+	</text>
+	<text name="estate_name_text">
+		(desconhecido)
+	</text>
+	<text name="covenent_instructions">
+		Arraste o cartao de um Corretor 
+para este estado.
+	</text>
+	<button label="?" name="covenant_help" />
+	<button label="Resetar" name="reset_covenant" />
+	<text name="estate_owner_lbl">
+		Proprietário final:
+	</text>
+	<text name="estate_owner_text">
+		(desconhecido)
+	</text>
+	<text name="resellable_clause">
+		Terras compradas na região não poderão ser revendidas.
+	</text>
+	<text name="changeable_clause">
+		Terras compradas na região não poderão ser compartilhadas ou subdividas.
+	</text>
+	<text_editor name="covenant_editor">
+		Carregando...
+	</text_editor>
+	<text name="can_resell">
+		Terras compradas na região poderão ser revendidas.
+	</text>
+	<text name="can_not_resell">
+		Terras compradas na região não poderão ser revendidas.
+	</text>
+	<text name="can_change">
+		O terreno comprado nesta região pode ser compartilhada ou subdividida.
+	</text>
+	<text name="can_not_change">
+		A terreno comprado nesta região não pode ser compartilhada ou subdividida.
+	</text>
+</panel>

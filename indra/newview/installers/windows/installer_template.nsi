@@ -111,6 +111,10 @@ Call RemoveNSIS					; Check for old NSIS install to remove
 Call RemoveOldShaders
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Need to clean out old XUI files that predate skinning
+Call RemoveOldXUI
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Files
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; This placeholder is replaced by the complete list of all the files in the installer, by viewer_manifest.py
@@ -485,6 +489,22 @@ Function RemoveOldShaders
 
 ;; Remove old shader files first so fallbacks will work. see DEV-5663
 RMDir /r "$INSTDIR\app_settings\shaders\*"
+
+FunctionEnd
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Delete the installed XUI files
+;;; We've changed the directory hierarchy for skins, putting all XUI and texture
+;;; files under a specific skin directory, i.e. skins/default/xui/en-us as opposed
+;;; to skins/xui/en-us.  Need to clean up the old path when upgrading
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+Function RemoveOldXUI
+
+;; remove old XUI and texture files
+RmDir /r "$INSTDIR\skins\html"
+RmDir /r "$INSTDIR\skins\xui"
+RmDir /r "$INSTDIR\skins\textures"
+Delete "$INSTDIR\skins\*.txt"
 
 FunctionEnd
 

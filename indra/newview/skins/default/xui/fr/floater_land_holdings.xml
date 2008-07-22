@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="land holdings floater" title="Mon terrain">
+	<scroll_list name="parcel list">
+		<column label="Name" name="name" />
+		<column label="Location" name="location" />
+		<column label="Area" name="area" />
+		<column label="" name="hidden" />
+	</scroll_list>
+	<button label="Téléportation" label_selected="Téléportation" name="Teleport"
+	     tool_tip="Téléportez-vous au centre de ce terrain." />
+	<button label="Localiser" label_selected="Localiser" name="Show on Map"
+	     tool_tip="Afficher ce terrain sur la carte du monde." />
+	<text name="contrib_label">
+		Contributions à vos groupes :
+	</text>
+	<scroll_list name="grant list">
+		<column label="Group" name="group" />
+		<column label="Area" name="area" />
+	</scroll_list>
+	<text name="allowed_label">
+		Patrimoine autorisé pour le type de compte actuel :
+	</text>
+	<text name="allowed_text">
+		0 m2
+	</text>
+	<text name="current_label">
+		Patrimoine actuel :
+	</text>
+	<text name="current_text">
+		0 m2
+	</text>
+	<text name="available_label">
+		Disponible à la vente :
+	</text>
+	<text name="available_text">
+		0 m2
+	</text>
+</floater>

@@ -927,12 +927,13 @@ S32 LLTextureCache::update(U32 max_time_ms)
 }
 
 //////////////////////////////////////////////////////////////////////////////
-
+// search for local copy of UUID-based image file
 std::string LLTextureCache::getLocalFileName(const LLUUID& id)
 {
 	// Does not include extension
 	std::string idstr = id.asString();
-	std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_SKINS, "textures", idstr);
+	// TODO: should we be storing cached textures in skin directory?
+	std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_SKINS, "default", "textures", idstr);
 	return filename;
 }
 

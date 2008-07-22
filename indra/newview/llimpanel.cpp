@@ -1899,9 +1899,27 @@ void deliver_message(const std::string& utf8_text,
 		im_session_id);
 	gAgent.sendReliableMessage();
 
-	if (LLMuteList::getInstance())
+	// If there is a mute list and this is not a group chat...
+	if ( LLMuteList::getInstance() )
 	{
-		LLMuteList::getInstance()->autoRemove(other_participant_id, LLMuteList::AR_IM);
+		// ... the target should not be in our mute list for some message types.
+		// Auto-remove them if present.
+		switch( dialog )
+		{
+		case IM_NOTHING_SPECIAL:
+		case IM_GROUP_INVITATION:
+		case IM_INVENTORY_OFFERED:
+		case IM_SESSION_INVITE:
+		case IM_SESSION_P2P_INVITE:
+		case IM_SESSION_CONFERENCE_START:
+		case IM_SESSION_SEND: // This one is marginal - erring on the side of hearing.
+		case IM_LURE_USER:
+		case IM_GODLIKE_LURE_USER:
+		case IM_FRIENDSHIP_OFFERED:
+			LLMuteList::getInstance()->autoRemove(other_participant_id, LLMuteList::AR_IM);
+			break;
+		default: ; // do nothing
+		}
 	}
 }
 

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel label="Général" name="general_tab">
+	<text name="help_text">
+		L&apos;onglet Général regroupe des informations générales
+sur ce groupe,une liste de Propriétaires et de Membres visibles,
+les Préférences générales du groupe et les options des membres.
+
+Passez votre pointeur sur les options pour plus d&apos;aide.
+	</text>
+	<button label="?" label_selected="?" name="help_button" />
+	<line_editor name="group_name_editor">
+		Entrez le nom de votre nouveau groupe ici
+	</line_editor>
+	<text name="group_name">
+		Entrez le nom de votre nouveau groupe ici
+	</text>
+	<text name="prepend_founded_by">
+		Fondé par
+	</text>
+	<text name="founder_name">
+		(en attente)
+	</text>
+	<text name="group_charter_label">
+		Charte du Groupe
+	</text>
+	<texture_picker label="Insigne du groupe" name="insignia"
+	     tool_tip="Cliquez pour choisir une image" />
+	<text_editor name="charter">
+		Charte du Groupe
+	</text_editor>
+	<button label="S&apos;inscrire (L$0)" label_selected="S&apos;inscrire (L$0)"
+	     name="join_button" />
+	<button label="Vue détaillée" label_selected="Vue détaillée" name="info_button" />
+	<text>
+		Propriétaires et membres visibles
+	</text>
+	<text>
+		(Propriétaires affichés en gras)
+	</text>
+	<name_list name="visible_members">
+		<column label="Member Name" name="name" />
+		<column label="Title" name="title" />
+		<column label="Last Login" name="online" />
+	</name_list>
+	<text name="incomplete_member_data_str">
+		Accès aux données du membre
+	</text>
+	<text name="confirm_group_create_str">
+		La création du groupe coûte L$100. 
+Etes-vous vraiment, VRAIMENT sûr(e) de vouloir dépenser L$100 pour créer ce groupe ?
+	</text>
+	<text>
+		Préférences du Groupe
+	</text>
+	<panel name="preferences_container">
+		<check_box label="Afficher dans la liste des groupes" name="show_in_group_list"
+		     tool_tip="Sets whether this group shows up in the Search Groups   window and in member profiles." />
+		<check_box label="Publier sur le web" name="publish_on_web"
+		     tool_tip="Cochez pour publier les informations de ce groupe sur le web." />
+		<check_box label="Inscription libre" name="open_enrollement"
+		     tool_tip="Sets whether this group allows new members to join   without being invited." />
+		<check_box label="Frais d&apos;inscription: L$" name="check_enrollment_fee"
+		     tool_tip="Cochez pour fixer des frais d&apos;inscription à ce groupe." />
+		<spinner name="spin_enrollment_fee"
+		     tool_tip="New members must pay this fee to join the group when   Enrollment Fee is checked." />
+		<check_box label="Adulte" name="mature"
+		     tool_tip="Cochez si les informations de votre groupe sont à caractère adulte." />
+		<panel name="title_container">
+			<text name="active_title_label">
+				Mon Titre actif
+			</text>
+			<combo_box name="active_title"
+			     tool_tip="Sets the title that appears in your avatar&apos;s name tag   when this group is active." />
+		</panel>
+		<check_box label="Recevoir les Notifications" name="receive_notices"
+		     tool_tip="Sets whether you want to receive Notices from this group.   Uncheck this box if this group is spamming you." />
+	</panel>
+</panel>

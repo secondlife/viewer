@@ -75,6 +75,7 @@ ATI Radeon HD 2900				.*ATI.*Radeon HD 29.*				3		1
 ATI Radeon HD 3400				.*ATI.*Radeon HD 34.*				1		1
 ATI Radeon HD 3600				.*ATI.*Radeon HD 36.*				3		1
 ATI Radeon HD 3800				.*ATI.*Radeon HD 38.*				3		1
+ATI Radeon HD 4800				.*ATI.*Radeon HD 48.*				3		1
 ATI Radeon OpenGL				.*ATI.*Radeon OpenGL.* 				0		0
 ATI Radeon 7xxx					.*ATI.*Radeon 7.*					0		1
 ATI Radeon 8xxx					.*ATI.*Radeon 8.*					0		1

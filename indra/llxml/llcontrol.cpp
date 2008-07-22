@@ -101,7 +101,7 @@ bool LLControlVariable::llsd_compare(const LLSD& a, const LLSD & b)
 
 LLControlVariable::LLControlVariable(const std::string& name, eControlType type,
 							 LLSD initial, const std::string& comment,
-							 BOOL persist)
+							 bool persist)
 	: mName(name),
 	  mComment(comment),
 	  mType(type),
@@ -121,7 +121,7 @@ LLControlVariable::~LLControlVariable()
 {
 }
 
-void LLControlVariable::setValue(const LLSD& value, bool saved_value)
+LLSD LLControlVariable::getComparableValue(const LLSD& value)
 {
 	// *FIX:MEP - The following is needed to make the LLSD::ImplString 
 	// work with boolean controls...
@@ -131,11 +131,11 @@ void LLControlVariable::setValue(const LLSD& value, bool saved_value)
 		BOOL temp;
 		if(LLStringUtil::convertToBOOL(value.asString(), temp)) 
 		{
-			storable_value = temp;
+			storable_value = (bool)temp;
 		}
 		else
 		{
-			storable_value = FALSE;
+			storable_value = false;
 		}
 	}
 	else
@@ -143,6 +143,12 @@ void LLControlVariable::setValue(const LLSD& value, bool saved_value)
 		storable_value = value;
 	}
 
+	return storable_value;
+}
+
+void LLControlVariable::setValue(const LLSD& value, bool saved_value)
+{
+	LLSD storable_value = getComparableValue(value);
 	bool value_changed = llsd_compare(getValue(), storable_value) == FALSE;
 	if(saved_value)
 	{
@@ -184,12 +190,46 @@ void LLControlVariable::setValue(const LLSD& value, bool saved_value)
     }
 }
 
+void LLControlVariable::setDefaultValue(const LLSD& value)
+{
+	// Set the control variables value and make it 
+	// the default value. If the active value is changed,
+	// send the signal.
+	// *NOTE: Default values are not saved, only read.
+
+	LLSD comparable_value = getComparableValue(value);
+	bool value_changed = (llsd_compare(getValue(), comparable_value) == FALSE);
+	resetToDefault(false);
+	mValues[0] = comparable_value;
+	if(value_changed)
+	{
+		firePropertyChanged();
+	}
+}
+
+void LLControlVariable::setPersist(bool state)
+{
+	mPersist = state;
+}
+
+void LLControlVariable::setComment(const std::string& comment)
+{
+	mComment = comment;
+}
+
 void LLControlVariable::resetToDefault(bool fire_signal)
 {
 	//The first setting is always the default
 	//Pop to it and fire off the listener
-	while(mValues.size() > 1) mValues.pop_back();
-	if(fire_signal) firePropertyChanged();
+	while(mValues.size() > 1)
+	{
+		mValues.pop_back();
+	}
+	
+	if(fire_signal) 
+	{
+		firePropertyChanged();
+	}
 }
 
 bool LLControlVariable::isSaveValueDefault()
@@ -206,10 +246,10 @@ LLSD LLControlVariable::getSaveValue() const
 	return mValues[0];
 }
 
-LLControlVariable*	LLControlGroup::getControl(const std::string& name)
+LLPointer<LLControlVariable> LLControlGroup::getControl(const std::string& name)
 {
 	ctrl_name_table_t::iterator iter = mNameTable.find(name);
-	return iter == mNameTable.end() ? NULL : iter->second;
+	return iter == mNameTable.end() ? LLPointer<LLControlVariable>() : iter->second;
 }
 
 
@@ -238,7 +278,6 @@ LLControlGroup::~LLControlGroup()
 
 void LLControlGroup::cleanup()
 {
-	for_each(mNameTable.begin(), mNameTable.end(), DeletePairedPointer());
 	mNameTable.clear();
 }
 
@@ -264,6 +303,7 @@ BOOL LLControlGroup::declareControl(const std::string& name, eControlType type, 
 		mNameTable[name]->setValue(initial_val);
 		return TRUE;
 	}
+
 	// if not, create the control and add it to the name table
 	LLControlVariable* control = new LLControlVariable(name, type, initial_val, comment, persist);
 	mNameTable[name] = control;	
@@ -979,7 +1019,7 @@ U32 LLControlGroup::saveToFile(const std::string& filename, BOOL nondefault_only
 	return num_saved;
 }
 
-U32 LLControlGroup::loadFromFile(const std::string& filename)
+U32 LLControlGroup::loadFromFile(const std::string& filename, bool set_default_values)
 {
 	std::string name;
 	LLSD settings;
@@ -1002,7 +1042,7 @@ U32 LLControlGroup::loadFromFile(const std::string& filename)
 	}
 
 	U32	validitems = 0;
-	int persist = 1;
+	bool persist = false;
 	for(LLSD::map_const_iterator itr = settings.beginMap(); itr != settings.endMap(); ++itr)
 	{
 		name = (*itr).first;
@@ -1017,11 +1057,31 @@ U32 LLControlGroup::loadFromFile(const std::string& filename)
 		LLControlVariable* existing_control = getControl(name);
 		if(existing_control)
 		{
-			// Check persistence. If not persisted, we shouldn't be loading.
-			if(existing_control->isPersisted())
+			if(set_default_values)
 			{
+				// Override all previously set properties of this control.
+				// ... except for type. The types must match.
+				eControlType new_type = typeStringToEnum(control_map["Type"].asString());
+				if(existing_control->isType(new_type))
+				{
+					existing_control->setDefaultValue(control_map["Value"]);
+					existing_control->setPersist(persist);
+					existing_control->setComment(control_map["Comment"].asString());
+				}
+				else
+				{
+					llerrs << "Mismatched type of control variable '"
+						   << name << "' found while loading '"
+						   << filename << "'." << llendl;
+				}
+			}
+			else if(existing_control->isPersisted())
+			{
+				
 				existing_control->setValue(control_map["Value"]);
 			}
+			// *NOTE: If not persisted and not setting defaults, 
+			// the value should not get loaded.
 		}
 		else
 		{

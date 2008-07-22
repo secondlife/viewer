@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel name="panel_login">
+	<text name="first_name_text">
+		ファーストネーム：
+	</text>
+	<text name="last_name_text">
+		ラストネーム：
+	</text>
+	<text name="password_text">
+		パスワード：
+	</text>
+	<text name="start_location_text">
+		ログイン位置：
+	</text>
+	<combo_box name="start_location_combo">
+		<combo_item name="MyHome">
+			自宅（ホーム）
+		</combo_item>
+		<combo_item name="MyLastLocation">
+			最後のロケーション
+		</combo_item>
+		<combo_item name="Typeregionname">
+			&lt;地域の名前入力&gt;
+		</combo_item>
+	</combo_box>
+	<check_box label="パスワードを記憶" name="remember_check" />
+	<text name="full_screen_text">
+		ログイン時にはフルスクリーン表示になります
+	</text>
+	<button label="新規アカウント..." label_selected="新規アカウント..."
+	     name="new_account_btn" />
+	<button label="環境設定..." label_selected="環境設定..." name="preferences_btn" />
+	<button label="接続" label_selected="接続" name="connect_btn" />
+	<button label="終了" label_selected="終了" name="quit_btn" />
+	<text name="version_text">
+		1.23.4 (5)
+	</text>
+	<text name="channel_text">
+		[Viewer Channel Name]
+	</text>
+	<text name="forgot_password_text">
+		名前またはパスワードをお忘れですか?
+	</text>
+	<text name="forgot_password_url">
+		http://secondlife.com/account/request.php
+	</text>
+</panel>

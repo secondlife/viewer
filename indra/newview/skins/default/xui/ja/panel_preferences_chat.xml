@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel label="チャット" name="chat">
+	<text type="string" length="1" name="text_box">
+		チャットのフォント：
+	</text>
+	<radio_group name="chat font size">
+		<radio_item type="string" length="1" name="radio">
+			小
+		</radio_item>
+		<radio_item type="string" length="1" name="radio2">
+			中
+		</radio_item>
+		<radio_item type="string" length="1" name="radio3">
+			大
+		</radio_item>
+	</radio_group>
+	<text type="string" length="1" name="text_box2">
+		チャット・カラー：
+	</text>
+	<color_swatch label="IM" name="im" />
+	<color_swatch label="ｼｽﾃﾑ" name="system" />
+	<color_swatch label="チャット" name="users" />
+	<color_swatch label="所有者" name="objects" />
+	<color_swatch label="所有者" name="owner" />
+	<color_swatch label="吹出し" name="background" />
+	<color_swatch label="URL" name="links" />
+	<text type="string" length="1" name="text_box3">
+		チャット・コンソール：
+	</text>
+	<spinner label="フェード" name="fade_chat_time" />
+	<text type="string" length="1" name="text_box4">
+		（秒後）
+	</text>
+	<text type="string" length="1" name="text_box5">
+		（行数）
+	</text>
+	<slider label="不透明度" name="console_opacity" />
+	<text type="string" length="1" name="text_box6">
+		チャット・オプション
+	</text>
+	<check_box label="チャットに全画面幅を使用（再起動後）"
+	     name="chat_full_width_check" />
+	<check_box label="Enterキーを押した後チャットを閉じる"
+	     name="close_chat_on_return_check" />
+	<check_box
+	     label="チャット中は、いつでも矢印キーでアバターを移動可能"
+	     name="arrow_keys_move_avatar_check" />
+	<check_box label="チャットにタイムスタンプを表示"
+	     name="show_timestamps_check" />
+	<text type="string" length="1" name="text_box7">
+		チャットの吹き出し：
+	</text>
+	<check_box label="チャットの吹き出しを表示" name="bubble_text_chat" />
+	<slider label="不透明度" name="bubble_chat_opacity" />
+	<text type="string" length="1" name="text_box8">
+		スクリプト・エラー：
+	</text>
+	<check_box label="スクリプト・エラーと警告をチャット同様に表示"
+	     name="script_errors_as_chat" />
+	<color_swatch label="色" name="script_error" />
+</panel>

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel label="Clause de sauvegarde" name="Covenant">
+	<text name="covenant_help_text">
+		Les modifications d&apos;informations de clause de sauvegarde apparaîtront sur toutes les parcelles du domaine.
+	</text>
+	<text name="region_name_lbl">
+		Région :
+	</text>
+	<text name="region_name_text">
+		(inconnu)
+	</text>
+	<text name="estate_name_lbl">
+		Domaine :
+	</text>
+	<text name="estate_name_text">
+		(inconnu)
+	</text>
+	<text name="covenent_instructions">
+		Glissez-déposez une note
+pour modifier la Clause de sauvegarde
+de ce domaine.
+	</text>
+	<button label="?" name="covenant_help" />
+	<button label="Réinitialiser" name="reset_covenant" />
+	<text name="estate_owner_lbl">
+		Propriétaire :
+	</text>
+	<text name="estate_owner_text">
+		(inconnu)
+	</text>
+	<text name="resellable_clause">
+		Les terrains acquis dans cette région peuvent ou ne peuvent pas être revendus.
+	</text>
+	<text name="changeable_clause">
+		Les terrains acquis dans cette région peuvent ou ne peuvent pas être fusionnés ou subdivisés.
+	</text>
+	<text_editor name="covenant_editor">
+		Chargement en cours...
+	</text_editor>
+	<text name="can_resell">
+		Les terrains acquis dans cette région peuvent être revendus.
+	</text>
+	<text name="can_not_resell">
+		Les terrains acquis dans cette région ne peuvent être revendus.
+	</text>
+	<text name="can_change">
+		Les terrains acquis dans cette région peuvent être fusionnés ou subdivisés.
+	</text>
+	<text name="can_not_change">
+		Les terrains acquis dans cette région ne peuvent être fusionnés ou subdivisés.
+	</text>
+</panel>

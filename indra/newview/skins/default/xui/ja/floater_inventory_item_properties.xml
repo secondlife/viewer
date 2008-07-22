@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="item properties" title="持ち物アイテムのプロパティ">
+	<text name="LabelItemNameTitle">
+		名前：
+	</text>
+	<text name="LabelItemDescTitle">
+		説明：
+	</text>
+	<text name="LabelCreatorTitle">
+		クリエーター
+	</text>
+	<text name="LabelCreatorName">
+		Nicole Linden
+	</text>
+	<button label="プロフィール..." label_selected="" name="BtnCreator" />
+	<text name="LabelOwnerTitle">
+		オーナー：
+	</text>
+	<text name="LabelOwnerName">
+		Thrax Linden
+	</text>
+	<button label="プロフィール..." label_selected="" name="BtnOwner" />
+	<text name="LabelAcquiredTitle">
+		入手：
+	</text>
+	<text name="LabelAcquiredDate">
+		2006年5月24日水曜日12:50:46
+	</text>
+	<text name="OwnerLabel">
+		できることは：
+	</text>
+	<check_box label="修正" name="CheckOwnerModify" />
+	<check_box label="コピー" name="CheckOwnerCopy" />
+	<check_box label="再販／プレゼント" name="CheckOwnerTransfer" />
+	<text name="BaseMaskDebug">
+		B:
+	</text>
+	<text name="OwnerMaskDebug">
+		O:
+	</text>
+	<text name="GroupMaskDebug">
+		G:
+	</text>
+	<text name="EveryoneMaskDebug">
+		E:
+	</text>
+	<text name="NextMaskDebug">
+		N：
+	</text>
+	<check_box label="グループ分担" name="CheckShareWithGroup" />
+	<check_box label="誰に対してもコピーを許可" name="CheckEveryoneCopy" />
+	<text name="NextOwnerLabel">
+		次のオーナーが実行できる操作：
+	</text>
+	<check_box label="修正" name="CheckNextOwnerModify" />
+	<check_box label="コピー" name="CheckNextOwnerCopy" />
+	<check_box label="再販／プレゼント" name="CheckNextOwnerTransfer" />
+	<text name="SaleLabel">
+		アイテムにマーク：
+	</text>
+	<check_box label="売り出し中" name="CheckPurchase" />
+	<radio_group name="RadioSaleType">
+		<radio_item name="radio">
+			オリジナル
+		</radio_item>
+		<radio_item name="radio2">
+			コピー
+		</radio_item>
+	</radio_group>
+	<text name="TextPrice">
+		料金：L$
+	</text>
+	<text name="unknown">
+		(不明）
+	</text>
+	<text name="public">
+		(公共)
+	</text>
+	<text name="you_can">
+		次のことができます：
+	</text>
+	<text name="owner_can">
+		オーナーは次のことができます：
+	</text>
+</floater>

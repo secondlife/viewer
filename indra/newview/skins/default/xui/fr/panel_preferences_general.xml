@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel label="Général" name="general_panel">
+	<check_box label="Afficher Lieu d&apos;arrivée sur l&apos;écran de connexion"
+	     name="show_location_checkbox" />
+	<check_box label="Masquer mon nom sur mon écran" name="show_my_name_checkbox" />
+	<check_box label="Masquer mon titre de groupe" name="show_my_title_checkbox" />
+	<check_box label="Petits noms d&apos;avatar" name="small_avatar_names_checkbox" />
+	<check_box label="M&apos;avertir lorsque mes amis se connectent"
+	     name="friends_online_notify_checkbox" />
+	<check_box label="Pivoter la mini-carte" name="rotate_mini_map_checkbox" />
+	<check_box label="M&apos;avertir lorsque des L$ sont dépensés ou reçus"
+	     name="notify_money_change_checkbox" />
+	<check_box label="Détecter carte graphique au prochain démarrage"
+	     name="probe_hardware_checkbox"
+	     tool_tip="Second Life configure automatiquement certains réglages de la carte graphique d&apos;après votre configuration matérielle. Nous vous recommandons d&apos;effectuer la détection à chaque nouvelle installation de matériel." />
+	<check_box label="Utiliser le sélecteur de couleurs système"
+	     name="use_system_color_picker_checkbox"
+	     tool_tip="Utiliser le sélecteur de couleurs système plutôt que celui de Second Life." />
+	<text type="string" length="1" name="start_location_textbox">
+		Lieu d&apos;arrivée :
+	</text>
+	<text type="string" length="1" name="show_names_textbox">
+		Afficher les noms :
+	</text>
+	<text type="string" length="1" name="effects_color_textbox">
+		Couleurs de mes effets :
+	</text>
+	<text type="string" length="1" name="seconds_textbox">
+		secondes
+	</text>
+	<text type="string" length="1" name="crash_report_textbox">
+		Rapports d&apos;erreur :
+	</text>
+	<text type="string" length="1" name="language_textbox">
+		Langue :
+	</text>
+	<text type="string" length="1" name="language_textbox2">
+		(Nécessite un redémarrage)
+	</text>
+	<radio_group name="fade_out_radio">
+		<radio_item type="string" length="1" name="Never">
+			Jamais
+		</radio_item>
+		<radio_item type="string" length="1" name="Temporarily">
+			Temporairement
+		</radio_item>
+		<radio_item type="string" length="1" name="Always">
+			Toujours
+		</radio_item>
+	</radio_group>
+	<color_swatch label="" name="effect_color_swatch"
+	     tool_tip="Cliquer pour ouvrir le sélecteur de couleurs" />
+	<spinner label="Limite d&apos;inactivité :" name="afk_timeout_spinner" />
+	<text name="region_name_prompt">
+		&lt;Choisir région&gt;
+	</text>
+	<combo_box name="crash_behavior_combobox">
+		<combo_item type="string" length="1" name="Askbeforesending">
+			Demander
+		</combo_item>
+		<combo_item type="string" length="1" name="Alwayssend">
+			Toujours envoyer
+		</combo_item>
+		<combo_item type="string" length="1" name="Neversend">
+			Ne jamais envoyer
+		</combo_item>
+	</combo_box>
+	<combo_box name="language_combobox">
+		<combo_item type="string" length="1" name="English">
+			Anglais
+		</combo_item>
+		<combo_item type="string" length="1" name="Deutsch(German)">
+			Deutsch (German) - Beta
+		</combo_item>
+		<combo_item type="string" length="1" name="(Japanese)">
+			日本語 (Japanese) - Beta
+		</combo_item>
+		<combo_item type="string" length="1" name="(Korean)">
+			한국어 (Korean) - Beta
+		</combo_item>
+		<combo_item type="string" length="1" name="Chinese">
+			Chinois - Beta
+		</combo_item>
+	</combo_box>
+</panel>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="preview sound" title="Son : Boo Female 2">
+	<text type="string" length="1" name="desc txt">
+		Description :
+	</text>
+	<button label="Exécuter dans le monde" label_selected="Exécuter dans le monde"
+	     name="Sound play btn" tool_tip="Jouer ce son publiquement." />
+	<button label="Exécuter localement" label_selected="Exécuter localement"
+	     name="Sound audition btn" tool_tip="Jouer ce son localement." />
+</floater>

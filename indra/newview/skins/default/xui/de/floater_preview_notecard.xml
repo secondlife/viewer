@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="preview notecard" title="Hinweis:">
+	<button label="Speichern" label_selected="Speichern" name="Save" />
+	<text type="string" length="1" name="desc txt">
+		Beschreibung:
+	</text>
+	<text_editor type="string" length="1" name="Notecard Editor">
+		Wird geladen...
+	</text_editor>
+	<text name="no_object">
+		Es wurde kein Objekt gefunden, das diese Notiz enthält.
+	</text>
+	<text name="not_allowed">
+		Sie können diese Notiz nicht anzeigen.
+	</text>
+</floater>

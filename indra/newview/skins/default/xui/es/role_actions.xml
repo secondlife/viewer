@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<role_actions>
+	<action_set
+	     description="Estas habilidades incluyen poderes de adicionar o remover miembros del grupo y permitir que nuevos miembros se junten sin una invitación."
+	     name="Membership">
+		<action description="Invitar personas para este grupo"
+		     longdescription="Invite personas para este grupo usando el botón &apos;Invitar nueva persona...&apos; en Miembros &amp; pestaña Funciones &gt; subpestaña Miembros."
+		     name="member invite" value="1" />
+		<action description="Expulsar a miembros de este grupo"
+		     longdescription="Expulse a miembros de este grupo usando el botón &apos;Expulsar del grupo&apos; en Miembros &amp; pestaña Funciones &gt; subpestaña Miembros. Un propietario puede expulsar a cualquiera, excepto a otro propietario. Si usted no es un propietario, un miembro puede a expulsarlo del grupo si, y solamente si, él apenas tiene la función de todos y no otras funciones. Para remover miembros de funciones, necesita tener la habilidad &apos;Remover miembros de funciones&apos;."
+		     name="member eject"  value="2" />
+		<action
+		     description="Activar/desactivar &apos;Abrir registro&apos; y cambiar &apos;Tasa de suscripción&apos;"
+		     longdescription="Active/desactive &apos;Abrir registro&apos; para permitir que nuevos miembros se unan sin una invitación, y cambie &apos;Tasa de registro&apos; en la sección Preferencia de grupo de la pestaña General."
+		     name="member options"  value="3" />
+	</action_set>
+	<action_set
+	     description="Estas habilidades incluyen poderes de adicionar, remover y cambiar funciones del grupo; adicionar y remover miembros en funciones y designar habilidades a funciones."
+	     name="Roles">
+		<action description="Crear nuevas funciones"
+		     longdescription="Cree nuevas funciones en Miembros &amp; pestaña Funciones &gt; subpestaña Funciones."
+		     name="role create" value="4" />
+		<action description="Borrar funciones"
+		     longdescription="Borra funciones en Miembros &amp; pestaña Funciones &gt; subpestaña Funciones."
+		     name="role delete" value="5" />
+		<action description="Cambiar nombres de funciones, títulos y descripciones"
+		     longdescription="Cambie el nombre de funciones, títulos y descripciones en la parte inferior de Miembros &amp; pestaña Funciones &gt; subpestaña Funciones después de seleccionar una función."
+		     name="role properties" value="6" />
+		<action description="Designar miembros para la función&apos;s del asignador"
+		     longdescription="Designe miembros para funciones en la sección de funciones designadas de Miembros &amp; pestaña Funciones &gt; subpestaña Miembros. Un miembro con este poder puede solamente adicionar miembros para la función que el asignador ya posee."
+		     name="role assign member limited" value="7" />
+		<action description="Designar miembros para cualquier función"
+		     longdescription="Designe miembros para cualquier función en la sección de funciones designadas de Miembros &amp; pestaña Funciones &gt; subpestaña Miembros. *AVISO* Cualesquiera miembros en una función con esta habilidad pueden designar a sí propios--y cualesquiera otros miembros no propietarios--para funciones que tienen más poderes que las actuales, promocionándolos a poderes próximos al del propietario. Asegúrese de saber lo que está haciendo antes de designar esta habilidad."
+		     name="role assign member" value="8" />
+		<action description="Remover miembros de las funciones"
+		     longdescription="Remueva miembros de funciones en la sección de funciones designadas de Miembros &amp; pestaña Funciones &gt; subpestaña Miembros. Propietarios no pueden&apos; ser removidos."
+		     name="role remove member" value="9" />
+		<action description="Determinar y remover habilidades en función"
+		     longdescription="Designe y remueva habilidades en funciones en la sección habilidades permitidas de Miembros &amp; pestaña Funciones &gt; subpestaña Funciones. *AVISO* Cualesquiera miembros en una función con esta habilidad pueden designar a sí propios--y cualesquiera otros miembros no propietarios--todas las habilidades, promocionándolos a poderes próximos al del propietario. Asegúrese de saber lo que está haciendo antes de designar esta habilidad."
+		     name="role change actions" value="10" />
+	</action_set>
+	<action_set
+	     description="Estas habilidades incluyen poderes para modificar esta identidad de grupo, como cambiar la visibilidad pública, presentación y insignia."
+	     name="Group Identity">
+		<action
+		     description="Cambiar presentación, insignia, &apos;Publicar en la web&apos;, y cuales miembros están públicamente visibles en Informaciones del Grupo."
+		     longdescription="Cambie la presentación, insignia, &apos;Publicar en la web&apos; y cuales miembros están públicamente visibles en  Informaciones del grupo. Es hecho en la pestaña General."
+		     name="group change identity" value="11" />
+	</action_set>
+	<action_set
+	     description="Estas habilidades incluyen poderes para transferir, modificar y vender terrenos del grupo. Vaya para la ventana Sobre el terreno, haga clic con el botón derecho en el terreno y seleccione &apos;Sobre el terreno...&apos; o haga clic en la información de la parcela en la barra del menú."
+	     name="Parcel Management">
+		<action description="Transferir  y comprar terreno para el grupo"
+		     longdescription="Transfiere y compre terreno para el grupo. Es hecho en Sobre el terreno &gt; pestaña General."
+		     name="land deed" value="12" />
+		<action description="Abandonar al terreno para Gobernador Linden"
+		     longdescription="Abandone al terreno para Gobernador Linden. *AVISO* Cualquier miembro en una función con esta habilidad puede  abandonar al terreno perteneciente al grupo en Sobre el terreno &gt; pestaña General, revirtiendo a la posesión Linden sin una venta! Asegúrese de saber lo que está haciendo antes de designar esta habilidad."
+		     name="land release" value="13" />
+		<action description="Definir terreno para información de venta"
+		     longdescription="Defina informaciones de venta para terreno. *AVISO* Cualquier miembro en una función con esta habilidad puede vender terrenos pertenecientes al grupo en Sobre el terreno &gt; pestaña General ¡cómo quiera! Asegúrese de saber lo que está haciendo antes de designar esta habilidad."
+		     name="land set sale info" value="14" />
+		<action description="Subdividir y unir parcelas"
+		     longdescription="Subdivide and join parcels. This is done by right-clicking the ground, &apos;Edit Terrain&apos;, and dragging your mouse on the land to make a selection. To subdivide, select what you want to split and click &apos;Subdivide...&apos;. To join, select two or more contiguous parcels and click &apos;Join...&apos;. "
+		     name="land divide join" value="15" />
+	</action_set>
+	<action_set
+	     description="Estas habilidades incluyen poderes para cambiar el nombre de las parcelas y configuraciones de publicación, visibilidad de la búsqueda de directorio y punto de aterrizaje &amp; opciones de ruta de TP."
+	     name="Parcel Identity">
+		<action
+		     description="Activar/desactivar &apos;Exhibir en locales de encuentro&apos; y definir categoría"
+		     longdescription="Activar/desactivar &apos;Exhibir en locales de encuentro&apos; y configurar una categoría de parcela en Sobre el terreno &gt; pestaña Opciones."
+		     name="land find places" value="17" />
+		<action
+		     description="Cambiar nombre de la parcela, descripción, y configuraciones &apos;Publicar en la web&apos;"
+		     longdescription="Cambie el nombre de la parcela, descripción y configuraciones de &apos;Publicar en la web&apos;. Es hecho en Sobre el terreno &gt; pestaña Opciones."
+		     name="land change identity" value="18" />
+		<action description="Definir punto de aterrizaje y ruta de teletransporte"
+		     longdescription="En una parcela perteneciente al grupo, miembros en una función con esta habilidad pueden definir un punto de aterrizaje para especificar donde los teletransportes llegan y también definir la ruta del teletransporte para un mayor control. Es hecho en Sobre el terreno &gt; pestaña Opciones."
+		     name="land set landing point" value="19" />
+	</action_set>
+	<action_set
+	     description="Estas habilidades incluyen poderes que afectan opciones de parcela, como &apos;Crear objetos&apos;, &apos;Editar terreno&apos; y música &amp; configuraciones de multimedia."
+	     name="Parcel Settings">
+		<action description="Cambiar música &amp; configuraciones de multimedia"
+		     longdescription="Cambie streaming de música y configuraciones de vídeo en Sobre el terreno &gt; pestaña Multimedia."
+		     name="land change media" value="20" />
+		<action description="Activar/desactivar &apos;Editar terreno&apos;"
+		     longdescription="Active/desactive &apos;Editar terreno&apos;. *AVISO* Sobre el terreno &gt; pestaña Opciones &gt; Editar terreno permite a cualquiera alterar las formas de su terreno&apos;, sustituir y mover plantas Linden. Asegúrese de saber lo que está haciendo antes de designar esta habilidad. La edición de terreno es activada/desactivada en Sobre el terreno &gt; pestaña Opciones."
+		     name="land edit" value="21" />
+		<action
+		     description="Activar/desactivar variados Sobre el Terreno &gt; Opciones de configuraciones"
+		     longdescription="Active/desactive &apos;Seguro (sin daño)&apos;, &apos;Volar&apos;, y permita a otros residentes: &apos;Crear objetos&apos;, &apos;Editar terreno&apos;, &apos;Crear puntos de referencia&apos;, y &apos;Ejecutar scripts&apos; en un terreno perteneciente al grupo en Sobre el terreno &gt; pestaña Opciones."
+		     name="land options" value="22" />
+	</action_set>
+	<action_set
+	     description="Estas habilidades incluyen poderes que permiten a miembros rebasar restricciones en parcelas pertenecientes al grupo."
+	     name="Parcel Powers">
+		<action description="Siempre permitir &apos;Editar terreno&apos;"
+		     longdescription="Miembros en una función con esta habilidad pueden editar terreno en una parcela perteneciente al grupo, mismo si está desactivada en Sobre el terreno &gt; pestaña Opciones."
+		     name="land allow edit land" value="23" />
+		<action description="Siempre permitir &apos;Volar&apos;"
+		     longdescription="Miembros en una función con esta habilidad pueden volar sobre una parcela perteneciente al grupo, mismo si está desactivada en Sobre el terreno &gt; pestaña Opciones."
+		     name="land allow fly" value="24" />
+		<action description="Siempre permitir &apos;Crear objetos&apos;"
+		     longdescription="Miembros en una función con esta habilidad pueden crear objetos en una parcela perteneciente al grupo, mismo si está desactivada en Sobre el terreno &gt; pestaña Opciones."
+		     name="land allow create" value="25" />
+		<action description="Siempre permitir &apos;Crear punto de referencia&apos;"
+		     longdescription="Miembros en una función con esta habilidad pueden poner un punto de referencia en una parcela perteneciente al grupo, mismo si está desactivada en Sobre el terreno &gt; pestaña Opciones."
+		     name="land allow landmark" value="26" />
+		<action description="Permitir &apos;Colocar casa aquí&apos; en el terreno del grupo"
+		     longdescription="Miembros en una función con esta habilidad pueden usar el menú Mundo &gt; Definir hogar aquí en una parcela del grupo (definir terreno o transferir para este grupo)."
+		     name="land allow set home" value="28" />
+	</action_set>
+	<action_set
+	     description="Estas habilidades incluyen poderes de permitir o restringir acceso a parcelas pertenecientes al grupo, incluyendo congelar y expulsar a residentes."
+	     name="Parcel Access">
+		<action description="Administrar listas de acceso a la parcela"
+		     longdescription="Administre la lista de acceso a la parcela en Sobre el terreno &gt; pestaña Acceso."
+		     name="land manage allowed" value="29" />
+		<action description="Administrar lista de desterrados de la parcela"
+		     longdescription="Administre la lista de desterrados de la parcela en Sobre el terreno &gt; pestaña Desterrado."
+		     name="land manage banned" value="30" />
+		<action description="Cambiar configuraciones de parcela &apos;Vender pases...&apos;"
+		     longdescription="Cambie configuraciones de &apos;Vender pases...&apos; en Sobre el terreno &gt; pestaña Acceso."
+		     name="land manage passes" value="31" />
+		<action description="Expulsar y congelar residentes en las parcelas"
+		     longdescription="Miembros en una función con esta habilidad pueden lidiar con un residente indeseado en una parcela perteneciente al grupo haciendo clic con el botón derecho sobre él, Más &gt; y seleccionando &apos;Expulsar...&apos; o &apos;Congelar...&apos;."
+		     name="land admin" value="32" />
+	</action_set>
+	<action_set
+	     description="Estas habilidades incluyen poderes de permitir a miembros devolver objetos y poner y mover plantas Linden. Útil para que miembros organicen el paisaje, pero debe ser usado con cuidado, debido a no ser posible deshacer la mudanza de los objetos."
+	     name="Parcel Content">
+		<action description="Devolver objetos que pertenecen al grupo"
+		     longdescription="Devuelva objetos en parcelas pertenecientes al grupo que pertenecen al grupo en Sobre el terreno &gt; pestaña Objetos."
+		     name="land return group owned" value="48" />
+		<action description="Devolver objetos definidos para el grupo"
+		     longdescription="Devuelva objetos en parcelas pertenecientes al grupo en Sobre el terreno &gt; pestaña Objetos."
+		     name="land return group set" value="33" />
+		<action description="Devolver objetos que no pertenecen al grupo"
+		     longdescription="Devuelva objetos en las parcelas pertenecientes a un grupo que está sin grupo en el Sobre el terreno &gt; pestaña Objetos."
+		     name="land return non group" value="34" />
+		<action description="Enjardinar usando plantas Linden"
+		     longdescription="La habilidad de enjardinar permite poner y mover árboles Linden, plantas y céspedes. Estos ítems pueden ser encontrados en la&apos;s Biblioteca de su inventario &gt; carpeta Objetos o pueden ser criados a través del botón Construir."
+		     name="land gardening" value="35" />
+	</action_set>
+	<action_set
+	     description="These Abilities include powers to deed, modify, and sell group-owned objects. These changes are done in the Edit Tools &gt; General Tab. Right-click an object and Edit to see its settings. "
+	     name="Object Management">
+		<action description="Transferir objetos para el grupo"
+		     longdescription="Transfiere objetos para el grupo en Editar herramientas &gt; pestaña General."
+		     name="object deed" value="36" />
+		<action description="Manipular (mover, copiar, modificar) objetos del grupo"
+		     longdescription="Manipule (mover,copiar, modificar) objetos pertenecientes al grupo en Editar Herramientas &gt; pestaña General."
+		     name="object manipulate" value="38" />
+		<action description="Definir objetos pertenecientes al grupo para venta"
+		     longdescription="Defina objetos pertenecientes al grupo para venta en Editar Herramientas &gt; pestaña General."
+		     name="object set sale" value="39" />
+	</action_set>
+	<action_set
+	     description="Estas habilidades incluyen poderes que requieren que miembros paguen deudas y reciban dividendos del grupo, y  restringen acceso al historial de cuenta del grupo."
+	     name="Accounting">
+		<action description="Pagar débitos y reciber dividendos del grupo"
+		     longdescription="Members in a Role with this Ability will automatically pay group liabilities and receive group dividends. This means they will receive a portion of group-owned land sales which are distributed daily, as well as contribute towards things like parcel listing fees. "
+		     name="accounting accountable" value="40" />
+	</action_set>
+	<action_set
+	     description="Estas habilidades incluyen poderes de permitir enviar, recibir y ver avisos de grupo."
+	     name="Notices">
+		<action description="Enviar aviso"
+		     longdescription="Miembros en una función con esta habilidad pueden enviar avisos en Informaciones de grupo &gt; pestaña Avisos."
+		     name="notices send" value="42" />
+		<action description="Reciber nuevos avisos y ver los anteriores"
+		     longdescription="Miembros en una función con esta habilidad pueden recibir los nuevos avisos y ver los anteriores en Informaciones de grupo &gt; pestaña Avisos."
+		     name="notices receive" value="43" />
+	</action_set>
+	<action_set
+	     description="Estas habilidades incluyen poderes de permitir a miembros definir y votar en propuestas y ver historial de votación."
+	     name="Proposals">
+		<action description="Crear propuesta"
+		     longdescription="Miembros en una función con esta habilidad pueden crear propuestas para que sean votadas en Informaciones de grupo &gt; pestaña Propuestas."
+		     name="proposal start" value="44" />
+		<action description="Votar en propuestas"
+		     longdescription="Miembros en una función con esta habilidad pueden votar en propuestas en Informaciones de grupo &gt; pestaña Propuestas."
+		     name="proposal vote" value="45" />
+	</action_set>
+</role_actions>

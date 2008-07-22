@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="Inventory Finder" title="inventory_recent_items">
+	<check_box label="Animación" name="check_animation" />
+	<check_box label="Tarjetas de visita" name="check_calling_card" />
+	<check_box label="Ropa" name="check_clothing" />
+	<check_box label="Posturas" name="check_gesture" />
+	<check_box label="Puntos de referencia" name="check_landmark" />
+	<check_box label="Tarjeta de anotación" name="check_notecard" />
+	<check_box label="Objetos" name="check_object" />
+	<check_box label="Scripts" name="check_script" />
+	<check_box label="Sonidos" name="check_sound" />
+	<check_box label="Texturas" name="check_texture" />
+	<check_box label="Fotos instatáneas" name="check_snapshot" />
+	<button label="Todos" label_selected="Todos" name="All" />
+	<button label="Ningún" label_selected="Ningún" name="None" />
+	<check_box label="Siempre mostrar carpetas" name="check_show_empty" />
+	<check_box label="Al efectuar encerramiento de sesión" name="check_since_logoff" />
+	<text type="string" length="1" name="- OR -">
+		- O -
+	</text>
+	<spinner label="Horas atrás" name="spin_hours_ago" />
+	<spinner label="Días atrás" name="spin_days_ago" />
+	<button label="Cerrar" label_selected="Cerrar" name="Close" />
+</floater>

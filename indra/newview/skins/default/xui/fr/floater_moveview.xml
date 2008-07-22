@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="move floater" title="">
+	<button label="" label_selected="" name="turn left btn" tool_tip="Tourner à gauche" />
+	<button label="" label_selected="" name="turn right btn" tool_tip="Tourner à droite" />
+	<button label="" label_selected="" name="move up btn"
+	     tool_tip="Sauter ou s&apos;envoler" />
+	<button label="" label_selected="" name="move down btn"
+	     tool_tip="S&apos;accroupir ou atterrir" />
+	<button label="Voler" label_selected="Voler" name="fly btn"
+	     tool_tip="Démarrer/arrêter vol" />
+	<joystick_slide name="slide left btn" tool_tip="A gauche" />
+	<joystick_slide name="slide right btn" tool_tip="A droite" />
+	<joystick_turn name="forward btn" tool_tip="Avancer" />
+	<joystick_turn name="backward btn" tool_tip="Reculer" />
+</floater>

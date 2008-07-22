@@ -1,4 +1,4 @@
 <paths>
-	<directory>/skins/xui/en-us/</directory>
-	<directory>/skins/xui/[Language]/</directory>
+	<directory>xui/en-us</directory>
+	<directory>xui/[LANGUAGE]</directory>
 </paths>

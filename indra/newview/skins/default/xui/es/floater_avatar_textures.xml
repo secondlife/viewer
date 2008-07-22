@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="avatar_texture_debug" title="Avatar Textures">
+	<text name="">
+		Baked Textures
+	</text>
+	<text name="">
+		Composite Textures
+	</text>
+	<texture_picker label="Cabeza" name="baked_head" />
+	<texture_picker label="Maquillaje" name="head_bodypaint" />
+	<texture_picker label="Cabello" name="hair" />
+	<button label="Dump" label_selected="Dump" name="Dump" />
+	<texture_picker label="Ojos" name="baked_eyes" />
+	<texture_picker label="Eye" name="eye_texture" />
+	<texture_picker label="Upper Body" name="baked_upper_body" />
+	<texture_picker label="Upper Body Tattoo" name="upper_bodypaint" />
+	<texture_picker label="Camiseta" name="undershirt" />
+	<texture_picker label="Guantes" name="gloves" />
+	<texture_picker label="Camisa" name="shirt" />
+	<texture_picker label="Upper Jacket" name="upper_jacket" />
+	<texture_picker label="Lower Body" name="baked_lower_body" />
+	<texture_picker label="Lower Body Tattoo" name="lower_bodypaint" />
+	<texture_picker label="Ropas interiores" name="underpants" />
+	<texture_picker label="Calcetines" name="socks" />
+	<texture_picker label="Zapatos" name="shoes" />
+	<texture_picker label="Pantalones" name="pants" />
+	<texture_picker label="Abrigo" name="jacket" />
+	<texture_picker label="Falda" name="baked_skirt" />
+	<texture_picker label="Falda" name="skirt_texture" />
+</floater>

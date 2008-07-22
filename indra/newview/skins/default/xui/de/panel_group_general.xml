@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel label="Allgemein" name="general_tab">
+	<text name="help_text">
+		Die Registerkarte &apos;Allgemein&apos; enthält Informationen über
+diese Gruppe, eine Liste der Eigentümer und sichtbaren Mitglieder, 
+allgemeine Gruppeneinstellungen und Mitgliederoptionen.
+
+Bewegen Sie die Maus über die Optionen, um weitere Informationen anzuzeigen.
+	</text>
+	<string name="group_info_unchanged">
+		Die allgemeine Gruppeninfo wurde geändert.
+	</string>
+	<button label="?" label_selected="?" name="help_button" />
+	<line_editor label="Neuen Gruppennamen hier eingeben" name="group_name_editor" />
+	<text name="group_name">
+		Neuen Gruppennamen hier eingeben
+	</text>
+	<text name="prepend_founded_by">
+		Gegründet von
+	</text>
+	<text left_delta="80" name="founder_name">
+		(wartet)
+	</text>
+	<text name="group_charter_label">
+		Gruppencharta
+	</text>
+	<texture_picker label="Gruppeninsignien" name="insignia"
+	     tool_tip="Klicken Sie hier, um ein Bild auszuwählen" />
+	<text_editor name="charter">
+		Gruppencharta
+	</text_editor>
+	<button label="Beitreten (0 L$)" label_selected="Beitreten (0 L$)" name="join_button" />
+	<button label="Detailansicht" label_selected="Detailansicht" name="info_button" />
+	<text name="text_owners_and_visible_members">
+		Eigentümer und sichtbare Mitglieder
+	</text>
+	<text name="text_owners_are_shown_in_bold">
+		(Eigentümer werden fettgedruckt angezeigt)
+	</text>
+	<name_list name="visible_members">
+		<column label="Member Name" name="name" />
+		<column label="Title" name="title" />
+		<column label="Last Login" name="online" />
+	</name_list>
+	<text name="incomplete_member_data_str">
+		Mitgliedsdaten werden abgerufen
+	</text>
+	<text name="confirm_group_create_str">
+		Die Gründung dieser Gruppe kostet 100 L$. 
+Sind Sie wirklich, WIRKLICH sicher, dass Sie 100 L$ für die Gründung dieser Gruppe ausgeben möchten?
+Falls in den nächsten 48 Stunden niemand sonst dieser Gruppe beitritt, wird sie aufgelöst und der Name der Gruppe wird nicht mehr verfügbar sein.
+	</text>
+	<text name="text_group_preferences">
+		Gruppeneinstellungen
+	</text>
+	<panel name="preferences_container">
+		<check_box label="In Suche anzeigen" name="show_in_group_list"
+		     tool_tip="Diese Gruppe in Suchergebnissen anzeigen." />
+		<check_box label="Im Web veröffentlichen" name="publish_on_web"
+		     tool_tip="Festlegen, ob die Gruppeninformationen im Web veröffentlicht werden dürfen." />
+		<check_box label="Registrierung offen" name="open_enrollement"
+		     tool_tip="Festlegen, ob der Gruppenbeitritt ohne Einladung zulässig ist." />
+		<check_box label="Beitrittsgebühr: L$" name="check_enrollment_fee"
+		     tool_tip="Festlegen, ob Neumitglieder eine Beitrittsgebühr zahlen müssen."
+		     width="125" />
+		<spinner name="spin_enrollment_fee"
+		     tool_tip="Wenn &apos;Beitrittsgebühr&apos; aktiviert ist, müssen neue Mitglieder diesen Betrag zahlen." />
+		<check_box label="Ab-18-Gruppe" name="mature"
+		     tool_tip="Festlegen, ob die Informationen Ihrer Gruppe nicht jugendfrei sind." />
+		<combo_box name="group_mature_check"
+		     tool_tip="Festlegen, ob die Informationen Ihrer Gruppe nicht jugendfrei sind.">
+			<combo_item name="select_mature">
+				- Jugendfreigabe wählen -
+			</combo_item>
+			<combo_item name="mature">
+				Ab-18-Inhalt
+			</combo_item>
+			<combo_item name="not_mature">
+				Jugendfreier Inhalt
+			</combo_item>
+		</combo_box>
+		<panel name="title_container">
+			<text name="active_title_label">
+				Mein aktiver Titel
+			</text>
+			<combo_box name="active_title"
+			     tool_tip="Sets the title that appears in your avatar&apos;s name tag   when this group is active." />
+		</panel>
+		<check_box label="Gruppenmitteilungen erhalten" name="receive_notices"
+		     tool_tip="Festlegen, ob Sie von dieser Gruppe Mitteilungen erhalten können.  Deaktivieren Sie diese Option, wenn Sie von der Gruppe Spam erhalten."
+		     width="173" />
+		<check_box label="Gruppe im Profil anzeigen" name="list_groups_in_profile"
+		     tool_tip="Steuert, ob diese Gruppe in Ihrem Profil angezeigt wird" />
+	</panel>
+</panel>

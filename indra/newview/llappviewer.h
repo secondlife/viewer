@@ -122,7 +122,7 @@ public:
 	static const std::string sPerAccountSettingsName; 
 	static const std::string sCrashSettingsName; 
 
-	void loadSettingsFromDirectory(ELLPath path_index);
+	void loadSettingsFromDirectory(ELLPath path_index, bool set_defaults = false);
 
 	std::string getSettingsFileName(const std::string& file);
 

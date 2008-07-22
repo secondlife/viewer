@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="floater_report_abuse" title="嫌がらせの報告">
+	<text name="reporter_title">
+		報告者：
+	</text>
+	<text name="reporter_field">
+		Loremipsum Dolorsitamut
+	</text>
+	<text name="sim_title">
+		地域：
+	</text>
+	<text name="sim_field">
+		地域名
+	</text>
+	<text name="pos_title">
+		位置：
+	</text>
+	<texture_picker label="作業中..." name="screenshot" />
+	<check_box label="ｽｸﾘｰﾝｼｮｯﾄを含める" name="screen_check" />
+	<text name="pos_field">
+		{128.1, 128.1, 15.4}
+	</text>
+	<button label="" label_selected="" name="pick_btn"
+	     tool_tip="オブジェクト・ピッカー - この報告の主題となるオブジェクトを特定" />
+	<text name="select_object_label">
+		ボタンを使ってオブジェクトを選択：
+	</text>
+	<text name="object_name_label">
+		名前：
+	</text>
+	<text name="object_name">
+		Consetetur Sadipscing
+	</text>
+	<text name="owner_name_label">
+		ｵｰﾅｰ：
+	</text>
+	<text name="owner_name">
+		Hendrerit Vulputate
+	</text>
+	<combo_box name="category_combo"
+	     tool_tip="Category -- select the category that best describes this report">
+		<combo_item name="Selectcategory">
+			カテゴリーを選択
+		</combo_item>
+		<combo_item name="Intolerance">
+			非許容
+		</combo_item>
+		<combo_item name="Harassment">
+			嫌がらせ
+		</combo_item>
+		<combo_item name="Assault">
+			攻撃
+		</combo_item>
+		<combo_item name="Disclosure">
+			開示
+		</combo_item>
+		<combo_item name="Indecency">
+			わいせつ
+		</combo_item>
+		<combo_item name="Age">
+			年齢
+		</combo_item>
+		<combo_item name="Parcel">
+			区画
+		</combo_item>
+		<combo_item name="Other">
+			その他
+		</combo_item>
+	</combo_box>
+	<text name="abuser_name_title">
+		迷惑ユーザーの名前：
+	</text>
+	<button label="住人を選択" label_selected="" name="select_abuser"
+	     tool_tip="嫌がらせをした人の名前をリストから選択してください。" />
+	<text name="abuser_name_title2">
+		嫌がらせの起きた場所：
+	</text>
+	<text name="sum_title">
+		概要：
+	</text>
+	<text name="dscr_title">
+		詳細：
+	</text>
+	<text name="bug_aviso">
+		日付、場所、嫌がらせの特徴、関連する会話／IMテキス
+トに関し明確に記入し、可能であればオブジェクトを選
+択してください。
+	</text>
+	<text name="incomplete_title">
+		注意：不完全なレポートは調査されません。
+	</text>
+	<button label="嫌がらせの報告" label_selected="嫌がらせの報告"
+	     name="send_btn" />
+	<button label="取り消し" label_selected="取り消し" name="cancel_btn" />
+</floater>

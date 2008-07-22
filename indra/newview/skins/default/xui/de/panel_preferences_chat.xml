@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel label="Text-Chat" name="chat">
+	<text type="string" length="1" name="text_box">
+		Chat-Schriftgröße:
+	</text>
+	<radio_group name="chat font size">
+		<radio_item type="string" length="1" name="radio">
+			Klein
+		</radio_item>
+		<radio_item type="string" length="1" name="radio2">
+			Mittel
+		</radio_item>
+		<radio_item type="string" length="1" name="radio3">
+			Groß
+		</radio_item>
+	</radio_group>
+	<text type="string" length="1" name="text_box2">
+		Chat-Farbe:
+	</text>
+	<color_swatch label="IM" name="im" />
+	<color_swatch label="System" name="system" />
+	<color_swatch label="Chat" name="users" />
+	<color_swatch label="Objekte" name="objects" />
+	<color_swatch label="Eigentümer" name="owner" width="58" />
+	<color_swatch label="Blase" left_delta="62" name="background" />
+	<color_swatch label="URLs" name="links" />
+	<text type="string" length="1" name="text_box3">
+		Chat-Konsole:
+	</text>
+	<spinner label="Chat ausblenden nach" label_width="115" left="148" name="fade_chat_time"
+	     width="160" />
+	<text type="string" length="1" left="310" name="text_box4">
+		(Sekunden)
+	</text>
+	<spinne left="370" name="max_chat_count" />
+	<text type="string" length="1" left="435" name="text_box5">
+		(# Zeilen)
+	</text>
+	<slider label="Deckkraft" name="console_opacity" />
+	<text type="string" length="1" name="text_box6">
+		Chat-Optionen:
+	</text>
+	<check_box label="Chat verwendet volle Bildbreite (nach Neustart)"
+	     name="chat_full_width_check" />
+	<check_box label="Chat nach Drücken der Eingabetaste schließen"
+	     name="close_chat_on_return_check" />
+	<check_box label="Pfeiltasten bewegen immer den Avatar beim Chatten"
+	     name="arrow_keys_move_avatar_check" />
+	<check_box label="Zeitstempel in Chat anzeigen" name="show_timestamps_check" />
+	<text type="string" length="1" name="text_box7">
+		Blasen-Chat:
+	</text>
+	<check_box label="Chat-Blasen anzeigen" name="bubble_text_chat" />
+	<slider label="Deckkraft" name="bubble_chat_opacity" />
+	<text type="string" length="1" name="text_box8">
+		Skriptfehler:
+	</text>
+	<check_box label="Skriptfehler und Warnungen als normalen Chat anzeigen"
+	     name="script_errors_as_chat" />
+	<color_swatch label="Farbe" name="script_error" />
+</panel>

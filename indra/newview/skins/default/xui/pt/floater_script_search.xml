@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="script search" title="Script Search">
+	<check_box label="Não diferenciar Maiusculas de Minusculas" name="case_text" />
+	<button label="Buscar" label_selected="Buscar" name="search_btn" />
+	<button label="Substituir" label_selected="Substituir" name="replace_btn" />
+	<button label="Substituir Tudo" label_selected="Substituir Tudo" name="replace_all_btn" />
+	<text type="string" length="1" name="txt">
+		Buscar
+	</text>
+	<text type="string" length="1" name="txt2">
+		Substituir
+	</text>
+</floater>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="ColorPicker" title="Farbauswahl">
+	<text name="r_val_text">
+		Rot:
+	</text>
+	<text name="g_val_text">
+		Grün:
+	</text>
+	<text name="b_val_text">
+		Blau:
+	</text>
+	<text name="h_val_text">
+		Farbton:
+	</text>
+	<text name="s_val_text">
+		Sat.:
+	</text>
+	<text name="l_val_text">
+		Lum:
+	</text>
+	<check_box label="Sofort übernehmen" name="apply_immediate" />
+	<button label="" label_selected="" name="color_pipette" />
+	<button label="Abbrechen" label_selected="Abbrechen" name="cancel_btn" />
+	<button label="Auswählen" label_selected="Auswählen" name="select_btn" />
+	<text name="Current color:">
+		Aktuelle Farbe:
+	</text>
+	<text name="(Drag below to save.)">
+(Unten ziehen,
+ um zu speichern.)
+	</text>
+</floater>

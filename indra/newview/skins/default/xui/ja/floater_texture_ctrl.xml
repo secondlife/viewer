@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="texture picker" title="選択：テクスチャー">
+	<string name="choose_picture">
+		クリックして写真を選択
+	</string>
+	<text type="string" length="1" name="Multiple">
+		複数
+	</text>
+	<text type="string" length="1" name="unknown">
+		寸法: [DIMENSIONS]
+	</text>
+	<button label="ﾃﾞﾌｫﾙﾄ" label_selected="ﾃﾞﾌｫﾙﾄ" name="Default" />
+	<button label="なし" label_selected="なし" name="None" />
+	<button label="ブランク" label_selected="ブランク" name="Blank" />
+	<check_box label="フォルダを表示" name="show_folders_check" />
+	<search_editor label="ここにタイプして検索" name="inventory search editor" />
+	<check_box label="ただちに適用" name="apply_immediate_check" />
+	<button label="" label_selected="" name="Pipette" />
+	<button label="取り消し" label_selected="取り消し" name="Cancel" />
+	<button label="選択" label_selected="選択" name="Select" />
+	<text name="pick title">
+		ピック:
+	</text>
+</floater>

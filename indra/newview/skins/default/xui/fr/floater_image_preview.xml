@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="Image Preview" title="">
+	<text name="name_label">
+		Nom :
+	</text>
+	<text name="description_label">
+		Description :
+	</text>
+	<text name="preview_label">
+		Aperçu de l&apos;image :
+	</text>
+	<combo_box label="Type d&apos;habillement" name="clothing_type_combo">
+		<combo_item name="Image">
+			Image
+		</combo_item>
+		<combo_item name="Hair">
+			Cheveux
+		</combo_item>
+		<combo_item name="FemaleHead">
+			Tête féminine
+		</combo_item>
+		<combo_item name="FemaleUpperBody">
+			Haut du corps féminin
+		</combo_item>
+		<combo_item name="FemaleLowerBody">
+			Bas du corps féminin
+		</combo_item>
+		<combo_item name="MaleHead">
+			Tête masculine
+		</combo_item>
+		<combo_item name="MaleUpperBody">
+			Haut du corps masculin
+		</combo_item>
+		<combo_item name="MaleLowerBody">
+			Bas du corps masculin
+		</combo_item>
+		<combo_item name="Skirt">
+			Jupe
+		</combo_item>
+	</combo_box>
+	<text name="bad_image_text">
+		Unable to read image.
+	
+	Try saving image as 24 bit Targa (.tga).
+	</text>
+	<button label="Annuler" name="cancel_btn" />
+	<button label="Uploader (L$[AMOUNT])" name="ok_btn" />
+</floater>

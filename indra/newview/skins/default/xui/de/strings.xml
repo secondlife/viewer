@@ -1,0 +1,390 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<strings name="">
+	<string name="LoginInProgress">
+		Anmeldevorgang gestartet. [APP_NAME] reagiert möglicherweise nicht.  Bitte warten.
+	</string>
+	<string name="LoginAuthenticating">
+		Authentifizierung
+	</string>
+	<string name="LoginMaintenance">
+		Account wird aktualisiert...
+	</string>
+	<string name="LoginAttempt">
+		Ein früherer Anmeldeversuch ist fehlgeschlagen. Anmeldung, Versuch [NUMBER]
+	</string>
+	<string name="LoginPrecaching">
+		Welt wird geladen...
+	</string>
+	<string name="LoginInitializingBrowser">
+		Integrierter Webbrowser wird initialisiert...
+	</string>
+	<string name="LoginVerifyingCache">
+		Cache-Dateien werden überprüft (dauert 60-90 Sekunden)...
+	</string>
+	<string name="LoginProcessingResponse">
+		Antwort wird verarbeitet...
+	</string>
+	<string name="LoginInitializingWorld">
+		Welt wird initialisiert...
+	</string>
+	<string name="LoginDecodingImages">
+		Bilder werden entpackt...
+	</string>
+	<string name="LoginInitializingQuicktime">
+		QuickTime wird initialisiert...
+	</string>
+	<string name="LoginQuicktimeNotFound">
+		QuickTime nicht gefunden - Initialisierung nicht möglich.
+	</string>
+	<string name="LoginQuicktimeOK">
+		QuickTime wurde initialisiert.
+	</string>
+	<string name="LoginWaitingForRegionHandshake">
+		Region-Handshake...
+	</string>
+	<string name="LoginConnectingToRegion">
+		Region-Verbindung...
+	</string>
+	<string name="LoginDownloadingClothing">
+		Kleidung wird geladen...
+	</string>
+	<string name="TooltipPerson">
+		Person
+	</string>
+	<string name="TooltipNoName">
+		(namenlos)
+	</string>
+	<string name="TooltipOwner">
+		Eigentümer:
+	</string>
+	<string name="TooltipPublic">
+		Öffentlich
+	</string>
+	<string name="TooltipIsGroup">
+		(Gruppe)
+	</string>
+	<string name="TooltipFlagScript">
+		Skript
+	</string>
+	<string name="TooltipFlagPhysics">
+		Physik
+	</string>
+	<string name="TooltipFlagTouch">
+		Berühren
+	</string>
+	<string name="TooltipFlagL$">
+		L$
+	</string>
+	<string name="TooltipFlagDropInventory">
+		Inventar fallen lassen
+	</string>
+	<string name="TooltipFlagPhantom">
+		Phantom
+	</string>
+	<string name="TooltipFlagTemporary">
+		Temporär
+	</string>
+	<string name="TooltipFlagRightClickMenu">
+		(Rechtsklick für Menü)
+	</string>
+	<string name="TooltipFreeToCopy">
+		Kopieren möglich
+	</string>
+	<string name="TooltipForSaleL$">
+		Zum Verkauf: [AMOUNT] L$
+	</string>
+	<string name="TooltipForSaleMsg">
+		Zum Verkauf: [MESSAGE]
+	</string>
+	<string name="TooltipFlagGroupBuild">
+		Gruppenbau
+	</string>
+	<string name="TooltipFlagNoBuild">
+		Bauen aus
+	</string>
+	<string name="TooltipFlagNoEdit">
+		Gruppenbau
+	</string>
+	<string name="TooltipFlagNotSafe">
+		Unsicher
+	</string>
+	<string name="TooltipFlagNoFly">
+		Fliegen aus
+	</string>
+	<string name="TooltipFlagGroupScripts">
+		Gruppenskripte
+	</string>
+	<string name="TooltipFlagNoScripts">
+		Skripte aus
+	</string>
+	<string name="TooltipLand">
+		Land:
+	</string>
+	<string name="RetrievingData">
+		Laden...
+	</string>
+	<string name="LoadingData">
+		Wird geladen...
+	</string>
+	<string name="AvatarNameNobody">
+		(niemand)
+	</string>
+	<string name="AvatarNameWaiting">
+		(wartet)
+	</string>
+	<string name="AvatarNameHippos">
+		(hippos)
+	</string>
+	<string name="GroupNameNone">
+		(keiner)
+	</string>
+	<string name="AssetErrorNone">
+		Kein Fehler
+	</string>
+	<string name="AssetErrorRequestFailed">
+		Asset-Anforderung: fehlgeschlagen
+	</string>
+	<string name="AssetErrorNonexistentFile">
+		Asset-Anforderung: Datei existiert nicht
+	</string>
+	<string name="AssetErrorNotInDatabase">
+		Asset-Anforderung: Asset in Datenbank nicht gefunden
+	</string>
+	<string name="AssetErrorEOF">
+		Ende der Datei
+	</string>
+	<string name="AssetErrorCannotOpenFile">
+		Datei kann nicht geöffnet werden
+	</string>
+	<string name="AssetErrorFileNotFound">
+		Datei nicht gefunden
+	</string>
+	<string name="AssetErrorTCPTimeout">
+		Zeitüberschreitung bei Dateiübertragung
+	</string>
+	<string name="AssetErrorCircuitGone">
+		Verbindung verloren
+	</string>
+	<string name="AssetErrorUnknownStatus">
+		Status unbekannt
+	</string>
+	<string name="AvatarEditingApparance">
+		(Aussehen wird bearbeitet)
+	</string>
+	<string name="AvatarAway">
+		Abwesend
+	</string>
+	<string name="AvatarBusy">
+		Beschäftigt
+	</string>
+	<string name="AvatarMuted">
+		Stummgeschaltet
+	</string>
+	<string name="anim_express_afraid">
+		Ängstlich
+	</string>
+	<string name="anim_express_anger">
+		Verärgert
+	</string>
+	<string name="anim_away">
+		Abwesend
+	</string>
+	<string name="anim_backflip">
+		Rückwärtssalto
+	</string>
+	<string name="anim_express_laugh">
+		Lachkrampf
+	</string>
+	<string name="anim_express_toothsmile">
+		Grinsen
+	</string>
+	<string name="anim_blowkiss">
+		Kusshand
+	</string>
+	<string name="anim_express_bored">
+		Gelangweilt
+	</string>
+	<string name="anim_bow">
+		Verbeugen
+	</string>
+	<string name="anim_clap">
+		Klatschen
+	</string>
+	<string name="anim_courtbow">
+		Diener
+	</string>
+	<string name="anim_express_cry">
+		Weinen
+	</string>
+	<string name="anim_dance1">
+		Tanz 1
+	</string>
+	<string name="anim_dance2">
+		Tanz 2
+	</string>
+	<string name="anim_dance3">
+		Tanz 3
+	</string>
+	<string name="anim_dance4">
+		Tanz 4
+	</string>
+	<string name="anim_dance5">
+		Tanz 5
+	</string>
+	<string name="anim_dance6">
+		Tanz 6
+	</string>
+	<string name="anim_dance7">
+		Tanz 7
+	</string>
+	<string name="anim_dance8">
+		Tanz 8
+	</string>
+	<string name="anim_express_disdain">
+		Verachten
+	</string>
+	<string name="anim_drink">
+		Trinken
+	</string>
+	<string name="anim_express_embarrased">
+		Verlegen
+	</string>
+	<string name="anim_angry_fingerwag">
+		Drohen
+	</string>
+	<string name="anim_fist_pump">
+		Faust pumpen
+	</string>
+	<string name="anim_yoga_float">
+		Yogaflieger
+	</string>
+	<string name="anim_express_frown">
+		Stirnrunzeln
+	</string>
+	<string name="anim_impatient">
+		Ungeduldig
+	</string>
+	<string name="anim_jumpforjoy">
+		Freudensprung
+	</string>
+	<string name="anim_kissmybutt">
+		LMA
+	</string>
+	<string name="anim_express_kiss">
+		Küssen
+	</string>
+	<string name="anim_laugh_short">
+		Lachen
+	</string>
+	<string name="anim_musclebeach">
+		Posen
+	</string>
+	<string name="anim_no_unhappy">
+		Nein (Bedauernd)
+	</string>
+	<string name="anim_no_head">
+		Nein
+	</string>
+	<string name="anim_nyanya">
+		Ällabätsch
+	</string>
+	<string name="anim_punch_onetwo">
+		Eins-Zwei-Punch
+	</string>
+	<string name="anim_express_open_mouth">
+		Mund offen
+	</string>
+	<string name="anim_peace">
+		Friede
+	</string>
+	<string name="anim_point_you">
+		Auf anderen zeigen
+	</string>
+	<string name="anim_point_me">
+		Auf mich zeigen
+	</string>
+	<string name="anim_punch_l">
+		Linker Haken
+	</string>
+	<string name="anim_punch_r">
+		Rechter Haken
+	</string>
+	<string name="anim_rps_countdown">
+		SSP zählen
+	</string>
+	<string name="anim_rps_paper">
+		SSP Papier
+	</string>
+	<string name="anim_rps_rock">
+		SSP Stein
+	</string>
+	<string name="anim_rps_scissors">
+		SSP Schere
+	</string>
+	<string name="anim_express_repulsed">
+		Angewidert
+	</string>
+	<string name="anim_kick_roundhouse_r">
+		Rundkick
+	</string>
+	<string name="anim_express_sad">
+		Traurig
+	</string>
+	<string name="anim_salute">
+		Salutieren
+	</string>
+	<string name="anim_shout">
+		Rufen
+	</string>
+	<string name="anim_express_shrug">
+		Schulterzucken
+	</string>
+	<string name="anim_express_smile">
+		Lächeln
+	</string>
+	<string name="anim_smoke_idle">
+		Zigarette halten
+	</string>
+	<string name="anim_smoke_inhale">
+		Rauchen
+	</string>
+	<string name="anim_smoke_throw_down">
+		Zigarette wegwerfen
+	</string>
+	<string name="anim_express_surprise">
+		Überraschung
+	</string>
+	<string name="anim_sword_strike_r">
+		Schwerthieb
+	</string>
+	<string name="anim_angry_tantrum">
+		Wutanfall
+	</string>
+	<string name="anim_express_tongue_out">
+		Zunge rausstrecken
+	</string>
+	<string name="anim_hello">
+		Winken
+	</string>
+	<string name="anim_whisper">
+		Flüstern
+	</string>
+	<string name="anim_whistle">
+		Pfeifen
+	</string>
+	<string name="anim_express_wink">
+		Zwinkern
+	</string>
+	<string name="anim_wink_hollywood">
+		Zwinkern (Hollywood)
+	</string>
+	<string name="anim_express_worry">
+		Sorgenvoll
+	</string>
+	<string name="anim_yes_happy">
+		Ja (Erfreut)
+	</string>
+	<string name="anim_yes_head">
+		Ja
+	</string>
+</strings>

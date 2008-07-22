@@ -145,7 +145,6 @@ U8* LLImageBase::allocateData(S32 size)
 		mData = new U8[size];
 		if (!mData)
 		{
-			//llerrs << "allocate image data: " << size << llendl;
 			llwarns << "allocate image data: " << size << llendl;
 			size = 0 ;
 			mWidth = mHeight = 0 ;
@@ -243,8 +242,10 @@ LLImageRaw::LLImageRaw(U8 *data, U16 width, U16 height, S8 components)
 	: LLImageBase()
 {
 	mMemType = LLMemType::MTYPE_IMAGERAW;
-	allocateDataSize(width, height, components);
-	memcpy(getData(), data, width*height*components);
+	if(allocateDataSize(width, height, components))
+	{
+		memcpy(getData(), data, width*height*components);
+	}
 	++sRawImageCount;
 }
 
@@ -795,7 +796,7 @@ void LLImageRaw::copyScaled( LLImageRaw* src )
 }
 
 
-void LLImageRaw::scale( S32 new_width, S32 new_height, BOOL scale_image_data )
+BOOL LLImageRaw::scale( S32 new_width, S32 new_height, BOOL scale_image_data )
 {
 	LLMemType mt1((LLMemType::EMemType)mMemType);
 	llassert((1 == getComponents()) || (3 == getComponents()) || (4 == getComponents()) );
@@ -805,7 +806,7 @@ void LLImageRaw::scale( S32 new_width, S32 new_height, BOOL scale_image_data )
 	
 	if( (old_width == new_width) && (old_height == new_height) )
 	{
-		return;  // Nothing to do.
+		return TRUE;  // Nothing to do.
 	}
 
 	// Reallocate the data buffer.
@@ -840,8 +841,10 @@ void LLImageRaw::scale( S32 new_width, S32 new_height, BOOL scale_image_data )
 		U8*	temp_buffer	= new U8[ temp_data_size ];
 		if (!temp_buffer)
 		{
-			llerrs << "Out of memory in LLImageRaw::scale: old (w, h, c) = (" << old_width << ", " << old_height << ", " << (S32)getComponents() << 
+			llwarns << "Out of memory in LLImageRaw::scale: old (w, h, c) = (" << old_width << ", " << old_height << ", " << (S32)getComponents() << 
 				") ; new (w, h, c) = (" << new_width << ", " << new_height << ", " << (S32)getComponents() << ")" << llendl;			
+
+			return FALSE ;
 		}
 		memcpy(temp_buffer,	getData(), temp_data_size);	/* Flawfinder: ignore */
 
@@ -869,6 +872,8 @@ void LLImageRaw::scale( S32 new_width, S32 new_height, BOOL scale_image_data )
 		// Clean up
 		delete[] temp_buffer;
 	}
+
+	return TRUE ;
 }
 
 void LLImageRaw::copyLineScaled( U8* in, U8* out, S32 in_pixel_len, S32 out_pixel_len, S32 in_pixel_step, S32 out_pixel_step )

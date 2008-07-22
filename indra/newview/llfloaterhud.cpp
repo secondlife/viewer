@@ -17,7 +17,6 @@
 
 // statics 
 LLFloaterHUD* LLFloaterHUD::sInstance = 0; 
-std::string LLFloaterHUD::sTutorialUrl = "";
 
 ///----------------------------------------------------------------------------
 /// Class LLFloaterHUD
@@ -44,7 +43,7 @@ LLFloaterHUD::LLFloaterHUD()
 	setBackgroundOpaque(TRUE);
 
 	// Position floater based on saved location
-	LLRect saved_position_rect = gSavedSettings.getRect("FloaterHUDRect");
+	LLRect saved_position_rect = gSavedSettings.getRect("FloaterHUDRect2");
 	reshape(saved_position_rect.getWidth(), saved_position_rect.getHeight(), FALSE);
 	setRect(saved_position_rect);
 	
@@ -65,7 +64,9 @@ LLFloaterHUD::LLFloaterHUD()
 			language = gSavedSettings.getString("SystemLanguage");
 		}
 	
-		std::string url = sTutorialUrl + language + "/";
+		std::string base_url = gSavedSettings.getString("TutorialURL");
+
+		std::string url = base_url + language + "/";
 		mWebBrowser->navigateTo(url);
 	}
 
@@ -87,7 +88,7 @@ LLFloaterHUD* LLFloaterHUD::getInstance()
 LLFloaterHUD::~LLFloaterHUD()
 {
 	// Save floater position
-	gSavedSettings.setRect("FloaterHUDRect", getRect() );
+	gSavedSettings.setRect("FloaterHUDRect2", getRect() );
 
 	// Clear out the one instance if it's ours
 	if (sInstance == this)
@@ -100,7 +101,7 @@ LLFloaterHUD::~LLFloaterHUD()
 void LLFloaterHUD::showHUD()
 {
 	// do not build the floater if there the url is empty
-	if (sTutorialUrl == "")
+	if (gSavedSettings.getString("TutorialURL") == "")
 	{
 		LLAlertDialog::showXml("TutorialNotFound");
 		return;

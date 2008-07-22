@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<multi_floater name="im_floater" title="Instant Message">
+	<text name="only_user_message">
+		Sie sind der einzige Benutzer in dieser Sitzung.
+	</text>
+	<text name="offline_message">
+		[FIRST] [LAST] ist offline.
+	</text>
+	<string name="muted_message">
+		Einwohner ist stummgeschaltet.
+	</string>
+	<text name="generic_request_error">
+		Fehler bei Anfrage, bitte versuchen Sie es später.
+	</text>
+	<text name="insufficient_perms_error">
+		Sie sind dazu nicht berechtigt.
+	</text>
+	<text name="user_no_help">
+		Der angeforderte Benutzer hat die Hilfe-Sitzung verlassen.
+	</text>
+	<string name="session_does_not_exist_error">
+		Die Sitzung ist abgelaufen
+	</string>
+	<string name="no_ability_error">
+		Sie besitzen diese Fähigkeit nicht.
+	</string>
+	<string name="not_a_mod_error">
+		Sie sind kein Sitzungsmoderator.
+	</string>
+	<string name="muted_error">
+		Sie wurden stummgeschaltet.
+	</string>
+	<text name="add_session_event">
+		Füge Avatare zur Chat-Sitzung hinzu mit
+	</text>
+	<text name="message_session_event">
+		Messaging-Chat-Sitzung mit
+	</text>
+	<text name="teleport_session_event">
+		teleportiert zum Ersteller von
+	</text>
+	<string name="mute_agent_event">
+		Agent wird stummgeschaltet in
+	</string>
+	<text name="removed_from_group">
+		Sie wurden von der Gruppe ausgeschlossen.
+	</text>
+	<string name="invite_message">
+		Klicken Sie auf [BUTTON NAME], um eine Verbindung zu diesem Voice-Chat herzustellen.
+	</string>
+	<string name="close_on_no_ability">
+		Die Chat-Sitzung kann nicht fortgesetzt werden
+	</string>
+</multi_floater>

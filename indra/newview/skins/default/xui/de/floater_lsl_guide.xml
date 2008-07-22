@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="script ed float" title="LSL-Wiki">
+	<check_box label="Cursor folgen" name="lock_check" />
+	<combo_box label="Sperren" name="history_combo" />
+	<button label="Zurück" name="back_btn" />
+	<button label="Weiterleiten" name="fwd_btn" />
+</floater>

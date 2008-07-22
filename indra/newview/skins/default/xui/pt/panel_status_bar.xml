@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel name="status">
+	<text type="string" length="1" name="ParcelNameText"
+	     tool_tip="Nome do pedaço de terra em que você esta. Clique para informações.">
+		Nome do pedaço de terra vai aqui.
+	</text>
+	<text type="string" length="1" name="BalanceText" tool_tip="Cotação de Compra">
+		L$
+	</text>
+	<button label="" label_selected="" name="buycurrency" tool_tip="Compras" />
+	<text type="string" length="12" name="TimeText" tool_tip="Hora atual (Pacific)">
+		12:00 AM
+	</text>
+	<button label="" label_selected="" name="scriptout" tool_tip="Erros e avisos do Script" />
+	<button label="" label_selected="" name="health" tool_tip="Saúde" />
+	<text type="string" length="1" name="HealthText" tool_tip="Saúde">
+		100%
+	</text>
+	<button label="" label_selected="" name="fly" tool_tip="Sem voar." />
+	<button label="" label_selected="" name="build" tool_tip="Sem construções." />
+	<button label="" label_selected="" name="scripts" tool_tip="Sem scripts." />
+	<button label="" label_selected="" name="restrictpush"
+	     tool_tip="Restriro llEmpurrar objeto." />
+	<button label="" label_selected="" name="buyland" tool_tip="Comprar esse pedaço" />
+	<line_editor label="Procurar" name="search_editor" tool_tip="Procurar em Second Life" />
+	<text name="packet_loss_tooltip">
+		Perda de pacote
+	</text>
+	<text name="bandwidth_tooltip">
+		Banda
+	</text>
+</panel>

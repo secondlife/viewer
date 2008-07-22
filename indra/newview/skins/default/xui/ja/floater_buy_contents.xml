@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="floater_buy_contents" title="コンテンツを購入">
+	<text name="contains_text">
+		[NAME]の内容：
+	</text>
+	<text name="buy_text">
+		コンテンツを[NAME]からL$[AMOUNT]で購入しますか？
+	</text>
+	<button label="取り消し" label_selected="取り消し" name="cancel_btn" />
+	<button label="購入" label_selected="購入" name="buy_btn" />
+	<check_box label="今すぐ服を着る" name="wear_check" />
+	<text name="no_copy_text">
+		(コピーなし)
+	</text>
+	<text name="no_modify_text">
+		(修正なし)
+	</text>
+	<text name="no_transfer_text">
+		(転送なし)
+	</text>
+</floater>

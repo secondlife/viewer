@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="modal container" title=" ">
+	<button label="Continuar" label_selected="Continuar" name="Continue" />
+	<button label="Cancelar" label_selected="Cancelar" name="Cancel" />
+	<radio_group name="tos_agreement">
+		<radio_item name="radio_disagree">
+			Eu não concordo com os Termos de Serviço
+		</radio_item>
+		<radio_item name="radio_agree">
+			Eu concordo com os Termos de Serviço
+		</radio_item>
+	</radio_group>
+	<text name="tos_title">
+		Contrato dos Termos de Serviço
+	</text>
+	<text name="tos_heading">
+		Por favor, leia os seguintes Termos de Serviço cuidadosamente. Para continuar acessando Second Life, você precisa aceitar o acordo.
+	</text>
+	<text_editor name="tos_text">
+		TOS_TEXT
+	</text_editor>
+</floater>

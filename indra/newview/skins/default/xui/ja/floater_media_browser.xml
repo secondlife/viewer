@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="floater_about" title="メディア・ブラウザー">
+	<layout_stack name="stack1">
+		<layout_panel name="nav_controls">
+			<button label="戻る" name="back" />
+			<button label="転送" name="forward" />
+			<button label="再ロード" name="reload" />
+			<button label="行く" name="go" />
+		</layout_panel>
+		<layout_panel name="parcel_owner_controls">
+			<button label="現在の URL を区画に送信" name="assign" />
+		</layout_panel>
+		<layout_panel name="external_controls">
+			<button label="自分の Web ブラウザーで開く" name="open_browser" />
+			<check_box label="常にマイブラウザーで開く" name="open_always" />
+			<button label="閉じる" name="close" />
+		</layout_panel>
+	</layout_stack>
+</floater>

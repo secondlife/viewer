@@ -176,7 +176,7 @@ public:
 	void expandToPowerOfTwo(S32 max_dim = MAX_IMAGE_SIZE, BOOL scale_image = TRUE);
 	void contractToPowerOfTwo(S32 max_dim = MAX_IMAGE_SIZE, BOOL scale_image = TRUE);
 	void biasedScaleToPowerOfTwo(S32 max_dim = MAX_IMAGE_SIZE);
-	void scale( S32 new_width, S32 new_height, BOOL scale_image = TRUE );
+	BOOL scale( S32 new_width, S32 new_height, BOOL scale_image = TRUE );
 
 	// Fill the buffer with a constant color
 	void fill( const LLColor4U& color );

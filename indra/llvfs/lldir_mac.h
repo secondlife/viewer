@@ -49,7 +49,7 @@ public:
 	virtual U32 countFilesInDir(const std::string &dirname, const std::string &mask);
 	virtual BOOL getNextFileInDir(const std::string &dirname, const std::string &mask, std::string &fname, BOOL wrap);
 	virtual void getRandomFileInDir(const std::string &dirname, const std::string &ask, std::string &fname);
-	virtual BOOL fileExists(const std::string &filename);
+	virtual BOOL fileExists(const std::string &filename) const;
 
 private:
 	int mCurrentDirIndex;

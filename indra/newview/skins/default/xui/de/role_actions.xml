@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<role_actions>
+	<action_set
+	     description="Diese Fähigkeiten ermöglichen das Hinzufügen und Entfernen von Mitgliedern sowie den Beitritt ohne Einladung."
+	     name="Membership">
+		<action description="Personen in diese Gruppe einladen"
+		     longdescription="Personen zu dieser Gruppe einladen können Sie mit &apos;Neue Person einladen...&apos; unter &apos;Mitglieder und Rollen&apos; &gt; &apos;Mitglieder&apos;."
+		     name="member invite" />
+		<action description="Mitglieder aus dieser Gruppe werfen"
+		     longdescription="Mitglieder von der Gruppe ausschließen können Sie mit &apos;Aus Gruppe werfen&apos; unter &apos;Mitglieder und Rollen&apos; &gt; &apos;Mitglieder&apos;. Ein Eigentümer kann jeden, außer einen anderen Eigentümer, ausschließen. Wenn Sie kein Eigentümer sind, können Sie ein Mitglied nur dann von der Gruppe ausschließen, wenn es die Rolle &apos;Jeder&apos; innehat, aber KEINE ANDERE Rolle. Um Mitgliedern Rollen entziehen zu können, müssen Sie über die Fähigkeit &apos;Mitgliedern Rollen entziehen&apos; verfügen."
+		     name="member eject" />
+		<action
+		     description="&apos;Registrierung offen&apos; einstellen und &apos;Beitrittsgebühr&apos; ändern"
+		     longdescription="&apos;Beitritt möglich&apos; erlaubt den Beitritt zur Gruppe ohne vorhergehende Einladung. Die &apos;Beitrittsgebühr&apos; wird in den Gruppeneinstellungen auf der Registerkarte &apos;Allgemein&apos; festgelegt."
+		     name="member options" />
+	</action_set>
+	<action_set
+	     description="Diese Fähigkeiten ermöglichen das Hinzufügen, Entfernen und Ändern von Gruppenrollen, das Zuweisen und Entfernen von Rollen und das Zuweisen von Fähigkeiten zu Rollen."
+	     name="Roles">
+		<action description="Neue Rollen erstellen"
+		     longdescription="Neue Rollen erstellen Sie unter &apos;Mitglieder und Rollen&apos; &gt; &apos;Rollen&apos;."
+		     name="role create" />
+		<action description="Rollen löschen"
+		     longdescription="Rollen löschen können Sie unter &apos;Mitglieder und Rollen&apos; &gt; &apos;Rollen&apos;."
+		     name="role delete" />
+		<action description="Rollennamen, Titel und Beschreibung ändern"
+		     longdescription="Namen, Titel und Beschreibungen von Rollen können Sie nach Auswahl einer Rolle unten auf der Registerkarte &apos;Mitglieder und Rollen&apos; &gt; &apos;Rollen&apos; ändern."
+		     name="role properties" />
+		<action description="Mitgliedern nur eigene Rollen zuweisen"
+		     longdescription="Mitgliedern nur eigene Rollen zuweisen können Sie im Bereich &apos;Zugewiesene Rollen&apos; auf der Registerkarte &apos;Mitglieder und Rollen&apos; &gt; &apos;Mitglieder&apos;. Ein Mitglied mit dieser Fähigkeit kann anderen Mitgliedern nur die eigenen Rollen zuweisen."
+		     name="role assign member limited" />
+		<action description="Mitgliedern beliebige Rolle zuweisen"
+		     longdescription="Mitgliedern beliebige Rolle zuweisen können Sie im Bereich &apos;Zugewiesene Rollen&apos; auf der Registerkarte &apos;Mitglieder und Rollen&apos; &gt; &apos;Mitglieder&apos;. *WARNUNG* Jedes Mitglied in einer Rolle mit dieser Fähigkeit kann sich selbst und jedem anderen Mitglied (außer dem Eigentümer) Rollen mit weitreichenden Fähigkeiten zuweisen und damit fast Eigentümerrechte erreichen. Überlegen Sie sich, wem Sie diese Fähigkeit verleihen."
+		     name="role assign member" />
+		<action description="Mitgliedern Rollen entziehen"
+		     longdescription="Mitgliedern Rollen entziehen können Sie im Bereich &apos;Rollen&apos; auf der Registerkarte &apos;Mitglieder und Rollen&apos; &gt; &apos;Mitglieder&apos;. Eigentümer können nicht entfernt werden."
+		     name="role remove member" />
+		<action description="Rollenfähigkeiten zuweisen und entfernen"
+		     longdescription="Rollenfähigkeiten zuweisen und entfernen können Sie im Bereich &apos;Zulässige Fähigkeiten&apos; auf der Registerkarte &apos;Mitglieder und Rollen&apos; &gt; &apos;Rollen&apos;. *WARNUNG* Jedes Mitglied in einer Rolle mit dieser Fähigkeit kann sich selbst und jedem anderen Mitglied (außer dem Eigentümer) alle Fähigkeiten zuweisen und damit fast Eigentümerrechte erreichen. Überlegen Sie sich, wem Sie diese Fähigkeit verleihen."
+		     name="role change actions" />
+	</action_set>
+	<action_set
+	     description="Diese Fähigkeiten ermöglichen es, die Gruppenidentität zu ändern, z. B. öffentliche Sichtbarkeit, Charta und Insignien."
+	     name="Group Identity">
+		<action
+		     description="Charta, Insignien und &apos;Im Web veröffentlichen&apos; ändern und festlegen, welche Mitglieder in der Gruppeninfo öffentlich sichtbar sind."
+		     longdescription="Charta, Insignien und &apos;Im Web veröffentlichen&apos; ändern und festlegen, welche Mitglieder in der Gruppeninfo öffentlich sichtbar sind. Diese Einstellungen finden Sie auf der Registerkarte &apos;Allgemein&apos;."
+		     name="group change identity" />
+	</action_set>
+	<action_set
+	     description="Diese Fähigkeiten ermöglichen es, gruppeneigenes Land zu übertragen, zu bearbeiten und zu verkaufen. Klicken Sie mit rechts auf den Boden und wählen Sie &apos;Land-Info...&apos; oder klicken Sie in der Menüleiste auf den Parzellennamen."
+	     name="Parcel Management">
+		<action description="Land übertragen und für Gruppe kaufen"
+		     longdescription="Land übertragen und für Gruppe kaufen. Diese Einstellung finden Sie unter &apos;Land-Info&apos; &gt; &apos;Allgemein&apos;."
+		     name="land deed" />
+		<action description="Land Governor Linden überlassen"
+		     longdescription="Land Governor Linden überlassen. *WARNUNG* Jedes Mitglied in einer Rolle mit dieser Fähigkeit kann gruppeneigenes Land unter &apos;Land-Info&apos; &gt; &apos;Allgemein&apos; aufgeben und es ohne Verkauf in das Eigentum von Linden zurückführen! Überlegen Sie sich, wem Sie diese Fähigkeit verleihen."
+		     name="land release" />
+		<action description="Land.zu.verkaufen-Info einstellen"
+		     longdescription="Land zu verkaufen-Info einstellen. *WARNUNG* Mitglieder in einer Rolle mit dieser Fähigkeit können gruppeneigenes Land jederzeit unter &apos;Land-Info&apos; &gt; &apos;Allgemein&apos; verkaufen! Überlegen Sie sich, wem Sie diese Fähigkeit verleihen."
+		     name="land set sale info" />
+		<action description="Parzellen teilen und zusammenlegen"
+		     longdescription="Parzellen teilen und zusammenlegen. Klicken Sie dazu mit rechts auf den Boden, wählen sie &apos;Terrain bearbeiten&apos; und ziehen Sie die Maus auf das Land, um eine Auswahl zu treffen. Zum Teilen treffen Sie eine Auswahl und klicken auf &apos;Unterteilen...&apos;. Zum Zusammenlegen von zwei oder mehr angrenzenden Parzellen klicken Sie auf &apos;Zusammenlegen...&apos;."
+		     name="land divide join" />
+	</action_set>
+	<action_set
+	     description="Diese Fähigkeiten ermöglichen es, den Parzellennamen und die Veröffentlichungseinstellungen sowie die Anzeige des Suchverzeichnisses, den Landepunkt und die TP-Routenoptionen festzulegen."
+	     name="Parcel Identity">
+		<action
+		     description="&apos;In &quot;Orte suchen&quot; anzeigen&apos; ein-/ausschalten und Kategorie festlegen"
+		     longdescription="Auf der Registerkarte &apos;Optionen&apos; unter &apos;Land-Info&apos; können Sie &apos;In &quot;Orte suchen&quot; anzeigen&apos; ein- und ausschalten und die Parzellenkategorie festlegen."
+		     name="land find places" />
+		<action
+		     description="Name und Beschreibung der Parzelle und Einstellungen für &apos;Im Web veröffentlichen&apos; ändern"
+		     longdescription="Name und Beschreibung der Parzelle und Einstellungen für &apos;Im Web veröffentlichen&apos; ändern. Diese Einstellungen finden Sie unter &apos;Land-Info&apos; &gt; &apos;Optionen&apos;."
+		     name="land change identity" />
+		<action description="Landepunkt und Teleport-Route festlegen"
+		     longdescription="Mitglieder in einer Rolle mit dieser Fähigkeit können auf einer gruppeneigenen Parzelle einen Landepunkt für ankommende Teleports und Teleport-Routen festlegen. Diese Einstellungen finden Sie unter &apos;Land-Info&apos; &gt; &apos;Optionen&apos;."
+		     name="land set landing point" />
+	</action_set>
+	<action_set
+	     description="Diese Fähigkeiten ermöglichen es, Parzellenoptionen wie &apos;Objekte erstellen&apos;, &apos;Terrain bearbeiten&apos; sowie Musik- und Medieneinstellungen zu ändern."
+	     name="Parcel Settings">
+		<action description="Musik- und Medieneinstellungen ändern"
+		     longdescription="Die Einstellungen für Streaming-Musik und Filme finden Sie unter &apos;Land-Info&apos; &gt; &apos;Medien&apos;."
+		     name="land change media" />
+		<action description="&apos;Terrain bearbeiten&apos; ein/aus"
+		     longdescription="&apos;Terrain bearbeiten&apos; ein/aus. *WARNUNG* &apos;Land-Info&apos; &gt; &apos;Optionen&apos; &gt; &apos;Terrain bearbeiten&apos; ermöglicht jedem das Terraformen Ihres Grundstücks und das Setzen und Verschieben von Linden-Pflanzen. Überlegen Sie sich, wem Sie diese Fähigkeit verleihen. Diese Einstellung finden Sie unter &apos;Land-Info&apos; &gt; &apos;Optionen&apos;."
+		     name="land edit" />
+		<action description="&apos;Land-Info&apos;-Optionen einstellen"
+		     longdescription="Auf der Registerkarte &apos;Optionen&apos; unter &apos;Land-Info&apos; können Sie &apos;Sicher (kein Schaden)&apos; und &apos;Fliegen&apos; ein- und ausschalten und Einwohnern folgende Aktionen auf gruppeneigenem Land erlauben: &apos;Objekte erstellen&apos;, &apos;Terrain bearbeiten&apos;, &apos;Landmarken erstellen&apos; und &apos;Skripts ausführen&apos;."
+		     name="land options" />
+	</action_set>
+	<action_set
+	     description="Diese Fähigkeiten ermöglichen es, Mitgliedern das Umgehen von Restriktionen auf gruppeneigenen Parzellen zu erlauben."
+	     name="Parcel Powers">
+		<action description="&apos;Terrain bearbeiten&apos; zulassen"
+		     longdescription="Mitglieder in einer Rolle mit dieser Fähigkeit können auf einer gruppeneigenen Parzelle das Terrain bearbeiten, selbst wenn diese Option unter &apos;Land-Info&apos; &gt; &apos;Optionen&apos; deaktiviert ist."
+		     name="land allow edit land" />
+		<action description="&apos;Fliegen&apos; zulassen"
+		     longdescription="Mitglieder in einer Rolle mit dieser Fähigkeit können auf einer gruppeneigenen Parzelle fliegen, selbst wenn diese Option unter &apos;Land-Info&apos; &gt; &apos;Optionen&apos; deaktiviert ist."
+		     name="land allow fly" />
+		<action description="&apos;Objekte erstellen&apos; zulassen"
+		     longdescription="Mitglieder in einer Rolle mit dieser Fähigkeit können auf einer gruppeneigenen Parzelle Objekte erstellen, selbst wenn diese Option unter &apos;Land-Info&apos; &gt; &apos;Optionen&apos; deaktiviert ist."
+		     name="land allow create" />
+		<action description="&apos;Landmarke erstellen&apos; zulassen"
+		     longdescription="Mitglieder in einer Rolle mit dieser Fähigkeit können für eine gruppeneigene Parzelle eine Landmarke erstellen, selbst wenn diese Option unter &apos;Land-Info&apos; &gt; &apos;Optionen&apos; deaktiviert ist."
+		     name="land allow landmark" />
+		<action description="&apos;Hier als Zuhause wählen&apos; auf Gruppenland zulassen"
+		     longdescription="Mitglieder in einer Rolle mit dieser Fähigkeit können auf einer an diese Gruppe übertragenen Parzelle die Funktion &apos;Welt&apos; &gt; &apos;Hier als Zuhause wählen&apos; verwenden."
+		     name="land allow set home" />
+	</action_set>
+	<action_set
+	     description="Diese Fähigkeiten ermöglichen es, den Zugang auf gruppeneigenen Parzellen zu steuern. Dazu gehört das Einfrieren und Ausschließen von Einwohnern."
+	     name="Parcel Access">
+		<action description="Parzellen-Zugangslisten verwalten"
+		     longdescription="Parzellen-Zugangslisten bearbeiten Sie unter &apos;Land-Info&apos; &gt; &apos;Zugang&apos;."
+		     name="land manage allowed" />
+		<action description="Parzellen-Bannlisten verwalten"
+		     longdescription="Parzellen-Bannlisten bearbeiten Sie unter &apos;Land-Info&apos; &gt; &apos;Verbannen&apos;."
+		     name="land manage banned" />
+		<action
+		     description="Parzelleneinstellungen für &apos;Pässe verkaufen...&apos; ändern"
+		     longdescription="Die Parzellen-Einstellungen für &apos;Pässe verkaufen...&apos; ändern Sie unter &apos;Land-Info&apos; &gt; &apos;Zugang&apos;."
+		     name="land manage passes" />
+		<action description="Einwohner aus Parzellen werfen und einfrieren"
+		     longdescription="Mitglieder in einer Rolle mit dieser Fähigkeit können gegen unerwünschte Personen auf einer gruppeneigenen Parzelle Maßnahmen ergreifen. Klicken Sie die Person mit rechts an und wählen Sie &apos;Mehr&apos; &gt;, dann &apos;Ausschließen...&apos; oder &apos;Einfrieren...&apos;."
+		     name="land admin" />
+	</action_set>
+	<action_set
+	     description="Diese Fähigkeiten ermöglichen es, Mitgliedern das Zurückgeben von Objekten sowie das Platzieren und Verschieben von Linden-Pflanzen zu erlauben. Mitglieder können das Grundstück aufräumen und an der Landschaftsgestaltung mitwirken. Aber Vorsicht: Zurückgegebene Objekte können nicht mehr zurückgeholt werden."
+	     name="Parcel Content">
+		<action description="Gruppeneigene Objekte zurückgeben"
+		     longdescription="Gruppeneigene Objekte auf gruppeneigenen Parzellen können Sie unter &apos;Land-Info&apos; &gt; &apos;Objekte&apos; zurückgeben."
+		     name="land return group owned" />
+		<action description="Gruppenobjekte zurückgeben"
+		     longdescription="Gruppenobjekte auf gruppeneigenen Parzellen können Sie unter &apos;Land-Info&apos; &gt; &apos;Objekte&apos; zurückgeben."
+		     name="land return group set" />
+		<action description="Gruppenfremde Objekte zurückgeben"
+		     longdescription="Objekte von gruppenfremden Personen auf gruppeneigenen Parzellen können Sie unter &apos;Land-Info&apos; &gt; &apos;Objekte&apos; zurückgeben."
+		     name="land return non group" />
+		<action description="Landschaftsgestaltung mit Linden-Pflanzen"
+		     longdescription="Die Fähigkeit zur Landschaftsgestaltung ermöglicht das Platzieren und Verschieben von Linden-Bäumen, -Pflanzen und -Gräsern. Diese Objekte finden Sie im Bibliotheksordner des Inventars unter &apos;Objekte&apos;. Sie lassen sich auch mit der Schaltfläche &apos;Erstellen&apos; erzeugen."
+		     name="land gardening" />
+	</action_set>
+	<action_set
+	     description="Diese Fähigkeiten ermöglichen es, gruppeneigene Objekte zu übertragen, zu bearbeiten und zu verkaufen. Änderungen werden unter 'Auswahl-Tool' &gt; 'Bearbeiten' auf der Registerkarte 'Allgemein' vorgenommen. Klicken Sie mit rechts auf ein Objekt und wählen Sie 'Bearbeiten', um seine Einstellungen anzuzeigen."
+	     name="Object Management">
+		<action description="Objekte an Gruppe übertragen"
+		     longdescription="Objekte an eine Gruppe übertragen können Sie unter &apos;Auswahl-Tool&apos; &gt; &apos;Bearbeiten&apos; auf der Registerkarte &apos;Allgemein&apos;."
+		     name="object deed" />
+		<action
+		     description="Gruppeneigene Objekte manipulieren (verschieben, kopieren, bearbeiten)"
+		     longdescription="Gruppeneigene Objekte lassen sich unter &apos;Auswahl-Tool&apos; &gt; &apos;Bearbeiten&apos; auf der Registerkarte &apos;Allgemein&apos; manipulieren (verschieben, kopieren, bearbeiten)."
+		     name="object manipulate" />
+		<action description="Gruppeneigene Objekte zum Verkauf freigeben"
+		     longdescription="Gruppeneigene Objekte zum Verkauf freigeben können Sie unter &apos;Auswahl-Tool&apos; &gt; &apos;Bearbeiten&apos; auf der Registerkarte &apos;Allgemein&apos;."
+		     name="object set sale" />
+	</action_set>
+	<action_set
+	     description="Diese Fähigkeiten ermöglichen es, Gruppenschulden und Gruppendividenden zu aktivieren und den Zugriff auf das Gruppenkonto zu beschränken."
+	     name="Accounting">
+		<action description="Gruppenschulden zahlen und Gruppendividende erhalten"
+		     longdescription="Mitglieder in einer Rolle mit dieser Fähigkeit zahlen automatisch Gruppenschulden und erhalten Gruppendividenden. D. h. sie erhalten einen Anteil an Verkäufen von gruppeneigenem Land, der täglich verrechnet wird. Außerdem zahlen Sie automatisch für anfallende Kosten wie Parzellenlisten-Gebühren."
+		     name="accounting accountable" />
+	</action_set>
+	<action_set
+	     description="Diese Fähigkeiten ermöglichen es, Mitgliedern das Senden, Empfangen und Anzeigen von Gruppennachrichten zu erlauben."
+	     name="Notices">
+		<action description="Mitteilungen senden"
+		     longdescription="Mitglieder in einer Rolle mit dieser Fähigkeit können in der Gruppeninfo unter &apos;Mitteilungen&apos; Mitteilungen senden."
+		     name="notices send" />
+		<action description="Mitteilungen erhalten und ältere Mitteilungen anzeigen"
+		     longdescription="Mitglieder in einer Rolle mit dieser Fähigkeit können Mitteilungen erhalten und in der Gruppeninfo unter &apos;Mitteilungen&apos; ältere Mitteilungen einsehen."
+		     name="notices receive" />
+	</action_set>
+	<action_set
+	     description="Diese Fähigkeiten ermöglichen es, Mitgliedern das Erstellen von Anfragen, das Abstimmen über Anfragen und das Anzeigen des Abstimmprotokolls zu erlauben."
+	     name="Proposals">
+		<action description="Neue Anfragen"
+		     longdescription="Mitglieder in einer Rolle mit dieser Fähigkeit können Anfragen stellen, über die auf der Registerkarte &apos;Anfragen&apos; in der Gruppeninfo abgestimmt werden kann."
+		     name="proposal start" />
+		<action description="Über Anfragen abstimmen"
+		     longdescription="Mitglieder in einer Rolle mit dieser Fähigkeit können in der Gruppeninfo unter &apos;Anfragen&apos; über Anfragen abstimmen."
+		     name="proposal vote" />
+	</action_set>
+</role_actions>

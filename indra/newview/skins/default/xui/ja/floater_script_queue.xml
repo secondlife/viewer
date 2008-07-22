@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="queue" title="進捗のリセット">
+	<button label="閉じる" label_selected="閉じる" name="close" />
+</floater>

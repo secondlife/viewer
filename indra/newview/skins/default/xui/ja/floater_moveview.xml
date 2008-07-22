@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="move floater" title="">
+	<button label="" label_selected="" name="turn left btn" tool_tip="左に曲がる" />
+	<button label="" label_selected="" name="turn right btn" tool_tip="右に曲がる" />
+	<button label="" label_selected="" name="move up btn"
+	     tool_tip="ジャンプまたは上昇" />
+	<button label="" label_selected="" name="move down btn"
+	     tool_tip="しゃがむまたは下降" />
+	<button label="飛行" label_selected="飛行" name="fly btn"
+	     tool_tip="飛行を開始または停止" />
+	<joystick_slide name="slide left btn" tool_tip="左に移動" />
+	<joystick_slide name="slide right btn" tool_tip="右に移動" />
+	<joystick_turn name="forward btn" tool_tip="前に移動" />
+	<joystick_turn name="backward btn" tool_tip="後ろに移動" />
+</floater>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="Postcard" title="ポストカードを送る">
+	<text name="to_label">
+		住人の電子メール：
+	</text>
+	<line_editor left="145" name="to_form" width="125"/>
+	<text name="from_label">
+		あなたのEメール：
+	</text>
+	<line_editor left="145" name="from_form" width="125"/>
+	<text name="name_label">
+		あなたの名前：
+	</text>
+	<line_editor left="145" name="name_form" width="125"/>
+	<text name="subject_label">
+		件名：
+	</text>
+	<line_editor label="件名をここにタイプ。" name="subject_form" left="145" width="125" />
+	<text name="msg_label">
+		メッセージ：
+	</text>
+	<text_editor name="msg_form"  height="110" bottom_delta="-120">
+		メッセージをここにタイプ。
+	</text_editor>
+	<check_box label="ウェブ上で公開" name="allow_publish_check"
+	     tool_tip="このポストカードをウェブ上で公開します。" />
+	<check_box label="成人向けコンテンツ" name="mature_check"
+	     tool_tip="このポストカードには成人向け内容が含まれます。" />
+	<button label="?" name="publish_help_btn" left="300" />
+	<text name="fine_print">
+		あなたのポストカードの受信者がSLに参加すると、あなたは紹介ボーナスを受
+け取ります。
+	</text>
+	<button label="取り消し" name="cancel_btn" bottom_delta="-52" />
+	<button label="送信" name="send_btn" />
+	<text name="default_subject">
+		Second Life からのポストカード。
+	</text>
+	<text name="default_message">
+		これは絶対チェック！
+	</text>
+</floater>

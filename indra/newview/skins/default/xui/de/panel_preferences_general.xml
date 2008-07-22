@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel label="Allgemein" name="general_panel">
+	<combo_box name="location_combobox">
+		<combo_item name="MyHome">
+			Mein Heimatort
+		</combo_item>
+		<combo_item name="MyLastLocation">
+			Mein letzter Standort
+		</combo_item>
+	</combo_box>
+	<check_box label="Startposition auf Anmeldebildschirm anzeigen"
+	     name="show_location_checkbox" />
+	<radio_group name="fade_out_radio">
+		<radio_item type="string" length="1" name="Never">
+			Nie
+		</radio_item>
+		<radio_item type="string" length="1" name="Temporarily">
+			Temporär anzeigen
+		</radio_item>
+		<radio_item type="string" length="1" name="Always">
+			Immer
+		</radio_item>
+	</radio_group>
+	<combo_box name="fade_out_combobox">
+		<combo_item name="Never">
+			Nie
+		</combo_item>
+		<combo_item name="Show Temporarily">
+			Temporär anzeigen
+		</combo_item>
+		<combo_item name="Always">
+			Immer
+		</combo_item>
+	</combo_box>
+	<check_box label="Meinen Namen auf meinem Bildschirm ausblenden"
+	     name="show_my_name_checkbox" />
+	<text name="group_titles_textbox">
+		Gruppentitel:
+	</text>
+	<check_box label="Alle Gruppentitel ausblenden" name="show_all_title_checkbox" />
+	<check_box label="Meinen Gruppentitel ausblenden" name="show_my_title_checkbox" />
+	<check_box label="Kleine Avatarnamen" name="small_avatar_names_checkbox" />
+	<color_swatch label="" name="effect_color_swatch"
+	     tool_tip="Klicken Sie hier, um die Farbauswahl zu öffnen" />
+	<text name="UI Size:">
+		UI-Größe:
+	</text>
+	<check_box label="Auflösungsunabhängigen Maßstab verwenden" name="ui_auto_scale" />
+	<spinner label="Timeout für Abwesenheit:" name="afk_timeout_spinner" />
+	<check_box label="Online-Freundbenachrichtigungen anzeigen"
+	     name="friends_online_notify_checkbox" />
+	<check_box label="Minikarte drehen" name="rotate_mini_map_checkbox" />
+	<check_box label="L$ Eingänge und Ausgaben melden" name="notify_money_change_checkbox" />
+	<check_box label="Standard-Farbauswahl verwenden" name="use_system_color_picker_checkbox"
+	     tool_tip="Standard-Farbauswahl des Systems anstelle des Second Life-eigenen verwenden." />
+	<check_box label="Suchleiste in Menüleiste anzeigen" name="show_search_panel"
+	     tool_tip="Die eingebettete Suchleiste anzeigen." />
+	<text type="string" length="1" name="start_location_textbox">
+		Startposition:
+	</text>
+	<text type="string" length="1" name="show_names_textbox">
+		Namen anzeigen:
+	</text>
+	<text type="string" length="1" name="effects_color_textbox">
+		Farbe für meine Effekte:
+	</text>
+	<text type="string" length="1" name="seconds_textbox">
+		Sekunden
+	</text>
+	<text type="string" length="1" name="crash_report_textbox">
+		Crash-Berichte:
+	</text>
+	<text type="string" length="1" name="language_textbox">
+		Sprache:
+	</text>
+	<text type="string" length="1" name="language_textbox2">
+		(Erfordert Neustart)
+	</text>
+	<text name="region_name_prompt">
+		&lt;Region eingeben&gt;
+	</text>
+	<combo_box name="crash_behavior_combobox">
+		<combo_item type="string" length="1" name="Askbeforesending">
+			Vor dem Senden fragen
+		</combo_item>
+		<combo_item type="string" length="1" name="Alwayssend">
+			Immer senden
+		</combo_item>
+		<combo_item type="string" length="1" name="Neversend">
+			Nie senden
+		</combo_item>
+	</combo_box>
+	<combo_box name="language_combobox">
+		<combo_item type="string" length="1" name="System Default Language">
+			Betriebssystem-Einstellung
+		</combo_item>
+		<combo_item type="string" length="1" name="English">
+			English (Englisch)
+		</combo_item>
+		<combo_item type="string" length="1" name="Chinese">
+			汉语/漢語 (Chinesisch) - Beta
+		</combo_item>
+		<combo_item type="string" length="1" name="Deutsch(German)">
+			Deutsch - Beta
+		</combo_item>
+		<combo_item type="string" length="1" name="French">
+			Français (Französisch) - Beta
+		</combo_item>
+		<combo_item type="string" length="1" name="(Japanese)">
+			日本語 (Japanisch) - Beta
+		</combo_item>
+		<combo_item type="string" length="1" name="(Korean)">
+			한국어 (Koreanisch) - Beta
+		</combo_item>
+		<combo_item type="string" length="1" name="Portugese">
+			Português (Portugiesisch) - Beta
+		</combo_item>
+		<combo_item type="string" length="1" name="Spanish">
+			Español (Spanisch) - Beta
+		</combo_item>
+	</combo_box>
+</panel>

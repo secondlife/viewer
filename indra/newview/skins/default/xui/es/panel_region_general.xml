@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel label="Región" name="General">
+	<text name="region_text_lbl">
+		Región:
+	</text>
+	<text name="region_text">
+		desconocido
+	</text>
+	<check_box label="Bloquear formar terreno" name="block_terraform_check" />
+	<button label="?" name="terraform_help" />
+	<check_box label="Bloquear vuelo" name="block_fly_check" />
+	<button label="?" name="fly_help" />
+	<check_box label="Permitir daño" name="allow_damage_check" />
+	<button label="?" name="damage_help" />
+	<check_box label="Restringir promoción" name="restrict_pushobject" />
+	<button label="?" name="restrict_pushobject_help" />
+	<check_box label="Permitir reventa de terreno" name="allow_land_resell_check" />
+	<button label="?" name="land_resell_help" />
+	<check_box label="Permitir unir/dividir parcela" name="allow_parcel_changes_check" />
+	<button label="?" name="parcel_changes_help" />
+	<spinner label="Límite del agente" name="agent_limit_spin" />
+	<button label="?" name="agent_limit_help" />
+	<spinner label="Objeto bono" name="object_bonus_spin" />
+	<button label="?" name="object_bonus_help" />
+	<text label="Madurez" name="access_text">
+		Madurez:
+	</text>
+	<combo_box label="Adulto" name="access_combo">
+		<combo_item name="PG">
+			PG
+		</combo_item>
+		<combo_item name="Mature">
+			Adulto
+		</combo_item>
+	</combo_box>
+	<button label="?" name="access_help" />
+	<button label="Aplicar" name="apply_btn" />
+	<button label="Teletransportar un usuario hacia casa..." name="kick_btn" />
+	<button label="Teletransportar todos los usuarios hacia casa..." name="kick_all_btn" />
+	<button label="Enviar mensaje para región..." name="im_btn" />
+	<button label="Administrar Telehub..." name="manage_telehub_btn" />
+</panel>

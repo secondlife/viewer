@@ -155,7 +155,7 @@ public:
 
 private:
 	LLColor4					mColor;
-	LLPointer<LLImageGL>		mViewerImage[2];
+	LLPointer<LLImageGL>		mViewerImage[2]; //used to represent the scene when the frame is frozen.
 	LLRect						mImageRect[2];
 	S32							mWidth[2];
 	S32							mHeight[2];
@@ -190,7 +190,6 @@ private:
 	LLQuaternion				mCameraRot;
 	BOOL						mSnapshotActive;
 	LLViewerWindow::ESnapshotType mSnapshotBufferType;
-	bool						mSnapshotSoundPlayed;
 
 public:
 	static std::set<LLSnapshotLivePreview*> sList;
@@ -217,8 +216,7 @@ LLSnapshotLivePreview::LLSnapshotLivePreview (const LLRect& rect) :
 	mCameraPos(LLViewerCamera::getInstance()->getOrigin()),
 	mCameraRot(LLViewerCamera::getInstance()->getQuaternion()),
 	mSnapshotActive(FALSE),
-	mSnapshotBufferType(LLViewerWindow::SNAPSHOT_TYPE_COLOR),
-	mSnapshotSoundPlayed(false)
+	mSnapshotBufferType(LLViewerWindow::SNAPSHOT_TYPE_COLOR)
 {
 	setSnapshotQuality(gSavedSettings.getS32("SnapshotQuality"));
 	mSnapshotDelayTimer.setTimerExpirySec(0.0f);
@@ -403,6 +401,7 @@ void LLSnapshotLivePreview::drawPreviewRect(S32 offset_x, S32 offset_y)
 	}
 }
 
+//called when the frame is frozen.
 void LLSnapshotLivePreview::draw()
 {
 	if (mViewerImage[mCurImageIndex].notNull() &&
@@ -781,19 +780,6 @@ void LLSnapshotLivePreview::onIdle( void* snapshot_preview )
 			previewp->mPreviewImage->getHeight(), 
 			previewp->mPreviewImage->getComponents());
 
-		if (!gSavedSettings.getBOOL("QuietSnapshotsToDisk"))
-		{
-			// Always play the sound once, on window open.
-			// Don't keep playing if automatic
-			// updates are enabled. It's too invasive. JC
-			if (!previewp->mSnapshotSoundPlayed
-				|| !gSavedSettings.getBOOL("AutoSnapshot") )
-			{
-				gViewerWindow->playSnapshotAnimAndSound();
-				previewp->mSnapshotSoundPlayed = true;
-			}
-		}
-		
 		if(previewp->getSnapshotType() == SNAPSHOT_TEXTURE)
 		{
 			LLPointer<LLImageJ2C> formatted = new LLImageJ2C;
@@ -852,29 +838,32 @@ void LLSnapshotLivePreview::onIdle( void* snapshot_preview )
 			previewp->mPreviewImageEncoded->getHeight(),
 			previewp->mPreviewImageEncoded->getComponents());
 		
-		// leave original image dimensions, just scale up texture buffer
-		if (previewp->mPreviewImageEncoded->getWidth() > 1024 || previewp->mPreviewImageEncoded->getHeight() > 1024)
+		if(!scaled->isBufferInvalid())
 		{
-			// go ahead and shrink image to appropriate power of 2 for display
-			scaled->biasedScaleToPowerOfTwo(1024);
-			previewp->mImageScaled[previewp->mCurImageIndex] = TRUE;
+			// leave original image dimensions, just scale up texture buffer
+			if (previewp->mPreviewImageEncoded->getWidth() > 1024 || previewp->mPreviewImageEncoded->getHeight() > 1024)
+			{
+				// go ahead and shrink image to appropriate power of 2 for display
+				scaled->biasedScaleToPowerOfTwo(1024);
+				previewp->mImageScaled[previewp->mCurImageIndex] = TRUE;
+			}
+			else
+			{
+				// expand image but keep original image data intact
+				scaled->expandToPowerOfTwo(1024, FALSE);
+			}
+
+			previewp->mViewerImage[previewp->mCurImageIndex] = new LLImageGL(scaled, FALSE);
+			previewp->mViewerImage[previewp->mCurImageIndex]->setMipFilterNearest(previewp->getSnapshotType() != SNAPSHOT_TEXTURE);
+			LLViewerImage::bindTexture(previewp->mViewerImage[previewp->mCurImageIndex]);
+			previewp->mViewerImage[previewp->mCurImageIndex]->setClamp(TRUE, TRUE);
+
+			previewp->mSnapshotUpToDate = TRUE;
+			previewp->generateThumbnailImage(TRUE) ;
+
+			previewp->mPosTakenGlobal = gAgent.getCameraPositionGlobal();
+			previewp->mShineCountdown = 4; // wait a few frames to avoid animation glitch due to readback this frame
 		}
-		else
-		{
-			// expand image but keep original image data intact
-			scaled->expandToPowerOfTwo(1024, FALSE);
-		}
-
-		previewp->mViewerImage[previewp->mCurImageIndex] = new LLImageGL(scaled, FALSE);
-		previewp->mViewerImage[previewp->mCurImageIndex]->setMipFilterNearest(previewp->getSnapshotType() != SNAPSHOT_TEXTURE);
-		LLViewerImage::bindTexture(previewp->mViewerImage[previewp->mCurImageIndex]);
-		previewp->mViewerImage[previewp->mCurImageIndex]->setClamp(TRUE, TRUE);
-
-		previewp->mSnapshotUpToDate = TRUE;
-		previewp->generateThumbnailImage(TRUE) ;
-
-		previewp->mPosTakenGlobal = gAgent.getCameraPositionGlobal();
-		previewp->mShineCountdown = 4; // wait a few frames to avoid animation glitch due to readback this frame
 	}
 	previewp->getWindow()->decBusyCount();
 	// only show fullscreen preview when in freeze frame mode
@@ -955,6 +944,7 @@ void LLSnapshotLivePreview::saveTexture()
 							LLInventoryType::IT_SNAPSHOT,
 							PERM_ALL,
 							"Snapshot : " + pos_string);
+		gViewerWindow->playSnapshotAnimAndSound();
 	}
 	else
 	{
@@ -967,7 +957,12 @@ void LLSnapshotLivePreview::saveTexture()
 
 BOOL LLSnapshotLivePreview::saveLocal()
 {
-	return gViewerWindow->saveImageNumbered(mFormattedImage);
+	BOOL success = gViewerWindow->saveImageNumbered(mFormattedImage);
+	if(success)
+	{
+		gViewerWindow->playSnapshotAnimAndSound();
+	}
+	return success;
 }
 
 ///----------------------------------------------------------------------------
@@ -1134,10 +1129,6 @@ void LLFloaterSnapshot::Impl::updateLayout(LLFloaterSnapshot* floaterp)
 	}
 
 	bool use_freeze_frame = floaterp->childGetValue("freeze_frame_check").asBoolean();
-	// For now, auto-snapshot only works in freeze frame mode.
-	// This can be changed in the future by taking the FreezeTime check
-	// out of the onIdle() camera movement detection. JC
-	floaterp->childSetEnabled("auto_snapshot_check", use_freeze_frame);
 
 	if (use_freeze_frame)
 	{
@@ -1174,9 +1165,6 @@ void LLFloaterSnapshot::Impl::updateLayout(LLFloaterSnapshot* floaterp)
 	}
 	else // turning off freeze frame mode
 	{
-		// Force off auto-snapshot, see comment above about onIdle. JC
-		gSavedSettings.setBOOL("AutoSnapshot", FALSE);
-
 		floaterp->getParent()->setMouseOpaque(FALSE);
 		floaterp->reshape(floaterp->getRect().getWidth(), floaterp->getUIWinHeightLong() + delta_height);
 		if (previewp)
@@ -1348,8 +1336,6 @@ void LLFloaterSnapshot::Impl::onClickKeep(void* data)
 	
 	if (previewp)
 	{
-		BOOL succeeded = TRUE; // Only used for saveLocal for now
-
 		if (previewp->getSnapshotType() == LLSnapshotLivePreview::SNAPSHOT_POSTCARD)
 		{
 			LLFloaterPostcard* floater = previewp->savePostcard();
@@ -1368,7 +1354,7 @@ void LLFloaterSnapshot::Impl::onClickKeep(void* data)
 		}
 		else
 		{
-			succeeded = previewp->saveLocal();
+			previewp->saveLocal();
 		}
 
 		if (gSavedSettings.getBOOL("CloseSnapshotOnKeep"))
@@ -1535,13 +1521,16 @@ void LLFloaterSnapshot::Impl::onCommitFreezeFrame(LLUICtrl* ctrl, void* data)
 void LLFloaterSnapshot::Impl::checkAspectRatio(LLFloaterSnapshot *view, S32 index)
 {
 	LLSnapshotLivePreview *previewp = getPreviewView(view) ;
-	
+
+	// Don't round texture sizes; textures are commonly stretched in world, profiles, etc and need to be "squashed" during upload, not cropped here
+#if 0
 	if(LLSnapshotLivePreview::SNAPSHOT_TEXTURE == getTypeIndex(view))
 	{
 		previewp->mKeepAspectRatio = FALSE ;
 		return ;
 	}
-
+#endif
+	
 	if(!index) //current window size
 	{
 		sAspectRatioCheckOff = TRUE ;
@@ -1555,7 +1544,7 @@ void LLFloaterSnapshot::Impl::checkAspectRatio(LLFloaterSnapshot *view, S32 inde
 	else if(-1 == index) //custom
 	{
 		sAspectRatioCheckOff = FALSE ;
-		if(LLSnapshotLivePreview::SNAPSHOT_TEXTURE != gSavedSettings.getS32("LastSnapshotType"))
+		//if(LLSnapshotLivePreview::SNAPSHOT_TEXTURE != gSavedSettings.getS32("LastSnapshotType"))
 		{
 			view->childSetEnabled("keep_aspect_check", TRUE) ;
 
@@ -1708,6 +1697,7 @@ BOOL LLFloaterSnapshot::Impl::checkImageSize(LLSnapshotLivePreview* previewp, S3
 	S32 h = height ;
 
 	//if texture, ignore aspect ratio setting, round image size to power of 2.
+#if 0 // Don't round texture sizes; textures are commonly stretched in world, profiles, etc and need to be "squashed" during upload, not cropped here
 	if(LLSnapshotLivePreview::SNAPSHOT_TEXTURE == gSavedSettings.getS32("LastSnapshotType"))
 	{
 		if(width > max_value)
@@ -1735,7 +1725,9 @@ BOOL LLFloaterSnapshot::Impl::checkImageSize(LLSnapshotLivePreview* previewp, S3
 			height = get_lower_power_two(height, MAX_TEXTURE_SIZE) ;
 		}
 	}
-	else if(previewp && previewp->mKeepAspectRatio)
+	else
+#endif
+	if(previewp && previewp->mKeepAspectRatio)
 	{
 		if(gViewerWindow->getWindowDisplayWidth() < 1 || gViewerWindow->getWindowDisplayHeight() < 1)
 		{
@@ -1815,6 +1807,7 @@ void LLFloaterSnapshot::Impl::onCommitCustomResolution(LLUICtrl *ctrl, void* dat
 			{
 				BOOL update_ = FALSE ;
 				//if to upload a snapshot, process spinner input in a special way.
+#if 0  // Don't round texture sizes; textures are commonly stretched in world, profiles, etc and need to be "squashed" during upload, not cropped here
 				if(LLSnapshotLivePreview::SNAPSHOT_TEXTURE == gSavedSettings.getS32("LastSnapshotType"))
 				{
 					S32 spinner_increment = (S32)((LLSpinCtrl*)ctrl)->getIncrement() ;
@@ -1834,7 +1827,7 @@ void LLFloaterSnapshot::Impl::onCommitCustomResolution(LLUICtrl *ctrl, void* dat
 						update_ = TRUE ;
 					}
 				}
-
+#endif
 				previewp->setMaxImageSize((S32)((LLSpinCtrl *)ctrl)->getMaxValue()) ;
 				
 				// Check image size changes the value of height and width

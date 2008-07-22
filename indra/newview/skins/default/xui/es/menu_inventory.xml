@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<menu name="Popup">
+	<menu_item_call label="Comprar" name="Task Buy" />
+	<menu_item_call label="Abrir" name="Task Open" />
+	<menu_item_call label="Reproducir" name="Task Play" />
+	<menu_item_call label="Propiedades" name="Task Properties" />
+	<menu_item_call label="Renombrar" name="Task Rename" />
+	<menu_item_call label="Borrar" name="Task Remove" />
+	<menu_item_call label="Vaciar basura" name="Empty Trash" />
+	<menu_item_call label="Nueva carpeta" name="New Folder" />
+	<menu_item_call label="Nuevo script" name="New Script" />
+	<menu_item_call label="Nueva nota" name="New Note" />
+	<menu_item_call label="Nueva postura" name="New Gesture" />
+	<menu name="New Clothes">
+		<menu_item_call label="Nueva camisa" name="New Shirt" />
+		<menu_item_call label="Nuevos pantalones" name="New Pants" />
+		<menu_item_call label="Nuevos zapatos" name="New Shoes" />
+		<menu_item_call label="Nuevos calcetines" name="New Socks" />
+		<menu_item_call label="Nuevo abrigo" name="New Jacket" />
+		<menu_item_call label="Nueva falda" name="New Skirt" />
+		<menu_item_call label="Nuevos guantes" name="New Gloves" />
+		<menu_item_call label="Nueva camiseta" name="New Undershirt" />
+		<menu_item_call label="Nuevas ropas interiores" name="New Underpants" />
+	</menu>
+	<menu name="New Body Parts">
+		<menu_item_call label="Nueva forma" name="New Shape" />
+		<menu_item_call label="Nueva piel" name="New Skin" />
+		<menu_item_call label="Nuevo cabello" name="New Hair" />
+		<menu_item_call label="Nuevos ojos" name="New Eyes" />
+	</menu>
+	<menu_item_call label="Abrir" name="Landmark Open" />
+	<menu_item_call label="Abrir" name="Animation Open" />
+	<menu_item_call label="Abrir" name="Sound Open" />
+	<menu_item_call label="Limpiar ítem" name="Purge Item" />
+	<menu_item_call label="Restaurar ítem" name="Restore Item" />
+	<menu_item_call label="Abrir" name="Open" />
+	<menu_item_call label="Propiedades" name="Properties" />
+	<menu_item_call label="Renombrar" name="Rename" />
+	<menu_item_call label="Copiar UUID" name="Copy Asset UUID" />
+	<menu_item_call label="Copiar" name="Copy" />
+	<menu_item_call label="Pegar" name="Paste" />
+	<menu_item_call label="Borrar" name="Delete" />
+	<menu_item_call label="Adicionar al vestuario" name="Add To Outfit" />
+	<menu_item_call label="Sustituir vestuario" name="Replace Outfit" />
+	<menu_item_call label="Remover ítems" name="Take Off Items" />
+	<menu_item_call label="MI para contactos online en la carpeta"
+	     name="IM Online Contacts In Folder" />
+	<menu_item_call label="MI para todos los contactos en la carpeta"
+	     name="IM All Contacts In Folder" />
+	<menu_item_call label="Reproducir" name="Sound Play" />
+	<menu_item_call label="Teletransportar hacia punto de referencia" name="Teleport To Landmark" />
+	<menu_item_call label="Reproducir en el mundo" name="Animation Play" />
+	<menu_item_call label="Reproducir localmente" name="Animation Audition" />
+	<menu_item_call label="Enviar Mensaje instantáneo" name="Send Instant Message" />
+	<menu_item_call label="Ofrecer teletransporte..." name="Offer Teleport..." />
+	<menu_item_call label="Activar" name="Activate" />
+	<menu_item_call label="Desactivar" name="Deactivate" />
+	<menu_item_call label="Separar de usted" name="Detach From Yourself" />
+	<menu_item_call label="Vestirse" name="Object Wear" />
+	<menu label="Anexar a la" name="Attach To" />
+	<menu label="Anexar a HUD" name="Attach To HUD" />
+	<menu_item_call label="Vestirse" name="Wearable Wear" />
+	<menu_item_call label="Editar" name="Wearable Edit" />
+	<menu_item_call label="Retirar" name="Take Off" />
+	<menu_item_call label="--sin opciones--" name="--no options--" />
+</menu>

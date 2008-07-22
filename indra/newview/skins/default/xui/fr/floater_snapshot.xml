@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="Snapshot" title="Aperçu de l&apos;instantané">
+	<text name="type_label">
+		Que souhaitez-vous faire ?
+	</text>
+	<radio_group label="Type d&apos;instantané" name="snapshot_type_radio">
+		<radio_item name="postcard">
+			Envoyer une carte postale
+		</radio_item>
+		<radio_item name="texture">
+			Uploader un instantané
+		</radio_item>
+		<radio_item name="local">
+			Enregistrer instantané sur disque
+		</radio_item>
+	</radio_group>
+	<text name="type_label2">
+		Taille souhaitée de l&apos;image :
+	</text>
+	<combo_box label="Résolution" name="postcard_size_combo">
+		<combo_item name="640x480">
+			640x480
+		</combo_item>
+		<combo_item name="800x600">
+			800x600
+		</combo_item>
+		<combo_item name="1024x768">
+			1024x768
+		</combo_item>
+		<combo_item name="CurrentWindow">
+			Fenêtre actuelle
+		</combo_item>
+		<combo_item name="Custom">
+			Personnalisé
+		</combo_item>
+	</combo_box>
+	<combo_box label="Résolution" name="texture_size_combo">
+		<combo_item name="CurrentWindow">
+			Fenêtre actuelle
+		</combo_item>
+		<combo_item name="Small(128x128)">
+			Petit (128x128)
+		</combo_item>
+		<combo_item name="Medium(256x256)">
+			Moyen (256x256)
+		</combo_item>
+		<combo_item name="Large(512x512)">
+			Grand (512x512)
+		</combo_item>
+		<combo_item name="Custom">
+			Personnalisé
+		</combo_item>
+	</combo_box>
+	<combo_box label="Résolution" name="local_size_combo">
+		<combo_item name="CurrentWindow">
+			Fenêtre actuelle
+		</combo_item>
+		<combo_item name="320x240">
+			320x240
+		</combo_item>
+		<combo_item name="640x480">
+			640x480
+		</combo_item>
+		<combo_item name="800x600">
+			800x600
+		</combo_item>
+		<combo_item name="1024x768">
+			1024x768
+		</combo_item>
+		<combo_item name="1280x1024">
+			1280x1024
+		</combo_item>
+		<combo_item name="1600x1200">
+			1600x1200
+		</combo_item>
+		<combo_item name="Custom">
+			Personnalisé
+		</combo_item>
+	</combo_box>
+	<spinner label="Larg." name="snapshot_width" />
+	<spinner label="Haut." name="snapshot_height" />
+	<slider label="Qualité de l&apos;image" name="image_quality_slider" />
+	<text name="layer_type_label">
+		Capture :
+	</text>
+	<combo_box label="Couches de l&apos;image" name="layer_types">
+		<combo_item name="Colors">
+			Couleurs
+		</combo_item>
+		<combo_item name="Depth">
+			Profondeur
+		</combo_item>
+		<combo_item name="ObjectMattes">
+			Masques de l&apos;objet
+		</combo_item>
+	</combo_box>
+	<text name="file_size_label">
+		Taille du fichier : [SIZE]
+	</text>
+	<check_box label="Afficher interface dans l&apos;instantané" name="ui_check" />
+	<check_box label="Afficher l&apos;ATH dans l&apos;instantané" name="hud_check" />
+	<check_box label="Laisser ouvert après enregistrement" name="keep_open_check" />
+	<check_box label="Conserver les proportions" name="keep_aspect_check" />
+	<check_box label="Figer l&apos;image (aperçu en plein écran)" name="freeze_frame_check" />
+	<button label="Nouvel Instantané" name="new_snapshot_btn" />
+	<check_box label="Instantané automatique" name="auto_snapshot_check" />
+	<button label="Uploader (L$10)" name="upload_btn" />
+	<button label="Envoyer" name="send_btn" />
+	<button label="Enregistrer" name="save_btn" />
+	<button label="Annuler" name="discard_btn" />
+</floater>

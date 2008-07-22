@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel label="Membros e Funções" name="roles_tab">
+	<text name="default_needs_apply_text">
+		Existem alterações
+	</text>
+	<text name="want_apply_text">
+		Você quer aplicar essas alterações?
+	</text>
+	<text name="cant_delete_role">
+		Todos os proprietários possuem funções especiais que não podem ser apagadas.
+	</text>
+	<button label="?" name="help_button" />
+	<panel name="members_header">
+		<text name="static">
+			Membros e Funções
+		</text>
+		<text name="static2">
+			São atribuídos funções com habilidades aos membros do grupo. 
+Estes ajustes podem ser customizados para uma flexibilidade maior.
+		</text>
+	</panel>
+	<panel name="roles_header">
+		<text name="static">
+			Funções
+		</text>
+		<text name="role_properties_modifiable">
+			Selecionar uma função abaixo. Você pode modificar o nome do seu título, a descrição e o membro.
+		</text>
+		<text name="role_properties_not_modifiable">
+			Selecione abaixo para verificar suas habilidades em relação as funções.
+		</text>
+		<text name="role_actions_modifiable">
+			Você também pode atribuir habilidades.
+		</text>
+		<text name="role_actions_not_modifiable">
+			Você pode ver, mas não alterar.
+		</text>
+	</panel>
+	<panel name="actions_header">
+		<text name="static">
+			Habilidades
+		</text>
+		<text name="static2">
+			Você pode ver a descrição dos membros e suas habiliades.
+		</text>
+	</panel>
+	<tab_container name="roles_tab_container">
+		<panel label="Membros" name="members_sub_tab" tool_tip="Membros">
+			<button label="Pesquisar" name="search_button" />
+			<button label="Mostrar todos" name="show_all_button" />
+			<name_list name="member_list">
+				<column label="Nome do membro" name="name" />
+				<column label="Tarefa cedida." name="donated" />
+				<column label="Último login" name="online" />
+			</name_list>
+			<button label="Convidar nova pessoa" name="member_invite" />
+			<button label="Sair do Grupo" name="member_eject" />
+			<text name="help_text">
+				Você pode adicionar ou remover as funções atribuídas ou selecionar múltiplos membros pressionando o Ctrl e clicando em seus nomes.
+			</text>
+		</panel>
+		<panel label="Funções" name="roles_sub_tab">
+			<button label="Busca" name="search_button" />
+			<button label="Mostrar todos" name="show_all_button" />
+			<scroll_list name="role_list">
+				<column label="Nome da função" name="name" />
+				<column label="Título" name="title" />
+				<column label="Membro" name="members" />
+			</scroll_list>
+			<button label="Criar nova função..." name="role_create" />
+			<button label="Apagar função" name="role_delete" />
+			<text name="help_text">
+				Funções e habilidades permitidas para os membros da lista. Os membros poderão ter um ou mais funções. O grupo poderá ter 10 ou mais funções, Incluíndo as funções dos membros e do dono do grupo.
+			</text>
+		</panel>
+		<panel label="Habilidades" name="actions_sub_tab">
+			<button label="Busca" name="search_button" />
+			<button label="Mostrar todos" name="show_all_button" />
+			<scroll_list name="action_list" tool_tip="Selecionar habilidade e ver detalhes.">
+				<column label="" name="icon" />
+				<column label="" name="action" />
+			</scroll_list>
+			<text name="help_text">
+				Habilidades permite que os membros façam coisas especificas dentro do grupo.Há uma grande variedade de habilidades.
+			</text>
+		</panel>
+	</tab_container>
+	<panel name="members_footer">
+		<text name="static">
+			Funções atribuídas
+		</text>
+		<text name="static2">
+			Habilidades permitidas
+		</text>
+		<scroll_list name="member_assigned_roles">
+			<column label="" name="checkbox" />
+			<column label="" name="role" />
+		</scroll_list>
+		<scroll_list name="member_allowed_actions"
+		     tool_tip="Ver detalhes das habilidades permitidas">
+			<column label="" name="icon" />
+			<column label="" name="action" />
+		</scroll_list>
+	</panel>
+	<panel name="roles_footer">
+		<text name="static">
+			Nome
+		</text>
+		<text name="static2">
+			Descrição
+		</text>
+		<line_editor name="role_name">
+			Empregados
+		</line_editor>
+		<text name="static3">
+			Título
+		</text>
+		<line_editor name="role_title">
+			(Esperar)
+		</line_editor>
+		<text_editor name="role_description">
+			(Esperar)
+		</text_editor>
+		<text name="static4">
+			Membros atribuídos
+		</text>
+		<text name="static5"
+		     tool_tip="A list of Abilities the currently selected role can perform.">
+			Habilidades permitidas
+		</text>
+		<check_box label="Membros visivéis" name="role_visible_in_list"
+		     tool_tip="Selecione se os membros estarão visivéis na aba diversos para as pessoas de fora do grupo." />
+		<scroll_list name="role_allowed_actions"
+		     tool_tip="Para ver detalhes de cada habiliadade permitida veja a aba correspondente.">
+			<column label="" name="icon" />
+			<column label="" name="checkbox" />
+			<column label="" name="action" />
+		</scroll_list>
+	</panel>
+	<panel name="actions_footer">
+		<text name="static">
+			Descrição
+		</text>
+		<text_editor name="action_description">
+			Essa habilidade permite tirar alguem do grupo. somente o dono do grupo poderá retirar outro dono do grupo.
+		</text_editor>
+		<text name="static2">
+			Funções com habilidades
+		</text>
+		<text name="static3">
+			Membros com habilidades
+		</text>
+	</panel>
+</panel>

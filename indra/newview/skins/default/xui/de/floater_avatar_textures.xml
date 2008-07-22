@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="avatar_texture_debug" title="Avatar-Texturen">
+	<text name="">
+		Geformte Texturen not sure about this one ... missing context
+	</text>
+	<text name="">
+		Zusammengesetzte Texturen
+	</text>
+	<text name="baked_label">
+		Gebackene Texturen
+	</text>
+	<text name="composite_label">
+		Zusammengesetzte Texturen
+	</text>
+	<texture_picker label="Kopf" name="baked_head" />
+	<texture_picker label="Make-Uup" name="head_bodypaint" />
+	<texture_picker label="Haar" name="hair" />
+	<button label="Abladen" label_selected="Abladen" name="Dump" />
+	<texture_picker label="Augen" name="baked_eyes" />
+	<texture_picker label="Auge" name="eye_texture" />
+	<texture_picker label="Oberkörper" name="baked_upper_body" />
+	<texture_picker label="Oberkörpertattoo" name="upper_bodypaint" />
+	<texture_picker label="Unterhemd" name="undershirt" />
+	<texture_picker label="Handschuhe" name="gloves" />
+	<texture_picker label="Hemd" name="shirt" />
+	<texture_picker label="Oberjacke" name="upper_jacket" />
+	<texture_picker label="Unterkörper" name="baked_lower_body" />
+	<texture_picker label="Unterkörpertattoo" name="lower_bodypaint" />
+	<texture_picker label="Unterhose" name="underpants" />
+	<texture_picker label="Socken" name="socks" />
+	<texture_picker label="Schuhe" name="shoes" />
+	<texture_picker label="Hose" name="pants" />
+	<texture_picker label="Jacke" name="jacket" />
+	<texture_picker label="Rock" name="baked_skirt" />
+	<texture_picker label="Rock" name="skirt_texture" />
+</floater>

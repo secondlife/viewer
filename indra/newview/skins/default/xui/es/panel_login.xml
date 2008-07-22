@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel name="panel_login">
+	<text name="first_name_text">
+		Nombre de pila:
+	</text>
+	<text name="last_name_text">
+		Apellido:
+	</text>
+	<text name="password_text">
+		Contraseña:
+	</text>
+	<text name="start_location_text">
+		Local de inicio:
+	</text>
+	<combo_box name="start_location_combo">
+		<combo_item name="MyHome">
+			Mi casa
+		</combo_item>
+		<combo_item name="MyLastLocation">
+			Mi última posición
+		</combo_item>
+		<combo_item name="&lt;Typeregionname&gt;">
+			&lt;Teclee un nombre de región&gt;
+		</combo_item>
+	</combo_box>
+	<check_box label="Recordar contraseña" name="remember_check" />
+	<text name="full_screen_text">
+		Exhibirá en pantalla completa cuando la sesión sea iniciada.
+	</text>
+	<button label="Nueva Cuenta..." label_selected="Nueva Cuenta..." name="new_account_btn" />
+	<button label="Preferencias..." label_selected="Preferencias..." name="preferences_btn" />
+	<button label="Conectar" label_selected="Conectar" name="connect_btn" />
+	<button label="Salir" label_selected="Salir" name="quit_btn" />
+	<text name="version_text">
+		1.23.4 (5)
+	</text>
+</panel>

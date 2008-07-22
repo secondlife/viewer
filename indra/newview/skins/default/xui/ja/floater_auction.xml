@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="floater_auction" title="リンデンの土地売買開始">
+	<check_box label="黄色の選択フェンスを含める" name="fence_check" />
+	<button label="スナップショット" label_selected="スナップショット"
+	     name="snapshot_btn" />
+	<button label="OK" label_selected="OK" name="ok_btn" />
+	<text name="already for sale">
+		売り出し中の区画は、オークションに出品できません。
+	</text>
+</floater>

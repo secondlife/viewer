@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel label="Chat" name="chat">
+	<text type="string" length="1" name="text_box">
+		Taille de police du chat :
+	</text>
+	<radio_group name="chat font size">
+		<radio_item type="string" length="1" name="radio">
+			Petit
+		</radio_item>
+		<radio_item type="string" length="1" name="radio2">
+			Moyen(ne)
+		</radio_item>
+		<radio_item type="string" length="1" name="radio3">
+			Grand
+		</radio_item>
+	</radio_group>
+	<text type="string" length="1" name="text_box2">
+		Couleur du chat :
+	</text>
+	<color_swatch label="Système" name="system" />
+	<color_swatch label="Avatars" name="users" />
+	<color_swatch label="Objets" name="objects" />
+	<color_swatch label="Bulle" name="background" />
+	<color_swatch label="URLs" name="links" />
+	<text type="string" length="1" name="text_box3">
+		Console de chat :
+	</text>
+	<spinner label="Estomper après" name="fade_chat_time" />
+	<text type="string" length="1" name="text_box4">
+		(secondes)
+	</text>
+	<text type="string" length="1" name="text_box5">
+		(nb de lignes)
+	</text>
+	<slider label="Opacité" name="console_opacity" />
+	<text type="string" length="1" name="text_box6">
+		Options de Chat :
+	</text>
+	<check_box label="Chat en plein écran (au prochain redémarrage)"
+	     name="chat_full_width_check" />
+	<check_box label="Refermer le chat à l&apos;aide de la touche &apos;envoi&apos;"
+	     name="close_chat_on_return_check" />
+	<check_box label="Les touches directionnelles déplacent l&apos;avatar pendant le chat"
+	     name="arrow_keys_move_avatar_check" />
+	<check_box label="Afficher l&apos;heure d&apos;envoi dans le chat"
+	     name="show_timestamps_check" />
+	<text type="string" length="1" name="text_box7">
+		Bulles de Chat :
+	</text>
+	<check_box label="Afficher les bulles de chat" name="bubble_text_chat" />
+	<slider label="Opacité" name="bubble_chat_opacity" />
+	<text type="string" length="1" name="text_box8">
+		Erreurs :
+	</text>
+	<check_box label="Afficher les erreurs et alertes de scripts dans le chat"
+	     name="script_errors_as_chat" />
+	<color_swatch label="Couleur" name="script_error" />
+</panel>

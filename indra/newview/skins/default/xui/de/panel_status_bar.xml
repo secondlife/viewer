@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel name="status">
+	<text type="string" length="1" name="ParcelNameText"
+	     tool_tip="Der Name der Parzelle, auf der Sie sich befinden. Klicken Sie für Land-Informationen.">
+		Parzellenname hier
+	</text>
+	<text type="string" length="1" name="BalanceText" tool_tip="Kontostand">
+		Wird geladen...
+	</text>
+	<button label="" label_selected="" name="buycurrency" tool_tip="Geld kaufen" />
+	<text type="string" length="12" name="TimeText" tool_tip="Aktuelle Zeit (Pazifik)">
+		12:00
+	</text>
+	<text name="StatBarDaysOfWeek">
+		Sonntag:Montag:Dienstag:Mittwoch:Donnerstag:Freitag:Samstag
+	</text>
+	<text name="StatBarMonthsOfYear">
+		Januar:Februar:März:April:Mai:Juni:Juli:August:September:Oktober:November:Dezember
+	</text>
+	<button label="" label_selected="" name="scriptout"
+	     tool_tip="Skriptwarnungen und -fehler" />
+	<button label="" label_selected="" name="health" tool_tip="Gesundheit" />
+	<text type="string" length="1" name="HealthText" tool_tip="Gesundheit">
+		100%
+	</text>
+	<button label="" label_selected="" name="fly" tool_tip="Fliegen aus" />
+	<button label="" label_selected="" name="build" tool_tip="Bauen aus" />
+	<button label="" label_selected="" name="scripts" tool_tip="Skripts aus" />
+	<button name="no_fly" tool_tip="Fliegen ist unzulässig" />
+	<button name="no_build" tool_tip="Bauen/Rezzen ist unzulässig" />
+	<button name="no_scripts" tool_tip="Skripte sind unzulässig" />
+	<button label="" label_selected="" name="restrictpush"
+	     tool_tip="llPushObject beschränkt" />
+	<button name="status_voice" tool_tip="Voice aktiviert" />
+	<button name="status_no_voice" tool_tip="Voice hier nicht möglich" />
+	<button label="" label_selected="" name="buyland" tool_tip="Diese Parzelle kaufen" />
+	<text name="packet_loss_tooltip">
+		Paketverlust
+	</text>
+	<text name="bandwidth_tooltip">
+		Bandbreite
+	</text>
+	<line_editor label="Suchen" name="search_editor" tool_tip="Second Life durchsuchen" />
+	<button name="search_btn" tool_tip="Second Life durchsuchen" />
+</panel>

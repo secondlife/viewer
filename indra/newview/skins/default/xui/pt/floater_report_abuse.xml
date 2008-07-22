@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="floater_report_abuse" title="Reportar abuso">
+	<text name="reporter_title">
+		Denunciador:
+	</text>
+	<text name="sim_title">
+		Região:
+	</text>
+	<text name="pos_title">
+		Posição:
+	</text>
+	<texture_picker label="Trabalhando..." name="screenshot" />
+	<check_box label="Incluir screenshot" name="screen_check" />
+	<button label="" label_selected="" name="pick_btn"
+	     tool_tip="Object Picker - Identifica um objeto com assunto deste report" />
+	<text name="select_object_label">
+		Clique no botão e em seguida no objeto:
+	</text>
+	<text name="object_name_label">
+		Nome:
+	</text>
+	<text name="owner_name_label">
+		Proprietário:
+	</text>
+	<combo_box name="category_combo"
+	     tool_tip="Categoria -- Selecione a categoria que melhor descreve este report">
+		<combo_item name="Selectcategory">
+			Selecione a Categoria
+		</combo_item>
+		<combo_item name="Intolerance">
+			Intolerância
+		</combo_item>
+		<combo_item name="Harassment">
+			Assédio
+		</combo_item>
+		<combo_item name="Assault">
+			Assalto
+		</combo_item>
+		<combo_item name="Disclosure">
+			Exposição
+		</combo_item>
+		<combo_item name="Indecency">
+			Indecência
+		</combo_item>
+		<combo_item name="Age">
+			Idade
+		</combo_item>
+		<combo_item name="Parcel">
+			Lote
+		</combo_item>
+	</combo_box>
+	<text name="abuser_name_title">
+		Nome do Denunciado:
+	</text>
+	<button label="Selecione" label_selected="" name="select_abuser"
+	     tool_tip="Selecione o nome do Denuncionado numa lista" />
+	<text name="abuser_name_title2">
+		Local do Abuso:
+	</text>
+	<text name="sum_title">
+		Resumo:
+	</text>
+	<text name="dscr_title">
+		Detalhes:
+	</text>
+	<text name="bug_aviso">
+		Por favor, seja específico com a data, local , natureza do abuso, texto do chat ou MI relevânte e selecione o objeto se possível.
+	</text>
+	<text name="incomplete_title">
+		Nota: Reports imcompletos não serão investigados
+	</text>
+	<button label="Reportar Abuso" label_selected="Reportar Abuso" name="send_btn" />
+	<button label="Cancelar" label_selected="Cancelar" name="cancel_btn" />
+</floater>

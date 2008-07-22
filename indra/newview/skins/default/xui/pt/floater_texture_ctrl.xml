@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="texture picker" title="Pegar: Textura">
+	<text type="string" length="1" name="Multiple">
+		Multiplo
+	</text>
+	<text type="string" length="1" name="unknown">
+		Dimenções: 512 x 512
+	</text>
+	<button label="Padrão" label_selected="Padrão" name="Default" />
+	<button label="Nenhum" label_selected="Nenhum" name="None" />
+	<button label="Branco" label_selected="Branco" name="Blank" />
+	<check_box label="Mostrar Pastas" name="show_folders_check" />
+	<check_box label="Aplicar Imediatamente" name="apply_immediate_check" />
+	<button label="" label_selected="" name="Pipette" />
+	<button label="Cancelar" label_selected="Cancelar" name="Cancel" />
+	<button label="Selecionar" label_selected="Selecionar" name="Select" />
+</floater>

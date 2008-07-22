@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel label="Région" name="General">
+	<text name="region_text_lbl">
+		Région :
+	</text>
+	<text name="region_text">
+		inconnu
+	</text>
+	<check_box label="Interdire le terraforming" name="block_terraform_check" />
+	<button label="?" name="terraform_help" />
+	<check_box label="Interdire vol" name="block_fly_check" />
+	<button label="?" name="fly_help" />
+	<check_box label="Autoriser dégâts" name="allow_damage_check" />
+	<button label="?" name="damage_help" />
+	<check_box label="Interdire de pousser" name="restrict_pushobject" />
+	<button label="?" name="restrict_pushobject_help" />
+	<check_box label="Autoriser la revente du terrain" name="allow_land_resell_check" />
+	<button label="?" name="land_resell_help" />
+	<check_box label="Autoriser Fusionner/Diviser parcelle" name="allow_parcel_changes_check" />
+	<button label="?" name="parcel_changes_help" />
+	<spinner label="Limite d&apos;avatars" name="agent_limit_spin" />
+	<button label="?" name="agent_limit_help" />
+	<spinner label="Bonus de l&apos;objet" name="object_bonus_spin" />
+	<button label="?" name="object_bonus_help" />
+	<text label="Classification" name="access_text">
+		Classification :
+	</text>
+	<combo_box label="Adulte" name="access_combo">
+		<combo_item name="PG">
+			Tout public
+		</combo_item>
+		<combo_item name="Mature">
+			Adulte
+		</combo_item>
+	</combo_box>
+	<button label="?" name="access_help" />
+	<button label="Appliquer" name="apply_btn" />
+	<button label="Téléporter un utilisateur vers mon domicile..." name="kick_btn" />
+	<button label="Téléporter tous les utilisateurs vers mon domicile"
+	     name="kick_all_btn" />
+	<button label="Envoyer message à la région" name="im_btn" />
+	<button label="Réglages du Téléport..." name="manage_telehub_btn" />
+</panel>

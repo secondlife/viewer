@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel label="Mitglieder und Rollen" name="roles_tab">
+	<text name="default_needs_apply_text">
+		Das Unterregister enthält nicht übernommene Änderungen.
+	</text>
+	<text name="want_apply_text">
+		Diese Änderungen übernehmen?
+	</text>
+	<text name="cant_delete_role">
+		Die Rollen &apos;Jeder&apos; und &apos;Eigentümer&apos; können nicht gelöscht werden.
+	</text>
+	<button label="?" name="help_button" />
+	<panel name="members_header">
+		<text name="static">
+			Mitglieder und Rollen
+		</text>
+		<text name="static2">
+			Gruppenmitgliedern werden Rollen mit Fähigkeiten zugewiesen. Diese 
+Einstellungen können zur flexibleren Organisation angepasst werden.
+		</text>
+	</panel>
+	<panel name="roles_header">
+		<text name="static">
+			Rollen
+		</text>
+		<text name="role_properties_modifiable">
+			Wählen Sie eine Rolle. Sie können ihren Namen, ihre Beschreibung und den Mitgliedstitel ändern.
+		</text>
+		<text name="role_properties_not_modifiable">
+			Rolle anklicken um Mitglieder und Fähigkeiten anzuzeigen.
+		</text>
+		<text name="role_actions_modifiable">
+			Sie können der Rolle auch Fähigkeiten zuweisen.
+		</text>
+		<text name="role_actions_not_modifiable">
+			Sie können zugewiesene Fähigkeiten anzeigen, aber nicht bearbeiten.
+		</text>
+	</panel>
+	<panel name="actions_header">
+		<text name="static">
+			Fähigkeiten
+		</text>
+		<text name="static2">
+			Sie können Fähigkeiten-Beschreibungen anzeigen und welche Rollen bzw. 
+Mitglieder diese Fähigkeit haben.
+		</text>
+	</panel>
+	<tab_container name="roles_tab_container">
+		<panel label="Mitglieder" name="members_sub_tab" tool_tip="Members">
+			<button label="Suchen" name="search_button" />
+			<button label="Alle anzeigen" name="show_all_button" />
+			<name_list name="member_list">
+				<column label="Member Name" name="name" />
+				<column label="Donated Tier" name="donated" />
+				<column label="Last Login" name="online" />
+			</name_list>
+			<button label="Neue Person einladen..." name="member_invite" />
+			<button label="Aus Gruppe werfen" name="member_eject" />
+			<text name="help_text">
+				Sie können Mitgliedern Rollen zuweisen und entziehen.
+Drücken Sie die Strg-Taste und klicken Sie auf Namen,
+um mehrere Mitglieder auszuwählen.
+			</text>
+		</panel>
+		<panel label="Rollen" name="roles_sub_tab">
+			<button label="Suchen" name="search_button" />
+			<button label="Alle anzeigen" name="show_all_button" />
+			<scroll_list name="role_list">
+				<column label="Role Name" name="name" />
+				<column label="Title" name="title" />
+				<column label="Members" name="members" />
+			</scroll_list>
+			<button label="Neue Rolle erstellen..." name="role_create" />
+			<button label="Rolle löschen" name="role_delete" />
+			<text name="help_text">
+				Rollen haben einen Titel und umfassen bestimmte
+Fähigkeiten. Mitglieder können mehrere 
+Rollen innehaben. Eine Gruppe kann bis zu 10 Rollen
+definieren, darunter &apos;Jeder&apos; und &apos;Eigentümer&apos;.
+			</text>
+			<string name="cant_delete_role">
+				Die Rollen &apos;Jeder&apos; und &apos;Eigentümer&apos; können nicht gelöscht werden.
+			</string>
+		</panel>
+		<panel label="Fähigkeiten" name="actions_sub_tab">
+			<button label="Suchen" name="search_button" />
+			<button label="Alle anzeigen" name="show_all_button" />
+			<scroll_list name="action_list" tool_tip="Select an Ability to view more details.">
+				<column label="" name="icon" />
+				<column label="" name="action" />
+			</scroll_list>
+			<text name="help_text">
+				Fähigkeiten verleihen Mitgliedern in Rollen bestimmte
+Rechte in einer Gruppe. Es gibt viele verschiedene Fähigkeiten.
+			</text>
+		</panel>
+	</tab_container>
+	<panel name="members_footer">
+		<text name="static">
+			Rollen
+		</text>
+		<text name="static2">
+			Zulässige Fähigkeiten
+		</text>
+		<scroll_list name="member_assigned_roles">
+			<column label="" name="checkbox" />
+			<column label="" name="role" />
+		</scroll_list>
+		<scroll_list name="member_allowed_actions"
+		     tool_tip="For Details of each Allowed Ability see the Abilities tab.">
+			<column label="" name="icon" />
+			<column label="" name="action" />
+		</scroll_list>
+	</panel>
+	<panel name="roles_footer">
+		<text name="static">
+			Name
+		</text>
+		<text name="static2">
+			Beschreibung
+		</text>
+		<line_editor name="role_name">
+			Angestellte
+		</line_editor>
+		<text name="static3">
+			Titel
+		</text>
+		<line_editor name="role_title">
+			(wartet)
+		</line_editor>
+		<text_editor name="role_description">
+			(wartet)
+		</text_editor>
+		<text name="static4">
+			Mitglieder in Rolle
+		</text>
+		<text name="static5"
+		     tool_tip="Eine Liste der Fähigkeiten der aktuell ausgewählten Rolle.">
+			Zulässige Fähigkeiten
+		</text>
+		<check_box label="Mitglieder sind sichtbar" name="role_visible_in_list"
+		     tool_tip="Festlegen, ob Mitglieder in dieser Rolle auf der Registerkarte &apos;Allgemein&apos; für Personen außerhalb der Gruppe sichtbar sind." />
+		<scroll_list name="role_allowed_actions"
+		     tool_tip="For Details of each Allowed Ability see the Abilities tab.">
+			<column label="" name="icon" />
+			<column label="" name="checkbox" />
+			<column label="" name="action" />
+		</scroll_list>
+	</panel>
+	<panel name="actions_footer">
+		<text name="static">
+			Beschreibung
+		</text>
+		<text_editor name="action_description">
+			Diese Fähigkeit heißt &apos;Mitglieder aus dieser Gruppe werfen&apos;. Eigentümer können nur von anderen Eigentümern hinausgeworfen werden.
+		</text_editor>
+		<text name="static2">
+			Rollen mit Fähigkeit
+		</text>
+		<text name="static3">
+			Mitglieder mit Fähigkeit
+		</text>
+	</panel>
+</panel>

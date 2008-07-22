@@ -69,9 +69,6 @@
 
 #include "llfirstuse.h"
 
-const EInstantMessage GROUP_DIALOG = IM_SESSION_GROUP_START;
-const EInstantMessage DEFAULT_DIALOG = IM_NOTHING_SPECIAL;
-
 //
 // Globals
 //
@@ -158,11 +155,12 @@ LLFloaterIM::LLFloaterIM()
 
 BOOL LLFloaterIM::postBuild()
 {
+	// IM session initiation warnings
 	sOnlyUserMessage = getString("only_user_message");
 	sOfflineMessage = getUIString("offline_message");
+	sMutedMessage = getUIString("muted_message");
 
 	sInviteMessage = getUIString("invite_message");
-	sMutedMessage = childGetText("muted_message");
 
 	if ( sErrorStringsMap.find("generic") == sErrorStringsMap.end() )
 	{
@@ -617,7 +615,12 @@ LLUUID LLIMMgr::addSession(
 
 		noteOfflineUsers(floater, ids);
 		LLFloaterChatterBox::showInstance(session_id);
-		noteMutedUsers(floater, ids);
+
+		// Only warn for regular IMs - not group IMs
+		if( dialog == IM_NOTHING_SPECIAL )
+		{
+			noteMutedUsers(floater, ids);
+		}
 		LLFloaterChatterBox::getInstance(LLSD())->showFloater(floater);
 	}
 	else
@@ -663,7 +666,12 @@ LLUUID LLIMMgr::addSession(
 
 		noteOfflineUsers(floater, ids);
 		LLFloaterChatterBox::showInstance(session_id);
-		noteMutedUsers(floater, ids);
+
+		// Only warn for regular IMs - not group IMs
+		if( dialog == IM_NOTHING_SPECIAL )
+		{
+			noteMutedUsers(floater, ids);
+		}
 	}
 	else
 	{
@@ -1240,22 +1248,23 @@ void LLIMMgr::noteOfflineUsers(
 void LLIMMgr::noteMutedUsers(LLFloaterIMPanel* floater,
 								  const LLDynamicArray<LLUUID>& ids)
 {
+	// Don't do this if we don't have a mute list.
+	LLMuteList *ml = LLMuteList::getInstance();
+	if( !ml )
+	{
+		return;
+	}
+
 	S32 count = ids.count();
 	if(count > 0)
 	{
-		const LLRelationship* info = NULL;
-		LLAvatarTracker& at = LLAvatarTracker::instance();
 		for(S32 i = 0; i < count; ++i)
 		{
-			info = at.getBuddyInfo(ids.get(i));
-			std::string first, last;
-			if(info && LLMuteList::getInstance() && LLMuteList::getInstance()->isMuted(ids.get(i))
-			   && gCacheName->getName(ids.get(i), first, last))
+			if( ml->isMuted(ids.get(i)) )
 			{
 				LLUIString muted = sMutedMessage;
-				muted.setArg("[FIRST]", first);
-				muted.setArg("[LAST]", last);
 				floater->addHistoryLine(muted);
+				break;
 			}
 		}
 	}

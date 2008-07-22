@@ -187,6 +187,8 @@
       </string>
       <key>count</key>
       <integer>2</integer>
+      <key>compose</key>
+      <boolean>true</boolean>
       <!-- Special case. Mapped to settings procedurally. -->
     </map>
 

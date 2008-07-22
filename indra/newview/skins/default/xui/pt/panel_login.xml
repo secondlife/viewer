@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel name="panel_login">
+	<text name="first_name_text">
+		Primeiro nome:
+	</text>
+	<text name="last_name_text">
+		Sobrenome:
+	</text>
+	<text name="password_text">
+		Senha:
+	</text>
+	<text name="start_location_text">
+		Localização inicial:
+	</text>
+	<combo_box name="start_location_combo">
+		<combo_item name="MyHome">
+			Minha casa
+		</combo_item>
+		<combo_item name="MyLastLocation">
+			Minha última localização
+		</combo_item>
+		<combo_item name="Typeregionname">
+			&lt; Digite o nome da região;
+		</combo_item>
+	</combo_box>
+	<check_box label="Lembrar senha" name="remember_check" />
+	<text name="full_screen_text">
+		O visor indicará a tela cheia quando entrar.
+	</text>
+	<button label="Preferências..." label_selected="Preferências..."
+	     name="preferences_btn" />
+	<button label="Conectar" label_selected="Conectar" name="connect_btn" />
+	<button label="Sair" label_selected="Sair" name="quit_btn" />
+	<text name="version_text">
+		1.23.4 (5)
+	</text>
+</panel>

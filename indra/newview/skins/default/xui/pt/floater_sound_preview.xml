@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="Name/Description" title="sound.wav">
+	<text name="name_label">
+		Nome:
+	</text>
+	<text name="description_label">
+		Descrição:
+	</text>
+	<button label="Cancelar" label_selected="Cancelar" name="cancel_btn" />
+	<button label="Upload (L$10)" label_selected="Upload (L$10)" name="ok_btn" />
+	<text name="text">
+		Taxa de Bits (kbps):
+	</text>
+	<radio_group name="bitrate">
+		<radio_item name="32">
+			32
+		</radio_item>
+		<radio_item name="64">
+			64
+		</radio_item>
+		<radio_item name="96">
+			96
+		</radio_item>
+		<radio_item name="128">
+			128
+		</radio_item>
+	</radio_group>
+</floater>

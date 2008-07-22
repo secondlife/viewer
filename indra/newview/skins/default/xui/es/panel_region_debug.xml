@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel label="Debug" name="Debug">
+	<text name="region_text_lbl">
+		Región:
+	</text>
+	<text name="region_text">
+		desconocido
+	</text>
+	<check_box label="Desactivar scripts" name="disable_scripts_check"
+	     tool_tip="Desactivar todos los scripts en esta región" />
+	<button label="?" name="disable_scripts_help" />
+	<check_box label="Desactivar colisiones" name="disable_collisions_check"
+	     tool_tip="Desactivar colisiones de no avatares en esta región" />
+	<button label="?" name="disable_collisions_help" />
+	<check_box label="Desactivar física" name="disable_physics_check"
+	     tool_tip="Desactivar toda la física en esta región" />
+	<button label="?" name="disable_physics_help" />
+	<button label="Aplicar" name="apply_btn" />
+	<button label="Elegir avatar..." name="choose_avatar_btn" />
+	<button
+	     label="Retornar objetos&apos;s con scripts de los avatares de otros terrenos&apos;s de las personas"
+	     name="return_scripted_other_land_btn" />
+	<button label="Retornar TODOS los objetos con scripts de los avatares"
+	     name="return_scripted_all_btn" />
+	<button label="Obtener top de colisionadores..." name="top_colliders_btn"
+	     tool_tip="Lista de objetos con mayor potencial de colisiones" />
+	<button label="?" name="top_colliders_help" />
+	<button label="Obtener top de scripts..." name="top_scripts_btn"
+	     tool_tip="Lista de objetos consumiendo más tiempo con ejecución de scripts" />
+	<button label="?" name="top_scripts_help" />
+	<button label="Reiniciar región" name="restart_btn"
+	     tool_tip="Exhibir un recuento regresivo de 2 minutos y reiniciar la región" />
+	<button label="?" name="restart_help" />
+	<button label="Cancelar reinicio" name="cancel_restart_btn"
+	     tool_tip="Cancelar reinicio de región" />
+</panel>

@@ -54,6 +54,7 @@ class LLPrefsChat;
 class LLPrefsVoice;
 class LLPrefsIM;
 class LLPanelMsgs;
+class LLPanelSkins;
 class LLScrollListCtrl;
 
 class LLPreferenceCore
@@ -78,6 +79,7 @@ public:
 private:
 	LLTabContainer	*mTabContainer;
 	LLPanelGeneral	        *mGeneralPanel;
+	LLPanelSkins			*mSkinsPanel;
 	LLPanelInput			*mInputPanel;
 	LLPanelNetwork	        *mNetworkPanel;
 	LLPanelDisplay	        *mDisplayPanel;

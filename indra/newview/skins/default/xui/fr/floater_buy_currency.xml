@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="buy currency" title="Acheter des devises">
+	<text name="info_buying">
+		Achat de devises :
+	</text>
+	<text name="info_cannot_buy">
+		Achat actuellement impossible :
+	</text>
+	<text name="info_need_more">
+		Il vous faut plus de devises :
+	</text>
+	<text name="error_message">
+		Quelque chose ne tourne pas rond.
+	</text>
+	<button label="Visiter le site" name="error_web" />
+	<text name="contacting">
+		Connexion avec LindeX en cours...
+	</text>
+	<text name="buy_action_unknown">
+		Acheter des L$ sur le marché de devises LindeX
+	</text>
+	<text name="buy_action">
+		[NAME] L$ [PRICE]
+	</text>
+	<text name="currency_action">
+		Acheter des L$
+	</text>
+	<line_editor name="currency_amt">
+		1234
+	</line_editor>
+	<text name="currency_est">
+		pour environ US$ [USD]
+	</text>
+	<text name="balance_label">
+		Vous avez actuellement
+	</text>
+	<text name="balance_amount">
+		L$ [AMT]
+	</text>
+	<text name="buying_label">
+		Vous achetez
+	</text>
+	<text name="buying_amount">
+		L$ [AMT]
+	</text>
+	<text name="total_label">
+		Votre solde sera
+	</text>
+	<text name="total_amount">
+		L$ [AMT]
+	</text>
+	<text name="purchase_warning_repurchase">
+		Confirmer cette acquisition n&apos;entraîne que l&apos;achat de devises. 
+Vous devrez répéter l&apos;opération.
+	</text>
+	<text name="purchase_warning_notenough">
+		Achat de devises insuffisant.
+Veuillez saisir un montant supérieur.
+	</text>
+	<button label="Acquérir" name="buy_btn" />
+	<button label="Annuler" name="cancel_btn" />
+</floater>

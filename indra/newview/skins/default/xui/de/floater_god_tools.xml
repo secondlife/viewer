@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="godtools floater" title="Gott-Tools">
+	<tab_container name="GodTools Tabs">
+		<panel label="Raster" name="grid">
+			<button label="Alle Benutzer hinauswerfen" label_selected="Alle Benutzer hinauswerfen"
+			     name="Kick all users" />
+			<button label="Sichtbarkeits-Cache dieser Regionskarte leeren"
+			     label_selected="Sichtbarkeits-Cache dieser Regionskarte leeren"
+			     name="Flush This Region&apos;s Map Visibility Caches" />
+		</panel>
+		<panel label="Region" name="region">
+			<text name="Sim Name:">
+				Sim-Name:
+			</text>
+			<check_box label="Startbereich Einleitung" name="check prelude"
+			     tool_tip="Diese Region zu einem Startbereich machen." />
+			<check_box label="Sonne fest" name="check fixed sun"
+			     tool_tip="Fixiert den Sonnenstand (wie in &apos;Region/Grundstück&apos; &gt; &apos;Terrain&apos;." />
+			<check_box label="Zuhause auf Teleport zurücksetzen" name="check reset home"
+			     tool_tip="Wenn Einwohner wegteleportieren, ihr Zuhause auf Zielposition setzen." />
+			<check_box label="Sichtbar" name="check visible"
+			     tool_tip="Diese Region für Nicht-Götter sichtbar machen." />
+			<check_box label="Schaden" name="check damage"
+			     tool_tip="Schaden in dieser Region aktivieren." />
+			<check_box label="Trafficüberwachung blockieren" name="block dwell"
+			     tool_tip="In dieser Region die Traffic-Berechnung abschalten." />
+			<check_box label="Terraformen blockieren" name="block terraform"
+			     tool_tip="Das Terraformen von Land verbieten (Benutzen Sie dies um Leuten das Terraformen ihres Landes zu verbieten)" />
+			<check_box label="Sandkasten" name="is sandbox"
+			     tool_tip="Sandkastenregion ein-/ausschalten." />
+			<button label="Terrain formen" label_selected="Terrain formen" name="Bake Terrain"
+			     tool_tip="Das aktuelle Terrain als Standard speichern." />
+			<button label="Terrain zurücksetzen" label_selected="Terrain zurücksetzen"
+			     name="Revert Terrain"
+			     tool_tip="Das aktuelle Terrain mit dem Standard ersetzen." />
+			<button label="Terrain tauschen" label_selected="Terrain tauschen" name="Swap Terrain"
+			     tool_tip="Aktuelles Terrain gegen Standard austauschen." />
+			<text name="estate id">
+				Grundstücks-ID:
+			</text>
+			<text name="parent id">
+				Übergeordnet-ID:
+			</text>
+			<line_editor name="parentestate" tool_tip="Das übergeordnete Grundstück dieser Region" />
+			<text name="Grid Pos: ">
+				Raster-Pos.:
+			</text>
+			<line_editor name="gridposx" tool_tip="Die X-Rasterposition dieser Region" />
+			<line_editor name="gridposy" tool_tip="Die Y-Rasterposition dieser Region" />
+			<text name="Redirect to Grid: ">
+				Auf Raster umleiten:
+			</text>
+			<text name="billable factor text">
+				Abrechnungsfaktor:
+			</text>
+			<text name="land cost text">
+				L$ pro qm:
+			</text>
+			<button label="Aktualisieren" label_selected="Aktualisieren" name="Refresh"
+			     tool_tip="Klicken Sie hier, um die obigen Informationen zu aktualisieren." />
+			<button label="Übernehmen" label_selected="Übernehmen" name="Apply"
+			     tool_tip="Klicken Sie hier, um die obigen Änderungen zu übernehmen." />
+			<button label="Region auswählen" label_selected="Region auswählen"
+			     name="Select Region"
+			     tool_tip="Die gesamte Region mit dem Landwerkzeug auswählen." />
+			<button label="Automatisch speichern" label_selected="Automatisch speichern"
+			     name="Autosave now"
+			     tool_tip="gzipped-Status im Autosave-Verzeichnis speichern." />
+		</panel>
+		<panel label="Objekte" name="objects">
+			<text name="Sim Name:">
+				Sim-Name:
+			</text>
+			<text name="region name">
+				Walisisch
+			</text>
+			<check_box label="Skripts deaktivieren" name="disable scripts"
+			     tool_tip="Skripts in dieser Region komplett abschalten" />
+			<check_box label="Kollisionen deaktivieren" name="disable collisions"
+			     tool_tip="Nicht-Avatar-Kollisionen in dieser Region komplett abschalten" />
+			<check_box label="Physik deaktivieren" name="disable physics"
+			     tool_tip="Die Physik in dieser Region komplett abschalten" />
+			<button label="Übernehmen" label_selected="Übernehmen" name="Apply"
+			     tool_tip="Klicken Sie hier, um die obigen Änderungen zu übernehmen." />
+			<button label="Ziel festlegen" label_selected="Ziel festlegen" name="Set Target"
+			     tool_tip="Den Ziel-Avatar für das Löschen von Objekten auswählen." />
+			<text name="target_avatar_name">
+				(kein Ziel)
+			</text>
+			<button label="Geskriptete Objekte des Ziels auf anderen Ländern löschen"
+			     label_selected="Geskriptete Objekte des Ziels auf anderen Ländern löschen"
+			     name="Delete Target&apos;s Scripted Objects On Others Land"
+			     tool_tip="Alle dem Ziel gehörenden geskripteten Objekte auf Land, das dem Ziel nicht gehört, löschen. Objekte (nicht kopierfähig) werden zurückgegeben." />
+			<button label="Geskriptete Objekte des Ziels auf *allen* Ländern löschen"
+			     label_selected="Geskriptete Objekte des Ziels auf *allen* Ländern löschen"
+			     name="Delete Target&apos;s Scripted Objects On *Any* Land"
+			     tool_tip="Alle dem Ziel gehörenden geskripteten Objekte in dieser Region löschen. Objekte (nicht kopierfähig) werden zurückgegeben." />
+			<button label="*ALLE* Objekte des Ziels löschen"
+			     label_selected="*ALLE* Objekte des Ziels löschen"
+			     name="Delete *ALL* Of Target&apos;s Objects"
+			     tool_tip="Alle dem Ziel gehörenden Objekte in dieser Region löschen. Objekte (nicht kopierfähig) werden zurückgegeben." />
+			<button label="Top-Kollisionsobjekte" label_selected="Top-Kollisionsobjekte"
+			     name="Get Top Colliders"
+			     tool_tip="Zeigt eine Liste der Objekte mit den meisten Callbacks in der nahen Phase an." />
+			<button label="Top-Skripts" label_selected="Top-Skripts" name="Get Top Scripts"
+			     tool_tip="Zeigt eine Liste der Objekte an, die die meiste Zeit über Skripts ausführen." />
+			<button label="Scripting-Übersicht" label_selected="Scripting-Übersicht"
+			     name="Scripts digest"
+			     tool_tip="Zeigt eine Liste aller Skripts mit Häufigkeit an." />
+		</panel>
+		<panel label="Anfrage" name="request">
+			<text name="Destination:">
+				Ziel:
+			</text>
+			<combo_box name="destination">
+				<combo_item name="Selection">
+					Auswahl
+				</combo_item>
+				<combo_item name="AgentRegion">
+					Avatar-Region
+				</combo_item>
+			</combo_box>
+			<text name="Request:">
+				Anfrage:
+			</text>
+			<combo_box name="request">
+				<combo_item name="colliders&lt;steps&gt;">
+					Kollisionsobjekte &lt;Schritte&gt;
+				</combo_item>
+				<combo_item name="scripts&lt;count&gt;,&lt;optionalpattern&gt;">
+					Skripts &lt;Zähler&gt;,&lt;Optionales Muster&gt;
+				</combo_item>
+				<combo_item name="objects&lt;pattern&gt;">
+					Objekte &lt;Muster&gt;
+				</combo_item>
+				<combo_item name="rez&lt;asset_id&gt;">
+					&lt;asset_id&gt; erstellen
+				</combo_item>
+			</combo_box>
+			<text name="Parameter:">
+				Parameter:
+			</text>
+			<button label="Anfrage" label_selected="Anfrage" name="Make Request" />
+		</panel>
+	</tab_container>
+</floater>

@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel label="Membres &amp; Rôles" name="roles_tab">
+	<text name="default_needs_apply_text">
+		Des modifications n&apos;ont pas été appliquées sur le sous-onglet ouvert.
+	</text>
+	<text name="want_apply_text">
+		Voulez-vous appliquer ces changements ?
+	</text>
+	<text name="cant_delete_role">
+		Les Rôles &apos;Tout le monde&apos; et &apos;Propriétaires&apos; sont particuliers, et ne peuvent être supprimés.
+	</text>
+	<button label="?" name="help_button" />
+	<panel name="members_header">
+		<text name="static">
+			Membres &amp; Rôles
+		</text>
+		<text name="static2">
+			Les Membres d&apos;un Groupe sont affectés à des Rôles avec diverses capacités. Ces réglages peuvent
+facilement être modifiés, pour une meilleure organisation et flexibilité.
+		</text>
+	</panel>
+	<panel name="roles_header">
+		<text name="static">
+			Rôles
+		</text>
+		<text name="role_properties_modifiable">
+			Sélectionnez un Rôle ci-dessous. Vous pouvez modifier son Nom, sa Description et son Titre de Membre.
+		</text>
+		<text name="role_properties_not_modifiable">
+			Sélectionnez un Rôle ci-dessous pour afficher ses propriétés, ses Membres et les Facultés autorisées.
+		</text>
+		<text name="role_actions_modifiable">
+			Vous pouvez également attribuer des Facultés au Rôle.
+		</text>
+		<text name="role_actions_not_modifiable">
+			Vous pouvez afficher, mais pas modifier les facultés attribuées.
+		</text>
+	</panel>
+	<panel name="actions_header">
+		<text name="static">
+			Facultés
+		</text>
+		<text name="static2">
+			Vous pouvez afficher la description d&apos;une Faculté et les Rôles et Membres disposant de cette Faculté.
+		</text>
+	</panel>
+	<tab_container name="roles_tab_container">
+		<panel label="Membres" name="members_sub_tab" tool_tip="Members">
+			<button label="Rechercher" name="search_button" />
+			<button label="Tout afficher" name="show_all_button" />
+			<name_list name="member_list">
+				<column label="Member Name" name="name" />
+				<column label="Donated Tier" name="donated" />
+				<column label="Last Login" name="online" />
+			</name_list>
+			<button label="Nouvelle invitation" name="member_invite" />
+			<button label="Ejecter du groupe" name="member_eject" />
+			<text name="help_text">
+				Vous pouvez ajouter ou retirer des Rôles attribués à des membres
+ou sélectionner plusieurs Membres en maintenant la touche Ctrl enfoncée
+et en cliquant sur leurs noms.
+			</text>
+		</panel>
+		<panel label="Rôles" name="roles_sub_tab">
+			<button label="Rechercher" name="search_button" />
+			<button label="Tout afficher" name="show_all_button" />
+			<scroll_list name="role_list">
+				<column label="Role Name" name="name" />
+				<column label="Title" name="title" />
+				<column label="Members" name="members" />
+			</scroll_list>
+			<button label="Attribuer nouveau rôle ..." name="role_create" />
+			<button label="Supprimer rôle" name="role_delete" />
+			<text name="help_text">
+				Les Rôles comprennent un titre et une liste de facultés autorisées
+dont les Membres peuvent disposer. Les Membres peuvent être affectés 
+à un ou plusieurs Rôles. Un groupe peut comprendre 10 Rôles,
+y compris les Rôles &apos;Tout le monde&apos; et &apos;Propriétaire&apos;.
+			</text>
+		</panel>
+		<panel label="Facultés" name="actions_sub_tab">
+			<button label="Rechercher" name="search_button" />
+			<button label="Tout afficher" name="show_all_button" />
+			<scroll_list name="action_list" tool_tip="Select an Ability to view more details.">
+				<column label="" name="icon" />
+				<column label="" name="action" />
+			</scroll_list>
+			<text name="help_text">
+				Les facultés permettent aux Membres ayant un rôle de faire certaines
+choses dans le groupe. Il existe une grande variété de facultés.
+			</text>
+		</panel>
+	</tab_container>
+	<panel name="members_footer">
+		<text name="static">
+			Rôles attribués
+		</text>
+		<text name="static2">
+			Facultés autorisées
+		</text>
+		<scroll_list name="member_assigned_roles">
+			<column label="" name="checkbox" />
+			<column label="" name="role" />
+		</scroll_list>
+		<scroll_list name="member_allowed_actions"
+		     tool_tip="For Details of each Allowed Ability see the Abilities tab.">
+			<column label="" name="icon" />
+			<column label="" name="action" />
+		</scroll_list>
+	</panel>
+	<panel name="roles_footer">
+		<text name="static">
+			Nom
+		</text>
+		<text name="static2">
+			Description
+		</text>
+		<line_editor name="role_name">
+			Employés
+		</line_editor>
+		<text name="static3">
+			Titre
+		</text>
+		<line_editor name="role_title">
+			(en attente)
+		</line_editor>
+		<text_editor name="role_description">
+			(en attente)
+		</text_editor>
+		<text name="static4">
+			Membres affectés
+		</text>
+		<text name="static5" tool_tip="Une liste des Facultés attribuables à ce rôle.">
+			Facultés autorisées
+		</text>
+		<check_box label="Les membres sont visibles" name="role_visible_in_list"
+		     tool_tip="Sets whether members of this role are visible in the General tab   to people outside of the group." />
+		<scroll_list name="role_allowed_actions"
+		     tool_tip="For Details of each Allowed Ability see the Abilities tab.">
+			<column label="" name="icon" />
+			<column label="" name="checkbox" />
+			<column label="" name="action" />
+		</scroll_list>
+	</panel>
+	<panel name="actions_footer">
+		<text name="static">
+			Description
+		</text>
+		<text_editor name="action_description">
+			Cette faculté permet d&apos;&apos;Ejecter des Membres du Groupe&apos;. Seul un Propriétaire peut éjecter un autre Propriétaire.
+		</text_editor>
+		<text name="static2">
+			Rôles avec Faculté
+		</text>
+		<text name="static3">
+			Membres avec Facultés
+		</text>
+	</panel>
+</panel>

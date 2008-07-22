@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel label="Terreno &amp; L$" name="land_money_tab">
+	<text name="help_text">
+		Parcelas pertenecientes al grupo son listadas 
+con detalles de contribución. Un aviso aparece hasta que 
+el terreno total en uso sea menor o igual al total
+de contribución. Las pestañas Planeamiento, Detalles y Ventas
+conceden informaciones sobre las finanzas&apos; del grupo.
+	</text>
+	<button label="?" name="help_button" />
+	<text name="cant_view_group_land_text">
+		Usted no tiene permiso para ver el terreno del grupo.
+	</text>
+	<text name="cant_view_group_accounting_text">
+		Usted no tiene permiso para ver las informaciones de cuenta del grupo&apos;.
+	</text>
+	<text name="group_land_heading">
+		Terreno de grupo
+	</text>
+	<scroll_list name="group_parcel_list">
+		<column label="Parcel Name" name="name" />
+		<column label="Region" name="location" />
+		<column label="Area" name="area" />
+		<column label="" name="hidden" />
+	</scroll_list>
+	<button label="Mostrar en el mapa" label_selected="Mostrar en el mapa"
+	     name="map_button" />
+	<text name="total_contributed_land_label">
+		Total de contribuição:
+	</text>
+	<text name="total_contributed_land_value">
+		0 m2 cuadrado
+	</text>
+	<text name="total_land_in_use_label">
+		Total de terreno en uso:
+	</text>
+	<text name="total_land_in_use_value">
+		0 m2 cuadrado
+	</text>
+	<text name="land_available_label">
+		Terreno disponible:
+	</text>
+	<text name="land_available_value">
+		0 m2 cuadrado
+	</text>
+	<text name="your_contribution_label">
+		Su contribución:
+	</text>
+	<text name="your_contribution_max_value_append">
+		m2
+	</text>
+	<text name="your_contribution_max_value">
+		(aguardando)
+	</text>
+	<text name="group_over_limit_text">
+		Miembros de grupo deben contribuir con más créditos de terreno para mantener el terreno en uso.
+	</text>
+	<text name="group_money_heading">
+		Grupo L$
+	</text>
+	<tab_container name="group_money_tab_container">
+		<panel label="Planeamiento" name="group_money_planning_tab">
+			<text_editor name="group_money_planning_text">
+				Computando...
+			</text_editor>
+		</panel>
+		<panel label="Detalles" name="group_money_details_tab">
+			<text_editor name="group_money_details_text">
+				Computando...
+			</text_editor>
+			<button label="&lt; Primero" label_selected="&lt; Primero"
+			     name="earlier_details_button" tool_tip="Volver en el tiempo" />
+			<button label="Último &gt;" label_selected="Último &gt;" name="later_details_button"
+			     tool_tip="Avanzar en el tiempo" />
+		</panel>
+		<panel label="Ventas" name="group_money_sales_tab">
+			<text_editor name="group_money_sales_text">
+				Computando...
+			</text_editor>
+			<button label="&lt; Primero" label_selected="&lt; Primero" name="earlier_sales_button"
+			     tool_tip="Volver en el tiempo" />
+			<button label="Último &gt;" label_selected="Último &gt;" name="later_sales_button"
+			     tool_tip="Avanzar en el tiempo" />
+		</panel>
+	</tab_container>
+</panel>

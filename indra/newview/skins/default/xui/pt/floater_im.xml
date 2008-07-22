@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<multi_floater name="im_floater" title="Mensagem Instantânea">
+	<text name="only_user_message">
+		Você é o único usuário desta sessão.
+	</text>
+	<text name="offline_message">
+		[FIRST] [LAST] está offline.
+	</text>
+	<text name="generic_request_error">
+		Erro na requisição, por favor, tente novamente.
+	</text>
+	<text name="insufficient_perms_error">
+		Você não tem permissões suficientes.
+	</text>
+	<text name="user_no_help">
+		O usuário requisitado não está mais nessa sessão de ajuda.
+	</text>
+	<text name="add_session_event">
+		Adcionando agentes à sessão de conversa com
+	</text>
+	<text name="message_session_event">
+		sessão de conversa com
+	</text>
+	<text name="teleport_session_event">
+		teleportando ao criador de
+	</text>
+	<text name="removed_from_group">
+		Você foi removido do grupo.
+	</text>
+</multi_floater>

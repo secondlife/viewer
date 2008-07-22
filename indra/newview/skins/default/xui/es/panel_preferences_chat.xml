@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel label="Chat" name="chat">
+	<text type="string" length="1" name="text_box">
+		Tamaño de la fuente del chat:
+	</text>
+	<radio_group name="chat font size">
+		<radio_item type="string" length="1" name="radio">
+			Pequeño
+		</radio_item>
+		<radio_item type="string" length="1" name="radio2">
+			Medio
+		</radio_item>
+		<radio_item type="string" length="1" name="radio3">
+			Grande
+		</radio_item>
+	</radio_group>
+	<text type="string" length="1" name="text_box2">
+		Color del chat:
+	</text>
+	<color_swatch label="Sistema" name="system" />
+	<color_swatch label="Usuarios" name="users" />
+	<color_swatch label="Objetos" name="objects" />
+	<color_swatch label="Burbuja" name="background" />
+	<color_swatch label="URLs" name="links" />
+	<text type="string" length="1" name="text_box3">
+		Consola del chat:
+	</text>
+	<spinner label="Desaparecer chat después de" name="fade_chat_time" />
+	<text type="string" length="1" name="text_box4">
+		(segundos)
+	</text>
+	<text type="string" length="1" name="text_box5">
+		(# líneas)
+	</text>
+	<slider label="Opacidad" name="console_opacity" />
+	<text type="string" length="1" name="text_box6">
+		Opciones del chat:
+	</text>
+	<check_box label="Chat usa anchura de pantalla completa (después de reinicio)"
+	     name="chat_full_width_check" />
+	<check_box label="Cerrar chat después de pulsar Enter" name="close_chat_on_return_check" />
+	<check_box label="Arrow keys always move avatar when chatting"
+	     name="arrow_keys_move_avatar_check" />
+	<check_box label="Mostrar fecha/hora en el chat" name="show_timestamps_check" />
+	<text type="string" length="1" name="text_box7">
+		Burbuja de chat:
+	</text>
+	<check_box label="Mostrar burbujas de chat" name="bubble_text_chat" />
+	<slider label="Opacidad" name="bubble_chat_opacity" />
+	<text type="string" length="1" name="text_box8">
+		Errores de script:
+	</text>
+	<check_box label="Mostrar errores de script y avisos como chat convencional"
+	     name="script_errors_as_chat" />
+	<color_swatch label="Color" name="script_error" />
+</panel>

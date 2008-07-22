@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="build options floater" title="Opções de grade">
+	<spinner label="Uni. Grade (metros)" name="GridResolution" />
+	<spinner label="Ext. da Grade (metros)" name="GridDrawSize" />
+	<check_box label="Habilitar ajuste de sub-grade" name="GridSubUnit" />
+	<slider label="Opacidade da grade" name="GridOpacity" />
+</floater>

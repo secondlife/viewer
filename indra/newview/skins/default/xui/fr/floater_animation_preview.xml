@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="Animation Preview" title="">
+	<text name="name_label">
+		Nom :
+	</text>
+	<text name="description_label">
+		Description :
+	</text>
+	<spinner label="Priorité" name="priority"
+	     tool_tip="Contrôle quelles autres animations peuvent être supplantées par celle-ci." />
+	<text name="preview_label">
+		Aperçu pendant
+	</text>
+	<combo_box label="" name="preview_base_anim"
+	     tool_tip="Use this to test your animation behavior while your avatar performs common actions.">
+		<combo_item name="Standing">
+			Debout
+		</combo_item>
+		<combo_item name="Walking">
+			Marcher
+		</combo_item>
+		<combo_item name="Sitting">
+			Assis(e)
+		</combo_item>
+		<combo_item name="Flying">
+			Vol
+		</combo_item>
+	</combo_box>
+	<check_box label="Jouer en boucle" name="loop_check"
+	     tool_tip="Joue l&apos;animation en boucle." />
+	<spinner label="In(%)" name="loop_in_point"
+	     tool_tip="Définit le point de début de boucle de l&apos;animation." />
+	<spinner label="Out(%)" name="loop_out_point"
+	     tool_tip="Définit le point de fin de boucle de l&apos;animation." />
+	<text name="hand_label">
+		Pose de la main
+	</text>
+	<combo_box label="" name="hand_pose_combo"
+	     tool_tip="Controls what hands do during animation.">
+		<combo_item name="Spread">
+			Diffusion
+		</combo_item>
+		<combo_item name="Relaxed">
+			Détendu(e)
+		</combo_item>
+		<combo_item name="PointBoth">
+			Pointer des deux côtés
+		</combo_item>
+		<combo_item name="Fist">
+			Poing
+		</combo_item>
+		<combo_item name="RelaxedLeft">
+			Détendu(e) Gauche
+		</combo_item>
+		<combo_item name="PointLeft">
+			Pointer gauche
+		</combo_item>
+		<combo_item name="FistLeft">
+			Poing gauche
+		</combo_item>
+		<combo_item name="RelaxedRight">
+			Détendu(e) Droite
+		</combo_item>
+		<combo_item name="PointRight">
+			Pointer droit
+		</combo_item>
+		<combo_item name="FistRight">
+			Poing droit
+		</combo_item>
+		<combo_item name="SaluteRight">
+			Saluer droit
+		</combo_item>
+		<combo_item name="Typing">
+			En train de composer un message
+		</combo_item>
+		<combo_item name="PeaceRight">
+			Peace
+		</combo_item>
+	</combo_box>
+	<text name="emote_label">
+		Expression
+	</text>
+	<combo_box label="" name="emote_combo"
+	     tool_tip="Controls what face does during animation.">
+		<combo_item name="[None]">
+			[Aucun]
+		</combo_item>
+		<combo_item name="Aaaaah">
+			Aaaaah
+		</combo_item>
+		<combo_item name="Afraid">
+			Apeuré
+		</combo_item>
+		<combo_item name="Angry">
+			Fâché
+		</combo_item>
+		<combo_item name="BigSmile">
+			Grand sourire
+		</combo_item>
+		<combo_item name="Bored">
+			Ennui
+		</combo_item>
+		<combo_item name="Cry">
+			Pleurer
+		</combo_item>
+		<combo_item name="Disdain">
+			Dédain
+		</combo_item>
+		<combo_item name="Embarrassed">
+			Gêné(e)
+		</combo_item>
+		<combo_item name="Frown">
+			Froncer les sourcils
+		</combo_item>
+		<combo_item name="Kiss">
+			Embrasser
+		</combo_item>
+		<combo_item name="Laugh">
+			Rire
+		</combo_item>
+		<combo_item name="Plllppt">
+			Plllppt
+		</combo_item>
+		<combo_item name="Repulsed">
+			Dégoûté(e)
+		</combo_item>
+		<combo_item name="Sad">
+			Triste
+		</combo_item>
+		<combo_item name="Shrug">
+			Hausser les épaules
+		</combo_item>
+		<combo_item name="Smile">
+			Sourire
+		</combo_item>
+		<combo_item name="Surprise">
+			Surprise
+		</combo_item>
+		<combo_item name="Wink">
+			Clin d&apos;œil
+		</combo_item>
+		<combo_item name="Worry">
+			Inquiet(e)
+		</combo_item>
+	</combo_box>
+	<spinner label="Ease In (sec)" name="ease_in_time"
+	     tool_tip="Temps d&apos;entrée des animations (en secondes)." />
+	<spinner label="Ease Out (sec)" name="ease_out_time"
+	     tool_tip="Temps de sortie des animations (en secondes)." />
+	<button label="" name="play_btn" tool_tip="Jouer/interrompre votre animation." />
+	<button label="" name="stop_btn" tool_tip="Arrêter l&apos;animation" />
+	<slider label="" name="playback_slider" />
+	<text name="bad_animation_text">
+		Unable to read animation file.
+	
+	We recommend BVH files exported from Poser 4.
+	</text>
+	<button label="Annuler" name="cancel_btn" />
+	<button label="Uploader (L$[AMOUNT])" name="ok_btn" />
+</floater>

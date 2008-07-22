@@ -44,6 +44,10 @@
 #include "llmediamanager.h"
 #include "lluuid.h"
 
+#include <boost/bind.hpp>	// for SkinFolder listener
+#include <boost/signal.hpp>
+
+
 // Implementation functions not exported into header file
 class LLViewerMediaImpl
 	:	public LLMediaObserver
@@ -54,8 +58,6 @@ class LLViewerMediaImpl
 			mMovieImageID(),
 			mMovieImageHasMips(false)
 		{ }
-
-		void initControlListeners();
 
 		void destroyMediaSource();
 
@@ -79,6 +81,15 @@ class LLViewerMediaImpl
 		void updateImagesMediaStreams();
 		LLUUID getMediaTextureID();
 
+		// Internally set our desired browser user agent string, including
+		// the Second Life version and skin name.  Used because we can
+		// switch skins without restarting the app.
+		static void updateBrowserUserAgent();
+
+		// Callback for when the SkinCurrent control is changed to
+		// switch the user agent string to indicate the new skin.
+		static bool handleSkinCurrentChanged(const LLSD& newvalue);
+
 	public:
 
 		// a single media url with some data and an impl.
@@ -92,6 +103,8 @@ class LLViewerMediaImpl
 };
 
 static LLViewerMediaImpl sViewerMediaImpl;
+
+//////////////////////////////////////////////////////////////////////////////////////////
 
 void LLViewerMediaImpl::destroyMediaSource()
 {
@@ -405,10 +418,42 @@ void LLViewerMediaImpl::onMediaSizeChange(const EventType& event_in)
 	*/
 
 
-//////////////////////////////////////////////////////////////////////////////////////////
 LLUUID LLViewerMediaImpl::getMediaTextureID()
 {
 	return mMovieImageID;
+}
+
+// static
+void LLViewerMediaImpl::updateBrowserUserAgent()
+{
+	// Don't use user-visible string to avoid 
+	// punctuation and strange characters.
+	std::string skin_name = gSavedSettings.getString("SkinCurrent");
+
+	// Just in case we need to check browser differences in A/B test
+	// builds.
+	std::string channel = gSavedSettings.getString("VersionChannelName");
+
+	// append our magic version number string to the browser user agent id
+	// See the HTTP 1.0 and 1.1 specifications for allowed formats:
+	// http://www.ietf.org/rfc/rfc1945.txt section 10.15
+	// http://www.ietf.org/rfc/rfc2068.txt section 3.8
+	// This was also helpful:
+	// http://www.mozilla.org/build/revised-user-agent-strings.html
+	std::ostringstream codec;
+	codec << "SecondLife/";
+	codec << LL_VERSION_MAJOR << "." << LL_VERSION_MINOR << "." << LL_VERSION_PATCH << "." << LL_VERSION_BUILD;
+	codec << " (" << channel << "; " << skin_name << " skin)";
+	llinfos << codec.str() << llendl;
+	LLMediaManager::setBrowserUserAgent( codec.str() );
+}
+
+// static
+bool LLViewerMediaImpl::handleSkinCurrentChanged(const LLSD& /*newvalue*/)
+{
+	// gSavedSettings is already updated when this function is called.
+	updateBrowserUserAgent();
+	return true;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -434,6 +479,7 @@ void LLViewerMedia::initBrowser()
 // static
 void LLViewerMedia::initClass()
 {
+	// *TODO: This looks like a memory leak to me. JC
 	LLMediaManagerData* init_data = new LLMediaManagerData;
 	buildMediaManagerData( init_data );
 	LLMediaManager::initClass( init_data );
@@ -482,14 +528,6 @@ void LLViewerMedia::buildMediaManagerData( LLMediaManagerData* init_data )
 	component_dir += "mozilla";
 #endif
 
-	// append our magic version number string to the browser user agent id
-	std::ostringstream codec;
-	codec << "[Second Life ";
-	codec << "(" << gSavedSettings.getString("VersionChannelName") << ")";
-	codec << " - " << LL_VERSION_MAJOR << "." << LL_VERSION_MINOR << "." << LL_VERSION_PATCH << "." << LL_VERSION_BUILD;
-	codec << "]";
-	init_data->setBrowserUserAgentId( codec.str() );
-
 	std::string application_dir = gDirUtilp->getExecutableDir();
 
 	init_data->setBrowserApplicationDir( application_dir );
@@ -499,6 +537,15 @@ void LLViewerMedia::buildMediaManagerData( LLMediaManagerData* init_data )
 	std::string profile_name("Second Life");
 	init_data->setBrowserProfileName( profile_name );
 	init_data->setBrowserParentWindow( gViewerWindow->getPlatformWindow() );
+
+	// We use a custom user agent with viewer version and skin name.
+	LLViewerMediaImpl::updateBrowserUserAgent();
+
+	// Users can change skins while client is running, so make sure
+	// we pick up on changes.
+	gSavedSettings.getControl("SkinCurrent")->getSignal()->connect( 
+		boost::bind( LLViewerMediaImpl::handleSkinCurrentChanged, _1 ) );
+
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////

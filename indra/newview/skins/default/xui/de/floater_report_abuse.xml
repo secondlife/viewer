@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="floater_report_abuse" title="Missbrauch melden">
+	<text name="reporter_title">
+		Melder:
+	</text>
+	<text name="reporter_field">
+		Loremipsum Dolorsitamut
+	</text>
+	<text name="sim_title">
+		Region:
+	</text>
+	<text name="sim_field">
+		Name der Region
+	</text>
+	<text name="pos_title">
+		Position:
+	</text>
+	<texture_picker label="Arbeitet..." name="screenshot" />
+	<check_box label="Screenshot einschließen" name="screen_check" />
+	<text name="pos_field">
+		{128.1, 128.1, 15.4}
+	</text>
+	<button label="" label_selected="" name="pick_btn"
+	     tool_tip="Objektauswahl – Wählen Sie ein Objekt als Thema dieses Berichts aus" />
+	<text bottom_delta="-38" height="32" name="select_object_label">
+		Klicken Sie auf die Schaltfläche,
+dann auf das Objekt:
+	</text>
+	<text name="object_name_label">
+		Name:
+	</text>
+	<text name="object_name">
+		Consetetur Sadipscing
+	</text>
+	<text name="owner_name_label">
+		Eigentümer:
+	</text>
+	<text name="owner_name">
+		Hendrerit Vulputate
+	</text>
+	<combo_box name="category_combo"
+	     tool_tip="Category -- select the category that best describes this report">
+		<combo_item name="Selectcategory">
+			Kategorie auswählen
+		</combo_item>
+		<combo_item name="Intolerance">
+			Intoleranz
+		</combo_item>
+		<combo_item name="Harassment">
+			Belästigung
+		</combo_item>
+		<combo_item name="Assault">
+			Angriff
+		</combo_item>
+		<combo_item name="Disclosure">
+			Offenlegen
+		</combo_item>
+		<combo_item name="Indecency">
+			Unanständigkeit
+		</combo_item>
+		<combo_item name="Age">
+			Alter
+		</combo_item>
+		<combo_item name="Parcel">
+			Parzelle
+		</combo_item>
+		<combo_item name="Other">
+			Sonstige
+		</combo_item>
+	</combo_box>
+	<text name="abuser_name_title">
+		Name des Beschuldigten:
+	</text>
+	<button label="Einwohner auswählen" label_selected="" name="select_abuser"
+	     tool_tip="Den Namen des Beschuldigten aus einer Liste wählen" />
+	<text name="abuser_name_title2">
+		Ort des Missbrauchs:
+	</text>
+	<text name="sum_title">
+		Zusammenfassung:
+	</text>
+	<text name="dscr_title">
+		Details:
+	</text>
+	<text name="bug_aviso">
+		Machen Sie genaue Angaben zu Datum, Ort und Art des 
+Missbrauchs, relevantem Chat/IM und wählen Sie das 
+Objekt, wenn möglich.
+	</text>
+	<text_editor bottom_delta="-136" height="130" name="details_edit" />
+	<text name="incomplete_title">
+		Hinweis: Unvollständige Meldungen werden nicht bearbeitet.
+	</text>
+	<button label="Missbrauch melden" label_selected="Missbrauch melden" name="send_btn" />
+	<button label="Abbrechen" label_selected="Abbrechen" name="cancel_btn" />
+</floater>

@@ -623,6 +623,9 @@ bool LLAppViewer::init()
 	// Need to do this initialization before we do anything else, since anything
 	// that touches files should really go through the lldir API
 	gDirUtilp->initAppDirs("SecondLife");
+	// set skin search path to default, will be overridden later
+	// this allows simple skinned file lookups to work
+	gDirUtilp->setSkinFolder("default");
 
 	initLogging();
 	
@@ -686,6 +689,8 @@ bool LLAppViewer::init()
 	*/
 #endif
 
+	//test_cached_control();
+
 	// track number of times that app has run
 	mNumSessions = gSavedSettings.getS32("NumSessions");
 	mNumSessions++;
@@ -699,12 +704,12 @@ bool LLAppViewer::init()
 	}
 	
 	// Load art UUID information, don't require these strings to be declared in code.
-	std::string colors_base_filename = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "colors_base.xml");
+	std::string colors_base_filename = gDirUtilp->findSkinnedFilename("colors_base.xml");
 	LL_DEBUGS("InitInfo") << "Loading base colors from " << colors_base_filename << LL_ENDL;
 	gColors.loadFromFileLegacy(colors_base_filename, FALSE, TYPE_COL4U);
 
 	// Load overrides from user colors file
-	std::string user_colors_filename = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "colors.xml");
+	std::string user_colors_filename = gDirUtilp->findSkinnedFilename("colors.xml");
 	LL_DEBUGS("InitInfo") << "Loading user colors from " << user_colors_filename << LL_ENDL;
 	if (gColors.loadFromFileLegacy(user_colors_filename, FALSE, TYPE_COL4U) == 0)
 	{
@@ -1475,7 +1480,7 @@ bool LLAppViewer::initLogging()
 	return true;
 }
 
-void LLAppViewer::loadSettingsFromDirectory(ELLPath path_index)
+void LLAppViewer::loadSettingsFromDirectory(ELLPath path_index, bool set_defaults)
 {	
 	for(LLSD::map_iterator itr = mSettingsFileList.beginMap(); itr != mSettingsFileList.endMap(); ++itr)
 	{
@@ -1508,7 +1513,7 @@ void LLAppViewer::loadSettingsFromDirectory(ELLPath path_index)
 			llwarns << "Cannot load " << settings_file << " - No matching settings group for name " << settings_name << llendl;
 			continue;
 		}
-		if(!gSettings[settings_name]->loadFromFile(full_settings_path))
+		if(!gSettings[settings_name]->loadFromFile(full_settings_path, set_defaults))
 		{
 			llwarns << "Cannot load " << full_settings_path << " - No settings found." << llendl;
 		}
@@ -1557,7 +1562,8 @@ bool LLAppViewer::initConfiguration()
 	// - load per account settings (happens in llstartup
 	
 	// - load defaults
-	loadSettingsFromDirectory(LL_PATH_APP_SETTINGS);
+	bool set_defaults = true;
+	loadSettingsFromDirectory(LL_PATH_APP_SETTINGS, set_defaults);
 
 	// - set procedural settings 
 	gSavedSettings.setString("ClientSettingsFile", 
@@ -1821,7 +1827,7 @@ bool LLAppViewer::initConfiguration()
         }
     }
 
-    const LLControlVariable* skinfolder = gSavedSettings.getControl("SkinFolder");
+    const LLControlVariable* skinfolder = gSavedSettings.getControl("SkinCurrent");
     if(skinfolder && LLStringUtil::null != skinfolder->getValue().asString())
     {   
         gDirUtilp->setSkinFolder(skinfolder->getValue().asString());
@@ -1833,33 +1839,33 @@ bool LLAppViewer::initConfiguration()
 	gSecondLife = "Second Life";
 
 	// Read skin/branding settings if specified.
-	if (! gDirUtilp->getSkinDir().empty() )
-	{
-		std::string skin_def_file = gDirUtilp->getExpandedFilename(LL_PATH_TOP_SKIN, "skin.xml");
-		LLXmlTree skin_def_tree;
+	//if (! gDirUtilp->getSkinDir().empty() )
+	//{
+	//	std::string skin_def_file = gDirUtilp->findSkinnedFilename("skin.xml");
+	//	LLXmlTree skin_def_tree;
 
-		if (!skin_def_tree.parseFile(skin_def_file))
-		{
-			llerrs << "Failed to parse skin definition." << llendl;
-		}
+	//	if (!skin_def_tree.parseFile(skin_def_file))
+	//	{
+	//		llerrs << "Failed to parse skin definition." << llendl;
+	//	}
 
-		LLXmlTreeNode* rootp = skin_def_tree.getRoot();
-		LLXmlTreeNode* disabled_message_node = rootp->getChildByName("disabled_message");	
-		if (disabled_message_node)
-		{
-			gDisabledMessage = disabled_message_node->getContents();
-		}
+	//	LLXmlTreeNode* rootp = skin_def_tree.getRoot();
+	//	LLXmlTreeNode* disabled_message_node = rootp->getChildByName("disabled_message");	
+	//	if (disabled_message_node)
+	//	{
+	//		gDisabledMessage = disabled_message_node->getContents();
+	//	}
 
-		static LLStdStringHandle hide_links_string = LLXmlTree::addAttributeString("hide_links");
-		rootp->getFastAttributeBOOL(hide_links_string, gHideLinks);
+	//	static LLStdStringHandle hide_links_string = LLXmlTree::addAttributeString("hide_links");
+	//	rootp->getFastAttributeBOOL(hide_links_string, gHideLinks);
 
-		// Legacy string.  This flag really meant we didn't want to expose references to "Second Life".
-		// Just set gHideLinks instead.
-		static LLStdStringHandle silent_string = LLXmlTree::addAttributeString("silent_update");
-		BOOL silent_update;
-		rootp->getFastAttributeBOOL(silent_string, silent_update);
-		gHideLinks = (gHideLinks || silent_update);
-	}
+	//	// Legacy string.  This flag really meant we didn't want to expose references to "Second Life".
+	//	// Just set gHideLinks instead.
+	//	static LLStdStringHandle silent_string = LLXmlTree::addAttributeString("silent_update");
+	//	BOOL silent_update;
+	//	rootp->getFastAttributeBOOL(silent_string, silent_update);
+	//	gHideLinks = (gHideLinks || silent_update);
+	//}
 
 #if LL_DARWIN
 	// Initialize apple menubar and various callbacks

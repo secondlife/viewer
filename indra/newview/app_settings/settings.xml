@@ -2868,7 +2868,7 @@
         <integer>0</integer>
       </array>
     </map>
-    <key>FloaterHUDRect</key>
+    <key>FloaterHUDRect2</key>
     <map>
       <key>Comment</key>
       <string>Rectangle for HUD Floater window</string>
@@ -2877,10 +2877,13 @@
       <key>Type</key>
       <string>Rect</string>
       <key>Value</key>
+<!-- NOTE: Height and width must match values in settings.xml for 
+     FloaterHUDRect because this floater is resized to those values
+     in LLViewerWindow initialization. JC -->
       <array>
         <integer>0</integer>
-        <integer>282</integer>
-        <integer>342</integer>
+        <integer>292</integer>
+        <integer>362</integer>
         <integer>0</integer>
       </array>
     </map>
@@ -7185,16 +7188,16 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>SkinFolder</key>
+    <key>SkinCurrent</key>
     <map>
       <key>Comment</key>
-      <string>The skin folder to use.</string>
+      <string>The currently selected skin.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string />
+      <string>default</string>
     </map>
     <key>SkyAmbientScale</key>
     <map>
@@ -7765,6 +7768,17 @@
         <integer>91</integer>
         <integer>4</integer>
       </array>
+    </map>
+    <key>TutorialURL</key>
+    <map>
+      <key>Comment</key>
+      <string>URL for tutorial menu item, set automatically during login</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string />
     </map>
     <key>TypeAheadTimeout</key>
     <map>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="telehub" title="Téléport">
+	<text name="status_text_connected">
+		Téléport relié à l&apos;objet [OBJECT]
+	</text>
+	<text name="status_text_not_connected">
+		Pas de téléport relié.
+	</text>
+	<text name="help_text_connected">
+		Pour retirer, cliquez sur Déconnecter.
+	</text>
+	<text name="help_text_not_connected">
+		Sélectionnez un objet et cliquez sur Relier Téléport.
+	</text>
+	<button label="Relier téléport" name="connect_btn" />
+	<button label="Se déconnecter" name="disconnect_btn" />
+	<text name="spawn_points_text">
+		Points d&apos;apparition (positions, pas objets) :
+	</text>
+	<button label="Ajouter point d&apos;apparition" name="add_spawn_point_btn" />
+	<button label="Supprimer point d&apos;apparition" name="remove_spawn_point_btn" />
+	<text name="spawn_point_help">
+		Sélectionnez l&apos;objet et cliquez sur Ajouter pour préciser sa position.
+Vous pouvez ensuite déplacer ou supprimer l&apos;objet.
+Les positions sont relatives au centre du téléport.
+Sélectionnez l&apos;elément dans la liste pour afficher sa position dans le monde.
+	</text>
+</floater>

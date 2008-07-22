@@ -1,0 +1,504 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="floaterland" title="Land-Info">
+	<tab_container name="landtab">
+		<panel label="Allgemein" name="land_general_panel">
+			<text type="string" length="1" name="Name:">
+				Name:
+			</text>
+			<text type="string" length="1" name="Description:">
+				Beschreibung:
+			</text>
+			<text type="string" length="1" name="Owner:">
+				Eigentümer:
+			</text>
+			<text type="string" length="1" name="OwnerText">
+				Leyla Linden
+			</text>
+			<button label="Profil..." label_selected="Profil..." name="Profile..." />
+			<text type="string" length="1" name="Group:">
+				Gruppe:
+			</text>
+			<button label="Einstellen..." label_selected="Einstellen..." name="Set..." />
+			<check_box label="Übertragung an Gruppe zulassen" name="check deed"
+			     tool_tip="Ein Gruppen-Officer kann dieses Land der Gruppe übertragen. Das Land wird dann über die Landzuteilung der Gruppe verwaltet." />
+			<button label="Übertragen..." label_selected="Übertragen..." name="Deed..."
+			     tool_tip="Sie können Land nur übertragen, wenn Sie in der ausgewählten Gruppe Officer sind." />
+			<check_box label="Eigentümer leistet Beitrag durch Übertragung" name="check contrib"
+			     tool_tip="Wenn das Land an die Gruppe übertragen wird, trägt der frühere Eigentümer ausreichend Landnutzungsrechte bei, um es zu halten." />
+			<text type="string" length="1" name="For Sale:">
+				Zum Verkauf:
+			</text>
+			<text type="string" length="1" name="Not for sale.">
+				Nicht zu verkaufen.
+			</text>
+			<text type="string" length="1" name="For Sale: Price L$[PRICE].">
+				Preis: [PRICE] L$.
+			</text>
+			<button label="Land verkaufen..." label_selected="Land verkaufen..."
+			     name="Sell Land..." />
+			<text type="string" length="1" name="For sale to">
+				Zum Verkauf an: [BUYER]
+			</text>
+			<text type="string" length="1" name="Sell with landowners objects in parcel.">
+				Objekte sind im Verkauf eingeschlossen.
+			</text>
+			<text type="string" length="1" name="Selling with no objects in parcel.">
+				Objekte sind im Verkauf nicht eingeschlossen.
+			</text>
+			<button label="Landverkauf abbrechen" label_selected="Landverkauf abbrechen"
+			     name="Cancel Land Sale" />
+			<text type="string" length="1" name="Claimed:">
+				Gekauft am:
+			</text>
+			<text type="string" length="1" name="DateClaimText">
+				Dienstag, 15. Aug. 2006, 13:47:25
+			</text>
+			<text type="string" length="1" name="PriceLabel">
+				Gebiet:
+			</text>
+			<text type="string" length="1" name="PriceText">
+				4048 qm
+			</text>
+			<text type="string" length="1" name="Traffic:">
+				Traffic:
+			</text>
+			<text type="string" length="1" name="DwellText">
+				0
+			</text>
+			<button label="Land kaufen..." label_selected="Land kaufen..." name="Buy Land..." />
+			<button label="Für Gruppe kaufen..." label_selected="Für Gruppe kaufen..."
+			     name="Buy For Group..." />
+			<button label="Pass kaufen..." label_selected="Pass kaufen..." name="Buy Pass..."
+			     tool_tip="Ein Pass gibt Ihnen zeitbegrenzten Zugang zu diesem Land." />
+			<button label="Land aufgeben..." label_selected="Land aufgeben..."
+			     name="Abandon Land..." />
+			<button label="Land in Besitz nehmen..." label_selected="Land in Besitz nehmen..."
+			     name="Reclaim Land..." />
+			<button label="Linden-Verkauf..." label_selected="Linden-Verkauf..."
+			     name="Linden Sale..."
+			     tool_tip="Land muss Eigentum und auf Inhalt gesetzt sein und nicht zur Auktion stehen." />
+			<text name="new users only">
+				Nur neue Benutzer
+			</text>
+			<text name="anyone">
+				Jeder
+			</text>
+			<text name="area_text">
+				Gebiet:
+			</text>
+			<text name="area_size_text">
+				[AREA] qm
+			</text>
+			<text name="auction_id_text">
+				Auktions-ID: [ID]
+			</text>
+			<text name="need_tier_to_modify">
+				Bestätigen Sie den Kauf, um dieses Land zu bearbeiten.
+			</text>
+			<text name="group_owned_text">
+				(In Gruppenbesitz)
+			</text>
+			<text name="profile_text">
+				Profil...
+			</text>
+			<text name="info_text">
+				Info...
+			</text>
+			<text name="public_text">
+				(öffentlich)
+			</text>
+			<text name="none_text">
+				(-)
+			</text>
+			<text name="sale_pending_text">
+				(Wird verkauft)
+			</text>
+		</panel>
+		<panel label="Vertrag" name="land_covenant_panel">
+			<text type="string" length="1" name="covenant_timestamp_text">
+				Letzte Änderung am Mittwoch, den 31. Dez. 1969, 16:00:00
+			</text>
+			<text type="string" length="1" name="region_name_lbl">
+				Region:
+			</text>
+			<text type="string" length="1" name="region_name_text">
+				leyla
+			</text>
+			<text type="string" length="1" name="estate_name_lbl">
+				Grundstück:
+			</text>
+			<text type="string" length="1" name="estate_name_text">
+				Mainland
+			</text>
+			<text type="string" length="1" name="estate_owner_lbl">
+				Eigentümer:
+			</text>
+			<text type="string" length="1" name="estate_owner_text">
+				(keiner)
+			</text>
+			<text type="string" length="1" name="resellable_clause">
+				Gekauftes Land in dieser Region kann nicht wiederverkauft werden.
+			</text>
+			<text type="string" length="1" name="changeable_clause">
+				Gekauftes Land in dieser Region kann nicht zusammengelegt/geteilt werden.
+			</text>
+			<text_editor type="string" length="1" name="covenant_editor">
+				Für dieses Grundstück fehlt der Vertrag.
+			</text_editor>
+			<text name="can_resell">
+				Gekauftes Land in dieser Region kann wiederverkauft werden.
+			</text>
+			<text name="can_not_resell">
+				Gekauftes Land in dieser Region kann nicht wiederverkauft werden.
+			</text>
+			<text name="can_change">
+				Gekauftes Land in dieser Region kann zusammengelegt und geteilt werden.
+			</text>
+			<text name="can_not_change">
+				Gekauftes Land in dieser Region kann nicht zusammengelegt und geteilt werden.
+			</text>
+		</panel>
+		<panel label="Objekte" name="land_objects_panel">
+			<text name="parcel_object_bonus">
+				Objektbonusfaktor in Region: [BONUS]
+			</text>
+			<text type="string" length="1" name="Simulator primitive usage:">
+				Primitive in Simulator:
+			</text>
+			<text name="objects_available">
+				[COUNT] von [MAX] ([AVAILABLE] verfügbar)
+			</text>
+			<text name="objects_available_text">
+				[COUNT] von [MAX] ([AVAILABLE] verfügbar)
+			</text>
+			<text name="objects_deleted_text">
+				[COUNT] von [MAX] ([DELETED] werden gelöscht)
+			</text>
+			<text name="Primitives parcel supports:" width="200">
+				Von Parzelle unterstützte Primitiva:
+			</text>
+			<text left="204" name="object_contrib_text" width="152">
+				[COUNT]
+			</text>
+			<text type="string" length="1" name="Primitives on parcel:">
+				Primitiva auf Parzelle:
+			</text>
+			<text left="204" name="total_objects_text" width="48">
+				[COUNT]
+			</text>
+			<text left="14" name="Owned by parcel owner:" width="200">
+				Im Eigentum des Parzellenbesitzers:
+			</text>
+			<text left="204" name="owner_objects_text" width="48">
+				[COUNT]
+			</text>
+			<button label="Anzeigen" label_selected="Anzeigen" name="ShowOwner" right="-135" width="60" />
+			<button label="Zurückgeben..." label_selected="Zurückgeben..." name="ReturnOwner..."
+			     right="-10" tool_tip="Objekte an ihre Eigentümer zurückgeben." width="119" />
+			<text left="14" name="Set to group:" width="200">
+				Der Gruppe übereignen:
+			</text>
+			<text left="204" name="group_objects_text" width="48">
+				[COUNT]
+			</text>
+			<button label="Anzeigen" label_selected="Anzeigen" name="ShowGroup" right="-135" width="60" />
+			<button label="Zurückgeben..." label_selected="Zurückgeben..." name="ReturnGroup..."
+			     right="-10" tool_tip="Objekte an ihre Eigentümer zurückgeben." width="119" />
+			<text left="14" name="Owned by others:" width="128">
+				Im Eigentum anderer:
+			</text>
+			<text left="204" name="other_objects_text" width="48">
+				[COUNT]
+			</text>
+			<button label="Anzeigen" label_selected="Anzeigen" name="ShowOther" right="-135" width="60" />
+			<button label="Zurückgeben..." label_selected="Zurückgeben..." name="ReturnOther..."
+			     right="-10" tool_tip="Objekte an ihre Eigentümer zurückgeben." width="119" />
+			<text left="14" name="Selected / sat upon:" width="140">
+				Ausgewählt/gesessen auf:
+			</text>
+			<text left="204" name="selected_objects_text" width="48">
+				[COUNT]
+			</text>
+			<text left="4" name="Autoreturn" width="380">
+				Objekte anderer Einwohner automatisch zurückgeben (Minuten, 0 für aus):
+			</text>
+			<line_editor name="clean other time" right="-10" width="56" />
+			<text type="string" length="1" name="Object Owners:">
+				Objekteigentümer:
+			</text>
+			<button label="Liste aktualisieren" label_selected="Liste aktualisieren"
+			     name="Refresh List" />
+			<button label="Objekte zurückgeben..." label_selected="Objekte zurückgeben..."
+			     name="Return objects..." />
+			<button label="" label_selected="" name="Type" tool_tip="Nach Typ sortieren" />
+			<button label="Name" label_selected="Name" name="Name" tool_tip="Nach Name sortieren" />
+			<button label="Zählen" label_selected="Zählen" name="Count"
+			     tool_tip="Nach Anzahl sortieren" />
+			<name_list label="Zählen" name="owner list">
+				<column label="Typ" name="type" />
+				<column label="Name" name="name" />
+				<column label="Zählen" name="count" />
+			</name_list>
+			/&gt;
+		</panel>
+		<panel label="Optionen" name="land_options_panel">
+			<text type="string" length="1" name="allow_label">
+				Anderen Einwohnern gestatten:
+			</text>
+			<check_box label="Terrain bearbeiten" name="edit land check" />
+			<check_box label="Landmarken erstellen" name="check landmark" />
+			<check_box label="Fliegen" name="check fly" />
+			<text type="string" length="1" name="allow_label2">
+				Objekte erstellen:
+			</text>
+			<check_box label="Alle Einwohner" name="edit objects check" />
+			<check_box label="Gruppe" name="edit group objects check" />
+			<text type="string" length="1" name="allow_label3">
+				Objekteintritt:
+			</text>
+			<check_box label="Alle Einwohner" name="all object entry check" />
+			<check_box label="Gruppe" name="group object entry check" />
+			<text type="string" length="1" name="allow_label4">
+				Skripts ausführen:
+			</text>
+			<check_box label="Alle Einwohner" name="check other scripts" />
+			<check_box label="Gruppe" name="check group scripts" />
+			<text type="string" length="1" name="land_options_label">
+				Landoptionen:
+			</text>
+			<check_box label="Sicher (kein Schaden)" name="check safe" />
+			<check_box label="Stoßen beschränken" name="PushRestrictCheck"
+			     tool_tip="llPushObject funktioniert nur in Skripts des Parzelleneigentümers oder in Skripts, die dem Stoßenden gehören." />
+			<check_box label="Ort in Suche anzeigen (30 L$/Woche) unter" name="ShowDirectoryCheck"
+			     tool_tip="Diese Parzelle in Suchergebnissen anzeigen." />
+			<combo_box left="266" max_chars="20" mouse_opaque="true" name="land category" width="130">
+				<combo_item name="AnyCategory">
+					Alle Kategorien
+				</combo_item>
+				<combo_item name="LindenLocation">
+					Lindenort
+				</combo_item>
+				<combo_item name="Adult">
+					Ab 18
+				</combo_item>
+				<combo_item name="Arts&amp;Culture">
+					Kunst und Kultur
+				</combo_item>
+				<combo_item name="Business">
+					Business
+				</combo_item>
+				<combo_item name="Educational">
+					Bildung
+				</combo_item>
+				<combo_item name="Gaming">
+					Spielen
+				</combo_item>
+				<combo_item name="Hangout">
+					Treffpunkt
+				</combo_item>
+				<combo_item name="NewcomerFriendly">
+					Anfängergerecht
+				</combo_item>
+				<combo_item name="Parks&amp;Nature">
+					Parks und Natur
+				</combo_item>
+				<combo_item name="Residential">
+					Wohngebiet
+				</combo_item>
+				<combo_item name="Shopping">
+					Shopping
+				</combo_item>
+				<combo_item name="Other">
+					Sonstige
+				</combo_item>
+			</combo_box>
+			<check_box label="Ab-18-Inhalt" name="MatureCheck"
+			     tool_tip="Die Informationen oder Inhalte Ihrer Parzelle sind nicht jugenfrei." />
+			<check_box label="Liste im Web veröffentlichen" name="PublishCheck"
+			     tool_tip="Veröffentlicht Informationen über Ihre Parzelle im Web." />
+			<button label="?" label_selected="?" name="?" />
+			<text type="string" length="1" name="Snapshot:">
+				Foto:
+			</text>
+			<texture_picker label="" name="snapshot_ctrl"
+			     tool_tip="Klicken Sie hier, um ein Bild auszuwählen" />
+			<text type="string" length="1" name="Landing Point: (none)">
+				Landepunkt: (keiner)
+			</text>
+			<text name="landing_point">
+				Landepunkt: [LANDING]
+			</text>
+			<text name="landing_point_none">
+				(-)
+			</text>
+			<button label="Festlegen" label_selected="Festlegen" left="234" name="Set"
+			     tool_tip="Den Landepunkt auf die aktuelle Position des Avatars setzen. Muss sich innerhalb dieser Parzelle befinden."
+			     width="70" />
+			<button label="Löschen" label_selected="Löschen" left="312" name="Clear"
+			     tool_tip="Landepunkt löschen." width="70" />
+			<text type="string" length="1" name="Teleport Routing: ">
+				Teleport-Route:
+			</text>
+			<combo_box name="landing type"
+			     tool_tip="Teleport Routing -- select how to handle teleports onto your land.">
+				<combo_item type="string" length="1" name="Blocked">
+					Blockiert
+				</combo_item>
+				<combo_item type="string" length="1" name="LandingPoint">
+					Landepunkt
+				</combo_item>
+				<combo_item type="string" length="1" name="Anywhere">
+					Überall
+				</combo_item>
+			</combo_box>
+			<text name="push_restrict_text">
+				Stoßen beschränken
+			</text>
+			<text name="push_restrict_region_text">
+				Stoßen beschränken (regional)
+			</text>
+		</panel>
+		<panel label="Medien" name="land_media_panel">
+			<text name="at URL:">
+				Medien-URL:
+			</text>
+			<button label="Einstellen..." label_selected="Einstellen..." name="set_media_url" />
+			<text name="with media:">
+				Medientyp:
+			</text>
+			<combo_box name="media type"
+			     tool_tip="Geben Sie einen URL für den Film, die Webseite oder ein anderes Medium ein" />
+			<text name="Description:">
+				Inhalt:
+			</text>
+			<line_editor name="url_description"
+			     tool_tip="Text, der neben der Abspielen/Laden-Schaltfläche angezeigt wird" />
+			<text name="replace_texture_help">
+				(Objekte mit dieser Textur zeigen nach Anklicken
+des Abspielen-Pfeils den Film oder die Webseite an.)
+			</text>
+			<text name="Options:">
+				Medien-
+Optionen:
+			</text>
+			<check_box label="Als Schleife wiedergeben" name="media_loop"
+			     tool_tip="Spielt das Medium in einer Schleife ab.  Der Abspielvorgang wird immer wieder von vorne fortgesetzt." />
+			<check_box label="Medien-URL verstecken" name="hide_media_url"
+			     tool_tip="Aktivieren Sie diese Option, wenn Sie nicht möchten, dass unautorisierte Personen die Medien-URL sehen können. Diese Option ist für HTML-Medien nicht verfügbar." />
+			<check_box label="Musik-URL verstecken" name="hide_music_url"
+			     tool_tip="Aktivieren Sie diese Option, wenn Sie nicht möchten, dass unautorisierte Personen die Musik-URL sehen können." />
+			<text name="media_size"
+			     tool_tip="Darstellungsgröße von Webmedien, für Standard bei 0 belassen.">
+				Größe:
+			</text>
+			<spinner name="media_size_width"
+			     tool_tip="Darstellungsgröße von Webmedien, für Standard bei 0 belassen." />
+			<spinner name="media_size_height"
+			     tool_tip="Darstellungsgröße von Webmedien, für Standard bei 0 belassen." />
+			<text name="pixels">
+				Pixel
+			</text>
+			<text name="MusicURL:">
+				Musik-URL:
+			</text>
+			<text name="Sound:">
+				Sound:
+			</text>
+			<check_box label="Umgebungssound auf diese Parzelle beschränken" name="check sound local" />
+			<text type="string" length="1" name="Music URL:">
+				Musik-URL:
+			</text>
+			<text type="string" length="1" name="Media texture:">
+				Textur
+ersetzen:
+			</text>
+			<text type="string" length="1" name="Replace this texture:">
+				Diese Textur ersetzen:
+			</text>
+			<texture_picker label="" name="media texture"
+			     tool_tip="Klicken Sie hier, um ein Bild auszuwählen" />
+			<text type="string" length="1" name="with content from this URL:">
+				mit Inhalt von diesem URL ersetzen:
+			</text>
+			<check_box label="Automatisch skalieren" name="media_auto_scale"
+			     tool_tip="Aktivieren Sie diese Option, um den Inhalt für diese Parzelle automatisch zu skalieren. Dies ist eventuell langsamer und die Qualität ist schlechter, aber Sie müssen keine weitere Texturskalierung oder -anpassung vornehmen." />
+			<text name="Voice settings:">
+				Voice:
+			</text>
+			<radio_group name="parcel_voice_channel">
+				<radio_item name="Estate">
+					Voice-Channel des Grundstücks verwenden
+				</radio_item>
+				<radio_item name="Private">
+					Einen privaten Voice-Channel verwenden
+				</radio_item>
+				<radio_item name="Disabled">
+					Umgebungssound auf dieser Parzelle deaktivieren
+				</radio_item>
+			</radio_group>
+		</panel>
+		<panel label="Zugang" name="land_access_panel">
+			<text type="string" length="1" name="Limit access to this parcel to:">
+				Zugang zu dieser Parzelle
+			</text>
+			<check_box label="Freien Zugang erlauben" name="public_access" />
+			<text name="Only Allow">
+				Zugang verweigern für:
+			</text>
+			<check_box
+			     label="Einwohner, die keine Zahlungsinformationen bei Linden Lab hinterlegt haben"
+			     name="limit_payment" tool_tip="Nicht identifizierte Einwohner verbannen." />
+			<check_box label="Einwohner, die keine altersgeprüften Erwachsenen sind"
+			     name="limit_age_verified"
+			     tool_tip="Einwohner ohne Altersprüfung verbannen. Weitere Informationen finden Sie auf support.secondlife.com." />
+			<string name="estate_override">
+				Eine oder mehrere dieser Optionen gelten auf Grundstücksebene
+			</string>
+			<check_box label="Gruppenzugang erlauben: [GROUP]" name="GroupCheck"
+			     tool_tip="Gruppe im Register &apos;Allgemein&apos; festlegen." />
+			<combo_box name="pass_combo">
+				<combo_item name="Anyone">
+					Jeder
+				</combo_item>
+				<combo_item name="Group">
+					Gruppe
+				</combo_item>
+			</combo_box>
+			<text label="Immer erlauben" name="AllowedText">
+				Zulässige Einwohner
+			</text>
+			<button label="Hinzufügen..." label_selected="Hinzufügen..." name="add_allowed" />
+			<button label="Entfernen" label_selected="Entfernen" name="remove_allowed" />
+			<check_box label="Verbannen" name="BanCheck">
+				Verbannte Einwohner
+			</check_box>
+			<name_list name="AccessList" tool_tip="([LISTED] angezeigt, max. [MAX])">
+				<column label="Allowed Residents" name="name" />
+			</name_list>
+			<button label="Hinzufügen..." label_selected="Hinzufügen..." name="Add..." />
+			<button label="Entfernen" label_selected="Entfernen" name="Remove" />
+			<check_box label="Pässe verkaufen an:" name="PassCheck"
+			     tool_tip="Ermöglicht befristeten Zugang zu dieser Parzelle" />
+			<spinner label="Preis in L$:" name="PriceSpin" />
+			<spinner label="Online-Zeit:" name="HoursSpin" />
+			<name_list name="BannedList" tool_tip="([LISTED] angezeigt, max. [MAX])" />
+			<button label="Hinzufügen..." label_selected="Hinzufügen..." name="add_banned" />
+			<button label="Entfernen" label_selected="Entfernen" name="remove_banned" />
+		</panel>
+		<panel label="Verbannen" name="land_ban_panel">
+			<check_box label="Diese Avatare verbannen: ([LISTED] angezeigt, max. [MAX])"
+			     name="LandBanCheck" />
+			<name_list name="LandBanList">
+				<column label="Banned Residents" name="name" />
+			</name_list>
+			<button label="Hinzufügen..." label_selected="Hinzufügen..." name="Add..." />
+			<button label="Entfernen" label_selected="Entfernen" name="Remove" />
+			<text type="string" length="1" name="Deny by Payment Status:">
+				Nach Zahlungsstatus verweigern:
+			</text>
+			<check_box label="Verweigern - keine archivierte Zahlungsinfo" name="DenyAnonymousCheck" />
+			<check_box label="Verweigern - Zahlungsinfo archiviert" name="DenyIdentifiedCheck" />
+			<check_box label="Verweigern - Zahlungsinfo verwendet" name="DenyTransactedCheck" />
+		</panel>
+	</tab_container>
+</floater>

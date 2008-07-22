@@ -765,9 +765,17 @@ U8* LLVertexBuffer::mapBuffer(S32 access)
 		{
 			llerrs << "Mapped two VBOs at the same time!" << llendl;
 		}
-		sMapped = TRUE;*/
+		sMapped = TRUE;*/		
 		if (!mMappedData)
 		{
+			//--------------------
+			//print out more debug info before crash
+			llinfos << "vertex buffer size: (num verts : num indices) = " << getNumVerts() << " : " << getNumIndices() << llendl ;
+			GLint size ;
+			glGetBufferParameterivARB(GL_ARRAY_BUFFER_ARB, GL_BUFFER_SIZE_ARB, &size) ;
+			llinfos << "GL_ARRAY_BUFFER_ARB size is " << size << llendl ;
+			//--------------------
+
 			GLint buff;
 			glGetIntegerv(GL_ARRAY_BUFFER_BINDING_ARB, &buff);
 			if (buff != mGLBuffer)

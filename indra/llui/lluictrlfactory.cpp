@@ -76,7 +76,7 @@ const S32 VPAD = 4;
 const S32 FLOATER_H_MARGIN = 15;
 const S32 MIN_WIDGET_HEIGHT = 10;
 
-std::vector<std::string> LLUICtrlFactory::mXUIPaths;
+std::vector<std::string> LLUICtrlFactory::sXUIPaths;
 
 // UI Ctrl class for padding
 class LLUICtrlLocate : public LLUICtrl
@@ -121,12 +121,11 @@ void LLUICtrlFactory::setupPaths()
 
 	LLXMLNodePtr root;
 	BOOL success  = LLXMLNode::parseFile(filename, root, NULL);
-	mXUIPaths.clear();
+	sXUIPaths.clear();
 	
 	if (success)
 	{
 		LLXMLNodePtr path;
-		std::string app_dir = gDirUtilp->getAppRODataDir();
 	
 		for (path = root->getFirstChild(); path.notNull(); path = path->getNextSibling())
 		{
@@ -140,21 +139,20 @@ void LLUICtrlFactory::setupPaths()
 					language = LLUI::sConfigGroup->getString("SystemLanguage");
 				}
 			}
-			path_val_ui.setArg("[Language]", language);
-			std::string fullpath = app_dir + path_val_ui.getString();
+			path_val_ui.setArg("[LANGUAGE]", language);
 
-			if (std::find(mXUIPaths.begin(), mXUIPaths.end(), fullpath) == mXUIPaths.end())
+			if (std::find(sXUIPaths.begin(), sXUIPaths.end(), path_val_ui.getString()) == sXUIPaths.end())
 			{
-				mXUIPaths.push_back(app_dir + path_val_ui.getString());
+				sXUIPaths.push_back(path_val_ui.getString());
 			}
 		}
 	}
 	else // parsing failed
 	{
 		std::string slash = gDirUtilp->getDirDelimiter();
-		std::string dir = gDirUtilp->getAppRODataDir() + slash + "skins" + slash + "xui" + slash + "en-us" + slash;
-		llwarns << "XUI::config file unable to open." << llendl;
-		mXUIPaths.push_back(dir);
+		std::string dir = "xui" + slash + "en-us";
+		llwarns << "XUI::config file unable to open: " << filename << llendl;
+		sXUIPaths.push_back(dir);
 	}
 }
 
@@ -163,14 +161,22 @@ void LLUICtrlFactory::setupPaths()
 //-----------------------------------------------------------------------------
 // getLayeredXMLNode()
 //-----------------------------------------------------------------------------
-bool LLUICtrlFactory::getLayeredXMLNode(const std::string &filename, LLXMLNodePtr& root)
+bool LLUICtrlFactory::getLayeredXMLNode(const std::string &xui_filename, LLXMLNodePtr& root)
 {
-	if (!LLXMLNode::parseFile(mXUIPaths.front() + filename, root, NULL))
-	{	
-		if (!LLXMLNode::parseFile(filename, root, NULL))
+	std::string full_filename = gDirUtilp->findSkinnedFilename(sXUIPaths.front(), xui_filename);
+	if (full_filename.empty())
+	{
+		llwarns << "Couldn't find UI description file: " << sXUIPaths.front() + gDirUtilp->getDirDelimiter() + xui_filename << llendl;
+		return false;
+	}
+
+	if (!LLXMLNode::parseFile(full_filename, root, NULL))
+	{
+		// try filename as passed in since sometimes we load an xml file from a user-supplied path
+		if (!LLXMLNode::parseFile(xui_filename, root, NULL))
 		{
-			llwarns << "Problem reading UI description file: " << mXUIPaths.front() + filename << llendl;
-			return FALSE;
+			llwarns << "Problem reading UI description file: " << xui_filename << llendl;
+			return false;
 		}
 	}
 
@@ -178,13 +184,24 @@ bool LLUICtrlFactory::getLayeredXMLNode(const std::string &filename, LLXMLNodePt
 
 	std::vector<std::string>::const_iterator itor;
 
-	for (itor = mXUIPaths.begin(), ++itor; itor != mXUIPaths.end(); ++itor)
+	for (itor = sXUIPaths.begin(), ++itor; itor != sXUIPaths.end(); ++itor)
 	{
 		std::string nodeName;
 		std::string updateName;
 
-		LLXMLNode::parseFile((*itor) + filename, updateRoot, NULL);
-	
+		std::string layer_filename = gDirUtilp->findSkinnedFilename((*itor), xui_filename);
+		if(layer_filename.empty())
+		{
+			// no localized version of this file, that's ok, keep looking
+			continue;
+		}
+
+		if (!LLXMLNode::parseFile(layer_filename, updateRoot, NULL))
+		{
+			llwarns << "Problem reading localized UI description file: " << (*itor) + gDirUtilp->getDirDelimiter() + xui_filename << llendl;
+			return false;
+		}
+
 		updateRoot->getAttributeString("name", updateName);
 		root->getAttributeString("name", nodeName);
 
@@ -194,7 +211,7 @@ bool LLUICtrlFactory::getLayeredXMLNode(const std::string &filename, LLXMLNodePt
 		}
 	}
 
-	return TRUE;
+	return true;
 }
 
 

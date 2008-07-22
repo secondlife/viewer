@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="inspect" title="Objekt prüfen">
+	<scroll_list name="object_list"
+	     tool_tip="Wählen Sie ein Objekt aus dieser Liste, um es in der Second Life-Welt zu markieren">
+		<column label="Objektname" name="object_name" />
+		<column label="Name des Besitzers" name="owner_name" />
+		<column label="Name des Erstellers" name="creator_name" />
+		<column label="Erstellungsdatum" name="creation_date" />
+	</scroll_list>
+	<button label="Besitzerprofil einsehen..." name="button owner"
+	     tool_tip="Profil des Besitzers des markierten Objekts einsehen" />
+	<button label="Erstellerprofil einsehen..." name="button creator"
+	     tool_tip="Profil des ursprünglichen Erstellers des markierten Objekts einsehen" />
+</floater>

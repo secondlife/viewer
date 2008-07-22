@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel name="status">
+	<text type="string" length="1" name="ParcelNameText"
+	     tool_tip="Nombre de la parcela de terreno en la que usted está. Haga clic para Sobre el Terreno.">
+		nombre de la parcela va aquí
+	</text>
+	<text type="string" length="1" name="BalanceText" tool_tip="Balance de la cuenta">
+		L$
+	</text>
+	<button label="" label_selected="" name="buycurrency" tool_tip="Comprar moneda" />
+	<text type="string" length="12" name="TimeText" tool_tip="Hora actual (Pacífico)">
+		12:00 AM
+	</text>
+	<button label="" label_selected="" name="scriptout"
+	     tool_tip="Avisos y errores de script" />
+	<button label="" label_selected="" name="health" tool_tip="Salud" />
+	<text type="string" length="1" name="HealthText" tool_tip="Salud">
+		100%
+	</text>
+	<button label="" label_selected="" name="fly" tool_tip="No volar" />
+	<button label="" label_selected="" name="build" tool_tip="No construir" />
+	<button label="" label_selected="" name="scripts" tool_tip="Sin scripts" />
+	<button label="" label_selected="" name="restrictpush"
+	     tool_tip="Restringir llPushObject" />
+	<button label="" label_selected="" name="buyland" tool_tip="Comprar esta parcela" />
+	<text name="packet_loss_tooltip">
+		Pérdida de pacote
+	</text>
+	<text name="bandwidth_tooltip">
+		Amplitud de banda
+	</text>
+</panel>

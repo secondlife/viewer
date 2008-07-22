@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<teleport_messages>
+	<message_set name="errors">
+		<message name="invalid_tport">
+			Foi encontrado um problema na sua solicitação de teleport. Você
+                  provavelmente precisará entrar no Second Life novamente 
+                  antes de teleportar-se. Se esse problema persistir, por favor 
+                  verifique o FAQ do suporte técnico em www.secondlife.com/support.
+		</message>
+		<message name="invalid_region_handoff">
+			Foi encontrado um problema ao processar sua transição entre as 
+                  regiões. Você provavelmente precisará entrar no Second Life 
+                  novamente antes de conseguir passar entre regiões. 
+                  Se esse problema persistir, por favor verifique o FAQ do suporte
+                  técnico em www.secondlife.com/support.
+		</message>
+		<message name="blocked_tport">
+			Desculpe, teleport temporariamente bloqueado. Tente novamente em
+                  alguns instantes. Se você ainda não puder teleportar-se, por favor,
+                  entre novamente no Second Life para resolver seu problema.
+		</message>
+		<message name="nolandmark_tport">
+			Desculpe, mas o sistema não conseguiu localizar a landmark de destino.
+		</message>
+		<message name="timeout_tport">
+			Desculpe, mas o sistema está incapaz de completar sua conexão para o 
+			teleport. Tente novamente em alguns instantes.
+		</message>
+		<message name="noaccess_tport">
+			Desculpe, você não tem permissão para acessar esse destino.
+		</message>
+		<message name="missing_attach_tport">
+			Seus anexos não foram carregados ainda. Tente esperar por alguns
+			segundos ou entre no Second Life novamente antes de tentar
+			teleportar-se.
+		</message>
+		<message name="too_many_uploads_tport">
+			A fila de recursos nesta região está sobrecarregada portanto sua solicitação 
+			de teleport não pode ser atendida em tempo hábil. Por favor tente novamente
+			em alguns minutos ou vá para uma área menos carregada.
+		</message>
+		<message name="expired_tport">
+			Desculpe, mas o sistema não foi capaz de completar sua solicitação
+			de teleport. Por favor, tente novamente em alguns minutos.
+		</message>
+		<message name="expired_region_handoff">
+			Desculpe, mas o sistema não foi capaz de completar transição entre 
+			as regiões. Por favor, tente novamente em alguns minutos.
+		</message>
+		<message name="no_host">
+			Não foi possível encontrar o destino para o teleport. O destino
+			pode estar temporariamente indisponível ou não existir mais.
+			Por favor, tente novamente em alguns minutos.
+		</message>
+	</message_set>
+	<message_set name="progress">
+		<message name="sending_dest">
+			Enviando para o destino.
+		</message>
+		<message name="redirecting">
+			Redirecionando para uma localidade diferente.
+		</message>
+		<message name="relaying">
+			Trasnferindo para o destino.
+		</message>
+		<message name="sending_home">
+			Enviando solicitação de localização de &quot;casa&quot;.
+		</message>
+		<message name="sending_landmark">
+			Enviando solicitação de localização de landmark.
+		</message>
+		<message name="completing">
+			Completando teleport.
+		</message>
+		<message name="resolving">
+			Identificando destino.
+		</message>
+		<message name="contacting">
+			Contactando nova região.
+		</message>
+		<message name="arriving">
+			Chegando...
+		</message>
+		<message name="requesting">
+			Solicitando teleport...
+		</message>
+	</message_set>
+</teleport_messages>

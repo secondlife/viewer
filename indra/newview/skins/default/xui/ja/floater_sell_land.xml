@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="sell land" title="土地を販売">
+	<text name="info_parcel_label">
+		区画：
+	</text>
+	<text name="info_parcel">
+		区画名
+	</text>
+	<text name="info_size_label">
+		サイズ：
+	</text>
+	<text name="info_size">
+		[AREA]平方メートル
+	</text>
+	<text name="info_action">
+		この区画を販売するには:
+	</text>
+	<text name="price_label">
+		価格を設定：
+	</text>
+	<text name="price_text">
+		この土地に対する適切な価格を選択してください。
+	</text>
+	<text name="price_ld">
+		L$
+	</text>
+	<text name="price_per_m">
+		（1平方メートル当たりL$ [PER_METER]）
+	</text>
+	<text name="sell_to_label">
+		土地の販売先：
+	</text>
+	<text name="sell_to_text">
+		誰にでも販売するか、特定の購入者にのみ販売するかを選択してください。
+	</text>
+	<combo_box name="sell_to">
+		<combo_item name="--selectone--">
+			－－1つ選択－－
+		</combo_item>
+		<combo_item name="Anyone">
+			誰でも
+		</combo_item>
+		<combo_item name="Specificuser:">
+			特定ユーザー：
+		</combo_item>
+	</combo_box>
+	<button label="選択..." name="sell_to_select_agent" />
+	<text name="sell_objects_label">
+		土地と共にオブジェクトを販売しますか？
+	</text>
+	<text name="sell_objects_text">
+		区画上にある土地オーナーの譲渡可能なオブジェクトは、所有権が変更されます。
+	</text>
+	<radio_group name="sell_objects">
+		<radio_item name="no">
+			いいえ、オブジェクト所有権を保持します
+		</radio_item>
+		<radio_item name="yes">
+			はい、土地と一緒にオブジェクトを売ります。
+		</radio_item>
+	</radio_group>
+	<button label="オブジェクトを表示" name="show_objects" />
+	<text name="nag_message_label">
+		注意：返品や交換はできません。
+	</text>
+	<button label="売り地の設定" name="sell_btn" />
+	<button label="取り消し" name="cancel_btn" />
+</floater>

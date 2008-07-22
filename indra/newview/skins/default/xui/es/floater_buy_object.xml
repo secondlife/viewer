@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="contents" title="Comprar copia de objeto">
+	<text name="contents_text">
+		y contiene:
+	</text>
+	<text name="buy_text">
+		Comprar L$[AMOUNT] de [NAME]?
+	</text>
+	<button label="Cancelar" label_selected="Cancelar" name="cancel_btn" />
+	<button label="Comprar" label_selected="Comprar" name="buy_btn" />
+</floater>

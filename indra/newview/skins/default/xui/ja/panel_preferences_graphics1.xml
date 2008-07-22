@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel label="表示" name="Display panel">
+	<text type="string" length="1" name="text">
+		表示解像度：
+	</text>
+	<button label="?" name="GraphicsPreferencesHelpButton" />
+	<check_box label="ウィンドウ内で Second Life を起動" name="windowed mode" />
+	<text_editor name="voice_chat_description">
+		チェック無しの場合は、ログイン時にフルスクリーン表示
+	</text_editor>
+	<text type="string" length="1" name="Fullscreen Aspect Ratio:">
+		全画面の縦横比：
+	</text>
+	<text type="string" length="1" name="(width / height)">
+		（幅／高さ）
+	</text>
+	<text_editor bottom="-56" height="40" name="FullScreenInfo" width="480">
+		チェックされていない場合は、ログインするとビューワがフルスクリーンで表示されます。
+	</text_editor>
+	<text name="WindowSizeLabel">
+		ウィンドウ・サイズ:
+	</text>
+	<combo_box name="windowsize combo">
+		<combo_item name="640x480">
+			640x480
+		</combo_item>
+		<combo_item name="800x600">
+			800x600
+		</combo_item>
+		<combo_item name="720x480">
+			720x480 (NTSC)
+		</combo_item>
+		<combo_item name="768x576">
+			768x576 (PAL)
+		</combo_item>
+		<combo_item name="1024x768">
+			1024x768
+		</combo_item>
+	</combo_box>
+	<text name="DisplayResLabel">
+		表示解像度：
+	</text>
+	<text name="AspectRatioLabel1" tool_tip="（幅/高さ）">
+		縦横比：
+	</text>
+	<combo_box name="aspect_ratio" tool_tip="（幅/高さ）">
+		<combo_item type="string" length="1" name="4:3(StandardCRT)">
+			4：3（標準CRT）
+		</combo_item>
+		<combo_item type="string" length="1" name="5:4(1280x1024LCD)">
+			5：4（1280x1024 LCD）
+		</combo_item>
+		<combo_item name="8:5(Widescreen)">
+			8：5（ワイドスクリ－ン）
+		</combo_item>
+		<combo_item type="string" length="1" name="16:9(Widescreen)">
+			16：9（ワイドスクリ－ン）
+		</combo_item>
+	</combo_box>
+	<check_box label="自動検出率" name="aspect_auto_detect" />
+	<text type="string" length="1" name="UI Size:">
+		UIサイズ：
+	</text>
+	<text type="string" length="1" name="(meters, lower is faster)">
+		（メートル、低いほど速い）
+	</text>
+	<text type="string" length="1" name="text2">
+		表示オプション：
+	</text>
+	<check_box label="解像度単独スケールを使用" name="ui_auto_scale" />
+	<spinner label="描画距離：" name="draw_distance" />
+	<check_box label="アバターをマウスルックで表示" name="avfp" />
+	<text name="HigherText">
+		品質および
+	</text>
+	<text name="QualityText">
+		実行：
+	</text>
+	<text name="FasterText">
+		速い
+	</text>
+	<text name="ShadersPrefText">
+		低
+	</text>
+	<text name="ShadersPrefText2">
+		中
+	</text>
+	<text name="ShadersPrefText3">
+		高
+	</text>
+	<text name="ShadersPrefText4">
+		超高
+	</text>
+	<text name="HigherText2">
+		高い
+	</text>
+	<text name="QualityText2">
+		品質
+	</text>
+	<check_box label="カスタム" name="CustomSettings" />
+	<text name="ShadersText">
+		シェーダー：
+	</text>
+	<check_box label="バンプ・マッピングと光沢" name="BumpShiny" />
+	<check_box label="基本シェーダー" name="BasicShaders"
+	     tool_tip="このオプションを無効にするとグラフィック・カード・ドライバの種類によってはクラッシュ防止になります。" />
+	<check_box label="周囲（大気）シェーダー" name="WindLightUseAtmosShaders" />
+	<check_box label="水の反射" name="Reflections" />
+	<text name="ReflectionDetailText">
+		反射詳細：
+	</text>
+	<radio_group name="ReflectionDetailRadio">
+		<radio_item name="0">
+			地形と樹木
+		</radio_item>
+		<radio_item name="1">
+			すべての静的オブジェクト
+		</radio_item>
+		<radio_item name="2">
+			すべてのアバターとオブジェクト
+		</radio_item>
+		<radio_item name="3">
+			すべて
+		</radio_item>
+	</radio_group>
+	<text name="AvatarRenderingText">
+		アバター表示：
+	</text>
+	<check_box label="アバターの精度を下げる" name="AvatarImpostors" />
+	<check_box label="ハードウェア・スキニング" name="AvatarVertexProgram" />
+	<check_box label="アバターの服" name="AvatarCloth" />
+	<text name="DrawDistanceMeterText1">
+		m
+	</text>
+	<text name="DrawDistanceMeterText2">
+		m
+	</text>
+	<slider label="描画距離：" name="DrawDistance" />
+	<slider label="最大パーティクル数：" name="MaxParticleCount" />
+	<slider label="ポストプロセス品質：" name="RenderPostProcess" />
+	<text name="MeshDetailText">
+		メッシュ詳細：
+	</text>
+	<slider label="  オブジェクト：" name="ObjectMeshDetail" />
+	<slider label="  フレキシプリム：" name="FlexibleMeshDetail" />
+	<slider label="  樹木：" name="TreeMeshDetail" />
+	<slider label="  アバター：" name="AvatarMeshDetail" />
+	<slider label="  地形：" name="TerrainMeshDetail" />
+	<slider label="  空：" name="SkyMeshDetail" />
+	<text name="PostProcessText">
+		低
+	</text>
+	<text name="ObjectMeshDetailText">
+		低
+	</text>
+	<text name="FlexibleMeshDetailText">
+		低
+	</text>
+	<text name="TreeMeshDetailText">
+		低
+	</text>
+	<text name="AvatarMeshDetailText">
+		低
+	</text>
+	<text name="TerrainMeshDetailText">
+		低
+	</text>
+	<text name="SkyMeshDetailText">
+		低
+	</text>
+	<text name="LightingDetailText">
+		ライティング詳細：
+	</text>
+	<radio_group name="LightingDetailRadio">
+		<radio_item name="SunMoon">
+			太陽と月のみ
+		</radio_item>
+		<radio_item name="LocalLights">
+			近隣のローカル・ライト
+		</radio_item>
+	</radio_group>
+	<text name="TerrainDetailText">
+		地形詳細：
+	</text>
+	<radio_group name="TerrainDetailRadio">
+		<radio_item name="0">
+			低
+		</radio_item>
+		<radio_item name="2">
+			高
+		</radio_item>
+	</radio_group>
+	<button label="推奨された設定" name="Defaults" />
+	<button label="ハードウェア・オプション"
+	     label_selected="ハードウェア・オプション"
+	     name="GraphicsHardwareButton" />
+	<text name="resolution_format">
+		[RES_X] x [RES_Y]
+	</text>
+	<text name="aspect_ratio_text">
+		[NUM]:[DEN]
+	</text>
+</panel>

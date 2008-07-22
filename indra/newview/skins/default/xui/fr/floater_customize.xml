@@ -1,0 +1,494 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="floater customize" title="Apparence">
+	<tab_container name="customize tab container">
+		<panel label="Parties du corps" />
+		<panel label="Silhouette" name="Shape">
+			<button label="Créer Nouvelle Silhouette" label_selected="Créer Nouvelle Silhouette"
+			     name="Create New" />
+			<button label="Retirer" label_selected="Retirer" name="Take Off" />
+			<button label="Enregistrer" label_selected="Enregistrer" name="Save" />
+			<button label="Enregistrer sous" label_selected="Enregistrer sous" name="Save As" />
+			<button label="Annuler modifications" label_selected="Annuler modifications"
+			     name="Revert" />
+			<button label="Corps" label_selected="Corps" name="Body" />
+			<button label="Tête" label_selected="Tête" name="Head" />
+			<button label="Yeux" label_selected="Yeux" name="Eyes" />
+			<button label="Oreilles" label_selected="Oreilles" name="Ears" />
+			<button label="Nez" label_selected="Nez" name="Nose" />
+			<button label="Bouche" label_selected="Bouche" name="Mouth" />
+			<button label="Menton" label_selected="Menton" name="Chin" />
+			<button label="Torse" label_selected="Torse" name="Torso" />
+			<button label="Jambes" label_selected="Jambes" name="Legs" />
+			<button label="Aléatoire" label_selected="Aléatoire" name="Randomize" />
+			<text type="string" length="1" name="title">
+				[DESC]
+			</text>
+			<text type="string" length="1" name="title_no_modify">
+				[DESC]: modification impossible
+			</text>
+			<text type="string" length="1" name="title_loading">
+				[DESC]: chargement en cours...
+			</text>
+			<text type="string" length="1" name="title_not_worn">
+				[DESC]: non porté
+			</text>
+			<text type="string" length="1" name="path">
+				Situé dans [PATH]
+			</text>
+			<text type="string" length="1" name="not worn instructions">
+				Pour enfiler une nouvelle silhouette, glissez-déposez la sur votre avatar 
+depuis votre inventaire. Vous pouvez également en créer une de toutes pièces,
+et la porter.
+			</text>
+			<text type="string" length="1" name="no modify instructions">
+				Vous n&apos;êtes pas autorisé(e) à modifier cet élément endossable.
+			</text>
+			<radio_group name="sex radio">
+				<radio_item type="string" length="1" name="radio">
+					Féminin
+				</radio_item>
+				<radio_item type="string" length="1" name="radio2">
+					Masculin
+				</radio_item>
+			</radio_group>
+		</panel>
+		<panel label="Peau" name="Skin">
+			<button label="Créer Nouvelle Peau" label_selected="Créer Nouvelle Peau"
+			     name="Create New" />
+			<button label="Retirer" label_selected="Retirer" name="Take Off" />
+			<button label="Enregistrer" label_selected="Enregistrer" name="Save" />
+			<button label="Enregistrer sous" label_selected="Enregistrer sous" name="Save As" />
+			<button label="Annuler modifications" label_selected="Annuler modifications"
+			     name="Revert" />
+			<button label="Couleur de peau" label_selected="Couleur de peau" name="Skin Color" />
+			<button label="Détail du visage" label_selected="Détail du visage" name="Face Detail" />
+			<button label="Maquillage" label_selected="Maquillage" name="Makeup" />
+			<button label="Détail du corps" label_selected="Détail du corps" name="Body Detail" />
+			<button label="Aléatoire" label_selected="Aléatoire" name="Randomize" />
+			<text type="string" length="1" name="title">
+				[DESC]
+			</text>
+			<text type="string" length="1" name="title_no_modify">
+				[DESC]: modification impossible
+			</text>
+			<text type="string" length="1" name="title_loading">
+				[DESC]: chargement en cours...
+			</text>
+			<text type="string" length="1" name="title_not_worn">
+				[DESC]: non porté
+			</text>
+			<text type="string" length="1" name="path">
+				Situé dans [PATH]
+			</text>
+			<text type="string" length="1" name="not worn instructions">
+				Pour enfiler une nouvelle peau, glissez-déposez la sur votre avatar 
+depuis votre inventaire. Vous pouvez également en créer une de toutes pièces,
+et la porter.
+			</text>
+			<text type="string" length="1" name="no modify instructions">
+				Vous n&apos;êtes pas autorisé(e) à modifier cet élément endossable.
+			</text>
+			<texture_picker label="Tatouages à la tête" name="Head Tattoos"
+			     tool_tip="Cliquez pour choisir une image" />
+			<texture_picker label="Tatouages supérieurs" name="Upper Tattoos"
+			     tool_tip="Cliquez pour choisir une image" />
+			<texture_picker label="Tatouages inférieurs" name="Lower Tattoos"
+			     tool_tip="Cliquez pour choisir une image" />
+		</panel>
+		<panel label="Cheveux" name="Hair">
+			<button label="Créer Nouveaux Cheveux" label_selected="Créer Nouveaux Cheveux"
+			     name="Create New" />
+			<button label="Retirer" label_selected="Retirer" name="Take Off" />
+			<button label="Enregistrer" label_selected="Enregistrer" name="Save" />
+			<button label="Enregistrer sous" label_selected="Enregistrer sous" name="Save As" />
+			<button label="Annuler modifications" label_selected="Annuler modifications"
+			     name="Revert" />
+			<button label="Couleur" label_selected="Couleur" name="Color" />
+			<button label="Style" label_selected="Style" name="Style" />
+			<button label="Sourcils" label_selected="Sourcils" name="Eyebrows" />
+			<button label="Pilosité du visage" label_selected="Pilosité du visage" name="Facial" />
+			<button label="Aléatoire" label_selected="Aléatoire" name="Randomize" />
+			<text type="string" length="1" name="title">
+				[DESC]
+			</text>
+			<text type="string" length="1" name="title_no_modify">
+				[DESC]: modification impossible
+			</text>
+			<text type="string" length="1" name="title_loading">
+				[DESC]: chargement en cours...
+			</text>
+			<text type="string" length="1" name="title_not_worn">
+				[DESC]: non porté
+			</text>
+			<text type="string" length="1" name="path">
+				Situé dans [PATH]
+			</text>
+			<text type="string" length="1" name="not worn instructions">
+				Pour enfiler de nouveaux cheveux, glissez-déposez les sur votre avatar 
+depuis votre inventaire. Vous pouvez également en créer de toutes pièces,
+et les porter.
+			</text>
+			<text type="string" length="1" name="no modify instructions">
+				Vous n&apos;êtes pas autorisé(e) à modifier cet élément endossable.
+			</text>
+			<texture_picker label="Texture" name="Texture" tool_tip="Cliquez pour choisir une image" />
+		</panel>
+		<panel label="Yeux" name="Eyes">
+			<button label="Créer Nouveaux Yeux" label_selected="Créer Nouveaux Yeux"
+			     name="Create New" />
+			<button label="Retirer" label_selected="Retirer" name="Take Off" />
+			<button label="Enregistrer" label_selected="Enregistrer" name="Save" />
+			<button label="Enregistrer sous" label_selected="Enregistrer sous" name="Save As" />
+			<button label="Annuler modifications" label_selected="Annuler modifications"
+			     name="Revert" />
+			<button label="Aléatoire" label_selected="Aléatoire" name="Randomize" />
+			<text type="string" length="1" name="title">
+				[DESC]
+			</text>
+			<text type="string" length="1" name="title_no_modify">
+				[DESC]: modification impossible
+			</text>
+			<text type="string" length="1" name="title_loading">
+				[DESC]: chargement en cours...
+			</text>
+			<text type="string" length="1" name="title_not_worn">
+				[DESC]: non porté
+			</text>
+			<text type="string" length="1" name="path">
+				Situé dans [PATH]
+			</text>
+			<text type="string" length="1" name="not worn instructions">
+				Pour appliquer de nouveaux yeux, glissez-déposez les sur votre avatar 
+depuis votre inventaire. Vous pouvez également en créer de toutes pièces,
+et les porter.
+			</text>
+			<text type="string" length="1" name="no modify instructions">
+				Vous n&apos;êtes pas autorisé(e) à modifier cet élément endossable.
+			</text>
+			<texture_picker label="Iris" name="Iris" tool_tip="Cliquez pour choisir une image" />
+		</panel>
+		<panel label="Vêtements" />
+		<panel label="Chemise" name="Shirt">
+			<button label="Créer Nouvelle Chemise" label_selected="Créer Nouvelle Chemise"
+			     name="Create New" />
+			<button label="Retirer" label_selected="Retirer" name="Take Off" />
+			<button label="Enregistrer" label_selected="Enregistrer" name="Save" />
+			<button label="Enregistrer sous" label_selected="Enregistrer sous" name="Save As" />
+			<button label="Annuler modifications" label_selected="Annuler modifications"
+			     name="Revert" />
+			<text type="string" length="1" name="title">
+				[DESC]
+			</text>
+			<text type="string" length="1" name="title_no_modify">
+				[DESC]: modification impossible
+			</text>
+			<text type="string" length="1" name="title_loading">
+				[DESC]: chargement en cours...
+			</text>
+			<text type="string" length="1" name="title_not_worn">
+				[DESC]: non porté
+			</text>
+			<text type="string" length="1" name="path">
+				Situé dans [PATH]
+			</text>
+			<text type="string" length="1" name="not worn instructions">
+				Pour enfiler une nouvelle chemise, glissez-déposez la sur votre avatar 
+depuis votre inventaire. Vous pouvez également en créer une de toutes pièces,
+et la porter.
+			</text>
+			<text type="string" length="1" name="no modify instructions">
+				Vous n&apos;êtes pas autorisé(e) à modifier cet élément endossable.
+			</text>
+			<color_swatch label="Couleur" name="Color/Tint"
+			     tool_tip="Cliquer pour ouvrir le sélecteur de couleurs" />
+			<texture_picker label="Matière" name="Fabric" tool_tip="Cliquez pour choisir une image" />
+		</panel>
+		<panel label="Pantalon" name="Pants">
+			<button label="Créer Nouveau Pantalon" label_selected="Créer Nouveau Pantalon"
+			     name="Create New" />
+			<button label="Retirer" label_selected="Retirer" name="Take Off" />
+			<button label="Enregistrer" label_selected="Enregistrer" name="Save" />
+			<button label="Enregistrer sous" label_selected="Enregistrer sous" name="Save As" />
+			<button label="Annuler modifications" label_selected="Annuler modifications"
+			     name="Revert" />
+			<text type="string" length="1" name="title">
+				[DESC]
+			</text>
+			<text type="string" length="1" name="title_no_modify">
+				[DESC]: modification impossible
+			</text>
+			<text type="string" length="1" name="title_loading">
+				[DESC]: chargement en cours...
+			</text>
+			<text type="string" length="1" name="title_not_worn">
+				[DESC]: non porté
+			</text>
+			<text type="string" length="1" name="path">
+				Situé dans [PATH]
+			</text>
+			<text type="string" length="1" name="not worn instructions">
+				Pour enfiler un nouveau pantalon, glissez-déposez le sur votre avatar 
+depuis votre inventaire. Vous pouvez également en créer un de toutes pièces,
+et le porter.
+			</text>
+			<text type="string" length="1" name="no modify instructions">
+				Vous n&apos;êtes pas autorisé(e) à modifier cet élément endossable.
+			</text>
+			<color_swatch label="Couleur" name="Color/Tint"
+			     tool_tip="Cliquer pour ouvrir le sélecteur de couleurs" />
+			<texture_picker label="Matière" name="Fabric" tool_tip="Cliquez pour choisir une image" />
+		</panel>
+		<panel label="Chaussures" name="Shoes">
+			<button label="Créer Nouvelles Chaussures"
+			     label_selected="Créer Nouvelles Chaussures" name="Create New" />
+			<button label="Retirer" label_selected="Retirer" name="Take Off" />
+			<button label="Enregistrer" label_selected="Enregistrer" name="Save" />
+			<button label="Enregistrer sous" label_selected="Enregistrer sous" name="Save As" />
+			<button label="Annuler modifications" label_selected="Annuler modifications"
+			     name="Revert" />
+			<text type="string" length="1" name="title">
+				[DESC]
+			</text>
+			<text type="string" length="1" name="title_no_modify">
+				[DESC]: modification impossible
+			</text>
+			<text type="string" length="1" name="title_loading">
+				[DESC]: chargement en cours...
+			</text>
+			<text type="string" length="1" name="title_not_worn">
+				[DESC]: non porté
+			</text>
+			<text type="string" length="1" name="path">
+				Situé dans [PATH]
+			</text>
+			<text type="string" length="1" name="not worn instructions">
+				Pour enfiler de nouvelles chaussures, glissez-déposez les sur votre avatar 
+depuis votre inventaire. Vous pouvez également en créer de toutes pièces,
+et la porter.
+			</text>
+			<text type="string" length="1" name="no modify instructions">
+				Vous n&apos;êtes pas autorisé(e) à modifier cet élément endossable.
+			</text>
+			<color_swatch label="Couleur" name="Color/Tint"
+			     tool_tip="Cliquer pour ouvrir le sélecteur de couleurs" />
+			<texture_picker label="Matière" name="Fabric" tool_tip="Cliquez pour choisir une image" />
+		</panel>
+		<panel label="Chaussettes" name="Socks">
+			<button label="Créer Nouvelles Chaussettes"
+			     label_selected="Créer Nouvelles Chaussettes" name="Create New" />
+			<button label="Retirer" label_selected="Retirer" name="Take Off" />
+			<button label="Enregistrer" label_selected="Enregistrer" name="Save" />
+			<button label="Enregistrer sous" label_selected="Enregistrer sous" name="Save As" />
+			<button label="Annuler modifications" label_selected="Annuler modifications"
+			     name="Revert" />
+			<text type="string" length="1" name="title">
+				[DESC]
+			</text>
+			<text type="string" length="1" name="title_no_modify">
+				[DESC]: modification impossible
+			</text>
+			<text type="string" length="1" name="title_loading">
+				[DESC]: chargement en cours...
+			</text>
+			<text type="string" length="1" name="title_not_worn">
+				[DESC]: non porté
+			</text>
+			<text type="string" length="1" name="path">
+				Situé dans [PATH]
+			</text>
+			<text type="string" length="1" name="not worn instructions">
+				Pour enfiler de nouvelles chaussettes, glissez-déposez les sur votre avatar 
+depuis votre inventaire. Vous pouvez également en créer de toutes pièces,
+et les porter.
+			</text>
+			<text type="string" length="1" name="no modify instructions">
+				Vous n&apos;êtes pas autorisé(e) à modifier cet élément endossable.
+			</text>
+			<color_swatch label="Couleur" name="Color/Tint"
+			     tool_tip="Cliquer pour ouvrir le sélecteur de couleurs" />
+			<texture_picker label="Matière" name="Fabric" tool_tip="Cliquez pour choisir une image" />
+		</panel>
+		<panel label="Veste" name="Jacket">
+			<button label="Créer Nouvelle Veste" label_selected="Créer Nouvelle Veste"
+			     name="Create New" />
+			<button label="Retirer" label_selected="Retirer" name="Take Off" />
+			<button label="Enregistrer" label_selected="Enregistrer" name="Save" />
+			<button label="Enregistrer sous" label_selected="Enregistrer sous" name="Save As" />
+			<button label="Annuler modifications" label_selected="Annuler modifications"
+			     name="Revert" />
+			<text type="string" length="1" name="title">
+				[DESC]
+			</text>
+			<text type="string" length="1" name="title_no_modify">
+				[DESC]: modification impossible
+			</text>
+			<text type="string" length="1" name="title_loading">
+				[DESC]: chargement en cours...
+			</text>
+			<text type="string" length="1" name="title_not_worn">
+				[DESC]: non porté
+			</text>
+			<text type="string" length="1" name="path">
+				Situé dans [PATH]
+			</text>
+			<text type="string" length="1" name="not worn instructions">
+				Pour enfiler une nouvelle veste, glissez-déposez la sur votre avatar 
+depuis votre inventaire. Vous pouvez également en créer une de toutes pièces,
+et la porter.
+			</text>
+			<text type="string" length="1" name="no modify instructions">
+				Vous n&apos;êtes pas autorisé(e) à modifier cet élément endossable.
+			</text>
+			<color_swatch label="Couleur" name="Color/Tint"
+			     tool_tip="Cliquer pour ouvrir le sélecteur de couleurs" />
+			<texture_picker label="Matière du haut" name="Upper Fabric"
+			     tool_tip="Cliquez pour choisir une image" />
+			<texture_picker label="Matière du bas" name="Lower Fabric"
+			     tool_tip="Cliquez pour choisir une image" />
+		</panel>
+		<panel label="Gants" name="Gloves">
+			<button label="Créer Nouveaux Gants" label_selected="Créer Nouveaux Gants"
+			     name="Create New" />
+			<button label="Retirer" label_selected="Retirer" name="Take Off" />
+			<button label="Enregistrer" label_selected="Enregistrer" name="Save" />
+			<button label="Enregistrer sous" label_selected="Enregistrer sous" name="Save As" />
+			<button label="Annuler modifications" label_selected="Annuler modifications"
+			     name="Revert" />
+			<text type="string" length="1" name="title">
+				[DESC]
+			</text>
+			<text type="string" length="1" name="title_no_modify">
+				[DESC]: modification impossible
+			</text>
+			<text type="string" length="1" name="title_loading">
+				[DESC]: chargement en cours...
+			</text>
+			<text type="string" length="1" name="title_not_worn">
+				[DESC]: non porté
+			</text>
+			<text type="string" length="1" name="path">
+				Situé dans [PATH]
+			</text>
+			<text type="string" length="1" name="not worn instructions">
+				Pour enfiler de nouveaux gants, glissez-déposez les sur votre avatar 
+depuis votre inventaire. Vous pouvez également en créer de toutes pièces,
+et les porter.
+			</text>
+			<text type="string" length="1" name="no modify instructions">
+				Vous n&apos;êtes pas autorisé(e) à modifier cet élément endossable.
+			</text>
+			<color_swatch label="Couleur" name="Color/Tint"
+			     tool_tip="Cliquer pour ouvrir le sélecteur de couleurs" />
+			<texture_picker label="Matière" name="Fabric" tool_tip="Cliquez pour choisir une image" />
+		</panel>
+		<panel label="Maillot de corps" name="Undershirt">
+			<button label="Créer Nouveau Maillot de corps"
+			     label_selected="Créer Nouveau Maillot de corps" name="Create New" />
+			<button label="Retirer" label_selected="Retirer" name="Take Off" />
+			<button label="Enregistrer" label_selected="Enregistrer" name="Save" />
+			<button label="Enregistrer sous" label_selected="Enregistrer sous" name="Save As" />
+			<button label="Annuler modifications" label_selected="Annuler modifications"
+			     name="Revert" />
+			<text type="string" length="1" name="title">
+				[DESC]
+			</text>
+			<text type="string" length="1" name="title_no_modify">
+				[DESC]: modification impossible
+			</text>
+			<text type="string" length="1" name="title_loading">
+				[DESC]: chargement en cours...
+			</text>
+			<text type="string" length="1" name="title_not_worn">
+				[DESC]: non porté
+			</text>
+			<text type="string" length="1" name="path">
+				Situé dans [PATH]
+			</text>
+			<text type="string" length="1" name="not worn instructions">
+				Pour enfiler un nouveau maillot de corps, glissez-déposez le sur votre avatar 
+depuis votre inventaire. Vous pouvez également en créer un de toutes pièces,
+et le porter.
+			</text>
+			<text type="string" length="1" name="no modify instructions">
+				Vous n&apos;êtes pas autorisé(e) à modifier cet élément endossable.
+			</text>
+			<color_swatch label="Couleur" name="Color/Tint"
+			     tool_tip="Cliquer pour ouvrir le sélecteur de couleurs" />
+			<texture_picker label="Matière" name="Fabric" tool_tip="Cliquez pour choisir une image" />
+		</panel>
+		<panel label="Sous-vêtements" name="Underpants">
+			<button label="Créer Nouveaux Sous-vêtements"
+			     label_selected="Créer Nouveaux Sous-vêtements" name="Create New" />
+			<button label="Retirer" label_selected="Retirer" name="Take Off" />
+			<button label="Enregistrer" label_selected="Enregistrer" name="Save" />
+			<button label="Enregistrer sous" label_selected="Enregistrer sous" name="Save As" />
+			<button label="Annuler modifications" label_selected="Annuler modifications"
+			     name="Revert" />
+			<text type="string" length="1" name="title">
+				[DESC]
+			</text>
+			<text type="string" length="1" name="title_no_modify">
+				[DESC]: modification impossible
+			</text>
+			<text type="string" length="1" name="title_loading">
+				[DESC]: chargement en cours...
+			</text>
+			<text type="string" length="1" name="title_not_worn">
+				[DESC]: non porté
+			</text>
+			<text type="string" length="1" name="path">
+				Situé dans [PATH]
+			</text>
+			<text type="string" length="1" name="not worn instructions">
+				Pour enfiler de nouveaux sous-vêtements, glissez-déposez les sur votre avatar 
+depuis votre inventaire. Vous pouvez également en créer de toutes pièces,
+et les porter.
+			</text>
+			<text type="string" length="1" name="no modify instructions">
+				Vous n&apos;êtes pas autorisé(e) à modifier cet élément endossable.
+			</text>
+			<color_swatch label="Couleur" name="Color/Tint"
+			     tool_tip="Cliquer pour ouvrir le sélecteur de couleurs" />
+			<texture_picker label="Matière" name="Fabric" tool_tip="Cliquez pour choisir une image" />
+		</panel>
+		<panel label="Jupe" name="Skirt">
+			<button label="Créer Nouvelle Jupe" label_selected="Créer Nouvelle Jupe"
+			     name="Create New" />
+			<button label="Retirer" label_selected="Retirer" name="Take Off" />
+			<button label="Enregistrer" label_selected="Enregistrer" name="Save" />
+			<button label="Enregistrer sous" label_selected="Enregistrer sous" name="Save As" />
+			<button label="Annuler modifications" label_selected="Annuler modifications"
+			     name="Revert" />
+			<text type="string" length="1" name="title">
+				[DESC]
+			</text>
+			<text type="string" length="1" name="title_no_modify">
+				[DESC]: modification impossible
+			</text>
+			<text type="string" length="1" name="title_loading">
+				[DESC]: chargement en cours...
+			</text>
+			<text type="string" length="1" name="title_not_worn">
+				[DESC]: non porté
+			</text>
+			<text type="string" length="1" name="path">
+				Situé dans [PATH]
+			</text>
+			<text type="string" length="1" name="not worn instructions">
+				Pour enfiler une nouvelle jupe, glissez-déposez la sur votre avatar 
+depuis votre inventaire. Vous pouvez également en créer une de toutes pièces,
+et la porter.
+			</text>
+			<text type="string" length="1" name="no modify instructions">
+				Vous n&apos;êtes pas autorisé(e) à modifier cet élément endossable.
+			</text>
+			<color_swatch label="Couleur" name="Color/Tint"
+			     tool_tip="Cliquer pour ouvrir le sélecteur de couleurs" />
+			<texture_picker label="Matière" name="Fabric" tool_tip="Cliquez pour choisir une image" />
+		</panel>
+	</tab_container>
+	<button label="Composer une Tenue" label_selected="Composer une Tenue"
+	     name="Make Outfit" />
+	<button label="Tout enregistrer" label_selected="Tout enregistrer" name="Save All" />
+	<button label="Fermer" label_selected="Fermer" name="Close" />
+</floater>

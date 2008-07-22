@@ -1940,7 +1940,8 @@ BOOL idle_startup()
 				option_it = (*it).find("tutorial_url");
 				if(option_it != (*it).end())
 				{
-					LLFloaterHUD::sTutorialUrl = option_it->second;
+					// Tutorial floater will append language code
+					gSavedSettings.setString("TutorialURL", option_it->second);
 				}
 				option_it = (*it).find("use_tutorial");
 				if(option_it != (*it).end())

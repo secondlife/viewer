@@ -552,7 +552,10 @@ BOOL LLImageBMP::encode(const LLImageRaw* raw_image, F32 encode_time)
 	int file_bytes = line_bytes*getHeight() + header_bytes;
 
 	// Allocate the new buffer for the data.
-	allocateData(file_bytes);
+	if(!allocateData(file_bytes)) //memory allocation failed
+	{
+		return FALSE ;
+	}
 
 	magic[0] = 'B'; magic[1] = 'M';
 	magic[2] = (U8) file_bytes;

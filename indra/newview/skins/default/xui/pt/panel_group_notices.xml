@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel label="Notícias" name="notices_tab">
+	<text name="help_text">
+		As observações são uma maneira rápida de comunicar-se através de um grupo transmitindo uma mensagem e entregando um artigo opcionalmente unido. Você pode desligar observações na aba geral.
+	</text>
+	<text name="no_notices_text">
+		Não há notícias
+	</text>
+	<button label="?" label_selected="?" name="help_button" />
+	<text name="lbl">
+		Arquivo de notícias do grupo
+	</text>
+	<text name="lbl2">
+		As notícias são mantidas por 14 dias. Clicar na notícia que você desejar ver.
+	</text>
+	<scroll_list name="notice_list">
+		<column label="" name="icon" />
+		<column label="Assunto" name="subject" />
+		<column label="Para" name="from" />
+		<column label="Data" name="date" />
+	</scroll_list>
+	<text name="notice_list_none_found">
+		Nenhum encontrado
+	</text>
+	<button label="Criar nova notícia" label_selected="Criar nova notíci"
+	     name="create_new_notice" />
+	<button label="Atualizar Lista" label_selected="Atualizar Lista" name="refresh_notices" />
+	<panel label="Criar nova notícia" name="panel_create_new_notice">
+		<text name="lbl">
+			Criar notícia
+		</text>
+		<text name="lbl2">
+			Você deve colocar um assunto para enviar uma notícia.
+		</text>
+		<text name="lbl3">
+			Assunto:
+		</text>
+		<text name="lbl4">
+			Mensagem:
+		</text>
+		<text name="lbl5">
+			Anexo:
+		</text>
+		<button label="Remover o anexo" label_selected="Remover o anexo"
+		     name="remove_attachment" />
+		<button label="Enviar a notícia" label_selected="Enviar a notícia" name="send_notice" />
+		<panel name="drop_target"
+		     tool_tip="Arrastar um artigo do inventário para enviar a notícia com observação." />
+	</panel>
+	<panel label="Visualizar" name="panel_view_past_notice">
+		<text name="lbl">
+			Notícia arquivada
+		</text>
+		<text name="lbl2">
+			To send a new notice, click the &apos;Create New Notice&apos; button above.
+		</text>
+		<text name="lbl3">
+			Asunto:
+		</text>
+		<text name="lbl4">
+			Mensagem:
+		</text>
+		<button label="Abrir o anexo" label_selected="Abrir o anexo" name="open_attachment" />
+	</panel>
+</panel>

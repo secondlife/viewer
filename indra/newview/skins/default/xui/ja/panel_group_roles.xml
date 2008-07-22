@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel label="メンバーと役割" name="roles_tab">
+	<text name="default_needs_apply_text">
+		現在のサブタブに、未適用の変更があります。
+	</text>
+	<text name="want_apply_text">
+		これらの変更を適用しますか？
+	</text>
+	<text name="cant_delete_role">
+		「全員」と「オーナー」は特別な役割なので、削除できません。
+	</text>
+	<button label="?" name="help_button" />
+	<panel name="members_header">
+		<text name="static">
+			メンバーと役割
+		</text>
+		<text name="static2">
+			グループ・メンバーには、役割と能力が割り当てられます。 この設定は、
+組織の規模に応じて柔軟かつ容易にカスタマイズできます。
+		</text>
+	</panel>
+	<panel name="roles_header">
+		<text name="static">
+			役割
+		</text>
+		<text name="role_properties_modifiable">
+			下にある役割を選択してください。  役割の名前、説明、メンバー・タイトルを修正することができます。
+		</text>
+		<text name="role_properties_not_modifiable">
+			以下の役割を選択し､役割のﾌﾟﾛﾊﾟﾃｨ､ﾒﾝﾊﾞｰ､および許可された能力を確
+		</text>
+		<text name="role_actions_modifiable">
+			あなたは役割に能力を割り当てることもできます。
+		</text>
+		<text name="role_actions_not_modifiable">
+			能力の表示はできますが､修正や割り当てなどはできません。
+		</text>
+	</panel>
+	<panel name="actions_header">
+		<text name="static">
+			能力
+		</text>
+		<text name="static2">
+			能力の説明、どの役割とメンバーがその能力を実行できるかを
+表示できます。
+		</text>
+	</panel>
+	<tab_container name="roles_tab_container">
+		<panel label="メンバー" name="members_sub_tab" tool_tip="Members">
+			<button label="検索" name="search_button" />
+			<button label="全てを表示" name="show_all_button" />
+			<name_list name="member_list">
+				<column label="メンバー名" name="name" />
+				<column label="Donated Tier" name="donated" />
+				<column label="前回のログイン" name="online" />
+			</name_list>
+			<button label="新しい人を招待..." name="member_invite" />
+			<button label="グループから追放" name="member_eject" />
+			<text name="help_text">
+				あなたはメンバーに割り当てられた役割を付加、削除できます。
+Ctrl キーを押しながらメンバー名をクリックすると
+複数の人を選択できます。
+			</text>
+		</panel>
+		<panel label="役割" name="roles_sub_tab">
+			<button label="検索" name="search_button" />
+			<button label="すべてを表示" name="show_all_button" />
+			<scroll_list name="role_list">
+				<column label="役割名" name="name" />
+				<column label="Title" name="title" />
+				<column label="メンバー" name="members" />
+			</scroll_list>
+			<button label="新しい役割を作成..." name="role_create" />
+			<button label="役割を削除" name="role_delete" />
+			<text name="help_text">
+				役割にはタイトルがあり、メンバーが行使可能な
+能力のリストが定義されます。 メンバーは、
+1つまたは複数の役割に属することができます。 1つのグループに対し、
+「全員」と「オーナー」の役割を含めて最高で10の役割を持たせることができます。
+			</text>
+			<string name="cant_delete_role">
+				「全員」と「オーナー」は特別な役割なので、削除できません。
+			</string>
+		</panel>
+		<panel label="能力" name="actions_sub_tab">
+			<button label="検索" name="search_button" />
+			<button label="すべてを表示" name="show_all_button" />
+			<scroll_list name="action_list" tool_tip="能力を選択して詳細を表示します。">
+				<column label="" name="icon" />
+				<column label="" name="action" />
+			</scroll_list>
+			<text name="help_text">
+				このグループ内で役割を与えられているメンバーが実行できる操作は、
+能力によって決まります。 さまざまな能力が用意されています。
+			</text>
+		</panel>
+	</tab_container>
+	<panel name="members_footer">
+		<text name="static">
+			割当られた役割
+		</text>
+		<text name="static2">
+			許可された能力
+		</text>
+		<scroll_list name="member_assigned_roles">
+			<column label="" name="checkbox" />
+			<column label="" name="role" />
+		</scroll_list>
+		<scroll_list name="member_allowed_actions"
+		     tool_tip="許可された能力の詳細は「能力」タブをご覧ください。">
+			<column label="" name="icon" />
+			<column label="" name="action" />
+		</scroll_list>
+	</panel>
+	<panel name="roles_footer">
+		<text name="static">
+			名前
+		</text>
+		<text name="static2">
+			説明
+		</text>
+		<line_editor name="role_name">
+			従業員
+		</line_editor>
+		<text name="static3">
+			肩書き
+		</text>
+		<line_editor name="role_title">
+			（待機中）
+		</line_editor>
+		<text_editor name="role_description">
+			（待機中）
+		</text_editor>
+		<text name="static4">
+			割当られたメンバー
+		</text>
+		<text name="static5"
+		     tool_tip="現在選択されている役割で実行できる能力のリスト">
+			許可された能力
+		</text>
+		<check_box label="メンバーが可視状態" name="role_visible_in_list"
+		     tool_tip="この役割のメンバーをグループ外の人の一般タブに表示するかどうかを設定します。" />
+		<scroll_list name="role_allowed_actions"
+		     tool_tip="許可された能力の詳細は「能力」タブをご覧ください。">
+			<column label="" name="icon" />
+			<column label="" name="checkbox" />
+			<column label="" name="action" />
+		</scroll_list>
+	</panel>
+	<panel name="actions_footer">
+		<text name="static">
+			説明
+		</text>
+		<text_editor name="action_description">
+			これは「グループからメンバーを追放する」能力です。 オーナーを追放できるのは、別のオーナーだけです。
+		</text_editor>
+		<text name="static2">
+			役割と能力
+		</text>
+		<text name="static3">
+			能力のあるメンバー
+		</text>
+	</panel>
+</panel>

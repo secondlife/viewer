@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="land holdings floater" title="Meu terreno">
+	<scroll_list name="parcel list">
+		<column label="Nome" name="name" />
+		<column label="Localização" name="location" />
+		<column label="Área" name="area" />
+		<column label="" name="hidden" />
+	</scroll_list>
+	<button label="Teleporte" label_selected="Teleporte" name="Teleport"
+	     tool_tip="Teleportar para o centro do terreno." />
+	<button label="Mostrar no mapa" label_selected="Mostrar no mapa" name="Show on Map"
+	     tool_tip="Mostrar esse terreno no mapa do mundo." />
+	<text name="contrib_label">
+		Contribuições para os seus grupos:
+	</text>
+	<scroll_list name="grant list">
+		<column label="Grupo" name="group" />
+		<column label="Área" name="area" />
+	</scroll_list>
+	<text name="allowed_label">
+		Permitir marcações no terreno.
+	</text>
+	<text name="allowed_text">
+		0 m²
+	</text>
+	<text name="current_label">
+		Marcações atuais:
+	</text>
+	<text name="current_text">
+		0 m²
+	</text>
+	<text name="available_label">
+		Disponivel para compra de terras:
+	</text>
+	<text name="available_text">
+		0 m²
+	</text>
+</floater>

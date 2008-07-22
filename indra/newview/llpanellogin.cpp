@@ -406,7 +406,9 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 
 	combo->setCommitCallback( &LLPanelGeneral::set_start_location );
 
-	childSetCommitCallback("server_combo", onSelectServer, this);
+	LLComboBox* server_choice_combo = sInstance->getChild<LLComboBox>("server_combo");
+	server_choice_combo->setCommitCallback(onSelectServer);
+	server_choice_combo->setFocusLostCallback(onServerComboLostFocus);
 
 	childSetAction("connect_btn", onClickConnect, this);
 
@@ -1141,6 +1143,10 @@ void LLPanelLogin::onPassKey(LLLineEditor* caller, void* user_data)
 // static
 void LLPanelLogin::onSelectServer(LLUICtrl*, void*)
 {
+	// *NOTE: The paramters for this method are ignored. 
+	// LLPanelLogin::onServerComboLostFocus(LLFocusableElement* fe, void*)
+	// calls this method.
+
 	// The user twiddled with the grid choice ui.
 	// apply the selection to the grid setting.
 	std::string grid_label;
@@ -1182,4 +1188,13 @@ void LLPanelLogin::onSelectServer(LLUICtrl*, void*)
 
 	// grid changed so show new splash screen (possibly)
 	loadLoginPage();
+}
+
+void LLPanelLogin::onServerComboLostFocus(LLFocusableElement* fe, void*)
+{
+	LLComboBox* combo = sInstance->getChild<LLComboBox>("server_combo");
+	if(fe == combo)
+	{
+		onSelectServer(combo, NULL);	
+	}
 }

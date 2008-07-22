@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="item properties"
+     title="Propriétés de l&apos;élément d&apos;inventaire">
+	<text name="LabelItemNameTitle">
+		Nom :
+	</text>
+	<text name="LabelItemDescTitle">
+		Description :
+	</text>
+	<text name="LabelCreatorTitle">
+		Créateur :
+	</text>
+	<text name="LabelCreatorName">
+		Nicole Linden
+	</text>
+	<button label="Profil..." label_selected="" name="BtnCreator" />
+	<text name="LabelOwnerTitle">
+		Propriétaire :
+	</text>
+	<text name="LabelOwnerName">
+		Thrax Linden
+	</text>
+	<button label="Profil..." label_selected="" name="BtnOwner" />
+	<text name="LabelAcquiredTitle">
+		Acquis :
+	</text>
+	<text name="LabelAcquiredDate">
+		Wed May 24 12:50:46 2006
+	</text>
+	<text name="OwnerLabel">
+		Vous pouvez :
+	</text>
+	<check_box label="Modifier" name="CheckOwnerModify" />
+	<check_box label="Copie" name="CheckOwnerCopy" />
+	<check_box label="Revendre/Offrir" name="CheckOwnerTransfer" />
+	<text name="BaseMaskDebug">
+		B:
+	</text>
+	<text name="OwnerMaskDebug">
+		O :
+	</text>
+	<text name="GroupMaskDebug">
+		G:
+	</text>
+	<text name="EveryoneMaskDebug">
+		E:
+	</text>
+	<text name="NextMaskDebug">
+		N :
+	</text>
+	<check_box label="Partager avec le groupe" name="CheckShareWithGroup" />
+	<check_box label="Autoriser tout le monde à copier" name="CheckEveryoneCopy" />
+	<text name="NextOwnerLabel">
+		Le prochain propriétaire peut :
+	</text>
+	<check_box label="Modifier" name="CheckNextOwnerModify" />
+	<check_box label="Copie" name="CheckNextOwnerCopy" />
+	<check_box label="Revendre/Offrir" name="CheckNextOwnerTransfer" />
+	<text name="SaleLabel">
+		Marquer l&apos;élément :
+	</text>
+	<check_box label="A vendre" name="CheckPurchase" />
+	<radio_group name="RadioSaleType">
+		<radio_item name="radio">
+			Original
+		</radio_item>
+		<radio_item name="radio2">
+			Copie
+		</radio_item>
+	</radio_group>
+	<text name="TextPrice">
+		Prix :  L$
+	</text>
+</floater>

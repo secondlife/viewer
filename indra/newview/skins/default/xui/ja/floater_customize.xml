@@ -1,0 +1,469 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="floater customize" title="容姿">
+	<tab_container name="customize tab container">
+		<panel label="身体部位" />
+		<panel label="身体部位" name="body_parts_placeholder" />
+		<panel label="形" name="Shape">
+			<button label="戻す" label_selected="戻す" name="Revert" />
+			<button label="身体" label_selected="身体" name="Body" />
+			<button label="頭" label_selected="頭" name="Head" />
+			<button label="眼" label_selected="眼" name="Eyes" />
+			<button label="耳" label_selected="耳" name="Ears" />
+			<button label="鼻" label_selected="鼻" name="Nose" />
+			<button label="口" label_selected="口" name="Mouth" />
+			<button label="あご" label_selected="あご" name="Chin" />
+			<button label="胴体" label_selected="胴体" name="Torso" />
+			<button label="両脚" label_selected="両脚" name="Legs" />
+			<radio_group name="sex radio">
+				<radio_item type="string" length="1" name="radio">
+					女性
+				</radio_item>
+				<radio_item type="string" length="1" name="radio2">
+					男性
+				</radio_item>
+			</radio_group>
+			<button label="ランダム化" label_selected="ランダム化" name="Randomize" />
+			<text type="string" length="1" name="title">
+				[DESC]
+			</text>
+			<text type="string" length="1" name="title_no_modify">
+				[DESC]: 修正できません。
+			</text>
+			<text type="string" length="1" name="title_loading">
+				[DESC]: ロード中．．．
+			</text>
+			<text type="string" length="1" name="title_not_worn">
+				[DESC]: 未装着。
+			</text>
+			<text type="string" length="1" name="path">
+				[PATH]に所在
+			</text>
+			<text type="string" length="1" name="not worn instructions">
+				新しい形を持ち物からアバターにドラッグして装着しましょう。完全に新規の状態から作成して装着することもできます。
+			</text>
+			<text type="string" length="1" name="no modify instructions">
+				あなたはこの服の修正を許されていません。
+			</text>
+			<button label="新しい形を作成" label_selected="新しい形を作成"
+			     name="Create New" />
+			<button label="取り外す" label_selected="取り外す" name="Take Off" />
+			<button label="保存" label_selected="保存" name="Save" />
+			<button label="別名で保存" label_selected="別名で保存" name="Save As" />
+		</panel>
+		<panel label="スキン" name="Skin">
+			<button label="スキンの色" label_selected="スキンの色" name="Skin Color" />
+			<button label="顔の細部" label_selected="顔の細部" name="Face Detail" />
+			<button label="メイクアップ" label_selected="メイクアップ" name="Makeup" />
+			<button label="身体細部" label_selected="身体細部" name="Body Detail" />
+			<text type="string" length="1" name="title">
+				[DESC]
+			</text>
+			<text type="string" length="1" name="title_no_modify">
+				[DESC]: 修正できません。
+			</text>
+			<text type="string" length="1" name="title_loading">
+				[DESC]: ロード中．．．
+			</text>
+			<text type="string" length="1" name="title_not_worn">
+				[DESC]: 未装着。
+			</text>
+			<text type="string" length="1" name="path">
+				[PATH]に所在
+			</text>
+			<text type="string" length="1" name="not worn instructions">
+				新しいスキンを持ち物からアバターにドラッグして装着しましょう。
+ 				完全に新規の状態から作成して装着することもできます。
+			</text>
+			<text type="string" length="1" name="no modify instructions">
+				あなたはこの服の修正を許されていません。
+			</text>
+			<texture_picker label="頭部のタトゥー" name="Head Tattoos"
+			     tool_tip="写真をクリックして選択" />
+			<texture_picker label="上半身のタトゥー" name="Upper Tattoos"
+			     tool_tip="写真をクリックして選択" />
+			<texture_picker label="下部のタトゥー" name="Lower Tattoos"
+			     tool_tip="写真をクリックして選択" />
+			<button label="ランダム化" label_selected="ランダム化" name="Randomize" />
+			<button label="新しいスキンを作成"
+			     label_selected="新しいスキンを作成" name="Create New" />
+			<button label="取り外す" label_selected="取り外す" name="Take Off" />
+			<button label="保存" label_selected="保存" name="Save" />
+			<button label="別名で保存" label_selected="別名で保存" name="Save As" />
+			<button label="戻す" label_selected="戻す" name="Revert" />
+		</panel>
+		<panel label="髪" name="Hair">
+			<button label="色" label_selected="色" name="Color" />
+			<button label="スタイル" label_selected="スタイル" name="Style" />
+			<button label="眉毛" label_selected="眉毛" name="Eyebrows" />
+			<button label="顔" label_selected="顔" name="Facial" />
+			<text type="string" length="1" name="title">
+				[DESC]
+			</text>
+			<text type="string" length="1" name="title_no_modify">
+				[DESC]: 修正できません。
+			</text>
+			<text type="string" length="1" name="title_loading">
+				[DESC]: ロード中．．．
+			</text>
+			<text type="string" length="1" name="title_not_worn">
+				[DESC]: 未装着。
+			</text>
+			<text type="string" length="1" name="path">
+				[PATH]に所在
+			</text>
+			<text type="string" length="1" name="not worn instructions">
+				新しい髪型を持ち物からアバターにドラッグして装着しましょう。
+ 完全に新規の状態から作成して装着することもできます。
+			</text>
+			<text type="string" length="1" name="no modify instructions">
+				あなたはこの服の修正を許されていません。
+			</text>
+			<texture_picker label="テクスチャー" name="Texture"
+			     tool_tip="写真をクリックして選択" />
+			<button label="ランダム化" label_selected="ランダム化" name="Randomize" />
+			<button label="新しい髪を作成" label_selected="新しい髪を作成"
+			     name="Create New" />
+			<button label="取り外す" label_selected="取り外す" name="Take Off" />
+			<button label="保存" label_selected="保存" name="Save" />
+			<button label="別名で保存" label_selected="別名で保存" name="Save As" />
+			<button label="戻す" label_selected="戻す" name="Revert" />
+		</panel>
+		<panel label="眼" name="Eyes">
+			<text type="string" length="1" name="title">
+				[DESC]
+			</text>
+			<text type="string" length="1" name="title_no_modify">
+				[DESC]: 修正できません。
+			</text>
+			<text type="string" length="1" name="title_loading">
+				[DESC]: ロード中．．．
+			</text>
+			<text type="string" length="1" name="title_not_worn">
+				[DESC]: 未装着。
+			</text>
+			<text type="string" length="1" name="path">
+				[PATH]に所在
+			</text>
+			<text type="string" length="1" name="not worn instructions">
+				新しい眼を持ち物からアバターにドラッグして装着しましょう。
+ 完全に新規の状態から作成して装着することもできます。
+			</text>
+			<text type="string" length="1" name="no modify instructions">
+				あなたはこの服の修正を許されていません。
+			</text>
+			<texture_picker label="虹彩" name="Iris" tool_tip="写真をクリックして選択" />
+			<button label="ランダム化" label_selected="ランダム化" name="Randomize" />
+			<button label="新しい眼を作成" label_selected="新しい眼を作成"
+			     name="Create New" />
+			<button label="取り外す" label_selected="取り外す" name="Take Off" />
+			<button label="保存" label_selected="保存" name="Save" />
+			<button label="別名で保存" label_selected="別名で保存" name="Save As" />
+			<button label="戻す" label_selected="戻す" name="Revert" />
+		</panel>
+		<panel label="服" />
+		<panel label="服" name="clothes_placeholder" />
+		<panel label="シャツ" name="Shirt">
+			<texture_picker label="生地" name="Fabric" tool_tip="写真をクリックして選択" />
+			<color_swatch label="色／明暗" name="Color/Tint"
+			     tool_tip="カラー・ピッカーをクリックして開く" />
+			<button label="新しいシャツを作成"
+			     label_selected="新しいシャツを作成" name="Create New" />
+			<button label="取り外す" label_selected="取り外す" name="Take Off" />
+			<button label="保存" label_selected="保存" name="Save" />
+			<button label="別名で保存" label_selected="別名で保存" name="Save As" />
+			<button label="戻す" label_selected="戻す" name="Revert" />
+			<text type="string" length="1" name="title">
+				[DESC]
+			</text>
+			<text type="string" length="1" name="title_no_modify">
+				[DESC]: 修正できません。
+			</text>
+			<text type="string" length="1" name="title_loading">
+				[DESC]: ロード中．．．
+			</text>
+			<text type="string" length="1" name="title_not_worn">
+				[DESC]: 未装着。
+			</text>
+			<text type="string" length="1" name="path">
+				[PATH]に所在
+			</text>
+			<text type="string" length="1" name="not worn instructions">
+				新しいシャツを持ち物からアバターにドラッグして装着しましょう。
+ 完全に新規の状態から作成して装着することもできます。
+			</text>
+			<text type="string" length="1" name="no modify instructions">
+				あなたはこの服の修正を許されていません。
+			</text>
+		</panel>
+		<panel label="ズボン" name="Pants">
+			<texture_picker label="生地" name="Fabric" tool_tip="写真をクリックして選択" />
+			<color_swatch label="色／明暗" name="Color/Tint"
+			     tool_tip="カラー・ピッカーをクリックして開く" />
+			<button label="新しいズボンを作成"
+			     label_selected="新しいズボンを作成" name="Create New" />
+			<button label="取り外す" label_selected="取り外す" name="Take Off" />
+			<button label="保存" label_selected="保存" name="Save" />
+			<button label="別名で保存" label_selected="別名で保存" name="Save As" />
+			<button label="戻す" label_selected="戻す" name="Revert" />
+			<text type="string" length="1" name="title">
+				[DESC]
+			</text>
+			<text type="string" length="1" name="title_no_modify">
+				[DESC]: 修正できません。
+			</text>
+			<text type="string" length="1" name="title_loading">
+				[DESC]: ロード中．．．
+			</text>
+			<text type="string" length="1" name="title_not_worn">
+				[DESC]: 未装着。
+			</text>
+			<text type="string" length="1" name="path">
+				[PATH]に所在
+			</text>
+			<text type="string" length="1" name="not worn instructions">
+				新しいズボンを持ち物からアバターにドラッグして装着しましょう。
+ 完全に新規の状態から作成して装着することもできます。
+			</text>
+			<text type="string" length="1" name="no modify instructions">
+				あなたはこの服の修正を許されていません。
+			</text>
+		</panel>
+		<panel label="靴" name="Shoes">
+			<text type="string" length="1" name="title">
+				[DESC]
+			</text>
+			<text type="string" length="1" name="title_no_modify">
+				[DESC]: 修正できません。
+			</text>
+			<text type="string" length="1" name="title_loading">
+				[DESC]: ロード中．．．
+			</text>
+			<text type="string" length="1" name="title_not_worn">
+				[DESC]: 未装着。
+			</text>
+			<text type="string" length="1" name="path">
+				[PATH]に所在
+			</text>
+			<text type="string" length="1" name="not worn instructions">
+				新しい靴を持ち物からアバターにドラッグして装着しましょう。
+ 完全に新規の状態から作成して装着することもできます。
+			</text>
+			<text type="string" length="1" name="no modify instructions">
+				あなたはこの服の修正を許されていません。
+			</text>
+			<texture_picker label="生地" name="Fabric" tool_tip="写真をクリックして選択" />
+			<color_swatch label="色／明暗" name="Color/Tint"
+			     tool_tip="カラー・ピッカーをクリックして開く" />
+			<button label="新しい靴を作成" label_selected="新しい靴を作成"
+			     name="Create New" />
+			<button label="取り外す" label_selected="取り外す" name="Take Off" />
+			<button label="保存" label_selected="保存" name="Save" />
+			<button label="別名で保存" label_selected="別名で保存" name="Save As" />
+			<button label="戻す" label_selected="戻す" name="Revert" />
+		</panel>
+		<panel label="靴下" name="Socks">
+			<text type="string" length="1" name="title">
+				[DESC]
+			</text>
+			<text type="string" length="1" name="title_no_modify">
+				[DESC]: 修正できません。
+			</text>
+			<text type="string" length="1" name="title_loading">
+				[DESC]: ロード中．．．
+			</text>
+			<text type="string" length="1" name="title_not_worn">
+				[DESC]: 未装着。
+			</text>
+			<text type="string" length="1" name="path">
+				[PATH]に所在
+			</text>
+			<text type="string" length="1" name="not worn instructions">
+				新しい靴下を持ち物からアバターにドラッグして装着しましょう。
+ 完全に新規の状態から作成して装着することもできます。
+			</text>
+			<text type="string" length="1" name="no modify instructions">
+				あなたはこの服の修正を許されていません。
+			</text>
+			<texture_picker label="生地" name="Fabric" tool_tip="写真をクリックして選択" />
+			<color_swatch label="色／明暗" name="Color/Tint"
+			     tool_tip="カラー・ピッカーをクリックして開く" />
+			<button label="新しい靴下を作成" label_selected="新しい靴下を作成"
+			     name="Create New" />
+			<button label="取り外す" label_selected="取り外す" name="Take Off" />
+			<button label="保存" label_selected="保存" name="Save" />
+			<button label="別名で保存" label_selected="別名で保存" name="Save As" />
+			<button label="戻す" label_selected="戻す" name="Revert" />
+		</panel>
+		<panel label="上着" name="Jacket">
+			<text type="string" length="1" name="title">
+				[DESC]
+			</text>
+			<text type="string" length="1" name="title_no_modify">
+				[DESC]: 修正できません。
+			</text>
+			<text type="string" length="1" name="title_loading">
+				[DESC]: ロード中．．．
+			</text>
+			<text type="string" length="1" name="title_not_worn">
+				[DESC]: 未装着。
+			</text>
+			<text type="string" length="1" name="path">
+				[PATH]に所在
+			</text>
+			<text type="string" length="1" name="not worn instructions">
+				新しい上着を持ち物からアバターにドラッグして装着しましょう。
+ 完全に新規の状態から作成して装着することもできます。
+			</text>
+			<text type="string" length="1" name="no modify instructions">
+				あなたはこの服の修正を許されていません。
+			</text>
+			<texture_picker label="上半身の生地" name="Upper Fabric"
+			     tool_tip="写真をクリックして選択" />
+			<texture_picker label="下層生地" name="Lower Fabric"
+			     tool_tip="写真をクリックして選択" />
+			<color_swatch label="色／明暗" name="Color/Tint"
+			     tool_tip="カラー・ピッカーをクリックして開く" />
+			<button label="新しい上着を作成" label_selected="新しい上着を作成"
+			     name="Create New" />
+			<button label="取り外す" label_selected="取り外す" name="Take Off" />
+			<button label="保存" label_selected="保存" name="Save" />
+			<button label="別名で保存" label_selected="別名で保存" name="Save As" />
+			<button label="戻す" label_selected="戻す" name="Revert" />
+		</panel>
+		<panel label="手袋" name="Gloves">
+			<text type="string" length="1" name="title">
+				[DESC]
+			</text>
+			<text type="string" length="1" name="title_no_modify">
+				[DESC]: 修正できません。
+			</text>
+			<text type="string" length="1" name="title_loading">
+				[DESC]: ロード中．．．
+			</text>
+			<text type="string" length="1" name="title_not_worn">
+				[DESC]: 未装着。
+			</text>
+			<text type="string" length="1" name="path">
+				[PATH]に所在
+			</text>
+			<text type="string" length="1" name="not worn instructions">
+				新しい手袋を持ち物からアバターにドラッグして装着しましょう。
+ 完全に新規の状態から作成して装着することもできます。
+			</text>
+			<text type="string" length="1" name="no modify instructions">
+				あなたはこの服の修正を許されていません。
+			</text>
+			<texture_picker label="生地" name="Fabric" tool_tip="写真をクリックして選択" />
+			<color_swatch label="色／明暗" name="Color/Tint"
+			     tool_tip="カラー・ピッカーをクリックして開く" />
+			<button label="新しい手袋を作成" label_selected="新しい手袋を作成"
+			     name="Create New" />
+			<button label="取り外す" label_selected="取り外す" name="Take Off" />
+			<button label="保存" label_selected="保存" name="Save" />
+			<button label="別名で保存" label_selected="別名で保存" name="Save As" />
+			<button label="戻す" label_selected="戻す" name="Revert" />
+		</panel>
+		<panel label="下着シャツ" name="Undershirt">
+			<text type="string" length="1" name="title">
+				[DESC]
+			</text>
+			<text type="string" length="1" name="title_no_modify">
+				[DESC]: 修正できません。
+			</text>
+			<text type="string" length="1" name="title_loading">
+				[DESC]: ロード中．．．
+			</text>
+			<text type="string" length="1" name="title_not_worn">
+				[DESC]: 未装着。
+			</text>
+			<text type="string" length="1" name="path">
+				[PATH]に所在
+			</text>
+			<text type="string" length="1" name="not worn instructions">
+				新しい下着を持ち物からアバターにドラッグして装着しましょう。
+ 完全に新規の状態から作成して装着することもできます。
+			</text>
+			<text type="string" length="1" name="no modify instructions">
+				あなたはこの服の修正を許されていません。
+			</text>
+			<texture_picker label="生地" name="Fabric" tool_tip="写真をクリックして選択" />
+			<color_swatch label="色／明暗" name="Color/Tint"
+			     tool_tip="カラー・ピッカーをクリックして開く" />
+			<button label="新しい下着シャツを作成"
+			     label_selected="新しい下着シャツを作成" name="Create New" />
+			<button label="取り外す" label_selected="取り外す" name="Take Off" />
+			<button label="保存" label_selected="保存" name="Save" />
+			<button label="別名で保存" label_selected="別名で保存" name="Save As" />
+			<button label="戻す" label_selected="戻す" name="Revert" />
+		</panel>
+		<panel label="下着パンツ" name="Underpants">
+			<text type="string" length="1" name="title">
+				[DESC]
+			</text>
+			<text type="string" length="1" name="title_no_modify">
+				[DESC]: 修正できません。
+			</text>
+			<text type="string" length="1" name="title_loading">
+				[DESC]: ロード中．．．
+			</text>
+			<text type="string" length="1" name="title_not_worn">
+				[DESC]: 未装着。
+			</text>
+			<text type="string" length="1" name="path">
+				[PATH]に所在
+			</text>
+			<text type="string" length="1" name="not worn instructions">
+				新しいパンツを持ち物からアバターにドラッグして装着しましょう。
+ 完全に新規の状態から作成して装着することもできます。
+			</text>
+			<text type="string" length="1" name="no modify instructions">
+				あなたはこの服の修正を許されていません。
+			</text>
+			<texture_picker label="生地" name="Fabric" tool_tip="写真をクリックして選択" />
+			<color_swatch label="色／明暗" name="Color/Tint"
+			     tool_tip="カラー・ピッカーをクリックして開く" />
+			<button label="新しいパンツを作成"
+			     label_selected="新しいパンツを作成" name="Create New" />
+			<button label="取り外す" label_selected="取り外す" name="Take Off" />
+			<button label="保存" label_selected="保存" name="Save" />
+			<button label="別名で保存" label_selected="別名で保存" name="Save As" />
+			<button label="戻す" label_selected="戻す" name="Revert" />
+		</panel>
+		<panel label="スカート" name="Skirt">
+			<text type="string" length="1" name="title">
+				[DESC]
+			</text>
+			<text type="string" length="1" name="title_no_modify">
+				[DESC]: 修正できません。
+			</text>
+			<text type="string" length="1" name="title_loading">
+				[DESC]: ロード中．．．
+			</text>
+			<text type="string" length="1" name="title_not_worn">
+				[DESC]: 未装着。
+			</text>
+			<text type="string" length="1" name="path">
+				[PATH]に所在
+			</text>
+			<text type="string" length="1" name="not worn instructions">
+				新しいスカートを持物からアバターにドラッグして装着しましょう。
+ 完全に新規の状態から作成して装着することもできます。
+			</text>
+			<text type="string" length="1" name="no modify instructions">
+				あなたはこの服の修正を許されていません。
+			</text>
+			<texture_picker label="生地" name="Fabric" tool_tip="写真をクリックして選択" />
+			<color_swatch label="色／明暗" name="Color/Tint"
+			     tool_tip="カラー・ピッカーをクリックして開く" />
+			<button label="スカートを作成" label_selected="スカートを作成"
+			     name="Create New" />
+			<button label="取り外す" label_selected="取り外す" name="Take Off" />
+			<button label="保存" label_selected="保存" name="Save" />
+			<button label="別名で保存" label_selected="別名で保存" name="Save As" />
+			<button label="戻す" label_selected="戻す" name="Revert" />
+		</panel>
+	</tab_container>
+	<button label="服装を作成" label_selected="服装を作成" name="Make Outfit" />
+	<button label="すべて保存" label_selected="すべて保存" name="Save All" />
+	<button label="閉じる" label_selected="閉じる" name="Close" />
+</floater>

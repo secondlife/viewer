@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="Postcard" title="Enviar cartão postal">
+	<text name="to_label">
+		Email do Destinatário:
+	</text>
+	<text name="from_label">
+		Seu Email:
+	</text>
+	<text name="name_label">
+		Seu nome:
+	</text>
+	<text name="subject_label">
+		Assunto:
+	</text>
+	<text name="msg_label">
+		Mensagem:
+	</text>
+	<check_box label="Publicar na Web" name="allow_publish_check"
+	     tool_tip="Publicar este postcard na web" />
+	<check_box label="Conteúdo Adulto" name="mature_check"
+	     tool_tip="Este postcard possui conteúdo adulto." />
+	<button label="?" name="publish_help_btn" />
+	<text name="fine_print">
+		Se o destinatário do seu postcard é residente em SL, você receberá um bonus..
+	</text>
+	<button label="Cancelar" name="cancel_btn" />
+	<button label="Enviar" name="send_btn" />
+</floater>

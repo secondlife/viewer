@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel label="Geral" name="general_panel">
+	<combo_box name="location_combobox">
+		<combo_item name="MyHome">
+			Minha Casa
+		</combo_item>
+	</combo_box>
+	<check_box label="Mostrar Posição Inicial na Tela de Login"
+	     name="show_location_checkbox" />
+	<radio_group name="fade_out_radio">
+		<radio_item type="string" length="1" name="Never">
+			Nunca
+		</radio_item>
+		<radio_item type="string" length="1" name="Temporarily">
+			Temporariamente
+		</radio_item>
+		<radio_item type="string" length="1" name="Always">
+			Sempre
+		</radio_item>
+	</radio_group>
+	<check_box label="Ocultar meu Nome na minha Tela" name="show_my_name_checkbox" />
+	<check_box label="Ocultar meu Título no Grupo" name="show_my_title_checkbox" />
+	<check_box label="Avatar com Nomes Pequenos" name="small_avatar_names_checkbox" />
+	<color_swatch label="" name="effect_color_swatch"
+	     tool_tip="Clique para abrir po seletor de cores" />
+	<spinner label="Tempo para ficar Ausente:" name="afk_timeout_spinner" />
+	<check_box label="Avisar meus amigos que estou online"
+	     name="friends_online_notify_checkbox" />
+	<check_box label="Rotacionar Mini-Mapa" name="rotate_mini_map_checkbox" />
+	<check_box label="Avisar quando receber ou gastar Linden dollars (L$)"
+	     name="notify_money_change_checkbox" />
+	<check_box label="Usar a paleta de cores padrão do sistema"
+	     name="use_system_color_picker_checkbox"
+	     tool_tip="Usar a palheta de cores padrão do sistema ao invés de uma feita dentro de Second Life." />
+	<text type="string" length="1" name="start_location_textbox">
+		Posição Inicial:
+	</text>
+	<text type="string" length="1" name="show_names_textbox">
+		Mostrar Nomes:
+	</text>
+	<text type="string" length="1" name="effects_color_textbox">
+		Cores para Meus Efeitos:
+	</text>
+	<text type="string" length="1" name="seconds_textbox">
+		segundos
+	</text>
+	<text type="string" length="1" name="crash_report_textbox">
+		Relatórios de Falhas:
+	</text>
+	<text type="string" length="1" name="language_textbox2">
+		(Precisa de reinício para efetivar)
+	</text>
+	<text name="region_name_prompt">
+		Digite o nome da Região
+	</text>
+	<combo_box name="crash_behavior_combobox">
+		<combo_item type="string" length="1" name="Askbeforesending">
+			Perguntar antes de enviar
+		</combo_item>
+		<combo_item type="string" length="1" name="Alwayssend">
+			Sempre enviar
+		</combo_item>
+		<combo_item type="string" length="1" name="Neversend">
+			Nunca Enviar
+		</combo_item>
+	</combo_box>
+</panel>

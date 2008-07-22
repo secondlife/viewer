@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="Postcard" title="Envoyer une carte postale">
+	<text name="to_label">
+		Email du destinataire :
+	</text>
+	<text name="from_label">
+		Votre adresse mail :
+	</text>
+	<text name="name_label">
+		Votre nom :
+	</text>
+	<text name="subject_label">
+		Sujet :
+	</text>
+	<text name="msg_label">
+		Message :
+	</text>
+	<check_box label="Publier sur le web" name="allow_publish_check"
+	     tool_tip="Publiez cette carte postale sur le web." />
+	<check_box label="Contenu adulte" name="mature_check"
+	     tool_tip="Cette carte postale est à caractère adulte." />
+	<button label="?" name="publish_help_btn" />
+	<text name="fine_print">
+		Si le destinataire de votre carte postale rejoint SL, vous gagnerez un bonus de parrainage.
+	</text>
+	<button label="Annuler" name="cancel_btn" />
+	<button label="Envoyer" name="send_btn" />
+</floater>

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel label="Avisos" name="notices_tab">
+	<text name="help_text">
+		Avisos son una forma rápida de comunicar todo
+el grupo esparciendo el mensaje y entregando
+un ítem anexo opcional. Avisos solamente van para
+miembros de grupo en funciones con la habilidad
+de recibir avisos. Puede desactivar avisos en la
+pestaña General.
+	</text>
+	<text name="no_notices_text">
+		No hay avisos anteriores.
+	</text>
+	<button label="?" label_selected="?" name="help_button" />
+	<text name="lbl">
+		Archivo de avisos de grupo
+	</text>
+	<text name="lbl2">
+		Avisos son mantenidos por 14 días. Haga clic en el aviso abajo se desea verlo.
+Haga clic en el botón &apos;Actualizar lista&apos; si nuevos avisos fueron recibidos.
+	</text>
+	<scroll_list name="notice_list">
+		<column label="" name="icon" />
+		<column label="Subject" name="subject" />
+		<column label="From" name="from" />
+		<column label="Date" name="date" />
+	</scroll_list>
+	<text name="notice_list_none_found">
+		Nada encontrado.
+	</text>
+	<button label="Crear nuevo aviso" label_selected="Crear nuevo aviso"
+	     name="create_new_notice" />
+	<button label="Actualizar lista" label_selected="Actualizar lista"
+	     name="refresh_notices" />
+	<panel label="Crear nuevo aviso" name="panel_create_new_notice">
+		<text name="lbl">
+			Crear un aviso
+		</text>
+		<text name="lbl2">
+			Usted debe teclear un asunto para enviar un aviso. Puede adicionar un único
+ítem al aviso arrastrándolo de su inventario hacia el panel. 
+Ítems anexos deben ser copiabless y transferibles y
+usted no puede&apos; enviar una carpeta.
+		</text>
+		<text name="lbl3">
+			Asunto:
+		</text>
+		<text name="lbl4">
+			Mensaje:
+		</text>
+		<text name="lbl5">
+			Anexar:
+		</text>
+		<button label="Remover anexo" label_selected="Remover anexo" name="remove_attachment" />
+		<button label="Enviar aviso" label_selected="Enviar aviso" name="send_notice" />
+		<panel name="drop_target"
+		     tool_tip="Drag an inventory item onto the message box to send it with the notice. You must have permission to copy and transfer the object to send it with the notice." />
+	</panel>
+	<panel label="Ver avisos anteriores" name="panel_view_past_notice">
+		<text name="lbl">
+			Aviso archivado
+		</text>
+		<text name="lbl2">
+			Para enviar un nuevo aviso, haga clic en el botón &apos;Crear nuevo aviso&apos;.
+		</text>
+		<text name="lbl3">
+			Asunto:
+		</text>
+		<text name="lbl4">
+			Mensaje:
+		</text>
+		<button label="Abrir anexo" label_selected="Abrir anexo" name="open_attachment" />
+	</panel>
+</panel>

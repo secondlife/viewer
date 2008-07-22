@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="Give Money" title="">
+	<text type="string" length="1" name="payee_group">
+		Gruppe bezahlen:
+	</text>
+	<text type="string" length="1" name="payee_resident">
+		Einwohner bezahlen:
+	</text>
+	<text type="string" length="1" name="payee_name">
+		[FIRST] [LAST]
+	</text>
+	<text type="string" length="1" name="object_name_label">
+		Über Objekt:
+	</text>
+	<text type="string" length="1" name="object_name_text">
+		...
+	</text>
+	<text type="string" length="1" name="fastpay text">
+		Schnellzahlung:
+	</text>
+	<text type="string" length="1" name="amount text">
+		Betrag:
+	</text>
+	<button label="1 L$" label_selected="1 L$" name="fastpay 1" />
+	<button label="5 L$" label_selected="5 L$" name="fastpay 5" />
+	<button label="10 L$" label_selected="10 L$" name="fastpay 10" />
+	<button label="20 L$" label_selected="20 L$" name="fastpay 20" />
+	<button label="Zahlen" label_selected="Zahlen" name="pay btn" />
+	<button label="Abbrechen" label_selected="Abbrechen" name="cancel btn" />
+</floater>

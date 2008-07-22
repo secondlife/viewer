@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="gestures" title="Aktive Gesten">
+	<text name="help_label">
+		Doppelklicken Sie auf eine Geste, um Animationen und Sound &#10;abzuspielen.
+	</text>
+	<scroll_list bottom_delta="-385" height="360" name="gesture_list">
+		<column label="Trigger" name="trigger" />
+		<column label="Key" name="shortcut" />
+		<column label="" name="key" />
+		<column label="Name" name="name" />
+	</scroll_list>
+	<button label="Neu" name="new_gesture_btn" />
+	<button label="Inventar" name="inventory_btn" />
+	<button label="Bearbeiten" name="edit_btn" />
+	<button label="Abspielen" name="play_btn" />
+	<button label="Stopp" name="stop_btn" />
+</floater>

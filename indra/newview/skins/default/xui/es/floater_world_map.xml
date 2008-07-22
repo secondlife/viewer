@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="worldmap" title="Mapa del mundo">
+	<tab_container name="maptab">
+		<panel label="Objetos" name="objects_mapview" />
+		<panel label="Terreno" name="terrain_mapview" />
+	</tab_container>
+	<text name="land_for_sale_label">
+		Terreno en venta
+	</text>
+	<text name="auction_label">
+		Subasta
+	</text>
+	<text name="you_label">
+		Usted
+	</text>
+	<text name="home_label">
+		Casa
+	</text>
+	<button label="Ir hacia casa" label_selected="Ir hacia casa" name="Go Home"
+	     tool_tip="Teletransportar para su casa" />
+	<text name="classifieds_label">
+		Clasificados
+	</text>
+	<check_box label=" " name="class_chk" />
+	<text name="person_label">
+		Persona
+	</text>
+	<check_box label=" " name="people_chk" />
+	<text name="infohub_label">
+		Infohub
+	</text>
+	<check_box label=" " name="infohub_chk" />
+	<text name="telehub_label">
+		Telehub
+	</text>
+	<check_box label=" " name="telehubchk" />
+	<text name="popular_label">
+		Popular
+	</text>
+	<check_box label=" " name="popular_chk" />
+	<text name="land_for_sale_label2">
+		Terreno en venta
+	</text>
+	<check_box label=" " name="land_for_sale_chk" />
+	<text name="events_label">
+		Eventos
+	</text>
+	<check_box label=" " name="event_chk" />
+	<text name="events_mature_label">
+		Eventos (M)
+	</text>
+	<check_box label=" " name="event_mature_chk" />
+	<combo_box label="Mis amigos" name="friend combo" tool_tip="Friend to Show on Map">
+		<combo_item name="none_selected">
+			Mis amigos
+		</combo_item>
+	</combo_box>
+	<combo_box label="Mis puntos de referencia" name="landmark combo"
+	     tool_tip="Landmark to Show on Map">
+		<combo_item name="none_selected">
+			Mis puntos de referencia
+		</combo_item>
+	</combo_box>
+	<line_editor label="Buscar por el nombre de la región" name="location"
+	     tool_tip="Teclee el nombre de una región" />
+	<button label="Buscar" name="DoSearch" tool_tip="Buscar por región" />
+	<text name="search_label">
+		Resultados de búsqueda:
+	</text>
+	<scroll_list name="search_results">
+		<column label="" name="icon" />
+		<column label="" name="sim_name" />
+	</scroll_list>
+	<text name="location_label">
+		Local:
+	</text>
+	<spinner name="spin x" tool_tip="Coordenada X del local a mostrarse en el mapa" />
+	<spinner name="spin y" tool_tip="Coordenada Y del local a mostrarse en el mapa" />
+	<spinner name="spin z" tool_tip="Coordenada Z del local a mostrarse en el mapa" />
+	<button label="Teletransportar" label_selected="Teletransportar" name="Teleport"
+	     tool_tip="Teletransportar para local seleccionado" />
+	<button label="Mostrar destino" label_selected="Mostrar destino"
+	     name="Show Destination" tool_tip="Centralizar mapa no local selecionado" />
+	<button label="Limpiar" label_selected="Limpiar" name="Clear" tool_tip="Parar rastreo" />
+	<button label="Mostrar mi posición" label_selected="Mostrar mi posición"
+	     name="Show My Location"
+	     tool_tip="Centralizar mapa en el local de su avatar" />
+	<slider label="Zoom" name="zoom slider" />
+</floater>

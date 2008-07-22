@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="modal container" title=" ">
+	<button label="保存" label_selected="保存" name="Save" />
+	<button label="取り消し" label_selected="取り消し" name="Cancel" />
+	<text type="string" length="1" name="Save item as:">
+		アイテムを別名で保存：
+	</text>
+	<line_editor name="name ed">
+		新規[DESC]
+	</line_editor>
+</floater>

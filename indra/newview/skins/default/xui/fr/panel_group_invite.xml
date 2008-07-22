@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel label="Inviter un membre" name="invite_panel">
+	<text>
+		Vous pouvez sélectionner plusieurs résidents
+à inviter dans votre groupe. Cliquez sur &apos;Ouvrir 
+le Sélecteur de Personnes&apos; pour commencer.
+	</text>
+	<button label="Ouvrir le Sélecteur de Personnes" name="add_button" tool_tip="" />
+	<name_list name="invitee_list"
+	     tool_tip="Hold the Ctrl key and click resident names  to multi-select." />
+	<button label="Retirer la sélection de la liste" name="remove_button"
+	     tool_tip="Retirez les résidents sélectionnés ci-dessus de la liste des invités." />
+	<text>
+		Choisissez le Rôle à leur attribuer :
+	</text>
+	<combo_box name="role_name"
+	     tool_tip="Choose from the list of Roles you  are allowed to assign members to." />
+	<button label="Envoyer des invitations" name="ok_button" />
+	<button label="Annuler" name="cancel_button" />
+</panel>

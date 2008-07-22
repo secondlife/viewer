@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="top_objects" title="ロード中．．．">
+	<text name="title_text">
+		ロード中．．．
+	</text>
+	<scroll_list name="objects_list">
+		<column label="数" name="score" />
+		<column label="名前" name="name" />
+		<column label="所有者" name="owner" />
+		<column label="ロケーション" name="location" />
+	</scroll_list>
+	<text name="id_text">
+		物体ID：
+	</text>
+	<button label="標識を表示" name="show_beacon_btn" />
+	<text name="obj_name_text">
+		物体名：
+	</text>
+	<button label="フィルタ" name="filter_object_btn" />
+	<text name="owner_name_text">
+		所有者名：
+	</text>
+	<button label="フィルタ" name="filter_owner_btn" />
+	<button label="選択内容を返却" name="return_selected_btn" />
+	<button label="すべて返却" name="return_all_btn" />
+	<button label="選択内容を無効化" name="disable_selected_btn" />
+	<button label="すべて無効化" name="disable_all_btn" />
+	<button label="更新" name="refresh_btn" />
+	<text name="top_scripts_title">
+		トップ・スクリプト
+	</text>
+	<text name="top_scripts_text">
+		[COUNT]スクリプト全体の実行時間は[TIME]ミリ秒。
+	</text>
+	<text name="scripts_score_label">
+		時間
+	</text>
+	<text name="top_colliders_title">
+		上部コライダー
+	</text>
+	<text name="top_colliders_text">
+		上位[COUNT]個の物体は多くの衝突可能性があります。
+	</text>
+	<text name="colliders_score_label">
+		数
+	</text>
+	<text name="none_descriptor">
+		何も見つかりませんでした。
+	</text>
+</floater>

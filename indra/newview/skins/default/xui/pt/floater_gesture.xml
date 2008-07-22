@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="gestures" title="Ativar gestos">
+	<text name="help_label">
+		Digite uma palavra-chave ou pressione uma tecla para executar um som ou animação.
+	</text>
+	<scroll_list name="gesture_list">
+		<column label="Gatilho" name="trigger" />
+		<column label="Tecla" name="shortcut" />
+		<column label="" name="key" />
+		<column label="Nome" name="name" />
+	</scroll_list>
+	<button label="Novo" name="new_gesture_btn" />
+	<button label="Inventário" name="inventory_btn" />
+	<button label="Editar" name="edit_btn" />
+	<button label="Executar" name="play_btn" />
+	<button label="Parar" name="stop_btn" />
+</floater>

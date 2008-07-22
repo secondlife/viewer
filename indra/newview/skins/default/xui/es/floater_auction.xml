@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="floater_auction" title="Empezar venda de terreno Linden">
+	<check_box label="Incluir selección amarilla" name="fence_check" />
+	<combo_box name="saletype_combo">
+		<combo_item name="Auction">
+			Subasta
+		</combo_item>
+		<combo_item name="FirstLand">
+			Primero terreno
+		</combo_item>
+	</combo_box>
+	<button label="Foto instantánea" label_selected="Foto instantánea"
+	     name="snapshot_btn" />
+	<button label="OK" label_selected="OK" name="ok_btn" />
+	<text name="already for sale">
+		Usted no puede subastar parcelas que ya están en venta.
+	</text>
+</floater>

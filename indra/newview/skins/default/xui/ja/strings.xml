@@ -1,0 +1,390 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<strings name="">
+	<string name="LoginInProgress">
+		ログイン中です。[APP_NAME]の表示がフリーズする場合があります。  しばらくお待ちください。
+	</string>
+	<string name="LoginAuthenticating">
+		認証しています...
+	</string>
+	<string name="LoginMaintenance">
+		アカウント・メンテナンスを実行しています...
+	</string>
+	<string name="LoginAttempt">
+		前回のログインに失敗しました。 ログイン中です([NUMBER]回目)
+	</string>
+	<string name="LoginPrecaching">
+		ワールドをロードしています...
+	</string>
+	<string name="LoginInitializingBrowser">
+		埋め込みWebブラウザを初期化しています...
+	</string>
+	<string name="LoginVerifyingCache">
+		キャッシュ・ファイルを検証しています(所要時間は60～90秒)...
+	</string>
+	<string name="LoginProcessingResponse">
+		応答を処理しています...
+	</string>
+	<string name="LoginInitializingWorld">
+		ワールドを初期化しています...
+	</string>
+	<string name="LoginDecodingImages">
+		画像をデコードしています...
+	</string>
+	<string name="LoginInitializingQuicktime">
+		QuickTimeを初期化しています...
+	</string>
+	<string name="LoginQuicktimeNotFound">
+		QuickTimeが見つかりません。初期化に失敗しました。
+	</string>
+	<string name="LoginQuicktimeOK">
+		QuickTimeが正常に初期化されました。
+	</string>
+	<string name="LoginWaitingForRegionHandshake">
+		地域のハンドシェイクを待っています...
+	</string>
+	<string name="LoginConnectingToRegion">
+		地域に接続しています...
+	</string>
+	<string name="LoginDownloadingClothing">
+		服をダウンロードしています...
+	</string>
+	<string name="TooltipPerson">
+		人
+	</string>
+	<string name="TooltipNoName">
+		(名前なし)
+	</string>
+	<string name="TooltipOwner">
+		オーナー:
+	</string>
+	<string name="TooltipPublic">
+		公共
+	</string>
+	<string name="TooltipIsGroup">
+		(グループ)
+	</string>
+	<string name="TooltipFlagScript">
+		スクリプト
+	</string>
+	<string name="TooltipFlagPhysics">
+		物理作用
+	</string>
+	<string name="TooltipFlagTouch">
+		触る
+	</string>
+	<string name="TooltipFlagL$">
+		L$
+	</string>
+	<string name="TooltipFlagDropInventory">
+		持ち物をドロップする
+	</string>
+	<string name="TooltipFlagPhantom">
+		ファントム
+	</string>
+	<string name="TooltipFlagTemporary">
+		一時的
+	</string>
+	<string name="TooltipFlagRightClickMenu">
+		(右クリックでメニューを表示)
+	</string>
+	<string name="TooltipFreeToCopy">
+		コピー可能
+	</string>
+	<string name="TooltipForSaleL$">
+		売り出し中:L$[AMOUNT]
+	</string>
+	<string name="TooltipForSaleMsg">
+		売り出し中: [MESSAGE]
+	</string>
+	<string name="TooltipFlagGroupBuild">
+		グループ作成
+	</string>
+	<string name="TooltipFlagNoBuild">
+		作成禁止
+	</string>
+	<string name="TooltipFlagNoEdit">
+		グループ作成
+	</string>
+	<string name="TooltipFlagNotSafe">
+		危険
+	</string>
+	<string name="TooltipFlagNoFly">
+		飛行禁止
+	</string>
+	<string name="TooltipFlagGroupScripts">
+		グループ・スクリプト
+	</string>
+	<string name="TooltipFlagNoScripts">
+		スクリプトなし
+	</string>
+	<string name="TooltipLand">
+		土地:
+	</string>
+	<string name="RetrievingData">
+		検索中...
+	</string>
+	<string name="LoadingData">
+		ロード中...
+	</string>
+	<string name="AvatarNameNobody">
+		(無人)
+	</string>
+	<string name="AvatarNameWaiting">
+		(待機中)
+	</string>
+	<string name="AvatarNameHippos">
+		(カバ)
+	</string>
+	<string name="GroupNameNone">
+		(なし)
+	</string>
+	<string name="AssetErrorNone">
+		エラーなし
+	</string>
+	<string name="AssetErrorRequestFailed">
+		資産の要求: 失敗
+	</string>
+	<string name="AssetErrorNonexistentFile">
+		資産の要求: 存在しないファイル
+	</string>
+	<string name="AssetErrorNotInDatabase">
+		資産の要求: データベースでは見つからない資産
+	</string>
+	<string name="AssetErrorEOF">
+		ファイルの終わり
+	</string>
+	<string name="AssetErrorCannotOpenFile">
+		ファイルを開くことができません
+	</string>
+	<string name="AssetErrorFileNotFound">
+		ファイルが見つかりません
+	</string>
+	<string name="AssetErrorTCPTimeout">
+		ファイル転送タイムアウトです
+	</string>
+	<string name="AssetErrorCircuitGone">
+		接続が解除されました
+	</string>
+	<string name="AssetErrorUnknownStatus">
+		ステータスが不明です
+	</string>
+	<string name="AvatarEditingApparance">
+		(容姿の編集)
+	</string>
+	<string name="AvatarAway">
+		退席中
+	</string>
+	<string name="AvatarBusy">
+		取り込み中
+	</string>
+	<string name="AvatarMuted">
+		ミュート
+	</string>
+	<string name="anim_express_afraid">
+		怖れ
+	</string>
+	<string name="anim_express_anger">
+		怒り
+	</string>
+	<string name="anim_away">
+		退席中
+	</string>
+	<string name="anim_backflip">
+		後ろ宙返り
+	</string>
+	<string name="anim_express_laugh">
+		大笑い
+	</string>
+	<string name="anim_express_toothsmile">
+		満面の笑顔
+	</string>
+	<string name="anim_blowkiss">
+		投げキッス
+	</string>
+	<string name="anim_express_bored">
+		退屈
+	</string>
+	<string name="anim_bow">
+		おじぎ
+	</string>
+	<string name="anim_clap">
+		拍手
+	</string>
+	<string name="anim_courtbow">
+		深いおじぎ
+	</string>
+	<string name="anim_express_cry">
+		泣く
+	</string>
+	<string name="anim_dance1">
+		ダンス1
+	</string>
+	<string name="anim_dance2">
+		ダンス2
+	</string>
+	<string name="anim_dance3">
+		ダンス3
+	</string>
+	<string name="anim_dance4">
+		ダンス4
+	</string>
+	<string name="anim_dance5">
+		ダンス5
+	</string>
+	<string name="anim_dance6">
+		ダンス6
+	</string>
+	<string name="anim_dance7">
+		ダンス7
+	</string>
+	<string name="anim_dance8">
+		ダンス8
+	</string>
+	<string name="anim_express_disdain">
+		侮蔑
+	</string>
+	<string name="anim_drink">
+		酔っぱらう
+	</string>
+	<string name="anim_express_embarrased">
+		困惑
+	</string>
+	<string name="anim_angry_fingerwag">
+		指を振る
+	</string>
+	<string name="anim_fist_pump">
+		ガッツポーズ
+	</string>
+	<string name="anim_yoga_float">
+		ヨガ浮遊
+	</string>
+	<string name="anim_express_frown">
+		しかめっ面
+	</string>
+	<string name="anim_impatient">
+		いらいらする
+	</string>
+	<string name="anim_jumpforjoy">
+		飛び上がって喜ぶ
+	</string>
+	<string name="anim_kissmybutt">
+		挑発ポーズ
+	</string>
+	<string name="anim_express_kiss">
+		キス
+	</string>
+	<string name="anim_laugh_short">
+		笑う
+	</string>
+	<string name="anim_musclebeach">
+		力こぶを見せる
+	</string>
+	<string name="anim_no_unhappy">
+		不満げに否定する
+	</string>
+	<string name="anim_no_head">
+		否定する
+	</string>
+	<string name="anim_nyanya">
+		冷やかす
+	</string>
+	<string name="anim_punch_onetwo">
+		ワンツー・パンチ
+	</string>
+	<string name="anim_express_open_mouth">
+		口を開けて驚く
+	</string>
+	<string name="anim_peace">
+		ピース・サイン
+	</string>
+	<string name="anim_point_you">
+		他人を指差す
+	</string>
+	<string name="anim_point_me">
+		自分を指差す
+	</string>
+	<string name="anim_punch_l">
+		左パンチ
+	</string>
+	<string name="anim_punch_r">
+		右パンチ
+	</string>
+	<string name="anim_rps_countdown">
+		じゃんけんポーズ
+	</string>
+	<string name="anim_rps_paper">
+		パー
+	</string>
+	<string name="anim_rps_rock">
+		グー
+	</string>
+	<string name="anim_rps_scissors">
+		チョキ
+	</string>
+	<string name="anim_express_repulsed">
+		嫌悪感
+	</string>
+	<string name="anim_kick_roundhouse_r">
+		まわし蹴り
+	</string>
+	<string name="anim_express_sad">
+		悲しむ
+	</string>
+	<string name="anim_salute">
+		敬礼する
+	</string>
+	<string name="anim_shout">
+		叫ぶ
+	</string>
+	<string name="anim_express_shrug">
+		肩をすくめる
+	</string>
+	<string name="anim_express_smile">
+		微笑む
+	</string>
+	<string name="anim_smoke_idle">
+		たばこをくゆらす
+	</string>
+	<string name="anim_smoke_inhale">
+		たばこを吸う
+	</string>
+	<string name="anim_smoke_throw_down">
+		たばこを捨てる
+	</string>
+	<string name="anim_express_surprise">
+		驚く
+	</string>
+	<string name="anim_sword_strike_r">
+		剣で斬りつける
+	</string>
+	<string name="anim_angry_tantrum">
+		じだんだを踏む
+	</string>
+	<string name="anim_express_tongue_out">
+		舌を出す
+	</string>
+	<string name="anim_hello">
+		手を振る
+	</string>
+	<string name="anim_whisper">
+		小声で話す
+	</string>
+	<string name="anim_whistle">
+		口笛を吹く
+	</string>
+	<string name="anim_express_wink">
+		ウィンク
+	</string>
+	<string name="anim_wink_hollywood">
+		ウィンク(ハリウッド)
+	</string>
+	<string name="anim_express_worry">
+		心配する
+	</string>
+	<string name="anim_yes_happy">
+		笑顔で頷く
+	</string>
+	<string name="anim_yes_head">
+		頷く
+	</string>
+</strings>

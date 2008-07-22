@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel label="Vertrag" name="Covenant">
+	<text name="covenant_help_text">
+		Änderungen am Vertrag werden für alle Parzellen auf dem Grundstück übernommen.
+	</text>
+	<text name="region_name_lbl">
+		Region:
+	</text>
+	<text name="region_name_text">
+		(unbekannt)
+	</text>
+	<text name="estate_name_lbl">
+		Grundstück:
+	</text>
+	<text name="estate_name_text">
+		(unbekannt)
+	</text>
+	<text name="covenent_instructions">
+		Ziehen Sie eine Notizkarte an diese Stelle, um den Vertrag für dieses Grundstück zu ändern.
+	</text>
+	<button label="?" name="covenant_help" />
+	<button label="Zurücksetzen" name="reset_covenant" />
+	<text name="estate_owner_lbl">
+		Grundstückseigentümer:
+	</text>
+	<text name="estate_owner_text">
+		(unbekannt)
+	</text>
+	<text name="resellable_clause">
+		Gekauftes Land in dieser Region kann oder kann nicht wiederverkauft werden.
+	</text>
+	<text name="changeable_clause">
+		Gekauftes Land in dieser Region kann oder kann nicht zusammengelegt und geteilt werden.
+	</text>
+	<text_editor name="covenant_editor">
+		Wird geladen...
+	</text_editor>
+	<text name="can_resell">
+		Gekauftes Land in dieser Region kann wiederverkauft werden.
+	</text>
+	<text name="can_not_resell">
+		Gekauftes Land in dieser Region kann nicht wiederverkauft werden.
+	</text>
+	<text name="can_change">
+		Gekauftes Land in dieser Region kann zusammengelegt und geteilt werden.
+	</text>
+	<text name="can_not_change">
+		Gekauftes Land in dieser Region kann nicht zusammengelegt und geteilt werden.
+	</text>
+</panel>

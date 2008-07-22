@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel label="メンバーを招待" name="invite_panel">
+	<text name="help_text" font="SansSerifSmall" height="72" bottom_delta="-96">
+		あなたのグループに、一度に複数の
+人を招待することができます。
+［リストから人を選ぶ］
+をクリックしてください。
+	</text>
+	<button label="リストから人を選ぶ" name="add_button" tool_tip="" bottom_delta="-10" />
+	<name_list name="invitee_list" height="156" bottom_delta="-160"
+	     tool_tip="複数の住人を選択するには、Ctrlキーを押しながら住人名をクリックします。" />
+	<button label="リストから選択したものを削除" name="remove_button"
+	     tool_tip="上で選択した居住者を招待リストから削除します。" />
+	<text>
+		割り当て先の役割を選択：
+	</text>
+	<text name="role_text">
+		割り当て先の役割を選択：
+	</text>
+	<combo_box name="role_name"
+	     tool_tip="メンバーに割り当て可能な役割をリストから選択。" />
+	<button label="招待を送信" name="ok_button" />
+	<button label="取り消し" name="cancel_button" />
+	<string name="confirm_invite_owner_str">
+		本当に新しい所有者を招待しますか?この操作は取り消しできません。
+	</string>
+	<text name="loading">
+		(ローディング．．．)
+	</text>
+</panel>

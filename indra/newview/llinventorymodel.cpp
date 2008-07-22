@@ -111,6 +111,7 @@ const char* NEW_CATEGORY_NAMES[LLAssetType::AT_COUNT] =
 	"Uncompressed Images",	// AT_IMAGE_JPEG
 	"Animations",		// AT_ANIMATION
 	"Gestures",			// AT_GESTURE
+	"New Folder"		// AT_SIMSTATE
 };
 
 struct InventoryIDPtrLess
@@ -352,6 +353,12 @@ LLUUID LLInventoryModel::createNewCategory(const LLUUID& parent_id,
 		return id;
 	}
 
+	if(preferred_type == LLAssetType::AT_SIMSTATE)
+	{
+		lldebugs << "Attempt to create simstate category." << llendl;
+		return id;
+	}
+
 	id.generate();
 	std::string name = pname;
 	if(!pname.empty())
@@ -359,7 +366,7 @@ LLUUID LLInventoryModel::createNewCategory(const LLUUID& parent_id,
 		name.assign(pname);
 	}
 	else if((preferred_type >= LLAssetType::AT_TEXTURE) &&
-			(preferred_type < LLAssetType::AT_COUNT))
+			(preferred_type < LLAssetType::AT_SIMSTATE))
 	{
 		name.assign(NEW_CATEGORY_NAMES[preferred_type]);
 	}

@@ -566,3 +566,125 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("LipSyncEnabled")->getSignal()->connect(boost::bind(&handleVoiceClientPrefsChanged, _1));	
 }
 
+template <> eControlType get_control_type<U32>(const U32& in, LLSD& out) 
+{ 
+	out = (LLSD::Integer)in; 
+	return TYPE_U32; 
+}
+
+template <> eControlType get_control_type<S32>(const S32& in, LLSD& out) 
+{ 
+	out = in; 
+	return TYPE_S32; 
+}
+
+template <> eControlType get_control_type<F32>(const F32& in, LLSD& out) 
+{ 
+	out = in; 
+	return TYPE_F32; 
+}
+
+template <> eControlType get_control_type<bool> (const bool& in, LLSD& out) 
+{ 
+	out = in; 
+	return TYPE_BOOLEAN; 
+}
+/*
+// Yay BOOL, its really an S32.
+template <> eControlType get_control_type<BOOL> (const BOOL& in, LLSD& out) 
+{ 
+	out = in; 
+	return TYPE_BOOLEAN; 
+}
+*/
+template <> eControlType get_control_type<std::string>(const std::string& in, LLSD& out) 
+{ 
+	out = in; 
+	return TYPE_STRING; 
+}
+
+template <> eControlType get_control_type<LLVector3>(const LLVector3& in, LLSD& out) 
+{ 
+	out = in.getValue(); 
+	return TYPE_VEC3; 
+}
+
+template <> eControlType get_control_type<LLVector3d>(const LLVector3d& in, LLSD& out) 
+{ 
+	out = in.getValue(); 
+	return TYPE_VEC3D; 
+}
+
+template <> eControlType get_control_type<LLRect>(const LLRect& in, LLSD& out) 
+{ 
+	out = in.getValue(); 
+	return TYPE_RECT; 
+}
+
+template <> eControlType get_control_type<LLColor4>(const LLColor4& in, LLSD& out) 
+{ 
+	out = in.getValue(); 
+	return TYPE_COL4; 
+}
+
+template <> eControlType get_control_type<LLColor3>(const LLColor3& in, LLSD& out) 
+{ 
+	out = in.getValue(); 
+	return TYPE_COL3; 
+}
+
+template <> eControlType get_control_type<LLColor4U>(const LLColor4U& in, LLSD& out) 
+{ 
+	out = in.getValue();
+	return TYPE_COL4U; 
+}
+
+template <> eControlType get_control_type<LLSD>(const LLSD& in, LLSD& out) 
+{ 
+	out = in;
+	return TYPE_LLSD; 
+}
+
+
+#if TEST_CACHED_CONTROL
+
+#define DECL_LLCC(T, V) static LLCachedControl<T> mySetting_##T("TestCachedControl"#T, V)
+DECL_LLCC(U32, (U32)666);
+DECL_LLCC(S32, (S32)-666);
+DECL_LLCC(F32, (F32)-666.666);
+DECL_LLCC(bool, true);
+DECL_LLCC(BOOL, FALSE);
+static LLCachedControl<std::string> mySetting_string("TestCachedControlstring", "Default String Value");
+DECL_LLCC(LLVector3, LLVector3(1.0f, 2.0f, 3.0f));
+DECL_LLCC(LLVector3d, LLVector3d(6.0f, 5.0f, 4.0f));
+DECL_LLCC(LLRect, LLRect(0, 0, 100, 500));
+DECL_LLCC(LLColor4, LLColor4(0.0f, 0.5f, 1.0f));
+DECL_LLCC(LLColor3, LLColor3(1.0f, 0.f, 0.5f));
+DECL_LLCC(LLColor4U, LLColor4U(255, 200, 100, 255));
+
+LLSD test_llsd = LLSD()["testing1"] = LLSD()["testing2"];
+DECL_LLCC(LLSD, test_llsd);
+
+static LLCachedControl<std::string> test_BrowserHomePage("BrowserHomePage", "hahahahahha", "Not the real comment");
+
+void test_cached_control()
+{
+#define TEST_LLCC(T, V) if((T)mySetting_##T != V) llerrs << "Fail "#T << llendl
+	TEST_LLCC(U32, 666);
+	TEST_LLCC(S32, (S32)-666);
+	TEST_LLCC(F32, (F32)-666.666);
+	TEST_LLCC(bool, true);
+	TEST_LLCC(BOOL, FALSE);
+	if((std::string)mySetting_string != "Default String Value") llerrs << "Fail string" << llendl;
+	TEST_LLCC(LLVector3, LLVector3(1.0f, 2.0f, 3.0f));
+	TEST_LLCC(LLVector3d, LLVector3d(6.0f, 5.0f, 4.0f));
+	TEST_LLCC(LLRect, LLRect(0, 0, 100, 500));
+	TEST_LLCC(LLColor4, LLColor4(0.0f, 0.5f, 1.0f));
+	TEST_LLCC(LLColor3, LLColor3(1.0f, 0.f, 0.5f));
+	TEST_LLCC(LLColor4U, LLColor4U(255, 200, 100, 255));
+//There's no LLSD comparsion for LLCC yet. TEST_LLCC(LLSD, test_llsd); 
+
+	if((std::string)test_BrowserHomePage != "http://www.secondlife.com") llerrs << "Fail BrowserHomePage" << llendl;
+}
+#endif // TEST_CACHED_CONTROL
+

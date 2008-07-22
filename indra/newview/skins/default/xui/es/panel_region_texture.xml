@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel label="Textura del terreno" name="Textures">
+	<text name="region_text_lbl">
+		Región:
+	</text>
+	<text name="region_text">
+		desconocido
+	</text>
+	<text name="detail_texture_text">
+		Terrain Textures (requires 512x512, 24 bit .tga files)
+	</text>
+	<text name="height_text_lbl">
+		1 (Bajo)
+	</text>
+	<text name="height_text_lbl2">
+		2
+	</text>
+	<text name="height_text_lbl3">
+		3
+	</text>
+	<text name="height_text_lbl4">
+		4 (Alto)
+	</text>
+	<text name="height_text_lbl5">
+		Alcances de la elevación de textura
+	</text>
+	<text name="height_text_lbl6">
+		Sudoeste
+	</text>
+	<text name="height_text_lbl7">
+		Noroeste
+	</text>
+	<text name="height_text_lbl8">
+		Sudeste
+	</text>
+	<text name="height_text_lbl9">
+		Nordeste
+	</text>
+	<spinner label="Bajo" name="height_start_spin_0" />
+	<spinner label="Bajo" name="height_start_spin_1" />
+	<spinner label="Bajo" name="height_start_spin_2" />
+	<spinner label="Bajo" name="height_start_spin_3" />
+	<spinner label="Alto" name="height_range_spin_0" />
+	<spinner label="Alto" name="height_range_spin_1" />
+	<spinner label="Alto" name="height_range_spin_2" />
+	<spinner label="Alto" name="height_range_spin_3" />
+	<text name="height_text_lbl10">
+		Estos valores representan la variación de la mezcla para las texturas arriba.
+	</text>
+	<text name="height_text_lbl11">
+		Medido en metros, el valor INFERIOR es la altura MÁXIMA de la Textura  #1,
+	</text>
+	<text name="height_text_lbl12">
+		y el valor MAYOR es la altura MÍNIMA de la Textura #4.
+	</text>
+	<button label="Aplicar" name="apply_btn" />
+</panel>

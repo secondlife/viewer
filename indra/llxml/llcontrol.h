@@ -83,7 +83,7 @@ typedef enum e_control_type
 	TYPE_COUNT
 } eControlType;
 
-class LLControlVariable
+class LLControlVariable : public LLRefCount
 {
 	friend class LLControlGroup;
 	typedef boost::signal<void(const LLSD&)> signal_t;
@@ -92,7 +92,7 @@ private:
 	std::string		mName;
 	std::string		mComment;
 	eControlType	mType;
-	BOOL			mPersist;
+	bool mPersist;
 	std::vector<LLSD> mValues;
 	
 	signal_t mSignal;
@@ -100,7 +100,7 @@ private:
 public:
 	LLControlVariable(const std::string& name, eControlType type,
 					  LLSD initial, const std::string& comment,
-					  BOOL persist = TRUE);
+					  bool persist = true);
 
 	virtual ~LLControlVariable();
 	
@@ -108,33 +108,41 @@ public:
 	const std::string& getComment() const { return mComment; }
 
 	eControlType type()		{ return mType; }
-	BOOL isType(eControlType tp) { return tp == mType; }
+	bool isType(eControlType tp) { return tp == mType; }
 
-	void resetToDefault(bool fire_signal = TRUE);
+	void resetToDefault(bool fire_signal = false);
 
 	signal_t* getSignal() { return &mSignal; }
 
 	bool isDefault() { return (mValues.size() == 1); }
 	bool isSaveValueDefault();
 	bool isPersisted() { return mPersist; }
-	void set(const LLSD& val)	{ setValue(val); }
 	LLSD get()			const	{ return getValue(); }
-	LLSD getDefault()	const	{ return mValues.front(); }
 	LLSD getValue()		const	{ return mValues.back(); }
+	LLSD getDefault()	const	{ return mValues.front(); }
 	LLSD getSaveValue() const;
+
+	void set(const LLSD& val)	{ setValue(val); }
 	void setValue(const LLSD& value, bool saved_value = TRUE);
+	void setDefaultValue(const LLSD& value);
+	void setPersist(bool state);
+	void setComment(const std::string& comment);
+
 	void firePropertyChanged()
 	{
 		mSignal(mValues.back());
 	}
-	bool llsd_compare(const LLSD& a, const LLSD& b);
+private:
+	LLSD getComparableValue(const LLSD& value);
+	bool llsd_compare(const LLSD& a, const LLSD & b);
+
 };
 
 //const U32 STRING_CACHE_SIZE = 10000;
 class LLControlGroup
 {
 protected:
-	typedef std::map<std::string, LLControlVariable* > ctrl_name_table_t;
+	typedef std::map<std::string, LLPointer<LLControlVariable> > ctrl_name_table_t;
 	ctrl_name_table_t mNameTable;
 	std::set<std::string> mWarnings;
 	std::string mTypeString[TYPE_COUNT];
@@ -146,7 +154,7 @@ public:
 	~LLControlGroup();
 	void cleanup();
 	
-	LLControlVariable*	getControl(const std::string& name);
+	LLPointer<LLControlVariable> getControl(const std::string& name);
 
 	struct ApplyFunctor
 	{
@@ -213,7 +221,7 @@ public:
 	// as the given type.
 	U32	loadFromFileLegacy(const std::string& filename, BOOL require_declaration = TRUE, eControlType declare_as = TYPE_STRING);
  	U32 saveToFile(const std::string& filename, BOOL nondefault_only);
- 	U32	loadFromFile(const std::string& filename);
+ 	U32	loadFromFile(const std::string& filename, bool default_values = false);
 	void	resetToDefaults();
 
 	

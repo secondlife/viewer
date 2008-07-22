@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="avatarpicker" title="Einwohner auswählen">
+	<text name="instruct_search_resident_name" height="32" bottom="-56">
+Geben Sie einen Teil des Namens des
+Einwohners ein:
+	</text>
+	<button label="Suchen" label_selected="Suchen" name="Find" />
+	<scroll_list name="Names" height="138" bottom_delta="-144"/>
+	<text name="Or select their calling card:">
+		Oder wählen Sie eine Visitenkarte:
+	</text>
+	<button label="Auswählen" label_selected="Auswählen" name="Select" />
+	<button label="Schließen" label_selected="Schließen" name="Close" />
+	<text name="NotFound">
+		&apos;[TEXT]&apos; nicht gefunden
+	</text>
+</floater>

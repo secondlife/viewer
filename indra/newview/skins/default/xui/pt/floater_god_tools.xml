@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="godtools floater" title="God Tools">
+	<tab_container name="GodTools Tabs">
+		<panel label="Grade" name="grid">
+			<button label="Desconectar todos os usuários"
+			     label_selected="Desconectar todos os usuários" name="Kick all users" />
+			<button label="Limpar essa Região &apos;s Caches de Visibilidade de Mapa"
+			     label_selected="Limpar essa Região &apos;s Caches de Visibilidade de Mapa"
+			     name="Flush This Region&apos;s Map Visibility Caches" />
+		</panel>
+		<panel label="Região" name="region">
+			<text name="Sim Name:">
+				Sim Nome:
+			</text>
+			<check_box label="Preludio" name="check prelude"
+			     tool_tip="Ajustar para tornar esta região um prelúdio." />
+			<check_box label="Fixar Sol" name="check fixed sun"
+			     tool_tip="Fixa a posição do sol (como em Região/Estados) &gt; Terreno." />
+			<check_box label="Reiniciar Home no Teleporte" name="check reset home"
+			     tool_tip="Quando um residente teleporta, reinicia sua home para o posicionamento de destino." />
+			<check_box label="Visível" name="check visible"
+			     tool_tip="Ajustar para fazer essa região visível para os não-deuses" />
+			<check_box label="Dano" name="check damage"
+			     tool_tip="Ajustar para ativar dano nesta região" />
+			<check_box label="Bloquear ratreamento do Tráfego" name="block dwell"
+			     tool_tip="Configure isto para fazer a região não computar o tráfego" />
+			<check_box label="Bloquear Terraform" name="block terraform"
+			     tool_tip="Ajustar para desabilitar as pessoas a terraplanarem seus terrenos" />
+			<check_box label="Sandbox" name="is sandbox"
+			     tool_tip="Alterar quando esta região tornar-se uma sand-box" />
+			<button label="Bake Terrain" label_selected="Bake Terrain" name="Bake Terrain"
+			     tool_tip="Salva o terreno atual como padrão." />
+			<button label="Reverter Terreno" label_selected="Reverter Terreno"
+			     name="Revert Terrain" tool_tip="Substituir o terreno atual pelo padrão." />
+			<button label="Trocar Terreno" label_selected="Trocar Terreno" name="Swap Terrain"
+			     tool_tip="Trocar o terreno atual pelo padrão." />
+			<text name="estate id">
+				ID da Região:
+			</text>
+			<text name="parent id">
+				ID do Pai:
+			</text>
+			<line_editor name="parentestate" tool_tip="Este é o Estado Pai para esta região" />
+			<text name="Grid Pos: ">
+				Posição da Grade:
+			</text>
+			<line_editor name="gridposx" tool_tip="Esta é a grade x posição para esta região" />
+			<line_editor name="gridposy" tool_tip="Esta é a grade y posição para esta região" />
+			<text name="Redirect to Grid: ">
+				Redirecionar a Grade:
+			</text>
+			<text name="billable factor text">
+				Fator cobrança:
+			</text>
+			<text name="land cost text">
+				L$ por metros quadrados
+			</text>
+			<button label="Atualizar" label_selected="Atualizar" name="Refresh"
+			     tool_tip="Clique aqui para atualizar a informação acima." />
+			<button label="Aplicar" label_selected="Aplicar" name="Apply"
+			     tool_tip="Clique aqui para aplicar qualquer mudança acima" />
+			<button label="Selecionar Região" label_selected="Selecionar Região"
+			     name="Select Region"
+			     tool_tip="Selecionar toda a região com a ferramenta de terreno" />
+			<button label="Autosalvar Agora" label_selected="Autosalvar Agora" name="Autosave now"
+			     tool_tip="Salvar estado compactado do diretório." />
+		</panel>
+		<panel label="Objetos" name="objects">
+			<text name="Sim Name:">
+				Sim Nome:
+			</text>
+			<text name="region name">
+				Welsh
+			</text>
+			<check_box label="Desativar Scripts" name="disable scripts"
+			     tool_tip="Ajustar para desativar todos os scripts da região" />
+			<check_box label="Desartivar Colisões" name="disable collisions"
+			     tool_tip="Ajustar para desativar colisões não-agentes nessa região" />
+			<check_box label="Desativar Física" name="disable physics"
+			     tool_tip="Ajustar para desativar a física nessa região" />
+			<button label="Aplicar" label_selected="Aplicar" name="Apply"
+			     tool_tip="Clique aqui para aplicar as alterações acima." />
+			<button label="Ajustar Alvo" label_selected="Ajustar Alvo" name="Set Target"
+			     tool_tip="Configura o avatar alvo para deleção de objetos." />
+			<text name="target_avatar_name">
+				(sem alvo)
+			</text>
+			<button label="Apagar objetos programados em outras terras"
+			     label_selected="Apagar objetos programados em outras terras"
+			     name="Delete Target&apos;s Scripted Objects On Others Land"
+			     tool_tip="Apagar todos os objetos programados possuídos pelo alvo nas terras fora do domínio do alvo. (sem cópia) objetos irão retornar." />
+			<button label="Apagar objetos programados do Alvo em qualquer terreno"
+			     label_selected="Apagar objetos programados do Alvo em qualquer terreno"
+			     name="Delete Target&apos;s Scripted Objects On *Any* Land"
+			     tool_tip="Apagar todos os objetos programados pelo alvo nesta região (sem cópia) objetos irão retornar." />
+			<button label="Apagar *TODOS* os objetos do alvo"
+			     label_selected="Apagar *TODOS* os objetos do alvo"
+			     name="Delete *ALL* Of Target&apos;s Objects"
+			     tool_tip="Apagar todos os objetes possuídos pelo alvo nesta região (sem cópia) os objetos irão retornar." />
+			<button label="Pegar colisões superiores" label_selected="Pegar colisões superiores"
+			     name="Get Top Colliders"
+			     tool_tip="Gets list of objects experiencing the most narrowphase callbacks." />
+			<button label="Pegar scripts superiores" label_selected="Pegar scripts superiores"
+			     name="Get Top Scripts"
+			     tool_tip="Listar os objetos programados com a maior duração em tempo de execução." />
+			<button label="Informações de Scripts" label_selected="Informações de Scripts"
+			     name="Scripts digest"
+			     tool_tip="Pegar uma lista d todos os scripts e o número de ocorrências para cada." />
+		</panel>
+		<panel label="Requisição" name="request">
+			<text name="Destination:">
+				Destino:
+			</text>
+			<combo_box name="destination">
+				<combo_item name="Selection">
+					Seleção
+				</combo_item>
+				<combo_item name="AgentRegion">
+					Agente da Região
+				</combo_item>
+			</combo_box>
+			<text name="Request:">
+				Requisição:
+			</text>
+			<combo_box name="request">
+				<combo_item name="colliders&lt;steps&gt;">
+					Passos de Colisão
+				</combo_item>
+				<combo_item name="scripts&lt;count&gt;,&lt;optionalpattern&gt;">
+					Contagem de scripts, Formas opcionais
+				</combo_item>
+				<combo_item name="objects&lt;pattern&gt;">
+					Padrões de Objetos
+				</combo_item>
+				<combo_item name="rez&lt;asset_id&gt;">
+					rez &lt;asset_id&gt;
+				</combo_item>
+			</combo_box>
+			<text name="Parameter:">
+				Parametro:
+			</text>
+			<button label="Fazer Requisição" label_selected="Fazer Requisição"
+			     name="Make Request" />
+		</panel>
+	</tab_container>
+</floater>

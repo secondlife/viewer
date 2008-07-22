@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="build options floater" title="Options de la grille">
+	<spinner label="Unité de mesure (m)" name="GridResolution" />
+	<spinner label="Etendue (mètres)" name="GridDrawSize" />
+	<check_box label="Activer magnétisme sous-unités" name="GridSubUnit" />
+	<slider label="Opacité de la grille" name="GridOpacity" />
+</floater>

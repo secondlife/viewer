@@ -361,7 +361,7 @@ std::string LLDir_Mac::getCurPath()
 
 
 
-BOOL LLDir_Mac::fileExists(const std::string &filename)
+BOOL LLDir_Mac::fileExists(const std::string &filename) const
 {
 	struct stat stat_data;
 	// Check the age of the file

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="floater_report_abuse" title="Signaler un abus">
+	<text name="reporter_title">
+		Signalant :
+	</text>
+	<text name="sim_title">
+		Sim :
+	</text>
+	<text name="pos_title">
+		Position :
+	</text>
+	<texture_picker label="Instantané en cours..." name="screenshot" />
+	<check_box label="Inclure capture d&apos;écran" name="screen_check" />
+	<combo_box name="category_combo"
+	     tool_tip="Category -- select the category that best describes this report">
+		<combo_item name="Selectcategory">
+			Choisir une catégorie
+		</combo_item>
+		<combo_item name="Intolerance">
+			Intolérance
+		</combo_item>
+		<combo_item name="Harassment">
+			Harcèlement
+		</combo_item>
+		<combo_item name="Assault">
+			Agression
+		</combo_item>
+		<combo_item name="Disclosure">
+			Divulgation
+		</combo_item>
+		<combo_item name="Indecency">
+			Indécence
+		</combo_item>
+		<combo_item name="Age">
+			Age
+		</combo_item>
+		<combo_item name="Parcel">
+			Colis
+		</combo_item>
+		<combo_item name="Other">
+			Autre
+		</combo_item>
+	</combo_box>
+	<button label="" label_selected="" name="pick_btn"
+	     tool_tip="Sélecteur d&apos;objets - choisissez l&apos;objet concerné par ce rapport" />
+	<text name="select_object_label">
+		Cliquez sur le bouton puis l&apos;objet :
+	</text>
+	<text name="object_name_label">
+		Nom :
+	</text>
+	<text name="owner_name_label">
+		Propriétaire :
+	</text>
+	<text name="abuser_name_title">
+		Nom du contrevenant :
+	</text>
+	<button label="Sélectionner" label_selected="" name="select_abuser"
+	     tool_tip="Sélectionnez le nom du contrevenant dans une liste." />
+	<text name="abuser_name_title2">
+		Lieu de l&apos;abus :
+	</text>
+	<text name="sum_title">
+		Résumé :
+	</text>
+	<text name="dscr_title">
+		Détails :
+	</text>
+	<text name="bug_aviso">
+		Veuillez préciser autant que possible la date, le lieu, la nature de l&apos;abus,
+les textes du chat/IM pertinents, et sélectionner l&apos;objet si possible.
+	</text>
+	<text name="incomplete_title">
+		Attention : les rapports incomplets ne seront pas pris en compte
+	</text>
+	<button label="Signaler un abus" label_selected="Signaler un abus" name="send_btn" />
+	<button label="Annuler" label_selected="Annuler" name="cancel_btn" />
+</floater>

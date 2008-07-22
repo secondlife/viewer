@@ -736,7 +736,7 @@ void LLXferManager::processFileRequest (LLMessageSystem *mesgsys, void ** /*user
 	
 	U8 local_path_u8;
 	mesgsys->getU8("XferID", "FilePath", local_path_u8);
-	if( local_path_u8 < (U8)LL_PATH_COUNT )
+	if( local_path_u8 < (U8)LL_PATH_LAST )
 	{
 		local_path = (ELLPath)local_path_u8;
 	}

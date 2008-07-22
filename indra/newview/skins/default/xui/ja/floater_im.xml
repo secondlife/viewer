@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<multi_floater name="im_floater" title="インスタント・メッセージ">
+	<text name="only_user_message">
+		このセッションにいるユーザーはあなただけです。
+	</text>
+	<text name="offline_message">
+		[FIRST] [LAST]はオフラインです。
+	</text>
+	<string name="muted_message">
+		住人はミュートされています。
+	</string>
+	<text name="generic_request_error">
+		要求中にエラーが発生しました。後でもう一度試してください。
+	</text>
+	<text name="insufficient_perms_error">
+		あなたには充分な権限がありません。
+	</text>
+	<text name="user_no_help">
+		リクエストされたユーザーは、もうヘルプセッションにはいません。
+	</text>
+	<string name="session_does_not_exist_error">
+		このセッションは既に切断されています。
+	</string>
+	<string name="no_ability_error">
+		あなたにはその能力がありません。
+	</string>
+	<string name="not_a_mod_error">
+		あなたはセッション・モデレータではありません。
+	</string>
+	<string name="muted_error">
+		あなたはミュートされています。
+	</string>
+	<text name="add_session_event">
+		...とのチャット・セッションにエージェントを追加中...
+	</text>
+	<text name="message_session_event">
+		IMチャット・セッションの相手
+	</text>
+	<text name="teleport_session_event">
+		のクリエーターにテレポート
+	</text>
+	<string name="mute_agent_event">
+		次の地域にいるエージェントをミュートしています
+	</string>
+	<text name="removed_from_group">
+		あなたはグループから削除されました。
+	</text>
+	<string name="invite_message">
+		このボイスチャットに応答/接続する場合は、[BUTTON NAME]をクリックしてください。
+	</string>
+	<string name="close_on_no_ability">
+		このチャット・セッションを継続することができません。
+	</string>
+</multi_floater>

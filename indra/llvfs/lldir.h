@@ -32,6 +32,7 @@
 #ifndef LL_LLDIR_H
 #define LL_LLDIR_H
 
+// these numbers *may* get serialized, so we need to be explicit
 typedef enum ELLPath
 {
 	LL_PATH_NONE = 0,
@@ -49,8 +50,8 @@ typedef enum ELLPath
 	LL_PATH_CHAT_LOGS = 12,
 	LL_PATH_PER_ACCOUNT_CHAT_LOGS = 13,
 	LL_PATH_MOZILLA_PROFILE = 14,
-	LL_PATH_HTML = 15,
-	LL_PATH_COUNT = 16
+//	LL_PATH_HTML = 15,
+	LL_PATH_LAST = 16
 } ELLPath;
 
 
@@ -69,9 +70,9 @@ class LLDir
 	 virtual BOOL getNextFileInDir(const std::string &dirname, const std::string &mask, std::string &fname, BOOL wrap) = 0;
 	 virtual void getRandomFileInDir(const std::string &dirname, const std::string &mask, std::string &fname) = 0;
 	virtual std::string getCurPath() = 0;
-	virtual BOOL fileExists(const std::string &filename) = 0;
+	virtual BOOL fileExists(const std::string &filename) const = 0;
 
-	const std::string findFile(const std::string &filename, const std::string searchPath1 = "", const std::string searchPath2 = "", const std::string searchPath3 = "");
+	const std::string findFile(const std::string &filename, const std::string searchPath1 = "", const std::string searchPath2 = "", const std::string searchPath3 = "") const;
 	const std::string &getExecutablePathAndName() const;	// Full pathname of the executable
 	const std::string &getAppName() const;			// install directory under progams/ ie "SecondLife"
 	const std::string &getExecutableDir() const;	// Directory where the executable is located
@@ -88,16 +89,26 @@ class LLDir
 	const std::string &getCAFile() const;			// File containing TLS certificate authorities
 	const std::string &getDirDelimiter() const;	// directory separator for platform (ie. '\' or '/' or ':')
 	const std::string &getSkinDir() const;		// User-specified skin folder.
+	const std::string &getUserSkinDir() const;		// User-specified skin folder with user modifications. e.g. c:\documents and settings\username\application data\second life\skins\curskin
+	const std::string &getDefaultSkinDir() const;	// folder for default skin. e.g. c:\program files\second life\skins\default
+	const std::string getSkinBaseDir() const;		// folder that contains all installed skins (not user modifications). e.g. c:\program files\second life\skins
 
 	// Expanded filename
 	std::string getExpandedFilename(ELLPath location, const std::string &filename) const;
 	std::string getExpandedFilename(ELLPath location, const std::string &subdir, const std::string &filename) const;
+	std::string getExpandedFilename(ELLPath location, const std::string &subdir1, const std::string &subdir2, const std::string &filename) const;
 
 	// Base and Directory name extraction
 	std::string getBaseFileName(const std::string& filepath, bool strip_exten = false) const;
 	std::string getDirName(const std::string& filepath) const;
 	std::string getExtension(const std::string& filepath) const; // Excludes '.', e.g getExtension("foo.wav") == "wav"
 	
+	// these methods search the various skin paths for the specified file in the following order:
+	// getUserSkinDir(), getSkinDir(), getDefaultSkinDir()
+	std::string findSkinnedFilename(const std::string &filename) const;
+	std::string findSkinnedFilename(const std::string &subdir, const std::string &filename) const;
+	std::string findSkinnedFilename(const std::string &subdir1, const std::string &subdir2, const std::string &filename) const;
+
 	// random filename in common temporary directory
 	std::string getTempFilename() const;
 
@@ -125,7 +136,9 @@ protected:
 	std::string mTempDir;
 	std::string mCacheDir;
 	std::string mDirDelimiter;
-	std::string mSkinDir;			// Location for u ser-specified skin info.
+	std::string mSkinDir;			// Location for current skin info.
+	std::string mDefaultSkinDir;			// Location for default skin info.
+	std::string mUserSkinDir;			// Location for user-modified skin info.
 };
 
 void dir_exists_or_crash(const std::string &dir_name);
