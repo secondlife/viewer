@@ -1411,6 +1411,11 @@ BOOL LLWindowMacOSX::setCursorPosition(const LLCoordWindow position)
 	// Under certain circumstances, this will trigger us to decouple the cursor.
 	adjustCursorDecouple(true);
 
+	// trigger mouse move callback
+	LLCoordGL gl_pos;
+	convertCoords(position, &gl_pos);
+	mCallbacks->handleMouseMove(this, gl_pos, (MASK)0);
+
 	return result;
 }
 

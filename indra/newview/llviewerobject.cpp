@@ -3039,7 +3039,7 @@ void LLViewerObject::updatePositionCaches() const
 
 const LLVector3d LLViewerObject::getPositionGlobal() const
 {
-	LLVector3d position_global = mRegionp->getPosGlobalFromRegion(getPositionRegion());;
+	LLVector3d position_global = mRegionp->getPosGlobalFromRegion(getPositionRegion());
 
 	if (isAttachment())
 	{
@@ -3364,6 +3364,19 @@ LLViewerObject* LLViewerObject::getRootEdit() const
 	}
 	return (LLViewerObject*)root;
 }
+
+
+BOOL LLViewerObject::lineSegmentIntersect(const LLVector3& start, const LLVector3& end,
+										  S32 face,
+										  S32* face_hit,
+										  LLVector3* intersection,
+										  LLVector2* tex_coord,
+										  LLVector3* normal,
+										  LLVector3* bi_normal)
+{
+	return false;
+}
+
 
 U8 LLViewerObject::getMediaType() const
 {
@@ -4834,11 +4847,6 @@ BOOL LLViewerObject::setFlags(U32 flags, BOOL state)
 		updateFlags();
 	}
 	return setit;
-}
-
-BOOL LLViewerObject::lineSegmentIntersect(const LLVector3& start, LLVector3& end) const
-{
-	return FALSE;
 }
 
 void LLViewerObject::applyAngularVelocity(F32 dt)

@@ -5201,6 +5201,28 @@
       <key>Value</key>
       <string />
     </map>
+    <key>PerFrameHoverPick</key>
+    <map>
+      <key>Comment</key>
+      <string>Detect the object under the mouse continually</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <real>1</real>
+    </map>
+    <key>PerFrameHoverPickCount</key>
+    <map>
+      <key>Comment</key>
+      <string>Detect the object under the mouse every n frames</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>PermissionsCautionEnabled</key>
     <map>
       <key>Comment</key>

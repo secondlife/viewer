@@ -45,6 +45,7 @@
 class LLToolDragAndDrop;
 class LLViewerRegion;
 class LLVOAvatar;
+class LLPickInfo;
 
 class LLToolDragAndDrop : public LLTool, public LLSingleton<LLToolDragAndDrop>
 {
@@ -106,7 +107,7 @@ protected:
 					EAcceptance* acceptance);
 	void dragOrDrop3D(S32 x, S32 y, MASK mask, BOOL drop,
 					  EAcceptance* acceptance);
-	static void pickCallback(S32 x, S32 y, MASK mask);
+	static void pickCallback(const LLPickInfo& pick_info);
 
 protected:
 

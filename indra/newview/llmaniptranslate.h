@@ -61,7 +61,6 @@ public:
 	virtual BOOL	handleHover(S32 x, S32 y, MASK mask);
 	virtual void	render();
 	virtual void	handleSelect();
-	virtual void	handleDeselect();
 
 	virtual void	highlightManipulators(S32 x, S32 y);
 	virtual BOOL	handleMouseDownOnPart(S32 x, S32 y, MASK mask);
@@ -110,7 +109,6 @@ private:
 	F32			mArrowLengthMeters;		// meters
 	F32			mGridSizeMeters;
 	F32			mPlaneManipOffsetMeters;
-	EManipPart	mManipPart;
 	LLVector3	mManipNormal;
 	LLVector3d	mDragCursorStartGlobal;
 	LLVector3d	mDragSelectionStartGlobal;

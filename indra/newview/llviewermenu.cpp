@@ -1359,6 +1359,9 @@ void init_debug_rendering_menu(LLMenuGL* menu)
 	sub_menu->append(new LLMenuItemCheckGL("Glow",&LLPipeline::toggleRenderDebug, NULL,
 													&LLPipeline::toggleRenderDebugControl,
 													(void*)LLPipeline::RENDER_DEBUG_GLOW));
+	sub_menu->append(new LLMenuItemCheckGL("Raycasting",	&LLPipeline::toggleRenderDebug, NULL,
+													&LLPipeline::toggleRenderDebugControl,
+													(void*)LLPipeline::RENDER_DEBUG_RAYCAST));
 	
 	sub_menu->append(new LLMenuItemCheckGL("Show Depth Buffer",
 										   &menu_toggle_control,
@@ -1628,7 +1631,11 @@ class LLObjectReportAbuse : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		LLFloaterReporter::showFromObject(gLastHitObjectID);
+		LLViewerObject* objectp = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
+		if (objectp)
+		{
+			LLFloaterReporter::showFromObject(objectp->getID());
+		}
 		return true;
 	}
 };
@@ -1638,7 +1645,7 @@ class LLObjectEnableReportAbuse : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		bool new_value = !gLastHitObjectID.isNull();
+		bool new_value = LLSelectMgr::getInstance()->getSelection()->getObjectCount() != 0;
 		gMenuHolder->findControl(userdata["control"].asString())->setValue(new_value);
 		return true;
 	}
@@ -1648,7 +1655,7 @@ class LLObjectTouch : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		LLViewerObject* object = gObjectList.findObject(gLastHitObjectID);
+		LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
 		if (!object) return true;
 
 		LLMessageSystem	*msg = gMessageSystem;
@@ -1683,7 +1690,7 @@ class LLObjectEnableTouch : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		LLViewerObject* obj = gObjectList.findObject(gLastHitObjectID);
+		LLViewerObject* obj = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
 		bool new_value = obj && obj->flagHandleTouch();
 		gMenuHolder->findControl(userdata["control"].asString())->setValue(new_value);
 
@@ -1717,7 +1724,7 @@ void label_touch(std::string& label, void*)
 
 bool handle_object_open()
 {
-	LLViewerObject* obj = gObjectList.findObject(gLastHitObjectID);
+	LLViewerObject* obj = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
 	if(!obj) return true;
 
 	LLFloaterOpenObject::show();
@@ -1738,7 +1745,7 @@ class LLObjectEnableOpen : public view_listener_t
 	{
 		// Look for contents in root object, which is all the LLFloaterOpenObject
 		// understands.
-		LLViewerObject* obj = gObjectList.findObject(gLastHitObjectID);
+		LLViewerObject* obj = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
 		bool new_value = (obj != NULL);
 		if (new_value)
 		{
@@ -1838,14 +1845,14 @@ class LLObjectBuild : public view_listener_t
 		{
 			// zoom in if we're looking at the avatar
 			gAgent.setFocusOnAvatar(FALSE, ANIMATE);
-			gAgent.setFocusGlobal(gLastHitPosGlobal + gLastHitObjectOffset, gLastHitObjectID);
+			gAgent.setFocusGlobal(LLToolPie::getInstance()->getPick());
 			gAgent.cameraZoomIn(0.666f);
 			gAgent.cameraOrbitOver( 30.f * DEG_TO_RAD );
 			gViewerWindow->moveCursorToCenter();
 		}
 		else if ( gSavedSettings.getBOOL("EditCameraMovement") )
 		{
-			gAgent.setFocusGlobal(gLastHitPosGlobal + gLastHitObjectOffset, gLastHitObjectID);
+			gAgent.setFocusGlobal(LLToolPie::getInstance()->getPick());
 			gViewerWindow->moveCursorToCenter();
 		}
 
@@ -1878,12 +1885,16 @@ class LLObjectEdit : public view_listener_t
 			else
 			{
 				gAgent.setFocusOnAvatar(FALSE, ANIMATE);
+				LLViewerObject* selected_objectp = selection->getFirstRootObject();
+				if (selected_objectp)
+				{
 				// zoom in on object center instead of where we clicked, as we need to see the manipulator handles
-				gAgent.setFocusGlobal(gLastHitPosGlobal /*+ gLastHitObjectOffset*/, gLastHitObjectID);
+					gAgent.setFocusGlobal(selected_objectp->getPositionGlobal(), selected_objectp->getID());
 				gAgent.cameraZoomIn(0.666f);
 				gAgent.cameraOrbitOver( 30.f * DEG_TO_RAD );
 				gViewerWindow->moveCursorToCenter();
 			}
+		}
 		}
 
 		gFloaterTools->open();		/* Flawfinder: ignore */
@@ -1923,7 +1934,7 @@ class LLLandBuild : public view_listener_t
 		{
 			// zoom in if we're looking at the avatar
 			gAgent.setFocusOnAvatar(FALSE, ANIMATE);
-			gAgent.setFocusGlobal(gLastHitPosGlobal + gLastHitObjectOffset, gLastHitObjectID);
+			gAgent.setFocusGlobal(LLToolPie::getInstance()->getPick());
 			gAgent.cameraZoomIn(0.666f);
 			gAgent.cameraOrbitOver( 30.f * DEG_TO_RAD );
 			gViewerWindow->moveCursorToCenter();
@@ -1931,7 +1942,7 @@ class LLLandBuild : public view_listener_t
 		else if ( gSavedSettings.getBOOL("EditCameraMovement")  )
 		{
 			// otherwise just move focus
-			gAgent.setFocusGlobal(gLastHitPosGlobal + gLastHitObjectOffset, gLastHitObjectID);
+			gAgent.setFocusGlobal(LLToolPie::getInstance()->getPick());
 			gViewerWindow->moveCursorToCenter();
 		}
 
@@ -2049,15 +2060,19 @@ BOOL enable_has_attachments(void*)
 //---------------------------------------------------------------------------
 void handle_follow(void *userdata)
 {
-	// follow a given avatar, ID in gLastHitObjectID
-	gAgent.startFollowPilot(gLastHitObjectID);
+	// follow a given avatar by ID
+	LLViewerObject* objectp = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
+	if (objectp)
+	{
+		gAgent.startFollowPilot(objectp->getID());
+	}
 }
 
 class LLObjectEnableMute : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		LLViewerObject* object = gViewerWindow->lastObjectHit();
+		LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
 		bool new_value = (object != NULL);
 		if (new_value)
 		{
@@ -2080,7 +2095,7 @@ class LLObjectMute : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		LLViewerObject* object = gViewerWindow->lastObjectHit();
+		LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
 		if (!object) return true;
 		
 		LLUUID id;
@@ -2136,11 +2151,12 @@ bool handle_go_to()
 	// JAMESDEBUG try simulator autopilot
 	std::vector<std::string> strings;
 	std::string val;
-	val = llformat("%g", gLastHitPosGlobal.mdV[VX]);
+	LLVector3d pos = LLToolPie::getInstance()->getPick().mPosGlobal;
+	val = llformat("%g", pos.mdV[VX]);
 	strings.push_back(val);
-	val = llformat("%g", gLastHitPosGlobal.mdV[VY]);
+	val = llformat("%g", pos.mdV[VY]);
 	strings.push_back(val);
-	val = llformat("%g", gLastHitPosGlobal.mdV[VZ]);
+	val = llformat("%g", pos.mdV[VZ]);
 	strings.push_back(val);
 	send_generic_message("autopilot", strings);
 
@@ -2209,7 +2225,7 @@ class LLAvatarFreeze : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		LLVOAvatar* avatar = find_avatar_from_object( gViewerWindow->lastObjectHit() );
+		LLVOAvatar* avatar = find_avatar_from_object( LLSelectMgr::getInstance()->getSelection()->getFirstObject() );
 		if( avatar )
 		{
 			LLUUID* avatar_id = new LLUUID( avatar->getID() );
@@ -2259,7 +2275,7 @@ class LLAvatarDebug : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		LLVOAvatar* avatar = find_avatar_from_object( gViewerWindow->lastObjectHit() );
+		LLVOAvatar* avatar = find_avatar_from_object( LLSelectMgr::getInstance()->getSelection()->getFirstObject() );
 		if( avatar )
 		{
 			avatar->dumpLocalTextures();
@@ -2311,7 +2327,7 @@ class LLAvatarEject : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		LLVOAvatar* avatar = find_avatar_from_object( gViewerWindow->lastObjectHit() );
+		LLVOAvatar* avatar = find_avatar_from_object( LLSelectMgr::getInstance()->getSelection()->getFirstObject() );
 		if( avatar )
 		{
 			LLUUID* avatar_id = new LLUUID( avatar->getID() );
@@ -2341,7 +2357,7 @@ class LLAvatarEnableFreezeEject : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		LLVOAvatar* avatar = find_avatar_from_object( gViewerWindow->lastObjectHit() );
+		LLVOAvatar* avatar = find_avatar_from_object( LLSelectMgr::getInstance()->getSelection()->getFirstObject() );
 		bool new_value = (avatar != NULL);
 
 		if (new_value)
@@ -2366,7 +2382,7 @@ class LLAvatarGiveCard : public view_listener_t
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
 		llinfos << "handle_give_card()" << llendl;
-		LLViewerObject* dest = gViewerWindow->lastObjectHit();
+		LLViewerObject* dest = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
 		if(dest && dest->isAvatar())
 		{
 			bool found_name = false;
@@ -2605,9 +2621,9 @@ void handle_dump_region_object_cache(void*)
 
 void handle_dump_focus(void *)
 {
-	LLView *view = gFocusMgr.getKeyboardFocus();
-	std::string name = view ? view->getName() : "(none)";
-	llinfos << "Keyboard focus " << name << llendl;
+	LLUICtrl *ctrl = dynamic_cast<LLUICtrl*>(gFocusMgr.getKeyboardFocus());
+
+	llinfos << "Keyboard focus " << (ctrl ? ctrl->getName() : "(none)") << llendl;
 }
 
 class LLSelfStandUp : public view_listener_t
@@ -2823,7 +2839,7 @@ class LLAvatarEnableAddFriend : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		LLVOAvatar* avatar = find_avatar_from_object(gViewerWindow->lastObjectHit());
+		LLVOAvatar* avatar = find_avatar_from_object(LLSelectMgr::getInstance()->getSelection()->getFirstObject());
 		bool new_value = avatar && !is_agent_friend(avatar->getID());
 		gMenuHolder->findControl(userdata["control"].asString())->setValue(new_value);
 		return true;
@@ -2870,10 +2886,12 @@ class LLEditEnableCustomizeAvatar : public view_listener_t
 	}
 };
 
+// only works on pie menu
 bool handle_sit_or_stand()
 {
-	LLViewerObject *object = gObjectList.findObject(gLastHitNonFloraObjectID);	
-	if (!object)
+	LLPickInfo pick = LLToolPie::getInstance()->getPick();
+	LLViewerObject *object = pick.getObject();;
+	if (!object || pick.mPickType == LLPickInfo::PICK_FLORA)
 	{
 		return true;
 	}
@@ -2888,17 +2906,13 @@ bool handle_sit_or_stand()
 
 	if (object && object->getPCode() == LL_PCODE_VOLUME)
 	{
-		LLVector3d offset_double = gViewerWindow->lastNonFloraObjectHitOffset();
-		LLVector3 offset_single;
-		offset_single.setVec(offset_double);
-		
 		gMessageSystem->newMessageFast(_PREHASH_AgentRequestSit);
 		gMessageSystem->nextBlockFast(_PREHASH_AgentData);
 		gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
 		gMessageSystem->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
 		gMessageSystem->nextBlockFast(_PREHASH_TargetObject);
 		gMessageSystem->addUUIDFast(_PREHASH_TargetID, object->mID);
-		gMessageSystem->addVector3Fast(_PREHASH_Offset, offset_single);
+		gMessageSystem->addVector3Fast(_PREHASH_Offset, pick.mObjectOffset);
 
 		object->getRegion()->sendReliableMessage();
 	}
@@ -2932,7 +2946,7 @@ class LLLandSit : public view_listener_t
 		gAgent.setControlFlags(AGENT_CONTROL_STAND_UP);
 		LLViewerParcelMgr::getInstance()->deselectLand();
 
-		LLVector3d posGlobal = gLastHitPosGlobal;
+		LLVector3d posGlobal = LLToolPie::getInstance()->getPick().mPosGlobal;
 		
 		LLQuaternion target_rot;
 		if (gAgent.getAvatarObject())
@@ -5028,7 +5042,7 @@ class LLAvatarInviteToGroup : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		LLVOAvatar* avatar = find_avatar_from_object( gViewerWindow->lastObjectHit() );
+		LLVOAvatar* avatar = find_avatar_from_object( LLSelectMgr::getInstance()->getSelection()->getFirstObject() );
 		if(avatar)
 		{
 			invite_to_group(avatar->getID());
@@ -5041,7 +5055,7 @@ class LLAvatarAddFriend : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		LLVOAvatar* avatar = find_avatar_from_object( gViewerWindow->lastObjectHit() );
+		LLVOAvatar* avatar = find_avatar_from_object( LLSelectMgr::getInstance()->getSelection()->getFirstObject() );
 		if(avatar && !is_agent_friend(avatar->getID()))
 		{
 			request_friendship(avatar->getID());
@@ -5114,11 +5128,11 @@ class LLEnablePayObject : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		LLVOAvatar* avatar = find_avatar_from_object(gViewerWindow->lastObjectHit());
+		LLVOAvatar* avatar = find_avatar_from_object(LLSelectMgr::getInstance()->getSelection()->getFirstObject());
 		bool new_value = (avatar != NULL);
 		if (!new_value)
 		{
-			LLViewerObject* object = gViewerWindow->lastObjectHit();
+			LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
 			if( object )
 			{
 				LLViewerObject *parent = (LLViewerObject *)object->getParent();
@@ -5138,8 +5152,9 @@ class LLObjectEnableSitOrStand : public view_listener_t
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
 		bool new_value = false;
-		LLViewerObject* dest_object = NULL;
-		if((dest_object = gObjectList.findObject(gLastHitObjectID)))
+		LLViewerObject* dest_object = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
+
+		if(dest_object)
 		{
 			if(dest_object->getPCode() == LL_PCODE_VOLUME)
 			{
@@ -5502,7 +5517,11 @@ class LLShowAgentProfile : public view_listener_t
 		}
 		else if (userdata.asString() == "hit object")
 		{
-			agent_id = gLastHitObjectID;
+			LLViewerObject* objectp = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
+			if (objectp)
+			{
+				agent_id = objectp->getID();
+			}
 		}
 		else
 		{
@@ -5538,12 +5557,12 @@ void handle_focus(void *)
 	{
 		// zoom in if we're looking at the avatar
 		gAgent.setFocusOnAvatar(FALSE, ANIMATE);
-		gAgent.setFocusGlobal(gLastHitPosGlobal + gLastHitObjectOffset, gLastHitObjectID);
+		gAgent.setFocusGlobal(LLToolPie::getInstance()->getPick());
 		gAgent.cameraZoomIn(0.666f);
 	}
 	else
 	{
-		gAgent.setFocusGlobal(gLastHitPosGlobal + gLastHitObjectOffset, gLastHitObjectID);
+		gAgent.setFocusGlobal(LLToolPie::getInstance()->getPick());
 	}
 
 	gViewerWindow->moveCursorToCenter();
@@ -5561,19 +5580,19 @@ class LLLandEdit : public view_listener_t
 		{
 			// zoom in if we're looking at the avatar
 			gAgent.setFocusOnAvatar(FALSE, ANIMATE);
-			gAgent.setFocusGlobal(gLastHitPosGlobal + gLastHitObjectOffset, gLastHitObjectID);
+			gAgent.setFocusGlobal(LLToolPie::getInstance()->getPick());
 
 			gAgent.cameraOrbitOver( F_PI * 0.25f );
 			gViewerWindow->moveCursorToCenter();
 		}
 		else if ( gSavedSettings.getBOOL("EditCameraMovement") )
 		{
-			gAgent.setFocusGlobal(gLastHitPosGlobal + gLastHitObjectOffset, gLastHitObjectID);
+			gAgent.setFocusGlobal(LLToolPie::getInstance()->getPick());
 			gViewerWindow->moveCursorToCenter();
 		}
 
 
-		LLViewerParcelMgr::getInstance()->selectParcelAt( gLastHitPosGlobal );
+		LLViewerParcelMgr::getInstance()->selectParcelAt( LLToolPie::getInstance()->getPick().mPosGlobal );
 
 		gFloaterTools->showMore(TRUE);
 		gFloaterView->bringToFront( gFloaterTools );
@@ -5611,13 +5630,13 @@ void handle_move(void*)
 	{
 		// zoom in if we're looking at the avatar
 		gAgent.setFocusOnAvatar(FALSE, ANIMATE);
-		gAgent.setFocusGlobal(gLastHitPosGlobal + gLastHitObjectOffset, gLastHitObjectID);
+		gAgent.setFocusGlobal(LLToolPie::getInstance()->getPick());
 
 		gAgent.cameraZoomIn(0.666f);
 	}
 	else
 	{
-		gAgent.setFocusGlobal(gLastHitPosGlobal + gLastHitObjectOffset, gLastHitObjectID);
+		gAgent.setFocusGlobal(LLToolPie::getInstance()->getPick());
 	}
 
 	gViewerWindow->moveCursorToCenter();
@@ -5719,7 +5738,7 @@ class LLAttachmentDrop : public view_listener_t
 	{
 		// Called when the user clicked on an object attached to them
 		// and selected "Drop".
-		LLViewerObject *object = gViewerWindow->lastObjectHit();
+		LLViewerObject *object = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
 		if (!object)
 		{
 			llwarns << "handle_drop_attachment() - no object to drop" << llendl;
@@ -5819,7 +5838,7 @@ class LLAttachmentDetach : public view_listener_t
 	{
 		// Called when the user clicked on an object attached to them
 		// and selected "Detach".
-		LLViewerObject *object = gViewerWindow->lastObjectHit();
+		LLViewerObject *object = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
 		if (!object)
 		{
 			llwarns << "handle_detach() - no object to detach" << llendl;
@@ -5899,7 +5918,7 @@ class LLAttachmentEnableDrop : public view_listener_t
 		// in your inventory.  Therefore, we disable the drop option until the
 		// item is in your inventory
 
-		LLViewerObject*              object         = gViewerWindow->lastObjectHit();
+		LLViewerObject*              object         = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
 		LLViewerJointAttachment*     attachment_pt  = NULL;
 		LLInventoryItem*             item           = NULL;
 
@@ -5941,7 +5960,7 @@ class LLAttachmentEnableDrop : public view_listener_t
 
 BOOL enable_detach(void*)
 {
-	LLViewerObject* object = gViewerWindow->lastObjectHit();
+	LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
 	if (!object) return FALSE;
 	if (!object->isAttachment()) return FALSE;
 
@@ -6045,7 +6064,7 @@ class LLAvatarSendIM : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		LLVOAvatar* avatar = find_avatar_from_object( gViewerWindow->lastObjectHit() );
+		LLVOAvatar* avatar = find_avatar_from_object( LLSelectMgr::getInstance()->getSelection()->getFirstObject() );
 		if(avatar)
 		{
 			std::string name("IM");
@@ -6821,7 +6840,11 @@ void handle_dump_avatar_local_textures(void*)
 
 void handle_debug_avatar_textures(void*)
 {
-	LLFloaterAvatarTextures::show(gLastHitObjectID);
+	LLViewerObject* objectp = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
+	if (objectp)
+	{
+		LLFloaterAvatarTextures::show(objectp->getID());
+	}
 }
 
 void handle_grab_texture(void* data)

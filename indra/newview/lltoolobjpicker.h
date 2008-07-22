@@ -36,6 +36,8 @@
 #include "v3math.h"
 #include "lluuid.h"
 
+class LLPickInfo;
+
 class LLToolObjPicker : public LLTool, public LLSingleton<LLToolObjPicker>
 {
 public:
@@ -54,7 +56,7 @@ public:
 
 	LLUUID				getObjectID() const { return mHitObjectID; }
 
-	static void			pickCallback(S32 x, S32 y, MASK mask);
+	static void			pickCallback(const LLPickInfo& pick_info);
 
 protected:
 	BOOL				mPicked;

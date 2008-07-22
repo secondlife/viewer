@@ -35,6 +35,7 @@
 #include "lltool.h"
 
 class LLViewerObject;
+class LLPickInfo;
 
 class LLToolFace
 :	public LLTool, public LLSingleton<LLToolFace>
@@ -49,7 +50,7 @@ public:
 	virtual void	handleDeselect();
 	virtual void	render();			// draw face highlights
 
-	static void pickCallback(S32 x, S32 y, MASK mask);
+	static void pickCallback(const LLPickInfo& pick_info);
 };
 
 #endif

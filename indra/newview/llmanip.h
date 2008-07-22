@@ -155,6 +155,7 @@ protected:
 	BOOL				mInSnapRegime;
 	LLSafeHandle<LLObjectSelection> mObjectSelection;
 	EManipPart			mHighlightedPart;
+	EManipPart			mManipPart;
 
 	static F32			sHelpTextVisibleTime;
 	static F32			sHelpTextFadeTime;

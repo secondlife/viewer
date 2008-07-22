@@ -91,6 +91,7 @@ public:
 	LLXformMatrix*	getXform()			const	{ return mXform; }
 	BOOL			hasGeometry()		const	{ return mGeomCount > 0; }
 	LLVector3		getPositionAgent()	const;
+	LLVector2       surfaceToTexture(LLVector2 surface_coord, LLVector3 position, LLVector3 normal);
 	
 	U32				getState()			const	{ return mState; }
 	void			setState(U32 state)			{ mState |= state; }
@@ -165,7 +166,7 @@ public:
 	void		update();
 
 	void		updateCenterAgent(); // Update center when xform has changed.
-	void		renderSelectedUV(const S32 offset = 0, const S32 count = 0);
+	void		renderSelectedUV();
 
 	void		renderForSelect(U32 data_mask = LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD);
 	void		renderSelected(LLImageGL *image, const LLColor4 &color);

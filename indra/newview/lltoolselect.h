@@ -35,6 +35,7 @@
 #include "lltool.h"
 #include "v3math.h"
 #include "lluuid.h"
+#include "llviewerwindow.h" // for LLPickInfo
 
 class LLObjectSelection;
 
@@ -45,11 +46,10 @@ public:
 
 	virtual BOOL		handleMouseDown(S32 x, S32 y, MASK mask);
 	virtual BOOL		handleMouseUp(S32 x, S32 y, MASK mask);
-	virtual BOOL		handleDoubleClick(S32 x, S32 y, MASK mask);
 
 	virtual void		stopEditing();
 
-	static LLSafeHandle<LLObjectSelection>	handleObjectSelection(LLViewerObject *object, MASK mask, BOOL ignore_group, BOOL temp_select);
+	static LLSafeHandle<LLObjectSelection>	handleObjectSelection(const LLPickInfo& pick, BOOL ignore_group, BOOL temp_select, BOOL select_root = FALSE);
 
 	virtual void		onMouseCaptureLost();
 	virtual void		handleDeselect();
@@ -57,6 +57,7 @@ public:
 protected:
 	BOOL				mIgnoreGroup;
 	LLUUID				mSelectObjectID;
+	LLPickInfo			mPick;
 };
 
 

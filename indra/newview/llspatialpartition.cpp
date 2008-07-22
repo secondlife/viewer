@@ -36,6 +36,7 @@
 #include "llviewerwindow.h"
 #include "llviewerobjectlist.h"
 #include "llvovolume.h"
+#include "llvolume.h"
 #include "llviewercamera.h"
 #include "llface.h"
 #include "llviewercontrol.h"
@@ -242,28 +243,6 @@ void LLSpatialGroup::buildOcclusion()
 
 
 BOOL earlyFail(LLCamera* camera, LLSpatialGroup* group);
-
-BOOL LLLineSegmentAABB(const LLVector3& start, const LLVector3& end, const LLVector3& center, const LLVector3& size)
-{
-	float fAWdU[3];
-	LLVector3 dir;
-	LLVector3 diff;
-	
-	for (U32 i = 0; i < 3; i++)
-	{
-		dir.mV[i] = 0.5f * (end.mV[i] - start.mV[i]);
-		diff.mV[i] = (0.5f * (end.mV[i] + start.mV[i])) - center.mV[i];
-		fAWdU[i] = fabsf(dir.mV[i]);
-		if(fabsf(diff.mV[i])>size.mV[i] + fAWdU[i])	return false;
-	}
-
-	float f;
-	f = dir.mV[1] * diff.mV[2] - dir.mV[2] * diff.mV[1];	if(fabsf(f)>size.mV[1]*fAWdU[2] + size.mV[2]*fAWdU[1])	return false;
-	f = dir.mV[2] * diff.mV[0] - dir.mV[0] * diff.mV[2];	if(fabsf(f)>size.mV[0]*fAWdU[2] + size.mV[2]*fAWdU[0])	return false;
-	f = dir.mV[0] * diff.mV[1] - dir.mV[1] * diff.mV[0];	if(fabsf(f)>size.mV[0]*fAWdU[1] + size.mV[1]*fAWdU[0])	return false;
-
-	return true;
-}
 
 //returns:
 //	0 if sphere and AABB are not intersecting 
@@ -2305,6 +2284,56 @@ void renderLights(LLDrawable* drawablep)
 	}
 }
 
+
+void renderRaycast(LLDrawable* drawablep)
+{
+	if (drawablep->getVObj() != gDebugRaycastObject)
+	{
+		return;
+	}
+	
+	if (drawablep->getNumFaces())
+	{
+		LLGLEnable blend(GL_BLEND);
+		gGL.color4f(0,1,1,0.5f);
+
+		for (S32 i = 0; i < drawablep->getNumFaces(); i++)
+		{
+			pushVerts(drawablep->getFace(i), LLVertexBuffer::MAP_VERTEX);
+		}
+
+		// draw intersection point
+		glPushMatrix();
+		glLoadMatrixd(gGLModelView);
+		LLVector3 translate = gDebugRaycastIntersection;
+		glTranslatef(translate.mV[0], translate.mV[1], translate.mV[2]);
+		LLCoordFrame orient;
+		orient.lookDir(gDebugRaycastNormal, gDebugRaycastBinormal);
+		LLMatrix4 rotation;
+		orient.getRotMatrixToParent(rotation);
+		glMultMatrixf((float*)rotation.mMatrix);
+		
+		gGL.color4f(1,0,0,0.5f);
+		drawBox(LLVector3(0, 0, 0), LLVector3(0.1f, 0.022f, 0.022f));
+		gGL.color4f(0,1,0,0.5f);
+		drawBox(LLVector3(0, 0, 0), LLVector3(0.021f, 0.1f, 0.021f));
+		gGL.color4f(0,0,1,0.5f);
+		drawBox(LLVector3(0, 0, 0), LLVector3(0.02f, 0.02f, 0.1f));
+		glPopMatrix();
+
+		// draw bounding box of prim
+		const LLVector3* ext = drawablep->getSpatialExtents();
+
+		LLVector3 pos = (ext[0] + ext[1]) * 0.5f;
+		LLVector3 size = (ext[1] - ext[0]) * 0.5f;
+
+		LLGLDepthTest depth(GL_FALSE, GL_TRUE);
+		gGL.color4f(0,0.5f,0.5f,1);
+		drawBoxOutline(pos, size);
+
+	}
+}
+
 class LLOctreeRenderNonOccluded : public LLOctreeTraveler<LLDrawable>
 {
 public:
@@ -2381,6 +2410,11 @@ public:
 			{
 				renderLights(drawable);
 			}
+
+			if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_RAYCAST))
+			{
+				renderRaycast(drawable);
+			}
 		}
 		
 		for (LLSpatialGroup::draw_map_t::iterator i = group->mDrawMap.begin(); i != group->mDrawMap.end(); ++i)
@@ -2411,7 +2445,8 @@ void LLSpatialPartition::renderDebug()
 									  LLPipeline::RENDER_DEBUG_BBOXES |
 									  LLPipeline::RENDER_DEBUG_POINTS |
 									  LLPipeline::RENDER_DEBUG_TEXTURE_PRIORITY |
-									  LLPipeline::RENDER_DEBUG_TEXTURE_ANIM))
+									  LLPipeline::RENDER_DEBUG_TEXTURE_ANIM |
+									  LLPipeline::RENDER_DEBUG_RAYCAST))
 	{
 		return;
 	}
@@ -2457,17 +2492,37 @@ BOOL LLSpatialPartition::isVisible(const LLVector3& v)
 	return TRUE;
 }
 
-class LLOctreePick : public LLSpatialGroup::OctreeTraveler
+class LLOctreeIntersect : public LLSpatialGroup::OctreeTraveler
 {
 public:
 	LLVector3 mStart;
 	LLVector3 mEnd;
-	LLDrawable* mRet;
+	S32       *mFaceHit;
+	LLVector3 *mIntersection;
+	LLVector2 *mTexCoord;
+	LLVector3 *mNormal;
+	LLVector3 *mBinormal;
+	LLDrawable* mHit;
 	
-	LLOctreePick(LLVector3 start, LLVector3 end)
-	: mStart(start), mEnd(end)
+	LLOctreeIntersect(LLVector3 start, LLVector3 end,
+					  S32* face_hit, LLVector3* intersection, LLVector2* tex_coord, LLVector3* normal, LLVector3* binormal)
+		: mStart(start),
+		  mEnd(end),
+		  mFaceHit(face_hit),
+		  mIntersection(intersection),
+		  mTexCoord(tex_coord),
+		  mNormal(normal),
+		  mBinormal(binormal),
+		  mHit(NULL)
 	{
-		mRet = NULL;
+	}
+	
+	virtual void visit(const LLSpatialGroup::OctreeNode* branch) 
+	{	
+		for (LLSpatialGroup::OctreeNode::const_element_iter i = branch->getData().begin(); i != branch->getData().end(); ++i)
+	{
+			check(*i);
+		}
 	}
 
 	virtual LLDrawable* check(const LLSpatialGroup::OctreeNode* node)
@@ -2487,41 +2542,73 @@ public:
 			size = group->mBounds[1];
 			center = group->mBounds[0];
 			
-			if (LLLineSegmentAABB(mStart, mEnd, center, size))
+			LLVector3 local_start = mStart;
+			LLVector3 local_end   = mEnd;
+
+			if (group->mSpatialPartition->isBridge())
+			{
+				LLMatrix4 local_matrix = group->mSpatialPartition->asBridge()->mDrawable->getRenderMatrix();
+				local_matrix.invert();
+				
+				local_start = mStart * local_matrix;
+				local_end   = mEnd   * local_matrix;
+			}
+
+			if (LLLineSegmentBoxIntersect(local_start, local_end, center, size))
 			{
 				check(child);
 			}
 		}	
 
-		return mRet;
-	}
-
-	virtual void visit(const LLSpatialGroup::OctreeNode* branch) 
-	{	
-		for (LLSpatialGroup::OctreeNode::const_element_iter i = branch->getData().begin(); i != branch->getData().end(); ++i)
-		{
-			check(*i);
-		}
+		return mHit;
 	}
 
 	virtual bool check(LLDrawable* drawable)
+	{	
+		if (drawable->isSpatialBridge())
+		{
+			LLSpatialPartition *part = drawable->asPartition();
+
+			check(part->mOctree);
+	}
+
+		else
 	{
 		LLViewerObject* vobj = drawable->getVObj();
-		if (vobj->lineSegmentIntersect(mStart, mEnd))
+
+			if (vobj)
+			{
+				LLVector3 intersection;
+				if (vobj->lineSegmentIntersect(mStart, mEnd, -1, mFaceHit, &intersection, mTexCoord, mNormal, mBinormal))
+				{
+					mEnd = intersection;  // shorten ray so we only find CLOSER hits
+					if (mIntersection)
 		{
-			mRet = vobj->mDrawable;
+						*mIntersection = intersection;
+					}
+					
+					mHit = vobj->mDrawable;
+				}
+			}
 		}
 		
 		return false;
 	}
 };
 
-LLDrawable*	LLSpatialPartition::pickDrawable(const LLVector3& start, const LLVector3& end, LLVector3& collision)
+LLDrawable* LLSpatialPartition::lineSegmentIntersect(const LLVector3& start, const LLVector3& end,
+													 S32* face_hit,                   // return the face hit
+													 LLVector3* intersection,         // return the intersection point
+													 LLVector2* tex_coord,            // return the texture coordinates of the intersection point
+													 LLVector3* normal,               // return the surface normal at the intersection point
+													 LLVector3* bi_normal             // return the surface bi-normal at the intersection point
+	)
+
 {
-	LLOctreePick pick(start, end);
-	LLDrawable* ret = pick.check(mOctree);
-	collision.setVec(pick.mEnd);
-	return ret;
+	LLOctreeIntersect intersect(start, end, face_hit, intersection, tex_coord, normal, bi_normal);
+	LLDrawable* drawable = intersect.check(mOctree);
+
+	return drawable;
 }
 
 LLDrawInfo::LLDrawInfo(U16 start, U16 end, U32 count, U32 offset, 

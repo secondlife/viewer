@@ -622,8 +622,6 @@ LLVOAvatar::LLVOAvatar(
 	LLViewerRegion* regionp)
 	:
 	LLViewerObject(id, pcode, regionp),
-	mHUDTargetZoom(1.f),
-	mHUDCurZoom(1.f),
 	mLastHeadBakedID( IMG_DEFAULT_AVATAR ),
 	mLastUpperBodyBakedID( IMG_DEFAULT_AVATAR ),
 	mLastLowerBodyBakedID( IMG_DEFAULT_AVATAR ),
@@ -3250,7 +3248,8 @@ void LLVOAvatar::idleUpdateTractorBeam()
 			}
 			else
 			{
-				mBeam->setPositionGlobal(gLastHitNonFloraPosGlobal + gLastHitNonFloraObjectOffset);
+				const LLPickInfo& pick = gViewerWindow->getLastPick();
+				mBeam->setPositionGlobal(pick.mPosGlobal);
 			}
 
 		}

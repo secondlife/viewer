@@ -636,8 +636,6 @@ public:
 	// special purpose joint for HUD attachments
 	//--------------------------------------------------------------------
 	LLViewerJoint *mScreenp;
-	F32				mHUDTargetZoom;
-	F32				mHUDCurZoom;
 
 	//--------------------------------------------------------------------
 	// mesh objects for skinned avatar

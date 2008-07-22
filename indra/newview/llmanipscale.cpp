@@ -166,19 +166,11 @@ void LLManipScale::handleSelect()
 	LLManip::handleSelect();
 }
 
-void LLManipScale::handleDeselect()
-{
-	mHighlightedPart = LL_NO_PART;
-	mManipPart = LL_NO_PART;
-	LLManip::handleDeselect();
-}
-
 LLManipScale::LLManipScale( LLToolComposite* composite )
 	: 
 	LLManip( std::string("Scale"), composite ),
 	mBoxHandleSize( 1.f ),
 	mScaledBoxHandleSize( 1.f ),
-	mManipPart( LL_NO_PART ),
 	mLastMouseX( -1 ),
 	mLastMouseY( -1 ),
 	mSendUpdateOnMouseUp( FALSE ),
@@ -216,7 +208,7 @@ void LLManipScale::render()
 		glPushMatrix();
 		if (mObjectSelection->getSelectType() == SELECT_TYPE_HUD)
 		{
-			F32 zoom = gAgent.getAvatarObject()->mHUDCurZoom;
+			F32 zoom = gAgent.mHUDCurZoom;
 			glScalef(zoom, zoom, zoom);
 		}
 
@@ -233,7 +225,7 @@ void LLManipScale::render()
 		if (mObjectSelection->getSelectType() == SELECT_TYPE_HUD)
 		{
 			mBoxHandleSize = BOX_HANDLE_BASE_SIZE * BOX_HANDLE_BASE_FACTOR / (F32) LLViewerCamera::getInstance()->getViewHeightInPixels();
-			mBoxHandleSize /= gAgent.getAvatarObject()->mHUDCurZoom;
+			mBoxHandleSize /= gAgent.mHUDCurZoom;
 		}
 		else
 		{
@@ -316,9 +308,7 @@ BOOL LLManipScale::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	BOOL	handled = FALSE;
 
-	LLViewerObject* hit_obj = gViewerWindow->lastObjectHit();
-	if( hit_obj ||  
-		(mHighlightedPart != LL_NO_PART) )
+	if(mHighlightedPart != LL_NO_PART)
 	{
 		handled = handleMouseDownOnPart( x, y, mask );
 	}
@@ -446,7 +436,7 @@ void LLManipScale::highlightManipulators(S32 x, S32 y)
 			LLMatrix4 cfr(OGL_TO_CFR_ROTATION);
 			transform *= cfr;
 			LLMatrix4 window_scale;
-			F32 zoom_level = 2.f * gAgent.getAvatarObject()->mHUDCurZoom;
+			F32 zoom_level = 2.f * gAgent.mHUDCurZoom;
 			window_scale.initAll(LLVector3(zoom_level / LLViewerCamera::getInstance()->getAspect(), zoom_level, 0.f),
 				LLQuaternion::DEFAULT,
 				LLVector3::zero);
@@ -1367,7 +1357,7 @@ void LLManipScale::updateSnapGuides(const LLBBox& bbox)
 
 	if(mObjectSelection->getSelectType() == SELECT_TYPE_HUD)
 	{
-		mSnapRegimeOffset = SNAP_GUIDE_SCREEN_OFFSET / gAgent.getAvatarObject()->mHUDCurZoom;
+		mSnapRegimeOffset = SNAP_GUIDE_SCREEN_OFFSET / gAgent.mHUDCurZoom;
 
 	}
 	else
@@ -1380,7 +1370,7 @@ void LLManipScale::updateSnapGuides(const LLBBox& bbox)
 	if (mObjectSelection->getSelectType() == SELECT_TYPE_HUD)
 	{
 		cam_at_axis.setVec(1.f, 0.f, 0.f);
-		snap_guide_length = SNAP_GUIDE_SCREEN_LENGTH / gAgent.getAvatarObject()->mHUDCurZoom;
+		snap_guide_length = SNAP_GUIDE_SCREEN_LENGTH / gAgent.mHUDCurZoom;
 	}
 	else
 	{

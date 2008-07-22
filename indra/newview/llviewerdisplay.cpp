@@ -798,7 +798,12 @@ void render_hud_attachments()
 	glh::matrix4f current_proj = glh_get_current_projection();
 	glh::matrix4f current_mod = glh_get_current_modelview();
 
-	if (LLPipeline::sShowHUDAttachments && !gDisconnected && setup_hud_matrices(FALSE))
+	// clamp target zoom level to reasonable values
+	gAgent.mHUDTargetZoom = llclamp(gAgent.mHUDTargetZoom, 0.1f, 1.f);
+	// smoothly interpolate current zoom level
+	gAgent.mHUDCurZoom = lerp(gAgent.mHUDCurZoom, gAgent.mHUDTargetZoom, LLCriticalDamp::getInterpolant(0.03f));
+
+	if (LLPipeline::sShowHUDAttachments && !gDisconnected && setup_hud_matrices())
 	{
 		LLCamera hud_cam = *LLViewerCamera::getInstance();
 		LLVector3 origin = hud_cam.getOrigin();
@@ -856,52 +861,53 @@ void render_hud_attachments()
 	glh_set_current_modelview(current_mod);
 }
 
-BOOL setup_hud_matrices(BOOL for_select)
+BOOL setup_hud_matrices()
+{
+	LLRect whole_screen = gViewerWindow->getVirtualWindowRect();
+
+	// apply camera zoom transform (for high res screenshots)
+	F32 zoom_factor = LLViewerCamera::getInstance()->getZoomFactor();
+	S16 sub_region = LLViewerCamera::getInstance()->getZoomSubRegion();
+	if (zoom_factor > 1.f)
+	{
+		S32 num_horizontal_tiles = llceil(zoom_factor);
+		S32 tile_width = llround((F32)gViewerWindow->getWindowWidth() / zoom_factor);
+		S32 tile_height = llround((F32)gViewerWindow->getWindowHeight() / zoom_factor);
+		int tile_y = sub_region / num_horizontal_tiles;
+		int tile_x = sub_region - (tile_y * num_horizontal_tiles);
+		glh::matrix4f mat;
+
+		whole_screen.setLeftTopAndSize(tile_x * tile_width, gViewerWindow->getWindowHeight() - (tile_y * tile_height), tile_width, tile_height);
+	}
+
+	return setup_hud_matrices(whole_screen);
+}
+
+BOOL setup_hud_matrices(const LLRect& screen_region)
 {
 	LLVOAvatar* my_avatarp = gAgent.getAvatarObject();
 	if (my_avatarp && my_avatarp->hasHUDAttachment())
 	{
-		if (!for_select)
-		{
-			// clamp target zoom level to reasonable values
-			my_avatarp->mHUDTargetZoom = llclamp(my_avatarp->mHUDTargetZoom, 0.1f, 1.f);
-			// smoothly interpolate current zoom level
-			my_avatarp->mHUDCurZoom = lerp(my_avatarp->mHUDCurZoom, my_avatarp->mHUDTargetZoom, LLCriticalDamp::getInterpolant(0.03f));
-		}
-
-		F32 zoom_level = my_avatarp->mHUDCurZoom;
-		// clear z buffer and set up transform for hud
-		if (!for_select)
-		{
-			//glClear(GL_DEPTH_BUFFER_BIT);
-		}
+		F32 zoom_level = gAgent.mHUDCurZoom;
 		LLBBox hud_bbox = my_avatarp->getHUDBBox();
 
-		
-		// set up transform to encompass bounding box of HUD
+		// set up transform to keep HUD objects in front of camera
 		glMatrixMode(GL_PROJECTION);
 		F32 hud_depth = llmax(1.f, hud_bbox.getExtentLocal().mV[VX] * 1.1f);
-		if (for_select)
-		{
-			//RN: reset viewport to window extents so ortho screen is calculated with proper reference frame
-			gViewerWindow->setupViewport();
-		}
 		glh::matrix4f proj = gl_ortho(-0.5f * LLViewerCamera::getInstance()->getAspect(), 0.5f * LLViewerCamera::getInstance()->getAspect(), -0.5f, 0.5f, 0.f, hud_depth);
 		proj.element(2,2) = -0.01f;
 
-		// apply camera zoom transform (for high res screenshots)
-		F32 zoom_factor = LLViewerCamera::getInstance()->getZoomFactor();
-		S16 sub_region = LLViewerCamera::getInstance()->getZoomSubRegion();
-		if (zoom_factor > 1.f)
-		{
-			float offset = zoom_factor - 1.f;
-			int pos_y = sub_region / llceil(zoom_factor);
-			int pos_x = sub_region - (pos_y*llceil(zoom_factor));
-			glh::matrix4f mat;
-			mat.set_scale(glh::vec3f(zoom_factor, zoom_factor, 1.f));
-			mat.set_translate(glh::vec3f(LLViewerCamera::getInstance()->getAspect() * 0.5f * (offset - (F32)pos_x * 2.f), 0.5f * (offset - (F32)pos_y * 2.f), 0.f));
-			proj *= mat;
-		}
+		F32 aspect_ratio = LLViewerCamera::getInstance()->getAspect();
+
+		glh::matrix4f mat;
+		F32 scale_x = (F32)gViewerWindow->getWindowWidth() / (F32)screen_region.getWidth();
+		F32 scale_y = (F32)gViewerWindow->getWindowHeight() / (F32)screen_region.getHeight();
+		mat.set_scale(glh::vec3f(scale_x, scale_y, 1.f));
+		mat.set_translate(
+			glh::vec3f(clamp_rescale((F32)screen_region.getCenterX(), 0.f, (F32)gViewerWindow->getWindowWidth(), 0.5f * scale_x * aspect_ratio, -0.5f * scale_x * aspect_ratio),
+						clamp_rescale((F32)screen_region.getCenterY(), 0.f, (F32)gViewerWindow->getWindowHeight(), 0.5f * scale_y, -0.5f * scale_y),
+						0.f));
+		proj *= mat;
 
 		glLoadMatrixf(proj.m);
 		glh_set_current_projection(proj);
@@ -909,9 +915,8 @@ BOOL setup_hud_matrices(BOOL for_select)
 		glMatrixMode(GL_MODELVIEW);
 		glh::matrix4f model((GLfloat*) OGL_TO_CFR_ROTATION);
 		
-		glh::matrix4f mat;
-		mat.set_translate(glh::vec3f(-hud_bbox.getCenterLocal().mV[VX] + (hud_depth * 0.5f), 0.f, 0.f));
 		mat.set_scale(glh::vec3f(zoom_level, zoom_level, zoom_level));
+		mat.set_translate(glh::vec3f(-hud_bbox.getCenterLocal().mV[VX] + (hud_depth * 0.5f), 0.f, 0.f));
 
 		model *= mat;
 		glLoadMatrixf(model.m);
@@ -1127,14 +1132,14 @@ void render_ui_2d()
 	gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
 
 	// render outline for HUD
-	if (gAgent.getAvatarObject() && gAgent.getAvatarObject()->mHUDCurZoom < 0.98f)
+	if (gAgent.getAvatarObject() && gAgent.mHUDCurZoom < 0.98f)
 	{
 		glPushMatrix();
 		S32 half_width = (gViewerWindow->getWindowWidth() / 2);
 		S32 half_height = (gViewerWindow->getWindowHeight() / 2);
 		glScalef(LLUI::sGLScaleFactor.mV[0], LLUI::sGLScaleFactor.mV[1], 1.f);
 		glTranslatef((F32)half_width, (F32)half_height, 0.f);
-		F32 zoom = gAgent.getAvatarObject()->mHUDCurZoom;
+		F32 zoom = gAgent.mHUDCurZoom;
 		glScalef(zoom,zoom,1.f);
 		gGL.color4fv(LLColor4::white.mV);
 		gl_rect_2d(-half_width, half_height, half_width, -half_height, FALSE);

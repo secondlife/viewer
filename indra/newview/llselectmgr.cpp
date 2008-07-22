@@ -96,9 +96,6 @@ const S32 MAX_ACTION_QUEUE_SIZE = 20;
 const S32 MAX_SILS_PER_FRAME = 50;
 const S32 MAX_OBJECTS_PER_PACKET = 254;
 
-extern LLUUID			gLastHitObjectID;
-extern LLVector3d		gLastHitObjectOffset;
-
 //
 // Globals
 //
@@ -4833,7 +4830,7 @@ void LLSelectMgr::renderSilhouettes(BOOL for_hud)
 	{
 		LLBBox hud_bbox = avatar->getHUDBBox();
 
-		F32 cur_zoom = avatar->mHUDCurZoom;
+		F32 cur_zoom = gAgent.mHUDCurZoom;
 
 		// set up transform to encompass bounding box of HUD
 		glMatrixMode(GL_PROJECTION);
@@ -5280,7 +5277,7 @@ void LLSelectNode::renderOneSilhouette(const LLColor4 &color)
 		F32 silhouette_thickness;
 		if (is_hud_object && gAgent.getAvatarObject())
 		{
-			silhouette_thickness = LLSelectMgr::sHighlightThickness / gAgent.getAvatarObject()->mHUDCurZoom;
+			silhouette_thickness = LLSelectMgr::sHighlightThickness / gAgent.mHUDCurZoom;
 		}
 		else
 		{
@@ -5479,8 +5476,8 @@ void LLSelectMgr::updateSelectionCenter()
 		if (mSelectedObjects->mSelectType != SELECT_TYPE_HUD && gAgent.getAvatarObject())
 		{
 			// reset hud ZOOM
-			gAgent.getAvatarObject()->mHUDTargetZoom = 1.f;
-			gAgent.getAvatarObject()->mHUDCurZoom = 1.f;
+			gAgent.mHUDTargetZoom = 1.f;
+			gAgent.mHUDCurZoom = 1.f;
 		}
 
 		mShowSelection = FALSE;
@@ -5564,11 +5561,12 @@ void LLSelectMgr::updatePointAt()
 		if (mSelectedObjects->getObjectCount())
 		{					
 			LLVector3 select_offset;
-			LLViewerObject *click_object = gObjectList.findObject(gLastHitObjectID);
+			const LLPickInfo& pick = gViewerWindow->getLastPick();
+			LLViewerObject *click_object = pick.getObject();
 			if (click_object && click_object->isSelected())
 			{
 				// clicked on another object in our selection group, use that as target
-				select_offset.setVec(gLastHitObjectOffset);
+				select_offset.setVec(pick.mObjectOffset);
 				select_offset.rotVec(~click_object->getRenderRotation());
 		
 				gAgent.setPointAt(POINTAT_TARGET_SELECT, click_object, select_offset);
@@ -5766,29 +5764,20 @@ BOOL LLSelectMgr::setForceSelection(BOOL force)
 
 void LLSelectMgr::resetAgentHUDZoom()
 {
-	if (gAgent.getAvatarObject())
-	{
-		gAgent.getAvatarObject()->mHUDTargetZoom = 1.f;
-		gAgent.getAvatarObject()->mHUDCurZoom = 1.f;
-	}
+	gAgent.mHUDTargetZoom = 1.f;
+	gAgent.mHUDCurZoom = 1.f;
 }
 
 void LLSelectMgr::getAgentHUDZoom(F32 &target_zoom, F32 &current_zoom) const
 {
-	if (gAgent.getAvatarObject())
-	{
-		target_zoom = gAgent.getAvatarObject()->mHUDTargetZoom;
-		current_zoom = gAgent.getAvatarObject()->mHUDCurZoom;
-	}
+	target_zoom = gAgent.mHUDTargetZoom;
+	current_zoom = gAgent.mHUDCurZoom;
 }
 
 void LLSelectMgr::setAgentHUDZoom(F32 target_zoom, F32 current_zoom)
 {
-	if (gAgent.getAvatarObject())
-	{
-		gAgent.getAvatarObject()->mHUDTargetZoom = target_zoom;
-		gAgent.getAvatarObject()->mHUDCurZoom = current_zoom;
-	}
+	gAgent.mHUDTargetZoom = target_zoom;
+	gAgent.mHUDCurZoom = current_zoom;
 }
 
 LLObjectSelection::LLObjectSelection() : 

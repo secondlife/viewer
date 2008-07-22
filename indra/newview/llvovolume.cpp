@@ -1893,26 +1893,42 @@ LLVector3 LLVOVolume::agentPositionToVolume(const LLVector3& pos) const
 
 LLVector3 LLVOVolume::agentDirectionToVolume(const LLVector3& dir) const
 {
-	return dir * ~getRenderRotation();
+	LLVector3 ret = dir * ~getRenderRotation();
+	
+	LLVector3 objScale = isVolumeGlobal() ? LLVector3(1,1,1) : getScale();
+	ret.scaleVec(objScale);
+
+	return ret;
 }
 
 LLVector3 LLVOVolume::volumePositionToAgent(const LLVector3& dir) const
 {
 	LLVector3 ret = dir;
-	ret.scaleVec(getScale());
+	LLVector3 objScale = isVolumeGlobal() ? LLVector3(1,1,1) : getScale();
+	ret.scaleVec(objScale);
 	ret = ret * getRenderRotation();
 	ret += getRenderPosition();
 	
 	return ret;
 }
 
-BOOL LLVOVolume::lineSegmentIntersect(const LLVector3& start, LLVector3& end) const
+LLVector3 LLVOVolume::volumeDirectionToAgent(const LLVector3& dir) const
 {
-	return FALSE;
+	LLVector3 ret = dir;
+	LLVector3 objScale = isVolumeGlobal() ? LLVector3(1,1,1) : getScale();
+	LLVector3 invObjScale(1.f / objScale.mV[VX], 1.f / objScale.mV[VY], 1.f / objScale.mV[VZ]);
+	ret.scaleVec(invObjScale);
+	ret = ret * getRenderRotation();
+
+	return ret;
+}
+
+
+BOOL LLVOVolume::lineSegmentIntersect(const LLVector3& start, const LLVector3& end, S32 face, S32 *face_hitp,
+									  LLVector3* intersection,LLVector2* tex_coord, LLVector3* normal, LLVector3* bi_normal)
 	
-#if 0 // needs to be rewritten to use face extents instead of volume bounds
+{
 	LLVolume* volume = getVolume();
-	BOOL ret = FALSE;
 	if (volume)
 	{	
 		LLVector3 v_start, v_end, v_dir;
@@ -1920,17 +1936,38 @@ BOOL LLVOVolume::lineSegmentIntersect(const LLVector3& start, LLVector3& end) co
 		v_start = agentPositionToVolume(start);
 		v_end = agentPositionToVolume(end);
 		
-		if (LLLineSegmentAABB(v_start, v_end, volume->mBounds[0], volume->mBounds[1]))
+		S32 face_hit = volume->lineSegmentIntersect(v_start, v_end, face,
+													intersection, tex_coord, normal, bi_normal);
+		if (face_hit >= 0)
 		{
-			if (volume->lineSegmentIntersect(v_start, v_end) >= 0)
+			if (face_hitp != NULL)
 			{
-				end = volumePositionToAgent(v_end);
-				ret = TRUE;
+				*face_hitp = face_hit;
 			}
+			
+			if (intersection != NULL)
+			{
+				*intersection = volumePositionToAgent(*intersection);  // must map back to agent space
+			}
+
+			if (normal != NULL)
+			{
+				*normal = volumeDirectionToAgent(*normal);
+				(*normal).normVec();
+			}
+
+			if (bi_normal != NULL)
+			{
+				*bi_normal = volumeDirectionToAgent(*bi_normal);
+				(*bi_normal).normVec();
+			}
+
+			
+			return TRUE;
 		}
 	}
-	return ret;
-#endif
+	
+	return FALSE;
 }
 
 U32 LLVOVolume::getPartitionType() const

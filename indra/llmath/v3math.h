@@ -36,6 +36,7 @@
 #include "llmath.h"
 
 #include "llsd.h"
+class LLVector2;
 class LLVector4;
 class LLMatrix3;
 class LLVector3d;
@@ -62,6 +63,7 @@ class LLVector3
 		inline LLVector3();							// Initializes LLVector3 to (0, 0, 0)
 		inline LLVector3(const F32 x, const F32 y, const F32 z);			// Initializes LLVector3 to (x. y, z)
 		inline explicit LLVector3(const F32 *vec);				// Initializes LLVector3 to (vec[0]. vec[1], vec[2])
+		explicit LLVector3(const LLVector2 &vec);				// Initializes LLVector3 to (vec[0]. vec[1], 0)
 		explicit LLVector3(const LLVector3d &vec);				// Initializes LLVector3 to (vec[0]. vec[1], vec[2])
 		explicit LLVector3(const LLVector4 &vec);				// Initializes LLVector4 to (vec[0]. vec[1], vec[2])
 		LLVector3(const LLSD& sd);

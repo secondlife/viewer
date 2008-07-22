@@ -34,6 +34,8 @@
 
 #include "lltool.h"
 
+class LLPickInfo;
+
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class lltoolindividual
 //
@@ -52,7 +54,7 @@ public:
 	//virtual void handleDeselect();
 	//virtual void render();
 
-	static void pickCallback(S32 x, S32 y, MASK mask);
+	static void pickCallback(const LLPickInfo& pick_info);
 
 protected:
 
