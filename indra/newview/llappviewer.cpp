@@ -322,48 +322,6 @@ void idle_afk_check()
 	}
 }
 
-//this function checks if the system can allocate (num_chunk)MB memory successfully.
-//if this check fails, the allocated memory is NOT freed.
-void idle_mem_check(S32 num_chunk)
-{
-	//this flag signals if memory allocation check is necessary
-	static BOOL check = TRUE ;
-
-	if(!check) //if memory check fails before, do not repeat it.
-	{
-		return ;
-	}
-	check = FALSE ; //before memory check for this frame, turn off check signal for the next frame. 
-
-	S32 i = 0 ;
-	char**p = new char*[num_chunk] ;
-	if(!p)
-	{
-		return ;
-	}
-	for(i = 0 ; i < num_chunk ; i++)
-	{
-		//1MB per chunk
-		//if the allocation fails, the system should catch it.
-		p[i] = new char[1024 * 1024] ;
-
-		if(!p[i]) //in case that system try-catch is turned off
-		{
-			return ;
-		}
-	}
-
-	//release memory if the allocation check does not fail.
-	for(i = 0 ; i < num_chunk ; i++)
-	{
-		delete[] p[i] ;	
-	}
-	delete[] p ;
-
-	//memory check for this frame succeeds, turn on next frame check.
-	check = TRUE ;
-}
-
 // A callback set in LLAppViewer::init()
 static void ui_audio_callback(const LLUUID& uuid)
 {
@@ -942,9 +900,6 @@ bool LLAppViewer::mainLoop()
 				debugTime.reset();
 			}
 #endif
-
-			//at the beginning of every frame, check if the system can successfully allocate 10 * 1 MB memory.
-			idle_mem_check(10) ;
 
 			if (!LLApp::isExiting())
 			{
