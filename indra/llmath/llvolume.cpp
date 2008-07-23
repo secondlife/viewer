@@ -104,46 +104,128 @@ BOOL check_same_clock_dir( const LLVector3& pt1, const LLVector3& pt2, const LLV
 	}
 } 
 
-// intersect test between triangle pt1,pt2,pt3 and line from linept to linept+vect
-//returns TRUE if intersecting and moves linept to the point of intersection
-BOOL LLTriangleLineSegmentIntersect( const LLVector3& pt1, const LLVector3& pt2, const LLVector3& pt3, LLVector3& linept, const LLVector3& vect)
+BOOL LLLineSegmentBoxIntersect(const LLVector3& start, const LLVector3& end, const LLVector3& center, const LLVector3& size)
 {
-	LLVector3 V1 = pt2-pt1;
-	LLVector3 V2 = pt3-pt2;
-	
-	LLVector3 norm = V1 % V2;
-	
-	F32 dotprod = norm * vect;
+	float fAWdU[3];
+	LLVector3 dir;
+	LLVector3 diff;
 
-	if(dotprod < 0)
+	for (U32 i = 0; i < 3; i++)
 	{
-		//Find point of intersect to triangle plane.
-		//find t to intersect point
-		F32 t = -(norm * (linept-pt1))/dotprod;
+		dir.mV[i] = 0.5f * (end.mV[i] - start.mV[i]);
+		diff.mV[i] = (0.5f * (end.mV[i] + start.mV[i])) - center.mV[i];
+		fAWdU[i] = fabsf(dir.mV[i]);
+		if(fabsf(diff.mV[i])>size.mV[i] + fAWdU[i]) return false;
+	}
 
-		// if ds is neg line started past triangle so can't hit triangle.
-		if (t > 0) 
+	float f;
+	f = dir.mV[1] * diff.mV[2] - dir.mV[2] * diff.mV[1];    if(fabsf(f)>size.mV[1]*fAWdU[2] + size.mV[2]*fAWdU[1])  return false;
+	f = dir.mV[2] * diff.mV[0] - dir.mV[0] * diff.mV[2];    if(fabsf(f)>size.mV[0]*fAWdU[2] + size.mV[2]*fAWdU[0])  return false;
+	f = dir.mV[0] * diff.mV[1] - dir.mV[1] * diff.mV[0];    if(fabsf(f)>size.mV[0]*fAWdU[1] + size.mV[1]*fAWdU[0])  return false;
+	
+	return true;
+}
+
+
+// intersect test between triangle vert0, vert1, vert2 and a ray from orig in direction dir.
+// returns TRUE if intersecting and returns barycentric coordinates in intersection_a, intersection_b,
+// and returns the intersection point along dir in intersection_t.
+
+// Moller-Trumbore algorithm
+BOOL LLTriangleRayIntersect(const LLVector3& vert0, const LLVector3& vert1, const LLVector3& vert2, const LLVector3& orig, const LLVector3& dir,
+							F32* intersection_a, F32* intersection_b, F32* intersection_t, BOOL two_sided)
+{
+	F32 u, v, t;
+	
+	/* find vectors for two edges sharing vert0 */
+	LLVector3 edge1 = vert1 - vert0;
+	
+	LLVector3 edge2 = vert2 - vert0;;
+
+	/* begin calculating determinant - also used to calculate U parameter */
+	LLVector3 pvec = dir % edge2;
+	
+	/* if determinant is near zero, ray lies in plane of triangle */
+	F32 det = edge1 * pvec;
+
+	if (!two_sided)
+	{
+		if (det < F_APPROXIMATELY_ZERO)
+		{
+			return FALSE;
+		}
+
+		/* calculate distance from vert0 to ray origin */
+		LLVector3 tvec = orig - vert0;
+
+		/* calculate U parameter and test bounds */
+		u = tvec * pvec;	
+
+		if (u < 0.f || u > det)
 		{
 			return FALSE;
 		}
 	
-		LLVector3 pt_int = linept + (vect*t);
+		/* prepare to test V parameter */
+		LLVector3 qvec = tvec % edge1;
 		
-		if(check_same_clock_dir(pt1, pt2, pt_int, norm))
+		/* calculate V parameter and test bounds */
+		v = dir * qvec;
+		if (v < 0.f || u + v > det)
 		{
-			if(check_same_clock_dir(pt2, pt3, pt_int, norm))
-			{
-				if(check_same_clock_dir(pt3, pt1, pt_int, norm))
-				{
-					// answer in pt_int is insde triangle
-					linept.setVec(pt_int);
-					return TRUE;
-				}
-			}
+			return FALSE;
 		}
+
+		/* calculate t, scale parameters, ray intersects triangle */
+		t = edge2 * qvec;
+		F32 inv_det = 1.0 / det;
+		t *= inv_det;
+		u *= inv_det;
+		v *= inv_det;
 	}
 	
-	return FALSE;
+	else // two sided
+			{
+		if (det > -F_APPROXIMATELY_ZERO && det < F_APPROXIMATELY_ZERO)
+				{
+			return FALSE;
+				}
+		F32 inv_det = 1.0 / det;
+
+		/* calculate distance from vert0 to ray origin */
+		LLVector3 tvec = orig - vert0;
+		
+		/* calculate U parameter and test bounds */
+		u = (tvec * pvec) * inv_det;
+		if (u < 0.f || u > 1.f)
+		{
+			return FALSE;
+			}
+
+		/* prepare to test V parameter */
+		LLVector3 qvec = tvec - edge1;
+		
+		/* calculate V parameter and test bounds */
+		v = (dir * qvec) * inv_det;
+		
+		if (v < 0.f || u + v > 1.f)
+		{
+			return FALSE;
+		}
+
+		/* calculate t, ray intersects triangle */
+		t = (edge2 * qvec) * inv_det;
+	}
+	
+	if (intersection_a != NULL)
+		*intersection_a = u;
+	if (intersection_b != NULL)
+		*intersection_b = v;
+	if (intersection_t != NULL)
+		*intersection_t = t;
+	
+	
+	return TRUE;
 } 
 
 
@@ -3405,47 +3487,99 @@ void LLVolume::generateSilhouetteVertices(std::vector<LLVector3> &vertices,
 	}
 }
 
-S32 LLVolume::lineSegmentIntersect(const LLVector3& start, LLVector3& end) const
+S32 LLVolume::lineSegmentIntersect(const LLVector3& start, const LLVector3& end, 
+								   S32 face,
+								   LLVector3* intersection,LLVector2* tex_coord, LLVector3* normal, LLVector3* bi_normal)
 {
-	S32 ret = -1;
+	S32 hit_face = -1;
 	
-	LLVector3 vec = end - start;
+	S32 start_face;
+	S32 end_face;
 	
-	for (S32 i = 0; i < getNumFaces(); i++)
+	if (face == -1) // ALL_SIDES
 	{
-		const LLVolumeFace& face = getVolumeFace(i);
+		start_face = 0;
+		end_face = getNumFaces() - 1;
+	}
+	else
+	{
+		start_face = face;
+		end_face = face;
+	}
 
-		for (U32 j = 0; j < face.mIndices.size()/3; j++) 
+	LLVector3 dir = end - start;
+
+	F32 closest_t = 2.f; // must be larger than 1
+	
+	for (S32 i = start_face; i <= end_face; i++)
+	{
+		LLVolumeFace face = getVolumeFace((U32)i);
+
+		LLVector3 box_center = (face.mExtents[0] + face.mExtents[1]) / 2.f;
+		LLVector3 box_size   = face.mExtents[1] - face.mExtents[0];
+
+        if (LLLineSegmentBoxIntersect(start, end, box_center, box_size))
 		{
-			//approximate normal
-			S32 v1 = face.mIndices[j*3+0];
-			S32 v2 = face.mIndices[j*3+1];
-			S32 v3 = face.mIndices[j*3+2];
-
-			LLVector3 norm = (face.mVertices[v2].mPosition - face.mVertices[v1].mPosition) % 
-				(face.mVertices[v3].mPosition - face.mVertices[v2].mPosition);
-			
-			if (norm.magVecSquared() >= 0.00000001f) 
+			if (bi_normal != NULL) // if the caller wants binormals, we may need to generate them
 			{
-				//get view vector
-				//LLVector3 view = (start-face.mVertices[v1].mPosition);
-				//if (view * norm < 0.0f)
+				genBinormals(i);
+			}
+			
+			for (U32 tri = 0; tri < face.mIndices.size()/3; tri++) 
+			{
+				S32 index1 = face.mIndices[tri*3+0];
+				S32 index2 = face.mIndices[tri*3+1];
+				S32 index3 = face.mIndices[tri*3+2];
+
+				F32 a, b, t;
+			
+				if (LLTriangleRayIntersect(face.mVertices[index1].mPosition,
+										   face.mVertices[index2].mPosition,
+										   face.mVertices[index3].mPosition,
+										   start, dir, &a, &b, &t, FALSE))
 				{
-					if (LLTriangleLineSegmentIntersect( face.mVertices[v1].mPosition,
-														face.mVertices[v2].mPosition,
-														face.mVertices[v3].mPosition,
-														end,
-														vec))
+					if ((t >= 0.f) &&      // if hit is after start
+						(t <= 1.f) &&      // and before end
+						(t < closest_t))   // and this hit is closer
+		{
+						closest_t = t;
+						hit_face = i;
+
+						if (intersection != NULL)
+						{
+							*intersection = start + dir * closest_t;
+						}
+			
+						if (tex_coord != NULL)
+			{
+							*tex_coord = ((1.f - a - b)  * face.mVertices[index1].mTexCoord +
+										  a              * face.mVertices[index2].mTexCoord +
+										  b              * face.mVertices[index3].mTexCoord);
+
+						}
+
+						if (normal != NULL)
+				{
+							*normal    = ((1.f - a - b)  * face.mVertices[index1].mNormal + 
+										  a              * face.mVertices[index2].mNormal +
+										  b              * face.mVertices[index3].mNormal);
+						}
+
+						if (bi_normal != NULL)
 					{
-						vec = end-start;
-						ret = (S32) i;
+							*bi_normal = ((1.f - a - b)  * face.mVertices[index1].mBinormal + 
+										  a              * face.mVertices[index2].mBinormal +
+										  b              * face.mVertices[index3].mBinormal);
+						}
+
 					}
 				}
 			}
 		}		
 	}
 	
-	return ret;
+	
+	return hit_face;
 }
 
 class LLVertexIndexPair

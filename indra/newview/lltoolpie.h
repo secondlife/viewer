@@ -34,6 +34,7 @@
 
 #include "lltool.h"
 #include "lluuid.h"
+#include "llviewerwindow.h" // for LLPickInfo
 
 class LLViewerObject;
 class LLObjectSelection;
@@ -58,23 +59,25 @@ public:
 	virtual void		handleDeselect();
 	virtual LLTool*		getOverrideTool(MASK mask);
 
-	static void			leftMouseCallback(S32 x, S32 y, MASK mask);
-	static void			rightMouseCallback(S32 x, S32 y, MASK mask);
+	LLPickInfo&			getPick() { return mPick; }
+
+	static void			leftMouseCallback(const LLPickInfo& pick_info);
+	static void			rightMouseCallback(const LLPickInfo& pick_info);
 
 	static void			selectionPropertiesReceived();
 
+
 protected:
 	BOOL outsideSlop(S32 x, S32 y, S32 start_x, S32 start_y);
-	BOOL pickAndShowMenu(S32 x, S32 y, MASK mask, BOOL edit_menu);
+	BOOL pickAndShowMenu(BOOL edit_menu);
 	BOOL useClickAction(BOOL always_show, MASK mask, LLViewerObject* object,
 						LLViewerObject* parent);
 
 protected:
 	BOOL				mPieMouseButtonDown;
 	BOOL				mGrabMouseButtonDown;
-	BOOL				mHitLand;
-	LLUUID				mHitObjectID;
 	BOOL				mMouseOutsideSlop;				// for this drag, has mouse moved outside slop region
+	LLPickInfo			mPick;
 	static LLPointer<LLViewerObject> sClickActionObject;
 	static U8				sClickAction;
 	static LLSafeHandle<LLObjectSelection> sLeftClickSelection;

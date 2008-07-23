@@ -64,7 +64,6 @@ public:
 	virtual void	render();
 
 	virtual void	handleSelect();
-	virtual void	handleDeselect();
 
 	virtual BOOL	handleMouseDownOnPart(S32 x, S32 y, MASK mask);
 	virtual void	highlightManipulators(S32 x, S32 y);
@@ -108,8 +107,6 @@ private:
 	F32					mCenterToCamMag;
 	LLVector3			mCenterToProfilePlane;
 	F32					mCenterToProfilePlaneMag;
-
-	EManipPart			mManipPart;
 
 	BOOL				mSendUpdateOnMouseUp;
 

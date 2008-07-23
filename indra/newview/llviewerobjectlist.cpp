@@ -1078,14 +1078,14 @@ void LLViewerObjectList::renderObjectBounds(const LLVector3 &center)
 {
 }
 
-
-U32 LLViewerObjectList::renderObjectsForSelect(LLCamera &camera, BOOL pick_parcel_wall, BOOL keep_pick_list)
+void LLViewerObjectList::renderObjectsForSelect(LLCamera &camera, const LLRect& screen_rect, BOOL pick_parcel_wall, BOOL render_transparent)
 {
-	gRenderForSelect = TRUE;
+	generatePickList(camera);
+	renderPickList(screen_rect, pick_parcel_wall, render_transparent);
+}
 
-	//	LLTimer pick_timer;
-	if (!keep_pick_list)
-	{
+void LLViewerObjectList::generatePickList(LLCamera &camera)
+{
 		LLViewerObject *objectp;
 		S32 i;
 		// Reset all of the GL names to zero.
@@ -1199,11 +1199,14 @@ U32 LLViewerObjectList::renderObjectsForSelect(LLCamera &camera, BOOL pick_parce
 			}
 
 			LLHUDIcon::generatePickIDs(i * step, step);
-		
-			// At this point, we should only have live drawables/viewer objects
-			gPipeline.renderForSelect(mSelectPickList);
-		}
 	}
+}
+
+void LLViewerObjectList::renderPickList(const LLRect& screen_rect, BOOL pick_parcel_wall, BOOL render_transparent)
+{
+	gRenderForSelect = TRUE;
+		
+	gPipeline.renderForSelect(mSelectPickList, render_transparent, screen_rect);
 
 	//
 	// Render pass for selected objects
@@ -1220,7 +1223,6 @@ U32 LLViewerObjectList::renderObjectsForSelect(LLCamera &camera, BOOL pick_parce
 
 	//llinfos << "Rendered " << count << " for select" << llendl;
 	//llinfos << "Took " << pick_timer.getElapsedTimeF32()*1000.f << "ms to pick" << llendl;
-	return 0;
 }
 
 LLViewerObject *LLViewerObjectList::getSelectedObject(const U32 object_id)
@@ -1525,4 +1527,5 @@ bool LLViewerObjectList::OrphanInfo::operator!=(const OrphanInfo &rhs) const
 {
 	return !operator==(rhs);
 }
+
 

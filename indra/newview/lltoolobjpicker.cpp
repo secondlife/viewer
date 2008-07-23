@@ -69,7 +69,7 @@ BOOL LLToolObjPicker::handleMouseDown(S32 x, S32 y, MASK mask)
 	if (! handled)
 	{
 		// didn't click in any UI object, so must have clicked in the world
-		gViewerWindow->hitObjectOrLandGlobalAsync(x, y, mask, pickCallback);
+		gViewerWindow->pickAsync(x, y, mask, pickCallback);
 		handled = TRUE;
 	}
 	else
@@ -90,16 +90,10 @@ BOOL LLToolObjPicker::handleMouseDown(S32 x, S32 y, MASK mask)
 	return handled;
 }
 
-void LLToolObjPicker::pickCallback(S32 x, S32 y, MASK mask)
+void LLToolObjPicker::pickCallback(const LLPickInfo& pick_info)
 {
-	// You must hit the body for this tool to think you hit the object.
-	LLViewerObject*	objectp = NULL;
-	objectp = gObjectList.findObject( gLastHitObjectID );
-	if (objectp)
-	{
-		LLToolObjPicker::getInstance()->mHitObjectID = objectp->mID;
-		LLToolObjPicker::getInstance()->mPicked = TRUE;
-	}
+	LLToolObjPicker::getInstance()->mHitObjectID = pick_info.mObjectID;
+	LLToolObjPicker::getInstance()->mPicked = pick_info.mObjectID.notNull();
 }
 
 
@@ -179,5 +173,6 @@ void LLToolObjPicker::handleDeselect()
 		setMouseCapture(FALSE);
 	}
 }
+
 
 

@@ -113,7 +113,6 @@ LLManipTranslate::LLManipTranslate( LLToolComposite* composite )
 	mConeSize(0),
 	mArrowLengthMeters(0.f),
 	mPlaneManipOffsetMeters(0.f),
-	mManipPart(LL_NO_PART),
 	mUpdateTimer(),
 	mSnapOffsetMeters(0.f),
 	mArrowScales(1.f, 1.f, 1.f),
@@ -257,21 +256,12 @@ void LLManipTranslate::handleSelect()
 	LLManip::handleSelect();
 }
 
-void LLManipTranslate::handleDeselect()
-{
-	mHighlightedPart = LL_NO_PART;
-	mManipPart = LL_NO_PART;
-	LLManip::handleDeselect();
-}
-
 BOOL LLManipTranslate::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	BOOL	handled = FALSE;
 
 	// didn't click in any UI object, so must have clicked in the world
-	LLViewerObject* hit_obj = gViewerWindow->lastObjectHit();
-	if( hit_obj && 
-		(mHighlightedPart == LL_X_ARROW ||
+	if( (mHighlightedPart == LL_X_ARROW ||
 		 mHighlightedPart == LL_Y_ARROW ||
 		 mHighlightedPart == LL_Z_ARROW ||
 		 mHighlightedPart == LL_YZ_PLANE ||
@@ -818,7 +808,7 @@ void LLManipTranslate::highlightManipulators(S32 x, S32 y)
 		LLMatrix4 cfr(OGL_TO_CFR_ROTATION);
 		transform *= cfr;
 		LLMatrix4 window_scale;
-		F32 zoom_level = 2.f * gAgent.getAvatarObject()->mHUDCurZoom;
+		F32 zoom_level = 2.f * gAgent.mHUDCurZoom;
 		window_scale.initAll(LLVector3(zoom_level / LLViewerCamera::getInstance()->getAspect(), zoom_level, 0.f),
 			LLQuaternion::DEFAULT,
 			LLVector3::zero);
@@ -1056,7 +1046,7 @@ void LLManipTranslate::render()
 	gGL.pushMatrix();
 	if (mObjectSelection->getSelectType() == SELECT_TYPE_HUD)
 	{
-		F32 zoom = gAgent.getAvatarObject()->mHUDCurZoom;
+		F32 zoom = gAgent.mHUDCurZoom;
 		glScalef(zoom, zoom, zoom);
 	}
 	{
@@ -1220,7 +1210,7 @@ void LLManipTranslate::renderSnapGuides()
 
 		if (mObjectSelection->getSelectType() == SELECT_TYPE_HUD)
 		{
-			guide_size_meters = 1.f / gAgent.getAvatarObject()->mHUDCurZoom;
+			guide_size_meters = 1.f / gAgent.mHUDCurZoom;
 			mSnapOffsetMeters = mArrowLengthMeters * 1.5f;
 		}
 		else
@@ -1803,7 +1793,7 @@ void LLManipTranslate::renderTranslationHandles()
 	if (mObjectSelection->getSelectType() == SELECT_TYPE_HUD)
 	{
 		mArrowLengthMeters = mAxisArrowLength / gViewerWindow->getWindowHeight();
-		mArrowLengthMeters /= gAgent.getAvatarObject()->mHUDCurZoom;
+		mArrowLengthMeters /= gAgent.mHUDCurZoom;
 	}
 	else
 	{

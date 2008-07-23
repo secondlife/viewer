@@ -1371,6 +1371,8 @@ extern char * _PREHASH_OwnerMask;
 extern char * _PREHASH_TransferInventoryAck;
 extern char * _PREHASH_RegionDenyAgeUnverified;
 extern char * _PREHASH_AgeVerificationBlock;
-
+extern char * _PREHASH_UCoord;
+extern char * _PREHASH_VCoord;
+extern char * _PREHASH_FaceIndex;
 
 #endif

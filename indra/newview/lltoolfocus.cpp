@@ -126,28 +126,28 @@ BOOL LLToolCamera::handleMouseDown(S32 x, S32 y, MASK mask)
 
 	gViewerWindow->hideCursor();
 
-	gViewerWindow->hitObjectOrLandGlobalAsync(x, y, mask, pickCallback);
+	gViewerWindow->pickAsync(x, y, mask, pickCallback);
 	// don't steal focus from UI
 	return FALSE;
 }
 
-void LLToolCamera::pickCallback(S32 x, S32 y, MASK mask)
+void LLToolCamera::pickCallback(const LLPickInfo& pick_info)
 {
 	if (!LLToolCamera::getInstance()->hasMouseCapture())
 	{
 		return;
 	}
 
-	LLToolCamera::getInstance()->mMouseDownX = x;
-	LLToolCamera::getInstance()->mMouseDownY = y;
+	LLToolCamera::getInstance()->mMouseDownX = pick_info.mMousePt.mX;
+	LLToolCamera::getInstance()->mMouseDownY = pick_info.mMousePt.mY;
 
 	gViewerWindow->moveCursorToCenter();
 
 	// Potentially recenter if click outside rectangle
-	LLViewerObject* hit_obj = gViewerWindow->lastObjectHit();
+	LLViewerObject* hit_obj = pick_info.getObject();
 
 	// Check for hit the sky, or some other invalid point
-	if (!hit_obj && gLastHitPosGlobal.isExactlyZero())
+	if (!hit_obj && pick_info.mPosGlobal.isExactlyZero())
 	{
 		LLToolCamera::getInstance()->mValidClickPoint = FALSE;
 		return;
@@ -195,29 +195,27 @@ void LLToolCamera::pickCallback(S32 x, S32 y, MASK mask)
 		}
 	}
 	//RN: check to see if this is mouse-driving as opposed to ALT-zoom or Focus tool
-	else if (mask & MASK_ALT || 
+	else if (pick_info.mKeyMask & MASK_ALT || 
 			(LLToolMgr::getInstance()->getCurrentTool()->getName() == "Camera")) 
 	{
-		LLViewerObject* hit_obj = gViewerWindow->lastObjectHit();
+		LLViewerObject* hit_obj = pick_info.getObject();
 		if (hit_obj)
 		{
 			// ...clicked on a world object, so focus at its position
-			// Use "gLastHitPosGlobal" because it's correct for avatar heads,
-			// not pelvis.
 			if (!hit_obj->isHUDAttachment())
 			{
 				gAgent.setFocusOnAvatar(FALSE, ANIMATE);
-				gAgent.setFocusGlobal( gLastHitObjectOffset + gLastHitPosGlobal, gLastHitObjectID);
+				gAgent.setFocusGlobal(pick_info);
 			}
 		}
-		else if (!gLastHitPosGlobal.isExactlyZero())
+		else if (!pick_info.mPosGlobal.isExactlyZero())
 		{
 			// Hit the ground
 			gAgent.setFocusOnAvatar(FALSE, ANIMATE);
-			gAgent.setFocusGlobal( gLastHitPosGlobal, gLastHitObjectID);
+			gAgent.setFocusGlobal(pick_info);
 		}
 
-		if (!(mask & MASK_ALT) &&
+		if (!(pick_info.mKeyMask & MASK_ALT) &&
 			gAgent.cameraThirdPerson() &&
 			gViewerWindow->getLeftMouseDown() && 
 			!gSavedSettings.getBOOL("FreezeTime") &&
@@ -238,7 +236,7 @@ void LLToolCamera::pickCallback(S32 x, S32 y, MASK mask)
 		LLVector3d cam_pos = gAgent.getCameraPositionGlobal();
 		cam_pos -= LLVector3d(LLViewerCamera::getInstance()->getLeftAxis() * gAgent.calcCustomizeAvatarUIOffset( cam_pos ));
 
-		gAgent.setCameraPosAndFocusGlobal( cam_pos, gLastHitObjectOffset + gLastHitPosGlobal, gLastHitObjectID);
+		gAgent.setCameraPosAndFocusGlobal( cam_pos, pick_info.mPosGlobal, pick_info.mObjectID);
 	}
 }
 
