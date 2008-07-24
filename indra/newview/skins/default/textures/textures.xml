@@ -365,8 +365,6 @@
   <texture name="icn_label_music.tga"/>
   <texture name="icn_label_media.tga"/>
   <texture name="arrow_down.tga"/>
-  <texture name="skin_thumbnail_modern.png" preload="true"/>
-  <texture name="skin_thumbnail_classic.png" preload="true"/>
   <texture name="cloud-particle.j2c" use_mips="true"/>
   
   <texture name="skin_thumbnail_default.png" preload="true" />
