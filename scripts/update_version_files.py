@@ -4,10 +4,22 @@
 # instead of having to figure it out by hand
 #
 
-from os.path import realpath, dirname, join, exists
-setup_path = join(dirname(realpath(__file__)), "setup-path.py")
-if exists(setup_path):
-    execfile(setup_path)
+import sys
+import os
+import os.path
+
+root = os.path.abspath(__file__)
+while root != os.path.sep:
+    root = os.path.dirname(root)
+    dir = os.path.join(root, 'indra', 'lib', 'python')
+    if os.path.isdir(dir):
+        if dir not in sys.path:
+            sys.path.insert(0, dir)
+        break
+else:
+    print >>sys.stderr, "This script is not inside a valid installation."
+    sys.exit(1)
+
 import getopt, sys, os, re, commands
 from indra.util import llversion
 
