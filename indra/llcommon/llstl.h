@@ -105,6 +105,7 @@ struct DeletePairedPointer
 	template<typename T> void operator()(T &ptr) const
 	{
 		delete ptr.second;
+		ptr.second = NULL;
 	}
 };
 struct DeletePairedPointerArray
@@ -112,6 +113,7 @@ struct DeletePairedPointerArray
 	template<typename T> void operator()(T &ptr) const
 	{
 		delete[] ptr.second;
+		ptr.second = NULL;
 	}
 };
 
