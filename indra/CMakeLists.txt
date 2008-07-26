@@ -1,9 +1,19 @@
 # -*- cmake -*-
 
-project(SecondLife)
+# cmake_minimum_required should appear before any
+# other commands to guarantee full compatibility
+# with the version specified
 
 # The FindPkgConfig module was released with 2.4.7.
 cmake_minimum_required(VERSION 2.4.7 FATAL_ERROR)
+
+# This makes cmake 2.6 not complain about a version
+# 2.4 compatibility mode
+if(COMMAND cmake_policy)
+  cmake_policy(SET CMP0003 OLD)
+endif(COMMAND cmake_policy)
+
+project(SecondLife)
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
