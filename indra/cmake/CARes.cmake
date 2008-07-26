@@ -13,8 +13,8 @@ else (STANDALONE)
         set(CARES_LIBRARIES areslib)
     elseif (DARWIN)
         set(CARES_LIBRARIES
-          optimized ${ARCH_PREBUILT_DIRS_RELEASE}/cares
-          debug ${ARCH_PREBUILT_DIRS_DEBUG}/cares
+          optimized ${ARCH_PREBUILT_DIRS_RELEASE}/libcares.a
+          debug ${ARCH_PREBUILT_DIRS_DEBUG}/libcares.a
           )
     else (WINDOWS)
         set(CARES_LIBRARIES cares)

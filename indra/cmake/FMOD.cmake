@@ -5,15 +5,26 @@ if(INSTALL_PROPRIETARY)
   use_prebuilt_binary(fmod)
 endif(INSTALL_PROPRIETARY)
 
-find_library(FMOD_LIBRARY
+find_library(FMOD_LIBRARY_RELEASE
              NAMES fmod fmodvc fmod-3.75
              PATHS
-             optimized ${ARCH_PREBUILT_DIRS_RELEASE}
-             debug ${ARCH_PREBUILT_DIRS_DEBUG}
+             ${ARCH_PREBUILT_DIRS_RELEASE}
              ${LIBS_PREBUILT_DIR}/${LL_ARCH_DIR}/lib/release
              ${LIBS_PREBUILT_DIR}/${LL_ARCH_DIR}/lib_release
              ${LIBS_PREBUILT_DIR}/${LL_ARCH_DIR}/lib_release_client
              )
+
+find_library(FMOD_LIBRARY_DEBUG
+             NAMES fmod fmodvc fmod-3.75
+             PATHS
+             ${ARCH_PREBUILT_DIRS_DEBUG}
+             ${LIBS_PREBUILT_DIR}/${LL_ARCH_DIR}/lib/debug
+             ${LIBS_PREBUILT_DIR}/${LL_ARCH_DIR}/lib_debug
+             )
+
+if(FMOD_LIBRARY_RELEASE AND FMOD_LIBRARY_DEBUG)
+  set(FMOD_LIBRARY debug ${FMOD_LIBRARY_DEBUG} optimized ${FMOD_LIBRARY_RELEASE})
+endif(FMOD_LIBRARY_RELEASE AND FMOD_LIBRARY_DEBUG)
 
 if (NOT FMOD_LIBRARY)
   set(FMOD_SDK_DIR CACHE PATH "Path to the FMOD SDK.")
