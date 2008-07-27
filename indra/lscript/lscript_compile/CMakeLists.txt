@@ -44,9 +44,12 @@ include_directories(
     ${LSCRIPT_INCLUDE_DIRS}
     )
 
-set(lscript_compile_SOURCE_FILES
+set(lscript_generated_SOURCE_FILES
     indra.l.cpp
     indra.y.cpp
+    )
+
+set(lscript_compile_SOURCE_FILES
     lscript_alloc.cpp
     lscript_bytecode.cpp
     lscript_error.cpp
@@ -80,7 +83,10 @@ set(lscript_compile_HEADER_FILES
 set_source_files_properties(${lscript_compile_HEADER_FILES}
                             PROPERTIES HEADER_FILE_ONLY TRUE)
 
-list(APPEND lscript_compile_SOURCE_FILES ${lscript_compile_HEADER_FILES})
+set_source_files_properties(${lscript_generated_SOURCE_FILES}
+                            PROPERTIES HEADER_FILE_ONLY FALSE GENERATED TRUE)
+
+list(APPEND lscript_compile_SOURCE_FILES ${lscript_generated_SOURCE_FILES} ${lscript_compile_HEADER_FILES})
 
 add_custom_command(
     OUTPUT
