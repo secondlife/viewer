@@ -268,7 +268,7 @@ LLCurl::Easy::~Easy()
 	curl_easy_cleanup(mCurlEasyHandle);
 	--gCurlEasyCount;
 	curl_slist_free_all(mHeaders);
-	for_each(mStrings.begin(), mStrings.end(), DeletePointer());
+	for_each(mStrings.begin(), mStrings.end(), DeletePointerArray());
 }
 
 void LLCurl::Easy::resetState()
