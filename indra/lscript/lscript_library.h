@@ -146,9 +146,9 @@ public:
 		return FALSE;
 	}
 
-	S32 getListLength()
+	S32 getListLength() const
 	{
-		LLScriptLibData *data = this;
+		const LLScriptLibData *data = this;
 		S32 retval = 0;
 		while (data->mListp)
 		{

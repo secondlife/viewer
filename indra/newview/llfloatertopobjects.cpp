@@ -170,6 +170,7 @@ void LLFloaterTopObjects::handleReply(LLMessageSystem *msg, void** data)
 		F32 score;
 		std::string name_buf;
 		std::string owner_buf;
+		F32 mono_score;
 
 		msg->getU32Fast(_PREHASH_ReportData, _PREHASH_TaskLocalID, task_local_id, block);
 		msg->getUUIDFast(_PREHASH_ReportData, _PREHASH_TaskID, task_id, block);
@@ -192,6 +193,7 @@ void LLFloaterTopObjects::handleReply(LLMessageSystem *msg, void** data)
 		element["columns"][0]["column"] = "score";
 		element["columns"][0]["value"] = llformat("%0.3f", score);
 		element["columns"][0]["font"] = "SANSSERIF";
+		
 		element["columns"][1]["column"] = "name";
 		element["columns"][1]["value"] = name_buf;
 		element["columns"][1]["font"] = "SANSSERIF";
@@ -205,6 +207,14 @@ void LLFloaterTopObjects::handleReply(LLMessageSystem *msg, void** data)
 		element["columns"][3]["value"] = formatted_time((time_t)time_stamp);
 		element["columns"][3]["font"] = "SANSSERIF";
 		
+		if (mCurrentMode == STAT_REPORT_TOP_SCRIPTS)
+		{
+			msg->getF32Fast(_PREHASH_ReportData, "MonoScore", mono_score, block);
+			element["columns"][4]["column"] = "Mono Time";
+			element["columns"][4]["value"] = llformat("%0.3f", mono_score);
+			element["columns"][4]["font"] = "SANSSERIF";
+		}
+
 		list->addElement(element);
 		
 		mObjectListData.append(element);

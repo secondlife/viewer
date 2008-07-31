@@ -34,6 +34,7 @@
 #include "llassetuploadresponders.h"
 
 #include "llagent.h"
+#include "llcompilequeue.h"
 #include "llfloaterbuycurrency.h"
 #include "lleconomy.h"
 #include "llfilepicker.h"
@@ -73,11 +74,12 @@ LLAssetUploadResponder::LLAssetUploadResponder(const LLSD &post_data,
 }
 
 LLAssetUploadResponder::LLAssetUploadResponder(const LLSD &post_data,
-											   const std::string& file_name)
+											   const std::string& file_name, 
+											   LLAssetType::EType asset_type)
 	: LLHTTPClient::Responder(),
 	  mPostData(post_data),
-	  mAssetType(LLAssetType::AT_NONE),
-	  mFileName(file_name)
+	  mFileName(file_name),
+	  mAssetType(asset_type)
 {
 }
 
@@ -182,8 +184,8 @@ LLNewAgentInventoryResponder::LLNewAgentInventoryResponder(const LLSD& post_data
 {
 }
 
-LLNewAgentInventoryResponder::LLNewAgentInventoryResponder(const LLSD& post_data, const std::string& file_name)
-: LLAssetUploadResponder(post_data, file_name)
+LLNewAgentInventoryResponder::LLNewAgentInventoryResponder(const LLSD& post_data, const std::string& file_name, LLAssetType::EType asset_type)
+: LLAssetUploadResponder(post_data, file_name, asset_type)
 {
 }
 
@@ -301,8 +303,9 @@ LLUpdateAgentInventoryResponder::LLUpdateAgentInventoryResponder(const LLSD& pos
 }
 
 LLUpdateAgentInventoryResponder::LLUpdateAgentInventoryResponder(const LLSD& post_data,
-																 const std::string& file_name)
-: LLAssetUploadResponder(post_data, file_name)
+																 const std::string& file_name,
+																 LLAssetType::EType asset_type)
+: LLAssetUploadResponder(post_data, file_name, asset_type)
 {
 }
 
@@ -410,8 +413,17 @@ LLUpdateTaskInventoryResponder::LLUpdateTaskInventoryResponder(const LLSD& post_
 }
 
 LLUpdateTaskInventoryResponder::LLUpdateTaskInventoryResponder(const LLSD& post_data,
-															   const std::string& file_name)
-: LLAssetUploadResponder(post_data, file_name)
+															   const std::string& file_name, 
+															   LLAssetType::EType asset_type)
+: LLAssetUploadResponder(post_data, file_name, asset_type)
+{
+}
+
+LLUpdateTaskInventoryResponder::LLUpdateTaskInventoryResponder(const LLSD& post_data,
+															   const std::string& file_name,
+															   const LLUUID& queue_id, 
+															   LLAssetType::EType asset_type)
+: LLAssetUploadResponder(post_data, file_name, asset_type), mQueueId(queue_id)
 {
 }
 
@@ -422,35 +434,16 @@ void LLUpdateTaskInventoryResponder::uploadComplete(const LLSD& content)
 	LLUUID item_id = mPostData["item_id"];
 	LLUUID task_id = mPostData["task_id"];
 
-	LLViewerObject* object = gObjectList.findObject(task_id);
-	if (!object)
-	{
-		llwarns << "LLUpdateTaskInventoryResponder::uploadComplete task " << task_id
-			<< " no longer exist." << llendl;
-		return;
-	}
-	LLViewerInventoryItem* item = (LLViewerInventoryItem*)object->getInventoryObject(item_id);
-	if (!item)
-	{
-		llwarns << "LLUpdateTaskInventoryResponder::uploadComplete item "
-			<< item_id << " is no longer in task " << task_id
-			<< "'s inventory." << llendl;
-		return;
-	}
-	LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(item);
-	// Update Viewer inventory
-	object->updateViewerInventoryAsset(new_item, content["new_asset"]);
 	dialog_refresh_all();
 	
-	LLInventoryType::EType inventory_type = new_item->getInventoryType();
-	switch(inventory_type)
+	switch(mAssetType)
 	{
-		case LLInventoryType::IT_NOTECARD:
+		case LLAssetType::AT_NOTECARD:
 			{
 
 				// Update the UI with the new asset.
 				LLPreviewNotecard* nc;
-				nc = (LLPreviewNotecard*)LLPreview::find(new_item->getUUID());
+				nc = (LLPreviewNotecard*)LLPreview::find(item_id);
 				if(nc)
 				{
 					// *HACK: we have to delete the asset in the VFS so
@@ -470,28 +463,39 @@ void LLUpdateTaskInventoryResponder::uploadComplete(const LLSD& content)
 				}
 			}
 			break;
-		case LLInventoryType::IT_LSL:
+		case LLAssetType::AT_LSL_TEXT:
 			{
-				LLLiveLSLEditor* preview = LLLiveLSLEditor::find(item_id, task_id);
-				if (preview)
+				if(mQueueId.notNull())
 				{
-					// Bytecode save completed
-					if (content["compiled"])
+					LLFloaterCompileQueue* queue = 
+						(LLFloaterCompileQueue*) LLFloaterScriptQueue::findInstance(mQueueId);
+					if(NULL != queue)
 					{
-						preview->callbackLSLCompileSucceeded(
-							task_id,
-							item_id,
-							mPostData["is_script_running"]);
+						queue->removeItemByItemID(item_id);
 					}
-					else
+				}
+				else
+				{
+					LLLiveLSLEditor* preview = LLLiveLSLEditor::find(item_id, task_id);
+					if (preview)
 					{
-						preview->callbackLSLCompileFailed(content["errors"]);
+						// Bytecode save completed
+						if (content["compiled"])
+						{
+							preview->callbackLSLCompileSucceeded(
+								task_id,
+								item_id,
+								mPostData["is_script_running"]);
+						}
+						else
+						{
+							preview->callbackLSLCompileFailed(content["errors"]);
+						}
 					}
 				}
 			}
 			break;
-		case LLInventoryType::IT_WEARABLE:
-		default:
-			break;
+	default:
+		break;
 	}
 }

@@ -415,7 +415,7 @@ inline void set_fault(const U8 *stream, LSCRIPTRunTimeFaults fault)
 			reset_hp_to_safe_spot(stream);
 //		    lsa_print_heap((U8 *)stream);
 	   }
-       fr = LSCRIPTRunTimeFaultBits[fault];
+       fr = fault;
        set_register((U8 *)stream, LREG_FR, fr);
    }
 }

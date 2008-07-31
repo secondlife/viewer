@@ -367,20 +367,158 @@ public:
 class LLScriptExecute
 {
 public:
-	LLScriptExecute(LLFILE *fp);
-	LLScriptExecute(U8 *buffer);
-	~LLScriptExecute();
+	LLScriptExecute();
+	virtual ~LLScriptExecute() {;}
+
+	virtual S32 getVersion() = 0;
+	virtual void deleteAllEvents() = 0;
+	virtual void addEvent(LLScriptDataCollection* event) = 0;
+	virtual U32 getEventCount() = 0;
+	virtual void removeEventType(LSCRIPTStateEventType event_type) = 0;
+	virtual S32 getFaults() = 0;
+	virtual void setFault(LSCRIPTRunTimeFaults fault) = 0;
+	virtual	U32 getFreeMemory() = 0;
+	virtual S32 getParameter() = 0;
+	virtual void setParameter(S32 value) = 0;
+	virtual F32 getSleep() const = 0;
+	virtual void setSleep(F32 value) = 0;
+	virtual F32 getEnergy() const = 0;
+	virtual void setEnergy(F32 value) = 0;
+	virtual U64 getCurrentEvents(S32 version) = 0;
+	virtual void setCurrentEvents(U64 value, S32 version) = 0;
+	virtual U64 getEventHandlers(S32 version) = 0;
+	virtual void setEventHandlers(U64 value, S32 version) = 0;
+	virtual U64 getCurrentHandler(S32 version) = 0;
+	virtual void setCurrentHandler(U64 value, S32 version) = 0;
+	virtual BOOL isFinished() const = 0;
+	virtual BOOL isStateChangePending() const = 0;
+	virtual S32 writeState(U8 **dest, U32 header_size, U32 footer_size) = 0; // Allocate memory for header, state and footer return size of state.
+	virtual U32 getEventsSavedSize() = 0; // Returns 0 if events are written with state.
+	virtual S32 writeEvents(U8 *dest) = 0; // Must write and return exactly the number of bytes returned by getEventsSavedSize.
+	virtual void readEvents(U8* src, S32& offset) = 0;
+	virtual S32 readState(U8 *src) = 0; // Returns number of bytes read.
+	virtual void reset();
+	virtual const U8* getBytecode() const = 0;
+	virtual U32 getBytecodeSize() const = 0;
+	virtual bool isMono() const = 0;
+	virtual void error() {;} // Processing that must be performed when error flag is set and so run is not called.
+	
+	// Run current event handler for a maximum of time_slice seconds.
+	// Updates current handler and current events registers.
+	virtual void resumeEventHandler(BOOL b_print, const LLUUID &id, F32 time_slice) = 0;
+
+	// Run handler for event for a maximum of time_slice seconds.
+	// Updates current handler and current events registers.
+	virtual void callEventHandler(LSCRIPTStateEventType event, S32 major_version, const LLUUID &id, F32 time_slice) = 0;;
+
+	// Run handler for next queued event for maximum of time_slice seconds. 
+	// Updates current handler and current events registers.
+	// Removes processed event from queue.
+	virtual void callNextQueuedEventHandler(U64 event_register, S32 major_version, const LLUUID &id, F32 time_slice) = 0;
+
+	// Run handler for event for a maximum of time_slice seconds.
+	// Updates current handler and current events registers.
+	// Removes processed event from queue.
+	virtual void callQueuedEventHandler(LSCRIPTStateEventType event, S32 major_version, const LLUUID &id, F32 time_slice) = 0;
+
+	// Switch to next state.
+	// Returns new set of handled events.
+	virtual U64 nextState() = 0; 
+
+	// Returns time taken.
+	virtual F32 runQuanta(BOOL b_print, const LLUUID &id,
+						  const char **errorstr, 
+						  BOOL &state_transition, F32 quanta,
+						  U32& events_processed, LLTimer& timer);
+
+	// Run smallest possible amount of code: an instruction for LSL2, a segment
+	// between save tests for Mono
+	void runInstructions(BOOL b_print, const LLUUID &id,
+						 const char **errorstr, 
+						 BOOL &state_transition, U32& events_processed,
+						 F32 quanta);
+
+	bool isYieldDue() const;
+
+	void setReset(BOOL b) {mReset = b;}
+	BOOL getReset() const { return mReset; }
+
+private:
+
+	BOOL mReset;
+};
+
+class LLScriptExecuteLSL2 : public LLScriptExecute
+{
+public:
+	LLScriptExecuteLSL2(LLFILE *fp);
+	LLScriptExecuteLSL2(const U8* bytecode, U32 bytecode_size);
+	virtual ~LLScriptExecuteLSL2();
+
+	virtual S32 getVersion() {return get_register(mBuffer, LREG_VN);}
+	virtual void deleteAllEvents() {mEventData.mEventDataList.deleteAllData();}
+	virtual void addEvent(LLScriptDataCollection* event);
+	virtual U32 getEventCount() {return mEventData.mEventDataList.getLength();}
+	virtual void removeEventType(LSCRIPTStateEventType event_type);
+	virtual S32 getFaults() {return get_register(mBuffer, LREG_FR);}
+	virtual void setFault(LSCRIPTRunTimeFaults fault) {set_fault(mBuffer, fault);}
+	virtual U32 getFreeMemory();
+	virtual S32 getParameter();
+	virtual void setParameter(S32 value);
+	virtual F32 getSleep() const;
+	virtual void setSleep(F32 value);
+	virtual F32 getEnergy() const;
+	virtual void setEnergy(F32 value);
+	virtual U64 getCurrentEvents(S32 version) {return get_event_register(mBuffer, LREG_CE, version);}
+	virtual void setCurrentEvents(U64 value, S32 version) {return set_event_register(mBuffer, LREG_CE, value, version);}
+	virtual U64 getEventHandlers(S32 version) {return get_event_register(mBuffer, LREG_ER, version);}
+	virtual void setEventHandlers(U64 value, S32 version) {set_event_register(mBuffer, LREG_ER, value, version);}
+	virtual U64 getCurrentHandler(S32 version);
+	virtual void setCurrentHandler(U64 value, S32 version) {return set_event_register(mBuffer, LREG_IE, value, version);}	
+	virtual BOOL isFinished() const {return get_register(mBuffer, LREG_IP) == 0;}
+	virtual BOOL isStateChangePending() const {return get_register(mBuffer, LREG_CS) != get_register(mBuffer, LREG_NS);}
+	virtual S32 writeState(U8 **dest, U32 header_size, U32 footer_size); // Not including Events.
+	virtual U32 getEventsSavedSize() {return mEventData.getSavedSize();}
+	virtual S32 writeEvents(U8 *dest) {return mEventData.write2bytestream(dest);}
+	virtual void readEvents(U8* src, S32& offset) {mEventData.set(src, offset);}
+	virtual S32 writeBytecode(U8 **dest);
+	virtual S32 readState(U8 *src);
+	virtual void reset();
+	virtual const U8* getBytecode() const {return mBytecode;}
+	virtual U32 getBytecodeSize() const {return mBytecodeSize;}
+	virtual bool isMono() const {return false;}
+
+	// Run current event handler for a maximum of time_slice seconds.
+	// Updates current handler and current events registers.
+	virtual void resumeEventHandler(BOOL b_print, const LLUUID &id, F32 time_slice);
+
+	// Run handler for event for a maximum of time_slice seconds.
+	// Updates current handler and current events registers.
+	virtual void callEventHandler(LSCRIPTStateEventType event, S32 major_version, const LLUUID &id, F32 time_slice);
+
+	// Run handler for next queued event for maximum of time_slice seconds. 
+	// Updates current handler and current events registers.
+	// Removes processed event from queue.
+	virtual void callNextQueuedEventHandler(U64 event_register, S32 major_version, const LLUUID &id, F32 time_slice);
+
+	// Run handler for event for a maximum of time_slice seconds.
+	// Updates current handler and current events registers.
+	// Removes processed event from queue.
+	virtual void callQueuedEventHandler(LSCRIPTStateEventType event, S32 major_version, const LLUUID &id, F32 time_slice);
+
+	// Switch to next state.
+	// Returns new set of handled events.
+	virtual U64 nextState(); 
 
 	void init();
-	U32 run(BOOL b_print, const LLUUID &id, const char **errorstr, BOOL &state_transition);
 
 	BOOL (*mExecuteFuncs[0x100])(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id);
 
 	U32						mInstructionCount;
 	U8						*mBuffer;
 	LLScriptEventData		mEventData;
-
-	static S64 sGlobalInstructionCount;
+	U8*						mBytecode; // Initial state and bytecode.
+	U32						mBytecodeSize;
 
 private:
 	void		recordBoundaryError( const LLUUID &id );

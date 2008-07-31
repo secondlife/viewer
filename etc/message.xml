@@ -449,6 +449,14 @@
 					<key>trusted-sender</key>
 					<boolean>false</boolean>
 				</map>
+				
+				<key>LandStatReply</key>
+				<map>
+					<key>flavor</key>
+					<string>llsd</string>
+					<key>trusted-sender</key>
+					<boolean>false</boolean>
+				</map>
 
 				<key>StartGroupProposal</key>
 				<map>
@@ -493,7 +501,7 @@
 			<boolean>false</boolean>
 
 			<key>UpdateScriptAgentInventory</key>
-			<boolean>true</boolean>
+			<boolean>false</boolean>
 
 			<key>UpdateGestureTaskInventory</key>
 			<boolean>false</boolean>
@@ -502,7 +510,7 @@
 			<boolean>true</boolean>
 
 			<key>UpdateScriptTaskInventory</key>
-			<boolean>true</boolean>
+			<boolean>false</boolean>
 
 			<key>ViewerStartAuction</key>
 			<boolean>true</boolean>

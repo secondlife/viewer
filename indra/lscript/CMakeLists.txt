@@ -11,7 +11,8 @@ set(lscript_HEADER_FILES
     lscript_rt_interface.h
     )
 
-add_subdirectory (lscript_compile)
-add_subdirectory (lscript_execute)
-add_subdirectory (lscript_library)
+add_subdirectory(lscript_compile)
+add_subdirectory(lscript_execute)
+
+add_subdirectory(lscript_library)
 

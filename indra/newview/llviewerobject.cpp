@@ -2145,7 +2145,7 @@ void LLViewerObject::deleteInventoryItem(const LLUUID& item_id)
 }
 
 void LLViewerObject::doUpdateInventory(
-	LLViewerInventoryItem* item,
+	LLPointer<LLViewerInventoryItem>& item,
 	U8 key,
 	bool is_new)
 {
@@ -2217,7 +2217,8 @@ void LLViewerObject::doUpdateInventory(
 				--mInventorySerialNum;
 			}
 		}
-		LLViewerInventoryItem* new_item = new LLViewerInventoryItem(item);
+		LLViewerInventoryItem* oldItem = item;
+		LLViewerInventoryItem* new_item = new LLViewerInventoryItem(oldItem);
 		new_item->setPermissions(perm);
 		mInventory->push_front(new_item);
 		doInventoryCallback();
@@ -2605,6 +2606,21 @@ void LLViewerObject::updateInventory(
 	msg->sendReliable(mRegionp->getHost());
 
 	// do the internal logic
+	doUpdateInventory(task_item, key, is_new);
+}
+
+void LLViewerObject::updateInventoryLocal(LLInventoryItem* item, U8 key)
+{
+	LLPointer<LLViewerInventoryItem> task_item =
+		new LLViewerInventoryItem(item->getUUID(), mID, item->getPermissions(),
+								  item->getAssetUUID(), item->getType(),
+								  item->getInventoryType(),
+								  item->getName(), item->getDescription(),
+								  item->getSaleInfo(), item->getFlags(),
+								  item->getCreationDate());
+
+	// do the internal logic
+	const bool is_new = false;
 	doUpdateInventory(task_item, key, is_new);
 }
 

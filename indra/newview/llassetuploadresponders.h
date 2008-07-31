@@ -42,7 +42,9 @@ public:
 	LLAssetUploadResponder(const LLSD& post_data,
 							const LLUUID& vfile_id,
 							LLAssetType::EType asset_type);
-	LLAssetUploadResponder(const LLSD& post_data, const std::string& file_name);
+	LLAssetUploadResponder(const LLSD& post_data, 
+							const std::string& file_name,
+							LLAssetType::EType asset_type);
 	~LLAssetUploadResponder();
     virtual void error(U32 statusNum, const std::string& reason);
 	virtual void result(const LLSD& content);
@@ -52,8 +54,8 @@ public:
 
 protected:
 	LLSD mPostData;
-	LLUUID mVFileID;
 	LLAssetType::EType mAssetType;
+	LLUUID mVFileID;
 	std::string mFileName;
 };
 
@@ -63,7 +65,8 @@ public:
 	LLNewAgentInventoryResponder(const LLSD& post_data,
 								const LLUUID& vfile_id,
 								LLAssetType::EType asset_type);
-	LLNewAgentInventoryResponder(const LLSD& post_data, const std::string& file_name);
+	LLNewAgentInventoryResponder(const LLSD& post_data, const std::string& file_name,
+											   LLAssetType::EType asset_type);
 	virtual void uploadComplete(const LLSD& content);
 };
 
@@ -74,7 +77,8 @@ public:
 								const LLUUID& vfile_id,
 								LLAssetType::EType asset_type);
 	LLUpdateAgentInventoryResponder(const LLSD& post_data,
-								const std::string& file_name);
+								const std::string& file_name,
+											   LLAssetType::EType asset_type);
 	virtual void uploadComplete(const LLSD& content);
 };
 
@@ -85,8 +89,17 @@ public:
 								const LLUUID& vfile_id,
 								LLAssetType::EType asset_type);
 	LLUpdateTaskInventoryResponder(const LLSD& post_data,
-								const std::string& file_name);
+								const std::string& file_name,
+								LLAssetType::EType asset_type);
+	LLUpdateTaskInventoryResponder(const LLSD& post_data,
+								const std::string& file_name,
+								const LLUUID& queue_id,
+								LLAssetType::EType asset_type);
+
 	virtual void uploadComplete(const LLSD& content);
+	
+private:
+	LLUUID mQueueId;
 };
 
 #endif // LL_LLASSETUPLOADRESPONDER_H

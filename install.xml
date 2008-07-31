@@ -1,4 +1,4 @@
-<?xml version="1.0" ?>
+<?xml version="1.0"?>
 <llsd>
 <map>
     <key>installables</key>
@@ -377,9 +377,9 @@
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>589a8385979d2b0561daaec2148f8b77</string>
+            <string>f1161282d7fc11fbe17d0aa077ee054b</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/google-linux-20080613.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~babbage/install_pkgs/google-linux-20080617.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -411,9 +411,9 @@
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>83eddf6114f1e306c61fbda16ad02f0c</string>
+            <string>21c16a74f8fc9a62e3ab944a6eb7403d</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/gtk-atk-pango-glib-linux-20080613.tar.bz2</uri>
+            <uri>http://int.codex.lindenlab.com/~babbage/install_pkgs/gtk-atk-pango-glib-linux-20080616.tar.bz</uri>
           </map>
           <key>windows</key>
           <map>
@@ -553,6 +553,40 @@
             <string>87af253b1d76437290355e8e20029377</string>
             <key>url</key>
             <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/kdu-binaries-5.2.1-windows-20080617.tar.bz2</uri>
+          </map>
+        </map>
+      </map>
+      <key>libmono</key>
+      <map>
+        <key>copyright</key>
+        <string>(C) 2005 Novell, Inc. http://www.novell.com</string>
+        <key>description</key>
+        <string>An open source implementation of the ECMA/ISO ECMA-334 Common L\
+anguage Infrstructure (CLI) international standard</string>
+        <key>license</key>
+        <string>lgpl</string>
+        <key>packages</key>
+        <map>
+          <key>linux</key>
+          <map>
+            <key>md5sum</key>
+            <string>df73b95b0980e631ba1ecd930120699f</string>
+            <key>url</key>
+            <uri>http://int.codex.lindenlab.com/~daveh/install_pkgs/mono-linux-20080722.tar.bz2</uri>
+          </map>
+          <key>darwin</key>
+          <map>
+            <key>md5sum</key>
+            <string>39a803fcbe6f11b72358fc78b7777b6c</string>
+            <key>url</key>
+            <uri>http://int.codex.lindenlab.com/~daveh/install_pkgs/mono-darwin-20080724.tar.bz2</uri>
+          </map>
+		  <key>windows</key>
+		  <map>
+		    <key>md5sum</key>
+            <string>7293312a6c76e5a38ec1b58ff87828d9</string>
+            <key>url</key>
+            <uri>http://int.codex.lindenlab.com/~daveh/install_pkgs/mono-windows-20080723.tar.bz2</uri>
           </map>
         </map>
       </map>

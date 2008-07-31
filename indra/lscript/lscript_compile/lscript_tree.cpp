@@ -43,7 +43,8 @@
 
 //#define LSL_INCLUDE_DEBUG_INFO
 
-void print_cil_box(LLFILE* fp, LSCRIPTType type)
+
+static void print_cil_box(LLFILE* fp, LSCRIPTType type)
 {
 	switch(type)
 	{
@@ -51,24 +52,28 @@ void print_cil_box(LLFILE* fp, LSCRIPTType type)
 		fprintf(fp, "box [mscorlib]System.Int32\n");
 		break;
 	case LST_FLOATINGPOINT:
-		fprintf(fp, "box [mscorlib]System.Double\n");
+		fprintf(fp, "box [mscorlib]System.Single\n");
 		break;
 	case LST_STRING:
+		// System.String is not a System.ValueType,
+		// so does not need to be boxed.
+		break;
 	case LST_KEY:
-		fprintf(fp, "box [mscorlib]System.String\n");
+		fprintf(fp, "box [ScriptTypes]LindenLab.SecondLife.Key\n");
 		break;
 	case LST_VECTOR:
-		fprintf(fp, "box [LScriptLibrary]LLVector\n");
+		fprintf(fp, "box [ScriptTypes]LindenLab.SecondLife.Vector\n");
 		break;
 	case LST_QUATERNION:
-		fprintf(fp, "box [LScriptLibrary]LLQuaternion\n");
+		fprintf(fp, "box [ScriptTypes]LindenLab.SecondLife.Quaternion\n");
 		break;
 	default:
+		llassert(false);
 		break;
 	}
 }
 
-void print_cil_type(LLFILE* fp, LSCRIPTType type)
+static void print_cil_type(LLFILE* fp, LSCRIPTType type)
 {
 	switch(type)
 	{
@@ -79,14 +84,16 @@ void print_cil_type(LLFILE* fp, LSCRIPTType type)
 		fprintf(fp, "float32");
 		break;
 	case LST_STRING:
-	case LST_KEY:
 		fprintf(fp, "string");
+		break;		
+	case LST_KEY:
+		fprintf(fp, "valuetype [ScriptTypes]LindenLab.SecondLife.Key");
 		break;
 	case LST_VECTOR:
-		fprintf(fp, "valuetype [LScriptLibrary]LLVector");
+		fprintf(fp, "class [ScriptTypes]LindenLab.SecondLife.Vector");
 		break;
 	case LST_QUATERNION:
-		fprintf(fp, "valuetype [LScriptLibrary]LLQuaternion");
+		fprintf(fp, "class [ScriptTypes]LindenLab.SecondLife.Quaternion");
 		break;
 	case LST_LIST:
 		fprintf(fp, "class [mscorlib]System.Collections.ArrayList");
@@ -189,6 +196,7 @@ void LLScriptConstantInteger::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPT
 		break;
 	case LSCP_EMIT_CIL_ASSEMBLY:
 		fprintf(fp, "ldc.i4 %d\n", mValue);
+		type = mType;
 		break;
 	default:
 		break;
@@ -236,7 +244,13 @@ void LLScriptConstantFloat::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCo
 		}
 		break;
 	case LSCP_EMIT_CIL_ASSEMBLY:
-		fprintf(fp, "ldc.r8 %5.5f\n", mValue); // NOTE: Precision?
+	        {
+		        double v = (double)mValue;
+			U8 * p = (U8 *)&v; // See ECMA-335 Partition VI, Appendix C.4.6 Examples, line 4
+			fprintf(fp, "ldc.r8 (%02x %02x %02x %02x %02x %02x %02x %02x)\n", p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7]);
+			type = mType;
+		}
+		break;
 	default:
 		break;
 	}
@@ -247,16 +261,34 @@ S32 LLScriptConstantFloat::getSize()
 	return LSCRIPTDataSize[LST_FLOATINGPOINT];
 }
 
-void print_escape_quotes(LLFILE* fp, const char* str)
+void print_escaped(LLFILE* fp, const char* str)
 {
   putc('"', fp);
   for(const char* c = str; *c != '\0'; ++c)
   {
-	  if(*c == '"')
+	  switch(*c)
 	  {
-		  putc('\\', fp);
+	  case '"':
+		putc('\\', fp);
+		putc(*c, fp);
+		break;
+	  case '\n':
+		putc('\\', fp);
+		putc('n', fp);
+		break;
+	  case '\t':
+		putc(' ', fp);
+		putc(' ', fp);
+		putc(' ', fp);
+		putc(' ', fp);
+		break;
+	  case '\\':
+		putc('\\', fp);
+		putc('\\', fp);
+		break;
+	  default:
+		putc(*c, fp);
 	  }
-	  putc(*c, fp);
   }
   putc('"', fp);
 }
@@ -293,7 +325,7 @@ void LLScriptConstantString::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTC
 	case LSCP_TO_STACK:
 		{
 			chunk->addByte(LSCRIPTOpCodes[LOPC_PUSHARGS]);
-			chunk->addBytes(mValue, (S32)strlen(mValue) + 1);	 	/*Flawfinder: ignore*/
+			chunk->addBytes(mValue, (S32)strlen(mValue) + 1);
 			type = mType;
 		}
 		break;
@@ -304,7 +336,7 @@ void LLScriptConstantString::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTC
 		break;
 	case LSCP_EMIT_CIL_ASSEMBLY:
 		fprintf(fp, "ldstr ");
-		print_escape_quotes(fp, mValue);
+		print_escaped(fp, mValue);
 		fprintf(fp, "\n");
 	default:
 		break;
@@ -313,9 +345,8 @@ void LLScriptConstantString::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTC
 
 S32 LLScriptConstantString::getSize()
 {
-	return (S32)strlen(mValue) + 1;		/*Flawfinder: ignore*/
+	return (S32)strlen(mValue) + 1;
 }
-
 
 void LLScriptIdentifier::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompilePass pass, LSCRIPTPruneType ptype, BOOL &prunearg, LLScriptScope *scope, LSCRIPTType &type, LSCRIPTType basetype, U64 &count, LLScriptByteCodeChunk *chunk, LLScriptByteCodeChunk *heap, S32 stacksize, LLScriptScopeEntry *entry, S32 entrycount, LLScriptLibData **ldata)
 {
@@ -388,7 +419,7 @@ void LLScriptIdentifier::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompi
 		}
 		break;
 	case LSCP_EMIT_CIL_ASSEMBLY:
-		fprintf(fp, "%s", mName);
+		fprintf(fp, "'%s'", mName);
 		break;
 	default:
 		break;
@@ -426,6 +457,12 @@ S32 LLScriptSimpleAssignable::getSize()
 	
 	printf("Simple Assignable Base Class -- should never get here!\n");
 	return 0;
+}
+
+static void print_cil_member(LLFILE* fp, LLScriptIdentifier *ident)
+{
+	print_cil_type(fp, ident->mScopeEntry->mType);
+	fprintf(fp, " %s::'%s'\n", gScriptp->getClassName(), ident->mScopeEntry->mIdentifier);
 }
 
 void LLScriptSAIdentifier::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompilePass pass, LSCRIPTPruneType ptype, BOOL &prunearg, LLScriptScope *scope, LSCRIPTType &type, LSCRIPTType basetype, U64 &count, LLScriptByteCodeChunk *chunk, LLScriptByteCodeChunk *heap, S32 stacksize, LLScriptScopeEntry *entry, S32 entrycount, LLScriptLibData **ldata)
@@ -497,6 +534,19 @@ void LLScriptSAIdentifier::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCom
 			}
 		}
 		break;
+
+	case LSCP_EMIT_CIL_ASSEMBLY:
+		{
+			fprintf(fp, "ldarg.0\n");
+			fprintf(fp, "ldfld ");
+			print_cil_member(fp, mIdentifier);
+			fprintf(fp, "\n");
+			if (mNextp)
+			{
+				mNextp->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+			}
+			break;
+		}
 	default:
 		mIdentifier->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
 		if (mNextp)
@@ -553,7 +603,8 @@ S32 LLScriptSAConstant::getSize()
 	return mConstant->getSize();
 }
 
-void print_cil_cast(LLFILE* fp, LSCRIPTType srcType, LSCRIPTType targetType)
+
+static void print_cil_cast(LLFILE* fp, LSCRIPTType srcType, LSCRIPTType targetType)
 {
 	switch(srcType)
 	{
@@ -567,9 +618,8 @@ void print_cil_cast(LLFILE* fp, LSCRIPTType srcType, LSCRIPTType targetType)
 			fprintf(fp, "call string class [mscorlib]System.Convert::ToString(int32)\n");
 			break;
 		case LST_LIST:
-			fprintf(fp, "box [mscorlib]System.Int32\n");
-			fprintf(fp, "call class [mscorlib]System.Collections.ArrayList class [LScriptLibrary]LScriptInternal::CreateList()\n");
-			fprintf(fp, "call class [mscorlib]System.Collections.ArrayList class [LScriptLibrary]LScriptInternal::AddReturnList(object, class [mscorlib]System.Collections.ArrayList)\n");
+			print_cil_box(fp, LST_INTEGER);
+			fprintf(fp, "call class [mscorlib]System.Collections.ArrayList class [LslUserScript]LindenLab.SecondLife.LslUserScript::CreateList(object)\n");
 			break;
 		default:
 			break;
@@ -582,10 +632,11 @@ void print_cil_cast(LLFILE* fp, LSCRIPTType srcType, LSCRIPTType targetType)
 			fprintf(fp, "conv.i4\n");
 			break;
 		case LST_STRING:
-			fprintf(fp, "call string class [mscorlib]System.Convert::ToString(float32)\n");
+			fprintf(fp, "call string [LslLibrary]LindenLab.SecondLife.LslRunTime::ToString(float32)\n");
 			break;
 		case LST_LIST:
-			fprintf(fp, "call class [mscorlib]System.Collections.ArrayList [LScriptLibrary]LScriptInternal::CreateList(object)\n");
+			print_cil_box(fp, LST_FLOATINGPOINT);
+			fprintf(fp, "call class [mscorlib]System.Collections.ArrayList class [LslUserScript]LindenLab.SecondLife.LslUserScript::CreateList(object)\n");
 			break;
 		default:
 			break;
@@ -595,19 +646,22 @@ void print_cil_cast(LLFILE* fp, LSCRIPTType srcType, LSCRIPTType targetType)
 		switch(targetType)
 		{
 		case LST_INTEGER:
-			fprintf(fp, "call int32 valuetype [mscorlib]System.Int32::Parse(string)\n");
+			fprintf(fp, "call int32 [LslLibrary]LindenLab.SecondLife.LslRunTime::StringToInt(string)\n");
 			break;
 		case LST_FLOATINGPOINT:
-			fprintf(fp, "call float64 valuetype [mscorlib]System.Double::Parse(string)\n");
+			fprintf(fp, "call float32 [LslLibrary]LindenLab.SecondLife.LslRunTime::StringToFloat(string)\n");
 			break;
+		case LST_KEY:
+			fprintf(fp, "call valuetype [ScriptTypes]LindenLab.SecondLife.Key class [LslUserScript]LindenLab.SecondLife.LslUserScript::'CreateKey'(string)\n");
+			break;	
 		case LST_LIST:
-			fprintf(fp, "call class [mscorlib]System.Collections.ArrayList [LScriptLibrary]LScriptInternal::CreateList(object)\n");
+			fprintf(fp, "call class [mscorlib]System.Collections.ArrayList class [LslUserScript]LindenLab.SecondLife.LslUserScript::CreateList(object)\n");
 			break;
 		case LST_VECTOR:
-			fprintf(fp, "call valuetype [LScriptLibrary]LLVector valuetype [LScriptLibrary]LLVector::'Parse'(string)\n");
+			fprintf(fp, "call class [ScriptTypes]LindenLab.SecondLife.Vector class [LslUserScript]LindenLab.SecondLife.LslUserScript::'ParseVector'(string)\n");
 			break;
 		case LST_QUATERNION:
-			fprintf(fp, "call valuetype [LScriptLibrary]LLQuaternion valuetype [LScriptLibrary]LLQuaternion::'Parse'(string)\n");
+			fprintf(fp, "call class [ScriptTypes]LindenLab.SecondLife.Quaternion class [LslUserScript]LindenLab.SecondLife.LslUserScript::'ParseQuaternion'(string)\n");
 			break;
 		default:
 			break;
@@ -619,9 +673,11 @@ void print_cil_cast(LLFILE* fp, LSCRIPTType srcType, LSCRIPTType targetType)
 		case LST_KEY:
 			break;
 		case LST_STRING:
+			fprintf(fp, "call string [LslUserScript]LindenLab.SecondLife.LslUserScript::'ToString'(valuetype [ScriptTypes]LindenLab.SecondLife.Key)\n");
 			break;
 		case LST_LIST:
-			fprintf(fp, "call class [mscorlib]System.Collections.ArrayList [LScriptLibrary]LScriptInternal::CreateList(object)\n");
+			print_cil_box(fp, LST_KEY);
+			fprintf(fp, "call class [mscorlib]System.Collections.ArrayList class [LslUserScript]LindenLab.SecondLife.LslUserScript::CreateList(object)\n");
 			break;
 		default:
 			break;
@@ -633,10 +689,11 @@ void print_cil_cast(LLFILE* fp, LSCRIPTType srcType, LSCRIPTType targetType)
 		case LST_VECTOR:
 			break;
 		case LST_STRING:
-			fprintf(fp, "call string valuetype [LScriptLibrary]LLVector::'ToString'(valuetype [LScriptLibrary]LLVector)\n");
+			fprintf(fp, "call string [LslUserScript]LindenLab.SecondLife.LslUserScript::'ToString'(valuetype [ScriptTypes]LindenLab.SecondLife.Vector)\n");
 			break;
 		case LST_LIST:
-			fprintf(fp, "call class [mscorlib]System.Collections.ArrayList [LScriptLibrary]LScriptInternal::CreateList(object)\n");
+			print_cil_box(fp, LST_VECTOR);
+			fprintf(fp, "call class [mscorlib]System.Collections.ArrayList class [LslUserScript]LindenLab.SecondLife.LslUserScript::CreateList(object)\n");
 			break;
 		default:
 			break;
@@ -648,10 +705,11 @@ void print_cil_cast(LLFILE* fp, LSCRIPTType srcType, LSCRIPTType targetType)
 		case LST_QUATERNION:
 			break;
 		case LST_STRING:
-			fprintf(fp, "call string valuetype [LScriptLibrary]LLQuaternion::'ToString'(valuetype [LScriptLibrary]LLQuaternion)\n");
+			fprintf(fp, "call string [LslUserScript]LindenLab.SecondLife.LslUserScript::'ToString'(valuetype [ScriptTypes]LindenLab.SecondLife.Quaternion)\n");
 			break;
 		case LST_LIST:
-			fprintf(fp, "call class [mscorlib]System.Collections.ArrayList [LScriptLibrary]LScriptInternal::CreateList(object)\n");
+			print_cil_box(fp, LST_QUATERNION);
+			fprintf(fp, "call class [mscorlib]System.Collections.ArrayList class [LslUserScript]LindenLab.SecondLife.LslUserScript::CreateList(object)\n");
 			break;
 		default:
 			break;
@@ -663,7 +721,7 @@ void print_cil_cast(LLFILE* fp, LSCRIPTType srcType, LSCRIPTType targetType)
 		case LST_LIST:
 			break;
 		case LST_STRING:
-			fprintf(fp, "call string [LScriptLibrary]LScriptInternal::ListToString(class [mscorlib]System.Collections.ArrayList)\n");
+			fprintf(fp, "call string [LslLibrary]LindenLab.SecondLife.LslRunTime::ListToString(class [mscorlib]System.Collections.ArrayList)\n");
 			break;
 		default:
 			break;
@@ -674,10 +732,57 @@ void print_cil_cast(LLFILE* fp, LSCRIPTType srcType, LSCRIPTType targetType)
 	}
 }
 
-bool is_SA_constant_integer(LLScriptSimpleAssignable* sa)
+static void print_cil_numeric_cast(LLFILE* fp, LSCRIPTType currentArg, LSCRIPTType otherArg)
 {
-	// HACK: Downcast based on type.
-	return (sa->mType == LSSAT_CONSTANT && ((LLScriptSAConstant*) sa)->mConstant->mType == LST_INTEGER);
+	if((currentArg == LST_INTEGER) && ((otherArg == LST_FLOATINGPOINT) || (otherArg == LST_VECTOR)))
+	{
+		print_cil_cast(fp, LST_INTEGER, LST_FLOATINGPOINT);
+	}
+}
+
+static void print_cil_assignment_cast(LLFILE* fp, LSCRIPTType src,
+									  LSCRIPTType dest)
+{
+	if (LST_STRING == src && LST_KEY == dest)
+	{
+		print_cil_cast(fp, src, dest);
+	}
+	else if(LST_KEY == src && LST_STRING == dest)
+	{
+		print_cil_cast(fp, src, dest);
+	}
+	else
+	{
+		print_cil_numeric_cast(fp, src, dest);
+	}
+}
+ 
+// HACK! Babbage: should be converted to virtual on LSCRIPTSimpleAssignableType to avoid downcasts.
+LSCRIPTType get_type(LLScriptSimpleAssignable* sa)
+{
+	LSCRIPTType result = LST_NULL;
+	switch(sa->mType)
+	{
+	case LSSAT_IDENTIFIER:
+		result = ((LLScriptSAIdentifier*) sa)->mIdentifier->mScopeEntry->mType;
+		break;
+	case LSSAT_CONSTANT:
+		result = ((LLScriptSAConstant*) sa)->mConstant->mType;
+		break;
+	case LSSAT_VECTOR_CONSTANT:
+		result = LST_VECTOR;
+		break;
+	case LSSAT_QUATERNION_CONSTANT:
+		result = LST_QUATERNION;
+		break;
+	case LSSAT_LIST_CONSTANT:
+		result = LST_LIST;
+		break;
+	default:
+		result = LST_UNDEFINED;
+		break;
+	}
+	return result;
 }
 
 void LLScriptSAVector::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompilePass pass, LSCRIPTPruneType ptype, BOOL &prunearg, LLScriptScope *scope, LSCRIPTType &type, LSCRIPTType basetype, U64 &count, LLScriptByteCodeChunk *chunk, LLScriptByteCodeChunk *heap, S32 stacksize, LLScriptScopeEntry *entry, S32 entrycount, LLScriptLibData **ldata)
@@ -786,23 +891,23 @@ void LLScriptSAVector::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompile
 
 		// Load arguments.
 		mEntry1->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
-		if(is_SA_constant_integer(mEntry1))
+		if(LST_INTEGER == get_type(mEntry1))
 		{
 			print_cil_cast(fp, LST_INTEGER, LST_FLOATINGPOINT);
 		}
 		mEntry2->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
-		if(is_SA_constant_integer(mEntry3))
+		if(LST_INTEGER == get_type(mEntry2))
 		{
 			print_cil_cast(fp, LST_INTEGER, LST_FLOATINGPOINT);
 		}
 		mEntry3->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
-		if(is_SA_constant_integer(mEntry3))
+		if(LST_INTEGER == get_type(mEntry3))
 		{
 			print_cil_cast(fp, LST_INTEGER, LST_FLOATINGPOINT);
 		}
 		
 		// Call named ctor, which leaves new Vector on stack, so it can be saved in to local or argument just like a primitive type.
-		fprintf(fp, "call valuetype [LScriptLibrary]LLVector valuetype [LScriptLibrary]LLVector::'create'(float32, float32, float32)\n");
+		fprintf(fp, "call class [ScriptTypes]LindenLab.SecondLife.Vector class [LslUserScript]LindenLab.SecondLife.LslUserScript::'CreateVector'(float32, float32, float32)\n");
 
 		// Next.
 		if (mNextp)
@@ -952,28 +1057,28 @@ void LLScriptSAQuaternion::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCom
 
 		// Load arguments.
 		mEntry1->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
-		if(is_SA_constant_integer(mEntry1))
+		if(LST_INTEGER == get_type(mEntry1))
 		{
 			print_cil_cast(fp, LST_INTEGER, LST_FLOATINGPOINT);
 		}
 		mEntry2->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
-		if(is_SA_constant_integer(mEntry2))
+		if(LST_INTEGER == get_type(mEntry2))
 		{
 			print_cil_cast(fp, LST_INTEGER, LST_FLOATINGPOINT);
 		}
 		mEntry3->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
-		if(is_SA_constant_integer(mEntry3))
+		if(LST_INTEGER == get_type(mEntry3))
 		{
 			print_cil_cast(fp, LST_INTEGER, LST_FLOATINGPOINT);
 		}
 		mEntry4->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
-		if(is_SA_constant_integer(mEntry4))
+		if(LST_INTEGER == get_type(mEntry4))
 		{
 			print_cil_cast(fp, LST_INTEGER, LST_FLOATINGPOINT);
 		}
 		
 		// Call named ctor, which leaves new Vector on stack, so it can be saved in to local or argument just like a primitive type.
-		fprintf(fp, "call valuetype [LScriptLibrary]LLQuaternion valuetype [LScriptLibrary]LLQuaternion::'create'(float32, float32, float32, float32)\n");
+		fprintf(fp, "call class [ScriptTypes]LindenLab.SecondLife.Quaternion class [LslUserScript]LindenLab.SecondLife.LslUserScript::'CreateQuaternion'(float32, float32, float32, float32)\n");
 
 		// Next.
 		if (mNextp)
@@ -1049,6 +1154,40 @@ void LLScriptSAList::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompilePa
 			}
 		}
 		break;
+	case LSCP_EMIT_CIL_ASSEMBLY:
+		{
+			// Create list.
+			fprintf(fp, "call class [mscorlib]System.Collections.ArrayList [LslUserScript]LindenLab.SecondLife.LslUserScript::CreateList()\n");
+
+			// Add elements.
+			LLScriptSimpleAssignable* current_entry = mEntryList;
+			LLScriptSimpleAssignable* next_entry = NULL;
+			while(NULL != current_entry)
+			{
+				next_entry = current_entry->mNextp;
+
+				// Null mNextp pointer, so only current list element is processed.
+				current_entry->mNextp = NULL;
+				current_entry->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+
+				// Restore mNextp pointer.
+				current_entry->mNextp = next_entry;
+
+				// Box element and store in list.
+				print_cil_box(fp, get_type(current_entry));
+				fprintf(fp, "call class [mscorlib]System.Collections.ArrayList class [LslUserScript]LindenLab.SecondLife.LslUserScript::Append(class [mscorlib]System.Collections.ArrayList, object)\n");
+
+				// Process next element.
+				current_entry = next_entry;
+			}
+
+			// Process next list.
+			if (mNextp)
+			{
+				mNextp->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+			}
+		}
+		break;
 	default:
 		if (mEntryList)
 			mEntryList->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, ldata);
@@ -1089,6 +1228,45 @@ void LLScriptGlobalVariable::gonext(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCo
 		{
 			mNextp->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
 		}
+		break;
+	}
+}
+
+// Push initialised variable of type on to stack.
+static void print_cil_init_variable(LLFILE* fp, LSCRIPTType type)
+{
+	switch(type)
+	{
+	case LST_INTEGER:
+		fprintf(fp, "ldc.i4.0\n");
+		break;
+	case LST_FLOATINGPOINT:
+		fprintf(fp, "ldc.r8 0\n");
+		break;
+	case LST_STRING:
+		fprintf(fp, "ldstr \"\"\n");
+		break;
+	case LST_KEY:
+		fprintf(fp, "ldstr \"\"\n");
+		fprintf(fp, "call valuetype [ScriptTypes]LindenLab.SecondLife.Key class [LslUserScript]LindenLab.SecondLife.LslUserScript::'CreateKey'(string)\n");
+		break;
+	case LST_VECTOR:
+		fprintf(fp, "ldc.r8 0\n");
+		fprintf(fp, "ldc.r8 0\n");
+		fprintf(fp, "ldc.r8 0\n");
+		fprintf(fp, "call class [ScriptTypes]LindenLab.SecondLife.Vector class [LslUserScript]LindenLab.SecondLife.LslUserScript::'CreateVector'(float32, float32, float32)\n");
+		break;
+	case LST_QUATERNION:
+		fprintf(fp, "ldc.r8 1\n");
+		fprintf(fp, "ldc.r8 0\n");
+		fprintf(fp, "ldc.r8 0\n");
+		fprintf(fp, "ldc.r8 0\n");
+		fprintf(fp, "call class [ScriptTypes]LindenLab.SecondLife.Quaternion class [LslUserScript]LindenLab.SecondLife.LslUserScript::'CreateQuaternion'(float32, float32, float32, float32)\n");
+		break;
+	case LST_LIST:
+		fprintf(fp, "call class [mscorlib]System.Collections.ArrayList class [LslUserScript]LindenLab.SecondLife.LslUserScript::CreateList()\n");
+		break;
+	default:
 		break;
 	}
 }
@@ -1164,7 +1342,7 @@ void LLScriptGlobalVariable::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTC
 			// it also includes the name of the variable as well as the type
 			// plus 4 bytes of offset from it's apparent address to the actual data
 #ifdef LSL_INCLUDE_DEBUG_INFO
-			count += strlen(mIdentifier->mName) + 1 + 1 + 4;	/*Flawfinder: ignore*/
+			count += strlen(mIdentifier->mName) + 1 + 1 + 4;
 #else
 			count += 1 + 1 + 4;
 #endif
@@ -1187,7 +1365,7 @@ void LLScriptGlobalVariable::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTC
 			chunk->addBytes(&vtype, 1);
 			// null terminated name
 #ifdef LSL_INCLUDE_DEBUG_INFO
-			chunk->addBytes(mIdentifier->mName, strlen(mIdentifier->mName) + 1);	/*Flawfinder: ignore*/
+			chunk->addBytes(mIdentifier->mName, strlen(mIdentifier->mName) + 1);
 #else
 			chunk->addBytes(1);
 #endif
@@ -1257,16 +1435,27 @@ void LLScriptGlobalVariable::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTC
 	case LSCP_EMIT_CIL_ASSEMBLY:
 
 		// Initialisation inside ctor.
+		fprintf(fp, "ldarg.0\n");
 		if (mAssignable)
 		{
-			fprintf(fp, "ldarg.0\n");
-			mAssignable->recurse(fp, tabs, tabsize, LSCP_EMIT_CIL_ASSEMBLY, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
-			fprintf(fp, "stfld ");
-			mType->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
-			fprintf(fp," LSL::");
-			mIdentifier->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
-			fprintf(fp, "\n");
+			// Initialise to value.
+			mAssignable->recurse(fp, tabs, tabsize, LSCP_EMIT_CIL_ASSEMBLY,
+								 ptype, prunearg, scope, type, basetype,
+								 count, chunk, heap, stacksize, entry,
+								 entrycount, NULL);
+			print_cil_assignment_cast(fp, get_type(mAssignable), mType->mType);
 		}
+		else
+		{
+			// Initialise to zero.
+			print_cil_init_variable(fp, mType->mType);
+		}
+		// Store value.
+		fprintf(fp, "stfld ");
+		mType->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		fprintf(fp," %s::", gScriptp->getClassName());
+		mIdentifier->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		fprintf(fp, "\n");
 		break;
 	default:
 		mType->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
@@ -1298,6 +1487,20 @@ S32 LLScriptEvent::getSize()
 	printf("Event Base Class -- should never get here!\n");
 	return 0;
 }
+static void checkForDuplicateHandler(LLFILE *fp, LLScriptFilePosition *pos, 
+				     LLScriptScope *scope,
+				     const char* name)
+{
+    LLScriptScope *parent = scope->mParentScope;
+    if (parent->checkEntry((char*)name))
+    {
+        gErrorToText.writeError(fp, pos, LSERROR_DUPLICATE_NAME);
+    }
+    else
+    {
+        parent->addEntry(((char*)name), LIT_HANDLER, LST_NULL);
+    }
+}
 
 void LLScriptStateEntryEvent::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompilePass pass, LSCRIPTPruneType ptype, BOOL &prunearg, LLScriptScope *scope, LSCRIPTType &type, LSCRIPTType basetype, U64 &count, LLScriptByteCodeChunk *chunk, LLScriptByteCodeChunk *heap, S32 stacksize, LLScriptScopeEntry *entry, S32 entrycount, LLScriptLibData **ldata)
 {
@@ -1314,11 +1517,14 @@ void LLScriptStateEntryEvent::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPT
 	case LSCP_EMIT_ASSEMBLY:
 		fprintf(fp, "state_entry()\n");
 		break;
+	case LSCP_SCOPE_PASS1:
+	        checkForDuplicateHandler(fp, this, scope, "state_entry");
+	        break;
 	case LSCP_EMIT_BYTE_CODE:
 		{
 #ifdef LSL_INCLUDE_DEBUG_INFO
 			char name[] = "state_entry";
-			chunk->addBytes(name, strlen(name) + 1);		/*Flawfinder: ignore*/
+			chunk->addBytes(name, strlen(name) + 1);
 #endif
 		}
 		break;
@@ -1347,6 +1553,9 @@ void LLScriptStateExitEvent::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTC
 		fdotabs(fp, tabs, tabsize);
 		fprintf(fp, "state_exit()\n");
 		break;
+        case LSCP_SCOPE_PASS1:
+                checkForDuplicateHandler(fp, this, scope, "state_exit");
+	        break;
 	case LSCP_EMIT_ASSEMBLY:
 		fprintf(fp, "state_exit()\n");
 		break;
@@ -1354,7 +1563,7 @@ void LLScriptStateExitEvent::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTC
 		{
 #ifdef LSL_INCLUDE_DEBUG_INFO
 			char name[] = "state_exit";
-			chunk->addBytes(name, strlen(name) + 1);		/*Flawfinder: ignore*/
+			chunk->addBytes(name, strlen(name) + 1);
 #endif
 		}
 		break;
@@ -1388,6 +1597,7 @@ void LLScriptTouchStartEvent::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPT
 		break;
 		break;
 	case LSCP_SCOPE_PASS1:
+	        checkForDuplicateHandler(fp, this, scope, "touch_start");
 		if (scope->checkEntry(mCount->mName))
 		{
 			gErrorToText.writeError(fp, this, LSERROR_DUPLICATE_NAME);
@@ -1412,10 +1622,17 @@ void LLScriptTouchStartEvent::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPT
 		{
 #ifdef LSL_INCLUDE_DEBUG_INFO
 			char name[] = "touch_start";
-			chunk->addBytes(name, strlen(name) + 1);		/*Flawfinder: ignore*/
-			chunk->addBytes(mCount->mName, strlen(mCount->mName) + 1);		/*Flawfinder: ignore*/
+			chunk->addBytes(name, strlen(name) + 1);
+			chunk->addBytes(mCount->mName, strlen(mCount->mName) + 1);
 #endif
 		}
+		break;
+	case LSCP_EMIT_CIL_ASSEMBLY:
+		fdotabs(fp, tabs, tabsize);
+		fprintf(fp, "touch_start( int32 ");
+		mCount->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		fprintf(fp, " )");
+		break;
 		break;
 	default:
 		mCount->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
@@ -1446,6 +1663,7 @@ void LLScriptTouchEvent::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompi
 		break;
 		break;
 	case LSCP_SCOPE_PASS1:
+	        checkForDuplicateHandler(fp, this, scope, "touch");
 		if (scope->checkEntry(mCount->mName))
 		{
 			gErrorToText.writeError(fp, this, LSERROR_DUPLICATE_NAME);
@@ -1470,10 +1688,17 @@ void LLScriptTouchEvent::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompi
 		{
 #ifdef LSL_INCLUDE_DEBUG_INFO
 			char name[] = "touch";
-			chunk->addBytes(name, strlen(name) + 1);		/*Flawfinder: ignore*/
-			chunk->addBytes(mCount->mName, strlen(mCount->mName) + 1);		/*Flawfinder: ignore*/
+			chunk->addBytes(name, strlen(name) + 1);
+			chunk->addBytes(mCount->mName, strlen(mCount->mName) + 1);
 #endif
 		}
+		break;
+	case LSCP_EMIT_CIL_ASSEMBLY:
+		fdotabs(fp, tabs, tabsize);
+		fprintf(fp, "touch( int32 ");
+		mCount->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		fprintf(fp, " )");
+		break;
 		break;
 	default:
 		mCount->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
@@ -1504,6 +1729,7 @@ void LLScriptTouchEndEvent::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCo
 		break;
 		break;
 	case LSCP_SCOPE_PASS1:
+	        checkForDuplicateHandler(fp, this, scope, "touch_end");
 		if (scope->checkEntry(mCount->mName))
 		{
 			gErrorToText.writeError(fp, this, LSERROR_DUPLICATE_NAME);
@@ -1528,10 +1754,17 @@ void LLScriptTouchEndEvent::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCo
 		{
 #ifdef LSL_INCLUDE_DEBUG_INFO
 			char name[] = "touch_end";
-			chunk->addBytes(name, strlen(name) + 1);		/*Flawfinder: ignore*/
-			chunk->addBytes(mCount->mName, strlen(mCount->mName) + 1);		/*Flawfinder: ignore*/
+			chunk->addBytes(name, strlen(name) + 1);
+			chunk->addBytes(mCount->mName, strlen(mCount->mName) + 1);
 #endif
 		}
+		break;
+	case LSCP_EMIT_CIL_ASSEMBLY:
+		fdotabs(fp, tabs, tabsize);
+		fprintf(fp, "touch_end( int32 ");
+		mCount->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		fprintf(fp, " )");
+		break;
 		break;
 	default:
 		mCount->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
@@ -1562,6 +1795,7 @@ void LLScriptCollisionStartEvent::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSC
 		break;
 		break;
 	case LSCP_SCOPE_PASS1:
+	        checkForDuplicateHandler(fp, this, scope, "collision_start");
 		if (scope->checkEntry(mCount->mName))
 		{
 			gErrorToText.writeError(fp, this, LSERROR_DUPLICATE_NAME);
@@ -1586,10 +1820,16 @@ void LLScriptCollisionStartEvent::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSC
 		{
 #ifdef LSL_INCLUDE_DEBUG_INFO
 			char name[] = "collision_start";
-			chunk->addBytes(name, (S32)strlen(name) + 1);		/*Flawfinder: ignore*/
-			chunk->addBytes(mCount->mName, (S32)strlen(mCount->mName) + 1);		/*Flawfinder: ignore*/
+			chunk->addBytes(name, (S32)strlen(name) + 1);
+			chunk->addBytes(mCount->mName, (S32)strlen(mCount->mName) + 1);
 #endif
 		}
+		break;
+	case LSCP_EMIT_CIL_ASSEMBLY:
+		fdotabs(fp, tabs, tabsize);
+		fprintf(fp, "collision_start( int32 ");
+		mCount->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		fprintf(fp, " )");
 		break;
 	default:
 		mCount->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
@@ -1620,6 +1860,7 @@ void LLScriptCollisionEvent::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTC
 		break;
 		break;
 	case LSCP_SCOPE_PASS1:
+	        checkForDuplicateHandler(fp, this, scope, "collision");
 		if (scope->checkEntry(mCount->mName))
 		{
 			gErrorToText.writeError(fp, this, LSERROR_DUPLICATE_NAME);
@@ -1644,10 +1885,15 @@ void LLScriptCollisionEvent::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTC
 		{
 #ifdef LSL_INCLUDE_DEBUG_INFO
 			char name[] = "collision";
-			chunk->addBytes(name, strlen(name) + 1);		/*Flawfinder: ignore*/
-			chunk->addBytes(mCount->mName, strlen(mCount->mName) + 1);		/*Flawfinder: ignore*/
+			chunk->addBytes(name, strlen(name) + 1);
+			chunk->addBytes(mCount->mName, strlen(mCount->mName) + 1);
 #endif
 		}
+		break;
+	case LSCP_EMIT_CIL_ASSEMBLY:
+		fprintf(fp, "collision( int32 ");
+		mCount->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		fprintf(fp, " )");
 		break;
 	default:
 		mCount->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
@@ -1678,6 +1924,7 @@ void LLScriptCollisionEndEvent::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRI
 		break;
 		break;
 	case LSCP_SCOPE_PASS1:
+	  checkForDuplicateHandler(fp, this, scope, "collision_end");
 		if (scope->checkEntry(mCount->mName))
 		{
 			gErrorToText.writeError(fp, this, LSERROR_DUPLICATE_NAME);
@@ -1702,10 +1949,16 @@ void LLScriptCollisionEndEvent::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRI
 		{
 #ifdef LSL_INCLUDE_DEBUG_INFO
 			char name[] = "collision_end";
-			chunk->addBytes(name, strlen(name) + 1);		/*Flawfinder: ignore*/
-			chunk->addBytes(mCount->mName, strlen(mCount->mName) + 1);		/*Flawfinder: ignore*/
+			chunk->addBytes(name, strlen(name) + 1);
+			chunk->addBytes(mCount->mName, strlen(mCount->mName) + 1);
 #endif
 		}
+		break;
+	case LSCP_EMIT_CIL_ASSEMBLY:
+		fdotabs(fp, tabs, tabsize);
+		fprintf(fp, "collision_end( int32 ");
+		mCount->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		fprintf(fp, " )");
 		break;
 	default:
 		mCount->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
@@ -1735,6 +1988,7 @@ void LLScriptLandCollisionStartEvent::recurse(LLFILE *fp, S32 tabs, S32 tabsize,
 		fprintf(fp, " )\n");
 		break;
 	case LSCP_SCOPE_PASS1:
+	  checkForDuplicateHandler(fp, this, scope, "land_collision_start");
 		if (scope->checkEntry(mPosition->mName))
 		{
 			gErrorToText.writeError(fp, this, LSERROR_DUPLICATE_NAME);
@@ -1759,10 +2013,16 @@ void LLScriptLandCollisionStartEvent::recurse(LLFILE *fp, S32 tabs, S32 tabsize,
 		{
 #ifdef LSL_INCLUDE_DEBUG_INFO
 			char name[] = "land_collision_start";
-			chunk->addBytes(name, strlen(name) + 1);		/*Flawfinder: ignore*/
-			chunk->addBytes(mPosition->mName, strlen(mPosition->mName) + 1);		/*Flawfinder: ignore*/
+			chunk->addBytes(name, strlen(name) + 1);
+			chunk->addBytes(mPosition->mName, strlen(mPosition->mName) + 1);
 #endif
 		}
+		break;
+	case LSCP_EMIT_CIL_ASSEMBLY:
+		fdotabs(fp, tabs, tabsize);
+		fprintf(fp, "land_collision_start( class [ScriptTypes]LindenLab.SecondLife.Vector ");
+		mPosition->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		fprintf(fp, " )");
 		break;
 	default:
 		mPosition->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
@@ -1794,6 +2054,7 @@ void LLScriptLandCollisionEvent::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCR
 		fprintf(fp, " )\n");
 		break;
 	case LSCP_SCOPE_PASS1:
+	  checkForDuplicateHandler(fp, this, scope, "land_collision");
 		if (scope->checkEntry(mPosition->mName))
 		{
 			gErrorToText.writeError(fp, this, LSERROR_DUPLICATE_NAME);
@@ -1818,10 +2079,16 @@ void LLScriptLandCollisionEvent::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCR
 		{
 #ifdef LSL_INCLUDE_DEBUG_INFO
 			char name[] = "land_collision";
-			chunk->addBytes(name, strlen(name) + 1); 		/*Flawfinder: ignore*/
-			chunk->addBytes(mPosition->mName, strlen(mPosition->mName) + 1); 		/*Flawfinder: ignore*/
+			chunk->addBytes(name, strlen(name) + 1);
+			chunk->addBytes(mPosition->mName, strlen(mPosition->mName) + 1);
 #endif
 		}
+		break;
+	case LSCP_EMIT_CIL_ASSEMBLY:
+		fdotabs(fp, tabs, tabsize);
+		fprintf(fp, "land_collision( class [ScriptTypes]LindenLab.SecondLife.Vector ");
+		mPosition->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		fprintf(fp, " )");
 		break;
 	default:
 		mPosition->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
@@ -1852,6 +2119,7 @@ void LLScriptLandCollisionEndEvent::recurse(LLFILE *fp, S32 tabs, S32 tabsize, L
 		fprintf(fp, " )\n");
 		break;
 	case LSCP_SCOPE_PASS1:
+	  checkForDuplicateHandler(fp, this, scope, "land_collision_end");
 		if (scope->checkEntry(mPosition->mName))
 		{
 			gErrorToText.writeError(fp, this, LSERROR_DUPLICATE_NAME);
@@ -1875,11 +2143,17 @@ void LLScriptLandCollisionEndEvent::recurse(LLFILE *fp, S32 tabs, S32 tabsize, L
 	case LSCP_EMIT_BYTE_CODE:
 		{
 #ifdef LSL_INCLUDE_DEBUG_INFO
-			char name[] = "land_collision_end";	/*Flawfinder: ignore*/
-			chunk->addBytes(name, strlen(name) + 1); 		/*Flawfinder: ignore*/
-			chunk->addBytes(mPosition->mName, strlen(mPosition->mName) + 1);	/*Flawfinder: ignore*/
+			char name[] = "land_collision_end";
+			chunk->addBytes(name, strlen(name) + 1);
+			chunk->addBytes(mPosition->mName, strlen(mPosition->mName) + 1);
 #endif
 		}
+		break;
+	case LSCP_EMIT_CIL_ASSEMBLY:
+		fdotabs(fp, tabs, tabsize);
+		fprintf(fp, "land_collision_end( class [ScriptTypes]LindenLab.SecondLife.Vector ");
+		mPosition->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		fprintf(fp, " )");
 		break;
 	default:
 		mPosition->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
@@ -1910,6 +2184,7 @@ void LLScriptInventoryEvent::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTC
 		fprintf(fp, " )\n");
 		break;
 	case LSCP_SCOPE_PASS1:
+	  checkForDuplicateHandler(fp, this, scope, "changed");
 		if (scope->checkEntry(mChange->mName))
 		{
 			gErrorToText.writeError(fp, this, LSERROR_DUPLICATE_NAME);
@@ -1934,10 +2209,16 @@ void LLScriptInventoryEvent::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTC
 		{
 #ifdef LSL_INCLUDE_DEBUG_INFO
 			char name[] = "changed";
-			chunk->addBytes(name, strlen(name) + 1); 		/*Flawfinder: ignore*/
-			chunk->addBytes(mChange->mName, strlen(mChange->mName) + 1); 		/*Flawfinder: ignore*/
+			chunk->addBytes(name, strlen(name) + 1);
+			chunk->addBytes(mChange->mName, strlen(mChange->mName) + 1);
 #endif
 		}
+		break;
+	case LSCP_EMIT_CIL_ASSEMBLY:
+		fdotabs(fp, tabs, tabsize);
+		fprintf(fp, "changed( int32 ");
+		mChange->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		fprintf(fp, " )");
 		break;
 	default:
 		mChange->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
@@ -1967,6 +2248,7 @@ void LLScriptAttachEvent::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTComp
 		fprintf(fp, " )\n");
 		break;
 	case LSCP_SCOPE_PASS1:
+	  checkForDuplicateHandler(fp, this, scope, "attach");
 		if (scope->checkEntry(mAttach->mName))
 		{
 			gErrorToText.writeError(fp, this, LSERROR_DUPLICATE_NAME);
@@ -1991,10 +2273,16 @@ void LLScriptAttachEvent::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTComp
 		{
 #ifdef LSL_INCLUDE_DEBUG_INFO
 			char name[] = "attach";
-			chunk->addBytes(name, strlen(name) + 1); 		/*Flawfinder: ignore*/
-			chunk->addBytes(mAttach->mName, strlen(mAttach->mName) + 1); 		/*Flawfinder: ignore*/
+			chunk->addBytes(name, strlen(name) + 1);
+			chunk->addBytes(mAttach->mName, strlen(mAttach->mName) + 1);
 #endif
 		}
+		break;
+	case LSCP_EMIT_CIL_ASSEMBLY:
+		fdotabs(fp, tabs, tabsize);
+		fprintf(fp, "attach( valuetype [ScriptTypes]LindenLab.SecondLife.Key ");
+		mAttach->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		fprintf(fp, " )\n");
 		break;
 	default:
 		mAttach->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
@@ -2026,6 +2314,7 @@ void LLScriptDataserverEvent::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPT
 		fprintf(fp, " )\n");
 		break;
 	case LSCP_SCOPE_PASS1:
+	  checkForDuplicateHandler(fp, this, scope, "dataserver");
 		if (scope->checkEntry(mID->mName))
 		{
 			gErrorToText.writeError(fp, this, LSERROR_DUPLICATE_NAME);
@@ -2061,11 +2350,19 @@ void LLScriptDataserverEvent::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPT
 		{
 #ifdef LSL_INCLUDE_DEBUG_INFO
 			char name[] = "dataserver";
-			chunk->addBytes(name, strlen(name) + 1); 		/*Flawfinder: ignore*/
-			chunk->addBytes(mID->mName, strlen(mID->mName) + 1); 		/*Flawfinder: ignore*/
-			chunk->addBytes(mData->mName, strlen(mData->mName) + 1); 		/*Flawfinder: ignore*/
+			chunk->addBytes(name, strlen(name) + 1);
+			chunk->addBytes(mID->mName, strlen(mID->mName) + 1);
+			chunk->addBytes(mData->mName, strlen(mData->mName) + 1);
 #endif
 		}
+		break;
+	case LSCP_EMIT_CIL_ASSEMBLY:
+		fdotabs(fp, tabs, tabsize);
+		fprintf(fp, "dataserver( valuetype [ScriptTypes]LindenLab.SecondLife.Key ");
+		mID->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		fprintf(fp, ", string ");
+		mData->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		fprintf(fp, " )");
 		break;
 	default:
 		mID->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
@@ -2095,13 +2392,20 @@ void LLScriptTimerEvent::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompi
 	case LSCP_EMIT_ASSEMBLY:
 		fprintf(fp, "timer()\n");
 		break;
+        case LSCP_SCOPE_PASS1:
+	  checkForDuplicateHandler(fp, this, scope, "timer");
+	  break;
+
 	case LSCP_EMIT_BYTE_CODE:
 		{
 #ifdef LSL_INCLUDE_DEBUG_INFO
 			char name[] = "timer";
-			chunk->addBytes(name, strlen(name) + 1); 		/*Flawfinder: ignore*/
+			chunk->addBytes(name, strlen(name) + 1);
 #endif
 		}
+		break;
+	case LSCP_EMIT_CIL_ASSEMBLY:
+		fprintf(fp, "timer()");
 		break;
 	default:
 		break;
@@ -2126,13 +2430,20 @@ void LLScriptMovingStartEvent::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIP
 		fdotabs(fp, tabs, tabsize);
 		fprintf(fp, "moving_start()\n");
 		break;
+        case LSCP_SCOPE_PASS1:
+	  checkForDuplicateHandler(fp, this, scope, "moving_start");
+	  break;
+
 	case LSCP_EMIT_BYTE_CODE:
 		{
 #ifdef LSL_INCLUDE_DEBUG_INFO
 			char name[] = "moving_start";
-			chunk->addBytes(name, strlen(name) + 1); 		/*Flawfinder: ignore*/
+			chunk->addBytes(name, strlen(name) + 1);
 #endif
 		}
+		break;
+	case LSCP_EMIT_CIL_ASSEMBLY:
+		fprintf(fp, "moving_start()");
 		break;
 	default:
 		break;
@@ -2157,13 +2468,20 @@ void LLScriptMovingEndEvent::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTC
 		fdotabs(fp, tabs, tabsize);
 		fprintf(fp, "moving_end()\n");
 		break;
+        case LSCP_SCOPE_PASS1:
+          checkForDuplicateHandler(fp, this, scope, "moving_end");
+          break;
+
 	case LSCP_EMIT_BYTE_CODE:
 		{
 #ifdef LSL_INCLUDE_DEBUG_INFO
 			char name[] = "moving_end";
-			chunk->addBytes(name, strlen(name) + 1); 		/*Flawfinder: ignore*/
+			chunk->addBytes(name, strlen(name) + 1);
 #endif
 		}
+		break;
+	case LSCP_EMIT_CIL_ASSEMBLY:
+		fprintf(fp, "moving_end()");
 		break;
 	default:
 		break;
@@ -2191,6 +2509,7 @@ void LLScriptRTPEvent::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompile
 		fprintf(fp, " )\n");
 		break;
 	case LSCP_SCOPE_PASS1:
+	  checkForDuplicateHandler(fp, this, scope, "run_time_perms");
 		if (scope->checkEntry(mRTPermissions->mName))
 		{
 			gErrorToText.writeError(fp, this, LSERROR_DUPLICATE_NAME);
@@ -2215,10 +2534,17 @@ void LLScriptRTPEvent::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompile
 		{
 #ifdef LSL_INCLUDE_DEBUG_INFO
 			char name[] = "chat";
-			chunk->addBytes(name, strlen(name) + 1); 		/*Flawfinder: ignore*/
-			chunk->addBytes(mRTPermissions->mName, strlen(mRTPermissions->mName) + 1); 		/*Flawfinder: ignore*/
+			chunk->addBytes(name, strlen(name) + 1);
+			chunk->addBytes(mRTPermissions->mName, strlen(mRTPermissions->mName) + 1);
 #endif
 		}
+		break;
+	case LSCP_EMIT_CIL_ASSEMBLY:
+		// NOTE: Not replicating LSL2 bug by calling RTP event hander "chat"
+		fdotabs(fp, tabs, tabsize);
+		fprintf(fp, "run_time_perms( int32 ");
+		mRTPermissions->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		fprintf(fp, " )");
 		break;
 	default:
 		mRTPermissions->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
@@ -2254,6 +2580,7 @@ void LLScriptChatEvent::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompil
 		fprintf(fp, " )\n");
 		break;
 	case LSCP_SCOPE_PASS1:
+		checkForDuplicateHandler(fp, this, scope, "listen"); // note: this is actually listen in lsl source
 		if (scope->checkEntry(mChannel->mName))
 		{
 			gErrorToText.writeError(fp, this, LSERROR_DUPLICATE_NAME);
@@ -2311,13 +2638,25 @@ void LLScriptChatEvent::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompil
 		{
 #ifdef LSL_INCLUDE_DEBUG_INFO
 			char name[] = "chat";
-			chunk->addBytes(name, strlen(name) + 1); 		/*Flawfinder: ignore*/
-			chunk->addBytes(mChannel->mName, strlen(mChannel->mName) + 1); 		/*Flawfinder: ignore*/
-			chunk->addBytes(mName->mName, strlen(mName->mName) + 1); 		/*Flawfinder: ignore*/
-			chunk->addBytes(mID->mName, strlen(mID->mName) + 1); 		/*Flawfinder: ignore*/
-			chunk->addBytes(mMessage->mName, strlen(mMessage->mName) + 1); 		/*Flawfinder: ignore*/
+			chunk->addBytes(name, strlen(name) + 1);
+			chunk->addBytes(mChannel->mName, strlen(mChannel->mName) + 1);
+			chunk->addBytes(mName->mName, strlen(mName->mName) + 1);
+			chunk->addBytes(mID->mName, strlen(mID->mName) + 1);
+			chunk->addBytes(mMessage->mName, strlen(mMessage->mName) + 1);
 #endif
 		}
+		break;
+	case LSCP_EMIT_CIL_ASSEMBLY:
+		fdotabs(fp, tabs, tabsize);
+		fprintf(fp, "chat( int32 ");
+		mChannel->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		fprintf(fp, ", string ");
+		mName->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		fprintf(fp, ", valuetype [ScriptTypes]LindenLab.SecondLife.Key ");
+		mID->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		fprintf(fp, ", string ");
+		mMessage->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		fprintf(fp, " )");
 		break;
 	default:
 		mChannel->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
@@ -2350,6 +2689,7 @@ void LLScriptSensorEvent::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTComp
 		fprintf(fp, " )\n");
 		break;
 	case LSCP_SCOPE_PASS1:
+	  checkForDuplicateHandler(fp, this, scope, "sensor");
 		if (scope->checkEntry(mNumber->mName))
 		{
 			gErrorToText.writeError(fp, this, LSERROR_DUPLICATE_NAME);
@@ -2374,10 +2714,16 @@ void LLScriptSensorEvent::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTComp
 		{
 #ifdef LSL_INCLUDE_DEBUG_INFO
 			char name[] = "sensor";
-			chunk->addBytes(name, strlen(name) + 1); 		/*Flawfinder: ignore*/
-			chunk->addBytes(mNumber->mName, strlen(mNumber->mName) + 1); 		/*Flawfinder: ignore*/
+			chunk->addBytes(name, strlen(name) + 1);
+			chunk->addBytes(mNumber->mName, strlen(mNumber->mName) + 1);
 #endif
 		}
+		break;
+	case LSCP_EMIT_CIL_ASSEMBLY:
+		fdotabs(fp, tabs, tabsize);
+		fprintf(fp, "sensor( int32 ");
+		mNumber->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		fprintf(fp, " )");
 		break;
 	default:
 		mNumber->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
@@ -2407,6 +2753,7 @@ void LLScriptObjectRezEvent::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTC
 		fprintf(fp, " )\n");
 		break;
 	case LSCP_SCOPE_PASS1:
+	  checkForDuplicateHandler(fp, this, scope, "object_rez");
 		if (scope->checkEntry(mID->mName))
 		{
 			gErrorToText.writeError(fp, this, LSERROR_DUPLICATE_NAME);
@@ -2431,10 +2778,16 @@ void LLScriptObjectRezEvent::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTC
 		{
 #ifdef LSL_INCLUDE_DEBUG_INFO
 			char name[] = "sensor";
-			chunk->addBytes(name, strlen(name) + 1); 		/*Flawfinder: ignore*/
-			chunk->addBytes(mID->mName, strlen(mID->mName) + 1); 		/*Flawfinder: ignore*/
+			chunk->addBytes(name, strlen(name) + 1);
+			chunk->addBytes(mID->mName, strlen(mID->mName) + 1);
 #endif
 		}
+		break;
+	case LSCP_EMIT_CIL_ASSEMBLY:
+		fdotabs(fp, tabs, tabsize);
+		fprintf(fp, "object_rez( valuetype [ScriptTypes]LindenLab.SecondLife.Key ");
+		mID->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		fprintf(fp, " )");
 		break;
 	default:
 		mID->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
@@ -2468,6 +2821,7 @@ void LLScriptControlEvent::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCom
 		fprintf(fp, " )\n");
 		break;
 	case LSCP_SCOPE_PASS1:
+	  checkForDuplicateHandler(fp, this, scope, "control");
 		if (scope->checkEntry(mName->mName))
 		{
 			gErrorToText.writeError(fp, this, LSERROR_DUPLICATE_NAME);
@@ -2514,12 +2868,22 @@ void LLScriptControlEvent::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCom
 		{
 #ifdef LSL_INCLUDE_DEBUG_INFO
 			char name[] = "control";
-			chunk->addBytes(name, strlen(name) + 1); 		/*Flawfinder: ignore*/
-			chunk->addBytes(mName->mName, strlen(mName->mName) + 1); 		/*Flawfinder: ignore*/
-			chunk->addBytes(mLevels->mName, strlen(mLevels->mName) + 1); 		/*Flawfinder: ignore*/
-			chunk->addBytes(mEdges->mName, strlen(mEdges->mName) + 1); 		/*Flawfinder: ignore*/
+			chunk->addBytes(name, strlen(name) + 1);
+			chunk->addBytes(mName->mName, strlen(mName->mName) + 1);
+			chunk->addBytes(mLevels->mName, strlen(mLevels->mName) + 1);
+			chunk->addBytes(mEdges->mName, strlen(mEdges->mName) + 1);
 #endif
 		}
+		break;
+	case LSCP_EMIT_CIL_ASSEMBLY:
+		fdotabs(fp, tabs, tabsize);
+		fprintf(fp, "control( valuetype [ScriptTypes]LindenLab.SecondLife.Key ");
+		mName->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		fprintf(fp, ", int32 ");
+		mLevels->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		fprintf(fp, ", int32 ");
+		mEdges->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		fprintf(fp, " )");
 		break;
 	default:
 		mName->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
@@ -2557,6 +2921,7 @@ void LLScriptLinkMessageEvent::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIP
 		fprintf(fp, " )\n");
 		break;
 	case LSCP_SCOPE_PASS1:
+	  checkForDuplicateHandler(fp, this, scope, "link_message");
 		if (scope->checkEntry(mSender->mName))
 		{
 			gErrorToText.writeError(fp, this, LSERROR_DUPLICATE_NAME);
@@ -2614,13 +2979,25 @@ void LLScriptLinkMessageEvent::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIP
 		{
 #ifdef LSL_INCLUDE_DEBUG_INFO
 			char name[] = "link_message";
-			chunk->addBytes(name, strlen(name) + 1); 		/*Flawfinder: ignore*/
-			chunk->addBytes(mSender->mName, strlen(mSender->mName) + 1); 		/*Flawfinder: ignore*/
-			chunk->addBytes(mNum->mName, strlen(mNum->mName) + 1); 		/*Flawfinder: ignore*/
-			chunk->addBytes(mStr->mName, strlen(mStr->mName) + 1); 		/*Flawfinder: ignore*/
-			chunk->addBytes(mID->mName, strlen(mID->mName) + 1); 		/*Flawfinder: ignore*/
+			chunk->addBytes(name, strlen(name) + 1);
+			chunk->addBytes(mSender->mName, strlen(mSender->mName) + 1);
+			chunk->addBytes(mNum->mName, strlen(mNum->mName) + 1);
+			chunk->addBytes(mStr->mName, strlen(mStr->mName) + 1);
+			chunk->addBytes(mID->mName, strlen(mID->mName) + 1);
 #endif
 		}
+		break;
+	case LSCP_EMIT_CIL_ASSEMBLY:
+		fdotabs(fp, tabs, tabsize);
+		fprintf(fp, "link_message( int32 ");
+		mSender->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		fprintf(fp, ", int32 ");
+		mNum->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		fprintf(fp, ", string ");
+		mStr->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		fprintf(fp, ", valuetype [ScriptTypes]LindenLab.SecondLife.Key ");
+		mID->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		fprintf(fp, " )");
 		break;
 	default:
 		mSender->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
@@ -2663,6 +3040,7 @@ void LLScriptRemoteEvent::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTComp
 		fprintf(fp, " )\n");
 		break;
 	case LSCP_SCOPE_PASS1:
+	  checkForDuplicateHandler(fp, this, scope, "remote_event");
 		if (scope->checkEntry(mType->mName))
 		{
 			gErrorToText.writeError(fp, this, LSERROR_DUPLICATE_NAME);
@@ -2742,15 +3120,31 @@ void LLScriptRemoteEvent::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTComp
 		{
 #ifdef LSL_INCLUDE_DEBUG_INFO
 			char name[] = "remote_event";
-			chunk->addBytes(name, strlen(name) + 1); 		/*Flawfinder: ignore*/
-			chunk->addBytes(mType->mName, strlen(mType->mName) + 1); 		/*Flawfinder: ignore*/
-			chunk->addBytes(mChannel->mName, strlen(mChannel->mName) + 1); 		/*Flawfinder: ignore*/
-			chunk->addBytes(mMessageID->mName, strlen(mMessageID->mName) + 1); 		/*Flawfinder: ignore*/
-			chunk->addBytes(mSender->mName, strlen(mSender->mName) + 1); 		/*Flawfinder: ignore*/
-			chunk->addBytes(mIntVal->mName, strlen(mIntVal->mName) + 1); 		/*Flawfinder: ignore*/
-			chunk->addBytes(mStrVal->mName, strlen(mStrVal->mName) + 1); 		/*Flawfinder: ignore*/
+			chunk->addBytes(name, strlen(name) + 1);
+			chunk->addBytes(mType->mName, strlen(mType->mName) + 1);
+			chunk->addBytes(mChannel->mName, strlen(mChannel->mName) + 1);
+			chunk->addBytes(mMessageID->mName, strlen(mMessageID->mName) + 1);
+			chunk->addBytes(mSender->mName, strlen(mSender->mName) + 1);
+			chunk->addBytes(mIntVal->mName, strlen(mIntVal->mName) + 1);
+			chunk->addBytes(mStrVal->mName, strlen(mStrVal->mName) + 1);
 #endif
 		}
+		break;
+	case LSCP_EMIT_CIL_ASSEMBLY:
+		fdotabs(fp, tabs, tabsize);
+		fprintf(fp, "remote_event( int32 ");
+		mType->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		fprintf(fp, ", valuetype [ScriptTypes]LindenLab.SecondLife.Key ");
+		mChannel->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		fprintf(fp, ", valuetype [ScriptTypes]LindenLab.SecondLife.Key ");
+		mMessageID->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		fprintf(fp, ", string ");
+		mSender->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		fprintf(fp, ", int32 ");
+		mIntVal->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		fprintf(fp, ", string ");
+		mStrVal->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		fprintf(fp, " )");
 		break;
 	default:
 		mType->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
@@ -2784,7 +3178,7 @@ void LLScriptHTTPResponseEvent::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRI
 		mRequestId->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
 		fprintf(fp, ", integer ");
 		mStatus->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
-		fprintf(fp, ", list ");
+		fprintf(fp, ", class [mscorlib]System.Collections.ArrayList ");
 		mMetadata->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
 		fprintf(fp, ", string ");
 		mBody->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
@@ -2792,6 +3186,7 @@ void LLScriptHTTPResponseEvent::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRI
 		break;
 		
 	case LSCP_SCOPE_PASS1:
+	  checkForDuplicateHandler(fp, this, scope, "http_response");
 		if (scope->checkEntry(mRequestId->mName))
 		{
 			gErrorToText.writeError(fp, this, LSERROR_DUPLICATE_NAME);
@@ -2857,15 +3252,26 @@ void LLScriptHTTPResponseEvent::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRI
 		{
 #ifdef LSL_INCLUDE_DEBUG_INFO
 			char name[] = "http_response";
-			chunk->addBytes(name, strlen(name) + 1); 		/*Flawfinder: ignore*/
-			chunk->addBytes(mRequestId->mName, strlen(mRequestId->mName) + 1); 		/*Flawfinder: ignore*/
-			chunk->addBytes(mStatus->mName, strlen(mStatus->mName) + 1); 		/*Flawfinder: ignore*/
-			chunk->addBytes(mMetadata->mName, strlen(mMetadata->mName) + 1); 		/*Flawfinder: ignore*/
-			chunk->addBytes(mBody->mName, strlen(mBody->mName) + 1); 		/*Flawfinder: ignore*/
+			chunk->addBytes(name, strlen(name) + 1);
+			chunk->addBytes(mRequestId->mName, strlen(mRequestId->mName) + 1);
+			chunk->addBytes(mStatus->mName, strlen(mStatus->mName) + 1);
+			chunk->addBytes(mMetadata->mName, strlen(mMetadata->mName) + 1);
+			chunk->addBytes(mBody->mName, strlen(mBody->mName) + 1);
 #endif
 		}
 		break;
-		
+	case LSCP_EMIT_CIL_ASSEMBLY:
+	        fdotabs(fp, tabs, tabsize);
+   	        fprintf(fp, "http_response( valuetype [ScriptTypes]LindenLab.SecondLife.Key ");
+		mRequestId->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		fprintf(fp, ", int32 ");
+		mStatus->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		fprintf(fp, ", class [mscorlib]System.Collections.ArrayList ");
+		mMetadata->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		fprintf(fp, ", string ");
+		mBody->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		fprintf(fp, " )\n");
+		break;
 	default:
 		mRequestId->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
 		mStatus->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
@@ -2900,6 +3306,7 @@ void LLScriptMoneyEvent::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompi
 		fprintf(fp, " )\n");
 		break;
 	case LSCP_SCOPE_PASS1:
+	  checkForDuplicateHandler(fp, this, scope, "money");
 		if (scope->checkEntry(mName->mName))
 		{
 			gErrorToText.writeError(fp, this, LSERROR_DUPLICATE_NAME);
@@ -2935,11 +3342,19 @@ void LLScriptMoneyEvent::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompi
 		{
 #ifdef LSL_INCLUDE_DEBUG_INFO
 			char name[] = "money";
-			chunk->addBytes(name, strlen(name) + 1); 		/*Flawfinder: ignore*/
-			chunk->addBytes(mName->mName, strlen(mName->mName) + 1); 		/*Flawfinder: ignore*/
-			chunk->addBytes(mAmount->mName, strlen(mAmount->mName) + 1); 		/*Flawfinder: ignore*/
+			chunk->addBytes(name, strlen(name) + 1);
+			chunk->addBytes(mName->mName, strlen(mName->mName) + 1);
+			chunk->addBytes(mAmount->mName, strlen(mAmount->mName) + 1);
 #endif
 		}
+		break;
+	case LSCP_EMIT_CIL_ASSEMBLY:
+		fdotabs(fp, tabs, tabsize);
+		fprintf(fp, "money( valuetype [ScriptTypes]LindenLab.SecondLife.Key ");
+		mName->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		fprintf(fp, ", int32 ");
+		mAmount->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		fprintf(fp, " )");
 		break;
 	default:
 		mName->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
@@ -2978,6 +3393,7 @@ void LLScriptEmailEvent::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompi
 		fprintf(fp, " )\n");
 		break;
 	case LSCP_SCOPE_PASS1:
+	  checkForDuplicateHandler(fp, this, scope, "email");
 		if (scope->checkEntry(mTime->mName))
 		{
 			gErrorToText.writeError(fp, this, LSERROR_DUPLICATE_NAME);
@@ -3046,14 +3462,28 @@ void LLScriptEmailEvent::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompi
 		{
 #ifdef LSL_INCLUDE_DEBUG_INFO
 			char name[] = "email";
-			chunk->addBytes(name, strlen(name) + 1); 		/*Flawfinder: ignore*/
-			chunk->addBytes(mTime->mName, strlen(mTime->mName) + 1); 		/*Flawfinder: ignore*/
-			chunk->addBytes(mAddress->mName, strlen(mAddress->mName) + 1); 		/*Flawfinder: ignore*/
-			chunk->addBytes(mSubject->mName, strlen(mSubject->mName) + 1); 		/*Flawfinder: ignore*/
-			chunk->addBytes(mBody->mName, strlen(mBody->mName) + 1); 		/*Flawfinder: ignore*/
-			chunk->addBytes(mNumber->mName, strlen(mNumber->mName) + 1); 		/*Flawfinder: ignore*/
+			chunk->addBytes(name, strlen(name) + 1);
+			chunk->addBytes(mTime->mName, strlen(mTime->mName) + 1);
+			chunk->addBytes(mAddress->mName, strlen(mAddress->mName) + 1);
+			chunk->addBytes(mSubject->mName, strlen(mSubject->mName) + 1);
+			chunk->addBytes(mBody->mName, strlen(mBody->mName) + 1);
+			chunk->addBytes(mNumber->mName, strlen(mNumber->mName) + 1);
 #endif
 		}
+		break;
+	case LSCP_EMIT_CIL_ASSEMBLY:
+		fdotabs(fp, tabs, tabsize);
+		fprintf(fp, "email( string ");
+		mTime->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		fprintf(fp, ", string ");
+		mAddress->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		fprintf(fp, ", string ");
+		mSubject->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		fprintf(fp, ", string ");
+		mBody->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		fprintf(fp, ", int32 ");
+		mNumber->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		fprintf(fp, " )");
 		break;
 	default:
 		mTime->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
@@ -3087,6 +3517,7 @@ void LLScriptRezEvent::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompile
 		fprintf(fp, " )\n");
 		break;
 	case LSCP_SCOPE_PASS1:
+	  checkForDuplicateHandler(fp, this, scope, "rez");
 		if (scope->checkEntry(mStartParam->mName))
 		{
 			gErrorToText.writeError(fp, this, LSERROR_DUPLICATE_NAME);
@@ -3111,10 +3542,16 @@ void LLScriptRezEvent::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompile
 		{
 #ifdef LSL_INCLUDE_DEBUG_INFO
 			char name[] = "rez";
-			chunk->addBytes(name, strlen(name) + 1); 		/*Flawfinder: ignore*/
-			chunk->addBytes(mStartParam->mName, strlen(mStartParam->mName) + 1); 		/*Flawfinder: ignore*/
+			chunk->addBytes(name, strlen(name) + 1);
+			chunk->addBytes(mStartParam->mName, strlen(mStartParam->mName) + 1);
 #endif
 		}
+		break;
+	case LSCP_EMIT_CIL_ASSEMBLY:
+		fdotabs(fp, tabs, tabsize);
+		fprintf(fp, "rez( int32 ");
+		mStartParam->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		fprintf(fp, " )");
 		break;
 	default:
 		mStartParam->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
@@ -3143,13 +3580,19 @@ void LLScriptNoSensorEvent::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCo
 	case LSCP_EMIT_ASSEMBLY:
 		fprintf(fp, "no_sensor()\n");
 		break;
-	case LSCP_EMIT_BYTE_CODE:
+        case LSCP_SCOPE_PASS1:
+     	        checkForDuplicateHandler(fp, this, scope, "no_sensor");
+	        break;
+  	case LSCP_EMIT_BYTE_CODE:
 		{
 #ifdef LSL_INCLUDE_DEBUG_INFO
 			char name[] = "no_sensor";
-			chunk->addBytes(name, strlen(name) + 1); 		/*Flawfinder: ignore*/
+			chunk->addBytes(name, strlen(name) + 1);
 #endif
 		}
+		break;
+	case LSCP_EMIT_CIL_ASSEMBLY:
+		fprintf(fp, "no_sensor()");
 		break;
 	default:
 		break;
@@ -3181,6 +3624,7 @@ void LLScriptAtTarget::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompile
 		fprintf(fp, " )\n");
 		break;
 	case LSCP_SCOPE_PASS1:
+	        checkForDuplicateHandler(fp, this, scope, "at_target");
 		if (scope->checkEntry(mTargetNumber->mName))
 		{
 			gErrorToText.writeError(fp, this, LSERROR_DUPLICATE_NAME);
@@ -3226,13 +3670,23 @@ void LLScriptAtTarget::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompile
 	case LSCP_EMIT_BYTE_CODE:
 		{
 #ifdef LSL_INCLUDE_DEBUG_INFO
-			char name[] = "at_target";	/*Flawfinder: ignore*/
-			chunk->addBytes(name, strlen(name) + 1);	/*Flawfinder: ignore*/
-			chunk->addBytes(mTargetNumber->mName, strlen(mTargetNumber->mName) + 1); 	/*Flawfinder: ignore*/
-			chunk->addBytes(mTargetPosition->mName, strlen(mTargetPosition->mName) + 1); 	/*Flawfinder: ignore*/
-			chunk->addBytes(mOurPosition->mName, strlen(mOurPosition->mName) + 1);		 	/*Flawfinder: ignore*/
+			char name[] = "at_target";
+			chunk->addBytes(name, strlen(name) + 1);
+			chunk->addBytes(mTargetNumber->mName, strlen(mTargetNumber->mName) + 1);
+			chunk->addBytes(mTargetPosition->mName, strlen(mTargetPosition->mName) + 1);
+			chunk->addBytes(mOurPosition->mName, strlen(mOurPosition->mName) + 1);
 #endif
 		}
+		break;
+	case LSCP_EMIT_CIL_ASSEMBLY:
+		fdotabs(fp, tabs, tabsize);
+		fprintf(fp, "at_target( int32 ");
+		mTargetNumber->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		fprintf(fp, ", class [ScriptTypes]LindenLab.SecondLife.Vector ");
+		mTargetPosition->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		fprintf(fp, ", class [ScriptTypes]LindenLab.SecondLife.Vector ");
+		mOurPosition->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		fprintf(fp, " )");
 		break;
 	default:
 		mTargetNumber->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
@@ -3265,13 +3719,20 @@ void LLScriptNotAtTarget::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTComp
 	case LSCP_EMIT_ASSEMBLY:
 		fprintf(fp, "not_at_target()\n");
 		break;
+        case LSCP_SCOPE_PASS1:
+	        checkForDuplicateHandler(fp, this, scope, "not_at_target");
+	        break;
+
 	case LSCP_EMIT_BYTE_CODE:
 		{
 #ifdef LSL_INCLUDE_DEBUG_INFO
-			char name[] = "not_at_target";	/*Flawfinder: ignore*/
-			chunk->addBytes(name, strlen(name) + 1); 	/*Flawfinder: ignore*/
+			char name[] = "not_at_target";
+			chunk->addBytes(name, strlen(name) + 1);
 #endif
 		}
+		break;
+	case LSCP_EMIT_CIL_ASSEMBLY:
+		fprintf(fp, "not_at_target()");
 		break;
 	default:
 		break;
@@ -3294,7 +3755,7 @@ void LLScriptAtRotTarget::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTComp
 	case LSCP_PRETTY_PRINT:
 	case LSCP_EMIT_ASSEMBLY:
 		fdotabs(fp, tabs, tabsize);
-		fprintf(fp, "at_target( integer ");
+		fprintf(fp, "at_rot_target( integer ");
 		mTargetNumber->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
 		fprintf(fp, ", quaternion ");
 		mTargetRotation->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
@@ -3303,6 +3764,7 @@ void LLScriptAtRotTarget::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTComp
 		fprintf(fp, " )\n");
 		break;
 	case LSCP_SCOPE_PASS1:
+		checkForDuplicateHandler(fp, this, scope, "at_rot_target");
 		if (scope->checkEntry(mTargetNumber->mName))
 		{
 			gErrorToText.writeError(fp, this, LSERROR_DUPLICATE_NAME);
@@ -3349,12 +3811,22 @@ void LLScriptAtRotTarget::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTComp
 		{
 #ifdef LSL_INCLUDE_DEBUG_INFO
 			char name[] = "at_rot_target";
-			chunk->addBytes(name, strlen(name) + 1); 	/*Flawfinder: ignore*/
-			chunk->addBytes(mTargetNumber->mName, strlen(mTargetNumber->mName) + 1); 	/*Flawfinder: ignore*/
-			chunk->addBytes(mTargetRotation->mName, strlen(mTargetRotation->mName) + 1); 	/*Flawfinder: ignore*/
-			chunk->addBytes(mOurRotation->mName, strlen(mOurRotation->mName) + 1); 	/*Flawfinder: ignore*/
+			chunk->addBytes(name, strlen(name) + 1);
+			chunk->addBytes(mTargetNumber->mName, strlen(mTargetNumber->mName) + 1);
+			chunk->addBytes(mTargetRotation->mName, strlen(mTargetRotation->mName) + 1);
+			chunk->addBytes(mOurRotation->mName, strlen(mOurRotation->mName) + 1);
 #endif
 		}
+		break;
+	case LSCP_EMIT_CIL_ASSEMBLY:
+		fdotabs(fp, tabs, tabsize);
+		fprintf(fp, "at_rot_target( int32 ");
+		mTargetNumber->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		fprintf(fp, ", class [ScriptTypes]LindenLab.SecondLife.Quaternion ");
+		mTargetRotation->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		fprintf(fp, ", class [ScriptTypes]LindenLab.SecondLife.Quaternion ");
+		mOurRotation->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		fprintf(fp, " )");
 		break;
 	default:
 		mTargetNumber->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
@@ -3391,9 +3863,16 @@ void LLScriptNotAtRotTarget::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTC
 		{
 #ifdef LSL_INCLUDE_DEBUG_INFO
 			char name[] = "not_at_rot_target";
-			chunk->addBytes(name, strlen(name) + 1);	 	/*Flawfinder: ignore*/
+			chunk->addBytes(name, strlen(name) + 1);
 #endif
 		}
+		break;
+        case LSCP_SCOPE_PASS1:
+	  checkForDuplicateHandler(fp, this, scope, "not_at_rot_target");
+	  break;
+
+	case LSCP_EMIT_CIL_ASSEMBLY:
+		fprintf(fp, "not_at_rot_target()");
 		break;
 	default:
 		break;
@@ -3563,6 +4042,25 @@ S32 LLScriptForExpressionList::getSize()
 	return 0;
 }
 
+// CIL code generation requires both caller and callee scope entries, so cannot use normal recurse signature.
+// TODO: Refactor general purpose recurse calls in to pass specific virtuals using visitor pattern to select method by pass and node type.
+static void print_cil_func_expression_list(LLScriptFuncExpressionList* self, LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompilePass pass, LSCRIPTPruneType ptype, BOOL &prunearg, LLScriptScope *scope, LSCRIPTType &type, LSCRIPTType basetype, U64 &count, LLScriptByteCodeChunk *chunk, LLScriptByteCodeChunk *heap, S32 stacksize, LLScriptScopeEntry *entry, S32 entrycount, LLScriptLibData **ldata, LLScriptScopeEntry *callee_entry)
+{
+	self->mFirstp->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+	LSCRIPTType argtype = callee_entry->mFunctionArgs.getType(entrycount);
+	if (argtype != self->mFirstp->mReturnType)
+	{
+		print_cil_cast(fp, self->mFirstp->mReturnType, argtype);
+	}
+	entrycount++;
+	if (self->mSecondp)
+	{
+		llassert(LET_FUNC_EXPRESSION_LIST == self->mSecondp->mType);
+		print_cil_func_expression_list((LLScriptFuncExpressionList*) self->mSecondp, fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL, callee_entry);
+
+	}
+}
+
 void LLScriptFuncExpressionList::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompilePass pass, LSCRIPTPruneType ptype, BOOL &prunearg, LLScriptScope *scope, LSCRIPTType &type, LSCRIPTType basetype, U64 &count, LLScriptByteCodeChunk *chunk, LLScriptByteCodeChunk *heap, S32 stacksize, LLScriptScopeEntry *entry, S32 entrycount, LLScriptLibData **ldata)
 {
 	if (gErrorToText.getErrors())
@@ -3660,31 +4158,6 @@ void LLScriptFuncExpressionList::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCR
 			}
 		}
 		break;
-	/* TODO: Fix conflict between global/local variable determination needing caller scope and cast determination here needs callee scope...
-	case LSCP_EMIT_CIL_ASSEMBLY:
-		{
-			mFirstp->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
-			LSCRIPTType argtype = entry->mFunctionArgs.getType(entrycount);
-			if (argtype != mFirstp->mReturnType)
-			{
-				print_cil_cast(fp, mFirstp->mReturnType, argtype);
-			}
-			entrycount++;
-			if (mSecondp)
-			{
-				mSecondp->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
-				if (mSecondp->mReturnType)
-				{
-					argtype = entry->mFunctionArgs.getType(entrycount);
-					if (argtype != mSecondp->mReturnType)
-					{
-						print_cil_cast(fp, mFirstp->mReturnType, argtype);
-					}
-				}
-			}
-		}
-		break;
-		*/
 	default:
 		mFirstp->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
 		if (mSecondp)
@@ -3753,8 +4226,13 @@ void LLScriptListExpressionList::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCR
 		}
 		break;
 	case LSCP_EMIT_CIL_ASSEMBLY:
-		// Evaluate expressions in reverse order so first expression is on top of stack.
-		// Results can then be popped and appended to list to result in list with correct order.
+		mFirstp->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		if (mFirstp->mType != LET_LIST_EXPRESSION_LIST)
+		{
+			// Box value.
+			print_cil_box(fp, mFirstp->mReturnType);
+			++count;
+		}
 		if (mSecondp)
 		{
 			mSecondp->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
@@ -3762,17 +4240,8 @@ void LLScriptListExpressionList::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCR
 			{
 				// Box value.
 				print_cil_box(fp, mSecondp->mReturnType);
-
 				++count;
 			}
-		}
-		mFirstp->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
-		if (mFirstp->mType != LET_LIST_EXPRESSION_LIST)
-		{
-			// Box value.
-			print_cil_box(fp, mFirstp->mReturnType);
-
-			++count;
 		}
 		break;
 	default:
@@ -3793,14 +4262,22 @@ S32 LLScriptListExpressionList::getSize()
 // Returns true if identifier is a parameter and false if identifier is a local variable within function_scope.
 bool is_parameter(LLScriptIdentifier* identifier, LLScriptScopeEntry* function_scope)
 {
-	// Function offset stores offset of first local.
-	// Compare variable offset with function offset to
-	// determine whether variable is local or parameter.
-	return (identifier->mScopeEntry->mOffset < function_scope->mOffset);
+	// Function stores offset of first local.
+	if(0 == function_scope->mOffset)
+	{
+		// Function offset 0 -> no parameters -> identifier is a local.
+		return false;
+	}
+	else
+	{
+		// Compare variable offset with function offset to
+		// determine whether variable is local or parameter.
+		return (identifier->mScopeEntry->mOffset < function_scope->mOffset);
+	}
 }
 
 // If assignment is to global variable, pushes this pointer on to stack.
-void print_cil_load_address(LLFILE* fp, LLScriptExpression* exp, LLScriptScopeEntry* function_scope)
+static void print_cil_load_address(LLFILE* fp, LLScriptExpression* exp, LLScriptScopeEntry* function_scope)
 {
 	LLScriptLValue *lvalue = (LLScriptLValue *) exp;
 	LLScriptIdentifier *ident = lvalue->mIdentifier;
@@ -3811,7 +4288,7 @@ void print_cil_load_address(LLFILE* fp, LLScriptExpression* exp, LLScriptScopeEn
 		fprintf(fp, "ldarg.0\n");
 	}
 
-	// If accessor, load address of object.
+	// If accessor, load value type address, consumed by ldfld.
 	if(lvalue->mAccessor)
 	{
 		if(ident->mScopeEntry->mIDType == LIT_VARIABLE)
@@ -3819,7 +4296,7 @@ void print_cil_load_address(LLFILE* fp, LLScriptExpression* exp, LLScriptScopeEn
 			if(is_parameter(ident, function_scope))
 			{
 				// Parameter, load by name.
-				fprintf(fp, "ldarga.s %s\n", ident->mScopeEntry->mIdentifier);
+				fprintf(fp, "ldarga.s '%s'\n", ident->mScopeEntry->mIdentifier);
 			}
 			else
 			{
@@ -3830,25 +4307,19 @@ void print_cil_load_address(LLFILE* fp, LLScriptExpression* exp, LLScriptScopeEn
 		else if (ident->mScopeEntry->mIDType == LIT_GLOBAL)
 		{
 			fprintf(fp, "ldflda ");
-			print_cil_type(fp, ident->mScopeEntry->mType);
-			fprintf(fp, " LSL::%s\n", ident->mScopeEntry->mIdentifier);
+			print_cil_member(fp, ident);
 		}
 	}
 }
 
-void print_cil_accessor(LLFILE* fp, LLScriptLValue *lvalue)
+static void print_cil_accessor(LLFILE* fp, LLScriptLValue *lvalue)
+
 {
 	LLScriptIdentifier *ident = lvalue->mIdentifier;
 	print_cil_type(fp, lvalue->mReturnType);
 	fprintf(fp, " ");
 	print_cil_type(fp, ident->mScopeEntry->mType);
 	fprintf(fp, "::%s\n", lvalue->mAccessor->mName);
-}
-
-void print_cil_member(LLFILE* fp, LLScriptIdentifier *ident)
-{
-	print_cil_type(fp, ident->mScopeEntry->mType);
-	fprintf(fp, " LSL::%s\n", ident->mScopeEntry->mIdentifier);
 }
 
 void LLScriptLValue::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompilePass pass, LSCRIPTPruneType ptype, BOOL &prunearg, LLScriptScope *scope, LSCRIPTType &type, LSCRIPTType basetype, U64 &count, LLScriptByteCodeChunk *chunk, LLScriptByteCodeChunk *heap, S32 stacksize, LLScriptScopeEntry *entry, S32 entrycount, LLScriptLibData **ldata)
@@ -4106,7 +4577,7 @@ void LLScriptLValue::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompilePa
 			if(is_parameter(mIdentifier, entry))
 			{
 				// Parameter, load by name.
-				fprintf(fp, "ldarg.s %s\n", mIdentifier->mScopeEntry->mIdentifier);
+				fprintf(fp, "ldarg.s '%s'\n", mIdentifier->mScopeEntry->mIdentifier);
 			}
 			else
 			{
@@ -4136,7 +4607,7 @@ S32 LLScriptLValue::getSize()
 	return 0;
 }
 
-void print_asignment(LLFILE *fp, LLScriptExpression *exp)
+static void print_assignment(LLFILE *fp, LLScriptExpression *exp)
 {
 	LLScriptLValue *lvalue = (LLScriptLValue *)exp;
 	LLScriptIdentifier *ident = lvalue->mIdentifier;
@@ -4164,7 +4635,7 @@ void print_asignment(LLFILE *fp, LLScriptExpression *exp)
 	}
 }
 
-void print_cil_asignment(LLFILE *fp, LLScriptExpression *exp, LLScriptScopeEntry* function_scope)
+static void print_cil_assignment(LLFILE *fp, LLScriptExpression *exp, LLScriptScopeEntry* function_scope)
 {
 	LLScriptLValue *lvalue = (LLScriptLValue *) exp;
 	LLScriptIdentifier *ident = lvalue->mIdentifier;
@@ -4191,7 +4662,7 @@ void print_cil_asignment(LLFILE *fp, LLScriptExpression *exp, LLScriptScopeEntry
 			if(is_parameter(ident, function_scope))
 			{
 				// Parameter, store by name.
-				fprintf(fp, "starg.s %s\n", ident->mScopeEntry->mIdentifier);
+				fprintf(fp, "starg.s '%s'\n", ident->mScopeEntry->mIdentifier);
 			}
 			else
 			{
@@ -4319,14 +4790,6 @@ void store2stack(LLScriptExpression *exp, LLScriptExpression *lv, LLScriptByteCo
 	chunk->addInteger(address);
 }
 
-void print_cil_numeric_cast(LLFILE* fp, LSCRIPTType currentArg, LSCRIPTType otherArg)
-{
-	if((currentArg == LST_INTEGER) && (otherArg == LST_FLOATINGPOINT))
-	{
-		print_cil_cast(fp, LST_INTEGER, LST_FLOATINGPOINT);
-	}
-}
-
 void LLScriptAssignment::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompilePass pass, LSCRIPTPruneType ptype, BOOL &prunearg, LLScriptScope *scope, LSCRIPTType &type, LSCRIPTType basetype, U64 &count, LLScriptByteCodeChunk *chunk, LLScriptByteCodeChunk *heap, S32 stacksize, LLScriptScopeEntry *entry, S32 entrycount, LLScriptLibData **ldata)
 {
 	if (gErrorToText.getErrors())
@@ -4344,7 +4807,7 @@ void LLScriptAssignment::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompi
 		{
 			mRightSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
 			print_cast(fp, mReturnType, mRightType);
-			print_asignment(fp, mLValue);
+			print_assignment(fp, mLValue);
 		}
 		break;
 	case LSCP_TYPE:
@@ -4370,8 +4833,8 @@ void LLScriptAssignment::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompi
 		{
 			print_cil_load_address(fp, mLValue, entry);
 			mRightSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
-			print_cil_numeric_cast(fp, mRightType, mReturnType);
-			print_cil_asignment(fp, mLValue, entry);
+			print_cil_assignment_cast(fp, mRightType, mReturnType);
+			print_cil_assignment(fp, mLValue, entry);
 		}
 		break;
 	default:
@@ -4387,8 +4850,15 @@ S32 LLScriptAssignment::getSize()
 	return 0;
 }
 
-void print_cil_add(LLFILE* fp, LSCRIPTType left_type, LSCRIPTType right_type)
+static void print_cil_add(LLFILE* fp, LSCRIPTType left_type, LSCRIPTType right_type)
 {
+	if(LST_LIST == right_type && LST_LIST != left_type)
+	{
+		print_cil_box(fp, left_type);
+		fprintf(fp, "call class [mscorlib]System.Collections.ArrayList class [LslUserScript]LindenLab.SecondLife.LslUserScript::Prepend(class [mscorlib]System.Collections.ArrayList, object)\n");
+		return;
+	}
+
 	switch(left_type)
 	{
 	case LST_INTEGER:
@@ -4402,27 +4872,49 @@ void print_cil_add(LLFILE* fp, LSCRIPTType left_type, LSCRIPTType right_type)
 	case LST_KEY:
 
 		// String concatenation.
-		fprintf(fp, "call string valuetype [mscorlib]System.String::Concat(string, string)");
+		fprintf(fp, "call string valuetype [LslUserScript]LindenLab.SecondLife.LslUserScript::Add(string, string)\n");
 		break;
 	
 	case LST_VECTOR:
 
 		// Vector addition.
-		// TODO: Inline (requires temporary variables, which must be identified in earlier pass).
-		fprintf(fp, "call valuetype [LScriptLibrary]LLVector valuetype [LScriptLibrary]LLVector::'add_vec'(valuetype [LScriptLibrary]LLVector, valuetype [LScriptLibrary]LLVector)\n");
+		fprintf(fp, "call class [ScriptTypes]LindenLab.SecondLife.Vector class [LslUserScript]LindenLab.SecondLife.LslUserScript::'Add'(class [ScriptTypes]LindenLab.SecondLife.Vector, class [ScriptTypes]LindenLab.SecondLife.Vector)\n");
 		break;
 
 	case LST_QUATERNION:
 
 		// Rotation addition.
-		// TODO: Inline (requires temporary variables, which must be identified in earlier pass).
-		fprintf(fp, "call valuetype [LScriptLibrary]LLQuaternion valuetype [LScriptLibrary]LLQuaternion::'add_quat'(valuetype [LScriptLibrary]LLQuaternion, valuetype [LScriptLibrary]LLQuaternion)\n");
+		fprintf(fp, "call class [ScriptTypes]LindenLab.SecondLife.Quaternion class [LslUserScript]LindenLab.SecondLife.LslUserScript::'Add'(class [ScriptTypes]LindenLab.SecondLife.Quaternion, class [ScriptTypes]LindenLab.SecondLife.Quaternion)\n");
 		break;
 
 	case LST_LIST:
-		print_cil_box(fp, right_type);
-		fprintf(fp, "call class [mscorlib]System.Collections.ArrayList class [LScriptLibrary]LScriptInternal::AddReturnList(class [mscorlib]System.Collections.ArrayList, object)\n");
-		break;
+		switch(right_type)
+		{
+		case LST_LIST:
+			// Concatenate lists.
+			fprintf(fp, "call class [mscorlib]System.Collections.ArrayList class [LslUserScript]LindenLab.SecondLife.LslUserScript::Append(class [mscorlib]System.Collections.ArrayList, class [mscorlib]System.Collections.ArrayList)\n");
+			break;
+		case LST_INTEGER:
+			fprintf(fp, "call class [mscorlib]System.Collections.ArrayList class [LslUserScript]LindenLab.SecondLife.LslUserScript::Append(int32, class [mscorlib]System.Collections.ArrayList)\n");
+			break;
+		case LST_FLOATINGPOINT:
+			fprintf(fp, "call class [mscorlib]System.Collections.ArrayList class [LslUserScript]LindenLab.SecondLife.LslUserScript::Append(float32, class [mscorlib]System.Collections.ArrayList)\n");
+			break;
+		case LST_STRING:
+			fprintf(fp, "call class [mscorlib]System.Collections.ArrayList class [LslUserScript]LindenLab.SecondLife.LslUserScript::Append(string, class [mscorlib]System.Collections.ArrayList)\n");
+			break;
+		case LST_KEY:
+			fprintf(fp, "call class [mscorlib]System.Collections.ArrayList class [LslUserScript]LindenLab.SecondLife.LslUserScript::Append(valuetype [ScriptTypes]LindenLab.SecondLife.Key, class [mscorlib]System.Collections.ArrayList)\n");
+			break;			
+		case LST_VECTOR:
+			fprintf(fp, "call class [mscorlib]System.Collections.ArrayList class [LslUserScript]LindenLab.SecondLife.LslUserScript::Append(valuetype [ScriptTypes]LindenLab.SecondLife.Vector, class [mscorlib]System.Collections.ArrayList)\n");
+			break;
+		case LST_QUATERNION:
+			fprintf(fp, "call class [mscorlib]System.Collections.ArrayList class [LslUserScript]LindenLab.SecondLife.LslUserScript::Append(valuetype [ScriptTypes]LindenLab.SecondLife.Quaternion, class [mscorlib]System.Collections.ArrayList)\n");
+			break;
+		default:
+			break;
+		}
 
 	default:
 		break;
@@ -4447,7 +4939,7 @@ void LLScriptAddAssignment::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCo
 			mRightSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
 			mLValue->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
 			fprintf(fp, "ADD %s, %s\n", LSCRIPTTypeNames[mRightType], LSCRIPTTypeNames[mLeftType]);
-			print_asignment(fp, mLValue);
+			print_assignment(fp, mLValue);
 		}
 		break;
 	case LSCP_TYPE:
@@ -4475,12 +4967,12 @@ void LLScriptAddAssignment::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCo
 	case LSCP_EMIT_CIL_ASSEMBLY:
 		{
 			print_cil_load_address(fp, mLValue, entry);
-			mLValue->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
-			print_cil_numeric_cast(fp, mLValue->mReturnType, mRightSide->mReturnType);
 			mRightSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
 			print_cil_numeric_cast(fp, mRightSide->mReturnType, mLValue->mReturnType);
+			mLValue->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+			print_cil_numeric_cast(fp, mLValue->mReturnType, mRightSide->mReturnType);
 			print_cil_add(fp, mLValue->mReturnType, mRightSide->mReturnType);
-			print_cil_asignment(fp, mLValue, entry);
+			print_cil_assignment(fp, mLValue, entry);
 		}
 		break;
 	default:
@@ -4496,29 +4988,30 @@ S32 LLScriptAddAssignment::getSize()
 	return 0;
 }
 
-void print_cil_sub(LLFILE* fp, LSCRIPTType left_type, LSCRIPTType right_type)
+static void print_cil_sub(LLFILE* fp, LSCRIPTType left_type, LSCRIPTType right_type)
 {
 	switch(left_type)
 	{
 	case LST_INTEGER:
+		if(LST_INTEGER == right_type)
+		{	
+			fprintf(fp, "call int32 [LslUserScript]LindenLab.SecondLife.LslUserScript::Subtract(int32, int32)\n");
+			break;
+		}
 	case LST_FLOATINGPOINT:
-
 		// Numeric subtraction.
-		fprintf(fp, "sub\n");
+		fprintf(fp, "call float64 [LslUserScript]LindenLab.SecondLife.LslUserScript::Subtract(float64, float64)\n");
 		break;
-	
 	case LST_VECTOR:
 
 		// Vector subtraction.
-		// TODO: Inline (requires temporary variables, which must be identified in earlier pass).
-		fprintf(fp, "call valuetype [LScriptLibrary]LLVector valuetype [LScriptLibrary]LLVector::'subtract_vec'(valuetype [LScriptLibrary]LLVector, valuetype [LScriptLibrary]LLVector)\n");
+		fprintf(fp, "call class [ScriptTypes]LindenLab.SecondLife.Vector class [LslUserScript]LindenLab.SecondLife.LslUserScript::'Subtract'(class [ScriptTypes]LindenLab.SecondLife.Vector, class [ScriptTypes]LindenLab.SecondLife.Vector)\n");
 		break;
 
 	case LST_QUATERNION:
 
 		// Rotation subtraction.
-		// TODO: Inline (requires temporary variables, which must be identified in earlier pass).
-		fprintf(fp, "call valuetype [LScriptLibrary]LLQuaternion valuetype [LScriptLibrary]LLQuaternion::'subtract_quat'(valuetype [LScriptLibrary]LLQuaternion, valuetype [LScriptLibrary]LLQuaternion)\n");
+		fprintf(fp, "call class [ScriptTypes]LindenLab.SecondLife.Quaternion class [LslUserScript]LindenLab.SecondLife.LslUserScript::'Subtract'(class [ScriptTypes]LindenLab.SecondLife.Quaternion, class [ScriptTypes]LindenLab.SecondLife.Quaternion)\n");
 		break;
 
 	default:
@@ -4546,7 +5039,7 @@ void LLScriptSubAssignment::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCo
 			mRightSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
 			mLValue->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
 			fprintf(fp, "SUB %s, %s\n", LSCRIPTTypeNames[mRightType], LSCRIPTTypeNames[mLeftType]);
-			print_asignment(fp, mLValue);
+			print_assignment(fp, mLValue);
 		}
 		break;
 	case LSCP_TYPE:
@@ -4574,12 +5067,12 @@ void LLScriptSubAssignment::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCo
 	case LSCP_EMIT_CIL_ASSEMBLY:
 		{
 			print_cil_load_address(fp, mLValue, entry);
-			mLValue->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
-			print_cil_numeric_cast(fp, mLValue->mReturnType, mRightSide->mReturnType);
 			mRightSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
 			print_cil_numeric_cast(fp, mRightSide->mReturnType, mLValue->mReturnType);
+			mLValue->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+			print_cil_numeric_cast(fp, mLValue->mReturnType, mRightSide->mReturnType);
 			print_cil_sub(fp, mLValue->mReturnType, mRightSide->mReturnType);
-			print_cil_asignment(fp, mLValue, entry);
+			print_cil_assignment(fp, mLValue, entry);
 		}
 		break;
 	default:
@@ -4595,41 +5088,93 @@ S32 LLScriptSubAssignment::getSize()
 	return 0;
 }
 
-void print_cil_mul(LLFILE* fp, LSCRIPTType left_type, LSCRIPTType right_type)
+static void print_cil_neg(LLFILE* fp, LSCRIPTType type)
+{
+        switch(type)
+	{
+	case LST_INTEGER:
+	case LST_FLOATINGPOINT:
+	  fprintf(fp, "neg\n");
+	  break;
+	case LST_VECTOR:
+	  fprintf(fp, "call class [ScriptTypes]LindenLab.SecondLife.Vector class [LslUserScript]LindenLab.SecondLife.LslUserScript::'Negate'(class [ScriptTypes]LindenLab.SecondLife.Vector)\n");	  
+	  break;
+	case LST_QUATERNION:
+	  fprintf(fp, "call class [ScriptTypes]LindenLab.SecondLife.Quaternion class [LslUserScript]LindenLab.SecondLife.LslUserScript::'Negate'(class [ScriptTypes]LindenLab.SecondLife.Quaternion)\n");	  
+	  break;
+	default:
+	  break;
+	}
+}
+
+static void print_cil_mul(LLFILE* fp, LSCRIPTType left_type, LSCRIPTType right_type)
 {
 	switch(left_type)
 	{
 	case LST_INTEGER:
+
+		switch(right_type)
+		{
+		case LST_INTEGER:
+		case LST_FLOATINGPOINT:
+
+			// Numeric multiplication.
+			fprintf(fp, "mul\n");
+			break;
+
+		case LST_VECTOR:
+
+			// Vector scaling.
+			fprintf(fp, "call class [ScriptTypes]LindenLab.SecondLife.Vector class [LslUserScript]LindenLab.SecondLife.LslUserScript::'Multiply'(class [ScriptTypes]LindenLab.SecondLife.Vector, float32)\n");
+			break;
+		default:
+			break;
+		}
+		break;
+
 	case LST_FLOATINGPOINT:
 
-		// Numeric multiplication.
-		fprintf(fp, "mul\n");
+		switch(right_type)
+		{
+		case LST_INTEGER:
+		case LST_FLOATINGPOINT:
+
+			// Numeric multiplication.
+			fprintf(fp, "mul\n");
+			break;
+
+		case LST_VECTOR:
+
+			// Vector scaling.
+			fprintf(fp, "call class [ScriptTypes]LindenLab.SecondLife.Vector class [LslUserScript]LindenLab.SecondLife.LslUserScript::'Multiply'(class [ScriptTypes]LindenLab.SecondLife.Vector, float32)\n");
+			break;
+
+		default:
+			break;
+		}
 		break;
-	
+		
 	case LST_VECTOR:
 
 		switch(right_type)
 		{
 		case LST_INTEGER:
-
-			print_cil_cast(fp, LST_INTEGER, LST_FLOATINGPOINT);
-
 		case LST_FLOATINGPOINT:
 
 			// Vector scaling.
-			fprintf(fp, "call valuetype [LScriptLibrary]LLVector valuetype [LScriptLibrary]LLVector::'multiply_float'(valuetype [LScriptLibrary]LLVector, float32)\n");
+			fprintf(fp, "call class [ScriptTypes]LindenLab.SecondLife.Vector class [LslUserScript]LindenLab.SecondLife.LslUserScript::'Multiply'(float32, class [ScriptTypes]LindenLab.SecondLife.Vector)\n");
 			break;
 
 		case LST_VECTOR:
 
 			// Dot product.
-			fprintf(fp, "call float32 valuetype [LScriptLibrary]LLVector::'multiply_vec'(valuetype [LScriptLibrary]LLVector, valuetype [LScriptLibrary]LLVector)\n");
+			fprintf(fp, "call float32 class [LslUserScript]LindenLab.SecondLife.LslUserScript::'Multiply'(class [ScriptTypes]LindenLab.SecondLife.Vector, class [ScriptTypes]LindenLab.SecondLife.Vector)\n");
 			break;
 
 		case LST_QUATERNION:
 
 			// Vector rotation.
-			fprintf(fp, "call valuetype [LScriptLibrary]LLVector valuetype [LScriptLibrary]LLVector::'multiply_quat'(valuetype [LScriptLibrary]LLVector, valuetype [LScriptLibrary]LLQuaternion)\n");
+			fprintf(fp, "call class [ScriptTypes]LindenLab.SecondLife.Vector class [LslUserScript]LindenLab.SecondLife.LslUserScript::'Multiply'(class [ScriptTypes]LindenLab.SecondLife.Quaternion, class [ScriptTypes]LindenLab.SecondLife.Vector)\n");
 			break;
 
 		default:
@@ -4640,7 +5185,7 @@ void print_cil_mul(LLFILE* fp, LSCRIPTType left_type, LSCRIPTType right_type)
 	case LST_QUATERNION:
 
 		// Rotation multiplication.
-		fprintf(fp, "call valuetype [LScriptLibrary]LLQuaternion valuetype [LScriptLibrary]LLQuaternion::'multiply_quat'(valuetype [LScriptLibrary]LLQuaternion, valuetype [LScriptLibrary]LLQuaternion)\n");
+		fprintf(fp, "call class [ScriptTypes]LindenLab.SecondLife.Quaternion class [LslUserScript]LindenLab.SecondLife.LslUserScript::'Multiply'(class [ScriptTypes]LindenLab.SecondLife.Quaternion, class [ScriptTypes]LindenLab.SecondLife.Quaternion)\n");
 		break;
 
 	default:
@@ -4668,7 +5213,7 @@ void LLScriptMulAssignment::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCo
 			mRightSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
 			mLValue->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
 			fprintf(fp, "MUL %s, %s\n", LSCRIPTTypeNames[mRightType], LSCRIPTTypeNames[mLeftType]);
-			print_asignment(fp, mLValue);
+			print_assignment(fp, mLValue);
 		}
 		break;
 	case LSCP_TYPE:
@@ -4677,7 +5222,7 @@ void LLScriptMulAssignment::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCo
 			mLeftType = type;
 			mRightSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
 			mRightType = type;
-			if (!legal_binary_expression(mReturnType, mLeftType, mRightType, mType))
+			if (!legal_binary_expression(mReturnType, mLeftType, mRightType, mType) /*|| !legal_assignment(mLValue->mReturnType, mReturnType)*/)
 			{
 				gErrorToText.writeError(fp, this, LSERROR_TYPE_MISMATCH);
 			}
@@ -4696,12 +5241,17 @@ void LLScriptMulAssignment::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCo
 	case LSCP_EMIT_CIL_ASSEMBLY:
 		{
 			print_cil_load_address(fp, mLValue, entry);
-			mLValue->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
-			print_cil_numeric_cast(fp, mLValue->mReturnType, mRightSide->mReturnType);
 			mRightSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
 			print_cil_numeric_cast(fp, mRightSide->mReturnType, mLValue->mReturnType);
+			mLValue->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+			print_cil_numeric_cast(fp, mLValue->mReturnType, mRightSide->mReturnType);
 			print_cil_mul(fp, mLValue->mReturnType, mRightSide->mReturnType);
-			print_cil_asignment(fp, mLValue, entry);
+			if((mLValue->mReturnType == LST_INTEGER) && 
+			   (mRightSide->mReturnType == LST_FLOATINGPOINT))
+			{
+			    print_cil_cast(fp, LST_FLOATINGPOINT, LST_INTEGER);
+			} 
+			print_cil_assignment(fp, mLValue, entry);
 		}
 		break;
 	default:
@@ -4717,15 +5267,20 @@ S32 LLScriptMulAssignment::getSize()
 	return 0;
 }
 
-void print_cil_div(LLFILE* fp, LSCRIPTType left_type, LSCRIPTType right_type)
+static void print_cil_div(LLFILE* fp, LSCRIPTType left_type, LSCRIPTType right_type)
 {
 	switch(left_type)
 	{
 	case LST_INTEGER:
+		if(LST_INTEGER == right_type)
+		{
+			fprintf(fp, "call int32 [LslUserScript]LindenLab.SecondLife.LslUserScript::Divide(int32, int32)\n");
+			break;
+		}
 	case LST_FLOATINGPOINT:
 
-		// Numeric addition.
-		fprintf(fp, "div\n");
+		// Numeric division.
+		fprintf(fp, "call float64 [LslUserScript]LindenLab.SecondLife.LslUserScript::Divide(float64, float64)\n");
 		break;
 	
 	case LST_VECTOR:
@@ -4733,19 +5288,16 @@ void print_cil_div(LLFILE* fp, LSCRIPTType left_type, LSCRIPTType right_type)
 		switch(right_type)
 		{
 		case LST_INTEGER:
-
-			print_cil_cast(fp, LST_INTEGER, LST_FLOATINGPOINT);
-
 		case LST_FLOATINGPOINT:
 
 			// Scale.
-			fprintf(fp, "call valuetype [LScriptLibrary]LLVector valuetype [LScriptLibrary]LLVector::'divide_float'(valuetype [LScriptLibrary]LLVector, float32)\n");
+			fprintf(fp, "call class [ScriptTypes]LindenLab.SecondLife.Vector class [LslUserScript]LindenLab.SecondLife.LslUserScript::'Divide'(float32, class [ScriptTypes]LindenLab.SecondLife.Vector)\n");
 			break;
 
 		case LST_QUATERNION:
 
 			// Inverse rotation.
-			fprintf(fp, "call valuetype [LScriptLibrary]LLVector valuetype [LScriptLibrary]LLVector::'divide_quat'(valuetype [LScriptLibrary]LLVector, valuetype [LScriptLibrary]LLQuaternion)\n");
+			fprintf(fp, "call class [ScriptTypes]LindenLab.SecondLife.Vector class [LslUserScript]LindenLab.SecondLife.LslUserScript::'Divide'(class [ScriptTypes]LindenLab.SecondLife.Quaternion, class [ScriptTypes]LindenLab.SecondLife.Vector)\n");
 			break;
 
 		default:
@@ -4755,7 +5307,7 @@ void print_cil_div(LLFILE* fp, LSCRIPTType left_type, LSCRIPTType right_type)
 
 	case LST_QUATERNION:
 
-		fprintf(fp, "call valuetype [LScriptLibrary]LLQuaternion valuetype [LScriptLibrary]LLQuaternion::'divide_quat'(valuetype [LScriptLibrary]LLQuaternion, valuetype [LScriptLibrary]LLQuaternion)\n");		
+		fprintf(fp, "call class [ScriptTypes]LindenLab.SecondLife.Quaternion class [LslUserScript]LindenLab.SecondLife.LslUserScript::'Divide'(class [ScriptTypes]LindenLab.SecondLife.Quaternion, class [ScriptTypes]LindenLab.SecondLife.Quaternion)\n");		
 		break;
 
 	default:
@@ -4783,7 +5335,7 @@ void LLScriptDivAssignment::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCo
 			mRightSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
 			mLValue->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
 			fprintf(fp, "DIV %s, %s\n", LSCRIPTTypeNames[mRightType], LSCRIPTTypeNames[mLeftType]);
-			print_asignment(fp, mLValue);
+			print_assignment(fp, mLValue);
 		}
 		break;
 	case LSCP_TYPE:
@@ -4811,12 +5363,12 @@ void LLScriptDivAssignment::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCo
 	case LSCP_EMIT_CIL_ASSEMBLY:
 		{
 			print_cil_load_address(fp, mLValue, entry);
-			mLValue->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
-			print_cil_numeric_cast(fp, mLValue->mReturnType, mRightSide->mReturnType);
 			mRightSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
 			print_cil_numeric_cast(fp, mRightSide->mReturnType, mLValue->mReturnType);
+			mLValue->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+			print_cil_numeric_cast(fp, mLValue->mReturnType, mRightSide->mReturnType);
 			print_cil_div(fp, mLValue->mReturnType, mRightSide->mReturnType);
-			print_cil_asignment(fp, mLValue, entry);
+			print_cil_assignment(fp, mLValue, entry);
 		}
 		break;
 	default:
@@ -4832,20 +5384,20 @@ S32 LLScriptDivAssignment::getSize()
 	return 0;
 }
 
-void print_cil_mod(LLFILE* fp, LSCRIPTType left_type, LSCRIPTType right_type)
+static void print_cil_mod(LLFILE* fp, LSCRIPTType left_type, LSCRIPTType right_type)
 {
 	switch(left_type)
 	{
 	case LST_INTEGER:
 
 		// Numeric remainder.
-		fprintf(fp, "rem\n");
+		fprintf(fp, "call int32 [LslUserScript]LindenLab.SecondLife.LslUserScript::Modulo(int32, int32)\n");
 		break;
 	
 	case LST_VECTOR:
 
 		// Vector cross product.
-		fprintf(fp, "call valuetype [LScriptLibrary]LLVector valuetype [LScriptLibrary]LLVector::'mod_vec'(valuetype [LScriptLibrary]LLVector, valuetype [LScriptLibrary]LLVector)\n");
+		fprintf(fp, "call class [ScriptTypes]LindenLab.SecondLife.Vector class [LslUserScript]LindenLab.SecondLife.LslUserScript::'Modulo'(class [ScriptTypes]LindenLab.SecondLife.Vector, class [ScriptTypes]LindenLab.SecondLife.Vector)\n");
 		break;
 
 	default:
@@ -4873,7 +5425,7 @@ void LLScriptModAssignment::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCo
 			mRightSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
 			mLValue->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
 			fprintf(fp, "MOD %s, %s\n", LSCRIPTTypeNames[mRightType], LSCRIPTTypeNames[mLeftType]);
-			print_asignment(fp, mLValue);
+			print_assignment(fp, mLValue);
 		}
 		break;
 	case LSCP_TYPE:
@@ -4901,10 +5453,10 @@ void LLScriptModAssignment::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCo
 	case LSCP_EMIT_CIL_ASSEMBLY:
 		{
 			print_cil_load_address(fp, mLValue, entry);
-			mLValue->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
 			mRightSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+			mLValue->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
 			print_cil_mod(fp, mLValue->mReturnType, mRightSide->mReturnType);
-			print_cil_asignment(fp, mLValue, entry);
+			print_cil_assignment(fp, mLValue, entry);
 		}
 		break;
 	default:
@@ -4920,9 +5472,10 @@ S32 LLScriptModAssignment::getSize()
 	return 0;
 }
 
-void print_cil_eq(LLFILE* fp, LSCRIPTType left_type, LSCRIPTType right_type)
+static void print_cil_eq(LLFILE* fp, LSCRIPTType left_type, LSCRIPTType right_type)
 {
-	switch(left_type)
+	
+	switch(right_type)
 	{
 	case LST_INTEGER:
 	case LST_FLOATINGPOINT:
@@ -4932,26 +5485,36 @@ void print_cil_eq(LLFILE* fp, LSCRIPTType left_type, LSCRIPTType right_type)
 		break;
 
 	case LST_STRING:
-	case LST_KEY:
-
+	        // NOTE: babbage: strings and keys can be compared, so a cast
+	        // may be required
+	        print_cil_cast(fp, left_type, right_type);
 		// String equality.
 		fprintf(fp, "call bool valuetype [mscorlib]System.String::op_Equality(string, string)\n");
+		break;
+		
+	case LST_KEY:
+	        // NOTE: babbage: strings and keys can be compared, so a cast 
+	        // may be required
+	        print_cil_cast(fp, left_type, right_type);
+
+		// Key equality.
+		fprintf(fp, "call int32 [LslUserScript]LindenLab.SecondLife.LslUserScript::'Equals'(valuetype [ScriptTypes]LindenLab.SecondLife.Key, valuetype [ScriptTypes]LindenLab.SecondLife.Key)\n");
 		break;
 	
 	case LST_VECTOR:
 
 		// Vector equality.
-		fprintf(fp, "call bool [LScriptLibrary]LLVector::'equals_vec'(valuetype [LScriptLibrary]LLVector, valuetype [LScriptLibrary]LLVector)\n");
+		fprintf(fp, "call int32 [LslUserScript]LindenLab.SecondLife.LslUserScript::'Equals'(class [ScriptTypes]LindenLab.SecondLife.Vector, class [ScriptTypes]LindenLab.SecondLife.Vector)\n");
 		break;
 
 	case LST_QUATERNION:
 
 		// Rotation equality.
-		fprintf(fp, "call bool [LScriptLibrary]LLQuaternion::'equals_quat'(valuetype [LScriptLibrary]LLQuaternion, valuetype [LScriptLibrary]LLQuaternion)\n");
+		fprintf(fp, "call int32 [LslUserScript]LindenLab.SecondLife.LslUserScript::'Equals'(class [ScriptTypes]LindenLab.SecondLife.Quaternion, class [ScriptTypes]LindenLab.SecondLife.Quaternion)\n");
 		break;
 
 	case LST_LIST:
-		fprintf(fp, "call bool [LScriptLibrary]LScriptInternal::EqualsList(class [mscorlib]System.Collections.ArrayList, class [mscorlib]System.Collections.ArrayList)\n");
+		fprintf(fp, "call int32 [LslUserScript]LindenLab.SecondLife.LslUserScript::Equals(class [mscorlib]System.Collections.ArrayList, class [mscorlib]System.Collections.ArrayList)\n");
 		break;
 
 	default:
@@ -5002,10 +5565,10 @@ void LLScriptEquality::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompile
 		}
 		break;
 	case LSCP_EMIT_CIL_ASSEMBLY:
-		mLeftSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
-		print_cil_numeric_cast(fp, mLeftSide->mReturnType, mRightSide->mReturnType);
 		mRightSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
 		print_cil_numeric_cast(fp, mRightSide->mReturnType, mLeftSide->mReturnType);
+		mLeftSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		print_cil_numeric_cast(fp, mLeftSide->mReturnType, mRightSide->mReturnType);
 		print_cil_eq(fp, mLeftSide->mReturnType, mRightSide->mReturnType);
 		break;
 	default:
@@ -5063,10 +5626,19 @@ void LLScriptNotEquals::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompil
 		break;
 	case LSCP_EMIT_CIL_ASSEMBLY:
 		mRightSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		print_cil_numeric_cast(fp, mRightSide->mReturnType, mLeftSide->mReturnType);
 		mLeftSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
-		fprintf(fp, "ceq\n");
-		fprintf(fp, "ldc.i4.0\n");
-		fprintf(fp, "ceq\n"); // Compare result of first compare equal with 0 to get compare not equal.
+		print_cil_numeric_cast(fp, mLeftSide->mReturnType, mRightSide->mReturnType);
+		if (LST_LIST == mLeftSide->mReturnType)
+		{
+		    fprintf(fp, "call int32 [LslUserScript]LindenLab.SecondLife.LslUserScript::NotEquals(class [mscorlib]System.Collections.ArrayList, class [mscorlib]System.Collections.ArrayList)\n");
+		}
+		else
+		{  
+		    print_cil_eq(fp, mLeftSide->mReturnType, mRightSide->mReturnType);
+		    fprintf(fp, "ldc.i4.0\n");
+		    fprintf(fp, "ceq\n"); // Compare result of first compare equal with 0 to get compare not equal.
+		}    
 		break;
 	default:
 		mLeftSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
@@ -5079,6 +5651,14 @@ void LLScriptNotEquals::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompil
 S32 LLScriptNotEquals::getSize()
 {
 	return 0;
+}
+
+static void print_cil_lte(LLFILE* fp)
+{
+	// NOTE: LSL pushes operands backwards, so <= becomes >=
+	fprintf(fp, "clt\n");
+	fprintf(fp, "ldc.i4.0\n");
+	fprintf(fp, "ceq\n");
 }
 
 void LLScriptLessEquals::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompilePass pass, LSCRIPTPruneType ptype, BOOL &prunearg, LLScriptScope *scope, LSCRIPTType &type, LSCRIPTType basetype, U64 &count, LLScriptByteCodeChunk *chunk, LLScriptByteCodeChunk *heap, S32 stacksize, LLScriptScopeEntry *entry, S32 entrycount, LLScriptLibData **ldata)
@@ -5122,11 +5702,11 @@ void LLScriptLessEquals::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompi
 		}
 		break;
 	case LSCP_EMIT_CIL_ASSEMBLY:
-		mLeftSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
 		mRightSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
-		fprintf(fp, "cgt\n"); // Test greater than.
-		fprintf(fp, "ldc.i4.0\n"); // Use (b == 0) implementation of boolean not.
-		fprintf(fp, "ceq\n"); // Apply boolean not to greater than. If not greater than, then less or equal.
+		print_cil_numeric_cast(fp, mRightSide->mReturnType, mLeftSide->mReturnType);
+		mLeftSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		print_cil_numeric_cast(fp, mLeftSide->mReturnType, mRightSide->mReturnType);
+		print_cil_lte(fp);
 		break;
 	default:
 		mLeftSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
@@ -5139,6 +5719,14 @@ void LLScriptLessEquals::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompi
 S32 LLScriptLessEquals::getSize()
 {
 	return 0;
+}
+
+static void print_cil_gte(LLFILE* fp)
+{   
+	// NOTE: LSL pushes operands backwards, so >= becomes <=
+	fprintf(fp, "cgt\n");
+	fprintf(fp, "ldc.i4.0\n");
+	fprintf(fp, "ceq\n");
 }
 
 void LLScriptGreaterEquals::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompilePass pass, LSCRIPTPruneType ptype, BOOL &prunearg, LLScriptScope *scope, LSCRIPTType &type, LSCRIPTType basetype, U64 &count, LLScriptByteCodeChunk *chunk, LLScriptByteCodeChunk *heap, S32 stacksize, LLScriptScopeEntry *entry, S32 entrycount, LLScriptLibData **ldata)
@@ -5182,11 +5770,11 @@ void LLScriptGreaterEquals::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCo
 		}
 		break;
 	case LSCP_EMIT_CIL_ASSEMBLY:
-		mLeftSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
 		mRightSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
-		fprintf(fp, "clt\n"); // Test less than.
-		fprintf(fp, "ldc.i4.0\n"); // Use (b == 0) implementation of boolean not.
-		fprintf(fp, "ceq\n"); // Apply boolean not to less than. If not less than, then greater or equal.
+		print_cil_numeric_cast(fp, mRightSide->mReturnType, mLeftSide->mReturnType);
+		mLeftSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		print_cil_numeric_cast(fp, mLeftSide->mReturnType, mRightSide->mReturnType);
+		print_cil_gte(fp);
 		break;
 	default:
 		mLeftSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
@@ -5199,6 +5787,12 @@ void LLScriptGreaterEquals::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCo
 S32 LLScriptGreaterEquals::getSize()
 {
 	return 0;
+}
+
+static void print_cil_lt(LLFILE* fp)
+{
+	// NOTE: LSL pushes operands backwards, so < becomes >
+	fprintf(fp, "cgt\n");
 }
 
 void LLScriptLessThan::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompilePass pass, LSCRIPTPruneType ptype, BOOL &prunearg, LLScriptScope *scope, LSCRIPTType &type, LSCRIPTType basetype, U64 &count, LLScriptByteCodeChunk *chunk, LLScriptByteCodeChunk *heap, S32 stacksize, LLScriptScopeEntry *entry, S32 entrycount, LLScriptLibData **ldata)
@@ -5242,9 +5836,11 @@ void LLScriptLessThan::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompile
 		}
 		break;
 	case LSCP_EMIT_CIL_ASSEMBLY:
-		mLeftSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
 		mRightSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
-		fprintf(fp, "clt\n");
+		print_cil_numeric_cast(fp, mRightSide->mReturnType, mLeftSide->mReturnType);
+		mLeftSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		print_cil_numeric_cast(fp, mLeftSide->mReturnType, mRightSide->mReturnType);
+		print_cil_lt(fp);
 		break;
 	default:
 		mLeftSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
@@ -5257,6 +5853,12 @@ void LLScriptLessThan::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompile
 S32 LLScriptLessThan::getSize()
 {
 	return 0;
+}
+
+static void print_cil_gt(LLFILE* fp)
+{   
+    // NOTE: LSL pushes operands backwards, so > becomes <
+	fprintf(fp, "clt\n");
 }
 
 void LLScriptGreaterThan::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompilePass pass, LSCRIPTPruneType ptype, BOOL &prunearg, LLScriptScope *scope, LSCRIPTType &type, LSCRIPTType basetype, U64 &count, LLScriptByteCodeChunk *chunk, LLScriptByteCodeChunk *heap, S32 stacksize, LLScriptScopeEntry *entry, S32 entrycount, LLScriptLibData **ldata)
@@ -5300,9 +5902,11 @@ void LLScriptGreaterThan::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTComp
 		}
 		break;
 	case LSCP_EMIT_CIL_ASSEMBLY:
-		mLeftSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
 		mRightSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
-		fprintf(fp, "cgt\n");
+		print_cil_numeric_cast(fp, mRightSide->mReturnType, mLeftSide->mReturnType);
+		mLeftSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		print_cil_numeric_cast(fp, mLeftSide->mReturnType, mRightSide->mReturnType);
+		print_cil_gt(fp);
 		break;
 	default:
 		mLeftSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
@@ -5358,10 +5962,10 @@ void LLScriptPlus::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompilePass
 		}
 		break;
 	case LSCP_EMIT_CIL_ASSEMBLY:
-		mLeftSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
-		print_cil_numeric_cast(fp, mLeftSide->mReturnType, mRightSide->mReturnType);
 		mRightSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
 		print_cil_numeric_cast(fp, mRightSide->mReturnType, mLeftSide->mReturnType);
+		mLeftSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		print_cil_numeric_cast(fp, mLeftSide->mReturnType, mRightSide->mReturnType);
 		print_cil_add(fp, mLeftSide->mReturnType, mRightSide->mReturnType);
 		break;
 	default:
@@ -5418,10 +6022,10 @@ void LLScriptMinus::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompilePas
 		}
 		break;
 	case LSCP_EMIT_CIL_ASSEMBLY:
-		mLeftSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
-		print_cil_numeric_cast(fp, mLeftSide->mReturnType, mRightSide->mReturnType);
 		mRightSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
 		print_cil_numeric_cast(fp, mRightSide->mReturnType, mLeftSide->mReturnType);
+		mLeftSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		print_cil_numeric_cast(fp, mLeftSide->mReturnType, mRightSide->mReturnType);
 		print_cil_sub(fp, mLeftSide->mReturnType, mRightSide->mReturnType);
 		break;
 	default:
@@ -5478,10 +6082,10 @@ void LLScriptTimes::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompilePas
 		}
 		break;
 	case LSCP_EMIT_CIL_ASSEMBLY:
-		mLeftSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
-		print_cil_numeric_cast(fp, mLeftSide->mReturnType, mRightSide->mReturnType);
 		mRightSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
 		print_cil_numeric_cast(fp, mRightSide->mReturnType, mLeftSide->mReturnType);
+		mLeftSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		print_cil_numeric_cast(fp, mLeftSide->mReturnType, mRightSide->mReturnType);
 		print_cil_mul(fp, mLeftSide->mReturnType, mRightSide->mReturnType);
 		break;
 	default:
@@ -5538,10 +6142,10 @@ void LLScriptDivide::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompilePa
 		}
 		break;
 	case LSCP_EMIT_CIL_ASSEMBLY:
-		mLeftSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
-		print_cil_numeric_cast(fp, mLeftSide->mReturnType, mRightSide->mReturnType);
 		mRightSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
 		print_cil_numeric_cast(fp, mRightSide->mReturnType, mLeftSide->mReturnType);
+		mLeftSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		print_cil_numeric_cast(fp, mLeftSide->mReturnType, mRightSide->mReturnType);
 		print_cil_div(fp, mLeftSide->mReturnType, mRightSide->mReturnType);
 		break;
 	default:
@@ -5598,8 +6202,8 @@ void LLScriptMod::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompilePass 
 		}
 		break;
 	case LSCP_EMIT_CIL_ASSEMBLY:
-		mLeftSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
 		mRightSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		mLeftSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
 		print_cil_mod(fp, mLeftSide->mReturnType, mRightSide->mReturnType);
 		break;
 	default:
@@ -5654,8 +6258,8 @@ void LLScriptBitAnd::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompilePa
 		}
 		break;
 	case LSCP_EMIT_CIL_ASSEMBLY:
-		mLeftSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
 		mRightSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		mLeftSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
 		fprintf(fp, "and\n");
 		break;
 	default:
@@ -5710,8 +6314,8 @@ void LLScriptBitOr::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompilePas
 		}
 		break;
 	case LSCP_EMIT_CIL_ASSEMBLY:
-		mLeftSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
 		mRightSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		mLeftSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
 		fprintf(fp, "or\n");
 		break;
 	default:
@@ -5766,8 +6370,8 @@ void LLScriptBitXor::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompilePa
 		}
 		break;
 	case LSCP_EMIT_CIL_ASSEMBLY:
-		mLeftSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
 		mRightSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		mLeftSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
 		fprintf(fp, "xor\n");
 		break;
 	default:
@@ -5822,9 +6426,15 @@ void LLScriptBooleanAnd::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompi
 		}
 		break;
 	case LSCP_EMIT_CIL_ASSEMBLY:
-		mLeftSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
 		mRightSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
-		fprintf(fp, "and\n");
+		fprintf(fp, "ldc.i4.0\n");
+		fprintf(fp, "ceq\n");
+		mLeftSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		fprintf(fp, "ldc.i4.0\n");
+		fprintf(fp, "ceq\n");
+		fprintf(fp, "or\n");
+                fprintf(fp, "ldc.i4.0\n");
+                fprintf(fp, "ceq\n");
 		break;
 	default:
 		mLeftSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
@@ -5881,6 +6491,10 @@ void LLScriptBooleanOr::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompil
 		mRightSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
 		mLeftSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
 		fprintf(fp, "or\n");
+                fprintf(fp, "ldc.i4.0\n");
+                fprintf(fp, "ceq\n");
+		fprintf(fp, "ldc.i4.0\n");
+		fprintf(fp, "ceq\n");
 		break;
 	default:
 		mLeftSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
@@ -5934,9 +6548,9 @@ void LLScriptShiftLeft::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompil
 		}
 		break;
 	case LSCP_EMIT_CIL_ASSEMBLY:
-		mLeftSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
 		mRightSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
-		fprintf(fp, "shl\n");
+		mLeftSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		fprintf(fp, "call int32 [LslUserScript]LindenLab.SecondLife.LslUserScript::ShiftLeft(int32, int32)\n");
 		break;
 	default:
 		mLeftSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
@@ -5991,9 +6605,9 @@ void LLScriptShiftRight::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompi
 		}
 		break;
 	case LSCP_EMIT_CIL_ASSEMBLY:
-		mLeftSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
 		mRightSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
-		fprintf(fp, "shr\n");
+		mLeftSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		fprintf(fp, "call int32 [LslUserScript]LindenLab.SecondLife.LslUserScript::ShiftRight(int32, int32)\n");
 		break;
 	default:
 		mLeftSide->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
@@ -6076,6 +6690,12 @@ void LLScriptUnaryMinus::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompi
 			chunk->addByte(typebyte);
 		}
 		break;
+	case LSCP_EMIT_CIL_ASSEMBLY:
+	    {
+			mExpression->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+			print_cil_neg(fp, mLeftType);
+	    }
+	    break;
 	default:
 		mExpression->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
 		break;
@@ -6219,7 +6839,7 @@ void LLScriptPreIncrement::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCom
 			{
 				fprintf(fp, "Unexpected Type\n");
 			}
-			print_asignment(fp, mExpression);
+			print_assignment(fp, mExpression);
 		}
 		break;
 	case LSCP_TYPE:
@@ -6266,21 +6886,21 @@ void LLScriptPreIncrement::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCom
 			print_cil_load_address(fp, mExpression, entry);
 			if (mReturnType == LST_INTEGER)
 			{
-				fprintf(fp, "ldc.i4.1\n");
 				mExpression->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+				fprintf(fp, "ldc.i4.1\n");
 				fprintf(fp, "add\n");
 			}
 			else if (mReturnType == LST_FLOATINGPOINT)
 			{
-				fprintf(fp, "ldc.r8.1\n");
 				mExpression->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+				fprintf(fp, "ldc.r8 1\n");
 				fprintf(fp, "add\n");
 			}
 			else
 			{
 				fprintf(fp, "Unexpected Type\n");
 			}
-			print_cil_asignment(fp, mExpression, entry);
+			print_cil_assignment(fp, mExpression, entry);
 		}
 		break;
 	default:
@@ -6327,7 +6947,7 @@ void LLScriptPreDecrement::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCom
 			{
 				fprintf(fp, "Unexpected Type\n");
 			}
-			print_asignment(fp, mExpression);
+			print_assignment(fp, mExpression);
 		}
 		break;
 	case LSCP_TYPE:
@@ -6374,21 +6994,21 @@ void LLScriptPreDecrement::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCom
 			print_cil_load_address(fp, mExpression, entry);
 			if (mReturnType == LST_INTEGER)
 			{
-				fprintf(fp, "ldc.i4.1\n");
 				mExpression->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+				fprintf(fp, "ldc.i4.1\n");
 				fprintf(fp, "sub\n");
 			}
 			else if (mReturnType == LST_FLOATINGPOINT)
 			{
-				fprintf(fp, "ldc.r8.1\n");
 				mExpression->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+				fprintf(fp, "ldc.r8 1\n");
 				fprintf(fp, "sub\n");
 			}
 			else
 			{
 				fprintf(fp, "Unexpected Type\n");
 			}
-			print_cil_asignment(fp, mExpression, entry);
+			print_cil_assignment(fp, mExpression, entry);
 		}
 		break;
 	default:
@@ -6555,7 +7175,7 @@ void LLScriptVectorInitializer::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRI
 			print_cil_cast(fp, mExpression3->mReturnType, LST_FLOATINGPOINT);
 		}
 		// Call named ctor, which leaves new Vector on stack, so it can be saved in to local or argument just like a primitive type.
-		fprintf(fp, "call valuetype [LScriptLibrary]LLVector valuetype [LScriptLibrary]LLVector::'create'(float32, float32, float32)\n");
+		fprintf(fp, "call class [ScriptTypes]LindenLab.SecondLife.Vector class [LslUserScript]LindenLab.SecondLife.LslUserScript::'CreateVector'(float32, float32, float32)\n");
 		break;
 	default:
 		mExpression1->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
@@ -6696,7 +7316,7 @@ void LLScriptQuaternionInitializer::recurse(LLFILE *fp, S32 tabs, S32 tabsize, L
 		}
 
 		// Call named ctor, which leaves new Vector on stack, so it can be saved in to local or argument just like a primitive type.
-		fprintf(fp, "call valuetype [LScriptLibrary]LLQuaternion valuetype [LScriptLibrary]LLQuaternion::'create'(float32, float32, float32, float32)\n");
+		fprintf(fp, "call class [ScriptTypes]LindenLab.SecondLife.Quaternion class [LslUserScript]LindenLab.SecondLife.LslUserScript::'CreateQuaternion'(float32, float32, float32, float32)\n");
 		break;
 	default:
 		mExpression1->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
@@ -6743,14 +7363,15 @@ void LLScriptListInitializer::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPT
 		mReturnType = type = LST_LIST;
 		break;
 	case LSCP_TO_STACK:
+	{
 		if (mExpressionList)
 		{
 			pass = LSCP_TO_STACK;
-			count = 0;
-			mExpressionList->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+			U64 list_element_count = 0;
+			mExpressionList->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, list_element_count, chunk, heap, stacksize, entry, entrycount, NULL);
 			chunk->addByte(LSCRIPTOpCodes[LOPC_STACKTOL]);
-			chunk->addInteger((S32)count);
-			count = 0;
+			chunk->addInteger((S32)list_element_count);
+			
 		}
 		else
 		{
@@ -6758,26 +7379,26 @@ void LLScriptListInitializer::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPT
 			chunk->addInteger(0);
 		}
 		break;
+	}
 	case LSCP_EMIT_CIL_ASSEMBLY:
-
+	{
 		// Push boxed elements on stack.
-		count = 0;
+		U64 list_element_count = 0;
 		if (mExpressionList)
 		{
-			mExpressionList->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+			mExpressionList->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, list_element_count, chunk, heap, stacksize, entry, entrycount, NULL);
 		}
 
-		// Create list on stack, consuming first boxed element.
-		fprintf(fp, "call class [mscorlib]System.Collections.ArrayList class [LScriptLibrary]LScriptInternal::CreateList()\n");
+		// Create list on stack.
+		fprintf(fp, "call class [mscorlib]System.Collections.ArrayList class [LslUserScript]LindenLab.SecondLife.LslUserScript::CreateList()\n");
 
-		// Call AddReturnList to add remaining boxed expressions.
-		for(U64 i = 0; i < count; i++)
+		// Call Prepend to add remaining boxed expressions.
+		for(U64 i = 0; i < list_element_count; i++)
 		{
-			fprintf(fp, "call class [mscorlib]System.Collections.ArrayList class [LScriptLibrary]LScriptInternal::AddReturnList(object, class [mscorlib]System.Collections.ArrayList)\n");
+			fprintf(fp, "call class [mscorlib]System.Collections.ArrayList class [LslUserScript]LindenLab.SecondLife.LslUserScript::Prepend(object, class [mscorlib]System.Collections.ArrayList)\n");
 		}
-		count = 0;
-		
 		break;
+	}
 	default:
 		if (mExpressionList)
 		{
@@ -6824,7 +7445,7 @@ void LLScriptPostIncrement::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCo
 			{
 				fprintf(fp, "Unexpected Type\n");
 			}
-			print_asignment(fp, mExpression);
+			print_assignment(fp, mExpression);
 			fprintf(fp, "%s\n", LSCRIPTTypePop[mReturnType]);
 		}
 		break;
@@ -6893,24 +7514,34 @@ void LLScriptPostIncrement::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCo
 		break;
 	case LSCP_EMIT_CIL_ASSEMBLY:
 		{
-			print_cil_load_address(fp, mExpression, entry);
+			// Push original value on to stack.
 			mExpression->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
-			fprintf(fp,"dup\n"); // Copy expression result to use as increment operand.
+
+			// Load address if needed for store.
+			print_cil_load_address(fp, mExpression, entry);
+
+			// Load value again.
+			// TODO: Work out if sideeffects can result in 2 evaluations of expression giving different values.
+			// Original LSL2 uses this method, so any bugs due to side effects will probably be identical ;-)
+			mExpression->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
 			if (mReturnType == LST_INTEGER)
 			{
 				fprintf(fp, "ldc.i4.1\n");
 			}
 			else if (mReturnType == LST_FLOATINGPOINT)
 			{
-				fprintf(fp, "ldc.r8.1\n");
+				fprintf(fp, "ldc.r8 1\n");
 			}
 			else
 			{
 				fprintf(fp, "Unexpected Type\n");
 			}
 			fprintf(fp, "add\n");
-			print_cil_asignment(fp, mExpression, entry);
-			fprintf(fp, "pop\n"); // Pop assignment result to leave original expression result on stack. TODO: Optimise away redundant pop/dup pairs.
+			print_cil_assignment(fp, mExpression, entry);
+
+			// Pop assignment result to leave original expression result on stack. 
+			// TODO: Optimise away redundant pop/dup pairs.
+			fprintf(fp, "pop\n"); 
 		}
 		break;
 	default:
@@ -6956,7 +7587,7 @@ void LLScriptPostDecrement::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCo
 			{
 				fprintf(fp, "Unexpected Type\n");
 			}
-			print_asignment(fp, mExpression);
+			print_assignment(fp, mExpression);
 			fprintf(fp, "%s\n", LSCRIPTTypePop[mReturnType]);
 		}
 		break;
@@ -7025,24 +7656,34 @@ void LLScriptPostDecrement::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCo
 		break;
 	case LSCP_EMIT_CIL_ASSEMBLY:
 		{
-			print_cil_load_address(fp, mExpression, entry);
+			// Push original value on to stack.
 			mExpression->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
-			fprintf(fp,"dup\n"); // Copy expression result to use as decrement operand.
+
+			// Load address if needed for store.
+			print_cil_load_address(fp, mExpression, entry);
+
+			// Load value again.
+			// TODO: Work out if sideeffects can result in 2 evaluations of expression giving different values.
+			// Original LSL2 uses this method, so any bugs due to side effects will probably be identical ;-)
+			mExpression->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
 			if (mReturnType == LST_INTEGER)
 			{
 				fprintf(fp, "ldc.i4.1\n");
 			}
 			else if (mReturnType == LST_FLOATINGPOINT)
 			{
-				fprintf(fp, "ldc.r8.1\n");
+				fprintf(fp, "ldc.r8 1\n");
 			}
 			else
 			{
 				fprintf(fp, "Unexpected Type\n");
 			}
 			fprintf(fp, "sub\n");
-			print_cil_asignment(fp, mExpression, entry);
-			fprintf(fp, "pop\n"); // Pop assignment result to leave original expression result on stack. TODO: Optimise away redundant pop/dup pairs.
+			print_cil_assignment(fp, mExpression, entry);
+
+			// Pop assignment result to leave original expression result on stack. 
+			// TODO: Optimise away redundant pop/dup pairs.
+			fprintf(fp, "pop\n"); 
 		}
 		break;
 	default:
@@ -7058,16 +7699,19 @@ S32 LLScriptPostDecrement::getSize()
 }
 
 // Generate arg list.
-void print_cil_arg_list(LLFILE *fp, LLScriptFuncExpressionList* exp_list)
+static void print_cil_arg_list(LLFILE *fp, LLScriptArgString& args)
 {
-	// Print first argument.
-	print_cil_type(fp, exp_list->mFirstp->mReturnType);
-
-	// Recursively print next arguments.
-	if(exp_list->mSecondp != NULL)
+	int i = 0;
+	bool finished = (i >= args.getNumber());
+	while(! finished)
 	{
-		fprintf(fp, ", ");
-		print_cil_arg_list(fp, (LLScriptFuncExpressionList*) exp_list->mSecondp);
+		print_cil_type(fp, args.getType(i));
+		++i;
+		finished = (i >= args.getNumber());
+		if(! finished)
+		{
+			fprintf(fp, ", ");
+		}
 	}
 }
 
@@ -7146,7 +7790,7 @@ void LLScriptFunctionCall::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCom
 					gErrorToText.writeError(fp, this, LSERROR_FUNCTION_TYPE_ERROR);
 				}
 			}
-			else if (argcount != strlen(mIdentifier->mScopeEntry->mFunctionArgs.mString))	 	/*Flawfinder: ignore*/
+			else if (argcount != strlen(mIdentifier->mScopeEntry->mFunctionArgs.mString))
 			{
 				gErrorToText.writeError(fp, this, LSERROR_FUNCTION_TYPE_ERROR);
 			}
@@ -7217,13 +7861,15 @@ void LLScriptFunctionCall::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCom
 			// Load args on to stack.
 			if (mExpressionList)
 			{
-				mExpressionList->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry /* Needed for is_parameter calls */, 0, NULL);
+				//mExpressionList->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry /* Needed for is_parameter calls */, 0, NULL);
+				llassert(LET_FUNC_EXPRESSION_LIST == mExpressionList->mType);
+				print_cil_func_expression_list((LLScriptFuncExpressionList*) mExpressionList, fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry /* Caller entry needed for is_parameter calls */, 0, NULL, mIdentifier->mScopeEntry /* Callee entry needed for argument casting */);
 			}
 
 			// Make call.
 			if (! library_call)
 			{
-				fprintf(fp, "callvirt instance ");
+				fprintf(fp, "call instance ");
 			}
 			else
 			{
@@ -7233,16 +7879,18 @@ void LLScriptFunctionCall::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCom
 			fprintf(fp, " class ");
 			if (library_call)
 			{
-				fprintf(fp, "[LScriptLibrary]LScriptLibrary");
+				fprintf(fp, "[LslLibrary]LindenLab.SecondLife.Library::'");
 			}
 			else
 			{
-				fprintf(fp, "LSL");
+				// Prefix function name with g to distinguish from
+				// event handlers.
+				fprintf(fp, gScriptp->getClassName());
+				fprintf(fp, "::'g");
 			}
-			fprintf(fp, "::");
-			mIdentifier->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
-			fprintf(fp, "(");
-			if (mExpressionList) {print_cil_arg_list(fp, (LLScriptFuncExpressionList*) mExpressionList);}
+			fprintf(fp, mIdentifier->mName);
+			fprintf(fp, "'(");
+			print_cil_arg_list(fp, mIdentifier->mScopeEntry->mFunctionArgs);
 			fprintf(fp, ")\n");
 		}
 		break;
@@ -7287,6 +7935,11 @@ void LLScriptPrint::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompilePas
 		chunk->addByte(LSCRIPTOpCodes[LOPC_PRINT]);
 		chunk->addByte(LSCRIPTTypeByte[mLeftType]);
 		break;
+	case LSCP_EMIT_CIL_ASSEMBLY:
+	        mExpression->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		print_cil_cast(fp, mLeftType, LST_STRING);
+ 	        fprintf(fp, "call void class [LslLibrary]LindenLab.SecondLife.Library::Print(string)");
+	        break;
 	default:
 		mExpression->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
 		break;
@@ -7404,8 +8057,19 @@ void LLScriptStatementSequence::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRI
 		mFirstp->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
 		if (prunearg)
 		{
+			// babbage: only warn on first dead code block found.
+			if(ptype != LSPRUNE_DEAD_CODE)
+			{
+				gErrorToText.writeWarning(fp, this, LSWARN_DEAD_CODE);
+			}
+			
+			// babbage: set prune type to LSPRUNE_DEAD_CODE to mask other
+			// prune errors.
 			ptype = LSPRUNE_DEAD_CODE;
-			gErrorToText.writeWarning(fp, this, LSWARN_DEAD_CODE);
+			
+			// babbage: reset prunearg, to track whether return needed at
+			// end of dead code path as CIL always needs a return/throw.
+			prunearg = FALSE;
 		}
 		mSecondp->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
 		break;
@@ -7444,10 +8108,7 @@ void LLScriptNOOP::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompilePass
 		fprintf(fp, ";\n");
 		break;
 	case LSCP_PRUNE:
-		if (ptype == LSPRUNE_DEAD_CODE)
-			prunearg = TRUE;
-		else
-			prunearg = FALSE;
+		prunearg = FALSE;
 		break;
 	default:
 		break;
@@ -7462,7 +8123,7 @@ void add_exit_pops(LLScriptByteCodeChunk *chunk, LLScriptScopeEntry *entry)
 
 	if (entry->mLocals.mString)
 	{
-		number = (S32)strlen(entry->mLocals.mString); 	/*Flawfinder: ignore*/
+		number = (S32)strlen(entry->mLocals.mString);
 		for (i = number - 1; i >= 0; i--)
 		{
 			switch(entry->mLocals.getType(i))
@@ -7495,7 +8156,7 @@ void add_exit_pops(LLScriptByteCodeChunk *chunk, LLScriptScopeEntry *entry)
 
 	if (entry->mFunctionArgs.mString)
 	{
-		number = (S32)strlen(entry->mFunctionArgs.mString); 	/*Flawfinder: ignore*/
+		number = (S32)strlen(entry->mFunctionArgs.mString);
 		for (i = number - 1; i >= 0; i--)
 		{
 			switch(entry->mFunctionArgs.getType(i))
@@ -7534,7 +8195,7 @@ void print_exit_pops(LLFILE *fp, LLScriptScopeEntry *entry)
 
 	if (entry->mLocals.mString)
 	{
-		number = (S32)strlen(entry->mLocals.mString); 	/*Flawfinder: ignore*/
+		number = (S32)strlen(entry->mLocals.mString);
 		for (i = number - 1; i >= 0; i--)
 		{
 			fprintf(fp, "%s", LSCRIPTTypePop[entry->mLocals.getType(i)]);
@@ -7543,7 +8204,7 @@ void print_exit_pops(LLFILE *fp, LLScriptScopeEntry *entry)
 
 	if (entry->mFunctionArgs.mString)
 	{
-		number = (S32)strlen(entry->mFunctionArgs.mString); 	/*Flawfinder: ignore*/
+		number = (S32)strlen(entry->mFunctionArgs.mString);
 		for (i = number - 1; i >= 0; i--)
 		{
 			fprintf(fp, "%s", LSCRIPTTypePop[entry->mFunctionArgs.getType(i)]);
@@ -7583,10 +8244,7 @@ void LLScriptStateChange::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTComp
 		{
 			gErrorToText.writeError(fp, this, LSERROR_STATE_CHANGE_IN_GLOBAL);
 		}
-		if (ptype == LSPRUNE_DEAD_CODE)
-			prunearg = TRUE;
-		else
-			prunearg = FALSE;
+		prunearg = FALSE;
 		break;
 	case LSCP_SCOPE_PASS2:
 		{
@@ -7610,10 +8268,10 @@ void LLScriptStateChange::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTComp
 		}
 		break;
 	case LSCP_EMIT_CIL_ASSEMBLY:
-		fprintf(fp, "ldstr \"");
-		mIdentifier->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
-		fprintf(fp, "\"\n");
-		fprintf(fp, "call void class [LScriptLibrary]LScriptInternal::change_state(string)\n");
+		fprintf(fp, "ldarg.0\n");
+		fprintf(fp, "ldstr \"%s\"\n", mIdentifier->mName);
+		fprintf(fp, "call instance void class [LslUserScript]LindenLab.SecondLife.LslUserScript::ChangeState(string)\n");
+		fprintf(fp, "ret\n");
 		break;
 	default:
 		mIdentifier->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
@@ -7647,10 +8305,7 @@ void LLScriptJump::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompilePass
 		fprintf(fp, "\n");
 		break;
 	case LSCP_PRUNE:
-		if (ptype == LSPRUNE_DEAD_CODE)
-			prunearg = TRUE;
-		else
-			prunearg = FALSE;
+		prunearg = FALSE;
 		break;
 	case LSCP_SCOPE_PASS2:
 		{
@@ -7820,6 +8475,10 @@ void LLScriptReturn::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompilePa
 				mType = basetype;
 			}
 		}
+		else if (basetype != LST_NULL)
+		{
+		        gErrorToText.writeError(fp, this, LSERROR_TYPE_MISMATCH);
+		}
 		break;
 	case LSCP_EMIT_BYTE_CODE:
 		if (mExpression)
@@ -7863,6 +8522,7 @@ void LLScriptReturn::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompilePa
 		if (mExpression)
 		{
 			mExpression->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+			print_cil_cast(fp, mExpression->mReturnType, mType);
 		}
 		fprintf(fp, "ret\n");
 		break;
@@ -7902,10 +8562,7 @@ void LLScriptExpressionStatement::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSC
 		}
 		break;
 	case LSCP_PRUNE:
-		if (ptype == LSPRUNE_DEAD_CODE)
-			prunearg = TRUE;
-		else
-			prunearg = FALSE;
+		prunearg = FALSE;
 		break;
 	case LSCP_EMIT_BYTE_CODE:
 		mExpression->recurse(fp, tabs, tabsize, LSCP_TO_STACK, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
@@ -7951,6 +8608,58 @@ S32 LLScriptIf::getSize()
 	return 0;
 }
 
+static void print_cil_if_test(LLFILE* fp, LSCRIPTType type)
+{
+	switch(type)
+	{
+	case LST_INTEGER:
+		break;
+	case LST_FLOATINGPOINT:
+		fprintf(fp, "ldc.r8 0\n");
+		fprintf(fp, "ceq\n");
+		fprintf(fp, "ldc.i4.0\n");
+		fprintf(fp, "ceq\n");
+		break;
+	case LST_VECTOR:
+		fprintf(fp, "ldc.r8 0\n");
+		fprintf(fp, "ldc.r8 0\n");
+		fprintf(fp, "ldc.r8 0\n");
+		fprintf(fp, "call class [ScriptTypes]LindenLab.SecondLife.Vector class [LslUserScript]LindenLab.SecondLife.LslUserScript::'CreateVector'(float32, float32, float32)\n");
+		fprintf(fp, "call bool [LslUserScript]LindenLab.SecondLife.LslUserScript::'Equals'(class [ScriptTypes]LindenLab.SecondLife.Vector, class [ScriptTypes]LindenLab.SecondLife.Vector)\n");
+		fprintf(fp, "ldc.i4.0\n");
+		fprintf(fp, "ceq\n");
+		break;
+	case LST_QUATERNION:
+		fprintf(fp, "ldc.r8 0\n");
+		fprintf(fp, "ldc.r8 0\n");
+		fprintf(fp, "ldc.r8 0\n");
+		fprintf(fp, "ldc.r8 1\n");
+		fprintf(fp, "call class [ScriptTypes]LindenLab.SecondLife.Quaternion class [LslUserScript]LindenLab.SecondLife.LslUserScript::'CreateQuaternion'(float32, float32, float32, float32)\n");
+		fprintf(fp, "call bool [LslUserScript]LindenLab.SecondLife.LslUserScript::'Equals'(class [ScriptTypes]LindenLab.SecondLife.Quaternion, class [ScriptTypes]LindenLab.SecondLife.Quaternion)\n");
+		fprintf(fp, "ldc.i4.0\n");
+		fprintf(fp, "ceq\n");
+		break;
+	case LST_KEY:
+		fprintf(fp, "call bool [LslUserScript]LindenLab.SecondLife.LslUserScript::'IsNonNullUuid'(valuetype [ScriptTypes]LindenLab.SecondLife.Key)\n");
+		break;		
+	case LST_STRING:
+		fprintf(fp, "ldstr \"\"\n");
+		fprintf(fp, "call bool string::op_Equality(string, string)\n");
+		fprintf(fp, "ldc.i4.0\n");
+		fprintf(fp, "ceq\n");
+		break;
+	case LST_LIST:
+		fprintf(fp, "call class [mscorlib]System.Collections.ArrayList class [LslUserScript]LindenLab.SecondLife.LslUserScript::CreateList()\n");
+		fprintf(fp, "call bool [LslUserScript]LindenLab.SecondLife.LslUserScript::Equals(class [mscorlib]System.Collections.ArrayList, class [mscorlib]System.Collections.ArrayList)\n");
+		fprintf(fp, "ldc.i4.0\n");
+		fprintf(fp, "ceq\n");
+		break;		
+	default:
+		break;
+	}
+
+}
+
 void LLScriptIf::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompilePass pass, LSCRIPTPruneType ptype, BOOL &prunearg, LLScriptScope *scope, LSCRIPTType &type, LSCRIPTType basetype, U64 &count, LLScriptByteCodeChunk *chunk, LLScriptByteCodeChunk *heap, S32 stacksize, LLScriptScopeEntry *entry, S32 entrycount, LLScriptLibData **ldata)
 {
 	if (gErrorToText.getErrors())
@@ -7976,10 +8685,7 @@ void LLScriptIf::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompilePass p
 		}
 		break;
 	case LSCP_PRUNE:
-		if (ptype == LSPRUNE_DEAD_CODE)
-			prunearg = TRUE;
-		else
-			prunearg = FALSE;
+		prunearg = FALSE;
 		break;
 	case LSCP_TYPE:
 		mExpression->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
@@ -8004,6 +8710,7 @@ void LLScriptIf::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompilePass p
 		{
 			S32 tjump = gTempJumpCount++;
 			mExpression->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+			print_cil_if_test(fp, mExpression->mReturnType);
 			fprintf(fp, "brfalse LabelTempJump%d\n", tjump);
 			mStatement->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
 			fprintf(fp, "LabelTempJump%d:\n", tjump);
@@ -8093,6 +8800,7 @@ void LLScriptIfElse::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompilePa
 			S32 tjump1 =  gTempJumpCount++;
 			S32 tjump2 =  gTempJumpCount++;
 			mExpression->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+			print_cil_if_test(fp, mExpression->mReturnType);
 			fprintf(fp, "brfalse LabelTempJump%d\n", tjump1);
 			mStatement1->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
 			fprintf(fp, "br LabelTempJump%d\n", tjump2);
@@ -8155,10 +8863,7 @@ void LLScriptFor::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompilePass 
 		}
 		break;
 	case LSCP_PRUNE:
-		if (ptype == LSPRUNE_DEAD_CODE)
-			prunearg = TRUE;
-		else
-			prunearg = FALSE;
+		prunearg = FALSE;
 		break;
 	case LSCP_TYPE:
 		if(mSequence)
@@ -8203,6 +8908,7 @@ void LLScriptFor::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompilePass 
 				mSequence->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
 			fprintf(fp, "LabelTempJump%d:\n", tjump1);
 			mExpression->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+			print_cil_if_test(fp, mExpression->mReturnType);
 			fprintf(fp, "brfalse LabelTempJump%d\n", tjump2);
 			if(mStatement)
 				mStatement->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
@@ -8257,10 +8963,7 @@ void LLScriptDoWhile::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompileP
 		}
 		break;
 	case LSCP_PRUNE:
-		if (ptype == LSPRUNE_DEAD_CODE)
-			prunearg = TRUE;
-		else
-			prunearg = FALSE;
+		prunearg = FALSE;
 		break;
 	case LSCP_TYPE:
 		mStatement->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
@@ -8287,6 +8990,7 @@ void LLScriptDoWhile::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompileP
 			fprintf(fp, "LabelTempJump%d:\n", tjump1);
 			mStatement->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
 			mExpression->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+			print_cil_if_test(fp, mExpression->mReturnType);
 			fprintf(fp, "brtrue LabelTempJump%d\n", tjump1);
 		}
 		break;
@@ -8331,10 +9035,7 @@ void LLScriptWhile::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompilePas
 		}
 		break;
 	case LSCP_PRUNE:
-		if (ptype == LSPRUNE_DEAD_CODE)
-			prunearg = TRUE;
-		else
-			prunearg = FALSE;
+		prunearg = FALSE;
 		break;
 	case LSCP_TYPE:
 		mExpression->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
@@ -8367,6 +9068,7 @@ void LLScriptWhile::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompilePas
 			S32 tjump2 =  gTempJumpCount++;
 			fprintf(fp, "LabelTempJump%d:\n", tjump1);
 			mExpression->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+			print_cil_if_test(fp, mExpression->mReturnType);
 			fprintf(fp, "brfalse LabelTempJump%d\n", tjump2);
 			mStatement->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
 			fprintf(fp, "br LabelTempJump%d\n", tjump1);
@@ -8429,10 +9131,7 @@ void LLScriptDeclaration::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTComp
 		}
 		break;
 	case LSCP_PRUNE:
-		if (ptype == LSPRUNE_DEAD_CODE)
-			prunearg = TRUE;
-		else
-			prunearg = FALSE;
+		prunearg = FALSE;
 		break;
 	case LSCP_SCOPE_PASS1:
 		// Check to see if a declaration is valid here.
@@ -8604,24 +9303,13 @@ void LLScriptDeclaration::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTComp
 		if (mExpression)
 		{
 			mExpression->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
-			if (mIdentifier->mScopeEntry->mIDType == LIT_VARIABLE)
-			{
-				if(is_parameter(mIdentifier, entry))
-				{
-					// Parameter, store by name.
-					fprintf(fp, "starg.s %s\n", mIdentifier->mScopeEntry->mIdentifier);
-				}
-				else
-				{
-					// Local, store by index.
-					fprintf(fp, "stloc.s %d\n", mIdentifier->mScopeEntry->mCount);
-				}
-			}
-			else if (mIdentifier->mScopeEntry->mIDType == LIT_GLOBAL)
-			{
-				gErrorToText.writeError(fp, this, LSERROR_UNDEFINED_NAME);
-			}
+			print_cil_cast(fp, mExpression->mReturnType, mIdentifier->mScopeEntry->mType);
 		}
+		else
+		{
+			print_cil_init_variable(fp, mIdentifier->mScopeEntry->mType);
+		}
+		fprintf(fp, "stloc.s %d\n", mIdentifier->mScopeEntry->mCount);
 		break;
 	default:
 		if (mExpression)
@@ -8751,7 +9439,7 @@ S32 LLScriptEventHandler::getSize()
 
 U64 gCurrentHandler = 0;
 
-void print_cil_local_init(LLFILE* fp, LLScriptScopeEntry* scopeEntry)
+static void print_cil_local_init(LLFILE* fp, LLScriptScopeEntry* scopeEntry)
 {
 	if(scopeEntry->mLocals.getNumber() > 0)
 	{
@@ -8956,6 +9644,10 @@ void LLScriptEventHandler::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCom
 		// first determine resource counts for globals
 		count = 0;
 		mEventp->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+
+		// Store offset of first local as with global functions, so locals and arguments can be distinguished with is_parameter when compiling to CIL.
+		mScopeEntry->mOffset = (S32) count;
+
 		if (mStatement)
 		{
 			entrycount = 0;
@@ -9024,8 +9716,11 @@ void LLScriptEventHandler::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCom
 		// Method signature prefix.
 		fprintf(fp, ".method public hidebysig instance default void ");
 
-		// Mangle event handler name by prefixing it with state name. Allows state changing by finding handlers prefixed with new state name.
-		fprintf(fp, entry->mIdentifier);	 	/*Flawfinder: ignore*/
+		// Mangle event handler name by prefixing it with state name.
+		// Allows state changing by finding handlers prefixed with new
+		// state name. Prefix disambiguates functions and event handlers.
+		fprintf(fp, "e");
+		fprintf(fp, entry->mIdentifier);
 
 		// Handler name and arguments.
 		mEventp->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
@@ -9047,7 +9742,11 @@ void LLScriptEventHandler::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCom
 		}
 
 		// Function footer.
-		fprintf(fp, "\nret\n"); // TODO: Check whether return needed?
+		if (mbNeedTrailingReturn)
+		{
+			// TODO: throw exception?
+			fprintf(fp, "ret\n");
+		}
 		fprintf(fp, "}\n");
 
 		break;
@@ -9161,7 +9860,7 @@ void LLScriptFunctionDec::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTComp
 			chunk->addBytes(&typereturn, 1);
 			// name
 #ifdef LSL_INCLUDE_DEBUG_INFO
-			chunk->addBytes(mIdentifier->mName, strlen(mIdentifier->mName) + 1);	 	/*Flawfinder: ignore*/
+			chunk->addBytes(mIdentifier->mName, strlen(mIdentifier->mName) + 1);
 #else
 			chunk->addBytes(1);
 #endif
@@ -9176,6 +9875,10 @@ void LLScriptFunctionDec::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTComp
 		mType->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
 		fprintf(fp, " ");
 		mIdentifier->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		if(NULL != mNextp)
+		{
+			fprintf(fp, ",");
+		}
 		break;
 	default:
 		mType->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
@@ -9398,7 +10101,7 @@ void LLScriptGlobalFunctions::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPT
 
 			// null terminated function name
 #ifdef LSL_INCLUDE_DEBUG_INFO
-			chunk->addBytes(mIdentifier->mName, strlen(mIdentifier->mName) + 1);	 	/*Flawfinder: ignore*/
+			chunk->addBytes(mIdentifier->mName, strlen(mIdentifier->mName) + 1);
 #else
 			chunk->addBytes(1);
 #endif
@@ -9444,11 +10147,13 @@ void LLScriptGlobalFunctions::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPT
 		break;
 	case LSCP_EMIT_CIL_ASSEMBLY:
 		{
-			// Function header.
+			// Function header. Prefix function name with g to distinguish
+			// from event handlers.
 			fprintf(fp, ".method public hidebysig instance default ");
 			print_cil_type(fp, mType ? mType->mType : LST_NULL);
-			fprintf(fp, " ");
-			mIdentifier->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+			fprintf(fp, " 'g");
+			fprintf(fp, mIdentifier->mName);
+			fprintf(fp, "'");
 			if (mParameters)
 			{
 				fprintf(fp, "( ");
@@ -9473,6 +10178,7 @@ void LLScriptGlobalFunctions::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPT
 			// Function footer.
 			if (mbNeedTrailingReturn)
 			{
+				// TODO: throw exception?
 				fprintf(fp, "ret\n");
 			}
 			fprintf(fp, "}\n");
@@ -9587,10 +10293,12 @@ void LLScriptState::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompilePas
 		{
 			mIdentifier->mScopeEntry = scope->addEntry(mIdentifier->mName, LIT_STATE, LST_NULL);
 		}
+		mStateScope = new LLScriptScope(gScopeStringTable);
+		mStateScope->addParentScope(scope);
 		// now do the events
 		if (mEvent)
 		{
-			mEvent->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+			mEvent->recurse(fp, tabs, tabsize, pass, ptype, prunearg, mStateScope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
 		}
 		break;
 	case LSCP_SCOPE_PASS2:
@@ -9649,7 +10357,7 @@ void LLScriptState::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompilePas
 
 			// null terminated state name
 #ifdef LSL_INCLUDE_DEBUG_INFO
-			chunk->addBytes(mIdentifier->mName, strlen(mIdentifier->mName) + 1);	 	/*Flawfinder: ignore*/
+			chunk->addBytes(mIdentifier->mName, strlen(mIdentifier->mName) + 1);
 #else
 			chunk->addBytes(1);
 #endif
@@ -9693,6 +10401,38 @@ void LLScriptState::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompilePas
 	gonext(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
 }
 
+// Converts string to a valid CIL class name and stores the result 
+// in the supplied buffer, which should be at least 32 chars long.
+// If the string starts with a UUID, all characters in the UUID are included
+// in the generated name.
+void to_class_name(char* buffer, const char* string)
+{
+	strcpy(buffer, "LSL-");
+	strcat(buffer, string);
+	char* current_char = buffer;
+	while((*current_char) != 0)
+	{
+		if(isalnum(*current_char))
+		{
+			++current_char;
+		}
+		else if((*current_char) == '-')
+		{
+			(*current_char) = '_';
+			++current_char;
+		}
+		else
+		{
+			(*current_char) = 0;
+		}
+	}
+}
+
+void LLScriptScript::setClassName(const char* class_name)
+{
+	to_class_name(mClassName, class_name);
+}
+
 S32 LLScriptScript::getSize()
 {
 	return 0;
@@ -9704,6 +10444,7 @@ LLScriptScript::LLScriptScript(LLScritpGlobalStorage *globals,
 	mStates(states), mGlobalScope(NULL), mGlobals(NULL), mGlobalFunctions(NULL), mGodLike(FALSE)
 {
 	const char DEFAULT_BYTECODE_FILENAME[] = "lscript.lso";
+
 	mBytecodeDest = DEFAULT_BYTECODE_FILENAME;
 	LLScriptGlobalVariable	*tvar;
 	LLScriptGlobalFunctions	*tfunc;
@@ -9753,13 +10494,11 @@ void LLScriptScript::setBytecodeDest(const char* dst_filename)
 	mBytecodeDest = ll_safe_string(dst_filename);
 }
 
-void print_cil_globals(LLFILE* fp, LLScriptGlobalVariable* global)
+static void print_cil_globals(LLFILE* fp, LLScriptGlobalVariable* global)
 {
-	fprintf(fp, ".field private ");
+	fprintf(fp, ".field public ");
 	print_cil_type(fp, global->mType->mType);
-	fprintf(fp, " ");
-	fprintf(fp, global->mIdentifier->mName);		/*Flawfinder: ignore*/
-	fprintf(fp, "\n");
+	fprintf(fp, " '%s'\n", global->mIdentifier->mName);
 	if(NULL != global->mNextp)
 	{
 		print_cil_globals(fp, global->mNextp);
@@ -9946,72 +10685,66 @@ void LLScriptScript::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompilePa
 		}
 		break;
 	case LSCP_EMIT_CIL_ASSEMBLY:
-
-		// Output dependencies.
-		fprintf(fp, ".assembly extern mscorlib {.ver 1:0:5000:0}\n");
-		fprintf(fp, ".assembly extern LScriptLibrary {.ver 0:0:0:0}\n");
-
-		// Output assembly name.
-		fprintf(fp, ".assembly 'lsl' {.ver 0:0:0:0}\n");
-
-		// Output class header.
-		fprintf(fp, ".class public auto ansi beforefieldinit LSL extends [mscorlib]System.Object\n");
-		fprintf(fp, "{\n");
-
-		// Output globals as members.
-		if(NULL != mGlobals)
 		{
-			print_cil_globals(fp, mGlobals);
+			LLFILE *bcfp = LLFile::fopen(mBytecodeDest, "wb");
+
+			// Output dependencies.
+			fprintf(bcfp, ".assembly extern mscorlib {.ver 1:0:5000:0}\n");
+			fprintf(bcfp, ".assembly extern LslLibrary {.ver 0:1:0:0}\n");
+			fprintf(bcfp, ".assembly extern LslUserScript {.ver 0:1:0:0}\n");
+			fprintf(bcfp, ".assembly extern ScriptTypes {.ver 0:1:0:0}\n");
+
+			// Output assembly name.
+			fprintf(bcfp, ".assembly '%s' {.ver 0:0:0:0}\n", gScriptp->getClassName());
+
+			// Output class header.
+			fprintf(bcfp, ".class public auto ansi serializable beforefieldinit %s extends [LslUserScript]LindenLab.SecondLife.LslUserScript\n", gScriptp->getClassName());
+			fprintf(bcfp, "{\n");
+
+			// Output globals as members.
+			if(NULL != mGlobals)
+			{
+				print_cil_globals(bcfp, mGlobals);
+			}
+
+			// Output ctor header.
+			fprintf(bcfp, ".method public hidebysig  specialname  rtspecialname instance default void .ctor ()  cil managed\n");
+			fprintf(bcfp, "{\n");
+			fprintf(bcfp, ".maxstack 500\n");
+
+			// Initialise globals as members in ctor.
+			if (mGlobals)
+			{
+				fdotabs(bcfp, tabs, tabsize);
+				mGlobals->recurse(bcfp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+				fprintf(bcfp, "\n");
+			}
+
+			// Output ctor footer.
+			fprintf(bcfp, "ldarg.0\n");
+			fprintf(bcfp, "call instance void [LslUserScript]LindenLab.SecondLife.LslUserScript::.ctor()\n");
+			fprintf(bcfp, "ret\n");
+			fprintf(bcfp, "}\n");
+
+			// Output functions as methods.
+			if (mGlobalFunctions)
+			{
+				fdotabs(bcfp, tabs, tabsize);
+				mGlobalFunctions->recurse(bcfp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+				fprintf(bcfp, "\n");
+			}
+
+			// Output states as name mangled methods.
+			fdotabs(bcfp, tabs, tabsize);
+			mStates->recurse(bcfp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+			fprintf(bcfp, "\n");
+
+			// Output class footer.
+			fprintf(bcfp, "}\n");
+
+			// Close file.
+			fclose(bcfp);
 		}
-
-		// Output "runtime". Only needed to allow stand alone execution. Not needed when compiling to DLL and using embedded runtime.
-		fprintf(fp, ".method public static  hidebysig default void Main ()  cil managed\n");
-		fprintf(fp, "{\n");
-		fprintf(fp, ".entrypoint\n");
-		fprintf(fp, ".maxstack 2\n");
-		fprintf(fp, ".locals init (class LSL V_0)\n");
-		fprintf(fp, "newobj instance void class LSL::.ctor()\n");
-		fprintf(fp, "stloc.0\n");
-		fprintf(fp, "ldloc.0\n");
-		fprintf(fp, "callvirt instance void class LSL::defaultstate_entry()\n");
-		fprintf(fp, "ret\n");
-		fprintf(fp, "}\n");
-
-		// Output ctor header.
-		fprintf(fp, ".method public hidebysig  specialname  rtspecialname instance default void .ctor ()  cil managed\n");
-		fprintf(fp, "{\n");
-		fprintf(fp, ".maxstack 500\n");
-
-		// Initialise globals as members in ctor.
-		if (mGlobals)
-		{
-			fdotabs(fp, tabs, tabsize);
-			mGlobals->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
-			fprintf(fp, "\n");
-		}
-
-		// Output ctor footer.
-		fprintf(fp, "ldarg.0\n");
-		fprintf(fp, "call instance void valuetype [mscorlib]System.Object::.ctor()\n");
-		fprintf(fp, "ret\n");
-		fprintf(fp, "}\n");
-
-		// Output functions as methods.
-		if (mGlobalFunctions)
-		{
-			fdotabs(fp, tabs, tabsize);
-			mGlobalFunctions->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
-			fprintf(fp, "\n");
-		}
-
-		// Output states as name mangled methods.
-		fdotabs(fp, tabs, tabsize);
-		mStates->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
-		fprintf(fp, "\n");
-
-		// Output class footer.
-		fprintf(fp, "}\n");
-
 		break;
 	default:
 		if (mGlobals)

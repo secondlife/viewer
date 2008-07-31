@@ -31,6 +31,7 @@
 
 #include "linden_common.h"
 
+#include <algorithm>
 #include <sstream>
 
 #include "lscript_execute.h"
@@ -45,7 +46,7 @@ void (*unary_operations[LST_EOF])(U8 *buffer, LSCRIPTOpCodesEnum opcode);
 
 const char* LSCRIPTRunTimeFaultStrings[LSRF_EOF] =		/*Flawfinder: ignore*/
 {
-	"invalid",				//	LSRF_INVALID,
+	"Invalid",				//	LSRF_INVALID,
 	"Math Error",			//	LSRF_MATH,
 	"Stack-Heap Collision",	//	LSRF_STACK_HEAP_COLLISION,
 	"Bounds Check Error",	//	LSRF_BOUND_CHECK_ERROR,
@@ -55,13 +56,11 @@ const char* LSCRIPTRunTimeFaultStrings[LSRF_EOF] =		/*Flawfinder: ignore*/
 	"Hit Sandbox Limit",	//	LSRF_SANDBOX,
 	"Chat Overrun",			//	LSRF_CHAT_OVERRUN,
 	"Too Many Listens",			  //	LSRF_TOO_MANY_LISTENS,
-	"Lists may not contain lists" //	LSRF_NESTING_LISTS,
+	"Lists may not contain lists", //	LSRF_NESTING_LISTS,
+	"CLI Exception" // LSRF_CLI
 };
 
-//static
-S64 LLScriptExecute::sGlobalInstructionCount = 0;
-
-LLScriptExecute::LLScriptExecute(LLFILE *fp)
+LLScriptExecuteLSL2::LLScriptExecuteLSL2(LLFILE *fp)
 {
 	U8  sizearray[4];
 	S32 filesize;
@@ -84,19 +83,26 @@ LLScriptExecute::LLScriptExecute(LLFILE *fp)
 	init();
 }
 
-LLScriptExecute::LLScriptExecute(U8 *buffer)
+LLScriptExecuteLSL2::LLScriptExecuteLSL2(const U8* bytecode, U32 bytecode_size)
 {
-	mBuffer = buffer;
-
+	mBuffer = new U8[TOP_OF_MEMORY];
+	memset(mBuffer + bytecode_size, 0, TOP_OF_MEMORY - bytecode_size);
+	S32 src_offset = 0;
+	S32 dest_offset = 0;
+	bytestream2bytestream(mBuffer, dest_offset, bytecode, src_offset, bytecode_size);
+	mBytecodeSize = bytecode_size;
+	mBytecode = new U8[mBytecodeSize];
+	memcpy(mBytecode, bytecode, mBytecodeSize);
 	init();
 }
 
-LLScriptExecute::~LLScriptExecute()
+LLScriptExecuteLSL2::~LLScriptExecuteLSL2()
 {
-	delete [] mBuffer;
+	delete[] mBuffer;
+	delete[] mBytecode;
 }
 
-void LLScriptExecute::init()
+void LLScriptExecuteLSL2::init()
 {
 	S32 i, j;
 
@@ -270,7 +276,7 @@ void LLScriptExecute::init()
 
 
 // Utility routine for when there's a boundary error parsing bytecode
-void LLScriptExecute::recordBoundaryError( const LLUUID &id )
+void LLScriptExecuteLSL2::recordBoundaryError( const LLUUID &id )
 {
 	set_fault(mBuffer, LSRF_BOUND_CHECK_ERROR);
 	llwarns << "Script boundary error for ID " << id << llendl;
@@ -278,7 +284,7 @@ void LLScriptExecute::recordBoundaryError( const LLUUID &id )
 
 
 //	set IP to the event handler with some error checking
-void LLScriptExecute::setStateEventOpcoodeStartSafely( S32 state, LSCRIPTStateEventType event, const LLUUID &id )
+void LLScriptExecuteLSL2::setStateEventOpcoodeStartSafely( S32 state, LSCRIPTStateEventType event, const LLUUID &id )
 {
 	S32			opcode_start = get_state_event_opcoode_start( mBuffer, state, event );
 	if ( opcode_start == -1 )
@@ -296,12 +302,474 @@ void LLScriptExecute::setStateEventOpcoodeStartSafely( S32 state, LSCRIPTStateEv
 
 S32 lscript_push_variable(LLScriptLibData *data, U8 *buffer);
 
-U32 LLScriptExecute::run(BOOL b_print, const LLUUID &id, const char **errorstr, BOOL &state_transition)
+void LLScriptExecuteLSL2::resumeEventHandler(BOOL b_print, const LLUUID &id, F32 time_slice)
+{
+	//	call opcode run function pointer with buffer and IP
+	mInstructionCount++;
+	S32 value = get_register(mBuffer, LREG_IP);
+	S32 tvalue = value;
+	S32	opcode = safe_instruction_bytestream2byte(mBuffer, tvalue);
+	mExecuteFuncs[opcode](mBuffer, value, b_print, id);
+	set_ip(mBuffer, value);
+	add_register_fp(mBuffer, LREG_ESR, -0.1f);
+	//	lsa_print_heap(mBuffer);
+
+	if (b_print)
+	{
+		lsa_print_heap(mBuffer);
+		printf("ip: 0x%X\n", get_register(mBuffer, LREG_IP));
+		printf("sp: 0x%X\n", get_register(mBuffer, LREG_SP));
+		printf("bp: 0x%X\n", get_register(mBuffer, LREG_BP));
+		printf("hr: 0x%X\n", get_register(mBuffer, LREG_HR));
+		printf("hp: 0x%X\n", get_register(mBuffer, LREG_HP));
+	}
+
+	// NOTE: Babbage: all mExecuteFuncs return false.
+}
+
+void LLScriptExecuteLSL2::callEventHandler(LSCRIPTStateEventType event, S32 major_version, const LLUUID &id, F32 time_slice)
+{
+	// push a zero to be popped
+	lscript_push(mBuffer, 0);
+	// push sp as current bp
+	S32 sp = get_register(mBuffer, LREG_SP);
+	lscript_push(mBuffer, sp);
+
+	// Update current handler and current events registers.
+	set_event_register(mBuffer, LREG_IE, LSCRIPTStateBitField[event], major_version);
+	U64 current_events = get_event_register(mBuffer, LREG_CE, major_version);
+	current_events &= ~LSCRIPTStateBitField[event];
+	set_event_register(mBuffer, LREG_CE, current_events, major_version);
+
+	// now, push any additional stack space
+	U32 current_state = get_register(mBuffer, LREG_CS);
+	S32 additional_size = get_event_stack_size(mBuffer, current_state, event);
+	lscript_pusharge(mBuffer, additional_size);
+
+	// now set the bp correctly
+	sp = get_register(mBuffer, LREG_SP);
+	sp += additional_size;
+	set_bp(mBuffer, sp);
+
+	// set IP to the function
+	S32			opcode_start = get_state_event_opcoode_start(mBuffer, current_state, event);
+	set_ip(mBuffer, opcode_start);
+}
+
+//void callStateExitHandler()
+//{
+//	// push a zero to be popped
+//	lscript_push(mBuffer, 0);
+//	// push sp as current bp
+//	S32 sp = get_register(mBuffer, LREG_SP);
+//	lscript_push(mBuffer, sp);
+//
+//	// now, push any additional stack space
+//	S32 additional_size = get_event_stack_size(mBuffer, current_state, LSTT_STATE_EXIT);
+//	lscript_pusharge(mBuffer, additional_size);
+//
+//	sp = get_register(mBuffer, LREG_SP);
+//	sp += additional_size;
+//	set_bp(mBuffer, sp);
+//
+//	// set IP to the event handler
+//	S32			opcode_start = get_state_event_opcoode_start(mBuffer, current_state, LSTT_STATE_EXIT);
+//	set_ip(mBuffer, opcode_start);
+//}
+//
+//void callStateEntryHandler()
+//{
+//	// push a zero to be popped
+//	lscript_push(mBuffer, 0);
+//	// push sp as current bp
+//	S32 sp = get_register(mBuffer, LREG_SP);
+//	lscript_push(mBuffer, sp);
+//
+//	event = return_first_event((S32)LSCRIPTStateBitField[LSTT_STATE_ENTRY]);
+//	set_event_register(mBuffer, LREG_IE, LSCRIPTStateBitField[event], major_version);
+//	current_events &= ~LSCRIPTStateBitField[event];
+//	set_event_register(mBuffer, LREG_CE, current_events, major_version);
+//
+//	// now, push any additional stack space
+//	S32 additional_size = get_event_stack_size(mBuffer, current_state, event) - size;
+//	lscript_pusharge(mBuffer, additional_size);
+//
+//	// now set the bp correctly
+//	sp = get_register(mBuffer, LREG_SP);
+//	sp += additional_size + size;
+//	set_bp(mBuffer, sp);
+//	// set IP to the function
+//	S32			opcode_start = get_state_event_opcoode_start(mBuffer, current_state, event);
+//	set_ip(mBuffer, opcode_start);
+//}
+
+void LLScriptExecuteLSL2::callQueuedEventHandler(LSCRIPTStateEventType event, S32 major_version, const LLUUID &id, F32 time_slice)
+{
+	LLScriptDataCollection* eventdata;
+
+	for (eventdata = mEventData.mEventDataList.getFirstData(); eventdata; eventdata = mEventData.mEventDataList.getNextData())
+	{
+		if (eventdata->mType == event)
+		{
+			// push a zero to be popped
+			lscript_push(mBuffer, 0);
+			// push sp as current bp
+			S32 sp = get_register(mBuffer, LREG_SP);
+			lscript_push(mBuffer, sp);
+
+			// Update current handler and current events registers.
+			set_event_register(mBuffer, LREG_IE, LSCRIPTStateBitField[event], major_version);
+			U64 current_events = get_event_register(mBuffer, LREG_CE, major_version);
+			current_events &= ~LSCRIPTStateBitField[event];
+			set_event_register(mBuffer, LREG_CE, current_events, major_version);
+
+			// push any arguments that need to be pushed onto the stack
+			// last piece of data will be type LST_NULL
+			LLScriptLibData	*data = eventdata->mData;
+			U32 size = 0;
+			while (data->mType)
+			{
+				size += lscript_push_variable(data, mBuffer);
+				data++;
+			}
+			// now, push any additional stack space
+			U32 current_state = get_register(mBuffer, LREG_CS);
+			S32 additional_size = get_event_stack_size(mBuffer, current_state, event) - size;
+			lscript_pusharge(mBuffer, additional_size);
+
+			// now set the bp correctly
+			sp = get_register(mBuffer, LREG_SP);
+			sp += additional_size + size;
+			set_bp(mBuffer, sp);
+
+			// set IP to the function
+			S32			opcode_start = get_state_event_opcoode_start(mBuffer, current_state, event);
+			set_ip(mBuffer, opcode_start);
+
+			mEventData.mEventDataList.deleteCurrentData();
+			break;
+		}
+	}
+}
+
+void LLScriptExecuteLSL2::callNextQueuedEventHandler(U64 event_register, S32 major_version, const LLUUID &id, F32 time_slice)
+{
+	LLScriptDataCollection* eventdata = mEventData.getNextEvent();
+	if (eventdata)
+	{
+		LSCRIPTStateEventType event = eventdata->mType;
+
+		// make sure that we can actually handle this one
+		if (LSCRIPTStateBitField[event] & event_register)
+		{
+			// push a zero to be popped
+			lscript_push(mBuffer, 0);
+			// push sp as current bp
+			S32 sp = get_register(mBuffer, LREG_SP);
+			lscript_push(mBuffer, sp);
+
+			// Update current handler and current events registers.
+			set_event_register(mBuffer, LREG_IE, LSCRIPTStateBitField[event], major_version);
+			U64 current_events = get_event_register(mBuffer, LREG_CE, major_version);
+			current_events &= ~LSCRIPTStateBitField[event];
+			set_event_register(mBuffer, LREG_CE, current_events, major_version);
+
+			// push any arguments that need to be pushed onto the stack
+			// last piece of data will be type LST_NULL
+			LLScriptLibData	*data = eventdata->mData;
+			U32 size = 0;
+			while (data->mType)
+			{
+				size += lscript_push_variable(data, mBuffer);
+				data++;
+			}
+
+			// now, push any additional stack space
+			U32 current_state = get_register(mBuffer, LREG_CS);
+			S32 additional_size = get_event_stack_size(mBuffer, current_state, event) - size;
+			lscript_pusharge(mBuffer, additional_size);
+
+			// now set the bp correctly
+			sp = get_register(mBuffer, LREG_SP);
+			sp += additional_size + size;
+			set_bp(mBuffer, sp);
+
+			// set IP to the function
+			S32			opcode_start = get_state_event_opcoode_start(mBuffer, current_state, event);
+			set_ip(mBuffer, opcode_start);
+		}
+		else
+		{
+			llwarns << "Shit, somehow got an event that we're not registered for!" << llendl;
+		}
+		delete eventdata;
+	}
+}
+
+U64 LLScriptExecuteLSL2::nextState()
+{
+	// copy NS to CS
+	S32 next_state = get_register(mBuffer, LREG_NS);
+	set_register(mBuffer, LREG_CS, next_state);
+
+	// copy new state's handled events into ER (SR + CS*4 + 4)
+	return get_handled_events(mBuffer, next_state);
+}
+
+//virtual 
+void LLScriptExecuteLSL2::addEvent(LLScriptDataCollection* event)
+{
+	mEventData.addEventData(event);
+}
+
+//virtual 
+void LLScriptExecuteLSL2::removeEventType(LSCRIPTStateEventType event_type)
+{
+	mEventData.removeEventType(event_type);
+}
+
+//virtual 
+F32 LLScriptExecuteLSL2::getSleep() const
+{
+	return get_register_fp(mBuffer, LREG_SLR);
+}
+
+//virtual 
+void LLScriptExecuteLSL2::setSleep(F32 value)
+{
+	set_register_fp(mBuffer, LREG_SLR, value);
+}
+
+//virtual 
+U64 LLScriptExecuteLSL2::getCurrentHandler(S32 version)
+{
+	return get_event_register(mBuffer, LREG_IE, version);
+}
+
+//virtual 
+F32 LLScriptExecuteLSL2::getEnergy() const
+{
+	return get_register_fp(mBuffer, LREG_ESR);
+}
+
+//virtual 
+void LLScriptExecuteLSL2::setEnergy(F32 value)
+{
+	set_register_fp(mBuffer, LREG_ESR, value);
+}
+
+//virtual 
+U32 LLScriptExecuteLSL2::getFreeMemory()
+{
+	return get_register(mBuffer, LREG_SP) - get_register(mBuffer, LREG_HP);
+}
+
+//virtual 
+S32 LLScriptExecuteLSL2::getParameter()
+{
+	return get_register(mBuffer, LREG_PR);
+}
+
+//virtual 
+void LLScriptExecuteLSL2::setParameter(S32 value)
+{
+	set_register(mBuffer, LREG_PR, value);
+}
+
+
+S32 LLScriptExecuteLSL2::writeState(U8 **dest, U32 header_size, U32 footer_size)
+{
+	// data format:
+	// 4 bytes of size of Registers, Name and Description, and Global Variables
+	// Registers, Name and Description, and Global Variables data
+	// 4 bytes of size of Heap
+	// Heap data
+	// 4 bytes of stack size
+	// Stack data
+
+	S32 registers_size = get_register(mBuffer, LREG_GFR);
+
+	if (get_register(mBuffer, LREG_HP) > TOP_OF_MEMORY)
+		reset_hp_to_safe_spot(mBuffer);
+
+	S32 heap_size = get_register(mBuffer, LREG_HP) - get_register(mBuffer, LREG_HR);
+	S32 stack_size = get_register(mBuffer, LREG_TM) - get_register(mBuffer, LREG_SP);
+	S32 total_size = registers_size + LSCRIPTDataSize[LST_INTEGER] + 
+						heap_size + LSCRIPTDataSize[LST_INTEGER] + 
+						stack_size + LSCRIPTDataSize[LST_INTEGER];
+
+	// actually allocate data
+	delete[] *dest;
+	*dest = new U8[header_size + total_size + footer_size];
+	memset(*dest, 0, header_size + total_size + footer_size);
+	S32 dest_offset = header_size;
+	S32 src_offset = 0;
+
+	// registers
+	integer2bytestream(*dest, dest_offset, registers_size);
+
+	// llinfos << "Writing CE: " << getCurrentEvents() << llendl;
+	bytestream2bytestream(*dest, dest_offset, mBuffer, src_offset, registers_size);
+
+	// heap
+	integer2bytestream(*dest, dest_offset, heap_size);
+
+	src_offset = get_register(mBuffer, LREG_HR);
+	bytestream2bytestream(*dest, dest_offset, mBuffer, src_offset, heap_size);
+
+	// stack
+	integer2bytestream(*dest, dest_offset, stack_size);
+
+	src_offset = get_register(mBuffer, LREG_SP);
+	bytestream2bytestream(*dest, dest_offset, mBuffer, src_offset, stack_size);
+
+	return total_size;
+}
+
+S32 LLScriptExecuteLSL2::writeBytecode(U8 **dest)
+{
+	// data format:
+	// registers through top of heap
+	// Heap data
+	S32 total_size = get_register(mBuffer, LREG_HP);
+
+	// actually allocate data
+	delete [] *dest;
+	*dest = new U8[total_size];
+	S32 dest_offset = 0;
+	S32 src_offset = 0;
+
+	bytestream2bytestream(*dest, dest_offset, mBuffer, src_offset, total_size);
+
+	return total_size;
+}
+
+S32 LLScriptExecuteLSL2::readState(U8 *src)
+{
+	// first, blitz heap and stack
+	S32 hr = get_register(mBuffer, LREG_HR);
+	S32 tm = get_register(mBuffer, LREG_TM);
+	memset(mBuffer + hr, 0, tm - hr);
+
+	S32 src_offset = 0;
+	S32 dest_offset = 0;
+	S32 size;
+
+	// read register size
+	size = bytestream2integer(src, src_offset);
+
+	// copy data into register area
+	bytestream2bytestream(mBuffer, dest_offset, src, src_offset, size);
+//	llinfos << "Read CE: " << getCurrentEvents() << llendl;
+	if (get_register(mBuffer, LREG_TM) != TOP_OF_MEMORY)
+	{
+		llwarns << "Invalid state. Top of memory register does not match"
+				<< " constant." << llendl;
+		reset_hp_to_safe_spot(mBuffer);
+		return -1;
+	}
+	
+	// read heap size
+	size = bytestream2integer(src, src_offset);
+
+	// set dest offset
+	dest_offset = get_register(mBuffer, LREG_HR);
+
+	if (dest_offset + size > TOP_OF_MEMORY)
+	{
+		reset_hp_to_safe_spot(mBuffer);
+		return -1;
+	}
+
+	// copy data into heap area
+	bytestream2bytestream(mBuffer, dest_offset, src, src_offset, size);
+
+	// read stack size
+	size = bytestream2integer(src, src_offset);
+
+	// set dest offset
+	dest_offset = get_register(mBuffer, LREG_SP);
+
+	if (dest_offset + size > TOP_OF_MEMORY)
+	{
+		reset_hp_to_safe_spot(mBuffer);
+		return -1;
+	}
+
+	// copy data into heap area
+	bytestream2bytestream(mBuffer, dest_offset, src, src_offset, size);
+
+	// Return offset to first byte after read data.
+	return src_offset;
+}
+
+void LLScriptExecuteLSL2::reset()
+{
+	LLScriptExecute::reset();
+
+	const U8 *src = getBytecode();
+	S32 size = getBytecodeSize();
+
+	if (!src)
+		return;
+
+	// first, blitz heap and stack
+	S32 hr = get_register(mBuffer, LREG_HR);
+	S32 tm = get_register(mBuffer, LREG_TM);
+	memset(mBuffer + hr, 0, tm - hr);
+
+	S32 dest_offset = 0;
+	S32 src_offset = 0;
+
+	bytestream2bytestream(mBuffer, dest_offset, src, src_offset, size);
+}
+
+LLScriptExecute::LLScriptExecute() :
+	mReset(FALSE)
+{
+}
+
+void LLScriptExecute::reset()
+{
+	mReset = FALSE;
+}
+
+bool LLScriptExecute::isYieldDue() const
+{
+	if(mReset)
+	{
+		return true;
+	}
+			
+	if(getSleep() > 0.f)
+	{
+		return true;
+	}
+
+	if(isFinished())
+	{
+		return true;
+	}
+
+	if(isStateChangePending())
+	{
+		return true;
+	}
+
+	return false;
+}
+
+// Run smallest number of instructions possible: 
+// a single instruction for LSL2, a segment between save tests for Mono
+void LLScriptExecute::runInstructions(BOOL b_print, const LLUUID &id, 
+									 const char **errorstr, 
+									 BOOL &state_transition, 
+									 U32& events_processed,
+									 F32 quanta)
 {
 	//  is there a fault?
 	//	if yes, print out message and exit
-	state_transition = FALSE;
-	S32 value = get_register(mBuffer, LREG_VN);
+	S32 value = getVersion();
 	S32 major_version = 0;
 	if (value == LSL2_VERSION1_END_NUMBER)
 	{
@@ -313,323 +781,151 @@ U32 LLScriptExecute::run(BOOL b_print, const LLUUID &id, const char **errorstr, 
 	}
 	else
 	{
-		set_fault(mBuffer, LSRF_VERSION_MISMATCH);
+		setFault(LSRF_VERSION_MISMATCH);
 	}
-	value = get_register(mBuffer, LREG_FR);
-	if (value)
+	value = getFaults();
+	if (value > LSRF_INVALID && value < LSRF_EOF)
 	{
 		if (b_print)
 		{
 			printf("Error!\n");
 		}
 		*errorstr = LSCRIPTRunTimeFaultStrings[value];
-		return NO_DELETE_FLAG;
+		return;
 	}
 	else
 	{
 		*errorstr = NULL;
 	}
 
-	//  Get IP
-	//  is IP nonzero?
-	value = get_register(mBuffer, LREG_IP);
-
-	if (value)
+	if (! isFinished())
 	{
-	//	if yes, we're in opcodes, execute the next opcode by:
-	//	call opcode run function pointer with buffer and IP
-		mInstructionCount++;
-		sGlobalInstructionCount++;
-		S32 tvalue = value;
-		S32	opcode = safe_instruction_bytestream2byte(mBuffer, tvalue);
-		S32 b_ret_val = mExecuteFuncs[opcode](mBuffer, value, b_print, id);
-		set_ip(mBuffer, value);
-		add_register_fp(mBuffer, LREG_ESR, -0.1f);
-	//	lsa_print_heap(mBuffer);
-
-		if (b_print)
-		{
-			lsa_print_heap(mBuffer);
-			printf("ip: 0x%X\n", get_register(mBuffer, LREG_IP));
-			printf("sp: 0x%X\n", get_register(mBuffer, LREG_SP));
-			printf("bp: 0x%X\n", get_register(mBuffer, LREG_BP));
-			printf("hr: 0x%X\n", get_register(mBuffer, LREG_HR));
-			printf("hp: 0x%X\n", get_register(mBuffer, LREG_HP));
-		}
-	//			update IP
-		if (b_ret_val)
-		{
-			return DELETE_FLAG | CREDIT_MONEY_FLAG;
-		}
-		else
-		{
-			return NO_DELETE_FLAG;
-		}
+		resumeEventHandler(b_print, id, quanta);
+		return;
 	}
 	else
 	{
 		// make sure that IE is zero
-		set_event_register(mBuffer, LREG_IE, 0, major_version);
+		setCurrentHandler(0, major_version);
 
-	//	if no, we're in a state and waiting for an event
-		S32 next_state = get_register(mBuffer, LREG_NS);
-		S32 current_state = get_register(mBuffer, LREG_CS);
-		U64 current_events = get_event_register(mBuffer, LREG_CE, major_version);
-		U64 event_register = get_event_register(mBuffer, LREG_ER, major_version);
-	//	check NS to see if need to switch states (NS != CS)
-		if (next_state != current_state)
+		//	if no, we're in a state and waiting for an event
+		U64 current_events = getCurrentEvents(major_version);
+		U64 event_register = getEventHandlers(major_version);
+
+		//	check NS to see if need to switch states (NS != CS)
+		if (isStateChangePending())
 		{
 			state_transition = TRUE;
-			// ok, blow away any pending events
-			mEventData.mEventDataList.deleteAllData();
 
-	//		if yes, check state exit flag is set
+			// ok, blow away any pending events
+			deleteAllEvents();
+
+			// if yes, check state exit flag is set
 			if (current_events & LSCRIPTStateBitField[LSTT_STATE_EXIT])
 			{
-	//			if yes, clear state exit flag
-				set_event_register(mBuffer, LREG_IE, LSCRIPTStateBitField[LSTT_STATE_EXIT], major_version);
+				// if yes, clear state exit flag
+				setCurrentHandler(LSCRIPTStateBitField[LSTT_STATE_EXIT], major_version);
 				current_events &= ~LSCRIPTStateBitField[LSTT_STATE_EXIT];
-				set_event_register(mBuffer, LREG_CE, current_events, major_version);
-	//			check state exit event handler
-	//				if there is a handler, call it
+				setCurrentEvents(current_events, major_version);
+
+				// check state exit event handler
+				// if there is a handler, call it
 				if (event_register & LSCRIPTStateBitField[LSTT_STATE_EXIT])
 				{
-		//			push a zero to be popped
-					lscript_push(mBuffer, 0);
-		//			push sp as current bp
-					S32 sp = get_register(mBuffer, LREG_SP);
-					lscript_push(mBuffer, sp);
-
-		//			now, push any additional stack space
-					S32 additional_size = get_event_stack_size(mBuffer, current_state, LSTT_STATE_EXIT);
-					if ( additional_size == -1 )
-					{	
-						recordBoundaryError( id );
-					}
-					else
-					{
-						lscript_pusharge(mBuffer, additional_size);
-
-						sp = get_register(mBuffer, LREG_SP);
-						sp += additional_size;
-						set_bp(mBuffer, sp);
-		//				set IP to the event handler
-						setStateEventOpcoodeStartSafely( current_state, LSTT_STATE_EXIT, id );
-					}
-					return NO_DELETE_FLAG;
+					++events_processed;
+					callEventHandler(LSTT_STATE_EXIT, major_version, id, quanta);
+					return;
 				}
 			}
-	//		if no handler or no state exit flag switch to new state
-	//		set state entry flag and clear other CE flags
-			current_events = LSCRIPTStateBitField[LSTT_STATE_ENTRY];
-			set_event_register(mBuffer, LREG_CE, current_events, major_version);
-	//		copy NS to CS
-			set_register(mBuffer, LREG_CS, next_state);
-	//		copy new state's handled events into ER (SR + CS*4 + 4)
-			U64 handled_events = get_handled_events(mBuffer, next_state);
-			set_event_register(mBuffer, LREG_ER, handled_events, major_version);
-		}
-//		check to see if any current events are covered by events handled by this state (CE & ER != 0)
-// now, we want to look like we were called like a function
-//		0x0000:		00 00 00 00 (return ip)
-//		0x0004:		bp			(current sp)
-//		0x0008:		parameters
-//		push sp
-//		add parameter size
-//		pop bp
-//		set ip
 
-		S32 size = 0;
-//			try to get next event from stack
+			// if no handler or no state exit flag switch to new state
+			// set state entry flag and clear other CE flags
+			current_events = LSCRIPTStateBitField[LSTT_STATE_ENTRY];
+			setCurrentEvents(current_events, major_version);
+
+			U64 handled_events = nextState();
+			setEventHandlers(handled_events, major_version);
+		}
+
+		// try to get next event from stack
 		BOOL b_done = FALSE;
 		LSCRIPTStateEventType event = LSTT_NULL;
-		LLScriptDataCollection *eventdata;
 
-		next_state = get_register(mBuffer, LREG_NS);
-		current_state = get_register(mBuffer, LREG_CS);
-		current_events = get_event_register(mBuffer, LREG_CE, major_version);
-		event_register = get_event_register(mBuffer, LREG_ER, major_version);
+		current_events = getCurrentEvents(major_version);
+		event_register = getEventHandlers(major_version);
 
 		// first, check to see if state_entry or onrez are raised and handled
-		if (  (current_events & LSCRIPTStateBitField[LSTT_STATE_ENTRY])
+		if ((current_events & LSCRIPTStateBitField[LSTT_STATE_ENTRY])
 			&&(current_events & event_register))
 		{
-			// ok, this is easy since there isn't any data waiting, just set it
-			//			push a zero to be popped
-			lscript_push(mBuffer, 0);
-//			push sp as current bp
-			S32 sp = get_register(mBuffer, LREG_SP);
-			lscript_push(mBuffer, sp);
-
-			event = return_first_event((S32)LSCRIPTStateBitField[LSTT_STATE_ENTRY]);
-			set_event_register(mBuffer, LREG_IE, LSCRIPTStateBitField[event], major_version);
-			current_events &= ~LSCRIPTStateBitField[event];
-			set_event_register(mBuffer, LREG_CE, current_events, major_version);
-//			now, push any additional stack space
-			S32 additional_size = get_event_stack_size(mBuffer, current_state, event);
-			if ( additional_size == -1 )
-			{	// b_done will be set, so we'll exit the loop at the bottom
-				recordBoundaryError( id );
-			}
-			else
-			{
-				additional_size -= size;
-				lscript_pusharge(mBuffer, additional_size);
-
-//			now set the bp correctly
-				sp = get_register(mBuffer, LREG_SP);
-				sp += additional_size + size;
-				set_bp(mBuffer, sp);
-//			set IP to the function
-				setStateEventOpcoodeStartSafely( current_state, event, id );
-			}
+			++events_processed;
+			callEventHandler(LSTT_STATE_ENTRY, major_version, id, quanta);
 			b_done = TRUE;
 		}
-		else if (  (current_events & LSCRIPTStateBitField[LSTT_REZ])
-				&&(current_events & event_register))
+		else if ((current_events & LSCRIPTStateBitField[LSTT_REZ])
+				 &&(current_events & event_register))
 		{
-			for (eventdata = mEventData.mEventDataList.getFirstData(); eventdata; eventdata = mEventData.mEventDataList.getNextData())
-			{
-				if (eventdata->mType & LSCRIPTStateBitField[LSTT_REZ])
-				{
-					//			push a zero to be popped
-					lscript_push(mBuffer, 0);
-		//			push sp as current bp
-					S32 sp = get_register(mBuffer, LREG_SP);
-					lscript_push(mBuffer, sp);
-
-					set_event_register(mBuffer, LREG_IE, LSCRIPTStateBitField[event], major_version);
-					current_events &= ~LSCRIPTStateBitField[event];
-					set_event_register(mBuffer, LREG_CE, current_events, major_version);
-
-	//				push any arguments that need to be pushed onto the stack
-					// last piece of data will be type LST_NULL
-					LLScriptLibData	*data = eventdata->mData;
-					while (data->mType)
-					{
-						size += lscript_push_variable(data, mBuffer);
-						data++;
-					}
-		//			now, push any additional stack space
-					S32 additional_size = get_event_stack_size(mBuffer, current_state, event);
-					if ( additional_size == -1 )
-					{	// b_done will be set, so we'll exit the loop at the bottom
-						recordBoundaryError( id );
-					}
-					else
-					{
-						additional_size -= size;
-						lscript_pusharge(mBuffer, additional_size);
-
-			//			now set the bp correctly
-						sp = get_register(mBuffer, LREG_SP);
-						sp += additional_size + size;
-						set_bp(mBuffer, sp);
-			//			set IP to the function
-						setStateEventOpcoodeStartSafely( current_state, event, id );
-						mEventData.mEventDataList.deleteCurrentData();
-					}
-					b_done = TRUE;
-					break;
-				}
-			}
+			++events_processed;
+			callQueuedEventHandler(LSTT_REZ, major_version, id, quanta);
+			b_done = TRUE;
 		}
 
 		while (!b_done)
 		{
-			eventdata = mEventData.getNextEvent();
-			if (eventdata)
+			// Call handler for next queued event.
+			if(getEventCount() > 0)
 			{
-				event = eventdata->mType;
-
-				// make sure that we can actually handle this one
-				if (LSCRIPTStateBitField[event] & event_register)
-				{
-					//			push a zero to be popped
-					lscript_push(mBuffer, 0);
-		//			push sp as current bp
-					S32 sp = get_register(mBuffer, LREG_SP);
-					lscript_push(mBuffer, sp);
-
-					set_event_register(mBuffer, LREG_IE, LSCRIPTStateBitField[event], major_version);
-					current_events &= ~LSCRIPTStateBitField[event];
-					set_event_register(mBuffer, LREG_CE, current_events, major_version);
-
-	//				push any arguments that need to be pushed onto the stack
-					// last piece of data will be type LST_NULL
-					LLScriptLibData	*data = eventdata->mData;
-					while (data->mType)
-					{
-						size += lscript_push_variable(data, mBuffer);
-						data++;
-					}
-					b_done = TRUE;
-		//			now, push any additional stack space
-					S32 additional_size = get_event_stack_size(mBuffer, current_state, event);
-					if ( additional_size == -1 )
-					{	// b_done was just set, so we'll exit the loop at the bottom
-						recordBoundaryError( id );
-					}
-					else
-					{
-						additional_size -= size;
-						lscript_pusharge(mBuffer, additional_size);
-
-			//			now set the bp correctly
-						sp = get_register(mBuffer, LREG_SP);
-						sp += additional_size + size;
-						set_bp(mBuffer, sp);
-			//			set IP to the function
-						setStateEventOpcoodeStartSafely( current_state, event, id );
-					}
-				}
-				else
-				{
-					llwarns << "Shit, somehow got an event that we're not registered for!" << llendl;
-				}
-				delete eventdata;
+				++events_processed;
+				callNextQueuedEventHandler(event_register, major_version, id, quanta);
+				b_done = TRUE;
 			}
 			else
 			{
-//				if no data waiting, do it the old way:
+				// if no data waiting, do it the old way:
 				U64 handled_current = current_events & event_register;
 				if (handled_current)
 				{
-					//			push a zero to be popped
-					lscript_push(mBuffer, 0);
-		//			push sp as current bp
-					S32 sp = get_register(mBuffer, LREG_SP);
-					lscript_push(mBuffer, sp);
-
 					event = return_first_event((S32)handled_current);
-					set_event_register(mBuffer, LREG_IE, LSCRIPTStateBitField[event], major_version);
-					current_events &= ~LSCRIPTStateBitField[event];
-					set_event_register(mBuffer, LREG_CE, current_events, major_version);
-		//			now, push any additional stack space
-					S32 additional_size = get_event_stack_size(mBuffer, current_state, event);
-					if ( additional_size == -1 )
-					{	// b_done will be set, so we'll exit the loop at the bottom
-						recordBoundaryError( id );
-					}
-					else
-					{
-						additional_size -= size;
-						lscript_pusharge(mBuffer, additional_size);
-
-			//			now set the bp correctly
-						sp = get_register(mBuffer, LREG_SP);
-						sp += additional_size + size;
-						set_bp(mBuffer, sp);
-			//			set IP to the function
-						setStateEventOpcoodeStartSafely( current_state, event, id );
-					}
+					++events_processed;
+					callEventHandler(event, major_version, id, quanta);
 				}
 				b_done = TRUE;
 			}
-		}	// while (!b_done)
-	} // end of else ...  in state processing code
+		}
+	}
+}
 
-	return NO_DELETE_FLAG;
+// Run for a single timeslice, or until a yield is due
+F32 LLScriptExecute::runQuanta(BOOL b_print, const LLUUID &id, const char **errorstr, BOOL &state_transition, F32 quanta, U32& events_processed, LLTimer& timer)
+{
+	U32 timer_checks = 0;
+	F32 inloop = 0;
+
+	// Loop while not finished, yield not due and time remaining
+	// NOTE: Default implementation does not do adaptive timer skipping
+	// to preserve current LSL behaviour and not break scripts that rely
+	// on current execution speed.
+	while(true)
+	{
+		runInstructions(b_print, id, errorstr, state_transition, 
+						events_processed, quanta);
+		
+		static const S32 lsl_timer_check_skip = 4;
+		if(isYieldDue())
+		{
+			break;
+		}
+		else if(timer_checks++ == lsl_timer_check_skip)
+		{
+			inloop = timer.getElapsedTimeF32();
+			if(inloop > quanta)
+			{
+				break;
+			}
+			timer_checks = 0;
+		}
+	}
+	return inloop;
 }
 
 BOOL run_noop(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id)
@@ -3687,6 +3983,11 @@ BOOL run_print(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id)
 void lscript_run(const std::string& filename, BOOL b_debug)
 {
 	LLTimer	timer;
+
+	const char *error;
+	BOOL b_state;
+	LLScriptExecuteLSL2 *execute = NULL;
+
 	if (filename.empty())
 	{
 		llerrs << "filename is NULL" << llendl;
@@ -3694,47 +3995,35 @@ void lscript_run(const std::string& filename, BOOL b_debug)
 		// to check how to abort or error out gracefully
 		// from this function. XXXTBD
 	}
-	else
+	LLFILE* file = LLFile::fopen(filename, "r");  /* Flawfinder: ignore */
+	if(file)
 	{
-		const char *error;
-		BOOL b_state;
-		LLScriptExecute *execute = NULL;
+		execute = new LLScriptExecuteLSL2(file);
+		fclose(file);
+	}
+	if (execute)
+	{
+		timer.reset();
+		F32 time_slice = 3600.0f; // 1 hr.
+		U32 events_processed = 0;
 
-		LLFILE* file = LLFile::fopen(filename, "r");
-		if (file)
-		{
-			execute = new LLScriptExecute(file);
-			// note: LLScriptExecute() closes file for us
-		}
-		file = LLFile::fopen(filename, "r");
-		if (file)
-		{
-			std::string parsefile("lscript.parse");
-			LLFILE* fp = LLFile::fopen(parsefile, "w");		/*Flawfinder: ignore*/
-			LLScriptLSOParse *parse = new LLScriptLSOParse(file);
-			parse->printData(fp);
-			delete parse;
-			fclose(file);
-			fclose(fp);
-		}
-		file = LLFile::fopen(filename, "r");
-		if (file && execute)
-		{
-			timer.reset();
-			while (!execute->run(b_debug, LLUUID::null, &error, b_state))
-				;
-			F32 time = timer.getElapsedTimeF32();
-			F32 ips = execute->mInstructionCount / time;
-			llinfos << execute->mInstructionCount << " instructions in " << time << " seconds" << llendl;
-			llinfos << ips/1000 << "K instructions per second" << llendl;
-			printf("ip: 0x%X\n", get_register(execute->mBuffer, LREG_IP));
-			printf("sp: 0x%X\n", get_register(execute->mBuffer, LREG_SP));
-			printf("bp: 0x%X\n", get_register(execute->mBuffer, LREG_BP));
-			printf("hr: 0x%X\n", get_register(execute->mBuffer, LREG_HR));
-			printf("hp: 0x%X\n", get_register(execute->mBuffer, LREG_HP));
-			delete execute;
-			fclose(file);
-		}
+		do {
+			LLTimer timer2;
+			execute->runQuanta(b_debug, LLUUID::null, &error, b_state, 
+							   time_slice, events_processed, timer2);
+		} while (!execute->isFinished());
+
+		F32 time = timer.getElapsedTimeF32();
+		F32 ips = execute->mInstructionCount / time;
+		llinfos << execute->mInstructionCount << " instructions in " << time << " seconds" << llendl;
+		llinfos << ips/1000 << "K instructions per second" << llendl;
+		printf("ip: 0x%X\n", get_register(execute->mBuffer, LREG_IP));
+		printf("sp: 0x%X\n", get_register(execute->mBuffer, LREG_SP));
+		printf("bp: 0x%X\n", get_register(execute->mBuffer, LREG_BP));
+		printf("hr: 0x%X\n", get_register(execute->mBuffer, LREG_HR));
+		printf("hp: 0x%X\n", get_register(execute->mBuffer, LREG_HP));
+		delete execute;
+		fclose(file);
 	}
 }
 

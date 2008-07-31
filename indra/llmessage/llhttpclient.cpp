@@ -122,7 +122,7 @@ namespace
 	{
 	public:
 		RawInjector(const U8* data, S32 size) : mData(data), mSize(size) {}
-		virtual ~RawInjector() {}
+		virtual ~RawInjector() {delete mData;}
 
 		const char* contentType() { return "application/octet-stream"; }
 
@@ -153,16 +153,21 @@ namespace
 			LLBufferStream ostream(channels, buffer.get());
 
 			llifstream fstream(mFilename, std::iostream::binary | std::iostream::out);
-            fstream.seekg(0, std::ios::end);
-            U32 fileSize = fstream.tellg();
-            fstream.seekg(0, std::ios::beg);
-			char* fileBuffer;
-			fileBuffer = new char [fileSize];
-            fstream.read(fileBuffer, fileSize);
-            ostream.write(fileBuffer, fileSize);
-			fstream.close();
-			eos = true;
-			return STATUS_DONE;
+			if(fstream.is_open())
+			{
+				fstream.seekg(0, std::ios::end);
+				U32 fileSize = fstream.tellg();
+				fstream.seekg(0, std::ios::beg);
+				char* fileBuffer;
+				fileBuffer = new char [fileSize];
+				fstream.read(fileBuffer, fileSize);
+				ostream.write(fileBuffer, fileSize);
+				fstream.close();
+				eos = true;
+				return STATUS_DONE;
+			}
+			
+			return STATUS_ERROR;
 		}
 
 		const std::string mFilename;
@@ -402,7 +407,7 @@ void LLHTTPClient::post(const std::string& url, const LLSD& body, ResponderPtr r
 	request(url, LLURLRequest::HTTP_POST, new LLSDInjector(body), responder, timeout);
 }
 
-void LLHTTPClient::post(const std::string& url, const U8* data, S32 size, ResponderPtr responder, const F32 timeout)
+void LLHTTPClient::postRaw(const std::string& url, const U8* data, S32 size, ResponderPtr responder, const F32 timeout)
 {
 	request(url, LLURLRequest::HTTP_POST, new RawInjector(data, size), responder, timeout);
 }

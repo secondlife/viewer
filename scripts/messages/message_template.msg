@@ -5335,6 +5335,7 @@ version 2.0
 		{	ObjectID		LLUUID	}
 		{	ItemID			LLUUID	}
 		{	Running			BOOL	}
+//		{	Mono			BOOL	} Added to LLSD message
 	}
 }
 

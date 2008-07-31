@@ -3464,8 +3464,8 @@ void process_sim_stats(LLMessageSystem *msg, void **user_data)
 		case LL_SIM_STAT_NUMSCRIPTSACTIVE:
 			LLViewerStats::getInstance()->mSimActiveScripts.addValue(stat_value);
 			break;
-		case LL_SIM_STAT_LSLIPS:
-			LLViewerStats::getInstance()->mSimLSLIPS.addValue(stat_value);
+		case LL_SIM_STAT_SCRIPT_EPS:
+			LLViewerStats::getInstance()->mSimScriptEPS.addValue(stat_value);
 			break;
 		case LL_SIM_STAT_INPPS:
 			LLViewerStats::getInstance()->mSimInPPS.addValue(stat_value);

@@ -71,14 +71,20 @@ LLSD getLLSD(const LLSD& input, const char* block, const char* var, S32 blocknum
 	}
 	if(! input[block].isArray())
 	{
-		llerrs << "block " << block << " not found" << llendl;
+		// NOTE: babbage: need to return default for missing blocks to allow
+		// backwards/forwards compatibility - handlers must cope with default
+		// values.
+		llwarns << "block " << block << " not found" << llendl;
 		return LLSD();
 	}
 
 	LLSD result = input[block][blocknum][var]; 
 	if(result.isUndefined())
 	{
-		llerrs << "var " << var << " not found" << llendl;
+		// NOTE: babbage: need to return default for missing vars to allow
+		// backwards/forwards compatibility - handlers must cope with default
+		// values.
+		llwarns << "var " << var << " not found" << llendl;
 	}
 	return result;
 }

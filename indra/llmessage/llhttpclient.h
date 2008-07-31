@@ -72,8 +72,12 @@ public:
 	static void getHeaderOnly(const std::string& url, ResponderPtr, const LLSD& headers, const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
 
 	static void post(const std::string& url, const LLSD& body, ResponderPtr, const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
-	static void post(const std::string& url, const U8* data, S32 size, ResponderPtr responder, const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
+
+	/** Takes ownership of data and deletes it when sent */
+	static void postRaw(const std::string& url, const U8* data, S32 size, ResponderPtr responder, const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
+	
 	static void postFile(const std::string& url, const std::string& filename, ResponderPtr, const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
+	#
 	static void postFile(const std::string& url, const LLUUID& uuid,
 		LLAssetType::EType asset_type, ResponderPtr responder, const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
 

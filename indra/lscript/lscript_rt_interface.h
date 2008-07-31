@@ -32,9 +32,9 @@
 #ifndef LL_LSCRIPT_RT_INTERFACE_H
 #define LL_LSCRIPT_RT_INTERFACE_H
 
-BOOL lscript_compile(char *filename, BOOL is_god_like = FALSE);
+BOOL lscript_compile(char *filename, BOOL compile_to_mono, BOOL is_god_like = FALSE);
 BOOL lscript_compile(const char* src_filename, const char* dst_filename,
-					 const char* err_filename, BOOL is_god_like = FALSE);
+					 const char* err_filename, BOOL compile_to_mono, const char* class_name, BOOL is_god_like = FALSE);
 void lscript_run(const std::string& filename, BOOL b_debug);
 
 

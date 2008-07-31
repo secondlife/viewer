@@ -66,6 +66,7 @@ set(viewer_SOURCE_FILES
     llanimstatelabels.cpp
     llappviewer.cpp
     llassetuploadresponders.cpp
+    llassetuploadqueue.cpp
     llaudiosourcevo.cpp
     llbbox.cpp
     llbox.cpp
@@ -454,6 +455,7 @@ set(viewer_HEADER_FILES
     llappearance.h
     llappviewer.h
     llassetuploadresponders.h
+    llassetuploadqueue.h
     llaudiosourcevo.h
     llbbox.h
     llbox.h

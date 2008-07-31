@@ -512,25 +512,11 @@ typedef enum e_lscript_runtime_faults
 	LSRF_CHAT_OVERRUN,
 	LSRF_TOO_MANY_LISTENS,
 	LSRF_NESTING_LISTS,
+	LSRF_CLI,
 	LSRF_EOF
 } LSCRIPTRunTimeFaults;
 
 extern const char* LSCRIPTRunTimeFaultStrings[LSRF_EOF]; 	/*Flawfinder: ignore*/
-
-const S32 LSCRIPTRunTimeFaultBits[LSRF_EOF] =
-{
-	0,		//	LSRF_INVALID
-	1,		//	LSRF_MATH
-	2,		//	LSRF_STACK_HEAP_COLLISION
-	3,		//	LSREF_BOUND_CHECK_ERROR
-	4,		//	LSREF_HEAP_ERROR
-	5,		//	LSREF_VERSION_MISMATCH
-	6,		//	LSREF_MISSING_INVENTORY
-	7,		//	LSRF_SANDBOX
-	8,		//	LSRF_CHAT_OVERRUN
-	9,		//	LSRF_TOO_MANY_LISTENS
-	10,		//	LSRF_NESTING_LISTS
-};
 
 typedef enum e_lscript_runtime_permissions
 {

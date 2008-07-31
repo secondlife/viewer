@@ -17,6 +17,7 @@ set(cmake_SOURCE_FILES
     CURL.cmake
     CMakeCopyIfDifferent.cmake
     CopyWinLibs.cmake
+    CSharpMacros.cmake
     DirectX.cmake
     ELFIO.cmake
     EXPAT.cmake
@@ -25,6 +26,7 @@ set(cmake_SOURCE_FILES
     FindCARes.cmake
     FindELFIO.cmake
     FindGooglePerfTools.cmake
+    FindMono.cmake
     FindMySQL.cmake
     FindOpenJPEG.cmake
     FindXmlRpcEpi.cmake
@@ -55,6 +57,7 @@ set(cmake_SOURCE_FILES
     LLXML.cmake
     LScript.cmake
     Linking.cmake
+    MonoEmbed.cmake
     Mozlib.cmake
     MySQL.cmake
     NDOF.cmake

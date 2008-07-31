@@ -6160,9 +6160,13 @@ class LLToolsSelectedScriptAction : public view_listener_t
 	{
 		std::string action = userdata.asString();
 		LLFloaterScriptQueue* queue = NULL;
-		if (action == "compile")
+		if (action == "compile mono")
 		{
-			queue = LLFloaterCompileQueue::create();
+			queue = LLFloaterCompileQueue::create(TRUE);
+		}
+		if (action == "compile lsl")
+		{
+			queue = LLFloaterCompileQueue::create(FALSE);
 		}
 		else if (action == "reset")
 		{
@@ -6405,13 +6409,33 @@ BOOL enable_more_than_one_selected(void* )
 	return (LLSelectMgr::getInstance()->getSelection()->getObjectCount() > 1);
 }
 
+static bool is_editable_selected()
+{
+	return (LLSelectMgr::getInstance()->getSelection()->getFirstEditableObject() != NULL);
+}
+
 class LLEditableSelected : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		bool new_value = (LLSelectMgr::getInstance()->getSelection()->getFirstEditableObject() != NULL);
-		gMenuHolder->findControl(userdata["control"].asString())->setValue(new_value);
+		gMenuHolder->findControl(userdata["control"].asString())->setValue(is_editable_selected());
 		return true;
+	}
+};
+
+class LLEditableSelectedMono : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		LLViewerRegion* region = gAgent.getRegion();
+		if(region && gMenuHolder && gMenuHolder->findControl(userdata["control"].asString()))
+		{
+			bool have_cap = (! region->getCapability("UpdateScriptTaskInventory").empty());
+			bool selected = is_editable_selected() && have_cap;
+			gMenuHolder->findControl(userdata["control"].asString())->setValue(selected);
+			return true;
+		}
+		return false;
 	}
 };
 
@@ -7842,4 +7866,5 @@ void initialize_menus()
 	addMenu(new LLSomethingSelected(), "SomethingSelected");
 	addMenu(new LLSomethingSelectedNoHUD(), "SomethingSelectedNoHUD");
 	addMenu(new LLEditableSelected(), "EditableSelected");
+	addMenu(new LLEditableSelectedMono(), "EditableSelectedMono");
 }

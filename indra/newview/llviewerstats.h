@@ -63,7 +63,7 @@ public:
 	LLStat mSimFPS;
 	LLStat mSimPhysicsFPS;
 	LLStat mSimAgentUPS;
-	LLStat mSimLSLIPS;
+	LLStat mSimScriptEPS;
 
 	LLStat mSimFrameMsec;
 	LLStat mSimNetMsec;

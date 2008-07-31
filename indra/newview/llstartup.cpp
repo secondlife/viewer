@@ -3381,13 +3381,13 @@ void init_stat_view()
 	stat_barp->mDisplayBar = FALSE;
 	stat_barp->mDisplayMean = FALSE;
 
-	stat_barp = sim_statviewp->addStat("Script Perf", &(LLViewerStats::getInstance()->mSimLSLIPS));
-	stat_barp->setUnitLabel(" ips");
+	stat_barp = sim_statviewp->addStat("Script Events", &(LLViewerStats::getInstance()->mSimScriptEPS));
+	stat_barp->setUnitLabel(" eps");
 	stat_barp->mPrecision = 0;
 	stat_barp->mMinBar = 0.f;
-	stat_barp->mMaxBar = 100000.f;
-	stat_barp->mTickSpacing = 25000.f;
-	stat_barp->mLabelSpacing = 50000.f;
+	stat_barp->mMaxBar = 20000.f;
+	stat_barp->mTickSpacing = 2500.f;
+	stat_barp->mLabelSpacing = 5000.f;
 	stat_barp->mPerSec = FALSE;
 	stat_barp->mDisplayBar = FALSE;
 	stat_barp->mDisplayMean = FALSE;

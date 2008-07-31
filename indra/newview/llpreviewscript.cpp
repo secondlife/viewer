@@ -139,6 +139,12 @@ const S32 TEXT_EDIT_COLUMN_HEIGHT = 16;
 const S32 MAX_HISTORY_COUNT = 10;
 const F32 LIVE_HELP_REFRESH_TIME = 1.f;
 
+static bool have_script_upload_cap(LLUUID& object_id)
+{
+	LLViewerObject* object = gObjectList.findObject(object_id);
+	return object && (! object->getRegion()->getCapability("UpdateScriptTaskInventory").empty());
+}
+
 /// ---------------------------------------------------------------------------
 /// LLFloaterScriptSearch
 /// ---------------------------------------------------------------------------
@@ -173,7 +179,7 @@ private:
 LLFloaterScriptSearch* LLFloaterScriptSearch::sInstance = NULL;
 
 LLFloaterScriptSearch::LLFloaterScriptSearch(std::string title, LLRect rect, LLScriptEdCore* editor_core)
-	: LLFloater(std::string("script search"),rect,title), mEditorCore(editor_core)
+	: LLFloater("script	search",rect,title), mEditorCore(editor_core)
 {
 	
 	LLUICtrlFactory::getInstance()->buildFloater(this,"floater_script_search.xml");
@@ -306,14 +312,15 @@ LLScriptEdCore::LLScriptEdCore(
 	mUserdata( userdata ),
 	mForceClose( FALSE ),
 	mLastHelpToken(NULL),
-	mLiveHelpHistorySize(0)
+	mLiveHelpHistorySize(0),
+	mEnableSave(FALSE)
 {
 	setFollowsAll();
 	setBorderVisible(FALSE);
 
 	
 	LLUICtrlFactory::getInstance()->buildPanel(this, "floater_script_ed_panel.xml");
-	
+
 	mErrorList = getChild<LLScrollListCtrl>("lsl errors");
 
 	mFunctions = getChild<LLComboBox>( "Insert...");
@@ -439,13 +446,13 @@ BOOL LLScriptEdCore::hasChanged(void* userdata)
 	LLScriptEdCore* self = (LLScriptEdCore*)userdata;
 	if (!self || !self->mEditor) return FALSE;
 
-	return !self->mEditor->isPristine();
+	return !self->mEditor->isPristine() || self->mEnableSave;
 }
 
 void LLScriptEdCore::draw()
 {
-	BOOL script_changed = !mEditor->isPristine();
-	childSetEnabled("Save_btn", script_changed);
+	BOOL script_changed	= hasChanged(this);
+	childSetEnabled("Save_btn",	script_changed);
 
 	if( mEditor->hasFocus() )
 	{
@@ -594,7 +601,7 @@ void LLScriptEdCore::addHelpItemToHistory(const std::string& help_string)
 
 BOOL LLScriptEdCore::canClose()
 {
-	if(mForceClose || mEditor->isPristine())
+	if(mForceClose || !hasChanged(this))
 	{
 		return TRUE;
 	}
@@ -1133,7 +1140,9 @@ void LLPreviewLSL::callbackLSLCompileFailed(const LLSD& compile_errors)
 		line++)
 	{
 		LLSD row;
-		row["columns"][0]["value"] = line->asString();
+		std::string error_message = line->asString();
+		LLStringUtil::stripNonprintable(error_message);
+		row["columns"][0]["value"] = error_message;
 		row["columns"][0]["font"] = "OCRA";
 		mScriptEd->mErrorList->addElement(row);
 	}
@@ -1247,7 +1256,7 @@ void LLPreviewLSL::onSave(void* userdata, BOOL close_after_save)
 void LLPreviewLSL::saveIfNeeded()
 {
 	// llinfos << "LLPreviewLSL::saveIfNeeded()" << llendl;
-	if(mScriptEd->mEditor->isPristine())
+	if(!LLScriptEdCore::hasChanged(mScriptEd))
 	{
 		return;
 	}
@@ -1305,7 +1314,8 @@ void LLPreviewLSL::uploadAssetViaCaps(const std::string& url,
 	llinfos << "Update Agent Inventory via capability" << llendl;
 	LLSD body;
 	body["item_id"] = item_id;
-	LLHTTPClient::post(url, body, new LLUpdateAgentInventoryResponder(body, filename));
+	body["target"] = "lsl2";
+	LLHTTPClient::post(url, body, new LLUpdateAgentInventoryResponder(body, filename, LLAssetType::AT_LSL_TEXT));
 }
 
 void LLPreviewLSL::uploadAssetLegacy(const std::string& filename,
@@ -1326,9 +1336,12 @@ void LLPreviewLSL::uploadAssetLegacy(const std::string& filename,
 	std::string dst_filename = llformat("%s.lso", filepath.c_str());
 	std::string err_filename = llformat("%s.out", filepath.c_str());
 
+	const BOOL compile_to_mono = FALSE;
 	if(!lscript_compile(filename.c_str(),
 						dst_filename.c_str(),
 						err_filename.c_str(),
+						compile_to_mono,
+						asset_id.asString().c_str(),
 						gAgent.isGodlike()))
 	{
 		llinfos << "Compile failed!" << llendl;
@@ -1601,7 +1614,8 @@ LLLiveLSLEditor::LLLiveLSLEditor(const std::string& name,
 	mAskedForRunningInfo(FALSE),
 	mHaveRunningInfo(FALSE),
 	mCloseAfterSave(FALSE),
-	mPendingUploads(0)
+	mPendingUploads(0),
+	mIsModifiable(FALSE)
 {
 
 	
@@ -1615,13 +1629,14 @@ LLLiveLSLEditor::LLLiveLSLEditor(const std::string& name,
 
 	LLLiveLSLEditor::sInstances.addData(mItemID ^ mObjectID, this);
 
-
-
 	LLCallbackMap::map_t factory_map;
 	factory_map["script ed panel"] = LLCallbackMap(LLLiveLSLEditor::createScriptEdPanel, this);
 
 	LLUICtrlFactory::getInstance()->buildFloater(this,"floater_live_lsleditor.xml", &factory_map);
-
+	
+	mMonoCheckbox =	getChild<LLCheckBoxCtrl>("mono");
+	childSetCommitCallback("mono", &LLLiveLSLEditor::onMonoCheckboxClicked, this);
+	childSetEnabled("mono", FALSE);
 
 	childSetCommitCallback("running", LLLiveLSLEditor::onRunningCheckboxClicked, this);
 	childSetEnabled("running", FALSE);
@@ -1633,7 +1648,6 @@ LLLiveLSLEditor::LLLiveLSLEditor(const std::string& name,
 	mScriptEd->mEditor->makePristine();
 	loadAsset(is_new);
 	mScriptEd->mEditor->setFocus(TRUE);
-
 	
 	if (!getHost())
 	{
@@ -1677,7 +1691,9 @@ void LLLiveLSLEditor::callbackLSLCompileFailed(const LLSD& compile_errors)
 		line++)
 	{
 		LLSD row;
-		row["columns"][0]["value"] = line->asString();
+		std::string error_message = line->asString();
+		LLStringUtil::stripNonprintable(error_message);
+		row["columns"][0]["value"] = error_message;
 		row["columns"][0]["font"] = "OCRA";
 		mScriptEd->mErrorList->addElement(row);
 	}
@@ -1712,6 +1728,7 @@ void LLLiveLSLEditor::loadAsset(BOOL is_new)
 				mScriptEd->mEditor->setText(getString("not_allowed"));
 				mScriptEd->mEditor->makePristine();
 				mScriptEd->mEditor->setEnabled(FALSE);
+				mScriptEd->enableSave(FALSE);
 				mAssetStatus = PREVIEW_ASSET_LOADED;
 			}
 			else if(item && mItem.notNull())
@@ -1745,12 +1762,14 @@ void LLLiveLSLEditor::loadAsset(BOOL is_new)
 				mAssetStatus = PREVIEW_ASSET_LOADED;
 			}
 
-			if(item
-			   && !gAgent.allowOperation(PERM_MODIFY, item->getPermissions(),
-				   						GP_OBJECT_MANIPULATE))
+			mIsModifiable = item && gAgent.allowOperation(PERM_MODIFY, 
+										item->getPermissions(),
+				   						GP_OBJECT_MANIPULATE);
+			if(!mIsModifiable)
 			{
 				mScriptEd->mEditor->setEnabled(FALSE);
 			}
+			
 			// This is commented out, because we don't completely
 			// handle script exports yet.
 			/*
@@ -1784,8 +1803,7 @@ void LLLiveLSLEditor::loadAsset(BOOL is_new)
 	else
 	{
 		mScriptEd->mEditor->setText(std::string(HELLO_LSL));
-		//mScriptEd->mEditor->setText(LLStringUtil::null);
-		//mScriptEd->mEditor->makePristine();
+		mScriptEd->enableSave(FALSE);
 		LLPermissions perm;
 		perm.init(gAgent.getID(), gAgent.getID(), LLUUID::null, gAgent.getGroupID());
 		perm.initMasks(PERM_ALL, PERM_ALL, PERM_NONE, PERM_NONE, PERM_MOVE | PERM_TRANSFER);
@@ -1955,22 +1973,43 @@ void LLLiveLSLEditor::draw()
 {
 	LLViewerObject* object = gObjectList.findObject(mObjectID);
 	LLCheckBoxCtrl* runningCheckbox = getChild<LLCheckBoxCtrl>( "running");
-		if(object && mAskedForRunningInfo && mHaveRunningInfo)
+	if(object && mAskedForRunningInfo && mHaveRunningInfo)
 	{
 		if(object->permAnyOwner())
 		{
 			runningCheckbox->setLabel(getString("script_running"));
 			runningCheckbox->setEnabled(TRUE);
+
+			if(object->permAnyOwner())
+			{
+				runningCheckbox->setLabel(getString("script_running"));
+				runningCheckbox->setEnabled(TRUE);
+			}
+			else
+			{
+				runningCheckbox->setLabel(getString("public_objects_can_not_run"));
+				runningCheckbox->setEnabled(FALSE);
+				// *FIX: Set it to false so that the ui is correct for
+				// a box that is released to public. It could be
+				// incorrect after a release/claim cycle, but will be
+				// correct after clicking on it.
+				runningCheckbox->set(FALSE);
+				mMonoCheckbox->set(FALSE);
+			}
 		}
 		else
 		{
 			runningCheckbox->setLabel(getString("public_objects_can_not_run"));
 			runningCheckbox->setEnabled(FALSE);
+
 			// *FIX: Set it to false so that the ui is correct for
 			// a box that is released to public. It could be
 			// incorrect after a release/claim cycle, but will be
 			// correct after clicking on it.
 			runningCheckbox->set(FALSE);
+			mMonoCheckbox->setEnabled(FALSE);
+			// object may have fallen out of range.
+			mHaveRunningInfo = FALSE;
 		}
 	}
 	else if(!object)
@@ -2044,7 +2083,7 @@ void LLLiveLSLEditor::saveIfNeeded()
 	}
 
 	// Don't need to save if we're pristine
-	if(mScriptEd->mEditor->isPristine())
+	if(!LLScriptEdCore::hasChanged(mScriptEd))
 	{
 		return;
 	}
@@ -2052,6 +2091,7 @@ void LLLiveLSLEditor::saveIfNeeded()
 	mPendingUploads = 0;
 
 	// save the script
+	mScriptEd->enableSave(FALSE);
 	mScriptEd->mEditor->makePristine();
 	mScriptEd->mErrorList->deleteAllItems();
 
@@ -2091,7 +2131,7 @@ void LLLiveLSLEditor::saveIfNeeded()
 	fp = NULL;
 	
 	// save it out to asset server
-	std::string url = gAgent.getRegion()->getCapability("UpdateScriptTaskInventory");
+	std::string url = object->getRegion()->getCapability("UpdateScriptTaskInventory");
 	getWindow()->incBusyCount();
 	mPendingUploads++;
 	BOOL is_running = getChild<LLCheckBoxCtrl>( "running")->get();
@@ -2117,8 +2157,9 @@ void LLLiveLSLEditor::uploadAssetViaCaps(const std::string& url,
 	body["task_id"] = task_id;
 	body["item_id"] = item_id;
 	body["is_script_running"] = is_running;
+	body["target"] = monoChecked() ? "mono" : "lsl2";
 	LLHTTPClient::post(url, body,
-		new LLUpdateTaskInventoryResponder(body, filename));
+		new LLUpdateTaskInventoryResponder(body, filename, LLAssetType::AT_LSL_TEXT));
 }
 
 void LLLiveLSLEditor::uploadAssetLegacy(const std::string& filename,
@@ -2141,9 +2182,12 @@ void LLLiveLSLEditor::uploadAssetLegacy(const std::string& filename,
 	std::string err_filename = llformat("%s.out", filepath.c_str());
 
 	LLFILE *fp;
+	const BOOL compile_to_mono = FALSE;
 	if(!lscript_compile(filename.c_str(),
 						dst_filename.c_str(),
 						err_filename.c_str(),
+						compile_to_mono,
+						asset_id.asString().c_str(),
 						gAgent.isGodlike()))
 	{
 		// load the error file into the error scrolllist
@@ -2384,6 +2428,11 @@ void LLLiveLSLEditor::processScriptRunningReply(LLMessageSystem* msg, void**)
 		msg->getBOOLFast(_PREHASH_Script, _PREHASH_Running, running);
 		LLCheckBoxCtrl* runningCheckbox = instance->getChild<LLCheckBoxCtrl>("running");
 		runningCheckbox->set(running);
+		BOOL mono;
+		msg->getBOOLFast(_PREHASH_Script, "Mono", mono);
+		LLCheckBoxCtrl* monoCheckbox = instance->getChild<LLCheckBoxCtrl>("mono");
+		monoCheckbox->setEnabled(instance->getIsModifiable() && have_script_upload_cap(object_id));
+		monoCheckbox->set(mono);
 	}
 }
 
@@ -2397,4 +2446,20 @@ void LLLiveLSLEditor::reshape(S32 width, S32 height, BOOL called_from_parent)
 		// (although not the same position).
 		gSavedSettings.setRect("PreviewScriptRect", getRect());
 	}
+}
+
+void LLLiveLSLEditor::onMonoCheckboxClicked(LLUICtrl*, void* userdata)
+{
+	LLLiveLSLEditor* self = static_cast<LLLiveLSLEditor*>(userdata);
+	self->mMonoCheckbox->setEnabled(have_script_upload_cap(self->mObjectID));
+	self->mScriptEd->enableSave(self->getIsModifiable());
+}
+
+BOOL LLLiveLSLEditor::monoChecked() const
+{
+	if(NULL != mMonoCheckbox)
+	{
+		return mMonoCheckbox->getValue()? TRUE : FALSE;
+	}
+	return FALSE;
 }

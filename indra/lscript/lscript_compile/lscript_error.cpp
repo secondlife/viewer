@@ -72,7 +72,10 @@ const char* gErrorText[LSERROR_EOF] = 	/*Flawfinder: ignore*/
 	"Use of vector or quaternion method on incorrect type",
 	"Lists can't be included in lists",
 	"Unitialized variables can't be included in lists",
-	"Declaration requires a new scope -- use { and }"
+	"Declaration requires a new scope -- use { and }",
+	"CIL assembler failed",
+	"Bytecode transformer failed",
+	"Bytecode verification failed"
 };
 
 void LLScriptGenerateErrorText::writeWarning(LLFILE *fp, LLScriptFilePosition *pos, LSCRIPTWarnings warning)
@@ -97,4 +100,9 @@ void LLScriptGenerateErrorText::writeError(LLFILE *fp, S32 line, S32 col, LSCRIP
 {
 	fprintf(fp, "(%d, %d) : ERROR : %s\n", line, col, gErrorText[error]);
 	mTotalErrors++;
+}
+
+std::string getLScriptErrorString(LSCRIPTErrors error)
+{
+	return gErrorText[error];
 }

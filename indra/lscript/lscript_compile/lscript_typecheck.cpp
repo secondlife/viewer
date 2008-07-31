@@ -66,7 +66,13 @@ LSCRIPTType implicit_casts(LSCRIPTType left_side, LSCRIPTType right_side)
 	{
 		// shouldn't be doing an operation on void types
 	case LST_NULL:
-		return LST_NULL;
+		switch(right_side)
+		{
+		case LST_NULL:
+			return LST_NULL;
+		default:
+			return LST_UNDEFINED;
+		}
 	// shouldn't be doing an operation on undefined types
 	case LST_UNDEFINED:
 		return LST_UNDEFINED;

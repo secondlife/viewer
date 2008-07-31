@@ -398,9 +398,8 @@ void LLScriptLibrary::init()
 	addFunction(new LLScriptLibraryFunction(10.f, 0.f, dummy_func, "llGetCameraPos", "v", "", "vector llGetCameraPos()\nGets current camera position for agent task has permissions for."));
 	addFunction(new LLScriptLibraryFunction(10.f, 0.f, dummy_func, "llGetCameraRot", "q", "", "rotation llGetCameraRot()\nGets current camera orientation for agent task has permissions for."));
 	
-	addFunction(new LLScriptLibraryFunction(10.f, 2.f, dummy_func, "llSetPrimURL", NULL, "s", "llSetPrimURL(string url)\nUpdates the URL for the web page shown on the sides of the object."));
+	addFunction(new LLScriptLibraryFunction(10.f, 20.f, dummy_func, "llSetPrimURL", NULL, "s", "llSetPrimURL(string url)\nUpdates the URL for the web page shown on the sides of the object."));
 	addFunction(new LLScriptLibraryFunction(10.f, 20.f, dummy_func, "llRefreshPrimURL", NULL, "", "llRefreshPrimURL()\nReloads the web page shown on the sides of the object."));
-	
 	addFunction(new LLScriptLibraryFunction(10.f, 0.f, dummy_func, "llEscapeURL", "s", "s", "string llEscapeURL(string url)\nReturns and escaped/encoded version of url, replacing spaces with %20 etc."));
 	addFunction(new LLScriptLibraryFunction(10.f, 0.f, dummy_func, "llUnescapeURL", "s", "s", "string llUnescapeURL(string url)\nReturns and unescaped/unencoded version of url, replacing %20 with spaces etc."));
 
@@ -457,24 +456,6 @@ void LLScriptLibrary::init()
 	// Otherwise the bytecode numbers for each call will be wrong, and all
 	// existing scripts will crash.
 }
-
-	//Ventrella Follow Cam Script Stuff
-	//addFunction(new LLScriptLibraryFunction(10.f, 0.f, dummy_func, "llSetCamPitch",				NULL, "f", "llSetCamPitch(-45 to 80)\n(Adjusts the angular amount that the camera aims straight ahead vs. straight down, maintaining the same distance. Analogous to 'incidence'."));
-	//addFunction(new LLScriptLibraryFunction(10.f, 0.f, dummy_func, "llSetCamVerticalOffset",		NULL, "f", "llSetCamVerticalOffset(-2 to 2)\nAdjusts the vertical position of the camera focus position relative to the subject"));
-	//addFunction(new LLScriptLibraryFunction(10.f, 0.f, dummy_func, "llSetCamPositionLag",			NULL, "f", "llSetCamPositionLag(0 to 3) \nHow much the camera lags as it tries to move towards its 'ideal' position"));
-	//addFunction(new LLScriptLibraryFunction(10.f, 0.f, dummy_func, "llSetCamFocusLag",			NULL, "f", "llSetCamFocusLag(0 to 3)\nHow much the camera lags as it tries to aim towards the subject"));
-	//addFunction(new LLScriptLibraryFunction(10.f, 0.f, dummy_func, "llSetCamDistance",			NULL, "f", "llSetCamDistance(0.5 to 10)\nSets how far away the camera wants to be from its subject"));
-	//addFunction(new LLScriptLibraryFunction(10.f, 0.f, dummy_func, "llSetCamBehindnessAngle",		NULL, "f", "llSetCamBehindnessAngle(0 to 180)\nSets the angle in degrees within which the camera is not constrained by changes in subject rotation"));
-	//addFunction(new LLScriptLibraryFunction(10.f, 0.f, dummy_func, "llSetCamBehindnessLag",		NULL, "f", "llSetCamBehindnessLag(0 to 3)\nSets how strongly the camera is forced to stay behind the target if outside of behindness angle"));
-	//addFunction(new LLScriptLibraryFunction(10.f, 0.f, dummy_func, "llSetCamPositionThreshold",	NULL, "f", "llSetCamPositionThreshold(0 to 4)\nSets the radius of a sphere around the camera's ideal position within which it is not affected by subject motion"));
-	//addFunction(new LLScriptLibraryFunction(10.f, 0.f, dummy_func, "llSetCamFocusThreshold",		NULL, "f", "llSetCamFocusThreshold(0 to 4)\nSets the radius of a sphere around the camera's subject position within which its focus is not affected by subject motion"));
-	//addFunction(new LLScriptLibraryFunction(10.f, 0.f, dummy_func, "llSetCamScriptControl",				NULL, "i", "llSetCamScriptControl(TRUE or FALSE)\nTurns on or off scripted control of the camera"));
-	//addFunction(new LLScriptLibraryFunction(10.f, 0.f, dummy_func, "llSetCamPosition",			NULL, "v", "llSetCamPosition(vector)\nSets the position of the camera"));
-	//addFunction(new LLScriptLibraryFunction(10.f, 0.f, dummy_func, "llSetCamFocus",				NULL, "v", "llSetCamFocus(vector focus)\nSets the focus (target position) of the camera"));
-	//addFunction(new LLScriptLibraryFunction(10.f, 0.f, dummy_func, "llSetCamPositionLocked",		NULL, "i", "llSetCamPositionLocked(TRUE or FALSE)\nLocks the camera position so it will not move"));
-	//addFunction(new LLScriptLibraryFunction(10.f, 0.f, dummy_func, "llSetCamFocusLocked",			NULL, "i", "llSetCamFocusLocked(TRUE or FALSE)\nLocks the camera focus so it will not move"));
-
-	//addFunction(new LLScriptLibraryFunction(10.f, 0.f, dummy_func, "llSetForSale", "i", "ii", "integer llSetForSale(integer selltype, integer price)\nSets this object for sale in mode selltype for price.  Returns TRUE if successfully set for sale."));
 
 LLScriptLibraryFunction::LLScriptLibraryFunction(F32 eu, F32 st, void (*exec_func)(LLScriptLibData *, LLScriptLibData *, const LLUUID &), const char *name, const char *ret_type, const char *args, const char *desc, BOOL god_only)
 		: mEnergyUse(eu), mSleepTime(st), mExecFunc(exec_func), mName(name), mReturnType(ret_type), mArgs(args), mGodOnly(god_only)

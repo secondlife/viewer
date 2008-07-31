@@ -124,6 +124,9 @@ typedef enum e_lscript_errors
 	LSERROR_NO_LISTS_IN_LISTS,
 	LSERROR_NO_UNITIALIZED_VARIABLES_IN_LISTS,
 	LSERROR_NEED_NEW_SCOPE,
+	LSERROR_CIL_ASSEMBLER_FAILED = 16, // Mono build error.
+	LSERROR_BYTECODE_TRANSFORM_FAILED = 17, // Mono build error.
+	LSERROR_BYTECODE_VERIFICATION_FAILED, // Mono build error.
 	LSERROR_EOF
 } LSCRIPTErrors;
 
@@ -146,6 +149,8 @@ public:
 	S32 mTotalErrors;
 	S32 mTotalWarnings;
 };
+
+std::string getLScriptErrorString(LSCRIPTErrors error);
 
 extern LLScriptGenerateErrorText gErrorToText;
 

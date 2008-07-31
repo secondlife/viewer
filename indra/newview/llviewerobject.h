@@ -384,6 +384,7 @@ public:
 	// manager, so do no call updateInventory() from the selection
 	// manager until we have better iterators.
 	void updateInventory(LLViewerInventoryItem* item, U8 key, bool is_new);
+	void updateInventoryLocal(LLInventoryItem* item, U8 key); // Update without messaging.
 	LLInventoryObject* getInventoryObject(const LLUUID& item_id);
 	void getInventoryContents(InventoryObjectList& objects);
 	LLInventoryObject* getInventoryRoot();
@@ -540,7 +541,7 @@ protected:
 
 	// do the update/caching logic. called by saveScript and
 	// updateInventory.
-	void doUpdateInventory(LLViewerInventoryItem* item, U8 key, bool is_new);
+	void doUpdateInventory(LLPointer<LLViewerInventoryItem>& item, U8 key, bool is_new);
 
 
 	static LLViewerObject *createObject(const LLUUID &id, LLPCode pcode, LLViewerRegion *regionp);
