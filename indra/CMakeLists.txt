@@ -4,8 +4,8 @@
 # other commands to guarantee full compatibility
 # with the version specified
 
-# The FindPkgConfig module was released with 2.4.7.
-cmake_minimum_required(VERSION 2.4.7 FATAL_ERROR)
+# The "cmake -E touch" command was released with 2.4.8.
+cmake_minimum_required(VERSION 2.4.8 FATAL_ERROR)
 
 # This makes cmake 2.6 not complain about a version
 # 2.4 compatibility mode
