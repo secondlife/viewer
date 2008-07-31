@@ -38,18 +38,9 @@ else (STANDALONE)
           debug libboost_signals-vc80-mt-sgd-${BOOST_VERSION})
     endif (MSVC71)
   elseif (DARWIN)
-    set(BOOST_PROGRAM_OPTIONS_LIBRARY
-      optimized boost_program_options-mt
-      debug boost_program_options-mt-d
-      )
-    set(BOOST_REGEX_LIBRARY
-      optimized boost_regex-mt
-      debug boost_regex-mt-d
-      )
-    set(BOOST_SIGNALS_LIBRARY
-      optimized boost_signals-mt
-      debug boost_signals-mt-d
-      )
+    set(BOOST_PROGRAM_OPTIONS_LIBRARY boost_program_options-mt)
+    set(BOOST_REGEX_LIBRARY boost_regex-mt)
+    set(BOOST_SIGNALS_LIBRARY boost_signals-mt)
   elseif (LINUX)
     set(BOOST_PROGRAM_OPTIONS_LIBRARY boost_program_options-mt)
     set(BOOST_REGEX_LIBRARY boost_regex-mt)
