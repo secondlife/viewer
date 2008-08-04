@@ -661,11 +661,14 @@ def main(arguments):
                 raise CommandError('clean takes no arguments')
             setup.cleanup()
         else:
-            print >> sys.stderr, 'Error: unknown command', repr(cmd)
+            print >> sys.stderr, 'Error: unknown subcommand', repr(cmd)
             print >> sys.stderr, "(run 'develop.py --help' for help)"
             sys.exit(1)
     except CommandError, err:
         print >> sys.stderr, 'Error:', err
+        sys.exit(1)
+    except getopt.GetoptError, err:
+        print >> sys.stderr, 'Error with %r subcommand: %s' % (cmd, err)
         sys.exit(1)
 
 
