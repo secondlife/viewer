@@ -46,11 +46,14 @@ class LLBufferArray;
 class LLChannelDescriptors;
 
 // Debugging schmutz for deadlocks
-#define LL_DEBUG_PUMPS
+//#define LL_DEBUG_PUMPS
 #ifdef LL_DEBUG_PUMPS
 void pump_debug(const char *file, S32 line);
 #define PUMP_DEBUG pump_debug(__FILE__, __LINE__);
 #define END_PUMP_DEBUG pump_debug("none", 0);
+#else /* LL_DEBUG_PUMPS */
+#define PUMP_DEBUG
+#define END_PUMP_DEBUG
 #endif
 
 

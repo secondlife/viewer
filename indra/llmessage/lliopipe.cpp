@@ -55,6 +55,7 @@ static const std::string STATUS_ERROR_NAMES[LLIOPipe::STATUS_ERROR_COUNT] =
 	std::string("STATUS_EXPIRED"),
 };
 
+#ifdef LL_DEBUG_PUMPS
 // Debugging schmutz for deadlock
 const char	*gPumpFile = "";
 S32			gPumpLine = 0;
@@ -64,6 +65,7 @@ void pump_debug(const char *file, S32 line)
 	gPumpFile = file;
 	gPumpLine = line;
 }
+#endif /* LL_DEBUG_PUMPS */
 
 /**
  * LLIOPipe
