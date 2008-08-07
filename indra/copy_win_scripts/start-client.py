@@ -38,6 +38,10 @@ def start_client(grid, slurl, build_config, my_args):
 
 if __name__ == "__main__":
     grid = llstart.get_config("grid")
+    
+    if grid == None:
+        grid = "aditi"
+        
     build_config = llstart.get_config("build_config")
     my_args = llstart.get_config("viewer_args", force_dict = True)
     opts, args = getopt.getopt(sys.argv[1:], "u:r:f:g:i:h",
@@ -53,7 +57,7 @@ if __name__ == "__main__":
             sys.exit(0)
             
     slurl = llstart.get_config("slurl")            
-    if slurl == "":
+    if slurl == None:
         if region is None:
             region = llstart.get_user_name()
         slurl = "//%s/128/128/" % (region)
