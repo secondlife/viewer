@@ -108,7 +108,7 @@ public:
 
     void result(const LLSD& content)
     {
-		if(!mRegion || this != mRegion->getHttpResponderPtr())//region is removed or responder is not created.
+		if(!mRegion || LLHTTPClient::ResponderPtr(this) != mRegion->getHttpResponderPtr()) //region is removed or responder is not created.
 		{
 			return ;
 		}
