@@ -379,7 +379,7 @@
             <key>md5sum</key>
             <string>f1161282d7fc11fbe17d0aa077ee054b</string>
             <key>url</key>
-            <uri>http://int.codex.lindenlab.com/~babbage/install_pkgs/google-linux-20080617.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/google-linux-20080617.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -413,7 +413,7 @@
             <key>md5sum</key>
             <string>21c16a74f8fc9a62e3ab944a6eb7403d</string>
             <key>url</key>
-            <uri>http://int.codex.lindenlab.com/~babbage/install_pkgs/gtk-atk-pango-glib-linux-20080616.tar.bz</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/gtk-atk-pango-glib-linux-20080616.tar.bz</uri>
           </map>
           <key>windows</key>
           <map>
