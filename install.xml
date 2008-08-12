@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" ?>
 <llsd>
 <map>
     <key>installables</key>
@@ -567,26 +567,26 @@ anguage Infrstructure (CLI) international standard</string>
         <string>lgpl</string>
         <key>packages</key>
         <map>
-          <key>linux</key>
-          <map>
-            <key>md5sum</key>
-            <string>df73b95b0980e631ba1ecd930120699f</string>
-            <key>url</key>
-            <uri>http://int.codex.lindenlab.com/~daveh/install_pkgs/mono-linux-20080722.tar.bz2</uri>
-          </map>
           <key>darwin</key>
           <map>
             <key>md5sum</key>
             <string>39a803fcbe6f11b72358fc78b7777b6c</string>
             <key>url</key>
-            <uri>http://int.codex.lindenlab.com/~daveh/install_pkgs/mono-darwin-20080724.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/libmono-darwin-20080724.tar.bz2</uri>
           </map>
-		  <key>windows</key>
-		  <map>
-		    <key>md5sum</key>
+          <key>linux</key>
+          <map>
+            <key>md5sum</key>
+            <string>df73b95b0980e631ba1ecd930120699f</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/libmono-linux-20080722.tar.bz2</uri>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>md5sum</key>
             <string>7293312a6c76e5a38ec1b58ff87828d9</string>
             <key>url</key>
-            <uri>http://int.codex.lindenlab.com/~daveh/install_pkgs/mono-windows-20080723.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/libmono-windows-20080723.tar.bz2</uri>
           </map>
         </map>
       </map>
