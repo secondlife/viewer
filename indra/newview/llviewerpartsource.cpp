@@ -278,7 +278,7 @@ void LLViewerPartSourceScript::update(const F32 dt)
 				continue;
 			}
 
-			LLPointer<LLViewerPart> part = new LLViewerPart();
+			LLViewerPart* part = new LLViewerPart();
 
 			part->init(this, mImagep, NULL);
 			part->mFlags = mPartSysData.mPartData.mFlags;
@@ -569,7 +569,7 @@ void LLViewerPartSourceSpiral::update(const F32 dt)
 		{
 			mPosAgent = mSourceObjectp->getRenderPosition();
 		}
-		LLPointer<LLViewerPart> part = new LLViewerPart();
+		LLViewerPart* part = new LLViewerPart();
 		part->init(this, mImagep, updatePart);
 		part->mStartColor = mColor;
 		part->mEndColor = mColor;
@@ -717,7 +717,7 @@ void LLViewerPartSourceBeam::update(const F32 dt)
 			mImagep = gImageList.getImageFromFile("pixiesmall.j2c");
 		}
 
-		LLPointer<LLViewerPart> part = new LLViewerPart();
+		LLViewerPart* part = new LLViewerPart();
 		part->init(this, mImagep, NULL);
 
 		part->mFlags = LLPartData::LL_PART_INTERP_COLOR_MASK |
@@ -834,7 +834,7 @@ void LLViewerPartSourceChat::update(const F32 dt)
 		{
 			mPosAgent = mSourceObjectp->getRenderPosition();
 		}
-		LLPointer<LLViewerPart> part = new LLViewerPart();
+		LLViewerPart* part = new LLViewerPart();
 		part->init(this, mImagep, updatePart);
 		part->mStartColor = mColor;
 		part->mEndColor = mColor;

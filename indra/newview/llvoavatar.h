@@ -439,6 +439,8 @@ public:
 	BOOL			isCulled() { return mCulled; }
 	
 	S32				getUnbakedPixelAreaRank();
+	void			setVisibilityRank(U32 rank);
+	U32				getVisibilityRank();
 	static void		cullAvatarsByPixelArea();
 
 	void			dumpLocalTextures();
@@ -717,8 +719,9 @@ public:
 	LLVector3		mImpostorExtents[2];
 	LLVector3		mImpostorAngle;
 	F32				mImpostorDistance;
+	F32				mImpostorPixelArea;
 	LLVector3		mLastAnimExtents[2];  
-
+	
 	//--------------------------------------------------------------------
 	// Misc Render State
 	//--------------------------------------------------------------------
@@ -956,6 +959,10 @@ protected:
 	U32					mLowerMaskTexName;
 
 	BOOL				mCulled;
+	U32					mVisibilityRank;
+	F32					mFadeTime;
+	F32					mLastFadeTime;
+	F32					mLastFadeDistance;
 	F32					mMinPixelArea; // debug
 	F32					mMaxPixelArea; // debug
 	

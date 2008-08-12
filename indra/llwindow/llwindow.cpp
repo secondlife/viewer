@@ -285,6 +285,12 @@ void LLWindow::setCallbacks(LLWindowCallbacks *callbacks)
 	}
 }
 
+void *LLWindow::getMediaWindow()
+{
+	// Default to returning the platform window.
+	return getPlatformWindow();
+}
+
 // static
 std::string LLWindow::getFontListSans()
 {

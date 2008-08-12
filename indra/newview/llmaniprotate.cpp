@@ -448,6 +448,19 @@ BOOL LLManipRotate::handleMouseUp(S32 x, S32 y, MASK mask)
 
 	if( hasMouseCapture() )
 	{
+		for (LLObjectSelection::iterator iter = mObjectSelection->begin();
+		 iter != mObjectSelection->end(); iter++)
+		{
+			LLSelectNode* selectNode = *iter;
+			LLViewerObject* object = selectNode->getObject();
+
+			// have permission to move and object is root of selection or individually selected
+			if (object->permMove() && (object->isRootEdit() || selectNode->mIndividualSelection))
+			{
+				object->mUnselectedChildrenPositions.clear() ;
+			}
+		}
+
 		mManipPart = LL_NO_PART;
 
 		// Might have missed last update due to timing.
@@ -544,16 +557,12 @@ void LLManipRotate::drag( S32 x, S32 y )
 			}
 
 			LLQuaternion new_rot = selectNode->mSavedRotation * mRotation;
-			std::vector<LLVector3> child_positions;
+			std::vector<LLVector3>& child_positions = object->mUnselectedChildrenPositions ;
 			std::vector<LLQuaternion> child_rotations;
 			if (object->isRootEdit() && selectNode->mIndividualSelection)
 			{
-				for (U32 i = 0; i < object->mChildList.size(); i++)
-				{
-					LLViewerObject* childp = object->mChildList[i];
-					child_positions.push_back(childp->getPositionEdit());
-					child_rotations.push_back(childp->getRotationEdit());
-				}
+				object->saveUnselectedChildrenRotation(child_rotations) ;
+				object->saveUnselectedChildrenPosition(child_positions) ;			
 			}
 
 			if (object->getParent() && object->mDrawable.notNull())
@@ -575,17 +584,7 @@ void LLManipRotate::drag( S32 x, S32 y )
 			{
 				//RN: must do non-damped updates on these objects so relative rotation appears constant
 				// instead of having two competing slerps making the child objects appear to "wobble"
-				for (U32 i = 0; i < object->mChildList.size(); i++)
-				{
-					LLViewerObject* childp = object->mChildList[i];
-					LLVector3 child_offset = ((child_positions[i] - object->getPositionEdit()) * ~object->getRotationEdit()) - childp->getPosition();
-					if (!childp->isSelected() && childp->mDrawable.notNull())
-					{
-						childp->setRotation(child_rotations[i] * ~object->getRotationEdit());
-						childp->setPosition((child_positions[i] - object->getPositionEdit()) * ~object->getRotationEdit());
-						rebuild(childp);
-					}
-				}
+				object->resetChildrenRotationAndPosition(child_rotations, child_positions) ;
 			}
 		}
 	}
@@ -667,28 +666,8 @@ void LLManipRotate::drag( S32 x, S32 y )
 			if (object->isRootEdit() && selectNode->mIndividualSelection)
 			{
 				// only offset by parent's translation as we've already countered parent's rotation
-				LLVector3 child_offset;
-				if (object->isAttachment() && object->mDrawable.notNull())
-				{
-					LLXform* attachment_point_xform = object->mDrawable->getXform()->getParent();
-					LLQuaternion parent_rotation = object->getRotation() * attachment_point_xform->getWorldRotation();
-					child_offset = LLVector3(old_position - new_position) * ~parent_rotation;
-				}
-				else
-				{
-					child_offset = LLVector3(old_position - new_position) * ~object->getRenderRotation();
-				}
-
 				rebuild(object);
-				for (U32 i = 0; i < object->mChildList.size(); i++)
-				{
-					LLViewerObject* childp = object->mChildList[i];
-					if (!childp->isSelected() && childp->mDrawable.notNull())
-					{
-						childp->setPosition(childp->getPosition() + child_offset);
-						rebuild(childp);
-					}
-				}
+				object->resetChildrenPosition(old_position - new_position) ;				
 			}
 		}
 	}

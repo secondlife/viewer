@@ -774,6 +774,12 @@ BOOL LLComboBox::handleKeyHere(KEY key, MASK mask)
 	BOOL result = FALSE;
 	if (hasFocus())
 	{
+		if (mList->getVisible() 
+			&& key == KEY_ESCAPE && mask == MASK_NONE)
+		{
+			hideList();
+			return TRUE;
+		}
 		//give list a chance to pop up and handle key
 		LLScrollListItem* last_selected_item = mList->getLastSelectedItem();
 		if (last_selected_item)

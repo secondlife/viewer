@@ -52,13 +52,14 @@ static LLSD sMessages;
 class LLMessageConfigFile : public LLLiveFile
 {
 public:
-	LLMessageConfigFile()
-        : LLLiveFile(filename(), messageConfigRefreshRate)
+	LLMessageConfigFile() :
+		LLLiveFile(filename(), messageConfigRefreshRate),
+		mMaxQueuedEvents(0)
             { }
 
-    static std::string filename();
+	static std::string filename();
 
-    LLSD mMessages;
+	LLSD mMessages;
 	std::string mServerDefault;
 	
 	static LLMessageConfigFile& instance();
@@ -66,7 +67,7 @@ public:
 
 	/* virtual */ void loadFile();
 	void loadServerDefaults(const LLSD& data);
-	 void loadMaxQueuedEvents(const LLSD& data);
+	void loadMaxQueuedEvents(const LLSD& data);
 	void loadMessages(const LLSD& data);
 	void loadCapBans(const LLSD& blacklist);
 	void loadMessageBans(const LLSD& blacklist);
@@ -74,7 +75,10 @@ public:
 
 public:
 	LLSD mCapBans;
-	 S32 mMaxQueuedEvents;
+	S32 mMaxQueuedEvents;
+
+private:
+	static const S32 DEFAULT_MAX_QUEUED_EVENTS = 100;
 };
 
 std::string LLMessageConfigFile::filename()
@@ -125,7 +129,6 @@ void LLMessageConfigFile::loadServerDefaults(const LLSD& data)
 	mServerDefault = data["serverDefaults"][sServerName].asString();
 }
 
-const S32 DEFAULT_MAX_QUEUED_EVENTS = 100;
 void LLMessageConfigFile::loadMaxQueuedEvents(const LLSD& data)
 {
 	 if (data.has("maxQueuedEvents"))

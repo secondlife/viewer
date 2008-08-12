@@ -96,6 +96,7 @@
 #include "pipeline.h"
 #include "llviewernetwork.h"
 #include "llvowlsky.h"
+#include "llmanip.h"
 
 //#define DEBUG_UPDATE_TYPE
 
@@ -402,13 +403,10 @@ void LLViewerObject::dump() const
 		mNameValuePairs[key]->printNameValue(buffer);
 		llinfos << buffer << llendl;
 	}
-
-	S32 i;
-
-	LLViewerObject *child;
-	for (i = 0; i < mChildList.size(); i++)
+	for (child_list_t::iterator iter = mChildList.begin();
+		 iter != mChildList.end(); iter++)
 	{
-		child = mChildList[i];
+		LLViewerObject* child = *iter;
 		llinfos << "  child " << child->getID() << llendl;
 	}
 	*/
@@ -555,20 +553,16 @@ void LLViewerObject::removeChild(LLViewerObject *childp)
 	}
 }
 
-LLViewerObject::child_list_t& LLViewerObject::getChildren()
-{
-	return mChildList;
-}
-
 void LLViewerObject::addThisAndAllChildren(LLDynamicArray<LLViewerObject*>& objects)
 {
 	objects.put(this);
-	S32 count = mChildList.size();
-	for(S32 i = 0; i < count; i++)
+	for (child_list_t::iterator iter = mChildList.begin();
+		 iter != mChildList.end(); iter++)
 	{
-		if (!mChildList[i]->isAvatar())
+		LLViewerObject* child = *iter;
+		if (!child->isAvatar())
 		{
-			(mChildList[i])->addThisAndAllChildren(objects);
+			child->addThisAndAllChildren(objects);
 		}
 	}
 }
@@ -581,24 +575,25 @@ void LLViewerObject::addThisAndNonJointChildren(LLDynamicArray<LLViewerObject*>&
 	{
 		return;
 	}
-	S32 count = mChildList.size();
-	for(S32 i = 0; i < count; i++)
+	for (child_list_t::iterator iter = mChildList.begin();
+		 iter != mChildList.end(); iter++)
 	{
-		if ( (!mChildList[i]->isAvatar())
-			&& (!mChildList[i]->isJointChild()))
+		LLViewerObject* child = *iter;
+		if ( (!child->isAvatar()) && (!child->isJointChild()))
 		{
-			(mChildList[i])->addThisAndNonJointChildren(objects);
+			child->addThisAndNonJointChildren(objects);
 		}
 	}
 }
 
 BOOL LLViewerObject::isChild(LLViewerObject *childp) const
 {
-	S32 count = mChildList.size();
-	for(S32 i = 0; i < count; i++)
+	for (child_list_t::const_iterator iter = mChildList.begin();
+		 iter != mChildList.end(); iter++)
 	{
-		const LLViewerObject *testChildp = &(*mChildList[i]);
-		if (testChildp == childp) return TRUE;
+		LLViewerObject* testchild = *iter;
+		if (testchild == childp)
+			return TRUE;
 	}
 	return FALSE;
 }
@@ -607,11 +602,11 @@ BOOL LLViewerObject::isChild(LLViewerObject *childp) const
 // returns TRUE if at least one avatar is sitting on this object
 BOOL LLViewerObject::isSeat() const
 {
-	S32 count = mChildList.size();
-	for(S32 i = 0; i < count; i++)
+	for (child_list_t::const_iterator iter = mChildList.begin();
+		 iter != mChildList.end(); iter++)
 	{
-		const LLViewerObject *childp = &(*mChildList[i]);
-		if (childp->isAvatar())
+		LLViewerObject* child = *iter;
+		if (child->isAvatar())
 		{
 			return TRUE;
 		}
@@ -1844,7 +1839,19 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 			  ||(this_update_precision > mBestUpdatePrecision))))
 	{
 		mBestUpdatePrecision = this_update_precision;
-		setPositionParent(new_pos_parent);
+		
+		LLVector3 diff = new_pos_parent - test_pos_parent ;
+		F32 mag_sqr = diff.magVecSquared() ;
+		if(llfinite(mag_sqr)) 
+		{
+			setPositionParent(new_pos_parent);
+		}
+		else
+		{
+			llwarns << "Can not move the object/avatar to an infinite location!" << llendl ;	
+
+			retval |= INVALID_UPDATE ;
+		}
 
 		if (mParent && ((LLViewerObject*)mParent)->isAvatar())
 		{
@@ -1915,11 +1922,11 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 	// Additionally, if any child is selected, need to update the dialogs and selection
 	// center.
 	BOOL needs_refresh = mUserSelected;
-	LLViewerObject *childp;
-	for (U32 i = 0; i < mChildList.size(); i++)
+	for (child_list_t::iterator iter = mChildList.begin();
+		 iter != mChildList.end(); iter++)
 	{
-		childp = mChildList[i];
-		needs_refresh = needs_refresh || childp->mUserSelected;
+		LLViewerObject* child = *iter;
+		needs_refresh = needs_refresh || child->mUserSelected;
 	}
 
 	if (needs_refresh)
@@ -2892,13 +2899,20 @@ void LLViewerObject::boostTexturePriority(BOOL boost_children /* = TRUE */)
  		getTEImage(i)->setBoostLevel(LLViewerImage::BOOST_SELECTED);
 	}
 
+	if (isSculpted())
+	{
+		LLSculptParams *sculpt_params = (LLSculptParams *)getParameterEntry(LLNetworkData::PARAMS_SCULPT);
+		LLUUID sculpt_id = sculpt_params->getSculptTexture();
+		gImageList.getImage(sculpt_id)->setBoostLevel(LLViewerImage::BOOST_SELECTED);
+	}
+	
 	if (boost_children)
 	{
-		S32 num_children = mChildList.size();
-		for (i = 0; i < num_children; i++)
+		for (child_list_t::iterator iter = mChildList.begin();
+			 iter != mChildList.end(); iter++)
 		{
-			LLViewerObject *childp = mChildList[i];
-			childp->boostTexturePriority();
+			LLViewerObject* child = *iter;
+			child->boostTexturePriority();
 		}
 	}
 }
@@ -3996,9 +4010,11 @@ S32 LLViewerObject::countInventoryContents(LLAssetType::EType type)
 void LLViewerObject::setCanSelect(BOOL canSelect)
 {
 	mbCanSelect = canSelect;
-	for (U32 i = 0; i < mChildList.size(); i++)
+	for (child_list_t::iterator iter = mChildList.begin();
+		 iter != mChildList.end(); iter++)
 	{
-		mChildList[i]->mbCanSelect = canSelect;
+		LLViewerObject* child = *iter;
+		child->mbCanSelect = canSelect;
 	}
 }
 
@@ -4551,9 +4567,11 @@ void LLViewerObject::setDrawableState(U32 state, BOOL recursive)
 	}
 	if (recursive)
 	{
-		for (U32 i = 0; i < mChildList.size(); i++)
+		for (child_list_t::iterator iter = mChildList.begin();
+			 iter != mChildList.end(); iter++)
 		{
-			mChildList[i]->setDrawableState(state, recursive);
+			LLViewerObject* child = *iter;
+			child->setDrawableState(state, recursive);
 		}
 	}
 }
@@ -4566,9 +4584,11 @@ void LLViewerObject::clearDrawableState(U32 state, BOOL recursive)
 	}
 	if (recursive)
 	{
-		for (U32 i = 0; i < mChildList.size(); i++)
+		for (child_list_t::iterator iter = mChildList.begin();
+			 iter != mChildList.end(); iter++)
 		{
-			mChildList[i]->clearDrawableState(state, recursive);
+			LLViewerObject* child = *iter;
+			child->clearDrawableState(state, recursive);
 		}
 	}
 }
@@ -4803,7 +4823,7 @@ void LLViewerObject::setRegion(LLViewerRegion *regionp)
 	mLatestRecvPacketID = 0;
 	mRegionp = regionp;
 
-	for (child_list_t::iterator i = getChildren().begin(); i != getChildren().end(); ++i)
+	for (child_list_t::iterator i = mChildList.begin(); i != mChildList.end(); ++i)
 	{
 		LLViewerObject* child = *i;
 		child->setRegion(regionp);
@@ -4937,3 +4957,141 @@ void LLStaticViewerObject::updateDrawable(BOOL force_damped)
 	}
 	clearChanged(SHIFTED);
 }
+
+void LLViewerObject::saveUnselectedChildrenPosition(std::vector<LLVector3>& positions)
+{
+	if(mChildList.empty() || !positions.empty())
+	{
+		return ;
+	}
+
+	for (LLViewerObject::child_list_t::const_iterator iter = mChildList.begin();
+			iter != mChildList.end(); iter++)
+	{
+		LLViewerObject* childp = *iter;
+		if (!childp->isSelected() && childp->mDrawable.notNull())
+		{
+			positions.push_back(childp->getPositionEdit());		
+		}
+	}
+
+	return ;
+}
+
+void LLViewerObject::saveUnselectedChildrenRotation(std::vector<LLQuaternion>& rotations)
+{
+	if(mChildList.empty())
+	{
+		return ;
+	}
+
+	for (LLViewerObject::child_list_t::const_iterator iter = mChildList.begin();
+			iter != mChildList.end(); iter++)
+	{
+		LLViewerObject* childp = *iter;
+		if (!childp->isSelected() && childp->mDrawable.notNull())
+		{
+			rotations.push_back(childp->getRotationEdit());				
+		}		
+	}
+
+	return ;
+}
+
+//counter-rotation
+void LLViewerObject::resetChildrenRotationAndPosition(const std::vector<LLQuaternion>& rotations, 
+											const std::vector<LLVector3>& positions)
+{
+	if(mChildList.empty())
+	{
+		return ;
+	}
+
+	S32 index = 0 ;
+	LLQuaternion inv_rotation = ~getRotationEdit() ;
+	LLVector3 offset = getPositionEdit() ;
+	for (LLViewerObject::child_list_t::const_iterator iter = mChildList.begin();
+			iter != mChildList.end(); iter++)
+	{
+		LLViewerObject* childp = *iter;
+		if (!childp->isSelected() && childp->mDrawable.notNull())
+		{
+			if (childp->getPCode() != LL_PCODE_LEGACY_AVATAR)
+			{
+				childp->setRotation(rotations[index] * inv_rotation);
+				childp->setPosition((positions[index] - offset) * inv_rotation);
+				LLManip::rebuild(childp);					
+			}
+			else //avatar
+			{
+				LLVector3 reset_pos = (positions[index] - offset) * inv_rotation ;
+				LLQuaternion reset_rot = rotations[index] * inv_rotation ;
+
+				((LLVOAvatar*)childp)->mDrawable->mXform.setPosition(reset_pos);				
+				((LLVOAvatar*)childp)->mDrawable->mXform.setRotation(reset_rot) ;
+				
+				((LLVOAvatar*)childp)->mDrawable->getVObj()->setPosition(reset_pos, TRUE);				
+				((LLVOAvatar*)childp)->mDrawable->getVObj()->setRotation(reset_rot, TRUE) ;
+
+				LLManip::rebuild(childp);				
+			}	
+			index++;
+		}				
+	}
+
+	return ;
+}
+
+//counter-translation
+void LLViewerObject::resetChildrenPosition(const LLVector3& offset, BOOL simplified)
+{
+	if(mChildList.empty())
+	{
+		return ;
+	}
+
+	LLVector3 child_offset;
+	if(simplified) //translation only, rotation matrix does not change
+	{
+		child_offset = offset * ~getRotation();
+	}
+	else //rotation matrix might change too.
+	{
+		if (isAttachment() && mDrawable.notNull())
+		{
+			LLXform* attachment_point_xform = mDrawable->getXform()->getParent();
+			LLQuaternion parent_rotation = getRotation() * attachment_point_xform->getWorldRotation();
+			child_offset = offset * ~parent_rotation;
+		}
+		else
+		{
+			child_offset = offset * ~getRenderRotation();
+		}
+	}
+
+	for (LLViewerObject::child_list_t::const_iterator iter = mChildList.begin();
+			iter != mChildList.end(); iter++)
+	{
+		LLViewerObject* childp = *iter;
+		if (!childp->isSelected() && childp->mDrawable.notNull())
+		{
+			if (childp->getPCode() != LL_PCODE_LEGACY_AVATAR)
+			{
+				childp->setPosition(childp->getPosition() + child_offset);
+				LLManip::rebuild(childp);
+			}
+			else //avatar
+			{
+				LLVector3 reset_pos = ((LLVOAvatar*)childp)->mDrawable->mXform.getPosition() + child_offset ;
+
+				((LLVOAvatar*)childp)->mDrawable->mXform.setPosition(reset_pos);
+				((LLVOAvatar*)childp)->mDrawable->getVObj()->setPosition(reset_pos);				
+				
+				LLManip::rebuild(childp);
+			}			
+		}		
+	}
+
+	return ;
+}
+

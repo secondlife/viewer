@@ -126,11 +126,8 @@
 #include "roles_constants.h"
 #include "llviewercontrol.h"
 #include "llappviewer.h"
-#include "llvoiceclient.h"
-
-// Ventrella
+#include "llviewerjoystick.h"
 #include "llfollowcam.h"
-// end Ventrella
 
 extern LLMenuBarGL* gMenuBarView;
 
@@ -176,7 +173,7 @@ const F32 AVATAR_ZOOM_MIN_Z_FACTOR = 1.15f;
 
 const F32 MAX_CAMERA_DISTANCE_FROM_AGENT = 50.f;
 
-const F32 MAX_CAMERA_SMOOTH_DISTANCE = 20.0f;
+const F32 MAX_CAMERA_SMOOTH_DISTANCE = 50.0f;
 
 const F32 HEAD_BUFFER_SIZE = 0.3f;
 const F32 CUSTOMIZE_AVATAR_CAMERA_ANIM_SLOP = 0.2f;
@@ -1952,6 +1949,11 @@ void LLAgent::cameraPanLeft(F32 meters)
 
 	mFocusTargetGlobal += meters * left_axis;
 	mFocusGlobal = mFocusTargetGlobal;
+
+	// effectively disable smoothing for camera pan, which causes some residents unhappiness
+	mCameraSmoothingLastPositionGlobal += meters * left_axis;
+	mCameraSmoothingLastPositionAgent += meters * left_axis;
+	
 	cameraZoomIn(1.f);
 	updateFocusOffset();
 }
@@ -1966,6 +1968,11 @@ void LLAgent::cameraPanUp(F32 meters)
 
 	mFocusTargetGlobal += meters * up_axis;
 	mFocusGlobal = mFocusTargetGlobal;
+
+	// effectively disable smoothing for camera pan, which causes some residents unhappiness
+	mCameraSmoothingLastPositionGlobal += meters * up_axis;
+	mCameraSmoothingLastPositionAgent += meters * up_axis;
+
 	cameraZoomIn(1.f);
 	updateFocusOffset();
 }
@@ -3226,9 +3233,9 @@ void LLAgent::updateCamera()
 		
 		if (cameraThirdPerson()) // only smooth in third person mode
 		{
-			F32 smoothing = llclampf(1.f - pow(2.f, -4.f * gSavedSettings.getF32("CameraPositionSmoothing") / gFPSClamped));
-			// we use average FPS instead of LLCriticalDamp b/c exact frame time is jittery
-
+			const F32 SMOOTHING_HALF_LIFE = 0.02f;
+			
+			F32 smoothing = LLCriticalDamp::getInterpolant(gSavedSettings.getF32("CameraPositionSmoothing") * SMOOTHING_HALF_LIFE, FALSE);
 					
 			if (!mFocusObject)  // we differentiate on avatar mode 
 			{
@@ -3238,7 +3245,7 @@ void LLAgent::updateCamera()
 				LLVector3d delta = camera_pos_agent - mCameraSmoothingLastPositionAgent;
 				if (delta.magVec() < MAX_CAMERA_SMOOTH_DISTANCE)  // only smooth over short distances please
 				{
-					camera_pos_agent = lerp(camera_pos_agent, mCameraSmoothingLastPositionAgent, smoothing);
+					camera_pos_agent = lerp(mCameraSmoothingLastPositionAgent, camera_pos_agent, smoothing);
 					camera_pos_global = camera_pos_agent + agent_pos;
 				}
 			}
@@ -3247,7 +3254,7 @@ void LLAgent::updateCamera()
 				LLVector3d delta = camera_pos_global - mCameraSmoothingLastPositionGlobal;
 				if (delta.magVec() < MAX_CAMERA_SMOOTH_DISTANCE) // only smooth over short distances please
 				{
-					camera_pos_global = lerp(camera_pos_global, mCameraSmoothingLastPositionGlobal, smoothing);
+					camera_pos_global = lerp(mCameraSmoothingLastPositionGlobal, camera_pos_global, smoothing);
 				}
 			}
 		}
@@ -3289,19 +3296,6 @@ void LLAgent::updateCamera()
 	if (cameraCustomizeAvatar())	
 	{
 		setLookAt(LOOKAT_TARGET_FOCUS, NULL, mCameraPositionAgent);
-	}
-
-	// Send the camera position to the spatialized voice system.
-	if(gVoiceClient && getRegion())
-	{
-		LLMatrix3 rot;
-		rot.setRows(LLViewerCamera::getInstance()->getAtAxis(), LLViewerCamera::getInstance()->getLeftAxis (),  LLViewerCamera::getInstance()->getUpAxis());		
-
-		// MBW -- XXX -- Setting velocity to 0 for now.  May figure it out later...
-		gVoiceClient->setCameraPosition(
-				getRegion()->getPosGlobalFromRegion(LLViewerCamera::getInstance()->getOrigin()),// position
-				LLVector3::zero, 			// velocity
-				rot);						// rotation matrix
 	}
 
 	// update the travel distance stat
@@ -3506,20 +3500,24 @@ LLVector3d LLAgent::calcFocusPositionTargetGlobal()
 	}
 	else
 	{
-		// ...offset from avatar
-		LLVector3d focus_offset;
-		focus_offset.setVec(gSavedSettings.getVector3("FocusOffsetDefault"));
-
-		LLQuaternion agent_rot = mFrameAgent.getQuaternion();
-		if (!mAvatarObject.isNull() && mAvatarObject->getParent())
-		{
-			agent_rot *= ((LLViewerObject*)(mAvatarObject->getParent()))->getRenderRotation();
-		}
-
-		focus_offset = focus_offset * agent_rot;
-
-		return getPositionGlobal() + focus_offset;
+		return getPositionGlobal() + calcThirdPersonFocusOffset();
 	}
+}
+
+LLVector3d LLAgent::calcThirdPersonFocusOffset()
+{
+	// ...offset from avatar
+	LLVector3d focus_offset;
+	focus_offset.setVec(gSavedSettings.getVector3("FocusOffsetDefault"));
+
+	LLQuaternion agent_rot = mFrameAgent.getQuaternion();
+	if (!mAvatarObject.isNull() && mAvatarObject->getParent())
+	{
+		agent_rot *= ((LLViewerObject*)(mAvatarObject->getParent()))->getRenderRotation();
+	}
+
+	focus_offset = focus_offset * agent_rot;
+	return focus_offset;
 }
 
 void LLAgent::setupSitCamera()
@@ -3947,6 +3945,11 @@ void LLAgent::resetCamera()
 //-----------------------------------------------------------------------------
 void LLAgent::changeCameraToMouselook(BOOL animate)
 {
+	if (LLViewerJoystick::getInstance()->getOverrideCamera())
+	{
+		return;
+	}
+
 	// visibility changes at end of animation
 	gViewerWindow->getWindow()->resetBusyCount();
 
@@ -3973,7 +3976,7 @@ void LLAgent::changeCameraToMouselook(BOOL animate)
 
 	if( mCameraMode != CAMERA_MODE_MOUSELOOK )
 	{
-		gViewerWindow->setKeyboardFocus( NULL );
+		gFocusMgr.setKeyboardFocus( NULL );
 		
 		mLastCameraMode = mCameraMode;
 		mCameraMode = CAMERA_MODE_MOUSELOOK;
@@ -4002,6 +4005,11 @@ void LLAgent::changeCameraToMouselook(BOOL animate)
 //-----------------------------------------------------------------------------
 void LLAgent::changeCameraToDefault()
 {
+	if (LLViewerJoystick::getInstance()->getOverrideCamera())
+	{
+		return;
+	}
+
 	if (LLFollowCamMgr::getActiveFollowCamParams())
 	{
 		changeCameraToFollow();
@@ -4019,6 +4027,11 @@ void LLAgent::changeCameraToDefault()
 //-----------------------------------------------------------------------------
 void LLAgent::changeCameraToFollow(BOOL animate)
 {
+	if (LLViewerJoystick::getInstance()->getOverrideCamera())
+	{
+		return;
+	}
+
 	if( mCameraMode != CAMERA_MODE_FOLLOW )
 	{
 		if (mCameraMode == CAMERA_MODE_MOUSELOOK)
@@ -4077,7 +4090,10 @@ void LLAgent::changeCameraToFollow(BOOL animate)
 //-----------------------------------------------------------------------------
 void LLAgent::changeCameraToThirdPerson(BOOL animate)
 {
-//printf( "changeCameraToThirdPerson\n" );
+	if (LLViewerJoystick::getInstance()->getOverrideCamera())
+	{
+		return;
+	}
 
 	gViewerWindow->getWindow()->resetBusyCount();
 
@@ -4159,6 +4175,11 @@ void LLAgent::changeCameraToThirdPerson(BOOL animate)
 //-----------------------------------------------------------------------------
 void LLAgent::changeCameraToCustomizeAvatar(BOOL avatar_animate, BOOL camera_animate)
 {
+	if (LLViewerJoystick::getInstance()->getOverrideCamera())
+	{
+		return;
+	}
+
 	setControlFlags(AGENT_CONTROL_STAND_UP); // force stand up
 	gViewerWindow->getWindow()->resetBusyCount();
 
@@ -4194,8 +4215,8 @@ void LLAgent::changeCameraToCustomizeAvatar(BOOL avatar_animate, BOOL camera_ani
 			mbFlagsDirty = TRUE;
 		}
 
-		gViewerWindow->setKeyboardFocus( NULL );
-		gViewerWindow->setMouseCapture( NULL );
+		gFocusMgr.setKeyboardFocus( NULL );
+		gFocusMgr.setMouseCapture( NULL );
 
 		LLVOAvatar::onCustomizeStart();
 	}
@@ -4475,7 +4496,7 @@ void LLAgent::setFocusOnAvatar(BOOL focus_on_avatar, BOOL animate)
 	//RN: when focused on the avatar, we're not "looking" at it
 	// looking implies intent while focusing on avatar means
 	// you're just walking around with a camera on you...eesh.
-	if (focus_on_avatar && !mFocusOnAvatar)
+	if (!mFocusOnAvatar && focus_on_avatar)
 	{
 		setFocusGlobal(LLVector3d::zero);
 		mCameraFOVZoomFactor = 0.f;
@@ -4498,6 +4519,12 @@ void LLAgent::setFocusOnAvatar(BOOL focus_on_avatar, BOOL animate)
 				resetAxes(at_axis);
 			}
 		}
+	}
+	// unlocking camera from avatar
+	else if (mFocusOnAvatar && !focus_on_avatar)
+	{
+		// keep camera focus point consistent, even though it is now unlocked
+		setFocusGlobal(getPositionGlobal() + calcThirdPersonFocusOffset(), gAgent.getID());
 	}
 	
 	mFocusOnAvatar = focus_on_avatar;

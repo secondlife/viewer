@@ -123,6 +123,8 @@ public:
 	inline BOOL getAllowTerraform() 		const;
 	inline BOOL getRestrictPushObject()		const;
 
+	bool isAlive(); // can become false if circuit disconnects
+
 	void setWaterHeight(F32 water_level);
 	F32 getWaterHeight() const;
 
@@ -286,8 +288,6 @@ public:
 	LLCloudLayer mCloudLayer;
 	LLViewerParcelOverlay	*mParcelOverlay;
 
-	BOOL	mAlive;					// can become false if circuit disconnects
-
 	LLStat	mBitStat;
 	LLStat	mPacketsStat;
 	LLStat	mPacketsLostStat;
@@ -302,7 +302,7 @@ public:
 	LLDynamicArray<U32> mMapAvatars;
 	LLDynamicArray<LLUUID> mMapAvatarIDs;
 
-protected:
+private:
 	// The surfaces and other layers
 	LLSurface*	mLandp;
 
@@ -375,6 +375,8 @@ protected:
 	LLEventPoll* mEventPoll;
 
 private:
+	bool	mAlive;					// can become false if circuit disconnects
+
 	//spatial partitions for objects in this region
 	std::vector<LLSpatialPartition*> mObjectPartition;
 

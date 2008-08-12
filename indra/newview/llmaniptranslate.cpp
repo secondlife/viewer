@@ -677,19 +677,9 @@ BOOL LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
 				if (selectNode->mIndividualSelection)
 				{
 					send_update = FALSE;
-					LLVector3 child_offset = (old_position_local - new_position_local) * ~object->getRotation();
-
+		
 					// counter-translate child objects if we are moving the root as an individual
-					for (U32 child_num = 0; child_num < object->mChildList.size(); child_num++)
-					{
-						LLViewerObject* childp = object->mChildList[child_num];
-
-						if (!childp->isSelected())
-						{
-							childp->setPosition(childp->getPosition() + child_offset);
-							rebuild(childp);
-						}
-					}
+					object->resetChildrenPosition(old_position_local - new_position_local, TRUE) ;					
 				}
 			}
 			else
@@ -743,18 +733,8 @@ BOOL LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
 
 				if (selectNode->mIndividualSelection)
 				{
-					LLVector3 parent_offset = (new_position_agent - old_position_agent) * ~object->getRotation();
-
 					// counter-translate child objects if we are moving the root as an individual
-					for (U32 child_num = 0; child_num < object->mChildList.size(); child_num++)
-					{
-						LLViewerObject* childp = object->mChildList[child_num];
-						if (!childp->isSelected())
-						{
-							childp->setPosition(childp->getPosition() - parent_offset);
-							rebuild(childp);
-						}
-					}
+					object->resetChildrenPosition(old_position_agent - new_position_agent, TRUE) ;					
 					send_update = FALSE;
 				}
 				else if (old_position_global != new_position_global)

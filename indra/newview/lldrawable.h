@@ -116,8 +116,6 @@ public:
 	virtual BOOL		isSpatialBridge() const		{ return FALSE; }
 	virtual LLSpatialPartition* asPartition()		{ return NULL; }
 	LLDrawable*			getParent() const			{ return mParent; }
-	LLDrawable*			getChild(U32 index)			{ return mVObjp->mChildList[index]->mDrawable; }
-	U32					getChildCount()				{ return mVObjp ? mVObjp->mChildList.size() : 0; }
 	
 	// must set parent through LLViewerObject::		()
 	//BOOL                setParent(LLDrawable *parent);

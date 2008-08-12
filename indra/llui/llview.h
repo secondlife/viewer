@@ -518,7 +518,7 @@ public:
 			{
 				// need non-const to update private dummy widget cache
 				llwarns << "Making dummy " << xml_tag << " named " << name << " in " << getName() << llendl;
-				const_cast<LLView*>(this)->mDummyWidgets.insert(std::make_pair(name, widget));
+				mDummyWidgets.insert(std::make_pair(name, widget));
 			}
 			else
 			{
@@ -646,7 +646,7 @@ private:
 	std::string		mControlName;
 
 	typedef std::map<std::string, LLView*> dummy_widget_map_t;
-	dummy_widget_map_t mDummyWidgets;
+	mutable dummy_widget_map_t mDummyWidgets;
 
 	boost::signals::connection mControlConnection;
 	

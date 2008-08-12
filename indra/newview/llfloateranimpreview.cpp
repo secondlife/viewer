@@ -38,6 +38,7 @@
 #include "lldir.h"
 #include "llvfile.h"
 #include "llapr.h"
+#include "llstring.h"
 
 #include "llagent.h"
 #include "llbbox.h"
@@ -48,6 +49,7 @@
 #include "lldrawpoolavatar.h"
 #include "llrender.h"
 #include "llface.h"
+#include "llfocusmgr.h"
 #include "llkeyframemotion.h"
 #include "lllineeditor.h"
 #include "llsliderctrl.h"
@@ -451,7 +453,7 @@ BOOL LLFloaterAnimPreview::handleMouseDown(S32 x, S32 y, MASK mask)
 	if (mPreviewRect.pointInRect(x, y))
 	{
 		bringToFront( x, y );
-		gViewerWindow->setMouseCapture(this);
+		gFocusMgr.setMouseCapture(this);
 		gViewerWindow->hideCursor();
 		mLastMouseX = x;
 		mLastMouseY = y;
@@ -466,7 +468,7 @@ BOOL LLFloaterAnimPreview::handleMouseDown(S32 x, S32 y, MASK mask)
 //-----------------------------------------------------------------------------
 BOOL LLFloaterAnimPreview::handleMouseUp(S32 x, S32 y, MASK mask)
 {
-	gViewerWindow->setMouseCapture(FALSE);
+	gFocusMgr.setMouseCapture(FALSE);
 	gViewerWindow->showCursor();
 	return LLFloater::handleMouseUp(x, y, mask);
 }

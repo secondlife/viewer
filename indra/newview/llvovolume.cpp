@@ -68,7 +68,7 @@
 const S32 MIN_QUIET_FRAMES_COALESCE = 30;
 const F32 FORCE_SIMPLE_RENDER_AREA = 512.f;
 const F32 FORCE_CULL_AREA = 8.f;
-const S32 SCULPT_REZ = 128;
+const S32 SCULPT_REZ = 64;
 
 BOOL gAnimateTextures = TRUE;
 extern BOOL gHideSelectedObjects;
@@ -87,6 +87,7 @@ LLVOVolume::LLVOVolume(const LLUUID &id, const LLPCode pcode, LLViewerRegion *re
 	mRelativeXformInvTrans.setIdentity();
 
 	mLOD = MIN_LOD;
+	mSculptLevel = -2;
 	mTextureAnimp = NULL;
 	mVObjRadius = LLVector3(1,1,0.5f).magVec();
 	mNumFaces = 0;
@@ -515,12 +516,13 @@ void LLVOVolume::updateTextures()
 		if (mSculptTexture.notNull())
 		{
 			mSculptTexture->addTextureStats(SCULPT_REZ * SCULPT_REZ);
-			mSculptTexture->setBoostLevel(LLViewerImage::BOOST_SCULPTED);
+			mSculptTexture->setBoostLevel(llmax((S32)mSculptTexture->getBoostLevel(),
+												(S32)LLViewerImage::BOOST_SCULPTED));
 		}
 
 		S32 texture_discard = mSculptTexture->getDiscardLevel(); //try to match the texture
-		S32 current_discard = getVolume()->getSculptLevel();
-		
+		S32 current_discard = mSculptLevel;
+
 		if (texture_discard >= 0 && //texture has some data available
 			(texture_discard < current_discard || //texture has more data than last rebuild
 			current_discard < 0)) //no previous rebuild
@@ -701,6 +703,7 @@ BOOL LLVOVolume::setVolume(const LLVolumeParams &volume_params, const S32 detail
 			if (mSculptTexture.notNull())
 			{
 				sculpt();
+				mSculptLevel = getVolume()->getSculptLevel();
 			}
 		}
 		else

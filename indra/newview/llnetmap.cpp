@@ -279,7 +279,7 @@ void LLNetMap::draw()
 				gGL.color4f(0.8f, 0.8f, 0.8f, 1.f);
 			}
 
-			if (!regionp->mAlive)
+			if (!regionp->isAlive())
 			{
 				gGL.color4f(1.f, 0.5f, 0.5f, 1.f);
 			}

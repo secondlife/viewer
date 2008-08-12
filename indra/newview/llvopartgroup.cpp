@@ -180,14 +180,13 @@ BOOL LLVOPartGroup::updateGeometry(LLDrawable *drawable)
 	pixel_meter_ratio *= pixel_meter_ratio;
 
 	S32 count=0;
-	S32 i;
 	mDepth = 0.f;
-
-	for (i = 0; i < num_parts; i++)
+	S32 i = 0 ;
+	for (i = 0 ; i < (S32)mViewerPartGroupp->mParticles.size(); i++)
 	{
-		const LLViewerPart &part = *((LLViewerPart*) mViewerPartGroupp->mParticles[i]);
+		const LLViewerPart *part = mViewerPartGroupp->mParticles[i];
 
-		LLVector3 part_pos_agent(part.mPosAgent);
+		LLVector3 part_pos_agent(part->mPosAgent);
 		at = part_pos_agent - camera_agent;
 
 		F32 camera_dist_squared = at.magVecSquared();
@@ -196,7 +195,7 @@ BOOL LLVOPartGroup::updateGeometry(LLDrawable *drawable)
 			inv_camera_dist_squared = 1.f / camera_dist_squared;
 		else
 			inv_camera_dist_squared = 1.f;
-		F32 area = part.mScale.mV[0] * part.mScale.mV[1] * inv_camera_dist_squared;
+		F32 area = part->mScale.mV[0] * part->mScale.mV[1] * inv_camera_dist_squared;
 		tot_area = llmax(tot_area, area);
  		
 		if (tot_area > max_area)
@@ -227,7 +226,7 @@ BOOL LLVOPartGroup::updateGeometry(LLDrawable *drawable)
 		
 		facep->setViewerObject(this);
 
-		if (part.mFlags & LLPartData::LL_PART_EMISSIVE_MASK)
+		if (part->mFlags & LLPartData::LL_PART_EMISSIVE_MASK)
 		{
 			facep->setState(LLFace::FULLBRIGHT);
 		}
@@ -236,9 +235,9 @@ BOOL LLVOPartGroup::updateGeometry(LLDrawable *drawable)
 			facep->clearState(LLFace::FULLBRIGHT);
 		}
 
-		facep->mCenterLocal = part.mPosAgent;
-		facep->setFaceColor(part.mColor);
-		facep->setTexture(part.mImagep);
+		facep->mCenterLocal = part->mPosAgent;
+		facep->setFaceColor(part->mColor);
+		facep->setTexture(part->mImagep);
 
 		mPixelArea = tot_area * pixel_meter_ratio;
 		const F32 area_scale = 10.f; // scale area to increase priority a bit

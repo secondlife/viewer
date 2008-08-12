@@ -152,24 +152,43 @@ LLView* LLTabContainer::getChildView(const std::string& name, BOOL recurse, BOOL
 void LLTabContainer::draw()
 {
 	S32 target_pixel_scroll = 0;
-	S32 cur_scroll_pos = mIsVertical ? 0 : getScrollPos();
+	S32 cur_scroll_pos = getScrollPos();
 	if (cur_scroll_pos > 0)
 	{
-		S32 available_width_with_arrows = getRect().getWidth() - mRightTabBtnOffset - 2 * (LLPANEL_BORDER_WIDTH + TABCNTR_ARROW_BTN_SIZE  + TABCNTR_ARROW_BTN_SIZE + 1);
-		for(tuple_list_t::iterator iter = mTabList.begin(); iter != mTabList.end(); ++iter)
+		if (!mIsVertical)
 		{
-			if (cur_scroll_pos == 0)
+			S32 available_width_with_arrows = getRect().getWidth() - mRightTabBtnOffset - 2 * (LLPANEL_BORDER_WIDTH + TABCNTR_ARROW_BTN_SIZE  + TABCNTR_ARROW_BTN_SIZE + 1);
+			for(tuple_list_t::iterator iter = mTabList.begin(); iter != mTabList.end(); ++iter)
 			{
-				break;
+				if (cur_scroll_pos == 0)
+				{
+					break;
+				}
+				target_pixel_scroll += (*iter)->mButton->getRect().getWidth();
+				cur_scroll_pos--;
 			}
-			target_pixel_scroll += (*iter)->mButton->getRect().getWidth();
-			cur_scroll_pos--;
-		}
 
-		// Show part of the tab to the left of what is fully visible
-		target_pixel_scroll -= TABCNTR_TAB_PARTIAL_WIDTH;
-		// clamp so that rightmost tab never leaves right side of screen
-		target_pixel_scroll = llmin(mTotalTabWidth - available_width_with_arrows, target_pixel_scroll);
+			// Show part of the tab to the left of what is fully visible
+			target_pixel_scroll -= TABCNTR_TAB_PARTIAL_WIDTH;
+			// clamp so that rightmost tab never leaves right side of screen
+			target_pixel_scroll = llmin(mTotalTabWidth - available_width_with_arrows, target_pixel_scroll);
+		}
+		else
+		{
+			S32 available_height_with_arrows = getRect().getHeight() - getTopBorderHeight() - (LLPANEL_BORDER_WIDTH + TABCNTR_ARROW_BTN_SIZE + TABCNTR_ARROW_BTN_SIZE + 1);
+			for(tuple_list_t::iterator iter = mTabList.begin(); iter != mTabList.end(); ++iter)
+			{
+				if (cur_scroll_pos==0)
+				{
+					break;
+				}
+				target_pixel_scroll += (*iter)->mButton->getRect().getHeight();
+				cur_scroll_pos--;
+			}
+			S32 total_tab_height = (BTN_HEIGHT + TABCNTRV_PAD) * getTabCount() + TABCNTRV_PAD;
+			// clamp so that the bottom tab never leaves bottom of panel
+			target_pixel_scroll = llmin(total_tab_height - available_height_with_arrows, target_pixel_scroll);
+		}
 	}
 
 	setScrollPosPixels((S32)lerp((F32)getScrollPosPixels(), (F32)target_pixel_scroll, LLCriticalDamp::getInterpolant(0.08f)));
@@ -612,13 +631,13 @@ BOOL LLTabContainer::handleDragAndDrop(S32 x, S32 y, MASK mask,	BOOL drop,	EDrag
 	{
 		if (has_scroll_arrows)
 		{
-			if (mJumpPrevArrowBtn->getRect().pointInRect(x,	y))
+			if (mJumpPrevArrowBtn && mJumpPrevArrowBtn->getRect().pointInRect(x, y))
 			{
 				S32	local_x	= x	- mJumpPrevArrowBtn->getRect().mLeft;
 				S32	local_y	= y	- mJumpPrevArrowBtn->getRect().mBottom;
 				mJumpPrevArrowBtn->handleHover(local_x,	local_y, mask);
 			}
-			if (mJumpNextArrowBtn->getRect().pointInRect(x,	y))
+			if (mJumpNextArrowBtn && mJumpNextArrowBtn->getRect().pointInRect(x, y))
 			{
 				S32	local_x	= x	- mJumpNextArrowBtn->getRect().mLeft;
 				S32	local_y	= y	- mJumpNextArrowBtn->getRect().mBottom;
@@ -1792,5 +1811,6 @@ void LLTabContainer::commitHoveredButton(S32 x, S32 y)
 		}
 	}
 }
+
 
 

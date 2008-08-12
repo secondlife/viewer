@@ -441,7 +441,8 @@ bool LLPanelGroupGeneral::apply(std::string& mesg)
 		llinfos << "LLPanelGroupGeneral::apply" << llendl;
 
 		// Check to make sure mature has been set
-		if(mComboMature->getCurrentIndex() == DECLINE_TO_STATE)
+		if(mComboMature &&
+		   mComboMature->getCurrentIndex() == DECLINE_TO_STATE)
 		{
 			LLStringUtil::format_map_t args;
 			gViewerWindow->alertXml("SetGroupMature", &callbackConfirmMatureApply,

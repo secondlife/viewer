@@ -135,7 +135,7 @@ LLViewerRegion* LLWorld::addRegion(const U64 &region_handle, const LLHost &host)
 	{
 		LLHost old_host = regionp->getHost();
 		// region already exists!
-		if (host == old_host && regionp->mAlive)
+		if (host == old_host && regionp->isAlive())
 		{
 			// This is a duplicate for the same host and it's alive, don't bother.
 			return regionp;
@@ -146,7 +146,7 @@ LLViewerRegion* LLWorld::addRegion(const U64 &region_handle, const LLHost &host)
 			llwarns << "LLWorld::addRegion exists, but old host " << old_host
 					<< " does not match new host " << host << llendl;
 		}
-		if (!regionp->mAlive)
+		if (!regionp->isAlive())
 		{
 			llwarns << "LLWorld::addRegion exists, but isn't alive" << llendl;
 		}

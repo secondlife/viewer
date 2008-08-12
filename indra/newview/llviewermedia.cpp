@@ -536,7 +536,7 @@ void LLViewerMedia::buildMediaManagerData( LLMediaManagerData* init_data )
 	init_data->setBrowserComponentDir( component_dir );
 	std::string profile_name("Second Life");
 	init_data->setBrowserProfileName( profile_name );
-	init_data->setBrowserParentWindow( gViewerWindow->getPlatformWindow() );
+	init_data->setBrowserParentWindow( gViewerWindow->getMediaWindow() );
 
 	// We use a custom user agent with viewer version and skin name.
 	LLViewerMediaImpl::updateBrowserUserAgent();

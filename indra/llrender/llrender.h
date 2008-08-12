@@ -178,6 +178,7 @@ public:
 	~LLRender();
 
 	void translatef(const GLfloat& x, const GLfloat& y, const GLfloat& z);
+	void scalef(const GLfloat& x, const GLfloat& y, const GLfloat& z);
 	void pushMatrix();
 	void popMatrix();
 

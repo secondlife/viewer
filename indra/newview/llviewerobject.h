@@ -129,7 +129,8 @@ protected:
 	std::map<U16, ExtraParameter*> mExtraParameterList;
 
 public:
-	typedef std::vector<LLPointer<LLViewerObject> > child_list_t;
+	typedef std::list<LLPointer<LLViewerObject> > child_list_t;
+	typedef const child_list_t const_child_list_t;
 
 	LLViewerObject(const LLUUID &id, const LLPCode type, LLViewerRegion *regionp);
 	MEM_TYPE_NEW(LLMemType::MTYPE_OBJECT);
@@ -153,7 +154,7 @@ public:
 	enum { MEDIA_TYPE_NONE = 0, MEDIA_TYPE_WEB_PAGE = 1 };
 
 	// Return codes for processUpdateMessage
-	enum { MEDIA_URL_REMOVED = 0x1, MEDIA_URL_ADDED = 0x2, MEDIA_URL_UPDATED = 0x4 };
+	enum { MEDIA_URL_REMOVED = 0x1, MEDIA_URL_ADDED = 0x2, MEDIA_URL_UPDATED = 0x4, INVALID_UPDATE = 0x80000000 };
 
 	virtual U32		processUpdateMessage(LLMessageSystem *mesgsys,
 										void **user_data,
@@ -212,7 +213,8 @@ public:
 	U32 getLocalID() const							{ return mLocalID; }
 	U32 getCRC() const								{ return mTotalCRC; }
 
-	virtual BOOL isFlexible() const					{ return false; }
+	virtual BOOL isFlexible() const					{ return FALSE; }
+	virtual BOOL isSculpted() const 				{ return FALSE; }
 
 	// This method returns true if the object is over land owned by
 	// the agent.
@@ -234,7 +236,8 @@ public:
 	virtual void setParent(LLViewerObject* parent);
 	virtual void addChild(LLViewerObject *childp);
 	virtual void removeChild(LLViewerObject *childp);
-	child_list_t& getChildren();
+	const_child_list_t& getChildren() const { 	return mChildList; }
+	S32 numChildren() const { return mChildList.size(); }
 	void addThisAndAllChildren(LLDynamicArray<LLViewerObject*>& objects);
 	void addThisAndNonJointChildren(LLDynamicArray<LLViewerObject*>& objects);
 	BOOL isChild(LLViewerObject *childp) const;
@@ -472,6 +475,16 @@ public:
 	friend class LLViewerObjectList;
 	friend class LLViewerMediaList;
 
+public:
+	//counter-translation
+	void resetChildrenPosition(const LLVector3& offset, BOOL simplified = FALSE) ;
+	//counter-rotation
+	void resetChildrenRotationAndPosition(const std::vector<LLQuaternion>& rotations, 
+											const std::vector<LLVector3>& positions) ;
+	void saveUnselectedChildrenRotation(std::vector<LLQuaternion>& rotations) ;
+	void saveUnselectedChildrenPosition(std::vector<LLVector3>& positions) ;
+	std::vector<LLVector3> mUnselectedChildrenPositions ;
+
 private:
 	ExtraParameter* createNewParameterEntry(U16 param_type);
 	ExtraParameter* getExtraParameterEntry(U16 param_type) const;
@@ -496,7 +509,6 @@ public:
 		LL_VO_WL_SKY =				LL_PCODE_APP | 0xb0, // should this be moved to 0x40?
 	} EVOType;
 
-	child_list_t	mChildList;
 	LLUUID			mID;
 
 	// unique within region, not unique across regions
@@ -575,6 +587,8 @@ protected:
 	typedef std::map<char *, LLNameValue *> name_value_map_t;
 	name_value_map_t mNameValuePairs;	// Any name-value pairs stored by script
 
+	child_list_t	mChildList;
+	
 	F64				mLastInterpUpdateSecs;			// Last update for purposes of interpolation
 	F64				mLastMessageUpdateSecs;			// Last update from a message from the simulator
 	TPACKETID		mLatestRecvPacketID;			// Latest time stamp on message from simulator

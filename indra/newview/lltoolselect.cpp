@@ -199,9 +199,12 @@ LLObjectSelectionHandle LLToolSelect::handleObjectSelection(const LLPickInfo& pi
 					select_node->setTransient(TRUE);
 				}
 
-				for (S32 i = 0; i < (S32)root_object->mChildList.size(); i++)
+				LLViewerObject::const_child_list_t& child_list = root_object->getChildren();
+				for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
+					 iter != child_list.end(); iter++)
 				{
-					select_node = selection->findNode(root_object->mChildList[i]);
+					LLViewerObject* child = *iter;
+					select_node = selection->findNode(child);
 					if (select_node)
 					{
 						select_node->setTransient(TRUE);

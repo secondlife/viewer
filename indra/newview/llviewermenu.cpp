@@ -128,6 +128,7 @@
 #include "llfloaterwater.h"
 #include "llfloaterwindlight.h"
 #include "llfloaterworldmap.h"
+#include "llfloatermemleak.h"
 #include "llframestats.h"
 #include "llframestatview.h"
 #include "llfasttimerview.h"
@@ -493,6 +494,8 @@ BOOL enable_not_thirdperson(void*);
 BOOL enable_have_card(void*);
 BOOL enable_detach(void*);
 BOOL enable_region_owner(void*);
+void menu_toggle_attached_lights(void* user_data);
+void menu_toggle_attached_particles(void* user_data);
 
 class LLLandmarkObserver : public LLInventoryObserver
 {
@@ -1434,6 +1437,23 @@ void init_debug_rendering_menu(LLMenuGL* menu)
 
 	item = new LLMenuItemCheckGL("Cheesy Beacon", menu_toggle_control, NULL, menu_check_control, (void*)"CheesyBeacon");
 	menu->append(item);
+
+	item = new LLMenuItemCheckGL("Attached Lights", menu_toggle_attached_lights, NULL, menu_check_control, (void*)"RenderAttachedLights");
+	menu->append(item);
+
+	item = new LLMenuItemCheckGL("Attached Particles", menu_toggle_attached_particles, NULL, menu_check_control, (void*)"RenderAttachedParticles");
+	menu->append(item);
+
+#ifndef LL_RELEASE_FOR_DOWNLOAD
+	menu->appendSeparator();
+	menu->append(new LLMenuItemCallGL("Memory Leaking Simulation", LLFloaterMemLeak::show, NULL, NULL));
+#else
+	if(gSavedSettings.getBOOL("QAMode"))
+	{
+		menu->appendSeparator();
+		menu->append(new LLMenuItemCallGL("Memory Leaking Simulation", LLFloaterMemLeak::show, NULL, NULL));
+	}
+#endif
 	
 	menu->createJumpKeys();
 }
@@ -1771,35 +1791,62 @@ class LLViewCheckBuildMode : public view_listener_t
 
 bool toggle_build_mode()
 {
-	if (LLToolMgr::getInstance()->inEdit())
+	if (LLToolMgr::getInstance()->inBuildMode())
 	{
-		// just reset the view, will pull us out of edit mode
-		handle_reset_view();
-
+		if (gSavedSettings.getBOOL("EditCameraMovement"))
+		{
+			// just reset the view, will pull us out of edit mode
+			handle_reset_view();
+		}
+		else
+		{
+			// manually disable edit mode, but do not affect the camera
+			gAgent.resetView(false);
+			gFloaterTools->close();
+			gViewerWindow->showCursor();			
+		}
 		// avoid spurious avatar movements pulling out of edit mode
 		LLViewerJoystick::getInstance()->moveAvatar(true);
 	}
 	else
 	{
-		if (LLViewerJoystick::getInstance()->getOverrideCamera())
+		ECameraMode camMode = gAgent.getCameraMode();
+		if (CAMERA_MODE_MOUSELOOK == camMode ||	CAMERA_MODE_CUSTOMIZE_AVATAR == camMode)
 		{
-			handle_toggle_flycam();
-		}
-			
-		if (gAgent.getFocusOnAvatar() && gSavedSettings.getBOOL("EditCameraMovement") )
-		{
-			// zoom in if we're looking at the avatar
-			gAgent.setFocusOnAvatar(FALSE, ANIMATE);
-			gAgent.setFocusGlobal(gAgent.getPositionGlobal() + 2.0 * LLVector3d(gAgent.getAtAxis()));
-			gAgent.cameraZoomIn(0.666f);
-			gAgent.cameraOrbitOver( 30.f * DEG_TO_RAD );
+			// pull the user out of mouselook or appearance mode when entering build mode
+			handle_reset_view();
 		}
 
+		if (gSavedSettings.getBOOL("EditCameraMovement"))
+		{
+			// camera should be set
+			if (LLViewerJoystick::getInstance()->getOverrideCamera())
+			{
+				handle_toggle_flycam();
+			}
+				
+			if (gAgent.getFocusOnAvatar())
+			{
+				// zoom in if we're looking at the avatar
+				gAgent.setFocusOnAvatar(FALSE, ANIMATE);
+				gAgent.setFocusGlobal(gAgent.getPositionGlobal() + 2.0 * LLVector3d(gAgent.getAtAxis()));
+				gAgent.cameraZoomIn(0.666f);
+				gAgent.cameraOrbitOver( 30.f * DEG_TO_RAD );
+			}
+		}
+
+		
 		LLToolMgr::getInstance()->setCurrentToolset(gBasicToolset);
 		LLToolMgr::getInstance()->getCurrentToolset()->selectTool( LLToolCompCreate::getInstance() );
 
 		// Could be first use
 		LLFirstUse::useBuild();
+
+		gAgent.resetView(false);
+
+		// avoid spurious avatar movements
+		LLViewerJoystick::getInstance()->moveAvatar(true);
+
 	}
 	return true;
 }
@@ -2880,8 +2927,12 @@ class LLEditEnableCustomizeAvatar : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		bool new_value = gAgent.getWearablesLoaded();
-		gMenuHolder->findControl(userdata["control"].asString())->setValue(new_value);
+		LLVOAvatar* avatar = gAgent.getAvatarObject();
+
+		bool enabled = ((avatar && avatar->isFullyLoaded()) &&
+				   (gAgent.getWearablesLoaded()));
+
+		gMenuHolder->findControl(userdata["control"].asString())->setValue(enabled);
 		return true;
 	}
 };
@@ -6000,9 +6051,12 @@ BOOL object_selected_and_point_valid(void *user_data)
 	{
 		LLSelectNode* node = *iter;
 		LLViewerObject* object = node->getObject();
-		for (U32 child_num = 0; child_num < object->mChildList.size(); child_num++ )
+		LLViewerObject::const_child_list_t& child_list = object->getChildren();
+		for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
+			 iter != child_list.end(); iter++)
 		{
-			if (object->mChildList[child_num]->isAvatar())
+			LLViewerObject* child = *iter;
+			if (child->isAvatar())
 			{
 				return FALSE;
 			}
@@ -6381,6 +6435,18 @@ BOOL menu_check_variable( void* user_data)
 BOOL enable_land_selected( void* )
 {
 	return !(LLViewerParcelMgr::getInstance()->selectionEmpty());
+}
+
+void menu_toggle_attached_lights(void* user_data)
+{
+	menu_toggle_control(user_data);
+	LLPipeline::sRenderAttachedLights = gSavedSettings.getBOOL("RenderAttachedLights");
+}
+
+void menu_toggle_attached_particles(void* user_data)
+{
+	menu_toggle_control(user_data);
+	LLPipeline::sRenderAttachedParticles = gSavedSettings.getBOOL("RenderAttachedParticles");
 }
 
 class LLSomethingSelected : public view_listener_t

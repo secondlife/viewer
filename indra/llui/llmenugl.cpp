@@ -3902,6 +3902,13 @@ BOOL LLMenuBarGL::handleKeyHere(KEY key, MASK mask)
 	{
 		mAltKeyTrigger = FALSE;
 	}
+	
+	if (key == KEY_ESCAPE && mask == MASK_NONE)
+	{
+		LLMenuGL::setKeyboardMode(FALSE);
+		// if any menus are visible, this will return TRUE, stopping further processing of ESCAPE key
+		return LLMenuGL::sMenuContainer->hideMenus();
+	}
 
 	// before processing any other key, check to see if ALT key has triggered menu access
 	checkMenuTrigger();

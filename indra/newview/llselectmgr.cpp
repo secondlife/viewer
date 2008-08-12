@@ -845,9 +845,12 @@ void LLSelectMgr::highlightObjectAndFamily(LLViewerObject* objectp)
 
 	highlightObjectOnly(root_obj);
 
-	for(U32 i = 0; i < root_obj->mChildList.size(); i++)
+	LLViewerObject::const_child_list_t& child_list = root_obj->getChildren();
+	for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
+		 iter != child_list.end(); iter++)
 	{
-		highlightObjectOnly(root_obj->mChildList[i]);
+		LLViewerObject* child = *iter;
+		highlightObjectOnly(child);
 	}
 }
 
@@ -872,8 +875,9 @@ void LLSelectMgr::highlightObjectAndFamily(const std::vector<LLViewerObject*>& o
 		LLViewerObject* root = (LLViewerObject*)object->getRoot();
 		mRectSelectedObjects.insert(root);
 
-		for (LLViewerObject::child_list_t::const_iterator iter2 = root->mChildList.begin();
-			 iter2 != root->mChildList.end(); ++iter2)
+		LLViewerObject::const_child_list_t& child_list = root->getChildren();
+		for (LLViewerObject::child_list_t::const_iterator iter2 = child_list.begin();
+			 iter2 != child_list.end(); iter2++)
 		{
 			LLViewerObject* child = *iter2;
 			mRectSelectedObjects.insert(child);
@@ -902,10 +906,11 @@ void LLSelectMgr::unhighlightObjectAndFamily(LLViewerObject* objectp)
 
 	unhighlightObjectOnly(root_obj);
 
-	for (LLViewerObject::child_list_t::iterator iter2 = root_obj->mChildList.begin();
-		 iter2 != root_obj->mChildList.end(); ++iter2)
+	LLViewerObject::const_child_list_t& child_list = root_obj->getChildren();
+	for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
+		 iter != child_list.end(); iter++)
 	{
-		LLViewerObject* child = *iter2;
+		LLViewerObject* child = *iter;
 		unhighlightObjectOnly(child);
 	}
 }
@@ -1005,10 +1010,11 @@ void LLSelectMgr::addGridObject(LLViewerObject* objectp)
 	LLSelectNode* nodep = new LLSelectNode(objectp, FALSE);
 	mGridObjects.addNodeAtEnd(nodep);
 
-	for (LLViewerObject::child_list_t::iterator iter2 = objectp->mChildList.begin();
-		 iter2 != objectp->mChildList.end(); ++iter2)
+	LLViewerObject::const_child_list_t& child_list = objectp->getChildren();
+	for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
+		 iter != child_list.end(); iter++)
 	{
-		LLViewerObject* child = *iter2;
+		LLViewerObject* child = *iter;
 		nodep = new LLSelectNode(child, FALSE);
 		mGridObjects.addNodeAtEnd(nodep);
 	}
@@ -4719,8 +4725,9 @@ void LLSelectMgr::updateSilhouettes()
 			}
 			else
 			{
-				for (LLViewerObject::child_list_t::iterator iter = objectp->mChildList.begin();
-					 iter != objectp->mChildList.end(); ++iter)
+				LLViewerObject::const_child_list_t& child_list = objectp->getChildren();
+				for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
+					 iter != child_list.end(); iter++)
 				{
 					LLViewerObject* child_objectp = *iter;
 				
@@ -5412,8 +5419,9 @@ S32 get_family_count(LLViewerObject *parent)
 		llwarns << "Trying to get_family_count on null parent!" << llendl;
 	}
 	S32 count = 1;	// for this object
-	for (LLViewerObject::child_list_t::iterator iter = parent->mChildList.begin();
-		 iter != parent->mChildList.end(); ++iter)
+	LLViewerObject::const_child_list_t& child_list = parent->getChildren();
+	for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
+		 iter != child_list.end(); iter++)
 	{
 		LLViewerObject* child = *iter;
 

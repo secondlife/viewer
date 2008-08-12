@@ -100,6 +100,7 @@ public:
 	BOOL mIsGF3;
 	BOOL mIsGFFX;
 	BOOL mATIOffsetVerticalLines;
+	BOOL mATIOldDriver;
 
 	// Whether this version of GL is good enough for SL to use
 	BOOL mHasRequirements;

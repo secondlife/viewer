@@ -178,6 +178,9 @@ protected:
 	EAcceptance dad3dActivateGesture(LLViewerObject *obj, S32 face,
 								 MASK mask, BOOL drop);
 
+	// set the LLToolDragAndDrop's cursor based on the given acceptance
+	ECursorType acceptanceToCursor( EAcceptance acceptance );
+
 	// This method converts mCargoID to an inventory item or
 	// folder. If no item or category is found, both pointers will be
 	// returned NULL.
@@ -189,9 +192,9 @@ protected:
 	//	LLViewerInventoryItem::item_array_t& items);
 
 	void dropObject(LLViewerObject* raycast_target,
-					BOOL bypass_sim_raycast,
-					BOOL from_task_inventory,
-					BOOL remove_from_inventory);
+			BOOL bypass_sim_raycast,
+			BOOL from_task_inventory,
+			BOOL remove_from_inventory);
 	
 	// accessor that looks at permissions, copyability, and names of
 	// inventory items to determine if a drop would be ok.
@@ -200,9 +203,9 @@ protected:
 	// deal with permissions of object, etc. returns TRUE if drop can
 	// proceed, otherwise FALSE.
 	static BOOL handleDropTextureProtections(LLViewerObject* hit_obj,
-											 LLInventoryItem* item,
-											 LLToolDragAndDrop::ESource source,
-											 const LLUUID& src_id);
+						 LLInventoryItem* item,
+						 LLToolDragAndDrop::ESource source,
+						 const LLUUID& src_id);
 
 
 	// give inventory item functionality
@@ -213,7 +216,7 @@ protected:
 	// give inventory category functionality
 	static void handleCopyProtectedCategory(S32 option, void* data);
 	static void commitGiveInventoryCategory(const LLUUID& to_agent,
-											LLInventoryCategory* cat);
+						LLInventoryCategory* cat);
 public:
 	// helper functions
 	static BOOL isInventoryDropAcceptable(LLViewerObject* obj, LLInventoryItem* item) { return (ACCEPT_YES_COPY_SINGLE <= willObjectAcceptInventory(obj, item)); }

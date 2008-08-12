@@ -188,6 +188,7 @@ class LLVoiceClient: public LLSingleton<LLVoiceClient>
 		
 		/////////////////////////////
 		// Sending updates of current state
+static	void updatePosition(void);
 		void setCameraPosition(const LLVector3d &position, const LLVector3 &velocity, const LLMatrix3 &rot);
 		void setAvatarPosition(const LLVector3d &position, const LLVector3 &velocity, const LLMatrix3 &rot);
 		bool channelFromRegion(LLViewerRegion *region, std::string &name);

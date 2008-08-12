@@ -451,6 +451,12 @@ void LLRender::translatef(const GLfloat& x, const GLfloat& y, const GLfloat& z)
 	glTranslatef(x,y,z);
 }
 
+void LLRender::scalef(const GLfloat& x, const GLfloat& y, const GLfloat& z)
+{
+	flush();
+	glScalef(x,y,z);
+}
+
 void LLRender::pushMatrix()
 {
 	flush();

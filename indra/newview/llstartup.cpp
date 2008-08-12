@@ -188,7 +188,7 @@
 //
 // exported globals
 //
-BOOL gAgentMovementCompleted = FALSE;
+bool gAgentMovementCompleted = false;
 
 std::string SCREEN_HOME_FILENAME = "screen_home.bmp";
 std::string SCREEN_LAST_FILENAME = "screen_last.bmp";
@@ -214,7 +214,7 @@ static std::string sInitialOutfitGender;	// "male" or "female"
 
 static bool gUseCircuitCallbackCalled = false;
 
-S32 LLStartUp::gStartupState = STATE_FIRST;
+EStartupState LLStartUp::gStartupState = STATE_FIRST;
 
 
 //
@@ -225,7 +225,7 @@ void login_show();
 void login_callback(S32 option, void* userdata);
 std::string load_password_from_disk();
 void save_password_to_disk(const char* hashed_password);
-BOOL is_hex_string(U8* str, S32 len);
+bool is_hex_string(U8* str, S32 len);
 void show_first_run_dialog();
 void first_run_dialog_callback(S32 option, void* userdata);
 void set_startup_status(const F32 frac, const std::string& string, const std::string& msg);
@@ -301,9 +301,9 @@ void update_texture_fetch()
 static std::vector<std::string> sAuthUris;
 static S32 sAuthUriNum = -1;
 
-// Returns FALSE to skip other idle processing. Should only return
-// TRUE when all initialization done.
-BOOL idle_startup()
+// Returns false to skip other idle processing. Should only return
+// true when all initialization done.
+bool idle_startup()
 {
 	LLMemType mt1(LLMemType::MTYPE_STARTUP);
 	
@@ -341,12 +341,12 @@ BOOL idle_startup()
 	static S32  agent_location_id = START_LOCATION_ID_LAST;
 	static S32  location_which = START_LOCATION_ID_LAST;
 
-	static BOOL show_connect_box = TRUE;
+	static bool show_connect_box = true;
 	static BOOL remember_password = TRUE;
 
-	static BOOL stipend_since_login = FALSE;
+	static bool stipend_since_login = false;
 
-	static BOOL samename = FALSE;
+	static bool samename = false;
 
 	// HACK: These are things from the main loop that usually aren't done
 	// until initialization is complete, but need to be done here for things
@@ -443,6 +443,18 @@ BOOL idle_startup()
 
 		LLFILE* found_template = NULL;
 		found_template = LLFile::fopen(message_template_path, "r");		/* Flawfinder: ignore */
+		
+		#if LL_WINDOWS
+			// On the windows dev builds, unpackaged, the message_template.msg 
+			// file will be located in 
+			// indra/build-vc**/newview/<config>/app_settings.
+			if (!found_template)
+			{
+				message_template_path = gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, "app_settings", "message_template.msg");
+				found_template = LLFile::fopen(message_template_path.c_str(), "r");		/* Flawfinder: ignore */
+			}	
+		#endif
+
 		if (found_template)
 		{
 			fclose(found_template);
@@ -468,7 +480,24 @@ BOOL idle_startup()
 				std::string msg = llformat("Unable to start networking, error %d", gMessageSystem->getErrorCode());
 				LLAppViewer::instance()->earlyExit(msg);
 			}
-			LLMessageConfig::initClass("viewer", gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, ""));
+
+			#if LL_WINDOWS
+				// On the windows dev builds, unpackaged, the message.xml file will 
+				// be located in indra/build-vc**/newview/<config>/app_settings.
+				std::string message_path = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,"message.xml");
+							
+				if (!LLFile::isfile(message_path.c_str())) 
+				{
+					LLMessageConfig::initClass("viewer", gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, "app_settings", ""));
+				}
+				else
+				{
+					LLMessageConfig::initClass("viewer", gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, ""));
+				}
+			#else			
+				LLMessageConfig::initClass("viewer", gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, ""));
+			#endif
+
 		}
 		else
 		{
@@ -558,7 +587,7 @@ BOOL idle_startup()
 #else
 				void* window_handle = NULL;
 #endif
-				BOOL init = gAudiop->init(kAUDIO_NUM_SOURCES, window_handle);
+				bool init = gAudiop->init(kAUDIO_NUM_SOURCES, window_handle);
 				if(!init)
 				{
 					LL_WARNS("AppInit") << "Unable to initialize audio engine" << LL_ENDL;
@@ -584,7 +613,7 @@ BOOL idle_startup()
 			lastname = gLoginHandler.mLastName;
 			web_login_key = gLoginHandler.mWebLoginKey;
 
-			show_connect_box = FALSE;
+			show_connect_box = false;
 		}
         else if(gSavedSettings.getLLSD("UserLoginInfo").size() == 3)
         {
@@ -599,9 +628,9 @@ BOOL idle_startup()
 			remember_password = gSavedSettings.getBOOL("RememberPassword");
 			
 #ifdef USE_VIEWER_AUTH
-			show_connect_box = TRUE;
+			show_connect_box = true;
 #else
-			show_connect_box = FALSE;
+			show_connect_box = false;
 #endif
 			gSavedSettings.setBOOL("AutoLogin", TRUE);
         }
@@ -614,9 +643,9 @@ BOOL idle_startup()
 			remember_password = TRUE;
 			
 #ifdef USE_VIEWER_AUTH
-			show_connect_box = TRUE;
+			show_connect_box = true;
 #else
-			show_connect_box = FALSE;
+			show_connect_box = false;
 #endif
 		}
 		else
@@ -627,7 +656,7 @@ BOOL idle_startup()
 			lastname = gSavedSettings.getString("LastName");
 			password = load_password_from_disk();
 			remember_password = gSavedSettings.getBOOL("RememberPassword");
-			show_connect_box = TRUE;
+			show_connect_box = true;
 		}
 
 
@@ -1058,11 +1087,11 @@ BOOL idle_startup()
 	{
 		LL_DEBUGS("AppInit") << "STATE_LOGIN_PROCESS_RESPONSE" << LL_ENDL;
 		std::ostringstream emsg;
-		BOOL quit = FALSE;
+		bool quit = false;
 		std::string login_response;
 		std::string reason_response;
 		std::string message_response;
-		BOOL successful_login = FALSE;
+		bool successful_login = false;
 		LLUserAuth::UserAuthcode error = LLUserAuth::getInstance()->authResponse();
 		// reset globals
 		gAcceptTOS = FALSE;
@@ -1074,7 +1103,7 @@ BOOL idle_startup()
 			if(login_response == "true")
 			{
 				// Yay, login!
-				successful_login = TRUE;
+				successful_login = true;
 			}
 			else if(login_response == "indeterminate")
 			{
@@ -1131,11 +1160,11 @@ BOOL idle_startup()
 																	message_response);
 						tos_dialog->startModal();
 						// LLFloaterTOS deletes itself.
-						return FALSE;
+						return false;
 					}
 					else
 					{
-						quit = TRUE;
+						quit = true;
 					}
 				}
 				if(reason_response == "critical")
@@ -1148,11 +1177,11 @@ BOOL idle_startup()
 																	message_response);
 						tos_dialog->startModal();
 						// LLFloaterTOS deletes itself.
-						return FALSE;
+						return false;
 					}
 					else
 					{
-						quit = TRUE;
+						quit = true;
 					}
 				}
 				if(reason_response == "key")
@@ -1168,11 +1197,11 @@ BOOL idle_startup()
 					{
 						update_app(TRUE, auth_message);
 						LLStartUp::setStartupState( STATE_UPDATE_CHECK );
-						return FALSE;
+						return false;
 					}
 					else
 					{
-						quit = TRUE;
+						quit = true;
 					}
 				}
 				if(reason_response == "optional")
@@ -1184,7 +1213,7 @@ BOOL idle_startup()
 						update_app(FALSE, auth_message);
 						LLStartUp::setStartupState( STATE_UPDATE_CHECK );
 						gSkipOptionalUpdate = TRUE;
-						return FALSE;
+						return false;
 					}
 				}
 			}
@@ -1216,7 +1245,7 @@ BOOL idle_startup()
 		{
 			LLUserAuth::getInstance()->reset();
 			LLAppViewer::instance()->forceQuit();
-			return FALSE;
+			return false;
 		}
 
 		if(successful_login)
@@ -1358,7 +1387,7 @@ BOOL idle_startup()
 				it = options[0].find("stipend_since_login");
 				if(it != no_flag)
 				{
-					if((*it).second == "Y") stipend_since_login = TRUE;
+					if((*it).second == "Y") stipend_since_login = true;
 				}
 				it = options[0].find("gendered");
 				if(it != no_flag)
@@ -1443,7 +1472,7 @@ BOOL idle_startup()
 				gViewerWindow->alertXml("ErrorMessage", args, login_alert_done);
 				reset_login();
 				gSavedSettings.setBOOL("AutoLogin", FALSE);
-				show_connect_box = TRUE;
+				show_connect_box = true;
 			}
 			
 			// Pass the user information to the voice chat server interface.
@@ -1463,7 +1492,7 @@ BOOL idle_startup()
 			gViewerWindow->alertXml("ErrorMessage", args, login_alert_done);
 			reset_login();
 			gSavedSettings.setBOOL("AutoLogin", FALSE);
-			show_connect_box = TRUE;
+			show_connect_box = true;
 			// Don't save an incorrect password to disk.
 			save_password_to_disk(NULL);
 		}
@@ -2002,7 +2031,7 @@ BOOL idle_startup()
 		llinfos << "Requesting Agent Data" << llendl;
 		gAgent.sendAgentDataUpdateRequest();
 
-		BOOL shown_at_exit = gSavedSettings.getBOOL("ShowInventory");
+		bool shown_at_exit = gSavedSettings.getBOOL("ShowInventory");
 
 		// Create the inventory views
 		llinfos << "Creating Inventory Views" << llendl;
@@ -2113,8 +2142,8 @@ BOOL idle_startup()
 						const BOOL no_inform_server = FALSE;
 						const BOOL no_deactivate_similar = FALSE;
 						gGestureManager.activateGestureWithAsset(item_id, asset_id,
-																 no_inform_server,
-																 no_deactivate_similar);
+											 no_inform_server,
+											 no_deactivate_similar);
 						// We need to fetch the inventory items for these gestures
 						// so we have the names to populate the UI.
 						item_ids.push_back(item_id);
@@ -2536,9 +2565,9 @@ void save_password_to_disk(const char* hashed_password)
 	}
 }
 
-BOOL is_hex_string(U8* str, S32 len)
+bool is_hex_string(U8* str, S32 len)
 {
-	BOOL rv = TRUE;
+	bool rv = true;
 	U8* c = str;
 	while(rv && len--)
 	{
@@ -2563,7 +2592,7 @@ BOOL is_hex_string(U8* str, S32 len)
 			++c;
 			break;
 		default:
-			rv = FALSE;
+			rv = false;
 			break;
 		}
 	}
@@ -2683,7 +2712,7 @@ void update_app(BOOL mandatory, const std::string& auth_msg)
 void update_dialog_callback(S32 option, void *userdata)
 {
 	std::string update_exe_path;
-	BOOL mandatory = userdata != NULL;
+	bool mandatory = userdata != NULL;
 
 #if !LL_RELEASE_FOR_DOWNLOAD
 	if (option == 2)
@@ -2805,7 +2834,7 @@ void update_dialog_callback(S32 option, void *userdata)
 	
 	update_exe_path = "'";
 	update_exe_path += gDirUtilp->getAppRODataDir();
-	update_exe_path += "/AutoUpdater.app/Contents/MacOS/AutoUpdater' -url \"";
+	update_exe_path += "/mac-updater.app/Contents/MacOS/mac-updater' -url \"";
 	update_exe_path += update_url.asString();
 	update_exe_path += "\" -name \"";
 	update_exe_path += LLAppViewer::instance()->getSecondLifeTitle();
@@ -3709,9 +3738,45 @@ void release_start_screen()
 
 
 // static
-void LLStartUp::setStartupState( S32 state )
+std::string LLStartUp::startupStateToString(EStartupState state)
 {
-	LL_INFOS("AppInit") << "Startup state changing from " << gStartupState << " to " << state << LL_ENDL;
+#define RTNENUM(E) case E: return #E
+	switch(state){
+		RTNENUM( STATE_FIRST );
+		RTNENUM( STATE_LOGIN_SHOW );
+		RTNENUM( STATE_LOGIN_WAIT );
+		RTNENUM( STATE_LOGIN_CLEANUP );
+		RTNENUM( STATE_UPDATE_CHECK );
+		RTNENUM( STATE_LOGIN_AUTH_INIT );
+		RTNENUM( STATE_LOGIN_AUTHENTICATE );
+		RTNENUM( STATE_LOGIN_NO_DATA_YET );
+		RTNENUM( STATE_LOGIN_DOWNLOADING );
+		RTNENUM( STATE_LOGIN_PROCESS_RESPONSE );
+		RTNENUM( STATE_WORLD_INIT );
+		RTNENUM( STATE_SEED_GRANTED_WAIT );
+		RTNENUM( STATE_SEED_CAP_GRANTED );
+		RTNENUM( STATE_WORLD_WAIT );
+		RTNENUM( STATE_AGENT_SEND );
+		RTNENUM( STATE_AGENT_WAIT );
+		RTNENUM( STATE_INVENTORY_SEND );
+		RTNENUM( STATE_MISC );
+		RTNENUM( STATE_PRECACHE );
+		RTNENUM( STATE_WEARABLES_WAIT );
+		RTNENUM( STATE_CLEANUP );
+		RTNENUM( STATE_STARTED );
+	default:
+		return llformat("(state #%d)", state);
+	}
+#undef RTNENUM
+}
+
+
+// static
+void LLStartUp::setStartupState( EStartupState state )
+{
+	LL_INFOS("AppInit") << "Startup state changing from " <<  
+		startupStateToString(gStartupState) << " to " <<  
+		startupStateToString(state) << LL_ENDL;
 	gStartupState = state;
 }
 

@@ -146,6 +146,11 @@ if (LINUX)
 
   if (VIEWER)
     add_definitions(-DAPPID=secondlife)
+    add_definitions(-fvisibility=hidden)
+    if (NOT STANDALONE)
+      # this stops us requiring a really recent glibc at runtime
+      add_definitions(-fno-stack-protector)
+    endif (NOT STANDALONE)
   endif (VIEWER)
 
   set(CMAKE_CXX_FLAGS_DEBUG "-fno-inline ${CMAKE_CXX_FLAGS_DEBUG}")

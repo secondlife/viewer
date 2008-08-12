@@ -39,6 +39,9 @@
 #include "llui.h"	// for tr()
 #include "v3dmath.h"
 
+#include "llcurl.h"
+#include "llimagej2c.h"
+
 #include "llviewertexteditor.h"
 #include "llviewercontrol.h"
 #include "llagent.h"
@@ -113,7 +116,7 @@ LLFloaterAbout::LLFloaterAbout()
 		support.append("\n\n");
 	}
 
-	//*NOTE: Do not translate text like GPU, Graphics Card, etc -
+	// *NOTE: Do not translate text like GPU, Graphics Card, etc -
 	//  Most PC users that know what these mean will be used to the english versions,
 	//  and this info sometimes gets sent to support
 	
@@ -142,6 +145,16 @@ LLFloaterAbout::LLFloaterAbout()
 
 	support.append("OpenGL Version: ");
 	support.append( (const char*) glGetString(GL_VERSION) );
+	support.append("\n");
+
+	support.append("\n");
+
+	support.append("libcurl Version: ");
+	support.append( LLCurl::getVersionString() );
+	support.append("\n");
+
+	support.append("J2C Decoder Version: ");
+	support.append( LLImageJ2C::getEngineInfo() );
 	support.append("\n");
 
 	LLMediaManager *mgr = LLMediaManager::getInstance();

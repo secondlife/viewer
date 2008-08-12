@@ -60,6 +60,7 @@
 #include "llviewerparcelmgr.h"
 #include "llfirstuse.h"
 #include "llviewerwindow.h"
+#include "llviewercamera.h"
 
 // for base64 decoding
 #include "apr_base64.h"
@@ -1191,7 +1192,11 @@ void LLVoiceClient::stateMachine()
 		setVoiceEnabled(false);
 	}
 	
-	if(!mVoiceEnabled)
+	if(mVoiceEnabled)
+	{
+		updatePosition();
+	}
+	else
 	{
 		if(getState() != stateDisabled)
 		{
@@ -3513,6 +3518,45 @@ void LLVoiceClient::enforceTether(void)
 	{
 		mCameraPosition = tethered;
 		mSpatialCoordsDirty = true;
+	}
+}
+
+void LLVoiceClient::updatePosition(void)
+{
+	
+	if(gVoiceClient)
+	{
+		LLVOAvatar *agent = gAgent.getAvatarObject();
+		LLViewerRegion *region = gAgent.getRegion();
+		if(region && agent)
+		{
+			LLMatrix3 rot;
+			LLVector3d pos;
+
+			// MBW -- XXX -- Setting both camera and avatar velocity to 0 for now.  May figure it out later...
+
+			// Send the current camera position to the voice code
+			rot.setRows(LLViewerCamera::getInstance()->getAtAxis(), LLViewerCamera::getInstance()->getLeftAxis (),  LLViewerCamera::getInstance()->getUpAxis());		
+			pos = gAgent.getRegion()->getPosGlobalFromRegion(LLViewerCamera::getInstance()->getOrigin());
+			
+			gVoiceClient->setCameraPosition(
+					pos,				// position
+					LLVector3::zero, 	// velocity
+					rot);				// rotation matrix
+					
+			// Send the current avatar position to the voice code
+			rot = agent->getRootJoint()->getWorldRotation().getMatrix3();
+	
+			pos = agent->getPositionGlobal();
+			// MBW -- XXX -- Can we get the head offset from outside the LLVOAvatar?
+//			pos += LLVector3d(mHeadOffset);
+			pos += LLVector3d(0.f, 0.f, 1.f);
+		
+			gVoiceClient->setAvatarPosition(
+					pos,				// position
+					LLVector3::zero, 	// velocity
+					rot);				// rotation matrix
+		}
 	}
 }
 

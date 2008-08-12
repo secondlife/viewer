@@ -38,6 +38,7 @@
 #include "llstring.h"
 #include "lluuid.h"
 #include "lltimer.h"
+#include "llcallingcard.h"
 
 class LLFriendObserver;
 class LLRelationship;
@@ -96,8 +97,9 @@ private:
 
 	// protected members
 	typedef std::map<LLUUID, S32> rights_map_t;
-	void reloadNames();
-	void refreshNames();
+	void refreshNames(U32 changed_mask);
+	BOOL refreshNamesSync(const LLAvatarTracker::buddy_map_t & all_buddies);
+	BOOL refreshNamesPresence(const LLAvatarTracker::buddy_map_t & all_buddies);
 	void refreshUI();
 	void refreshRightsChangeList();
 	void applyRightsToFriends();

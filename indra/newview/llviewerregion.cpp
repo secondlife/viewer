@@ -233,7 +233,7 @@ void LLViewerRegion::initStats()
 	mPacketsLost = 0;
 	mLastPacketsLost = 0;
 	mPingDelay = 0;
-	mAlive = FALSE;					// can become false if circuit disconnects
+	mAlive = false;					// can become false if circuit disconnects
 }
 
 LLViewerRegion::~LLViewerRegion() 
@@ -808,11 +808,11 @@ void LLViewerRegion::updateNetStats()
 	LLCircuitData *cdp = gMessageSystem->mCircuitInfo.findCircuit(mHost);
 	if (!cdp)
 	{
-		mAlive = FALSE;
+		mAlive = false;
 		return;
 	}
 
-	mAlive = TRUE;
+	mAlive = true;
 	mDeltaTime = dt;
 
 	mLastPacketsIn =	mPacketsIn;
@@ -898,6 +898,11 @@ LLVector3 LLViewerRegion::getPosRegionFromAgent(const LLVector3 &pos_agent) cons
 F32 LLViewerRegion::getLandHeightRegion(const LLVector3& region_pos)
 {
 	return mLandp->resolveHeightRegion( region_pos );
+}
+
+bool LLViewerRegion::isAlive()
+{
+	return mAlive;
 }
 
 BOOL LLViewerRegion::isOwnedSelf(const LLVector3& pos)

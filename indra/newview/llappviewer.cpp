@@ -115,6 +115,7 @@
 #include "llcontainerview.h"
 #include "llfloaterstats.h"
 #include "llhoverview.h"
+#include "llfloatermemleak.h"
 
 #include "llsdserialize.h"
 
@@ -550,7 +551,8 @@ LLAppViewer::LLAppViewer() :
 	mQuitRequested(false),
 	mLogoutRequestSent(false),
 	mYieldTime(-1),
-	mMainloopTimeout(NULL)
+	mMainloopTimeout(NULL),
+	mAgentRegionLastAlive(false)
 {
 	if(NULL != sInstance)
 	{
@@ -616,9 +618,11 @@ bool LLAppViewer::init()
 	// *FIX: The following code isn't grouped into functions yet.
 
 	//
-	// Various introspection concerning the libs we're using.
+	// Various introspection concerning the libs we're using - particularly
+        // the libs involved in getting to a full login screen.
 	//
-	LL_DEBUGS("InitInfo") << "J2C Engine is: " << LLImageJ2C::getEngineInfo() << LL_ENDL;
+	LL_INFOS("InitInfo") << "J2C Engine is: " << LLImageJ2C::getEngineInfo() << LL_ENDL;
+	LL_INFOS("InitInfo") << "libcurl version is: " << LLCurl::getVersionString() << LL_ENDL;
 
 	// Get the single value from the crash settings file, if it exists
 	std::string crash_settings_filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, CRASH_SETTINGS_FILE);
@@ -899,7 +903,13 @@ bool LLAppViewer::mainLoop()
 			{
 				debugTime.reset();
 			}
+			
 #endif
+			//memory leaking simulation
+			if(LLFloaterMemLeak::getInstance())
+			{
+				LLFloaterMemLeak::getInstance()->idle() ;				
+			}			
 
 			if (!LLApp::isExiting())
 			{
@@ -1056,6 +1066,12 @@ bool LLAppViewer::mainLoop()
 		catch(std::bad_alloc)
 		{
 			llwarns << "Bad memory allocation in LLAppViewer::mainLoop()!" << llendl ;
+
+			//stop memory leaking simulation
+			if(LLFloaterMemLeak::getInstance())
+			{
+				LLFloaterMemLeak::getInstance()->stop() ;				
+			}	
 		}
 	}
 
@@ -1069,6 +1085,12 @@ bool LLAppViewer::mainLoop()
 		catch(std::bad_alloc)
 		{
 			llwarns << "Bad memory allocation when saveFinalSnapshot() is called!" << llendl ;
+
+			//stop memory leaking simulation
+			if(LLFloaterMemLeak::getInstance())
+			{
+				LLFloaterMemLeak::getInstance()->stop() ;				
+			}	
 		}
 	}
 	
@@ -1244,6 +1266,7 @@ bool LLAppViewer::cleanup()
 	// Shut down the VFS's AFTER the decode manager cleans up (since it cleans up vfiles).
 	// Also after viewerwindow is deleted, since it may have image pointers (which have vfiles)
 	// Also after shutting down the messaging system since it has VFS dependencies
+
 	//
 	LLVFile::cleanupClass();
 	llinfos << "VFS cleaned up" << llendflush;
@@ -1951,7 +1974,7 @@ bool LLAppViewer::initConfiguration()
 				_spawnl(_P_WAIT, exe_path.c_str(), exe_path.c_str(), arg_string.c_str(), NULL);
 #elif LL_DARWIN
 				std::string command_str;
-				command_str = "crashreporter.app/Contents/MacOS/crashreporter ";
+				command_str = "mac-crash-logger.app/Contents/MacOS/mac-crash-logger ";
 				command_str += "-previous";
 				// XXX -- We need to exit fullscreen mode for this to work.
 				// XXX -- system() also doesn't wait for completion.  Hmm...
@@ -2590,6 +2613,38 @@ bool LLAppViewer::initCache()
 		}
 	}
 	
+	// Delete old cache directory
+#ifdef LL_DARWIN
+	if (LL_VERSION_MAJOR >= 1 && LL_VERSION_MINOR >= 21)
+	{
+		if (gLastRunVersion != gCurrentVersion)
+		{
+			// NOTE: (Nyx) as of 1.21, cache for mac is moving to /library/caches/SecondLife from
+			// /library/application support/SecondLife/cache This should clear/delete the old dir.
+			std::string cache_dir = gDirUtilp->getOSUserAppDir();
+			std::string new_cache_dir = gDirUtilp->getOSCacheDir();
+			cache_dir = cache_dir + "/cache";
+			new_cache_dir = new_cache_dir + "/" + gSecondLife;
+			if (gDirUtilp->fileExists(cache_dir))
+			{
+				gDirUtilp->setCacheDir(cache_dir);
+				purgeCache();
+				gDirUtilp->setCacheDir(new_cache_dir);
+
+				std::string ds_store = cache_dir + "/.DS_Store";
+				if (gDirUtilp->fileExists(ds_store.c_str()))
+				{
+					LLFile::remove(ds_store.c_str());
+				}
+				if (LLFile::remove(cache_dir.c_str()) != 0)
+				{
+					llwarns << "could not delete old cache directory" << llendl;
+				}
+			}
+		}
+	}
+#endif
+
 	// Setup and verify the cache location
 	std::string cache_location = gSavedSettings.getString("CacheLocation");
 	std::string new_cache_location = gSavedSettings.getString("NewCacheLocation");
@@ -3528,6 +3583,23 @@ void LLAppViewer::idleNetwork()
 	gAssetStorage->checkForTimeouts();
 
 	gViewerThrottle.updateDynamicThrottle();
+
+
+	// Check that the circuit between the viewer and the agent's current
+	// region is still alive
+	LLViewerRegion *agent_region = gAgent.getRegion();
+	if (agent_region)
+	{
+		LLUUID this_region_id = agent_region->getRegionID();
+		bool this_region_alive = agent_region->isAlive();
+		if ((mAgentRegionLastAlive && !this_region_alive) // newly dead
+		    && (mAgentRegionLastID == this_region_id)) // same region
+		{
+			forceDisconnect(LLTrans::getString("AgentLostConnection"));
+		}
+		mAgentRegionLastID = this_region_id;
+		mAgentRegionLastAlive = this_region_alive;
+	}
 }
 
 void LLAppViewer::disconnectViewer()
@@ -3677,5 +3749,4 @@ void LLAppViewer::pingMainloopTimeout(const std::string& state, F32 secs)
 		mMainloopTimeout->ping(state);
 	}
 }
-
 

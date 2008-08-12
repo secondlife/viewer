@@ -49,6 +49,9 @@ public:
 	// Just like the [] accessor but it will add the entry in if it doesn't exist.
 	const LLStyleSP &lookup(const LLUUID &source); 
 	static LLStyleMap &instance();
+
+	// Forces refresh of the entries, call when something changes (e.g. link color).
+	void update();
 };
 
 #endif  // LL_LLSTYLE_MAP_H

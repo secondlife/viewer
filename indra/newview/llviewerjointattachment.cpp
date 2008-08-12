@@ -129,8 +129,9 @@ void LLViewerJointAttachment::setupDrawable(LLDrawable* drawablep)
 		}
 	}
 
-	for (LLViewerObject::child_list_t::iterator iter = mAttachedObject->mChildList.begin();
-		 iter != mAttachedObject->mChildList.end(); ++iter)
+	LLViewerObject::const_child_list_t& child_list = mAttachedObject->getChildren();
+	for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
+		 iter != child_list.end(); iter++)
 	{
 		LLViewerObject* childp = *iter;
 		if (childp && childp->mDrawable.notNull())
@@ -208,8 +209,9 @@ BOOL LLViewerJointAttachment::addObject(LLViewerObject* object)
 		{
 			object->mText->setOnHUDAttachment(TRUE);
 		}
-		for (LLViewerObject::child_list_t::iterator iter = object->mChildList.begin();
-			iter != object->mChildList.end(); ++iter)
+		LLViewerObject::const_child_list_t& child_list = object->getChildren();
+		for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
+			 iter != child_list.end(); iter++)
 		{
 			LLViewerObject* childp = *iter;
 			if (childp && childp->mText.notNull())
@@ -258,8 +260,9 @@ void LLViewerJointAttachment::removeObject(LLViewerObject *object)
 		}
 	}
 
-	for (LLViewerObject::child_list_t::iterator iter = object->mChildList.begin();
-		 iter != object->mChildList.end(); ++iter)
+	LLViewerObject::const_child_list_t& child_list = object->getChildren();
+	for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
+		 iter != child_list.end(); iter++)
 	{
 		LLViewerObject* childp = *iter;
 		if (childp && childp->mDrawable.notNull())
@@ -282,8 +285,9 @@ void LLViewerJointAttachment::removeObject(LLViewerObject *object)
 		{
 			object->mText->setOnHUDAttachment(FALSE);
 		}
-		for (LLViewerObject::child_list_t::iterator iter = object->mChildList.begin();
-			iter != object->mChildList.end(); ++iter)
+		LLViewerObject::const_child_list_t& child_list = object->getChildren();
+		for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
+			 iter != child_list.end(); iter++)
 		{
 			LLViewerObject* childp = *iter;
 			if (childp->mText.notNull())
@@ -351,8 +355,9 @@ void LLViewerJointAttachment::clampObjectPosition()
 void LLViewerJointAttachment::calcLOD()
 {
 	F32 maxarea = mAttachedObject->getMaxScale() * mAttachedObject->getMidScale();
-	for (LLViewerObject::child_list_t::iterator iter = mAttachedObject->mChildList.begin();
-		 iter != mAttachedObject->mChildList.end(); ++iter)
+	LLViewerObject::const_child_list_t& child_list = mAttachedObject->getChildren();
+	for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
+		 iter != child_list.end(); iter++)
 	{
 		LLViewerObject* childp = *iter;
 		F32 area = childp->getMaxScale() * childp->getMidScale();

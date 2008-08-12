@@ -38,7 +38,25 @@ set(win_crash_logger_HEADER_FILES
 set_source_files_properties(${win_crash_logger_HEADER_FILES}
                             PROPERTIES HEADER_FILE_ONLY TRUE)
 
-list(APPEND win_crash_logger_SOURCE_FILES ${win_crash_logger_HEADER_FILES})
+set(win_crash_logger_RESOURCE_FILES
+    ll_icon.ico
+    )
+
+set_source_files_properties(${win_crash_logger_RESOURCE_FILES}
+                            PROPERTIES HEADER_FILE_ONLY TRUE)
+
+set(win_crash_logger_RESOURCE_FILES 
+    win_crash_logger.rc
+    ${win_crash_logger_RESOURCE_FILES}
+    )
+
+SOURCE_GROUP("Resource Files" FILES ${win_crash_logger_RESOURCE_FILES})
+
+list(APPEND 
+    win_crash_logger_SOURCE_FILES 
+    ${win_crash_logger_HEADER_FILES} 
+    ${win_crash_logger_RESOURCE_FILES}
+    )
 
 find_library(DXGUID_LIBRARY dxguid ${DIRECTX_LIBRARY_DIR})
 

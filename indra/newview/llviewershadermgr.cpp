@@ -418,6 +418,7 @@ void LLViewerShaderMgr::setShaders()
 			mVertexShaderLevel[SHADER_OBJECT] = 0;
 			mVertexShaderLevel[SHADER_EFFECT] = 0;
 			mVertexShaderLevel[SHADER_WINDLIGHT] = 0;
+			mVertexShaderLevel[SHADER_AVATAR] = 0;
 		}
 	}
 	else
@@ -431,6 +432,7 @@ void LLViewerShaderMgr::setShaders()
 		mVertexShaderLevel[SHADER_OBJECT] = 0;
 		mVertexShaderLevel[SHADER_EFFECT] = 0;
 		mVertexShaderLevel[SHADER_WINDLIGHT] = 0;
+		mVertexShaderLevel[SHADER_AVATAR] = 0;
 	}
 	
 	if (gViewerWindow)
@@ -476,6 +478,8 @@ void LLViewerShaderMgr::unloadShaders()
 	mVertexShaderLevel[SHADER_ENVIRONMENT] = 0;
 	mVertexShaderLevel[SHADER_WATER] = 0;
 	mVertexShaderLevel[SHADER_INTERFACE] = 0;
+	mVertexShaderLevel[SHADER_EFFECT] = 0;
+	mVertexShaderLevel[SHADER_WINDLIGHT] = 0;
 
 	gPipeline.mVertexShadersLoaded = 0;
 }

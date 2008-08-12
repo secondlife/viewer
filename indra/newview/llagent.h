@@ -151,7 +151,9 @@ public:
 	void			sendReliableMessage();
 
 	LLVector3d		calcCameraPositionTargetGlobal(BOOL *hit_limit = NULL); // Calculate the camera position target
-	LLVector3d		calcFocusPositionTargetGlobal();			// target for this mode
+	LLVector3d		calcFocusPositionTargetGlobal();
+	LLVector3d		calcThirdPersonFocusOffset();
+			// target for this mode
 	LLVector3d		getCameraPositionGlobal() const;
 	const LLVector3 &getCameraPositionAgent() const;
 	F32				calcCameraFOVZoomFactor();

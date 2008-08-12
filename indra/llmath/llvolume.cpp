@@ -280,9 +280,6 @@ void LLProfile::genNGon(const LLProfileParams& params, S32 sides, F32 offset, F3
 	F32 t, t_step, t_first, t_fraction, ang, ang_step;
 	LLVector3 pt1,pt2;
 
-	mMaxX = 0.f;
-	mMinX = 0.f;
-
 	F32 begin  = params.getBegin();
 	F32 end    = params.getEnd();
 
@@ -318,15 +315,6 @@ void LLProfile::genNGon(const LLProfileParams& params, S32 sides, F32 offset, F3
 	if (t_fraction < 0.9999f)
 	{
 		LLVector3 new_pt = lerp(pt1, pt2, t_fraction);
-		F32 pt_x = new_pt.mV[VX];
-		if (pt_x < mMinX)
-		{
-			mMinX = pt_x;
-		}
-		else if (pt_x > mMaxX)
-		{
-			mMaxX = pt_x;
-		}
 		mProfile.push_back(new_pt);
 	}
 
@@ -335,16 +323,6 @@ void LLProfile::genNGon(const LLProfileParams& params, S32 sides, F32 offset, F3
 	{
 		// Iterate through all the integer steps of t.
 		pt1.setVec(cos(ang)*scale,sin(ang)*scale,t);
-
-		F32 pt_x = pt1.mV[VX];
-		if (pt_x < mMinX)
-		{
-			mMinX = pt_x;
-		}
-		else if (pt_x > mMaxX)
-		{
-			mMaxX = pt_x;
-		}
 
 		if (mProfile.size() > 0) {
 			LLVector3 p = mProfile[mProfile.size()-1];
@@ -369,15 +347,6 @@ void LLProfile::genNGon(const LLProfileParams& params, S32 sides, F32 offset, F3
 	if (t_fraction > 0.0001f)
 	{
 		LLVector3 new_pt = lerp(pt1, pt2, t_fraction);
-		F32 pt_x = new_pt.mV[VX];
-		if (pt_x < mMinX)
-		{
-			mMinX = pt_x;
-		}
-		else if (pt_x > mMaxX)
-		{
-			mMaxX = pt_x;
-		}
 		
 		if (mProfile.size() > 0) {
 			LLVector3 p = mProfile[mProfile.size()-1];

@@ -78,7 +78,8 @@ LLDrawPoolWLSky::LLDrawPoolWLSky(void) :
 LLDrawPoolWLSky::~LLDrawPoolWLSky()
 {
 	//llinfos << "destructing wlsky draw pool." << llendl;
-	sCloudNoiseTexture = 0;
+	sCloudNoiseTexture = NULL;
+	sCloudNoiseRawImage = NULL;
 }
 
 LLViewerImage *LLDrawPoolWLSky::getDebugTexture()

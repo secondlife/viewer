@@ -62,6 +62,9 @@ public:
 	virtual BOOL	handleRightMouseDown(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleRightMouseUp(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleToolTip(S32 x, S32 y, std::string& msg, LLRect* sticky_rect_screen);
+
+	virtual EShowToolTip getShowToolTip() { return SHOW_ALWAYS; }; // tools should permit tips even when the mouse is down, as that's pretty normal for tools
+
 		// Return FALSE to allow context menu to be shown.
 	virtual void	screenPointToLocal(S32 screen_x, S32 screen_y, S32* local_x, S32* local_y) const
 							{ *local_x = screen_x; *local_y = screen_y;	}

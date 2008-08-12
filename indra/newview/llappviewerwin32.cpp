@@ -395,14 +395,17 @@ bool LLAppViewerWin32::initParseCommandLine(LLCommandLineParser& clp)
 	{
 		if (success >= 2 && locale->lang) // confident!
 		{
+			LL_INFOS("AppInit") << "Language: " << ll_safe_string(locale->lang) << LL_ENDL;
+			LL_INFOS("AppInit") << "Location: " << ll_safe_string(locale->country) << LL_ENDL;
+			LL_INFOS("AppInit") << "Variant: " << ll_safe_string(locale->variant) << LL_ENDL;
 			LLControlVariable* c = gSavedSettings.getControl("SystemLanguage");
 			if(c)
 			{
 				c->setValue(std::string(locale->lang), false);
 			}
 		}
-		FL_FreeLocale(&locale);
 	}
+	FL_FreeLocale(&locale);
 
 	return true;
 }

@@ -51,14 +51,13 @@
 class LLView;
 class LLViewerObject;
 class LLUUID;
-class LLMouseHandler;
 class LLProgressView;
 class LLTool;
 class LLVelocityBar;
-class LLViewerWindow;
 class LLTextBox;
 class LLImageRaw;
 class LLHUDIcon;
+class LLMouseHandler;
 
 #define PICK_HALF_WIDTH 5
 #define PICK_DIAMETER (2 * PICK_HALF_WIDTH + 1)
@@ -192,6 +191,7 @@ public:
 
 	LLWindow*		getWindow()			const	{ return mWindow; }
 	void*			getPlatformWindow() const	{ return mWindow->getPlatformWindow(); }
+	void*			getMediaWindow() 	const	{ return mWindow->getMediaWindow(); }
 	void			focusClient()		const	{ return mWindow->focusClient(); };
 
 	LLCoordGL		getLastMouse()		const	{ return mLastMousePoint; }
@@ -209,9 +209,6 @@ public:
 
 	const LLPickInfo&	getLastPick() const { return mLastPick; }
 	const LLPickInfo&	getHoverPick() const { return mHoverPick; }
-
-	LLUICtrl*		getTopCtrl() const;
-	BOOL			hasTopCtrl(LLView* view) const;
 
 	void			setupViewport(S32 x_offset = 0, S32 y_offset = 0);
 	void			setup3DRender();
@@ -261,24 +258,10 @@ public:
 	void			setNormalControlsVisible( BOOL visible );
 	void			setMenuBackgroundColor(bool god_mode = false, bool dev_grid = false);
 
-	// Handle the application becoming active (frontmost) or inactive
-	//BOOL			handleActivate(BOOL activate);
-
-	void			setKeyboardFocus(LLUICtrl* new_focus);		// new_focus = NULL to release the focus.
-	LLUICtrl*		getKeyboardFocus();	
-	BOOL			hasKeyboardFocus( const LLUICtrl* possible_focus ) const;
-	BOOL			childHasKeyboardFocus( const LLView* parent ) const;
-	
-	void			setMouseCapture(LLMouseHandler* new_captor);	// new_captor = NULL to release the mouse.
-	LLMouseHandler*	getMouseCaptor() const;
-
-	void			setTopCtrl(LLUICtrl* new_top); // set new_top = NULL to release top_view.
-
 	void			reshape(S32 width, S32 height);
 	void			sendShapeToSim();
 
 	void			draw();
-//	void			drawSelectedObjects();
 	void			updateDebugText();
 	void			drawDebugText();
 
@@ -368,12 +351,8 @@ public:
 
 	static bool alertCallback(S32 modal);
 	
-#ifdef SABINRIG
-	//Silly rig stuff
-	void		printFeedback(); //RIG STUFF!
-#endif //SABINRIG
-
 private:
+	bool                    shouldShowToolTipFor(LLMouseHandler *mh);
 	void			switchToolByMask(MASK mask);
 	void			destroyWindow();
 	void			drawMouselookInstructions();

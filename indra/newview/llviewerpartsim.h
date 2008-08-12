@@ -52,9 +52,9 @@ typedef void (*LLVPCallback)(LLViewerPart &part, const F32 dt);
 //
 
 
-class LLViewerPart : public LLPartData, public LLRefCount
+class LLViewerPart : public LLPartData
 {
-protected:
+public:
 	~LLViewerPart();
 public:
 	LLViewerPart();
@@ -100,7 +100,7 @@ public:
 
 	void shift(const LLVector3 &offset);
 
-	typedef std::vector<LLPointer<LLViewerPart> > part_list_t;
+	typedef std::vector<LLViewerPart*>  part_list_t;
 	part_list_t mParticles;
 
 	const LLVector3 &getCenterAgent() const		{ return mCenterAgent; }

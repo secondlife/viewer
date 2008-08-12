@@ -284,6 +284,7 @@ LLGLManager::LLGLManager() :
 	mIsGF3(FALSE),
 	mIsGFFX(FALSE),
 	mATIOffsetVerticalLines(FALSE),
+	mATIOldDriver(FALSE),
 
 	mHasRequirements(TRUE),
 
@@ -381,6 +382,17 @@ bool LLGLManager::initGL()
 			mATIOffsetVerticalLines = TRUE;
 		}
 #endif // LL_WINDOWS
+
+#if (LL_WINDOWS || LL_LINUX) && !LL_MESA_HEADLESS
+		// release 7277 is a point at which we verify that ATI OpenGL
+		// drivers get pretty stable with SL, ~Catalyst 8.2,
+		// for both Win32 and Linux.
+		if (mDriverVersionRelease < 7277 &&
+		    mDriverVersionRelease != 0) // 0 == Undetectable driver version - these get to pretend to be new ATI drivers, though that decision may be revisited.
+		{
+			mATIOldDriver = TRUE;
+		}
+#endif // (LL_WINDOWS || LL_LINUX) && !LL_MESA_HEADLESS
 	}
 	else if (mGLVendor.find("NVIDIA ") != std::string::npos)
 	{
@@ -988,6 +1000,10 @@ void LLGLState::initClass()
 {
 	sStateMap[GL_DITHER] = GL_TRUE;
 	sStateMap[GL_TEXTURE_2D] = GL_TRUE;
+
+	//make sure multisample defaults to disabled
+	sStateMap[GL_MULTISAMPLE_ARB] = GL_FALSE;
+	glDisable(GL_MULTISAMPLE_ARB);
 }
 
 //static

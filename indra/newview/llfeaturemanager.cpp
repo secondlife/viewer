@@ -587,6 +587,10 @@ void LLFeatureManager::applyBaseMasks()
 	{
 		maskFeatures("ATI");
 	}
+	if (gGLManager.mATIOldDriver)
+	{
+		maskFeatures("ATIOldDriver");
+	}
 	if (gGLManager.mIsGFFX)
 	{
 		maskFeatures("GeForceFX");

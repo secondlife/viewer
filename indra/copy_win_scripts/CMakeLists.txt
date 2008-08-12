@@ -24,12 +24,12 @@ foreach(file ${file-list})
         set(win_scripts-files ${win_scripts-files} ${file})
     endif(EXISTS ${win_scripts-src}/${file})
 endforeach(file ${file-list})
-    
+
 copy_if_different(
     ${win_scripts-src} 
     ${win_scripts-dst} 
     win_scripts-targets 
     ${win_scripts-files} 
     )
-    
+
 add_custom_target(copy_win_scripts ALL DEPENDS ${win_scripts-targets})

@@ -961,6 +961,21 @@ void LLHUDText::renderAllHUD()
 	}
 }
 
+void LLHUDText::shiftAll(const LLVector3& offset)
+{
+	TextObjectIterator text_it;
+	for (text_it = sTextObjects.begin(); text_it != sTextObjects.end(); ++text_it)
+	{
+		LLHUDText *textp = text_it->get();
+		textp->shift(offset);
+	}
+}
+
+void LLHUDText::shift(const LLVector3& offset)
+{
+	mPositionAgent += offset;
+}
+
 //static 
 void LLHUDText::addPickable(std::set<LLViewerObject*> &pick_list)
 {

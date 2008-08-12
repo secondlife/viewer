@@ -2173,11 +2173,17 @@ void LLFloaterIMPanel::chatFromLogFile(LLLogChat::ELogLineType type, std::string
 	{
 	case LLLogChat::LOG_EMPTY:
 		// add warning log enabled message
-		message = LLFloaterChat::getInstance()->getUIString("IM_logging_string");
+		if (gSavedPerAccountSettings.getBOOL("LogInstantMessages"))
+		{
+			message = LLFloaterChat::getInstance()->getUIString("IM_logging_string");
+		}
 		break;
 	case LLLogChat::LOG_END:
 		// add log end message
-		message = LLFloaterChat::getInstance()->getUIString("IM_logging_string");
+		if (gSavedPerAccountSettings.getBOOL("LogInstantMessages"))
+		{
+			message = LLFloaterChat::getInstance()->getUIString("IM_logging_string");
+		}
 		break;
 	case LLLogChat::LOG_LINE:
 		// just add normal lines from file

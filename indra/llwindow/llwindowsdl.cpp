@@ -2830,14 +2830,18 @@ std::string LLWindowSDL::getFontListSans()
 	{
 		if (success >= 2 && locale->lang) // confident!
 		{
+			LL_INFOS("AppInit") << "Language " << locale->lang << LL_ENDL;
+			LL_INFOS("AppInit") << "Location " << locale->country << LL_ENDL;
+			LL_INFOS("AppInit") << "Variant " << locale->variant << LL_ENDL;
+
 			llinfos << "Preferring fonts of language: "
 				<< locale->lang
 				<< llendl;
 			sort_order = "lang=" + std::string(locale->lang) + ":"
 				+ sort_order;
 		}
-		FL_FreeLocale(&locale);
 	}
+	FL_FreeLocale(&locale);
 
 	if (!FcInit())
 	{

@@ -649,24 +649,55 @@ void LLFloater::applyRectControl()
 	}
 }
 
-void LLFloater::setTitle( const std::string& title )
+void LLFloater::applyTitle()
 {
 	if (gNoRender)
 	{
 		return;
 	}
-	if (mDragHandle)
-		mDragHandle->setTitle( title );
+
+	if (!mDragHandle)
+	{
+		return;
+	}
+
+	if (isMinimized() && !mShortTitle.empty())
+	{
+		mDragHandle->setTitle( mShortTitle );
+	}
+	else
+	{
+		mDragHandle->setTitle ( mTitle );
+	}
 }
 
-const std::string& LLFloater::getTitle() const
+const std::string& LLFloater::getCurrentTitle() const
 {
 	return mDragHandle ? mDragHandle->getTitle() : LLStringUtil::null;
+}
+
+void LLFloater::setTitle( const std::string& title )
+{
+	mTitle = title;
+	applyTitle();
+}
+
+std::string LLFloater::getTitle()
+{
+	if (mTitle.empty())
+	{
+		return mDragHandle ? mDragHandle->getTitle() : LLStringUtil::null;
+	}
+	else
+	{
+		return mTitle;
+	}
 }
 
 void LLFloater::setShortTitle( const std::string& short_title )
 {
 	mShortTitle = short_title;
+	applyTitle();
 }
 
 std::string LLFloater::getShortTitle()
@@ -895,6 +926,9 @@ void LLFloater::setMinimized(BOOL minimize)
 		// Reshape *after* setting mMinimized
 		reshape( mExpandedRect.getWidth(), mExpandedRect.getHeight(), TRUE );
 	}
+	
+	applyTitle ();
+
 	make_ui_sound("UISndWindowClose");
 	updateButtons();
 }
@@ -1340,7 +1374,7 @@ void LLFloater::draw()
 			gl_rect_2d( left, top, right, bottom, getTransparentColor() );
 		}
 
-		if(gFocusMgr.childHasKeyboardFocus(this) && !getIsChrome() && !getTitle().empty())
+		if(gFocusMgr.childHasKeyboardFocus(this) && !getIsChrome() && !getCurrentTitle().empty())
 		{
 			// draw highlight on title bar to indicate focus.  RDW
 			const LLFontGL* font = LLResMgr::getInstance()->getRes( LLFONT_SANSSERIF );
@@ -2846,7 +2880,7 @@ LLXMLNodePtr LLFloater::getXML(bool save_children) const
 {
 	LLXMLNodePtr node = LLPanel::getXML();
 
-	node->createChild("title", TRUE)->setStringValue(getTitle());
+	node->createChild("title", TRUE)->setStringValue(getCurrentTitle());
 
 	node->createChild("can_resize", TRUE)->setBoolValue(isResizable());
 
@@ -2893,7 +2927,7 @@ LLView* LLFloater::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *f
 void LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory, BOOL open)	/* Flawfinder: ignore */
 {
 	std::string name(getName());
-	std::string title(getTitle());
+	std::string title(getCurrentTitle());
 	std::string short_title(getShortTitle());
 	std::string rect_control("");
 	BOOL resizable = isResizable();
@@ -2932,6 +2966,9 @@ void LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactor
 			drag_on_left,
 			minimizable,
 			close_btn);
+
+	setTitle(title);
+	applyTitle ();
 
 	setShortTitle(short_title);
 

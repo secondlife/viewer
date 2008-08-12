@@ -267,6 +267,7 @@ private:
 	LLColor4		mHighlightColor;
 	LLColor4		mUnselectedBgColor;
 	LLColor4		mSelectedBgColor;
+	LLColor4		mFlashBgColor;
 
 	LLColor4		mImageColor;
 	LLColor4		mDisabledImageColor;

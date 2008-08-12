@@ -106,7 +106,7 @@ LLFrameTimer gRecentMemoryTime;
 // Rendering stuff
 void pre_show_depth_buffer();
 void post_show_depth_buffer();
-void render_ui_and_swap();
+void render_ui();
 void render_hud_attachments();
 void render_ui_3d();
 void render_ui_2d();
@@ -456,7 +456,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 	if (gDisconnected)
 	{
 		LLAppViewer::instance()->pingMainloopTimeout("Display:Disconnected");
-		render_ui_and_swap();
+		render_ui();
 		render_disconnected_background();
 	}
 	
@@ -760,7 +760,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 
 		if (!for_snapshot)
 		{
-			render_ui_and_swap();
+			render_ui();
 		}
 
 		LLSpatialGroup::sNoDelete = FALSE;
@@ -931,7 +931,7 @@ BOOL setup_hud_matrices(const LLRect& screen_region)
 }
 
 
-void render_ui_and_swap()
+void render_ui()
 {
 	LLGLState::checkStates();
 	

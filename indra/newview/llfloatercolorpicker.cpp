@@ -913,7 +913,7 @@ handleMouseDown ( S32 x, S32 y, MASK mask )
 
 	if ( rgbAreaRect.pointInRect ( x, y ) )
 	{
-		gViewerWindow->setMouseCapture(this);
+		gFocusMgr.setMouseCapture(this);
 		// mouse button down
 		setMouseDownInHueRegion ( TRUE );
 
@@ -932,7 +932,7 @@ handleMouseDown ( S32 x, S32 y, MASK mask )
 
 	if ( lumAreaRect.pointInRect ( x, y ) )
 	{
-		gViewerWindow->setMouseCapture(this);
+		gFocusMgr.setMouseCapture(this);
 		// mouse button down
 		setMouseDownInLumRegion ( TRUE );
 
@@ -1148,7 +1148,7 @@ handleMouseUp ( S32 x, S32 y, MASK mask )
 
 	if (hasMouseCapture())
 	{
-		gViewerWindow->setMouseCapture(NULL);
+		gFocusMgr.setMouseCapture(NULL);
 	}
 
 	// dispatch to base class for the rest of things

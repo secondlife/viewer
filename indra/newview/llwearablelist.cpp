@@ -43,7 +43,7 @@
 #include "llnotify.h"
 
 // Globals
-LLWearableList gWearableList;
+LLWearableList gWearableList; // Globally constructed; be careful that there's no dependency with gAgent.
 
 
 struct LLWearableArrivedData

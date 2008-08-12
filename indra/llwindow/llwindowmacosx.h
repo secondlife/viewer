@@ -105,6 +105,7 @@ public:
 	/*virtual*/ BOOL dialog_color_picker(F32 *r, F32 *g, F32 *b);
 
 	/*virtual*/ void *getPlatformWindow();
+	/*virtual*/ void *getMediaWindow();
 	/*virtual*/ void bringToFront() {};
 	
 	/*virtual*/ void allowLanguageTextInput(LLPreeditor *preeditor, BOOL b);
@@ -201,6 +202,8 @@ protected:
 	static BOOL	sUseMultGL;
 
 	friend class LLWindowManager;
+	static WindowRef sMediaWindow;
+
 };
 
 

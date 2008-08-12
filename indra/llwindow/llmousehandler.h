@@ -43,7 +43,11 @@ class LLMouseHandler
 public:
 	LLMouseHandler() {}
 	virtual ~LLMouseHandler() {}
-	
+	typedef enum {
+		SHOW_NEVER,
+		SHOW_IF_NOT_BLOCKED,
+		SHOW_ALWAYS,
+	} EShowToolTip;
 	virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask) = 0;
 	virtual BOOL	handleMouseUp(S32 x, S32 y, MASK mask) = 0;
 	virtual BOOL	handleHover(S32 x, S32 y, MASK mask) = 0;
@@ -52,6 +56,7 @@ public:
 	virtual BOOL	handleRightMouseDown(S32 x, S32 y, MASK mask) = 0;
 	virtual BOOL	handleRightMouseUp(S32 x, S32 y, MASK mask) = 0;
 	virtual BOOL	handleToolTip(S32 x, S32 y, std::string& msg, LLRect* sticky_rect_screen) = 0;
+	virtual EShowToolTip getShowToolTip() { return SHOW_IF_NOT_BLOCKED; };
 	virtual const std::string& getName() const = 0;
 
 	virtual void	onMouseCaptureLost() = 0;

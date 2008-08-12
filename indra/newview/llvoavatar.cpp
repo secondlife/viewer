@@ -138,7 +138,7 @@ S32 LLVOAvatar::sFreezeCounter = 0 ;
 //-----------------------------------------------------------------------------
 // Constants
 //-----------------------------------------------------------------------------
-const F32 MIN_PIXEL_AREA_FOR_COMPOSITE = 200.f;
+const F32 MIN_PIXEL_AREA_FOR_COMPOSITE = 1024;
 
 F32 SHADOW_OFFSET_AMT = 0.03f;
 
@@ -673,6 +673,10 @@ LLVOAvatar::LLVOAvatar(
 	mUpperMaskTexName(0),
 	mLowerMaskTexName(0),
 	mCulled( FALSE ),
+	mVisibilityRank(0),
+	mFadeTime(0.f),
+	mLastFadeTime(0.f),
+	mLastFadeDistance(1.f),
 	mTexSkinColor( NULL ),
 	mTexHairColor( NULL ),
 	mTexEyeColor( NULL ),
@@ -731,6 +735,7 @@ LLVOAvatar::LLVOAvatar(
 	mNeedsAnimUpdate = TRUE;
 
 	mImpostorDistance = 0;
+	mImpostorPixelArea = 0;
 
 	setNumTEs(TEX_NUM_ENTRIES);
 
@@ -1527,6 +1532,8 @@ void LLVOAvatar::getSpatialExtents(LLVector3& newMin, LLVector3& newMax)
 							mesh->mJointRenderData[joint_num]->mWorldMatrix->getTranslation());
 		}
 	}
+
+	mPixelArea = LLPipeline::calcPixelArea((newMin+newMax)*0.5f, (newMax-newMin)*0.5f, *LLViewerCamera::getInstance());
 
 	//stretch bounding box by attachments
 	for (attachment_map_t::iterator iter = mAttachmentPoints.begin(); 
@@ -2338,6 +2345,15 @@ U32 LLVOAvatar::processUpdateMessage(LLMessageSystem *mesgsys,
 	// Do base class updates...
 	U32 retval = LLViewerObject::processUpdateMessage(mesgsys, user_data, block_num, update_type, dp);
 
+	if(retval & LLViewerObject::INVALID_UPDATE)
+	{
+		if(this == gAgent.getAvatarObject())
+		{
+			//tell sim to cancel this update
+			gAgent.teleportViaLocation(gAgent.getPositionGlobal());
+		}
+	}
+
 	//llinfos << getRotation() << llendl;
 	//llinfos << getPosition() << llendl;
 	if (update_type == OUT_FULL )
@@ -2642,7 +2658,7 @@ void LLVOAvatar::idleUpdateMisc(bool detailed_update)
 			F32 old_angle = mImpostorAngle.mV[i];
 			F32 angle_diff = fabsf(cur_angle-old_angle);
 		
-			if (angle_diff > 3.14159f/512.f*distance)
+			if (angle_diff > 3.14159f/512.f*distance*mUpdatePeriod)
 			{
 				mNeedsImpostorUpdate = TRUE;
 			}
@@ -3362,30 +3378,41 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 	// the rest should only be done occasionally for far away avatars
 	//--------------------------------------------------------------------
 
-	if (!mIsSelf && !mIsDummy && sUseImpostors && !mNeedsAnimUpdate && !sFreezeCounter)
+	if (visible && !mIsSelf && !mIsDummy && sUseImpostors && !mNeedsAnimUpdate && !sFreezeCounter)
 	{
 		F32 impostor_area = 256.f*512.f*(8.125f - LLVOAvatar::sLODFactor*8.f);
 		if (LLMuteList::getInstance()->isMuted(getID()))
-		{
+		{ // muted avatars update at 16 hz
 			mUpdatePeriod = 16;
-			visible = (LLDrawable::getCurrentFrame()+mID.mData[0])%mUpdatePeriod == 0 ? TRUE : FALSE;
 		}
-		else if (visible && mPixelArea <= impostor_area)
-		{
-			mUpdatePeriod = llclamp((S32) sqrtf(impostor_area*4.f/mPixelArea), 2, 8);
-
-			visible = (LLDrawable::getCurrentFrame()+mID.mData[0])%mUpdatePeriod == 0 ? TRUE : FALSE;
+		else if (visible && mVisibilityRank <= LLVOAvatar::sMaxVisible * 0.25f)
+		{ //first 25% of max visible avatars are not impostored
+			mUpdatePeriod = 1;
+		}
+		else if (visible && mVisibilityRank > LLVOAvatar::sMaxVisible * 0.75f)
+		{ //back 25% of max visible avatars are slow updating impostors
+			mUpdatePeriod = 8;
+		}
+		else if (visible && mImpostorPixelArea <= impostor_area)
+		{  // stuff in between gets an update period based on pixel area
+			mUpdatePeriod = llclamp((S32) sqrtf(impostor_area*4.f/mImpostorPixelArea), 2, 8);
+		}
+		else if (visible && mVisibilityRank > LLVOAvatar::sMaxVisible * 0.25f)
+		{ // force nearby impostors in ultra crowded areas
+			mUpdatePeriod = 2;
 		}
 		else
-		{
+		{ // not impostored
 			mUpdatePeriod = 1;
 		}
 
-		if (!visible)
-		{
-			updateMotions(LLCharacter::HIDDEN_UPDATE);
-			return FALSE;
-		}
+		visible = (LLDrawable::getCurrentFrame()+mID.mData[0])%mUpdatePeriod == 0 ? TRUE : FALSE;
+	}
+
+	if (!visible)
+	{
+		updateMotions(LLCharacter::HIDDEN_UPDATE);
+		return FALSE;
 	}
 
 	// change animation time quanta based on avatar render load
@@ -3757,32 +3784,6 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 	}
 
 	mRoot.updateWorldMatrixChildren();
-
-	// Send the speaker position to the spatialized voice system.
-	if(mIsSelf)
-	{
-		LLMatrix3 rot;
-		LLVector3d pos;
-#if 1
-		// character rotation (stable, shouldn't move with animations)
-		rot = mRoot.getWorldRotation().getMatrix3();
-#else	
-		// actual head rotation (moves with animations, probably a bit too much)
-		rot.setRows(
-				LLVector3::x_axis * mSkullp->getWorldRotation(), 
-				LLVector3::y_axis * mSkullp->getWorldRotation(),  
-				LLVector3::z_axis * mSkullp->getWorldRotation());		
-#endif
-	
-		pos = getPositionGlobal();
-		pos += LLVector3d(mHeadOffset);
-		
-		// MBW -- XXX -- Setting velocity to 0 for now.  May figure it out later...
-		gVoiceClient->setAvatarPosition(
-				pos,				// position
-				LLVector3::zero, 	// velocity
-				rot);				// rotation matrix
-	}
 
 	if (!mDebugText.size() && mText.notNull())
 	{
@@ -4254,7 +4255,23 @@ U32 LLVOAvatar::renderImpostor(LLColor4U color)
 	LLGLEnable test(GL_ALPHA_TEST);
 	gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.f);
 
-	gGL.color4f(1,1,1,1);
+	F32 blend = gFrameTimeSeconds - mFadeTime;
+
+	LLGLState gl_blend(GL_BLEND, blend < 1.f ? TRUE : FALSE);
+	gGL.setSceneBlendType(LLRender::BT_ALPHA);
+
+	F32 alpha;
+	if (mVisibilityRank >= (U32) LLVOAvatar::sMaxVisible)
+	{ //fade out
+		alpha = 1.f - llmin(blend, 1.f);
+	}
+	else 
+	{ //fade in
+		alpha = llmin(blend, 1.f);
+	}
+
+	color.mV[3] = (U8) (alpha*255);
+	
 	gGL.color4ubv(color.mV);
 	mImpostor.bindTexture();
 	gGL.begin(LLVertexBuffer::QUADS);
@@ -4380,7 +4397,6 @@ void LLVOAvatar::updateTextures(LLAgent &agent)
 			
 			const LLTextureEntry *te = getTE(i);
 			F32 texel_area_ratio = fabs(te->mScaleS * te->mScaleT);
-// 			BOOL boost_aux = (imagep->needsAux() && (!imagep->mFullWidth || !imagep->mFullHeight));
 			S32 boost_level = mIsSelf ? LLViewerImage::BOOST_AVATAR_BAKED_SELF : LLViewerImage::BOOST_AVATAR_BAKED;
 			
 			// Spam if this is a baked texture, not set to default image, without valid host info
@@ -5750,7 +5766,7 @@ void LLVOAvatar::setPixelAreaAndAngle(LLAgent &agent)
 	LLVector3 center = (ext[1] + ext[0]) * 0.5f;
 	LLVector3 size = (ext[1]-ext[0])*0.5f;
 
-	mPixelArea = LLPipeline::calcPixelArea(center, size, *LLViewerCamera::getInstance());
+	mImpostorPixelArea = LLPipeline::calcPixelArea(center, size, *LLViewerCamera::getInstance());
 
 	F32 range = mDrawable->mDistanceWRTCamera;
 
@@ -6199,9 +6215,11 @@ BOOL LLVOAvatar::detachObject(LLViewerObject *viewer_object)
 				stopMotionFromSource(viewer_object->getID());
 				LLFollowCamMgr::setCameraActive(viewer_object->getID(), FALSE);
 
-				for (S32 i = 0; i < (S32)viewer_object->mChildList.size(); i++)
+				LLViewerObject::const_child_list_t& child_list = viewer_object->getChildren();
+				for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
+					 iter != child_list.end(); iter++)
 				{
-					LLViewerObject* child_objectp = viewer_object->mChildList[i];
+					LLViewerObject* child_objectp = *iter;
 					// the simulator should automatically handle
 					// permissions revocation
 
@@ -6242,6 +6260,10 @@ void LLVOAvatar::sitOnObject(LLViewerObject *sit_object)
 
 	mDrawable->mXform.setPosition(rel_pos);
 	mDrawable->mXform.setRotation(mDrawable->getWorldRotation() * inv_obj_rot);
+
+	//in case the viewerobject is not updated in time
+	mDrawable->getVObj()->setPosition(sit_object->getWorldPosition()) ;
+	mDrawable->getVObj()->setRotation(sit_object->getWorldRotation()) ;
 
 	gPipeline.markMoved(mDrawable, TRUE);
 	mIsSitting = TRUE;
@@ -6284,9 +6306,11 @@ void LLVOAvatar::getOffObject()
 		stopMotionFromSource(sit_object->getID());
 		LLFollowCamMgr::setCameraActive(sit_object->getID(), FALSE);
 
-		for (S32 i = 0; i < (S32)sit_object->mChildList.size(); i++)
+		LLViewerObject::const_child_list_t& child_list = sit_object->getChildren();
+		for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
+			 iter != child_list.end(); iter++)
 		{
-			LLViewerObject* child_objectp = sit_object->mChildList[i];
+			LLViewerObject* child_objectp = *iter;
 
 			stopMotionFromSource(child_objectp->getID());
 			LLFollowCamMgr::setCameraActive(child_objectp->getID(), FALSE);
@@ -6299,7 +6323,11 @@ void LLVOAvatar::getOffObject()
 
 	// set *local* position based on last *world* position, since we're unparenting the avatar
 	mDrawable->mXform.setPosition(cur_position_world);
-	mDrawable->mXform.setRotation(cur_rotation_world);
+	mDrawable->mXform.setRotation(cur_rotation_world);	
+	
+	//in case the viewerobject is not updated from sim in time
+	mDrawable->getVObj()->setPosition(cur_position_world);
+	mDrawable->getVObj()->setRotation(cur_rotation_world);
 
 	gPipeline.markMoved(mDrawable, TRUE);
 
@@ -6750,7 +6778,9 @@ void LLVOAvatar::dumpTotalLocalTextureByteCount()
 
 BOOL LLVOAvatar::isVisible()
 {
-	return mDrawable.notNull() && (mDrawable->isVisible() || mIsDummy); 
+	return mDrawable.notNull()
+		&& (mDrawable->isVisible() || mIsDummy)
+		&& (mVisibilityRank < (U32) sMaxVisible || gFrameTimeSeconds - mFadeTime < 1.f); 
 }
 
 
@@ -7184,9 +7214,8 @@ void LLVOAvatar::updateMeshTextures()
 		{
 			mHeadBakedLoaded = FALSE;
 			mHeadMaskDiscard = -1;
-			baked->setNeedsAux(TRUE);
-			baked->setLoadedCallback(onBakedTextureMasksLoaded, MORPH_MASK_REQUESTED_DISCARD, TRUE, new LLTextureMaskData( mID ));	
-			baked->setLoadedCallback(onBakedTextureLoaded, SWITCH_TO_BAKED_DISCARD, FALSE, new LLUUID( mID ) );
+			baked->setLoadedCallback(onBakedTextureMasksLoaded, MORPH_MASK_REQUESTED_DISCARD, TRUE, TRUE, new LLTextureMaskData( mID ));	
+			baked->setLoadedCallback(onBakedTextureLoaded, SWITCH_TO_BAKED_DISCARD, FALSE, FALSE, new LLUUID( mID ) );
 		}
 	}
 	else
@@ -7235,9 +7264,8 @@ void LLVOAvatar::updateMeshTextures()
 		{
 			mUpperBakedLoaded = FALSE;
 			mUpperMaskDiscard = -1;
-			baked->setNeedsAux(TRUE);
-			baked->setLoadedCallback(onBakedTextureMasksLoaded, MORPH_MASK_REQUESTED_DISCARD, TRUE, new LLTextureMaskData( mID ));
-			baked->setLoadedCallback(onBakedTextureLoaded, SWITCH_TO_BAKED_DISCARD, FALSE, new LLUUID( mID ) );
+			baked->setLoadedCallback(onBakedTextureMasksLoaded, MORPH_MASK_REQUESTED_DISCARD, TRUE, TRUE, new LLTextureMaskData( mID ));
+			baked->setLoadedCallback(onBakedTextureLoaded, SWITCH_TO_BAKED_DISCARD, FALSE, FALSE, new LLUUID( mID ) );
 		}
 	}
 	else
@@ -7283,9 +7311,8 @@ void LLVOAvatar::updateMeshTextures()
 		{
 			mLowerBakedLoaded = FALSE;
 			mLowerMaskDiscard = -1;
-			baked->setNeedsAux(TRUE);
-			baked->setLoadedCallback(onBakedTextureMasksLoaded, MORPH_MASK_REQUESTED_DISCARD, TRUE, new LLTextureMaskData( mID ));
-			baked->setLoadedCallback(onBakedTextureLoaded, SWITCH_TO_BAKED_DISCARD, FALSE, new LLUUID( mID ) );
+			baked->setLoadedCallback(onBakedTextureMasksLoaded, MORPH_MASK_REQUESTED_DISCARD, TRUE, TRUE, new LLTextureMaskData( mID ));
+			baked->setLoadedCallback(onBakedTextureLoaded, SWITCH_TO_BAKED_DISCARD, FALSE, FALSE, new LLUUID( mID ) );
 		}
 	}
 	else
@@ -7329,7 +7356,7 @@ void LLVOAvatar::updateMeshTextures()
 		else
 		{
 			mEyesBakedLoaded = FALSE;
-			baked->setLoadedCallback(onBakedTextureLoaded, SWITCH_TO_BAKED_DISCARD, FALSE, new LLUUID( mID ) );
+			baked->setLoadedCallback(onBakedTextureLoaded, SWITCH_TO_BAKED_DISCARD, FALSE, FALSE, new LLUUID( mID ) );
 		}
 	}
 	else
@@ -7372,7 +7399,7 @@ void LLVOAvatar::updateMeshTextures()
 		else
 		{
 			mSkirtBakedLoaded = FALSE;
-			baked->setLoadedCallback(onBakedTextureLoaded, SWITCH_TO_BAKED_DISCARD, FALSE, new LLUUID( mID ) );
+			baked->setLoadedCallback(onBakedTextureLoaded, SWITCH_TO_BAKED_DISCARD, FALSE, FALSE, new LLUUID( mID ) );
 		}
 	}
 	else
@@ -7473,7 +7500,7 @@ void LLVOAvatar::setLocalTexture( ELocTexIndex idx, LLViewerImage* tex, BOOL bak
 				}
 				else
 				{
-					tex->setLoadedCallback( onLocalTextureLoaded, desired_discard, TRUE, new LLAvatarTexData(getID(), idx) );
+					tex->setLoadedCallback( onLocalTextureLoaded, desired_discard, TRUE, FALSE, new LLAvatarTexData(getID(), idx) );
 				}
 			}
 			tex->setMinDiscardLevel(desired_discard);
@@ -8274,9 +8301,12 @@ LLBBox LLVOAvatar::getHUDBBox()
 			bbox.addPointLocal(hud_object->getPosition());
 			// add rotated bounding box for attached object
 			bbox.addBBoxAgent(hud_object->getBoundingBoxAgent());
-			for (U32 i = 0; i < hud_object->mChildList.size(); i++)
+			LLViewerObject::const_child_list_t& child_list = hud_object->getChildren();
+			for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
+				 iter != child_list.end(); iter++)
 			{
-				bbox.addBBoxAgent(hud_object->mChildList[i]->getBoundingBoxAgent());
+				LLViewerObject* child_objectp = *iter;
+				bbox.addBBoxAgent(child_objectp->getBoundingBoxAgent());
 			}
 		}
 	}
@@ -8309,41 +8339,38 @@ void LLVOAvatar::onFirstTEMessageReceived()
 		{
 			mLastHeadBakedID = getTEImage( TEX_HEAD_BAKED )->getID();
 			LLViewerImage* image = getTEImage( TEX_HEAD_BAKED );
-			image->setNeedsAux(TRUE);
-			image->setLoadedCallback( onBakedTextureMasksLoaded, MORPH_MASK_REQUESTED_DISCARD, TRUE, new LLTextureMaskData( mID ));	
-			image->setLoadedCallback( onInitialBakedTextureLoaded, MAX_DISCARD_LEVEL, FALSE, new LLUUID( mID ) );
+			image->setLoadedCallback( onBakedTextureMasksLoaded, MORPH_MASK_REQUESTED_DISCARD, TRUE, TRUE, new LLTextureMaskData( mID ));	
+			image->setLoadedCallback( onInitialBakedTextureLoaded, MAX_DISCARD_LEVEL, FALSE, FALSE, new LLUUID( mID ) );
 		}
 
 		if( upper_baked )
 		{
 			mLastUpperBodyBakedID = getTEImage( TEX_UPPER_BAKED )->getID();
 			LLViewerImage* image = getTEImage( TEX_UPPER_BAKED );
-			image->setNeedsAux(TRUE);
-			image->setLoadedCallback( onBakedTextureMasksLoaded, MORPH_MASK_REQUESTED_DISCARD, TRUE, new LLTextureMaskData( mID ));	
-			image->setLoadedCallback( onInitialBakedTextureLoaded, MAX_DISCARD_LEVEL, FALSE, new LLUUID( mID ) );
+			image->setLoadedCallback( onBakedTextureMasksLoaded, MORPH_MASK_REQUESTED_DISCARD, TRUE, TRUE, new LLTextureMaskData( mID ));	
+			image->setLoadedCallback( onInitialBakedTextureLoaded, MAX_DISCARD_LEVEL, FALSE, FALSE, new LLUUID( mID ) );
 		}
 		
 		if( lower_baked )
 		{
 			mLastLowerBodyBakedID = getTEImage( TEX_LOWER_BAKED )->getID();
 			LLViewerImage* image = getTEImage( TEX_LOWER_BAKED );
-			image->setNeedsAux(TRUE);
-			image->setLoadedCallback( onBakedTextureMasksLoaded, MORPH_MASK_REQUESTED_DISCARD, TRUE, new LLTextureMaskData( mID ));	
-			image->setLoadedCallback( onInitialBakedTextureLoaded, MAX_DISCARD_LEVEL, FALSE, new LLUUID( mID ) );
+			image->setLoadedCallback( onBakedTextureMasksLoaded, MORPH_MASK_REQUESTED_DISCARD, TRUE, TRUE, new LLTextureMaskData( mID ));	
+			image->setLoadedCallback( onInitialBakedTextureLoaded, MAX_DISCARD_LEVEL, FALSE, FALSE, new LLUUID( mID ) );
 		}
 
 		if( eyes_baked )
 		{
 			mLastEyesBakedID = getTEImage( TEX_EYES_BAKED )->getID();
 			LLViewerImage* image = getTEImage( TEX_EYES_BAKED );
-			image->setLoadedCallback( onInitialBakedTextureLoaded, MAX_DISCARD_LEVEL, FALSE, new LLUUID( mID ) );
+			image->setLoadedCallback( onInitialBakedTextureLoaded, MAX_DISCARD_LEVEL, FALSE, FALSE, new LLUUID( mID ) );
 		}
 
 		if( skirt_baked )
 		{
 			mLastSkirtBakedID = getTEImage( TEX_SKIRT_BAKED )->getID();
 			LLViewerImage* image = getTEImage( TEX_SKIRT_BAKED );
-			image->setLoadedCallback( onInitialBakedTextureLoaded, MAX_DISCARD_LEVEL, FALSE, new LLUUID( mID ) );
+			image->setLoadedCallback( onInitialBakedTextureLoaded, MAX_DISCARD_LEVEL, FALSE, FALSE, new LLUUID( mID ) );
 		}
 
 		updateMeshTextures();
@@ -8355,6 +8382,12 @@ void LLVOAvatar::onFirstTEMessageReceived()
 //-----------------------------------------------------------------------------
 void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 {
+	if (gSavedSettings.getBOOL("BlockAvatarAppearanceMessages"))
+	{
+		llwarns << "Blocking AvatarAppearance message" << llendl;
+		return;
+	}
+	
 	LLMemType mt(LLMemType::MTYPE_AVATAR);
 	
 //	llinfos << "processAvatarAppearance start " << mID << llendl;
@@ -8846,6 +8879,42 @@ void LLVOAvatar::dumpArchetypeXML( void* )
 }
 
 
+U32 LLVOAvatar::getVisibilityRank()
+{
+	return mVisibilityRank;
+}
+
+void LLVOAvatar::setVisibilityRank(U32 rank)
+{
+	BOOL stale = gFrameTimeSeconds - mLastFadeTime > 10.f;
+	
+	//only raise visibility rank or trigger a fade out every 10 seconds
+	if (mVisibilityRank >= (U32) LLVOAvatar::sMaxVisible && rank < (U32) LLVOAvatar::sMaxVisible ||
+		(stale && mVisibilityRank < (U32) LLVOAvatar::sMaxVisible && rank >= (U32) LLVOAvatar::sMaxVisible))
+	{ //remember the time we became visible/invisible based on visibility rank
+		mVisibilityRank = rank;
+		mLastFadeTime = gFrameTimeSeconds;
+		mLastFadeDistance = mDrawable->mDistanceWRTCamera;
+
+		F32 blend = gFrameTimeSeconds - mFadeTime;
+		mFadeTime = gFrameTimeSeconds;
+		if (blend < 1.f)
+		{ //move the blend time back if a blend is already in progress (prevent flashes)
+			mFadeTime -= 1.f-blend;
+		}
+	}
+	else if (stale)
+	{
+		mLastFadeTime = gFrameTimeSeconds;
+		mLastFadeDistance = mDrawable->mDistanceWRTCamera;
+		mVisibilityRank = rank;
+	}
+	else
+	{
+		mVisibilityRank = llmin(mVisibilityRank, rank);
+	}
+}
+
 // Assumes LLVOAvatar::sInstances has already been sorted.
 S32 LLVOAvatar::getUnbakedPixelAreaRank()
 {
@@ -8875,8 +8944,8 @@ void LLVOAvatar::cullAvatarsByPixelArea()
 	std::sort(LLCharacter::sInstances.begin(), LLCharacter::sInstances.end(), CompareScreenAreaGreater());
 	
 	// Update the avatars that have changed status
-	S32 rank = 1;
-
+	S32 comp_rank = 1;
+	U32 rank = 0;
 	for (std::vector<LLCharacter*>::iterator iter = LLCharacter::sInstances.begin();
 		iter != LLCharacter::sInstances.end(); ++iter)
 	{
@@ -8892,8 +8961,8 @@ void LLVOAvatar::cullAvatarsByPixelArea()
 		}
 		else
 		{
-			culled = (rank > LLVOAvatar::sMaxOtherAvatarsToComposite) || (inst->mPixelArea < MIN_PIXEL_AREA_FOR_COMPOSITE);
-			rank++;
+			culled = (comp_rank > LLVOAvatar::sMaxOtherAvatarsToComposite) || (inst->mPixelArea < MIN_PIXEL_AREA_FOR_COMPOSITE);
+			comp_rank++;
 		}
 
 		if( inst->mCulled != culled )
@@ -8903,6 +8972,15 @@ void LLVOAvatar::cullAvatarsByPixelArea()
 			lldebugs << "avatar " << inst->getID() << (culled ? " start culled" : " start not culled" ) << llendl;
 
 			inst->updateMeshTextures();
+		}
+
+		if (inst->isSelf())
+		{
+			inst->setVisibilityRank(0);
+		}
+		else if (inst->mDrawable.notNull() && inst->mDrawable->isVisible())
+		{
+			inst->setVisibilityRank(rank++);
 		}
 	}
 
@@ -9867,9 +9945,20 @@ U32 calc_shame(LLVOVolume* volume, std::set<LLUUID> &textures)
 
 	shame += invisi + shiny + glow + alpha*4 + flexi*8 + animtex*4 + particles*16+bump*4+scale+planar;
 
-	for (U32 i = 0; i < drawablep->getChildCount(); ++i)
+	LLViewerObject::const_child_list_t& child_list = volume->getChildren();
+	for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
+		 iter != child_list.end(); iter++)
 	{
-		shame += calc_shame(drawablep->getChild(i)->getVOVolume(), textures);
+		LLViewerObject* child_objectp = *iter;
+		LLDrawable* child_drawablep = child_objectp->mDrawable;
+		if (child_drawablep)
+		{
+			LLVOVolume* child_volumep = child_drawablep->getVOVolume();
+			if (child_volumep)
+			{
+				shame += calc_shame(child_volumep, textures);
+			}
+		}
 	}
 
 	return shame;
@@ -9915,4 +10004,5 @@ void LLVOAvatar::idleUpdateRenderCost()
 	F32 red = llmin((F32) shame/1024.f, 1.f);
 	mText->setColor(LLColor4(red,green,0,1));
 }
+
 

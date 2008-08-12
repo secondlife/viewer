@@ -44,6 +44,7 @@
 #include "llworld.h"
 #include "pipeline.h"
 #include "llspatialpartition.h"
+#include "llvovolume.h"
 
 const F32 PART_SIM_BOX_SIDE = 16.f;
 const F32 PART_SIM_BOX_OFFSET = 0.5f*PART_SIM_BOX_SIDE;
@@ -169,6 +170,10 @@ LLViewerPartGroup::~LLViewerPartGroup()
 	cleanup();
 	
 	S32 count = (S32) mParticles.size();
+	for(S32 i = 0 ; i < count ; i++)
+	{
+		delete mParticles[i] ;
+	}
 	mParticles.clear();
 	
 	LLViewerPartSim::decPartCount(count);
@@ -240,151 +245,150 @@ BOOL LLViewerPartGroup::addPart(LLViewerPart* part, F32 desired_size)
 void LLViewerPartGroup::updateParticles(const F32 lastdt)
 {
 	LLMemType mt(LLMemType::MTYPE_PARTICLES);
-	S32 i;
 	F32 dt;
 	
 	LLVector3 gravity(0.f, 0.f, GRAVITY);
 
 	LLViewerRegion *regionp = getRegion();
 	S32 end = (S32) mParticles.size();
-	for (i = 0; i < end; i++)
+	for (S32 i = 0 ; i < (S32)mParticles.size();)
 	{
 		LLVector3 a(0.f, 0.f, 0.f);
-		LLViewerPart& part = *((LLViewerPart*) mParticles[i]);
+		LLViewerPart* part = mParticles[i] ;
 
-		dt=lastdt+mSkippedTime-part.mSkipOffset;
-		part.mSkipOffset=0.f;
+		dt = lastdt + mSkippedTime - part->mSkipOffset;
+		part->mSkipOffset = 0.f;
 
 		// Update current time
-		const F32 cur_time = part.mLastUpdateTime + dt;
-		const F32 frac = cur_time/part.mMaxAge;
+		const F32 cur_time = part->mLastUpdateTime + dt;
+		const F32 frac = cur_time / part->mMaxAge;
 
 		// "Drift" the object based on the source object
-		if (part.mFlags & LLPartData::LL_PART_FOLLOW_SRC_MASK)
+		if (part->mFlags & LLPartData::LL_PART_FOLLOW_SRC_MASK)
 		{
-			part.mPosAgent = part.mPartSourcep->mPosAgent;
-			part.mPosAgent += part.mPosOffset;
+			part->mPosAgent = part->mPartSourcep->mPosAgent;
+			part->mPosAgent += part->mPosOffset;
 		}
 
 		// Do a custom callback if we have one...
-		if (part.mVPCallback)
+		if (part->mVPCallback)
 		{
-			(*part.mVPCallback)(part, dt);
+			(*part->mVPCallback)(*part, dt);
 		}
 
-		if (part.mFlags & LLPartData::LL_PART_WIND_MASK)
+		if (part->mFlags & LLPartData::LL_PART_WIND_MASK)
 		{
-			LLVector3 tempVel(part.mVelocity);
-			part.mVelocity *= 1.f - 0.1f*dt;
-			part.mVelocity += 0.1f*dt*regionp->mWind.getVelocity(regionp->getPosRegionFromAgent(part.mPosAgent));
+			LLVector3 tempVel(part->mVelocity);
+			part->mVelocity *= 1.f - 0.1f*dt;
+			part->mVelocity += 0.1f*dt*regionp->mWind.getVelocity(regionp->getPosRegionFromAgent(part->mPosAgent));
 		}
 
 		// Now do interpolation towards a target
-		if (part.mFlags & LLPartData::LL_PART_TARGET_POS_MASK)
+		if (part->mFlags & LLPartData::LL_PART_TARGET_POS_MASK)
 		{
-			F32 remaining = part.mMaxAge - part.mLastUpdateTime;
+			F32 remaining = part->mMaxAge - part->mLastUpdateTime;
 			F32 step = dt / remaining;
 
 			step = llclamp(step, 0.f, 0.1f);
 			step *= 5.f;
 			// we want a velocity that will result in reaching the target in the 
 			// Interpolate towards the target.
-			LLVector3 delta_pos = part.mPartSourcep->mTargetPosAgent - part.mPosAgent;
+			LLVector3 delta_pos = part->mPartSourcep->mTargetPosAgent - part->mPosAgent;
 
 			delta_pos /= remaining;
 
-			part.mVelocity *= (1.f - step);
-			part.mVelocity += step*delta_pos;
+			part->mVelocity *= (1.f - step);
+			part->mVelocity += step*delta_pos;
 		}
 
 
-		if (part.mFlags & LLPartData::LL_PART_TARGET_LINEAR_MASK)
+		if (part->mFlags & LLPartData::LL_PART_TARGET_LINEAR_MASK)
 		{
-			LLVector3 delta_pos = part.mPartSourcep->mTargetPosAgent - part.mPartSourcep->mPosAgent;			
-			part.mPosAgent = part.mPartSourcep->mPosAgent;
-			part.mPosAgent += frac*delta_pos;
-			part.mVelocity = delta_pos;
+			LLVector3 delta_pos = part->mPartSourcep->mTargetPosAgent - part->mPartSourcep->mPosAgent;			
+			part->mPosAgent = part->mPartSourcep->mPosAgent;
+			part->mPosAgent += frac*delta_pos;
+			part->mVelocity = delta_pos;
 		}
 		else
 		{
 			// Do velocity interpolation
-			part.mPosAgent += dt*part.mVelocity;
-			part.mPosAgent += 0.5f*dt*dt*part.mAccel;
-			part.mVelocity += part.mAccel*dt;
+			part->mPosAgent += dt*part->mVelocity;
+			part->mPosAgent += 0.5f*dt*dt*part->mAccel;
+			part->mVelocity += part->mAccel*dt;
 		}
 
 		// Do a bounce test
-		if (part.mFlags & LLPartData::LL_PART_BOUNCE_MASK)
+		if (part->mFlags & LLPartData::LL_PART_BOUNCE_MASK)
 		{
 			// Need to do point vs. plane check...
 			// For now, just check relative to object height...
-			F32 dz = part.mPosAgent.mV[VZ] - part.mPartSourcep->mPosAgent.mV[VZ];
+			F32 dz = part->mPosAgent.mV[VZ] - part->mPartSourcep->mPosAgent.mV[VZ];
 			if (dz < 0)
 			{
-				part.mPosAgent.mV[VZ] += -2.f*dz;
-				part.mVelocity.mV[VZ] *= -0.75f;
+				part->mPosAgent.mV[VZ] += -2.f*dz;
+				part->mVelocity.mV[VZ] *= -0.75f;
 			}
 		}
 
 
 		// Reset the offset from the source position
-		if (part.mFlags & LLPartData::LL_PART_FOLLOW_SRC_MASK)
+		if (part->mFlags & LLPartData::LL_PART_FOLLOW_SRC_MASK)
 		{
-			part.mPosOffset = part.mPosAgent;
-			part.mPosOffset -= part.mPartSourcep->mPosAgent;
+			part->mPosOffset = part->mPosAgent;
+			part->mPosOffset -= part->mPartSourcep->mPosAgent;
 		}
 
 		// Do color interpolation
-		if (part.mFlags & LLPartData::LL_PART_INTERP_COLOR_MASK)
+		if (part->mFlags & LLPartData::LL_PART_INTERP_COLOR_MASK)
 		{
-			part.mColor.setVec(part.mStartColor);
+			part->mColor.setVec(part->mStartColor);
 			// note: LLColor4's v%k means multiply-alpha-only,
 			//       LLColor4's v*k means multiply-rgb-only
-			part.mColor *= 1.f - frac; // rgb*k
-			part.mColor %= 1.f - frac; // alpha*k
-			part.mColor += frac%(frac*part.mEndColor); // rgb,alpha
+			part->mColor *= 1.f - frac; // rgb*k
+			part->mColor %= 1.f - frac; // alpha*k
+			part->mColor += frac%(frac*part->mEndColor); // rgb,alpha
 		}
 
 		// Do scale interpolation
-		if (part.mFlags & LLPartData::LL_PART_INTERP_SCALE_MASK)
+		if (part->mFlags & LLPartData::LL_PART_INTERP_SCALE_MASK)
 		{
-			part.mScale.setVec(part.mStartScale);
-			part.mScale *= 1.f - frac;
-			part.mScale += frac*part.mEndScale;
+			part->mScale.setVec(part->mStartScale);
+			part->mScale *= 1.f - frac;
+			part->mScale += frac*part->mEndScale;
 		}
 
 		// Set the last update time to now.
-		part.mLastUpdateTime = cur_time;
+		part->mLastUpdateTime = cur_time;
 
 
 		// Kill dead particles (either flagged dead, or too old)
-		if ((part.mLastUpdateTime > part.mMaxAge) || (LLViewerPart::LL_PART_DEAD_MASK == part.mFlags))
+		if ((part->mLastUpdateTime > part->mMaxAge) || (LLViewerPart::LL_PART_DEAD_MASK == part->mFlags))
 		{
-			end--;
-			LLPointer<LLViewerPart>::swap(mParticles[i], mParticles[end]);
-			// be sure to process the particle we just swapped-in
-			i--;
+			mParticles[i] = mParticles.back() ;
+			mParticles.pop_back() ;
+			delete part ;
 		}
 		else 
 		{
-			F32 desired_size = calc_desired_size(part.mPosAgent, part.mScale);
-			if (!posInGroup(part.mPosAgent, desired_size))
+			F32 desired_size = calc_desired_size(part->mPosAgent, part->mScale);
+			if (!posInGroup(part->mPosAgent, desired_size))
 			{
 				// Transfer particles between groups
-				LLViewerPartSim::getInstance()->put(&part);
-				end--;
-				LLPointer<LLViewerPart>::swap(mParticles[i], mParticles[end]);
-				// be sure to process the particle we just swapped-in
-				i--;
+				LLViewerPartSim::getInstance()->put(part) ;
+				mParticles[i] = mParticles.back() ;
+				mParticles.pop_back() ;
+			}
+			else
+			{
+				i++ ;
 			}
 		}
 	}
 
-	S32 removed = (S32)mParticles.size() - end;
+	S32 removed = end - (S32)mParticles.size();
 	if (removed > 0)
 	{
 		// we removed one or more particles, so flag this group for update
-		mParticles.erase(mParticles.begin() + end, mParticles.end());
 		if (mVOPartGroupp.notNull())
 		{
 			gPipeline.markRebuild(mVOPartGroupp->mDrawable, LLDrawable::REBUILD_ALL, TRUE);
@@ -408,9 +412,7 @@ void LLViewerPartGroup::shift(const LLVector3 &offset)
 	mMinObjPos += offset;
 	mMaxObjPos += offset;
 
-	S32 count = (S32) mParticles.size();
-	S32 i;
-	for (i = 0; i < count; i++)
+	for (S32 i = 0 ; i < (S32)mParticles.size(); i++)
 	{
 		mParticles[i]->mPosAgent += offset;
 	}
@@ -419,8 +421,8 @@ void LLViewerPartGroup::shift(const LLVector3 &offset)
 void LLViewerPartGroup::removeParticlesByID(const U32 source_id)
 {
 	LLMemType mt(LLMemType::MTYPE_PARTICLES);
-	S32 end = (S32) mParticles.size();
-	for (int i = 0; i < end; i++)
+
+	for (S32 i = 0; i < (S32)mParticles.size(); i++)
 	{
 		if(mParticles[i]->mPartSourcep->getID() == source_id)
 		{
@@ -500,42 +502,57 @@ LLViewerPartGroup *LLViewerPartSim::put(LLViewerPart* part)
 {
 	LLMemType mt(LLMemType::MTYPE_PARTICLES);
 	const F32 MAX_MAG = 1000000.f*1000000.f; // 1 million
+	LLViewerPartGroup *return_group = NULL ;
 	if (part->mPosAgent.magVecSquared() > MAX_MAG || !part->mPosAgent.isFinite())
 	{
 #if 0 && !LL_RELEASE_FOR_DOWNLOAD
 		llwarns << "LLViewerPartSim::put Part out of range!" << llendl;
 		llwarns << part->mPosAgent << llendl;
 #endif
-		return NULL;
 	}
-	
-	F32 desired_size = calc_desired_size(part->mPosAgent, part->mScale);
+	else
+	{	
+		F32 desired_size = calc_desired_size(part->mPosAgent, part->mScale);
 
-	S32 count = (S32) mViewerPartGroups.size();
-	for (S32 i = 0; i < count; i++)
-	{
-		if (mViewerPartGroups[i]->addPart(part, desired_size))
+		S32 count = (S32) mViewerPartGroups.size();
+		for (S32 i = 0; i < count; i++)
 		{
-			// We found a spatial group that we fit into, add us and exit
-			return mViewerPartGroups[i];
+			if (mViewerPartGroups[i]->addPart(part, desired_size))
+			{
+				// We found a spatial group that we fit into, add us and exit
+				return_group = mViewerPartGroups[i];
+				break ;
+			}
+		}
+
+		// Hmm, we didn't fit in any of the existing spatial groups
+		// Create a new one...
+		if(!return_group)
+		{
+			llassert_always(part->mPosAgent.isFinite());
+			LLViewerPartGroup *groupp = createViewerPartGroup(part->mPosAgent, desired_size);
+			groupp->mUniformParticles = (part->mScale.mV[0] == part->mScale.mV[1] && 
+									!(part->mFlags & LLPartData::LL_PART_FOLLOW_VELOCITY_MASK));
+			if (!groupp->addPart(part))
+			{
+				llwarns << "LLViewerPartSim::put - Particle didn't go into its box!" << llendl;
+				llinfos << groupp->getCenterAgent() << llendl;
+				llinfos << part->mPosAgent << llendl;
+				mViewerPartGroups.pop_back() ;
+				delete groupp;
+				groupp = NULL ;
+			}
+			return_group = groupp;
 		}
 	}
 
-	// Hmm, we didn't fit in any of the existing spatial groups
-	// Create a new one...
-	llassert_always(part->mPosAgent.isFinite());
-	LLViewerPartGroup *groupp = createViewerPartGroup(part->mPosAgent, desired_size);
-	groupp->mUniformParticles = (part->mScale.mV[0] == part->mScale.mV[1] && 
-							!(part->mFlags & LLPartData::LL_PART_FOLLOW_VELOCITY_MASK));
-	if (!groupp->addPart(part))
+	if(!return_group) //failed to insert the particle
 	{
-		llwarns << "LLViewerPartSim::put - Particle didn't go into its box!" << llendl;
-		llinfos << groupp->getCenterAgent() << llendl;
-		llinfos << part->mPosAgent << llendl;
-		delete groupp;
-		return NULL;
+		delete part ;
+		part = NULL ;
 	}
-	return groupp;
+
+	return return_group ;
 }
 
 LLViewerPartGroup *LLViewerPartSim::createViewerPartGroup(const LLVector3 &pos_agent, const F32 desired_size)
@@ -614,7 +631,24 @@ void LLViewerPartSim::updateSimulation()
 
 		if (!mViewerPartSources[i]->isDead())
 		{
-			mViewerPartSources[i]->update(dt);
+			BOOL upd = TRUE;
+			if (!LLPipeline::sRenderAttachedParticles)
+			{
+				LLViewerObject* vobj = mViewerPartSources[i]->mSourceObjectp;
+				if (vobj && (vobj->getPCode() == LL_PCODE_VOLUME))
+				{
+					LLVOVolume* vvo = (LLVOVolume *)vobj;
+					if (vvo && vvo->isAttachment())
+					{
+						upd = FALSE;
+					}
+				}
+			}
+
+			if (upd) 
+			{
+				mViewerPartSources[i]->update(dt);
+			}
 		}
 
 		if (mViewerPartSources[i]->isDead())
@@ -629,7 +663,6 @@ void LLViewerPartSim::updateSimulation()
         }
 		num_updates++;
 	}
-
 
 	count = (S32) mViewerPartGroups.size();
 	for (i = 0; i < count; i++)

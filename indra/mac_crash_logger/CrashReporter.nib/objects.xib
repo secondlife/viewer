@@ -1,0 +1,69 @@
+<?xml version="1.0" standalone="yes"?>
+<object class="NSIBObjectData">
+  <object name="rootObject" class="NSCustomObject" id="1">
+  </object>
+  <array count="7" name="allObjects">
+    <object class="IBCarbonStaticText" id="181">
+      <string name="title">Second Life appears to have crashed or frozen the last time it ran.&#10;&#10;This crash reporter collects information about your computer&apos;s hardware configuration, operating system, and some Second Life logs, all of which are used for debugging purposes only.&#10;&#10;In the space below, please briefly describe what you were doing or trying to do just prior to the crash. Thank you for your help!&#10;&#10;This report is NOT read by Customer Support. If you have billing or other questions, please go to: http://www.secondlife.com/support/&#10;&#10;If you don&apos;t wish to send Linden Lab a crash report, press Cancel.&#10;</string>
+      <string name="bounds">20 20 231 487 </string>
+    </object>
+    <object class="IBCarbonButton" id="183">
+      <ostype name="command">not!</ostype>
+      <int name="buttonType">2</int>
+      <string name="title">Don&apos;t Send</string>
+      <string name="bounds">414 390 434 487 </string>
+    </object>
+    <object class="IBCarbonRootControl" id="167">
+      <array count="5" name="subviews">
+        <reference idRef="181"/>
+        <object class="IBCarbonButton" id="182">
+          <ostype name="command">ok  </ostype>
+          <string name="title">Send Report</string>
+          <string name="bounds">414 273 434 378 </string>
+        </object>
+        <reference idRef="183"/>
+        <object class="IBCarbonEditText" id="185">
+          <ostype name="controlSignature">text</ostype>
+          <boolean name="isUnicode">TRUE</boolean>
+          <string name="bounds">242 23 391 484 </string>
+        </object>
+        <object class="IBCarbonCheckBox" id="193">
+          <ostype name="controlSignature">remb</ostype>
+          <int name="initialState">1</int>
+          <string name="title">Remember This Choice</string>
+          <string name="bounds">415 20 433 186 </string>
+        </object>
+      </array>
+      <string name="bounds">0 0 454 507 </string>
+    </object>
+    <object class="IBCarbonWindow" id="166">
+      <int name="carbonWindowClass">2</int>
+      <int name="themeBrush">3</int>
+      <int name="windowPosition">7</int>
+      <string name="title">Second Life Crash Logger</string>
+      <reference name="rootControl" idRef="167"/>
+      <string name="windowRect">257 653 711 1160 </string>
+      <string name="ScreenRectAtEncodeTime">0 0 768 1024 </string>
+    </object>
+    <reference idRef="193"/>
+    <reference idRef="185"/>
+    <reference idRef="182"/>
+  </array>
+  <array count="7" name="allParents">
+    <reference idRef="167"/>
+    <reference idRef="167"/>
+    <reference idRef="166"/>
+    <reference idRef="1"/>
+    <reference idRef="167"/>
+    <reference idRef="167"/>
+    <reference idRef="167"/>
+  </array>
+  <dictionary count="2" name="nameTable">
+    <string>CrashReporter</string>
+    <reference idRef="166"/>
+    <string>File&apos;s Owner</string>
+    <reference idRef="1"/>
+  </dictionary>
+  <string name="targetFramework">IBCarbonFramework</string>
+  <unsigned_int name="nextObjectID">194</unsigned_int>
+</object>

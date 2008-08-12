@@ -335,7 +335,6 @@ U64 getCurrentRSS()
 U64 getCurrentRSS()
 {
 	U64 residentSize = 0;
-
 	task_basic_info_data_t basicInfo;
 	mach_msg_type_number_t  basicInfoCount = TASK_BASIC_INFO_COUNT;
 	if (task_info(mach_task_self(), TASK_BASIC_INFO, (task_info_t)&basicInfo, &basicInfoCount) == KERN_SUCCESS)

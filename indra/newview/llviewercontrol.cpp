@@ -141,6 +141,12 @@ static bool handleAvatarLODChanged(const LLSD& newvalue)
 	return true;
 }
 
+static bool handleAvatarMaxVisibleChanged(const LLSD& newvalue)
+{
+	LLVOAvatar::sMaxVisible = (U32) newvalue.asInteger();
+	return true;
+}
+
 static bool handleTerrainLODChanged(const LLSD& newvalue)
 {
 		LLVOSurfacePatch::sLODFactor = (F32)newvalue.asReal();
@@ -454,6 +460,7 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("RenderAvatarCloth")->getSignal()->connect(boost::bind(&handleSetShaderChanged, _1));
 	gSavedSettings.getControl("WindLightUseAtmosShaders")->getSignal()->connect(boost::bind(&handleSetShaderChanged, _1));
 	gSavedSettings.getControl("RenderGammaFull")->getSignal()->connect(boost::bind(&handleSetShaderChanged, _1));
+	gSavedSettings.getControl("RenderAvatarMaxVisible")->getSignal()->connect(boost::bind(&handleAvatarMaxVisibleChanged, _1));
 	gSavedSettings.getControl("RenderVolumeLODFactor")->getSignal()->connect(boost::bind(&handleVolumeLODChanged, _1));
 	gSavedSettings.getControl("RenderAvatarLODFactor")->getSignal()->connect(boost::bind(&handleAvatarLODChanged, _1));
 	gSavedSettings.getControl("RenderTerrainLODFactor")->getSignal()->connect(boost::bind(&handleTerrainLODChanged, _1));

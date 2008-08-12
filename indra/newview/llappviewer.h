@@ -206,6 +206,10 @@ private:
 	LLSD mSettingsFileList;
 
 	LLWatchdogTimeout* mMainloopTimeout;
+
+	// for tracking viewer<->region circuit death
+	bool mAgentRegionLastAlive;
+	LLUUID mAgentRegionLastID;
 };
 
 // consts from viewer.h

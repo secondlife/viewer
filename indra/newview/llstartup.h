@@ -35,7 +35,7 @@
 #include "llimagegl.h"
 
 // functions
-BOOL idle_startup();
+bool idle_startup();
 std::string load_password_from_disk();
 void release_start_screen();
 void login_alert_done(S32 option, void* user_data);
@@ -44,7 +44,7 @@ void login_alert_done(S32 option, void* user_data);
 extern std::string SCREEN_HOME_FILENAME;
 extern std::string SCREEN_LAST_FILENAME;
 
-enum EStartupState{
+typedef enum {
 	STATE_FIRST,					// Initial startup
 	STATE_BROWSER_INIT,             // Initialize web browser for login screen
 	STATE_LOGIN_SHOW,				// Show login screen
@@ -69,10 +69,10 @@ enum EStartupState{
 	STATE_WEARABLES_WAIT,			// Wait for clothing to download
 	STATE_CLEANUP,					// Final cleanup
 	STATE_STARTED					// Up and running in-world
-};
+} EStartupState;
 
 // exported symbols
-extern BOOL gAgentMovementCompleted;
+extern bool gAgentMovementCompleted;
 extern LLPointer<LLImageGL> gStartImageGL;
 extern std::string gInitialOutfit;
 extern std::string gInitialOutfitGender;	// "male" or "female"
@@ -85,8 +85,8 @@ public:
 		// going full screen
 
 	// Always use this to set gStartupState so changes are logged
-	static void	setStartupState( S32 state );
-	static S32	getStartupState()				{ return gStartupState;		};
+	static void setStartupState( EStartupState state );
+	static EStartupState getStartupState() { return gStartupState; };
 
 	static void multimediaInit();
 		// Initialize LLViewerMedia multimedia engine.
@@ -105,8 +105,9 @@ public:
 		// *HACK: On startup, if we were passed a secondlife://app/do/foo
 		// command URL, store it for later processing.
 
-protected:
-	static S32 gStartupState;			// Do not set directly, use LLStartup::setStartupState
+private:
+	static std::string startupStateToString(EStartupState state);
+	static EStartupState gStartupState; // Do not set directly, use LLStartup::setStartupState
 };
 
 

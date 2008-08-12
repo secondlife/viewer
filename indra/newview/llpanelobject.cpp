@@ -1546,7 +1546,7 @@ void LLPanelObject::getVolumeParams(LLVolumeParams& volume_params)
 }
 
 // BUG: Make work with multiple objects
-void LLPanelObject::sendRotation()
+void LLPanelObject::sendRotation(BOOL btn_down)
 {
 	if (mObject.isNull()) return;
 
@@ -1570,16 +1570,34 @@ void LLPanelObject::sendRotation()
 		{
 			rotation = rotation * ~mRootObject->getRotationRegion();
 		}
+		std::vector<LLVector3>& child_positions = mObject->mUnselectedChildrenPositions ;
+		std::vector<LLQuaternion> child_rotations;
+		if (mObject->isRootEdit())
+		{
+			mObject->saveUnselectedChildrenRotation(child_rotations) ;
+			mObject->saveUnselectedChildrenPosition(child_positions) ;			
+		}
 
-		mObject->setRotation(rotation, TRUE );
+		mObject->setRotation(rotation);
+		LLManip::rebuild(mObject) ;
 
-		LLSelectMgr::getInstance()->sendMultipleUpdate(UPD_ROTATION);
+		// for individually selected roots, we need to counterrotate all the children
+		if (mObject->isRootEdit())
+		{			
+			mObject->resetChildrenRotationAndPosition(child_rotations, child_positions) ;			
+		}
+
+		if(!btn_down)
+		{
+			child_positions.clear() ;
+			LLSelectMgr::getInstance()->sendMultipleUpdate(UPD_ROTATION | UPD_POSITION);
+		}
 	}
 }
 
 
 // BUG: Make work with multiple objects
-void LLPanelObject::sendScale()
+void LLPanelObject::sendScale(BOOL btn_down)
 {
 	if (mObject.isNull()) return;
 
@@ -1599,7 +1617,11 @@ void LLPanelObject::sendScale()
 		}
 
 		mObject->setScale(newscale, TRUE);
-		LLSelectMgr::getInstance()->sendMultipleUpdate(UPD_SCALE | UPD_POSITION);
+
+		if(!btn_down)
+		{
+			LLSelectMgr::getInstance()->sendMultipleUpdate(UPD_SCALE | UPD_POSITION);
+		}
 
 		LLSelectMgr::getInstance()->adjustTexturesByScale(TRUE, !dont_stretch_textures);
 //		llinfos << "scale sent" << llendl;
@@ -1611,7 +1633,7 @@ void LLPanelObject::sendScale()
 }
 
 
-void LLPanelObject::sendPosition()
+void LLPanelObject::sendPosition(BOOL btn_down)
 {	
 	if (mObject.isNull()) return;
 
@@ -1654,7 +1676,7 @@ void LLPanelObject::sendPosition()
 		LLVector3d delta = new_pos_global - old_pos_global;
 		// moved more than 1/2 millimeter
 		if (delta.magVec() >= 0.0005f)
-		{
+		{			
 			if (mRootObject != mObject)
 			{
 				newpos = newpos - mRootObject->getPositionRegion();
@@ -1664,8 +1686,21 @@ void LLPanelObject::sendPosition()
 			else
 			{
 				mObject->setPositionEdit(newpos);
+			}			
+			
+			LLManip::rebuild(mObject) ;
+
+			// for individually selected roots, we need to counter-translate all unselected children
+			if (mObject->isRootEdit())
+			{								
+				// only offset by parent's translation
+				mObject->resetChildrenPosition(LLVector3(-delta), TRUE) ;				
 			}
-			LLSelectMgr::getInstance()->sendMultipleUpdate(UPD_POSITION);
+
+			if(!btn_down)
+			{
+				LLSelectMgr::getInstance()->sendMultipleUpdate(UPD_POSITION);
+			}
 
 			LLSelectMgr::getInstance()->updateSelectionCenter();
 		}
@@ -1846,21 +1881,24 @@ void LLPanelObject::onCommitLock(LLUICtrl *ctrl, void *data)
 void LLPanelObject::onCommitPosition( LLUICtrl* ctrl, void* userdata )
 {
 	LLPanelObject* self = (LLPanelObject*) userdata;
-	self->sendPosition();
+	BOOL btn_down = ((LLSpinCtrl*)ctrl)->isMouseHeldDown() ;
+	self->sendPosition(btn_down);
 }
 
 // static
 void LLPanelObject::onCommitScale( LLUICtrl* ctrl, void* userdata )
 {
 	LLPanelObject* self = (LLPanelObject*) userdata;
-	self->sendScale();
+	BOOL btn_down = ((LLSpinCtrl*)ctrl)->isMouseHeldDown() ;
+	self->sendScale(btn_down);
 }
 
 // static
 void LLPanelObject::onCommitRotation( LLUICtrl* ctrl, void* userdata )
 {
 	LLPanelObject* self = (LLPanelObject*) userdata;
-	self->sendRotation();
+	BOOL btn_down = ((LLSpinCtrl*)ctrl)->isMouseHeldDown() ;
+	self->sendRotation(btn_down);
 }
 
 // static

@@ -79,6 +79,7 @@ bushing Spatula
 	VWR-424
 Carjay McGinnis
 	VWR-3737
+	VWR-6154
 Catherine Pfeffer
 	VWR-1282
 Dale Glass
@@ -122,6 +123,8 @@ Feep Larsson
 	VWR-447
 	VWR-1314
 	VWR-4444
+Fluf Fredriksson
+	VWR-3450
 Fremont Cunningham
 	VWR-1147
 Gudmund Shepherd
@@ -207,6 +210,7 @@ Michelle2 Zenovka
 	VWR-3749
 	VWR-4506
 	VWR-7831
+	VWR-4022
 Mm Alder
 	VWR-3777
 	VWR-4794
@@ -377,6 +381,7 @@ Wilton Lundquist
 Whoops Babii
 	VWR-631
 	VWR-1640
+	VWR-3340
 Zarkonnen Decosta
 	VWR-253
 Zi Ree

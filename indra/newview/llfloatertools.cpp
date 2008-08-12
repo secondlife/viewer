@@ -1011,7 +1011,7 @@ void LLFloaterTools::setObjectType( void* data )
 	LLPCode pcode = *(LLPCode*) data;
 	LLToolPlacer::setObjectType( pcode );
 	gSavedSettings.setBOOL("CreateToolCopySelection", FALSE);
-	gViewerWindow->setMouseCapture(NULL);
+	gFocusMgr.setMouseCapture(NULL);
 }
 
 // static

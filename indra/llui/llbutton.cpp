@@ -208,6 +208,7 @@ void LLButton::init(void (*click_callback)(void*), void *callback_data, const LL
 	mHighlightColor = (				LLUI::sColorsGroup->getColor( "ButtonUnselectedFgColor" ) );
 	mUnselectedBgColor = (				LLUI::sColorsGroup->getColor( "ButtonUnselectedBgColor" ) );
 	mSelectedBgColor = (				LLUI::sColorsGroup->getColor( "ButtonSelectedBgColor" ) );
+	mFlashBgColor = (				LLUI::sColorsGroup->getColor( "ButtonFlashBgColor" ) );
 
 	mImageOverlayAlignment = LLFontGL::HCENTER;
 	mImageOverlayColor = LLColor4::white;
@@ -433,7 +434,9 @@ void LLButton::draw()
 					|| mToggleState;
 	
 	BOOL use_glow_effect = FALSE;
-	if ( mNeedsHighlight || flash )
+	LLColor4 glow_color = LLColor4::white;
+	LLRender::eBlendType glow_type = LLRender::BT_ADD_WITH_ALPHA;
+	if ( mNeedsHighlight )
 	{
 		if (pressed)
 		{
@@ -467,6 +470,16 @@ void LLButton::draw()
 	else
 	{
 		mImagep = mImageUnselected;
+	}
+
+	if (mFlashing)
+	{
+		use_glow_effect = TRUE;
+		glow_type = LLRender::BT_ALPHA; // blend the glow
+		if (mNeedsHighlight) // highlighted AND flashing
+			glow_color = (glow_color*0.5f + mFlashBgColor*0.5f) % 2.0f; // average between flash and highlight colour, with sum of the opacity
+		else
+			glow_color = mFlashBgColor;
 	}
 
 	// Override if more data is available
@@ -555,7 +568,10 @@ void LLButton::draw()
 	
 	if (use_glow_effect)
 	{
-		mCurGlowStrength = lerp(mCurGlowStrength, mHoverGlowStrength, LLCriticalDamp::getInterpolant(0.05f));
+		mCurGlowStrength = lerp(mCurGlowStrength,
+					mFlashing ? (flash? 1.0 : 0.0)
+					: mHoverGlowStrength,
+					LLCriticalDamp::getInterpolant(0.05f));
 	}
 	else
 	{
@@ -571,8 +587,8 @@ void LLButton::draw()
 			mImagep->draw(getLocalRect(), getEnabled() ? mImageColor : mDisabledImageColor  );
 			if (mCurGlowStrength > 0.01f)
 			{
-				gGL.setSceneBlendType(LLRender::BT_ADD_WITH_ALPHA);
-				mImagep->drawSolid(0, 0, getRect().getWidth(), getRect().getHeight(), LLColor4(1.f, 1.f, 1.f, mCurGlowStrength));
+				gGL.setSceneBlendType(glow_type);
+				mImagep->drawSolid(0, 0, getRect().getWidth(), getRect().getHeight(), glow_color % mCurGlowStrength);
 				gGL.setSceneBlendType(LLRender::BT_ALPHA);
 			}
 		}
@@ -581,8 +597,8 @@ void LLButton::draw()
 			mImagep->draw(0, 0, getEnabled() ? mImageColor : mDisabledImageColor );
 			if (mCurGlowStrength > 0.01f)
 			{
-				gGL.setSceneBlendType(LLRender::BT_ADD_WITH_ALPHA);
-				mImagep->drawSolid(0, 0, LLColor4(1.f, 1.f, 1.f, mCurGlowStrength));
+				gGL.setSceneBlendType(glow_type);
+				mImagep->drawSolid(0, 0, glow_color % mCurGlowStrength);
 				gGL.setSceneBlendType(LLRender::BT_ALPHA);
 			}
 		}

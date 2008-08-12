@@ -29,16 +29,16 @@
  * $/LicenseInfo$
  */
 
+// system library includes
+#include <stdio.h>
+#include <iostream>
+#include <fstream>
+
 #include "llviewerprecompiledheaders.h"
 
 #include "llpanellogin.h"
 #include "llviewerkeyboard.h"
 #include "llviewerwindow.h"
-
-// system library includes
-#include <stdio.h>
-#include <iostream>
-#include <fstream>
 
 #include "llviewquery.h"
 #include "llxmltree.h"
@@ -47,9 +47,6 @@
 
 #include "llvoiceclient.h"	// for push-to-talk button handling
 
-#ifdef SABINRIG
-#include "cbw.h"
-#endif //SABINRIG
 
 //
 // TODO: Many of these includes are unnecessary.  Remove them.
@@ -60,6 +57,7 @@
 #include "indra_constants.h"
 #include "llassetstorage.h"
 #include "llfontgl.h"
+#include "llmousehandler.h"
 #include "llrect.h"
 #include "llsky.h"
 #include "llstring.h"
@@ -191,7 +189,7 @@
 //
 // Globals
 //
-void render_ui_and_swap();
+void render_ui();
 LLBottomPanel* gBottomPanel = NULL;
 
 extern BOOL gDebugClicks;
@@ -237,34 +235,9 @@ const F32 MIN_AFK_TIME = 2.f; // minimum time after setting away state before co
 const F32 MAX_FAST_FRAME_TIME = 0.5f;
 const F32 FAST_FRAME_INCREMENT = 0.1f;
 
-const F32 MIN_DISPLAY_SCALE = 0.85f;
+const F32 MIN_DISPLAY_SCALE = 0.75f;
 
 const S32 CONSOLE_BOTTOM_PAD = 40;
-#ifdef SABINRIG
-/// ALL RIG STUFF
-bool rigControl = false;
-bool voltDisplay = true;
-bool nominalX = false;
-bool nominalY = false;
-static F32 nomerX = 0.0f;
-static F32 nomerY = 0.0f;
-const BOARD_NUM = 0; // rig stuff!
-const ADRANGE = BIP10VOLTS; // rig stuff!
-static unsigned short DataVal; // rig stuff!
-static F32 oldValueX = 0;
-static F32 newValueX = 50;
-static F32 oldValueY = 0;
-static F32 newValueY = 50;
-static S32 mouseX = 50;
-static S32 mouseY = 50;
-static float VoltageX = 50; // rig stuff!
-static float VoltageY = 50; // rig stuff!
-static float nVoltX = 0;
-static float nVoltY = 0;
-static F32 temp1 = 50.f;
-static F32 temp2 = 20.f;
-LLCoordGL new_gl;
-#endif //SABINRIG
 
 std::string	LLViewerWindow::sSnapshotBaseName;
 std::string	LLViewerWindow::sSnapshotDir;
@@ -273,81 +246,6 @@ std::string	LLViewerWindow::sMovieBaseName;
 
 extern void toggle_debug_menus(void*);
 
-#ifdef SABINRIG
-// static
-void LLViewerWindow::printFeedback()
-{
-	if(rigControl == true)
-	{
-		cbAIn (BOARD_NUM, 0, ADRANGE, &DataVal);
-		cbToEngUnits (BOARD_NUM,ADRANGE,DataVal,&VoltageX); //Convert raw to voltage for X-axis
-		cbAIn (BOARD_NUM, 1, ADRANGE, &DataVal);
-		cbToEngUnits (BOARD_NUM,ADRANGE,DataVal,&VoltageY); //Convert raw to voltage for Y-axis
-		if(voltDisplay == true)
-		{
-			llinfos <<  "Current Voltages - X:" << VoltageX << " Y:" << VoltageY << llendl; //Display voltage
-		}
-
-		if(nVoltX == 0)
-		{
-			nVoltX = VoltageX;
-			nVoltY = VoltageY; //First time setup of nominal values.
-		}
-
-		newValueX = VoltageX;
-		newValueY = VoltageY; //Take in current voltage and set to a separate value for adjustment.
-
-		mouseX = mCurrentMousePoint.mX;
-		mouseY = mCurrentMousePoint.mY; //Take in current cursor position and set to separate value for adjustment.
-
-		if( abs(newValueX - nVoltX) > nomerX )
-		{
-			if( (newValueX - oldValueX) < 0)
-			{
-				mouseX += (S32)( ((newValueX - oldValueX)*.5)) * -temp;
-			}
-			else
-			{
-				mouseX += (S32)( ((newValueX - oldValueX)*.5) * temp1);
-			}
-		}
-		else
-		{
-			mouseX = getWindowWidth() / 2;
-		}
-		if( abs(newValueY - nVoltY) > nomerY )
-		{
-			if( (newValueY - oldValueY) < 0)
-			{
-				mouseY += (S32)( ((newValueY - oldValueY)*(newValueY - oldValueY)) * -temp2);
-			}
-			else
-			{
-				mouseY += (S32)( ((newValueY - oldValueY)*(newValueY - oldValueY)) * temp2);
-			}
-		}
-		else
-		{
-			mouseY = getWindowHeight() / 2;
-		}
-		//mouseX += (S32)( (newValueX - nVoltX) * temp1 + 0.5 );
-		// (newValueX - oldValueX) = difference between current position and nominal position
-		// * temp1 = the amplification of the number that sets sensitivity
-		// + 0.5 = fixes rounding errors
-		
-
-		//mouseY += (S32)( (newValueY - nVoltY) * temp2 + 0.5 ); //Algorithm to adjust voltage for mouse adjustment.
-
-		oldValueX = newValueX;
-		oldValueY = newValueY;
-
-		new_gl.mX = mouseX;
-		new_gl.mY = mouseY; //Setup final coordinate to move mouse to.
-
-		setCursorPosition(new_gl); //Set final cursor position
-	}
-}
-#endif //SABINRIG
 
 ////////////////////////////////////////////////////////////////////////////
 //
@@ -635,6 +533,21 @@ void LLViewerWindow::updateDebugText()
 // LLViewerWindow
 //
 
+bool LLViewerWindow::shouldShowToolTipFor(LLMouseHandler *mh)
+{
+	if (mToolTip && mh)
+	{
+		LLMouseHandler::EShowToolTip showlevel = mh->getShowToolTip();
+
+		return (
+			showlevel == LLMouseHandler::SHOW_ALWAYS ||
+			(showlevel == LLMouseHandler::SHOW_IF_NOT_BLOCKED &&
+			 !mToolTipBlocked)
+			);
+	}
+	return false;
+}
+
 BOOL LLViewerWindow::handleMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask)
 {
 	S32 x = pos.mX;
@@ -664,11 +577,7 @@ BOOL LLViewerWindow::handleMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask
 	gMouseIdleTimer.reset();
 
 	// Hide tooltips on mousedown
-	if( mToolTip )
-	{
-		mToolTipBlocked = TRUE;
-		mToolTip->setVisible( FALSE );
-	}
+	mToolTipBlocked = TRUE;
 
 	// Also hide hover info on mousedown
 	if (gHoverView)
@@ -708,7 +617,7 @@ BOOL LLViewerWindow::handleMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask
 		}
 		else
 		{
-			setTopCtrl(NULL);
+			gFocusMgr.setTopCtrl(NULL);
 		}
 	}
 
@@ -791,7 +700,7 @@ BOOL LLViewerWindow::handleDoubleClick(LLWindow *window,  LLCoordGL pos, MASK ma
 		}
 		else
 		{
-			setTopCtrl(NULL);
+			gFocusMgr.setTopCtrl(NULL);
 		}
 	}
 
@@ -981,7 +890,7 @@ BOOL LLViewerWindow::handleRightMouseDown(LLWindow *window,  LLCoordGL pos, MASK
 		}
 		else
 		{
-			setTopCtrl(NULL);
+			gFocusMgr.setTopCtrl(NULL);
 		}
 	}
 
@@ -1154,13 +1063,9 @@ void LLViewerWindow::handleMouseMove(LLWindow *window,  LLCoordGL pos, MASK mask
 		gAgent.clearAFK();
 	}
 
-	if(mToolTip && mouse_actually_moved)
+	if(mouse_actually_moved)
 	{
-		mToolTipBlocked = FALSE;  // Blocking starts on keyboard events and (only) ends here.
-		if( mToolTip->getVisible() && !mToolTipStickyRect.pointInRect( x, y ) )
-		{
-			mToolTip->setVisible( FALSE );
-		}
+		mToolTipBlocked = FALSE;
 	}
 
 	// Activate the hover picker on mouse move.
@@ -2395,11 +2300,7 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 	}
 
 	// Hide tooltips on keypress
-	if(mToolTip )
-	{
-		mToolTipBlocked = TRUE; // block until next time mouse is moved
-		mToolTip->setVisible( FALSE );
-	}
+	mToolTipBlocked = TRUE; // block until next time mouse is moved
 
 	// Also hide hover info on keypress
 	if (gHoverView)
@@ -2432,22 +2333,8 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 	}
 
 	// handle escape key
-	if (key == KEY_ESCAPE && mask == MASK_NONE)
-	{
-		if (gMenuHolder && gMenuHolder->hideMenus())
-		{
-			return TRUE;
-		}
-
-		//if quit from menu, turn off the Keyboardmode for the menu.
-		if(LLMenuGL::getKeyboardMode())
-			LLMenuGL::setKeyboardMode(FALSE);
-
-		if (gFocusMgr.getTopCtrl())
-		{
-			gFocusMgr.setTopCtrl(NULL);
-			return TRUE;
-		}
+	//if (key == KEY_ESCAPE && mask == MASK_NONE)
+	//{
 
 		// *TODO: get this to play well with mouselook and hidden
 		// cursor modes, etc, and re-enable.
@@ -2456,7 +2343,7 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 		//	gFocusMgr.setMouseCapture(NULL);
 		//	return TRUE;
 		//}
-	}
+	//}
 
 	// let menus handle navigation keys
 	if (gMenuBarView && gMenuBarView->handleKey(key, mask, TRUE))
@@ -2890,7 +2777,6 @@ BOOL LLViewerWindow::handlePerFrameHover()
 
 	}
 
-	//llinfos << (mToolTipBlocked ? "BLOCKED" : "NOT BLOCKED") << llendl;
 	// Show a new tool tip (or update one that is alrady shown)
 	BOOL tool_tip_handled = FALSE;
 	std::string tool_tip_msg;
@@ -2902,38 +2788,48 @@ BOOL LLViewerWindow::handlePerFrameHover()
 		tooltip_delay = gSavedSettings.getF32( "DragAndDropToolTipDelay" );
 	}
 	if( handled && 
-		!mToolTipBlocked &&
-		(gMouseIdleTimer.getElapsedTimeF32() > tooltip_delay) &&
-		!mWindow->isCursorHidden() )
+	    gMouseIdleTimer.getElapsedTimeF32() > tooltip_delay &&
+	    !mWindow->isCursorHidden() )
 	{
 		LLRect screen_sticky_rect;
-
+		LLMouseHandler *mh;
+		S32 local_x, local_y;
 		if (mouse_captor)
 		{
-			S32 local_x, local_y;
-			mouse_captor->screenPointToLocal( x, y, &local_x, &local_y );
-			tool_tip_handled = mouse_captor->handleToolTip( local_x, local_y, tool_tip_msg, &screen_sticky_rect );
+			mouse_captor->screenPointToLocal(x, y, &local_x, &local_y);
+			mh = mouse_captor;
 		}
 		else if (handled_by_top_ctrl)
 		{
-			S32 local_x, local_y;
-			top_ctrl->screenPointToLocal( x, y, &local_x, &local_y );
-			tool_tip_handled = top_ctrl->handleToolTip( local_x, local_y, tool_tip_msg, &screen_sticky_rect );
+			top_ctrl->screenPointToLocal(x, y, &local_x, &local_y);
+			mh = top_ctrl;
 		}
 		else
 		{
-			tool_tip_handled = mRootView->handleToolTip(x, y, tool_tip_msg, &screen_sticky_rect );
+			local_x = x; local_y = y;
+			mh = mRootView;
 		}
 
-		if( tool_tip_handled && !tool_tip_msg.empty() )
+		BOOL tooltip_vis = FALSE;
+		if (shouldShowToolTipFor(mh))
 		{
-			mToolTipStickyRect = screen_sticky_rect;
-			mToolTip->setWrappedText( tool_tip_msg, 200 );
-			mToolTip->reshapeToFitText();
-			mToolTip->setOrigin( x, y );
-			LLRect virtual_window_rect(0, getWindowHeight(), getWindowWidth(), 0);
-			mToolTip->translateIntoRect( virtual_window_rect, FALSE );
-			mToolTip->setVisible( TRUE );
+			tool_tip_handled = mh->handleToolTip(local_x, local_y, tool_tip_msg, &screen_sticky_rect );
+		
+			if( tool_tip_handled && !tool_tip_msg.empty() )
+			{
+				mToolTipStickyRect = screen_sticky_rect;
+				mToolTip->setWrappedText( tool_tip_msg, 200 );
+				mToolTip->reshapeToFitText();
+				mToolTip->setOrigin( x, y );
+				LLRect virtual_window_rect(0, getWindowHeight(), getWindowWidth(), 0);
+				mToolTip->translateIntoRect( virtual_window_rect, FALSE );
+				tooltip_vis = TRUE;
+			}
+		}
+
+		if (mToolTip)
+		{
+			mToolTip->setVisible( tooltip_vis );
 		}
 	}		
 	
@@ -4014,7 +3910,7 @@ BOOL LLViewerWindow::thumbnailSnapshot(LLImageRaw *raw, S32 preview_width, S32 p
 	else
 	{
 		display(do_rebuild, 1.0f, 0, TRUE);
-		render_ui_and_swap();
+		render_ui();
 	}
 
 	S32 glformat, gltype, glpixel_length ;
@@ -4239,7 +4135,7 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 			{
 				display(do_rebuild, scale_factor, subimage_x+(subimage_y*llceil(scale_factor)), TRUE);
 				// Required for showing the GUI in snapshots?  See DEV-16350 for details. JC
-				render_ui_and_swap();
+				render_ui();
 			}
 
 			S32 subimage_x_offset = llclamp(buffer_x_offset - (subimage_x * window_width), 0, window_width);
@@ -4395,39 +4291,6 @@ void LLViewerWindow::drawMouselookInstructions()
 }
 
 
-// These functions are here only because LLViewerWindow used to do the work that gFocusMgr does now.
-// They let other objects continue to work without change.
-
-void LLViewerWindow::setKeyboardFocus(LLUICtrl* new_focus)
-{
-	gFocusMgr.setKeyboardFocus( new_focus );
-}
-
-LLUICtrl* LLViewerWindow::getKeyboardFocus()
-{
-	return gFocusMgr.getKeyboardFocus();
-}
-
-BOOL LLViewerWindow::hasKeyboardFocus(const LLUICtrl* possible_focus) const
-{
-	return possible_focus == gFocusMgr.getKeyboardFocus();
-}
-
-BOOL LLViewerWindow::childHasKeyboardFocus(const LLView* parent) const
-{
-	return gFocusMgr.childHasKeyboardFocus( parent );
-}
-
-void LLViewerWindow::setMouseCapture(LLMouseHandler* new_captor)
-{
-	gFocusMgr.setMouseCapture( new_captor );
-}
-
-LLMouseHandler* LLViewerWindow::getMouseCaptor() const
-{
-	return gFocusMgr.getMouseCapture();
-}
-
 S32	LLViewerWindow::getWindowHeight()	const 	
 { 
 	return mVirtualWindowRect.getHeight(); 
@@ -4446,21 +4309,6 @@ S32	LLViewerWindow::getWindowDisplayHeight()	const
 S32	LLViewerWindow::getWindowDisplayWidth() const 	
 { 
 	return mWindowRect.getWidth(); 
-}
-
-LLUICtrl* LLViewerWindow::getTopCtrl() const
-{
-	return gFocusMgr.getTopCtrl();
-}
-
-BOOL LLViewerWindow::hasTopCtrl(LLView* view) const
-{
-	return view == gFocusMgr.getTopCtrl();
-}
-
-void LLViewerWindow::setTopCtrl(LLUICtrl* new_top)
-{
-	gFocusMgr.setTopCtrl( new_top );
 }
 
 void LLViewerWindow::setupViewport(S32 x_offset, S32 y_offset)

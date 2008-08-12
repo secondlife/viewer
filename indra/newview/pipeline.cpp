@@ -197,6 +197,7 @@ glh::matrix4f gl_ortho(GLfloat left, GLfloat right, GLfloat bottom, GLfloat top,
 	return ret;
 }
 
+void display_update_camera();
 //----------------------------------------
 
 S32		LLPipeline::sCompiles = 0;
@@ -224,6 +225,8 @@ BOOL	LLPipeline::sImpostorRender = FALSE;
 BOOL	LLPipeline::sUnderWaterRender = FALSE;
 BOOL	LLPipeline::sTextureBindTest = FALSE;
 BOOL	LLPipeline::sRenderFrameTest = FALSE;
+BOOL	LLPipeline::sRenderAttachedLights = TRUE;
+BOOL	LLPipeline::sRenderAttachedParticles = TRUE;
 
 static LLCullResult* sCull = NULL;
 
@@ -240,10 +243,30 @@ static const U32 gl_cube_face[] =
 void validate_framebuffer_object();
 
 LLPipeline::LLPipeline() :
+	mBackfaceCull(FALSE),
+	mBatchCount(0),
+	mMatrixOpCount(0),
+	mTextureMatrixOps(0),
+	mMaxBatchSize(0),
+	mMinBatchSize(0),
+	mMeanBatchSize(0),
+	mTrianglesDrawn(0),
+	mNumVisibleNodes(0),
+	mVerticesRelit(0),
+	mLightingChanges(0),
+	mGeometryChanges(0),
+	mNumVisibleFaces(0),
+
 	mCubeBuffer(NULL),
+	mCubeFrameBuffer(0),
+	mCubeDepth(0),
 	mInitialized(FALSE),
 	mVertexShadersEnabled(FALSE),
 	mVertexShadersLoaded(0),
+	mRenderTypeMask(0),
+	mRenderDebugFeatureMask(0),
+	mRenderDebugMask(0),
+	mOldRenderDebugMask(0),
 	mLastRebuildPool(NULL),
 	mAlphaPool(NULL),
 	mSkyPool(NULL),
@@ -256,15 +279,11 @@ LLPipeline::LLPipeline() :
 	mBumpPool(NULL),
 	mWLSkyPool(NULL),
 	mLightMask(0),
-	mLightMovingMask(0)
+	mLightMovingMask(0),
+	mLightingDetail(0)
 {
-	//mFramebuffer[0] = mFramebuffer[1] = mFramebuffer[2] = mFramebuffer[3] = 0;
 	mBlurCubeBuffer[0] = mBlurCubeBuffer[1] = mBlurCubeBuffer[2] = 0;
 	mBlurCubeTexture[0] = mBlurCubeTexture[1] = mBlurCubeTexture[2] = 0;
-
-	//mDepthbuffer[0] = mDepthbuffer[1] = 0;
-	mCubeFrameBuffer = 0;
-	mCubeDepth = 0;
 }
 
 void LLPipeline::init()
@@ -273,6 +292,8 @@ void LLPipeline::init()
 
 	sDynamicLOD = gSavedSettings.getBOOL("RenderDynamicLOD");
 	sRenderBump = gSavedSettings.getBOOL("RenderObjectBump");
+	sRenderAttachedLights = gSavedSettings.getBOOL("RenderAttachedLights");
+	sRenderAttachedParticles = gSavedSettings.getBOOL("RenderAttachedParticles");
 
 	mInitialized = TRUE;
 	
@@ -438,12 +459,6 @@ void LLPipeline::releaseGLBuffers()
 		glDeleteRenderbuffersEXT(1, &mCubeDepth);
 		mCubeDepth = mCubeFrameBuffer = 0;
 	}
-
-	/*if (mFramebuffer[0])
-	{
-		glDeleteFramebuffersEXT(4, mFramebuffer);
-		mFramebuffer[0] = mFramebuffer[1] = mFramebuffer[2] = mFramebuffer[3] = 0;
-	}*/
 
 	if (mBlurCubeBuffer[0])
 	{
@@ -1582,6 +1597,9 @@ void LLPipeline::shiftObjects(const LLVector3 &offset)
 			}
 		}
 	}
+
+	LLHUDText::shiftAll(offset);
+	display_update_camera();
 }
 
 void LLPipeline::markTextured(LLDrawable *drawablep)
@@ -1763,6 +1781,12 @@ void LLPipeline::stateSort(LLDrawable* drawablep, LLCamera& camera)
 	{ //don't draw avatars beyond render distance or if we don't have a spatial group.
 		if ((drawablep->getSpatialGroup() == NULL) || 
 			(drawablep->getSpatialGroup()->mDistance > LLVOAvatar::sRenderDistance))
+		{
+			return;
+		}
+
+		LLVOAvatar* avatarp = (LLVOAvatar*) drawablep->getVObj().get();
+		if (!avatarp->isVisible())
 		{
 			return;
 		}
@@ -2153,6 +2177,7 @@ void render_hud_elements()
 	gGL.color4f(1,1,1,1);
 	if (!LLPipeline::sReflectionRender && gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI))
 	{
+		LLGLEnable multisample(GL_MULTISAMPLE_ARB);
 		gViewerWindow->renderSelections(FALSE, FALSE, FALSE); // For HUD version in render_ui_3d()
 	
 		// Draw the tracking overlays
@@ -2717,12 +2742,15 @@ void LLPipeline::renderForSelect(std::set<LLViewerObject*>& objects, BOOL render
 					}
 
 					//render child faces
-					for (U32 k = 0; k < drawable->getChildCount(); ++k)
+					LLViewerObject::const_child_list_t& child_list = objectp->getChildren();
+					for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
+						 iter != child_list.end(); iter++)
 					{
-						LLDrawable* child = drawable->getChild(k);
-						for (S32 l = 0; l < child->getNumFaces(); ++l)
+						LLViewerObject* child = *iter;
+						LLDrawable* child_drawable = child->mDrawable;
+						for (S32 l = 0; l < child_drawable->getNumFaces(); ++l)
 						{
-							LLFace* facep = child->getFace(l);
+							LLFace* facep = child_drawable->getFace(l);
 							if (!facep->getPool())
 							{
 								facep->renderForSelect(prim_mask);
@@ -3174,12 +3202,16 @@ void LLPipeline::calcNearbyLights(LLCamera& camera)
 				if (light->fade <= -LIGHT_FADE_TIME)
 				{
 					drawable->clearState(LLDrawable::NEARBY_LIGHT);
+					continue;
 				}
-				else
+				if (!sRenderAttachedLights && volight && volight->isAttachment())
 				{
-					F32 dist = calc_light_dist(volight, cam_pos, max_dist);
-					cur_nearby_lights.insert(Light(drawable, dist, light->fade));
+					drawable->clearState(LLDrawable::NEARBY_LIGHT);
+					continue;
 				}
+
+				F32 dist = calc_light_dist(volight, cam_pos, max_dist);
+				cur_nearby_lights.insert(Light(drawable, dist, light->fade));
 			}
 			mNearbyLights = cur_nearby_lights;
 		}
@@ -4022,11 +4054,6 @@ LLSpatialPartition* LLPipeline::getSpatialPartition(LLViewerObject* vobj)
 void LLPipeline::resetVertexBuffers(LLDrawable* drawable)
 {
 	if (!drawable || drawable->isDead())
-	{
-		return;
-	}
-
-	if (!drawable)
 	{
 		return;
 	}
@@ -5224,7 +5251,7 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 		LLGLDepthTest depth(GL_FALSE, GL_FALSE);
 
 		gGL.color4f(1,1,1,1);
-		gGL.color4ub(64,64,64,1);
+		gGL.color4ub(64,64,64,255);
 		gGL.begin(LLVertexBuffer::QUADS);
 		gGL.vertex3fv((pos+left-up).mV);
 		gGL.vertex3fv((pos-left-up).mV);

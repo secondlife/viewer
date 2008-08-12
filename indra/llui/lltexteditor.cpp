@@ -4180,8 +4180,8 @@ void LLTextEditor::setTextEditorParameters(LLXMLNodePtr node)
 ///////////////////////////////////////////////////////////////////
 S32 LLTextEditor::findHTMLToken(const std::string &line, S32 pos, BOOL reverse) const
 {
-	std::string openers=" \t('\"[{<>";
-	std::string closers=" \t)'\"]}><;";
+	std::string openers=" \t\n('\"[{<>";
+	std::string closers=" \t\n)'\"]}><;";
 
 	S32 m2;
 	S32 retval;

@@ -202,7 +202,7 @@ void LLAppViewerMacOSX::handleCrashReporting()
 {
 	// Macintosh
 	std::string command_str;
-	command_str += "open crashreporter.app";	
+	command_str += "open mac-crash-logger.app";	
 	
 	clear_signals();
 	llinfos << "Launching crash reporter using: '" << command_str << "'" << llendl;

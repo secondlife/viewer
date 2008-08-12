@@ -101,6 +101,12 @@ void LLCurl::setCAFile(const std::string& file)
 	sCAFile = file;
 }
 
+//static
+std::string LLCurl::getVersionString()
+{
+	return std::string(curl_version());
+}
+
 //////////////////////////////////////////////////////////////////////////////
 
 LLCurl::Responder::Responder()

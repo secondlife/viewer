@@ -1003,9 +1003,11 @@ void LLManipScale::dragCorner( S32 x, S32 y )
 			if (selectNode->mIndividualSelection)
 			{
 				// counter-translate child objects if we are moving the root as an individual
-				for (U32 child_num = 0; child_num < cur->mChildList.size(); child_num++)
+				LLViewerObject::const_child_list_t& child_list = cur->getChildren();
+				for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
+					 iter != child_list.end(); iter++)
 				{
-					LLViewerObject* childp = cur->mChildList[child_num];
+					LLViewerObject* childp = *iter;
 
 					if (cur->isAttachment())
 					{
@@ -1301,9 +1303,11 @@ void LLManipScale::stretchFace( const LLVector3& drag_start_agent, const LLVecto
 			if (cur->isRootEdit() && selectNode->mIndividualSelection)
 			{
 				// counter-translate child objects if we are moving the root as an individual
-				for (U32 child_num = 0; child_num < cur->mChildList.size(); child_num++)
+				LLViewerObject::const_child_list_t& child_list = cur->getChildren();
+				for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
+					 iter != child_list.end(); iter++)
 				{
-					LLViewerObject* childp = cur->mChildList[child_num];
+					LLViewerObject* childp = *iter;
 					if (!getUniform())
 					{
 						LLVector3 child_pos = childp->getPosition() - (delta_pos * ~cur->getRotationEdit());

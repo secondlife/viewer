@@ -134,6 +134,11 @@ public:
 	 * @ brief Set certificate authority path used to verify HTTPS certs.
 	 */
 	static void setCAPath(const std::string& path);
+
+	/**
+	 * @ brief Return human-readable string describing libcurl version.
+	 */
+	static std::string getVersionString();
 	
 	/**
 	 * @ brief Get certificate authority file used to verify HTTPS certs.

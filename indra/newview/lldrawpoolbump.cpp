@@ -851,7 +851,7 @@ LLImageGL* LLBumpImageList::getBrightnessDarknessImage(LLViewerImage* src_image,
 			bump->setExplicitFormat(GL_ALPHA8, GL_ALPHA);			
 
 			// Note: this may create an LLImageGL immediately
-			src_image->setLoadedCallback( callback_func, 0, TRUE, new LLUUID(src_image->getID()) );
+			src_image->setLoadedCallback( callback_func, 0, TRUE, FALSE, new LLUUID(src_image->getID()) );
 			bump = (*entries_list)[src_image->getID()]; // In case callback was called immediately and replaced the image
 
 //			bump_total++;

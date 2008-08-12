@@ -104,8 +104,7 @@ BOOL gRenderAvatar = TRUE;
 
 S32 LLDrawPoolAvatar::getVertexShaderLevel() const
 {
-	return sShaderLevel;
-	//return (S32) LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_AVATAR);
+	return (S32) LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_AVATAR);
 }
 
 void LLDrawPoolAvatar::prerender()
@@ -586,6 +585,7 @@ void LLDrawPoolAvatar::renderForSelect()
 		return;
 	}
 
+	S32 curr_shader_level = getVertexShaderLevel();
 	S32 name = avatarp->mDrawable->getVObj()->mGLName;
 	LLColor4U color((U8)(name >> 16), (U8)(name >> 8), (U8)name);
 
@@ -602,7 +602,7 @@ void LLDrawPoolAvatar::renderForSelect()
 	}
 
 	sVertexProgram = &gAvatarPickProgram;
-	if (sShaderLevel > 0)
+	if (curr_shader_level > 0)
 	{
 		gAvatarMatrixParam = sVertexProgram->mUniform[LLViewerShaderMgr::AVATAR_MATRIX];
 	}
@@ -611,7 +611,7 @@ void LLDrawPoolAvatar::renderForSelect()
 
 	glColor4ubv(color.mV);
 
-	if (sShaderLevel > 0)  // for hardware blending
+	if (curr_shader_level > 0)  // for hardware blending
 	{
 		sRenderingSkinned = TRUE;
 		sVertexProgram->bind();
@@ -621,7 +621,7 @@ void LLDrawPoolAvatar::renderForSelect()
 	avatarp->renderSkinned(AVATAR_RENDER_PASS_SINGLE);
 
 	// if we're in software-blending, remember to set the fence _after_ we draw so we wait till this rendering is done
-	if (sShaderLevel > 0)
+	if (curr_shader_level > 0)
 	{
 		sRenderingSkinned = FALSE;
 		sVertexProgram->unbind();

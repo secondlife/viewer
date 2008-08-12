@@ -56,6 +56,7 @@
 #include "llcallbacklist.h"
 #include "llpreview.h"
 #include "llviewercontrol.h"
+#include "llvoavatar.h"
 #include "llsdutil.h"
 #include <deque>
 
@@ -3063,6 +3064,45 @@ void LLInventoryModel::dumpInventory()
 ///----------------------------------------------------------------------------
 /// LLInventoryCollectFunctor implementations
 ///----------------------------------------------------------------------------
+
+// static
+bool LLInventoryCollectFunctor::itemTransferCommonlyAllowed(LLInventoryItem* item)
+{
+	if (!item)
+		return false;
+
+	bool allowed = false;
+	LLVOAvatar* my_avatar = NULL;
+
+	switch(item->getType())
+	{
+	case LLAssetType::AT_CALLINGCARD:
+		// not allowed
+		break;
+		
+	case LLAssetType::AT_OBJECT:
+		my_avatar = gAgent.getAvatarObject();
+		if(my_avatar && !my_avatar->isWearingAttachment(item->getUUID()))
+		{
+			allowed = true;
+		}
+		break;
+		
+	case LLAssetType::AT_BODYPART:
+	case LLAssetType::AT_CLOTHING:
+		if(!gAgent.isWearingItem(item->getUUID()))
+		{
+			allowed = true;
+		}
+		break;
+		
+	default:
+		allowed = true;
+		break;
+	}
+
+	return allowed;
+}
 
 bool LLIsType::operator()(LLInventoryCategory* cat, LLInventoryItem* item)
 {

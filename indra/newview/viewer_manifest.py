@@ -388,6 +388,7 @@ class DarwinManifest(ViewerManifest):
                 self.path("licenses-mac.txt", dst="licenses.txt")
                 self.path("featuretable_mac.txt")
                 self.path("secondlife.icns")
+                self.path("SecondLife.nib")
                 
                 # Translations
                 self.path("English.lproj")
@@ -408,6 +409,10 @@ class DarwinManifest(ViewerManifest):
                 
                 #libfmodwrapper.dylib
                 self.path(self.args['configuration'] + "/libfmodwrapper.dylib", "libfmodwrapper.dylib")
+                
+                # our apps
+                self.path("../mac_crash_logger/" + self.args['configuration'] + "/mac-crash-logger.app", "mac-crash-logger.app")
+                self.path("../mac_updater/" + self.args['configuration'] + "/mac-updater.app", "mac-updater.app")
 
                 # command line arguments for connecting to the proper grid
                 self.put_in_file(self.flags_list(), 'arguments.txt')

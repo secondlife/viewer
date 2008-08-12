@@ -172,7 +172,7 @@ BOOL LLColorSwatchCtrl::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	// Route future Mouse messages here preemptively.  (Release on mouse up.)
 	// No handler is needed for capture lost since this object has no state that depends on it.
-	gViewerWindow->setMouseCapture( this );
+	gFocusMgr.setMouseCapture( this );
 
 	return TRUE;
 }
@@ -184,7 +184,7 @@ BOOL LLColorSwatchCtrl::handleMouseUp(S32 x, S32 y, MASK mask)
 	if( hasMouseCapture() )
 	{
 		// Release the mouse
-		gViewerWindow->setMouseCapture( NULL );
+		gFocusMgr.setMouseCapture( NULL );
 
 		// If mouseup in the widget, it's been clicked
 		if ( pointInView(x, y) )

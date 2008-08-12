@@ -389,6 +389,8 @@ public:
 	static BOOL				sRenderGlow;
 	static BOOL				sTextureBindTest;
 	static BOOL				sRenderFrameTest;
+	static BOOL				sRenderAttachedLights;
+	static BOOL				sRenderAttachedParticles;
 	
 	//screen texture
 	LLRenderTarget			mScreen;
@@ -403,10 +405,6 @@ public:
 
 	//texture for making the glow
 	LLRenderTarget				mGlow[3];
-	
-	//framebuffer objects for off-screen scratch space
-	//GLuint					mFramebuffer[4];
-	//GLuint					mDepthbuffer[2];
 
 	//dynamic cube map scratch space
 	LLPointer<LLCubeMap>	mCubeBuffer;

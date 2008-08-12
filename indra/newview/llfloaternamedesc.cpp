@@ -46,6 +46,7 @@
 #include "llviewercontrol.h"
 #include "llviewermenufile.h"	// upload_new_resource()
 #include "lluictrlfactory.h"
+#include "llstring.h"
 
 // linden includes
 #include "llassetstorage.h"

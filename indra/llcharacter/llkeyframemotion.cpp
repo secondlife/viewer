@@ -655,9 +655,9 @@ BOOL LLKeyframeMotion::setupPose()
 BOOL LLKeyframeMotion::onActivate()
 {
 	// If the keyframe anim has an associated emote, trigger it. 
-	if( mEmoteName.length() > 0 )
+	if( mJointMotionList->mEmoteName.length() > 0 )
 	{
-		mCharacter->startMotion( gAnimLibrary.stringToAnimState(mEmoteName) );
+		mCharacter->startMotion( gAnimLibrary.stringToAnimState(mJointMotionList->mEmoteName) );
 	}
 
 	mLastLoopedTime = 0.f;
@@ -1230,7 +1230,7 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 	//-------------------------------------------------------------------------
 	// get emote (optional)
 	//-------------------------------------------------------------------------
-	if (!dp.unpackString(mEmoteName, "emote_name"))
+	if (!dp.unpackString(mJointMotionList->mEmoteName, "emote_name"))
 	{
 		llwarns << "can't read optional_emote_animation" << llendl;
 		return FALSE;
@@ -1672,7 +1672,7 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 				if (!parent)
 				{
 					llwarns << "Joint with no parent: " << joint->getName()
-							<< " Emote: " << mEmoteName << llendl;
+							<< " Emote: " << mJointMotionList->mEmoteName << llendl;
 					return FALSE;
 				}
 				joint = parent;
@@ -1710,7 +1710,7 @@ BOOL LLKeyframeMotion::serialize(LLDataPacker& dp) const
 	success &= dp.packU16(KEYFRAME_MOTION_SUBVERSION, "sub_version");
 	success &= dp.packS32(mJointMotionList->mBasePriority, "base_priority");
 	success &= dp.packF32(mJointMotionList->mDuration, "duration");
-	success &= dp.packString(mEmoteName, "emote_name");
+	success &= dp.packString(mJointMotionList->mEmoteName, "emote_name");
 	success &= dp.packF32(mJointMotionList->mLoopInPoint, "loop_in_point");
 	success &= dp.packF32(mJointMotionList->mLoopOutPoint, "loop_out_point");
 	success &= dp.packS32(mJointMotionList->mLoop, "loop");
@@ -1848,11 +1848,11 @@ void LLKeyframeMotion::setEmote(const LLUUID& emote_id)
 	const char* emote_name = gAnimLibrary.animStateToString(emote_id);
 	if (emote_name)
 	{
-		mEmoteName = emote_name;
+		mJointMotionList->mEmoteName = emote_name;
 	}
 	else
 	{
-		mEmoteName = "";
+		mJointMotionList->mEmoteName = "";
 	}
 }
 

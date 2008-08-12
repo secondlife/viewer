@@ -1163,9 +1163,11 @@ void LLViewerObjectList::generatePickList(LLCamera &camera)
 					if (objectp)
 					{
 						mSelectPickList.insert(objectp);		
-						for (U32 i = 0; i < objectp->mChildList.size(); i++)
+						LLViewerObject::const_child_list_t& child_list = objectp->getChildren();
+						for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
+							 iter != child_list.end(); iter++)
 						{
-							LLViewerObject* childp = objectp->mChildList[i];
+							LLViewerObject* childp = *iter;
 							if (childp)
 							{
 								mSelectPickList.insert(childp);

@@ -1,4 +1,4 @@
-version 16
+version 17
 
 // NOTE: This is mostly identical to featuretable_mac.txt with a few differences
 // Should be combined into one table
@@ -394,48 +394,20 @@ list ATI_Radeon_X1600
 Disregard128DefaultDrawDistance	1	0
 list ATI_Radeon_X1700 
 Disregard128DefaultDrawDistance	1	0
-
 list ATI_Mobility_Radeon_X1xxx
 Disregard128DefaultDrawDistance	1	0
-
-
-
-// Avatar hardware skinning causes
-// invisible avatars on x2600... so I masked
-// out other possible bad ones till it's fixed in 8.2
-
 list ATI_Radeon_HD_2300
-RenderAvatarVP				0	0
-RenderAvatarCloth			0	0
 Disregard128DefaultDrawDistance	1	0
 list ATI_Radeon_HD_2400
-RenderAvatarVP				0	0
-RenderAvatarCloth			0	0
 Disregard128DefaultDrawDistance	1	0
-list ATI_Radeon_HD_2600
-RenderAvatarVP				0	0
-RenderAvatarCloth			0	0
-list ATI_Radeon_HD_2900
-RenderAvatarVP				0	0
-RenderAvatarCloth			0	0
-list ATI_Radeon_HD_3800
-RenderAvatarVP				0	0
-RenderAvatarCloth			0	0
-
 list ATI_ASUS_AH24xx
-RenderAvatarVP				0	0
-RenderAvatarCloth			0	0
 Disregard128DefaultDrawDistance	1	0
-list ATI_ASUS_AH26xx
-RenderAvatarVP				0	0
-RenderAvatarCloth			0	0
-list ATI_ASUS_EAH24xx
-RenderAvatarVP				0	0
-RenderAvatarCloth			0	0
-list ATI_ASUS_EAH26xx
-RenderAvatarVP				0	0
-RenderAvatarCloth			0	0
-list ATI_ASUS_EAH38xx
+
+
+// Avatar hardware skinning causes invisible avatars
+// on various ATI chipsets on drivers before 8.2
+
+list ATIOldDriver
 RenderAvatarVP				0	0
 RenderAvatarCloth			0	0
 

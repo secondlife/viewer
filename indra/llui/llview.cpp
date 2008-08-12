@@ -698,7 +698,7 @@ BOOL LLView::handleToolTip(S32 x, S32 y, std::string& msg, LLRect* sticky_rect_s
 {
 	BOOL handled = FALSE;
 
-    std::string tool_tip;
+	std::string tool_tip;
 
 	for ( child_list_iter_t child_it = mChildList.begin(); child_it != mChildList.end(); ++child_it)
 	{

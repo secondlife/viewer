@@ -2666,7 +2666,7 @@ static void display_release_message(S32, void* data)
 
 void process_agent_movement_complete(LLMessageSystem* msg, void**)
 {
-	gAgentMovementCompleted = TRUE;
+	gAgentMovementCompleted = true;
 
 	LLUUID agent_id;
 	msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_AgentID, agent_id);

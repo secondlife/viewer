@@ -121,6 +121,7 @@ static const struct mtv_display_info mtv_display_table[] =
 	{ LLMemType::MTYPE_SPACE_PARTITION,	"Space Partition",	&LLColor4::blue2 },
 	{ LLMemType::MTYPE_VERTEX_DATA,		"Vertex Buffer",	&LLColor4::blue3 },
 	{ LLMemType::MTYPE_AVATAR,			"Avatar",			&LLColor4::purple1 },
+	{ LLMemType::MTYPE_AVATAR_MESH,		"Avatar Mesh",		&LLColor4::purple2 },
 	{ LLMemType::MTYPE_ANIMATION,		"Animation",		&LLColor4::purple3 },
 	{ LLMemType::MTYPE_REGIONS,			"Regions",			&LLColor4::blue1 },
 	{ LLMemType::MTYPE_VOLUME,			"Volume",			&LLColor4::pink1 },

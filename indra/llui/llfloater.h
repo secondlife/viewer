@@ -142,8 +142,10 @@ public:
 
 	LLMultiFloater* getHost() { return (LLMultiFloater*)mHostHandle.get(); }
 
-	void			setTitle( const std::string& title );
-	const std::string&	getTitle() const;
+	void			applyTitle();
+	const std::string&	getCurrentTitle() const;
+	void			setTitle( const std::string& title);
+	std::string		getTitle();
 	void			setShortTitle( const std::string& short_title );
 	std::string		getShortTitle();
 	void			setTitleVisible(bool visible);
@@ -247,6 +249,7 @@ private:
 	BOOL			mMinimized;
 	BOOL			mForeground;
 	LLHandle<LLFloater>	mDependeeHandle;
+	std::string		mTitle;
 	std::string		mShortTitle;
 
 	BOOL			mFirstLook;			// TRUE if the _next_ time this floater is visible will be the first time in the session that it is visible.

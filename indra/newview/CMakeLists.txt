@@ -159,6 +159,7 @@ set(viewer_SOURCE_FILES
     llfloaterlandholdings.cpp
     llfloaterlandmark.cpp
     llfloatermap.cpp
+    llfloatermemleak.cpp
     llfloatermute.cpp
     llfloaternamedesc.cpp
     llfloaternewim.cpp
@@ -549,6 +550,7 @@ set(viewer_HEADER_FILES
     llfloaterlandholdings.h
     llfloaterlandmark.h
     llfloatermap.h
+    llfloatermemleak.h
     llfloatermute.h
     llfloaternamedesc.h
     llfloaternewim.h
@@ -1312,10 +1314,21 @@ if (WINDOWS)
           -E
           copy_if_different
           ${CMAKE_CURRENT_SOURCE_DIR}/../../scripts/messages/message_template.msg
-          ${CMAKE_CURRENT_SOURCE_DIR}/app_settings/message_template.msg
+          ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/app_settings/message_template.msg
         COMMENT "Copying message_template.msg to the runtime folder."
         )
 
+    add_custom_command(
+        TARGET secondlife-bin PRE_BUILD
+        COMMAND ${CMAKE_COMMAND}
+        ARGS
+          -E
+          copy_if_different
+          ${CMAKE_CURRENT_SOURCE_DIR}/../../etc/message.xml
+          ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/app_settings/message.xml
+        COMMENT "Copying message.xml to the runtime folder."
+        )
+       
     add_dependencies(secondlife-bin copy_win_libs)
 
     if (EXISTS ${CMAKE_SOURCE_DIR}/copy_win_scripts)
@@ -1389,23 +1402,10 @@ set(ARTWORK_DIR ${CMAKE_CURRENT_SOURCE_DIR} CACHE PATH
 
 if (LINUX)
   add_custom_command(
-      OUTPUT secondlife-stripped-globalsyms
-      COMMAND strip
-      ARGS --strip-debug -o secondlife-stripped-globalsyms secondlife-bin
-      DEPENDS secondlife-bin
-      )
-
-  add_custom_command(
       OUTPUT secondlife-stripped
-      COMMAND objcopy
-      ARGS
-        --keep-global-symbols
-        ${CMAKE_CURRENT_SOURCE_DIR}/linux_tools/exposed-symbols.txt
-        secondlife-stripped-globalsyms
-        secondlife-stripped
-      DEPENDS
-        secondlife-stripped-globalsyms
-        ${CMAKE_CURRENT_SOURCE_DIR}/linux_tools/exposed-symbols.txt
+      COMMAND strip
+      ARGS --strip-debug -o secondlife-stripped secondlife-bin
+      DEPENDS secondlife-bin
       )
 
   set(product SecondLife-${ARCH}-${viewer_VERSION})
@@ -1483,6 +1483,7 @@ if (DARWIN)
         secondlife-bin
         ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
       )
+      add_dependencies(package mac-updater mac-crash-logger)
   endif (PACKAGE)
 endif (DARWIN)
 

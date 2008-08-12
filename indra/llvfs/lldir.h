@@ -51,7 +51,8 @@ typedef enum ELLPath
 	LL_PATH_PER_ACCOUNT_CHAT_LOGS = 13,
 	LL_PATH_MOZILLA_PROFILE = 14,
 //	LL_PATH_HTML = 15,
-	LL_PATH_LAST = 16
+	LL_PATH_EXECUTABLE = 16,
+	LL_PATH_LAST
 } ELLPath;
 
 
@@ -86,6 +87,7 @@ class LLDir
 	const std::string &getPerAccountChatLogsDir() const;	// Location of the per account chat logs dir.
 	const std::string &getTempDir() const;			// Common temporary directory
 	const std::string  getCacheDir(bool get_default = false) const;	// Location of the cache.
+	const std::string &getOSCacheDir() const;		// location of OS-specific cache folder (may be empty string)
 	const std::string &getCAFile() const;			// File containing TLS certificate authorities
 	const std::string &getDirDelimiter() const;	// directory separator for platform (ie. '\' or '/' or ':')
 	const std::string &getSkinDir() const;		// User-specified skin folder.
@@ -135,6 +137,7 @@ protected:
 	std::string mCAFile;				 // Location of the TLS certificate authority PEM file.
 	std::string mTempDir;
 	std::string mCacheDir;
+	std::string mOSCacheDir;
 	std::string mDirDelimiter;
 	std::string mSkinDir;			// Location for current skin info.
 	std::string mDefaultSkinDir;			// Location for default skin info.

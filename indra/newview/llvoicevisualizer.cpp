@@ -293,10 +293,6 @@ void LLVoiceVisualizer::lipSyncOohAah( F32& ooh, F32& aah )
 	if( ( sLipSyncEnabled == TRUE ) && mCurrentlySpeaking )
 	{
 		U32 transfer_index = (U32) (sOohPowerTransfersf * mSpeakingAmplitude);
-		if (transfer_index < 0)
-		{
-		   transfer_index = 0;
-		}
 		if (transfer_index >= sOohPowerTransfers)
 		{
 		   transfer_index = sOohPowerTransfers - 1;
@@ -304,10 +300,6 @@ void LLVoiceVisualizer::lipSyncOohAah( F32& ooh, F32& aah )
 		F32 transfer_ooh = sOohPowerTransfer[transfer_index];
 
 		transfer_index = (U32) (sAahPowerTransfersf * mSpeakingAmplitude);
-		if (transfer_index < 0)
-		{
-		   transfer_index = 0;
-		}
 		if (transfer_index >= sAahPowerTransfers)
 		{
 		   transfer_index = sAahPowerTransfers - 1;

@@ -459,14 +459,15 @@ void LLGLTexMemBar::draw()
 
 	//----------------------------------------------------------------------------
 
-	text = llformat("Textures: Count: %d Fetch: %d(%d) Pkts:%d(%d) Cache R/W: %d/%d LFS:%d IW:%d(%d) RAW:%d",
+	text = llformat("Textures: Count: %d Fetch: %d(%d) Pkts:%d(%d) Cache R/W: %d/%d LFS:%d IW:%d(%d) RAW:%d mRaw:%d mAux:%d CB:%d",
 					gImageList.getNumImages(),
 					LLAppViewer::getTextureFetch()->getNumRequests(), LLAppViewer::getTextureFetch()->getNumDeletes(),
 					LLAppViewer::getTextureFetch()->mPacketCount, LLAppViewer::getTextureFetch()->mBadPacketCount, 
 					LLAppViewer::getTextureCache()->getNumReads(), LLAppViewer::getTextureCache()->getNumWrites(),
 					LLLFSThread::sLocal->getPending(),
 					LLImageWorker::sCount, LLImageWorker::getWorkerThread()->getNumDeletes(),
-					LLImageRaw::sRawImageCount);
+					LLImageRaw::sRawImageCount, LLViewerImage::sRawCount, LLViewerImage::sAuxCount,
+					gImageList.mCallbackList.size());
 
 	LLFontGL::sMonospace->renderUTF8(text, 0, 0, line_height*2,
 									 text_color, LLFontGL::LEFT, LLFontGL::TOP);

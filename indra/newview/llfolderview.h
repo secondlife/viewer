@@ -880,7 +880,7 @@ protected:
 	static void onRenamerLost( LLUICtrl* renamer, void* user_data);
 
 	void finishRenamingItem( void );
-	void revertRenamingItem( void );
+	void closeRenamer( void );
 
 protected:
 	LLHandle<LLView>					mPopupMenuHandle;

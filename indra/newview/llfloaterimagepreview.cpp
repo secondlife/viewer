@@ -45,6 +45,7 @@
 #include "lldrawpoolavatar.h"
 #include "llrender.h"
 #include "llface.h"
+#include "llfocusmgr.h"
 #include "lltextbox.h"
 #include "lltoolmgr.h"
 #include "llui.h"
@@ -54,6 +55,7 @@
 #include "pipeline.h"
 #include "lluictrlfactory.h"
 #include "llviewerimagelist.h"
+#include "llstring.h"
 
 //static
 S32 LLFloaterImagePreview::sUploadAmount = 10;
@@ -426,7 +428,7 @@ BOOL LLFloaterImagePreview::handleMouseDown(S32 x, S32 y, MASK mask)
 	if (mPreviewRect.pointInRect(x, y))
 	{
 		bringToFront( x, y );
-		gViewerWindow->setMouseCapture(this);
+		gFocusMgr.setMouseCapture(this);
 		gViewerWindow->hideCursor();
 		mLastMouseX = x;
 		mLastMouseY = y;
@@ -441,7 +443,7 @@ BOOL LLFloaterImagePreview::handleMouseDown(S32 x, S32 y, MASK mask)
 //-----------------------------------------------------------------------------
 BOOL LLFloaterImagePreview::handleMouseUp(S32 x, S32 y, MASK mask)
 {
-	gViewerWindow->setMouseCapture(FALSE);
+	gFocusMgr.setMouseCapture(FALSE);
 	gViewerWindow->showCursor();
 	return LLFloater::handleMouseUp(x, y, mask);
 }

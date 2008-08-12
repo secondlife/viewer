@@ -538,7 +538,7 @@ void LLEventTimer::updateClass()
 	{
 		LLEventTimer* timer = *iter++;
 		F32 et = timer->mEventTimer.getElapsedTimeF32();
-		if (et > timer->mPeriod) {
+		if (timer->mEventTimer.getStarted() && et > timer->mPeriod) {
 			timer->mEventTimer.reset();
 			if ( timer->tick() )
 			{

@@ -190,6 +190,7 @@ void LLVertexBuffer::drawRange(U32 mode, U32 start, U32 end, U32 count, U32 indi
 	if (mode > NUM_MODES)
 	{
 		llerrs << "Invalid draw mode: " << mode << llendl;
+		return;
 	}
 
 	glDrawRangeElements(sGLMode[mode], start, end, count, GL_UNSIGNED_SHORT, 
@@ -217,6 +218,7 @@ void LLVertexBuffer::draw(U32 mode, U32 count, U32 indices_offset) const
 	if (mode > NUM_MODES)
 	{
 		llerrs << "Invalid draw mode: " << mode << llendl;
+		return;
 	}
 
 	glDrawElements(sGLMode[mode], count, GL_UNSIGNED_SHORT,
@@ -240,6 +242,7 @@ void LLVertexBuffer::drawArrays(U32 mode, U32 first, U32 count) const
 	if (mode > NUM_MODES)
 	{
 		llerrs << "Invalid draw mode: " << mode << llendl;
+		return;
 	}
 
 	glDrawArrays(sGLMode[mode], first, count);

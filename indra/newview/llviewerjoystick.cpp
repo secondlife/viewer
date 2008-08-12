@@ -99,6 +99,11 @@ void LLViewerJoystick::setOverrideCamera(bool val)
 	{
 		mOverrideCamera = val;
 	}
+
+	if (mOverrideCamera)
+	{
+		gAgent.changeCameraToDefault();
+	}
 }
 
 // -----------------------------------------------------------------------------
@@ -793,14 +798,6 @@ void LLViewerJoystick::moveFlycam(bool reset)
 	{
 		cur_delta[i] = -getJoystickAxis(axis[i]);
 
-		// we need smaller camera movements in build mode
-		if (in_build_mode)
-		{
-			if (i == X_I || i == Y_I || i == Z_I)
-			{
-				cur_delta[i] /= BUILDMODE_FLYCAM_T_SCALE;
-			}
-		}
 
 		F32 tmp = cur_delta[i];
 		if (absolute)
@@ -817,6 +814,18 @@ void LLViewerJoystick::moveFlycam(bool reset)
 		{
 			cur_delta[i] = llmin(cur_delta[i]+dead_zone[i], 0.f);
 		}
+
+		// we need smaller camera movements in build mode
+		// NOTE: this needs to remain after the deadzone calculation, otherwise
+		// we have issues with flycam "jumping" when the build dialog is opened/closed  -Nyx
+		if (in_build_mode)
+		{
+			if (i == X_I || i == Y_I || i == Z_I)
+			{
+				cur_delta[i] /= BUILDMODE_FLYCAM_T_SCALE;
+			}
+		}
+
 		cur_delta[i] *= axis_scale[i];
 		
 		if (!absolute)
@@ -875,10 +884,16 @@ bool LLViewerJoystick::toggleFlycam()
 	{
 		return false;
 	}
+	if (!mOverrideCamera)
+	{
+		gAgent.changeCameraToDefault();
+	}
+
 	mOverrideCamera = !mOverrideCamera;
 	if (mOverrideCamera)
 	{
 		moveFlycam(true);
+		
 	}
 	else if (!LLToolMgr::getInstance()->inBuildMode())
 	{

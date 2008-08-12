@@ -40,8 +40,21 @@ const S32 LOG_RECALL_SIZE = 2048;
 //static
 std::string LLLogChat::makeLogFileName(std::string filename)
 {
+	filename = cleanFileName(filename);
 	filename = gDirUtilp->getExpandedFilename(LL_PATH_PER_ACCOUNT_CHAT_LOGS,filename);
 	filename += ".txt";
+	return filename;
+}
+
+std::string LLLogChat::cleanFileName(std::string filename)
+{
+	std::string invalidChars = "\"\'\\/?*:<>|";
+	S32 position = filename.find_first_of(invalidChars);
+	while (position != filename.npos)
+	{
+		filename[position] = '_';
+		position = filename.find_first_of(invalidChars, position);
+	}
 	return filename;
 }
 

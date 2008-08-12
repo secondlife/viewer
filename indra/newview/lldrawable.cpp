@@ -384,9 +384,14 @@ void LLDrawable::makeActive()
 		gPipeline.setActive(this, TRUE);
 
 		//all child objects must also be active
-		for (U32 i = 0; i < getChildCount(); i++)
+		llassert_always(mVObjp);
+		
+		LLViewerObject::const_child_list_t& child_list = mVObjp->getChildren();
+		for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
+			 iter != child_list.end(); iter++)
 		{
-			LLDrawable* drawable = getChild(i);
+			LLViewerObject* child = *iter;
+			LLDrawable* drawable = child->mDrawable;
 			if (drawable)
 			{
 				drawable->makeActive();
@@ -430,11 +435,13 @@ void LLDrawable::makeStatic(BOOL warning_enabled)
 		{
 			LL_WARNS_ONCE("Drawable") << "Drawable becomes static with active parent!" << LL_ENDL;
 		}
-		
-		S32 child_count = mVObjp->mChildList.size();
-		for (S32 child_num = 0; child_num < child_count; child_num++)
+
+		LLViewerObject::const_child_list_t& child_list = mVObjp->getChildren();
+		for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
+			 iter != child_list.end(); iter++)
 		{
-			LLDrawable* child_drawable = mVObjp->mChildList[child_num]->mDrawable;
+			LLViewerObject* child = *iter;
+			LLDrawable* child_drawable = child->mDrawable;
 			if (child_drawable)
 			{
 				if (child_drawable->getParent() != this)
@@ -1179,11 +1186,23 @@ void LLSpatialBridge::setVisible(LLCamera& camera_in, std::vector<LLDrawable*>* 
 			av = objparent->mDrawable;
 			LLSpatialGroup* group = av->getSpatialGroup();
 
-			BOOL impostor = objparent->isAvatar() && ((LLVOAvatar*) objparent)->isImpostor();
-			BOOL loaded   = objparent->isAvatar() && ((LLVOAvatar*) objparent)->isFullyLoaded();
-			
+			BOOL impostor = FALSE;
+			BOOL loaded = FALSE;
+			if (objparent->isAvatar())
+			{
+				LLVOAvatar* avatarp = (LLVOAvatar*) objparent;
+				if (avatarp->isVisible())
+				{
+					impostor = objparent->isAvatar() && ((LLVOAvatar*) objparent)->isImpostor();
+					loaded   = objparent->isAvatar() && ((LLVOAvatar*) objparent)->isFullyLoaded();
+				}
+				else
+				{
+					return;
+				}
+			}
+
 			if (!group ||
-				av->getSpatialGroup()->mDistance > LLVOAvatar::sRenderDistance ||
 				LLDrawable::getCurrentFrame() - av->mVisible > 1 ||
 				impostor ||
 				!loaded)
@@ -1214,9 +1233,16 @@ void LLSpatialBridge::setVisible(LLCamera& camera_in, std::vector<LLDrawable*>* 
 		if (for_select)
 		{
 			results->push_back(mDrawable);
-			for (U32 i = 0; i < mDrawable->getChildCount(); i++)
+			if (mDrawable->getVObj())
 			{
-				results->push_back(mDrawable->getChild(i));
+				LLViewerObject::const_child_list_t& child_list = mDrawable->getVObj()->getChildren();
+				for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
+					 iter != child_list.end(); iter++)
+				{
+					LLViewerObject* child = *iter;
+					LLDrawable* drawable = child->mDrawable;					
+					results->push_back(drawable);
+				}
 			}
 		}
 		else 
@@ -1240,18 +1266,24 @@ void LLSpatialBridge::updateDistance(LLCamera& camera_in)
 	
 	mDrawable->updateDistance(camera);
 	
-	for (U32 i = 0; i < mDrawable->getChildCount(); ++i)
+	if (mDrawable->getVObj())
 	{
-		LLDrawable* child = mDrawable->getChild(i);
-		if (!child)
+		LLViewerObject::const_child_list_t& child_list = mDrawable->getVObj()->getChildren();
+		for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
+			 iter != child_list.end(); iter++)
 		{
-			llwarns << "Corrupt drawable found while updating spatial bridge distance." << llendl;
-			continue;
-		}
+			LLViewerObject* child = *iter;
+			LLDrawable* drawable = child->mDrawable;					
+			if (!drawable)
+			{
+				llwarns << "Corrupt drawable found while updating spatial bridge distance." << llendl;
+				continue;
+			}
 
-		if (!child->isAvatar())
-		{
-			child->updateDistance(camera);
+			if (!drawable->isAvatar())
+			{
+				drawable->updateDistance(camera);
+			}
 		}
 	}
 }
@@ -1287,12 +1319,18 @@ void LLSpatialBridge::cleanupReferences()
 	if (mDrawable)
 	{
 		mDrawable->setSpatialGroup(NULL);
-		for (U32 i = 0; i < mDrawable->getChildCount(); i++)
+		if (mDrawable->getVObj())
 		{
-			LLDrawable* drawable = mDrawable->getChild(i);
-			if (drawable)
+			LLViewerObject::const_child_list_t& child_list = mDrawable->getVObj()->getChildren();
+			for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
+				 iter != child_list.end(); iter++)
 			{
-				drawable->setSpatialGroup(NULL);
+				LLViewerObject* child = *iter;
+				LLDrawable* drawable = child->mDrawable;					
+				if (drawable)
+				{
+					drawable->setSpatialGroup(NULL);
+				}
 			}
 		}
 

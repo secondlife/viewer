@@ -48,6 +48,8 @@ public:
 	static void loadHistory(std::string filename, 
 		                    void (*callback)(ELogLineType,std::string,void*), 
 							void* userdata);
+private:
+	static std::string cleanFileName(std::string filename);
 };
 
 #endif

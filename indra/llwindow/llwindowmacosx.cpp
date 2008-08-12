@@ -61,6 +61,7 @@ const S32	MAX_NUM_RESOLUTIONS = 32;
 //
 
 BOOL LLWindowMacOSX::sUseMultGL = FALSE;
+WindowRef LLWindowMacOSX::sMediaWindow = NULL;
 
 // Cross-platform bits:
 
@@ -3201,22 +3202,31 @@ BOOL LLWindowMacOSX::dialog_color_picker ( F32 *r, F32 *g, F32 *b)
 	return (retval);
 }
 
-static WindowRef dummywindowref = NULL;
 
 void *LLWindowMacOSX::getPlatformWindow()
 {
-	if(mWindow != NULL)
-		return (void*)mWindow;
+	// NOTE: this will be NULL in fullscreen mode.  Plan accordingly.
+	return (void*)mWindow;
+}
 
-	// If we're in fullscreen mode, there's no window pointer available.
-	// Since Mozilla needs one to function, create a dummy window here.
-	// Note that we will never destroy it, but since only one will be created per run of the application, that's okay.
+void *LLWindowMacOSX::getMediaWindow()
+{
+	/* 
+		Mozilla needs to be initialized with a WindowRef to function properly.  
+		(There's no good reason for this, since it shouldn't be interacting with our window in any way, but that's another issue.)
+		If we're in windowed mode, we _could_ hand it our actual window pointer, but a subsequent switch to fullscreen will destroy that window, 
+		which trips up Mozilla.
+		Instead of using our actual window, we create an invisible window which will persist for the lifetime of the application and pass that to Mozilla.
+		This satisfies its deep-seated need to latch onto a WindowRef and solves the issue with switching between fullscreen and windowed modes.
+
+		Note that we will never destroy this window (by design!), but since only one will ever be created per run of the application, that's okay.
+	*/
 	
-	if(dummywindowref == NULL)
+	if(sMediaWindow == NULL)
 	{
 		Rect window_rect = {100, 100, 200, 200};
 
-		dummywindowref = NewCWindow(
+		sMediaWindow = NewCWindow(
 			NULL,
 			&window_rect,
 			(ConstStr255Param) "\p",
@@ -3227,7 +3237,7 @@ void *LLWindowMacOSX::getPlatformWindow()
 			0);
 	}
 	
-	return (void*)dummywindowref;
+	return (void*)sMediaWindow;
 }
 
 void LLWindowMacOSX::stopDockTileBounce()

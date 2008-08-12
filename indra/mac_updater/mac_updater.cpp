@@ -50,6 +50,8 @@
 #include "MoreFilesX.h"
 #include "FSCopyObject.h"
 
+#include "llerrorcontrol.h"
+
 enum
 {
 	kEventClassCustom = 'Cust',
@@ -344,6 +346,16 @@ int main(int argc, char **argv)
 {
 	// We assume that all the logs we're looking for reside on the current drive
 	gDirUtilp->initAppDirs("SecondLife");
+
+	LLError::initForApplication( gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, ""));
+
+	// Rename current log file to ".old"
+	std::string old_log_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "updater.log.old");
+	std::string log_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "updater.log");
+	LLFile::rename(log_file.c_str(), old_log_file.c_str());
+
+	// Set the log file to updater.log
+	LLError::logToFile(log_file);
 
 	/////////////////////////////////////////
 	//

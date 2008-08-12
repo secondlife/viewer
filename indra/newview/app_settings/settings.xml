@@ -670,6 +670,17 @@
       <key>Value</key>
       <string>http://www.secondlife.com</string>
     </map>
+    <key>BlockAvatarAppearanceMessages</key>
+        <map>
+        <key>Comment</key>
+            <string>Ignore's appearance messages (for simulating Ruth)</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <integer>0</integer>
+        </map>
     <key>BrowserProxyAddress</key>
     <map>
       <key>Comment</key>
@@ -888,7 +899,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>3</integer>
+      <integer>8</integer>
     </map>
     <key>ButtonFlashRate</key>
     <map>
@@ -899,7 +910,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>2.0</real>
+      <real>1.25</real>
     </map>
     <key>ButtonHPad</key>
     <map>
@@ -4944,17 +4955,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>NoQuickTime</key>
-    <map>
-      <key>Comment</key>
-      <string>Disable quicktime playback.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
     <key>NoVerifySSLCert</key>
     <map>
       <key>Comment</key>
@@ -5701,6 +5701,28 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>RenderAttachedLights</key>
+        <map>
+        <key>Comment</key>
+            <string>Render lighted prims that are attached to avatars</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <integer>1</integer>
+        </map>
+    <key>RenderAttachedParticles</key>
+        <map>
+        <key>Comment</key>
+            <string>Render particle systems that are attached to avatars</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <integer>1</integer>
+        </map> 
     <key>RenderAvatarCloth</key>
     <map>
       <key>Comment</key>

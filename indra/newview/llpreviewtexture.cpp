@@ -311,9 +311,7 @@ void LLPreviewTexture::saveAs()
 		mLoadingFullImage = TRUE;
 		getWindow()->incBusyCount();
 		mImage->setLoadedCallback( LLPreviewTexture::onFileLoadedForSave, 
-									0, 
-									TRUE, 
-									new LLUUID( mItemUUID ) );
+								   0, TRUE, FALSE, new LLUUID( mItemUUID ) );
 	}
 }
 

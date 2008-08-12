@@ -73,3 +73,13 @@ const LLStyleSP &LLStyleMap::lookup(const LLUUID &source)
 	}
 	return (*this)[source];
 }
+
+void LLStyleMap::update()
+{
+	for (style_map_t::iterator iter = begin(); iter != end(); ++iter)
+	{
+		LLStyleSP &style = iter->second;
+		// Update the link color in case it has been changed.
+		style->setColor(gSavedSettings.getColor4("HTMLLinkColor"));
+	}
+}

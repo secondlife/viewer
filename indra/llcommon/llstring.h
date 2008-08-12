@@ -155,6 +155,16 @@ public:
 	static BOOL isDigit(llwchar a) { return iswdigit(a) != 0; }
 };
 
+// Allowing assignments from non-strings into format_map_t is apparently
+// *really* error-prone, so subclass std::string with just basic c'tors.
+class FormatMapString : public std::string
+{
+public:
+	FormatMapString() : std::string() {};
+	FormatMapString(const char* s) : std::string(s) {};
+	FormatMapString(const std::string& s) : std::string(s) {};
+};
+
 template <class T>
 class LLStringUtilBase
 {
@@ -167,7 +177,7 @@ public:
 
 	static std::basic_string<T> null;
 	
-	typedef std::map<std::basic_string<T>, std::basic_string<T> > format_map_t;
+	typedef std::map<FormatMapString, FormatMapString> format_map_t;
 	static S32 format(std::basic_string<T>& s, const format_map_t& fmt_map);
 	
 	static BOOL	isValidIndex(const std::basic_string<T>& string, size_type i)
@@ -516,27 +526,57 @@ namespace LLStringFn
 
 ////////////////////////////////////////////////////////////
 
+// LLStringBase::format()
+//
+// This function takes a string 's' and a map 'fmt_map' of strings-to-strings.
+// All occurances of strings in 's' from the left-hand side of 'fmt_map' are
+// then replaced with the corresponding right-hand side of 'fmt_map', non-
+// recursively.  The function returns the number of substitutions made.
+
 // static
 template<class T> 
 S32 LLStringUtilBase<T>::format(std::basic_string<T>& s, const format_map_t& fmt_map)
 {
 	typedef typename std::basic_string<T>::size_type string_size_type_t;
-	typedef typename format_map_t::const_iterator format_map_const_iterator_t;
+	string_size_type_t scanstart = 0;
 	S32 res = 0;
-	for (format_map_const_iterator_t iter = fmt_map.begin(); iter != fmt_map.end(); ++iter)
+
+	// Look for the first match of any keyword, replace that keyword,
+	// repeat from the end of the replacement string.  This avoids
+	// accidentally performing substitution on a substituted string.
+	while (1)
 	{
-		U32 fmtlen = iter->first.size();
-		string_size_type_t n = 0;
-		while (1)
+		string_size_type_t first_match_pos = scanstart;
+		string_size_type_t first_match_str_length = 0;
+		std::basic_string<T> first_match_str_replacement;
+
+		for (format_map_t::const_iterator iter = fmt_map.begin();
+		     iter != fmt_map.end();
+		     ++iter)
 		{
-			n = s.find(iter->first, n);
-			if (n == std::basic_string<T>::npos)
+			string_size_type_t n = s.find(iter->first, scanstart);
+			if (n != std::basic_string<T>::npos &&
+			    (n < first_match_pos ||
+			     0 == first_match_str_length))
 			{
-				break;
+				first_match_pos = n;
+				first_match_str_length = iter->first.length();
+				first_match_str_replacement = iter->second;
 			}
-			s.erase(n, fmtlen);
-			s.insert(n, iter->second);
-			n += fmtlen;
+		}
+
+		if (0 == first_match_str_length)
+		{
+			// no more keys found to substitute from this point
+			// in the string forward.
+			break;
+		}
+		else
+		{
+			s.erase(first_match_pos, first_match_str_length);
+			s.insert(first_match_pos, first_match_str_replacement);
+			scanstart = first_match_pos +
+				first_match_str_replacement.length();
 			++res;
 		}
 	}

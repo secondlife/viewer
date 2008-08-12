@@ -219,8 +219,11 @@ public:
 // opens system default color picker
 	virtual BOOL dialog_color_picker (F32 *r, F32 *g, F32 *b) { return FALSE; };
 
-// return a platform-specific window reference (HWND on Windows, WindowRef on the Mac)
+// return a platform-specific window reference (HWND on Windows, WindowRef on the Mac, Gtk window on Linux)
 	virtual void *getPlatformWindow() = 0;
+
+// return the platform-specific window reference we use to initialize llmozlib (HWND on Windows, WindowRef on the Mac, Gtk window on Linux)
+	virtual void *getMediaWindow();
 	
 	// control platform's Language Text Input mechanisms.
 	virtual void allowLanguageTextInput(LLPreeditor *preeditor, BOOL b) {}

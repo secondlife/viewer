@@ -121,6 +121,9 @@ public:
 	BOOL getHidden() const { return mHidden; }
 	void setHidden( BOOL hide ) { mHidden = hide; }
 	void setOnHUDAttachment(BOOL on_hud) { mOnHUDAttachment = on_hud; }
+	void shift(const LLVector3& offset);
+
+	static void shiftAll(const LLVector3& offset);
 	static void renderAllHUD();
 	static void addPickable(std::set<LLViewerObject*> &pick_list);
 	static void reshape();

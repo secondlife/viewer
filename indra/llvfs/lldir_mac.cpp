@@ -159,11 +159,20 @@ LLDir_Mac::LLDir_Mac()
 				
 				// Create our sub-dirs
 				(void) CFCreateDirectory(&newFileRef, CFSTR("data"), NULL);
-				(void) CFCreateDirectory(&newFileRef, CFSTR("cache"), NULL);
+				//(void) CFCreateDirectory(&newFileRef, CFSTR("cache"), NULL);
 				(void) CFCreateDirectory(&newFileRef, CFSTR("logs"), NULL);
 				(void) CFCreateDirectory(&newFileRef, CFSTR("user_settings"), NULL);
 				(void) CFCreateDirectory(&newFileRef, CFSTR("browser_profile"), NULL);
 			}
+		}
+		
+		//mOSCacheDir
+		FSRef cacheDirRef;
+		error = FSFindFolder(kUserDomain, kCachedDataFolderType, true, &cacheDirRef);
+		if (error == noErr)
+		{
+			FSRefToLLString(&cacheDirRef, mOSCacheDir);
+			(void)CFCreateDirectory(&cacheDirRef, CFSTR("SecondLife"),NULL);
 		}
 		
 		// mOSUserAppDir

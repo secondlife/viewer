@@ -135,12 +135,12 @@ void LLTool::setMouseCapture( BOOL b )
 {
 	if( b )
 	{
-		gViewerWindow->setMouseCapture(mComposite ? mComposite : this );
+		gFocusMgr.setMouseCapture(mComposite ? mComposite : this );
 	}
 	else
 	if( hasMouseCapture() )
 	{
-		gViewerWindow->setMouseCapture( NULL );
+		gFocusMgr.setMouseCapture( NULL );
 	}
 }
 

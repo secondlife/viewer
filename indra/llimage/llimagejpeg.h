@@ -84,8 +84,8 @@ protected:
 	S32				mOutputBufferSize;	// bytes in mOuputBuffer
 
 	S32				mEncodeQuality;		// on a scale from 1 to 100
-
-	jmp_buf			mSetjmpBuffer;		// To allow the library to abort.
+private:
+	static jmp_buf	sSetjmpBuffer;		// To allow the library to abort.
 };
 
 #endif  // LL_LLIMAGEJPEG_H

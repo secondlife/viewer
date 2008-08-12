@@ -59,8 +59,19 @@ LLDir_Linux gDirUtil;
 
 LLDir *gDirUtilp = (LLDir *)&gDirUtil;
 
-LLDir::LLDir() 
-: mDirDelimiter("/") // fallback to forward slash if not overridden
+LLDir::LLDir()
+:	mAppName(""),
+	mExecutablePathAndName(""),
+	mExecutableFilename(""),
+	mExecutableDir(""),
+	mAppRODataDir(""),
+	mOSUserDir(""),
+	mOSUserAppDir(""),
+	mLindenUserDir(""),
+	mOSCacheDir(""),
+	mCAFile(""),
+	mTempDir(""),
+	mDirDelimiter("/") // fallback to forward slash if not overridden
 {
 }
 
@@ -205,13 +216,20 @@ const std::string  LLDir::getCacheDir(bool get_default) const
 	if (mCacheDir.empty() || get_default)
 	{
 		std::string res;
-		if (getOSUserAppDir().empty())
+		if (getOSCacheDir().empty())
 		{
-			res = "data";
+			if (getOSUserAppDir().empty())
+			{
+				res = "data";
+			}
+			else
+			{
+				res = getOSUserAppDir() + mDirDelimiter + "cache";
+			}
 		}
 		else
 		{
-			res = getOSUserAppDir() + mDirDelimiter + "cache";
+			res = getOSCacheDir() + mDirDelimiter + "SecondLife";
 		}
 		return res;
 	}
@@ -220,6 +238,12 @@ const std::string  LLDir::getCacheDir(bool get_default) const
 		return mCacheDir;
 	}
 }
+
+const std::string &LLDir::getOSCacheDir() const
+{
+	return mOSCacheDir;
+}
+
 
 const std::string &LLDir::getCAFile() const
 {
@@ -350,6 +374,9 @@ std::string LLDir::getExpandedFilename(ELLPath location, const std::string& subd
 		prefix += mDirDelimiter;
 		prefix += "browser_profile";
 		break;
+
+	case LL_PATH_EXECUTABLE:
+		prefix = getExecutableDir();
 		
 	default:
 		llassert(0);

@@ -117,9 +117,6 @@ protected:
 	F32				mSunPhase;
 	LLColor4		mFogColor;				// Color to use for fog and haze
 
-	F32				mHaze;					// a multiplier to scale the lighting
-	F32				mDomeRadius;			// sky dome size
-
 	LLVector3		mLastSunDirection;
 };
 

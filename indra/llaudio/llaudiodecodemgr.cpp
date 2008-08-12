@@ -386,7 +386,7 @@ BOOL LLVorbisDecodeState::finishDecode()
 		mWAVBuffer[7] = (data_length >> 24) & 0x000000FF;
 
 		//
-		// FUCK!!! Vorbis encode/decode messes up loop point transitions (pop)
+		// FUDGECAKES!!! Vorbis encode/decode messes up loop point transitions (pop)
 		// do a cheap-and-cheesy crossfade 
 		//
 		{
@@ -413,12 +413,12 @@ BOOL LLVorbisDecodeState::finishDecode()
 			if((WAV_HEADER_SIZE+(2 * fade_length)) < (S32)mWAVBuffer.size())
 			{
 				memcpy(&mWAVBuffer[WAV_HEADER_SIZE], pcmout, (2 * fade_length));	/*Flawfinder: ignore*/
-		    }
+			}
 			S32 near_end = mWAVBuffer.size() - (2 * fade_length);
 			if ((S32)mWAVBuffer.size() >= ( near_end + 2* fade_length))
 			{
 				memcpy(pcmout, &mWAVBuffer[near_end], (2 * fade_length));	/*Flawfinder: ignore*/
-		    }
+			}
 			llendianswizzle(&pcmout, 2, fade_length);
 
 			samplep = (S16 *)pcmout;
@@ -443,8 +443,8 @@ BOOL LLVorbisDecodeState::finishDecode()
 		}
 #if !defined(USE_WAV_VFILE)
 		mBytesRead = -1;
-		mFileHandle = LLLFSThread::sLocal->write(mOutFilename, &mWAVBuffer[0], 0, data_length,
-												 new WriteResponder(this));
+		mFileHandle = LLLFSThread::sLocal->write(mOutFilename, &mWAVBuffer[0], 0, mWAVBuffer.size(),
+							 new WriteResponder(this));
 #endif
 	}
 

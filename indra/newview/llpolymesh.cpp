@@ -679,7 +679,9 @@ const LLVector2 &LLPolyMeshSharedData::getUVs(U32 index)
 // LLPolyMesh()
 //-----------------------------------------------------------------------------
 LLPolyMesh::LLPolyMesh(LLPolyMeshSharedData *shared_data, LLPolyMesh *reference_mesh)
-{
+{	
+	LLMemType mt(LLMemType::MTYPE_AVATAR_MESH);
+
 	llassert(shared_data);
 
 	mSharedData = shared_data;

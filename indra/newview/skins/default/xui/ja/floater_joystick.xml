@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater name="Joystick" title="ジョイスティックの設定">
 	<check_box name="enable_joystick" width="120" >
 		ジョイスティックを使う：
@@ -112,9 +112,15 @@
 	<text left="0" name="ZoomDeadZone" width="140">
 		ズーム・デッド・ゾーン
 	</text>
-	<spinner left="275" name="FlycamAxisDeadZone6" width="50" />
-	<button label="SpaceNavigatorのデフォルト設定" left="330"
-	     name="SpaceNavigatorDefaults" width="210" />
+	<spinner left="275" width="50" name="FlycamAxisDeadZone6" />
+	<button label="SpaceNavigatorのデフォルト設定" name="SpaceNavigatorDefaults" width="210" left="330"/>
+
+	<string name="JoystickMonitor">
+		ジョイスティック・モニター
+	</string>
+	<string name="Axis">
+		軸 [NUM]
+	</string>
 	<string name="NoDevice">
 		デバイスは検出されませんでした
 	</string>

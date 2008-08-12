@@ -609,7 +609,7 @@ BOOL LLFolderViewItem::handleMouseDown( S32 x, S32 y, MASK mask )
 {
 	// No handler needed for focus lost since this class has no
 	// state that depends on it.
-	gViewerWindow->setMouseCapture( this );
+	gFocusMgr.setMouseCapture( this );
 
 	if (!mIsSelected)
 	{
@@ -680,7 +680,7 @@ BOOL LLFolderViewItem::handleHover( S32 x, S32 y, MASK mask )
 					// Release keyboard focus, so that if stuff is dropped into the
 					// world, pressing the delete key won't blow away the inventory
 					// item.
-					gViewerWindow->setKeyboardFocus(NULL);
+					gFocusMgr.setKeyboardFocus(NULL);
 
 					return LLToolDragAndDrop::getInstance()->handleHover( x, y, mask );
 				}
@@ -747,7 +747,7 @@ BOOL LLFolderViewItem::handleMouseUp( S32 x, S32 y, MASK mask )
 	if( hasMouseCapture() )
 	{
 		getRoot()->setShowSelectionContext(FALSE);
-		gViewerWindow->setMouseCapture( NULL );
+		gFocusMgr.setMouseCapture( NULL );
 	}
 	return TRUE;
 }
@@ -2585,9 +2585,9 @@ LLFolderView::~LLFolderView( void )
 
 	LLView::deleteViewByHandle(mPopupMenuHandle);
 
-	if(gViewerWindow->hasTopCtrl(mRenamer))
+	if(mRenamer == gFocusMgr.getTopCtrl())
 	{
-		gViewerWindow->setTopCtrl(NULL);
+		gFocusMgr.setTopCtrl(NULL);
 	}
 
 	mAutoOpenItems.removeAllNodes();
@@ -3132,9 +3132,9 @@ void LLFolderView::draw()
 	{
 		closeAutoOpenedFolders();
 	}
-	if(gViewerWindow->hasKeyboardFocus(this) && !getVisible())
+	if(this == gFocusMgr.getKeyboardFocus() && !getVisible())
 	{
-		gViewerWindow->setKeyboardFocus( NULL );
+		gFocusMgr.setKeyboardFocus( NULL );
 	}
 
 	// while dragging, update selection rendering to reflect single/multi drag status
@@ -3199,7 +3199,7 @@ void LLFolderView::finishRenamingItem( void )
 	mRenamer->setFocus( FALSE );
 	mRenamer->setVisible( FALSE );
 	mRenamer->setCommitOnFocusLost( TRUE );
-	gViewerWindow->setTopCtrl( NULL );
+	gFocusMgr.setTopCtrl( NULL );
 
 	if( mRenameItem )
 	{
@@ -3211,13 +3211,12 @@ void LLFolderView::finishRenamingItem( void )
 	scrollToShowSelection();
 }
 
-void LLFolderView::revertRenamingItem( void )
+void LLFolderView::closeRenamer( void )
 {
-	mRenamer->setCommitOnFocusLost( FALSE );
+	// will commit current name (which could be same as original name)
 	mRenamer->setFocus( FALSE );
 	mRenamer->setVisible( FALSE );
-	mRenamer->setCommitOnFocusLost( TRUE );
-	gViewerWindow->setTopCtrl( NULL );
+	gFocusMgr.setTopCtrl( NULL );
 
 	if( mRenameItem )
 	{
@@ -3274,11 +3273,11 @@ void LLFolderView::removeSelectedItems( void )
 					// change selection on successful delete
 					if (new_selection)
 					{
-						setSelectionFromRoot(new_selection, new_selection->isOpen(), gViewerWindow->childHasKeyboardFocus(this));
+						setSelectionFromRoot(new_selection, new_selection->isOpen(), gFocusMgr.childHasKeyboardFocus(this));
 					}
 					else
 					{
-						setSelectionFromRoot(NULL, gViewerWindow->childHasKeyboardFocus(this));
+						setSelectionFromRoot(NULL, gFocusMgr.childHasKeyboardFocus(this));
 					}
 				}
 			}
@@ -3304,11 +3303,11 @@ void LLFolderView::removeSelectedItems( void )
 			}
 			if (new_selection)
 			{
-				setSelectionFromRoot(new_selection, new_selection->isOpen(), gViewerWindow->childHasKeyboardFocus(this));
+				setSelectionFromRoot(new_selection, new_selection->isOpen(), gFocusMgr.childHasKeyboardFocus(this));
 			}
 			else
 			{
-				setSelectionFromRoot(NULL, gViewerWindow->childHasKeyboardFocus(this));
+				setSelectionFromRoot(NULL, gFocusMgr.childHasKeyboardFocus(this));
 			}
 
 			for(S32 i = 0; i < count; ++i)
@@ -3626,7 +3625,7 @@ void LLFolderView::startRenamingSelectedItem( void )
 		// set focus will fail unless item is visible
 		mRenamer->setFocus( TRUE );
 		mRenamer->setLostTopCallback(onRenamerLost);
-		gViewerWindow->setTopCtrl( mRenamer );
+		gFocusMgr.setTopCtrl( mRenamer );
 	}
 }
 
@@ -3687,18 +3686,10 @@ BOOL LLFolderView::handleKeyHere( KEY key, MASK mask )
 		break;
 
 	case KEY_ESCAPE:
-		// mark flag don't commit
 		if( mRenameItem && mRenamer->getVisible() )
 		{
-			revertRenamingItem();
+			closeRenamer();
 			handled = TRUE;
-		}
-		else
-		{
-			if( gViewerWindow->childHasKeyboardFocus( this ) )
-			{
-				gViewerWindow->setKeyboardFocus( NULL );
-			}
 		}
 		mSearchString.clear();
 		break;
@@ -4107,9 +4098,9 @@ BOOL LLFolderView::handleScrollWheel(S32 x, S32 y, S32 clicks)
 
 void LLFolderView::deleteAllChildren()
 {
-	if(gViewerWindow->hasTopCtrl(mRenamer))
+	if(mRenamer == gFocusMgr.getTopCtrl())
 	{
-		gViewerWindow->setTopCtrl(NULL);
+		gFocusMgr.setTopCtrl(NULL);
 	}
 	LLView::deleteViewByHandle(mPopupMenuHandle);
 	mPopupMenuHandle = LLHandle<LLView>();
