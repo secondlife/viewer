@@ -61,7 +61,7 @@ const LLStyleSP &LLStyleMap::lookup(const LLUUID &source)
 		LLStyleSP style(new LLStyle);
 		style->setVisible(true);
 		style->setFontName(LLStringUtil::null);
-		if (source != gAgent.getID() && source != LLUUID::null)
+		if (source != LLUUID::null)
 		{
 			style->setColor(gSavedSettings.getColor4("HTMLLinkColor"));
 			std::string link = llformat("secondlife:///app/agent/%s/about",source.asString().c_str());

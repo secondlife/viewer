@@ -127,50 +127,38 @@ BOOL LLFloaterTOS::postBuild()
 {	
 	childSetAction("Continue", onContinue, this);
 	childSetAction("Cancel", onCancel, this);
-	childSetCommitCallback("tos_agreement", updateAgree, this);
+	childSetCommitCallback("agree_chk", updateAgree, this);
 
 	if ( mType != TOS_TOS )
 	{
 		// this displays the critical message
-		LLTextEditor *Editor = getChild<LLTextEditor>("tos_text");
-		if (Editor)
-		{
-			Editor->setHandleEditKeysDirectly( TRUE );
-			Editor->setEnabled( FALSE );
-			Editor->setReadOnlyFgColor(LLColor4::white);
-			Editor->setWordWrap(TRUE);
-			Editor->setFocus(TRUE);
-		}
-		childSetValue("tos_text", LLSD(mMessage));
+		LLTextEditor *editor = getChild<LLTextEditor>("tos_text");
+		editor->setHandleEditKeysDirectly( TRUE );
+		editor->setEnabled( FALSE );
+		editor->setWordWrap(TRUE);
+		editor->setFocus(TRUE);
+		editor->setValue(LLSD(mMessage));
+
 		return TRUE;
 	}
 
 	// disable Agree to TOS radio button until the page has fully loaded
-	LLRadioGroup* tos_agreement = getChild<LLRadioGroup>("tos_agreement");
-	if ( tos_agreement )
-	{
-		tos_agreement->setEnabled( false );
-	};
+	LLCheckBoxCtrl* tos_agreement = getChild<LLCheckBoxCtrl>("agree_chk");
+	tos_agreement->setEnabled( false );
 
 	// hide the SL text widget if we're displaying TOS with using a browser widget.
 	LLTextEditor *editor = getChild<LLTextEditor>("tos_text");
-	if ( editor )
-	{
-		editor->setVisible( FALSE );
-	};
+	editor->setVisible( FALSE );
 
 	LLWebBrowserCtrl* web_browser = getChild<LLWebBrowserCtrl>("tos_html");
 	if ( web_browser )
 	{
 		// start to observe it so we see navigate complete events
-		if ( web_browser )
-		{
-			web_browser->addObserver( this );
-		};
+		web_browser->addObserver( this );
 
 		gResponsePtr = LLIamHere::build( this );
 		LLHTTPClient::get( getString( "real_url" ), gResponsePtr );
-	};
+	}
 
 	return TRUE;
 }
@@ -194,11 +182,8 @@ void LLFloaterTOS::setSiteIsAlive( bool alive )
 		{
 			// normally this is set when navigation to TOS page navigation completes (so you can't accept before TOS loads)
 			// but if the page is unavailable, we need to do this now
-			LLRadioGroup* tos_agreement = getChild<LLRadioGroup>("tos_agreement");
-			if ( tos_agreement )
-			{
-				tos_agreement->setEnabled( true );
-			};
+			LLCheckBoxCtrl* tos_agreement = getChild<LLCheckBoxCtrl>("agree_chk");
+			tos_agreement->setEnabled( true );
 
 			if ( web_browser )
 			{
@@ -236,8 +221,8 @@ void LLFloaterTOS::draw()
 void LLFloaterTOS::updateAgree(LLUICtrl*, void* userdata )
 {
 	LLFloaterTOS* self = (LLFloaterTOS*) userdata;
-	std::string agree = self->childGetValue("tos_agreement").asString();
-	self->childSetEnabled("Continue", (agree == "radio_agree") );
+	bool agree = self->childGetValue("agree_chk").asBoolean(); 
+	self->childSetEnabled("Continue", agree);
 }
 
 // static
@@ -286,10 +271,7 @@ void LLFloaterTOS::onNavigateComplete( const EventType& eventIn )
 	{
 		llinfos << "NAVIGATE COMPLETE" << llendl;
 		// enable Agree to TOS radio button now that page has loaded
-		LLRadioGroup* tos_agreement = getChild<LLRadioGroup>("tos_agreement");
-		if ( tos_agreement )
-		{
-			tos_agreement->setEnabled( true );
-		};
+		LLCheckBoxCtrl * tos_agreement = getChild<LLCheckBoxCtrl>("agree_chk");
+		tos_agreement->setEnabled( true );
 	};
 }

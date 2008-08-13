@@ -82,11 +82,6 @@ const F32 TAPER_MAX =  1.f;
 const F32 SKEW_MIN	= -0.95f;
 const F32 SKEW_MAX	=  0.95f;
 
-const S32 SCULPT_REZ_1 = 6;  // changed from 4 to 6 - 6 looks round whereas 4 looks square
-const S32 SCULPT_REZ_2 = 8;
-const S32 SCULPT_REZ_3 = 16;
-const S32 SCULPT_REZ_4 = 32;
-
 const F32 SCULPT_MIN_AREA = 0.002f;
 
 BOOL check_same_clock_dir( const LLVector3& pt1, const LLVector3& pt2, const LLVector3& pt3, const LLVector3& norm)
@@ -523,31 +518,9 @@ LLProfile::Face* LLProfile::addHole(const LLProfileParams& params, BOOL flat, F3
 }
 
 
-S32 sculpt_sides(F32 detail)
-{
 
-	// detail is usually one of: 1, 1.5, 2.5, 4.0.
-	
-	if (detail <= 1.0)
-	{
-		return SCULPT_REZ_1;
-	}
-	if (detail <= 2.0)
-	{
-		return SCULPT_REZ_2;
-	}
-	if (detail <= 3.0)
-	{
-		return SCULPT_REZ_3;
-	}
-	else
-	{
-		return SCULPT_REZ_4;
-	}
-}
-
-
-BOOL LLProfile::generate(const LLProfileParams& params, BOOL path_open,F32 detail, S32 split, BOOL is_sculpted)
+BOOL LLProfile::generate(const LLProfileParams& params, BOOL path_open,F32 detail, S32 split,
+						 BOOL is_sculpted, S32 sculpt_size)
 {
 	LLMemType m1(LLMemType::MTYPE_VOLUME);
 	
@@ -691,7 +664,7 @@ BOOL LLProfile::generate(const LLProfileParams& params, BOOL path_open,F32 detai
 			S32 sides = (S32)circle_detail;
 
 			if (is_sculpted)
-				sides = sculpt_sides(detail);
+				sides = sculpt_size;
 			
 			genNGon(params, sides);
 			
@@ -1182,7 +1155,8 @@ const LLVector2 LLPathParams::getEndScale() const
 	return end_scale;
 }
 
-BOOL LLPath::generate(const LLPathParams& params, F32 detail, S32 split, BOOL is_sculpted)
+BOOL LLPath::generate(const LLPathParams& params, F32 detail, S32 split,
+					  BOOL is_sculpted, S32 sculpt_size)
 {
 	LLMemType m1(LLMemType::MTYPE_VOLUME);
 	
@@ -1245,7 +1219,7 @@ BOOL LLPath::generate(const LLPathParams& params, F32 detail, S32 split, BOOL is
 			S32 sides = (S32)llfloor(llfloor((MIN_DETAIL_FACES * detail + twist_mag * 3.5f * (detail-0.5f))) * params.getRevolutions());
 
 			if (is_sculpted)
-				sides = sculpt_sides(detail);
+				sides = sculpt_size;
 			
 			genNGon(params, sides);
 		}
@@ -1310,7 +1284,8 @@ BOOL LLPath::generate(const LLPathParams& params, F32 detail, S32 split, BOOL is
 	return TRUE;
 }
 
-BOOL LLDynamicPath::generate(const LLPathParams& params, F32 detail, S32 split, BOOL is_sculpted)
+BOOL LLDynamicPath::generate(const LLPathParams& params, F32 detail, S32 split,
+							 BOOL is_sculpted, S32 sculpt_size)
 {
 	LLMemType m1(LLMemType::MTYPE_VOLUME);
 	
@@ -2030,6 +2005,12 @@ void LLVolume::sculptGeneratePlaceholder()
 // create the vertices from the map
 void LLVolume::sculptGenerateMapVertices(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components, const U8* sculpt_data, U8 sculpt_type)
 {
+	U8 sculpt_stitching = sculpt_type & LL_SCULPT_TYPE_MASK;
+	BOOL sculpt_invert = sculpt_type & LL_SCULPT_FLAG_INVERT;
+	BOOL sculpt_mirror = sculpt_type & LL_SCULPT_FLAG_MIRROR;
+	BOOL reverse_horizontal = (sculpt_invert ? !sculpt_mirror : sculpt_mirror);  // XOR
+	
+	
 	LLMemType m1(LLMemType::MTYPE_VOLUME);
 	
 	S32 sizeS = mPathp->mPath.size();
@@ -2044,13 +2025,21 @@ void LLVolume::sculptGenerateMapVertices(U16 sculpt_width, U16 sculpt_height, S8
 			S32 i = t + line;
 			Point& pt = mMesh[i];
 
-			U32 x = (U32) ((F32)t/(sizeT-1) * (F32) sculpt_width);
+			S32 reversed_t = t;
+
+			if (reverse_horizontal)
+			{
+				reversed_t = sizeT - t - 1;
+			}
+			
+			U32 x = (U32) ((F32)reversed_t/(sizeT-1) * (F32) sculpt_width);
 			U32 y = (U32) ((F32)s/(sizeS-1) * (F32) sculpt_height);
 
+			
 			if (y == 0)  // top row stitching
 			{
 				// pinch?
-				if (sculpt_type == LL_SCULPT_TYPE_SPHERE)
+				if (sculpt_stitching == LL_SCULPT_TYPE_SPHERE)
 				{
 					x = sculpt_width / 2;
 				}
@@ -2059,7 +2048,7 @@ void LLVolume::sculptGenerateMapVertices(U16 sculpt_width, U16 sculpt_height, S8
 			if (y == sculpt_height)  // bottom row stitching
 			{
 				// wrap?
-				if (sculpt_type == LL_SCULPT_TYPE_TORUS)
+				if (sculpt_stitching == LL_SCULPT_TYPE_TORUS)
 				{
 					y = 0;
 				}
@@ -2069,7 +2058,7 @@ void LLVolume::sculptGenerateMapVertices(U16 sculpt_width, U16 sculpt_height, S8
 				}
 
 				// pinch?
-				if (sculpt_type == LL_SCULPT_TYPE_SPHERE)
+				if (sculpt_stitching == LL_SCULPT_TYPE_SPHERE)
 				{
 					x = sculpt_width / 2;
 				}
@@ -2078,9 +2067,9 @@ void LLVolume::sculptGenerateMapVertices(U16 sculpt_width, U16 sculpt_height, S8
 			if (x == sculpt_width)   // side stitching
 			{
 				// wrap?
-				if ((sculpt_type == LL_SCULPT_TYPE_SPHERE) ||
-					(sculpt_type == LL_SCULPT_TYPE_TORUS) ||
-					(sculpt_type == LL_SCULPT_TYPE_CYLINDER))
+				if ((sculpt_stitching == LL_SCULPT_TYPE_SPHERE) ||
+					(sculpt_stitching == LL_SCULPT_TYPE_TORUS) ||
+					(sculpt_stitching == LL_SCULPT_TYPE_CYLINDER))
 				{
 					x = 0;
 				}
@@ -2092,11 +2081,68 @@ void LLVolume::sculptGenerateMapVertices(U16 sculpt_width, U16 sculpt_height, S8
 			}
 
 			pt.mPos = sculpt_xy_to_vector(x, y, sculpt_width, sculpt_height, sculpt_components, sculpt_data);
+
+			if (sculpt_mirror)
+			{
+				pt.mPos.mV[VX] *= -1.f;
+			}
 		}
+		
 		line += sizeT;
 	}
 }
 
+
+const S32 SCULPT_REZ_1 = 6;  // changed from 4 to 6 - 6 looks round whereas 4 looks square
+const S32 SCULPT_REZ_2 = 8;
+const S32 SCULPT_REZ_3 = 16;
+const S32 SCULPT_REZ_4 = 32;
+
+S32 sculpt_sides(F32 detail)
+{
+
+	// detail is usually one of: 1, 1.5, 2.5, 4.0.
+	
+	if (detail <= 1.0)
+	{
+		return SCULPT_REZ_1;
+	}
+	if (detail <= 2.0)
+	{
+		return SCULPT_REZ_2;
+	}
+	if (detail <= 3.0)
+	{
+		return SCULPT_REZ_3;
+	}
+	else
+	{
+		return SCULPT_REZ_4;
+	}
+}
+
+
+
+// determine the number of vertices in both s and t direction for this sculpt
+void sculpt_calc_mesh_resolution(U16 width, U16 height, U8 type, F32 detail, S32& s, S32& t)
+{
+	S32 vertices = sculpt_sides(detail);
+
+	F32 ratio;
+	if ((width == 0) || (height == 0))
+		ratio = 1.f;
+	else
+		ratio = (F32) width / (F32) height;
+
+	
+	s = (S32)(vertices / fsqrtf(ratio));
+
+	s = llmax(s, 3);   // no degenerate sizes, please
+	t = vertices * vertices / s;
+
+	t = llmax(t, 3);   // no degenerate sizes, please
+	s = vertices * vertices / t;
+}
 
 // sculpt replaces generate() for sculpted surfaces
 void LLVolume::sculpt(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components, const U8* sculpt_data, S32 sculpt_level)
@@ -2112,11 +2158,16 @@ void LLVolume::sculpt(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components,
 		data_is_empty = TRUE;
 	}
 
-	mPathp->generate(mParams.getPathParams(), mDetail, 0, TRUE);
-	mProfilep->generate(mParams.getProfileParams(), mPathp->isOpen(), mDetail, 0, TRUE);
+	S32 requested_sizeS = 0;
+	S32 requested_sizeT = 0;
 
-	S32 sizeS = mPathp->mPath.size();
-	S32 sizeT = mProfilep->mProfile.size();
+	sculpt_calc_mesh_resolution(sculpt_width, sculpt_height, sculpt_type, mDetail, requested_sizeS, requested_sizeT);
+
+	mPathp->generate(mParams.getPathParams(), mDetail, 0, TRUE, requested_sizeS);
+	mProfilep->generate(mParams.getProfileParams(), mPathp->isOpen(), mDetail, 0, TRUE, requested_sizeT);
+
+	S32 sizeS = mPathp->mPath.size();         // we requested a specific size, now see what we really got
+	S32 sizeT = mProfilep->mProfile.size();   // we requested a specific size, now see what we really got
 
 	// weird crash bug - DEV-11158 - trying to collect more data:
 	if ((sizeS == 0) || (sizeT == 0))
@@ -4871,6 +4922,13 @@ BOOL LLVolumeFace::createSide(LLVolume* volume, BOOL partial_build)
 	LLMemType m1(LLMemType::MTYPE_VOLUME);
 	
 	BOOL flat = mTypeMask & FLAT_MASK;
+
+	U8 sculpt_type = volume->getParams().getSculptType();
+	U8 sculpt_stitching = sculpt_type & LL_SCULPT_TYPE_MASK;
+	BOOL sculpt_invert = sculpt_type & LL_SCULPT_FLAG_INVERT;
+	BOOL sculpt_mirror = sculpt_type & LL_SCULPT_FLAG_MIRROR;
+	BOOL sculpt_reverse_horizontal = (sculpt_invert ? !sculpt_mirror : sculpt_mirror);  // XOR
+	
 	S32 num_vertices, num_indices;
 
 	const std::vector<LLVolume::Point>& mesh = volume->getMesh();
@@ -4937,6 +4995,11 @@ BOOL LLVolumeFace::createSide(LLVolume* volume, BOOL partial_build)
 				}
 			}
 
+			if (sculpt_reverse_horizontal)
+			{
+				ss = 1.f - ss;
+			}
+			
 			// Check to see if this triangle wraps around the array.
 			if (mBeginS + s >= max_s)
 			{
@@ -5098,9 +5161,7 @@ BOOL LLVolumeFace::createSide(LLVolume* volume, BOOL partial_build)
 	
 	BOOL s_bottom_converges = ((mVertices[0].mPosition - mVertices[mNumS*(mNumT-2)].mPosition).magVecSquared() < 0.000001f);
 	BOOL s_top_converges = ((mVertices[mNumS-1].mPosition - mVertices[mNumS*(mNumT-2)+mNumS-1].mPosition).magVecSquared() < 0.000001f);
-	U8 sculpt_type = volume->getParams().getSculptType();
-
-	if (sculpt_type == LL_SCULPT_TYPE_NONE)  // logic for non-sculpt volumes
+	if (sculpt_stitching == LL_SCULPT_TYPE_NONE)  // logic for non-sculpt volumes
 	{
 		if (volume->getPath().isOpen() == FALSE)
 		{ //wrap normals on T
@@ -5149,15 +5210,15 @@ BOOL LLVolumeFace::createSide(LLVolume* volume, BOOL partial_build)
 		BOOL wrap_s = FALSE;
 		BOOL wrap_t = FALSE;
 
-		if (sculpt_type == LL_SCULPT_TYPE_SPHERE)
+		if (sculpt_stitching == LL_SCULPT_TYPE_SPHERE)
 			average_poles = TRUE;
 
-		if ((sculpt_type == LL_SCULPT_TYPE_SPHERE) ||
-			(sculpt_type == LL_SCULPT_TYPE_TORUS) ||
-			(sculpt_type == LL_SCULPT_TYPE_CYLINDER))
+		if ((sculpt_stitching == LL_SCULPT_TYPE_SPHERE) ||
+			(sculpt_stitching == LL_SCULPT_TYPE_TORUS) ||
+			(sculpt_stitching == LL_SCULPT_TYPE_CYLINDER))
 			wrap_s = TRUE;
 
-		if (sculpt_type == LL_SCULPT_TYPE_TORUS)
+		if (sculpt_stitching == LL_SCULPT_TYPE_TORUS)
 			wrap_t = TRUE;
 			
 		

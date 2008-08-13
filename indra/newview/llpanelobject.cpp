@@ -289,9 +289,12 @@ BOOL	LLPanelObject::postBuild()
 	}
 
 	mLabelSculptType = getChild<LLTextBox>("label sculpt type");
-	mCtrlSculptType = getChild<LLComboBox>( "sculpt type control");
+	mCtrlSculptType = getChild<LLComboBox>("sculpt type control");
 	childSetCommitCallback("sculpt type control", onCommitSculptType, this);
-
+	mCtrlSculptMirror = getChild<LLCheckBoxCtrl>("sculpt mirror control");
+	childSetCommitCallback("sculpt mirror control", onCommitSculptType, this);
+	mCtrlSculptInvert = getChild<LLCheckBoxCtrl>("sculpt invert control");
+	childSetCommitCallback("sculpt invert control", onCommitSculptType, this);
 	
 	// Start with everyone disabled
 	clearCtrls();
@@ -1057,6 +1060,8 @@ void LLPanelObject::getState( )
 	mCtrlSculptTexture->setVisible(sculpt_texture_visible);
 	mLabelSculptType->setVisible(sculpt_texture_visible);
 	mCtrlSculptType->setVisible(sculpt_texture_visible);
+	mCtrlSculptMirror->setVisible(sculpt_texture_visible);
+	mCtrlSculptInvert->setVisible(sculpt_texture_visible);
 
 
 	// sculpt texture
@@ -1086,10 +1091,27 @@ void LLPanelObject::getState( )
 					mTextureCtrl->setImageAssetID(LLUUID::null);
 			}
 
+			U8 sculpt_type = sculpt_params->getSculptType();
+			U8 sculpt_stitching = sculpt_type & LL_SCULPT_TYPE_MASK;
+			BOOL sculpt_invert = sculpt_type & LL_SCULPT_FLAG_INVERT;
+			BOOL sculpt_mirror = sculpt_type & LL_SCULPT_FLAG_MIRROR;
+			
 			if (mCtrlSculptType)
 			{
-				mCtrlSculptType->setCurrentByIndex(sculpt_params->getSculptType());
+				mCtrlSculptType->setCurrentByIndex(sculpt_stitching);
 				mCtrlSculptType->setEnabled(editable);
+			}
+
+			if (mCtrlSculptMirror)
+			{
+				mCtrlSculptMirror->set(sculpt_mirror);
+				mCtrlSculptMirror->setEnabled(editable);
+			}
+
+			if (mCtrlSculptInvert)
+			{
+				mCtrlSculptInvert->set(sculpt_invert);
+				mCtrlSculptInvert->setEnabled(editable);
 			}
 
 			if (mLabelSculptType)
@@ -1725,9 +1747,18 @@ void LLPanelObject::sendSculpt()
 	if (mCtrlSculptTexture)
 		sculpt_params.setSculptTexture(mCtrlSculptTexture->getImageAssetID());
 
-	if (mCtrlSculptType)
-		sculpt_params.setSculptType(mCtrlSculptType->getCurrentIndex());
+	U8 sculpt_type = 0;
 	
+	if (mCtrlSculptType)
+		sculpt_type |= mCtrlSculptType->getCurrentIndex();
+
+	if ((mCtrlSculptMirror) && (mCtrlSculptMirror->get()))
+		sculpt_type |= LL_SCULPT_FLAG_MIRROR;
+
+	if ((mCtrlSculptInvert) && (mCtrlSculptInvert->get()))
+		sculpt_type |= LL_SCULPT_FLAG_INVERT;
+	
+	sculpt_params.setSculptType(sculpt_type);
 	mObject->setParameterEntry(LLNetworkData::PARAMS_SCULPT, sculpt_params, TRUE);
 }
 

@@ -68,7 +68,6 @@ public:
 	
 	static void onClickIMReceived(void* data);
 	static void onClickSetNotBusy(void* data);
-	static void onClickReleaseKeys(void* data);
 	static void onClickMouselook(void* data);
 	static void onClickStandUp(void* data);
 	static void onClickResetView(void* data);

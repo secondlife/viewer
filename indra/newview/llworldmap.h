@@ -192,7 +192,6 @@ public:
 	item_info_list_t mPGEvents;
 	item_info_list_t mMatureEvents;
 	item_info_list_t mLandForSale;
-	item_info_list_t mClassifieds;
 
 	std::map<U64,S32> mNumAgents;
 

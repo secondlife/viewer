@@ -147,10 +147,9 @@ public:
 
 	void setWebURL(std::string url);
 
-	void load();
 	void load(std::string url);
-	static void onClickLoad(void* data);
-	static void onClickOpen(void* data);
+	static void onURLKeystroke(LLLineEditor* editor, void* data);
+	static void onCommitLoad(LLUICtrl* ctrl, void* data);
 	static void onCommitURL(LLUICtrl* ctrl, void* data);
 	static void onClickWebProfileHelp(void *);
 
@@ -159,7 +158,7 @@ public:
 	virtual void onLocationChange( const EventType& eventIn );
 
 private:
-	std::string			mURL;
+	std::string			mHome;
 	LLWebBrowserCtrl*	mWebBrowser;
 };
 

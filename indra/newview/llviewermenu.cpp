@@ -1036,8 +1036,7 @@ void init_client_menu(LLMenuGL* menu)
 	menu->appendSeparator();
 
 	menu->append(new LLMenuItemToggleGL("Show Updates", 
-		&gShowObjectUpdates,
-		'U', MASK_ALT | MASK_SHIFT | MASK_CONTROL));
+		&gShowObjectUpdates));
 	
 	menu->appendSeparator(); 
 	
@@ -2912,8 +2911,7 @@ void request_friendship(const LLUUID& dest_id)
 		}
 		if (!fullname.empty())
 		{
-			LLPanelFriends::requestFriendship(dest_id, fullname);
-			LLNotifyBox::showXml("OfferedFriendship", args);
+			LLPanelFriends::requestFriendshipDialog(dest_id, fullname);
 		}
 		else
 		{
@@ -4489,6 +4487,25 @@ class LLToolsStopAllAnimations : public view_listener_t
 		avatarp->deactivateAllMotions();
 	
 		avatarp->processAnimationStateChanges();
+		return true;
+	}
+};
+
+class LLToolsReleaseKeys : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		gAgent.forceReleaseControls();
+
+		return true;
+	}
+};
+
+class LLToolsEnableReleaseKeys : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		gMenuHolder->findControl(userdata["control"].asString())->setValue( gAgent.anyControlGrabbed() );
 		return true;
 	}
 };
@@ -7825,6 +7842,8 @@ void initialize_menus()
 	addMenu(new LLToolsLink(), "Tools.Link");
 	addMenu(new LLToolsUnlink(), "Tools.Unlink");
 	addMenu(new LLToolsStopAllAnimations(), "Tools.StopAllAnimations");
+	addMenu(new LLToolsReleaseKeys(), "Tools.ReleaseKeys");
+	addMenu(new LLToolsEnableReleaseKeys(), "Tools.EnableReleaseKeys");
 	addMenu(new LLToolsLookAtSelection(), "Tools.LookAtSelection");
 	addMenu(new LLToolsBuyOrTake(), "Tools.BuyOrTake");
 	addMenu(new LLToolsTakeCopy(), "Tools.TakeCopy");

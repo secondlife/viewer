@@ -573,16 +573,15 @@ void LLPanelFriends::onClickIM(void* user_data)
 }
 
 // static
-void LLPanelFriends::requestFriendship(const LLUUID& target_id, const std::string& target_name)
+void LLPanelFriends::requestFriendship(const LLUUID& target_id, const std::string& target_name, const std::string& message)
 {
-	// HACK: folder id stored as "message"
 	LLUUID calling_card_folder_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_CALLINGCARD);
-	std::string message = calling_card_folder_id.asString();
 	send_improved_im(target_id,
 					 target_name,
 					 message,
 					 IM_ONLINE,
-					 IM_FRIENDSHIP_OFFERED);
+					 IM_FRIENDSHIP_OFFERED,
+					 calling_card_folder_id);
 }
 
 struct LLAddFriendData
@@ -592,12 +591,12 @@ struct LLAddFriendData
 };
 
 // static
-void LLPanelFriends::callbackAddFriend(S32 option, void* data)
+void LLPanelFriends::callbackAddFriend(S32 option, const std::string& text, void* data)
 {
 	LLAddFriendData* add = (LLAddFriendData*)data;
 	if (option == 0)
 	{
-		requestFriendship(add->mID, add->mName);
+		requestFriendship(add->mID, add->mName, text);
 	}
 	delete add;
 }
@@ -629,7 +628,7 @@ void LLPanelFriends::requestFriendshipDialog(const LLUUID& id,
 	// TODO: accept a line of text with this dialog
 	LLStringUtil::format_map_t args;
 	args["[NAME]"] = name;
-	gViewerWindow->alertXml("AddFriend", args, callbackAddFriend, data);
+	gViewerWindow->alertXmlEditText("AddFriend", args, NULL, NULL, callbackAddFriend, data);
 }
 
 // static

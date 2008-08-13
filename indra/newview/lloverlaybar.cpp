@@ -120,7 +120,6 @@ BOOL LLOverlayBar::postBuild()
 {
 	childSetAction("IM Received",onClickIMReceived,this);
 	childSetAction("Set Not Busy",onClickSetNotBusy,this);
-	childSetAction("Release Keys",onClickReleaseKeys,this);
 	childSetAction("Mouselook",onClickMouselook,this);
 	childSetAction("Stand Up",onClickStandUp,this);
 	childSetVisible("chat_bar", gSavedSettings.getBOOL("ChatVisible"));
@@ -210,17 +209,6 @@ void LLOverlayBar::refresh()
 		buttons_changed = TRUE;
 	}
 
-	BOOL controls_grabbed = gAgent.anyControlGrabbed();
-	button = getChild<LLButton>("Release Keys");
-
-	if (button && button->getVisible() != controls_grabbed)
-	{
-		button->setVisible(controls_grabbed);
-		sendChildToFront(button);
-		moveChildToBackOfTabGroup(button);
-		buttons_changed = TRUE;
-	}
-
 	BOOL mouselook_grabbed;
 	mouselook_grabbed = gAgent.isControlGrabbed(CONTROL_ML_LBUTTON_DOWN_INDEX)
 		|| gAgent.isControlGrabbed(CONTROL_ML_LBUTTON_UP_INDEX);
@@ -294,12 +282,6 @@ void LLOverlayBar::onClickSetNotBusy(void*)
 	gAgent.clearBusy();
 }
 
-
-// static
-void LLOverlayBar::onClickReleaseKeys(void*)
-{
-	gAgent.forceReleaseControls();
-}
 
 // static
 void LLOverlayBar::onClickResetView(void* data)

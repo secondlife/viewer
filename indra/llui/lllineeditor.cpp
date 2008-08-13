@@ -2570,6 +2570,17 @@ void LLLineEditor::setReplaceNewlinesWithSpaces(BOOL replace)
 	mReplaceNewlinesWithSpaces = replace;
 }
 
+LLWString LLLineEditor::getConvertedText() const
+{
+	LLWString text = getWText();
+	LLWStringUtil::trim(text);
+	if (!mReplaceNewlinesWithSpaces)
+	{
+		LLWStringUtil::replaceChar(text,182,'\n'); // Convert paragraph symbols back into newlines.
+	}
+	return text;
+}
+
 static LLRegisterWidget<LLSearchEditor> r2("search_editor");
 
 

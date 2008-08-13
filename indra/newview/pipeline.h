@@ -273,8 +273,6 @@ public:
 	static void toggleRenderHighlights(void* data);
 	static BOOL getRenderHighlights(void* data);
 
-	static BOOL getProcessBeacons(void* data);
-
 private:
 	void unloadShaders();
 	void addToQuickLookup( LLDrawPool* new_poolp );
@@ -550,7 +548,6 @@ protected:
 public:
 	static BOOL				sRenderBeacons;
 	static BOOL				sRenderHighlight;
-	static BOOL				sRenderProcessBeacons;
 };
 
 void render_bbox(const LLVector3 &min, const LLVector3 &max);

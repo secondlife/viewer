@@ -108,6 +108,7 @@
 #include "lltool.h"
 #include "lltoolbar.h"
 #include "lltoolmgr.h"
+#include "lltrans.h"
 #include "llui.h"			// for make_ui_sound
 #include "lluploaddialog.h"
 #include "llviewercamera.h"
@@ -828,13 +829,15 @@ void open_offer(const std::vector<LLUUID>& items, const std::string& from_name)
 		{
 			continue;
 		}
+		LLAssetType::EType asset_type = item->getType();
+
 		//if we are throttled, don't display them - Gigs
 		if (check_offer_throttle(from_name, false))
 		{
 			// I'm not sure this is a good idea.  JC
 			bool show_keep_discard = item->getPermissions().getCreator() != gAgent.getID();
 			//bool show_keep_discard = true;
-			switch(item->getType())
+			switch(asset_type)
 			{
 			case LLAssetType::AT_NOTECARD:
 				open_notecard((LLViewerInventoryItem*)item, std::string("Note: ") + item->getName(), LLUUID::null, show_keep_discard, LLUUID::null, FALSE);
@@ -858,6 +861,11 @@ void open_offer(const std::vector<LLUUID>& items, const std::string& from_name)
 			return;
 		}
 
+		if(gSavedSettings.getBOOL("ShowInInventory") &&
+			asset_type != LLAssetType::AT_CALLINGCARD)
+		{
+			LLInventoryView::showAgentInventory(TRUE);
+		}
 		//Trash Check
 		LLUUID trash_id;
 		trash_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_TRASH);
@@ -1909,8 +1917,18 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			else
 			{
 				args["[NAME]"] = name;
-				LLNotifyBox::showXml("OfferFriendship", args,
-					&friendship_offer_callback, (void*)offer);
+				if(message.empty())
+				{
+					//support for frienship offers from clients before July 2008
+					LLNotifyBox::showXml("OfferFriendshipNoMessage", args,
+						&friendship_offer_callback, (void*)offer);
+				}
+				else
+				{
+					args["[MESSAGE]"] = message;
+					LLNotifyBox::showXml("OfferFriendship", args,
+						&friendship_offer_callback, (void*)offer);
+				}
 			}
 		}
 		break;
@@ -2163,7 +2181,6 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 	
 	chat.mTime = LLFrameTimer::getElapsedSeconds();
 	
-	BOOL is_self = (from_id == gAgent.getID());
 	BOOL is_busy = gAgent.getBusy();
 
 	BOOL is_muted = FALSE;
@@ -2279,14 +2296,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 			switch(chat.mChatType)
 			{
 			case CHAT_TYPE_WHISPER:
-				if (is_self)
-				{
-					verb = " whisper: ";
-				}
-				else
-				{
-					verb = " whispers: ";
-				}
+				verb = " " + LLTrans::getString("whisper") + " ";
 				break;
 			case CHAT_TYPE_DEBUG_MSG:
 			case CHAT_TYPE_OWNER:
@@ -2294,14 +2304,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 				verb = ": ";
 				break;
 			case CHAT_TYPE_SHOUT:
-				if (is_self)
-				{
-					verb = " shout: ";
-				}
-				else
-				{
-					verb = " shouts: ";
-				}
+				verb = " " + LLTrans::getString("shout") + " ";
 				break;
 			case CHAT_TYPE_START:
 			case CHAT_TYPE_STOP:
@@ -2313,14 +2316,8 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 				break;
 			}
 
-			if (is_self)
-			{
-				chat.mText = std::string("You");
-			}
-			else
-			{
-				chat.mText = from_name;
-			}
+
+			chat.mText = from_name;
 			chat.mText += verb;
 			chat.mText += mesg;
 		}
@@ -2642,9 +2639,6 @@ void process_teleport_finish(LLMessageSystem* msg, void**)
 //	gTeleportDisplay = TRUE;
 //	gTeleportDisplayTimer.reset();
 //	gViewerWindow->setShowProgress(TRUE);
-
-	// This could be first use of teleport, so test for that
-	LLFirstUse::useTeleport();
 }
 
 // stuff we have to do every time we get an AvatarInitComplete from a sim

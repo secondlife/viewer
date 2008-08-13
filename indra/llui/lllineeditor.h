@@ -140,6 +140,8 @@ public:
 
 	const std::string& getText() const		{ return mText.getString(); }
 	const LLWString& getWText() const	{ return mText.getWString(); }
+	LLWString getConvertedText() const; // trimmed text with paragraphs converted to newlines
+
 	S32				getLength() const	{ return mText.length(); }
 
 	S32				getCursor()	const	{ return mCursorPos; }

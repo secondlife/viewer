@@ -49,7 +49,7 @@ public:
 		SNAPSHOT_FORMAT_BMP
 	} ESnapshotFormat;
 
-    LLFloaterSnapshot();
+	LLFloaterSnapshot();
 	virtual ~LLFloaterSnapshot();
 
 	/*virtual*/ BOOL postBuild();

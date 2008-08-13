@@ -855,6 +855,9 @@ bool LLAppViewer::init()
 
 bool LLAppViewer::mainLoop()
 {
+	mMainloopTimeout = new LLWatchdogTimeout();
+	// *FIX:Mani - Make this a setting, once new settings exist in this branch.
+	
 	//-------------------------------------------
 	// Run main loop until time to quit
 	//-------------------------------------------

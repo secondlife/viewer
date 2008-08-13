@@ -72,6 +72,8 @@ const S32	UI_TEXTEDITOR_BUFFER_BLOCK_SIZE = 512;
 const S32	UI_TEXTEDITOR_BORDER = 1;
 const S32	UI_TEXTEDITOR_H_PAD = 4;
 const S32	UI_TEXTEDITOR_V_PAD_TOP = 4;
+const S32	UI_TEXTEDITOR_LINE_NUMBER_MARGIN = 32;
+const S32	UI_TEXTEDITOR_LINE_NUMBER_DIGITS = 4;
 const F32	CURSOR_FLASH_DELAY = 1.0f;  // in seconds
 const S32	CURSOR_THICKNESS = 2;
 const S32	SPACES_PER_TAB = 4;
@@ -84,6 +86,7 @@ const F32	PREEDIT_STANDOUT_BRIGHTNESS = 0.6f;
 const S32	PREEDIT_STANDOUT_GAP = 1;
 const S32	PREEDIT_STANDOUT_POSITION = 2;
 const S32	PREEDIT_STANDOUT_THICKNESS = 2;
+
 
 LLColor4 LLTextEditor::mLinkColor = LLColor4::blue;
 void (* LLTextEditor::mURLcallback)(const std::string&)   = NULL;
@@ -269,6 +272,7 @@ LLTextEditor::LLTextEditor(
 	mFocusBgColor(		LLUI::sColorsGroup->getColor( "TextBgFocusColor" ) ),
 	mReadOnly(FALSE),
 	mWordWrap( FALSE ),
+	mShowLineNumbers ( FALSE ),
 	mTabsToNextField( TRUE ),
 	mCommitOnFocusLost( FALSE ),
 	mHideScrollbarForShortDocs( FALSE ),
@@ -397,7 +401,8 @@ void LLTextEditor::updateLineStartList(S32 startpos)
 	{
 		mLineStartList.push_back(line_info(seg_idx,seg_offset));
 		BOOL line_ended = FALSE;
-		S32 line_width = 0;
+		S32 start_x = mShowLineNumbers ? UI_TEXTEDITOR_LINE_NUMBER_MARGIN : 0;
+		S32 line_width = start_x;
 		while(!line_ended && seg_idx < seg_num)
 		{
 			LLTextSegment* segment = mSegments[seg_idx];
@@ -427,7 +432,7 @@ void LLTextEditor::updateLineStartList(S32 startpos)
 				const llwchar* str = mWText.c_str() + start_idx;
 				S32 drawn = mGLFont->maxDrawableChars(str, (F32)abs(mTextRect.getWidth()) - line_width,
 													  end_idx - start_idx, mWordWrap, mAllowEmbeddedItems );
-				if( 0 == drawn && line_width == 0)
+				if( 0 == drawn && line_width == start_x)
 				{
 					// If at the beginning of a line, draw at least one character, even if it doesn't all fit.
 					drawn = 1;
@@ -798,7 +803,12 @@ void LLTextEditor::getSelectedSegments(std::vector<const LLTextSegment*>& segmen
 
 S32 LLTextEditor::getCursorPosFromLocalCoord( S32 local_x, S32 local_y, BOOL round ) const
 {
-		// If round is true, if the position is on the right half of a character, the cursor
+	if(mShowLineNumbers)
+	{
+		local_x -= UI_TEXTEDITOR_LINE_NUMBER_MARGIN;
+	}
+
+	// If round is true, if the position is on the right half of a character, the cursor
 	// will be put to its right.  If round is false, the cursor will always be put to the
 	// character's left.
 
@@ -2467,20 +2477,15 @@ void LLTextEditor::drawBackground()
 	S32 right = getRect().getWidth();
 	S32 bottom = 0;
 
-	LLColor4 bg_color = mReadOnlyBgColor;
-
-	if( !mReadOnly )
-	{
-		if (gFocusMgr.getKeyboardFocus() == this)
-		{
-			bg_color = mFocusBgColor;
-		}
-		else
-		{
-			bg_color = mWriteableBgColor;
-		}
+	LLColor4 bg_color = mReadOnly ? mReadOnlyBgColor
+		: gFocusMgr.getKeyboardFocus() == this ? mFocusBgColor : mWriteableBgColor;
+	if( mShowLineNumbers ) {
+		gl_rect_2d(left, top, UI_TEXTEDITOR_LINE_NUMBER_MARGIN, bottom, mReadOnlyBgColor ); // line number area always read-only
+		gl_rect_2d(UI_TEXTEDITOR_LINE_NUMBER_MARGIN, top, right, bottom, bg_color); // body text area to the right of line numbers
+		gl_rect_2d(UI_TEXTEDITOR_LINE_NUMBER_MARGIN, top, UI_TEXTEDITOR_LINE_NUMBER_MARGIN-1, bottom, LLColor4::grey3); // separator
+	} else {
+		gl_rect_2d(left, top, right, bottom, bg_color); // body text area
 	}
-	gl_rect_2d(left, top, right, bottom, bg_color);
 
 	LLView::draw();
 }
@@ -2593,12 +2598,13 @@ void LLTextEditor::drawSelectionBackground()
 			const LLColor4& color = mReadOnly ? mReadOnlyBgColor : mWriteableBgColor;
 			F32 alpha = hasFocus() ? 1.f : 0.5f;
 			gGL.color4f( 1.f - color.mV[0], 1.f - color.mV[1], 1.f - color.mV[2], alpha );
+			S32 margin_offset = mShowLineNumbers ? UI_TEXTEDITOR_LINE_NUMBER_MARGIN : 0;
 
 			if( selection_left_y == selection_right_y )
 			{
 				// Draw from selection start to selection end
-				gl_rect_2d( selection_left_x, selection_left_y + line_height + 1,
-					selection_right_x, selection_right_y);
+				gl_rect_2d( selection_left_x + margin_offset, selection_left_y + line_height + 1,
+					selection_right_x + margin_offset, selection_right_y);
 			}
 			else
 			{
@@ -2610,16 +2616,16 @@ void LLTextEditor::drawSelectionBackground()
 				
 				S32 line_end = line_endings.front();
 				line_endings.pop();
-				gl_rect_2d( selection_left_x, selection_left_y + line_height + 1,
-					line_end, selection_left_y );
+				gl_rect_2d( selection_left_x + margin_offset, selection_left_y + line_height + 1,
+					line_end + margin_offset, selection_left_y );
 
 				S32 line_num = left_line_num + 1;
 				while(line_endings.size())
 				{
 					S32 vert_offset = -(line_num - left_line_num) * line_height;
 					// Draw the block between the two lines
-					gl_rect_2d( mTextRect.mLeft, selection_left_y + vert_offset + line_height + 1,
-						line_endings.front(), selection_left_y + vert_offset);
+					gl_rect_2d( mTextRect.mLeft + margin_offset, selection_left_y + vert_offset + line_height + 1,
+						line_endings.front() + margin_offset, selection_left_y + vert_offset);
 					line_endings.pop();
 					line_num++;
 				}
@@ -2629,8 +2635,8 @@ void LLTextEditor::drawSelectionBackground()
 				{
 					selection_right_x += CURSOR_THICKNESS;
 				}
-				gl_rect_2d( mTextRect.mLeft, selection_right_y + line_height + 1,
-					selection_right_x, selection_right_y );
+				gl_rect_2d( mTextRect.mLeft + margin_offset, selection_right_y + line_height + 1,
+					selection_right_x + margin_offset, selection_right_y );
 			}
 		}
 	}
@@ -2691,6 +2697,11 @@ void LLTextEditor::drawCursor()
 			text_y -= line_height;
 			line_start = next_line;
 			cur_pos++;
+		}
+
+		if(mShowLineNumbers)
+		{
+			cursor_left += UI_TEXTEDITOR_LINE_NUMBER_MARGIN;
 		}
 
 		// Draw the cursor
@@ -2859,10 +2870,7 @@ void LLTextEditor::drawText()
 {
 	const LLWString &text = mWText;
 	const S32 text_len = getLength();
-	if( text_len <= 0 )
-	{
-		return;
-	}
+	if( text_len <= 0 ) return;
 	S32 selection_left = -1;
 	S32 selection_right = -1;
 	// Draw selection even if we don't have keyboard focus for search/replace
@@ -2874,14 +2882,26 @@ void LLTextEditor::drawText()
 
 	LLGLSUIDefault gls_ui;
 
-	S32 cur_line = mScrollbar->getDocPos();
+	// There are several concepts that are important for understanding the following drawing code.
+	// The document is logically a sequence of characters (stored in a LLWString).
+	// Variables below with "start" or "end" in their names refer to positions or offsets into it.
+	// Next there are two kinds of "line" variables to understand. Newline characters in the
+	// character sequence represent logical lines. These are what get numbered and so variables
+	// representing this kind of line have "num" in their names.
+	// The others represent line fragments or displayed lines which the scrollbar deals with.
+	// When the "show line numbers" property is turned on, we draw line numbers to the left of the 
+	// beginning of each logical line and not in front of wrapped "continuation" display lines. -MG
+
+	S32 cur_line = mScrollbar->getDocPos(); // scrollbar counts each wrap as a new line.
 	S32 num_lines = getLineCount();
-	if (cur_line >= num_lines)
-	{
-		return;
-	}
-	
+	if (cur_line >= num_lines) return;
 	S32 line_start = getLineStart(cur_line);
+	S32 prev_start = getLineStart(cur_line-1);
+	S32 cur_line_num  = getLineForPosition(line_start); // doesn't count wraps. i.e. only counts newlines.
+	S32 prev_line_num = getLineForPosition(prev_start);
+	BOOL cur_line_is_continuation = cur_line_num > 0 && cur_line_num == prev_line_num;
+	BOOL line_wraps = FALSE;
+	
 	LLTextSegment t(line_start);
 	segment_list_t::iterator seg_iter;
 	seg_iter = std::upper_bound(mSegments.begin(), mSegments.end(), &t, LLTextSegment::compare());
@@ -2900,12 +2920,36 @@ void LLTextEditor::drawText()
 			next_start = getLineStart(cur_line + 1);
 			line_end = next_start;
 		}
-		if ( text[line_end-1] == '\n' )
+		line_wraps = text[line_end-1] != '\n';
+		if ( ! line_wraps )
 		{
-			--line_end;
+			--line_end; // don't attempt to draw the newline char.
 		}
 		
-		F32 text_x = (F32)mTextRect.mLeft;
+		F32 text_start = (F32)mTextRect.mLeft;
+		F32 text_x = text_start + (mShowLineNumbers ? UI_TEXTEDITOR_LINE_NUMBER_MARGIN : 0);
+		
+		// draw the line numbers
+		if( mShowLineNumbers && !cur_line_is_continuation) 
+		{
+			const LLFontGL *num_font = LLFontGL::sMonospace;
+			F32 y_top = text_y + ((F32)llround(num_font->getLineHeight()) / 2);
+			const LLWString ltext = utf8str_to_wstring(llformat("%*d", UI_TEXTEDITOR_LINE_NUMBER_DIGITS, cur_line_num ));
+			BOOL is_cur_line = getCurrentLine() == cur_line_num;
+			const U8 style = is_cur_line ? LLFontGL::BOLD : LLFontGL::NORMAL;
+			const LLColor4 fg_color = is_cur_line ? LLColor4::black : LLColor4::grey4;
+			num_font->render( 
+				ltext, // string to draw
+				0, // begin offset
+				3., // x
+				y_top, // y
+				fg_color, 
+				LLFontGL::LEFT, // horizontal alignment
+				LLFontGL::VCENTER, // vertical alignment
+				style, 
+				S32_MAX, // max chars
+				UI_TEXTEDITOR_LINE_NUMBER_MARGIN); // max pixels
+		}
 
 		S32 seg_start = line_start;
 		while( seg_start < line_end )
@@ -2950,16 +2994,28 @@ void LLTextEditor::drawText()
 
 				drawClippedSegment( text, seg_start, clipped_end, text_x, text_y, selection_left, selection_right, style, &text_x );
 
+				if( text_x == text_start && mShowLineNumbers ) 
+				{
+					text_x += UI_TEXTEDITOR_LINE_NUMBER_MARGIN;
+				}
+
 				// Note: text_x is incremented by drawClippedSegment()
 				seg_start += clipped_len;
 			}
 		}
 
-			// move down one line
-			text_y -= (F32)line_height;
+		// move down one line
+		text_y -= (F32)line_height;
+
+		if( line_wraps )
+		{
+			cur_line_num--;
+		}
+		cur_line_is_continuation = line_wraps; // so as to not not number the continuation lines
 
 		line_start = next_start;
 		cur_line++;
+		cur_line_num++;
 	}
 }
 
@@ -3258,8 +3314,7 @@ void LLTextEditor::setCursorAndScrollToEnd()
 	updateScrollFromCursor();
 }
 
-
-void LLTextEditor::getCurrentLineAndColumn( S32* line, S32* col, BOOL include_wordwrap )
+void LLTextEditor::getLineAndColumnForPosition( S32 position, S32* line, S32* col, BOOL include_wordwrap )
 {
 	if( include_wordwrap )
 	{
@@ -3271,7 +3326,7 @@ void LLTextEditor::getCurrentLineAndColumn( S32* line, S32* col, BOOL include_wo
 		S32 line_count = 0;
 		S32 line_start = 0;
 		S32 i;
-		for( i = 0; text[i] && (i < mCursorPos); i++ )
+		for( i = 0; text[i] && (i < position); i++ )
 		{
 			if( '\n' == text[i] )
 			{
@@ -3282,6 +3337,23 @@ void LLTextEditor::getCurrentLineAndColumn( S32* line, S32* col, BOOL include_wo
 		*line = line_count;
 		*col = i - line_start;
 	}
+}
+
+void LLTextEditor::getCurrentLineAndColumn( S32* line, S32* col, BOOL include_wordwrap ) 
+{ 
+	getLineAndColumnForPosition(mCursorPos, line, col, include_wordwrap); 
+}
+
+S32 LLTextEditor::getCurrentLine()
+{
+	return getLineForPosition(mCursorPos);
+}
+
+S32 LLTextEditor::getLineForPosition(S32 position)
+{
+	S32 line, col;
+	getLineAndColumnForPosition(position, &line, &col, FALSE);
+	return line;
 }
 
 
@@ -4151,6 +4223,8 @@ void LLTextEditor::setTextEditorParameters(LLXMLNodePtr node)
 	BOOL word_wrap = FALSE;
 	node->getAttributeBOOL("word_wrap", word_wrap);
 	setWordWrap(word_wrap);
+
+	node->getAttributeBOOL("show_line_numbers", mShowLineNumbers);
 
 	node->getAttributeBOOL("track_bottom", mTrackBottom);
 

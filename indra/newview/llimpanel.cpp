@@ -1238,6 +1238,7 @@ BOOL LLFloaterIMPanel::postBuild()
 		mInputEditor->setCallbackUserData(this);
 		mInputEditor->setCommitOnFocusLost( FALSE );
 		mInputEditor->setRevertOnEsc( FALSE );
+		mInputEditor->setReplaceNewlinesWithSpaces( FALSE );
 
 		childSetAction("profile_callee_btn", onClickProfile, this);
 		childSetAction("group_info_btn", onClickGroupInfo, this);
@@ -1925,8 +1926,6 @@ void deliver_message(const std::string& utf8_text,
 
 void LLFloaterIMPanel::sendMsg()
 {
-	LLWString text = mInputEditor->getWText();
-	LLWStringUtil::trim(text);
 	if (!gAgent.isGodlike() 
 		&& (mDialog == IM_NOTHING_SPECIAL)
 		&& mOtherParticipantUUID.isNull())
@@ -1934,57 +1933,63 @@ void LLFloaterIMPanel::sendMsg()
 		llinfos << "Cannot send IM to everyone unless you're a god." << llendl;
 		return;
 	}
-	if(text.length() > 0)
+
+	if (mInputEditor)
 	{
-		// Truncate and convert to UTF8 for transport
-		std::string utf8_text = wstring_to_utf8str(text);
-		utf8_text = utf8str_truncate(utf8_text, MAX_MSG_BUF_SIZE - 1);
-
-		if ( mSessionInitialized )
+		LLWString text = mInputEditor->getConvertedText();
+		if(!text.empty())
 		{
-			deliver_message(utf8_text,
-							mSessionUUID,
-							mOtherParticipantUUID,
-							mDialog);
-
-			// local echo
-			if((mDialog == IM_NOTHING_SPECIAL) && 
-			   (mOtherParticipantUUID.notNull()))
+			// Truncate and convert to UTF8 for transport
+			std::string utf8_text = wstring_to_utf8str(text);
+			utf8_text = utf8str_truncate(utf8_text, MAX_MSG_BUF_SIZE - 1);
+			
+			if ( mSessionInitialized )
 			{
-				std::string history_echo;
-				gAgent.buildFullname(history_echo);
+				deliver_message(utf8_text,
+								mSessionUUID,
+								mOtherParticipantUUID,
+								mDialog);
 
-				// Look for IRC-style emotes here.
-				std::string prefix = utf8_text.substr(0, 4);
-				if (prefix == "/me " || prefix == "/me'")
+				// local echo
+				if((mDialog == IM_NOTHING_SPECIAL) && 
+				   (mOtherParticipantUUID.notNull()))
 				{
-					utf8_text.replace(0,3,"");
+					std::string history_echo;
+					gAgent.buildFullname(history_echo);
+
+					// Look for IRC-style emotes here.
+					std::string prefix = utf8_text.substr(0, 4);
+					if (prefix == "/me " || prefix == "/me'")
+					{
+						utf8_text.replace(0,3,"");
+					}
+					else
+					{
+						history_echo += ": ";
+					}
+					history_echo += utf8_text;
+
+					BOOL other_was_typing = mOtherTyping;
+
+					addHistoryLine(history_echo, gSavedSettings.getColor("IMChatColor"), true, gAgent.getID());
+
+					if (other_was_typing) 
+					{
+						addTypingIndicator(mOtherTypingName);
+					}
+
 				}
-				else
-				{
-					history_echo += ": ";
-				}
-				history_echo += utf8_text;
-
-				BOOL other_was_typing = mOtherTyping;
-
-				addHistoryLine(history_echo, gSavedSettings.getColor("IMChatColor"), true, gAgent.getID());
-
-				if (other_was_typing) 
-				{
-					addTypingIndicator(mOtherTypingName);
-				}
-
 			}
-		}
-		else
-		{
-			//queue up the message to send once the session is
-			//initialized
-			mQueuedMsgsForInit.append(utf8_text);
+			else
+			{
+				//queue up the message to send once the session is
+				//initialized
+				mQueuedMsgsForInit.append(utf8_text);
+			}
 		}
 
 		LLViewerStats::getInstance()->incStat(LLViewerStats::ST_IM_COUNT);
+
 	}
 	mInputEditor->setText(LLStringUtil::null);
 

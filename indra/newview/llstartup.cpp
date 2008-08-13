@@ -189,6 +189,8 @@
 // exported globals
 //
 bool gAgentMovementCompleted = false;
+std::string gInitialOutfit;
+std::string gInitialOutfitGender;
 
 std::string SCREEN_HOME_FILENAME = "screen_home.bmp";
 std::string SCREEN_LAST_FILENAME = "screen_last.bmp";
@@ -1607,6 +1609,9 @@ bool idle_startup()
 
 		gFloaterMap->setVisible( gSavedSettings.getBOOL("ShowMiniMap") );
 
+		LLRect window(0, gViewerWindow->getWindowHeight(), gViewerWindow->getWindowWidth(), 0);
+		gViewerWindow->adjustControlRectanglesForFirstUse(window);
+
 		if (gSavedSettings.getBOOL("ShowCameraControls"))
 		{
 			LLFloaterCamera::showInstance();
@@ -2241,6 +2246,21 @@ bool idle_startup()
 	if (STATE_PRECACHE == LLStartUp::getStartupState())
 	{
 		F32 timeout_frac = timeout.getElapsedTimeF32()/PRECACHING_DELAY;
+
+		// We now have an inventory skeleton, so if this is a user's first
+		// login, we can start setting up their clothing and avatar 
+		// appearance.  This helps to avoid the generic "Ruth" avatar in
+		// the orientation island tutorial experience. JC
+		if (gAgent.isFirstLogin()
+			&& !sInitialOutfit.empty()    // registration set up an outfit
+			&& !sInitialOutfitGender.empty() // and a gender
+			&& gAgent.getAvatarObject()	  // can't wear clothes without object
+			&& !gAgent.isGenderChosen() ) // nothing already loading
+		{
+			// Start loading the wearables, textures, gestures
+			LLStartUp::loadInitialOutfit( sInitialOutfit, sInitialOutfitGender );
+		}
+
 
 		// We now have an inventory skeleton, so if this is a user's first
 		// login, we can start setting up their clothing and avatar 

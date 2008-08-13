@@ -175,7 +175,7 @@ const LLFaceID	LL_FACE_OUTER_SIDE_3	= 0x1 << 8;
 
 //============================================================================
 
-// sculpt types
+// sculpt types + flags
 
 const U8 LL_SCULPT_TYPE_NONE      = 0;
 const U8 LL_SCULPT_TYPE_SPHERE    = 1;
@@ -183,6 +183,10 @@ const U8 LL_SCULPT_TYPE_TORUS     = 2;
 const U8 LL_SCULPT_TYPE_PLANE     = 3;
 const U8 LL_SCULPT_TYPE_CYLINDER  = 4;
 
+const U8 LL_SCULPT_TYPE_MASK      = LL_SCULPT_TYPE_SPHERE | LL_SCULPT_TYPE_TORUS | LL_SCULPT_TYPE_PLANE | LL_SCULPT_TYPE_CYLINDER;
+
+const U8 LL_SCULPT_FLAG_INVERT    = 64;
+const U8 LL_SCULPT_FLAG_MIRROR    = 128;
 
 
 class LLProfileParams
@@ -680,7 +684,8 @@ public:
 	BOOL isFlat(S32 face) const							{ return (mFaces[face].mCount == 2); }
 	BOOL isOpen() const									{ return mOpen; }
 	void setDirty()										{ mDirty     = TRUE; }
-	BOOL generate(const LLProfileParams& params, BOOL path_open, F32 detail = 1.0f, S32 split = 0, BOOL is_sculpted = FALSE);
+	BOOL generate(const LLProfileParams& params, BOOL path_open, F32 detail = 1.0f, S32 split = 0,
+				  BOOL is_sculpted = FALSE, S32 sculpt_size = 0);
 	BOOL isConcave() const								{ return mConcave; }
 public:
 	struct Face
@@ -749,7 +754,8 @@ public:
 	virtual ~LLPath();
 
 	void genNGon(const LLPathParams& params, S32 sides, F32 offset=0.0f, F32 end_scale = 1.f, F32 twist_scale = 1.f);
-	virtual BOOL generate(const LLPathParams& params, F32 detail=1.0f, S32 split = 0, BOOL is_sculpted = FALSE);
+	virtual BOOL generate(const LLPathParams& params, F32 detail=1.0f, S32 split = 0,
+						  BOOL is_sculpted = FALSE, S32 sculpt_size = 0);
 
 	BOOL isOpen() const						{ return mOpen; }
 	F32 getStep() const						{ return mStep; }
@@ -775,7 +781,8 @@ class LLDynamicPath : public LLPath
 {
 public:
 	LLDynamicPath() : LLPath() { }
-	/*virtual*/ BOOL generate(const LLPathParams& params, F32 detail=1.0f, S32 split = 0, BOOL is_sculpted = FALSE);
+	/*virtual*/ BOOL generate(const LLPathParams& params, F32 detail=1.0f, S32 split = 0,
+							  BOOL is_sculpted = FALSE, S32 sculpt_size = 0);
 };
 
 // Yet another "face" class - caches volume-specific, but not instance-specific data for faces)
@@ -943,6 +950,8 @@ private:
 	F32 sculptGetSurfaceArea(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components, const U8* sculpt_data);
 	void sculptGenerateMapVertices(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components, const U8* sculpt_data, U8 sculpt_type);
 	void sculptGeneratePlaceholder();
+	void sculptCalcMeshResolution(U16 width, U16 height, U8 type, S32& s, S32& t);
+
 	
 protected:
 	BOOL generate();

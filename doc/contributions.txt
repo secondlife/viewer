@@ -186,6 +186,8 @@ Jacek Antonelli
 	VWR-597
 	VWR-2448
 	VWR-3605
+JB Kraft
+  VWR-5283
 Joghert LeSabre
 	VWR-64
 Kage Pixel

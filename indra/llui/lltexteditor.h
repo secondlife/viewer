@@ -160,7 +160,10 @@ public:
 	void			setCursorPos(S32 offset);
 	void			setCursorAndScrollToEnd();
 
+	void			getLineAndColumnForPosition( S32 position,  S32* line, S32* col, BOOL include_wordwrap );
 	void			getCurrentLineAndColumn( S32* line, S32* col, BOOL include_wordwrap );
+	S32				getLineForPosition(S32 position);
+	S32				getCurrentLine();
 
 	void			loadKeywords(const std::string& filename,
 								 const std::vector<std::string>& funcs,
@@ -500,6 +503,7 @@ private:
 
 	BOOL			mReadOnly;
 	BOOL			mWordWrap;
+	BOOL			mShowLineNumbers;
 
 	BOOL			mTabsToNextField;		// if true, tab moves focus to next field, else inserts spaces
 	BOOL			mCommitOnFocusLost;

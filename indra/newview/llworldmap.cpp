@@ -179,7 +179,6 @@ void LLWorldMap::eraseItems()
 		mPGEvents.clear();
 		mMatureEvents.clear();
 		mLandForSale.clear();
-		mClassifieds.clear();
 	}
 // 	mAgentLocationsMap.clear(); // persists
 // 	mNumAgents.clear(); // persists
@@ -308,11 +307,6 @@ void LLWorldMap::setCurrentLayer(S32 layer, bool request_layer)
 	{
 		// Request for Land For Sale
 		sendItemRequest(MAP_ITEM_LAND_FOR_SALE);
-	}
-
-	if (mClassifieds.size() == 0)
-	{
-		sendItemRequest(MAP_ITEM_CLASSIFIED);
 	}
 
 	clearImageRefs();
@@ -768,9 +762,7 @@ void LLWorldMap::processMapItemReply(LLMessageSystem* msg, void**)
 			}
 			case MAP_ITEM_CLASSIFIED: // classifieds
 			{
-				// HACK: Z-height is in Extra2 field.
-				new_item.mPosGlobal.mdV[VZ] = (F64)extra2;
-				LLWorldMap::getInstance()->mClassifieds.push_back(new_item);
+				//DEPRECATED: no longer used
 				break;
 			}
 			case MAP_ITEM_AGENT_LOCATIONS: // agent locations

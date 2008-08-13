@@ -501,6 +501,9 @@ extern "C" { int yyerror(const char *fmt, ...); }
 "PRIM_SCULPT_TYPE_TORUS"	{ count(); yylval.ival = LSL_PRIM_SCULPT_TYPE_TORUS; return(INTEGER_CONSTANT); }
 "PRIM_SCULPT_TYPE_PLANE"	{ count(); yylval.ival = LSL_PRIM_SCULPT_TYPE_PLANE; return(INTEGER_CONSTANT); }
 "PRIM_SCULPT_TYPE_CYLINDER"	{ count(); yylval.ival = LSL_PRIM_SCULPT_TYPE_CYLINDER; return(INTEGER_CONSTANT); }
+"PRIM_SCULPT_TYPE_MASK" 	{ count(); yylval.ival = LSL_PRIM_SCULPT_TYPE_MASK; return(INTEGER_CONSTANT); }
+"PRIM_SCULPT_FLAG_MIRROR" 	{ count(); yylval.ival = LSL_PRIM_SCULPT_FLAG_MIRROR; return(INTEGER_CONSTANT); }
+"PRIM_SCULPT_FLAG_INVERT" 	{ count(); yylval.ival = LSL_PRIM_SCULPT_FLAG_INVERT; return(INTEGER_CONSTANT); }
 
 "MASK_BASE"				{ count(); yylval.ival = 0; return(INTEGER_CONSTANT); }
 "MASK_OWNER"			{ count(); yylval.ival = 1; return(INTEGER_CONSTANT); }

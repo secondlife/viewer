@@ -211,7 +211,6 @@ BOOL	LLPipeline::sRenderParticleBeacons = FALSE;
 BOOL	LLPipeline::sRenderSoundBeacons = FALSE;
 BOOL	LLPipeline::sRenderBeacons = FALSE;
 BOOL	LLPipeline::sRenderHighlight = TRUE;
-BOOL	LLPipeline::sRenderProcessBeacons = FALSE;
 S32		LLPipeline::sUseOcclusion = 0;
 BOOL	LLPipeline::sFastAlpha = TRUE;
 BOOL	LLPipeline::sDisableShaders = FALSE;
@@ -2084,8 +2083,8 @@ void LLPipeline::postSort(LLCamera& camera)
 		std::sort(sCull->beginAlphaGroups(), sCull->endAlphaGroups(), LLSpatialGroup::CompareDepthGreater());
 	}
 
-	// only render if the flag is set. The flag is only set if the right key is pressed, we are in edit mode or the toggle is set in the menus
-	if (sRenderProcessBeacons)
+	// only render if the flag is set. The flag is only set if we are in edit mode or the toggle is set in the menus
+	if (gSavedSettings.getBOOL("BeaconAlwaysOn"))
 	{
 		if (sRenderScriptedTouchBeacons)
 		{
@@ -3967,12 +3966,6 @@ void LLPipeline::toggleRenderHighlights(void*)
 BOOL LLPipeline::getRenderHighlights(void*)
 {
 	return sRenderHighlight;
-}
-
-// static
-BOOL LLPipeline::getProcessBeacons(void* data)
-{
-	return sRenderProcessBeacons;
 }
 
 LLViewerObject* LLPipeline::lineSegmentIntersectInWorld(const LLVector3& start, const LLVector3& end,

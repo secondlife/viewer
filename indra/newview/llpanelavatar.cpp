@@ -459,9 +459,9 @@ BOOL LLPanelAvatarNotes::postBuild(void)
 
 BOOL LLPanelAvatarWeb::postBuild(void)
 {
-	childSetAction("load",onClickLoad,this);
-	childSetAction("open",onClickOpen,this);
-	childSetAction("home",onClickLoad,this);
+	childSetKeystrokeCallback("url_edit", onURLKeystroke, this);
+	childSetCommitCallback("load", onCommitLoad, this);
+
 	childSetAction("web_profile_help",onClickWebProfileHelp,this);
 
 	childSetCommitCallback("url_edit",onCommitURL,this);
@@ -544,31 +544,26 @@ LLPanelAvatarWeb::~LLPanelAvatarWeb()
 void LLPanelAvatarWeb::enableControls(BOOL self)
 {	
 	childSetEnabled("url_edit",self);
-	childSetVisible("status_text",!self && !mURL.empty());
+	childSetVisible("status_text",!self && !mHome.empty());
 	childSetText("status_text", LLStringUtil::null);
 }
 
 void LLPanelAvatarWeb::setWebURL(std::string url)
 {
-	bool changed_url = (mURL != url);
+	bool changed_url = (mHome != url);
 
-	mURL = url;
-	bool have_url = !mURL.empty();
+	mHome = url;
+	bool have_url = !mHome.empty();
 	
-	childSetText("url_edit",mURL);
-
-	childSetEnabled("load",have_url);
-	childSetEnabled("open",have_url);
-
-	childSetVisible("home",false);
-	childSetVisible("load",true);
+	childSetText("url_edit", mHome);
+	childSetEnabled("load", mHome.length() > 0);
 
 	if (have_url
 		&& gSavedSettings.getBOOL("AutoLoadWebProfiles"))
 	{
 		if (changed_url)
 		{
-			load();
+			load(mHome);
 		}
 	}
 	else
@@ -577,7 +572,7 @@ void LLPanelAvatarWeb::setWebURL(std::string url)
 	}
 
 	BOOL own_avatar = (getPanelAvatar()->getAvatarID() == gAgent.getID() );
-	childSetVisible("status_text",!own_avatar && !mURL.empty());
+	childSetVisible("status_text",!own_avatar && !mHome.empty());
 	
 }
 
@@ -607,47 +602,45 @@ void LLPanelAvatarWeb::load(std::string url)
 		mWebBrowser->navigateTo( url );
 	}
 
-	// If we have_url then we loaded so use the home button
-	// Or if the url in address bar is not the home url show the home button.
-	bool use_home = (have_url
-					 || url != mURL);
-					 
-	childSetVisible("profile_html",have_url);
-	childSetVisible("load",!use_home);	
-	childSetVisible("home",use_home);
-
-	childSetEnabled("load",!use_home);
-	childSetEnabled("home",use_home);
-	childSetEnabled("open",have_url);
-	
+	childSetVisible("profile_html", have_url);
 }
 
-void LLPanelAvatarWeb::load()
-{
-	load(mURL);
-}
-
-// static
-void LLPanelAvatarWeb::onClickLoad(void* data)
+//static
+void LLPanelAvatarWeb::onURLKeystroke(LLLineEditor* editor, void* data)
 {
 	LLPanelAvatarWeb* self = (LLPanelAvatarWeb*)data;
-
 	if (!self) return;
-	
-	self->load();
+	LLSD::String url = editor->getText();
+	self->childSetEnabled("load", url.length() > 0);
+	return;
 }
 
 // static
-void LLPanelAvatarWeb::onClickOpen(void* data)
+void LLPanelAvatarWeb::onCommitLoad(LLUICtrl* ctrl, void* data)
 {
 	LLPanelAvatarWeb* self = (LLPanelAvatarWeb*)data;
 
 	if (!self) return;
 
-	std::string url = self->childGetText("url_edit");
-	if (!url.empty())
+	LLSD::String valstr = ctrl->getValue().asString();
+	LLSD::String urlstr = self->childGetText("url_edit");
+	if (valstr == "") // load url string into browser panel
 	{
-		LLWeb::loadURLExternal(url);
+		self->load(urlstr);
+	}
+	else if (valstr == "open") // open in user's external browser
+	{
+		if (!urlstr.empty())
+		{
+			LLWeb::loadURLExternal(urlstr);
+		}
+	}
+	else if (valstr == "home") // reload profile owner's home page
+	{
+		if (!self->mHome.empty())
+		{
+			self->load(self->mHome);
+		}
 	}
 }
 

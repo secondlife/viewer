@@ -717,11 +717,6 @@ void LLWorldMapView::draw()
 		drawGenericItems(LLWorldMap::getInstance()->mLandForSale, sForSaleImage);
 	}
 
-	if (gSavedSettings.getBOOL("MapShowClassifieds"))
-	{
-		drawGenericItems(LLWorldMap::getInstance()->mClassifieds, sClassifiedsImage);
-	}
-
 	if (gSavedSettings.getBOOL("MapShowEvents"))
 	{
 		drawEvents();
@@ -1549,10 +1544,6 @@ void LLWorldMapView::handleClick(S32 x, S32 y, MASK mask,
 	{
 		(*it).mSelected = FALSE;
 	}
-	for (it = LLWorldMap::getInstance()->mClassifieds.begin(); it != LLWorldMap::getInstance()->mClassifieds.end(); ++it)
-	{
-		(*it).mSelected = FALSE;
-	}
 
 	// Select event you clicked on
 	if (gSavedSettings.getBOOL("MapShowEvents"))
@@ -1595,21 +1586,6 @@ void LLWorldMapView::handleClick(S32 x, S32 y, MASK mask,
 			if (checkItemHit(x, y, land, id, true))
 			{
 				*hit_type = MAP_ITEM_LAND_FOR_SALE;
-				mItemPicked = TRUE;
-				return;
-			}
-		}
-	}
-
-	if (gSavedSettings.getBOOL("MapShowClassifieds"))
-	{
-		for (it = LLWorldMap::getInstance()->mClassifieds.begin(); it != LLWorldMap::getInstance()->mClassifieds.end(); ++it)
-		{
-			LLItemInfo& classified = *it;
-
-			if (checkItemHit(x, y, classified, id, true))
-			{
-				*hit_type = MAP_ITEM_CLASSIFIED;
 				mItemPicked = TRUE;
 				return;
 			}

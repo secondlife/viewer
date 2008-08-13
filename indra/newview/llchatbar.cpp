@@ -378,40 +378,40 @@ LLWString LLChatBar::stripChannelNumber(const LLWString &mesg, S32* channel)
 
 void LLChatBar::sendChat( EChatType type )
 {
-	LLWString text;
-	if (mInputEditor) text = mInputEditor->getWText();
-	LLWStringUtil::trim(text);
-	LLWStringUtil::replaceChar(text,182,'\n'); // Convert paragraph symbols back into newlines.
-
-	if (!text.empty())
+	if (mInputEditor)
 	{
-		// store sent line in history, duplicates will get filtered
-		if (mInputEditor) mInputEditor->updateHistory();
-		// Check if this is destined for another channel
-		S32 channel = 0;
-		stripChannelNumber(text, &channel);
-
-		std::string utf8text = wstring_to_utf8str(text);
-		// Try to trigger a gesture, if not chat to a script.
-		std::string utf8_revised_text;
-		if (0 == channel)
+		LLWString text = mInputEditor->getConvertedText();
+		if (!text.empty())
 		{
-			// discard returned "found" boolean
-			gGestureManager.triggerAndReviseString(utf8text, &utf8_revised_text);
-		}
-		else
-		{
-			utf8_revised_text = utf8text;
-		}
+			// store sent line in history, duplicates will get filtered
+			if (mInputEditor) mInputEditor->updateHistory();
+			// Check if this is destined for another channel
+			S32 channel = 0;
+			stripChannelNumber(text, &channel);
+			
+			std::string utf8text = wstring_to_utf8str(text);
+			// Try to trigger a gesture, if not chat to a script.
+			std::string utf8_revised_text;
+			if (0 == channel)
+			{
+				// discard returned "found" boolean
+				gGestureManager.triggerAndReviseString(utf8text, &utf8_revised_text);
+			}
+			else
+			{
+				utf8_revised_text = utf8text;
+			}
 
-		utf8_revised_text = utf8str_trim(utf8_revised_text);
+			utf8_revised_text = utf8str_trim(utf8_revised_text);
 
-		if (!utf8_revised_text.empty())
-		{
-			// Chat with animation
-			sendChatFromViewer(utf8_revised_text, type, TRUE);
+			if (!utf8_revised_text.empty())
+			{
+				// Chat with animation
+				sendChatFromViewer(utf8_revised_text, type, TRUE);
+			}
 		}
 	}
+
 	childSetValue("Chat Editor", LLStringUtil::null);
 
 	gAgent.stopTyping();

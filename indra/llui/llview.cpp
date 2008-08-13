@@ -724,9 +724,9 @@ BOOL LLView::handleToolTip(S32 x, S32 y, std::string& msg, LLRect* sticky_rect_s
 		tool_tip = getShowNamesToolTip();
 	}
 
-	BOOL showNamesTextBox = LLUI::sShowXUINames && dynamic_cast<LLTextBox*>(this) != NULL;
+	BOOL show_names_text_box = LLUI::sShowXUINames && dynamic_cast<LLTextBox*>(this) != NULL;
 
-	if( !handled && (blockMouseEvent(x, y) || showNamesTextBox) && !tool_tip.empty())
+	if( !handled && (blockMouseEvent(x, y) || show_names_text_box))
 	{
 
 		msg = tool_tip;

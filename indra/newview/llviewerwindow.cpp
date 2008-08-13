@@ -472,7 +472,7 @@ public:
 			ypos += y_inc;
 		}
 		// only display these messages if we are actually rendering beacons at this moment
-		if (LLPipeline::getRenderBeacons(NULL) && LLPipeline::getProcessBeacons(NULL))
+		if (LLPipeline::getRenderBeacons(NULL) && gSavedSettings.getBOOL("BeaconAlwaysOn"))
 		{
 			if (LLPipeline::getRenderParticleBeacons(NULL))
 			{
@@ -1398,7 +1398,7 @@ LLViewerWindow::LLViewerWindow(
 	// Default to application directory.
 	LLViewerWindow::sSnapshotBaseName = "Snapshot";
 	LLViewerWindow::sMovieBaseName = "SLmovie";
-	LLViewerWindow::sSnapshotDir.clear();
+	resetSnapshotLoc();
 
 	// create window
 	mWindow = LLWindowManager::createWindow(
@@ -1746,8 +1746,6 @@ void LLViewerWindow::adjustRectanglesForFirstUse(const LLRect& window)
 
 	adjust_rect_top_left("FloaterLandRect5", window);
 
-	adjust_rect_top_left("FloaterHUDRect2", window);
-
 	adjust_rect_top_left("FloaterFindRect2", window);
 
 	adjust_rect_top_left("FloaterGestureRect2", window);
@@ -1769,8 +1767,26 @@ void LLViewerWindow::adjustRectanglesForFirstUse(const LLRect& window)
 			r.getHeight());
 		gSavedSettings.setRect("FloaterInventoryRect", r);
 	}
+	
+// 	adjust_rect_top_left("FloaterHUDRect2", window);
+
+	// slightly off center to be left of the avatar.
+	r = gSavedSettings.getRect("FloaterHUDRect2");
+	r.setOriginAndSize(
+		window.getWidth()/3 - r.getWidth()/2,
+		window.getHeight()/2 - r.getHeight()/2,
+		r.getWidth(),
+		r.getHeight());
+	gSavedSettings.setRect("FloaterHUDRect2", r);
 }
 
+//Rectangles need to be adjusted after the window is constructed
+//in order for proper centering to take place
+void LLViewerWindow::adjustControlRectanglesForFirstUse(const LLRect& window)
+{
+	adjust_rect_bottom_center("FloaterMoveRect2", window);
+	adjust_rect_top_center("FloaterCameraRect3", window);
+}
 
 void LLViewerWindow::initWorldUI()
 {
@@ -2676,13 +2692,6 @@ BOOL LLViewerWindow::handlePerFrameHover()
 			// this assumes that focus roots are not valid focus holders on their own
 			cur_focus->focusFirstItem();
 		}
-	}
-
-	gPipeline.sRenderProcessBeacons = FALSE;
-	KEY key = gKeyboard->currentKey();
-	if (((mask & MASK_CONTROL) && ('N' == key || 'n' == key)) || gSavedSettings.getBOOL("BeaconAlwaysOn"))
-	{
-		gPipeline.sRenderProcessBeacons = TRUE;
 	}
 
 	BOOL handled = FALSE;
@@ -3735,8 +3744,8 @@ BOOL LLViewerWindow::saveImageNumbered(LLImageFormatted *image)
 	else
 		pick_type = LLFilePicker::FFSAVE_ALL; // ???
 	
-	// Get a directory if this is the first time.
-	if (sSnapshotDir.empty())
+	// Get a base file location if needed.
+	if ( ! isSnapshotLocSet())		
 	{
 		std::string proposed_name( sSnapshotBaseName );
 		proposed_name.append( extension );

@@ -205,9 +205,10 @@ void add_timestamped_line(LLViewerTextEditor* edit, const LLChat &chat, const LL
 		chat.mFromID != LLUUID::null &&
 		(line.length() > chat.mFromName.length() && line.find(chat.mFromName,0) == 0))
 	{
-		line = line.substr(chat.mFromName.length());
+		std::string start_line = line.substr(0, chat.mFromName.length() + 1);
+		line = line.substr(chat.mFromName.length() + 1);
 		const LLStyleSP &sourceStyle = LLStyleMap::instance().lookup(chat.mFromID);
-		edit->appendStyledText(chat.mFromName, false, prepend_newline, &sourceStyle);
+		edit->appendStyledText(start_line, false, prepend_newline, &sourceStyle);
 		prepend_newline = false;
 	}
 	edit->appendColoredText(line, false, prepend_newline, color);
@@ -420,7 +421,14 @@ LLColor4 get_text_color(const LLChat& chat)
 			}
 			else
 			{
-				text_color = gSavedSettings.getColor4("AgentChatColor");
+				if(gAgent.getID() == chat.mFromID)
+				{
+					text_color = gSavedSettings.getColor4("UserChatColor");
+				}
+				else
+				{
+					text_color = gSavedSettings.getColor4("AgentChatColor");
+				}
 			}
 			break;
 		case CHAT_SOURCE_OBJECT:

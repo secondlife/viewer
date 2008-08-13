@@ -170,6 +170,8 @@ protected:
 	LLTextureCtrl   *mCtrlSculptTexture;
 	LLTextBox       *mLabelSculptType;
 	LLComboBox      *mCtrlSculptType;
+	LLCheckBoxCtrl  *mCtrlSculptMirror;
+	LLCheckBoxCtrl  *mCtrlSculptInvert;
 	
 	LLVector3		mCurEulerDegrees;		// to avoid sending rotation when not changed
 	BOOL			mIsPhysical;			// to avoid sending "physical" when not changed

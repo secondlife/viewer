@@ -3484,8 +3484,8 @@ BOOL LLPieMenu::appendPieMenu(LLPieMenu *menu)
 // virtual
 void LLPieMenu::arrange()
 {
-	const S32 rect_height = 180;
-	const S32 rect_width = 180;
+	const S32 rect_height = 190;
+	const S32 rect_width = 190;
 
 	// all divide by 6
 	const S32 CARD_X = 60;

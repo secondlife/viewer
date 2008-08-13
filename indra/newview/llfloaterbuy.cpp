@@ -194,7 +194,6 @@ void LLFloaterBuy::show(const LLSaleInfo& sale_info)
 	sInstance->requestVOInventory();
 }
 
-
 void LLFloaterBuy::inventoryChanged(LLViewerObject* obj,
 								 InventoryObjectList* inv,
 								 S32 serial_num,
@@ -290,6 +289,11 @@ void LLFloaterBuy::inventoryChanged(LLViewerObject* obj,
 	removeVOInventoryListener();
 }
 
+void LLFloaterBuy::close(bool app_quitting)
+{
+	LLSelectMgr::getInstance()->deselectAll();
+	LLFloater::close(app_quitting);
+}
 
 // static
 void LLFloaterBuy::onClickBuy(void*)

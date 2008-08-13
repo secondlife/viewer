@@ -433,6 +433,9 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	
 	LLTextBox* forgot_password_text = getChild<LLTextBox>("forgot_password_text");
 	forgot_password_text->setClickedCallback(onClickForgotPassword);
+
+	LLTextBox* create_new_account_text = getChild<LLTextBox>("create_new_account_text");
+	create_new_account_text->setClickedCallback(onClickNewAccount);
 #endif    
 	
 	// get the web browser control
@@ -1063,9 +1066,15 @@ void LLPanelLogin::onClickConnect(void *)
 		}
 		else
 		{
-			// empty first or last name
-			// same as clicking new account
-			onClickNewAccount(NULL);
+			if (gHideLinks)
+			{
+				gViewerWindow->alertXml("MustHaveAccountToLogInNoLinks");
+			}
+			else
+			{
+				gViewerWindow->alertXml("MustHaveAccountToLogIn",
+										LLPanelLogin::newAccountAlertCallback);
+			}
 		}
 	}
 }
@@ -1077,7 +1086,7 @@ void LLPanelLogin::newAccountAlertCallback(S32 option, void*)
 	if (0 == option)
 	{
 		llinfos << "Going to account creation URL" << llendl;
-		LLWeb::loadURL( CREATE_ACCOUNT_URL );
+		LLWeb::loadURLExternal( CREATE_ACCOUNT_URL );
 	}
 	else
 	{
@@ -1089,15 +1098,7 @@ void LLPanelLogin::newAccountAlertCallback(S32 option, void*)
 // static
 void LLPanelLogin::onClickNewAccount(void*)
 {
-	if (gHideLinks)
-	{
-		gViewerWindow->alertXml("MustHaveAccountToLogInNoLinks");
-	}
-	else
-	{
-		gViewerWindow->alertXml("MustHaveAccountToLogIn",
-								LLPanelLogin::newAccountAlertCallback);
-	}
+	LLWeb::loadURLExternal( CREATE_ACCOUNT_URL );
 }
 
 
@@ -1121,14 +1122,14 @@ void LLPanelLogin::onClickVersion(void*)
 	LLFloaterAbout::show(NULL);
 }
 
+//static
 void LLPanelLogin::onClickForgotPassword(void*)
 {
 	if (sInstance )
 	{
-		LLWeb::loadURL(sInstance->getString( "forgot_password_url" ));
+		LLWeb::loadURLExternal(sInstance->getString( "forgot_password_url" ));
 	}
 }
-
 
 // static
 void LLPanelLogin::onPassKey(LLLineEditor* caller, void* user_data)

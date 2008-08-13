@@ -42,6 +42,7 @@
 #include "llviewercontrol.h"
 #include "llui.h"
 #include "llappviewer.h"
+#include "lltracker.h"
 
 // static
 std::set<std::string> LLFirstUse::sConfigVariables;
@@ -162,9 +163,13 @@ void LLFirstUse::useTeleport()
 {
 	if (gSavedSettings.getWarning("FirstTeleport"))
 	{
-		gSavedSettings.setWarning("FirstTeleport", FALSE);
+		LLVector3d teleportDestination = LLTracker::getTrackedPositionGlobal();
+		if(teleportDestination != LLVector3d::zero)
+		{
+			gSavedSettings.setWarning("FirstTeleport", FALSE);
 
-		LLNotifyBox::showXml("FirstTeleport");
+			LLNotifyBox::showXml("FirstTeleport");
+		}
 	}
 }
 
