@@ -106,6 +106,8 @@ class ViewerManifest(LLManifest):
         # whether or not this is present
         return self.args.get('login_channel')
 
+    def grid(self):
+        return self.args['grid']
     def channel(self):
         return self.args['channel']
     def channel_unique(self):
@@ -118,22 +120,33 @@ class ViewerManifest(LLManifest):
     def flags_list(self):
         """ Convenience function that returns the command-line flags
         for the grid"""
-        channel_flags = ''
+
+        # Set command line flags relating to the target grid
         grid_flags = ''
         if not self.default_grid():
-            if self.default_channel():
-                # beta grid viewer
-                channel_flags = '--settings settings_beta.xml'
-            grid_flags = "--grid %(grid)s --helperuri http://preview-%(grid)s.secondlife.com/helpers/" % {'grid':self.args['grid']}
+            grid_flags = "--grid %(grid)s "\
+                         "--helperuri http://preview-%(grid)s.secondlife.com/helpers/" %\
+                           {'grid':self.grid()}
 
-        if not self.default_channel():
-            # some channel on some grid
-            channel_flags = '--settings settings_%s.xml --channel "%s"' % (self.channel_lowerword(), self.channel())
-        elif self.login_channel():
+        # set command line flags for channel
+        channel_flags = ''
+        if self.login_channel() and self.login_channel() != self.channel():
             # Report a special channel during login, but use default
             channel_flags = '--channel "%s"' % (self.login_channel())
-                        
-        return " ".join((channel_flags, grid_flags)).strip()
+        elif not self.default_channel():
+            channel_flags = '--channel "%s"' % self.channel()
+
+        # Deal with settings 
+        setting_flags = ''
+        if not self.default_channel() or not self.default_grid():
+            if self.default_grid():
+                setting_flags = '--settings settings_%s.xml'\
+                                % self.channel_lowerword()
+            else:
+                setting_flags = '--settings settings_%s_%s.xml'\
+                                % (self.grid(), self.channel_lowerword())
+                                                
+        return " ".join((channel_flags, grid_flags, setting_flags)).strip()
 
 
 class WindowsManifest(ViewerManifest):
