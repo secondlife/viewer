@@ -1342,7 +1342,7 @@ if (WINDOWS)
           ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
           --configuration=${CMAKE_CFG_INTDIR}
           --channel=${VIEWER_CHANNEL}
-          --login_channel=${VIEWER_CHANNEL}
+          --login_channel=${VIEWER_LOGIN_CHANNEL}
           --grid=${GRID}
           --source=${CMAKE_CURRENT_SOURCE_DIR}
               --artwork=${ARTWORK_DIR}
@@ -1417,7 +1417,7 @@ if (LINUX)
         ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
         --grid=${GRID}
         --channel=${VIEWER_CHANNEL}
-        --login_channel=${VIEWER_CHANNEL}
+        --login_channel=${VIEWER_LOGIN_CHANNEL}
         --installer_name=${product}
         --arch=${ARCH}
         --source=${CMAKE_CURRENT_SOURCE_DIR}
@@ -1473,7 +1473,7 @@ if (DARWIN)
         --grid=${GRID}
         --configuration=${CMAKE_CFG_INTDIR}
         --channel=${VIEWER_CHANNEL}
-        --login_channel=${VIEWER_CHANNEL}
+        --login_channel=${VIEWER_LOGIN_CHANNEL}
         --source=${CMAKE_CURRENT_SOURCE_DIR}
         --artwork=${ARTWORK_DIR}
         --build=${CMAKE_CURRENT_BINARY_DIR}
