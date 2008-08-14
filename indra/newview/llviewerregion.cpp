@@ -1408,10 +1408,10 @@ void LLViewerRegion::setSeedCapability(const std::string& url)
 	capabilityNames.append("UpdateAgentLanguage");
 	capabilityNames.append("UpdateGestureAgentInventory");
 	capabilityNames.append("UpdateNotecardAgentInventory");
-	capabilityNames.append("UpdateScriptAgentInventory");
+	capabilityNames.append("UpdateScriptAgent");
 	capabilityNames.append("UpdateGestureTaskInventory");
 	capabilityNames.append("UpdateNotecardTaskInventory");
-	capabilityNames.append("UpdateScriptTaskInventory");
+	capabilityNames.append("UpdateScriptTask");
 	capabilityNames.append("ViewerStartAuction");
 	capabilityNames.append("UntrustedSimulatorMessage");
 	capabilityNames.append("ViewerStats");

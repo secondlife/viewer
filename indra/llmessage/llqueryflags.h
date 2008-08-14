@@ -38,7 +38,7 @@
 const U32 DFQ_PEOPLE			= 0x1 << 0;
 const U32 DFQ_ONLINE			= 0x1 << 1;
 //const U32 DFQ_PLACES			= 0x1 << 2;
-const U32 DFQ_EVENTS			= 0x1 << 3;
+const U32 DFQ_EVENTS			= 0x1 << 3; // This is not set by the 1.21 viewer, but I don't know about older versions. JC
 const U32 DFQ_GROUPS			= 0x1 << 4;
 const U32 DFQ_DATE_EVENTS		= 0x1 << 5;
 

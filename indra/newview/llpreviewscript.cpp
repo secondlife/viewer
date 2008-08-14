@@ -142,7 +142,7 @@ const F32 LIVE_HELP_REFRESH_TIME = 1.f;
 static bool have_script_upload_cap(LLUUID& object_id)
 {
 	LLViewerObject* object = gObjectList.findObject(object_id);
-	return object && (! object->getRegion()->getCapability("UpdateScriptTaskInventory").empty());
+	return object && (! object->getRegion()->getCapability("UpdateScriptTask").empty());
 }
 
 /// ---------------------------------------------------------------------------
@@ -1291,7 +1291,7 @@ void LLPreviewLSL::saveIfNeeded()
 
 	const LLInventoryItem *inv_item = getItem();
 	// save it out to asset server
-	std::string url = gAgent.getRegion()->getCapability("UpdateScriptAgentInventory");
+	std::string url = gAgent.getRegion()->getCapability("UpdateScriptAgent");
 	if(inv_item)
 	{
 		getWindow()->incBusyCount();
@@ -2131,7 +2131,7 @@ void LLLiveLSLEditor::saveIfNeeded()
 	fp = NULL;
 	
 	// save it out to asset server
-	std::string url = object->getRegion()->getCapability("UpdateScriptTaskInventory");
+	std::string url = object->getRegion()->getCapability("UpdateScriptTask");
 	getWindow()->incBusyCount();
 	mPendingUploads++;
 	BOOL is_running = getChild<LLCheckBoxCtrl>( "running")->get();

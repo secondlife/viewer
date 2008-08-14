@@ -60,6 +60,9 @@ const char* LSCRIPTRunTimeFaultStrings[LSRF_EOF] =		/*Flawfinder: ignore*/
 	"CLI Exception" // LSRF_CLI
 };
 
+void LLScriptExecuteLSL2::startRunning() {}
+void LLScriptExecuteLSL2::stopRunning() {}
+
 LLScriptExecuteLSL2::LLScriptExecuteLSL2(LLFILE *fp)
 {
 	U8  sizearray[4];

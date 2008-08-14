@@ -150,7 +150,7 @@ void LLAssetUploadQueue::request(LLAssetUploadQueueSupplier** supplier)
 	LLViewerObject* object = gObjectList.findObject(data.mTaskId);
 	if (object)
 	{
-		url = object->getRegion()->getCapability("UpdateScriptTaskInventory");
+		url = object->getRegion()->getCapability("UpdateScriptTask");
 		LLHTTPClient::post(url, body,
 							new LLAssetUploadChainResponder(
 								body, data.mFilename, data.mQueueId, 

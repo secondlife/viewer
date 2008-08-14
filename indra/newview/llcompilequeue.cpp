@@ -422,7 +422,7 @@ void LLFloaterCompileQueue::scriptArrived(LLVFS *vfs, const LLUUID& asset_id,
 		LLViewerObject* object = gObjectList.findObject(data->mTaskId);
 		if (object)
 		{
-			std::string url = object->getRegion()->getCapability("UpdateScriptTaskInventory");
+			std::string url = object->getRegion()->getCapability("UpdateScriptTask");
 			if(!url.empty())
 			{
 				// Read script source in to buffer.

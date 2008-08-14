@@ -443,6 +443,12 @@ public:
 	void setReset(BOOL b) {mReset = b;}
 	BOOL getReset() const { return mReset; }
 
+	// Called when the script is scheduled to be run from newsim/LLScriptData
+	virtual void startRunning() = 0;
+
+	// Called when the script is scheduled to be stopped from newsim/LLScriptData
+	virtual void stopRunning() = 0;
+	
 private:
 
 	BOOL mReset;
@@ -523,6 +529,12 @@ public:
 private:
 	void		recordBoundaryError( const LLUUID &id );
 	void		setStateEventOpcoodeStartSafely( S32 state, LSCRIPTStateEventType event, const LLUUID &id );
+
+	// Called when the script is scheduled to be run from newsim/LLScriptData
+	virtual void startRunning();
+
+	// Called when the script is scheduled to be stopped from newsim/LLScriptData
+	virtual void stopRunning();
 };
 
 #endif

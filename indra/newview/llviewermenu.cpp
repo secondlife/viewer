@@ -6513,7 +6513,7 @@ class LLEditableSelectedMono : public view_listener_t
 		LLViewerRegion* region = gAgent.getRegion();
 		if(region && gMenuHolder && gMenuHolder->findControl(userdata["control"].asString()))
 		{
-			bool have_cap = (! region->getCapability("UpdateScriptTaskInventory").empty());
+			bool have_cap = (! region->getCapability("UpdateScriptTask").empty());
 			bool selected = is_editable_selected() && have_cap;
 			gMenuHolder->findControl(userdata["control"].asString())->setValue(selected);
 			return true;
