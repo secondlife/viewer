@@ -30,7 +30,6 @@ set(test_SOURCE_FILES
     llbase64_tut.cpp
     llblowfish_tut.cpp
     llbuffer_tut.cpp
-    lldatabase_tut.cpp
     lldate_tut.cpp
     llerror_tut.cpp
     llhost_tut.cpp
@@ -88,6 +87,12 @@ if (NOT WINDOWS)
        llmessagetemplateparser_tut.cpp
        )
 endif (NOT WINDOWS)
+
+if (NOT DARWIN)
+  list(APPEND test_SOURCE_FILES
+    lldatabase_tut.cpp
+    )
+endif (NOT DARWIN)
 
 set_source_files_properties(${test_HEADER_FILES}
                             PROPERTIES HEADER_FILE_ONLY TRUE)

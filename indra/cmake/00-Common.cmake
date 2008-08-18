@@ -164,6 +164,10 @@ if (DARWIN)
   set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_CXX_LINK_FLAGS}")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mlong-branch")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mlong-branch")
+  # NOTE: it's critical that the optimization flag is put in front.
+  # NOTE: it's critical to have both CXX_FLAGS and C_FLAGS covered.
+  set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O0 ${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
+  set(CMAKE_C_FLAGS_RELWITHDEBINFO "-O0 ${CMAKE_C_FLAGS_RELWITHDEBINFO}")
 endif (DARWIN)
 
 
