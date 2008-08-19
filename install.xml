@@ -23,9 +23,9 @@
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>85f2ed989f853beb3d6cc94413b35f1a</string>
+            <string>2ab29212a7f3acdaebf10059af816be0</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/GL-linux-20080613.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/GL-linux-20080812.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
@@ -49,16 +49,16 @@
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>025bb5e76fd964b89c508d88d37bb802</string>
+            <string>7b07e7121a3623b2553ed36fb9024b40</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/SDL-1.2.5-darwin-20080613.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/SDL-1.2.5-darwin-20080818.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>a28fe914d3f3241c824aabba69f1d946</string>
+            <string>ce71bd658c3fa9fd7f46b7c5adacef1c</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/SDL-1.2.5-linux-20080613.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/SDL-1.2.5-linux-20080818.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
@@ -78,16 +78,16 @@
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>10b11783907b72712daef3ed5803d56d</string>
+            <string>abd07d760cdc7d23da3b861f34b09c92</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/apr_suite-1.2.8-darwin-20080618.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/apr_suite-1.2.8-darwin-20080812.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>b99f6bd3548c4f4613fe95320e14dbf3</string>
+            <string>7b84cd6a3c601a104d9c09e58ef2f50c</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/apr_suite-1.2.8-linux-20080618.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/apr_suite-1.2.8-linux-20080812.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
@@ -111,16 +111,16 @@
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>b6109b75e53c72e021625e375ba52080</string>
+            <string>0a49a6ec1f2db3693d81f4a32e0bdc2c</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ares-1.3.0-darwin-20080618.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ares-1.3.0-darwin-20080812.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>1e800e34d2799abb0797f05c6e38ea1a</string>
+            <string>29dc8946944acd44459bdff03359314c</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ares-1.3.0-linux-20080618.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ares-1.3.0-linux-20080812.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
@@ -153,16 +153,16 @@
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>792601ce1f38067c086394842852fa11</string>
+            <string>279834a12a0ed4531fd602594eac8509</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.32.0-darwin-20080613.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.32.0-darwin-20080812.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>e65f06e2500db0bbc34506194ac49f6a</string>
+            <string>b9a943052e5525da5417d6f471d70bc5</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.32.0-linux-20080613.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.32.0-linux-20080812.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
@@ -186,16 +186,16 @@
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>73965ddba50e5c4d46d50a966b472626</string>
+            <string>c426dfaad3b662405e49ed3701a55d38</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/curl-7.16.0-darwin-20080613.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/curl-7.16.0-darwin-20080812.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>a7791ee5ca19f208808f71730c3c2feb</string>
+            <string>e6d4cd23f5df4c74072d5d0437ca999b</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/curl-7.16.0-linux-20080613.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/curl-7.16.0-linux-20080812.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
@@ -215,9 +215,9 @@
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>feb9d72c373c5dd4c6b88ed02e2b2bf0</string>
+            <string>82ea408af2f968cfe5f013ab241323ef</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/elfio-1.0.3-linux-20080613.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/elfio-1.0.3-linux-20080812.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -234,16 +234,16 @@
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>7b9380e6bac8d9ba5e6ff20da5cad91a</string>
+            <string>9c5603e328e9f543e0a599d6b25be973</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/expat-1.95.8-darwin-20080617.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/expat-1.95.8-darwin-20080812.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>e59d8314185e3d87d72ff90d6cff0d30</string>
+            <string>67b470fd446b08c9831d1039674eae4e</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/expat-1.95.8-linux-20080613.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/expat-1.95.8-linux-20080812.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
@@ -267,16 +267,16 @@
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>d13cc275db503492fc87c7b36c1c49d3</string>
+            <string>c7e317bec481b7efa2a0319e163dcc65</string>
             <key>url</key>
-            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/fmod-3.75-darwin-20080610.tar.bz2</uri>
+            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/fmod-3.75-darwin-20080818.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>85caf188852f2cfede49ff12a3d928d5</string>
+            <string>abd2b4ba4ac993f19d82804af387eb7c</string>
             <key>url</key>
-            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/fmod-3.75-linux-20080610.tar.bz2</uri>
+            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/fmod-3.75-linux-20080818.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
@@ -315,16 +315,16 @@
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>cd8a8f8af5a01fac015e5b0325daa2ae</string>
+            <string>694173293a483c01472a30cc7d895c5a</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/freetype-2.1.5-darwin-20080613.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/freetype-2.1.5-darwin-20080812.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>83e7aafe0807c2adec68f67b5738d856</string>
+            <string>07665d74d37c56fd884610ec80a1d19f</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/freetype-2.1.5-linux-20080613.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/freetype-2.1.5-linux-20080812.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
@@ -355,9 +355,9 @@
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>2965646aea1d2a6aec1fbc431c02733f</string>
+            <string>23bd9a75e5a2365a827461e6c324f52b</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/glh_linear-linux-20080613.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/glh_linear-linux-20080812.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
@@ -365,6 +365,37 @@
             <string>38b9ddfe8dceff55ee4351016a937d1b</string>
             <key>url</key>
             <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/glh_linear-windows-20080613.tar.bz2</uri>
+          </map>
+        </map>
+      </map>
+      <key>glib</key>
+      <map>
+        <key>description</key>
+        <string>GLib is a library containing many useful C routines for things such as trees, hashes, and lists.</string>
+        <key>license</key>
+        <string>gpl</string>
+        <key>packages</key>
+        <map>
+          <key>darwin</key>
+          <map>
+            <key>md5sum</key>
+            <string>6cc5ce1fafd10299fdb890b3d4c3cf53</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/glib-2.0-darwin-20080817.tar.bz2</uri>
+          </map>
+          <key>linux</key>
+          <map>
+            <key>md5sum</key>
+            <string>2f1a9e14f9213c2c9564c1c1cfdd6d47</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/glib-2.0-linux-20080817.tar.bz2</uri>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>md5sum</key>
+            <string>3d5e29d444dde4815b36082eedfc775a</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/glib-2.0-windows-20080817.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -377,9 +408,9 @@
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>f1161282d7fc11fbe17d0aa077ee054b</string>
+            <string>40db900872612615e849f17cbdfd2c27</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/google-linux-20080617.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/google-linux-20080812.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -415,13 +446,6 @@
             <key>url</key>
             <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/gtk-atk-pango-glib-linux-20080616.tar.bz</uri>
           </map>
-          <key>windows</key>
-          <map>
-            <key>md5sum</key>
-            <string>d963750bcd333a108b3697d220c87d09</string>
-            <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/gtk-atk-pango-glib-windows-20080613.tar.bz2</uri>
-          </map>
         </map>
       </map>
       <key>havok</key>
@@ -437,16 +461,16 @@
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>7d3d2d71c08729fe881a059af1d9b938</string>
+            <string>f64c08771a4fc456db2a55b47302078b</string>
             <key>url</key>
-            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/havok-4.6-darwin-20080610.tar.bz2</uri>
+            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/havok-4.6-darwin-20080812.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>36a892b451b5cbc8f72d6f1153f55cf8</string>
+            <string>f69cc3e069cce66d268b03a9ec918b1c</string>
             <key>url</key>
-            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/havok-4.6-linux-20080610.tar.bz2</uri>
+            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/havok-4.6-linux-20080812.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
@@ -470,16 +494,16 @@
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>30b12debc3efce275a335b824dda22d2</string>
+            <string>8d38d74c481e9aab4518c8f2a7d52800</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/jpeglib-6b-darwin-20080613.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/jpeglib-6b-darwin-20080812.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>9297565a09754fdf2b58cefef60450c7</string>
+            <string>41085a9915598bba0e6bcb0da23ff929</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/jpeglib-6b-linux-20080613.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/jpeglib-6b-linux-20080812.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
@@ -503,16 +527,16 @@
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>9a91ecd80203a24fb347b1436155b013</string>
+            <string>c70a91224ac2faab2dfbae69ea1ea39c</string>
             <key>url</key>
-            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/kdu-5.2.1-darwin-20080716.tar.bz2</uri>
+            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/kdu-5.2.1-darwin-20080812.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>daadd8c268e16f8c5f6145be8596b8b8</string>
+            <string>6bc5023cfd791a73a8d860015bd99868</string>
             <key>url</key>
-            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/kdu-5.2.1-linux-20080716.tar.bz2</uri>
+            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/kdu-5.2.1-linux-20080812.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
@@ -603,16 +627,16 @@ anguage Infrstructure (CLI) international standard</string>
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>90488b309856a82a152348db177a44c5</string>
+            <string>edd0877544dab4c521473279ed237dcc</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/libpng-1.2.18-darwin-20080613.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/libpng-1.2.18-darwin-20080812.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>b47eca741c218e13e6838583c9169b64</string>
+            <string>0878662f8c1c695a82477f7b0c57a7af</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/libpng-1.2.18-linux-20080613.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/libpng-1.2.18-linux-20080812.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
@@ -636,9 +660,9 @@ anguage Infrstructure (CLI) international standard</string>
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>0591314df0293ba948b0445b0215a18d</string>
+            <string>1464a75ec87ee28e3b4f7840e9af41e3</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/libstdc++-6.0-linux-20080613.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/libstdc++-6.0-linux-20080812.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -655,9 +679,9 @@ anguage Infrstructure (CLI) international standard</string>
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>495f01afa67ed1ae59b7b8005cfa55ff</string>
+            <string>b5cc6062bd2f7421f606f7e1a5228829</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/libuuid-linux-20080613.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/libuuid-linux-20080812.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -685,16 +709,16 @@ anguage Infrstructure (CLI) international standard</string>
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>056ad496f0ec2bf386d50f694f6bade3</string>
+            <string>6995c99b4855c4bf9301267c334aedc3</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llmozlib-darwin-20080613.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llmozlib-darwin-20080812.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>c80e060867b07dd3e3c1dce70f2316eb</string>
+            <string>0295c64c29d9898b4437b3a692fee0ad</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llmozlib-linux-20080613.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llmozlib-linux-20080812.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
@@ -718,9 +742,9 @@ anguage Infrstructure (CLI) international standard</string>
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>13802606c5f6e98af7cfa72cc85e3a92</string>
+            <string>70d0bbe1145fff29a0131349c898260e</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/mesa-7.0-linux-20080613.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/mesa-7.0-linux-20080812.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
@@ -740,9 +764,9 @@ anguage Infrstructure (CLI) international standard</string>
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>a60de9d31aa3dfab8851f8c2dfa3f8dc</string>
+            <string>df27f2db244ea2762759a06cd75ada4e</string>
             <key>url</key>
-            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/mysql-darwin-20080610.tar.bz2</uri>
+            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/mysql-darwin-20080812.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
@@ -766,9 +790,9 @@ anguage Infrstructure (CLI) international standard</string>
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>15df716b66bd83e2198450eed93197cd</string>
+            <string>17999c47e17f2dd9e12a22372ce8ff14</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ndofdev-darwin-20080618.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ndofdev-darwin-20080812.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
@@ -799,16 +823,16 @@ anguage Infrstructure (CLI) international standard</string>
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>8d9bb71c06f6494cc767965145f31c63</string>
+            <string>a6843398b780645c4897c9776c688926</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ogg-vorbis-1.03-1.1.2-darwin-20080613.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ogg-vorbis-1.03-1.1.2-darwin-20080812.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>1e912aef160c1d8f46f4194942922654</string>
+            <string>df1809565b87b1dc28e3ca70db6e7d46</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ogg-vorbis-1.03-1.1.2-linux-20080613.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ogg-vorbis-1.03-1.1.2-linux-20080812.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
@@ -828,16 +852,16 @@ anguage Infrstructure (CLI) international standard</string>
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>a708e7b41b91852b060bb3d62112b4d7</string>
+            <string>a7b49e0f3eedbd5de117a3524c414b3a</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/openSSL-0.9.7c-darwin-20080613.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/openSSL-0.9.7c-darwin-20080812.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>727f2a9399b7f414260a03fdf700aef4</string>
+            <string>f219ef07b02e2abb9282345c3a8f2b39</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/openSSL-0.9.7c-linux-20080613.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/openSSL-0.9.7c-linux-20080812.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
@@ -861,16 +885,16 @@ anguage Infrstructure (CLI) international standard</string>
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>85b34723ab22591ebbc51c474588c2e0</string>
+            <string>ac3e0218287e084709afea06b82ae03b</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/openjpeg-1.2-darwin-20080613.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/openjpeg-1.2-darwin-20080812.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>406ceca1c85b64df18deed95f3b7854c</string>
+            <string>c333219c88462b8b22c815cd2b700218</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/openjpeg-1.2-linux-20080613.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/openjpeg-1.2-linux-20080812.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
@@ -953,9 +977,9 @@ anguage Infrstructure (CLI) international standard</string>
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>da7872a8a5cfe5d14ceeeebe73e58d6b</string>
+            <string>1116d9ba0c34c042788421d4e520e747</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/tut-linux-20080613.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/tut-linux-20080812.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
@@ -1029,16 +1053,16 @@ anguage Infrstructure (CLI) international standard</string>
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>f3e2f3428913bf8b8d70d28a3d079811</string>
+            <string>2d3a918c88d756422c1a8139ebe15f56</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/xmlrpc-epi-0.51-darwin-20080613.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/xmlrpc-epi-0.51-darwin-20080812.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>0cc87341785bf23c253e6e69a7c16ca0</string>
+            <string>84a219199240ea70f54439c02acef0cd</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/xmlrpc-epi-0.51-linux-20080618.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/xmlrpc-epi-0.51-linux-20080812.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
@@ -1062,16 +1086,16 @@ anguage Infrstructure (CLI) international standard</string>
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>6f5d1799ffacaec4b61d53051443c672</string>
+            <string>c844e1b05723ce078dbbd5aea9cdd3ad</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/zlib-1.1.4-darwin-20080618.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/zlib-1.1.4-darwin-20080818.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>4140bc104e828c5c33f251a2d5bfe144</string>
+            <string>806637b1834825ab8888d5e487085df8</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/zlib-1.1.4-linux-20080618.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/zlib-1.1.4-linux-20080818.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>

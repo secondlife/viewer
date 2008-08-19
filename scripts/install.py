@@ -308,6 +308,13 @@ class Installer(object):
         "Return a list of installed packages."
         return self._installed.keys()
 
+    def detail_installed(self, name):
+        "Return file list for specific installed package."
+        filelist = []
+        for url in self._installed[name]._installed.keys():
+            filelist.extend(self._installed[name].files_in(url))
+        return filelist
+
     def _update_field(self, description, field, value, multiline=False):
         """Given a block and a field name, add or update it.
         @param description a dict containing all the details of a description.
@@ -971,6 +978,12 @@ Ignored if --add-installable or --add-installable-package is not specified.""")
         dest='detail_installable',
         help="Get detailed information on specified installable and exit.")
     parser.add_option(
+        '--detail-installed', 
+        type='string',
+        default=None,
+        dest='detail_installed',
+        help="Get list of files for specified installed installable and exit.")
+    parser.add_option(
         '--uninstall', 
         action='store_true',
         default=False,
@@ -1010,6 +1023,17 @@ def main():
             pprint.pprint(detail)
         except KeyError:
             print "Installable '"+options.detail_installable+"' not found in",
+            print "install file."
+        return 0
+    if options.detail_installed:
+        try:
+            detail = installer.detail_installed(options.detail_installed)
+            #print "Detail on installed",options.detail_installed+":"
+            for line in detail:
+                print line
+        except:
+            raise
+            print "Installable '"+options.detail_installed+"' not found in ",
             print "install file."
         return 0
     if options.list_licenses:
