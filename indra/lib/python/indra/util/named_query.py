@@ -63,7 +63,7 @@ def _init_g_named_manager(sql_dir = None):
 
     # extra fallback directory in case config doesn't return what we want
     if sql_dir is None:
-        sql_dir = os.path.dirname(__file__) + "../../../../web/dataservice/sql"
+        sql_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "web", "dataservice", "sql")
 
     global _g_named_manager
     _g_named_manager = NamedQueryManager(
@@ -106,8 +106,8 @@ class NamedQuery(object):
         a path to a file containing an llsd named query document."""
         self._stat_interval_seconds = 5  # 5 seconds
         self._name = name
-        if (filename is not None) \
-                and (NQ_FILE_SUFFIX != filename[-NQ_FILE_SUFFIX_LEN:]):
+        if (filename is not None
+            and NQ_FILE_SUFFIX != filename[-NQ_FILE_SUFFIX_LEN:]):
             filename = filename + NQ_FILE_SUFFIX
         self._location = filename
         self._alternative = dict()

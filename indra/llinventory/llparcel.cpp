@@ -1761,7 +1761,11 @@ void LLParcel::startSale(const LLUUID& buyer_id, BOOL is_buyer_group)
 	setCleanOtherTime(0);
 }
 
-void LLParcel::expireSale(U32& type, U8& flags, LLUUID& from_id, LLUUID& to_id)
+void LLParcel::expireSale(
+	U32& type,
+	U8& flags,
+	LLUUID& from_id,
+	LLUUID& to_id)
 {
     mSaleTimerExpires.setTimerExpirySec(0.0);
     mSaleTimerExpires.stop();
@@ -1777,8 +1781,10 @@ void LLParcel::expireSale(U32& type, U8& flags, LLUUID& from_id, LLUUID& to_id)
     to_id.setNull();
 }
 
-void LLParcel::completeSale(U32& type, U8& flags,
-                            LLUUID& to_id)
+void LLParcel::completeSale(
+	U32& type,
+	U8& flags,
+	LLUUID& to_id)
 {
 	mSaleTimerExpires.setTimerExpirySec(0.0);
 	mSaleTimerExpires.stop();

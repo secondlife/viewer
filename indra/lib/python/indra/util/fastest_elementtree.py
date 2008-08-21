@@ -28,9 +28,7 @@ $/LicenseInfo$
 
 # Using celementree might cause some unforeseen problems so here's a
 # convenient off switch.
-
-# *NOTE: turned off cause of problems.  :-(  *TODO: debug
-use_celementree = False
+use_celementree = True
 
 try:
     if not use_celementree:
