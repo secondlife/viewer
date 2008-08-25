@@ -318,11 +318,11 @@ public:
 class LLGLNamePool
 {
 public:
-	typedef struct
+	struct NameEntry
 	{
 		GLuint name;
 		BOOL used;
-	} NameEntry;
+	};
 
 	struct CompareUsed
 	{

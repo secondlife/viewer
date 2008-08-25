@@ -213,12 +213,12 @@ public:
 
 	LLTexUnit* getTexUnit(U32 index);
 
-	typedef struct
+	struct Vertex
 	{
 		GLfloat v[3];
 		GLubyte c[4];
 		GLfloat uv[2];
-	} Vertex;
+	};
 
 public:
 

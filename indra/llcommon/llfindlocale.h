@@ -36,11 +36,11 @@ typedef const char* FL_Lang;
 typedef const char* FL_Country;
 typedef const char* FL_Variant;
 
-typedef struct {
+struct FL_Locale {
   FL_Lang    lang;
   FL_Country country;
   FL_Variant variant;
-} FL_Locale;
+};
 
 typedef enum {
   /* for some reason we failed to even guess: this should never happen */
