@@ -114,6 +114,7 @@ set(llcommon_HEADER_FILES
     llframetimer.h
     llhash.h
     llheartbeat.h
+    llhttpstatuscodes.h
     llindexedqueue.h
     llindraconfigfile.h
     llkeythrottle.h

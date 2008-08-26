@@ -31,16 +31,26 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include "llappviewer.h"
 #include "llagent.h"
 #include "lleventpoll.h"
 
 #include "llhttpclient.h"
+#include "llhttpstatuscodes.h"
 #include "llsdserialize.h"
+#include "lltimer.h"
 #include "llviewerregion.h"
 #include "message.h"
 
 namespace
 {
+	// We will wait RETRY_SECONDS + (errorCount * RETRY_SECONDS_INC) before retrying after an error.
+	// This means we attempt to recover relatively quickly but back off giving more time to recover
+	// until we finally give up after MAX_EVENT_POLL_HTTP_ERRORS attempts.
+	const F32 EVENT_POLL_ERROR_RETRY_SECONDS = 15.f; // ~ half of a normal timeout.
+	const F32 EVENT_POLL_ERROR_RETRY_SECONDS_INC = 5.f; // ~ half of a normal timeout.
+	const S32 MAX_EVENT_POLL_HTTP_ERRORS = 10; // ~5 minutes, by the above rules.
+
 	class LLEventPollResponder : public LLHTTPClient::Responder
 	{
 	public:
@@ -48,15 +58,21 @@ namespace
 		static LLHTTPClient::ResponderPtr start(const std::string& pollURL, const LLHost& sender);
 		void stop();
 		
+		void makeRequest();
+
 	private:
 		LLEventPollResponder(const std::string&	pollURL, const LLHost& sender);
 		~LLEventPollResponder();
 
-		void makeRequest();
+		
 		void handleMessage(const LLSD& content);
 		virtual	void error(U32 status, const std::string& reason);
 		virtual	void result(const LLSD&	content);
 
+		virtual void completedRaw(U32 status,
+									const std::string& reason,
+									const LLChannelDescriptors& channels,
+									const LLIOPipe::buffer_ptr_t& buffer);
 	private:
 
 		bool	mDone;
@@ -69,6 +85,27 @@ namespace
 		// these are only here for debugging so	we can see which poller	is which
 		static int sCount;
 		int	mCount;
+		S32 mErrorCount;
+	};
+
+	class LLEventPollEventTimer : public LLEventTimer
+	{
+		typedef boost::intrusive_ptr<LLEventPollResponder> EventPollResponderPtr;
+
+	public:
+		LLEventPollEventTimer(F32 period, EventPollResponderPtr responder)
+			: LLEventTimer(period), mResponder(responder)
+		{ }
+
+		virtual BOOL tick()
+		{
+			mResponder->makeRequest();
+			return TRUE;	// Causes this instance to be deleted.
+		}
+
+	private:
+		
+		EventPollResponderPtr mResponder;
 	};
 
 	//static
@@ -94,7 +131,8 @@ namespace
 	LLEventPollResponder::LLEventPollResponder(const std::string& pollURL, const LLHost& sender)
 		: mDone(false),
 		  mPollURL(pollURL),
-		  mCount(++sCount)
+		  mCount(++sCount),
+		  mErrorCount(0)
 	{
 		//extract host and port of simulator to set as sender
 		LLViewerRegion *regionp = gAgent.getRegion();
@@ -112,6 +150,24 @@ namespace
 		stop();
 		lldebugs <<	"LLEventPollResponder::~Impl <" <<	mCount << "> "
 				 <<	mPollURL <<	llendl;
+	}
+
+	// virtual 
+	void LLEventPollResponder::completedRaw(U32 status,
+									const std::string& reason,
+									const LLChannelDescriptors& channels,
+									const LLIOPipe::buffer_ptr_t& buffer)
+	{
+		if (status == HTTP_BAD_GATEWAY)
+		{
+			// These errors are not parsable as LLSD, 
+			// which LLHTTPClient::Responder::completedRaw will try to do.
+			completed(status, reason, LLSD());
+		}
+		else
+		{
+			LLHTTPClient::Responder::completedRaw(status,reason,channels,buffer);
+		}
 	}
 
 	void LLEventPollResponder::makeRequest()
@@ -139,16 +195,37 @@ namespace
 	{
 		if (mDone) return;
 
-		if(status != 499)
+		// A HTTP_BAD_GATEWAY (502) error is our standard timeout response
+		// we get this when there are no events.
+		if ( status == HTTP_BAD_GATEWAY )	
+		{
+			mErrorCount = 0;
+			makeRequest();
+		}
+		else if (mErrorCount < MAX_EVENT_POLL_HTTP_ERRORS)
+		{
+			++mErrorCount;
+			
+			// The 'tick' will return TRUE causing the timer to delete this.
+			new LLEventPollEventTimer(EVENT_POLL_ERROR_RETRY_SECONDS
+										+ mErrorCount * EVENT_POLL_ERROR_RETRY_SECONDS_INC
+									, this);
+
+			llwarns << "Unexpected HTTP error.  status: " << status << ", reason: " << reason << llendl;
+		}
+		else
 		{
 			llwarns <<	"LLEventPollResponder::error: <" << mCount << "> got "
 					<<	status << ": " << reason
 					<<	(mDone ? " -- done"	: "") << llendl;
 			stop();
-			return;
-		}
 
-		makeRequest();
+			// At this point we have given up and the viewer will not receive HTTP messages from the simulator.
+			// IMs, teleports, about land, selecing land, region crossing and more will all fail.
+			// They are essentially disconnected from the region even though some things may still work.
+			// Since things won't get better until they relog we force a disconnect now.
+			LLAppViewer::instance()->forceDisconnect("You have been disconnected from the region you were in.");
+		}
 	}
 
 	//virtual
@@ -159,10 +236,13 @@ namespace
 		
 		if (mDone) return;
 
+		mErrorCount = 0;
+
 		if (!content.get("events") ||
 			!content.get("id"))
 		{
 			llwarns << "received event poll with no events or id key" << llendl;
+			makeRequest();
 			return;
 		}
 		
@@ -192,10 +272,13 @@ namespace
 	}	
 }
 
-LLEventPoll::LLEventPoll(const std::string&	pollURL, const LLHost& sender)
-	: mImpl(LLEventPollResponder::start(pollURL, sender))
+LLEventPoll::LLEventPoll(const std::string&	poll_url, const LLHost& sender)
+	: mImpl(LLEventPollResponder::start(poll_url, sender))
 	{ }
 
 LLEventPoll::~LLEventPoll()
 {
+	LLHTTPClient::Responder* responderp = mImpl.get();
+	LLEventPollResponder* event_poll_responder = dynamic_cast<LLEventPollResponder*>(responderp);
+	if (event_poll_responder) event_poll_responder->stop();
 }

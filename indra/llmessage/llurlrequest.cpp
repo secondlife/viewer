@@ -461,26 +461,60 @@ size_t LLURLRequest::upCallback(
 
 static size_t headerCallback(void* data, size_t size, size_t nmemb, void* user)
 {
-	const char* headerLine = (const char*)data;
-	size_t headerLen = size * nmemb;
+	const char* header_line = (const char*)data;
+	size_t header_len = size * nmemb;
 	LLURLRequestComplete* complete = (LLURLRequestComplete*)user;
 
-	// *TODO: This should be a utility in llstring.h: isascii()
-	for (size_t i = 0; i < headerLen; ++i)
+	if (!complete || !header_line)
 	{
-		if (headerLine[i] < 0)
+		return header_len;
+	}
+
+	// *TODO: This should be a utility in llstring.h: isascii()
+	for (size_t i = 0; i < header_len; ++i)
+	{
+		if (header_line[i] < 0)
 		{
-			return headerLen;
+			return header_len;
 		}
 	}
 
-	size_t sep;
-	for (sep = 0; sep < headerLen  &&  headerLine[sep] != ':'; ++sep) { }
+	std::string header(header_line, header_len);
 
-	if (sep < headerLen && complete)
+	// Per HTTP spec the first header line must be the status line.
+	if (!complete->haveHTTPStatus())
 	{
-		std::string key(headerLine, sep);
-		std::string value(headerLine + sep + 1, headerLen - sep - 1);
+		std::string::iterator end = header.end();
+		std::string::iterator pos1 = std::find(header.begin(), end, ' ');
+		if (pos1 != end) ++pos1;
+		std::string::iterator pos2 = std::find(pos1, end, ' ');
+		if (pos2 != end) ++pos2;
+		std::string::iterator pos3 = std::find(pos2, end, '\r');
+
+		std::string version(header.begin(), pos1);
+		std::string status(pos1, pos2);
+		std::string reason(pos2, pos3);
+
+		int statusCode = atoi(status.c_str());
+		if (statusCode > 0)
+		{
+			complete->httpStatus((U32)statusCode, reason);
+		}
+		else
+		{
+			llwarns << "Unable to parse http response status line: "
+					<< header << llendl;
+			complete->httpStatus(499,"Unable to parse status line.");
+		}
+		return header_len;
+	}
+
+	std::string::iterator sep = std::find(header.begin(),header.end(),':');
+
+	if (sep != header.end())
+	{
+		std::string key(header.begin(), sep);
+		std::string value(sep + 1, header.end());
 
 		key = utf8str_tolower(utf8str_trim(key));
 		value = utf8str_trim(value);
@@ -489,30 +523,14 @@ static size_t headerCallback(void* data, size_t size, size_t nmemb, void* user)
 	}
 	else
 	{
-		std::string s(headerLine, headerLen);
-
-		std::string::iterator end = s.end();
-		std::string::iterator pos1 = std::find(s.begin(), end, ' ');
-		if (pos1 != end) ++pos1;
-		std::string::iterator pos2 = std::find(pos1, end, ' ');
-		if (pos2 != end) ++pos2;
-		std::string::iterator pos3 = std::find(pos2, end, '\r');
-
-		std::string version(s.begin(), pos1);
-		std::string status(pos1, pos2);
-		std::string reason(pos2, pos3);
-
-		int statusCode = atoi(status.c_str());
-		if (statusCode > 0)
+		LLStringUtil::trim(header);
+		if (!header.empty())
 		{
-			if (complete)
-			{
-				complete->httpStatus((U32)statusCode, reason);
-			}
+			llwarns << "Unable to parse header: " << header << llendl;
 		}
 	}
 
-	return headerLen;
+	return header_len;
 }
 
 /**
@@ -553,7 +571,8 @@ LLIOPipe::EStatus LLContextURLExtractor::process_impl(
  * LLURLRequestComplete
  */
 LLURLRequestComplete::LLURLRequestComplete() :
-	mRequestStatus(LLIOPipe::STATUS_ERROR)
+	mRequestStatus(LLIOPipe::STATUS_ERROR),
+	mHaveHTTPStatus(false)
 {
 	LLMemType m1(LLMemType::MTYPE_IO_URL_REQUEST);
 }
@@ -572,6 +591,7 @@ void LLURLRequestComplete::header(const std::string& header, const std::string& 
 //virtual 
 void LLURLRequestComplete::httpStatus(U32 status, const std::string& reason)
 {
+	mHaveHTTPStatus = true;
 }
 
 //virtual 

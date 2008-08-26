@@ -327,6 +327,9 @@ public:
 	LLURLRequestComplete();
 	virtual ~LLURLRequestComplete();
 
+	// The first line of an http response must be the status line
+	// true if we have already parsed this line.
+	bool haveHTTPStatus() const { return mHaveHTTPStatus; }
 protected:
 	/* @name LLIOPipe virtual implementations
 	 */
@@ -345,6 +348,8 @@ protected:
 	// value to note if we actually got the response. This value
 	// depends on correct useage from the LLURLRequest instance.
 	EStatus mRequestStatus;
+
+	bool mHaveHTTPStatus;
 };
 
 

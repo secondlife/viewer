@@ -56,7 +56,7 @@ namespace
 	{
 	public:
 		LLHTTPClientURLAdaptor(LLCurl::ResponderPtr responder)
-			: mResponder(responder), mStatus(499),
+			: LLURLRequestComplete(), mResponder(responder), mStatus(499),
 			  mReason("LLURLRequest complete w/no status")
 		{
 		}
@@ -67,6 +67,8 @@ namespace
 
 		virtual void httpStatus(U32 status, const std::string& reason)
 		{
+			LLURLRequestComplete::httpStatus(status,reason);
+
 			mStatus = status;
 			mReason = reason;
 		}
