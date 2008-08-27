@@ -67,7 +67,7 @@ def format_datestr(v):
         seconds = v.second + float(v.microsecond) / 1000000
         second_str = "%05.2f" % seconds
     else:
-        second_str = "%d" % v.second
+        second_str = "%02d" % v.second
     return '%s%sZ' % (v.strftime('%Y-%m-%dT%H:%M:'), second_str)
 
 
