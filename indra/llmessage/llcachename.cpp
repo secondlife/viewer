@@ -41,7 +41,8 @@
 #include "llsdserialize.h"
 #include "lluuid.h"
 #include "message.h"
-
+#include "llservicebuilder.h"
+#include "llframetimer.h"
 // Constants
 static const std::string CN_WAITING("(Loading...)"); // *TODO: translate
 static const std::string CN_NOBODY("(nobody)"); // *TODO: translate
@@ -196,6 +197,8 @@ class LLCacheName::Impl
 public:
 	LLMessageSystem*	mMsg;
 	LLHost				mUpstreamHost;
+	std::string mGroupNameURL;
+	std::string mAgentNameURL;
 
 	Cache				mCache;
 		// the map of UUIDs to names
@@ -221,6 +224,8 @@ public:
 	void processPendingReplies();
 	void sendRequest(const char* msg_name, const AskQueue& queue);
 	bool isRequestPending(const LLUUID& id);
+	void getAgentName(const AskQueue&);
+	void getGroupName(const AskQueue&);
 
 	// Message system callbacks.
 	void processUUIDRequest(LLMessageSystem* msg, bool isGroup);
@@ -233,6 +238,35 @@ public:
 
 	void notifyObservers(const LLUUID& id, const std::string& first, const std::string& last, BOOL group);
 };
+
+class LLHTTPAgentNamesResponse : public LLHTTPClient::Responder
+{
+public:
+	LLHTTPAgentNamesResponse(const LLSD& agent_ids)
+		: mAgentIDs(agent_ids)
+	{ }
+	void result(const LLSD& content);
+private:
+	LLHost mSender;
+	LLSD mAgentIDs;
+
+};
+
+class LLHTTPGroupNamesResponse : public LLHTTPClient::Responder
+{
+public:
+	LLHTTPGroupNamesResponse(const LLSD& group_ids)
+		: mGroupIDs(group_ids)
+	{ };
+					        
+	void result(const LLSD& content);
+private:
+	LLHost mSender;
+	LLSD mGroupIDs;
+
+};
+
+
 
 
 /// --------------------------------------------------------------------------
@@ -317,6 +351,57 @@ void LLCacheName::cancelCallback(const LLUUID& id, LLCacheNameCallback callback,
 			return;
 		}
 	}
+}
+
+void LLCacheName::sendAgentNames(const LLUUID& id, std::string& first, std::string& last)
+{
+
+	LLCacheNameEntry* entry = get_ptr_in_map(impl.mCache, id);
+	if (!entry)
+	{
+		entry = new LLCacheNameEntry;
+		impl.mCache[id] = entry;
+		
+	}
+	entry->mIsGroup = false;
+	entry->mCreateTime = (U32)LLFrameTimer::getTotalSeconds();
+    //entry->mFirstName = first;
+    //entry->mLastName = last;
+    //LLStringUtil::truncate(entry->mFirstName, DB_FIRST_NAME_BUF_SIZE);
+    //LLStringUtil::truncate(entry->mLastName, DB_LAST_NAME_BUF_SIZE);
+    entry->mFirstName = std::string(first, DB_FIRST_NAME_BUF_SIZE);
+    entry->mLastName = std::string(last, DB_LAST_NAME_BUF_SIZE);
+
+	impl.mPendingQueue.erase(id);
+	impl.notifyObservers(id,
+				entry->mFirstName, entry->mLastName,
+				FALSE);
+	 
+}
+
+void LLCacheName::sendGroupNames(const LLUUID& id, std::string& name)
+{
+	 
+	LLCacheNameEntry* entry = get_ptr_in_map(impl.mCache, id);
+    if (!entry)
+	{
+		entry = new LLCacheNameEntry;
+		impl.mCache[id] = entry;
+								     
+	}
+	     
+	entry->mIsGroup = true;
+	entry->mCreateTime = (U32)time(NULL);
+	
+    entry->mGroupName = std::string(name, DB_GROUP_NAME_BUF_SIZE);
+
+	impl.mPendingQueue.erase(id);
+		     
+	impl.notifyObservers(id,
+		entry->mFirstName, entry->mLastName,
+		FALSE);
+			 
+	
 }
 
 void LLCacheName::importFile(LLFILE* fp)
@@ -524,6 +609,16 @@ BOOL LLCacheName::getFullName(const LLUUID& id, std::string& fullname)
 	return res;
 }
 
+void LLCacheName::setGroupURL(const std::string& group_url)
+{
+	impl.mGroupNameURL = group_url; 
+}
+
+void LLCacheName::setAgentURL(const std::string& agent_url)
+{
+	impl.mAgentNameURL = agent_url;
+}
+
 BOOL LLCacheName::getGroupName(const LLUUID& id, std::string& group)
 {
 	if(id.isNull())
@@ -555,6 +650,111 @@ BOOL LLCacheName::getGroupName(const LLUUID& id, std::string& group)
 			impl.mAskGroupQueue.insert(id);
 		}
 		return FALSE;
+	}
+}
+
+void LLCacheName::Impl::getAgentName(const AskQueue &queue)
+{
+	 
+	// get the names from backbone module
+	if(queue.empty())
+	{
+		 return;
+	}
+		
+	LLSD request;
+	request["action"] = "GET";
+	LLSD id_block = LLSD::emptyArray();
+	AskQueue::const_iterator it = queue.begin();
+	AskQueue::const_iterator end = queue.end();
+	for(;it!=end;++it)
+	{
+		id_block.append(*it);
+	}
+	lldebugs<<LLSDOStreamer<LLSDNotationFormatter>(id_block) <<llendl;
+		 
+	request["agents"] = id_block;
+	
+	LLHTTPClient::post(
+		 	mAgentNameURL,
+			request, 
+			new LLHTTPAgentNamesResponse(id_block));
+		 
+		                                           
+	lldebugs<<"Service builder call to agent-name "<<mAgentNameURL<<llendl;
+		 
+}
+
+void LLHTTPAgentNamesResponse::result(const LLSD& content)
+{
+	LLUUID id;
+	lldebugs<<LLSDOStreamer<LLSDNotationFormatter>(content) <<llendl;
+
+	LLSD::map_const_iterator iter = content.beginMap();
+	for ( ; iter != content.endMap(); ++iter)
+	{
+		id.set((*iter).first);
+		LLSD name = (*iter).second;
+		LLCacheNameEntry* entry = new LLCacheNameEntry;
+		entry->mIsGroup = FALSE;
+		entry->mCreateTime = (U32)LLFrameTimer::getTotalSeconds();
+        std::string first = name["first"];
+        std::string last = name["last"];
+        entry->mFirstName = std::string(first, DB_FIRST_NAME_BUF_SIZE);
+        entry->mLastName = std::string(last, DB_LAST_NAME_BUF_SIZE);
+
+		gCacheName->sendAgentNames(id,first,last);
+	}	
+}
+
+
+void LLCacheName::Impl::getGroupName(const AskQueue &queue)
+{
+	// get the group names from backbone module
+	if(queue.empty())
+	{
+		return;
+	}
+		
+	LLSD request;
+	request["action"] = "GET";
+	LLSD id_block = LLSD::emptyArray();
+	AskQueue::const_iterator it = queue.begin();
+	AskQueue::const_iterator end = queue.end();
+	for(;it!=end;++it)
+	{
+		id_block.append(*it);
+	}
+		
+	request["groups"] = id_block;
+		                                                             
+	if(!mGroupNameURL.empty())
+	{	
+		LLHTTPClient::post(
+			mGroupNameURL,
+			request,
+			new LLHTTPGroupNamesResponse(id_block));
+	}
+	lldebugs<<"Service builder call to group-name "<< mGroupNameURL<<llendl;
+}
+
+void LLHTTPGroupNamesResponse::result(const LLSD& content)
+{
+	lldebugs<<"Result"<<LLSDOStreamer<LLSDNotationFormatter>(content) << llendl;
+	LLUUID id;
+
+	LLSD::map_const_iterator iter = content.beginMap();
+	for ( ; iter != content.endMap(); ++iter)
+	{
+					  
+		id.set((*iter).first);
+		std::string name = (*iter).second.asString();
+		LLCacheNameEntry* entry = new LLCacheNameEntry;
+		entry->mIsGroup = TRUE;						
+		entry->mCreateTime = (U32)time(NULL);
+        entry->mGroupName = std::string(name, DB_GROUP_NAME_BUF_SIZE);
+		lldebugs<<"Group Name"<<name<<llendl;
+		gCacheName->sendGroupNames(id,name);							
 	}
 }
 
@@ -606,12 +806,14 @@ void LLCacheName::processPending()
 		return;
 	}
 
+    /*
 	if(!impl.mUpstreamHost.isOk())
 	{
 		lldebugs << "LLCacheName::processPending() - bad upstream host."
 				 << llendl;
 		return;
 	}
+    */
 
 	impl.processPendingAsks();
 	impl.processPendingReplies();
@@ -693,8 +895,16 @@ std::string LLCacheName::getDefaultName()
 
 void LLCacheName::Impl::processPendingAsks()
 {
-	sendRequest(_PREHASH_UUIDNameRequest, mAskNameQueue);
-	sendRequest(_PREHASH_UUIDGroupNameRequest, mAskGroupQueue);
+	if (mUpstreamHost.isOk()) //its the vuewer asking for names send request to simulator
+	{
+		sendRequest(_PREHASH_UUIDNameRequest, mAskNameQueue);
+		sendRequest(_PREHASH_UUIDGroupNameRequest, mAskGroupQueue);
+	}
+	else //its simulator asking for names ask the backbone
+	{
+		getAgentName(mAskNameQueue);
+		getGroupName(mAskGroupQueue);
+	}
 	mAskNameQueue.clear();
 	mAskGroupQueue.clear();
 }
@@ -815,12 +1025,15 @@ void LLCacheName::Impl::processUUIDRequest(LLMessageSystem* msg, bool isGroup)
 {
 	// You should only get this message if the cache is at the simulator
 	// level, hence having an upstream provider.
+	// 03/31/2008 Simulator is talking to backbone and not dataserver
+	// This check was for dataserver
+	/*
 	if (!mUpstreamHost.isOk())
 	{
 		llwarns << "LLCacheName - got UUID name/group request, but no upstream provider!" << llendl;
 		return;
 	}
-
+	*/
 	LLHost fromHost = msg->getSender();
 	ReplySender sender(msg);
 
