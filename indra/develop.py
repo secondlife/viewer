@@ -65,8 +65,6 @@ class PlatformSetup(object):
     build_type = build_types['relwithdebinfo']
     standalone = 'FALSE'
     unattended = 'FALSE'
-    build_server = 'TRUE'
-    package = 'FALSE'
     distcc = True
     cmake_opts = []
 
@@ -110,7 +108,6 @@ class PlatformSetup(object):
             opts=quote(opts),
             standalone=self.standalone,
             unattended=self.unattended,
-            build_server=self.build_server,
             type=self.build_type.upper(),
             )
         #if simple:
@@ -118,7 +115,6 @@ class PlatformSetup(object):
         return ('cmake -DCMAKE_BUILD_TYPE:STRING=%(type)s '
                 '-DSTANDALONE:BOOL=%(standalone)s '
                 '-DUNATTENDED:BOOL=%(unattended)s '
-                '-DSERVER:BOOL=%(build_server)s '
                 '-G %(generator)r %(opts)s %(dir)r' % args)
 
     def run(self, command, name=None):
@@ -385,7 +381,6 @@ class DarwinSetup(UnixSetup):
             opts=quote(opts),
             standalone=self.standalone,
             unattended=self.unattended,
-            build_server=self.build_server,
             universal='',
             type=self.build_type.upper()
             )
@@ -397,7 +392,6 @@ class DarwinSetup(UnixSetup):
                 '-DCMAKE_BUILD_TYPE:STRING=%(type)s '
                 '-DSTANDALONE:BOOL=%(standalone)s '
                 '-DUNATTENDED:BOOL=%(unattended)s '
-                '-DSERVER:BOOL=%(build_server)s '
                 '%(universal)s '
                 '%(opts)s %(dir)r' % args)
 
@@ -473,16 +467,12 @@ class WindowsSetup(PlatformSetup):
             opts=quote(opts),
             standalone=self.standalone,
             unattended=self.unattended,
-            build_server=self.build_server,
-            package=self.package,
             )
         #if simple:
         #    return 'cmake %(opts)s "%(dir)s"' % args
         return ('cmake -G "%(generator)s" '
                 '-DSTANDALONE:BOOL=%(standalone)s '
                 '-DUNATTENDED:BOOL=%(unattended)s '
-                '-DSERVER:BOOL=%(build_server)s '
-                '-DPACKAGE:BOOL=%(package)s '
                 '%(opts)s "%(dir)s"' % args)
 
     def find_visual_studio(self, gen=None):
@@ -600,10 +590,6 @@ Options:
        --unattended     build unattended, do not invoke any tools requiring
                         a human response
   -t | --type=NAME      build type ("Debug", "Release", or "RelWithDebInfo")
-  -V | --viewer-only    build/configure the viewer, skipping the server, for
-                        Windows/Mac only (Linux has auto-detect)
-  -P | --package        config 'package' target in Windows solution that will
-                        build an installer
   -N | --no-distcc      disable use of distcc
   -G | --generator=NAME generator name
                         Windows: VC71 or VS2003 (default), VC80 (VS2005) or VC90 (VS2008)
@@ -622,8 +608,8 @@ def main(arguments):
     try:
         opts, args = getopt.getopt(
             arguments,
-            '?hNVPt:G:',
-            ['help', 'standalone', 'no-distcc', 'viewer-only', 'package', 'unattended', 'type=', 'incredibuild', 'generator='])
+            '?hNt:G:',
+            ['help', 'standalone', 'no-distcc', 'unattended', 'type=', 'incredibuild', 'generator='])
     except getopt.GetoptError, err:
         print >> sys.stderr, 'Error:', err
         sys.exit(1)
@@ -653,10 +639,6 @@ def main(arguments):
             setup.distcc = False
         elif o in ('--incredibuild'):
             setup.incredibuild = True
-        elif o in ('-V', '--viewer-only'):
-            setup.build_server = 'FALSE'
-        elif o in ('-P', '--package'):
-            setup.package = 'TRUE'
         else:
             print >> sys.stderr, 'INTERNAL ERROR: unhandled option', repr(o)
             sys.exit(1)
