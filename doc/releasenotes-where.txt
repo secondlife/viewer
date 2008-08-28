@@ -1,5 +1,5 @@
 For full release notes, see:
-	indra/newview/releasenotes.txt
+	http://wiki.secondlife.com/wiki/Release_Notes
 
-This is the same asset sourced by the viewer for displaying release notes.
-
+For a log of viewer changes, see:
+	doc/viewer-changes.txt

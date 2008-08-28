@@ -1,3 +1,4 @@
+
 /** 
  * @file llviewermessage.cpp
  * @brief Dumping ground for viewer-side message system callbacks.
@@ -48,7 +49,6 @@
 #include "llfilepicker.h"
 #include "llfocusmgr.h"
 #include "llfollowcamparams.h"
-#include "llfloaterreleasemsg.h"
 #include "llinstantmessage.h"
 #include "llquantize.h"
 #include "llregionflags.h"
@@ -85,7 +85,6 @@
 #include "llfloatermute.h"
 #include "llfloaterpostcard.h"
 #include "llfloaterpreference.h"
-#include "llfloaterreleasemsg.h"
 #include "llfollowcam.h"
 #include "llgroupnotify.h"
 #include "llhudeffect.h"
@@ -1438,7 +1437,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 
 			// now store incoming IM in chat history
 
-			buffer = name + separator_string + message.substr(message_offset);
+			buffer = separator_string + message.substr(message_offset);
 	
 			LL_INFOS("Messaging") << "process_improved_im: session_id( " << session_id << " ), from_id( " << from_id << " )" << LL_ENDL;
 
@@ -2651,11 +2650,9 @@ void process_avatar_init_complete(LLMessageSystem* msg, void**)
 }
 */
 
-static void display_release_message(S32, void* data)
+static void display_release_notes(S32, void* data)
 {
-	std::string* msg = (std::string*)data;
-	LLFloaterReleaseMsg::displayMessage(*msg);
-	delete msg;
+	gAgent.getRegion()->showReleaseNotes();
 }
 
 void process_agent_movement_complete(LLMessageSystem* msg, void**)
@@ -2820,10 +2817,20 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 	// send walk-vs-run status
 	gAgent.sendWalkRun(gAgent.getRunning() || gAgent.getAlwaysRun());
 
-	if (LLFloaterReleaseMsg::checkVersion(version_channel))
+	// If the server version has changed, display an info box and offer
+	// to display the release notes, unless this is the initial log in.
+	if (gLastVersionChannel == version_channel)
 	{
-		LLNotifyBox::showXml("ServerVersionChanged", display_release_message, new std::string(version_channel) );
+		return;
 	}
+
+	if (!gLastVersionChannel.empty())
+	{
+		LLNotifyBox::showXml(
+			"ServerVersionChanged",	display_release_notes, NULL);
+	}
+
+	gLastVersionChannel = version_channel;
 }
 
 void process_crossed_region(LLMessageSystem* msg, void**)

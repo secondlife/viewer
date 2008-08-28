@@ -3533,7 +3533,7 @@ S32 LLVolume::lineSegmentIntersect(const LLVector3& start, const LLVector3& end,
 	
 	for (S32 i = start_face; i <= end_face; i++)
 	{
-		LLVolumeFace face = getVolumeFace((U32)i);
+		const LLVolumeFace &face = getVolumeFace((U32)i);
 
 		LLVector3 box_center = (face.mExtents[0] + face.mExtents[1]) / 2.f;
 		LLVector3 box_size   = face.mExtents[1] - face.mExtents[0];

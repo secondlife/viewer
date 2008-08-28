@@ -152,6 +152,7 @@ protected:
 	void destroyContext();
 	void setupFailure(const std::string& text, const std::string& caption, U32 type);
 	static pascal OSStatus staticEventHandler (EventHandlerCallRef myHandler, EventRef event, void* userData);
+	static pascal Boolean staticMoveEventComparator( EventRef event, void* data);
 	OSStatus eventHandler (EventHandlerCallRef myHandler, EventRef event);
 	void adjustCursorDecouple(bool warpingMouse = false);
 	void fixWindowSize(void);
@@ -170,6 +171,8 @@ protected:
 	EventHandlerUPP 	mEventHandlerUPP;
 	EventHandlerRef		mGlobalHandlerRef;
 	EventHandlerRef		mWindowHandlerRef;
+	EventComparatorUPP  mMoveEventCampartorUPP;
+	
 	Rect		mOldMouseClip;  // Screen rect to which the mouse cursor was globally constrained before we changed it in clipMouse()
 	Str255 		mWindowTitle;
 	double		mOriginalAspectRatio;

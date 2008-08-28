@@ -778,8 +778,8 @@ void LLFloaterTools::onOpen()
 	mParcelSelection = LLViewerParcelMgr::getInstance()->getFloatingParcelSelection();
 	mObjectSelection = LLSelectMgr::getInstance()->getEditSelection();
 	
-	gMenuBarView->setItemVisible(std::string("Tools"), TRUE);
-	gMenuBarView->arrange();
+	// gMenuBarView->setItemVisible(std::string("Tools"), TRUE);
+	// gMenuBarView->arrange();
 }
 
 // virtual
@@ -812,8 +812,8 @@ void LLFloaterTools::onClose(bool app_quitting)
 	// so manually reset tool to default (pie menu tool)
 	LLToolMgr::getInstance()->getCurrentToolset()->selectFirstTool();
 
-	gMenuBarView->setItemVisible(std::string("Tools"), FALSE);
-	gMenuBarView->arrange();
+	// gMenuBarView->setItemVisible(std::string("Tools"), FALSE);
+	// gMenuBarView->arrange();
 }
 
 void LLFloaterTools::showMore(BOOL show_more)

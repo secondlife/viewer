@@ -72,7 +72,7 @@ extern const std::string LSL_DOC_URL;
 // SL KnowledgeBase page
 extern const std::string SL_KB_URL;
 
-// Local Url Release Notes
-extern const std::string RELEASE_NOTES;
+// Release Notes Redirect URL for Server and Viewer
+extern const std::string RELEASE_NOTES_BASE_URL;
 
 #endif

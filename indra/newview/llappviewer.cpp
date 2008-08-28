@@ -37,6 +37,7 @@
 #include "llversionviewer.h"
 #include "llfeaturemanager.h"
 #include "lluictrlfactory.h"
+#include "lltexteditor.h"
 #include "llalertdialog.h"
 #include "llerrorcontrol.h"
 #include "llviewerimagelist.h"
@@ -199,7 +200,6 @@ extern void init_apple_menu(const char* product);
 extern OSErr AEGURLHandler(const AppleEvent *messagein, AppleEvent *reply, long refIn);
 extern OSErr AEQuitHandler(const AppleEvent *messagein, AppleEvent *reply, long refIn);
 extern OSStatus simpleDialogHandler(EventHandlerCallRef handler, EventRef event, void *userdata);
-extern OSStatus DisplayReleaseNotes(void);
 #include <boost/tokenizer.hpp>
 #endif // LL_DARWIN
 
@@ -221,9 +221,9 @@ std::string gDisabledMessage; // Set in LLAppViewer::initConfiguration used in i
 
 BOOL gHideLinks = FALSE; // Set in LLAppViewer::initConfiguration, used externally
 
-BOOL				gAllowIdleAFK = TRUE;
-BOOL				gAllowTapTapHoldRun = TRUE;
-BOOL				gShowObjectUpdates = FALSE;
+BOOL gAllowIdleAFK = TRUE;
+BOOL gAllowTapTapHoldRun = TRUE;
+BOOL gShowObjectUpdates = FALSE;
 BOOL gUseQuickTime = TRUE;
 
 BOOL gAcceptTOS = FALSE;
@@ -235,22 +235,24 @@ LLSD gDebugInfo;
 
 U32	gFrameCount = 0;
 U32 gForegroundFrameCount = 0; // number of frames that app window was in foreground
-LLPumpIO*			gServicePump = NULL;
+LLPumpIO* gServicePump = NULL;
 
 BOOL gPacificDaylightTime = FALSE;
 
 U64 gFrameTime = 0;
 F32 gFrameTimeSeconds = 0.f;
 F32 gFrameIntervalSeconds = 0.f;
-F32		gFPSClamped = 10.f;						// Pretend we start at target rate.
-F32		gFrameDTClamped = 0.f;					// Time between adjacent checks to network for packets
+F32 gFPSClamped = 10.f;						// Pretend we start at target rate.
+F32 gFrameDTClamped = 0.f;					// Time between adjacent checks to network for packets
 U64	gStartTime = 0; // gStartTime is "private", used only to calculate gFrameTimeSeconds
+U32 gFrameStalls = 0;
+const F64 FRAME_STALL_THRESHOLD = 5.0;
 
 LLTimer gRenderStartTime;
 LLFrameTimer gForegroundTime;
-LLTimer				gLogoutTimer;
-static const F32			LOGOUT_REQUEST_TIME = 6.f;  // this will be cut short by the LogoutReply msg.
-F32					gLogoutMaxTime = LOGOUT_REQUEST_TIME;
+LLTimer gLogoutTimer;
+static const F32 LOGOUT_REQUEST_TIME = 6.f;  // this will be cut short by the LogoutReply msg.
+F32 gLogoutMaxTime = LOGOUT_REQUEST_TIME;
 
 LLUUID gInventoryLibraryOwner;
 LLUUID gInventoryLibraryRoot;
@@ -686,6 +688,10 @@ bool LLAppViewer::init()
 					&LLUI::sGLScaleFactor);
 
 	LLWeb::initClass();			  // do this after LLUI
+	LLTextEditor::setURLCallbacks(&LLWeb::loadURL,
+				&LLURLDispatcher::dispatchFromTextEditor,
+				&LLURLDispatcher::dispatchFromTextEditor);
+
 	LLUICtrlFactory::getInstance()->setupPaths(); // update paths with correct language set
 	
 	/////////////////////////////////////////////////
@@ -932,20 +938,23 @@ bool LLAppViewer::mainLoop()
 					gKeyboard->scanKeyboard();
 				}
 
-				pingMainloopTimeout("Main:Messages");
-				
 				// Update state based on messages, user input, object idle.
 				{
+					pauseMainloopTimeout(); // *TODO: Remove. Messages shouldn't be stalling for 20+ seconds!
+					
 					LLFastTimer t3(LLFastTimer::FTM_IDLE);
 					idle();
 
 					{
+						pingMainloopTimeout("Main:ServicePump");				
 						LLFastTimer t4(LLFastTimer::FTM_PUMP);
 						gAres->process();
 						// this pump is necessary to make the login screen show up
 						gServicePump->pump();
 						gServicePump->callback();
 					}
+					
+					resumeMainloopTimeout();
 				}
 
 				if (gDoDisconnect && (LLStartUp::getStartupState() == STATE_STARTED))
@@ -1046,6 +1055,11 @@ bool LLAppViewer::mainLoop()
 					{
 						break;
 					}
+				}
+				if ((LLStartUp::getStartupState() >= STATE_CLEANUP) &&
+					(frameTimer.getElapsedTimeF64() > FRAME_STALL_THRESHOLD))
+				{
+					gFrameStalls++;
 				}
 				frameTimer.reset();
 
@@ -1209,8 +1223,18 @@ bool LLAppViewer::cleanup()
 		ms_sleep(100);
 	}
 	llinfos << "Shutting down." << llendflush;
+
+	// Destroy the UI
+	gViewerWindow->shutdownViews();
+
+	// Clean up selection managers after UI is destroyed, as UI may be observing them.
+	// Clean up before GL is shut down because we might be holding on to objects with texture references
+	LLSelectMgr::cleanupGlobals();
+
+	// Shut down OpenGL
+	gViewerWindow->shutdownGL();
 	
-	// Destroy Windows(R) window, and make sure we're not fullscreen
+	// Destroy window, and make sure we're not fullscreen
 	// This may generate window reshape and activation events.
 	// Therefore must do this before destroying the message system.
 	delete gViewerWindow;
@@ -1220,10 +1244,6 @@ bool LLAppViewer::cleanup()
 	// viewer UI relies on keyboard so keep it aound until viewer UI isa gone
 	delete gKeyboard;
 	gKeyboard = NULL;
-
-	// Clean up selection managers after UI is destroyed, as UI
-	// may be observing them.
-	LLSelectMgr::cleanupGlobals();
 
 	LLViewerObject::cleanupVOClasses();
 
@@ -3012,6 +3032,8 @@ public:
 ///////////////////////////////////////////////////////
 void LLAppViewer::idle()
 {
+	pingMainloopTimeout("Main:Idle");
+	
 	// Update frame timers
 	static LLTimer idle_timer;
 

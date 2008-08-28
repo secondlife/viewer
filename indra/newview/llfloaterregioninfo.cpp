@@ -78,6 +78,8 @@
 #include "llviewerwindow.h"
 #include "llvlcomposition.h"
 
+#define ELAR_ENABLED 0 // Enable when server support is implemented
+
 const S32 TERRAIN_TEXTURE_COUNT = 4;
 const S32 CORNER_COUNT = 4;
 
@@ -269,9 +271,7 @@ void LLFloaterRegionInfo::processEstateOwnerRequest(LLMessageSystem* msg,void**)
 	dispatch.dispatch(request, invoice, strings);
 
 	LLViewerRegion* region = gAgent.getRegion();
-	BOOL allow_modify = gAgent.isGodlike() || (region && region->canManageEstate());
-	panel->setCtrlsEnabled(allow_modify);
-
+	panel->updateControls(region);
 }
 
 
@@ -530,12 +530,6 @@ void LLPanelRegionInfo::disableButton(const std::string& btn_name)
 void LLPanelRegionInfo::initCtrl(const std::string& name)
 {
 	childSetCommitCallback(name, onChangeAnything, this);
-}
-
-void LLPanelRegionInfo::initTextCtrl(const std::string& name)
-{
-	childSetCommitCallback(name, onChangeAnything, this);
-	childSetKeystrokeCallback("abuse_email_address", onChangeText, this);
 }
 
 void LLPanelRegionInfo::initHelpBtn(const std::string& name, const std::string& xml_alert)
@@ -1973,8 +1967,7 @@ void LLPanelEstateInfo::sendEstateAccessDelta(U32 flags, const LLUUID& agent_or_
 	gAgent.sendReliableMessage();
 }
 
-
-bool LLPanelEstateInfo::refreshFromRegion(LLViewerRegion* region)
+void LLPanelEstateInfo::updateControls(LLViewerRegion* region)
 {
 	BOOL god = gAgent.isGodlike();
 	BOOL owner = (region && (region->getOwner() == gAgent.getID()));
@@ -1990,13 +1983,22 @@ bool LLPanelEstateInfo::refreshFromRegion(LLViewerRegion* region)
 	childSetEnabled("remove_banned_avatar_btn",		god || owner || manager);
 	childSetEnabled("message_estate_btn",			god || owner || manager);
 	childSetEnabled("kick_user_from_estate_btn",	god || owner || manager);
+#if ELAR_ENABLED
 	childSetEnabled("abuse_email_address", 			god || owner || manager);
+#else
+	childSetEnabled("abuse_email_address", 			false);
+#endif
 
 	// estate managers can't add estate managers
 	childSetEnabled("add_estate_manager_btn",		god || owner);
 	childSetEnabled("remove_estate_manager_btn",	god || owner);
 	childSetEnabled("estate_manager_name_list",		god || owner);
+}
 
+bool LLPanelEstateInfo::refreshFromRegion(LLViewerRegion* region)
+{
+	updateControls(region);
+	
 	// let the parent class handle the general data collection. 
 	bool rv = LLPanelRegionInfo::refreshFromRegion(region);
 
@@ -2051,7 +2053,8 @@ BOOL LLPanelEstateInfo::postBuild()
 	initCtrl("limit_payment");
 	initCtrl("limit_age_verified");
 	initCtrl("voice_chat_check");
-	initTextCtrl("abuse_email_address");
+	childSetCommitCallback("abuse_email_address", onChangeAnything, this);
+	childSetKeystrokeCallback("abuse_email_address", onChangeText, this);
 
 	initHelpBtn("estate_manager_help",			"HelpEstateEstateManager");
 	initHelpBtn("use_global_time_help",			"HelpEstateUseGlobalTime");
@@ -2966,15 +2969,17 @@ bool LLDispatchEstateUpdateInfo::operator()(
 	// it draws with a weird character at the end of the string.
 	std::string estate_name = strings[0].c_str(); // preserve c_str() call!
 	panel->setEstateName(estate_name);
-
+	
+#if ELAR_ENABLED
 	if (strings.size() > 9)
 	{
 		std::string abuse_email = strings[9].c_str(); // preserve c_str() call!
 		panel->setAbuseEmailAddress(abuse_email);
 	}
 	else
+#endif
 	{
-		panel->setAbuseEmailAddress("@ Old Server @");
+		panel->setAbuseEmailAddress(panel->getString("email_unsupported"));
 	}
 
 	LLViewerRegion* regionp = gAgent.getRegion();

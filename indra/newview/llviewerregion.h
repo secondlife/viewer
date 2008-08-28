@@ -47,6 +47,7 @@
 #include "lluuid.h"
 #include "lldatapacker.h"
 #include "llvocache.h"
+#include "llweb.h"
 
 // Surface id's
 #define LAND  1
@@ -122,6 +123,7 @@ public:
 	inline BOOL isPrelude()					const;
 	inline BOOL getAllowTerraform() 		const;
 	inline BOOL getRestrictPushObject()		const;
+	inline BOOL getReleaseNotesRequested()		const;
 
 	bool isAlive(); // can become false if circuit disconnects
 
@@ -277,7 +279,9 @@ public:
 			return lhs->mCameraDistanceSquared < rhs->mCameraDistanceSquared; 
 		}
 	};
-	
+
+	void showReleaseNotes();
+
 protected:
 	void disconnectAllNeighbors();
 	void initStats();
@@ -381,6 +385,8 @@ private:
 	std::vector<LLSpatialPartition*> mObjectPartition;
 
 	LLHTTPClient::ResponderPtr  mHttpResponderPtr ;
+
+	BOOL mReleaseNotesRequested;
 };
 
 inline BOOL LLViewerRegion::getAllowDamage() const
@@ -431,6 +437,11 @@ inline BOOL LLViewerRegion::getAllowTerraform() const
 inline BOOL LLViewerRegion::getRestrictPushObject() const
 {
 	return ((mRegionFlags & REGION_FLAGS_RESTRICT_PUSHOBJECT) != 0);
+}
+
+inline BOOL LLViewerRegion::getReleaseNotesRequested() const
+{
+	return mReleaseNotesRequested;
 }
 
 #endif

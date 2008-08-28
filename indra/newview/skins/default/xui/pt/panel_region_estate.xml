@@ -37,7 +37,7 @@
 	<check_box label="Informações de pagamento" name="deny_identified" />
 	<check_box label="Informações de pagtos realizados" name="deny_transacted" />
 	<text name="abuse_email_text">
-		[E-mail do abuso Beta]
+		E-mail do abuso:
 	</text>
 	<button label="Aplicar" name="apply_btn" />
 	<text name="allow_resident_label">

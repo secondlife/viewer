@@ -139,6 +139,24 @@ const LLMatrix4* gGLLastMatrix = NULL;
 
 //----------------------------------------
 
+std::string gPoolNames[] = 
+{
+	// Correspond to LLDrawpool enum render type
+	"NONE",
+	"POOL_SIMPLE",
+	"POOL_TERRAIN",	
+	"POOL_TREE",
+	"POOL_SKY",
+	"POOL_WL_SKY",
+	"POOL_GROUND",
+	"POOL_BUMP",
+	"POOL_INVISIBLE",
+	"POOL_AVATAR",
+	"POOL_WATER",
+	"POOL_GLOW",
+	"POOL_ALPHA",
+};
+
 U32 nhpo2(U32 v) 
 {
 	U32 r = 1;
@@ -553,7 +571,6 @@ void LLPipeline::createGLBuffers()
 #endif
 	}
 
-
 	stop_glerror();
 
 	if (LLPipeline::sRenderGlow)
@@ -565,12 +582,12 @@ void LLPipeline::createGLBuffers()
 		{
 			mGlow[i].allocate(512,glow_res,GL_RGBA,FALSE);
 		}
+		
+		GLuint resX = gViewerWindow->getWindowDisplayWidth();
+		GLuint resY = gViewerWindow->getWindowDisplayHeight();
+		
+		mScreen.allocate(resX, resY, GL_RGBA, TRUE, GL_TEXTURE_RECTANGLE_ARB);
 	}
-
-	GLuint resX = gViewerWindow->getWindowDisplayWidth();
-	GLuint resY = gViewerWindow->getWindowDisplayHeight();
-	
-	mScreen.allocate(resX, resY, GL_RGBA, TRUE, GL_TEXTURE_RECTANGLE_ARB);
 }
 
 void LLPipeline::restoreGL() 
@@ -2434,9 +2451,10 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 						{
 							llerrs << "GL matrix stack corrupted!" << llendl;
 						}
-						LLGLState::checkStates();
-						LLGLState::checkTextureChannels();
-						LLGLState::checkClientArrays();
+						std::string msg = llformat("%s pass %d", gPoolNames[cur_type].c_str(), i);
+						LLGLState::checkStates(msg);
+						LLGLState::checkTextureChannels(msg);
+						LLGLState::checkClientArrays(msg);
 					}
 				}
 			}

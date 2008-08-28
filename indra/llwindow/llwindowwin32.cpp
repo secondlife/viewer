@@ -1387,10 +1387,20 @@ BOOL LLWindowWin32::setCursorPosition(const LLCoordWindow position)
 		return FALSE;
 	}
 
+	// Inform the application of the new mouse position (needed for per-frame
+	// hover/picking to function).
 	LLCoordGL gl_pos;
 	convertCoords(position, &gl_pos);
 	mCallbacks->handleMouseMove(this, gl_pos, (MASK)0);
 	
+	// DEV-18951 VWR-8524 Camera moves wildly when alt-clicking.
+	// Because we have preemptively notified the application of the new
+	// mouse position via handleMouseMove() above, we need to clear out
+	// any stale mouse move events.  RN/JC
+	MSG msg;
+	while (PeekMessage(&msg, NULL, WM_MOUSEMOVE, WM_MOUSEMOVE, PM_REMOVE))
+	{ }
+
 	return SetCursorPos(screen_pos.mX, screen_pos.mY);
 }
 
@@ -1943,6 +1953,8 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 					window_imp->convertCoords(window_coord, &gl_coord);
 				}
 				MASK mask = gKeyboard->currentMask(TRUE);
+				// generate move event to update mouse coordinates
+				window_imp->mCallbacks->handleMouseMove(window_imp, gl_coord, mask);
 				if (window_imp->mCallbacks->handleMouseDown(window_imp, gl_coord, mask))
 				{
 					return 0;
@@ -1970,6 +1982,8 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 					window_imp->convertCoords(window_coord, &gl_coord);
 				}
 				MASK mask = gKeyboard->currentMask(TRUE);
+				// generate move event to update mouse coordinates
+				window_imp->mCallbacks->handleMouseMove(window_imp, gl_coord, mask);
 				if (window_imp->mCallbacks->handleDoubleClick(window_imp, gl_coord, mask) )
 				{
 					return 0;
@@ -2000,6 +2014,8 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 					window_imp->convertCoords(window_coord, &gl_coord);
 				}
 				MASK mask = gKeyboard->currentMask(TRUE);
+				// generate move event to update mouse coordinates
+				window_imp->mCallbacks->handleMouseMove(window_imp, gl_coord, mask);
 				if (window_imp->mCallbacks->handleMouseUp(window_imp, gl_coord, mask))
 				{
 					return 0;
@@ -2016,7 +2032,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 					window_imp->interruptLanguageTextInput();
 				}
 
-				// Because we move the cursor position in tllviewerhe app, we need to query
+				// Because we move the cursor position in the llviewerapp, we need to query
 				// to find out where the cursor at the time the event is handled.
 				// If we don't do this, many clicks could get buffered up, and if the
 				// first click changes the cursor position, all subsequent clicks
@@ -2032,6 +2048,8 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 					window_imp->convertCoords(window_coord, &gl_coord);
 				}
 				MASK mask = gKeyboard->currentMask(TRUE);
+				// generate move event to update mouse coordinates
+				window_imp->mCallbacks->handleMouseMove(window_imp, gl_coord, mask);
 				if (window_imp->mCallbacks->handleRightMouseDown(window_imp, gl_coord, mask))
 				{
 					return 0;
@@ -2058,6 +2076,8 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 					window_imp->convertCoords(window_coord, &gl_coord);
 				}
 				MASK mask = gKeyboard->currentMask(TRUE);
+				// generate move event to update mouse coordinates
+				window_imp->mCallbacks->handleMouseMove(window_imp, gl_coord, mask);
 				if (window_imp->mCallbacks->handleRightMouseUp(window_imp, gl_coord, mask))
 				{
 					return 0;
@@ -2090,6 +2110,8 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 					window_imp->convertCoords(window_coord, &gl_coord);
 				}
 				MASK mask = gKeyboard->currentMask(TRUE);
+				// generate move event to update mouse coordinates
+				window_imp->mCallbacks->handleMouseMove(window_imp, gl_coord, mask);
 				if (window_imp->mCallbacks->handleMiddleMouseDown(window_imp, gl_coord, mask))
 				{
 					return 0;
@@ -2116,6 +2138,8 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 					window_imp->convertCoords(window_coord, &gl_coord);
 				}
 				MASK mask = gKeyboard->currentMask(TRUE);
+				// generate move event to update mouse coordinates
+				window_imp->mCallbacks->handleMouseMove(window_imp, gl_coord, mask);
 				if (window_imp->mCallbacks->handleMiddleMouseUp(window_imp, gl_coord, mask))
 				{
 					return 0;

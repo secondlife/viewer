@@ -171,7 +171,6 @@ set(viewer_SOURCE_FILES
     llfloaterpreference.cpp
     llfloaterproperties.cpp
     llfloaterregioninfo.cpp
-    llfloaterreleasemsg.cpp
     llfloaterreporter.cpp
     llfloaterscriptdebug.cpp
     llfloatersellland.cpp
@@ -562,7 +561,6 @@ set(viewer_HEADER_FILES
     llfloaterpreference.h
     llfloaterproperties.h
     llfloaterregioninfo.h
-    llfloaterreleasemsg.h
     llfloaterreporter.h
     llfloaterscriptdebug.h
     llfloatersellland.h

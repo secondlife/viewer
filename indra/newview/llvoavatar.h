@@ -462,7 +462,8 @@ public:
 	// internal (pseudo-private) functions
 	//--------------------------------------------------------------------
 	F32 getPelvisToFoot() { return mPelvisToFoot; }
-
+	
+	void startDefaultMotions();
 	void buildCharacter();
 	void releaseMeshData();
 	void restoreMeshData();

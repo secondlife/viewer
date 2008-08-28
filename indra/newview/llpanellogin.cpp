@@ -146,6 +146,10 @@ void LLLoginHandler::parse(const LLSD& queryMap)
 	{
 		grid_choice = GRID_INFO_SIVA;
 	}
+	else if (queryMap["grid"].asString() == "damballah")
+	{
+		grid_choice = GRID_INFO_DAMBALLAH;
+	}
 	else if (queryMap["grid"].asString() == "durga")
 	{
 		grid_choice = GRID_INFO_DURGA;

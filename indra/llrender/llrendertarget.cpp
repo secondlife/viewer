@@ -99,11 +99,16 @@ void LLRenderTarget::allocate(U32 resx, U32 resy, U32 color_fmt, BOOL depth, U32
 
 		glGenFramebuffersEXT(1, (GLuint *) &mFBO);
 
+		stop_glerror();
+
 		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, mFBO);
+
+		stop_glerror();
 
 		if (mDepth)
 		{
 			glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, mUsage, mDepth, 0);
+			stop_glerror();
 			glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_STENCIL_ATTACHMENT_EXT, mUsage, mDepth, 0);
 			stop_glerror();
 		}

@@ -119,7 +119,6 @@ public:
 	
 protected:
 	void initCtrl(const std::string& name);
-	void initTextCtrl(const std::string& name);
 	void initHelpBtn(const std::string& name, const std::string& xml_alert);
 
 	// Callback for all help buttons, data is name of XML alert to show.
@@ -294,6 +293,8 @@ public:
 	
 	LLPanelEstateInfo();
 	~LLPanelEstateInfo() {}
+	
+	void updateControls(LLViewerRegion* region);
 	
 	virtual bool refreshFromRegion(LLViewerRegion* region);
 	virtual bool estateUpdate(LLMessageSystem* msg);

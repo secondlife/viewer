@@ -9,6 +9,8 @@ if (NOT STANDALONE)
     if (VIEWER)
       set(ARCH_PREBUILT_DIRS 
           ${LIBS_PREBUILT_DIR}/${LL_ARCH_DIR}/lib_release_client)
+      set(ARCH_PREBUILT_DIRS_RELEASE ${ARCH_PREBUILT_DIRS})
+      set(ARCH_PREBUILT_DIRS_DEBUG ${ARCH_PREBUILT_DIRS})
     else (VIEWER)
       set(ARCH_PREBUILT_DIRS ${LIBS_PREBUILT_DIR}/${LL_ARCH_DIR}/lib_release)
     endif (VIEWER)

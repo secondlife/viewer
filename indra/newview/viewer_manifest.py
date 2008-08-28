@@ -94,7 +94,6 @@ class ViewerManifest(LLManifest):
                             self.path("*/*/*.gif")
                             self.end_prefix("*/html")
                     self.end_prefix("skins")
-        self.path("releasenotes.txt")
         self.path("lsl_guide.html")
         self.path("gpu_table.txt")
 
@@ -400,8 +399,14 @@ class DarwinManifest(ViewerManifest):
 
                 self.path("licenses-mac.txt", dst="licenses.txt")
                 self.path("featuretable_mac.txt")
-                self.path("secondlife.icns")
                 self.path("SecondLife.nib")
+
+                # If we are not using the default channel, use the 'Firstlook
+                # icon' to show that it isn't a stable release.
+                if self.default_channel() and self.default_grid():
+                    self.path("secondlife.icns")
+                else:
+                    self.path("secondlife_firstlook.icns", "secondlife.icns")
                 
                 # Translations
                 self.path("English.lproj")
@@ -450,6 +455,12 @@ class DarwinManifest(ViewerManifest):
             channel_standin = self.channel()
 
         imagename="SecondLife_" + '_'.join(self.args['version'])
+
+        # MBW -- If the mounted volume name changes, it breaks the .DS_Store's background image and icon positioning.
+        #  If we really need differently named volumes, we'll need to create multiple DS_Store file images, or use some other trick.
+
+        volname="Second Life Installer"  # DO NOT CHANGE without understanding comment above
+
         if self.default_channel():
             if not self.default_grid():
                 # beta case
@@ -463,9 +474,9 @@ class DarwinManifest(ViewerManifest):
         # make sure we don't have stale files laying about
         self.remove(sparsename, finalname)
 
-        self.run_command('hdiutil create "%(sparse)s" -volname "%(channel)s" -fs HFS+ -type SPARSE -megabytes 300 -layout SPUD' % {
+        self.run_command('hdiutil create "%(sparse)s" -volname "%(vol)s" -fs HFS+ -type SPARSE -megabytes 300 -layout SPUD' % {
                 'sparse':sparsename,
-                'channel':channel_standin})
+                'vol':volname})
 
         # mount the image and get the name of the mount point and device node
         hdi_output = self.run_command('hdiutil attach -private "' + sparsename + '"')
@@ -473,19 +484,50 @@ class DarwinManifest(ViewerManifest):
         volpath = re.search('HFS\s+(.+)', hdi_output).group(1).strip()
 
         # Copy everything in to the mounted .dmg
+
         if self.default_channel() and not self.default_grid():
             app_name = "Second Life " + self.args['grid']
         else:
             app_name = channel_standin.strip()
 
+        # Hack:
+        # Because there is no easy way to coerce the Finder into positioning
+        # the app bundle in the same place with different app names, we are
+        # adding multiple .DS_Store files to svn. There is one for release,
+        # one for release candidate and one for first look. Any other channels
+        # will use the release .DS_Store, and will look broken.
+        # - Ambroff 2008-08-20
+        dmg_template = os.path.join(
+            'installers', 
+            'darwin',
+            '%s-dmg' % "".join(self.channel_unique().split()).lower())
+
+        if not os.path.exists (self.src_path_of(dmg_template)):
+            dmg_template = os.path.join ('installers', 'darwin', 'release-dmg')
+
+        # To reinstate the linden scripting guide, add this to the list below:
+        #            "lsl_guide.html":"Linden Scripting Language Guide.html",
+
         for s,d in {self.get_dst_prefix():app_name + ".app",
-                    "lsl_guide.html":"Linden Scripting Language Guide.html",
-                    "releasenotes.txt":"Release Notes.txt",
-                    "installers/darwin/mac_image_hidden":".hidden",
-                    "installers/darwin/mac_image_background.tga":"background.tga",
-                    "installers/darwin/mac_image_DS_Store":".DS_Store"}.items():
+                    os.path.join(dmg_template, "_VolumeIcon.icns"): ".VolumeIcon.icns",
+                    os.path.join(dmg_template, "background.jpg"): "background.jpg",
+                    os.path.join(dmg_template, "_DS_Store"): ".DS_Store"}.items():
             print "Copying to dmg", s, d
             self.copy_action(self.src_path_of(s), os.path.join(volpath, d))
+
+        # Hide the background image, DS_Store file, and volume icon file (set their "visible" bit)
+        self.run_command('SetFile -a V "' + os.path.join(volpath, ".VolumeIcon.icns") + '"')
+        self.run_command('SetFile -a V "' + os.path.join(volpath, "background.jpg") + '"')
+        self.run_command('SetFile -a V "' + os.path.join(volpath, ".DS_Store") + '"')
+
+        # Create the alias file (which is a resource file) from the .r
+        self.run_command('rez "' + self.src_path_of("installers/darwin/release-dmg/Applications-alias.r") + '" -o "' + os.path.join(volpath, "Applications") + '"')
+
+        # Set the alias file's alias and custom icon bits
+        self.run_command('SetFile -a AC "' + os.path.join(volpath, "Applications") + '"')
+
+        # Set the disk image root's custom icon bit
+        self.run_command('SetFile -a C "' + volpath + '"')
 
         # Unmount the image
         self.run_command('hdiutil detach -force "' + devfile + '"')

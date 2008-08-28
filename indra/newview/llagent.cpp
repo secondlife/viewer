@@ -337,6 +337,7 @@ LLAgent::LLAgent()
 	mTrackFocusObject(TRUE),
 	mCameraSmoothingLastPositionGlobal(),
 	mCameraSmoothingLastPositionAgent(),
+	mCameraSmoothingStop(FALSE),
 
 	mFrameAgent(),
 
@@ -1950,9 +1951,8 @@ void LLAgent::cameraPanLeft(F32 meters)
 	mFocusTargetGlobal += meters * left_axis;
 	mFocusGlobal = mFocusTargetGlobal;
 
-	// effectively disable smoothing for camera pan, which causes some residents unhappiness
-	mCameraSmoothingLastPositionGlobal += meters * left_axis;
-	mCameraSmoothingLastPositionAgent += meters * left_axis;
+	// disable smoothing for camera pan, which causes some residents unhappiness
+	mCameraSmoothingStop = TRUE;
 	
 	cameraZoomIn(1.f);
 	updateFocusOffset();
@@ -1969,9 +1969,8 @@ void LLAgent::cameraPanUp(F32 meters)
 	mFocusTargetGlobal += meters * up_axis;
 	mFocusGlobal = mFocusTargetGlobal;
 
-	// effectively disable smoothing for camera pan, which causes some residents unhappiness
-	mCameraSmoothingLastPositionGlobal += meters * up_axis;
-	mCameraSmoothingLastPositionAgent += meters * up_axis;
+	// disable smoothing for camera pan, which causes some residents unhappiness
+	mCameraSmoothingStop = TRUE;
 
 	cameraZoomIn(1.f);
 	updateFocusOffset();
@@ -3231,7 +3230,7 @@ void LLAgent::updateCamera()
 		LLVector3d agent_pos = getPositionGlobal();
 		LLVector3d camera_pos_agent = camera_pos_global - agent_pos;
 		
-		if (cameraThirdPerson()) // only smooth in third person mode
+		if (cameraThirdPerson() && !mCameraSmoothingStop) // only smooth in third person mode
 		{
 			const F32 SMOOTHING_HALF_LIFE = 0.02f;
 			
@@ -3261,6 +3260,7 @@ void LLAgent::updateCamera()
 								 
 		mCameraSmoothingLastPositionGlobal = camera_pos_global;
 		mCameraSmoothingLastPositionAgent = camera_pos_agent;
+		mCameraSmoothingStop = FALSE;
 	}
 
 	

@@ -2937,7 +2937,7 @@ void LLTextEditor::drawText()
 			const LLWString ltext = utf8str_to_wstring(llformat("%*d", UI_TEXTEDITOR_LINE_NUMBER_DIGITS, cur_line_num ));
 			BOOL is_cur_line = getCurrentLine() == cur_line_num;
 			const U8 style = is_cur_line ? LLFontGL::BOLD : LLFontGL::NORMAL;
-			const LLColor4 fg_color = is_cur_line ? LLColor4::black : LLColor4::grey4;
+			const LLColor4 fg_color = is_cur_line ? mCursorColor : mReadOnlyFgColor;
 			num_font->render( 
 				ltext, // string to draw
 				0, // begin offset

@@ -115,6 +115,10 @@ Call RemoveOldShaders
 Call RemoveOldXUI
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Clear out old releasenotes.txt files. These are now on the public wiki.
+Call RemoveOldReleaseNotes
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Files
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; This placeholder is replaced by the complete list of all the files in the installer, by viewer_manifest.py
@@ -146,8 +150,6 @@ WriteINIStr		"$SMPROGRAMS\$INSTSHORTCUT\SL Create Trial Account.url" \
 WriteINIStr		"$SMPROGRAMS\$INSTSHORTCUT\SL Your Account.url" \
 				"InternetShortcut" "URL" \
 				"http://www.secondlife.com/account/"
-CreateShortCut	"$SMPROGRAMS\$INSTSHORTCUT\SL Release Notes.lnk" \
-				"$INSTDIR\releasenotes.txt"
 CreateShortCut	"$SMPROGRAMS\$INSTSHORTCUT\SL Scripting Language Help.lnk" \
 				"$INSTDIR\lsl_guide.html"
 CreateShortCut	"$SMPROGRAMS\$INSTSHORTCUT\Uninstall $INSTSHORTCUT.lnk" \
@@ -507,6 +509,22 @@ RmDir /r "$INSTDIR\skins\textures"
 Delete "$INSTDIR\skins\*.txt"
 
 FunctionEnd
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Remove any releasenotes files.
+;;; We are no longer including release notes with the viewer. This will delete
+;;; any that were left behind by an older installer. Delete will not fail if
+;;; the files do not exist
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+Function RemoveOldReleaseNotes
+
+;; remove releasenotes.txt file from application directory, and the shortcut
+;; from the start menu.
+Delete "$SMPROGRAMS\$INSTSHORTCUT\SL Release Notes.lnk"
+Delete "$INSTDIR\releasenotes.txt"
+
+FunctionEnd
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Delete files in Documents and Settings\<user>\SecondLife

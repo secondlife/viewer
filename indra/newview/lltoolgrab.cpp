@@ -134,7 +134,7 @@ BOOL LLToolGrab::handleMouseDown(S32 x, S32 y, MASK mask)
 	if (!gAgent.leftButtonGrabbed())
 	{
 		// can grab transparent objects (how touch event propagates, scripters rely on this)
-		gViewerWindow->pickAsync(x, y, mask, pickCallback, TRUE);
+		gViewerWindow->pickAsync(x, y, mask, pickCallback, TRUE, TRUE);
 	}
 	return TRUE;
 }
@@ -1027,8 +1027,8 @@ void LLToolGrab::stopGrab()
 		msg->nextBlockFast(_PREHASH_ObjectData);
 		msg->addU32Fast(_PREHASH_LocalID, objectp->mLocalID);
 		msg->nextBlock("SurfaceInfo");
-		msg->addVector3("UVCoord", LLVector3(mGrabPick.mUVCoords));
-		msg->addVector3("STCoord", LLVector3(mGrabPick.mSTCoords));
+		msg->addVector3("UVCoord", LLVector3(pick.mUVCoords));
+		msg->addVector3("STCoord", LLVector3(pick.mSTCoords));
 		msg->addS32Fast(_PREHASH_FaceIndex, pick.mObjectFace);
 		msg->addVector3("Position", pick.mIntersection);
 		msg->addVector3("Normal", pick.mNormal);

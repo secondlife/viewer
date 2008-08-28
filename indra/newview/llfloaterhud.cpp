@@ -10,10 +10,14 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llfloaterhud.h"
+
+// Viewer libs
 #include "llviewercontrol.h"
-#include "lluictrlfactory.h"
 #include "llwebbrowserctrl.h"
 #include "llalertdialog.h"
+
+// Linden libs
+#include "lluictrlfactory.h"
 
 // statics 
 LLFloaterHUD* LLFloaterHUD::sInstance = 0; 
@@ -113,7 +117,12 @@ void LLFloaterHUD::showHUD()
 	hud->setFrontmost(FALSE);
 }
 
-void LLFloaterHUD::closeHUD()
+// Save our visibility state on close in case the user accidentally
+// quit the application while the tutorial was visible.
+// virtual
+void LLFloaterHUD::onClose(bool app_quitting)
 {
-	if (sInstance) sInstance->close();
+	bool stay_visible = app_quitting;
+	gSavedSettings.setBOOL("ShowTutorial", stay_visible);
+	destroy();
 }

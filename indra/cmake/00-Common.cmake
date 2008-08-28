@@ -32,7 +32,7 @@ if (WINDOWS)
       "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /Od /Zi /MT"
       CACHE STRING "C++ compiler release-with-debug options" FORCE)
   set(CMAKE_CXX_FLAGS_RELEASE
-      "${CMAKE_CXX_FLAGS_RELEASE} ${LL_CXX_FLAGS} /O2 /MT"
+      "${CMAKE_CXX_FLAGS_RELEASE} ${LL_CXX_FLAGS} /O2 /Zi /MT"
       CACHE STRING "C++ compiler release options" FORCE)
 
   add_definitions(
@@ -45,6 +45,7 @@ if (WINDOWS)
       /c
       /Zc:forScope
       /nologo
+      /Oy-
       )
      
   if(MSVC80 OR MSVC90)

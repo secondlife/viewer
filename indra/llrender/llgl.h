@@ -223,9 +223,9 @@ public:
 
 	static void resetTextureStates();
 	static void dumpStates();
-	static void checkStates();
-	static void checkTextureChannels();
-	static void checkClientArrays(U32 data_mask = 0x0001);
+	static void checkStates(const std::string& msg = "");
+	static void checkTextureChannels(const std::string& msg = "");
+	static void checkClientArrays(const std::string& msg = "", U32 data_mask = 0x0001);
 	
 protected:
 	static std::map<LLGLenum, LLGLboolean> sStateMap;

@@ -111,16 +111,16 @@
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>0a49a6ec1f2db3693d81f4a32e0bdc2c</string>
+            <string>d9ce3ace9235249b7edf6f564de83395</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ares-1.3.0-darwin-20080812.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ares-1.4.0-darwin-20080731b.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>29dc8946944acd44459bdff03359314c</string>
+            <string>aa111fae0ac550bba5e280275eb25904</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ares-1.3.0-linux-20080812.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ares-1.4.0-linux-20080729.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>

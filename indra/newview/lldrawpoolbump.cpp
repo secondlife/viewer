@@ -443,6 +443,7 @@ void LLDrawPoolBump::endShiny(bool invisible)
 		}
 	}
 	
+	gGL.getTexUnit(0)->activate();
 	LLImageGL::unbindTexture(0, GL_TEXTURE_2D);
 	gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
 	

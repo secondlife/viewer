@@ -46,9 +46,6 @@
 	<check_box label="支払情報登録がないものを拒否" name="deny_anonymous" />
 	<check_box label="支払情報登録があるものを拒否" name="deny_identified" />
 	<check_box label="使用されている支払情報を拒否" name="deny_transacted" />
-	<text name="abuse_email_text">
-		[Abuse E-mail Beta]
-	</text>
 	<button label="適用" name="apply_btn" />
 	<text name="allow_resident_label">
 		許可された住人:

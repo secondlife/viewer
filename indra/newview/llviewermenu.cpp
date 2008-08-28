@@ -702,7 +702,7 @@ void init_menus()
 	gMenuBarView->setRect(LLRect(0, top, 0, top - MENU_BAR_HEIGHT));
 	gMenuBarView->setBackgroundColor( color );
 
-    gMenuBarView->setItemVisible("Tools", FALSE);
+    // gMenuBarView->setItemVisible("Tools", FALSE);
 	gMenuBarView->arrange();
 	
 	gMenuHolder->addChild(gMenuBarView);
@@ -2055,8 +2055,18 @@ class LLEnableEdit : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		bool new_value = gAgent.isGodlike() || !gAgent.inPrelude();
-		gMenuHolder->findControl(userdata["control"].asString())->setValue(new_value);
+		// *HACK:  The new "prelude" Help Islands have a build sandbox area,
+		// so users need the Edit and Create pie menu options when they are
+		// there.  Eventually this needs to be replaced with code that only 
+		// lets you edit objects if you have permission to do so (edit perms,
+		// group edit, god).  See also lltoolbar.cpp.  JC
+		bool enable = true;
+		if (gAgent.inPrelude())
+		{
+			enable = LLViewerParcelMgr::getInstance()->agentCanBuild()
+				|| LLSelectMgr::getInstance()->getSelection()->isAttachment();
+		}
+		gMenuHolder->findControl(userdata["control"].asString())->setValue(enable);
 		return true;
 	}
 };
@@ -4480,13 +4490,12 @@ class LLToolsStopAllAnimations : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		LLVOAvatar* avatarp = gAgent.getAvatarObject();
-		
-		if (!avatarp) return true;
-		
-		avatarp->deactivateAllMotions();
-	
-		avatarp->processAnimationStateChanges();
+		LLVOAvatar* avatarp = gAgent.getAvatarObject();		
+		if (avatarp)
+		{
+			avatarp->deactivateAllMotions();	
+			avatarp->startDefaultMotions();
+		}
 		return true;
 	}
 };

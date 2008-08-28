@@ -134,6 +134,9 @@ public:
 	LLViewerWindow(const std::string& title, const std::string& name, S32 x, S32 y, S32 width, S32 height, BOOL fullscreen, BOOL ignore_pixel_depth);
 	virtual ~LLViewerWindow();
 
+	void			shutdownViews();
+	void			shutdownGL();
+	
 	void			initGLDefaults();
 	void			initBase();
 	void			adjustRectanglesForFirstUse(const LLRect& window);
@@ -295,6 +298,8 @@ public:
 	// draws selection boxes around selected objects, must call displayObjects first
 	void			renderSelections( BOOL for_gl_pick, BOOL pick_parcel_walls, BOOL for_hud );
 	void			performPick();
+	void			returnEmptyPicks();
+
 
 	void			pickAsync(S32 x, S32 y_from_bot, MASK mask, void (*callback)(const LLPickInfo& pick_info),
 							  BOOL pick_transparent = FALSE, BOOL get_surface_info = FALSE);

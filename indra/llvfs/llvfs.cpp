@@ -1996,26 +1996,25 @@ std::string get_extension(LLAssetType::EType type)
 	std::string extension;
 	switch(type)
 	{
-	  case LLAssetType::AT_TEXTURE:
-		extension = ".j2c";
+	case LLAssetType::AT_TEXTURE:
+		extension = ".jp2";	// formerly ".j2c"
 		break;
-	  case LLAssetType::AT_SOUND:
+	case LLAssetType::AT_SOUND:
 		extension = ".ogg";
 		break;
-	  case LLAssetType::AT_SOUND_WAV:
+	case LLAssetType::AT_SOUND_WAV:
 		extension = ".wav";
 		break;
-	  case LLAssetType::AT_TEXTURE_TGA:
+	case LLAssetType::AT_TEXTURE_TGA:
 		extension = ".tga";
 		break;
-	  case LLAssetType::AT_IMAGE_JPEG:
-		extension = ".jpeg";
-		break;
-	  case LLAssetType::AT_ANIMATION:
+	case LLAssetType::AT_ANIMATION:
 		extension = ".lla";
 		break;
-	  default:
-		extension = ".data";
+	default:
+		// Just use the asset server filename extension in most cases
+		extension += ".";
+		extension += LLAssetType::lookup(type);
 		break;
 	}
 	return extension;
@@ -2050,6 +2049,7 @@ void LLVFS::dumpFiles()
 {
 	lockData();
 	
+	S32 files_extracted = 0;
 	for (fileblock_map::iterator it = mFileBlocks.begin(); it != mFileBlocks.end(); ++it)
 	{
 		LLVFSFileSpecifier file_spec = it->first;
@@ -2073,10 +2073,13 @@ void LLVFS::dumpFiles()
 			ll_apr_file_write(file, buffer, size);
 			apr_file_close(file);
 			delete[] buffer;
+			files_extracted++;
 		}
 	}
 	
 	unlockData();
+
+	llinfos << "Extracted " << files_extracted << " files out of " << mFileBlocks.size() << llendl;
 }
 
 //============================================================================

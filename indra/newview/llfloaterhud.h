@@ -1,6 +1,6 @@
 /** 
  * @file llfloaterhud.h
- * @brief The HUD floater
+ * @brief A floater showing the HUD tutorial
  *
  * $LicenseInfo:firstyear=2008&license=viewergpl$
  * Copyright (c) 2008, Linden Research, Inc.
@@ -14,28 +14,23 @@
 
 class LLWebBrowserCtrl;
 
-//=============================================================================
-//
-//	CLASS		LLFloaterHUD
-
 class LLFloaterHUD : public LLFloater
-
-/*!	@brief		A floater showing the HUD tutorial
-*/
 {
 public:
 	static LLFloaterHUD* getInstance(); ///< get instance creating if necessary
-	virtual ~LLFloaterHUD(); ///< virtual destructor
 
 	static void showHUD(); ///< show the HUD
-	static void closeHUD(); ///< close the HUD (destroys floater)
 
-protected:
-	LLWebBrowserCtrl* mWebBrowser; ///< the actual web browser control
-
-	LLFloaterHUD(); ///< default constructor
+	// Save our visibility state during close
+	/*virtual*/ void onClose(bool app_quitting);
 
 private:
+	// Handles its own construction and destruction, so private.
+	LLFloaterHUD();
+	/*virtual*/ ~LLFloaterHUD();
+
+private:
+	LLWebBrowserCtrl* mWebBrowser; ///< the actual web browser control
 	static LLFloaterHUD* sInstance;
 };
 

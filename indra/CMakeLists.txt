@@ -93,3 +93,10 @@ if (SERVER)
   endif (NOT LINUX)
   include(${SERVER_PREFIX}Server.cmake)
 endif (SERVER)
+
+# Windows builds include tools like VFS tool
+if (SERVER)
+  if (WINDOWS)
+    add_subdirectory(${SERVER_PREFIX}tools)
+  endif (WINDOWS)
+endif (SERVER)

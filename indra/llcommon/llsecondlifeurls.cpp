@@ -83,5 +83,5 @@ const std::string LSL_DOC_URL (
 const std::string SL_KB_URL (
 	"http://secondlife.com/knowledgebase/");
 
-const std::string RELEASE_NOTES ( "releasenotes.txt");
-
+const std::string RELEASE_NOTES_BASE_URL (
+	"http://secondlife.com/app/releasenotes/");

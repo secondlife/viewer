@@ -264,6 +264,7 @@ LLWindowMacOSX::LLWindowMacOSX(const std::string& title, const std::string& name
 	mWindowTitle[0] = title.length();
 
 	mEventHandlerUPP = NewEventHandlerUPP(staticEventHandler);
+	mMoveEventCampartorUPP = NewEventComparatorUPP(staticMoveEventComparator);
 	mGlobalHandlerRef = NULL;
 	mWindowHandlerRef = NULL;
 
@@ -1487,6 +1488,7 @@ void LLWindowMacOSX::adjustCursorDecouple(bool warpingMouse)
 				//			llinfos << "adjustCursorDecouple: decoupling cursor" << llendl;
 				CGAssociateMouseAndMouseCursorPosition(false);
 				mCursorDecoupled = true;
+				FlushSpecificEventsFromQueue(GetCurrentEventQueue(), mMoveEventCampartorUPP, NULL);
 				mCursorIgnoreNextDelta = TRUE;
 			}
 		}
@@ -1913,6 +1915,23 @@ void LLWindowMacOSX::setupFailure(const std::string& text, const std::string& ca
 
 	OSMessageBox(text, caption, type);
 }
+
+pascal Boolean LLWindowMacOSX::staticMoveEventComparator( EventRef event, void* data)
+{
+	UInt32 				evtClass = GetEventClass (event);
+	UInt32 				evtKind = GetEventKind (event);
+
+	if ((evtClass == kEventClassMouse) && ((evtKind == kEventMouseDragged) || (evtKind == kEventMouseMoved)))
+	{
+		return true;
+	}
+
+	else
+	{
+		return false;
+	}
+}
+
 
 pascal OSStatus LLWindowMacOSX::staticEventHandler(EventHandlerCallRef myHandler, EventRef event, void* userData)
 {

@@ -1036,6 +1036,7 @@ BOOL LLViewerWindow::handleMiddleMouseUp(LLWindow *window,  LLCoordGL pos, MASK 
 	return TRUE;
 }
 
+// WARNING: this is potentially called multiple times per frame
 void LLViewerWindow::handleMouseMove(LLWindow *window,  LLCoordGL pos, MASK mask)
 {
 	S32 x = pos.mX;
@@ -1772,12 +1773,15 @@ void LLViewerWindow::adjustRectanglesForFirstUse(const LLRect& window)
 
 	// slightly off center to be left of the avatar.
 	r = gSavedSettings.getRect("FloaterHUDRect2");
-	r.setOriginAndSize(
-		window.getWidth()/3 - r.getWidth()/2,
-		window.getHeight()/2 - r.getHeight()/2,
-		r.getWidth(),
-		r.getHeight());
-	gSavedSettings.setRect("FloaterHUDRect2", r);
+	if (r.mLeft == 0 && r.mBottom == 0)
+	{
+		r.setOriginAndSize(
+			window.getWidth()/3 - r.getWidth()/2,
+			window.getHeight()/2 - r.getHeight()/2,
+			r.getWidth(),
+			r.getHeight());
+		gSavedSettings.setRect("FloaterHUDRect2", r);
+	}
 }
 
 //Rectangles need to be adjusted after the window is constructed
@@ -1871,10 +1875,11 @@ void LLViewerWindow::initWorldUI()
 	}
 }
 
-
-LLViewerWindow::~LLViewerWindow()
+// Destroy the UI
+void LLViewerWindow::shutdownViews()
 {
 	delete mDebugText;
+	mDebugText = NULL;
 	
 	gSavedSettings.setS32("FloaterViewBottom", gFloaterView->getRect().mBottom);
 
@@ -1904,7 +1909,10 @@ LLViewerWindow::~LLViewerWindow()
 
 	delete mToolTip;
 	mToolTip = NULL;
-	
+}
+
+void LLViewerWindow::shutdownGL()
+{
 	//--------------------------------------------------------
 	// Shutdown GL cleanly.  Order is very important here.
 	//--------------------------------------------------------
@@ -1940,8 +1948,11 @@ LLViewerWindow::~LLViewerWindow()
 		stopGL(FALSE);
 		stop_glerror();
 	}
+}
 
-
+// shutdownViews() and shutdownGL() need to be called first
+LLViewerWindow::~LLViewerWindow()
+{
 	llinfos << "Destroying Window" << llendl;
 	destroyWindow();
 }
@@ -3323,6 +3334,16 @@ void LLViewerWindow::pickAsync(S32 x, S32 y_from_bot, MASK mask, void (*callback
 
 void LLViewerWindow::schedulePick(LLPickInfo& pick_info)
 {
+	if (mPicks.size() >= 1024 || mWindow->getMinimized())
+	{ //something went wrong, picks are being scheduled but not processed
+		
+		if (pick_info.mPickCallback)
+		{
+			pick_info.mPickCallback(pick_info);
+		}
+	
+		return;
+	}
 	llassert_always(pick_info.mScreenRegion.notNull());
 	mPicks.push_back(pick_info);
 	
@@ -3381,7 +3402,8 @@ void LLViewerWindow::schedulePick(LLPickInfo& pick_info)
 	// Draw the objects so the user can select them.
 	// The starting ID is 1, since land is zero.
 	LLRect pick_region;
-	pick_region.setOriginAndSize(scaled_x - PICK_HALF_WIDTH, scaled_y - PICK_HALF_WIDTH, PICK_DIAMETER, PICK_DIAMETER);
+	pick_region.setOriginAndSize(pick_info.mMousePt.mX - PICK_HALF_WIDTH,
+								 pick_info.mMousePt.mY - PICK_HALF_WIDTH, PICK_DIAMETER, PICK_DIAMETER);
 	gObjectList.renderObjectsForSelect(pick_camera, pick_region, FALSE, pick_info.mPickTransparent);
 
 	stop_glerror();
@@ -3419,7 +3441,21 @@ void LLViewerWindow::performPick()
 		mLastPick = mPicks.back();
 		mPicks.clear();
 	}
+}
 
+void LLViewerWindow::returnEmptyPicks()
+{
+	std::vector<LLPickInfo>::iterator pick_it;
+	for (pick_it = mPicks.begin(); pick_it != mPicks.end(); ++pick_it)
+	{
+		mLastPick = *pick_it;
+		// just trigger callback with empty results
+		if (pick_it->mPickCallback)
+		{
+			pick_it->mPickCallback(*pick_it);
+		}
+	}
+	mPicks.clear();
 }
 
 // Performs the GL object/land pick.
@@ -4069,7 +4105,7 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 					window_width = snapshot_width;
 					window_height = snapshot_height;
 					scale_factor = 1.f;
-					mWindowRect.set(0, 0, snapshot_width, snapshot_height);
+					mWindowRect.set(0, snapshot_height, snapshot_width, 0);
 					target.bindTarget();			
 				}
 			}

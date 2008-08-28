@@ -372,7 +372,7 @@ void LLFace::renderForSelect(U32 data_mask)
 
 		mVertexBuffer->setBuffer(data_mask);
 #if !LL_RELEASE_FOR_DOWNLOAD
-		LLGLState::checkClientArrays(data_mask);
+		LLGLState::checkClientArrays("", data_mask);
 #endif
 		if (mTEOffset != -1)
 		{
@@ -435,7 +435,7 @@ void LLFace::renderSelected(LLImageGL *imagep, const LLColor4& color)
 
 		mVertexBuffer->setBuffer(LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD);
 #if !LL_RELEASE_FOR_DOWNLOAD
-		LLGLState::checkClientArrays(LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD);
+		LLGLState::checkClientArrays("", LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD);
 #endif
 		mVertexBuffer->draw(LLVertexBuffer::TRIANGLES, mIndicesCount, mIndicesIndex);
 				
@@ -696,20 +696,23 @@ LLVector2 LLFace::surfaceToTexture(LLVector2 surface_coord, LLVector3 position, 
 	{
 		LLVector3 center = mDrawablep->getVOVolume()->getVolume()->getVolumeFace(mTEOffset).mCenter;
 		
-		LLVector3 scale = (mDrawablep->getVOVolume()->isVolumeGlobal()) ? LLVector3(1,1,1) : mVObjp->getScale();
-		LLVector3 vec = position;
-		vec.scaleVec(scale);
-
+		LLVector3 scale  = (mDrawablep->getVOVolume()->isVolumeGlobal()) ? LLVector3(1,1,1) : mVObjp->getScale();
+		LLVector3 volume_position = mDrawablep->getVOVolume()->agentPositionToVolume(position);
+		volume_position.scaleVec(scale);
+		
+		LLVector3 volume_normal   = mDrawablep->getVOVolume()->agentDirectionToVolume(normal);
+		volume_normal.normalize();
+		
 		switch (texgen)
 		{
 		case LLTextureEntry::TEX_GEN_PLANAR:
-			planarProjection(tc, normal, center, vec);
+			planarProjection(tc, volume_normal, center, volume_position);
 			break;
 		case LLTextureEntry::TEX_GEN_SPHERICAL:
-			sphericalProjection(tc, normal, center, vec);
+			sphericalProjection(tc, volume_normal, center, volume_position);
 			break;
 		case LLTextureEntry::TEX_GEN_CYLINDRICAL:
-			cylindricalProjection(tc, normal, center, vec);
+			cylindricalProjection(tc, volume_normal, center, volume_position);
 			break;
 		default:
 			break;

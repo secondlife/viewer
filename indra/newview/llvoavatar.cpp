@@ -1737,6 +1737,27 @@ BOOL LLVOAvatar::buildSkeleton(LLVOAvatarSkeletonInfo *info)
 }
 
 //-----------------------------------------------------------------------------
+// LLVOAvatar::startDefaultMotions()
+//-----------------------------------------------------------------------------
+void LLVOAvatar::startDefaultMotions()
+{
+	//-------------------------------------------------------------------------
+	// start default motions
+	//-------------------------------------------------------------------------
+	startMotion( ANIM_AGENT_HEAD_ROT );
+	startMotion( ANIM_AGENT_EYE );
+	startMotion( ANIM_AGENT_BODY_NOISE );
+	startMotion( ANIM_AGENT_BREATHE_ROT );
+	startMotion( ANIM_AGENT_HAND_MOTION );
+	startMotion( ANIM_AGENT_PELVIS_FIX );
+
+	//-------------------------------------------------------------------------
+	// restart any currently active motions
+	//-------------------------------------------------------------------------
+	processAnimationStateChanges();
+}
+
+//-----------------------------------------------------------------------------
 // LLVOAvatar::buildCharacter()
 // Deferred initialization and rebuild of the avatar.
 //-----------------------------------------------------------------------------
@@ -1905,21 +1926,8 @@ void LLVOAvatar::buildCharacter()
 		mAahMorph = getVisualParam( "Express_Open_Mouth" );
 	}
 
-	//-------------------------------------------------------------------------
-	// start default motions
-	//-------------------------------------------------------------------------
-	startMotion( ANIM_AGENT_HEAD_ROT );
-	startMotion( ANIM_AGENT_EYE );
-	startMotion( ANIM_AGENT_BODY_NOISE );
-	startMotion( ANIM_AGENT_BREATHE_ROT );
-	startMotion( ANIM_AGENT_HAND_MOTION );
-	startMotion( ANIM_AGENT_PELVIS_FIX );
-
-	//-------------------------------------------------------------------------
-	// restart any currently active motions
-	//-------------------------------------------------------------------------
-	processAnimationStateChanges();
-
+	startDefaultMotions();
+	
 	mIsBuilt = TRUE;
 	stop_glerror();
 

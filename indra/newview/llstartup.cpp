@@ -855,9 +855,6 @@ bool idle_startup()
 		
 		//For HTML parsing in text boxes.
 		LLTextEditor::setLinkColor( gSavedSettings.getColor4("HTMLLinkColor") );
-		LLTextEditor::setURLCallbacks ( &LLWeb::loadURL,
-				&LLURLDispatcher::dispatchFromTextEditor,
-				&LLURLDispatcher::dispatchFromTextEditor   );
 
 		// Load URL History File
 		LLURLHistory::loadFile("url_history.xml");
@@ -1964,6 +1961,7 @@ bool idle_startup()
 			}
  		}
 		options.clear();
+		bool show_hud = false;
 		if(LLUserAuth::getInstance()->getOptions("tutorial_setting", options))
 		{
 			LLUserAuth::options_t::iterator it = options.begin();
@@ -1982,10 +1980,18 @@ bool idle_startup()
 				{
 					if (option_it->second == "true")
 					{
-						LLFloaterHUD::showHUD();
+						show_hud = true;
 					}
 				}
 			}
+		}
+		// Either we want to show tutorial because this is the first login
+		// to a Linden Help Island or the user quit with the tutorial
+		// visible.  JC
+		if (show_hud
+			|| gSavedSettings.getBOOL("ShowTutorial"))
+		{
+			LLFloaterHUD::showHUD();
 		}
 
 		options.clear();

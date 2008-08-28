@@ -792,7 +792,8 @@ private:
 	LLVector3		mSitCameraPos;					// root relative camera pos when sitting
 	LLVector3		mSitCameraFocus;				// root relative camera target when sitting
 	LLVector3d      mCameraSmoothingLastPositionGlobal;    
-	LLVector3d      mCameraSmoothingLastPositionAgent;    
+	LLVector3d      mCameraSmoothingLastPositionAgent;
+	BOOL            mCameraSmoothingStop;
 
 	
 	//Ventrella

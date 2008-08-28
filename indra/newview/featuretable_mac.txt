@@ -342,6 +342,8 @@ Disregard96DefaultDrawDistance	1	0
 
 list NVIDIA_GeForce_8600
 RenderTextureMemoryMultiple			1	0.375	
+RenderUseImpostors				0	0
+UseOcclusion				0	0
 
 /// tweaked ATI to 96 Draw distance
 

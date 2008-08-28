@@ -50,6 +50,10 @@
 #include "llversionviewer.h"
 #include "llviewerbuild.h"
 #include "lluictrlfactory.h"
+#include "lluri.h"
+#include "llweb.h"
+#include "llsecondlifeurls.h"
+#include "lltrans.h"
 #include "llappviewer.h" 
 #include "llglheaders.h"
 #include "llmediamanager.h"
@@ -64,6 +68,8 @@ extern U32 gPacketsIn;
 ///----------------------------------------------------------------------------
 
 LLFloaterAbout* LLFloaterAbout::sInstance = NULL;
+
+static std::string get_viewer_release_notes_url();
 
 ///----------------------------------------------------------------------------
 /// Class LLFloaterAbout
@@ -80,21 +86,50 @@ LLFloaterAbout::LLFloaterAbout()
 	title += LLAppViewer::instance()->getSecondLifeTitle();
 	setTitle(title);
 
-	std::string support;
+	LLViewerTextEditor *support_widget = 
+		getChild<LLViewerTextEditor>("support_editor", true);
+
+	LLViewerTextEditor *credits_widget = 
+		getChild<LLViewerTextEditor>("credits_editor", true);
+
+
+	if (!support_widget || !credits_widget)
+	{
+		return;
+	}
+
+	// For some reason, adding style doesn't work unless this is true.
+	support_widget->setParseHTML(TRUE);
+
+	// Text styles for release notes hyperlinks
+	LLStyleSP viewer_link_style(new LLStyle);
+	viewer_link_style->setVisible(true);
+	viewer_link_style->setFontName(LLStringUtil::null);
+	viewer_link_style->setLinkHREF(get_viewer_release_notes_url());
+	viewer_link_style->setColor(gSavedSettings.getColor4("HTMLLinkColor"));
 
 	// Version string
 	std::string version = LLAppViewer::instance()->getSecondLifeTitle()
-		+ llformat(" %d.%d.%d (%d) %s %s (%s)",
+		+ llformat(" %d.%d.%d (%d) %s %s (%s)\n",
 				   LL_VERSION_MAJOR, LL_VERSION_MINOR, LL_VERSION_PATCH, LL_VIEWER_BUILD,
 				   __DATE__, __TIME__,
 				   gSavedSettings.getString("VersionChannelName").c_str());
-	support.append(version);
+	support_widget->appendColoredText(version, FALSE, FALSE, gColors.getColor("TextFgReadOnlyColor"));
+	support_widget->appendStyledText(LLTrans::getString("ReleaseNotes"), FALSE, FALSE, &viewer_link_style);
+
+	std::string support;
 	support.append("\n\n");
 
 	// Position
 	LLViewerRegion* region = gAgent.getRegion();
 	if (region)
 	{
+		LLStyleSP server_link_style(new LLStyle);
+		server_link_style->setVisible(true);
+		server_link_style->setFontName(LLStringUtil::null);
+		server_link_style->setLinkHREF(region->getCapability("ServerReleaseNotes"));
+		server_link_style->setColor(gSavedSettings.getColor4("HTMLLinkColor"));
+
 		const LLVector3d &pos = gAgent.getPositionGlobal();
 		LLUIString pos_text = getUIString("you_are_at");
 		pos_text.setArg("[POSITION]",
@@ -113,7 +148,12 @@ LLFloaterAbout::LLFloaterAbout()
 		support.append(buffer);
 		support.append(")\n");
 		support.append(gLastVersionChannel);
-		support.append("\n\n");
+		support.append("\n");
+
+		support_widget->appendColoredText(support, FALSE, FALSE, gColors.getColor("TextFgReadOnlyColor"));
+		support_widget->appendStyledText(LLTrans::getString("ReleaseNotes"), FALSE, FALSE, &server_link_style);
+
+		support = "\n\n";
 	}
 
 	// *NOTE: Do not translate text like GPU, Graphics Card, etc -
@@ -180,17 +220,18 @@ LLFloaterAbout::LLFloaterAbout()
 		support.append("\n");
 	}
 
-	// Fix views
-	childDisable("credits_editor");
+	support_widget->appendColoredText(support, FALSE, FALSE, gColors.getColor("TextFgReadOnlyColor"));
 
-	LLTextEditor * support_widget = getChild<LLTextEditor>("support_editor", true);
-	if (support_widget)
-	{
-		support_widget->setEnabled( FALSE );
-		support_widget->setTakesFocus( TRUE );
-		support_widget->setText( support );
-		support_widget->setHandleEditKeysDirectly( TRUE );
-	}
+	// Fix views
+	support_widget->setCursorPos(0);
+	support_widget->setEnabled(FALSE);
+	support_widget->setTakesFocus(TRUE);
+	support_widget->setHandleEditKeysDirectly(TRUE);
+
+	credits_widget->setCursorPos(0);
+	credits_widget->setEnabled(FALSE);
+	credits_widget->setTakesFocus(TRUE);
+	credits_widget->setHandleEditKeysDirectly(TRUE);
 
 	center();
 
@@ -212,4 +253,23 @@ void LLFloaterAbout::show(void*)
 	}
 
 	sInstance->open();	 /*Flawfinder: ignore*/
+}
+
+
+static std::string get_viewer_release_notes_url()
+{
+	std::ostringstream version;
+	version << LL_VERSION_MAJOR << "."
+		<< LL_VERSION_MINOR << "."
+		<< LL_VERSION_PATCH << "."
+		<< LL_VERSION_BUILD;
+
+	LLSD query;
+	query["channel"] = gSavedSettings.getString("VersionChannelName");
+	query["version"] = version.str();
+
+	std::ostringstream url;
+	url << RELEASE_NOTES_BASE_URL << LLURI::mapToQueryString(query);
+
+	return url.str();
 }

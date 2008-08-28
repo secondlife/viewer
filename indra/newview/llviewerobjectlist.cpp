@@ -1216,8 +1216,13 @@ void LLViewerObjectList::renderPickList(const LLRect& screen_rect, BOOL pick_par
 	gGL.color4f(1,1,1,1);	
 	gViewerWindow->renderSelections( TRUE, pick_parcel_wall, FALSE );
 
-	// render pickable ui elements, like names, etc.
-	LLHUDObject::renderAllForSelect();
+	//fix for DEV-19335.  Don't pick hud objects when customizing avatar (camera mode doesn't play nice with nametags).
+	if (!gAgent.cameraCustomizeAvatar())
+	{
+		// render pickable ui elements, like names, etc.
+		LLHUDObject::renderAllForSelect();
+	}
+	
 	gGL.flush();
 	LLVertexBuffer::unbind();
 
