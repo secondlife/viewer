@@ -29,3 +29,7 @@ set_source_files_properties(${llimagej2coj_HEADER_FILES}
 list(APPEND llimagej2coj_SOURCE_FILES ${llimagej2coj_HEADER_FILES})
 
 add_library (llimagej2coj ${llimagej2coj_SOURCE_FILES})
+target_link_libraries(
+    llimagej2coj
+    ${OPENJPEG_LIBRARIES}
+    )

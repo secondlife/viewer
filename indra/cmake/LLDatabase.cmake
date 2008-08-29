@@ -7,7 +7,4 @@ set(LLDATABASE_INCLUDE_DIRS
     ${MYSQL_INCLUDE_DIR}
     )
 
-set(LLDATABASE_LIBRARIES
-    lldatabase
-    ${MYSQL_LIBRARIES}
-    )
+set(LLDATABASE_LIBRARIES lldatabase)
