@@ -48,3 +48,8 @@ set_source_files_properties(${llimage_HEADER_FILES}
 list(APPEND llimage_SOURCE_FILES ${llimage_HEADER_FILES})
 
 add_library (llimage ${llimage_SOURCE_FILES})
+target_link_libraries(
+    llimage
+    ${JPEG_LIBRARIES}
+    ${PNG_LIBRARIES}
+    )

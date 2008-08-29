@@ -3,7 +3,6 @@
 project(linux_crash_logger)
 
 include(00-Common)
-include(Boost)
 include(LLCommon)
 include(LLCrashLogger)
 include(LLMath)
@@ -52,7 +51,6 @@ target_link_libraries(linux-crash-logger
     ${LLMATH_LIBRARIES}
     ${LLCOMMON_LIBRARIES}
     ${UI_LIBRARIES}
-    ${BOOST_SIGNALS_LIBRARY}
     ${DB_LIBRARIES}
     )
 

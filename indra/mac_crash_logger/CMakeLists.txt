@@ -3,7 +3,6 @@
 project(mac_crash_logger)
 
 include(00-Common)
-include(Boost)
 include(LLCommon)
 include(LLCrashLogger)
 include(LLMath)
@@ -64,7 +63,6 @@ target_link_libraries(mac-crash-logger
     ${LLVFS_LIBRARIES}
     ${LLMATH_LIBRARIES}
     ${LLCOMMON_LIBRARIES}
-    ${BOOST_SIGNALS_LIBRARY}
     )
 
 add_custom_command(

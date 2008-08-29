@@ -34,3 +34,8 @@ set_source_files_properties(${llxml_HEADER_FILES}
 list(APPEND llxml_SOURCE_FILES ${llxml_HEADER_FILES})
 
 add_library (llxml ${llxml_SOURCE_FILES})
+target_link_libraries(
+    llxml
+    ${BOOST_SIGNALS_LIBRARY}
+    ${EXPAT_LIBRARIES}
+    )

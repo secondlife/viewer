@@ -8,8 +8,4 @@ set(LLIMAGE_INCLUDE_DIRS
     ${JPEG_INCLUDE_DIRS}
     )
 
-set(LLIMAGE_LIBRARIES
-    llimage
-    ${JPEG_LIBRARIES}
-    ${PNG_LIBRARIES}
-    )
+set(LLIMAGE_LIBRARIES llimage)
