@@ -1388,7 +1388,6 @@ target_link_libraries(secondlife-bin
     ${QUICKTIME_LIBRARY}
     ${WINDOWS_LIBRARIES}
     ${XMLRPCEPI_LIBRARIES}
-    ${ZLIB_LIBRARIES}
     ${ELFIO_LIBRARIES}
     )
 
