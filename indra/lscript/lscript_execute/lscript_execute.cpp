@@ -4047,7 +4047,8 @@ void lscript_pop_variable(LLScriptLibData *data, U8 *buffer, char type)
 		break;
 	case 'k':
 		data->mType = LST_KEY;
-
+		data->mKey = NULL;
+		
 		base_address = lscript_pop_int(buffer);
 	// this bit of nastiness is to get around that code paths to local variables can result in lack of initialization
 	// and function clean up of ref counts isn't based on scope (a mistake, I know)
@@ -4066,7 +4067,7 @@ void lscript_pop_variable(LLScriptLibData *data, U8 *buffer, char type)
 			}
 			lsa_decrease_ref_count(buffer, base_address);
 		}
-		else
+		if (data->mKey == NULL)
 		{
 			data->mKey = new char[1];
 			data->mKey[0] = 0;
@@ -4074,6 +4075,7 @@ void lscript_pop_variable(LLScriptLibData *data, U8 *buffer, char type)
 		break;
 	case 's':
 		data->mType = LST_STRING;
+		data->mString = NULL;
 
 		base_address = lscript_pop_int(buffer);
 	// this bit of nastiness is to get around that code paths to local variables can result in lack of initialization
@@ -4093,7 +4095,7 @@ void lscript_pop_variable(LLScriptLibData *data, U8 *buffer, char type)
 			}
 			lsa_decrease_ref_count(buffer, base_address);
 		}
-		else
+		if (data->mString == NULL)
 		{
 			data->mString = new char[1];
 			data->mString[0] = 0;
