@@ -7,6 +7,7 @@ include(LLCommon)
 include(LLImage)
 include(LLMath)
 include(LLVFS)
+include(ZLIB)
 
 include_directories(
     ${LLCOMMON_INCLUDE_DIRS}
@@ -52,4 +53,5 @@ target_link_libraries(
     llimage
     ${JPEG_LIBRARIES}
     ${PNG_LIBRARIES}
+    ${ZLIB_LIBRARIES}
     )
