@@ -42,10 +42,11 @@ else (STANDALONE)
       debug ${ARCH_PREBUILT_DIRS_DEBUG}/libaprutil-1.a
       optimized ${ARCH_PREBUILT_DIRS_RELEASE}/libaprutil-1.a
       )
-    set(APRICONV_LIBRARIES apriconv-1)
+    set(APRICONV_LIBRARIES iconv)
   else (WINDOWS)
     set(APR_LIBRARIES apr-1)
     set(APRUTIL_LIBRARIES aprutil-1)
+    set(APRICONV_LIBRARIES iconv)
   endif (WINDOWS)
   set(APR_INCLUDE_DIR ${LIBS_PREBUILT_DIR}/${LL_ARCH_DIR}/include/apr-1)
 

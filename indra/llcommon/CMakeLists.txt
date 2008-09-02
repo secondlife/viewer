@@ -190,6 +190,7 @@ add_library (llcommon ${llcommon_SOURCE_FILES})
 target_link_libraries(
     llcommon
     ${APRUTIL_LIBRARIES}
+    ${APRICONV_LIBRARIES}
     ${APR_LIBRARIES}
     ${EXPAT_LIBRARIES}
     ${ZLIB_LIBRARIES}
