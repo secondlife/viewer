@@ -608,9 +608,9 @@ anguage Infrstructure (CLI) international standard</string>
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>7293312a6c76e5a38ec1b58ff87828d9</string>
+            <string>6712a09311a914752f47d5d62562a239</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/libmono-windows-20080723.tar.bz2</uri>
+            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/libmono-1.2.6-windows-20080903.tar.bz2</uri>
           </map>
         </map>
       </map>
