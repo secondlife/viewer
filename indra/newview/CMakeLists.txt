@@ -429,6 +429,9 @@ set(viewer_SOURCE_FILES
     pipeline.cpp
     )
 
+set(VIEWER_BINARY_NAME "secondlife-bin" CACHE STRING
+    "The name of the viewer executable to create.")
+
 if (LINUX)
   # We can't set these flags for Darwin, because they get passed to
   # the PPC compiler.  Ugh.
@@ -1262,15 +1265,15 @@ list(APPEND viewer_SOURCE_FILES ${viewer_HEADER_FILES})
 set_source_files_properties(${viewer_HEADER_FILES}
                             PROPERTIES HEADER_FILE_ONLY TRUE)
 
-add_executable(secondlife-bin
+add_executable(${VIEWER_BINARY_NAME}
     WIN32
     MACOSX_BUNDLE
     ${viewer_SOURCE_FILES}
     )
-check_message_template(secondlife-bin)
+check_message_template(${VIEWER_BINARY_NAME})
 
 if (LLKDU_LIBRARY)
-  add_dependencies(secondlife-bin ${LLKDU_LIBRARY})
+  add_dependencies(${VIEWER_BINARY_NAME} ${LLKDU_LIBRARY})
 endif (LLKDU_LIBRARY)
 
 set(PACKAGE OFF CACHE BOOL
@@ -1278,12 +1281,12 @@ set(PACKAGE OFF CACHE BOOL
 
 if (WINDOWS)
     if(MSVC71)
-        set(release_flags "/MAP:Release/secondlife-bin.map /MAPINFO:LINES")
+        set(release_flags "/MAP:Release/${VIEWER_BINARY_NAME}.map /MAPINFO:LINES")
     else(MSVC71)
-        set(release_flags "/MAP:Release/secondlife-bin.map")
+        set(release_flags "/MAP:Release/${VIEWER_BINARY_NAME}.map")
     endif(MSVC71)
     
-    set_target_properties(secondlife-bin
+    set_target_properties(${VIEWER_BINARY_NAME}
         PROPERTIES
         LINK_FLAGS "/debug /NODEFAULTLIB:MSVCRT /SUBSYSTEM:WINDOWS"
         LINK_FLAGS_DEBUG "/NODEFAULTLIB:LIBCMT /NODEFAULTLIB:MSVCRTD"
@@ -1293,20 +1296,20 @@ if (WINDOWS)
     # sets the 'working directory' for debugging from visual studio.
     if (NOT UNATTENDED)
         add_custom_command(
-            TARGET secondlife-bin PRE_BUILD
+            TARGET ${VIEWER_BINARY_NAME} PRE_BUILD
             COMMAND ${CMAKE_SOURCE_DIR}/tools/vstool/vstool.exe
             ARGS
               --solution 
               ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}.sln
               --workingdir
-              secondlife-bin
+              ${VIEWER_BINARY_NAME}
               ${CMAKE_CURRENT_SOURCE_DIR}
-            COMMENT "Setting the secondlife-bin working directory for debugging."
+            COMMENT "Setting the ${VIEWER_BINARY_NAME} working directory for debugging."
             )
     endif (NOT UNATTENDED)
 
     add_custom_command(
-        TARGET secondlife-bin PRE_BUILD
+        TARGET ${VIEWER_BINARY_NAME} PRE_BUILD
         COMMAND ${CMAKE_COMMAND}
         ARGS
           -E
@@ -1317,7 +1320,7 @@ if (WINDOWS)
         )
 
     add_custom_command(
-        TARGET secondlife-bin PRE_BUILD
+        TARGET ${VIEWER_BINARY_NAME} PRE_BUILD
         COMMAND ${CMAKE_COMMAND}
         ARGS
           -E
@@ -1327,10 +1330,10 @@ if (WINDOWS)
         COMMENT "Copying message.xml to the runtime folder."
         )
        
-    add_dependencies(secondlife-bin copy_win_libs)
+    add_dependencies(${VIEWER_BINARY_NAME} copy_win_libs)
 
     if (EXISTS ${CMAKE_SOURCE_DIR}/copy_win_scripts)
-      add_dependencies(secondlife-bin copy_win_scripts)
+      add_dependencies(${VIEWER_BINARY_NAME} copy_win_scripts)
     endif (EXISTS ${CMAKE_SOURCE_DIR}/copy_win_scripts)
         
     add_custom_command(
@@ -1347,7 +1350,7 @@ if (WINDOWS)
               --build=${CMAKE_CURRENT_BINARY_DIR}
               --dest=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
               --touch=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/touched.bat
-        DEPENDS secondlife-bin ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
+        DEPENDS ${VIEWER_BINARY_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
         )
     if (PACKAGE)
       add_custom_target(package ALL DEPENDS ${CMAKE_CFG_INTDIR}/touched.bat)
@@ -1355,7 +1358,7 @@ if (WINDOWS)
     endif (PACKAGE)
 endif (WINDOWS)
 
-target_link_libraries(secondlife-bin
+target_link_libraries(${VIEWER_BINARY_NAME}
     ${LLAUDIO_LIBRARIES}
     ${LLCHARACTER_LIBRARIES}
     ${LLIMAGE_LIBRARIES}
@@ -1400,8 +1403,8 @@ if (LINUX)
   add_custom_command(
       OUTPUT secondlife-stripped
       COMMAND strip
-      ARGS --strip-debug -o secondlife-stripped secondlife-bin
-      DEPENDS secondlife-bin
+      ARGS --strip-debug -o secondlife-stripped ${VIEWER_BINARY_NAME}
+      DEPENDS ${VIEWER_BINARY_NAME}
       )
 
   set(product SecondLife-${ARCH}-${viewer_VERSION})
@@ -1433,7 +1436,7 @@ endif (LINUX)
 if (DARWIN)
   set(product "Second Life")
   set_target_properties(
-    secondlife-bin
+    ${VIEWER_BINARY_NAME}
     PROPERTIES
     OUTPUT_NAME "${product}"
     MACOSX_BUNDLE_INFO_STRING "info string - localize me"
@@ -1447,7 +1450,7 @@ if (DARWIN)
     )
 
   add_custom_command(
-    TARGET secondlife-bin POST_BUILD
+    TARGET ${VIEWER_BINARY_NAME} POST_BUILD
     COMMAND ${PYTHON_EXECUTABLE}
     ARGS
       ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
@@ -1458,7 +1461,7 @@ if (DARWIN)
       --artwork=${ARTWORK_DIR}
       --build=${CMAKE_CURRENT_BINARY_DIR}
       --dest=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/${product}.app
-    DEPENDS secondlife-bin ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
+    DEPENDS ${VIEWER_BINARY_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
     )
 
   if (PACKAGE)
@@ -1476,7 +1479,7 @@ if (DARWIN)
         --dest=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/${product}.app
         --touch=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/.${product}.touched
       DEPENDS
-        secondlife-bin
+        ${VIEWER_BINARY_NAME}
         ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
       )
       add_dependencies(package mac-updater mac-crash-logger)
