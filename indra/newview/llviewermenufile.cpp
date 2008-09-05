@@ -503,7 +503,7 @@ void handle_compress_image(void*)
 			}
 			else
 			{
-				llinfos << "Compression failed: " << LLImageBase::getLastError() << llendl;
+				llinfos << "Compression failed: " << LLImage::getLastError() << llendl;
 			}
 
 			infile = picker.getNextFile();
@@ -554,9 +554,9 @@ void upload_new_resource(const std::string& src_filename, std::string name,
 												 IMG_CODEC_BMP ))
 		{
 			error_message = llformat( "Problem with file %s:\n\n%s\n",
-					src_filename.c_str(), LLImageBase::getLastError().c_str());
+					 src_filename.c_str(), LLImage::getLastError().c_str());
 			args["[FILE]"] = src_filename;
-			args["[ERROR]"] = LLImageBase::getLastError();
+			args["[ERROR]"] = LLImage::getLastError();
 			upload_error(error_message, "ProblemWithFile", filename, args);
 			return;
 		}
@@ -569,9 +569,9 @@ void upload_new_resource(const std::string& src_filename, std::string name,
 												 IMG_CODEC_TGA ))
 		{
 			error_message = llformat("Problem with file %s:\n\n%s\n",
-					src_filename.c_str(), LLImageBase::getLastError().c_str());
+					src_filename.c_str(), LLImage::getLastError().c_str());
 			args["[FILE]"] = src_filename;
-			args["[ERROR]"] = LLImageBase::getLastError();
+			args["[ERROR]"] = LLImage::getLastError();
 			upload_error(error_message, "ProblemWithFile", filename, args);
 			return;
 		}
@@ -584,9 +584,9 @@ void upload_new_resource(const std::string& src_filename, std::string name,
 												 IMG_CODEC_JPEG ))
 		{
 			error_message = llformat("Problem with file %s:\n\n%s\n",
-					src_filename.c_str(), LLImageBase::getLastError().c_str());
+					src_filename.c_str(), LLImage::getLastError().c_str());
 			args["[FILE]"] = src_filename;
-			args["[ERROR]"] = LLImageBase::getLastError();
+			args["[ERROR]"] = LLImage::getLastError();
 			upload_error(error_message, "ProblemWithFile", filename, args);
 			return;
 		}
@@ -599,9 +599,9 @@ void upload_new_resource(const std::string& src_filename, std::string name,
  												 IMG_CODEC_PNG ))
  		{
  			error_message = llformat("Problem with file %s:\n\n%s\n",
- 					src_filename.c_str(), LLImageBase::getLastError().c_str());
+ 					src_filename.c_str(), LLImage::getLastError().c_str());
  			args["[FILE]"] = src_filename;
- 			args["[ERROR]"] = LLImageBase::getLastError();
+ 			args["[ERROR]"] = LLImage::getLastError();
  			upload_error(error_message, "ProblemWithFile", filename, args);
  			return;
  		}

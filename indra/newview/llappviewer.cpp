@@ -1366,8 +1366,7 @@ bool LLAppViewer::cleanup()
 	gImageList.shutdown(); // shutdown again in case a callback added something
 	
 	// This should eventually be done in LLAppViewer
-	LLImageJ2C::closeDSO();
-	LLImageFormatted::cleanupClass();
+	LLImage::cleanupClass();
 	LLVFSThread::cleanupClass();
 	LLLFSThread::cleanupClass();
 
@@ -1435,8 +1434,7 @@ bool LLAppViewer::initThreads()
 	LLAppViewer::sImageDecodeThread = new LLWorkerThread("ImageDecode", enable_threads && true);
 	LLAppViewer::sTextureCache = new LLTextureCache(enable_threads && true);
 	LLAppViewer::sTextureFetch = new LLTextureFetch(LLAppViewer::getTextureCache(), enable_threads && false);
-	LLImageWorker::initClass(LLAppViewer::getImageDecodeThread());
-	LLImageJ2C::openDSO();
+	LLImage::initClass(LLAppViewer::getImageDecodeThread());
 
 	// *FIX: no error handling here!
 	return true;

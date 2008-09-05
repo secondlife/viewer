@@ -273,9 +273,9 @@ U32 LLVOGrass::processUpdateMessage(LLMessageSystem *mesgsys,
 
 	updateSpecies();
 
-	if (  (getVelocity().magVecSquared() > 0.f)
-		||(getAcceleration().magVecSquared() > 0.f)
-		||(getAngularVelocity().magVecSquared() > 0.f))
+	if (  (getVelocity().lengthSquared() > 0.f)
+		||(getAcceleration().lengthSquared() > 0.f)
+		||(getAngularVelocity().lengthSquared() > 0.f))
 	{
 		llinfos << "ACK! Moving grass!" << llendl;
 		setVelocity(LLVector3::zero);
@@ -322,7 +322,7 @@ void LLVOGrass::setPixelAreaAndAngle(LLAgent &agent)
 {
 	// This should be the camera's center, as soon as we move to all region-local.
 	LLVector3 relative_position = getPositionAgent() - agent.getCameraPositionAgent();
-	F32 range = relative_position.magVec();
+	F32 range = relative_position.length();
 
 	F32 max_scale = getMaxScale();
 
@@ -501,7 +501,7 @@ void LLVOGrass::getGeometry(S32 idx,
 
 		LLVector3 normal1 = (v1-v2) % (v2-v3);
 		normal1.mV[VZ] = 0.75f;
-		normal1.normVec();
+		normal1.normalize();
 		LLVector3 normal2 = -normal1;
 		normal2.mV[VZ] = -normal2.mV[VZ];
 

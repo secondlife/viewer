@@ -34,47 +34,9 @@
 #include "llframetimer.h"
 #include "timing.h"
 
-class LLStatAccum::impl
-{
-public:
-	static const TimeScale IMPL_NUM_SCALES = (TimeScale)(SCALE_TWO_MINUTE + 1);
-	static U64 sScaleTimes[IMPL_NUM_SCALES];
-
-	BOOL	mUseFrameTimer;
-
-	BOOL	mRunning;
-	U64		mLastTime;
-	
-	struct Bucket
-	{
-		F64		accum;
-		U64		endTime;
-
-		BOOL	lastValid;
-		F64		lastAccum;
-	};
-
-	Bucket	mBuckets[IMPL_NUM_SCALES];
-
-	BOOL 	mLastSampleValid;
-	F64 	mLastSampleValue;
 
 
-	impl(bool useFrameTimer);
-
-	void reset(U64 when);
-
-	void sum(F64 value);
-	void sum(F64 value, U64 when);
-
-	F32 meanValue(TimeScale scale) const;
-
-	U64 getCurrentUsecs() const;
-		// Get current microseconds based on timer type
-};
-
-
-U64 LLStatAccum::impl::sScaleTimes[IMPL_NUM_SCALES] =
+U64 LLStatAccum::sScaleTimes[IMPL_NUM_SCALES] =
 {
 	USEC_PER_SEC / 10,				// 100 millisec
 	USEC_PER_SEC * 1,				// seconds
@@ -89,14 +51,22 @@ U64 LLStatAccum::impl::sScaleTimes[IMPL_NUM_SCALES] =
 };
 
 
-LLStatAccum::impl::impl(bool useFrameTimer)
+
+LLStatAccum::LLStatAccum(bool useFrameTimer)
+	: mUseFrameTimer(useFrameTimer),
+	  mRunning(FALSE),
+	  mLastSampleValue(0.0),
+	  mLastSampleValid(FALSE)
 {
-	mUseFrameTimer = useFrameTimer;
-	mRunning = FALSE;
-	mLastSampleValid = FALSE;
 }
 
-void LLStatAccum::impl::reset(U64 when)
+LLStatAccum::~LLStatAccum()
+{
+}
+
+
+
+void LLStatAccum::reset(U64 when)
 {
 	mRunning = TRUE;
 	mLastTime = when;
@@ -109,12 +79,12 @@ void LLStatAccum::impl::reset(U64 when)
 	}
 }
 
-void LLStatAccum::impl::sum(F64 value)
+void LLStatAccum::sum(F64 value)
 {
 	sum(value, getCurrentUsecs());
 }
 
-void LLStatAccum::impl::sum(F64 value, U64 when)
+void LLStatAccum::sum(F64 value, U64 when)
 {
 	if (!mRunning)
 	{
@@ -131,6 +101,9 @@ void LLStatAccum::impl::sum(F64 value, U64 when)
 		return;
 	}
 
+	// how long is this value for
+	U64 timeSpan = when - mLastTime;
+
 	for (int i = 0; i < IMPL_NUM_SCALES; ++i)
 	{
 		Bucket& bucket = mBuckets[i];
@@ -143,8 +116,6 @@ void LLStatAccum::impl::sum(F64 value, U64 when)
 		{
 			U64 timeScale = sScaleTimes[i];
 
-			U64 timeSpan = when - mLastTime;
-				// how long is this value for
 			U64 timeLeft = when - bucket.endTime;
 				// how much time is left after filling this bucket
 			
@@ -173,7 +144,7 @@ void LLStatAccum::impl::sum(F64 value, U64 when)
 }
 
 
-F32 LLStatAccum::impl::meanValue(TimeScale scale) const
+F32 LLStatAccum::meanValue(TimeScale scale) const
 {
 	if (!mRunning)
 	{
@@ -209,7 +180,7 @@ F32 LLStatAccum::impl::meanValue(TimeScale scale) const
 }
 
 
-U64 LLStatAccum::impl::getCurrentUsecs() const
+U64 LLStatAccum::getCurrentUsecs() const
 {
 	if (mUseFrameTimer)
 	{
@@ -222,24 +193,43 @@ U64 LLStatAccum::impl::getCurrentUsecs() const
 }
 
 
+// ------------------------------------------------------------------------
 
-
-
-LLStatAccum::LLStatAccum(bool useFrameTimer)
-	: m(* new impl(useFrameTimer))
+LLStatRate::LLStatRate(bool use_frame_timer)
+	: LLStatAccum(use_frame_timer)
 {
 }
 
-LLStatAccum::~LLStatAccum()
+void LLStatRate::count(U32 value)
 {
-	delete &m;
+	sum((F64)value * sScaleTimes[SCALE_SECOND]);
 }
 
-F32 LLStatAccum::meanValue(TimeScale scale) const
-{
-	return m.meanValue(scale);
-}
 
+void LLStatRate::mark()
+ { 
+	// Effectively the same as count(1), but sets mLastSampleValue
+	U64 when = getCurrentUsecs();
+
+	if ( mRunning 
+		 && (when > mLastTime) )
+	{	// Set mLastSampleValue to the time from the last mark()
+		F64 duration = ((F64)(when - mLastTime)) / sScaleTimes[SCALE_SECOND];
+		if ( duration > 0.0 )
+		{
+			mLastSampleValue = 1.0 / duration;
+		}
+		else
+		{
+			mLastSampleValue = 0.0;
+		}
+	}
+
+	sum( (F64) sScaleTimes[SCALE_SECOND], when);
+ }
+
+
+// ------------------------------------------------------------------------
 
 
 LLStatMeasure::LLStatMeasure(bool use_frame_timer)
@@ -249,53 +239,58 @@ LLStatMeasure::LLStatMeasure(bool use_frame_timer)
 
 void LLStatMeasure::sample(F64 value)
 {
-	U64 when = m.getCurrentUsecs();
+	U64 when = getCurrentUsecs();
 
-	if (m.mLastSampleValid)
+	if (mLastSampleValid)
 	{
-		F64 avgValue = (value + m.mLastSampleValue) / 2.0;
-		F64 interval = (F64)(when - m.mLastTime);
+		F64 avgValue = (value + mLastSampleValue) / 2.0;
+		F64 interval = (F64)(when - mLastTime);
 
-		m.sum(avgValue * interval, when);
+		sum(avgValue * interval, when);
 	}
 	else
 	{
-		m.reset(when);
+		reset(when);
 	}
 
-	m.mLastSampleValid = TRUE;
-	m.mLastSampleValue = value;
+	mLastSampleValid = TRUE;
+	mLastSampleValue = value;
 }
 
 
-LLStatRate::LLStatRate(bool use_frame_timer)
-	: LLStatAccum(use_frame_timer)
-{
-}
-
-void LLStatRate::count(U32 value)
-{
-	m.sum((F64)value * impl::sScaleTimes[SCALE_SECOND]);
-}
-
+// ------------------------------------------------------------------------
 
 LLStatTime::LLStatTime(bool use_frame_timer)
-	: LLStatAccum(use_frame_timer)
+	: LLStatAccum(use_frame_timer),
+	  mFrameNumber(0),
+	  mTotalTimeInFrame(0)
 {
+	mFrameNumber = LLFrameTimer::getFrameCount();
 }
 
 void LLStatTime::start()
 {
-	m.sum(0.0);
+	// Reset frame accumluation if the frame number has changed
+	U32 frame_number = LLFrameTimer::getFrameCount();
+	if ( frame_number != mFrameNumber)
+	{
+		mFrameNumber = frame_number;
+		mTotalTimeInFrame = 0;
+	}
+
+	sum(0.0);
 }
 
 void LLStatTime::stop()
 {
-	U64 endTime = m.getCurrentUsecs();
-	m.sum((F64)(endTime - m.mLastTime), endTime);
+	U64 end_time = getCurrentUsecs();
+	U64 duration = end_time - mLastTime;
+	sum(F64(duration), end_time);
+	mTotalTimeInFrame += duration;
 }
 
 
+// ------------------------------------------------------------------------
 
 LLTimer LLStat::sTimer;
 LLFrameTimer LLStat::sFrameTimer;

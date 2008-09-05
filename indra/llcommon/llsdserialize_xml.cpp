@@ -461,11 +461,11 @@ S32 LLSDXMLParser::Impl::parseLines(std::istream& input, LLSD& data)
 				input.clear();
 			}
 		
-			// Don't parse the NULL at the end which might be added if \n was absorbed by getline()
+			// Re-insert with the \n that was absorbed by getline()
 			char * text = (char *) buffer;
 			if ( text[num_read - 1] == 0)
 			{
-				num_read--;
+				text[num_read - 1] = '\n';
 			}
 		}
 
@@ -808,12 +808,11 @@ void LLSDXMLParser::parsePart(const char *buf, int len)
 // virtual
 S32 LLSDXMLParser::doParse(std::istream& input, LLSD& data) const
 {
-// Remove code - emergency fix DEV-17785 parsing newline failure
-//	if (mParseLines)
-//	{
+	if (mParseLines)
+	{
 		// Use line-based reading (faster code)
-//		return impl.parseLines(input, data);
-//	}
+		return impl.parseLines(input, data);
+	}
 
 	return impl.parse(input, data);
 }

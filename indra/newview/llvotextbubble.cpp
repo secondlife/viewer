@@ -126,7 +126,7 @@ void LLVOTextBubble::updateTextures(LLAgent &agent)
 
 	LLVector3 position_local = getPositionAgent() - agent.getCameraPositionAgent();
 	F32 dot_product = position_local * agent.getFrameAgent().getAtAxis();
-	F32 cos_angle = dot_product / position_local.magVec();
+	F32 cos_angle = dot_product / position_local.length();
 
 	if (cos_angle > 1.f)
 	{

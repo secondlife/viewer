@@ -191,8 +191,8 @@ void LLThread::unlockData()
 class LLThreadSafeRefCount
 {
 public:
-	static void initClass(); // creates sMutex
-	static void cleanupClass(); // destroys sMutex
+	static void initThreadSafeRefCount(); // creates sMutex
+	static void cleanupThreadSafeRefCount(); // destroys sMutex
 	
 private:
 	static LLMutex* sMutex;

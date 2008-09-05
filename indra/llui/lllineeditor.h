@@ -82,7 +82,7 @@ public:
 	virtual LLXMLNodePtr getXML(bool save_children = true) const;
 	void setColorParameters(LLXMLNodePtr node);
 	static LLView* fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
-	static void cleanupClass();
+	static void cleanupLineEditor();
 
 	// mousehandler overrides
 	/*virtual*/ BOOL	handleMouseDown(S32 x, S32 y, MASK mask);

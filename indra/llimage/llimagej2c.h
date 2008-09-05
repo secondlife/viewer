@@ -54,6 +54,10 @@ public:
 	/*virtual*/ S32 calcDataSize(S32 discard_level = 0);
 	/*virtual*/ S32 calcDiscardLevelBytes(S32 bytes);
 	/*virtual*/ S8  getRawDiscardLevel();
+	// Override these so that we don't try to set a global variable from a DLL
+	/*virtual*/ void resetLastError();
+	/*virtual*/ void setLastError(const std::string& message, const std::string& filename = std::string());
+	
 	
 	// Encode with comment text 
 	BOOL encode(const LLImageRaw *raw_imagep, const char* comment_text, F32 encode_time=0.0);
@@ -86,6 +90,7 @@ protected:
 	F32 mRate;
 	BOOL mReversible;
 	LLImageJ2CImpl *mImpl;
+	std::string mLastError;
 };
 
 // Derive from this class to implement JPEG2000 decoding

@@ -896,7 +896,7 @@ void LLNameValue::setVec3(const LLVector3 &a)
 }
 
 
-std::string LLNameValue::printNameValue()
+std::string LLNameValue::printNameValue() const
 {
 	std::string buffer;
 	buffer = llformat("%s %s %s %s ", mName, mStringType, mStringClass, mStringSendto);
@@ -905,7 +905,7 @@ std::string LLNameValue::printNameValue()
 	return buffer;
 }
 
-std::string LLNameValue::printData()
+std::string LLNameValue::printData() const
 {
 	std::string buffer;
 	switch(mType)

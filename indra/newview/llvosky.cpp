@@ -528,7 +528,7 @@ void LLVOSky::initSkyTextureDirs(const S32 side, const S32 tile)
 			coeff[x_coef] = F32((x<<1) + 1) * inv_res - 1.f;
 			coeff[y_coef] = F32((y<<1) + 1) * inv_res - 1.f;
 			LLVector3 dir(coeff[0], coeff[1], coeff[2]);
-			dir.normVec();
+			dir.normalize();
 			mSkyTex[side].setDir(dir, x, y);
 			mShinyTex[side].setDir(dir, x, y);
 		}
@@ -762,7 +762,7 @@ void LLVOSky::calcSkyColorWLVert(LLVector3 & Pn, LLColor3 & vary_HazeColor, LLCo
 		Pn *= (-32000.f / Pn[1]);
 	}
 
-	Plen = Pn.magVec();
+	Plen = Pn.length();
 	Pn /= Plen;
 
 	// Initialize temp variables
@@ -1082,7 +1082,7 @@ BOOL LLVOSky::updateSky()
 			const static F32 COLOR_CHANGE_THRESHOLD = 0.01f;
 
 			LLVector3 direction = mSun.getDirection();
-			direction.normVec();
+			direction.normalize();
 			const F32 dot_lighting = direction * mLastLightingDirection;
 
 			LLColor3 delta_color;
@@ -1092,7 +1092,7 @@ BOOL LLVOSky::updateSky()
 
 			if ( mForceUpdate 
 				 || ((dot_lighting < LIGHT_DIRECTION_THRESHOLD)
-				 || (delta_color.magVec() > COLOR_CHANGE_THRESHOLD)
+				 || (delta_color.length() > COLOR_CHANGE_THRESHOLD)
 				 || !mInitialized)
 				&& !direction.isExactlyZero())
 			{
@@ -1336,8 +1336,8 @@ BOOL LLVOSky::updateGeometry(LLDrawable *drawable)
 	const LLVector3 &look_at = LLViewerCamera::getInstance()->getAtAxis();
 	LLVector3 right = look_at % LLVector3::z_axis;
 	LLVector3 up = right % look_at;
-	right.normVec();
-	up.normVec();
+	right.normalize();
+	up.normalize();
 
 	const static F32 elevation_factor = 0.0f/sResolution;
 	const F32 cos_max_angle = cosHorizon(elevation_factor);
@@ -1417,8 +1417,8 @@ BOOL LLVOSky::updateHeavenlyBodyGeometry(LLDrawable *drawable, const S32 f, cons
 
 	LLVector3 hb_right = to_dir % LLVector3::z_axis;
 	LLVector3 hb_up = hb_right % to_dir;
-	hb_right.normVec();
-	hb_up.normVec();
+	hb_right.normalize();
+	hb_up.normalize();
 
 	//const static F32 cos_max_turn = sqrt(3.f) / 2; // 30 degrees
 	//const F32 cos_turn_right = 1. / (llmax(cos_max_turn, hb_right * right));
@@ -1601,8 +1601,8 @@ void LLVOSky::updateSunHaloGeometry(LLDrawable *drawable )
 
 	const LLVector3 right = 2 * (v_corner[2] - v_corner[0]);
 	LLVector3 up = 2 * (v_corner[2] - v_corner[3]);
-	up.normVec();
-	F32 size = right.magVec();
+	up.normalize();
+	F32 size = right.length();
 	up = size * up;
 	const LLVector3 draw_pos = 0.25 * (v_corner[0] + v_corner[1] + v_corner[2] + v_corner[3]);
 	
@@ -1654,7 +1654,7 @@ void LLVOSky::updateSunHaloGeometry(LLDrawable *drawable )
 F32 dtReflection(const LLVector3& p, F32 cos_dir_from_top, F32 sin_dir_from_top, F32 diff_angl_dir)
 {
 	LLVector3 P = p;
-	P.normVec();
+	P.normalize();
 
 	const F32 cos_dir_angle = -P.mV[VZ];
 	const F32 sin_dir_angle = sqrt(1 - cos_dir_angle * cos_dir_angle);
@@ -1679,9 +1679,9 @@ F32 dtClip(const LLVector3& v0, const LLVector3& v1, F32 far_clip2)
 {
 	F32 dt_clip;
 	const LLVector3 otrezok = v1 - v0;
-	const F32 A = otrezok.magVecSquared();
+	const F32 A = otrezok.lengthSquared();
 	const F32 B = v0 * otrezok;
-	const F32 C = v0.magVecSquared() - far_clip2;
+	const F32 C = v0.lengthSquared() - far_clip2;
 	const F32 det = sqrt(B*B - A*C);
 	dt_clip = (-B - det) / A;
 	if ((dt_clip < 0) || (dt_clip > 1))
@@ -1701,16 +1701,16 @@ void LLVOSky::updateReflectionGeometry(LLDrawable *drawable, F32 H,
 	LLVector3 hb_pos = to_dir * (HORIZON_DIST - 10);
 	LLVector3 to_dir_proj = to_dir;
 	to_dir_proj.mV[VZ] = 0;
-	to_dir_proj.normVec();
+	to_dir_proj.normalize();
 
 	LLVector3 Right = to_dir % LLVector3::z_axis;
 	LLVector3 Up = Right % to_dir;
-	Right.normVec();
-	Up.normVec();
+	Right.normalize();
+	Up.normalize();
 
 	// finding angle between  look direction and sprite.
 	LLVector3 look_at_right = look_at % LLVector3::z_axis;
-	look_at_right.normVec();
+	look_at_right.normalize();
 
 	const static F32 cos_horizon_angle = cosHorizon(0.0f/sResolution);
 	//const static F32 horizon_angle = acos(cos_horizon_angle);
@@ -1745,7 +1745,7 @@ void LLVOSky::updateReflectionGeometry(LLDrawable *drawable, F32 H,
 	else
 		dt_hor = llmax(0.0f, llmin(1.0f, dt_hor));
 
-	top_hb.normVec();
+	top_hb.normalize();
 	const F32 cos_angle_of_view = fabs(top_hb.mV[VZ]);
 	const F32 extension = llmin (5.0f, 1.0f / cos_angle_of_view);
 
@@ -1762,11 +1762,11 @@ void LLVOSky::updateReflectionGeometry(LLDrawable *drawable, F32 H,
 	F32 cos_dir_from_top[2];
 
 	LLVector3 dir = stretch_corner[0];
-	dir.normVec();
+	dir.normalize();
 	cos_dir_from_top[0] = dir.mV[VZ];
 
 	dir = stretch_corner[1];
-	dir.normVec();
+	dir.normalize();
 	cos_dir_from_top[1] = dir.mV[VZ];
 
 	const F32 sin_dir_from_top = sqrt(1 - cos_dir_from_top[0] * cos_dir_from_top[0]);
@@ -1789,7 +1789,7 @@ void LLVOSky::updateReflectionGeometry(LLDrawable *drawable, F32 H,
 	for (vtx = 0; vtx < 2; ++vtx)
 	{
 		LLVector3 light_proj = v_corner[vtx];
-		light_proj.normVec();
+		light_proj.normalize();
 
 		const F32 z = light_proj.mV[VZ];
 		const F32 sin_angle = sqrt(1 - z * z);
@@ -1813,9 +1813,9 @@ void LLVOSky::updateReflectionGeometry(LLDrawable *drawable, F32 H,
 	S32 side = 0;
 	LLVector3 refl_corn_norm[2];
 	refl_corn_norm[0] = v_refl_corner[1];
-	refl_corn_norm[0].normVec();
+	refl_corn_norm[0].normalize();
 	refl_corn_norm[1] = v_refl_corner[3];
-	refl_corn_norm[1].normVec();
+	refl_corn_norm[1].normalize();
 
 	F32 cos_refl_look_at[2];
 	cos_refl_look_at[0] = refl_corn_norm[0] * look_at;
@@ -1833,13 +1833,13 @@ void LLVOSky::updateReflectionGeometry(LLDrawable *drawable, F32 H,
 	F32 dt_clip;
 	F32 vtx_near2, vtx_far2;
 
-	if ((vtx_far2 = v_refl_corner[side].magVecSquared()) > far_clip2)
+	if ((vtx_far2 = v_refl_corner[side].lengthSquared()) > far_clip2)
 	{
 		// whole thing is sprite: reflection is beyond far clip plane.
 		dt_clip = 1.1f;
 		quads = 1;
 	}
-	else if ((vtx_near2 = v_refl_corner[side+1].magVecSquared()) > far_clip2)
+	else if ((vtx_near2 = v_refl_corner[side+1].lengthSquared()) > far_clip2)
 	{
 		// part is reflection, the rest is sprite.
 		dt_clip = dtClip(v_refl_corner[side + 1], v_refl_corner[side], far_clip2);
@@ -1903,7 +1903,7 @@ void LLVOSky::updateReflectionGeometry(LLDrawable *drawable, F32 H,
 		{
 			for (S32 vtx = 0; vtx < 4; ++vtx)
 			{
-				F32 ratio = far_clip / v_refl_corner[vtx].magVec();
+				F32 ratio = far_clip / v_refl_corner[vtx].length();
 				*(verticesp++) = v_refl_corner[vtx] = ratio * v_refl_corner[vtx] + mCameraPosAgent;
 			}
 			const LLVector3 draw_pos = 0.25 *
@@ -1912,10 +1912,10 @@ void LLVOSky::updateReflectionGeometry(LLDrawable *drawable, F32 H,
 		}
 		else
 		{
-			F32 ratio = far_clip / v_refl_corner[1].magVec();
+			F32 ratio = far_clip / v_refl_corner[1].length();
 			v_sprite_corner[1] = v_refl_corner[1] * ratio;
 
-			ratio = far_clip / v_refl_corner[3].magVec();
+			ratio = far_clip / v_refl_corner[3].length();
 			v_sprite_corner[3] = v_refl_corner[3] * ratio;
 
 			v_refl_corner[1] = (1 - dt_clip) * v_refl_corner[1] + dt_clip * v_refl_corner[0];
@@ -2039,20 +2039,20 @@ void LLVOSky::updateFog(const F32 distance)
 	LLVector3 tosun = getToSunLast();
 	const F32 tosun_z = tosun.mV[VZ];
 	tosun.mV[VZ] = 0.f;
-	tosun.normVec();
+	tosun.normalize();
 	LLVector3 perp_tosun;
 	perp_tosun.mV[VX] = -tosun.mV[VY];
 	perp_tosun.mV[VY] = tosun.mV[VX];
 	LLVector3 tosun_45 = tosun + perp_tosun;
-	tosun_45.normVec();
+	tosun_45.normalize();
 
 	F32 delta = 0.06f;
 	tosun.mV[VZ] = delta;
 	perp_tosun.mV[VZ] = delta;
 	tosun_45.mV[VZ] = delta;
-	tosun.normVec();
-	perp_tosun.normVec();
-	tosun_45.normVec();
+	tosun.normalize();
+	perp_tosun.normalize();
+	tosun_45.normalize();
 
 	// Sky colors, just slightly above the horizon in the direction of the sun, perpendicular to the sun, and at a 45 degree angle to the sun.
 	initAtmospherics();
@@ -2202,8 +2202,8 @@ F32 azimuth(const LLVector3 &v)
 
 void LLVOSky::initSunDirection(const LLVector3 &sun_dir, const LLVector3 &sun_ang_velocity)
 {
-	LLVector3 sun_direction = (sun_dir.magVec() == 0) ? LLVector3::x_axis : sun_dir;
-	sun_direction.normVec();
+	LLVector3 sun_direction = (sun_dir.length() == 0) ? LLVector3::x_axis : sun_dir;
+	sun_direction.normalize();
 	mSun.setDirection(sun_direction);
 	mSun.renewDirection();
 	mSun.setAngularVelocity(sun_ang_velocity);
@@ -2222,8 +2222,8 @@ void LLVOSky::initSunDirection(const LLVector3 &sun_dir, const LLVector3 &sun_an
 
 void LLVOSky::setSunDirection(const LLVector3 &sun_dir, const LLVector3 &sun_ang_velocity)
 {
-	LLVector3 sun_direction = (sun_dir.magVec() == 0) ? LLVector3::x_axis : sun_dir;
-	sun_direction.normVec();
+	LLVector3 sun_direction = (sun_dir.length() == 0) ? LLVector3::x_axis : sun_dir;
+	sun_direction.normalize();
 
 	// Push the sun "South" as it approaches directly overhead so that we can always see bump mapping
 	// on the upward facing faces of cubes.
@@ -2239,7 +2239,7 @@ void LLVOSky::setSunDirection(const LLVector3 &sun_dir, const LLVector3 &sun_ang
 	// Blend between normal sun dir and adjusted sun dir based on how close we are
 	// to having the sun overhead.
 	mBumpSunDir = adjustedDir * sunDot + newDir * (1.0f - sunDot);
-	mBumpSunDir.normVec();
+	mBumpSunDir.normalize();
 
 	F32 dp = mLastLightingDirection * sun_direction;
 	mSun.setDirection(sun_direction);

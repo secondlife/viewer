@@ -59,6 +59,7 @@ const S32 MAX_IMG_PACKET_SIZE = 1000;
 class LLImageFormatted;
 class LLImageRaw;
 class LLColor4U;
+class LLWorkerThread;
 
 typedef enum e_image_codec
 {
@@ -74,6 +75,24 @@ typedef enum e_image_codec
 } EImageCodec;
 
 //============================================================================
+// library initialization class
+
+class LLImage
+{
+public:
+	static void initClass(LLWorkerThread* workerthread);
+	static void cleanupClass();
+
+	static const std::string& getLastError();
+	static void setLastError(const std::string& message);
+	
+protected:
+	static LLMutex* sMutex;
+	static std::string sLastErrorMessage;
+};
+
+//============================================================================
+// Image base class
 
 class LLImageBase : public LLThreadSafeRefCount
 {
@@ -113,10 +132,6 @@ protected:
 	void setDataAndSize(U8 *data, S32 size) { mData = data; mDataSize = size; };
 	
 public:
-	static const std::string& getLastError() {return sLastErrorMessage;};
-	static void resetLastError() {sLastErrorMessage = "No Error"; };
-	static BOOL setLastError(const std::string& message, const std::string& filename = std::string()); // returns FALSE
-
 	static void generateMip(const U8 *indata, U8* mipdata, int width, int height, S32 nchannels);
 	
 	// Function for calculating the download priority for textures
@@ -141,8 +156,6 @@ private:
 public:
 	S16 mMemType; // debug
 	
-	static std::string sLastErrorMessage;
-
 	static BOOL sSizeOverride;
 };
 
@@ -245,7 +258,6 @@ public:
 	LLImageFormatted(S8 codec);
 
 	// LLImageBase
-public:
 	/*virtual*/ void deleteData();
 	/*virtual*/ U8* allocateData(S32 size = -1);
 	/*virtual*/ U8* reallocateData(S32 size);
@@ -254,7 +266,6 @@ public:
 	/*virtual*/ void sanityCheck();
 
 	// New methods
-public:
 	// subclasses must return a prefered file extension (lowercase without a leading dot)
 	virtual std::string getExtension() = 0;
 	// calcHeaderSize() returns the maximum size of header;
@@ -287,6 +298,10 @@ public:
 	void setDiscardLevel(S8 discard_level) { mDiscardLevel = discard_level; }
 	S8 getDiscardLevel() const { return mDiscardLevel; }
 
+	// setLastError needs to be deferred for J2C images since it may be called from a DLL
+	virtual void resetLastError();
+	virtual void setLastError(const std::string& message, const std::string& filename = std::string());
+	
 protected:
 	BOOL copyData(U8 *data, S32 size); // calls updateData()
 	
@@ -295,7 +310,7 @@ protected:
 	S8 mDecoding;
 	S8 mDecoded;
 	S8 mDiscardLevel;
-
+	
 public:
 	static S32 sGlobalFormattedMemory;
 };

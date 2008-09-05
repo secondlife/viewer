@@ -38,8 +38,10 @@
 class LLImageWorker : public LLWorkerClass
 {
 public:
-	static void initClass(LLWorkerThread* workerthread);
-	static void cleanupClass();
+	static void initImageWorker(LLWorkerThread* workerthread);
+	static void cleanupImageWorker();
+	
+public:
 	static LLWorkerThread* getWorkerThread() { return sWorkerThread; }
 
 	// LLWorkerThread

@@ -265,6 +265,10 @@ LLCurl::Easy* LLCurl::Easy::getEasy()
 		delete easy;
 		return NULL;
 	}
+	
+	// set no DMS caching as default for all easy handles. This prevents them adopting a
+	// multi handles cache if they are added to one.
+	curl_easy_setopt(easy->mCurlEasyHandle, CURLOPT_DNS_CACHE_TIMEOUT, 0);
 	++gCurlEasyCount;
 	return easy;
 }

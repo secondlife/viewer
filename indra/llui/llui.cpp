@@ -1575,7 +1575,7 @@ void LLUI::initClass(LLControlGroup* config,
 void LLUI::cleanupClass()
 {
 	sImageProvider->cleanUp();
-	LLLineEditor::cleanupClass();
+	LLLineEditor::cleanupLineEditor();
 }
 
 

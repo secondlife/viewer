@@ -256,6 +256,10 @@ void LLHTTPAssetRequest::setupCurlHandle()
 			// disable use of proxy, which can't handle chunked transfers
 	}
 	mHTTPHeaders = curl_slist_append(mHTTPHeaders, "Pragma:");
+
+	// bug in curl causes DNS to be cached for too long a time, 0 sets it to never cache DNS results internally (to curl)
+	curl_easy_setopt(mCurlHandle, CURLOPT_DNS_CACHE_TIMEOUT, 0);
+	
 	// resist the temptation to explicitly add the Transfer-Encoding: chunked
 	// header here - invokes a libCURL bug
 	curl_easy_setopt(mCurlHandle, CURLOPT_HTTPHEADER, mHTTPHeaders);

@@ -2346,37 +2346,71 @@ class LLAvatarDebug : public view_listener_t
 	}
 };
 
+struct MenuCallbackData
+{
+	bool ban_enabled;
+	LLUUID avatar_id;
+};
+
 void callback_eject(S32 option, void* data)
 {
-	LLUUID* avatar_id = (LLUUID*) data;
-
-	if (0 == option || 1 == option)
+	MenuCallbackData *callback_data = (MenuCallbackData*)data;
+	if (!callback_data)
 	{
+		return;
+	}
+	if (2 == option)
+	{
+		// Cancle button.
+		return;
+	}
+	LLUUID avatar_id = callback_data->avatar_id;
+	bool ban_enabled = callback_data->ban_enabled;
+
+	if (0 == option)
+	{
+		// Eject button
 		LLMessageSystem* msg = gMessageSystem;
-		LLViewerObject* avatar = gObjectList.findObject(*avatar_id);
+		LLViewerObject* avatar = gObjectList.findObject(avatar_id);
 
 		if (avatar)
 		{
 			U32 flags = 0x0;
-			if (1 == option)
-			{
-				// eject and add to ban list
-				flags |= 0x1;
-			}
-
 			msg->newMessage("EjectUser");
 			msg->nextBlock("AgentData");
 			msg->addUUID("AgentID", gAgent.getID() );
 			msg->addUUID("SessionID", gAgent.getSessionID() );
 			msg->nextBlock("Data");
-			msg->addUUID("TargetID", *avatar_id );
+			msg->addUUID("TargetID", avatar_id );
+			msg->addU32("Flags", flags );
+			msg->sendReliable( avatar->getRegion()->getHost() );
+		}
+	}
+	else if (ban_enabled)
+	{
+		// This is tricky. It is similar to say if it is not an 'Eject' button,
+		// and it is also not an 'Cancle' button, and ban_enabled==ture, 
+		// it should be the 'Eject and Ban' button.
+		LLMessageSystem* msg = gMessageSystem;
+		LLViewerObject* avatar = gObjectList.findObject(avatar_id);
+
+		if (avatar)
+		{
+			U32 flags = 0x1;
+			msg->newMessage("EjectUser");
+			msg->nextBlock("AgentData");
+			msg->addUUID("AgentID", gAgent.getID() );
+			msg->addUUID("SessionID", gAgent.getSessionID() );
+			msg->nextBlock("Data");
+			msg->addUUID("TargetID", avatar_id );
 			msg->addU32("Flags", flags );
 			msg->sendReliable( avatar->getRegion()->getHost() );
 		}
 	}
 
-	delete avatar_id;
-	avatar_id = NULL;
+
+	delete callback_data;
+	callback_data = NULL;
 }
 
 class LLAvatarEject : public view_listener_t
@@ -2386,23 +2420,50 @@ class LLAvatarEject : public view_listener_t
 		LLVOAvatar* avatar = find_avatar_from_object( LLSelectMgr::getInstance()->getSelection()->getFirstObject() );
 		if( avatar )
 		{
-			LLUUID* avatar_id = new LLUUID( avatar->getID() );
+			MenuCallbackData *data = new MenuCallbackData;
+			(*data).avatar_id = avatar->getID();
 			std::string fullname = avatar->getFullname();
 
-			if (!fullname.empty())
+			const LLVector3d& pos = avatar->getPositionGlobal();
+			LLParcel* parcel = LLViewerParcelMgr::getInstance()->selectParcelAt(pos)->getParcel();
+			
+			if (LLViewerParcelMgr::getInstance()->isParcelOwnedByAgent(parcel,GP_LAND_MANAGE_BANNED))
 			{
-				LLStringUtil::format_map_t args;
-				args["[AVATAR_NAME]"] = fullname;
-				gViewerWindow->alertXml("EjectAvatarFullname",
-							args,
-							callback_eject,
-							(void*)avatar_id);
+				(*data).ban_enabled = true;
+				if (!fullname.empty())
+				{
+					LLStringUtil::format_map_t args;
+					args["[AVATAR_NAME]"] = fullname;
+					gViewerWindow->alertXml("EjectAvatarFullname",
+						args,
+						callback_eject,
+						(void*)data);
+				}
+				else
+				{
+					gViewerWindow->alertXml("EjectAvatar",
+						callback_eject,
+						(void*)data);
+				}
 			}
 			else
 			{
-				gViewerWindow->alertXml("EjectAvatar",
-							callback_eject,
-							(void*)avatar_id);
+				(*data).ban_enabled = false;
+				if (!fullname.empty())
+				{
+					LLStringUtil::format_map_t args;
+					args["[AVATAR_NAME]"] = fullname;
+					gViewerWindow->alertXml("EjectAvatarFullnameNoBan",
+						args,
+						callback_eject,
+						(void*)data);
+				}
+				else
+				{
+					gViewerWindow->alertXml("EjectAvatarNoBan",
+						callback_eject,
+						(void*)data);
+				}
 			}
 		}
 		return true;
@@ -2419,12 +2480,18 @@ class LLAvatarEnableFreezeEject : public view_listener_t
 		if (new_value)
 		{
 			const LLVector3& pos = avatar->getPositionRegion();
+			const LLVector3d& pos_global = avatar->getPositionGlobal();
+			LLParcel* parcel = LLViewerParcelMgr::getInstance()->selectParcelAt(pos_global)->getParcel();
 			LLViewerRegion* region = avatar->getRegion();
 			new_value = (region != NULL);
-
+						
 			if (new_value)
 			{
-				new_value = (region->isOwnedSelf(pos) || region->isOwnedGroup(pos));
+				new_value = region->isOwnedSelf(pos);
+				if (!new_value || region->isOwnedGroup(pos))
+				{
+					new_value = LLViewerParcelMgr::getInstance()->isParcelOwnedByAgent(parcel,GP_LAND_ADMIN);
+				}
 			}
 		}
 

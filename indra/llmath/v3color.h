@@ -82,13 +82,23 @@ public:
 	
 	const LLColor3&	setToBlack();					// Clears LLColor3 to (0, 0, 0)
 	const LLColor3&	setToWhite();					// Zero LLColor3 to (0, 0, 0)
-	const LLColor3&	setVec(F32 x, F32 y, F32 z);	// Sets LLColor3 to (x, y, z)
-	const LLColor3&	setVec(const LLColor3 &vec);	// Sets LLColor3 to vec
-	const LLColor3&	setVec(const F32 *vec);			// Sets LLColor3 to vec
+	
+	const LLColor3&	setVec(F32 x, F32 y, F32 z);	// deprecated
+	const LLColor3&	setVec(const LLColor3 &vec);	// deprecated
+	const LLColor3&	setVec(const F32 *vec);			// deprecated
 
-	F32		magVec() const;				// Returns magnitude of LLColor3
-	F32		magVecSquared() const;		// Returns magnitude squared of LLColor3
-	F32		normVec();					// Normalizes and returns the magnitude of LLColor3
+	const LLColor3&	set(F32 x, F32 y, F32 z);	// Sets LLColor3 to (x, y, z)
+	const LLColor3&	set(const LLColor3 &vec);	// Sets LLColor3 to vec
+	const LLColor3&	set(const F32 *vec);		// Sets LLColor3 to vec
+
+	F32		magVec() const;				// deprecated
+	F32		magVecSquared() const;		// deprecated
+	F32		normVec();					// deprecated
+
+	F32		length() const;				// Returns magnitude of LLColor3
+	F32		lengthSquared() const;		// Returns magnitude squared of LLColor3
+	F32		normalize();				// Normalizes and returns the magnitude of LLColor3
+
 	F32		brightness() const;			// Returns brightness of LLColor3
 
 	const LLColor3&	operator=(const LLColor4 &a);
@@ -214,6 +224,31 @@ inline const LLColor3&	LLColor3::setToWhite(void)
 	return (*this);
 }
 
+inline const LLColor3&	LLColor3::set(F32 r, F32 g, F32 b)
+{
+	mV[0] = r;
+	mV[1] = g;
+	mV[2] = b;
+	return (*this);
+}
+
+inline const LLColor3&	LLColor3::set(const LLColor3 &vec)
+{
+	mV[0] = vec.mV[0];
+	mV[1] = vec.mV[1];
+	mV[2] = vec.mV[2];
+	return (*this);
+}
+
+inline const LLColor3&	LLColor3::set(const F32 *vec)
+{
+	mV[0] = vec[0];
+	mV[1] = vec[1];
+	mV[2] = vec[2];
+	return (*this);
+}
+
+// deprecated
 inline const LLColor3&	LLColor3::setVec(F32 r, F32 g, F32 b)
 {
 	mV[0] = r;
@@ -222,6 +257,7 @@ inline const LLColor3&	LLColor3::setVec(F32 r, F32 g, F32 b)
 	return (*this);
 }
 
+// deprecated
 inline const LLColor3&	LLColor3::setVec(const LLColor3 &vec)
 {
 	mV[0] = vec.mV[0];
@@ -230,6 +266,7 @@ inline const LLColor3&	LLColor3::setVec(const LLColor3 &vec)
 	return (*this);
 }
 
+// deprecated
 inline const LLColor3&	LLColor3::setVec(const F32 *vec)
 {
 	mV[0] = vec[0];
@@ -243,16 +280,44 @@ inline F32		LLColor3::brightness(void) const
 	return (mV[0] + mV[1] + mV[2]) / 3.0f;
 }
 
+inline F32		LLColor3::length(void) const
+{
+	return fsqrtf(mV[0]*mV[0] + mV[1]*mV[1] + mV[2]*mV[2]);
+}
+
+inline F32		LLColor3::lengthSquared(void) const
+{
+	return mV[0]*mV[0] + mV[1]*mV[1] + mV[2]*mV[2];
+}
+
+inline F32		LLColor3::normalize(void)
+{
+	F32 mag = fsqrtf(mV[0]*mV[0] + mV[1]*mV[1] + mV[2]*mV[2]);
+	F32 oomag;
+
+	if (mag)
+	{
+		oomag = 1.f/mag;
+		mV[0] *= oomag;
+		mV[1] *= oomag;
+		mV[2] *= oomag;
+	}
+	return (mag);
+}
+
+// deprecated
 inline F32		LLColor3::magVec(void) const
 {
 	return fsqrtf(mV[0]*mV[0] + mV[1]*mV[1] + mV[2]*mV[2]);
 }
 
+// deprecated
 inline F32		LLColor3::magVecSquared(void) const
 {
 	return mV[0]*mV[0] + mV[1]*mV[1] + mV[2]*mV[2];
 }
 
+// deprecated
 inline F32		LLColor3::normVec(void)
 {
 	F32 mag = fsqrtf(mV[0]*mV[0] + mV[1]*mV[1] + mV[2]*mV[2]);

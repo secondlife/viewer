@@ -198,6 +198,7 @@ set(viewer_SOURCE_FILES
     llglsandbox.cpp
     llgroupmgr.cpp
     llgroupnotify.cpp
+    llhomelocationresponder.cpp
     llhoverview.cpp
     llhudeffectbeam.cpp
     llhudeffect.cpp
@@ -590,6 +591,7 @@ set(viewer_HEADER_FILES
     llgivemoney.h
     llgroupmgr.h
     llgroupnotify.h
+    llhomelocationresponder.h
     llhoverview.h
     llhudeffect.h
     llhudeffectbeam.h

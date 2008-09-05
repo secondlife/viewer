@@ -41,13 +41,13 @@ LLWorkerThread* LLImageWorker::sWorkerThread = NULL;
 S32 LLImageWorker::sCount = 0;
 
 //static
-void LLImageWorker::initClass(LLWorkerThread* workerthread)
+void LLImageWorker::initImageWorker(LLWorkerThread* workerthread)
 {
 	sWorkerThread = workerthread;
 }
 
 //static
-void LLImageWorker::cleanupClass()
+void LLImageWorker::cleanupImageWorker()
 {
 }
 

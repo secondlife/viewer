@@ -705,12 +705,13 @@ BOOL LLPanelGroupLandMoney::postBuild()
 	textp = getChild<LLTextEditor>("group_money_planning_text", true);
 	panelp = getChild<LLPanel>("group_money_planning_tab", true);
 
-	if ( !can_view )
+	if ( 1 ) //!can_view
 	{
 		textp->setText(mImplementationp->mCantViewAccountsText);
 	}
 	else
 	{
+		//Temporally disabled for DEV-11287.
 		mImplementationp->mMoneyPlanningTabEHp = 
 			new LLGroupMoneyPlanningTabEventHandler(textp,
 													tabcp,

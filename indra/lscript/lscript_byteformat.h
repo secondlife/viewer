@@ -470,6 +470,7 @@ const U8 LSCRIPTTypeHi4Bits[LST_EOF] =
 	LST_VECTOR << 4,
 	LST_QUATERNION << 4,
 	LST_LIST << 4,
+	LST_UNDEFINED << 4,
 };
 
 const char * const LSCRIPTTypeNames[LST_EOF] = 	/*Flawfinder: ignore*/

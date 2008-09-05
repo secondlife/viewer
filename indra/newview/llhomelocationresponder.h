@@ -1,9 +1,11 @@
 /** 
- * @file llcommon.cpp
+ * @file llhomelocationresponder.h
+ * @author Meadhbh Hamrick
+ * @brief Processes responses to the HomeLocation CapReq
  *
- * $LicenseInfo:firstyear=2006&license=viewergpl$
+ * $LicenseInfo:firstyear=2008&license=viewergpl$
  * 
- * Copyright (c) 2006-2007, Linden Research, Inc.
+ * Copyright (c) 2008, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -27,41 +29,19 @@
  * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
+ 
+ /* Macro Definitions */
+#ifndef LL_LLHOMELOCATIONRESPONDER_H
+#define LL_LLHOMELOCATIONRESPONDER_H
 
-#include "linden_common.h"
+/* File Inclusions */
+#include "llhttpclient.h"
 
-#include "llcommon.h"
-#include "llthread.h"
-
-//static
-BOOL LLCommon::sAprInitialized = FALSE;
-
-//static
-void LLCommon::initClass()
+/* Typedef, Enum, Class, Struct, etc. */
+class LLHomeLocationResponder : public LLHTTPClient::Responder
 {
-	LLMemory::initClass();
-	if (!sAprInitialized)
-	{
-		ll_init_apr();
-		sAprInitialized = TRUE;
-	}
-	LLTimer::initClass();
-	LLThreadSafeRefCount::initThreadSafeRefCount();
-// 	LLWorkerThread::initClass();
-// 	LLFrameCallbackManager::initClass();
-}
+	virtual void result( const LLSD& content );
+	virtual void error( const LLSD& content );
+};
 
-//static
-void LLCommon::cleanupClass()
-{
-// 	LLFrameCallbackManager::cleanupClass();
-// 	LLWorkerThread::cleanupClass();
-	LLThreadSafeRefCount::cleanupThreadSafeRefCount();
-	LLTimer::cleanupClass();
-	if (sAprInitialized)
-	{
-		ll_cleanup_apr();
-		sAprInitialized = FALSE;
-	}
-	LLMemory::cleanupClass();
-}
+#endif

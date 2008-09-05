@@ -359,7 +359,7 @@ void LLCondition::broadcast()
 LLMutex* LLThreadSafeRefCount::sMutex = 0;
 
 //static
-void LLThreadSafeRefCount::initClass()
+void LLThreadSafeRefCount::initThreadSafeRefCount()
 {
 	if (!sMutex)
 	{
@@ -368,7 +368,7 @@ void LLThreadSafeRefCount::initClass()
 }
 
 //static
-void LLThreadSafeRefCount::cleanupClass()
+void LLThreadSafeRefCount::cleanupThreadSafeRefCount()
 {
 	delete sMutex;
 	sMutex = NULL;

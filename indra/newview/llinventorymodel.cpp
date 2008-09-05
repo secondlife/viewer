@@ -73,7 +73,6 @@ F32  LLInventoryModel::sMinTimeBetweenFetches = 0.3f;
 F32  LLInventoryModel::sMaxTimeBetweenFetches = 10.f;
 BOOL LLInventoryModel::sTimelyFetchPending = FALSE;
 LLFrameTimer LLInventoryModel::sFetchTimer;
-LLInventoryModel::cat_map_t LLInventoryModel::sBulkFetchMap;
 S16 LLInventoryModel::sBulkFetchCount = 0;
 
 // RN: for some reason, using std::queue in the header file confuses the compiler which things it's an xmlrpc_queue
@@ -1021,18 +1020,27 @@ void LLInventoryModel::fetchDescendentsOf(const LLUUID& folder_id)
 }
 
 //Initialize statics.
-LLAlertDialog* LLInventoryModel::fetchDescendentsResponder::sRetryDialog=NULL;
-LLSD LLInventoryModel::fetchDescendentsResponder::sRetrySD;
-
 bool LLInventoryModel::isBulkFetchProcessingComplete()
 {
 	return ( (sFetchQueue.empty() 
-			&& sBulkFetchMap.empty() 
-			&& sBulkFetchCount==0)  ?  TRUE : FALSE ) ;
+			&& sBulkFetchCount<=0)  ?  TRUE : FALSE ) ;
 }
 
+class fetchDescendentsResponder: public LLHTTPClient::Responder
+{
+	public:
+		fetchDescendentsResponder(const LLSD& request_sd) : mRequestSD(request_sd) {};
+		//fetchDescendentsResponder() {};
+		void result(const LLSD& content);
+		void error(U32 status, const std::string& reason);
+	public:
+		typedef std::vector<LLViewerInventoryCategory*> folder_ref_t;
+	protected:
+		LLSD mRequestSD;
+};
+
 //If we get back a normal response, handle it here
-void  LLInventoryModel::fetchDescendentsResponder::result(const LLSD& content)
+void  fetchDescendentsResponder::result(const LLSD& content)
 {	
 	if (content.has("folders"))	
 	{
@@ -1049,13 +1057,20 @@ void  LLInventoryModel::fetchDescendentsResponder::result(const LLSD& content)
 			{
 				llwarns << "Got a UpdateInventoryItem for the wrong agent."
 						<< llendl;
-				break;
+				continue;
 			}
 			LLUUID parent_id = folder_sd["folder-id"];
 			LLUUID owner_id = folder_sd["owner-id"];
 			S32    version  = (S32)folder_sd["version"].asInteger();
 			S32    descendents = (S32)folder_sd["descendents"].asInteger();
 			LLPointer<LLViewerInventoryCategory> tcategory = new LLViewerInventoryCategory(owner_id);
+
+	                LLViewerInventoryCategory* pcat = gInventory.getCategory(parent_id);
+			if (!pcat)
+			{
+				continue;
+			}
+
 			for(LLSD::array_const_iterator category_it = folder_sd["categories"].beginArray();
 				category_it != folder_sd["categories"].endArray();
 				++category_it)
@@ -1063,7 +1078,7 @@ void  LLInventoryModel::fetchDescendentsResponder::result(const LLSD& content)
 				LLSD category = *category_it;
 				tcategory->fromLLSD(category); 
 							
-				if (sFullFetchStarted)
+				if (LLInventoryModel::sFullFetchStarted)
 				{
 					sFetchQueue.push_back(tcategory->getUUID());
 				}
@@ -1111,21 +1126,21 @@ void  LLInventoryModel::fetchDescendentsResponder::result(const LLSD& content)
 
 	LLInventoryModel::incrBulkFetch(-1);
 	
-	if (isBulkFetchProcessingComplete())
+	if (LLInventoryModel::isBulkFetchProcessingComplete())
 	{
 		llinfos << "Inventory fetch completed" << llendl;
-		if (sFullFetchStarted)
+		if (LLInventoryModel::sFullFetchStarted)
 		{
-			sAllFoldersFetched = TRUE;
+			LLInventoryModel::sAllFoldersFetched = TRUE;
 		}
-		stopBackgroundFetch();
+		LLInventoryModel::stopBackgroundFetch();
 	}
 	
 	gInventory.notifyObservers();
 }
 
 //If we get back an error (not found, etc...), handle it here
-void LLInventoryModel::fetchDescendentsResponder::error(U32 status, const std::string& reason)
+void fetchDescendentsResponder::error(U32 status, const std::string& reason)
 {
 	llinfos << "fetchDescendentsResponder::error "
 		<< status << ": " << reason << llendl;
@@ -1139,61 +1154,22 @@ void LLInventoryModel::fetchDescendentsResponder::error(U32 status, const std::s
 			++folder_it)
 		{	
 			LLSD folder_sd = *folder_it;
-			sRetrySD["folders"].append(folder_sd);
-		}
-		sMinTimeBetweenFetches = 10.0f; //Add 10 seconds for every time out in this sequence.
-		
-		if (!sRetryDialog)			//The dialog isn't up.  Prompt the resident.
-		{
-			sRetryDialog = gViewerWindow->alertXml("RetryFetchInventoryDescendents", onClickRetry, this);
+			LLUUID folder_id = folder_sd["folder-id"];
+			sFetchQueue.push_front(folder_id);
 		}
 	}
 	else
 	{
-		if (isBulkFetchProcessingComplete())
+		if (LLInventoryModel::isBulkFetchProcessingComplete())
 		{
-			if (sFullFetchStarted)
+			if (LLInventoryModel::sFullFetchStarted)
 			{
-				sAllFoldersFetched = TRUE;
+				LLInventoryModel::sAllFoldersFetched = TRUE;
 			}
-			stopBackgroundFetch();
+			LLInventoryModel::stopBackgroundFetch();
 		}
 	}
 	gInventory.notifyObservers();
-}
-
-void LLInventoryModel::fetchDescendentsResponder::onClickRetry(S32 option, void* userdata)
-{
-	if (option == 0)
-	{
-		std::string url;
-
-		LLViewerRegion * agent_region = gAgent.getRegion();
-		if (agent_region)
-		{
-			url = agent_region->getCapability("FetchInventoryDescendents");
-		}
-
-		if (!url.empty()) //Capability found.  Build up LLSD and use it.
-		{
-			LLSD body = sRetrySD;
-			LLInventoryModel::incrBulkFetch(1);
-			LLHTTPClient::post(url, body, new LLInventoryModel::fetchDescendentsResponder(body),300);
-		}
-	}
-	else
-	{
-		if (isBulkFetchProcessingComplete())
-		{
-			if (sFullFetchStarted)
-			{
-				sAllFoldersFetched = TRUE;
-			}
-			stopBackgroundFetch();
-		}
-	}
-	sRetryDialog=NULL;
-	sRetrySD.clear();
 }
 
 //static   Bundle up a bunch of requests to send all at once.
@@ -1206,7 +1182,7 @@ void LLInventoryModel::bulkFetch(std::string url)
 
 	S16 max_concurrent_fetches=8;
 	F32 new_min_time = 0.5f;			//HACK!  Clean this up when old code goes away entirely.
-	if (sMinTimeBetweenFetches <= new_min_time) sMinTimeBetweenFetches=new_min_time;  //HACK!  See above.
+	if (sMinTimeBetweenFetches < new_min_time) sMinTimeBetweenFetches=new_min_time;  //HACK!  See above.
 	
 	if(gDisconnected 
 	|| sBulkFetchCount > max_concurrent_fetches
@@ -1215,20 +1191,30 @@ void LLInventoryModel::bulkFetch(std::string url)
 		return; // just bail if we are disconnected.
 	}	
 
-	//HACK.  This is inelegant.  We're shuffling a dequeue to a map to get rid of 
-	//redundant requests.  When we get rid of the old code entirely, we can change
-	//the dequeue to a map.  In the new model, there is no benefit to queue order.
 	U32 folder_count=0;
-	U32 max_batch_size=10;
-	while( !(sFetchQueue.empty() ) )
+	U32 max_batch_size=5;
+
+	U32 sort_order = gSavedSettings.getU32("InventorySortOrder") & 0x1;
+
+	LLSD body;
+
+	while( !(sFetchQueue.empty() ) && (folder_count < max_batch_size) )
 	{
 		LLViewerInventoryCategory* cat = gInventory.getCategory(sFetchQueue.front());
 		
 		if (cat)
 		{
-			if ( !gInventory.isCategoryComplete(cat->getUUID()) )	//grab this folder.
+			if ( LLViewerInventoryCategory::VERSION_UNKNOWN == cat->getVersion())
 			{
-				sBulkFetchMap[(cat->getUUID())] = cat;
+				LLSD folder_sd;
+				folder_sd["folder-id"]		= cat->getUUID();
+				folder_sd["owner-id"]		= cat->getOwnerID();
+				folder_sd["sort-order"]		= (LLSD::Integer)sort_order;
+				folder_sd["fetch-folders"]	= (LLSD::Boolean)sFullFetchStarted;
+				folder_sd["fetch-items"]	= (LLSD::Boolean)TRUE;
+				body["folders"].append(folder_sd);
+
+				folder_count++;
 			}
 			else if (sFullFetchStarted)
 			{	//Already have this folder but append child folders to list.
@@ -1249,54 +1235,14 @@ void LLInventoryModel::bulkFetch(std::string url)
 		sFetchQueue.pop_front();
 	}
 		
-
-	if (!sBulkFetchMap.empty())	//There's stuff to fetch.
-	{
-		U32 sort_order = gSavedSettings.getU32("InventorySortOrder") & 0x1;
-
-		LLSD body;
-		
-		cat_map_t::iterator iter=sBulkFetchMap.begin();
-		while( iter!=sBulkFetchMap.end() && (folder_count < max_batch_size) )
-		{
-			LLViewerInventoryCategory* cat = iter->second;
-			
-			if (cat && !gInventory.isCategoryComplete(cat->getUUID()) ) 	//Category exists
-			{
-				BOOL fetchItems=TRUE;
-				if ( sFullFetchStarted 
-					&& gInventory.isCategoryComplete(cat->getUUID()) )
-				{
-					fetchItems=FALSE;
-				}
-				
-				LLSD folder_sd;
-				folder_sd["folder-id"]		= cat->getUUID();
-				folder_sd["owner-id"]		= cat->getOwnerID();
-				folder_sd["sort-order"]		= (LLSD::Integer)sort_order;
-				folder_sd["fetch-folders"]	= (LLSD::Boolean)sFullFetchStarted;
-				folder_sd["fetch-items"]	= (LLSD::Boolean)fetchItems;
-				body["folders"].append(folder_sd);
-
-				folder_count++;
-			}
-			sBulkFetchMap.erase(iter);
-			iter=sBulkFetchMap.begin();
-		}
-	
-		if (iter == sBulkFetchMap.end()) sBulkFetchMap.clear();
-		
 		if (folder_count > 0)
 		{
 			sBulkFetchCount++;
 			
-			LLHTTPClient::post(url, body, new LLInventoryModel::fetchDescendentsResponder(body));
+		LLHTTPClient::post(url, body, new fetchDescendentsResponder(body));
 			sFetchTimer.reset();
 		}
-		
-	}	
-	
-	if (isBulkFetchProcessingComplete())
+	else if (isBulkFetchProcessingComplete())
 	{
 		if (sFullFetchStarted)
 		{
@@ -1365,14 +1311,7 @@ void LLInventoryModel::backgroundFetch(void*)
 	if (sBackgroundFetchActive)
 	{
 		//If we'll be using the capability, we'll be sending batches and the background thing isn't as important.
-		std::string url;
-
-		LLViewerRegion * agent_region = gAgent.getRegion();
-		if (agent_region)
-		{
-			url = agent_region->getCapability("FetchInventoryDescendents");
-		}
-
+		std::string url = gAgent.getRegion()->getCapability("FetchInventoryDescendents");   
 		if (!url.empty()) 
 		{
 			bulkFetch(url);

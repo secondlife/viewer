@@ -1131,7 +1131,7 @@ void LLVOAvatar::dumpBakedStatus()
 		}
 
 
-		F64 dist_to_camera = (inst->getPositionGlobal() - camera_pos_global).magVec();
+		F64 dist_to_camera = (inst->getPositionGlobal() - camera_pos_global).length();
 		llcont << " " << dist_to_camera << "m ";
 
 		llcont << " " << inst->mPixelArea << " pixels";
@@ -2684,8 +2684,8 @@ void LLVOAvatar::idleUpdateMisc(bool detailed_update)
 			else
 			{
 				getSpatialExtents(ext[0], ext[1]);
-				if ((ext[1]-mImpostorExtents[1]).magVec() > 0.05f ||
-					(ext[0]-mImpostorExtents[0]).magVec() > 0.05f)
+				if ((ext[1]-mImpostorExtents[1]).length() > 0.05f ||
+					(ext[0]-mImpostorExtents[0]).length() > 0.05f)
 				{
 					mNeedsImpostorUpdate = TRUE;
 				}
@@ -2852,7 +2852,7 @@ void LLVOAvatar::idleUpdateWindEffect()
 		F32 time_delta = mRippleTimer.getElapsedTimeF32() - mRippleTimeLast;
 		mRippleTimeLast = mRippleTimer.getElapsedTimeF32();
 		LLVector3 velocity = getVelocity();
-		F32 speed = velocity.magVec();
+		F32 speed = velocity.length();
 		//RN: velocity varies too much frame to frame for this to work
 		mRippleAccel.clearVec();//lerp(mRippleAccel, (velocity - mLastVel) * time_delta, LLCriticalDamp::getInterpolant(0.02f));
 		mLastVel = velocity;
@@ -2871,7 +2871,7 @@ void LLVOAvatar::idleUpdateWindEffect()
 		}
 
 		wind.mV[VZ] += hover_strength;
-		wind.normVec();
+		wind.normalize();
 
 		wind.mV[VW] = llmin(0.025f + (speed * 0.015f) + hover_strength, 0.5f);
 		F32 interp;
@@ -2994,10 +2994,10 @@ void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
 				LLVector3 pixel_up_vec;
 				LLViewerCamera::getInstance()->getPixelVectors(root_pos_last, pixel_up_vec, pixel_right_vec);
 				LLVector3 camera_to_av = root_pos_last - LLViewerCamera::getInstance()->getOrigin();
-				camera_to_av.normVec();
+				camera_to_av.normalize();
 				LLVector3 local_camera_at = camera_to_av * ~root_rot;
 				LLVector3 local_camera_up = camera_to_av % LLViewerCamera::getInstance()->getLeftAxis();
-				local_camera_up.normVec();
+				local_camera_up.normalize();
 				local_camera_up = local_camera_up * ~root_rot;
 			
 				local_camera_up.scaleVec(mBodySize * 0.5f);
@@ -3456,7 +3456,7 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 
 	LLVector3 xyVel = getVelocity();
 	xyVel.mV[VZ] = 0.0f;
-	speed = xyVel.magVec();
+	speed = xyVel.length();
 
 	BOOL throttle = TRUE;
 
@@ -3541,14 +3541,14 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 			if (mIsSelf)
 			{
 				primDir = agent.getAtAxis() - projected_vec(agent.getAtAxis(), agent.getReferenceUpVector());
-				primDir.normVec();
+				primDir.normalize();
 			}
 			else
 			{
 				primDir = getRotation().getMatrix3().getFwdRow();
 			}
 			LLVector3 velDir = getVelocity();
-			velDir.normVec();
+			velDir.normalize();
 			if ( mSignaledAnimations.find(ANIM_AGENT_WALK) != mSignaledAnimations.end())
 			{
 				F32 vpD = velDir * primDir;
@@ -3570,13 +3570,13 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 					LLVector3 at_axis = LLViewerCamera::getInstance()->getAtAxis();
 					LLVector3 up_vector = gAgent.getReferenceUpVector();
 					at_axis -= up_vector * (at_axis * up_vector);
-					at_axis.normVec();
+					at_axis.normalize();
 					
 					F32 dot = fwdDir * at_axis;
 					if (dot < 0.f)
 					{
 						fwdDir -= 2.f * at_axis * dot;
-						fwdDir.normVec();
+						fwdDir.normalize();
 					}
 				}
 				
@@ -3644,7 +3644,7 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 
 			// Now compute the full world space rotation for the whole body (wQv)
 			LLVector3 leftDir = upDir % fwdDir;
-			leftDir.normVec();
+			leftDir.normalize();
 			fwdDir = leftDir % upDir;
 			LLQuaternion wQv( fwdDir, leftDir, upDir );
 
@@ -4253,7 +4253,7 @@ U32 LLVOAvatar::renderImpostor(LLColor4U color)
 
 	LLVector3 pos(getRenderPosition()+mImpostorOffset);
 	LLVector3 at = (pos - LLViewerCamera::getInstance()->getOrigin());
-	at.normVec();
+	at.normalize();
 	LLVector3 left = LLViewerCamera::getInstance()->getUpAxis() % at;
 	LLVector3 up = at%left;
 
@@ -5784,7 +5784,7 @@ void LLVOAvatar::setPixelAreaAndAngle(LLAgent &agent)
 	}
 	else
 	{
-		F32 radius = size.magVec();
+		F32 radius = size.length();
 		mAppAngle = (F32) atan2( radius, range) * RAD_TO_DEG;
 	}
 
@@ -5953,7 +5953,7 @@ void LLVOAvatar::updateShadowFaces()
 			sprite.setPosition(shadow_pos_agent);
 
 			LLVector3 foot_to_knee = mKneeLeftp->getWorldPosition() - joint_world_pos;
-			//foot_to_knee.normVec();
+			//foot_to_knee.normalize();
 			foot_to_knee -= projected_vec(foot_to_knee, sun_vec);
 			sprite.setYaw(azimuth(sun_vec - foot_to_knee));
 		
@@ -5986,7 +5986,7 @@ void LLVOAvatar::updateShadowFaces()
 			sprite.setPosition(shadow_pos_agent);
 
 			LLVector3 foot_to_knee = mKneeRightp->getWorldPosition() - joint_world_pos;
-			//foot_to_knee.normVec();
+			//foot_to_knee.normalize();
 			foot_to_knee -= projected_vec(foot_to_knee, sun_vec);
 			sprite.setYaw(azimuth(sun_vec - foot_to_knee));
 	
@@ -6355,7 +6355,7 @@ void LLVOAvatar::getOffObject()
 		LLVector3 at_axis = LLVector3::x_axis;
 		at_axis = at_axis * av_rot;
 		at_axis.mV[VZ] = 0.f;
-		at_axis.normVec();
+		at_axis.normalize();
 		gAgent.resetAxes(at_axis);
 
 		//reset orientation
@@ -9861,7 +9861,7 @@ void LLVOAvatar::getImpostorValues(LLVector3* extents, LLVector3& angle, F32& di
 	extents[1] = ext[1];
 
 	LLVector3 at = LLViewerCamera::getInstance()->getOrigin()-(getRenderPosition()+mImpostorOffset);
-	distance = at.normVec();
+	distance = at.normalize();
 	F32 da = 1.f - (at*LLViewerCamera::getInstance()->getAtAxis());
 	angle.mV[0] = LLViewerCamera::getInstance()->getYaw()*da;
 	angle.mV[1] = LLViewerCamera::getInstance()->getPitch()*da;

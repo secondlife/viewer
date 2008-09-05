@@ -43,6 +43,49 @@
 #include "llimagejpeg.h"
 #include "llimagepng.h"
 #include "llimagedxt.h"
+#include "llimageworker.h"
+
+//---------------------------------------------------------------------------
+// LLImage
+//---------------------------------------------------------------------------
+
+//static
+std::string LLImage::sLastErrorMessage;
+LLMutex* LLImage::sMutex = NULL;
+
+//static
+void LLImage::initClass(LLWorkerThread* workerthread)
+{
+	sMutex = new LLMutex(NULL);
+	if (workerthread)
+	{
+		LLImageWorker::initImageWorker(workerthread);
+	}
+	LLImageJ2C::openDSO();
+}
+
+//static
+void LLImage::cleanupClass()
+{
+	LLImageJ2C::closeDSO();
+	LLImageWorker::cleanupImageWorker();
+	delete sMutex;
+	sMutex = NULL;
+}
+
+//static
+const std::string& LLImage::getLastError()
+{
+	static const std::string noerr("No Error");
+	return sLastErrorMessage.empty() ? noerr : sLastErrorMessage;
+}
+
+//static
+void LLImage::setLastError(const std::string& message)
+{
+	LLMutexLock m(sMutex);
+	sLastErrorMessage = message;
+}
 
 //---------------------------------------------------------------------------
 // LLImageBase
@@ -95,20 +138,7 @@ void LLImageBase::sanityCheck()
 	}
 }
 
-std::string LLImageBase::sLastErrorMessage;
 BOOL LLImageBase::sSizeOverride = FALSE;
-
-BOOL LLImageBase::setLastError(const std::string& message, const std::string& filename) 
-{
-	sLastErrorMessage = message;
-	if (!filename.empty())
-	{
-		sLastErrorMessage += " FILE:";
-		sLastErrorMessage += filename;
-	}
-	llwarns << sLastErrorMessage << llendl;
-	return FALSE;
-}
 
 // virtual
 void LLImageBase::deleteData()
@@ -136,8 +166,6 @@ U8* LLImageBase::allocateData(S32 size)
 		llerrs << "LLImageBase::allocateData: bad size: " << size << llendl;
 	}
 	
-	resetLastError();
-
 	if (!mData || size != mDataSize)
 	{
 		deleteData(); // virtual
@@ -1265,6 +1293,23 @@ LLImageFormatted::~LLImageFormatted()
 	// NOTE: ~LLimageBase() call to deleteData() calls LLImageBase::deleteData()
 	//        NOT LLImageFormatted::deleteData()
 	deleteData();
+}
+
+//----------------------------------------------------------------------------
+
+//virtual
+void LLImageFormatted::resetLastError()
+{
+	LLImage::setLastError("");
+}
+
+//virtual
+void LLImageFormatted::setLastError(const std::string& message, const std::string& filename)
+{
+	std::string error = message;
+	if (!filename.empty())
+		error += std::string(" FILE: ") + filename;
+	LLImage::setLastError(error);
 }
 
 //----------------------------------------------------------------------------

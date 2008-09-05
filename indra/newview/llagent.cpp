@@ -80,6 +80,7 @@
 #include "llfloatertools.h"
 #include "llfloaterworldmap.h"
 #include "llgroupmgr.h"
+#include "llhomelocationresponder.h"
 #include "llhudeffectlookat.h"
 #include "llhudmanager.h"
 #include "llinventorymodel.h"
@@ -90,6 +91,7 @@
 #include "llmoveview.h"
 #include "llnotify.h"
 #include "llquantize.h"
+#include "llsdutil.h"
 #include "llselectmgr.h"
 #include "llsky.h"
 #include "llrendersphere.h"
@@ -445,7 +447,7 @@ void LLAgent::init()
 	mCameraFocusOffsetTarget = LLVector4(gSavedSettings.getVector3("CameraOffsetBuild"));
 	mCameraOffsetDefault = gSavedSettings.getVector3("CameraOffsetDefault");
 //	mCameraOffsetNorm = mCameraOffsetDefault;
-//	mCameraOffsetNorm.normVec();
+//	mCameraOffsetNorm.normalize();
 	mCameraCollidePlane.clearVec();
 	mCurrentCameraDistance = mCameraOffsetDefault.magVec();
 	mTargetCameraDistance = mCurrentCameraDistance;
@@ -522,7 +524,7 @@ void LLAgent::resetView(BOOL reset_camera)
 			// leaving mouse-steer mode
 			LLVector3 agent_at_axis = getAtAxis();
 			agent_at_axis -= projected_vec(agent_at_axis, getReferenceUpVector());
-			agent_at_axis.normVec();
+			agent_at_axis.normalize();
 			gAgent.resetAxes(lerp(getAtAxis(), agent_at_axis, LLCriticalDamp::getInterpolant(0.3f)));
 		}
 
@@ -1033,7 +1035,7 @@ void LLAgent::slamLookAt(const LLVector3 &look_at)
 {
 	LLVector3 look_at_norm = look_at;
 	look_at_norm.mV[VZ] = 0.f;
-	look_at_norm.normVec();
+	look_at_norm.normalize();
 	resetAxes(look_at_norm);
 }
 
@@ -1305,7 +1307,7 @@ LLVector3 LLAgent::calcFocusOffset(LLViewerObject *object, S32 x, S32 y)
 
 	LLVector3 obj_dir_abs = obj_pos - LLViewerCamera::getInstance()->getOrigin();
 	obj_dir_abs.rotVec(inv_obj_rot);
-	obj_dir_abs.normVec();
+	obj_dir_abs.normalize();
 	obj_dir_abs.abs();
 
 	LLVector3 object_extents = object->getScale();
@@ -1330,7 +1332,7 @@ LLVector3 LLAgent::calcFocusOffset(LLViewerObject *object, S32 x, S32 y)
 	{
 		normal.setVec(obj_matrix.getUpRow4());
 	}
-	normal.normVec();
+	normal.normalize();
 
 	LLVector3d focus_pt_global;
 	// RN: should we check return value for valid pick?
@@ -1534,7 +1536,7 @@ BOOL LLAgent::calcCameraMinDistance(F32 &obj_min_distance)
 	camera_offset_target_abs_norm.abs();
 	// make sure offset is non-zero
 	camera_offset_target_abs_norm.clamp(0.001f, F32_MAX);
-	camera_offset_target_abs_norm.normVec();
+	camera_offset_target_abs_norm.normalize();
 
 	// find camera position relative to normalized object extents
 	LLVector3 camera_offset_target_scaled = camera_offset_target_abs_norm;
@@ -1580,7 +1582,7 @@ BOOL LLAgent::calcCameraMinDistance(F32 &obj_min_distance)
 	LLVector3 object_split_axis;
 	LLVector3 target_offset_scaled = target_offset_origin;
 	target_offset_scaled.abs();
-	target_offset_scaled.normVec();
+	target_offset_scaled.normalize();
 	target_offset_scaled.mV[VX] /= object_extents.mV[VX];
 	target_offset_scaled.mV[VY] /= object_extents.mV[VY];
 	target_offset_scaled.mV[VZ] /= object_extents.mV[VZ];
@@ -1703,7 +1705,7 @@ void LLAgent::setCameraZoomFraction(F32 fraction)
 	else if (cameraCustomizeAvatar())
 	{
 		LLVector3d camera_offset_dir = mCameraFocusOffsetTarget;
-		camera_offset_dir.normVec();
+		camera_offset_dir.normalize();
 		mCameraFocusOffsetTarget = camera_offset_dir * rescale(fraction, 0.f, 1.f, APPEARANCE_MAX_ZOOM, APPEARANCE_MIN_ZOOM);
 	}
 	else
@@ -1730,7 +1732,7 @@ void LLAgent::setCameraZoomFraction(F32 fraction)
 		}
 
 		LLVector3d camera_offset_dir = mCameraFocusOffsetTarget;
-		camera_offset_dir.normVec();
+		camera_offset_dir.normalize();
 		mCameraFocusOffsetTarget = camera_offset_dir * rescale(fraction, 0.f, 1.f, max_zoom, min_zoom);
 	}
 	startCameraAnimation();
@@ -1777,7 +1779,7 @@ void LLAgent::cameraOrbitOver(const F32 angle)
 	else
 	{
 		LLVector3 camera_offset_unit(mCameraFocusOffsetTarget);
-		camera_offset_unit.normVec();
+		camera_offset_unit.normalize();
 
 		F32 angle_from_up = acos( camera_offset_unit * getReferenceUpVector() );
 
@@ -1812,7 +1814,7 @@ void LLAgent::cameraZoomIn(const F32 fraction)
 	LLVector3d	camera_offset(mCameraFocusOffsetTarget);
 	LLVector3d	camera_offset_unit(mCameraFocusOffsetTarget);
 	F32 min_zoom = LAND_MIN_ZOOM;
-	F32 current_distance = (F32)camera_offset_unit.normVec();
+	F32 current_distance = (F32)camera_offset_unit.normalize();
 	F32 new_distance = current_distance * fraction;
 
 	// Don't move through focus point
@@ -1881,7 +1883,7 @@ void LLAgent::cameraOrbitIn(const F32 meters)
 	{
 		LLVector3d	camera_offset(mCameraFocusOffsetTarget);
 		LLVector3d	camera_offset_unit(mCameraFocusOffsetTarget);
-		F32 current_distance = (F32)camera_offset_unit.normVec();
+		F32 current_distance = (F32)camera_offset_unit.normalize();
 		F32 new_distance = current_distance - meters;
 		F32 min_zoom = LAND_MIN_ZOOM;
 		
@@ -2246,7 +2248,7 @@ void LLAgent::startAutoPilotGlobal(const LLVector3d &target_global, const std::s
 		mAutoPilotUseRotation = TRUE;
 		mAutoPilotTargetFacing = LLVector3::x_axis * *target_rotation;
 		mAutoPilotTargetFacing.mV[VZ] = 0.f;
-		mAutoPilotTargetFacing.normVec();
+		mAutoPilotTargetFacing.normalize();
 	}
 	else
 	{
@@ -2369,8 +2371,8 @@ void LLAgent::autoPilot(F32 *delta_yaw)
 		at.mV[VZ] = 0.f;
 		direction.mV[VZ] = 0.f;
 
-		at.normVec();
-		F32 xy_distance = direction.normVec();
+		at.normalize();
+		F32 xy_distance = direction.normalize();
 
 		F32 yaw = 0.f;
 		if (mAutoPilotTargetDist > mAutoPilotStopDistance)
@@ -3529,7 +3531,7 @@ void LLAgent::setupSitCamera()
 		// slam agent coordinate frame to proper parent local version
 		LLVector3 at_axis = mFrameAgent.getAtAxis();
 		at_axis.mV[VZ] = 0.f;
-		at_axis.normVec();
+		at_axis.normalize();
 		resetAxes(at_axis * ~parent_rot);
 	}
 }
@@ -3665,7 +3667,7 @@ LLVector3d LLAgent::calcCameraPositionTargetGlobal(BOOL *hit_limit)
 				// slam agent coordinate frame to proper parent local version
 				LLVector3 at_axis = mFrameAgent.getAtAxis() * parent_rot;
 				at_axis.mV[VZ] = 0.f;
-				at_axis.normVec();
+				at_axis.normalize();
 				resetAxes(at_axis * ~parent_rot);
 
 				local_camera_offset = local_camera_offset * mFrameAgent.getQuaternion() * parent_rot;
@@ -3686,7 +3688,7 @@ LLVector3d LLAgent::calcCameraPositionTargetGlobal(BOOL *hit_limit)
 					offset_dot_norm = 0.001f;
 				}
 				
-				camera_distance = local_camera_offset.normVec();
+				camera_distance = local_camera_offset.normalize();
 
 				F32 pos_dot_norm = getPosAgentFromGlobal(frame_center_global + head_offset) * plane_normal;
 				
@@ -3710,7 +3712,7 @@ LLVector3d LLAgent::calcCameraPositionTargetGlobal(BOOL *hit_limit)
 			}
 			else
 			{
-				camera_distance = local_camera_offset.normVec();
+				camera_distance = local_camera_offset.normalize();
 			}
 
 			mTargetCameraDistance = llmax(camera_distance, MIN_CAMERA_DISTANCE);
@@ -3745,7 +3747,7 @@ LLVector3d LLAgent::calcCameraPositionTargetGlobal(BOOL *hit_limit)
 				{
 					LLVector3 frame_at_axis = mFrameAgent.getAtAxis();
 					frame_at_axis -= projected_vec(frame_at_axis, getReferenceUpVector());
-					frame_at_axis.normVec();
+					frame_at_axis.normalize();
 
 					//transition smoothly in air mode, to avoid camera pop
 					F32 u = (time_in_air - GROUND_TO_AIR_CAMERA_TRANSITION_START_TIME) / GROUND_TO_AIR_CAMERA_TRANSITION_TIME;
@@ -3932,7 +3934,7 @@ void LLAgent::resetCamera()
 	// Remove any pitch from the avatar
 	LLVector3 at = mFrameAgent.getAtAxis();
 	at.mV[VZ] = 0.f;
-	at.normVec();
+	at.normalize();
 	gAgent.resetAxes(at);
 	// have to explicitly clear field of view zoom now
 	mCameraFOVZoomFactor = 0.f;
@@ -4147,14 +4149,14 @@ void LLAgent::changeCameraToThirdPerson(BOOL animate)
 		LLQuaternion obj_rot = ((LLViewerObject*)mAvatarObject->getParent())->getRenderRotation();
 		at_axis = LLViewerCamera::getInstance()->getAtAxis();
 		at_axis.mV[VZ] = 0.f;
-		at_axis.normVec();
+		at_axis.normalize();
 		resetAxes(at_axis * ~obj_rot);
 	}
 	else
 	{
 		at_axis = mFrameAgent.getAtAxis();
 		at_axis.mV[VZ] = 0.f;
-		at_axis.normVec();
+		at_axis.normalize();
 		resetAxes(at_axis);
 	}
 
@@ -4201,7 +4203,7 @@ void LLAgent::changeCameraToCustomizeAvatar(BOOL avatar_animate, BOOL camera_ani
 	// Remove any pitch from the avatar
 	//LLVector3 at = mFrameAgent.getAtAxis();
 	//at.mV[VZ] = 0.f;
-	//at.normVec();
+	//at.normalize();
 	//gAgent.resetAxes(at);
 
 	if( mCameraMode != CAMERA_MODE_CUSTOMIZE_AVATAR )
@@ -4228,7 +4230,7 @@ void LLAgent::changeCameraToCustomizeAvatar(BOOL avatar_animate, BOOL camera_ani
 				// Remove any pitch from the avatar
 			LLVector3 at = mFrameAgent.getAtAxis();
 			at.mV[VZ] = 0.f;
-			at.normVec();
+			at.normalize();
 			gAgent.resetAxes(at);
 
 			sendAnimationRequest(ANIM_AGENT_CUSTOMIZE, ANIM_REQUEST_START);
@@ -4508,14 +4510,14 @@ void LLAgent::setFocusOnAvatar(BOOL focus_on_avatar, BOOL animate)
 				LLQuaternion obj_rot = ((LLViewerObject*)mAvatarObject->getParent())->getRenderRotation();
 				at_axis = LLViewerCamera::getInstance()->getAtAxis();
 				at_axis.mV[VZ] = 0.f;
-				at_axis.normVec();
+				at_axis.normalize();
 				resetAxes(at_axis * ~obj_rot);
 			}
 			else
 			{
 				at_axis = LLViewerCamera::getInstance()->getAtAxis();
 				at_axis.mV[VZ] = 0.f;
-				at_axis.normVec();
+				at_axis.normalize();
 				resetAxes(at_axis);
 			}
 		}
@@ -4578,7 +4580,7 @@ void LLAgent::lookAtLastChat()
 			{
 				delta_pos = chatter->getPositionAgent() - getPositionAgent();
 			}
-			delta_pos.normVec();
+			delta_pos.normalize();
 
 			setControlFlags(AGENT_CONTROL_STOP);
 
@@ -4586,9 +4588,9 @@ void LLAgent::lookAtLastChat()
 
 			LLVector3 new_camera_pos = mAvatarObject->mHeadp->getWorldPosition();
 			LLVector3 left = delta_pos % LLVector3::z_axis;
-			left.normVec();
+			left.normalize();
 			LLVector3 up = left % delta_pos;
-			up.normVec();
+			up.normalize();
 			new_camera_pos -= delta_pos * 0.4f;
 			new_camera_pos += left * 0.3f;
 			new_camera_pos += up * 0.2f;
@@ -4607,7 +4609,7 @@ void LLAgent::lookAtLastChat()
 		else
 		{
 			delta_pos = chatter->getRenderPosition() - getPositionAgent();
-			delta_pos.normVec();
+			delta_pos.normalize();
 
 			setControlFlags(AGENT_CONTROL_STOP);
 
@@ -4615,9 +4617,9 @@ void LLAgent::lookAtLastChat()
 
 			LLVector3 new_camera_pos = mAvatarObject->mHeadp->getWorldPosition();
 			LLVector3 left = delta_pos % LLVector3::z_axis;
-			left.normVec();
+			left.normalize();
 			LLVector3 up = left % delta_pos;
-			up.normVec();
+			up.normalize();
 			new_camera_pos -= delta_pos * 0.4f;
 			new_camera_pos += left * 0.3f;
 			new_camera_pos += up * 0.2f;
@@ -4631,68 +4633,107 @@ void LLAgent::lookAtLastChat()
 
 const F32 SIT_POINT_EXTENTS = 0.2f;
 
-// Grabs current position
-void LLAgent::setStartPosition(U32 location_id)
+void LLAgent::setStartPosition( U32 location_id )
 {
-	LLViewerObject		*object;
+  LLViewerObject          *object;
 
-	if ( !(gAgentID == LLUUID::null) )
-	{
-		// we've got an ID for an agent viewerobject
-		object = gObjectList.findObject(gAgentID);
-		if (object)
-		{
-			// we've got the viewer object
-			// Sometimes the agent can be velocity interpolated off of
-			// this simulator.  Clamp it to the region the agent is
-			// in, a little bit in on each side.
-			const F32 INSET = 0.5f;	//meters
-			const F32 REGION_WIDTH = LLWorld::getInstance()->getRegionWidthInMeters();
+  if ( !(gAgentID == LLUUID::null) )
+  {
+    // we've got an ID for an agent viewerobject
+    object = gObjectList.findObject(gAgentID);
+    if (object)
+    {
+      // we've got the viewer object
+      // Sometimes the agent can be velocity interpolated off of
+      // this simulator.  Clamp it to the region the agent is
+      // in, a little bit in on each side.
+      const F32 INSET = 0.5f; //meters
+      const F32 REGION_WIDTH = LLWorld::getInstance()->getRegionWidthInMeters();
 
-			LLVector3 agent_pos = getPositionAgent();
+      LLVector3 agent_pos = getPositionAgent();
+      LLVector3 agent_look_at = mFrameAgent.getAtAxis();
 
-			if (mAvatarObject)
-			{
-				// the z height is at the agent's feet
-				agent_pos.mV[VZ] -= 0.5f * mAvatarObject->mBodySize.mV[VZ];
-			}
+      if (mAvatarObject)
+      {
+	// the z height is at the agent's feet
+	agent_pos.mV[VZ] -= 0.5f * mAvatarObject->mBodySize.mV[VZ];
+      }
 
-			agent_pos.mV[VX] = llclamp( agent_pos.mV[VX], INSET, REGION_WIDTH - INSET );
-			agent_pos.mV[VY] = llclamp( agent_pos.mV[VY], INSET, REGION_WIDTH - INSET );
+      agent_pos.mV[VX] = llclamp( agent_pos.mV[VX], INSET, REGION_WIDTH - INSET );
+      agent_pos.mV[VY] = llclamp( agent_pos.mV[VY], INSET, REGION_WIDTH - INSET );
 
-			// Don't let them go below ground, or too high.
-			agent_pos.mV[VZ] = llclamp( agent_pos.mV[VZ], 
-				mRegionp->getLandHeightRegion( agent_pos ), 
-				LLWorld::getInstance()->getRegionMaxHeight() );
+      // Don't let them go below ground, or too high.
+      agent_pos.mV[VZ] = llclamp( agent_pos.mV[VZ],
+				  mRegionp->getLandHeightRegion( agent_pos ),
+				  LLWorld::getInstance()->getRegionMaxHeight() );
+      // Send the CapReq
 
-			LLMessageSystem* msg = gMessageSystem;
-			msg->newMessageFast(_PREHASH_SetStartLocationRequest);
-			msg->nextBlockFast( _PREHASH_AgentData);
-			msg->addUUIDFast(_PREHASH_AgentID, getID());
-			msg->addUUIDFast(_PREHASH_SessionID, getSessionID());
-			msg->nextBlockFast( _PREHASH_StartLocationData);
-			// corrected by sim
-			msg->addStringFast(_PREHASH_SimName, "");
-			msg->addU32Fast(_PREHASH_LocationID, location_id);
-			msg->addVector3Fast(_PREHASH_LocationPos, agent_pos);
-			msg->addVector3Fast(_PREHASH_LocationLookAt,mFrameAgent.getAtAxis());
+      LLSD body;
 
-			// Reliable only helps when setting home location.  Last
-			// location is sent on quit, and we don't have time to ack
-			// the packets.
-			msg->sendReliable(mRegionp->getHost());
+      std::string url = gAgent.getRegion()->getCapability("HomeLocation");
+      std::ostringstream strBuffer;
+      if( url.empty() )
+      {
+	LLMessageSystem* msg = gMessageSystem;
+	msg->newMessageFast(_PREHASH_SetStartLocationRequest);
+	msg->nextBlockFast( _PREHASH_AgentData);
+	msg->addUUIDFast(_PREHASH_AgentID, getID());
+	msg->addUUIDFast(_PREHASH_SessionID, getSessionID());
+	msg->nextBlockFast( _PREHASH_StartLocationData);
+	// corrected by sim
+	msg->addStringFast(_PREHASH_SimName, "");
+	msg->addU32Fast(_PREHASH_LocationID, location_id);
+	msg->addVector3Fast(_PREHASH_LocationPos, agent_pos);
+	msg->addVector3Fast(_PREHASH_LocationLookAt,mFrameAgent.getAtAxis());
+	
+	// Reliable only helps when setting home location.  Last
+	// location is sent on quit, and we don't have time to ack
+	// the packets.
+	msg->sendReliable(mRegionp->getHost());
 
-			const U32 HOME_INDEX = 1;
-			if( HOME_INDEX == location_id )
-			{
-				setHomePosRegion( mRegionp->getHandle(), getPositionAgent() );
-			}
-		}
-		else
-		{
-			llinfos << "setStartPosition - Can't find agent viewerobject id " << gAgentID << llendl;
-		}
-	}
+	const U32 HOME_INDEX = 1;
+	if( HOME_INDEX == location_id )
+	  {
+	    setHomePosRegion( mRegionp->getHandle(), getPositionAgent() );
+	  }
+      }
+      else
+      {
+	strBuffer << location_id;
+	body["HomeLocation"]["LocationId"] = strBuffer.str();
+
+	strBuffer.str("");
+	strBuffer << agent_pos.mV[VX];
+	body["HomeLocation"]["LocationPos"]["X"] = strBuffer.str();
+
+	strBuffer.str("");
+	strBuffer << agent_pos.mV[VY];
+	body["HomeLocation"]["LocationPos"]["Y"] = strBuffer.str();
+
+	strBuffer.str("");
+	strBuffer << agent_pos.mV[VZ];
+	body["HomeLocation"]["LocationPos"]["Z"] = strBuffer.str();
+
+	strBuffer.str("");
+	strBuffer << agent_look_at.mV[VX];
+	body["HomeLocation"]["LocationLookAt"]["X"] = strBuffer.str();
+
+	strBuffer.str("");
+	strBuffer << agent_look_at.mV[VY];
+	body["HomeLocation"]["LocationLookAt"]["Y"] = strBuffer.str();
+
+	strBuffer.str("");
+	strBuffer << agent_look_at.mV[VZ];
+	body["HomeLocation"]["LocationLookAt"]["Z"] = strBuffer.str();
+
+	LLHTTPClient::post( url, body, new LLHomeLocationResponder() );
+      }
+    }
+    else
+    {
+      llinfos << "setStartPosition - Can't find agent viewerobject id " << gAgentID << llendl;
+    }
+  }
 }
 
 void LLAgent::requestStopMotion( LLMotion* motion )

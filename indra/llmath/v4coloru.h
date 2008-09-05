@@ -97,15 +97,23 @@ public:
 	const LLColor4U&	setToBlack();						// zero LLColor4U to (0, 0, 0, 1)
 	const LLColor4U&	setToWhite();						// zero LLColor4U to (0, 0, 0, 1)
 
-	const LLColor4U&	setVec(U8 r, U8 g, U8 b, U8 a);	// Sets LLColor4U to (r, g, b, a)
-	const LLColor4U&	setVec(U8 r, U8 g, U8 b);	// Sets LLColor4U to (r, g, b) (no change in a)
-	const LLColor4U&	setVec(const LLColor4U &vec);	// Sets LLColor4U to vec
-	const LLColor4U&	setVec(const U8 *vec);			// Sets LLColor4U to vec
+	const LLColor4U&	set(U8 r, U8 g, U8 b, U8 a);// Sets LLColor4U to (r, g, b, a)
+	const LLColor4U&	set(U8 r, U8 g, U8 b);		// Sets LLColor4U to (r, g, b) (no change in a)
+	const LLColor4U&	set(const LLColor4U &vec);	// Sets LLColor4U to vec
+	const LLColor4U&	set(const U8 *vec);			// Sets LLColor4U to vec
+
+	const LLColor4U&	setVec(U8 r, U8 g, U8 b, U8 a);	// deprecated -- use set()
+	const LLColor4U&	setVec(U8 r, U8 g, U8 b);		// deprecated -- use set()
+	const LLColor4U&	setVec(const LLColor4U &vec);	// deprecated -- use set()
+	const LLColor4U&	setVec(const U8 *vec);			// deprecated -- use set()
 
 	const LLColor4U&    setAlpha(U8 a);
 
-	F32			magVec() const;				// Returns magnitude of LLColor4U
-	F32			magVecSquared() const;		// Returns magnitude squared of LLColor4U
+	F32			magVec() const;				// deprecated -- use length()
+	F32			magVecSquared() const;		// deprecated -- use lengthSquared()
+
+	F32			length() const;				// Returns magnitude squared of LLColor4U
+	F32			lengthSquared() const;		// Returns magnitude squared of LLColor4U
 
 	friend std::ostream&	 operator<<(std::ostream& s, const LLColor4U &a);		// Print a
 	friend LLColor4U operator+(const LLColor4U &a, const LLColor4U &b);	// Return vector a + b
@@ -199,6 +207,46 @@ inline const LLColor4U&	LLColor4U::setToWhite(void)
 	return (*this);
 }
 
+inline const LLColor4U&	LLColor4U::set(const U8 x, const U8 y, const U8 z)
+{
+	mV[VX] = x;
+	mV[VY] = y;
+	mV[VZ] = z;
+
+//  no change to alpha!
+//	mV[VW] = 255;  
+
+	return (*this);
+}
+
+inline const LLColor4U&	LLColor4U::set(const U8 r, const U8 g, const U8 b, U8 a)
+{
+	mV[0] = r;
+	mV[1] = g;
+	mV[2] = b;
+	mV[3] = a;  
+	return (*this);
+}
+
+inline const LLColor4U&	LLColor4U::set(const LLColor4U &vec)
+{
+	mV[VX] = vec.mV[VX];
+	mV[VY] = vec.mV[VY];
+	mV[VZ] = vec.mV[VZ];
+	mV[VW] = vec.mV[VW];
+	return (*this);
+}
+
+inline const LLColor4U&	LLColor4U::set(const U8 *vec)
+{
+	mV[VX] = vec[VX];
+	mV[VY] = vec[VY];
+	mV[VZ] = vec[VZ];
+	mV[VW] = vec[VW];
+	return (*this);
+}
+
+// deprecated
 inline const LLColor4U&	LLColor4U::setVec(const U8 x, const U8 y, const U8 z)
 {
 	mV[VX] = x;
@@ -211,6 +259,7 @@ inline const LLColor4U&	LLColor4U::setVec(const U8 x, const U8 y, const U8 z)
 	return (*this);
 }
 
+// deprecated
 inline const LLColor4U&	LLColor4U::setVec(const U8 r, const U8 g, const U8 b, U8 a)
 {
 	mV[0] = r;
@@ -220,6 +269,7 @@ inline const LLColor4U&	LLColor4U::setVec(const U8 r, const U8 g, const U8 b, U8
 	return (*this);
 }
 
+// deprecated
 inline const LLColor4U&	LLColor4U::setVec(const LLColor4U &vec)
 {
 	mV[VX] = vec.mV[VX];
@@ -229,17 +279,7 @@ inline const LLColor4U&	LLColor4U::setVec(const LLColor4U &vec)
 	return (*this);
 }
 
-/*
-inline const LLColor4U&	LLColor4U::setVec(const LLColor4 &vec)
-{
-	mV[VX] = (U8) (llmin(1.f, vec.mV[VX]) * 255.f);
-	mV[VY] = (U8) (llmin(1.f, vec.mV[VY]) * 255.f);
-	mV[VZ] = (U8) (llmin(1.f, vec.mV[VZ]) * 255.f);
-	mV[VW] = (U8) (llmin(1.f, vec.mV[VW]) * 255.f);
-	return (*this);
-}
-*/
-
+// deprecated
 inline const LLColor4U&	LLColor4U::setVec(const U8 *vec)
 {
 	mV[VX] = vec[VX];
@@ -256,13 +296,24 @@ inline const LLColor4U&	LLColor4U::setAlpha(U8 a)
 }
 
 // LLColor4U Magnitude and Normalization Functions
-// bookmark
 
+inline F32		LLColor4U::length(void) const
+{
+	return fsqrtf( ((F32)mV[VX]) * mV[VX] + ((F32)mV[VY]) * mV[VY] + ((F32)mV[VZ]) * mV[VZ] );
+}
+
+inline F32		LLColor4U::lengthSquared(void) const
+{
+	return ((F32)mV[VX]) * mV[VX] + ((F32)mV[VY]) * mV[VY] + ((F32)mV[VZ]) * mV[VZ];
+}
+
+// deprecated
 inline F32		LLColor4U::magVec(void) const
 {
 	return fsqrtf( ((F32)mV[VX]) * mV[VX] + ((F32)mV[VY]) * mV[VY] + ((F32)mV[VZ]) * mV[VZ] );
 }
 
+// deprecated
 inline F32		LLColor4U::magVecSquared(void) const
 {
 	return ((F32)mV[VX]) * mV[VX] + ((F32)mV[VY]) * mV[VY] + ((F32)mV[VZ]) * mV[VZ];
@@ -407,13 +458,13 @@ inline const LLColor4U& operator%=(LLColor4U &a, U8 k)
 inline F32		distVec(const LLColor4U &a, const LLColor4U &b)
 {
 	LLColor4U vec = a - b;
-	return (vec.magVec());
+	return (vec.length());
 }
 
 inline F32		distVec_squared(const LLColor4U &a, const LLColor4U &b)
 {
 	LLColor4U vec = a - b;
-	return (vec.magVecSquared());
+	return (vec.lengthSquared());
 }
 
 void LLColor4U::setVecScaleClamp(const LLColor4& color)

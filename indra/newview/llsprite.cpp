@@ -126,8 +126,8 @@ void LLSprite::updateFace(LLFace &face)
 			LLVector3 camera_vec = mPosition - sCameraPosition;
 			mScaledRight = camera_vec % LLVector3(0.f, 0.f, 1.f);
 			mScaledUp = -(camera_vec % mScaledRight);
-			mScaledUp.normVec();
-			mScaledRight.normVec();
+			mScaledUp.normalize();
+			mScaledRight.normalize();
 			mScaledUp *= mHeightDiv2;
 			mScaledRight *= mWidthDiv2;
 
@@ -156,7 +156,7 @@ void LLSprite::updateFace(LLFace &face)
 		else
 		{
 			x_axis = sNormal % LLVector3(0.f, -1.f, 0.f);
-			x_axis.normVec();
+			x_axis.normalize();
 
 			y_axis = sNormal % x_axis;
 		}

@@ -273,9 +273,9 @@ U32 LLVOTree::processUpdateMessage(LLMessageSystem *mesgsys,
 	// Do base class updates...
 	U32 retval = LLViewerObject::processUpdateMessage(mesgsys, user_data, block_num, update_type, dp);
 
-	if (  (getVelocity().magVecSquared() > 0.f)
-		||(getAcceleration().magVecSquared() > 0.f)
-		||(getAngularVelocity().magVecSquared() > 0.f))
+	if (  (getVelocity().lengthSquared() > 0.f)
+		||(getAcceleration().lengthSquared() > 0.f)
+		||(getAngularVelocity().lengthSquared() > 0.f))
 	{
 		llinfos << "ACK! Moving tree!" << llendl;
 		setVelocity(LLVector3::zero);
@@ -359,14 +359,14 @@ BOOL LLVOTree::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 	mTrunkBend += mTrunkVel;
 	mTrunkVel *= 0.99f;									//  Add damping
 
-	if (mTrunkBend.magVec() > 1.f)
+	if (mTrunkBend.length() > 1.f)
 	{
-		mTrunkBend.normVec();
+		mTrunkBend.normalize();
 	}
 
-	if (mTrunkVel.magVec() > 1.f)
+	if (mTrunkVel.length() > 1.f)
 	{
-		mTrunkVel.normVec();
+		mTrunkVel.normalize();
 	}
 
 	return TRUE;
@@ -391,7 +391,7 @@ void LLVOTree::setPixelAreaAndAngle(LLAgent &agent)
 	
 	// This should be the camera's center, as soon as we move to all region-local.
 	LLVector3 relative_position = getPositionAgent() - agent.getCameraPositionAgent();
-	F32 range = relative_position.magVec();				// ugh, square root
+	F32 range = relative_position.length();				// ugh, square root
 
 	F32 max_scale = mBillboardScale * getMaxScale();
 	F32 area = max_scale * (max_scale*mBillboardRatio);
@@ -713,9 +713,9 @@ BOOL LLVOTree::updateGeometry(LLDrawable *drawable)
 				LLVector2 tc;
 				// This isn't totally accurate.  Should compute based on slope as well.
 				start_radius = r0 * (1.f + 1.2f*fabs(z - 0.66f*height)/height);
-				nvec.setVec(	cos(nangle * DEG_TO_RAD)*start_radius*nvec_scale, 
-								sin(nangle * DEG_TO_RAD)*start_radius*nvec_scale, 
-								z*nvec_scalez); 
+				nvec.set(	cos(nangle * DEG_TO_RAD)*start_radius*nvec_scale, 
+							sin(nangle * DEG_TO_RAD)*start_radius*nvec_scale, 
+							z*nvec_scalez); 
 				// First and last slice at 0 radius (to bring in top/bottom of structure)
 				radius = start_radius + turbulence3((F32*)&nvec.mV, (F32)fractal_depth)*noise_scale;
 
@@ -918,7 +918,7 @@ void LLVOTree::updateRadius()
 
 void LLVOTree::updateSpatialExtents(LLVector3& newMin, LLVector3& newMax)
 {
-	F32 radius = getScale().magVec()*0.05f;
+	F32 radius = getScale().length()*0.05f;
 	LLVector3 center = getRenderPosition();
 
 	F32 sz = mBillboardScale*mBillboardRatio*radius*0.5f; 
@@ -926,8 +926,8 @@ void LLVOTree::updateSpatialExtents(LLVector3& newMin, LLVector3& newMax)
 
 	center += LLVector3(0, 0, size.mV[2]) * getRotation();
 	
-	newMin.setVec(center-size);
-	newMax.setVec(center+size);
+	newMin.set(center-size);
+	newMax.set(center+size);
 	mDrawable->setPositionGroup(center);
 }
 

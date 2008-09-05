@@ -67,6 +67,9 @@ public:
 		NUM_SCALES
 	};
 
+	static const TimeScale IMPL_NUM_SCALES = (TimeScale)(SCALE_TWO_MINUTE + 1);
+	static U64 sScaleTimes[IMPL_NUM_SCALES];
+
 	F32 meanValue(TimeScale scale) const;
 		// see the subclasses for the specific meaning of value
 
@@ -74,9 +77,32 @@ public:
 	F32 meanValueOverLastSecond() const	{ return meanValue(SCALE_SECOND); }
 	F32 meanValueOverLastMinute() const	{ return meanValue(SCALE_MINUTE); }
 
-protected:
-	class impl;
-	impl& m;
+	void reset(U64 when);
+
+	void sum(F64 value);
+	void sum(F64 value, U64 when);
+
+	U64 getCurrentUsecs() const;
+		// Get current microseconds based on timer type
+
+	BOOL	mUseFrameTimer;
+
+	BOOL	mRunning;
+	U64		mLastTime;
+	
+	struct Bucket
+	{
+		F64		accum;
+		U64		endTime;
+
+		BOOL	lastValid;
+		F64		lastAccum;
+	};
+
+	Bucket	mBuckets[IMPL_NUM_SCALES];
+
+	BOOL 	mLastSampleValid;
+	F64 	mLastSampleValue;
 };
 
 class LLStatMeasure : public LLStatAccum
@@ -105,7 +131,7 @@ public:
 	void count(U32);
 		// used to note that n items have occured
 	
-	void mark() { count(1); }
+	void mark();
 		// used for counting the rate thorugh a point in the code
 };
 
@@ -118,6 +144,9 @@ class LLStatTime : public LLStatAccum
 {
 public:
 	LLStatTime(bool use_frame_timer = false);
+
+	U32		mFrameNumber;		// Current frame number
+	U64		mTotalTimeInFrame;	// Total time (microseconds) accumulated during the last frame
 
 private:
 	void start();

@@ -250,7 +250,7 @@ inline void bytestream2vector(LLVector3 &vector, const U8 *stream, S32 &offset)
 	}
 }
 
-inline void vector2bytestream(U8 *stream, S32 &offset, LLVector3 &vector)
+inline void vector2bytestream(U8 *stream, S32 &offset, const LLVector3 &vector)
 {
 	S32 value = *(S32 *)&vector.mV[VZ];
 	integer2bytestream(stream, offset, value);
@@ -292,7 +292,7 @@ inline void bytestream2quaternion(LLQuaternion &quat, const U8 *stream, S32 &off
 	}
 }
 
-inline void quaternion2bytestream(U8 *stream, S32 &offset, LLQuaternion &quat)
+inline void quaternion2bytestream(U8 *stream, S32 &offset, const LLQuaternion &quat)
 {
 	S32 value = *(S32 *)&quat.mQ[VS];
 	integer2bytestream(stream, offset, value);
@@ -528,7 +528,7 @@ inline void lscript_push(U8 *stream, F32 value)
 	}
 }
 
-inline void lscript_push(U8 *stream, LLVector3 &value)
+inline void lscript_push(U8 *stream, const LLVector3 &value)
 {
 	S32 sp = get_register(stream, LREG_SP);
 	sp -= LSCRIPTDataSize[LST_VECTOR];
@@ -539,7 +539,7 @@ inline void lscript_push(U8 *stream, LLVector3 &value)
 	}
 }
 
-inline void lscript_push(U8 *stream, LLQuaternion &value)
+inline void lscript_push(U8 *stream, const LLQuaternion &value)
 {
 	S32 sp = get_register(stream, LREG_SP);
 	sp -= LSCRIPTDataSize[LST_QUATERNION];
@@ -679,13 +679,13 @@ inline void lscript_local_store(U8 *stream, S32 address, F32 value)
 		float2bytestream(stream, address, value);
 }
 
-inline void lscript_local_store(U8 *stream, S32 address, LLVector3 value)
+inline void lscript_local_store(U8 *stream, S32 address, const LLVector3 value)
 {
 	if (lscript_check_local(stream, address, LSCRIPTDataSize[LST_VECTOR]))
 		vector2bytestream(stream, address, value);
 }
 
-inline void lscript_local_store(U8 *stream, S32 address, LLQuaternion value)
+inline void lscript_local_store(U8 *stream, S32 address, const LLQuaternion value)
 {
 	if (lscript_check_local(stream, address, LSCRIPTDataSize[LST_QUATERNION]))
 		quaternion2bytestream(stream, address, value);
@@ -703,13 +703,13 @@ inline void lscript_global_store(U8 *stream, S32 address, F32 value)
 		float2bytestream(stream, address, value);
 }
 
-inline void lscript_global_store(U8 *stream, S32 address, LLVector3 value)
+inline void lscript_global_store(U8 *stream, S32 address, const LLVector3 value)
 {
 	if (lscript_check_global(stream, address, LSCRIPTDataSize[LST_VECTOR]))
 		vector2bytestream(stream, address, value);
 }
 
-inline void lscript_global_store(U8 *stream, S32 address, LLQuaternion value)
+inline void lscript_global_store(U8 *stream, S32 address, const LLQuaternion value)
 {
 	if (lscript_check_global(stream, address, LSCRIPTDataSize[LST_QUATERNION]))
 		quaternion2bytestream(stream, address, value);
@@ -1125,7 +1125,7 @@ inline void safe_instruction_bytestream2vector(LLVector3 &value, U8 *stream, S32
 	}
 }
 
-inline void safe_instruction_vector2bytestream(U8 *stream, S32 &offset, LLVector3 &value)
+inline void safe_instruction_vector2bytestream(U8 *stream, S32 &offset, const LLVector3 &value)
 {
 	if (safe_instruction_check_address(stream, offset, LSCRIPTDataSize[LST_VECTOR]))
 	{
@@ -1141,7 +1141,7 @@ inline void safe_instruction_bytestream2quaternion(LLQuaternion &value, U8 *stre
 	}
 }
 
-inline void safe_instruction_quaternion2bytestream(U8 *stream, S32 &offset, LLQuaternion &value)
+inline void safe_instruction_quaternion2bytestream(U8 *stream, S32 &offset, const LLQuaternion &value)
 {
 	if (safe_instruction_check_address(stream, offset, LSCRIPTDataSize[LST_QUATERNION]))
 	{

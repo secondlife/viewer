@@ -3089,7 +3089,7 @@ void LLPipeline::setupAvatarLights(BOOL for_edit)
 		camera_rot.invert();
 		LLVector4 light_pos = light_pos_cam * camera_rot;
 		
-		light_pos.normVec();
+		light_pos.normalize();
 
 		mHWLightColors[1] = diffuse;
 		glLightfv(GL_LIGHT1, GL_DIFFUSE,  diffuse.mV);
@@ -3107,7 +3107,7 @@ void LLPipeline::setupAvatarLights(BOOL for_edit)
 		LLVector3 opposite_pos = -1.f * mSunDir;
 		LLVector3 orthog_light_pos = mSunDir % LLVector3::z_axis;
 		LLVector4 backlight_pos = LLVector4(lerp(opposite_pos, orthog_light_pos, 0.3f), 0.0f);
-		backlight_pos.normVec();
+		backlight_pos.normalize();
 			
 		LLColor4 light_diffuse = mSunDiffuse;
 		LLColor4 backlight_diffuse(1.f - light_diffuse.mV[VRED], 1.f - light_diffuse.mV[VGREEN], 1.f - light_diffuse.mV[VBLUE], 1.f);
@@ -5172,11 +5172,11 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 
 	LLVector3 left = camera.getLeftAxis();
 	left *= left;
-	left.normVec();
+	left.normalize();
 
 	LLVector3 up = camera.getUpAxis();
 	up *= up;
-	up.normVec();
+	up.normalize();
 
 	tdim.mV[0] = fabsf(half_height * left);
 	tdim.mV[1] = fabsf(half_height * up);

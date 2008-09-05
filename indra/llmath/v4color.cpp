@@ -161,6 +161,38 @@ LLColor4::LLColor4(const LLVector4& vector4)
 	mV[VW] = vector4.mV[VW];
 }
 
+const LLColor4&	LLColor4::set(const LLColor4U& color4u)
+{
+	const F32 SCALE = 1.f/255.f;
+	mV[VX] = color4u.mV[VX] * SCALE;
+	mV[VY] = color4u.mV[VY] * SCALE;
+	mV[VZ] = color4u.mV[VZ] * SCALE;
+	mV[VW] = color4u.mV[VW] * SCALE;
+	return (*this);
+}
+
+const LLColor4&	LLColor4::set(const LLColor3 &vec)
+{
+	mV[VX] = vec.mV[VX];
+	mV[VY] = vec.mV[VY];
+	mV[VZ] = vec.mV[VZ];
+
+//  no change to alpha!
+//	mV[VW] = 1.f;  
+
+	return (*this);
+}
+
+const LLColor4&	LLColor4::set(const LLColor3 &vec, F32 a)
+{
+	mV[VX] = vec.mV[VX];
+	mV[VY] = vec.mV[VY];
+	mV[VZ] = vec.mV[VZ];
+	mV[VW] = a;
+	return (*this);
+}
+
+// deprecated -- use set()
 const LLColor4&	LLColor4::setVec(const LLColor4U& color4u)
 {
 	const F32 SCALE = 1.f/255.f;
@@ -171,6 +203,7 @@ const LLColor4&	LLColor4::setVec(const LLColor4U& color4u)
 	return (*this);
 }
 
+// deprecated -- use set()
 const LLColor4&	LLColor4::setVec(const LLColor3 &vec)
 {
 	mV[VX] = vec.mV[VX];
@@ -183,6 +216,7 @@ const LLColor4&	LLColor4::setVec(const LLColor3 &vec)
 	return (*this);
 }
 
+// deprecated -- use set()
 const LLColor4&	LLColor4::setVec(const LLColor3 &vec, F32 a)
 {
 	mV[VX] = vec.mV[VX];
@@ -338,270 +372,270 @@ BOOL LLColor4::parseColor(const std::string& buf, LLColor4* color)
 		{
 			v = v * (1.f / 255.f);
 		}
-		color->setVec( v );
+		color->set( v );
 	}
 	else // Single value.  Read as a named color.
 	{
 		// We have a color name
 		if ( "red" == color_name )
 		{
-			color->setVec(LLColor4::red);
+			color->set(LLColor4::red);
 		}
 		else if ( "red1" == color_name )
 		{
-			color->setVec(LLColor4::red1);
+			color->set(LLColor4::red1);
 		}
 		else if ( "red2" == color_name )
 		{
-			color->setVec(LLColor4::red2);
+			color->set(LLColor4::red2);
 		}
 		else if ( "red3" == color_name )
 		{
-			color->setVec(LLColor4::red3);
+			color->set(LLColor4::red3);
 		}
 		else if ( "red4" == color_name )
 		{
-			color->setVec(LLColor4::red4);
+			color->set(LLColor4::red4);
 		}
 		else if ( "red5" == color_name )
 		{
-			color->setVec(LLColor4::red5);
+			color->set(LLColor4::red5);
 		}
 		else if( "green" == color_name )
 		{
-			color->setVec(LLColor4::green);
+			color->set(LLColor4::green);
 		}
 		else if( "green1" == color_name )
 		{
-			color->setVec(LLColor4::green1);
+			color->set(LLColor4::green1);
 		}
 		else if( "green2" == color_name )
 		{
-			color->setVec(LLColor4::green2);
+			color->set(LLColor4::green2);
 		}
 		else if( "green3" == color_name )
 		{
-			color->setVec(LLColor4::green3);
+			color->set(LLColor4::green3);
 		}
 		else if( "green4" == color_name )
 		{
-			color->setVec(LLColor4::green4);
+			color->set(LLColor4::green4);
 		}
 		else if( "green5" == color_name )
 		{
-			color->setVec(LLColor4::green5);
+			color->set(LLColor4::green5);
 		}
 		else if( "green6" == color_name )
 		{
-			color->setVec(LLColor4::green6);
+			color->set(LLColor4::green6);
 		}
 		else if( "blue" == color_name )
 		{
-			color->setVec(LLColor4::blue);
+			color->set(LLColor4::blue);
 		}
 		else if( "blue1" == color_name )
 		{
-			color->setVec(LLColor4::blue1);
+			color->set(LLColor4::blue1);
 		}
 		else if( "blue2" == color_name )
 		{
-			color->setVec(LLColor4::blue2);
+			color->set(LLColor4::blue2);
 		}
 		else if( "blue3" == color_name )
 		{
-			color->setVec(LLColor4::blue3);
+			color->set(LLColor4::blue3);
 		}
 		else if( "blue4" == color_name )
 		{
-			color->setVec(LLColor4::blue4);
+			color->set(LLColor4::blue4);
 		}
 		else if( "blue5" == color_name )
 		{
-			color->setVec(LLColor4::blue5);
+			color->set(LLColor4::blue5);
 		}
 		else if( "blue6" == color_name )
 		{
-			color->setVec(LLColor4::blue6);
+			color->set(LLColor4::blue6);
 		}
 		else if( "black" == color_name )
 		{
-			color->setVec(LLColor4::black);
+			color->set(LLColor4::black);
 		}
 		else if( "white" == color_name )
 		{
-			color->setVec(LLColor4::white);
+			color->set(LLColor4::white);
 		}
 		else if( "yellow" == color_name )
 		{
-			color->setVec(LLColor4::yellow);
+			color->set(LLColor4::yellow);
 		}
 		else if( "yellow1" == color_name )
 		{
-			color->setVec(LLColor4::yellow1);
+			color->set(LLColor4::yellow1);
 		}
 		else if( "yellow2" == color_name )
 		{
-			color->setVec(LLColor4::yellow2);
+			color->set(LLColor4::yellow2);
 		}
 		else if( "yellow3" == color_name )
 		{
-			color->setVec(LLColor4::yellow3);
+			color->set(LLColor4::yellow3);
 		}
 		else if( "yellow4" == color_name )
 		{
-			color->setVec(LLColor4::yellow4);
+			color->set(LLColor4::yellow4);
 		}
 		else if( "yellow5" == color_name )
 		{
-			color->setVec(LLColor4::yellow5);
+			color->set(LLColor4::yellow5);
 		}
 		else if( "yellow6" == color_name )
 		{
-			color->setVec(LLColor4::yellow6);
+			color->set(LLColor4::yellow6);
 		}
 		else if( "magenta" == color_name )
 		{
-			color->setVec(LLColor4::magenta);
+			color->set(LLColor4::magenta);
 		}
 		else if( "magenta1" == color_name )
 		{
-			color->setVec(LLColor4::magenta1);
+			color->set(LLColor4::magenta1);
 		}
 		else if( "magenta2" == color_name )
 		{
-			color->setVec(LLColor4::magenta2);
+			color->set(LLColor4::magenta2);
 		}
 		else if( "magenta3" == color_name )
 		{
-			color->setVec(LLColor4::magenta3);
+			color->set(LLColor4::magenta3);
 		}
 		else if( "magenta4" == color_name )
 		{
-			color->setVec(LLColor4::magenta4);
+			color->set(LLColor4::magenta4);
 		}
 		else if( "purple" == color_name )
 		{
-			color->setVec(LLColor4::purple);
+			color->set(LLColor4::purple);
 		}
 		else if( "purple1" == color_name )
 		{
-			color->setVec(LLColor4::purple1);
+			color->set(LLColor4::purple1);
 		}
 		else if( "purple2" == color_name )
 		{
-			color->setVec(LLColor4::purple2);
+			color->set(LLColor4::purple2);
 		}
 		else if( "purple3" == color_name )
 		{
-			color->setVec(LLColor4::purple3);
+			color->set(LLColor4::purple3);
 		}
 		else if( "purple4" == color_name )
 		{
-			color->setVec(LLColor4::purple4);
+			color->set(LLColor4::purple4);
 		}
 		else if( "purple5" == color_name )
 		{
-			color->setVec(LLColor4::purple5);
+			color->set(LLColor4::purple5);
 		}
 		else if( "purple6" == color_name )
 		{
-			color->setVec(LLColor4::purple6);
+			color->set(LLColor4::purple6);
 		}
 		else if( "pink" == color_name )
 		{
-			color->setVec(LLColor4::pink);
+			color->set(LLColor4::pink);
 		}
 		else if( "pink1" == color_name )
 		{
-			color->setVec(LLColor4::pink1);
+			color->set(LLColor4::pink1);
 		}
 		else if( "pink2" == color_name )
 		{
-			color->setVec(LLColor4::pink2);
+			color->set(LLColor4::pink2);
 		}
 		else if( "cyan" == color_name )
 		{
-			color->setVec(LLColor4::cyan);
+			color->set(LLColor4::cyan);
 		}
 		else if( "cyan1" == color_name )
 		{
-			color->setVec(LLColor4::cyan1);
+			color->set(LLColor4::cyan1);
 		}
 		else if( "cyan2" == color_name )
 		{
-			color->setVec(LLColor4::cyan2);
+			color->set(LLColor4::cyan2);
 		}
 		else if( "cyan3" == color_name )
 		{
-			color->setVec(LLColor4::cyan3);
+			color->set(LLColor4::cyan3);
 		}
 		else if( "cyan4" == color_name )
 		{
-			color->setVec(LLColor4::cyan4);
+			color->set(LLColor4::cyan4);
 		}
 		else if( "cyan5" == color_name )
 		{
-			color->setVec(LLColor4::cyan5);
+			color->set(LLColor4::cyan5);
 		}
 		else if( "cyan6" == color_name )
 		{
-			color->setVec(LLColor4::cyan6);
+			color->set(LLColor4::cyan6);
 		}
 		else if( "smoke" == color_name )
 		{
-			color->setVec(LLColor4::smoke);
+			color->set(LLColor4::smoke);
 		}
 		else if( "grey" == color_name )
 		{
-			color->setVec(LLColor4::grey);
+			color->set(LLColor4::grey);
 		}
 		else if( "grey1" == color_name )
 		{
-			color->setVec(LLColor4::grey1);
+			color->set(LLColor4::grey1);
 		}
 		else if( "grey2" == color_name )
 		{
-			color->setVec(LLColor4::grey2);
+			color->set(LLColor4::grey2);
 		}
 		else if( "grey3" == color_name )
 		{
-			color->setVec(LLColor4::grey3);
+			color->set(LLColor4::grey3);
 		}
 		else if( "grey4" == color_name )
 		{
-			color->setVec(LLColor4::grey4);
+			color->set(LLColor4::grey4);
 		}
 		else if( "orange" == color_name )
 		{
-			color->setVec(LLColor4::orange);
+			color->set(LLColor4::orange);
 		}
 		else if( "orange1" == color_name )
 		{
-			color->setVec(LLColor4::orange1);
+			color->set(LLColor4::orange1);
 		}
 		else if( "orange2" == color_name )
 		{
-			color->setVec(LLColor4::orange2);
+			color->set(LLColor4::orange2);
 		}
 		else if( "orange3" == color_name )
 		{
-			color->setVec(LLColor4::orange3);
+			color->set(LLColor4::orange3);
 		}
 		else if( "orange4" == color_name )
 		{
-			color->setVec(LLColor4::orange4);
+			color->set(LLColor4::orange4);
 		}
 		else if( "orange5" == color_name )
 		{
-			color->setVec(LLColor4::orange5);
+			color->set(LLColor4::orange5);
 		}
 		else if( "orange6" == color_name )
 		{
-			color->setVec(LLColor4::orange6);
+			color->set(LLColor4::orange6);
 		}
 		else if ( "clear" == color_name )
 		{
-			color->setVec(0.f, 0.f, 0.f, 0.f);
+			color->set(0.f, 0.f, 0.f, 0.f);
 		}
 		else
 		{

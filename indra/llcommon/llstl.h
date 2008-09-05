@@ -79,6 +79,9 @@ struct compare_pointer_contents
 // The general form is:
 //
 //  std::for_each(cont.begin(), cont.end(), DeletePointer());
+//  somemap.clear();
+//
+// Don't forget to clear()!
 
 struct DeletePointer
 {
@@ -95,7 +98,7 @@ struct DeletePointerArray
 	}
 };
 
-// DeletePointer is a simple helper for deleting all pointers in a map.
+// DeletePairedPointer is a simple helper for deleting all pointers in a map.
 // The general form is:
 //
 //  std::for_each(somemap.begin(), somemap.end(), DeletePairedPointer());

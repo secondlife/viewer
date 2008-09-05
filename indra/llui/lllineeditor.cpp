@@ -2282,7 +2282,7 @@ LLView* LLLineEditor::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory
 }
 
 //static
-void LLLineEditor::cleanupClass()
+void LLLineEditor::cleanupLineEditor()
 {
 	sImage = NULL;
 }

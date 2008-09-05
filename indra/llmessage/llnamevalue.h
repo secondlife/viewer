@@ -148,8 +148,8 @@ public:
 	BOOL			sendToViewer() const;
 
 	void			callCallback();
-	std::string		printNameValue();
-	std::string		printData();
+	std::string		printNameValue() const;
+	std::string		printData() const;
 	
 	ENameValueType		getTypeEnum() const		{ return mType; }
 	ENameValueClass		getClassEnum() const	{ return mClass; }
