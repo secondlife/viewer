@@ -1276,9 +1276,6 @@ if (LLKDU_LIBRARY)
   add_dependencies(${VIEWER_BINARY_NAME} ${LLKDU_LIBRARY})
 endif (LLKDU_LIBRARY)
 
-set(PACKAGE OFF CACHE BOOL
-    "Add a package target that builds an installer package.")
-
 if (WINDOWS)
     if(MSVC71)
         set(release_flags "/MAP:Release/${VIEWER_BINARY_NAME}.map /MAPINFO:LINES")
@@ -1352,10 +1349,10 @@ if (WINDOWS)
               --touch=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/touched.bat
         DEPENDS ${VIEWER_BINARY_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
         )
-    if (PACKAGE)
-      add_custom_target(package ALL DEPENDS ${CMAKE_CFG_INTDIR}/touched.bat)
-      add_dependencies(package windows-updater windows-crash-logger)
-    endif (PACKAGE)
+
+    add_custom_target(package ALL DEPENDS ${CMAKE_CFG_INTDIR}/touched.bat)
+    add_dependencies(package windows-updater windows-crash-logger)
+    set_target_properties(package PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD ON)
 endif (WINDOWS)
 
 target_link_libraries(${VIEWER_BINARY_NAME}
@@ -1427,10 +1424,8 @@ if (LINUX)
       DEPENDS secondlife-stripped ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
       )
 
-  if (NOT INSTALL)
-    add_custom_target(package ALL DEPENDS ${product}.tar.bz2)
-    add_dependencies(package linux-crash-logger-stripped)
-  endif (NOT INSTALL)
+  add_custom_target(package ALL DEPENDS ${product}.tar.bz2)
+  add_dependencies(package linux-crash-logger-stripped)
 endif (LINUX)
 
 if (DARWIN)
@@ -1464,26 +1459,26 @@ if (DARWIN)
     DEPENDS ${VIEWER_BINARY_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
     )
 
-  if (PACKAGE)
-    add_custom_target(package
-      COMMAND
-        ${PYTHON_EXECUTABLE}
-        ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
-        --grid=${GRID}
-        --configuration=${CMAKE_CFG_INTDIR}
-        --channel=${VIEWER_CHANNEL}
-        --login_channel=${VIEWER_LOGIN_CHANNEL}
-        --source=${CMAKE_CURRENT_SOURCE_DIR}
-        --artwork=${ARTWORK_DIR}
-        --build=${CMAKE_CURRENT_BINARY_DIR}
-        --dest=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/${product}.app
-        --touch=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/.${product}.touched
-      DEPENDS
-        ${VIEWER_BINARY_NAME}
-        ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
-      )
-      add_dependencies(package mac-updater mac-crash-logger)
-  endif (PACKAGE)
+  add_custom_target(package
+    COMMAND
+      ${PYTHON_EXECUTABLE}
+      ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
+      --grid=${GRID}
+      --configuration=${CMAKE_CFG_INTDIR}
+      --channel=${VIEWER_CHANNEL}
+      --login_channel=${VIEWER_LOGIN_CHANNEL}
+      --source=${CMAKE_CURRENT_SOURCE_DIR}
+      --artwork=${ARTWORK_DIR}
+      --build=${CMAKE_CURRENT_BINARY_DIR}
+      --dest=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/${product}.app
+      --touch=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/.${product}.touched
+    DEPENDS
+      ${VIEWER_BINARY_NAME}
+      ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
+    )
+
+  add_dependencies(package mac-updater mac-crash-logger)
+  set_target_properties(package PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD ON)
 endif (DARWIN)
 
 if (INSTALL)
