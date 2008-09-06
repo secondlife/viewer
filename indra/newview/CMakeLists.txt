@@ -1428,6 +1428,7 @@ if (LINUX)
 
   add_custom_target(package ALL DEPENDS ${product}.tar.bz2)
   add_dependencies(package linux-crash-logger-stripped)
+  set_target_properties(package PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD ON)
 endif (LINUX)
 
 if (DARWIN)
