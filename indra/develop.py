@@ -605,6 +605,9 @@ If you do not specify a command, the default is "configure".
 Examples:
   Set up a viewer-only project for your system:
     develop.py configure -DSERVER:BOOL=OFF
+  
+  Set up a Visual Studio 2005 project with package target (to build installer):
+    develop.py -G vc80 configure -DPACKAGE:BOOL=ON
 '''
 
 def main(arguments):
