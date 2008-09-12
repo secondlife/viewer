@@ -1370,6 +1370,11 @@ BOOL LLViewerWindow::handleDeviceChange(LLWindow *window)
 	return FALSE;
 }
 
+void LLViewerWindow::handlePingWatchdog(LLWindow *window, const char * msg)
+{
+	LLAppViewer::instance()->pingMainloopTimeout(msg);
+}
+
 //
 // Classes
 //
@@ -1393,6 +1398,7 @@ LLViewerWindow::LLViewerWindow(
 	mToolStored( NULL ),
 	mSuppressToolbox( FALSE ),
 	mHideCursorPermanent( FALSE ),
+	mCursorHidden(FALSE),
 	mIgnoreActivate( FALSE ),
 	mHoverPick()
 {
@@ -1776,8 +1782,8 @@ void LLViewerWindow::adjustRectanglesForFirstUse(const LLRect& window)
 	if (r.mLeft == 0 && r.mBottom == 0)
 	{
 		r.setOriginAndSize(
-			window.getWidth()/3 - r.getWidth()/2,
-			window.getHeight()/2 - r.getHeight()/2,
+			window.getWidth()/4 - r.getWidth()/2,
+			2*window.getHeight()/3 - r.getHeight()/2,
 			r.getWidth(),
 			r.getHeight());
 		gSavedSettings.setRect("FloaterHUDRect2", r);
@@ -1948,6 +1954,8 @@ void LLViewerWindow::shutdownGL()
 		stopGL(FALSE);
 		stop_glerror();
 	}
+
+	gGL.shutdown();
 }
 
 // shutdownViews() and shutdownGL() need to be called first
@@ -1966,6 +1974,8 @@ void LLViewerWindow::setCursor( ECursorType c )
 void LLViewerWindow::showCursor()
 {
 	mWindow->showCursor();
+	
+	mCursorHidden = FALSE;
 }
 
 void LLViewerWindow::hideCursor()
@@ -1978,6 +1988,8 @@ void LLViewerWindow::hideCursor()
 
 	// And hide the cursor
 	mWindow->hideCursor();
+
+	mCursorHidden = TRUE;
 }
 
 void LLViewerWindow::sendShapeToSim()
@@ -3023,17 +3035,41 @@ BOOL LLViewerWindow::handlePerFrameHover()
 											  &gDebugRaycastBinormal);
 	}
 
-	static U16 frame_counter = 0;
+
+	// per frame picking - for tooltips and changing cursor over interactive objects
 	static S32 previous_x = -1;
 	static S32 previous_y = -1;
-	
-	if (((previous_x != x) || (previous_y != y)) ||
-		((gSavedSettings.getBOOL("PerFrameHoverPick"))
-		 && ((frame_counter % gSavedSettings.getS32("PerFrameHoverPickCount")) == 0)))
-		{
-			pickAsync(getCurrentMouseX(), getCurrentMouseY(), mask, hoverPickCallback, TRUE);
-		}
-	frame_counter++;
+	static BOOL mouse_moved_since_pick = FALSE;
+
+	if ((previous_x != x) || (previous_y != y))
+		mouse_moved_since_pick = TRUE;
+
+	BOOL do_pick = FALSE;
+
+	F32 picks_moving = gSavedSettings.getF32("PicksPerSecondMouseMoving");
+	if ((mouse_moved_since_pick) && (picks_moving > 0.0) && (mPickTimer.getElapsedTimeF32() > 1.0f / picks_moving))
+	{
+		do_pick = TRUE;
+	}
+
+	F32 picks_stationary = gSavedSettings.getF32("PicksPerSecondMouseStationary");
+	if ((!mouse_moved_since_pick) && (picks_stationary > 0.0) && (mPickTimer.getElapsedTimeF32() > 1.0f / picks_stationary))
+	{
+		do_pick = TRUE;
+	}
+
+	if (getCursorHidden())
+	{
+		do_pick = FALSE;
+	}
+
+	if (do_pick)
+	{
+		mouse_moved_since_pick = FALSE;
+		mPickTimer.reset();
+		pickAsync(getCurrentMouseX(), getCurrentMouseY(), mask, hoverPickCallback, TRUE);
+	}
+
 	previous_x = x;
 	previous_y = y;
 	
