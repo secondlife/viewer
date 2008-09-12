@@ -148,7 +148,13 @@ public:
 	void getDirectDescendentsOf(const LLUUID& cat_id,
 								cat_array_t*& categories,
 								item_array_t*& items) const;
-
+	
+	// SJB: Added version to lock the arrays to catch potential logic bugs
+	void lockDirectDescendentArrays(const LLUUID& cat_id,
+									cat_array_t*& categories,
+									item_array_t*& items);
+	void unlockDirectDescendentArrays(const LLUUID& cat_id);
+	
 	// Starting with the object specified, add it's descendents to the
 	// array provided, but do not add the inventory object specified
 	// by id. There is no guaranteed order. Neither array will be
@@ -402,6 +408,10 @@ protected:
 	bool messageUpdateCore(LLMessageSystem* msg, bool do_accounting);
 
 protected:
+	cat_array_t* getUnlockedCatArray(const LLUUID& id);
+	item_array_t* getUnlockedItemArray(const LLUUID& id);
+	
+protected:
 	// Varaibles used to track what has changed since the last notify.
 	U32 mModifyMask;
 	typedef std::set<LLUUID> changed_items_t;
@@ -418,6 +428,9 @@ protected:
 	cat_map_t mCategoryMap;
 	item_map_t mItemMap;
 
+	std::map<LLUUID, bool> mCategoryLock;
+	std::map<LLUUID, bool> mItemLock;
+	
 	// cache recent lookups
 	mutable LLPointer<LLViewerInventoryItem> mLastItem;
 

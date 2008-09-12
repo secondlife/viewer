@@ -174,7 +174,7 @@ public:
 	/*virtual*/ void handleDataCopy(LLWindow *window, S32 data_type, void *data);
 	/*virtual*/ BOOL handleTimerEvent(LLWindow *window);
 	/*virtual*/ BOOL handleDeviceChange(LLWindow *window);
-
+	/*virtual*/ void handlePingWatchdog(LLWindow *window, const char * msg);
 
 
 	//
@@ -240,6 +240,7 @@ public:
 	void			setCursor( ECursorType c );
 	void			showCursor();
 	void			hideCursor();
+	BOOL            getCursorHidden() { return mCursorHidden; }
 	void			moveCursorToCenter();								// move to center of window
 													
 	void			setShowProgress(const BOOL show);
@@ -402,10 +403,12 @@ protected:
 	BOOL			mSuppressToolbox;	// sometimes hide the toolbox, despite
 										// having a camera tool selected
 	BOOL			mHideCursorPermanent;	// true during drags, mouselook
+	BOOL            mCursorHidden;
 	LLPickInfo		mLastPick;
 	LLPickInfo		mHoverPick;
 	std::vector<LLPickInfo> mPicks;
 	LLRect			mPickScreenRegion; // area of frame buffer for rendering pick frames (generally follows mouse to avoid going offscreen)
+	LLTimer         mPickTimer;        // timer for scheduling n picks per second
 
 	std::string		mOverlayTitle;		// Used for special titles such as "Second Life - Special E3 2003 Beta"
 

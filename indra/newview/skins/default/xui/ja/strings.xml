@@ -18,6 +18,9 @@
 	<string name="LoginInitializingBrowser">
 		埋め込みWebブラウザを初期化しています...
 	</string>
+	<string name="LoginInitializingMultimedia">
+		マルチメディアを初期化しています...
+	</string>
 	<string name="LoginVerifyingCache">
 		キャッシュ・ファイルを検証しています(所要時間は60～90秒)...
 	</string>
@@ -47,6 +50,9 @@
 	</string>
 	<string name="LoginDownloadingClothing">
 		服をダウンロードしています...
+	</string>
+	<string name="AgentLostConnection">
+		この地域には、問題が発生している可能性があります。  インターネット接続を確認してください。
 	</string>
 	<string name="TooltipPerson">
 		人
@@ -120,8 +126,14 @@
 	<string name="TooltipLand">
 		土地:
 	</string>
+	<string name="TooltipMustSingleDrop">
+		1つのアイテムのみをここにドラッグできます
+	</string>
 	<string name="RetrievingData">
 		検索中...
+	</string>
+	<string name="ReleaseNotes">
+		リリースノート
 	</string>
 	<string name="LoadingData">
 		ロード中...
@@ -386,5 +398,17 @@
 	</string>
 	<string name="anim_yes_head">
 		頷く
+	</string>
+	<string name="texture_loading">
+		ロード中...
+	</string>
+	<string name="worldmap_offline">
+		オフライン
+	</string>
+	<string name="whisper">
+		ささやく:
+	</string>
+	<string name="shout">
+		叫ぶ:
 	</string>
 </strings>

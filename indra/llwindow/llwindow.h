@@ -119,6 +119,7 @@ public:
 	virtual void handleDataCopy(LLWindow *window, S32 data_type, void *data);
 	virtual BOOL handleTimerEvent(LLWindow *window);
 	virtual BOOL handleDeviceChange(LLWindow *window);
+	virtual void handlePingWatchdog(LLWindow *window, const char * msg);
 };
 
 // Refer to llwindow_test in test/common/llwindow for usage example

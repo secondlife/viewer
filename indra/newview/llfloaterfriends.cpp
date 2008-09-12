@@ -41,6 +41,7 @@
 #include "lldir.h"
 
 #include "llagent.h"
+#include "llappviewer.h"	// for gLastVersionChannel
 #include "llfloateravatarpicker.h"
 #include "llviewerwindow.h"
 #include "llbutton.h"
@@ -591,12 +592,28 @@ struct LLAddFriendData
 };
 
 // static
-void LLPanelFriends::callbackAddFriend(S32 option, const std::string& text, void* data)
+void LLPanelFriends::callbackAddFriendWithMessage(S32 option, const std::string& text, void* data)
 {
 	LLAddFriendData* add = (LLAddFriendData*)data;
 	if (option == 0)
 	{
 		requestFriendship(add->mID, add->mName, text);
+	}
+	delete add;
+}
+
+// static
+void LLPanelFriends::callbackAddFriend(S32 option, void* data)
+{
+	LLAddFriendData* add = (LLAddFriendData*)data;
+	if (option == 0)
+	{
+		// Servers older than 1.25 require the text of the message to be the
+		// calling card folder ID for the offering user. JC
+		LLUUID calling_card_folder_id = 
+			gInventory.findCategoryUUIDForType(LLAssetType::AT_CALLINGCARD);
+		std::string message = calling_card_folder_id.asString();
+		requestFriendship(add->mID, add->mName, message);
 	}
 	delete add;
 }
@@ -625,10 +642,20 @@ void LLPanelFriends::requestFriendshipDialog(const LLUUID& id,
 	data->mID = id;
 	data->mName = name;
 	
-	// TODO: accept a line of text with this dialog
 	LLStringUtil::format_map_t args;
 	args["[NAME]"] = name;
-	gViewerWindow->alertXmlEditText("AddFriend", args, NULL, NULL, callbackAddFriend, data);
+
+	// Look for server versions like: Second Life Server 1.24.4.95600
+	if (gLastVersionChannel.find(" 1.24.") != std::string::npos)
+	{
+		// Old and busted server version, doesn't support friend
+		// requests with messages.
+		gViewerWindow->alertXml("AddFriend", args, callbackAddFriend, data);
+	}
+	else
+	{
+		gViewerWindow->alertXmlEditText("AddFriendWithMessage", args, NULL, NULL, callbackAddFriendWithMessage, data);
+	}
 }
 
 // static

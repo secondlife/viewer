@@ -16,12 +16,25 @@
 	     tool_tip="この地域の物理作用をすべて無効化" />
 	<button label="?" name="disable_physics_help" />
 	<button label="適用" name="apply_btn" />
-	<button label="アバターを選択..." name="choose_avatar_btn" />
+	<line_editor name="target_avatar_name">
+		(なし)
+	</line_editor>
+	<button label="選択..." name="choose_avatar_btn" />
 	<button
 	     label="人の土地のアバター・スクリプト・オブジェクトを返却"
 	     name="return_scripted_other_land_btn" />
 	<button label="アバターのスクリプト・オブジェクトをすべて返却"
 	     name="return_scripted_all_btn" />
+	<check_box label="スクリプトのあるオブジェクトのみを返却"
+	     name="return_scripts"
+	     tool_tip="スクリプトがあるオブジェクトのみを返却" />
+	<check_box label="他人の土地にあるオブジェクトのみを返却"
+	     name="return_other_land"
+	     tool_tip="他人に属する土地にあるオブジェクトのみを返却" />
+	<check_box label="この不動産の各地域のオブジェクトを返却"
+	     name="return_estate_wide"
+	     tool_tip="この不動産に含まれているすべての地域のオブジェクトを返却" />
+	<button label="返却" name="return_btn" />
 	<button label="上部コライダー取得" name="top_colliders_btn"
 	     tool_tip="衝突する可能性が最も高いオブジェクトのリスト" />
 	<button label="?" name="top_colliders_help" />

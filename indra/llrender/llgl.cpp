@@ -60,6 +60,8 @@ BOOL gClothRipple = FALSE;
 BOOL gNoRender = FALSE;
 LLMatrix4 gGLObliqueProjectionInverse;
 
+#define LL_GL_NAME_POOLING 0
+
 LLGLNamePool::pool_list_t LLGLNamePool::sInstances;
 
 #if (LL_WINDOWS || LL_LINUX) && !LL_MESA_HEADLESS
@@ -1627,6 +1629,7 @@ void LLGLNamePool::cleanup()
 
 GLuint LLGLNamePool::allocate()
 {
+#if LL_GL_NAME_POOLING
 	for (name_list_t::iterator iter = mNameList.begin(); iter != mNameList.end(); ++iter)
 	{
 		if (!iter->used)
@@ -1642,18 +1645,33 @@ GLuint LLGLNamePool::allocate()
 	mNameList.push_back(entry);
 
 	return entry.name;
+#else
+	return allocateName();
+#endif
 }
 
 void LLGLNamePool::release(GLuint name)
 {
+#if LL_GL_NAME_POOLING
 	for (name_list_t::iterator iter = mNameList.begin(); iter != mNameList.end(); ++iter)
 	{
 		if (iter->name == name)
 		{
-			iter->used = FALSE;
-			return;
+			if (iter->used)
+			{
+				iter->used = FALSE;
+				return;
+			}
+			else
+			{
+				llerrs << "Attempted to release a pooled name that is not in use!" << llendl;
+			}
 		}
 	}
+	llerrs << "Attempted to release a non pooled name!" << llendl;
+#else
+	releaseName(name);
+#endif
 }
 
 //static

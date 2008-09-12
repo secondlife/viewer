@@ -792,6 +792,14 @@ bool LLTextureCacheRemoteWorker::doWrite()
 //virtual
 bool LLTextureCacheWorker::doWork(S32 param)
 {
+	//allocate a new local apr_pool
+	LLAPRPool pool ;
+
+	//save the current mFileAPRPool to avoid breaking anything.
+	apr_pool_t* old_pool = mCache->getFileAPRPool() ;
+	//make mFileAPRPool to point to the local one
+	mCache->setFileAPRPool(pool.getAPRPool()) ;
+
 	bool res = false;
 	if (param == 0) // read
 	{
@@ -805,6 +813,10 @@ bool LLTextureCacheWorker::doWork(S32 param)
 	{
 		llassert_always(0);
 	}
+
+	//set mFileAPRPool back, the local one will be released automatically.
+	mCache->setFileAPRPool(old_pool) ;
+
 	return res;
 }
 

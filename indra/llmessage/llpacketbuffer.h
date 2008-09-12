@@ -47,7 +47,6 @@ public:
 	const char	*getData() const	{ return mData; }
 	LLHost		getHost() const		{ return mHost; }
 	void init(S32 hSocket);
-	void free();
 
 protected:
 	char	mData[NET_BUFFER_SIZE];        // packet data		/* Flawfinder : ignore */

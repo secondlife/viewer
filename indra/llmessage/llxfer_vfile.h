@@ -58,7 +58,7 @@ class LLXfer_VFile : public LLXfer
 	virtual ~LLXfer_VFile();
 
 	virtual void init(LLVFS *vfs, const LLUUID &local_id, LLAssetType::EType type);
-	virtual void free();
+	virtual void cleanup();
 
 	virtual S32 initializeRequest(U64 xfer_id,
 			LLVFS *vfs,

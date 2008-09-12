@@ -473,6 +473,9 @@ void LLViewerMedia::initBrowser()
 	buildMediaManagerData( init_data );
 	LLMediaManager::initBrowser( init_data );
 	delete init_data;
+
+	// We use a custom user agent with viewer version and skin name.
+	LLViewerMediaImpl::updateBrowserUserAgent();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -537,9 +540,6 @@ void LLViewerMedia::buildMediaManagerData( LLMediaManagerData* init_data )
 	std::string profile_name("Second Life");
 	init_data->setBrowserProfileName( profile_name );
 	init_data->setBrowserParentWindow( gViewerWindow->getMediaWindow() );
-
-	// We use a custom user agent with viewer version and skin name.
-	LLViewerMediaImpl::updateBrowserUserAgent();
 
 	// Users can change skins while client is running, so make sure
 	// we pick up on changes.

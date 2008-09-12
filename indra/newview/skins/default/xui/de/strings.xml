@@ -18,6 +18,9 @@
 	<string name="LoginInitializingBrowser">
 		Integrierter Webbrowser wird initialisiert...
 	</string>
+	<string name="LoginInitializingMultimedia">
+		Multimedia wird initialisiert...
+	</string>
 	<string name="LoginVerifyingCache">
 		Cache-Dateien werden überprüft (dauert 60-90 Sekunden)...
 	</string>
@@ -47,6 +50,9 @@
 	</string>
 	<string name="LoginDownloadingClothing">
 		Kleidung wird geladen...
+	</string>
+	<string name="AgentLostConnection">
+		In dieser Region kann es zu Problemen kommen. Bitte überprüfen Sie Ihre Internetverbindung.
 	</string>
 	<string name="TooltipPerson">
 		Person
@@ -120,8 +126,14 @@
 	<string name="TooltipLand">
 		Land:
 	</string>
+	<string name="TooltipMustSingleDrop">
+		Sie können nur ein einzelnes Objekt hierher ziehen
+	</string>
 	<string name="RetrievingData">
 		Laden...
+	</string>
+	<string name="ReleaseNotes">
+		Versionshinweise
 	</string>
 	<string name="LoadingData">
 		Wird geladen...
@@ -386,5 +398,17 @@
 	</string>
 	<string name="anim_yes_head">
 		Ja
+	</string>
+	<string name="texture_loading">
+		Wird geladen...
+	</string>
+	<string name="worldmap_offline">
+		Offline
+	</string>
+	<string name="whisper">
+		Flüstert:
+	</string>
+	<string name="shout">
+		Ruft:
 	</string>
 </strings>

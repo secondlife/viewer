@@ -117,15 +117,13 @@ LLDir_Win32::LLDir_Win32()
 	mExecutableDir = utf16str_to_utf8str(llutf16string(w_str));
 #endif
 	
-	mAppRODataDir = getCurPath();
-	// *FIX:Mani - The following is the old way we did things. I'm keeping this around
-	// in case there is some really good reason to make mAppRODataDir == mExecutableDir
-	/*
-	if (strstr(mExecutableDir.c_str(), "indra\\newview"))
+	// When running in a dev tree, app_settings is under indra/newview/
+	// but in production it is under Program Files/SecondLife/
+	// Attempt to detect which one we're using. JC
+	if (mExecutableDir.find("indra") != std::string::npos)
 		mAppRODataDir = getCurPath();
 	else
 		mAppRODataDir = mExecutableDir;
-	*/
 }
 
 LLDir_Win32::~LLDir_Win32()

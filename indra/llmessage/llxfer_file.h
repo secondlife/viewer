@@ -53,7 +53,7 @@ class LLXfer_File : public LLXfer
 	virtual ~LLXfer_File();
 
 	virtual void init(const std::string& local_filename, BOOL delete_local_on_completion, S32 chunk_size);
-	virtual void free();
+	virtual void cleanup();
 
 	virtual S32 initializeRequest(U64 xfer_id,
 								  const std::string& local_filename,

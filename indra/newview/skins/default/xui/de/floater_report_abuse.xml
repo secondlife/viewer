@@ -43,6 +43,99 @@ dann auf das Objekt:
 		<combo_item name="Selectcategory">
 			Kategorie auswählen
 		</combo_item>
+		<combo_item name="Select_category">
+			Kategorie auswählen
+		</combo_item>
+		<combo_item name="Age__Age_play">
+			Alter&gt; Age-Play
+		</combo_item>
+		<combo_item name="Age__Adult_resident_on_Teen_Second_Life">
+			Alter&gt; Erwachsener Einwohner in Teen Second Life
+		</combo_item>
+		<combo_item name="Age__Underage_resident_on_Adult_Second_Life">
+			Alter &gt; Minderjähriger Einwohner in Adult Second Life
+		</combo_item>
+		<combo_item name="Assault__Combat_sandbox___unsafe_area">
+			Angriff&gt; Kampf-Sandbox / unsichere Region
+		</combo_item>
+		<combo_item name="Assault__Safe_area">
+			Angriff&gt; Sichere Region
+		</combo_item>
+		<combo_item name="Assault__Weapons_testing_sandbox">
+			Angriff &gt; Sandbox für Waffentest
+		</combo_item>
+		<combo_item name="Copyright_or_intellectual_property_violation">
+			Urheberrechtsverletzung
+		</combo_item>
+		<combo_item name="Commerce__Failure_to_deliver_product_or_service">
+			Handel &gt; Produkt nicht geliefer oder Dienstleistung nicht erbracht
+		</combo_item>
+		<combo_item name="Disclosure__First_Life_information">
+			Offenlegung &gt; Private Benutzerdaten
+		</combo_item>
+		<combo_item name="Disclosure__Remotely_monitoring chat">
+			Offenlegung &gt; Abhören eines Chats aus der Ferne
+		</combo_item>
+		<combo_item name="Disclosure__Second_Life_information_chat_IMs">
+			Offenlegung &gt; Second Life-Informationen/Chat/IMs
+		</combo_item>
+		<combo_item name="Disturbing_the_peace__Unfair_use_of_region_resources">
+			Ruhestörung &gt; Unfaire Nutzung von Regionsressourcen
+		</combo_item>
+		<combo_item name="Disturbing_the_peace__Excessive_scripted_objects">
+			Ruhestörung &gt; Exzessive Nutzung geskripteter Objekte
+		</combo_item>
+		<combo_item name="Disturbing_the_peace__Object_littering">
+			Ruhestörung &gt; Wildes Erzeugen von Objekten
+		</combo_item>
+		<combo_item name="Disturbing_the_peace__Repetitive_spam">
+			Ruhestörung &gt; Ständige Spam-Wiederholung
+		</combo_item>
+		<combo_item name="Disturbing_the_peace__Unwanted_advert_spam">
+			Ruhestörung &gt; Unerwünschte Spam-Werbung
+		</combo_item>
+		<combo_item name="Fraud__L$">
+			Betrug &gt; L$
+		</combo_item>
+		<combo_item name="Fraud__Land">
+			Betrug&gt; Land
+		</combo_item>
+		<combo_item name="Fraud__Pyramid_scheme_or_chain_letter">
+			Betrug &gt; Schneeballsystem oder Kettenbrief
+		</combo_item>
+		<combo_item name="Fraud__US$">
+			Betrug &gt; US$
+		</combo_item>
+		<combo_item name="Harassment__Advert_farms___visual_spam">
+			Belästigung &gt; Werbefarmen / visueller Spam
+		</combo_item>
+		<combo_item name="Harassment__Defaming_individuals_or_groups">
+			Belästigung &gt; Diffamieren von Einzelpersonen/Gruppen
+		</combo_item>
+		<combo_item name="Harassment__Impeding_movement">
+			Belästigung &gt; Bewegungseinschränkung
+		</combo_item>
+		<combo_item name="Harassment__Sexual_harassment">
+			Belästigung &gt; Sexuelle Belästigung
+		</combo_item>
+		<combo_item name="Harassment__Solicting_inciting_others_to_violate_ToS">
+			Belästigung &gt; Anstiften Dritter zur Missachtung der Nutzungsbedingungen
+		</combo_item>
+		<combo_item name="Harassment__Verbal_abuse">
+			Belästigung &gt; Beschimpfung
+		</combo_item>
+		<combo_item name="Indecency__Broadly_offensive_content_or_conduct">
+			Unanständigkeit &gt; Anstößige Inhalte oder Handlungen in der Öffentlichkeit
+		</combo_item>
+		<combo_item name="Indecency__Broadly_visible_mature_content">
+			Unanständigkeit &gt; Nicht jugendfreier Inhalt in der Öffentlichkeit
+		</combo_item>
+		<combo_item name="Indecency__Inappropriate_avatar_name">
+			Unanständigkeit &gt; Anstößiger Avatarname
+		</combo_item>
+		<combo_item name="Indecency__Mature_content_in_PG_region">
+			Unanständigkeit &gt; Nicht jugendfreier Inhalt in &quot;Jugendfrei&quot;-Region
+		</combo_item>
 		<combo_item name="Intolerance">
 			Intoleranz
 		</combo_item>
@@ -64,6 +157,24 @@ dann auf das Objekt:
 		<combo_item name="Parcel">
 			Parzelle
 		</combo_item>
+		<combo_item name="Land__Abuse_of_sandbox_resources">
+			Land &gt; Missbrauch der Sandbox-Ressourcen
+		</combo_item>
+		<combo_item name="Land__Encroachment__Objects_textures">
+			Land &gt; Unbefugte Nutzung &gt; Objekte/Texturen
+		</combo_item>
+		<combo_item name="Land__Encroachment__Particles">
+			Land &gt; Unbefugte Nutzung &gt; Partikel
+		</combo_item>
+		<combo_item name="Land__Encroachment__Trees_plants">
+			Land &gt; Unbefugte Nutzung &gt; Bäume/Pflanzen
+		</combo_item>
+		<combo_item name="Trademark_violation">
+			Markenrechtsverletzung
+		</combo_item>
+		<combo_item name="Wagering_gambling">
+			Wetten/Glücksspiel
+		</combo_item>
 		<combo_item name="Other">
 			Sonstige
 		</combo_item>
@@ -73,6 +184,8 @@ dann auf das Objekt:
 	</text>
 	<button label="Einwohner auswählen" label_selected="" name="select_abuser"
 	     tool_tip="Den Namen des Beschuldigten aus einer Liste wählen" />
+	<check_box label="Name des Täters ist nicht bekannt" name="omit_abuser_name"
+	     tool_tip="Wählen Sie diese Option, wenn Ihnen der Name des Täters unbekannt ist" />
 	<text name="abuser_name_title2">
 		Ort des Missbrauchs:
 	</text>

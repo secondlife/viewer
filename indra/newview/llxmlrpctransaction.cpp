@@ -134,7 +134,7 @@ void LLXMLRPCValue::appendDouble(const char* id, double v)
 	XMLRPC_AddValueToVector(mV, XMLRPC_CreateValueDouble(id, v));
 }
 
-void LLXMLRPCValue::free()
+void LLXMLRPCValue::cleanup()
 {
 	XMLRPC_CleanupValue(mV);
 	mV = NULL;

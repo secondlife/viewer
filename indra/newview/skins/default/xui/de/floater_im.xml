@@ -7,7 +7,7 @@
 		[FIRST] [LAST] ist offline.
 	</text>
 	<string name="muted_message">
-		Einwohner ist stummgeschaltet.
+		Sie haben diesen Einwohner stummgeschaltet.Wenn Sie ihm eine Nachricht senden, wird die Stummschaltung automatisch aufgehoben.
 	</string>
 	<text name="generic_request_error">
 		Fehler bei Anfrage, bitte versuchen Sie es später.

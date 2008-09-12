@@ -839,19 +839,12 @@ LLVoiceClient::LLVoiceClient()
 	mCaptureDeviceDirty = false;
 	mRenderDeviceDirty = false;
 
-	// Load initial state from prefs.
-	mVoiceEnabled = gSavedSettings.getBOOL("EnableVoiceChat");
-	mUsePTT = TRUE; //gSavedSettings.getBOOL("EnablePushToTalk");
-	std::string keyString = gSavedSettings.getString("PushToTalkButton");
-	setPTTKey(keyString);
-	mPTTIsToggle = gSavedSettings.getBOOL("PushToTalkToggle");
-	mEarLocation = gSavedSettings.getS32("VoiceEarLocation");
-	setVoiceVolume(gSavedSettings.getBOOL("MuteVoice") ? 0.f : gSavedSettings.getF32("AudioLevelVoice"));
-	std::string captureDevice = gSavedSettings.getString("VoiceInputAudioDevice");
-	setCaptureDevice(captureDevice);
-	std::string renderDevice = gSavedSettings.getString("VoiceOutputAudioDevice");
-	setRenderDevice(renderDevice);
-	mLipSyncEnabled = gSavedSettings.getBOOL("LipSyncEnabled");
+	// Use default values for everything then call updateSettings() after preferences are loaded
+	mVoiceEnabled = false;
+	mUsePTT = true;
+	mPTTIsToggle = false;
+	mEarLocation = 0;
+	mLipSyncEnabled = false;
 	
 	mTuningMode = false;
 	mTuningEnergy = 0.0f;
@@ -895,12 +888,11 @@ LLVoiceClient::~LLVoiceClient()
 
 //----------------------------------------------
 
-
-
 void LLVoiceClient::init(LLPumpIO *pump)
 {
 	// constructor will set up gVoiceClient
 	LLVoiceClient::getInstance()->mPump = pump;
+	LLVoiceClient::getInstance()->updateSettings();
 }
 
 void LLVoiceClient::terminate()
@@ -923,6 +915,25 @@ void LLVoiceClient::terminate()
 	}
 }
 
+//---------------------------------------------------
+
+void LLVoiceClient::updateSettings()
+{
+	setVoiceEnabled(gSavedSettings.getBOOL("EnableVoiceChat"));
+	setUsePTT(gSavedSettings.getBOOL("PTTCurrentlyEnabled"));
+	std::string keyString = gSavedSettings.getString("PushToTalkButton");
+	setPTTKey(keyString);
+	setPTTIsToggle(gSavedSettings.getBOOL("PushToTalkToggle"));
+	setEarLocation(gSavedSettings.getS32("VoiceEarLocation"));
+	std::string serverName = gSavedSettings.getString("VivoxDebugServerName");
+	setVivoxDebugServerName(serverName);
+
+	std::string inputDevice = gSavedSettings.getString("VoiceInputAudioDevice");
+	setCaptureDevice(inputDevice);
+	std::string outputDevice = gSavedSettings.getString("VoiceOutputAudioDevice");
+	setRenderDevice(outputDevice);
+	setLipSyncEnabled(gSavedSettings.getBOOL("LipSyncEnabled"));
+}
 
 /////////////////////////////
 // utility functions

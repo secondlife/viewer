@@ -48,7 +48,7 @@ LLXfer_Mem::LLXfer_Mem ()
 
 LLXfer_Mem::~LLXfer_Mem ()
 {
-	free();
+	cleanup();
 }
 
 ///////////////////////////////////////////////////////////
@@ -62,9 +62,9 @@ void LLXfer_Mem::init ()
 	
 ///////////////////////////////////////////////////////////
 
-void LLXfer_Mem::free ()
+void LLXfer_Mem::cleanup ()
 {
-	LLXfer::free();
+	LLXfer::cleanup();
 }
 
 ///////////////////////////////////////////////////////////

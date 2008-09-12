@@ -68,7 +68,8 @@
 const S32 MIN_QUIET_FRAMES_COALESCE = 30;
 const F32 FORCE_SIMPLE_RENDER_AREA = 512.f;
 const F32 FORCE_CULL_AREA = 8.f;
-const S32 SCULPT_REZ = 64;
+// sadly - we can't lower sculptie rez below b/c residents have a LOT of content that depends on the 128
+const S32 SCULPT_REZ = 128;
 
 BOOL gAnimateTextures = TRUE;
 extern BOOL gHideSelectedObjects;
@@ -530,7 +531,13 @@ void LLVOVolume::updateTextures()
 			gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_VOLUME, FALSE);
 			mSculptChanged = TRUE;
 		}
-		
+
+		if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_SCULPTED))
+			{
+				setDebugText(llformat("T%d C%d V%d\n%dx%d",
+									  texture_discard, current_discard, getVolume()->getSculptLevel(),
+									  mSculptTexture->getHeight(), mSculptTexture->getWidth()));
+			}
 	}
 
 

@@ -136,6 +136,9 @@
 %token					ZERO_VECTOR
 %token					ZERO_ROTATION
 
+%token                  TOUCH_INVALID_VECTOR
+%token                  TOUCH_INVALID_TEXCOORD
+
 %nonassoc LOWER_THAN_ELSE
 %nonassoc ELSE
 
@@ -429,6 +432,40 @@ vector_constant
 		LLScriptSAConstant *sa0 = new LLScriptSAConstant(gLine, gColumn, cf0);
 		gAllocationManager->addAllocation(sa0);
 		LLScriptConstantFloat *cf1 = new LLScriptConstantFloat(gLine, gColumn, 0.f);
+		gAllocationManager->addAllocation(cf1);
+		LLScriptSAConstant *sa1 = new LLScriptSAConstant(gLine, gColumn, cf1);
+		gAllocationManager->addAllocation(sa1);
+		LLScriptConstantFloat *cf2 = new LLScriptConstantFloat(gLine, gColumn, 0.f);
+		gAllocationManager->addAllocation(cf2);
+		LLScriptSAConstant *sa2 = new LLScriptSAConstant(gLine, gColumn, cf2);
+		gAllocationManager->addAllocation(sa2);
+		$$ = new LLScriptSAVector(gLine, gColumn, sa0, sa1, sa2);
+		gAllocationManager->addAllocation($$);
+	}
+	| TOUCH_INVALID_VECTOR
+	{
+		LLScriptConstantFloat *cf0 = new LLScriptConstantFloat(gLine, gColumn, 0.f);
+		gAllocationManager->addAllocation(cf0);
+		LLScriptSAConstant *sa0 = new LLScriptSAConstant(gLine, gColumn, cf0);
+		gAllocationManager->addAllocation(sa0);
+		LLScriptConstantFloat *cf1 = new LLScriptConstantFloat(gLine, gColumn, 0.f);
+		gAllocationManager->addAllocation(cf1);
+		LLScriptSAConstant *sa1 = new LLScriptSAConstant(gLine, gColumn, cf1);
+		gAllocationManager->addAllocation(sa1);
+		LLScriptConstantFloat *cf2 = new LLScriptConstantFloat(gLine, gColumn, 0.f);
+		gAllocationManager->addAllocation(cf2);
+		LLScriptSAConstant *sa2 = new LLScriptSAConstant(gLine, gColumn, cf2);
+		gAllocationManager->addAllocation(sa2);
+		$$ = new LLScriptSAVector(gLine, gColumn, sa0, sa1, sa2);
+		gAllocationManager->addAllocation($$);
+	}
+	| TOUCH_INVALID_TEXCOORD
+	{
+		LLScriptConstantFloat *cf0 = new LLScriptConstantFloat(gLine, gColumn, -1.f);
+		gAllocationManager->addAllocation(cf0);
+		LLScriptSAConstant *sa0 = new LLScriptSAConstant(gLine, gColumn, cf0);
+		gAllocationManager->addAllocation(sa0);
+		LLScriptConstantFloat *cf1 = new LLScriptConstantFloat(gLine, gColumn, -1.f);
 		gAllocationManager->addAllocation(cf1);
 		LLScriptSAConstant *sa1 = new LLScriptSAConstant(gLine, gColumn, cf1);
 		gAllocationManager->addAllocation(sa1);
@@ -1635,6 +1672,40 @@ vector_initializer
 		LLScriptConstantExpression *sa0 = new LLScriptConstantExpression(gLine, gColumn, cf0);
 		gAllocationManager->addAllocation(sa0);
 		LLScriptConstantFloat *cf1 = new LLScriptConstantFloat(gLine, gColumn, 0.f);
+		gAllocationManager->addAllocation(cf1);
+		LLScriptConstantExpression *sa1 = new LLScriptConstantExpression(gLine, gColumn, cf1);
+		gAllocationManager->addAllocation(sa1);
+		LLScriptConstantFloat *cf2 = new LLScriptConstantFloat(gLine, gColumn, 0.f);
+		gAllocationManager->addAllocation(cf2);
+		LLScriptConstantExpression *sa2 = new LLScriptConstantExpression(gLine, gColumn, cf2);
+		gAllocationManager->addAllocation(sa2);
+		$$ = new LLScriptVectorInitializer(gLine, gColumn, sa0, sa1, sa2);
+		gAllocationManager->addAllocation($$);
+	}
+	| TOUCH_INVALID_VECTOR
+	{
+		LLScriptConstantFloat *cf0 = new LLScriptConstantFloat(gLine, gColumn, 0.f);
+		gAllocationManager->addAllocation(cf0);
+		LLScriptConstantExpression *sa0 = new LLScriptConstantExpression(gLine, gColumn, cf0);
+		gAllocationManager->addAllocation(sa0);
+		LLScriptConstantFloat *cf1 = new LLScriptConstantFloat(gLine, gColumn, 0.f);
+		gAllocationManager->addAllocation(cf1);
+		LLScriptConstantExpression *sa1 = new LLScriptConstantExpression(gLine, gColumn, cf1);
+		gAllocationManager->addAllocation(sa1);
+		LLScriptConstantFloat *cf2 = new LLScriptConstantFloat(gLine, gColumn, 0.f);
+		gAllocationManager->addAllocation(cf2);
+		LLScriptConstantExpression *sa2 = new LLScriptConstantExpression(gLine, gColumn, cf2);
+		gAllocationManager->addAllocation(sa2);
+		$$ = new LLScriptVectorInitializer(gLine, gColumn, sa0, sa1, sa2);
+		gAllocationManager->addAllocation($$);
+	}
+	| TOUCH_INVALID_TEXCOORD
+	{
+		LLScriptConstantFloat *cf0 = new LLScriptConstantFloat(gLine, gColumn, -1.f);
+		gAllocationManager->addAllocation(cf0);
+		LLScriptConstantExpression *sa0 = new LLScriptConstantExpression(gLine, gColumn, cf0);
+		gAllocationManager->addAllocation(sa0);
+		LLScriptConstantFloat *cf1 = new LLScriptConstantFloat(gLine, gColumn, -1.f);
 		gAllocationManager->addAllocation(cf1);
 		LLScriptConstantExpression *sa1 = new LLScriptConstantExpression(gLine, gColumn, cf1);
 		gAllocationManager->addAllocation(sa1);

@@ -114,8 +114,7 @@ BOOL LLFloaterImagePreview::postBuild()
 		mSculptedPreview = new LLImagePreviewSculpted(256, 256);
 		mSculptedPreview->setPreviewTarget(mRawImagep, 2.0f);
 
-		if ((mRawImagep->getWidth() <= LL_IMAGE_REZ_LOSSLESS_CUTOFF) &&
-			(mRawImagep->getHeight() <= LL_IMAGE_REZ_LOSSLESS_CUTOFF))
+		if (mRawImagep->getWidth() * mRawImagep->getHeight () <= LL_IMAGE_REZ_LOSSLESS_CUTOFF * LL_IMAGE_REZ_LOSSLESS_CUTOFF)
 			childEnable("lossless_check");
 	}
 	else

@@ -144,7 +144,7 @@
 		     name="land gardening" />
 	</action_set>
 	<action_set
-	     description="Diese Fähigkeiten ermöglichen es, gruppeneigene Objekte zu übertragen, zu bearbeiten und zu verkaufen. Änderungen werden unter 'Auswahl-Tool' &gt; 'Bearbeiten' auf der Registerkarte 'Allgemein' vorgenommen. Klicken Sie mit rechts auf ein Objekt und wählen Sie 'Bearbeiten', um seine Einstellungen anzuzeigen."
+	     description="Diese Fähigkeiten ermöglichen es, gruppeneigene Objekte zu übertragen, zu bearbeiten und zu verkaufen. Änderungen werden unter &apos;Auswahl-Tool&apos; &gt; &apos;Bearbeiten&apos; auf der Registerkarte &apos;Allgemein&apos; vorgenommen. Klicken Sie mit rechts auf ein Objekt und wählen Sie &apos;Bearbeiten&apos;, um seine Einstellungen anzuzeigen."
 	     name="Object Management">
 		<action description="Objekte an Gruppe übertragen"
 		     longdescription="Objekte an eine Gruppe übertragen können Sie unter &apos;Auswahl-Tool&apos; &gt; &apos;Bearbeiten&apos; auf der Registerkarte &apos;Allgemein&apos;."
@@ -183,5 +183,18 @@
 		<action description="Über Anfragen abstimmen"
 		     longdescription="Mitglieder in einer Rolle mit dieser Fähigkeit können in der Gruppeninfo unter &apos;Anfragen&apos; über Anfragen abstimmen."
 		     name="proposal vote" />
+	</action_set>
+	<action_set
+	     description="Diese Fähigkeiten ermöglichen es, den Zugang zu Gruppen-Chat und Gruppen-Voice-Chat zu steuern."
+	     name="Chat">
+		<action description="Gruppen-Chat beitreten"
+		     longdescription="Mitglieder in einer Rolle mit dieser Fähigkeit können Gruppen-Chat und Gruppen-Voice-Chat beitreten."
+		     name="join group chat" />
+		<action description="Gruppen-Voice-Chat beitreten"
+		     longdescription="Mitglieder in einer Rolle mit dieser Fähigkeit können Gruppen-Voice-Chat beitreten.HINWEIS:Sie benötigen die Fähigkeit &apos;Gruppen-Chat beitreten&apos;, um Zugang zu dieser Voice-Chat-Sitzung zu erhalten."
+		     name="join voice chat" />
+		<action description="Gruppen-Chat moderieren"
+		     longdescription="Mitglieder in einer Rolle mit dieser Fähigkeit können den Zugang zu und die Teilnahme an Gruppen-Chat- und Voice-Chat-Sitzungen steuern."
+		     name="moderate group chat" />
 	</action_set>
 </role_actions>

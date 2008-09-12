@@ -2149,7 +2149,8 @@ void renderBoundingBox(LLDrawable* drawable)
 	if (vobj && vobj->onActiveList())
 	{
 		gGL.flush();
-		glLineWidth(4.f*sinf(gFrameTimeSeconds*2.f)+1.f);
+		glLineWidth(4.f*(sinf(gFrameTimeSeconds*2.f)*0.25f+0.75f));
+		stop_glerror();
 		drawBoxOutline(pos,size);
 		gGL.flush();
 		glLineWidth(1.f);
@@ -2347,16 +2348,19 @@ public:
 		if (!mCamera || mCamera->AABBInFrustumNoFarClip(group->mBounds[0], group->mBounds[1]))
 		{
 			node->accept(this);
+			stop_glerror();
 
 			for (U32 i = 0; i < node->getChildCount(); i++)
 			{
 				traverse(node->getChild(i));
+				stop_glerror();
 			}
 			
 			//draw tight fit bounding boxes for spatial group
 			if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_OCTREE))
 			{	
 				renderOctree(group);
+				stop_glerror();
 			}
 
 			//render visibility wireframe
@@ -2368,6 +2372,7 @@ public:
 				gGLLastMatrix = NULL;
 				glLoadMatrixd(gGLModelView);
 				renderVisibility(group, mCamera);
+				stop_glerror();
 				gGLLastMatrix = NULL;
 				glPopMatrix();
 				gGL.color4f(1,1,1,1);

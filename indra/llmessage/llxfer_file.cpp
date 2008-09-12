@@ -67,7 +67,7 @@ LLXfer_File::LLXfer_File (const std::string& local_filename, BOOL delete_local_o
 
 LLXfer_File::~LLXfer_File ()
 {
-	free();
+	cleanup();
 }
 
 ///////////////////////////////////////////////////////////
@@ -95,7 +95,7 @@ void LLXfer_File::init (const std::string& local_filename, BOOL delete_local_on_
 	
 ///////////////////////////////////////////////////////////
 
-void LLXfer_File::free ()
+void LLXfer_File::cleanup ()
 {
 	if (mFp)
 	{
@@ -115,7 +115,7 @@ void LLXfer_File::free ()
 		lldebugs << "Keeping local file: " << mLocalFilename << llendl;
 	}
 
-	LLXfer::free();
+	LLXfer::cleanup();
 }
 
 ///////////////////////////////////////////////////////////

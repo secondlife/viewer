@@ -1575,7 +1575,9 @@ void LLWindowWin32::gatherInput()
 
 	while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE) && msg_count < MAX_MESSAGE_PER_UPDATE)
 	{
+		mCallbacks->handlePingWatchdog(this, "Main:TranslateGatherInput");
 		TranslateMessage(&msg);
+		mCallbacks->handlePingWatchdog(this, "Main:DispatchGatherInput");
 		DispatchMessage(&msg);
 		msg_count++;
 
@@ -1602,7 +1604,7 @@ void LLWindowWin32::gatherInput()
 			}
 		}
 		*/
-
+		mCallbacks->handlePingWatchdog(this, "Main:AsyncCallbackGatherInput");
 		// For async host by name support.  Really hacky.
 		if (gAsyncMsgCallback && (LL_WM_HOST_RESOLVED == msg.message))
 		{

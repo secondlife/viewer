@@ -114,6 +114,9 @@ protected:
 	std::string getTextureFileName(const LLUUID& id);
 	void addCompleted(Responder* responder, bool success);
 	
+protected:
+	void setFileAPRPool(apr_pool_t* pool) { mFileAPRPool = pool ; }
+
 private:
 	void setDirNames(ELLPath location);
 	void readHeaderCache(apr_pool_t* poolp = NULL);

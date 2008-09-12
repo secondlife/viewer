@@ -71,7 +71,7 @@ public:
 	virtual ~LLURL();
 
 	virtual void init (const char * url);
-	virtual void free ();
+	virtual void cleanup ();
 
 	bool operator==(const LLURL &rhs) const;
 	bool operator!=(const LLURL &rhs) const;

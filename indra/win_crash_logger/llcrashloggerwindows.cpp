@@ -29,6 +29,8 @@
 * $/LicenseInfo$
 */
 
+#include "linden_common.h"
+
 #include "stdafx.h"
 #include "resource.h"
 #include "llcrashloggerwindows.h"

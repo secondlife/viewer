@@ -99,7 +99,9 @@ class LLVoiceClient: public LLSingleton<LLVoiceClient>
 			serviceTypeC		// one-to-one and small group chat
 		};
 		static F32 OVERDRIVEN_POWER_LEVEL;
-				
+
+		void updateSettings(); // call after loading settings and whenever they change
+	
 		/////////////////////////////
 		// session control messages
 		void connect();

@@ -114,7 +114,7 @@ class LLXferManager
 	virtual ~LLXferManager();
 
 	virtual void init(LLVFS *vfs);
-	virtual void free();
+	virtual void cleanup();
 
 	void setUseAckThrottling(const BOOL use);
 	void setAckThrottleBPS(const F32 bps);

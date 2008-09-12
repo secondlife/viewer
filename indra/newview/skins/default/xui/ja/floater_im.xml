@@ -7,7 +7,7 @@
 		[FIRST] [LAST]はオフラインです。
 	</text>
 	<string name="muted_message">
-		住人はミュートされています。
+		あなたはこの住人をミュートしています。 メッセージを送信すると、ミュートは自動的に解除されます。
 	</string>
 	<text name="generic_request_error">
 		要求中にエラーが発生しました。後でもう一度試してください。

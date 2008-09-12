@@ -59,11 +59,11 @@ LLPacketRing::LLPacketRing () :
 ///////////////////////////////////////////////////////////
 LLPacketRing::~LLPacketRing ()
 {
-	free();
+	cleanup();
 }
 	
 ///////////////////////////////////////////////////////////
-void LLPacketRing::free ()
+void LLPacketRing::cleanup ()
 {
 	LLPacketBuffer *packetp;
 

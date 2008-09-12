@@ -292,6 +292,28 @@ void LLInventoryModel::getDirectDescendentsOf(const LLUUID& cat_id,
 	items = get_ptr_in_map(mParentChildItemTree, cat_id);
 }
 
+// SJB: Added version to lock the arrays to catch potential logic bugs
+void LLInventoryModel::lockDirectDescendentArrays(const LLUUID& cat_id,
+												  cat_array_t*& categories,
+												  item_array_t*& items)
+{
+	getDirectDescendentsOf(cat_id, categories, items);
+	if (categories)
+	{
+		mCategoryLock[cat_id] = true;
+	}
+	if (items)
+	{
+		mItemLock[cat_id] = true;
+	}
+}
+
+void LLInventoryModel::unlockDirectDescendentArrays(const LLUUID& cat_id)
+{
+	mCategoryLock[cat_id] = false;
+	mItemLock[cat_id] = false;
+}
+
 // findCategoryUUIDForType() returns the uuid of the category that
 // specifies 'type' as what it defaults to containing. The category is
 // not necessarily only for that type. *NOTE: This will create a new
@@ -619,6 +641,26 @@ U32 LLInventoryModel::updateItem(const LLViewerInventoryItem* item)
 	return mask;
 }
 
+LLInventoryModel::cat_array_t* LLInventoryModel::getUnlockedCatArray(const LLUUID& id)
+{
+	cat_array_t* cat_array = get_ptr_in_map(mParentChildCategoryTree, id);
+	if (cat_array)
+	{
+		llassert_always(mCategoryLock[id] == false);
+	}
+	return cat_array;
+}
+
+LLInventoryModel::item_array_t* LLInventoryModel::getUnlockedItemArray(const LLUUID& id)
+{
+	item_array_t* item_array = get_ptr_in_map(mParentChildItemTree, id);
+	if (item_array)
+	{
+		llassert_always(mItemLock[id] == false);
+	}
+	return item_array;
+}
+
 // Calling this method with an inventory category will either change
 // an existing item with the matching id, or it will add the category.
 void LLInventoryModel::updateCategory(const LLViewerInventoryCategory* cat)
@@ -645,12 +687,12 @@ void LLInventoryModel::updateCategory(const LLViewerInventoryCategory* cat)
 		{
 			// need to update the parent-child tree
 			cat_array_t* cat_array;
-			cat_array = get_ptr_in_map(mParentChildCategoryTree, old_parent_id);
+			cat_array = getUnlockedCatArray(old_parent_id);
 			if(cat_array)
 			{
 				cat_array->removeObj(old_cat);
 			}
-			cat_array = get_ptr_in_map(mParentChildCategoryTree, new_parent_id);
+			cat_array = getUnlockedCatArray(new_parent_id);
 			if(cat_array)
 			{
 				cat_array->put(old_cat);
@@ -673,13 +715,15 @@ void LLInventoryModel::updateCategory(const LLViewerInventoryCategory* cat)
 
 		// make sure this category is correctly referenced by it's parent.
 		cat_array_t* cat_array;
-		cat_array = get_ptr_in_map(mParentChildCategoryTree, cat->getParentUUID());
+		cat_array = getUnlockedCatArray(cat->getParentUUID());
 		if(cat_array)
 		{
 			cat_array->put(new_cat);
 		}
 
 		// make space in the tree for this category's children.
+		llassert_always(mCategoryLock[new_cat->getUUID()] == false);
+		llassert_always(mItemLock[new_cat->getUUID()] == false);
 		cat_array_t* catsp = new cat_array_t;
 		item_array_t* itemsp = new item_array_t;
 		mParentChildCategoryTree[new_cat->getUUID()] = catsp;
@@ -707,9 +751,9 @@ void LLInventoryModel::moveObject(const LLUUID& object_id, const LLUUID& cat_id)
 	if(cat && (cat->getParentUUID() != cat_id))
 	{
 		cat_array_t* cat_array;
-		cat_array = get_ptr_in_map(mParentChildCategoryTree, cat->getParentUUID());
+		cat_array = getUnlockedCatArray(cat->getParentUUID());
 		if(cat_array) cat_array->removeObj(cat);
-		cat_array = get_ptr_in_map(mParentChildCategoryTree, cat_id);
+		cat_array = getUnlockedCatArray(cat_id);
 		cat->setParent(cat_id);
 		if(cat_array) cat_array->put(cat);
 		addChangedMask(LLInventoryObserver::STRUCTURE, object_id);
@@ -719,9 +763,9 @@ void LLInventoryModel::moveObject(const LLUUID& object_id, const LLUUID& cat_id)
 	if(item && (item->getParentUUID() != cat_id))
 	{
 		item_array_t* item_array;
-		item_array = get_ptr_in_map(mParentChildItemTree, item->getParentUUID());
+		item_array = getUnlockedItemArray(item->getParentUUID());
 		if(item_array) item_array->removeObj(item);
-		item_array = get_ptr_in_map(mParentChildItemTree, cat_id);
+		item_array = getUnlockedItemArray(cat_id);
 		item->setParent(cat_id);
 		if(item_array) item_array->put(item);
 		addChangedMask(LLInventoryObserver::STRUCTURE, object_id);
@@ -742,25 +786,25 @@ void LLInventoryModel::deleteObject(const LLUUID& id)
 		mCategoryMap.erase(id);
 		mItemMap.erase(id);
 		//mInventory.erase(id);
-		item_array_t* item_list = get_ptr_in_map(mParentChildItemTree, parent_id);
+		item_array_t* item_list = getUnlockedItemArray(parent_id);
 		if(item_list)
 		{
 			LLViewerInventoryItem* item = (LLViewerInventoryItem*)((LLInventoryObject*)obj);
 			item_list->removeObj(item);
 		}
-		cat_array_t* cat_list = get_ptr_in_map(mParentChildCategoryTree, parent_id);
+		cat_array_t* cat_list = getUnlockedCatArray(parent_id);
 		if(cat_list)
 		{
 			LLViewerInventoryCategory* cat = (LLViewerInventoryCategory*)((LLInventoryObject*)obj);
 			cat_list->removeObj(cat);
 		}
-		item_list = get_ptr_in_map(mParentChildItemTree, id);
+		item_list = getUnlockedItemArray(id);
 		if(item_list)
 		{
 			delete item_list;
 			mParentChildItemTree.erase(id);
 		}
-		cat_list = get_ptr_in_map(mParentChildCategoryTree, id);
+		cat_list = getUnlockedCatArray(id);
 		if(cat_list)
 		{
 			delete cat_list;
@@ -1999,11 +2043,13 @@ void LLInventoryModel::buildParentChildMap()
 		cats.put(cat);
 		if (mParentChildCategoryTree.count(cat->getUUID()) == 0)
 		{
+			llassert_always(mCategoryLock[cat->getUUID()] == false);
 			catsp = new cat_array_t;
 			mParentChildCategoryTree[cat->getUUID()] = catsp;
 		}
 		if (mParentChildItemTree.count(cat->getUUID()) == 0)
 		{
+			llassert_always(mItemLock[cat->getUUID()] == false);
 			itemsp = new item_array_t;
 			mParentChildItemTree[cat->getUUID()] = itemsp;
 		}
@@ -2028,7 +2074,7 @@ void LLInventoryModel::buildParentChildMap()
 	for(i = 0; i < count; ++i)
 	{
 		LLViewerInventoryCategory* cat = cats.get(i);
-		catsp = get_ptr_in_map(mParentChildCategoryTree, cat->getParentUUID());
+		catsp = getUnlockedCatArray(cat->getParentUUID());
 		if(catsp)
 		{
 			catsp->put(cat);
@@ -2061,7 +2107,7 @@ void LLInventoryModel::buildParentChildMap()
 				cat->setParent(gAgent.getInventoryRootID());
 			}
 			cat->updateServer(TRUE);
-			catsp = get_ptr_in_map(mParentChildCategoryTree, cat->getParentUUID());
+			catsp = getUnlockedCatArray(cat->getParentUUID());
 			if(catsp)
 			{
 				catsp->put(cat);
@@ -2097,7 +2143,7 @@ void LLInventoryModel::buildParentChildMap()
 	{
 		LLPointer<LLViewerInventoryItem> item;
 		item = items.get(i);
-		itemsp = get_ptr_in_map(mParentChildItemTree, item->getParentUUID());
+		itemsp = getUnlockedItemArray(item->getParentUUID());
 		if(itemsp)
 		{
 			itemsp->put(item);
@@ -2114,7 +2160,7 @@ void LLInventoryModel::buildParentChildMap()
 			// we update server here, the client might crash.
 			//item->updateServer();
 			lost_item_ids.push_back(item->getUUID());
-			itemsp = get_ptr_in_map(mParentChildItemTree, item->getParentUUID());
+			itemsp = getUnlockedItemArray(item->getParentUUID());
 			if(itemsp)
 			{
 				itemsp->put(item);

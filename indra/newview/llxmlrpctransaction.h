@@ -74,7 +74,7 @@ public:
 	void appendDouble(const char*, double);
 	void appendValue(const char*, LLXMLRPCValue&);
 	
-	void free();
+	void cleanup();
 		// only call this on the top level created value
 	
 	XMLRPC_VALUE getValue() const;

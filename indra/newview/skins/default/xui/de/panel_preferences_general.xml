@@ -119,4 +119,6 @@
 			Español (Spanisch) - Beta
 		</combo_item>
 	</combo_box>
+	<check_box label="Objekten Sprache mitteilen" name="language_is_public"
+	     tool_tip="In-Welt-Objekten wird Ihre bevorzugte Spracheinstellung mitgeteilt." />
 </panel>

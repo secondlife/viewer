@@ -32,6 +32,12 @@
 #ifndef LL_LINDEN_COMMON_H
 #define LL_LINDEN_COMMON_H
 
+#if defined(LL_WINDOWS) && defined(_DEBUG)
+# define _CRTDBG_MAP_ALLOC
+# include <stdlib.h>
+# include <crtdbg.h>
+#endif
+
 #include "llpreprocessor.h"
 
 #include <cstring>

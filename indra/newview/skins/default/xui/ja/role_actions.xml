@@ -5,13 +5,13 @@
 	     name="Membership">
 		<action description="このグループに人を招待"
 		     longdescription="グループに人を招待するには、[メンバーと役割]タブ＞[メンバー]サブタブの[新しい人を招待...]ボタンを使います。"
-		     name="member invite"  value="1" />
+		     name="member invite" value="1" />
 		<action description="メンバーをこのグループから追放"
 		     longdescription="メンバーをこのグループから追放するには、[メンバーと役割]タブ &gt; [役割]サブタブの[グループから追放]を使います。 オーナーは、他のオーナー以外の任意のメンバーを追放できます。 オーナーでないユーザーがグループからメンバーを追放できるのは、そのメンバーが「全員」の役割にのみ所属しており、他の役割に所属していない場合だけです。 役割からメンバーを除外するには、「役割からメンバーを除外」能力を有している必要があります。"
-		     name="member eject"  value="2" />
+		     name="member eject" value="2" />
 		<action description="[会員募集]に切り替え、[入会費]を変更。"
 		     longdescription="招待状なしに新メンバーが加入できるように[会員募集]に切り替え、[一般]タブの[グループ環境設定]セクションから[入会費]を変更します。"
-		     name="member options"  value="3" />
+		     name="member options" value="3" />
 	</action_set>
 	<action_set
 	     description="これらの能力には、グループ内の役割を追加、削除、変更し、役割にメンバーを追加、削除し、さらに役割へ能力を割り当てる権限が含まれます。"
@@ -180,5 +180,26 @@
 		<action description="問題提起に投票する"
 		     longdescription="この能力を持つ役割のメンバーは、グループ情報＞提案タブで提案に投票することができます。"
 		     name="proposal vote" value="45" />
+	</action_set>
+	<action_set
+	     description="
+これらのアビリティには、グループ・チャット・セッションやグループ・ボイス・チャットへのアクセスの許可や制限の権限が含まれます。
+"
+	     name="Chat">
+		<action description="グループ・チャットに参加する"
+		     longdescription="
+このアビリティを持つ役割のメンバーは、グループ・チャット・セッションにテキストおよびボイスで参加できます。
+"
+		     name="join group chat" />
+		<action description="グループ・ボイス・チャットに参加する"
+		     longdescription="
+このアビリティを持つ役割のメンバーは、グループ・ボイス・チャット・セッションに参加できます。  注： ボイス・チャット・セッションにアクセスするには、グループ・チャットに参加するアビリティが必要です。
+"
+		     name="join voice chat" />
+		<action description="グループ・チャットを管理する"
+		     longdescription="
+このアビリティを持つ役割のメンバーは、グループ・ボイス・チャット・セッションおよびグループ・テキスト・チャット・セッションへのアクセスや参加をコントロールすることができます。
+"
+		     name="moderate group chat" />
 	</action_set>
 </role_actions>

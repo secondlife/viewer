@@ -4520,6 +4520,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot)
 		return;
 	}
 
+	LLVertexBuffer::unbind();
 	LLGLState::checkStates();
 	LLGLState::checkTextureChannels();
 

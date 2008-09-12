@@ -58,6 +58,7 @@
 #include "llfloatersnapshot.h"
 #include "llviewerwindow.h"
 #include "llviewerdisplay.h"
+#include "llviewermedia.h"
 #include "llviewermessage.h"
 #include "llviewerobjectlist.h"
 #include "llworldmap.h"
@@ -81,8 +82,6 @@
 #else
 #   include <sys/file.h> // For initMarkerFile support
 #endif
-
-
 
 #include "llnotify.h"
 #include "llviewerkeyboard.h"
@@ -466,9 +465,6 @@ static void settings_modify()
 	gSavedSettings.setU32("VectorizeProcessor", 0 );
 	gSavedSettings.setBOOL("VectorizeSkin", FALSE);
 #endif
-
-	// propagate push to talk preference to current status
-	gSavedSettings.setBOOL("PTTCurrentlyEnabled", TRUE); //gSavedSettings.getBOOL("EnablePushToTalk"));
 }
 
 void LLAppViewer::initGridChoice()
@@ -581,7 +577,7 @@ bool LLAppViewer::init()
 	// into the log files during normal startup until AFTER
 	// we run the "program crashed last time" error handler below.
 	//
-
+	
 	// Need to do this initialization before we do anything else, since anything
 	// that touches files should really go through the lldir API
 	gDirUtilp->initAppDirs("SecondLife");
@@ -1364,6 +1360,7 @@ bool LLAppViewer::cleanup()
     sImageDecodeThread = NULL;
 
 	gImageList.shutdown(); // shutdown again in case a callback added something
+	LLUIImageList::getInstance()->cleanUp();
 	
 	// This should eventually be done in LLAppViewer
 	LLImage::cleanupClass();
@@ -1405,9 +1402,11 @@ bool LLAppViewer::cleanup()
 
 		LLWeb::loadURLExternal( gLaunchFileOnQuit );
 	}
-
+	
+	LLViewerMedia::cleanupClass();
 
     llinfos << "Goodbye" << llendflush;
+
 	// return 0;
 	return true;
 }

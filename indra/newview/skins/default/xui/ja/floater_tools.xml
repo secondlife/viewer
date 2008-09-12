@@ -89,6 +89,9 @@
 			大
 		</combo_item>
 	</combo_box>
+	<text name="Strength:">
+		強度:
+	</text>
 	<button label="選択対象に適用" label_selected="選択対象に適用"
 	     name="button apply to selection" tool_tip="選択した土地を修正" />
 	<check_box label="オーナーを表示" left="140" name="checkbox show owners" />
@@ -152,6 +155,9 @@
 			<check_box label="売り出し中" name="checkbox for sale" />
 			<text name="Price:  L$">
 				料金：L$
+			</text>
+			<text name="Cost">
+				価格：  L$
 			</text>
 			<radio_group left="30" name="sale type">
 				<radio_item name="Original">
@@ -229,6 +235,21 @@
 			<text name="text modify warning">
 				権限を設定するには、オブジェクト全体を選択する必要があります。
 			</text>
+			<string name="Cost Default">
+				価格：           L$
+			</string>
+			<string name="Cost Total">
+				合計価格:  L$
+			</string>
+			<string name="Cost Per Unit">
+				単価：     L$
+			</string>
+			<string name="Cost Mixed">
+				混合価格
+			</string>
+			<string name="Sale Mixed">
+				混合販売
+			</string>
 		</panel>
 		<panel label="オブジェクト" name="Object">
 			<text name="select_single">
@@ -385,6 +406,10 @@
 			</text>
 			<texture_picker label="変形テクスチャー" name="sculpt texture control"
 			     tool_tip="クリックして写真を選択してください。" />
+			<check_box label="ミラー" name="sculpt mirror control"
+			     tool_tip="スカルプトされたプリムをX軸上で反転" />
+			<check_box label="裏返し" name="sculpt invert control"
+			     tool_tip="スカルプトされたプリムのノーマルを逆転させ、裏返しに表示" />
 			<text name="label sculpt type">
 				縫い目のタイプ
 			</text>

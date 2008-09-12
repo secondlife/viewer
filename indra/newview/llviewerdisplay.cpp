@@ -471,12 +471,6 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 	//
 	LLAppViewer::instance()->pingMainloopTimeout("Display:RenderSetup");
 	stop_glerror();
-	if (gSavedSettings.getBOOL("ShowDepthBuffer"))
-	{
-		pre_show_depth_buffer();
-	}
-
-	stop_glerror();
 
 	///////////////////////////////////////
 	//
@@ -1087,11 +1081,6 @@ void render_ui_3d()
 	//
 
 	// Debugging stuff goes before the UI.
-
-	if (gSavedSettings.getBOOL("ShowDepthBuffer"))
-	{
-		post_show_depth_buffer();
-	}
 
 	// Coordinate axes
 	if (gSavedSettings.getBOOL("ShowAxes"))

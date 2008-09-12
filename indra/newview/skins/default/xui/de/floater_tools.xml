@@ -79,6 +79,9 @@
 			Groß
 		</combo_item>
 	</combo_box>
+	<text name="Strength:">
+		Stärke:
+	</text>
 	<button label="Auf Auswahl anwenden" label_selected="Auf Auswahl anwenden"
 	     name="button apply to selection" tool_tip="Ausgewähltes Land ändern" />
 	<check_box label="Eigentümer anzeigen" name="checkbox show owners" />
@@ -141,6 +144,9 @@
 			<check_box label="Zu verkaufen" left="6" name="checkbox for sale" />
 			<text name="Price:  L$">
 				Preis:  L$
+			</text>
+			<text name="Cost">
+				Preis:L$
 			</text>
 			<radio_group name="sale type">
 				<radio_item name="Original">
@@ -218,6 +224,21 @@
 			<text name="text modify warning">
 				Gesamtes Objekt muss gewählt werden, um Berechtigungen festzulegen.
 			</text>
+			<string name="Cost Default">
+				Preis:L$
+			</string>
+			<string name="Cost Total">
+				Summe:L$
+			</string>
+			<string name="Cost Per Unit">
+				Stückpreis:L$
+			</string>
+			<string name="Cost Mixed">
+				Mischpreis
+			</string>
+			<string name="Sale Mixed">
+				Mischverkauf
+			</string>
 		</panel>
 		<panel label="Objekt" name="Object">
 			<text name="select_single">
@@ -376,6 +397,10 @@
 			</text>
 			<texture_picker label="Textur für gestaltetes Primitiv" name="sculpt texture control"
 			     tool_tip="Klicken Sie hier, um ein Bild auszuwählen" />
+			<check_box label="Spiegeln" name="sculpt mirror control"
+			     tool_tip="Geformtes Primitiv entlang der X-Achse spiegeln." />
+			<check_box label="Wenden" name="sculpt invert control"
+			     tool_tip="Dreht die Normalen des geformten Primitivs von innen nach außen." />
 			<text name="label sculpt type">
 				Naht
 			</text>

@@ -375,7 +375,6 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 
 	// change z sort of clickable text to be behind buttons
 	sendChildToBack(getChildView("channel_text"));
-	sendChildToBack(getChildView("version_text"));
 	sendChildToBack(getChildView("forgot_password_text"));
 
 	LLLineEditor* edit = getChild<LLLineEditor>("password_edit");
@@ -418,20 +417,17 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 
 	setDefaultBtn("connect_btn");
 
-	childSetAction("quit_btn", onClickQuit, this);
+	// childSetAction("quit_btn", onClickQuit, this);
 
-	LLTextBox* version_text = getChild<LLTextBox>("version_text");
+	std::string channel = gSavedSettings.getString("VersionChannelName");
 	std::string version = llformat("%d.%d.%d (%d)",
 		LL_VERSION_MAJOR,
 		LL_VERSION_MINOR,
 		LL_VERSION_PATCH,
 		LL_VIEWER_BUILD );
-	version_text->setText(version);
-	version_text->setClickedCallback(onClickVersion);
-	version_text->setCallbackUserData(this);
-
 	LLTextBox* channel_text = getChild<LLTextBox>("channel_text");
-	channel_text->setText(gSavedSettings.getString("VersionChannelName"));
+	channel_text->setTextArg("[CHANNEL]", channel);
+	channel_text->setTextArg("[VERSION]", version);
 	channel_text->setClickedCallback(onClickVersion);
 	channel_text->setCallbackUserData(this);
 	
@@ -1106,6 +1102,8 @@ void LLPanelLogin::onClickNewAccount(void*)
 }
 
 
+// *NOTE: This function is dead as of 2008 August.  I left it here in case
+// we suddenly decide to put the Quit button back. JC
 // static
 void LLPanelLogin::onClickQuit(void*)
 {

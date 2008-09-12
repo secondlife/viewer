@@ -146,6 +146,7 @@
 		<menu_item_call label="退席中に設定" name="Set Away" />
 		<menu_item_call label="ビジーに設定" name="Set Busy" />
 		<menu_item_call label="アニメーションをすべて停止" name="Stop All Animations" />
+		<menu_item_call label="キーを解除" name="Release Keys" />
 		<menu_item_separator label="-----------" name="separator4" />
 		<menu_item_call label="口座履歴..." name="Account History..." />
 		<menu_item_call label="自分の口座の管理..." name="Manage My Account..." />
@@ -216,7 +217,10 @@
 		<menu_item_call label="スクリプト警告／エラー・ウィンドウを表示"
 		     name="Show Script Warning/Error Window" />
 		<menu_item_call label="選択したスクリプトを再コンパイル"
-		     name="Recompile Scripts in Selection" />
+		     name="Recompile Scripts in Selection">
+			<menu_item_call label="モノ" name="Mono" />
+			<menu_item_call label="LSL" name="LSL" />
+		</menu_item_call>
 		<menu_item_call label="選択したスクリプトをリセット"
 		     name="Reset Scripts in Selection" />
 		<menu_item_call label="選択したスクリプトを起動する"

@@ -424,22 +424,7 @@ bool handleVoiceClientPrefsChanged(const LLSD& newvalue)
 {
 	if(gVoiceClient)
 	{
-		// Note: Ignore the specific event value, look up the ones we want
-
-		gVoiceClient->setVoiceEnabled(gSavedSettings.getBOOL("EnableVoiceChat"));
-		gVoiceClient->setUsePTT(gSavedSettings.getBOOL("PTTCurrentlyEnabled"));
-		std::string keyString = gSavedSettings.getString("PushToTalkButton");
-		gVoiceClient->setPTTKey(keyString);
-		gVoiceClient->setPTTIsToggle(gSavedSettings.getBOOL("PushToTalkToggle"));
-		gVoiceClient->setEarLocation(gSavedSettings.getS32("VoiceEarLocation"));
-		std::string serverName = gSavedSettings.getString("VivoxDebugServerName");
-		gVoiceClient->setVivoxDebugServerName(serverName);
-
-		std::string inputDevice = gSavedSettings.getString("VoiceInputAudioDevice");
-		gVoiceClient->setCaptureDevice(inputDevice);
-		std::string outputDevice = gSavedSettings.getString("VoiceOutputAudioDevice");
-		gVoiceClient->setRenderDevice(outputDevice);
-		gVoiceClient->setLipSyncEnabled(gSavedSettings.getBOOL("LipSyncEnabled"));
+		gVoiceClient->updateSettings();
 	}
 	return true;
 }

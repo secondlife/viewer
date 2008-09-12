@@ -60,7 +60,7 @@ LLXfer_VFile::LLXfer_VFile (LLVFS *vfs, const LLUUID &local_id, LLAssetType::ETy
 
 LLXfer_VFile::~LLXfer_VFile ()
 {
-	free();
+	cleanup();
 }
 
 ///////////////////////////////////////////////////////////
@@ -82,7 +82,7 @@ void LLXfer_VFile::init (LLVFS *vfs, const LLUUID &local_id, LLAssetType::EType 
 	
 ///////////////////////////////////////////////////////////
 
-void LLXfer_VFile::free ()
+void LLXfer_VFile::cleanup ()
 {
 	LLVFile file(mVFS, mTempID, mType, LLVFile::WRITE);
 	file.remove();
@@ -90,7 +90,7 @@ void LLXfer_VFile::free ()
 	delete mVFile;
 	mVFile = NULL;
 
-	LLXfer::free();
+	LLXfer::cleanup();
 }
 
 ///////////////////////////////////////////////////////////

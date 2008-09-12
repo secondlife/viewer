@@ -55,7 +55,7 @@ LLXfer::LLXfer (S32 chunk_size)
 
 LLXfer::~LLXfer ()
 {
-	free();
+	cleanup();
 }
 
 ///////////////////////////////////////////////////////////
@@ -90,7 +90,7 @@ void LLXfer::init (S32 chunk_size)
 	
 ///////////////////////////////////////////////////////////
 
-void LLXfer::free ()
+void LLXfer::cleanup ()
 {
 	if (mBuffer)
 	{

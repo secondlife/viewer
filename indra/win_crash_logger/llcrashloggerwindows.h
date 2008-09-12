@@ -32,7 +32,6 @@
 #ifndef LLCRASHLOGGERWINDOWS_H
 #define LLCRASHLOGGERWINDOWS_H
 
-#include "linden_common.h"
 #include "llcrashlogger.h"
 #include "windows.h"
 #include "llstring.h"

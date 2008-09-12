@@ -30,10 +30,13 @@
 	<button label="Neues Konto..." label_selected="Neues Konto..." name="new_account_btn" />
 	<button label="Einstellungen..." label_selected="Einstellungen..."
 	     name="preferences_btn" />
-	<button label="Verbinden" label_selected="Verbinden" name="connect_btn" />
+	<button label="Second Life betreten" label_selected="Verbinden" name="connect_btn" />
 	<button label="Beenden" label_selected="Beenden" name="quit_btn" />
 	<text name="version_text">
 		1.23.4 (5)
+	</text>
+	<text name="create_new_account_text">
+		Neues Konto erstellen.
 	</text>
 	<text name="channel_text">
 		[Viewer Channel Name]

@@ -134,7 +134,7 @@ void gl_state_for_2d(S32 width, S32 height)
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	glOrtho(0.0f, window_width, 0.0f, window_height, -1.0f, 1.0f);
+	glOrtho(0.0f, llmax(window_width, 1.f), 0.0f, llmax(window_height,1.f), -1.0f, 1.0f);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	stop_glerror();

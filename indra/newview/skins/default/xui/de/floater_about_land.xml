@@ -113,6 +113,10 @@
 			<text name="sale_pending_text">
 				(Wird verkauft)
 			</text>
+			<string name="no_selection_text">
+				Keine Parzelle ausgewählt.
+Öffnen Sie &quot;Welt&quot; &gt; &quot;Land-Info&quot; oder wählen Sie eine andere Parzelle aus, um Informationen darüber anzuzeigen.
+			</string>
 		</panel>
 		<panel label="Vertrag" name="land_covenant_panel">
 			<text type="string" length="1" name="covenant_timestamp_text">
@@ -192,27 +196,33 @@
 			<text left="204" name="owner_objects_text" width="48">
 				[COUNT]
 			</text>
-			<button label="Anzeigen" label_selected="Anzeigen" name="ShowOwner" right="-135" width="60" />
+			<button label="Anzeigen" label_selected="Anzeigen" name="ShowOwner" right="-135"
+			     width="60" />
 			<button label="Zurückgeben..." label_selected="Zurückgeben..." name="ReturnOwner..."
-			     right="-10" tool_tip="Objekte an ihre Eigentümer zurückgeben." width="119" />
+			     right="-10" tool_tip="Objekte an ihre Eigentümer zurückgeben."
+			     width="119" />
 			<text left="14" name="Set to group:" width="200">
 				Der Gruppe übereignen:
 			</text>
 			<text left="204" name="group_objects_text" width="48">
 				[COUNT]
 			</text>
-			<button label="Anzeigen" label_selected="Anzeigen" name="ShowGroup" right="-135" width="60" />
+			<button label="Anzeigen" label_selected="Anzeigen" name="ShowGroup" right="-135"
+			     width="60" />
 			<button label="Zurückgeben..." label_selected="Zurückgeben..." name="ReturnGroup..."
-			     right="-10" tool_tip="Objekte an ihre Eigentümer zurückgeben." width="119" />
+			     right="-10" tool_tip="Objekte an ihre Eigentümer zurückgeben."
+			     width="119" />
 			<text left="14" name="Owned by others:" width="128">
 				Im Eigentum anderer:
 			</text>
 			<text left="204" name="other_objects_text" width="48">
 				[COUNT]
 			</text>
-			<button label="Anzeigen" label_selected="Anzeigen" name="ShowOther" right="-135" width="60" />
+			<button label="Anzeigen" label_selected="Anzeigen" name="ShowOther" right="-135"
+			     width="60" />
 			<button label="Zurückgeben..." label_selected="Zurückgeben..." name="ReturnOther..."
-			     right="-10" tool_tip="Objekte an ihre Eigentümer zurückgeben." width="119" />
+			     right="-10" tool_tip="Objekte an ihre Eigentümer zurückgeben."
+			     width="119" />
 			<text left="14" name="Selected / sat upon:" width="140">
 				Ausgewählt/gesessen auf:
 			</text>

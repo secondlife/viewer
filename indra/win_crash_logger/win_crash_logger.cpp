@@ -33,6 +33,8 @@
 //
 
 // Must be first include, precompiled headers.
+#include "linden_common.h"
+
 #include "stdafx.h"
 
 #include <stdlib.h>

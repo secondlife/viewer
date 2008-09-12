@@ -115,6 +115,10 @@
 			<text name="sale_pending_text">
 				(購入審査中)
 			</text>
+			<string name="no_selection_text">
+				区画が選定されていません。
+[世界]メニュー&gt;[土地情報]に進むか、別の区画を選択して、詳細を表示します。
+			</string>
 		</panel>
 		<panel label="約款" name="land_covenant_panel">
 			<text type="string" length="1" name="covenant_timestamp_text">

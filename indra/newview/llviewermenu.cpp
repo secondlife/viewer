@@ -146,7 +146,6 @@
 #include "llinventoryview.h"
 #include "llkeyboard.h"
 #include "llpanellogin.h"
-#include "llfloaterlandmark.h"
 #include "llmenucommands.h"
 #include "llmenugl.h"
 #include "llmorphview.h"
@@ -208,9 +207,6 @@
 
 #include "lltexlayer.h"
 
-void init_landmark_menu(LLMenuGL* menu);
-void clear_landmark_menu(LLMenuGL* menu);
-
 void init_client_menu(LLMenuGL* menu);
 void init_server_menu(LLMenuGL* menu);
 
@@ -256,7 +252,6 @@ LLPieMenu	*gPieAttachment = NULL;
 LLPieMenu	*gPieLand	= NULL;
 
 // local constants
-const std::string LANDMARK_MENU_NAME("Landmarks");
 const std::string CLIENT_MENU_NAME("Advanced");
 const std::string SERVER_MENU_NAME("Admin");
 
@@ -274,7 +269,6 @@ LLPieMenu* gDetachPieMenu = NULL;
 LLPieMenu* gDetachScreenPieMenu = NULL;
 LLPieMenu* gDetachBodyPartPieMenus[8];
 
-LLMenuGL* gLandmarkMenu = NULL;
 LLMenuItemCallGL* gAFKMenu = NULL;
 LLMenuItemCallGL* gBusyMenu = NULL;
 
@@ -336,8 +330,6 @@ void handle_audio_status_3(void*);
 void handle_audio_status_4(void*);
 #endif
 void manage_landmarks(void*);
-void create_new_landmark(void*);
-void landmark_menu_action(void*);
 void reload_ui(void*);
 void handle_agent_stop_moving(void*);
 void print_packets_lost(void*);
@@ -497,55 +489,6 @@ BOOL enable_region_owner(void*);
 void menu_toggle_attached_lights(void* user_data);
 void menu_toggle_attached_particles(void* user_data);
 
-class LLLandmarkObserver : public LLInventoryObserver
-{
-public:
-	LLLandmarkObserver();
-	virtual ~LLLandmarkObserver();
-
-	virtual void changed(U32 mask)
-	{
-		// JC - Disabled for now - slows down client or causes crashes
-		// in inventory code.
-		//
-		// Also, this may not be faster than just rebuilding the menu each time.
-		// I believe gInventory.getObject() is not fast.
-		//
-		//const std::set<LLUUID>& changed_ids = gInventory.getChangedIDs();
-		//std::set<LLUUID>::const_iterator id_it;
-		//BOOL need_to_rebuild_menu = FALSE;
-		//for(id_it = changed_ids.begin(); id_it != changed_ids.end(); ++id_it)
-		//{
-		//	LLInventoryObject* objectp = gInventory.getObject(*id_it);
-		//	if (objectp && (objectp->getType() == LLAssetType::AT_LANDMARK || objectp->getType() == LLAssetType::AT_CATEGORY))
-		//	{
-		//		need_to_rebuild_menu = TRUE;
-		//	}
-		//}
-		//if (need_to_rebuild_menu)
-		//{
-		//	init_landmark_menu(gLandmarkMenu);
-		//}
-	}
-};
-
-// For debugging only, I think the inventory observer doesn't get 
-// called if the inventory is loaded from cache.
-void build_landmark_menu(void*)
-{
-	init_landmark_menu(gLandmarkMenu);
-}
-
-LLLandmarkObserver::LLLandmarkObserver()
-{
-	gInventory.addObserver(this);
-}
-
-LLLandmarkObserver::~LLLandmarkObserver()
-{
-	gInventory.removeObserver(this);
-}
-
 class LLMenuParcelObserver : public LLParcelObserver
 {
 public:
@@ -555,7 +498,6 @@ public:
 };
 
 static LLMenuParcelObserver* gMenuParcelObserver = NULL;
-static LLLandmarkObserver* gLandmarkObserver = NULL;
 
 LLMenuParcelObserver::LLMenuParcelObserver()
 {
@@ -729,17 +671,6 @@ void init_menus()
 	// TomY TODO convert these two
 	LLMenuGL*menu;
 
-	// JC - Maybe we don't want a global landmark menu
-	/*
-	menu = new LLMenuGL(LANDMARK_MENU_NAME);
-	// Defer init_landmark_menu() until inventory observer reports that we actually
-	// have inventory.  Otherwise findCategoryByUUID() will create an empty
-	// Landmarks folder in inventory. JC
-	gMenuBarView->appendMenu( menu );
-	menu->updateParent(LLMenuGL::sMenuContainer);
-	gLandmarkMenu = menu;
-	*/
-
 	menu = new LLMenuGL(CLIENT_MENU_NAME);
 	init_client_menu(menu);
 	gMenuBarView->appendMenu( menu );
@@ -754,9 +685,6 @@ void init_menus()
 
 	// Let land based option enable when parcel changes
 	gMenuParcelObserver = new LLMenuParcelObserver();
-
-	// Let landmarks menu update when landmarks are added/removed
-	gLandmarkObserver = new LLLandmarkObserver();
 
 	//
 	// Debug menu visiblity
@@ -774,64 +702,6 @@ void init_menus()
 }
 
 
-
-void init_landmark_menu(LLMenuGL* menu)
-{
-	if (!menu) return;
-
-	// clear existing menu, as we might be rebuilding as result of inventory update
-	clear_landmark_menu(menu);
-
-	// *TODO: Translate
-	menu->append(new LLMenuItemCallGL("Organize Landmarks", 
-			&manage_landmarks, NULL));
-	menu->append(new LLMenuItemCallGL("New Landmark...", 
-			&create_new_landmark, NULL));
-	menu->appendSeparator();
-	
-	// now collect all landmarks in inventory and build menu...
-	LLInventoryModel::cat_array_t* cats;
-	LLInventoryModel::item_array_t* items;
-	gInventory.getDirectDescendentsOf(gInventory.findCategoryUUIDForType(LLAssetType::AT_LANDMARK), cats, items);
-	if(items)
-	{
-		S32 count = items->count();
-		for(S32 i = 0; i < count; ++i)
-		{
-			LLInventoryItem* item = items->get(i);
-			std::string landmark_name = item->getName();
-			LLUUID* landmark_id_ptr = new LLUUID( item->getUUID() );
-			LLMenuItemCallGL* menu_item =
-				new LLMenuItemCallGL(landmark_name, landmark_menu_action, 
-					NULL, NULL,	landmark_id_ptr);
-			menu->append(menu_item);
-		}
-	}
-}
-
-void clear_landmark_menu(LLMenuGL* menu)
-{
-	if (!menu) return;
-
-	// We store the UUIDs of the landmark inventory items in the userdata
-	// field of the menus.  Therefore when we clean up the menu we need to
-	// delete that data.
-	const LLView::child_list_t* child_list = menu->getChildList();
-	LLView::child_list_const_iter_t it = child_list->begin();
-	for ( ; it != child_list->end(); ++it)
-	{
-		LLView* view = *it;
-		LLMenuItemCallGL* menu_item = dynamic_cast<LLMenuItemCallGL*>(view);
-		
-		if (menu_item && menu_item->getMenuCallback() == landmark_menu_action)
-		{
-			void* user_data = menu_item->getUserData();
-			delete (LLUUID*)user_data;
-		}
-	}
-
-	menu->empty();
-}
 
 void init_client_menu(LLMenuGL* menu)
 {
@@ -1364,12 +1234,10 @@ void init_debug_rendering_menu(LLMenuGL* menu)
 	sub_menu->append(new LLMenuItemCheckGL("Raycasting",	&LLPipeline::toggleRenderDebug, NULL,
 													&LLPipeline::toggleRenderDebugControl,
 													(void*)LLPipeline::RENDER_DEBUG_RAYCAST));
+	sub_menu->append(new LLMenuItemCheckGL("Sculpt",	&LLPipeline::toggleRenderDebug, NULL,
+													&LLPipeline::toggleRenderDebugControl,
+													(void*)LLPipeline::RENDER_DEBUG_SCULPTED));
 	
-	sub_menu->append(new LLMenuItemCheckGL("Show Depth Buffer",
-										   &menu_toggle_control,
-										   NULL,
-										   &menu_check_control,
-										   (void*)"ShowDepthBuffer"));
 	sub_menu->append(new LLMenuItemToggleGL("Show Select Buffer", &gDebugSelect));
 
 	sub_menu->append(new LLMenuItemCallGL("Vectorize Perf Test", &run_vectorize_perf_test));
@@ -1607,13 +1475,8 @@ static std::vector<LLPointer<view_listener_t> > sMenus;
 //-----------------------------------------------------------------------------
 void cleanup_menus()
 {
-	clear_landmark_menu(gLandmarkMenu);
-
 	delete gMenuParcelObserver;
 	gMenuParcelObserver = NULL;
-
-	delete gLandmarkObserver;
-	gLandmarkObserver = NULL;
 
 	delete gPieSelf;
 	gPieSelf = NULL;
@@ -1677,6 +1540,8 @@ class LLObjectTouch : public view_listener_t
 		LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
 		if (!object) return true;
 
+		LLPickInfo pick = LLToolPie::getInstance()->getPick();
+
 		LLMessageSystem	*msg = gMessageSystem;
 
 		msg->newMessageFast(_PREHASH_ObjectGrab);
@@ -1686,6 +1551,13 @@ class LLObjectTouch : public view_listener_t
 		msg->nextBlockFast( _PREHASH_ObjectData);
 		msg->addU32Fast(    _PREHASH_LocalID, object->mLocalID);
 		msg->addVector3Fast(_PREHASH_GrabOffset, LLVector3::zero );
+		msg->nextBlock("SurfaceInfo");
+		msg->addVector3("UVCoord", LLVector3(pick.mUVCoords));
+		msg->addVector3("STCoord", LLVector3(pick.mSTCoords));
+		msg->addS32Fast(_PREHASH_FaceIndex, pick.mObjectFace);
+		msg->addVector3("Position", pick.mIntersection);
+		msg->addVector3("Normal", pick.mNormal);
+		msg->addVector3("Binormal", pick.mBinormal);
 		msg->sendMessage( object->getRegion()->getHost());
 
 		// *NOTE: Hope the packets arrive safely and in order or else
@@ -1697,6 +1569,13 @@ class LLObjectTouch : public view_listener_t
 		msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
 		msg->nextBlockFast(_PREHASH_ObjectData);
 		msg->addU32Fast(_PREHASH_LocalID, object->mLocalID);
+		msg->nextBlock("SurfaceInfo");
+		msg->addVector3("UVCoord", LLVector3(pick.mUVCoords));
+		msg->addVector3("STCoord", LLVector3(pick.mSTCoords));
+		msg->addS32Fast(_PREHASH_FaceIndex, pick.mObjectFace);
+		msg->addVector3("Position", pick.mIntersection);
+		msg->addVector3("Normal", pick.mNormal);
+		msg->addVector3("Binormal", pick.mBinormal);
 		msg->sendMessage(object->getRegion()->getHost());
 
 		return true;
@@ -3153,60 +3032,6 @@ void handle_audio_status_4(void*)
 	gSavedSettings.setS32("AudioInfoPage", page);	
 }
 #endif
-
-void manage_landmarks(void*)
-{
-	LLFloaterLandmark::showInstance(1);
-}
-
-void create_new_landmark(void*)
-{
-	// Note this is temporary cut and paste of legacy functionality.
-	// TODO: Make this spawn a floater allowing user customize before creating the inventory object
-
-	LLViewerRegion* agent_region = gAgent.getRegion();
-	if(!agent_region)
-	{
-		llwarns << "No agent region" << llendl;
-		return;
-	}
-	LLParcel* agent_parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
-	if (!agent_parcel)
-	{
-		llwarns << "No agent parcel" << llendl;
-		return;
-	}
-	if (!agent_parcel->getAllowLandmark()
-		&& !LLViewerParcelMgr::isParcelOwnedByAgent(agent_parcel, GP_LAND_ALLOW_LANDMARK))
-	{
-		gViewerWindow->alertXml("CannotCreateLandmarkNotOwner");
-		return;
-	}
-
-	LLUUID folder_id;
-	folder_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_LANDMARK);
-	std::string pos_string;
-	gAgent.buildLocationString(pos_string);
-
-	create_inventory_item(gAgent.getID(), gAgent.getSessionID(),
-		folder_id, LLTransactionID::tnull,
-		pos_string, pos_string, // name, desc
-		LLAssetType::AT_LANDMARK,
-		LLInventoryType::IT_LANDMARK,
-		NOT_WEARABLE, PERM_ALL, 
-		NULL);
-}
-
-void landmark_menu_action(void* userdata)
-{
-	LLUUID item_id = *(LLUUID*)userdata;
-
-	LLViewerInventoryItem* itemp = gInventory.getItem(item_id);
-	if (itemp)
-	{
-		open_landmark(itemp, itemp->getName(), FALSE);
-	}
-}
 
 void reload_ui(void *)
 {

@@ -57,7 +57,6 @@ public:
 	~LLSky();
 
 	void init(const LLVector3 &sun_direction);
-	void free();
 
 	void cleanup();
 

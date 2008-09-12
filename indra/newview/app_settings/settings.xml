@@ -2360,17 +2360,6 @@
         <real>1.0</real>
       </array>
     </map>
-    <key>EnablePushToTalk</key>
-    <map>
-      <key>Comment</key>
-      <string>Must hold down a key or moouse button when talking into your microphone</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
     <key>EnableRippleWater</key>
     <map>
       <key>Comment</key>
@@ -5165,7 +5154,7 @@
     <key>PTTCurrentlyEnabled</key>
     <map>
       <key>Comment</key>
-      <string />
+      <string>Use Push to Talk mode</string>
       <key>Persist</key>
       <integer>0</integer>
       <key>Type</key>
@@ -5205,28 +5194,6 @@
       <string>String</string>
       <key>Value</key>
       <string />
-    </map>
-    <key>PerFrameHoverPick</key>
-    <map>
-      <key>Comment</key>
-      <string>Detect the object under the mouse continually</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <real>1</real>
-    </map>
-    <key>PerFrameHoverPickCount</key>
-    <map>
-      <key>Comment</key>
-      <string>Detect the object under the mouse every n frames</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>1</integer>
     </map>
     <key>PermissionsCautionEnabled</key>
     <map>
@@ -5276,6 +5243,28 @@
       <string>F32</string>
       <key>Value</key>
       <real>0.34999999404</real>
+    </map>
+    <key>PicksPerSecondMouseMoving</key>
+    <map>
+      <key>Comment</key>
+      <string>How often to perform hover picks while the mouse is moving (picks per second)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>5.0</real>
+    </map>
+    <key>PicksPerSecondMouseStationary</key>
+    <map>
+      <key>Comment</key>
+      <string>How often to perform hover picks while the mouse is stationary (picks per second)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.0</real>
     </map>
     <key>PieMenuLineWidth</key>
     <map>
@@ -6878,17 +6867,6 @@
     <map>
       <key>Comment</key>
       <string>Show performance stats display</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>ShowDepthBuffer</key>
-    <map>
-      <key>Comment</key>
-      <string>Show depth buffer contents</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>

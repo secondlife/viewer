@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="Postcard" title="Postkarte senden">
+<floater name="Postcard" title="Foto per E-Mail senden">
 	<text name="to_label">
 		E-Mail des Empfängers:
 	</text>
-	<line_editor left="145" name="to_form" width="125"/>
+	<line_editor left="145" name="to_form" width="125" />
 	<text name="from_label">
 		Ihre E-Mail:
 	</text>
-	<line_editor left="145" name="from_form" width="125"/>
+	<line_editor left="145" name="from_form" width="125" />
 	<text name="name_label">
 		Ihr Name:
 	</text>
-	<line_editor left="145" name="name_form" width="125"/>
+	<line_editor left="145" name="name_form" width="125" />
 	<text name="subject_label">
 		Betreff:
 	</text>
-	<line_editor label="Betreff hier eingeben." name="subject_form" left="145" width="125"/>
+	<line_editor label="Betreff hier eingeben." left="145" name="subject_form" width="125" />
 	<text name="msg_label">
 		Nachricht:
 	</text>
@@ -27,9 +27,8 @@
 	<check_box label="Ab-18-Inhalt" name="mature_check"
 	     tool_tip="Diese Postkarte enthält nicht jugendfreie Inhalte." />
 	<button label="?" name="publish_help_btn" />
-	<text name="fine_print" >
-		Wenn sich der Empfänger Ihrer Postkarte bei SL anmeldet, erhalten Sie einen
-Empfehlungsbonus.
+	<text name="fine_print">
+		Wenn sich der Empfänger bei SL anmeldet, erhalten Sie einen Empfehlungsbonus.
 	</text>
 	<button label="Abbrechen" name="cancel_btn" />
 	<button label="Senden" name="send_btn" />
@@ -39,4 +38,7 @@ Empfehlungsbonus.
 	<text name="default_message">
 		Sehen Sie hier!
 	</text>
+	<string name="upload_message">
+		Wird gesendet...
+	</string>
 </floater>

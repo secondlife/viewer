@@ -88,7 +88,7 @@ class LLXfer
 	virtual ~LLXfer();
 
 	void init(S32 chunk_size);
-	virtual void free();
+	virtual void cleanup();
 
 	virtual S32 startSend (U64 xfer_id, const LLHost &remote_host);
 	virtual void sendPacket(S32 packet_num);

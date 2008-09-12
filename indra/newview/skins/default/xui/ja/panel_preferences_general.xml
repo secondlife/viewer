@@ -126,4 +126,6 @@
 			Español (スペイン語) – ベータ
 		</combo_item>
 	</combo_box>
+	<check_box label="言語をオブジェクトと共有" name="language_is_public"
+	     tool_tip="優先言語をインワールドのオブジェクトが認識する" />
 </panel>

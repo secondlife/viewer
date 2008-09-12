@@ -2,6 +2,7 @@
 <floater name="script ed float" title="Skript: Neues Skript">
 	<button label="Zurücksetzen" label_selected="Zurücksetzen" name="Reset" />
 	<check_box label="Läuft" name="running" />
+	<check_box label="Mono" name="mono" />
 	<text name="not_allowed">
 		Sie können dieses Skript nicht anzeigen.
 	</text>

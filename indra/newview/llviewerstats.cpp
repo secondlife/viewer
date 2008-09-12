@@ -757,7 +757,6 @@ void send_stats()
 	S32 window_height = gViewerWindow->getWindowDisplayHeight();
 	S32 window_size = (window_width * window_height) / 1024;
 	misc["string_1"] = llformat("%d", window_size);
-	misc["string_1"] = llformat("%.dx%d", window_width, window_height);
 	// misc["string_2"] = 
 // 	misc["int_1"] = LLFloaterDirectory::sOldSearchCount; // Steve: 1.18.6
 // 	misc["int_2"] = LLFloaterDirectory::sNewSearchCount; // Steve: 1.18.6

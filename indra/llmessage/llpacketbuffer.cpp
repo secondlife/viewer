@@ -65,7 +65,6 @@ LLPacketBuffer::LLPacketBuffer (S32 hSocket)
 
 LLPacketBuffer::~LLPacketBuffer ()
 {
-	free();
 }
 
 ///////////////////////////////////////////////////////////
@@ -76,25 +75,3 @@ void LLPacketBuffer::init (S32 hSocket)
 	mHost = ::get_sender();
 }
 	
-///////////////////////////////////////////////////////////
-
-void LLPacketBuffer::free ()
-{
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

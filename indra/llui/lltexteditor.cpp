@@ -4252,26 +4252,29 @@ void LLTextEditor::setTextEditorParameters(LLXMLNodePtr node)
 }
 
 ///////////////////////////////////////////////////////////////////
+// Refactoring note: We may eventually want to replace this with boost::regex or 
+// boost::tokenizer capabilities since we've already fixed at least two JIRAs
+// concerning logic issues associated with this function.
 S32 LLTextEditor::findHTMLToken(const std::string &line, S32 pos, BOOL reverse) const
 {
 	std::string openers=" \t\n('\"[{<>";
 	std::string closers=" \t\n)'\"]}><;";
 
-	S32 m2;
-	S32 retval;
+	S32 m2 = 0;
+	S32 retval = 0;
 	
 	if (reverse)
 	{
 		
-		for (retval=pos; retval>0; retval--)
+		for (retval=pos; retval >= 0; retval--)
 		{
 			m2 = openers.find(line.substr(retval,1));
 			if (m2 >= 0)
 			{
-				retval++;
 				break;
 			}
 		}
+		return retval+1;
 	} 
 	else
 	{
@@ -4284,9 +4287,8 @@ S32 LLTextEditor::findHTMLToken(const std::string &line, S32 pos, BOOL reverse) 
 				break;
 			}
 		} 
-	}		
-	
-	return retval;
+		return retval;
+	}
 }
 
 BOOL LLTextEditor::findHTML(const std::string &line, S32 *begin, S32 *end) const

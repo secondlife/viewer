@@ -611,6 +611,11 @@ extern "C" { int yyerror(const char *fmt, ...); }
 "TEXTURE_PLYWOOD"         { yylval.sval = new char[UUID_STR_LENGTH]; strcpy(yylval.sval, "89556747-24cb-43ed-920b-47caed15465f"); return(STRING_CONSTANT); }
 "TEXTURE_TRANSPARENT"     { yylval.sval = new char[UUID_STR_LENGTH]; strcpy(yylval.sval, "8dcd4a48-2d37-4909-9f78-f7a9eb4ef903"); return(STRING_CONSTANT); }
 
+"TOUCH_INVALID_FACE"	  { count(); yylval.ival = -1; return(INTEGER_CONSTANT); }
+"TOUCH_INVALID_VECTOR"	  { count(); return(TOUCH_INVALID_VECTOR); }
+"TOUCH_INVALID_TEXCOORD"  { count(); return(TOUCH_INVALID_TEXCOORD); }
+
+
 {L}({L}|{N})*		{ count(); yylval.sval = new char[strlen(yytext) + 1]; strcpy(yylval.sval, yytext); return(IDENTIFIER); }
 
 {N}+{E}					{ count(); yylval.fval = (F32)atof(yytext); return(FP_CONSTANT); }
@@ -752,8 +757,8 @@ BOOL lscript_compile(const char* src_filename, const char* dst_filename,
 #ifdef EMERGENCY_DEBUG_PRINTOUTS
 			fclose(compfile);
 #endif
-			fclose(yyout);
 		}
+		fclose(yyout);
 		fclose(yyin);
 	}
 

@@ -55,7 +55,7 @@ class LLXfer_Mem : public LLXfer
 	virtual ~LLXfer_Mem();
 
 	virtual void init();
-	virtual void free();
+	virtual void cleanup();
 
 	virtual S32 startSend (U64 xfer_id, const LLHost &remote_host);
 	virtual U64 registerXfer(U64 xfer_id, const void *datap, const S32 length);

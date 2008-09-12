@@ -142,6 +142,7 @@
 		<menu_item_call label="Als abwesend anzeigen" name="Set Away" />
 		<menu_item_call label="Als beschäftigt anzeigen" name="Set Busy" />
 		<menu_item_call label="Alle Animationen stoppen" name="Stop All Animations" />
+		<menu_item_call label="Tasten freigeben" name="Release Keys" />
 		<menu_item_separator label="-----------" name="separator4" />
 		<menu_item_call label="Kontostatistik..." name="Account History..." />
 		<menu_item_call label="Mein Konto verwalten..." name="Manage My Account..." />
@@ -208,12 +209,15 @@
 		<menu_item_separator label="-----------" name="separator6" />
 		<menu_item_call label="Skriptwarnung/Fehlerfenster anzeigen"
 		     name="Show Script Warning/Error Window" />
-		<menu_item_call label="Skripts in Auswahl neu kompilieren"
-		     name="Recompile Scripts in Selection" />
-		<menu_item_call label="Skripts zurücksetzen ausgewählte" name="Reset Scripts in Selection" />
-		<menu_item_call label="Skripts so einstellen, dass sie in Auswahl ausgeführt werden"
+		<menu_item_call label="Skripte in Auswahl neu kompilieren"
+		     name="Recompile Scripts in Selection">
+			<menu_item_call label="Mono" name="Mono" />
+			<menu_item_call label="LSL" name="LSL" />
+		</menu_item_call>
+		<menu_item_call label="Skripte in Auswahl zurücksetzen" name="Reset Scripts in Selection" />
+		<menu_item_call label="Skripte in Auswahl so einstellen, dass sie ausgeführt werden"
 		     name="Set Scripts to Running in Selection" />
-		<menu_item_call label="Skripts so einstellen, dass sie in Auswahl nicht ausgeführt werden"
+		<menu_item_call label="Skripte in Auswahl so einstellen, dass sie nicht ausgeführt werden"
 		     name="Set Scripts to Not Running in Selection" />
 	</menu>
 	<menu label="Hilfe" name="Help">

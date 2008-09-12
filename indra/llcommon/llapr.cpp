@@ -73,6 +73,28 @@ void ll_cleanup_apr()
 }
 
 //
+//LLAPRPool
+//
+LLAPRPool::LLAPRPool(apr_pool_t *parent, apr_size_t size) 
+{
+	mStatus = apr_pool_create(&mPool, parent);
+
+	if(size > 0) //size is the number of blocks (which is usually 4K), NOT bytes.
+	{
+		apr_allocator_t *allocator = apr_pool_allocator_get(mPool); 
+		if (allocator) 
+		{ 
+			apr_allocator_max_free_set(allocator, size) ;
+		}
+	}
+}
+
+LLAPRPool::~LLAPRPool() 
+{
+	apr_pool_destroy(mPool) ;
+}
+
+//
 // LLScopedLock
 //
 LLScopedLock::LLScopedLock(apr_thread_mutex_t* mutex) : mMutex(mutex)

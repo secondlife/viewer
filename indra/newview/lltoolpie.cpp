@@ -106,7 +106,7 @@ void LLToolPie::leftMouseCallback(const LLPickInfo& pick_info)
 BOOL LLToolPie::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
 	// don't pick transparent so users can't "pay" transparent objects
-	gViewerWindow->pickAsync(x, y, mask, rightMouseCallback, FALSE);
+	gViewerWindow->pickAsync(x, y, mask, rightMouseCallback, FALSE, TRUE);
 	mPieMouseButtonDown = TRUE; 
 	// don't steal focus from UI
 	return FALSE;

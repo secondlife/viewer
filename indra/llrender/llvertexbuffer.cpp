@@ -195,6 +195,7 @@ void LLVertexBuffer::drawRange(U32 mode, U32 start, U32 end, U32 count, U32 indi
 
 	glDrawRangeElements(sGLMode[mode], start, end, count, GL_UNSIGNED_SHORT, 
 		((U16*) getIndicesPointer()) + indices_offset);
+	stop_glerror();
 }
 
 void LLVertexBuffer::draw(U32 mode, U32 count, U32 indices_offset) const
@@ -246,6 +247,7 @@ void LLVertexBuffer::drawArrays(U32 mode, U32 first, U32 count) const
 	}
 
 	glDrawArrays(sGLMode[mode], first, count);
+	stop_glerror();
 }
 
 //static

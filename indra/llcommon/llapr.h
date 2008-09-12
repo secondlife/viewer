@@ -60,6 +60,20 @@ void ll_init_apr();
  */
 void ll_cleanup_apr();
 
+class LLAPRPool
+{
+public:
+	LLAPRPool(apr_pool_t *parent = NULL, apr_size_t size = 0) ;
+	~LLAPRPool() ;
+
+	apr_pool_t* getAPRPool() {return mPool ; }
+	apr_status_t getStatus() {return mStatus ; }
+
+private:
+	apr_pool_t*  mPool ;
+	apr_status_t mStatus ;
+} ;
+
 /** 
  * @class LLScopedLock
  * @brief Small class to help lock and unlock mutexes.

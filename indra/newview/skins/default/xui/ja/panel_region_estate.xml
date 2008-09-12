@@ -24,6 +24,12 @@
 	     tool_tip="年齢確認を済ませていない住人を排除する詳細については、support.secondlife.comを参照してください。" />
 	<check_box label="ボイスチャットを許可" name="voice_chat_check" />
 	<button label="?" name="voice_chat_help" />
+	<text name="abuse_email_text">
+		嫌がらせに関するメール先:
+	</text>
+	<string name="email_unsupported">
+		サポートされていない機能
+	</string>
 	<button label="?" name="abuse_email_address_help" />
 	<text name="estate_manager_label">
 		不動産マネージャー：

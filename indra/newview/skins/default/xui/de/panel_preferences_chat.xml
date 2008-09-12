@@ -17,6 +17,8 @@
 	<text type="string" length="1" name="text_box2">
 		Chat-Farbe:
 	</text>
+	<color_swatch label="Sie" name="user" />
+	<color_swatch label="Andere" name="agent" />
 	<color_swatch label="IM" name="im" />
 	<color_swatch label="System" name="system" />
 	<color_swatch label="Chat" name="users" />
@@ -47,6 +49,7 @@
 	<check_box label="Pfeiltasten bewegen immer den Avatar beim Chatten"
 	     name="arrow_keys_move_avatar_check" />
 	<check_box label="Zeitstempel in Chat anzeigen" name="show_timestamps_check" />
+	<check_box label="Tipp-Animation abspielen" name="play_typing_animation" />
 	<text type="string" length="1" name="text_box7">
 		Blasen-Chat:
 	</text>
@@ -57,5 +60,5 @@
 	</text>
 	<check_box label="Skriptfehler und Warnungen als normalen Chat anzeigen"
 	     name="script_errors_as_chat" />
-	<color_swatch label="Farbe" name="script_error" />
+	<color_swatch label="Fehler" name="script_error" />
 </panel>

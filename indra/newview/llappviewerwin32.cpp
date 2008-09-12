@@ -31,6 +31,10 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#if defined(_DEBUG)
+#	define WINDOWS_CRT_MEM_CHECKS 1 
+#endif
+
 #include "llappviewerwin32.h"
 
 #include "llmemtype.h"
@@ -127,6 +131,10 @@ int APIENTRY WINMAIN(HINSTANCE hInstance,
 {
 	LLMemType mt1(LLMemType::MTYPE_STARTUP);
 	
+#if WINDOWS_CRT_MEM_CHECKS && !INCLUDE_VLD
+	_CrtSetDbgFlag ( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF ); // dump memory leaks on exit
+#endif
+	
 	// *FIX: global
 	gIconResource = MAKEINTRESOURCE(IDI_LL_ICON);
 
@@ -156,7 +164,32 @@ int APIENTRY WINMAIN(HINSTANCE hInstance,
 		// the assumption is that the error handler is responsible for doing
 		// app cleanup if there was a problem.
 		//
-		viewer_app_ptr->cleanup();
+#if WINDOWS_CRT_MEM_CHECKS
+    llinfos << "CRT Checking memory:" << llendflush;
+	if (!_CrtCheckMemory())
+	{
+		llwarns << "_CrtCheckMemory() failed at prior to cleanup!" << llendflush;
+	}
+	else
+	{
+		llinfos << " No corruption detected." << llendflush;
+	}
+#endif
+	
+	viewer_app_ptr->cleanup();
+	
+#if WINDOWS_CRT_MEM_CHECKS
+    llinfos << "CRT Checking memory:" << llendflush;
+	if (!_CrtCheckMemory())
+	{
+		llwarns << "_CrtCheckMemory() failed after cleanup!" << llendflush;
+	}
+	else
+	{
+		llinfos << " No corruption detected." << llendflush;
+	}
+#endif
+	 
 	}
 	delete viewer_app_ptr;
 	viewer_app_ptr = NULL;

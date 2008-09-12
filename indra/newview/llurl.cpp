@@ -57,7 +57,7 @@ LLURL::LLURL(const char * url)
 
 LLURL::~LLURL()
 {
-	free();
+	cleanup();
 }
 
 void LLURL::init(const char * url)
@@ -140,7 +140,7 @@ void LLURL::init(const char * url)
 //	llinfos << "  Tag : <" << mTag << ">" << llendl;
 }
 
-void LLURL::free()
+void LLURL::cleanup()
 {
 }
 

@@ -47,7 +47,7 @@ public:
 	void init();
 	void destroy();
 	void reset();
-	void realloc(U32 newsize);
+	void reallocate(U32 newsize);
 
 	// ACCESSORS
 	const Type& get(const S32 index) const;					// no bounds checking
@@ -115,7 +115,7 @@ template <class Type>
 inline LLDynamicQueuePtr<Type>::LLDynamicQueuePtr(const S32 size)
 {
 	init();
-	realloc(size);
+	reallocate(size);
 }
 
 template <class Type>
@@ -134,7 +134,7 @@ inline void LLDynamicQueuePtr<Type>::init()
 }
 
 template <class Type>
-inline void LLDynamicQueuePtr<Type>::realloc(U32 newsize)
+inline void LLDynamicQueuePtr<Type>::reallocate(U32 newsize)
 { 
 	if (newsize)
 	{
@@ -308,7 +308,7 @@ inline S32	LLDynamicQueuePtr<Type>::push(const Type &obj)
 {
 	if (mMaxObj - count() <= 1)
 	{
-		realloc(mMaxObj * 2);
+		reallocate(mMaxObj * 2);
 	}
 
 	mMemory[mLastObj++] = obj;

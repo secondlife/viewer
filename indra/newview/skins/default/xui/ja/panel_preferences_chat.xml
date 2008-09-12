@@ -17,6 +17,8 @@
 	<text type="string" length="1" name="text_box2">
 		チャット・カラー：
 	</text>
+	<color_swatch label="貴方" name="user" />
+	<color_swatch label="その他" name="agent" />
 	<color_swatch label="IM" name="im" />
 	<color_swatch label="ｼｽﾃﾑ" name="system" />
 	<color_swatch label="チャット" name="users" />
@@ -47,6 +49,8 @@
 	     name="arrow_keys_move_avatar_check" />
 	<check_box label="チャットにタイムスタンプを表示"
 	     name="show_timestamps_check" />
+	<check_box label="タイピング動作のアニメーションを再生"
+	     name="play_typing_animation" />
 	<text type="string" length="1" name="text_box7">
 		チャットの吹き出し：
 	</text>
@@ -57,5 +61,5 @@
 	</text>
 	<check_box label="スクリプト・エラーと警告をチャット同様に表示"
 	     name="script_errors_as_chat" />
-	<color_swatch label="色" name="script_error" />
+	<color_swatch label="エラー" name="script_error" />
 </panel>

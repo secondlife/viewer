@@ -64,7 +64,7 @@ LLXferManager::LLXferManager (LLVFS *vfs)
 
 LLXferManager::~LLXferManager ()
 {
-	free();
+	cleanup();
 }
 
 ///////////////////////////////////////////////////////////
@@ -86,7 +86,7 @@ void LLXferManager::init (LLVFS *vfs)
 	
 ///////////////////////////////////////////////////////////
 
-void LLXferManager::free ()
+void LLXferManager::cleanup ()
 {
 	LLXfer *xferp;
 	LLXfer *delp;

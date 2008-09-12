@@ -47,7 +47,7 @@ public:
 	LLPacketRing();         
     ~LLPacketRing();
 
-	void free();
+	void cleanup();
 
 	void dropPackets(U32);	
 	void setDropPercentage (F32 percent_to_drop);

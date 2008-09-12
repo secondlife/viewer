@@ -59,12 +59,12 @@
 	</scheme>
 	<mimetype name="blank">
 		<label name="blank_label">
-			- Keine - 
+			- Keine -
 		</label>
 	</mimetype>
 	<mimetype name="none/none">
 		<label name="none/none_label">
-			- Keine - 
+			- Keine -
 		</label>
 	</mimetype>
 	<mimetype name="audio/*">
@@ -110,6 +110,11 @@
 	<mimetype name="application/rtf">
 		<label name="application/rtf_label">
 			Rich Text (RTF)
+		</label>
+	</mimetype>
+	<mimetype name="application/smil">
+		<label name="application/smil_label">
+			Synchronized Multimedia Integration Language (SMIL)
 		</label>
 	</mimetype>
 	<mimetype name="application/xhtml+xml">

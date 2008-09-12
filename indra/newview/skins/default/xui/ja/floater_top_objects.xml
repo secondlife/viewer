@@ -8,6 +8,7 @@
 		<column label="名前" name="name" />
 		<column label="所有者" name="owner" />
 		<column label="ロケーション" name="location" />
+		<column label="時間" name="time" />
 	</scroll_list>
 	<text name="id_text">
 		物体ID：

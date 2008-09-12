@@ -439,10 +439,16 @@ LLRender::LLRender()
 
 LLRender::~LLRender()
 {
+	shutdown();
+}
+
+void LLRender::shutdown()
+{
 	for (U32 i = 0; i < mTexUnits.size(); i++)
 	{
 		delete mTexUnits[i];
 	}
+	mTexUnits.clear();
 }
 
 void LLRender::translatef(const GLfloat& x, const GLfloat& y, const GLfloat& z)
