@@ -141,6 +141,7 @@ class PlatformSetup(object):
         # do a sanity check to make sure we have a generator
         if not hasattr(self, 'generator'):
             raise "No generator available for '%s'" % (self.__name__,)
+        src_dir = os.path.dirname(os.path.realpath(sys.argv[0]))
         cwd = os.getcwd()
         created = []
         try:
@@ -151,7 +152,7 @@ class PlatformSetup(object):
                     simple = False
                 try:
                     os.chdir(d)
-                    cmd = self.cmake_commandline(cwd, d, args, simple)
+                    cmd = self.cmake_commandline(src_dir, d, args, simple)
                     print 'Running %r in %r' % (cmd, d)
                     self.run(cmd, 'cmake')
                 finally:
