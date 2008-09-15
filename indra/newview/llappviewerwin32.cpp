@@ -32,7 +32,9 @@
 #include "llviewerprecompiledheaders.h"
 
 #if defined(_DEBUG)
-#	define WINDOWS_CRT_MEM_CHECKS 1 
+# if _MSC_VER >= 1400 // Visual C++ 2005 or later
+#	define WINDOWS_CRT_MEM_CHECKS 1
+# endif
 #endif
 
 #include "llappviewerwin32.h"
