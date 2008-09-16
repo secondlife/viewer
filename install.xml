@@ -610,7 +610,7 @@ anguage Infrstructure (CLI) international standard</string>
             <key>md5sum</key>
             <string>6712a09311a914752f47d5d62562a239</string>
             <key>url</key>
-            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/libmono-1.2.6-windows-20080903.tar.bz2</uri>
+            <uri>https://s3.amazonaws.com/viewer-source-downloads/libmono-1.2.6-windows-20080903.tar.bz2</uri>
           </map>
         </map>
       </map>
