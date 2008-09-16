@@ -230,10 +230,12 @@ class LinuxSetup(UnixSetup):
     def build_dirs(self):
         # Only build the server code if (a) we have it and (b) we're
         # on 32-bit x86.
+        platform_build = '%s-%s' % (self.platform(), self.build_type.lower())
+
         if self.arch() == 'i686' and self.is_internal_tree():
-            return ['viewer-' + self.platform(), 'server-' + self.platform()]
+            return ['viewer-' + platform_build, 'server-' + platform_build]
         else:
-            return ['viewer-' + self.platform()]
+            return ['viewer-' + platform_build]
 
     def find_in_path(self, name, defval=None, basename=False):
         for p in os.getenv('PATH', '/usr/bin').split(':'):
