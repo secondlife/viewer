@@ -567,16 +567,16 @@
 			<boolean>false</boolean>
 		
 			<key>WebFetchInventoryDescendents</key>
-			<boolean>false</boolean>
+			<boolean>true</boolean>
 		
 			<key>FetchInventory</key>
-			<boolean>false</boolean>
+			<boolean>true</boolean>
 		
 			<key>FetchLibDescendents</key>
-			<boolean>false</boolean>
+			<boolean>true</boolean>
 		
 			<key>FetchLib</key>
-			<boolean>false</boolean>
+			<boolean>true</boolean>
 		</map>
 
 		<key>messageBans</key>
