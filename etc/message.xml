@@ -564,7 +564,19 @@
 			<boolean>true</boolean>
 		
 			<key>FetchInventoryDescendents</key>
-			<boolean>true</boolean>
+			<boolean>false</boolean>
+		
+			<key>WebFetchInventoryDescendents</key>
+			<boolean>false</boolean>
+		
+			<key>FetchInventory</key>
+			<boolean>false</boolean>
+		
+			<key>FetchLibDescendents</key>
+			<boolean>false</boolean>
+		
+			<key>FetchLib</key>
+			<boolean>false</boolean>
 		</map>
 
 		<key>messageBans</key>
