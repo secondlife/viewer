@@ -69,6 +69,7 @@ public:
 	};
 	virtual ~LLInventoryObserver() {};
 	virtual void changed(U32 mask) = 0;
+	std::string mMessageName; // used by Agent Inventory Service only. [DEV-20328]
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -110,7 +111,18 @@ public:
 	LLInventoryModel();
 	~LLInventoryModel();
 
+	class fetchInventoryResponder: public LLHTTPClient::Responder
+	{
+	public:
+		fetchInventoryResponder(const LLSD& request_sd) : mRequestSD(request_sd) {};
+		void result(const LLSD& content);			
+		void error(U32 status, const std::string& reason);
 
+	public:
+		typedef std::vector<LLViewerInventoryCategory*> folder_ref_t;
+	protected:
+		LLSD mRequestSD;
+	};
 
 	//
 	// Accessors
@@ -254,7 +266,8 @@ public:
 	// Call this method when it's time to update everyone on a new
 	// state, by default, the inventory model will not update
 	// observers automatically.
-	void notifyObservers();
+	// The optional argument 'service_name' is used by Agent Inventory Service [DEV-20328]
+	void notifyObservers(const std::string service_name="");
 
 	// This allows outsiders to tell the inventory if something has
 	// been changed 'under the hood', but outside the control of the
@@ -356,6 +369,7 @@ public:
 	// start and stop background breadth-first fetching of inventory contents
 	// this gets triggered when performing a filter-search
 	static void startBackgroundFetch(const LLUUID& cat_id = LLUUID::null); // start fetch process
+    static void findLostItems();
 	static BOOL backgroundFetchActive();
 	static bool isEverythingFetched();
 	static void backgroundFetch(void*); // background fetch idle function

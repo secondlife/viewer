@@ -60,6 +60,9 @@ static const std::string INV_SALE_INFO_LABEL("sale_info");
 static const std::string INV_FLAGS_LABEL("flags");
 static const std::string INV_CREATION_DATE_LABEL("created_at");
 
+// key used by agent-inventory-service
+static const std::string INV_ASSET_TYPE_LABEL_WS("type_default");
+static const std::string INV_FOLDER_ID_LABEL_WS("category_id");
 ///----------------------------------------------------------------------------
 /// Local function declarations, constants, enums, and typedefs
 ///----------------------------------------------------------------------------
@@ -949,11 +952,13 @@ LLSD LLInventoryItem::asLLSD() const
 		sd[INV_SHADOW_ID_LABEL] = shadow_id;
 	}
 	sd[INV_ASSET_TYPE_LABEL] = LLAssetType::lookup(mType);
+	sd[INV_INVENTORY_TYPE_LABEL] = mInventoryType;
 	const char* inv_type_str = LLInventoryType::lookup(mInventoryType);
 	if(inv_type_str)
 	{
 		sd[INV_INVENTORY_TYPE_LABEL] = inv_type_str;
 	}
+	//sd[INV_FLAGS_LABEL] = (S32)mFlags;
 	sd[INV_FLAGS_LABEL] = ll_sd_from_U32(mFlags);
 	sd[INV_SALE_INFO_LABEL] = mSaleInfo;
 	sd[INV_NAME_LABEL] = mName;
@@ -1026,17 +1031,40 @@ bool LLInventoryItem::fromLLSD(LLSD& sd)
 	w = INV_ASSET_TYPE_LABEL;
 	if (sd.has(w))
 	{
-		mType = LLAssetType::lookup(sd[w].asString());
+		if (sd[w].isString())
+		{
+			mType = LLAssetType::lookup(sd[w].asString().c_str());
+		}
+		else if (sd[w].isInteger())
+		{
+			S8 type = (U8)sd[w].asInteger();
+			mType = static_cast<LLAssetType::EType>(type);
+		}
 	}
 	w = INV_INVENTORY_TYPE_LABEL;
 	if (sd.has(w))
 	{
-		mInventoryType = LLInventoryType::lookup(sd[w].asString());
+		if (sd[w].isString())
+		{
+			mInventoryType = LLInventoryType::lookup(sd[w].asString().c_str());
+		}
+		else if (sd[w].isInteger())
+		{
+			S8 type = (U8)sd[w].asInteger();
+			mInventoryType = static_cast<LLInventoryType::EType>(type);
+		}
 	}
 	w = INV_FLAGS_LABEL;
 	if (sd.has(w))
 	{
-		mFlags = ll_U32_from_sd(sd[w]);
+		if (sd[w].isBinary())
+		{
+			mFlags = ll_U32_from_sd(sd[w]);
+		}
+		else if(sd[w].isInteger())
+		{
+			mFlags = sd[w].asInteger();
+		}
 	}
 	w = INV_NAME_LABEL;
 	if (sd.has(w))
@@ -1394,7 +1422,7 @@ bool LLInventoryCategory::fromLLSD(LLSD& sd)
 {
     std::string w;
 
-    w = INV_ITEM_ID_LABEL;
+    w = INV_FOLDER_ID_LABEL_WS;
     if (sd.has(w))
     {
         mUUID = sd[w];
@@ -1410,6 +1438,13 @@ bool LLInventoryCategory::fromLLSD(LLSD& sd)
         S8 type = (U8)sd[w].asInteger();
         mPreferredType = static_cast<LLAssetType::EType>(type);
     }
+	w = INV_ASSET_TYPE_LABEL_WS;
+	if (sd.has(w))
+	{
+		S8 type = (U8)sd[w].asInteger();
+        mPreferredType = static_cast<LLAssetType::EType>(type);
+	}
+
     w = INV_NAME_LABEL;
     if (sd.has(w))
     {

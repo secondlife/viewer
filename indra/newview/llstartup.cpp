@@ -2244,6 +2244,9 @@ bool idle_startup()
 			}
 		}
 
+        //DEV-17797.  get null folder.  Any items found here moved to Lost and Found
+        LLInventoryModel::findLostItems();
+
 		LLStartUp::setStartupState( STATE_PRECACHE );
 		timeout.reset();
 		return FALSE;

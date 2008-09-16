@@ -196,15 +196,34 @@ void LLViewerInventoryItem::fetchFromServer(void) const
 {
 	if(!mIsComplete)
 	{
-		LLMessageSystem* msg = gMessageSystem;
-		msg->newMessage("FetchInventory");
-		msg->nextBlock("AgentData");
-		msg->addUUID("AgentID", gAgent.getID());
-		msg->addUUID("SessionID", gAgent.getSessionID());
-		msg->nextBlock("InventoryData");
-		msg->addUUID("OwnerID", mPermissions.getOwner());
-		msg->addUUID("ItemID", mUUID);
-		gAgent.sendReliableMessage();
+		std::string url; 
+
+		if( ALEXANDRIA_LINDEN_ID.getString() == mPermissions.getOwner().getString())
+			url = gAgent.getRegion()->getCapability("FetchLib");
+		else	
+			url = gAgent.getRegion()->getCapability("FetchInventory");
+
+		if (!url.empty())
+		{
+			LLSD body;
+			body["agent_id"]	= gAgent.getID();
+			body["items"][0]["owner_id"]	= mPermissions.getOwner();
+			body["items"][0]["item_id"]		= mUUID;
+
+			LLHTTPClient::post(url, body, new LLInventoryModel::fetchInventoryResponder(body));
+		}
+		else
+		{
+			LLMessageSystem* msg = gMessageSystem;
+			msg->newMessage("FetchInventory");
+			msg->nextBlock("AgentData");
+			msg->addUUID("AgentID", gAgent.getID());
+			msg->addUUID("SessionID", gAgent.getSessionID());
+			msg->nextBlock("InventoryData");
+			msg->addUUID("OwnerID", mPermissions.getOwner());
+			msg->addUUID("ItemID", mUUID);
+			gAgent.sendReliableMessage();
+		}
 	}
 	else
 	{
@@ -441,7 +460,7 @@ bool LLViewerInventoryCategory::fetchDescendents()
 		// This comes from LLInventoryFilter from llfolderview.h
 		U32 sort_order = gSavedSettings.getU32("InventorySortOrder") & 0x1;
 
-		std::string url = gAgent.getRegion()->getCapability("FetchInventoryDescendents");
+		std::string url = gAgent.getRegion()->getCapability("WebFetchInventoryDescendents");
    
 		if (!url.empty()) //Capability found.  Build up LLSD and use it.
 		{
@@ -449,7 +468,7 @@ bool LLViewerInventoryCategory::fetchDescendents()
 		}
 		else
 		{	//Deprecated, but if we don't have a capability, use the old system.
-			llinfos << "FetchInventoryDescendents capability not found.  Using deprecated UDP message." << llendl;
+			llinfos << "WebFetchInventoryDescendents capability not found.  Using deprecated UDP message." << llendl;
 			LLMessageSystem* msg = gMessageSystem;
 			msg->newMessage("FetchInventoryDescendents");
 			msg->nextBlock("AgentData");

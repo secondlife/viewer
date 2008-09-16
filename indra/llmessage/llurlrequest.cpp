@@ -68,6 +68,7 @@ public:
 	LLChannelDescriptors mChannels;
 	U8* mLastRead;
 	U32 mBodyLimit;
+	S32 mByteAccumulator;
 	bool mIsBodyLimitSet;
 };
 
@@ -76,8 +77,8 @@ LLURLRequestDetail::LLURLRequestDetail() :
 	mResponseBuffer(NULL),
 	mLastRead(NULL),
 	mBodyLimit(0),
+	mByteAccumulator(0),
 	mIsBodyLimitSet(false)
-	
 {
 	LLMemType m1(LLMemType::MTYPE_IO_URL_REQUEST);
 	mCurlRequest = new LLCurlEasyRequest();
@@ -264,8 +265,25 @@ LLIOPipe::EStatus LLURLRequest::process_impl(
 		{
 			CURLcode result;
 			bool newmsg = mDetail->mCurlRequest->getResult(&result);
-			if (!newmsg)
+			if(!newmsg)
 			{
+				// we're still waiting or prcessing, check how many
+				// bytes we have accumulated.
+				const S32 MIN_ACCUMULATION = 100000;
+				if(pump && (mDetail->mByteAccumulator > MIN_ACCUMULATION))
+				{
+					// This is a pretty sloppy calculation, but this
+					// tries to make the gross assumption that if data
+					// is coming in at 56kb/s, then this transfer will
+					// probably succeed. So, if we're accumlated
+					// 100,000 bytes (MIN_ACCUMULATION) then let's
+					// give this client another 2s to complete.
+					const F32 TIMEOUT_ADJUSTMENT = 2.0f;
+					mDetail->mByteAccumulator = 0;
+					pump->adjustTimeoutSeconds(TIMEOUT_ADJUSTMENT);
+				}
+
+				// keep processing
 				break;
 			}
 
@@ -434,6 +452,7 @@ size_t LLURLRequest::downCallback(
 		req->mDetail->mChannels.out(),
 		(U8*)data,
 		bytes);
+	req->mDetail->mByteAccumulator += bytes;
 	return bytes;
 }
 

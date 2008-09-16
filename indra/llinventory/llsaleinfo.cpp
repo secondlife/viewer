@@ -114,7 +114,16 @@ bool LLSaleInfo::fromLLSD(LLSD& sd, BOOL& has_perm_mask, U32& perm_mask)
 {
 	const char *w;
 
-	mSaleType = lookup(sd["sale_type"].asString().c_str());
+	if (sd["sale_type"].isString())
+	{
+		mSaleType = lookup(sd["sale_type"].asString().c_str());
+	}
+	else if(sd["sale_type"].isInteger())
+	{
+		S8 type = (U8)sd["sale_type"].asInteger();
+		mSaleType = static_cast<LLSaleInfo::EForSale>(type);
+	}
+
 	mSalePrice = llclamp(sd["sale_price"].asInteger(), 0, S32_MAX);
 	w = "perm_mask";
 	if (sd.has(w))

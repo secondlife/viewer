@@ -251,6 +251,7 @@ const U8 GOD_NOT = 0;
 const LLUUID LL_UUID_ALL_AGENTS("44e87126-e794-4ded-05b3-7c42da3d5cdb");
 
 // Governor Linden's agent id.
+const LLUUID ALEXANDRIA_LINDEN_ID("ba2a564a-f0f1-4b82-9c61-b7520bfcd09f");
 const LLUUID GOVERNOR_LINDEN_ID("3d6181b0-6a4b-97ef-18d8-722652995cf1");
 const LLUUID REALESTATE_LINDEN_ID("3d6181b0-6a4b-97ef-18d8-722652995cf1");
 // Maintenance's group id.

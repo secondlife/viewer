@@ -166,6 +166,14 @@ public:
 	bool setTimeoutSeconds(F32 timeout);
 
 	/** 
+	 * @brief Adjust the timeout of the running chain.
+	 *
+	 * This method has no effect if there is no timeout on the chain.
+	 * @param delta The number of seconds to add to/remove from the timeout.
+	 */
+	void adjustTimeoutSeconds(F32 delta);
+
+	/** 
 	 * @brief Set up file descriptors for for the running chain.
 	 * @see rebuildPollset()
 	 *
@@ -349,6 +357,7 @@ protected:
 		// methods
 		LLChainInfo();
 		void setTimeoutSeconds(F32 timeout);
+		void adjustTimeoutSeconds(F32 delta);
 
 		// basic member data
 		bool mInit;

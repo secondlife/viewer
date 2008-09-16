@@ -2,9 +2,9 @@
 @file fastest_elementtree.py
 @brief Concealing some gnarly import logic in here.  This should export the interface of elementtree.
 
-$LicenseInfo:firstyear=2006&license=mit$
+$LicenseInfo:firstyear=2008&license=mit$
 
-Copyright (c) 2006-2007, Linden Research, Inc.
+Copyright (c) 2008, Linden Research, Inc.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -26,25 +26,40 @@ THE SOFTWARE.
 $/LicenseInfo$
 """
 
-# Using celementree might cause some unforeseen problems so here's a
+# The parsing exception raised by the underlying library depends
+# on the ElementTree implementation we're using, so we provide an
+# alias here.
+#
+# Use ElementTreeError as the exception type for catching parsing
+# errors.
+
+
+# Using cElementTree might cause some unforeseen problems, so here's a
 # convenient off switch.
+
 use_celementree = True
 
 try:
     if not use_celementree:
         raise ImportError()
-    from cElementTree import * ## This does not work under Windows
+    # Python 2.3 and 2.4.
+    from cElementTree import *
+    ElementTreeError = SyntaxError
 except ImportError:
     try:
         if not use_celementree:
             raise ImportError()
-        ## This is the name of cElementTree under python 2.5
+        # Python 2.5 and above.
         from xml.etree.cElementTree import *
+        ElementTreeError = SyntaxError
     except ImportError:
+        # Pure Python code.
         try:
-            ## This is the old name of elementtree, for use with 2.3
+            # Python 2.3 and 2.4.
             from elementtree.ElementTree import *
         except ImportError:
-            ## This is the name of elementtree under python 2.5
+            # Python 2.5 and above.
             from xml.etree.ElementTree import *
 
+        # The pure Python ElementTree module uses Expat for parsing.
+        from xml.parsers.expat import ExpatError as ElementTreeError

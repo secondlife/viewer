@@ -269,6 +269,13 @@ bool LLPumpIO::setTimeoutSeconds(F32 timeout)
 	return true;
 }
 
+void LLPumpIO::adjustTimeoutSeconds(F32 delta)
+{
+	// If no chain is running, bail
+	if(current_chain_t() == mCurrentChain) return;
+	(*mCurrentChain).adjustTimeoutSeconds(delta);
+}
+
 static std::string events_2_string(apr_int16_t events)
 {
 	std::ostringstream ostr;
@@ -1159,5 +1166,16 @@ void LLPumpIO::LLChainInfo::setTimeoutSeconds(F32 timeout)
 	else
 	{
 		mTimer.stop();
+	}
+}
+
+void LLPumpIO::LLChainInfo::adjustTimeoutSeconds(F32 delta)
+{
+	LLMemType m1(LLMemType::MTYPE_IO_PUMP);
+	if(mTimer.getStarted())
+	{
+		F64 expiry = mTimer.expiresAt();
+		expiry += delta;
+		mTimer.setExpiryAt(expiry);
 	}
 }
