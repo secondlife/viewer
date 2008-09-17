@@ -243,7 +243,7 @@ public:
 	}
 
 	// Set the throttling behavior
-	void setParameters( U32 limit, F32 interval, BOOL realtime )
+	void setParameters( U32 limit, F32 interval, BOOL realtime = TRUE )
 	{
 		// limit is the maximum number of keys
 		// allowed per interval (in seconds or frames)

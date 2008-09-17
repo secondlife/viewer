@@ -355,8 +355,11 @@ LLIOPipe::EStatus LLIOSocketReader::process_impl(
 	}
 	else if(APR_STATUS_IS_EAGAIN(status))
 	{
+/*Commented out by Aura 9-9-8 for DEV-19961.
 		// everything is fine, but we can terminate this process pump.
+	
 		rv = STATUS_BREAK;
+*/
 	}
 	else
 	{
