@@ -50,7 +50,7 @@ void LLMsgVarData::addData(const void *data, S32 size, EMsgVariableType type, S3
 	}
 	if(size)
 	{
-		delete mData; // Delete it if it already exists
+		delete[] mData; // Delete it if it already exists
 		mData = new U8[size];
 		htonmemcpy(mData, data, mType, size);
 	}

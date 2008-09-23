@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!-- dbus-binding-tool -mode=glib-server llappviewerlinux_api.xml -prefix=viewerapp -output=llappviewerlinux_api.h -->
+
+<node name="/com/secondlife/ViewerAppAPI">
+  <interface name="com.secondlife.ViewerAppAPI">
+    <annotation name="org.freedesktop.DBus.GLib.CSymbol" value="viewer_app_api"/>
+    <method name="GoSLURL">
+      <annotation name="org.freedesktop.DBus.GLib.CSymbol" value="viewer_app_api_GoSLURL"/>
+      <arg type="s" name="slurl" direction="in" />
+      <arg type="b" name="success_ret" direction="out" />
+    </method>
+  </interface>
+</node>

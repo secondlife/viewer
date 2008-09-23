@@ -194,7 +194,6 @@ public:
 	void			setMaxTextLength(S32 max_text_length);
 	void			setTextPadding(S32 left, S32 right); // Used to specify room for children before or after text.
 
-	static BOOL		isPartOfWord(llwchar c);
 	// Prevalidation controls which keystrokes can affect the editor
 	void			setPrevalidate( BOOL (*func)(const LLWString &) );
 	static BOOL		prevalidateFloat(const LLWString &str );

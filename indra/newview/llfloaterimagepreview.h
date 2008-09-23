@@ -41,6 +41,7 @@ class LLJoint;
 class LLViewerJointMesh;
 class LLVOAvatar;
 class LLTextBox;
+class LLVertexBuffer;
 
 class LLImagePreviewSculpted : public LLDynamicTexture
 {
@@ -67,6 +68,7 @@ class LLImagePreviewSculpted : public LLDynamicTexture
 	F32			mCameraZoom;
 	LLVector3	mCameraOffset;
 	LLPointer<LLVolume> mVolume;
+	LLPointer<LLVertexBuffer> mVertexBuffer;
 };
 
 

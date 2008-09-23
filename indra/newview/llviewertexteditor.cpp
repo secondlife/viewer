@@ -1402,8 +1402,7 @@ void LLViewerTextEditor::openEmbeddedSound( LLInventoryItem* item )
 	const F32 SOUND_GAIN = 1.0f;
 	if(gAudiop)
 	{
-		F32 volume = gSavedSettings.getBOOL("MuteSounds") ? 0.f : (SOUND_GAIN * gSavedSettings.getF32("AudioLevelSFX"));
-		gAudiop->triggerSound(item->getAssetUUID(), gAgentID, volume, lpos_global);
+		gAudiop->triggerSound(item->getAssetUUID(), gAgentID, SOUND_GAIN, LLAudioEngine::AUDIO_TYPE_UI, lpos_global);
 	}
 	showCopyToInvDialog( item );
 }

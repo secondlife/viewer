@@ -416,11 +416,6 @@ void setControlValueCB(const LLCommandLineParser::token_vector_t& value,
                        const std::string& opt_name, 
                        LLControlGroup* ctrlGroup)
 {
-    if(value.size() > 1)
-    {
-        llwarns << "Ignoring extra tokens mapped to the setting: " << opt_name << "." << llendl; 
-    }
-    
     // *FIX: Do sematic conversion here.
     // LLSD (ImplString) Is no good for doing string to type conversion for...
     // booleans
@@ -457,7 +452,7 @@ void setControlValueCB(const LLCommandLineParser::token_vector_t& value,
         default:
             {
                 // For the default types, let llsd do the conversion.
-                if(value.size() > 1)
+                if(value.size() > 1 && ctrl->isType(TYPE_LLSD))
                 {
                     // Assume its an array...
                     LLSD llsdArray;
@@ -472,6 +467,11 @@ void setControlValueCB(const LLCommandLineParser::token_vector_t& value,
                 }
                 else if(value.size() > 0)
                 {
+					if(value.size() > 1)
+					{
+						llwarns << "Ignoring extra tokens mapped to the setting: " << opt_name << "." << llendl; 
+					}
+
                     LLSD llsdValue;
                     llsdValue.assign(LLSD::String(value[0]));
                     ctrl->setValue(llsdValue, false);

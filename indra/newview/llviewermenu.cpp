@@ -323,13 +323,6 @@ void handle_talk_to(void *userdata);
 // Debug menu
 void show_permissions_control(void*);
 void toggle_build_options(void* user_data);
-#if 0 // Unused
-void handle_audio_status_1(void*);
-void handle_audio_status_2(void*);
-void handle_audio_status_3(void*);
-void handle_audio_status_4(void*);
-#endif
-void manage_landmarks(void*);
 void reload_ui(void*);
 void handle_agent_stop_moving(void*);
 void print_packets_lost(void*);
@@ -1757,6 +1750,24 @@ class LLViewCheckJoystickFlycam : public view_listener_t
 	}
 };
 
+class LLViewCommunicate : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+        if (LLFloaterChatterBox::getInstance()->getFloaterCount() == 0)
+		{
+			LLFloaterMyFriends::toggleInstance();
+		}
+		else
+		{
+			LLFloaterChatterBox::toggleInstance();
+		}
+		
+		return true;
+	}
+};
+
+
 void handle_toggle_flycam()
 {
 	LLViewerJoystick::getInstance()->toggleFlycam();
@@ -2975,63 +2986,16 @@ void show_permissions_control(void*)
 	floaterp->mPermissions->addPermissionsData("foo3", LLUUID::null, 0);
 }
 
-#if 0 // Unused (these just modify AudioInfoPage which is not used anywhere in the code
-void handle_audio_status_1(void*)
-{
-	S32 page = gSavedSettings.getS32("AudioInfoPage");
-	if (1 == page)
-	{
-		page = 0;
-	}
-	else
-	{
-		page = 1;
-	}
-	gSavedSettings.setS32("AudioInfoPage", page);	
-}
 
-void handle_audio_status_2(void*)
+class LLCreateLandmarkCallback : public LLInventoryCallback
 {
-	S32 page = gSavedSettings.getS32("AudioInfoPage");
-	if (2 == page)
+public:
+	/*virtual*/ void fire(const LLUUID& inv_item)
 	{
-		page = 0;
+		llinfos << "Created landmark with inventory id " << inv_item
+			<< llendl;
 	}
-	else
-	{
-		page = 2;
-	}
-	gSavedSettings.setS32("AudioInfoPage", page);	
-}
-
-void handle_audio_status_3(void*)
-{
-	S32 page = gSavedSettings.getS32("AudioInfoPage");
-	if (3 == page)
-	{
-		page = 0;
-	}
-	else
-	{
-		page = 3;
-	}
-	gSavedSettings.setS32("AudioInfoPage", page);	
-}
-
-void handle_audio_status_4(void*)
-{
-	S32 page = gSavedSettings.getS32("AudioInfoPage");
-	if (4 == page)
-	{
-		page = 0;
-	}
-	else
-	{
-		page = 4;
-	}
-	gSavedSettings.setS32("AudioInfoPage", page);	
-}
-#endif
+};
 
 void reload_ui(void *)
 {
@@ -4948,7 +4912,7 @@ class LLWorldCreateLandmark : public view_listener_t
 							  LLAssetType::AT_LANDMARK,
 							  LLInventoryType::IT_LANDMARK,
 							  NOT_WEARABLE, PERM_ALL, 
-							  NULL);
+							  new LLCreateLandmarkCallback);
 		return true;
 	}
 };
@@ -7682,6 +7646,7 @@ void initialize_menus()
 	addMenu(new LLViewMouselook(), "View.Mouselook");
 	addMenu(new LLViewBuildMode(), "View.BuildMode");
 	addMenu(new LLViewJoystickFlycam(), "View.JoystickFlycam");
+	addMenu(new LLViewCommunicate(), "View.Communicate");
 	addMenu(new LLViewResetView(), "View.ResetView");
 	addMenu(new LLViewLookAtLastChatter(), "View.LookAtLastChatter");
 	addMenu(new LLViewShowHoverTips(), "View.ShowHoverTips");

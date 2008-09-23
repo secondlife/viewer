@@ -642,7 +642,11 @@ void LLNetMap::renderScaledPointGlobal( const LLVector3d& pos, const LLColor4U &
 	LLVector3 local_pos;
 	local_pos.setVec( pos - mObjectImageCenterGlobal );
 
-	S32 diameter_pixels = llround(2 * radius_meters * mObjectMapTPM);
+	// DEV-17370 - megaprims of size > 4096 cause lag.  (go figger.)
+	const F32 MAX_RADIUS = 256.0f;
+	F32 radius_clamped = llmin(radius_meters, MAX_RADIUS);
+	
+	S32 diameter_pixels = llround(2 * radius_clamped * mObjectMapTPM);
 	renderPoint( local_pos, color, diameter_pixels );
 }
 

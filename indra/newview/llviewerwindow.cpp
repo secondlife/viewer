@@ -1260,6 +1260,7 @@ BOOL LLViewerWindow::handleActivate(LLWindow *window, BOOL activated)
 
 BOOL LLViewerWindow::handleActivateApp(LLWindow *window, BOOL activating)
 {
+	if (!activating) gAgent.changeCameraToDefault();
 	LLViewerJoystick::getInstance()->setNeedsReset(true);
 	return FALSE;
 }

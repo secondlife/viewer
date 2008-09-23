@@ -139,6 +139,14 @@ void audio_update_volume(bool force_update)
 		{
 			audio_update_wind(true);
 		}
+
+		// handle secondary gains
+		gAudiop->setSecondaryGain(LLAudioEngine::AUDIO_TYPE_SFX,
+								  gSavedSettings.getBOOL("MuteSounds") ? 0.f : gSavedSettings.getF32("AudioLevelSFX"));
+		gAudiop->setSecondaryGain(LLAudioEngine::AUDIO_TYPE_UI,
+								  gSavedSettings.getBOOL("MuteUI") ? 0.f : gSavedSettings.getF32("AudioLevelUI"));
+		gAudiop->setSecondaryGain(LLAudioEngine::AUDIO_TYPE_AMBIENT,
+								  gSavedSettings.getBOOL("MuteAmbient") ? 0.f : gSavedSettings.getF32("AudioLevelAmbient"));
 	}
 
 	// Streaming Music

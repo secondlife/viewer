@@ -307,9 +307,6 @@ const char *VFS_INDEX_FILE_BASE = "index.db2.x.";
 
 static std::string gSecondLife;
 static std::string gWindowTitle;
-#ifdef LL_WINDOWS
-	static char sWindowClass[] = "Second Life";
-#endif
 
 std::string gLoginPage;
 std::vector<std::string> gLoginURIs;
@@ -329,8 +326,7 @@ static void ui_audio_callback(const LLUUID& uuid)
 {
 	if (gAudiop)
 	{
-		F32 volume = gSavedSettings.getBOOL("MuteUI") ? 0.f : gSavedSettings.getF32("AudioLevelUI");
-		gAudiop->triggerSound(uuid, gAgent.getID(), volume);
+		gAudiop->triggerSound(uuid, gAgent.getID(), 1.0f, LLAudioEngine::AUDIO_TYPE_UI);
 	}
 }
 
@@ -496,30 +492,17 @@ void LLAppViewer::initGridChoice()
 	}
 }
 
-bool send_url_to_other_instance(const std::string& url)
+//virtual
+bool LLAppViewer::initSLURLHandler()
 {
-#if LL_WINDOWS
-	wchar_t window_class[256]; /* Flawfinder: ignore */   // Assume max length < 255 chars.
-	mbstowcs(window_class, sWindowClass, 255);
-	window_class[255] = 0;
-	// Use the class instead of the window name.
-	HWND other_window = FindWindow(window_class, NULL);
+	// does nothing unless subclassed
+	return false;
+}
 
-	if (other_window != NULL)
-	{
-		lldebugs << "Found other window with the name '" << gWindowTitle << "'" << llendl;
-		COPYDATASTRUCT cds;
-		const S32 SLURL_MESSAGE_TYPE = 0;
-		cds.dwData = SLURL_MESSAGE_TYPE;
-		cds.cbData = url.length() + 1;
-		cds.lpData = (void*)url.c_str();
-
-		LRESULT msg_result = SendMessage(other_window, WM_COPYDATA, NULL, (LPARAM)&cds);
-		lldebugs << "SendMessage(WM_COPYDATA) to other window '" 
-				 << gWindowTitle << "' returned " << msg_result << llendl;
-		return true;
-	}
-#endif
+//virtual
+bool LLAppViewer::sendURLToOtherInstance(const std::string& url)
+{
+	// does nothing unless subclassed
 	return false;
 }
 
@@ -715,6 +698,9 @@ bool LLAppViewer::init()
 	// Find partition serial number (Windows) or hardware serial (Mac)
 	mSerialNumber = generateSerialNumber();
 
+	// do any necessary set-up for accepting incoming SLURLs from apps
+	initSLURLHandler();
+
 	if(false == initHardwareTest())
 	{
 		// Early out from user choice.
@@ -887,6 +873,13 @@ bool LLAppViewer::mainLoop()
 		try
 		{
 			LLFastTimer t(LLFastTimer::FTM_FRAME);
+			
+			pingMainloopTimeout("Main:MiscNativeWindowEvents");
+			
+			{
+				LLFastTimer t2(LLFastTimer::FTM_MESSAGES);
+				gViewerWindow->mWindow->processMiscNativeEvents();
+			}
 			
 			pingMainloopTimeout("Main:GatherInput");
 			
@@ -1915,7 +1908,7 @@ bool LLAppViewer::initConfiguration()
 #endif
 	LLStringUtil::truncate(gWindowTitle, 255);
 
-	//RN: if we received a URL, hand it off to the existing instance
+	//RN: if we received a URL, hand it off to the existing instance.
 	// don't call anotherInstanceRunning() when doing URL handoff, as
 	// it relies on checking a marker file which will not work when running
 	// out of different directories
@@ -1930,7 +1923,7 @@ bool LLAppViewer::initConfiguration()
 	}
 	if (!slurl.empty())
 	{
-		if (send_url_to_other_instance(slurl))
+		if (sendURLToOtherInstance(slurl))
 		{
 			// successfully handed off URL to existing instance, exit
 			return false;
@@ -2419,24 +2412,23 @@ bool LLAppViewer::anotherInstanceRunning()
 		{
 			// Another instance is running. Skip the rest of these operations.
 			LL_INFOS("MarkerFile") << "Marker file is locked." << LL_ENDL;
-			return TRUE;
+			return true;
 		}
 		if (apr_file_lock(fMarker, APR_FLOCK_NONBLOCK | APR_FLOCK_EXCLUSIVE) != APR_SUCCESS) //flock(fileno(fMarker), LOCK_EX | LOCK_NB) == -1)
 		{
 			apr_file_close(fMarker);
 			LL_INFOS("MarkerFile") << "Marker file is locked." << LL_ENDL;
-			return TRUE;
+			return true;
 		}
 		// No other instances; we'll lock this file now & delete on quit.
 		apr_file_close(fMarker);
 	}
 	LL_DEBUGS("MarkerFile") << "Marker file isn't locked." << LL_ENDL;
-	return FALSE;
+	return false;
 }
 
 void LLAppViewer::initMarkerFile()
 {
-
 	//First, check for the existence of other files.
 	//There are marker files for two different types of crashes
 	
@@ -2691,7 +2683,7 @@ bool LLAppViewer::initCache()
 	
 	// Init the texture cache
 	// Allocate 80% of the cache size for textures
-	BOOL read_only = mSecondInstance ? true : false;
+	BOOL read_only = mSecondInstance ? TRUE : FALSE;
 	const S32 MB = 1024*1024;
 	S64 cache_size = (S64)(gSavedSettings.getU32("CacheSize")) * MB;
 	const S64 MAX_CACHE_SIZE = 1024*MB;

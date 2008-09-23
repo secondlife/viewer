@@ -104,7 +104,8 @@ void maybe_unlock_display(void)
 
 #if LL_GTK
 // Lazily initialize and check the runtime GTK version for goodness.
-BOOL ll_try_gtk_init(void)
+// static
+bool LLWindowSDL::ll_try_gtk_init(void)
 {
 	static BOOL done_gtk_diag = FALSE;
 	static BOOL gtk_is_good = FALSE;
@@ -166,7 +167,8 @@ BOOL ll_try_gtk_init(void)
 
 
 #if LL_X11
-Window get_SDL_XWindowID(void)
+// static
+Window LLWindowSDL::get_SDL_XWindowID(void)
 {
 	if (gWindowImplementation) {
 		return gWindowImplementation->mSDL_XWindowID;
@@ -174,7 +176,8 @@ Window get_SDL_XWindowID(void)
 	return None;
 }
 
-Display* get_SDL_Display(void)
+//static
+Display* LLWindowSDL::get_SDL_Display(void)
 {
 	if (gWindowImplementation) {
 		return gWindowImplementation->mSDL_Display;
@@ -1235,7 +1238,7 @@ typedef Atom x11clipboard_type;
  */
 static x11clipboard_type get_x11_readwrite_clipboard_type(void)
 {
-	return XInternAtom(get_SDL_Display(), "CLIPBOARD", False);
+	return XInternAtom(LLWindowSDL::get_SDL_Display(), "CLIPBOARD", False);
 }
 
 static x11clipboard_type get_x11_write_clipboard_type(void)
@@ -1248,18 +1251,18 @@ static x11clipboard_type get_x11_write_clipboard_type(void)
    storage because their use isn't really defined for holding UTF8. */
 static x11clipboard_type get_x11_cutbuffer_clipboard_type(void)
 {
-	return XInternAtom(get_SDL_Display(), "SECONDLIFE_CUTBUFFER", False);
+	return XInternAtom(LLWindowSDL::get_SDL_Display(), "SECONDLIFE_CUTBUFFER", False);
 }
 
 /* Some X11 atom-generators */
 static Atom get_x11_targets_atom(void)
 {
-	return XInternAtom(get_SDL_Display(), "TARGETS", False);
+	return XInternAtom(LLWindowSDL::get_SDL_Display(), "TARGETS", False);
 }
 
 static Atom get_x11_text_atom(void)
 {
-	return XInternAtom(get_SDL_Display(), "TEXT", False);
+	return XInternAtom(LLWindowSDL::get_SDL_Display(), "TEXT", False);
 }
 
 /* These defines, and convert_data/convert_x11clipboard,
@@ -1544,7 +1547,7 @@ int clipboard_filter_callback(const SDL_Event *event)
 		sevent.xselection.property = None;
 		sevent.xselection.requestor = req->requestor;
 		sevent.xselection.time = req->time;
-		if ( XGetWindowProperty(get_SDL_Display(), DefaultRootWindow(get_SDL_Display()),
+		if ( XGetWindowProperty(LLWindowSDL::get_SDL_Display(), DefaultRootWindow(LLWindowSDL::get_SDL_Display()),
 					get_x11_cutbuffer_clipboard_type(), 0, INT_MAX/4, False, req->target,
 					&sevent.xselection.target, &seln_format,
 					&nbytes, &overflow, &seln_data) == Success )
@@ -1558,7 +1561,7 @@ int clipboard_filter_callback(const SDL_Event *event)
 					if ( seln_data[nbytes-1] == '\0' )
 						--nbytes;
 				}
-				XChangeProperty(get_SDL_Display(), req->requestor, req->property,
+				XChangeProperty(LLWindowSDL::get_SDL_Display(), req->requestor, req->property,
 						req->target, seln_format, PropModeReplace,
 						seln_data, nbytes);
 				sevent.xselection.property = req->property;
@@ -1571,7 +1574,7 @@ int clipboard_filter_callback(const SDL_Event *event)
 					get_x11_targets_atom()
 				};
 				supported[0] = sevent.xselection.target;
-				XChangeProperty(get_SDL_Display(), req->requestor,
+				XChangeProperty(LLWindowSDL::get_SDL_Display(), req->requestor,
 						req->property, XA_ATOM, 32, PropModeReplace,
 						(unsigned char*)supported,
 						num_supported);
@@ -1584,10 +1587,10 @@ int clipboard_filter_callback(const SDL_Event *event)
 			XFree(seln_data);
 		}
 		int sendret =
-			XSendEvent(get_SDL_Display(),req->requestor,False,0,&sevent);
+			XSendEvent(LLWindowSDL::get_SDL_Display(),req->requestor,False,0,&sevent);
 		if ((sendret==BadValue) || (sendret==BadWindow))
 			llwarns << "Clipboard SendEvent failed" << llendl;
-		XSync(get_SDL_Display(), False);
+		XSync(LLWindowSDL::get_SDL_Display(), False);
 	}
 		break;
 	}
@@ -1959,17 +1962,14 @@ U32 LLWindowSDL::SDLCheckGrabbyKeys(SDLKey keysym, BOOL gain)
 	return mGrabbyKeyFlags;
 }
 
-void LLWindowSDL::gatherInput()
+// virtual
+void LLWindowSDL::processMiscNativeEvents()
 {
-    const Uint32 CLICK_THRESHOLD = 300;  // milliseconds
-    static int leftClick = 0;
-    static int rightClick = 0;
-    static Uint32 lastLeftDown = 0;
-    static Uint32 lastRightDown = 0;
-    SDL_Event event;
-
-#if LL_GTK && LL_LLMOZLIB_ENABLED
-    // Pump GTK events so embedded Gecko doesn't starve.
+#if LL_GTK && (LL_LLMOZLIB_ENABLED || LL_DBUS_ENABLED)
+	// Pump GTK events to avoid starvation for:
+	// * Embedded Gecko
+	// * DBUS servicing
+	// * Anything else which quietly hooks into the default glib/GTK loop
     if (ll_try_gtk_init())
     {
 	    // Yuck, Mozilla's GTK callbacks play with the locale - push/pop
@@ -1992,7 +1992,17 @@ void LLWindowSDL::gatherInput()
 
 	    setlocale(LC_ALL, saved_locale.c_str() );
     }
-#endif // LL_GTK && LL_LLMOZLIB_ENABLED
+#endif // LL_GTK && (LL_LLMOZLIB_ENABLED || LL_DBUS_ENABLED)
+}
+
+void LLWindowSDL::gatherInput()
+{
+    const Uint32 CLICK_THRESHOLD = 300;  // milliseconds
+    static int leftClick = 0;
+    static int rightClick = 0;
+    static Uint32 lastLeftDown = 0;
+    static Uint32 lastRightDown = 0;
+    SDL_Event event;
 
     // Handle all outstanding SDL events
     while (SDL_PollEvent(&event))
@@ -2497,12 +2507,10 @@ S32 OSMessageBoxSDL(const std::string& text, const std::string& caption, U32 typ
 {
 	S32 rtn = OSBTN_CANCEL;
 
-	ll_try_gtk_init();
-
 	if(gWindowImplementation != NULL)
 		gWindowImplementation->beforeDialog();
 
-	if (ll_try_gtk_init()
+	if (LLWindowSDL::ll_try_gtk_init()
 	    // We can NOT expect to combine GTK and SDL's aggressive fullscreen
 	    && ((NULL==gWindowImplementation) || (!was_fullscreen))
 	    )
@@ -2754,7 +2762,7 @@ void LLWindowSDL::spawnWebBrowser(const std::string& escaped_url)
 void *LLWindowSDL::getPlatformWindow()
 {
 #if LL_GTK && LL_LLMOZLIB_ENABLED
-	if (ll_try_gtk_init())
+	if (LLWindowSDL::ll_try_gtk_init())
 	{
 		maybe_lock_display();
 

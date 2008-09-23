@@ -1,10 +1,10 @@
-/**
- * @file llappviewerwin32.h
- * @brief The LLAppViewerWin32 class declaration
+/** 
+ * @file llappviewerlinux_api_dbus.h
+ * @brief DBus-glib symbol handling
  *
- * $LicenseInfo:firstyear=2007&license=viewergpl$
+ * $LicenseInfo:firstyear=2008&license=viewergpl$
  * 
- * Copyright (c) 2007, Linden Research, Inc.
+ * Copyright (c) 2008, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -27,45 +27,23 @@
  * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
  * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
- */ 
+ */
 
-#ifndef LL_LLAPPVIEWERWIN32_H
-#define LL_LLAPPVIEWERWIN32_H
+#include "linden_common.h"
 
-#ifndef LL_LLAPPVIEWER_H
-#include "llappviewer.h"
-#endif
+#if LL_DBUS_ENABLED
 
-class LLAppViewerWin32 : public LLAppViewer
-{
-public:
-	LLAppViewerWin32(const char* cmd_line);
-	virtual ~LLAppViewerWin32();
+extern "C" {
+#include <dbus/dbus-glib.h>
+}
 
-	//
-	// Main application logic
-	//
-	virtual bool init(); // Override to do application initialization
-	virtual bool cleanup();
+#define DBUSGLIB_DYLIB_DEFAULT_NAME "libdbus-glib-1.so.2"
 
-protected:
-	virtual void initConsole(); // Initialize OS level debugging console.
-	virtual bool initHardwareTest(); // Win32 uses DX9 to test hardware.
-	virtual bool initParseCommandLine(LLCommandLineParser& clp);
+bool grab_dbus_syms(std::string dbus_dso_name);
+void ungrab_dbus_syms();
 
-	virtual void handleCrashReporting(); 
-	virtual void handleSyncCrashTrace();
+#define LL_DBUS_SYM(REQUIRED, DBUSSYM, RTN, ...) extern RTN (*ll##DBUSSYM)(__VA_ARGS__)
+#include "llappviewerlinux_api_dbus_syms_raw.inc"
+#undef LL_DBUS_SYM
 
-	virtual bool sendURLToOtherInstance(const std::string& url);
-
-	std::string generateSerialNumber();
-
-	static const std::string sWindowClass;
-
-private:
-	void disableWinErrorReporting();
-
-    std::string mCmdLine;
-};
-
-#endif // LL_LLAPPVIEWERWIN32_H
+#endif // LL_DBUS_ENABLED

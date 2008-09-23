@@ -18,6 +18,7 @@ set(cmake_SOURCE_FILES
     CMakeCopyIfDifferent.cmake
     CopyWinLibs.cmake
     CSharpMacros.cmake
+    DBusGlib.cmake
     DirectX.cmake
     ELFIO.cmake
     EXPAT.cmake

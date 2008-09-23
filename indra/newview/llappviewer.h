@@ -135,15 +135,18 @@ public:
 	void resumeMainloopTimeout(const std::string& state = "", F32 secs = -1.0f);
 	void pingMainloopTimeout(const std::string& state, F32 secs = -1.0f);
 
+
 protected:
 	virtual bool initWindow(); // Initialize the viewer's window.
 	virtual bool initLogging(); // Initialize log files, logging system, return false on failure.
 	virtual void initConsole() {}; // Initialize OS level debugging console.
 	virtual bool initHardwareTest() { return true; } // A false result indicates the app should quit.
+	virtual bool initSLURLHandler();
+	virtual bool sendURLToOtherInstance(const std::string& url);
 
-    virtual bool initParseCommandLine(LLCommandLineParser& clp) 
+	virtual bool initParseCommandLine(LLCommandLineParser& clp) 
         { return true; } // Allow platforms to specify the command line args.
-	
+
 	virtual std::string generateSerialNumber() = 0; // Platforms specific classes generate this.
 
 

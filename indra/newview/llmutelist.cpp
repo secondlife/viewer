@@ -97,6 +97,26 @@ const char AGENT_SUFFIX[] = " (resident)";
 const char OBJECT_SUFFIX[] = " (object)";
 const char GROUP_SUFFIX[] = " (group)";
 
+
+LLMute::LLMute(const LLUUID& id, const std::string& name, EType type, U32 flags)
+  : mID(id),
+	mName(name),
+	mType(type),
+	mFlags(flags)
+{
+	// muting is done by root objects only - try to find this objects root
+	LLViewerObject *objectp = gObjectList.findObject(mID);
+	if ((objectp) && (!objectp->isAvatar()))
+	{
+		LLViewerObject *parentp = (LLViewerObject *)objectp->getParent();
+		if (parentp)
+		{
+			mID = parentp->getID();
+		}
+	}
+}
+
+
 std::string LLMute::getDisplayName() const
 {
 	std::string name_with_suffix = mName;

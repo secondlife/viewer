@@ -4103,7 +4103,10 @@ void LLAgent::changeCameraToThirdPerson(BOOL animate)
 
 	if (mAvatarObject)
 	{
-		mAvatarObject->mPelvisp->setPosition(LLVector3::zero);
+		if (!mAvatarObject->mIsSitting)
+		{
+			mAvatarObject->mPelvisp->setPosition(LLVector3::zero);
+		}
 		mAvatarObject->startMotion( ANIM_AGENT_BODY_NOISE );
 		mAvatarObject->startMotion( ANIM_AGENT_BREATHE_ROT );
 	}

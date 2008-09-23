@@ -774,7 +774,9 @@ LLImagePreviewSculpted::LLImagePreviewSculpted(S32 width, S32 height) : LLDynami
 	LLVolumeParams volume_params;
 	volume_params.setType(LL_PCODE_PROFILE_CIRCLE, LL_PCODE_PATH_CIRCLE);
 	volume_params.setSculptID(LLUUID::null, LL_SCULPT_TYPE_SPHERE);
-	mVolume = new LLVolume(volume_params, (F32) MAX_LOD);
+	
+	F32 const HIGHEST_LOD = 4.0f;
+	mVolume = new LLVolume(volume_params,  HIGHEST_LOD);
 
 	/*
 	mDummyAvatar = new LLVOAvatar(LLUUID::null, LL_PCODE_LEGACY_AVATAR, gAgent.getRegion());
@@ -811,7 +813,36 @@ void LLImagePreviewSculpted::setPreviewTarget(LLImageRaw* imagep, F32 distance)
 	{
 		mVolume->sculpt(imagep->getWidth(), imagep->getHeight(), imagep->getComponents(), imagep->getData(), 0);
 	}
-	
+
+	const LLVolumeFace &vf = mVolume->getVolumeFace(0);
+	U32 num_indices = vf.mIndices.size();
+	U32 num_vertices = vf.mVertices.size();
+
+	mVertexBuffer = new LLVertexBuffer(LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_NORMAL, 0);
+	mVertexBuffer->allocateBuffer(num_vertices, num_indices, TRUE);
+
+	LLStrider<LLVector3> vertex_strider;
+	LLStrider<LLVector3> normal_strider;
+	LLStrider<U16> index_strider;
+
+	mVertexBuffer->getVertexStrider(vertex_strider);
+	mVertexBuffer->getNormalStrider(normal_strider);
+	mVertexBuffer->getIndexStrider(index_strider);
+
+	// build vertices and normals
+	for (U32 i = 0; (S32)i < num_vertices; i++)
+	{
+		*(vertex_strider++) = vf.mVertices[i].mPosition;
+		LLVector3 normal = vf.mVertices[i].mNormal;
+		normal.normalize();
+		*(normal_strider++) = normal;
+	}
+
+	// build indices
+	for (U16 i = 0; i < num_indices; i++)
+	{
+		*(index_strider++) = vf.mIndices[i];
+	}
 }
 
 
@@ -846,7 +877,7 @@ BOOL LLImagePreviewSculpted::render()
 	glMatrixMode(GL_MODELVIEW);
 	gGL.popMatrix();
 
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClear(GL_DEPTH_BUFFER_BIT);
 	
 	LLVector3 target_pos(0, 0, 0);
 
@@ -865,55 +896,21 @@ BOOL LLImagePreviewSculpted::render()
 	LLViewerCamera::getInstance()->setView(LLViewerCamera::getInstance()->getDefaultFOV() / mCameraZoom);
 	LLViewerCamera::getInstance()->setPerspective(FALSE, mOrigin.mX, mOrigin.mY, mWidth, mHeight, FALSE);
 
-	gPipeline.enableLightsAvatar();
-		
-	gGL.pushMatrix();
-	glScalef(0.5, 0.5, 0.5);
-	
 	const LLVolumeFace &vf = mVolume->getVolumeFace(0);
 	U32 num_indices = vf.mIndices.size();
-	U32 num_vertices = vf.mVertices.size();
+	
+	mVertexBuffer->setBuffer(LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_NORMAL);
 
-	if (num_vertices > 0 && num_indices > 0)
-	{
-		glEnableClientState(GL_NORMAL_ARRAY);
-		// build vertices and normals
-		F32* vertices = new F32[num_vertices * 3];
-		F32* normals = new F32[num_vertices * 3];
+	gPipeline.enableLightsAvatar();
+	gGL.pushMatrix();
+	const F32 SCALE = 1.25f;
+	gGL.scalef(SCALE, SCALE, SCALE);
+	const F32 BRIGHTNESS = 0.9f;
+	gGL.color3f(BRIGHTNESS, BRIGHTNESS, BRIGHTNESS);
+	mVertexBuffer->draw(LLVertexBuffer::TRIANGLES, num_indices, 0);
 
-		for (U32 i = 0; (S32)i < num_vertices; i++)
-		{
-			LLVector3 position = vf.mVertices[i].mPosition;
-			vertices[i*3]   = position.mV[VX];
-			vertices[i*3+1] = position.mV[VY];
-			vertices[i*3+2] = position.mV[VZ];
-			
-			LLVector3 normal = vf.mVertices[i].mNormal;
-			normals[i*3]   = normal.mV[VX];
-			normals[i*3+1] = normal.mV[VY];
-			normals[i*3+2] = normal.mV[VZ];
-		}
-
-		// build indices
-		U16* indices = new U16[num_indices];
-		for (U16 i = 0; i < num_indices; i++)
-		{
-			indices[i] = vf.mIndices[i];
-		}
-
-		gGL.color3f(0.4f, 0.4f, 0.4f);
-		glVertexPointer(3, GL_FLOAT, 0, (void *)vertices);
-		glNormalPointer(GL_FLOAT, 0, (void *)normals);
-		glDrawRangeElements(GL_TRIANGLES, 0, num_vertices-1, num_indices, GL_UNSIGNED_SHORT, (void *)indices);
+	gGL.popMatrix();
 		
-		gGL.popMatrix();
-		glDisableClientState(GL_NORMAL_ARRAY);
-
-		delete [] indices;
-		delete [] vertices;
-		delete [] normals;
-	}
-
 	return TRUE;
 }
 

@@ -10,7 +10,7 @@ Able Whitman
 	VWR-1691
 	VWR-1735
 Adam Marker
-    VWR-2755
+	VWR-2755
 Aimee Trescothick
 	VWR-3903
 	VWR-4083
@@ -79,6 +79,7 @@ bushing Spatula
 	VWR-424
 Carjay McGinnis
 	VWR-3737
+	VWR-4070
 	VWR-6154
 Catherine Pfeffer
 	VWR-1282
@@ -184,6 +185,7 @@ Jacek Antonelli
 	VWR-188
 	VWR-427
 	VWR-597
+	VWR-2054
 	VWR-2448
 	VWR-3605
 JB Kraft
@@ -214,6 +216,8 @@ Michelle2 Zenovka
 	VWR-4506
 	VWR-7831
 	VWR-8889
+	VWR-8310
+	VWR-4022
 Mm Alder
 	VWR-3777
 	VWR-4794

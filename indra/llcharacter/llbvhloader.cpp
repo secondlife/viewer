@@ -1133,6 +1133,8 @@ void LLBVHLoader::optimize()
 
 			F32 rot_threshold = ROTATION_KEYFRAME_THRESHOLD / llmax((F32)joint->mChildTreeMaxDepth * 0.33f, 1.f);
 
+			double diff_max = 0;
+			KeyVector::iterator ki_max = ki;
 			for (; ki != joint->mKeys.end(); ++ki)
 			{
 				if (ki_prev == ki_last_good_pos)
@@ -1193,30 +1195,55 @@ void LLBVHLoader::optimize()
 					F32 x_delta;
 					F32 y_delta;
 					F32 rot_test;
-
+					
+					// Test if the rotation has changed significantly since the very first frame.  If false
+					// for all frames, then we'll just throw out this joint's rotation entirely.
 					x_delta = dist_vec(LLVector3::x_axis * first_frame_rot, LLVector3::x_axis * test_rot);
 					y_delta = dist_vec(LLVector3::y_axis * first_frame_rot, LLVector3::y_axis * test_rot);
 					rot_test = x_delta + y_delta;
-
 					if (rot_test > ROTATION_MOTION_THRESHOLD)
 					{
 						rot_changed = TRUE;
 					}
-
 					x_delta = dist_vec(LLVector3::x_axis * interp_rot, LLVector3::x_axis * test_rot);
 					y_delta = dist_vec(LLVector3::y_axis * interp_rot, LLVector3::y_axis * test_rot);
 					rot_test = x_delta + y_delta;
 
-					if (rot_test < rot_threshold)
+					// Draw a line between the last good keyframe and current.  Test the distance between the last frame (current-1, i.e. ki_prev)
+					// and the line.  If it's greater than some threshold, then it represents a significant frame and we want to include it.
+					if (rot_test >= rot_threshold ||
+						(ki+1 == joint->mKeys.end() && numRotFramesConsidered > 2))
 					{
-						ki_prev->mIgnoreRot = TRUE;
-						numRotFramesConsidered++;
-					}
-					else
-					{
+						// Add the current test keyframe (which is technically the previous key, i.e. ki_prev).
 						numRotFramesConsidered = 2;
 						ki_last_good_rot = ki_prev;
 						joint->mNumRotKeys++;
+
+						// Add another keyframe between the last good keyframe and current, at whatever point was the most "significant" (i.e.
+						// had the largest deviation from the earlier tests).  Note that a more robust approach would be test all intermediate
+						// keyframes against the line between the last good keyframe and current, but we're settling for this other method
+						// because it's significantly faster.
+						if (diff_max > 0)
+						{
+							if (ki_max->mIgnoreRot == TRUE)
+							{
+								ki_max->mIgnoreRot = FALSE;
+								joint->mNumRotKeys++;
+							}
+							diff_max = 0;
+						}
+					}
+					else
+					{
+						// This keyframe isn't significant enough, throw it away.
+						ki_prev->mIgnoreRot = TRUE;
+						numRotFramesConsidered++;
+						// Store away the keyframe that has the largest deviation from the interpolated line, for insertion later.
+						if (rot_test > diff_max)
+						{
+							diff_max = rot_test;
+							ki_max = ki;
+						}
 					}
 				}
 

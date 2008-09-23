@@ -1,6 +1,6 @@
 /**
  * @file llappviewerlinux.cpp
- * @brief The LLAppViewerWin32 class definitions
+ * @brief The LLAppViewerLinux class definitions
  *
  * $LicenseInfo:firstyear=2007&license=viewergpl$
  * 
@@ -36,8 +36,10 @@
 #include "llcommandlineparser.h"
 
 #include "llmemtype.h"
+#include "llurldispatcher.h"		// SLURL from other app instance
 #include "llviewernetwork.h"
 #include "llviewercontrol.h"
+#include "llwindowsdl.h"
 #include "llmd5.h"
 #include "llfindlocale.h"
 
@@ -58,6 +60,17 @@
 #  include <cxxabi.h>			// for symbol demangling
 # endif
 # include "ELFIO/ELFIO.h"		// for better backtraces
+#endif
+
+#if LL_DBUS_ENABLED
+# include "llappviewerlinux_api_dbus.h"
+
+// regrettable hacks to give us better runtime compatibility with older systems inside llappviewerlinux_api.h:
+#define llg_return_if_fail(COND) do{if (!(COND)) return;}while(0)
+#undef g_return_if_fail
+#define g_return_if_fail(COND) llg_return_if_fail(COND)
+// The generated API
+# include "llappviewerlinux_api.h"
 #endif
 
 namespace
@@ -320,6 +333,186 @@ bool LLAppViewerLinux::init()
 {
 	return LLAppViewer::init();
 }
+
+/////////////////////////////////////////
+#if LL_DBUS_ENABLED
+
+typedef struct
+{
+        GObjectClass parent_class;
+} ViewerAppAPIClass;
+
+static void viewerappapi_init(ViewerAppAPI *server);
+static void viewerappapi_class_init(ViewerAppAPIClass *klass);
+
+///
+
+// regrettable hacks to give us better runtime compatibility with older systems in general
+static GType llg_type_register_static_simple_ONCE(GType parent_type,
+						  const gchar *type_name,
+						  guint class_size,
+						  GClassInitFunc class_init,
+						  guint instance_size,
+						  GInstanceInitFunc instance_init,
+						  GTypeFlags flags)
+{
+	static GTypeInfo type_info;
+	memset(&type_info, 0, sizeof(type_info));
+
+	type_info.class_size = class_size;
+	type_info.class_init = class_init;
+	type_info.instance_size = instance_size;
+	type_info.instance_init = instance_init;
+
+	return g_type_register_static(parent_type, type_name, &type_info, flags);
+}
+#define llg_intern_static_string(S) (S)
+#define g_intern_static_string(S) llg_intern_static_string(S)
+#define g_type_register_static_simple(parent_type, type_name, class_size, class_init, instance_size, instance_init, flags) llg_type_register_static_simple_ONCE(parent_type, type_name, class_size, class_init, instance_size, instance_init, flags)
+
+G_DEFINE_TYPE(ViewerAppAPI, viewerappapi, G_TYPE_OBJECT);
+
+void viewerappapi_class_init(ViewerAppAPIClass *klass)
+{
+}
+
+static bool dbus_server_init = false;
+
+void viewerappapi_init(ViewerAppAPI *server)
+{
+	// Connect to the default DBUS, register our service/API.
+
+	if (!dbus_server_init)
+	{
+		GError *error = NULL;
+		
+		server->connection = lldbus_g_bus_get(DBUS_BUS_SESSION, &error);
+		if (server->connection)
+		{
+			lldbus_g_object_type_install_info(viewerappapi_get_type(), &dbus_glib_viewerapp_object_info);
+			
+			lldbus_g_connection_register_g_object(server->connection, VIEWERAPI_PATH, G_OBJECT(server));
+			
+			DBusGProxy *serverproxy = lldbus_g_proxy_new_for_name(server->connection, DBUS_SERVICE_DBUS, DBUS_PATH_DBUS, DBUS_INTERFACE_DBUS);
+
+			guint request_name_ret_unused;
+			// akin to org_freedesktop_DBus_request_name
+			if (lldbus_g_proxy_call(serverproxy, "RequestName", &error, G_TYPE_STRING, VIEWERAPI_SERVICE, G_TYPE_UINT, 0, G_TYPE_INVALID, G_TYPE_UINT, &request_name_ret_unused, G_TYPE_INVALID))
+			{
+				// total success.
+				dbus_server_init = true;
+			}
+			else 
+			{
+				llwarns << "Unable to register service name: " << error->message << llendl;
+			}
+	
+			g_object_unref(serverproxy);
+		}
+		else
+		{
+			g_warning("Unable to connect to dbus: %s", error->message);
+		}
+
+		if (error)
+			g_error_free(error);
+	}
+}
+
+gboolean viewer_app_api_GoSLURL(ViewerAppAPI *obj, gchar *slurl, gboolean **success_rtn, GError **error)
+{
+	bool success = false;
+
+	llinfos << "Was asked to go to slurl: " << slurl << llendl;
+
+	const bool from_external_browser = true;
+	if (LLURLDispatcher::dispatch(slurl, from_external_browser))
+	{
+		// bring window to foreground, as it has just been "launched" from a URL
+		// todo: hmm, how to get there from here?
+		//xxx->mWindow->bringToFront();
+		success = true;
+	}		
+
+	*success_rtn = g_new (gboolean, 1);
+	(*success_rtn)[0] = (gboolean)success;
+
+	return TRUE; // the invokation succeeded, even if the actual dispatch didn't.
+}
+
+///
+
+//virtual
+bool LLAppViewerLinux::initSLURLHandler()
+{
+	if (!grab_dbus_syms(DBUSGLIB_DYLIB_DEFAULT_NAME))
+	{
+		return false; // failed
+	}
+
+	g_type_init();
+
+	//ViewerAppAPI *api_server = (ViewerAppAPI*)
+	g_object_new(viewerappapi_get_type(), NULL);
+
+	return true;
+}
+
+//virtual
+bool LLAppViewerLinux::sendURLToOtherInstance(const std::string& url)
+{
+	if (!grab_dbus_syms(DBUSGLIB_DYLIB_DEFAULT_NAME))
+	{
+		return false; // failed
+	}
+
+	bool success = false;
+	DBusGConnection *bus;
+	GError *error = NULL;
+
+	g_type_init();
+	
+	bus = lldbus_g_bus_get (DBUS_BUS_SESSION, &error);
+	if (bus)
+	{
+		gboolean rtn = FALSE;
+		DBusGProxy *remote_object =
+			lldbus_g_proxy_new_for_name(bus, VIEWERAPI_SERVICE, VIEWERAPI_PATH, VIEWERAPI_INTERFACE);
+
+		if (lldbus_g_proxy_call(remote_object, "GoSLURL", &error,
+					G_TYPE_STRING, url.c_str(), G_TYPE_INVALID,
+				       G_TYPE_BOOLEAN, &rtn, G_TYPE_INVALID))
+		{
+			success = rtn;
+		}
+		else
+		{
+			llinfos << "Call-out to other instance failed (perhaps not running): " << error->message << llendl;
+		}
+
+		g_object_unref(G_OBJECT(remote_object));
+	}
+	else
+	{
+		llwarns << "Couldn't connect to session bus: " << error->message << llendl;
+	}
+
+	if (error)
+		g_error_free(error);
+	
+	return success;
+}
+
+#else // LL_DBUS_ENABLED
+bool LLAppViewerLinux::initSLURLHandler()
+{
+	return false; // not implemented without dbus
+}
+bool LLAppViewerLinux::sendURLToOtherInstance(const std::string& url)
+{
+	return false; // not implemented without dbus
+}
+#endif // LL_DBUS_ENABLED
 
 void LLAppViewerLinux::handleSyncCrashTrace()
 {

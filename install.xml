@@ -206,6 +206,25 @@
           </map>
         </map>
       </map>
+      <key>dbusglib</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright (C) 2002, 2003 CodeFactory AB / Copyright (C) 2003, 2004 Red Hat, Inc.</string>
+        <key>description</key>
+        <string>dbus/dbus-glib: headers only</string>
+        <key>license</key>
+        <string>AFL2.1</string>
+        <key>packages</key>
+        <map>
+          <key>linux</key>
+          <map>
+            <key>md5sum</key>
+            <string>eb25444142d4102b0ce1b7ffaadb071e</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/dbusglib-linux-20080707.tar.bz2</uri>
+          </map>
+        </map>
+      </map>
       <key>elfio</key>
       <map>
         <key>license</key>
@@ -1109,6 +1128,11 @@ anguage Infrstructure (CLI) international standard</string>
     </map>
     <key>licenses</key>
     <map>
+      <key>AFL2.1</key>
+      <map>
+        <key>url</key>
+        <string>http://opensource-definition.org/licenses/afl-2.1.html</string>
+      </map>
       <key>GL</key>
       <map>
         <key>url</key>

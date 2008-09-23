@@ -249,6 +249,8 @@ public:
 	const LLTextSegment*	getPreviousSegment();
 	void getSelectedSegments(std::vector<const LLTextSegment*>& segments);
 
+	static bool		isPartOfWord(llwchar c) { return (c == '_') || LLStringOps::isAlnum((char)c); }
+
 protected:
 	//
 	// Methods
@@ -266,8 +268,6 @@ protected:
 	void 			assignEmbedded(const std::string &s);
 	BOOL 			truncate();				// Returns true if truncation occurs
 	
-	static BOOL		isPartOfWord(llwchar c) { return (c == '_') || isalnum(c); }
-
 	void			removeCharOrTab();
 	void			setCursorAtLocalPos(S32 x, S32 y, BOOL round);
 	S32				getCursorPosFromLocalCoord( S32 local_x, S32 local_y, BOOL round ) const;

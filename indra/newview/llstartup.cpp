@@ -743,6 +743,12 @@ bool idle_startup()
 		gLoginMenuBarView->setVisible( TRUE );
 		gLoginMenuBarView->setEnabled( TRUE );
 
+		// DEV-16927.  The following code removes errant keystrokes that happen while the window is being 
+		// first made visible.
+#ifdef _WIN32
+		MSG msg;
+		while( PeekMessage( &msg, /*All hWnds owned by this thread */ NULL, WM_KEYFIRST, WM_KEYLAST, PM_REMOVE ) );
+#endif
 		timeout.reset();
 		return FALSE;
 	}

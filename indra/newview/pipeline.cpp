@@ -2665,6 +2665,18 @@ void LLPipeline::renderForSelect(std::set<LLViewerObject*>& objects, BOOL render
 	LLGLState::checkClientArrays();
 	U32 last_type = 0;
 	
+	// If we don't do this, we crash something on changing graphics settings
+	// from Medium -> Low, because we unload all the shaders and the 
+	// draw pools aren't aware.  I don't know if this has to be a separate
+	// loop before actual rendering. JC
+	for (pool_set_t::iterator iter = mPools.begin(); iter != mPools.end(); ++iter)
+	{
+		LLDrawPool *poolp = *iter;
+		if (poolp->isFacePool() && hasRenderType(poolp->getType()))
+		{
+			poolp->prerender();
+		}
+	}
 	for (pool_set_t::iterator iter = mPools.begin(); iter != mPools.end(); ++iter)
 	{
 		LLDrawPool *poolp = *iter;

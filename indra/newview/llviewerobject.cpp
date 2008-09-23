@@ -2763,12 +2763,6 @@ void LLViewerObject::setPixelAreaAndAngle(LLAgent &agent)
 
 BOOL LLViewerObject::updateLOD()
 {
-	// Update volume of looping sounds
-	if (mAudioSourcep && mAudioSourcep->isLoop())
-	{
-		F32 volume = gSavedSettings.getBOOL("MuteSounds") ? 0.f : (mAudioGain * gSavedSettings.getF32("AudioLevelSFX"));
-		mAudioSourcep->setGain(volume);
-	}
 	return FALSE;
 }
 
@@ -4331,8 +4325,7 @@ void LLViewerObject::setAttachedSound(const LLUUID &audio_uuid, const LLUUID& ow
 	{
 		BOOL queue = flags & LL_SOUND_FLAG_QUEUE;
 		mAudioGain = gain;
-		F32 volume = gSavedSettings.getBOOL("MuteSounds") ? 0.f : gain * gSavedSettings.getF32("AudioLevelSFX");
-		mAudioSourcep->setGain(volume);
+		mAudioSourcep->setGain(gain);
 		mAudioSourcep->setLoop(flags & LL_SOUND_FLAG_LOOP);
 		mAudioSourcep->setSyncMaster(flags & LL_SOUND_FLAG_SYNC_MASTER);
 		mAudioSourcep->setSyncSlave(flags & LL_SOUND_FLAG_SYNC_SLAVE);
@@ -4370,8 +4363,7 @@ void LLViewerObject::adjustAudioGain(const F32 gain)
 	if (mAudioSourcep)
 	{
 		mAudioGain = gain;
-		F32 volume = gSavedSettings.getBOOL("MuteSounds") ? 0.f : mAudioGain * gSavedSettings.getF32("AudioLevelSFX");
-		mAudioSourcep->setGain(volume);
+		mAudioSourcep->setGain(mAudioGain);
 	}
 }
 

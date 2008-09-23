@@ -89,6 +89,7 @@ public:
 	/*virtual*/ void setFSAASamples(const U32 samples);
 	/*virtual*/ BOOL restoreGamma();			// Restore original gamma table (before updating gamma)
 	/*virtual*/ ESwapMethod getSwapMethod() { return mSwapMethod; }
+	/*virtual*/ void processMiscNativeEvents();
 	/*virtual*/ void gatherInput();
 	/*virtual*/ void swapBuffers();
 
@@ -128,6 +129,16 @@ public:
 #endif
 	void (*Lock_Display)(void);
 	void (*Unlock_Display)(void);
+
+#if LL_GTK
+	// Lazily initialize and check the runtime GTK version for goodness.
+	static bool ll_try_gtk_init(void);
+#endif // LL_GTK
+
+#if LL_X11
+	static Window get_SDL_XWindowID(void);
+	static Display* get_SDL_Display(void);
+#endif // LL_X11	
 
 protected:
 	LLWindowSDL(
@@ -205,8 +216,6 @@ private:
 	BOOL mFlashing;
 	LLTimer mFlashTimer;
 #endif //LL_X11
-
-	
 };
 
 
@@ -222,17 +231,5 @@ public:
 };
 
 S32 OSMessageBoxSDL(const std::string& text, const std::string& caption, U32 type);
-
-void load_url_external(const char* url);
-
-#if LL_GTK
-// Lazily initialize and check the runtime GTK version for goodness.
-BOOL ll_try_gtk_init(void);
-#endif // LL_GTK
-
-#if LL_X11
-Window get_SDL_XWindowID(void);
-Display* get_SDL_Display(void);
-#endif // LL_X11
 
 #endif //LL_LLWINDOWSDL_H

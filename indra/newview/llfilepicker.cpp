@@ -933,7 +933,7 @@ void LLFilePicker::chooser_responder(GtkWidget *widget, gint response, gpointer 
 
 GtkWindow* LLFilePicker::buildFilePicker(bool is_save, bool is_folder, std::string context)
 {
-	if (ll_try_gtk_init() &&
+	if (LLWindowSDL::ll_try_gtk_init() &&
 	    ! gViewerWindow->getWindow()->getFullscreen())
 	{
 		GtkWidget *win = NULL;
@@ -974,7 +974,7 @@ GtkWindow* LLFilePicker::buildFilePicker(bool is_save, bool is_folder, std::stri
 		// Make GTK tell the window manager to associate this
 		// dialog with our non-GTK raw X11 window, which should try
 		// to keep it on top etc.
-		Window XWindowID = get_SDL_XWindowID();
+		Window XWindowID = LLWindowSDL::get_SDL_XWindowID();
 		if (None != XWindowID)
 		{
 			gtk_widget_realize(GTK_WIDGET(win)); // so we can get its gdkwin

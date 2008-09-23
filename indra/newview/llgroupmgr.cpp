@@ -52,6 +52,7 @@
 #include "llfloaterdirectory.h"
 #include "llfloatergroupinfo.h"
 #include "lluictrlfactory.h"
+#include <boost/regex.hpp>
 
 
 const U32 MAX_CACHED_GROUPS = 10;
@@ -791,6 +792,20 @@ LLGroupMgrGroupData* LLGroupMgr::getGroupData(const LLUUID& id)
 	return NULL;
 }
 
+// Helper function for LLGroupMgr::processGroupMembersReply
+// This reformats date strings from MM/DD/YYYY to YYYY/MM/DD ( e.g. 1/27/2008 -> 2008/1/27 )
+// so that the sorter can sort by year before month before day.
+static void formatDateString(std::string &date_string)
+{
+	using namespace boost;
+	cmatch result;
+	const regex expression("([0-9]{1,2})/([0-9]{1,2})/([0-9]{4})");
+	if (regex_match(date_string.c_str(), result, expression))
+	{
+		date_string = result[3]+"/"+result[1]+"/"+result[2];
+	}
+}
+
 // static
 void LLGroupMgr::processGroupMembersReply(LLMessageSystem* msg, void** data)
 {
@@ -840,6 +855,8 @@ void LLGroupMgr::processGroupMembersReply(LLMessageSystem* msg, void** data)
 
 			if (member_id.notNull())
 			{
+				formatDateString(online_status); // reformat for sorting, e.g. 12/25/2008 -> 2008/12/25
+				
 				//llinfos << "Member " << member_id << " has powers " << std::hex << agent_powers << std::dec << llendl;
 				LLGroupMemberData* newdata = new LLGroupMemberData(member_id, 
 																	contribution, 
