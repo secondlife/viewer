@@ -14,29 +14,29 @@
 # Removed the check for gmcs
 
 FIND_PROGRAM (MONO_EXECUTABLE mono
-             "C:/Program Files/Mono-1.9.1/bin"
-             "C:/Program Files/Mono-1.2.6/bin"
+             "$ENV{PROGRAMFILES}/Mono-1.9.1/bin"
+             "$ENV{PROGRAMFILES}/Mono-1.2.6/bin"
              /bin
              /usr/bin
              /usr/local/bin
 )
 FIND_PROGRAM (MCS_EXECUTABLE mcs
-             "C:/Program Files/Mono-1.9.1/bin"
-             "C:/Program Files/Mono-1.2.6/bin"
+             "$ENV{PROGRAMFILES}/Mono-1.9.1/bin"
+             "$ENV{PROGRAMFILES}/Mono-1.2.6/bin"
              /bin
              /usr/bin
              /usr/local/bin
 )
 FIND_PROGRAM (GMCS_EXECUTABLE gmcs
-             "C:/Program Files/Mono-1.9.1/bin"
-             "C:/Program Files/Mono-1.2.6/bin"
+             "$ENV{PROGRAMFILES}/Mono-1.9.1/bin"
+             "$ENV{PROGRAMFILES}/Mono-1.2.6/bin"
              /bin
              /usr/bin
              /usr/local/bin
 )
 FIND_PROGRAM (GACUTIL_EXECUTABLE gacutil
-             "C:/Program Files/Mono-1.9.1/bin"
-             "C:/Program Files/Mono-1.2.6/bin"
+             "$ENV{PROGRAMFILES}/Mono-1.9.1/bin"
+             "$ENV{PROGRAMFILES}/Mono-1.2.6/bin"
              /bin
              /usr/bin
              /usr/local/bin
@@ -44,7 +44,7 @@ FIND_PROGRAM (GACUTIL_EXECUTABLE gacutil
 FIND_PROGRAM (ILASM_EXECUTABLE
              ilasm
              NO_DEFAULT_PATH
-             PATHS "C:/Program Files/Mono-1.9.1/bin" "C:/Apps/Mono-1.2.6/bin" "C:/Program Files/Mono-1.2.6/bin" /bin /usr/bin /usr/local/bin
+             PATHS "$ENV{PROGRAMFILES}/Mono-1.9.1/bin" "$ENV{PROGRAMFILES}/Mono-1.2.6/bin" /bin /usr/bin /usr/local/bin
 )
 
 SET (MONO_FOUND FALSE)
