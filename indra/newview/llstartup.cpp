@@ -431,9 +431,11 @@ bool idle_startup()
 		// Load the throttle settings
 		gViewerThrottle.load();
 
-		if (ll_init_ares() == NULL)
+		if (ll_init_ares() == NULL || !gAres->isInitialized())
 		{
-			LL_ERRS("AppInit") << "Could not start address resolution system" << LL_ENDL;
+			LL_WARNS("AppInit") << "Could not start address resolution system" << LL_ENDL;
+			std::string msg = LLTrans::getString("LoginFailedNoNetwork");
+			LLAppViewer::instance()->earlyExit(msg);
 		}
 		
 		//
@@ -479,7 +481,8 @@ bool idle_startup()
 				   FALSE,
 				   std::string()))
 			{
-				std::string msg = llformat("Unable to start networking, error %d", gMessageSystem->getErrorCode());
+				std::string msg = LLTrans::getString("LoginFailedNoNetwork");
+				msg.append(llformat(" Error: %d", gMessageSystem->getErrorCode()));
 				LLAppViewer::instance()->earlyExit(msg);
 			}
 
@@ -567,6 +570,8 @@ bool idle_startup()
 			}
 		}
 
+		LL_INFOS("AppInit") << "Message System Initialized." << LL_ENDL;
+		
 		//-------------------------------------------------
 		// Init audio, which may be needed for prefs dialog
 		// or audio cues in connection UI.
@@ -597,7 +602,9 @@ bool idle_startup()
 				gAudiop->setMuted(TRUE);
 			}
 		}
-
+		
+		LL_INFOS("AppInit") << "Audio Engine Initialized." << LL_ENDL;
+		
 		if (LLTimer::knownBadTimer())
 		{
 			LL_WARNS("AppInit") << "Unreliable timers detected (may be bad PCI chipset)!!" << LL_ENDL;

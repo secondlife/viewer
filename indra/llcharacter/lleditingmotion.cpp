@@ -186,6 +186,12 @@ BOOL LLEditingMotion::onUpdate(F32 time, U8* joint_mask)
 	}
 
 	focus_pt += mCharacter->getCharacterPosition();
+	if (!llfinite(focus_pt.magVecSquared()))
+	{
+		LLVector3 tmp = mCharacter->getCharacterPosition() ;
+		llerrs << "Non finite focus point in editing motion. focus point: " << focus_pt << " and character position: " <<
+			tmp << " and pointAtPt: " << pointAtPt << llendl;
+	}
 
 	// propagate joint positions to kinematic chain
 	mParentJoint.setPosition(	mParentState->getJoint()->getWorldPosition() );
@@ -220,7 +226,7 @@ BOOL LLEditingMotion::onUpdate(F32 time, U8* joint_mask)
 	if (!target.isFinite())
 	{
 		llerrs << "Non finite target in editing motion with target distance of " << target_dist << 
-			" and focus point " << focus_pt << llendl;
+			" and focus point " << focus_pt << " and pointAtPt: " << pointAtPt << llendl;
 	}
 	
 	mTarget.setPosition( target + mParentJoint.getPosition());

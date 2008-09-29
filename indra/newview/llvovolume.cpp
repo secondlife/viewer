@@ -2236,6 +2236,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 		}
 
 		LLVOVolume* vobj = drawablep->getVOVolume();
+		llassert_always(vobj);
 		vobj->updateTextures();
 		vobj->preRebuild();
 

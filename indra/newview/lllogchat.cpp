@@ -112,7 +112,7 @@ void LLLogChat::loadHistory(std::string filename , void (*callback)(ELogLineType
 	LLFILE* fptr = LLFile::fopen(makeLogFileName(filename), "r");		/*Flawfinder: ignore*/
 	if (!fptr)
 	{
-		//LLUIString message = LLFloaterChat::getInstance()->getUIString("IM_logging_string");
+		//LLUIString message = LLFloaterChat::getInstance()->getString("IM_logging_string");
 		//callback(LOG_EMPTY,"IM_logging_string",userdata);
 		callback(LOG_EMPTY,LLStringUtil::null,userdata);
 		return;			//No previous conversation with this name.

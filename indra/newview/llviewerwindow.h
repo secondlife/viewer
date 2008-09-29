@@ -174,7 +174,10 @@ public:
 	/*virtual*/ void handleDataCopy(LLWindow *window, S32 data_type, void *data);
 	/*virtual*/ BOOL handleTimerEvent(LLWindow *window);
 	/*virtual*/ BOOL handleDeviceChange(LLWindow *window);
+
 	/*virtual*/ void handlePingWatchdog(LLWindow *window, const char * msg);
+	/*virtual*/ void handlePauseWatchdog(LLWindow *window);
+	/*virtual*/ void handleResumeWatchdog(LLWindow *window);
 
 
 	//
@@ -368,7 +371,8 @@ private:
 	void			restoreGL(const std::string& progress_message = LLStringUtil::null);
 	void			initFonts(F32 zoom_factor = 1.f);
 	void			schedulePick(LLPickInfo& pick_info);
-	
+	S32				getChatConsoleBottomPad(); // Vertical padding for child console rect, varied by bottom clutter
+
 public:
 	LLWindow*		mWindow;						// graphical window object
 

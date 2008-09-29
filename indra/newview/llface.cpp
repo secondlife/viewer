@@ -419,8 +419,6 @@ void LLFace::renderSelected(LLImageGL *imagep, const LLColor4& color)
 
 	if (mGeomCount > 0 && mIndicesCount > 0)
 	{
-		gGL.color4fv(color.mV);
-
 		LLViewerImage::bindTexture(imagep);
 	
 		gGL.pushMatrix();
@@ -433,12 +431,16 @@ void LLFace::renderSelected(LLImageGL *imagep, const LLColor4& color)
 			glMultMatrixf((GLfloat*)mDrawablep->getRegion()->mRenderMatrix.mMatrix);
 		}
 
+		setFaceColor(color);
+		renderSetColor();
+
 		mVertexBuffer->setBuffer(LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD);
 #if !LL_RELEASE_FOR_DOWNLOAD
 		LLGLState::checkClientArrays("", LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD);
 #endif
 		mVertexBuffer->draw(LLVertexBuffer::TRIANGLES, mIndicesCount, mIndicesIndex);
 				
+		unsetFaceColor();
 		gGL.popMatrix();
 	}
 }

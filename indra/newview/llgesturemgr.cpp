@@ -507,9 +507,6 @@ BOOL LLGestureManager::triggerAndReviseString(const std::string &utf8str, std::s
 		// Only pay attention to the first gesture in the string.
 		if( !found_gestures )
 		{
-			std::string cur_token_lower = cur_token;
-			LLStringUtil::toLower(cur_token_lower);
-
 			// collect gestures that match
 			std::vector <LLMultiGesture *> matching;
 			item_map_t::iterator it;
@@ -520,7 +517,7 @@ BOOL LLGestureManager::triggerAndReviseString(const std::string &utf8str, std::s
 				// Gesture asset data might not have arrived yet
 				if (!gesture) continue;
 				
-				if (gesture->mTrigger == cur_token_lower)
+				if (LLStringUtil::compareInsensitive(gesture->mTrigger, cur_token) == 0)
 				{
 					matching.push_back(gesture);
 				}
@@ -548,10 +545,7 @@ BOOL LLGestureManager::triggerAndReviseString(const std::string &utf8str, std::s
 						}
 
 						// Don't muck with the user's capitalization if we don't have to.
-						std::string output = gesture->mReplaceText;
-						std::string output_lower = output;
-						LLStringUtil::toLower(output_lower);
-						if( cur_token_lower == output_lower )
+						if( LLStringUtil::compareInsensitive(cur_token, gesture->mReplaceText) == 0)
 						{
 							if (revised_string)
 								revised_string->append( cur_token );
@@ -559,7 +553,7 @@ BOOL LLGestureManager::triggerAndReviseString(const std::string &utf8str, std::s
 						else
 						{
 							if (revised_string)
-								revised_string->append( output );
+								revised_string->append( gesture->mReplaceText );
 						}
 					}
 					found_gestures = TRUE;

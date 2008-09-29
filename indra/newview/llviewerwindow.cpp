@@ -237,8 +237,6 @@ const F32 FAST_FRAME_INCREMENT = 0.1f;
 
 const F32 MIN_DISPLAY_SCALE = 0.75f;
 
-const S32 CONSOLE_BOTTOM_PAD = 40;
-
 std::string	LLViewerWindow::sSnapshotBaseName;
 std::string	LLViewerWindow::sSnapshotDir;
 
@@ -1376,6 +1374,18 @@ void LLViewerWindow::handlePingWatchdog(LLWindow *window, const char * msg)
 	LLAppViewer::instance()->pingMainloopTimeout(msg);
 }
 
+
+void LLViewerWindow::handleResumeWatchdog(LLWindow *window)
+{
+	LLAppViewer::instance()->resumeMainloopTimeout();
+}
+
+void LLViewerWindow::handlePauseWatchdog(LLWindow *window)
+{
+	LLAppViewer::instance()->pauseMainloopTimeout();
+}
+
+
 //
 // Classes
 //
@@ -1584,6 +1594,8 @@ void LLViewerWindow::initBase()
 	LLRect floater_view_rect = full_window;
 	// make space for menu bar if we have one
 	floater_view_rect.mTop -= MENU_BAR_HEIGHT;
+
+	// TODO: Eliminate magic constants - please used named constants if changing this
 	floater_view_rect.mBottom += STATUS_BAR_HEIGHT + 12 + 16 + 2;
 
 	// Check for non-first startup
@@ -1602,7 +1614,10 @@ void LLViewerWindow::initBase()
 	llassert( !gConsole );
 	LLRect console_rect = full_window;
 	console_rect.mTop    -= 24;
-	console_rect.mBottom += STATUS_BAR_HEIGHT + 12 + 16 + 12;
+
+	console_rect.mBottom += getChatConsoleBottomPad();
+
+	// TODO: Eliminate magic constants - please used named constants if changing this - don't be a programmer hater
 	console_rect.mLeft   += 24; //gSavedSettings.getS32("StatusBarButtonWidth") + gSavedSettings.getS32("StatusBarPad");
 
 	if (gSavedSettings.getBOOL("ChatFullWidth"))
@@ -2968,7 +2983,7 @@ BOOL LLViewerWindow::handlePerFrameHover()
 
 		// Always update console
 		LLRect console_rect = gConsole->getRect();
-		console_rect.mBottom = gHUDView->getRect().mBottom + CONSOLE_BOTTOM_PAD;
+		console_rect.mBottom = gHUDView->getRect().mBottom + getChatConsoleBottomPad();
 		gConsole->reshape(console_rect.getWidth(), console_rect.getHeight());
 		gConsole->setRect(console_rect);
 	}
@@ -4233,6 +4248,13 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 							- output_buffer_offset_x // ...minus buffer padding x...
 							- (output_buffer_offset_y * (raw->getWidth()))  // ...minus buffer padding y...
 						) * raw->getComponents();
+				
+				// Ping the wathdog thread every 100 lines to keep us alive (arbitrary number, feel free to change)
+				if (out_y % 100 == 0)
+				{
+					LLAppViewer::instance()->pingMainloopTimeout("LLViewerWindow::rawSnapshot");
+				}
+				
 				if (type == SNAPSHOT_TYPE_OBJECT_ID || type == SNAPSHOT_TYPE_COLOR)
 				{
 					glReadPixels(
@@ -4872,6 +4894,15 @@ void LLViewerWindow::calcDisplayScale()
 		// Init default fonts
 		initFonts();
 	}
+}
+
+S32 LLViewerWindow::getChatConsoleBottomPad()
+{
+	S32 offset = 0;
+	if( gToolBar && gToolBar->getVisible() )
+		offset += TOOL_BAR_HEIGHT;
+
+	return offset;
 }
 
 //----------------------------------------------------------------------------

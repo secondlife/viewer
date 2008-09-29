@@ -15,15 +15,6 @@
 	<text name="user_no_help">
 		O usuário requisitado não está mais nessa sessão de ajuda.
 	</text>
-	<text name="add_session_event">
-		Adcionando agentes à sessão de conversa com
-	</text>
-	<text name="message_session_event">
-		sessão de conversa com
-	</text>
-	<text name="teleport_session_event">
-		teleportando ao criador de
-	</text>
 	<text name="removed_from_group">
 		Você foi removido do grupo.
 	</text>

@@ -186,7 +186,7 @@ bool LLTextureCacheLocalFileWorker::doRead()
 
 		if (mImageFormat == IMG_CODEC_INVALID)
 		{
-			llwarns << "Unrecognized file extension " << extension << " for local texture " << mFileName << llendl;
+// 			llwarns << "Unrecognized file extension " << extension << " for local texture " << mFileName << llendl;
 			mDataSize = 0; // no data
 			return true;
 		}
@@ -227,9 +227,9 @@ bool LLTextureCacheLocalFileWorker::doRead()
 		{
 			if (mBytesRead != mBytesToRead)
 			{
-				llwarns << "Error reading file from local cache: " << local_filename
-						<< " Bytes: " << mDataSize << " Offset: " << mOffset
-						<< " / " << mDataSize << llendl;
+// 				llwarns << "Error reading file from local cache: " << local_filename
+// 						<< " Bytes: " << mDataSize << " Offset: " << mOffset
+// 						<< " / " << mDataSize << llendl;
 				mDataSize = 0; // failed
 				delete[] mReadData;
 				mReadData = NULL;
@@ -251,9 +251,9 @@ bool LLTextureCacheLocalFileWorker::doRead()
 										 mReadData, mOffset, mDataSize);
 	if (bytes_read != mDataSize)
 	{
-		llwarns << "Error reading file from local cache: " << mFileName
-				<< " Bytes: " << mDataSize << " Offset: " << mOffset
-				<< " / " << mDataSize << llendl;
+// 		llwarns << "Error reading file from local cache: " << mFileName
+// 				<< " Bytes: " << mDataSize << " Offset: " << mOffset
+// 				<< " / " << mDataSize << llendl;
 		mDataSize = 0;
 		delete[] mReadData;
 		mReadData = NULL;
@@ -368,9 +368,9 @@ bool LLTextureCacheRemoteWorker::doRead()
 			{
 				if (mBytesRead != mBytesToRead)
 				{
-					llwarns << "Error reading file from local cache: " << local_filename
-							<< " Bytes: " << mDataSize << " Offset: " << mOffset
-							<< " / " << mDataSize << llendl;
+// 					llwarns << "Error reading file from local cache: " << local_filename
+// 							<< " Bytes: " << mDataSize << " Offset: " << mOffset
+// 							<< " / " << mDataSize << llendl;
 					mDataSize = 0; // failed
 					delete[] mReadData;
 					mReadData = NULL;
@@ -392,9 +392,9 @@ bool LLTextureCacheRemoteWorker::doRead()
 											 mReadData, mOffset, mDataSize);
 		if (bytes_read != mDataSize)
 		{
-			llwarns << "Error reading file from local cache: " << local_filename
-					<< " Bytes: " << mDataSize << " Offset: " << mOffset
-					<< " / " << mDataSize << llendl;
+// 			llwarns << "Error reading file from local cache: " << local_filename
+// 					<< " Bytes: " << mDataSize << " Offset: " << mOffset
+// 					<< " / " << mDataSize << llendl;
 			mDataSize = 0;
 			delete[] mReadData;
 			mReadData = NULL;
@@ -455,9 +455,9 @@ bool LLTextureCacheRemoteWorker::doRead()
 			{
 				if (mBytesRead != mBytesToRead)
 				{
-					llwarns << "LLTextureCacheWorker: "  << mID
-							<< " incorrect number of bytes read from header: " << mBytesRead
-							<< " != " << mBytesToRead << llendl;
+// 					llwarns << "LLTextureCacheWorker: "  << mID
+// 							<< " incorrect number of bytes read from header: " << mBytesRead
+// 							<< " != " << mBytesToRead << llendl;
 					mDataSize = -1; // failed
 					return true;
 				}
@@ -486,9 +486,9 @@ bool LLTextureCacheRemoteWorker::doRead()
 											 mReadData, offset, size);
 		if (bytes_read != size)
 		{
-			llwarns << "LLTextureCacheWorker: "  << mID
-					<< " incorrect number of bytes read from header: " << bytes_read
-					<< " / " << size << llendl;
+// 			llwarns << "LLTextureCacheWorker: "  << mID
+// 					<< " incorrect number of bytes read from header: " << bytes_read
+// 					<< " / " << size << llendl;
 			mDataSize = -1; // failed
 			return true;
 		}
@@ -554,9 +554,9 @@ bool LLTextureCacheRemoteWorker::doRead()
 			{
 				if (mBytesRead != mBytesToRead)
 				{
-					llwarns << "LLTextureCacheWorker: "  << mID
-							<< " incorrect number of bytes read from body: " << mBytesRead
-							<< " != " << mBytesToRead << llendl;
+// 					llwarns << "LLTextureCacheWorker: "  << mID
+// 							<< " incorrect number of bytes read from body: " << mBytesRead
+// 							<< " != " << mBytesToRead << llendl;
 					mDataSize = -1; // failed
 				}
 				return true;
@@ -593,9 +593,9 @@ bool LLTextureCacheRemoteWorker::doRead()
 											 file_offset, file_size);
 			if (bytes_read != file_size)
 			{
-				llwarns << "LLTextureCacheWorker: "  << mID
-						<< " incorrect number of bytes read from body: " << bytes_read
-						<< " / " << file_size << llendl;
+// 				llwarns << "LLTextureCacheWorker: "  << mID
+// 						<< " incorrect number of bytes read from body: " << bytes_read
+// 						<< " / " << file_size << llendl;
 				mDataSize = -1; // failed
 				return true;
 			}
@@ -632,7 +632,7 @@ bool LLTextureCacheRemoteWorker::doWrite()
 		{
 			if(cur_imagesize > 0 && mImageSize != cur_imagesize)
 			{
-				llwarns << "Header cache entry size: " << cur_imagesize << " != mImageSize: " << mImageSize << llendl;
+// 				llwarns << "Header cache entry size: " << cur_imagesize << " != mImageSize: " << mImageSize << llendl;
 				offset = 0; // re-write header
 			}
 			mState = offset < TEXTURE_CACHE_ENTRY_SIZE ? HEADER : BODY;
@@ -667,9 +667,9 @@ bool LLTextureCacheRemoteWorker::doWrite()
 			{
 				if (mBytesRead != mBytesToRead)
 				{
-					llwarns << "LLTextureCacheWorker: "  << mID
-							<< " incorrect number of bytes written to header: " << mBytesRead
-							<< " != " << mBytesToRead << llendl;
+// 					llwarns << "LLTextureCacheWorker: "  << mID
+// 							<< " incorrect number of bytes written to header: " << mBytesRead
+// 							<< " != " << mBytesToRead << llendl;
 					mDataSize = -1; // failed
 					return true;
 				}
@@ -698,7 +698,7 @@ bool LLTextureCacheRemoteWorker::doWrite()
 
 		if (bytes_written <= 0)
 		{
-			llwarns << "LLTextureCacheWorker: missing entry: " << mID << llendl;
+// 			llwarns << "LLTextureCacheWorker: missing entry: " << mID << llendl;
 			mDataSize = -1; // failed
 			return true;
 		}
@@ -747,9 +747,9 @@ bool LLTextureCacheRemoteWorker::doWrite()
 			{
 				if (mBytesRead != mBytesToRead)
 				{
-					llwarns << "LLTextureCacheWorker: "  << mID
-							<< " incorrect number of bytes written to body: " << mBytesRead
-							<< " != " << mBytesToRead << llendl;
+// 					llwarns << "LLTextureCacheWorker: "  << mID
+// 							<< " incorrect number of bytes written to body: " << mBytesRead
+// 							<< " != " << mBytesToRead << llendl;
 					mDataSize = -1; // failed
 				}
 				return true;
@@ -839,7 +839,10 @@ void LLTextureCacheWorker::finishWork(S32 param, bool completed)
 			{
 				delete[] mReadData;
 				mReadData = NULL;
-				
+				if (mDataSize != 0)
+				{
+					llinfos << "Read Failed. mDataSize = " << mDataSize << llendl;
+				}
 			}
 		}
 		else

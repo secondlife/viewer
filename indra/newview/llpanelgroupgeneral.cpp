@@ -396,7 +396,7 @@ void LLPanelGroupGeneral::openProfile(void* data)
 
 bool LLPanelGroupGeneral::needsApply(std::string& mesg)
 { 
-	mesg = getUIString("group_info_unchanged");
+	mesg = getString("group_info_unchanged");
 	return mChanged || mGroupID.isNull();
 }
 

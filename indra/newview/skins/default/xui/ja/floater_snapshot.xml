@@ -19,7 +19,7 @@
 	<text name="type_label2">
 		サイズ
 	</text>
-	<text name="format_label">
+	<text name="format_label" width="75">
 		フォーマット
 	</text>
 	<combo_box label="解像度" name="postcard_size_combo">
@@ -93,8 +93,8 @@
 			BMP
 		</combo_item>
 	</combo_box>
-	<spinner label="幅" name="snapshot_width" />
-	<spinner label="高さ" name="snapshot_height" />
+	<spinner label="幅" name="snapshot_width" label_width="25" width="90" />
+	<spinner label="高さ" name="snapshot_height" label_width="30" left="115"  width="90" />
 	<slider label="画質" name="image_quality_slider" />
 	<text name="layer_type_label">
 		ｷｬﾌﾟﾁｬ：

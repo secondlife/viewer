@@ -626,6 +626,7 @@ class Linux_i686Manifest(LinuxManifest):
             self.path("libaprutil-1.so.0")
             self.path("libdb-4.2.so")
             self.path("libcrypto.so.0.9.7")
+            self.path("libexpat.so.1")
             self.path("libssl.so.0.9.7")
             self.path("libstdc++.so.6")
             self.path("libuuid.so", "libuuid.so.1")

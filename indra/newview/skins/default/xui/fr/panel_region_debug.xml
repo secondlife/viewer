@@ -16,12 +16,24 @@
 	     tool_tip="Désactiver toutes physiques dans cette région" />
 	<button label="?" name="disable_physics_help" />
 	<button label="Appliquer" name="apply_btn" />
+	<line_editor name="target_avatar_name">
+		(aucun)
+	</line_editor>
 	<button label="Choisir Avatar..." name="choose_avatar_btn" />
 	<button
 	     label="Renvoyer les objets scriptés de l&apos;avatar vers une propriété tierce"
 	     name="return_scripted_other_land_btn" />
 	<button label="Renvoyer TOUS les objets scriptés de l&apos;avatar"
 	     name="return_scripted_all_btn" />
+	<check_box label="Ne rendre que les objets avec des scripts" name="return_scripts"
+	     tool_tip="Ne rendre que les objets qui ont des scripts." />
+	<check_box label="Ne rendre que les objets sur le terrain de quelqu&apos;un d&apos;autre"
+	     name="return_other_land"
+	     tool_tip="Ne rendre que les objets se trouvant sur le terrain de quelqu&apos;un d&apos;autre" />
+	<check_box label="Rendre les objets dans toutes les régions de ce domaine"
+	     name="return_estate_wide"
+	     tool_tip="Rendre les objets dans toutes les régions qui constituent ce domaine" />
+	<button label="Rendre" name="return_btn" />
 	<button label="Afficher les Top Colliders..." name="top_colliders_btn"
 	     tool_tip="Liste d&apos;objets les plus exposés aux collisions potentielles" />
 	<button label="?" name="top_colliders_help" />

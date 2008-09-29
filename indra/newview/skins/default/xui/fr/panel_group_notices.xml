@@ -56,6 +56,8 @@ et ne peuvent être des dossiers.
 		     name="send_notice" />
 		<panel name="drop_target2"
 		     tool_tip="Drag an inventory item onto the message box to send it with the notice. You must have permission to copy and transfer the object to send it with the notice." />
+		<panel name="drop_target"
+		     tool_tip="Pour joindre un objet de l&apos;inventaire à la note, faites-le glisser dans la boîte de message. Pour envoyer l&apos;objet avec la note, vous devez avoir la permission de le copier et de le transférer." />
 	</panel>
 	<panel label="Voir notification passée" name="panel_view_past_notice">
 		<text name="lbl">

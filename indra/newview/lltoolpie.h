@@ -60,27 +60,31 @@ public:
 	virtual LLTool*		getOverrideTool(MASK mask);
 
 	LLPickInfo&			getPick() { return mPick; }
-
+	U8					getClickAction() { return mClickAction; }
+	LLViewerObject*		getClickActionObject() { return mClickActionObject; }
+	LLObjectSelection*	getLeftClickSelection() { return (LLObjectSelection*)mLeftClickSelection; }
+	void 				resetSelection();
+	
 	static void			leftMouseCallback(const LLPickInfo& pick_info);
 	static void			rightMouseCallback(const LLPickInfo& pick_info);
 
 	static void			selectionPropertiesReceived();
 
 
-protected:
+private:
 	BOOL outsideSlop(S32 x, S32 y, S32 start_x, S32 start_y);
 	BOOL pickAndShowMenu(BOOL edit_menu);
 	BOOL useClickAction(BOOL always_show, MASK mask, LLViewerObject* object,
 						LLViewerObject* parent);
 
-protected:
+private:
 	BOOL				mPieMouseButtonDown;
 	BOOL				mGrabMouseButtonDown;
 	BOOL				mMouseOutsideSlop;				// for this drag, has mouse moved outside slop region
 	LLPickInfo			mPick;
-	static LLPointer<LLViewerObject> sClickActionObject;
-	static U8				sClickAction;
-	static LLSafeHandle<LLObjectSelection> sLeftClickSelection;
+	LLPointer<LLViewerObject> mClickActionObject;
+	U8					mClickAction;
+	LLSafeHandle<LLObjectSelection> mLeftClickSelection;
 };
 
 

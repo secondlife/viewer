@@ -340,7 +340,7 @@ void LLToolBar::updateCommunicateList()
 		}
 	}
 	communicate_button->addSeparator(ADD_TOP);
-	communicate_button->add(getUIString("Redock Windows"), LLSD("redock"), ADD_TOP);
+	communicate_button->add(getString("Redock Windows"), LLSD("redock"), ADD_TOP);
 	communicate_button->addSeparator(ADD_TOP);
 	communicate_button->add(LLFloaterMute::getInstance()->getShortTitle(), LLSD("mute list"), ADD_TOP);
 	

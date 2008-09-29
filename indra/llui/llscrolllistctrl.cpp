@@ -67,9 +67,6 @@ struct SortScrollListItem
 
 	bool operator()(const LLScrollListItem* i1, const LLScrollListItem* i2)
 	{
-		if ( mSortOrders.empty() )
-			return i1 < i2;
-
 		// sort over all columns in order specified by mSortOrders
 		S32 sort_result = 0;
 		for (sort_order_t::const_reverse_iterator it = mSortOrders.rbegin();
@@ -91,7 +88,8 @@ struct SortScrollListItem
 			}
 		}
 
-		return sort_result < 0;
+		// make sure to keep order when sort_result == 0 
+		return sort_result <= 0;
 	}
 
 	typedef std::vector<std::pair<S32, BOOL> > sort_order_t;
@@ -2539,12 +2537,6 @@ void LLScrollListCtrl::onScrollChange( S32 new_pos, LLScrollbar* scrollbar, void
 
 void LLScrollListCtrl::sortByColumn(const std::string& name, BOOL ascending)
 {
-	if (name.empty())
-	{
-		sortItems();
-		return;
-	}
-
 	std::map<std::string, LLScrollListColumn>::iterator itor = mColumns.find(name);
 	if (itor != mColumns.end())
 	{
@@ -2570,6 +2562,19 @@ void LLScrollListCtrl::sortItems()
 		SortScrollListItem(mSortColumns));
 
 	setSorted(TRUE);
+}
+
+// for one-shot sorts, does not save sort column/order
+void LLScrollListCtrl::sortOnce(S32 column, BOOL ascending)
+{
+	std::vector<std::pair<S32, BOOL> > sort_column;
+	sort_column.push_back(std::make_pair(column, ascending));
+
+	// do stable sort to preserve any previous sorts
+	std::stable_sort(
+		mItemList.begin(), 
+		mItemList.end(), 
+		SortScrollListItem(sort_column));
 }
 
 void LLScrollListCtrl::dirtyColumns() 

@@ -35,4 +35,7 @@
 	<text name="available_text">
 		0 m2
 	</text>
+	<string name="area_string">
+		[AREA] m²
+	</string>
 </floater>

@@ -2172,7 +2172,7 @@ void LLFloaterIMPanel::removeTypingIndicator(const LLIMInfo* im_info)
 void LLFloaterIMPanel::chatFromLogFile(LLLogChat::ELogLineType type, std::string line, void* userdata)
 {
 	LLFloaterIMPanel* self = (LLFloaterIMPanel*)userdata;
-	LLUIString message = line;
+	std::string message = line;
 
 	switch (type)
 	{
@@ -2180,14 +2180,14 @@ void LLFloaterIMPanel::chatFromLogFile(LLLogChat::ELogLineType type, std::string
 		// add warning log enabled message
 		if (gSavedPerAccountSettings.getBOOL("LogInstantMessages"))
 		{
-			message = LLFloaterChat::getInstance()->getUIString("IM_logging_string");
+			message = LLFloaterChat::getInstance()->getString("IM_logging_string");
 		}
 		break;
 	case LLLogChat::LOG_END:
 		// add log end message
 		if (gSavedPerAccountSettings.getBOOL("LogInstantMessages"))
 		{
-			message = LLFloaterChat::getInstance()->getUIString("IM_logging_string");
+			message = LLFloaterChat::getInstance()->getString("IM_logging_string");
 		}
 		break;
 	case LLLogChat::LOG_LINE:
@@ -2232,11 +2232,16 @@ void LLFloaterIMPanel::showSessionEventError(
 	const std::string& error_string)
 {
 	LLStringUtil::format_map_t args;
-	args["[REASON]"] =
-		LLFloaterIM::sErrorStringsMap[error_string];
-	args["[EVENT]"] =
-		LLFloaterIM::sEventStringsMap[event_string];
+	std::string event;
+
+	event = LLFloaterIM::sEventStringsMap[event_string];
 	args["[RECIPIENT]"] = getTitle();
+	LLStringUtil::format(event, args);
+
+
+	args = LLStringUtil::format_map_t();
+	args["[REASON]"] = LLFloaterIM::sErrorStringsMap[error_string];
+	args["[EVENT]"] = event;
 
 	gViewerWindow->alertXml(
 		"ChatterBoxSessionEventError",

@@ -270,21 +270,21 @@ void LLPanelPlace::processParcelInfoReply(LLMessageSystem *msg, void **)
 		}
 
 		std::string info_text;
-		LLUIString traffic = self->getUIString("traffic_text");
+		LLUIString traffic = self->getString("traffic_text");
 		traffic.setArg("[TRAFFIC]", llformat("%d ", (int)dwell));
 		info_text = traffic;
-		LLUIString area = self->getUIString("area_text");
+		LLUIString area = self->getString("area_text");
 		area.setArg("[AREA]", llformat("%d", actual_area));
 		info_text += area;
 		if (flags & DFQ_FOR_SALE)
 		{
-			LLUIString forsale = self->getUIString("forsale_text");
+			LLUIString forsale = self->getString("forsale_text");
 			forsale.setArg("[PRICE]", llformat("%d", sale_price));
 			info_text += forsale;
 		}
 		if (auction_id != 0)
 		{
-			LLUIString auction = self->getUIString("auction_text");
+			LLUIString auction = self->getString("auction_text");
 			auction.setArg("[ID]", llformat("%010d ", auction_id));
 			info_text += auction;
 		}

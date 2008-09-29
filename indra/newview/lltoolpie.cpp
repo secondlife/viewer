@@ -67,10 +67,6 @@
 #include "llui.h"
 #include "llweb.h"
 
-LLPointer<LLViewerObject> LLToolPie::sClickActionObject;
-LLSafeHandle<LLObjectSelection> LLToolPie::sLeftClickSelection = NULL;
-U8 LLToolPie::sClickAction = 0;
-
 extern void handle_buy(void*);
 
 extern BOOL gDebugClicks;
@@ -84,7 +80,8 @@ LLToolPie::LLToolPie()
 :	LLTool(std::string("Select")),
 	mPieMouseButtonDown( FALSE ),
 	mGrabMouseButtonDown( FALSE ),
-	mMouseOutsideSlop( FALSE )
+	mMouseOutsideSlop( FALSE ),
+	mClickAction(0)
 { }
 
 
@@ -168,17 +165,17 @@ BOOL LLToolPie::pickAndShowMenu(BOOL always_show)
 	// If it's a left-click, and we have a special action, do it.
 	if (useClickAction(always_show, mask, object, parent))
 	{
-		sClickAction = 0;
+		mClickAction = 0;
 		if (object && object->getClickAction()) 
 		{
-			sClickAction = object->getClickAction();
+			mClickAction = object->getClickAction();
 		}
 		else if (parent && parent->getClickAction()) 
 		{
-			sClickAction = parent->getClickAction();
+			mClickAction = parent->getClickAction();
 		}
 
-		switch(sClickAction)
+		switch(mClickAction)
 		{
 		case CLICK_ACTION_TOUCH:
 		default:
@@ -196,27 +193,27 @@ BOOL LLToolPie::pickAndShowMenu(BOOL always_show)
 				|| parent && parent->flagTakesMoney())
 			{
 				// pay event goes to object actually clicked on
-				sClickActionObject = object;
-				sLeftClickSelection = LLToolSelect::handleObjectSelection(mPick, FALSE, TRUE);
+				mClickActionObject = object;
+				mLeftClickSelection = LLToolSelect::handleObjectSelection(mPick, FALSE, TRUE);
 				return TRUE;
 			}
 			break;
 		case CLICK_ACTION_BUY:
-			sClickActionObject = parent;
-			sLeftClickSelection = LLToolSelect::handleObjectSelection(mPick, FALSE, TRUE, TRUE);
+			mClickActionObject = parent;
+			mLeftClickSelection = LLToolSelect::handleObjectSelection(mPick, FALSE, TRUE, TRUE);
 			return TRUE;
 		case CLICK_ACTION_OPEN:
 			if (parent && parent->allowOpen())
 			{
-				sClickActionObject = parent;
-				sLeftClickSelection = LLToolSelect::handleObjectSelection(mPick, FALSE, TRUE, TRUE);
+				mClickActionObject = parent;
+				mLeftClickSelection = LLToolSelect::handleObjectSelection(mPick, FALSE, TRUE, TRUE);
 			}
 			return TRUE;
 		case CLICK_ACTION_PLAY:
 			handle_click_action_play();
 			return TRUE;
 		case CLICK_ACTION_OPEN_MEDIA:
-			// sClickActionObject = object;
+			// mClickActionObject = object;
 			handle_click_action_open_media(object);
 			return TRUE;
 		}
@@ -471,8 +468,16 @@ ECursorType cursor_from_object(LLViewerObject* object)
 	return cursor;
 }
 
+void LLToolPie::resetSelection()
+{
+	mLeftClickSelection = NULL;
+	mClickActionObject = NULL;
+	mClickAction = 0;
+}
+
 // When we get object properties after left-clicking on an object
 // with left-click = buy, if it's the same object, do the buy.
+
 // static
 void LLToolPie::selectionPropertiesReceived()
 {
@@ -483,14 +488,16 @@ void LLToolPie::selectionPropertiesReceived()
 		return;
 	}
 
-	if (!sLeftClickSelection->isEmpty())
+	LLObjectSelection* selection = LLToolPie::getInstance()->getLeftClickSelection();
+	if (selection)
 	{
-		LLViewerObject* selected_object = sLeftClickSelection->getPrimaryObject();
+		LLViewerObject* selected_object = selection->getPrimaryObject();
 		// since we don't currently have a way to lock a selection, it could have changed
 		// after we initially clicked on the object
-		if (selected_object == sClickActionObject)
+		if (selected_object == LLToolPie::getInstance()->getClickActionObject())
 		{
-			switch (sClickAction)
+			U8 click_action = LLToolPie::getInstance()->getClickAction();
+			switch (click_action)
 			{
 			case CLICK_ACTION_BUY:
 				handle_buy(NULL);
@@ -506,9 +513,7 @@ void LLToolPie::selectionPropertiesReceived()
 			}
 		}
 	}
-	sLeftClickSelection = NULL;
-	sClickActionObject = NULL;
-	sClickAction = 0;
+	LLToolPie::getInstance()->resetSelection();
 }
 
 BOOL LLToolPie::handleHover(S32 x, S32 y, MASK mask)

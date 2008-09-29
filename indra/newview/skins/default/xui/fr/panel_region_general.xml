@@ -6,6 +6,12 @@
 	<text name="region_text">
 		inconnu
 	</text>
+	<text name="version_channel_text_lbl">
+		Version :
+	</text>
+	<text name="version_channel_text">
+		(inconnu)
+	</text>
 	<check_box label="Interdire le terraforming" name="block_terraform_check" />
 	<button label="?" name="terraform_help" />
 	<check_box label="Interdire vol" name="block_fly_check" />
@@ -18,6 +24,10 @@
 	<button label="?" name="land_resell_help" />
 	<check_box label="Autoriser Fusionner/Diviser parcelle" name="allow_parcel_changes_check" />
 	<button label="?" name="parcel_changes_help" />
+	<check_box label="Ne pas afficher le terrain dans la recherche"
+	     name="block_parcel_search_check"
+	     tool_tip="Afficher cette région et ses parcelles dans les résultats de recherche" />
+	<button label="?" name="parcel_search_help" />
 	<spinner label="Limite d&apos;avatars" name="agent_limit_spin" />
 	<button label="?" name="agent_limit_help" />
 	<spinner label="Bonus de l&apos;objet" name="object_bonus_spin" />

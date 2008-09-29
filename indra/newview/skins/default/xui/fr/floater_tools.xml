@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater name="toolbox floater" title="">
-	<button label="" label_selected="" name="button focus" />
+	<button label="" label_selected="" name="button focus" tool_tip="Mise au point" />
 	<text name="tool label">
 		Faire le point
 	</text>
-	<button label="" label_selected="" name="button move" />
+	<button label="" label_selected="" name="button move" tool_tip="Déplacer" />
 	<text name="tool label2">
 		Se déplacer
 	</text>
-	<button label="" label_selected="" name="button edit" />
+	<button label="" label_selected="" name="button edit" tool_tip="Modifier" />
 	<text name="tool label3">
 		Edition
 	</text>
-	<button label="" label_selected="" name="button create" />
+	<button label="" label_selected="" name="button create" tool_tip="Créer" />
 	<text name="tool label4">
 		Créer
 	</text>
-	<button label="" label_selected="" name="button land" />
+	<button label="" label_selected="" name="button land" tool_tip="Terrain" />
 	<text name="tool label5">
 		Terrain
 	</text>
@@ -52,22 +52,22 @@
 			Réference
 		</combo_item>
 	</combo_box>
-	<button label="" label_selected="" name="ToolCube" />
-	<button label="" label_selected="" name="ToolPrism" />
-	<button label="" label_selected="" name="ToolPyramid" />
-	<button label="" label_selected="" name="ToolTetrahedron" />
-	<button label="" label_selected="" name="ToolCylinder" />
-	<button label="" label_selected="" name="ToolHemiCylinder" />
-	<button label="" label_selected="" name="ToolCone" />
-	<button label="" label_selected="" name="ToolHemiCone" />
-	<button label="" label_selected="" name="ToolSphere" />
-	<button label="" label_selected="" name="ToolHemiSphere" />
+	<button label="" label_selected="" name="ToolCube" tool_tip="Cube" />
+	<button label="" label_selected="" name="ToolPrism" tool_tip="Prisme" />
+	<button label="" label_selected="" name="ToolPyramid" tool_tip="Pyramide" />
+	<button label="" label_selected="" name="ToolTetrahedron" tool_tip="Tétraèdre" />
+	<button label="" label_selected="" name="ToolCylinder" tool_tip="Cylindre" />
+	<button label="" label_selected="" name="ToolHemiCylinder" tool_tip="Demi-cylindre" />
+	<button label="" label_selected="" name="ToolCone" tool_tip="Cône" />
+	<button label="" label_selected="" name="ToolHemiCone" tool_tip="Demi-cône" />
+	<button label="" label_selected="" name="ToolSphere" tool_tip="Sphère" />
+	<button label="" label_selected="" name="ToolHemiSphere" tool_tip="Demi-sphère" />
 	<check_box label="Copier la sélection" name="checkbox copy selection" />
-	<button label="" label_selected="" name="ToolTorus" />
-	<button label="" label_selected="" name="ToolTube" />
-	<button label="" label_selected="" name="ToolRing" />
-	<button label="" label_selected="" name="ToolTree" />
-	<button label="" label_selected="" name="ToolGrass" />
+	<button label="" label_selected="" name="ToolTorus" tool_tip="Tore" />
+	<button label="" label_selected="" name="ToolTube" tool_tip="Tube" />
+	<button label="" label_selected="" name="ToolRing" tool_tip="Anneau" />
+	<button label="" label_selected="" name="ToolTree" tool_tip="Arbre" />
+	<button label="" label_selected="" name="ToolGrass" tool_tip="Herbe" />
 	<check_box label="Maintenir l&apos;outil sélectionné" name="checkbox sticky" />
 	<check_box label="Centrer la copie" name="checkbox copy centers" />
 	<check_box label="Pivoter la copie" name="checkbox copy rotates" />
@@ -89,6 +89,9 @@
 			Grand
 		</combo_item>
 	</combo_box>
+	<text name="Strength:">
+		Force :
+	</text>
 	<button label="Appliquer à la sélection" label_selected="Appliquer à la sélection"
 	     name="button apply to selection" tool_tip="Modifier terrain sélectionné" />
 	<check_box label="Afficher propriétaires" name="checkbox show owners" />
@@ -145,9 +148,14 @@
 			<check_box label="Autoriser tout le monde à déplacer"
 			     name="checkbox allow everyone move" />
 			<check_box label="Autoriser tout le monde à copier" name="checkbox allow everyone copy" />
+			<check_box label="Afficher dans la recherche" name="search_check"
+			     tool_tip="Afficher l&apos;objet dans les résultats de recherche" />
 			<check_box label="A vendre" name="checkbox for sale" />
 			<text name="Price:  L$">
 				Prix :  L$
+			</text>
+			<text name="Cost">
+				Prix :  $L
 			</text>
 			<radio_group name="sale type">
 				<radio_item name="Original">
@@ -185,6 +193,12 @@
 				<combo_item name="Open">
 					Ouvrir
 				</combo_item>
+				<combo_item name="Play">
+					Jouer le média sur la parcelle
+				</combo_item>
+				<combo_item name="Opemmedia">
+					Ouvrir le média sur la parcelle
+				</combo_item>
 			</combo_box>
 			<text name="B:">
 				B:
@@ -219,6 +233,21 @@
 			<text name="text modify warning">
 				Vous devez sélectionner l&apos;objet entier pour fixer des autorisations.
 			</text>
+			<string name="Cost Default">
+				Prix :           $L
+			</string>
+			<string name="Cost Total">
+				Prix total :  $L
+			</string>
+			<string name="Cost Per Unit">
+				Prix par :     $L
+			</string>
+			<string name="Cost Mixed">
+				Prix mixte
+			</string>
+			<string name="Sale Mixed">
+				Vente mixte
+			</string>
 		</panel>
 		<panel label="Objet" name="Object">
 			<text name="select_single">
@@ -304,6 +333,9 @@
 				<combo_item name="Ring">
 					Anneau
 				</combo_item>
+				<combo_item name="Sculpted">
+					Sculpté
+				</combo_item>
 			</combo_box>
 			<text name="text cut">
 				Path Cut Begin and End
@@ -370,6 +402,32 @@
 			<text name="text revolutions">
 				Révolutions
 			</text>
+			<texture_picker label="Sculpter la texture" name="sculpt texture control"
+			     tool_tip="Cliquez pour sélectionner une image" />
+			<check_box label="Mirroir" name="sculpt mirror control"
+			     tool_tip="Retourne le prim sculpté le long de l&apos;axe des X." />
+			<check_box label="A l&apos;envers" name="sculpt invert control"
+			     tool_tip="Inverse les valeurs normales d&apos;un prim sculpté et le fait apparaître à l&apos;envers." />
+			<text name="label sculpt type">
+				Type de couture
+			</text>
+			<combo_box name="sculpt type control">
+				<combo_item name="None">
+					(aucun)
+				</combo_item>
+				<combo_item name="Sphere">
+					Sphère
+				</combo_item>
+				<combo_item name="Torus">
+					Tore
+				</combo_item>
+				<combo_item name="Plane">
+					Plan
+				</combo_item>
+				<combo_item name="Cylinder">
+					Cylindre
+				</combo_item>
+			</combo_box>
 		</panel>
 		<panel label="Attributs" name="Features">
 			<text name="select_single">
@@ -406,6 +464,9 @@
 			     tool_tip="Cliquer pour ouvrir le sélecteur de couleurs" />
 			<text name="color trans">
 				Transparence
+			</text>
+			<text name="glow label">
+				Rayonnement
 			</text>
 			<check_box label="Lumin. max." name="checkbox fullbright" />
 			<text name="tex gen">
@@ -548,4 +609,43 @@
 		<button label="A propos du terrain…" label_selected="A propos du terrain…"
 		     name="button about land" />
 	</panel>
+	<string name="status_rotate">
+		Pour faire tourner l&apos;objet, faîtes glisser les bandes de couleur.
+	</string>
+	<string name="status_scale">
+		Pour étirer le côté sélectionné, cliquez et faîtes glisser
+	</string>
+	<string name="status_move">
+		Faîtes glisser pour déplacer, Maj-faire glisser pour copier.
+	</string>
+	<string name="status_modifyland">
+		Cliquez et maintenez pour modifier le terrain
+	</string>
+	<string name="status_camera">
+		Cliquez et faîtes glisser pour changer l&apos;affichage
+	</string>
+	<string name="status_grab">
+		Faîtes glisser pour déplacer les objets, appuyez sur Ctrl pour soulever, Crtl-Maj pour faire tourner
+	</string>
+	<string name="status_place">
+		Cliquez dans le Monde pour créer, Maj-clic pour sélectionner
+	</string>
+	<string name="status_selectland">
+		Cliquez et faîtes glisser pour sélectionner le terrain
+	</string>
+	<string name="grid_screen_text">
+		Ecran
+	</string>
+	<string name="grid_local_text">
+		Local
+	</string>
+	<string name="grid_world_text">
+		Monde
+	</string>
+	<string name="grid_reference_text">
+		Référence
+	</string>
+	<string name="grid_attachment_text">
+		Pièce-jointe
+	</string>
 </floater>

@@ -157,4 +157,17 @@
 	</text>
 	<button label="Annuler" name="cancel_btn" />
 	<button label="Uploader (L$[AMOUNT])" name="ok_btn" />
+	<string name="failed_to_initialize">
+		Echec de l&apos;initialisation du mouvement
+	</string>
+	<string name="anim_too_long">
+		Le fichier d&apos;animation fait [LENGTH] secondes.
+
+La longueur maximale est de [MAX_LENGTH] secondes.
+	</string>
+	<string name="failed_file_read">
+		Impossible de lire le fichier d&apos;animation.
+
+[STATUS]
+	</string>
 </floater>

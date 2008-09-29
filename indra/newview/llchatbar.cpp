@@ -216,15 +216,14 @@ void LLChatBar::refresh()
 
 void LLChatBar::refreshGestures()
 {
-	LLCtrlListInterface* gestures = mGestureCombo ? mGestureCombo->getListInterface() : NULL;
-	if (mGestureCombo && gestures)
+	if (mGestureCombo)
 	{
 		//store current selection so we can maintain it
 		std::string cur_gesture = mGestureCombo->getValue().asString();
-		gestures->selectFirstItem();
+		mGestureCombo->selectFirstItem();
 		std::string label = mGestureCombo->getValue().asString();;
 		// clear
-		gestures->clearRows();
+		mGestureCombo->clearRows();
 
 		// collect list of unique gestures
 		std::map <std::string, BOOL> unique;
@@ -245,20 +244,21 @@ void LLChatBar::refreshGestures()
 		std::map <std::string, BOOL>::iterator it2;
 		for (it2 = unique.begin(); it2 != unique.end(); ++it2)
 		{
-			gestures->addSimpleElement((*it2).first);
+			mGestureCombo->addSimpleElement((*it2).first);
 		}
 		
-		gestures->sortByColumn(LLStringUtil::null, TRUE);
-		// Insert label after sorting
-		gestures->addSimpleElement(label, ADD_TOP);
+		mGestureCombo->sortByName();
+		// Insert label after sorting, at top, with separator below it
+		mGestureCombo->addSeparator(ADD_TOP);
+		mGestureCombo->addSimpleElement(getString("gesture_label"), ADD_TOP);
 		
 		if (!cur_gesture.empty())
-		{
-			gestures->selectByValue(LLSD(cur_gesture));
+		{ 
+			mGestureCombo->selectByValue(LLSD(cur_gesture));
 		}
 		else
 		{
-			gestures->selectFirstItem();
+			mGestureCombo->selectFirstItem();
 		}
 	}
 }

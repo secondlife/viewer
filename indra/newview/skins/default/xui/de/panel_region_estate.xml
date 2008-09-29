@@ -24,7 +24,7 @@
 	     tool_tip="Einwohner ohne Altersprüfung verbannen. Weitere Informationen finden Sie auf support.secondlife.com." />
 	<check_box label="Voice-Chat erlauben" name="voice_chat_check" />
 	<button label="?" name="voice_chat_help" />
-	<text name="abuse_email_text">
+	<text name="abuse_email_text" width="222">
 		E-Mail-Adresse für Missbrauchsmeldungen:
 	</text>
 	<string name="email_unsupported">

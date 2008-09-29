@@ -11,6 +11,12 @@
 	<text type="string" length="12" name="TimeText" tool_tip="Heure actuelle (UTC -8)">
 		12:00 AM
 	</text>
+	<string name="StatBarDaysOfWeek">
+		Sunday:Monday:Tuesday:Wednesday:Thursday:Friday:Saturday
+	</string>
+	<string name="StatBarMonthsOfYear">
+		January:February:March:April:May:June:July:August:September:October:November:December
+	</string>
 	<button label="" label_selected="" name="scriptout"
 	     tool_tip="Alertes et erreurs de scripts" />
 	<button label="" label_selected="" name="health" tool_tip="Santé" />
@@ -20,9 +26,15 @@
 	<button label="" label_selected="" name="fly" tool_tip="Vol interdit" />
 	<button label="" label_selected="" name="build" tool_tip="Construction interdite" />
 	<button label="" label_selected="" name="scripts" tool_tip="Scripts interdits" />
+	<button name="no_fly" tool_tip="Interdiction de voler" />
+	<button name="no_build" tool_tip="Interdiction de construire/rezzer" />
+	<button name="no_scripts" tool_tip="Interdiction d&apos;utiliser des scripts" />
 	<button label="" label_selected="" name="restrictpush"
 	     tool_tip="Restreindre llPushObject" />
+	<button name="status_no_voice" tool_tip="Voix non disponible ici" />
 	<button label="" label_selected="" name="buyland" tool_tip="Acheter cette parcelle" />
+	<line_editor label="Rechercher" name="search_editor" tool_tip="Rechercher dans Second Life" />
+	<button name="search_btn" tool_tip="Rechercher dans Second Life" />
 	<text name="packet_loss_tooltip">
 		Paquets perdus
 	</text>

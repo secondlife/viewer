@@ -2155,6 +2155,12 @@ void LLVOAvatar::releaseMeshData()
 	{
 		LLFace* facep = mDrawable->getFace(0);
 		facep->setSize(0, 0);
+
+		for(S32 i = mNumInitFaces ; i < mDrawable->getNumFaces(); i++)
+		{
+			facep = mDrawable->getFace(i);
+			facep->setSize(0, 0);
+		}
 	}
 	
 	for (attachment_map_t::iterator iter = mAttachmentPoints.begin(); 
@@ -2211,50 +2217,97 @@ void LLVOAvatar::updateMeshData()
 	if (mDrawable.notNull())
 	{
 		stop_glerror();
-		LLFace* facep = mDrawable->getFace(0);
 
-		U32 num_vertices = 0;
-		U32 num_indices = 0;
+		LLViewerJoint* av_parts[8] ;
+		av_parts[0] = &mEyeBallLeftLOD ;
+		av_parts[1] = &mEyeBallRightLOD ;
+		av_parts[2] = &mEyeLashLOD ;
+		av_parts[3] = &mHeadLOD ;
+		av_parts[4] = &mLowerBodyLOD ;
+		av_parts[5] = &mSkirtLOD ;
+		av_parts[6] = &mUpperBodyLOD ;
+		av_parts[7] = &mHairLOD ;
+		
+		S32 f_num = 0 ;
+		const U32 VERTEX_NUMBER_THRESHOLD = 128 ;//small number of this means each part of an avatar has its own vertex buffer.
 
 		// this order is determined by number of LODS
 		// if a mesh earlier in this list changed LODs while a later mesh doesn't,
 		// the later mesh's index offset will be inaccurate
-		mEyeBallLeftLOD.updateFaceSizes(num_vertices, num_indices, mAdjustedPixelArea);
-		mEyeBallRightLOD.updateFaceSizes(num_vertices, num_indices, mAdjustedPixelArea);
-		mEyeLashLOD.updateFaceSizes(num_vertices, num_indices, mAdjustedPixelArea);
-		mHeadLOD.updateFaceSizes(num_vertices, num_indices, mAdjustedPixelArea);
-		mLowerBodyLOD.updateFaceSizes(num_vertices, num_indices, mAdjustedPixelArea);
-		mSkirtLOD.updateFaceSizes(num_vertices, num_indices, mAdjustedPixelArea);
-		mUpperBodyLOD.updateFaceSizes(num_vertices, num_indices, mAdjustedPixelArea);
-		mHairLOD.updateFaceSizes(num_vertices, num_indices, mAdjustedPixelArea);
-
-		// resize immediately
-		facep->setSize(num_vertices, num_indices);
-
-		facep->mVertexBuffer = new LLVertexBufferAvatar();
-		facep->mVertexBuffer->allocateBuffer(num_vertices, num_indices, TRUE);
-
-		facep->setGeomIndex(0);
-		facep->setIndicesIndex(0);
-		
-		// This is a hack! Avatars have their own pool, so we are detecting
-		//   the case of more than one avatar in the pool (thus > 0 instead of >= 0)
-		if (facep->getGeomIndex() > 0)
+		for(S32 part_index = 0 ; part_index < 8 ;)
 		{
-			llerrs << "non-zero geom index: " << facep->getGeomIndex() << " in LLVOAvatar::restoreMeshData" << llendl;
+			S32 j = part_index ;
+			U32 last_v_num = 0, num_vertices = 0 ;
+			U32 last_i_num = 0, num_indices = 0 ;
+
+			while(part_index < 8 && num_vertices < VERTEX_NUMBER_THRESHOLD)
+			{
+				last_v_num = num_vertices ;
+				last_i_num = num_indices ;
+
+				av_parts[part_index++]->updateFaceSizes(num_vertices, num_indices, mAdjustedPixelArea);
+			}
+			if(num_vertices < 1)//skip empty meshes
+			{
+				break ;
+			}
+			if(last_v_num > 0)//put the last inserted part into next vertex buffer.
+			{
+				num_vertices = last_v_num ;
+				num_indices = last_i_num ;	
+				part_index-- ;
+			}
+		
+			LLFace* facep ;
+			if(f_num < mDrawable->getNumFaces()) 
+			{
+				facep = mDrawable->getFace(f_num);
+			}
+			else
+			{
+				facep = mDrawable->addFace(mDrawable->getFace(0)->getPool(), mDrawable->getFace(0)->getTexture()) ;
+			}
+			
+			// resize immediately
+			facep->setSize(num_vertices, num_indices);
+
+			if(facep->mVertexBuffer.isNull())
+			{
+				facep->mVertexBuffer = new LLVertexBufferAvatar();
+				facep->mVertexBuffer->allocateBuffer(num_vertices, num_indices, TRUE);
+			}
+			else
+			{
+				facep->mVertexBuffer->resizeBuffer(num_vertices, num_indices) ;
+			}
+		
+			facep->setGeomIndex(0);
+			facep->setIndicesIndex(0);
+		
+			// This is a hack! Avatars have their own pool, so we are detecting
+			//   the case of more than one avatar in the pool (thus > 0 instead of >= 0)
+			if (facep->getGeomIndex() > 0)
+			{
+				llerrs << "non-zero geom index: " << facep->getGeomIndex() << " in LLVOAvatar::restoreMeshData" << llendl;
+			}
+
+			for(S32 k = j ; k < part_index ; k++)
+			{
+				av_parts[k]->updateFaceData(facep, mAdjustedPixelArea, (k == 7));
+			}
+
+			stop_glerror();
+			facep->mVertexBuffer->setBuffer(0);
+
+			if(!f_num)
+			{
+				f_num += mNumInitFaces ;
+			}
+			else
+			{
+				f_num++ ;
+			}
 		}
-
-		mEyeBallLeftLOD.updateFaceData(facep, mAdjustedPixelArea);
-		mEyeBallRightLOD.updateFaceData(facep, mAdjustedPixelArea);
-		mEyeLashLOD.updateFaceData(facep, mAdjustedPixelArea);
-		mHeadLOD.updateFaceData(facep, mAdjustedPixelArea);
-		mLowerBodyLOD.updateFaceData(facep, mAdjustedPixelArea);
-		mSkirtLOD.updateFaceData(facep, mAdjustedPixelArea);
-		mUpperBodyLOD.updateFaceData(facep, mAdjustedPixelArea);
-		mHairLOD.updateFaceData(facep, mAdjustedPixelArea, TRUE);
-
-		stop_glerror();
-		facep->mVertexBuffer->setBuffer(0);
 	}
 }
 
@@ -5847,6 +5900,7 @@ LLDrawable *LLVOAvatar::createDrawable(LLPipeline *pipeline)
 	LLDrawPoolAvatar *poolp = (LLDrawPoolAvatar*) gPipeline.getPool(LLDrawPool::POOL_AVATAR);
 
 	// Only a single face (one per avatar)
+	//this face will be splitted into several if its vertex buffer is too long.
 	mDrawable->setState(LLDrawable::ACTIVE);
 	mDrawable->addFace(poolp, NULL);
 	mDrawable->setRenderType(LLPipeline::RENDER_TYPE_AVATAR);
@@ -5859,6 +5913,8 @@ LLDrawable *LLVOAvatar::createDrawable(LLPipeline *pipeline)
 
 	facep = mDrawable->addFace((LLFacePool*) NULL, mShadowImagep);
 	mShadow1Facep = facep;
+
+	mNumInitFaces = mDrawable->getNumFaces() ;
 
 	dirtyMesh();
 	return mDrawable;

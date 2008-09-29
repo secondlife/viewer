@@ -2,13 +2,13 @@
 <floater name="worldmap" title="Carte du monde">
 	<tab_container name="maptab">
 		<panel label="Objets" name="objects_mapview" />
-		<panel label="Relief" name="terrain_mapview" />
+		<panel label="Terrain" name="terrain_mapview" />
 	</tab_container>
 	<text name="land_for_sale_label">
-		Terrain à vendre :
+		Terrain à vendre
 	</text>
 	<text name="auction_label">
-		Enchères
+		Enchère
 	</text>
 	<text name="you_label">
 		Vous
@@ -16,8 +16,8 @@
 	<text name="home_label">
 		Domicile
 	</text>
-	<button label="Rejoindre son domicile" label_selected="Rejoindre son domicile"
-	     name="Go Home" tool_tip="Téléportez-vous vers votre domicile" />
+	<button label="Aller chez moi" label_selected="Aller chez moi" name="Go Home"
+	     tool_tip="Vous téléporte à votre domicile" />
 	<text name="classifieds_label">
 		Petites annonces
 	</text>
@@ -27,11 +27,11 @@
 	</text>
 	<check_box label=" " name="people_chk" />
 	<text name="infohub_label">
-		Point Info
+		Infohub
 	</text>
 	<check_box label=" " name="infohub_chk" />
 	<text name="telehub_label">
-		Téléport
+		Téléhub
 	</text>
 	<check_box label=" " name="telehubchk" />
 	<text name="popular_label">
@@ -39,7 +39,7 @@
 	</text>
 	<check_box label=" " name="popular_chk" />
 	<text name="land_for_sale_label2">
-		Terrain à vendre :
+		Terrain à vendre
 	</text>
 	<check_box label=" " name="land_for_sale_chk" />
 	<text name="events_label">
@@ -47,24 +47,27 @@
 	</text>
 	<check_box label=" " name="event_chk" />
 	<text name="events_mature_label">
-		Evénements (M)
+		Evénements (A)
 	</text>
 	<check_box label=" " name="event_mature_chk" />
-	<combo_box label="Mes Amis" name="friend combo" tool_tip="Friend to Show on Map">
+	<combo_box label="Amis en ligne" name="friend combo"
+	     tool_tip="Ami à afficher sur la carte">
 		<combo_item name="none_selected">
-			Mes Amis
+			Amis en ligne
 		</combo_item>
 	</combo_box>
-	<combo_box label="Mes Repères" name="landmark combo" tool_tip="Landmark to Show on Map">
+	<combo_box label="Repères" name="landmark combo"
+	     tool_tip="Repère à afficher sur la carte">
 		<combo_item name="none_selected">
-			Mes Repères
+			Repères
 		</combo_item>
 	</combo_box>
-	<line_editor name="location" tool_tip="Entrez le nom d&apos;une région">
+	<line_editor label="Rechercher par nom de région" name="location"
+	     tool_tip="Saisissez le nom d&apos;une région">
 		Recherche par nom de région
 	</line_editor>
 	<button label="Rechercher" label_selected="&gt;" name="DoSearch"
-	     tool_tip="Rechercher région" />
+	     tool_tip="Rechercher dans la région" />
 	<text name="search_label">
 		Résultats de la recherche :
 	</text>
@@ -73,20 +76,22 @@
 		<column label="" name="sim_name" />
 	</scroll_list>
 	<text name="location_label">
-		Lieu :
+		Emplacement :
 	</text>
-	<spinner name="spin x" tool_tip="Coordonnée X du lieu à afficher sur la carte" />
-	<spinner name="spin y" tool_tip="Coordonnée Y du lieu à afficher sur la carte" />
-	<spinner name="spin z" tool_tip="Coordonnée Z du lieu à afficher sur la carte" />
-	<button label="Téléportation" label_selected="Téléportation" name="Teleport"
-	     tool_tip="Téléportez-vous vers le lieu choisi" />
-	<button label="Afficher destination" label_selected="Afficher destination"
+	<spinner name="spin x" tool_tip="Coordonnées des X du lieu à afficher sur la carte" />
+	<spinner name="spin y" tool_tip="Coordonnées des Y du lieu à afficher sur la carte" />
+	<spinner name="spin z" tool_tip="Coordonnées des Z du lieu à afficher sur la carte" />
+	<button label="Téléporter" label_selected="Téléporter" name="Teleport"
+	     tool_tip="Téléporter à l&apos;endroit sélectionné" />
+	<button label="Afficher la destination" label_selected="Afficher la destination"
 	     name="Show Destination"
-	     tool_tip="Centrer la carte sur la position sélectionnée" />
+	     tool_tip="Centrer la carte sur l&apos;endroit sélectionné" />
 	<button label="Effacer" label_selected="Effacer" name="Clear"
-	     tool_tip="Arrêter la détection" />
-	<button label="Afficher ma position" label_selected="Afficher ma position"
+	     tool_tip="Arrêter de suivre" />
+	<button label="Afficher mon emplacement" label_selected="Afficher mon emplacement"
 	     name="Show My Location"
-	     tool_tip="Centrer la carte sur la position de votre avatar" />
+	     tool_tip="Centrer la carte sur l&apos;emplacement de votre avatar" />
+	<button label="Copier la SLURL sur le presse-papier" name="copy_slurl"
+	     tool_tip="Copier l&apos;emplacement actuel comme SLURL pour l&apos;utiliser sur le Web." />
 	<slider label="Zoom" name="zoom slider" />
 </floater>

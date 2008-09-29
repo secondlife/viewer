@@ -622,6 +622,8 @@ public:
 
 	S32		selectMultiple( LLDynamicArray<LLUUID> ids );
 	void			sortItems();
+	// sorts a list without affecting the permanent sort order (so further list insertions can be unsorted, for example)
+	void			sortOnce(S32 column, BOOL ascending);
 
 	// manually call this whenever editing list items in place to flag need for resorting
 	void			setSorted(BOOL sorted) { mSorted = sorted; }

@@ -296,9 +296,9 @@ LLScrollListItem* LLComboBox::addSeparator(EAddPosition pos)
 	return mList->addSeparator(pos);
 }
 
-void LLComboBox::sortByName()
+void LLComboBox::sortByName(BOOL ascending)
 {
-	mList->sortByColumnIndex(0, TRUE);
+	mList->sortOnce(0, ascending);
 }
 
 

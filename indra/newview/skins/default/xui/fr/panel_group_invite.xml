@@ -5,6 +5,11 @@
 à inviter dans votre groupe. Cliquez sur &apos;Ouvrir 
 le Sélecteur de Personnes&apos; pour commencer.
 	</text>
+	<text name="help_text">
+		Vous pouvez inviter plusieurs résidents. 
+Cliquez sur Sélecteur 
+de personnes pour commencer.
+	</text>
 	<button label="Ouvrir le Sélecteur de Personnes" name="add_button" tool_tip="" />
 	<name_list name="invitee_list"
 	     tool_tip="Hold the Ctrl key and click resident names  to multi-select." />
@@ -13,8 +18,17 @@ le Sélecteur de Personnes&apos; pour commencer.
 	<text>
 		Choisissez le Rôle à leur attribuer :
 	</text>
+	<text name="role_text">
+		Assignez-leur un rôle :
+	</text>
 	<combo_box name="role_name"
 	     tool_tip="Choose from the list of Roles you  are allowed to assign members to." />
 	<button label="Envoyer des invitations" name="ok_button" />
 	<button label="Annuler" name="cancel_button" />
+	<string name="confirm_invite_owner_str">
+		Etes-vous certain de vouloir inviter un/de nouveau(x) propriétaire(s) ? Ce choix est permanent !
+	</string>
+	<string name="loading">
+		(en cours de chargement...)
+	</string>
 </panel>

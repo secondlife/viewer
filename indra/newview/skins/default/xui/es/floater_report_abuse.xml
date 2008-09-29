@@ -9,7 +9,7 @@
 	<text name="pos_title">
 		Posición:
 	</text>
-	<texture_picker label="Trabajando..." name="screenshot" />
+	<texture_picker name="screenshot" />
 	<check_box label="Incluir foto instantánea" name="screen_check" />
 	<combo_box name="category_combo"
 	     tool_tip="Category -- select the category that best describes this report">

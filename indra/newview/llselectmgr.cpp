@@ -1102,7 +1102,7 @@ void LLSelectMgr::getGrid(LLVector3& origin, LLQuaternion &rotation, LLVector3 &
 		switch (mSelectedObjects->mSelectType)
 		{
 		case SELECT_TYPE_ATTACHMENT:
-			if (first_object)
+			if (first_object && first_object->getRootEdit()->mDrawable.notNull())
 			{
 				// this means this object *has* to be an attachment
 				LLXform* attachment_point_xform = first_object->getRootEdit()->mDrawable->mXform.getParent();

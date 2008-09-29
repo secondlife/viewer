@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="Joystick" title="Configuration du joystick">
+	<check_box name="enable_joystick">
+		Activer le joystick :
+	</check_box>
+	<spinner label="Mapping axe des X " name="JoystickAxis1" />
+	<spinner label="Mapping axe des Y" name="JoystickAxis2" />
+	<spinner label="Mapping axe des Z" name="JoystickAxis0" />
+	<spinner label="Mapping du tangage" name="JoystickAxis4" />
+	<spinner label="Mapping du lacet" name="JoystickAxis5" />
+	<spinner label="Mapping du roulis" name="JoystickAxis3" />
+	<spinner label="Mapping du zoom" name="JoystickAxis6" />
+	<check_box label="Zoom direct" name="ZoomDirect" />
+	<check_box label="Curseur 3D" name="Cursor3D" />
+	<check_box label="Niveau automatique" name="AutoLeveling" />
+	<text name="Control Modes:">
+		Modes de contrôle :
+	</text>
+	<check_box name="JoystickAvatarEnabled">
+		Avatar
+	</check_box>
+	<check_box name="JoystickBuildEnabled">
+		Build
+	</check_box>
+	<check_box name="JoystickFlycamEnabled">
+		Flycam
+	</check_box>
+	<text name="XScale">
+		Echelle des X
+	</text>
+	<text name="YScale">
+		Echelle des Y
+	</text>
+	<text name="ZScale">
+		Echelle des Z
+	</text>
+	<text name="PitchScale">
+		Echelle du tangage
+	</text>
+	<text name="YawScale">
+		Echelle du lacet
+	</text>
+	<text name="RollScale">
+		Echelle du roulis
+	</text>
+	<text name="XDeadZone">
+		Zone neutre X
+	</text>
+	<text name="YDeadZone">
+		Zone neutre Y
+	</text>
+	<text name="ZDeadZone">
+		Zone neutre Z
+	</text>
+	<text name="PitchDeadZone">
+		Zone neutre Tangage
+	</text>
+	<text name="YawDeadZone">
+		Zone neutre lacet
+	</text>
+	<text name="RollDeadZone">
+		Zone neutre roulis
+	</text>
+	<text name="Feathering">
+		Feathering
+	</text>
+	<text name="ZoomScale2">
+		Echelle du zoom
+	</text>
+	<text name="ZoomDeadZone">
+		Zone neutre du zoom
+	</text>
+	<button label="Options par défaut du joystick" name="SpaceNavigatorDefaults" />
+	<string name="JoystickMonitor">
+		Contrôle du joystick
+	</string>
+	<string name="Axis">
+		Axe [NUM]
+	</string>
+	<string name="NoDevice">
+		aucun dispositif détecté
+	</string>
+</floater>

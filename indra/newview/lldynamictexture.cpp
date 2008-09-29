@@ -141,6 +141,7 @@ void LLDynamicTexture::preRender(BOOL clear_depth)
 		if (window_pos.mY < 0)
 		{
 			mOrigin.mY += window_pos.mY;
+			mOrigin.mY = llmax(mOrigin.mY, 0) ;
 		}
 
 		LLImageGL::unbindTexture(0, GL_TEXTURE_2D);

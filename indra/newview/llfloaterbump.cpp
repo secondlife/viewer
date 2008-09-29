@@ -149,7 +149,7 @@ void LLFloaterBump::add(LLScrollListCtrl* list, LLMeanCollisionData* mcd)
 	}
 
 	// All above action strings are in XML file
-	LLUIString text = sInstance->getUIString(action);
+	LLUIString text = sInstance->getString(action);
 	text.setArg("[TIME]", time);
 	text.setArg("[FIRST]", mcd->mFirstName);
 	text.setArg("[LAST]", mcd->mLastName);

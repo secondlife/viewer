@@ -151,8 +151,8 @@ public:
 	void initChildrenXML(LLXMLNodePtr node, LLUICtrlFactory* factory);
 	void setPanelParameters(LLXMLNodePtr node, LLView *parentp);
 
-	std::string getString(const std::string& name, const LLStringUtil::format_map_t& args = LLUIString::sNullArgs) const;
-	LLUIString getUIString(const std::string& name) const;
+	std::string getString(const std::string& name, const LLStringUtil::format_map_t& args) const;
+	std::string getString(const std::string& name) const;
 
 	// ** Wrappers for setting child properties by name ** -TomY
 
@@ -261,7 +261,7 @@ private:
 	S32				mLastTabGroup;
 	LLRootHandle<LLPanel> mPanelHandle;
 
-	typedef std::map<std::string, LLUIString> ui_string_map_t;
+	typedef std::map<std::string, std::string> ui_string_map_t;
 	ui_string_map_t	mUIStrings;
 
 	std::string		mRequirementsError;

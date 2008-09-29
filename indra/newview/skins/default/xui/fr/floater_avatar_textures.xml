@@ -6,6 +6,12 @@
 	<text name="">
 		Composite Textures
 	</text>
+	<text name="baked_label">
+		Textures fixées
+	</text>
+	<text name="composite_label">
+		Textures composées
+	</text>
 	<texture_picker label="Tête" name="baked_head" />
 	<texture_picker label="Maquillage" name="head_bodypaint" />
 	<texture_picker label="Cheveux" name="hair" />

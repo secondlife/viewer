@@ -229,4 +229,10 @@ ne soit validée.
 	<text name="balance_needed">
 		Vous devez acheter au moins L$ [AMOUNT] pour pouvoir acquérir ce terrain.
 	</text>
+	<string name="no_parcel_selected">
+		(aucune parcelle sélectionnée)
+	</string>
+	<string name="buy_currency">
+		Acheter [LINDENS] $L pour environ [USD] $US
+	</string>
 </floater>

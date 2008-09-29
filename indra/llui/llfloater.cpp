@@ -724,9 +724,8 @@ BOOL LLFloater::canSnapTo(const LLView* other_view)
 
 	if (other_view != getParent())
 	{
-		LLFloater* other_floaterp = (LLFloater*)other_view;
-		
-		if (other_floaterp->getSnapTarget() == getHandle() && mDependents.find(other_floaterp->getHandle()) != mDependents.end())
+		const LLFloater* other_floaterp = dynamic_cast<const LLFloater*>(other_view);		
+		if (other_floaterp && other_floaterp->getSnapTarget() == getHandle() && mDependents.find(other_floaterp->getHandle()) != mDependents.end())
 		{
 			// this is a dependent that is already snapped to us, so don't snap back to it
 			return FALSE;

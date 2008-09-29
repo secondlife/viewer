@@ -327,6 +327,8 @@ protected:
 	static LLColor4				sFilterTextColor;
 	static LLColor4				sSuffixColor;
 	static LLColor4				sSearchStatusColor;
+	static LLUIImagePtr			sArrowImage;
+	static LLUIImagePtr			sBoxImage;
 
 	std::string					mLabel;
 	std::string					mSearchableLabel;
@@ -351,8 +353,6 @@ protected:
 	F32							mControlLabelRotation;
 	LLFolderView*				mRoot;
 	BOOL						mDragAndDropTarget;
-	LLUIImagePtr				mArrowImage;
-	LLUIImagePtr				mBoxImage;
 	BOOL                            mIsLoading;
 	LLTimer                         mTimeSinceRequestStart;
 	
@@ -375,6 +375,9 @@ protected:
 	virtual BOOL addFolder(LLFolderViewFolder*) { return FALSE; }
 
 public:
+	static void initClass();
+	static void cleanupClass();
+	
 	// This function is called when the folder view is dirty. It's
 	// implemented here but called by derived classes when folding the
 	// views.
@@ -500,6 +503,7 @@ public:
 	void setIcon(LLUIImagePtr icon);
 
 	// refresh information from the object being viewed.
+	void refreshFromListener();
 	virtual void refresh();
 
 	virtual void applyListenerFunctorRecursively(LLFolderViewListenerFunctor& functor);

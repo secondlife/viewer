@@ -437,9 +437,11 @@ public:
 	 */
 	static const char *strerror(int code);
 
+	bool isInitialized(void) { return mInitSuccess; }
+
 protected:
 	ares_channel chan_;
-
+	bool mInitSuccess;
 };
 	
 /**

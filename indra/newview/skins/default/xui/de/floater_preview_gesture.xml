@@ -1,50 +1,51 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater name="gesture_preview">
+	<string name="stop_txt">
+		Stopp
+	</string>
+	<string name="preview_txt">
+		Vorschau
+	</string>
+	<string name="none_text">
+		– Keine –
+	</string>
 	<text name="desc_label">
 		Beschreibung:
 	</text>
 	<text name="trigger_label">
 		Auslöser:
 	</text>
-	<text name="replace_text"
-	     tool_tip="Ersetzt den Auslösertext mit diesem Text. Wenn Sie zum Beispiel den Auslöser &apos;hallo&apos; durch &apos;wie geht&apos;s&apos; ersetzen, erscheint im Chat anstelle von &apos;Ich wollte nur hallo sagen&apos; der Text &apos;Ich wollte nur wie geht&apos;s sagen&apos; und die zugehörige Geste wird abgespielt.">
+	<text name="replace_text" tool_tip="Ersetzt den Auslösertext mit diesem Text. Wenn Sie zum Beispiel den Auslöser &apos;hallo&apos; durch &apos;wie geht&apos;s&apos; ersetzen, erscheint im Chat anstelle von &apos;Ich wollte nur hallo sagen&apos; der Text &apos;Ich wollte nur wie geht&apos;s sagen&apos; und die zugehörige Geste wird abgespielt.">
 		Ersetzen mit:
 	</text>
-	<line_editor name="replace_editor"
-	     tool_tip="Ersetzt den Auslösertext mit diesem Text. Wenn Sie zum Beispiel den Auslöser &apos;hallo&apos; durch &apos;wie geht&apos;s&apos; ersetzen, erscheint im Chat anstelle von &apos;Ich wollte nur hallo sagen&apos; der Text &apos;Ich wollte nur wie geht&apos;s sagen&apos; und die zugehörige Geste wird abgespielt." />
+	<line_editor name="replace_editor" tool_tip="Ersetzt den Auslösertext mit diesem Text. Wenn Sie zum Beispiel den Auslöser &apos;hallo&apos; durch &apos;wie geht&apos;s&apos; ersetzen, erscheint im Chat anstelle von &apos;Ich wollte nur hallo sagen&apos; der Text &apos;Ich wollte nur wie geht&apos;s sagen&apos; und die zugehörige Geste wird abgespielt."/>
 	<text name="key_label">
 		Tastenkürzel:
 	</text>
-	<combo_box label="Keine" name="modifier_combo" />
-	<combo_box label="Keine" name="key_combo" />
-	<text>
-		Bibliothek:
-	</text>
-	<text>
-		Schritte:
-	</text>
+	<combo_box label="Keine" name="modifier_combo"/>
+	<combo_box label="Keine" name="key_combo"/>
 	<text name="library_label">
 		Bibliothek:
 	</text>
 	<text name="steps_label">
 		Schritte:
 	</text>
-	<button label="Hinzufügen &gt;&gt;" name="add_btn" />
-	<button label="Nach oben" name="up_btn" />
-	<button label="Nach unten" name="down_btn" />
-	<button label="Entfernen" name="delete_btn" />
+	<scroll_list name="library_list">
+		Animation
+Ton
+Chat
+Warten
+	</scroll_list>
+	<button label="Hinzufügen &gt;&gt;" name="add_btn"/>
+	<button label="Nach oben" name="up_btn"/>
+	<button label="Nach unten" name="down_btn"/>
+	<button label="Entfernen" name="delete_btn"/>
 	<text name="help_label">
 		Alle Schritte erfolgen zur selben
 Zeit, außer Sie fügen Warteschritte
 ein.
 	</text>
 	<radio_group name="animation_trigger_type">
-		<radio_item>
-			Start
-		</radio_item>
-		<radio_item>
-			Stopp
-		</radio_item>
 		<radio_item name="start">
 			Start
 		</radio_item>
@@ -52,19 +53,9 @@ ein.
 			Stopp
 		</radio_item>
 	</radio_group>
-	<check_box label="bis alle Animationen beendet sind" name="wait_anim_check" />
-	<check_box label="Zeit in Sekunden" name="wait_time_check" />
-	<check_box label="Aktiv" name="active_check"
-	     tool_tip="Aktive Gesten werden durch Chat-Eingabe ihrer Auslösephrasen oder Drücken von Tastenkürzeln ausgelöst.  Bei doppelten Tastenzuweisungen funktionieren Gesten in der Regel nicht." />
-	<button label="Vorschau" name="preview_btn" />
-	<button label="Speichern" name="save_btn" />
-	<text name="none_text">
-		– Keine –
-	</text>
-	<text name="stop_txt">
-		Stopp
-	</text>
-	<text name="preview_txt">
-		Vorschau
-	</text>
+	<check_box label="bis alle Animationen beendet sind" name="wait_anim_check"/>
+	<check_box label="Zeit in Sekunden" name="wait_time_check"/>
+	<check_box label="Aktiv" name="active_check" tool_tip="Aktive Gesten werden durch Chat-Eingabe ihrer Auslösephrasen oder Drücken von Tastenkürzeln ausgelöst.  Bei doppelten Tastenzuweisungen funktionieren Gesten in der Regel nicht."/>
+	<button label="Vorschau" name="preview_btn"/>
+	<button label="Speichern" name="save_btn"/>
 </floater>

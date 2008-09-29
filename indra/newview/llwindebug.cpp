@@ -696,7 +696,7 @@ void LLWinDebug::generateCrashStacks(struct _EXCEPTION_POINTERS *exception_infop
 		// Since there is exception info... Release the hounds.
 		gEmergencyMemoryReserve.release();
 
-		if(gSavedSettings.getControl("SaveMinidump").isNull() && gSavedSettings.getBOOL("SaveMinidump"))
+		if(gSavedSettings.getControl("SaveMinidump").notNull() && gSavedSettings.getBOOL("SaveMinidump"))
 		{
 			_MINIDUMP_EXCEPTION_INFORMATION ExInfo;
 

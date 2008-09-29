@@ -15,7 +15,7 @@
 	<text name="pos_title">
 		位置：
 	</text>
-	<texture_picker label="作業中..." name="screenshot" />
+	<texture_picker name="screenshot" />
 	<check_box label="ｽｸﾘｰﾝｼｮｯﾄを含める" name="screen_check" />
 	<text name="pos_field">
 		{128.1, 128.1, 15.4}

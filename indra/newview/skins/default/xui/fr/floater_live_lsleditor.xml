@@ -2,4 +2,11 @@
 <floater name="script ed float" title="Script : Nouveau script">
 	<button label="Réinitialiser" label_selected="Réinitialiser" name="Reset" />
 	<check_box label="En cours d&apos;exécution" name="running" />
+	<check_box label="Mono" name="mono" />
+	<string name="not_allowed">
+		Vous n&apos;êtes pas autorisé à afficher ce script.
+	</string>
+	<string name="script_running">
+		Exécution en cours
+	</string>
 </floater>

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater name="Inventory" title="Inventaire">
+	<search_editor label="Saisissez votre recherche ici" name="inventory search editor" />
 	<tab_container name="inventory filter tabs">
 		<inventory_panel label="All Items" name="All Items" />
 		<inventory_panel label="Recent Items" name="Recent Items" />
@@ -10,6 +11,7 @@
 			<menu_item_call label="Ouvrir" name="Open" />
 			<menu_item_call label="Nouvelle Fenêtre" name="New Window" />
 			<menu_item_call label="Afficher les filtres" name="Show Filters" />
+			<menu_item_call label="Réinitialiser les filtres" name="Reset Current" />
 			<menu_item_call label="Fermer tous les dossiers" name="Close All Folders" />
 			<menu_item_call label="Vider la corbeille" name="Empty Trash" />
 		</menu>
@@ -42,6 +44,7 @@
 			<menu_item_check label="Par nom" name="By Name" />
 			<menu_item_check label="Par date" name="By Date" />
 			<menu_item_check label="Toujour afficher les dossiers par nom" name="Folders Always By Name" />
+			<menu_item_check label="Dossiers système au dessus" name="System Folders To Top" />
 		</menu>
 		<menu label="Filters" name="Filters">
 			<tearoff_menu label="~~~~~~~~~~~" name="~~~~~~~~~~~" />

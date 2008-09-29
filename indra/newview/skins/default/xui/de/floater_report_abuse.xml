@@ -15,8 +15,8 @@
 	<text name="pos_title">
 		Position:
 	</text>
-	<texture_picker label="Arbeitet..." name="screenshot" />
-	<check_box label="Screenshot einschließen" name="screen_check" />
+	<texture_picker name="screenshot" />
+	<check_box label="Screenshot einschließen" name="screen_check" bottom_delta="-20" />
 	<text name="pos_field">
 		{128.1, 128.1, 15.4}
 	</text>
@@ -201,7 +201,7 @@ Missbrauchs, relevantem Chat/IM und wählen Sie das
 Objekt, wenn möglich.
 	</text>
 	<text_editor bottom_delta="-136" height="130" name="details_edit" />
-	<text name="incomplete_title">
+	<text name="incomplete_title" bottom_delta="-20">
 		Hinweis: Unvollständige Meldungen werden nicht bearbeitet.
 	</text>
 	<button label="Missbrauch melden" label_selected="Missbrauch melden" name="send_btn" />

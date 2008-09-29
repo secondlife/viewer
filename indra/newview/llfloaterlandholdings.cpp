@@ -116,7 +116,7 @@ BOOL LLFloaterLandHoldings::postBuild()
 		element["columns"][0]["value"] = gAgent.mGroups.get(i).mName;
 		element["columns"][0]["font"] = "SANSSERIF";
 
-		LLUIString areastr = getUIString("area_string");
+		LLUIString areastr = getString("area_string");
 		areastr.setArg("[AREA]", llformat("%d", gAgent.mGroups.get(i).mContribution));
 		element["columns"][1]["column"] = "area";
 		element["columns"][1]["value"] = areastr;

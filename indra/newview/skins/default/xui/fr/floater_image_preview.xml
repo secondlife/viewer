@@ -37,12 +37,16 @@
 		<combo_item name="Skirt">
 			Jupe
 		</combo_item>
+		<combo_item name="SculptedPrim">
+			Prim sculpté
+		</combo_item>
 	</combo_box>
 	<text name="bad_image_text">
 		Unable to read image.
 	
 	Try saving image as 24 bit Targa (.tga).
 	</text>
+	<check_box label="Utiliser une compression sans perte" name="lossless_check" />
 	<button label="Annuler" name="cancel_btn" />
 	<button label="Uploader (L$[AMOUNT])" name="ok_btn" />
 </floater>

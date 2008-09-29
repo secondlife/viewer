@@ -15,6 +15,22 @@
 	<text name="estate_owner">
 		(inconnu)
 	</text>
+	<text name="Only Allow">
+		Limiter l&apos;accès aux résidents :
+	</text>
+	<check_box label="Qui ont enregistré leurs infos de paiement" name="limit_payment"
+	     tool_tip="Interdire les résidents non identifés." />
+	<check_box label="Adultes dont l&apos;âge a été vérifié" name="limit_age_verified"
+	     tool_tip="Interdire les résidents dont l&apos;âge n&apos;a pas été vérifié. Pour plus d&apos;infos, consultez la page support.secondlife.com." />
+	<check_box label="Autoriser les chats vocaux" name="voice_chat_check" />
+	<button label="?" name="voice_chat_help" />
+	<text name="abuse_email_text">
+		E-mail où signaler l&apos;infraction :
+	</text>
+	<string name="email_unsupported">
+		Non pris en charge
+	</string>
+	<button label="?" name="abuse_email_address_help" />
 	<text name="estate_manager_label">
 		Administrateurs du Domaine :
 	</text>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="inspect" title="Inspecter les objets">
+	<scroll_list name="object_list"
+	     tool_tip="Sélectionner un objet de la liste pour le mettre en surbrillance dans le Monde.">
+		<column label="Nom de l&apos;objet" name="object_name" />
+		<column label="Nom du propriétaire" name="owner_name" />
+		<column label="Nom du créateur" name="creator_name" />
+		<column label="Date de création" name="creation_date" />
+	</scroll_list>
+	<button label="Voir le profil du propriétaire..." name="button owner"
+	     tool_tip="Voir le profil du propriétaire de l&apos;objet en surbrillance" />
+	<button label="Voir le profil du créateur" name="button creator"
+	     tool_tip="Voir le profil du créateur de l&apos;objet en surbrillance" />
+</floater>

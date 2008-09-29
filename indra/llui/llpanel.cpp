@@ -540,7 +540,7 @@ void LLPanel::initChildrenXML(LLXMLNodePtr node, LLUICtrlFactory* factory)
 			child->getAttributeString("name", string_name);
 			if (!string_name.empty())
 			{
-				mUIStrings[string_name] = LLUIString(child->getTextContents());
+				mUIStrings[string_name] = child->getTextContents();
 			}
 		}
 		else
@@ -612,7 +612,7 @@ std::string LLPanel::getString(const std::string& name, const LLStringUtil::form
 	if (found_it != mUIStrings.end())
 	{
 		// make a copy as format works in place
-		LLUIString formatted_string = found_it->second;
+		LLUIString formatted_string = LLUIString(found_it->second);
 		formatted_string.setArgList(args);
 		return formatted_string.getString();
 	}
@@ -630,15 +630,23 @@ std::string LLPanel::getString(const std::string& name, const LLStringUtil::form
 	return LLStringUtil::null;
 }
 
-LLUIString LLPanel::getUIString(const std::string& name) const
+std::string LLPanel::getString(const std::string& name) const
 {
 	ui_string_map_t::const_iterator found_it = mUIStrings.find(name);
 	if (found_it != mUIStrings.end())
 	{
 		return found_it->second;
 	}
-	llerrs << "Failed to find string " << name << " in panel " << getName() << llendl;
-	return LLUIString(LLStringUtil::null);
+	std::string err_str("Failed to find string " + name + " in panel " + getName()); //*TODO: Translate
+	if(LLUI::sQAMode)
+	{
+		llerrs << err_str << llendl;
+	}
+	else
+	{
+		llwarns << err_str << llendl;
+	}
+	return LLStringUtil::null;
 }
 
 

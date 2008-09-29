@@ -8,8 +8,10 @@
 			FALSE
 		</combo_item>
 	</combo_box>
+	<color_swatch label="Couleur" name="color_swatch" />
 	<spinner label="x" name="val_spinner_1" />
 	<spinner label="x" name="val_spinner_2" />
 	<spinner label="x" name="val_spinner_3" />
 	<spinner label="x" name="val_spinner_4" />
+	<button label="Paramètres par défaut" name="default_btn" />
 </floater>

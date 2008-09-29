@@ -8,6 +8,7 @@
 		<column label="Name" name="name" />
 		<column label="Owner" name="owner" />
 		<column label="Location" name="location" />
+		<column label="Heure" name="time" />
 	</scroll_list>
 	<text name="id_text">
 		ID de l&apos;objet :

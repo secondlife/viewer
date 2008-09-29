@@ -71,4 +71,16 @@
 	<text name="TextPrice">
 		Prix :  L$
 	</text>
+	<string name="unknown">
+		(inconnu)
+	</string>
+	<string name="public">
+		(public)
+	</string>
+	<string name="you_can">
+		Vous pouvez :
+	</string>
+	<string name="owner_can">
+		Le propriétaire peut :
+	</string>
 </floater>

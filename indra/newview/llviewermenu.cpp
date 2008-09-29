@@ -1506,7 +1506,7 @@ class LLObjectReportAbuse : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		LLViewerObject* objectp = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
+		LLViewerObject* objectp = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
 		if (objectp)
 		{
 			LLFloaterReporter::showFromObject(objectp->getID());
@@ -1530,7 +1530,7 @@ class LLObjectTouch : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
+		LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
 		if (!object) return true;
 
 		LLPickInfo pick = LLToolPie::getInstance()->getPick();
@@ -1581,7 +1581,7 @@ class LLObjectEnableTouch : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		LLViewerObject* obj = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
+		LLViewerObject* obj = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
 		bool new_value = obj && obj->flagHandleTouch();
 		gMenuHolder->findControl(userdata["control"].asString())->setValue(new_value);
 
@@ -1615,7 +1615,7 @@ void label_touch(std::string& label, void*)
 
 bool handle_object_open()
 {
-	LLViewerObject* obj = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
+	LLViewerObject* obj = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
 	if(!obj) return true;
 
 	LLFloaterOpenObject::show();
@@ -1636,7 +1636,7 @@ class LLObjectEnableOpen : public view_listener_t
 	{
 		// Look for contents in root object, which is all the LLFloaterOpenObject
 		// understands.
-		LLViewerObject* obj = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
+		LLViewerObject* obj = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
 		bool new_value = (obj != NULL);
 		if (new_value)
 		{
@@ -1677,7 +1677,7 @@ bool toggle_build_mode()
 			gViewerWindow->showCursor();			
 		}
 		// avoid spurious avatar movements pulling out of edit mode
-		LLViewerJoystick::getInstance()->moveAvatar(true);
+		LLViewerJoystick::getInstance()->setNeedsReset();
 	}
 	else
 	{
@@ -1716,7 +1716,7 @@ bool toggle_build_mode()
 		gAgent.resetView(false);
 
 		// avoid spurious avatar movements
-		LLViewerJoystick::getInstance()->moveAvatar(true);
+		LLViewerJoystick::getInstance()->setNeedsReset();
 
 	}
 	return true;
@@ -2007,7 +2007,7 @@ BOOL enable_has_attachments(void*)
 void handle_follow(void *userdata)
 {
 	// follow a given avatar by ID
-	LLViewerObject* objectp = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
+	LLViewerObject* objectp = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
 	if (objectp)
 	{
 		gAgent.startFollowPilot(objectp->getID());
@@ -2018,7 +2018,7 @@ class LLObjectEnableMute : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
+		LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
 		bool new_value = (object != NULL);
 		if (new_value)
 		{
@@ -2041,7 +2041,7 @@ class LLObjectMute : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
+		LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
 		if (!object) return true;
 		
 		LLUUID id;
@@ -2171,7 +2171,7 @@ class LLAvatarFreeze : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		LLVOAvatar* avatar = find_avatar_from_object( LLSelectMgr::getInstance()->getSelection()->getFirstObject() );
+		LLVOAvatar* avatar = find_avatar_from_object( LLSelectMgr::getInstance()->getSelection()->getPrimaryObject() );
 		if( avatar )
 		{
 			LLUUID* avatar_id = new LLUUID( avatar->getID() );
@@ -2221,7 +2221,7 @@ class LLAvatarDebug : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		LLVOAvatar* avatar = find_avatar_from_object( LLSelectMgr::getInstance()->getSelection()->getFirstObject() );
+		LLVOAvatar* avatar = find_avatar_from_object( LLSelectMgr::getInstance()->getSelection()->getPrimaryObject() );
 		if( avatar )
 		{
 			avatar->dumpLocalTextures();
@@ -2307,7 +2307,7 @@ class LLAvatarEject : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		LLVOAvatar* avatar = find_avatar_from_object( LLSelectMgr::getInstance()->getSelection()->getFirstObject() );
+		LLVOAvatar* avatar = find_avatar_from_object( LLSelectMgr::getInstance()->getSelection()->getPrimaryObject() );
 		if( avatar )
 		{
 			MenuCallbackData *data = new MenuCallbackData;
@@ -2364,7 +2364,7 @@ class LLAvatarEnableFreezeEject : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		LLVOAvatar* avatar = find_avatar_from_object( LLSelectMgr::getInstance()->getSelection()->getFirstObject() );
+		LLVOAvatar* avatar = find_avatar_from_object( LLSelectMgr::getInstance()->getSelection()->getPrimaryObject() );
 		bool new_value = (avatar != NULL);
 
 		if (new_value)
@@ -2395,7 +2395,7 @@ class LLAvatarGiveCard : public view_listener_t
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
 		llinfos << "handle_give_card()" << llendl;
-		LLViewerObject* dest = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
+		LLViewerObject* dest = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
 		if(dest && dest->isAvatar())
 		{
 			bool found_name = false;
@@ -2852,7 +2852,7 @@ class LLAvatarEnableAddFriend : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		LLVOAvatar* avatar = find_avatar_from_object(LLSelectMgr::getInstance()->getSelection()->getFirstObject());
+		LLVOAvatar* avatar = find_avatar_from_object(LLSelectMgr::getInstance()->getSelection()->getPrimaryObject());
 		bool new_value = avatar && !is_agent_friend(avatar->getID());
 		gMenuHolder->findControl(userdata["control"].asString())->setValue(new_value);
 		return true;
@@ -3320,7 +3320,7 @@ class LLEditEnableDuplicate : public view_listener_t
 
 void disabled_duplicate(void*)
 {
-	if (LLSelectMgr::getInstance()->getSelection()->getFirstObject())
+	if (LLSelectMgr::getInstance()->getSelection()->getPrimaryObject())
 	{
 		LLNotifyBox::showXml("CopyFailed");
 	}
@@ -4936,11 +4936,11 @@ class LLToolsLookAtSelection : public view_listener_t
 
 			if (zoom)
 			{
-				gAgent.setCameraPosAndFocusGlobal(LLSelectMgr::getInstance()->getSelectionCenterGlobal() + LLVector3d(obj_to_cam * distance), LLSelectMgr::getInstance()->getSelectionCenterGlobal(), LLSelectMgr::getInstance()->getSelection()->getFirstObject()->mID );
+				gAgent.setCameraPosAndFocusGlobal(LLSelectMgr::getInstance()->getSelectionCenterGlobal() + LLVector3d(obj_to_cam * distance), LLSelectMgr::getInstance()->getSelectionCenterGlobal(), LLSelectMgr::getInstance()->getSelection()->getPrimaryObject()->mID );
 			}
 			else
 			{
-				gAgent.setFocusGlobal( LLSelectMgr::getInstance()->getSelectionCenterGlobal(), LLSelectMgr::getInstance()->getSelection()->getFirstObject()->mID );
+				gAgent.setFocusGlobal( LLSelectMgr::getInstance()->getSelectionCenterGlobal(), LLSelectMgr::getInstance()->getSelection()->getPrimaryObject()->mID );
 			}
 		}
 		return true;
@@ -4975,7 +4975,7 @@ class LLAvatarInviteToGroup : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		LLVOAvatar* avatar = find_avatar_from_object( LLSelectMgr::getInstance()->getSelection()->getFirstObject() );
+		LLVOAvatar* avatar = find_avatar_from_object( LLSelectMgr::getInstance()->getSelection()->getPrimaryObject() );
 		if(avatar)
 		{
 			invite_to_group(avatar->getID());
@@ -4988,7 +4988,7 @@ class LLAvatarAddFriend : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		LLVOAvatar* avatar = find_avatar_from_object( LLSelectMgr::getInstance()->getSelection()->getFirstObject() );
+		LLVOAvatar* avatar = find_avatar_from_object( LLSelectMgr::getInstance()->getSelection()->getPrimaryObject() );
 		if(avatar && !is_agent_friend(avatar->getID()))
 		{
 			request_friendship(avatar->getID());
@@ -5061,11 +5061,11 @@ class LLEnablePayObject : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		LLVOAvatar* avatar = find_avatar_from_object(LLSelectMgr::getInstance()->getSelection()->getFirstObject());
+		LLVOAvatar* avatar = find_avatar_from_object(LLSelectMgr::getInstance()->getSelection()->getPrimaryObject());
 		bool new_value = (avatar != NULL);
 		if (!new_value)
 		{
-			LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
+			LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
 			if( object )
 			{
 				LLViewerObject *parent = (LLViewerObject *)object->getParent();
@@ -5085,7 +5085,7 @@ class LLObjectEnableSitOrStand : public view_listener_t
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
 		bool new_value = false;
-		LLViewerObject* dest_object = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
+		LLViewerObject* dest_object = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
 
 		if(dest_object)
 		{
@@ -5450,7 +5450,7 @@ class LLShowAgentProfile : public view_listener_t
 		}
 		else if (userdata.asString() == "hit object")
 		{
-			LLViewerObject* objectp = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
+			LLViewerObject* objectp = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
 			if (objectp)
 			{
 				agent_id = objectp->getID();
@@ -5671,7 +5671,7 @@ class LLAttachmentDrop : public view_listener_t
 	{
 		// Called when the user clicked on an object attached to them
 		// and selected "Drop".
-		LLViewerObject *object = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
+		LLViewerObject *object = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
 		if (!object)
 		{
 			llwarns << "handle_drop_attachment() - no object to drop" << llendl;
@@ -5771,7 +5771,7 @@ class LLAttachmentDetach : public view_listener_t
 	{
 		// Called when the user clicked on an object attached to them
 		// and selected "Detach".
-		LLViewerObject *object = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
+		LLViewerObject *object = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
 		if (!object)
 		{
 			llwarns << "handle_detach() - no object to detach" << llendl;
@@ -5851,7 +5851,7 @@ class LLAttachmentEnableDrop : public view_listener_t
 		// in your inventory.  Therefore, we disable the drop option until the
 		// item is in your inventory
 
-		LLViewerObject*              object         = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
+		LLViewerObject*              object         = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
 		LLViewerJointAttachment*     attachment_pt  = NULL;
 		LLInventoryItem*             item           = NULL;
 
@@ -5893,7 +5893,7 @@ class LLAttachmentEnableDrop : public view_listener_t
 
 BOOL enable_detach(void*)
 {
-	LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
+	LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
 	if (!object) return FALSE;
 	if (!object->isAttachment()) return FALSE;
 
@@ -6000,7 +6000,7 @@ class LLAvatarSendIM : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		LLVOAvatar* avatar = find_avatar_from_object( LLSelectMgr::getInstance()->getSelection()->getFirstObject() );
+		LLVOAvatar* avatar = find_avatar_from_object( LLSelectMgr::getInstance()->getSelection()->getPrimaryObject() );
 		if(avatar)
 		{
 			std::string name("IM");
@@ -6812,7 +6812,7 @@ void handle_dump_avatar_local_textures(void*)
 
 void handle_debug_avatar_textures(void*)
 {
-	LLViewerObject* objectp = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
+	LLViewerObject* objectp = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
 	if (objectp)
 	{
 		LLFloaterAvatarTextures::show(objectp->getID());

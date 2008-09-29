@@ -665,12 +665,11 @@ bool LLAppViewer::init()
 					LLUIImageList::getInstance(),
 					ui_audio_callback,
 					&LLUI::sGLScaleFactor);
-
 	LLWeb::initClass();			  // do this after LLUI
 	LLTextEditor::setURLCallbacks(&LLWeb::loadURL,
 				&LLURLDispatcher::dispatchFromTextEditor,
 				&LLURLDispatcher::dispatchFromTextEditor);
-
+	
 	LLUICtrlFactory::getInstance()->setupPaths(); // update paths with correct language set
 	
 	/////////////////////////////////////////////////
@@ -753,6 +752,8 @@ bool LLAppViewer::init()
 		CreateLCDDebugWindows();
 #endif
 
+	LLFolderViewItem::initClass(); // SJB: Needs to happen after initWindow(), not sure why but related to fonts
+		
 	gGLManager.getGLInfo(gDebugInfo);
 	gGLManager.printGLInfoString();
 
@@ -934,6 +935,7 @@ bool LLAppViewer::mainLoop()
 					LLFastTimer t3(LLFastTimer::FTM_IDLE);
 					idle();
 
+					if (gAres != NULL && gAres->isInitialized())
 					{
 						pingMainloopTimeout("Main:ServicePump");				
 						LLFastTimer t4(LLFastTimer::FTM_PUMP);
@@ -1070,14 +1072,17 @@ bool LLAppViewer::mainLoop()
 						
 		}
 		catch(std::bad_alloc)
-		{
-			llwarns << "Bad memory allocation in LLAppViewer::mainLoop()!" << llendl ;
-
+		{			
 			//stop memory leaking simulation
 			if(LLFloaterMemLeak::getInstance())
 			{
 				LLFloaterMemLeak::getInstance()->stop() ;				
-			}	
+				llwarns << "Bad memory allocation in LLAppViewer::mainLoop()!" << llendl ;
+			}
+			else
+			{
+				llerrs << "Bad memory allocation in LLAppViewer::mainLoop()!" << llendl ;
+			}
 		}
 	}
 
@@ -1272,6 +1277,7 @@ bool LLAppViewer::cleanup()
 	//LLVolumeMgr::cleanupClass();
 	LLPrimitive::cleanupVolumeManager();
 	LLWorldMapView::cleanupClass();
+	LLFolderViewItem::cleanupClass();
 	LLUI::cleanupClass();
 	
 	//
@@ -1471,7 +1477,7 @@ bool LLAppViewer::initLogging()
 	return true;
 }
 
-void LLAppViewer::loadSettingsFromDirectory(ELLPath path_index, bool set_defaults)
+bool LLAppViewer::loadSettingsFromDirectory(ELLPath path_index, bool set_defaults)
 {	
 	for(LLSD::map_iterator itr = mSettingsFileList.beginMap(); itr != mSettingsFileList.endMap(); ++itr)
 	{
@@ -1506,13 +1512,24 @@ void LLAppViewer::loadSettingsFromDirectory(ELLPath path_index, bool set_default
 		}
 		if(!gSettings[settings_name]->loadFromFile(full_settings_path, set_defaults))
 		{
-			llwarns << "Cannot load " << full_settings_path << " - No settings found." << llendl;
+			// If attempting to load the default global settings (app_settings/settings.xml) 
+			// fails, the app should error and quit.
+			if(path_index == LL_PATH_APP_SETTINGS && settings_name == sGlobalSettingsName)
+			{
+				llwarns << "Error: Cannot load default settings from: " << full_settings_path << llendl;
+				return false;
+			}
+			else
+			{
+				llwarns << "Cannot load " << full_settings_path << " - No settings found." << llendl;
+			}
 		}
 		else
 		{
 			llinfos << "Loaded settings file " << full_settings_path << llendl;
 		}
 	}
+	return true;
 }
 
 std::string LLAppViewer::getSettingsFileName(const std::string& file)
@@ -1554,7 +1571,19 @@ bool LLAppViewer::initConfiguration()
 	
 	// - load defaults
 	bool set_defaults = true;
-	loadSettingsFromDirectory(LL_PATH_APP_SETTINGS, set_defaults);
+	if(!loadSettingsFromDirectory(LL_PATH_APP_SETTINGS, set_defaults))
+	{
+		std::ostringstream msg;
+		msg << "Second Life could not load its default settings file. \n" 
+			<< "The installation may be corrupted. \n";
+
+		OSMessageBox(
+			msg.str(),
+			LLStringUtil::null,
+			OSMB_OK);
+
+		return false;
+	}
 
 	// - set procedural settings 
 	gSavedSettings.setString("ClientSettingsFile", 
@@ -2322,6 +2351,11 @@ void LLAppViewer::handleViewerCrash()
 	{
 		gDebugInfo["CurrentSimHost"] = gAgent.getRegionHost().getHostName();
 		gDebugInfo["CurrentRegion"] = gAgent.getRegion()->getName();
+		
+		const LLVector3& loc = gAgent.getPositionAgent();
+		gDebugInfo["CurrentLocationX"] = loc.mV[0];
+		gDebugInfo["CurrentLocationY"] = loc.mV[1];
+		gDebugInfo["CurrentLocationZ"] = loc.mV[2];
 	}
 
 	if(LLAppViewer::instance()->mMainloopTimeout)

@@ -303,6 +303,9 @@ list Intel_G33
 RenderTerrainDetail			1	0
 RenderVBOEnable				1	0
 
+list Intel_G45
+WindLightUseAtmosShaders		0	0
+
 list Intel_Bear_Lake	
 RenderTerrainDetail			1	0
 RenderVBOEnable				1	0
@@ -314,6 +317,9 @@ RenderVBOEnable				1	0
 list Intel_Brookdale	
 RenderTerrainDetail			1	0
 RenderVBOEnable				1	0
+
+list Intel_Eaglelake
+WindLightUseAtmosShaders	0	0
 
 list Intel_Montara
 RenderTerrainDetail			1	0

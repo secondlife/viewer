@@ -14,6 +14,9 @@ fournissent des informations sur les finances du groupe.
 	<text name="cant_view_group_accounting_text">
 		Vous n&apos;êtes pas autorisé(e) à voir les informations comptables du groupe.
 	</text>
+	<string name="loading_txt">
+		Chargement en cours...
+	</string>
 	<text name="group_land_heading">
 		Terrain appartenant à des Groupes
 	</text>
@@ -48,6 +51,9 @@ fournissent des informations sur les finances du groupe.
 	<text name="your_contribution_max_value_append">
 		mètres carrés
 	</text>
+	<string name="land_contrib_error">
+		Impossible de définir votre don de terre.
+	</string>
 	<text name="your_contribution_max_value">
 		(en attente)
 	</text>

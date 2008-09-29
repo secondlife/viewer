@@ -36,6 +36,7 @@
 #include "lltool.h"
 // tools and manipulators
 #include "llmanipscale.h"
+#include "llselectmgr.h"
 #include "lltoolbrush.h"
 #include "lltoolcomp.h"
 #include "lltooldraganddrop.h"

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="Water Floater" title="Editeur d&apos;eau avancé">
+	<text name="KeyFramePresetsText">
+		Préréglages eau :
+	</text>
+	<button label="Nouveau" label_selected="Nouveau" name="WaterNewPreset" />
+	<button label="Enregistrer" label_selected="Enregistrer" name="WaterSavePreset" />
+	<button label="Supprimer" label_selected="Supprimer" name="WaterDeletePreset" />
+	<tab_container name="Water Tabs">
+		<panel label="Paramètres" name="Settings">
+			<text name="BHText">
+				Couleur du brouillard dans l&apos;eau
+			</text>
+			<button label="?" name="WaterFogColorHelp" />
+			<color_swatch name="WaterFogColor" tool_tip="Cliquer pour ouvrir le sélecteur de couleurs" />
+			<text name="WaterFogDensText">
+				Densité du brouillard
+			</text>
+			<button label="?" name="WaterFogDensityHelp" />
+			<text name="WaterUnderWaterFogModText">
+				Brouillard sous-marin
+			</text>
+			<button label="?" name="WaterUnderWaterFogModHelp" />
+			<text name="BDensText">
+				Echelle des vaguelettes
+			</text>
+			<button label="?" name="WaterNormalScaleHelp" />
+			<text name="BHText2">
+				1
+			</text>
+			<text name="BHText3">
+				2
+			</text>
+			<text name="BHText4">
+				3
+			</text>
+			<text name="HDText">
+				Echelle Fresnel
+			</text>
+			<button label="?" name="WaterFresnelScaleHelp" />
+			<text name="FresnelOffsetText">
+				Décalage Fresnel
+			</text>
+			<button label="?" name="WaterFresnelOffsetHelp" />
+			<text name="DensMultText">
+				Réfraction au dessus
+			</text>
+			<button label="?" name="WaterScaleAboveHelp" />
+			<text name="WaterScaleBelowText">
+				Réfraction en dessous
+			</text>
+			<button label="?" name="WaterScaleBelowHelp" />
+			<text name="MaxAltText">
+				Multiplicateur de flou
+			</text>
+			<button label="?" name="WaterBlurMultiplierHelp" />
+		</panel>
+		<panel label="Image" name="Waves">
+			<text name="BHText">
+				Direction grande vague
+			</text>
+			<button label="?" name="WaterWave1Help" />
+			<text name="WaterWave1DirXText">
+				X
+			</text>
+			<text name="WaterWave1DirYText">
+				Y
+			</text>
+			<text name="BHText2">
+				Direction petite vague
+			</text>
+			<button label="?" name="WaterWave2Help" />
+			<text name="WaterWave2DirXText">
+				X
+			</text>
+			<text name="WaterWave2DirYText">
+				Y
+			</text>
+			<text name="BHText3">
+				Normal Map
+			</text>
+			<button label="?" name="WaterNormalMapHelp" />
+		</panel>
+	</tab_container>
+	<string name="WLDefaultWaterNames">
+		Default:Glassy:Pond:Murky:Second Plague:SNAKE!!!:Valdez
+	</string>
+</floater>

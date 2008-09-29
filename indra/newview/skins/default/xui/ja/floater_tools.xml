@@ -90,7 +90,7 @@
 		</combo_item>
 	</combo_box>
 	<text name="Strength:">
-		強度:
+		強度：
 	</text>
 	<button label="選択対象に適用" label_selected="選択対象に適用"
 	     name="button apply to selection" tool_tip="選択した土地を修正" />
@@ -239,7 +239,7 @@
 				価格：           L$
 			</string>
 			<string name="Cost Total">
-				合計価格:  L$
+				合計価格：  L$
 			</string>
 			<string name="Cost Per Unit">
 				単価：     L$

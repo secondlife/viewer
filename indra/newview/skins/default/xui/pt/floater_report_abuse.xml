@@ -9,7 +9,7 @@
 	<text name="pos_title">
 		Posição:
 	</text>
-	<texture_picker label="Trabalhando..." name="screenshot" />
+	<texture_picker name="screenshot" />
 	<check_box label="Incluir screenshot" name="screen_check" />
 	<button label="" label_selected="" name="pick_btn"
 	     tool_tip="Object Picker - Identifica um objeto com assunto deste report" />

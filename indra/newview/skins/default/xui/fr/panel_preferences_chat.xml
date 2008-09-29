@@ -1,31 +1,35 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<panel label="Chat" name="chat">
+<panel label="Chat écrit" name="chat">
 	<text type="string" length="1" name="text_box">
-		Taille de police du chat :
+		Taille de la police du chat :
 	</text>
 	<radio_group name="chat font size">
 		<radio_item type="string" length="1" name="radio">
 			Petit
 		</radio_item>
 		<radio_item type="string" length="1" name="radio2">
-			Moyen(ne)
+			Moyen
 		</radio_item>
 		<radio_item type="string" length="1" name="radio3">
 			Grand
 		</radio_item>
 	</radio_group>
 	<text type="string" length="1" name="text_box2">
-		Couleur du chat :
+		Couleur du chat :
 	</text>
+	<color_swatch label="Vous" name="user" />
+	<color_swatch label="Les autres" name="agent" />
+	<color_swatch label="IM" name="im" />
 	<color_swatch label="Système" name="system" />
 	<color_swatch label="Avatars" name="users" />
 	<color_swatch label="Objets" name="objects" />
+	<color_swatch label="Propriétaire" name="owner" />
 	<color_swatch label="Bulle" name="background" />
-	<color_swatch label="URLs" name="links" />
+	<color_swatch label="URL" name="links" />
 	<text type="string" length="1" name="text_box3">
-		Console de chat :
+		Console du chat :
 	</text>
-	<spinner label="Estomper après" name="fade_chat_time" />
+	<spinner label="Effacer le texte après" name="fade_chat_time" />
 	<text type="string" length="1" name="text_box4">
 		(secondes)
 	</text>
@@ -34,25 +38,29 @@
 	</text>
 	<slider label="Opacité" name="console_opacity" />
 	<text type="string" length="1" name="text_box6">
-		Options de Chat :
+		Options du chat :
 	</text>
-	<check_box label="Chat en plein écran (au prochain redémarrage)"
+	<check_box label="utiliser la largeur du plein écran (redémarrage requis)"
 	     name="chat_full_width_check" />
-	<check_box label="Refermer le chat à l&apos;aide de la touche &apos;envoi&apos;"
+	<check_box label="Fermer le chat après avoir appuyé sur Entrée"
 	     name="close_chat_on_return_check" />
-	<check_box label="Les touches directionnelles déplacent l&apos;avatar pendant le chat"
+	<check_box
+	     label="Les touches de direction font toujours bouger l&apos;avatar pendant le chat"
 	     name="arrow_keys_move_avatar_check" />
-	<check_box label="Afficher l&apos;heure d&apos;envoi dans le chat"
+	<check_box label="Afficher les marques temporelles dans le chat local"
 	     name="show_timestamps_check" />
+	<check_box label="Montrer lorsque vous écrivez pendant la discussion"
+	     name="play_typing_animation" />
 	<text type="string" length="1" name="text_box7">
-		Bulles de Chat :
+		Bulles de chat  :
 	</text>
 	<check_box label="Afficher les bulles de chat" name="bubble_text_chat" />
 	<slider label="Opacité" name="bubble_chat_opacity" />
 	<text type="string" length="1" name="text_box8">
-		Erreurs :
+		Erreurs de script :
 	</text>
-	<check_box label="Afficher les erreurs et alertes de scripts dans le chat"
+	<check_box
+	     label="Afficher les erreurs de script et avertissements comme un chat ordinaire"
 	     name="script_errors_as_chat" />
-	<color_swatch label="Couleur" name="script_error" />
+	<color_swatch label="Erreurs" name="script_error" />
 </panel>

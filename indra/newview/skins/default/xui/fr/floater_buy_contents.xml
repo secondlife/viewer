@@ -9,4 +9,13 @@
 	<button label="Annuler" label_selected="Annuler" name="cancel_btn" />
 	<button label="Acheter" label_selected="Acheter" name="buy_btn" />
 	<check_box label="Porter ce vêtement maintenant" name="wear_check" />
+	<string name="no_copy_text">
+		(pas de copie)
+	</string>
+	<string name="no_modify_text">
+		(pas de modification)
+	</string>
+	<string name="no_transfer_text">
+		(pas de transfert)
+	</string>
 </floater>

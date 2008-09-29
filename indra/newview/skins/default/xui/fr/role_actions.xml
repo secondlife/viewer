@@ -186,4 +186,17 @@
 		     longdescription="Les Membres dans un Rôle avec cette Faculté peuvent voter les propositions dans Informations du Groupe &gt; onglet Propositions."
 		     name="proposal vote" value="45" />
 	</action_set>
+	<action_set
+	     description="Ces pouvoirs vous permettent d&apos;autoriser ou dinterdire l&apos;accès aux sessions de chat de groupe et au chat de groupe vocal."
+	     name="Chat">
+		<action description="Participer au chat de groupe"
+		     longdescription="Les membres qui ont ce pouvoir peuvent participer aux chats de groupe, texte ou vocal."
+		     name="join group chat" />
+		<action description="Participer au chat de groupe vocal"
+		     longdescription="Les membres qui ont ce pouvoir peuvent participer aux chats de groupe vocaux. Remarque : pour accéder à une session de chat vocal, vous devez avoir le droit de participer à un chat de groupe."
+		     name="join voice chat" />
+		<action description="Modérer un chat de groupe"
+		     longdescription="Les membres dont le rôle leur confèrent ce pouvoir contrôlent l&apos;accès et la participation aux chats de groupe écrits et vocaux.le"
+		     name="moderate group chat" />
+	</action_set>
 </role_actions>

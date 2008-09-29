@@ -157,10 +157,10 @@ BOOL LLFloaterIM::postBuild()
 {
 	// IM session initiation warnings
 	sOnlyUserMessage = getString("only_user_message");
-	sOfflineMessage = getUIString("offline_message");
-	sMutedMessage = getUIString("muted_message");
+	sOfflineMessage = getString("offline_message");
+	sMutedMessage = getString("muted_message");
 
-	sInviteMessage = getUIString("invite_message");
+	sInviteMessage = getString("invite_message");
 
 	if ( sErrorStringsMap.find("generic") == sErrorStringsMap.end() )
 	{
@@ -215,12 +215,6 @@ BOOL LLFloaterIM::postBuild()
 			getString("message_session_event");
 	}
 
-
-	if ( sEventStringsMap.end() == sEventStringsMap.find("mute") )
-	{
-		sEventStringsMap["mute"] =
-			getString("mute_agent_event");
-	}
 
 	if ( sForceCloseSessionMap.end() ==
 		 sForceCloseSessionMap.find("removed") )
@@ -525,7 +519,7 @@ void LLIMMgr::addSystemMessage(const LLUUID& session_id, const std::string& mess
 	{
 		LLFloaterChat* floaterp = LLFloaterChat::getInstance();
 
-		message = floaterp->getUIString(message_name);
+		message = floaterp->getString(message_name);
 		message.setArgList(args);
 
 		LLChat chat(message);
@@ -537,7 +531,7 @@ void LLIMMgr::addSystemMessage(const LLUUID& session_id, const std::string& mess
 		LLFloaterIMPanel* floaterp = findFloaterBySession(session_id);
 		if (floaterp)
 		{
-			message = floaterp->getUIString(message_name);
+			message = floaterp->getString(message_name);
 			message.setArgList(args);
 
 			gIMMgr->addMessage(session_id, LLUUID::null, SYSTEM_FROM, message.getString());

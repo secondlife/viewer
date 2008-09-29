@@ -61,14 +61,17 @@ const LLStyleSP &LLStyleMap::lookup(const LLUUID &source)
 		LLStyleSP style(new LLStyle);
 		style->setVisible(true);
 		style->setFontName(LLStringUtil::null);
-		if (source != LLUUID::null)
+		if (source != LLUUID::null && source != gAgent.getID() )
 		{
 			style->setColor(gSavedSettings.getColor4("HTMLLinkColor"));
 			std::string link = llformat("secondlife:///app/agent/%s/about",source.asString().c_str());
 			style->setLinkHREF(link);
 		}
 		else
+		{
+			// Make the resident's own name white and don't make the name clickable.
 			style->setColor(LLColor4::white);
+		}
 		(*this)[source] = style;
 	}
 	return (*this)[source];

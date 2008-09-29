@@ -222,7 +222,7 @@ void LLCrashLogger::gatherFiles()
 			trimSLLog(crash_info);
 		}
 
-		mCrashInfo[(*itr).first] = crash_info;
+		mCrashInfo[(*itr).first] = rawstr_to_utf8(crash_info);
 	}
 }
 

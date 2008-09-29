@@ -25,6 +25,9 @@
 			     tool_tip="Vous ne pouvez transférer de terrain que si vous êtes officier du groupe." />
 			<check_box label="Le propriétaire contribue par transfert" name="check contib"
 			     tool_tip="Lorsque le terrain est transféré au groupe, la contribution du précédent propriétaire suffit à l&apos;entretenir." />
+			<check_box label="Le propriétaire fait un don en transférant le titre de propriété"
+			     name="check contrib"
+			     tool_tip="Lorsqu&apos;un titre de propriété est transféré au groupe, l&apos;ancien propriétaire fait également un don de terre suffisant." />
 			<text type="string" length="1" name="For Sale:">
 				A vendre :
 			</text>
@@ -85,6 +88,40 @@
 			<text name="anyone">
 				Tout le monde
 			</text>
+			<string name="area_text">
+				Surface
+			</string>
+			<string name="area_size_text">
+				[AREA] m²
+			</string>
+			<string name="auction_id_text">
+				Code de l&apos;enchère : [ID]
+			</string>
+			<string name="need_tier_to_modify">
+				Pour modifier ce terrain, vous devez approuver votre achat.
+			</string>
+			<string name="group_owned_text">
+				(propriété du groupe)
+			</string>
+			<string name="profile_text">
+				Profil...
+			</string>
+			<string name="info_text">
+				Infos...
+			</string>
+			<string name="public_text">
+				(public)
+			</string>
+			<string name="none_text">
+				(aucun)
+			</string>
+			<string name="sale_pending_text">
+				(vente en cours)
+			</string>
+			<string name="no_selection_text">
+				Aucune parcelle sélectionnée.
+Allez dans le menu Monde &gt; A propos du terrain ou sélectionnez une autre parcelle pour en afficher les détails.
+			</string>
 		</panel>
 		<panel label="Clause de sauvegarde" name="land_covenant_panel">
 			<text type="string" length="1" name="covenant_timestamp_text">
@@ -131,12 +168,24 @@
 			</text>
 		</panel>
 		<panel label="Objets" name="land_objects_panel">
+			<text name="parcel_object_bonus">
+				Facteur Bonus Objets : [BONUS]
+			</text>
 			<text type="string" length="1" name="Simulator primitive usage:">
 				Primitifs utilisés sur le sim :
 			</text>
 			<text type="string" length="1" name="0 out of 0 available">
 				0 sur 14055 (14055 disponibles)
 			</text>
+			<text name="objects_available">
+				[COUNT] sur [COUNT] ([COUNT] disponibles)
+			</text>
+			<string name="objects_available_text">
+				[COUNT] sur [MAX] ([AVAILABLE] disponibles)
+			</string>
+			<string name="objects_deleted_text">
+				[COUNT] sur [MAX] ([DELETED] seront supprimés)
+			</string>
 			<text type="string" length="1" name="Primitives parcel supports:">
 				Primitifs max. sur parcelle :
 			</text>
@@ -185,6 +234,9 @@
 			<text type="string" length="1" name="Autoreturn other resident&amp;apos;s objects (minutes, 0 for off):">
 				Renvoi automatique des objets appartenant aux autres résidents (minutes, 0 pour désactiver):
 			</text>
+			<text name="Autoreturn">
+				Retour automatique des objets des autres résidents (minutes, 0 pour désactiver) :
+			</text>
 			<text type="string" length="1" name="Object Owners:">
 				Propriétaires :
 			</text>
@@ -194,14 +246,31 @@
 			<button label="" label_selected="" name="Type" tool_tip="Trier par type" />
 			<button label="Nom" label_selected="Nom" name="Name" tool_tip="Trier par nom" />
 			<button label="Trafic" label_selected="Trafic" name="Count" tool_tip="Trier par trafic" />
+			<name_list label="Plus récents" name="owner list">
+				<column label="Type" name="type" />
+				<column label="Nom" name="name" />
+				<column label="Nombre" name="count" />
+			</name_list>
 		</panel>
 		<panel label="Options" name="land_options_panel">
 			<text type="string" length="1" name="allow_label">
 				Autoriser d&apos;autres résidents à :
 			</text>
+			<text name="allow_label2">
+				Créer des objets :
+			</text>
 			<check_box label="Créer objets" name="edit objects check" />
 			<check_box label="Modifier le relief" name="edit land check" />
 			<check_box label="Créer repères" name="check landmark" />
+			<check_box label="Groupe" name="edit group objects check" />
+			<text name="allow_label3">
+				Apporter des objets :
+			</text>
+			<check_box label="Tous les résidents" name="all object entry check" />
+			<check_box label="Groupe" name="group object entry check" />
+			<text name="allow_label4">
+				Exécuter des scripts :
+			</text>
 			<check_box label="Exécuter des scripts de groupe" name="check group scripts" />
 			<check_box label="Voler" name="check fly" />
 			<check_box label="Exécuter d&apos;autres scripts" name="check other scripts" />
@@ -211,7 +280,8 @@
 			<check_box label="Sans danger (pas de dégâts)" name="check safe" />
 			<check_box label="Interdire de pousser" name="PushRestrictCheck"
 			     tool_tip="llPushObject ne fonctionnera que sur des scripts appartenant au propriétaire de la parcelle ou si celui qui est poussé est propriétaire du script." />
-			<check_box label="Show in Search &gt; Places (L$30/week) under" name="ShowDirectoryCheck" />
+			<check_box label="Show in Search &gt; Places (L$30/week) under" name="ShowDirectoryCheck"
+			     tool_tip="Afficher la parcelle dans les résultats de recherche" />
 			<combo_box name="land category">
 				<combo_item name="AnyCategory">
 					Toutes catégories
@@ -265,6 +335,12 @@
 			<text type="string" length="1" name="Landing Point: (none)">
 				Point d&apos;atterrissage : (aucun)
 			</text>
+			<text name="landing_point">
+				Lieu d&apos;arrivée : [LANDING]
+			</text>
+			<string name="landing_point_none">
+				(aucun)
+			</string>
 			<button label="Définir" label_selected="Définir" name="Set"
 			     tool_tip="Définir le point d&apos;atterrissage sur votre position actuelle. Il doit se trouver à l&apos;intérieur de cette parcelle de terrain." />
 			<button label="Effacer" label_selected="Effacer" name="Clear"
@@ -284,8 +360,59 @@
 					Partout
 				</combo_item>
 			</combo_box>
+			<string name="push_restrict_text">
+				Interdire les bousculades
+			</string>
+			<string name="push_restrict_region_text">
+				Interdire les bousculades (passer outre les règles de la région)
+			</string>
 		</panel>
 		<panel label="Média" name="land_media_panel">
+			<text name="with media:">
+				Type de média :
+			</text>
+			<combo_box name="media type"
+			     tool_tip="Indiquez s&apos;il s&apos;agit de l&apos;URL d&apos;un film, d&apos;une page web ou autre" />
+			<text name="at URL:">
+				URL du média :
+			</text>
+			<button label="Définir..." label_selected="Définir..." name="set_media_url" />
+			<text name="Description:">
+				Description :
+			</text>
+			<line_editor name="url_description"
+			     tool_tip="Texte affiché à côté du bouton Jouer/Charger" />
+			<text name="replace_texture_help">
+				(Les objets avec cette texture affichent le film ou 
+la page web quand vous cliquez sur la flèche Jouer).
+			</text>
+			<text name="Options:">
+				Options
+média :
+			</text>
+			<check_box label="Média en boucle" name="media_loop"
+			     tool_tip="Jouer le média en boucle. Lorsque le média aura fini de jouer, il recommencera." />
+			<check_box label="Masquer l&apos;URL du média" name="hide_media_url"
+			     tool_tip="Si vous cochez cette option, les personnes non autorisées à accéder aux infos de cette parcelle ne verront pas l&apos;URL du média. Cette option n&apos;est pas disponible pour les fichiers HTML." />
+			<check_box label="Masquer l&apos;URL de la musique" name="hide_music_url"
+			     tool_tip="Si vous cochez cette option, les personnes non autorisées à accéder aux infos de cette parcelle ne verront pas l&apos;URL de la musique." />
+			<text name="media_size"
+			     tool_tip="Taille du média Web, laisser 0 pour la valeur par défaut.">
+				Taille du média :
+			</text>
+			<spinner name="media_size_width"
+			     tool_tip="Taille du média Web, laisser 0 pour la valeur par défaut." />
+			<spinner name="media_size_height"
+			     tool_tip="Taille du média Web, laisser 0 pour la valeur par défaut." />
+			<text name="pixels">
+				pixels
+			</text>
+			<text name="MusicURL:">
+				URL de la musique :
+			</text>
+			<text name="Sound:">
+				Son :
+			</text>
 			<check_box label="Limiter le son spatial à la parcelle" name="check sound local" />
 			<text type="string" length="1" name="Music URL:">
 				URL du flux :
@@ -305,18 +432,67 @@ du média :
 			     label="Redimensionnement automatique (plus lent et affichage de qualité inférieure)"
 			     name="media_auto_scale"
 			     tool_tip="Cochez pour mettre le contenu à l&apos;échelle de cette parcelle. Cela peut légèrement affecter la rapidité et la qualité visuelle, mais ne nécessitera pas de remise à l&apos;échelle ou de réalignement de texture supplémentaires." />
+			<text name="Voice settings:">
+				Voix :
+			</text>
+			<radio_group name="parcel_voice_channel">
+				<radio_item name="Estate">
+					Utiliser le canal spatial du domaine
+				</radio_item>
+				<radio_item name="Private">
+					Utiliser un canal spatial privé
+				</radio_item>
+				<radio_item name="Disabled">
+					Désactiver les canaux spatiaux audios sur cette parcelle
+				</radio_item>
+			</radio_group>
 		</panel>
 		<panel label="Accès" name="land_access_panel">
 			<text type="string" length="1" name="Limit access to this parcel to:">
 				Restreindre l&apos;accès à cette parcelle à :
 			</text>
-			<check_box label="Groupe : (aucun)" name="GroupCheck" />
+			<check_box label="Autoriser l&apos;accès public" name="public_access" />
+			<text name="Only Allow">
+				Bloquer l&apos;accès :
+			</text>
+			<check_box
+			     label="Aux résidents qui n&apos;ont pas fourni leurs informations de paiement à Linden Lab"
+			     name="limit_payment" tool_tip="Aux résidents non identifés" />
+			<check_box label="Aux résidents dont l&apos;âge n&apos;a pas été vérifié"
+			     name="limit_age_verified"
+			     tool_tip="Aux résidents dont l&apos;âge n&apos;a pas été vérifié. Pour plus d&apos;infos, consultez la page support.secondlife.com." />
+			<string name="estate_override">
+				Au moins une de ces options est définie au niveau du domaine.
+			</string>
+			<check_box label="Groupe : (aucun)" name="GroupCheck"
+			     tool_tip="Définir le groupe à l&apos;onglet Général." />
 			<check_box label="Avatars : (0 dans la liste, 300 max)" name="AccessCheck" />
 			<button label="Ajouter..." label_selected="Ajouter..." name="Add..." />
 			<button label="Retirer" label_selected="Retirer" name="Remove" />
-			<check_box label="Vendre des laissez-passer temporaires :" name="PassCheck" />
+			<check_box label="Vendre des laissez-passer temporaires :" name="PassCheck"
+			     tool_tip="Autoriser un accès temporaire à cette parcelle" />
+			<combo_box name="pass_combo">
+				<combo_item name="Anyone">
+					N&apos;importe qui
+				</combo_item>
+				<combo_item name="Group">
+					Groupe
+				</combo_item>
+			</combo_box>
 			<spinner label="Prix en L$ :" name="PriceSpin" />
 			<spinner label="Heures de connexion :" name="HoursSpin" />
+			<text label="Toujours autoriser" name="AllowedText">
+				Résidents autorisés
+			</text>
+			<name_list name="AccessList" tool_tip="([LISTED] listés, [MAX] max)" />
+			<button label="Ajouter..." label_selected="Ajouter..." name="add_allowed" />
+			<button label="Supprimer" label_selected="Supprimer" name="remove_allowed" />
+			<text label="Interdire" name="BanCheck">
+				Résidents interdits
+			</text>
+			<name_list name="BannedList" tool_tip="([LISTED] listés, [MAX] max)" />
+			<button label="Ajouter..." label_selected="Ajouter..." name="add_banned" />
+			<button label="Supprimer" label_selected="Supprimer" name="remove_banned" />
 		</panel>
 		<panel label="Bannir" name="land_ban_panel">
 			<check_box label="Bannir les avatars suivants : (0 dans la liste, 300 max)"

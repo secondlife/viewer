@@ -7,4 +7,10 @@
 	<text_editor type="string" length="1" name="Notecard Editor">
 		Chargement en cours...
 	</text_editor>
+	<string name="no_object">
+		Impossible de trouver l&apos;objet contenant cette note.
+	</string>
+	<string name="not_allowed">
+		Vous n&apos;êtes pas autorisé à afficher cette note.
+	</string>
 </floater>

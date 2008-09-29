@@ -1047,7 +1047,7 @@ void LLTextureCtrl::setEnabled( BOOL enabled )
 	if( enabled )
 	{
 		std::string tooltip;
-		if (floaterp) tooltip = floaterp->getUIString("choose_picture");
+		if (floaterp) tooltip = floaterp->getString("choose_picture");
 		setToolTip( tooltip );
 	}
 	else

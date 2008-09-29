@@ -7,8 +7,11 @@ les Préférences générales du groupe et les options des membres.
 
 Passez votre pointeur sur les options pour plus d&apos;aide.
 	</text>
+	<string name="group_info_unchanged">
+		Les infos générales du groupe ont changé.
+	</string>
 	<button label="?" label_selected="?" name="help_button" />
-	<line_editor name="group_name_editor">
+	<line_editor label="Saisissez le nom du groupe ici" name="group_name_editor">
 		Entrez le nom de votre nouveau groupe ici
 	</line_editor>
 	<text name="group_name">
@@ -37,11 +40,20 @@ Passez votre pointeur sur les options pour plus d&apos;aide.
 	<text>
 		(Propriétaires affichés en gras)
 	</text>
+	<text name="text_owners_and_visible_members">
+		Propriétaires et membres visibles
+	</text>
+	<text name="text_owners_are_shown_in_bold">
+		(Les propriétaires apparaissent en gras)
+	</text>
 	<name_list name="visible_members">
 		<column label="Member Name" name="name" />
 		<column label="Title" name="title" />
 		<column label="Last Login" name="online" />
 	</name_list>
+	<text name="text_group_preferences">
+		Préférences du groupe
+	</text>
 	<text name="incomplete_member_data_str">
 		Accès aux données du membre
 	</text>
@@ -65,6 +77,18 @@ Etes-vous vraiment, VRAIMENT sûr(e) de vouloir dépenser L$100 pour créer ce g
 		     tool_tip="New members must pay this fee to join the group when   Enrollment Fee is checked." />
 		<check_box label="Adulte" name="mature"
 		     tool_tip="Cochez si les informations de votre groupe sont à caractère adulte." />
+		<combo_box name="group_mature_check"
+		     tool_tip="Indique si les informations de votre groupe sont considérées comme étant réservées aux adultes.">
+			<combo_item name="select_mature">
+				- Sélectionner Pour adultes -
+			</combo_item>
+			<combo_item name="mature">
+				Contenu pour adultes
+			</combo_item>
+			<combo_item name="not_mature">
+				Contenu non réservé aux adultes
+			</combo_item>
+		</combo_box>
 		<panel name="title_container">
 			<text name="active_title_label">
 				Mon Titre actif
@@ -74,5 +98,7 @@ Etes-vous vraiment, VRAIMENT sûr(e) de vouloir dépenser L$100 pour créer ce g
 		</panel>
 		<check_box label="Recevoir les Notifications" name="receive_notices"
 		     tool_tip="Sets whether you want to receive Notices from this group.   Uncheck this box if this group is spamming you." />
+		<check_box label="Montrer groupe dans Profil" name="list_groups_in_profile"
+		     tool_tip="Indique si vous voulez que ce groupe apparaisse dans votre profil" />
 	</panel>
 </panel>

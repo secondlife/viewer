@@ -937,11 +937,12 @@ void LLFloaterReporter::uploadDoneCallback(const LLUUID &uuid, void *user_data, 
 	if(result < 0)
 	{
 		LLStringUtil::format_map_t args;
-		args["[REASON]"] = std::string(LLAssetStorage::getErrorString(result));
+		std::string reason = std::string(LLAssetStorage::getErrorString(result));
+		args["[REASON]"] = reason;
 		gViewerWindow->alertXml("ErrorUploadingReportScreenshot", args);
 
 		std::string err_msg("There was a problem uploading a report screenshot");
-		err_msg += " due to the following reason: " + args["[REASON]"];
+		err_msg += " due to the following reason: " + reason;
 		llwarns << err_msg << llendl;
 		return;
 	}

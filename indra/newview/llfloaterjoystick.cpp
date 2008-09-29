@@ -58,7 +58,7 @@ void LLFloaterJoystick::draw()
 	childSetEnabled("enable_joystick", joystick_inited);
 	childSetEnabled("joystick_type", joystick_inited);
 	std::string desc = LLViewerJoystick::getInstance()->getDescription();
-	if (desc.empty()) desc = getUIString("NoDevice");
+	if (desc.empty()) desc = getString("NoDevice");
 	childSetText("joystick_type", desc);
 
 	LLViewerJoystick* joystick(LLViewerJoystick::getInstance());
@@ -83,8 +83,8 @@ void LLFloaterJoystick::draw()
 BOOL LLFloaterJoystick::postBuild()
 {		
 	F32 range = gSavedSettings.getBOOL("Cursor3D") ? 1024.f : 2.f;
-	LLUIString axis = getUIString("Axis");
-	LLUIString joystick = getUIString("JoystickMonitor");
+	LLUIString axis = getString("Axis");
+	LLUIString joystick = getString("JoystickMonitor");
 
 	// use this child to get relative positioning info; we'll place the
 	// joystick monitor on its right, vertically aligned to it.

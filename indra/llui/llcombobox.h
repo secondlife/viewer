@@ -115,7 +115,7 @@ public:
 	BOOL			remove( S32 index );	// remove item by index, return TRUE if found and removed
 	void			removeall() { clearRows(); }
 
-	void			sortByName(); // Sort the entries in the combobox by name
+	void			sortByName(BOOL ascending = TRUE); // Sort the entries in the combobox by name
 
 	// Select current item by name using selectItemByLabel.  Returns FALSE if not found.
 	BOOL			setSimple(const LLStringExplicit& name);

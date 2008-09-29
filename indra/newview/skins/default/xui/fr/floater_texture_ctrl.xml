@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater name="texture picker" title="Choisir : Texture">
+	<string name="choose_picture">
+		Cliquez pour sélectionner une image
+	</string>
 	<text type="string" length="1" name="Multiple">
 		Multiple
 	</text>
@@ -10,8 +13,12 @@
 	<button label="Aucun(e)" label_selected="Aucun(e)" name="None" />
 	<button label="Vierge" label_selected="Vierge" name="Blank" />
 	<check_box label="Afficher les dossiers" name="show_folders_check" />
+	<search_editor label="Saisissez votre recherche ici" name="inventory search editor" />
 	<check_box label="Appliquer maintenant" name="apply_immediate_check" />
 	<button label="" label_selected="" name="Pipette" />
 	<button label="Annuler" label_selected="Annuler" name="Cancel" />
 	<button label="Sélectionner" label_selected="Sélectionner" name="Select" />
+	<string name="pick title">
+		Choisir :
+	</string>
 </floater>

@@ -3,5 +3,6 @@
 	<spinner label="Unité de mesure (m)" name="GridResolution" />
 	<spinner label="Etendue (mètres)" name="GridDrawSize" />
 	<check_box label="Activer magnétisme sous-unités" name="GridSubUnit" />
+	<check_box label="Afficher les sections transversales" name="GridCrossSection" />
 	<slider label="Opacité de la grille" name="GridOpacity" />
 </floater>

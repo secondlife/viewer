@@ -39,7 +39,7 @@
 		新しいアカウントを作成します。
 	</text>
 	<text name="channel_text">
-		[Viewer Channel Name]
+		[CHANNEL] [VERSION]
 	</text>
 	<text name="forgot_password_text">
 		名前またはパスワードをお忘れですか?

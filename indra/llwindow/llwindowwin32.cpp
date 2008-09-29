@@ -1577,8 +1577,11 @@ void LLWindowWin32::gatherInput()
 	{
 		mCallbacks->handlePingWatchdog(this, "Main:TranslateGatherInput");
 		TranslateMessage(&msg);
-		mCallbacks->handlePingWatchdog(this, "Main:DispatchGatherInput");
+
+		// turn watchdog off in here to not fail if windows is doing something wacky
+		mCallbacks->handlePauseWatchdog(this);
 		DispatchMessage(&msg);
+		mCallbacks->handleResumeWatchdog(this);
 		msg_count++;
 
 		if ( mInputProcessingPaused )
@@ -1623,8 +1626,11 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 {
 	LLWindowWin32 *window_imp = (LLWindowWin32 *)GetWindowLong(h_wnd, GWL_USERDATA);
 
+
 	if (NULL != window_imp)
 	{
+		window_imp->mCallbacks->handleResumeWatchdog(window_imp);
+		window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:StartWndProc");
 		// Has user provided their own window callback?
 		if (NULL != window_imp->mWndProc)
 		{
@@ -1635,6 +1641,8 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 			}
 		}
 
+		window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:PreSwitchWndProc");
+		
 		// Juggle to make sure we can get negative positions for when
 		// mouse is outside window.
 		LLCoordWindow window_coord((S32)(S16)LOWORD(l_param), (S32)(S16)HIWORD(l_param));
@@ -1654,10 +1662,12 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 			S32		update_height;
 
 		case WM_TIMER:
+			window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_TIMER");
 			window_imp->mCallbacks->handleTimerEvent(window_imp);
 			break;
 
 		case WM_DEVICECHANGE:
+			window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_DEVICECHANGE");
 			if (gDebugWindowProc)
 			{
 				llinfos << "  WM_DEVICECHANGE: wParam=" << w_param 
@@ -1673,6 +1683,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 			break;
 
 		case WM_PAINT:
+			window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_PAINT");
 			GetUpdateRect(window_imp->mWindowHandle, &update_rect, FALSE);
 			update_width = update_rect.right - update_rect.left + 1;
 			update_height = update_rect.bottom - update_rect.top + 1;
@@ -1680,6 +1691,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 				update_width, update_height);
 			break;
 		case WM_PARENTNOTIFY:
+			window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_PARENTNOTIFY");
 			u_msg = u_msg;
 			break;
 
@@ -1689,6 +1701,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 
 			// Only take control of cursor over client region of window
 			// This allows Windows(tm) to handle resize cursors, etc.
+			window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_SETCURSOR");
 			if (LOWORD(l_param) == HTCLIENT)
 			{
 				SetCursor(window_imp->mCursor[ window_imp->mCurrentCursor] );
@@ -1697,14 +1710,17 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 			break;
 
 		case WM_ENTERMENULOOP:
+			window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_ENTERMENULOOP");
 			window_imp->mCallbacks->handleWindowBlock(window_imp);
 			break;
 
 		case WM_EXITMENULOOP:
+			window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_EXITMENULOOP");
 			window_imp->mCallbacks->handleWindowUnblock(window_imp);
 			break;
 
 		case WM_ACTIVATEAPP:
+			window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_ACTIVATEAPP");
 			{
 				// This message should be sent whenever the app gains or loses focus.
 				BOOL activating = (BOOL) w_param;
@@ -1741,6 +1757,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 			}
 
 		case WM_ACTIVATE:
+			window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_ACTIVATE");
 			{
 				// Can be one of WA_ACTIVE, WA_CLICKACTIVE, or WA_INACTIVE
 				BOOL activating = (LOWORD(w_param) != WA_INACTIVE);
@@ -1772,6 +1789,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 			break;
 
 		case WM_SYSCOMMAND:
+			window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_SYSCOMMAND");
 			switch(w_param)
 			{
 			case SC_KEYMENU: 
@@ -1786,6 +1804,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 			break;
 
 		case WM_CLOSE:
+			window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_CLOSE");
 			// Will the app allow the window to close?
 			if (window_imp->mCallbacks->handleCloseRequest(window_imp))
 			{
@@ -1796,6 +1815,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 			return 0;
 
 		case WM_DESTROY:
+			window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_DESTROY");
 			if (window_imp->shouldPostQuit())
 			{
 				PostQuitMessage(0);  // Posts WM_QUIT with an exit code of 0
@@ -1803,6 +1823,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 			return 0;
 
 		case WM_COMMAND:
+			window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_COMMAND");
 			if (!HIWORD(w_param)) // this message is from a menu
 			{
 				window_imp->mCallbacks->handleMenuSelect(window_imp, LOWORD(w_param));
@@ -1810,9 +1831,11 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 			break;
 
 		case WM_SYSKEYDOWN:
+			window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_SYSKEYDOWN");
 			// allow system keys, such as ALT-F4 to be processed by Windows
 			eat_keystroke = FALSE;
 		case WM_KEYDOWN:
+			window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_KEYDOWN");
 			{
 				if (gDebugWindowProc)
 				{
@@ -1831,6 +1854,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 			eat_keystroke = FALSE;
 		case WM_KEYUP:
 		{
+			window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_KEYUP");
 			LLFastTimer t2(LLFastTimer::FTM_KEYHANDLER);
 
 			if (gDebugWindowProc)
@@ -1848,6 +1872,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 			break;
 		}
 		case WM_IME_SETCONTEXT:
+			window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_IME_SETCONTEXT");
 			if (gDebugWindowProc)
 			{
 				llinfos << "WM_IME_SETCONTEXT" << llendl;
@@ -1860,6 +1885,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 			break;
 
 		case WM_IME_STARTCOMPOSITION:
+			window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_IME_STARTCOMPOSITION");
 			if (gDebugWindowProc)
 			{
 				llinfos << "WM_IME_STARTCOMPOSITION" << llendl;
@@ -1872,6 +1898,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 			break;
 
 		case WM_IME_ENDCOMPOSITION:
+			window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_IME_ENDCOMPOSITION");
 			if (gDebugWindowProc)
 			{
 				llinfos << "WM_IME_ENDCOMPOSITION" << llendl;
@@ -1883,6 +1910,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 			break;
 
 		case WM_IME_COMPOSITION:
+			window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_IME_COMPOSITION");
 			if (gDebugWindowProc)
 			{
 				llinfos << "WM_IME_COMPOSITION" << llendl;
@@ -1895,6 +1923,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 			break;
 
 		case WM_IME_REQUEST:
+			window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_IME_REQUEST");
 			if (gDebugWindowProc)
 			{
 				llinfos << "WM_IME_REQUEST" << llendl;
@@ -1920,6 +1949,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 			// it is worth trying.  The good old WM_CHAR works just fine even for supplementary
 			// characters.  We just need to take care of surrogate pairs sent as two WM_CHAR's
 			// by ourselves.  It is not that tough.  -- Alissa Sabre @ SL
+			window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_CHAR");
 			if (gDebugWindowProc)
 			{
 				LL_INFOS("Window") << "Debug WindowProc WM_CHAR "
@@ -1933,6 +1963,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 
 		case WM_LBUTTONDOWN:
 			{
+				window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_LBUTTONDOWN");
 				LLFastTimer t2(LLFastTimer::FTM_MOUSEHANDLER);
 				if (LLWinImm::isAvailable() && window_imp->mPreeditor)
 				{
@@ -1968,6 +1999,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 		//RN: ignore right button double clicks for now
 		//case WM_RBUTTONDBLCLK:
 			{
+				window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_LBUTTONDBLCLK");
 				// Because we move the cursor position in the app, we need to query
 				// to find out where the cursor at the time the event is handled.
 				// If we don't do this, many clicks could get buffered up, and if the
@@ -1995,6 +2027,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 
 		case WM_LBUTTONUP:
 			{
+				window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_LBUTTONUP");
 				LLFastTimer t2(LLFastTimer::FTM_MOUSEHANDLER);
 				//if (gDebugClicks)
 				//{
@@ -2028,6 +2061,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 		case WM_RBUTTONDBLCLK:
 		case WM_RBUTTONDOWN:
 			{
+				window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_RBUTTONDOWN");
 				LLFastTimer t2(LLFastTimer::FTM_MOUSEHANDLER);
 				if (LLWinImm::isAvailable() && window_imp->mPreeditor)
 				{
@@ -2061,6 +2095,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 
 		case WM_RBUTTONUP:
 			{
+				window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_RBUTTONUP");
 				LLFastTimer t2(LLFastTimer::FTM_MOUSEHANDLER);
 				// Because we move the cursor position in the app, we need to query
 				// to find out where the cursor at the time the event is handled.
@@ -2090,6 +2125,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 		case WM_MBUTTONDOWN:
 //		case WM_MBUTTONDBLCLK:
 			{
+				window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_MBUTTONDOWN");
 				LLFastTimer t2(LLFastTimer::FTM_MOUSEHANDLER);
 				if (LLWinImm::isAvailable() && window_imp->mPreeditor)
 				{
@@ -2123,6 +2159,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 
 		case WM_MBUTTONUP:
 			{
+				window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_MBUTTONUP");
 				LLFastTimer t2(LLFastTimer::FTM_MOUSEHANDLER);
 				// Because we move the cursor position in tllviewerhe app, we need to query
 				// to find out where the cursor at the time the event is handled.
@@ -2151,6 +2188,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 
 		case WM_MOUSEWHEEL:
 			{
+				window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_MOUSEWHEEL");
 				static short z_delta = 0;
 
 				z_delta += HIWORD(w_param);
@@ -2187,6 +2225,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 			// Handle mouse movement within the window
 		case WM_MOUSEMOVE:
 			{
+				window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_MOUSEMOVE");
 				window_imp->convertCoords(window_coord, &gl_coord);
 				MASK mask = gKeyboard->currentMask(TRUE);
 				window_imp->mCallbacks->handleMouseMove(window_imp, gl_coord, mask);
@@ -2195,6 +2234,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 
 		case WM_SIZE:
 			{
+				window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_SIZE");
 				S32 width = S32( LOWORD(l_param) );
 				S32 height = S32( HIWORD(l_param) );
 
@@ -2253,6 +2293,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 			}
 
 		case WM_SETFOCUS:
+			window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_SETFOCUS");
 			if (gDebugWindowProc)
 			{
 				LL_INFOS("Window") << "WINDOWPROC SetFocus" << LL_ENDL;
@@ -2261,6 +2302,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 			return 0;
 
 		case WM_KILLFOCUS:
+			window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_KILLFOCUS");
 			if (gDebugWindowProc)
 			{
 				LL_INFOS("Window") << "WINDOWPROC KillFocus" << LL_ENDL;
@@ -2269,12 +2311,16 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 			return 0;
 
 		case WM_COPYDATA:
+			window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_COPYDATA");
 			// received a URL
 			PCOPYDATASTRUCT myCDS = (PCOPYDATASTRUCT) l_param;
 			window_imp->mCallbacks->handleDataCopy(window_imp, myCDS->dwData, myCDS->lpData);
 			return 0;			
 		}
+
+	window_imp->mCallbacks->handlePauseWatchdog(window_imp);	
 	}
+
 
 	// pass unhandled messages down to Windows
 	return DefWindowProc(h_wnd, u_msg, w_param, l_param);

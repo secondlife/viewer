@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="mute by name" title="Ignorer les objets par nom">
+	<text name="message">
+		Ignorer par nom ne marche que pour les chats et IM, pas les sons.
+Vous devez saisir le nom exact de l&apos;objet.
+	</text>
+	<line_editor name="object_name">
+		Nom de l&apos;objet
+	</line_editor>
+	<button label="OK" name="OK" />
+	<button label="Annuler" name="Cancel" />
+</floater>

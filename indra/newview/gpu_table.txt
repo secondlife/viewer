@@ -139,9 +139,11 @@ Intel 945G						.*Intel.*945G						0		1
 Intel 950						.*Intel.*950.*						0		1
 Intel 965						.*Intel.*965.*						0		1
 Intel G33						.*Intel.*G33.*						0		0
+Intel G45						.*Intel.*G45.*						0		1
 Intel Bear Lake					.*Intel.*Bear Lake.*				0		0
 Intel Broadwater 				.*Intel.*Broadwater.*				0		0
 Intel Brookdale					.*Intel.*Brookdale.*				0		0
+Intel Eaglelake					.*Intel.*Eaglelake.*				0		1
 Intel Montara					.*Intel.*Montara.*					0		0
 Intel Springdale				.*Intel.*Springdale.*				0		0
 Matrox							.*Matrox.*							0		0

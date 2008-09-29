@@ -1,23 +1,131 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="floater_report_abuse" title="Signaler un abus">
+<floater name="floater_report_abuse" title="Signaler l&apos;infraction">
 	<text name="reporter_title">
-		Signalant :
+		Déposant :
+	</text>
+	<text name="reporter_field">
+		Loremipsum Dolorsitamut
 	</text>
 	<text name="sim_title">
-		Sim :
+		Région :
+	</text>
+	<text name="sim_field">
+		Nom de la région
 	</text>
 	<text name="pos_title">
-		Position :
+		Position :
 	</text>
-	<texture_picker label="Instantané en cours..." name="screenshot" />
-	<check_box label="Inclure capture d&apos;écran" name="screen_check" />
+	<texture_picker name="screenshot" />
+	<check_box label="Inclure une capture d&apos;écran" name="screen_check" />
+	<text name="pos_field">
+		{128.1, 128.1, 15.4}
+	</text>
+	<text name="object_name">
+		Consetetur Sadipscing
+	</text>
+	<text name="owner_name">
+		Hendrerit Vulputate
+	</text>
 	<combo_box name="category_combo"
-	     tool_tip="Category -- select the category that best describes this report">
+	     tool_tip="Choisissez la catégorie qui décrit le mieux ce rapport">
 		<combo_item name="Selectcategory">
 			Choisir une catégorie
 		</combo_item>
+		<combo_item name="Select_category">
+			Sélectionnez une catégorie
+		</combo_item>
+		<combo_item name="Age__Age_play">
+			Age &gt; « Age play »
+		</combo_item>
+		<combo_item name="Age__Adult_resident_on_Teen_Second_Life">
+			Age &gt; Résident adulte sur Second Life pour adolescents
+		</combo_item>
+		<combo_item name="Age__Underage_resident_on_Adult_Second_Life">
+			Age &gt; Résident mineur sur Second Life pour adultes
+		</combo_item>
+		<combo_item name="Assault__Combat_sandbox___unsafe_area">
+			Assaut &gt; Bac à sable utilisé pour des combats/zone non sécurisée
+		</combo_item>
+		<combo_item name="Assault__Safe_area">
+			Assaut &gt; Zone sécurisée
+		</combo_item>
+		<combo_item name="Assault__Weapons_testing_sandbox">
+			Assaut &gt; Bac à sable pour tests d&apos;armes à feu
+		</combo_item>
+		<combo_item name="Copyright_or_intellectual_property_violation">
+			Violation de droits d&apos;auteur ou de propriété intellectuelle
+		</combo_item>
+		<combo_item name="Commerce__Failure_to_deliver_product_or_service">
+			Commerce &gt; Incapacité à fournir un produit ou service
+		</combo_item>
+		<combo_item name="Disclosure__First_Life_information">
+			Divulgation &gt; Informations sur la première vie (First Life)
+		</combo_item>
+		<combo_item name="Disclosure__Remotely_monitoring chat">
+			Divulgation &gt; écoute d&apos;un chat à distance
+		</combo_item>
+		<combo_item name="Disclosure__Second_Life_information_chat_IMs">
+			Divulgation &gt; Informations sur Second Life/chat/IM
+		</combo_item>
+		<combo_item name="Disturbing_the_peace__Unfair_use_of_region_resources">
+			Trouble de la paix &gt; Utilisation inadéquate des ressources de la région
+		</combo_item>
+		<combo_item name="Disturbing_the_peace__Excessive_scripted_objects">
+			Trouble de la paix &gt; Nombre d&apos;objets scriptés excessif
+		</combo_item>
+		<combo_item name="Disturbing_the_peace__Object_littering">
+			Trouble de la paix &gt; Abandon d&apos;objets
+		</combo_item>
+		<combo_item name="Disturbing_the_peace__Repetitive_spam">
+			Trouble de la paix &gt; Spam à répétition
+		</combo_item>
+		<combo_item name="Disturbing_the_peace__Unwanted_advert_spam">
+			Trouble de la paix &gt; Spam à caractère commercial
+		</combo_item>
+		<combo_item name="Fraud__L$">
+			Fraude &gt; $L
+		</combo_item>
+		<combo_item name="Fraud__Land">
+			Fraude &gt; Terrain
+		</combo_item>
+		<combo_item name="Fraud__Pyramid_scheme_or_chain_letter">
+			Fraude &gt; Vente pyramidale ou lettre-chaîne
+		</combo_item>
+		<combo_item name="Fraud__US$">
+			Fraude &gt; $US
+		</combo_item>
+		<combo_item name="Harassment__Advert_farms___visual_spam">
+			Harcèlement &gt; Spam visuel
+		</combo_item>
+		<combo_item name="Harassment__Defaming_individuals_or_groups">
+			Harcèlement &gt; Diffamation envers des individus ou des groupes
+		</combo_item>
+		<combo_item name="Harassment__Impeding_movement">
+			Harcèlement &gt; Immobilisation
+		</combo_item>
+		<combo_item name="Harassment__Sexual_harassment">
+			Harcèlement &gt;  Harcèlement sexuel
+		</combo_item>
+		<combo_item name="Harassment__Solicting_inciting_others_to_violate_ToS">
+			Harcèlement &gt; Incitation à enfreindre les Conditions d&apos;utilisation
+		</combo_item>
+		<combo_item name="Harassment__Verbal_abuse">
+			Harcèlement &gt; Abus verbal
+		</combo_item>
+		<combo_item name="Indecency__Broadly_offensive_content_or_conduct">
+			Indécence &gt; Contenu ou comportement offensifs
+		</combo_item>
+		<combo_item name="Indecency__Broadly_visible_mature_content">
+			Indécence &gt; Contenu réservé aux adultes visible par tous
+		</combo_item>
+		<combo_item name="Indecency__Inappropriate_avatar_name">
+			Indécence &gt; Nom d&apos;avatar inapproprié
+		</combo_item>
+		<combo_item name="Indecency__Mature_content_in_PG_region">
+			Indécence &gt; Contenu Adulte dans une région où l&apos;accompagnement parental est requis
+		</combo_item>
 		<combo_item name="Intolerance">
-			Intolérance
+			Intolerance
 		</combo_item>
 		<combo_item name="Harassment">
 			Harcèlement
@@ -37,42 +145,62 @@
 		<combo_item name="Parcel">
 			Colis
 		</combo_item>
+		<combo_item name="Land__Abuse_of_sandbox_resources">
+			Terrain &gt; Utilisation abusive des ressources du bac à sable
+		</combo_item>
+		<combo_item name="Land__Encroachment__Objects_textures">
+			Terrain &gt; Empiètement &gt; Objets/textures
+		</combo_item>
+		<combo_item name="Land__Encroachment__Particles">
+			Terrain &gt; Empiètement &gt; Particules
+		</combo_item>
+		<combo_item name="Land__Encroachment__Trees_plants">
+			Terrain &gt; Empiètement &gt; Arbres/plantes
+		</combo_item>
+		<combo_item name="Trademark_violation">
+			Violation des droits de marque
+		</combo_item>
+		<combo_item name="Wagering_gambling">
+			Paris/jeux d&apos;argent
+		</combo_item>
 		<combo_item name="Other">
-			Autre
+			Other
 		</combo_item>
 	</combo_box>
 	<button label="" label_selected="" name="pick_btn"
-	     tool_tip="Sélecteur d&apos;objets - choisissez l&apos;objet concerné par ce rapport" />
+	     tool_tip="Le sélecteur d&apos;objet vous permet d&apos;identifier un objet comme sujet du rapport." />
 	<text name="select_object_label">
-		Cliquez sur le bouton puis l&apos;objet :
+		Cliquez sur le bouton puis l&apos;objet :
 	</text>
 	<text name="object_name_label">
-		Nom :
+		Nom :
 	</text>
 	<text name="owner_name_label">
-		Propriétaire :
+		Propriétaire :
 	</text>
 	<text name="abuser_name_title">
-		Nom du contrevenant :
+		Nom du contrevenant :
 	</text>
-	<button label="Sélectionner" label_selected="" name="select_abuser"
-	     tool_tip="Sélectionnez le nom du contrevenant dans une liste." />
+	<button label="Choisir le résident" label_selected="" name="select_abuser"
+	     tool_tip="Sélectionnez le nom du résident dans une liste" />
+	<check_box label="Ne connaît pas le nom du contrevenant" name="omit_abuser_name"
+	     tool_tip="Cochez cette case si vous ne connaissez pas le nom du contrevenant" />
 	<text name="abuser_name_title2">
-		Lieu de l&apos;abus :
+		Lieu où l&apos;infraction a eu lieu :
 	</text>
 	<text name="sum_title">
-		Résumé :
+		Récapitulatif :
 	</text>
 	<text name="dscr_title">
 		Détails :
 	</text>
 	<text name="bug_aviso">
-		Veuillez préciser autant que possible la date, le lieu, la nature de l&apos;abus,
-les textes du chat/IM pertinents, et sélectionner l&apos;objet si possible.
+		Indiquez la date, le lieu, la nature de l&apos;infraction, ainsi que tout chat ou IM relatif à l&apos;infraction, en étant aussi précis que possible. Essayez aussi d&apos;indiquer un sujet.
 	</text>
 	<text name="incomplete_title">
-		Attention : les rapports incomplets ne seront pas pris en compte
+		Remarque : Les rapports incomplets ne feront pas l&apos;objet d&apos;une enquête.
 	</text>
-	<button label="Signaler un abus" label_selected="Signaler un abus" name="send_btn" />
+	<button label="Signaler l&apos;infraction" label_selected="Signaler l&apos;infraction"
+	     name="send_btn" />
 	<button label="Annuler" label_selected="Annuler" name="cancel_btn" />
 </floater>

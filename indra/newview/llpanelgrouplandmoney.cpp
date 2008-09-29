@@ -571,7 +571,7 @@ bool LLPanelGroupLandMoney::apply(std::string& mesg)
 {
 	if (!mImplementationp->applyContribution() )
 	{
-		mesg.assign(getUIString("land_contrib_error")); 
+		mesg = getString("land_contrib_error"); 
 		return false;
 	}
 

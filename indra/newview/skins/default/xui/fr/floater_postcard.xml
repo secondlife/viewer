@@ -1,28 +1,41 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="Postcard" title="Envoyer une carte postale">
+<floater name="Postcard" title="Envoyer la capture d&apos;écran par e-mail">
 	<text name="to_label">
-		Email du destinataire :
+		E-mail du destinataire :
 	</text>
 	<text name="from_label">
-		Votre adresse mail :
+		Votre e-mail :
 	</text>
 	<text name="name_label">
-		Votre nom :
+		Votre nom :
 	</text>
 	<text name="subject_label">
-		Sujet :
+		Sujet :
 	</text>
+	<line_editor label="Saisissez votre sujet ici." name="subject_form" />
 	<text name="msg_label">
-		Message :
+		Message :
 	</text>
 	<check_box label="Publier sur le web" name="allow_publish_check"
 	     tool_tip="Publiez cette carte postale sur le web." />
 	<check_box label="Contenu adulte" name="mature_check"
 	     tool_tip="Cette carte postale est à caractère adulte." />
 	<button label="?" name="publish_help_btn" />
+	<text_editor name="msg_form">
+		Saisissez votre message ici.
+	</text_editor>
 	<text name="fine_print">
-		Si le destinataire de votre carte postale rejoint SL, vous gagnerez un bonus de parrainage.
+		Si le destinataire s&apos;inscrit sur Second Life, vous recevrez un bonus.
 	</text>
 	<button label="Annuler" name="cancel_btn" />
 	<button label="Envoyer" name="send_btn" />
+	<string name="default_subject">
+		Carte postale de Second Life.
+	</string>
+	<string name="default_message">
+		Ouvrez-moi !
+	</string>
+	<string name="upload_message">
+		Envoi en cours...
+	</string>
 </floater>

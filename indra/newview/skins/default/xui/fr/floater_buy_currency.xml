@@ -1,62 +1,68 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="buy currency" title="Acheter des devises">
+<floater name="buy currency" title="Acheter devise">
 	<text name="info_buying">
-		Achat de devises :
+		Achat de devise :
 	</text>
 	<text name="info_cannot_buy">
-		Achat actuellement impossible :
+		Impossible d&apos;acheter maintenant :
 	</text>
 	<text name="info_need_more">
-		Il vous faut plus de devises :
+		Vous avez besoin de plus de devises :
 	</text>
 	<text name="error_message">
-		Quelque chose ne tourne pas rond.
+		Quelque chose ne va pas.
 	</text>
-	<button label="Visiter le site" name="error_web" />
+	<button label="Aller sur le site" name="error_web" />
 	<text name="contacting">
-		Connexion avec LindeX en cours...
+		En train de contacter Lindex...
 	</text>
 	<text name="buy_action_unknown">
-		Acheter des L$ sur le marché de devises LindeX
+		Acheter des $L sur le marché des changes du LindeX
 	</text>
 	<text name="buy_action">
-		[NAME] L$ [PRICE]
+		[NAME] $L [PRICE]
 	</text>
 	<text name="currency_action">
-		Acheter des L$
+		Acheter des $L
 	</text>
 	<line_editor name="currency_amt">
 		1234
 	</line_editor>
 	<text name="currency_est">
-		pour environ US$ [USD]
+		pour environ [USD] $US
+	</text>
+	<text name="getting_data">
+		Obtention des données...
 	</text>
 	<text name="balance_label">
-		Vous avez actuellement
+		Actuellement, vous avez
 	</text>
 	<text name="balance_amount">
-		L$ [AMT]
+		[AMT] $L
 	</text>
 	<text name="buying_label">
 		Vous achetez
 	</text>
 	<text name="buying_amount">
-		L$ [AMT]
+		[AMT] $L
 	</text>
 	<text name="total_label">
-		Votre solde sera
+		Votre solde sera de
 	</text>
 	<text name="total_amount">
-		L$ [AMT]
+		[AMT] $L
 	</text>
 	<text name="purchase_warning_repurchase">
-		Confirmer cette acquisition n&apos;entraîne que l&apos;achat de devises. 
-Vous devrez répéter l&apos;opération.
+		En confirmant cette transaction, vous achetez uniquement les devises.
+Vous devrez recommencer cette opération.
 	</text>
 	<text name="purchase_warning_notenough">
-		Achat de devises insuffisant.
-Veuillez saisir un montant supérieur.
+		Vous n&apos;achetez pas assez de devises.
+Veuillez saisir un montant plus élevé.
 	</text>
-	<button label="Acquérir" name="buy_btn" />
+	<button label="Acheter" name="buy_btn" />
 	<button label="Annuler" name="cancel_btn" />
+	<string name="buy_currency">
+		Acheter [LINDENS] $L pour environ [USD] $US
+	</string>
 </floater>

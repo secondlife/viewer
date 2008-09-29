@@ -202,9 +202,9 @@ public:
 
 	void			setSnapTarget(LLHandle<LLFloater> handle) { mSnappedTo = handle; }
 	void			clearSnapTarget() { mSnappedTo.markDead(); }
-	LLHandle<LLFloater>	getSnapTarget() { return mSnappedTo; }
+	LLHandle<LLFloater>	getSnapTarget() const { return mSnappedTo; }
 
-	LLHandle<LLFloater> getHandle() { return mHandle; }
+	LLHandle<LLFloater> getHandle() const { return mHandle; }
 
 	static void		closeFocusedFloater();
 

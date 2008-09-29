@@ -100,9 +100,16 @@ void LLAres::QueryResponder::queryError(int code)
 			<< LLAres::strerror(code) << llendl;
 }
 
-LLAres::LLAres()
+LLAres::LLAres() :
+chan_(NULL), mInitSuccess(false)
 {
-	ares_init(&chan_);
+	if (ares_init(&chan_) != ARES_SUCCESS)
+	{
+		llwarns << "Could not succesfully initialize ares!" << llendl;
+		return;
+	}
+
+	mInitSuccess = true;
 }
 
 LLAres::~LLAres()

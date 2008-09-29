@@ -208,6 +208,17 @@ void LLWindowCallbacks::handlePingWatchdog(LLWindow *window, const char * msg)
 
 }
 
+void LLWindowCallbacks::handlePauseWatchdog(LLWindow *window)
+{
+
+}
+
+void LLWindowCallbacks::handleResumeWatchdog(LLWindow *window)
+{
+
+}
+
+
 S32 OSMessageBox(const std::string& text, const std::string& caption, U32 type)
 {
 	// Properly hide the splash screen when displaying the message box

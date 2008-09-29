@@ -116,8 +116,34 @@ LLColor4 LLFolderViewItem::sFilterBGColor;
 LLColor4 LLFolderViewItem::sFilterTextColor;
 LLColor4 LLFolderViewItem::sSuffixColor;
 LLColor4 LLFolderViewItem::sSearchStatusColor;
+LLUIImagePtr LLFolderViewItem::sArrowImage;
+LLUIImagePtr LLFolderViewItem::sBoxImage;
+
+//static
+void LLFolderViewItem::initClass()
+{
+	sFont = LLResMgr::getInstance()->getRes( LLFONT_SANSSERIF_SMALL );
+	sSmallFont = LLResMgr::getInstance()->getRes( LLFONT_SMALL );
+	sFgColor = gColors.getColor( "MenuItemEnabledColor" );
+	sHighlightBgColor = gColors.getColor( "MenuItemHighlightBgColor" );
+	sHighlightFgColor = gColors.getColor( "MenuItemHighlightFgColor" );
+	sFilterBGColor = gColors.getColor( "FilterBackgroundColor" );
+	sFilterTextColor = gColors.getColor( "FilterTextColor" );
+	sSuffixColor = gColors.getColor( "InventoryItemSuffixColor" );
+	sSearchStatusColor = gColors.getColor( "InventorySearchStatusColor" );
+	sArrowImage = LLUI::getUIImage("folder_arrow.tga"); 
+	sBoxImage = LLUI::getUIImage("rounded_square.tga");
+}
+
+//static
+void LLFolderViewItem::cleanupClass()
+{
+	sArrowImage = NULL;
+	sBoxImage = NULL;
+}
 
 // Default constructor
+// NOTE: Optimize this, we call it a *lot* when opening a large inventory
 LLFolderViewItem::LLFolderViewItem( const std::string& name, LLUIImagePtr icon,
 								   S32 creation_date,
 								   LLFolderView* root,
@@ -132,6 +158,7 @@ LLFolderViewItem::LLFolderViewItem( const std::string& name, LLUIImagePtr icon,
 	mIsCurSelection( FALSE ),
 	mSelectPending(FALSE),
 	mLabelStyle( LLFontGL::NORMAL ),
+	mIcon(icon),
 	mHasVisibleChildren(FALSE),
 	mIndentation(0),
 	mNumDescendantsSelected(0),
@@ -143,31 +170,7 @@ LLFolderViewItem::LLFolderViewItem( const std::string& name, LLUIImagePtr icon,
 	mDragAndDropTarget(FALSE),
 	mIsLoading(FALSE)
 {
-	setIcon(icon);
-	if( !LLFolderViewItem::sFont )
-	{
-		LLFolderViewItem::sFont = LLResMgr::getInstance()->getRes( LLFONT_SANSSERIF_SMALL );
-	}
-
-	if (!LLFolderViewItem::sSmallFont)
-	{
-		LLFolderViewItem::sSmallFont = LLResMgr::getInstance()->getRes( LLFONT_SMALL );
-	}
-
-	// HACK: Can't be set above because gSavedSettings might not be constructed.
-	LLFolderViewItem::sFgColor = gColors.getColor( "MenuItemEnabledColor" );
-	LLFolderViewItem::sHighlightBgColor = gColors.getColor( "MenuItemHighlightBgColor" );
-	LLFolderViewItem::sHighlightFgColor = gColors.getColor( "MenuItemHighlightFgColor" );
-	LLFolderViewItem::sFilterBGColor = gColors.getColor( "FilterBackgroundColor" );
-	LLFolderViewItem::sFilterTextColor = gColors.getColor( "FilterTextColor" );
-	LLFolderViewItem::sSuffixColor = gColors.getColor( "InventoryItemSuffixColor" );
-	LLFolderViewItem::sSearchStatusColor = gColors.getColor( "InventorySearchStatusColor" );
-
-
-	mArrowImage = LLUI::getUIImage("folder_arrow.tga"); 
-	mBoxImage = LLUI::getUIImage("rounded_square.tga");
-
-	refresh();
+	refresh(); // possible opt: only call refreshFromListener()
 	setTabStop(FALSE);
 }
 
@@ -176,8 +179,6 @@ LLFolderViewItem::~LLFolderViewItem( void )
 {
 	delete mListener;
 	mListener = NULL;
-	mArrowImage = NULL;
-	mBoxImage = NULL;
 }
 
 LLFolderView* LLFolderViewItem::getRoot()
@@ -276,7 +277,7 @@ void LLFolderViewItem::setIcon(LLUIImagePtr icon)
 }
 
 // refresh information from the listener
-void LLFolderViewItem::refresh()
+void LLFolderViewItem::refreshFromListener()
 {
 	if(mListener)
 	{
@@ -290,30 +291,35 @@ void LLFolderViewItem::refresh()
 		}
 		mLabelStyle = mListener->getLabelStyle();
 		mLabelSuffix = mListener->getLabelSuffix();
-
-		std::string searchable_label(mLabel);
-		searchable_label.append(mLabelSuffix);
-		LLStringUtil::toUpper(searchable_label);
-
-		if (mSearchableLabel.compare(searchable_label))
-		{
-			mSearchableLabel.assign(searchable_label);
-			dirtyFilter();
-			// some part of label has changed, so overall width has potentially changed
-			if (mParentFolder)
-			{
-				mParentFolder->requestArrange();
-			}
-		}
-
-		S32 label_width = sFont->getWidth(mLabel);
-		if( mLabelSuffix.size() )   
-		{   
-			label_width += sFont->getWidth( mLabelSuffix );   
-		}   
-
-		mLabelWidth = ARROW_SIZE + TEXT_PAD + ICON_WIDTH + ICON_PAD + label_width; 
 	}
+}
+
+void LLFolderViewItem::refresh()
+{
+	refreshFromListener();
+	
+	std::string searchable_label(mLabel);
+	searchable_label.append(mLabelSuffix);
+	LLStringUtil::toUpper(searchable_label);
+
+	if (mSearchableLabel.compare(searchable_label))
+	{
+		mSearchableLabel.assign(searchable_label);
+		dirtyFilter();
+		// some part of label has changed, so overall width has potentially changed
+		if (mParentFolder)
+		{
+			mParentFolder->requestArrange();
+		}
+	}
+
+	S32 label_width = sFont->getWidth(mLabel);
+	if( mLabelSuffix.size() )   
+	{   
+		label_width += sFont->getWidth( mLabelSuffix );   
+	}   
+
+	mLabelWidth = ARROW_SIZE + TEXT_PAD + ICON_WIDTH + ICON_PAD + label_width; 
 }
 
 void LLFolderViewItem::applyListenerFunctorRecursively(LLFolderViewListenerFunctor& functor)
@@ -798,10 +804,10 @@ void LLFolderViewItem::draw()
 	}
 	if(/*mControlLabel[0] != '\0' && */possibly_has_children)
 	{
-		if (mArrowImage)
+		if (sArrowImage)
 		{
 			gl_draw_scaled_rotated_image(mIndentation, getRect().getHeight() - ARROW_SIZE - TEXT_PAD,
-				ARROW_SIZE, ARROW_SIZE, mControlLabelRotation, mArrowImage->getImage(), sFgColor);
+				ARROW_SIZE, ARROW_SIZE, mControlLabelRotation, sArrowImage->getImage(), sFgColor);
 		}
 	}
 
@@ -937,7 +943,7 @@ void LLFolderViewItem::draw()
 								S32_MAX, S32_MAX, &right_x, FALSE );
 		}
 
-		if (mBoxImage.notNull() && mStringMatchOffset != std::string::npos)
+		if (sBoxImage.notNull() && mStringMatchOffset != std::string::npos)
 		{
 			// don't draw backgrounds for zero-length strings
 			S32 filter_string_length = mRoot->getFilterSubString().size();
@@ -950,7 +956,7 @@ void LLFolderViewItem::draw()
 				S32 top = getRect().getHeight();
 
 				LLRect box_rect(left, top, right, bottom);
-				mBoxImage->draw(box_rect, sFilterBGColor);
+				sBoxImage->draw(box_rect, sFilterBGColor);
 				F32 match_string_left = text_left + sFont->getWidthF32(combined_string, 0, mStringMatchOffset);
 				F32 y = (F32)getRect().getHeight() - sFont->getLineHeight() - (F32)TEXT_PAD;
 				sFont->renderUTF8( combined_string, mStringMatchOffset, match_string_left, y,

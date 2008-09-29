@@ -69,6 +69,7 @@ DirText $(DirectoryChooseTitle) $(DirectoryChooseUpdate)
 DirText $(DirectoryChooseTitle) $(DirectoryChooseSetup)
 !endif
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Variables
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -78,131 +79,9 @@ Var INSTFLAGS
 Var LANGFLAGS
 Var INSTSHORTCUT
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Sections
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-Section ""						; (default section)
-
-SetShellVarContext all			; install for all users (if you change this, change it in the uninstall as well)
-
-; Start with some default values.
-StrCpy $INSTFLAGS "${INSTFLAGS}"
-StrCpy $INSTPROG "${INSTNAME}"
-StrCpy $INSTEXE "${INSTEXE}"
-StrCpy $INSTSHORTCUT "${SHORTCUT}"
-
-IfSilent +2
-Goto NOT_SILENT
-  Call CheckStartupParams                 ; Figure out where, what and how to install.
-NOT_SILENT:
-Call CheckWindowsVersion		; warn if on Windows 98/ME
-Call CheckIfAdministrator		; Make sure the user can install/uninstall
-Call CheckIfAlreadyCurrent		; Make sure that we haven't already installed this version
-Call CloseSecondLife			; Make sure we're not running
-Call RemoveNSIS					; Check for old NSIS install to remove
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Don't remove cache files during a regular install, removing the inventory cache on upgrades results in lots of damage to the servers.
-;Call RemoveCacheFiles			; Installing over removes potentially corrupted
-								; VFS and cache files.
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Need to clean out shader files from previous installs to fix DEV-5663
-Call RemoveOldShaders
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Need to clean out old XUI files that predate skinning
-Call RemoveOldXUI
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Clear out old releasenotes.txt files. These are now on the public wiki.
-Call RemoveOldReleaseNotes
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Files
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; This placeholder is replaced by the complete list of all the files in the installer, by viewer_manifest.py
-%%INSTALL_FILES%%
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; If this is a silent update, we don't need to re-create these shortcuts or registry entries.
-IfSilent POST_INSTALL
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Shortcuts in start menu
-CreateDirectory	"$SMPROGRAMS\$INSTSHORTCUT"
-SetOutPath "$INSTDIR"
-CreateShortCut	"$SMPROGRAMS\$INSTSHORTCUT\$INSTSHORTCUT.lnk" \
-				"$INSTDIR\$INSTEXE" "$INSTFLAGS"
-
-!ifdef MUSEUM
-CreateShortCut	"$SMPROGRAMS\$INSTSHORTCUT\$INSTSHORTCUT Museum.lnk" \
-
-				"$INSTDIR\$INSTEXE" "$INSTFLAGS -simple"
-CreateShortCut	"$SMPROGRAMS\$INSTSHORTCUT\$INSTSHORTCUT Museum Spanish.lnk" \
-
-				"$INSTDIR\$INSTEXE" "$INSTFLAGS -simple -spanish"
-!endif
-
-WriteINIStr		"$SMPROGRAMS\$INSTSHORTCUT\SL Create Trial Account.url" \
-				"InternetShortcut" "URL" \
-				"http://www.secondlife.com/registration/"
-WriteINIStr		"$SMPROGRAMS\$INSTSHORTCUT\SL Your Account.url" \
-				"InternetShortcut" "URL" \
-				"http://www.secondlife.com/account/"
-CreateShortCut	"$SMPROGRAMS\$INSTSHORTCUT\SL Scripting Language Help.lnk" \
-				"$INSTDIR\lsl_guide.html"
-CreateShortCut	"$SMPROGRAMS\$INSTSHORTCUT\Uninstall $INSTSHORTCUT.lnk" \
-				'"$INSTDIR\uninst.exe"' '/P="$INSTPROG"'
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Other shortcuts
-SetOutPath "$INSTDIR"
-CreateShortCut "$DESKTOP\$INSTSHORTCUT.lnk" "$INSTDIR\$INSTEXE" "$INSTFLAGS"
-CreateShortCut "$INSTDIR\$INSTSHORTCUT.lnk" "$INSTDIR\$INSTEXE" "$INSTFLAGS"
-CreateShortCut "$INSTDIR\Uninstall $INSTSHORTCUT.lnk" \
-				'"$INSTDIR\uninst.exe"' '/P="$INSTPROG"'
-
-!ifdef MUSEUM
-CreateShortCut "$DESKTOP\$INSTSHORTCUT Museum.lnk" "$INSTDIR\$INSTEXE" "$INSTFLAGS -simple"
-
-CreateShortCut "$DESKTOP\$INSTSHORTCUT Museum Spanish.lnk" "$INSTDIR\$INSTEXE" "$INSTFLAGS -simple -spanish"
-
-CreateShortCut "$INSTDIR\$INSTSHORTCUT Museum.lnk" "$INSTDIR\$INSTEXE" "$INSTFLAGS -simple"
-
-CreateShortCut "$INSTDIR\$INSTSHORTCUT Museum Spanish.lnk" "$INSTDIR\$INSTEXE" "$INSTFLAGS -simple -spanish"
-
-!endif
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Write registry
-WriteRegStr HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\$INSTPROG" "" "$INSTDIR"
-WriteRegStr HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\$INSTPROG" "Version" "${VERSION_LONG}"
-WriteRegStr HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\$INSTPROG" "Flags" "$INSTFLAGS"
-WriteRegStr HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\$INSTPROG" "Shortcut" "$INSTSHORTCUT"
-WriteRegStr HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\$INSTPROG" "Exe" "$INSTEXE"
-WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\$INSTPROG" "DisplayName" "$INSTPROG (remove only)"
-WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\$INSTPROG" "UninstallString" '"$INSTDIR\uninst.exe" /P="$INSTPROG"'
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Write URL registry info
-WriteRegStr HKEY_CLASSES_ROOT "${URLNAME}" "(default)" "URL:Second Life"
-WriteRegStr HKEY_CLASSES_ROOT "${URLNAME}" "URL Protocol" ""
-WriteRegStr HKEY_CLASSES_ROOT "${URLNAME}\DefaultIcon" "" '"$INSTDIR\$INSTEXE"'
-WriteRegExpandStr HKEY_CLASSES_ROOT "${URLNAME}\shell\open\command" "" '"$INSTDIR\$INSTEXE" $INSTFLAGS -url "%1"'
-
-Goto WRITE_UNINST
-
-POST_INSTALL:
-; Run a post-executable script if necessary.
-Call PostInstallExe
-
-WRITE_UNINST:
-; write out uninstaller
-WriteUninstaller "$INSTDIR\uninst.exe"
-
-; end of default section
-SectionEnd
+;;; Function definitions should go before file includes, because the NSIS package
+;;; is a single stream of bytecodes + file data.  So if your function definitions are at
+;;; the end of the file it has to decompress the whole thing before it can call a function. JC
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; PostInstallExe
@@ -980,5 +859,132 @@ Function un.onInit
 	StrCpy $LANGUAGE $0
 
 FunctionEnd
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Sections
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+Section ""						; (default section)
+
+SetShellVarContext all			; install for all users (if you change this, change it in the uninstall as well)
+
+; Start with some default values.
+StrCpy $INSTFLAGS "${INSTFLAGS}"
+StrCpy $INSTPROG "${INSTNAME}"
+StrCpy $INSTEXE "${INSTEXE}"
+StrCpy $INSTSHORTCUT "${SHORTCUT}"
+
+IfSilent +2
+Goto NOT_SILENT
+  Call CheckStartupParams                 ; Figure out where, what and how to install.
+NOT_SILENT:
+Call CheckWindowsVersion		; warn if on Windows 98/ME
+Call CheckIfAdministrator		; Make sure the user can install/uninstall
+Call CheckIfAlreadyCurrent		; Make sure that we haven't already installed this version
+Call CloseSecondLife			; Make sure we're not running
+Call RemoveNSIS					; Check for old NSIS install to remove
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Don't remove cache files during a regular install, removing the inventory cache on upgrades results in lots of damage to the servers.
+;Call RemoveCacheFiles			; Installing over removes potentially corrupted
+								; VFS and cache files.
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Need to clean out shader files from previous installs to fix DEV-5663
+Call RemoveOldShaders
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Need to clean out old XUI files that predate skinning
+Call RemoveOldXUI
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Clear out old releasenotes.txt files. These are now on the public wiki.
+Call RemoveOldReleaseNotes
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Files
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; This placeholder is replaced by the complete list of all the files in the installer, by viewer_manifest.py
+%%INSTALL_FILES%%
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; If this is a silent update, we don't need to re-create these shortcuts or registry entries.
+IfSilent POST_INSTALL
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Shortcuts in start menu
+CreateDirectory	"$SMPROGRAMS\$INSTSHORTCUT"
+SetOutPath "$INSTDIR"
+CreateShortCut	"$SMPROGRAMS\$INSTSHORTCUT\$INSTSHORTCUT.lnk" \
+				"$INSTDIR\$INSTEXE" "$INSTFLAGS"
+
+!ifdef MUSEUM
+CreateShortCut	"$SMPROGRAMS\$INSTSHORTCUT\$INSTSHORTCUT Museum.lnk" \
+
+				"$INSTDIR\$INSTEXE" "$INSTFLAGS -simple"
+CreateShortCut	"$SMPROGRAMS\$INSTSHORTCUT\$INSTSHORTCUT Museum Spanish.lnk" \
+
+				"$INSTDIR\$INSTEXE" "$INSTFLAGS -simple -spanish"
+!endif
+
+WriteINIStr		"$SMPROGRAMS\$INSTSHORTCUT\SL Create Trial Account.url" \
+				"InternetShortcut" "URL" \
+				"http://www.secondlife.com/registration/"
+WriteINIStr		"$SMPROGRAMS\$INSTSHORTCUT\SL Your Account.url" \
+				"InternetShortcut" "URL" \
+				"http://www.secondlife.com/account/"
+CreateShortCut	"$SMPROGRAMS\$INSTSHORTCUT\SL Scripting Language Help.lnk" \
+				"$INSTDIR\lsl_guide.html"
+CreateShortCut	"$SMPROGRAMS\$INSTSHORTCUT\Uninstall $INSTSHORTCUT.lnk" \
+				'"$INSTDIR\uninst.exe"' '/P="$INSTPROG"'
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Other shortcuts
+SetOutPath "$INSTDIR"
+CreateShortCut "$DESKTOP\$INSTSHORTCUT.lnk" "$INSTDIR\$INSTEXE" "$INSTFLAGS"
+CreateShortCut "$INSTDIR\$INSTSHORTCUT.lnk" "$INSTDIR\$INSTEXE" "$INSTFLAGS"
+CreateShortCut "$INSTDIR\Uninstall $INSTSHORTCUT.lnk" \
+				'"$INSTDIR\uninst.exe"' '/P="$INSTPROG"'
+
+!ifdef MUSEUM
+CreateShortCut "$DESKTOP\$INSTSHORTCUT Museum.lnk" "$INSTDIR\$INSTEXE" "$INSTFLAGS -simple"
+
+CreateShortCut "$DESKTOP\$INSTSHORTCUT Museum Spanish.lnk" "$INSTDIR\$INSTEXE" "$INSTFLAGS -simple -spanish"
+
+CreateShortCut "$INSTDIR\$INSTSHORTCUT Museum.lnk" "$INSTDIR\$INSTEXE" "$INSTFLAGS -simple"
+
+CreateShortCut "$INSTDIR\$INSTSHORTCUT Museum Spanish.lnk" "$INSTDIR\$INSTEXE" "$INSTFLAGS -simple -spanish"
+
+!endif
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Write registry
+WriteRegStr HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\$INSTPROG" "" "$INSTDIR"
+WriteRegStr HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\$INSTPROG" "Version" "${VERSION_LONG}"
+WriteRegStr HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\$INSTPROG" "Flags" "$INSTFLAGS"
+WriteRegStr HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\$INSTPROG" "Shortcut" "$INSTSHORTCUT"
+WriteRegStr HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\$INSTPROG" "Exe" "$INSTEXE"
+WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\$INSTPROG" "DisplayName" "$INSTPROG (remove only)"
+WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\$INSTPROG" "UninstallString" '"$INSTDIR\uninst.exe" /P="$INSTPROG"'
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Write URL registry info
+WriteRegStr HKEY_CLASSES_ROOT "${URLNAME}" "(default)" "URL:Second Life"
+WriteRegStr HKEY_CLASSES_ROOT "${URLNAME}" "URL Protocol" ""
+WriteRegStr HKEY_CLASSES_ROOT "${URLNAME}\DefaultIcon" "" '"$INSTDIR\$INSTEXE"'
+WriteRegExpandStr HKEY_CLASSES_ROOT "${URLNAME}\shell\open\command" "" '"$INSTDIR\$INSTEXE" $INSTFLAGS -url "%1"'
+
+Goto WRITE_UNINST
+
+POST_INSTALL:
+; Run a post-executable script if necessary.
+Call PostInstallExe
+
+WRITE_UNINST:
+; write out uninstaller
+WriteUninstaller "$INSTDIR\uninst.exe"
+
+; end of default section
+SectionEnd
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; EOF  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

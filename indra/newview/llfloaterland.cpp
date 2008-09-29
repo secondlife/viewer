@@ -2399,7 +2399,7 @@ void LLPanelLandAccess::refresh_ui()
 			}
 			if (override)
 			{
-				childSetToolTip("Only Allow", getUIString("estate_override"));
+				childSetToolTip("Only Allow", getString("estate_override"));
 			}
 			else
 			{
