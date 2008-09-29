@@ -751,7 +751,7 @@ bool LLCurlRequest::post(const std::string& url, const LLSD& data, LLCurl::Respo
 	easy->setopt(CURLOPT_POSTFIELDS, (void*)NULL);
 	easy->setopt(CURLOPT_POSTFIELDSIZE, bytes);
 
-	easy->slist_append("Content-Type: application/xml");
+	easy->slist_append("Content-Type: application/llsd+xml");
 	easy->setHeaders();
 
 	lldebugs << "POSTING: " << bytes << " bytes." << llendl;

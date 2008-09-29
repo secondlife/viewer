@@ -24,9 +24,9 @@ except ImportError:
 
 llsd_parsers = {
     'application/json': json_decode,
-    'application/llsd+binary': llsd.parse_binary,
+    llsd.BINARY_MIME_TYPE: llsd.parse_binary,
     'application/llsd+notation': llsd.parse_notation,
-    'application/llsd+xml': llsd.parse_xml,
+    llsd.XML_MIME_TYPE: llsd.parse_xml,
     'application/xml': llsd.parse_xml,
     }
 

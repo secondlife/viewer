@@ -240,7 +240,7 @@ LLIOPipe::EStatus LLHTTPPipe::process_impl(
 		case STATE_GOOD_RESULT:
 		{
 			LLSD headers = mHeaders;
-			headers["Content-Type"] = "application/xml";
+			headers["Content-Type"] = "application/llsd+xml";
 			context[CONTEXT_RESPONSE][CONTEXT_HEADERS] = headers;
 			LLBufferStream ostr(channels, buffer.get());
 			LLSDSerialize::toXML(mGoodResult, ostr);

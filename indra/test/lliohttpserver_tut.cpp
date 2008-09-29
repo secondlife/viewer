@@ -191,7 +191,7 @@ namespace tut
 			"HTTP/1.0 200 OK\r\n");
 						
 		ensure_contains("web/hello content type", result,
-			"Content-Type: application/xml\r\n");
+			"Content-Type: application/llsd+xml\r\n");
 
 		ensure_contains("web/hello content length", result,
 			"Content-Length: 36\r\n");
@@ -232,7 +232,7 @@ namespace tut
 			"HTTP/1.0 200 OK\r\n");
 						
 		ensure_contains("web/echo content type", result,
-			"Content-Type: application/xml\r\n");
+			"Content-Type: application/llsd+xml\r\n");
 
 		ensure_contains("web/echo content length", result,
 			"Content-Length: 35\r\n");

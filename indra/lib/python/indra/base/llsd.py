@@ -969,6 +969,9 @@ class LLSD(object):
 
 undef = LLSD(None)
 
+XML_MIME_TYPE = 'application/llsd+xml'
+BINARY_MIME_TYPE = 'application/llsd+binary'
+
 # register converters for llsd in mulib, if it is available
 try:
     from mulib import stacked, mu
@@ -978,7 +981,7 @@ except:
     # mulib not available, don't print an error message since this is normal
     pass
 else:
-    mu.add_parser(parse, 'application/llsd+xml')
+    mu.add_parser(parse, XML_MIME_TYPE)
     mu.add_parser(parse, 'application/llsd+binary')
 
     def llsd_convert_xml(llsd_stuff, request):
@@ -987,11 +990,58 @@ else:
     def llsd_convert_binary(llsd_stuff, request):
         request.write(format_binary(llsd_stuff))
 
-    for typ in [LLSD, dict, list, tuple, str, int, float, bool, unicode, type(None)]:
-        stacked.add_producer(typ, llsd_convert_xml, 'application/llsd+xml')
+    for typ in [LLSD, dict, list, tuple, str, int, long, float, bool, unicode, type(None)]:
+        stacked.add_producer(typ, llsd_convert_xml, XML_MIME_TYPE)
         stacked.add_producer(typ, llsd_convert_xml, 'application/xml')
         stacked.add_producer(typ, llsd_convert_xml, 'text/xml')
 
         stacked.add_producer(typ, llsd_convert_binary, 'application/llsd+binary')
 
     stacked.add_producer(LLSD, llsd_convert_xml, '*/*')
+
+    # in case someone is using the legacy mu.xml wrapper, we need to
+    # tell mu to produce application/xml or application/llsd+xml
+    # (based on the accept header) from raw xml. Phoenix 2008-07-21
+    stacked.add_producer(mu.xml, mu.produce_raw, XML_MIME_TYPE)
+    stacked.add_producer(mu.xml, mu.produce_raw, 'application/xml')
+
+
+
+# mulib wsgi stuff
+# try:
+#     from mulib import mu, adapters
+#
+#     # try some known attributes from mulib to be ultra-sure we've imported it
+#     mu.get_current
+#     adapters.handlers
+# except:
+#     # mulib not available, don't print an error message since this is normal
+#     pass
+# else:
+#     def llsd_xml_handler(content_type):
+#         def handle_llsd_xml(env, start_response):
+#             llsd_stuff, _ = mu.get_current(env)
+#             result = format_xml(llsd_stuff)
+#             start_response("200 OK", [('Content-Type', content_type)])
+#             env['mu.negotiated_type'] = content_type
+#             yield result
+#         return handle_llsd_xml
+#    
+#     def llsd_binary_handler(content_type):
+#         def handle_llsd_binary(env, start_response):
+#             llsd_stuff, _ = mu.get_current(env)
+#             result = format_binary(llsd_stuff)
+#             start_response("200 OK", [('Content-Type', content_type)])
+#             env['mu.negotiated_type'] = content_type
+#             yield result
+#         return handle_llsd_binary
+#
+#     adapters.DEFAULT_PARSERS[XML_MIME_TYPE] = parse
+    
+#     for typ in [LLSD, dict, list, tuple, str, int, float, bool, unicode, type(None)]:
+#         for content_type in (XML_MIME_TYPE, 'application/xml'):
+#             adapters.handlers.set_handler(typ, llsd_xml_handler(content_type), content_type)
+#
+#         adapters.handlers.set_handler(typ, llsd_binary_handler(BINARY_MIME_TYPE), BINARY_MIME_TYPE)
+#
+#     adapters.handlers.set_handler(LLSD, llsd_xml_handler(XML_MIME_TYPE), '*/*')

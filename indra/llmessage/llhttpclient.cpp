@@ -106,7 +106,7 @@ namespace
 		LLSDInjector(const LLSD& sd) : mSD(sd) {}
 		virtual ~LLSDInjector() {}
 
-		const char* contentType() { return "application/xml"; }
+		const char* contentType() { return "application/llsd+xml"; }
 
 		virtual EStatus process_impl(const LLChannelDescriptors& channels,
 			buffer_ptr_t& buffer, bool& eos, LLSD& context, LLPumpIO* pump)
@@ -238,7 +238,8 @@ static void request(
             //the Pragma header it so gratuitously inserts
             //Before inserting the header, force libcurl
             //to not use the proxy (read: llurlrequest.cpp)
-            if ((iter->first == "Pragma") && (iter->second.asString() == ""))
+			static const std::string PRAGMA("Pragma");
+			if ((iter->first == PRAGMA) && (iter->second.asString().empty()))
             {
                 req->useProxy(false);
             }
@@ -247,6 +248,16 @@ static void request(
             req->addHeader(header.str().c_str());
         }
     }
+
+	// Check to see if we have already set Accept or not. If no one
+	// set it, set it to application/llsd+xml since that's what we
+	// almost always want.
+	static const std::string ACCEPT("Accept");
+	if(!headers.has(ACCEPT))
+	{
+		req->addHeader("Accept: application/llsd+xml");
+	}
+
 	req->setCallback(new LLHTTPClientURLAdaptor(responder));
 
 	if (method == LLURLRequest::HTTP_POST  &&  gMessageSystem)
@@ -254,12 +265,22 @@ static void request(
 		req->addHeader(llformat("X-SecondLife-UDP-Listen-Port: %d",
 								gMessageSystem->mPort).c_str());
    	}
-	
+
 	if (method == LLURLRequest::HTTP_PUT || method == LLURLRequest::HTTP_POST)
 	{
-		req->addHeader(llformat("Content-Type: %s",
-								body_injector->contentType()).c_str());
-
+		static const std::string CONTENT_TYPE("Content-Type");
+		if(!headers.has(CONTENT_TYPE))
+		{
+			// If the Content-Type header was passed in, it has
+			// already been added as a header through req->addHeader
+			// in the loop above. We defer to the caller's wisdom, but
+			// if they did not specify a Content-Type, then ask the
+			// injector.
+			req->addHeader(
+				llformat(
+					"Content-Type: %s",
+					body_injector->contentType()).c_str());
+		}
    		chain.push_back(LLIOPipe::ptr_t(body_injector));
 	}
 
