@@ -244,6 +244,7 @@ void callback_choose_gender(S32 option, void* userdata);
 void init_start_screen(S32 location_id);
 void release_start_screen();
 void reset_login();
+void apply_udp_blacklist(const std::string& csv);
 
 void callback_cache_name(const LLUUID& id, const std::string& firstname, const std::string& lastname, BOOL is_group, void* data)
 {
@@ -1262,8 +1263,14 @@ bool idle_startup()
 
 		if(successful_login)
 		{
-			// unpack login data needed by the application
 			std::string text;
+			text = LLUserAuth::getInstance()->getResponse("udp_blacklist");
+			if(!text.empty())
+			{
+				apply_udp_blacklist(text);
+			}
+
+			// unpack login data needed by the application
 			text = LLUserAuth::getInstance()->getResponse("agent_id");
 			if(!text.empty()) gAgentID.set(text);
 			gDebugInfo["AgentID"] = text;
@@ -3895,3 +3902,29 @@ void login_alert_done(S32 option, void* user_data)
 {
 	LLPanelLogin::giveFocus();
 }
+
+
+void apply_udp_blacklist(const std::string& csv)
+{
+
+	std::string::size_type start = 0;
+	std::string::size_type comma = 0;
+	do 
+	{
+		comma = csv.find(",", start);
+		if (comma == std::string::npos)
+		{
+			comma = csv.length();
+		}
+		std::string item(csv, start, comma-start);
+
+		lldebugs << "udp_blacklist " << item << llendl;
+		gMessageSystem->banUdpMessage(item);
+		
+		start = comma + 1;
+
+	}
+	while(comma < csv.length());
+	
+}
+

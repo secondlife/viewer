@@ -46,7 +46,8 @@
 
 static void print_cil_box(LLFILE* fp, LSCRIPTType type)
 {
-	switch(type)
+	
+switch(type)
 	{
 	case LST_INTEGER:
 		fprintf(fp, "box [mscorlib]System.Int32\n");
@@ -1257,10 +1258,10 @@ static void print_cil_init_variable(LLFILE* fp, LSCRIPTType type)
 		fprintf(fp, "call class [ScriptTypes]LindenLab.SecondLife.Vector class [LslUserScript]LindenLab.SecondLife.LslUserScript::'CreateVector'(float32, float32, float32)\n");
 		break;
 	case LST_QUATERNION:
+		fprintf(fp, "ldc.r8 0\n");
+		fprintf(fp, "ldc.r8 0\n");
+		fprintf(fp, "ldc.r8 0\n");
 		fprintf(fp, "ldc.r8 1\n");
-		fprintf(fp, "ldc.r8 0\n");
-		fprintf(fp, "ldc.r8 0\n");
-		fprintf(fp, "ldc.r8 0\n");
 		fprintf(fp, "call class [ScriptTypes]LindenLab.SecondLife.Quaternion class [LslUserScript]LindenLab.SecondLife.LslUserScript::'CreateQuaternion'(float32, float32, float32, float32)\n");
 		break;
 	case LST_LIST:
@@ -3517,7 +3518,7 @@ void LLScriptRezEvent::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompile
 		fprintf(fp, " )\n");
 		break;
 	case LSCP_SCOPE_PASS1:
-	  checkForDuplicateHandler(fp, this, scope, "rez");
+		checkForDuplicateHandler(fp, this, scope, "on_rez");
 		if (scope->checkEntry(mStartParam->mName))
 		{
 			gErrorToText.writeError(fp, this, LSERROR_DUPLICATE_NAME);
@@ -8689,8 +8690,12 @@ void LLScriptIf::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompilePass p
 		break;
 	case LSCP_TYPE:
 		mExpression->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		if (type == LST_NULL)
+		{
+			gErrorToText.writeError(fp, mExpression, LSERROR_TYPE_MISMATCH);
+		}
 		mType = type;
-		mStatement->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		mStatement->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);		
 		break;
 	case LSCP_EMIT_BYTE_CODE:
 		{
@@ -8770,6 +8775,10 @@ void LLScriptIfElse::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompilePa
 		break;
 	case LSCP_TYPE:
 		mExpression->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		if (type == LST_NULL)
+		{
+			gErrorToText.writeError(fp, mExpression, LSERROR_TYPE_MISMATCH);
+		}
 		mType = type;
 		mStatement1->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
 		mStatement2->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
@@ -8869,6 +8878,10 @@ void LLScriptFor::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompilePass 
 		if(mSequence)
 			mSequence->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
 		mExpression->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		if (type == LST_NULL)
+		{
+			gErrorToText.writeError(fp, mExpression, LSERROR_TYPE_MISMATCH);
+		}
 		mType = type;
 		if(mExpressionList)
 			mExpressionList->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
@@ -8968,6 +8981,10 @@ void LLScriptDoWhile::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompileP
 	case LSCP_TYPE:
 		mStatement->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
 		mExpression->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		if (type == LST_NULL)
+		{
+			gErrorToText.writeError(fp, mExpression, LSERROR_TYPE_MISMATCH);
+		}
 		mType = type;
 		break;
 	case LSCP_EMIT_BYTE_CODE:
@@ -9039,6 +9056,10 @@ void LLScriptWhile::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompilePas
 		break;
 	case LSCP_TYPE:
 		mExpression->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		if (type == LST_NULL)
+		{
+			gErrorToText.writeError(fp, mExpression, LSERROR_TYPE_MISMATCH);
+		}
 		mType = type;
 		mStatement->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
 		break;

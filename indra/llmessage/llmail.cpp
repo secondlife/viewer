@@ -51,6 +51,7 @@
 #include "llblowfishcipher.h"
 #include "llerror.h"
 #include "llhost.h"
+#include "llsd.h"
 #include "llstring.h"
 #include "lluuid.h"
 #include "net.h"
@@ -111,16 +112,22 @@ void disconnect_smtp()
 // Returns TRUE on success.
 // message should NOT be SMTP escaped.
 // static
-BOOL LLMail::send(const char* from_name, const char* from_address,
-			   const char* to_name, const char* to_address,
-			   const char* subject, const char* message)
+BOOL LLMail::send(
+	const char* from_name,
+	const char* from_address,
+	const char* to_name,
+	const char* to_address,
+	const char* subject,
+	const char* message,
+	const LLSD& headers)
 {
 	std::string header = buildSMTPTransaction(
 		from_name,
 		from_address,
 		to_name,
 		to_address,
-		subject);
+		subject,
+		headers);
 	if(header.empty())
 	{
 		return FALSE;
@@ -192,7 +199,8 @@ std::string LLMail::buildSMTPTransaction(
 	const char* from_address,
 	const char* to_name,
 	const char* to_address,
-	const char* subject)
+	const char* subject,
+	const LLSD& headers)
 {
 	if(!from_address || !to_address)
 	{
@@ -236,8 +244,20 @@ std::string LLMail::buildSMTPTransaction(
 		<< "DATA\r\n"
 		<< "From: " << from_fmt.str() << "\r\n"
 		<< "To: " << to_fmt.str() << "\r\n"
-		<< "Subject: " << subject << "\r\n"
-		<< "\r\n";
+		<< "Subject: " << subject << "\r\n";
+	
+	if(headers.isMap())
+	{
+		LLSD::map_const_iterator iter = headers.beginMap();
+		LLSD::map_const_iterator end = headers.endMap();
+		for(; iter != end; ++iter)
+		{
+			header << (*iter).first << ": " << ((*iter).second).asString()
+				<< "\r\n";
+		}
+	}
+
+	header << "\r\n";
 	return header.str();
 }
 
@@ -324,7 +344,7 @@ bool LLMail::send(
 			<< "when sending messages larger than " << LL_MAX_KNOWN_GOOD_MAIL_SIZE
 			<< " bytes. The next log about success is potentially a lie." << llendl;
 	}
-	llinfos << "send_mail success: "
+	lldebugs << "send_mail success: "
 		<< "to=<" << to_address
 		<< ">, from=<" << from_address << ">"
 		<< ", bytes=" << original_size

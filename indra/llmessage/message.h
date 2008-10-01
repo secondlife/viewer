@@ -562,6 +562,9 @@ public:
 	/** Return false true if name is unknown or trusted */
 	bool isUntrustedMessage(const std::string& name) const;
 
+	// Change this message to be UDP black listed.
+	void banUdpMessage(const std::string& name);
+
 private:
 	// A list of the circuits that need to be sent DenyTrustedCircuit messages.
 	typedef std::set<LLHost> host_set_t;

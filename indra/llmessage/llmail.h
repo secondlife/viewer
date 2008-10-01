@@ -34,7 +34,7 @@
 
 typedef struct apr_pool_t apr_pool_t;
 
-class LLUUID;
+#include "llsd.h"
 
 class LLMail
 {
@@ -45,34 +45,51 @@ public:
 	// Allow all email transmission to be disabled/enabled.
 	static void enable(bool mail_enabled);
 
-	// returns TRUE if the call succeeds, FALSE otherwise.
-	//
-	// Results in:
-	// From: "from_name" <from_address>
-	// To:   "to_name" <to_address>
-	// Subject: subject
-	// message
-	static BOOL send(const char* from_name, const char* from_address,
-				const char* to_name, const char* to_address,
-				const char* subject, const char* message);
+	/**
+	 * @brief send an email
+	 * @param from_name The name of the email sender
+	 * @param from_address The email address for the sender
+	 * @param to_name The name of the email recipient
+	 * @param to_address The email recipient address
+	 * @param subject The subject of the email
+	 * @param headers optional X-Foo headers in an llsd map. 
+	 * @return Returns TRUE if the call succeeds, FALSE otherwise.
+	 *
+	 * Results in:
+	 * From: "from_name" <from_address>
+	 * To:   "to_name" <to_address>
+	 * Subject: subject
+	 * 
+	 * message
+	 */
+	static BOOL send(
+		const char* from_name,
+		const char* from_address,
+		const char* to_name,
+		const char* to_address,
+		const char* subject,
+		const char* message,
+		const LLSD& headers = LLSD());
 
 	/**
-	* @brief build the complete smtp transaction & header for use in an
-	* mail.
-	*
-	* @param from_name The name of the email sender
-	* @param from_address The email address for the sender
-	* @param to_name The name of the email recipient
-	* @param to_name The email recipient address
-	* @param subject The subject of the email
-	* @return Returns the complete SMTP transaction mail header.
-	*/
+	 * @brief build the complete smtp transaction & header for use in an
+	 * mail.
+	 *
+	 * @param from_name The name of the email sender
+	 * @param from_address The email address for the sender
+	 * @param to_name The name of the email recipient
+	 * @param to_address The email recipient address
+	 * @param subject The subject of the email
+	 * @param headers optional X-Foo headers in an llsd map. 
+	 * @return Returns the complete SMTP transaction mail header.
+	 */
 	static std::string buildSMTPTransaction(
 		const char* from_name,
 		const char* from_address,
 		const char* to_name,
 		const char* to_address,
-		const char* subject);
+		const char* subject,
+		const LLSD& headers = LLSD());
 
 	/**
 	* @brief send an email with header and body.

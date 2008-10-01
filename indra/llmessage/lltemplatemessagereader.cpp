@@ -797,6 +797,11 @@ bool LLTemplateMessageReader::isBanned(bool trustedSource) const
 	return mCurrentRMessageTemplate->isBanned(trustedSource);
 }
 
+bool LLTemplateMessageReader::isUdpBanned() const
+{
+       return mCurrentRMessageTemplate->isUdpBanned();
+}
+
 //virtual 
 void LLTemplateMessageReader::copyToBuilder(LLMessageBuilder& builder) const
 {

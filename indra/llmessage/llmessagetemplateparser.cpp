@@ -525,6 +525,10 @@ LLMessageTemplate * LLTemplateParser::parseMessage(LLTemplateTokenizer & tokens)
 	{
 		templatep->setDeprecation(MD_UDPDEPRECATED);
 	}
+	else if (tokens.want("UDPBlackListed"))
+	{
+		templatep->setDeprecation(MD_UDPBLACKLISTED);
+	}	
 	else if (tokens.want("NotDeprecated"))
 	{
 		// this is the default value, but it can't hurt to set it twice

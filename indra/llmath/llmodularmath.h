@@ -1,10 +1,10 @@
 /** 
- * @file llversionviewer.h
- * @brief
+ * @file llmodularmath.h
+ * @brief Useful modular math functions.
  *
- * $LicenseInfo:firstyear=2002&license=viewergpl$
+ * $LicenseInfo:firstyear=2008&license=viewergpl$
  * 
- * Copyright (c) 2002-2007, Linden Research, Inc.
+ * Copyright (c) 2008, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -29,14 +29,29 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVERSIONVIEWER_H
-#define LL_LLVERSIONVIEWER_H
+#ifndef LLMODULARMATH_H
+#define LLMODULARMATH_H
 
-const S32 LL_VERSION_MAJOR = 1;
-const S32 LL_VERSION_MINOR = 21;
-const S32 LL_VERSION_PATCH = 3;
-const S32 LL_VERSION_BUILD = 97417;
-
-const char * const LL_CHANNEL = "Second Life Release";
+namespace LLModularMath
+{
+    // Return difference between lhs and rhs
+    // treating the U32 operands and result
+    // as unsigned values of given width.
+	template<int width>
+	inline U32 subtract(U32 lhs, U32 rhs)
+	{
+		// Generate a bit mask which will truncate
+		// unsigned values to given width at compile time.
+		const U32 mask = (1 << width) - 1;
+		
+		// Operands are unsigned, so modular
+		// arithmetic applies. If lhs < rhs,
+		// difference will wrap in to lower
+		// bits of result, which is then masked
+		// to give a value that can be represented
+		// by an unsigned value of width bits.
+		return mask & (lhs - rhs);
+	}	
+}
 
 #endif

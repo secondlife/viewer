@@ -175,3 +175,23 @@ std::ostream& operator<<(std::ostream& s, LLMessageTemplate &msg)
 
 	return s;
 }
+
+void LLMessageTemplate::banUdp()
+{
+	static const char* deprecation[] = {
+		"NotDeprecated",
+		"Deprecated",
+		"UDPDeprecated",
+		"UDPBlackListed"
+	};
+	if (mDeprecation != MD_DEPRECATED)
+	{
+		llinfos << "Setting " << mName << " to UDPBlackListed was " << deprecation[mDeprecation] << llendl;
+		mDeprecation = MD_UDPBLACKLISTED;
+	}
+	else
+	{
+		llinfos << mName << " is already more deprecated than UDPBlackListed" << llendl;
+	}
+}
+

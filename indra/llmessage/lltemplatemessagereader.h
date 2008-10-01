@@ -109,7 +109,7 @@ public:
 
 	bool isTrusted() const;
 	bool isBanned(bool trusted_source) const;
-
+	bool isUdpBanned() const;
 private:
 
 	void getData(const char *blockname, const char *varname, void *datap, 

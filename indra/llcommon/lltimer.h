@@ -39,6 +39,8 @@
 
 #include "stdtypes.h"
 
+#include <string>
+#include <list>
 // units conversions
 #ifndef USEC_PER_SEC
     const U32	USEC_PER_SEC	= 1000000;
@@ -184,7 +186,7 @@ protected:
 
 private:
 	//list of active timers
-	static std::list<LLEventTimer*> sActiveList;
+	static std::list<LLEventTimer*> sActiveList; // TODO should this be a vector
 };
 
 #endif

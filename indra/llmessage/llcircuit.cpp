@@ -60,6 +60,7 @@
 #include "llrand.h"
 #include "llstl.h"
 #include "lltransfermanager.h"
+#include "llmodularmath.h"
 
 const F32 PING_INTERVAL = 5.f; // seconds
 const S32 PING_START_BLOCK = 3;		// How many pings behind we have to be to consider ourself blocked.
@@ -676,6 +677,8 @@ void LLCircuitData::checkPacketInID(TPACKETID id, BOOL receive_resent)
 		mPacketsIn++;
 		setPacketInID((id + 1) % LL_MAX_OUT_PACKET_ID);
 
+        mLastPacketGap = 0;
+        mOutOfOrderRate.count(0);
 		return;
 	}
 
@@ -683,6 +686,7 @@ void LLCircuitData::checkPacketInID(TPACKETID id, BOOL receive_resent)
 
 
 	// now, check to see if we've got a gap
+    U32 gap = 0;
 	if ((mPacketsInID == id))
 	{
 		// nope! bump and wrap the counter, then return
@@ -703,6 +707,11 @@ void LLCircuitData::checkPacketInID(TPACKETID id, BOOL receive_resent)
 		// alone
 		// otherwise, walk from mCurrentCircuit->mPacketsInID to id with wrapping, adding the values to the map
 		// and setting mPacketsInID to id + 1 % LL_MAX_OUT_PACKET_ID
+
+        // babbage: all operands in expression are unsigned, so modular 
+		// arithmetic will always find correct gap, regardless of wrap arounds.
+		const U8 width = 24;
+		gap = LLModularMath::subtract<width>(mPacketsInID, id);
 
 		if (mPotentialLostPackets.find(id) != mPotentialLostPackets.end())
 		{
@@ -765,6 +774,8 @@ void LLCircuitData::checkPacketInID(TPACKETID id, BOOL receive_resent)
 
 		}
 	}
+    mOutOfOrderRate.count(gap);
+    mLastPacketGap = gap;
 }
 
 

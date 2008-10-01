@@ -41,6 +41,7 @@ set(test_SOURCE_FILES
     lljoint_tut.cpp
     llmime_tut.cpp
     llmessageconfig_tut.cpp
+    llmodularmath_tut.cpp
     llnamevalue_tut.cpp
     llpermissions_tut.cpp
     llpipeutil.cpp

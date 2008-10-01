@@ -265,6 +265,7 @@ enum EMsgDeprecation
 {
 	MD_NOTDEPRECATED,
 	MD_UDPDEPRECATED,
+	MD_UDPBLACKLISTED,
 	MD_DEPRECATED
 };
 
@@ -374,6 +375,13 @@ public:
 		}
 		return FALSE;
 	}
+
+	bool isUdpBanned() const
+	{
+		return mDeprecation == MD_UDPBLACKLISTED;
+	}
+
+	void banUdp();
 
 	bool isBanned(bool trustedSource) const
 	{

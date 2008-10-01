@@ -754,7 +754,15 @@ BOOL LLMessageSystem::checkMessages( S64 frame_count )
 				clearReceiveState();
 				valid_packet = FALSE;
 			}
-			
+			if( valid_packet && mTemplateMessageReader->isUdpBanned())
+			{
+				llwarns << "Received UDP black listed message "
+					<<  mTemplateMessageReader->getMessageName()
+					<< " from " << host << llendl;
+				clearReceiveState();
+				valid_packet = FALSE;
+			}
+
 			if( valid_packet )
 			{
 				logValidMsg(cdp, host, recv_reliable, recv_resent, (BOOL)(acks>0) );
@@ -4012,4 +4020,19 @@ bool LLMessageSystem::checkAllMessages(S64 frame_count, LLPumpIO* http_pump)
 	http_pump->pump();
 	http_pump->callback();
 	return (mPacketsIn - packetsIn) > 0;
+}
+
+void LLMessageSystem::banUdpMessage(const std::string& name)
+{
+	message_template_name_map_t::iterator itt = mMessageTemplates.find(
+		LLMessageStringTable::getInstance()->getString(name.c_str())
+		);
+	if(itt != mMessageTemplates.end())
+	{
+		itt->second->banUdp();
+	}
+	else
+	{
+		llwarns << "Attempted to ban an unknown message: " << name << "." << llendl;
+	}
 }
