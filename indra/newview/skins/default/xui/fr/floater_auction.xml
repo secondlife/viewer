@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="floater_auction" title="Démarrer vente de terrain Linden">
-	<check_box label="Inclure clôture de sélection jaune" name="fence_check" />
+<floater name="floater_auction" title="Commencer la vente de terrain Linden">
+	<check_box label="Inclure le marquage de sélection jaune" name="fence_check" />
 	<combo_box name="saletype_combo">
 		<combo_item name="Auction">
 			Enchères
@@ -9,9 +9,10 @@
 			Premier terrain
 		</combo_item>
 	</combo_box>
-	<button label="Instantané" label_selected="Instantané" name="snapshot_btn" />
-	<button label="OK" label_selected="OK" name="ok_btn" />
+	<button label="Capture d&apos;écran" label_selected="Capture d&apos;écran"
+	     name="snapshot_btn" width="110" />
+	<button label="OK" label_selected="OK" name="ok_btn" left_delta="114"/>
 	<text name="already for sale">
-		Vous ne pouvez mettre aux enchères des parcelles déjà en vente.
+		Vous ne pouvez pas mettre aux enchères des parcelles déjà en vente.
 	</text>
 </floater>

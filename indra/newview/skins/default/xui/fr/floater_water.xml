@@ -1,18 +1,19 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="Water Floater" title="Editeur d&apos;eau avancé">
+<floater name="Water Floater" title="Éditeur d&apos;eau avancé">
 	<text name="KeyFramePresetsText">
 		Préréglages eau :
 	</text>
 	<button label="Nouveau" label_selected="Nouveau" name="WaterNewPreset" />
-	<button label="Enregistrer" label_selected="Enregistrer" name="WaterSavePreset" />
-	<button label="Supprimer" label_selected="Supprimer" name="WaterDeletePreset" />
+	<button label="Enregistrer" label_selected="Enregistrer" name="WaterSavePreset" width="75" left_delta="75"/>
+	<button label="Supprimer" label_selected="Supprimer" name="WaterDeletePreset" left_delta="80"/>
 	<tab_container name="Water Tabs">
 		<panel label="Paramètres" name="Settings">
 			<text name="BHText">
-				Couleur du brouillard dans l&apos;eau
+				Couleur du brouillard
+dans l&apos;eau
 			</text>
 			<button label="?" name="WaterFogColorHelp" />
-			<color_swatch name="WaterFogColor" tool_tip="Cliquer pour ouvrir le sélecteur de couleurs" />
+			<color_swatch name="WaterFogColor" left="75" tool_tip="Cliquer pour ouvrir le sélecteur de couleurs" />
 			<text name="WaterFogDensText">
 				Densité du brouillard
 			</text>
@@ -22,7 +23,7 @@
 			</text>
 			<button label="?" name="WaterUnderWaterFogModHelp" />
 			<text name="BDensText">
-				Echelle des vaguelettes
+				Échelle des vaguelettes
 			</text>
 			<button label="?" name="WaterNormalScaleHelp" />
 			<text name="BHText2">
@@ -35,7 +36,7 @@
 				3
 			</text>
 			<text name="HDText">
-				Echelle Fresnel
+				Échelle Fresnel
 			</text>
 			<button label="?" name="WaterFresnelScaleHelp" />
 			<text name="FresnelOffsetText">

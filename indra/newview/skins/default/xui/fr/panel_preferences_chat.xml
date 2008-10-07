@@ -1,51 +1,53 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel label="Chat écrit" name="chat">
 	<text type="string" length="1" name="text_box">
-		Taille de la police du chat :
+		Taille de la police 
+du chat :
 	</text>
 	<radio_group name="chat font size">
 		<radio_item type="string" length="1" name="radio">
-			Petit
+			Petite
 		</radio_item>
 		<radio_item type="string" length="1" name="radio2">
-			Moyen
+			Moyenne
 		</radio_item>
 		<radio_item type="string" length="1" name="radio3">
-			Grand
+			Grande
 		</radio_item>
 	</radio_group>
 	<text type="string" length="1" name="text_box2">
 		Couleur du chat :
 	</text>
 	<color_swatch label="Vous" name="user" />
-	<color_swatch label="Les autres" name="agent" />
-	<color_swatch label="IM" name="im" />
+	<color_swatch label="Les autres" name="agent" width="60" />
+	<color_swatch label="IM" left_delta="64" name="im" />
 	<color_swatch label="Système" name="system" />
-	<color_swatch label="Avatars" name="users" />
+	<color_swatch label="Erreurs" name="script_error" />
 	<color_swatch label="Objets" name="objects" />
-	<color_swatch label="Propriétaire" name="owner" />
-	<color_swatch label="Bulle" name="background" />
+	<color_swatch label="Propriétaire" name="owner" width="60" />
+	<color_swatch label="Bulle" left_delta="64" name="background" />
 	<color_swatch label="URL" name="links" />
 	<text type="string" length="1" name="text_box3">
 		Console du chat :
 	</text>
-	<spinner label="Effacer le texte après" name="fade_chat_time" />
-	<text type="string" length="1" name="text_box4">
-		(secondes)
+	<spinner label="Effacer le texte après" label_width="112" name="fade_chat_time"
+	     width="162" />
+	<text type="string" length="1" left="313" name="text_box4">
+		s
 	</text>
-	<text type="string" length="1" name="text_box5">
+	<spinner left="335" name="max_chat_count" />
+	<text type="string" length="1" left="397" name="text_box5" width="74">
 		(nb de lignes)
 	</text>
 	<slider label="Opacité" name="console_opacity" />
 	<text type="string" length="1" name="text_box6">
 		Options du chat :
 	</text>
-	<check_box label="utiliser la largeur du plein écran (redémarrage requis)"
+	<check_box label="Utiliser la largeur du plein écran (redémarrage requis)"
 	     name="chat_full_width_check" />
 	<check_box label="Fermer le chat après avoir appuyé sur Entrée"
 	     name="close_chat_on_return_check" />
-	<check_box
-	     label="Les touches de direction font toujours bouger l&apos;avatar pendant le chat"
+	<check_box label="Faire bouger l&apos;avatar avec les touches de direction"
 	     name="arrow_keys_move_avatar_check" />
 	<check_box label="Afficher les marques temporelles dans le chat local"
 	     name="show_timestamps_check" />
@@ -59,8 +61,6 @@
 	<text type="string" length="1" name="text_box8">
 		Erreurs de script :
 	</text>
-	<check_box
-	     label="Afficher les erreurs de script et avertissements comme un chat ordinaire"
+	<check_box label="Afficher les erreurs et avertissements comme chat ordinaire"
 	     name="script_errors_as_chat" />
-	<color_swatch label="Erreurs" name="script_error" />
 </panel>

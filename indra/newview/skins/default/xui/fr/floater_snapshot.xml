@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="Snapshot" title="Prévisualiser la capture d&apos;écran">
+<floater height="536" name="Snapshot" title="Prévisualiser la photo" width="245">
 	<text name="type_label">
-		Destination de la capture d&apos;écran
+		Destination de la photo
 	</text>
-	<radio_group label="Type de capture d&apos;écran" name="snapshot_type_radio">
+	<radio_group label="Type de photo" name="snapshot_type_radio" width="228">
 		<radio_item name="postcard">
 			Envoyer par e-mail
 		</radio_item>
@@ -93,11 +93,11 @@
 			BMP
 		</combo_item>
 	</combo_box>
-	<spinner label="Largeur" name="snapshot_width" />
-	<spinner label="Hauteur" name="snapshot_height" />
+	<spinner label="Largeur" label_width="41" name="snapshot_width" width="101" />
+	<spinner label="Hauteur" label_width="41" left="121" name="snapshot_height" width="101" />
 	<slider label="Qualité de l&apos;image" name="image_quality_slider" />
 	<text name="layer_type_label">
-		Capture :
+		Capturer :
 	</text>
 	<combo_box label="Couches de l&apos;image" name="layer_types">
 		<combo_item name="Colors">
@@ -111,20 +111,29 @@
 		</combo_item>
 	</combo_box>
 	<text name="file_size_label">
-		Taille du dossier : [SIZE] Ko
+		Taille du fichier : [SIZE] Ko
 	</text>
-	<check_box label="Voir l&apos;interface sur la capture" name="ui_check" />
-	<check_box label="Voir les éléments HUD sur la capture" name="hud_check" />
-	<check_box label="Garder ouvert après enregistrement" name="keep_open_check" />
+	<check_box bottom_delta="-20" label="Voir l&apos;interface sur la photo" name="ui_check" />
+	<check_box bottom_delta="-18" label="Voir les éléments HUD sur la photo"
+	     name="hud_check" />
+	<check_box bottom_delta="-18" label="Garder ouvert après enregistrement"
+	     name="keep_open_check" />
 	<check_box label="Imposer les proportions" name="keep_aspect_check" />
-	<check_box label="Geler le cadre (prévisualisation plein écran)"
+	<check_box bottom_delta="-18" label="Geler le cadre (prévisualisation &#10;plein écran)"
 	     name="freeze_frame_check" />
-	<button label="Rafraîchir" name="new_snapshot_btn" />
-	<check_box label="Auto-rafraîchir" name="auto_snapshot_check" />
+	<button bottom_delta="-18" label="Rafraîchir" name="new_snapshot_btn" />
+	<check_box bottom_delta="-30" label="Auto-rafraîchir" name="auto_snapshot_check" />
 	<button label="Enregistrer (10 $L)" name="upload_btn" />
 	<button label="Envoyer" name="send_btn" />
-	<button label="Enregistrer" name="save_btn"
-	     tool_tip="Enregistrer l&apos;image dans un fichier" />
+	<flyout_button label="Enregistrer" name="save_btn"
+	     tool_tip="Enregistrer l&apos;image dans un fichier">
+		<flyout_button_item name="save_item">
+			Enregistrer
+		</flyout_button_item>
+		<flyout_button_item name="saveas_item">
+			Enregistrer sous...
+		</flyout_button_item>
+	</flyout_button>
 	<button label="Annuler" name="discard_btn" />
 	<string name="unknown">
 		inconnu

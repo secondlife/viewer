@@ -839,10 +839,6 @@ void LLTextureCacheWorker::finishWork(S32 param, bool completed)
 			{
 				delete[] mReadData;
 				mReadData = NULL;
-				if (mDataSize != 0)
-				{
-					llinfos << "Read Failed. mDataSize = " << mDataSize << llendl;
-				}
 			}
 		}
 		else
@@ -1557,7 +1553,7 @@ bool LLTextureCache::removeHeaderCacheEntry(const LLUUID& id)
 
 void LLTextureCache::removeFromCache(const LLUUID& id)
 {
-	llwarns << "Removing texture from cache: " << id << llendl;
+	//llwarns << "Removing texture from cache: " << id << llendl;
 	if (!mReadOnly)
 	{
 		removeHeaderCacheEntry(id);

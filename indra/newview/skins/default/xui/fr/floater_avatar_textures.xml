@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="avatar_texture_debug" title="Avatar Textures">
+<floater name="avatar_texture_debug" title="Textures de l&apos;avatar">
 	<text name="">
 		Baked Textures
 	</text>
@@ -15,17 +15,19 @@
 	<texture_picker label="Tête" name="baked_head" />
 	<texture_picker label="Maquillage" name="head_bodypaint" />
 	<texture_picker label="Cheveux" name="hair" />
-	<button label="Dump" label_selected="Dump" name="Dump" />
+	<button label="Vider" label_selected="Vider" name="Dump" />
 	<texture_picker label="Yeux" name="baked_eyes" />
-	<texture_picker label="Eye" name="eye_texture" />
-	<texture_picker label="Upper Body" name="baked_upper_body" />
-	<texture_picker label="Upper Body Tattoo" name="upper_bodypaint" />
-	<texture_picker label="Maillot de corps" name="undershirt" />
+	<texture_picker label="Œil" name="eye_texture" />
+	<texture_picker label="Haut du corps" name="baked_upper_body" />
+	<texture_picker label="Tatouage haut du corps" name="upper_bodypaint" />
+	<texture_picker label="Tricot de peau" name="undershirt" />
 	<texture_picker label="Gants" name="gloves" />
 	<texture_picker label="Chemise" name="shirt" />
-	<texture_picker label="Upper Jacket" name="upper_jacket" />
-	<texture_picker label="Lower Body" name="baked_lower_body" />
-	<texture_picker label="Lower Body Tattoo" name="lower_bodypaint" />
+	<texture_picker label="Veste (en haut)" name="upper_jacket" />
+	<texture_picker label="
+Bas du corps
+" name="baked_lower_body" />
+	<texture_picker label="Tatouage bas du corps" name="lower_bodypaint" />
 	<texture_picker label="Sous-vêtements" name="underpants" />
 	<texture_picker label="Chaussettes" name="socks" />
 	<texture_picker label="Chaussures" name="shoes" />

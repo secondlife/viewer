@@ -386,19 +386,12 @@ void LLViewerJoystick::agentRotate(F32 pitch_inc, F32 yaw_inc)
 }
 
 // -----------------------------------------------------------------------------
-void LLViewerJoystick::resetDeltas(S32 axis[], bool flycam_and_build_mode)
+void LLViewerJoystick::resetDeltas(S32 axis[])
 {
 	for (U32 i = 0; i < 6; i++)
 	{
 		sLastDelta[i] = -mAxes[axis[i]];
 		sDelta[i] = 0.f;
-	}
-
-	if (flycam_and_build_mode)
-	{
-		sLastDelta[X_I] /= BUILDMODE_FLYCAM_T_SCALE;
-		sLastDelta[Y_I] /= BUILDMODE_FLYCAM_T_SCALE;
-		sLastDelta[Z_I] /= BUILDMODE_FLYCAM_T_SCALE;
 	}
 
 	sLastDelta[6] = sDelta[6] = 0.f;
@@ -755,7 +748,7 @@ void LLViewerJoystick::moveFlycam(bool reset)
 		sFlycamRotation = LLViewerCamera::getInstance()->getQuaternion();
 		sFlycamZoom = LLViewerCamera::getInstance()->getView();
 		
-		resetDeltas(axis, in_build_mode);
+		resetDeltas(axis);
 
 		return;
 	}

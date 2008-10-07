@@ -13,8 +13,9 @@
 		<menu_item_separator label="-----------" name="separator2" />
 		<menu_item_call label="Enregistrer la texture sous..." name="Save Texture As..." />
 		<menu_item_separator label="-----------" name="separator3" />
-		<menu_item_call label="Prendre une capture d&apos;écran" name="Take Snapshot" />
-		<menu_item_call label="Enregistrer capture d&apos;écran sur disque" name="Snapshot to Disk" />
+		<menu_item_call label="Prendre une photo" name="Take Snapshot" />
+		<menu_item_call label="Enregistrer la photo sur le disque" name="Snapshot to Disk"
+		     shortcut="control|shift|X" />
 		<menu_item_separator label="-----------" name="separator4" />
 		<menu label="Définir taille de la fenêtre" name="Set Window Size">
 			<tearoff_menu label="~~~~~~~~~~~" name="~~~~~~~~~~~" />
@@ -28,7 +29,7 @@
 		<menu_item_separator label="-----------" name="separator5" />
 		<menu_item_call label="Quitter" name="Quit" />
 	</menu>
-	<menu label="Edition" name="Edit">
+	<menu label="Édition" name="Edit">
 		<tearoff_menu label="~~~~~~~~~~~" name="~~~~~~~~~~~" />
 		<menu_item_call label="Annuler" name="Undo" />
 		<menu_item_call label="Recommencer" name="Redo" />
@@ -72,11 +73,12 @@
 	</menu>
 	<menu label="Affichage" name="View">
 		<tearoff_menu label="~~~~~~~~~~~" name="~~~~~~~~~~~" />
-		<menu_item_call label="Vue depuis la souris" name="Mouselook" />
+		<menu_item_call label="Vue subjective" name="Mouselook" />
 		<menu_item_check label="Construire" name="Build" />
 		<menu_item_check label="Joystick Flycam" name="Joystick Flycam" />
 		<menu_item_call label="Réinitialiser l&apos;affichage" name="Reset View" />
-		<menu_item_call label="Regarder la dernière personne qui a parlé" name="Look at Last Chatter" />
+		<menu_item_call label="Regarder la dernière personne qui a parlé" name="Look at Last Chatter"
+		     shortcut="alt|V" />
 		<menu_item_separator label="-----------" name="separator" />
 		<menu_item_check label="Barre d&apos;outils" name="Toolbar" />
 		<menu_item_check label="Chat local" name="Chat History" />
@@ -90,7 +92,7 @@
 		<menu_item_check label="Carte du monde" name="World Map" />
 		<menu_item_check label="Mini-carte" name="Mini-Map" />
 		<menu_item_separator label="-----------" name="separator3" />
-		<menu_item_check label="Barre de statistique" name="Statistics Bar" />
+		<menu_item_check label="Barre de statistiques" name="Statistics Bar" />
 		<menu_item_check label="Limites de la propriété" name="Property Lines" />
 		<menu_item_check label="Propriétaires fonciers" name="Land Owners" />
 		<menu_item_separator label="-----------" name="separator4" />
@@ -144,7 +146,7 @@
 		<menu_item_call label="Chat" name="Chat" />
 		<menu_item_call label="Démarrer geste" name="Start Gesture" />
 		<menu_item_check label="Toujours courir" name="Always Run" />
-		<menu_item_check label="Voler" name="Fly" />
+		<menu_item_check label="Voler" name="Fly" shortcut="F" />
 		<menu_item_separator label="-----------" name="separator" />
 		<menu_item_call label="Créer un repère ici" name="Create Landmark Here" />
 		<menu_item_call label="Définir comme domicile" name="Set Home to Here" />
@@ -161,7 +163,7 @@
 		<menu_item_call label="Acheter des $L..." name="Buy and Sell L$..." />
 		<menu_item_separator label="-----------" name="separator5" />
 		<menu_item_call label="Mon terrain..." name="My Land..." />
-		<menu_item_call label="A propos du terrain..." name="About Land..." />
+		<menu_item_call label="À propos du terrain..." name="About Land..." />
 		<menu_item_call label="Acheter le terrain..." name="Buy Land..." />
 		<menu_item_call label="Région/Domaine..." name="Region/Estate..." />
 		<menu_item_separator label="-----------" name="separator6" />
@@ -182,16 +184,16 @@
 			<menu_item_call label="Minuit" name="Midnight" />
 			<menu_item_call label="Revenir aux options par défaut" name="Revert to Region Default" />
 			<menu_item_separator label="-----------" name="separator" />
-			<menu_item_call label="Editeur d&apos;environnement" name="Environment Editor" />
+			<menu_item_call label="Éditeur d&apos;environnement" name="Environment Editor" />
 		</menu>
 	</menu>
 	<menu label="Outils" name="Tools">
 		<tearoff_menu label="~~~~~~~~~~~" name="~~~~~~~~~~~" />
-		<menu label="Sélectionner outil" name="Select Tool">
+		<menu label="Sélectionner un outil" name="Select Tool">
 			<tearoff_menu label="~~~~~~~~~~~" name="~~~~~~~~~~~" />
 			<menu_item_call label="Mise au point" name="Focus" />
 			<menu_item_call label="Déplacer" name="Move" />
-			<menu_item_call label="Editer" name="Edit" />
+			<menu_item_call label="Éditer" name="Edit" />
 			<menu_item_call label="Créer" name="Create" />
 			<menu_item_call label="Terrain" name="Land" />
 		</menu>
@@ -210,7 +212,7 @@
 		<menu_item_call label="Utiliser la sélection pour la grille" name="Use Selection for Grid" />
 		<menu_item_call label="Options de la grille..." name="Grid Options..." />
 		<menu_item_separator label="-----------" name="separator3" />
-		<menu_item_check label="Modifier les parties attachées" name="Edit Linked Parts" />
+		<menu_item_check label="Modifier les parties liées" name="Edit Linked Parts" />
 		<menu_item_call label="Lier" name="Link" />
 		<menu_item_call label="Délier" name="Unlink" />
 		<menu_item_separator label="-----------" name="separator4" />
@@ -272,6 +274,6 @@
 			<menu_item_separator label="-----------" name="separator9" />
 			<menu_item_call label="Signaler un bug..." name="Report Bug..." />
 		</menu>
-		<menu_item_call label="A propos de Second Life..." name="About Second Life..." />
+		<menu_item_call label="À propos de Second Life..." name="About Second Life..." />
 	</menu>
 </menu_bar>

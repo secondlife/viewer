@@ -1,5 +1,10 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<strings name="">
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<!-- This file contains strings that used to be hardcoded in the source.
+     It is only for those strings which don&apos;t belong in a floater.
+     For example, the strings used in avatar chat bubbles, and strings 
+     that are returned from one component and may appear in many places-->
+<strings>
+	<!-- Login -->
 	<string name="LoginInProgress">
 		Anmeldevorgang gestartet. [APP_NAME] reagiert möglicherweise nicht.  Bitte warten.
 	</string>
@@ -51,24 +56,34 @@
 	<string name="LoginDownloadingClothing">
 		Kleidung wird geladen...
 	</string>
+	<string name="LoginFailedNoNetwork">
+		Netzwerk Fehler: Eine Verbindung konnte nicht hergestellt werden. Bitte überprüfen Sie Ihre Netzwerkverbindung.
+	</string>
+	<!-- Disconnection -->
 	<string name="AgentLostConnection">
 		In dieser Region kann es zu Problemen kommen. Bitte überprüfen Sie Ihre Internetverbindung.
 	</string>
+	<!-- Tooltip, llhoverview.cpp -->
 	<string name="TooltipPerson">
 		Person
 	</string>
+	<!-- Object under mouse pointer is an avatar -->
 	<string name="TooltipNoName">
 		(namenlos)
 	</string>
+	<!-- No name on an object -->
 	<string name="TooltipOwner">
 		Eigentümer:
 	</string>
+	<!-- Owner name follows -->
 	<string name="TooltipPublic">
 		Öffentlich
 	</string>
+	<!-- Public permissions on an object -->
 	<string name="TooltipIsGroup">
 		(Gruppe)
 	</string>
+	<!-- The name before this text is that of a group -->
 	<string name="TooltipFlagScript">
 		Skript
 	</string>
@@ -99,9 +114,11 @@
 	<string name="TooltipForSaleL$">
 		Zum Verkauf: [AMOUNT] L$
 	</string>
+	<!-- L$ version -->
 	<string name="TooltipForSaleMsg">
 		Zum Verkauf: [MESSAGE]
 	</string>
+	<!-- Message (RetrievingData) -->
 	<string name="TooltipFlagGroupBuild">
 		Gruppenbau
 	</string>
@@ -114,6 +131,7 @@
 	<string name="TooltipFlagNotSafe">
 		Unsicher
 	</string>
+	<!-- damage area -->
 	<string name="TooltipFlagNoFly">
 		Fliegen aus
 	</string>
@@ -129,27 +147,35 @@
 	<string name="TooltipMustSingleDrop">
 		Sie können nur ein einzelnes Objekt hierher ziehen
 	</string>
+	<!-- Indicates that an avatar&apos;s name or other similar datum is being retrieved. General usage. -->
 	<string name="RetrievingData">
 		Laden...
 	</string>
 	<string name="ReleaseNotes">
 		Versionshinweise
 	</string>
+	<!-- Indicates something is being loaded. Maybe should be merged with RetrievingData -->
 	<string name="LoadingData">
 		Wird geladen...
 	</string>
+	<!-- namecache -->
+	<!-- Avatar name: text shown for LLUUID::null -->
 	<string name="AvatarNameNobody">
 		(niemand)
 	</string>
+	<!-- Avatar name: text shown while fetching name -->
 	<string name="AvatarNameWaiting">
 		(wartet)
 	</string>
+	<!-- Avatar name: text shown as an alternative to AvatarNameFetching, easter egg. -->
 	<string name="AvatarNameHippos">
 		(hippos)
 	</string>
+	<!-- Group name: text shown for LLUUID::null -->
 	<string name="GroupNameNone">
 		(keiner)
 	</string>
+	<!-- Asset errors. Used in llassetstorage.cpp, translation from error code to error message. -->
 	<string name="AssetErrorNone">
 		Kein Fehler
 	</string>
@@ -180,6 +206,7 @@
 	<string name="AssetErrorUnknownStatus">
 		Status unbekannt
 	</string>
+	<!-- llvoavatar. Displayed in the avatar&apos;s chat bubble -->
 	<string name="AvatarEditingApparance">
 		(Aussehen wird bearbeitet)
 	</string>
@@ -192,6 +219,7 @@
 	<string name="AvatarMuted">
 		Stummgeschaltet
 	</string>
+	<!-- animations -->
 	<string name="anim_express_afraid">
 		Ängstlich
 	</string>
@@ -405,6 +433,7 @@
 	<string name="worldmap_offline">
 		Offline
 	</string>
+	<!-- Chat -->
 	<string name="whisper">
 		Flüstert:
 	</string>

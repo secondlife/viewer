@@ -60,7 +60,6 @@ LLTemplateMessageBuilder::~LLTemplateMessageBuilder()
 	mCurrentSMessageData = NULL;
 }
 
-
 // virtual
 void LLTemplateMessageBuilder::newMessage(const char *name)
 {

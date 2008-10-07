@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <menu name="Popup">
-	<menu_item_call label="A propos de l&apos;URL" name="about_url" />
+	<menu_item_call label="À propos de l&apos;URL" name="about_url" />
 	<menu_item_call label="Téléporter vers l&apos;URL" name="teleport_to_url" />
-	<menu_item_call label="Afficher sur la carte" name="show_on_map" />
+	<menu_item_call label="Voir sur la carte" name="show_on_map" />
 </menu>

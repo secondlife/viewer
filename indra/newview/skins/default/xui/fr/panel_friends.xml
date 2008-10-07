@@ -7,22 +7,23 @@
 	     tool_tip="Pour sélectionner plusieurs amis, cliquez en maintenant la touche Maj ou Ctrl appuyée">
 		<column name="icon_online_status" tool_tip="Statut en ligne" />
 		<column label="Nom" name="friend_name" tool_tip="Nom" />
-		<column name="icon_visible_online" tool_tip="Vos amis voient si vous êtes en ligne" />
-		<column name="icon_visible_map" tool_tip="Vos amis vous situent sur la carte" />
+		<column name="icon_visible_online"
+		     tool_tip="Vos amis voient si vous êtes connecté(e)" />
+		<column name="icon_visible_map" tool_tip="Vos amis peuvent vous situer sur la carte" />
 		<column name="icon_edit_mine"
-		     tool_tip="Vos amis peuvent modifier, supprimer ou prendre des objets" />
+		     tool_tip="Vos amis peuvent modifier, supprimer ou prendre vos objets" />
 		<column name="icon_edit_theirs" tool_tip="Vous pouvez modifier les objets de cet ami" />
 	</scroll_list>
 	<button label="IM/Appel" name="im_btn"
-	     tool_tip="Ouvrir une session de messagerie instantanée" />
+	     tool_tip="Ouvrez une session de messagerie instantanée" />
 	<button label="Profil" name="profile_btn"
-	     tool_tip="Afficher une photo, vos groupes et autres infos" />
+	     tool_tip="Affichez une photo, vos groupes et autres infos" />
 	<button label="Téléporter..." name="offer_teleport_btn"
 	     tool_tip="Proposez à cet ami d&apos;être téléporté là où vous êtes" />
 	<button label="Payer..." name="pay_btn"
 	     tool_tip="Donnez des dollars Linden ($L) à cet ami" />
 	<button label="Supprimer..." name="remove_btn"
-	     tool_tip="Supprimer cette personne de votre liste d&apos;amis" />
+	     tool_tip="Supprimez cette personne de votre liste d&apos;amis" />
 	<button label="Ajouter..." name="add_btn"
-	     tool_tip="Demander à un résident de devenir votre ami(e)" />
+	     tool_tip="Demandez à un résident de devenir votre ami" />
 </panel>

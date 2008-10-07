@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <multi_floater name="im_floater" title="インスタント・メッセージ">
-	<text name="only_user_message">
+	<string name="only_user_message">
 		このセッションにいるユーザーはあなただけです。
-	</text>
-	<text name="offline_message">
+	</string>
+	<string name="offline_message">
 		[FIRST] [LAST]はオフラインです。
-	</text>
+	</string>
+	<string name="invite_message">
+		このボイスチャットに応答/接続する場合は、[BUTTON NAME]をクリックしてください。
+	</string>
 	<string name="muted_message">
 		あなたはこの住人をミュートしています。 メッセージを送信すると、ミュートは自動的に解除されます。
 	</string>
-	<text name="generic_request_error">
+	<string name="generic_request_error">
 		要求中にエラーが発生しました。後でもう一度試してください。
-	</text>
-	<text name="insufficient_perms_error">
+	</string>
+	<string name="insufficient_perms_error">
 		あなたには充分な権限がありません。
-	</text>
-	<text name="user_no_help">
-		リクエストされたユーザーは、もうヘルプセッションにはいません。
-	</text>
+	</string>
 	<string name="session_does_not_exist_error">
 		このセッションは既に切断されています。
 	</string>
@@ -27,13 +27,20 @@
 	<string name="not_a_mod_error">
 		あなたはセッション・モデレータではありません。
 	</string>
-	<text name="removed_from_group">
+	<string name="muted_error">
+		グループモデレータがあなたのテキストチャットを無効化しました
+	</string>
+	<!-- ALL of the event strings should have [RECIPIENT] in them -->
+	<string name="add_session_event">
+		[RECIPIENT] とのチャット・セッションにユーザーを追加することができません
+	</string>
+	<string name="message_session_event">
+		[RECIPIENT] とのチャット・セッションにメッセージを送ることができません
+	</string>
+	<string name="removed_from_group">
 		あなたはグループから削除されました。
-	</text>
-	<string name="invite_message">
-		このボイスチャットに応答/接続する場合は、[BUTTON NAME]をクリックしてください。
 	</string>
 	<string name="close_on_no_ability">
-		このチャット・セッションを継続することができません。
+		このチャット・セッションを継続することはできません
 	</string>
 </multi_floater>

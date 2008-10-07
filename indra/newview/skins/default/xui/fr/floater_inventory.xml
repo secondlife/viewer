@@ -2,14 +2,14 @@
 <floater name="Inventory" title="Inventaire">
 	<search_editor label="Saisissez votre recherche ici" name="inventory search editor" />
 	<tab_container name="inventory filter tabs">
-		<inventory_panel label="All Items" name="All Items" />
-		<inventory_panel label="Recent Items" name="Recent Items" />
+		<inventory_panel label="Tous les objets" name="All Items" />
+		<inventory_panel label="Objets récents" name="Recent Items" />
 	</tab_container>
 	<menu_bar name="Inventory Menu">
 		<menu label="Fichier" name="File">
 			<tearoff_menu label="~~~~~~~~~~~" name="~~~~~~~~~~~" />
 			<menu_item_call label="Ouvrir" name="Open" />
-			<menu_item_call label="Nouvelle Fenêtre" name="New Window" />
+			<menu_item_call label="Nouvelle fenêtre" name="New Window" />
 			<menu_item_call label="Afficher les filtres" name="Show Filters" />
 			<menu_item_call label="Réinitialiser les filtres" name="Reset Current" />
 			<menu_item_call label="Fermer tous les dossiers" name="Close All Folders" />
@@ -17,33 +17,33 @@
 		</menu>
 		<menu label="Créer" name="Create">
 			<tearoff_menu label="~~~~~~~~~~~" name="~~~~~~~~~~~" />
-			<menu_item_call label="Nouveau Dossier" name="New Folder" />
-			<menu_item_call label="Nouveau Script" name="New Script" />
-			<menu_item_call label="Nouvelle Note" name="New Note" />
-			<menu_item_call label="Nouveau Geste" name="New Gesture" />
+			<menu_item_call label="Nouveau dossier" name="New Folder" />
+			<menu_item_call label="Nouveau script" name="New Script" />
+			<menu_item_call label="Nouvelle note" name="New Note" />
+			<menu_item_call label="Nouveau geste" name="New Gesture" />
 			<menu name="New Clothes">
-				<menu_item_call label="Nouvelle Chemise" name="New Shirt" />
-				<menu_item_call label="Nouveau Pantalon" name="New Pants" />
-				<menu_item_call label="Nouvelles Chaussures" name="New Shoes" />
-				<menu_item_call label="Nouvelles Chaussettes" name="New Socks" />
-				<menu_item_call label="Nouvelle Veste" name="New Jacket" />
-				<menu_item_call label="Nouvelle Jupe" name="New Skirt" />
-				<menu_item_call label="Nouveaux Gants" name="New Gloves" />
-				<menu_item_call label="Nouveau Maillot de corps" name="New Undershirt" />
-				<menu_item_call label="Nouveaux Sous-vêtements" name="New Underpants" />
+				<menu_item_call label="Nouvelle jupe" name="New Shirt" />
+				<menu_item_call label="Nouveau pantalon" name="New Pants" />
+				<menu_item_call label="Nouvelles chaussures" name="New Shoes" />
+				<menu_item_call label="Nouvelles chaussettes" name="New Socks" />
+				<menu_item_call label="Nouvelle veste" name="New Jacket" />
+				<menu_item_call label="Nouvelle jupe" name="New Skirt" />
+				<menu_item_call label="Nouveaux gants" name="New Gloves" />
+				<menu_item_call label="Nouveau tricot de peau" name="New Undershirt" />
+				<menu_item_call label="Nouveaux sous-vêtements" name="New Underpants" />
 			</menu>
 			<menu name="New Body Parts">
-				<menu_item_call label="Nouvelle Silhouette" name="New Shape" />
-				<menu_item_call label="Nouvelle Peau" name="New Skin" />
-				<menu_item_call label="Nouveaux Cheveux" name="New Hair" />
-				<menu_item_call label="Nouveaux Yeux" name="New Eyes" />
+				<menu_item_call label="Nouvelle silhouette" name="New Shape" />
+				<menu_item_call label="Nouvelle peau" name="New Skin" />
+				<menu_item_call label="Nouveaux cheveux" name="New Hair" />
+				<menu_item_call label="Nouveaux yeux" name="New Eyes" />
 			</menu>
 		</menu>
-		<menu label="Sort" name="Sort">
+		<menu label="Trier" name="Sort">
 			<tearoff_menu label="~~~~~~~~~~~" name="~~~~~~~~~~~" />
 			<menu_item_check label="Par nom" name="By Name" />
 			<menu_item_check label="Par date" name="By Date" />
-			<menu_item_check label="Toujour afficher les dossiers par nom" name="Folders Always By Name" />
+			<menu_item_check label="Dossiers toujours par nom" name="Folders Always By Name" />
 			<menu_item_check label="Dossiers système au dessus" name="System Folders To Top" />
 		</menu>
 		<menu label="Filters" name="Filters">

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel label="Graphiques" name="Display panel">
 	<button label="?" name="GraphicsPreferencesHelpButton" />
-	<text_editor bottom="-56" height="40" name="FullScreenInfo" width="480">
-		Si cette option n&apos;est pas cochée, le visualisateur prendra tout l&apos;écran lorsque vous êtes connecté.
+	<text_editor bottom="-56" height="40" left="25" name="FullScreenInfo" width="460">
+		Si cette option n&apos;est pas cochée, le visualisateur prend tout l&apos;écran lorsque vous êtes connecté(e).
 	</text_editor>
 	<text name="WindowSizeLabel">
 		Taille de la fenêtre :
@@ -24,7 +24,7 @@
 			1024 x 768
 		</combo_item>
 	</combo_box>
-	<text name="DisplayResLabel">
+	<text name="DisplayResLabel" width="165">
 		Résolution de l&apos;affichage :
 	</text>
 	<text name="AspectRatioLabel1" tool_tip="largeur/hauteur">
@@ -41,7 +41,7 @@
 			8 : 5 (écran large)
 		</combo_item>
 		<combo_item type="string" length="1" name="16:9(Widescreen)">
-			16:9 (Plein écran)
+			16:9 (plein écran)
 		</combo_item>
 	</combo_box>
 	<text type="string" length="1" name="text">
@@ -63,7 +63,7 @@
 		Options d&apos;affichage :
 	</text>
 	<check_box label="Lancer Second Life dans une fenêtre" name="windowed mode" />
-	<check_box label="Auto-détection du ratio" name="aspect_auto_detect" />
+	<check_box label="Auto-détection du ratio" left="350" name="aspect_auto_detect" />
 	<check_box label="Utiliser échelle de résolution indépendante" name="ui_auto_scale" />
 	<check_box label="Montrer l&apos;avatar en mode Mouselook" name="avfp" />
 	<spinner label="Draw Distance :" name="draw_distance" />
@@ -73,7 +73,7 @@
 	<text name="QualityText">
 		Performance :
 	</text>
-	<text name="FasterText">
+	<text left="105" name="FasterText">
 		Plus rapide
 	</text>
 	<text name="ShadersPrefText">
@@ -83,18 +83,16 @@
 		Moyen
 	</text>
 	<text name="ShadersPrefText3">
-		Elevé
+		Élevé
 	</text>
 	<text name="ShadersPrefText4">
 		Ultra
 	</text>
-	<text name="HigherText2">
-		Plus élevé
+	<text bottom="-86" left="325" name="HigherText2">
+		Plus élevée
 	</text>
-	<text name="QualityText2">
-		Qualité
-	</text>
-	<check_box label="Personnaliser" name="CustomSettings" />
+	<text name="QualityText2" visible="false" />
+	<check_box label="Personnaliser" left="395" name="CustomSettings" />
 	<text name="ShadersText">
 		Shaders :
 	</text>
@@ -133,7 +131,7 @@
 		m
 	</text>
 	<slider label="Distance d&apos;affichage :" name="DrawDistance" />
-	<slider label="Nombre de particules max. :" name="MaxParticleCount" />
+	<slider label="Nombre de particules max. :" label_width="143" name="MaxParticleCount" />
 	<slider label="Qualité post-traitement :" name="RenderPostProcess" />
 	<text name="MeshDetailText">
 		Détails du maillage :
@@ -176,7 +174,7 @@
 			Lumières à proximité
 		</radio_item>
 	</radio_group>
-	<text name="TerrainDetailText">
+	<text left="380" name="TerrainDetailText">
 		Détails du terrain :
 	</text>
 	<radio_group name="TerrainDetailRadio">
@@ -184,7 +182,7 @@
 			Faible
 		</radio_item>
 		<radio_item name="2">
-			Elevé
+			Élevé
 		</radio_item>
 	</radio_group>
 	<button label="Paramètres recommandés" name="Defaults" />

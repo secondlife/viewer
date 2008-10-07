@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel label="Général" name="general_panel">
-	<combo_box name="location_combobox">
+	<combo_box name="location_combobox" width="166">
 		<combo_item name="MyHome">
 			Mon domicile
 		</combo_item>
@@ -10,7 +10,7 @@
 	</combo_box>
 	<check_box label="Afficher le lieu de départ sur l&apos;écran de connexion"
 	     name="show_location_checkbox" />
-	<combo_box name="fade_out_combobox">
+	<combo_box name="fade_out_combobox" width="166">
 		<combo_item name="Never">
 			Jamais
 		</combo_item>
@@ -66,8 +66,8 @@
 	<text type="string" length="1" name="language_textbox">
 		Langue :
 	</text>
-	<text type="string" length="1" name="language_textbox2">
-		(nécessite un redémarrage pour prendre effet)
+	<text type="string" length="1" left_delta="313" name="language_textbox2">
+		(nécessite un redémarrage)
 	</text>
 	<radio_group name="fade_out_radio">
 		<radio_item type="string" length="1" name="Never">
@@ -82,11 +82,11 @@
 	</radio_group>
 	<color_swatch label="" name="effect_color_swatch"
 	     tool_tip="Cliquer pour ouvrir le sélecteur de couleurs" />
-	<spinner label="Montrer comme absent(e) après :" name="afk_timeout_spinner" />
+	<spinner label="Absent(e) après :" name="afk_timeout_spinner" />
 	<text name="region_name_prompt">
 		&lt;Saisissez le nom de la région&gt;
 	</text>
-	<combo_box name="crash_behavior_combobox">
+	<combo_box name="crash_behavior_combobox" width="166">
 		<combo_item type="string" length="1" name="Askbeforesending">
 			Demander avant d&apos;envoyer
 		</combo_item>
@@ -97,7 +97,7 @@
 			Ne jamais envoyer
 		</combo_item>
 	</combo_box>
-	<combo_box name="language_combobox">
+	<combo_box name="language_combobox" width="166">
 		<combo_item name="System Default Language">
 			Choix par défaut
 		</combo_item>

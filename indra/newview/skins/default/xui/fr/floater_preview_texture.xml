@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="preview texture" title="Texture : Gray Metal Scratched">
+<floater name="preview_texture">
 	<text type="string" length="1" name="desc txt">
 		Description :
 	</text>
 	<text type="string" length="1" name="dimensions">
-		Dimensions : [WIDTH] x [HEIGHT]
+		Dimensions : [WIDTH] x [HEIGHT]
 	</text>
 </floater>

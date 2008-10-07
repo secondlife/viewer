@@ -791,7 +791,6 @@ bool LLTemplateMessageReader::isTrusted() const
 	return mCurrentRMessageTemplate->getTrust() == MT_TRUST;
 }
 
-//virtual 
 bool LLTemplateMessageReader::isBanned(bool trustedSource) const
 {
 	return mCurrentRMessageTemplate->isBanned(trustedSource);
