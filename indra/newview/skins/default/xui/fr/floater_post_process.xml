@@ -32,7 +32,7 @@
 				Force du bruit
 			</text>
 		</panel>
-		<panel label="Éclat" name="wmiBloomPanel">
+		<panel label="Eclat" name="wmiBloomPanel">
 			<check_box label="Activer" name="wmiBloomToggle" />
 			<text name="wmiBloomExtractText">
 				Extraction de la luminosité

@@ -3450,9 +3450,7 @@ void LLSelectMgr::deselectAllIfTooFar()
 	}
 
 	LLVector3d selectionCenter = getSelectionCenterGlobal();
-	if (gSavedSettings.getBOOL("LimitSelectDistance")
-		&& (!mSelectedObjects->getPrimaryObject() || !mSelectedObjects->getPrimaryObject()->isAvatar())
-		&& !mSelectedObjects->isAttachment()
+	if (gSavedSettings.getBOOL("LimitSelectDistance") 
 		&& !selectionCenter.isExactlyZero())
 	{
 		F32 deselect_dist = gSavedSettings.getF32("MaxSelectDistance");

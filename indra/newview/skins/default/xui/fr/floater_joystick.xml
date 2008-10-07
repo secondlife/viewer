@@ -6,7 +6,7 @@
 	<spinner label="Mapping axe des X " name="JoystickAxis1" />
 	<spinner label="Mapping axe des Y" name="JoystickAxis2" />
 	<spinner label="Mapping axe des Z" name="JoystickAxis0" />
-	<spinner label="Mapping du tangage" name="JoystickAxis4" left="8" label_width="111" width="152" />
+	<spinner label="Mapping du tangage" name="JoystickAxis4" />
 	<spinner label="Mapping du lacet" name="JoystickAxis5" />
 	<spinner label="Mapping du roulis" name="JoystickAxis3" />
 	<spinner label="Mapping du zoom" name="JoystickAxis6" />
@@ -26,22 +26,22 @@
 		Flycam
 	</check_box>
 	<text name="XScale">
-		Échelle des X
+		Echelle des X
 	</text>
 	<text name="YScale">
-		Échelle des Y
+		Echelle des Y
 	</text>
 	<text name="ZScale">
-		Échelle des Z
+		Echelle des Z
 	</text>
-	<text name="PitchScale" left="9" width="104">
-		Échelle du tangage
+	<text name="PitchScale">
+		Echelle du tangage
 	</text>
 	<text name="YawScale">
-		Échelle du lacet
+		Echelle du lacet
 	</text>
 	<text name="RollScale">
-		Échelle du roulis
+		Echelle du roulis
 	</text>
 	<text name="XDeadZone">
 		Zone neutre X
@@ -52,7 +52,7 @@
 	<text name="ZDeadZone">
 		Zone neutre Z
 	</text>
-	<text name="PitchDeadZone" left="4" width="110">
+	<text name="PitchDeadZone">
 		Zone neutre Tangage
 	</text>
 	<text name="YawDeadZone">
@@ -65,9 +65,9 @@
 		Feathering
 	</text>
 	<text name="ZoomScale2">
-		Échelle du zoom
+		Echelle du zoom
 	</text>
-	<text name="ZoomDeadZone" width="110" left="6" >
+	<text name="ZoomDeadZone">
 		Zone neutre du zoom
 	</text>
 	<button label="Options par défaut du joystick" name="SpaceNavigatorDefaults" />

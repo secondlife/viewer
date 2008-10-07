@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="avatarpicker" title="Choisir le résident">
+<floater name="avatarpicker" title="Choisir personne">
 	<text name="Type part of the person&apos;s name:">
 		Entrez les premières lettres du nom de la personne :
 	</text>
 	<text name="instruct_search_resident_name">
 		Saisissez une partie du nom du résident :
 	</text>
-	<button label="Trouver" label_selected="Trouver" name="Find" />
+	<button label="Chercher" label_selected="Chercher" name="Find" />
 	<text name="Or select a calling card:">
 		Ou sélectionnez une carte de visite :
 	</text>

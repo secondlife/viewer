@@ -1,78 +1,78 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<panel label="Notes" name="notices_tab">
+<panel label="Notifications" name="notices_tab">
 	<text name="help_text">
-		Les notes vous permettent d&apos;envoyer des messages et pièces-jointes à tous les membres du groupe en même temps. Ces messages ne sont envoyés qu&apos;aux membres dont le rôle les autorise à recevoir des notes. Vous pouvez désactiver les notes à l&apos;onglet Général.
+		Les Notifications sont un moyen rapide de communiquer dans
+un Groupe, via la diffusion d&apos;un message et la possibilté 
+d&apos;inclure une pièce jointe. Les notifications ne sont envoyées
+qu&apos;aux Membres du Groupe ayant des Rôles leur permettant
+de recevoir des notifications. Vous pouvez désactiver les notifications dans
+l&apos;onglet Général.
 	</text>
 	<text name="no_notices_text">
-		Aucune note précédemment envoyée.
+		Il n&apos;y a pas de notifications passées.
 	</text>
 	<button label="?" label_selected="?" name="help_button" />
 	<text name="lbl">
-		Archive des notes du groupe
+		Archive des Notifications du Groupe
 	</text>
 	<text name="lbl2">
-		Les notes sont conservées pendant 14 jours. Cliquez sur la note que vous
-voulez afficher. Pour voir si vous avez reçu de nouvelles notes, cliquez sur
-Rafraîchir. Chaque groupe a une limite quotidienne de 200 notes.
+		Les Notifications sont conservées pendant 14 jours. Cliquez sur la notification que vous souhaitez afficher.
+Cliquez sur &apos;Actualiser&apos; pour afficher les nouvelles notifications.
 	</text>
 	<scroll_list name="notice_list">
 		<column label="" name="icon" />
-		<column label="Sujet" name="subject" />
-		<column label="De" name="from" />
+		<column label="Subject" name="subject" />
+		<column label="From" name="from" />
 		<column label="Date" name="date" />
 	</scroll_list>
 	<text name="notice_list_none_found">
 		Aucun résultat.
 	</text>
-	<button label="Créer une note" label_selected="Créer une note"
+	<button label="Nouvelle Notification" label_selected="Nouvelle Notification"
 	     name="create_new_notice" />
-	<button label="Rafraîchir" label_selected="Rafraîchir la liste"
-	     name="refresh_notices" />
-	<panel label="Créer une note" name="panel_create_new_notice">
+	<button label="Actualiser" label_selected="Actualiser" name="refresh_notices" />
+	<panel label="Nouvelle Notification" name="panel_create_new_notice">
 		<text name="lbl">
-			Créer une note
+			Créer Notification
 		</text>
 		<text name="lbl2">
-			Pour envoyer une note, vous devez saisir un sujet. Pour joindre
-une pièce-jointe à cette note, faites-la glisser depuis votre 
-inventaire vers cette fenêtre. Les pièces-jointes doivent être
-copiables et transférables. Il n&apos;est pas possible d&apos;envoyer de
-dossiers.
+			Vous devez entrer un sujet pour la notification. Vous pouvez joindre un 
+elément à la notification en le glissant depuis votre inventaire vers cette
+fenêtre. Les pièces jointes doivent être copiables et transférables,
+et ne peuvent être des dossiers.
 		</text>
-		<text name="lbl3" bottom_delta="-79" >
-			Sujet :
+		<text name="lbl3">
+			Sujet :
 		</text>
-		<line_editor name="create_subject" width="346" />
 		<text name="lbl4">
-			Message :
+			Message :
 		</text>
-		<text_editor bottom_delta="-90" height="104" name="create_message" />
 		<text name="lbl5">
-			Attacher :
+			Attacher :
 		</text>
-		<button label="Supprimer pièce-jointe" label_selected="Supprimer pièce-jointe"
+		<button label="Retirer l&apos;attachement" label_selected="Retirer l&apos;attachement"
 		     name="remove_attachment" />
-		<button label="Envoyer note" label_selected="Envoyer note" name="send_notice" />
+		<button label="Envoyer notification" label_selected="Envoyer notification"
+		     name="send_notice" />
 		<panel name="drop_target2"
 		     tool_tip="Drag an inventory item onto the message box to send it with the notice. You must have permission to copy and transfer the object to send it with the notice." />
 		<panel name="drop_target"
 		     tool_tip="Pour joindre un objet de l&apos;inventaire à la note, faites-le glisser dans la boîte de message. Pour envoyer l&apos;objet avec la note, vous devez avoir la permission de le copier et de le transférer." />
 	</panel>
-	<panel label="Voir ancienne note" name="panel_view_past_notice">
+	<panel label="Voir notification passée" name="panel_view_past_notice">
 		<text name="lbl">
-			Note archivée
+			Notification archivée
 		</text>
 		<text name="lbl2">
-			Pour envoyer une nouvelle note, cliquez sur Créer une note ci-dessus.
+			Pour envoyer une nouvelle notification, cliquez sur le bouton &apos;Créer Nouvelle Notification&apos; ci-dessus.
 		</text>
 		<text name="lbl3">
-			Sujet :
+			Sujet :
 		</text>
 		<text name="lbl4">
-			Message :
+			Message :
 		</text>
-		<button label="Ouvrir pièce-jointe" label_selected="Ouvrir pièce-jointe"
-		     name="open_attachment" width="118" />
-		<line_editor left="128" name="view_inventory_name" width="256" />
+		<button label="Ouvrir la pièce jointe" label_selected="Ouvrir la pièce jointe"
+		     name="open_attachment" />
 	</panel>
 </panel>

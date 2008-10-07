@@ -29,7 +29,7 @@
 	</text>
 	<button label="Neues Konto..." label_selected="Neues Konto..." name="new_account_btn"/>
 	<button label="Einstellungen..." label_selected="Einstellungen..." name="preferences_btn"/>
-	<button label="Anmelden" label_selected="Anmelden" name="connect_btn"/>
+	<button label="Login" label_selected="Login" name="connect_btn"/>
 	<button label="Beenden" label_selected="Beenden" name="quit_btn"/>
 	<text name="version_text">
 		1.23.4 (5)

@@ -1,65 +1,48 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="gesture_preview">
-	<string name="stop_txt">
-		Stop
-	</string>
-	<string name="preview_txt">
-		Prévisualiser
-	</string>
-	<string name="none_text">
-		-- Aucune --
-	</string>
+<floater name="gesture" title="Geste">
 	<text name="desc_label">
 		Description :
 	</text>
 	<text name="trigger_label">
-		Raccourci :
+		Déclencher :
 	</text>
 	<text name="replace_text"
-	     tool_tip="Remplacer les raccourcis avec ces mots. Par exemple, remplacer le mot-clé « salut » par « bonjour » fera dire « je venais dire bonjour » au lieu de « je venais dire salut » dans le chat, et déclenchera le geste.">
-		Remplacer par :
+	     tool_tip="Replace the trigger word(s) with these words. For example, trigger &apos;hello&apos; replace with &apos;howdy&apos; will turn the chat &apos;I wanted to say hello&apos; into &apos;I wanted to say howdy&apos; as well as playing the gesture!">
+		Remplacer par :
 	</text>
-	<line_editor left="310" name="replace_editor"
-	     tool_tip="Remplacer les raccourcis avec ces mots. Par exemple, remplacer le mot-clé « salut » par « bonjour » fera dire « je venais dire bonjour » au lieu de « je venais dire salut » dans le chat, et déclenchera le geste"
-	     width="120" />
+	<line_editor name="replace_editor"
+	     tool_tip="Replace the trigger word(s) with these words. For example, trigger &apos;hello&apos; replace with &apos;howdy&apos; will turn the chat &apos;I wanted to say hello&apos; into &apos;I wanted to say howdy&apos; as well as playing the gesture" />
 	<text name="key_label">
-		Raccourci :
+		Raccourci clavier :
 	</text>
-	<combo_box label="Aucun" name="modifier_combo" width="55" />
-	<combo_box label="Aucun" name="key_combo" width="55" />
-	<text name="library_label">
-		Bibliothèque :
+	<combo_box label="Aucun(e)" name="modifier_combo" />
+	<combo_box label="Aucun(e)" name="key_combo" />
+	<text>
+		Bibliothèque :
 	</text>
-	<text name="steps_label">
-		Étapes :
+	<text>
+		Pas :
 	</text>
-	<scroll_list name="library_list">
-		Animation
-Son
-Chat
-Attendre
-	</scroll_list>
 	<button label="Ajouter &gt;&gt;" name="add_btn" />
-	<button label="Monter" name="up_btn" />
-	<button label="Descendre" name="down_btn" />
-	<button label="Supprimer" name="delete_btn" />
+	<button label="Haut" name="up_btn" />
+	<button label="Bas" name="down_btn" />
+	<button label="Retirer" name="delete_btn" />
 	<text name="help_label">
-		Toutes les étapes ont lieu
-simultanément, sauf si vous
-ajoutez des pauses.
+		Toutes les étapes se déclenchent simultanément,
+à moins que vous n&apos;insériez des pauses.
 	</text>
 	<radio_group name="animation_trigger_type">
-		<radio_item name="start">
-			Commencer
+		<radio_item>
+			Démarrer
 		</radio_item>
-		<radio_item name="stop">
-			Stop
+		<radio_item>
+			Arrêter
 		</radio_item>
 	</radio_group>
 	<check_box label="jusqu&apos;à la fin des animations" name="wait_anim_check" />
 	<check_box label="temps en secondes" name="wait_time_check" />
-	<check_box label="Actifs" name="active_check"
-	     tool_tip="Les gestes actifs peuvent être déclenchés en saisissant leur raccourci dans le chat ou en appuyant sur les raccourcis. Les gestes deviennent généralement inactifs lorsqu&apos;il y a un conflit entre les raccourcis." />
-	<button label="Prévisualiser" name="preview_btn" />
+	<check_box label="Activé" name="active_check"
+	     tool_tip="Les gestes actifs peuvent être déclenchés à l&apos;aide de phrases de déclenchement ou de hotkeys. Les gestes deviennent généralement inactifs en cas de conflit de touches." />
+	<button label="Aperçu" name="preview_btn" />
 	<button label="Enregistrer" name="save_btn" />
 </floater>

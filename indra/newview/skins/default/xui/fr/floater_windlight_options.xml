@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="WindLight floater" title="Éditeur de ciel avancé">
+<floater name="WindLight floater" title="Editeur de ciel avancé">
 	<text name="KeyFramePresetsText">
 		Préréglages ciel :
 	</text>
 	<button label="Nouveau" label_selected="Nouveau" name="WLNewPreset" />
-	<button label="Enregistrer" label_selected="Enregistrer" name="WLSavePreset" width="75" left_delta="75"/>
-	<button label="Supprimer" label_selected="Supprimer" name="WLDeletePreset" left_delta="80"/>
-	<button label="Éditeur du cycle du jour" label_selected="Éditeur du cycle du jour"
-	     name="WLDayCycleMenuButton" width="150" left_delta="95" />
+	<button label="Enregistrer" label_selected="Enregistrer" name="WLSavePreset" />
+	<button label="Supprimer" label_selected="Supprimer" name="WLDeletePreset" />
+	<button label="Editeur du cycle du jour" label_selected="Editeur du cycle du jour"
+	     name="WLDayCycleMenuButton" />
 	<tab_container name="WindLight Tabs">
 		<panel label="Atmosphère" name="Atmosphere">
 			<text name="BHText">
@@ -63,7 +63,7 @@
 			</text>
 			<button label="?" name="WLMaxAltitudeHelp" />
 		</panel>
-		<panel label="Éclairage" name="Lighting">
+		<panel label="Eclairage" name="Lighting">
 			<text name="SLCText">
 				Couleur soleil/lune
 			</text>
@@ -85,7 +85,7 @@
 			</text>
 			<button label="?" name="WLTimeOfDayHelp" />
 			<text name="WLAmbientText">
-				Éclairage ambiant
+				Eclairage ambiant
 			</text>
 			<button label="?" name="WLAmbientHelp" />
 			<text name="BHText5">
@@ -115,7 +115,7 @@
 			</text>
 			<button label="?" name="WLSceneGammaHelp" />
 			<text name="WLStarText">
-				Éclat des étoiles
+				Eclat des étoiles
 			</text>
 			<button label="?" name="WLStarBrightnessHelp" />
 		</panel>
@@ -152,15 +152,15 @@
 			<text name="WLCloudCoverageText">
 				Couverture nuageuse
 			</text>
-			<button label="?" name="WLCloudCoverageHelp" left="407"/>
+			<button label="?" name="WLCloudCoverageHelp" />
 			<text name="WLCloudScaleText">
 				Altitude des nuages
 			</text>
-			<button label="?" name="WLCloudScaleHelp" left="407"/>
+			<button label="?" name="WLCloudScaleHelp" />
 			<text name="WLCloudDetailText">
 				Détails nuages (XY/densité)
 			</text>
-			<button label="?" name="WLCloudDetailHelp" left="407" bottom_delta="-2" />
+			<button label="?" name="WLCloudDetailHelp" />
 			<text name="BHText8">
 				X
 			</text>

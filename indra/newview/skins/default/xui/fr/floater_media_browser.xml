@@ -2,18 +2,17 @@
 <floater name="floater_about" title="Navigateur média">
 	<layout_stack name="stack1">
 		<layout_panel name="nav_controls">
-			<button label="Précédente" name="back" width="75" />
-			<button label="Suivante" name="forward"  width="70" left_delta="75" />
-			<button label="Recharger" name="reload" left_delta="75" />
-			<combo_box left_delta="75" name="address" width="250" />
-			<button label="Aller" name="go" left_delta="255"/>
+			<button label="Précédente" name="back" />
+			<button label="Suivante" name="forward" />
+			<button label="Recharger" name="reload" />
+			<button label="OK" name="go" />
 		</layout_panel>
 		<layout_panel name="parcel_owner_controls">
 			<button label="Envoyer URL actuelle sur parcelle" name="assign" />
 		</layout_panel>
 		<layout_panel name="external_controls">
-			<button label="Ouvrir dans mon navigateur web" name="open_browser" width="190" />
-			<check_box label="Toujours ouvrir dans mon navigateur web" name="open_always" left_delta="195"/>
+			<button label="Ouvrir dans mon navigateur web" name="open_browser" />
+			<check_box label="Toujours ouvrir dans mon navigateur web" name="open_always" />
 			<button label="Fermer" name="close" />
 		</layout_panel>
 	</layout_stack>

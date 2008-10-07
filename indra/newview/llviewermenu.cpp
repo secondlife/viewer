@@ -4934,20 +4934,13 @@ class LLToolsLookAtSelection : public view_listener_t
 			LLVector3 obj_to_cam = LLViewerCamera::getInstance()->getOrigin() - selection_bbox.getCenterAgent();
 			obj_to_cam.normVec();
 
-			LLUUID object_id;
-			if (LLSelectMgr::getInstance()->getSelection()->getPrimaryObject())
-			{
-				object_id = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject()->mID;
-			}
 			if (zoom)
 			{
-				gAgent.setCameraPosAndFocusGlobal(LLSelectMgr::getInstance()->getSelectionCenterGlobal() + LLVector3d(obj_to_cam * distance), 
-												LLSelectMgr::getInstance()->getSelectionCenterGlobal(), 
-												object_id );
+				gAgent.setCameraPosAndFocusGlobal(LLSelectMgr::getInstance()->getSelectionCenterGlobal() + LLVector3d(obj_to_cam * distance), LLSelectMgr::getInstance()->getSelectionCenterGlobal(), LLSelectMgr::getInstance()->getSelection()->getPrimaryObject()->mID );
 			}
 			else
 			{
-				gAgent.setFocusGlobal( LLSelectMgr::getInstance()->getSelectionCenterGlobal(), object_id );
+				gAgent.setFocusGlobal( LLSelectMgr::getInstance()->getSelectionCenterGlobal(), LLSelectMgr::getInstance()->getSelection()->getPrimaryObject()->mID );
 			}
 		}
 		return true;

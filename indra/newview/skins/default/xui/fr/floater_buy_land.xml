@@ -1,182 +1,182 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="buy land" title="Acheter le terrain">
+<floater name="buy land" title="Acheter du terrain">
 	<text name="region_name_label">
 		Région :
 	</text>
 	<text name="region_name_text">
-		(inconnue)
+		(inconnu)
 	</text>
 	<text name="estate_name_label">
-		Domaine :
+		Domaine :
 	</text>
 	<text name="estate_name_text">
 		(inconnu)
 	</text>
 	<text name="estate_owner_label">
-		Propriétaire :
+		Propriétaire :
 	</text>
 	<text name="estate_owner_text">
 		(inconnu)
 	</text>
 	<text name="resellable_changeable_label">
-		Terrains achetés dans cette région :
+		Terrains acquis dans cette région :
 	</text>
 	<text name="resellable_clause">
-		Le terrain acheté dans cette région peut être revendu ou pas.
+		Les terrains acquis dans cette région peuvent ou ne peuvent pas être revendus.
 	</text>
 	<text name="changeable_clause">
-		peut être fusionné/divisé ou pas.
+		peut ou ne peut pas être fusionné ou subdivisé
 	</text>
 	<text name="covenant_text">
-		Vous devez accepter le règlement du domaine :
+		Vous devez accepter la clause de sauvegarde du domaine :
 	</text>
 	<text_editor name="covenant_editor">
 		Chargement en cours...
 	</text_editor>
-	<check_box label="J&apos;accepte le règlement ci-dessus." name="agree_covenant" />
+	<check_box label="J&apos;accepte la clause définie ci-dessus" name="agree_covenant" />
 	<text name="info_parcel_label">
-		Parcelle :
+		Parcelle :
 	</text>
 	<text name="info_parcel">
 		Scotopteryx 138,204
 	</text>
 	<text name="info_size_label">
-		Taille :
+		Taille :
 	</text>
 	<text name="info_size">
-		1024 m²
+		1024 m2
 	</text>
 	<text name="info_price_label">
 		Prix :
 	</text>
 	<text name="info_price">
-		1500 $L, objets inclus
+		L$ 1500, objets compris
 	</text>
 	<text name="info_action">
-		Si vous achetez ce terrain :
+		Acheter ce terrain aura pour effet :
 	</text>
 	<text name="error_message">
-		Quelque chose ne va pas.
+		Quelque chose ne tourne pas rond.
 	</text>
-	<button label="Aller sur le site" name="error_web" />
+	<button label="Visiter le site" name="error_web" />
 	<text name="account_action">
-		Vous passerez à un compte Premium.
+		Devenez un membre Premium.
 	</text>
 	<text name="account_reason">
-		Seuls les membres Premium peuvent posséder du terrain.
+		Seuls les membres premium peuvent posséder du terrain.
 	</text>
 	<combo_box name="account_level">
 		<combo_item name="US$9.95/month,billedmonthly">
-			9,95 $US/mois, facturation mensuelle
+			US$9.95/mois, prélevés mensuellement
 		</combo_item>
 		<combo_item name="US$7.50/month,billedquarterly">
-			7,50 $US/mois, facturation trimestrielle
+			US$7.50/mois, prélevés trimestriellement
 		</combo_item>
 		<combo_item name="US$6.00/month,billedannually">
-			6,00 $US/mois, facturation annuelle
+			US$6.00/mois, prélevés annuellement
 		</combo_item>
 	</combo_box>
 	<text name="land_use_action">
-		Augmentez vos frais d&apos;occupation de terrain à 40 $US/mois.
+		Augmentez vos charges foncières à US$ 40/mois.
 	</text>
 	<text name="land_use_reason">
-		Vous possédez un terrain de 1,309 mètres carrés. 
-Cette parcelle fait 512 mètres carrés.
+		Vous possédez 1,309 mètres carrés de terrain.
+Cette parcelle occupe 512 mètres carrés de terrain.
 	</text>
 	<text name="purchase_action">
-		Payez au résident X 4 000 $L pour le terrain
+		Payer Joe Resident L$4000 pour le terrain
 	</text>
 	<text name="currency_reason">
-		Vous avez 2 100 $L.
+		Vous avez L$ 2,100.
 	</text>
 	<text name="currency_action">
-		Acheter des $L
+		Acheter plus de L$
 	</text>
 	<line_editor name="currency_amt">
 		1000
 	</line_editor>
 	<text name="currency_est">
-		pour environ [AMOUNT2] $US
+		pour environ US$ [AMOUNT2]
 	</text>
 	<text name="currency_balance">
-		Vous avez 2 100 $L.
+		Vous avez L$ 2,100.
 	</text>
-	<check_box label="Supprimer [AMOUNT] mètres carrés de votre contribution au groupe."
+	<check_box label="Retirer la contribution du groupe à l&apos;achat"
 	     name="remove_contribution" />
-	<button label="Acheter" name="buy_btn" />
+	<button label="Acquérir" name="buy_btn" />
 	<button label="Annuler" name="cancel_btn" />
 	<text name="can_resell">
 		Peut être revendu.
 	</text>
 	<text name="can_not_resell">
-		Ne peut pas être revendu.
+		Ne peut être revendu.
 	</text>
 	<text name="can_change">
-		Peut être fusionné ou divisé.
+		Peut être fusionné ou subdivisé.
 	</text>
 	<text name="can_not_change">
-		Ne peut pas être fusionné ou divisé.
+		Ne peut être fusionné ou subdivisé.
 	</text>
 	<text name="cant_buy_for_group">
-		Vous n&apos;avez pas la permission d&apos;acheter de terrain pour votre groupe.
+		Vous n&apos;êtes pas autorisé(e) à acheter du terrain pour votre groupe actif.
 	</text>
 	<text name="no_land_selected">
 		Aucun terrain sélectionné.
 	</text>
 	<text name="multiple_parcels_selected">
-		Vous avez sélectionné plusieurs parcelles. 
-Sélectionnez une zone plus petite.
+		Vous avez sélectionné plusieurs parcelles différentes.
+Essayez de sélectionner une zone plus petite.
 	</text>
 	<text name="no_permission">
-		Vous n&apos;avez pas la permission d&apos;acheter de terrain pour votre groupe.
+		Vous n&apos;êtes pas autorisé(e) à acheter du terrain pour votre groupe actif.
 	</text>
 	<text name="parcel_not_for_sale">
 		La parcelle sélectionnée n&apos;est pas à vendre.
 	</text>
 	<text name="group_already_owns">
-		La parcelle appartient déjà au groupe.
+		Le groupe possède déjà la parcelle.
 	</text>
 	<text name="you_already_own">
-		La parcelle vous appartient déjà.
+		Vous possédez déjà cette parcelle.
 	</text>
 	<text name="set_to_sell_to_other">
-		La parcelle sélectionnée doit déjà être vendue à quelqu&apos;un d&apos;autre.
+		La parcelle sélectionnée est déjà mise en vente à quelqu&apos;un d&apos;autre.
 	</text>
 	<text name="no_public_land">
-		Il n&apos;y a pas de terrain public dans cette zone.
+		La zone sélectionnée ne comprend pas de terrain public.
 	</text>
 	<text name="not_owned_by_you">
-		Le terrain sélectionné appartient à quelqu&apos;un d&apos;autre. 
-Sélectionnez une zone plus petite.
+		Vous avez sélectionné un terrain appartenant à un autre utilisateur.
+Essayez de sélectionner une zone plus petite.
 	</text>
 	<text name="processing">
-		Achat en cours de traitement...
+		Traitement de l&apos;achat en cours...
  
-(Veuillez patienter quelques instants.)
+(Ceci peut prendre 1 ou 2 mn.)
 	</text>
 	<text name="fetching_error">
-		Une erreur s&apos;est produite pendant le traitement de l&apos;achat du terrain.
+		Une erreur s&apos;est produite lors de l&apos;accès aux informations de vente du terrain.
 	</text>
 	<text name="buying_will">
-		Si vous achetez ce terrain :
+		Acheter ce terrain aura pour effet :
 	</text>
 	<text name="buying_for_group">
-		Achat de terrain pour le groupe :
+		Achat de terrain pour un groupe :
 	</text>
 	<text name="cannot_buy_now">
-		Impossible d&apos;acheter maintenant :
+		Achat actuellement impossible :
 	</text>
 	<text name="not_for_sale">
-		Pas à vendre :
+		Pas à vendre :
 	</text>
 	<text name="none_needed">
-		aucun besoin
+		non requis
 	</text>
 	<text name="must_upgrade">
-		Pour posséder du terrain, vous devez avoir un niveau de compte supérieur.
+		Vous devez changer de type de compte pour posséder du terrain.
 	</text>
 	<text name="cant_own_land">
-		Avec votre compte, vous pouvez posséder du terrain.
+		Votre compte vous permet de posséder du terrain.
 	</text>
 	<text name="first_purchase">
 		Ceci est votre première acquisition de terrain, 
@@ -188,43 +188,46 @@ parcelle n&apos;est pas réservée aux nouveaux acheteurs.  Vous devriez
 peut-être chercher une parcelle &apos;Premier Terrain&apos; moins chère.
 	</text>
 	<text name="land_holdings">
-		Vous possédez un terrain de [BUYER] mètres carrés.
+		Vous possédez [BUYER] m2 de terrain.
 	</text>
 	<text name="pay_to_for_land">
-		Payez [AMOUNT] $L à [SELLER] pour ce terrain
+		Payer L$ [AMOUNT] à [SELLER] pour ce terrain
 	</text>
 	<text name="buy_for_US">
-		Acheter [AMOUNT] $L pour environ [AMOUNT2] $US,
+		Acheter L$ [AMOUNT] pour environ US$ [AMOUNT2] ,
 	</text>
 	<text name="parcel_meters">
-		Cette parcelle fait [AMOUNT] mètres carrés.
+		Cette parcelle a une superficie de [AMOUNT] m2.
 	</text>
 	<text name="premium_land">
-		Ce terrain est premium et les frais associés sont de [AMOUNT]/m².
+		Ce terrain est &apos;premium&apos;, et d&apos;une surface facturable de [AMOUNT] m2.
 	</text>
 	<text name="discounted_land">
-		Ce terrain est en solde et les frais associés sont de [AMOUNT]/m².
+		Ce terrain est &apos;discount&apos;, et d&apos;une surface facturable [AMOUNT] m2.
 	</text>
 	<text name="meters_supports_object">
-		[AMOUNT] m² peuvent prendre en charge [AMOUNT2] objets
+		[AMOUNT] m2
+peuvent héberger [AMOUNT2] objets
 	</text>
 	<text name="sold_with_objects">
-		vendu avec objets
+		vendu avec les objets
 	</text>
 	<text name="insufficient_land_credits">
-		Ce groupe, [GROUP], aura besoin de suffisamment de crédit pour payer les frais d&apos;occupation de terrain avant que l&apos;achat de cette parcelle ne soit finalisé.
+		Le groupe [GROUP] devra recevoir des contribution de terrain suffisantes
+pour couvrir la valeur de cette parcelle avant que cette acquisition
+ne soit validée.
 	</text>
 	<text name="have_enough_lindens">
-		Vous avez [AMOUNT]$L, ce qui est suffisant pour acheter ce terrain.
+		Vous avez L$ [AMOUNT], montant suffisant pour acheter ce terrain.
 	</text>
 	<text name="not_enough_lindens">
-		Vous n&apos;avez que [AMOUNT] $L et vous avez besoin de [AMOUNT2] $L de plus.
+		Vous n&apos;avez que L$ [AMOUNT], il vous manque L$ [AMOUNT2].
 	</text>
 	<text name="balance_left">
-		Après cet achat, il vous restera [AMOUNT] $L.
+		Après cet achat, il vous restera L$ [AMOUNT].
 	</text>
 	<text name="balance_needed">
-		Pour avoir les moyens d&apos;acquérir ce terrain, vous devez acheter au moins [AMOUNT] $L.
+		Vous devez acheter au moins L$ [AMOUNT] pour pouvoir acquérir ce terrain.
 	</text>
 	<string name="no_parcel_selected">
 		(aucune parcelle sélectionnée)

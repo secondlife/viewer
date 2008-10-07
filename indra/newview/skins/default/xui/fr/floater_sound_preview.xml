@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater name="Name/Description" title="sound.wav">
 	<text name="name_label">
-		Nom :
+		Nom :
 	</text>
 	<text name="description_label">
 		Description :
 	</text>
 	<button label="Annuler" label_selected="Annuler" name="cancel_btn" />
-	<button label="Charger (10 $L)" label_selected="Charger (10 $L)" name="ok_btn" />
+	<button label="Uploader (L$10)" label_selected="Uploader (L$10)" name="ok_btn" />
 	<text name="text">
 		Débit (kbps) :
 	</text>

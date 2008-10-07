@@ -1,51 +1,48 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<panel label="Débugger" name="Debug">
+<panel label="Debug" name="Debug">
 	<text name="region_text_lbl">
 		Région :
 	</text>
 	<text name="region_text">
-		(inconnue)
+		inconnu
 	</text>
 	<check_box label="Désactiver les scripts" name="disable_scripts_check"
 	     tool_tip="Désactiver tous les scripts dans cette région" />
 	<button label="?" name="disable_scripts_help" />
-	<check_box label="Désactiver les collisions" name="disable_collisions_check"
-	     tool_tip="Désactiver les collisions entre non-avatars dans cette région" />
+	<check_box label="Désactiver collisions" name="disable_collisions_check"
+	     tool_tip="Désactiver les collisions de non-avatars dans cette région." />
 	<button label="?" name="disable_collisions_help" />
-	<check_box label="Désactiver les propriétés physiques" name="disable_physics_check"
-	     tool_tip="Désactiver toutes les propriétés physiques dans cette région" />
+	<check_box label="Désactiver Physiques" name="disable_physics_check"
+	     tool_tip="Désactiver toutes physiques dans cette région" />
 	<button label="?" name="disable_physics_help" />
 	<button label="Appliquer" name="apply_btn" />
 	<line_editor name="target_avatar_name">
 		(aucun)
 	</line_editor>
-	<button label="Choisir..." name="choose_avatar_btn" />
+	<button label="Choisir Avatar..." name="choose_avatar_btn" />
 	<button
 	     label="Renvoyer les objets scriptés de l&apos;avatar vers une propriété tierce"
 	     name="return_scripted_other_land_btn" />
 	<button label="Renvoyer TOUS les objets scriptés de l&apos;avatar"
 	     name="return_scripted_all_btn" />
-	<check_box label="Ne renvoyer que les objets avec des scripts" name="return_scripts"
-	     tool_tip="Ne renvoyer que les objets avec des scripts." />
-	<check_box
-	     label="Ne renvoyer que les objets sur le terrain de quelqu&apos;un d&apos;autre"
+	<check_box label="Ne rendre que les objets avec des scripts" name="return_scripts"
+	     tool_tip="Ne rendre que les objets qui ont des scripts." />
+	<check_box label="Ne rendre que les objets sur le terrain de quelqu&apos;un d&apos;autre"
 	     name="return_other_land"
-	     tool_tip="Ne renvoyer que les objets se trouvant sur le terrain de quelqu&apos;un d&apos;autre" />
-	<check_box label="Renvoyer les objets dans toutes les régions de ce domaine"
+	     tool_tip="Ne rendre que les objets se trouvant sur le terrain de quelqu&apos;un d&apos;autre" />
+	<check_box label="Rendre les objets dans toutes les régions de ce domaine"
 	     name="return_estate_wide"
-	     tool_tip="Renvoyer les objets dans toutes les régions qui constituent ce domaine" />
-	<button label="Renvoyer" name="return_btn" />
-	<button label="Afficher les objets souvent responsables de collision..."
-	     name="top_colliders_btn"
-	     tool_tip="Liste des objets avec le plus de collisions potentielles" />
+	     tool_tip="Rendre les objets dans toutes les régions qui constituent ce domaine" />
+	<button label="Rendre" name="return_btn" />
+	<button label="Afficher les Top Colliders..." name="top_colliders_btn"
+	     tool_tip="Liste d&apos;objets les plus exposés aux collisions potentielles" />
 	<button label="?" name="top_colliders_help" />
-	<button label="Afficher les objets exécutant le plus de scripts..."
-	     name="top_scripts_btn"
-	     tool_tip="Liste des objets qui passent le plus de temps à exécuter des scripts" />
+	<button label="Afficher les Top Scripts..." name="top_scripts_btn"
+	     tool_tip="Liste d&apos;objets les plus occupés à exécuter des scripts" />
 	<button label="?" name="top_scripts_help" />
-	<button label="Redémarrer la région" name="restart_btn"
-	     tool_tip="Redémarrer la région au bout de 2 minutes" />
+	<button label="Redémarrer région" name="restart_btn"
+	     tool_tip="Démarrez un compte à rebours de 2 minutes et redémarrez la région" />
 	<button label="?" name="restart_help" />
-	<button label="Retarder le redémarrage" name="cancel_restart_btn"
-	     tool_tip="Retarder le redémarrage de la région d&apos;une heure" />
+	<button label="Annuler redémarrage" name="cancel_restart_btn"
+	     tool_tip="Annuler redémarrage de la région" />
 </panel>

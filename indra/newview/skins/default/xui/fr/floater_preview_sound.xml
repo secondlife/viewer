@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="preview_sound">
+<floater name="preview sound" title="Son : Boo Female 2">
 	<text type="string" length="1" name="desc txt">
 		Description :
 	</text>
-	<button label="Jouer dans le Monde" label_selected="Jouer dans le Monde"
-	     name="Sound play btn"
-	     tool_tip="Jouer ce son et partagez-le avec d&apos;autres." width="125" left_delta="-136"/>
-	<button label="Jouer localement" label_selected="Jouer localement"
-	     name="Sound audition btn"
-	     tool_tip="Jouer ce son et soyez le seul à l&apos;entendre." width="125" left="162"/>
+	<button label="Exécuter dans le monde" label_selected="Exécuter dans le monde"
+	     name="Sound play btn" tool_tip="Jouer ce son publiquement." />
+	<button label="Exécuter localement" label_selected="Exécuter localement"
+	     name="Sound audition btn" tool_tip="Jouer ce son localement." />
 </floater>

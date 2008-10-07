@@ -81,7 +81,7 @@ protected:
 	void agentFly(F32 inc);
 	void agentRotate(F32 pitch_inc, F32 turn_inc);
     void agentJump();
-	void resetDeltas(S32 axis[]);
+	void resetDeltas(S32 axis[], bool flycam_and_build = false);
 #if LIB_NDOF
 	static NDOF_HotPlugResult HotPlugAddCallback(NDOF_Device *dev);
 	static void HotPlugRemovalCallback(NDOF_Device *dev);

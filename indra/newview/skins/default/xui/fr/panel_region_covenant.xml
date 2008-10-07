@@ -1,50 +1,52 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<panel label="Règlement" name="Covenant">
+<panel label="Clause de sauvegarde" name="Covenant">
 	<text name="covenant_help_text">
-		Les changements apportés au règlement apparaîtront sur toutes les parcelles du domaine.
+		Les modifications d&apos;informations de clause de sauvegarde apparaîtront sur toutes les parcelles du domaine.
 	</text>
 	<text name="region_name_lbl">
 		Région :
 	</text>
 	<text name="region_name_text">
-		(inconnue)
+		(inconnu)
 	</text>
 	<text name="estate_name_lbl">
-		Domaine :
+		Domaine :
 	</text>
 	<text name="estate_name_text">
 		(inconnu)
 	</text>
 	<text name="covenent_instructions">
-		Pour modifier le règlement de ce domaine, glissez-déposez une note.
+		Glissez-déposez une note
+pour modifier la Clause de sauvegarde
+de ce domaine.
 	</text>
 	<button label="?" name="covenant_help" />
-	<button label="Redéfinir" name="reset_covenant" />
+	<button label="Réinitialiser" name="reset_covenant" />
 	<text name="estate_owner_lbl">
-		Propriétaire :
+		Propriétaire :
 	</text>
 	<text name="estate_owner_text">
 		(inconnu)
 	</text>
 	<text name="resellable_clause">
-		Le terrain acheté dans cette région peut être revendu ou pas.
+		Les terrains acquis dans cette région peuvent ou ne peuvent pas être revendus.
 	</text>
 	<text name="changeable_clause">
-		Le terrain acheté dans cette région peut être fusionné/divisé ou pas.
+		Les terrains acquis dans cette région peuvent ou ne peuvent pas être fusionnés ou subdivisés.
 	</text>
 	<text_editor name="covenant_editor">
 		Chargement en cours...
 	</text_editor>
 	<text name="can_resell">
-		Le terrain acheté dans cette région peut être revendu.
+		Les terrains acquis dans cette région peuvent être revendus.
 	</text>
 	<text name="can_not_resell">
-		Le terrain acheté dans cette région ne peut pas être revendu.
+		Les terrains acquis dans cette région ne peuvent être revendus.
 	</text>
 	<text name="can_change">
-		Le terrain acheté dans cette région peut être fusionné ou divisé.
+		Les terrains acquis dans cette région peuvent être fusionnés ou subdivisés.
 	</text>
 	<text name="can_not_change">
-		Le terrain acheté dans cette région ne peut pas être fusionné ou divisé.
+		Les terrains acquis dans cette région ne peuvent être fusionnés ou subdivisés.
 	</text>
 </panel>

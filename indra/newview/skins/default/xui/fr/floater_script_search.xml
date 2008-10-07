@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater name="script search" title="Recherche de scripts">
-	<check_box label="Non sensible à la casse" name="case_text" />
+	<check_box label="Insensible à la casse" name="case_text" />
 	<button label="Rechercher" label_selected="Rechercher" name="search_btn" />
 	<button label="Remplacer" label_selected="Remplacer" name="replace_btn" />
 	<button label="Tout remplacer" label_selected="Tout remplacer" name="replace_all_btn" />

@@ -1,188 +1,189 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <role_actions>
 	<action_set
-	     description="Ces pouvoirs permettent d&apos;ajouter et de supprimer des membres du groupe et permettent aux nouveaux membres de rejoindre le groupe sans recevoir d&apos;invitation."
+	     description="Ces Facultés confèrent le pouvoir d&apos;ajouter et supprimer des Membres du groupe, et d&apos;autoriser de nouveaux Membres à s&apos;inscrire sans invitation."
 	     name="Membership">
-		<action description="Inviter des membres dans ce groupe"
-		     longdescription="Invitez des membres à rejoindre ce goupe en utilisant le bouton Inviter nouvelle personne à partir de l&apos;onglet Membres et rôles &gt; Membres."
+		<action description="Inviter quelqu&apos;un dans ce groupe"
+		     longdescription="Invitez des personnes dans ce Groupe à l&apos;aide du bouton &apos;Inviter&apos; dans l&apos;onglet Membres &amp; Rôles &gt; sous-onglet Membres."
 		     name="member invite" value="1" />
-		<action description="Expulser des membres de ce groupe"
-		     longdescription="Expulsez des membres de ce goupe en utilisant le bouton Expulser du groupe à partir de l&apos;onglet Membres et rôles &gt; Membres. Un propriétaire peur expulser n&apos;importe qui sauf un autre propriétaire. Si vous n&apos;êtes pas propriétaire, notez qu&apos;un membre peut être expulsé d&apos;un groupe uniquement s&apos;il se trouve dans le rôle Tous et dans aucun autre rôle. Pour supprimer des rôles, vous devez avoir le pouvoir de retirer des rôles aux membres."
+		<action description="Ejecter des Membres du Groupe"
+		     longdescription="Ejectez des Membres de ce groupe à l&apos;aide du bouton &apos;Ejecter du groupe&apos; dans l&apos;onglet Membres &amp; Rôles &gt; Membres. Un propriétaire peut éjecter tout le monde, sauf un autre propriétaire. Si vous n&apos;êtes pas propriétaire, vous pouvez éjecter un Membre si et seulement si il est dans le Rôle &apos;Tout le monde&apos; et AUCUN autre.Pour destituer des Membres d&apos;un Rôle, vous devez disposer de la Faculté &apos;Destituer Membres d&apos;un Rôle&apos;."
 		     name="member eject" value="2" />
 		<action
-		     description="Mettre l&apos;inscription libre en mode bascule et changer les frais d&apos;inscription."
-		     longdescription="Mettez Inscription libre en mode bascule pour permettre aux nouveaux membres de rejoindre le groupe sans invitation et modifiez Frais d&apos;inscription dans les Préférences du groupe, sous l&apos;onglet Général."
+		     description="Basculer &apos;Inscription libre&apos; et modifier &apos;Frais d&apos;inscription&apos;"
+		     longdescription="Basculez &apos;Inscription libre&apos; pour permettre à de nouveaux Membres de s&apos;inscrire sans invitation, et modifiez &apos;Frais d&apos;inscription&apos; dans les Préférences du Groupe, onglet Général."
 		     name="member options" value="3" />
 	</action_set>
 	<action_set
-	     description="Ces pouvoirs permettent d&apos;ajouter, supprimer et modifier les rôles dans le groupe, d&apos;ajouter et de supprimer des membres affectés à ces rôles et d&apos;assigner des pouvoirs aux rôles."
+	     description="Ces Facultés confèrent le pouvoir d&apos;ajouter, supprimer et modifier les Rôles dans le groupe, d&apos;ajouter et supprimer des Membres affectés à des Rôles, et d&apos;attribuer des Facultés aux Rôles."
 	     name="Roles">
-		<action description="Créer des rôles"
-		     longdescription="Créez de nouveaux rôles à l&apos;onglet Membres et rôles, sous-onglet Rôles."
+		<action description="Créer de nouveaux rôles"
+		     longdescription="Créez de nouveaux Rôles dans l&apos;onglet &apos;Membres et Rôles&apos; &gt; sous-onglet Rôles."
 		     name="role create" value="4" />
-		<action description="Supprimer des rôles"
-		     longdescription="Supprimez des rôles à l&apos;onglet Membres et rôles, sous-onglet Rôles."
+		<action description="Supprimer des Rôles"
+		     longdescription="Supprimez des Rôles dans l&apos;onglet Membres &amp; Rôles &gt; sous-onglet Rôles."
 		     name="role delete" value="5" />
-		<action description="Modifier les noms, titres et descriptions des rôles"
-		     longdescription="Modifiez les noms, titres et descriptions des rôles à l&apos;onglet Membres et rôles, sous-onglet Rôles, après avoir sélectionné un rôle."
+		<action description="Modifier les noms, titres et descriptions des Rôles"
+		     longdescription="Modifiez les noms, titres et descriptions des Rôles dans l&apos;onglet Membres et Rôles &gt; sous-onglet Rôles après avoir sélectionné un Rôle."
 		     name="role properties" value="6" />
-		<action description="Affecter des membres à des rôles d&apos;attribution"
-		     longdescription="Affectez des membres à des rôles dans la section Rôles attribués à l&apos;onglet Membres et rôles, sous-onglet Membres. Un membre disposant de ce pouvoir ne peut affecter de nouveaux membres qu&apos;à un rôle auquel il est lui même affecté."
+		<action description="Affecter des Membres à des rôles d&apos;attribution"
+		     longdescription="Affectez des Membres à des Rôles dans la section &apos;Rôles Attribués&apos; de l&apos;onglet Membres &amp; Rôles &gt; sous-onglet Membres. Un Membre disposant de ce pouvoir ne peut affecter de nouveaux membres qu&apos;à un rôle auquel il est lui-même affecté."
 		     name="role assign member limited" value="7" />
-		<action description="Affecter des membres à tous types de rôles"
-		     longdescription="Affectez des membres à tous types de rôles dans la section Rôles attribués à l&apos;onglet Membres et rôles, sous-onglet Membres. Avertissement : tout membre disposant de ce pouvoir peut s&apos;affecter lui-même, ainsi que tout autre membre non-propriétaire du groupe, à des rôles disposant de facultés plus importantes, et accéder potentiellement à des pouvoirs proches de ceux d&apos;un propriétaire. Assurez-vous de bien comprendre ce que vous faites avant d&apos;attribuer ce pouvoir."
+		<action description="Affecter des Membres à tous types de Rôles"
+		     longdescription="Affectez des Membres à tous types de rôles dans la section &apos;Rôles Attribués&apos; de l&apos;onglet Membres &amp; Rôles &gt; sous-onglet Membres. *AVERTISSEMENT* Tout membre disposant de cette faculté peut s&apos;affecter lui-même --ainsi que tout autre Membre non-propriétaire du groupe-- à des Rôles disposant de pouvoirs plus grands, et accéder potentiellement à des pouvoirs proches de ceux d&apos;un propriétaire. Assurez-vous de savoir ce que vous faites avant d&apos;attribuer cette Faculté."
 		     name="role assign member" value="8" />
-		<action description="Destituer des membres de leurs rôles"
-		     longdescription="Destituez des membres de leurs rôles dans la section Rôles attribués à l&apos;onglet Membres et rôles, sous-onglet Membres. Les propriétaires ne peuvent pas être destitués."
+		<action description="Destituer des Membres de leurs Rôles"
+		     longdescription="Retirez des Membres de Rôles dans la section Rôles Attribués de l&apos;onglet Membres &amp; Rôles &gt; sous-onglet Membres. Les Propriétaires ne peuvent être retirés."
 		     name="role remove member" value="9" />
-		<action description="Attribuer et retirer les pouvoirs d&apos;un rôle"
-		     longdescription="Attribuez et retirez les pouvoirs d&apos;un rôle à partir de la section Pouvoirs attribués à l&apos;onglet Membres et rôles, sous-onglet Rôles. Avertissement : tout membre dans un rôle avec ce pouvoir peut s&apos;attribuer à lui-même, ainsi qu&apos;à tout autre membre non-propriétaire du groupe, Tous les pouvoirs, et accéder potentiellement à des pouvoirs proches de ceux d&apos;un propriétaire. Assurez-vous de bien comprendre ce que vous faites avant d&apos;attribuer ce pouvoir."
+		<action description="Attribuer et retirer des Facultés d&apos;un Rôle"
+		     longdescription="Attribuez et retirez des Facultés de Rôles dans la section Facultés Attribuées de l&apos;onglet Membres &amp; Rôles &gt; sous-onglet Rôles. *AVERTISSEMENT* Tout membre disposant de cette faculté peut s&apos;affecter lui-même --ainsi que tout autre Membre non-propriétaire du groupe-- à des Rôles disposant de pouvoirs plus grands, et accéder potentiellement à des pouvoirs proches de ceux d&apos;un propriétaire. Assurez-vous de savoir ce que vous faites avant d&apos;attribuer cette Faculté."
 		     name="role change actions" value="10" />
 	</action_set>
 	<action_set
-	     description="Ces pouvoirs permettent de modifier l&apos;identité du groupe, et donc sa visibilité publique, sa charte et son emblème."
+	     description="Ces Facultés confèrent le pouvoir de modifier l&apos;identité du Groupe, c&apos;est-à-dire sa visibilité publique, sa charte et son insigne."
 	     name="Group Identity">
 		<action
-		     description="Modifier la charte, l&apos;emblème, les résultats dans la recherche, et quels membres apparaissent dans les Informations du groupe."
-		     longdescription="Modifier la charte, l&apos;emblème, les résultats dans la recherche, et quels membres apparaissent dans les Informations du groupe. Ces opérations s&apos;effectuent à l&apos;onglet Général."
+		     description="Modifier la Charte, l&apos;Insigne, &apos;Publier sur le web&apos;, et quels Membres apparaissent dans les Informations du Groupe"
+		     longdescription="Modifiez la Charte, l&apos;Insigne, &apos;Publier sur le web&apos; et la visibilité publique des Membres dans les Informations du Groupe. Ces opérations s&apos;effectuent dans l&apos;onglet Général."
 		     name="group change identity" value="11" />
 	</action_set>
 	<action_set
-	     description="Ces pouvoirs permettent de transférer, modifier et vendre du terrain appartenant au patrimoine du groupe. Pour accéder au menu du terrain, cliquez à droite sur le sol et sélectionnez À propos du terrain, ou bien cliquez sur les infos de la parcelle dans la barre de menus."
+	     description="Ces Facultés confèrent le pouvoir de transférer, modifier, et vendre du terrain appartenant au patrimoine du Groupe. Pour accéder au menu du terrain, cliquez-droit sur le sol et sélectionnez &apos;A propos du terrain...&apos;, ou cliquez sur l&apos;info de parcelle dans la barre de menus."
 	     name="Parcel Management">
 		<action description="Transférer du terrain et acheter du terrain pour le groupe"
-		     longdescription="Transférez du terrain et achetez du terrain pour le groupe Ces opérations s&apos;effectuent à partir de À propos du terrain &gt; Général."
+		     longdescription="Transférez du terrain et achetez du terrain pour le compte d&apos;un groupe. Ces opérations s&apos;effectuent dans &apos;A propos du terrain&apos; &gt; onglet Général."
 		     name="land deed" value="12" />
-		<action description="Céder le terrain au Governor Linden"
-		     longdescription="Cédez le terrain au Governor Linden. Avertissement : seul un membre dont le rôle lui confère ce pouvoir peut céder son terrain à la section À propos du terrain, onglet Général, le rendant ainsi au patrimoine des Linden sans le vendre ! Assurez-vous de bien comprendre ce que vous faites avant d&apos;attribuer ce pouvoir."
+		<action description="Céder terrain au Gouverneur Linden"
+		     longdescription="Céder terrain au Gouverneur Linden. *AVERTISSEMENT* Tout Membre disposant de cette Faculté peut céder du terrain dans &apos;A propos du terrain&apos; &gt; onglet Général, et rétrocéder la propriété aux Linden sans effectuer de vente ! Assurez-vous de savoir ce que vous faites avant d&apos;attribuer cette Faculté."
 		     name="land release" value="13" />
-		<action description="Infos sur la mise en vente du terrain"
-		     longdescription="Infos sur la mise en vente du terrain. Avertissement : seul un membre dans un rôle avec ce pouvoir peut vendre un terrain possédé par le groupe à la section À propos du terrain &gt; Général. Assurez-vous de bien comprendre ce que vous faites avant d&apos;attribuer ce pouvoir."
+		<action description="Définir des infos de vente de terrain"
+		     longdescription="Définissez les informations de vente du terrain. *AVERTISSEMENT* Tout Membre dans un Rôle avec cette Faculté peut vendre du terrain appartenant au groupe dans &apos;A propos du Terrain&apos; &gt; onglet General quand il le souhaite ! Assurez-vous de savoir ce que vous faites avant d&apos;attribuer cette Faculté."
 		     name="land set sale info" value="14" />
-		<action description="Diviser et fusionner des parcelles"
-		     longdescription="Divisez et fusionnez des parcelles Pour cela, cliquez à droite sur le sol, sélectionnez Modifier le terrain, et faites glisser votre souris sur l&apos;endroit du terrain que vous souhaitez modifier.  Pour sous-diviser le terrain, sélectionnez un endroit puis cliquez sur Diviser... Pour fusionner des parcelles, sélectionnez au moins deux parcelles adjacentes et cliquez sur Fusionner. "
+		<action description="Subdiviser et fusionner des parcelles"
+		     longdescription="Subdivide and join parcels. This is done by right-clicking the ground, &apos;Edit Terrain&apos;, and dragging your mouse on the land to make a selection. To subdivide, select what you want to split and click &apos;Subdivide...&apos;. To join, select two or more contiguous parcels and click &apos;Join...&apos;. "
 		     name="land divide join" value="15" />
 	</action_set>
 	<action_set
-	     description="Ces pouvoirs permettent de modifier le nom de la parcelle, la visibilité dans l&apos;annuaire et les options de routage et de téléportation."
+	     description="Ces Facultés confèrent le pouvoir de modifier le nom de la parcelle et les réglages de confidentialité, la visibilité dans l&apos;annuaire, le point d&apos;atterrissage et les options de routage de téléportation."
 	     name="Parcel Identity">
 		<action
-		     description="Mettre Afficher dans la recherche d&apos;endroits en mode bascule et définir une catégorie."
-		     longdescription="Mettez Afficher dans la recherche d&apos;endroits en mode bascule et définissez une catégorie pour la parcelle dans À propos du terrain &gt; Options."
+		     description="Basculer &apos;Afficher dans Rechercher un lieu&apos; et définir une catégorie"
+		     longdescription="Basculez &apos;Afficher dans Rechercher un Lieu&apos; et définissez une catégorie pour la parcelle dans &apos;A propos du Terrain&apos; &gt; onglet Options."
 		     name="land find places" value="17" />
 		<action
-		     description="Modifier le nom de la parcelle, la description et les paramètres d&apos;affichage dans la recherche"
-		     longdescription="Modifiez le nom de la parcelle, la description et les paramètres d&apos;affichage dans les résultats de recherche. Ces opérations s&apos;effectuent à partir de À propos du terrain &gt;  Options."
+		     description="Modifier le nom et la description de la parcelle, et les réglages de &apos;Publier sur le web&apos;"
+		     longdescription="Modifiez le nom de la parcelle, sa description et les réglages de &apos;Publier sur le web&apos;. Ces modifications s&apos;effectuent dans &apos;A propos du terrain&apos;, onglet Options."
 		     name="land change identity" value="18" />
 		<action
-		     description="Définir le lieu d&apos;arrivée et le routage de téléportation "
-		     longdescription="Sur une parcelle appartenant au groupe, les membres ayant un rôle avec ce pouvoir peuvent définir le lieu d&apos;arrivée des téléportations et définir le routage des téléportations pour plus de contrôle. Ces opérations s&apos;effectuent à partir de À propos du terrain, onglet Options."
+		     description="Définir le point d&apos;atterrissage et le routage de téléportation"
+		     longdescription="Sur une parcelle appartenant au groupe, les Membres dans un Rôle avec cette Faculté peuvent définir un point d&apos;atterrissage pour les téléportations entrantes, et définir le routage de téléportation pour plus de contrôle. Ceci s&apos;effectue dans A propos du Terrain &gt; onglet Options."
 		     name="land set landing point" value="19" />
 	</action_set>
 	<action_set
-	     description="Ces pouvoirs permettent de contrôler les options de la parcelle, telles que l&apos;option Créer des objets ou Modifier le terrain, ainsi que les paramètres de musique et de médias."
+	     description="Ces Facultés confèrent des pouvoirs sur les options de la parcelle, comme &apos;Créer objets&apos;, &apos;Modifier Relief&apos;, ainsi que les réglages audio et vidéo."
 	     name="Parcel Settings">
-		<action description="Modifier les paramètres de musique et médias"
-		     longdescription="Modifiez les paramètres de flux musicaux et vidéos à partir de la section À propos du terrain, onglet Média."
+		<action description="Modifier les réglages de la musique et des media"
+		     longdescription="Modifiez les réglages des flux audio et vidéo dans &apos;A propos du terrain&apos; &gt; onglet Media."
 		     name="land change media" value="20" />
-		<action description="Mettre la section Modifier le terrain en mode bascule"
-		     longdescription="Mettez la section Modifier le terrain en mode bascule. Avertissement : la section À propos du terrain &gt; Options &gt; Modifier le terrain permet à tout le monde de terraformer votre terrain, disposer des plantes Linden et les déplacer. Assurez-vous de bien comprendre ce que vous faites avant d&apos;attribuer ce pouvoir. Ces opérations s&apos;effectuent à partir de À propos du terrain &gt; Options."
+		<action description="Basculer &apos;Modifier relief&apos;"
+		     longdescription="Basculez &apos;Modifier Relief&apos;. *AVERTISSEMENT* A propos du Terrain &gt; onglet Options &gt; Modifier Relief permet à tout le monde de terraformer votre terrain, disposer et déplacer des plantes Linden. Assurez-vous de savoir ce que vous faites avant d&apos;attribuer cette Faculté. Modifier Terrain s&apos;effectue dans A propos du terrain &gt; onglet Options."
 		     name="land edit" value="21" />
-		<action
-		     description="Mettre en bascule divers paramètres À propos du terrain &gt; Options"
-		     longdescription="Mettre en bascule Sécurisé (pas de dégâts) et Voler, et permettre aux autres résidents de : Créer des objets, Modifier le terrain, Créer des repères et Lancer des scripts sur des terrains appartenant au groupe, à partir de la section À propos du terrain &gt; Options."
+		<action description="Basculer divers réglages de A propos du Terrain &gt; Options"
+		     longdescription="Basculez &apos;Sans danger (pas de dégâts)&apos;, &apos;Voler&apos;, et autorisez d&apos;autres résidents à : &apos;Créer des objets&apos;, &apos;Modifier le Relief&apos;, &apos;Créer un repère&apos;, et &apos;Exécuter des Scripts&apos; sur un terrain appartenant au Groupe dans &apos;A propos du Terrain&apos; &gt; onglet Options."
 		     name="land options" value="22" />
 	</action_set>
 	<action_set
-	     description="Ces pouvoirs permettent aux membres d&apos;outrepasser les restrictions sur les parcelles appartenant à un groupe."
+	     description="Ces Facultés confèrent des pouvoirs qui permettent aux Membres de contourner les restrictions sur des parcelles appartenant à un groupe."
 	     name="Parcel Powers">
-		<action description="Toujours autoriser Modifier le terrain"
-		     longdescription="Les membres dans un rôle leur conférant ce pouvoir peuvent modifier le terrain d&apos;une parcelle appartenant au groupe, même si l&apos;option est désactivée dans la section À propos du terrain &gt; Options."
+		<action description="Toujours autoriser &apos;Modifier relief&apos;"
+		     longdescription="Les Membres dans un Rôle avec cette Faculté peuvent modifier le relief d&apos;une parcelle de groupe, même si l&apos;option est désactivée dans A Propos du Terrain &gt; onglet Options."
 		     name="land allow edit land" value="23" />
-		<action description="Toujours autoriser à voler"
-		     longdescription="Les membres dans un rôle leur conférant ce pouvoir peuvent voler sur une parcelle appartenant au groupe, même si l&apos;option est désactivée dans la section À propos du terrain &gt; Options."
+		<action description="Toujours autoriser le vol"
+		     longdescription="Les Membres dans un Rôle avec cette Faculté peuvent voler sur une parcelle de groupe, même si le vol est désactivé dans A Propos du Terrain &gt; onglet Options."
 		     name="land allow fly" value="24" />
-		<action description="Toujours autoriser à créer des objets"
-		     longdescription="Les membres dans un rôle leur conférant ce pouvoir peuvent créer des objets sur une parcelle appartenant au groupe, même si l&apos;option est désactivée dans la section À propos du terrain &gt; Options."
+		<action description="Toujours autoriser &apos;Créer objets&apos;"
+		     longdescription="Les Membres dans un Rôle avec cette Faculté peuvent créer des objets sur une parcelle de groupe, même si l&apos;option est désactivée dans A Propos du Terrain &gt; onglet Options."
 		     name="land allow create" value="25" />
-		<action description="Toujours autoriser à créer des repères"
-		     longdescription="Les membres dans un rôle leur conférant ce pouvoir peuvent créer un repère sur une parcelle appartenant au groupe, même si l&apos;option est désactivée dans la section À propos du terrain &gt; Options."
+		<action description="Toujours autoriser &apos;Créer repère&apos;"
+		     longdescription="Les Membres dans un Rôle avec cette Faculté peuvent créer un repère sur une parcelle de groupe, même si l&apos;option est désactivée dans A Propos du Terrain &gt; onglet Options."
 		     name="land allow landmark" value="26" />
-		<action description="Autoriser à définir un domicile ici sur le terrain du groupe"
-		     longdescription="Les membres dans un rôle leur conférant ce pouvoir peuvent utiliser le menu Monde &gt; Définir comme domicile sur une parcelle transférée à ce groupe."
+		<action
+		     description="Autoriser &apos;Définir son domicile ici&apos; sur le terrain du groupe"
+		     longdescription="Les Membres dans un Rôle avec cette Faculté peuvent utiliser le menu Monde &gt; Définir Domicile Ici sur une parcelle de groupe (terrain attribué ou transféré au groupe)."
 		     name="land allow set home" value="28" />
 	</action_set>
 	<action_set
-	     description="Ces pouvoirs permettent d&apos;autoriser ou d&apos;interdire l&apos;accès à des parcelles appartenant au groupe, y compris de geler ou d&apos;expulser des résidents."
+	     description="Ces Facultés confèrent le pouvoir d&apos;autoriser ou restreindre l&apos;accès à des parcelles appartenant au Groupe, y compris de bloquer ou éjecter des résidents."
 	     name="Parcel Access">
 		<action description="Gérer les listes d&apos;accès à cette parcelle"
-		     longdescription="Gérez les listes d&apos;accès à la parcelle à partir de la section À propos du terrain &gt; Accès."
+		     longdescription="Gérez les listes d&apos;accès à la parcelle dans &apos;A propos du terrain&apos; &gt; Accès."
 		     name="land manage allowed" value="29" />
 		<action description="Gérer les listes noires de cette parcelle"
-		     longdescription="Gérez les listes de membres interdits sur la parcelle à partir de la section À propos du terrain &gt; Interdire."
+		     longdescription="Gérez les listes de bannissement de la parcelle dans &apos;A propos du terrain&apos; &gt; Bannir."
 		     name="land manage banned" value="30" />
-		<action description="Modifier les paramètres Vendre des passes sur cette parcelle"
-		     longdescription="Modifiez les paramètres Vendre des passes à la section À propos du terrain &gt; Accès."
+		<action
+		     description="Modifier réglages de &apos;Vendre des laissez-passer...&apos; sur cette parcelle"
+		     longdescription="Modifiez les réglages de &apos;Vendre des laissez-passer&apos; de la parcelle dans &apos;A propos du terrain&apos; &gt; onglet &apos;Accès&apos;."
 		     name="land manage passes" value="31" />
-		<action description="Expulser et geler des résidents sur les parcelles"
-		     longdescription="Les membres dans un rôle leur conférant ce pouvoir peuvent intervenir auprès d&apos;un résident indésirable en cliquant-droit sur lui &gt; Plus et en choisissant de les expulser ou de les geler."
+		<action description="Ejecter et bloquer des Résidents sur les parcelles"
+		     longdescription="Les Membres dans un Rôle avec cette Faculté peuvent intervenir auprès d&apos;un Résident indésirable sur une parcelle de groupe en cliquant-droit sur eux, Plus &gt;, et &apos;Ejecter...&apos; ou &apos;Bloquer...&apos;."
 		     name="land admin" value="32" />
 	</action_set>
 	<action_set
-	     description="Ces pouvoirs permettent d&apos;autoriser des membres à renvoyer des objets et de placer ou déplacer des plantes Linden. Ceci permet aux membres de jeter les déchets et d&apos;aménager le paysage. A utiliser avec précaution car les objets rendus le sont définitivement."
+	     description="Ces Facultés confèrent le pouvoir d&apos;autoriser les Membres à renvoyer des objets, placer et déplacer des plantes Linden. Ceci permet aux Membres de traiter les déchets et d&apos;aménager le paysage. A utiliser avec précaution, car les objets renvoyés le sont définitivement."
 	     name="Parcel Content">
-		<action description="Renvoyer les objets appartenant au groupe"
-		     longdescription="Renvoyez les objets sur des parcelles appartenant au groupe à la section À propos du terrain &gt; Objets."
+		<action description="Renvoyer des objets appartenant au groupe."
+		     longdescription="Renvoyez des objets sur des parcelles appartenant au groupe dans A propos du Terrain &gt; onglet Objets."
 		     name="land return group owned" value="48" />
-		<action description="Renvoyer les objets attribués au groupe"
-		     longdescription="Renvoyez les objets attribués au groupe et sur des parcelles appartenant au groupe à la section À propos du terrain &gt; Objets."
+		<action description="Renvoyer des objets attribués au groupe"
+		     longdescription="Renvoyez des objets sur des parcelles appartenant au groupe et attribuées au groupe dans A propos du Terrain &gt; onglet Objets."
 		     name="land return group set" value="33" />
-		<action description="Renvoyer des objets n&apos;appartenant pas au groupe"
-		     longdescription="Renvoyez les objets non attribués au groupe et sur des parcelles appartenant au groupe à la section À propos du terrain &gt; Objets."
+		<action description="Renvoyer des objets n&apos;appartenant pas au groupe."
+		     longdescription="Renvoyez des objets sur des parcelles appartenant au groupe et non attribuées au groupe dans A propos du Terrain &gt; onglet Objets."
 		     name="land return non group" value="34" />
 		<action description="Aménager le paysage avec des plantes Linden"
-		     longdescription="Le pouvoir de placer et de déplacer des arbres, plantes et pelouses Linden. Ces éléments sont disponibles dans le dossier Objets de la  bibiliothèque de votre inventaire ou peuvent être créés à l&apos;aide du bouton Construire."
+		     longdescription="Faculté de placer et déplacer des arbres, plantes et pelouses Linden. Ces eléments sont disponibles dans le dossier Objets de la Bibliothèque de votre Inventaire ou peuvent être créés à l&apos;aide du bouton Construire."
 		     name="land gardening" value="35" />
 	</action_set>
 	<action_set
-	     description="Ces pouvoirs permettent de transférer, modifier et vendre des objets appartenant au groupe. Ces changements se font à partir de la section Construire &gt; Modifier &gt; Général. Cliquez-droite sur un objet pour le modifier et afficher ses paramètres. "
+	     description="These Abilities include powers to deed, modify, and sell group-owned objects. These changes are done in the Edit Tools &gt; General Tab. Right-click an object and Edit to see its settings. "
 	     name="Object Management">
 		<action description="Transférer des objets au groupe"
-		     longdescription="Transférez des objets à un groupe à la section Construire &gt; Modifier &gt; Général."
+		     longdescription="Transférez des objets à un groupe dans Outils d&apos;Edition &gt; onglet Général."
 		     name="object deed" value="36" />
 		<action
 		     description="Manipuler (déplacer, copier, modifier) des objets appartenant au groupe"
-		     longdescription="Manipulez (déplacez, copiez, modifiez) des objets appartenant au groupe à la section Construire &gt; Modifier &gt; Général."
+		     longdescription="Manipulez (déplacez, copiez, modifiez) les objets appartenant au groupe dans Outils d&apos;Edition &gt; onglet Général."
 		     name="object manipulate" value="38" />
 		<action description="Mettre en vente des objets appartenant au groupe"
-		     longdescription="Définissez les objets du groupe à vendre à la section Construire &gt; Modifier &gt; Général."
+		     longdescription="Définissez les objets à vendre du groupe dans Outils d&apos;Edition &gt; onglet Général."
 		     name="object set sale" value="39" />
 	</action_set>
 	<action_set
-	     description="Les membres avec ces pouvoirs contribuent aux frais du groupe, reçoivent des dividendes et ont accès à l&apos;historique du compte du groupe."
+	     description="Ces Facultés confèrent des pouvoirs qui requièrent que les Membres paient les en-cours et reçoivent des dividendes du Groupe, ainsi que le pouvoir de restreindre l&apos;accès à l&apos;historique comptable du Groupe."
 	     name="Accounting">
-		<action description="Contribuer aux frais du groupe et recevoir des dividendes"
-		     longdescription="Les membres ayant ce pouvoir contribueront automatiquement aux frais du groupe et recevront aussi des dividendes. Cela signifie qu&apos;ils recevront une portion des ventes de terrains appartenant au groupe (distribuée quotidiennement) et contribueront aux frais divers, tels que les frais de mise en vente des terrains. "
+		<action description="Payer le passif du groupe et recevoir les dividendes du groupe"
+		     longdescription="Members in a Role with this Ability will automatically pay group liabilities and receive group dividends. This means they will receive a portion of group-owned land sales which are distributed daily, as well as contribute towards things like parcel listing fees. "
 		     name="accounting accountable" value="40" />
 	</action_set>
 	<action_set
-	     description="Ces pouvoirs permettent d&apos;envoyer, recevoir et consulter les notes du groupe."
+	     description="Ces Facultés confèrent le pouvoir d&apos;autoriser les Membres à envoyer, recevoir, et voir les Notifications de groupe."
 	     name="Notices">
-		<action description="Envoyer des notes"
-		     longdescription="Ces pouvoirs permettent d&apos;envoyer des notes à la section Infos du groupe &gt; Notes."
+		<action description="Envoyer des Notifications"
+		     longdescription="Les Membres dans un Rôle avec cette Faculté peuvent envoyer des Notifications dans Informations du Groupe &gt; onglet Notifications."
 		     name="notices send" value="42" />
-		<action description="Recevoir des notes et consulter les anciennes notes"
-		     longdescription="Ces pouvoirs permettent de recevoir des notes et de consulter d&apos;anciennes notes à la section Infos du groupe &gt; Notes."
+		<action description="Recevoir Notifications et voir Notifications passées"
+		     longdescription="Les Membres dans un Rôle avec cette Faculté peuvent recevoir les Notifications et afficher les Notifications passées dans Informations du Groupe &gt; onglet Notifications."
 		     name="notices receive" value="43" />
 	</action_set>
 	<action_set
-	     description="Ces pouvoirs permettent de créer de nouvelles propositions, de voter et de consulter l&apos;historique des votes."
+	     description="Ces Facultés confèrent le pouvoir d&apos;autoriser les Membres à soumettre des Propositions, les voter, et voir l&apos;historique des votes."
 	     name="Proposals">
 		<action description="Créer des propositions"
-		     longdescription="Ces pouvoirs permettent de créer des propositions et de les soumettre au vote, à partir de la section Infos du groupe &gt; Propositions."
+		     longdescription="Les Membres dans un Rôle avec cette Faculté peuvent créer des propositions à voter dans Informations du Groupe &gt; onglet Propositions."
 		     name="proposal start" value="44" />
 		<action description="Voter les propositions"
-		     longdescription="Ces pouvoirs permettent de voter des propositions à la section Infos du groupe &gt; Propositions."
+		     longdescription="Les Membres dans un Rôle avec cette Faculté peuvent voter les propositions dans Informations du Groupe &gt; onglet Propositions."
 		     name="proposal vote" value="45" />
 	</action_set>
 	<action_set

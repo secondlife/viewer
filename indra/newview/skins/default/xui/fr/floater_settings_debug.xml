@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="settings_debug" title="Paramétrages du mode Debug">
+<floater name="settings_debug" title="Réglages du mode Debug">
 	<combo_box name="boolean_combo">
 		<combo_item name="TRUE">
 			TRUE

@@ -41,7 +41,7 @@
 	<text length="1" name="text_box6" type="string">
 		Chat-Optionen:
 	</text>
-	<check_box label="Chat verwendet volle Bildbreite (Neustart erforderlich)" name="chat_full_width_check"/>
+	<check_box label="Chat verwendet volle Bildbreite (Neustart erforderlich)." name="chat_full_width_check"/>
 	<check_box label="Chatleiste nach Drücken der Eingabetaste schließen" name="close_chat_on_return_check"/>
 	<check_box label="Pfeiltasten bewegen immer den Avatar beim Chatten" name="arrow_keys_move_avatar_check"/>
 	<check_box label="Zeitstempel im lokalen Chat anzeigen" name="show_timestamps_check"/>

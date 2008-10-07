@@ -4,13 +4,13 @@
 		Région :
 	</text>
 	<text name="region_text">
-		(inconnue)
+		inconnu
 	</text>
 	<text name="base_texture_text">
 		Textures de base (fichiers 128x128, 24 bit .tga)
 	</text>
 	<text name="height_text_lbl">
-		1 (faible)
+		1 (Faible)
 	</text>
 	<text name="height_text_lbl2">
 		2
@@ -19,34 +19,34 @@
 		3
 	</text>
 	<text name="height_text_lbl4">
-		4 (élevé)
+		4 (Elevé)
 	</text>
 	<text name="detail_texture_text">
-		Textures du terrain (fichiers.tga 512 x 512, 24 bit requis)
+		Textures détaillées (fichiers 512x512, 24 bit .tga)
 	</text>
 	<text name="height_text_lbl5">
-		Limites d&apos;élévation de texture
+		1 (Faible)
 	</text>
 	<text name="height_text_lbl6">
-		Sud-ouest
+		2
 	</text>
 	<text name="height_text_lbl7">
-		Nord-ouest
+		3
 	</text>
 	<text name="height_text_lbl8">
-		Sud-est
+		4 (Elevé)
 	</text>
 	<text name="height_text_lbl9">
-		Nord-est
+		Limites d&apos;élévation de texture
 	</text>
 	<text name="height_text_lbl10">
-		Ces valeurs représentent les limites de mélange pour les textures ci-dessus.
+		Sud-ouest
 	</text>
 	<text name="height_text_lbl11">
-		En mètres, la valeur Bas correspond à la hauteur maximum de la texture n°1
+		Nord-ouest
 	</text>
 	<text name="height_text_lbl12">
-		et la valeur Haut correspond à la hauteur minimum de la texture n°4.
+		Sud-est
 	</text>
 	<text name="height_text_lbl13">
 		Nord-est
@@ -55,10 +55,10 @@
 	<spinner label="Bas" name="height_start_spin_1" />
 	<spinner label="Bas" name="height_start_spin_2" />
 	<spinner label="Bas" name="height_start_spin_3" />
-	<spinner label="Haut" name="height_range_spin_0" />
-	<spinner label="Haut" name="height_range_spin_1" />
-	<spinner label="Haut" name="height_range_spin_2" />
-	<spinner label="Haut" name="height_range_spin_3" />
+	<spinner label="Elevés" name="height_range_spin_0" />
+	<spinner label="Elevés" name="height_range_spin_1" />
+	<spinner label="Elevés" name="height_range_spin_2" />
+	<spinner label="Elevés" name="height_range_spin_3" />
 	<text name="height_text_lbl14">
 		Ces valeurs représentent les limites de mélange pour les textures ci-dessus.
 	</text>

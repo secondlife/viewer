@@ -1,97 +1,98 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater name="Animation Preview" title="">
 	<text name="name_label">
-		Nom :
+		Nom :
 	</text>
 	<text name="description_label">
 		Description :
 	</text>
 	<spinner label="Priorité" name="priority"
-	     tool_tip="Contrôle quelles animations peuvent êtres écrasées par cette animation." />
+	     tool_tip="Contrôle quelles autres animations peuvent être supplantées par celle-ci." />
 	<text name="preview_label">
-		Prévisualiser pendant
+		Aperçu pendant
 	</text>
 	<combo_box label="" name="preview_base_anim"
-	     tool_tip="Utilisez cette option pour tester votre animation pendant que votre avatar fait des choses banales.">
+	     tool_tip="Use this to test your animation behavior while your avatar performs common actions.">
 		<combo_item name="Standing">
 			Debout
 		</combo_item>
 		<combo_item name="Walking">
-			En train de marcher
+			Marcher
 		</combo_item>
 		<combo_item name="Sitting">
-			Assis
+			Assis(e)
 		</combo_item>
 		<combo_item name="Flying">
-			En train de voler
+			Vol
 		</combo_item>
 	</combo_box>
-	<check_box label="Boucle" name="loop_check" tool_tip="Joue cette animation en boucle." />
-	<spinner label="Début (%)" name="loop_in_point"
-	     tool_tip="Définit le moment de l&apos;animation où la boucle repart." />
-	<spinner label="Fin (%)" name="loop_out_point"
-	     tool_tip="Définit le moment de l&apos;animation où la boucle finit." />
+	<check_box label="Jouer en boucle" name="loop_check"
+	     tool_tip="Joue l&apos;animation en boucle." />
+	<spinner label="In(%)" name="loop_in_point"
+	     tool_tip="Définit le point de début de boucle de l&apos;animation." />
+	<spinner label="Out(%)" name="loop_out_point"
+	     tool_tip="Définit le point de fin de boucle de l&apos;animation." />
 	<text name="hand_label">
-		Mouvement de main
+		Pose de la main
 	</text>
 	<combo_box label="" name="hand_pose_combo"
-	     tool_tip="Contrôle le mouvement des mains au cours de lanimation">
+	     tool_tip="Controls what hands do during animation.">
 		<combo_item name="Spread">
-			Doigts écartés
+			Diffusion
 		</combo_item>
 		<combo_item name="Relaxed">
-			Détendues
+			Détendu(e)
 		</combo_item>
 		<combo_item name="PointBoth">
-			Pointer (les deux)
+			Pointer des deux côtés
 		</combo_item>
 		<combo_item name="Fist">
 			Poing
 		</combo_item>
 		<combo_item name="RelaxedLeft">
-			Détendue (gauche)
+			Détendu(e) Gauche
 		</combo_item>
 		<combo_item name="PointLeft">
-			Pointer (gauche)
+			Pointer gauche
 		</combo_item>
 		<combo_item name="FistLeft">
-			Poing (gauche)
+			Poing gauche
 		</combo_item>
 		<combo_item name="RelaxedRight">
-			Détendue (droite)
+			Détendu(e) Droite
 		</combo_item>
 		<combo_item name="PointRight">
-			Pointer (droite)
+			Pointer droit
 		</combo_item>
 		<combo_item name="FistRight">
-			Poing (droite)
+			Poing droit
 		</combo_item>
 		<combo_item name="SaluteRight">
-			Saluer (droite)
+			Saluer droit
 		</combo_item>
 		<combo_item name="Typing">
-			Taper
+			En train de composer un message
 		</combo_item>
 		<combo_item name="PeaceRight">
-			Peace (droite)
+			Peace
 		</combo_item>
 	</combo_box>
 	<text name="emote_label">
 		Expression
 	</text>
 	<combo_box label="" name="emote_combo"
-	     tool_tip="Contrôle l&apos;expression du visage au cours de l&apos;animation.">
+	     tool_tip="Controls what face does during animation.">
 		<combo_item name="[None]">
-			[None]
+			[Aucun]
 		</combo_item>
 		<combo_item name="Aaaaah">
 			Aaaaah
 		</combo_item>
 		<combo_item name="Afraid">
-			Effrayé
+			Apeuré
 		</combo_item>
 		<combo_item name="Angry">
-			En colère
+			Fâché
 		</combo_item>
 		<combo_item name="BigSmile">
 			Grand sourire
@@ -103,10 +104,10 @@
 			Pleurer
 		</combo_item>
 		<combo_item name="Disdain">
-			Mépris
+			Dédain
 		</combo_item>
 		<combo_item name="Embarrassed">
-			Gêne
+			Gêné(e)
 		</combo_item>
 		<combo_item name="Frown">
 			Froncer les sourcils
@@ -121,7 +122,7 @@
 			Plllppt
 		</combo_item>
 		<combo_item name="Repulsed">
-			Dégoût
+			Dégoûté(e)
 		</combo_item>
 		<combo_item name="Sad">
 			Triste
@@ -139,23 +140,23 @@
 			Clin d&apos;œil
 		</combo_item>
 		<combo_item name="Worry">
-			Soucis
+			Inquiet(e)
 		</combo_item>
 	</combo_box>
-	<spinner label="Transition début (s)" name="ease_in_time"
-	     tool_tip="Durée (en secondes) pendant laquelle l&apos;animation s&apos;intègre au mouvement." />
-	<spinner label="Transition fin (s)" name="ease_out_time"
-	     tool_tip="Durée (en secondes) pendant laquelle l&apos;animation disparaît du mouvement." />
-	<button label="" name="play_btn" tool_tip="Jouer/Pauser votre animation." />
-	<button label="" name="stop_btn" tool_tip="Arrêter le playback" />
+	<spinner label="Ease In (sec)" name="ease_in_time"
+	     tool_tip="Temps d&apos;entrée des animations (en secondes)." />
+	<spinner label="Ease Out (sec)" name="ease_out_time"
+	     tool_tip="Temps de sortie des animations (en secondes)." />
+	<button label="" name="play_btn" tool_tip="Jouer/interrompre votre animation." />
+	<button label="" name="stop_btn" tool_tip="Arrêter l&apos;animation" />
 	<slider label="" name="playback_slider" />
 	<text name="bad_animation_text">
-		Impossible de lire le fichier d&apos;animation.
-
-Nous recommandons les fichiers BVH extraits de Poser 4.
+		Unable to read animation file.
+	
+	We recommend BVH files exported from Poser 4.
 	</text>
 	<button label="Annuler" name="cancel_btn" />
-	<button label="Charger ([AMOUNT] $L)" name="ok_btn" />
+	<button label="Uploader (L$[AMOUNT])" name="ok_btn" />
 	<string name="failed_to_initialize">
 		Echec de l&apos;initialisation du mouvement
 	</string>

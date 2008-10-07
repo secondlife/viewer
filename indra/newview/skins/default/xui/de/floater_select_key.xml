@@ -2,7 +2,6 @@
 <floater name="modal container">
 	<button label="Abbrechen" label_selected="Abbrechen" name="Cancel" />
 	<text name="Save item as:">
-		Zur Auswahl gewünschte
-Taste drücken.
+		Zur Auswahl Taste drücken
 	</text>
 </floater>

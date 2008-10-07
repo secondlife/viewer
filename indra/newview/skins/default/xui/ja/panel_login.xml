@@ -23,19 +23,20 @@
 			&lt;地域の名前入力&gt;
 		</combo_item>
 	</combo_box>
-	<check_box label="パスワードを記憶" name="remember_check"/>
+	<check_box label="パスワードを記憶" name="remember_check" />
 	<text name="full_screen_text">
 		ログイン時にはフルスクリーン表示になります
 	</text>
-	<button label="新規アカウント..." label_selected="新規アカウント..." name="new_account_btn"/>
-	<button label="環境設定..." label_selected="環境設定..." name="preferences_btn"/>
-	<button label="ログイン" label_selected="ログイン" name="connect_btn"/>
-	<button label="終了" label_selected="終了" name="quit_btn"/>
+	<button label="新規アカウント..." label_selected="新規アカウント..."
+	     name="new_account_btn" />
+	<button label="環境設定..." label_selected="環境設定..." name="preferences_btn" />
+	<button label="Second Lifeに入る" label_selected="接続" name="connect_btn" />
+	<button label="終了" label_selected="終了" name="quit_btn" />
 	<text name="version_text">
 		1.23.4 (5)
 	</text>
 	<text name="create_new_account_text">
-		アカウントを申し込む
+		新しいアカウントを作成します。
 	</text>
 	<text name="channel_text">
 		[CHANNEL] [VERSION]

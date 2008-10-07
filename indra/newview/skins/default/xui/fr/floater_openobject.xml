@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="objectcontents" title="Contenu des objets">
+<floater name="objectcontents" title="Contenu de l&apos;objet">
 	<text type="string" length="1" name="object_name">
 		[DESC]:
 	</text>

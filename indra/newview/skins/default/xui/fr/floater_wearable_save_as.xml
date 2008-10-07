@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="modal container">
+<floater name="modal container" title=" ">
 	<button label="Enregistrer" label_selected="Enregistrer" name="Save" />
 	<button label="Annuler" label_selected="Annuler" name="Cancel" />
 	<text type="string" length="1" name="Save item as:">

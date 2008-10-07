@@ -1,107 +1,97 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater name="worldmap" title="Carte du monde">
-	<tab_container name="maptab" width="955">
-		<panel label="Objets" name="objects_mapview" width="953" />
-		<panel label="Terrain" name="terrain_mapview" width="953" />
+	<tab_container name="maptab">
+		<panel label="Objets" name="objects_mapview" />
+		<panel label="Terrain" name="terrain_mapview" />
 	</tab_container>
-	<icon left="973" name="square" />
 	<text name="land_for_sale_label">
 		Terrain à vendre
 	</text>
-	<icon left="1113" name="square2" />
 	<text name="auction_label">
 		Enchère
 	</text>
-	<icon left="973" name="self" />
 	<text name="you_label">
 		Vous
 	</text>
-	<icon left="1033" name="home" />
 	<text name="home_label">
 		Domicile
 	</text>
 	<button label="Aller chez moi" label_selected="Aller chez moi" name="Go Home"
 	     tool_tip="Vous téléporte à votre domicile" />
-	<icon left="977" name="person" />
+	<text name="classifieds_label">
+		Petites annonces
+	</text>
+	<check_box label=" " name="class_chk" />
 	<text name="person_label">
 		Personne
 	</text>
-	<icon left="973" name="infohub" />
-	<check_box label=" " left_delta="60" name="people_chk" />
+	<check_box label=" " name="people_chk" />
 	<text name="infohub_label">
 		Infohub
 	</text>
-	<icon left="973" name="telehub" />
-	<check_box label=" " left_delta="60" name="infohub_chk" />
+	<check_box label=" " name="infohub_chk" />
 	<text name="telehub_label">
 		Téléhub
 	</text>
-	<check_box label=" " left_delta="60" name="telehubchk" />
-	<icon left="1113" name="landforsale" />
+	<check_box label=" " name="telehubchk" />
+	<text name="popular_label">
+		Populaire
+	</text>
+	<check_box label=" " name="popular_chk" />
 	<text name="land_for_sale_label2">
 		Terrain à vendre
 	</text>
 	<check_box label=" " name="land_for_sale_chk" />
-	<icon left="1113" name="event" />
 	<text name="events_label">
-		Événements
+		Evénements
 	</text>
 	<check_box label=" " name="event_chk" />
-	<icon left="1113" name="events_mature_icon" />
 	<text name="events_mature_label">
-		Événements (A)
+		Evénements (A)
 	</text>
 	<check_box label=" " name="event_mature_chk" />
-	<icon left="973" name="avatar_icon" />
-	<combo_box label="Amis connectés" name="friend combo"
-	     tool_tip="Ami à afficher sur la carte" width="232">
+	<combo_box label="Amis en ligne" name="friend combo"
+	     tool_tip="Ami à afficher sur la carte">
 		<combo_item name="none_selected">
-			Amis connectés
+			Amis en ligne
 		</combo_item>
 	</combo_box>
-	<icon left="973" name="landmark_icon" />
 	<combo_box label="Repères" name="landmark combo"
-	     tool_tip="Repère à afficher sur la carte" width="232">
+	     tool_tip="Repère à afficher sur la carte">
 		<combo_item name="none_selected">
 			Repères
 		</combo_item>
 	</combo_box>
-	<icon left="973" name="location_icon" />
 	<line_editor label="Rechercher par nom de région" name="location"
-	     tool_tip="Saisissez le nom d&apos;une région" width="155">
+	     tool_tip="Saisissez le nom d&apos;une région">
 		Recherche par nom de région
 	</line_editor>
-	<button label="Rechercher" label_selected="&gt;" left_delta="160" name="DoSearch"
-	     tool_tip="Rechercher dans la région" width="75" />
-	<text left="973" name="search_label">
+	<button label="Rechercher" label_selected="&gt;" name="DoSearch"
+	     tool_tip="Rechercher dans la région" />
+	<text name="search_label">
 		Résultats de la recherche :
 	</text>
-	<scroll_list left="973" name="search_results" width="252">
+	<scroll_list name="search_results">
 		<column label="" name="icon" />
 		<column label="" name="sim_name" />
 	</scroll_list>
-	<text left="973" name="location_label">
+	<text name="location_label">
 		Emplacement :
 	</text>
-	<spinner left="993" name="spin x"
-	     tool_tip="Coordonnées des X du lieu à afficher sur la carte" />
-	<spinner left="993" name="spin y"
-	     tool_tip="Coordonnées des Y du lieu à afficher sur la carte" />
-	<spinner left="993" name="spin z"
-	     tool_tip="Coordonnées des Z du lieu à afficher sur la carte" />
-	<button label="Téléporter" label_selected="Téléporter" left="-270" name="Teleport"
+	<spinner name="spin x" tool_tip="Coordonnées des X du lieu à afficher sur la carte" />
+	<spinner name="spin y" tool_tip="Coordonnées des Y du lieu à afficher sur la carte" />
+	<spinner name="spin z" tool_tip="Coordonnées des Z du lieu à afficher sur la carte" />
+	<button label="Téléporter" label_selected="Téléporter" name="Teleport"
 	     tool_tip="Téléporter à l&apos;endroit sélectionné" />
 	<button label="Afficher la destination" label_selected="Afficher la destination"
 	     name="Show Destination"
-	     tool_tip="Centrer la carte sur l&apos;endroit sélectionné" width="165" />
-	<button label="Effacer" label_selected="Effacer" left="-270" name="Clear"
+	     tool_tip="Centrer la carte sur l&apos;endroit sélectionné" />
+	<button label="Effacer" label_selected="Effacer" name="Clear"
 	     tool_tip="Arrêter de suivre" />
 	<button label="Afficher mon emplacement" label_selected="Afficher mon emplacement"
 	     name="Show My Location"
-	     tool_tip="Centrer la carte sur l&apos;emplacement de votre avatar"
-	     width="165" />
-	<button label="Copier la SLURL sur le presse-papier" left="-270" name="copy_slurl"
-	     tool_tip="Copier l&apos;emplacement actuel comme SLURL pour l&apos;utiliser sur le Web."
-	     width="262" />
-	<slider label="Zoom" left="-270" name="zoom slider" />
+	     tool_tip="Centrer la carte sur l&apos;emplacement de votre avatar" />
+	<button label="Copier la SLURL sur le presse-papier" name="copy_slurl"
+	     tool_tip="Copier l&apos;emplacement actuel comme SLURL pour l&apos;utiliser sur le Web." />
+	<slider label="Zoom" name="zoom slider" />
 </floater>

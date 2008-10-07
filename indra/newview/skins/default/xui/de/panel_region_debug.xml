@@ -32,7 +32,7 @@
 	<check_box label="Objekte in jeder Region dieses Grundstücks zurückgeben"
 	     name="return_estate_wide"
 	     tool_tip="Es werden die Objekte in allen Regionen dieses Grundstücks zurückgegeben" />
-	<button label="Zurückgeben" name="return_btn" width="90" />
+	<button label="Zurückgeben" name="return_btn" />
 	<button label="Top-Kollisionsobjekte..." name="top_colliders_btn"
 	     tool_tip="Liste der Objekte mit den meisten potenziellen Kollisionen" />
 	<button label="?" name="top_colliders_help" />

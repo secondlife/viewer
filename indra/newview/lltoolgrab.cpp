@@ -400,14 +400,6 @@ void LLToolGrab::startGrab()
 	mGrabHiddenOffsetFromCamera = mDragStartFromCamera;
 
 	mGrabTimer.reset();
-
-	mLastUVCoords = mGrabPick.mUVCoords;
-	mLastSTCoords = mGrabPick.mSTCoords;
-	mLastFace = mGrabPick.mObjectFace;
-	mLastIntersection = mGrabPick.mIntersection;
-	mLastNormal = mGrabPick.mNormal;
-	mLastBinormal = mGrabPick.mBinormal;
-	mLastGrabPos = LLVector3(-1.f, -1.f, -1.f);
 }
 
 
@@ -805,54 +797,26 @@ void LLToolGrab::handleHoverNonPhysical(S32 x, S32 y, MASK mask)
 		grab_pos_region = objectp->getRegion()->getPosRegionFromGlobal( grab_point_global );
 	}
 
+	LLMessageSystem *msg = gMessageSystem;
+	msg->newMessageFast(_PREHASH_ObjectGrabUpdate);
+	msg->nextBlockFast(_PREHASH_AgentData);
+	msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+	msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+	msg->nextBlockFast(_PREHASH_ObjectData);
+	msg->addUUIDFast(_PREHASH_ObjectID, objectp->getID() );
+	msg->addVector3Fast(_PREHASH_GrabOffsetInitial, mGrabOffsetFromCenterInitial );
+	msg->addVector3Fast(_PREHASH_GrabPosition, grab_pos_region );
+	msg->addU32Fast(_PREHASH_TimeSinceLast, dt_milliseconds );
+	msg->nextBlock("SurfaceInfo");
+	msg->addVector3("UVCoord", LLVector3(pick.mUVCoords));
+	msg->addVector3("STCoord", LLVector3(pick.mSTCoords));
+	msg->addS32Fast(_PREHASH_FaceIndex, pick.mObjectFace);
+	msg->addVector3("Position", pick.mIntersection);
+	msg->addVector3("Normal", pick.mNormal);
+	msg->addVector3("Binormal", pick.mBinormal);
 
-	// only send message if something has changed since last message
-	
-	BOOL changed_since_last_update = FALSE;
+	msg->sendMessage( objectp->getRegion()->getHost() );
 
-	// test if touch data needs to be updated
-	if ((pick.mObjectFace != mLastFace) ||
-		(pick.mUVCoords != mLastUVCoords) ||
-		(pick.mSTCoords != mLastSTCoords) ||
-		(pick.mIntersection != mLastIntersection) ||
-		(pick.mNormal != mLastNormal) ||
-		(pick.mBinormal != mLastBinormal) ||
-		(grab_pos_region != mLastGrabPos))
-	{
-		changed_since_last_update = TRUE;
-	}
-
-	if (changed_since_last_update)
-	{
-		LLMessageSystem *msg = gMessageSystem;
-		msg->newMessageFast(_PREHASH_ObjectGrabUpdate);
-		msg->nextBlockFast(_PREHASH_AgentData);
-		msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-		msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-		msg->nextBlockFast(_PREHASH_ObjectData);
-		msg->addUUIDFast(_PREHASH_ObjectID, objectp->getID() );
-		msg->addVector3Fast(_PREHASH_GrabOffsetInitial, mGrabOffsetFromCenterInitial );
-		msg->addVector3Fast(_PREHASH_GrabPosition, grab_pos_region );
-		msg->addU32Fast(_PREHASH_TimeSinceLast, dt_milliseconds );
-		msg->nextBlock("SurfaceInfo");
-		msg->addVector3("UVCoord", LLVector3(pick.mUVCoords));
-		msg->addVector3("STCoord", LLVector3(pick.mSTCoords));
-		msg->addS32Fast(_PREHASH_FaceIndex, pick.mObjectFace);
-		msg->addVector3("Position", pick.mIntersection);
-		msg->addVector3("Normal", pick.mNormal);
-		msg->addVector3("Binormal", pick.mBinormal);
-
-		msg->sendMessage( objectp->getRegion()->getHost() );
-
-		mLastUVCoords = pick.mUVCoords;
-		mLastSTCoords = pick.mSTCoords;
-		mLastFace = pick.mObjectFace;
-		mLastIntersection = pick.mIntersection;
-		mLastNormal= pick.mNormal;
-		mLastBinormal= pick.mBinormal;
-		mLastGrabPos = grab_pos_region;
-	}
-	
 	// update point-at / look-at
 	if (pick.mObjectFace != -1) // if the intersection was on the surface of the obejct
 	{
