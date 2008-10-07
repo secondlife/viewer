@@ -5157,6 +5157,11 @@ void process_initiate_download(LLMessageSystem* msg, void**)
 	msg->getString("FileData", "SimFilename", sim_filename);
 	msg->getString("FileData", "ViewerFilename", viewer_filename);
 
+	if (!gXferManager->validateFileForRequest(viewer_filename))
+	{
+		llwarns << "SECURITY: Unauthorized download to local file " << viewer_filename << llendl;
+		return;
+	}
 	gXferManager->requestFile(viewer_filename,
 		sim_filename,
 		LL_PATH_NONE,

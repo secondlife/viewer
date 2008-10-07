@@ -713,6 +713,78 @@ void LLXferManager::sendConfirmPacket (LLMessageSystem *mesgsys, U64 id, S32 pac
 
 ///////////////////////////////////////////////////////////
 
+static bool find_and_remove(std::multiset<std::string>& files,
+		const std::string& filename)
+{
+	std::multiset<std::string>::iterator ptr;
+	if ( (ptr = files.find(filename)) != files.end())
+	{
+		//erase(filename) erases *all* entries with that key
+		files.erase(ptr);
+		return true;
+	}
+	return false;
+}
+
+void LLXferManager::expectFileForRequest(const std::string& filename)
+{
+	mExpectedRequests.insert(filename);
+}
+
+bool LLXferManager::validateFileForRequest(const std::string& filename)
+{
+	return find_and_remove(mExpectedRequests, filename);
+}
+
+void LLXferManager::expectFileForTransfer(const std::string& filename)
+{
+	mExpectedTransfers.insert(filename);
+}
+
+bool LLXferManager::validateFileForTransfer(const std::string& filename)
+{
+	return find_and_remove(mExpectedTransfers, filename);
+}
+
+static bool remove_prefix(std::string& filename, const std::string& prefix)
+{
+	if (std::equal(prefix.begin(), prefix.end(), filename.begin()))
+	{
+		filename = filename.substr(prefix.length());
+		return true;
+	}
+	return false;
+}
+
+static bool verify_cache_filename(const std::string& filename)
+{
+	//NOTE: This routine is only used to check file names that our own
+	// code places in the cache directory.  As such, it can be limited
+	// to this very restrictive file name pattern.  It does not need to
+	// handle other characters.
+
+	size_t len = filename.size();
+	//const boost::regex expr("[a-zA-Z0-9][-_.a-zA-Z0-9]<0,49>");
+	if (len < 1 || len > 50)
+	{
+		return false;
+	}
+	for(unsigned i=0; i<len; ++i)
+	{
+		char c = filename[i];
+		bool ok = isalnum(c);
+		if (!ok && i > 0)
+		{
+			ok = '_'==c || '-'==c || '.'==c;
+		}
+		if (!ok)
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
 void LLXferManager::processFileRequest (LLMessageSystem *mesgsys, void ** /*user_data*/)
 {
 		
@@ -734,15 +806,10 @@ void LLXferManager::processFileRequest (LLMessageSystem *mesgsys, void ** /*user
 
 	mesgsys->getStringFast(_PREHASH_XferID, _PREHASH_Filename, local_filename);
 	
-	U8 local_path_u8;
-	mesgsys->getU8("XferID", "FilePath", local_path_u8);
-	if( local_path_u8 < (U8)LL_PATH_LAST )
 	{
+		U8 local_path_u8;
+		mesgsys->getU8("XferID", "FilePath", local_path_u8);
 		local_path = (ELLPath)local_path_u8;
-	}
-	else
-	{
-		llwarns << "Invalid file path in LLXferManager::processFileRequest() " << (U32)local_path_u8 << llendl;
 	}
 
 	mesgsys->getUUIDFast(_PREHASH_XferID, _PREHASH_VFileID, uuid);
@@ -782,6 +849,43 @@ void LLXferManager::processFileRequest (LLMessageSystem *mesgsys, void ** /*user
 	}
 	else if (!local_filename.empty())
 	{
+		// See DEV-21775 for detailed security issues
+
+		if (local_path == LL_PATH_NONE)
+		{
+			// this handles legacy simulators that are passing objects
+			// by giving a filename that explicitly names the cache directory
+			static const std::string legacy_cache_prefix = "data/";
+			if (remove_prefix(local_filename, legacy_cache_prefix))
+			{
+				local_path = LL_PATH_CACHE;
+			}
+		}
+
+		switch (local_path)
+		{
+			case LL_PATH_NONE:
+				if(!validateFileForTransfer(local_filename))
+				{
+					llwarns << "SECURITY: Unapproved filename '" << local_filename << llendl;
+					return;
+				}
+				break;
+
+			case LL_PATH_CACHE:
+				if(!verify_cache_filename(local_filename))
+				{
+					llwarns << "SECURITY: Illegal cache filename '" << local_filename << llendl;
+					return;
+				}
+				break;
+
+			default:
+				llwarns << "SECURITY: Restricted file dir enum: " << (U32)local_path << llendl;
+				return;
+		}
+
+
 		std::string expanded_filename = gDirUtilp->getExpandedFilename( local_path, local_filename );
 		llinfos << "starting file transfer: " <<  expanded_filename << " to " << mesgsys->getSender() << llendl;
 
@@ -860,6 +964,7 @@ void LLXferManager::processFileRequest (LLMessageSystem *mesgsys, void ** /*user
 		}
 	}
 }
+
 
 ///////////////////////////////////////////////////////////
 

@@ -108,6 +108,8 @@ class LLXferManager
 	// implementation methods
 	virtual void startPendingDownloads();
 	virtual void addToList(LLXfer* xferp, LLXfer*& head, BOOL is_priority);
+	std::multiset<std::string> mExpectedTransfers; // files that are authorized to transfer out
+	std::multiset<std::string> mExpectedRequests;  // files that are authorized to be downloaded on top of
 
  public:
 	LLXferManager(LLVFS *vfs);
@@ -168,6 +170,20 @@ class LLXferManager
 							  const LLHost& remote_host,
 							  void (*callback)(void**,S32,LLExtStat), void** user_data,
 							  BOOL is_priority = FALSE);
+	/**
+		When arbitrary files are requested to be transfered (by giving a dir of LL_PATH_NONE)
+	   they must be "expected", but having something pre-authorize them. This pair of functions
+	   maintains a pre-authorized list. The first function adds something to the list, the second
+	   checks if is authorized, removing it if so.  In this way, a file is only authorized for
+	   a single use.
+	*/
+	virtual void expectFileForTransfer(const std::string& filename);
+	virtual bool validateFileForTransfer(const std::string& filename);
+	/**
+		Same idea, but for the viewer about to call InitiateDownload to track what it requested.
+	*/
+	virtual void expectFileForRequest(const std::string& filename);
+	virtual bool validateFileForRequest(const std::string& filename);
 
 /*
 // xfer request (may be memory or file)
