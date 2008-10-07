@@ -448,6 +448,7 @@ void LLScriptLibrary::init()
 	addFunction(new LLScriptLibraryFunction(10.f, 0.f, dummy_func, "llDetectedTouchBinormal", "v", "i", "vector llDetectedTouchBinormal(integer number)\nreturns the surface binormal for a triggered touch event"));
 	addFunction(new LLScriptLibraryFunction(10.f, 0.f, dummy_func, "llDetectedTouchST", "v", "i", "vector llDetectedTouchST(integer number)\nreturns the s and t coordinates in the first two components of a vector, for a triggered touch event"));
 
+	addFunction(new LLScriptLibraryFunction(10.f, 0.f, dummy_func, "llSHA1String", "s", "s", "string llSHA1String(string sr)\nPerforms a SHA1 security Hash.  Returns a 40 character hex string."));
 
 
 	// energy, sleep, dummy_func, name, return type, parameters, help text, gods-only
