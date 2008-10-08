@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater name="Preferences" title="Préférences">
-	<button label="A propos" label_selected="A propos" name="About..." />
+	<button label="À propos" label_selected="À propos" name="About..." />
 	<button label="OK" label_selected="OK" name="OK" />
 	<button label="Annuler" label_selected="Annuler" name="Cancel" />
 	<button label="Appliquer" label_selected="Appliquer" name="Apply" />

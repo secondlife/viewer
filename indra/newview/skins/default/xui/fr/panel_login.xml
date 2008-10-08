@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel name="panel_login">
-	<string name="real_url">
-		http://secondlife.com/app/login/
-	</string>
 	<string name="forgot_password_url">
 		http://secondlife.com/account/request.php
 	</string>
@@ -23,13 +20,13 @@
 			Mon domicile
 		</combo_item>
 		<combo_item name="MyLastLocation">
-			Mon dernier emplacement
+			Dernier emplacement
 		</combo_item>
 		<combo_item name="&lt;Typeregionname&gt;">
 			&lt;Choisir région&gt;
 		</combo_item>
 		<combo_item name="Typeregionname">
-			&lt;Saisissez le nom de la région&gt;
+			&lt;Nom de la région&gt;
 		</combo_item>
 	</combo_box>
 	<check_box label="Enregistrer le mot de passe" name="remember_check" />

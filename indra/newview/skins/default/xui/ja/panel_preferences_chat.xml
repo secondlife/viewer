@@ -1,65 +1,58 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel label="チャット" name="chat">
-	<text type="string" length="1" name="text_box">
+	<text length="1" name="text_box" type="string">
 		チャットのフォント：
 	</text>
 	<radio_group name="chat font size">
-		<radio_item type="string" length="1" name="radio">
+		<radio_item length="1" name="radio" type="string">
 			小
 		</radio_item>
-		<radio_item type="string" length="1" name="radio2">
+		<radio_item length="1" name="radio2" type="string">
 			中
 		</radio_item>
-		<radio_item type="string" length="1" name="radio3">
+		<radio_item length="1" name="radio3" type="string">
 			大
 		</radio_item>
 	</radio_group>
-	<text type="string" length="1" name="text_box2">
+	<text length="1" name="text_box2" type="string">
 		チャット・カラー：
 	</text>
-	<color_swatch label="貴方" name="user" />
-	<color_swatch label="その他" name="agent" />
-	<color_swatch label="IM" name="im" />
-	<color_swatch label="ｼｽﾃﾑ" name="system" />
-	<color_swatch label="チャット" name="users" />
-	<color_swatch label="所有者" name="objects" />
-	<color_swatch label="所有者" name="owner" />
-	<color_swatch label="吹出し" name="background" />
-	<color_swatch label="URL" name="links" />
-	<text type="string" length="1" name="text_box3">
+	<color_swatch label="貴方" name="user"/>
+	<color_swatch label="その他" name="agent"/>
+	<color_swatch label="IM" name="im"/>
+	<color_swatch label="ｼｽﾃﾑ" name="system"/>
+	<color_swatch label="チャット" name="users"/>
+	<color_swatch label="所有者" name="objects"/>
+	<color_swatch label="所有者" name="owner"/>
+	<color_swatch label="吹出し" name="background"/>
+	<color_swatch label="URL" name="links"/>
+	<text length="1" name="text_box3" type="string">
 		チャット・コンソール：
 	</text>
-	<spinner label="フェード" name="fade_chat_time" />
-	<text type="string" length="1" name="text_box4">
+	<spinner label="フェード" name="fade_chat_time"/>
+	<text length="1" name="text_box4" type="string">
 		（秒後）
 	</text>
-	<text type="string" length="1" name="text_box5">
+	<text length="1" name="text_box5" type="string">
 		（行数）
 	</text>
-	<slider label="不透明度" name="console_opacity" />
-	<text type="string" length="1" name="text_box6">
-		チャット・オプション
+	<slider label="不透明度" name="console_opacity"/>
+	<text length="1" name="text_box6" type="string">
+		チャット・オプション：
 	</text>
-	<check_box label="チャットに全画面幅を使用（再起動後）"
-	     name="chat_full_width_check" />
-	<check_box label="Enterキーを押した後チャットを閉じる"
-	     name="close_chat_on_return_check" />
-	<check_box
-	     label="チャット中は、いつでも矢印キーでアバターを移動可能"
-	     name="arrow_keys_move_avatar_check" />
-	<check_box label="チャットにタイムスタンプを表示"
-	     name="show_timestamps_check" />
-	<check_box label="タイピング動作のアニメーションを再生"
-	     name="play_typing_animation" />
-	<text type="string" length="1" name="text_box7">
+	<check_box label="全画面幅を使用 (再起動が必要)" name="chat_full_width_check"/>
+	<check_box label="Enterキーを押した後チャット バーを閉じる" name="close_chat_on_return_check"/>
+	<check_box label="チャット中は、いつでも矢印キーでアバターを移動可能" name="arrow_keys_move_avatar_check"/>
+	<check_box label="ローカルチャットにタイムスタンプを表示" name="show_timestamps_check"/>
+	<check_box label="チャット中はタイピング動作のアニメーションを再生" name="play_typing_animation"/>
+	<text length="1" name="text_box7" type="string">
 		チャットの吹き出し：
 	</text>
-	<check_box label="チャットの吹き出しを表示" name="bubble_text_chat" />
-	<slider label="不透明度" name="bubble_chat_opacity" />
-	<text type="string" length="1" name="text_box8">
+	<check_box label="チャットの吹き出しを表示" name="bubble_text_chat"/>
+	<slider label="不透明度" name="bubble_chat_opacity"/>
+	<text length="1" name="text_box8" type="string">
 		スクリプト・エラー：
 	</text>
-	<check_box label="スクリプト・エラーと警告をチャット同様に表示"
-	     name="script_errors_as_chat" />
-	<color_swatch label="エラー" name="script_error" />
+	<check_box label="スクリプト・エラーと警告をチャット同様に表示" name="script_errors_as_chat"/>
+	<color_swatch label="エラー" name="script_error"/>
 </panel>

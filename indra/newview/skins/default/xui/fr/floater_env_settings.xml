@@ -1,22 +1,26 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater name="Environment Editor Floater" title="Editeur d&apos;environnement">
-	<text name="EnvTimeText">
-		Heure de la journée
+	<text name="EnvTimeText" bottom="-45" >
+		Heure de la
+journée
 	</text>
-	<text name="EnvTimeText2">
+	<text name="EnvTimeText2" bottom_delta="-36" >
 		Midi
 	</text>
 	<text name="EnvCloudText">
-		Couverture nuageuse
+		Couverture
+nuageuse
 	</text>
-	<text name="EnvWaterColorText">
-		Couleur de l&apos;eau
+	<text name="EnvWaterColorText" bottom="-45" >
+		Couleur de
+l&apos;eau
 	</text>
 	<color_swatch name="EnvWaterColor" tool_tip="Cliquer pour ouvrir le sélecteur de couleurs" />
 	<text name="EnvWaterFogText">
-		Brouillard dans l&apos;eau
+		Brouillard
+dans l&apos;eau
 	</text>
-	<button label="Utiliser heure du domaine" name="EnvUseEstateTimeButton" />
+	<button label="Utiliser heure du domaine" name="EnvUseEstateTimeButton" bottom="-144"/>
 	<button label="Ciel avancé" name="EnvAdvancedSkyButton" />
 	<button label="Eau avancée" name="EnvAdvancedWaterButton" />
 	<button label="?" name="EnvSettingsHelpButton" />

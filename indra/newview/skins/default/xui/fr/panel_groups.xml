@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel name="groups">
-	<text name="groupdesc">
-		Le groupe dans lequel vous êtes actif en ce moment est en gras.
+	<scroll_list bottom="50" name="group list" />
+	<text name="groupdesc" bottom="16" height="32" width="268">
+		Le groupe dans lequel vous êtes actif en ce moment
+est en gras.
 	</text>
-	<text name="groupcount">
+	<text name="groupcount" bottom="3" >
 		Vous appartenez à [COUNT] groupes (sur [MAX] maximum).
 	</text>
 	<button label="IM/Appel" name="IM"

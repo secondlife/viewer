@@ -1,34 +1,34 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="top_objects" title="chargement en cours...">
+<floater name="top_objects" title="en cours de chargement...">
 	<text name="title_text">
 		Chargement en cours...
 	</text>
 	<scroll_list name="objects_list">
 		<column label="Score" name="score" />
-		<column label="Name" name="name" />
-		<column label="Owner" name="owner" />
-		<column label="Location" name="location" />
+		<column label="Nom" name="name" />
+		<column label="Propriétaire" name="owner" />
+		<column label="Emplacement" name="location" />
 		<column label="Heure" name="time" />
 	</scroll_list>
 	<text name="id_text">
-		ID de l&apos;objet :
+		ID de l&apos;objet :
 	</text>
-	<button label="Afficher la balise" name="show_beacon_btn" />
+	<button label="Afficher balise" name="show_beacon_btn" />
 	<text name="obj_name_text">
-		Nom de l&apos;objet :
+		Nom :
 	</text>
 	<button label="Filtre" name="filter_object_btn" />
 	<text name="owner_name_text">
-		Nom du Propriétaire :
+		Nom :
 	</text>
 	<button label="Filtre" name="filter_owner_btn" />
-	<button label="Renvoyer la sélection" name="return_selected_btn" />
-	<button label="Tout renvoyer" name="return_all_btn" />
-	<button label="Désactiver la sélection" name="disable_selected_btn" />
-	<button label="Tout désactiver" name="disable_all_btn" />
+	<button label="Renvoyer" name="return_selected_btn" />
+	<button label="Renvoyer tous" name="return_all_btn" />
+	<button label="Désactiver" name="disable_selected_btn" />
+	<button label="Désactiver tous" name="disable_all_btn" />
 	<button label="Rafraîchir" name="refresh_btn" />
 	<text name="top_scripts_title">
-		Top Scripts
+		Scripts principaux
 	</text>
 	<text name="top_scripts_text">
 		[COUNT] scripts prenant un total de [TIME] ms
@@ -37,10 +37,10 @@
 		Heure
 	</text>
 	<text name="top_colliders_title">
-		Top Colliders
+		Objets souvent responsables de collision
 	</text>
 	<text name="top_colliders_text">
-		Les [COUNT] objets les plus exposés aux collisions potentielles
+		[COUNT] objets le plus souvent responsables de collisions
 	</text>
 	<text name="colliders_score_label">
 		Score

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<strings name="">
+<strings>
 	<string name="LoginInProgress">
 		La connexion à [APP_NAME] apparaît peut-être comme étant gelée. Veuillez patienter.
 	</string>
@@ -51,6 +51,9 @@
 	<string name="LoginDownloadingClothing">
 		Habits en cours de téléchargement...
 	</string>
+	<string name="LoginFailedNoNetwork">
+		Erreur réseau : impossible d&apos;établir la connexion. Veuillez vérifier votre connexion réseau.
+	</string>
 	<string name="AgentLostConnection">
 		Il y a peut-être des problèmes techniques dans cette region. Veuillez vérifier votre connexion Internet.
 	</string>
@@ -73,7 +76,7 @@
 		Script
 	</string>
 	<string name="TooltipFlagPhysics">
-		Lois de la physique
+		Propriétés physique
 	</string>
 	<string name="TooltipFlagTouch">
 		Toucher
@@ -97,10 +100,10 @@
 		Copie autorisée
 	</string>
 	<string name="TooltipForSaleL$">
-		A vendre : [AMOUNT] $L
+		À vendre : [AMOUNT] $L
 	</string>
 	<string name="TooltipForSaleMsg">
-		A vendre : [MESSAGE]
+		À vendre : [MESSAGE]
 	</string>
 	<string name="TooltipFlagGroupBuild">
 		Contruction de groupe

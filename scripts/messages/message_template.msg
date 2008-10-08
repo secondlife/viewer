@@ -1389,7 +1389,7 @@ version 2.0
 // called when all of the information has been collected and readied for 
 // the agent.
 {
-	TeleportFinish Low 69 Trusted Unencoded
+	TeleportFinish Low 69 Trusted Unencoded UDPBlackListed
 	{
 		Info		Single
 		{	AgentID			LLUUID			}
@@ -3296,7 +3296,7 @@ version 2.0
 // CrossedRegion - new way to tell a viewer it has gone across a region 
 // boundary
 {
-	CrossedRegion Medium 7 Trusted Unencoded
+	CrossedRegion Medium 7 Trusted Unencoded UDPBlackListed
 	{
 		AgentData		Single
 		{	AgentID			LLUUID	}
@@ -3334,7 +3334,7 @@ version 2.0
 // EnableSimulator - Preps a viewer to receive data from a simulator
 
 {
-	EnableSimulator Low 151 Trusted Unencoded
+	EnableSimulator Low 151 Trusted Unencoded UDPBlackListed
 	{
 		SimulatorInfo	Single
 		{	Handle		U64	}

@@ -118,6 +118,14 @@ private:
 	BOOL			mOutsideSlop;	// has mouse moved outside center 5 pixels?
 	BOOL			mDeselectedThisClick;
 
+	S32             mLastFace;
+	LLVector2       mLastUVCoords;
+	LLVector2       mLastSTCoords;
+	LLVector3       mLastIntersection;
+	LLVector3       mLastNormal;
+	LLVector3       mLastBinormal;
+	LLVector3       mLastGrabPos;
+
 
 	BOOL			mSpinGrabbing;
 	LLQuaternion	mSpinRotation;

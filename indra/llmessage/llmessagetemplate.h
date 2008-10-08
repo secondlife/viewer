@@ -300,7 +300,7 @@ public:
 	~LLMessageTemplate()
 	{
 		for_each(mMemberBlocks.begin(), mMemberBlocks.end(), DeletePointer());
-}
+	}
 
 	void addBlock(LLMessageBlock *blockp)
 	{

@@ -791,7 +791,6 @@ bool LLTemplateMessageReader::isTrusted() const
 	return mCurrentRMessageTemplate->getTrust() == MT_TRUST;
 }
 
-//virtual 
 bool LLTemplateMessageReader::isBanned(bool trustedSource) const
 {
 	return mCurrentRMessageTemplate->isBanned(trustedSource);
@@ -799,7 +798,7 @@ bool LLTemplateMessageReader::isBanned(bool trustedSource) const
 
 bool LLTemplateMessageReader::isUdpBanned() const
 {
-       return mCurrentRMessageTemplate->isUdpBanned();
+	return mCurrentRMessageTemplate->isUdpBanned();
 }
 
 //virtual 

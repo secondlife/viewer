@@ -18,7 +18,7 @@
 		チェックされていない場合は、ログインするとビューワがフルスクリーンで表示されます。
 	</text_editor>
 	<text name="WindowSizeLabel">
-		ウィンドウ・サイズ:
+		ウィンドウ・サイズ：
 	</text>
 	<combo_box name="windowsize combo">
 		<combo_item name="640x480">

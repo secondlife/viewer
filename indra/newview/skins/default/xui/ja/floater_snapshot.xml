@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Snapshot" title="プレビュー">
 	<text name="type_label">
 		スナップショットの送り先
@@ -14,15 +14,33 @@
 			ハードディスクに保存
 		</radio_item>
 	</radio_group>
-	<button label="全表示 &gt;&gt;" name="more_btn" tool_tip="高度なオプション" />
-	<button label="&lt;&lt; 簡易" name="less_btn" tool_tip="高度なオプション" />
+	<text name="file_size_label">
+		ファイル・サイズ： [SIZE] KB
+	</text>
+	<button label="スナップショットを更新" name="new_snapshot_btn"/>
+	<button label="送信" name="send_btn"/>
+	<button label="保存(L$10)" name="upload_btn"/>
+	<flyout_button label="保存" name="save_btn" tool_tip="画像をファイルに保存">
+		<flyout_button_item name="save_item">
+			保存
+		</flyout_button_item>
+		<flyout_button_item name="saveas_item">
+			名前を付けて保存
+		</flyout_button_item>
+	</flyout_button>
+	<button label="キャンセル" name="discard_btn"/>
+	<button label="全表示 &gt;&gt;" name="more_btn" tool_tip="高度なオプション"/>
+	<button label="&lt;&lt; 簡易" name="less_btn" tool_tip="高度なオプション"/>
 	<text name="type_label2">
 		サイズ
 	</text>
-	<text name="format_label" width="75">
+	<text name="format_label">
 		フォーマット
 	</text>
 	<combo_box label="解像度" name="postcard_size_combo">
+		<combo_item name="CurrentWindow">
+			現在のウィンドウ
+		</combo_item>
 		<combo_item name="640x480">
 			640x480
 		</combo_item>
@@ -31,9 +49,6 @@
 		</combo_item>
 		<combo_item name="1024x768">
 			1024x768
-		</combo_item>
-		<combo_item name="CurrentWindow">
-			現在のウィンドウ
 		</combo_item>
 		<combo_item name="Custom">
 			カスタム
@@ -93,9 +108,10 @@
 			BMP
 		</combo_item>
 	</combo_box>
-	<spinner label="幅" name="snapshot_width" label_width="25" width="90" />
-	<spinner label="高さ" name="snapshot_height" label_width="30" left="115"  width="90" />
-	<slider label="画質" name="image_quality_slider" />
+	<spinner label="幅" name="snapshot_width"/>
+	<spinner label="高さ" name="snapshot_height"/>
+	<check_box label="比率の制限" name="keep_aspect_check"/>
+	<slider label="画質" name="image_quality_slider"/>
 	<text name="layer_type_label">
 		ｷｬﾌﾟﾁｬ：
 	</text>
@@ -110,21 +126,12 @@
 			オグジェクトのつや消し
 		</combo_item>
 	</combo_box>
-	<text name="file_size_label">
-		ファイル・サイズ： [SIZE] KB
-	</text>
-	<check_box label="インタフェースを表示" name="ui_check" />
-	<check_box label="HUD オブジェクトを表示" name="hud_check" />
-	<check_box label="保存後も開いた状態を保持" name="keep_open_check" />
-	<check_box label="比率の制限" name="keep_aspect_check" />
-	<check_box label="フレームをフリーズ（全画面）" name="freeze_frame_check" />
-	<button label="スナップショットを更新" name="new_snapshot_btn" />
-	<check_box label="自動更新" name="auto_snapshot_check" />
-	<button label="保存(L$10)" name="upload_btn" />
-	<button label="送信" name="send_btn" />
-	<button label="保存" name="save_btn" tool_tip="画像をファイルに保存" />
-	<button label="キャンセル" name="discard_btn" />
-	<text name="unknown">
+	<check_box label="インタフェースを表示" name="ui_check"/>
+	<check_box label="HUD オブジェクトを表示" name="hud_check"/>
+	<check_box label="保存後も開いた状態を保持" name="keep_open_check"/>
+	<check_box label="フレームをフリーズ（全画面）" name="freeze_frame_check"/>
+	<check_box label="自動更新" name="auto_snapshot_check"/>
+	<string name="unknown">
 		未知
-	</text>
+	</string>
 </floater>

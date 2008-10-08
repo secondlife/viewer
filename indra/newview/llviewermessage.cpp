@@ -862,7 +862,8 @@ void open_offer(const std::vector<LLUUID>& items, const std::string& from_name)
 
 		if(gSavedSettings.getBOOL("ShowInInventory") &&
 		   asset_type != LLAssetType::AT_CALLINGCARD &&
-		   item->getInventoryType() != LLInventoryType::IT_ATTACHMENT)
+		   item->getInventoryType() != LLInventoryType::IT_ATTACHMENT &&
+		   !from_name.empty())
 		{
 			LLInventoryView::showAgentInventory(TRUE);
 		}

@@ -503,27 +503,29 @@ static size_t headerCallback(void* data, size_t size, size_t nmemb, void* user)
 	// Per HTTP spec the first header line must be the status line.
 	if (!complete->haveHTTPStatus())
 	{
-		std::string::iterator end = header.end();
-		std::string::iterator pos1 = std::find(header.begin(), end, ' ');
-		if (pos1 != end) ++pos1;
-		std::string::iterator pos2 = std::find(pos1, end, ' ');
-		if (pos2 != end) ++pos2;
-		std::string::iterator pos3 = std::find(pos2, end, '\r');
-
-		std::string version(header.begin(), pos1);
-		std::string status(pos1, pos2);
-		std::string reason(pos2, pos3);
-
-		int statusCode = atoi(status.c_str());
-		if (statusCode > 0)
+		if (header.substr(0,5) == "HTTP/")
 		{
-			complete->httpStatus((U32)statusCode, reason);
-		}
-		else
-		{
-			llwarns << "Unable to parse http response status line: "
-					<< header << llendl;
-			complete->httpStatus(499,"Unable to parse status line.");
+			std::string::iterator end = header.end();
+			std::string::iterator pos1 = std::find(header.begin(), end, ' ');
+			if (pos1 != end) ++pos1;
+			std::string::iterator pos2 = std::find(pos1, end, ' ');
+			if (pos2 != end) ++pos2;
+			std::string::iterator pos3 = std::find(pos2, end, '\r');
+
+			std::string version(header.begin(), pos1);
+			std::string status(pos1, pos2);
+			std::string reason(pos2, pos3);
+
+			int statusCode = atoi(status.c_str());
+			if (statusCode >= 300 && statusCode < 400)
+			{
+				// This is a redirect, ignore it and all headers
+				// until we find a normal status code.
+			}
+			else if (statusCode > 0)
+			{
+				complete->httpStatus((U32)statusCode, reason);
+			}
 		}
 		return header_len;
 	}

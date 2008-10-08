@@ -1,46 +1,45 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="floaterland" title="A propos du Terrain">
+<floater name="floaterland" title="À propos du terrain">
 	<tab_container name="landtab">
 		<panel label="Général" name="land_general_panel">
 			<text type="string" length="1" name="Name:">
-				Nom :
+				Nom :
 			</text>
 			<text type="string" length="1" name="Description:">
 				Description :
 			</text>
 			<text type="string" length="1" name="Owner:">
-				Propriétaire :
+				Propriétaire :
 			</text>
 			<text type="string" length="1" name="OwnerText">
 				Leyla Linden
 			</text>
 			<button label="Profil..." label_selected="Profil..." name="Profile..." />
 			<text type="string" length="1" name="Group:">
-				Groupe :
+				Groupe :
 			</text>
 			<button label="Définir..." label_selected="Définir..." name="Set..." />
-			<check_box label="Autoriser transfert au groupe" name="check deed"
-			     tool_tip="Un officier du Groupe peut transférer ce terrain au groupe afin qu&apos;il contribue au patrimoine du groupe." />
-			<button label="Transférer…" label_selected="Transférer…" name="Deed..."
-			     tool_tip="Vous ne pouvez transférer de terrain que si vous êtes officier du groupe." />
+			<check_box label="Autoriser le transfert au groupe" name="check deed"
+			     tool_tip="Un officier peut transférer ce terrain au groupe. Il viendra alors s&apos;ajouter au patrimoine du groupe." />
+			<button label="Transférer..." label_selected="Transférer..." name="Deed..."
+			     tool_tip="Vous ne pouvez transférer le terrain que si vous avez un rôle d&apos;officier dans le groupe sélectionné." />
 			<check_box label="Le propriétaire contribue par transfert" name="check contib"
 			     tool_tip="Lorsque le terrain est transféré au groupe, la contribution du précédent propriétaire suffit à l&apos;entretenir." />
-			<check_box label="Le propriétaire fait un don en transférant le titre de propriété"
-			     name="check contrib"
-			     tool_tip="Lorsqu&apos;un titre de propriété est transféré au groupe, l&apos;ancien propriétaire fait également un don de terre suffisant." />
+			<check_box label="Le propriétaire contribue par une donation" name="check contrib"
+			     tool_tip="Lorsqu&apos;un titre de propriété est transféré au groupe, l&apos;ancien propriétaire fait également un don de terrain suffisant." />
 			<text type="string" length="1" name="For Sale:">
-				A vendre :
+				À vendre :
 			</text>
 			<text type="string" length="1" name="Not for sale.">
 				Pas à vendre.
 			</text>
 			<text type="string" length="1" name="For Sale: Price L$[PRICE].">
-				Prix : L$[PRICE].
+				Prix : [PRICE] $L.
 			</text>
-			<button label="Vendre terrain..." label_selected="Vendre terrain..."
+			<button label="Vendre le terrain..." label_selected="Vendre le terrain..."
 			     name="Sell Land..." />
 			<text type="string" length="1" name="For sale to">
-				Vendu à : [BUYER]
+				À vendre à : [BUYER]
 			</text>
 			<text type="string" length="1" name="Sell with landowners objects in parcel.">
 				Objets inclus dans la vente.
@@ -51,37 +50,36 @@
 			<button label="Annuler la vente du terrain"
 			     label_selected="Annuler la vente du terrain" name="Cancel Land Sale" />
 			<text type="string" length="1" name="Claimed:">
-				Réclamé :
+				Réclamée :
 			</text>
 			<text type="string" length="1" name="DateClaimText">
 				Tue Aug 15 13:47:25 2006
 			</text>
 			<text type="string" length="1" name="PriceLabel">
-				Superficie :
+				Surface :
 			</text>
 			<text type="string" length="1" name="PriceText">
-				4048 m2
+				4048 m²
 			</text>
 			<text type="string" length="1" name="Traffic:">
-				Trafic :
+				Trafic :
 			</text>
 			<text type="string" length="1" name="DwellText">
 				0
 			</text>
-			<button label="Acheter terrain…" label_selected="Acheter terrain…"
+			<button label="Acheter le terrain..." label_selected="Acheter le terrain..."
 			     name="Buy Land..." />
-			<button label="Acheter pour le compte d&apos;un groupe..."
-			     label_selected="Acheter pour le compte d&apos;un groupe..."
+			<button label="Acheter pour le groupe..." label_selected="Acheter pour le groupe..."
 			     name="Buy For Group..." />
-			<button label="Acheter un laissez-passer..."
-			     label_selected="Acheter un laissez-passer..." name="Buy Pass..."
-			     tool_tip="Un laissez-passer vous donne un accès temporaire à ce terrain." />
-			<button label="Céder le terrain" label_selected="Céder le terrain"
+			<button label="Acheter un passe..." label_selected="Acheter un passe..."
+			     name="Buy Pass..."
+			     tool_tip="Un passe vous donne un accès temporaire à ce terrain." />
+			<button label="Céder le terrain..." label_selected="Céder le terrain..."
 			     name="Abandon Land..." />
-			<button label="Récupérer terrain..." label_selected="Récupérer terrain..."
+			<button label="Récupérer le terrain…" label_selected="Récupérer le terrain…"
 			     name="Reclaim Land..." />
 			<button label="Vente Linden..." label_selected="Vente Linden..." name="Linden Sale..."
-			     tool_tip="Le terrain doit posséder un propriétaire, un contenu défini, et ne pas déjà être aux enchères." />
+			     tool_tip="Le terrain doit être la propriété d&apos;un résident, avoir un contenu défini et ne pas être aux enchères." />
 			<text name="new users only">
 				Nouveaux utilisateurs uniquement
 			</text>
@@ -120,51 +118,51 @@
 			</string>
 			<string name="no_selection_text">
 				Aucune parcelle sélectionnée.
-Allez dans le menu Monde &gt; A propos du terrain ou sélectionnez une autre parcelle pour en afficher les détails.
+Allez dans le menu Monde &gt; À propos du terrain ou sélectionnez une autre parcelle pour en afficher les détails.
 			</string>
 		</panel>
-		<panel label="Clause de sauvegarde" name="land_covenant_panel">
+		<panel label="Règlement" name="land_covenant_panel">
 			<text type="string" length="1" name="covenant_timestamp_text">
 				Last Modified Wed Dec 31 16:00:00 1969
 			</text>
 			<text type="string" length="1" name="region_name_lbl">
-				Région :
+				Région :
 			</text>
 			<text type="string" length="1" name="region_name_text">
 				leyla
 			</text>
 			<text type="string" length="1" name="estate_name_lbl">
-				Domaine :
+				Domaine :
 			</text>
 			<text type="string" length="1" name="estate_name_text">
 				continent
 			</text>
 			<text type="string" length="1" name="estate_owner_lbl">
-				Propriétaire :
+				Propriétaire :
 			</text>
 			<text type="string" length="1" name="estate_owner_text">
 				(aucun)
 			</text>
 			<text type="string" length="1" name="resellable_clause">
-				Les terrains acquis dans cette région ne peuvent être revendus.
+				Le terrain acheté dans cette région ne peut être revendu.
 			</text>
 			<text type="string" length="1" name="changeable_clause">
-				Les terrains acquis dans cette région ne peuvent être fusionnés/subdivisés.
+				Le terrain acheté dans cette région ne peut être revendu/divisé.
 			</text>
 			<text_editor type="string" length="1" name="covenant_editor">
-				Pas de clause de sauvegarde fixée pour ce domaine.
+				Il n&apos;y a aucun règlement pour ce domaine.
 			</text_editor>
 			<text name="can_resell">
-				Les terrains acquis dans cette région peuvent être revendus.
+				Le terrain acheté dans cette région peut être revendu.
 			</text>
 			<text name="can_not_resell">
-				Les terrains acquis dans cette région ne peuvent être revendus.
+				Le terrain acheté dans cette région ne peut pas être revendu.
 			</text>
 			<text name="can_change">
-				Les terrains acquis dans cette région peuvent être fusionnés ou subdivisés.
+				Le terrain acheté dans cette région peut être fusionné ou divisé.
 			</text>
 			<text name="can_not_change">
-				Les terrains acquis dans cette région ne peuvent être fusionnés ou subdivisés.
+				Le terrain acheté dans cette région ne peut pas être fusionné ou divisé.
 			</text>
 		</panel>
 		<panel label="Objets" name="land_objects_panel">
@@ -172,7 +170,7 @@ Allez dans le menu Monde &gt; A propos du terrain ou sélectionnez une autre par
 				Facteur Bonus Objets : [BONUS]
 			</text>
 			<text type="string" length="1" name="Simulator primitive usage:">
-				Primitifs utilisés sur le sim :
+				Prims utilisés sur le sim :
 			</text>
 			<text type="string" length="1" name="0 out of 0 available">
 				0 sur 14055 (14055 disponibles)
@@ -187,46 +185,46 @@ Allez dans le menu Monde &gt; A propos du terrain ou sélectionnez une autre par
 				[COUNT] sur [MAX] ([DELETED] seront supprimés)
 			</string>
 			<text type="string" length="1" name="Primitives parcel supports:">
-				Primitifs max. sur parcelle :
+				Prims max. sur la parcelle :
 			</text>
 			<text type="string" length="1" name="object_contrib_text">
-				926
+				[COUNT]
 			</text>
 			<text type="string" length="1" name="Primitives on parcel:">
-				Primitifs sur la parcelle :
+				Prims sur la parcelle :
 			</text>
 			<text type="string" length="1" name="total_objects_text">
-				0
+				[COUNT]
 			</text>
 			<text type="string" length="1" name="Owned by parcel owner:">
-				Appartenant au propriétaire de la parcelle :
+				Appartenant au propriétaire :
 			</text>
 			<text type="string" length="1" name="owner_objects_text">
-				0
+				[COUNT]
 			</text>
 			<button label="Afficher" label_selected="Afficher" name="ShowOwner" />
-			<button label="Renvoyer" label_selected="Renvoyer" name="ReturnOwner..."
-			     tool_tip="Renvoyez dez objets à leurs propriétaires." />
+			<button label="Renvoyer..." label_selected="Renvoyer..." name="ReturnOwner..."
+			     tool_tip="Renvoyer les objets à leurs propriétaires." />
 			<text type="string" length="1" name="Set to group:">
-				Attribuer au groupe :
+				Donnés au groupe :
 			</text>
 			<text type="string" length="1" name="group_objects_text">
 				0
 			</text>
 			<button label="Afficher" label_selected="Afficher" name="ShowGroup" />
-			<button label="Renvoyer" label_selected="Renvoyer" name="ReturnGroup..."
-			     tool_tip="Renvoyez dez objets à leurs propriétaires." />
+			<button label="Renvoyer..." label_selected="Renvoyer..." name="ReturnGroup..."
+			     tool_tip="Renvoyer les objets à leurs propriétaires." />
 			<text type="string" length="1" name="Owned by others:">
-				Appartenant à d&apos;autres :
+				Appartenant à d&apos;autres :
 			</text>
 			<text type="string" length="1" name="other_objects_text">
 				0
 			</text>
 			<button label="Afficher" label_selected="Afficher" name="ShowOther" />
-			<button label="Renvoyer" label_selected="Renvoyer" name="ReturnOther..."
-			     tool_tip="Renvoyez dez objets à leurs propriétaires." />
+			<button label="Renvoyer..." label_selected="Renvoyer..." name="ReturnOther..."
+			     tool_tip="Renvoyer les objets à leurs propriétaires." />
 			<text type="string" length="1" name="Selected / sat upon:">
-				Sélectionné / assis sur :
+				Sélectionnés/où quelqu&apos;un est assis :
 			</text>
 			<text type="string" length="1" name="selected_objects_text">
 				0
@@ -235,13 +233,14 @@ Allez dans le menu Monde &gt; A propos du terrain ou sélectionnez une autre par
 				Renvoi automatique des objets appartenant aux autres résidents (minutes, 0 pour désactiver):
 			</text>
 			<text name="Autoreturn">
-				Retour automatique des objets des autres résidents (minutes, 0 pour désactiver) :
+				Renvoi automatique des objets d&apos;autres résidents (minutes, 0 pour désactiver) :
 			</text>
 			<text type="string" length="1" name="Object Owners:">
-				Propriétaires :
+				Propriétaires :
 			</text>
-			<button label="Actualiser" label_selected="Actualiser" name="Refresh List" />
-			<button label="Renvoyer objets…" label_selected="Renvoyer objets…"
+			<button label="Rafraîchir la liste" label_selected="Rafraîchir la liste"
+			     name="Refresh List" />
+			<button label="Renvoyer les objets..." label_selected="Renvoyer les objets..."
 			     name="Return objects..." />
 			<button label="" label_selected="" name="Type" tool_tip="Trier par type" />
 			<button label="Nom" label_selected="Nom" name="Name" tool_tip="Trier par nom" />
@@ -254,14 +253,14 @@ Allez dans le menu Monde &gt; A propos du terrain ou sélectionnez une autre par
 		</panel>
 		<panel label="Options" name="land_options_panel">
 			<text type="string" length="1" name="allow_label">
-				Autoriser d&apos;autres résidents à :
+				Autoriser les autres résidents à :
 			</text>
 			<text name="allow_label2">
 				Créer des objets :
 			</text>
-			<check_box label="Créer objets" name="edit objects check" />
-			<check_box label="Modifier le relief" name="edit land check" />
-			<check_box label="Créer repères" name="check landmark" />
+			<check_box label="Tous les résidents" name="edit objects check" />
+			<check_box label="Modifier le terrain" name="edit land check" />
+			<check_box label="Créer des repères" name="check landmark" />
 			<check_box label="Groupe" name="edit group objects check" />
 			<text name="allow_label3">
 				Apporter des objets :
@@ -271,47 +270,48 @@ Allez dans le menu Monde &gt; A propos du terrain ou sélectionnez une autre par
 			<text name="allow_label4">
 				Exécuter des scripts :
 			</text>
-			<check_box label="Exécuter des scripts de groupe" name="check group scripts" />
+			<check_box label="Groupe" name="check group scripts" />
 			<check_box label="Voler" name="check fly" />
-			<check_box label="Exécuter d&apos;autres scripts" name="check other scripts" />
+			<check_box label="Tous les résidents" name="check other scripts" />
 			<text type="string" length="1" name="land_options_label">
-				Options du Terrain :
+				Options du terrain :
 			</text>
-			<check_box label="Sans danger (pas de dégâts)" name="check safe" />
-			<check_box label="Interdire de pousser" name="PushRestrictCheck"
-			     tool_tip="llPushObject ne fonctionnera que sur des scripts appartenant au propriétaire de la parcelle ou si celui qui est poussé est propriétaire du script." />
-			<check_box label="Show in Search &gt; Places (L$30/week) under" name="ShowDirectoryCheck"
+			<check_box label="Sécurisé (pas de dégâts)" name="check safe" />
+			<check_box label="Interdire les bousculades" name="PushRestrictCheck"
+			     tool_tip="llPushObject ne fonctionne que sur les scripts du propriétaire de la parcelle ou sur les scripts où la personne qui bouscule est aussi la propriétaire du script." />
+			<check_box label="Afficher dans la recherche (30 $L/semaine) sous"
+			     name="ShowDirectoryCheck"
 			     tool_tip="Afficher la parcelle dans les résultats de recherche" />
 			<combo_box name="land category">
 				<combo_item name="AnyCategory">
-					Toutes catégories
+					Toute catégorie
 				</combo_item>
 				<combo_item name="LindenLocation">
-					Lieu appartenant aux Linden
+					Emplacement Linden
 				</combo_item>
 				<combo_item name="Adult">
-					Adulte
+					Adultes
 				</combo_item>
 				<combo_item name="Arts&amp;Culture">
-					Arts &amp; Culture
+					Art et Culture
 				</combo_item>
 				<combo_item name="Business">
-					Business
+					Affaires
 				</combo_item>
 				<combo_item name="Educational">
-					Educatif
+					Éducation
 				</combo_item>
 				<combo_item name="Gaming">
-					Gaming
+					Jeux
 				</combo_item>
 				<combo_item name="Hangout">
-					QG
+					Endroit favori
 				</combo_item>
 				<combo_item name="NewcomerFriendly">
-					Nouveaux arrivants bienvenus
+					Convivial pour les nouveaux
 				</combo_item>
 				<combo_item name="Parks&amp;Nature">
-					Parcs &amp; Nature
+					Parcs et Nature
 				</combo_item>
 				<combo_item name="Residential">
 					Résidentiel
@@ -325,13 +325,13 @@ Allez dans le menu Monde &gt; A propos du terrain ou sélectionnez une autre par
 			</combo_box>
 			<check_box label="Publier liste sur le web" name="PublishCheck"
 			     tool_tip="Publiez vos informations de parcelle sur le web." />
-			<check_box label="Contenu adulte" name="MatureCheck"
-			     tool_tip="Les informations de votre parcelle sont à caractère adulte." />
+			<check_box label="Contenu pour adultes" name="MatureCheck"
+			     tool_tip="Les infos sur votre parcelle, ou le contenu de cette dernière, sont à caractère adulte." />
 			<button label="?" label_selected="?" name="?" />
 			<text type="string" length="1" name="Snapshot:">
-				Instantané :
+				Photo :
 			</text>
-			<texture_picker label="" name="snapshot_ctrl" tool_tip="Cliquez pour choisir une image" />
+			<texture_picker label="" name="snapshot_ctrl" tool_tip="Cliquez pour sélectionner une image" />
 			<text type="string" length="1" name="Landing Point: (none)">
 				Point d&apos;atterrissage : (aucun)
 			</text>
@@ -342,22 +342,22 @@ Allez dans le menu Monde &gt; A propos du terrain ou sélectionnez une autre par
 				(aucun)
 			</string>
 			<button label="Définir" label_selected="Définir" name="Set"
-			     tool_tip="Définir le point d&apos;atterrissage sur votre position actuelle. Il doit se trouver à l&apos;intérieur de cette parcelle de terrain." />
-			<button label="Effacer" label_selected="Effacer" name="Clear"
-			     tool_tip="Dégagez le point d&apos;atterissage." />
+			     tool_tip="Définir le lieu d&apos;arrivée de l&apos;avatar sur votre position actuelle. ll doit se trouver sur cette parcelle de terrain." />
+			<button label="Annuler" label_selected="Annuler" name="Clear"
+			     tool_tip="Dégager le lieu d&apos;arrivée." />
 			<text type="string" length="1" name="Teleport Routing: ">
-				Routage de téléportation :
+				Options de téléportation :
 			</text>
 			<combo_box name="landing type"
-			     tool_tip="Teleport Routing -- select how to handle teleports onto your land.">
+			     tool_tip="Vous permet de paramétrer les téléportations sur votre terrain.">
 				<combo_item type="string" length="1" name="Blocked">
-					Bloqué(e)
+					Bloquée
 				</combo_item>
 				<combo_item type="string" length="1" name="LandingPoint">
-					Point d&apos;atterrissage
+					Lieu d&apos;arrivée défini
 				</combo_item>
 				<combo_item type="string" length="1" name="Anywhere">
-					Partout
+					Lieu d&apos;arrivée indéfini
 				</combo_item>
 			</combo_box>
 			<string name="push_restrict_text">
@@ -413,25 +413,23 @@ média :
 			<text name="Sound:">
 				Son :
 			</text>
-			<check_box label="Limiter le son spatial à la parcelle" name="check sound local" />
+			<check_box label="Limiter le son spatial à cette parcelle" name="check sound local" />
 			<text type="string" length="1" name="Music URL:">
 				URL du flux :
 			</text>
 			<text type="string" length="1" name="Media texture:">
-				Texture
-du média :
+				Remplacer
+la texture :
 			</text>
 			<text type="string" length="1" name="Replace this texture:">
 				Remplacer cette texture :
 			</text>
-			<texture_picker label="" name="media texture" tool_tip="Cliquez pour choisir une image" />
+			<texture_picker label="" name="media texture" tool_tip="Cliquez pour sélectionner une image" />
 			<text type="string" length="1" name="with content from this URL:">
 				par du contenu situé à l&apos;URL suivante :
 			</text>
-			<check_box
-			     label="Redimensionnement automatique (plus lent et affichage de qualité inférieure)"
-			     name="media_auto_scale"
-			     tool_tip="Cochez pour mettre le contenu à l&apos;échelle de cette parcelle. Cela peut légèrement affecter la rapidité et la qualité visuelle, mais ne nécessitera pas de remise à l&apos;échelle ou de réalignement de texture supplémentaires." />
+			<check_box label="Échelle automatique" name="media_auto_scale"
+			     tool_tip="Si vous sélectionnez cette option, le contenu de cette parcelle sera automatiquement mis à l&apos;échelle. La qualité visuelle sera peut-être amoindrie mais vous n&apos;aurez à faire aucune autre mise à l&apos;échelle ou alignement." />
 			<text name="Voice settings:">
 				Voix :
 			</text>
@@ -449,7 +447,7 @@ du média :
 		</panel>
 		<panel label="Accès" name="land_access_panel">
 			<text type="string" length="1" name="Limit access to this parcel to:">
-				Restreindre l&apos;accès à cette parcelle à :
+				Accès à cette parcelle
 			</text>
 			<check_box label="Autoriser l&apos;accès public" name="public_access" />
 			<text name="Only Allow">
@@ -464,12 +462,12 @@ du média :
 			<string name="estate_override">
 				Au moins une de ces options est définie au niveau du domaine.
 			</string>
-			<check_box label="Groupe : (aucun)" name="GroupCheck"
+			<check_box label="Autoriser l&apos;accès au groupe : [GROUP]" name="GroupCheck"
 			     tool_tip="Définir le groupe à l&apos;onglet Général." />
 			<check_box label="Avatars : (0 dans la liste, 300 max)" name="AccessCheck" />
 			<button label="Ajouter..." label_selected="Ajouter..." name="Add..." />
 			<button label="Retirer" label_selected="Retirer" name="Remove" />
-			<check_box label="Vendre des laissez-passer temporaires :" name="PassCheck"
+			<check_box label="Vendre des passes à :" name="PassCheck"
 			     tool_tip="Autoriser un accès temporaire à cette parcelle" />
 			<combo_box name="pass_combo">
 				<combo_item name="Anyone">
@@ -479,8 +477,8 @@ du média :
 					Groupe
 				</combo_item>
 			</combo_box>
-			<spinner label="Prix en L$ :" name="PriceSpin" />
-			<spinner label="Heures de connexion :" name="HoursSpin" />
+			<spinner label="Prix en $L :" name="PriceSpin" />
+			<spinner label="Heures d&apos;accès :" name="HoursSpin" />
 			<text label="Toujours autoriser" name="AllowedText">
 				Résidents autorisés
 			</text>

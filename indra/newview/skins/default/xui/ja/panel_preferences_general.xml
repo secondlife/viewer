@@ -34,7 +34,7 @@
 	</combo_box>
 	<check_box label="画面上で自分の名前を隠す" name="show_my_name_checkbox" />
 	<text name="group_titles_textbox">
-		グループ・タイトル:
+		グループ・タイトル：
 	</text>
 	<check_box label="グループ・タイトルをすべて非表示"
 	     name="show_all_title_checkbox" />
@@ -44,7 +44,7 @@
 	<color_swatch label="" name="effect_color_swatch"
 	     tool_tip="カラー・ピッカーをクリックして開く" />
 	<text name="UI Size:">
-		UI サイズ:
+		UI サイズ：
 	</text>
 	<check_box label="解像度独立スケールを使用" name="ui_auto_scale" />
 	<spinner label="退席までの時間：" name="afk_timeout_spinner" />

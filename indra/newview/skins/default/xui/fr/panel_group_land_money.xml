@@ -1,52 +1,48 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<panel label="Terrains &amp; L$" name="land_money_tab">
+<panel label="Terrain &amp; $L" name="land_money_tab">
 	<text name="help_text">
-		Les parcelles appartenant au groupe sont listées avec 
-le détail des contributions. Un avertissement apparaît jusqu&apos;à ce que
-le total du terrain utilisé soit inférieur ou égal au total
-des contributions. Les onglets Planning, Détails et Ventes
-fournissent des informations sur les finances du groupe.
+		Les parcelles appartenant au groupe apparaissent avec les détails des contributions.  Un avertissement apparaîtra tant que le Total du terrain utilisé sera inférieur ou égal aux Contributions totales.  Les onglets Planification, Détails et Ventes fournissent des détails sur les finances du groupe.
 	</text>
 	<button label="?" name="help_button" />
 	<text name="cant_view_group_land_text">
-		Vous n&apos;êtes pas autorisé(e) à voir les terrains appartenant à des groupes.
+		Vous n&apos;avez pas la permission de voir quel terrain possède ce groupe.
 	</text>
 	<text name="cant_view_group_accounting_text">
-		Vous n&apos;êtes pas autorisé(e) à voir les informations comptables du groupe.
+		Vous n&apos;avez pas la permission d&apos;accéder aux informations financières de ce groupe.
 	</text>
 	<string name="loading_txt">
 		Chargement en cours...
 	</string>
 	<text name="group_land_heading">
-		Terrain appartenant à des Groupes
+		Terrain du groupe
 	</text>
 	<scroll_list name="group_parcel_list">
-		<column label="Parcel Name" name="name" />
-		<column label="Region" name="location" />
-		<column label="Area" name="area" />
+		<column label="Nom de la parcelle" name="name" />
+		<column label="Région" name="location" />
+		<column label="Surface" name="area" />
 		<column label="" name="hidden" />
 	</scroll_list>
-	<button label="Localiser" label_selected="Localiser" name="map_button" />
+	<button label="Voir sur la carte" label_selected="Voir sur la carte" name="map_button" />
 	<text name="total_contributed_land_label">
-		Contribution totale :
+		Contributions totales :
 	</text>
 	<text name="total_contributed_land_value">
-		0 m2
+		[AREA] m²
 	</text>
 	<text name="total_land_in_use_label">
-		Total du terrain utilisé :
+		Total du terrain utilisé :
 	</text>
 	<text name="total_land_in_use_value">
-		0 m2
+		[AREA] m²
 	</text>
 	<text name="land_available_label">
-		Terrain disponible :
+		Terrain disponible :
 	</text>
 	<text name="land_available_value">
-		0 m2
+		[AREA] m²
 	</text>
 	<text name="your_contribution_label">
-		Votre contribution :
+		Votre contribution :
 	</text>
 	<text name="your_contribution_max_value_append">
 		mètres carrés
@@ -55,16 +51,17 @@ fournissent des informations sur les finances du groupe.
 		Impossible de définir votre don de terre.
 	</string>
 	<text name="your_contribution_max_value">
-		(en attente)
+		m² ([AMOUNT] max.)
 	</text>
 	<text name="group_over_limit_text">
-		Les membres du groupe doivent augmenter leur contribution en crédits terrain pour disposer du terrain utilisé.
+		Une contribution supplémentaire du groupe est requise pour prendre en
+charge le terrain utilisé.
 	</text>
 	<text name="group_money_heading">
-		L$ du Groupe
+		$L du groupe
 	</text>
 	<tab_container name="group_money_tab_container">
-		<panel label="Planning" name="group_money_planning_tab">
+		<panel label="Planification" name="group_money_planning_tab">
 			<text_editor name="group_money_planning_text">
 				Calcul en cours...
 			</text_editor>

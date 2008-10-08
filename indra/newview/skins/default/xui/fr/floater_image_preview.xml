@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater name="Image Preview" title="">
 	<text name="name_label">
-		Nom :
+		Nom :
 	</text>
 	<text name="description_label">
 		Description :
 	</text>
 	<text name="preview_label">
-		Aperçu de l&apos;image :
+		Prévisualiser comme :
 	</text>
-	<combo_box label="Type d&apos;habillement" name="clothing_type_combo">
+	<combo_box label="Habits" name="clothing_type_combo">
 		<combo_item name="Image">
 			Image
 		</combo_item>
@@ -17,22 +17,22 @@
 			Cheveux
 		</combo_item>
 		<combo_item name="FemaleHead">
-			Tête féminine
+			Tête de femme
 		</combo_item>
 		<combo_item name="FemaleUpperBody">
-			Haut du corps féminin
+			Corps de femme (haut)
 		</combo_item>
 		<combo_item name="FemaleLowerBody">
-			Bas du corps féminin
+			Corps de femme (bas)
 		</combo_item>
 		<combo_item name="MaleHead">
-			Tête masculine
+			Tête d&apos;homme
 		</combo_item>
 		<combo_item name="MaleUpperBody">
-			Haut du corps masculin
+			Corps d&apos;homme (haut)
 		</combo_item>
 		<combo_item name="MaleLowerBody">
-			Bas du corps masculin
+			Corps d&apos;homme (bas)
 		</combo_item>
 		<combo_item name="Skirt">
 			Jupe
@@ -42,11 +42,11 @@
 		</combo_item>
 	</combo_box>
 	<text name="bad_image_text">
-		Unable to read image.
-	
-	Try saving image as 24 bit Targa (.tga).
+		Impossible de lire l&apos;image.
+
+Sauvegardez en Targa 24 bit (.tga).
 	</text>
 	<check_box label="Utiliser une compression sans perte" name="lossless_check" />
 	<button label="Annuler" name="cancel_btn" />
-	<button label="Uploader (L$[AMOUNT])" name="ok_btn" />
+	<button label="Charger ([AMOUNT] $L)" name="ok_btn" />
 </floater>
