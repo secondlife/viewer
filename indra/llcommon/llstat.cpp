@@ -31,17 +31,288 @@
 #include "linden_common.h"
 
 #include "llstat.h"
+#include "lllivefile.h"
+#include "llerrorcontrol.h"
 #include "llframetimer.h"
 #include "timing.h"
+#include "llsd.h"
+#include "llsdserialize.h"
+#include "llstl.h"
+#include "u64.h"
 
 
+// statics
+BOOL            LLPerfBlock::sStatsEnabled = FALSE;    // Flag for detailed information
+LLPerfBlock::stat_map_t    LLPerfBlock::sStatMap;    // Map full path string to LLStatTime objects, tracks all active objects
+std::string        LLPerfBlock::sCurrentStatPath = "";    // Something like "/total_time/physics/physics step"
 
-U64 LLStatAccum::sScaleTimes[IMPL_NUM_SCALES] =
+//------------------------------------------------------------------------
+// Live config file to trigger stats logging
+static const char    STATS_CONFIG_FILE_NAME[]            = "/dev/shm/simperf/simperf_proc_config.llsd";
+static const F32    STATS_CONFIG_REFRESH_RATE            = 5.0;        // seconds
+
+class LLStatsConfigFile : public LLLiveFile
+{
+public:
+    LLStatsConfigFile()
+        : LLLiveFile(filename(), STATS_CONFIG_REFRESH_RATE),
+        mChanged(false), mStatsp(NULL) { }
+
+    static std::string filename();
+    
+protected:
+    /* virtual */ void loadFile();
+
+public:
+    void init(LLPerfStats* statsp);
+    static LLStatsConfigFile& instance();
+        // return the singleton stats config file
+
+    bool mChanged;
+
+protected:
+    LLPerfStats*    mStatsp;
+};
+
+std::string LLStatsConfigFile::filename()
+{
+    return STATS_CONFIG_FILE_NAME;
+}
+
+void LLStatsConfigFile::init(LLPerfStats* statsp)
+{
+    mStatsp = statsp;
+}
+
+LLStatsConfigFile& LLStatsConfigFile::instance()
+{
+    static LLStatsConfigFile the_file;
+    return the_file;
+}
+
+
+/* virtual */
+// Load and parse the stats configuration file
+void LLStatsConfigFile::loadFile()
+{
+    if (!mStatsp)
+    {
+        llwarns << "Tries to load performance configure file without initializing LPerfStats" << llendl;
+        return;
+    }
+    mChanged = true;
+    
+    LLSD stats_config;
+    {
+        llifstream file(filename().c_str());
+        if (file.is_open())
+        {
+            LLSDSerialize::fromXML(stats_config, file);
+            if (stats_config.isUndefined())
+            {
+                llinfos << "Performance statistics configuration file ill-formed, not recording statistics" << llendl;
+                mStatsp->setReportPerformanceDuration( 0.f );
+                return;
+            }
+        }
+        else 
+        {    // File went away, turn off stats if it was on
+            if ( mStatsp->frameStatsIsRunning() )
+            {
+                llinfos << "Performance statistics configuration file deleted, not recording statistics" << llendl;
+                mStatsp->setReportPerformanceDuration( 0.f );
+            }
+            return;
+        }
+    }
+
+    F32 duration = 0.f;
+    F32 interval = 0.f;
+
+    const char * w = "duration";
+    if (stats_config.has(w))
+    {
+        duration = (F32)stats_config[w].asReal();
+    } 
+    w = "interval";
+    if (stats_config.has(w))
+    {
+        interval = (F32)stats_config[w].asReal();
+    } 
+
+    mStatsp->setReportPerformanceDuration( duration );
+    mStatsp->setReportPerformanceInterval( interval );
+
+    if ( duration > 0 )
+    {
+        if ( interval == 0.f )
+        {
+            llinfos << "Recording performance stats every frame for " << duration << " sec" << llendl;
+        }
+        else
+        {
+            llinfos << "Recording performance stats every " << interval << " seconds for " << duration << " seconds" << llendl;
+        }
+    }
+    else
+    {
+        llinfos << "Performance stats recording turned off" << llendl;
+    }
+}
+
+
+//------------------------------------------------------------------------
+
+LLPerfStats::LLPerfStats(const std::string& process_name, S32 process_pid) : 
+    mFrameStatsFileFailure(FALSE),
+    mSkipFirstFrameStats(FALSE),
+    mProcessName(process_name),
+    mProcessPID(process_pid),
+    mReportPerformanceStatInterval(1.f),
+    mReportPerformanceStatEnd(0.0) 
+{ }
+
+LLPerfStats::~LLPerfStats()
+{
+    LLPerfBlock::clearDynamicStats();
+    mFrameStatsFile.close();
+}
+
+void LLPerfStats::init()
+{
+    // Initialize the stats config file instance.
+    (void) LLStatsConfigFile::instance().init(this);
+    (void) LLStatsConfigFile::instance().checkAndReload();
+}
+
+// Open file for statistics
+void    LLPerfStats::openPerfStatsFile()
+{
+    if ( !mFrameStatsFile
+        && !mFrameStatsFileFailure )
+    {
+        std::string stats_file = llformat("/dev/shm/simperf/%s_proc.%d.llsd", mProcessName.c_str(), mProcessPID);
+        mFrameStatsFile.close();
+        mFrameStatsFile.clear();
+        mFrameStatsFile.open(stats_file, llofstream::out);
+        if ( mFrameStatsFile.fail() )
+        {
+            llinfos << "Error opening statistics log file " << stats_file << llendl;
+            mFrameStatsFileFailure = TRUE;
+        }
+        else
+        {
+            LLSD process_info = LLSD::emptyMap();
+            process_info["name"] = mProcessName;
+            process_info["pid"] = (LLSD::Integer) mProcessPID;
+            process_info["stat_rate"] = (LLSD::Integer) mReportPerformanceStatInterval;
+            // Add process-specific info.
+            addProcessHeaderInfo(process_info);
+
+            mFrameStatsFile << LLSDNotationStreamer(process_info) << std::endl; 
+        }
+    }
+}
+
+// Dump out performance metrics over some time interval
+void LLPerfStats::dumpIntervalPerformanceStats()
+{
+    // Ensure output file is OK
+    openPerfStatsFile();
+
+    if ( mFrameStatsFile )
+    {
+        LLSD stats = LLSD::emptyMap();
+
+        LLStatAccum::TimeScale scale;
+        if ( getReportPerformanceInterval() == 0.f )
+        {
+            scale = LLStatAccum::SCALE_PER_FRAME;
+        }
+        else if ( getReportPerformanceInterval() < 0.5f )
+        {
+            scale = LLStatAccum::SCALE_100MS;
+        }
+        else
+        {
+            scale = LLStatAccum::SCALE_SECOND;
+        }
+
+        // Write LLSD into log
+        stats["utc_time"] = (LLSD::String) LLError::utcTime();
+        stats["timestamp"] = U64_to_str((totalTime() / 1000) + (gUTCOffset * 1000));    // milliseconds since epoch
+        stats["frame_number"] = (LLSD::Integer) LLFrameTimer::getFrameCount();
+
+        // Add process-specific frame info.
+        addProcessFrameInfo(stats, scale);
+        LLPerfBlock::addStatsToLLSDandReset( stats, scale );
+
+        mFrameStatsFile << LLSDNotationStreamer(stats) << std::endl; 
+    }
+}
+
+// Set length of performance stat recording
+void    LLPerfStats::setReportPerformanceDuration( F32 seconds )
+{ 
+	if ( seconds <= 0.f )
+	{
+		mReportPerformanceStatEnd = 0.0;
+		LLPerfBlock::setStatsEnabled( FALSE );
+		mFrameStatsFile.close();
+		LLPerfBlock::clearDynamicStats();
+	}
+	else
+	{
+		mReportPerformanceStatEnd = LLFrameTimer::getElapsedSeconds() + ((F64) seconds);
+		// Clear failure flag to try and create the log file once
+		mFrameStatsFileFailure = FALSE;
+		LLPerfBlock::setStatsEnabled( TRUE );
+		mSkipFirstFrameStats = TRUE;		// Skip the first report (at the end of this frame)
+	}
+}
+
+void LLPerfStats::updatePerFrameStats()
+{
+    (void) LLStatsConfigFile::instance().checkAndReload();
+	static LLFrameTimer performance_stats_timer;
+	if ( frameStatsIsRunning() )
+	{
+		if ( mReportPerformanceStatInterval == 0 )
+		{	// Record info every frame
+			if ( mSkipFirstFrameStats )
+			{	// Skip the first time - was started this frame
+				mSkipFirstFrameStats = FALSE;
+			}
+			else
+			{
+				dumpIntervalPerformanceStats();
+			}
+		}
+		else
+		{
+			performance_stats_timer.setTimerExpirySec( getReportPerformanceInterval() );
+			if (performance_stats_timer.checkExpirationAndReset( mReportPerformanceStatInterval ))
+			{
+				dumpIntervalPerformanceStats();
+			}
+		}
+		
+		if ( LLFrameTimer::getElapsedSeconds() > mReportPerformanceStatEnd )
+		{	// Reached end of time, clear it to stop reporting
+			setReportPerformanceDuration(0.f);			// Don't set mReportPerformanceStatEnd directly	
+            llinfos << "Recording performance stats completed" << llendl;
+		}
+	}
+}
+
+
+//------------------------------------------------------------------------
+
+U64 LLStatAccum::sScaleTimes[NUM_SCALES] =
 {
 	USEC_PER_SEC / 10,				// 100 millisec
 	USEC_PER_SEC * 1,				// seconds
 	USEC_PER_SEC * 60,				// minutes
-	USEC_PER_SEC * 60 * 2			// two minutes
 #if ENABLE_LONG_TIME_STATS
 	// enable these when more time scales are desired
 	USEC_PER_SEC * 60*60,			// hours
@@ -71,7 +342,7 @@ void LLStatAccum::reset(U64 when)
 	mRunning = TRUE;
 	mLastTime = when;
 
-	for (int i = 0; i < IMPL_NUM_SCALES; ++i)
+	for (int i = 0; i < NUM_SCALES; ++i)
 	{
 		mBuckets[i].accum = 0.0;
 		mBuckets[i].endTime = when + sScaleTimes[i];
@@ -104,7 +375,7 @@ void LLStatAccum::sum(F64 value, U64 when)
 	// how long is this value for
 	U64 timeSpan = when - mLastTime;
 
-	for (int i = 0; i < IMPL_NUM_SCALES; ++i)
+	for (int i = 0; i < NUM_SCALES; ++i)
 	{
 		Bucket& bucket = mBuckets[i];
 
@@ -150,7 +421,12 @@ F32 LLStatAccum::meanValue(TimeScale scale) const
 	{
 		return 0.0;
 	}
-	if (scale < 0 || scale >= IMPL_NUM_SCALES)
+	if ( scale == SCALE_PER_FRAME )
+	{	// Per-frame not supported here
+		scale = SCALE_100MS;
+	}
+
+	if (scale < 0 || scale >= NUM_SCALES)
 	{
 		llwarns << "llStatAccum::meanValue called for unsupported scale: "
 			<< scale << llendl;
@@ -260,25 +536,34 @@ void LLStatMeasure::sample(F64 value)
 
 // ------------------------------------------------------------------------
 
-LLStatTime::LLStatTime(bool use_frame_timer)
-	: LLStatAccum(use_frame_timer),
-	  mFrameNumber(0),
-	  mTotalTimeInFrame(0)
+LLStatTime::LLStatTime(const std::string & key)
+	: LLStatAccum(false),
+	  mFrameNumber(LLFrameTimer::getFrameCount()),
+	  mTotalTimeInFrame(0),
+	  mKey(key)
+#if LL_DEBUG
+	  , mRunning(FALSE)
+#endif
 {
-	mFrameNumber = LLFrameTimer::getFrameCount();
 }
 
 void LLStatTime::start()
 {
 	// Reset frame accumluation if the frame number has changed
 	U32 frame_number = LLFrameTimer::getFrameCount();
-	if ( frame_number != mFrameNumber)
+	if ( frame_number != mFrameNumber )
 	{
 		mFrameNumber = frame_number;
 		mTotalTimeInFrame = 0;
 	}
 
 	sum(0.0);
+
+#if LL_DEBUG
+	// Shouldn't be running already
+	llassert( !mRunning );
+	mRunning = TRUE;
+#endif
 }
 
 void LLStatTime::stop()
@@ -286,7 +571,149 @@ void LLStatTime::stop()
 	U64 end_time = getCurrentUsecs();
 	U64 duration = end_time - mLastTime;
 	sum(F64(duration), end_time);
+	//llinfos << "mTotalTimeInFrame incremented from  " << mTotalTimeInFrame << " to " << (mTotalTimeInFrame + duration) << llendl; 
 	mTotalTimeInFrame += duration;
+
+#if LL_DEBUG
+	mRunning = FALSE;
+#endif
+}
+
+/* virtual */ F32 LLStatTime::meanValue(TimeScale scale) const
+{
+    if ( LLStatAccum::SCALE_PER_FRAME == scale )
+    {
+        return mTotalTimeInFrame;
+    }
+    else
+    {
+        return LLStatAccum::meanValue(scale);
+    }
+}
+
+
+// ------------------------------------------------------------------------
+
+
+// Use this constructor for pre-defined LLStatTime objects
+LLPerfBlock::LLPerfBlock(LLStatTime* stat ) : mPredefinedStat(stat), mDynamicStat(NULL)
+{
+    if (mPredefinedStat)
+    {
+        // If dynamic stats are turned on, this will create a separate entry in the stat map.
+        initDynamicStat(mPredefinedStat->mKey);
+
+        // Start predefined stats.  These stats are not part of the stat map.
+        mPredefinedStat->start();
+    }
+}
+
+// Use this constructor for dynamically created LLStatTime objects (not pre-defined) with a multi-part key.
+// These are also turned on or off via the switch passed in
+LLPerfBlock::LLPerfBlock( const char* key1, const char* key2 ) : mPredefinedStat(NULL), mDynamicStat(NULL)
+{
+    if (!sStatsEnabled) return;
+
+    if (NULL == key2 || strlen(key2) == 0)
+    {
+        initDynamicStat(key1);
+    }
+    else
+    {
+        std::ostringstream key;
+        key << key1 << "_" << key2;
+        initDynamicStat(key.str());
+    }
+}
+
+void LLPerfBlock::initDynamicStat(const std::string& key)
+{
+    // Early exit if dynamic stats aren't enabled.
+    if (!sStatsEnabled) return;
+
+    mLastPath = sCurrentStatPath;		// Save and restore current path
+    sCurrentStatPath += "/" + key;		// Add key to current path
+
+    // See if the LLStatTime object already exists
+    stat_map_t::iterator iter = sStatMap.find(sCurrentStatPath);
+    if ( iter == sStatMap.end() )
+    {
+        // StatEntry object doesn't exist, so create it
+        mDynamicStat = new StatEntry( key );
+        sStatMap[ sCurrentStatPath ] = mDynamicStat;	// Set the entry for this path
+    }
+    else
+    {
+        // Found this path in the map, use the object there
+        mDynamicStat = (*iter).second;		// Get StatEntry for the current path
+    }
+
+    if (mDynamicStat)
+    {
+        mDynamicStat->mStat.start();
+        mDynamicStat->mCount++;
+    }
+    else
+    {
+        llwarns << "Initialized NULL dynamic stat at '" << sCurrentStatPath << "'" << llendl;
+       sCurrentStatPath = mLastPath;
+    }
+}
+
+
+// Destructor does the time accounting
+LLPerfBlock::~LLPerfBlock()
+{
+    if (mPredefinedStat) mPredefinedStat->stop();
+    if (mDynamicStat)
+    {
+        mDynamicStat->mStat.stop();
+        sCurrentStatPath = mLastPath;	// Restore the path in case sStatsEnabled changed during this block
+    }
+}
+
+
+// Clear the map of any dynamic stats.  Static routine
+void LLPerfBlock::clearDynamicStats()
+{
+    std::for_each(sStatMap.begin(), sStatMap.end(), DeletePairedPointer());
+    sStatMap.clear();
+}
+
+// static - Extract the stat info into LLSD
+void LLPerfBlock::addStatsToLLSDandReset( LLSD & stats,
+										  LLStatAccum::TimeScale scale )
+{
+    // If we aren't in per-frame scale, we need to go from second to microsecond.
+    U32 scale_adjustment = 1;
+    if (LLStatAccum::SCALE_PER_FRAME != scale)
+    {
+        scale_adjustment = USEC_PER_SEC;
+    }
+	stat_map_t::iterator iter = sStatMap.begin();
+	for ( ; iter != sStatMap.end(); ++iter )
+	{	// Put the entry into LLSD "/full/path/to/stat/" = microsecond total time
+		const std::string & stats_full_path = (*iter).first;
+
+		StatEntry * stat = (*iter).second;
+		if (stat)
+		{
+            if (stat->mCount > 0)
+            {
+                stats[stats_full_path] = LLSD::emptyMap();
+                stats[stats_full_path]["us"] = (LLSD::Integer) (scale_adjustment * stat->mStat.meanValue(scale));
+                if (stat->mCount > 1)
+                {
+                    stats[stats_full_path]["count"] = (LLSD::Integer) stat->mCount;
+                }
+                stat->mCount = 0;
+            }
+		}
+		else
+		{	// WTF?  Shouldn't have a NULL pointer in the map.
+            llwarns << "Unexpected NULL dynamic stat at '" << stats_full_path << "'" << llendl;
+		}
+	}	
 }
 
 

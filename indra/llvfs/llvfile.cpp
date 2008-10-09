@@ -35,6 +35,7 @@
 
 #include "llerror.h"
 #include "llthread.h"
+#include "llstat.h"
 #include "llvfs.h"
 
 const S32 LLVFile::READ			= 0x00000001;

@@ -41,6 +41,7 @@
 #include "llapr.h"
 #include "llmemtype.h"
 #include "llstl.h"
+#include "llstat.h"
 
 // These should not be enabled in production, but they can be
 // intensely useful during development for finding certain kinds of
@@ -521,7 +522,10 @@ void LLPumpIO::pump(const S32& poll_timeout)
 		//llinfos << "polling" << llendl;
 		S32 count = 0;
 		S32 client_id = 0;
-		apr_pollset_poll(mPollset, poll_timeout, &count, &poll_fd);
+        {
+            LLPerfBlock polltime("pump_poll");
+            apr_pollset_poll(mPollset, poll_timeout, &count, &poll_fd);
+        }
 		PUMP_DEBUG;
 		for(S32 ii = 0; ii < count; ++ii)
 		{

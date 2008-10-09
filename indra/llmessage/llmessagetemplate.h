@@ -34,6 +34,7 @@
 
 #include "lldarray.h"
 #include "message.h" // TODO: babbage: Remove...
+#include "llstat.h"
 #include "llstl.h"
 
 class LLMsgVarData
@@ -370,6 +371,7 @@ public:
 	{
 		if (mHandlerFunc)
 		{
+            LLPerfBlock msg_cb_time("msg_cb", mName);
 			mHandlerFunc(msgsystem, mUserData);
 			return TRUE;
 		}

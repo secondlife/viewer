@@ -3549,7 +3549,7 @@ void init_stat_view()
 	stat_barp->mDisplayBar = FALSE;
 	stat_barp->mDisplayMean = FALSE;
 
-	stat_barp = sim_time_viewp->addStat("Sim Time (Physics)", &(LLViewerStats::getInstance()->mSimSimPhysicsMsec));
+	stat_barp = sim_time_viewp->addStat("Physics Time", &(LLViewerStats::getInstance()->mSimSimPhysicsMsec));
 	stat_barp->setUnitLabel("ms");
 	stat_barp->mPrecision = 1;
 	stat_barp->mMinBar = 0.f;
@@ -3560,45 +3560,7 @@ void init_stat_view()
 	stat_barp->mDisplayBar = FALSE;
 	stat_barp->mDisplayMean = FALSE;
 
-	LLStatView *physics_time_viewp;
-	physics_time_viewp = new LLStatView("physics perf view", "Physics Details (ms)", "", rect);
-	sim_time_viewp->addChildAtEnd(physics_time_viewp);
-	{
-		stat_barp = physics_time_viewp->addStat("Physics Step", &(LLViewerStats::getInstance()->mSimSimPhysicsStepMsec));
-		stat_barp->setUnitLabel("ms");
-		stat_barp->mPrecision = 1;
-		stat_barp->mMinBar = 0.f;
-		stat_barp->mMaxBar = 40.f;
-		stat_barp->mTickSpacing = 10.f;
-		stat_barp->mLabelSpacing = 20.f;
-		stat_barp->mPerSec = FALSE;
-		stat_barp->mDisplayBar = FALSE;
-		stat_barp->mDisplayMean = FALSE;
-
-		stat_barp = physics_time_viewp->addStat("Update Shapes", &(LLViewerStats::getInstance()->mSimSimPhysicsShapeUpdateMsec));
-		stat_barp->setUnitLabel("ms");
-		stat_barp->mPrecision = 1;
-		stat_barp->mMinBar = 0.f;
-		stat_barp->mMaxBar = 40.f;
-		stat_barp->mTickSpacing = 10.f;
-		stat_barp->mLabelSpacing = 20.f;
-		stat_barp->mPerSec = FALSE;
-		stat_barp->mDisplayBar = FALSE;
-		stat_barp->mDisplayMean = FALSE;
-
-		stat_barp = physics_time_viewp->addStat("Other", &(LLViewerStats::getInstance()->mSimSimPhysicsOtherMsec));
-		stat_barp->setUnitLabel("ms");
-		stat_barp->mPrecision = 1;
-		stat_barp->mMinBar = 0.f;
-		stat_barp->mMaxBar = 40.f;
-		stat_barp->mTickSpacing = 10.f;
-		stat_barp->mLabelSpacing = 20.f;
-		stat_barp->mPerSec = FALSE;
-		stat_barp->mDisplayBar = FALSE;
-		stat_barp->mDisplayMean = FALSE;
-	}
-
-	stat_barp = sim_time_viewp->addStat("Sim Time (Other)", &(LLViewerStats::getInstance()->mSimSimOtherMsec));
+	stat_barp = sim_time_viewp->addStat("Simulation Time", &(LLViewerStats::getInstance()->mSimSimOtherMsec));
 	stat_barp->setUnitLabel("ms");
 	stat_barp->mPrecision = 1;
 	stat_barp->mMinBar = 0.f;
@@ -3641,6 +3603,79 @@ void init_stat_view()
 	stat_barp->mPerSec = FALSE;
 	stat_barp->mDisplayBar = FALSE;
 	stat_barp->mDisplayMean = FALSE;
+
+	stat_barp = sim_time_viewp->addStat("Spare Time", &(LLViewerStats::getInstance()->mSimSpareMsec));
+	stat_barp->setUnitLabel("ms");
+	stat_barp->mPrecision = 1;
+	stat_barp->mMinBar = 0.f;
+	stat_barp->mMaxBar = 40.f;
+	stat_barp->mTickSpacing = 10.f;
+	stat_barp->mLabelSpacing = 20.f;
+	stat_barp->mPerSec = FALSE;
+	stat_barp->mDisplayBar = FALSE;
+	stat_barp->mDisplayMean = FALSE;
+
+	
+	// 2nd level time blocks under 'Details' second
+	LLStatView *detailed_time_viewp;
+	detailed_time_viewp = new LLStatView("sim perf view", "Time Details (ms)", "", rect);
+	sim_time_viewp->addChildAtEnd(detailed_time_viewp);
+	{
+		stat_barp = detailed_time_viewp->addStat("  Physics Step", &(LLViewerStats::getInstance()->mSimSimPhysicsStepMsec));
+		stat_barp->setUnitLabel("ms");
+		stat_barp->mPrecision = 1;
+		stat_barp->mMinBar = 0.f;
+		stat_barp->mMaxBar = 40.f;
+		stat_barp->mTickSpacing = 10.f;
+		stat_barp->mLabelSpacing = 20.f;
+		stat_barp->mPerSec = FALSE;
+		stat_barp->mDisplayBar = FALSE;
+		stat_barp->mDisplayMean = FALSE;
+
+		stat_barp = detailed_time_viewp->addStat("  Update Physics Shapes", &(LLViewerStats::getInstance()->mSimSimPhysicsShapeUpdateMsec));
+		stat_barp->setUnitLabel("ms");
+		stat_barp->mPrecision = 1;
+		stat_barp->mMinBar = 0.f;
+		stat_barp->mMaxBar = 40.f;
+		stat_barp->mTickSpacing = 10.f;
+		stat_barp->mLabelSpacing = 20.f;
+		stat_barp->mPerSec = FALSE;
+		stat_barp->mDisplayBar = FALSE;
+		stat_barp->mDisplayMean = FALSE;
+
+		stat_barp = detailed_time_viewp->addStat("  Physics Other", &(LLViewerStats::getInstance()->mSimSimPhysicsOtherMsec));
+		stat_barp->setUnitLabel("ms");
+		stat_barp->mPrecision = 1;
+		stat_barp->mMinBar = 0.f;
+		stat_barp->mMaxBar = 40.f;
+		stat_barp->mTickSpacing = 10.f;
+		stat_barp->mLabelSpacing = 20.f;
+		stat_barp->mPerSec = FALSE;
+		stat_barp->mDisplayBar = FALSE;
+		stat_barp->mDisplayMean = FALSE;
+
+		stat_barp = detailed_time_viewp->addStat("  Sleep Time", &(LLViewerStats::getInstance()->mSimSleepMsec));
+		stat_barp->setUnitLabel("ms");
+		stat_barp->mPrecision = 1;
+		stat_barp->mMinBar = 0.f;
+		stat_barp->mMaxBar = 40.f;
+		stat_barp->mTickSpacing = 10.f;
+		stat_barp->mLabelSpacing = 20.f;
+		stat_barp->mPerSec = FALSE;
+		stat_barp->mDisplayBar = FALSE;
+		stat_barp->mDisplayMean = FALSE;
+
+		stat_barp = detailed_time_viewp->addStat("  Pump IO", &(LLViewerStats::getInstance()->mSimPumpIOMsec));
+		stat_barp->setUnitLabel("ms");
+		stat_barp->mPrecision = 1;
+		stat_barp->mMinBar = 0.f;
+		stat_barp->mMaxBar = 40.f;
+		stat_barp->mTickSpacing = 10.f;
+		stat_barp->mLabelSpacing = 20.f;
+		stat_barp->mPerSec = FALSE;
+		stat_barp->mDisplayBar = FALSE;
+		stat_barp->mDisplayMean = FALSE;
+	}
 
 	LLRect r = gDebugView->mFloaterStatsp->getRect();
 

@@ -117,6 +117,7 @@ void update_clock_frequencies();
 
 // Sleep for milliseconds
 void ms_sleep(U32 ms);
+U32 micro_sleep(U64 us, U32 max_yields = 0xFFFFFFFF);
 
 // Returns the correct UTC time in seconds, like time(NULL).
 // Useful on the viewer, which may have its local clock set wrong.

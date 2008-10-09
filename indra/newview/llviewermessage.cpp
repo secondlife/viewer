@@ -3505,6 +3505,15 @@ void process_sim_stats(LLMessageSystem *msg, void **user_data)
 		case LL_SIM_STAT_SIMPHYSICSMEMORY:
 			LLViewerStats::getInstance()->mPhysicsMemoryAllocated.addValue(stat_value);
 			break;
+		case LL_SIM_STAT_SIMSPARETIME:
+			LLViewerStats::getInstance()->mSimSpareMsec.addValue(stat_value);
+			break;
+		case LL_SIM_STAT_SIMSLEEPTIME:
+			LLViewerStats::getInstance()->mSimSleepMsec.addValue(stat_value);
+			break;
+		case LL_SIM_STAT_IOPUMPTIME:
+			LLViewerStats::getInstance()->mSimPumpIOMsec.addValue(stat_value);
+			break;
 		default:
 			// Used to be a commented out warning.
  			LL_DEBUGS("Messaging") << "Unknown stat id" << stat_id << LL_ENDL;

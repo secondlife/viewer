@@ -33,9 +33,13 @@
 #define LL_LLSTAT_H
 
 #include <deque>
+#include <map>
 
 #include "lltimer.h"
 #include "llframetimer.h"
+#include "llfile.h"
+
+class	LLSD;
 
 // Set this if longer stats are needed
 #define ENABLE_LONG_TIME_STATS	0
@@ -58,19 +62,18 @@ public:
 		SCALE_100MS,
 		SCALE_SECOND,
 		SCALE_MINUTE,
-		SCALE_TWO_MINUTE,
 #if ENABLE_LONG_TIME_STATS
 		SCALE_HOUR,
 		SCALE_DAY,
 		SCALE_WEEK,
 #endif
-		NUM_SCALES
+		NUM_SCALES,			// Use to size storage arrays
+		SCALE_PER_FRAME		// For latest frame information - should be after NUM_SCALES since this doesn't go into the time buckets
 	};
 
-	static const TimeScale IMPL_NUM_SCALES = (TimeScale)(SCALE_TWO_MINUTE + 1);
-	static U64 sScaleTimes[IMPL_NUM_SCALES];
+	static U64 sScaleTimes[NUM_SCALES];
 
-	F32 meanValue(TimeScale scale) const;
+	virtual F32 meanValue(TimeScale scale) const;
 		// see the subclasses for the specific meaning of value
 
 	F32 meanValueOverLast100ms()  const { return meanValue(SCALE_100MS);  }
@@ -86,8 +89,8 @@ public:
 		// Get current microseconds based on timer type
 
 	BOOL	mUseFrameTimer;
-
 	BOOL	mRunning;
+
 	U64		mLastTime;
 	
 	struct Bucket
@@ -99,7 +102,7 @@ public:
 		F64		lastAccum;
 	};
 
-	Bucket	mBuckets[IMPL_NUM_SCALES];
+	Bucket	mBuckets[NUM_SCALES];
 
 	BOOL 	mLastSampleValid;
 	F64 	mLastSampleValue;
@@ -136,37 +139,115 @@ public:
 };
 
 
-class LLTimeBlock;
-
 class LLStatTime : public LLStatAccum
 	// gathers statistics about time spent in a block of code
 	// measure average duration per second in the block
 {
 public:
-	LLStatTime(bool use_frame_timer = false);
+	LLStatTime( const std::string & key = "undefined" );
 
 	U32		mFrameNumber;		// Current frame number
 	U64		mTotalTimeInFrame;	// Total time (microseconds) accumulated during the last frame
 
+	void	setKey( const std::string & key )		{ mKey = key;	};
+
+	virtual F32 meanValue(TimeScale scale) const;
+
 private:
-	void start();
+	void start();				// Start and stop measuring time block
 	void stop();
-	friend class LLTimeBlock;
+
+	std::string		mKey;		// Tag representing this time block
+
+#if LL_DEBUG
+	BOOL			mRunning;	// TRUE if start() has been called
+#endif
+
+	friend class LLPerfBlock;
 };
 
-class LLTimeBlock
+// ----------------------------------------------------------------------------
+
+
+// Use this class on the stack to record statistics about an area of code
+class LLPerfBlock
 {
 public:
-	LLTimeBlock(LLStatTime& stat) : mStat(stat) { mStat.start(); }
-	~LLTimeBlock()								{ mStat.stop(); }
+    struct StatEntry
+    {
+            StatEntry(const std::string& key) : mStat(LLStatTime(key)), mCount(0) {}
+            LLStatTime  mStat;
+            U32         mCount;
+    };
+    typedef std::map<std::string, StatEntry*>		stat_map_t;
+
+	// Use this constructor for pre-defined LLStatTime objects
+	LLPerfBlock(LLStatTime* stat);
+
+	// Use this constructor for dynamically created LLStatTime objects (not pre-defined) with a multi-part key
+	LLPerfBlock( const char* key1, const char* key2 = NULL);
+
+
+	~LLPerfBlock();
+
+	static void setStatsEnabled( BOOL enable )		{ sStatsEnabled = enable;	};
+	static S32  getStatsEnabled()					{ return sStatsEnabled;		};
+
+	static void clearDynamicStats();		// Reset maps to clear out dynamic objects
+	static void addStatsToLLSDandReset( LLSD & stats,		// Get current information and clear time bin
+										LLStatAccum::TimeScale scale );
+
 private:
-	LLStatTime& mStat;
+	// Initialize dynamically created LLStatTime objects
+    void initDynamicStat(const std::string& key);
+
+	std::string				mLastPath;				// Save sCurrentStatPath when this is called
+	LLStatTime * 			mPredefinedStat;		// LLStatTime object to get data
+	StatEntry *				mDynamicStat;   		// StatEntryobject to get data
+
+	static BOOL				sStatsEnabled;			// Normally FALSE
+    static stat_map_t		sStatMap;				// Map full path string to LLStatTime objects
+	static std::string		sCurrentStatPath;		// Something like "frame/physics/physics step"
 };
 
+// ----------------------------------------------------------------------------
 
+class LLPerfStats
+{
+public:
+    LLPerfStats(const std::string& process_name = "unknown", S32 process_pid = 0);
+    virtual ~LLPerfStats();
 
+    virtual void init();    // Reset and start all stat timers
+    virtual void updatePerFrameStats();
+    // Override these function to add process-specific information to the performance log header and per-frame logging.
+    virtual void addProcessHeaderInfo(LLSD& info) { /* not implemented */ }
+    virtual void addProcessFrameInfo(LLSD& info, LLStatAccum::TimeScale scale) { /* not implemented */ }
 
+    // High-resolution frame stats
+    BOOL    frameStatsIsRunning()                                { return (mReportPerformanceStatEnd > 0.);        };
+    F32     getReportPerformanceInterval() const                { return mReportPerformanceStatInterval;        };
+    void    setReportPerformanceInterval( F32 interval )        { mReportPerformanceStatInterval = interval;    };
+    void    setReportPerformanceDuration( F32 seconds );
+    void    setProcessName(const std::string& process_name) { mProcessName = process_name; }
+    void    setProcessPID(S32 process_pid) { mProcessPID = process_pid; }
 
+protected:
+    void    openPerfStatsFile();                    // Open file for high resolution metrics logging
+    void    dumpIntervalPerformanceStats();
+
+    llofstream      mFrameStatsFile;            // File for per-frame stats
+    BOOL            mFrameStatsFileFailure;        // Flag to prevent repeat opening attempts
+    BOOL            mSkipFirstFrameStats;        // Flag to skip one (partial) frame report
+    std::string     mProcessName;
+    S32             mProcessPID;
+
+private:
+    F32 mReportPerformanceStatInterval;    // Seconds between performance stats
+    F64 mReportPerformanceStatEnd;        // End time (seconds) for performance stats
+};
+
+// ----------------------------------------------------------------------------
 class LLStat
 {
 public:

@@ -77,6 +77,9 @@ public:
 	LLStat mSimAgentMsec;
 	LLStat mSimImagesMsec;
 	LLStat mSimScriptMsec;
+	LLStat mSimSpareMsec;
+	LLStat mSimSleepMsec;
+	LLStat mSimPumpIOMsec;
 
 	LLStat mSimMainAgents;
 	LLStat mSimChildAgents;
