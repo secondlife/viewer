@@ -676,9 +676,9 @@
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>d4870e9ec615b221c4b5891b6e11235e</string>
+            <string>f25fbb29c2275267233c79f0c68ca37f</string>
             <key>url</key>
-            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/havok-4.6.1-windows-20081009.tar.bz2</uri>
+            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/havok-4.6.1-windows-20081010.tar.bz2</uri>
           </map>
         </map>
       </map>
