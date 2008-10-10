@@ -37,6 +37,7 @@ import copy
 import md5
 import optparse
 import os
+import platform
 import pprint
 import shutil
 import sys
@@ -737,7 +738,23 @@ def _get_platform():
         'cygwin' : 'windows',
         'solaris' : 'solaris'
         }
-    return platform_map[sys.platform]
+    this_platform = platform_map[sys.platform]
+    if this_platform == 'linux':
+        if platform.architecture()[0] == '64bit':
+            # TODO -- someday when install.py accepts a platform of the form 
+            # os/arch/compiler/compiler_version then we can replace the 
+            # 'linux64' platform with 'linux/x86_64/gcc/4.1'
+            this_platform = 'linux64'
+        else:
+            gcc_version = os.popen("g++ -dumpversion", 'r').read()[:-3]
+            if gcc_version == '4.1':
+                # the 'linux32' platform is a HACK until we can figure
+                # out how to make the install.py script accept a platform of
+                # the form os/arch/compiler/compiler_version for the download
+                # and extract stage
+                #this_platform = 'linux/i686/gcc/4.1'
+                this_platform = 'linux32'
+    return this_platform
 
 def _getuser():
     "Get the user"

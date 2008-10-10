@@ -5,10 +5,21 @@
 #
 
 import sys
-import os
 import os.path
 
+# Look for indra/lib/python in all possible parent directories ...
+# This is an improvement over the setup-path.py method used previously:
+#  * the script may blocated anywhere inside the source tree
+#  * it doesn't depend on the current directory
+#  * it doesn't depend on another file being present.
+
 root = os.path.abspath(__file__)
+# always insert the directory of the script in the search path
+dir = os.path.dirname(root)
+if dir not in sys.path:
+    sys.path.insert(0, dir)
+
+# Now go look for indra/lib/python in the parent dies
 while root != os.path.sep:
     root = os.path.dirname(root)
     dir = os.path.join(root, 'indra', 'lib', 'python')
@@ -20,7 +31,7 @@ else:
     print >>sys.stderr, "This script is not inside a valid installation."
     sys.exit(1)
 
-import getopt, sys, os, re, commands
+import getopt, os, re, commands
 from indra.util import llversion
 
 svn = os.path.expandvars("${SVN}")

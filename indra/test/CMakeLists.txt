@@ -112,6 +112,7 @@ target_link_libraries(test
     ${LLCOMMON_LIBRARIES}
     ${PTHREAD_LIBRARY}
     ${WINDOWS_LIBRARIES}
+    ${DL_LIBRARY}
     )
 
 if (WINDOWS)

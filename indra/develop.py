@@ -218,11 +218,15 @@ class UnixSetup(PlatformSetup):
         elif cpu == 'Power Macintosh':
             cpu = 'ppc'
         return cpu
-        
+
 
 class LinuxSetup(UnixSetup):
     def __init__(self):
         super(LinuxSetup, self).__init__()
+        try:
+            self.debian_sarge = open('/etc/debian_version').read().strip() == '3.1'
+        except:
+            self.debian_sarge = False
 
     def os(self):
         return 'linux'
@@ -234,6 +238,11 @@ class LinuxSetup(UnixSetup):
 
         if self.arch() == 'i686' and self.is_internal_tree():
             return ['viewer-' + platform_build, 'server-' + platform_build]
+        elif self.arch() == 'x86_64' and self.is_internal_tree():
+            # the viewer does not build in 64bit -- kdu5 issues
+            # we can either use openjpeg, or overhaul our viewer to handle kdu5 or higher
+            # doug knows about kdu issues
+            return ['server-' + platform_build]
         else:
             return ['viewer-' + platform_build]
 
@@ -265,18 +274,16 @@ class LinuxSetup(UnixSetup):
                 distcc = []
                 baseonly = False
             if 'server' in build_dir:
-                gcc33 = distcc + self.find_in_path('g++-3.3', 'g++', baseonly)
-                args.update({'cxx':' '.join(gcc33), 'server':'ON',
-                             'viewer':'OFF'})
+                gcc = distcc + self.find_in_path(
+                    self.debian_sarge and 'g++-3.3' or 'g++-4.1',
+                    'g++', baseonly)
+                args.update({'cxx': ' '.join(gcc), 'server': 'ON',
+                             'viewer': 'OFF'})
             else:
                 gcc41 = distcc + self.find_in_path('g++-4.1', 'g++', baseonly)
-                args.update({'cxx': ' '.join(gcc41), 'server':'OFF',
-                             'viewer':'ON'})
-        #if simple:
-        #    return (('cmake %(opts)s '
-        #             '-DSERVER:BOOL=%(server)s ' 
-        #             '-DVIEWER:BOOL=%(viewer)s '
-        #             '%(dir)r') % args)
+                args.update({'cxx': ' '.join(gcc41),
+                             'server': 'OFF',
+                             'viewer': 'ON'})
         cmd = (('cmake -DCMAKE_BUILD_TYPE:STRING=%(type)s '
                 '-G %(generator)r -DSERVER:BOOL=%(server)s '
                 '-DVIEWER:BOOL=%(viewer)s -DSTANDALONE:BOOL=%(standalone)s '

@@ -30,8 +30,10 @@ import MySQLdb
 from eventlet import db_pool
 
 class DatabaseConnector(db_pool.DatabaseConnector):
-    def __init__(self, credentials, min_size = 0, max_size = 4, *args, **kwargs):
-        super(DatabaseConnector, self).__init__(MySQLdb, credentials, min_size, max_size, conn_pool=db_pool.ConnectionPool, *args, **kwargs)
+    def __init__(self, credentials, *args, **kwargs):
+        super(DatabaseConnector, self).__init__(MySQLdb, credentials,
+                                                conn_pool=db_pool.ConnectionPool,
+                                                *args, **kwargs)
 
     # get is extended relative to eventlet.db_pool to accept a port argument
     def get(self, host, dbname, port=3306):
@@ -42,7 +44,7 @@ class DatabaseConnector(db_pool.DatabaseConnector):
             new_kwargs['host'] = host
             new_kwargs['port'] = port
             new_kwargs.update(self.credentials_for(host))
-            dbpool = ConnectionPool(self._min_size, self._max_size, *self._args, **new_kwargs)
+            dbpool = ConnectionPool(*self._args, **new_kwargs)
             self._databases[key] = dbpool
 
         return self._databases[key]
@@ -51,8 +53,8 @@ class ConnectionPool(db_pool.TpooledConnectionPool):
     """A pool which gives out saranwrapped MySQLdb connections from a pool
     """
 
-    def __init__(self, min_size = 0, max_size = 4, *args, **kwargs):
-        super(ConnectionPool, self).__init__(MySQLdb, min_size, max_size, *args, **kwargs)
+    def __init__(self, *args, **kwargs):
+        super(ConnectionPool, self).__init__(MySQLdb, *args, **kwargs)
 
     def get(self):
         conn = super(ConnectionPool, self).get()
@@ -77,14 +79,3 @@ class ConnectionPool(db_pool.TpooledConnectionPool):
         conn.connection_parameters = converted_kwargs
         return conn
 
-    def clear(self):
-        """ Close all connections that this pool still holds a reference to, leaving it empty."""
-        for conn in self.free_items:
-            try:
-                conn.close()
-            except:
-                pass   # even if stuff happens here, we still want to at least try to close all the other connections
-        self.free_items.clear()
-            
-    def __del__(self):
-        self.clear()

@@ -36,6 +36,19 @@
 
 struct LLTree_gene_0 
 {
+	LLTree_gene_0()
+	:	scale(0),
+		branches(0),
+		twist(0),
+		droop(0),
+		species(0),
+		trunk_depth(0),
+		branch_thickness(0),
+		max_depth(0),
+		scale_step(0)
+	{
+	}
+
 	// 
 	//  The genome for a tree, species 0
 	// 

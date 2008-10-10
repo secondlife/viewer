@@ -1161,13 +1161,6 @@ BOOL LLStringUtilBase<T>::convertToU32(const std::basic_string<T>& string, U32& 
 	std::basic_istringstream<T> i_stream((std::basic_string<T>)temp);
 	if(i_stream >> v)
 	{
-		//TODO: figure out overflow reporting here
-		//if( ULONG_MAX == v )
-		//{
-		//	// Underflow or overflow
-		//	return FALSE;
-		//}
-
 		value = v;
 		return TRUE;
 	}
