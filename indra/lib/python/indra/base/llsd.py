@@ -47,7 +47,7 @@ alpha_regex = re.compile(r"[a-zA-Z]+")
 date_regex = re.compile(r"(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})T"
                         r"(?P<hour>\d{2}):(?P<minute>\d{2}):(?P<second>\d{2})"
                         r"(?P<second_float>(\.\d+)?)Z")
-#date: d"YYYY-MM-DDTHH:MM:SS.FFZ"
+#date: d"YYYY-MM-DDTHH:MM:SS.FFFFFFZ"
 
 class LLSDParseError(Exception):
     pass
@@ -69,14 +69,7 @@ BOOL_FALSE = ('0', '0.0', 'false', '')
 
 def format_datestr(v):
     """ Formats a datetime object into the string format shared by xml and notation serializations."""
-    second_str = ""
-    if v.microsecond > 0:
-        seconds = v.second + float(v.microsecond) / 1e6
-        second_str = "%05.2f" % seconds
-    else:
-        second_str = "%02d" % v.second
-    return '%s%sZ' % (v.strftime('%Y-%m-%dT%H:%M:'), second_str)
-
+    return v.isoformat() + 'Z'
 
 def parse_datestr(datestr):
     """Parses a datetime object from the string format shared by xml and notation serializations."""
