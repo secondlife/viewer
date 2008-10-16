@@ -1069,9 +1069,9 @@ anguage Infrstructure (CLI) international standard</string>
           <key>linux64</key>
           <map>
             <key>md5sum</key>
-            <string>5bbdd1bc93c6cee4b6eca377fc4868ff</string>
+            <string>56630977f9261bd82039b0da08a0685c</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/mesa-6.5-linux64-20080909.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/mesa-6.2.1-linux64-20081016.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
