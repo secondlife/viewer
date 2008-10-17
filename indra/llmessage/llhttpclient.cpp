@@ -252,10 +252,13 @@ static void request(
 	// Check to see if we have already set Accept or not. If no one
 	// set it, set it to application/llsd+xml since that's what we
 	// almost always want.
-	static const std::string ACCEPT("Accept");
-	if(!headers.has(ACCEPT))
+	if( method != LLURLRequest::HTTP_PUT && method != LLURLRequest::HTTP_POST )
 	{
-		req->addHeader("Accept: application/llsd+xml");
+		static const std::string ACCEPT("Accept");
+		if(!headers.has(ACCEPT))
+		{
+			req->addHeader("Accept: application/llsd+xml");
+		}
 	}
 
 	req->setCallback(new LLHTTPClientURLAdaptor(responder));
