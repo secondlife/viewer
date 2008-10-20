@@ -88,8 +88,7 @@ struct SortScrollListItem
 			}
 		}
 
-		// make sure to keep order when sort_result == 0 
-		return sort_result <= 0;
+		return sort_result < 0;
 	}
 
 	typedef std::vector<std::pair<S32, BOOL> > sort_order_t;

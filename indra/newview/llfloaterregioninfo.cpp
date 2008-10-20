@@ -542,7 +542,6 @@ void LLPanelRegionInfo::onClickHelp(void* data)
 {
 	const std::string* xml_alert = (std::string*)data;
 	gViewerWindow->alertXml(*xml_alert);
-	delete xml_alert;
 }
 
 /////////////////////////////////////////////////////////////////////////////

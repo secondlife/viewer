@@ -109,7 +109,6 @@ void LLFloaterDayCycle::onClickHelp(void* data)
 			root_floater->addDependentFloater(dialogp);
 		}
 	}
-	delete xml_alert;
 }
 
 void LLFloaterDayCycle::initHelpBtn(const std::string& name, const std::string& xml_alert)

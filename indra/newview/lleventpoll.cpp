@@ -224,7 +224,12 @@ namespace
 			// IMs, teleports, about land, selecing land, region crossing and more will all fail.
 			// They are essentially disconnected from the region even though some things may still work.
 			// Since things won't get better until they relog we force a disconnect now.
-			LLAppViewer::instance()->forceDisconnect("You have been disconnected from the region you were in.");
+
+			// *NOTE:Mani - This force disconnect was causing logouts even when disconnected
+			// from neighboring regions.
+			// *FIX:Mani We may want to re enable forceDisconnect for the agents main region.  
+			// *FIX:Mani If reimplemting Translate!!!!
+			// LLAppViewer::instance()->forceDisconnect("You have been disconnected from the region you were in.");
 		}
 	}
 

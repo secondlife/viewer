@@ -243,7 +243,6 @@ void LLFloaterWindLight::onClickHelp(void* data)
 			root_floater->addDependentFloater(dialogp);
 		}
 	}		
-	delete xml_alert;
 }
 
 void LLFloaterWindLight::initHelpBtn(const std::string& name, const std::string& xml_alert)

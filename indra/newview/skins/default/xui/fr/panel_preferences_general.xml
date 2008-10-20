@@ -23,11 +23,11 @@
 	</combo_box>
 	<check_box label="Masquer mon nom sur mon écran" name="show_my_name_checkbox" />
 	<text name="group_titles_textbox">
-		Titres au sein du groupe :
+		Titres de groupe :
 	</text>
-	<check_box label="Masquer tous les titres au sein du groupe"
+	<check_box label="Masquer tous les titres de groupe"
 	     name="show_all_title_checkbox" />
-	<check_box label="Masquer mon titre au sein du groupe" name="show_my_title_checkbox" />
+	<check_box label="Masquer mon titre de groupe" name="show_my_title_checkbox" />
 	<check_box label="Nom de l&apos;avatar en petit" name="small_avatar_names_checkbox" />
 	<check_box label="M&apos;avertir lorsque mes amis se connectent"
 	     name="friends_online_notify_checkbox" />

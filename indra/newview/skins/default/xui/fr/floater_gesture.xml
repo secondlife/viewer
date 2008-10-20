@@ -5,10 +5,10 @@
 et les sons.
 	</text>
 	<scroll_list bottom_delta="-385" height="360" name="gesture_list">
-		<column label="Raccourci" name="trigger" width="75" />
+		<column label="Déclencheur" name="trigger" width="85" />
 		<column label="Touche" name="shortcut" />
 		<column label="" name="key" />
-		<column label="Nom" name="name" />
+		<column label="Nom" name="name" width="145"/>
 	</scroll_list>
 	<button label="Nouveau" name="new_gesture_btn" />
 	<button label="Inventaire" name="inventory_btn" />

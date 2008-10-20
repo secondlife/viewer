@@ -50,9 +50,10 @@ dossiers.
 		<text name="lbl5">
 			Attacher :
 		</text>
+		<line_editor name="create_inventory_name" width="206" />
 		<button label="Supprimer pièce-jointe" label_selected="Supprimer pièce-jointe"
-		     name="remove_attachment" />
-		<button label="Envoyer note" label_selected="Envoyer note" name="send_notice" />
+		     name="remove_attachment" left="274" width="140"/>
+		<button label="Envoyer note" label_selected="Envoyer note" name="send_notice" left="274" width="140"/>
 		<panel name="drop_target2"
 		     tool_tip="Drag an inventory item onto the message box to send it with the notice. You must have permission to copy and transfer the object to send it with the notice." />
 		<panel name="drop_target"

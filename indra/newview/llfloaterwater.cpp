@@ -185,7 +185,6 @@ void LLFloaterWater::onClickHelp(void* data)
 			root_floater->addDependentFloater(dialogp);
 		}
 	}
-	delete xml_alert;
 }
 
 void LLFloaterWater::initHelpBtn(const std::string& name, const std::string& xml_alert)

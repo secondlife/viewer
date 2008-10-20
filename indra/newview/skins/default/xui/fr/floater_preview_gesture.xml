@@ -13,7 +13,7 @@
 		Description :
 	</text>
 	<text name="trigger_label">
-		Raccourci :
+		Déclencheur :
 	</text>
 	<text name="replace_text"
 	     tool_tip="Remplacer les raccourcis avec ces mots. Par exemple, remplacer le mot-clé « salut » par « bonjour » fera dire « je venais dire bonjour » au lieu de « je venais dire salut » dans le chat, et déclenchera le geste.">

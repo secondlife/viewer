@@ -55,8 +55,8 @@ quels membres ces pouvoirs sont assignés.
 			<button label="Afficher tout" name="show_all_button" left_delta="80" />
 			<name_list name="member_list" height="104" bottom_delta="-105">
 				<column label="Nom du membre" name="name" />
-				<column label="Terrain donné" name="donated" />
-				<column label="Dernière connexion" name="online" />
+				<column label="Terrain donné" name="donated" width="116"/>
+				<column label="Dernière connexion" name="online" width="136"/>
 			</name_list>
 			<button label="Inviter nouvelle personne..." name="member_invite" width="165"/>
 			<button label="Expulser du groupe" name="member_eject" />

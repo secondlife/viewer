@@ -46,8 +46,8 @@ Pour obtenir de l&apos;aide, survolez les options avec votre souris.
 	</text>
 	<name_list name="visible_members">
 		<column label="Nom du membre" name="name" relwidth="0.40"/>
-		<column label="Titre" name="title" relwidth="0.30"/>
-		<column label="Dernière connexion" name="online" relwidth="0.30"/>
+		<column label="Titre" name="title" relwidth="0.25"/>
+		<column label="Dernière connexion" name="online" relwidth="0.35"/>
 	</name_list>
 	<text name="text_group_preferences">
 		Préférences du groupe
