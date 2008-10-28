@@ -53,6 +53,16 @@ def mkdir(path):
         if err.errno != errno.EEXIST or not os.path.isdir(path):
             raise
 
+def getcwd():
+    cwd = os.getcwd()
+    if 'a' <= cwd[0] <= 'z' and cwd[1] == ':':
+        # CMake wants DOS drive letters to be in uppercase.  The above
+        # condition never asserts on platforms whose full path names
+        # always begin with a slash, so we don't need to test whether
+        # we are running on Windows.
+        cwd = cwd[0].upper() + cwd[1:]
+    return cwd
+
 def quote(opts):
     return '"' + '" "'.join([ opt.replace('"', '') for opt in opts ]) + '"'
 
@@ -141,7 +151,7 @@ class PlatformSetup(object):
         # do a sanity check to make sure we have a generator
         if not hasattr(self, 'generator'):
             raise "No generator available for '%s'" % (self.__name__,)
-        cwd = os.getcwd()
+        cwd = getcwd()
         created = []
         try:
             for d in self.build_dirs():
@@ -405,7 +415,7 @@ class DarwinSetup(UnixSetup):
                 '%(opts)s %(dir)r' % args)
 
     def run_build(self, opts, targets):
-        cwd = os.getcwd()
+        cwd = getcwd()
         if targets:
             targets = ' '.join(['-target ' + repr(t) for t in targets])
         else:
@@ -539,11 +549,11 @@ class WindowsSetup(PlatformSetup):
                              + os.path.join(build_dir,'SecondLife.sln') \
                              + ' --config RelWithDebInfo' \
                              + ' --startup secondlife-bin'
-                print 'Running %r in %r' % (vstool_cmd, os.getcwd())
+                print 'Running %r in %r' % (vstool_cmd, getcwd())
                 self.run(vstool_cmd)        
         
     def run_build(self, opts, targets):
-        cwd = os.getcwd()
+        cwd = getcwd()
         build_cmd = self.get_build_cmd()
 
         for d in self.build_dirs():
