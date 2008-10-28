@@ -216,10 +216,6 @@ const F32 DEFAULT_AFK_TIMEOUT = 5.f * 60.f; // time with no input before user fl
 F32 gSimLastTime; // Used in LLAppViewer::init and send_stats()
 F32 gSimFrames;
 
-std::string gDisabledMessage; // Set in LLAppViewer::initConfiguration used in idle_startup
-
-BOOL gHideLinks = FALSE; // Set in LLAppViewer::initConfiguration, used externally
-
 BOOL gAllowIdleAFK = TRUE;
 BOOL gAllowTapTapHoldRun = TRUE;
 BOOL gShowObjectUpdates = FALSE;
@@ -1869,22 +1865,6 @@ bool LLAppViewer::initConfiguration()
 	//		llerrs << "Failed to parse skin definition." << llendl;
 	//	}
 
-	//	LLXmlTreeNode* rootp = skin_def_tree.getRoot();
-	//	LLXmlTreeNode* disabled_message_node = rootp->getChildByName("disabled_message");	
-	//	if (disabled_message_node)
-	//	{
-	//		gDisabledMessage = disabled_message_node->getContents();
-	//	}
-
-	//	static LLStdStringHandle hide_links_string = LLXmlTree::addAttributeString("hide_links");
-	//	rootp->getFastAttributeBOOL(hide_links_string, gHideLinks);
-
-	//	// Legacy string.  This flag really meant we didn't want to expose references to "Second Life".
-	//	// Just set gHideLinks instead.
-	//	static LLStdStringHandle silent_string = LLXmlTree::addAttributeString("silent_update");
-	//	BOOL silent_update;
-	//	rootp->getFastAttributeBOOL(silent_string, silent_update);
-	//	gHideLinks = (gHideLinks || silent_update);
 	//}
 
 #if LL_DARWIN

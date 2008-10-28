@@ -1,0 +1,6 @@
+The language files in this directory are Unicode (Little-Endian) format, also known as UTF-16 LE.
+
+This is the format required for NSIS Unicode.  See http://www.scratchpaper.com/ for details.
+
+James Cook
+September 2008

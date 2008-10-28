@@ -63,7 +63,6 @@
 #include "llviewernetwork.h"
 #include "llviewerwindow.h"			// to link into child list
 #include "llnotify.h"
-#include "llappviewer.h"					// for gHideLinks
 #include "llurlsimstring.h"
 #include "lluictrlfactory.h"
 #include "llhttpclient.h"
@@ -1066,15 +1065,8 @@ void LLPanelLogin::onClickConnect(void *)
 		}
 		else
 		{
-			if (gHideLinks)
-			{
-				gViewerWindow->alertXml("MustHaveAccountToLogInNoLinks");
-			}
-			else
-			{
-				gViewerWindow->alertXml("MustHaveAccountToLogIn",
-										LLPanelLogin::newAccountAlertCallback);
-			}
+			gViewerWindow->alertXml("MustHaveAccountToLogIn",
+									LLPanelLogin::newAccountAlertCallback);
 		}
 	}
 }

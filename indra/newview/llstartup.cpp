@@ -1101,6 +1101,7 @@ bool idle_startup()
 		LL_DEBUGS("AppInit") << "STATE_LOGIN_PROCESS_RESPONSE" << LL_ENDL;
 		std::ostringstream emsg;
 		bool quit = false;
+		bool update = false;
 		std::string login_response;
 		std::string reason_response;
 		std::string message_response;
@@ -1144,11 +1145,7 @@ bool idle_startup()
 				reason_response = LLUserAuth::getInstance()->getResponse("reason");
 				message_response = LLUserAuth::getInstance()->getResponse("message");
 
-				if (gHideLinks && reason_response == "disabled")
-				{
-					emsg << gDisabledMessage;
-				}
-				else if (!message_response.empty())
+				if (!message_response.empty())
 				{
 					// XUI: fix translation for strings returned during login
 					// We need a generic table for translations
@@ -1206,16 +1203,7 @@ bool idle_startup()
 				if(reason_response == "update")
 				{
 					auth_message = LLUserAuth::getInstance()->getResponse("message");
-					if (show_connect_box)
-					{
-						update_app(TRUE, auth_message);
-						LLStartUp::setStartupState( STATE_UPDATE_CHECK );
-						return false;
-					}
-					else
-					{
-						quit = true;
-					}
+					update = true;
 				}
 				if(reason_response == "optional")
 				{
@@ -1251,6 +1239,21 @@ bool idle_startup()
 				return FALSE;
 			}
 			break;
+		}
+
+		if (update || gSavedSettings.getBOOL("ForceMandatoryUpdate"))
+		{
+			gSavedSettings.setBOOL("ForceMandatoryUpdate", FALSE);
+			if (show_connect_box)
+			{
+				update_app(TRUE, auth_message);
+				LLStartUp::setStartupState( STATE_UPDATE_CHECK );
+				return false;
+			}
+			else
+			{
+				quit = true;
+			}
 		}
 
 		// Version update and we're not showing the dialog
@@ -2840,29 +2843,6 @@ void update_dialog_callback(S32 option, void *userdata)
 
 	std::ostringstream params;
 	params << "-url \"" << update_url.asString() << "\"";
-	if (gHideLinks)
-	{
-		// Figure out the program name.
-		const std::string& data_dir = gDirUtilp->getAppRODataDir();
-		// Roll back from the end, stopping at the first '\'
-		const char* program_name = data_dir.c_str() + data_dir.size();		/* Flawfinder: ignore */
-		while ( (data_dir != --program_name) &&
-				*(program_name) != '\\');
-		
-		if ( *(program_name) == '\\')
-		{
-			// We found a '\'.
-			program_name++;
-		}
-		else
-		{
-			// Oops.
-			program_name = "SecondLife";
-		}
-
-		params << " -silent -name \"" << LLAppViewer::instance()->getSecondLifeTitle() << "\"";
-		params << " -program \"" << program_name << "\"";
-	}
 
 	LL_DEBUGS("AppInit") << "Calling updater: " << update_exe_path << " " << params.str() << LL_ENDL;
 

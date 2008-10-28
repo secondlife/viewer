@@ -358,11 +358,6 @@ void LLFloaterBuyCurrencyUI::onClickErrorWeb(void* data)
 // static
 void LLFloaterBuyCurrency::buyCurrency()
 {
-	if (gHideLinks)
-	{
-		return;
-	}
-
 	LLFloaterBuyCurrencyUI* ui = LLFloaterBuyCurrencyUI::soleInstance(true);
 	ui->noTarget();
 	ui->updateUI();
@@ -371,15 +366,6 @@ void LLFloaterBuyCurrency::buyCurrency()
 
 void LLFloaterBuyCurrency::buyCurrency(const std::string& name, S32 price)
 {
-	if (gHideLinks)
-	{
-		LLStringUtil::format_map_t args;
-		args["[NAME]"] = name;
-		args["[PRICE]"] = llformat("%d", price);
-		gViewerWindow->alertXml("NotEnoughCurrency", args);
-		return;
-	}
-	
 	LLFloaterBuyCurrencyUI* ui = LLFloaterBuyCurrencyUI::soleInstance(true);
 	ui->target(name, price);
 	ui->updateUI();

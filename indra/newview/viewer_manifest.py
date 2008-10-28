@@ -51,7 +51,6 @@ class ViewerManifest(LLManifest):
             self.path("*.pem")
             self.path("*.ini")
             self.path("*.xml")
-            self.path("*.vp")
             self.path("*.db2")
 
             # include the entire shaders directory recursively
@@ -66,35 +65,35 @@ class ViewerManifest(LLManifest):
             self.path("*.tga")
             self.end_prefix("character")
 
-
         # Include our fonts
         if self.prefix(src="fonts"):
             self.path("*.ttf")
             self.path("*.txt")
             self.end_prefix("fonts")
 
-            # skins
-            if self.prefix(src="skins"):
-                    self.path("paths.xml")
-                    # include the entire textures directory recursively
-                    if self.prefix(src="*/textures"):
-                            self.path("*.tga")
-                            self.path("*.j2c")
-                            self.path("*.jpg")
-                            self.path("*.png")
-                            self.path("textures.xml")
-                            self.end_prefix("*/textures")
-                    self.path("*/xui/*/*.xml")
-                    self.path("*/*.xml")
-                    
-                    # Local HTML files (e.g. loading screen)
-                    if self.prefix(src="*/html"):
-                            self.path("*.png")
-                            self.path("*/*/*.html")
-                            self.path("*/*/*.gif")
-                            self.end_prefix("*/html")
-                    self.end_prefix("skins")
-        self.path("lsl_guide.html")
+        # skins
+        if self.prefix(src="skins"):
+                self.path("paths.xml")
+                # include the entire textures directory recursively
+                if self.prefix(src="*/textures"):
+                        self.path("*.tga")
+                        self.path("*.j2c")
+                        self.path("*.jpg")
+                        self.path("*.png")
+                        self.path("textures.xml")
+                        self.end_prefix("*/textures")
+                self.path("*/xui/*/*.xml")
+                self.path("*/*.xml")
+                
+                # Local HTML files (e.g. loading screen)
+                if self.prefix(src="*/html"):
+                        self.path("*.png")
+                        self.path("*/*/*.html")
+                        self.path("*/*/*.gif")
+                        self.end_prefix("*/html")
+                self.end_prefix("skins")
+        
+        # Files in the newview/ directory
         self.path("gpu_table.txt")
 
     def login_channel(self):
@@ -361,7 +360,7 @@ class WindowsManifest(ViewerManifest):
                 "%%INSTALL_FILES%%":self.nsi_file_commands(True),
                 "%%DELETE_FILES%%":self.nsi_file_commands(False)})
 
-        NSIS_path = 'C:\\Program Files\\NSIS\\makensis.exe'
+        NSIS_path = 'C:\\Program Files\\NSIS\\Unicode\\makensis.exe'
         self.run_command('"' + proper_windows_path(NSIS_path) + '" ' + self.dst_path_of(tempfile))
         # self.remove(self.dst_path_of(tempfile))
         self.created_path(self.dst_path_of(installer_file))
@@ -504,9 +503,6 @@ class DarwinManifest(ViewerManifest):
 
         if not os.path.exists (self.src_path_of(dmg_template)):
             dmg_template = os.path.join ('installers', 'darwin', 'release-dmg')
-
-        # To reinstate the linden scripting guide, add this to the list below:
-        #            "lsl_guide.html":"Linden Scripting Language Guide.html",
 
         for s,d in {self.get_dst_prefix():app_name + ".app",
                     os.path.join(dmg_template, "_VolumeIcon.icns"): ".VolumeIcon.icns",

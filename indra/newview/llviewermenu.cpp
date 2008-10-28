@@ -2752,33 +2752,6 @@ void process_grant_godlike_powers(LLMessageSystem* msg, void**)
 	}
 }
 
-void load_url_local_file(const std::string& file_name)
-{
-	if( gAgent.cameraMouselook() )
-	{
-		gAgent.changeCameraToDefault();
-	}
-
-#if LL_DARWIN || LL_LINUX || LL_SOLARIS
-	// MBW -- If the Mac client is in fullscreen mode, it needs to go windowed so the browser will be visible.
-	if(gViewerWindow->mWindow->getFullscreen())
-	{
-		gViewerWindow->toggleFullscreen(TRUE);
-	}
-#endif
-
-	// JC - system() blocks until IE has launched.
-	// spawn() runs asynchronously, but opens a command prompt.
-	// ShellExecute() just opens the damn file with the default
-	// web browser.
-	std::string full_path = "file:///";
-	full_path.append(gDirUtilp->getAppRODataDir());
-	full_path.append(gDirUtilp->getDirDelimiter());
-	full_path.append(file_name);
-
-	LLWeb::loadURL(full_path);
-}
-
 /*
 class LLHaveCallingcard : public LLInventoryCollectFunctor
 {
@@ -5415,37 +5388,6 @@ class LLPromptShowURL : public view_listener_t
 	}
 };
 
-void callback_show_file(S32 option, void* data)
-{
-	std::string* filenamep = (std::string*)data;
-	if (0 == option)
-	{
-		load_url_local_file(*filenamep);
-	}
-	delete filenamep;
-}
-
-class LLPromptShowFile : public view_listener_t
-{
-	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
-	{
-		std::string param = userdata.asString();
-		std::string::size_type offset = param.find(",");
-		if (offset != param.npos)
-		{
-			std::string alert = param.substr(0, offset);
-			std::string file = param.substr(offset+1);
-			std::string* file_copy = new std::string(file);
-			gViewerWindow->alertXml(alert, callback_show_file, file_copy);
-		}
-		else
-		{
-			llinfos << "PromptShowFile invalid parameters! Expecting \"ALERT,FILE\"." << llendl;
-		}
-		return true;
-	}
-};
-
 class LLShowAgentProfile : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
@@ -7809,7 +7751,6 @@ void initialize_menus()
 	// Generic actions
 	addMenu(new LLShowFloater(), "ShowFloater");
 	addMenu(new LLPromptShowURL(), "PromptShowURL");
-	addMenu(new LLPromptShowFile(), "PromptShowFile");
 	addMenu(new LLShowAgentProfile(), "ShowAgentProfile");
 	addMenu(new LLShowAgentGroups(), "ShowAgentGroups");
 	addMenu(new LLToggleControl(), "ToggleControl");

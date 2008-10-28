@@ -65,7 +65,7 @@ public:
 		const std::string& name,
 		const LLRect& rect,
 		const std::string& sample,
-		const std::string& help,
+		const std::string& help_url,
 		const LLHandle<LLFloater>& floater_handle,
 		void (*load_callback)(void* userdata),
 		void (*save_callback)(void* userdata, BOOL close_after_save),
@@ -132,7 +132,7 @@ protected:
 
 private:
 	std::string		mSampleText;
-	std::string		mHelpFile;
+	std::string		mHelpURL;
 	LLTextEditor*	mEditor;
 	void			(*mLoadCallback)(void* userdata);
 	void			(*mSaveCallback)(void* userdata, BOOL close_after_save);

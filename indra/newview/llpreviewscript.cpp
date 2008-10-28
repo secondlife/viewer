@@ -101,7 +101,7 @@ const std::string HELLO_LSL =
 	"        llSay(0, \"Touched.\");\n"
 	"    }\n"
 	"}\n";
-const std::string HELP_LSL = "lsl_guide.html";
+const std::string HELP_LSL_URL = "http://wiki.secondlife.com/wiki/LSL_Portal";
 
 const std::string DEFAULT_SCRIPT_NAME = "New Script"; // *TODO:Translate?
 const std::string DEFAULT_SCRIPT_DESC = "(No Description)"; // *TODO:Translate?
@@ -294,7 +294,7 @@ LLScriptEdCore::LLScriptEdCore(
 	const std::string& name,
 	const LLRect& rect,
 	const std::string& sample,
-	const std::string& help,
+	const std::string& help_url,
 	const LLHandle<LLFloater>& floater_handle,
 	void (*load_callback)(void*),
 	void (*save_callback)(void*, BOOL),
@@ -304,7 +304,7 @@ LLScriptEdCore::LLScriptEdCore(
 	:
 	LLPanel( std::string("name"), rect ),
 	mSampleText(sample),
-	mHelpFile ( help ),
+	mHelpURL(help_url),
 	mEditor( NULL ),
 	mLoadCallback( load_callback ),
 	mSaveCallback( save_callback ),
@@ -547,7 +547,6 @@ void LLScriptEdCore::setHelpPage(const std::string& help_string)
 	if (!history_combo) return;
 
 	LLUIString url_string = gSavedSettings.getString("LSLHelpURL");
-	url_string.setArg("[APP_DIRECTORY]", gDirUtilp->getWorkingDir());
 	url_string.setArg("[LSL_STRING]", help_string);
 
 	addHelpItemToHistory(help_string);
@@ -555,6 +554,7 @@ void LLScriptEdCore::setHelpPage(const std::string& help_string)
 	web_browser->navigateTo(url_string);
 
 }
+
 
 void LLScriptEdCore::addHelpItemToHistory(const std::string& help_string)
 {
@@ -647,7 +647,7 @@ void LLScriptEdCore::onHelpWebDialog(S32 option, void* userdata)
 	switch(option)
 	{
 	case 0:
-		load_url_local_file(corep->mHelpFile);
+		LLWeb::loadURL(corep->mHelpURL);
 		break;
 	default:
 		break;
@@ -773,7 +773,6 @@ void LLScriptEdCore::onHelpComboCommit(LLUICtrl* ctrl, void* userdata)
 
 		LLWebBrowserCtrl* web_browser = live_help_floater->getChild<LLWebBrowserCtrl>("lsl_guide_html");
 		LLUIString url_string = gSavedSettings.getString("LSLHelpURL");
-		url_string.setArg("[APP_DIRECTORY]", gDirUtilp->getWorkingDir());
 		url_string.setArg("[LSL_STRING]", help_string);
 		web_browser->navigateTo(url_string);
 	}
@@ -1072,7 +1071,7 @@ void* LLPreviewLSL::createScriptEdPanel(void* userdata)
 	self->mScriptEd =  new LLScriptEdCore("script panel",
 								   LLRect(),
 								   HELLO_LSL,
-								   HELP_LSL,
+								   HELP_LSL_URL,
 								   self->getHandle(),
 								   LLPreviewLSL::onLoad,
 								   LLPreviewLSL::onSave,
@@ -1590,7 +1589,7 @@ void* LLLiveLSLEditor::createScriptEdPanel(void* userdata)
 	self->mScriptEd =  new LLScriptEdCore("script ed panel",
 								   LLRect(),
 								   HELLO_LSL,
-								   HELP_LSL,
+								   HELP_LSL_URL,
 								   self->getHandle(),
 								   &LLLiveLSLEditor::onLoad,
 								   &LLLiveLSLEditor::onSave,
