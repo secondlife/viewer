@@ -466,7 +466,12 @@ windows/i686/vs/2003 -- specify a windows visual studio 2003 package"""
             if not self._dryrun:
                 if os.path.exists(filename):
                     remove_dir_set.add(os.path.dirname(filename))
-                    os.remove(filename)
+                    try:
+                        os.remove(filename)
+                    except OSError:
+                        # This is just for cleanup, so we don't care
+                        # about normal failures.
+                        pass
         for dirname in remove_dir_set:
             try:
                 os.removedirs(dirname)
