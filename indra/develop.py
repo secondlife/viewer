@@ -543,14 +543,26 @@ class WindowsSetup(PlatformSetup):
         '''Override to add the vstool.exe call after running cmake.'''
         PlatformSetup.run_cmake(self, args)
         if self.unattended == 'OFF':
-            for build_dir in self.build_dirs():
-                vstool_cmd = (os.path.join('tools','vstool','VSTool.exe') +
-                              ' --solution ' +
-                              os.path.join(build_dir,'SecondLife.sln') +
-                              ' --config ' + self.build_type +
-                              ' --startup secondlife-bin')
-                print 'Running %r in %r' % (vstool_cmd, getcwd())
-                self.run(vstool_cmd)        
+            self.run_vstool()
+
+    def run_vstool(self):
+        for build_dir in self.build_dirs():
+            stamp = os.path.join(build_dir, 'vstool.txt')
+            try:
+                prev_build = open(stamp).read().strip()
+            except IOError:
+                prev_build = ''
+            if prev_build == self.build_type:
+                # Only run vstool if the build type has changed.
+                continue
+            vstool_cmd = (os.path.join('tools','vstool','VSTool.exe') +
+                          ' --solution ' +
+                          os.path.join(build_dir,'SecondLife.sln') +
+                          ' --config ' + self.build_type +
+                          ' --startup secondlife-bin')
+            print 'Running %r in %r' % (vstool_cmd, getcwd())
+            self.run(vstool_cmd)        
+            print >> open(stamp, 'w'), self.build_type
         
     def run_build(self, opts, targets):
         cwd = getcwd()
