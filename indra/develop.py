@@ -544,11 +544,11 @@ class WindowsSetup(PlatformSetup):
         PlatformSetup.run_cmake(self, args)
         if self.unattended == 'OFF':
             for build_dir in self.build_dirs():
-                vstool_cmd = os.path.join('tools','vstool','VSTool.exe') \
-                             + ' --solution ' \
-                             + os.path.join(build_dir,'SecondLife.sln') \
-                             + ' --config RelWithDebInfo' \
-                             + ' --startup secondlife-bin'
+                vstool_cmd = (os.path.join('tools','vstool','VSTool.exe') +
+                              ' --solution ' +
+                              os.path.join(build_dir,'SecondLife.sln') +
+                              ' --config ' + self.build_type +
+                              ' --startup secondlife-bin')
                 print 'Running %r in %r' % (vstool_cmd, getcwd())
                 self.run(vstool_cmd)        
         
