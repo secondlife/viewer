@@ -2538,7 +2538,8 @@ S32 OSMessageBoxSDL(const std::string& text, const std::string& caption, U32 typ
 			buttons = GTK_BUTTONS_YES_NO;
 			break;
 		}
-		win = gtk_message_dialog_new(NULL,flags, messagetype, buttons, text.c_str());
+		win = gtk_message_dialog_new(NULL, flags, messagetype, buttons, "%s",
+									 text.c_str());
 
 # if LL_X11
 		// Make GTK tell the window manager to associate this
