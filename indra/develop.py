@@ -705,13 +705,14 @@ For example: develop.py configure -DSERVER:BOOL=OFF"""
             print >> sys.stderr, 'Error: unknown subcommand', repr(cmd)
             print >> sys.stderr, "(run 'develop.py --help' for help)"
             sys.exit(1)
-    except CommandError, err:
-        print >> sys.stderr, 'Error:', err
-        sys.exit(1)
     except getopt.GetoptError, err:
         print >> sys.stderr, 'Error with %r subcommand: %s' % (cmd, err)
         sys.exit(1)
 
 
 if __name__ == '__main__':
-    main(sys.argv[1:])
+    try:
+        main(sys.argv[1:])
+    except CommandError, err:
+        print >> sys.stderr, 'Error:', err
+        sys.exit(1)
