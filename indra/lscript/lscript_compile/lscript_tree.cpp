@@ -7886,10 +7886,10 @@ void LLScriptFunctionCall::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCom
 			{
 				// Prefix function name with g to distinguish from
 				// event handlers.
-				fprintf(fp, gScriptp->getClassName());
+				fprintf(fp, "%s", gScriptp->getClassName());
 				fprintf(fp, "::'g");
 			}
-			fprintf(fp, mIdentifier->mName);
+			fprintf(fp, "%s", mIdentifier->mName);
 			fprintf(fp, "'(");
 			print_cil_arg_list(fp, mIdentifier->mScopeEntry->mFunctionArgs);
 			fprintf(fp, ")\n");
@@ -9741,7 +9741,7 @@ void LLScriptEventHandler::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCom
 		// Allows state changing by finding handlers prefixed with new
 		// state name. Prefix disambiguates functions and event handlers.
 		fprintf(fp, "e");
-		fprintf(fp, entry->mIdentifier);
+		fprintf(fp, "%s", entry->mIdentifier);
 
 		// Handler name and arguments.
 		mEventp->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
@@ -10173,7 +10173,7 @@ void LLScriptGlobalFunctions::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPT
 			fprintf(fp, ".method public hidebysig instance default ");
 			print_cil_type(fp, mType ? mType->mType : LST_NULL);
 			fprintf(fp, " 'g");
-			fprintf(fp, mIdentifier->mName);
+			fprintf(fp, "%s", mIdentifier->mName);
 			fprintf(fp, "'");
 			if (mParameters)
 			{
