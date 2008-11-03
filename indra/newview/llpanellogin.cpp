@@ -201,6 +201,26 @@ void LLLoginHandler::parse(const LLSD& queryMap)
 	{
 		grid_choice = GRID_INFO_ARUNA;
 	}
+	else if (queryMap["grid"].asString() == "bharati")
+	{
+		grid_choice = GRID_INFO_BHARATI;
+	}
+	else if (queryMap["grid"].asString() == "chandra")
+	{
+		grid_choice = GRID_INFO_CHANDRA;
+	}
+	else if (queryMap["grid"].asString() == "danu")
+	{
+		grid_choice = GRID_INFO_DANU;
+	}
+	else if (queryMap["grid"].asString() == "parvati")
+	{
+		grid_choice = GRID_INFO_PARVATI;
+	}
+	else if (queryMap["grid"].asString() == "skanda")
+	{
+		grid_choice = GRID_INFO_SKANDA;
+	}
 
 	if(grid_choice != GRID_INFO_NONE)
 	{
