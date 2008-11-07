@@ -163,15 +163,20 @@ U64 LLViewerObjectList::getIndex(const U32 local_id,
 
 BOOL LLViewerObjectList::removeFromLocalIDTable(const LLViewerObject &object)
 {
-	U32 local_id = object.mLocalID;
-	LLHost region_host = object.getRegion()->getHost();
-	U32 ip = region_host.getAddress();
-	U32 port = region_host.getPort();
-	U64 ipport = (((U64)ip) << 32) | (U64)port;
-	U32 index = sIPAndPortToIndex[ipport];
+	if(object.getRegion())
+	{
+		U32 local_id = object.mLocalID;
+		LLHost region_host = object.getRegion()->getHost();
+		U32 ip = region_host.getAddress();
+		U32 port = region_host.getPort();
+		U64 ipport = (((U64)ip) << 32) | (U64)port;
+		U32 index = sIPAndPortToIndex[ipport];
 
-	U64	indexid = (((U64)index) << 32) | (U64)local_id;
-	return sIndexAndLocalIDToUUID.erase(indexid) > 0 ? TRUE : FALSE;
+		U64	indexid = (((U64)index) << 32) | (U64)local_id;
+		return sIndexAndLocalIDToUUID.erase(indexid) > 0 ? TRUE : FALSE;
+	}
+
+	return FALSE ;
 }
 
 void LLViewerObjectList::setUUIDAndLocal(const LLUUID &id,

@@ -32,6 +32,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llworld.h"
+#include "llrender.h"
 
 #include "indra_constants.h"
 #include "llstl.h"
@@ -108,7 +109,7 @@ LLWorld::LLWorld() :
 	*(default_texture++) = MAX_WATER_COLOR.mV[3];
 	
 	mDefaultWaterTexturep = new LLViewerImage(raw, FALSE);
-	mDefaultWaterTexturep->bind();
+	gGL.getTexUnit(0)->bind(mDefaultWaterTexturep.get());
 	mDefaultWaterTexturep->setClamp(TRUE, TRUE);
 
 }

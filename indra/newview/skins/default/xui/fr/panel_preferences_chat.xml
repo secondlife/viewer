@@ -4,7 +4,7 @@
 		Taille de la police 
 du chat :
 	</text>
-	<radio_group name="chat font size">
+	<radio_group name="chat_font_size">
 		<radio_item type="string" length="1" name="radio">
 			Petite
 		</radio_item>

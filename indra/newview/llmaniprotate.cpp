@@ -115,7 +115,7 @@ void LLManipRotate::handleSelect()
 void LLManipRotate::render()
 {
 	LLGLSUIDefault gls_ui;
-	LLGLSNoTexture gls_no_texture;
+	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 	LLGLDepthTest gls_depth(GL_TRUE);
 	LLGLEnable gl_blend(GL_BLEND);
 	LLGLEnable gls_alpha_test(GL_ALPHA_TEST);
@@ -838,7 +838,7 @@ void LLManipRotate::renderSnapGuides()
 				LLVector3 outer_point;
 				LLVector3 text_point;
 				LLQuaternion rot(deg * DEG_TO_RAD, constraint_axis);
-				gGL.begin(LLVertexBuffer::LINES);
+				gGL.begin(LLRender::LINES);
 				{
 					inner_point = (projected_snap_axis * mRadiusMeters * SNAP_GUIDE_INNER_RADIUS * rot) + center;
 					F32 tick_length = 0.f;
@@ -1017,7 +1017,7 @@ void LLManipRotate::renderSnapGuides()
 				object_axis = object_axis * SNAP_GUIDE_INNER_RADIUS * mRadiusMeters + center;
 				LLVector3 line_start = center;
 
-				gGL.begin(LLVertexBuffer::LINES);
+				gGL.begin(LLRender::LINES);
 				{
 					gGL.vertex3fv(line_start.mV);
 					gGL.vertex3fv(object_axis.mV);
@@ -1025,7 +1025,7 @@ void LLManipRotate::renderSnapGuides()
 				gGL.end();
 
 				// draw snap guide arrow
-				gGL.begin(LLVertexBuffer::TRIANGLES);
+				gGL.begin(LLRender::TRIANGLES);
 				{
 					LLVector3 arrow_dir;
 					LLVector3 arrow_span = (object_axis - line_start) % getConstraintAxis();
@@ -1045,7 +1045,7 @@ void LLManipRotate::renderSnapGuides()
 
 				{
 					LLGLDepthTest gls_depth(GL_TRUE);
-					gGL.begin(LLVertexBuffer::LINES);
+					gGL.begin(LLRender::LINES);
 					{
 						gGL.vertex3fv(line_start.mV);
 						gGL.vertex3fv(object_axis.mV);
@@ -1053,7 +1053,7 @@ void LLManipRotate::renderSnapGuides()
 					gGL.end();
 
 					// draw snap guide arrow
-					gGL.begin(LLVertexBuffer::TRIANGLES);
+					gGL.begin(LLRender::TRIANGLES);
 					{
 						LLVector3 arrow_dir;
 						LLVector3 arrow_span = (object_axis - line_start) % getConstraintAxis();

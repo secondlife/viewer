@@ -165,6 +165,7 @@ public:
 		FTM_FILTER,
 		FTM_REFRESH,
 		FTM_SORT,
+		FTM_PICK,
 		
 		// Temp
 		FTM_TEMP1,

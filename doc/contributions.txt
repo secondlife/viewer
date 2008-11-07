@@ -1,3 +1,4 @@
+
 Linden Lab would like to acknowledge source code contributions from the
 following residents.   The Second Life resident name is given below,
 along with the issue identifier corresponding to the patches we've
@@ -12,6 +13,7 @@ Able Whitman
 Adam Marker
 	VWR-2755
 Aimee Trescothick
+  VWR-3336
 	VWR-3903
 	VWR-4083
 	VWR-9255
@@ -59,6 +61,8 @@ Angus Boyd
 	VWR-592
 Argent Stonecutter
 	VWR-68
+Asuka Neely
+  VWR-3434
 Balp Allen
     VWR-4157
 Benja Kepler
@@ -191,6 +195,7 @@ Jacek Antonelli
 	VWR-3605
 JB Kraft
   VWR-5283
+  VWR-7802
 Joghert LeSabre
 	VWR-64
 Kage Pixel
@@ -208,13 +213,15 @@ Matthew Dowd
 	VWR-1761
 McCabe Maxsted
 	VWR-1318
-        VWR-7893
+	VWR-7893
+	VWR-8689
 Michelle2 Zenovka
 	VWR-2652
 	VWR-2834
 	VWR-3749
 	VWR-4022
 	VWR-4506
+	VWR-4981
 	VWR-7831
 	VWR-8889
 	VWR-8310

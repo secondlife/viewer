@@ -313,6 +313,7 @@ public:
 	LLViewerObject* cursorIntersect(S32 mouse_x = -1, S32 mouse_y = -1, F32 depth = 512.f,
 									LLViewerObject *this_object = NULL,
 									S32 this_face = -1,
+									BOOL pick_transparent = FALSE,
 									S32* face_hit = NULL,
 									LLVector3 *intersection = NULL,
 									LLVector2 *uv = NULL,
@@ -340,6 +341,8 @@ public:
 	void			toggleFullscreen(BOOL show_progress);
 
 	// handle shutting down GL and bringing it back up
+	bool			updateResolution(void);
+	void			requestResolutionUpdate(bool fullscreen_checked, U32 resolution_index);
 	BOOL			checkSettings();
 	void			restartDisplay(BOOL show_progress_bar);
 	BOOL			changeDisplaySettings(BOOL fullscreen, LLCoordScreen size, BOOL disable_vsync, BOOL show_progress_bar);
@@ -421,6 +424,11 @@ protected:
 	std::string		mInitAlert;			// Window / GL initialization requires an alert
 	
 	class LLDebugText* mDebugText; // Internal class for debug text
+	
+	bool			mResDirty;
+	bool			mStatesDirty;
+	bool			mIsFullscreenChecked; // Did the user check the fullscreen checkbox in the display settings
+	U32			mCurrResolutionIndex;
 
 protected:
 	static std::string sSnapshotBaseName;
@@ -473,6 +481,7 @@ extern LLVector3        gDebugRaycastIntersection;
 extern LLVector2        gDebugRaycastTexCoord;
 extern LLVector3        gDebugRaycastNormal;
 extern LLVector3        gDebugRaycastBinormal;
+extern S32				gDebugRaycastFaceHit;
 
 extern S32 CHAT_BAR_HEIGHT; 
 

@@ -114,6 +114,7 @@ public:
 		//LL_PART_TRAIL_MASK =			0x400,		// Particles have historical "trails"
 
 		// Viewer side use only!
+		LL_PART_HUD =					0x40000000,
 		LL_PART_DEAD_MASK =				0x80000000,
 	};
 

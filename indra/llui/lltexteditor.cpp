@@ -2594,7 +2594,7 @@ void LLTextEditor::drawSelectionBackground()
 		BOOL selection_visible = (left_visible_pos <= selection_right) && (selection_left <= right_visible_pos);
 		if( selection_visible )
 		{
-			LLGLSNoTexture no_texture;
+			gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 			const LLColor4& color = mReadOnly ? mReadOnlyBgColor : mWriteableBgColor;
 			F32 alpha = hasFocus() ? 1.f : 0.5f;
 			gGL.color4f( 1.f - color.mV[0], 1.f - color.mV[1], 1.f - color.mV[2], alpha );
@@ -2729,7 +2729,7 @@ void LLTextEditor::drawCursor()
 					}
 				}
 				
-				LLGLSNoTexture no_texture;
+				gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
 				gGL.color4fv( mCursorColor.mV );
 				

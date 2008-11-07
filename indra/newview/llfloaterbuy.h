@@ -57,6 +57,7 @@ protected:
 	LLFloaterBuy();
 	~LLFloaterBuy();
 
+	/*virtual*/ void onClose(bool app_quitting);
 	void reset();
 
 	void requestObjectInventories();
@@ -64,8 +65,6 @@ protected:
 								 InventoryObjectList* inv,
 								 S32 serial_num,
 								 void* data);
-
-	/*virtual*/ void close(bool app_quitting = false);
 
 	static void onClickBuy(void*);
 	static void onClickCancel(void*);

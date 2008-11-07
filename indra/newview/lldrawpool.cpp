@@ -194,7 +194,8 @@ S32 LLFacePool::drawLoopSetTex(face_array_t& face_list, S32 stage)
 			 iter != face_list.end(); iter++)
 		{
 			LLFace *facep = *iter;
-			facep->bindTexture(stage);
+			gGL.getTexUnit(stage)->bind(facep->getTexture());
+			gGL.getTexUnit(0)->activate();
 			res += facep->renderIndexed();
 		}
 	}
@@ -395,7 +396,7 @@ void LLRenderPass::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture)
 	{
 		if (params.mTexture.notNull())
 		{
-			params.mTexture->bind();
+			gGL.getTexUnit(0)->bind(params.mTexture.get());
 			if (params.mTextureMatrix)
 			{
 				glMatrixMode(GL_TEXTURE);
@@ -406,14 +407,14 @@ void LLRenderPass::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture)
 		}
 		else
 		{
-			LLImageGL::unbindTexture(0);
+			gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 		}
 	}
 	
 	if (params.mVertexBuffer.notNull())
 	{
 		params.mVertexBuffer->setBuffer(mask);
-		params.mVertexBuffer->drawRange(LLVertexBuffer::TRIANGLES, params.mStart, params.mEnd, params.mCount, params.mOffset);
+		params.mVertexBuffer->drawRange(LLRender::TRIANGLES, params.mStart, params.mEnd, params.mCount, params.mOffset);
 		gPipeline.addTrianglesDrawn(params.mCount/3);
 	}
 

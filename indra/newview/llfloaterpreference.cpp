@@ -424,8 +424,6 @@ void LLFloaterPreference::onClickAbout(void*)
 // static 
 void LLFloaterPreference::onBtnOK( void* userdata )
 {
-	LLPanelLogin::refreshLocation( false );
-
 	LLFloaterPreference *fp =(LLFloaterPreference *)userdata;
 	// commit any outstanding text entry
 	if (fp->hasFocus())
@@ -453,6 +451,8 @@ void LLFloaterPreference::onBtnOK( void* userdata )
 		// Show beep, pop up dialog, etc.
 		llinfos << "Can't close preferences!" << llendl;
 	}
+
+	LLPanelLogin::refreshLocation( false );
 }
 
 

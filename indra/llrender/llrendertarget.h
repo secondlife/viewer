@@ -33,6 +33,7 @@
 #define LL_LLRENDERTARGET_H
 
 #include "llgl.h"
+#include "llrender.h"
 
 /*
  SAMPLE USAGE:
@@ -53,7 +54,7 @@
 	...
 
 	//use target as a texture
-	target.bindTexture();
+	gGL.getTexUnit(INDEX)->bind(&target);
 	... <issue drawing commands> ...
 
 */
@@ -71,7 +72,7 @@ public:
 	//allocate resources for rendering
 	//must be called before use
 	//multiple calls will release previously allocated resources
-	void allocate(U32 resx, U32 resy, U32 color_fmt, BOOL depth, U32 usage = GL_TEXTURE_2D, BOOL use_fbo = FALSE);
+	void allocate(U32 resx, U32 resy, U32 color_fmt, BOOL depth, LLTexUnit::eTextureType usage = LLTexUnit::TT_TEXTURE, BOOL use_fbo = FALSE);
 
 	//allocate a depth texture
 	void allocateDepth();
@@ -100,11 +101,11 @@ public:
 	//get Y resolution
 	U32 getHeight() const { return mResY; }
 
-	//bind results of render for sampling
-	void bindTexture();
+	LLTexUnit::eTextureType getUsage(void) const { return mUsage; }
 
-	//bind results of render for sampling depth buffer
-	void bindDepth();
+	U32 getTexture(void) const { return mTex; }
+
+	U32 getDepth(void) const { return mDepth; }
 
 	//flush rendering operations
 	//must be called when rendering is complete
@@ -128,7 +129,7 @@ private:
 	U32 mStencil;
 	BOOL mUseDepth;
 	BOOL mRenderDepth;
-	U32 mUsage;
+	LLTexUnit::eTextureType mUsage;
 	
 };
 

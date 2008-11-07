@@ -578,3 +578,146 @@ void LLVOGrass::updateDrawable(BOOL force_damped)
 	}
 	clearChanged(SHIFTED);
 }
+
+// virtual 
+BOOL LLVOGrass::lineSegmentIntersect(const LLVector3& start, const LLVector3& end, S32 face, BOOL pick_transparent, S32 *face_hitp,
+									  LLVector3* intersection,LLVector2* tex_coord, LLVector3* normal, LLVector3* bi_normal)
+	
+{
+	BOOL ret = FALSE;
+	if (!mbCanSelect ||
+		mDrawable->isDead() || 
+		!gPipeline.hasRenderType(mDrawable->getRenderType()))
+	{
+		return FALSE;
+	}
+
+	LLVector3 dir = end-start;
+
+	mPatch = mRegionp->getLand().resolvePatchRegion(getPositionRegion());
+	
+	LLVector3 position;
+	// Create random blades of grass with gaussian distribution
+	F32 x,y,xf,yf,dzx,dzy;
+
+	LLColor4U color(255,255,255,255);
+
+	F32 width  = sSpeciesTable[mSpecies]->mBladeSizeX;
+	F32 height = sSpeciesTable[mSpecies]->mBladeSizeY;
+
+	LLVector2 tc[4];
+	LLVector3 v[4];
+	// LLVector3 n[4]; // unused!
+
+	F32 closest_t = 1.f;
+
+	for (S32 i = 0;  i < mNumBlades; i++)
+	{
+		x   = exp_x[i] * mScale.mV[VX];
+		y   = exp_y[i] * mScale.mV[VY];
+		xf  = rot_x[i] * GRASS_BLADE_BASE * width * w_mod[i];
+		yf  = rot_y[i] * GRASS_BLADE_BASE * width * w_mod[i];
+		dzx = dz_x [i];
+		dzy = dz_y [i];
+
+		LLVector3 v1,v2,v3;
+		F32 blade_height= GRASS_BLADE_HEIGHT * height * w_mod[i];
+
+		tc[0]   = LLVector2(0, 0);
+		tc[1]   = LLVector2(0, 0.98f);
+		tc[2]   = LLVector2(1, 0);
+		tc[3]   = LLVector2(1, 0.98f);
+	
+		position.mV[0]  = mPosition.mV[VX] + x + xf;
+		position.mV[1]  = mPosition.mV[VY] + y + yf;
+		position.mV[2]  = mRegionp->getLand().resolveHeightRegion(position);
+		v[0]    = v1 = position + mRegionp->getOriginAgent();
+		
+
+
+		position.mV[0] += dzx;
+		position.mV[1] += dzy;
+		position.mV[2] += blade_height;
+		v[1]    = v2 = position + mRegionp->getOriginAgent();
+		
+		position.mV[0]  = mPosition.mV[VX] + x - xf;
+		position.mV[1]  = mPosition.mV[VY] + y - xf;
+		position.mV[2]  = mRegionp->getLand().resolveHeightRegion(position);
+		v[2]    = v3 = position + mRegionp->getOriginAgent();
+		
+		LLVector3 normal1 = (v1-v2) % (v2-v3);
+		normal1.normalize();
+		
+		position.mV[0] += dzx;
+		position.mV[1] += dzy;
+		position.mV[2] += blade_height;
+		v[3]    = v1 = position + mRegionp->getOriginAgent();
+	
+
+		F32 a,b,t;
+
+		BOOL hit = FALSE;
+
+
+		U32 idx0 = 0,idx1 = 0,idx2 = 0;
+
+		if (LLTriangleRayIntersect(v[0], v[1], v[2], start, dir, &a, &b, &t, FALSE))
+		{
+			hit = TRUE;
+			idx0 = 0; idx1 = 1; idx2 = 2;
+		}
+		else if (LLTriangleRayIntersect(v[1], v[3], v[2], start, dir, &a, &b, &t, FALSE))
+		{
+			hit = TRUE;
+			idx0 = 1; idx1 = 3; idx2 = 2;
+		}
+		else if (LLTriangleRayIntersect(v[2], v[1], v[0], start, dir, &a, &b, &t, FALSE))
+		{
+			normal1 = -normal1;
+			hit = TRUE;
+			idx0 = 2; idx1 = 1; idx2 = 0;
+		}
+		else if (LLTriangleRayIntersect(v[2], v[3], v[1], start, dir, &a, &b, &t, FALSE))
+		{
+			normal1 = -normal1;
+			hit = TRUE;
+			idx0 = 2; idx1 = 3; idx2 = 1;
+		}
+
+		if (hit)
+		{
+			if (t >= 0.f &&
+				t <= 1.f &&
+				t < closest_t)
+			{
+
+				LLVector2 hit_tc = ((1.f - a - b)  * tc[idx0] +
+									  a              * tc[idx1] +
+									  b              * tc[idx2]);
+				if (pick_transparent ||
+					getTEImage(0)->getMask(hit_tc))
+				{
+					closest_t = t;
+					if (intersection != NULL)
+					{
+						*intersection = start+dir*closest_t;
+					}
+
+					if (tex_coord != NULL)
+					{
+						*tex_coord = hit_tc;
+					}
+
+					if (normal != NULL)
+					{
+						*normal    = normal1;
+					}
+					ret = TRUE;
+				}
+			}
+		}
+	}
+
+	return ret;
+}
+

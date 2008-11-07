@@ -1423,7 +1423,7 @@ void LLLineEditor::draw()
 #else // the old programmer art.
 	// drawing solids requires texturing be disabled
 	{
-		LLGLSNoTexture no_texture;
+		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 		// draw background for text
 		if( !mReadOnly )
 		{

@@ -32,7 +32,6 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "lldynamictexture.h"
-#include "llimagegl.h"
 #include "llglheaders.h"
 #include "llviewerwindow.h"
 #include "llviewercamera.h"
@@ -105,7 +104,7 @@ void LLDynamicTexture::generateGLTexture(LLGLint internal_format, LLGLenum prima
 	}
 	releaseGLTexture();
 	LLPointer<LLImageRaw> raw_image = new LLImageRaw(mWidth, mHeight, mComponents);
-	mTexture = new LLImageGL(mWidth, mHeight, mComponents, FALSE);
+	mTexture = new LLViewerImage(mWidth, mHeight, mComponents, FALSE);
 	if (internal_format >= 0)
 	{
 		mTexture->setExplicitFormat(internal_format, primary_format, type_format, swap_bytes);
@@ -113,6 +112,7 @@ void LLDynamicTexture::generateGLTexture(LLGLint internal_format, LLGLenum prima
 // 	llinfos << "ALLOCATING " << (mWidth*mHeight*mComponents)/1024 << "K" << llendl;
 	mTexture->createGLTexture(0, raw_image);
 	mTexture->setClamp(mClamp, mClamp);
+	mTexture->setInitialized(false);
 }
 
 //-----------------------------------------------------------------------------
@@ -144,7 +144,7 @@ void LLDynamicTexture::preRender(BOOL clear_depth)
 			mOrigin.mY = llmax(mOrigin.mY, 0) ;
 		}
 
-		LLImageGL::unbindTexture(0, GL_TEXTURE_2D);
+		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 	}
 	// Set up camera
 	mCamera.setOrigin(*LLViewerCamera::getInstance());
@@ -181,19 +181,6 @@ void LLDynamicTexture::postRender(BOOL success)
 	LLViewerCamera::getInstance()->setAspect(mCamera.getAspect());
 	LLViewerCamera::getInstance()->setView(mCamera.getView());
 	LLViewerCamera::getInstance()->setNear(mCamera.getNear());
-}
-
-//-----------------------------------------------------------------------------
-// bindTexture()
-//-----------------------------------------------------------------------------
-void LLDynamicTexture::bindTexture()
-{
-	LLViewerImage::bindTexture(mTexture,0);
-}
-
-void LLDynamicTexture::unbindTexture()
-{
-	LLImageGL::unbindTexture(0, GL_TEXTURE_2D);
 }
 
 //-----------------------------------------------------------------------------

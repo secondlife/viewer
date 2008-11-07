@@ -76,7 +76,7 @@ S32 LLVertexBuffer::sTypeOffsets[LLVertexBuffer::TYPE_MAX] =
 	sizeof(LLVector4), // TYPE_CLOTHWEIGHT,
 };
 
-U32 LLVertexBuffer::sGLMode[LLVertexBuffer::NUM_MODES] = 
+U32 LLVertexBuffer::sGLMode[LLRender::NUM_MODES] = 
 {
 	GL_TRIANGLES,
 	GL_TRIANGLE_STRIP,
@@ -187,7 +187,7 @@ void LLVertexBuffer::drawRange(U32 mode, U32 start, U32 end, U32 count, U32 indi
 		llerrs << "Wrong vertex buffer bound." << llendl;
 	}
 
-	if (mode > NUM_MODES)
+	if (mode > LLRender::NUM_MODES)
 	{
 		llerrs << "Invalid draw mode: " << mode << llendl;
 		return;
@@ -216,7 +216,7 @@ void LLVertexBuffer::draw(U32 mode, U32 count, U32 indices_offset) const
 		llerrs << "Wrong vertex buffer bound." << llendl;
 	}
 
-	if (mode > NUM_MODES)
+	if (mode > LLRender::NUM_MODES)
 	{
 		llerrs << "Invalid draw mode: " << mode << llendl;
 		return;
@@ -240,7 +240,7 @@ void LLVertexBuffer::drawArrays(U32 mode, U32 first, U32 count) const
 		llerrs << "Wrong vertex buffer bound." << llendl;
 	}
 
-	if (mode > NUM_MODES)
+	if (mode > LLRender::NUM_MODES)
 	{
 		llerrs << "Invalid draw mode: " << mode << llendl;
 		return;

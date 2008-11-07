@@ -143,11 +143,11 @@ void gl_state_for_2d(S32 width, S32 height)
 
 void gl_draw_x(const LLRect& rect, const LLColor4& color)
 {
-	LLGLSNoTexture no_texture;
+	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
 	gGL.color4fv( color.mV );
 
-	gGL.begin( LLVertexBuffer::LINES );
+	gGL.begin( LLRender::LINES );
 		gGL.vertex2i( rect.mLeft,		rect.mTop );
 		gGL.vertex2i( rect.mRight,	rect.mBottom );
 		gGL.vertex2i( rect.mLeft,		rect.mBottom );
@@ -183,12 +183,12 @@ void gl_rect_2d_offset_local( S32 left, S32 top, S32 right, S32 bottom, S32 pixe
 void gl_rect_2d(S32 left, S32 top, S32 right, S32 bottom, BOOL filled )
 {
 	stop_glerror();
-	LLGLSNoTexture no_texture;
+	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
 	// Counterclockwise quad will face the viewer
 	if( filled )
 	{
-		gGL.begin( LLVertexBuffer::QUADS );
+		gGL.begin( LLRender::QUADS );
 			gGL.vertex2i(left, top);
 			gGL.vertex2i(left, bottom);
 			gGL.vertex2i(right, bottom);
@@ -200,7 +200,7 @@ void gl_rect_2d(S32 left, S32 top, S32 right, S32 bottom, BOOL filled )
 		if( gGLManager.mATIOffsetVerticalLines )
 		{
 			// Work around bug in ATI driver: vertical lines are offset by (-1,-1)
-			gGL.begin( LLVertexBuffer::LINES );
+			gGL.begin( LLRender::LINES );
 
 				// Verticals 
 				gGL.vertex2i(left + 1, top);
@@ -223,7 +223,7 @@ void gl_rect_2d(S32 left, S32 top, S32 right, S32 bottom, BOOL filled )
 		{
 			top--;
 			right--;
-			gGL.begin( LLVertexBuffer::LINE_STRIP );
+			gGL.begin( LLRender::LINE_STRIP );
 				gGL.vertex2i(left, top);
 				gGL.vertex2i(left, bottom);
 				gGL.vertex2i(right, bottom);
@@ -254,7 +254,7 @@ void gl_rect_2d( const LLRect& rect, const LLColor4& color, BOOL filled )
 void gl_drop_shadow(S32 left, S32 top, S32 right, S32 bottom, const LLColor4 &start_color, S32 lines)
 {
 	stop_glerror();
-	LLGLSNoTexture no_texture;
+	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 	
 	// HACK: Overlap with the rectangle by a single pixel.
 	right--;
@@ -264,7 +264,7 @@ void gl_drop_shadow(S32 left, S32 top, S32 right, S32 bottom, const LLColor4 &st
 	LLColor4 end_color = start_color;
 	end_color.mV[VALPHA] = 0.f;
 
-	gGL.begin(LLVertexBuffer::QUADS);
+	gGL.begin(LLRender::QUADS);
 
 	// Right edge, CCW faces screen
 	gGL.color4fv(start_color.mV);
@@ -324,9 +324,9 @@ void gl_line_2d(S32 x1, S32 y1, S32 x2, S32 y2 )
 		y2++;
 	}
 
-	LLGLSNoTexture no_texture;
+	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 	
-	gGL.begin(LLVertexBuffer::LINES);
+	gGL.begin(LLRender::LINES);
 		gGL.vertex2i(x1, y1);
 		gGL.vertex2i(x2, y2);
 	gGL.end();
@@ -343,11 +343,11 @@ void gl_line_2d(S32 x1, S32 y1, S32 x2, S32 y2, const LLColor4 &color )
 		y2++;
 	}
 
-	LLGLSNoTexture no_texture;
+	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
 	gGL.color4fv( color.mV );
 
-	gGL.begin(LLVertexBuffer::LINES);
+	gGL.begin(LLRender::LINES);
 		gGL.vertex2i(x1, y1);
 		gGL.vertex2i(x2, y2);
 	gGL.end();
@@ -355,17 +355,17 @@ void gl_line_2d(S32 x1, S32 y1, S32 x2, S32 y2, const LLColor4 &color )
 
 void gl_triangle_2d(S32 x1, S32 y1, S32 x2, S32 y2, S32 x3, S32 y3, const LLColor4& color, BOOL filled)
 {
-	LLGLSNoTexture no_texture;
+	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
 	gGL.color4fv(color.mV);
 
 	if (filled)
 	{
-		gGL.begin(LLVertexBuffer::TRIANGLES);
+		gGL.begin(LLRender::TRIANGLES);
 	}
 	else
 	{
-		gGL.begin(LLVertexBuffer::LINE_LOOP);
+		gGL.begin(LLRender::LINE_LOOP);
 	}
 	gGL.vertex2i(x1, y1);
 	gGL.vertex2i(x2, y2);
@@ -375,11 +375,11 @@ void gl_triangle_2d(S32 x1, S32 y1, S32 x2, S32 y2, S32 x3, S32 y3, const LLColo
 
 void gl_corners_2d(S32 left, S32 top, S32 right, S32 bottom, S32 length, F32 max_frac)
 {
-	LLGLSNoTexture no_texture;
+	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
 	length = llmin((S32)(max_frac*(right - left)), length);
 	length = llmin((S32)(max_frac*(top - bottom)), length);
-	gGL.begin(LLVertexBuffer::LINES);
+	gGL.begin(LLRender::LINES);
 	gGL.vertex2i(left, top);
 	gGL.vertex2i(left + length, top);
 	
@@ -496,11 +496,11 @@ void gl_draw_scaled_image_with_border(S32 x, S32 y, S32 width, S32 height, LLIma
 	{
 		gGL.translatef((F32)x, (F32)y, 0.f);
 
-		image->bind();
+		gGL.getTexUnit(0)->bind(image);
 
 		gGL.color4fv(color.mV);
 		
-		gGL.begin(LLVertexBuffer::QUADS);
+		gGL.begin(LLRender::QUADS);
 		{
 			// draw bottom left
 			gGL.texCoord2f(uv_rect.mLeft, uv_rect.mBottom);
@@ -656,11 +656,11 @@ void gl_draw_scaled_rotated_image(S32 x, S32 y, S32 width, S32 height, F32 degre
 			gGL.translatef( -offset_x, -offset_y, 0.f );
 		}
 
-		image->bind();
+		gGL.getTexUnit(0)->bind(image);
 
 		gGL.color4fv(color.mV);
 		
-		gGL.begin(LLVertexBuffer::QUADS);
+		gGL.begin(LLRender::QUADS);
 		{
 			gGL.texCoord2f(uv_rect.mRight, uv_rect.mTop);
 			gGL.vertex2i(width, height );
@@ -694,11 +694,11 @@ void gl_draw_scaled_image_inverted(S32 x, S32 y, S32 width, S32 height, LLImageG
 	{
 		gGL.translatef((F32)x, (F32)y, 0.f);
 
-		image->bind();
+		gGL.getTexUnit(0)->bind(image);
 
 		gGL.color4fv(color.mV);
 		
-		gGL.begin(LLVertexBuffer::QUADS);
+		gGL.begin(LLRender::QUADS);
 		{
 			gGL.texCoord2f(uv_rect.mRight, uv_rect.mBottom);
 			gGL.vertex2i(width, height );
@@ -733,7 +733,7 @@ void gl_stippled_line_3d( const LLVector3& start, const LLVector3& end, const LL
 	glLineWidth(2.5f);
 	glLineStipple(2, 0x3333 << shift);
 
-	gGL.begin(LLVertexBuffer::LINES);
+	gGL.begin(LLRender::LINES);
 	{
 		gGL.vertex3fv( start.mV );
 		gGL.vertex3fv( end.mV );
@@ -750,7 +750,7 @@ void gl_rect_2d_xor(S32 left, S32 top, S32 right, S32 bottom)
 	glLogicOp( GL_XOR );
 	stop_glerror();
 
-	gGL.begin(LLVertexBuffer::QUADS);
+	gGL.begin(LLRender::QUADS);
 		gGL.vertex2i(left, top);
 		gGL.vertex2i(left, bottom);
 		gGL.vertex2i(right, bottom);
@@ -782,14 +782,14 @@ void gl_arc_2d(F32 center_x, F32 center_y, F32 radius, S32 steps, BOOL filled, F
 
 		if (filled)
 		{
-			gGL.begin(LLVertexBuffer::TRIANGLE_FAN);
+			gGL.begin(LLRender::TRIANGLE_FAN);
 			gGL.vertex2f(0.f, 0.f);
 			// make sure circle is complete
 			steps += 1;
 		}
 		else
 		{
-			gGL.begin(LLVertexBuffer::LINE_STRIP);
+			gGL.begin(LLRender::LINE_STRIP);
 		}
 
 		while( steps-- )
@@ -809,7 +809,7 @@ void gl_circle_2d(F32 center_x, F32 center_y, F32 radius, S32 steps, BOOL filled
 {
 	gGL.pushMatrix();
 	{
-		LLGLSNoTexture gls_no_texture;
+		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 		gGL.translatef(center_x, center_y, 0.f);
 
 		// Inexact, but reasonably fast.
@@ -821,14 +821,14 @@ void gl_circle_2d(F32 center_x, F32 center_y, F32 radius, S32 steps, BOOL filled
 
 		if (filled)
 		{
-			gGL.begin(LLVertexBuffer::TRIANGLE_FAN);
+			gGL.begin(LLRender::TRIANGLE_FAN);
 			gGL.vertex2f(0.f, 0.f);
 			// make sure circle is complete
 			steps += 1;
 		}
 		else
 		{
-			gGL.begin(LLVertexBuffer::LINE_LOOP);
+			gGL.begin(LLRender::LINE_LOOP);
 		}
 
 		while( steps-- )
@@ -850,7 +850,7 @@ void gl_deep_circle( F32 radius, F32 depth, S32 steps )
 	F32 x = radius;
 	F32 y = 0.f;
 	F32 angle_delta = F_TWO_PI / (F32)steps;
-	gGL.begin( LLVertexBuffer::TRIANGLE_STRIP  );
+	gGL.begin( LLRender::TRIANGLE_STRIP  );
 	{
 		S32 step = steps + 1; // An extra step to close the circle.
 		while( step-- )
@@ -905,7 +905,7 @@ void gl_rect_2d_checkerboard(const LLRect& rect)
 		first = FALSE;
 	}
 	
-	LLGLSNoTexture gls_no_texture;
+	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
 	// ...white squares
 	gGL.color3f( 1.f, 1.f, 1.f );
@@ -935,9 +935,9 @@ void gl_washer_2d(F32 outer_radius, F32 inner_radius, S32 steps, const LLColor4&
 	F32 x2 = inner_radius;
 	F32 y2 = 0.f;
 
-	LLGLSNoTexture gls_no_texture;
+	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
-	gGL.begin( LLVertexBuffer::TRIANGLE_STRIP  );
+	gGL.begin( LLRender::TRIANGLE_STRIP  );
 	{
 		steps += 1; // An extra step to close the circle.
 		while( steps-- )
@@ -972,8 +972,8 @@ void gl_washer_segment_2d(F32 outer_radius, F32 inner_radius, F32 start_radians,
 	F32 x2 = inner_radius * cos( start_radians );
 	F32 y2 = inner_radius * sin( start_radians );
 
-	LLGLSNoTexture gls_no_texture;
-	gGL.begin( LLVertexBuffer::TRIANGLE_STRIP  );
+	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+	gGL.begin( LLRender::TRIANGLE_STRIP  );
 	{
 		steps += 1; // An extra step to close the circle.
 		while( steps-- )
@@ -1008,9 +1008,9 @@ void gl_washer_spokes_2d(F32 outer_radius, F32 inner_radius, S32 count, const LL
 	F32 x2 = inner_radius * cos( HALF_DELTA );
 	F32 y2 = inner_radius * sin( HALF_DELTA );
 
-	LLGLSNoTexture gls_no_texture;
+	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
-	gGL.begin( LLVertexBuffer::LINES  );
+	gGL.begin( LLRender::LINES  );
 	{
 		while( count-- )
 		{
@@ -1033,7 +1033,7 @@ void gl_washer_spokes_2d(F32 outer_radius, F32 inner_radius, S32 count, const LL
 
 void gl_rect_2d_simple_tex( S32 width, S32 height )
 {
-	gGL.begin( LLVertexBuffer::QUADS );
+	gGL.begin( LLRender::QUADS );
 
 		gGL.texCoord2f(1.f, 1.f);
 		gGL.vertex2i(width, height);
@@ -1052,7 +1052,7 @@ void gl_rect_2d_simple_tex( S32 width, S32 height )
 
 void gl_rect_2d_simple( S32 width, S32 height )
 {
-	gGL.begin( LLVertexBuffer::QUADS );
+	gGL.begin( LLRender::QUADS );
 		gGL.vertex2i(width, height);
 		gGL.vertex2i(0, height);
 		gGL.vertex2i(0, 0);
@@ -1094,7 +1094,7 @@ void gl_segmented_rect_2d_tex(const S32 left,
 	LLVector2 width_vec((F32)width, 0.f);
 	LLVector2 height_vec(0.f, (F32)height);
 
-	gGL.begin(LLVertexBuffer::QUADS);
+	gGL.begin(LLRender::QUADS);
 	{
 		// draw bottom left
 		gGL.texCoord2f(0.f, 0.f);
@@ -1262,7 +1262,7 @@ void gl_segmented_rect_2d_fragment_tex(const S32 left,
 	LLVector2 x_min;
 	LLVector2 x_max;
 
-	gGL.begin(LLVertexBuffer::QUADS);
+	gGL.begin(LLRender::QUADS);
 	{
 		if (start_fragment < middle_start)
 		{
@@ -1419,7 +1419,7 @@ void gl_segmented_rect_3d_tex(const LLVector2& border_scale, const LLVector3& bo
 	LLVector3 bottom_border_height = ((edges & (~(U32)ROUNDED_RECT_TOP)) != 0) ? border_height : LLVector3::zero;
 
 
-	gGL.begin(LLVertexBuffer::QUADS);
+	gGL.begin(LLRender::QUADS);
 	{
 		// draw bottom left
 		gGL.texCoord2f(0.f, 0.f);

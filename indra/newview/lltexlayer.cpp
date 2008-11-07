@@ -96,7 +96,6 @@ LLTexLayerSetBuffer::LLTexLayerSetBuffer( LLTexLayerSet* owner, S32 width, S32 h
 	mNeedsUpload( FALSE ),
 	mUploadPending( FALSE ), // Not used for any logic here, just to sync sending of updates
 	mTexLayerSet( owner ),
-	mInitialized( FALSE ),
 	mBumpTexName(0)
 {
 	LLTexLayerSetBuffer::sGLByteCount += getSize();
@@ -106,11 +105,10 @@ LLTexLayerSetBuffer::LLTexLayerSetBuffer( LLTexLayerSet* owner, S32 width, S32 h
 		LLGLSUIDefault gls_ui;
 		glGenTextures(1, (GLuint*) &mBumpTexName);
 
-		LLImageGL::bindExternalTexture(mBumpTexName, 0, GL_TEXTURE_2D); 
+		gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, mBumpTexName);
 		stop_glerror();
 
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		gGL.getTexUnit(0)->setTextureAddressMode(LLTexUnit::TAM_CLAMP);
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -118,7 +116,7 @@ LLTexLayerSetBuffer::LLTexLayerSetBuffer( LLTexLayerSet* owner, S32 width, S32 h
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 		stop_glerror();
 
-		LLImageGL::unbindTexture(0, GL_TEXTURE_2D);
+		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
 		LLImageGL::sGlobalTextureMemory += mWidth * mHeight * 4;
 		LLTexLayerSetBuffer::sGLBumpByteCount += mWidth * mHeight * 4;
@@ -259,7 +257,7 @@ BOOL LLTexLayerSetBuffer::render()
 			LLGLSUIDefault gls_ui;
 
 			// read back into texture (this is done externally for the color data)
-			LLImageGL::bindExternalTexture( mBumpTexName, 0, GL_TEXTURE_2D ); 
+			gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, mBumpTexName);
 			stop_glerror();
 
 			glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, mOrigin.mX, mOrigin.mY, mWidth, mHeight);
@@ -299,10 +297,15 @@ BOOL LLTexLayerSetBuffer::render()
 	gGL.setSceneBlendType(LLRender::BT_ALPHA);
 
 	// we have valid texture data now
-	mInitialized = TRUE;
+	mTexture->setInitialized(true);
 	mNeedsUpdate = FALSE;
 
 	return success;
+}
+
+bool LLTexLayerSetBuffer::isInitialized(void) const
+{
+	return mTexture->isInitialized();
 }
 
 BOOL LLTexLayerSetBuffer::updateImmediate()
@@ -551,24 +554,12 @@ void LLTexLayerSetBuffer::onTextureUploadComplete(const LLUUID& uuid, void* user
 	delete baked_upload_data;
 }
 
-
-void LLTexLayerSetBuffer::bindTexture()
-{
-	if( mInitialized )
-	{
-		LLDynamicTexture::bindTexture();
-	}
-	else
-	{
-		gImageList.getImage(IMG_DEFAULT)->bind();
-	}
-}
-
 void LLTexLayerSetBuffer::bindBumpTexture( U32 stage )
 {
 	if( mBumpTexName ) 
 	{
-		LLImageGL::bindExternalTexture(mBumpTexName, stage, GL_TEXTURE_2D); 
+		gGL.getTexUnit(stage)->bindManual(LLTexUnit::TT_TEXTURE, mBumpTexName);
+		gGL.getTexUnit(0)->activate();
 	
 		if( mLastBindTime != LLImageGL::sLastFrameTime )
 		{
@@ -578,7 +569,8 @@ void LLTexLayerSetBuffer::bindBumpTexture( U32 stage )
 	}
 	else
 	{
-		LLImageGL::unbindTexture(stage, GL_TEXTURE_2D);
+		gGL.getTexUnit(stage)->unbind(LLTexUnit::TT_TEXTURE);
+		gGL.getTexUnit(0)->activate();
 	}
 }
 
@@ -786,7 +778,7 @@ BOOL LLTexLayerSet::render( S32 x, S32 y, S32 width, S32 height )
 			if( image_gl )
 			{
 				LLGLSUIDefault gls_ui;
-				image_gl->bind();
+				gGL.getTexUnit(0)->bind(image_gl);
 				gl_rect_2d_simple_tex( width, height );
 			}
 			else
@@ -794,7 +786,7 @@ BOOL LLTexLayerSet::render( S32 x, S32 y, S32 width, S32 height )
 				success = FALSE;
 			}
 		}
-		LLImageGL::unbindTexture(0, GL_TEXTURE_2D);
+		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
 		gGL.flush();
 		gGL.setColorMask(true, true);
@@ -804,7 +796,8 @@ BOOL LLTexLayerSet::render( S32 x, S32 y, S32 width, S32 height )
 	if( getInfo()->mClearAlpha )
 	{
 		// Set the alpha channel to one (clean up after previous blending)
-		LLGLSNoTextureNoAlphaTest gls_no_alpha;
+		LLGLDisable no_alpha(GL_ALPHA_TEST);
+		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 		gGL.color4f( 0.f, 0.f, 0.f, 1.f );
 		gGL.flush();
 		gGL.setColorMask(false, true);
@@ -838,7 +831,8 @@ BOOL LLTexLayerSet::renderBump( S32 x, S32 y, S32 width, S32 height )
 	}
 
 	// Set the alpha channel to one (clean up after previous blending)
-	LLGLSNoTextureNoAlphaTest gls_no_texture_no_alpha;
+	LLGLDisable no_alpha(GL_ALPHA_TEST);
+	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 	gGL.color4f( 0.f, 0.f, 0.f, 1.f );
 	gGL.setColorMask(false, true);
 
@@ -1358,13 +1352,13 @@ BOOL LLTexLayer::render( S32 x, S32 y, S32 width, S32 height )
 					BOOL old_clamps = image_gl->getClampS();
 					BOOL old_clampt = image_gl->getClampT();
 					
-					image_gl->bind();
+					gGL.getTexUnit(0)->bind(image_gl);
 					image_gl->setClamp(TRUE, TRUE);
 
 					gl_rect_2d_simple_tex( width, height );
 
 					image_gl->setClamp(old_clamps, old_clampt);
-					image_gl->unbindTexture(0, GL_TEXTURE_2D);
+					gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 				}
 			}
 			else
@@ -1380,9 +1374,9 @@ BOOL LLTexLayer::render( S32 x, S32 y, S32 width, S32 height )
 			LLImageGL* image_gl = gTexStaticImageList.getImageGL( getInfo()->mStaticImageFileName, getInfo()->mStaticImageIsMask );
 			if( image_gl )
 			{
-				image_gl->bind();
+				gGL.getTexUnit(0)->bind(image_gl);
 				gl_rect_2d_simple_tex( width, height );
-				image_gl->unbindTexture(0, GL_TEXTURE_2D);
+				gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 			}
 			else
 			{
@@ -1396,7 +1390,8 @@ BOOL LLTexLayer::render( S32 x, S32 y, S32 width, S32 height )
 		getInfo()->mStaticImageFileName.empty() &&
 		color_specified )
 	{
-		LLGLSNoTextureNoAlphaTest gls;
+		LLGLDisable no_alpha(GL_ALPHA_TEST);
+		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 		gGL.color4fv( net_color.mV);
 		gl_rect_2d_simple( width, height );
 	}
@@ -1518,7 +1513,8 @@ BOOL LLTexLayer::renderAlphaMasks( S32 x, S32 y, S32 width, S32 height, LLColor4
 	// Note: if the first param is a mulitply, multiply against the current buffer's alpha
 	if( !first_param || !first_param->getMultiplyBlend() )
 	{
-		LLGLSNoTextureNoAlphaTest gls_no_texture_no_alpha_test;
+		LLGLDisable no_alpha(GL_ALPHA_TEST);
+		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 	
 		// Clear the alpha
 		gGL.flush();
@@ -1555,13 +1551,13 @@ BOOL LLTexLayer::renderAlphaMasks( S32 x, S32 y, S32 width, S32 height, LLColor4
 
 					BOOL old_clamps = image_gl->getClampS();
 					BOOL old_clampt = image_gl->getClampT();					
-					image_gl->bind();
+					gGL.getTexUnit(0)->bind(image_gl);
 					image_gl->setClamp(TRUE, TRUE);
 
 					gl_rect_2d_simple_tex( width, height );
 
 					image_gl->setClamp(old_clamps, old_clampt);
-					image_gl->unbindTexture(0, GL_TEXTURE_2D);
+					gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 				}
 			}
 			else
@@ -1581,9 +1577,9 @@ BOOL LLTexLayer::renderAlphaMasks( S32 x, S32 y, S32 width, S32 height, LLColor4
 					( (image_gl->getComponents() == 1) && getInfo()->mStaticImageIsMask ) )
 				{
 					LLGLSNoAlphaTest gls_no_alpha_test;
-					image_gl->bind();
+					gGL.getTexUnit(0)->bind(image_gl);
 					gl_rect_2d_simple_tex( width, height );
-					image_gl->unbindTexture(0, GL_TEXTURE_2D);
+					gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 				}
 			}
 			else
@@ -1597,7 +1593,8 @@ BOOL LLTexLayer::renderAlphaMasks( S32 x, S32 y, S32 width, S32 height, LLColor4
 	// Note: we're still using gGL.blendFunc( GL_DST_ALPHA, GL_ZERO );
 	if( colorp->mV[VW] != 1.f )
 	{
-		LLGLSNoTextureNoAlphaTest gls_no_texture_no_alpha_test;
+		LLGLDisable no_alpha(GL_ALPHA_TEST);
+		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 		gGL.color4fv( colorp->mV );
 		gl_rect_2d_simple( width, height );
 	}
@@ -1700,7 +1697,7 @@ BOOL LLTexLayer::renderImageRaw( U8* in_data, S32 in_width, S32 in_height, S32 i
 		glGenTextures(1, &name );
 		stop_glerror();
 
-		LLImageGL::bindExternalTexture( name, 0, GL_TEXTURE_2D ); 
+		gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, name);
 		stop_glerror();
 
 		glTexImage2D(
@@ -1712,12 +1709,11 @@ BOOL LLTexLayer::renderImageRaw( U8* in_data, S32 in_width, S32 in_height, S32 i
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		gGL.getTexUnit(0)->setTextureAddressMode(LLTexUnit::TAM_CLAMP);
 
 		gl_rect_2d_simple_tex( width, height );
 
-		LLImageGL::unbindTexture(0, GL_TEXTURE_2D);
+		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
 		glDeleteTextures(1, &name );
 		stop_glerror();
@@ -1736,7 +1732,7 @@ BOOL LLTexLayer::renderImageRaw( U8* in_data, S32 in_width, S32 in_height, S32 i
 
 		gl_rect_2d_simple_tex( width, height );
 
-		LLImageGL::unbindTexture(0, GL_TEXTURE_2D);
+		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 	}
 
 	return TRUE;
@@ -2039,40 +2035,24 @@ BOOL LLTexLayerParamAlpha::render( S32 x, S32 y, S32 width, S32 height )
 		if( mCachedProcessedImageGL )
 		{
 			{
-				if (gGLManager.mHasPalettedTextures && gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_PALETTE))
+				// Create the GL texture, and then hang onto it for future use.
+				if( mNeedsCreateTexture )
 				{
-					if( mNeedsCreateTexture )
-					{
-						mCachedProcessedImageGL->createGLTexture(0, mStaticImageRaw);
-						mNeedsCreateTexture = FALSE;
-						
-						mCachedProcessedImageGL->bind();
-						mCachedProcessedImageGL->setClamp(TRUE, TRUE);
-					}
+					mCachedProcessedImageGL->createGLTexture(0, mStaticImageRaw);
+					mNeedsCreateTexture = FALSE;
+					
+					gGL.getTexUnit(0)->bind(mCachedProcessedImageGL);
+					mCachedProcessedImageGL->setClamp(TRUE, TRUE);
+				}
 
-					LLGLSNoAlphaTest gls_no_alpha_test;
-					mCachedProcessedImageGL->bind();
-					gGradientPaletteList.setHardwarePalette( getInfo()->mDomain, effective_weight );
-					gl_rect_2d_simple_tex( width, height );
-					mCachedProcessedImageGL->unbindTexture(0, GL_TEXTURE_2D);
+				LLGLSNoAlphaTest gls_no_alpha_test;
+				gGL.getTexUnit(0)->bind(mCachedProcessedImageGL);
+				if (gGLManager.mHasPalettedTextures && gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_PALETTE))
+				{					
+					gGradientPaletteList.setHardwarePalette( getInfo()->mDomain, effective_weight );			
 				}
-				else
-				{
-					// Create the GL texture, and then hang onto it for future use.
-					if( mNeedsCreateTexture )
-					{
-						mCachedProcessedImageGL->createGLTexture(0, mStaticImageRaw);
-						mNeedsCreateTexture = FALSE;
-						
-						mCachedProcessedImageGL->bind();
-						mCachedProcessedImageGL->setClamp(TRUE, TRUE);
-					}
-				
-					LLGLSNoAlphaTest gls_no_alpha_test;
-					mCachedProcessedImageGL->bind();
-					gl_rect_2d_simple_tex( width, height );
-					mCachedProcessedImageGL->unbindTexture(0, GL_TEXTURE_2D);
-				}
+				gl_rect_2d_simple_tex( width, height );
+				gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 				stop_glerror();
 			}
 		}
@@ -2086,7 +2066,8 @@ BOOL LLTexLayerParamAlpha::render( S32 x, S32 y, S32 width, S32 height )
 	}
 	else
 	{
-		LLGLSNoTextureNoAlphaTest gls_no_texture_no_alpha_test;
+		LLGLDisable no_alpha(GL_ALPHA_TEST);
+		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 		gGL.color4f( 0.f, 0.f, 0.f, effective_weight );
 		gl_rect_2d_simple( width, height );
 	}
@@ -2519,7 +2500,7 @@ LLImageGL* LLTexStaticImageList::getImageGL(const std::string& file_name, BOOL i
 			}
 			image_gl->createGLTexture(0, image_raw);
 
-			image_gl->bind();
+			gGL.getTexUnit(0)->bind(image_gl);
 			image_gl->setClamp(TRUE, TRUE);
 
 			mStaticImageListGL [ namekey ] = image_gl;

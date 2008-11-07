@@ -497,6 +497,29 @@ std::string LLDir::getTempFilename() const
 	return temp_filename;
 }
 
+// static
+std::string LLDir::getScrubbedFileName(const std::string uncleanFileName)
+{
+	std::string name(uncleanFileName);
+	const std::string illegalChars(getForbiddenFileChars());
+	// replace any illegal file chars with and underscore '_'
+	for( unsigned int i = 0; i < illegalChars.length(); i++ )
+	{
+		int j = -1;
+		while((j = name.find(illegalChars[i])) > -1)
+		{
+			name[j] = '_';
+		}
+	}
+	return name;
+}
+
+// static
+std::string LLDir::getForbiddenFileChars()
+{
+	return "\\/:*?\"<>|";
+}
+
 void LLDir::setLindenUserDir(const std::string &first, const std::string &last)
 {
 	// if both first and last aren't set, assume we're grabbing the cached dir

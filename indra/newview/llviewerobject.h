@@ -132,7 +132,7 @@ public:
 	typedef std::list<LLPointer<LLViewerObject> > child_list_t;
 	typedef const child_list_t const_child_list_t;
 
-	LLViewerObject(const LLUUID &id, const LLPCode type, LLViewerRegion *regionp);
+	LLViewerObject(const LLUUID &id, const LLPCode type, LLViewerRegion *regionp, BOOL is_global = FALSE);
 	MEM_TYPE_NEW(LLMemType::MTYPE_OBJECT);
 
 	virtual void markDead();				// Mark this object as dead, and clean up its references
@@ -248,6 +248,7 @@ public:
 	//returns TRUE if intersection detected and returns information about intersection
 	virtual BOOL lineSegmentIntersect(const LLVector3& start, const LLVector3& end,
 									  S32 face = -1,                          // which face to check, -1 = ALL_SIDES
+									  BOOL pick_transparent = FALSE,
 									  S32* face_hit = NULL,                   // which face was hit
 									  LLVector3* intersection = NULL,         // return the intersection point
 									  LLVector2* tex_coord = NULL,            // return the texture coordinates of the intersection point
@@ -255,6 +256,8 @@ public:
 									  LLVector3* bi_normal = NULL             // return the surface bi-normal at the intersection point
 		);
 	
+	virtual BOOL lineSegmentBoundingBox(const LLVector3& start, const LLVector3& end);
+
 	virtual const LLVector3d getPositionGlobal() const;
 	virtual const LLVector3 &getPositionRegion() const;
 	virtual const LLVector3 getPositionEdit() const;
@@ -507,6 +510,7 @@ public:
 		LL_VO_PART_GROUP =			LL_PCODE_APP | 0x90,
 		LL_VO_TRIANGLE_TORUS =		LL_PCODE_APP | 0xa0,
 		LL_VO_WL_SKY =				LL_PCODE_APP | 0xb0, // should this be moved to 0x40?
+		LL_VO_HUD_PART_GROUP =		LL_PCODE_APP | 0xc0,
 	} EVOType;
 
 	LLUUID			mID;
@@ -705,8 +709,8 @@ public:
 class LLStaticViewerObject : public LLViewerObject
 {
 public:
-	LLStaticViewerObject(const LLUUID& id, const LLPCode type, LLViewerRegion* regionp)
-		: LLViewerObject(id,type,regionp)
+	LLStaticViewerObject(const LLUUID& id, const LLPCode type, LLViewerRegion* regionp, BOOL is_global = FALSE)
+		: LLViewerObject(id,type,regionp, is_global)
 	{ }
 
 	virtual void updateDrawable(BOOL force_damped);

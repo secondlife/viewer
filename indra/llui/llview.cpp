@@ -1281,7 +1281,7 @@ void LLView::drawDebugRect()
 	LLUI::pushMatrix();
 	{
 		// drawing solids requires texturing be disabled
-		LLGLSNoTexture no_texture;
+		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
 		if (mUseBoundingRect)
 		{
@@ -1303,7 +1303,7 @@ void LLView::drawDebugRect()
 
 		gGL.color4fv( border_color.mV );
 
-		gGL.begin(LLVertexBuffer::LINES);
+		gGL.begin(LLRender::LINES);
 			gGL.vertex2i(0, debug_rect.getHeight() - 1);
 			gGL.vertex2i(0, 0);
 

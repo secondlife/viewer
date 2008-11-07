@@ -87,7 +87,8 @@ class LLViewerPartGroup
 {
 public:
 	LLViewerPartGroup(const LLVector3 &center,
-					  const F32 box_radius);
+					  const F32 box_radius,
+					  bool hud);
 	virtual ~LLViewerPartGroup();
 
 	void cleanup();
@@ -115,6 +116,7 @@ public:
 	U32 mID;
 
 	F32 mSkippedTime;
+	bool mHud;
 
 protected:
 	LLVector3 mCenterAgent;
@@ -178,7 +180,7 @@ public:
 	U32 mID;
 
 protected:
-	LLViewerPartGroup *createViewerPartGroup(const LLVector3 &pos_agent, const F32 desired_size);
+	LLViewerPartGroup *createViewerPartGroup(const LLVector3 &pos_agent, const F32 desired_size, bool hud);
 	LLViewerPartGroup *put(LLViewerPart* part);
 
 	group_list_t mViewerPartGroups;

@@ -220,9 +220,9 @@ void LLPostProcess::applyColorFilterShader(void)
 	gPostColorFilterProgram.bind();
 
 	gGL.getTexUnit(0)->activate();
-	glEnable(GL_TEXTURE_RECTANGLE_ARB);	
+	gGL.getTexUnit(0)->enable(LLTexUnit::TT_RECT_TEXTURE);
 
-	glBindTexture(GL_TEXTURE_RECTANGLE_ARB, sceneRenderTexture);
+	gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_RECT_TEXTURE, sceneRenderTexture);
 
 	getShaderUniforms(colorFilterUniforms, gPostColorFilterProgram.mProgramObject);
 	glUniform1iARB(colorFilterUniforms["RenderTexture"], 0);
@@ -264,16 +264,16 @@ void LLPostProcess::applyNightVisionShader(void)
 	gPostNightVisionProgram.bind();
 
 	gGL.getTexUnit(0)->activate();
-	glEnable(GL_TEXTURE_RECTANGLE_ARB);	
+	gGL.getTexUnit(0)->enable(LLTexUnit::TT_RECT_TEXTURE);
 
 	getShaderUniforms(nightVisionUniforms, gPostNightVisionProgram.mProgramObject);
-	glBindTexture(GL_TEXTURE_RECTANGLE_ARB, sceneRenderTexture);
+	gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_RECT_TEXTURE, sceneRenderTexture);
 	glUniform1iARB(nightVisionUniforms["RenderTexture"], 0);
 
 	gGL.getTexUnit(1)->activate();
-	glEnable(GL_TEXTURE_2D);	
+	gGL.getTexUnit(1)->enable(LLTexUnit::TT_TEXTURE);	
 
-	glBindTexture(GL_TEXTURE_2D, noiseTexture);
+	gGL.getTexUnit(1)->bindManual(LLTexUnit::TT_TEXTURE, noiseTexture);
 	glUniform1iARB(nightVisionUniforms["NoiseTexture"], 1);
 
 	
@@ -373,7 +373,7 @@ void LLPostProcess::doEffects(void)
 
 void LLPostProcess::copyFrameBuffer(GLuint & texture, unsigned int width, unsigned int height)
 {
-	glBindTexture(GL_TEXTURE_RECTANGLE_ARB, texture);
+	gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_RECT_TEXTURE, texture);
 	glCopyTexImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, GL_RGBA, 0, 0, width, height, 0);
 }
 
@@ -487,7 +487,7 @@ void LLPostProcess::createTexture(GLuint & texture, unsigned int width, unsigned
 	std::vector<GLubyte> data(width * height * 4, 0);
 
 	glGenTextures(1, &texture);
-	glBindTexture(GL_TEXTURE_RECTANGLE_ARB, texture);
+	gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_RECT_TEXTURE, texture);
 	glTexImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, 4, width, height, 0,
 		GL_RGBA, GL_UNSIGNED_BYTE, &data[0]);
 	glTexParameteri(GL_TEXTURE_RECTANGLE_ARB,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
@@ -509,7 +509,7 @@ void LLPostProcess::createNoiseTexture(GLuint & texture)
 			buffer[(i * NOISE_SIZE) + k] = (GLubyte)((double) rand() / ((double) RAND_MAX + 1.f) * 255.f);
 		}
 	}
-	glBindTexture(GL_TEXTURE_2D, texture);
+	gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, texture);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, NOISE_SIZE, NOISE_SIZE, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, &buffer[0]);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,GL_LINEAR);

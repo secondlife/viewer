@@ -362,10 +362,10 @@ void LLFace::renderForSelect(U32 data_mask)
 			switch (getPoolType())
 			{
 			case LLDrawPool::POOL_ALPHA:
-				getTexture()->bind();
+				gGL.getTexUnit(0)->bind(getTexture());
 				break;
 			default:
-				LLImageGL::unbindTexture(0);
+				gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 				break;
 			}
 		}
@@ -390,19 +390,19 @@ void LLFace::renderForSelect(U32 data_mask)
 				{
 					glPushMatrix();
 					glMultMatrixf((float*) mDrawablep->getRegion()->mRenderMatrix.mMatrix);
-					mVertexBuffer->draw(LLVertexBuffer::TRIANGLES, mIndicesCount, mIndicesIndex);
+					mVertexBuffer->draw(LLRender::TRIANGLES, mIndicesCount, mIndicesIndex);
 					glPopMatrix();
 				}
 				else
 				{
-					mVertexBuffer->draw(LLVertexBuffer::TRIANGLES, mIndicesCount, mIndicesIndex);
+					mVertexBuffer->draw(LLRender::TRIANGLES, mIndicesCount, mIndicesIndex);
 				}
 			}
 			else
 			{
 				glPushMatrix();
 				glMultMatrixf((float*)getRenderMatrix().mMatrix);
-				mVertexBuffer->draw(LLVertexBuffer::TRIANGLES, mIndicesCount, mIndicesIndex);
+				mVertexBuffer->draw(LLRender::TRIANGLES, mIndicesCount, mIndicesIndex);
 				glPopMatrix();
 			}
 		}
@@ -419,7 +419,7 @@ void LLFace::renderSelected(LLImageGL *imagep, const LLColor4& color)
 
 	if (mGeomCount > 0 && mIndicesCount > 0)
 	{
-		LLViewerImage::bindTexture(imagep);
+		gGL.getTexUnit(0)->bind(imagep);
 	
 		gGL.pushMatrix();
 		if (mDrawablep->isActive())
@@ -438,7 +438,7 @@ void LLFace::renderSelected(LLImageGL *imagep, const LLColor4& color)
 #if !LL_RELEASE_FOR_DOWNLOAD
 		LLGLState::checkClientArrays("", LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD);
 #endif
-		mVertexBuffer->draw(LLVertexBuffer::TRIANGLES, mIndicesCount, mIndicesIndex);
+		mVertexBuffer->draw(LLRender::TRIANGLES, mIndicesCount, mIndicesIndex);
 				
 		unsetFaceColor();
 		gGL.popMatrix();
@@ -1203,7 +1203,7 @@ S32 LLFace::pushVertices(const U16* index_array) const
 {
 	if (mIndicesCount)
 	{
-		mVertexBuffer->drawRange(LLVertexBuffer::TRIANGLES, mGeomIndex, mGeomIndex+mGeomCount-1, mIndicesCount, mIndicesIndex);
+		mVertexBuffer->drawRange(LLRender::TRIANGLES, mGeomIndex, mGeomIndex+mGeomCount-1, mIndicesCount, mIndicesIndex);
 		gPipeline.addTrianglesDrawn(mIndicesCount/3);
 	}
 

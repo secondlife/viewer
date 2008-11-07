@@ -92,11 +92,11 @@ void LLCubeMap::initGL()
 			for (int i = 0; i < 6; i++)
 			{
 				mImages[i] = new LLImageGL(64, 64, 4, (use_cube_mipmaps? TRUE : FALSE));
-				mImages[i]->setTarget(mTargets[i], GL_TEXTURE_CUBE_MAP_ARB);
+				mImages[i]->setTarget(mTargets[i], LLTexUnit::TT_CUBE_MAP);
 				mRawImages[i] = new LLImageRaw(64, 64, 4);
 				mImages[i]->createGLTexture(0, mRawImages[i], texname);
 				
-				glBindTexture(GL_TEXTURE_CUBE_MAP_ARB, texname);
+				gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_CUBE_MAP, texname); 
 				mImages[i]->setClampCubemap (TRUE, TRUE, TRUE);
 				stop_glerror();
 			}
@@ -180,26 +180,7 @@ GLuint LLCubeMap::getGLName()
 
 void LLCubeMap::bind()
 {
-	if (gGLManager.mHasCubeMap && LLCubeMap::sUseCubeMaps)
-	{
-		// We assume that if they have cube mapping, they have multitexturing.
-		if (mTextureStage > 0)
-		{
-			gGL.getTexUnit(mTextureStage)->activate();
-		}
-		glEnable(GL_TEXTURE_CUBE_MAP_ARB);
-		glBindTexture(GL_TEXTURE_CUBE_MAP_ARB, mImages[0]->getTexName());
-
-		mImages[0]->setMipFilterNearest (FALSE, FALSE);
-		if (mTextureStage > 0)
-		{
-			gGL.getTexUnit(0)->activate();
-		}
-	}
-	else
-	{
-		llwarns << "Using cube map without extension!" << llendl
-	}
+	gGL.getTexUnit(mTextureStage)->bind(this);
 }
 
 void LLCubeMap::enable(S32 stage)
@@ -213,17 +194,7 @@ void LLCubeMap::enableTexture(S32 stage)
 	mTextureStage = stage;
 	if (gGLManager.mHasCubeMap && stage >= 0 && LLCubeMap::sUseCubeMaps)
 	{
-		if (stage > 0)
-		{
-			gGL.getTexUnit(stage)->activate();
-		}
-		
-		glEnable(GL_TEXTURE_CUBE_MAP_ARB);
-		
-		if (stage > 0)
-		{
-			gGL.getTexUnit(0)->activate();
-		}
+		gGL.getTexUnit(stage)->enable(LLTexUnit::TT_CUBE_MAP);
 	}
 }
 
@@ -262,15 +233,10 @@ void LLCubeMap::disableTexture(void)
 {
 	if (gGLManager.mHasCubeMap && mTextureStage >= 0 && LLCubeMap::sUseCubeMaps)
 	{
-		if (mTextureStage > 0)
+		gGL.getTexUnit(mTextureStage)->disable();
+		if (mTextureStage == 0)
 		{
-			gGL.getTexUnit(mTextureStage)->activate();
-		}
-		glBindTexture(GL_TEXTURE_CUBE_MAP_ARB, 0);
-		glDisable(GL_TEXTURE_CUBE_MAP_ARB);
-		if (mTextureStage > 0)
-		{
-			gGL.getTexUnit(0)->activate();
+			gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
 		}
 	}
 }
@@ -296,6 +262,8 @@ void LLCubeMap::disableTextureCoords(void)
 void LLCubeMap::setMatrix(S32 stage)
 {
 	mMatrixStage = stage;
+	
+	if (mMatrixStage < 0) return;
 	
 	if (stage > 0)
 	{
@@ -324,6 +292,8 @@ void LLCubeMap::setMatrix(S32 stage)
 
 void LLCubeMap::restoreMatrix()
 {
+	if (mMatrixStage < 0) return;
+
 	if (mMatrixStage > 0)
 	{
 		gGL.getTexUnit(mMatrixStage)->activate();
@@ -340,7 +310,7 @@ void LLCubeMap::restoreMatrix()
 
 void LLCubeMap::setReflection (void)
 {
-	glBindTexture (GL_TEXTURE_CUBE_MAP_ARB, getGLName());
+	gGL.getTexUnit(mTextureStage)->bindManual(LLTexUnit::TT_CUBE_MAP, getGLName());
 	mImages[0]->setMipFilterNearest (FALSE, FALSE);
 	mImages[0]->setClampCubemap (TRUE, TRUE);
 }

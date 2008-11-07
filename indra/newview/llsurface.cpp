@@ -33,6 +33,8 @@
 
 #include "llsurface.h"
 
+#include "llrender.h"
+
 #include "llviewerimagelist.h"
 #include "llpatchvertexarray.h"
 #include "patch_dct.h"
@@ -249,7 +251,7 @@ void LLSurface::createSTexture()
 
 		mSTexturep = new LLViewerImage(raw, FALSE);
 		mSTexturep->dontDiscard();
-		mSTexturep->bind();
+		gGL.getTexUnit(0)->bind(mSTexturep.get());
 		mSTexturep->setClamp(TRUE, TRUE);
 		gImageList.addImage(mSTexturep);
 	}
@@ -274,7 +276,7 @@ void LLSurface::createWaterTexture()
 		}
 		mWaterTexturep = new LLViewerImage(raw, FALSE);
 		mWaterTexturep->dontDiscard();
-		mWaterTexturep->bind();
+		gGL.getTexUnit(0)->bind(mWaterTexturep.get());
 		mWaterTexturep->setClamp(TRUE, TRUE);
 		gImageList.addImage(mWaterTexturep);
 	}

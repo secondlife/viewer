@@ -86,7 +86,7 @@ void LLHUDIcon::renderIcon(BOOL for_select)
 	LLGLDepthTest gls_depth(GL_TRUE);
 	if (for_select)
 	{
-		LLViewerImage::unbindTexture(0);
+		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 	}
 	
 	if (mHidden)
@@ -163,10 +163,10 @@ void LLHUDIcon::renderIcon(BOOL for_select)
 		LLColor4 icon_color = LLColor4::white;
 		icon_color.mV[VALPHA] = alpha_factor;
 		gGL.color4fv(icon_color.mV);
-		LLViewerImage::bindTexture(mImagep);
+		gGL.getTexUnit(0)->bind(mImagep.get());
 	}
 
-	gGL.begin(LLVertexBuffer::QUADS);
+	gGL.begin(LLRender::QUADS);
 	{
 		gGL.texCoord2f(0.f, 1.f);
 		gGL.vertex3fv(upper_left.mV);

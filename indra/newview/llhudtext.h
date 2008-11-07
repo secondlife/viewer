@@ -123,6 +123,8 @@ public:
 	void setOnHUDAttachment(BOOL on_hud) { mOnHUDAttachment = on_hud; }
 	void shift(const LLVector3& offset);
 
+	BOOL lineSegmentIntersect(const LLVector3& start, const LLVector3& end, LLVector3& intersection, BOOL debug_render = FALSE);
+
 	static void shiftAll(const LLVector3& offset);
 	static void renderAllHUD();
 	static void addPickable(std::set<LLViewerObject*> &pick_list);

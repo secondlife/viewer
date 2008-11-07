@@ -37,14 +37,39 @@
 #ifndef LL_LLGLRENDER_H
 #define LL_LLGLRENDER_H
 
-#include "stdtypes.h"
-#include "llgltypes.h"
+//#include "linden_common.h"
+
+#include "v2math.h"
+#include "v3math.h"
+#include "v4coloru.h"
+#include "llstrider.h"
+#include "llmemory.h"
 #include "llglheaders.h"
-#include "llvertexbuffer.h"
+
+class LLVertexBuffer;
+class LLCubeMap;
+class LLImageGL;
+class LLRenderTarget;
 
 class LLTexUnit
 {
+	friend class LLRender;
 public:
+	typedef enum
+	{
+		TT_TEXTURE = 0,			// Standard 2D Texture
+		TT_RECT_TEXTURE,	// Non power of 2 texture
+		TT_CUBE_MAP,		// 6-sided cube map texture
+		TT_NONE 		// No texture type is currently enabled
+	} eTextureType;
+
+	typedef enum
+	{
+		TAM_WRAP = 0,			// Standard 2D Texture
+		TAM_MIRROR,				// Non power of 2 texture
+		TAM_CLAMP 				// No texture type is currently enabled
+	} eTextureAddressMode;
+
 	typedef enum 
 	{
 		TB_REPLACE = 0,
@@ -93,15 +118,36 @@ public:
 		TBS_ONE_MINUS_CONST_ALPHA
 	} eTextureBlendSrc;
 
-	LLTexUnit(U32 index);
-	U32 getIndex(void);
+	LLTexUnit(S32 index);
 
-	void enable(void);
-	void disable(void);
-	void activate(void);
+	// Refreshes renderer state of the texture unit to the cached values
+	// Needed when the render context has changed and invalidated the current state
+	void refreshState(void);
 
-	void bindTexture(const LLImageGL* texture);
-	void unbindTexture(void);
+	// returns the index of this texture unit
+	S32 getIndex(void) const { return mIndex; }
+
+	// Sets this tex unit to be the currently active one
+	void activate(void); 
+
+	// Enables this texture unit for the given texture type (automatically disables any previously enabled texture type)
+	void enable(eTextureType type); 
+	// Disables the current texture unit
+	void disable(void);	
+	
+	// Binds the LLImageGL to this texture unit (automatically enables the unit for the LLImageGL's texture type)
+	bool bind(const LLImageGL* texture);
+	// Binds a cubemap to this texture unit (automatically enables the texture unit for cubemaps)
+	bool bind(LLCubeMap* cubeMap);
+	// Binds a render target to this texture unit (automatically enables the texture unit for the RT's texture type)
+	bool bind(LLRenderTarget * renderTarget, bool bindDepth = false);
+	// Manually binds a texture to the texture unit (automatically enables the tex unit for the given texture type)
+	bool bindManual(eTextureType type, U32 texture);
+	
+	// Unbinds the currently bound texture of the given type (only if there's a texture of the given type currently bound)
+	void unbind(eTextureType type);
+
+	void setTextureAddressMode(eTextureAddressMode mode);
 
 	void setTextureBlendType(eTextureBlendType type);
 
@@ -110,11 +156,14 @@ public:
 
 	// NOTE: If *_COLOR enums are passed to src1 or src2, the corresponding *_ALPHA enum will be used instead.
 	inline void setTextureAlphaBlend(eTextureBlendOp op, eTextureBlendSrc src1, eTextureBlendSrc src2 = TBS_PREV_ALPHA)
-	{ setTextureCombiner(op, src1, src2, true); }	
+	{ setTextureCombiner(op, src1, src2, true); }
 
-private:
-	U32					mIndex;
-	bool				mIsEnabled;
+	static U32 getInternalType(eTextureType type);
+
+protected:
+	S32					mIndex;
+	U32					mCurrTexture;
+	eTextureType		mCurrTexType;
 	eTextureBlendType	mCurrBlendType;
 	eTextureBlendOp		mCurrColorOp;
 	eTextureBlendSrc	mCurrColorSrc1;
@@ -137,6 +186,19 @@ class LLRender
 {
 	friend class LLTexUnit;
 public:
+
+	typedef enum {
+		TRIANGLES = 0,
+		TRIANGLE_STRIP,
+		TRIANGLE_FAN,
+		POINTS,
+		LINES,
+		LINE_STRIP,
+		QUADS,
+		LINE_LOOP,
+		NUM_MODES
+	} eGeomModes;
+
 	typedef enum 
 	{
 		CF_NEVER = 0,
@@ -178,6 +240,10 @@ public:
 	~LLRender();
 	void shutdown();
 	
+	// Refreshes renderer state to the cached values
+	// Needed when the render context has changed and invalidated the current state
+	void refreshState(void);
+
 	void translatef(const GLfloat& x, const GLfloat& y, const GLfloat& z);
 	void scalef(const GLfloat& x, const GLfloat& y, const GLfloat& z);
 	void pushMatrix();
@@ -214,6 +280,12 @@ public:
 
 	LLTexUnit* getTexUnit(U32 index);
 
+	U32	getCurrentTexUnitIndex(void) const { return mCurrTextureUnitIndex; }
+
+	bool verifyTexUnitActive(U32 unitToVerify);
+
+	void debugTexUnits(void);
+
 	struct Vertex
 	{
 		GLfloat v[3];
@@ -224,14 +296,20 @@ public:
 public:
 
 private:
-	U32 mCount;
-	U32 mMode;
-	U32 mCurrTextureUnitIndex;
-	LLPointer<LLVertexBuffer> mBuffer;
-	LLStrider<LLVector3> mVerticesp;
-	LLStrider<LLVector2> mTexcoordsp;
-	LLStrider<LLColor4U> mColorsp;
-	std::vector<LLTexUnit*> mTexUnits;
+	bool				mDirty;
+	U32				mCount;
+	U32				mMode;
+	U32				mCurrTextureUnitIndex;
+	bool				mCurrColorMask[4];
+	eCompareFunc			mCurrAlphaFunc;
+	F32				mCurrAlphaFuncVal;
+
+	LLPointer<LLVertexBuffer>	mBuffer;
+	LLStrider<LLVector3>		mVerticesp;
+	LLStrider<LLVector2>		mTexcoordsp;
+	LLStrider<LLColor4U>		mColorsp;
+	std::vector<LLTexUnit*>		mTexUnits;
+	LLTexUnit*			mDummyTexUnit;
 };
 
 extern F64 gGLModelView[16];

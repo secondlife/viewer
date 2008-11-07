@@ -537,7 +537,7 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass)
 
 	if (mTestImageName)
 	{
-		LLImageGL::bindExternalTexture( mTestImageName, 0, GL_TEXTURE_2D ); 
+		gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, mTestImageName);
 
 		if (mIsTransparent)
 		{
@@ -553,12 +553,12 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass)
 	{
 		if(	mLayerSet->hasComposite() )
 		{
-			mLayerSet->getComposite()->bindTexture();
+			gGL.getTexUnit(0)->bind(mLayerSet->getComposite()->getTexture());
 		}
 		else
 		{
 			llwarns << "Layerset without composite" << llendl;
-			gImageList.getImage(IMG_DEFAULT)->bind();
+			gGL.getTexUnit(0)->bind(gImageList.getImage(IMG_DEFAULT));
 		}
 	}
 	else
@@ -566,13 +566,13 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass)
 	{
 		if (!mTexture->getClampS() || !mTexture->getClampT())
 		{
-			mTexture->bind();
+			gGL.getTexUnit(0)->bind(mTexture.get());
 			mTexture->overrideClamp (TRUE, TRUE);
 		}
 	}
 	else
 	{
-		gImageList.getImage(IMG_DEFAULT_AVATAR)->bind();
+		gGL.getTexUnit(0)->bind(gImageList.getImage(IMG_DEFAULT_AVATAR));
 	}
 	
 	if (gRenderForSelect)
@@ -584,7 +584,7 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass)
 		}
 		else
 		{
-			LLImageGL::unbindTexture(0);
+			gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 		}
 	}
 	
@@ -605,14 +605,14 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass)
 			}
 		}
 		
-		mFace->mVertexBuffer->drawRange(LLVertexBuffer::TRIANGLES, start, end, count, offset);
+		mFace->mVertexBuffer->drawRange(LLRender::TRIANGLES, start, end, count, offset);
 	}
 	else
 	{
 		glPushMatrix();
 		LLMatrix4 jointToWorld = getWorldMatrix();
 		glMultMatrixf((GLfloat*)jointToWorld.mMatrix);
-		mFace->mVertexBuffer->drawRange(LLVertexBuffer::TRIANGLES, start, end, count, offset);
+		mFace->mVertexBuffer->drawRange(LLRender::TRIANGLES, start, end, count, offset);
 		glPopMatrix();
 	}
 	gPipeline.addTrianglesDrawn(count/3);
@@ -626,7 +626,7 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass)
 
 	if (mTexture.notNull())
 	{
-		mTexture->bind();
+		gGL.getTexUnit(0)->bind(mTexture.get());
 		mTexture->restoreClamp();
 	}
 

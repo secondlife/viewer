@@ -340,6 +340,11 @@ namespace {
 	boost::intrusive_ptr< LLIamHereLogin > gResponsePtr = 0;
 };
 
+void set_start_location(LLUICtrl* ctrl, void* data)
+{
+    LLURLSimString::setString(ctrl->getValue().asString());
+}
+
 //---------------------------------------------------------------------------
 // Public methods
 //---------------------------------------------------------------------------
@@ -426,7 +431,7 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 		combo->setCurrentByIndex( 0 );
 	}
 
-	combo->setCommitCallback( &LLPanelGeneral::set_start_location );
+	combo->setCommitCallback( &set_start_location );
 
 	LLComboBox* server_choice_combo = sInstance->getChild<LLComboBox>("server_combo");
 	server_choice_combo->setCommitCallback(onSelectServer);

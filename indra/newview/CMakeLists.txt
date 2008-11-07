@@ -124,6 +124,7 @@ set(viewer_SOURCE_FILES
     llfloateravatarinfo.cpp
     llfloateravatarpicker.cpp
     llfloateravatartextures.cpp
+    llfloaterbeacons.cpp
     llfloaterbuildoptions.cpp
     llfloaterbump.cpp
     llfloaterbuycontents.cpp
@@ -518,6 +519,7 @@ set(viewer_HEADER_FILES
     llfloateravatarinfo.h
     llfloateravatarpicker.h
     llfloateravatartextures.h
+    llfloaterbeacons.h
     llfloaterbuildoptions.h
     llfloaterbump.h
     llfloaterbuy.h
@@ -1025,6 +1027,7 @@ set(viewer_XUI_FILES
     skins/default/xui/en-us/floater_audio_volume.xml
     skins/default/xui/en-us/floater_avatar_picker.xml
     skins/default/xui/en-us/floater_avatar_textures.xml
+    skins/default/xui/en-us/floater_beacons.xml
     skins/default/xui/en-us/floater_build_options.xml
     skins/default/xui/en-us/floater_bumps.xml
     skins/default/xui/en-us/floater_buy_contents.xml

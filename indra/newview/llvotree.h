@@ -80,6 +80,17 @@ public:
 
 	U32 drawBranchPipeline(LLMatrix4& matrix, U16* indicesp, S32 trunk_LOD, S32 stop_level, U16 depth, U16 trunk_depth,  F32 scale, F32 twist, F32 droop,  F32 branches, F32 alpha);
  
+
+	 /*virtual*/ BOOL lineSegmentIntersect(const LLVector3& start, const LLVector3& end, 
+										  S32 face = -1,                        // which face to check, -1 = ALL_SIDES
+										  BOOL pick_transparent = FALSE,
+										  S32* face_hit = NULL,                 // which face was hit
+										  LLVector3* intersection = NULL,       // return the intersection point
+										  LLVector2* tex_coord = NULL,          // return the texture coordinates of the intersection point
+										  LLVector3* normal = NULL,             // return the surface normal at the intersection point
+										  LLVector3* bi_normal = NULL           // return the surface bi-normal at the intersection point
+		);
+
 	static S32 sMaxTreeSpecies;
 
 	struct TreeSpeciesData

@@ -1838,17 +1838,6 @@
         <integer>0</integer>
       </array>
     </map>
-    <key>CompressSnapshotsToDisk</key>
-    <map>
-      <key>Comment</key>
-      <string>Compress snapshots saved to disk (Using JPEG 2000)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
     <key>ConnectAsGod</key>
     <map>
       <key>Comment</key>
@@ -2660,6 +2649,22 @@
         <integer>0</integer>
       </array>
     </map>
+    <key>FloaterBeaconsRect</key>
+    <map>
+        <key>Comment</key>
+        <string>Rectangle for beacon and highlight controls</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>Rect</string>
+        <key>Value</key>
+        <array>
+            <integer>200</integer>
+            <integer>250</integer>
+            <integer>250</integer>
+            <integer>200</integer>
+    </array>
+  </map>
     <key>FloaterBuildOptionsRect</key>
     <map>
       <key>Comment</key>
@@ -4279,16 +4284,72 @@
       <key>Value</key>
       <string>0.0.0</string>
     </map>
-    <key>LastSnapshotHeight</key>
+  
+    <key>LastSnapshotToEmailHeight</key>
     <map>
       <key>Comment</key>
-      <string>The height of the last snapshot, in px</string>
+      <string>The height of the last email snapshot, in px</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
       <integer>768</integer>
+    </map>
+    <key>LastSnapshotToEmailWidth</key>
+    <map>
+      <key>Comment</key>
+      <string>The width of the last email snapshot, in px</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>1024</integer>
+    </map>
+    <key>LastSnapshotToDiskHeight</key>
+    <map>
+      <key>Comment</key>
+      <string>The height of the last disk snapshot, in px</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>768</integer>
+    </map>
+    <key>LastSnapshotToDiskWidth</key>
+    <map>
+      <key>Comment</key>
+      <string>The width of the last disk snapshot, in px</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>1024</integer>
+    </map>
+    <key>LastSnapshotToInventoryHeight</key>
+    <map>
+      <key>Comment</key>
+      <string>The height of the last texture snapshot, in px</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>512</integer>
+    </map>
+    <key>LastSnapshotToInventoryWidth</key>
+    <map>
+      <key>Comment</key>
+      <string>The width of the last texture snapshot, in px</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>512</integer>
     </map>
     <key>LastSnapshotType</key>
     <map>
@@ -4300,17 +4361,6 @@
       <string>S32</string>
       <key>Value</key>
       <integer>0</integer>
-    </map>
-    <key>LastSnapshotWidth</key>
-    <map>
-      <key>Comment</key>
-      <string>The width of the last snapshot, in px</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>1024</integer>
     </map>
     <key>LeftClickShowMenu</key>
     <map>
@@ -4488,17 +4538,6 @@
       <key>Value</key>
       <real>20.0</real>
     </map>
-    <key>MainloopTimeoutDefault</key>
-        <map>
-        <key>Comment</key>
-            <string>Timeout duration for mainloop lock detection, in seconds.</string>
-        <key>Persist</key>
-            <integer>1</integer>
-        <key>Type</key>
-            <string>F32</string>
-        <key>Value</key>
-            <real>10.0</real>
-        </map>
     <key>MapOverlayIndex</key>
     <map>
       <key>Comment</key>
@@ -6065,6 +6104,17 @@
       <string>F32</string>
       <key>Value</key>
       <real>1.3</real>
+    </map>
+    <key>RenderGround</key>
+    <map>
+      <key>Comment</key>
+	  <string>Determines whether we can render the ground pool or not</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
     </map>
     <key>RenderHUDInSnapshot</key>
     <map>

@@ -1309,6 +1309,7 @@ void LLMenuItemBranchGL::openMenu()
 		}
 		mBranch->translate( delta_x, delta_y );
 		mBranch->setVisible( TRUE );
+		mBranch->getParent()->sendChildToFront(mBranch);
 	}
 }
 
@@ -1427,6 +1428,7 @@ void LLMenuItemBranchDownGL::openMenu( void )
 
 			setHighlight(TRUE);
 			branch->setVisible( TRUE );
+			branch->getParent()->sendChildToFront(branch);
 		}
 	}
 }
@@ -2958,6 +2960,7 @@ void LLMenuGL::showPopup(LLView* spawning_view, LLMenuGL* menu, S32 x, S32 y)
 	}
 	menu->translate( delta_x, delta_y );
 	menu->setVisible( TRUE );
+	menu->getParent()->sendChildToFront(menu);
 }
 
 //-----------------------------------------------------------------------------

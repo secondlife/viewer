@@ -64,12 +64,12 @@ class LLDir
 
 	virtual void initAppDirs(const std::string &app_name) = 0;
  public:	
-	 virtual S32 deleteFilesInDir(const std::string &dirname, const std::string &mask);
+	virtual S32 deleteFilesInDir(const std::string &dirname, const std::string &mask);
 
 // pure virtual functions
-	 virtual U32 countFilesInDir(const std::string &dirname, const std::string &mask) = 0;
-	 virtual BOOL getNextFileInDir(const std::string &dirname, const std::string &mask, std::string &fname, BOOL wrap) = 0;
-	 virtual void getRandomFileInDir(const std::string &dirname, const std::string &mask, std::string &fname) = 0;
+	virtual U32 countFilesInDir(const std::string &dirname, const std::string &mask) = 0;
+	virtual BOOL getNextFileInDir(const std::string &dirname, const std::string &mask, std::string &fname, BOOL wrap) = 0;
+	virtual void getRandomFileInDir(const std::string &dirname, const std::string &mask, std::string &fname) = 0;
 	virtual std::string getCurPath() = 0;
 	virtual BOOL fileExists(const std::string &filename) const = 0;
 
@@ -104,7 +104,7 @@ class LLDir
 	std::string getBaseFileName(const std::string& filepath, bool strip_exten = false) const;
 	std::string getDirName(const std::string& filepath) const;
 	std::string getExtension(const std::string& filepath) const; // Excludes '.', e.g getExtension("foo.wav") == "wav"
-	
+
 	// these methods search the various skin paths for the specified file in the following order:
 	// getUserSkinDir(), getSkinDir(), getDefaultSkinDir()
 	std::string findSkinnedFilename(const std::string &filename) const;
@@ -113,6 +113,10 @@ class LLDir
 
 	// random filename in common temporary directory
 	std::string getTempFilename() const;
+
+	// For producing safe download file names from potentially unsafe ones
+	static std::string getScrubbedFileName(const std::string uncleanFileName);
+	static std::string getForbiddenFileChars();
 
 	virtual void setChatLogsDir(const std::string &path);		// Set the chat logs dir to this user's dir
 	virtual void setPerAccountChatLogsDir(const std::string &first, const std::string &last);		// Set the per user chat log directory.

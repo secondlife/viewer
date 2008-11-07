@@ -388,13 +388,13 @@ void LLManip::renderGuidelines(BOOL draw_x, BOOL draw_y, BOOL draw_z)
 
 		const F32 LINE_ALPHA = 0.33f;
 
-		LLGLSNoTexture gls_no_texture;
+		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 		LLUI::setLineWidth(1.5f);
 
 		if (draw_x)
 		{
 			gGL.color4f(1.f, 0.f, 0.f, LINE_ALPHA);
-			gGL.begin(LLVertexBuffer::LINES);
+			gGL.begin(LLRender::LINES);
 			gGL.vertex3f( -region_size, 0.f, 0.f );
 			gGL.vertex3f(  region_size, 0.f, 0.f );
 			gGL.end();
@@ -403,7 +403,7 @@ void LLManip::renderGuidelines(BOOL draw_x, BOOL draw_y, BOOL draw_z)
 		if (draw_y)
 		{
 			gGL.color4f(0.f, 1.f, 0.f, LINE_ALPHA);
-			gGL.begin(LLVertexBuffer::LINES);
+			gGL.begin(LLRender::LINES);
 			gGL.vertex3f( 0.f, -region_size, 0.f );
 			gGL.vertex3f( 0.f,  region_size, 0.f );
 			gGL.end();
@@ -412,7 +412,7 @@ void LLManip::renderGuidelines(BOOL draw_x, BOOL draw_y, BOOL draw_z)
 		if (draw_z)
 		{
 			gGL.color4f(0.f, 0.f, 1.f, LINE_ALPHA);
-			gGL.begin(LLVertexBuffer::LINES);
+			gGL.begin(LLRender::LINES);
 			gGL.vertex3f( 0.f, 0.f, -region_size );
 			gGL.vertex3f( 0.f, 0.f,  region_size );
 			gGL.end();

@@ -120,6 +120,111 @@ LLHUDText::~LLHUDText()
 }
 
 
+BOOL LLHUDText::lineSegmentIntersect(const LLVector3& start, const LLVector3& end, LLVector3& intersection, BOOL debug_render)
+{
+	if (!mVisible || mHidden)
+	{
+		return FALSE;
+	}
+
+	// don't pick text that isn't bound to a viewerobject or isn't in a bubble
+	if (!mSourceObject || mSourceObject->mDrawable.isNull() || !mUseBubble)
+	{
+		return FALSE;
+	}
+	
+	F32 alpha_factor = 1.f;
+	LLColor4 text_color = mColor;
+	if (mDoFade)
+	{
+		if (mLastDistance > mFadeDistance)
+		{
+			alpha_factor = llmax(0.f, 1.f - (mLastDistance - mFadeDistance)/mFadeRange);
+			text_color.mV[3] = text_color.mV[3]*alpha_factor;
+		}
+	}
+	if (text_color.mV[3] < 0.01f)
+	{
+		return FALSE;
+	}
+
+	mOffsetY = lltrunc(mHeight * ((mVertAlignment == ALIGN_VERT_CENTER) ? 0.5f : 1.f));
+
+	// scale screen size of borders down
+	//RN: for now, text on hud objects is never occluded
+
+	LLVector3 x_pixel_vec;
+	LLVector3 y_pixel_vec;
+	
+	if (mOnHUDAttachment)
+	{
+		x_pixel_vec = LLVector3::y_axis / (F32)gViewerWindow->getWindowWidth();
+		y_pixel_vec = LLVector3::z_axis / (F32)gViewerWindow->getWindowHeight();
+	}
+	else
+	{
+		LLViewerCamera::getInstance()->getPixelVectors(mPositionAgent, y_pixel_vec, x_pixel_vec);
+	}
+
+	LLVector3 width_vec = mWidth * x_pixel_vec;
+	LLVector3 height_vec = mHeight * y_pixel_vec;
+	
+	LLCoordGL screen_pos;
+	LLViewerCamera::getInstance()->projectPosAgentToScreen(mPositionAgent, screen_pos, FALSE);
+
+	LLVector2 screen_offset;
+	screen_offset = updateScreenPos(mPositionOffset);
+	
+	LLVector3 render_position = mPositionAgent  
+			+ (x_pixel_vec * screen_offset.mV[VX])
+			+ (y_pixel_vec * screen_offset.mV[VY]);
+
+
+	if (mUseBubble)
+	{
+		LLVector3 bg_pos = render_position
+			+ (F32)mOffsetY * y_pixel_vec
+			- (width_vec / 2.f)
+			- (height_vec);
+		//LLUI::translate(bg_pos.mV[VX], bg_pos.mV[VY], bg_pos.mV[VZ]);
+
+		LLVector3 v[] = 
+		{
+			bg_pos,
+			bg_pos + width_vec,
+			bg_pos + width_vec + height_vec,
+			bg_pos + height_vec,
+		};
+
+		if (debug_render)
+		{
+			gGL.begin(LLRender::LINE_STRIP);
+			gGL.vertex3fv(v[0].mV);
+			gGL.vertex3fv(v[1].mV);
+			gGL.vertex3fv(v[2].mV);
+			gGL.vertex3fv(v[3].mV);
+			gGL.vertex3fv(v[0].mV);
+			gGL.vertex3fv(v[2].mV);
+			gGL.end();
+		}
+
+		LLVector3 dir = end-start;
+		F32 t = 0.f;
+
+		if (LLTriangleRayIntersect(v[0], v[1], v[2], start, dir, NULL, NULL, &t, FALSE) ||
+			LLTriangleRayIntersect(v[2], v[3], v[0], start, dir, NULL, NULL, &t, FALSE) )
+		{
+			if (t <= 1.f)
+			{
+				intersection = start + dir*t;
+				return TRUE;
+			}
+		}
+	}
+
+	return FALSE;
+}
+
 void LLHUDText::render()
 {
 	if (!mOnHUDAttachment && sDisplayText)
@@ -152,7 +257,15 @@ void LLHUDText::renderText(BOOL for_select)
 		return;
 	}
 	
-	LLGLState gls_tex(GL_TEXTURE_2D, for_select ? FALSE : TRUE);
+	if (for_select)
+	{
+		gGL.getTexUnit(0)->disable();
+	}
+	else
+	{
+		gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
+	}
+
 	LLGLState gls_blend(GL_BLEND, for_select ? FALSE : TRUE);
 	LLGLState gls_alpha(GL_ALPHA_TEST, for_select ? FALSE : TRUE);
 	
@@ -261,7 +374,7 @@ void LLHUDText::renderText(BOOL for_select)
 
 			if (for_select)
 			{
-				LLGLSNoTexture no_texture_state;
+				gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 				S32 name = mSourceObject->mGLName;
 				LLColor4U coloru((U8)(name >> 16), (U8)(name >> 8), (U8)name);
 				gGL.color4ubv(coloru.mV);
@@ -271,7 +384,7 @@ void LLHUDText::renderText(BOOL for_select)
 			}
 			else
 			{
-				LLViewerImage::bindTexture(imagep->getImage());
+				gGL.getTexUnit(0)->bind(imagep->getImage());
 				
 				gGL.color4fv(bg_color.mV);
 				gl_segmented_rect_3d_tex(border_scale_vec, scaled_border_width, scaled_border_height, width_vec, height_vec);
@@ -309,7 +422,7 @@ void LLHUDText::renderText(BOOL for_select)
 				}
 				LLUI::popMatrix();
 
-				LLImageGL::unbindTexture(0);
+				gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 				LLGLDepthTest gls_depth(mZCompare ? GL_TRUE : GL_FALSE, GL_FALSE);
 				
 				LLVector3 box_center_offset;
@@ -317,7 +430,7 @@ void LLHUDText::renderText(BOOL for_select)
 				LLUI::translate(box_center_offset.mV[VX], box_center_offset.mV[VY], box_center_offset.mV[VZ]);
 				gGL.color4fv(bg_color.mV);
 				LLUI::setLineWidth(2.0);
-				gGL.begin(LLVertexBuffer::LINES);
+				gGL.begin(LLRender::LINES);
 				{
 					if (outside_width)
 					{
@@ -444,6 +557,10 @@ void LLHUDText::renderText(BOOL for_select)
 	}
 	/// Reset the default color to white.  The renderer expects this to be the default. 
 	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+	if (for_select)
+	{
+		gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
+	}
 }
 
 void LLHUDText::setStringUTF8(const std::string &wtext)

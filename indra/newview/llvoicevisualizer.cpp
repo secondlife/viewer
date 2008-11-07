@@ -378,20 +378,20 @@ void LLVoiceVisualizer::render()
 		//-----------------------------
 		// bind texture 0 (the dot)
 		//-----------------------------
-		mSoundSymbol.mTexture[0]->bind(); 
+		gGL.getTexUnit(0)->bind(mSoundSymbol.mTexture[0]);
 		
 		//-------------------------------------------------------------
 		// now render the dot
 		//-------------------------------------------------------------
 		gGL.color4fv( LLColor4( 1.0f, 1.0f, 1.0f, DOT_OPACITY ).mV );	
 		
-		gGL.begin( LLVertexBuffer::TRIANGLE_STRIP );
+		gGL.begin( LLRender::TRIANGLE_STRIP );
 			gGL.texCoord2i( 0,	0	); gGL.vertex3fv( bottomLeft.mV );
 			gGL.texCoord2i( 1,	0	); gGL.vertex3fv( bottomRight.mV );
 			gGL.texCoord2i( 0,	1	); gGL.vertex3fv( topLeft.mV );
 		gGL.end();
 
-		gGL.begin( LLVertexBuffer::TRIANGLE_STRIP );
+		gGL.begin( LLRender::TRIANGLE_STRIP );
 			gGL.texCoord2i( 1,	0	); gGL.vertex3fv( bottomRight.mV );
 			gGL.texCoord2i( 1,	1	); gGL.vertex3fv( topRight.mV );
 			gGL.texCoord2i( 0,	1	); gGL.vertex3fv( topLeft.mV );
@@ -503,18 +503,19 @@ void LLVoiceVisualizer::render()
 				LLVector3 topRight		= mSoundSymbol.mPosition - l + u;
 							
 				gGL.color4fv( LLColor4( red, green, blue, mSoundSymbol.mWaveOpacity[i] ).mV );		
-				mSoundSymbol.mTexture[i]->bind();
+				gGL.getTexUnit(0)->bind(mSoundSymbol.mTexture[i]);
+
 				
 				//---------------------------------------------------
 				// now, render the mofo
 				//---------------------------------------------------
-				gGL.begin( LLVertexBuffer::TRIANGLE_STRIP );
+				gGL.begin( LLRender::TRIANGLE_STRIP );
 					gGL.texCoord2i( 0, 0 ); gGL.vertex3fv( bottomLeft.mV );
 					gGL.texCoord2i( 1, 0 ); gGL.vertex3fv( bottomRight.mV );
 					gGL.texCoord2i( 0, 1 ); gGL.vertex3fv( topLeft.mV );
 				gGL.end();
 
-				gGL.begin( LLVertexBuffer::TRIANGLE_STRIP );
+				gGL.begin( LLRender::TRIANGLE_STRIP );
 					gGL.texCoord2i( 1, 0 ); gGL.vertex3fv( bottomRight.mV );
 					gGL.texCoord2i( 1, 1 ); gGL.vertex3fv( topRight.mV );
 					gGL.texCoord2i( 0, 1 ); gGL.vertex3fv( topLeft.mV );
@@ -550,8 +551,8 @@ VoiceGesticulationLevel LLVoiceVisualizer::getCurrentGesticulationLevel()
 	//-----------------------------------------------------------------------------------------
 	F32 range = mMaxGesticulationAmplitude - mMinGesticulationAmplitude;
 	
-			if ( mSpeakingAmplitude > mMinGesticulationAmplitude + range * 0.66666f	)	{ gesticulationLevel = VOICE_GESTICULATION_LEVEL_HIGH;		}
-	else	if ( mSpeakingAmplitude > mMinGesticulationAmplitude + range * 0.33333f	)	{ gesticulationLevel = VOICE_GESTICULATION_LEVEL_MEDIUM;	}
+			if ( mSpeakingAmplitude > mMinGesticulationAmplitude + range * 0.5f	)	{ gesticulationLevel = VOICE_GESTICULATION_LEVEL_HIGH;		}
+	else	if ( mSpeakingAmplitude > mMinGesticulationAmplitude + range * 0.25f	)	{ gesticulationLevel = VOICE_GESTICULATION_LEVEL_MEDIUM;	}
 	else	if ( mSpeakingAmplitude > mMinGesticulationAmplitude + range * 0.00000f	)	{ gesticulationLevel = VOICE_GESTICULATION_LEVEL_LOW;		}
 
 	return gesticulationLevel;

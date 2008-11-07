@@ -312,7 +312,7 @@ U32 LLVOTree::processUpdateMessage(LLMessageSystem *mesgsys,
 	mTreeImagep = gImageList.getImage(sSpeciesTable[mSpecies]->mTextureID);
 	if (mTreeImagep)
 	{
-		mTreeImagep->bindTexture(0);
+		gGL.getTexUnit(0)->bind(mTreeImagep.get());
 	}
 	mBranchLength = sSpeciesTable[mSpecies]->mBranchLength;
 	mTrunkLength = sSpeciesTable[mSpecies]->mTrunkLength;
@@ -929,6 +929,48 @@ void LLVOTree::updateSpatialExtents(LLVector3& newMin, LLVector3& newMax)
 	newMin.set(center-size);
 	newMax.set(center+size);
 	mDrawable->setPositionGroup(center);
+}
+
+BOOL LLVOTree::lineSegmentIntersect(const LLVector3& start, const LLVector3& end, S32 face, BOOL pick_transparent, S32 *face_hitp,
+									  LLVector3* intersection,LLVector2* tex_coord, LLVector3* normal, LLVector3* bi_normal)
+	
+{
+
+	if (!lineSegmentBoundingBox(start, end))
+	{
+		return FALSE;
+	}
+
+	const LLVector3* ext = mDrawable->getSpatialExtents();
+
+	LLVector3 center = (ext[1]+ext[0])*0.5f;
+	LLVector3 size = (ext[1]-ext[0]);
+
+	LLQuaternion quat = getRotation();
+
+	center -= LLVector3(0,0,size.magVec() * 0.25f)*quat;
+
+	size.scaleVec(LLVector3(0.25f, 0.25f, 1.f));
+	size.mV[0] = llmin(size.mV[0], 1.f);
+	size.mV[1] = llmin(size.mV[1], 1.f);
+
+	LLVector3 pos, norm;
+		
+	if (linesegment_tetrahedron(start, end, center, size, quat, pos, norm))
+	{
+		if (intersection)
+		{
+			*intersection = pos;
+		}
+
+		if (normal)
+		{
+			*normal = norm;
+		}
+		return TRUE;
+	}
+	
+	return FALSE;
 }
 
 U32 LLVOTree::getPartitionType() const

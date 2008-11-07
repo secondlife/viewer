@@ -135,7 +135,7 @@ public:
 	void savePresets(const std::string & fileName);
 
 	/// load an individual preset into the sky
-	void loadPreset(const std::string & name);
+	void loadPreset(const std::string & name,bool propogate=true);
 
 	/// save the parameter presets to file
 	void savePreset(const std::string & name);
@@ -194,7 +194,6 @@ public:
 
 	// singleton pattern implementation
 	static LLWLParamManager * instance();
-
 
 public:
 

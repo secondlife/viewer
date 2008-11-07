@@ -3956,22 +3956,27 @@ void LLMessageSystem::getString(const char *block, const char *var,
 				  blocknum);
 }
 
-S32	LLMessageSystem::getNumberOfBlocksFast(const char *blockname)
+BOOL	LLMessageSystem::has(const char *blockname) const
+{
+	return getNumberOfBlocks(blockname) > 0;
+}
+
+S32	LLMessageSystem::getNumberOfBlocksFast(const char *blockname) const
 {
 	return mMessageReader->getNumberOfBlocks(blockname);
 }
 
-S32	LLMessageSystem::getNumberOfBlocks(const char *blockname)
+S32	LLMessageSystem::getNumberOfBlocks(const char *blockname) const
 {
 	return getNumberOfBlocksFast(LLMessageStringTable::getInstance()->getString(blockname));
 }
 	
-S32	LLMessageSystem::getSizeFast(const char *blockname, const char *varname)
+S32	LLMessageSystem::getSizeFast(const char *blockname, const char *varname) const
 {
 	return mMessageReader->getSize(blockname, varname);
 }
 
-S32	LLMessageSystem::getSize(const char *blockname, const char *varname)
+S32	LLMessageSystem::getSize(const char *blockname, const char *varname) const
 {
 	return getSizeFast(LLMessageStringTable::getInstance()->getString(blockname), 
 					   LLMessageStringTable::getInstance()->getString(varname));
@@ -3979,13 +3984,13 @@ S32	LLMessageSystem::getSize(const char *blockname, const char *varname)
 	
 // size in bytes of variable length data
 S32	LLMessageSystem::getSizeFast(const char *blockname, S32 blocknum, 
-								 const char *varname)
+								 const char *varname) const
 {
 	return mMessageReader->getSize(blockname, blocknum, varname);
 }
 		
 S32	LLMessageSystem::getSize(const char *blockname, S32 blocknum, 
-							 const char *varname)
+							 const char *varname) const
 {
 	return getSizeFast(LLMessageStringTable::getInstance()->getString(blockname), blocknum, 
 					   LLMessageStringTable::getInstance()->getString(varname));

@@ -284,16 +284,16 @@ LLColor4U LLSky::getFadeColor() const
 
 void LLSky::init(const LLVector3 &sun_direction)
 {
-	mVOWLSkyp = static_cast<LLVOWLSky*>(gObjectList.createObjectViewer(LLViewerObject::LL_VO_WL_SKY, gAgent.getRegion()));
+	mVOWLSkyp = static_cast<LLVOWLSky*>(gObjectList.createObjectViewer(LLViewerObject::LL_VO_WL_SKY, NULL));
 	mVOWLSkyp->initSunDirection(sun_direction, LLVector3::zero);
 	gPipeline.addObject(mVOWLSkyp.get());
 
-	mVOSkyp = (LLVOSky *)gObjectList.createObjectViewer(LLViewerObject::LL_VO_SKY, gAgent.getRegion());
+	mVOSkyp = (LLVOSky *)gObjectList.createObjectViewer(LLViewerObject::LL_VO_SKY, NULL);
 	mVOSkyp->initSunDirection(sun_direction, LLVector3());
 	gPipeline.addObject((LLViewerObject *)mVOSkyp);
 
 
-	mVOGroundp = (LLVOGround*)gObjectList.createObjectViewer(LLViewerObject::LL_VO_GROUND, gAgent.getRegion());
+	mVOGroundp = (LLVOGround*)gObjectList.createObjectViewer(LLViewerObject::LL_VO_GROUND, NULL);
 	LLVOGround *groundp = mVOGroundp;
 	gPipeline.addObject((LLViewerObject *)groundp);
 

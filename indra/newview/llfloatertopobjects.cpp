@@ -180,7 +180,7 @@ void LLFloaterTopObjects::handleReply(LLMessageSystem *msg, void** data)
 		msg->getF32Fast(_PREHASH_ReportData, _PREHASH_Score, score, block);
 		msg->getStringFast(_PREHASH_ReportData, _PREHASH_TaskName, name_buf, block);
 		msg->getStringFast(_PREHASH_ReportData, _PREHASH_OwnerName, owner_buf, block);
-		if(msg->getNumberOfBlocks("DataExtended"))
+		if(msg->has("DataExtended"))
 		{
 			have_extended_data = true;
 			msg->getU32("DataExtended", "TimeStamp", time_stamp, block);

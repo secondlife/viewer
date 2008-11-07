@@ -37,6 +37,9 @@
 
 #include "llgltypes.h"
 #include "llmemory.h"
+#include "v2math.h"
+
+#include "llrender.h"
 
 //============================================================================
 
@@ -48,11 +51,7 @@ public:
 	static S32 dataFormatBytes(S32 dataformat, S32 width, S32 height);
 	static S32 dataFormatComponents(S32 dataformat);
 
-	// Wrapper for glBindTexture that keeps LLImageGL in sync.
-	// Usually you want stage = 0 and bind_target = GL_TEXTURE_2D
-	static void bindExternalTexture( LLGLuint gl_name, S32 stage, LLGLenum bind_target);
-	static void unbindTexture(S32 stage, LLGLenum target);
-	static void unbindTexture(S32 stage); // Uses GL_TEXTURE_2D (not a default arg to avoid gl.h dependency)
+	void updateBindStats(void) const;
 
 	// needs to be called every frame
 	static void updateStats(F32 current_time);
@@ -79,7 +78,6 @@ public:
 	
 protected:
 	virtual ~LLImageGL();
-	BOOL bindTextureInternal(const S32 stage = 0) const;
 
 private:
 	void glClamp (BOOL clamps, BOOL clampt);
@@ -87,7 +85,8 @@ private:
 
 public:
 	virtual void dump();	// debugging info to llinfos
-	virtual BOOL bind(const S32 stage = 0) const;
+	virtual bool bindError(const S32 stage = 0) const;
+	virtual bool bindDefaultImage(const S32 stage = 0) const;
 
 	void setSize(S32 width, S32 height, S32 ncomponents);
 
@@ -132,7 +131,11 @@ public:
 
 	BOOL getIsResident(BOOL test_now = FALSE); // not const
 
-	void setTarget(const LLGLenum target, const LLGLenum bind_target);
+	void setTarget(const LLGLenum target, const LLTexUnit::eTextureType bind_target);
+
+	LLTexUnit::eTextureType getTarget(void) const { return mBindTarget; }
+	bool isInitialized(void) const { return mInitialized; }
+	void setInitialized (bool initialized) { mInitialized = initialized; }
 
 	BOOL getUseMipMaps() const { return mUseMipMaps; }
 	void setUseMipMaps(BOOL usemips) { mUseMipMaps = usemips; }
@@ -140,6 +143,9 @@ public:
 	BOOL getDontDiscard() const { return mDontDiscard; }
 
 	BOOL isValidForSculpt(S32 discard_level, S32 image_width, S32 image_height, S32 ncomponents) ;
+
+	void updatePickMask(S32 width, S32 height, const U8* data_in);
+	BOOL getMask(const LLVector2 &tc);
 
 protected:
 	void init(BOOL usemipmaps);
@@ -152,6 +158,7 @@ public:
 
 private:
 	LLPointer<LLImageRaw> mSaveData; // used for destroyGL/restoreGL
+	U8* mPickMask;  //downsampled bitmap approximation of alpha channel.  NULL if no alpha channel
 	S8 mUseMipMaps;
 	S8 mHasMipMaps;
 	S8 mHasExplicitFormat; // If false (default), GL format is f(mComponents)
@@ -159,7 +166,8 @@ private:
 	
 protected:
 	LLGLenum mTarget;		// Normally GL_TEXTURE2D, sometimes something else (ex. cube maps)
-	LLGLenum mBindTarget;	// NOrmally GL_TEXTURE2D, sometimes something else (ex. cube maps)
+	LLTexUnit::eTextureType mBindTarget;	// Normally TT_TEXTURE, sometimes something else (ex. cube maps)
+	bool mInitialized;
 
 	LLGLuint mTexName;
 

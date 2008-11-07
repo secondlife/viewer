@@ -445,7 +445,7 @@ void draw_shockwave(F32 center_z, F32 t, S32 steps, LLColor4 color)
 	F32 y = 0.f;
 
 	LLColor4 ccol = LLColor4(1,1,1,(1.f-t)*0.25f);
-	gGL.begin(LLVertexBuffer::TRIANGLE_FAN);
+	gGL.begin(LLRender::TRIANGLE_FAN);
 	gGL.color4fv(ccol.mV);
 	gGL.vertex3f(0.f, 0.f, center_z);
 	// make sure circle is complete
@@ -494,7 +494,8 @@ void LLTracker::renderBeacon(LLVector3d pos_global,
 
 	LLVector3 pos_agent = gAgent.getPosAgentFromGlobal(pos_global);
 
-	LLGLSTracker gls_tracker; // default - TEXTURE + CULL_FACE + LIGHTING + GL_BLEND + GL_ALPHA_TEST
+	LLGLSTracker gls_tracker; // default+ CULL_FACE + LIGHTING + GL_BLEND + GL_ALPHA_TEST
+	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 	LLGLDisable cull_face(GL_CULL_FACE);
 	LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
 	
@@ -535,7 +536,7 @@ void LLTracker::renderBeacon(LLVector3d pos_global,
 			an *= 2.f;
 			an += 1.0f+dr;
 		
-			gGL.begin(LLVertexBuffer::TRIANGLE_STRIP);
+			gGL.begin(LLRender::TRIANGLE_STRIP);
 			gGL.color4fv(col_edge.mV);
 			gGL.vertex3f(-x*a, -y*a, z);
 			gGL.color4fv(col_edge_next.mV);

@@ -228,7 +228,8 @@ public:
 	void loadAllPresets(const std::string & fileName);
 
 	/// load an individual preset into the sky
-	void loadPreset(const std::string & name);
+
+	void loadPreset(const std::string & name,bool propagate=true);
 
 	/// save the parameter presets to file
 	void savePreset(const std::string & name);

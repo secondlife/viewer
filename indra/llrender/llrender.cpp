@@ -32,7 +32,11 @@
 #include "linden_common.h"
 
 #include "llrender.h"
+
 #include "llvertexbuffer.h"
+#include "llcubemap.h"
+#include "llimagegl.h"
+#include "llrendertarget.h"
 
 LLRender gGL;
 
@@ -43,6 +47,20 @@ F64 gGLProjection[16];
 S32	gGLViewport[4];
 
 static const U32 LL_NUM_TEXTURE_LAYERS = 8; 
+
+static GLenum sGLTextureType[] =
+{
+	GL_TEXTURE_2D,
+	GL_TEXTURE_RECTANGLE_ARB,
+	GL_TEXTURE_CUBE_MAP_ARB
+};
+
+static GLint sGLAddressMode[] =
+{	
+	GL_REPEAT,
+	GL_MIRRORED_REPEAT,
+	GL_CLAMP_TO_EDGE
+};
 
 static GLenum sGLCompareFunc[] =
 {
@@ -72,82 +90,217 @@ static GLenum sGLBlendFactor[] =
 	GL_ONE_MINUS_SRC_ALPHA
 };
 
-LLTexUnit::LLTexUnit(U32 index)
-: mIsEnabled(false), mCurrBlendType(TB_MULT), 
+LLTexUnit::LLTexUnit(S32 index)
+: mCurrTexType(TT_NONE), mCurrBlendType(TB_MULT), 
 mCurrColorOp(TBO_MULT), mCurrAlphaOp(TBO_MULT),
 mCurrColorSrc1(TBS_TEX_COLOR), mCurrColorSrc2(TBS_PREV_COLOR),
 mCurrAlphaSrc1(TBS_TEX_ALPHA), mCurrAlphaSrc2(TBS_PREV_ALPHA),
-mCurrColorScale(1), mCurrAlphaScale(1)
+mCurrColorScale(1), mCurrAlphaScale(1), mCurrTexture(0)
 {
 	llassert_always(index < LL_NUM_TEXTURE_LAYERS);
 	mIndex = index;
 }
 
-U32 LLTexUnit::getIndex(void)
+//static
+U32 LLTexUnit::getInternalType(eTextureType type)
 {
-	return mIndex;
+	return sGLTextureType[type];
 }
 
-void LLTexUnit::enable(void)
+void LLTexUnit::refreshState(void)
 {
-	if (!mIsEnabled)
+	// We set dirty to true so that the tex unit knows to ignore caching
+	// and we reset the cached tex unit state
+
+	glActiveTextureARB(GL_TEXTURE0_ARB + mIndex);
+	if (mCurrTexType != TT_NONE)
 	{
-		activate();
-		glEnable(GL_TEXTURE_2D);
-		mIsEnabled = true;
+		glEnable(sGLTextureType[mCurrTexType]);
+		glBindTexture(sGLTextureType[mCurrTexType], mCurrTexture);
 	}
-}
-
-void LLTexUnit::disable(void)
-{
-	if (mIsEnabled)
+	else
 	{
-		activate();
 		glDisable(GL_TEXTURE_2D);
-		mIsEnabled = false;
+		glBindTexture(GL_TEXTURE_2D, 0);	
+	}
+
+	if (mCurrBlendType != TB_COMBINE)
+	{
+		setTextureBlendType(mCurrBlendType);
+	}
+	else
+	{
+		setTextureCombiner(mCurrColorOp, mCurrColorSrc1, mCurrColorSrc2, false);
+		setTextureCombiner(mCurrAlphaOp, mCurrAlphaSrc1, mCurrAlphaSrc2, true);
 	}
 }
 
 void LLTexUnit::activate(void)
 {
-	//if (gGL.mCurrTextureUnitIndex != mIndex)
+	if (mIndex < 0) return;
+
+	if (gGL.mCurrTextureUnitIndex != mIndex || gGL.mDirty)
 	{
 		glActiveTextureARB(GL_TEXTURE0_ARB + mIndex);
 		gGL.mCurrTextureUnitIndex = mIndex;
 	}
 }
 
-// Useful for debugging that you've manually assigned a texture operation to the correct 
-// texture unit based on the currently set active texture in opengl.
-void LLTexUnit::debugTextureUnit(void)
+void LLTexUnit::enable(eTextureType type)
 {
-	GLint activeTexture;
-	glGetIntegerv(GL_ACTIVE_TEXTURE_ARB, &activeTexture);
-	if ((GL_TEXTURE0_ARB + mIndex) != activeTexture)
+	if (mIndex < 0) return;
+
+	if ( (mCurrTexType != type || gGL.mDirty) && (type != TT_NONE) )
 	{
-		llerrs << "Incorrect Texture Unit!  Expected: " << (activeTexture - GL_TEXTURE0_ARB) << " Actual: " << mIndex << llendl;
+		activate();
+		if (mCurrTexType != TT_NONE && !gGL.mDirty)
+		{
+			disable(); // Force a disable of a previous texture type if it's enabled.
+		}
+		mCurrTexType = type;
+		glEnable(sGLTextureType[type]);
 	}
 }
 
-void LLTexUnit::bindTexture(const LLImageGL* texture)
+void LLTexUnit::disable(void)
 {
+	if (mIndex < 0) return;
+
+	if (mCurrTexType != TT_NONE)
+	{
+		activate();
+		unbind(mCurrTexType);
+		glDisable(sGLTextureType[mCurrTexType]);
+		mCurrTexType = TT_NONE;
+	}
+}
+
+bool LLTexUnit::bind(const LLImageGL* texture)
+{
+	if (mIndex < 0) return false;
+
+	gGL.flush();
+
+	if (texture == NULL)
+	{
+		return texture->bindError(mIndex);
+	}
+
+	if (!texture->isInitialized())
+	{
+		return texture->bindDefaultImage(mIndex);
+	}
+
+	// Disabled caching of binding state.
 	if (texture != NULL)
 	{
 		activate();
-		texture->bind(mIndex);
+		enable(texture->getTarget());
+		mCurrTexture = texture->getTexName();
+		glBindTexture(sGLTextureType[texture->getTarget()], mCurrTexture);
+		texture->updateBindStats();
+		return true;
+	}
+	return false;
+}
+
+bool LLTexUnit::bind(LLCubeMap* cubeMap)
+{
+	if (mIndex < 0) return false;
+
+	gGL.flush();
+
+	// Disabled caching of binding state.
+	if (cubeMap != NULL)
+	{
+		if (gGLManager.mHasCubeMap && LLCubeMap::sUseCubeMaps)
+		{
+			activate();
+			enable(LLTexUnit::TT_CUBE_MAP);
+			mCurrTexture = cubeMap->mImages[0]->getTexName();
+			glBindTexture(GL_TEXTURE_CUBE_MAP_ARB, mCurrTexture);
+			cubeMap->mImages[0]->updateBindStats();
+			cubeMap->mImages[0]->setMipFilterNearest (FALSE, FALSE);
+			return true;
+		}
+		else
+		{
+			llwarns << "Using cube map without extension!" << llendl
+		}
+	}
+	return false;
+}
+
+bool LLTexUnit::bind(LLRenderTarget* renderTarget, bool bindDepth)
+{
+	if (mIndex < 0) return false;
+
+	gGL.flush();
+
+	if (bindDepth)
+	{
+		bindManual(renderTarget->getUsage(), renderTarget->getDepth());
+	}
+	else
+	{
+		bindManual(renderTarget->getUsage(), renderTarget->getTexture());
+	}
+
+	return true;
+}
+
+bool LLTexUnit::bindManual(eTextureType type, U32 texture)
+{
+	if (mIndex < 0) return false;
+
+	// Disabled caching of binding state.
+	gGL.flush();
+	
+	activate();
+	enable(type);
+	mCurrTexture = texture;
+	glBindTexture(sGLTextureType[type], texture);
+	return true;
+}
+
+void LLTexUnit::unbind(eTextureType type)
+{
+	if (mIndex < 0) return;
+
+	// Disabled caching of binding state.
+	if (mCurrTexType == type)
+	{
+		gGL.flush();
+
+		activate();
+		mCurrTexture = 0;
+		glBindTexture(sGLTextureType[type], 0);
 	}
 }
 
-void LLTexUnit::unbindTexture(void)
+void LLTexUnit::setTextureAddressMode(eTextureAddressMode mode)
 {
-	activate();
-	glBindTexture(GL_TEXTURE_2D, 0);
+	if (mIndex < 0) return;
+
+	if (true)
+	{
+		activate();
+
+		glTexParameteri (sGLTextureType[mCurrTexType], GL_TEXTURE_WRAP_S, sGLAddressMode[mode]);
+		glTexParameteri (sGLTextureType[mCurrTexType], GL_TEXTURE_WRAP_T, sGLAddressMode[mode]);
+		if (mCurrTexType == TT_CUBE_MAP)
+		{
+			glTexParameteri (GL_TEXTURE_CUBE_MAP_ARB, GL_TEXTURE_WRAP_R, sGLAddressMode[mode]);
+		}
+	}
 }
 
 void LLTexUnit::setTextureBlendType(eTextureBlendType type)
 {
+	if (mIndex < 0) return;
+
 	// Do nothing if it's already correctly set.
-	if (mCurrBlendType == type)
+	if (mCurrBlendType == type && !gGL.mDirty)
 	{
 		return;
 	}
@@ -262,16 +415,18 @@ GLint LLTexUnit::getTextureSourceType(eTextureBlendSrc src, bool isAlpha)
 
 void LLTexUnit::setTextureCombiner(eTextureBlendOp op, eTextureBlendSrc src1, eTextureBlendSrc src2, bool isAlpha)
 {
+	if (mIndex < 0) return;
+
 	activate();
-	if (mCurrBlendType != TB_COMBINE)
+	if (mCurrBlendType != TB_COMBINE || gGL.mDirty)
 	{
 		mCurrBlendType = TB_COMBINE;
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_ARB);
 	}
 
 	// We want an early out, because this function does a LOT of stuff.
-	if ( (isAlpha && (mCurrAlphaOp == op) && (mCurrAlphaSrc1 == src1) && (mCurrAlphaSrc2 == src2) )
-		|| (!isAlpha && (mCurrColorOp == op) && (mCurrColorSrc1 == src1) && (mCurrColorSrc2 == src2) ))
+	if ( ( (isAlpha && (mCurrAlphaOp == op) && (mCurrAlphaSrc1 == src1) && (mCurrAlphaSrc2 == src2))
+			|| (!isAlpha && (mCurrColorOp == op) && (mCurrColorSrc1 == src1) && (mCurrColorSrc2 == src2)) ) && !gGL.mDirty)
 	{
 		return;
 	}
@@ -304,7 +459,7 @@ void LLTexUnit::setTextureCombiner(eTextureBlendOp op, eTextureBlendSrc src1, eT
 	}
 	else 
 	{
-		// Set enums to ALPHA ones
+		// Set enums to RGB ones
 		comb_enum = GL_COMBINE_RGB_ARB;
 		src0_enum = GL_SOURCE0_RGB_ARB;
 		src1_enum = GL_SOURCE1_RGB_ARB;
@@ -405,7 +560,7 @@ void LLTexUnit::setTextureCombiner(eTextureBlendOp op, eTextureBlendSrc src1, eT
 
 void LLTexUnit::setColorScale(S32 scale)
 {
-	if (mCurrColorScale != scale)
+	if (mCurrColorScale != scale || gGL.mDirty)
 	{
 		mCurrColorScale = scale;
 		glTexEnvi( GL_TEXTURE_ENV, GL_RGB_SCALE, scale );
@@ -414,27 +569,52 @@ void LLTexUnit::setColorScale(S32 scale)
 
 void LLTexUnit::setAlphaScale(S32 scale)
 {
-	if (mCurrAlphaScale != scale)
+	if (mCurrAlphaScale != scale || gGL.mDirty)
 	{
 		mCurrAlphaScale = scale;
 		glTexEnvi( GL_TEXTURE_ENV, GL_ALPHA_SCALE, scale );
 	}
 }
 
-LLRender::LLRender()
+// Useful for debugging that you've manually assigned a texture operation to the correct 
+// texture unit based on the currently set active texture in opengl.
+void LLTexUnit::debugTextureUnit(void)
 {
-	mCount = 0;
-	mMode = LLVertexBuffer::TRIANGLES;
+	if (mIndex < 0) return;
+
+	GLint activeTexture;
+	glGetIntegerv(GL_ACTIVE_TEXTURE_ARB, &activeTexture);
+	if ((GL_TEXTURE0_ARB + mIndex) != activeTexture)
+	{
+		U32 set_unit = (activeTexture - GL_TEXTURE0_ARB);
+		llwarns << "Incorrect Texture Unit!  Expected: " << set_unit << " Actual: " << mIndex << llendl;
+	}
+}
+
+
+LLRender::LLRender()
+: mDirty(false), mCount(0), mMode(LLRender::TRIANGLES)
+{
 	mBuffer = new LLVertexBuffer(immediate_mask, 0);
 	mBuffer->allocateBuffer(4096, 0, TRUE);
 	mBuffer->getVertexStrider(mVerticesp);
 	mBuffer->getTexCoordStrider(mTexcoordsp);
 	mBuffer->getColorStrider(mColorsp);
-
-	for (unsigned int i = 0; i < LL_NUM_TEXTURE_LAYERS; i++)
+	
+	mTexUnits.reserve(LL_NUM_TEXTURE_LAYERS);
+	for (U32 i = 0; i < LL_NUM_TEXTURE_LAYERS; i++)
 	{
 		mTexUnits.push_back(new LLTexUnit(i));
 	}
+	mDummyTexUnit = new LLTexUnit(-1);
+
+	for (U32 i = 0; i < 4; i++)
+	{
+		mCurrColorMask[i] = true;
+	}
+
+	mCurrAlphaFunc = CF_DEFAULT;
+	mCurrAlphaFuncVal = 0.01f;
 }
 
 LLRender::~LLRender()
@@ -449,6 +629,28 @@ void LLRender::shutdown()
 		delete mTexUnits[i];
 	}
 	mTexUnits.clear();
+	delete mDummyTexUnit;
+	mDummyTexUnit = NULL;
+}
+
+void LLRender::refreshState(void)
+{
+	mDirty = true;
+
+	U32 active_unit = mCurrTextureUnitIndex;
+
+	for (U32 i = 0; i < mTexUnits.size(); i++)
+	{
+		mTexUnits[i]->refreshState();
+	}
+	
+	mTexUnits[active_unit]->activate();
+
+	setColorMask(mCurrColorMask[0], mCurrColorMask[1], mCurrColorMask[2], mCurrColorMask[3]);
+	
+	setAlphaRejectSettings(mCurrAlphaFunc, mCurrAlphaFuncVal);
+
+	mDirty = false;
 }
 
 void LLRender::translatef(const GLfloat& x, const GLfloat& y, const GLfloat& z)
@@ -483,6 +685,12 @@ void LLRender::setColorMask(bool writeColor, bool writeAlpha)
 void LLRender::setColorMask(bool writeColorR, bool writeColorG, bool writeColorB, bool writeAlpha)
 {
 	flush();
+
+	mCurrColorMask[0] = writeColorR;
+	mCurrColorMask[1] = writeColorG;
+	mCurrColorMask[2] = writeColorB;
+	mCurrColorMask[3] = writeAlpha;
+
 	glColorMask(writeColorR, writeColorG, writeColorB, writeAlpha);
 }
 
@@ -518,6 +726,9 @@ void LLRender::setSceneBlendType(eBlendType type)
 void LLRender::setAlphaRejectSettings(eCompareFunc func, F32 value)
 {
 	flush();
+
+	mCurrAlphaFunc = func;
+	mCurrAlphaFuncVal = value;
 	if (func == CF_DEFAULT)
 	{
 		glAlphaFunc(GL_GREATER, 0.01f);
@@ -536,22 +747,38 @@ void LLRender::blendFunc(eBlendFactor sfactor, eBlendFactor dfactor)
 
 LLTexUnit* LLRender::getTexUnit(U32 index)
 {
-	if (index < mTexUnits.size())
+	if ((index >= 0) && (index < mTexUnits.size()))
 	{
 		return mTexUnits[index];
 	}
-	llerrs << "Non-existing texture unit layer requested: " << index << llendl;
-	return NULL;
+	else 
+	{
+		lldebugs << "Non-existing texture unit layer requested: " << index << llendl;
+		return mDummyTexUnit;
+	}
+}
+
+bool LLRender::verifyTexUnitActive(U32 unitToVerify)
+{
+	if (mCurrTextureUnitIndex == unitToVerify)
+	{
+		return true;
+	}
+	else 
+	{
+		llwarns << "TexUnit currently active: " << mCurrTextureUnitIndex << " (expecting " << unitToVerify << ")" << llendl;
+		return false;
+	}
 }
 
 void LLRender::begin(const GLuint& mode)
 {
 	if (mode != mMode)
 	{
-		if (mMode == LLVertexBuffer::QUADS ||
-			mMode == LLVertexBuffer::LINES ||
-			mMode == LLVertexBuffer::TRIANGLES ||
-			mMode == LLVertexBuffer::POINTS)
+		if (mMode == LLRender::QUADS ||
+			mMode == LLRender::LINES ||
+			mMode == LLRender::TRIANGLES ||
+			mMode == LLRender::POINTS)
 		{
 			flush();
 		}
@@ -572,10 +799,10 @@ void LLRender::end()
 		//IMM_ERRS << "GL begin and end called with no vertices specified." << llendl;
 	}
 
-	if ((mMode != LLVertexBuffer::QUADS && 
-		mMode != LLVertexBuffer::LINES &&
-		mMode != LLVertexBuffer::TRIANGLES &&
-		mMode != LLVertexBuffer::POINTS) ||
+	if ((mMode != LLRender::QUADS && 
+		mMode != LLRender::LINES &&
+		mMode != LLRender::TRIANGLES &&
+		mMode != LLRender::POINTS) ||
 		mCount > 2048)
 	{
 		flush();
@@ -638,7 +865,8 @@ void LLRender::flush()
 }
 void LLRender::vertex3f(const GLfloat& x, const GLfloat& y, const GLfloat& z)
 { 
-	if (mCount >= 4096)
+	//the range of mVerticesp, mColorsp and mTexcoordsp is [0, 4095]
+	if (mCount > 4094)
 	{
 	//	llwarns << "GL immediate mode overflow.  Some geometry not drawn." << llendl;
 		return;
@@ -718,5 +946,37 @@ void LLRender::color3f(const GLfloat& r, const GLfloat& g, const GLfloat& b)
 void LLRender::color3fv(const GLfloat* c)
 { 
 	color4f(c[0],c[1],c[2],1);
+}
+
+void LLRender::debugTexUnits(void)
+{
+	LL_INFOS("TextureUnit") << "Active TexUnit: " << mCurrTextureUnitIndex << LL_ENDL;
+	std::string active_enabled = "false";
+	for (U32 i = 0; i < mTexUnits.size(); i++)
+	{
+		if (getTexUnit(i)->mCurrTexType != LLTexUnit::TT_NONE)
+		{
+			if (i == mCurrTextureUnitIndex) active_enabled = "true";
+			LL_INFOS("TextureUnit") << "TexUnit: " << i << " Enabled" << LL_ENDL;
+			LL_INFOS("TextureUnit") << "Enabled As: " ;
+			switch (getTexUnit(i)->mCurrTexType)
+			{
+				case LLTexUnit::TT_TEXTURE:
+					LL_CONT << "Texture 2D";
+					break;
+				case LLTexUnit::TT_RECT_TEXTURE:
+					LL_CONT << "Texture Rectangle";
+					break;
+				case LLTexUnit::TT_CUBE_MAP:
+					LL_CONT << "Cube Map";
+					break;
+				default:
+					LL_CONT << "ARGH!!! NONE!";
+					break;
+			}
+			LL_CONT << ", Texture Bound: " << getTexUnit(i)->mCurrTexture << LL_ENDL;
+		}
+	}
+	LL_INFOS("TextureUnit") << "Active TexUnit Enabled : " << active_enabled << LL_ENDL;
 }
 

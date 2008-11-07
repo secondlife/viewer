@@ -3,7 +3,7 @@
 	<text length="1" name="text_box" type="string">
 		Chat-Schriftgröße:
 	</text>
-	<radio_group name="chat font size">
+	<radio_group name="chat_font_size">
 		<radio_item length="1" name="radio" type="string">
 			Klein
 		</radio_item>

@@ -491,7 +491,7 @@ void LLToolBrushLand::renderOverlay(LLSurface& land, const LLVector3& pos_region
 									const LLVector3& pos_world)
 {
 	glMatrixMode(GL_MODELVIEW);
-	LLGLSNoTexture gls_no_texture;
+	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 	LLGLDepthTest mDepthTest(GL_TRUE);
 	glPushMatrix();
 	gGL.color4fv(OVERLAY_COLOR.mV);
@@ -503,7 +503,7 @@ void LLToolBrushLand::renderOverlay(LLSurface& land, const LLVector3& pos_region
 	S32 radioAction = gSavedSettings.getS32("RadioLandBrushAction");
 	F32 force = gSavedSettings.getF32("LandBrushForce"); // .1 to 100?
 	
-	gGL.begin(LLVertexBuffer::LINES);
+	gGL.begin(LLRender::LINES);
 	for(S32 di = -half_edge; di <= half_edge; di++)
 	{
 		if((i+di) < 0 || (i+di) >= (S32)land.mGridsPerEdge) continue;

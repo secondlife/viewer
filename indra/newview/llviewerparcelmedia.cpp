@@ -344,7 +344,7 @@ void LLViewerParcelMedia::processParcelMediaUpdate( LLMessageSystem *msg, void *
 	media_url = media_url_buffer;
 	msg->getU8("DataBlock", "MediaAutoScale", media_auto_scale);
 
-	if (msg->getNumberOfBlocks("DataBlockExtended")) // do we have the extended data?
+	if (msg->has("DataBlockExtended")) // do we have the extended data?
 	{
 		char media_type_buffer[257];
 		msg->getString("DataBlockExtended", "MediaType", 255, media_type_buffer);

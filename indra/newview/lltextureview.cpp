@@ -247,7 +247,7 @@ void LLTextureBar::draw()
 	LLFontGL::sMonospace->renderUTF8(fetch_state_desc[state].desc, 0, title_x2, getRect().getHeight(),
 									 fetch_state_desc[state].color,
 									 LLFontGL::LEFT, LLFontGL::TOP);
-	LLGLSNoTexture gls_no_texture;
+	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
 	// Draw the progress bar.
 	S32 bar_width = 100;
@@ -415,7 +415,7 @@ void LLGLTexMemBar::draw()
 
 	F32 bar_scale = (F32)bar_width / (max_bound_mem * 1.5f);
 	
-	LLGLSNoTexture gls_no_texture;
+	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 	
 	gGL.color4f(0.5f, 0.5f, 0.5f, 0.75f);
 	gl_rect_2d(left, top, right, bottom);

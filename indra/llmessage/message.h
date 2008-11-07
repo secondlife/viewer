@@ -594,13 +594,14 @@ public:
 	LLHost	findHost(const U32 circuit_code);
 	void	sanityCheck();
 
-	S32		getNumberOfBlocksFast(const char *blockname);
-	S32		getNumberOfBlocks(const char *blockname);
-	S32		getSizeFast(const char *blockname, const char *varname);
-	S32		getSize(const char *blockname, const char *varname);
+	BOOL	has(const char *blockname) const;
+	S32		getNumberOfBlocksFast(const char *blockname) const;
+	S32		getNumberOfBlocks(const char *blockname) const;
+	S32		getSizeFast(const char *blockname, const char *varname) const;
+	S32		getSize(const char *blockname, const char *varname) const;
 	S32		getSizeFast(const char *blockname, S32 blocknum, 
-						const char *varname); // size in bytes of data
-	S32		getSize(const char *blockname, S32 blocknum, const char *varname);
+						const char *varname) const; // size in bytes of data
+	S32		getSize(const char *blockname, S32 blocknum, const char *varname) const;
 
 	void	resetReceiveCounts();				// resets receive counts for all message types to 0
 	void	dumpReceiveCounts();				// dumps receive count for each message type to llinfos

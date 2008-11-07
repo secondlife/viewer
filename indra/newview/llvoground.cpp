@@ -45,7 +45,7 @@
 #include "pipeline.h"
 
 LLVOGround::LLVOGround(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
-:	LLStaticViewerObject(id, pcode, regionp)
+:	LLStaticViewerObject(id, pcode, regionp, TRUE)
 {
 	mbCanSelect = FALSE;
 }

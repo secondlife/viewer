@@ -307,7 +307,7 @@ void LLShaderMgr::dumpObjectLog(GLhandleARB ret, BOOL warns)
 		{
 			LL_DEBUGS("ShaderLoading") << log << LL_ENDL;
 		}
-}
+	}
 }
 
 GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_level, GLenum type)

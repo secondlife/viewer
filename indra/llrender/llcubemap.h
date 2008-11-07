@@ -53,6 +53,7 @@ public:
 	
 	void enableTexture(S32 stage);
 	void enableTextureCoords(S32 stage);
+	S32	 getStage(void) { return mTextureStage; }
 	
 	void disable(void);
 	void disableTexture(void);
@@ -77,6 +78,7 @@ public:
 	static bool sUseCubeMaps;
 
 protected:
+	friend class LLTexUnit;
 	~LLCubeMap();
 	LLGLenum mTargets[6];
 	LLPointer<LLImageGL> mImages[6];

@@ -129,7 +129,7 @@ void LLDrawPoolAlpha::render(S32 pass)
 		gPipeline.enableLightsFullbright(LLColor4(1,1,1,1));
 		glColor4f(1,0,0,1);
 		LLViewerImage::sSmokeImagep->addTextureStats(1024.f*1024.f);
-        LLViewerImage::sSmokeImagep->bind();
+		gGL.getTexUnit(0)->bind(LLViewerImage::sSmokeImagep.get());
 		renderAlphaHighlight(LLVertexBuffer::MAP_VERTEX |
 							LLVertexBuffer::MAP_TEXCOORD);
 	}
@@ -170,7 +170,7 @@ void LLDrawPoolAlpha::renderAlphaHighlight(U32 mask)
 				LLRenderPass::applyModelMatrix(params);
 
 				params.mVertexBuffer->setBuffer(mask);
-				params.mVertexBuffer->drawRange(LLVertexBuffer::TRIANGLES, params.mStart, params.mEnd, params.mCount, params.mOffset);
+				params.mVertexBuffer->drawRange(LLRender::TRIANGLES, params.mStart, params.mEnd, params.mCount, params.mOffset);
 				gPipeline.addTrianglesDrawn(params.mCount/3);
 			}
 		}
@@ -231,7 +231,7 @@ void LLDrawPoolAlpha::renderGroupAlpha(LLSpatialGroup* group, U32 type, U32 mask
 		if (texture && params.mTexture.notNull())
 		{
 			gGL.getTexUnit(0)->activate();
-			params.mTexture->bind();
+			gGL.getTexUnit(0)->bind(params.mTexture.get());
 			params.mTexture->addTextureStats(params.mVSize);
 			if (params.mTextureMatrix)
 			{
@@ -288,7 +288,7 @@ void LLDrawPoolAlpha::renderGroupAlpha(LLSpatialGroup* group, U32 type, U32 mask
 		}
 
 		params.mVertexBuffer->setBuffer(mask);
-		params.mVertexBuffer->drawRange(LLVertexBuffer::TRIANGLES, params.mStart, params.mEnd, params.mCount, params.mOffset);
+		params.mVertexBuffer->drawRange(LLRender::TRIANGLES, params.mStart, params.mEnd, params.mCount, params.mOffset);
 		gPipeline.addTrianglesDrawn(params.mCount/3);
 
 		if (params.mTextureMatrix && texture && params.mTexture.notNull())

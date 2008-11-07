@@ -33,6 +33,7 @@
 #include "llviewerpartsource.h"
 
 #include "llviewercontrol.h"
+#include "llrender.h"
 
 #include "llagent.h"
 #include "lldrawable.h"
@@ -69,7 +70,7 @@ void LLViewerPartSource::updatePart(LLViewerPart &part, const F32 dt)
 {
 }
 
-void LLViewerPartSource::update(const F32 dt)
+void LLViewerPartSource::update(const F32 dt) 
 {
 	llerrs << "Creating default part source!" << llendl;
 }
@@ -99,7 +100,7 @@ LLViewerPartSourceScript::LLViewerPartSourceScript(LLViewerObject *source_objp) 
 	mSourceObjectp = source_objp;
 	mPosAgent = mSourceObjectp->getPositionAgent();
 	mImagep = gImageList.getImageFromFile("pixiesmall.j2c");
-	mImagep->bind();
+	gGL.getTexUnit(0)->bind(mImagep.get());
 	mImagep->setClamp(TRUE, TRUE);
 }
 
@@ -282,6 +283,10 @@ void LLViewerPartSourceScript::update(const F32 dt)
 
 			part->init(this, mImagep, NULL);
 			part->mFlags = mPartSysData.mPartData.mFlags;
+			if (!mSourceObjectp.isNull() && mSourceObjectp->isHUDAttachment())
+			{
+				part->mFlags |= LLPartData::LL_PART_HUD;
+			}
 			part->mMaxAge = mPartSysData.mPartData.mMaxAge;
 			part->mStartColor = mPartSysData.mPartData.mStartColor;
 			part->mEndColor = mPartSysData.mPartData.mEndColor;

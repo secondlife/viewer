@@ -244,6 +244,11 @@ static F32 calc_bouncy_animation(F32 x)
 	return -(cosf(x * F_PI * 2.5f - F_PI_BY_TWO))*(0.4f + x * -0.1f) + x * 1.3f;
 }
 
+BOOL LLLineSegmentCapsuleIntersect(const LLVector3& start, const LLVector3& end, const LLVector3& p1, const LLVector3& p2, const F32& radius, LLVector3& result)
+{
+	return FALSE;
+}
+
 //-----------------------------------------------------------------------------
 // Static Data
 //-----------------------------------------------------------------------------
@@ -753,7 +758,7 @@ LLVOAvatar::LLVOAvatar(
 	mRippleTimeLast = 0.f;
 
 	mShadowImagep = gImageList.getImageFromFile("foot_shadow.j2c");
-	mShadowImagep->bind();
+	gGL.getTexUnit(0)->bind(mShadowImagep.get());
 	mShadowImagep->setClamp(TRUE, TRUE);
 	
 	mInAir = FALSE;
@@ -1567,6 +1572,96 @@ void LLVOAvatar::getSpatialExtents(LLVector3& newMin, LLVector3& newMax)
 	//pad bounding box	
 	newMin -= buffer;
 	newMax += buffer;
+}
+
+//-----------------------------------------------------------------------------
+// renderCollisionVolumes()
+//-----------------------------------------------------------------------------
+void LLVOAvatar::renderCollisionVolumes()
+{
+	for (S32 i = 0; i < mNumCollisionVolumes; i++)
+	{
+		mCollisionVolumes[i].renderCollision();
+	}
+
+	if (mNameText.notNull())
+	{
+		LLVector3 unused;
+		mNameText->lineSegmentIntersect(LLVector3(0,0,0), LLVector3(0,0,1), unused, TRUE);
+	}
+}
+
+BOOL LLVOAvatar::lineSegmentIntersect(const LLVector3& start, const LLVector3& end,
+									  S32 face,
+									  BOOL pick_transparent,
+									  S32* face_hit,
+									  LLVector3* intersection,
+									  LLVector2* tex_coord,
+									  LLVector3* normal,
+									  LLVector3* bi_normal
+		)
+{
+
+	if (mIsSelf && !gAgent.needsRenderAvatar())
+	{
+		return FALSE;
+	}
+
+	if (lineSegmentBoundingBox(start, end))
+	{
+		for (S32 i = 0; i < mNumCollisionVolumes; ++i)
+		{
+			mCollisionVolumes[i].updateWorldMatrix();
+
+			glh::matrix4f mat((F32*) mCollisionVolumes[i].getXform()->getWorldMatrix().mMatrix);
+			glh::matrix4f inverse = mat.inverse();
+			glh::matrix4f norm_mat = inverse.transpose();
+
+			glh::vec3f p1(start.mV);
+			glh::vec3f p2(end.mV);
+
+			inverse.mult_matrix_vec(p1);
+			inverse.mult_matrix_vec(p2);
+
+			LLVector3 position;
+			LLVector3 norm;
+
+			if (linesegment_sphere(LLVector3(p1.v), LLVector3(p2.v), LLVector3(0,0,0), 1.f, position, norm))
+			{
+				glh::vec3f res_pos(position.mV);
+				mat.mult_matrix_vec(res_pos);
+				
+				norm.normalize();
+				glh::vec3f res_norm(norm.mV);
+				norm_mat.mult_matrix_dir(res_norm);
+
+				if (intersection)
+				{
+					*intersection = LLVector3(res_pos.v);
+				}
+
+				if (normal)
+				{
+					*normal = LLVector3(res_norm.v);
+				}
+
+				return TRUE;
+			}
+		}
+	}
+	
+	LLVector3 position;
+	if (mNameText.notNull() && mNameText->lineSegmentIntersect(start, end, position))
+	{
+		if (intersection)
+		{
+			*intersection = position;
+		}
+
+		return TRUE;
+	}
+
+	return FALSE;
 }
 
 
@@ -4138,7 +4233,7 @@ U32 LLVOAvatar::renderSkinned(EAvatarRenderPass pass)
 		LLVector3 collide_point = slaved_pos;
 		collide_point.mV[VZ] -= foot_plane_normal.mV[VZ] * (dist_from_plane + COLLISION_TOLERANCE - FOOT_COLLIDE_FUDGE);
 
-		gGL.begin(LLVertexBuffer::LINES);
+		gGL.begin(LLRender::LINES);
 		{
 			F32 SQUARE_SIZE = 0.2f;
 			gGL.color4f(1.f, 0.f, 0.f, 1.f);
@@ -4285,7 +4380,7 @@ U32 LLVOAvatar::renderFootShadows()
 	LLGLDepthTest test(GL_TRUE, GL_FALSE);
 	//render foot shadows
 	LLGLEnable blend(GL_BLEND);
-	mShadowImagep->bind();
+	gGL.getTexUnit(0)->bind(mShadowImagep.get());
 	glColor4fv(mShadow0Facep->getRenderColor().mV);
 	mShadow0Facep->renderIndexed(foot_mask);
 	glColor4fv(mShadow1Facep->getRenderColor().mV);
@@ -4331,8 +4426,8 @@ U32 LLVOAvatar::renderImpostor(LLColor4U color)
 	color.mV[3] = (U8) (alpha*255);
 	
 	gGL.color4ubv(color.mV);
-	mImpostor.bindTexture();
-	gGL.begin(LLVertexBuffer::QUADS);
+	gGL.getTexUnit(0)->bind(&mImpostor);
+	gGL.begin(LLRender::QUADS);
 	gGL.texCoord2f(0,0);
 	gGL.vertex3fv((pos+left-up).mV);
 	gGL.texCoord2f(1,0);
@@ -4345,17 +4440,6 @@ U32 LLVOAvatar::renderImpostor(LLColor4U color)
 	gGL.flush();
 
 	return 6;
-}
-
-//-----------------------------------------------------------------------------
-// renderCollisionVolumes()
-//-----------------------------------------------------------------------------
-void LLVOAvatar::renderCollisionVolumes()
-{
-	for (S32 i = 0; i < mNumCollisionVolumes; i++)
-	{
-		mCollisionVolumes[i].renderCollision();
-	}
 }
 
 //------------------------------------------------------------------------
@@ -4392,23 +4476,23 @@ void LLVOAvatar::updateTextures(LLAgent &agent)
 	{
 		if( head_baked && ! mHeadBakedLoaded )
 		{
-			getTEImage( TEX_HEAD_BAKED )->bind();
+			gGL.getTexUnit(0)->bind(getTEImage( TEX_HEAD_BAKED ));
 		}
 		if( upper_baked && ! mUpperBakedLoaded )
 		{
-			getTEImage( TEX_UPPER_BAKED )->bind();
+			gGL.getTexUnit(0)->bind(getTEImage( TEX_UPPER_BAKED ));
 		}
 		if( lower_baked && ! mLowerBakedLoaded )
 		{
-			getTEImage( TEX_LOWER_BAKED )->bind();
+			gGL.getTexUnit(0)->bind(getTEImage( TEX_LOWER_BAKED ));
 		}
 		if( eyes_baked && ! mEyesBakedLoaded )
 		{
-			getTEImage( TEX_EYES_BAKED )->bind();
+			gGL.getTexUnit(0)->bind(getTEImage( TEX_EYES_BAKED ));
 		}
 		if( skirt_baked && ! mSkirtBakedLoaded )
 		{
-			getTEImage( TEX_SKIRT_BAKED )->bind();
+			gGL.getTexUnit(0)->bind(getTEImage( TEX_SKIRT_BAKED ));
 		}
 	}
 
@@ -5714,7 +5798,9 @@ BOOL LLVOAvatar::loadMeshNodes()
 
 		//	llinfos << "Parsing mesh data for " << type << "..." << llendl;
 
-		mesh->setColor( 0.8f, 0.8f, 0.8f, 1.0f );
+		// If this isn't set to white (1.0), avatars will *ALWAYS* be darker than their surroundings.
+		// Do not touch!!!
+		mesh->setColor( 1.0f, 1.0f, 1.0f, 1.0f );
 
 		LLPolyMesh *poly_mesh = NULL;
 
@@ -6952,7 +7038,7 @@ BOOL LLVOAvatar::bindScratchTexture( LLGLenum format )
 	GLuint gl_name = getScratchTexName( format, &texture_bytes );
 	if( gl_name )
 	{
-		LLImageGL::bindExternalTexture( gl_name, 0, GL_TEXTURE_2D );
+		gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, gl_name);
 		stop_glerror();
 
 		F32* last_bind_time = LLVOAvatar::sScratchTexLastBindTime.getIfThere( format );
@@ -7010,7 +7096,7 @@ LLGLuint LLVOAvatar::getScratchTexName( LLGLenum format, U32* texture_bytes )
 		glGenTextures(1, &name );
 		stop_glerror();
 
-		LLImageGL::bindExternalTexture( name, 0, GL_TEXTURE_2D ); 
+		gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, name);
 		stop_glerror();
 
 		glTexImage2D(
@@ -7025,7 +7111,7 @@ LLGLuint LLVOAvatar::getScratchTexName( LLGLenum format, U32* texture_bytes )
 		glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
 		stop_glerror();
 
-		LLImageGL::unbindTexture(0, GL_TEXTURE_2D); 
+		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 		stop_glerror();
 
 		LLVOAvatar::sScratchTexNames.addData( format, new LLGLuint( name ) );
@@ -8634,7 +8720,7 @@ void LLVOAvatar::onBakedTextureMasksLoaded( BOOL success, LLViewerImage *src_vi,
 			glGenTextures(1, (GLuint*) &gl_name );
 			stop_glerror();
 
-			LLImageGL::bindExternalTexture( gl_name, 0, GL_TEXTURE_2D ); 
+			gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, gl_name);
 			stop_glerror();
 
 			glTexImage2D(

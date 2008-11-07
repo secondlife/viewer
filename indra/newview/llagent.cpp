@@ -492,7 +492,7 @@ LLAgent::~LLAgent()
 //-----------------------------------------------------------------------------
 // resetView()
 //-----------------------------------------------------------------------------
-void LLAgent::resetView(BOOL reset_camera)
+void LLAgent::resetView(BOOL reset_camera, BOOL change_camera)
 {
 	if (mAutoPilot)
 	{
@@ -516,6 +516,30 @@ void LLAgent::resetView(BOOL reset_camera)
 		// Hide all popup menus
 		gMenuHolder->hideMenus();
 	}
+
+	if (change_camera && !gSavedSettings.getBOOL("FreezeTime"))
+	{
+		changeCameraToDefault();
+		
+		if (LLViewerJoystick::getInstance()->getOverrideCamera())
+		{
+			handle_toggle_flycam();
+		}
+
+		// reset avatar mode from eventual residual motion
+		if (LLToolMgr::getInstance()->inBuildMode())
+		{
+			LLViewerJoystick::getInstance()->moveAvatar(true);
+		}
+
+		gFloaterTools->close();
+		
+		gViewerWindow->showCursor();
+
+		// Switch back to basic toolset
+		LLToolMgr::getInstance()->setCurrentToolset(gBasicToolset);
+	}
+
 
 	if (reset_camera && !gSavedSettings.getBOOL("FreezeTime"))
 	{
@@ -1296,7 +1320,7 @@ LLQuaternion LLAgent::getQuat() const
 //-----------------------------------------------------------------------------
 // calcFocusOffset()
 //-----------------------------------------------------------------------------
-LLVector3 LLAgent::calcFocusOffset(LLViewerObject *object, S32 x, S32 y)
+LLVector3 LLAgent::calcFocusOffset(LLViewerObject *object, LLVector3 pos_agent, S32 x, S32 y)
 {
 	// calculate offset based on view direction
 	BOOL is_avatar = object->isAvatar();
@@ -1399,7 +1423,7 @@ LLVector3 LLAgent::calcFocusOffset(LLViewerObject *object, S32 x, S32 y)
 	if (!is_avatar) 
 	{
 		//unproject relative clicked coordinate from window coordinate using GL
-		GLint viewport[4];
+		/*GLint viewport[4];
 		GLdouble modelview[16];
 		GLdouble projection[16];
 		GLfloat winX, winY, winZ;
@@ -1421,11 +1445,9 @@ LLVector3 LLAgent::calcFocusOffset(LLViewerObject *object, S32 x, S32 y)
 		winY = ((F32)y) * gViewerWindow->getDisplayScale().mV[VY];
 		glReadPixels( llfloor(winX), llfloor(winY), 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &winZ );
 
-		gluUnProject( winX, winY, winZ, modelview, projection, viewport, &posX, &posY, &posZ);
+		gluUnProject( winX, winY, winZ, modelview, projection, viewport, &posX, &posY, &posZ);*/
 
-		LLVector3 obj_rel((F32)posX, (F32)posY, (F32)posZ);
-		obj_rel = obj_rel * object->getRenderMatrix();
-		obj_rel -= object->getRenderPosition();
+		LLVector3 obj_rel = pos_agent - object->getRenderPosition();
 		
 		LLVector3 obj_center = LLVector3(0, 0, 0) * object->getRenderMatrix();
 
@@ -1940,6 +1962,8 @@ void LLAgent::cameraPanIn(F32 meters)
 	mFocusGlobal = mFocusTargetGlobal;
 	// don't enforce zoom constraints as this is the only way for users to get past them easily
 	updateFocusOffset();
+	// NOTE: panning movements expect the camera to move exactly with the focus target, not animated behind -Nyx
+	mCameraSmoothingLastPositionGlobal = calcCameraPositionTargetGlobal();
 }
 
 //-----------------------------------------------------------------------------
@@ -1958,6 +1982,8 @@ void LLAgent::cameraPanLeft(F32 meters)
 	
 	cameraZoomIn(1.f);
 	updateFocusOffset();
+	// NOTE: panning movements expect the camera to move exactly with the focus target, not animated behind - Nyx
+	mCameraSmoothingLastPositionGlobal = calcCameraPositionTargetGlobal();
 }
 
 //-----------------------------------------------------------------------------
@@ -1976,6 +2002,8 @@ void LLAgent::cameraPanUp(F32 meters)
 
 	cameraZoomIn(1.f);
 	updateFocusOffset();
+	// NOTE: panning movements expect the camera to move exactly with the focus target, not animated behind -Nyx
+	mCameraSmoothingLastPositionGlobal = calcCameraPositionTargetGlobal();
 }
 
 //-----------------------------------------------------------------------------

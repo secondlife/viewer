@@ -72,7 +72,7 @@ LLViewerParcelOverlay::LLViewerParcelOverlay(LLViewerRegion* region, F32 region_
 	mImageRaw = new LLImageRaw(mParcelGridsPerEdge, mParcelGridsPerEdge, OVERLAY_IMG_COMPONENTS);
 	mTexture->createGLTexture(0, mImageRaw);
 	gGL.getTexUnit(0)->activate();
-	mTexture->bind(0);
+	gGL.getTexUnit(0)->bind(mTexture);
 	mTexture->setClamp(TRUE, TRUE);
 	mTexture->setMipFilterNearest(TRUE);
 
@@ -748,7 +748,7 @@ S32 LLViewerParcelOverlay::renderPropertyLines	()
 	LLSurface& land = mRegion->getLand();
 
 	LLGLSUIDefault gls_ui; // called from pipeline
-	LLGLSNoTexture gls_no_texture;
+	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 	LLGLDepthTest mDepthTest(GL_TRUE);
 
 	// Find camera height off the ground (not from zero)
@@ -826,7 +826,7 @@ S32 LLViewerParcelOverlay::renderPropertyLines	()
 			continue;
 		}
 
-		gGL.begin(LLVertexBuffer::TRIANGLE_STRIP);
+		gGL.begin(LLRender::TRIANGLE_STRIP);
 
 		for (j = 0; j < vertex_per_edge; j++)
 		{
@@ -848,7 +848,7 @@ S32 LLViewerParcelOverlay::renderPropertyLines	()
 			colorp  = mColorArray  + BYTES_PER_COLOR   * i;
 			vertexp = mVertexArray + FLOATS_PER_VERTEX * i;
 
-			gGL.begin(LLVertexBuffer::TRIANGLE_STRIP);
+			gGL.begin(LLRender::TRIANGLE_STRIP);
 
 			for (j = 0; j < vertex_per_edge; j++)
 			{

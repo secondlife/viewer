@@ -139,7 +139,7 @@ public:
 
 	// Called whenever the agent moves.  Puts camera back in default position,
 	// deselects items, etc.
-	void			resetView(BOOL reset_camera = TRUE);
+	void			resetView(BOOL reset_camera = TRUE, BOOL change_camera = FALSE);
 
 	// Called on camera movement, to allow the camera to be unlocked from the 
 	// default position behind the avatar.
@@ -378,7 +378,7 @@ public:
 	void			sendAnimationRequests(LLDynamicArray<LLUUID> &anim_ids, EAnimRequest request);
 	void			sendAnimationRequest(const LLUUID &anim_id, EAnimRequest request);
 
-	LLVector3		calcFocusOffset(LLViewerObject *object, S32 x, S32 y);
+	LLVector3		calcFocusOffset(LLViewerObject *object, LLVector3 pos_agent, S32 x, S32 y);
 	BOOL			calcCameraMinDistance(F32 &obj_min_distance);
 
 	void			startCameraAnimation();

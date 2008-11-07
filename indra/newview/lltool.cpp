@@ -42,6 +42,7 @@
 #include "lltoolfocus.h"
 #include "llfocusmgr.h"
 #include "llagent.h"
+#include "llviewerjoystick.h"
 
 extern BOOL gDebugClicks;
 
@@ -160,6 +161,11 @@ BOOL LLTool::handleKey(KEY key, MASK mask)
 
 LLTool* LLTool::getOverrideTool(MASK mask)
 {
+	// NOTE: if in flycam mode, ALT-ZOOM camera should be disabled
+	if (LLViewerJoystick::getInstance()->getOverrideCamera())
+	{
+		return NULL;
+	}
 	if (mask & MASK_ALT)
 	{
 		return LLToolCamera::getInstance();

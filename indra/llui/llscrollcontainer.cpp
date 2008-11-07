@@ -425,7 +425,7 @@ void LLScrollableContainerView::draw()
 	// Draw background
 	if( mIsOpaque )
 	{
-		LLGLSNoTexture no_texture;
+		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 		gGL.color4fv( mBackgroundColor.mV );
 		gl_rect_2d( mInnerRect );
 	}

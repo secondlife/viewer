@@ -365,7 +365,7 @@ void LLGLSLShader::bindNoShader(void)
 	glUseProgramObjectARB(0);
 }
 
-S32 LLGLSLShader::enableTexture(S32 uniform, S32 mode)
+S32 LLGLSLShader::enableTexture(S32 uniform, LLTexUnit::eTextureType mode)
 {
 	if (uniform < 0 || uniform >= (S32)mTexture.size())
 	{
@@ -376,12 +376,12 @@ S32 LLGLSLShader::enableTexture(S32 uniform, S32 mode)
 	if (index != -1)
 	{
 		gGL.getTexUnit(index)->activate();
-		glEnable(mode);
+		gGL.getTexUnit(index)->enable(mode);
 	}
 	return index;
 }
 
-S32 LLGLSLShader::disableTexture(S32 uniform, S32 mode)
+S32 LLGLSLShader::disableTexture(S32 uniform, LLTexUnit::eTextureType mode)
 {
 	if (uniform < 0 || uniform >= (S32)mTexture.size())
 	{
@@ -392,7 +392,7 @@ S32 LLGLSLShader::disableTexture(S32 uniform, S32 mode)
 	if (index != -1)
 	{
 		gGL.getTexUnit(index)->activate();
-		glDisable(mode);
+		gGL.getTexUnit(index)->disable();
 	}
 	return index;
 }

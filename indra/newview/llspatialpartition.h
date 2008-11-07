@@ -301,6 +301,7 @@ public:
 	BOOL remove(LLDrawable *drawablep, LLSpatialGroup *curp);
 	
 	LLDrawable* lineSegmentIntersect(const LLVector3& start, const LLVector3& end,
+									 BOOL pick_transparent, 
 									 S32* face_hit,                          // return the face hit
 									 LLVector3* intersection = NULL,         // return the intersection point
 									 LLVector2* tex_coord = NULL,            // return the texture coordinates of the intersection point
@@ -480,6 +481,12 @@ public:
 	virtual F32 calcPixelArea(LLSpatialGroup* group, LLCamera& camera);
 protected:
 	U32 mRenderPass;
+};
+
+class LLHUDParticlePartition : public LLParticlePartition
+{
+public:
+	LLHUDParticlePartition();
 };
 
 //spatial partition for grass (implemented in LLVOGrass.cpp)

@@ -960,7 +960,8 @@ void assert_glerror()
 		GLubyte const * gl_error_msg = gluErrorString(error);
 		if (NULL != gl_error_msg)
 		{
-			LL_WARNS("RenderState") << "GL Error:" << gl_error_msg << LL_ENDL;
+			LL_WARNS("RenderState") << "GL Error:" << error<< LL_ENDL;
+			LL_WARNS("RenderState") << "GL Error String:" << gl_error_msg << LL_ENDL;
 		}
 		else
 		{
@@ -1001,7 +1002,7 @@ GLboolean LLGLDepthTest::sWriteEnabled = GL_TRUE; // OpenGL default
 void LLGLState::initClass() 
 {
 	sStateMap[GL_DITHER] = GL_TRUE;
-	sStateMap[GL_TEXTURE_2D] = GL_TRUE;
+	// sStateMap[GL_TEXTURE_2D] = GL_TRUE;
 
 	//make sure multisample defaults to disabled
 	sStateMap[GL_MULTISAMPLE_ARB] = GL_FALSE;
@@ -1030,7 +1031,7 @@ void LLGLState::resetTextureStates()
 	{
 		gGL.getTexUnit(j)->activate();
 		glClientActiveTextureARB(GL_TEXTURE0_ARB+j);
-		j == 0 ? glEnable(GL_TEXTURE_2D) : glDisable(GL_TEXTURE_2D);
+		j == 0 ? gGL.getTexUnit(j)->enable(LLTexUnit::TT_TEXTURE) : gGL.getTexUnit(j)->disable();
 	}
 }
 
@@ -1053,14 +1054,6 @@ void LLGLState::checkStates(const std::string& msg)
 
 	stop_glerror();
 
-	GLint activeTexture;
-	glGetIntegerv(GL_ACTIVE_TEXTURE_ARB, &activeTexture);
-	
-	if (activeTexture != GL_TEXTURE0_ARB)
-	{
-		LL_GL_ERRS << "Texture channel corrupted. " << LL_ENDL;
-	}
-	
 	GLint src;
 	GLint dst;
 	glGetIntegerv(GL_BLEND_SRC, &src);
@@ -1099,17 +1092,7 @@ void LLGLState::checkTextureChannels(const std::string& msg)
 	
 	BOOL error = FALSE;
 
-	if (activeTexture != GL_TEXTURE0_ARB)
-	{
-		error = TRUE;
- 		LL_WARNS("RenderState") << "Active texture channel corrupted. " << LL_ENDL;
-	}
-	else if (!glIsEnabled(GL_TEXTURE_2D))
-	{
-		error = TRUE;
-		LL_WARNS("RenderState") << "GL_TEXTURE_2D not enabled on texture channel 0." << LL_ENDL;
-	}
-	else 
+	if (activeTexture == GL_TEXTURE0_ARB)
 	{
 		GLint tex_env_mode = 0;
 
@@ -1152,7 +1135,7 @@ void LLGLState::checkTextureChannels(const std::string& msg)
 	LLMatrix4 identity;
 	LLMatrix4 matrix;
 
-	for (GLint i = 0; i < maxTextureUnits; i++)
+	for (GLint i = 1; i < maxTextureUnits; i++)
 	{
 		gGL.getTexUnit(i)->activate();
 		glClientActiveTextureARB(GL_TEXTURE0_ARB+i);

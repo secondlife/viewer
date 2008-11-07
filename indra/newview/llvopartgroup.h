@@ -80,6 +80,23 @@ protected:
 	~LLVOPartGroup();
 
 	LLViewerPartGroup *mViewerPartGroupp;
+
+	virtual LLVector3 getCameraPosition() const;
+
+};
+
+
+class LLVOHUDPartGroup : public LLVOPartGroup
+{
+public:
+	LLVOHUDPartGroup(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp) : 
+	  LLVOPartGroup(id, pcode, regionp)   
+	{
+	}
+protected:
+	LLDrawable* createDrawable(LLPipeline *pipeline);
+	U32 getPartitionType() const;
+	virtual LLVector3 getCameraPosition() const;
 };
 
 #endif // LL_LLVOPARTGROUP_H

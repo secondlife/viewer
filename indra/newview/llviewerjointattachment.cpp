@@ -91,7 +91,7 @@ U32 LLViewerJointAttachment::drawShape( F32 pixelArea, BOOL first_pass )
 		LLGLDisable cull_face(GL_CULL_FACE);
 		
 		gGL.color4f(1.f, 1.f, 1.f, 1.f);
-		gGL.begin(LLVertexBuffer::QUADS);
+		gGL.begin(LLRender::QUADS);
 		{
 			gGL.vertex3f(-0.1f, 0.1f, 0.f);
 			gGL.vertex3f(-0.1f, -0.1f, 0.f);

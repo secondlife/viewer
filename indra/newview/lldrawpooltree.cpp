@@ -50,7 +50,7 @@ LLDrawPoolTree::LLDrawPoolTree(LLViewerImage *texturep) :
 	LLFacePool(POOL_TREE),
 	mTexturep(texturep)
 {
-	mTexturep->bind(0);
+	gGL.getTexUnit(0)->bind(mTexturep.get());
 	mTexturep->setClamp(FALSE, FALSE);
 }
 
@@ -124,6 +124,7 @@ void LLDrawPoolTree::renderForSelect()
 	LLOverrideFaceColor color(this, 1.f, 1.f, 1.f, 1.f);
 
 	LLGLSObjectSelectAlpha gls_alpha;
+	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
 	gGL.setSceneBlendType(LLRender::BT_REPLACE);
 	gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.5f);
@@ -144,7 +145,7 @@ void LLDrawPoolTree::renderTree(BOOL selecting)
 	LLGLState normalize(GL_NORMALIZE, TRUE);
 	
 	// Bind the texture for this tree.
-	LLViewerImage::bindTexture(mTexturep,sDiffTex);
+	gGL.getTexUnit(sDiffTex)->bind(mTexturep.get());
 		
 	U32 indices_drawn = 0;
 

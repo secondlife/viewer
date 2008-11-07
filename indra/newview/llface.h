@@ -101,7 +101,6 @@ public:
 	void			setPixelArea(F32 area)	{ mPixelArea = area; }
 	F32				getVirtualSize() const { return mVSize; }
 	F32				getPixelArea() const { return mPixelArea; }
-	void			bindTexture(S32 stage = 0)		const	{ LLViewerImage::bindTexture(mTexture, stage); }
 
 	void			renderSetColor() const;
 	S32				renderElements(const U16 *index_array) const;
@@ -120,6 +119,7 @@ public:
 	LLVertexBuffer* getVertexBuffer()	const	{ return mVertexBuffer; }
 	void			setPoolType(U32 type)		{ mPoolType = type; }
 	S32				getTEOffset()				{ return mTEOffset; }
+	LLViewerImage*	getTexture()				{ return mTexture; }
 
 	void			setViewerObject(LLViewerObject* object);
 	void			setPool(LLFacePool *pool, LLViewerImage *texturep);

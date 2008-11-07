@@ -46,6 +46,7 @@
 #include "pipeline.h"
 #include "llrender.h"
 #include "lloctree.h"
+#include "llvoavatar.h"
 
 const F32 SG_OCCLUSION_FUDGE = 1.01f;
 #define SG_DISCARD_TOLERANCE 0.01f
@@ -1624,7 +1625,7 @@ public:
 
 void drawBox(const LLVector3& c, const LLVector3& r)
 {
-	gGL.begin(LLVertexBuffer::TRIANGLE_STRIP);
+	gGL.begin(LLRender::TRIANGLE_STRIP);
 	//left front
 	gGL.vertex3fv((c+r.scaledVec(LLVector3(-1,1,-1))).mV);
 	gGL.vertex3fv((c+r.scaledVec(LLVector3(-1,1,1))).mV);
@@ -1643,7 +1644,7 @@ void drawBox(const LLVector3& c, const LLVector3& r)
 	gGL.end();
 	
 	//bottom
-	gGL.begin(LLVertexBuffer::TRIANGLE_STRIP);
+	gGL.begin(LLRender::TRIANGLE_STRIP);
 	gGL.vertex3fv((c+r.scaledVec(LLVector3(1,1,-1))).mV);
 	gGL.vertex3fv((c+r.scaledVec(LLVector3(1,-1,-1))).mV);
 	gGL.vertex3fv((c+r.scaledVec(LLVector3(-1,1,-1))).mV);
@@ -1651,7 +1652,7 @@ void drawBox(const LLVector3& c, const LLVector3& r)
 	gGL.end();
 
 	//top
-	gGL.begin(LLVertexBuffer::TRIANGLE_STRIP);
+	gGL.begin(LLRender::TRIANGLE_STRIP);
 	gGL.vertex3fv((c+r.scaledVec(LLVector3(1,1,1))).mV);
 	gGL.vertex3fv((c+r.scaledVec(LLVector3(-1,1,1))).mV);
 	gGL.vertex3fv((c+r.scaledVec(LLVector3(1,-1,1))).mV);
@@ -1666,7 +1667,7 @@ void drawBoxOutline(const LLVector3& pos, const LLVector3& size)
 	LLVector3 v3 = size.scaledVec(LLVector3(-1,-1,1));
 	LLVector3 v4 = size.scaledVec(LLVector3( 1,-1,1));
 
-	gGL.begin(LLVertexBuffer::LINES); 
+	gGL.begin(LLRender::LINES); 
 	
 	//top
 	gGL.vertex3fv((pos+v1).mV);
@@ -1814,7 +1815,7 @@ void pushVerts(LLDrawInfo* params, U32 mask)
 {
 	LLRenderPass::applyModelMatrix(*params);
 	params->mVertexBuffer->setBuffer(mask);
-	params->mVertexBuffer->drawRange(params->mParticle ? LLVertexBuffer::POINTS : LLVertexBuffer::TRIANGLES,
+	params->mVertexBuffer->drawRange(params->mParticle ? LLRender::POINTS : LLRender::TRIANGLES,
 								params->mStart, params->mEnd, params->mCount, params->mOffset);
 }
 
@@ -1843,7 +1844,7 @@ void pushVerts(LLFace* face, U32 mask)
 		U16 end = start + face->getGeomCount()-1;
 		U32 count = face->getIndicesCount();
 		U16 offset = face->getIndicesStart();
-		buffer->drawRange(LLVertexBuffer::TRIANGLES, start, end, count, offset);
+		buffer->drawRange(LLRender::TRIANGLES, start, end, count, offset);
 	}
 
 }
@@ -1853,7 +1854,7 @@ void pushBufferVerts(LLVertexBuffer* buffer, U32 mask)
 	if (buffer)
 	{
 		buffer->setBuffer(mask);
-		buffer->drawRange(LLVertexBuffer::TRIANGLES, 0, buffer->getRequestedVerts()-1, buffer->getRequestedIndices(), 0);
+		buffer->drawRange(LLRender::TRIANGLES, 0, buffer->getRequestedVerts()-1, buffer->getRequestedIndices(), 0);
 	}
 }
 
@@ -1902,7 +1903,7 @@ void pushVertsColorCoded(LLSpatialGroup* group, U32 mask)
 			LLRenderPass::applyModelMatrix(*params);
 			glColor4f(colors[col].mV[0], colors[col].mV[1], colors[col].mV[2], 0.5f);
 			params->mVertexBuffer->setBuffer(mask);
-			params->mVertexBuffer->drawRange(params->mParticle ? LLVertexBuffer::POINTS : LLVertexBuffer::TRIANGLES,
+			params->mVertexBuffer->drawRange(params->mParticle ? LLRender::POINTS : LLRender::TRIANGLES,
 				params->mStart, params->mEnd, params->mCount, params->mOffset);
 			col = (col+1)%col_count;
 		}
@@ -1972,7 +1973,7 @@ void renderOctree(LLSpatialGroup* group)
 						face->mVertexBuffer->setBuffer(LLVertexBuffer::MAP_VERTEX);
 						//drawBox((face->mExtents[0] + face->mExtents[1])*0.5f,
 						//		(face->mExtents[1]-face->mExtents[0])*0.5f);
-						face->mVertexBuffer->draw(LLVertexBuffer::TRIANGLES, face->getIndicesCount(), face->getIndicesStart());
+						face->mVertexBuffer->draw(LLRender::TRIANGLES, face->getIndicesCount(), face->getIndicesStart());
 					}
 				}
 
@@ -2103,6 +2104,7 @@ void renderBoundingBox(LLDrawable* drawable)
 					gGL.color4f(0.5f,0.5f,0.5f,1.0f);
 					break;
 			case LLViewerObject::LL_VO_PART_GROUP:
+			case LLViewerObject::LL_VO_HUD_PART_GROUP:
 					gGL.color4f(0,0,1,1);
 					break;
 			case LLViewerObject::LL_VO_WATER:
@@ -2222,7 +2224,7 @@ void renderPoints(LLDrawable* drawablep)
 	LLGLDepthTest depth(GL_FALSE, GL_FALSE);
 	if (drawablep->getNumFaces())
 	{
-		gGL.begin(LLVertexBuffer::POINTS);
+		gGL.begin(LLRender::POINTS);
 		gGL.color3f(1,1,1);
 		LLVector3 center(drawablep->getPositionGroup());
 		for (S32 i = 0; i < drawablep->getNumFaces(); i++)
@@ -2298,9 +2300,17 @@ void renderRaycast(LLDrawable* drawablep)
 		LLGLEnable blend(GL_BLEND);
 		gGL.color4f(0,1,1,0.5f);
 
-		for (S32 i = 0; i < drawablep->getNumFaces(); i++)
+		if (drawablep->getVOVolume() && gDebugRaycastFaceHit != -1)
 		{
-			pushVerts(drawablep->getFace(i), LLVertexBuffer::MAP_VERTEX);
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			pushVerts(drawablep->getFace(gDebugRaycastFaceHit), LLVertexBuffer::MAP_VERTEX);
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		}
+		else if (drawablep->isAvatar())
+		{
+			LLGLDepthTest depth(GL_FALSE);
+			LLVOAvatar* av = (LLVOAvatar*) drawablep->getVObj().get();
+			av->renderCollisionVolumes();
 		}
 
 		// draw intersection point
@@ -2468,7 +2478,7 @@ void LLSpatialPartition::renderDebug()
 	LLGLDisable cullface(GL_CULL_FACE);
 	LLGLEnable blend(GL_BLEND);
 	gGL.setSceneBlendType(LLRender::BT_ALPHA);
-	LLImageGL::unbindTexture(0);
+	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 	gPipeline.disableLights();
 
 	LLSpatialBridge* bridge = asBridge();
@@ -2508,8 +2518,9 @@ public:
 	LLVector3 *mNormal;
 	LLVector3 *mBinormal;
 	LLDrawable* mHit;
-	
-	LLOctreeIntersect(LLVector3 start, LLVector3 end,
+	BOOL mPickTransparent;
+
+	LLOctreeIntersect(LLVector3 start, LLVector3 end, BOOL pick_transparent,
 					  S32* face_hit, LLVector3* intersection, LLVector2* tex_coord, LLVector3* normal, LLVector3* binormal)
 		: mStart(start),
 		  mEnd(end),
@@ -2518,14 +2529,15 @@ public:
 		  mTexCoord(tex_coord),
 		  mNormal(normal),
 		  mBinormal(binormal),
-		  mHit(NULL)
+		  mHit(NULL),
+		  mPickTransparent(pick_transparent)
 	{
 	}
 	
 	virtual void visit(const LLSpatialGroup::OctreeNode* branch) 
 	{	
 		for (LLSpatialGroup::OctreeNode::const_element_iter i = branch->getData().begin(); i != branch->getData().end(); ++i)
-	{
+		{
 			check(*i);
 		}
 	}
@@ -2570,25 +2582,35 @@ public:
 
 	virtual bool check(LLDrawable* drawable)
 	{	
+		LLVector3 local_start = mStart;
+		LLVector3 local_end = mEnd;
+
+		if (!gPipeline.hasRenderType(drawable->getRenderType()) || !drawable->isVisible())
+		{
+			return false;
+		}
+
 		if (drawable->isSpatialBridge())
 		{
 			LLSpatialPartition *part = drawable->asPartition();
-
-			check(part->mOctree);
-	}
-
+			LLSpatialBridge* bridge = part->asBridge();
+			if (bridge && gPipeline.hasRenderType(bridge->mDrawableType))
+			{
+				check(part->mOctree);
+			}
+		}
 		else
-	{
-		LLViewerObject* vobj = drawable->getVObj();
+		{
+			LLViewerObject* vobj = drawable->getVObj();
 
 			if (vobj)
 			{
 				LLVector3 intersection;
-				if (vobj->lineSegmentIntersect(mStart, mEnd, -1, mFaceHit, &intersection, mTexCoord, mNormal, mBinormal))
+				if (vobj->lineSegmentIntersect(mStart, mEnd, -1, mPickTransparent, mFaceHit, &intersection, mTexCoord, mNormal, mBinormal))
 				{
 					mEnd = intersection;  // shorten ray so we only find CLOSER hits
 					if (mIntersection)
-		{
+					{
 						*mIntersection = intersection;
 					}
 					
@@ -2596,12 +2618,13 @@ public:
 				}
 			}
 		}
-		
+				
 		return false;
 	}
 };
 
 LLDrawable* LLSpatialPartition::lineSegmentIntersect(const LLVector3& start, const LLVector3& end,
+													 BOOL pick_transparent,													
 													 S32* face_hit,                   // return the face hit
 													 LLVector3* intersection,         // return the intersection point
 													 LLVector2* tex_coord,            // return the texture coordinates of the intersection point
@@ -2610,7 +2633,7 @@ LLDrawable* LLSpatialPartition::lineSegmentIntersect(const LLVector3& start, con
 	)
 
 {
-	LLOctreeIntersect intersect(start, end, face_hit, intersection, tex_coord, normal, bi_normal);
+	LLOctreeIntersect intersect(start, end, pick_transparent, face_hit, intersection, tex_coord, normal, bi_normal);
 	LLDrawable* drawable = intersect.check(mOctree);
 
 	return drawable;

@@ -89,6 +89,7 @@
 #include "llfeaturemanager.h"
 #include "llfirstuse.h"
 #include "llfloateractivespeakers.h"
+#include "llfloaterbeacons.h"
 #include "llfloatercamera.h"
 #include "llfloaterchat.h"
 #include "llfloatergesture.h"
@@ -848,6 +849,20 @@ bool idle_startup()
 
 		LLFile::mkdir(gDirUtilp->getChatLogsDir());
 		LLFile::mkdir(gDirUtilp->getPerAccountChatLogsDir());
+
+		//good as place as any to create user windlight directories
+		std::string user_windlight_path_name(gDirUtilp->getExpandedFilename( LL_PATH_USER_SETTINGS , "windlight", ""));
+		LLFile::mkdir(user_windlight_path_name.c_str());		
+
+		std::string user_windlight_skies_path_name(gDirUtilp->getExpandedFilename( LL_PATH_USER_SETTINGS , "windlight/skies", ""));
+		LLFile::mkdir(user_windlight_skies_path_name.c_str());
+
+		std::string user_windlight_water_path_name(gDirUtilp->getExpandedFilename( LL_PATH_USER_SETTINGS , "windlight/water", ""));
+		LLFile::mkdir(user_windlight_water_path_name.c_str());
+
+		std::string user_windlight_days_path_name(gDirUtilp->getExpandedFilename( LL_PATH_USER_SETTINGS , "windlight/days", ""));
+		LLFile::mkdir(user_windlight_days_path_name.c_str());
+
 
 		if (show_connect_box)
 		{
@@ -1644,6 +1659,11 @@ bool idle_startup()
 		if (gSavedSettings.getBOOL("ShowActiveSpeakers"))
 		{
 			LLFloaterActiveSpeakers::showInstance();
+		}
+
+		if (gSavedSettings.getBOOL("BeaconAlwaysOn"))
+		{
+			LLFloaterBeacons::showInstance();
 		}
 
 		if (!gNoRender)

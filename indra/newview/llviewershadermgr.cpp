@@ -108,7 +108,7 @@ GLint				gAvatarMatrixParam;
 LLViewerShaderMgr::LLViewerShaderMgr() :
 	mVertexShaderLevel(SHADER_COUNT, 0)
 {	
-/// Make sure WL Sky is the first program
+	/// Make sure WL Sky is the first program
 	mShaderList.push_back(&gWLSkyProgram);
 	mShaderList.push_back(&gWLCloudProgram);
 	mShaderList.push_back(&gAvatarProgram);
@@ -139,28 +139,28 @@ LLViewerShaderMgr * LLViewerShaderMgr::instance()
 	if(NULL == sInstance)
 	{
 		sInstance = new LLViewerShaderMgr();
-	}	
-	
-	return static_cast<LLViewerShaderMgr*>(sInstance);
 	}
 
+	return static_cast<LLViewerShaderMgr*>(sInstance);
+}
+
 void LLViewerShaderMgr::initAttribsAndUniforms(void)
-	{
+{
 	if (mReservedAttribs.empty())
-		{
+	{
 		mReservedAttribs.push_back("materialColor");
 		mReservedAttribs.push_back("specularColor");
 		mReservedAttribs.push_back("binormal");
-		
+
 		mAvatarAttribs.reserve(5);
 		mAvatarAttribs.push_back("weight");
 		mAvatarAttribs.push_back("clothing");
 		mAvatarAttribs.push_back("gWindDir");
 		mAvatarAttribs.push_back("gSinWaveParams");
 		mAvatarAttribs.push_back("gGravity");
-			
+
 		mAvatarUniforms.push_back("matrixPalette");
-			
+
 		mReservedUniforms.reserve(24);
 		mReservedUniforms.push_back("diffuseMap");
 		mReservedUniforms.push_back("specularMap");
@@ -186,16 +186,16 @@ void LLViewerShaderMgr::initAttribsAndUniforms(void)
 		mReservedUniforms.push_back("cloud_scale");
 		mReservedUniforms.push_back("gamma");
 		mReservedUniforms.push_back("scene_light_strength");
-			
+
 		mWLUniforms.push_back("camPosLocal");
-			
+
 		mTerrainUniforms.reserve(5);
 		mTerrainUniforms.push_back("detail_0");
 		mTerrainUniforms.push_back("detail_1");
 		mTerrainUniforms.push_back("detail_2");
 		mTerrainUniforms.push_back("detail_3");
 		mTerrainUniforms.push_back("alpha_ramp");
-	
+
 		mGlowUniforms.push_back("glowDelta");
 		mGlowUniforms.push_back("glowStrength");
 
@@ -204,7 +204,7 @@ void LLViewerShaderMgr::initAttribsAndUniforms(void)
 		mGlowExtractUniforms.push_back("lumWeights");
 		mGlowExtractUniforms.push_back("warmthWeights");
 		mGlowExtractUniforms.push_back("warmthAmount");
-	
+
 		mShinyUniforms.push_back("origin");
 
 		mWaterUniforms.reserve(12);
@@ -222,9 +222,9 @@ void LLViewerShaderMgr::initAttribsAndUniforms(void)
 		mWaterUniforms.push_back("kd");
 		mWaterUniforms.push_back("refScale");
 		mWaterUniforms.push_back("waterHeight");
-		}
-	}
-
+	}	
+}
+	
 
 //============================================================================
 // Set Levels
@@ -1087,12 +1087,12 @@ BOOL LLViewerShaderMgr::loadShadersWindLight()
 }
 
 std::string LLViewerShaderMgr::getShaderDirPrefix(void)
-	{
+{
 	return gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "shaders/class");
-	}
+}
 
 void LLViewerShaderMgr::updateShaderUniforms(LLGLSLShader * shader)
-			{
+{
 	LLWLParamManager::instance()->updateShaderUniforms(shader);
 	LLWaterParamManager::instance()->updateShaderUniforms(shader);
 }

@@ -208,7 +208,7 @@ void LLProgressView::draw()
 	if (gStartImageGL)
 	{
 		LLGLSUIDefault gls_ui;
-		LLViewerImage::bindTexture(gStartImageGL);
+		gGL.getTexUnit(0)->bind(gStartImageGL);
 		gGL.color4f(1.f, 1.f, 1.f, mFadeTimer.getStarted() ? clamp_rescale(mFadeTimer.getElapsedTimeF32(), 0.f, FADE_IN_TIME, 1.f, 0.f) : 1.f);
 		F32 image_aspect = (F32)gStartImageWidth / (F32)gStartImageHeight;
 		F32 view_aspect = (F32)width / (F32)height;
@@ -224,11 +224,11 @@ void LLProgressView::draw()
 			glScalef(1.f, view_aspect / image_aspect, 1.f);
 		}
 		gl_rect_2d_simple_tex( getRect().getWidth(), getRect().getHeight() );
-		gStartImageGL->unbindTexture(0, GL_TEXTURE_2D);
+		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 	}
 	else
 	{
-		LLGLSNoTexture gls_no_texture;
+		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 		gGL.color4f(0.f, 0.f, 0.f, 1.f);
 		gl_rect_2d(getRect());
 	}

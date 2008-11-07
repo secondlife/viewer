@@ -215,6 +215,7 @@ LLViewerRegion::LLViewerRegion(const U64 &handle,
 	mObjectPartition.push_back(new LLGrassPartition());		//PARTITION_GRASS
 	mObjectPartition.push_back(new LLVolumePartition());	//PARTITION_VOLUME
 	mObjectPartition.push_back(new LLBridgePartition());	//PARTITION_BRIDGE
+	mObjectPartition.push_back(new LLHUDParticlePartition());//PARTITION_HUD_PARTICLE
 	mObjectPartition.push_back(NULL);						//PARTITION_NONE
 	
 }
@@ -1028,12 +1029,18 @@ void LLViewerRegion::updateCoarseLocations(LLMessageSystem* msg)
 	msg->getS16Fast(_PREHASH_Index, _PREHASH_You, agent_index);
 	msg->getS16Fast(_PREHASH_Index, _PREHASH_Prey, target_index);
 
+	BOOL has_agent_data = msg->has(_PREHASH_AgentData);
 	S32 count = msg->getNumberOfBlocksFast(_PREHASH_Location);
 	for(S32 i = 0; i < count; i++)
 	{
 		msg->getU8Fast(_PREHASH_Location, _PREHASH_X, x_pos, i);
 		msg->getU8Fast(_PREHASH_Location, _PREHASH_Y, y_pos, i);
 		msg->getU8Fast(_PREHASH_Location, _PREHASH_Z, z_pos, i);
+		LLUUID agent_id = LLUUID::null;
+		if(has_agent_data)
+		{
+			msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_AgentID, agent_id, i);
+		}
 
 		//llinfos << "  object X: " << (S32)x_pos << " Y: " << (S32)y_pos
 		//		<< " Z: " << (S32)(z_pos * 4)
@@ -1059,6 +1066,10 @@ void LLViewerRegion::updateCoarseLocations(LLMessageSystem* msg)
 			pos <<= 8;
 			pos |= z_pos;
 			mMapAvatars.put(pos);
+			if(has_agent_data)
+			{
+				mMapAvatarIDs.put(agent_id);
+			}
 		}
 	}
 }

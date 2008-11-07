@@ -605,7 +605,7 @@ BOOL LLVOVolume::setMaterial(const U8 material)
 void LLVOVolume::setTexture(const S32 face)
 {
 	llassert(face < getNumTEs());
-	LLViewerImage::bindTexture(getTEImage(face));
+	gGL.getTexUnit(0)->bind(getTEImage(face));
 }
 
 void LLVOVolume::setScale(const LLVector3 &scale, BOOL damped)
@@ -1934,10 +1934,18 @@ LLVector3 LLVOVolume::volumeDirectionToAgent(const LLVector3& dir) const
 }
 
 
-BOOL LLVOVolume::lineSegmentIntersect(const LLVector3& start, const LLVector3& end, S32 face, S32 *face_hitp,
+BOOL LLVOVolume::lineSegmentIntersect(const LLVector3& start, const LLVector3& end, S32 face, BOOL pick_transparent, S32 *face_hitp,
 									  LLVector3* intersection,LLVector2* tex_coord, LLVector3* normal, LLVector3* bi_normal)
 	
 {
+	if (!mbCanSelect ||
+		(gHideSelectedObjects && isSelected()) ||
+			mDrawable->isDead() || 
+			!gPipeline.hasRenderType(mDrawable->getRenderType()))
+	{
+		return FALSE;
+	}
+
 	LLVolume* volume = getVolume();
 	if (volume)
 	{	
@@ -1946,37 +1954,88 @@ BOOL LLVOVolume::lineSegmentIntersect(const LLVector3& start, const LLVector3& e
 		v_start = agentPositionToVolume(start);
 		v_end = agentPositionToVolume(end);
 		
-		S32 face_hit = volume->lineSegmentIntersect(v_start, v_end, face,
-													intersection, tex_coord, normal, bi_normal);
-		if (face_hit >= 0)
+		LLVector3 p;
+		LLVector3 n;
+		LLVector2 tc;
+		LLVector3 bn;
+
+		if (intersection != NULL)
 		{
-			if (face_hitp != NULL)
-			{
-				*face_hitp = face_hit;
-			}
+			p = *intersection;
+		}
+
+		if (tex_coord != NULL)
+		{
+			tc = *tex_coord;
+		}
+
+		if (normal != NULL)
+		{
+			n = *normal;
+		}
+
+		if (bi_normal != NULL)
+		{
+			bn = *bi_normal;
+		}
+
+		S32 face_hit = -1;
+
+		S32 start_face, end_face;
+		if (face == -1)
+		{
+			start_face = 0;
+			end_face = volume->getNumFaces();
+		}
+		else
+		{
+			start_face = face;
+			end_face = face+1;
+		}
+
+		for (S32 i = start_face; i < end_face; ++i)
+		{
+			face_hit = volume->lineSegmentIntersect(v_start, v_end, i,
+													&p, &tc, &n, &bn);
 			
-			if (intersection != NULL)
+			if (face_hit >= 0)
 			{
-				*intersection = volumePositionToAgent(*intersection);  // must map back to agent space
-			}
+				LLFace* face = mDrawable->getFace(face_hit);
+				if (pick_transparent || !face->getTexture() || face->getTexture()->getMask(face->surfaceToTexture(tc, p, n)))
+				{
+					if (face_hitp != NULL)
+					{
+						*face_hitp = face_hit;
+					}
+					
+					if (intersection != NULL)
+					{
+						*intersection = volumePositionToAgent(p);  // must map back to agent space
+					}
 
-			if (normal != NULL)
-			{
-				*normal = volumeDirectionToAgent(*normal);
-				(*normal).normalize();
-			}
+					if (normal != NULL)
+					{
+						*normal = volumeDirectionToAgent(n);
+						(*normal).normVec();
+					}
 
-			if (bi_normal != NULL)
-			{
-				*bi_normal = volumeDirectionToAgent(*bi_normal);
-				(*bi_normal).normalize();
-			}
+					if (bi_normal != NULL)
+					{
+						*bi_normal = volumeDirectionToAgent(bn);
+						(*bi_normal).normVec();
+					}
 
-			
-			return TRUE;
+					if (tex_coord != NULL)
+					{
+						*tex_coord = tc;
+					}
+					
+					return TRUE;
+				}
+			}
 		}
 	}
-	
+		
 	return FALSE;
 }
 

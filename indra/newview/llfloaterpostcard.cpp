@@ -63,6 +63,8 @@
 
 #include "llassetuploadresponders.h"
 
+#include <boost/regex.hpp>  //boost.regex lib
+
 ///----------------------------------------------------------------------------
 /// Local function declarations, constants, enums, and typedefs
 ///----------------------------------------------------------------------------
@@ -180,7 +182,7 @@ void LLFloaterPostcard::draw()
 			rect.mBottom = (S32)((F32)rect.mTop - ((F32)rect.getWidth() / ratio));
 		}
 		{
-			LLGLSNoTexture gls_no_texture;
+			gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 			gl_rect_2d(rect, LLColor4(0.f, 0.f, 0.f, 1.f));
 			rect.stretch(-1);
 		}
@@ -242,14 +244,16 @@ void LLFloaterPostcard::onClickSend(void* data)
 
 		std::string from(self->childGetValue("from_form").asString());
 		std::string to(self->childGetValue("to_form").asString());
-
-		if (to.empty() || to.find('@') == std::string::npos)
+		
+		boost::regex emailFormat("[A-Za-z0-9.%+-_]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}");
+		
+		if (to.empty() || !boost::regex_match(to, emailFormat))
 		{
 			gViewerWindow->alertXml("PromptRecipientEmail");
 			return;
 		}
 
-		if (from.empty() || from.find('@') == std::string::npos)
+		if (from.empty() || !boost::regex_match(from, emailFormat))
 		{
 			gViewerWindow->alertXml("PromptSelfEmail");
 			return;

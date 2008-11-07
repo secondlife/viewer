@@ -384,9 +384,10 @@ void LLFloaterAnimPreview::draw()
 	if (mMotionID.notNull() && mAnimPreview)
 	{
 		gGL.color3f(1.f, 1.f, 1.f);
-		mAnimPreview->bindTexture();
 
-		gGL.begin( LLVertexBuffer::QUADS );
+		gGL.getTexUnit(0)->bind(mAnimPreview->getTexture());
+
+		gGL.begin( LLRender::QUADS );
 		{
 			gGL.texCoord2f(0.f, 1.f);
 			gGL.vertex2i(PREVIEW_HPAD, PREVIEW_TEXTURE_HEIGHT);
@@ -399,7 +400,7 @@ void LLFloaterAnimPreview::draw()
 		}
 		gGL.end();
 
-		mAnimPreview->unbindTexture();
+		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
 		LLVOAvatar* avatarp = mAnimPreview->getDummyAvatar();
 		if (!avatarp->areAnimationsPaused())
@@ -1068,7 +1069,7 @@ BOOL	LLPreviewAnimation::render()
 	glLoadIdentity();
 
 	LLGLSUIDefault def;
-	LLGLSNoTexture gls_no_texture;
+	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 	gGL.color4f(0.15f, 0.2f, 0.3f, 1.f);
 
 	gl_rect_2d_simple( mWidth, mHeight );

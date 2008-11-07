@@ -87,13 +87,6 @@ public:
 	{ }
 };
 
-class LLGLSNoTexture 
-{
-public:
-	LLGLSNoTexture()
-	{ LLImageGL::unbindTexture(0); }
-};
-
 class LLGLSObjectSelect
 { 
 protected:
@@ -104,7 +97,7 @@ public:
 		: mBlend(GL_BLEND), mFog(GL_FOG), 
 		  mAlphaTest(GL_ALPHA_TEST),
 		  mCullFace(GL_CULL_FACE)
-	{ LLImageGL::unbindTexture(0); }
+	{ }
 };
 
 class LLGLSObjectSelectAlpha
@@ -141,17 +134,6 @@ public:
 	LLGLSNoAlphaTest()
 		: mAlphaTest(GL_ALPHA_TEST)
 	{}
-};
-
-class LLGLSNoTextureNoAlphaTest // : public LLGLSUIDefault
-{
-protected:
-	LLGLDisable mAlphaTest;
-public:
-	LLGLSNoTextureNoAlphaTest()
-		: mAlphaTest(GL_ALPHA_TEST)
-		  
-	{ LLImageGL::unbindTexture(0); }
 };
 
 //----------------------------------------------------------------------------
@@ -251,7 +233,7 @@ public:
 		mBlend(GL_BLEND),
 		mAlphaTest(GL_ALPHA_TEST)
 		
-	{ LLImageGL::unbindTexture(0); }
+	{ }
 };
 
 //----------------------------------------------------------------------------

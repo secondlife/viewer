@@ -116,6 +116,7 @@ static struct ft_display_info ft_display_table[] =
 	{ LLFastTimer::FTM_VFILE_WAIT,			"  VFile Wait",		&LLColor4::cyan6, 0 },
 //	{ LLFastTimer::FTM_IDLE_CB,				"  Callbacks",		&LLColor4::pink1, 0 },
 	{ LLFastTimer::FTM_RENDER,				" Render",			&green0, 1 },
+	{ LLFastTimer::FTM_PICK,				"  Pick",			&LLColor4::purple, 1 },
 	{ LLFastTimer::FTM_HUD_EFFECTS,			"  HUD Effects",	&LLColor4::orange1, 0 },
 	{ LLFastTimer::FTM_HUD_UPDATE,			"  HUD Update",	&LLColor4::orange2, 0 },
 	{ LLFastTimer::FTM_UPDATE_SKY,			"  Sky Update",		&LLColor4::cyan1, 0 },
@@ -463,7 +464,7 @@ void LLFastTimerView::draw()
 	
 	// Draw the window background
 	{
-		LLGLSNoTexture gls_ui_no_texture;
+		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 		gl_rect_2d(0, getRect().getHeight(), getRect().getWidth(), 0, LLColor4(0.f, 0.f, 0.f, 0.25f));
 	}
 	
@@ -755,7 +756,7 @@ void LLFastTimerView::draw()
 		LLRect graph_rect;
 		// Draw borders
 		{
-			LLGLSNoTexture gls_ui_no_texture;
+			gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 			gGL.color4f(0.5f,0.5f,0.5f,0.5f);
 
 			S32 by = y + 2;
@@ -792,7 +793,7 @@ void LLFastTimerView::draw()
 		
 		// Draw bars for each history entry
 		// Special: -1 = show running average
-		LLViewerImage::bindTexture(box_imagep->getImage());
+		gGL.getTexUnit(0)->bind(box_imagep->getImage());
 		for (S32 j=-1; j<histmax && y > LINE_GRAPH_HEIGHT; j++)
 		{
 			int sublevel_dx[FTV_DISPLAY_NUM+1];
@@ -936,7 +937,7 @@ void LLFastTimerView::draw()
 		
 		//draw line graph history
 		{
-			LLGLSNoTexture no_texture;
+			gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 			LLLocalClipRect clip(graph_rect);
 			
 			//normalize based on last frame's maximum
@@ -980,7 +981,7 @@ void LLFastTimerView::draw()
 
 					gGL.color4f(0.5f,0.5f,0.5f,1);
 				
-					gGL.begin(LLVertexBuffer::LINES);
+					gGL.begin(LLRender::LINES);
 					gGL.vertex2i((S32)bar, graph_rect.mBottom);
 					gGL.vertex2i((S32)bar, graph_rect.mTop);
 					gGL.end();
@@ -1016,7 +1017,7 @@ void LLFastTimerView::draw()
 				}
 
 				gGL.color4f(col[0], col[1], col[2], alpha);				
-				gGL.begin(LLVertexBuffer::LINE_STRIP);
+				gGL.begin(LLRender::LINE_STRIP);
 				for (U32 j = 0; j < LLFastTimer::FTM_HISTORY_NUM; j++)
 				{
 					U64 ticks = ticks_sum[j+1][idx];

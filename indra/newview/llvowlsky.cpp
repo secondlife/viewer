@@ -87,7 +87,7 @@ inline U32 LLVOWLSky::getStarsNumIndices(void)
 }
 
 LLVOWLSky::LLVOWLSky(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
-	: LLStaticViewerObject(id, pcode, regionp)
+	: LLStaticViewerObject(id, pcode, regionp, TRUE)
 {
 	initStars();
 }
@@ -488,7 +488,7 @@ void LLVOWLSky::drawStars(void)
 	if (mStarsVerts.notNull())
 	{
 		mStarsVerts->setBuffer(LLDrawPoolWLSky::STAR_VERTEX_DATA_MASK);
-		mStarsVerts->draw(LLVertexBuffer::POINTS, getStarsNumIndices(), 0);
+		mStarsVerts->draw(LLRender::POINTS, getStarsNumIndices(), 0);
 	}
 }
 
@@ -513,7 +513,7 @@ void LLVOWLSky::drawDome(void)
 		strips_segment->setBuffer(data_mask);
 
 		strips_segment->drawRange(
-			LLVertexBuffer::TRIANGLE_STRIP, 
+			LLRender::TRIANGLE_STRIP, 
 			0, strips_segment->getRequestedVerts()-1, strips_segment->getRequestedIndices(), 
 			0);
 		gPipeline.addTrianglesDrawn(strips_segment->getRequestedIndices() - 2);

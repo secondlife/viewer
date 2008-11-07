@@ -356,7 +356,7 @@ void process_layer_data(LLMessageSystem *mesgsys, void **user_data)
 // 		size_t nread = fread(buffer, 1, length, fXML);
 // 		if (nread < (size_t) length)
 // 		{
-// 			llwarns << "Short read" << llendl;
+// 			LL_WARNS("Messaging") << "Short read" << LL_ENDL;
 // 		}
 // 		buffer[nread] = '\0';
 // 		fclose(fXML);
@@ -4726,7 +4726,7 @@ void process_teleport_local(LLMessageSystem *msg,void**)
 	gAgent.slamLookAt(look_at);
 
 	// likewise make sure the camera is behind the avatar
-	gAgent.resetView(TRUE);
+	gAgent.resetView(TRUE, TRUE);
 
 	// send camera update to new region
 	gAgent.updateCamera();

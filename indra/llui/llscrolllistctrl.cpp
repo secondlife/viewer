@@ -435,7 +435,7 @@ void LLScrollListItem::draw(const LLRect& rect, const LLColor4& fg_color, const 
 	// draw background rect
 	LLRect bg_rect = rect;
 	{
-		LLGLSNoTexture no_texture;
+		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 		gGL.color4fv(bg_color.mV);
 		gl_rect_2d( bg_rect );
 	}
@@ -1758,7 +1758,7 @@ void LLScrollListCtrl::draw()
 	// Draw background
 	if (mBackgroundVisible)
 	{
-		LLGLSNoTexture no_texture;
+		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 		gGL.color4fv( getEnabled() ? mBgWriteableColor.mV : mBgReadOnlyColor.mV );
 		gl_rect_2d(background);
 	}

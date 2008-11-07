@@ -1,6 +1,7 @@
 /** 
- * @file llversionviewer.h
- * @brief
+ * @file llfloaterbeacons.h
+ * @brief Front-end to LLPipeline controls for highlighting various kinds of objects.
+ * @author Coco 
  *
  * $LicenseInfo:firstyear=2002&license=viewergpl$
  * 
@@ -29,14 +30,27 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVERSIONVIEWER_H
-#define LL_LLVERSIONVIEWER_H
+#ifndef LL_LLFLOATERBEACONS_H
+#define LL_LLFLOATERBEACONS_H
 
-const S32 LL_VERSION_MAJOR = 1;
-const S32 LL_VERSION_MINOR = 22;
-const S32 LL_VERSION_PATCH = 0;
-const S32 LL_VERSION_BUILD = 100000;
+#include "llfloater.h"
 
-const char * const LL_CHANNEL = "Second Life Release";
+class LLFloaterBeacons : public LLFloater, public LLFloaterSingleton<LLFloaterBeacons>
+{
+	friend class LLUISingleton<LLFloaterBeacons, VisibilityPolicy<LLFloater> >;
+	
+public:
+	/*virtual*/ BOOL postBuild();
+	
+	// Needed to make the floater visibility toggle the beacons.
+	// Too bad we can't just add control_name="BeaconAlwaysOn" to the XML.
+	/*virtual*/ void open();
+	/*virtual*/ void close(bool app_quitting);
+
+private:
+	LLFloaterBeacons(const LLSD& seed);
+
+	static void onClickUICheck(LLUICtrl *ctrl, void* data);
+};
 
 #endif

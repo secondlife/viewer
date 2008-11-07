@@ -106,84 +106,65 @@ LLWLParamManager::~LLWLParamManager()
 
 void LLWLParamManager::loadPresets(const std::string& file_name)
 {
-	// if fileName exists, use legacy loading form the big file, otherwise, search the sky 
-	// directory, and add the list
-	if(file_name != "") 
+	std::string path_name(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "windlight/skies", ""));
+	LL_INFOS2("AppInit", "Shaders") << "Loading Default WindLight settings from " << path_name << LL_ENDL;
+			
+	bool found = true;			
+	while(found) 
 	{
-		std::string path_name(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "windlight", file_name));
-		LL_INFOS2("AppInit", "Shaders") << "Loading WindLight settings from " << path_name << LL_ENDL;
-
-		llifstream presetsXML(path_name);
-	
-		if (presetsXML)
+		std::string name;
+		found = gDirUtilp->getNextFileInDir(path_name, "*.xml", name, false);
+		if(found)
 		{
-			LLSD paramsData(LLSD::emptyMap());
 
-			LLPointer<LLSDParser> parser = new LLSDXMLParser();
+			name=name.erase(name.length()-4);
 
-			parser->parse(presetsXML, paramsData, LLSDSerialize::SIZE_UNLIMITED);
-
-			LLSD::map_const_iterator endParams = paramsData.endMap();
-			for(LLSD::map_const_iterator curParams = paramsData.beginMap();
-				curParams != endParams;
-				++curParams)
-			{
-				addParamSet(curParams->first, curParams->second);
-			}
-		}
-	}
-	
-	// otherwise, search the sky directory and find things there
-	else
-	{
-		std::string path_name(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "windlight/skies", ""));
-		LL_INFOS2("AppInit", "Shaders") << "Loading WindLight settings from " << path_name << LL_ENDL;
-	
-		//mParamList.clear();
-		
-		bool found = true;			
-		while(found) 
-		{
-			std::string name;
-			found = gDirUtilp->getNextFileInDir(path_name, "*.xml", name, false);
+			// bugfix for SL-46920: preventing filenames that break stuff.
+			char * curl_str = curl_unescape(name.c_str(), name.size());
+			std::string unescaped_name(curl_str);
+			curl_free(curl_str);
+			curl_str = NULL;
 
 			LL_DEBUGS2("AppInit", "Shaders") << "name: " << name << LL_ENDL;
-			
-			// if we have one
-			if(found) 
-			{
-				// bugfix for SL-46920: preventing filenames that break stuff.
-				char * curl_str = curl_unescape(name.c_str(), name.size());
-				std::string unescaped_name(curl_str);
-				curl_free(curl_str);
-				curl_str = NULL;
-
-				// not much error checking here since we're getting rid of this
-				std::string sky_name = unescaped_name.substr(0, unescaped_name.size() - 4);
-			
-				std::string cur_path(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "windlight/skies", name));
-				LL_DEBUGS2("AppInit", "Shaders") << "Loading sky from " << cur_path << LL_ENDL;
-				
-				llifstream sky_xml(cur_path);
-				if (sky_xml)
-				{
-					LLSD sky_data(LLSD::emptyMap());
-					LLPointer<LLSDParser> parser = new LLSDXMLParser();
-					parser->parse(sky_xml, sky_data, LLSDSerialize::SIZE_UNLIMITED);
-
-					addParamSet(sky_name, sky_data);
-					sky_xml.close();
-				}
-			}
+			loadPreset(unescaped_name,FALSE);
 		}
 	}
+
+	// And repeat for user presets, note the user presets will modify any system presets already loaded
+
+	std::string path_name2(gDirUtilp->getExpandedFilename( LL_PATH_USER_SETTINGS , "windlight/skies", ""));
+	LL_INFOS2("AppInit", "Shaders") << "Loading User WindLight settings from " << path_name2 << LL_ENDL;
+			
+	found = true;			
+	while(found) 
+	{
+		std::string name;
+		found = gDirUtilp->getNextFileInDir(path_name2, "*.xml", name, false);
+		if(found)
+		{
+			name=name.erase(name.length()-4);
+
+			// bugfix for SL-46920: preventing filenames that break stuff.
+			char * curl_str = curl_unescape(name.c_str(), name.size());
+			std::string unescaped_name(curl_str);
+			curl_free(curl_str);
+			curl_str = NULL;
+
+			LL_DEBUGS2("AppInit", "Shaders") << "name: " << name << LL_ENDL;
+			loadPreset(unescaped_name,FALSE);
+		}
+	}
+
 }
 
 void LLWLParamManager::savePresets(const std::string & fileName)
 {
+	//Nobody currently calls me, but if they did, then its reasonable to write the data out to the user's folder
+	//and not over the RO system wide version.
+
 	LLSD paramsData(LLSD::emptyMap());
 	
-	std::string pathName(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "windlight", fileName));
+	std::string pathName(gDirUtilp->getExpandedFilename( LL_PATH_USER_SETTINGS , "windlight", fileName));
 
 	for(std::map<std::string, LLWLParamSet>::iterator mIt = mParamList.begin();
 		mIt != mParamList.end();
@@ -201,8 +182,9 @@ void LLWLParamManager::savePresets(const std::string & fileName)
 	presetsXML.close();
 }
 
-void LLWLParamManager::loadPreset(const std::string & name)
+void LLWLParamManager::loadPreset(const std::string & name,bool propagate)
 {
+	
 	// bugfix for SL-46920: preventing filenames that break stuff.
 	char * curl_str = curl_escape(name.c_str(), name.size());
 	std::string escaped_filename(curl_str);
@@ -214,7 +196,16 @@ void LLWLParamManager::loadPreset(const std::string & name)
 	std::string pathName(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "windlight/skies", escaped_filename));
 	llinfos << "Loading WindLight sky setting from " << pathName << llendl;
 
-	llifstream presetsXML(pathName);
+	llifstream presetsXML;
+	presetsXML.open(pathName.c_str());
+
+	// That failed, try loading from the users area instead.
+	if(!presetsXML)
+	{
+		pathName=gDirUtilp->getExpandedFilename( LL_PATH_USER_SETTINGS , "windlight/skies", escaped_filename);
+		llinfos << "Loading User WindLight sky setting from " << pathName << llendl;
+		presetsXML.open(pathName.c_str());
+	}
 
 	if (presetsXML)
 	{
@@ -241,10 +232,13 @@ void LLWLParamManager::loadPreset(const std::string & name)
 		return;
 	}
 
-	getParamSet(name, mCurParams);
-
-	propagateParameters();
-}
+	
+	if(propagate)
+	{
+		getParamSet(name, mCurParams);
+		propagateParameters();
+	}
+}	
 
 void LLWLParamManager::savePreset(const std::string & name)
 {
@@ -258,7 +252,7 @@ void LLWLParamManager::savePreset(const std::string & name)
 
 	// make an empty llsd
 	LLSD paramsData(LLSD::emptyMap());
-	std::string pathName(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "windlight/skies", escaped_filename));
+	std::string pathName(gDirUtilp->getExpandedFilename( LL_PATH_USER_SETTINGS , "windlight/skies", escaped_filename));
 
 	// fill it with LLSD windlight params
 	paramsData = mParamList[name].getAll();
@@ -533,7 +527,7 @@ bool LLWLParamManager::removeParamSet(const std::string& name, bool delete_from_
 	
 	if(delete_from_disk)
 	{
-		std::string path_name(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "windlight/skies", ""));
+		std::string path_name(gDirUtilp->getExpandedFilename( LL_PATH_USER_SETTINGS , "windlight/skies", ""));
 		
 		// use full curl escaped name
 		char * curl_str = curl_escape(name.c_str(), name.size());

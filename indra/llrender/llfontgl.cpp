@@ -148,7 +148,7 @@ void LLFontGL::init()
 	{
 		mImageGLp = new LLImageGL(FALSE);
 		//RN: use nearest mipmap filtering to obviate the need to do pixel-accurate positioning
-		mImageGLp->bind();
+		gGL.getTexUnit(0)->bind(mImageGLp);
 		// we allow bilinear filtering to get sub-pixel positioning for drop shadows
 		//mImageGLp->setMipFilterNearest(TRUE, TRUE);
 	}
@@ -533,7 +533,7 @@ BOOL LLFontGL::loadFace(const std::string& filename,
 		return FALSE;
 	}
 	mImageGLp->createGLTexture(0, mRawImageGLp);
-	mImageGLp->bind();
+	gGL.getTexUnit(0)->bind(mImageGLp);
 	mImageGLp->setMipFilterNearest(TRUE, TRUE);
 	return TRUE;
 }
@@ -547,7 +547,7 @@ BOOL LLFontGL::addChar(const llwchar wch)
 
 	stop_glerror();
 	mImageGLp->setSubImage(mRawImageGLp, 0, 0, mImageGLp->getWidth(), mImageGLp->getHeight());
-	mImageGLp->bind();
+	gGL.getTexUnit(0)->bind(mImageGLp);
 	mImageGLp->setMipFilterNearest(TRUE, TRUE);
 	stop_glerror();
 	return TRUE;
@@ -583,7 +583,7 @@ S32 LLFontGL::render(const LLWString &wstr,
 		return wstr.length() ;
 	}
 
-	LLGLEnable tex(GL_TEXTURE_2D);
+	gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
 
 	if (wstr.empty())
 	{
@@ -663,7 +663,7 @@ S32 LLFontGL::render(const LLWString &wstr,
 
 	// Bind the font texture
 	
-	mImageGLp->bind(0);
+	gGL.getTexUnit(0)->bind(mImageGLp);
 	
  	// Not guaranteed to be set correctly
 	gGL.setSceneBlendType(LLRender::BT_ALPHA);
@@ -761,7 +761,7 @@ S32 LLFontGL::render(const LLWString &wstr,
 				break;
 			}
 
-			ext_image->bind();
+			gGL.getTexUnit(0)->bind(ext_image);
 			const F32 ext_x = cur_render_x + (EXT_X_BEARING * sScaleX);
 			const F32 ext_y = cur_render_y + (EXT_Y_BEARING * sScaleY + mAscender - mLineHeight);
 
@@ -795,7 +795,7 @@ S32 LLFontGL::render(const LLWString &wstr,
 			cur_render_x = cur_x;
 
 			// Bind the font texture
-			mImageGLp->bind();
+			gGL.getTexUnit(0)->bind(mImageGLp);
 		}
 		else
 		{
@@ -863,8 +863,8 @@ S32 LLFontGL::render(const LLWString &wstr,
 
 	if (style & UNDERLINE)
 	{
-		LLGLSNoTexture no_texture;
-		gGL.begin(LLVertexBuffer::LINES);
+		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+		gGL.begin(LLRender::LINES);
 		gGL.vertex2f(start_x, cur_y - (mDescender));
 		gGL.vertex2f(cur_x, cur_y - (mDescender));
 		gGL.end();
@@ -1359,7 +1359,7 @@ void LLFontGL::drawGlyph(const LLRectf& screen_rect, const LLRectf& uv_rect, con
 	F32 slant_offset;
 	slant_offset = ((style & ITALIC) ? ( -mAscender * 0.2f) : 0.f);
 
-	gGL.begin(LLVertexBuffer::QUADS);
+	gGL.begin(LLRender::QUADS);
 	{
 		//FIXME: bold and drop shadow are mutually exclusive only for convenience
 		//Allow both when we need them.

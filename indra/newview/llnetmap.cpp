@@ -226,7 +226,7 @@ void LLNetMap::draw()
 		LLGLEnable scissor(GL_SCISSOR_TEST);
 		
 		{
-			LLGLSNoTexture no_texture;
+			gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 			LLLocalClipRect clip(getLocalRect());
 
 			glMatrixMode(GL_MODELVIEW);
@@ -286,8 +286,8 @@ void LLNetMap::draw()
 
 
 			// Draw using texture.
-			LLViewerImage::bindTexture(regionp->getLand().getSTexture());
-			gGL.begin(LLVertexBuffer::QUADS);
+			gGL.getTexUnit(0)->bind(regionp->getLand().getSTexture());
+			gGL.begin(LLRender::QUADS);
 				gGL.texCoord2f(0.f, 1.f);
 				gGL.vertex2f(left, top);
 				gGL.texCoord2f(0.f, 0.f);
@@ -303,8 +303,8 @@ void LLNetMap::draw()
 			{
 				if (regionp->getLand().getWaterTexture())
 				{
-					LLViewerImage::bindTexture(regionp->getLand().getWaterTexture());
-					gGL.begin(LLVertexBuffer::QUADS);
+					gGL.getTexUnit(0)->bind(regionp->getLand().getWaterTexture());
+					gGL.begin(LLRender::QUADS);
 						gGL.texCoord2f(0.f, 1.f);
 						gGL.vertex2f(left, top);
 						gGL.texCoord2f(0.f, 0.f);
@@ -350,11 +350,11 @@ void LLNetMap::draw()
 		map_center_agent.mV[VX] *= gMiniMapScale/region_width;
 		map_center_agent.mV[VY] *= gMiniMapScale/region_width;
 
-		LLViewerImage::bindTexture(mObjectImagep);
+		gGL.getTexUnit(0)->bind(mObjectImagep);
 		F32 image_half_width = 0.5f*mObjectMapPixels;
 		F32 image_half_height = 0.5f*mObjectMapPixels;
 
-		gGL.begin(LLVertexBuffer::QUADS);
+		gGL.begin(LLRender::QUADS);
 			gGL.texCoord2f(0.f, 1.f);
 			gGL.vertex2f(map_center_agent.mV[VX] - image_half_width, image_half_height + map_center_agent.mV[VY]);
 			gGL.texCoord2f(0.f, 0.f);
@@ -457,13 +457,13 @@ void LLNetMap::draw()
 		F32 ctr_y = (F32)center_sw_bottom;
 
 
-		LLGLSNoTexture no_texture;
+		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
 		if( LLNetMap::sRotateMap )
 		{
 			gGL.color4fv(gFrustumMapColor.mV);
 
-			gGL.begin( LLVertexBuffer::TRIANGLES  );
+			gGL.begin( LLRender::TRIANGLES  );
 				gGL.vertex2f( ctr_x, ctr_y );
 				gGL.vertex2f( ctr_x - half_width_pixels, ctr_y + far_clip_pixels );
 				gGL.vertex2f( ctr_x + half_width_pixels, ctr_y + far_clip_pixels );
@@ -477,7 +477,7 @@ void LLNetMap::draw()
 			gGL.pushMatrix();
 				gGL.translatef( ctr_x, ctr_y, 0 );
 				glRotatef( atan2( LLViewerCamera::getInstance()->getAtAxis().mV[VX], LLViewerCamera::getInstance()->getAtAxis().mV[VY] ) * RAD_TO_DEG, 0.f, 0.f, -1.f);
-				gGL.begin( LLVertexBuffer::TRIANGLES  );
+				gGL.begin( LLRender::TRIANGLES  );
 					gGL.vertex2f( 0, 0 );
 					gGL.vertex2f( -half_width_pixels, far_clip_pixels );
 					gGL.vertex2f(  half_width_pixels, far_clip_pixels );

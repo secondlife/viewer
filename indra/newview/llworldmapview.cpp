@@ -301,7 +301,7 @@ void LLWorldMapView::draw()
 
 	LLLocalClipRect clip(getLocalRect());
 	{
-		LLGLSNoTexture no_texture;
+		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 	
 		glMatrixMode(GL_MODELVIEW);
 
@@ -377,7 +377,7 @@ void LLWorldMapView::draw()
 		
 		// Draw using the texture.  If we don't clamp we get artifact at
 		// the edge.
-		LLViewerImage::bindTexture(current_image);
+		gGL.getTexUnit(0)->bind(current_image);
 
 		// Draw map image into RGB
 		//gGL.blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -385,7 +385,7 @@ void LLWorldMapView::draw()
 		gGL.setColorMask(true, false);
 		gGL.color4f(1.f, 1.f, 1.f, layer_alpha);
 
-		gGL.begin(LLVertexBuffer::QUADS);
+		gGL.begin(LLRender::QUADS);
 			gGL.texCoord2f(0.0f, 1.0f);
 			gGL.vertex3f(left, top, -1.0f);
 			gGL.texCoord2f(0.0f, 0.0f);
@@ -401,7 +401,7 @@ void LLWorldMapView::draw()
 		gGL.setColorMask(false, true);
 		gGL.color4f(1.f, 1.f, 1.f, 1.f);
 
-		gGL.begin(LLVertexBuffer::QUADS);
+		gGL.begin(LLRender::QUADS);
 			gGL.texCoord2f(0.0f, 1.0f);
 			gGL.vertex2f(left, top);
 			gGL.texCoord2f(0.0f, 0.0f);
@@ -434,7 +434,7 @@ void LLWorldMapView::draw()
 		if (info->mOverlayImage.isNull() && info->mMapImageID[2].notNull())
 		{
 			info->mOverlayImage = gImageList.getImage(info->mMapImageID[2], MIPMAP_TRUE, FALSE);
-			info->mOverlayImage->bind(0);
+			gGL.getTexUnit(0)->bind(info->mOverlayImage.get());
 			info->mOverlayImage->setClamp(TRUE, TRUE);
 		}
 		
@@ -536,13 +536,13 @@ void LLWorldMapView::draw()
 			// Draw using the texture.  If we don't clamp we get artifact at
 			// the edge.
 			LLGLSUIDefault gls_ui;
-			LLViewerImage::bindTexture(simimage);
+			gGL.getTexUnit(0)->bind(simimage);
 
 			gGL.setSceneBlendType(LLRender::BT_ALPHA);
 			F32 alpha = sim_alpha * info->mAlpha;
 			gGL.color4f(1.f, 1.0f, 1.0f, alpha);
 
-			gGL.begin(LLVertexBuffer::QUADS);
+			gGL.begin(LLRender::QUADS);
 				gGL.texCoord2f(0.f, 1.f);
 				gGL.vertex3f(left, top, 0.f);
 				gGL.texCoord2f(0.f, 0.f);
@@ -555,9 +555,9 @@ void LLWorldMapView::draw()
 
 			if (gSavedSettings.getBOOL("MapShowLandForSale") && overlayimage && overlayimage->getHasGLTexture())
 			{
-				LLViewerImage::bindTexture(overlayimage);
+				gGL.getTexUnit(0)->bind(overlayimage);
 				gGL.color4f(1.f, 1.f, 1.f, alpha);
-				gGL.begin(LLVertexBuffer::QUADS);
+				gGL.begin(LLRender::QUADS);
 					gGL.texCoord2f(0.f, 1.f);
 					gGL.vertex3f(left, top, -0.5f);
 					gGL.texCoord2f(0.f, 0.f);
@@ -577,8 +577,8 @@ void LLWorldMapView::draw()
 				gGL.setColorMask(false, true);
 				gGL.color4f(1.f, 1.f, 1.f, 1.f);
 
-				LLGLSNoTexture gls_no_texture;
-				gGL.begin(LLVertexBuffer::QUADS);
+				gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+				gGL.begin(LLRender::QUADS);
 					gGL.vertex2f(left, top);
 					gGL.vertex2f(left, bottom);
 					gGL.vertex2f(right, bottom);
@@ -596,8 +596,8 @@ void LLWorldMapView::draw()
 			gGL.blendFunc(LLRender::BF_DEST_ALPHA, LLRender::BF_SOURCE_ALPHA);
 			gGL.color4f(0.2f, 0.0f, 0.0f, 0.4f);
 
-			LLGLSNoTexture gls_no_texture;
-			gGL.begin(LLVertexBuffer::QUADS);
+			gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+			gGL.begin(LLRender::QUADS);
 				gGL.vertex2f(left, top);
 				gGL.vertex2f(left, bottom);
 				gGL.vertex2f(right, bottom);
@@ -612,9 +612,9 @@ void LLWorldMapView::draw()
 		{
 			gGL.blendFunc(LLRender::BF_DEST_ALPHA, LLRender::BF_ZERO);
 			
-			LLGLSNoTexture gls_no_texture;
+			gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 			gGL.color3f(1.f, 0.f, 0.f);
-			gGL.begin(LLVertexBuffer::LINES);
+			gGL.begin(LLRender::LINES);
 				gGL.vertex2f(left, top);
 				gGL.vertex2f(right, bottom);
 				gGL.vertex2f(left, bottom);
@@ -683,7 +683,7 @@ void LLWorldMapView::draw()
 	// Draw background rectangle
 	LLGLSUIDefault gls_ui;
 	{
-		LLGLSNoTexture gls_no_texture;
+		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 		gGL.setAlphaRejectSettings(LLRender::CF_GREATER_EQUAL, 0.f);
 		gGL.blendFunc(LLRender::BF_ONE_MINUS_DEST_ALPHA, LLRender::BF_DEST_ALPHA);
 		gGL.color4fv( mBackgroundColor.mV );
@@ -969,7 +969,7 @@ void LLWorldMapView::drawFrustum()
 	F32 ctr_x = getRect().getWidth() * 0.5f + sPanX;
 	F32 ctr_y = getRect().getHeight() * 0.5f + sPanY;
 
-	LLGLSNoTexture gls_no_texture;
+	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
 	// Since we don't rotate the map, we have to rotate the frustum.
 	gGL.pushMatrix();
@@ -978,7 +978,7 @@ void LLWorldMapView::drawFrustum()
 
 		// Draw triangle with more alpha in far pixels to make it 
 		// fade out in distance.
-		gGL.begin( LLVertexBuffer::TRIANGLES  );
+		gGL.begin( LLRender::TRIANGLES  );
 			gGL.color4f(1.f, 1.f, 1.f, 0.25f);
 			gGL.vertex2f( 0, 0 );
 
@@ -1184,11 +1184,11 @@ static void drawDot(F32 x_pixels, F32 y_pixels,
 		F32 top =		y_pixels + dot_radius;
 		F32 bottom =	y_pixels - dot_radius;
 
-		LLGLSNoTexture gls_no_texture;
+		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 		gGL.color4fv( color.mV );
 		LLUI::setLineWidth(1.5f);
 		F32 h_bar = relative_z > HEIGHT_THRESHOLD ? top : bottom; // horizontal bar Y
-		gGL.begin( LLVertexBuffer::LINES );
+		gGL.begin( LLRender::LINES );
 			gGL.vertex2f(center, top);
 			gGL.vertex2f(left, h_bar);
 			gGL.vertex2f(right, h_bar);

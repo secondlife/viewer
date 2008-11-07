@@ -294,7 +294,7 @@ void LLSkyTex::createGLImage(S32 which)
 
 void LLSkyTex::bindTexture(BOOL curr)
 {
-	mImageGL[getWhich(curr)]->bind();
+	gGL.getTexUnit(0)->bind(mImageGL[getWhich(curr)]);
 }
 
 /***************************************
@@ -308,7 +308,7 @@ S32 LLVOSky::sTileResX = sResolution/NUM_TILES_X;
 S32 LLVOSky::sTileResY = sResolution/NUM_TILES_Y;
 
 LLVOSky::LLVOSky(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
-:	LLStaticViewerObject(id, pcode, regionp),
+:	LLStaticViewerObject(id, pcode, regionp, TRUE),
 	mSun(SUN_DISK_RADIUS), mMoon(MOON_DISK_RADIUS),
 	mBrightnessScale(1.f),
 	mBrightnessScaleNew(0.f),

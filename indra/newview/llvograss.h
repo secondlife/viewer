@@ -80,6 +80,16 @@ public:
 	/*virtual*/ BOOL    isActive() const; // Whether this object needs to do an idleUpdate.
 	BOOL idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time);
 
+	/*virtual*/ BOOL lineSegmentIntersect(const LLVector3& start, const LLVector3& end, 
+										  S32 face = -1,                        // which face to check, -1 = ALL_SIDES
+										  BOOL pick_transparent = FALSE,
+										  S32* face_hit = NULL,                 // which face was hit
+										  LLVector3* intersection = NULL,       // return the intersection point
+										  LLVector2* tex_coord = NULL,          // return the texture coordinates of the intersection point
+										  LLVector3* normal = NULL,             // return the surface normal at the intersection point
+										  LLVector3* bi_normal = NULL           // return the surface bi-normal at the intersection point
+		);
+
 	static S32 sMaxGrassSpecies;
 
 	struct GrassSpeciesData

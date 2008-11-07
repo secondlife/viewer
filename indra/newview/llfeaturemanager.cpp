@@ -447,8 +447,6 @@ void LLFeatureManager::applyRecommendedSettings()
 	{
 		gSavedSettings.setF32("RenderFarClip", 128.0f);
 	}
-
-
 }
 
 void LLFeatureManager::applyFeatures(bool skipFeatures)

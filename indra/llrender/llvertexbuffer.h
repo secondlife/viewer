@@ -39,6 +39,7 @@
 #include "v4coloru.h"
 #include "llstrider.h"
 #include "llmemory.h"
+#include "llrender.h"
 #include <set>
 #include <vector>
 #include <list>
@@ -123,19 +124,8 @@ public:
 		MAP_UNMAPPED = 0x8000 // Indicates that buffer has been logically un-mapped
 	};
 	
-	enum {
-		TRIANGLES = 0,
-		TRIANGLE_STRIP,
-		TRIANGLE_FAN,
-		POINTS,
-		LINES,
-		LINE_STRIP,
-		QUADS,
-		LINE_LOOP,
-		NUM_MODES
-	};
 protected:
-	friend class LLGLImmediate;
+	friend class LLRender;
 
 	virtual ~LLVertexBuffer(); // use unref()
 
@@ -255,7 +245,7 @@ public:
 		
 	static BOOL sEnableVBOs;
 	static S32 sTypeOffsets[TYPE_MAX];
-	static U32 sGLMode[NUM_MODES];
+	static U32 sGLMode[LLRender::NUM_MODES];
 	static U32 sGLRenderBuffer;
 	static U32 sGLRenderIndices;
 	static BOOL sVBOActive;

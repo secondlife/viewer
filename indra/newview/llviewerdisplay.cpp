@@ -248,8 +248,11 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 
 	gViewerWindow->checkSettings();
 	
-	LLAppViewer::instance()->pingMainloopTimeout("Display:Pick");
-	gViewerWindow->performPick();
+	{
+		LLFastTimer ftm(LLFastTimer::FTM_PICK);
+		LLAppViewer::instance()->pingMainloopTimeout("Display:Pick");
+		gViewerWindow->performPick();
+	}
 	
 
 	LLAppViewer::instance()->pingMainloopTimeout("Display:CheckStates");
@@ -373,6 +376,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			gAgent.setTeleportMessage(
 				LLAgent::sTeleportProgressMessages["arriving"]);
 			gImageList.mForceResetTextureStats = TRUE;
+			gAgent.resetView(TRUE, TRUE);
 			break;
 
 		case LLAgent::TELEPORT_ARRIVING:
@@ -690,7 +694,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		//	glMatrixMode(GL_MODELVIEW);
 		//	glPushMatrix();
 		//	{
-		//		LLGLSNoTexture gls_no_texture;
+		//		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
 		//		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_TRUE);
 		//		glLoadIdentity();
@@ -997,8 +1001,8 @@ void render_ui()
 
 void renderCoordinateAxes()
 {
-	LLGLSNoTexture gls_no_texture;
-	gGL.begin(LLVertexBuffer::LINES);
+	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+	gGL.begin(LLRender::LINES);
 		gGL.color3f(1.0f, 0.0f, 0.0f);   // i direction = X-Axis = red
 		gGL.vertex3f(0.0f, 0.0f, 0.0f);
 		gGL.vertex3f(2.0f, 0.0f, 0.0f);
@@ -1048,10 +1052,10 @@ void renderCoordinateAxes()
 void draw_axes() 
 {
 	LLGLSUIDefault gls_ui;
-	LLGLSNoTexture gls_no_texture;
+	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 	// A vertical white line at origin
 	LLVector3 v = gAgent.getPositionAgent();
-	gGL.begin(LLVertexBuffer::LINES);
+	gGL.begin(LLRender::LINES);
 		gGL.color3f(1.0f, 1.0f, 1.0f); 
 		gGL.vertex3f(0.0f, 0.0f, 0.0f);
 		gGL.vertex3f(0.0f, 0.0f, 40.0f);
@@ -1194,7 +1198,7 @@ void render_disconnected_background()
 		raw->expandToPowerOfTwo();
 		gDisconnectedImagep->createGLTexture(0, raw);
 		gStartImageGL = gDisconnectedImagep;
-		LLImageGL::unbindTexture(0, GL_TEXTURE_2D);
+		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 	}
 
 	// Make sure the progress view always fills the entire window.
@@ -1213,10 +1217,10 @@ void render_disconnected_background()
 			const LLVector2& display_scale = gViewerWindow->getDisplayScale();
 			glScalef(display_scale.mV[VX], display_scale.mV[VY], 1.f);
 
-			LLViewerImage::bindTexture(gDisconnectedImagep);
+			gGL.getTexUnit(0)->bind(gDisconnectedImagep);
 			gGL.color4f(1.f, 1.f, 1.f, 1.f);
 			gl_rect_2d_simple_tex(width, height);
-			LLImageGL::unbindTexture(0, GL_TEXTURE_2D);
+			gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 		}
 		glPopMatrix();
 	}

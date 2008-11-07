@@ -47,7 +47,7 @@ LLRenderTarget::LLRenderTarget() :
 	mStencil(0),
 	mUseDepth(FALSE),
 	mRenderDepth(FALSE),
-	mUsage(GL_TEXTURE_2D)
+	mUsage(LLTexUnit::TT_TEXTURE)
 {
 }
 
@@ -56,7 +56,7 @@ LLRenderTarget::~LLRenderTarget()
 	release();
 }
 
-void LLRenderTarget::allocate(U32 resx, U32 resy, U32 color_fmt, BOOL depth, U32 usage, BOOL use_fbo)
+void LLRenderTarget::allocate(U32 resx, U32 resy, U32 color_fmt, BOOL depth, LLTexUnit::eTextureType usage, BOOL use_fbo)
 {
 	stop_glerror();
 	mResX = resx;
@@ -67,22 +67,22 @@ void LLRenderTarget::allocate(U32 resx, U32 resy, U32 color_fmt, BOOL depth, U32
 	release();
 
 	glGenTextures(1, (GLuint *) &mTex);
-	glBindTexture(mUsage, mTex);
-	glTexImage2D(mUsage, 0, color_fmt, mResX, mResY, 0, color_fmt, GL_UNSIGNED_BYTE, NULL);
+	gGL.getTexUnit(0)->bindManual(mUsage, mTex);
+	glTexImage2D(LLTexUnit::getInternalType(mUsage), 0, color_fmt, mResX, mResY, 0, color_fmt, GL_UNSIGNED_BYTE, NULL);
 
-	glTexParameteri(mUsage, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(mUsage, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(LLTexUnit::getInternalType(mUsage), GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(LLTexUnit::getInternalType(mUsage), GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
-	if (mUsage != GL_TEXTURE_RECTANGLE_ARB)
+	if (mUsage != LLTexUnit::TT_RECT_TEXTURE)
 	{
-		glTexParameteri(mUsage, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-		glTexParameteri(mUsage, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+		glTexParameteri(LLTexUnit::getInternalType(mUsage), GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+		glTexParameteri(LLTexUnit::getInternalType(mUsage), GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
 	}
 	else
 	{
 		// ATI doesn't support mirrored repeat for rectangular textures.
-		glTexParameteri(mUsage, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(mUsage, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(LLTexUnit::getInternalType(mUsage), GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(LLTexUnit::getInternalType(mUsage), GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	}
 
 	stop_glerror();
@@ -107,14 +107,14 @@ void LLRenderTarget::allocate(U32 resx, U32 resy, U32 color_fmt, BOOL depth, U32
 
 		if (mDepth)
 		{
-			glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, mUsage, mDepth, 0);
+			glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, LLTexUnit::getInternalType(mUsage), mDepth, 0);
 			stop_glerror();
-			glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_STENCIL_ATTACHMENT_EXT, mUsage, mDepth, 0);
+			glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_STENCIL_ATTACHMENT_EXT, LLTexUnit::getInternalType(mUsage), mDepth, 0);
 			stop_glerror();
 		}
 
 		glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT,
-						mUsage, mTex, 0);
+						LLTexUnit::getInternalType(mUsage), mTex, 0);
 		stop_glerror();
 
 		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
@@ -125,10 +125,11 @@ void LLRenderTarget::allocate(U32 resx, U32 resy, U32 color_fmt, BOOL depth, U32
 void LLRenderTarget::allocateDepth()
 {
 	glGenTextures(1, (GLuint *) &mDepth);
-	glBindTexture(mUsage, mDepth);
-	glTexParameteri(mUsage, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(mUsage, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexImage2D(mUsage, 0, GL_DEPTH24_STENCIL8_EXT, mResX, mResY, 0, GL_DEPTH_STENCIL_EXT, GL_UNSIGNED_INT_24_8_EXT, NULL);
+	gGL.getTexUnit(0)->bindManual(mUsage, mDepth);
+	U32 internal_type = LLTexUnit::getInternalType(mUsage);
+	glTexParameteri(internal_type, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(internal_type, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexImage2D(internal_type, 0, GL_DEPTH24_STENCIL8_EXT, mResX, mResY, 0, GL_DEPTH_STENCIL_EXT, GL_UNSIGNED_INT_24_8_EXT, NULL);
 }
 
 void LLRenderTarget::release()
@@ -191,24 +192,13 @@ void LLRenderTarget::clear()
 	}
 }
 
-void LLRenderTarget::bindTexture()
-{
-	glBindTexture(mUsage, mTex);
-}
-
-void LLRenderTarget::bindDepth()
-{
-	glBindTexture(mUsage, mDepth);
-}
-
-
 void LLRenderTarget::flush(BOOL fetch_depth)
 {
 	gGL.flush();
 	if (!mFBO)
 	{
-		bindTexture();
-		glCopyTexSubImage2D(mUsage, 0, 0, 0, 0, 0, mResX, mResY);
+		gGL.getTexUnit(0)->bind(this);
+		glCopyTexSubImage2D(LLTexUnit::getInternalType(mUsage), 0, 0, 0, 0, 0, mResX, mResY);
 
 		if (fetch_depth)
 		{
@@ -217,8 +207,8 @@ void LLRenderTarget::flush(BOOL fetch_depth)
 				allocateDepth();
 			}
 
-			bindDepth();
-			glCopyTexImage2D(mUsage, 0, GL_DEPTH24_STENCIL8_EXT, 0, 0, mResX, mResY, 0);
+			gGL.getTexUnit(0)->bind(this, true);
+			glCopyTexImage2D(LLTexUnit::getInternalType(mUsage), 0, GL_DEPTH24_STENCIL8_EXT, 0, 0, mResX, mResY, 0);
 		}
 	}
 	else

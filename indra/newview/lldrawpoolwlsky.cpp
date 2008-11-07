@@ -159,7 +159,7 @@ void LLDrawPoolWLSky::renderStars(void) const
 	// *NOTE: have to have bound the cloud noise texture already since register
 	// combiners blending below requires something to be bound
 	// and we might as well only bind once.
-	//LLGLEnable gl_texture_2d(GL_TEXTURE_2D);
+	//gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
 	
 	gPipeline.disableLights();
 
@@ -202,7 +202,8 @@ void LLDrawPoolWLSky::renderSkyClouds(F32 camHeightLocal) const
 		LLGLSBlendFunc blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
 
-		sCloudNoiseTexture->bind();
+		gGL.getTexUnit(0)->bind(sCloudNoiseTexture);
+
 		shader->bind();
 
 		/// Render the skydome
@@ -223,7 +224,7 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
 	if (gSky.mVOSkyp->getSun().getDraw() && face->getGeomCount())
 	{
 		LLImageGL * tex  = face->getTexture();
-		tex->bind();
+		gGL.getTexUnit(0)->bind(tex);
 		LLColor4 color(gSky.mVOSkyp->getSun().getInterpColor());
 		LLFacePool::LLOverrideFaceColor color_override(this, color);
 		face->renderIndexed();
@@ -238,7 +239,7 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
 		// stars register combiners, we bind again here for defensive reasons,
 		// since LLImageGL::bind detects that it's a noop, and optimizes it out.
 		LLImageGL * tex  = face->getTexture();
-		tex->bind();
+		gGL.getTexUnit(0)->bind(tex);
 		LLColor4 color(gSky.mVOSkyp->getMoon().getInterpColor());
 		F32 a = gSky.mVOSkyp->getMoon().getDirection().mV[2];
 		if (a > 0.f)
@@ -280,7 +281,7 @@ void LLDrawPoolWLSky::render(S32 pass)
 		// renderStars() requires something to be bound and we might as well only
 		// bind the moon's texture once.
 		LLImageGL * tex  = gSky.mVOSkyp->mFace[LLVOSky::FACE_MOON]->getTexture();
-		tex->bind();
+		gGL.getTexUnit(0)->bind(tex);
 
 		renderHeavenlyBodies();
 
@@ -291,7 +292,7 @@ void LLDrawPoolWLSky::render(S32 pass)
 
 	renderSkyClouds(camHeightLocal);
 
-	LLImageGL::unbindTexture(0);
+	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 }
 
 void LLDrawPoolWLSky::prerender()

@@ -149,7 +149,7 @@ void LLViewerJoint::setValid( BOOL valid, BOOL recursive )
 // 	//----------------------------------------------------------------
 // 	if (mComponents & SC_AXES)
 // 	{
-// 		gGL.begin(LLVertexBuffer::LINES);
+// 		gGL.begin(LLRender::LINES);
 // 		gGL.color3f( 1.0f, 0.0f, 0.0f );
 // 		gGL.vertex3f( 0.0f,            0.0f, 0.0f );
 // 		gGL.vertex3f( 0.1f, 0.0f, 0.0f );
@@ -171,7 +171,7 @@ void LLViewerJoint::setValid( BOOL valid, BOOL recursive )
 // 	{
 // 		gGL.color3f( 1.0f, 1.0f, 0.0f );
 
-// 		gGL.begin(LLVertexBuffer::TRIANGLES);
+// 		gGL.begin(LLRender::TRIANGLES);
 
 // 		// joint top half
 // 		glNormal3f(nc, nc, nc);
@@ -362,7 +362,7 @@ U32 LLViewerJoint::render( F32 pixelArea, BOOL first_pass )
 // 	// render the bone
 // 	gGL.color3f( 0.5f, 0.5f, 0.0f );
 
-// 	gGL.begin(LLVertexBuffer::TRIANGLES);
+// 	gGL.begin(LLRender::TRIANGLES);
 
 // 	gGL.vertex3f( length,     0.0f,       0.0f);
 // 	gGL.vertex3f( 0.0f,       boneSize,  0.0f);
@@ -524,14 +524,69 @@ LLViewerJointCollisionVolume::LLViewerJointCollisionVolume(const std::string &na
 void LLViewerJointCollisionVolume::renderCollision()
 {
 	updateWorldMatrix();
-	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
+	
+	gGL.pushMatrix();
 	glMultMatrixf( &mXform.getWorldMatrix().mMatrix[0][0] );
 
-	glColor3f( 0.f, 0.f, 1.f );
-	gSphere.render();
+	gGL.color3f( 0.f, 0.f, 1.f );
+	
+	gGL.begin(LLRender::LINES);
+	
+	LLVector3 v[] = 
+	{
+		LLVector3(1,0,0),
+		LLVector3(-1,0,0),
+		LLVector3(0,1,0),
+		LLVector3(0,-1,0),
 
-	glPopMatrix();
+		LLVector3(0,0,-1),
+		LLVector3(0,0,1),
+	};
+
+	//sides
+	gGL.vertex3fv(v[0].mV); 
+	gGL.vertex3fv(v[2].mV);
+
+	gGL.vertex3fv(v[0].mV); 
+	gGL.vertex3fv(v[3].mV);
+
+	gGL.vertex3fv(v[1].mV); 
+	gGL.vertex3fv(v[2].mV);
+
+	gGL.vertex3fv(v[1].mV); 
+	gGL.vertex3fv(v[3].mV);
+
+
+	//top
+	gGL.vertex3fv(v[0].mV); 
+	gGL.vertex3fv(v[4].mV);
+
+	gGL.vertex3fv(v[1].mV); 
+	gGL.vertex3fv(v[4].mV);
+
+	gGL.vertex3fv(v[2].mV); 
+	gGL.vertex3fv(v[4].mV);
+
+	gGL.vertex3fv(v[3].mV); 
+	gGL.vertex3fv(v[4].mV);
+
+
+	//bottom
+	gGL.vertex3fv(v[0].mV); 
+	gGL.vertex3fv(v[5].mV);
+
+	gGL.vertex3fv(v[1].mV); 
+	gGL.vertex3fv(v[5].mV);
+
+	gGL.vertex3fv(v[2].mV); 
+	gGL.vertex3fv(v[5].mV);
+
+	gGL.vertex3fv(v[3].mV); 
+	gGL.vertex3fv(v[5].mV);
+
+	gGL.end();
+
+	gGL.popMatrix();
 }
 
 LLVector3 LLViewerJointCollisionVolume::getVolumePos(LLVector3 &offset)

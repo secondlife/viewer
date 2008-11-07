@@ -253,7 +253,7 @@ void LLSlider::draw()
 	// Draw background and thumb.
 
 	// drawing solids requires texturing be disabled
-	LLGLSNoTexture no_texture;
+	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
 	F32 opacity = getEnabled() ? 1.f : 0.3f;
 	LLColor4 center_color = (mThumbCenterColor % opacity);

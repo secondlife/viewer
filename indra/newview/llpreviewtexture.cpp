@@ -200,7 +200,7 @@ void LLPreviewTexture::draw()
 	if (!isMinimized())
 	{
 		LLGLSUIDefault gls_ui;
-		LLGLSNoTexture gls_notex;
+		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 		
 		const LLRect& border = mClientRect;
 		LLRect interior = mClientRect;
@@ -299,20 +299,20 @@ BOOL LLPreviewTexture::canSaveAs() const
 // virtual
 void LLPreviewTexture::saveAs()
 {
-	if( !mLoadingFullImage )
+	if( mLoadingFullImage ) return;
+
+	LLFilePicker& file_picker = LLFilePicker::instance();
+	if( !file_picker.getSaveFile( LLFilePicker::FFSAVE_TGA, LLDir::getScrubbedFileName(getItem()->getName())) )
 	{
-		LLFilePicker& file_picker = LLFilePicker::instance();
-		if( !file_picker.getSaveFile( LLFilePicker::FFSAVE_TGA ) )
-		{
-			// User canceled save.
-			return;
-		}
-		mSaveFileName = file_picker.getFirstFile();
-		mLoadingFullImage = TRUE;
-		getWindow()->incBusyCount();
-		mImage->setLoadedCallback( LLPreviewTexture::onFileLoadedForSave, 
-								   0, TRUE, FALSE, new LLUUID( mItemUUID ) );
+		// User canceled or we failed to acquire save file.
+		return;
 	}
+	// remember the user-approved/edited file name.
+	mSaveFileName = file_picker.getFirstFile();
+	mLoadingFullImage = TRUE;
+	getWindow()->incBusyCount();
+	mImage->setLoadedCallback( LLPreviewTexture::onFileLoadedForSave, 
+								0, TRUE, FALSE, new LLUUID( mItemUUID ) );
 }
 
 

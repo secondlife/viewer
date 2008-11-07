@@ -651,11 +651,11 @@ void LLJoystickCameraRotate::drawRotatedImage( const LLImageGL* image, S32 rotat
 		{ 1.f, 0.f }
 	};
 
-	image->bind();
+	gGL.getTexUnit(0)->bind(image);
 
 	gGL.color4fv(UI_VERTEX_COLOR.mV);
 	
-	gGL.begin(LLVertexBuffer::QUADS);
+	gGL.begin(LLRender::QUADS);
 	{
 		gGL.texCoord2fv( uv[ (rotations + 0) % 4]);
 		gGL.vertex2i(width, height );

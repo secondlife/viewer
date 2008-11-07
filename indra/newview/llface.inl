@@ -33,6 +33,7 @@
 #define LL_LLFACE_INL
 
 #include "llglheaders.h"
+#include "llrender.h"
 
 inline BOOL LLFace::getDirty() const
 { 

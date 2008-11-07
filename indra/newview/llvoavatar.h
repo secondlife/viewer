@@ -308,6 +308,16 @@ public:
 	U32 renderTransparent();
 	void renderCollisionVolumes();
 	
+	/*virtual*/ BOOL lineSegmentIntersect(const LLVector3& start, const LLVector3& end,
+									  S32 face = -1,                          // which face to check, -1 = ALL_SIDES
+									  BOOL pick_transparent = FALSE,
+									  S32* face_hit = NULL,                   // which face was hit
+									  LLVector3* intersection = NULL,         // return the intersection point
+									  LLVector2* tex_coord = NULL,            // return the texture coordinates of the intersection point
+									  LLVector3* normal = NULL,               // return the surface normal at the intersection point
+									  LLVector3* bi_normal = NULL             // return the surface bi-normal at the intersection point
+		);
+
 	/*virtual*/ void updateTextures(LLAgent &agent);
 	// If setting a baked texture, need to request it from a non-local sim.
 	/*virtual*/ S32 setTETexture(const U8 te, const LLUUID& uuid);

@@ -197,7 +197,7 @@ LLManipScale::~LLManipScale()
 void LLManipScale::render()
 {
 	LLGLSUIDefault gls_ui;
-	LLGLSNoTexture gls_no_texture;
+	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 	LLGLDepthTest gls_depth(GL_TRUE);
 	LLGLEnable gl_blend(GL_BLEND);
 	LLGLEnable gls_alpha_test(GL_ALPHA_TEST);
@@ -590,7 +590,7 @@ void LLManipScale::renderFaces( const LLBBox& bbox )
 	{
 		gGL.color4fv( default_normal_color.mV );
 		LLGLDepthTest gls_depth(GL_FALSE);
-		gGL.begin(LLVertexBuffer::QUADS); 
+		gGL.begin(LLRender::QUADS); 
 		{
 			// Face 0
 			gGL.vertex3f(min.mV[VX], max.mV[VY], max.mV[VZ]);
@@ -751,7 +751,7 @@ void LLManipScale::renderCorners( const LLBBox& bbox )
 
 void LLManipScale::renderBoxHandle( F32 x, F32 y, F32 z )
 {
-	LLImageGL::unbindTexture(0);
+	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 	LLGLDepthTest gls_depth(GL_FALSE);
 
 	glPushMatrix();
@@ -1528,7 +1528,7 @@ void LLManipScale::renderSnapGuides(const LLBBox& bbox)
 	{
 		LLColor4 tick_color = setupSnapGuideRenderPass(pass);
 
-		gGL.begin(LLVertexBuffer::LINES);
+		gGL.begin(LLRender::LINES);
 		LLVector3 line_mid = mScaleCenter + (mScaleSnapValue * mScaleDir) + (mSnapGuideDir1 * mSnapRegimeOffset);
 		LLVector3 line_start = line_mid - (mScaleDir * (llmin(mScaleSnapValue, mSnapGuideLength * 0.5f)));
 		LLVector3 line_end = line_mid + (mScaleDir * llmin(max_point_on_scale_line - mScaleSnapValue, mSnapGuideLength * 0.5f));
@@ -1579,7 +1579,7 @@ void LLManipScale::renderSnapGuides(const LLBBox& bbox)
 		if (mInSnapRegime)
 		{
 			// draw snap guide line
-			gGL.begin(LLVertexBuffer::LINES);
+			gGL.begin(LLRender::LINES);
 			LLVector3 snap_line_center = mScaleCenter + (mScaleSnapValue * mScaleDir);
 
 			LLVector3 snap_line_start = snap_line_center + (mSnapGuideDir1 * mSnapRegimeOffset);
@@ -1593,7 +1593,7 @@ void LLManipScale::renderSnapGuides(const LLBBox& bbox)
 			gGL.end();
 
 			// draw snap guide arrow
-			gGL.begin(LLVertexBuffer::TRIANGLES);
+			gGL.begin(LLRender::TRIANGLES);
 			{
 				//gGLSNoCullFaces.set();
 				gGL.color4f(1.f, 1.f, 1.f, grid_alpha);
@@ -1628,7 +1628,7 @@ void LLManipScale::renderSnapGuides(const LLBBox& bbox)
 			start_tick = -(llmin(ticks_from_scale_center_1, num_ticks_per_side1));
 			stop_tick = llmin(max_ticks1, num_ticks_per_side1);
 
-			gGL.begin(LLVertexBuffer::LINES);
+			gGL.begin(LLRender::LINES);
 			// draw first row of ticks
 			for (S32 i = start_tick; i <= stop_tick; i++)
 			{

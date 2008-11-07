@@ -232,14 +232,14 @@ void LLFloaterImagePreview::draw()
 		
 			if (mGLName)
 			{
-				LLImageGL::bindExternalTexture( mGLName, 0, GL_TEXTURE_2D ); 
+				gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, mGLName);
 			}
 			else
 			{
 				glGenTextures(1, &mGLName );
 				stop_glerror();
 
-				LLImageGL::bindExternalTexture( mGLName, 0, GL_TEXTURE_2D ); 
+				gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, mGLName);
 				stop_glerror();
 
 				glTexImage2D(
@@ -251,8 +251,7 @@ void LLFloaterImagePreview::draw()
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 				
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+				gGL.getTexUnit(0)->setTextureAddressMode(LLTexUnit::TAM_CLAMP);
 				if (mAvatarPreview)
 				{
 					mAvatarPreview->setTexture(mGLName);
@@ -261,7 +260,7 @@ void LLFloaterImagePreview::draw()
 			}
 
 			gGL.color3f(1.f, 1.f, 1.f);
-			gGL.begin( LLVertexBuffer::QUADS );
+			gGL.begin( LLRender::QUADS );
 			{
 				gGL.texCoord2f(mPreviewImageRect.mLeft, mPreviewImageRect.mTop);
 				gGL.vertex2i(PREVIEW_HPAD, PREVIEW_TEXTURE_HEIGHT);
@@ -274,7 +273,7 @@ void LLFloaterImagePreview::draw()
 			}
 			gGL.end();
 
-			LLImageGL::unbindTexture(0, GL_TEXTURE_2D);
+			gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
 			stop_glerror();
 		}
@@ -285,11 +284,15 @@ void LLFloaterImagePreview::draw()
 				gGL.color3f(1.f, 1.f, 1.f);
 
 				if (selected == 9)
-					mSculptedPreview->bindTexture();
+				{
+					gGL.getTexUnit(0)->bind(mSculptedPreview->getTexture());
+				}
 				else
-					mAvatarPreview->bindTexture();
+				{
+					gGL.getTexUnit(0)->bind(mAvatarPreview->getTexture());
+				}
 
-				gGL.begin( LLVertexBuffer::QUADS );
+				gGL.begin( LLRender::QUADS );
 				{
 					gGL.texCoord2f(0.f, 1.f);
 					gGL.vertex2i(PREVIEW_HPAD, PREVIEW_TEXTURE_HEIGHT);
@@ -302,10 +305,7 @@ void LLFloaterImagePreview::draw()
 				}
 				gGL.end();
 
-				if (selected == 9)
-					mSculptedPreview->unbindTexture();
-				else
-					mAvatarPreview->unbindTexture();
+				gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 			}
 		}
 	}
@@ -907,7 +907,7 @@ BOOL LLImagePreviewSculpted::render()
 	gGL.scalef(SCALE, SCALE, SCALE);
 	const F32 BRIGHTNESS = 0.9f;
 	gGL.color3f(BRIGHTNESS, BRIGHTNESS, BRIGHTNESS);
-	mVertexBuffer->draw(LLVertexBuffer::TRIANGLES, num_indices, 0);
+	mVertexBuffer->draw(LLRender::TRIANGLES, num_indices, 0);
 
 	gGL.popMatrix();
 		
