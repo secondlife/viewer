@@ -15,23 +15,17 @@ if (STANDALONE)
 else (STANDALONE)
   use_prebuilt_binary(apr_suite)
   if (WINDOWS)
-    set(WINLIBS_PREBUILT_DEBUG_DIR 
-      ${CMAKE_SOURCE_DIR}/../libraries/i686-win32/lib/debug
-      )
-    set(WINLIBS_PREBUILT_RELEASE_DIR 
-      ${CMAKE_SOURCE_DIR}/../libraries/i686-win32/lib/release
-      )
     set(APR_LIBRARIES 
-      debug ${WINLIBS_PREBUILT_DEBUG_DIR}/apr-1.lib
-      optimized ${WINLIBS_PREBUILT_RELEASE_DIR}/apr-1.lib
+      debug ${ARCH_PREBUILT_DIRS_DEBUG}/apr-1.lib
+      optimized ${ARCH_PREBUILT_DIRS_RELEASE}/apr-1.lib
       )
     set(APRUTIL_LIBRARIES 
-      debug ${WINLIBS_PREBUILT_DEBUG_DIR}/aprutil-1.lib
-      optimized ${WINLIBS_PREBUILT_RELEASE_DIR}/aprutil-1.lib
+      debug ${ARCH_PREBUILT_DIRS_DEBUG}/aprutil-1.lib
+      optimized ${ARCH_PREBUILT_DIRS_RELEASE}/aprutil-1.lib
       )
     set(APRICONV_LIBRARIES 
-      debug ${WINLIBS_PREBUILT_DEBUG_DIR}/apriconv-1.lib
-      optimized ${WINLIBS_PREBUILT_RELEASE_DIR}/apriconv-1.lib
+      debug ${ARCH_PREBUILT_DIRS_DEBUG}/apriconv-1.lib
+      optimized ${ARCH_PREBUILT_DIRS_RELEASE}/apriconv-1.lib
       )
   elseif (DARWIN)
     set(APR_LIBRARIES 

@@ -19,6 +19,10 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
 include(Variables)
 
+if (DARWIN)
+  cmake_minimum_required(VERSION 2.6.2 FATAL_ERROR)
+endif (DARWIN)
+
 if (NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING
       "Build type.  One of: Debug Release RelWithDebInfo" FORCE)

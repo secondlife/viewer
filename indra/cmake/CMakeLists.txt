@@ -48,7 +48,6 @@ set(cmake_SOURCE_FILES
     LLMath.cmake
     LLMedia.cmake
     LLMessage.cmake
-    LLPhysics.cmake
     LLPrimitive.cmake
     LLRender.cmake
     LLScene.cmake

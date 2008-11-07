@@ -108,7 +108,7 @@ namespace tut
 		SDCleanupCheck check;
 		
 		LLSD v;
-		
+
 		v = true;		ensureTypeAndValue("set true", v, true);
 		v = false;		ensureTypeAndValue("set false", v, false);
 		v = true;		ensureTypeAndValue("set true again", v, true);
@@ -747,6 +747,15 @@ namespace tut
 			LLSD w = v;
 			w = "nice day";
 		}
+	}
+
+	template<> template<>
+	void SDTestObject::test<14>()
+		// make sure that assignment of char* NULL in a string does not crash.
+	{
+		LLSD v;
+		v = (const char*)NULL;
+		ensure("type is a string", v.isString());
 	}
 
 	/* TO DO:

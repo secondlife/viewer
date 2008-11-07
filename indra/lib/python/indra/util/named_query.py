@@ -103,10 +103,11 @@ class NamedQuery(object):
     def __init__(self, name, filename):
         """ Construct a NamedQuery object.  The name argument is an
         arbitrary name as a handle for the query, and the filename is
-        a path to a file containing an llsd named query document."""
+        a path to a file or a file-like object containing an llsd named
+        query document."""
         self._stat_interval_seconds = 5  # 5 seconds
         self._name = name
-        if (filename is not None
+        if (filename is not None and isinstance(filename, (str, unicode))
             and NQ_FILE_SUFFIX != filename[-NQ_FILE_SUFFIX_LEN:]):
             filename = filename + NQ_FILE_SUFFIX
         self._location = filename
@@ -122,8 +123,8 @@ class NamedQuery(object):
 
     def get_modtime(self):
         """ Returns the mtime (last modified time) of the named query
-        file, if such exists."""
-        if self._location:
+        filename. For file-like objects, expect a modtime of 0"""
+        if self._location and isinstance(self._location, (str, unicode)):
             return os.path.getmtime(self._location)
         return 0
 
@@ -131,7 +132,12 @@ class NamedQuery(object):
         """ Loads and parses the named query file into self.  Does
         nothing if self.location is nonexistant."""
         if self._location:
-            self._reference_contents(llsd.parse(open(self._location).read()))
+            if isinstance(self._location, (str, unicode)):
+                contents = llsd.parse(open(self._location).read())
+            else:
+                # we probably have a file-like object. Godspeed!
+                contents = llsd.parse(self._location.read())
+            self._reference_contents(contents)
             # Check for alternative implementations
             try:
                 for name, alt in self._contents['alternative'].items():
