@@ -112,10 +112,14 @@ the Beta release of the Linux client.
 
 The client prints a lot of diagnostic information to the console it was
 run from.  Most of this is also replicated in ~/.secondlife/logs/SecondLife.log
-- this is helpful to read when troubleshooting, especially 'WARNING' lines.
+- this is helpful to read when troubleshooting, especially 'WARNING' and
+'ERROR' lines.
 
 VOICE PROBLEMS?  See the separate README-linux-voice.txt file for Voice
-troubleshooting information.
+  troubleshooting information.
+
+SPACENAVIGATOR OR JOYSTICK PROBLEMS?  See the separate
+  README-linux-joystick.txt file for configuration information.
 
 PROBLEM 1:- Second Life fails to start up, with a warning on the console like:
    'Error creating window.' or

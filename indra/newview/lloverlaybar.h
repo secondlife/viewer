@@ -71,6 +71,7 @@ public:
 	static void onClickMouselook(void* data);
 	static void onClickStandUp(void* data);
 	static void onClickResetView(void* data);
+ 	static void onClickFlycam(void* data);
 
 	//static media helper functions
 	static void toggleMediaPlay(void*);

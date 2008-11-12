@@ -44,6 +44,7 @@
 #include "llviewercontrol.h"
 #include "llappviewer.h"
 #include "llviewerjoystick.h"
+#include "llcheckboxctrl.h"
 
 LLFloaterJoystick::LLFloaterJoystick(const LLSD& data)
 	: LLFloater("floater_joystick")
@@ -114,7 +115,15 @@ BOOL LLFloaterJoystick::postBuild()
 
 	addChild(mAxisStatsView);
 	
+	mCheckJoystickEnabled = getChild<LLCheckBoxCtrl>("enable_joystick");
+	childSetCommitCallback("enable_joystick",onCommitJoystickEnabled,this);
+	mCheckFlycamEnabled = getChild<LLCheckBoxCtrl>("JoystickFlycamEnabled");
+	childSetCommitCallback("JoystickFlycamEnabled",onCommitJoystickEnabled,this);
+
 	childSetAction("SpaceNavigatorDefaults", onClickRestoreSNDefaults, this);
+	childSetAction("cancel_btn", onClickCancel, this);
+	childSetAction("ok_btn", onClickOK, this);
+
 	refresh();
 	return TRUE;
 }
@@ -133,6 +142,8 @@ void LLFloaterJoystick::refresh()
 {
 	LLFloater::refresh();
 
+	mJoystickEnabled = gSavedSettings.getBOOL("JoystickEnabled");
+
 	mJoystickAxis[0] = gSavedSettings.getS32("JoystickAxis0");
 	mJoystickAxis[1] = gSavedSettings.getS32("JoystickAxis1");
 	mJoystickAxis[2] = gSavedSettings.getS32("JoystickAxis2");
@@ -145,6 +156,10 @@ void LLFloaterJoystick::refresh()
 	mAutoLeveling = gSavedSettings.getBOOL("AutoLeveling");
 	mZoomDirect  = gSavedSettings.getBOOL("ZoomDirect");
 
+	mAvatarEnabled = gSavedSettings.getBOOL("JoystickAvatarEnabled");
+	mBuildEnabled = gSavedSettings.getBOOL("JoystickBuildEnabled");
+	mFlycamEnabled = gSavedSettings.getBOOL("JoystickFlycamEnabled");
+	
 	mAvatarAxisScale[0] = gSavedSettings.getF32("AvatarAxisScale0");
 	mAvatarAxisScale[1] = gSavedSettings.getF32("AvatarAxisScale1");
 	mAvatarAxisScale[2] = gSavedSettings.getF32("AvatarAxisScale2");
@@ -196,9 +211,7 @@ void LLFloaterJoystick::refresh()
 
 void LLFloaterJoystick::cancel()
 {
-	llinfos << "reading from gSavedSettings->Cursor3D=" 
-		<< gSavedSettings.getBOOL("Cursor3D") << "; m3DCursor=" 
-		<< m3DCursor << llendl;
+	gSavedSettings.setBOOL("JoystickEnabled", mJoystickEnabled);
 
 	gSavedSettings.setS32("JoystickAxis0", mJoystickAxis[0]);
 	gSavedSettings.setS32("JoystickAxis1", mJoystickAxis[1]);
@@ -212,6 +225,10 @@ void LLFloaterJoystick::cancel()
 	gSavedSettings.setBOOL("AutoLeveling", mAutoLeveling);
 	gSavedSettings.setBOOL("ZoomDirect", mZoomDirect );
 
+	gSavedSettings.setBOOL("JoystickAvatarEnabled", mAvatarEnabled);
+	gSavedSettings.setBOOL("JoystickBuildEnabled", mBuildEnabled);
+	gSavedSettings.setBOOL("JoystickFlycamEnabled", mFlycamEnabled);
+	
 	gSavedSettings.setF32("AvatarAxisScale0", mAvatarAxisScale[0]);
 	gSavedSettings.setF32("AvatarAxisScale1", mAvatarAxisScale[1]);
 	gSavedSettings.setF32("AvatarAxisScale2", mAvatarAxisScale[2]);
@@ -261,9 +278,53 @@ void LLFloaterJoystick::cancel()
 	gSavedSettings.setF32("FlycamFeathering", mFlycamFeathering);
 }
 
+void LLFloaterJoystick::onCommitJoystickEnabled(LLUICtrl*, void *joy_panel)
+{
+	LLFloaterJoystick* self = (LLFloaterJoystick*)joy_panel;
+	BOOL joystick_enabled = self->mCheckJoystickEnabled->get();
+	BOOL flycam_enabled = self->mCheckFlycamEnabled->get();
+
+	if (!joystick_enabled || !flycam_enabled)
+	{
+		// Turn off flycam
+		LLViewerJoystick* joystick(LLViewerJoystick::getInstance());
+		if (joystick->getOverrideCamera())
+		{
+			joystick->toggleFlycam();
+		}
+	}
+}
+
 void LLFloaterJoystick::onClickRestoreSNDefaults(void *joy_panel)
 {
 	setSNDefaults();
+}
+
+void LLFloaterJoystick::onClickCancel(void *joy_panel)
+{
+	if (joy_panel)
+	{
+		LLFloaterJoystick* self = (LLFloaterJoystick*)joy_panel;
+
+		if (self)
+		{
+			self->cancel();
+			self->close();
+		}
+	}
+}
+
+void LLFloaterJoystick::onClickOK(void *joy_panel)
+{
+	if (joy_panel)
+	{
+		LLFloaterJoystick* self = (LLFloaterJoystick*)joy_panel;
+
+		if (self)
+		{
+			self->close();
+		}
+	}
 }
 
 void LLFloaterJoystick::setSNDefaults()

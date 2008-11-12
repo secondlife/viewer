@@ -2221,7 +2221,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <real>1.0</real>
+      <integer>1</integer>
     </map>
     <key>Disregard96DefaultDrawDistance</key>
     <map>
@@ -2232,7 +2232,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <real>1.0</real>
+      <integer>1</integer>
     </map>
     <key>DoubleClickAutoPilot</key>
     <map>
@@ -4007,13 +4007,13 @@
     <key>JoystickAvatarEnabled</key>
     <map>
       <key>Comment</key>
-      <string>Enables the Joystick to control Avatar movmement.</string>
+      <string>Enables the Joystick to control Avatar movement.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <string>1</string>
+      <integer>1</integer>
     </map>
     <key>JoystickAxis0</key>
     <map>
@@ -4101,7 +4101,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <string>1</string>
+      <integer>0</integer>
     </map>
     <key>JoystickEnabled</key>
     <map>
@@ -4119,11 +4119,11 @@
       <key>Comment</key>
       <string>Enables the Joystick to control the flycam.</string>
       <key>Persist</key>
-      <integer>1</integer>
+      <integer>0</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <string>1</string>
+      <integer>1</integer>
     </map>
     <key>JoystickInitialized</key>
     <map>
@@ -4136,6 +4136,17 @@
       <key>Value</key>
       <string />
     </map>
+    <key>JoystickRunThreshold</key>
+    <map>
+      <key>Comment</key>
+        <string>Input threshold to initiate running</string>
+      <key>Persist</key>
+        <integer>1</integer>
+      <key>Type</key>
+        <string>F32</string>
+      <key>Value</key>
+        <real>0.25</real>
+      </map>
     <key>KeepAspectForSnapshot</key>
     <map>
       <key>Comment</key>

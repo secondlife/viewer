@@ -4501,6 +4501,16 @@ void handle_force_delete(void*)
 	LLSelectMgr::getInstance()->selectForceDelete();
 }
 
+class LLViewEnableJoystickFlycam : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		bool new_value = (gSavedSettings.getBOOL("JoystickEnabled") && gSavedSettings.getBOOL("JoystickFlycamEnabled"));
+		gMenuHolder->findControl(userdata["control"].asString())->setValue(new_value);
+		return true;
+	}
+};
+
 class LLViewEnableLastChatter : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
@@ -7447,6 +7457,7 @@ void initialize_menus()
 	addMenu(new LLViewDefaultUISize(), "View.DefaultUISize");
 
 	addMenu(new LLViewEnableMouselook(), "View.EnableMouselook");
+	addMenu(new LLViewEnableJoystickFlycam(), "View.EnableJoystickFlycam");
 	addMenu(new LLViewEnableLastChatter(), "View.EnableLastChatter");
 
 	addMenu(new LLViewCheckBuildMode(), "View.CheckBuildMode");

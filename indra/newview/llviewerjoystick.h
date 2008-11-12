@@ -76,6 +76,7 @@ public:
 protected:
 	void updateEnabled(bool autoenable);
 	void terminate();
+	void handleRun(F32 inc);
 	void agentSlide(F32 inc);
 	void agentPush(F32 inc);
 	void agentFly(F32 inc);
@@ -96,6 +97,7 @@ private:
 	F32						mPerfScale;
 	bool					mCameraUpdated;
 	bool 					mOverrideCamera;
+	U32						mJoystickRun;
 	
 	static F32				sLastDelta[7];
 	static F32				sDelta[7];

@@ -58,12 +58,15 @@
 // flycam translations in build mode should be reduced
 const F32 BUILDMODE_FLYCAM_T_SCALE = 3.f;
 
+// minimum time after setting away state before coming back
+const F32 MIN_AFK_TIME = 2.f;
+
 F32  LLViewerJoystick::sLastDelta[] = {0,0,0,0,0,0,0};
 F32  LLViewerJoystick::sDelta[] = {0,0,0,0,0,0,0};
 
 // These constants specify the maximum absolute value coming in from the device.
 // HACK ALERT! the value of MAX_JOYSTICK_INPUT_VALUE is not arbitrary as it 
-// should be.  It has to be equal to 3000 because the SpaceNavigator on Windows 
+// should be.  It has to be equal to 3000 because the SpaceNavigator on Windows
 // refuses to respond to the DirectInput SetProperty call; it always returns 
 // values in the [-3000, 3000] range.
 #define MAX_SPACENAVIGATOR_INPUT  3000.0f
@@ -147,7 +150,8 @@ LLViewerJoystick::LLViewerJoystick()
 	mNdofDev(NULL),
 	mResetFlag(false),
 	mCameraUpdated(true),
-	mOverrideCamera(false)
+	mOverrideCamera(false),
+	mJoystickRun(0)
 {
 	for (int i = 0; i < 6; i++)
 	{
@@ -322,6 +326,40 @@ U32 LLViewerJoystick::getJoystickButton(U32 button) const
 }
 
 // -----------------------------------------------------------------------------
+void LLViewerJoystick::handleRun(F32 inc)
+{
+	// Decide whether to walk or run by applying a threshold, with slight
+	// hysteresis to avoid oscillating between the two with input spikes.
+	// Analog speed control would be better, but not likely any time soon.
+	if (inc > gSavedSettings.getF32("JoystickRunThreshold"))
+	{
+		if (1 == mJoystickRun)
+		{
+			++mJoystickRun;
+			gAgent.setRunning();
+			gAgent.sendWalkRun(gAgent.getRunning());
+		}
+		else if (0 == mJoystickRun)
+		{
+			// hysteresis - respond NEXT frame
+			++mJoystickRun;
+		}
+	}
+	else
+	{
+		if (mJoystickRun > 0)
+		{
+			--mJoystickRun;
+			if (0 == mJoystickRun)
+			{
+				gAgent.clearRunning();
+				gAgent.sendWalkRun(gAgent.getRunning());
+			}
+		}
+	}
+}
+
+// -----------------------------------------------------------------------------
 void LLViewerJoystick::agentJump()
 {
     gAgent.moveUp(1);
@@ -330,11 +368,11 @@ void LLViewerJoystick::agentJump()
 // -----------------------------------------------------------------------------
 void LLViewerJoystick::agentSlide(F32 inc)
 {
-	if (inc < 0)
+	if (inc < 0.f)
 	{
 		gAgent.moveLeft(1);
 	}
-	else if (inc > 0)
+	else if (inc > 0.f)
 	{
 		gAgent.moveLeft(-1);
 	}
@@ -343,11 +381,11 @@ void LLViewerJoystick::agentSlide(F32 inc)
 // -----------------------------------------------------------------------------
 void LLViewerJoystick::agentPush(F32 inc)
 {
-	if (inc < 0)                            // forward
+	if (inc < 0.f)                            // forward
 	{
 		gAgent.moveAt(1, false);
 	}
-	else if (inc > 0)                       // backward
+	else if (inc > 0.f)                       // backward
 	{
 		gAgent.moveAt(-1, false);
 	}
@@ -356,18 +394,18 @@ void LLViewerJoystick::agentPush(F32 inc)
 // -----------------------------------------------------------------------------
 void LLViewerJoystick::agentFly(F32 inc)
 {
-	if (inc < 0)
+	if (inc < 0.f)
 	{
-		if (gAgent.getFlying())
-		{
-			gAgent.moveUp(1);
-		}
-		else
+		if (! (gAgent.getFlying() ||
+		       !gAgent.canFly() ||
+		       gAgent.upGrabbed() ||
+		       !gSavedSettings.getBOOL("AutomaticFly")) )
 		{
 			gAgent.setFlying(true);
 		}
+		gAgent.moveUp(1);
 	}
-	else if (inc > 0)
+	else if (inc > 0.f)
 	{
 		// crouch
 		gAgent.moveUp(-1);
@@ -492,6 +530,12 @@ void LLViewerJoystick::moveObjects(bool reset)
     
 	if (!is_zero)
 	{
+		// Clear AFK state if moved beyond the deadzone
+		if (gAwayTimer.getElapsedTimeF32() > MIN_AFK_TIME)
+		{
+			gAgent.clearAFK();
+		}
+		
 		if (sDelta[0] || sDelta[1] || sDelta[2])
 		{
 			upd_type |= UPD_POSITION;
@@ -549,11 +593,13 @@ void LLViewerJoystick::moveAvatar(bool reset)
 		return;
 	}
 
+	bool is_zero = true;
+
 	if (mBtn[1] == 1)
-    {
+	{
 		agentJump();
-		return;
-    }
+		is_zero = false;
+	}
 
 	F32 axis_scale[] =
 	{
@@ -626,16 +672,29 @@ void LLViewerJoystick::moveAvatar(bool reset)
 				dom_mov = val;
 			}
 		}
+		
+		is_zero = is_zero && (cur_delta[i] == 0.f);
+	}
+
+	if (!is_zero)
+	{
+		// Clear AFK state if moved beyond the deadzone
+		if (gAwayTimer.getElapsedTimeF32() > MIN_AFK_TIME)
+		{
+			gAgent.clearAFK();
+		}
+		
+		setCameraNeedsUpdate(true);
 	}
 
 	// forward|backward movements overrule the real dominant movement if 
-	// they're bigger than its 20%. This is what you want cos moving forward
+	// they're bigger than its 20%. This is what you want 'cos moving forward
 	// is what you do most. We also added a special (even more lenient) case 
-	// for RX|RY to allow walking while pitching n' turning
+	// for RX|RY to allow walking while pitching and turning
 	if (fabs(cur_delta[Z_I]) > .2f * dom_mov
-		|| ((dom_axis == RX_I || dom_axis == RY_I) 
-			&& fabs(cur_delta[Z_I]) > .05f * dom_mov))
-    {
+	    || ((dom_axis == RX_I || dom_axis == RY_I) 
+		&& fabs(cur_delta[Z_I]) > .05f * dom_mov))
+	{
 		dom_axis = Z_I;
 	}
 
@@ -653,68 +712,67 @@ void LLViewerJoystick::moveAvatar(bool reset)
 	sDelta[RX_I] += (cur_delta[RX_I] - sDelta[RX_I]) * time * feather;
 	sDelta[RY_I] += (cur_delta[RY_I] - sDelta[RY_I]) * time * feather;
 	
-    switch (dom_axis)
-    {
-        case X_I:                                         // move sideways
-			agentSlide(sDelta[X_I]);
-            break;
-        
-        case Z_I:                                         // forward/back
+	llinfos << sDelta[Z_I] << ", " << sDelta[X_I] << llendl;
+	handleRun(fsqrtf(sDelta[Z_I]*sDelta[Z_I] + sDelta[X_I]*sDelta[X_I]));
+	
+	// Allow forward/backward movement some priority
+	if (dom_axis == Z_I)
+	{
+		agentPush(sDelta[Z_I]);			// forward/back
+		
+		if (fabs(sDelta[X_I])  > .1f)
 		{
-            agentPush(sDelta[Z_I]);
-            
-            if (fabs(sDelta[Y_I])  > .1f)
-			{
-				agentFly(sDelta[Y_I]);
-			}
+			agentSlide(sDelta[X_I]);	// move sideways
+		}
 		
-			// too many rotations during walking can be confusing, so apply
-			// the deadzones one more time (quick & dirty), at 50%|30% power
-			F32 eff_rx = .3f * dead_zone[RX_I];
-			F32 eff_ry = .3f * dead_zone[RY_I];
-		
-			if (sDelta[RX_I] > 0)
-			{
-				eff_rx = llmax(sDelta[RX_I] - eff_rx, 0.f);
-			}
-			else
-			{
-				eff_rx = llmin(sDelta[RX_I] + eff_rx, 0.f);
-			}
+		if (fabs(sDelta[Y_I])  > .1f)
+		{
+			agentFly(sDelta[Y_I]);		// up/down & crouch
+		}
+	
+		// too many rotations during walking can be confusing, so apply
+		// the deadzones one more time (quick & dirty), at 50%|30% power
+		F32 eff_rx = .3f * dead_zone[RX_I];
+		F32 eff_ry = .3f * dead_zone[RY_I];
+	
+		if (sDelta[RX_I] > 0)
+		{
+			eff_rx = llmax(sDelta[RX_I] - eff_rx, 0.f);
+		}
+		else
+		{
+			eff_rx = llmin(sDelta[RX_I] + eff_rx, 0.f);
+		}
 
-			if (sDelta[RY_I] > 0)
+		if (sDelta[RY_I] > 0)
+		{
+			eff_ry = llmax(sDelta[RY_I] - eff_ry, 0.f);
+		}
+		else
+		{
+			eff_ry = llmin(sDelta[RY_I] + eff_ry, 0.f);
+		}
+		
+		
+		if (fabs(eff_rx) > 0.f || fabs(eff_ry) > 0.f)
+		{
+			if (gAgent.getFlying())
 			{
-				eff_ry = llmax(sDelta[RY_I] - eff_ry, 0.f);
+				agentRotate(eff_rx, eff_ry);
 			}
 			else
 			{
-				eff_ry = llmin(sDelta[RY_I] + eff_ry, 0.f);
+				agentRotate(eff_rx, 2.f * eff_ry);
 			}
-			
-			
-			if (fabs(eff_rx) > 0.f || fabs(eff_ry) > 0.f)
-			{
-				if (gAgent.getFlying())
-				{
-					agentRotate(eff_rx, eff_ry);
-				}
-				else
-				{
-					agentRotate(eff_rx, 2.f * eff_ry);
-				}
-			}
-            break;
-		}   
-        case Y_I:                                          // up/crouch
-            agentFly(sDelta[Y_I]);
-            break;
-            
-        case RX_I:                                         // pitch
-        case RY_I:                                         // turn
-			agentRotate(sDelta[RX_I], sDelta[RY_I]);
-            break;
-        // case RZ_I: roll is unused in avatar mode
-    }// switch
+		}
+	}
+	else
+	{
+		agentSlide(sDelta[X_I]);		// move sideways
+		agentFly(sDelta[Y_I]);			// up/down & crouch
+		agentPush(sDelta[Z_I]);			// forward/back
+		agentRotate(sDelta[RX_I], sDelta[RY_I]);	// pitch & turn
+	}
 }
 
 // -----------------------------------------------------------------------------
@@ -777,7 +835,7 @@ void LLViewerJoystick::moveFlycam(bool reset)
 
 	F32 time = gFrameIntervalSeconds;
 
-	// avoid making ridicously big movements if there's a big drop in fps 
+	// avoid making ridiculously big movements if there's a big drop in fps 
 	if (time > .2f)
 	{
 		time = .2f;
@@ -786,6 +844,7 @@ void LLViewerJoystick::moveFlycam(bool reset)
 	F32 cur_delta[7];
 	F32 feather = gSavedSettings.getF32("FlycamFeathering");
 	bool absolute = gSavedSettings.getBOOL("Cursor3D");
+	bool is_zero = true;
 
 	for (U32 i = 0; i < 7; i++)
 	{
@@ -827,6 +886,15 @@ void LLViewerJoystick::moveFlycam(bool reset)
 		}
 
 		sDelta[i] = sDelta[i] + (cur_delta[i]-sDelta[i])*time*feather;
+
+		is_zero = is_zero && (cur_delta[i] == 0.f);
+
+	}
+	
+	// Clear AFK state if moved beyond the deadzone
+	if (!is_zero && gAwayTimer.getElapsedTimeF32() > MIN_AFK_TIME)
+	{
+		gAgent.clearAFK();
 	}
 	
 	sFlycamPosition += LLVector3(sDelta) * sFlycamRotation;
@@ -875,13 +943,20 @@ bool LLViewerJoystick::toggleFlycam()
 {
 	if (!gSavedSettings.getBOOL("JoystickEnabled") || !gSavedSettings.getBOOL("JoystickFlycamEnabled"))
 	{
+		mOverrideCamera = false;
 		return false;
 	}
+
 	if (!mOverrideCamera)
 	{
 		gAgent.changeCameraToDefault();
 	}
 
+	if (gAwayTimer.getElapsedTimeF32() > MIN_AFK_TIME)
+	{
+		gAgent.clearAFK();
+	}
+	
 	mOverrideCamera = !mOverrideCamera;
 	if (mOverrideCamera)
 	{
@@ -931,7 +1006,7 @@ void LLViewerJoystick::scanJoystick()
 		toggle_flycam = 0;
 	}
 	
-	if (!mOverrideCamera && !LLToolMgr::getInstance()->inBuildMode())
+	if (!mOverrideCamera && !(LLToolMgr::getInstance()->inBuildMode() && gSavedSettings.getBOOL("JoystickBuildEnabled")))
 	{
 		moveAvatar();
 	}
@@ -966,10 +1041,15 @@ bool LLViewerJoystick::isLikeSpaceNavigator() const
 // -----------------------------------------------------------------------------
 void LLViewerJoystick::setSNDefaults()
 {
-#if LL_DARWIN 
-#define kPlatformScale	20.f
+#if LL_DARWIN || LL_LINUX
+	const float platformScale = 20.f;
+	const float platformScaleAvXZ = 1.f;
+	// The SpaceNavigator doesn't act as a 3D cursor on OS X / Linux. 
+	const bool is_3d_cursor = false;
 #else
-#define kPlatformScale	1.f
+	const float platformScale = 1.f;
+	const float platformScaleAvXZ = 2.f;
+	const bool is_3d_cursor = true;
 #endif
 	
 	//gViewerWindow->alertXml("CacheWillClear");
@@ -983,34 +1063,29 @@ void LLViewerJoystick::setSNDefaults()
 	gSavedSettings.setS32("JoystickAxis5", 5); // yaw
 	gSavedSettings.setS32("JoystickAxis6", -1);
 	
-#if LL_DARWIN
-	// The SpaceNavigator doesn't act as a 3D cursor on OS X. 
-	gSavedSettings.setBOOL("Cursor3D", false);
-#else
-	gSavedSettings.setBOOL("Cursor3D", true);
-#endif
+	gSavedSettings.setBOOL("Cursor3D", is_3d_cursor);
 	gSavedSettings.setBOOL("AutoLeveling", true);
 	gSavedSettings.setBOOL("ZoomDirect", false);
 	
-	gSavedSettings.setF32("AvatarAxisScale0", 1.f);
-	gSavedSettings.setF32("AvatarAxisScale1", 1.f);
+	gSavedSettings.setF32("AvatarAxisScale0", 1.f * platformScaleAvXZ);
+	gSavedSettings.setF32("AvatarAxisScale1", 1.f * platformScaleAvXZ);
 	gSavedSettings.setF32("AvatarAxisScale2", 1.f);
-	gSavedSettings.setF32("AvatarAxisScale4", .1f * kPlatformScale);
-	gSavedSettings.setF32("AvatarAxisScale5", .1f * kPlatformScale);
-	gSavedSettings.setF32("AvatarAxisScale3", 0.f * kPlatformScale);
-	gSavedSettings.setF32("BuildAxisScale1", .3f * kPlatformScale);
-	gSavedSettings.setF32("BuildAxisScale2", .3f * kPlatformScale);
-	gSavedSettings.setF32("BuildAxisScale0", .3f * kPlatformScale);
-	gSavedSettings.setF32("BuildAxisScale4", .3f * kPlatformScale);
-	gSavedSettings.setF32("BuildAxisScale5", .3f * kPlatformScale);
-	gSavedSettings.setF32("BuildAxisScale3", .3f * kPlatformScale);
-	gSavedSettings.setF32("FlycamAxisScale1", 2.f * kPlatformScale);
-	gSavedSettings.setF32("FlycamAxisScale2", 2.f * kPlatformScale);
-	gSavedSettings.setF32("FlycamAxisScale0", 2.1f * kPlatformScale);
-	gSavedSettings.setF32("FlycamAxisScale4", .1f * kPlatformScale);
-	gSavedSettings.setF32("FlycamAxisScale5", .15f * kPlatformScale);
-	gSavedSettings.setF32("FlycamAxisScale3", 0.f * kPlatformScale);
-	gSavedSettings.setF32("FlycamAxisScale6", 0.f * kPlatformScale);
+	gSavedSettings.setF32("AvatarAxisScale4", .1f * platformScale);
+	gSavedSettings.setF32("AvatarAxisScale5", .1f * platformScale);
+	gSavedSettings.setF32("AvatarAxisScale3", 0.f * platformScale);
+	gSavedSettings.setF32("BuildAxisScale1", .3f * platformScale);
+	gSavedSettings.setF32("BuildAxisScale2", .3f * platformScale);
+	gSavedSettings.setF32("BuildAxisScale0", .3f * platformScale);
+	gSavedSettings.setF32("BuildAxisScale4", .3f * platformScale);
+	gSavedSettings.setF32("BuildAxisScale5", .3f * platformScale);
+	gSavedSettings.setF32("BuildAxisScale3", .3f * platformScale);
+	gSavedSettings.setF32("FlycamAxisScale1", 2.f * platformScale);
+	gSavedSettings.setF32("FlycamAxisScale2", 2.f * platformScale);
+	gSavedSettings.setF32("FlycamAxisScale0", 2.1f * platformScale);
+	gSavedSettings.setF32("FlycamAxisScale4", .1f * platformScale);
+	gSavedSettings.setF32("FlycamAxisScale5", .15f * platformScale);
+	gSavedSettings.setF32("FlycamAxisScale3", 0.f * platformScale);
+	gSavedSettings.setF32("FlycamAxisScale6", 0.f * platformScale);
 	
 	gSavedSettings.setF32("AvatarAxisDeadZone0", .1f);
 	gSavedSettings.setF32("AvatarAxisDeadZone1", .1f);

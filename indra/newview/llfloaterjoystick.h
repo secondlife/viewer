@@ -35,6 +35,8 @@
 #include "llfloater.h"
 #include "llstatview.h"
 
+class LLCheckBoxCtrl;
+
 class LLFloaterJoystick : public LLFloater, public LLFloaterSingleton<LLFloaterJoystick >
 {
 public:
@@ -49,16 +51,23 @@ public:
 	static  void setSNDefaults();
 
 private:
+	static void onCommitJoystickEnabled(LLUICtrl*, void*);
 	static void onClickRestoreSNDefaults(void*);
+	static void onClickCancel(void*);
+	static void onClickOK(void*);
 
 private:
 	// Device prefs
+	bool mJoystickEnabled;
 	S32 mJoystickAxis[7];
 	bool m3DCursor;
 	bool mAutoLeveling;
 	bool mZoomDirect;
 
 	// Modes prefs
+	bool mAvatarEnabled;
+	bool mBuildEnabled;
+	bool mFlycamEnabled;
 	F32 mAvatarAxisScale[6];
 	F32 mBuildAxisScale[6];
 	F32 mFlycamAxisScale[7];
@@ -68,6 +77,10 @@ private:
 	F32 mAvatarFeathering;
 	F32 mBuildFeathering;
 	F32 mFlycamFeathering;
+
+	// Controls that can disable the flycam
+	LLCheckBoxCtrl	*mCheckJoystickEnabled;
+	LLCheckBoxCtrl	*mCheckFlycamEnabled;
 
 	// stats view 
 	LLStatView*		mAxisStatsView;

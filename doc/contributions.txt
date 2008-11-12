@@ -13,9 +13,18 @@ Able Whitman
 Adam Marker
 	VWR-2755
 Aimee Trescothick
-  VWR-3336
+        VWR-3336
 	VWR-3903
 	VWR-4083
+	VWR-6348
+	VWR-6358
+	VWR-6360
+	VWR-6550
+	VWR-6583
+	VWR-6482
+	VWR-7383
+	VWR-8341
+	VWR-8482
 	VWR-9255
 Alejandro Rosenthal
 	VWR-1184
