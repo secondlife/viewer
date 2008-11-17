@@ -712,7 +712,6 @@ void LLViewerJoystick::moveAvatar(bool reset)
 	sDelta[RX_I] += (cur_delta[RX_I] - sDelta[RX_I]) * time * feather;
 	sDelta[RY_I] += (cur_delta[RY_I] - sDelta[RY_I]) * time * feather;
 	
-	llinfos << sDelta[Z_I] << ", " << sDelta[X_I] << llendl;
 	handleRun(fsqrtf(sDelta[Z_I]*sDelta[Z_I] + sDelta[X_I]*sDelta[X_I]));
 	
 	// Allow forward/backward movement some priority
