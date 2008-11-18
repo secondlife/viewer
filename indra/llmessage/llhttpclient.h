@@ -62,28 +62,56 @@ public:
 
 	/** @name non-blocking API */
 	//@{
-	static void head(const std::string& url, ResponderPtr, const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
+	static void head(
+		const std::string& url,
+		ResponderPtr,
+		const LLSD& headers = LLSD(),
+		const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
 	static void getByteRange(const std::string& url, S32 offset, S32 bytes, ResponderPtr, const LLSD& headers=LLSD(), const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
 	static void get(const std::string& url, ResponderPtr, const LLSD& headers = LLSD(), const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
 	static void get(const std::string& url, const LLSD& query, ResponderPtr, const LLSD& headers = LLSD(), const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
 
-	static void put(const std::string& url, const LLSD& body, ResponderPtr, const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
+	static void put(
+		const std::string& url,
+		const LLSD& body,
+		ResponderPtr,
+		const LLSD& headers = LLSD(),
+		const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
 	static void getHeaderOnly(const std::string& url, ResponderPtr, const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
 	static void getHeaderOnly(const std::string& url, ResponderPtr, const LLSD& headers, const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
 
-	static void post(const std::string& url, const LLSD& body, ResponderPtr, const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
-
+	static void post(
+		const std::string& url,
+		const LLSD& body,
+		ResponderPtr,
+		const LLSD& headers = LLSD(),
+		const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
 	/** Takes ownership of data and deletes it when sent */
-	static void postRaw(const std::string& url, const U8* data, S32 size, ResponderPtr responder, const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
-	
-	static void postFile(const std::string& url, const std::string& filename, ResponderPtr, const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
-	#
-	static void postFile(const std::string& url, const LLUUID& uuid,
-		LLAssetType::EType asset_type, ResponderPtr responder, const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
+	static void postRaw(
+		const std::string& url,
+		const U8* data,
+		S32 size,
+		ResponderPtr responder,
+		const LLSD& headers = LLSD(),
+		const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
+	static void postFile(
+		const std::string& url,
+		const std::string& filename,
+		ResponderPtr,
+		const LLSD& headers = LLSD(),
+		const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
+	static void postFile(
+		const std::string& url,
+		const LLUUID& uuid,
+		LLAssetType::EType asset_type,
+		ResponderPtr responder,
+		const LLSD& headers = LLSD(),
+		const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
 
 	static void del(
 		const std::string& url,
 		ResponderPtr responder,
+		const LLSD& headers = LLSD(),
 		const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
 		///< sends a DELETE method, but we can't call it delete in c++
 	
@@ -93,12 +121,14 @@ public:
 	 * @param url The complete serialized (and escaped) url to get.
 	 * @param destination The complete serialized destination url.
 	 * @param responder The responder that will handle the result.
+	 * @param headers A map of key:value headers to pass to the request
 	 * @param timeout The number of seconds to give the server to respond.
 	 */
 	static void move(
 		const std::string& url,
 		const std::string& destination,
 		ResponderPtr responder,
+		const LLSD& headers = LLSD(),
 		const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
 
 	//@}

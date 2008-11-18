@@ -126,6 +126,7 @@ def date_to_python(node):
     if not val:
         val = "1970-01-01T00:00:00Z"
     return parse_datestr(val)
+    
 
 def uri_to_python(node):
     val = node.text or ''

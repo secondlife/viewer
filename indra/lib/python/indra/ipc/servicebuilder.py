@@ -51,12 +51,10 @@ def build(name, context={}, **kwargs):
      > servicebuilder.build('version-manager-version', context, version='1.18.1.2')
        'http://int.util.vaak.lindenlab.com/channel/Second%20Life%20Release/1.18.1.2'
     """
-    context = context.copy()  # shouldn't modify the caller's dictionary
-    context.update(kwargs)
     global _g_builder
     if _g_builder is None:
         _g_builder = ServiceBuilder()
-    return _g_builder.buildServiceURL(name, context)
+    return _g_builder.buildServiceURL(name, context, **kwargs)
 
 class ServiceBuilder(object):
     def __init__(self, services_definition = services_config):
@@ -81,13 +79,36 @@ class ServiceBuilder(object):
             else:
                 self.builders[service['name']] = service_builder
 
-    def buildServiceURL(self, name, context):
+    def buildServiceURL(self, name, context={}, **kwargs):
         """\
         @brief given the environment on construction, return a service URL.
         @param name The name of the service.
         @param context A dict of name value lookups for the service.
+        @param kwargs Any keyword arguments are treated as members of the
+            context, this allows you to be all 31337 by writing shit like:
+            servicebuilder.build('name', param=value)
         @returns Returns the 
         """
+        context = context.copy()  # shouldn't modify the caller's dictionary
+        context.update(kwargs)
         base_url = config.get('services-base-url')
         svc_path = russ.format(self.builders[name], context)
         return base_url + svc_path
+
+
+def on_in(query_name, host_key, schema_key):
+    """\
+    @brief Constructs an on/in snippet (for running named queries)
+    from a schema name and two keys referencing values stored in
+    indra.xml.
+
+    @param query_name Name of the query.
+    @param host_key Logical name of destination host.  Will be
+        looked up in indra.xml.
+    @param schema_key Logical name of destination schema.  Will
+        be looked up in indra.xml.
+    """
+    host_name = config.get(host_key)
+    schema_name = config.get(schema_key)
+    return '/'.join( ('on', host_name, 'in', schema_name, query_name.lstrip('/')) )
+

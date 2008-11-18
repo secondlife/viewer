@@ -27,6 +27,7 @@ $/LicenseInfo$
 """
 
 import copy
+import errno
 import os
 import traceback
 import time
@@ -62,6 +63,8 @@ class IndraConfig(object):
         self._load()
 
     def _load(self):
+        # if you initialize the IndraConfig with None, no attempt
+        # is made to load any files
         if self._indra_config_file is None:
             return
 
@@ -164,22 +167,36 @@ class IndraConfig(object):
         """
         return copy.deepcopy(self._combined_dict)
 
-def load(indra_xml_file = None):
+def load(config_xml_file = None):
     global _g_config
 
-    if indra_xml_file is None:
+    load_default_files = config_xml_file is None
+    if load_default_files:
         ## going from:
         ## "/opt/linden/indra/lib/python/indra/base/config.py"
         ## to:
         ## "/opt/linden/etc/indra.xml"
-        indra_xml_file = realpath(
+        config_xml_file = realpath(
             dirname(realpath(__file__)) + "../../../../../../etc/indra.xml")
 
     try:
-        _g_config = IndraConfig(indra_xml_file)
+        _g_config = IndraConfig(config_xml_file)
     except IOError:
-        # indra.xml was not openable, so let's initialize with an empty dict
-        # some code relies on config behaving this way
+        # Failure to load passed in file
+        # or indra.xml default file
+        if load_default_files:
+            try:
+                config_xml_file = realpath(
+                    dirname(realpath(__file__)) + "../../../../../../etc/globals.xml")
+                _g_config = IndraConfig(config_xml_file)
+                return
+            except IOError:
+                # Failure to load globals.xml
+                # fall to code below
+                pass
+
+        # Either failed to load passed in file
+        # or failed to load all default files
         _g_config = IndraConfig(None)
 
 def dump(indra_xml_file, indra_cfg = None, update_in_mem=False):
