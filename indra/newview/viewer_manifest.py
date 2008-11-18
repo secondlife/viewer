@@ -164,13 +164,16 @@ class WindowsManifest(ViewerManifest):
         # nor do we have a fixed name for the executable
         self.path(self.find_existing_file('debug/secondlife-bin.exe', 'release/secondlife-bin.exe', 'relwithdebinfo/secondlife-bin.exe'), dst=self.final_exe())
         # need to get the kdu dll from any of the build directories as well
-        self.path(self.find_existing_file(
+        try:
+            self.path(self.find_existing_file(
                 # *FIX:Mani we need to add support for packaging specific targets.
                 #'../llkdu/debug/llkdu.dll',
                 '../llkdu/release/llkdu.dll',
                 '../llkdu/relwithdebinfo/llkdu.dll',
                 '../../libraries/i686-win32/lib/release/llkdu.dll'), 
                   dst='llkdu.dll')
+        except:
+            print "Skipping llkdu,.dll"
         self.path(src="licenses-win32.txt", dst="licenses.txt")
 
         self.path("featuretable.txt")
