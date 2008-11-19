@@ -1036,9 +1036,9 @@ anguage Infrstructure (CLI) international standard</string>
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>8c1b8881285631eb32ba541e10d07b07</string>
+            <string>42cb780c595d25881b4967292a4a0f40</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llmozlib-windows-20080922.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llmozlib-windows-20080828.tar.bz2</uri>
           </map>
         </map>
       </map>

@@ -190,8 +190,8 @@ class WindowsManifest(ViewerManifest):
             self.end_prefix()
 
         # Mozilla appears to force a dependency on these files so we need to ship it (CP)
-        self.path("msvcr71.dll")
-        self.path("msvcp71.dll")
+        self.path("msvcr80.dll")
+        self.path("msvcp80.dll")
 
         # Mozilla runtime DLLs (CP)
         if self.prefix(src="../../libraries/i686-win32/lib/release", dst=""):

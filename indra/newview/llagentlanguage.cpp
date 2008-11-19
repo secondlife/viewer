@@ -31,13 +31,17 @@
 
 #include "llviewerprecompiledheaders.h"
 #include "llagentlanguage.h"
+// viewer includes
 #include "llagent.h"
 #include "llviewercontrol.h"
 #include "llviewerregion.h"
+// library includes
+#include "llui.h"					// getLanguage()
 
 LLAgentLanguage::LLAgentLanguage()
 {
 	gSavedSettings.getControl("Language")->getSignal()->connect(boost::bind(&update));
+	gSavedSettings.getControl("InstallLanguage")->getSignal()->connect(boost::bind(&update));
 	gSavedSettings.getControl("SystemLanguage")->getSignal()->connect(boost::bind(&update));
 	gSavedSettings.getControl("LanguageIsPublic")->getSignal()->connect(boost::bind(&update));
 }
@@ -51,9 +55,7 @@ bool LLAgentLanguage::update()
 	std::string url = gAgent.getRegion()->getCapability("UpdateAgentLanguage");
 	if (!url.empty())
 	{
-		std::string language = gSavedSettings.getString("Language");
-		if (language == "default")
-			language = gSavedSettings.getString("SystemLanguage");
+		std::string language = LLUI::getLanguage();
 		
 		body["language"] = language;
 		body["language_is_public"] = gSavedSettings.getBOOL("LanguageIsPublic");
@@ -62,4 +64,3 @@ bool LLAgentLanguage::update()
 	}
     return true;
 }
-

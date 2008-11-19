@@ -62,12 +62,7 @@ LLFloaterHUD::LLFloaterHUD()
 		// arrow keys during tutorial).
 		mWebBrowser->setTakeFocusOnClick(false);
 
-		std::string language(gSavedSettings.getString("Language"));
-		if(language == "default")
-		{
-			language = gSavedSettings.getString("SystemLanguage");
-		}
-	
+		std::string language = LLUI::getLanguage();
 		std::string base_url = gSavedSettings.getString("TutorialURL");
 
 		std::string url = base_url + language + "/";

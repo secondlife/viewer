@@ -30,8 +30,6 @@
  */
 
 // Utilities functions the user interface needs
-
-//#include "llviewerprecompiledheaders.h"
 #include "linden_common.h"
 
 #include <string>
@@ -1647,6 +1645,34 @@ void LLUI::setCursorPositionLocal(const LLView* viewp, S32 x, S32 y)
 	setCursorPositionScreen(screen_x, screen_y);
 }
 
+// On Windows, the user typically sets the language when they install the
+// app (by running it with a shortcut that sets InstallLanguage).  On Mac,
+// or on Windows if the SecondLife.exe executable is run directly, the 
+// language follows the OS language.  In all cases the user can override
+// the language manually in preferences. JC
+// static
+std::string LLUI::getLanguage()
+{
+	std::string language = "en-us";
+	if (sConfigGroup)
+	{
+		language = sConfigGroup->getString("Language");
+		if (language.empty() || language == "default")
+		{
+			language = sConfigGroup->getString("InstallLanguage");
+		}
+		if (language.empty() || language == "default")
+		{
+			language = sConfigGroup->getString("SystemLanguage");
+		}
+		if (language.empty() || language == "default")
+		{
+			language = "en-us";
+		}
+	}
+	return language;
+}
+
 //static
 std::string LLUI::locateSkin(const std::string& filename)
 {
@@ -1660,11 +1686,7 @@ std::string LLUI::locateSkin(const std::string& filename)
 	{
 		if (!gDirUtilp->fileExists(found_file))
 		{
-			std::string localization(sConfigGroup->getString("Language"));		
-			if(localization == "default")
-			{
-				localization = sConfigGroup->getString("SystemLanguage");
-			}
+			std::string localization = getLanguage();
 			std::string local_skin = "xui" + slash + localization + slash + filename;
 			found_file = gDirUtilp->findSkinnedFilename(local_skin);
 		}

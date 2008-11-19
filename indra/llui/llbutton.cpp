@@ -38,6 +38,7 @@
 #include "llstring.h"
 
 // Project includes
+#include "llhtmlhelp.h"
 #include "llkeyboard.h"
 #include "llui.h"
 #include "lluiconstants.h"

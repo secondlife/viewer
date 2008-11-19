@@ -296,6 +296,9 @@ const std::string LOGOUT_MARKER_FILE_NAME("SecondLife.logout_marker");
 static BOOL gDoDisconnect = FALSE;
 static std::string gLaunchFileOnQuit;
 
+// Used on Win32 for other apps to identify our window (eg, win_setup)
+const char* const VIEWER_WINDOW_CLASSNAME = "Second Life";
+
 //----------------------------------------------------------------------------
 // File scope definitons
 const char *VFS_DATA_FILE_BASE = "data.db2.x.";
@@ -2082,7 +2085,8 @@ bool LLAppViewer::initWindow()
 
 	// always start windowed
 	BOOL ignorePixelDepth = gSavedSettings.getBOOL("IgnorePixelDepth");
-	gViewerWindow = new LLViewerWindow(gWindowTitle, "Second Life",
+	gViewerWindow = new LLViewerWindow(gWindowTitle, 
+		VIEWER_WINDOW_CLASSNAME,
 		gSavedSettings.getS32("WindowX"), gSavedSettings.getS32("WindowY"),
 		gSavedSettings.getS32("WindowWidth"), gSavedSettings.getS32("WindowHeight"),
 		FALSE, ignorePixelDepth);

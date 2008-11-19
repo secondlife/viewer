@@ -33,6 +33,36 @@ THE SOFTWARE.
 $/LicenseInfo$
 """
 
+import sys
+import os.path
+
+# Look for indra/lib/python in all possible parent directories ...
+# This is an improvement over the setup-path.py method used previously:
+#  * the script may blocated anywhere inside the source tree
+#  * it doesn't depend on the current directory
+#  * it doesn't depend on another file being present.
+
+def add_indra_lib_path():
+    root = os.path.realpath(__file__)
+    # always insert the directory of the script in the search path
+    dir = os.path.dirname(root)
+    if dir not in sys.path:
+        sys.path.insert(0, dir)
+
+    # Now go look for indra/lib/python in the parent dies
+    while root != os.path.sep:
+        root = os.path.dirname(root)
+        dir = os.path.join(root, 'indra', 'lib', 'python')
+        if os.path.isdir(dir):
+            if dir not in sys.path:
+                sys.path.insert(0, dir)
+            return root
+    else:
+        print >>sys.stderr, "This script is not inside a valid installation."
+        sys.exit(1)
+
+base_dir = add_indra_lib_path()
+
 import copy
 import md5
 import optparse
@@ -40,24 +70,12 @@ import os
 import platform
 import pprint
 import shutil
-import sys
 import tarfile
 import tempfile
 import urllib2
 import urlparse
 
 from sets import Set as set, ImmutableSet as frozenset
-
-# Locate -our- python library relative to our install location.
-from os.path import realpath, dirname, join
-
-# Walk back to checkout base directory
-base_dir = dirname(dirname(realpath(__file__)))
-# Walk in to libraries directory
-lib_dir = join(join(join(base_dir, 'indra'), 'lib'), 'python')
-
-if lib_dir not in sys.path:
-    sys.path.insert(0, lib_dir)
 
 from indra.base import llsd
 from indra.util import helpformatter
@@ -830,13 +848,13 @@ darwin/universal/gcc/4.0
     parser.add_option(
         '--install-manifest', 
         type='string',
-        default=join(base_dir, 'install.xml'),
+        default=os.path.join(base_dir, 'install.xml'),
         dest='install_filename',
         help='The file used to describe what should be installed.')
     parser.add_option(
         '--installed-manifest', 
         type='string',
-        default=join(base_dir, 'installed.xml'),
+        default=os.path.join(base_dir, 'installed.xml'),
         dest='installed_filename',
         help='The file used to record what is installed.')
     parser.add_option(

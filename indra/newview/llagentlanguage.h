@@ -32,7 +32,7 @@
 #ifndef LL_LLAGENTLANGUAGE_H
 #define LL_LLAGENTLANGUAGE_H
 
-#include "llmemory.h"
+#include "llmemory.h"	// LLSingleton<>
 #include "llevent.h"
 
 class LLAgentLanguage: public LLSingleton<LLAgentLanguage>, public LLSimpleListener

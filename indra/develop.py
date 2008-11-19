@@ -613,7 +613,7 @@ setup_platform = {
 
 
 usage_msg = '''
-Usage:   develop.py [options] command [command-options]
+Usage:   develop.py [options] [command [command-options]]
 
 Options:
   -h | --help           print this help message
@@ -623,21 +623,27 @@ Options:
   -t | --type=NAME      build type ("Debug", "Release", or "RelWithDebInfo")
   -N | --no-distcc      disable use of distcc
   -G | --generator=NAME generator name
-                        Windows: VC71 or VS2003 (default), VC80 (VS2005) or VC90 (VS2008)
+                        Windows: VC71 or VS2003 (default), VC80 (VS2005) or 
+                          VC90 (VS2008)
                         Mac OS X: Xcode (default), Unix Makefiles
                         Linux: Unix Makefiles (default), KDevelop3
 Commands:
-  build       configure and build default target
-  clean       delete all build directories (does not affect sources)
-  configure   configure project by running cmake
+  build      configure and build default target
+  clean      delete all build directories, does not affect sources
+  configure  configure project by running cmake (default command if none given)
 
-If you do not specify a command, the default is "configure".
+Command-options for "configure":
+  We use cmake variables to change the build configuration.
+  -DSERVER:BOOL=OFF        Don't configure simulator/dataserver/etc
+  -DVIEWER:BOOL=OFF        Don't configure the viewer
+  -DPACKAGE:BOOL=ON        Create "package" target to make installers
+  -DLOCALIZESETUP:BOOL=ON  Create one win_setup target per supported language
 
 Examples:
   Set up a viewer-only project for your system:
     develop.py configure -DSERVER:BOOL=OFF
   
-  Set up a Visual Studio 2005 project with package target (to build installer):
+  Set up a Visual Studio 2005 project with "package" target:
     develop.py -G vc80 configure -DPACKAGE:BOOL=ON
 '''
 

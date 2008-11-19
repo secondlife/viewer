@@ -925,11 +925,7 @@ void LLPanelLogin::loadLoginPage()
 	}
 
 	// Language
-	std::string language(gSavedSettings.getString("Language"));
-	if(language == "default")
-	{
-		language = gSavedSettings.getString("SystemLanguage");
-	}
+	std::string language = LLUI::getLanguage();
 	oStr << first_query_delimiter<<"lang=" << language;
 	
 	// First Login?

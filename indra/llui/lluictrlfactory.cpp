@@ -130,15 +130,7 @@ void LLUICtrlFactory::setupPaths()
 		for (path = root->getFirstChild(); path.notNull(); path = path->getNextSibling())
 		{
 			LLUIString path_val_ui(path->getValue());
-			std::string language = "en-us";
-			if (LLUI::sConfigGroup)
-			{
-				language = LLUI::sConfigGroup->getString("Language");
-				if(language == "default")
-				{
-					language = LLUI::sConfigGroup->getString("SystemLanguage");
-				}
-			}
+			std::string language = LLUI::getLanguage();
 			path_val_ui.setArg("[LANGUAGE]", language);
 
 			if (std::find(sXUIPaths.begin(), sXUIPaths.end(), path_val_ui.getString()) == sXUIPaths.end())

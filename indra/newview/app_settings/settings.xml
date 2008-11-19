@@ -3971,7 +3971,18 @@
       <key>Value</key>
       <real>0.0</real>
     </map>
-    <key>InventoryAutoOpenDelay</key>
+	<key>InstallLanguage</key>
+	<map>
+		<key>Comment</key>
+		<string>Language passed from installer (for UI)</string>
+		<key>Persist</key>
+		<integer>1</integer>
+		<key>Type</key>
+		<string>String</string>
+		<key>Value</key>
+		<string>default</string>
+	</map>
+	<key>InventoryAutoOpenDelay</key>
     <map>
       <key>Comment</key>
       <string>Seconds before automatically opening inventory when mouse is over inventory button when performing inventory drag and drop</string>
@@ -4221,7 +4232,7 @@
     <key>Language</key>
     <map>
       <key>Comment</key>
-      <string>Language specifier (for XUI)</string>
+      <string>Language specifier (for UI)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -7670,7 +7681,7 @@
     <key>SystemLanguage</key>
     <map>
       <key>Comment</key>
-      <string>Language indicated by system settings (for XUI)</string>
+      <string>Language indicated by system settings (for UI)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>

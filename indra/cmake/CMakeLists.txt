@@ -28,6 +28,7 @@ set(cmake_SOURCE_FILES
     FindELFIO.cmake
     FindGooglePerfTools.cmake
     FindMono.cmake
+    FindMT.cmake
     FindMySQL.cmake
     FindOpenJPEG.cmake
     FindXmlRpcEpi.cmake

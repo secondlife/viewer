@@ -38,15 +38,17 @@
 #include "llcontrol.h"
 #include "llrect.h"
 #include "llcoord.h"
-#include "llhtmlhelp.h"
-#include "llgl.h"
+//#include "llhtmlhelp.h"
+#include "llgl.h"			// *TODO: break this dependency
 #include <stack>
-#include "llimagegl.h"
+//#include "llimagegl.h"
 
 // LLUIFactory
 #include "llsd.h"
 
 class LLColor4; 
+class LLHtmlHelp;
+class LLImageGL;
 class LLVector3;
 class LLVector2;
 class LLUUID;
@@ -139,13 +141,6 @@ inline void gl_rect_2d_offset_local( const LLRect& rect, S32 pixel_offset, BOOL 
 	gl_rect_2d_offset_local( rect.mLeft, rect.mTop, rect.mRight, rect.mBottom, pixel_offset, filled );
 }
 
-// No longer used
-// Initializes translation table
-// void init_tr();
-
-// Returns a string from the string table in the correct language
-// std::string tr(const std::string& english_chars);
-
 // Used to hide the flashing text cursor when window doesn't have focus.
 extern BOOL gShowTextEditCursor;
 
@@ -171,6 +166,10 @@ public:
 	static void popMatrix();
 	static void loadIdentity();
 	static void translate(F32 x, F32 y, F32 z = 0.0f);
+
+	// Return the ISO639 language name ("en", "ko", etc.) for the viewer UI.
+	// http://www.loc.gov/standards/iso639-2/php/code_list.php
+	static std::string getLanguage();
 
 	//helper functions (should probably move free standing rendering helper functions here)
 	static std::string locateSkin(const std::string& filename);
