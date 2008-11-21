@@ -903,7 +903,7 @@ void LLViewerObjectList::killAllObjects()
 	if (!mMapObjects.empty())
 	{
 		llwarns << "Some objects still on map object list!" << llendl;
-		mActiveObjects.clear();
+		mMapObjects.clear();
 	}
 }
 

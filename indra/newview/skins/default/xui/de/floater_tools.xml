@@ -168,9 +168,9 @@
 			<text name="label click action">
 				Bei Linksklicken:
 			</text>
-			<combo_box name="clickaction">
+			<combo_box name="clickaction" width="178">
 				<combo_item name="Touch/grab(default)">
-					Berühren/greifen (Standard)
+					Berühren/Greifen (Standard)
 				</combo_item>
 				<combo_item name="Sitonobject">
 					Auf Objekt sitzen
@@ -590,13 +590,13 @@
 		<text name="label_area">
 			Fläche: [AREA] m2
 		</text>
-		<button label="Land kaufen..." label_selected="Land kaufen..." name="button buy land" />
-		<button label="Land aufgeben..." label_selected="Land aufgeben..."
+		<button label="Land kaufen..." label_selected="Land kaufen..." name="button buy land"  width="110" />
+		<button label="Land aufgeben..." label_selected="Land aufgeben..."  width="110"
 		     name="button abandon land" />
-		<button label="Unterteilen..." label_selected="Unterteilen..."
+		<button label="Unterteilen..." label_selected="Unterteilen..." width="110"
 		     name="button subdivide land" />
-		<button label="Zusammenlegen" label_selected="Zusammenlegen" name="button join land" />
-		<button label="Info zu Land..." label_selected="Info zu Land..."
+		<button label="Zusammenlegen" label_selected="Zusammenlegen" name="button join land" width="110" />
+		<button label="Info zu Land..." label_selected="Info zu Land..."  width="110"
 		     name="button about land" />
 	</panel>
 	<text name="status_rotate">
@@ -606,7 +606,7 @@
 		Klicken und ziehen, um die ausgewählte Seite zu dehnen
 	</text>
 	<text name="status_move">
-		Maus verschiebt, Shift-Taste und Maus kopiert
+		Maus verschiebt, Umschalt-Taste und Maus kopiert
 	</text>
 	<text name="status_modifyland">
 		Klicken und halten, um das Land zu bearbeiten
@@ -615,10 +615,10 @@
 		Klicken und ziehen, um die Ansicht zu ändern
 	</text>
 	<text name="status_grab">
-		Objekt new positionierern
+		Objekt neu positionieren
 	</text>
 	<text name="status_place">
-		Mausklick erstellt, Shift-Mausklick wählt aus
+		Mausklick erstellt, Umschalt-Mausklick wählt aus
 	</text>
 	<text name="status_selectland">
 		Klicken und ziehen, um Land auszuwählen

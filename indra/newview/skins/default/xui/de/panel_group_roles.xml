@@ -46,13 +46,13 @@ Mitglieder diese Fähigkeit haben.
 		</text>
 	</panel>
 	<tab_container name="roles_tab_container">
-		<panel label="Mitglieder" name="members_sub_tab" tool_tip="Members">
+		<panel label="Mitglieder" name="members_sub_tab" tool_tip="Mitglieder">
 			<button label="Suchen" name="search_button" />
 			<button label="Alle anzeigen" name="show_all_button" />
 			<name_list name="member_list">
-				<column label="Member Name" name="name" />
-				<column label="Donated Tier" name="donated" />
-				<column label="Last Login" name="online" />
+				<column label="Mitgliedsname" name="name" />
+				<column name="donated" />
+				<column label="Letzte Anmeldung" name="online" />
 			</name_list>
 			<button label="Neue Person einladen..." name="member_invite" />
 			<button label="Aus Gruppe werfen" name="member_eject" />
@@ -66,9 +66,9 @@ um mehrere Mitglieder auszuwählen.
 			<button label="Suchen" name="search_button" />
 			<button label="Alle anzeigen" name="show_all_button" />
 			<scroll_list name="role_list">
-				<column label="Role Name" name="name" />
-				<column label="Title" name="title" />
-				<column label="Members" name="members" />
+				<column name="name" />
+				<column label="Titel" name="title" />
+				<column label="Mitglieder" name="members" />
 			</scroll_list>
 			<button label="Neue Rolle erstellen..." name="role_create" />
 			<button label="Rolle löschen" name="role_delete" />

@@ -166,10 +166,7 @@ class WindowsManifest(ViewerManifest):
         # need to get the kdu dll from any of the build directories as well
         try:
             self.path(self.find_existing_file(
-                # *FIX:Mani we need to add support for packaging specific targets.
-                #'../llkdu/debug/llkdu.dll',
-                '../llkdu/release/llkdu.dll',
-                '../llkdu/relwithdebinfo/llkdu.dll',
+                '../llkdu/%s/llkdu.dll' % self.args['configuration'],
                 '../../libraries/i686-win32/lib/release/llkdu.dll'), 
                   dst='llkdu.dll')
         except:
@@ -190,8 +187,18 @@ class WindowsManifest(ViewerManifest):
             self.end_prefix()
 
         # Mozilla appears to force a dependency on these files so we need to ship it (CP)
-        self.path("msvcr80.dll")
-        self.path("msvcp80.dll")
+        # These need to be installed as a SxS assembly, currently a 'private' assembly.
+        # See http://msdn.microsoft.com/en-us/library/ms235291(VS.80).aspx
+        if self.prefix(src=self.args['configuration'], dst=""):
+            if self.args['configuration'] == 'Debug':
+                self.path("msvcr80d.dll")
+                self.path("msvcp80d.dll")
+                self.path("Microsoft.VC80.DebugCRT.manifest")
+            else:
+                self.path("msvcr80.dll")
+                self.path("msvcp80.dll")
+                self.path("Microsoft.VC80.CRT.manifest")
+            self.end_prefix()
 
         # Mozilla runtime DLLs (CP)
         if self.prefix(src="../../libraries/i686-win32/lib/release", dst=""):
@@ -219,6 +226,11 @@ class WindowsManifest(ViewerManifest):
             self.path("res/*.*")
             self.path("res/*/*")
             self.end_prefix()
+
+        # Mozilla hack to get it to accept newer versions of msvc*80.dll than are listed in manifest
+        # necessary as llmozlib2-vc80.lib refers to an old version of msvc*80.dll - can be removed when new version of llmozlib is built - Nyx
+        # The config file name needs to match the exe's name.
+        self.path("SecondLife.exe.config", dst=self.final_exe() + ".config")
 
         # Vivox runtimes
         if self.prefix(src="vivox-runtime/i686-win32", dst=""):

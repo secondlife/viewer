@@ -245,9 +245,9 @@ public:
 	llwchar			getWChar(S32 pos) const { return mWText[pos]; }
 	LLWString		getWSubString(S32 pos, S32 len) const { return mWText.substr(pos, len); }
 	
-	const LLTextSegment*	getCurrentSegment() { return getSegmentAtOffset(mCursorPos); }
-	const LLTextSegment*	getPreviousSegment();
-	void getSelectedSegments(std::vector<const LLTextSegment*>& segments);
+	const LLTextSegment*	getCurrentSegment() const { return getSegmentAtOffset(mCursorPos); }
+	const LLTextSegment*	getPreviousSegment() const;
+	void getSelectedSegments(std::vector<const LLTextSegment*>& segments) const;
 
 	static bool		isPartOfWord(llwchar c) { return (c == '_') || LLStringOps::isAlnum((char)c); }
 
@@ -433,6 +433,14 @@ private:
 	void			drawText();
 	void			drawClippedSegment(const LLWString &wtext, S32 seg_start, S32 seg_end, F32 x, F32 y, S32 selection_left, S32 selection_right, const LLStyleSP& color, F32* right_x);
 
+	void			needsReflow() 
+	{ 
+		mReflowNeeded = TRUE; 
+		// cursor might have moved, need to scroll
+		mScrollNeeded = TRUE;
+	}
+	void			needsScroll() { mScrollNeeded = TRUE; }
+
 	//
 	// Data
 	//
@@ -489,6 +497,8 @@ private:
 	};
 	typedef std::vector<line_info> line_list_t;
 	line_list_t mLineStartList;
+	BOOL			mReflowNeeded;
+	BOOL			mScrollNeeded;
 
 	LLFrameTimer	mKeystrokeTimer;
 

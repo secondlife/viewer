@@ -435,9 +435,9 @@
 	</string>
 	<!-- Chat -->
 	<string name="whisper">
-		ささやく:
+		のささやき:
 	</string>
 	<string name="shout">
-		叫ぶ:
+		の叫び:
 	</string>
 </strings>

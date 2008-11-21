@@ -22,9 +22,9 @@ Eine Mitteilungsliste speichert maximal 200 Mitteilungen pro Gruppe täglich.
 	</text>
 	<scroll_list name="notice_list">
 		<column label="" name="icon" />
-		<column label="Subject" name="subject" />
-		<column label="From" name="from" />
-		<column label="Date" name="date" />
+		<column label="Thema" name="subject" />
+		<column label="Von" name="from" />
+		<column label="Datum" name="date" />
 	</scroll_list>
 	<text name="notice_list_none_found">
 		Nicht gefunden.

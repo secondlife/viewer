@@ -1,11 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel label="Land und L$" name="land_money_tab">
 	<text name="help_text">
-		Es werden Parzellen in Gruppenbesitz und 
-Beitragsdetails angezeigt. Solange der Wert für &apos;Insgesamt
-verwendet Land&apos; unter oder gleich dem Wert für
-&apos;Gesamtbeitrag&apos; ist, wird eine Warnung angezeigt. Die Registerkarten &apos;Planung&apos;, &apos;Details&apos; und &apos;Verkäufe&apos;
-enthalten Informationen über die Gruppenfinanzen.
+		Es werden Parzellen in Gruppenbesitz und Beitragsdetails angezeigt. Solange der Wert für &apos;Insgesamt verwendetes Land&apos; unter oder gleich dem Wert für &apos;Gesamtbeitrag&apos; ist, wird eine Warnung angezeigt. Die Registerkarten &apos;Planung&apos;, &apos;Details&apos; und &apos;Verkäufe&apos; enthalten Informationen über die Gruppenfinanzen.
 	</text>
 	<button label="?" name="help_button" />
 	<text name="cant_view_group_land_text">
@@ -21,9 +17,9 @@ enthalten Informationen über die Gruppenfinanzen.
 		Land in Gruppenbesitz
 	</text>
 	<scroll_list name="group_parcel_list">
-		<column label="Parcel Name" name="name" />
+		<column label="Parzellenname" name="name" />
 		<column label="Region" name="location" />
-		<column label="Area" name="area" />
+		<column label="Gebiet" name="area" />
 		<column label="" name="hidden" />
 	</scroll_list>
 	<button label="Auf Karte" label_selected="Auf Karte" name="map_button" />
@@ -55,10 +51,11 @@ enthalten Informationen über die Gruppenfinanzen.
 		Ihr Landbeitrag kann nicht festgelegt werden.
 	</string>
 	<text name="your_contribution_max_value">
-		Quadratmeter (max. [AMOUNT])
+		qm (max. [AMOUNT])
 	</text>
 	<text name="group_over_limit_text">
-		Die Gruppenmitglieder müssen mehr Landnutzungsrechte spenden, damit das verwendete Land gehalten werden kann.
+		Die Gruppenmitglieder müssen mehr Landnutzungsrechte spenden, damit
+das verwendete Land gehalten werden kann.
 	</text>
 	<text name="group_money_heading">
 		Gruppen-L$

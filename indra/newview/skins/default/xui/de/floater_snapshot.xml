@@ -112,10 +112,10 @@
 	<spinner label="Höhe" name="snapshot_height"/>
 	<check_box label="Seitenverhältnis beibehalten" name="keep_aspect_check"/>
 	<slider label="Bildqualität" name="image_quality_slider"/>
-	<text name="layer_type_label">
+	<text name="layer_type_label" width="63">
 		Aufnehmen:
 	</text>
-	<combo_box label="Bildlayer" name="layer_types">
+	<combo_box label="Bildlayer" name="layer_types" width="132" left="73">
 		<combo_item name="Colors">
 			Farben
 		</combo_item>

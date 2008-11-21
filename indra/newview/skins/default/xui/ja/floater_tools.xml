@@ -74,7 +74,7 @@
 	<check_box label="土地を選択" name="radio select land" />
 	<check_box label="土地をならす" name="radio flatten" />
 	<check_box label="土地を隆起させる" name="radio raise" />
-	<check_box label="低地" name="radio lower" />
+	<check_box label="土地を低くする" name="radio lower" />
 	<check_box label="土地を滑らかにする" name="radio smooth" />
 	<check_box label="土地を荒らす" name="radio noise" />
 	<check_box label="土地を元に戻す" name="radio revert" />

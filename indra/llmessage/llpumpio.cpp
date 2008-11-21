@@ -177,7 +177,8 @@ LLPumpIO::LLPumpIO(apr_pool_t* pool) :
 	mCurrentPool(NULL),
 	mCurrentPoolReallocCount(0),
 	mChainsMutex(NULL),
-	mCallbackMutex(NULL)
+	mCallbackMutex(NULL),
+	mCurrentChain(mRunningChains.end())
 {
 	LLMemType m1(LLMemType::MTYPE_IO_PUMP);
 	initialize(pool);
@@ -273,7 +274,10 @@ bool LLPumpIO::setTimeoutSeconds(F32 timeout)
 void LLPumpIO::adjustTimeoutSeconds(F32 delta)
 {
 	// If no chain is running, bail
-	if(current_chain_t() == mCurrentChain) return;
+	if(mRunningChains.end() == mCurrentChain) 
+	{
+		return;
+	}
 	(*mCurrentChain).adjustTimeoutSeconds(delta);
 }
 
