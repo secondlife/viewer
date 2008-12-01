@@ -119,7 +119,7 @@ BOOL LLMessageThrottle::addViewerAlert(const LLUUID& to, const std::string& mesg
 	full_mesg << to << mesg;
 
 	// Create an entry for this message.
-	size_t hash = llhash<const char*> (full_mesg.str().c_str());
+	size_t hash = llhash(full_mesg.str().c_str());
 	LLMessageThrottleEntry entry(hash, LLFrameTimer::getTotalTime());
 
 	// Check if this message is already in the list.
@@ -153,7 +153,7 @@ BOOL LLMessageThrottle::addAgentAlert(const LLUUID& agent, const LLUUID& task, c
 	full_mesg << agent << task << mesg;
 
 	// Create an entry for this message.
-	size_t hash = llhash<const char*> (full_mesg.str().c_str());
+	size_t hash = llhash(full_mesg.str().c_str());
 	LLMessageThrottleEntry entry(hash, LLFrameTimer::getTotalTime());
 
 	// Check if this message is already in the list.

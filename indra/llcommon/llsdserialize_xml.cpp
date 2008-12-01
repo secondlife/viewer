@@ -318,8 +318,8 @@ private:
 	bool mSkipping;
 	int mSkipThrough;
 	
-	std::string mCurrentKey;
-	std::ostringstream mCurrentContent;
+	std::string mCurrentKey;		// Current XML <tag>
+	std::string mCurrentContent;	// String data between <tag> and </tag>
 };
 
 
@@ -556,16 +556,50 @@ void LLSDXMLParser::Impl::parsePart(const char* buf, int len)
 	}
 }
 
+// Performance testing code
+//#define	XML_PARSER_PERFORMANCE_TESTS
+
+#ifdef XML_PARSER_PERFORMANCE_TESTS
+
+extern U64 totalTime();
+U64	readElementTime = 0;
+U64 startElementTime = 0;
+U64 endElementTime = 0;
+U64 charDataTime = 0;
+U64 parseTime = 0;
+
+class XML_Timer
+{
+public:
+	XML_Timer( U64 * sum ) : mSum( sum )
+	{
+		mStart = totalTime();
+	}
+	~XML_Timer()
+	{
+		*mSum += (totalTime() - mStart);
+	}
+
+	U64 * mSum;
+	U64 mStart;
+};
+#endif // XML_PARSER_PERFORMANCE_TESTS
+
 void LLSDXMLParser::Impl::startElementHandler(const XML_Char* name, const XML_Char** attributes)
 {
+	#ifdef XML_PARSER_PERFORMANCE_TESTS
+	XML_Timer timer( &startElementTime );
+	#endif // XML_PARSER_PERFORMANCE_TESTS
+	
 	++mDepth;
 	if (mSkipping)
 	{
 		return;
 	}
-	
+
 	Element element = readElement(name);
-	mCurrentContent.str("");
+	
+	mCurrentContent.clear();
 
 	switch (element)
 	{
@@ -645,6 +679,10 @@ void LLSDXMLParser::Impl::startElementHandler(const XML_Char* name, const XML_Ch
 
 void LLSDXMLParser::Impl::endElementHandler(const XML_Char* name)
 {
+	#ifdef XML_PARSER_PERFORMANCE_TESTS
+	XML_Timer timer( &endElementTime );
+	#endif // XML_PARSER_PERFORMANCE_TESTS
+
 	--mDepth;
 	if (mSkipping)
 	{
@@ -669,7 +707,7 @@ void LLSDXMLParser::Impl::endElementHandler(const XML_Char* name)
 			return;
 	
 		case ELEMENT_KEY:
-			mCurrentKey = mCurrentContent.str();
+			mCurrentKey = mCurrentContent;
 			return;
 			
 		default:
@@ -682,9 +720,6 @@ void LLSDXMLParser::Impl::endElementHandler(const XML_Char* name)
 	LLSD& value = *mStack.back();
 	mStack.pop_back();
 	
-	std::string content = mCurrentContent.str();
-	mCurrentContent.str("");
-
 	switch (element)
 	{
 		case ELEMENT_UNDEF:
@@ -692,39 +727,59 @@ void LLSDXMLParser::Impl::endElementHandler(const XML_Char* name)
 			break;
 		
 		case ELEMENT_BOOL:
-			value = content == "true" || content == "1";
+			value = (mCurrentContent == "true" || mCurrentContent == "1");
 			break;
 		
 		case ELEMENT_INTEGER:
-			value = LLSD(content).asInteger();
+			{
+				S32 i;
+				if ( sscanf(mCurrentContent.c_str(), "%d", &i ) == 1 )
+				{	// See if sscanf works - it's faster
+					value = i;
+				}
+				else
+				{
+					value = LLSD(mCurrentContent).asInteger();
+				}
+			}
 			break;
 		
 		case ELEMENT_REAL:
-			value = LLSD(content).asReal();
+			{
+				F64 r;
+				if ( sscanf(mCurrentContent.c_str(), "%lf", &r ) == 1 )
+				{	// See if sscanf works - it's faster
+					value = r;
+				}
+				else
+				{
+					value = LLSD(mCurrentContent).asReal();
+				}
+			}
 			break;
 		
 		case ELEMENT_STRING:
-			value = content;
+			value = mCurrentContent;
 			break;
 		
 		case ELEMENT_UUID:
-			value = LLSD(content).asUUID();
+			value = LLSD(mCurrentContent).asUUID();
 			break;
 		
 		case ELEMENT_DATE:
-			value = LLSD(content).asDate();
+			value = LLSD(mCurrentContent).asDate();
 			break;
 		
 		case ELEMENT_URI:
-			value = LLSD(content).asURI();
+			value = LLSD(mCurrentContent).asURI();
 			break;
 		
 		case ELEMENT_BINARY:
 		{
-			S32 len = apr_base64_decode_len(content.c_str());
+			S32 len = apr_base64_decode_len(mCurrentContent.c_str());
 			std::vector<U8> data;
 			data.resize(len);
-			len = apr_base64_decode_binary(&data[0], content.c_str());
+			len = apr_base64_decode_binary(&data[0], mCurrentContent.c_str());
 			data.resize(len);
 			value = data;
 			break;
@@ -738,11 +793,17 @@ void LLSDXMLParser::Impl::endElementHandler(const XML_Char* name)
 			// other values, map and array, have already been set
 			break;
 	}
+
+	mCurrentContent.clear();
 }
 
 void LLSDXMLParser::Impl::characterDataHandler(const XML_Char* data, int length)
 {
-	mCurrentContent.write(data, length);
+	#ifdef XML_PARSER_PERFORMANCE_TESTS
+	XML_Timer timer( &charDataTime );
+	#endif	// XML_PARSER_PERFORMANCE_TESTS
+
+	mCurrentContent.append(data, length);
 }
 
 
@@ -765,22 +826,69 @@ void LLSDXMLParser::Impl::sCharacterDataHandler(
 }
 
 
+/*
+	This code is time critical
+
+	This is a sample of tag occurances of text in simstate file with ~8000 objects.
+	A tag pair (<key>something</key>) counts is counted as two:
+
+		key     - 2680178
+		real    - 1818362
+		integer -  906078
+		array   -  295682
+		map     -  191818
+		uuid    -  177903
+		binary  -  175748
+		string  -   53482
+		undef   -   40353
+		boolean -   33874
+		llsd    -   16332
+		uri     -      38
+		date    -       1
+*/
 LLSDXMLParser::Impl::Element LLSDXMLParser::Impl::readElement(const XML_Char* name)
 {
-	if (strcmp(name, "llsd") == 0) { return ELEMENT_LLSD; }
-	if (strcmp(name, "undef") == 0) { return ELEMENT_UNDEF; }
-	if (strcmp(name, "boolean") == 0) { return ELEMENT_BOOL; }
-	if (strcmp(name, "integer") == 0) { return ELEMENT_INTEGER; }
-	if (strcmp(name, "real") == 0) { return ELEMENT_REAL; }
-	if (strcmp(name, "string") == 0) { return ELEMENT_STRING; }
-	if (strcmp(name, "uuid") == 0) { return ELEMENT_UUID; }
-	if (strcmp(name, "date") == 0) { return ELEMENT_DATE; }
-	if (strcmp(name, "uri") == 0) { return ELEMENT_URI; }
-	if (strcmp(name, "binary") == 0) { return ELEMENT_BINARY; }
-	if (strcmp(name, "map") == 0) { return ELEMENT_MAP; }
-	if (strcmp(name, "array") == 0) { return ELEMENT_ARRAY; }
-	if (strcmp(name, "key") == 0) { return ELEMENT_KEY; }
-	
+	#ifdef XML_PARSER_PERFORMANCE_TESTS
+	XML_Timer timer( &readElementTime );
+	#endif // XML_PARSER_PERFORMANCE_TESTS
+
+	XML_Char c = *name;
+	switch (c)
+	{
+		case 'k':
+			if (strcmp(name, "key") == 0) { return ELEMENT_KEY; }
+			break;
+		case 'r':
+			if (strcmp(name, "real") == 0) { return ELEMENT_REAL; }
+			break;
+		case 'i':
+			if (strcmp(name, "integer") == 0) { return ELEMENT_INTEGER; }
+			break;
+		case 'a':
+			if (strcmp(name, "array") == 0) { return ELEMENT_ARRAY; }
+			break;
+		case 'm':
+			if (strcmp(name, "map") == 0) { return ELEMENT_MAP; }
+			break;
+		case 'u':
+			if (strcmp(name, "uuid") == 0) { return ELEMENT_UUID; }
+			if (strcmp(name, "undef") == 0) { return ELEMENT_UNDEF; }
+			if (strcmp(name, "uri") == 0) { return ELEMENT_URI; }
+			break;
+		case 'b':
+			if (strcmp(name, "binary") == 0) { return ELEMENT_BINARY; }
+			if (strcmp(name, "boolean") == 0) { return ELEMENT_BOOL; }
+			break;
+		case 's':
+			if (strcmp(name, "string") == 0) { return ELEMENT_STRING; }
+			break;
+		case 'l':
+			if (strcmp(name, "llsd") == 0) { return ELEMENT_LLSD; }
+			break;
+		case 'd':
+			if (strcmp(name, "date") == 0) { return ELEMENT_DATE; }
+			break;
+	}
 	return ELEMENT_UNKNOWN;
 }
 
@@ -808,6 +916,10 @@ void LLSDXMLParser::parsePart(const char *buf, int len)
 // virtual
 S32 LLSDXMLParser::doParse(std::istream& input, LLSD& data) const
 {
+	#ifdef XML_PARSER_PERFORMANCE_TESTS
+	XML_Timer timer( &parseTime );
+	#endif	// XML_PARSER_PERFORMANCE_TESTS
+
 	if (mParseLines)
 	{
 		// Use line-based reading (faster code)

@@ -114,6 +114,11 @@ const BOOL FLEXIBLE_OBJECT_DEFAULT_RENDERING_COLLISION_SPHERE = FALSE;
 
 const char *SCULPT_DEFAULT_TEXTURE = "be293869-d0d9-0a69-5989-ad27f1946fd4"; // old inverted texture: "7595d345-a24c-e7ef-f0bd-78793792133e";
 
+// Texture rotations are sent over the wire as a S16.  This is used to scale the actual float
+// value to a S16.   Don't use 7FFF as it introduces some odd rounding with 180 since it 
+// can't be divided by 2.   See DEV-19108
+const F32	TEXTURE_ROTATION_PACK_FACTOR = ((F32) 0x08000);
+
 //static 
 // LEGACY: by default we use the LLVolumeMgr::gVolumeMgr global
 // TODO -- eliminate this global from the codebase!
@@ -1373,7 +1378,7 @@ BOOL LLPrimitive::packTEMessage(LLMessageSystem *mesgsys) const
 			scale_t[face_index] = (F32) te->mScaleT;
 			offset_s[face_index] = (S16) llround((llclamp(te->mOffsetS,-1.0f,1.0f) * (F32)0x7FFF)) ;
 			offset_t[face_index] = (S16) llround((llclamp(te->mOffsetT,-1.0f,1.0f) * (F32)0x7FFF)) ;
-			image_rot[face_index] = (S16) llround(((fmod(te->mRotation, F_TWO_PI)/F_TWO_PI) * (F32)0x7FFF));
+			image_rot[face_index] = (S16) llround(((fmod(te->mRotation, F_TWO_PI)/F_TWO_PI) * TEXTURE_ROTATION_PACK_FACTOR));
 			bump[face_index] = te->getBumpShinyFullbright();
 			media_flags[face_index] = te->getMediaTexGen();
 			glow[face_index] = (U8) llround((llclamp(te->getGlow(), 0.0f, 1.0f) * (F32)0xFF));
@@ -1452,7 +1457,7 @@ BOOL LLPrimitive::packTEMessage(LLDataPacker &dp) const
 			scale_t[face_index] = (F32) te->mScaleT;
 			offset_s[face_index] = (S16) llround((llclamp(te->mOffsetS,-1.0f,1.0f) * (F32)0x7FFF)) ;
 			offset_t[face_index] = (S16) llround((llclamp(te->mOffsetT,-1.0f,1.0f) * (F32)0x7FFF)) ;
-			image_rot[face_index] = (S16) llround(((fmod(te->mRotation, F_TWO_PI)/F_TWO_PI) * (F32)0x7FFF));
+			image_rot[face_index] = (S16) llround(((fmod(te->mRotation, F_TWO_PI)/F_TWO_PI) * TEXTURE_ROTATION_PACK_FACTOR));
 			bump[face_index] = te->getBumpShinyFullbright();
 			media_flags[face_index] = te->getMediaTexGen();
             glow[face_index] = (U8) llround((llclamp(te->getGlow(), 0.0f, 1.0f) * (F32)0xFF));
@@ -1566,7 +1571,7 @@ S32 LLPrimitive::unpackTEMessage(LLMessageSystem *mesgsys, char *block_name, con
 		retval |= setTETexture(i, ((LLUUID*)image_data)[i]);
 		retval |= setTEScale(i, scale_s[i], scale_t[i]);
 		retval |= setTEOffset(i, (F32)offset_s[i] / (F32)0x7FFF, (F32) offset_t[i] / (F32) 0x7FFF);
-		retval |= setTERotation(i, ((F32)image_rot[i]/ (F32)0x7FFF) * F_TWO_PI);
+		retval |= setTERotation(i, ((F32)image_rot[i] / TEXTURE_ROTATION_PACK_FACTOR) * F_TWO_PI);
 		retval |= setTEBumpShinyFullbright(i, bump[i]);
 		retval |= setTEMediaTexGen(i, media_flags[i]);
 		retval |= setTEGlow(i, (F32)glow[i] / (F32)0xFF);
@@ -1660,7 +1665,7 @@ S32 LLPrimitive::unpackTEMessage(LLDataPacker &dp)
 		retval |= setTETexture(i, image_ids[i]);
 		retval |= setTEScale(i, scale_s[i], scale_t[i]);
 		retval |= setTEOffset(i, (F32)offset_s[i] / (F32)0x7FFF, (F32) offset_t[i] / (F32) 0x7FFF);
-		retval |= setTERotation(i, ((F32)image_rot[i]/ (F32)0x7FFF) * F_TWO_PI);
+		retval |= setTERotation(i, ((F32)image_rot[i] / TEXTURE_ROTATION_PACK_FACTOR) * F_TWO_PI);
 		retval |= setTEBumpShinyFullbright(i, bump[i]);
 		retval |= setTEMediaTexGen(i, media_flags[i]);
 		retval |= setTEGlow(i, (F32)glow[i] / (F32)0xFF);
