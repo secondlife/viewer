@@ -15,7 +15,7 @@ Life itself - please see <http://www.secondlife.com/whatis/>.
    5.3. Blank window after minimizing it
    5.4. Audio
    5.5. 'Alt' key for camera controls doesn't work
-   5.6. In-world movie playback
+   5.6. In-world streaming movie/music playback
 6. Advanced Troubleshooting
    6.1. Audio
    6.2. OpenGL
@@ -173,11 +173,11 @@ SOLUTION:- Some window managers eat the Alt key for their own purposes; you
    example, the 'Windows' key!) which will allow the Alt key to function
    properly with mouse actions in Second Life and other applications.
 
-PROBLEM 6:- In-world movie playback doesn't work for me.
+PROBLEM 6:- In-world movie and/or music playback doesn't work for me.
 SOLUTION:- You need to have a working installation of GStreamer 0.10; this
    is usually an optional package for most versions of Linux.  If you have
-   installed GStreamer 0.10 and you can play some movies but not others then
-   you need to install a wider selection of GStreamer plugins, either
+   installed GStreamer 0.10 and you can play some music/movies but not others
+   then you need to install a wider selection of GStreamer plugins, either
    from your vendor or an appropriate third party.
 
 
@@ -187,11 +187,11 @@ SOLUTION:- You need to have a working installation of GStreamer 0.10; this
 The 'secondlife' script which launches Second Life contains some
 configuration options for advanced troubleshooters.
 
-* AUDIO - Edit the 'secondlife' script and you will see three audio
-  options: LL_BAD_ESD, LL_BAD_OSS, LL_BAD_ALSA.  Second Life tries to
-  use ESD, OSS, then ALSA audio drivers in this order; you may uncomment
-  the corresponding LL_BAD_* option to skip an audio driver which you
-  believe may be causing you trouble.
+* AUDIO - Edit the 'secondlife' script and you will see these audio
+  options: LL_BAD_OPENAL_DRIVER, LL_BAD_FMOD_ESD, LL_BAD_FMOD_OSS, and
+  LL_BAD_FMOD_ALSA.  Second Life tries to use OpenAL, ESD, OSS, then ALSA
+  audio drivers in this order; you may uncomment the corresponding LL_BAD_*
+  option to skip an audio driver which you believe may be causing you trouble.
 
 * OPENGL - For advanced troubleshooters, the LL_GL_BLACKLIST option lets
   you disable specific GL extensions, each of which is represented by a

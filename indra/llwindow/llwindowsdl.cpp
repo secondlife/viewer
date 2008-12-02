@@ -1,6 +1,7 @@
 /** 
  * @file llwindowsdl.cpp
  * @brief SDL implementation of LLWindow class
+ * @author This module has many fathers, and it shows.
  *
  * $LicenseInfo:firstyear=2001&license=viewergpl$
  * 
@@ -156,6 +157,8 @@ bool LLWindowSDL::ll_try_gtk_init(void)
 			llwarns << "- GTK COMPATIBILITY WARNING: " <<
 				gtk_warning << llendl;
 			gtk_is_good = FALSE;
+		} else {
+			llinfos << "- GTK version is good." << llendl;
 		}
 
 		done_gtk_diag = TRUE;
@@ -188,11 +191,12 @@ Display* LLWindowSDL::get_SDL_Display(void)
 
 
 LLWindowSDL::LLWindowSDL(const std::string& title, S32 x, S32 y, S32 width,
-							   S32 height, U32 flags,
-							   BOOL fullscreen, BOOL clearBg,
-							   BOOL disable_vsync, BOOL use_gl,
-							   BOOL ignore_pixel_depth, U32 fsaa_samples)
-	: LLWindow(fullscreen, flags), mGamma(1.0f)
+			 S32 height, U32 flags,
+			 BOOL fullscreen, BOOL clearBg,
+			 BOOL disable_vsync, BOOL use_gl,
+			 BOOL ignore_pixel_depth, U32 fsaa_samples)
+	: LLWindow(fullscreen, flags), Lock_Display(NULL),
+	  Unlock_Display(NULL), mGamma(1.0f)
 {
 	// Initialize the keyboard
 	gKeyboard = new LLKeyboardSDL();
@@ -200,10 +204,6 @@ LLWindowSDL::LLWindowSDL(const std::string& title, S32 x, S32 y, S32 width,
 
 	// Ignore use_gl for now, only used for drones on PC
 	mWindow = NULL;
-	mCursorDecoupled = FALSE;
-	mCursorLastEventDeltaX = 0;
-	mCursorLastEventDeltaY = 0;
-	mCursorIgnoreNextDelta = FALSE;
 	mNeedsResize = FALSE;
 	mOverrideAspectRatio = 0.f;
 	mGrabbyKeyFlags = 0;
@@ -717,8 +717,32 @@ BOOL LLWindowSDL::createContext(int x, int y, int width, int height, int bits, B
 #endif
 
 #if LL_X11
-	init_x11clipboard();
+	/* Grab the window manager specific information */
+	SDL_SysWMinfo info;
+	SDL_VERSION(&info.version);
+	if ( SDL_GetWMInfo(&info) )
+	{
+		/* Save the information for later use */
+		if ( info.subsystem == SDL_SYSWM_X11 )
+		{
+			mSDL_Display = info.info.x11.display;
+			mSDL_XWindowID = info.info.x11.wmwindow;
+			Lock_Display = info.info.x11.lock_func;
+			Unlock_Display = info.info.x11.unlock_func;
+		}
+		else
+		{
+			llwarns << "We're not running under X11?  Wild."
+				<< llendl;
+		}
+	}
+	else
+	{
+		llwarns << "We're not running under any known WM.  Wild."
+			<< llendl;
+	}
 #endif // LL_X11
+
 
 	//make sure multisampling is disabled by default
 	glDisable(GL_MULTISAMPLE_ARB);
@@ -763,8 +787,12 @@ BOOL LLWindowSDL::switchContext(BOOL fullscreen, const LLCoordScreen &size, BOOL
 void LLWindowSDL::destroyContext()
 {
 	llinfos << "destroyContext begins" << llendl;
+
 #if LL_X11
-	quit_x11clipboard();
+	mSDL_Display = NULL;
+	mSDL_XWindowID = None;
+	Lock_Display = NULL;
+	Unlock_Display = NULL;
 #endif // LL_X11
 
 	// Clean up remaining GL state before blowing away window
@@ -984,11 +1012,7 @@ BOOL LLWindowSDL::isCursorHidden()
 // Constrains the mouse to the window.
 void LLWindowSDL::setMouseClipping( BOOL b )
 {
-	//llinfos << "LLWindowSDL::setMouseClipping " << b << llendl;
-	// Just stash the requested state.  We'll simulate this when the cursor is hidden by decoupling.
-	mIsMouseClipping = b;
     //SDL_WM_GrabInput(b ? SDL_GRAB_ON : SDL_GRAB_OFF);
-	adjustCursorDecouple();
 }
 
 BOOL LLWindowSDL::setCursorPosition(const LLCoordWindow position)
@@ -1003,10 +1027,10 @@ BOOL LLWindowSDL::setCursorPosition(const LLCoordWindow position)
 
 	//llinfos << "setCursorPosition(" << screen_pos.mX << ", " << screen_pos.mY << ")" << llendl;
 
-    SDL_WarpMouse(screen_pos.mX, screen_pos.mY);
-
-	// Under certain circumstances, this will trigger us to decouple the cursor.
-	adjustCursorDecouple(true);
+	// do the actual forced cursor move.
+	SDL_WarpMouse(screen_pos.mX, screen_pos.mY);
+	
+	//llinfos << llformat("llcw %d,%d -> scr %d,%d", position.mX, position.mY, screen_pos.mX, screen_pos.mY) << llendl;
 
 	return result;
 }
@@ -1026,33 +1050,6 @@ BOOL LLWindowSDL::getCursorPosition(LLCoordWindow *position)
 	return convertCoords(screen_pos, position);
 }
 
-void LLWindowSDL::adjustCursorDecouple(bool warpingMouse)
-{
-	if(mIsMouseClipping && mCursorHidden)
-	{
-		if(warpingMouse)
-		{
-			// The cursor should be decoupled.  Make sure it is.
-			if(!mCursorDecoupled)
-			{
-				//			llinfos << "adjustCursorDecouple: decoupling cursor" << llendl;
-				//CGAssociateMouseAndMouseCursorPosition(false);
-				mCursorDecoupled = true;
-				mCursorIgnoreNextDelta = TRUE;
-			}
-		}
-	}
-	else
-	{
-		// The cursor should not be decoupled.  Make sure it isn't.
-		if(mCursorDecoupled)
-		{
-			//			llinfos << "adjustCursorDecouple: recoupling cursor" << llendl;
-			//CGAssociateMouseAndMouseCursorPosition(true);
-			mCursorDecoupled = false;
-		}
-	}
-}
 
 F32 LLWindowSDL::getNativeAspectRatio()
 {
@@ -1212,506 +1209,50 @@ void LLWindowSDL::flashIcon(F32 seconds)
 #endif // LL_X11
 }
 
-#if LL_X11
-/* Lots of low-level X11 stuff to handle X11 copy-and-paste */
 
-/* Our X11 clipboard support is a bit bizarre in various
-   organically-grown ways.  Ideally it should be fixed to do
-   real string-type negotiation (this would make pasting to
-   xterm faster and pasting to UTF-8 emacs work properly), but
-   right now it has the rare and desirable trait of being
-   generally stable and working. */
-
-typedef Atom x11clipboard_type;
-
-/* PRIMARY and CLIPBOARD are the two main kinds of
-   X11 clipboard.  A third are the CUT_BUFFERs which an
-   obsolete holdover from X10 days and use a quite orthogonal
-   mechanism.  CLIPBOARD is the type whose design most
-   closely matches SL's own win32-alike explicit copy-and-paste
-   paradigm.
-
-   Pragmatically we support all three to varying degrees.  When
-   we paste into SL, it is strictly from CLIPBOARD.  When we copy,
-   we support (to as full an extent as the clipboard content type
-   allows) CLIPBOARD, PRIMARY, and CUT_BUFFER0.
- */
-static x11clipboard_type get_x11_readwrite_clipboard_type(void)
-{
-	return XInternAtom(LLWindowSDL::get_SDL_Display(), "CLIPBOARD", False);
-}
-
-static x11clipboard_type get_x11_write_clipboard_type(void)
-{
-	return XA_PRIMARY;
-}
-
-/* This is where our own private cutbuffer goes - we don't use
-   a regular cutbuffer (XA_CUT_BUFFER0 etc) for intermediate
-   storage because their use isn't really defined for holding UTF8. */
-static x11clipboard_type get_x11_cutbuffer_clipboard_type(void)
-{
-	return XInternAtom(LLWindowSDL::get_SDL_Display(), "SECONDLIFE_CUTBUFFER", False);
-}
-
-/* Some X11 atom-generators */
-static Atom get_x11_targets_atom(void)
-{
-	return XInternAtom(LLWindowSDL::get_SDL_Display(), "TARGETS", False);
-}
-
-static Atom get_x11_text_atom(void)
-{
-	return XInternAtom(LLWindowSDL::get_SDL_Display(), "TEXT", False);
-}
-
-/* These defines, and convert_data/convert_x11clipboard,
-   mostly exist to support non-text or unusually-encoded
-   clipboard data, which we don't really have a need for at
-   the moment. */
-#define SDLCLIPTYPE(A, B, C, D) (int)(((A)<<24)|((B)<<16)|((C)<<8)|((D)<<0))
-#define FORMAT_PREFIX	"SECONDLIFE_x11clipboard_0x"
-
-static
-x11clipboard_type convert_format(int type)
-{
-	if (!gWindowImplementation)
-	{
-		llwarns << "!gWindowImplementation in convert_format()"
-			<< llendl;
-		return XA_STRING;
-	}
-
-	switch (type)
-	{
-	case SDLCLIPTYPE('T', 'E', 'X', 'T'):
-		// old-style X11 clipboard, strictly only ISO 8859-1 encoding
-		return XA_STRING;
-	case SDLCLIPTYPE('U', 'T', 'F', '8'):
-		// newer de-facto UTF8 clipboard atom
-		return XInternAtom(gWindowImplementation->mSDL_Display,
-				   "UTF8_STRING", False);
-	default:
-	{
-		/* completely arbitrary clipboard types... we don't actually use
-		these right now, and support is skeletal. */
-		char format[sizeof(FORMAT_PREFIX)+8+1];	/* Flawfinder: ignore */
-
-		snprintf(format, sizeof(format), "%s%08lx", FORMAT_PREFIX, (unsigned long)type);
-		return XInternAtom(gWindowImplementation->mSDL_Display,
-				   format, False);
-	}
-    }
-}
-
-/* convert platform string to x11 clipboard format.  for our
-   purposes this is pretty trivial right now. */
-static int
-convert_data(int type, char *dst, const char *src, int srclen)
-{
-	int dstlen;
-
-	dstlen = 0;
-	switch (type)
-	{
-	case SDLCLIPTYPE('T', 'E', 'X', 'T'):
-	case SDLCLIPTYPE('U', 'T', 'F', '8'):
-		if (src == NULL)
-		{
-			break;
-		}
-		if ( srclen == 0 )
-			srclen = strlen(src);	/* Flawfinder: ignore */
-		
-		dstlen = srclen + 1;
-		
-		if ( dst ) // assume caller made it big enough by asking us
-		{
-			memcpy(dst, src, srclen);	/* Flawfinder: ignore */
-			dst[srclen] = '\0';
-		}
-		break;
-		
-	default:
-		llwarns << "convert_data: Unknown medium type" << llendl;
-		break;
-	}
-	return(dstlen);
-}
-
-/* Convert x11clipboard data to platform string.  This too is
-   pretty trivial for our needs right now, and just about identical
-   to above. */
-static int
-convert_x11clipboard(int type, char *dst, const char *src, int srclen)
-{
-	int dstlen;
-
-	dstlen = 0;
-	switch (type)
-	{
-	case SDLCLIPTYPE('U', 'T', 'F', '8'):
-	case SDLCLIPTYPE('T', 'E', 'X', 'T'):
-		if (src == NULL)
-		{
-			break;
-		}
-		if ( srclen == 0 )
-			srclen = strlen(src);	/* Flawfinder: ignore */
-		
-		dstlen = srclen + 1;
-		
-		if ( dst ) // assume caller made it big enough by asking us
-		{
-			memcpy(dst, src, srclen);	/* Flawfinder: ignore */
-			dst[srclen] = '\0';
-		}
-		break;
-		
-	default:
-		llwarns << "convert_x11clipboard: Unknown medium type" << llendl;
-		break;
-	}
-	return dstlen;
-}
-
-int
-LLWindowSDL::is_empty_x11clipboard(void)
-{
-	int retval;
-
-	maybe_lock_display();
-	retval = ( XGetSelectionOwner(mSDL_Display, get_x11_readwrite_clipboard_type()) == None );
-	maybe_unlock_display();
-
-	return(retval);
-}
-
-void
-LLWindowSDL::put_x11clipboard(int type, int srclen, const char *src)
-{
-	x11clipboard_type format;
-	int dstlen;
-	char *dst;
-
-	format = convert_format(type);
-	dstlen = convert_data(type, NULL, src, srclen);
-
-	dst = (char *)malloc(dstlen);
-	if ( dst != NULL )
-	{
-		maybe_lock_display();
-		Window root = DefaultRootWindow(mSDL_Display);
-		convert_data(type, dst, src, srclen);
-		// Cutbuffers are only allowed to have STRING atom types,
-		// but Emacs puts UTF8 inside them anyway.  We cautiously
-		// don't.
-		if (type == SDLCLIPTYPE('T','E','X','T'))
-		{
-			// dstlen-1 so we don't include the trailing \0
-			llinfos << "X11: Populating cutbuffer." <<llendl;
-			XChangeProperty(mSDL_Display, root,
-					XA_CUT_BUFFER0, XA_STRING, 8, PropModeReplace,
-					(unsigned char*)dst, dstlen-1);
-		} else {
-			// Should we clear the cutbuffer if we can't put the selection in
-			// it because it's a UTF8 selection?  Eh, no great reason I think.
-			//XDeleteProperty(SDL_Display, root, XA_CUT_BUFFER0);
-		}
-		// Private cutbuffer of an appropriate type.
-		XChangeProperty(mSDL_Display, root,
-				get_x11_cutbuffer_clipboard_type(), format, 8, PropModeReplace,
-				(unsigned char*)dst, dstlen-1);
-		free(dst);
-		
-		/* Claim ownership of both PRIMARY and CLIPBOARD */
-		XSetSelectionOwner(mSDL_Display, get_x11_readwrite_clipboard_type(),
-				   mSDL_XWindowID, CurrentTime);
-		XSetSelectionOwner(mSDL_Display, get_x11_write_clipboard_type(),
-				   mSDL_XWindowID, CurrentTime);
-		
-		maybe_unlock_display();
-	}
-}
-
-void
-LLWindowSDL::get_x11clipboard(int type, int *dstlen, char **dst)
-{
-	x11clipboard_type format;
-	
-	*dstlen = 0;
-	format = convert_format(type);
-
-	Window owner;
-	Atom selection;
-	Atom seln_type;
-	int seln_format;
-	unsigned long nbytes;
-	unsigned long overflow;
-	char *src;
-	
-	maybe_lock_display();
-	owner = XGetSelectionOwner(mSDL_Display, get_x11_readwrite_clipboard_type());
-	maybe_unlock_display();
-	if (owner == None)
-	{
-		// Fall right back to ancient X10 cut-buffers
-		owner = DefaultRootWindow(mSDL_Display);
-		selection = XA_CUT_BUFFER0;
-	} else if (owner == mSDL_XWindowID)
-	{
-		// Use our own uncooked opaque string property
-		owner = DefaultRootWindow(mSDL_Display);
-		selection = get_x11_cutbuffer_clipboard_type();
-	}
-	else
-	{
-		// Use full-on X11-style clipboard negotiation with the owning app
-		int selection_response = 0;
-		SDL_Event event;
-		
-		owner = mSDL_XWindowID;
-		maybe_lock_display();
-		selection = XInternAtom(mSDL_Display, "SDL_SELECTION", False);
-		XConvertSelection(mSDL_Display, get_x11_readwrite_clipboard_type(), format,
-				  selection, owner, CurrentTime);
-		maybe_unlock_display();
-		llinfos << "X11: Waiting for clipboard to arrive." <<llendl;
-		while ( ! selection_response )
-		{
-			// Only look for SYSWMEVENTs, or we may lose keypresses
-			// etc.
-			SDL_PumpEvents();
-			if (1 == SDL_PeepEvents(&event, 1, SDL_GETEVENT,
-						SDL_SYSWMEVENTMASK) )
-			{
-				if ( event.type == SDL_SYSWMEVENT )
-				{
-					XEvent xevent =
-						event.syswm.msg->event.xevent;
-				
-					if ( (xevent.type == SelectionNotify)&&
-					     (xevent.xselection.requestor == owner) )
-						selection_response = 1;
-				}
-			} else {
-				llinfos << "X11: Waiting for SYSWM event..." <<  llendl;
-			}
-		}
-		llinfos << "X11: Clipboard arrived." <<llendl;
-	}
-
-	maybe_lock_display();
-	if ( XGetWindowProperty(mSDL_Display, owner, selection, 0, INT_MAX/4,
-				False, format, &seln_type, &seln_format,
-				&nbytes, &overflow, (unsigned char **)&src) == Success )
-	{
-		if ( seln_type == format )
-		{
-			*dstlen = convert_x11clipboard(type, NULL, src, nbytes);
-			*dst = (char *)realloc(*dst, *dstlen);
-			if ( *dst == NULL )
-				*dstlen = 0;
-			else
-				convert_x11clipboard(type, *dst, src, nbytes);
-		}
-		XFree(src);
-	}
-	maybe_unlock_display();
-}
-
-int clipboard_filter_callback(const SDL_Event *event)
-{
-	/* Post all non-window manager specific events */
-	if ( event->type != SDL_SYSWMEVENT )
-	{
-		return(1);
-	}
-
-	/* Handle window-manager specific clipboard events */
-	switch (event->syswm.msg->event.xevent.type) {
-	/* Copy the selection from SECONDLIFE_CUTBUFFER to the requested property */
-	case SelectionRequest: {
-		XSelectionRequestEvent *req;
-		XEvent sevent;
-		int seln_format;
-		unsigned long nbytes;
-		unsigned long overflow;
-		unsigned char *seln_data;
-
-		req = &event->syswm.msg->event.xevent.xselectionrequest;
-		sevent.xselection.type = SelectionNotify;
-		sevent.xselection.display = req->display;
-		sevent.xselection.selection = req->selection;
-		sevent.xselection.target = None;
-		sevent.xselection.property = None;
-		sevent.xselection.requestor = req->requestor;
-		sevent.xselection.time = req->time;
-		if ( XGetWindowProperty(LLWindowSDL::get_SDL_Display(), DefaultRootWindow(LLWindowSDL::get_SDL_Display()),
-					get_x11_cutbuffer_clipboard_type(), 0, INT_MAX/4, False, req->target,
-					&sevent.xselection.target, &seln_format,
-					&nbytes, &overflow, &seln_data) == Success )
-		{
-			if ( sevent.xselection.target == req->target)
-			{
-				if ( sevent.xselection.target == XA_STRING ||
-				     sevent.xselection.target ==
-				     convert_format(SDLCLIPTYPE('U','T','F','8')) )
-				{
-					if ( seln_data[nbytes-1] == '\0' )
-						--nbytes;
-				}
-				XChangeProperty(LLWindowSDL::get_SDL_Display(), req->requestor, req->property,
-						req->target, seln_format, PropModeReplace,
-						seln_data, nbytes);
-				sevent.xselection.property = req->property;
-			} else if (get_x11_targets_atom() == req->target) {
-				/* only advertise what we currently support */
-				const int num_supported = 3;
-				Atom supported[num_supported] = {
-					XA_STRING, // will be over-written below
-					get_x11_text_atom(),
-					get_x11_targets_atom()
-				};
-				supported[0] = sevent.xselection.target;
-				XChangeProperty(LLWindowSDL::get_SDL_Display(), req->requestor,
-						req->property, XA_ATOM, 32, PropModeReplace,
-						(unsigned char*)supported,
-						num_supported);
-				sevent.xselection.property = req->property;
-				llinfos << "Clipboard: An app asked us what selections format we offer." << llendl;
-			} else {
-				llinfos << "Clipboard: An app requested an unsupported selection format " << req->target << ", we have " << sevent.xselection.target << llendl;
-			    sevent.xselection.target = None;
-			}
-			XFree(seln_data);
-		}
-		int sendret =
-			XSendEvent(LLWindowSDL::get_SDL_Display(),req->requestor,False,0,&sevent);
-		if ((sendret==BadValue) || (sendret==BadWindow))
-			llwarns << "Clipboard SendEvent failed" << llendl;
-		XSync(LLWindowSDL::get_SDL_Display(), False);
-	}
-		break;
-	}
-	
-	/* Post the event for X11 clipboard reading above */
-	return(1);
-}
-
-int
-LLWindowSDL::init_x11clipboard(void)
-{
-	SDL_SysWMinfo info;
-	int retval;
-
-	/* Grab the window manager specific information */
-	retval = -1;
-	SDL_SetError("SDL is not running on known window manager");
-
-	SDL_VERSION(&info.version);
-	if ( SDL_GetWMInfo(&info) )
-	{
-		/* Save the information for later use */
-		if ( info.subsystem == SDL_SYSWM_X11 )
-		{
-			mSDL_Display = info.info.x11.display;
-			mSDL_XWindowID = info.info.x11.wmwindow;
-			Lock_Display = info.info.x11.lock_func;
-			Unlock_Display = info.info.x11.unlock_func;
-			
-			/* Enable the special window hook events */
-			SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
-			SDL_SetEventFilter(clipboard_filter_callback);
-			
-			retval = 0;
-		}
-		else
-		{
-			SDL_SetError("SDL is not running on X11");
-		}
-	}
-	return(retval);
-}
-
-void
-LLWindowSDL::quit_x11clipboard(void)
-{
-	mSDL_Display = NULL;
-	mSDL_XWindowID = None;
-	Lock_Display = NULL;
-	Unlock_Display = NULL;
-
-	SDL_SetEventFilter(NULL); // Stop custom event filtering
-}
-
-/************************************************/
-
+#if LL_GTK
 BOOL LLWindowSDL::isClipboardTextAvailable()
 {
-	return !is_empty_x11clipboard();
-}
-
-BOOL LLWindowSDL::pasteTextFromClipboard(LLWString &dst)
-{
-	int cliplen; // seems 1 or 2 bytes longer than expected
-	char *cliptext = NULL;
-	get_x11clipboard(SDLCLIPTYPE('U','T','F','8'), &cliplen, &cliptext);
-	if (cliptext)
+	if (ll_try_gtk_init())
 	{
-		llinfos << "X11: Got UTF8 clipboard text." << llendl;
-		// at some future time we can use cliplen instead of relying on \0,
-		// if we ever grok non-ascii, non-utf8 encodings on the clipboard.
-		std::string clip_str(cliptext);
-		// we can't necessarily trust the incoming text to be valid UTF-8,
-		// but utf8str_to_wstring() seems to do an appropriate level of
-		// validation for avoiding over-reads.
-		dst = utf8str_to_wstring(clip_str);
-		/*llinfos << "X11 pasteTextFromClipboard: cliplen=" << cliplen <<
-			" strlen(cliptext)=" << strlen(cliptext) <<
-			" clip_str.length()=" << clip_str.length() <<
-			" dst.length()=" << dst.length() <<
-			llendl;*/
-		free(cliptext);
-		return TRUE; // success
-	}
-	get_x11clipboard(SDLCLIPTYPE('T','E','X','T'), &cliplen, &cliptext);
-	if (cliptext)
-	{
-		llinfos << "X11: Got ISO 8859-1 clipboard text." << llendl;
-		std::string clip_str(cliptext);
-		std::string utf8_str = rawstr_to_utf8(clip_str);
-		dst = utf8str_to_wstring(utf8_str);
-		free(cliptext);
+		GtkClipboard * const clipboard =
+			gtk_clipboard_get(GDK_NONE);
+		return gtk_clipboard_wait_is_text_available(clipboard) ?
+			TRUE : FALSE;
 	}
 	return FALSE; // failure
 }
 
-BOOL LLWindowSDL::copyTextToClipboard(const LLWString &s)
+BOOL LLWindowSDL::pasteTextFromClipboard(LLWString &text)
 {
-	std::string utf8text = wstring_to_utf8str(s);
-	const char* cstr = utf8text.c_str();
-	if (cstr == NULL)
+	if (ll_try_gtk_init())
 	{
-		return FALSE;
-	}
-	int cstrlen = strlen(cstr);	/* Flawfinder: ignore */
-	int i;
-	for (i=0; i<cstrlen; ++i)
-	{
-		if (0x80 & (unsigned char)cstr[i])
+		GtkClipboard * const clipboard =
+			gtk_clipboard_get(GDK_NONE);
+		gchar * const data = gtk_clipboard_wait_for_text(clipboard);
+		if (data)
 		{
-			// Found an 8-bit character; use new-style UTF8 clipboard
-			llinfos << "X11: UTF8 copyTextToClipboard" << llendl;
-			put_x11clipboard(SDLCLIPTYPE('U','T','F','8'), cstrlen, cstr);
+			text = LLWString(utf8str_to_wstring(data));
+			g_free(data);
 			return TRUE;
 		}
 	}
-	// Didn't find any 8-bit characters; use old-style ISO 8859-1 clipboard
-	llinfos << "X11: ISO 8859-1 copyTextToClipboard" << llendl;
-	put_x11clipboard(SDLCLIPTYPE('T','E','X','T'), cstrlen, cstr);
-	return TRUE;
+	return FALSE; // failure
 }
+
+BOOL LLWindowSDL::copyTextToClipboard(const LLWString &text)
+{
+	if (ll_try_gtk_init())
+	{
+		const std::string utf8 = wstring_to_utf8str(text);
+		GtkClipboard * const clipboard =
+			gtk_clipboard_get(GDK_NONE);
+		gtk_clipboard_set_text(clipboard, utf8.c_str(), utf8.length());
+		return TRUE;
+	}
+	return FALSE; // failure
+}
+
 #else
 
 BOOL LLWindowSDL::isClipboardTextAvailable()
@@ -1728,7 +1269,7 @@ BOOL LLWindowSDL::copyTextToClipboard(const LLWString &s)
 {
 	return FALSE;  // unsupported
 }
-#endif // LL_X11
+#endif // LL_GTK
 
 LLWindow::LLWindowResolution* LLWindowSDL::getSupportedResolutions(S32 &num_resolutions)
 {
@@ -1928,7 +1469,7 @@ U32 LLWindowSDL::SDLCheckGrabbyKeys(SDLKey keysym, BOOL gain)
 	/* part of the fix for SL-13243: Some popular window managers like
 	   to totally eat alt-drag for the purposes of moving windows.  We
 	   spoil their day by acquiring the exclusive X11 mouse lock for as
-	   long as LALT is held down, so the window manager can't easily
+	   long as ALT is held down, so the window manager can't easily
 	   see what's happening.  Tested successfully with Metacity.
 	   And... do the same with CTRL, for other darn WMs.  We don't
 	   care about other metakeys as SL doesn't use them with dragging
@@ -1943,10 +1484,12 @@ U32 LLWindowSDL::SDLCheckGrabbyKeys(SDLKey keysym, BOOL gain)
 	{
 	case SDLK_LALT:
 		mask = 1U << 0; break;
-	case SDLK_LCTRL:
+	case SDLK_RALT:
 		mask = 1U << 1; break;
-	case SDLK_RCTRL:
+	case SDLK_LCTRL:
 		mask = 1U << 2; break;
+	case SDLK_RCTRL:
+		mask = 1U << 3; break;
 	default:
 		break;
 	}
@@ -1965,7 +1508,7 @@ U32 LLWindowSDL::SDLCheckGrabbyKeys(SDLKey keysym, BOOL gain)
 // virtual
 void LLWindowSDL::processMiscNativeEvents()
 {
-#if LL_GTK && (LL_LLMOZLIB_ENABLED || LL_DBUS_ENABLED)
+#if LL_GTK
 	// Pump GTK events to avoid starvation for:
 	// * Embedded Gecko
 	// * DBUS servicing
@@ -1992,7 +1535,7 @@ void LLWindowSDL::processMiscNativeEvents()
 
 	    setlocale(LC_ALL, saved_locale.c_str() );
     }
-#endif // LL_GTK && (LL_LLMOZLIB_ENABLED || LL_DBUS_ENABLED)
+#endif // LL_GTK
 }
 
 void LLWindowSDL::gatherInput()
@@ -2086,10 +1629,9 @@ void LLWindowSDL::gatherInput()
     				    mCallbacks->handleMouseDown(this, openGlCoord, mask);
                 }
 
-                else if (event.button.button == SDL_BUTTON_RIGHT)  // right ... yes, it's 3, not 2, in SDL...
+                else if (event.button.button == SDL_BUTTON_RIGHT)  // right
                 {
-                    // right double click isn't handled right now in Second Life ... if (isDoubleClick)
-				    mCallbacks->handleRightMouseDown(this, openGlCoord, mask);
+			mCallbacks->handleRightMouseDown(this, openGlCoord, mask);
                 }
 
                 else if (event.button.button == SDL_BUTTON_MIDDLE)  // middle
@@ -2112,13 +1654,11 @@ void LLWindowSDL::gatherInput()
 		MASK mask = gKeyboard->currentMask(TRUE);
 
                 if (event.button.button == SDL_BUTTON_LEFT)  // left
-				    mCallbacks->handleMouseUp(this, openGlCoord, mask);
-                else if (event.button.button == SDL_BUTTON_RIGHT)  // right ... yes, it's 3, not 2, in SDL...
-				    mCallbacks->handleRightMouseUp(this, openGlCoord, mask);
+			mCallbacks->handleMouseUp(this, openGlCoord, mask);
+                else if (event.button.button == SDL_BUTTON_RIGHT)  // right
+			mCallbacks->handleRightMouseUp(this, openGlCoord, mask);
                 else if (event.button.button == SDL_BUTTON_MIDDLE)  // middle
-		{
 			mCallbacks->handleMiddleMouseUp(this, openGlCoord, mask);
-		}
                 // don't handle mousewheel here...
 
                 break;
@@ -2426,8 +1966,6 @@ void LLWindowSDL::hideCursor()
 	{
 		// llinfos << "hideCursor: already hidden" << llendl;
 	}
-
-	adjustCursorDecouple();
 }
 
 void LLWindowSDL::showCursor()
@@ -2443,8 +1981,6 @@ void LLWindowSDL::showCursor()
 	{
 		// llinfos << "showCursor: already visible" << llendl;
 	}
-
-	adjustCursorDecouple();
 }
 
 void LLWindowSDL::showCursorFromMouseMove()

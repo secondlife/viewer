@@ -66,6 +66,7 @@
 #include "llvolume.h"
 #include "llworld.h"
 #include "object_flags.h"
+#include "llimview.h"
 
 
 // MAX ITEMS is based on (sizeof(uuid)+2) * count must be < MTUBYTES
@@ -1478,12 +1479,18 @@ struct LLGiveInventoryInfo
 {
 	LLUUID mToAgentID;
 	LLUUID mInventoryObjectID;
-	LLGiveInventoryInfo(const LLUUID& to_agent, const LLUUID& obj_id) :
-		mToAgentID(to_agent), mInventoryObjectID(obj_id) {}
+	LLUUID mIMSessionID;
+	LLGiveInventoryInfo(const LLUUID& to_agent, const LLUUID& obj_id, const LLUUID &im_session_id = LLUUID::null) :
+		mToAgentID(to_agent), 
+		mInventoryObjectID(obj_id),
+		mIMSessionID(im_session_id)
+	{}
 };
 
 void LLToolDragAndDrop::giveInventory(const LLUUID& to_agent,
-				      LLInventoryItem* item)
+									  LLInventoryItem* item,
+									  const LLUUID& im_session_id)
+									  
 {
 	llinfos << "LLToolDragAndDrop::giveInventory()" << llendl;
 	if(!isInventoryGiveAcceptable(item))
@@ -1493,17 +1500,18 @@ void LLToolDragAndDrop::giveInventory(const LLUUID& to_agent,
 	if(item->getPermissions().allowCopyBy(gAgent.getID()))
 	{
 		// just give it away.
-		LLToolDragAndDrop::commitGiveInventoryItem(to_agent, item);
+		LLToolDragAndDrop::commitGiveInventoryItem(to_agent, item, im_session_id);
 	}
 	else
 	{
 		// ask if the agent is sure.
 		LLGiveInventoryInfo* info = new LLGiveInventoryInfo(to_agent,
-								    item->getUUID());
+															item->getUUID(),
+															im_session_id);
 
 		gViewerWindow->alertXml("CannotCopyWarning",
-					&LLToolDragAndDrop::handleCopyProtectedItem,
-					(void*)info);
+								&LLToolDragAndDrop::handleCopyProtectedItem,
+								(void*)info);
 	}
 }
 
@@ -1519,7 +1527,8 @@ void LLToolDragAndDrop::handleCopyProtectedItem(S32 option, void* data)
 		if(item)
 		{
 			LLToolDragAndDrop::commitGiveInventoryItem(info->mToAgentID,
-													   item);
+													   item,
+													   info->mIMSessionID);
 			// delete it for now - it will be deleted on the server
 			// quickly enough.
 			gInventory.deleteObject(info->mInventoryObjectID);
@@ -1539,7 +1548,8 @@ void LLToolDragAndDrop::handleCopyProtectedItem(S32 option, void* data)
 
 // static
 void LLToolDragAndDrop::commitGiveInventoryItem(const LLUUID& to_agent,
-												LLInventoryItem* item)
+												LLInventoryItem* item,
+												const LLUUID &im_session_id)
 {
 	if(!item) return;
 	std::string name;
@@ -1578,6 +1588,14 @@ void LLToolDragAndDrop::commitGiveInventoryItem(const LLUUID& to_agent,
 	gFloaterTools->dirty();
 
 	LLMuteList::getInstance()->autoRemove(to_agent, LLMuteList::AR_INVENTORY);
+
+	// If this item was given by drag-and-drop into an IM panel, log this action in the IM panel chat.
+	if (im_session_id != LLUUID::null)
+	{
+		LLStringUtil::format_map_t args;
+		gIMMgr->addSystemMessage(im_session_id, "inventory_item_offered", args);
+	}
+
 }
 
 void LLToolDragAndDrop::giveInventoryCategory(const LLUUID& to_agent,

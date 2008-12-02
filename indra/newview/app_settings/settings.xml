@@ -2611,9 +2611,9 @@
       <string>Rect</string>
       <key>Value</key>
       <array>
-        <integer>50</integer>
+        <integer>0</integer>
         <integer>220</integer>
-        <integer>450</integer>
+        <integer>700</integer>
         <integer>0</integer>
       </array>
     </map>
@@ -2627,9 +2627,9 @@
       <string>Rect</string>
       <key>Value</key>
       <array>
-        <integer>50</integer>
-        <integer>220</integer>
-        <integer>450</integer>
+        <integer>0</integer>
+        <integer>240</integer>
+        <integer>700</integer>
         <integer>0</integer>
       </array>
     </map>
@@ -2819,9 +2819,9 @@
       <string>Rect</string>
       <key>Value</key>
       <array>
-        <integer>50</integer>
-        <integer>450</integer>
-        <integer>300</integer>
+        <integer>0</integer>
+        <integer>646</integer>
+        <integer>275</integer>
         <integer>0</integer>
       </array>
     </map>
@@ -2835,9 +2835,9 @@
       <string>Rect</string>
       <key>Value</key>
       <array>
-        <integer>50</integer>
+        <integer>0</integer>
         <integer>150</integer>
-        <integer>650</integer>
+        <integer>600</integer>
         <integer>0</integer>
       </array>
     </map>
@@ -4768,6 +4768,17 @@
       <string>S32</string>
       <key>Value</key>
       <integer>410</integer>
+    </map>
+    <key>MigrateCacheDirectory</key>
+    <map>
+      <key>Comment</key>
+      <string>Check for old version of disk cache to migrate to current location</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
     </map>
     <key>MiniMapRotate</key>
     <map>

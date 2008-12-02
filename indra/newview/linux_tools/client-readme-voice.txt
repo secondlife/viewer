@@ -21,15 +21,13 @@ REQUIREMENTS
 
 Success with Linux Voice support has been reported on the following
 systems:
-* Ubuntu 7.04 (Feisty) with USB Plantronics headset
-* Ubuntu 7.04 (Feisty) with Intel HDA audio chipset
 * Ubuntu 6.06 (Dapper) with Intel ICH5/CMI9761A+ audio chipset
 * Ubuntu 6.06 (Dapper) with SigmaTel STAC2997 audio chipset
-* Fedora Core 6 with (unknown) audio chipset
-
-Problems with Linux Voice support have been reported on the following
-systems:
 * Ubuntu 6.06 (Dapper) with Creative EMU10K1 audio chipset
+* Ubuntu 7.04 (Feisty) with USB Plantronics headset
+* Ubuntu 7.04 (Feisty) with Intel HDA audio chipset
+* Fedora Core 6 with (unknown) audio chipset
+* Ubuntu 8.04 (Hardy) with (unknown) audio chipset
 
 KNOWN PROBLEMS
 -=-=-=-=-=-=-=

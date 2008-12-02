@@ -795,10 +795,7 @@ private:
 	LLVector3d      mCameraSmoothingLastPositionAgent;
 	BOOL            mCameraSmoothingStop;
 
-	
-	//Ventrella
 	LLVector3		mCameraUpVector;				// camera's up direction in world coordinates (determines the 'roll' of the view)
-	//End Ventrella
 
 	LLPointer<LLViewerObject> mSitCameraReferenceObject;	// object to which camera is related when sitting
 

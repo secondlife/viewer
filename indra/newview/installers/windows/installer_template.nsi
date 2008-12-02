@@ -371,9 +371,11 @@ Push $2
     StrCmp $INSTFLAGS "" RM_ALL RM_CACHE
       RM_ALL:
         RMDir /r "$2\Application Data\SecondLife"
-        GoTo CONTINUE
       RM_CACHE:
-        RMDir /r "$2\Application Data\SecondLife\Cache"
+        # Local Settings directory is the cache, there is no "cache" subdir
+        RMDir /r "$2\Local Settings\Application Data\SecondLife"
+        # Vista version of the same
+        RMDir /r "$2\AppData\Local\SecondLife"
         Delete "$2\Application Data\SecondLife\user_settings\settings_windlight.xml"
 
   CONTINUE:

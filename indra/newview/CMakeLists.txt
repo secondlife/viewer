@@ -9,6 +9,7 @@ include(DBusGlib)
 include(DirectX)
 include(ELFIO)
 include(FMOD)
+include(OPENAL)
 include(FindOpenGL)
 include(LLAudio)
 include(LLCharacter)
@@ -1257,8 +1258,12 @@ if (WINDOWS)
   list(APPEND viewer_SOURCE_FILES ${viewer_INSTALLER_FILES})
 endif (WINDOWS)
 
+if (OPENAL)
+  set(LLSTARTUP_COMPILE_FLAGS "${LLSTARTUP_COMPILE_FLAGS} -DLL_OPENAL")
+endif (OPENAL)
+
 if (FMOD)
-  set_source_files_properties(llstartup.cpp PROPERTIES COMPILE_FLAGS -DLL_FMOD)
+  set(LLSTARTUP_COMPILE_FLAGS "${LLSTARTUP_COMPILE_FLAGS} -DLL_FMOD")
 
   if (NOT WINDOWS)
     set(fmodwrapper_SOURCE_FILES fmodwrapper.cpp)
@@ -1277,6 +1282,8 @@ if (FMOD)
     target_link_libraries(fmodwrapper ${fmodwrapper_needed_LIBRARIES})
   endif (NOT WINDOWS)
 endif (FMOD)
+
+set_source_files_properties(llstartup.cpp PROPERTIES COMPILE_FLAGS "${LLSTARTUP_COMPILE_FLAGS}")
 
 list(APPEND viewer_SOURCE_FILES ${viewer_HEADER_FILES})
 

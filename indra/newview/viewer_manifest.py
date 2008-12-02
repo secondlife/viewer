@@ -186,7 +186,7 @@ class WindowsManifest(ViewerManifest):
             self.path("openjpeg.dll")
             self.end_prefix()
 
-        # Mozilla appears to force a dependency on these files so we need to ship it (CP)
+        # Mozilla appears to force a dependency on these files so we need to ship it (CP) - updated to vc8 versions (nyx)
         # These need to be installed as a SxS assembly, currently a 'private' assembly.
         # See http://msdn.microsoft.com/en-us/library/ms235291(VS.80).aspx
         if self.prefix(src=self.args['configuration'], dst=""):
@@ -375,9 +375,17 @@ class WindowsManifest(ViewerManifest):
                 "%%INSTALL_FILES%%":self.nsi_file_commands(True),
                 "%%DELETE_FILES%%":self.nsi_file_commands(False)})
 
+        # We use the Unicode version of NSIS, available from
+        # http://www.scratchpaper.com/
         NSIS_path = 'C:\\Program Files\\NSIS\\Unicode\\makensis.exe'
         self.run_command('"' + proper_windows_path(NSIS_path) + '" ' + self.dst_path_of(tempfile))
         # self.remove(self.dst_path_of(tempfile))
+        # If we're on a build machine, sign the code using our Authenticode certificate. JC
+        sign_py = 'C:\\buildscripts\\code-signing\\sign.py'
+        if os.path.exists(sign_py):
+            self.run_command(sign_py + ' ' + self.dst_path_of(installer_file))
+        else:
+            print "Skipping code signing,", sign_py, "does not exist"
         self.created_path(self.dst_path_of(installer_file))
         self.package_file = installer_file
 
@@ -645,9 +653,9 @@ class Linux_i686Manifest(LinuxManifest):
             self.path("libSDL-1.2.so.0")
             self.path("libELFIO.so")
             self.path("libopenjpeg.so.2")
-            #self.path("libtcmalloc.so.0") - bugged
-            #self.path("libstacktrace.so.0") - probably bugged
             self.path("libllkdu.so", "../bin/libllkdu.so") # llkdu goes in bin for some reason
+            self.path("libalut.so")
+            self.path("libopenal.so", "libopenal.so.1")
             self.end_prefix("lib")
 
             # Vivox runtimes
@@ -655,10 +663,8 @@ class Linux_i686Manifest(LinuxManifest):
                     self.path("SLVoice")
                     self.end_prefix()
             if self.prefix(src="vivox-runtime/i686-linux", dst="lib"):
-                    self.path("libopenal.so.1")
                     self.path("libortp.so")
                     self.path("libvivoxsdk.so")
-                    self.path("libalut.so")
                     self.end_prefix("lib")
 
 class Linux_x86_64Manifest(LinuxManifest):

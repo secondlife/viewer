@@ -238,10 +238,12 @@ void audio_update_wind(bool force_update)
 		// don't use the setter setMaxWindGain() because we don't
 		// want to screw up the fade-in on startup by setting actual source gain
 		// outside the fade-in.
-		F32 ambient_volume = gSavedSettings.getF32("AudioLevelAmbient");
-		gAudiop->mMaxWindGain = gSavedSettings.getBOOL("MuteAmbient") 
-			? 0.f 
-			: ambient_volume * ambient_volume;
+		F32 master_volume  = gSavedSettings.getBOOL("MuteAudio") ? 0.f : gSavedSettings.getF32("AudioLevelMaster");
+		F32 ambient_volume = gSavedSettings.getBOOL("MuteAmbient") ? 0.f : gSavedSettings.getF32("AudioLevelAmbient");
+
+		F32 wind_volume = master_volume * ambient_volume;
+		gAudiop->mMaxWindGain = wind_volume;
+		
 		
 		last_camera_water_height = camera_water_height;
 		gAudiop->updateWind(gRelativeWindVec, camera_water_height);

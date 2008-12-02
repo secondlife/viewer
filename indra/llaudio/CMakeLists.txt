@@ -5,10 +5,12 @@ project(llaudio)
 include(00-Common)
 include(Audio)
 include(FMOD)
+include(OPENAL)
 include(LLCommon)
 include(LLMath)
 include(LLMessage)
 include(LLVFS)
+include(LLMedia)
 
 include_directories(
     ${FMOD_INCLUDE_DIR}
@@ -20,6 +22,9 @@ include_directories(
     ${VORBISENC_INCLUDE_DIRS}
     ${VORBISFILE_INCLUDE_DIRS}
     ${VORBIS_INCLUDE_DIRS}
+    ${OPENAL_LIB_INCLUDE_DIRS}
+    ${FREEAULT_LIB_INCLUDE_DIRS}
+    ${LLMEDIA_INCLUDE_DIRS}
     )
 
 set(llaudio_SOURCE_FILES
@@ -38,6 +43,7 @@ set(llaudio_HEADER_FILES
     llaudiodecodemgr.h
     vorbisdecode.h
     vorbisencode.h
+    windgen.h
     )
 
 if (FMOD)
@@ -58,6 +64,18 @@ if (FMOD)
       endif (${CXX_VERSION} MATCHES "4.[23]")
     endif (LINUX)
 endif (FMOD)
+
+if (OPENAL)
+  list(APPEND llaudio_SOURCE_FILES
+    audioengine_openal.cpp
+    listener_openal.cpp
+    )
+  
+  list(APPEND llaudio_HEADER_FILES
+    audioengine_openal.h
+    listener_openal.h
+    )
+endif (OPENAL)
 
 set_source_files_properties(${llaudio_HEADER_FILES}
                             PROPERTIES HEADER_FILE_ONLY TRUE)

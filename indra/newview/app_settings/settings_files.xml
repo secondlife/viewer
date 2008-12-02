@@ -1,22 +1,91 @@
 <llsd>
   <map>
-    <key>Files</key>
+    <key>Locations</key>
+    <map>
+      <!--
+      The Locations LLSD block specifies the usage pattern of 
+      the settings file types listed above. 
+      Each location is represented by a LLSD containing the following values:
+      PathIndex = hard coded path indicies.
+      Files = map of files to load, from above 'Files' section. 
+        Each file can have:
+        Requirement = level of necessity for loading. 
+          0 ( or Req. no key) = do not load
+          1 = required, fail if not found
+        NameFromSetting = Use the given setting to specify the name. Not valid for
+                          "Default"
+      -->
+      <key>Comment</key>
+      <string>List location from which to load files, and the rules about loading those files.</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>LLSD</string>
+      <key>Value</key>
+      <map>
+        <key>Default</key>
         <map>
-        <key>Comment</key>
-            <string>List of settings files to load. Key is the identifier, value is the filename</string>
-        <key>Persist</key>
-            <integer>0</integer>
-        <key>Type</key>
-            <string>LLSD</string>
-        <key>Value</key>
-		<map>
-		  <key>Global</key>
-		  <string>settings.xml</string>
-		  <key>PerAccount</key>
-		  <string>settings_per_account.xml</string>
-		  <key>CrashSettings</key>
-		  <string>settings_crash_behavior.xml</string>
-		</map>
-		</map>
+          <key>PathIndex</key>
+          <integer>2</integer>
+          <key>Files</key>
+          <map>
+            <key>Global</key>
+            <map>
+              <key>Name</key>
+              <string>settings.xml</string>
+              <key>Requirement</key>
+              <integer>1</integer>
+            </map>
+            <key>PerAccount</key>
+            <map>
+              <key>Name</key>
+              <string>settings_per_account.xml</string>
+              <key>Requirement</key>
+              <integer>1</integer>
+            </map>
+            <key>CrashSettings</key>
+            <map>
+              <key>Name</key>
+              <string>settings_crash_behavior.xml</string>
+              <key>Requirement</key>
+              <integer>1</integer>
+            </map>
+          </map>
+        </map>
+        <key>User</key>
+        <map>
+          <key>PathIndex</key>
+          <integer>1</integer>
+          <key>Files</key>
+          <map>
+            <key>Global</key>
+            <map>
+              <key>Name</key>
+              <string>settings.xml</string>
+              <key>NameFromSetting</key>
+              <string>ClientSettingsFile</string>
+            </map>
+            <key>CrashSettings</key>
+            <map>
+              <key>Name</key>
+              <string>settings_crash_behavior.xml</string>
+            </map>
+          </map>
+        </map>
+        <key>Account</key>
+        <map>
+          <key>PathIndex</key>
+          <integer>3</integer>
+          <key>Files</key>
+          <map>
+            <key>PerAccount</key>
+            <map>
+              <key>Name</key>
+              <string>settings_per_account.xml</string>
+            </map>
+          </map>
+        </map>
+      </map>
+    </map>
   </map>
 </llsd>

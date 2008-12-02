@@ -3384,7 +3384,9 @@ void LLTextEditor::endOfLine()
 
 void LLTextEditor::endOfDoc()
 {
-	mScrollbar->setDocPos( mScrollbar->getDocPosMax() );
+	mScrollbar->setDocPos(mScrollbar->getDocPosMax());
+	mScrolledToBottom = true;
+
 	S32 len = getLength();
 	if( len )
 	{

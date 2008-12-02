@@ -423,7 +423,7 @@ static void settings_modify()
 	LLRenderTarget::sUseFBO				= gSavedSettings.getBOOL("RenderUseFBO");
 	LLVOAvatar::sUseImpostors			= gSavedSettings.getBOOL("RenderUseImpostors");
 	LLVOSurfacePatch::sLODFactor		= gSavedSettings.getF32("RenderTerrainLODFactor");
-	LLVOSurfacePatch::sLODFactor *= LLVOSurfacePatch::sLODFactor; //sqaure lod factor to get exponential range of [1,4]
+	LLVOSurfacePatch::sLODFactor *= LLVOSurfacePatch::sLODFactor; //square lod factor to get exponential range of [1,4]
 	gDebugGL = gSavedSettings.getBOOL("RenderDebugGL");
 	gDebugPipeline = gSavedSettings.getBOOL("RenderDebugPipeline");
 	
@@ -1166,16 +1166,26 @@ bool LLAppViewer::cleanup()
 	
 	llinfos << "Global stuff deleted" << llendflush;
 
-#if !LL_RELEASE_FOR_DOWNLOAD
 	if (gAudiop)
 	{
-		gAudiop->shutdown();
+#if LL_RELEASE_FOR_DOWNLOAD
+		bool want_longname = false;
+		if (gAudiop->getDriverName(want_longname) == "FMOD")
+		{
+			// This hack exists because fmod likes to occasionally
+			// hang forever when shutting down, for no apparent
+			// reason.
+			llwarns << "Hack, skipping FMOD audio engine cleanup" << llendflush;
+		}
+		else
+#endif // LL_RELEASE_FOR_DOWNLOAD
+		{
+			gAudiop->shutdown();
+		}
+
+		delete gAudiop;
+		gAudiop = NULL;
 	}
-#else
-	// This hack exists because fmod likes to occasionally hang forever
-	// when shutting down for no apparent reason.
-	llwarns << "Hack, skipping audio engine cleanup" << llendflush;
-#endif
 
 	// Note: this is where LLFeatureManager::getInstance()-> used to be deleted.
 
@@ -1185,9 +1195,6 @@ bool LLAppViewer::cleanup()
 	// it.
 	cleanupSavedSettings();
 	llinfos << "Settings patched up" << llendflush;
-
-	delete gAudiop;
-	gAudiop = NULL;
 
 	// delete some of the files left around in the cache.
 	removeCacheFiles("*.wav");
@@ -1476,46 +1483,78 @@ bool LLAppViewer::initLogging()
 	return true;
 }
 
-bool LLAppViewer::loadSettingsFromDirectory(ELLPath path_index, bool set_defaults)
+bool LLAppViewer::loadSettingsFromDirectory(const std::string& location_key,
+					    bool set_defaults)
 {	
-	for(LLSD::map_iterator itr = mSettingsFileList.beginMap(); itr != mSettingsFileList.endMap(); ++itr)
+	// Find and vet the location key.
+	if(!mSettingsLocationList.has(location_key))
 	{
-		std::string settings_name = (*itr).first;
-		std::string settings_file = mSettingsFileList[settings_name].asString();
+		llerrs << "Requested unknown location: " << location_key << llendl;
+		return false;
+	}
 
-		std::string full_settings_path = gDirUtilp->getExpandedFilename(path_index, settings_file);
+	LLSD location = mSettingsLocationList.get(location_key);
 
-		if(settings_name == sGlobalSettingsName 
-			&& path_index == LL_PATH_USER_SETTINGS)
+	if(!location.has("PathIndex"))
+	{
+		llerrs << "Settings location is missing PathIndex value. Settings cannot be loaded." << llendl;
+		return false;
+	}
+	ELLPath path_index = (ELLPath)(location.get("PathIndex").asInteger());
+	if(path_index <= LL_PATH_NONE || path_index >= LL_PATH_LAST)
+	{
+		llerrs << "Out of range path index in app_settings/settings_files.xml" << llendl;
+		return false;
+	}
+
+	// Iterate through the locations list of files.
+	LLSD files = location.get("Files");
+	for(LLSD::map_iterator itr = files.beginMap(); itr != files.endMap(); ++itr)
+	{
+		std::string settings_group = (*itr).first;
+		llinfos << "Attempting to load settings for the group " << settings_group 
+			    << " - from location " << location_key << llendl;
+
+		if(gSettings.find(settings_group) == gSettings.end())
 		{
-			// The non-persistent setting, ClientSettingsFile, specifies a 
-			// custom name to use for the global settings file.
-			// Only apply this setting if this method is setting the 'Global' 
-			// settings from the user_settings path.
-			std::string custom_path;
-			if(gSettings[sGlobalSettingsName]->controlExists("ClientSettingsFile"))
-			{
-				custom_path = 
-					gSettings[sGlobalSettingsName]->getString("ClientSettingsFile");
-			}
-			if(!custom_path.empty())
-			{
-				full_settings_path = custom_path;
-			}
-		}
-
-		if(gSettings.find(settings_name) == gSettings.end())
-		{
-			llwarns << "Cannot load " << settings_file << " - No matching settings group for name " << settings_name << llendl;
+			llwarns << "No matching settings group for name " << settings_group << llendl;
 			continue;
 		}
-		if(!gSettings[settings_name]->loadFromFile(full_settings_path, set_defaults))
+
+		LLSD file = (*itr).second;
+
+		std::string full_settings_path;
+		if(file.has("NameFromSetting"))
 		{
-			// If attempting to load the default global settings (app_settings/settings.xml) 
-			// fails, the app should error and quit.
-			if(path_index == LL_PATH_APP_SETTINGS && settings_name == sGlobalSettingsName)
+			std::string custom_name_setting = file.get("NameFromSetting");
+			// *NOTE: Regardless of the group currently being lodaed,
+			// this setting is always read from the Global settings.
+			if(gSettings[sGlobalSettingsName]->controlExists(custom_name_setting))
 			{
-				llwarns << "Error: Cannot load default settings from: " << full_settings_path << llendl;
+				std::string file_name = 
+					gSettings[sGlobalSettingsName]->getString(custom_name_setting);
+				full_settings_path = file_name;
+			}
+		}
+
+		if(full_settings_path.empty())
+		{
+			std::string file_name = file.get("Name");
+			full_settings_path = gDirUtilp->getExpandedFilename(path_index, file_name);
+		}
+
+		int requirement = 0;
+		if(file.has("Requirement"))
+		{
+			requirement = file.get("Requirement").asInteger();
+		}
+		
+		if(!gSettings[settings_group]->loadFromFile(full_settings_path, set_defaults))
+		{
+			if(requirement == 1)
+			{
+				llwarns << "Error: Cannot load required settings file from: " 
+						<< full_settings_path << llendl;
 				return false;
 			}
 			else
@@ -1528,14 +1567,24 @@ bool LLAppViewer::loadSettingsFromDirectory(ELLPath path_index, bool set_default
 			llinfos << "Loaded settings file " << full_settings_path << llendl;
 		}
 	}
+
 	return true;
 }
 
-std::string LLAppViewer::getSettingsFileName(const std::string& file)
+std::string LLAppViewer::getSettingsFilename(const std::string& location_key,
+											 const std::string& file)
 {
-	if(mSettingsFileList.has(file))
+	if(mSettingsLocationList.has(location_key))
 	{
-		return mSettingsFileList[file].asString();
+		LLSD location = mSettingsLocationList.get(location_key);
+		if(location.has("Files"))
+		{
+			LLSD files = location.get("Files");
+			if(files.has(file) && files[file].has("Name"))
+			{
+				return files.get(file).get("Name").asString();
+			}
+		}
 	}
 	return std::string();
 }
@@ -1556,8 +1605,8 @@ bool LLAppViewer::initConfiguration()
         llerrs << "Cannot load default configuration file " << settings_file_list << llendl;
 	}
 
-	mSettingsFileList = settings_control.getLLSD("Files");
-	
+	mSettingsLocationList = settings_control.getLLSD("Locations");
+		
 	// The settings and command line parsing have a fragile
 	// order-of-operation:
 	// - load defaults from app_settings
@@ -1570,11 +1619,11 @@ bool LLAppViewer::initConfiguration()
 	
 	// - load defaults
 	bool set_defaults = true;
-	if(!loadSettingsFromDirectory(LL_PATH_APP_SETTINGS, set_defaults))
+	if(!loadSettingsFromDirectory("Default", set_defaults))
 	{
 		std::ostringstream msg;
 		msg << "Second Life could not load its default settings file. \n" 
-			<< "The installation may be corrupted. \n";
+		    << "The installation may be corrupted. \n";
 
 		OSMessageBox(
 			msg.str(),
@@ -1586,7 +1635,7 @@ bool LLAppViewer::initConfiguration()
 
 	// - set procedural settings 
 	gSavedSettings.setString("ClientSettingsFile", 
-        gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, getSettingsFileName("Global")));
+        gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, getSettingsFilename("Default", "Global")));
 
 	gSavedSettings.setString("VersionChannelName", LL_CHANNEL);
 
@@ -1700,7 +1749,7 @@ bool LLAppViewer::initConfiguration()
 	}
 
 	// - load overrides from user_settings 
-	loadSettingsFromDirectory(LL_PATH_USER_SETTINGS);
+	loadSettingsFromDirectory("User");
 
 #if LL_DYNAMIC_FONT_DISCOVERY
 	// Linux does *dynamic* font discovery which is preferable to
@@ -2622,6 +2671,75 @@ void LLAppViewer::abortQuit()
 	mQuitRequested = false;
 }
 
+void LLAppViewer::migrateCacheDirectory()
+{
+#if LL_WINDOWS || LL_DARWIN
+	// NOTE: (Nyx) as of 1.21, cache for mac is moving to /library/caches/SecondLife from
+	// /library/application support/SecondLife/cache This should clear/delete the old dir.
+
+	// As of 1.23 the Windows cache moved from
+	//   C:\Documents and Settings\James\Application Support\SecondLife\cache
+	// to
+	//   C:\Documents and Settings\James\Local Settings\Application Support\SecondLife
+	//
+	// The Windows Vista equivalent is from
+	//   C:\Users\James\AppData\Roaming\SecondLife\cache
+	// to
+	//   C:\Users\James\AppData\Local\SecondLife
+	//
+	// Note the absence of \cache on the second path.  James.
+
+	// Only do this once per fresh install of this version.
+	if (gSavedSettings.getBOOL("MigrateCacheDirectory"))
+	{
+		gSavedSettings.setBOOL("MigrateCacheDirectory", FALSE);
+
+		std::string delimiter = gDirUtilp->getDirDelimiter();
+		std::string old_cache_dir = gDirUtilp->getOSUserAppDir() + delimiter + "cache";
+		std::string new_cache_dir = gDirUtilp->getCacheDir(true);
+
+		if (gDirUtilp->fileExists(old_cache_dir))
+		{
+			llinfos << "Migrating cache from " << old_cache_dir << " to " << new_cache_dir << llendl;
+
+			// Migrate inventory cache to avoid pain to inventory database after mass update
+			S32 file_count = 0;
+			std::string file_name;
+			std::string mask = delimiter + "*.*";
+			while (gDirUtilp->getNextFileInDir(old_cache_dir, mask, file_name, false))
+			{
+				if (file_name == "." || file_name == "..") continue;
+				std::string source_path = old_cache_dir + delimiter + file_name;
+				std::string dest_path = new_cache_dir + delimiter + file_name;
+				if (!LLFile::rename(source_path, dest_path))
+				{
+					file_count++;
+				}
+			}
+			llinfos << "Moved " << file_count << " files" << llendl;
+
+			// Nuke the old cache
+			gDirUtilp->setCacheDir(old_cache_dir);
+			purgeCache();
+			gDirUtilp->setCacheDir(new_cache_dir);
+
+#if LL_DARWIN
+			// Clean up Mac files not deleted by removing *.*
+			std::string ds_store = old_cache_dir + "/.DS_Store";
+			if (gDirUtilp->fileExists(ds_store))
+			{
+				LLFile::remove(ds_store);
+			}
+#endif
+			if (LLFile::rmdir(old_cache_dir) != 0)
+			{
+				llwarns << "could not delete old cache directory " << old_cache_dir << llendl;
+			}
+		}
+	}
+#endif // LL_WINDOWS || LL_DARWIN
+}
+
 bool LLAppViewer::initCache()
 {
 	mPurgeCache = false;
@@ -2643,37 +2761,8 @@ bool LLAppViewer::initCache()
 		}
 	}
 	
-	// Delete old cache directory
-#ifdef LL_DARWIN
-	if (LL_VERSION_MAJOR >= 1 && LL_VERSION_MINOR >= 21)
-	{
-		if (gLastRunVersion != gCurrentVersion)
-		{
-			// NOTE: (Nyx) as of 1.21, cache for mac is moving to /library/caches/SecondLife from
-			// /library/application support/SecondLife/cache This should clear/delete the old dir.
-			std::string cache_dir = gDirUtilp->getOSUserAppDir();
-			std::string new_cache_dir = gDirUtilp->getOSCacheDir();
-			cache_dir = cache_dir + "/cache";
-			new_cache_dir = new_cache_dir + "/SecondLife";
-			if (gDirUtilp->fileExists(cache_dir))
-			{
-				gDirUtilp->setCacheDir(cache_dir);
-				purgeCache();
-				gDirUtilp->setCacheDir(new_cache_dir);
-
-				std::string ds_store = cache_dir + "/.DS_Store";
-				if (gDirUtilp->fileExists(ds_store.c_str()))
-				{
-					LLFile::remove(ds_store.c_str());
-				}
-				if (LLFile::remove(cache_dir.c_str()) != 0)
-				{
-					llwarns << "could not delete old cache directory" << llendl;
-				}
-			}
-		}
-	}
-#endif
+	// We have moved the location of the cache directory over time.
+	migrateCacheDirectory();
 
 	// Setup and verify the cache location
 	std::string cache_location = gSavedSettings.getString("CacheLocation");

@@ -33,10 +33,14 @@
 // Usage: updater -url <url>
 //
 
-#include "linden_common.h"
+// We use dangerous fopen, strtok, mbstowcs, sprintf
+// which generates warnings on VC2005.
+// *TODO: Switch to fopen_s, strtok_s, etc.
+#define _CRT_SECURE_NO_DEPRECATE
 
 #include <windows.h>
 #include <wininet.h>
+#include <stdio.h>
 
 #define BUFSIZE 8192
 
@@ -44,7 +48,7 @@ int  gTotalBytesRead = 0;
 DWORD gTotalBytes = -1;
 HWND gWindow = NULL;
 WCHAR gProgress[256];
-char* gUpdateURL;
+char* gUpdateURL = NULL;
 
 #if _DEBUG
 FILE* logfile = 0;
@@ -352,7 +356,7 @@ WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nSho
 	int parse_args_result = parse_args(argc, argv);
 	
 	WNDCLASSEX wndclassex = { 0 };
-	DEVMODE dev_mode = { 0 };
+	//DEVMODE dev_mode = { 0 };
 	char update_exec_path[MAX_PATH];		/* Flawfinder: ignore */
 
 	const int WINDOW_WIDTH = 250;
@@ -371,7 +375,7 @@ WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nSho
 	RegisterClassEx(&wndclassex);
 	
 	// Get the size of the screen
-	EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &dev_mode);
+	//EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &dev_mode);
 	
 	gWindow = CreateWindowEx(NULL, win_class_name, 
 		L"Second Life Updater",

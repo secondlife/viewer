@@ -140,8 +140,8 @@ protected:
 	std::string mChatLogsDir;		 // Location for chat logs.
 	std::string mCAFile;				 // Location of the TLS certificate authority PEM file.
 	std::string mTempDir;
-	std::string mCacheDir;
-	std::string mOSCacheDir;
+	std::string mCacheDir;			// cache directory as set by user preference
+	std::string mOSCacheDir;		// operating system cache dir
 	std::string mDirDelimiter;
 	std::string mSkinDir;			// Location for current skin info.
 	std::string mDefaultSkinDir;			// Location for default skin info.

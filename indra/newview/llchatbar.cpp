@@ -114,6 +114,7 @@ LLChatBar::LLChatBar()
 
 LLChatBar::~LLChatBar()
 {
+	gGestureManager.removeObserver(mObserver);
 	delete mObserver;
 	mObserver = NULL;
 	// LLView destructor cleans up children

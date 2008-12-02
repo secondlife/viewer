@@ -122,10 +122,14 @@ public:
 	static const std::string sPerAccountSettingsName; 
 	static const std::string sCrashSettingsName; 
 
-	// returns false if loading a *required* settings file fails.
-	bool loadSettingsFromDirectory(ELLPath path_index, bool set_defaults = false);
+	// Load settings from the location specified by loction_key.
+	// Key availale and rules for loading, are specified in 
+	// 'app_settings/settings_files.xml'
+	bool loadSettingsFromDirectory(const std::string& location_key, 
+				       bool set_defaults = false);
 
-	std::string getSettingsFileName(const std::string& file);
+	std::string getSettingsFilename(const std::string& location_key,
+					const std::string& file);
 
 	// For thread debugging. 
 	// llstartup needs to control init.
@@ -159,6 +163,10 @@ private:
 
 	bool initCache(); // Initialize local client cache.
 	void purgeCache(); // Clear the local cache. 
+
+	// We have switched locations of both Mac and Windows cache, make sure
+	// files migrate and old cache is cleared out.
+	void migrateCacheDirectory();
 
 	void cleanupSavedSettings(); // Sets some config data to current or default values during cleanup.
 	void removeCacheFiles(const std::string& filemask); // Deletes cached files the match the given wildcard.
@@ -207,7 +215,7 @@ private:
     bool mQuitRequested;				// User wants to quit, may have modified documents open.
     bool mLogoutRequestSent;			// Disconnect message sent to simulator, no longer safe to send messages to the sim.
     S32 mYieldTime;
-	LLSD mSettingsFileList;
+	LLSD mSettingsLocationList;
 
 	LLWatchdogTimeout* mMainloopTimeout;
 

@@ -147,7 +147,7 @@ void LLPanelVolume::getState( )
 		// *FIX: shouldn't we just keep the child?
 		if (objectp)
 		{
-			LLViewerObject* parentp = objectp->getSubParent();
+			LLViewerObject* parentp = objectp->getRootEdit();
 
 			if (parentp)
 			{

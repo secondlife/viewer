@@ -75,6 +75,7 @@ class PlatformSetup(object):
     build_type = build_types['relwithdebinfo']
     standalone = 'OFF'
     unattended = 'OFF'
+    project_name = 'SecondLife'
     distcc = True
     cmake_opts = []
 
@@ -272,7 +273,8 @@ class LinuxSetup(UnixSetup):
             opts=quote(opts),
             standalone=self.standalone,
             unattended=self.unattended,
-            type=self.build_type.upper()
+            type=self.build_type.upper(),
+            project_name=self.project_name
             )
         if not self.is_internal_tree():
             args.update({'cxx':'g++', 'server':'OFF', 'viewer':'ON'})
@@ -298,6 +300,7 @@ class LinuxSetup(UnixSetup):
                 '-G %(generator)r -DSERVER:BOOL=%(server)s '
                 '-DVIEWER:BOOL=%(viewer)s -DSTANDALONE:BOOL=%(standalone)s '
                 '-DUNATTENDED:BOOL=%(unattended)s '
+                '-DROOT_PROJECT_NAME:STRING=%(project_name)s '
                 '%(opts)s %(dir)r')
                % args)
         if 'CXX' not in os.environ:
@@ -400,6 +403,7 @@ class DarwinSetup(UnixSetup):
             opts=quote(opts),
             standalone=self.standalone,
             unattended=self.unattended,
+            project_name=self.project_name,
             universal='',
             type=self.build_type.upper()
             )
@@ -411,6 +415,7 @@ class DarwinSetup(UnixSetup):
                 '-DCMAKE_BUILD_TYPE:STRING=%(type)s '
                 '-DSTANDALONE:BOOL=%(standalone)s '
                 '-DUNATTENDED:BOOL=%(unattended)s '
+                '-DROOT_PROJECT_NAME:STRING=%(project_name)s '
                 '%(universal)s '
                 '%(opts)s %(dir)r' % args)
 
@@ -486,12 +491,14 @@ class WindowsSetup(PlatformSetup):
             opts=quote(opts),
             standalone=self.standalone,
             unattended=self.unattended,
+            project_name=self.project_name
             )
         #if simple:
         #    return 'cmake %(opts)s "%(dir)s"' % args
         return ('cmake -G "%(generator)s" '
                 '-DSTANDALONE:BOOL=%(standalone)s '
                 '-DUNATTENDED:BOOL=%(unattended)s '
+                '-DROOT_PROJECT_NAME:STRING=%(project_name)s '
                 '%(opts)s "%(dir)s"' % args)
 
     def find_visual_studio(self, gen=None):
@@ -522,11 +529,11 @@ class WindowsSetup(PlatformSetup):
             if self.gens[self.generator]['ver'] in [ r'8.0', r'9.0' ]:
                 config = '\"%s|Win32\"' % config
 
-            return "buildconsole Secondlife.sln /build %s" % config
+            return "buildconsole %s.sln /build %s" % (self.project_name, config)
 
         # devenv.com is CLI friendly, devenv.exe... not so much.
-        return ('"%sdevenv.com" Secondlife.sln /build %s' % 
-                (self.find_visual_studio(), self.build_type))
+        return ('"%sdevenv.com" %s.sln /build %s' % 
+                (self.find_visual_studio(), self.project_name, self.build_type))
 
     # this override of run exists because the PlatformSetup version
     # uses Unix/Mac only calls. Freakin' os module!
@@ -596,12 +603,14 @@ class CygwinSetup(WindowsSetup):
             opts=quote(opts),
             standalone=self.standalone,
             unattended=self.unattended,
+            project_name=self.project_name
             )
         #if simple:
         #    return 'cmake %(opts)s "%(dir)s"' % args
         return ('cmake -G "%(generator)s" '
                 '-DUNATTENDED:BOOl=%(unattended)s '
                 '-DSTANDALONE:BOOL=%(standalone)s '
+                '-DROOT_PROJECT_NAME:STRING=%(project_name)s '
                 '%(opts)s "%(dir)s"' % args)
 
 setup_platform = {
@@ -627,6 +636,8 @@ Options:
                           VC90 (VS2008)
                         Mac OS X: Xcode (default), Unix Makefiles
                         Linux: Unix Makefiles (default), KDevelop3
+  -p | --project=NAME   set the root project name. (Doesn't effect makefiles)
+                        
 Commands:
   build      configure and build default target
   clean      delete all build directories, does not affect sources
@@ -652,13 +663,14 @@ def main(arguments):
     try:
         opts, args = getopt.getopt(
             arguments,
-            '?hNt:G:',
-            ['help', 'standalone', 'no-distcc', 'unattended', 'type=', 'incredibuild', 'generator='])
+            '?hNt:p:G:',
+            ['help', 'standalone', 'no-distcc', 'unattended', 'type=', 'incredibuild', 'generator=', 'project='])
     except getopt.GetoptError, err:
         print >> sys.stderr, 'Error:', err
         print >> sys.stderr, """
 Note: You must pass -D options to cmake after the "configure" command
 For example: develop.py configure -DSERVER:BOOL=OFF"""
+        print >> sys.stderr, usage_msg.strip()
         sys.exit(1)
 
     for o, a in opts:
@@ -684,6 +696,8 @@ For example: develop.py configure -DSERVER:BOOL=OFF"""
             setup.generator = a
         elif o in ('-N', '--no-distcc'):
             setup.distcc = False
+        elif o in ('-p', '--project'):
+            setup.project_name = a
         elif o in ('--incredibuild'):
             setup.incredibuild = True
         else:

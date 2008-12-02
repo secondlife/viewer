@@ -45,6 +45,10 @@
 # include "audioengine_fmod.h"
 #endif
 
+#ifdef LL_OPENAL
+#include "audioengine_openal.h"
+#endif
+
 #include "llares.h"
 #include "llcachename.h"
 #include "llviewercontrol.h"
@@ -581,10 +585,28 @@ bool idle_startup()
 
 		if (FALSE == gSavedSettings.getBOOL("NoAudio"))
 		{
-#ifdef LL_FMOD
-			gAudiop = (LLAudioEngine *) new LLAudioEngine_FMOD();
-#else
 			gAudiop = NULL;
+
+#ifdef LL_OPENAL
+			if (!gAudiop
+#if !LL_WINDOWS
+			    && NULL == getenv("LL_BAD_OPENAL_DRIVER")
+#endif // !LL_WINDOWS
+			    )
+			{
+				gAudiop = (LLAudioEngine *) new LLAudioEngine_OpenAL();
+			}
+#endif
+
+#ifdef LL_FMOD			
+			if (!gAudiop
+#if !LL_WINDOWS
+			    && NULL == getenv("LL_BAD_FMOD_DRIVER")
+#endif // !LL_WINDOWS
+			    )
+			{
+				gAudiop = (LLAudioEngine *) new LLAudioEngine_FMOD();
+			}
 #endif
 
 			if (gAudiop)
@@ -597,11 +619,16 @@ bool idle_startup()
 				void* window_handle = NULL;
 #endif
 				bool init = gAudiop->init(kAUDIO_NUM_SOURCES, window_handle);
-				if(!init)
+				if(init)
+				{
+					gAudiop->setMuted(TRUE);
+				}
+				else
 				{
 					LL_WARNS("AppInit") << "Unable to initialize audio engine" << LL_ENDL;
+					delete gAudiop;
+					gAudiop = NULL;
 				}
-				gAudiop->setMuted(TRUE);
 			}
 		}
 		
@@ -820,12 +847,12 @@ bool idle_startup()
         // Set PerAccountSettingsFile to the default value.
 		gSavedSettings.setString("PerAccountSettingsFile",
 			gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, 
-				LLAppViewer::instance()->getSettingsFileName("PerAccount")
+				LLAppViewer::instance()->getSettingsFilename("Default", "PerAccount")
 				)
 			);
 
 		// Overwrite default user settings with user settings								 
-		LLAppViewer::instance()->loadSettingsFromDirectory(LL_PATH_PER_SL_ACCOUNT);
+		LLAppViewer::instance()->loadSettingsFromDirectory("Account");
 
 		// Need to set the LastLogoff time here if we don't have one.  LastLogoff is used for "Recent Items" calculation
 		// and startup time is close enough if we don't have a real value.

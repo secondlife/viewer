@@ -357,17 +357,19 @@ void LLPanelPermissions::refresh()
 	{
 		edit_name_desc = TRUE;
 	}
+
+	childSetEnabled("Name:",true);
+	LLLineEditor* LineEditorObjectName = getChild<LLLineEditor>("Object Name");
+	childSetEnabled("Description:",true);
+	LLLineEditor*	LineEditorObjectDesc = getChild<LLLineEditor>("Object Description");
+
 	if(is_one_object)
 	{
-		childSetEnabled("Name:",true);
-		LLLineEditor* LineEditorObjectName = getChild<LLLineEditor>("Object Name");
 		if(keyboard_focus_view != LineEditorObjectName)
 		{
 			childSetText("Object Name",nodep->mName);
 		}
 
-		childSetEnabled("Description:",true);
-		LLLineEditor*	LineEditorObjectDesc = getChild<LLLineEditor>("Object Description");
 		if(LineEditorObjectDesc)
 		{
 			if(keyboard_focus_view != LineEditorObjectDesc)
@@ -375,6 +377,11 @@ void LLPanelPermissions::refresh()
 				LineEditorObjectDesc->setText(nodep->mDescription);
 			}
 		}
+	}
+	else
+	{
+		childSetText("Object Name",LLStringUtil::null);
+		LineEditorObjectDesc->setText(LLStringUtil::null);
 	}
 
 	if(edit_name_desc)

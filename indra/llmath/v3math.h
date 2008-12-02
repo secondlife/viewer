@@ -160,8 +160,8 @@ typedef LLVector3 LLSimLocalVec;
 F32	angle_between(const LLVector3 &a, const LLVector3 &b);	// Returns angle (radians) between a and b
 BOOL are_parallel(const LLVector3 &a, const LLVector3 &b, F32 epsilon=F_APPROXIMATELY_ZERO);	// Returns TRUE if a and b are very close to parallel
 F32	dist_vec(const LLVector3 &a, const LLVector3 &b);		// Returns distance between a and b
-F32	dist_vec_squared(const LLVector3 &a, const LLVector3 &b);// Returns distance sqaured between a and b
-F32	dist_vec_squared2D(const LLVector3 &a, const LLVector3 &b);// Returns distance sqaured between a and b ignoring Z component
+F32	dist_vec_squared(const LLVector3 &a, const LLVector3 &b);// Returns distance squared between a and b
+F32	dist_vec_squared2D(const LLVector3 &a, const LLVector3 &b);// Returns distance squared between a and b ignoring Z component
 LLVector3 projected_vec(const LLVector3 &a, const LLVector3 &b); // Returns vector a projected on vector b
 LLVector3 lerp(const LLVector3 &a, const LLVector3 &b, F32 u); // Returns a vector that is a linear interpolation between a and b
 

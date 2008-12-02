@@ -211,7 +211,8 @@ protected:
 	// give inventory item functionality
 	static void handleCopyProtectedItem(S32 option, void* data);
 	static void commitGiveInventoryItem(const LLUUID& to_agent,
-										LLInventoryItem* item);
+										LLInventoryItem* item,
+										const LLUUID &im_session_id = LLUUID::null);
 
 	// give inventory category functionality
 	static void handleCopyProtectedCategory(S32 option, void* data);
@@ -251,7 +252,9 @@ public:
 							  ESource source,
 							  const LLUUID& src_id);
 
-	static void giveInventory(const LLUUID& to_agent, LLInventoryItem* item);
+	static void giveInventory(const LLUUID& to_agent, 
+							  LLInventoryItem* item,
+							  const LLUUID &session_id = LLUUID::null);
 	static void giveInventoryCategory(const LLUUID& to_agent,
 									  LLInventoryCategory* item);
 };

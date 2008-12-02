@@ -5368,7 +5368,15 @@ class LLPromptShowURL : public view_listener_t
 			std::string alert = param.substr(0, offset);
 			std::string url = param.substr(offset+1);
 			std::string* url_copy = new std::string(url);
-			gViewerWindow->alertXml(alert, callback_show_url, url_copy);
+
+			if(gSavedSettings.getBOOL("UseExternalBrowser"))
+			{ 
+				gViewerWindow->alertXml(alert, callback_show_url, url_copy);
+			}
+			else
+			{
+				callback_show_url(0, url_copy);
+			}
 		}
 		else
 		{
@@ -5777,8 +5785,7 @@ class LLAttachmentEnableDrop : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
-		BOOL can_build   = gAgent.isGodlike() || (parcel && parcel->getAllowModify());
+		BOOL can_build   = gAgent.isGodlike() || (LLViewerParcelMgr::getInstance()->agentCanBuild());
 
 		//Add an inventory observer to only allow dropping the newly attached item
 		//once it exists in your inventory.  Look at Jira 2422.

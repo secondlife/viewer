@@ -1644,9 +1644,7 @@ BOOL LLFloaterIMPanel::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 					accepted = true;
 					if(drop)
 					{
-						LLToolDragAndDrop::giveInventory(mOtherParticipantUUID, inv_item);
-						LLStringUtil::format_map_t args;
-						gIMMgr->addSystemMessage(mSessionUUID, "inventory_item_offered", args);
+						LLToolDragAndDrop::giveInventory(mOtherParticipantUUID, inv_item, mSessionUUID);
 					}
 				}
 			}

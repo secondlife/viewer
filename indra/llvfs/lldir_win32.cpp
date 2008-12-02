@@ -58,14 +58,18 @@ LLDir_Win32::LLDir_Win32()
 
 	mOSUserDir = utf16str_to_utf8str(llutf16string(w_str));
 
-	// Local Settings\Application Data is where cache files should
-	// go, they don't get copied to the server if the user moves his
-	// profile around on the network. JC
+	// We want cache files to go on the local disk, even if the
+	// user is on a network with a "roaming profile".
 	//
-	// TODO: patch the installer to remove old cache files on update, then
-	// enable this code.
-	//SHGetSpecialFolderPath(NULL, w_str, CSIDL_LOCAL_APPDATA, TRUE);
-	//mOSUserCacheDir = utf16str_to_utf8str(llutf16string(w_str));
+	// On XP this is:
+	//   C:\Docments and Settings\James\Local Settings\Application Data
+	// On Vista this is:
+	//   C:\Users\James\AppData\Local
+	//
+	// We used to store the cache in AppData\Roaming, and the installer
+	// cleans up that version on upgrade.  JC
+	SHGetSpecialFolderPath(NULL, w_str, CSIDL_LOCAL_APPDATA, TRUE);
+	mOSCacheDir = utf16str_to_utf8str(llutf16string(w_str));
 
 	if (GetTempPath(MAX_PATH, w_str))
 	{

@@ -62,6 +62,7 @@ set(cmake_SOURCE_FILES
     Mozlib.cmake
     MySQL.cmake
     NDOF.cmake
+    OPENAL.cmake
     OpenGL.cmake
     OpenJPEG.cmake
     OpenSSL.cmake

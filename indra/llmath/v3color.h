@@ -160,7 +160,7 @@ void LLColor3::clamp()
 
 // Non-member functions 
 F32		distVec(const LLColor3 &a, const LLColor3 &b);		// Returns distance between a and b
-F32		distVec_squared(const LLColor3 &a, const LLColor3 &b);// Returns distance sqaured between a and b
+F32		distVec_squared(const LLColor3 &a, const LLColor3 &b);// Returns distance squared between a and b
 
 inline LLColor3::LLColor3(void)
 {

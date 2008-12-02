@@ -36,6 +36,7 @@
 
 #include "llagent.h" 
 
+#include "llcamera.h"
 #include "llcoordframe.h"
 #include "indra_constants.h"
 #include "llmath.h"
@@ -270,8 +271,27 @@ void LLAgentFriendObserver::changed(U32 mask)
 //-----------------------------------------------------------------------------
 // LLAgent()
 //-----------------------------------------------------------------------------
-LLAgent::LLAgent()
-:	mDrawDistance( DEFAULT_FAR_PLANE ),
+LLAgent::LLAgent() :
+	mDrawDistance( DEFAULT_FAR_PLANE ),
+
+	mGroupPowers(0),
+	mHideGroupTitle(FALSE),
+	mGroupID(),
+
+	mMapOriginX(0.F),
+	mMapOriginY(0.F),
+	mMapWidth(0),
+	mMapHeight(0),
+
+	mLookAt(NULL),
+	mPointAt(NULL),
+
+	mHUDTargetZoom(1.f),
+	mHUDCurZoom(1.f),
+	mInitialized(FALSE),
+	mNumPendingQueries(0),
+	mActiveCacheQueries(NULL),
+	mForceMouselook(FALSE),
 
 	mDoubleTapRunTimer(),
 	mDoubleTapRunMode(DOUBLETAP_NONE),
@@ -280,25 +300,13 @@ LLAgent::LLAgent()
 	mbRunning(false),
 
 	mAccess(SIM_ACCESS_PG),
-	mGroupPowers(0),
-	mGroupID(),
-	//mGroupInsigniaID(),
-	mMapOriginX(0),
-	mMapOriginY(0),
-	mMapWidth(0),
-	mMapHeight(0),
-	mLookAt(NULL),
-	mPointAt(NULL),
-	mInitialized(FALSE),
-	mNumPendingQueries(0),
-	mForceMouselook(FALSE),
 	mTeleportState( TELEPORT_NONE ),
 	mRegionp(NULL),
 
 	mAgentOriginGlobal(),
 	mPositionGlobal(),
 
-	mDistanceTraveled(0),
+	mDistanceTraveled(0.F),
 	mLastPositionGlobal(LLVector3d::zero),
 
 	mAvatarObject(NULL),
@@ -310,43 +318,68 @@ LLAgent::LLAgent()
 	mLastCameraMode( CAMERA_MODE_THIRD_PERSON ),
 	mViewsPushed(FALSE),
 
+	mCustomAnim(FALSE),
 	mShowAvatar(TRUE),
-	
 	mCameraAnimating( FALSE ),
 	mAnimationCameraStartGlobal(),
 	mAnimationFocusStartGlobal(),
 	mAnimationTimer(),
 	mAnimationDuration(0.33f),
+	
 	mCameraFOVZoomFactor(0.f),
 	mCameraCurrentFOVZoomFactor(0.f),
 	mCameraFocusOffset(),
+	mCameraFOVDefault(DEFAULT_FIELD_OF_VIEW),
+
 	mCameraOffsetDefault(),
-//	mCameraOffsetNorm(),
 	mCameraCollidePlane(),
+
 	mCurrentCameraDistance(2.f),		// meters, set in init()
 	mTargetCameraDistance(2.f),
 	mCameraZoomFraction(1.f),			// deprecated
 	mThirdPersonHeadOffset(0.f, 0.f, 1.f),
 	mSitCameraEnabled(FALSE),
-	mHUDTargetZoom(1.f),
-	mHUDCurZoom(1.f),
+	mCameraSmoothingLastPositionGlobal(),
+	mCameraSmoothingLastPositionAgent(),
+	mCameraSmoothingStop(FALSE),
+
+	mCameraUpVector(LLVector3::z_axis), // default is straight up
+
 	mFocusOnAvatar(TRUE),
 	mFocusGlobal(),
 	mFocusTargetGlobal(),
 	mFocusObject(NULL),
+	mFocusObjectDist(0.f),
 	mFocusObjectOffset(),
 	mFocusDotRadius( 0.1f ),			// meters
 	mTrackFocusObject(TRUE),
-	mCameraSmoothingLastPositionGlobal(),
-	mCameraSmoothingLastPositionAgent(),
-	mCameraSmoothingStop(FALSE),
+	mUIOffset(0.f),
 
 	mFrameAgent(),
 
 	mCrouching(FALSE),
 	mIsBusy(FALSE),
 
-	// movement keys below
+	mAtKey(0), // Either 1, 0, or -1... indicates that movement-key is pressed
+	mWalkKey(0), // like AtKey, but causes less forward thrust
+	mLeftKey(0),
+	mUpKey(0),
+	mYawKey(0.f),
+	mPitchKey(0),
+
+	mOrbitLeftKey(0.f),
+	mOrbitRightKey(0.f),
+	mOrbitUpKey(0.f),
+	mOrbitDownKey(0.f),
+	mOrbitInKey(0.f),
+	mOrbitOutKey(0.f),
+
+	mPanUpKey(0.f),
+	mPanDownKey(0.f),
+	mPanLeftKey(0.f),
+	mPanRightKey(0.f),
+	mPanInKey(0.f),
+	mPanOutKey(0.f),
 
 	mControlFlags(0x00000000),
 	mbFlagsDirty(FALSE),
@@ -361,27 +394,29 @@ LLAgent::LLAgent()
 	mAutoPilotUseRotation(FALSE),
 	mAutoPilotTargetFacing(LLVector3::zero),
 	mAutoPilotTargetDist(0.f),
+	mAutoPilotNoProgressFrameCount(0),
+	mAutoPilotRotationThreshold(0.f),
 	mAutoPilotFinishedCallback(NULL),
 	mAutoPilotCallbackData(NULL),
 	
-
 	mEffectColor(0.f, 1.f, 1.f, 1.f),
+
 	mHaveHomePosition(FALSE),
 	mHomeRegionHandle( 0 ),
 	mNearChatRadius(CHAT_NORMAL_RADIUS / 2.f),
+	mAdminOverride(FALSE),
+
 	mGodLevel( GOD_NOT ),
-
-
 	mNextFidgetTime(0.f),
 	mCurrentFidget(0),
 	mFirstLogin(FALSE),
 	mGenderChosen(FALSE),
+
 	mAgentWearablesUpdateSerialNum(0),
 	mWearablesLoaded(FALSE),
 	mTextureCacheQueryID(0),
 	mAppearanceSerialNum(0)
 {
-
 	U32 i;
 	for (i = 0; i < TOTAL_CONTROLS; i++)
 	{
@@ -389,40 +424,13 @@ LLAgent::LLAgent()
 		mControlsTakenPassedOnCount[i] = 0;
 	}
 
-	// Initialize movement keys
-	mAtKey				= 0;	// Either 1, 0, or -1... indicates that movement-key is pressed
-	mWalkKey			= 0;	// like AtKey, but causes less forward thrust
-	mLeftKey			= 0;
-	mUpKey				= 0;
-	mYawKey				= 0.f;
-	mPitchKey			= 0;
-
-	mOrbitLeftKey		= 0.f;
-	mOrbitRightKey		= 0.f;
-	mOrbitUpKey			= 0.f;
-	mOrbitDownKey		= 0.f;
-	mOrbitInKey			= 0.f;
-	mOrbitOutKey		= 0.f;
-
-	mPanUpKey			= 0.f;
-	mPanDownKey			= 0.f;
-	mPanLeftKey			= 0.f;
-	mPanRightKey		= 0.f;
-	mPanInKey			= 0.f;
-	mPanOutKey			= 0.f;
-
 	mActiveCacheQueries = new S32[BAKED_TEXTURE_COUNT];
 	for (i = 0; i < (U32)BAKED_TEXTURE_COUNT; i++)
 	{
 		mActiveCacheQueries[i] = 0;
 	}
 
-	//Ventrella
-	mCameraUpVector = LLVector3::z_axis;// default is straight up 
 	mFollowCam.setMaxCameraDistantFromSubject( MAX_CAMERA_DISTANCE_FROM_AGENT );
-	//end ventrella
-
-	mCustomAnim = FALSE ;
 }
 
 // Requires gSavedSettings to be initialized.
@@ -3255,7 +3263,7 @@ void LLAgent::updateCamera()
 	}
 
 	// smoothing
-	if (TRUE) 	
+	if (TRUE)
 	{
 		LLVector3d agent_pos = getPositionGlobal();
 		LLVector3d camera_pos_agent = camera_pos_global - agent_pos;

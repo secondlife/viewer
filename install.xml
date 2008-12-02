@@ -300,6 +300,13 @@
             <key>url</key>
             <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/dbusglib-linux-20080707.tar.bz2</uri>
           </map>
+          <key>linux32</key>
+          <map>
+            <key>md5sum</key>
+            <string>eb25444142d4102b0ce1b7ffaadb071e</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/dbusglib-linux-20080707.tar.bz2</uri>
+          </map>
         </map>
       </map>
       <key>elfio</key>
@@ -1168,6 +1175,13 @@ anguage Infrstructure (CLI) international standard</string>
             <key>url</key>
             <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ogg-vorbis-1.03-1.1.2-linux-20080812.tar.bz2</uri>
           </map>
+          <key>linux32</key>
+          <map>
+            <key>md5sum</key>
+            <string>df1809565b87b1dc28e3ca70db6e7d46</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ogg-vorbis-1.03-1.1.2-linux-20080812.tar.bz2</uri>
+          </map>
           <key>linux64</key>
           <map>
             <key>md5sum</key>
@@ -1181,6 +1195,39 @@ anguage Infrstructure (CLI) international standard</string>
             <string>9667525f28adb4ad54bbc883b14324ac</string>
             <key>url</key>
             <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ogg-vorbis-1.03-1.1.2-windows-20080613.tar.bz2</uri>
+          </map>
+        </map>
+      </map>
+      <key>openal</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright (C) 2008 by authors.</string>
+        <key>description</key>
+        <string>3D Audio library</string>
+        <key>license</key>
+        <string>lgpl</string>
+        <key>packages</key>
+        <map>
+          <key>darwin</key>
+          <map>
+            <key>md5sum</key>
+            <string>a0757244e3e6688fde2ffeea35cc1f96</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/openal-darwin-20080924.tar.bz2</uri>
+          </map>
+          <key>linux</key>
+          <map>
+            <key>md5sum</key>
+            <string>f0d9a8d1318b519cffe6c40c9cac4e21</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/openal-linux-20081010c-59a71b14-plughw.tar.bz2</uri>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>md5sum</key>
+            <string>a0757244e3e6688fde2ffeea35cc1f96</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/openal-windows-20080924.tar.bz2</uri>
           </map>
         </map>
       </map>
