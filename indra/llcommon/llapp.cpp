@@ -89,6 +89,12 @@ LLAppChildCallback LLApp::sDefaultChildCallback = NULL;
 
 LLApp::LLApp() : mThreadErrorp(NULL)
 {
+	commonCtor();
+	startErrorThread();
+}
+
+void LLApp::commonCtor()
+{
 	// Set our status to running
 	setStatus(APP_STATUS_RUNNING);
 
@@ -96,9 +102,9 @@ LLApp::LLApp() : mThreadErrorp(NULL)
 
 #if !LL_WINDOWS
 	// This must be initialized before the error handler.
-	sSigChildCount = new LLAtomicU32(0);	
+	sSigChildCount = new LLAtomicU32(0);
 #endif
-	
+
 	// Setup error handling
 	setupErrorHandling();
 
@@ -118,6 +124,13 @@ LLApp::LLApp() : mThreadErrorp(NULL)
 
 	// Set the application to this instance.
 	sApplication = this;
+
+}
+
+LLApp::LLApp(LLErrorThread *error_thread) :
+	mThreadErrorp(error_thread)
+{
+	commonCtor();
 }
 
 
@@ -261,16 +274,19 @@ void LLApp::setupErrorHandling()
 
 #endif
 
+}
+
+void LLApp::startErrorThread()
+{
 	//
 	// Start the error handling thread, which is responsible for taking action
 	// when the app goes into the APP_STATUS_ERROR state
 	//
-	llinfos << "LLApp::setupErrorHandling - Starting error thread" << llendl;
+	llinfos << "Starting error thread" << llendl;
 	mThreadErrorp = new LLErrorThread();
 	mThreadErrorp->setUserData((void *) this);
-	mThreadErrorp->start();
+	mThreadErrorp->start();	
 }
-
 
 void LLApp::setErrorHandler(LLAppErrorHandler handler)
 {

@@ -50,10 +50,6 @@
 //
 // Constants
 //
-const F32 PING_INTERVAL_MAX = 100.f;
-const F32 PING_INTERVAL_ALARM = 50.f;
-
-
 const F32 LL_AVERAGED_PING_ALPHA = 0.2f;  // relaxation constant on ping running average
 const F32 LL_AVERAGED_PING_MAX = 2000;    // msec
 const F32 LL_AVERAGED_PING_MIN =  100;    // msec  // IW: increased to avoid retransmits when a process is slow
@@ -85,7 +81,8 @@ class LLSD;
 class LLCircuitData
 {
 public:
-	LLCircuitData(const LLHost &host, TPACKETID in_id);
+	LLCircuitData(const LLHost &host, TPACKETID in_id, 
+				  const F32 circuit_heartbeat_interval, const F32 circuit_timeout);
 	~LLCircuitData();
 
 	S32		resendUnackedPackets(const F64 now);
@@ -283,6 +280,9 @@ protected:
 	S32		mCurrentResendCount;	// Number of resent packets since last spam
     LLStatRate  mOutOfOrderRate;    // Rate of out of order packets coming in.
     U32     mLastPacketGap;         // Gap in sequence number of last packet.
+
+	const F32 mHeartbeatInterval;
+	const F32 mHeartbeatTimeout;
 };
 
 
@@ -292,7 +292,7 @@ class LLCircuit
 {
 public:
 	// CREATORS
-	LLCircuit();
+	LLCircuit(const F32 circuit_heartbeat_interval, const F32 circuit_timeout);
 	~LLCircuit();
 
 	// ACCESSORS
@@ -345,5 +345,9 @@ protected:
 	// optimize the many, many times we call findCircuit. This may be
 	// set in otherwise const methods, so it is declared mutable.
 	mutable LLCircuitData* mLastCircuit;
+
+private:
+	const F32 mHeartbeatInterval;
+	const F32 mHeartbeatTimeout;
 };
 #endif

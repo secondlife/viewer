@@ -891,14 +891,13 @@ void LLScriptExecute::runInstructions(BOOL b_print, const LLUUID &id,
 			b_done = TRUE;
 		}
 
-		while (!b_done)
+		if (!b_done)
 		{
 			// Call handler for next queued event.
 			if(getEventCount() > 0)
 			{
 				++events_processed;
 				callNextQueuedEventHandler(event_register, id, quanta);
-				b_done = TRUE;
 			}
 			else
 			{
@@ -910,8 +909,8 @@ void LLScriptExecute::runInstructions(BOOL b_print, const LLUUID &id,
 					++events_processed;
 					callEventHandler(event, id, quanta);
 				}
-				b_done = TRUE;
 			}
+			b_done = TRUE;
 		}
 	}
 }
@@ -945,6 +944,10 @@ F32 LLScriptExecute::runQuanta(BOOL b_print, const LLUUID &id, const char **erro
 			}
 			timer_checks = 0;
 		}
+	}
+	if (inloop == 0.0f)
+	{
+		inloop = timer.getElapsedTimeF32();
 	}
 	return inloop;
 }

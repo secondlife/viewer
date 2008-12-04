@@ -36,10 +36,13 @@ import re
 from indra.util.fastest_elementtree import ElementTreeError, fromstring
 from indra.base import lluuid
 
-try:
-    import cllsd
-except ImportError:
-    cllsd = None
+# cllsd.c in server/server-1.25 has memory leaks,
+#   so disabling cllsd for now
+#try:
+#    import cllsd
+#except ImportError:
+#    cllsd = None
+cllsd = None
 
 int_regex = re.compile(r"[-+]?\d+")
 real_regex = re.compile(r"[-+]?(\d+(\.\d*)?|\d*\.\d+)([eE][-+]?\d+)?")

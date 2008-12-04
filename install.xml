@@ -662,30 +662,30 @@
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>e398a04adb84796072dcc1f5efc69f4a</string>
+            <string>af7b1fc9072443009f19e43fb3c8342f</string>
             <key>url</key>
-            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/havok-4.6.1-linux-20080912.tar.bz2</uri>
+            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/havok-4.6.1-linux-20081029.tar.bz2</uri>
           </map>
           <key>linux32</key>
           <map>
             <key>md5sum</key>
-            <string>5a7821cb8aa471051e0361a74d115613</string>
+            <string>ca909a0a48c3dcc61656f1635fc3e3b4</string>
             <key>url</key>
-            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/havok-4.6.1-linux-i686-gcc-4.1-20080915.tar.bz2</uri>
+            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/havok-4.6.1-linux-i686-gcc-4.1-20081030.tar.bz2</uri>
           </map>
           <key>linux64</key>
           <map>
             <key>md5sum</key>
-            <string>b2095827a940c791240339dac677ef2d</string>
+            <string>cd4076d6caf5fabff36bf48bd01e4ba8</string>
             <key>url</key>
-            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/havok-4.6.1-linux64-20080909.tar.bz2</uri>
+            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/havok-4.6.1-linux64-20081030.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
             <key>md5sum</key>
             <string>f25fbb29c2275267233c79f0c68ca37f</string>
             <key>url</key>
-            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/havok-4.6.1-windows-20081010.tar.bz2</uri>
+            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/havok-4.6.1-windows-20081030.tar.bz2</uri>
           </map>
         </map>
       </map>

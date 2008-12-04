@@ -290,7 +290,9 @@ LLMessageSystem::LLMessageSystem(const std::string& filename, U32 port,
 								 S32 version_major,
 								 S32 version_minor,
 								 S32 version_patch,
-								 bool failure_is_fatal)
+								 bool failure_is_fatal,
+								 const F32 circuit_heartbeat_interval, const F32 circuit_timeout) :
+	mCircuitInfo(circuit_heartbeat_interval, circuit_timeout)
 {
 	init();
 
@@ -2496,7 +2498,9 @@ bool start_messaging_system(
 	bool b_dump_prehash_file,
 	const std::string& secret,
 	const LLUseCircuitCodeResponder* responder,
-	bool failure_is_fatal)
+	bool failure_is_fatal,
+	const F32 circuit_heartbeat_interval, 
+	const F32 circuit_timeout)
 {
 	gMessageSystem = new LLMessageSystem(
 		template_name,
@@ -2504,7 +2508,9 @@ bool start_messaging_system(
 		version_major, 
 		version_minor, 
 		version_patch,
-		failure_is_fatal);
+		failure_is_fatal,
+		circuit_heartbeat_interval,
+		circuit_timeout);
 	g_shared_secret.assign(secret);
 
 	if (!gMessageSystem)

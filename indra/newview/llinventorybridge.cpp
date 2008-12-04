@@ -755,6 +755,10 @@ void LLItemBridge::performAction(LLFolderView* folder, LLInventoryModel* model, 
 		model->deleteObject(mUUID);
 		model->notifyObservers();
 	}
+	else if ("restoreToWorld" == action)
+	{
+		restoreToWorld();
+	}
 	else if ("restore" == action)
 	{
 		restoreItem();
@@ -808,6 +812,47 @@ void LLItemBridge::restoreItem()
 		LLUUID new_parent = model->findCategoryUUIDForType(item->getType());
 		// do not restamp on restore.
 		LLInvFVBridge::changeItemParent(model, item, new_parent, FALSE);
+	}
+}
+
+void LLItemBridge::restoreToWorld()
+{
+	LLViewerInventoryItem* itemp = (LLViewerInventoryItem*)getItem();
+	if (itemp)
+	{
+		LLMessageSystem* msg = gMessageSystem;
+		msg->newMessage("RezRestoreToWorld");
+		msg->nextBlockFast(_PREHASH_AgentData);
+		msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+		msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+
+		msg->nextBlockFast(_PREHASH_InventoryData);
+		itemp->packMessage(msg);
+		msg->sendReliable(gAgent.getRegion()->getHost());
+	}
+
+	//Similar functionality to the drag and drop rez logic
+	BOOL remove_from_inventory = FALSE;
+
+	//remove local inventory copy, sim will deal with permissions and removing the item
+	//from the actual inventory if its a no-copy etc
+	if(!itemp->getPermissions().allowCopyBy(gAgent.getID()))
+	{
+		remove_from_inventory = TRUE;
+	}
+
+	// Check if it's in the trash. (again similar to the normal rez logic)
+	LLUUID trash_id;
+	trash_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_TRASH);
+	if(gInventory.isObjectDescendentOf(itemp->getUUID(), trash_id))
+	{
+		remove_from_inventory = TRUE;
+	}
+
+	if(remove_from_inventory)
+	{
+		gInventory.deleteObject(itemp->getUUID());
+		gInventory.notifyObservers();
 	}
 }
 
@@ -3375,6 +3420,7 @@ void LLObjectBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 				items.push_back(std::string("Object Wear"));
 				items.push_back(std::string("Attach To"));
 				items.push_back(std::string("Attach To HUD"));
+				items.push_back(std::string("Restore to Last Position"));
 
 				LLMenuGL* attach_menu = menu.getChildMenuByName("Attach To", TRUE);
 				LLMenuGL* attach_hud_menu = menu.getChildMenuByName("Attach To HUD", TRUE);
@@ -4362,7 +4408,6 @@ void LLWearableBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		
 		items.push_back(std::string("Wearable Wear"));
 		items.push_back(std::string("Wearable Edit"));
-
 
 		if ((flags & FIRST_SELECTED_ITEM) == 0)
 		{

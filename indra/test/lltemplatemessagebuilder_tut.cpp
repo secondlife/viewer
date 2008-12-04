@@ -59,6 +59,9 @@ namespace tut
 			if(! init)
 			{
 				ll_init_apr();
+				const F32 circuit_heartbeat_interval=5;
+				const F32 circuit_timeout=100;
+
 				start_messaging_system("notafile", 13035,
 									   LL_VERSION_MAJOR,
 									   LL_VERSION_MINOR,        
@@ -66,7 +69,9 @@ namespace tut
 									   FALSE,        
 									   "notasharedsecret",
 									   NULL,
-									   false);
+									   false,
+									   circuit_heartbeat_interval,
+									   circuit_timeout);
 				//init_prehash_data();
 				init = true;
 			}

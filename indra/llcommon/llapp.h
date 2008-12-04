@@ -77,6 +77,11 @@ public:
 	LLApp();
 	virtual ~LLApp();
 
+protected:
+	LLApp(LLErrorThread* error_thread);
+	void commonCtor();
+public:
+	
 	/** 
 	 * @brief Return the static app instance if one was created.
 	 */
@@ -245,8 +250,9 @@ protected:
 	void stepFrame();
 
 private:
+	void startErrorThread();
+	
 	void setupErrorHandling();		// Do platform-specific error-handling setup (signals, structured exceptions)
-
 	static void runErrorHandler(); // run shortly after we detect an error, ran in the relatively robust context of the LLErrorThread - preferred.
 	static void runSyncErrorHandler(); // run IMMEDIATELY when we get an error, ran in the context of the faulting thread.
 

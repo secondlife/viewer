@@ -33,9 +33,9 @@
 #define LL_LLVERSIONSERVER_H
 
 const S32 LL_VERSION_MAJOR = 1;
-const S32 LL_VERSION_MINOR = 25;
+const S32 LL_VERSION_MINOR = 26;
 const S32 LL_VERSION_PATCH = 0;
-const S32 LL_VERSION_BUILD = 104413;
+const S32 LL_VERSION_BUILD = 103578;
 
 const char * const LL_CHANNEL = "Second Life Server";
 

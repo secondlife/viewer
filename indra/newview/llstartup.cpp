@@ -478,6 +478,14 @@ bool idle_startup()
 			  }
 
 			LLHTTPSender::setDefaultSender(new LLNullHTTPSender());
+
+			// TODO parameterize 
+			const F32 circuit_heartbeat_interval = 5;
+			const F32 circuit_timeout = 100;
+
+			const LLUseCircuitCodeResponder* responder = NULL;
+			bool failure_is_fatal = true;
+			
 			if(!start_messaging_system(
 				   message_template_path,
 				   port,
@@ -485,7 +493,11 @@ bool idle_startup()
 				   LL_VERSION_MINOR,
 				   LL_VERSION_PATCH,
 				   FALSE,
-				   std::string()))
+				   std::string(),
+				   responder,
+				   failure_is_fatal,
+				   circuit_heartbeat_interval,
+				   circuit_timeout))
 			{
 				std::string msg = LLTrans::getString("LoginFailedNoNetwork");
 				msg.append(llformat(" Error: %d", gMessageSystem->getErrorCode()));

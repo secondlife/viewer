@@ -70,6 +70,9 @@ namespace tut
 				//init_prehash_data();
 				init = true;
 			}
+			const F32 circuit_heartbeat_interval=5;
+			const F32 circuit_timeout=100;
+
 
 			// currently test disconnected message system
 			start_messaging_system("notafile", 13035,
@@ -79,7 +82,10 @@ namespace tut
 								   FALSE,        
 								   "notasharedsecret",
 								   NULL,
-								   false);
+								   false,
+								   circuit_heartbeat_interval,
+								   circuit_timeout
+								   );
 			// generate temp dir
 			std::ostringstream ostr;
 #if LL_WINDOWS

@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2001&license=viewergpl$
  * 
- * Copyright (c) 2001-2007, Linden Research, Inc.
+ * Copyright (c) 2001-2008, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -76,6 +76,14 @@ enum LAND_STAT_REPORT_TYPE
 };
 
 const U32 STAT_FILTER_MASK	= 0x1FFFFFFF;
+
+// Region absolute limits
+static const S32		REGION_AGENT_COUNT_MIN = 1;
+static const S32		REGION_AGENT_COUNT_MAX = 200;			// Must fit in U8 for the moment (RegionInfo msg)
+static const S32		REGION_PRIM_COUNT_MIN = 0;
+static const S32		REGION_PRIM_COUNT_MAX = 40000;
+static const F32		REGION_PRIM_BONUS_MIN = 1.0;
+static const F32		REGION_PRIM_BONUS_MAX = 10.0;
 
 // Default maximum number of tasks/prims per region.
 const U32 DEFAULT_MAX_REGION_WIDE_PRIM_COUNT = 15000;
@@ -229,10 +237,11 @@ const S32 KEY_COUNT = 256;
 const F32 DEFAULT_WATER_HEIGHT 	= 20.0f;
 
 // Maturity ratings for simulators
-const U8 SIM_ACCESS_MIN 	= 0;
+const U8 SIM_ACCESS_MIN 	= 0;		// Treated as 'unknown', usually ends up being SIM_ACCESS_PG
 const U8 SIM_ACCESS_TRIAL	= 7;
 const U8 SIM_ACCESS_PG		= 13;
 const U8 SIM_ACCESS_MATURE	= 21;
+const U8 SIM_ACCESS_ADULT	= 42;		// Seriously Adult Only
 const U8 SIM_ACCESS_DOWN	= 254;
 const U8 SIM_ACCESS_MAX 	= SIM_ACCESS_MATURE;
 

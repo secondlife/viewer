@@ -630,7 +630,9 @@ static void print_cil_cast(LLFILE* fp, LSCRIPTType srcType, LSCRIPTType targetTy
 		switch(targetType)
 		{
 		case LST_INTEGER:
-			fprintf(fp, "conv.i4\n");
+			//fprintf(fp, "call int32 [LslLibrary]LindenLab.SecondLife.LslRunTime::ToInteger(float32)\n");
+			fprintf(fp, "conv.i4\n"); // TODO replace this line with the above
+			// we the entire grid is > 1.25.1
 			break;
 		case LST_STRING:
 			fprintf(fp, "call string [LslLibrary]LindenLab.SecondLife.LslRunTime::ToString(float32)\n");

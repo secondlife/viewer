@@ -62,7 +62,6 @@
 #include "lltransfermanager.h"
 #include "llmodularmath.h"
 
-const F32 PING_INTERVAL = 5.f; // seconds
 const S32 PING_START_BLOCK = 3;		// How many pings behind we have to be to consider ourself blocked.
 const S32 PING_RELEASE_BLOCK = 2;	// How many pings behind we have to be to consider ourself unblocked.
 
@@ -70,7 +69,8 @@ const F32 TARGET_PERIOD_LENGTH = 5.f;	// seconds
 const F32 LL_DUPLICATE_SUPPRESSION_TIMEOUT = 60.f; //seconds - this can be long, as time-based cleanup is
 													// only done when wrapping packetids, now...
 
-LLCircuitData::LLCircuitData(const LLHost &host, TPACKETID in_id)
+LLCircuitData::LLCircuitData(const LLHost &host, TPACKETID in_id, 
+							 const F32 circuit_heartbeat_interval, const F32 circuit_timeout)
 :	mHost (host),
 	mWrapID(0),
 	mPacketsOutID(0), 
@@ -105,7 +105,9 @@ LLCircuitData::LLCircuitData(const LLHost &host, TPACKETID in_id)
 	mPeakBPSOut(0),
 	mPeriodTime(0.0),
 	mExistenceTimer(),
-	mCurrentResendCount(0)
+	mCurrentResendCount(0),
+	mHeartbeatInterval(circuit_heartbeat_interval), 
+	mHeartbeatTimeout(circuit_timeout)
 {
 	// Need to guarantee that this time is up to date, we may be creating a circuit even though we haven't been
 	//  running a message system loop.
@@ -113,9 +115,9 @@ LLCircuitData::LLCircuitData(const LLHost &host, TPACKETID in_id)
 	F32 distribution_offset = ll_frand();
 	
 	mPingTime = mt_sec;
-	mLastPingSendTime = mt_sec + PING_INTERVAL * distribution_offset;
+	mLastPingSendTime = mt_sec + mHeartbeatInterval * distribution_offset;
 	mLastPingReceivedTime = mt_sec;
-	mNextPingSendTime = mLastPingSendTime + 0.95*PING_INTERVAL + ll_frand(0.1f*PING_INTERVAL);
+	mNextPingSendTime = mLastPingSendTime + 0.95*mHeartbeatInterval + ll_frand(0.1f*mHeartbeatInterval);
 	mPeriodTime = mt_sec;
 
 	mTimeoutCallback = NULL;
@@ -429,7 +431,8 @@ S32 LLCircuitData::resendUnackedPackets(const F64 now)
 }
 
 
-LLCircuit::LLCircuit() : mLastCircuit(NULL)
+LLCircuit::LLCircuit(const F32 circuit_heartbeat_interval, const F32 circuit_timeout) : mLastCircuit(NULL),  
+	mHeartbeatInterval(circuit_heartbeat_interval), mHeartbeatTimeout(circuit_timeout)
 {
 }
 
@@ -447,7 +450,7 @@ LLCircuitData *LLCircuit::addCircuitData(const LLHost &host, TPACKETID in_id)
 {
 	// This should really validate if one already exists
 	llinfos << "LLCircuit::addCircuitData for " << host << llendl;
-	LLCircuitData *tempp = new LLCircuitData(host, in_id);
+	LLCircuitData *tempp = new LLCircuitData(host, in_id, mHeartbeatInterval, mHeartbeatTimeout);
 	mCircuitData.insert(circuit_data_map::value_type(host, tempp));
 	mPingSet.insert(tempp);
 
@@ -801,7 +804,7 @@ void LLCircuit::updateWatchDogTimers(LLMessageSystem *msgsys)
 			// Always remember to remove it from the set before changing the sorting
 			// key (mNextPingSendTime)
 			mPingSet.erase(psit);
-			cdp->mNextPingSendTime = cur_time + PING_INTERVAL;
+			cdp->mNextPingSendTime = cur_time + mHeartbeatInterval;
 			mPingSet.insert(cdp);
 			continue;
 		}
@@ -819,7 +822,7 @@ void LLCircuit::updateWatchDogTimers(LLMessageSystem *msgsys)
 			if (cdp->updateWatchDogTimers(msgsys))
             {
 				// Randomize our pings a bit by doing some up to 5% early or late
-				F64 dt = 0.95f*PING_INTERVAL + ll_frand(0.1f*PING_INTERVAL);
+				F64 dt = 0.95f*mHeartbeatInterval + ll_frand(0.1f*mHeartbeatInterval);
 
 				// Remove it, and reinsert it with the new next ping time.
 				// Always remove before changing the sorting key.
@@ -1047,7 +1050,7 @@ BOOL LLCircuitData::checkCircuitTimeout()
 	F64 time_since_last_ping = LLMessageSystem::getMessageTimeSeconds() - mLastPingReceivedTime;
 
 	// Nota Bene: This needs to be turned off if you are debugging multiple simulators
-	if (time_since_last_ping > PING_INTERVAL_MAX)
+	if (time_since_last_ping > mHeartbeatTimeout)
 	{
 		llwarns << "LLCircuitData::checkCircuitTimeout for " << mHost << " last ping " << time_since_last_ping << " seconds ago." <<llendl;
 		setAlive(FALSE);
@@ -1063,10 +1066,7 @@ BOOL LLCircuitData::checkCircuitTimeout()
 			return FALSE;
 		}
 	}
-	else if (time_since_last_ping > PING_INTERVAL_ALARM)
-	{
-		//llwarns << "Unresponsive circuit: " << mHost << ": " << time_since_last_ping << " seconds since last ping."<< llendl;
-	}
+
 	return TRUE;
 }
 
@@ -1280,7 +1280,7 @@ void LLCircuitData::pingTimerStop(const U8 ping_id)
 		delta_ping += 256;
 	}
 
-	U32 msec = (U32) ((delta_ping*PING_INTERVAL + time) * 1000.f);
+	U32 msec = (U32) ((delta_ping*mHeartbeatInterval  + time) * 1000.f);
 	setPingDelay(msec);
 
 	mPingsInTransit = delta_ping;
@@ -1371,7 +1371,8 @@ F32 LLCircuitData::getPingInTransitTime()
 
 	if (mPingsInTransit)
 	{
-		time_since_ping_was_sent =  (F32)((mPingsInTransit*PING_INTERVAL - 1) + (LLMessageSystem::getMessageTimeSeconds() - mPingTime))*1000.f;
+		time_since_ping_was_sent =  (F32)((mPingsInTransit*mHeartbeatInterval - 1) 
+			+ (LLMessageSystem::getMessageTimeSeconds() - mPingTime))*1000.f;
 	}
 
 	return time_since_ping_was_sent;

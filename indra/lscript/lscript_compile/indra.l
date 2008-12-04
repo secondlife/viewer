@@ -36,7 +36,8 @@ FS			(f|F)
 #include "llclickaction.h"
 
 void count();
-void comment();
+void line_comment();
+void block_comment();
 void parse_string();
 
 #define YYLMAX 16384
@@ -60,7 +61,8 @@ extern "C" { int yyerror(const char *fmt, ...); }
 %}
 
 %%
-"//"					{ gInternalLine++; gInternalColumn = 0; comment(); }
+"//"					{ gInternalLine++; gInternalColumn = 0; line_comment(); }
+"/*"					{ block_comment(); }
 
 "integer"			{ count(); return(INTEGER); }
 "float"				{ count(); return(FLOAT_TYPE); }
@@ -790,12 +792,31 @@ S32 yywrap()
 	return(1);
 }
 
-void comment()
+void line_comment()
 {
 	char c;
 
 	while ((c = yyinput()) != '\n' && c != 0 && c != EOF)
 		;
+}
+
+void block_comment()
+{
+	char c1 = 0;
+	char c2 = yyinput();
+	while (c2 != 0 && c2 != EOF && !(c1 == '*' && c2 == '/')) {
+		if (c2 == '\n')
+		{
+			gInternalLine++;
+			gInternalColumn = 0;
+		}
+		else if (c2 == '\t')
+			gInternalColumn += 4 - (gInternalColumn % 8);
+		else
+			gInternalColumn++;
+		c1 = c2;
+		c2 = yyinput();
+	}
 }
 
 void count()

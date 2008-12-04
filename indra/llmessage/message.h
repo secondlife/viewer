@@ -285,7 +285,8 @@ public:
 	// Read file and build message templates
 	LLMessageSystem(const std::string& filename, U32 port, S32 version_major,
 					S32 version_minor, S32 version_patch,
-					bool failure_is_fatal = true);
+					bool failure_is_fatal,
+					const F32 circuit_heartbeat_interval, const F32 circuit_timeout);
 
 	~LLMessageSystem();
 
@@ -780,8 +781,10 @@ bool start_messaging_system(
 	S32 version_patch,
 	bool b_dump_prehash_file,
 	const std::string& secret,
-	const LLUseCircuitCodeResponder* responder = NULL,
-	bool failure_is_fatal = true);
+	const LLUseCircuitCodeResponder* responder,
+	bool failure_is_fatal,
+	const F32 circuit_heartbeat_interval, 
+	const F32 circuit_timeout);
 
 void end_messaging_system();
 
