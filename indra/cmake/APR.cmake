@@ -24,8 +24,8 @@ else (STANDALONE)
       optimized ${ARCH_PREBUILT_DIRS_RELEASE}/aprutil-1.lib
       )
     set(APRICONV_LIBRARIES 
-      debug ${ARCH_PREBUILT_DIRS_DEBUG}/apriconv-1.lib
-      optimized ${ARCH_PREBUILT_DIRS_RELEASE}/apriconv-1.lib
+      debug ${ARCH_PREBUILT_DIRS_DEBUG}/iconv.dll
+      optimized ${ARCH_PREBUILT_DIRS_RELEASE}/iconv.dll
       )
   elseif (DARWIN)
     set(APR_LIBRARIES 
