@@ -23,10 +23,8 @@ else (STANDALONE)
       debug ${ARCH_PREBUILT_DIRS_DEBUG}/aprutil-1.lib
       optimized ${ARCH_PREBUILT_DIRS_RELEASE}/aprutil-1.lib
       )
-    set(APRICONV_LIBRARIES 
-      debug ${ARCH_PREBUILT_DIRS_DEBUG}/iconv.dll
-      optimized ${ARCH_PREBUILT_DIRS_RELEASE}/iconv.dll
-      )
+    # Doesn't need to link with iconv.dll
+    set(APRICONV_LIBRARIES "")
   elseif (DARWIN)
     set(APR_LIBRARIES 
       debug ${ARCH_PREBUILT_DIRS_DEBUG}/libapr-1.a
