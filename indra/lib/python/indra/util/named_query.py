@@ -47,6 +47,8 @@ except NameError:
 from indra.base import llsd
 from indra.base import config
 
+DEBUG = False
+
 NQ_FILE_SUFFIX = config.get('named-query-file-suffix', '.nq')
 NQ_FILE_SUFFIX_LEN  = len(NQ_FILE_SUFFIX)
 
@@ -63,7 +65,9 @@ def _init_g_named_manager(sql_dir = None):
 
     # extra fallback directory in case config doesn't return what we want
     if sql_dir is None:
-        sql_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "web", "dataservice", "sql")
+        sql_dir = os.path.abspath(
+            os.path.join(
+            os.path.realpath(os.path.dirname(__file__)), "..", "..", "..", "..", "web", "dataservice", "sql"))
 
     global _g_named_manager
     _g_named_manager = NamedQueryManager(
@@ -188,6 +192,16 @@ class NamedQuery(object):
         ready them for use in LIKE statements"""
         if sql:
             #print >>sys.stderr, "sql:",sql
+            
+            # This first sub is to properly escape any % signs that
+            # are meant to be literally passed through to mysql in the
+            # query.  It leaves any %'s that are used for
+            # like-expressions.
+            expr = re.compile("(?<=[^a-zA-Z0-9_-])%(?=[^:])")
+            sql = expr.sub('%%', sql)
+
+            # This should tackle the rest of the %'s in the query, by
+            # converting them to LIKE clauses.
             expr = re.compile("(%?):([a-zA-Z][a-zA-Z0-9_-]*)%")
             sql = expr.sub(self._prepare_like, sql)
             expr = re.compile("#:([a-zA-Z][a-zA-Z0-9_-]*)")
@@ -339,7 +353,8 @@ class NamedQuery(object):
             cursor = connection.cursor()
         
         statement = self.sql(connection, params)
-        #print "SQL:", statement
+        if DEBUG:
+            print "SQL:", statement
         rows = cursor.execute(statement)
         
         # *NOTE: the expect_rows argument is a very cheesy way to get some
