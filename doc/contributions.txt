@@ -304,6 +304,7 @@ Nicholaz Beresford
 	VWR-1754
 	VWR-1769
 	VWR-1808
+	VWR-1826
 	VWR-1861
 	VWR-1872
 	VWR-1968
@@ -326,6 +327,7 @@ Paul Churchill
 	VWR-1567
 	VWR-1647
 	VWR-1880
+	VWR-2072
 Paula Innis
 	VWR-30
 	VWR-293
