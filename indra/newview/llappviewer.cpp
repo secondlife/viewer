@@ -1168,17 +1168,15 @@ bool LLAppViewer::cleanup()
 
 	if (gAudiop)
 	{
-#if LL_RELEASE_FOR_DOWNLOAD
 		bool want_longname = false;
 		if (gAudiop->getDriverName(want_longname) == "FMOD")
 		{
 			// This hack exists because fmod likes to occasionally
-			// hang forever when shutting down, for no apparent
-			// reason.
+			// crash or hang forever when shutting down, for no
+			// apparent reason.
 			llwarns << "Hack, skipping FMOD audio engine cleanup" << llendflush;
 		}
 		else
-#endif // LL_RELEASE_FOR_DOWNLOAD
 		{
 			gAudiop->shutdown();
 		}
