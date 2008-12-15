@@ -130,9 +130,7 @@ public:
 	void			setTabStop( BOOL b );
 	BOOL			hasTabStop() const;
 
-	// Returns containing panel/floater or NULL if none found.
-	class LLPanel*	getParentPanel() const;
-	class LLUICtrl*	getParentUICtrl() const;
+	LLUICtrl*		getParentUICtrl() const;
 
 	void*			getCallbackUserData() const								{ return mCallbackUserData; }
 	void			setCallbackUserData( void* data )						{ mCallbackUserData = data; }

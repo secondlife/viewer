@@ -130,6 +130,11 @@ public:
 	// doing any incrementing.
 	const std::string getCurFile();
 
+	// Returns the index of the current file.
+	S32 getCurFileNum() const { return mCurrentFile; }
+
+	S32 getFileCount() const { return (S32)mFiles.size(); }
+
 	// See llvfs/lldir.h : getBaseFileName and getDirName to extract base or directory names
 	
 	// clear any lists of buffers or whatever, and make sure the file

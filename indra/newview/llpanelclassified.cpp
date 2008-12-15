@@ -116,7 +116,7 @@ class LLClassifiedTeleportHandler : public LLCommandHandler
 {
 public:
 	// don't allow from external browsers because it moves you immediately
-	LLClassifiedTeleportHandler() : LLCommandHandler("classifiedteleport", false) { }
+	LLClassifiedTeleportHandler() : LLCommandHandler("classifiedteleport", true) { }
 
 	bool handle(const LLSD& tokens, const LLSD& queryMap)
 	{
@@ -139,8 +139,9 @@ public:
 		const bool from_search = true;
 		LLPanelClassified::sendClassifiedClickMessage(classified_id, "teleport", from_search);
 		// Invoke teleport
-		const bool from_external_browser = false;
-		return LLURLDispatcher::dispatch(url, from_external_browser);
+		LLWebBrowserCtrl* web = NULL;
+		const bool trusted_browser = true;
+		return LLURLDispatcher::dispatch(url, web, trusted_browser);
 	}
 };
 // Creating the object registers with the dispatcher.

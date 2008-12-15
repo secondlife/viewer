@@ -43,6 +43,7 @@
 #include "llfloatersnapshot.h"
 #include "llinventorymodel.h"	// gInventory
 #include "llresourcedata.h"
+#include "llfloaterperms.h"
 #include "llstatusbar.h"
 #include "llviewercontrol.h"	// gSavedSettings
 #include "llviewerimagelist.h"
@@ -322,7 +323,9 @@ class LLFileUploadBulk : public view_listener_t
 			LLStringUtil::stripNonprintable(asset_name);
 			LLStringUtil::trim(asset_name);
 			
-			upload_new_resource(filename, asset_name, asset_name, 0, LLAssetType::AT_NONE, LLInventoryType::IT_NONE); // file
+			upload_new_resource(filename, asset_name, asset_name, 0, LLAssetType::AT_NONE, LLInventoryType::IT_NONE,
+				LLFloaterPerms::getNextOwnerPerms(), LLFloaterPerms::getGroupPerms(), LLFloaterPerms::getEveryonePerms());
+
 			// *NOTE: Ew, we don't iterate over the file list here,
 			// we handle the next files in upload_done_callback()
 		}
@@ -515,7 +518,9 @@ void upload_new_resource(const std::string& src_filename, std::string name,
 						 std::string desc, S32 compression_info,
 						 LLAssetType::EType destination_folder_type,
 						 LLInventoryType::EType inv_type,
-						 U32 next_owner_perm,
+						 U32 next_owner_perms,
+						 U32 group_perms,
+						 U32 everyone_perms,
 						 const std::string& display_name,
 						 LLAssetStorage::LLStoreAssetCallback callback,
 						 void *userdata)
@@ -803,7 +808,7 @@ void upload_new_resource(const std::string& src_filename, std::string name,
 			t_disp_name = src_filename;
 		}
 		upload_new_resource(tid, asset_type, name, desc, compression_info, // tid
-							destination_folder_type, inv_type, next_owner_perm,
+							destination_folder_type, inv_type, next_owner_perms, group_perms, everyone_perms,
 							display_name, callback, userdata);
 	}
 	else
@@ -875,15 +880,15 @@ void upload_done_callback(const LLUUID& uuid, void* user_data, S32 result, LLExt
 			LLUUID folder_id(gInventory.findCategoryUUIDForType(dest_loc));
 			if(folder_id.notNull())
 			{
-				U32 next_owner_perm = data->mNextOwnerPerm;
-				if(PERM_NONE == next_owner_perm)
+				U32 next_owner_perms = data->mNextOwnerPerm;
+				if(PERM_NONE == next_owner_perms)
 				{
-					next_owner_perm = PERM_MOVE | PERM_TRANSFER;
+					next_owner_perms = PERM_MOVE | PERM_TRANSFER;
 				}
 				create_inventory_item(gAgent.getID(), gAgent.getSessionID(),
 					folder_id, data->mAssetInfo.mTransactionID, data->mAssetInfo.getName(),
 					data->mAssetInfo.getDescription(), data->mAssetInfo.mType,
-					data->mInventoryType, NOT_WEARABLE, next_owner_perm,
+					data->mInventoryType, NOT_WEARABLE, next_owner_perms,
 					LLPointer<LLInventoryCallback>(NULL));
 			}
 			else
@@ -925,7 +930,9 @@ void upload_new_resource(const LLTransactionID &tid, LLAssetType::EType asset_ty
 						 std::string desc, S32 compression_info,
 						 LLAssetType::EType destination_folder_type,
 						 LLInventoryType::EType inv_type,
-						 U32 next_owner_perm,
+						 U32 next_owner_perms,
+						 U32 group_perms,
+						 U32 everyone_perms,
 						 const std::string& display_name,
 						 LLAssetStorage::LLStoreAssetCallback callback,
 						 void *userdata)
@@ -984,10 +991,14 @@ void upload_new_resource(const LLTransactionID &tid, LLAssetType::EType asset_ty
 		body["inventory_type"] = LLInventoryType::lookup(inv_type);
 		body["name"] = name;
 		body["description"] = desc;
+		body["next_owner_mask"] = LLSD::Integer(next_owner_perms);
+		body["group_mask"] = LLSD::Integer(group_perms);
+		body["everyone_mask"] = LLSD::Integer(everyone_perms);
 		
-		std::ostringstream llsdxml;
-		LLSDSerialize::toXML(body, llsdxml);
-		lldebugs << "posting body to capability: " << llsdxml.str() << llendl;
+		//std::ostringstream llsdxml;
+		//LLSDSerialize::toPrettyXML(body, llsdxml);
+		//llinfos << "posting body to capability: " << llsdxml.str() << llendl;
+
 		LLHTTPClient::post(url, body, new LLNewAgentInventoryResponder(body, uuid, asset_type));
 	}
 	else
@@ -1015,7 +1026,7 @@ void upload_new_resource(const LLTransactionID &tid, LLAssetType::EType asset_ty
 		data->mAssetInfo.mType = asset_type;
 		data->mAssetInfo.mCreatorID = gAgentID;
 		data->mInventoryType = inv_type;
-		data->mNextOwnerPerm = next_owner_perm;
+		data->mNextOwnerPerm = next_owner_perms;
 		data->mUserData = userdata;
 		data->mAssetInfo.setName(name);
 		data->mAssetInfo.setDescription(desc);

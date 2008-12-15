@@ -108,8 +108,14 @@ public:
 	LLTextBox*		mTextBoxNorthWest;
 	LLTextBox*		mTextBoxSouthWest;
 
+private:
+	LLUUID			mClosestAgentToCursor;
+	LLUUID			mClosestAgentAtLastRightClick;
+
 	static BOOL		sRotateMap;
 	static LLNetMap*	sInstance;
+	static BOOL isAgentUnderCursor(void*) { return sInstance && sInstance->mClosestAgentToCursor.notNull(); }
+	static void showAgentProfile(void*);
 };
 
 

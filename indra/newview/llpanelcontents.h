@@ -51,6 +51,7 @@ public:
 	void			refresh();
 
 	static void		onClickNewScript(		void* userdata);
+	static void		onClickPermissions(		void* userdata);
 
 protected:
 	void			getState(LLViewerObject *object);

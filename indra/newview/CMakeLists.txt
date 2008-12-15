@@ -127,6 +127,7 @@ set(viewer_SOURCE_FILES
     llfloateravatartextures.cpp
     llfloaterbeacons.cpp
     llfloaterbuildoptions.cpp
+    llfloaterbulkpermission.cpp
     llfloaterbump.cpp
     llfloaterbuycontents.cpp
     llfloaterbuy.cpp
@@ -150,9 +151,11 @@ set(viewer_SOURCE_FILES
     llfloatergroupinfo.cpp
     llfloatergroupinvite.cpp
     llfloatergroups.cpp
+    llfloaterhandler.cpp
     llfloaterhardwaresettings.cpp
     llfloaterhtml.cpp
     llfloaterhtmlhelp.cpp
+    llfloaterhtmlsimple.cpp
     llfloaterhud.cpp
     llfloaterimagepreview.cpp
     llfloaterinspect.cpp
@@ -166,9 +169,11 @@ set(viewer_SOURCE_FILES
     llfloatermute.cpp
     llfloaternamedesc.cpp
     llfloaternewim.cpp
+    llfloaterobjectiminfo.cpp
     llfloateropenobject.cpp
     llfloaterparcel.cpp
     llfloaterpermissionsmgr.cpp
+    llfloaterperms.cpp
     llfloaterpostcard.cpp
     llfloaterpostprocess.cpp
     llfloaterpreference.cpp
@@ -224,6 +229,7 @@ set(viewer_SOURCE_FILES
     lljoystickbutton.cpp
     lllandmarklist.cpp
     lllogchat.cpp
+    llloginhandler.cpp
     llmanip.cpp
     llmaniprotate.cpp
     llmanipscale.cpp
@@ -522,6 +528,7 @@ set(viewer_HEADER_FILES
     llfloateravatartextures.h
     llfloaterbeacons.h
     llfloaterbuildoptions.h
+    llfloaterbulkpermission.h
     llfloaterbump.h
     llfloaterbuy.h
     llfloaterbuycontents.h
@@ -545,9 +552,11 @@ set(viewer_HEADER_FILES
     llfloatergroupinfo.h
     llfloatergroupinvite.h
     llfloatergroups.h
+    llfloaterhandler.h
     llfloaterhardwaresettings.h
     llfloaterhtml.h
     llfloaterhtmlhelp.h
+    llfloaterhtmlsimple.h
     llfloaterhud.h
     llfloaterimagepreview.h
     llfloaterinspect.h
@@ -561,12 +570,14 @@ set(viewer_HEADER_FILES
     llfloatermute.h
     llfloaternamedesc.h
     llfloaternewim.h
+    llfloaterobjectiminfo.h
     llfloateropenobject.h
     llfloaterparcel.h
     llfloaterpermissionsmgr.h
     llfloaterpostcard.h
     llfloaterpostprocess.h
     llfloaterpreference.h
+    llfloaterperms.h
     llfloaterproperties.h
     llfloaterregioninfo.h
     llfloaterreporter.h
@@ -618,6 +629,7 @@ set(viewer_HEADER_FILES
     lllandmarklist.h
     lllightconstants.h
     lllogchat.h
+    llloginhandler.h
     llmanip.h
     llmaniprotate.h
     llmanipscale.h
@@ -1030,6 +1042,7 @@ set(viewer_XUI_FILES
     skins/default/xui/en-us/floater_avatar_textures.xml
     skins/default/xui/en-us/floater_beacons.xml
     skins/default/xui/en-us/floater_build_options.xml
+    skins/default/xui/en-us/floater_bulk_perms.xml
     skins/default/xui/en-us/floater_bumps.xml
     skins/default/xui/en-us/floater_buy_contents.xml
     skins/default/xui/en-us/floater_buy_currency.xml
@@ -1052,6 +1065,7 @@ set(viewer_XUI_FILES
     skins/default/xui/en-us/floater_group_info.xml
     skins/default/xui/en-us/floater_hardware_settings.xml
     skins/default/xui/en-us/floater_html.xml
+    skins/default/xui/en-us/floater_html_simple.xml
     skins/default/xui/en-us/floater_hud.xml
     skins/default/xui/en-us/floater_image_preview.xml
     skins/default/xui/en-us/floater_import.xml
@@ -1077,11 +1091,13 @@ set(viewer_XUI_FILES
     skins/default/xui/en-us/floater_name_description.xml
     skins/default/xui/en-us/floater_new_im.xml
     skins/default/xui/en-us/floater_new_outfit_dialog.xml
+    skins/default/xui/en-us/floater_object_im_info.xml
     skins/default/xui/en-us/floater_openobject.xml
     skins/default/xui/en-us/floater_pay_object.xml
     skins/default/xui/en-us/floater_pay.xml
     skins/default/xui/en-us/floater_postcard.xml
     skins/default/xui/en-us/floater_post_process.xml
+    skins/default/xui/en-us/floater_perm_prefs.xml
     skins/default/xui/en-us/floater_preferences.xml
     skins/default/xui/en-us/floater_preview_animation.xml
     skins/default/xui/en-us/floater_preview_classified.xml

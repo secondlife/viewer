@@ -48,6 +48,9 @@
 #include "llurldispatcher.h"
 #include <Carbon/Carbon.h>
 #include "lldir.h"
+
+class LLWebBrowserCtrl;		// for LLURLDispatcher
+
 namespace 
 {
 	// The command line args stored.
@@ -260,8 +263,21 @@ OSErr AEGURLHandler(const AppleEvent *messagein, AppleEvent *reply, long refIn)
 	if(result == noErr)
 	{
 		std::string url = buffer;
-		const bool from_external_browser = true;
-		LLURLDispatcher::dispatch(url, from_external_browser);
+		
+		// Safari 3.2 silently mangles secondlife:///app/ URLs into
+		// secondlife:/app/ (only one leading slash).
+		// Fix them up to meet the URL specification. JC
+		const std::string prefix = "secondlife:/app/";
+		std::string test_prefix = url.substr(0, prefix.length());
+		LLStringUtil::toLower(test_prefix);
+		if (test_prefix == prefix)
+		{
+			url.replace(0, prefix.length(), "secondlife:///app/");
+		}
+		
+		LLWebBrowserCtrl* web = NULL;
+		const bool trusted_browser = false;
+		LLURLDispatcher::dispatch(url, web, trusted_browser);
 	}
 	
 	return(result);

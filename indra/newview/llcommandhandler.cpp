@@ -42,7 +42,7 @@
 //---------------------------------------------------------------------------
 struct LLCommandHandlerInfo
 {
-	bool mAllowFromExternalBrowser;
+	bool mRequireTrustedBrowser;
 	LLCommandHandler* mHandler;	// safe, all of these are static objects
 };
 
@@ -50,8 +50,12 @@ class LLCommandHandlerRegistry
 {
 public:
 	static LLCommandHandlerRegistry& instance();
-	void add(const char* cmd, bool allow_from_external_browser, LLCommandHandler* handler);
-	bool dispatch(const std::string& cmd, bool from_external_browser, const LLSD& params, const LLSD& queryMap);
+	void add(const char* cmd, bool require_trusted_browser, LLCommandHandler* handler);
+	bool dispatch(const std::string& cmd,
+				  const LLSD& params,
+				  const LLSD& query_map,
+				  LLWebBrowserCtrl* web,
+				  bool trusted_browser);
 
 private:
 	std::map<std::string, LLCommandHandlerInfo> mMap;
@@ -67,40 +71,44 @@ LLCommandHandlerRegistry& LLCommandHandlerRegistry::instance()
 	return instance;
 }
 
-void LLCommandHandlerRegistry::add(const char* cmd, bool allow_from_external_browser, LLCommandHandler* handler)
+void LLCommandHandlerRegistry::add(const char* cmd, bool require_trusted_browser, LLCommandHandler* handler)
 {
 	LLCommandHandlerInfo info;
-	info.mAllowFromExternalBrowser = allow_from_external_browser;
+	info.mRequireTrustedBrowser = require_trusted_browser;
 	info.mHandler = handler;
 
 	mMap[cmd] = info;
 }
 
 bool LLCommandHandlerRegistry::dispatch(const std::string& cmd,
-										bool from_external_browser,
 										const LLSD& params,
-										const LLSD& queryMap)
+										const LLSD& query_map,
+										LLWebBrowserCtrl* web,
+										bool trusted_browser)
 {
 	std::map<std::string, LLCommandHandlerInfo>::iterator it = mMap.find(cmd);
 	if (it == mMap.end()) return false;
 	const LLCommandHandlerInfo& info = it->second;
-	if (from_external_browser && !info.mAllowFromExternalBrowser)
+	if (!trusted_browser && info.mRequireTrustedBrowser)
 	{
 		// block request from external browser, but report as
 		// "handled" because it was well formatted.
+		LL_WARNS_ONCE("SLURL") << "Blocked SLURL command from untrusted browser" << LL_ENDL;
 		return true;
 	}
 	if (!info.mHandler) return false;
-	return info.mHandler->handle(params, queryMap);
+	return info.mHandler->handle(params, query_map, web);
 }
 
 //---------------------------------------------------------------------------
 // Automatic registration of commands, runs before main()
 //---------------------------------------------------------------------------
 
-LLCommandHandler::LLCommandHandler(const char* cmd, bool allow_from_external_browser)
+LLCommandHandler::LLCommandHandler(const char* cmd,
+								   bool require_trusted_browser)
 {
-	LLCommandHandlerRegistry::instance().add(cmd, allow_from_external_browser, this);
+	LLCommandHandlerRegistry::instance().add(
+			cmd, require_trusted_browser, this);
 }
 
 LLCommandHandler::~LLCommandHandler()
@@ -115,9 +123,11 @@ LLCommandHandler::~LLCommandHandler()
 
 // static
 bool LLCommandDispatcher::dispatch(const std::string& cmd,
-								   bool from_external_browser,
-								   const LLSD& params, const LLSD& queryMap)
+								   const LLSD& params,
+								   const LLSD& query_map,
+								   LLWebBrowserCtrl* web,
+								   bool trusted_browser)
 {
 	return LLCommandHandlerRegistry::instance().dispatch(
-		cmd, from_external_browser, params, queryMap);
+		cmd, params, query_map, web, trusted_browser);
 }

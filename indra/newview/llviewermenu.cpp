@@ -107,6 +107,7 @@
 #include "llfloatergroups.h"
 #include "llfloaterhtml.h"
 #include "llfloaterhtmlhelp.h"
+#include "llfloaterhtmlsimple.h"
 #include "llfloaterhud.h"
 #include "llfloaterinspect.h"
 #include "llfloaterlagmeter.h"
@@ -116,6 +117,7 @@
 #include "llfloatermute.h"
 #include "llfloateropenobject.h"
 #include "llfloaterpermissionsmgr.h"
+#include "llfloaterperms.h"
 #include "llfloaterpostprocess.h"
 #include "llfloaterpreference.h"
 #include "llfloaterregioninfo.h"
@@ -329,7 +331,6 @@ void handle_agent_stop_moving(void*);
 void print_packets_lost(void*);
 void drop_packet(void*);
 void velocity_interpolate( void* data );
-void update_fov(S32 increments);
 void toggle_wind_audio(void);
 void toggle_water_audio(void);
 void handle_rebake_textures(void*);
@@ -358,7 +359,8 @@ void run_vectorize_perf_test(void *)
 
 // Debug UI
 void handle_web_search_demo(void*);
-void handle_slurl_test(void*);
+void handle_web_browser_test(void*);
+void handle_buy_currency_test(void*);
 void handle_save_to_xml(void*);
 void handle_load_from_xml(void*);
 
@@ -1018,7 +1020,8 @@ extern BOOL gDebugSelectMgr;
 
 void init_debug_ui_menu(LLMenuGL* menu)
 {
-	menu->append(new LLMenuItemCallGL("SLURL Test", &handle_slurl_test));
+	menu->append(new LLMenuItemCallGL("Web Browser Test", &handle_web_browser_test));
+	menu->append(new LLMenuItemCallGL("Buy Currency Test", &handle_buy_currency_test));
 	menu->append(new LLMenuItemCallGL("Editable UI", &edit_ui));
 	menu->append(new LLMenuItemToggleGL("Async Keystrokes", &gHandleKeysAsync));
 	menu->append(new LLMenuItemCallGL( "Dump SelectMgr", &dump_select_mgr));
@@ -3048,86 +3051,6 @@ void velocity_interpolate( void* data )
 }
 
 
-void update_fov(S32 increments)
-{
-	F32 old_fov = LLViewerCamera::getInstance()->getDefaultFOV();
-	// for each increment, FoV is 20% bigger
-	F32 new_fov = old_fov * pow(1.2f, increments);
-
-	// cap the FoV
-	new_fov = llclamp(new_fov, MIN_FIELD_OF_VIEW, MAX_FIELD_OF_VIEW);
-
-	if (new_fov != old_fov)
-	{
-		LLMessageSystem* msg = gMessageSystem;
-		msg->newMessageFast(_PREHASH_AgentFOV);
-		msg->nextBlockFast(_PREHASH_AgentData);
-		msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-		msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-		msg->addU32Fast(_PREHASH_CircuitCode, gMessageSystem->mOurCircuitCode);
-
-		msg->nextBlockFast(_PREHASH_FOVBlock);
-		msg->addU32Fast(_PREHASH_GenCounter, 0);
-		msg->addF32Fast(_PREHASH_VerticalAngle, new_fov);
-
-		gAgent.sendReliableMessage();
-
-		// force agent to update dirty patches
-		LLViewerCamera::getInstance()->setDefaultFOV(new_fov);
-		LLViewerCamera::getInstance()->setView(new_fov);
-	}
-}
-
-class LLViewZoomOut : public view_listener_t
-{
-	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
-	{
-		update_fov(1);
-		return true;
-	}
-};
-
-class LLViewZoomIn : public view_listener_t
-{
-	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
-	{
-		update_fov(-1);
-		return true;
-	}
-};
-
-class LLViewZoomDefault : public view_listener_t
-{
-	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
-	{
-		F32 old_fov = LLViewerCamera::getInstance()->getView();
-		// for each increment, FoV is 20% bigger
-		F32 new_fov = DEFAULT_FIELD_OF_VIEW;
-
-		if (new_fov != old_fov)
-		{
-			LLMessageSystem* msg = gMessageSystem;
-			msg->newMessageFast(_PREHASH_AgentFOV);
-			msg->nextBlockFast(_PREHASH_AgentData);
-			msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-			msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-			msg->addU32Fast(_PREHASH_CircuitCode, gMessageSystem->mOurCircuitCode);
-			msg->nextBlockFast(_PREHASH_FOVBlock);
-			msg->addU32Fast(_PREHASH_GenCounter, 0);
-			msg->addF32Fast(_PREHASH_VerticalAngle, new_fov);
-
-			gAgent.sendReliableMessage();
-
-			// force agent to update dirty patches
-			LLViewerCamera::getInstance()->setDefaultFOV(new_fov);
-			LLViewerCamera::getInstance()->setView(new_fov);
-		}
-		return true;
-	}
-};
-
-
-
 void toggle_wind_audio(void)
 {
 	if (gAudiop)
@@ -4291,12 +4214,7 @@ class LLToolsStopAllAnimations : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		LLVOAvatar* avatarp = gAgent.getAvatarObject();		
-		if (avatarp)
-		{
-			avatarp->deactivateAllMotions();	
-			avatarp->startDefaultMotions();
-		}
+		gAgent.stopCurrentAnimations();
 		return true;
 	}
 };
@@ -5291,6 +5209,10 @@ class LLShowFloater : public view_listener_t
 		{
 			LLFloaterBeacons::toggleInstance(LLSD());
 		}
+		else if (floater_name == "perm prefs")
+		{
+			LLFloaterPerms::toggleInstance(LLSD());
+		}
 		return true;
 	}
 };
@@ -5474,7 +5396,6 @@ class LLLandEdit : public view_listener_t
 
 		LLViewerParcelMgr::getInstance()->selectParcelAt( LLToolPie::getInstance()->getPick().mPosGlobal );
 
-		gFloaterTools->showMore(TRUE);
 		gFloaterView->bringToFront( gFloaterTools );
 
 		// Switch to land edit toolset
@@ -7003,7 +6924,7 @@ void handle_save_to_xml(void*)
 	LLFloater* frontmost = gFloaterView->getFrontmost();
 	if (!frontmost)
 	{
-        gViewerWindow->alertXml("NoFrontmostFloater");
+		gViewerWindow->alertXml("NoFrontmostFloater");
 		return;
 	}
 
@@ -7036,15 +6957,52 @@ void handle_load_from_xml(void*)
 	}
 }
 
-void handle_slurl_test(void*)
+void handle_web_browser_test(void*)
 {
 	const bool open_links_externally = false;
 	const bool open_app_slurls = true;
 	LLFloaterHtml::getInstance()->show(
 		"http://secondlife.com/app/search/slurls.html",
-		"SLURL Test", 
+		"Web Browser Test", 
 		open_links_externally, 
 		open_app_slurls);
+}
+
+void handle_buy_currency_test(void*)
+{
+	std::string url =
+		"http://sarahd-sl-13041.webdev.lindenlab.com/app/lindex/index.php?agent_id=[AGENT_ID]&secure_session_id=[SESSION_ID]&lang=[LANGUAGE]";
+
+	LLStringUtil::format_map_t replace;
+	replace["[AGENT_ID]"] = gAgent.getID().asString();
+	replace["[SESSION_ID]"] = gAgent.getSecureSessionID().asString();
+
+	// *TODO: Replace with call to LLUI::getLanguage() after windows-setup
+	// branch merges in. JC
+	std::string language = "en-us";
+	language = gSavedSettings.getString("Language");
+	if (language.empty() || language == "default")
+	{
+		language = gSavedSettings.getString("InstallLanguage");
+	}
+	if (language.empty() || language == "default")
+	{
+		language = gSavedSettings.getString("SystemLanguage");
+	}
+	if (language.empty() || language == "default")
+	{
+		language = "en-us";
+	}
+
+	replace["[LANGUAGE]"] = language;
+	LLStringUtil::format(url, replace);
+
+	llinfos << "buy currency url " << url << llendl;
+
+	LLFloaterHtmlSimple* floater = LLFloaterHtmlSimple::showInstance(url);
+	// Needed so we can use secondlife:///app/floater/self/close SLURLs
+	floater->setTrusted(true);
+	floater->center();
 }
 
 void handle_rebake_textures(void*)
@@ -7418,6 +7376,24 @@ static void addMenu(view_listener_t *menu, const std::string& name)
 
 void initialize_menus()
 {
+	// A parameterized event handler used as ctrl-8/9/0 zoom controls below.
+	class LLZoomer : public view_listener_t
+	{
+	public:
+		// The "mult" parameter says whether "val" is a multiplier or used to set the value.
+		LLZoomer(F32 val, bool mult=true) : mVal(val), mMult(mult) {}
+		bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+		{
+			F32 new_fov_rad = mMult ? LLViewerCamera::getInstance()->getDefaultFOV() * mVal : mVal;
+			LLViewerCamera::getInstance()->setDefaultFOV(new_fov_rad);
+			gSavedSettings.setF32("CameraAngle", LLViewerCamera::getInstance()->getView()); // setView may have clamped it.
+			return true;
+		}
+	private:
+		F32 mVal;
+		bool mMult;
+	};
+
 	// File menu
 	init_menu_file();
 
@@ -7457,9 +7433,9 @@ void initialize_menus()
 	addMenu(new LLViewHighlightTransparent(), "View.HighlightTransparent");
 	addMenu(new LLViewToggleRenderType(), "View.ToggleRenderType");
 	addMenu(new LLViewShowHUDAttachments(), "View.ShowHUDAttachments");
-	addMenu(new LLViewZoomOut(), "View.ZoomOut");
-	addMenu(new LLViewZoomIn(), "View.ZoomIn");
-	addMenu(new LLViewZoomDefault(), "View.ZoomDefault");
+	addMenu(new LLZoomer(1.2f), "View.ZoomOut");
+	addMenu(new LLZoomer(1/1.2f), "View.ZoomIn");
+	addMenu(new LLZoomer(DEFAULT_FIELD_OF_VIEW, false), "View.ZoomDefault");
 	addMenu(new LLViewFullscreen(), "View.Fullscreen");
 	addMenu(new LLViewDefaultUISize(), "View.DefaultUISize");
 

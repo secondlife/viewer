@@ -2085,8 +2085,19 @@ void LLPanelGroupRolesSubTab::handleRoleSelect()
 				gAgent.hasPowerInGroup(mGroupID, GP_ROLE_PROPERTIES));
 		mRoleTitle->setEnabled(gAgent.hasPowerInGroup(mGroupID, GP_ROLE_PROPERTIES));
 		mRoleDescription->setEnabled(gAgent.hasPowerInGroup(mGroupID, GP_ROLE_PROPERTIES));
-		mMemberVisibleCheck->setEnabled(gAgent.hasPowerInGroup(mGroupID, GP_ROLE_PROPERTIES));
-
+		
+		if ( is_owner_role ) 
+			{
+				// you can't delete the owner role
+				can_delete = FALSE;
+				// ... or hide members with this role
+				mMemberVisibleCheck->setEnabled(FALSE);
+			}
+		else
+			{
+				mMemberVisibleCheck->setEnabled(gAgent.hasPowerInGroup(mGroupID, GP_ROLE_PROPERTIES));
+			}
+		
 		if (item->getUUID().isNull())
 		{
 			// Everyone role, can't edit description or name or delete
@@ -2094,8 +2105,6 @@ void LLPanelGroupRolesSubTab::handleRoleSelect()
 			mRoleName->setEnabled(FALSE);
 			can_delete = FALSE;
 		}
-		//you can't delete the owner role
-		if ( is_owner_role ) can_delete = FALSE;
 	}
 	else
 	{

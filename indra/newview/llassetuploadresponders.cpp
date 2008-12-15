@@ -48,11 +48,16 @@
 #include "llpreviewgesture.h"
 #include "llgesturemgr.h"
 #include "llscrolllistctrl.h"
+#include "llsdserialize.h"
 #include "lluploaddialog.h"
 #include "llviewerobject.h"
+#include "llviewercontrol.h"
 #include "llviewerobjectlist.h"
 #include "llviewermenufile.h"
 #include "llviewerwindow.h"
+
+// When uploading multiple files, don't display any of them when uploading more than this number.
+static const S32 FILE_COUNT_DISPLAY_THRESHOLD = 5;
 
 void dialog_refresh_all();
 
@@ -193,6 +198,10 @@ LLNewAgentInventoryResponder::LLNewAgentInventoryResponder(const LLSD& post_data
 void LLNewAgentInventoryResponder::uploadComplete(const LLSD& content)
 {
 	lldebugs << "LLNewAgentInventoryResponder::result from capabilities" << llendl;
+	
+	//std::ostringstream llsdxml;
+	//LLSDSerialize::toXML(content, llsdxml);
+	//llinfos << "upload complete content:\n " << llsdxml.str() << llendl;
 
 	LLAssetType::EType asset_type = LLAssetType::lookup(mPostData["asset_type"].asString());
 	LLInventoryType::EType inventory_type = LLInventoryType::lookup(mPostData["inventory_type"].asString());
@@ -221,23 +230,39 @@ void LLNewAgentInventoryResponder::uploadComplete(const LLSD& content)
 			<< content["new_asset"].asUUID() << " to inventory." << llendl;
 	if(mPostData["folder_id"].asUUID().notNull())
 	{
-		LLPermissions perm;
-		U32 next_owner_perm;
-		perm.init(gAgent.getID(), gAgent.getID(), LLUUID::null, LLUUID::null);
-		if (mPostData["inventory_type"].asString() == "snapshot")
+		//std::ostringstream out;
+		//LLSDXMLFormatter *formatter = new LLSDXMLFormatter;
+		//formatter->format(mPostData, out, LLSDFormatter::OPTIONS_PRETTY);
+		//llinfos << "Post Data: " << out.str() << llendl;
+
+		U32 everyone_perms = PERM_NONE;
+		U32 group_perms = PERM_NONE;
+		U32 next_owner_perms = PERM_ALL;
+		if(content.has("new_next_owner_mask"))
 		{
-			next_owner_perm = PERM_ALL;
+			// This is a new sim that provides creation perms so use them.
+			// Do not assume we got the perms we asked for in mPostData 
+			// since the sim may not have granted them all.
+			everyone_perms = content["new_everyone_mask"].asInteger();
+			group_perms = content["new_group_mask"].asInteger();
+			next_owner_perms = content["new_next_owner_mask"].asInteger();
 		}
-		else
+		else 
 		{
-			next_owner_perm = PERM_MOVE | PERM_TRANSFER;
+			// This old sim doesn't provide creation perms so use old assumption-based perms.
+			if(mPostData["inventory_type"].asString() != "snapshot")
+			{
+				next_owner_perms = PERM_MOVE | PERM_TRANSFER;
+			}
 		}
-		perm.initMasks(PERM_ALL, PERM_ALL, PERM_NONE, PERM_NONE, next_owner_perm);
+		LLPermissions new_perms;
+		new_perms.init(gAgent.getID(), gAgent.getID(), LLUUID::null, LLUUID::null);
+		new_perms.initMasks(PERM_ALL, PERM_ALL, everyone_perms, group_perms, next_owner_perms);
 		S32 creation_date_now = time_corrected();
 		LLPointer<LLViewerInventoryItem> item
 			= new LLViewerInventoryItem(content["new_inventory_item"].asUUID(),
 										mPostData["folder_id"].asUUID(),
-										perm,
+										new_perms,
 										content["new_asset"].asUUID(),
 										asset_type,
 										inventory_type,
@@ -255,10 +280,9 @@ void LLNewAgentInventoryResponder::uploadComplete(const LLSD& content)
 		if(view)
 		{
 			LLUICtrl* focus_ctrl = gFocusMgr.getKeyboardFocus();
-
 			view->getPanel()->setSelection(content["new_inventory_item"].asUUID(), TAKE_FOCUS_NO);
-			if((LLAssetType::AT_TEXTURE == asset_type)
-				|| (LLAssetType::AT_SOUND == asset_type))
+			if((LLAssetType::AT_TEXTURE == asset_type || LLAssetType::AT_SOUND == asset_type)
+				&& LLFilePicker::instance().getFileCount() <= FILE_COUNT_DISPLAY_THRESHOLD)
 			{
 				view->getPanel()->openSelected();
 			}
@@ -289,8 +313,15 @@ void LLNewAgentInventoryResponder::uploadComplete(const LLSD& content)
 		LLStringUtil::stripNonprintable(asset_name);
 		LLStringUtil::trim(asset_name);
 
+		// Continuing the horrible hack above, we need to extract the originally requested permissions data, if any,
+		// and use them for each next file to be uploaded. Note the requested perms are not the same as the
+		// granted ones found in the given "content" structure but can still be found in mPostData. -MG
+		U32 everyone_perms   = mPostData.has("everyone_mask")   ? mPostData.get("everyone_mask"  ).asInteger() : PERM_NONE;
+		U32 group_perms      = mPostData.has("group_mask")      ? mPostData.get("group_mask"     ).asInteger() : PERM_NONE;
+		U32 next_owner_perms = mPostData.has("next_owner_mask") ? mPostData.get("next_owner_mask").asInteger() : PERM_NONE;
 		upload_new_resource(next_file, asset_name, asset_name,
-							0, LLAssetType::AT_NONE, LLInventoryType::IT_NONE);
+							0, LLAssetType::AT_NONE, LLInventoryType::IT_NONE,
+							next_owner_perms, group_perms, everyone_perms);
 	}
 }
 

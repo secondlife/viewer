@@ -33,32 +33,16 @@
 #include "lltextbox.h"
 #include "lluictrlfactory.h"
 #include "llfocusmgr.h"
+#include "llwindow.h"
 
 static LLRegisterWidget<LLTextBox> r("text");
 
 LLTextBox::LLTextBox(const std::string& name, const LLRect& rect, const std::string& text,
 					 const LLFontGL* font, BOOL mouse_opaque)
 :	LLUICtrl(name, rect, mouse_opaque, NULL, NULL, FOLLOWS_LEFT | FOLLOWS_TOP ),
-	mFontGL(font ? font : LLFontGL::sSansSerifSmall),
-	mTextColor(			LLUI::sColorsGroup->getColor( "LabelTextColor" ) ),
-	mDisabledColor(		LLUI::sColorsGroup->getColor( "LabelDisabledColor" ) ),
-	mBackgroundColor(	LLUI::sColorsGroup->getColor( "DefaultBackgroundColor" ) ),
-	mBorderColor(		LLUI::sColorsGroup->getColor( "DefaultHighlightLight" ) ),
-	mHoverColor(		LLUI::sColorsGroup->getColor( "LabelSelectedColor" ) ),
-	mHoverActive( FALSE ),
-	mHasHover( FALSE ),
-	mBackgroundVisible( FALSE ),
-	mBorderVisible( FALSE ),
-	mFontStyle(LLFontGL::DROP_SHADOW_SOFT),
-	mBorderDropShadowVisible( FALSE ),
-	mUseEllipses( FALSE ),
-	mHPad(0),
-	mVPad(0),
-	mHAlign( LLFontGL::LEFT ),
-	mVAlign( LLFontGL::TOP ),
-	mClickedCallback(NULL),
-	mCallbackUserData(NULL)
+	mFontGL(font ? font : LLFontGL::sSansSerifSmall)
 {
+	initDefaults();
 	setText( text );
 	setTabStop(FALSE);
 }
@@ -66,26 +50,9 @@ LLTextBox::LLTextBox(const std::string& name, const LLRect& rect, const std::str
 LLTextBox::LLTextBox(const std::string& name, const std::string& text, F32 max_width,
 					 const LLFontGL* font, BOOL mouse_opaque) :
 	LLUICtrl(name, LLRect(0, 0, 1, 1), mouse_opaque, NULL, NULL, FOLLOWS_LEFT | FOLLOWS_TOP),	
-	mFontGL(font ? font : LLFontGL::sSansSerifSmall),
-	mTextColor(LLUI::sColorsGroup->getColor("LabelTextColor")),
-	mDisabledColor(LLUI::sColorsGroup->getColor("LabelDisabledColor")),
-	mBackgroundColor(LLUI::sColorsGroup->getColor("DefaultBackgroundColor")),
-	mBorderColor(LLUI::sColorsGroup->getColor("DefaultHighlightLight")),
-	mHoverColor( LLUI::sColorsGroup->getColor( "LabelSelectedColor" ) ),
-	mHoverActive( FALSE ),
-	mHasHover( FALSE ),
-	mBackgroundVisible(FALSE),
-	mBorderVisible(FALSE),
-	mFontStyle(LLFontGL::DROP_SHADOW_SOFT),
-	mBorderDropShadowVisible(FALSE),
-	mUseEllipses( FALSE ),
-	mHPad(0),
-	mVPad(0),
-	mHAlign(LLFontGL::LEFT),
-	mVAlign( LLFontGL::TOP ),
-	mClickedCallback(NULL),
-	mCallbackUserData(NULL)
+	mFontGL(font ? font : LLFontGL::sSansSerifSmall)
 {
+	initDefaults();
 	setWrappedText(text, max_width);
 	reshapeToFitText();
 	setTabStop(FALSE);
@@ -93,47 +60,34 @@ LLTextBox::LLTextBox(const std::string& name, const std::string& text, F32 max_w
 
 LLTextBox::LLTextBox(const std::string& name_and_label, const LLRect& rect) :
 	LLUICtrl(name_and_label, rect, TRUE, NULL, NULL, FOLLOWS_LEFT | FOLLOWS_TOP),	
-	mFontGL(LLFontGL::sSansSerifSmall),
-	mTextColor(LLUI::sColorsGroup->getColor("LabelTextColor")),
-	mDisabledColor(LLUI::sColorsGroup->getColor("LabelDisabledColor")),
-	mBackgroundColor(LLUI::sColorsGroup->getColor("DefaultBackgroundColor")),
-	mBorderColor(LLUI::sColorsGroup->getColor("DefaultHighlightLight")),
-	mBackgroundVisible(FALSE),
-	mBorderVisible(FALSE),
-	mFontStyle(LLFontGL::DROP_SHADOW_SOFT),
-	mBorderDropShadowVisible(FALSE),
-	mHPad(0),
-	mVPad(0),
-	mHAlign(LLFontGL::LEFT),
-	mVAlign( LLFontGL::TOP ),
-	mClickedCallback(NULL),
-	mCallbackUserData(NULL)
+	mFontGL(LLFontGL::sSansSerifSmall)
 {
+	initDefaults();
 	setText( name_and_label );
 	setTabStop(FALSE);
 }
 
-LLTextBox::LLTextBox(const std::string& name_and_label) :
-	LLUICtrl(name_and_label, LLRect(0, 0, 1, 1), TRUE, NULL, NULL, FOLLOWS_LEFT | FOLLOWS_TOP),	
-	mFontGL(LLFontGL::sSansSerifSmall),
-	mTextColor(LLUI::sColorsGroup->getColor("LabelTextColor")),
-	mDisabledColor(LLUI::sColorsGroup->getColor("LabelDisabledColor")),
-	mBackgroundColor(LLUI::sColorsGroup->getColor("DefaultBackgroundColor")),
-	mBorderColor(LLUI::sColorsGroup->getColor("DefaultHighlightLight")),
-	mBackgroundVisible(FALSE),
-	mBorderVisible(FALSE),
-	mFontStyle(LLFontGL::DROP_SHADOW_SOFT),
-	mBorderDropShadowVisible(FALSE),
-	mHPad(0),
-	mVPad(0),
-	mHAlign(LLFontGL::LEFT),
-	mVAlign( LLFontGL::TOP ),
-	mClickedCallback(NULL),
-	mCallbackUserData(NULL)
+void LLTextBox::initDefaults()
 {
-	setWrappedText(name_and_label);
-	reshapeToFitText();
-	setTabStop(FALSE);
+	mTextColor = LLUI::sColorsGroup->getColor("LabelTextColor");
+	mDisabledColor = LLUI::sColorsGroup->getColor("LabelDisabledColor");
+	mBackgroundColor = LLUI::sColorsGroup->getColor("DefaultBackgroundColor");
+	mBorderColor = LLUI::sColorsGroup->getColor("DefaultHighlightLight");
+	mHoverColor = LLUI::sColorsGroup->getColor( "LabelSelectedColor" );
+	mHoverActive = FALSE;
+	mHasHover = FALSE;
+	mBackgroundVisible = FALSE;
+	mBorderVisible = FALSE;
+	mFontStyle = LLFontGL::DROP_SHADOW_SOFT;
+	mBorderDropShadowVisible = FALSE;
+	mUseEllipses = FALSE;
+	mLineSpacing = 0;
+	mHPad = 0;
+	mVPad = 0;
+	mHAlign = LLFontGL::LEFT;
+	mVAlign = LLFontGL::TOP;
+	mClickedCallback = NULL;
+	mCallbackUserData = NULL;
 }
 
 BOOL LLTextBox::handleMouseDown(S32 x, S32 y, MASK mask)
@@ -193,12 +147,14 @@ BOOL LLTextBox::handleMouseUp(S32 x, S32 y, MASK mask)
 
 BOOL LLTextBox::handleHover(S32 x, S32 y, MASK mask)
 {
+	BOOL handled = LLView::handleHover(x,y,mask);
 	if(mHoverActive)
 	{
 		mHasHover = TRUE; // This should be set every frame during a hover.
-		return TRUE;
+		getWindow()->setCursor(UI_CURSOR_ARROW);
 	}
-	return LLView::handleHover(x,y,mask);
+
+	return (handled || mHasHover);
 }
 
 void LLTextBox::setText(const LLStringExplicit& text)
@@ -412,7 +368,7 @@ void LLTextBox::drawText( S32 x, S32 y, const LLColor4& color )
 							mFontStyle,
 							line_length, getRect().getWidth(), NULL, TRUE, mUseEllipses );
 			cur_pos += line_length + 1;
-			y -= llfloor(mFontGL->getLineHeight());
+			y -= llfloor(mFontGL->getLineHeight()) + mLineSpacing;
 		}
 	}
 }
@@ -468,6 +424,8 @@ LLView* LLTextBox::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *f
 	text_box->setHAlign(halign);
 
 	text_box->initFromXML(node, parent);
+
+	node->getAttributeS32("line_spacing", text_box->mLineSpacing);
 
 	std::string font_style;
 	if (node->getAttributeString("font-style", font_style))

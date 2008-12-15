@@ -44,6 +44,7 @@ set(llui_SOURCE_FILES
     llmultislider.cpp
     llmultisliderctrl.cpp
     llpanel.cpp
+    llprogressbar.cpp
     llradiogroup.cpp
     llresizebar.cpp
     llresizehandle.cpp
@@ -95,6 +96,7 @@ set(llui_HEADER_FILES
     llmultisliderctrl.h
     llmultislider.h
     llpanel.h
+    llprogressbar.h
     llradiogroup.h
     llresizebar.h
     llresizehandle.h

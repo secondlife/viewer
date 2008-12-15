@@ -52,6 +52,7 @@
 #include "llfocusmgr.h"
 #include "llkeyframemotion.h"
 #include "lllineeditor.h"
+#include "llfloaterperms.h"
 #include "llsliderctrl.h"
 #include "llspinctrl.h"
 #include "lltextbox.h"
@@ -994,7 +995,7 @@ void LLFloaterAnimPreview::onBtnOK(void* userdata)
 									0,
 									LLAssetType::AT_NONE,
 									LLInventoryType::IT_ANIMATION,
-									PERM_NONE,
+									LLFloaterPerms::getNextOwnerPerms(), LLFloaterPerms::getGroupPerms(), LLFloaterPerms::getEveryonePerms(),
 									name);
 			}
 			else

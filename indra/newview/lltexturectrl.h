@@ -115,9 +115,12 @@ public:
 	const LLUUID&	getImageAssetID() const						{ return mImageAssetID; }
 
 	void			setDefaultImageAssetID( const LLUUID& id )	{ mDefaultImageAssetID = id; }
+	const LLUUID&	getDefaultImageAssetID() const { return mDefaultImageAssetID; }
 
 	const std::string&	getDefaultImageName() const					{ return mDefaultImageName; }
-	const LLUUID&	getDefaultImageAssetID() const				{ return mDefaultImageAssetID; }
+
+	void			setFallbackImageName( const std::string& name ) { mFallbackImageName = name; }			
+	const std::string& 	getFallbackImageName() const { return mFallbackImageName; }	   
 
 	void			setCaption(const std::string& caption);
 	void			setCanApplyImmediately(BOOL b);
@@ -163,6 +166,7 @@ private:
 	LLUUID					 mImageItemID;
 	LLUUID					 mImageAssetID;
 	LLUUID					 mDefaultImageAssetID;
+	std::string				 mFallbackImageName;
 	std::string				 mDefaultImageName;
 	LLHandle<LLFloater>			 mFloaterHandle;
 	LLTextBox*				 mTentativeLabel;

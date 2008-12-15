@@ -111,7 +111,9 @@ public:
 		const std::string& label,
 		PermissionMask immediate_filter_perm_mask,
 		PermissionMask non_immediate_filter_perm_mask,
-		BOOL can_apply_immediately);
+		BOOL can_apply_immediately,
+		const std::string& fallback_image_name);
+
 	virtual ~LLFloaterTexturePicker();
 
 	// LLView overrides
@@ -164,12 +166,13 @@ protected:
 	LLTextureCtrl*		mOwner;
 
 	LLUUID				mImageAssetID; // Currently selected texture
+	std::string			mFallbackImageName; // What to show if currently selected texture is null.
 
 	LLUUID				mWhiteImageAssetID;
 	LLUUID				mSpecialCurrentImageAssetID;  // Used when the asset id has no corresponding texture in the user's inventory.
 	LLUUID				mOriginalImageAssetID;
 
-	std::string         mLabel;
+	std::string			mLabel;
 
 	LLTextBox*			mTentativeLabel;
 	LLTextBox*			mResolutionLabel;
@@ -194,7 +197,8 @@ LLFloaterTexturePicker::LLFloaterTexturePicker(
 	const std::string& label,
 	PermissionMask immediate_filter_perm_mask,
 	PermissionMask non_immediate_filter_perm_mask,
-	BOOL can_apply_immediately)
+	BOOL can_apply_immediately,
+	const std::string& fallback_image_name)
 	:
 	LLFloater( std::string("texture picker"),
 		rect,
@@ -203,6 +207,7 @@ LLFloaterTexturePicker::LLFloaterTexturePicker(
 		TEX_PICKER_MIN_WIDTH, TEX_PICKER_MIN_HEIGHT ),
 	mOwner( owner ),
 	mImageAssetID( owner->getImageAssetID() ),
+	mFallbackImageName( fallback_image_name ),
 	mWhiteImageAssetID( gSavedSettings.getString( "UIImgWhiteUUID" ) ),
 	mOriginalImageAssetID(owner->getImageAssetID()),
 	mLabel(label),
@@ -547,6 +552,11 @@ void LLFloaterTexturePicker::draw()
 		if(mImageAssetID.notNull())
 		{
 			mTexturep = gImageList.getImage(mImageAssetID, MIPMAP_YES, IMMEDIATE_NO);
+			mTexturep->setBoostLevel(LLViewerImage::BOOST_PREVIEW);
+		}
+		else if (!mFallbackImageName.empty())
+		{
+			mTexturep = gImageList.getImageFromFile(mFallbackImageName);
 			mTexturep->setBoostLevel(LLViewerImage::BOOST_PREVIEW);
 		}
 
@@ -1130,7 +1140,9 @@ void LLTextureCtrl::showPicker(BOOL take_focus)
 			mLabel,
 			mImmediateFilterPermMask,
 			mNonImmediateFilterPermMask,
-			mCanApplyImmediately);
+			mCanApplyImmediately,
+			mFallbackImageName);
+
 		mFloaterHandle = floaterp->getHandle();
 
 		gFloaterView->getParentFloater(this)->addDependentFloater(floaterp);
@@ -1289,13 +1301,19 @@ void LLTextureCtrl::draw()
 {
 	mBorder->setKeyboardFocusHighlight(hasFocus());
 
-	if (mImageAssetID.isNull() || !mValid)
+	if (!mValid)
 	{
 		mTexturep = NULL;
 	}
-	else
+	else if (!mImageAssetID.isNull())
 	{
 		mTexturep = gImageList.getImage(mImageAssetID, MIPMAP_YES, IMMEDIATE_NO);
+		mTexturep->setBoostLevel(LLViewerImage::BOOST_PREVIEW);
+	}
+	else if (!mFallbackImageName.empty())
+	{
+		// Show fallback image.
+		mTexturep = gImageList.getImageFromFile(mFallbackImageName);
 		mTexturep->setBoostLevel(LLViewerImage::BOOST_PREVIEW);
 	}
 	

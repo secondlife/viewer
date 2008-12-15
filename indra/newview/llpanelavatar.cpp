@@ -389,7 +389,6 @@ LLPanelAvatarFirstLife::LLPanelAvatarFirstLife(const std::string& name,
 {
 }
 
-
 void LLPanelAvatarFirstLife::enableControls(BOOL self)
 {
 	childSetEnabled("img", self);
@@ -438,6 +437,8 @@ BOOL LLPanelAvatarSecondLife::postBuild(void)
 
 	childSetDoubleClickCallback("groups", onDoubleClickGroup, this );
 
+	getChild<LLTextureCtrl>("img")->setFallbackImageName("default_profile_picture.j2c");
+
 	return TRUE;
 }
 
@@ -445,6 +446,9 @@ BOOL LLPanelAvatarFirstLife::postBuild(void)
 {
 	BOOL own_avatar = (getPanelAvatar()->getAvatarID() == gAgent.getID() );
 	enableControls(own_avatar);
+
+	getChild<LLTextureCtrl>("img")->setFallbackImageName("default_profile_picture.j2c");
+
 	return TRUE;
 }
 
@@ -1778,7 +1782,7 @@ void LLPanelAvatar::processAvatarPropertiesReply(LLMessageSystem *msg, void**)
 		msg->getStringFast(_PREHASH_PropertiesData, _PREHASH_BornOn, born_on);
 		msg->getString("PropertiesData","ProfileURL", profile_url);
 		msg->getU32Fast(_PREHASH_PropertiesData, _PREHASH_Flags, flags);
-		
+
 		identified = (flags & AVATAR_IDENTIFIED);
 		transacted = (flags & AVATAR_TRANSACTED);
 		age_verified = (flags & AVATAR_AGEVERIFIED); // Not currently getting set in dataserver/lldataavatar.cpp for privacy considerations

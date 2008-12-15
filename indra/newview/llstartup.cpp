@@ -113,6 +113,7 @@
 #include "llinventorymodel.h"
 #include "llinventoryview.h"
 #include "llkeyboard.h"
+#include "llloginhandler.h"			// gLoginHandler, SLURL support
 #include "llpanellogin.h"
 #include "llmutelist.h"
 #include "llnotify.h"
@@ -654,16 +655,23 @@ bool idle_startup()
 		//
 		// Log on to system
 		//
-		if ((!gLoginHandler.mFirstName.empty() &&
-			 !gLoginHandler.mLastName.empty() &&
-			 !gLoginHandler.mWebLoginKey.isNull())		
-			|| gLoginHandler.parseDirectLogin(LLStartUp::sSLURLCommand) )
+		if (!LLStartUp::sSLURLCommand.empty())
 		{
-			firstname = gLoginHandler.mFirstName;
-			lastname = gLoginHandler.mLastName;
-			web_login_key = gLoginHandler.mWebLoginKey;
+			// this might be a secondlife:///app/login URL
+			gLoginHandler.parseDirectLogin(LLStartUp::sSLURLCommand);
+		}
+		if (!gLoginHandler.getFirstName().empty()
+			|| !gLoginHandler.getLastName().empty()
+			|| !gLoginHandler.getWebLoginKey().isNull() )
+		{
+			// We have at least some login information on a SLURL
+			firstname = gLoginHandler.getFirstName();
+			lastname = gLoginHandler.getLastName();
+			web_login_key = gLoginHandler.getWebLoginKey();
 
-			show_connect_box = false;
+			// Show the login screen if we don't have everything
+			show_connect_box = 
+				firstname.empty() || lastname.empty() || web_login_key.isNull();
 		}
         else if(gSavedSettings.getLLSD("UserLoginInfo").size() == 3)
         {
@@ -814,11 +822,11 @@ bool idle_startup()
 	if (STATE_LOGIN_CLEANUP == LLStartUp::getStartupState())
 	{
 		//reset the values that could have come in from a slurl
-		if (!gLoginHandler.mWebLoginKey.isNull())
+		if (!gLoginHandler.getWebLoginKey().isNull())
 		{
-			firstname = gLoginHandler.mFirstName;
-			lastname = gLoginHandler.mLastName;
-			web_login_key = gLoginHandler.mWebLoginKey;
+			firstname = gLoginHandler.getFirstName();
+			lastname = gLoginHandler.getLastName();
+			web_login_key = gLoginHandler.getWebLoginKey();
 		}
 				
 		if (show_connect_box)
@@ -1779,6 +1787,8 @@ bool idle_startup()
 			gFrameIntervalSeconds = 0.f;
 		}
 
+		// Initialize FOV
+		LLViewerCamera::getInstance()->setView(gSavedSettings.getF32("CameraAngle")); 
 		// Make sure agent knows correct aspect ratio
 		LLViewerCamera::getInstance()->setViewHeightInPixels(gViewerWindow->getWindowDisplayHeight());
 		if (gViewerWindow->mWindow->getFullscreen())
@@ -3947,8 +3957,9 @@ bool LLStartUp::dispatchURL()
 	// ok, if we've gotten this far and have a startup URL
 	if (!sSLURLCommand.empty())
 	{
-		const bool from_external_browser = true;
-		LLURLDispatcher::dispatch(sSLURLCommand, from_external_browser);
+		LLWebBrowserCtrl* web = NULL;
+		const bool trusted_browser = false;
+		LLURLDispatcher::dispatch(sSLURLCommand, web, trusted_browser);
 	}
 	else if (LLURLSimString::parse())
 	{
@@ -3964,8 +3975,9 @@ bool LLStartUp::dispatchURL()
 			|| (dy*dy > SLOP*SLOP) )
 		{
 			std::string url = LLURLSimString::getURL();
-			const bool from_external_browser = true;
-			LLURLDispatcher::dispatch(url, from_external_browser);
+			LLWebBrowserCtrl* web = NULL;
+			const bool trusted_browser = false;
+			LLURLDispatcher::dispatch(url, web, trusted_browser);
 		}
 		return true;
 	}

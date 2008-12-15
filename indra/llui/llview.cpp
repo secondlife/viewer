@@ -85,7 +85,8 @@ LLView::LLView() :
 	mLastVisible(TRUE),
 	mUseBoundingRect(FALSE),
 	mVisible(TRUE),
-	mNextInsertionOrdinal(0)
+	mNextInsertionOrdinal(0),
+	mHoverCursor(UI_CURSOR_ARROW)
 {
 }
 
@@ -102,7 +103,8 @@ LLView::LLView(const std::string& name, BOOL mouse_opaque) :
 	mLastVisible(TRUE),
 	mUseBoundingRect(FALSE),
 	mVisible(TRUE),
-	mNextInsertionOrdinal(0)
+	mNextInsertionOrdinal(0),
+	mHoverCursor(UI_CURSOR_ARROW)
 {
 }
 
@@ -123,7 +125,8 @@ LLView::LLView(
 	mLastVisible(TRUE),
 	mUseBoundingRect(FALSE),
 	mVisible(TRUE),
-	mNextInsertionOrdinal(0)
+	mNextInsertionOrdinal(0),
+	mHoverCursor(UI_CURSOR_ARROW)
 {
 }
 
@@ -657,7 +660,7 @@ BOOL LLView::handleHover(S32 x, S32 y, MASK mask)
 	if( !handled 
 		&& blockMouseEvent(x, y) )
 	{
-		LLUI::sWindow->setCursor(UI_CURSOR_ARROW);
+		LLUI::sWindow->setCursor(mHoverCursor);
 		lldebugst(LLERR_USER_INPUT) << "hover handled by " << getName() << llendl;
 		handled = TRUE;
 	}
@@ -2663,6 +2666,13 @@ void LLView::initFromXML(LLXMLNodePtr node, LLView* parent)
 		BOOL visible;
 		node->getAttributeBOOL("visible", visible);
 		setVisible(visible);
+	}
+
+	if (node->hasAttribute("hover_cursor"))
+	{
+		std::string cursor_string;
+		node->getAttributeString("hover_cursor", cursor_string);
+		mHoverCursor = getCursorFromString(cursor_string);
 	}
 	
 	node->getAttributeBOOL("use_bounding_rect", mUseBoundingRect);

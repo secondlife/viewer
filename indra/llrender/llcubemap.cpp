@@ -39,7 +39,6 @@
 #include "v3dmath.h"
 #include "m3math.h"
 #include "m4math.h"
-#include "llcamera.h"
 
 #include "llrender.h"
 

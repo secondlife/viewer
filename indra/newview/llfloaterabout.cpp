@@ -116,7 +116,7 @@ LLFloaterAbout::LLFloaterAbout()
 				   __DATE__, __TIME__,
 				   gSavedSettings.getString("VersionChannelName").c_str());
 	support_widget->appendColoredText(version, FALSE, FALSE, gColors.getColor("TextFgReadOnlyColor"));
-	support_widget->appendStyledText(LLTrans::getString("ReleaseNotes"), FALSE, FALSE, &viewer_link_style);
+	support_widget->appendStyledText(LLTrans::getString("ReleaseNotes"), false, false, viewer_link_style);
 
 	std::string support;
 	support.append("\n\n");
@@ -152,7 +152,7 @@ LLFloaterAbout::LLFloaterAbout()
 		support.append("\n");
 
 		support_widget->appendColoredText(support, FALSE, FALSE, gColors.getColor("TextFgReadOnlyColor"));
-		support_widget->appendStyledText(LLTrans::getString("ReleaseNotes"), FALSE, FALSE, &server_link_style);
+		support_widget->appendStyledText(LLTrans::getString("ReleaseNotes"), false, false, server_link_style);
 
 		support = "\n\n";
 	}

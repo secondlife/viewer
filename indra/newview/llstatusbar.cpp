@@ -757,7 +757,7 @@ static void onClickParcelInfo(void* data)
 
 static void onClickBalance(void* data)
 {
-	LLFloaterBuyCurrency::buyCurrency();
+	onClickBuyCurrency(data);
 }
 
 static void onClickBuyCurrency(void* data)

@@ -425,8 +425,10 @@ gboolean viewer_app_api_GoSLURL(ViewerAppAPI *obj, gchar *slurl, gboolean **succ
 
 	llinfos << "Was asked to go to slurl: " << slurl << llendl;
 
-	const bool from_external_browser = true;
-	if (LLURLDispatcher::dispatch(slurl, from_external_browser))
+	std::string url = slurl;
+	LLWebBrowserCtrl* web = NULL;
+	const bool trusted_browser = false;
+	if (LLURLDispatcher::dispatch(url, web, trusted_browser))
 	{
 		// bring window to foreground, as it has just been "launched" from a URL
 		// todo: hmm, how to get there from here?

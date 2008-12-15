@@ -38,7 +38,6 @@
 
 #include "u64.h"
 #include "llstring.h"
-#include "llcamera.h"
 #include "string_table.h"
 
 // Anonymous enumeration to provide constants in this file.

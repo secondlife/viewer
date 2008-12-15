@@ -982,12 +982,12 @@ void LLPanel::childSetAction(const std::string& id, void(*function)(void*), void
 	}
 }
 
-void LLPanel::childSetActionTextbox(const std::string& id, void(*function)(void*))
+void LLPanel::childSetActionTextbox(const std::string& id, void(*function)(void*), void* value)
 {
 	LLTextBox* textbox = getChild<LLTextBox>(id);
 	if (textbox)
 	{
-		textbox->setClickedCallback(function);
+		textbox->setClickedCallback(function, value);
 	}
 }
 

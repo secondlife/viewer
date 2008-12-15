@@ -37,16 +37,17 @@
 
 class LLImageRaw;
 class LLButton;
+class LLProgressBar;
 
 class LLProgressView : public LLPanel
 {
 public:
 	LLProgressView(const std::string& name, const LLRect& rect);
 	virtual ~LLProgressView();
+	
+	BOOL postBuild();
 
 	/*virtual*/ void draw();
-	/*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL handleMouseUp(S32 x, S32 y, MASK mask);
 
 	/*virtual*/ BOOL handleHover(S32 x, S32 y, MASK mask);
 	/*virtual*/ BOOL handleKeyHere(KEY key, MASK mask);
@@ -61,16 +62,18 @@ public:
 	void setCancelButtonVisible(BOOL b, const std::string& label);
 
 	static void onCancelButtonClicked( void* );
+	static void onClickMessage(void*);
 
 protected:
+	LLProgressBar* mProgressBar;
 	F32 mPercentDone;
-	std::string mText;
 	std::string mMessage;
 	LLButton*	mCancelBtn;
 	LLFrameTimer	mFadeTimer;
 	LLFrameTimer mProgressTimer;
 	LLRect mOutlineRect;
 	bool mMouseDownInActiveArea;
+	bool mURLInMessage;
 
 	static LLProgressView* sInstance;
 };

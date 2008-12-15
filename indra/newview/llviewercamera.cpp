@@ -138,9 +138,9 @@ void LLViewerCamera::updateCameraLocation(const LLVector3 &center,
 	mVelocityStat.addValue(dpos);
 	mAngularVelocityStat.addValue(drot);
 	// update pixel meter ratio using default fov, not modified one
-	mPixelMeterRatio = mViewHeightInPixels / (2.f*tanf(mCameraFOVDefault*0.5));
+	mPixelMeterRatio = getViewHeightInPixels()/ (2.f*tanf(mCameraFOVDefault*0.5));
 	// update screen pixel area
-	mScreenPixelArea =(S32)((F32)mViewHeightInPixels * ((F32)mViewHeightInPixels * mAspect));
+	mScreenPixelArea =(S32)((F32)getViewHeightInPixels() * ((F32)getViewHeightInPixels() * getAspect()));
 }
 
 const LLMatrix4 &LLViewerCamera::getProjection() const
@@ -732,3 +732,38 @@ BOOL LLViewerCamera::areVertsVisible(LLViewerObject* volumep, BOOL all_verts)
 	}
 	return all_verts;
 }
+
+// changes local camera and broadcasts change
+/* virtual */ void LLViewerCamera::setView(F32 vertical_fov_rads)
+{
+	F32 old_fov = LLViewerCamera::getInstance()->getDefaultFOV();
+
+	// cap the FoV
+	vertical_fov_rads = llclamp(vertical_fov_rads, getMinView(), getMaxView());
+
+	if (vertical_fov_rads == old_fov) return;
+
+	// send the new value to the simulator
+	LLMessageSystem* msg = gMessageSystem;
+	msg->newMessageFast(_PREHASH_AgentFOV);
+	msg->nextBlockFast(_PREHASH_AgentData);
+	msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+	msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+	msg->addU32Fast(_PREHASH_CircuitCode, gMessageSystem->mOurCircuitCode);
+
+	msg->nextBlockFast(_PREHASH_FOVBlock);
+	msg->addU32Fast(_PREHASH_GenCounter, 0);
+	msg->addF32Fast(_PREHASH_VerticalAngle, vertical_fov_rads);
+
+	gAgent.sendReliableMessage();
+
+	// sync the camera with the new value
+	LLCamera::setView(vertical_fov_rads); // call base implementation
+}
+
+void LLViewerCamera::setDefaultFOV(F32 vertical_fov_rads) {
+	vertical_fov_rads = llclamp(vertical_fov_rads, getMinView(), getMaxView());
+	setView(vertical_fov_rads);
+	mCameraFOVDefault = vertical_fov_rads; 
+}
+

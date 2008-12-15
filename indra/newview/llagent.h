@@ -372,6 +372,7 @@ public:
 	BOOL canFly();
 
 	// Animation functions
+	void                    stopCurrentAnimations();
 	void			requestStopMotion( LLMotion* motion );
 	void			onAnimStop(const LLUUID& id);
 

@@ -551,19 +551,6 @@ LLView* LLUICtrl::fromXML(LLXMLNodePtr node, LLView* parent, class LLUICtrlFacto
 }
 
 
-// *NOTE: If other classes derive from LLPanel, they will need to be
-// added to this function.
-LLPanel* LLUICtrl::getParentPanel() const
-{
-	LLView* parent = getParent();
-	LLPanel* parent_panel = dynamic_cast<LLPanel*>(parent);
-	while (!parent_panel)
-	{
-		parent = parent->getParent();
-	}
-	return (LLPanel*)(parent);
-}
-
 // Skip over any parents that are not LLUICtrl's
 //  Used in focus logic since only LLUICtrl elements can have focus
 LLUICtrl* LLUICtrl::getParentUICtrl() const

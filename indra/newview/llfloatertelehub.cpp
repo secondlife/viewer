@@ -68,7 +68,6 @@ void LLFloaterTelehub::show()
 	// Find tools floater, glue to bottom
 	if (gFloaterTools)
 	{
-		gFloaterTools->showMore(FALSE);
 		LLRect tools_rect = gFloaterTools->getRect();
 		S32 our_width = sInstance->getRect().getWidth();
 		S32 our_height = sInstance->getRect().getHeight();

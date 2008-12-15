@@ -175,6 +175,7 @@ public:
 	static std::string locateSkin(const std::string& filename);
 	static void setCursorPositionScreen(S32 x, S32 y);
 	static void setCursorPositionLocal(const LLView* viewp, S32 x, S32 y);
+	static void getCursorPositionLocal(const LLView* viewp, S32 *x, S32 *y);
 	static void setScaleFactor(const LLVector2& scale_factor);
 	static void setLineWidth(F32 width);
 	static LLUIImage* getUIImage(const std::string& name);

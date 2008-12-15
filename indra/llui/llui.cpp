@@ -1645,6 +1645,18 @@ void LLUI::setCursorPositionLocal(const LLView* viewp, S32 x, S32 y)
 	setCursorPositionScreen(screen_x, screen_y);
 }
 
+//static 
+void LLUI::getCursorPositionLocal(const LLView* viewp, S32 *x, S32 *y)
+{
+	LLCoordWindow cursor_pos_window;
+	LLView::getWindow()->getCursorPosition(&cursor_pos_window);
+	LLCoordGL cursor_pos_gl;
+	LLView::getWindow()->convertCoords(cursor_pos_window, &cursor_pos_gl);
+	cursor_pos_gl.mX = llround((F32)cursor_pos_gl.mX / LLUI::sGLScaleFactor.mV[VX]);
+	cursor_pos_gl.mY = llround((F32)cursor_pos_gl.mY / LLUI::sGLScaleFactor.mV[VY]);
+	viewp->screenPointToLocal(cursor_pos_gl.mX, cursor_pos_gl.mY, x, y);
+}
+
 // On Windows, the user typically sets the language when they install the
 // app (by running it with a shortcut that sets InstallLanguage).  On Mac,
 // or on Windows if the SecondLife.exe executable is run directly, the 

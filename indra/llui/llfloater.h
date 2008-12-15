@@ -456,7 +456,7 @@ public:
 
 
 // singleton implementation for floaters (provides visibility policy)
-// https://wiki.lindenlab.com/mediawiki/index.php?title=LLFloaterSingleton&oldid=79410
+// https://wiki.lindenlab.com/mediawiki/index.php?title=LLFloaterSingleton&oldid=164990
 
 template <class T> class LLFloaterSingleton : public LLUISingleton<T, VisibilityPolicy<LLFloater> >
 {

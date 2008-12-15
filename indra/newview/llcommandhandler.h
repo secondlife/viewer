@@ -33,34 +33,38 @@
 #ifndef LLCOMMANDHANDLER_H
 #define LLCOMMANDHANDLER_H
 
-/* To implement a command "foo" that takes one parameter,
-   a UUID, do this:
+/* Example:  secondlife:///app/foo/<uuid>
+   Command "foo" that takes one parameter, a UUID.
 
 class LLFooHandler : public LLCommandHandler
 {
 public:
     // Inform the system you handle commands starting
-	// with "foo" and they are not allowed from external web
-	// browser links.
-	LLFooHandler() : LLCommandHandler("foo", false) { }
+	// with "foo" and they are only allowed from
+	// "trusted" (pointed at Linden content) browsers
+	LLFooHandler() : LLCommandHandler("foo", true) { }
 
     // Your code here
-	bool handle(const LLSD& tokens, const LLSD& queryMap)
+	bool handle(const LLSD& tokens, const LLSD& query_map,
+				LLWebBrowserCtrl* web)
 	{
 		if (tokens.size() < 1) return false;
 		LLUUID id( tokens[0] );
-		return doFoo(id);
+		return do_foo(id);
 	}
 };
 
-// Creating the object registers with the dispatcher.
+// *NOTE: Creating the object registers with the dispatcher.
 LLFooHandler gFooHandler;
+
 */
+
+class LLWebBrowserCtrl;
 
 class LLCommandHandler
 {
 public:
-	LLCommandHandler(const char* command, bool allow_from_external_browser);
+	LLCommandHandler(const char* command, bool allow_from_untrusted_browser);
 		// Automatically registers object to get called when 
 		// command is executed.  All commands can be processed
 		// in links from LLWebBrowserCtrl, but some (like teleport)
@@ -69,9 +73,12 @@ public:
 	virtual ~LLCommandHandler();
 
 	virtual bool handle(const LLSD& params,
-						const LLSD& queryMap) = 0;
-		// Execute the command with a provided (possibly empty)
-		// list of parameters.
+						const LLSD& query_map,
+						LLWebBrowserCtrl* web) = 0;
+		// For URL secondlife:///app/foo/bar/baz?cat=1&dog=2
+		// @params - array of "bar", "baz", possibly empty
+		// @query_map - map of "cat" -> 1, "dog" -> 2, possibly empty
+		// @web - pointer to web browser control, possibly NULL
 		// Return true if you did something, false if the parameters
 		// are invalid or on error.
 };
@@ -81,9 +88,10 @@ class LLCommandDispatcher
 {
 public:
 	static bool dispatch(const std::string& cmd,
-						 bool from_external_browser,
 						 const LLSD& params,
-						 const LLSD& queryMap);
+						 const LLSD& query_map,
+						 LLWebBrowserCtrl* web,
+						 bool trusted_browser);
 		// Execute a command registered via the above mechanism,
 		// passing string parameters.
 		// Returns true if command was found and executed correctly.

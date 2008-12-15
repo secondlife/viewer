@@ -95,7 +95,6 @@ public:
 	/*virtual*/  void draw();
 
 	void dirty();
-	void showMore(BOOL show_more);
 	void showPanel(EInfoPanel panel);
 
 	void setStatusText(const std::string& text);
@@ -168,11 +167,10 @@ public:
 	LLCheckBoxCtrl	*mRadioDozerSmooth;
 	LLCheckBoxCtrl	*mRadioDozerNoise;
 	LLCheckBoxCtrl	*mRadioDozerRevert;
+	LLSlider		*mSliderDozerSize;
 	LLSlider		*mSliderDozerForce;
 
-	LLComboBox		*mComboDozerSize;
 	LLButton		*mBtnApplyToSelection;
-	LLCheckBoxCtrl	*mCheckShowOwners;
 
 	std::vector<LLButton*>	mButtons;//[ 15 ];
 
@@ -191,8 +189,6 @@ public:
 
 private:
 	BOOL					mDirty;
-	S32						mSmallHeight;
-	S32						mLargeHeight;
 
 	std::map<std::string, std::string> mStatusText;
 };

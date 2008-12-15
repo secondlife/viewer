@@ -64,26 +64,33 @@ public:
 
 	static bool isSLURLCommand(const std::string& url);
 
-	static bool dispatch(const std::string& url, bool from_external_browser);
+	static bool dispatch(const std::string& url,
+						 LLWebBrowserCtrl* web,
+						 bool trusted_browser);
 		// returns true if handled or explicitly blocked.
 
 	static bool dispatchRightClick(const std::string& url);
 
 private:
 	static bool dispatchCore(const std::string& url, 
-		bool from_external_browser, bool right_mouse);
+							 bool right_mouse,
+							 LLWebBrowserCtrl* web,
+							 bool trusted_browser);
 		// handles both left and right click
 
-	static bool dispatchHelp(const std::string& url, BOOL right_mouse);
+	static bool dispatchHelp(const std::string& url, bool right_mouse);
 		// Handles sl://app.floater.html.help by showing Help floater.
 		// Returns true if handled.
 
-	static bool dispatchApp(const std::string& url, bool from_external_browser, BOOL right_mouse);
+	static bool dispatchApp(const std::string& url,
+							bool right_mouse,
+							LLWebBrowserCtrl* web,
+							bool trusted_browser);
 		// Handles secondlife:///app/agent/<agent_id>/about and similar
 		// by showing panel in Search floater.
 		// Returns true if handled or explicitly blocked.
 
-	static bool dispatchRegion(const std::string& url, BOOL right_mouse);
+	static bool dispatchRegion(const std::string& url, bool right_mouse);
 		// handles secondlife://Ahern/123/45/67/
 		// Returns true if handled.
 
@@ -127,11 +134,14 @@ bool LLURLDispatcherImpl::isSLURLCommand(const std::string& url)
 }
 
 // static
-bool LLURLDispatcherImpl::dispatchCore(const std::string& url, bool from_external_browser, bool right_mouse)
+bool LLURLDispatcherImpl::dispatchCore(const std::string& url,
+									   bool right_mouse,
+									   LLWebBrowserCtrl* web,
+									   bool trusted_browser)
 {
 	if (url.empty()) return false;
 	if (dispatchHelp(url, right_mouse)) return true;
-	if (dispatchApp(url, from_external_browser, right_mouse)) return true;
+	if (dispatchApp(url, right_mouse, web, trusted_browser)) return true;
 	if (dispatchRegion(url, right_mouse)) return true;
 
 	/*
@@ -145,23 +155,27 @@ bool LLURLDispatcherImpl::dispatchCore(const std::string& url, bool from_externa
 }
 
 // static
-bool LLURLDispatcherImpl::dispatch(const std::string& url, bool from_external_browser)
+bool LLURLDispatcherImpl::dispatch(const std::string& url,
+								   LLWebBrowserCtrl* web,
+								   bool trusted_browser)
 {
 	llinfos << "url: " << url << llendl;
 	const bool right_click = false;
-	return dispatchCore(url, from_external_browser, right_click);
+	return dispatchCore(url, right_click, web, trusted_browser);
 }
 
 // static
 bool LLURLDispatcherImpl::dispatchRightClick(const std::string& url)
 {
 	llinfos << "url: " << url << llendl;
-	const bool from_external_browser = false;
 	const bool right_click = true;
-	return dispatchCore(url, from_external_browser, right_click);
+	LLWebBrowserCtrl* web = NULL;
+	const bool trusted_browser = false;
+	return dispatchCore(url, right_click, web, trusted_browser);
 }
+
 // static
-bool LLURLDispatcherImpl::dispatchHelp(const std::string& url, BOOL right_mouse)
+bool LLURLDispatcherImpl::dispatchHelp(const std::string& url, bool right_mouse)
 {
 #if LL_LIBXUL_ENABLED
 	if (matchPrefix(url, SLURL_SL_HELP_PREFIX))
@@ -175,8 +189,9 @@ bool LLURLDispatcherImpl::dispatchHelp(const std::string& url, BOOL right_mouse)
 
 // static
 bool LLURLDispatcherImpl::dispatchApp(const std::string& url, 
-									  bool from_external_browser,
-									  BOOL right_mouse)
+									  bool right_mouse,
+									  LLWebBrowserCtrl* web,
+									  bool trusted_browser)
 {
 	if (!isSLURL(url))
 	{
@@ -189,12 +204,12 @@ bool LLURLDispatcherImpl::dispatchApp(const std::string& url,
 	std::string cmd = pathArray.get(0);
 	pathArray.erase(0); // erase "cmd"
 	bool handled = LLCommandDispatcher::dispatch(
-			cmd, from_external_browser, pathArray, uri.queryMap());
+			cmd, pathArray, uri.queryMap(), web, trusted_browser);
 	return handled;
 }
 
 // static
-bool LLURLDispatcherImpl::dispatchRegion(const std::string& url, BOOL right_mouse)
+bool LLURLDispatcherImpl::dispatchRegion(const std::string& url, bool right_mouse)
 {
 	if (!isSLURL(url))
 	{
@@ -359,10 +374,13 @@ std::string LLURLDispatcherImpl::stripProtocol(const std::string& url)
 class LLTeleportHandler : public LLCommandHandler
 {
 public:
-	// not allowed from outside the app
-	LLTeleportHandler() : LLCommandHandler("teleport", false) { }
+	// Teleport requests *must* come from a trusted browser
+	// inside the app, otherwise a malicious web page could
+	// cause a constant teleport loop.  JC
+	LLTeleportHandler() : LLCommandHandler("teleport", true) { }
 
-	bool handle(const LLSD& tokens, const LLSD& queryMap)
+	bool handle(const LLSD& tokens, const LLSD& query_map,
+				LLWebBrowserCtrl* web)
 	{
 		// construct a "normal" SLURL, resolve the region to
 		// a global position, and teleport to it
@@ -401,10 +419,13 @@ bool LLURLDispatcher::isSLURLCommand(const std::string& url)
 }
 
 // static
-bool LLURLDispatcher::dispatch(const std::string& url, bool from_external_browser)
+bool LLURLDispatcher::dispatch(const std::string& url,
+							   LLWebBrowserCtrl* web,
+							   bool trusted_browser)
 {
-	return LLURLDispatcherImpl::dispatch(url, from_external_browser);
+	return LLURLDispatcherImpl::dispatch(url, web, trusted_browser);
 }
+
 // static
 bool LLURLDispatcher::dispatchRightClick(const std::string& url)
 {
@@ -414,13 +435,20 @@ bool LLURLDispatcher::dispatchRightClick(const std::string& url)
 // static
 bool LLURLDispatcher::dispatchFromTextEditor(const std::string& url)
 {
-	// text editors are by definition internal to our code
-	const bool from_external_browser = false;
-	return LLURLDispatcherImpl::dispatch(url, from_external_browser);
+	// *NOTE: Text editors are considered sources of trusted URLs
+	// in order to make objectim and avatar profile links in chat
+	// history work.  While a malicious resident could chat an app
+	// SLURL, the receiving resident will see it and must affirmatively
+	// click on it.
+	// *TODO: Make this trust model more refined.  JC
+	const bool trusted_browser = true;
+	LLWebBrowserCtrl* web = NULL;
+	return LLURLDispatcherImpl::dispatch(url, web, trusted_browser);
 }
 
 // static
-std::string LLURLDispatcher::buildSLURL(const std::string& regionname, S32 x, S32 y, S32 z)
+std::string LLURLDispatcher::buildSLURL(const std::string& regionname,
+										S32 x, S32 y, S32 z)
 {
 	std::string slurl = SLURL_SLURL_PREFIX + regionname + llformat("/%d/%d/%d",x,y,z); 
 	slurl = LLWeb::escapeURL( slurl );

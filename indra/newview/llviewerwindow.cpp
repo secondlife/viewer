@@ -1342,8 +1342,9 @@ void LLViewerWindow::handleDataCopy(LLWindow *window, S32 data_type, void *data)
 	case SLURL_MESSAGE_TYPE:
 		// received URL
 		std::string url = (const char*)data;
-		const bool from_external_browser = true;
-		if (LLURLDispatcher::dispatch(url, from_external_browser))
+		LLWebBrowserCtrl* web = NULL;
+		const bool trusted_browser = false;
+		if (LLURLDispatcher::dispatch(url, web, trusted_browser))
 		{
 			// bring window to foreground, as it has just been "launched" from a URL
 			mWindow->bringToFront();

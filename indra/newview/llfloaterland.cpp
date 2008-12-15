@@ -604,6 +604,25 @@ void LLPanelLandGeneral::refresh()
 		mBtnSellLand->setVisible(FALSE);
 		mBtnStopSellLand->setVisible(FALSE);
 		
+		// show pricing information
+		S32 area;
+		S32 claim_price;
+		S32 rent_price;
+		F32 dwell;
+		LLViewerParcelMgr::getInstance()->getDisplayInfo(&area,
+								 &claim_price,
+								 &rent_price,
+								 &for_sale,
+								 &dwell);
+
+		// Area
+		LLUIString price = childGetText("area_size_text");
+		price.setArg("[AREA]", llformat("%d",area));    
+		mTextPriceLabel->setText(childGetText("area_text"));
+		mTextPrice->setText(price.getString());
+
+		mTextDwell->setText(llformat("%.0f", dwell));
+
 		if (for_sale)
 		{
 			mSaleInfoForSale1->setVisible(TRUE);
@@ -619,7 +638,15 @@ void LLPanelLandGeneral::refresh()
 				mSaleInfoForSaleNoObjects->setVisible(TRUE);
 			}
 			mSaleInfoNotForSale->setVisible(FALSE);
+
+			F32 cost_per_sqm = 0.0f;
+			if (area > 0)
+			{
+				cost_per_sqm = (F32)parcel->getSalePrice() / (F32)area;
+			}
+
 			mSaleInfoForSale1->setTextArg("[PRICE]", llformat("%d", parcel->getSalePrice()));
+			mSaleInfoForSale1->setTextArg("[PRICE_PER_SQM]", llformat("%.1f", cost_per_sqm));
 			if (can_be_sold)
 			{
 				mBtnStopSellLand->setVisible(TRUE);
@@ -644,25 +671,6 @@ void LLPanelLandGeneral::refresh()
 			LLViewerParcelMgr::getInstance()->canAgentBuyParcel(parcel, false));
 		mBtnBuyGroupLand->setEnabled(
 			LLViewerParcelMgr::getInstance()->canAgentBuyParcel(parcel, true));
-
-		// show pricing information
-		S32 area;
-		S32 claim_price;
-		S32 rent_price;
-		F32 dwell;
-		LLViewerParcelMgr::getInstance()->getDisplayInfo(&area,
-								   &claim_price,
-								   &rent_price,
-								   &for_sale,
-								   &dwell);
-
-		// Area
-		LLUIString price = getString("area_size_text");
-		price.setArg("[AREA]", llformat("%d",area));	
-		mTextPriceLabel->setText(getString("area_text"));
-		mTextPrice->setText(price.getString());
-		
-		mTextDwell->setText(llformat("%.0f", dwell));
 
 		if(region_owner)
 		{
@@ -1716,8 +1724,6 @@ LLPanelLandOptions::LLPanelLandOptions(LLParcelSelectionHandle& parcel)
 
 BOOL LLPanelLandOptions::postBuild()
 {
-
-	
 	mCheckEditObjects = getChild<LLCheckBoxCtrl>( "edit objects check");
 	childSetCommitCallback("edit objects check", onCommitAny, this);
 	
@@ -1828,6 +1834,8 @@ BOOL LLPanelLandOptions::postBuild()
 
 	mLandingTypeCombo = getChild<LLComboBox>( "landing type");
 	childSetCommitCallback("landing type", onCommitAny, this);
+
+	getChild<LLTextureCtrl>("snapshot_ctrl")->setFallbackImageName("default_land_picture.j2c");
 
 	return TRUE;
 }

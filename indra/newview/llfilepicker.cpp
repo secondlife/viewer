@@ -115,7 +115,7 @@ const std::string LLFilePicker::getFirstFile()
 
 const std::string LLFilePicker::getNextFile()
 {
-	if (mCurrentFile >= (S32)mFiles.size())
+	if (mCurrentFile >= getFileCount())
 	{
 		mLocked = FALSE;
 		return std::string();
@@ -128,7 +128,7 @@ const std::string LLFilePicker::getNextFile()
 
 const std::string LLFilePicker::getCurFile()
 {
-	if (mCurrentFile >= (S32)mFiles.size())
+	if (mCurrentFile >= getFileCount())
 	{
 		mLocked = FALSE;
 		return std::string();
@@ -824,7 +824,7 @@ BOOL LLFilePicker::getOpenFile(ELoadFilter filter)
 	send_agent_resume();
 	if (error == noErr)
 	{
-		if (mFiles.size())
+		if (getFileCount())
 			success = true;
 	}
 
@@ -853,9 +853,9 @@ BOOL LLFilePicker::getMultipleOpenFiles(ELoadFilter filter)
 	send_agent_resume();
 	if (error == noErr)
 	{
-		if (mFiles.size())
+		if (getFileCount())
 			success = true;
-		if (mFiles.size() > 1)
+		if (getFileCount() > 1)
 			mLocked = TRUE;
 	}
 
@@ -883,7 +883,7 @@ BOOL LLFilePicker::getSaveFile(ESaveFilter filter, const std::string& filename)
 	send_agent_resume();
 	if (error == noErr)
 	{
-		if (mFiles.size())
+		if (getFileCount())
 			success = true;
 	}
 
@@ -1147,7 +1147,7 @@ BOOL LLFilePicker::getSaveFile( ESaveFilter filter, const std::string& filename 
 		gtk_widget_show_all(GTK_WIDGET(picker));
 		gtk_main();
 
-		rtn = (mFiles.size() == 1);
+		rtn = (getFileCount() == 1);
 	}
 
 	gViewerWindow->mWindow->afterDialog();
@@ -1191,7 +1191,7 @@ BOOL LLFilePicker::getOpenFile( ELoadFilter filter )
 		gtk_widget_show_all(GTK_WIDGET(picker));
 		gtk_main();
 
-		rtn = (mFiles.size() == 1);
+		rtn = (getFileCount() == 1);
 	}
 
 	gViewerWindow->mWindow->afterDialog();

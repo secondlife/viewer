@@ -3520,13 +3520,13 @@ void LLTextEditor::appendColoredText(const std::string &new_text,
 	style->setVisible(true);
 	style->setColor(color);
 	style->setFontName(font_name);
-	appendStyledText(new_text, allow_undo, prepend_newline, &style);
+	appendStyledText(new_text, allow_undo, prepend_newline, style);
 }
 
 void LLTextEditor::appendStyledText(const std::string &new_text, 
 									 bool allow_undo, 
 									 bool prepend_newline,
-									 const LLStyleSP *stylep)
+									 const LLStyleSP stylep)
 {
 	if(mParseHTML)
 	{
@@ -3540,13 +3540,13 @@ void LLTextEditor::appendStyledText(const std::string &new_text,
 			html->setColor(mLinkColor);
 			if (stylep)
 			{
-				html->setFontName((*stylep)->getFontString());
+				html->setFontName(stylep->getFontString());
 			}
 			html->mUnderline = TRUE;
 
 			if (start > 0) appendText(text.substr(0,start),allow_undo, prepend_newline, stylep);
 			html->setLinkHREF(text.substr(start,end-start));
-			appendText(text.substr(start, end-start),allow_undo, prepend_newline, &html);
+			appendText(text.substr(start, end-start),allow_undo, prepend_newline, html);
 			if (end < (S32)text.length()) 
 			{
 				text = text.substr(end,text.length() - end);
@@ -3567,7 +3567,7 @@ void LLTextEditor::appendStyledText(const std::string &new_text,
 
 // Appends new text to end of document
 void LLTextEditor::appendText(const std::string &new_text, bool allow_undo, bool prepend_newline,
-							  const LLStyleSP *stylep)
+							  const LLStyleSP stylep)
 {
 	// Save old state
 	BOOL was_scrolled_to_bottom = (mScrollbar->getDocPos() == mScrollbar->getDocPosMax());
@@ -3599,7 +3599,7 @@ void LLTextEditor::appendText(const std::string &new_text, bool allow_undo, bool
 	{
 		S32 segment_start = old_length;
 		S32 segment_end = getLength();
-		LLTextSegment* segment = new LLTextSegment(*stylep, segment_start, segment_end );
+		LLTextSegment* segment = new LLTextSegment(stylep, segment_start, segment_end );
 		mSegments.push_back(segment);
 	}
 	

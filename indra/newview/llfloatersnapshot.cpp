@@ -369,7 +369,7 @@ void LLSnapshotLivePreview::drawPreviewRect(S32 offset_x, S32 offset_y)
 	glLineWidth(2.0f * line_width) ;
 	LLColor4 color(0.0f, 0.0f, 0.0f, 1.0f) ;
 	gl_rect_2d( mPreviewRect.mLeft + offset_x, mPreviewRect.mTop + offset_y,
-		        mPreviewRect.mRight + offset_x, mPreviewRect.mBottom + offset_y, color, FALSE ) ;
+				mPreviewRect.mRight + offset_x, mPreviewRect.mBottom + offset_y, color, FALSE ) ;
 	glLineWidth(line_width) ;
 
 	//draw four alpha rectangles to cover areas outside of the snapshot image
@@ -383,20 +383,20 @@ void LLSnapshotLivePreview::drawPreviewRect(S32 offset_x, S32 offset_y)
 			dwr = mThumbnailWidth - mPreviewRect.getWidth() - dwl ;
 
 			gl_rect_2d(mPreviewRect.mLeft + offset_x - dwl, mPreviewRect.mTop + offset_y,
-		        mPreviewRect.mLeft + offset_x, mPreviewRect.mBottom + offset_y, alpha_color, TRUE ) ;
+				mPreviewRect.mLeft + offset_x, mPreviewRect.mBottom + offset_y, alpha_color, TRUE ) ;
 			gl_rect_2d( mPreviewRect.mRight + offset_x, mPreviewRect.mTop + offset_y,
-		        mPreviewRect.mRight + offset_x + dwr, mPreviewRect.mBottom + offset_y, alpha_color, TRUE ) ;
+				mPreviewRect.mRight + offset_x + dwr, mPreviewRect.mBottom + offset_y, alpha_color, TRUE ) ;
 		}
 
 		if(mThumbnailHeight > mPreviewRect.getHeight())
 		{
 			S32 dh = (mThumbnailHeight - mPreviewRect.getHeight()) >> 1 ;
 			gl_rect_2d(mPreviewRect.mLeft + offset_x - dwl, mPreviewRect.mBottom + offset_y ,
-		        mPreviewRect.mRight + offset_x + dwr, mPreviewRect.mBottom + offset_y - dh, alpha_color, TRUE ) ;
+				mPreviewRect.mRight + offset_x + dwr, mPreviewRect.mBottom + offset_y - dh, alpha_color, TRUE ) ;
 
 			dh = mThumbnailHeight - mPreviewRect.getHeight() - dh ;
 			gl_rect_2d( mPreviewRect.mLeft + offset_x - dwl, mPreviewRect.mTop + offset_y + dh,
-		        mPreviewRect.mRight + offset_x + dwr, mPreviewRect.mTop + offset_y, alpha_color, TRUE ) ;
+				mPreviewRect.mRight + offset_x + dwr, mPreviewRect.mTop + offset_y, alpha_color, TRUE ) ;
 		}
 	}
 }
@@ -950,7 +950,9 @@ void LLSnapshotLivePreview::saveTexture()
 							0,
 							LLAssetType::AT_SNAPSHOT_CATEGORY,
 							LLInventoryType::IT_SNAPSHOT,
-							PERM_ALL,
+							PERM_ALL,  // Note: Snapshots to inventory is a special case of content upload
+							PERM_NONE, // that ignores the user's premissions preferences and continues to
+							PERM_NONE, // always use these fairly permissive hard-coded initial perms. - MG
 							"Snapshot : " + pos_string);
 		gViewerWindow->playSnapshotAnimAndSound();
 	}
@@ -1424,7 +1426,7 @@ void LLFloaterSnapshot::Impl::onClickMore(void* data)
 		if(getPreviewView(view))
 		{
 			getPreviewView(view)->setThumbnailImageSize() ;
-	}
+		}
 	}
 }
 void LLFloaterSnapshot::Impl::onClickLess(void* data)
@@ -1664,15 +1666,15 @@ void LLFloaterSnapshot::Impl::updateResolution(LLUICtrl* ctrl, void* data, BOOL 
 
 		if(view->childGetValue("snapshot_width").asInteger() != width || view->childGetValue("snapshot_height").asInteger() != height)
 		{
-		view->childSetValue("snapshot_width", width);
-		view->childSetValue("snapshot_height", height);
-		// hide old preview as the aspect ratio could be wrong
-		checkAutoSnapshot(previewp, FALSE);
+			view->childSetValue("snapshot_width", width);
+			view->childSetValue("snapshot_height", height);
+			// hide old preview as the aspect ratio could be wrong
+			checkAutoSnapshot(previewp, FALSE);
 			getPreviewView(view)->updateSnapshot(FALSE, TRUE);
 			if(do_update)
 			{
 				updateControls(view);
-	}
+			}
 		}
 	}
 }

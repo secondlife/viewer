@@ -464,12 +464,7 @@ void LLScrollbar::draw()
 {
 	S32 local_mouse_x;
 	S32 local_mouse_y;
-	LLCoordWindow cursor_pos_window;
-	getWindow()->getCursorPosition(&cursor_pos_window);
-	LLCoordGL cursor_pos_gl;
-	getWindow()->convertCoords(cursor_pos_window, &cursor_pos_gl);
-
-	screenPointToLocal(cursor_pos_gl.mX, cursor_pos_gl.mY, &local_mouse_x, &local_mouse_y);
+	LLUI::getCursorPositionLocal(this, &local_mouse_x, &local_mouse_y);
 	BOOL other_captor = gFocusMgr.getMouseCapture() && gFocusMgr.getMouseCapture() != this;
 	BOOL hovered = getEnabled() && !other_captor && (hasMouseCapture() || mThumbRect.pointInRect(local_mouse_x, local_mouse_y));
 	if (hovered)

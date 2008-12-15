@@ -43,6 +43,7 @@
 #include "llradiogroup.h"
 #include "lldbstrings.h"
 #include "lldir.h"
+#include "llfloaterperms.h"
 #include "llviewercontrol.h"
 #include "llviewermenufile.h"	// upload_new_resource()
 #include "lluictrlfactory.h"
@@ -180,7 +181,8 @@ void LLFloaterNameDesc::onBtnOK( void* userdata )
 	upload_new_resource(fp->mFilenameAndPath, // file
 		fp->childGetValue("name_form").asString(), 
 		fp->childGetValue("description_form").asString(), 
-		0, LLAssetType::AT_NONE, LLInventoryType::IT_NONE);
+		0, LLAssetType::AT_NONE, LLInventoryType::IT_NONE,
+		LLFloaterPerms::getNextOwnerPerms(), LLFloaterPerms::getGroupPerms(), LLFloaterPerms::getEveryonePerms());
 	fp->close(false);
 }
 

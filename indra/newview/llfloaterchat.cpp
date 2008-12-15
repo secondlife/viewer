@@ -189,7 +189,7 @@ void LLFloaterChat::updateConsoleVisibility()
 							|| (getHost() && getHost()->isMinimized() ));	// are we hosted in a minimized floater?
 }
 
-void add_timestamped_line(LLViewerTextEditor* edit, const LLChat &chat, const LLColor4& color)
+void add_timestamped_line(LLViewerTextEditor* edit, LLChat chat, const LLColor4& color)
 {
 	std::string line = chat.mText;
 	bool prepend_newline = true;
@@ -199,16 +199,22 @@ void add_timestamped_line(LLViewerTextEditor* edit, const LLChat &chat, const LL
 		prepend_newline = false;
 	}
 
-	// If the msg is not from an agent (not yourself though),
+	// If the msg is from an agent (not yourself though),
 	// extract out the sender name and replace it with the hotlinked name.
 	if (chat.mSourceType == CHAT_SOURCE_AGENT &&
-		chat.mFromID != LLUUID::null &&
-		(line.length() > chat.mFromName.length() && line.find(chat.mFromName,0) == 0))
+		chat.mFromID != LLUUID::null)
+	{
+		chat.mURL = llformat("secondlife:///app/agent/%s/about",chat.mFromID.asString().c_str());
+	}
+
+	// If the chat line has an associated url, link it up to the name.
+	if (!chat.mURL.empty()
+		&& (line.length() > chat.mFromName.length() && line.find(chat.mFromName,0) == 0))
 	{
 		std::string start_line = line.substr(0, chat.mFromName.length() + 1);
 		line = line.substr(chat.mFromName.length() + 1);
-		const LLStyleSP &sourceStyle = LLStyleMap::instance().lookup(chat.mFromID);
-		edit->appendStyledText(start_line, false, prepend_newline, &sourceStyle);
+		const LLStyleSP &sourceStyle = LLStyleMap::instance().lookup(chat.mFromID,chat.mURL);
+		edit->appendStyledText(start_line, false, prepend_newline, sourceStyle);
 		prepend_newline = false;
 	}
 	edit->appendColoredText(line, false, prepend_newline, color);

@@ -32,6 +32,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llpanellogin.h"
+
 #include "llpanelgeneral.h"
 
 #include "indra_constants.h"		// for key and mask constants
@@ -43,7 +44,7 @@
 
 #include "llbutton.h"
 #include "llcheckboxctrl.h"
-#include "llcommandhandler.h"
+#include "llcommandhandler.h"		// for secondlife:///app/login/
 #include "llcombobox.h"
 #include "llcurl.h"
 #include "llviewercontrol.h"
@@ -78,9 +79,6 @@
 
 #define USE_VIEWER_AUTH 0
 
-std::string load_password_from_disk(void);
-void save_password_to_disk(const char* hashed_password);
-
 const S32 BLACK_BORDER_HEIGHT = 160;
 const S32 MAX_PASSWORD = 16;
 
@@ -92,8 +90,8 @@ class LLLoginRefreshHandler : public LLCommandHandler
 {
 public:
 	// don't allow from external browsers
-	LLLoginRefreshHandler() : LLCommandHandler("login_refresh", false) { }
-	bool handle(const LLSD& tokens, const LLSD& queryMap)
+	LLLoginRefreshHandler() : LLCommandHandler("login_refresh", true) { }
+	bool handle(const LLSD& tokens, const LLSD& query_map, LLWebBrowserCtrl* web)
 	{	
 		if (LLStartUp::getStartupState() < STATE_LOGIN_CLEANUP)
 		{
@@ -106,191 +104,6 @@ public:
 LLLoginRefreshHandler gLoginRefreshHandler;
 
 
-//parses the input url and returns true if afterwards
-//a web-login-key, firstname and lastname  is set
-bool LLLoginHandler::parseDirectLogin(std::string url)
-{
-	LLURI uri(url);
-	parse(uri.queryMap());
-
-	if (mWebLoginKey.isNull() ||
-		mFirstName.empty() ||
-		mLastName.empty())
-	{
-		return false;
-	}
-	else
-	{
-		return true;
-	}
-}
-
-
-void LLLoginHandler::parse(const LLSD& queryMap)
-{
-	mWebLoginKey = queryMap["web_login_key"].asUUID();
-	mFirstName = queryMap["first_name"].asString();
-	mLastName = queryMap["last_name"].asString();
-	
-	EGridInfo grid_choice = GRID_INFO_NONE;
-	if (queryMap["grid"].asString() == "aditi")
-	{
-		grid_choice = GRID_INFO_ADITI;
-	}
-	else if (queryMap["grid"].asString() == "agni")
-	{
-		grid_choice = GRID_INFO_AGNI;
-	}
-	else if (queryMap["grid"].asString() == "siva")
-	{
-		grid_choice = GRID_INFO_SIVA;
-	}
-	else if (queryMap["grid"].asString() == "damballah")
-	{
-		grid_choice = GRID_INFO_DAMBALLAH;
-	}
-	else if (queryMap["grid"].asString() == "durga")
-	{
-		grid_choice = GRID_INFO_DURGA;
-	}
-	else if (queryMap["grid"].asString() == "shakti")
-	{
-		grid_choice = GRID_INFO_SHAKTI;
-	}
-	else if (queryMap["grid"].asString() == "soma")
-	{
-		grid_choice = GRID_INFO_SOMA;
-	}
-	else if (queryMap["grid"].asString() == "ganga")
-	{
-		grid_choice = GRID_INFO_GANGA;
-	}
-	else if (queryMap["grid"].asString() == "vaak")
-	{
-		grid_choice = GRID_INFO_VAAK;
-	}
-	else if (queryMap["grid"].asString() == "uma")
-	{
-		grid_choice = GRID_INFO_UMA;
-	}
-	else if (queryMap["grid"].asString() == "mohini")
-	{
-		grid_choice = GRID_INFO_MOHINI;
-	}
-	else if (queryMap["grid"].asString() == "yami")
-	{
-		grid_choice = GRID_INFO_YAMI;
-	}
-	else if (queryMap["grid"].asString() == "nandi")
-	{
-		grid_choice = GRID_INFO_NANDI;
-	}
-	else if (queryMap["grid"].asString() == "mitra")
-	{
-		grid_choice = GRID_INFO_MITRA;
-	}
-	else if (queryMap["grid"].asString() == "radha")
-	{
-		grid_choice = GRID_INFO_RADHA;
-	}
-	else if (queryMap["grid"].asString() == "ravi")
-	{
-		grid_choice = GRID_INFO_RAVI;
-	}
-	else if (queryMap["grid"].asString() == "aruna")
-	{
-		grid_choice = GRID_INFO_ARUNA;
-	}
-	else if (queryMap["grid"].asString() == "bharati")
-	{
-		grid_choice = GRID_INFO_BHARATI;
-	}
-	else if (queryMap["grid"].asString() == "chandra")
-	{
-		grid_choice = GRID_INFO_CHANDRA;
-	}
-	else if (queryMap["grid"].asString() == "danu")
-	{
-		grid_choice = GRID_INFO_DANU;
-	}
-	else if (queryMap["grid"].asString() == "parvati")
-	{
-		grid_choice = GRID_INFO_PARVATI;
-	}
-	else if (queryMap["grid"].asString() == "skanda")
-	{
-		grid_choice = GRID_INFO_SKANDA;
-	}
-
-	if(grid_choice != GRID_INFO_NONE)
-	{
-		LLViewerLogin::getInstance()->setGridChoice(grid_choice);
-	}
-
-	std::string startLocation = queryMap["location"].asString();
-
-	if (startLocation == "specify")
-	{
-		LLURLSimString::setString(queryMap["region"].asString());
-	}
-	else if (startLocation == "home")
-	{
-		gSavedSettings.setBOOL("LoginLastLocation", FALSE);
-		LLURLSimString::setString(LLStringUtil::null);
-	}
-	else if (startLocation == "last")
-	{
-		gSavedSettings.setBOOL("LoginLastLocation", TRUE);
-		LLURLSimString::setString(LLStringUtil::null);
-	}
-}
-
-bool LLLoginHandler::handle(const LLSD& tokens,
-						  const LLSD& queryMap)
-{	
-	parse(queryMap);
-	
-	//if we haven't initialized stuff yet, this is 
-	//coming in from the GURL handler, just parse
-	if (STATE_FIRST == LLStartUp::getStartupState())
-	{
-		return true;
-	}
-	
-	std::string password = queryMap["password"].asString();
-
-	if (!password.empty())
-	{
-		gSavedSettings.setBOOL("RememberPassword", TRUE);
-
-		if (password.substr(0,3) != "$1$")
-		{
-			LLMD5 pass((unsigned char*)password.c_str());
-			char md5pass[33];		/* Flawfinder: ignore */
-			pass.hex_digest(md5pass);
-			password = ll_safe_string(md5pass, 32);
-			save_password_to_disk(password.c_str());
-		}
-	}
-	else
-	{
-		save_password_to_disk(NULL);
-		gSavedSettings.setBOOL("RememberPassword", FALSE);
-	}
-			
-
-	if  (LLStartUp::getStartupState() < STATE_LOGIN_CLEANUP)  //on splash page
-	{
-		if (mWebLoginKey.isNull()) {
-			LLPanelLogin::loadLoginPage();
-		} else {
-			LLStartUp::setStartupState( STATE_LOGIN_CLEANUP );
-		}
-	}
-	return true;
-}
-
-LLLoginHandler gLoginHandler;
 
 // helper class that trys to download a URL from a web site and calls a method 
 // on parent class indicating if the web server is working or not
@@ -450,7 +263,7 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 		LL_VERSION_PATCH,
 		LL_VIEWER_BUILD );
 	LLTextBox* channel_text = getChild<LLTextBox>("channel_text");
-	channel_text->setTextArg("[CHANNEL]", channel);
+	channel_text->setTextArg("[CHANNEL]", channel); // though not displayed
 	channel_text->setTextArg("[VERSION]", version);
 	channel_text->setClickedCallback(onClickVersion);
 	channel_text->setCallbackUserData(this);
@@ -465,7 +278,7 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	// get the web browser control
 	LLWebBrowserCtrl* web_browser = getChild<LLWebBrowserCtrl>("login_html");
 	// Need to handle login secondlife:///app/ URLs
-	web_browser->setOpenAppSLURLs( true );
+	web_browser->setTrusted( true );
 
 	// observe browser events
 	web_browser->addObserver( this );

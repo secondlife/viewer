@@ -190,9 +190,6 @@ void LLPanelPermissions::refresh()
 		childSetEnabled("Description:",false);
 		childSetText("Object Description",LLStringUtil::null);
 		childSetEnabled("Object Description",false);
- 
-		childSetText("prim info",LLStringUtil::null);
-		childSetEnabled("prim info",false);
 
 		childSetEnabled("Permissions:",false);
 		
@@ -394,33 +391,6 @@ void LLPanelPermissions::refresh()
 		childSetEnabled("Object Name",false);
 		childSetEnabled("Object Description",false);
 	}
-
-
-	// Pre-compute object info string
-	S32 prim_count = LLSelectMgr::getInstance()->getSelection()->getObjectCount();
-	S32 obj_count = LLSelectMgr::getInstance()->getSelection()->getRootObjectCount();
-
-	std::string object_info_string;
-	if (1 == obj_count)
-	{
-		object_info_string.assign("1 Object, ");
-	}
-	else
-	{
-		object_info_string = llformat( "%d Objects, ", obj_count);
-	}
-	if (1 == prim_count)
-	{
-		object_info_string.append("1 Primitive");
-	}
-	else
-	{
-		std::string buffer;
-		buffer = llformat( "%d Primitives", prim_count);
-		object_info_string.append(buffer);
-	}
-	childSetText("prim info",object_info_string);
-	childSetEnabled("prim info",true);
 
 	S32 total_sale_price = 0;
 	S32 individual_sale_price = 0;

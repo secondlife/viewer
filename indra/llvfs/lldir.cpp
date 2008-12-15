@@ -378,7 +378,7 @@ std::string LLDir::getExpandedFilename(ELLPath location, const std::string& subd
 	case LL_PATH_EXECUTABLE:
 		prefix = getExecutableDir();
 		break;
-
+		
 	default:
 		llassert(0);
 	}

@@ -906,6 +906,204 @@
       <key>Value</key>
       <real>16.0</real>
     </map>
+    <key>BulkChangeIncludeAnimations</key>
+    <map>
+      <key>Comment</key>
+      <string>Bulk permission changes affect animations</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>BulkChangeIncludeAnimations</key>
+    <map>
+      <key>Comment</key>
+      <string>Bulk permission changes affect animations</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>BulkChangeIncludeAnimations</key>
+    <map>
+      <key>Comment</key>
+      <string>Bulk permission changes affect animations</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>BulkChangeIncludeAnimations</key>
+    <map>
+      <key>Comment</key>
+      <string>Bulk permission changes affect animations</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>BulkChangeIncludeBodyParts</key>
+    <map>
+      <key>Comment</key>
+      <string>Bulk permission changes affect body parts</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>BulkChangeIncludeClothing</key>
+    <map>
+      <key>Comment</key>
+      <string>Bulk permission changes affect clothing</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>BulkChangeIncludeGestures</key>
+    <map>
+      <key>Comment</key>
+      <string>Bulk permission changes affect gestures</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>BulkChangeIncludeLandmarks</key>
+    <map>
+      <key>Comment</key>
+      <string>Bulk permission changes affect landmarks</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>BulkChangeIncludeNotecards</key>
+    <map>
+      <key>Comment</key>
+      <string>Bulk permission changes affect notecards</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>BulkChangeIncludeObjects</key>
+    <map>
+      <key>Comment</key>
+      <string>Bulk permission changes affect objects</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>BulkChangeIncludeScripts</key>
+    <map>
+      <key>Comment</key>
+      <string>Bulk permission changes affect scripts</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>BulkChangeIncludeSounds</key>
+    <map>
+      <key>Comment</key>
+      <string>Bulk permission changes affect sounds</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>BulkChangeIncludeTextures</key>
+    <map>
+      <key>Comment</key>
+      <string>Bulk permission changes affect textures</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>BulkChangeEveryoneCopy</key>
+    <map>
+      <key>Comment</key>
+      <string>Bulk changed objects can be copied by everyone</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>BulkChangeNextOwnerCopy</key>
+    <map>
+      <key>Comment</key>
+      <string>Bulk changed objects can be copied by next owner</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>BulkChangeNextOwnerModify</key>
+    <map>
+      <key>Comment</key>
+      <string>Bulk changed objects can be modified by next owner</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>BulkChangeNextOwnerTransfer</key>
+    <map>
+      <key>Comment</key>
+      <string>Bulk changed objects can be resold or given away by next owner</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>BulkChangeShareWithGroup</key>
+    <map>
+      <key>Comment</key>
+      <string>Bulk changed objects are shared with the currently active group</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>ButtonFlashCount</key>
     <map>
       <key>Comment</key>
@@ -1015,6 +1213,17 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>
+    </map>
+    <key>CameraAngle</key>
+    <map>
+      <key>Comment</key>
+      <string>Camera field of view angle (Radians)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>1.047197551</real>
     </map>
     <key>CameraOffset</key>
     <map>
@@ -2404,6 +2613,17 @@
       <key>Value</key>
       <integer>175</integer>
     </map>
+    <key>EveryoneCopy</key>
+      <map>
+        <key>Comment</key>
+        <string>Everyone can copy the newly created objects</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>Boolean</string>
+        <key>Value</key>
+        <integer>0</integer>
+    </map>
     <key>FPSLogFrequency</key>
     <map>
       <key>Comment</key>
@@ -3100,7 +3320,24 @@
         <integer>0</integer>
       </array>
     </map>
-    <key>FloaterOpenObjectRect</key>
+  
+  <key>FloaterObjectIMInfo</key>
+  <map>
+    <key>Comment</key>
+    <string>Rectangle for floater object im info windows</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Rect</string>
+    <key>Value</key>
+    <array>
+      <integer>0</integer>
+      <integer>300</integer>
+      <integer>300</integer>
+      <integer>0</integer>
+    </array>
+  </map>
+  <key>FloaterOpenObjectRect</key>
     <map>
       <key>Comment</key>
       <string>Rectangle for Open Object window</string>
@@ -3130,6 +3367,22 @@
         <integer>150</integer>
         <integer>400</integer>
         <integer>0</integer>
+      </array>
+    </map>
+    <key>FloaterPermPrefsRect</key>
+    <map>
+      <key>Comment</key>
+      <string>Rectangle for initial permissions preferences</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Rect</string>
+      <key>Value</key>
+      <array>
+        <integer>200</integer>
+        <integer>250</integer>
+        <integer>250</integer>
+        <integer>200</integer>
       </array>
     </map>
     <key>FloaterRegionInfo</key>
@@ -3971,18 +4224,18 @@
       <key>Value</key>
       <real>0.0</real>
     </map>
-	<key>InstallLanguage</key>
-	<map>
-		<key>Comment</key>
-		<string>Language passed from installer (for UI)</string>
-		<key>Persist</key>
-		<integer>1</integer>
-		<key>Type</key>
-		<string>String</string>
-		<key>Value</key>
-		<string>default</string>
-	</map>
-	<key>InventoryAutoOpenDelay</key>
+    <key>InstallLanguage</key>
+    <map>
+      <key>Comment</key>
+      <string>Language passed from installer (for UI)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>default</string>
+    </map>
+    <key>InventoryAutoOpenDelay</key>
     <map>
       <key>Comment</key>
       <string>Seconds before automatically opening inventory when mouse is over inventory button when performing inventory drag and drop</string>
@@ -4959,6 +5212,39 @@
     <map>
       <key>Comment</key>
       <string>Mute audio when SL window is minimized</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>NextOwnerCopy</key>
+    <map>
+      <key>Comment</key>
+      <string>Newly created objects can be copied by next owner</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>NextOwnerModify</key>
+    <map>
+      <key>Comment</key>
+      <string>Newly created objects can be modified by next owner</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>NextOwnerTransfer</key>
+    <map>
+      <key>Comment</key>
+      <string>Newly created objects can be resold or given away by next owner</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -6858,6 +7144,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>ShareWithGroup</key>
+    <map>
+      <key>Comment</key>
+      <string>Newly created objects are shared with the currently active group</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>ShowActiveSpeakers</key>
     <map>
       <key>Comment</key>
@@ -7857,17 +8154,6 @@
         <integer>100</integer>
         <integer>100</integer>
       </array>
-    </map>
-    <key>ToolboxShowMore</key>
-    <map>
-      <key>Comment</key>
-      <string>Whether to show additional build tool controls</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
     </map>
     <key>TrackFocusObject</key>
     <map>

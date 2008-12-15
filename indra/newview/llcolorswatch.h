@@ -77,6 +77,7 @@ public:
 	void			setCanApplyImmediately(BOOL apply) { mCanApplyImmediately = apply; }
 	void			setOnCancelCallback(LLUICtrlCallback cb) { mOnCancelCallback = cb; }
 	void			setOnSelectCallback(LLUICtrlCallback cb) { mOnSelectCallback = cb; }
+	void			setFallbackImageName(const std::string& name) { mFallbackImageName = name; }
 
 	void			showPicker(BOOL take_focus);
 
@@ -104,6 +105,7 @@ protected:
 	LLUICtrlCallback mOnSelectCallback;
 
 	LLPointer<LLUIImage> mAlphaGradientImage;
+	std::string		mFallbackImageName;
 };
 
 #endif  // LL_LLBUTTON_H

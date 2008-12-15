@@ -369,4 +369,8 @@
   
   <texture name="skin_thumbnail_default.png" preload="true" />
   <texture name="skin_thumbnail_silver.png" preload="true" />
+
+  <texture name="default_land_picture.j2c"/>
+  <texture name="default_profile_picture.j2c"/>
+  <texture name="locked_image.j2c"/>
 </textures>

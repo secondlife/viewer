@@ -42,16 +42,18 @@ const F32 DEFAULT_ASPECT_RATIO 		= 640.f / 480.f;
 const F32 DEFAULT_NEAR_PLANE 		= 0.25f;
 const F32 DEFAULT_FAR_PLANE 		= 64.f;	// far reaches across two horizontal, not diagonal, regions
 
-const F32 MAX_FIELD_OF_VIEW = F_PI;
 const F32 MAX_ASPECT_RATIO 	= 50.0f;
 const F32 MAX_NEAR_PLANE 	= 10.f;
 const F32 MAX_FAR_PLANE 	= 100000.0f; //1000000.0f; // Max allowed. Not good Z precision though.
 const F32 MAX_FAR_CLIP		= 512.0f;
 
-const F32 MIN_FIELD_OF_VIEW = 0.1f;
 const F32 MIN_ASPECT_RATIO 	= 0.02f;
 const F32 MIN_NEAR_PLANE 	= 0.1f;
 const F32 MIN_FAR_PLANE 	= 0.2f;
+
+// Min/Max FOV values for square views. Call getMin/MaxView to get extremes based on current aspect ratio.
+static const F32 MIN_FIELD_OF_VIEW = 5.0f * DEG_TO_RAD;
+static const F32 MAX_FIELD_OF_VIEW = 175.f * DEG_TO_RAD;
 
 static const LLVector3 X_AXIS(1.f,0.f,0.f);
 static const LLVector3 Y_AXIS(0.f,1.f,0.f);
@@ -101,7 +103,7 @@ public:
 		HORIZ_PLANE_ALL_MASK = 0x3
 	};
 
-protected:
+private:
 	F32 mView;					// angle between top and bottom frustum planes in radians.
 	F32 mAspect;				// width/height
 	S32 mViewHeightInPixels;	// for ViewHeightInPixels() only
@@ -117,12 +119,12 @@ protected:
 
 	struct frustum_plane
 	{
-        frustum_plane() : mask(0) {}
+		frustum_plane() : mask(0) {}
 		LLPlane p;
 		U8 mask;
 	};
 	frustum_plane mAgentPlanes[7];  //frustum planes in agent space a la gluUnproject (I'm a bastard, I know) - DaveP
-									
+
 	U32 mPlaneCount;  //defaults to 6, if setUserClipPlane is called, uses user supplied clip plane in
 
 	LLVector3 mWorldPlanePos;		// Position of World Planes (may be offset from camera)
@@ -132,12 +134,13 @@ public:
 	
 public:
 	LLCamera();
-	LLCamera(F32 z_field_of_view, F32 aspect_ratio, S32 view_height_in_pixels, F32 near_plane, F32 far_plane);
+	LLCamera(F32 vertical_fov_rads, F32 aspect_ratio, S32 view_height_in_pixels, F32 near_plane, F32 far_plane);
+	virtual ~LLCamera(){} // no-op virtual destructor
 
 	void setUserClipPlane(LLPlane plane);
 	void disableUserClipPlane();
 	U8 calcPlaneMask(const LLPlane& plane);
-	void setView(F32 new_view);
+	virtual void setView(F32 vertical_fov_rads);
 	void setViewHeightInPixels(S32 height);
 	void setAspect(F32 new_aspect);
 	void setNear(F32 new_near);
@@ -148,6 +151,11 @@ public:
 	F32 getAspect() const						{ return mAspect; }				// width / height
 	F32 getNear() const							{ return mNearPlane; }			// meters
 	F32 getFar() const							{ return mFarPlane; }			// meters
+
+	// The values returned by the min/max view getters depend upon the aspect ratio
+	// at the time they are called and therefore should not be cached.
+	F32 getMinView() const;
+	F32 getMaxView() const;
 	
 	F32 getYaw() const
 	{

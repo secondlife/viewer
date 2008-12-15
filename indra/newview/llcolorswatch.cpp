@@ -199,7 +199,6 @@ BOOL LLColorSwatchCtrl::handleMouseUp(S32 x, S32 y, MASK mask)
 	return TRUE;
 }
 
-
 // assumes GL state is set for 2D
 void LLColorSwatchCtrl::draw()
 {
@@ -231,10 +230,23 @@ void LLColorSwatchCtrl::draw()
 	}
 	else
 	{
-		// Draw grey and an X
-		gl_rect_2d(interior, LLColor4::grey, TRUE);
-
-		gl_draw_x(interior, LLColor4::black);
+		if (!mFallbackImageName.empty())
+		{
+			LLPointer<LLViewerImage> fallback_image = gImageList.getImageFromFile(mFallbackImageName);
+			if( fallback_image->getComponents() == 4 )
+			{	
+				gl_rect_2d_checkerboard( interior );
+			}	
+			gl_draw_scaled_image( interior.mLeft, interior.mBottom, interior.getWidth(), interior.getHeight(), fallback_image);
+			fallback_image->addTextureStats( (F32)(interior.getWidth() * interior.getHeight()) );
+		}
+		else
+		{
+			// Draw grey and an X
+			gl_rect_2d(interior, LLColor4::grey, TRUE);
+			
+			gl_draw_x(interior, LLColor4::black);
+		}
 	}
 
 	LLUICtrl::draw();

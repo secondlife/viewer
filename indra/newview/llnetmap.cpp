@@ -44,6 +44,7 @@
 #include "llcallingcard.h"
 #include "llcolorscheme.h"
 #include "llviewercontrol.h"
+#include "llfloateravatarinfo.h"
 #include "llfloaterworldmap.h"
 #include "llfloatermap.h"
 #include "llframetimer.h"
@@ -73,6 +74,7 @@ const F32 MAP_SCALE_MIN = 64;
 const F32 MAP_SCALE_MID = 172;
 const F32 MAP_SCALE_MAX = 512;
 const F32 MAP_SCALE_INCREMENT = 16;
+const F32 MAP_MIN_PICK_DIST = 4;
 
 const S32 TRACKING_RADIUS = 3;
 
@@ -161,10 +163,11 @@ LLNetMap::LLNetMap(
 	menu->appendSeparator();
 	menu->append(new LLMenuItemCallGL(std::string("Stop Tracking"), &LLTracker::stopTracking,
 										&LLTracker::isTracking, NULL) );
+	menu->append(new LLMenuItemCallGL(std::string("Profile..."), &showAgentProfile,
+										&isAgentUnderCursor, NULL) );
 	menu->setVisible(FALSE);
 	addChild(menu);
 	mPopupMenuHandle = menu->getHandle();
-
 	sInstance = this;
 }
 
@@ -370,6 +373,14 @@ void LLNetMap::draw()
 		LLVector3d pos_global;
 		LLVector3 pos_map;
 
+		// Mouse pointer in local coordinates
+		S32 local_mouse_x;
+		S32 local_mouse_y;
+		//localMouse(&local_mouse_x, &local_mouse_y);
+		LLUI::getCursorPositionLocal(this, &local_mouse_x, &local_mouse_y);
+		mClosestAgentToCursor.setNull();
+		F32 closest_dist = F32_MAX;
+
 		// Draw avatars
 		for (LLWorld::region_list_t::iterator iter = LLWorld::getInstance()->mActiveRegionList.begin();
 			 iter != LLWorld::getInstance()->mActiveRegionList.end(); ++iter)
@@ -413,6 +424,13 @@ void LLNetMap::draw()
 					pos_map.mV[VX], pos_map.mV[VY], 
 					show_as_friend ? gFriendMapColor : gAvatarMapColor, 
 					pos_map.mV[VZ]);
+
+				F32	dist_to_cursor = dist_vec(LLVector2(pos_map.mV[VX], pos_map.mV[VY]), LLVector2(local_mouse_x,local_mouse_y));
+				if(dist_to_cursor < MAP_MIN_PICK_DIST && dist_to_cursor < closest_dist)
+				{
+					closest_dist = dist_to_cursor;
+					mClosestAgentToCursor = regionp->mMapAvatarIDs.get(i);
+				}
 			}
 		}
 
@@ -590,7 +608,14 @@ BOOL LLNetMap::handleToolTip( S32 x, S32 y, std::string& msg, LLRect* sticky_rec
 	LLViewerRegion*	region = LLWorld::getInstance()->getRegionFromPosGlobal( viewPosToGlobal( x, y ) );
 	if( region )
 	{
-		msg.assign( region->getName() );
+		msg.assign("");
+		std::string fullname;
+		if(mClosestAgentToCursor.notNull() && gCacheName->getFullName(mClosestAgentToCursor, fullname))
+		{
+			msg.append(fullname);
+			msg.append("\n");
+		}
+		msg.append( region->getName() );
 
 #ifndef LL_RELEASE_FOR_DOWNLOAD
 		std::string buffer;
@@ -774,6 +799,7 @@ BOOL LLNetMap::handleDoubleClick( S32 x, S32 y, MASK mask )
 
 BOOL LLNetMap::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
+	mClosestAgentAtLastRightClick = mClosestAgentToCursor;
 	LLMenuGL* menu = (LLMenuGL*)mPopupMenuHandle.get();
 	if (menu)
 	{
@@ -804,4 +830,10 @@ void LLNetMap::handleZoomLevel(void* which)
 	default:
 		break;
 	}
+}
+
+// static
+void LLNetMap::showAgentProfile(void*) 
+{ 
+	LLFloaterAvatarInfo::show(sInstance->mClosestAgentAtLastRightClick); 
 }

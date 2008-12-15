@@ -55,9 +55,6 @@ class LLViewerCamera : public LLCamera, public LLSingleton<LLViewerCamera>
 public:
 	LLViewerCamera();
 
-//	const LLVector3 &getPositionAgent() const;
-//	const LLVector3d &getPositionGlobal() const;
-
 	void updateCameraLocation(const LLVector3 &center,
 								const LLVector3 &up_direction,
 								const LLVector3 &point_of_interest);
@@ -80,7 +77,10 @@ public:
 	void getPixelVectors(const LLVector3 &pos_agent, LLVector3 &up, LLVector3 &right);
 	LLVector3 roundToPixel(const LLVector3 &pos_agent);
 
-	void setDefaultFOV(F32 fov) { mCameraFOVDefault = fov; }
+	// Sets the current matrix
+	/* virtual */ void setView(F32 vertical_fov_rads);
+	// Sets the current matrix AND remembers result as default view
+	void setDefaultFOV(F32 vertical_fov_rads);
 	F32 getDefaultFOV() { return mCameraFOVDefault; }
 
 	BOOL cameraUnderWater() const;

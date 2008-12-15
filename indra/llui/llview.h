@@ -51,6 +51,7 @@
 #include "llxmlnode.h"
 #include "stdenums.h"
 #include "lluistring.h"
+#include "llcursortypes.h"
 
 const U32	FOLLOWS_NONE	= 0x00;
 const U32	FOLLOWS_LEFT	= 0x01;
@@ -649,6 +650,8 @@ private:
 	mutable dummy_widget_map_t mDummyWidgets;
 
 	boost::signals::connection mControlConnection;
+
+	ECursorType mHoverCursor;
 	
 public:
 	static BOOL	sDebugRects;	// Draw debug rects behind everything.

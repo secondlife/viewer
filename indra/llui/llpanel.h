@@ -220,7 +220,7 @@ public:
 
 	// LLButton
 	void childSetAction(const std::string& id, void(*function)(void*), void* value);
-	void childSetActionTextbox(const std::string& id, void(*function)(void*));
+	void childSetActionTextbox(const std::string& id, void(*function)(void*), void* value = NULL);
 	void childSetControlName(const std::string& id, const std::string& control_name);
 
 	// Error reporting

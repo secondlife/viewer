@@ -422,13 +422,7 @@ void LLButton::draw()
 	// Unselected image assignments
 	S32 local_mouse_x;
 	S32 local_mouse_y;
-	LLCoordWindow cursor_pos_window;
-	getWindow()->getCursorPosition(&cursor_pos_window);
-	LLCoordGL cursor_pos_gl;
-	getWindow()->convertCoords(cursor_pos_window, &cursor_pos_gl);
-	cursor_pos_gl.mX = llround((F32)cursor_pos_gl.mX / LLUI::sGLScaleFactor.mV[VX]);
-	cursor_pos_gl.mY = llround((F32)cursor_pos_gl.mY / LLUI::sGLScaleFactor.mV[VY]);
-	screenPointToLocal(cursor_pos_gl.mX, cursor_pos_gl.mY, &local_mouse_x, &local_mouse_y);
+	LLUI::getCursorPositionLocal(this, &local_mouse_x, &local_mouse_y);
 
 	BOOL pressed = pressed_by_keyboard 
 					|| (hasMouseCapture() && pointInView(local_mouse_x, local_mouse_y)) 

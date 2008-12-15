@@ -33,36 +33,11 @@
 #define LL_LLPANELLOGIN_H
 
 #include "llpanel.h"
-#include "llcommandhandler.h"
-#include "lldbstrings.h"
-#include "llmemory.h"
-#include "llviewerimage.h"
-#include "llstring.h"
-#include "llmd5.h"
-#include "llwebbrowserctrl.h"
+#include "llmemory.h"			// LLPointer<>
+#include "llwebbrowserctrl.h"	// LLWebBrowserCtrlObserver
 
-class LLTextBox;
-class LLLineEditor;
-class LLCheckBoxCtrl;
-class LLButton;
-class LLComboBox;
+class LLUIImage;
 
-
-class LLLoginHandler : public LLCommandHandler
-{
- public:
-	// allow from external browsers
-	LLLoginHandler() : LLCommandHandler("login", true) { }
-	bool handle(const LLSD& tokens, const LLSD& queryMap);
-	bool parseDirectLogin(std::string url);
-	void parse(const LLSD& queryMap);
-
-	LLUUID mWebLoginKey;
-	std::string mFirstName;
-	std::string mLastName;
-};
-
-extern LLLoginHandler gLoginHandler;
 
 class LLPanelLogin:	
 	public LLPanel,
@@ -129,5 +104,8 @@ private:
 	static BOOL		sCapslockDidNotification;
 	BOOL			mHtmlAvailable;
 };
+
+std::string load_password_from_disk(void);
+void save_password_to_disk(const char* hashed_password);
 
 #endif
