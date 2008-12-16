@@ -1,4 +1,3 @@
-
 Linden Lab would like to acknowledge source code contributions from the
 following residents.   The Second Life resident name is given below,
 along with the issue identifier corresponding to the patches we've
@@ -57,25 +56,25 @@ Alissa Sabre
 	VWR-4010
 	VWR-3410
 	VWR-6386
-        VWR-6384
-        VWR-6385
-        VWR-5929
-        VWR-6430
-        VWR-1843
-        VWR-6668
-        VWR-7153
-        VWR-7168
-        VWR-7087
-        VWR-7086
+	VWR-6384
+	VWR-6385
+	VWR-5929
+	VWR-6430
+	VWR-1843
+	VWR-6668
+	VWR-7153
+	VWR-7168
+	VWR-7087
+	VWR-7086
 	VWR-9190
 Angus Boyd
 	VWR-592
 Argent Stonecutter
 	VWR-68
 Asuka Neely
-  VWR-3434
+	VWR-3434
 Balp Allen
-    VWR-4157
+	VWR-4157
 Benja Kepler
 	VWR-746
 Blakar Ogre
@@ -146,8 +145,6 @@ Fluf Fredriksson
 	VWR-3450
 Fremont Cunningham
 	VWR-1147
-Gudmund Shepherd
-	VWR-1873
 Gigs Taggart
 	SVC-493
 	VWR-6
@@ -176,6 +173,7 @@ Grazer Kline
 	VWR-2113
 Gudmund Shepherd
 	VWR-1594
+	VWR-1873
 Hamncheese Omlet
 	VWR-333
 Henri Beauchamp
@@ -208,12 +206,14 @@ Jacek Antonelli
 	VWR-2448
 	VWR-3605
 JB Kraft
-  VWR-5283
-  VWR-7802
+	VWR-5283
+	VWR-7802
 Joghert LeSabre
 	VWR-64
 Kage Pixel
 	VWR-11
+Kerutsen Sellery
+	VWR-1350
 Kunnis Basiat
 	VWR-82
 	VWR-102
@@ -325,7 +325,7 @@ Nicholaz Beresford
 Nounouch Hapmouche
 	VWR-238
 Patric Mills
-    VWR-2645
+	VWR-2645
 Paul Churchill
 	VWR-20
 	VWR-493
@@ -398,10 +398,6 @@ Strife Onizuka
 	VWR-183
 	VWR-2265
 	VWR-4111
-Teardrops Fall
-	VWR-5366
-tenebrous pau
-	VWR-247
 TBBle Kurosawa
 	VWR-938
 	VWR-941
@@ -410,18 +406,22 @@ TBBle Kurosawa
 	VWR-945
 	VWR-1891
 	VWR-1892
+Teardrops Fall
+	VWR-5366
+tenebrous pau
+	VWR-247
 Tharax Ferraris
 	VWR-605
 Thraxis Epsilon
 	SVC-371
 	VWR-383
-Wilton Lundquist
-	VWR-7682
 Whoops Babii
 	VWR-631
 	VWR-1640
 	VWR-3340
 	VWR-5659
+Wilton Lundquist
+	VWR-7682
 Zarkonnen Decosta
 	VWR-253
 Zi Ree
@@ -432,7 +432,4 @@ Zi Ree
 Zipherius Turas
 	VWR-76
 	VWR-77
-Kerutsen Sellery
-        VWR-1350
-
 
