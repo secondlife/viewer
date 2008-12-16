@@ -10,6 +10,7 @@ Able Whitman
 	VWR-1460
 	VWR-1691
 	VWR-1735
+	VWR-1813
 Adam Marker
 	VWR-2755
 Aimee Trescothick
@@ -26,7 +27,6 @@ Aimee Trescothick
 	VWR-8341
 	VWR-8482
 	VWR-9255
-	VWR-1813
 Alejandro Rosenthal
 	VWR-1184
 Alissa Sabre
