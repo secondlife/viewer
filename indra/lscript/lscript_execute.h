@@ -402,6 +402,8 @@ public:
 	virtual U32 getBytecodeSize() const = 0;
 	virtual bool isMono() const = 0;
 	virtual void error() {;} // Processing that must be performed when error flag is set and so run is not called.
+
+	virtual U32 getUsedMemory() = 0;
 	
 	// Run current event handler for a maximum of time_slice seconds.
 	// Updates current handler and current events registers.
@@ -493,7 +495,7 @@ public:
 	virtual const U8* getBytecode() const {return mBytecode;}
 	virtual U32 getBytecodeSize() const {return mBytecodeSize;}
 	virtual bool isMono() const {return false;}
-
+	virtual U32 getUsedMemory();
 	// Run current event handler for a maximum of time_slice seconds.
 	// Updates current handler and current events registers.
 	virtual void resumeEventHandler(BOOL b_print, const LLUUID &id, F32 time_slice);

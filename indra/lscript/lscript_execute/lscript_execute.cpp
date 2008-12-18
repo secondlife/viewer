@@ -744,6 +744,11 @@ S32 LLScriptExecuteLSL2::getMajorVersion() const
 	return major_version;
 }
 
+U32 LLScriptExecuteLSL2::getUsedMemory()
+{
+	return getBytecodeSize();
+}
+
 LLScriptExecute::LLScriptExecute() :
 	mReset(FALSE)
 {

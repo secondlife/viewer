@@ -45,8 +45,8 @@ public:
 	LLLogImpl(LLApp* app) : mApp(app) {}
 	~LLLogImpl() {}
 
-	void log(const std::string message, LLSD& info);
-	bool useLegacyLogMessage(const std::string message);
+	void log(const std::string &message, LLSD& info);
+	bool useLegacyLogMessage(const std::string &message);
 
 private:
 	LLApp* mApp;
@@ -54,7 +54,7 @@ private:
 
 
 //@brief Function to log a message to syslog for streambase to collect.
-void LLLogImpl::log(const std::string message, LLSD& info)
+void LLLogImpl::log(const std::string &message, LLSD& info)
 {
 	static S32 sequence = 0;
     LLSD log_config = mApp->getOption("log-messages");
@@ -74,7 +74,7 @@ void LLLogImpl::log(const std::string message, LLSD& info)
 }
 
 //@brief Function to check if specified legacy log message should be sent.
-bool LLLogImpl::useLegacyLogMessage(const std::string message)
+bool LLLogImpl::useLegacyLogMessage(const std::string &message)
 {
     LLSD log_config = mApp->getOption("log-messages");
 	if (log_config.has(message))
@@ -100,12 +100,12 @@ LLLog::~LLLog()
 	mImpl = NULL;
 }
 
-void LLLog::log(const std::string message, LLSD& info)
+void LLLog::log(const std::string &message, LLSD& info)
 {
 	if (mImpl) mImpl->log(message, info);
 }
 
-bool LLLog::useLegacyLogMessage(const std::string message)
+bool LLLog::useLegacyLogMessage(const std::string &message)
 {
 	if (mImpl)
 	{

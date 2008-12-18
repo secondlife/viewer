@@ -46,8 +46,8 @@ public:
 	LLLog(LLApp* app);
 	virtual ~LLLog();
 
-	virtual void log(const std::string message, LLSD& info);
-	virtual bool useLegacyLogMessage(const std::string message);
+	virtual void log(const std::string &message, LLSD& info);
+	virtual bool useLegacyLogMessage(const std::string &message);
 
 private:
 	LLLogImpl* mImpl;
