@@ -68,7 +68,6 @@ public:
 		mPassedTests(0),
 		mFailedTests(0),
 		mSkippedTests(0),
-		mSkippedFailTests(0),
 		mStream(stream)
 	{
 	}
@@ -107,10 +106,6 @@ public:
 			break;
 		case tut::test_result::skip:
 			++mSkippedTests;
-			out << "skipped";
-			break;
-		case tut::test_result::skip_fail:
-			++mSkippedFailTests;
 			out << "skipped known failure";
 			break;
 		default:
@@ -159,12 +154,7 @@ private:
 		
 		if (mSkippedTests > 0)
 		{
-			stream << "Skipped Tests: " << mSkippedTests << std::endl;
-		}
-
-		if (mSkippedFailTests > 0)
-		{
-			stream << "Skipped known failures: " << mSkippedFailTests
+			stream << "Skipped known failures: " << mSkippedTests
 				<< std::endl;
 		}
 
@@ -183,7 +173,6 @@ protected:
 	int mPassedTests;
 	int mFailedTests;
 	int mSkippedTests;
-	int mSkippedFailTests;
 	std::ostream *mStream;
 };
 
@@ -194,7 +183,6 @@ static const apr_getopt_option_t TEST_CL_OPTIONS[] =
 	{"verbose", 'v', 0, "Verbose output."},
 	{"group", 'g', 1, "Run test group specified by option argument."},
 	{"output", 'o', 1, "Write output to the named file."},
-	{"skip", 's', 1, "Skip test number specified by option argument. Only works when a specific group is being tested"},
 	{"touch", 't', 1, "Touch the given file if all tests succeed"},
 	{"wait", 'w', 0, "Wait for input before exit."},
 	{"debug", 'd', 0, "Emit full debug logs."},
@@ -226,8 +214,6 @@ void stream_usage(std::ostream& s, const char* app)
 	s << "\tList all available test groups." << std::endl;
 	s << "  " << app << " --group=uuid" << std::endl;
 	s << "\tRun the test group 'uuid'." << std::endl;
-	s << "  " << app << " --skip=2" << std::endl;
-	s << "\tSkip test case 2." << std::endl;
 }
 
 void stream_groups(std::ostream& s, const char* app)
@@ -276,7 +262,6 @@ int main(int argc, char **argv)
 	// values used for controlling application
 	bool verbose_mode = false;
 	bool wait_at_exit = false;
-	int  skip_test_id = 0;
 	std::string test_group;
 
 	// values use for options parsing
@@ -302,9 +287,6 @@ int main(int argc, char **argv)
 		case 'g':
 			test_group.assign(opt_arg);
 			break;
-		case 's':
-			skip_test_id = atoi(opt_arg);
-			break;			
 		case 'h':
 			stream_usage(std::cout, argv[0]);
 			return 0;
@@ -347,7 +329,7 @@ int main(int argc, char **argv)
 	}
 	else
 	{
-		tut::runner.get().run_tests(test_group, skip_test_id);
+		tut::runner.get().run_tests(test_group);
 	}
 
 	if (wait_at_exit)

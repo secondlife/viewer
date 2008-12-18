@@ -35,7 +35,7 @@
  *
  */
 
-#include <tut/tut.h>
+#include <tut/tut.hpp>
 #include "linden_common.h"
 
 // These are too slow on Windows to actually include in the build. JC
@@ -345,7 +345,7 @@ namespace tut
 		// won't ever let it run.  Instead get from a known LLSD
 		// source and compare results with the non-blocking get which
 		// is tested against the mini server earlier.
-		skip_fail("secondlife.com is not reliable enough for unit tests.");
+		skip("secondlife.com is not reliable enough for unit tests.");
 
 
 		LLSD expected;

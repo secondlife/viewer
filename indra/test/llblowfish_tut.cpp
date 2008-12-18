@@ -107,7 +107,7 @@ namespace tut
 		ensure("encryption space 8",
 				(dst_len == 16)  );
 #else
-		skip_fail("Blowfish only supported on Linux.");
+		skip("Blowfish only supported on Linux.");
 #endif // LL_LINUX
 	}
 
@@ -129,7 +129,7 @@ namespace tut
 
 		ensure("encrypt null key", matchFile("blowfish.1.bin", result));
 #else
-		skip_fail("Blowfish only supported on Linux.");
+		skip("Blowfish only supported on Linux.");
 #endif // LL_LINUX
 	}
 
@@ -152,7 +152,7 @@ namespace tut
 
 		ensure("encrypt real key", matchFile("blowfish.2.bin", result));
 #else
-        skip_fail("Blowfish only supported on Linux.");
+        skip("Blowfish only supported on Linux.");
 #endif // LL_LINUX
 	}
 }

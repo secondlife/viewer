@@ -39,7 +39,6 @@
 
 namespace tut
 {
-	template<>
 	void ensure_equals(const char* msg, const LLDate& actual,
 		const LLDate& expected)
 	{
@@ -47,7 +46,6 @@ namespace tut
 			actual.secondsSinceEpoch(), expected.secondsSinceEpoch());
 	}
 
-	template<>
 	void ensure_equals(const char* msg, const LLURI& actual,
 		const LLURI& expected)
 	{
@@ -55,7 +53,6 @@ namespace tut
 			actual.asString(), expected.asString());
 	}
 
-	template<>
 	void ensure_equals(const char* msg,
 		const std::vector<U8>& actual, const std::vector<U8>& expected)
 	{
@@ -73,7 +70,6 @@ namespace tut
 		}
 	}
 
-	template<>
 	void ensure_equals(const char* m, const LLSD& actual,
 		const LLSD& expected)
 	{

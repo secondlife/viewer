@@ -34,7 +34,7 @@
 #ifndef LL_LLTUT_H
 #define LL_LLTUT_H
 
-#include <tut/tut.h>
+#include <tut/tut.hpp>
 
 #include "lldate.h"
 #include "lluri.h"
@@ -108,19 +108,15 @@ namespace tut
 		const Q& actual,const T& expected)
 		{ ensure_equals(msg.c_str(), actual, expected); }
 
-	template<>
 	void ensure_equals(const char* msg,
 		const LLDate& actual, const LLDate& expected);
 
-	template<>
 	void ensure_equals(const char* msg,
 		const LLURI& actual, const LLURI& expected);
 		
-	template<>
 	void ensure_equals(const char* msg,
 		const std::vector<U8>& actual, const std::vector<U8>& expected);
 
-	template<>
 	void ensure_equals(const char* msg,
 		const LLSD& actual, const LLSD& expected);
 	

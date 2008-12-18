@@ -31,7 +31,7 @@
  * $/LicenseInfo$
  */
  
-#include <tut/tut.h>
+#include <tut/tut.hpp>
 #include "linden_common.h"
 #include "lltut.h"
 #include "message.h"
