@@ -1241,7 +1241,7 @@ anguage Infrstructure (CLI) international standard</string>
           </map>
         </map>
       </map>
-      <key>openal</key>
+      <key>openal-soft</key>
       <map>
         <key>copyright</key>
         <string>Copyright (C) 2008 by authors.</string>
@@ -1264,6 +1264,13 @@ anguage Infrstructure (CLI) international standard</string>
             <string>f0d9a8d1318b519cffe6c40c9cac4e21</string>
             <key>url</key>
             <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/openal-linux-20081010c-59a71b14-plughw.tar.bz2</uri>
+          </map>
+          <key>linux64</key>
+          <map>
+            <key>md5sum</key>
+            <string>5ad0a3ab623356c1ad61394ba238f99f</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/openal-soft-1.6.372-linux64-20081219.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
