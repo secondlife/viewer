@@ -234,6 +234,11 @@ void LLDate::secondsSinceEpoch(F64 seconds)
 	mSecondsSinceEpoch = seconds;
 }
 
+bool operator!=(const LLDate& first, const LLDate& second)
+{
+	return (first.secondsSinceEpoch() != second.secondsSinceEpoch());
+}
+
 std::ostream& operator<<(std::ostream& s, const LLDate& date)
 {
 	date.toStream(s);

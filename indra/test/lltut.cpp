@@ -124,7 +124,7 @@ namespace tut
 				{
 					ensure_equals(msg + " map keys", 
 						actual_iter->first, expected_iter->first);
-					ensure_equals(msg + "[" + actual_iter->first + "]",
+					ensure_equals((msg + "[" + actual_iter->first + "]").c_str(),
 						actual_iter->second, expected_iter->second);
 					++actual_iter;
 					++expected_iter;
@@ -137,7 +137,7 @@ namespace tut
 				
 				for(int i = 0; i < actual.size(); ++i)
 				{
-					ensure_equals(msg + llformat("[%d]", i),
+					ensure_equals((msg + llformat("[%d]", i)).c_str(),
 						actual[i], expected[i]);
 				}
 				return;
