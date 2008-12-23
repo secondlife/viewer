@@ -54,56 +54,9 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 {
 	llinfos << "Starting crash reporter" << llendl;
 
-	// In Win32, we need to generate argc and argv ourselves...
-	// Note: GetCommandLine() returns a  potentially return a LPTSTR
-	// which can resolve to a LPWSTR (unicode string).
-	// (That's why it's different from lpCmdLine which is a LPSTR.)
-	// We don't currently do unicode, so call the non-unicode version
-	// directly.
-	llinfos << "Processing command line" << llendl;
-	LPSTR cmd_line_including_exe_name = GetCommandLineA();
-
-	const S32	MAX_ARGS = 100;
-	int argc = 0;
-	char *argv[MAX_ARGS];		
-
-	char *token = NULL;
-	if( cmd_line_including_exe_name[0] == '\"' )
-	{
-		// Exe name is enclosed in quotes
-		token = strtok( cmd_line_including_exe_name, "\"" );
-		argv[argc++] = token;
-		token = strtok( NULL, " \t," );
-	}
-	else
-	{
-		// Exe name is not enclosed in quotes
-		token = strtok( cmd_line_including_exe_name, " \t," );
-	}
-
-	while( (token != NULL) && (argc < MAX_ARGS) )
-	{
-		argv[argc++] = token;
-		/* Get next token: */
-		if (*(token + strlen(token) + 1) == '\"')		
-		{
-			token = strtok( NULL, "\"");
-		}
-		else
-		{
-			token = strtok( NULL, " \t," );
-		}
-	}
-
 	LLCrashLoggerWindows app;
-	bool ok = app.parseCommandOptions(argc, argv);
-	if(!ok)
-	{
-		llwarns << "Unable to parse command line." << llendl;
-	}
-	
 	app.setHandle(hInstance);
-	ok = app.init();
+	bool ok = app.init();
 	if(!ok)
 	{
 		llwarns << "Unable to initialize application." << llendl;

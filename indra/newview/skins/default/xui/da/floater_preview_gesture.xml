@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="gesture_preview">
+	<string name="stop_txt">
+		Stop
+	</string>
+	<string name="preview_txt">
+		Fremvis
+	</string>
+	<string name="none_text">
+		-- Intet --
+	</string>
+	<text name="desc_label">
+		Beskrivelse:
+	</text>
+	<text name="trigger_label">
+		Udløser:
+	</text>
+	<text name="replace_text"
+	     tool_tip="Udskift udløser ordet/ordene med dette/disse ord. Eksempelvis, udløser &apos;hallo&apos; udskift med &apos;hejsa&apos; vil ændre &apos;Jeg ville bare sige hallo &apos; ud med &apos;Jeg ville bare sig hejsa&apos; samt afspille hilsenen!">
+		Udskift med:
+	</text>
+	<line_editor name="replace_editor"
+	     tool_tip="Udskift udløser ordet/ordene med dette/disse ord. Eksempelvis, udløser &apos;hallo&apos; udskift med &apos;hejsa&apos; vil ændre &apos;Jeg ville bare sige hallo &apos; ud med &apos;Jeg ville bare sig hejsa&apos; samt afspille hilsenen!" />
+	<text name="key_label">
+		Genvejs Tast:
+	</text>
+	<combo_box label="None" name="modifier_combo" />
+	<combo_box label="None" name="key_combo" />
+	<text name="library_label">
+		Type:
+	</text>
+	<text name="steps_label">
+		Trin:
+	</text>
+	<button label="Tilføj &gt;&gt;" name="add_btn" />
+	<button label="Flyt op" name="up_btn" />
+	<button label="Flyt ned" name="down_btn" />
+	<button label="Fjern" name="delete_btn" />
+	<text name="help_label">
+		Alle trin vil ske samtidigt,
+medmindre du tilføjer vente trin.
+	</text>
+	<radio_group name="animation_trigger_type">
+		<radio_item name="start">
+			Start
+		</radio_item>
+		<radio_item name="stop">
+			Stop
+		</radio_item>
+	</radio_group>
+	<check_box label="Indtil animation er færdig" name="wait_anim_check" />
+	<check_box label="Tid i sekunder" name="wait_time_check" />
+	<check_box label="Aktiv" name="active_check"
+	     tool_tip="Aktiv hilsener kan blive udløst ved chat, deres sætninger eller ved at trykke på deres hot keys. Hilsener bliver normalt inaktive, når der er en genvejstast konflikt.." />
+	<button label="Fremvis" name="preview_btn" />
+	<button label="Gem" name="save_btn" />
+</floater>

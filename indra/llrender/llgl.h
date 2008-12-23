@@ -74,7 +74,6 @@ public:
 	BOOL mHasMultitexture;
 	S32	 mNumTextureUnits;
 	BOOL mHasMipMapGeneration;
-	BOOL mHasPalettedTextures;
 	BOOL mHasCompressedTextures;
 	BOOL mHasFramebufferObject;
 
@@ -370,7 +369,6 @@ void disable_cloth_weights(const S32 index);
 void set_vertex_weights(const S32 index, const U32 stride, const F32 *weights);
 void set_vertex_clothing_weights(const S32 index, const U32 stride, const LLVector4 *weights);
 void set_binormals(const S32 index, const U32 stride, const LLVector3 *binormals);
-void set_palette(U8* palette_data);
 void parse_gl_version( S32* major, S32* minor, S32* release, std::string* vendor_specific );
 
 extern BOOL gClothRipple;

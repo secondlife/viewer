@@ -11,16 +11,17 @@
 			<text name="BHText">
 				Wassertrübungsfarbe
 			</text>
-			<button label=" ?" name="WaterFogColorHelp" />
+			<button label=" ?" name="WaterFogColorHelp" left="175" />
 			<color_swatch name="WaterFogColor" tool_tip="Klicken Sie hier, um die Farbauswahl zu öffnen" />
 			<text name="WaterFogDensText">
 				Wassertrübungsdichte
 			</text>
-			<button label=" ?" name="WaterFogDensityHelp" />
+			<button label=" ?" name="WaterFogDensityHelp" left="175" />
 			<text name="WaterUnderWaterFogModText">
 				Wassertrübungs-Modifikator
 			</text>
-			<button label=" ?" name="WaterUnderWaterFogModHelp" />
+			<button label=" ?" name="WaterUnderWaterFogModHelp" left="175" />
+			<slider bottom_delta="-34" name="WaterUnderWaterFogMod" />
 			<text name="BDensText">
 				Reflexionswellengröße
 			</text>

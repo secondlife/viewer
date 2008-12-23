@@ -1,18 +1,16 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="groups">
-	<scroll_list bottom="50" name="group list" />
-	<text name="groupdesc" bottom="16" height="32" width="268">
-		Le groupe dans lequel vous êtes actif en ce moment
-est en gras.
+	<scroll_list bottom="50" name="group list"/>
+	<text bottom="16" height="32" name="groupdesc" width="268">
+		Le groupe actif est en gras.
 	</text>
-	<text name="groupcount" bottom="3" >
-		Vous appartenez à [COUNT] groupes (sur [MAX] maximum).
+	<text bottom="3" name="groupcount">
+		Vous appartenez à [COUNT] groupes ([MAX] max).
 	</text>
-	<button label="IM/Appel" name="IM"
-	     tool_tip="Ouvrir une session de messagerie instantanée" />
-	<button label="Infos" name="Info" />
-	<button label="Activer" name="Activate" />
-	<button label="Quitter" name="Leave" />
-	<button label="Créer..." name="Create" />
-	<button label="Rechercher..." name="Search..." />
+	<button label="IM/Appel" name="IM" tool_tip="Ouvrir une session de messagerie instantanée"/>
+	<button label="Infos" name="Info"/>
+	<button label="Activer" name="Activate"/>
+	<button label="Quitter" name="Leave"/>
+	<button label="Créer..." name="Create"/>
+	<button label="Rechercher..." name="Search..."/>
 </panel>

@@ -108,7 +108,7 @@ und diese anziehen.
 			<button label="Farbe" label_selected="Farbe" name="Color" />
 			<button label="Stil" label_selected="Stil" name="Style" />
 			<button label="Augenbrauen" label_selected="Augenbrauen" name="Eyebrows" />
-			<button label="Gesichts" label_selected="Gesichts" name="Facial" />
+			<button label="Gesichtshaar" label_selected="Gesichtshaar" name="Facial" />
 			<text type="string" length="1" name="title">
 				[DESC]
 			</text>

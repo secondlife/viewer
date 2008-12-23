@@ -206,8 +206,8 @@ void LLFloaterInspect::refresh()
 	mObjectList->operateOnAll(LLScrollListCtrl::OP_DELETE);
 	//List all transient objects, then all linked objects
 
-	for (LLObjectSelection::iterator iter = mObjectSelection->begin();
-		 iter != mObjectSelection->end(); iter++)
+	for (LLObjectSelection::valid_iterator iter = mObjectSelection->valid_begin();
+		 iter != mObjectSelection->valid_end(); iter++)
 	{
 		LLSelectNode* obj = *iter;
 		LLSD row;

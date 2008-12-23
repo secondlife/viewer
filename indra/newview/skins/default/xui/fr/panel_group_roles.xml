@@ -1,23 +1,22 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Membres et rôles" name="roles_tab">
 	<text name="default_needs_apply_text">
 		Certains changements n&apos;ont pas été appliqués sur ce sous-onglet.
 	</text>
 	<text name="want_apply_text">
-		Voulez-vous les appliquer ?
+		Voulez-vous enregistrer les modifications ?
 	</text>
 	<text name="cant_delete_role">
-		Les Rôles &apos;Tout le monde&apos; et &apos;Propriétaires&apos; sont particuliers, et ne peuvent être supprimés.
+		Les Rôles Tout le monde et Propriétaires sont spéciaux et ne peuvent être supprimés.
 	</text>
-	<button label="?" name="help_button" />
+	<button label="?" name="help_button"/>
 	<panel name="members_header">
 		<text name="static">
-			Membres et rôles
+			Membres
 		</text>
 		<text name="static2">
-			Chaque membre reçoit un rôle auquel sont associés certains pouvoirs. Ces
-paramètres peuvent être facilement personnalisés, ce qui permet une
-meilleure organisation et plus de flexibilité.
+			Les rôles de chaque membre peuvent être personnalisés, ce qui permet une
+meilleure organisation du groupe.
 		</text>
 	</panel>
 	<panel name="roles_header">
@@ -32,7 +31,7 @@ description et le titre du membre.
 			Sélectionnez un rôle ci-dessous pour en connaître les propriétés, les
 membres et les pouvoirs.
 		</text>
-		<text name="role_actions_modifiable" bottom_delta="-28">
+		<text bottom_delta="-28" name="role_actions_modifiable">
 			Vous pouvez aussi assigner des pouvoirs au rôle.
 		</text>
 		<text name="role_actions_not_modifiable">
@@ -48,52 +47,51 @@ membres et les pouvoirs.
 quels membres ces pouvoirs sont assignés.
 		</text>
 	</panel>
-	<tab_container name="roles_tab_container" height="164">
-		<panel label="Membres" name="members_sub_tab" tool_tip="Membres" height="148">
-			<line_editor bottom="127" name="search_text" />
-			<button label="Rechercher" name="search_button" width="75" />
-			<button label="Afficher tout" name="show_all_button" left_delta="80" />
-			<name_list name="member_list" height="104" bottom_delta="-105">
-				<column label="Nom du membre" name="name" />
-				<column label="Terrain donné" name="donated" width="116"/>
+	<tab_container height="164" name="roles_tab_container">
+		<panel height="148" label="Membres" name="members_sub_tab" tool_tip="Membres">
+			<line_editor bottom="127" name="search_text"/>
+			<button label="Rechercher" name="search_button" width="75"/>
+			<button label="Afficher tout" left_delta="80" name="show_all_button"/>
+			<name_list bottom_delta="-105" height="104" name="member_list">
+				<column label="Nom du membre" name="name"/>
+				<column label="Surface donnée" name="donated" width="116"/>
 				<column label="Dernière connexion" name="online" width="136"/>
 			</name_list>
-			<button label="Inviter nouvelle personne..." name="member_invite" width="165"/>
-			<button label="Expulser du groupe" name="member_eject" />
+			<button label="Inviter un nouveau membre" name="member_invite" width="165"/>
+			<button label="Expulser un membre" name="member_eject"/>
 			<text name="help_text">
 				Vous pouvez ajouter ou supprimer les rôles assignés aux membres.
 Pour sélectionner plusieurs membres, cliquez sur leurs noms en maintenant la touche Ctrl enfoncée.
 			</text>
 		</panel>
-		<panel label="Rôles" name="roles_sub_tab" height="148">
-		<line_editor bottom="127" name="search_text" />
+		<panel height="148" label="Rôles" name="roles_sub_tab">
+			<line_editor bottom="127" name="search_text"/>
 			<button label="Rechercher" name="search_button" width="75"/>
-			<button label="Afficher tout" name="show_all_button" left_delta="80"/>
-			<scroll_list name="role_list" height="104" bottom_delta="-104">
-				<column label="Nom du rôle" name="name" />
-				<column label="Titre" name="title" />
-				<column label="Membres" name="members" />
+			<button label="Afficher tout" left_delta="80" name="show_all_button"/>
+			<scroll_list bottom_delta="-104" height="104" name="role_list">
+				<column label="Nom du rôle" name="name"/>
+				<column label="Titre" name="title"/>
+				<column label="Membres" name="members"/>
 			</scroll_list>
-			<button label="Créer un rôle..." name="role_create" />
-			<button label="Supprimer le rôle" name="role_delete" />
+			<button label="Créer un rôle..." name="role_create"/>
+			<button label="Supprimer le rôle" name="role_delete"/>
 			<text name="help_text">
-				Chaque rôle a un titre et une liste des pouvoirs assignés aux membres. Chaque membre peut avoir un ou plusieurs rôles. Un groupe peut avoir jusqu&apos;à 10 rôles, y compris les rôles Tous et Propriétaires.
+				Chaque rôle possède un titre et des pouvoirs. Un membre peut avoir plusieurs rôles mais il ne peut y avoir que 10 rôles dans un groupe, Visiteur et Propriétaire inclus.
 			</text>
 			<string name="cant_delete_role">
 				Les rôles Tous et Propriétaires sont spéciaux et ne peuvent pas être supprimés.
 			</string>
 		</panel>
-		<panel label="Pouvoirs" name="actions_sub_tab" height="148">
-			<line_editor bottom="127" name="search_text" />
+		<panel height="148" label="Pouvoirs" name="actions_sub_tab">
+			<line_editor bottom="127" name="search_text"/>
 			<button label="Rechercher" name="search_button" width="75"/>
-			<button label="Afficher tout" name="show_all_button" left_delta="80"/>
-			<scroll_list name="action_list"
-			     tool_tip="Sélectionnez un pouvoir pour en afficher les détails." height="118" bottom_delta="-120">
-				<column label="" name="icon" />
-				<column label="" name="action" />
+			<button label="Afficher tout" left_delta="80" name="show_all_button"/>
+			<scroll_list bottom_delta="-120" height="118" name="action_list" tool_tip="Sélectionnez un pouvoir pour en afficher les détails.">
+				<column label="" name="icon"/>
+				<column label="" name="action"/>
 			</scroll_list>
 			<text name="help_text">
-				Lorsqu&apos;un membre a des pouvoirs, il peut faire un certain nombre de choses dans le groupe. Il existe un grand nombre de pouvoirs.
+				Les pouvoirs déterminent les facultés de chaque membre dans le groupe.
 			</text>
 		</panel>
 	</tab_container>
@@ -105,13 +103,12 @@ Pour sélectionner plusieurs membres, cliquez sur leurs noms en maintenant la to
 			Pouvoirs attribués
 		</text>
 		<scroll_list name="member_assigned_roles">
-			<column label="" name="checkbox" />
-			<column label="" name="role" />
+			<column label="" name="checkbox"/>
+			<column label="" name="role"/>
 		</scroll_list>
-		<scroll_list name="member_allowed_actions"
-		     tool_tip="Pour avoir des détails sur chacun des pouvoirs attribués, allez à l&apos;onglet Pouvoirs.">
-			<column label="" name="icon" />
-			<column label="" name="action" />
+		<scroll_list name="member_allowed_actions" tool_tip="Pour avoir des détails sur chacun des pouvoirs attribués, allez à l&apos;onglet Pouvoirs.">
+			<column label="" name="icon"/>
+			<column label="" name="action"/>
 		</scroll_list>
 	</panel>
 	<panel name="roles_footer">
@@ -136,17 +133,14 @@ Pour sélectionner plusieurs membres, cliquez sur leurs noms en maintenant la to
 		<text name="static4">
 			Membres assignés
 		</text>
-		<text name="static5"
-		     tool_tip="Une liste des pouvoirs auquel le rôle sélectionné a accès.">
+		<text name="static5" tool_tip="Une liste des pouvoirs auquel le rôle sélectionné a accès.">
 			Pouvoirs attribués
 		</text>
-		<check_box label="Les membres sont &#10;visibles" name="role_visible_in_list"
-		     tool_tip="Définit si les membres de ce rôle sont visibles à partir de l&apos;onglet Général aux personnes en dehors du groupe." />
-		<scroll_list name="role_allowed_actions"
-		     tool_tip="Pour avoir des détails sur chacun des pouvoirs attribués, allez à l&apos;onglet Pouvoirs.">
-			<column label="" name="icon" />
-			<column label="" name="checkbox" />
-			<column label="" name="action" />
+		<check_box label="Membres visibles" name="role_visible_in_list" tool_tip="Définit si les membres de ce rôle sont visibles à partir de l&apos;onglet Général aux personnes en dehors du groupe."/>
+		<scroll_list name="role_allowed_actions" tool_tip="Pour avoir des détails sur chacun des pouvoirs attribués, allez à l&apos;onglet Pouvoirs.">
+			<column label="" name="icon"/>
+			<column label="" name="checkbox"/>
+			<column label="" name="action"/>
 		</scroll_list>
 	</panel>
 	<panel name="actions_footer">
@@ -154,13 +148,13 @@ Pour sélectionner plusieurs membres, cliquez sur leurs noms en maintenant la to
 			Description
 		</text>
 		<text_editor name="action_description">
-			Ce pouvoir permet d&apos; « expulser les membres de ce groupe ». Seul un propriétaire peut expulser un autre propriétaire.
+			Ce pouvoir permet d&apos;expulser des membres du groupe. Seul un propriétaire peut expulser un autre propriétaire.
 		</text_editor>
 		<text name="static2">
-			Rôles avec pouvoirs
+			Rôles avec ce pouvoir
 		</text>
 		<text name="static3">
-			Membres avec pouvoirs
+			Membres avec ce pouvoir
 		</text>
 	</panel>
 </panel>

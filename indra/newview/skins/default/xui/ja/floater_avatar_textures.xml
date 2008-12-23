@@ -1,15 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater name="avatar_texture_debug" title="アバター・テクスチャー">
-	<text name="">
-		構築されたテクスチャー
+	<text name="baked_label" width="128">
+		構築されたﾃｸｽﾁｬｰ
 	</text>
-	<text name="">
-		合成テクスチャー
-	</text>
-	<text name="baked_label">
-		構築されたテクスチャー
-	</text>
-	<text name="composite_label">
+	<text name="composite_label" width="128">
 		合成テクスチャー
 	</text>
 	<texture_picker label="頭" name="baked_head" />

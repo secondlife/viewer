@@ -1,19 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater name="avatar_texture_debug" title="Avatar-Texturen">
-	<text name="">
-		Geformte Texturen not sure about this one ... missing context
-	</text>
-	<text name="">
-		Zusammengesetzte Texturen
-	</text>
-	<text name="baked_label">
+	<text name="baked_label" width="128">
 		Gebackene Texturen
 	</text>
-	<text name="composite_label">
+	<text name="composite_label" width="150">
 		Zusammengesetzte Texturen
 	</text>
 	<texture_picker label="Kopf" name="baked_head" />
-	<texture_picker label="Make-Uup" name="head_bodypaint" />
+	<texture_picker label="Make-Up" name="head_bodypaint" />
 	<texture_picker label="Haar" name="hair" />
 	<button label="Abladen" label_selected="Abladen" name="Dump" />
 	<texture_picker label="Augen" name="baked_eyes" />

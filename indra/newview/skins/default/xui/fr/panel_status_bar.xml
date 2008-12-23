@@ -1,14 +1,13 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="status">
-	<text type="string" length="1" name="ParcelNameText"
-	     tool_tip="Nom de la parcelle de terrain sur laquelle vous vous trouvez. Cliquez pour ouvrir À propos du terrain.">
+	<text length="1" name="ParcelNameText" tool_tip="Nom de la parcelle de terrain sur laquelle vous vous trouvez. Cliquez pour ouvrir la section À propos du terrain." type="string">
 		Saisissez le nom de la parcelle ici
 	</text>
-	<text type="string" length="1" name="BalanceText" tool_tip="Solde du compte">
-		Chargement en cours...
+	<text length="1" name="BalanceText" tool_tip="Solde du compte" type="string">
+		Chargement...
 	</text>
-	<button label="" label_selected="" name="buycurrency" tool_tip="Acheter des devises" />
-	<text type="string" length="12" name="TimeText" tool_tip="Heure actuelle (Californie)">
+	<button label="" label_selected="" name="buycurrency" tool_tip="Acheter des devises"/>
+	<text length="12" name="TimeText" tool_tip="Heure actuelle (Californie)" type="string">
 		midi
 	</text>
 	<string name="StatBarDaysOfWeek">
@@ -17,23 +16,22 @@
 	<string name="StatBarMonthsOfYear">
 		January:February:March:April:May:June:July:August:September:October:November:December
 	</string>
-	<button label="" label_selected="" name="scriptout"
-	     tool_tip="Alertes et erreurs de scripts" />
-	<button label="" label_selected="" name="health" tool_tip="Santé" />
-	<text type="string" length="1" name="HealthText" tool_tip="Santé">
-		100%
+	<button label="" label_selected="" name="scriptout" tool_tip="Alertes et erreurs de scripts"/>
+	<button label="" label_selected="" name="health" tool_tip="Santé"/>
+	<text length="1" name="HealthText" tool_tip="Santé" type="string">
+		100 %
 	</text>
-	<button label="" label_selected="" name="fly" tool_tip="Vol interdit" />
-	<button label="" label_selected="" name="build" tool_tip="Construction interdite" />
-	<button label="" label_selected="" name="scripts" tool_tip="Scripts interdits" />
-	<button name="no_fly" tool_tip="Interdiction de voler" />
-	<button name="no_build" tool_tip="Interdiction de construire/rezzer" />
-	<button name="no_scripts" tool_tip="Interdiction d&apos;utiliser des scripts" />
-	<button label="" label_selected="" name="restrictpush" tool_tip="llPushObject interdit" />
-	<button name="status_no_voice" tool_tip="Voix non disponible ici" />
-	<button label="" label_selected="" name="buyland" tool_tip="Acheter cette parcelle" />
-	<line_editor label="Rechercher" name="search_editor" tool_tip="Rechercher dans Second Life" />
-	<button name="search_btn" tool_tip="Rechercher dans Second Life" />
+	<button label="" label_selected="" name="fly" tool_tip="Vol interdit"/>
+	<button label="" label_selected="" name="build" tool_tip="Construction interdite"/>
+	<button label="" label_selected="" name="scripts" tool_tip="Scripts interdits"/>
+	<button name="no_fly" tool_tip="Interdiction de voler"/>
+	<button name="no_build" tool_tip="Interdiction de construire/rezzer"/>
+	<button name="no_scripts" tool_tip="Interdiction d&apos;utiliser des scripts"/>
+	<button label="" label_selected="" name="restrictpush" tool_tip="Pas de bousculades"/>
+	<button name="status_no_voice" tool_tip="Voix non disponible ici"/>
+	<button label="" label_selected="" name="buyland" tool_tip="Acheter cette parcelle"/>
+	<line_editor label="Rechercher" name="search_editor" tool_tip="Rechercher dans Second Life"/>
+	<button name="search_btn" tool_tip="Rechercher dans Second Life"/>
 	<text name="packet_loss_tooltip">
 		Perte de paquets
 	</text>

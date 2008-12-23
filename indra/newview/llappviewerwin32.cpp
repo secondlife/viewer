@@ -85,6 +85,7 @@ LONG WINAPI viewer_windows_exception_handler(struct _EXCEPTION_POINTERS *excepti
 	
     // Translate the signals/exceptions into cross-platform stuff
 	// Windows implementation
+    _tprintf( _T("Entering Windows Exception Handler...\n") );
 	llinfos << "Entering Windows Exception Handler..." << llendl;
 
 	// Make sure the user sees something to indicate that the app crashed.
@@ -92,7 +93,9 @@ LONG WINAPI viewer_windows_exception_handler(struct _EXCEPTION_POINTERS *excepti
 
 	if (LLApp::isError())
 	{
+	    _tprintf( _T("Got another fatal signal while in the error handler, die now!\n") );
 		llwarns << "Got another fatal signal while in the error handler, die now!" << llendl;
+
 		retval = EXCEPTION_EXECUTE_HANDLER;
 		return retval;
 	}
@@ -121,7 +124,28 @@ LONG WINAPI viewer_windows_exception_handler(struct _EXCEPTION_POINTERS *excepti
 	return retval;
 }
 
+// Create app mutex creates a unique global windows object. 
+// If the object can be created it returns true, otherwise
+// it returns false. The false result can be used to determine 
+// if another instance of a second life app (this vers. or later)
+// is running.
+// *NOTE: Do not use this method to run a single instance of the app.
+// This is intended to help debug problems with the cross-platform 
+// locked file method used for that purpose.
+bool create_app_mutex()
+{
+	bool result = true;
+	LPCWSTR unique_mutex_name = L"SecondLifeAppMutex";
+	HANDLE hMutex;
+	hMutex = CreateMutex(NULL, TRUE, unique_mutex_name); 
+	if(GetLastError() == ERROR_ALREADY_EXISTS) 
+	{     
+		result = false;
+	}
+	return result;
+}
 
+//#define DEBUGGING_SEH_FILTER 1
 #if DEBUGGING_SEH_FILTER
 #	define WINMAIN DebuggingWinMain
 #else
@@ -147,6 +171,10 @@ int APIENTRY WINMAIN(HINSTANCE hInstance,
 	LLWinDebug::initExceptionHandler(viewer_windows_exception_handler); 
 	
 	viewer_app_ptr->setErrorHandler(LLAppViewer::handleViewerCrash);
+
+	// Set a debug info flag to indicate if multiple instances are running.
+	bool found_other_instance = !create_app_mutex();
+	gDebugInfo["FoundOtherInstanceAtStartup"] = LLSD::Boolean(found_other_instance);
 
 	bool ok = viewer_app_ptr->init();
 	if(!ok)
@@ -197,6 +225,16 @@ int APIENTRY WINMAIN(HINSTANCE hInstance,
 	}
 	delete viewer_app_ptr;
 	viewer_app_ptr = NULL;
+
+	//start updater
+	if(LLAppViewer::sUpdaterInfo)
+	{
+		_spawnl(_P_NOWAIT, LLAppViewer::sUpdaterInfo->mUpdateExePath.c_str(), LLAppViewer::sUpdaterInfo->mUpdateExePath.c_str(), LLAppViewer::sUpdaterInfo->mParams.str().c_str(), NULL);
+
+		delete LLAppViewer::sUpdaterInfo ;
+		LLAppViewer::sUpdaterInfo = NULL ;
+	}
+
 	return 0;
 }
 
@@ -326,6 +364,17 @@ bool LLAppViewerWin32::cleanup()
 	return result;
 }
 
+bool LLAppViewerWin32::initLogging()
+{
+	// Remove the crash stack log from previous executions.
+	// Since we've started logging a new instance of the app, we can assume 
+	// *NOTE: This should happen before the we send a 'previous instance froze'
+	// crash report, but it must happen after we initialize the DirUtil.
+	LLWinDebug::clearCrashStacks();
+
+	return LLAppViewer::initLogging();
+}
+
 void LLAppViewerWin32::initConsole()
 {
 	// pop up debug console
@@ -407,7 +456,7 @@ bool LLAppViewerWin32::initHardwareTest()
 		LLSplashScreen::update(splash_msg.str());
 	}
 
-	if (!LLWinDebug::checkExceptionHandler())
+	if (!restoreErrorTrap())
 	{
 		LL_WARNS("AppInit") << " Someone took over my exception handler (post hardware probe)!" << LL_ENDL;
 	}
@@ -447,36 +496,39 @@ bool LLAppViewerWin32::initParseCommandLine(LLCommandLineParser& clp)
 	return true;
 }
 
+bool LLAppViewerWin32::restoreErrorTrap()
+{
+	return LLWinDebug::checkExceptionHandler();
+}
+
 void LLAppViewerWin32::handleSyncCrashTrace()
 {
 	// do nothing
 }
 
-void LLAppViewerWin32::handleCrashReporting()
+void LLAppViewerWin32::handleCrashReporting(bool reportFreeze)
 {
-	// Windows only behaivor. Spawn win crash reporter.
-	std::string exe_path = gDirUtilp->getAppRODataDir();
+	const char* logger_name = "win_crash_logger.exe";
+	std::string exe_path = gDirUtilp->getExecutableDir();
 	exe_path += gDirUtilp->getDirDelimiter();
-	exe_path += "win_crash_logger.exe";
+	exe_path += logger_name;
 
-	std::string arg_string = "-user ";
-	arg_string += LLViewerLogin::getInstance()->getGridLabel();
-	
-	S32 cb = gCrashSettings.getS32(CRASH_BEHAVIOR_SETTING);
-	switch(cb)
+	const char* arg_str = logger_name;
+
+	// *NOTE:Mani - win_crash_logger.exe no longer parses command line options.
+	if(reportFreeze)
 	{
-	case CRASH_BEHAVIOR_ASK:
-	default:
-		arg_string += " -dialog ";
-		_spawnl(_P_NOWAIT, exe_path.c_str(), exe_path.c_str(), arg_string.c_str(), NULL);
-		break;
-
-	case CRASH_BEHAVIOR_ALWAYS_SEND:
-		_spawnl(_P_NOWAIT, exe_path.c_str(), exe_path.c_str(), arg_string.c_str(), NULL);
-		break;
-
-	case CRASH_BEHAVIOR_NEVER_SEND:
-		break;
+		// Spawn crash logger.
+		// NEEDS to wait until completion, otherwise log files will get smashed.
+		_spawnl(_P_WAIT, exe_path.c_str(), arg_str, NULL);
+	}
+	else
+	{
+		S32 cb = gCrashSettings.getS32(CRASH_BEHAVIOR_SETTING);
+		if(cb != CRASH_BEHAVIOR_NEVER_SEND)
+		{
+			_spawnl(_P_NOWAIT, exe_path.c_str(), arg_str, NULL);
+		}
 	}
 }
 

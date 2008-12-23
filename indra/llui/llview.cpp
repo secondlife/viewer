@@ -43,7 +43,7 @@
 #include "llfocusmgr.h"
 #include "llrect.h"
 #include "llstl.h"
-#include "llui.h"	// colors saved settings
+#include "llui.h"
 #include "lluictrl.h"
 #include "llwindow.h"
 #include "v3color.h"
@@ -713,25 +713,38 @@ BOOL LLView::handleToolTip(S32 x, S32 y, std::string& msg, LLRect* sticky_rect_s
 			&& viewp->getEnabled()
 			&& viewp->handleToolTip(local_x, local_y, msg, sticky_rect_screen ))
 		{
+			// child provided a tooltip, just return
+			if (!msg.empty()) return TRUE;
+
+			// otherwise, one of our children ate the event so don't traverse
+			// siblings however, our child did not actually provide a tooltip
+            // so we might want to
 			handled = TRUE;
 			break;
 		}
 	}
 
+	// get our own tooltip
 	tool_tip = mToolTipMsg.getString();
 	if (
-		LLUI::sShowXUINames &&
-		(tool_tip.find(".xml", 0) == std::string::npos) && 
-		(mName.find("Drag", 0) == std::string::npos))
+		LLUI::sShowXUINames 
+		&& (tool_tip.find(".xml", 0) == std::string::npos) 
+		&& (mName.find("Drag", 0) == std::string::npos))
 	{
 		tool_tip = getShowNamesToolTip();
 	}
 
 	BOOL show_names_text_box = LLUI::sShowXUINames && dynamic_cast<LLTextBox*>(this) != NULL;
 
-	if( !handled && (blockMouseEvent(x, y) || show_names_text_box))
+	// don't allow any siblings to handle this event
+	// even if we don't have a tooltip
+	if (getMouseOpaque() || show_names_text_box)
 	{
+		handled = TRUE;
+	}
 
+	if(!tool_tip.empty())
+	{
 		msg = tool_tip;
 
 		// Convert rect local to screen coordinates
@@ -2063,139 +2076,6 @@ LLView* LLView::findSnapRect(LLRect& new_rect, const LLCoordGL& mouse_dir,
 
 	new_rect.translate(delta_x, delta_y);
 	return snap_view;
-
-	//// If the view is near the edge of its parent, snap it to
-	//// the edge.
-	//LLRect test_rect = getSnapRect();
-	//LLRect view_rect = getSnapRect();
-	//test_rect.stretch(padding);
-	//view_rect.stretch(padding);
-
-	//S32 x_threshold = threshold;
-	//S32 y_threshold = threshold;
-
-	//LLRect parent_local_snap_rect = mParentView->getLocalSnapRect();
-
-	//if (snap_type == SNAP_PARENT || snap_type == SNAP_PARENT_AND_SIBLINGS)
-	//{
-	//	if (llabs(parent_local_snap_rect.mRight - test_rect.mRight) <= x_threshold && (parent_local_snap_rect.mRight - test_rect.mRight) * mouse_dir.mX >= 0)
-	//	{
-	//		view_rect.translate(parent_local_snap_rect.mRight - view_rect.mRight, 0);
-	//		snap_view = mParentView;
-	//		x_threshold = llabs(parent_local_snap_rect.mRight - test_rect.mRight);
-	//	}
-
-	//	if (llabs(test_rect.mLeft - parent_local_snap_rect.mLeft) <= x_threshold && test_rect.mLeft * mouse_dir.mX <= 0)
-	//	{
-	//		view_rect.translate(parent_local_snap_rect.mLeft - view_rect.mLeft, 0);
-	//		snap_view = mParentView;
-	//		x_threshold = llabs(test_rect.mLeft - parent_local_snap_rect.mLeft);
-	//	}
-
-	//	if (llabs(test_rect.mBottom - parent_local_snap_rect.mBottom) <= y_threshold && test_rect.mBottom * mouse_dir.mY <= 0)
-	//	{
-	//		view_rect.translate(0, parent_local_snap_rect.mBottom - view_rect.mBottom);
-	//		snap_view = mParentView;
-	//		y_threshold = llabs(test_rect.mBottom - parent_local_snap_rect.mBottom);
-	//	}
-
-	//	if (llabs(parent_local_snap_rect.mTop - test_rect.mTop) <= y_threshold && (parent_local_snap_rect.mTop - test_rect.mTop) * mouse_dir.mY >= 0)
-	//	{
-	//		view_rect.translate(0, parent_local_snap_rect.mTop - view_rect.mTop);
-	//		snap_view = mParentView;
-	//		y_threshold = llabs(parent_local_snap_rect.mTop - test_rect.mTop);
-	//	}
-	//}
-	//if (snap_type == SNAP_SIBLINGS || snap_type == SNAP_PARENT_AND_SIBLINGS)
-	//{
-	//	for ( child_list_const_iter_t child_it = mParentView->getChildList()->begin();
-	//		  child_it != mParentView->getChildList()->end(); ++child_it)
-	//	{
-	//		LLView* siblingp = *child_it;
-
-	//		// skip non-snappable views (self, invisible views, etc)
-	//		if (!canSnapTo(siblingp)) continue;
-
-	//		LLRect sibling_rect = siblingp->getSnapRect();
-
-	//		if (llabs(test_rect.mRight - sibling_rect.mLeft) <= x_threshold 
-	//			&& (test_rect.mRight - sibling_rect.mLeft) * mouse_dir.mX <= 0)
-	//		{
-	//			view_rect.translate(sibling_rect.mLeft - view_rect.mRight, 0);
-	//			if (llabs(test_rect.mTop - sibling_rect.mTop) <= y_threshold && (test_rect.mTop - sibling_rect.mTop) * mouse_dir.mY <= 0)
-	//			{
-	//				view_rect.translate(0, sibling_rect.mTop - test_rect.mTop);
-	//				y_threshold = llabs(test_rect.mTop - sibling_rect.mTop);
-	//			}
-	//			else if (llabs(test_rect.mBottom - sibling_rect.mBottom) <= y_threshold && (test_rect.mBottom - sibling_rect.mBottom) * mouse_dir.mY <= 0)
-	//			{
-	//				view_rect.translate(0, sibling_rect.mBottom - test_rect.mBottom);
-	//				y_threshold = llabs(test_rect.mBottom - sibling_rect.mBottom);	
-	//			}
-	//			snap_view = siblingp;
-	//			x_threshold = llabs(test_rect.mRight - sibling_rect.mLeft);
-	//		}
-
-	//		if (llabs(test_rect.mLeft - sibling_rect.mRight) <= x_threshold 
-	//			&& (test_rect.mLeft - sibling_rect.mRight) * mouse_dir.mX <= 0)
-	//		{
-	//			view_rect.translate(sibling_rect.mRight - view_rect.mLeft, 0);
-	//			if (llabs(test_rect.mTop - sibling_rect.mTop) <= y_threshold && (test_rect.mTop - sibling_rect.mTop) * mouse_dir.mY <= 0)
-	//			{
-	//				view_rect.translate(0, sibling_rect.mTop - test_rect.mTop);
-	//				y_threshold = llabs(test_rect.mTop - sibling_rect.mTop);	
-	//			}
-	//			else if (llabs(test_rect.mBottom - sibling_rect.mBottom) <= y_threshold && (test_rect.mBottom - sibling_rect.mBottom) * mouse_dir.mY <= 0)
-	//			{
-	//				view_rect.translate(0, sibling_rect.mBottom - test_rect.mBottom);
-	//				y_threshold = llabs(test_rect.mBottom - sibling_rect.mBottom);	
-	//			}
-	//			snap_view = siblingp;
-	//			x_threshold = llabs(test_rect.mLeft - sibling_rect.mRight);
-	//		}
-
-	//		if (llabs(test_rect.mBottom - sibling_rect.mTop) <= y_threshold 
-	//			&& (test_rect.mBottom - sibling_rect.mTop) * mouse_dir.mY <= 0)
-	//		{
-	//			view_rect.translate(0, sibling_rect.mTop - view_rect.mBottom);
-	//			if (llabs(test_rect.mLeft - sibling_rect.mLeft) <= x_threshold && (test_rect.mLeft - sibling_rect.mLeft) * mouse_dir.mX <= 0)
-	//			{
-	//				view_rect.translate(sibling_rect.mLeft - test_rect.mLeft, 0);
-	//				x_threshold = llabs(test_rect.mLeft - sibling_rect.mLeft);
-	//			}
-	//			else if (llabs(test_rect.mRight - sibling_rect.mRight) <= x_threshold && (test_rect.mRight - sibling_rect.mRight) * mouse_dir.mX <= 0)
-	//			{
-	//				view_rect.translate(sibling_rect.mRight - test_rect.mRight, 0);
-	//				x_threshold = llabs(test_rect.mRight - sibling_rect.mRight);
-	//			}
-	//			snap_view = siblingp;
-	//			y_threshold = llabs(test_rect.mBottom - sibling_rect.mTop);
-	//		}
-
-	//		if (llabs(test_rect.mTop - sibling_rect.mBottom) <= y_threshold 
-	//			&& (test_rect.mTop - sibling_rect.mBottom) * mouse_dir.mY <= 0)
-	//		{
-	//			view_rect.translate(0, sibling_rect.mBottom - view_rect.mTop);
-	//			if (llabs(test_rect.mLeft - sibling_rect.mLeft) <= x_threshold && (test_rect.mLeft - sibling_rect.mLeft) * mouse_dir.mX <= 0)
-	//			{
-	//				view_rect.translate(sibling_rect.mLeft - test_rect.mLeft, 0);
-	//				x_threshold = llabs(test_rect.mLeft - sibling_rect.mLeft);
-	//			}
-	//			else if (llabs(test_rect.mRight - sibling_rect.mRight) <= x_threshold && (test_rect.mRight - sibling_rect.mRight) * mouse_dir.mX <= 0)
-	//			{
-	//				view_rect.translate(sibling_rect.mRight - test_rect.mRight, 0);
-	//				x_threshold = llabs(test_rect.mRight - sibling_rect.mRight);
-	//			}
-	//			snap_view = siblingp;
-	//			y_threshold = llabs(test_rect.mTop - sibling_rect.mBottom);
-	//		}
-	//	}
-	//}
-
-	//// shrink actual view rect back down
-	//view_rect.stretch(-padding);
-	//new_rect = view_rect;
-	//return snap_view;
 }
 
 LLView*	LLView::findSnapEdge(S32& new_edge_val, const LLCoordGL& mouse_dir, ESnapEdge snap_edge, ESnapType snap_type, S32 threshold, S32 padding)

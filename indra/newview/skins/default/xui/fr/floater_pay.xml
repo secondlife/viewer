@@ -1,22 +1,22 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Give Money" title="">
-	<button label="1 $L" label_selected="1 $L" name="fastpay 1" />
-	<button label="5 $L" label_selected="5 $L" name="fastpay 5" />
-	<button label="10 $L" label_selected="10 $L" name="fastpay 10" />
-	<button label="20 $L" label_selected="20 $L" name="fastpay 20" />
-	<button label="Payer" label_selected="Payer" name="pay btn" />
-	<button label="Annuler" label_selected="Annuler" name="cancel btn" />
-	<text type="string" length="1" name="payee_label">
+	<button label="1 L$" label_selected="1 L$" name="fastpay 1"/>
+	<button label="5 L$" label_selected="5 L$" name="fastpay 5"/>
+	<button label="10 L$" label_selected="10 L$" name="fastpay 10"/>
+	<button label="20 L$" label_selected="20 L$" name="fastpay 20"/>
+	<button label="Payer" label_selected="Payer" name="pay btn"/>
+	<button label="Annuler" label_selected="Annuler" name="cancel btn"/>
+	<text length="1" name="payee_label" type="string" left="5">
 		Payer :
 	</text>
-	<text type="string" length="1" name="payee_name">
+	<text length="1" name="payee_name" type="string">
 		[FIRST] [LAST]
 	</text>
-	<text type="string" length="1" name="fastpay text">
+	<text length="1" name="fastpay text" type="string">
 		Paiement rapide :
 	</text>
-	<text type="string" length="1" name="amount text" left="4">
+	<text left="4" length="1" name="amount text" type="string">
 		Montant :
 	</text>
-	<line_editor left="60" name="amount" width="55" />
+	<line_editor left="60" name="amount" width="55"/>
 </floater>

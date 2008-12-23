@@ -49,7 +49,8 @@ public:
 
 
 protected:
-	virtual void handleCrashReporting(); 
+	virtual bool restoreErrorTrap();
+	virtual void handleCrashReporting(bool reportFreeze); 
 	virtual void handleSyncCrashTrace();
 
 	std::string generateSerialNumber();

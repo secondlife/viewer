@@ -1,23 +1,46 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Snapshot" title="Visualizar foto">
 	<text name="type_label">
-		O que você gostaria de fazer?
+		Instantâneo do destino
 	</text>
 	<radio_group label="Tipo de Foto" name="snapshot_type_radio">
 		<radio_item name="postcard">
-			Enviar um postcard
+			Enviar por email
 		</radio_item>
 		<radio_item name="texture">
-			Upload de uma foto
+			Salvar no seu inventário (L$10)
 		</radio_item>
 		<radio_item name="local">
-			Salvar foto no seu HD
+			Salvar no seu disco rígido
 		</radio_item>
 	</radio_group>
+	<text name="file_size_label">
+		Tamanho do arquivo: [SIZE] KB
+	</text>
+	<button label="Atualizar o Instantâneo" name="new_snapshot_btn"/>
+	<button label="Enviar" name="send_btn"/>
+	<button label="Salvar (L$10)" name="upload_btn"/>
+	<flyout_button label="Salvar" name="save_btn" tool_tip="Salvar imagem em um arquivo">
+		<flyout_button_item name="save_item">
+			Salvar
+		</flyout_button_item>
+		<flyout_button_item name="saveas_item">
+			Salvar como...
+		</flyout_button_item>
+	</flyout_button>
+	<button label="Cancelar" name="discard_btn"/>
+	<button label="Mais &gt;&gt;" name="more_btn" tool_tip="Opções Avançadas"/>
+	<button label="&lt;&lt; Menos" name="less_btn" tool_tip="Opções Avançadas"/>
 	<text name="type_label2">
-		Que tamanho de imagem você precisa?
+		Tamanho
+	</text>
+	<text name="format_label">
+		Formato
 	</text>
 	<combo_box label="Resolução" name="postcard_size_combo">
+		<combo_item name="CurrentWindow">
+			Janela Atual
+		</combo_item>
 		<combo_item name="640x480">
 			640x480
 		</combo_item>
@@ -26,9 +49,6 @@
 		</combo_item>
 		<combo_item name="1024x768">
 			1024x768
-		</combo_item>
-		<combo_item name="CurrentWindow">
-			Janela Atual
 		</combo_item>
 		<combo_item name="Custom">
 			Customizado
@@ -77,9 +97,21 @@
 			Customizado
 		</combo_item>
 	</combo_box>
-	<spinner label="Largura" name="snapshot_width" />
-	<spinner label="Altura" name="snapshot_height" />
-	<slider label="Qualidade da Imagem" name="image_quality_slider" />
+	<combo_box label="Formato" name="local_format_combo">
+		<combo_item name="PNG">
+			PNG
+		</combo_item>
+		<combo_item name="JPEG">
+			JPEG
+		</combo_item>
+		<combo_item name="BMP">
+			BMP
+		</combo_item>
+	</combo_box>
+	<spinner label="Largura" name="snapshot_width"/>
+	<spinner label="Altura" name="snapshot_height"/>
+	<check_box label="Restringir proporções" name="keep_aspect_check"/>
+	<slider label="Qualidade da Imagem" name="image_quality_slider"/>
 	<text name="layer_type_label">
 		Capturar:
 	</text>
@@ -94,18 +126,12 @@
 			Decoração do Objeto
 		</combo_item>
 	</combo_box>
-	<text name="file_size_label">
-		Tamanho do Arquivo: [SIZE]
-	</text>
-	<check_box label="Mostrar interface na Foto" name="ui_check" />
-	<check_box label="Mostrar Objetos HUD na Foto" name="hud_check" />
-	<check_box label="Manter aberto após salvar" name="keep_open_check" />
-	<check_box label="Manter aparência selecionada" name="keep_aspect_check" />
-	<check_box label="Quadro Congelado" name="freeze_frame_check" />
-	<button label="Nova foto" name="new_snapshot_btn" />
-	<check_box label="Auto-snapshot" name="auto_snapshot_check" />
-	<button label="Upload (L$10)" name="upload_btn" />
-	<button label="Enviar" name="send_btn" />
-	<button label="Salvar" name="save_btn" />
-	<button label="Descartar" name="discard_btn" />
+	<check_box label="Mostrar interface na Foto" name="ui_check"/>
+	<check_box label="Mostrar Objetos HUD na Foto" name="hud_check"/>
+	<check_box label="Manter aberto após salvar" name="keep_open_check"/>
+	<check_box label="Quadro Congelado" name="freeze_frame_check"/>
+	<check_box label="Auto-atualizar" name="auto_snapshot_check"/>
+	<string name="unknown">
+		desconhecido
+	</string>
 </floater>

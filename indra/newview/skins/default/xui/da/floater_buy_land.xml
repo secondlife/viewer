@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="buy land" title="K&#248;b Land">
+	<text name="region_name_label">
+		Region:
+	</text>
+	<text name="region_name_text">
+		(ukendt)
+	</text>
+	<text name="estate_name_label">
+		Estate:
+	</text>
+	<text name="estate_name_text">
+		(ukendt)
+	</text>
+	<text name="estate_owner_label">
+		Estate Owner:
+	</text>
+	<text name="estate_owner_text">
+		(ukendt)
+	</text>
+	<text name="resellable_changeable_label">
+		K&#248;bt land i denne region:
+	</text>
+	<text name="resellable_clause">
+		K&#248;bt land i denne region kan eller kan ikke videres&#230;lges.
+	</text>
+	<text name="changeable_clause">
+		kan eller kan ikke samles eller opdeles.
+	</text>
+	<text name="covenant_text">
+		Du skal acceptere Estate betingelserne:
+	</text>
+	<text_editor name="covenant_editor">
+		Indl&#230;ser...
+	</text_editor>
+	<check_box label="Jeg acceptere betingelserne der er beskrevet." name="agree_covenant" />
+	<text name="info_parcel_label">
+		Parcel:
+	</text>
+	<text name="info_parcel">
+		Scotopteryx 138,204
+	</text>
+	<text name="info_size_label">
+		St&#248;rrelse:
+	</text>
+	<text name="info_size">
+		1024 m2
+	</text>
+	<text name="info_price_label">
+		Pris:
+	</text>
+	<text name="info_price">
+		L$ 1500, objekter inkluderet
+	</text>
+	<text name="info_action">
+		K&#248;b af land vil:
+	</text>
+	<text name="error_message">
+		Noget er ikke rigtigt.
+	</text>
+	<button label="G&#229; til hjemmesiden" name="error_web" />
+	<text name="account_action">
+		Opgrader dig til premium medlemsskab.
+	</text>
+	<text name="account_reason">
+		Kun premium medlemmer kan k&#248;be land.
+	</text>
+	<combo_box name="account_level">
+		<combo_item name="US$9.95/month,billedmonthly">
+			US$9.95/md, m&#229;nedlig afregning
+		</combo_item>
+		<combo_item name="US$7.50/month,billedquarterly">
+			US$7.50/md, kvartalsvis afregning
+		</combo_item>
+		<combo_item name="US$6.00/month,billedannually">
+			US$6.00/md, &#229;rlig afregning
+		</combo_item>
+	</combo_box>
+	<text name="land_use_action">
+		For&#248;g dine m&#229;nedlige arealanvendelse gebyrer til US $ 40/month.
+	</text>
+	<text name="land_use_reason">
+		Du har 1.309 kvadratmeter jord. 
+Dette parcel er p&#229; 512 kvadratmeter jord.
+	</text>
+	<text name="purchase_action">
+		Betal Joe Resident L $ 4000 dette areal
+	</text>
+	<text name="currency_reason">
+		Du har L$2,100.
+	</text>
+	<text name="currency_action">
+		K&#248;b yderligere L$
+	</text>
+	<line_editor name="currency_amt">
+		1000
+	</line_editor>
+	<text name="currency_est">
+		for omkring US$ [AMOUNT2]
+	</text>
+	<text name="currency_balance">
+		Du har L$2,100.
+	</text>
+	<check_box label="Fjern [AMOUNT] kvadratmeter af bidrag fra gruppe."
+	     name="remove_contribution" />
+	<button label="K&#248;b" name="buy_btn" />
+	<button label="Annuller" name="cancel_btn" />
+	<string name="can_resell">
+		Kan videres&#230;lges.
+	</string>
+	<string name="can_not_resell">
+		Kan ikke videres&#230;lges.
+	</string>
+	<string name="can_change">
+		Kan samles eller opdeles.
+	</string>
+	<string name="can_not_change">
+		Kan ikke samles eller opdeles.
+	</string>
+	<string name="cant_buy_for_group">
+		Du har ikke tilladelse til at k&#248;be land for din aktive gruppe.
+	</string>
+	<string name="no_land_selected">
+		Intet land er valgt.
+	</string>
+	<string name="multiple_parcels_selected">
+		Flere forskellige parceller er valgt. 
+Pr&#248;v at v&#230;lge et mindre omr&#229;de.
+	</string>
+	<string name="no_permission">
+		Du har ikke tilladelse til at k&#248;be jord for din aktive gruppe.
+	</string>
+	<string name="parcel_not_for_sale">
+		Det udvalgte parcel er ikke til salg.
+	</string>
+	<string name="group_already_owns">
+		Gruppen ejer allerede parcellet.
+	</string>
+	<string name="you_already_own">
+		Du ejer allerede parcellet.
+	</string>
+	<string name="set_to_sell_to_other">
+		Det udvalgte parcel er sat til salg til en anden.
+	</string>
+	<string name="no_public_land">
+		Det valgte omr&#229;de har ingen offentlige arealer.
+	</string>
+	<string name="not_owned_by_you">
+		Jord, der ejes af en anden bruger er valgt. 
+Pr&#248;v at v&#230;lge et mindre omr&#229;de.
+	</string>
+	<string name="processing">
+		Forarbejder dit k&#248;b...
+ 
+(Dette kan tage et minut eller to.)
+	</string>
+	<string name="fetching_error">
+		Der er sket en fejl under hentning af jord k&#248;bs oplysninger.
+	</string>
+	<string name="buying_will">
+		K&#248;b af dette areal vil:
+	</string>
+	<string name="buying_for_group">
+		K&#248;b jord til gruppe:
+	</string>
+	<string name="cannot_buy_now">
+		Kan ikke k&#248;be nu:
+	</string>
+	<string name="not_for_sale">
+		Not for sale:
+	</string>
+	<string name="none_needed">
+		ikke n&#248;dvendigt
+	</string>
+	<string name="must_upgrade">
+		Din konto skal v&#230;re opgraderet for at eje jord.
+	</string>
+	<string name="cant_own_land">
+		Din konto kan eje jord.
+	</string>
+	<string name="land_holdings">
+		Du har [BUYER] kvadratmeter jord.
+	</string>
+	<string name="pay_to_for_land">
+		Betal L$ [AMOUNT] til [SELLER] for dette stykke jord
+	</string>
+	<string name="buy_for_US">
+		K&#248;b L$ [AMOUNT] for omkring US$ [AMOUNT2] ,
+	</string>
+	<string name="parcel_meters">
+		Dette parcel er  [AMOUNT] kvadratmeter.
+	</string>
+	<string name="premium_land">
+		Dette stykke jord er premium, og vil t&#230;lle som [AMOUNT] kvadratmeter.
+	</string>
+	<string name="discounted_land">
+		Dette stykke jord er p&#229; tilbud, og vil t&#230;lle som [AMOUNT] kvadratmeter.
+	</string>
+	<string name="meters_supports_object">
+		[AMOUNT] m2
+indeholder [AMOUNT2] objekter
+	</string>
+	<string name="sold_with_objects">
+		solgt med objekter
+	</string>
+	<string name="insufficient_land_credits">
+		Gruppen [GROUP] skal bruge nok tildelt jord brugs 
+kredit for at d&#230;kke dette parcel f&#248;r k&#248;bet vil blive 
+gennemf&#248;rt.
+	</string>
+	<string name="have_enough_lindens">
+		Du har L$ [AMOUNT], hvilket er nok til at k&#248;be denne jord.
+	</string>
+	<string name="not_enough_lindens">
+		Du har kun L$ [AMOUNT], og har brug for yderligere L$ [AMOUNT2].
+	</string>
+	<string name="balance_left">
+		Efter k&#248;bet, vil du have L$ [AMOUNT] tilbage.
+	</string>
+	<string name="balance_needed">
+		Du skal k&#248;be mindst L$ [AMOUNT] for at have r&#229;d til denne jord.
+	</string>
+	<string name="no_parcel_selected">
+		(intet parcel er valgt)
+	</string>
+	<string name="buy_currency">
+		K&#248;b L$ [LINDENS] for omkring US$ [USD]
+	</string>
+</floater>

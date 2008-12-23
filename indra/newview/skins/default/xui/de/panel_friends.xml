@@ -4,7 +4,7 @@
 		Mehrere Freunde...
 	</string>
 	<scroll_list name="friend_list"
-	     tool_tip="Halten Sie die Tasten &apos;Umschalt&apos; oder &apos;Strg&apos; gedrückt, um durch Klicken mehrere Freunde auszuwählen.">
+	     tool_tip="Halten Sie die Tasten „Umschalt“ oder „Strg“ gedrückt, um durch Klicken mehrere Freunde auszuwählen.">
 		<column name="icon_online_status" tool_tip="Online-Status" />
 		<column label="Name" name="friend_name" tool_tip="Name" />
 		<column name="icon_visible_online" tool_tip="Freund kann sehen, wenn Sie online sind" />

@@ -1,51 +1,54 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Terra L$" name="land_money_tab">
-	<text name="help_text">
+	<string name="help_text">
 		Lotes pertencentes ao grupo são listadas com detalhes de contribuição. Um aviso aparece até que o total de Terras em Uso seja menor ou igual ao Total de Contribuições. As abas de Planejamento, Detalhes e Vendas fornecem informações sobre as finanças do grupo.
-	</text>
-	<button label="?" name="help_button" />
-	<text name="cant_view_group_land_text">
+	</string>
+	<button label="?" name="help_button"/>
+	<string name="cant_view_group_land_text">
 		Você não tem permissão para ver as terras pertencentes ao grupo.
-	</text>
-	<text name="cant_view_group_accounting_text">
+	</string>
+	<string name="cant_view_group_accounting_text">
 		Você não tem permissão para ver as informações sobre as contas do grupo.
-	</text>
+	</string>
+	<string name="loading_txt">
+		Carregando...
+	</string>
 	<text name="group_land_heading">
 		Terra percentence ao grupo
 	</text>
 	<scroll_list name="group_parcel_list">
-		<column label="Nome do Lote" name="name" />
-		<column label="Região" name="location" />
-		<column label="Área" name="area" />
-		<column label="" name="hidden" />
+		<column label="Nome do Lote" name="name"/>
+		<column label="Região" name="location"/>
+		<column label="Área" name="area"/>
+		<column label="" name="hidden"/>
 	</scroll_list>
-	<button label="Mostrar no Mapa" label_selected="Mostrar no Mapa" name="map_button" />
+	<button label="Mostrar no Mapa" label_selected="Mostrar no Mapa" name="map_button"/>
 	<text name="total_contributed_land_label">
 		Contribuição Total:
 	</text>
 	<text name="total_contributed_land_value">
-		0 metros quadrados
+		[AREA] m2
 	</text>
 	<text name="total_land_in_use_label">
 		Total de Terra em Uso:
 	</text>
 	<text name="total_land_in_use_value">
-		0 metros quadrados
+		[AREA] m2
 	</text>
 	<text name="land_available_label">
 		Terra Disponível:
 	</text>
 	<text name="land_available_value">
-		0 metros quadrados
+		[AREA] m2
 	</text>
 	<text name="your_contribution_label">
 		Sua Contribuição:
 	</text>
-	<text name="your_contribution_max_value_append">
-		metros quadrados
-	</text>
+	<string name="land_contrib_error">
+		Não é possível definir sua contribuição para o terreno.
+	</string>
 	<text name="your_contribution_max_value">
-		(aguardado)
+		m2 ([AMOUNT] máxima)
 	</text>
 	<text name="group_over_limit_text">
 		Membros do grupo precisam contribuir com mais créditos de Terra para garantir a terra em uso.
@@ -54,28 +57,19 @@
 		Grupo L$
 	</text>
 	<tab_container name="group_money_tab_container">
-		<panel label="Planejamento" name="group_money_planning_tab">
-			<text_editor name="group_money_planning_text">
-				Computando...
-			</text_editor>
-		</panel>
 		<panel label="Detalhes" name="group_money_details_tab">
 			<text_editor name="group_money_details_text">
 				Computando...
 			</text_editor>
-			<button label="&lt; Cedo" label_selected="&lt; Cedo" name="earlier_details_button"
-			     tool_tip="Voltar no Tempo" />
-			<button label="Tarde &gt;" label_selected="Tarde &gt;" name="later_details_button"
-			     tool_tip="Adiantar o Tempo" />
+			<button label="&lt; Cedo" label_selected="&lt; Cedo" name="earlier_details_button" tool_tip="Voltar no Tempo"/>
+			<button label="Tarde &gt;" label_selected="Tarde &gt;" name="later_details_button" tool_tip="Adiantar o Tempo"/>
 		</panel>
 		<panel label="Vendas" name="group_money_sales_tab">
 			<text_editor name="group_money_sales_text">
 				Computando...
 			</text_editor>
-			<button label="&lt; Mais Cedo" label_selected="&lt; Mais Cedo"
-			     name="earlier_sales_button" tool_tip="Voltar no Tempo" />
-			<button label="Mais Tarde" label_selected="Mais Tarde" name="later_sales_button"
-			     tool_tip="Adiantar o Tempo" />
+			<button label="&lt; Mais Cedo" label_selected="&lt; Mais Cedo" name="earlier_sales_button" tool_tip="Voltar no Tempo"/>
+			<button label="Mais Tarde" label_selected="Mais Tarde" name="later_sales_button" tool_tip="Adiantar o Tempo"/>
 		</panel>
 	</tab_container>
 </panel>

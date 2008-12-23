@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel label="Grundstück" name="Estate">
 	<text name="estate_help_text">
-		Änderungen auf dieser Registerkarte wirken sich auf alle Regionen auf dem Grundstück aus.
+		Änderungen auf dieser Registerkarte wirken sich
+auf alle Regionen auf dem Grundstück aus.
 	</text>
 	<text name="estate_text">
 		Grundstück:

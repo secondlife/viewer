@@ -1,21 +1,45 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <multi_floater name="im_floater" title="Mensagem Instantânea">
-	<text name="only_user_message">
+	<string name="only_user_message">
 		Você é o único usuário desta sessão.
-	</text>
-	<text name="offline_message">
+	</string>
+	<string name="offline_message">
 		[FIRST] [LAST] está offline.
-	</text>
-	<text name="generic_request_error">
+	</string>
+	<string name="invite_message">
+		Clique no botão [BUTTON NAME] para aceitar/ conectar para esse pate- papo em voz.
+	</string>
+	<string name="muted_message">
+		Você emudeceu este residente. Enviar uma mensagem vai automaticamente reativá-lo novamente .
+	</string>
+	<string name="generic_request_error">
 		Erro na requisição, por favor, tente novamente.
-	</text>
-	<text name="insufficient_perms_error">
+	</string>
+	<string name="insufficient_perms_error">
 		Você não tem permissões suficientes.
-	</text>
-	<text name="user_no_help">
-		O usuário requisitado não está mais nessa sessão de ajuda.
-	</text>
-	<text name="removed_from_group">
+	</string>
+	<string name="session_does_not_exist_error">
+		A sessão deixou de existir
+	</string>
+	<string name="no_ability_error">
+		Você não possui esta habilidade.
+	</string>
+	<string name="not_a_mod_error">
+		Você não é um moderador de sessão.
+	</string>
+	<string name="muted_error">
+		Moderador do grupo desabilitou seu bate-papo em texto.
+	</string>
+	<string name="add_session_event">
+		Não foi possível adicionar usuários na sessão de bate-papo com [RECIPIENT].
+	</string>
+	<string name="message_session_event">
+		Não foi possível enviar sua mensagem na sessão de bate- papo com [RECIPIENT].
+	</string>
+	<string name="removed_from_group">
 		Você foi removido do grupo.
-	</text>
+	</string>
+	<string name="close_on_no_ability">
+		Você não possui mais a habilidade de estar na sessão de bate- papo.
+	</string>
 </multi_floater>

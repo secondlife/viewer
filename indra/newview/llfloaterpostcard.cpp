@@ -245,7 +245,7 @@ void LLFloaterPostcard::onClickSend(void* data)
 		std::string from(self->childGetValue("from_form").asString());
 		std::string to(self->childGetValue("to_form").asString());
 		
-		boost::regex emailFormat("[A-Za-z0-9.%+-_]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}");
+		boost::regex emailFormat("[A-Za-z0-9.%+-_]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}(,[ \t]*[A-Za-z0-9.%+-_]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,})*");
 		
 		if (to.empty() || !boost::regex_match(to, emailFormat))
 		{

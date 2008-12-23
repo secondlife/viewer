@@ -1,42 +1,20 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Animation Preview" title="">
 	<text name="name_label">
 		Name:
 	</text>
-	<line_editor name="name_form" />
+	<line_editor name="name_form"/>
 	<text name="description_label">
 		Beschreibung:
 	</text>
-	<spinner label="Priorität" name="priority"
-	     tool_tip="Steuert, welche Animationen von dieser Animation überschrieben werden können." />
-	<text name="preview_label" width="97">
-		Vorschau während:
-	</text>
-	<combo_box label="" left_delta="107" name="preview_base_anim"
-	     tool_tip="Use this to test your animation behavior while your avatar performs common actions.">
-		<combo_item name="Standing">
-			Stehend
-		</combo_item>
-		<combo_item name="Walking">
-			Geht
-		</combo_item>
-		<combo_item name="Sitting">
-			Sitzt
-		</combo_item>
-		<combo_item name="Flying">
-			Fliegend
-		</combo_item>
-	</combo_box>
-	<check_box label="Schleife" name="loop_check" tool_tip="Erzeugt eine Animationsschleife." bottom_delta="-18" />
-	<spinner label="In (%)" name="loop_in_point"
-	     tool_tip="Anfang einer Animationsschleife festlegen." />
-	<spinner label="Aus (%)" name="loop_out_point"
-	     tool_tip="Ende einer Animationsschleife festlegen." />
+	<spinner label="Priorität" name="priority" tool_tip="Steuert, welche Animationen von dieser Animation überschrieben werden können."/>
+	<check_box bottom_delta="-18" label="Schleife" name="loop_check" tool_tip="Erzeugt eine Animationsschleife."/>
+	<spinner label="In (%)" name="loop_in_point" tool_tip="Anfang einer Animationsschleife festlegen."/>
+	<spinner label="Aus (%)" name="loop_out_point" tool_tip="Ende einer Animationsschleife festlegen."/>
 	<text name="hand_label">
 		Handhaltung
 	</text>
-	<combo_box label="" name="hand_pose_combo"
-	     tool_tip="Controls what hands do during animation.">
+	<combo_box label="" name="hand_pose_combo" tool_tip="Steuert während der Animation die Bewegung der Hände.">
 		<combo_item name="Spread">
 			Dehnen
 		</combo_item>
@@ -80,10 +58,9 @@
 	<text name="emote_label">
 		Ausdruck
 	</text>
-	<combo_box label="" name="emote_combo"
-	     tool_tip="Controls what face does during animation.">
+	<combo_box label="" name="emote_combo" tool_tip="Steuert Gesichtsregungen während der Animation.">
 		<combo_item name="[None]">
-			[None]
+			[Keine]
 		</combo_item>
 		<combo_item name="Aaaaah">
 			Aaaaah
@@ -119,7 +96,7 @@
 			Lachen
 		</combo_item>
 		<combo_item name="Plllppt">
-			Plllppt
+			Bäääh
 		</combo_item>
 		<combo_item name="Repulsed">
 			Zurückgestoßen
@@ -143,31 +120,46 @@
 			Sorgenvoll
 		</combo_item>
 	</combo_box>
-	<spinner label="Eingang glätten (s)" name="ease_in_time"
-	     tool_tip="Einblendungsgeschwindigkeit von Animationen (in Sekunden)." label_width="105" width="175"  />
-	<spinner label="Ausgang glätten (s)" name="ease_out_time"
-	     tool_tip="Ausblendungsgeschwindigkeit von Animationen (in Sekunden)." left="10" bottom_delta="-20" label_width="105" width="175" />
-	<button label="" name="play_btn" tool_tip="Animation stoppen/wiedergeben." bottom_delta="-32" />
-	<button label="" name="stop_btn" tool_tip="Animation anhalten" />
-	<slider label="" name="playback_slider" />
+	<text name="preview_label" width="97">
+		Vorschau während:
+	</text>
+	<combo_box label="" left_delta="107" name="preview_base_anim" tool_tip="Hiermit können Sie das Verhalten Ihres Avatars testen, während Ihr Avatar normale Bewegungen ausführt.">
+		<combo_item name="Standing">
+			Stehend
+		</combo_item>
+		<combo_item name="Walking">
+			Geht
+		</combo_item>
+		<combo_item name="Sitting">
+			Sitzt
+		</combo_item>
+		<combo_item name="Flying">
+			Fliegend
+		</combo_item>
+	</combo_box>
+	<spinner label="Eingang glätten (s)" label_width="105" name="ease_in_time" tool_tip="Einblendungsgeschwindigkeit von Animationen (in Sekunden)." width="175"/>
+	<spinner bottom_delta="-20" label="Ausgang glätten (s)" label_width="105" left="10" name="ease_out_time" tool_tip="Ausblendungsgeschwindigkeit von Animationen (in Sekunden)." width="175"/>
+	<button bottom_delta="-32" label="" name="play_btn" tool_tip="Animation stoppen/wiedergeben."/>
+	<button label="" name="stop_btn" tool_tip="Animation anhalten"/>
+	<slider label="" name="playback_slider"/>
 	<text name="bad_animation_text">
 		Animationsdatei konnte nicht gelesen werden.
-	
-	Wir empfehlen exportierte BVH-Dateien aus Poser 4.
+
+Wir empfehlen exportierte BVH-Dateien aus Poser 4.
 	</text>
-	<button label="Abbrechen" name="cancel_btn" />
-	<button label="Hochladen ([AMOUNT] L$)" name="ok_btn" />
-	<text name="failed_to_initialize">
+	<button label="Abbrechen" name="cancel_btn"/>
+	<button label="Hochladen ([AMOUNT] L$)" name="ok_btn"/>
+	<string name="failed_to_initialize">
 		Bewegung konnte nicht initialisiert werden
-	</text>
-	<text name="anim_too_long">
+	</string>
+	<string name="anim_too_long">
 		Animationsdatei ist [LENGTH] Sekunden lang.
 
 Maximal erlaubt sind [MAX_LENGTH] Sekunden.
-	</text>
-	<text name="failed_file_read">
+	</string>
+	<string name="failed_file_read">
 		Animationsdatei konnte nicht gelesen werden.
 
 [STATUS]
-	</text>
+	</string>
 </floater>

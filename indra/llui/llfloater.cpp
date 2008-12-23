@@ -544,6 +544,7 @@ void LLFloater::close(bool app_quitting)
 		if (getHost())
 		{
 			((LLMultiFloater*)getHost())->removeFloater(this);
+			gFloaterView->addChild(this);
 		}
 
 		if (getSoundFlags() != SILENT
@@ -1318,8 +1319,8 @@ void LLFloater::onClickEdit(void *userdata)
 	self->mEditing = self->mEditing ? FALSE : TRUE;
 }
 
-// static
-void LLFloater::closeFocusedFloater()
+// static 
+LLFloater* LLFloater::getClosableFloaterFromFocus()
 {
 	LLFloater* focused_floater = NULL;
 
@@ -1336,10 +1337,32 @@ void LLFloater::closeFocusedFloater()
 	if (iter == sFloaterMap.end())
 	{
 		// nothing found, return
-		return;
+		return NULL;
 	}
 
-	focused_floater->close();
+	// The focused floater may not be closable,
+	// Find and close a parental floater that is closeable, if any.
+	for(LLFloater* floater_to_close = focused_floater; 
+		NULL != floater_to_close; 
+		floater_to_close = gFloaterView->getParentFloater(floater_to_close))
+	{
+		if(floater_to_close->isCloseable())
+		{
+			return floater_to_close;
+		}
+	}
+
+	return NULL;
+}
+
+// static
+void LLFloater::closeFocusedFloater()
+{
+	LLFloater* floater_to_close = LLFloater::getClosableFloaterFromFocus();
+	if(floater_to_close)
+	{
+		floater_to_close->close();
+	}
 
 	// if nothing took focus after closing focused floater
 	// give it to next floater (to allow closing multiple windows via keyboard in rapid succession)

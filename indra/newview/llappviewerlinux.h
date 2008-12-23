@@ -61,8 +61,9 @@ public:
 
 protected:
 	virtual bool beingDebugged();
-
-	virtual void handleCrashReporting();
+	
+	virtual bool restoreErrorTrap();
+	virtual void handleCrashReporting(bool reportFreeze);
 	virtual void handleSyncCrashTrace();
 
 	virtual bool initLogging();

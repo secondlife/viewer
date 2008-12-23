@@ -53,7 +53,7 @@
 		<panel label="スキン" name="Skin">
 			<button label="スキンの色" label_selected="スキンの色" name="Skin Color" />
 			<button label="顔の細部" label_selected="顔の細部" name="Face Detail" />
-			<button label="メイクアップ" label_selected="メイクアップ" name="Makeup" />
+			<button label="ﾒｲｸｱｯﾌﾟ" label_selected="ﾒｲｸｱｯﾌﾟ" name="Makeup" />
 			<button label="身体細部" label_selected="身体細部" name="Body Detail" />
 			<text type="string" length="1" name="title">
 				[DESC]

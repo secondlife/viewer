@@ -376,29 +376,30 @@
 			</text>
 			<spinner label="X" left="115" name="Shear X" />
 			<spinner label="Y" left="115" name="Shear Y" />
-			<text name="advanced_cut">
+			<text name="advanced_cut" left="115" width="153">
 				Profilschnitt-Beginn und Ende
 			</text>
-			<text name="advanced_dimple">
+			<text name="advanced_dimple" left="115">
 				Vertiefung-Beginn und Ende
 			</text>
-			<spinner label="B" name="Path Limit Begin" />
+			<spinner label="B" name="Path Limit Begin" left="115"/>
 			<spinner label="E" name="Path Limit End" />
-			<text name="text taper2">
+			<text name="text taper2" left="115">
 				Verjüngung
 			</text>
-			<spinner label="X" name="Taper X" />
+			<spinner label="X" name="Taper X" left="115"/>
 			<spinner label="Y" name="Taper Y" />
-			<text name="text radius delta">
+			<text name="text radius delta" left="115">
 				Radius
 			</text>
-			<text name="text revolutions">
+			<text name="text revolutions" width="74">
 				Umdrehungen
 			</text>
-			<texture_picker label="Textur für gestaltetes Primitiv" name="sculpt texture control"
+			<spinner left="115" name="Radius Offset" />
+			<texture_picker label="Textur für gestaltetes &#10;Primitiv" name="sculpt texture control"
 			     tool_tip="Klicken Sie hier, um ein Bild auszuwählen" />
 			<check_box label="Spiegeln" name="sculpt mirror control"
-			     tool_tip="Geformtes Primitiv entlang der X-Achse spiegeln." />
+			     tool_tip="Geformtes Primitiv entlang der X-Achse spiegeln." bottom_delta="-34" />
 			<check_box label="Wenden" name="sculpt invert control"
 			     tool_tip="Dreht die Normalen des geformten Primitivs von innen nach außen." />
 			<text name="label sculpt type">
@@ -476,7 +477,7 @@
 			</text>
 			<combo_box name="combobox shininess">
 				<combo_item name="None">
-					Keine
+					Kein
 				</combo_item>
 				<combo_item name="Low">
 					Niedrig
@@ -561,7 +562,7 @@
 				Kacheln pro Meter
 			</text>
 			<text name="string repeats per face">
-				Wiederholungen pro Gesicht
+				Wiederholungen pro Fläche
 			</text>
 			<text name="rpt">
 				Kacheln pro Meter

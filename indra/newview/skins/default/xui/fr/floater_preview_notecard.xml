@@ -5,7 +5,7 @@
 		Description :
 	</text>
 	<text_editor type="string" length="1" name="Notecard Editor">
-		Chargement en cours...
+		Chargement...
 	</text_editor>
 	<string name="no_object">
 		Impossible de trouver l&apos;objet contenant cette note.

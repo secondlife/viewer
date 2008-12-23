@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel label="Règlement" name="Covenant">
-	<text name="covenant_help_text">
-		Les changements apportés au règlement apparaîtront sur toutes les parcelles du domaine.
+	<text name="covenant_help_text" bottom="-25">
+		Les changements apportés au règlement apparaîtront sur toutes les
+parcelles du domaine.
 	</text>
-	<text name="region_name_lbl">
+	<text name="region_name_lbl" bottom_delta="-31">
 		Région :
 	</text>
 	<text name="region_name_text">
 		(inconnue)
 	</text>
-	<text name="estate_name_lbl">
+	<text name="estate_name_lbl" bottom_delta="-19">
 		Domaine :
 	</text>
 	<text name="estate_name_text">
@@ -20,7 +21,7 @@
 	</text>
 	<button label="?" name="covenant_help" />
 	<button label="Redéfinir" name="reset_covenant" />
-	<text name="estate_owner_lbl">
+	<text name="estate_owner_lbl" bottom_delta="-19">
 		Propriétaire :
 	</text>
 	<text name="estate_owner_text">
@@ -33,7 +34,7 @@
 		Le terrain acheté dans cette région peut être fusionné/divisé ou pas.
 	</text>
 	<text_editor name="covenant_editor">
-		Chargement en cours...
+		Chargement...
 	</text_editor>
 	<text name="can_resell">
 		Le terrain acheté dans cette région peut être revendu.

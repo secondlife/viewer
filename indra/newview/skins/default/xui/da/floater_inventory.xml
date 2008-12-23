@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="Beholdning" title="Inventory">
+	<search_editor label="Skriv her for at s&#248;ge" name="inventory search editor" />
+	<tab_container name="inventory filter tabs">
+		<inventory_panel label="Alting" name="All Items" />
+		<inventory_panel label="Nye Ting" name="Recent Items" />
+	</tab_container>
+	<menu_bar name="Inventory Menu">
+		<menu label="Filer" name="File">
+			<menu_item_call label="&#197;ben" name="Open" />
+			<menu_item_call label="Nyt Vindue" name="New Window" />
+			<menu_item_call label="Vis Filtre" name="Show Filters" />
+			<menu_item_call label="Nulstil Filtre" name="Reset Current" />
+			<menu_item_call label="Luk alle mapper" name="Close All Folders" />
+			<menu_item_call label="T&#248;m papirkurv" name="Empty Trash" />
+		</menu>
+		<menu label="Lav" name="Create">
+			<menu_item_call label="Ny Mappe" name="New Folder" />
+			<menu_item_call label="Ny Kode" name="New Script" />
+			<menu_item_call label="Ny Note" name="New Note" />
+			<menu_item_call label="Ny Hilsen" name="New Gesture" />
+			<menu name="Nyt T&#248;j">
+				<menu_item_call label="Ny Tr&#248;je" name="New Shirt" />
+				<menu_item_call label="Nye Bukser" name="New Pants" />
+				<menu_item_call label="Nye Sko" name="New Shoes" />
+				<menu_item_call label="Nye Sokker" name="New Socks" />
+				<menu_item_call label="Ny Jakke" name="New Jacket" />
+				<menu_item_call label="Ny Nederdel" name="New Skirt" />
+				<menu_item_call label="Nye Handsker" name="New Gloves" />
+				<menu_item_call label="Ny Undertr&#248;je" name="New Undershirt" />
+				<menu_item_call label="Nye Underbukser" name="New Underpants" />
+			</menu>
+			<menu name="Nye Krops Dele">
+				<menu_item_call label="Ny Figur" name="New Shape" />
+				<menu_item_call label="Ny Hud" name="New Skin" />
+				<menu_item_call label="Nyt H&#229;r" name="New Hair" />
+				<menu_item_call label="Nye &#216;jne" name="New Eyes" />
+			</menu>
+		</menu>
+		<menu label="Sorter" name="Sort">
+			<menu_item_check label="Efter Navn" name="By Name" />
+			<menu_item_check label="Efter Dato" name="By Date" />
+			<menu_item_check label="Altid Mapper Efter Navn" name="Folders Always By Name" />
+			<menu_item_check label="System Mapper i Toppen" name="System Folders To Top" />
+		</menu>
+	</menu_bar>
+</floater>

@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="item properties"
-     title="Propriétés de l&apos;objet de l&apos;inventaire">
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="item properties" title="Propriétés de l&apos;objet de l&apos;inventaire">
 	<text name="LabelItemNameTitle">
 		Nom :
 	</text>
@@ -13,14 +12,14 @@
 	<text name="LabelCreatorName">
 		Nicole Linden
 	</text>
-	<button label="Profil..." label_selected="" name="BtnCreator" />
+	<button label="Profil..." label_selected="" name="BtnCreator"/>
 	<text name="LabelOwnerTitle">
 		Propriétaire :
 	</text>
 	<text name="LabelOwnerName">
 		Thrax Linden
 	</text>
-	<button label="Profil..." label_selected="" name="BtnOwner" />
+	<button label="Profil..." label_selected="" name="BtnOwner"/>
 	<text name="LabelAcquiredTitle">
 		Acquis :
 	</text>
@@ -30,9 +29,9 @@
 	<text name="OwnerLabel">
 		Vous pouvez :
 	</text>
-	<check_box label="Modifier" name="CheckOwnerModify" />
-	<check_box label="Copier" name="CheckOwnerCopy" />
-	<check_box label="Revendre/Donner" name="CheckOwnerTransfer" />
+	<check_box label="Modifier" name="CheckOwnerModify"/>
+	<check_box label="Copier" name="CheckOwnerCopy"/>
+	<check_box label="Revendre/Donner" name="CheckOwnerTransfer"/>
 	<text name="BaseMaskDebug">
 		B :
 	</text>
@@ -48,18 +47,18 @@
 	<text name="NextMaskDebug">
 		N :
 	</text>
-	<check_box label="Partager avec le groupe" name="CheckShareWithGroup" />
-	<check_box label="Autoriser tout le monde à copier" name="CheckEveryoneCopy" />
-	<text name="NextOwnerLabel">
+	<check_box label="Partager avec le groupe" name="CheckShareWithGroup"/>
+	<check_box label="Autoriser tout le monde à copier" name="CheckEveryoneCopy"/>
+	<text name="NextOwnerLabel" width="192">
 		Le prochain propriétaire pourra :
 	</text>
-	<check_box label="Modifier" name="CheckNextOwnerModify" />
-	<check_box label="Copier" name="CheckNextOwnerCopy" />
-	<check_box label="Revendre/Donner" name="CheckNextOwnerTransfer" />
+	<check_box label="Modifier" name="CheckNextOwnerModify"/>
+	<check_box label="Copier" name="CheckNextOwnerCopy"/>
+	<check_box label="Revendre/Donner" name="CheckNextOwnerTransfer"/>
 	<text name="SaleLabel">
 		Marquer l&apos;objet :
 	</text>
-	<check_box label="À vendre" name="CheckPurchase" />
+	<check_box label="À vendre" name="CheckPurchase"/>
 	<radio_group name="RadioSaleType">
 		<radio_item name="radio">
 			Original
@@ -69,7 +68,7 @@
 		</radio_item>
 	</radio_group>
 	<text name="TextPrice">
-		Prix :  $L
+		Prix :  L$
 	</text>
 	<string name="unknown">
 		(inconnu)

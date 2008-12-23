@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="modal container" title="">
+	<button label="Fortsæt" label_selected="Continue" name="Continue"/>
+	<button label="Annuller" label_selected="Cancel" name="Cancel"/>
+	<check_box label="Jeg accepterer vilkårene for brug af tjenesten" name="agree_chk"/>
+	<text name="tos_heading">
+		Læs venligst de almindelige bestemmelser igennem, for at fortsætte til Second Life skal du acceptere betingelserne.
+	</text>
+	<text_editor name="tos_text">
+		TOS_TEXT
+	</text_editor>
+	<string name="real_url">
+		http://secondlife.com/app/tos/
+	</string>
+</floater>

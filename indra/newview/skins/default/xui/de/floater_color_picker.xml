@@ -13,10 +13,10 @@
 		Farbton:
 	</text>
 	<text name="s_val_text">
-		Sat.:
+		Sätt.:
 	</text>
 	<text name="l_val_text">
-		Lum:
+		Hell.:
 	</text>
 	<check_box label="Sofort übernehmen" name="apply_immediate" />
 	<button label="" label_selected="" name="color_pipette" />

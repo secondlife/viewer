@@ -1,197 +1,201 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <menu_bar name="Main Menu">
 	<menu label="Arquivo" name="File">
-		<tearoff_menu label="~~~~~~~~~~~" name="~~~~~~~~~~~" />
-		<menu_item_call label="Upload de imagem (L$[COST])..." name="Upload Image" />
-		<menu_item_call label="Upload de som(L$[COST])..." name="Upload Sound" />
-		<menu_item_call label="Upload de animação (L$[COST])..." name="Upload Animation" />
-		<menu_item_call label="Upload de Arquivo (L$[COST] por arquivo)..." name="Bulk Upload" />
-		<menu_item_separator label="-----------" name="separator" />
-		<menu_item_call label="Fechar janela" name="Close Window" />
-		<menu_item_call label="Fechar todas as janelas" name="Close All Windows" />
-		<menu_item_separator label="-----------" name="separator2" />
-		<menu_item_call label="Salvar textura como" name="Save Texture As..." />
-		<menu_item_separator label="-----------" name="separator3" />
-		<menu_item_call label="Tirar Foto" name="Take Snapshot" />
-		<menu_item_call label="Salvar Foto no disco" name="Snapshot to Disk" />
-		<menu_item_separator label="-----------" name="separator4" />
-		<menu label="Ajustar o tamanho da janela" name="Set Window Size">
-			<menu_item_call label="320x240" name="320x240" />
-			<menu_item_call label="640x480" name="640x480" />
-			<menu_item_call label="800x600" name="800x600" />
-			<menu_item_separator label="-----------" name="separator" />
-			<menu_item_call label="720x480 (NTSC)" name="720x480 (NTSC)" />
-			<menu_item_call label="768x576 (PAL)" name="768x576 (PAL)" />
-		</menu>
-		<menu_item_separator label="-----------" name="separator5" />
-		<menu_item_call label="Sair" name="Quit" />
+		<tearoff_menu label="~~~~~~~~~~~" name="~~~~~~~~~~~"/>
+		<menu_item_call label="Upload de imagem (L$[COST])..." name="Upload Image"/>
+		<menu_item_call label="Upload de som(L$[COST])..." name="Upload Sound"/>
+		<menu_item_call label="Upload de animação (L$[COST])..." name="Upload Animation"/>
+		<menu_item_call label="Upload de Arquivo (L$[COST] por arquivo)..." name="Bulk Upload"/>
+		<menu_item_separator label="-----------" name="separator"/>
+		<menu_item_call label="Fechar janela" name="Close Window"/>
+		<menu_item_call label="Fechar todas as janelas" name="Close All Windows"/>
+		<menu_item_separator label="-----------" name="separator2"/>
+		<menu_item_call label="Salvar textura como" name="Save Texture As..."/>
+		<menu_item_separator label="-----------" name="separator3"/>
+		<menu_item_call label="Tirar Foto" name="Take Snapshot"/>
+		<menu_item_call label="Salvar Foto no disco" name="Snapshot to Disk"/>
+		<menu_item_separator label="-----------" name="separator4"/>
+		<menu_item_call label="Sair" name="Quit"/>
 	</menu>
 	<menu label="Editar" name="Edit">
-		<menu_item_call label="Voltar" name="Undo" />
-		<menu_item_call label="Avançar" name="Redo" />
-		<menu_item_separator label="-----------" name="separator" />
-		<menu_item_call label="Cortar" name="Cut" />
-		<menu_item_call label="Copiar" name="Copy" />
-		<menu_item_call label="Pasta" name="Paste" />
-		<menu_item_call label="Apagar" name="Delete" />
-		<menu_item_separator label="-----------" name="separator2" />
-		<menu_item_call label="Procurar..." name="Search..." />
-		<menu_item_separator label="-----------" name="separator3" />
-		<menu_item_call label="Selecionar todos" name="Select All" />
-		<menu_item_call label="Retirar seleção" name="Deselect" />
-		<menu_item_separator label="-----------" name="separator4" />
-		<menu_item_call label="Duplicar" name="Duplicate" />
-		<menu_item_separator label="-----------" name="separator5" />
-		<menu label="Anexar objeto" name="Attach Object" />
-		<menu label="Desanexar objeto" name="Detach Object" />
+		<menu_item_call label="Voltar" name="Undo"/>
+		<menu_item_call label="Avançar" name="Redo"/>
+		<menu_item_separator label="-----------" name="separator"/>
+		<menu_item_call label="Cortar" name="Cut"/>
+		<menu_item_call label="Copiar" name="Copy"/>
+		<menu_item_call label="Pasta" name="Paste"/>
+		<menu_item_call label="Apagar" name="Delete"/>
+		<menu_item_separator label="-----------" name="separator2"/>
+		<menu_item_call label="Procurar..." name="Search..."/>
+		<menu_item_separator label="-----------" name="separator3"/>
+		<menu_item_call label="Selecionar todos" name="Select All"/>
+		<menu_item_call label="Retirar seleção" name="Deselect"/>
+		<menu_item_separator label="-----------" name="separator4"/>
+		<menu_item_call label="Duplicar" name="Duplicate"/>
+		<menu_item_separator label="-----------" name="separator5"/>
+		<menu label="Anexar objeto" name="Attach Object"/>
+		<menu label="Desanexar objeto" name="Detach Object"/>
 		<menu label="Tirar a roupa" name="Take Off Clothing">
-			<menu_item_call label="Camiseta" name="Shirt" />
-			<menu_item_call label="Calças" name="Pants" />
-			<menu_item_call label="Sapatos" name="Shoes" />
-			<menu_item_call label="Meias" name="Socks" />
-			<menu_item_call label="Blusa" name="Jacket" />
-			<menu_item_call label="Luvas" name="Gloves" />
-			<menu_item_call label="Anágua" name="Menu Undershirt" />
-			<menu_item_call label="Roupa de baixo" name="Menu Underpants" />
-			<menu_item_call label="saia" name="Skirt" />
-			<menu_item_call label="Toda a roupa" name="All Clothes" />
+			<menu_item_call label="Camiseta" name="Shirt"/>
+			<menu_item_call label="Calças" name="Pants"/>
+			<menu_item_call label="Sapatos" name="Shoes"/>
+			<menu_item_call label="Meias" name="Socks"/>
+			<menu_item_call label="Blusa" name="Jacket"/>
+			<menu_item_call label="Luvas" name="Gloves"/>
+			<menu_item_call label="Anágua" name="Menu Undershirt"/>
+			<menu_item_call label="Roupa de baixo" name="Menu Underpants"/>
+			<menu_item_call label="saia" name="Skirt"/>
+			<menu_item_call label="Toda a roupa" name="All Clothes"/>
 		</menu>
-		<menu_item_separator label="-----------" name="separator6" />
-		<menu_item_call label="Movimentos..." name="Gestures..." />
-		<menu_item_call label="Perfil..." name="Profile..." />
-		<menu_item_call label="Aparência..." name="Appearance..." />
-		<menu_item_separator label="-----------" name="separator7" />
-		<menu_item_check label="Amigos..." name="Friends..." />
-		<menu_item_call label="Grupos..." name="Groups..." />
-		<menu_item_separator label="-----------" name="separator8" />
-		<menu_item_call label="Preferências..." name="Preferences..." />
+		<menu_item_separator label="-----------" name="separator6"/>
+		<menu_item_call label="Movimentos..." name="Gestures..."/>
+		<menu_item_call label="Perfil..." name="Profile..."/>
+		<menu_item_call label="Aparência..." name="Appearance..."/>
+		<menu_item_separator label="-----------" name="separator7"/>
+		<menu_item_check label="Amigos..." name="Friends..."/>
+		<menu_item_call label="Grupos..." name="Groups..."/>
+		<menu_item_separator label="-----------" name="separator8"/>
+		<menu_item_call label="Preferências..." name="Preferences..."/>
 	</menu>
 	<menu label="Exibir" name="View">
-		<tearoff_menu label="~~~~~~~~~~~" name="~~~~~~~~~~~" />
-		<menu_item_call label="Visão do mouse" name="Mouselook" />
-		<menu_item_check label="Construção" name="Build" />
-		<menu_item_call label="Resetar visão" name="Reset View" />
-		<menu_item_call label="Olhar para o último movimento" name="Look at Last Chatter" />
-		<menu_item_separator label="-----------" name="separator" />
-		<menu_item_check label="Barra de ferramentas" name="Toolbar" />
-		<menu_item_check label="Histórico de chat" name="Chat History" />
-		<menu_item_check label="Mensagem instantânea" name="Instant Message" />
-		<menu_item_call label="Inventário" name="Inventory" />
-		<menu_item_check label="Lista de pessoas que não podem falar com você" name="Mute List" />
-		<menu_item_separator label="-----------" name="separator2" />
-		<menu_item_check label="Controle de câmeras" name="Camera Controls" />
-		<menu_item_check label="Controle de movimentos" name="Movement Controls" />
-		<menu_item_check label="Mapa do mundo" name="World Map" />
-		<menu_item_check label="Mini-Mapa" name="Mini-Map" />
-		<menu_item_separator label="-----------" name="separator3" />
-		<menu_item_check label="Barra de estatísticas" name="Statistics Bar" />
-		<menu_item_check label="Linhas de propriedades" name="Property Lines" />
-		<menu_item_check label="Dono de terrenos" name="Land Owners" />
-		<menu_item_separator label="-----------" name="separator4" />
+		<tearoff_menu label="~~~~~~~~~~~" name="~~~~~~~~~~~"/>
+		<menu_item_call label="Visão do mouse" name="Mouselook"/>
+		<menu_item_check label="Construção" name="Build"/>
+		<menu_item_check label="Joystick Flycam" name="Joystick Flycam"/>
+		<menu_item_call label="Resetar visão" name="Reset View"/>
+		<menu_item_call label="Olhar para o último movimento" name="Look at Last Chatter"/>
+		<menu_item_separator label="-----------" name="separator"/>
+		<menu_item_check label="Barra de ferramentas" name="Toolbar"/>
+		<menu_item_check label="Conversa local" name="Chat History"/>
+		<menu_item_check label="Comunicar" name="Instant Message"/>
+		<menu_item_check label="Inventário" name="Inventory"/>
+		<menu_item_check label="Microfone ativo" name="Active Speakers"/>
+		<menu_item_check label="Lista de pessoas que não podem falar com você" name="Mute List"/>
+		<menu_item_separator label="-----------" name="separator2"/>
+		<menu_item_check label="Controle de câmeras" name="Camera Controls"/>
+		<menu_item_check label="Controle de movimentos" name="Movement Controls"/>
+		<menu_item_check label="Mapa do mundo" name="World Map"/>
+		<menu_item_check label="Mini-Mapa" name="Mini-Map"/>
+		<menu_item_separator label="-----------" name="separator3"/>
+		<menu_item_check label="Barra de estatísticas" name="Statistics Bar"/>
+		<menu_item_check label="Linhas de propriedades" name="Property Lines"/>
+		<menu_item_check label="Dono de terrenos" name="Land Owners"/>
+		<menu_item_separator label="-----------" name="separator4"/>
 		<menu label="Dicas" name="Hover Tips">
-			<menu_item_check label="Mostrar dicas" name="Show Tips" />
-			<menu_item_separator label="-----------" name="separator" />
-			<menu_item_check label="Dicas de terreno" name="Land Tips" />
-			<menu_item_check label="Dicas de todos os objetos" name="Tips On All Objects" />
+			<menu_item_check label="Mostrar dicas" name="Show Tips"/>
+			<menu_item_separator label="-----------" name="separator"/>
+			<menu_item_check label="Dicas de terreno" name="Land Tips"/>
+			<menu_item_check label="Dicas de todos os objetos" name="Tips On All Objects"/>
 		</menu>
-		<menu_item_check label="Mostrar tamanho fisíco" name="Alt Shows Physical" />
-		<menu_item_check label="Luz para transparência" name="Highlight Transparent" />
-		<menu label="Piscar" name="Beacons">
-			<menu_item_check label="Objetos com scripts" name="Scripted Objects" />
-			<menu_item_check label="Objetos fisícos" name="Physical Objects" />
-			<menu_item_check label="Recursos de som" name="Sound Sources" />
-			<menu_item_check label="Recursos" name="Particle Sources" />
-			<menu_item_separator label="-----------" name="separator" />
-			<menu_item_check label="Partículas escondidas" name="Hide Particles" />
-		</menu>
-		<menu_item_check label="Mostrar anexo em HUD" name="Show HUD Attachments" />
-		<menu_item_separator label="-----------" name="separator5" />
-		<menu_item_call label="Mais zoom" name="Zoom In" />
-		<menu_item_call label="Zoom padrão" name="Zoom Default" />
-		<menu_item_call label="Menos zoom" name="Zoom Out" />
-		<menu_item_separator label="-----------" name="separator6" />
-		<menu_item_call label="Tela cheia" name="Toggle Fullscreen" />
-		<menu_item_call label="Ajustar o tamanho da UI ao padrão" name="Set UI Size to Default" />
+		<menu_item_check label="Luz para transparência" name="Highlight Transparent"/>
+		<menu_item_check label="Balizas" name="beacons"/>
+		<menu_item_check label="Esconder partículas" name="Hide Particles"/>
+		<menu_item_check label="Mostrar anexo em HUD" name="Show HUD Attachments"/>
+		<menu_item_separator label="-----------" name="separator5"/>
+		<menu_item_call label="Mais zoom" name="Zoom In"/>
+		<menu_item_call label="Zoom padrão" name="Zoom Default"/>
+		<menu_item_call label="Menos zoom" name="Zoom Out"/>
+		<menu_item_separator label="-----------" name="separator6"/>
+		<menu_item_call label="Tela cheia" name="Toggle Fullscreen"/>
+		<menu_item_call label="Ajustar o tamanho da UI ao padrão" name="Set UI Size to Default"/>
 	</menu>
 	<menu label="Mundo" name="World">
-		<menu_item_call label="Conversa" name="Chat" />
-		<menu_item_call label="Iniciar movimento" name="Start Gesture" />
-		<menu_item_check label="Sempre Correr" name="Always Run" />
-		<menu_item_check label="Voar" name="Fly" />
-		<menu_item_separator label="-----------" name="separator" />
-		<menu_item_call label="Criar Landmark aqui" name="Create Landmark Here" />
-		<menu_item_call label="Marcar como  casa " name="Set Home to Here" />
-		<menu_item_separator label="-----------" name="separator2" />
-		<menu_item_call label="Teleportar para casa" name="Teleport Home" />
-		<menu_item_separator label="-----------" name="separator3" />
-		<menu_item_call label="Deixar ausente" name="Set Away" />
-		<menu_item_call label="Modo Ocupado" name="Set Busy" />
-		<menu_item_separator label="-----------" name="separator5" />
-		<menu_item_call label="Meu terreno..." name="My Land..." />
-		<menu_item_call label="Sobre terreno..." name="About Land..." />
-		<menu_item_call label="Comprar terreno..." name="Buy Land..." />
-		<menu_item_call label="Região/Estado..." name="Region/Estate..." />
-		<menu_item_separator label="-----------" name="separator6" />
-		<menu label="Forçar o sol" name="Force Sun">
-			<menu_item_call label="Amanhecer" name="Sunrise" />
-			<menu_item_call label="Meio-dia" name="Noon" />
-			<menu_item_call label="Pôr do sol" name="Sunset" />
-			<menu_item_call label="Meia noite" name="Midnight" />
-			<menu_item_separator label="-----------" name="separator" />
-			<menu_item_call label="Reverter para o padrão da região" name="Revert to Region Default" />
+		<menu_item_call label="Conversa" name="Chat"/>
+		<menu_item_check label="Sempre Correr" name="Always Run"/>
+		<menu_item_check label="Voar" name="Fly"/>
+		<menu_item_separator label="-----------" name="separator"/>
+		<menu_item_call label="Criar Landmark aqui" name="Create Landmark Here"/>
+		<menu_item_call label="Marcar como  casa " name="Set Home to Here"/>
+		<menu_item_separator label="-----------" name="separator2"/>
+		<menu_item_call label="Teleportar para casa" name="Teleport Home"/>
+		<menu_item_separator label="-----------" name="separator3"/>
+		<menu_item_call label="Deixar ausente" name="Set Away"/>
+		<menu_item_call label="Modo Ocupado" name="Set Busy"/>
+		<menu_item_call label="Parar todas as animações" name="Stop All Animations"/>
+		<menu_item_call label="Liberar controles" name="Release Keys"/>
+		<menu_item_separator label="-----------" name="separator4"/>
+		<menu_item_call label="Histórico de conta..." name="Account History..."/>
+		<menu_item_call label="Gerenciar minha conta..." name="Manage My Account..."/>
+		<menu_item_call label="Comprar L$..." name="Buy and Sell L$..."/>
+		<menu_item_separator label="-----------" name="separator5"/>
+		<menu_item_call label="Meu terreno..." name="My Land..."/>
+		<menu_item_call label="Sobre terreno..." name="About Land..."/>
+		<menu_item_call label="Comprar terreno..." name="Buy Land..."/>
+		<menu_item_call label="Região/Estado..." name="Region/Estate..."/>
+		<menu_item_separator label="-----------" name="separator6"/>
+		<menu label="Configurações de ambiente" name="Environment Settings">
+			<menu_item_call label="Amanhecer" name="Sunrise"/>
+			<menu_item_call label="Meio dia" name="Noon"/>
+			<menu_item_call label="Pôr do sol" name="Sunset"/>
+			<menu_item_call label="Meia noite" name="Midnight"/>
+			<menu_item_call label="Reverter ao padrão da região" name="Revert to Region Default"/>
+			<menu_item_separator label="-----------" name="separator"/>
+			<menu_item_call label="Editor de ambiente" name="Environment Editor"/>
 		</menu>
 	</menu>
 	<menu label="Ferramentas" name="Tools">
 		<menu label="Selecionar ferramenta" name="Select Tool">
-			<menu_item_call label="Foco" name="Focus" />
-			<menu_item_call label="Mover" name="Move" />
-			<menu_item_call label="Editar" name="Edit" />
-			<menu_item_call label="Criar" name="Create" />
-			<menu_item_call label="Terreno" name="Land" />
+			<menu_item_call label="Foco" name="Focus"/>
+			<menu_item_call label="Mover" name="Move"/>
+			<menu_item_call label="Editar" name="Edit"/>
+			<menu_item_call label="Criar" name="Create"/>
+			<menu_item_call label="Terreno" name="Land"/>
 		</menu>
-		<menu_item_separator label="-----------" name="separator" />
-		<menu_item_check label="Selecionar apenas meus objetos" name="Select Only My Objects" />
-		<menu_item_check label="Selecionar apenas objetos móveis" name="Select Only Movable Objects" />
-		<menu_item_check label="Selecionar objetos pelo som" name="Select By Surrounding" />
-		<menu_item_check label="Mostrar seleções escondidas" name="Show Hidden Selection" />
-		<menu_item_check label="Mostrar luz radiante para solução"
-		     name="Show Light Radius for Selection" />
-		<menu_item_check label="Mostrar seleções de feixes" name="Show Selection Beam" />
-		<menu_item_separator label="-----------" name="separator2" />
-		<menu_item_check label="Alinhar a grade" name="Snap to Grid" />
-		<menu_item_call label="Alinhar objeto a grade XY" name="Snap Object XY to Grid" />
-		<menu_item_call label="Usar seleção na grade" name="Use Selection for Grid" />
-		<menu_item_call label="Opções de grade..." name="Grid Options..." />
-		<menu_item_separator label="-----------" name="separator3" />
-		<menu_item_call label="Unir" name="Link" />
-		<menu_item_call label="Desunir" name="Unlink" />
-		<menu_item_separator label="-----------" name="separator4" />
-		<menu_item_call label="Parar todas as animações" name="Stop All Animations" />
-		<menu_item_separator label="-----------" name="separator5" />
-		<menu_item_call label="Focus na seleção" name="Focus on Selection" />
-		<menu_item_call label="Zoom na Seleção" name="Zoom to Selection" />
-		<menu_item_call label="Comprar objetos" name="Menu Object Take" />
-		<menu_item_call label="Pegar cópia" name="Take Copy" />
-		<menu_item_call label="Salvar objeto direto no meu inventário"
-		     name="Save Object Back to My Inventory" />
-		<menu_item_call label="Salvar todos os objetos" name="Save Object Back to Object Contents" />
-		<menu_item_separator label="-----------" name="separator6" />
-		<menu_item_call label="Mostrar scripts defeituosos/Erros de janela"
-		     name="Show Script Warning/Error Window" />
-		<menu_item_call label="Recolocar scripts na seleção" name="Recompile Scripts in Selection" />
-		<menu_item_call label="Resetar script selecionado" name="Reset Scripts in Selection" />
-		<menu_item_call label="Ajustar scripts para funcionar na seleção"
-		     name="Set Scripts to Running in Selection" />
-		<menu_item_call label="Ajustar scripts para não funcionar na seleção"
-		     name="Set Scripts to Not Running in Selection" />
-		<menu_item_separator label="-----------" name="separator6" />
+		<menu_item_separator label="-----------" name="separator"/>
+		<menu_item_check label="Selecionar apenas meus objetos" name="Select Only My Objects"/>
+		<menu_item_check label="Selecionar apenas objetos móveis" name="Select Only Movable Objects"/>
+		<menu_item_check label="Selecionar objetos pelo som" name="Select By Surrounding"/>
+		<menu_item_check label="Mostrar seleções escondidas" name="Show Hidden Selection"/>
+		<menu_item_check label="Mostrar luz radiante para solução" name="Show Light Radius for Selection"/>
+		<menu_item_check label="Mostrar seleções de feixes" name="Show Selection Beam"/>
+		<menu_item_separator label="-----------" name="separator2"/>
+		<menu_item_check label="Alinhar a grade" name="Snap to Grid"/>
+		<menu_item_call label="Alinhar objeto a grade XY" name="Snap Object XY to Grid"/>
+		<menu_item_call label="Usar seleção na grade" name="Use Selection for Grid"/>
+		<menu_item_call label="Opções de grade..." name="Grid Options..."/>
+		<menu_item_separator label="-----------" name="separator3"/>
+		<menu_item_check label="Editar partes ligadas" name="Edit Linked Parts"/>
+		<menu_item_call label="Unir" name="Link"/>
+		<menu_item_call label="Desunir" name="Unlink"/>
+		<menu_item_separator label="-----------" name="separator4"/>
+		<menu_item_call label="Focus na seleção" name="Focus on Selection"/>
+		<menu_item_call label="Zoom na Seleção" name="Zoom to Selection"/>
+		<menu_item_call label="Comprar objetos" name="Menu Object Take"/>
+		<menu_item_call label="Pegar cópia" name="Take Copy"/>
+		<menu_item_call label="Salvar objeto direto no meu inventário" name="Save Object Back to My Inventory"/>
+		<menu_item_call label="Salvar todos os objetos" name="Save Object Back to Object Contents"/>
+		<menu_item_separator label="-----------" name="separator6"/>
+		<menu_item_call label="Mostrar scripts defeituosos/Erros de janela" name="Show Script Warning/Error Window"/>
+		<menu label="Recolocar scripts na seleção" name="Recompile Scripts in Selection">
+			<menu_item_call label="Mono" name="Mono"/>
+			<menu_item_call label="LSL" name="LSL"/>
+		</menu>
+		<menu_item_call label="Resetar script selecionado" name="Reset Scripts in Selection"/>
+		<menu_item_call label="Ajustar scripts para funcionar na seleção" name="Set Scripts to Running in Selection"/>
+		<menu_item_call label="Ajustar scripts para não funcionar na seleção" name="Set Scripts to Not Running in Selection"/>
 	</menu>
 	<menu label="Ajuda" name="Help">
-		<menu_item_call label="Ajuda Second Life" name="Second Life Help" />
-		<menu_item_separator label="-----------" name="separator" />
-		<menu_item_call label="Reportar Abuso..." name="Report Abuse..." />
-		<menu_item_call label="Colisões, impulsos e batidas..." name="Bumps, Pushes &amp;amp; Hits..." />
-		<menu_item_separator label="-----------" name="separator6" />
-		<menu_item_call label="Sobre Second Life..." name="About Second Life..." />
+		<menu_item_call label="Ajuda Second Life" name="Second Life Help"/>
+		<menu_item_call label="Tutorial" name="Tutorial"/>
+		<menu_item_separator label="-----------" name="separator"/>
+		<menu_item_call label="Blog official da Linden..." name="Official Linden Blog..."/>
+		<menu_item_separator label="-----------" name="separator2"/>
+		<menu_item_call label="Portal de Scripts..." name="Scripting Portal..."/>
+		<menu_item_separator label="-----------" name="separator3"/>
+		<menu_item_call label="Reportar Abuso..." name="Report Abuse..."/>
+		<menu_item_call label="Colisões, impulsos e batidas..." name="Bumps, Pushes &amp;amp; Hits..."/>
+		<menu_item_call label="Medidor de Lag" name="Lag Meter"/>
+		<menu_item_separator label="-----------" name="separator7"/>
+		<menu label="Reportando Bug" name="Bug Reporting">
+			<menu_item_call label="Rastreador público de problemas..." name="Public Issue Tracker..."/>
+			<menu_item_call label="Ajuda do rastreador público de problemas..." name="Publc Issue Tracker Help..."/>
+			<menu_item_separator label="-----------" name="separator7"/>
+			<menu_item_call label="Reportando Bug 101..." name="Bug Reporing 101..."/>
+			<menu_item_call label="Questões de Segurança..." name="Security Issues..."/>
+			<menu_item_call label="Wiki de QA ..." name="QA Wiki..."/>
+			<menu_item_separator label="-----------" name="separator9"/>
+			<menu_item_call label="Reportar Bug..." name="Report Bug..."/>
+		</menu>
+		<menu_item_call label="Sobre Second Life..." name="About Second Life..."/>
 	</menu>
 </menu_bar>

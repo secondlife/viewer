@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel label="Umowa" name="Covenant">
+	<text name="covenant_help_text">
+		Zmiany w Umowie odnoszą się do wszystkich Posiadłości w Majątku.
+	</text>
+	<text name="region_name_lbl">
+		Region:
+	</text>
+	<text name="region_name_text">
+		(bark danych)
+	</text>
+	<text name="estate_name_lbl">
+		Majątek:
+	</text>
+	<text name="estate_name_text">
+		(brak danych)
+	</text>
+	<text name="estate_owner_lbl">
+		Właściciel Majątku:
+	</text>
+	<text name="estate_owner_text">
+		(brak danych)
+	</text>
+	<text name="resellable_clause">
+		Posiadłości kupione w tym Regionie mogą lub nie być odsprzedawane.
+	</text>
+	<text name="changeable_clause">
+		Posiadłości kupione w tym Regionie mogą lub nie być łączone lub dzielone.
+	</text>
+	<text name="covenent_instructions">
+		Przeciągnij i upuść notkę żeby zmienić Umowę dla tego Majątku.
+	</text>
+	<text_editor name="covenant_editor">
+		Ładowanie...
+	</text_editor>
+	<button label="Wyresetuj" name="reset_covenant" />
+	<string name="can_resell">
+		Posiadłości kupione w tym Regionie mogą być odsprzedane.
+	</string>
+	<string name="can_not_resell">
+		Posiadłości kupione w tym Regionie nie mogą być odsprzedane.
+	</string>
+	<string name="can_change">
+		Posiadłości kupione w tym Regionie mogą być łączone i dzielone.
+	</string>
+	<string name="can_not_change">
+		Posiadłości kupione w tym Regionie nie mogą być łączone i dzielone.
+	</string>
+	<button label="?" name="covenant_help" />
+</panel>

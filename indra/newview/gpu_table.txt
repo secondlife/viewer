@@ -26,6 +26,7 @@ ATI All-in-Wonder 7500			.*ATI.*All-in-Wonder 75.*			0		1
 ATI All-in-Wonder 8500			.*ATI.*All-in-Wonder 85.*			0		1
 ATI All-in-Wonder 9200			.*ATI.*All-in-Wonder 92.*			0		1
 ATI All-in-Wonder 9xxx			.*ATI.*All-in-Wonder 9.*			1		1
+ATI All-in-Wonder HD			.*ATI.*All-in-Wonder HD.*			1		1
 ATI All-in-Wonder X600			.*ATI.*All-in-Wonder X6.*			1		1
 ATI All-in-Wonder X800			.*ATI.*All-in-Wonder X8.*			2		1
 ATI All-in-Wonder X1800			.*ATI.*All-in-Wonder X18.*			3		1
@@ -35,6 +36,7 @@ ATI All-in-Wonder Radeon 		.*ATI.*All-in-Wonder Radeon.*		0		1
 ATI ASUS A9xxx					.*ATI.*ASUS.*A9.*					1		1
 ATI ASUS AH24xx					.*ATI.*ASUS.*AH24.*					1		1
 ATI ASUS AH26xx					.*ATI.*ASUS.*AH26.*					3		1
+ATI ASUS AH34xx					.*ATI.*ASUS.*AH34.*					1		1
 ATI ASUS AH36xx					.*ATI.*ASUS.*AH36.*					3		1
 ATI ASUS AH46xx					.*ATI.*ASUS.*AH46.*					3		1
 ATI ASUS AX3xx					.*ATI.*ASUS.*AX3.*					1		1
@@ -46,12 +48,12 @@ ATI ASUS EAH34xx				.*ATI.*ASUS.*EAH34.*				1		1
 ATI ASUS EAH36xx				.*ATI.*ASUS.*EAH36.*				3		1
 ATI ASUS EAH38xx				.*ATI.*ASUS.*EAH38.*				3		1
 ATI ASUS EAH48xx				.*ATI.*ASUS.*EAH48.*				3		1
-ATI ASUS X1xxx					.*ATI.*ASUS.*X1.*					2		1
-ATI ASUS X7xx					.*ATI.*ASUS.*X7.*					1		1
-ATI Diamond X550				.*ATI.*Diamond X550.*				1		1
-ATI Diamond X13xx				.*ATI.*Diamond X13.*				1		1
-ATI Diamond X16xx				.*ATI.*Diamond X16.*				1		1
-ATI Diamond X19xx				.*ATI.*Diamond X19.*				1		1
+ATI Radeon X1xxx				.*ATI.*ASUS.*X1.*					2		1
+ATI Radeon X7xx					.*ATI.*ASUS.*X7.*					1		1
+ATI Radeon X500					.*ATI.*Diamond X5.*					1		1
+ATI Radeon X13xx				.*ATI.*Diamond X13.*				1		1
+ATI Radeon X16xx				.*ATI.*Diamond X16.*				1		1
+ATI Radeon X19xx				.*ATI.*Diamond X19.*				1		1
 ATI Display Adapter				.*ATI.*display adapter.*			0		1
 ATI FireGL 5200					.*ATI.*FireGL V52.*					0		1
 ATI FireGL 5xxx					.*ATI.*FireGL V5.*					1		1
@@ -63,6 +65,8 @@ ATI IGP 340M					.*ATI.*IGP.*340M.*					0		0
 ATI M52							.*ATI.*M52.*						1		1
 ATI M54							.*ATI.*M54.*						1		1
 ATI M56							.*ATI.*M56.*						1		1
+ATI M71							.*ATI.*M71.*						1		1
+ATI M72							.*ATI.*M72.*						1		1
 ATI M76							.*ATI.*M76.*						3		1
 ATI Mobility Radeon 7xxx		.*ATI.*Mobility.*Radeon 7.*			0		1
 ATI Mobility Radeon 8xxx		.*ATI.*Mobility.*Radeon 8.*			0		1
@@ -86,9 +90,13 @@ ATI Radeon HD 2300				.*ATI.*Radeon HD 23.*				0		1
 ATI Radeon HD 2400				.*ATI.*Radeon HD.*24.*				1		1
 ATI Radeon HD 2600				.*ATI.*Radeon HD 26.*				2		1
 ATI Radeon HD 2900				.*ATI.*Radeon HD 29.*				3		1
+ATI Radeon HD 3200				.*ATI.*Radeon HD.*32.*				1		1
+ATI Radeon HD 3300				.*ATI.*Radeon HD.*33.*				1		1
 ATI Radeon HD 3400				.*ATI.*Radeon HD.*34.*				1		1
 ATI Radeon HD 3600				.*ATI.*Radeon HD.*36.*				3		1
 ATI Radeon HD 3800				.*ATI.*Radeon HD.*38.*				3		1
+ATI Radeon HD 4300				.*ATI.*Radeon HD 43.*				1		1
+ATI Radeon HD 4600				.*ATI.*Radeon HD 46.*				3		1
 ATI Radeon HD 4800				.*ATI.*Radeon HD.*48.*				3		1
 ATI Radeon OpenGL				.*ATI.*Radeon OpenGL.* 				0		0
 ATI Radeon 2100					.*ATI.*Radeon 21.*					0		1
@@ -137,8 +145,8 @@ Intel 865G						.*Intel.*865G						0		0
 Intel 900						.*Intel.*900.*900					0		0
 Intel 915GM						.*Intel.*915GM						0		0
 Intel 915G						.*Intel.*915G						0		0
-Intel 945GM						.*Intel.*945GM						0		1
-Intel 945G						.*Intel.*945G						0		1
+Intel 945GM						.*Intel.*945GM.*					0		1
+Intel 945G						.*Intel.*945G.*						0		1
 Intel 950						.*Intel.*950.*						0		1
 Intel 965						.*Intel.*965.*						0		1
 Intel G33						.*Intel.*G33.*						0		0
@@ -180,17 +188,22 @@ NVIDIA GeForce 7500				.*NVIDIA.*GeForce 75.*				1		1
 NVIDIA GeForce 7600				.*NVIDIA.*GeForce 76.*				2		1
 NVIDIA GeForce 7800				.*NVIDIA.*GeForce.*78.*				2		1
 NVIDIA GeForce 7900				.*NVIDIA.*GeForce 79.*				2		1
+NVIDIA GeForce 8100				.*NVIDIA.*GeForce 81.*				1		1
 NVIDIA GeForce 8200				.*NVIDIA.*GeForce 82.*				1		1
 NVIDIA GeForce 8300				.*NVIDIA.*GeForce 83.*				1		1
 NVIDIA GeForce 8400				.*NVIDIA.*GeForce 84.*				1		1
-NVIDIA GeForce 8500				.*NVIDIA.*GeForce 85.*				3		1
+NVIDIA GeForce 8500				.*GeForce 85.*						3		1
+NVIDIA GeForce 8600M			.*NVIDIA.*GeForce.*8600M.*			1		1
 NVIDIA GeForce 8600				.*NVIDIA.*GeForce 86.*				3		1
 NVIDIA GeForce 8700				.*NVIDIA.*GeForce 87.*				3		1
 NVIDIA GeForce 8800				.*NVIDIA.*GeForce 88.*				3		1
 NVIDIA GeForce 9300M			.*NVIDIA.*GeForce 9300M.*			1		1
+NVIDIA GeForce 9400M			.*NVIDIA.*GeForce 9400M.*			1		1
 NVIDIA GeForce 9500M			.*NVIDIA.*GeForce 9500M.*			2		1
+NVIDIA GeForce 9600M			.*NVIDIA.*GeForce 9600M.*			2		1
 NVIDIA GeForce 9700M			.*NVIDIA.*GeForce 9700M.*			2		1
 NVIDIA GeForce 9300				.*NVIDIA.*GeForce 93.*				1		1
+NVIDIA GeForce 9400				.*GeForce 94.*						1		1
 NVIDIA GeForce 9500				.*NVIDIA.*GeForce 95.*				2		1
 NVIDIA GeForce 9600				.*NVIDIA.*GeForce 96.*				3		1
 NVIDIA GeForce 9800				.*NVIDIA.*GeForce 98.*				3		1
@@ -225,6 +238,10 @@ NVIDIA GeForce Go 7800			.*NVIDIA.*GeForce Go 78.*			2		1
 NVIDIA GeForce Go 7900			.*NVIDIA.*GeForce Go 79.*			2		1
 NVIDIA GeForce GTX 260			.*NVIDIA.*GeForce GTX 26.*			3		1
 NVIDIA GeForce GTX 280			.*NVIDIA.*GeForce GTX 28.*			3		1
+NVIDIA D9M						.*D9M.*								1		1
+NVIDIA G84						.*G84.*								1		1
+NVIDIA G92						.*G92.*								3		1
+NVIDIA G94						.*G94.*								3		1
 NVIDIA GeForce Go 6				.*GeForce Go 6.*					1		1
 NVIDIA NB9M						.*GeForce NB9M.*					1		1
 NVIDIA NB9P						.*GeForce NB9P.*					1		1
@@ -234,6 +251,8 @@ NVIDIA NV17						.*GeForce NV17.*					0		1
 NVIDIA NV34						.*NVIDIA.*NV34.*					0		1
 NVIDIA NV36						.*GeForce NV36.*					1		1
 NVIDIA NV43						.*NVIDIA.*NV43.*					1		1
+NVIDIA NV44						.*NVIDIA.*NV44.*					1		1
+NVIDIA nForce					.*NVIDIA.*nForce.*					0		0
 NVIDIA MCP78					.*NVIDIA.*MCP78.*					1		1
 NVIDIA Quadro2					.*Quadro2.*							0		1
 NVIDIA Quadro4					.*Quadro4.*							0		1
@@ -242,10 +261,12 @@ NVIDIA Quadro FX 4500			.*Quadro.*FX.*4500.*				3		1
 NVIDIA Quadro FX				.*Quadro FX.*						1		1
 NVIDIA Quadro NVS				.*Quadro NVS.*						0		1
 NVIDIA RIVA TNT					.*RIVA TNT.*						0		0
+NVIDIA PCI						.*NVIDIA.*/PCI/SSE2					0		0
 S3								.*S3 Graphics.*						0		0
 SiS								SiS.*								0		0
 Trident							Trident.*							0		0
 Tungsten Graphics				Tungsten.*							0		0
 XGI								XGI.*								0		0
 VIA								VIA.*								0		0
-
+Apple Generic					Apple.*Generic.*					0		0
+Apple Software Renderer			Apple.*Software Renderer.*			0		0

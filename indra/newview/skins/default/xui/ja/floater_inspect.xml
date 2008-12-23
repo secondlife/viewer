@@ -2,7 +2,7 @@
 <floater name="inspect" title="オブジェクト検査">
 	<scroll_list name="object_list"
 	     tool_tip="このリストからオブジェクトを選択し、この世界で強調表示します。">
-		<column label="オブジェクト名" name="object_name" />
+		<column label="ｵﾌﾞｼﾞｪｸﾄ名" name="object_name" />
 		<column label="所有者名" name="owner_name" />
 		<column label="制作者名" name="creator_name" />
 		<column label="作成日" name="creation_date" />

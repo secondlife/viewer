@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="objectcontents" title="Zawartość Obiektu">
+	<text type="string" length="1" name="object_name">
+		[DESC]:
+	</text>
+	<button label="Kopiuj do Inwentarza" label_selected="Kopiuj do Inwentarza"
+	     name="copy_to_inventory_button" />
+	<button label="Kopiuj i Zalóż" label_selected="Kopiuj i Załóż"
+	     name="copy_and_wear_button" />
+</floater>

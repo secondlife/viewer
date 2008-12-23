@@ -1,5 +1,7 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floater_report_abuse" title="Missbrauch melden">
+	<texture_picker label="" name="screenshot"/>
+	<check_box label="Screenshot einschließen" name="screen_check" bottom_delta="-20"/>
 	<text name="reporter_title">
 		Melder:
 	</text>
@@ -15,17 +17,14 @@
 	<text name="pos_title">
 		Position:
 	</text>
-	<texture_picker name="screenshot" />
-	<check_box label="Screenshot einschließen" name="screen_check" bottom_delta="-20" />
 	<text name="pos_field">
 		{128.1, 128.1, 15.4}
 	</text>
-	<button label="" label_selected="" name="pick_btn"
-	     tool_tip="Objektauswahl – Wählen Sie ein Objekt als Thema dieses Berichts aus" />
 	<text bottom_delta="-38" height="32" name="select_object_label">
 		Klicken Sie auf die Schaltfläche,
 dann auf das Objekt:
 	</text>
+	<button label="" label_selected="" name="pick_btn" tool_tip="Objektauswahl – Wählen Sie ein Objekt als Thema dieses Berichts aus"/>
 	<text name="object_name_label">
 		Name:
 	</text>
@@ -38,11 +37,7 @@ dann auf das Objekt:
 	<text name="owner_name">
 		Hendrerit Vulputate
 	</text>
-	<combo_box name="category_combo"
-	     tool_tip="Category -- select the category that best describes this report">
-		<combo_item name="Selectcategory">
-			Kategorie auswählen
-		</combo_item>
+	<combo_box name="category_combo" tool_tip="Kategorie -- wählen Sie die Kategorie aus, die am besten auf diesen Bericht zutrifft">
 		<combo_item name="Select_category">
 			Kategorie auswählen
 		</combo_item>
@@ -64,14 +59,11 @@ dann auf das Objekt:
 		<combo_item name="Assault__Weapons_testing_sandbox">
 			Angriff &gt; Sandbox für Waffentest
 		</combo_item>
-		<combo_item name="Copyright_or_intellectual_property_violation">
-			Urheberrechtsverletzung
-		</combo_item>
 		<combo_item name="Commerce__Failure_to_deliver_product_or_service">
-			Handel &gt; Produkt nicht geliefer oder Dienstleistung nicht erbracht
+			Handel &gt; Produkt nicht geliefert oder Dienstleistung nicht erbracht
 		</combo_item>
-		<combo_item name="Disclosure__First_Life_information">
-			Offenlegung &gt; Private Benutzerdaten
+		<combo_item name="Disclosure__Real_world_information">
+			Offenlegung &gt; Informationen aus realer Welt
 		</combo_item>
 		<combo_item name="Disclosure__Remotely_monitoring chat">
 			Offenlegung &gt; Abhören eines Chats aus der Ferne
@@ -134,28 +126,16 @@ dann auf das Objekt:
 			Unanständigkeit &gt; Anstößiger Avatarname
 		</combo_item>
 		<combo_item name="Indecency__Mature_content_in_PG_region">
-			Unanständigkeit &gt; Nicht jugendfreier Inhalt in &quot;Jugendfrei&quot;-Region
+			Unanständigkeit &gt; Nicht jugendfreier Inhalt in „Jugendfrei“-Region
+		</combo_item>
+		<combo_item name="Intellectual_property_infringement_Content_Removal">
+			Urheberrechtsverletzung &gt; Entfernen von Inhalten
+		</combo_item>
+		<combo_item name="Intellectual_property_infringement_CopyBot_or_Permissions_Exploit">
+			Urheberrechtsverletzung &gt; CopyBot oder Berechtigungs-Exploit
 		</combo_item>
 		<combo_item name="Intolerance">
 			Intoleranz
-		</combo_item>
-		<combo_item name="Harassment">
-			Belästigung
-		</combo_item>
-		<combo_item name="Assault">
-			Angriff
-		</combo_item>
-		<combo_item name="Disclosure">
-			Offenlegen
-		</combo_item>
-		<combo_item name="Indecency">
-			Unanständigkeit
-		</combo_item>
-		<combo_item name="Age">
-			Alter
-		</combo_item>
-		<combo_item name="Parcel">
-			Parzelle
 		</combo_item>
 		<combo_item name="Land__Abuse_of_sandbox_resources">
 			Land &gt; Missbrauch der Sandbox-Ressourcen
@@ -169,9 +149,6 @@ dann auf das Objekt:
 		<combo_item name="Land__Encroachment__Trees_plants">
 			Land &gt; Unbefugte Nutzung &gt; Bäume/Pflanzen
 		</combo_item>
-		<combo_item name="Trademark_violation">
-			Markenrechtsverletzung
-		</combo_item>
 		<combo_item name="Wagering_gambling">
 			Wetten/Glücksspiel
 		</combo_item>
@@ -182,10 +159,8 @@ dann auf das Objekt:
 	<text name="abuser_name_title">
 		Name des Beschuldigten:
 	</text>
-	<button label="Einwohner auswählen" label_selected="" name="select_abuser"
-	     tool_tip="Den Namen des Beschuldigten aus einer Liste wählen" />
-	<check_box label="Name des Täters ist nicht bekannt" name="omit_abuser_name"
-	     tool_tip="Wählen Sie diese Option, wenn Ihnen der Name des Täters unbekannt ist" />
+	<button label="Einwohner auswählen" label_selected="" name="select_abuser" tool_tip="Den Namen des Beschuldigten aus einer Liste wählen"/>
+	<check_box label="Name des Täters ist nicht bekannt" name="omit_abuser_name" tool_tip="Wählen Sie diese Option, wenn Ihnen der Name des Täters unbekannt ist"/>
 	<text name="abuser_name_title2">
 		Ort des Missbrauchs:
 	</text>
@@ -204,6 +179,6 @@ Objekt, wenn möglich.
 	<text name="incomplete_title" bottom_delta="-20">
 		Hinweis: Unvollständige Meldungen werden nicht bearbeitet.
 	</text>
-	<button label="Missbrauch melden" label_selected="Missbrauch melden" name="send_btn" />
-	<button label="Abbrechen" label_selected="Abbrechen" name="cancel_btn" />
+	<button label="Abbrechen" label_selected="Abbrechen" name="cancel_btn"/>
+	<button label="Missbrauch melden" label_selected="Missbrauch melden" name="send_btn"/>
 </floater>

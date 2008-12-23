@@ -334,6 +334,13 @@ bool LLAppViewerLinux::init()
 	return LLAppViewer::init();
 }
 
+bool LLAppViewerLinux::restoreErrorTrap()
+{
+	// *NOTE:Mani there is a case for implementing this or the mac.
+	// Linux doesn't need it to my knowledge.
+	return true;
+}
+
 /////////////////////////////////////////
 #if LL_DBUS_ENABLED
 
@@ -526,57 +533,90 @@ void LLAppViewerLinux::handleSyncCrashTrace()
 #  endif // LL_ELFBIN
 }
 
-void LLAppViewerLinux::handleCrashReporting()
+void LLAppViewerLinux::handleCrashReporting(bool reportFreeze)
 {
-	const S32 cb = gCrashSettings.getS32(CRASH_BEHAVIOR_SETTING);
+	std::string cmd =gDirUtilp->getAppRODataDir();
+	cmd += gDirUtilp->getDirDelimiter();
+#if LL_LINUX
+	cmd += "linux-crash-logger.bin";
+#else // LL_SOLARIS
+	cmd += "bin/solaris-crash-logger";
+#endif // LL_LINUX
 
-	// Always generate the report, have the logger do the asking, and
-	// don't wait for the logger before exiting (-> total cleanup).
-	if (CRASH_BEHAVIOR_NEVER_SEND != cb)
-	{	
-		// launch the actual crash logger
-		const char* ask_dialog = "-dialog";
-		if (CRASH_BEHAVIOR_ASK != cb)
-			ask_dialog = ""; // omit '-dialog' option
-		std::string cmd =gDirUtilp->getAppRODataDir();
-		cmd += gDirUtilp->getDirDelimiter();
-		cmd += "linux-crash-logger.bin";
-		const char * cmdargv[] =
-			{cmd.c_str(),
-			 ask_dialog,
-			 "-user",
-			 (char*)LLViewerLogin::getInstance()->getGridLabel().c_str(),
-			 "-name",
-			 LLAppViewer::instance()->getSecondLifeTitle().c_str(),
+	if(reportFreeze)
+	{
+		char* const cmdargv[] =
+			{(char*)cmd.c_str(),
+			 (char*)"-previous",
 			 NULL};
-		fflush(NULL);
+
+		fflush(NULL); // flush all buffers before the child inherits them
 		pid_t pid = fork();
 		if (pid == 0)
 		{ // child
-			execv(cmd.c_str(), (char* const*) cmdargv);		/* Flawfinder: ignore */
+			execv(cmd.c_str(), cmdargv);		/* Flawfinder: Ignore */
 			llwarns << "execv failure when trying to start " << cmd << llendl;
 			_exit(1); // avoid atexit()
-		} 
-		else
-		{
+		} else {
 			if (pid > 0)
 			{
-				// DO NOT wait for child proc to die; we want
-				// the logger to outlive us while we quit to
-				// free up the screen/keyboard/etc.
-				////int childExitStatus;
-				////waitpid(pid, &childExitStatus, 0);
-			} 
-			else
-			{
+				// wait for child proc to die
+				int childExitStatus;
+				waitpid(pid, &childExitStatus, 0);
+			} else {
 				llwarns << "fork failure." << llendl;
 			}
 		}
 	}
-	// Sometimes signals don't seem to quit the viewer.  Also, we may
-	// have been called explicitly instead of from a signal handler.
-	// Make sure we exit so as to not totally confuse the user.
-	_exit(1); // avoid atexit(), else we may re-crash in dtors.
+	else
+	{
+		const S32 cb = gCrashSettings.getS32(CRASH_BEHAVIOR_SETTING);
+
+		// Always generate the report, have the logger do the asking, and
+		// don't wait for the logger before exiting (-> total cleanup).
+		if (CRASH_BEHAVIOR_NEVER_SEND != cb)
+		{	
+			// launch the actual crash logger
+			const char* ask_dialog = "-dialog";
+			if (CRASH_BEHAVIOR_ASK != cb)
+				ask_dialog = ""; // omit '-dialog' option
+			const char * cmdargv[] =
+				{cmd.c_str(),
+				 ask_dialog,
+				 "-user",
+				 (char*)LLViewerLogin::getInstance()->getGridLabel().c_str(),
+				 "-name",
+				 LLAppViewer::instance()->getSecondLifeTitle().c_str(),
+				 NULL};
+			fflush(NULL);
+			pid_t pid = fork();
+			if (pid == 0)
+			{ // child
+				execv(cmd.c_str(), (char* const*) cmdargv);		/* Flawfinder: ignore */
+				llwarns << "execv failure when trying to start " << cmd << llendl;
+				_exit(1); // avoid atexit()
+			} 
+			else
+			{
+				if (pid > 0)
+				{
+					// DO NOT wait for child proc to die; we want
+					// the logger to outlive us while we quit to
+					// free up the screen/keyboard/etc.
+					////int childExitStatus;
+					////waitpid(pid, &childExitStatus, 0);
+				} 
+				else
+				{
+					llwarns << "fork failure." << llendl;
+				}
+			}
+		}
+		// Sometimes signals don't seem to quit the viewer.  Also, we may
+		// have been called explicitly instead of from a signal handler.
+		// Make sure we exit so as to not totally confuse the user.
+		_exit(1); // avoid atexit(), else we may re-crash in dtors.
+	}
 }
 
 bool LLAppViewerLinux::beingDebugged()

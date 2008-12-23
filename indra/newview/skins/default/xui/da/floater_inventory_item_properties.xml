@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="item properties" title="Egenskaber for Objekt i Beholdning">
+	<text name="LabelItemNameTitle">
+		Navn:
+	</text>
+	<text name="LabelItemDescTitle">
+		Beskrivelse:
+	</text>
+	<text name="LabelCreatorTitle">
+		Skaber:
+	</text>
+	<text name="LabelCreatorName">
+		Nicole Linden
+	</text>
+	<button label="Profil..." label_selected="" name="BtnCreator" />
+	<text name="LabelOwnerTitle">
+		Ejer:
+	</text>
+	<text name="LabelOwnerName">
+		Thrax Linden
+	</text>
+	<button label="Profil..." label_selected="" name="BtnOwner" />
+	<text name="LabelAcquiredTitle">
+		Erhvervet:
+	</text>
+	<text name="LabelAcquiredDate">
+		Wed May 24 12:50:46 2006
+	</text>
+	<text name="OwnerLabel">
+		Du kan:
+	</text>
+	<check_box label="Redigere" name="CheckOwnerModify" />
+	<check_box label="Kopiere" name="CheckOwnerCopy" />
+	<check_box label="S&#230;lge/Give V&#230;k" name="CheckOwnerTransfer" />
+	<text name="BaseMaskDebug">
+		B:
+	</text>
+	<text name="OwnerMaskDebug">
+		O:
+	</text>
+	<text name="GroupMaskDebug">
+		G:
+	</text>
+	<text name="EveryoneMaskDebug">
+		E:
+	</text>
+	<text name="NextMaskDebug">
+		N:
+	</text>
+	<check_box label="Del med Gruppe" name="CheckShareWithGroup" />
+	<check_box label="Tillad alle at kopiere" name="CheckEveryoneCopy" />
+	<text name="NextOwnerLabel">
+		N&#230;ste ejer kan:
+	</text>
+	<check_box label="Redigere" name="CheckNextOwnerModify" />
+	<check_box label="Kopiere" name="CheckNextOwnerCopy" />
+	<check_box label="S&#230;lge/Give v&#230;k" name="CheckNextOwnerTransfer" />
+	<text name="SaleLabel">
+		Marker Ting:
+	</text>
+	<check_box label="Til Salg" name="CheckPurchase" />
+	<radio_group name="RadioSaleType">
+		<radio_item name="radio">
+			Original
+		</radio_item>
+		<radio_item name="radio2">
+			Kopi
+		</radio_item>
+	</radio_group>
+	<text name="TextPrice">
+		Pris:  L$
+	</text>
+	<string name="unknown">
+		(ukendt)
+	</string>
+	<string name="public">
+		(offentlig)
+	</string>
+	<string name="you_can">
+		Du kan:
+	</string>
+	<string name="owner_can">
+		Ejer kan:
+	</string>
+</floater>

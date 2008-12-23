@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_report_abuse" title="Raport o Nadużyciu">
+	<texture_picker label="" name="screenshot"/>
+	<check_box label="Załącz zdjęcie ekranu" name="screen_check"/>
+	<text name="reporter_title">
+		Reporter:
+	</text>
+	<text name="reporter_field">
+		Loremipsum Dolorsitamut
+	</text>
+	<text name="sim_title">
+		Region:
+	</text>
+	<text name="sim_field">
+		Nazwa Regionu
+	</text>
+	<text name="pos_title">
+		Pozycja:
+	</text>
+	<text name="pos_field">
+		{128.1, 128.1, 15.4}
+	</text>
+	<text name="select_object_label">
+		Kliknij na przycisk, a pózniej na obiekt:
+	</text>
+	<button label="" label_selected="" name="pick_btn" tool_tip="Wybór obiektu - identyfikacja obiektu jako źródło raportu"/>
+	<text name="object_name_label">
+		Nazwa:
+	</text>
+	<text name="object_name">
+		Consetetur Sadipscing
+	</text>
+	<text name="owner_name_label">
+		Właściciel:
+	</text>
+	<text name="owner_name">
+		Hendrerit Vulputate
+	</text>
+	<combo_box name="category_combo" tool_tip="Kategoria -- wybierz kategorię, która najlepiej opisuje materię tego raportu">
+		<combo_item name="Select_category">
+			Wybierz Kategorię:
+		</combo_item>
+		<combo_item name="Age__Age_play">
+			Wiek &gt; Udawanie nieletniej osoby
+		</combo_item>
+		<combo_item name="Age__Adult_resident_on_Teen_Second_Life">
+			Wiek &gt; Dorosły Rezydent w Second Life dla nastolatków
+		</combo_item>
+		<combo_item name="Age__Underage_resident_on_Adult_Second_Life">
+			Wiek &gt; Nieletni Rezydent w Second Life dla dorosłych
+		</combo_item>
+		<combo_item name="Assault__Combat_sandbox___unsafe_area">
+			Napaść &gt; Piaskownica do walk / niebezpieczny obszar
+		</combo_item>
+		<combo_item name="Assault__Safe_area">
+			Napaść &gt; Bezpieczny obszar
+		</combo_item>
+		<combo_item name="Assault__Weapons_testing_sandbox">
+			Napaść &gt; Piaskownica do testowania broni
+		</combo_item>
+		<combo_item name="Commerce__Failure_to_deliver_product_or_service">
+			Handel &gt; Niedostarczenie produktu lub uslugi
+		</combo_item>
+		<combo_item name="Disclosure__Real_world_information">
+			Naruszenie tajemnicy &gt; Informacje z rzeczywistego świata
+		</combo_item>
+		<combo_item name="Disclosure__Remotely_monitoring chat">
+			Ujawnienie &gt; Monitorowanie czatu z dystansu
+		</combo_item>
+		<combo_item name="Disclosure__Second_Life_information_chat_IMs">
+			Ujawnienie &gt; Dane z Second Life / czatu / IM
+		</combo_item>
+		<combo_item name="Disturbing_the_peace__Unfair_use_of_region_resources">
+			Zakłócanie spokoju &gt; Nieuczciwe używanie zasobów regionu
+		</combo_item>
+		<combo_item name="Disturbing_the_peace__Excessive_scripted_objects">
+			Zakłócanie spokoju &gt; Przesadnie skryptowane obiekty
+		</combo_item>
+		<combo_item name="Disturbing_the_peace__Object_littering">
+			Zakłócanie spokoju &gt; Śmiecenie obiektami
+		</combo_item>
+		<combo_item name="Disturbing_the_peace__Repetitive_spam">
+			Zakłócanie spokoju &gt; Ciągły spam
+		</combo_item>
+		<combo_item name="Disturbing_the_peace__Unwanted_advert_spam">
+			Zakłócanie spokoju &gt; Nieporządany spam reklamowy
+		</combo_item>
+		<combo_item name="Fraud__L$">
+			Oszustwo &gt; L$
+		</combo_item>
+		<combo_item name="Fraud__Land">
+			Oszustwo &gt; Posiadłości
+		</combo_item>
+		<combo_item name="Fraud__Pyramid_scheme_or_chain_letter">
+			Oszustwo &gt; Piramidy albo listy łańcuchowe
+		</combo_item>
+		<combo_item name="Fraud__US$">
+			Oszustwo &gt; US$
+		</combo_item>
+		<combo_item name="Harassment__Advert_farms___visual_spam">
+			Prześladowanie &gt; Farmy reklamowe / wizualny spam
+		</combo_item>
+		<combo_item name="Harassment__Defaming_individuals_or_groups">
+			Prześladowanie &gt; Obmawianie jedostek lub grup
+		</combo_item>
+		<combo_item name="Harassment__Impeding_movement">
+			Prześladowanie &gt; Ograniczanie ruchu
+		</combo_item>
+		<combo_item name="Harassment__Sexual_harassment">
+			Prześladowanie &gt; Molestowanie seksualne
+		</combo_item>
+		<combo_item name="Harassment__Solicting_inciting_others_to_violate_ToS">
+			Prześladowanie &gt; Namawianie/zachęcanie innych do łamania Warunków Umowy (Terms of Service)
+		</combo_item>
+		<combo_item name="Harassment__Verbal_abuse">
+			Prześladowanie &gt; Znieważanie słowne
+		</combo_item>
+		<combo_item name="Indecency__Broadly_offensive_content_or_conduct">
+			Nieprzyzwoitość &gt; Bardzo obraźliwa treść lub postępowanie
+		</combo_item>
+		<combo_item name="Indecency__Broadly_visible_mature_content">
+			Nieprzyzwoitość &gt; Bardzo widoczna treść dla dorosłych
+		</combo_item>
+		<combo_item name="Indecency__Inappropriate_avatar_name">
+			Nieprzyzwoitość &gt; Niestosowne imię awatara
+		</combo_item>
+		<combo_item name="Indecency__Mature_content_in_PG_region">
+			Nieprzyzwoitość &gt; Zawartość dla dorosłych (18+) w regionie dla wszystkich (BO)
+		</combo_item>
+		<combo_item name="Intellectual_property_infringement_Content_Removal">
+			Naruszenie praw autorskich &gt; Usunięcie Treści
+		</combo_item>
+		<combo_item name="Intellectual_property_infringement_CopyBot_or_Permissions_Exploit">
+			Naruszenie praw autorskich &gt; CopyBot albo Nadużycie Przywilejów
+		</combo_item>
+		<combo_item name="Intolerance">
+			Nietolerancja
+		</combo_item>
+		<combo_item name="Land__Abuse_of_sandbox_resources">
+			Posiadłości &gt; Nadużywanie piaskownicy
+		</combo_item>
+		<combo_item name="Land__Encroachment__Objects_textures">
+			Posiadłości &gt; Naruszenie &gt; Obiekty/tekstury
+		</combo_item>
+		<combo_item name="Land__Encroachment__Particles">
+			Posiadłości &gt; Naruszenie &gt; Cząsteczki
+		</combo_item>
+		<combo_item name="Land__Encroachment__Trees_plants">
+			Posiadłości &gt; Naruszenie &gt; Drzewa/rośliny
+		</combo_item>
+		<combo_item name="Wagering_gambling">
+			Zakłady/hazard
+		</combo_item>
+		<combo_item name="Other">
+			Inne
+		</combo_item>
+	</combo_box>
+	<text name="abuser_name_title">
+		Dane osobowe:
+	</text>
+	<line_editor name="abuser_name_edit"/>
+	<button label="Wybierz Rezydenta" label_selected="" name="select_abuser" tool_tip="Wybierz dane Rezydenta"/>
+	<text name="abuser_name_title2">
+		Miejsce nadużycia:
+	</text>
+	<line_editor name="abuse_location_edit"/>
+	<text name="sum_title">
+		Podsumowanie:
+	</text>
+	<line_editor name="summary_edit"/>
+	<text name="dscr_title">
+		Szczegóły:
+	</text>
+	<text name="bug_aviso">
+		Proszę zachować specyfikę daty, miejsca, 
+materii nadużycia, fragmentów czatu/IM oraz obiektów.
+	</text>
+	<text_editor name="details_edit"/>
+	<text name="incomplete_title">
+		Pamiętaj: Niedokończone raporty nie podlegają inwestygacji!
+	</text>
+	<button label="Anuluj" label_selected="Anuluj" name="cancel_btn"/>
+	<button label="Wyślij" label_selected="Wyślij" name="send_btn"/>
+</floater>

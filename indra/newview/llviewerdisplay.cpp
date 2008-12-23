@@ -113,7 +113,6 @@ void render_ui_3d();
 void render_ui_2d();
 void render_disconnected_background();
 void render_hud_elements();
-void process_keystrokes_async();
 
 void display_startup()
 {
@@ -684,7 +683,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		}
 
-		LLAppViewer::instance()->pingMainloopTimeout("Display:Render");
+		LLAppViewer::instance()->pingMainloopTimeout("Display:RenderStart");
 		
 		//// render frontmost floater opaque for occlusion culling purposes
 		//LLFloater* frontmost_floaterp = gFloaterView->getFrontmost();
@@ -730,10 +729,13 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 			gGL.setColorMask(true, false);
 		}
-
+		
+		LLAppViewer::instance()->pingMainloopTimeout("Display:RenderGeom");
+		
 		if (!(LLAppViewer::instance()->logoutRequestSent() && LLAppViewer::instance()->hasSavedFinalSnapshot())
 				&& !gRestoreGL)
 		{
+
 			gGL.setColorMask(true, false);
 			LLPipeline::sUnderWaterRender = LLViewerCamera::getInstance()->cameraUnderWater() ? TRUE : FALSE;
 			gPipeline.renderGeom(*LLViewerCamera::getInstance(), TRUE);
@@ -748,9 +750,12 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			}
 			stop_glerror();
 		}
+
+		LLAppViewer::instance()->pingMainloopTimeout("Display:RenderFlush");		
 		
 		if (to_texture)
 		{
+
 			gPipeline.mScreen.flush();
 		}
 
@@ -759,23 +764,20 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		/// Using render to texture would be faster/better, but I don't have a 
 		/// grasp of their full display stack just yet.
 		// gPostProcess->apply(gViewerWindow->getWindowDisplayWidth(), gViewerWindow->getWindowDisplayHeight());
-
+		
+		LLAppViewer::instance()->pingMainloopTimeout("Display:RenderUI");
+		
 		if (!for_snapshot)
 		{
+			gFrameStats.start(LLFrameStats::RENDER_UI);
 			render_ui();
 		}
 
 		LLSpatialGroup::sNoDelete = FALSE;
 	}
-	gFrameStats.start(LLFrameStats::RENDER_UI);
-
-	if (gHandleKeysAsync)
-	{
-		LLAppViewer::instance()->pingMainloopTimeout("Display:Keystrokes");
-		process_keystrokes_async();
-		stop_glerror();
-	}
-
+	
+	LLAppViewer::instance()->pingMainloopTimeout("Display:FrameStats");
+	
 	gFrameStats.start(LLFrameStats::MISC_END);
 	stop_glerror();
 
@@ -1230,44 +1232,4 @@ void render_disconnected_background()
 void display_cleanup()
 {
 	gDisconnectedImagep = NULL;
-}
-
-void process_keystrokes_async()
-{
-#if LL_WINDOWS
-	MSG			msg;
-	// look through all input messages, leaving them in the event queue
-	while( PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE | PM_NOYIELD))
-	{
-		// on first mouse message, break out
-		if (msg.message >= WM_MOUSEFIRST && 
-			msg.message <= WM_MOUSELAST ||
-			msg.message == WM_QUIT)
-		{
-			break;
-		}
-
-		// this is a message we want to handle now, so remove it from the event queue
-		PeekMessage(&msg, NULL, msg.message, msg.message, PM_REMOVE | PM_NOYIELD);
-		//		if (msg.message == WM_KEYDOWN)
-		//		{
-		//			llinfos << "Process async key down " << (U32)msg.wParam << llendl;
-		//		}
-		TranslateMessage(&msg);
-		DispatchMessage(&msg);
-	}
-
-	// Scan keyboard for movement keys.  Command keys and typing
-	// are handled by windows callbacks.  Don't do this until we're
-	// done initializing.  JC
-	if (gViewerWindow->mWindow->getVisible() 
-		&& gViewerWindow->getActive()
-		&& !gViewerWindow->mWindow->getMinimized()
-		&& LLStartUp::getStartupState() == STATE_STARTED
-		&& !gViewerWindow->getShowProgress()
-		&& !gFocusMgr.focusLocked())
-	{
-		gKeyboard->scanKeyboard();
-	}
-#endif
 }

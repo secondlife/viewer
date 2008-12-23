@@ -191,17 +191,10 @@
 
 //----------------------------------------------------------------------------
 // viewer.cpp - these are only used in viewer, should be easily moved.
-extern void disable_win_error_reporting();
 
 #if LL_DARWIN
-#include <Carbon/Carbon.h>
 extern void init_apple_menu(const char* product);
-extern OSErr AEGURLHandler(const AppleEvent *messagein, AppleEvent *reply, long refIn);
-extern OSErr AEQuitHandler(const AppleEvent *messagein, AppleEvent *reply, long refIn);
-extern OSStatus simpleDialogHandler(EventHandlerCallRef handler, EventRef event, void *userdata);
-#include <boost/tokenizer.hpp>
 #endif // LL_DARWIN
-
 
 extern BOOL gRandomizeFramerate;
 extern BOOL gPeriodicSlowFrame;
@@ -209,8 +202,6 @@ extern BOOL gDebugGL;
 
 ////////////////////////////////////////////////////////////
 // All from the last globals push...
-BOOL gHandleKeysAsync = FALSE;
-
 const F32 DEFAULT_AFK_TIMEOUT = 5.f * 60.f; // time with no input before user flagged as Away From Keyboard
 
 F32 gSimLastTime; // Used in LLAppViewer::init and send_stats()
@@ -241,7 +232,7 @@ F32 gFPSClamped = 10.f;						// Pretend we start at target rate.
 F32 gFrameDTClamped = 0.f;					// Time between adjacent checks to network for packets
 U64	gStartTime = 0; // gStartTime is "private", used only to calculate gFrameTimeSeconds
 U32 gFrameStalls = 0;
-const F64 FRAME_STALL_THRESHOLD = 5.0;
+const F64 FRAME_STALL_THRESHOLD = 1.0;
 
 LLTimer gRenderStartTime;
 LLFrameTimer gForegroundTime;
@@ -310,6 +301,8 @@ static std::string gWindowTitle;
 std::string gLoginPage;
 std::vector<std::string> gLoginURIs;
 static std::string gHelperURI;
+
+LLAppViewer::LLUpdaterInfo *LLAppViewer::sUpdaterInfo = NULL ;
 
 void idle_afk_check()
 {
@@ -412,7 +405,6 @@ static void settings_to_globals()
 	gShowObjectUpdates = gSavedSettings.getBOOL("ShowObjectUpdates");
 	gMapScale = gSavedSettings.getF32("MapScale");
 	gMiniMapScale = gSavedSettings.getF32("MiniMapScale");
-	gHandleKeysAsync = gSavedSettings.getBOOL("AsyncKeyboard");
 	LLHoverView::sShowHoverTips = gSavedSettings.getBOOL("ShowHoverTips");
 
 	LLCubeMap::sUseCubeMaps = LLFeatureManager::getInstance()->isFeatureAvailable("RenderCubeMap");
@@ -665,6 +657,7 @@ bool LLAppViewer::init()
 					ui_audio_callback,
 					&LLUI::sGLScaleFactor);
 	LLWeb::initClass();			  // do this after LLUI
+
 	LLTextEditor::setURLCallbacks(&LLWeb::loadURL,
 				&LLURLDispatcher::dispatchFromTextEditor,
 				&LLURLDispatcher::dispatchFromTextEditor);
@@ -684,7 +677,6 @@ bool LLAppViewer::init()
 
 	// load MIME type -> media impl mappings
 	LLMIMETypes::parseMIMETypes( std::string("mime_types.xml") ); 
-
 
 	// Copy settings to globals. *TODO: Remove or move to appropriage class initializers
 	settings_to_globals();
@@ -829,7 +821,10 @@ bool LLAppViewer::init()
 		}
 
 	}
-	
+
+	// save the graphics card
+	gDebugInfo["GraphicsCard"] = LLFeatureManager::getInstance()->getGPUString();
+
 	// Save the current version to the prefs file
 	gSavedSettings.setString("LastRunVersion", gCurrentVersion);
 
@@ -885,12 +880,10 @@ bool LLAppViewer::mainLoop()
 			
 			{
 				LLFastTimer t2(LLFastTimer::FTM_MESSAGES);
-			#if LL_WINDOWS
-				if (!LLWinDebug::checkExceptionHandler())
+				if (!restoreErrorTrap())
 				{
-					llwarns << " Someone took over my exception handler (post messagehandling)!" << llendl;
+					llwarns << " Someone took over my signal/exception handler (post messagehandling)!" << llendl;
 				}
-			#endif
 
 				gViewerWindow->mWindow->gatherInput();
 			}
@@ -946,7 +939,7 @@ bool LLAppViewer::mainLoop()
 					
 					resumeMainloopTimeout();
 				}
-
+ 
 				if (gDoDisconnect && (LLStartUp::getStartupState() == STATE_STARTED))
 				{
 					pauseMainloopTimeout();
@@ -1362,6 +1355,10 @@ bool LLAppViewer::cleanup()
 	delete sImageDecodeThread;
     sImageDecodeThread = NULL;
 
+	//Note:
+	//LLViewerMedia::cleanupClass() has to be put before gImageList.shutdown()
+	//because some new image might be generated during cleaning up media. --bao
+	LLViewerMedia::cleanupClass();
 	gImageList.shutdown(); // shutdown again in case a callback added something
 	LLUIImageList::getInstance()->cleanUp();
 	
@@ -1387,14 +1384,17 @@ bool LLAppViewer::cleanup()
 	LLWatchdog::getInstance()->cleanup();
 
 	end_messaging_system();
+	llinfos << "Message system deleted." << llendflush;
 
 	// *NOTE:Mani - The following call is not thread safe. 
 	LLCurl::cleanupClass();
+	llinfos << "LLCurl cleaned up." << llendflush;
 
 	// If we're exiting to launch an URL, do that here so the screen
 	// is at the right resolution before we launch IE.
 	if (!gLaunchFileOnQuit.empty())
 	{
+		llinfos << "Launch file on quit." << llendflush;
 #if LL_WINDOWS
 		// Indicate an application is starting.
 		SetCursor(LoadCursor(NULL, IDC_WAIT));
@@ -1404,14 +1404,32 @@ bool LLAppViewer::cleanup()
 		ms_sleep(1000);
 
 		LLWeb::loadURLExternal( gLaunchFileOnQuit );
+		llinfos << "File launched." << llendflush;
 	}
-	
-	LLViewerMedia::cleanupClass();
 
     llinfos << "Goodbye" << llendflush;
 
 	// return 0;
 	return true;
+}
+
+// A callback for llerrs to call during the watchdog error.
+void watchdog_llerrs_callback(const std::string &error_string)
+{
+	gLLErrorActivated = true;
+
+#ifdef LL_WINDOWS
+	RaiseException(0,0,0,0);
+#else
+	raise(SIGQUIT);
+#endif
+}
+
+// A callback for the watchdog to call.
+void watchdog_killer_callback()
+{
+	LLError::setFatalFunction(watchdog_llerrs_callback);
+	llerrs << "Watchdog killer event" << llendl;
 }
 
 bool LLAppViewer::initThreads()
@@ -1423,10 +1441,11 @@ bool LLAppViewer::initThreads()
 #endif
 
 	const S32 NEVER_SUBMIT_REPORT = 2;
-	if(TRUE == gSavedSettings.getBOOL("WatchdogEnabled") 
-		&& (gCrashSettings.getS32(CRASH_BEHAVIOR_SETTING) != NEVER_SUBMIT_REPORT))
+	bool use_watchdog = gSavedSettings.getBOOL("WatchdogEnabled");
+	bool send_reports = gCrashSettings.getS32(CRASH_BEHAVIOR_SETTING) != NEVER_SUBMIT_REPORT;
+	if(use_watchdog && send_reports)
 	{
-		LLWatchdog::getInstance()->init();
+		LLWatchdog::getInstance()->init(watchdog_killer_callback);
 	}
 
 	LLVFSThread::initClass(enable_threads && true);
@@ -2013,7 +2032,7 @@ bool LLAppViewer::initConfiguration()
 		}
 
 		initMarkerFile();
-
+		
 #if LL_SEND_CRASH_REPORTS
 		if (gLastExecEvent == LAST_EXEC_FROZE)
 		{
@@ -2035,52 +2054,8 @@ bool LLAppViewer::initConfiguration()
 			{
 				llinfos << "Sending crash report." << llendl;
 
-#if LL_WINDOWS
-				std::string exe_path = gDirUtilp->getAppRODataDir();
-				exe_path += gDirUtilp->getDirDelimiter();
-				exe_path += "win_crash_logger.exe";
-
-				std::string arg_string = "-previous ";
-				// Spawn crash logger.
-				// NEEDS to wait until completion, otherwise log files will get smashed.
-				_spawnl(_P_WAIT, exe_path.c_str(), exe_path.c_str(), arg_string.c_str(), NULL);
-#elif LL_DARWIN
-				std::string command_str;
-				command_str = "mac-crash-logger.app/Contents/MacOS/mac-crash-logger ";
-				command_str += "-previous";
-				// XXX -- We need to exit fullscreen mode for this to work.
-				// XXX -- system() also doesn't wait for completion.  Hmm...
-				system(command_str.c_str());		/* Flawfinder: Ignore */
-#elif LL_LINUX || LL_SOLARIS
-				std::string cmd =gDirUtilp->getAppRODataDir();
-				cmd += gDirUtilp->getDirDelimiter();
-#if LL_LINUX
-				cmd += "linux-crash-logger.bin";
-#else // LL_SOLARIS
-				cmd += "bin/solaris-crash-logger";
-#endif // LL_LINUX
-				char* const cmdargv[] =
-					{(char*)cmd.c_str(),
-					 (char*)"-previous",
-					 NULL};
-				fflush(NULL); // flush all buffers before the child inherits them
-				pid_t pid = fork();
-				if (pid == 0)
-				{ // child
-					execv(cmd.c_str(), cmdargv);		/* Flawfinder: Ignore */
-					llwarns << "execv failure when trying to start " << cmd << llendl;
-					_exit(1); // avoid atexit()
-				} else {
-					if (pid > 0)
-					{
-						// wait for child proc to die
-						int childExitStatus;
-						waitpid(pid, &childExitStatus, 0);
-					} else {
-						llwarns << "fork failure." << llendl;
-					}
-				}
-#endif
+				bool report_freeze = true;
+				handleCrashReporting(report_freeze);
 			}
 			else
 			{
@@ -2246,7 +2221,6 @@ void LLAppViewer::cleanupSavedSettings()
 
 	gSavedSettings.setF32("MapScale", gMapScale );
 	gSavedSettings.setF32("MiniMapScale", gMiniMapScale );
-	gSavedSettings.setBOOL("AsyncKeyboard", gHandleKeysAsync);
 	gSavedSettings.setBOOL("ShowHoverTips", LLHoverView::sShowHoverTips);
 
 	// Some things are cached in LLAgent.
@@ -2284,7 +2258,7 @@ void LLAppViewer::writeSystemInfo()
 	gDebugInfo["RAMInfo"]["Physical"] = (LLSD::Integer)(gSysMemory.getPhysicalMemoryKB());
 	gDebugInfo["RAMInfo"]["Allocated"] = (LLSD::Integer)(gMemoryAllocated>>10); // MB -> KB
 	gDebugInfo["OSInfo"] = getOSInfo().getOSStringSimple();
-		
+
 	// The user is not logged on yet, but record the current grid choice login url
 	// which may have been the intended grid. This can b
 	gDebugInfo["GridName"] = LLViewerLogin::getInstance()->getGridLabel();
@@ -2295,6 +2269,13 @@ void LLAppViewer::writeSystemInfo()
 	gDebugInfo["MainloopThreadID"] = (S32)thread_id;
 #endif
 
+	// "CrashNotHandled" is set here, while things are running well,
+	// in case of a freeze. If there is a freeze, the crash logger will be launched
+	// and can read this value from the debug_info.log.
+	// If the crash is handled by LLAppViewer::handleViewerCrash, ie not a freeze,
+	// then the value of "CrashNotHandled" will be set to true.
+	gDebugInfo["CrashNotHandled"] = (LLSD::Boolean)true;
+	
 	// Dump some debugging info
 	LL_INFOS("SystemInfo") << gSecondLife
 			<< " version " << LL_VERSION_MAJOR << "." << LL_VERSION_MINOR << "." << LL_VERSION_PATCH
@@ -2369,6 +2350,9 @@ void LLAppViewer::handleViewerCrash()
 	gDebugInfo["CAFilename"] = gDirUtilp->getCAFile();
 	gDebugInfo["ViewerExePath"] = gDirUtilp->getExecutablePathAndName();
 	gDebugInfo["CurrentPath"] = gDirUtilp->getCurPath();
+	gDebugInfo["SessionLength"] = F32(LLFrameTimer::getElapsedSeconds());
+	gDebugInfo["StartupState"] = LLStartUp::getStartupStateString();
+
 	if(gLogoutInProgress)
 	{
 		gDebugInfo["LastExecEvent"] = LAST_EXEC_LOGOUT_CRASH;
@@ -2394,6 +2378,9 @@ void LLAppViewer::handleViewerCrash()
 		gDebugInfo["MainloopTimeoutState"] = LLAppViewer::instance()->mMainloopTimeout->getState();
 	}
 	
+	// The crash is being handled here so set this value to false.
+	// Otherwise the crash logger will think this crash was a freeze.
+	gDebugInfo["CrashNotHandled"] = (LLSD::Boolean)false;
     
 	//Write out the crash status file
 	//Use marker file style setup, as that's the simplest, especially since
@@ -3857,6 +3844,11 @@ void LLAppViewer::pauseMainloopTimeout()
 
 void LLAppViewer::pingMainloopTimeout(const std::string& state, F32 secs)
 {
+//	if(!restoreErrorTrap())
+//	{
+//		llwarns << "!!!!!!!!!!!!! Its an error trap!!!!" << state << llendl;
+//	}
+	
 	if(mMainloopTimeout)
 	{
 		if(secs < 0.0f)
@@ -3869,3 +3861,42 @@ void LLAppViewer::pingMainloopTimeout(const std::string& state, F32 secs)
 	}
 }
 
+void LLAppViewer::handleLoginComplete()
+{
+	initMainloopTimeout("Mainloop Init");
+
+	// Store some data to DebugInfo in case of a freeze.
+	gDebugInfo["ClientInfo"]["Name"] = gSavedSettings.getString("VersionChannelName");
+
+	gDebugInfo["ClientInfo"]["MajorVersion"] = LL_VERSION_MAJOR;
+	gDebugInfo["ClientInfo"]["MinorVersion"] = LL_VERSION_MINOR;
+	gDebugInfo["ClientInfo"]["PatchVersion"] = LL_VERSION_PATCH;
+	gDebugInfo["ClientInfo"]["BuildVersion"] = LL_VERSION_BUILD;
+
+	LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
+	if ( parcel && parcel->getMusicURL()[0])
+	{
+		gDebugInfo["ParcelMusicURL"] = parcel->getMusicURL();
+	}	
+	if ( parcel && parcel->getMediaURL()[0])
+	{
+		gDebugInfo["ParcelMediaURL"] = parcel->getMediaURL();
+	}
+	
+	gDebugInfo["SettingsFilename"] = gSavedSettings.getString("ClientSettingsFile");
+	gDebugInfo["CAFilename"] = gDirUtilp->getCAFile();
+	gDebugInfo["ViewerExePath"] = gDirUtilp->getExecutablePathAndName();
+	gDebugInfo["CurrentPath"] = gDirUtilp->getCurPath();
+
+	if(gAgent.getRegion())
+	{
+		gDebugInfo["CurrentSimHost"] = gAgent.getRegionHost().getHostName();
+		gDebugInfo["CurrentRegion"] = gAgent.getRegion()->getName();
+	}
+
+	if(LLAppViewer::instance()->mMainloopTimeout)
+	{
+		gDebugInfo["MainloopTimeoutState"] = LLAppViewer::instance()->mMainloopTimeout->getState();
+	}
+	writeDebugInfo();
+}

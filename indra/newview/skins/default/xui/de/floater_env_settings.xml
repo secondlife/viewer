@@ -14,7 +14,7 @@
 	</text>
 	<color_swatch name="EnvWaterColor" tool_tip="Klicken Sie hier, um die Farbauswahl zu öffnen" />
 	<text name="EnvWaterFogText">
-		Wasser
+		Wasser-
 trübung
 	</text>
 	<button label="Grundstückszeit verw." name="EnvUseEstateTimeButton" />

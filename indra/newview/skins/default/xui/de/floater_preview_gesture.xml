@@ -15,10 +15,10 @@
 	<text name="trigger_label">
 		Auslöser:
 	</text>
-	<text name="replace_text" tool_tip="Ersetzt den Auslösertext mit diesem Text. Wenn Sie zum Beispiel den Auslöser &apos;hallo&apos; durch &apos;wie geht&apos;s&apos; ersetzen, erscheint im Chat anstelle von &apos;Ich wollte nur hallo sagen&apos; der Text &apos;Ich wollte nur wie geht&apos;s sagen&apos; und die zugehörige Geste wird abgespielt.">
+	<text name="replace_text" tool_tip="Ersetzt den Auslösertext mit diesem Text. Wenn Sie zum Beispiel den Auslöser „hallo“ durch „wie geht&apos;s“ ersetzen, erscheint im Chat anstelle von „Ich wollte nur hallo sagen“ der Text „Ich wollte nur wie geht&apos;s sagen“ und die zugehörige Geste wird abgespielt.">
 		Ersetzen mit:
 	</text>
-	<line_editor name="replace_editor" tool_tip="Ersetzt den Auslösertext mit diesem Text. Wenn Sie zum Beispiel den Auslöser &apos;hallo&apos; durch &apos;wie geht&apos;s&apos; ersetzen, erscheint im Chat anstelle von &apos;Ich wollte nur hallo sagen&apos; der Text &apos;Ich wollte nur wie geht&apos;s sagen&apos; und die zugehörige Geste wird abgespielt."/>
+	<line_editor name="replace_editor" tool_tip="Ersetzt den Auslösertext mit diesem Text. Wenn Sie zum Beispiel den Auslöser „hallo“ durch „wie geht&apos;s“ ersetzen, erscheint im Chat anstelle von „Ich wollte nur hallo sagen“ der Text „Ich wollte nur wie geht&apos;s sagen“ und die zugehörige Geste wird abgespielt."/>
 	<text name="key_label">
 		Tastenkürzel:
 	</text>
@@ -30,12 +30,14 @@
 	<text name="steps_label">
 		Schritte:
 	</text>
+	<!-- Revert translations as interim fix to VWR-9985 while the code is not properly internationalized
 	<scroll_list name="library_list">
 		Animation
 Ton
 Chat
 Warten
 	</scroll_list>
+	-->
 	<button label="Hinzufügen &gt;&gt;" name="add_btn"/>
 	<button label="Nach oben" name="up_btn"/>
 	<button label="Nach unten" name="down_btn"/>

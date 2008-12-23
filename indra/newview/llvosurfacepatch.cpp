@@ -945,45 +945,55 @@ BOOL LLVOSurfacePatch::lineSegmentIntersect(const LLVector3& start, const LLVect
 
 	//step one meter at a time until intersection point found
 
+	const LLVector3* ext = mDrawable->getSpatialExtents();
+	F32 rad = (delta*tdelta).magVecSquared();
+
 	F32 t = 0.f;
 	while ( t <= 1.f)
 	{
 		LLVector3 sample = origin + delta*t;
 		
-		F32 height = mRegionp->getLandHeightRegion(sample);
-		if (height > sample.mV[2])
-		{ //ray went below ground, positive intersection
-			//quick and dirty binary search to get impact point
-			tdelta = -tdelta*0.5f;
-			F32 err_dist = 0.001f;
-			F32 dist = fabsf(sample.mV[2] - height);
+		if (AABBSphereIntersectR2(ext[0], ext[1], sample+mRegionp->getOriginAgent(), rad))
+		{
+			F32 height = mRegionp->getLandHeightRegion(sample);
+			if (height > sample.mV[2])
+			{ //ray went below ground, positive intersection
+				//quick and dirty binary search to get impact point
+				tdelta = -tdelta*0.5f;
+				F32 err_dist = 0.001f;
+				F32 dist = fabsf(sample.mV[2] - height);
 
-			while (dist > err_dist && tdelta*tdelta > 0.0f)
-			{
-				t += tdelta;
-				sample = origin+delta*t;
-				height = mRegionp->getLandHeightRegion(sample);
-				if ((tdelta < 0 && height < sample.mV[2]) ||
-					(height > sample.mV[2] && tdelta > 0))
-				{ //jumped over intersection point, go back
-					tdelta = -tdelta;
+				while (dist > err_dist && tdelta*tdelta > 0.0f)
+				{
+					t += tdelta;
+					sample = origin+delta*t;
+					height = mRegionp->getLandHeightRegion(sample);
+					if ((tdelta < 0 && height < sample.mV[2]) ||
+						(height > sample.mV[2] && tdelta > 0))
+					{ //jumped over intersection point, go back
+						tdelta = -tdelta;
+					}
+					tdelta *= 0.5f;
+					dist = fabsf(sample.mV[2] - height);
 				}
-				tdelta *= 0.5f;
-				dist = fabsf(sample.mV[2] - height);
-			}
 
-			if (intersection)
-			{
-				sample.mV[2] = mRegionp->getLandHeightRegion(sample);
-				*intersection = sample + mRegionp->getOriginAgent();
-			}
+				if (intersection)
+				{
+					F32 height = mRegionp->getLandHeightRegion(sample);
+					if (fabsf(sample.mV[2]-height) < delta.length()*tdelta)
+					{
+						sample.mV[2] = mRegionp->getLandHeightRegion(sample);
+					}
+					*intersection = sample + mRegionp->getOriginAgent();
+				}
 
-			if (normal)
-			{
-				*normal = mRegionp->getLand().resolveNormalGlobal(mRegionp->getPosGlobalFromRegion(sample));
-			}
+				if (normal)
+				{
+					*normal = mRegionp->getLand().resolveNormalGlobal(mRegionp->getPosGlobalFromRegion(sample));
+				}
 
-			return TRUE;
+				return TRUE;
+			}
 		}
 
 		t += tdelta;

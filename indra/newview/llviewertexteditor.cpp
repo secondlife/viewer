@@ -616,7 +616,10 @@ BOOL LLViewerTextEditor::handleToolTip(S32 x, S32 y, std::string& msg, LLRect* s
 		LLView *viewp = *child_iter;
 		S32 local_x = x - viewp->getRect().mLeft;
 		S32 local_y = y - viewp->getRect().mBottom;
-		if( viewp->handleToolTip(local_x, local_y, msg, sticky_rect_screen ) )
+		if( viewp->pointInView(local_x, local_y) 
+			&& viewp->getVisible() 
+			&& viewp->getEnabled()
+			&& viewp->handleToolTip(local_x, local_y, msg, sticky_rect_screen ) )
 		{
 			return TRUE;
 		}

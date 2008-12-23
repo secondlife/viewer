@@ -12,6 +12,6 @@ Einwohners ein:
 	<button label="Auswählen" label_selected="Auswählen" name="Select" />
 	<button label="Schließen" label_selected="Schließen" name="Close" />
 	<text name="NotFound">
-		&apos;[TEXT]&apos; nicht gefunden
+		„[TEXT]“ nicht gefunden
 	</text>
 </floater>

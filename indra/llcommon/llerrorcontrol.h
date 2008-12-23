@@ -82,9 +82,9 @@ namespace LLError
 		Control functions.
 	*/
 
-	typedef void (*FatalFunction)(const std::string& message);
+	typedef void(*FatalFunction)(const std::string& message);
 	void crashAndLoop(const std::string& message);
-		// Default fatal funtion: divides by zero and loops forever
+		// Default fatal funtion: access null pointer and loops forever
 
 	void setFatalFunction(FatalFunction);
 		// The fatal function will be called when an message of LEVEL_ERROR

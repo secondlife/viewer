@@ -35,6 +35,15 @@
 
 const U32 WATCHDOG_SLEEP_TIME_USEC = 1000000;
 
+void default_killer_callback()
+{
+#ifdef LL_WINDOWS
+	RaiseException(0,0,0,0);
+#else
+	raise(SIGQUIT);
+#endif
+}
+
 // This class runs the watchdog timing thread.
 class LLWatchdogTimerThread : public LLThread
 {
@@ -52,7 +61,7 @@ public:
 	void stop() 
 	{
 		mStopping = true; 
-		ms_sleep(1);
+		mSleepMsecs = 1;
 	}
     
 	/* virtual */ void run()
@@ -146,7 +155,8 @@ void LLWatchdogTimeout::ping(const std::string& state)
 LLWatchdog::LLWatchdog() :
 	mSuspectsAccessMutex(NULL),
 	mTimer(NULL),
-	mLastClockCount(0)
+	mLastClockCount(0),
+	mKillerCallback(&default_killer_callback)
 {
 }
 
@@ -168,8 +178,9 @@ void LLWatchdog::remove(LLWatchdogEntry* e)
 	unlockThread();
 }
 
-void LLWatchdog::init()
+void LLWatchdog::init(killer_event_callback func)
 {
+	mKillerCallback = func;
 	if(!mSuspectsAccessMutex && !mTimer)
 	{
 		mSuspectsAccessMutex = new LLMutex(NULL);
@@ -238,11 +249,7 @@ void LLWatchdog::run()
 			}
 
 			llinfos << "Watchdog detected error:" << llendl;
-#ifdef LL_WINDOWS
-			RaiseException(0,0,0,0);
-#else
-			raise(SIGQUIT);
-#endif
+			mKillerCallback();
 		}
 	}
 

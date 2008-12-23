@@ -35,19 +35,19 @@
 		データを取得しています...
 	</text>
 	<text name="balance_label">
-		現在所有しているのは
+		現在所有している額
 	</text>
 	<text name="balance_amount">
 		L$ [AMT]
 	</text>
 	<text name="buying_label">
-		あなたは購しようとしています
+		購入する額
 	</text>
 	<text name="buying_amount">
 		L$ [AMT]
 	</text>
 	<text name="total_label">
-		あなたの残高は
+		合計残高
 	</text>
 	<text name="total_amount">
 		L$ [AMT]

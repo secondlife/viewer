@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="item properties" title="Propriedades">
 	<text name="LabelItemNameTitle">
 		Nome:
@@ -12,14 +12,14 @@
 	<text name="LabelCreatorName">
 		Nicole Linden
 	</text>
-	<button label="Perfil..." label_selected="" name="BtnCreator" />
+	<button label="Perfil..." label_selected="" name="BtnCreator"/>
 	<text name="LabelOwnerTitle">
 		Dono:
 	</text>
 	<text name="LabelOwnerName">
 		Thrax Linden
 	</text>
-	<button label="Perfil..." label_selected="" name="BtnOwner" />
+	<button label="Perfil..." label_selected="" name="BtnOwner"/>
 	<text name="LabelAcquiredTitle">
 		Adquirido:
 	</text>
@@ -29,9 +29,9 @@
 	<text name="OwnerLabel">
 		Você pode:
 	</text>
-	<check_box label="Modificar" name="CheckOwnerModify" />
-	<check_box label="Copiar" name="CheckOwnerCopy" />
-	<check_box label="Revender/Doar" name="CheckOwnerTransfer" />
+	<check_box label="Modificar" name="CheckOwnerModify"/>
+	<check_box label="Copiar" name="CheckOwnerCopy"/>
+	<check_box label="Revender/Doar" name="CheckOwnerTransfer"/>
 	<text name="BaseMaskDebug">
 		B:
 	</text>
@@ -47,18 +47,18 @@
 	<text name="NextMaskDebug">
 		N:
 	</text>
-	<check_box label="Compartilhar com o grupo" name="CheckShareWithGroup" />
-	<check_box label="Permitir qualquer um copiar" name="CheckEveryoneCopy" />
+	<check_box label="Compartilhar com o grupo" name="CheckShareWithGroup"/>
+	<check_box label="Permitir qualquer um copiar" name="CheckEveryoneCopy"/>
 	<text name="NextOwnerLabel">
 		Próximo dono pode:
 	</text>
-	<check_box label="Modificar" name="CheckNextOwnerModify" />
-	<check_box label="Copiar" name="CheckNextOwnerCopy" />
-	<check_box label="Revender/Doar" name="CheckNextOwnerTransfer" />
+	<check_box label="Modificar" name="CheckNextOwnerModify"/>
+	<check_box label="Copiar" name="CheckNextOwnerCopy"/>
+	<check_box label="Revender/Doar" name="CheckNextOwnerTransfer"/>
 	<text name="SaleLabel">
 		Marcar Item:
 	</text>
-	<check_box label="A venda" name="CheckPurchase" />
+	<check_box label="A venda" name="CheckPurchase"/>
 	<radio_group name="RadioSaleType">
 		<radio_item name="radio">
 			Original
@@ -70,4 +70,16 @@
 	<text name="TextPrice">
 		Price:  L$
 	</text>
+	<string name="unknown">
+		(desconhecido)
+	</string>
+	<string name="public">
+		(público)
+	</string>
+	<string name="you_can">
+		Você pode:
+	</string>
+	<string name="owner_can">
+		Proprietário pode :
+	</string>
 </floater>

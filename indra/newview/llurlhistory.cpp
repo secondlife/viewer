@@ -72,9 +72,16 @@ bool LLURLHistory::loadFile(const std::string& filename)
 
 // static
 bool LLURLHistory::saveFile(const std::string& filename)
-{
-	std::string temp_str = gDirUtilp->getLindenUserDir() + gDirUtilp->getDirDelimiter();
-	llofstream out((temp_str + filename));
+{	
+	std::string temp_str = gDirUtilp->getLindenUserDir();
+	if( temp_str.empty() )
+	{
+		llwarns << "Can't save. No user directory set." << llendl;
+		return false;
+	}
+
+	temp_str += gDirUtilp->getDirDelimiter() + filename;
+	llofstream out(temp_str);
 	if (!out.good())
 	{
 		llwarns << "Unable to open " << filename << " for output." << llendl;

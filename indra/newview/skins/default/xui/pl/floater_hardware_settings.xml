@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="Hardware Settings Floater" title="Ustawienia Dysku Twardego">
+	<text type="string" length="1" name="Filtering:">
+		Filtrowanie:
+	</text>
+	<check_box label="Filtrowanie Anizotropowe" name="ani" />
+	<text type="string" length="1" name="Antialiasing:">
+		Antialiasing:
+	</text>
+	<combo_box label="Antialiasing" name="fsaa">
+		<combo_item name="FSAADisabled">
+			Wyłączone
+		</combo_item>
+		<combo_item name="2x">
+			2x
+		</combo_item>
+		<combo_item name="4x">
+			4x
+		</combo_item>
+		<combo_item name="8x">
+			8x
+		</combo_item>
+		<combo_item name="16x">
+			16x
+		</combo_item>
+	</combo_box>
+	<spinner label="Gamma:" name="gamma" />
+	<text type="string" length="1" name="(brightness, lower is brighter)">
+		(jaskrawość, jasny, 0=domyślny)
+	</text>
+	<text type="string" length="1" name="Enable VBO:">
+		Włącz VBO:
+	</text>
+	<check_box label="Włącz Bufor Vertexów OpenGL" name="vbo" tool_tip="" />
+	<slider label="Pamięć Tekstur (MB):" name="GrapicsCardTextureMemory" tool_tip="" />
+	<spinner label="Stosunek Dystansu Mgły:" name="fog" />
+	<button label="OK" label_selected="OK" name="OK" />
+</floater>

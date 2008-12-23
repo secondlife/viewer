@@ -1,27 +1,27 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel label="Corretagem" name="Covenant">
-	<text name="covenant_help_text">
-		As mudanças à informação do convénio mostrarão em todos os pacotes na propriedade.
+	<text name="covenant_help_text" bottom="-25">
+		As mudanças à informação do convénio mostrarão em todos os pacotes
+na propriedade.
 	</text>
-	<text name="region_name_lbl">
+	<text name="region_name_lbl" bottom_delta="-31">
 		Região:
 	</text>
 	<text name="region_name_text">
 		(desconhecido)
 	</text>
-	<text name="estate_name_lbl">
+	<text name="estate_name_lbl" bottom_delta="-19">
 		Propriedade:
 	</text>
 	<text name="estate_name_text">
 		(desconhecido)
 	</text>
 	<text name="covenent_instructions">
-		Arraste o cartao de um Corretor 
-para este estado.
+		Arraste e solte um notecard para alterar o Contrato para este Terreno.
 	</text>
 	<button label="?" name="covenant_help" />
 	<button label="Resetar" name="reset_covenant" />
-	<text name="estate_owner_lbl">
+	<text name="estate_owner_lbl" bottom_delta="-19">
 		Proprietário final:
 	</text>
 	<text name="estate_owner_text">

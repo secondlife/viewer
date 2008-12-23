@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Image Preview" title="">
 	<text name="name_label">
 		Nom :
@@ -9,7 +9,7 @@
 	<text name="preview_label">
 		Prévisualiser comme :
 	</text>
-	<combo_box label="Habits" name="clothing_type_combo">
+	<combo_box label="Habits" name="clothing_type_combo" left="126" >
 		<combo_item name="Image">
 			Image
 		</combo_item>
@@ -38,7 +38,7 @@
 			Jupe
 		</combo_item>
 		<combo_item name="SculptedPrim">
-			Prim sculpté
+			Sculptie
 		</combo_item>
 	</combo_box>
 	<text name="bad_image_text">
@@ -46,7 +46,7 @@
 
 Sauvegardez en Targa 24 bit (.tga).
 	</text>
-	<check_box label="Utiliser une compression sans perte" name="lossless_check" />
-	<button label="Annuler" name="cancel_btn" />
-	<button label="Charger ([AMOUNT] $L)" name="ok_btn" />
+	<check_box label="Utiliser une compression sans perte" name="lossless_check"/>
+	<button label="Annuler" name="cancel_btn"/>
+	<button label="Charger ([AMOUNT] L$)" name="ok_btn"/>
 </floater>

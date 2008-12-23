@@ -5940,9 +5940,9 @@ S32 LLObjectSelection::getRootObjectCount()
 	return count;
 }
 
-bool LLObjectSelection::applyToObjects(LLSelectedObjectFunctor* func, bool firstonly)
+bool LLObjectSelection::applyToObjects(LLSelectedObjectFunctor* func)
 {
-	bool result = firstonly ? false : true;
+	bool result = true;
 	for (iterator iter = begin(); iter != end(); )
 	{
 		iterator nextiter = iter++;
@@ -5950,10 +5950,7 @@ bool LLObjectSelection::applyToObjects(LLSelectedObjectFunctor* func, bool first
 		if (!object)
 			continue;
 		bool r = func->apply(object);
-		if (firstonly && r)
-			return true;
-		else
-			result = result && r;
+		result = result && r;
 	}
 	return result;
 }

@@ -272,6 +272,7 @@ LLUUID LLVOAvatar::sStepSounds[LL_MCODE_END] =
 	LLUUID(SND_RUBBER_RUBBER)
 };
 
+// static
 S32 LLVOAvatar::sRenderName = RENDER_NAME_ALWAYS;
 BOOL LLVOAvatar::sRenderGroupTitles = TRUE;
 S32 LLVOAvatar::sNumVisibleChatBubbles = 0;
@@ -284,9 +285,10 @@ BOOL LLVOAvatar::sVisibleInFirstPerson = FALSE;
 F32 LLVOAvatar::sLODFactor = 1.f;
 BOOL LLVOAvatar::sUseImpostors = FALSE;
 BOOL LLVOAvatar::sJointDebug = FALSE;
-
 S32 LLVOAvatar::sCurJoint = 0;
 S32 LLVOAvatar::sCurVolume = 0;
+F32 LLVOAvatar::sUnbakedTime = 0.f;
+F32 LLVOAvatar::sGreyTime = 0.f;
 
 struct LLAvatarTexData
 {
@@ -1070,8 +1072,10 @@ void LLVOAvatar::deleteLayerSetCaches()
 }
 
 // static 
-BOOL LLVOAvatar::areAllNearbyInstancesBaked()
+BOOL LLVOAvatar::areAllNearbyInstancesBaked(S32& grey_avatars)
 {
+	BOOL res = TRUE;
+	grey_avatars = 0;
 	for (std::vector<LLCharacter*>::iterator iter = LLCharacter::sInstances.begin();
 		iter != LLCharacter::sInstances.end(); ++iter)
 	{
@@ -1080,18 +1084,22 @@ BOOL LLVOAvatar::areAllNearbyInstancesBaked()
 		{
 			continue;
 		}
-		else
-		if( inst->getPixelArea() < MIN_PIXEL_AREA_FOR_COMPOSITE )
-		{
-			return TRUE;  // Assumes sInstances is sorted by pixel area.
-		}
+// 		else
+// 		if( inst->getPixelArea() < MIN_PIXEL_AREA_FOR_COMPOSITE )
+// 		{
+// 			return res;  // Assumes sInstances is sorted by pixel area.
+// 		}
 		else
 		if( !inst->isFullyBaked() )
 		{
-			return FALSE;
+			res = FALSE;
+			if (inst->mHasGrey)
+			{
+				++grey_avatars;
+			}
 		}
 	}
-	return TRUE;
+	return res;
 }
 
 // static 
@@ -1602,7 +1610,7 @@ BOOL LLVOAvatar::lineSegmentIntersect(const LLVector3& start, const LLVector3& e
 		)
 {
 
-	if (mIsSelf && !gAgent.needsRenderAvatar())
+	if (mIsSelf && !gAgent.needsRenderAvatar() || !LLPipeline::sPickAvatar)
 	{
 		return FALSE;
 	}
@@ -4523,6 +4531,7 @@ void LLVOAvatar::updateTextures(LLAgent &agent)
 
 	mMaxPixelArea = 0.f;
 	mMinPixelArea = 99999999.f;
+	mHasGrey = FALSE; // debug
 	for (U32 i = 0; i < getNumTEs(); i++)
 	{
 		LLViewerImage *imagep = getTEImage(i);
@@ -4681,22 +4690,35 @@ void LLVOAvatar::updateTextures(LLAgent &agent)
 void LLVOAvatar::addLocalTextureStats( LLVOAvatar::ELocTexIndex idx, LLViewerImage* imagep,
 									   F32 texel_area_ratio, BOOL render_avatar, BOOL covered_by_baked )
 {
-	if (!covered_by_baked &&
-		render_avatar && // always true if mIsSelf
-		mLocalTexture[ idx ].notNull() && mLocalTexture[idx]->getID() != IMG_DEFAULT_AVATAR)
-	{	
-		F32 desired_pixels;
-		if( mIsSelf )
+	if (!covered_by_baked && render_avatar) // render_avatar is always true if mIsSelf
+	{
+		if (mLocalTexture[ idx ].notNull() && mLocalTexture[idx]->getID() != IMG_DEFAULT_AVATAR)
 		{
-			desired_pixels = llmin(mPixelArea, (F32)LOCTEX_IMAGE_AREA_SELF );
-			imagep->setBoostLevel(LLViewerImage::BOOST_AVATAR_SELF);
+			F32 desired_pixels;
+			if( mIsSelf )
+			{
+				desired_pixels = llmin(mPixelArea, (F32)LOCTEX_IMAGE_AREA_SELF );
+				imagep->setBoostLevel(LLViewerImage::BOOST_AVATAR_SELF);
+			}
+			else
+			{
+				desired_pixels = llmin(mPixelArea, (F32)LOCTEX_IMAGE_AREA_OTHER );
+				imagep->setBoostLevel(LLViewerImage::BOOST_AVATAR);
+			}
+			imagep->addTextureStats( desired_pixels, texel_area_ratio );
+			if (imagep->getDiscardLevel() < 0)
+			{
+				mHasGrey = TRUE; // for statistics gathering
+			}
 		}
 		else
 		{
-			desired_pixels = llmin(mPixelArea, (F32)LOCTEX_IMAGE_AREA_OTHER );
-			imagep->setBoostLevel(LLViewerImage::BOOST_AVATAR);
+			if (mLocalTexture[idx]->getID() == IMG_DEFAULT_AVATAR)
+			{
+				// texture asset is missing
+				mHasGrey = TRUE; // for statistics gathering
+			}
 		}
-		imagep->addTextureStats( desired_pixels, texel_area_ratio );
 	}
 }
 
@@ -9126,9 +9148,16 @@ void LLVOAvatar::cullAvatarsByPixelArea()
 		}
 	}
 
-	if( LLVOAvatar::areAllNearbyInstancesBaked() )
+	S32 grey_avatars = 0;
+	if( LLVOAvatar::areAllNearbyInstancesBaked(grey_avatars) )
 	{
 		LLVOAvatar::deleteCachedImages();
+	}
+	else
+	{
+		sUnbakedTime += gFrameTimeSeconds;
+		if (grey_avatars > 0)
+			sGreyTime += gFrameTimeSeconds;
 	}
 }
 

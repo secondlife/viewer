@@ -132,26 +132,14 @@
 			<text type="string" length="1" name="Simulator primitive usage:">
 				Simulador de primitiva usado:
 			</text>
-			<text type="string" length="1" name="0 out of 0 available">
-				0 de 14055 (14055 disponible)
-			</text>
 			<text type="string" length="1" name="Primitives parcel supports:">
 				Primitivas en la parcela soportan:
-			</text>
-			<text type="string" length="1" name="object_contrib_text">
-				926
 			</text>
 			<text type="string" length="1" name="Primitives on parcel:">
 				Primitivas en la parcela:
 			</text>
-			<text type="string" length="1" name="total_objects_text">
-				0
-			</text>
 			<text type="string" length="1" name="Owned by parcel owner:">
 				Pertenecientes al propietario de la parcela:
-			</text>
-			<text type="string" length="1" name="owner_objects_text">
-				0
 			</text>
 			<button label="Mostrar" label_selected="Mostrar" name="ShowOwner" />
 			<button label="Retornar..." label_selected="Retornar..." name="ReturnOwner..."
@@ -159,26 +147,17 @@
 			<text type="string" length="1" name="Set to group:">
 				Definido para el grupo:
 			</text>
-			<text type="string" length="1" name="group_objects_text">
-				0
-			</text>
 			<button label="Mostrar" label_selected="Mostrar" name="ShowGroup" />
 			<button label="Retornar..." label_selected="Retornar..." name="ReturnGroup..."
 			     tool_tip="Devolver objetos para sus propietarios." />
 			<text type="string" length="1" name="Owned by others:">
 				Pertenecientes a otros:
 			</text>
-			<text type="string" length="1" name="other_objects_text">
-				0
-			</text>
 			<button label="Mostrar" label_selected="Mostrar" name="ShowOther" />
 			<button label="Retornar..." label_selected="Retornar..." name="ReturnOther..."
 			     tool_tip="Devolver objetos para sus propietarios." />
 			<text type="string" length="1" name="Selected / sat upon:">
 				Seleccionado / puesto en:
-			</text>
-			<text type="string" length="1" name="selected_objects_text">
-				0
 			</text>
 			<text type="string" length="1" name="Autoreturn other resident&amp;apos;s objects (minutes, 0 for off):">
 				Autoretornar objetos de otros residentes (minutos, 0 para desligar):

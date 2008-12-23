@@ -429,6 +429,7 @@ class DarwinManifest(ViewerManifest):
                     self.path("secondlife.icns")
                 else:
                     self.path("secondlife_firstlook.icns", "secondlife.icns")
+                self.path("SecondLife.nib")
                 
                 # Translations
                 self.path("English.lproj")

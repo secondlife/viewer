@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_login">
 	<text name="first_name_text">
 		Primeiro nome:
@@ -23,15 +23,15 @@
 			&lt; Digite o nome da região;
 		</combo_item>
 	</combo_box>
-	<check_box label="Lembrar senha" name="remember_check" />
-	<text name="full_screen_text">
-		O visor indicará a tela cheia quando entrar.
+	<check_box label="Lembrar senha" name="remember_check"/>
+	<button label="Entrar" label_selected="Entrar" name="connect_btn"/>
+	<text name="create_new_account_text">
+		Registrar-se para uma conta
 	</text>
-	<button label="Preferências..." label_selected="Preferências..."
-	     name="preferences_btn" />
-	<button label="Conectar" label_selected="Conectar" name="connect_btn" />
-	<button label="Sair" label_selected="Sair" name="quit_btn" />
-	<text name="version_text">
-		1.23.4 (5)
+	<text name="forgot_password_text">
+		Esqueceu seu nome de usuário e senha?
+	</text>
+	<text name="channel_text">
+		[CHANNEL] [VERSION]
 	</text>
 </panel>

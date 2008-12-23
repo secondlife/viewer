@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="beacons" title="Lyssøjler">
+	<panel name="beacons_panel">
+		<check_box label="Kun kodede objekter med &quot;rør&quot;" name="touch_only"/>
+		<check_box label="Kodede objekter" name="scripted"/>
+		<check_box label="Fysiske objekter" name="physical"/>
+		<check_box label="Lyd kilder" name="sounds"/>
+		<check_box label="Partikel Kilder" name="particles"/>
+		<check_box label="Render Highlights" name="highlights"/>
+		<check_box label="Render Lyssøjle" name="beacons"/>
+		<text name="beacon_width_label">
+			Lyssøjle bredde:
+		</text>
+		<slider name="beacon_width"/>
+	</panel>
+</floater>

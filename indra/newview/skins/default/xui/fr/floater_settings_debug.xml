@@ -8,7 +8,7 @@
 			FALSE
 		</combo_item>
 	</combo_box>
-	<color_swatch label="Couleur" name="color_swatch" />
+	<color_swatch label="Couleur" name="color_swatch" width="43" />
 	<spinner label="x" name="val_spinner_1" />
 	<spinner label="x" name="val_spinner_2" />
 	<spinner label="x" name="val_spinner_3" />

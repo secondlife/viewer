@@ -1023,7 +1023,6 @@ void init_debug_ui_menu(LLMenuGL* menu)
 	menu->append(new LLMenuItemCallGL("Web Browser Test", &handle_web_browser_test));
 	menu->append(new LLMenuItemCallGL("Buy Currency Test", &handle_buy_currency_test));
 	menu->append(new LLMenuItemCallGL("Editable UI", &edit_ui));
-	menu->append(new LLMenuItemToggleGL("Async Keystrokes", &gHandleKeysAsync));
 	menu->append(new LLMenuItemCallGL( "Dump SelectMgr", &dump_select_mgr));
 	menu->append(new LLMenuItemCallGL( "Dump Inventory", &dump_inventory));
 	menu->append(new LLMenuItemCallGL( "Dump Focus Holder", &handle_dump_focus, NULL, NULL, 'F', MASK_ALT | MASK_CONTROL));
@@ -1154,10 +1153,6 @@ void init_debug_rendering_menu(LLMenuGL* menu)
 											&LLPipeline::toggleRenderDebugFeature, NULL,
 											&LLPipeline::toggleRenderDebugFeatureControl,
 											(void*)LLPipeline::RENDER_DEBUG_FEATURE_FOG, KEY_F6, MASK_ALT|MASK_CONTROL));
-	sub_menu->append(new LLMenuItemCheckGL("Palletized Textures",
-											&LLPipeline::toggleRenderDebugFeature, NULL,
-											&LLPipeline::toggleRenderDebugFeatureControl,
-											(void*)LLPipeline::RENDER_DEBUG_FEATURE_PALETTE, KEY_F7, MASK_ALT|MASK_CONTROL));
 	sub_menu->append(new LLMenuItemCheckGL("Test FRInfo",
 											&LLPipeline::toggleRenderDebugFeature, NULL,
 											&LLPipeline::toggleRenderDebugFeatureControl,
@@ -1748,7 +1743,7 @@ class LLViewCommunicate : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-        if (LLFloaterChatterBox::getInstance()->getFloaterCount() == 0)
+		if (LLFloaterChatterBox::getInstance()->getFloaterCount() == 0)
 		{
 			LLFloaterMyFriends::toggleInstance();
 		}
@@ -1756,7 +1751,6 @@ class LLViewCommunicate : public view_listener_t
 		{
 			LLFloaterChatterBox::toggleInstance();
 		}
-		
 		return true;
 	}
 };
@@ -5228,6 +5222,10 @@ class LLFloaterVisible : public view_listener_t
 		{
 			new_value = LLFloaterMyFriends::instanceVisible(0);
 		}
+		else if (floater_name == "communicate")
+		{
+			new_value = LLFloaterChatterBox::instanceVisible();
+		}
 		else if (floater_name == "toolbar")
 		{
 			new_value = LLToolBar::visible(NULL);
@@ -5263,6 +5261,11 @@ class LLFloaterVisible : public view_listener_t
 		else if (floater_name == "beacons")
 		{
 			new_value = LLFloaterBeacons::instanceVisible(LLSD());
+		}
+		else if (floater_name == "inventory")
+		{
+			LLInventoryView* iv = LLInventoryView::getActiveInventory(); 
+			new_value = (NULL != iv && TRUE == iv->getVisible());
 		}
 		gMenuHolder->findControl(control_name)->setValue(new_value);
 		return true;
@@ -5929,10 +5932,10 @@ namespace
 
 void queue_actions(LLFloaterScriptQueue* q, const std::string& noscriptmsg, const std::string& nomodmsg)
 {
-	// Apply until an object fails
 	QueueObjects func(q);
-	const bool firstonly = true;
-	bool fail = LLSelectMgr::getInstance()->getSelection()->applyToObjects(&func, firstonly);
+	LLSelectMgr *mgr = LLSelectMgr::getInstance();
+	LLObjectSelectionHandle selectHandle = mgr->getSelection();
+	bool fail = selectHandle->applyToObjects(&func);
 	if(fail)
 	{
 		if ( !func.scripted )
@@ -5957,60 +5960,66 @@ void queue_actions(LLFloaterScriptQueue* q, const std::string& noscriptmsg, cons
 	}
 }
 
-class LLToolsSelectedScriptAction : public view_listener_t
+void handle_compile_queue(std::string to_lang)
 {
-	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	LLFloaterCompileQueue* queue;
+	if (to_lang == "mono")
 	{
-		std::string action = userdata.asString();
-		LLFloaterScriptQueue* queue = NULL;
-		if (action == "compile mono")
-		{
-			queue = LLFloaterCompileQueue::create(TRUE);
-		}
-		if (action == "compile lsl")
-		{
-			queue = LLFloaterCompileQueue::create(FALSE);
-		}
-		else if (action == "reset")
-		{
-			queue = LLFloaterResetQueue::create();
-		}
-		else if (action == "start")
-		{
-			queue = LLFloaterRunQueue::create();
-		}
-		else if (action == "stop")
-		{
-			queue = LLFloaterNotRunQueue::create();
-		}
-		if (!queue)
-		{
-			return true;
-		}
-
-		queue_actions(queue, "CannotRecompileSelectObjectsNoScripts", "CannotRecompileSelectObjectsNoPermission");
-
-		return true;
+		queue = LLFloaterCompileQueue::create(TRUE);
 	}
-};
+	else
+	{
+		queue = LLFloaterCompileQueue::create(FALSE);
+	}
+	queue_actions(queue, "CannotRecompileSelectObjectsNoScripts", "CannotRecompileSelectObjectsNoPermission");
+}
 
-void handle_reset_selection(void*)
+void handle_reset_selection(void)
 {
 	LLFloaterResetQueue* queue = LLFloaterResetQueue::create();
 	queue_actions(queue, "CannotResetSelectObjectsNoScripts", "CannotResetSelectObjectsNoPermission");
 }
 
-void handle_set_run_selection(void*)
+void handle_set_run_selection(void)
 {
 	LLFloaterRunQueue* queue = LLFloaterRunQueue::create();
 	queue_actions(queue, "CannotSetRunningSelectObjectsNoScripts", "CannotSerRunningSelectObjectsNoPermission");
 }
 
-void handle_set_not_run_selection(void*)
+void handle_set_not_run_selection(void)
 {
 	LLFloaterNotRunQueue* queue = LLFloaterNotRunQueue::create();
 	queue_actions(queue, "CannotSetRunningNotSelectObjectsNoScripts", "CannotSerRunningNotSelectObjectsNoPermission");
 }
+
+class LLToolsSelectedScriptAction : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		std::string action = userdata.asString();
+		if (action == "compile mono")
+		{
+			handle_compile_queue("mono");
+		}
+		if (action == "compile lsl")
+		{
+			handle_compile_queue("lsl");
+		}
+		else if (action == "reset")
+		{
+			handle_reset_selection();
+		}
+		else if (action == "start")
+		{
+			handle_set_run_selection();
+		}
+		else if (action == "stop")
+		{
+			handle_set_not_run_selection();
+		}
+		return true;
+	}
+};
 
 void handle_selected_texture_info(void*)
 {

@@ -99,7 +99,7 @@
 		Ping-Zeit der Verbindung liegt bei [NETWORK_PING_WARNING]-[NETWORK_PING_CRITICAL] ms
 	</text>
 	<text name="network_packet_loss_cause_msg">
-		Möglicherweise schlechte Verbindung oder zu hoher Wert für &apos;Bandbreite&apos;.
+		Möglicherweise schlechte Verbindung oder zu hoher Wert für „Bandbreite“.
 	</text>
 	<text name="network_ping_cause_msg">
 		Möglicherweise schlechte Verbindung oder File-Sharing-Anwendung.

@@ -1,5 +1,7 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floater_report_abuse" title="嫌がらせの報告">
+	<texture_picker label="" name="screenshot"/>
+	<check_box label="ｽｸﾘｰﾝｼｮｯﾄを含める" name="screen_check"/>
 	<text name="reporter_title">
 		報告者：
 	</text>
@@ -15,16 +17,13 @@
 	<text name="pos_title">
 		位置：
 	</text>
-	<texture_picker name="screenshot" />
-	<check_box label="ｽｸﾘｰﾝｼｮｯﾄを含める" name="screen_check" />
 	<text name="pos_field">
 		{128.1, 128.1, 15.4}
 	</text>
-	<button label="" label_selected="" name="pick_btn"
-	     tool_tip="オブジェクト・ピッカー - この報告の主題となるオブジェクトを特定" />
 	<text name="select_object_label">
 		ボタンを使ってオブジェクトを選択：
 	</text>
+	<button label="" label_selected="" name="pick_btn" tool_tip="オブジェクト・ピッカー - この報告の主題となるオブジェクトを特定"/>
 	<text name="object_name_label">
 		名前：
 	</text>
@@ -37,11 +36,7 @@
 	<text name="owner_name">
 		Hendrerit Vulputate
 	</text>
-	<combo_box name="category_combo"
-	     tool_tip="Category -- select the category that best describes this report">
-		<combo_item name="Selectcategory">
-			カテゴリーを選択
-		</combo_item>
+	<combo_box name="category_combo" tool_tip="カテゴリー -- この報告に最も適したカテゴリーを選択してください">
 		<combo_item name="Select_category">
 			カテゴリーを選択
 		</combo_item>
@@ -63,14 +58,11 @@
 		<combo_item name="Assault__Weapons_testing_sandbox">
 			攻撃&gt;武器テスト用サンドボックス
 		</combo_item>
-		<combo_item name="Copyright_or_intellectual_property_violation">
-			著作権または知的所有権に関する違反
-		</combo_item>
 		<combo_item name="Commerce__Failure_to_deliver_product_or_service">
 			商取引&gt;製品またはサービスの提供が行われない
 		</combo_item>
-		<combo_item name="Disclosure__First_Life_information">
-			開示&gt;1st Lifeの情報
+		<combo_item name="Disclosure__Real_world_information">
+			開示 &gt; リアルワールドの情報
 		</combo_item>
 		<combo_item name="Disclosure__Remotely_monitoring chat">
 			開示&gt;離れたところからチャットをモニターしている
@@ -135,26 +127,14 @@
 		<combo_item name="Indecency__Mature_content_in_PG_region">
 			わいせつ&gt;PG地域で成人向けと見なされるコンテンツ
 		</combo_item>
+		<combo_item name="Intellectual_property_infringement_Content_Removal">
+			知的財産の侵害 &gt; コンテンツの撤去
+		</combo_item>
+		<combo_item name="Intellectual_property_infringement_CopyBot_or_Permissions_Exploit">
+			知的財産の侵害 &gt; コピーBot及び権限の悪用
+		</combo_item>
 		<combo_item name="Intolerance">
 			不寛容
-		</combo_item>
-		<combo_item name="Harassment">
-			嫌がらせ
-		</combo_item>
-		<combo_item name="Assault">
-			攻撃
-		</combo_item>
-		<combo_item name="Disclosure">
-			開示
-		</combo_item>
-		<combo_item name="Indecency">
-			わいせつ
-		</combo_item>
-		<combo_item name="Age">
-			年齢
-		</combo_item>
-		<combo_item name="Parcel">
-			区画
 		</combo_item>
 		<combo_item name="Land__Abuse_of_sandbox_resources">
 			土地&gt;サンドボックス・リソースの乱用
@@ -168,9 +148,6 @@
 		<combo_item name="Land__Encroachment__Trees_plants">
 			土地&gt;不法侵入&gt;樹木/植物
 		</combo_item>
-		<combo_item name="Trademark_violation">
-			商標権の侵害
-		</combo_item>
 		<combo_item name="Wagering_gambling">
 			賭け/ギャンブル
 		</combo_item>
@@ -181,10 +158,8 @@
 	<text name="abuser_name_title">
 		迷惑ユーザーの名前：
 	</text>
-	<button label="住人を選択" label_selected="" name="select_abuser"
-	     tool_tip="嫌がらせをした人の名前をリストから選択してください。" />
-	<check_box label="嫌がらせをした人の名前が不明" name="omit_abuser_name"
-	     tool_tip="嫌がらせをした人の名前を提供できないかについて、これを確認" />
+	<button label="住人を選択" label_selected="" name="select_abuser" tool_tip="嫌がらせをした人の名前をリストから選択してください。"/>
+	<check_box label="嫌がらせをした人の名前が不明" name="omit_abuser_name" tool_tip="嫌がらせをした人の名前を提供できないかについて、これを確認"/>
 	<text name="abuser_name_title2">
 		嫌がらせの起きた場所：
 	</text>
@@ -202,7 +177,6 @@
 	<text name="incomplete_title">
 		注意：不完全なレポートは調査されません。
 	</text>
-	<button label="嫌がらせの報告" label_selected="嫌がらせの報告"
-	     name="send_btn" />
-	<button label="取り消し" label_selected="取り消し" name="cancel_btn" />
+	<button label="取り消し" label_selected="取り消し" name="cancel_btn"/>
+	<button label="嫌がらせの報告" label_selected="嫌がらせの報告" name="send_btn"/>
 </floater>

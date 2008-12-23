@@ -1,3 +1,84 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="Joystick" title="Joystick Configuration">
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Joystick" title="Configuração do Joystick">
+	<check_box name="enable_joystick">
+		Habilitar Joystick:
+	</check_box>
+	<spinner label="Mapeamento do eixo X" name="JoystickAxis1"/>
+	<spinner label="Mapeamento do eixo Y" name="JoystickAxis2"/>
+	<spinner label="Mapeamento do Eixo Z" name="JoystickAxis0"/>
+	<spinner label="Mapeamento da Elevação" name="JoystickAxis4"/>
+	<spinner label="Mapeamento da Guinada" name="JoystickAxis5"/>
+	<spinner label="Mapeamento da Rolagem" name="JoystickAxis3"/>
+	<spinner label="Mapeamento do Zoom" name="JoystickAxis6"/>
+	<check_box label="Zoom Direto" name="ZoomDirect"/>
+	<check_box label="Cursor 3D" name="Cursor3D"/>
+	<check_box label="Nível Automático" name="AutoLeveling"/>
+	<text name="Control Modes:">
+		Modos de Controle:
+	</text>
+	<check_box name="JoystickAvatarEnabled">
+		Avatar
+	</check_box>
+	<check_box name="JoystickBuildEnabled">
+		Construir
+	</check_box>
+	<check_box name="JoystickFlycamEnabled">
+		Camera aérea
+	</check_box>
+	<text name="XScale">
+		Escala X
+	</text>
+	<text name="YScale">
+		Escala Y
+	</text>
+	<text name="ZScale">
+		Escala Z
+	</text>
+	<text name="PitchScale">
+		Escala de Elevação
+	</text>
+	<text name="YawScale">
+		Escala da Guinada
+	</text>
+	<text name="RollScale">
+		Escala de Rolagem
+	</text>
+	<text name="XDeadZone">
+		Zona Morta X
+	</text>
+	<text name="YDeadZone">
+		Zona Morta Y
+	</text>
+	<text name="ZDeadZone">
+		Zona Morta Z
+	</text>
+	<text name="PitchDeadZone">
+		Zona Morta da Elevação
+	</text>
+	<text name="YawDeadZone">
+		Zona Morta da Guinada
+	</text>
+	<text name="RollDeadZone">
+		Zona Morta de Rolagem
+	</text>
+	<text name="Feathering">
+		Alisar
+	</text>
+	<slider label="" name="FlycamFeathering"/>
+	<text name="ZoomScale2">
+		Escala de Zoom
+	</text>
+	<text name="ZoomDeadZone">
+		Zona Morta de Zoom
+	</text>
+	<button label="Padrões do Navegador Espacial" name="SpaceNavigatorDefaults"/>
+	<string name="JoystickMonitor">
+		Monitor do Joystick
+	</string>
+	<string name="Axis">
+		Eixo [NUM]
+	</string>
+	<string name="NoDevice">
+		nenhum dispositivo detectado
+	</string>
 </floater>

@@ -52,7 +52,7 @@
 	<text name="info_price">
 		1500 L$, Objekte eingeschlossen
 	</text>
-	<text name="info_action">
+	<text name="info_action" width="275">
 		Bei Landkauf:
 	</text>
 	<text name="error_message">
@@ -204,9 +204,7 @@ unterstützt [AMOUNT2] Objekte
 		mit Objekten verkauft
 	</text>
 	<text name="insufficient_land_credits">
-		Die Gruppe [GROUP] benötigt ausreichende 
-Landnutzungsrechte für diese Parzelle, um den Kauf 
-abzuschließen.
+		Die Gruppe [GROUP] benötigt ausreichende Landnutzungsrechte für diese Parzelle, um den Kauf abzuschließen.
 	</text>
 	<text name="have_enough_lindens">
 		Sie haben [AMOUNT] L$, genug zum Kauf dieses Landes.

@@ -118,10 +118,14 @@ void validate_drawable(LLDrawable* drawablep)
 
 S32 AABBSphereIntersect(const LLVector3& min, const LLVector3& max, const LLVector3 &origin, const F32 &rad)
 {
+	return AABBSphereIntersectR2(min, max, origin, rad*rad);
+}
+
+S32 AABBSphereIntersectR2(const LLVector3& min, const LLVector3& max, const LLVector3 &origin, const F32 &r)
+{
 	F32 d = 0.f;
 	F32 t;
-	F32 r = rad*rad;
-
+	
 	if ((min-origin).magVecSquared() < r &&
 		(max-origin).magVecSquared() < r)
 	{

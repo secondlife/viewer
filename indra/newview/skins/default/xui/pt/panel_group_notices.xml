@@ -11,7 +11,9 @@
 		Arquivo de notícias do grupo
 	</text>
 	<text name="lbl2">
-		As notícias são mantidas por 14 dias. Clicar na notícia que você desejar ver.
+		As notícias são mantidas por 14 dias. Clique na notícia abaixo que você deseja ver.
+Clique no botão “Atualizar” para verificar se novas notícias foram recebidas.
+Listas de aviso estão limitadas a 200 por grupo, diariamente.
 	</text>
 	<scroll_list name="notice_list">
 		<column label="" name="icon" />

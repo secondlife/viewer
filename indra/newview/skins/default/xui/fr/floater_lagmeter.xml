@@ -1,30 +1,30 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="floater_lagmeter" title="Calcul du lag">
-	<button name="client_lagmeter" tool_tip="Statut du lag client" />
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_lagmeter" title="Mesure du lag">
+	<button name="client_lagmeter" tool_tip="Statut du lag client"/>
 	<text name="client">
 		Client :
 	</text>
 	<text name="client_text">
 		Normal
 	</text>
-	<button name="network_lagmeter" tool_tip="Statut du lag réseau" />
+	<button name="network_lagmeter" tool_tip="Statut du lag réseau"/>
 	<text name="network">
 		Réseau :
 	</text>
 	<text name="network_text">
 		Normal
 	</text>
-	<button name="server_lagmeter" tool_tip="Statut du lag serveur" />
+	<button name="server_lagmeter" tool_tip="Statut du lag serveur"/>
 	<text name="server">
 		Serveur :
 	</text>
 	<text name="server_text">
 		Normal
 	</text>
-	<button label="?" name="server_help" />
-	<button label="&gt;&gt;" name="minimize" />
+	<button label="?" name="server_help"/>
+	<button label="&gt;&gt;" name="minimize"/>
 	<string name="max_title_msg">
-		Calcul du lag
+		Mesure du lag
 	</string>
 	<string name="max_width_px">
 		360
@@ -57,7 +57,7 @@
 		Normal
 	</string>
 	<string name="client_draw_distance_cause_msg">
-		Cause possible : la distance d&apos;affichage est trop élevée
+		Cause possible : la limite d&apos;affichage est trop élevée
 	</string>
 	<string name="client_texture_loading_cause_msg">
 		Cause possible : images en cours de chargement

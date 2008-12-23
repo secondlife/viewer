@@ -1,14 +1,13 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="status">
-	<text type="string" length="1" name="ParcelNameText"
-	     tool_tip="あなたが立っている土地区画の名前。 「土地情報」をクリックしてください。">
+	<text length="1" name="ParcelNameText" tool_tip="あなたが立っている土地区画の名前。 「土地情報」をクリックしてください。" type="string">
 		区画名はここです
 	</text>
-	<text type="string" length="1" name="BalanceText" tool_tip="口座残高">
+	<text length="1" name="BalanceText" tool_tip="口座残高" type="string">
 		ローディング．．．
 	</text>
-	<button label="" label_selected="" name="buycurrency" tool_tip="貨幣の購入" />
-	<text type="string" length="12" name="TimeText" tool_tip="現在時刻（太平洋時）">
+	<button label="" label_selected="" name="buycurrency" tool_tip="貨幣の購入"/>
+	<text length="12" name="TimeText" tool_tip="現在時刻（太平洋時）" type="string">
 		12：00 AM
 	</text>
 	<text name="StatBarDaysOfWeek">
@@ -17,29 +16,27 @@
 	<text name="StatBarMonthsOfYear">
 		1月:2月:3月:4月:5月:6月:7月:8月:9月:10月:11月:12月
 	</text>
-	<button label="" label_selected="" name="scriptout"
-	     tool_tip="スクリプト警告およびエラー" />
-	<button label="" label_selected="" name="health" tool_tip="健康状態" />
-	<text type="string" length="1" name="HealthText" tool_tip="健康状態">
+	<button label="" label_selected="" name="scriptout" tool_tip="スクリプト警告およびエラー"/>
+	<button label="" label_selected="" name="health" tool_tip="健康状態"/>
+	<text length="1" name="HealthText" tool_tip="健康状態" type="string">
 		100%
 	</text>
-	<button label="" label_selected="" name="fly" tool_tip="飛行禁止" />
-	<button label="" label_selected="" name="build" tool_tip="作成禁止" />
-	<button label="" label_selected="" name="scripts" tool_tip="スクリプトなし" />
-	<button name="no_fly" tool_tip="飛行禁止" />
-	<button name="no_build" tool_tip="制作/ＲＥＺ禁止" />
-	<button name="no_scripts" tool_tip="スクリプト禁止" />
-	<button label="" label_selected="" name="restrictpush" tool_tip="llPushObject制限" />
-	<button name="status_voice" tool_tip="ボイス有効" />
-	<button name="status_no_voice"
-	     tool_tip="ここではボイスを使用できません。" />
-	<button label="" label_selected="" name="buyland" tool_tip="この区画を購入" />
+	<button label="" label_selected="" name="fly" tool_tip="飛行禁止"/>
+	<button label="" label_selected="" name="build" tool_tip="作成禁止"/>
+	<button label="" label_selected="" name="scripts" tool_tip="スクリプトなし"/>
+	<button name="no_fly" tool_tip="飛行禁止"/>
+	<button name="no_build" tool_tip="制作/ＲＥＺ禁止"/>
+	<button name="no_scripts" tool_tip="スクリプト禁止"/>
+	<button label="" label_selected="" name="restrictpush" tool_tip="プッシングを制限"/>
+	<button name="status_voice" tool_tip="ボイス有効"/>
+	<button name="status_no_voice" tool_tip="ここではボイスを使用できません。"/>
+	<button label="" label_selected="" name="buyland" tool_tip="この区画を購入"/>
 	<text name="packet_loss_tooltip">
 		パケット損失
 	</text>
 	<text name="bandwidth_tooltip">
 		帯域幅
 	</text>
-	<line_editor label="検索" name="search_editor" tool_tip="Second Lifeを検索" />
-	<button name="search_btn" tool_tip="Second Lifeを検索" />
+	<line_editor label="検索" name="search_editor" tool_tip="Second Lifeを検索"/>
+	<button name="search_btn" tool_tip="Second Lifeを検索"/>
 </panel>

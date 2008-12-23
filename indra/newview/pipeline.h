@@ -319,7 +319,6 @@ public:
 // 		RENDER_DEBUG_FEATURE_HW_LIGHTING		= 0x0010,
 		RENDER_DEBUG_FEATURE_FLEXIBLE			= 0x0010,
 		RENDER_DEBUG_FEATURE_FOG				= 0x0020,
-		RENDER_DEBUG_FEATURE_PALETTE			= 0x0040,
 		RENDER_DEBUG_FEATURE_FR_INFO			= 0x0080,
 		RENDER_DEBUG_FEATURE_FOOT_SHADOWS		= 0x0100,
 	};
@@ -384,6 +383,7 @@ public:
 	static BOOL				sSkipUpdate; //skip lod updates
 	static BOOL				sWaterReflections;
 	static BOOL				sDynamicLOD;
+	static BOOL				sPickAvatar;
 	static BOOL				sReflectionRender;
 	static BOOL				sImpostorRender;
 	static BOOL				sUnderWaterRender;

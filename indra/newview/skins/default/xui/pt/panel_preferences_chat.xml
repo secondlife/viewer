@@ -1,56 +1,57 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Chat" name="chat">
-	<text type="string" length="1" name="text_box">
-		Tamanho da Fonte do Chat:
+	<text length="1" name="text_box" type="string">
+		Tamanho da Fonte &#10;do Chat:
 	</text>
-	<radio_group name="chat font size">
-		<radio_item type="string" length="1" name="radio">
+	<radio_group name="chat_font_size">
+		<radio_item name="radio">
 			Pequeno
 		</radio_item>
-		<radio_item type="string" length="1" name="radio2">
+		<radio_item name="radio2">
 			Médio
 		</radio_item>
-		<radio_item type="string" length="1" name="radio3">
+		<radio_item name="radio3">
 			Grande
 		</radio_item>
 	</radio_group>
-	<text type="string" length="1" name="text_box2">
+	<text length="1" name="text_box2" type="string">
 		Cor do Chat:
 	</text>
-	<color_swatch label="Sistema" name="system" />
-	<color_swatch label="Usuários" name="users" />
-	<color_swatch label="Objetos" name="objects" />
-	<color_swatch label="Bubble" name="background" />
-	<color_swatch label="URLs" name="links" />
-	<text type="string" length="1" name="text_box3">
-		Console do Chat:
-	</text>
-	<spinner label="Ocultar Chat depois" name="fade_chat_time" />
-	<text type="string" length="1" name="text_box4">
-		(segundos)
-	</text>
-	<text type="string" length="1" name="text_box5">
-		(# linhas)
-	</text>
-	<slider label="Opacidade" name="console_opacity" />
-	<text type="string" length="1" name="text_box6">
-		Opções do Chat:
-	</text>
-	<check_box label="Usar largura da tela cheia no Chat (depois do reinício)"
-	     name="chat_full_width_check" />
-	<check_box label="Fechar Chat depois de tocar voltar" name="close_chat_on_return_check" />
-	<check_box label="Teclas de Setas movem o avatar durante o chat"
-	     name="arrow_keys_move_avatar_check" />
-	<check_box label="Mostrar data e hora no chat" name="show_timestamps_check" />
-	<text type="string" length="1" name="text_box7">
-		Bubble Chat:
-	</text>
-	<check_box label="Mostrar bolhas do chat" name="bubble_text_chat" />
-	<slider label="Opacidade" name="bubble_chat_opacity" />
-	<text type="string" length="1" name="text_box8">
+	<color_swatch label="Você" name="user"/>
+	<color_swatch label="Outros" name="agent"/>
+	<color_swatch label="MI" name="im"/>
+	<color_swatch label="Sistema" name="system"/>
+	<color_swatch label="Erros" name="script_error"/>
+	<color_swatch label="Objetos" name="objects"/>
+	<color_swatch label="Dono" name="owner"/>
+	<color_swatch label="Bubble" name="background"/>
+	<color_swatch label="URLs" name="links"/>
+	<text length="1" name="text_box8" type="string">
 		Erros de Script:
 	</text>
-	<check_box label="Mostrar Erros de Script e avisos como chat comum"
-	     name="script_errors_as_chat" />
-	<color_swatch label="Cor" name="script_error" />
+	<check_box label="Mostrar Erros de Script e avisos como chat comum" name="script_errors_as_chat"/>
+	<text length="1" name="text_box3" type="string">
+		Console do Chat:
+	</text>
+	<spinner label="Ocultar Chat depois" name="fade_chat_time"/>
+	<text length="1" name="text_box4" type="string">
+		(segundos)
+	</text>
+	<text length="1" name="text_box5" type="string">
+		(# linhas)
+	</text>
+	<slider label="Opacidade" name="console_opacity"/>
+	<check_box label="Use a largura total da tela (Precisa reiniciar)" name="chat_full_width_check"/>
+	<text length="1" name="text_box6" type="string">
+		Opções do Chat:
+	</text>
+	<check_box label="Feche a barra de conversa após pressionar retornar" name="close_chat_on_return_check"/>
+	<check_box label="Teclas de Setas movem o avatar durante o chat" name="arrow_keys_move_avatar_check"/>
+	<check_box label="Mostrar a hora na conversa local" name="show_timestamps_check"/>
+	<check_box label="Executar animação digitada quando estiver conversando" name="play_typing_animation"/>
+	<text length="1" name="text_box7" type="string">
+		Bubble Chat:
+	</text>
+	<check_box label="Mostrar bolhas do chat" name="bubble_text_chat"/>
+	<slider label="Opacidade" name="bubble_chat_opacity"/>
 </panel>

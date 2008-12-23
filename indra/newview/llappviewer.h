@@ -77,7 +77,9 @@ public:
 	// Report true if under the control of a debugger. A null-op default.
 	virtual bool beingDebugged() { return false; } 
 
-	virtual void handleCrashReporting() = 0; // What to do with crash report?
+	virtual bool restoreErrorTrap() = 0; // Require platform specific override to reset error handling mechanism.
+	                                     // return false if the error trap needed restoration.
+	virtual void handleCrashReporting(bool reportFreeze = false) = 0; // What to do with crash report?
 	virtual void handleSyncCrashTrace() = 0; // any low-level crash-prep that has to happen in the context of the crashing thread before the crash report is delivered.
 	static void handleViewerCrash(); // Hey! The viewer crashed. Do this, soon.
 	static void handleSyncViewerCrash(); // Hey! The viewer crashed. Do this right NOW in the context of the crashing thread.
@@ -140,6 +142,9 @@ public:
 	void resumeMainloopTimeout(const std::string& state = "", F32 secs = -1.0f);
 	void pingMainloopTimeout(const std::string& state, F32 secs = -1.0f);
 
+	// Handle the 'login completed' event.
+	// *NOTE:Mani Fix this for login abstraction!!
+	void handleLoginComplete();
 
 protected:
 	virtual bool initWindow(); // Initialize the viewer's window.
@@ -222,6 +227,15 @@ private:
 	// for tracking viewer<->region circuit death
 	bool mAgentRegionLastAlive;
 	LLUUID mAgentRegionLastID;
+
+public:
+	//some information for updater
+	typedef struct
+	{
+		std::string mUpdateExePath;
+		std::ostringstream mParams;
+	}LLUpdaterInfo ;
+	static LLUpdaterInfo *sUpdaterInfo ;
 };
 
 // consts from viewer.h
@@ -232,7 +246,6 @@ const S32 AGENT_UPDATES_PER_SECOND  = 10;
 //
 // "// llstartup" indicates that llstartup is the only client for this global.
 
-extern BOOL gHandleKeysAsync; // gSavedSettings used by llviewerdisplay.cpp & llviewermenu.cpp
 extern LLSD gDebugInfo;
 
 extern BOOL	gAllowIdleAFK;

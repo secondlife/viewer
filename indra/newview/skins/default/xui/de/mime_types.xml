@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <mimetypes name="default">
 	<widgetset name="web">
 		<label name="web_label">
@@ -16,7 +16,7 @@
 			Video
 		</label>
 		<tooltip name="movie_tooltip">
-			Kein Video gefunden
+			Ein Video wurde gefunden.
 		</tooltip>
 		<playtip name="movie_playtip">
 			Video wiedergeben

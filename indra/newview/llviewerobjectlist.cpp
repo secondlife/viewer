@@ -827,8 +827,15 @@ void LLViewerObjectList::removeDrawable(LLDrawable* drawablep)
 
 	for (S32 i = 0; i < drawablep->getNumFaces(); i++)
 	{
-		LLViewerObject* objectp = drawablep->getFace(i)->getViewerObject();
-		mSelectPickList.erase(objectp);
+		LLFace* facep = drawablep->getFace(i) ;
+		if(facep)
+		{
+			   LLViewerObject* objectp = facep->getViewerObject();
+			   if(objectp)
+			   {
+					   mSelectPickList.erase(objectp);
+			   }
+		}
 	}
 }
 

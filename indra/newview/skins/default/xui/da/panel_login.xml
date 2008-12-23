@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_login">
+	<text name="first_name_text">
+		Fornavn:
+	</text>
+	<text name="last_name_text">
+		Efternavn:
+	</text>
+	<text name="password_text">
+		Kodeord:
+	</text>
+	<text name="start_location_text">
+		Start Placering:
+	</text>
+	<combo_box name="start_location_combo">
+		<combo_item name="MyHome">
+			Mit Hjem
+		</combo_item>
+		<combo_item name="MyLastLocation">
+			Min Sidste Placering
+		</combo_item>
+		<combo_item name="Typeregionname">
+			&lt;Skriv Navn På Region&gt;
+		</combo_item>
+	</combo_box>
+	<check_box label="Husk Kodeord" name="remember_check"/>
+	<button label="Log Ind" label_selected="Log Ind" name="connect_btn"/>
+	<text name="create_new_account_text">
+		Tilmeld konto
+	</text>
+	<text name="forgot_password_text">
+		Glemt Kodeord?
+	</text>
+	<text name="channel_text">
+		[CHANNEL] [VERSION]
+	</text>
+</panel>

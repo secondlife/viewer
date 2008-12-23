@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="floater_lagmeter" title="Lag Meter">
+	<button label="" label_selected="" name="client_lagmeter" tool_tip="Klient lag status" />
+	<text name="client">
+		Klient
+	</text>
+	<text name="client_text">
+		Normal
+	</text>
+	<button label="" label_selected="" name="network_lagmeter"
+	     tool_tip="Netværks lag status" />
+	<text name="network">
+		Netværk:
+	</text>
+	<text name="network_text">
+		Normal
+	</text>
+	<button label="" label_selected="" name="server_lagmeter" tool_tip="Server lag status" />
+	<text name="server">
+		Server:
+	</text>
+	<text name="server_text">
+		Normal
+	</text>
+	<button label="?" name="server_help" />
+	<button label="&gt;&gt;" name="minimize" />
+	<string name="max_title_msg">
+		Lag Meter
+	</string>
+	<string name="max_width_px">
+		360
+	</string>
+	<string name="min_title_msg">
+		Lag
+	</string>
+	<string name="min_width_px">
+		90
+	</string>
+	<string name="client_text_msg">
+		Klient
+	</string>
+	<string name="client_frame_rate_critical_fps">
+		10
+	</string>
+	<string name="client_frame_rate_warning_fps">
+		15
+	</string>
+	<string name="client_frame_time_window_bg_msg">
+		Normal, vindue i baggrund
+	</string>
+	<string name="client_frame_time_critical_msg">
+		Klient frame rate er under [CLIENT_FRAME_RATE_CRITICAL]
+	</string>
+	<string name="client_frame_time_warning_msg">
+		Klient frame rate er mellem [CLIENT_FRAME_RATE_CRITICAL] og [CLIENT_FRAME_RATE_WARNING]
+	</string>
+	<string name="client_frame_time_normal_msg">
+		Normal
+	</string>
+	<string name="client_draw_distance_cause_msg">
+		Kan skyldes: Visuel afstand sat for høj
+	</string>
+	<string name="client_texture_loading_cause_msg">
+		Kan skyldes: Billede indlæses
+	</string>
+	<string name="client_texture_memory_cause_msg">
+		Kan skyldes: For mange billeder i hukommelse
+	</string>
+	<string name="client_complex_objects_cause_msg">
+		Kan skyldes: Alt for mange komplekse objekter i scene
+	</string>
+	<string name="network_text_msg">
+		Netværk
+	</string>
+	<string name="network_packet_loss_critical_pct">
+		10
+	</string>
+	<string name="network_packet_loss_warning_pct">
+		5
+	</string>
+	<string name="network_packet_loss_critical_msg">
+		Forbindelsen mister over [NETWORK_PACKET_LOSS_CRITICAL]% pakker
+	</string>
+	<string name="network_packet_loss_warning_msg">
+		Forbindelsen mister [NETWORK_PACKET_LOSS_WARNING]%-[NETWORK_PACKET_LOSS_CRITICAL]% pakker
+	</string>
+	<string name="network_performance_normal_msg">
+		Normal
+	</string>
+	<string name="network_ping_critical_ms">
+		600
+	</string>
+	<string name="network_ping_warning_ms">
+		300
+	</string>
+	<string name="network_ping_critical_msg">
+		Forbindelsens ping tider er over [NETWORK_PING_CRITICAL] ms
+	</string>
+	<string name="network_ping_warning_msg">
+		Forbindelsens ping tider er [NETWORK_PING_WARNING]-[NETWORK_PING_CRITICAL] ms
+	</string>
+	<string name="network_packet_loss_cause_msg">
+		Muligvis dårlig forbindelse eller &apos;Båndbredde&apos; grafik sat for højt.
+	</string>
+	<string name="network_ping_cause_msg">
+		Muligvis dårlig forbindelse eller fil delings program.
+	</string>
+	<string name="server_text_msg">
+		Server
+	</string>
+	<string name="server_frame_rate_critical_fps">
+		20
+	</string>
+	<string name="server_frame_rate_warning_fps">
+		30
+	</string>
+	<string name="server_single_process_max_time_ms">
+		20
+	</string>
+	<string name="server_frame_time_critical_msg">
+		Simulator framerate er under [SERVER_FRAME_RATE_CRITICAL]
+	</string>
+	<string name="server_frame_time_warning_msg">
+		Simulator framerate er mellem [SERVER_FRAME_RATE_CRITICAL] og [SERVER_FRAME_RATE_WARNING]
+	</string>
+	<string name="server_frame_time_normal_msg">
+		Normal
+	</string>
+	<string name="server_physics_cause_msg">
+		Kan skyldes: For mange fysiske objekter
+	</string>
+	<string name="server_scripts_cause_msg">
+		Kan skyldes: For mange kodede objekter
+	</string>
+	<string name="server_net_cause_msg">
+		Kan skyldes: For meget netværks traffik
+	</string>
+	<string name="server_agent_cause_msg">
+		Kan skyldes: For mange omvandrende folk i regionen
+	</string>
+	<string name="server_images_cause_msg">
+		Kan skyldes: For mange billed udregninger
+	</string>
+	<string name="server_generic_cause_msg">
+		Kan skyldes: Simulator belastning for tung
+	</string>
+	<string name="smaller_label">
+		&gt;&gt;
+	</string>
+	<string name="bigger_label">
+		&lt;&lt;
+	</string>
+</floater>

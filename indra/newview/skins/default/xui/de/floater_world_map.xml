@@ -1,8 +1,8 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="worldmap" title="Weltkarte">
 	<tab_container name="maptab">
-		<panel label="Objekte" name="objects_mapview" />
-		<panel label="Terrain" name="terrain_mapview" />
+		<panel label="Objekte" name="objects_mapview"/>
+		<panel label="Terrain" name="terrain_mapview"/>
 	</tab_container>
 	<text font="SansSerifSmall" name="land_for_sale_label">
 		Land erhaeltlich
@@ -16,77 +16,60 @@
 	<text name="home_label">
 		Zuhause
 	</text>
-	<button label="Nach Hause" label_selected="Nach Hause" name="Go Home"
-	     tool_tip="Nach Hause teleportieren" />
-	<text name="classifieds_label">
-		Anzeigen
-	</text>
-	<check_box label=" " name="class_chk" />
+	<button label="Nach Hause" label_selected="Nach Hause" name="Go Home" tool_tip="Nach Hause teleportieren"/>
 	<text name="person_label">
 		Person
 	</text>
-	<check_box label=" " name="people_chk" />
+	<check_box label=" " name="people_chk"/>
 	<text name="infohub_label">
 		Infohub
 	</text>
-	<check_box label=" " name="infohub_chk" />
+	<check_box label=" " name="infohub_chk"/>
 	<text name="telehub_label">
 		Telehub
 	</text>
-	<check_box label=" " name="telehubchk" />
-	<text name="popular_label">
-		Beliebt
-	</text>
-	<check_box label=" " name="popular_chk" />
+	<check_box label=" " name="telehubchk"/>
 	<text font="SansSerifSmall" name="land_for_sale_label2">
 		Land erhaeltlich
 	</text>
-	<check_box label=" " name="land_for_sale_chk" />
+	<check_box label=" " name="land_for_sale_chk"/>
 	<text name="events_label">
 		Events
 	</text>
-	<check_box label=" " name="event_chk" />
+	<check_box label=" " name="event_chk"/>
 	<text name="events_mature_label">
 		Events (18+)
 	</text>
-	<check_box label=" " name="event_mature_chk" />
-	<combo_box label="Online-Freunde" name="friend combo" tool_tip="Friend to Show on Map">
+	<check_box label=" " name="event_mature_chk"/>
+	<combo_box label="Online-Freunde" name="friend combo" tool_tip="Freund, der auf Karte angezeigt werden soll">
 		<combo_item name="none_selected">
 			Online-Freunde
 		</combo_item>
 	</combo_box>
-	<combo_box label="Landmarken" name="landmark combo" tool_tip="Landmark to Show on Map">
+	<combo_box label="Landmarken" name="landmark combo" tool_tip="Landmarke, die auf Karte angezeigt werden soll">
 		<combo_item name="none_selected">
 			Landmarken
 		</combo_item>
 	</combo_box>
-	<line_editor label="Nach Regionsname suchen" name="location"
-	     tool_tip="Geben Sie den Namen einer Region ein" />
-	<button label="Suchen" name="DoSearch" tool_tip="Nach einer Region suchen" />
+	<line_editor label="Nach Regionsname suchen" name="location" tool_tip="Geben Sie den Namen einer Region ein"/>
+	<button label="Suchen" name="DoSearch" tool_tip="Nach einer Region suchen"/>
 	<text name="search_label">
 		Suchergebnisse:
 	</text>
 	<scroll_list name="search_results">
-		<column label="" name="icon" />
-		<column label="" name="sim_name" />
+		<column label="" name="icon"/>
+		<column label="" name="sim_name"/>
 	</scroll_list>
 	<text name="location_label">
 		Standort:
 	</text>
-	<spinner name="spin x" tool_tip="X-Koordinate der Position auf der Karte" />
-	<spinner name="spin y" tool_tip="Y-Koordinate der Position auf der Karte" />
-	<spinner name="spin z" tool_tip="Z-Koordinate der Position auf der Karte" />
-	<button label="Teleportieren" label_selected="Teleportieren" name="Teleport"
-	     tool_tip="Zu ausgewählter Position teleportieren" />
-	<button label="Gesuchte Position" label_selected="Ziel anzeigen"
-	     name="Show Destination"
-	     tool_tip="Karte auf ausgewählte Position zentrieren" />
-	<button label="Löschen" label_selected="Löschen" name="Clear"
-	     tool_tip="Verfolgung abschalten" />
-	<button label="Meine Position" label_selected="Wo bin ich?" name="Show My Location"
-	     tool_tip="Karte auf Position Ihres Avatars zentrieren" />
-	<button font="SansSerifSmall" label="SLURL in die Zwischenablage kopieren"
-	     name="copy_slurl"
-	     tool_tip="Kopiert die aktuelle Position als SLURL zur Verwendung im Web." />
-	<slider label="Zoom" name="zoom slider" />
+	<spinner name="spin x" tool_tip="X-Koordinate der Position auf der Karte"/>
+	<spinner name="spin y" tool_tip="Y-Koordinate der Position auf der Karte"/>
+	<spinner name="spin z" tool_tip="Z-Koordinate der Position auf der Karte"/>
+	<button label="Teleportieren" label_selected="Teleportieren" name="Teleport" tool_tip="Zu ausgewählter Position teleportieren"/>
+	<button label="Gesuchte Position" label_selected="Ziel anzeigen" name="Show Destination" tool_tip="Karte auf ausgewählte Position zentrieren"/>
+	<button label="Löschen" label_selected="Löschen" name="Clear" tool_tip="Verfolgung abschalten"/>
+	<button label="Meine Position" label_selected="Wo bin ich?" name="Show My Location" tool_tip="Karte auf Position Ihres Avatars zentrieren"/>
+	<button font="SansSerifSmall" label="SLURL in die Zwischenablage kopieren" name="copy_slurl" tool_tip="Kopiert die aktuelle Position als SLURL zur Verwendung im Web."/>
+	<slider label="Zoom" name="zoom slider"/>
 </floater>

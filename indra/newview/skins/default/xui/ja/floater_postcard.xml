@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="Postcard" title="スナップショットを電子メールで送信">
+<floater name="Postcard" title="スナップショットをEメールで送信">
 	<text name="to_label">
-		住人の電子メール：
+		住人のEメール：
 	</text>
 	<line_editor left="145" name="to_form" width="125" />
 	<text name="from_label">
@@ -15,13 +15,13 @@
 	<text name="subject_label">
 		件名：
 	</text>
-	<line_editor label="件名をここにタイプ。" left="145" name="subject_form"
+	<line_editor label="件名をここに入力" left="145" name="subject_form"
 	     width="125" />
 	<text name="msg_label">
 		メッセージ：
 	</text>
 	<text_editor bottom_delta="-120" height="110" name="msg_form">
-		メッセージをここにタイプ。
+		メッセージをここに入力してください。
 	</text_editor>
 	<check_box label="ウェブ上で公開" name="allow_publish_check"
 	     tool_tip="このポストカードをウェブ上で公開します。" />
@@ -29,12 +29,12 @@
 	     tool_tip="このポストカードには成人向け内容が含まれます。" />
 	<button label="?" left="300" name="publish_help_btn" />
 	<text name="fine_print">
-		あなたの受信者がSLに参加すると、あなたは紹介ボーナスを受け取れます
+		この受信者がSLに参加すると、あなたに紹介ボーナスが入ります
 	</text>
 	<button bottom_delta="-52" label="取り消し" name="cancel_btn" />
 	<button label="送信" name="send_btn" />
 	<text name="default_subject">
-		Second Life からのポストカード。
+		Second Life からのポストカード
 	</text>
 	<text name="default_message">
 		これは絶対チェック！

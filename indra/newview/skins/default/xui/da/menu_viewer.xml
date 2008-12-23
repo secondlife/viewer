@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<menu_bar name="Main Menu">
+	<menu label="Filer" name="File">
+		<tearoff_menu label="~~~~~~~~~~~" name="~~~~~~~~~~~"/>
+		<menu_item_call label="Upload Billede (L$[COST])..." name="Upload Image"/>
+		<menu_item_call label="Upload Lyd (L$[COST])..." name="Upload Sound"/>
+		<menu_item_call label="Upload Animation (L$[COST])..." name="Upload Animation"/>
+		<menu_item_call label="Upload Flere (L$[COST] per file)..." name="Bulk Upload"/>
+		<menu_item_separator label="-----------" name="separator"/>
+		<menu_item_call label="Luk Vindue" name="Close Window"/>
+		<menu_item_call label="Luk Alle Vinduer" name="Close All Windows"/>
+		<menu_item_separator label="-----------" name="separator2"/>
+		<menu_item_call label="Gem Billede Som..." name="Save Texture As..."/>
+		<menu_item_separator label="-----------" name="separator3"/>
+		<menu_item_call label="Tag Billede" name="Take Snapshot"/>
+		<menu_item_call label="Billede til disk" name="Snapshot to Disk"/>
+		<menu_item_separator label="-----------" name="separator4"/>
+		<menu_item_call label="Quit" name="Quit"/>
+	</menu>
+	<menu label="Rediger" name="Edit">
+		<menu_item_call label="Fortryd" name="Undo"/>
+		<menu_item_call label="Gentag" name="Redo"/>
+		<menu_item_separator label="-----------" name="separator"/>
+		<menu_item_call label="Klip" name="Cut"/>
+		<menu_item_call label="Kopier" name="Copy"/>
+		<menu_item_call label="Sæt Ind" name="Paste"/>
+		<menu_item_call label="Slet" name="Delete"/>
+		<menu_item_separator label="-----------" name="separator2"/>
+		<menu_item_call label="Søg..." name="Search..."/>
+		<menu_item_separator label="-----------" name="separator3"/>
+		<menu_item_call label="Marker Alt" name="Select All"/>
+		<menu_item_call label="Market Intet" name="Deselect"/>
+		<menu_item_separator label="-----------" name="separator4"/>
+		<menu_item_call label="Klon" name="Duplicate"/>
+		<menu_item_separator label="-----------" name="separator5"/>
+		<menu label="Påsæt Objekt" name="Attach Object"/>
+		<menu label="Aftag Objekt" name="Detach Object"/>
+		<menu label="Aftag Påklædning" name="Take Off Clothing">
+			<menu_item_call label="Trøje" name="Shirt"/>
+			<menu_item_call label="Bukser" name="Pants"/>
+			<menu_item_call label="Sko" name="Shoes"/>
+			<menu_item_call label="Sokker" name="Socks"/>
+			<menu_item_call label="Jakke" name="Jacket"/>
+			<menu_item_call label="Handsker" name="Gloves"/>
+			<menu_item_call label="Undertrøje" name="Menu Undershirt"/>
+			<menu_item_call label="Underbukser" name="Menu Underpants"/>
+			<menu_item_call label="Nederdel" name="Skirt"/>
+			<menu_item_call label="Alt Tøj" name="All Clothes"/>
+		</menu>
+		<menu_item_separator label="-----------" name="separator6"/>
+		<menu_item_call label="Hilsener..." name="Gestures..."/>
+		<menu_item_call label="Profil..." name="Profile..."/>
+		<menu_item_call label="Udseende..." name="Appearance..."/>
+		<menu_item_separator label="-----------" name="separator7"/>
+		<menu_item_check label="Venner..." name="Friends..."/>
+		<menu_item_call label="Grupper..." name="Groups..."/>
+		<menu_item_separator label="-----------" name="separator8"/>
+		<menu_item_call label="Indstillinger..." name="Preferences..."/>
+	</menu>
+	<menu label="Vis" name="View">
+		<tearoff_menu label="~~~~~~~~~~~" name="~~~~~~~~~~~"/>
+		<menu_item_call label="Første person" name="Mouselook"/>
+		<menu_item_check label="Byg" name="Build"/>
+		<menu_item_call label="Nulstil Kamera" name="Reset View"/>
+		<menu_item_call label="Se på sidste chatter" name="Look at Last Chatter"/>
+		<menu_item_separator label="-----------" name="separator"/>
+		<menu_item_check label="Værktøjslinje" name="Toolbar"/>
+		<menu_item_check label="Lokal Chat" name="Chat History"/>
+		<menu_item_check label="Kommuniker" name="Instant Message"/>
+		<menu_item_call label="Beholdning" name="Inventory"/>
+		<menu_item_check label="Aktive Talere" name="Active Speakers"/>
+		<menu_item_check label="Blok Liste" name="Mute List"/>
+		<menu_item_separator label="-----------" name="separator2"/>
+		<menu_item_check label="Kamera Kontrol" name="Camera Controls"/>
+		<menu_item_check label="Bevægelses Kontrol" name="Movement Controls"/>
+		<menu_item_check label="Verdens Kort" name="World Map"/>
+		<menu_item_check label="Lokalt Kort" name="Mini-Map"/>
+		<menu_item_separator label="-----------" name="separator3"/>
+		<menu_item_check label="Teknisk Info" name="Statistics Bar"/>
+		<menu_item_check label="Grund linjer" name="Property Lines"/>
+		<menu_item_check label="Vis Grundejere" name="Land Owners"/>
+		<menu_item_separator label="-----------" name="separator4"/>
+		<menu label="Hover Tips" name="Hover Tips">
+			<menu_item_check label="Vis Tips" name="Show Tips"/>
+			<menu_item_separator label="-----------" name="separator"/>
+			<menu_item_check label="Grund Tips" name="Land Tips"/>
+			<menu_item_check label="Tips på alle objekter" name="Tips On All Objects"/>
+		</menu>
+		<menu_item_check label="Fremhæv Gennemsigtige" name="Highlight Transparent"/>
+		<menu_item_check label="Lyssøjler" name="beacons"/>
+		<menu_item_check label="Skjul Partikler" name="Hide Particles"/>
+		<menu_item_check label="Vis HUD Tilføjelser" name="Show HUD Attachments"/>
+		<menu_item_separator label="-----------" name="separator5"/>
+		<menu_item_call label="Zoom Ind" name="Zoom In"/>
+		<menu_item_call label="Zoom Standard" name="Zoom Default"/>
+		<menu_item_call label="Zoom Ud" name="Zoom Out"/>
+		<menu_item_separator label="-----------" name="separator6"/>
+		<menu_item_call label="Fuld Skærm/Vindue" name="Toggle Fullscreen"/>
+		<menu_item_call label="Sæt UI Størrelse til Standard" name="Set UI Size to Default"/>
+	</menu>
+	<menu label="Verden" name="World">
+		<menu_item_call label="Chat" name="Chat"/>
+		<menu_item_check label="Løb" name="Always Run"/>
+		<menu_item_check label="Flyv" name="Fly"/>
+		<menu_item_separator label="-----------" name="separator"/>
+		<menu_item_call label="Opret Landemærke Her" name="Create Landmark Here"/>
+		<menu_item_call label="Sæt til Hjem" name="Set Home to Here"/>
+		<menu_item_separator label="-----------" name="separator2"/>
+		<menu_item_call label="Teleporter Hjem" name="Teleport Home"/>
+		<menu_item_separator label="-----------" name="separator3"/>
+		<menu_item_call label="Ikke til stede" name="Set Away"/>
+		<menu_item_call label="Optaget" name="Set Busy"/>
+		<menu_item_call label="Frigiv taster" name="Release Keys"/>
+		<menu_item_separator label="-----------" name="separator4"/>
+		<menu_item_call label="Konto Historik..." name="Account History..."/>
+		<menu_item_call label="Vedligehold min Konto..." name="Manage My Account..."/>
+		<menu_item_call label="Køb L$..." name="Buy and Sell L$..."/>
+		<menu_item_separator label="-----------" name="separator5"/>
+		<menu_item_call label="Mit Land..." name="My Land..."/>
+		<menu_item_call label="Om Land..." name="About Land..."/>
+		<menu_item_call label="Køb Land..." name="Buy Land..."/>
+		<menu_item_call label="Region/Estate..." name="Region/Estate..."/>
+		<menu_item_separator label="-----------" name="separator6"/>
+		<menu label="Sol Indstillinger" name="Environment Settings">
+			<menu_item_call label="Solopgang" name="Sunrise"/>
+			<menu_item_call label="Middag" name="Noon"/>
+			<menu_item_call label="Solnedgang" name="Sunset"/>
+			<menu_item_call label="Midnat" name="Midnight"/>
+			<menu_item_call label="Gendan Region Standard" name="Revert to Region Default"/>
+			<menu_item_separator label="-----------" name="separator"/>
+			<menu_item_call label="Rediger Atmosfære" name="Environment Editor"/>
+		</menu>
+	</menu>
+	<menu label="Funktioner" name="Tools">
+		<menu label="Select Tool" name="Select Tool">
+			<menu_item_call label="Fokus" name="Focus"/>
+			<menu_item_call label="Flyt" name="Move"/>
+			<menu_item_call label="Rediger" name="Edit"/>
+			<menu_item_call label="Byg" name="Create"/>
+			<menu_item_call label="Land" name="Land"/>
+		</menu>
+		<menu_item_separator label="-----------" name="separator"/>
+		<menu_item_check label="Vælg kun mine objekter" name="Select Only My Objects"/>
+		<menu_item_check label="Vælg kun flytbare objekter" name="Select Only Movable Objects"/>
+		<menu_item_check label="Vælg ud fra omgivelser" name="Select By Surrounding"/>
+		<menu_item_check label="Vis skjulte objekter" name="Show Hidden Selection"/>
+		<menu_item_check label="Vis lys radius for valgte" name="Show Light Radius for Selection"/>
+		<menu_item_check label="Vis objekt guidelys" name="Show Selection Beam"/>
+		<menu_item_separator label="-----------" name="separator2"/>
+		<menu_item_check label="Lås til Gitter" name="Snap to Grid"/>
+		<menu_item_call label="Lås Objekts XY til Gitter" name="Snap Object XY to Grid"/>
+		<menu_item_call label="Brug valgte til felt" name="Use Selection for Grid"/>
+		<menu_item_call label="Gitter Indstillinger..." name="Grid Options..."/>
+		<menu_item_separator label="-----------" name="separator3"/>
+		<menu_item_check label="Rediger Lænkede Dele" name="Edit Linked Parts"/>
+		<menu_item_call label="Lænk" name="Link"/>
+		<menu_item_call label="Aflænk" name="Unlink"/>
+		<menu_item_separator label="-----------" name="separator4"/>
+		<menu_item_call label="Fokus på Valgte" name="Focus on Selection"/>
+		<menu_item_call label="Zoom til Valgte" name="Zoom to Selection"/>
+		<menu_item_call label="Take" name="Menu Object Take"/>
+		<menu_item_call label="Tag Kopi" name="Take Copy"/>
+		<menu_item_call label="Gem ændringer på prim i beholdning" name="Save Object Back to My Inventory"/>
+		<menu_item_call label="Gem ændringer på prim i dens beholdning" name="Save Object Back to Object Contents"/>
+		<menu_item_separator label="-----------" name="separator6"/>
+		<menu_item_call name="Show Script Warning/Error Window"/>
+		<menu name="Recompile Scripts in Selection">
+			<menu_item_call label="Mono" name="Mono"/>
+			<menu_item_call label="LSL" name="LSL"/>
+		</menu>
+		<menu_item_call label="Nulstil valgte koder" name="Reset Scripts in Selection"/>
+		<menu_item_call label="Sæt valgte koder aktive" name="Set Scripts to Running in Selection"/>
+		<menu_item_call label="Sæt valgte koder inaktive" name="Set Scripts to Not Running in Selection"/>
+	</menu>
+	<menu label="Hjælp" name="Help">
+		<menu_item_call label="Second Life Hjælp" name="Second Life Help"/>
+		<menu_item_call label="Tutorial" name="Tutorial"/>
+		<menu_item_separator label="-----------" name="separator"/>
+		<menu_item_call label="Officiel Linden Blog..." name="Official Linden Blog..."/>
+		<menu_item_separator label="-----------" name="separator2"/>
+		<menu_item_call label="Kodnings Portal..." name="Scripting Portal..."/>
+		<menu_item_separator label="-----------" name="separator3"/>
+		<menu_item_call label="Rapporter Misbrug..." name="Report Abuse..."/>
+		<menu_item_call label="Kollisioner, Skub &amp; Slag..." name="Bumps, Pushes &amp;amp; Hits..."/>
+		<menu_item_call label="Lag Meter" name="Lag Meter"/>
+		<menu_item_separator label="-----------" name="separator7"/>
+		<menu label="Fejl Rapportering" name="Bug Reporting">
+			<menu_item_call label="Offentlig hændelses Sæger..." name="Public Issue Tracker..."/>
+			<menu_item_call label="Offentlig hændelses Sæger hjælp..." name="Publc Issue Tracker Help..."/>
+			<menu_item_separator label="-----------" name="separator7"/>
+			<menu_item_call label="Fejl Rapportering 101..." name="Bug Reporing 101..."/>
+			<menu_item_call label="Sikkerheds Hændelser..." name="Security Issues..."/>
+			<menu_item_call label="QA Wiki..." name="QA Wiki..."/>
+			<menu_item_separator label="-----------" name="separator9"/>
+			<menu_item_call label="Rapporter Fejl..." name="Report Bug..."/>
+		</menu>
+		<menu_item_call label="Om Second Life..." name="About Second Life..."/>
+	</menu>
+</menu_bar>

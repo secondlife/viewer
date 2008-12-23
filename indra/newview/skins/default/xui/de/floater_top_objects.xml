@@ -1,68 +1,58 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="top_objects" title="wird geladen...">
 	<text name="title_text">
 		Wird geladen...
 	</text>
 	<scroll_list name="objects_list">
-		<column label="Score" name="score" />
-		<column label="Name" name="name" />
-		<column label="Owner" name="owner" />
-		<column label="Location" name="location" />
-		<column label="Uhrzeit" name="time" />
+		<column label="Wertung" name="score" width="65"/>
+		<column label="Name" name="name" width="135"/>
+		<column label="Eigentümer" name="owner"/>
+		<column label="Position" name="location" width="125"/>
+		<column label="Uhrzeit" name="time"/>
+		<column label="Mono-Uhrzeit:" name="mono_time"/>
 	</scroll_list>
-	<line_editor bg_readonly_color="clear" bottom_delta="3" enabled="false"
-	     follows="left|bottom|right" font="SansSerifSmall" height="20" left="80"
-	     name="id_editor" text_readonly_color="white" width="244" />
 	<text name="id_text">
 		Objekt-ID:
 	</text>
-	<button bottom_delta="0" follows="bottom|right" height="20" label="Beacon anzeigen"
-	     name="show_beacon_btn" right="-10" width="110" />
-	<line_editor bg_readonly_color="clear" bottom_delta="3" enabled="false"
-	     follows="left|bottom|right" font="SansSerifSmall" height="20" left="80"
-	     name="object_name_editor" text_readonly_color="white" width="244" />
+	<line_editor bg_readonly_color="clear" bottom_delta="3" enabled="false" follows="left|bottom|right" font="SansSerifSmall" height="20" left="80" name="id_editor" text_readonly_color="white" width="244"/>
+	<button bottom_delta="0" follows="bottom|right" height="20" label="Beacon anzeigen" name="show_beacon_btn" right="-10" width="110"/>
 	<text name="obj_name_text">
 		Objektname:
 	</text>
-	<button bottom_delta="0" follows="bottom|right" height="20" label="Filter"
-	     name="filter_object_btn" right="-10" width="110" />
-	<line_editor bg_readonly_color="clear" bottom_delta="3" enabled="true"
-	     follows="left|bottom|right" font="SansSerifSmall" height="20" left="106"
-	     name="owner_name_editor" text_readonly_color="white" width="218" />
+	<line_editor bg_readonly_color="clear" bottom_delta="3" enabled="false" follows="left|bottom|right" font="SansSerifSmall" height="20" left="80" name="object_name_editor" text_readonly_color="white" width="244"/>
+	<button bottom_delta="0" follows="bottom|right" height="20" label="Filter" name="filter_object_btn" right="-10" width="110"/>
 	<text name="owner_name_text">
 		Eigentümername:
 	</text>
-	<button bottom_delta="0" follows="bottom|right" height="20" label="Filter"
-	     name="filter_owner_btn" right="-10" width="110" />
-	<button bottom="35" follows="bottom|left" height="20" label="Auswahl zurückgeben"
-	     left="10" name="return_selected_btn" width="134" />
-	<button bottom="35" follows="bottom|left" height="20" label="Alle zurückgeben"
-	     left="150" name="return_all_btn" width="134" />
-	<button bottom="10" follows="bottom|left" height="20" label="Auswahl deaktivieren"
-	     left="10" name="disable_selected_btn" width="134" />
-	<button bottom="10" follows="bottom|left" height="20" label="Alle deaktivieren"
-	     left="150" name="disable_all_btn" width="134" />
-	<button bottom_delta="0" follows="bottom|right" height="20" label="Aktualisieren"
-	     name="refresh_btn" right="-10" width="110" />
-	<text name="top_scripts_title">
+	<line_editor bg_readonly_color="clear" bottom_delta="3" enabled="true" follows="left|bottom|right" font="SansSerifSmall" height="20" left="106" name="owner_name_editor" text_readonly_color="white" width="218"/>
+	<button bottom_delta="0" follows="bottom|right" height="20" label="Filter" name="filter_owner_btn" right="-10" width="110"/>
+	<button bottom="35" follows="bottom|left" height="20" label="Auswahl zurückgeben" left="10" name="return_selected_btn" width="134"/>
+	<button bottom="35" follows="bottom|left" height="20" label="Alle zurückgeben" left="150" name="return_all_btn" width="134"/>
+	<button bottom="10" follows="bottom|left" height="20" label="Auswahl deaktivieren" left="10" name="disable_selected_btn" width="134"/>
+	<button bottom="10" follows="bottom|left" height="20" label="Alle deaktivieren" left="150" name="disable_all_btn" width="134"/>
+	<button bottom_delta="0" follows="bottom|right" height="20" label="Aktualisieren" name="refresh_btn" right="-10" width="110"/>
+	<string name="top_scripts_title">
 		Top-Skripts
-	</text>
-	<text name="top_scripts_text">
+	</string>
+	<string name="top_scripts_text">
 		[COUNT] Skripts benötigen insgesamt [TIME] ms
-	</text>
-	<text name="scripts_score_label">
+	</string>
+	<string name="scripts_score_label">
 		Zeit
-	</text>
-	<text name="top_colliders_title">
+	</string>
+	<string name="scripts_mono_time_label">
+		Mono-Uhrzeit:
+	</string>
+	<string name="top_colliders_title">
 		Top-Kollisionsobjekte
-	</text>
-	<text name="top_colliders_text">
+	</string>
+	<string name="top_colliders_text">
 		Top [COUNT] Objekte mit vielen potenziellen Kollisionen
-	</text>
-	<text name="colliders_score_label">
+	</string>
+	<string name="colliders_score_label">
 		Wertung
-	</text>
-	<text name="none_descriptor">
+	</string>
+	<string name="none_descriptor">
 		Nicht gefunden.
-	</text>
+	</string>
 </floater>

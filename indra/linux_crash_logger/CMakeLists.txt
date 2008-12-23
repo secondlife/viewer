@@ -57,10 +57,9 @@ target_link_libraries(linux-crash-logger
 add_custom_command(
     OUTPUT linux-crash-logger-stripped
     COMMAND strip
-    ARGS --strip-debug -o linux-crash-logger-stripped
-         linux-crash-logger
+    ARGS --strip-debug -o linux-crash-logger-stripped linux-crash-logger
     DEPENDS linux-crash-logger
     )
 
-add_custom_target(linux-crash-logger-stripped ALL
+add_custom_target(linux-crash-logger-strip-target ALL
                   DEPENDS linux-crash-logger-stripped)

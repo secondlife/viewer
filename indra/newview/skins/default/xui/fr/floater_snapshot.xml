@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater height="536" name="Snapshot" title="Prévisualiser la photo" width="245">
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Snapshot" title="Prévisualiser la photo" width="247">
 	<text name="type_label">
 		Destination de la photo
 	</text>
@@ -8,14 +8,14 @@
 			Envoyer par e-mail
 		</radio_item>
 		<radio_item name="texture">
-			Enregistrer dans votre inventaire (10 $L)
+			Enregistrer dans votre inventaire (10 L$)
 		</radio_item>
 		<radio_item name="local">
 			Enregistrer sur votre disque dur
 		</radio_item>
 	</radio_group>
-	<button label="Plus &gt;&gt;" name="more_btn" tool_tip="Options avancées" />
-	<button label="&lt;&lt; Moins" name="less_btn" tool_tip="Options avancées" />
+	<button label="Plus &gt;&gt;" name="more_btn" tool_tip="Options avancées"/>
+	<button label="&lt;&lt; Moins" name="less_btn" tool_tip="Options avancées"/>
 	<text name="type_label2">
 		Taille
 	</text>
@@ -93,9 +93,9 @@
 			BMP
 		</combo_item>
 	</combo_box>
-	<spinner label="Largeur" label_width="41" name="snapshot_width" width="101" />
-	<spinner label="Hauteur" label_width="41" left="121" name="snapshot_height" width="101" />
-	<slider label="Qualité de l&apos;image" name="image_quality_slider" />
+	<spinner label="Largeur" label_width="41" name="snapshot_width" width="101"/>
+	<spinner label="Hauteur" label_width="41" left="121" name="snapshot_height" width="101"/>
+	<slider label="Qualité de l&apos;image" name="image_quality_slider"/>
 	<text name="layer_type_label">
 		Capturer :
 	</text>
@@ -113,20 +113,16 @@
 	<text name="file_size_label">
 		Taille du fichier : [SIZE] Ko
 	</text>
-	<check_box bottom_delta="-20" label="Voir l&apos;interface sur la photo" name="ui_check" />
-	<check_box bottom_delta="-18" label="Voir les éléments HUD sur la photo"
-	     name="hud_check" />
-	<check_box bottom_delta="-18" label="Garder ouvert après enregistrement"
-	     name="keep_open_check" />
-	<check_box label="Imposer les proportions" name="keep_aspect_check" />
-	<check_box bottom_delta="-18" label="Geler le cadre (prévisualisation &#10;plein écran)"
-	     name="freeze_frame_check" />
-	<button bottom_delta="-18" label="Rafraîchir" name="new_snapshot_btn" />
-	<check_box bottom_delta="-30" label="Auto-rafraîchir" name="auto_snapshot_check" />
-	<button label="Enregistrer (10 $L)" name="upload_btn" />
-	<button label="Envoyer" name="send_btn" />
-	<flyout_button label="Enregistrer" name="save_btn"
-	     tool_tip="Enregistrer l&apos;image dans un fichier">
+	<check_box label="Voir l&apos;interface sur la photo" name="ui_check"/>
+	<check_box label="Voir les éléments HUD sur la photo" name="hud_check"/>
+	<check_box label="Garder ouvert après enregistrement" name="keep_open_check"/>
+	<check_box label="Imposer les proportions" name="keep_aspect_check"/>
+	<check_box label="Prévisualisation plein écran (geler l&apos;écran)" name="freeze_frame_check"/>
+	<button label="Rafraîchir" name="new_snapshot_btn"/>
+	<check_box label="Rafraîchissement automatique" name="auto_snapshot_check"/>
+	<button label="Enregistrer (10 L$)" name="upload_btn" width="118"/>
+	<button label="Envoyer" name="send_btn" width="118"/>
+	<flyout_button label="Enregistrer" name="save_btn" tool_tip="Enregistrer l&apos;image dans un fichier" width="118">
 		<flyout_button_item name="save_item">
 			Enregistrer
 		</flyout_button_item>
@@ -134,7 +130,7 @@
 			Enregistrer sous...
 		</flyout_button_item>
 	</flyout_button>
-	<button label="Annuler" name="discard_btn" />
+	<button label="Annuler" name="discard_btn" left="133" width="72" />
 	<string name="unknown">
 		inconnu
 	</string>

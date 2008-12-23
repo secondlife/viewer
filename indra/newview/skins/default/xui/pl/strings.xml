@@ -1,0 +1,439 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<strings>
+	<!-- Login -->
+	<string name="LoginInProgress">
+		Trwa logowanie. [APP_NAME] Proszę czekać.
+	</string>
+	<string name="LoginAuthenticating">
+		Autoryzacja
+	</string>
+	<string name="LoginMaintenance">
+		W trakcie obslugi konta...
+	</string>
+	<string name="LoginAttempt">
+		Poprzednie logowanie nie udalo się. Logowanie, próba numer [NUMBER]
+	</string>
+	<string name="LoginPrecaching">
+		Ładowanie świata...
+	</string>
+	<string name="LoginInitializingBrowser">
+		Inicjalizacja Przeglądarki Internetu...
+	</string>
+	<string name="LoginInitializingMultimedia">
+		Inicjalizacja multimediów...
+	</string>
+	<string name="LoginVerifyingCache">
+		Weryfikacja plików z bazy danych (może zająć 60-90 sekund)...
+	</string>
+	<string name="LoginProcessingResponse">
+		Przetwarzanie Odpowiedzi...
+	</string>
+	<string name="LoginInitializingWorld">
+		Inicjalizacja świata...
+	</string>
+	<string name="LoginDecodingImages">
+		Przetwarzanie obrazów...
+	</string>
+	<string name="LoginInitializingQuicktime">
+		Inicjalizacja QuickTime...
+	</string>
+	<string name="LoginQuicktimeNotFound">
+		QuickTime nie znaleźony - inicjalizacja przerwana.
+	</string>
+	<string name="LoginQuicktimeOK">
+		QuickTime zainicjalizowany.
+	</string>
+	<string name="LoginWaitingForRegionHandshake">
+		Oczekiwanie na połączenie z regionem...
+	</string>
+	<string name="LoginConnectingToRegion">
+		Łączenie z regionem...
+	</string>
+	<string name="LoginDownloadingClothing">
+		Ładowanie ubrania...
+	</string>
+	<string name="LoginFailedNoNetwork">
+		Błąd sieci: Problemy z połączeniem, sprawdź podłączenie do sieci.
+	</string>
+	<!-- Disconnection -->
+	<string name="AgentLostConnection">
+		Ten region może mieć problemy. Sprawdź podłączenie do Internetu.
+	</string>
+	<!-- Tooltip, llhoverview.cpp -->
+	<string name="TooltipPerson">
+		Osoba
+	</string>
+	<!-- Object under mouse pointer is an avatar -->
+	<string name="TooltipNoName">
+		(brak nazwy)
+	</string>
+	<!-- No name on an object -->
+	<string name="TooltipOwner">
+		Właściciel:
+	</string>
+	<!-- Owner name follows -->
+	<string name="TooltipPublic">
+		Publiczny
+	</string>
+	<!-- Public permissions on an object -->
+	<string name="TooltipIsGroup">
+		(Grupa)
+	</string>
+	<!-- The name before this text is that of a group -->
+	<string name="TooltipFlagScript">
+		Skrypt
+	</string>
+	<string name="TooltipFlagPhysics">
+		Fizyka
+	</string>
+	<string name="TooltipFlagTouch">
+		Dotyk
+	</string>
+	<string name="TooltipFlagL$">
+		L$
+	</string>
+	<string name="TooltipFlagDropInventory">
+		Usuń z Inwentarza
+	</string>
+	<string name="TooltipFlagPhantom">
+		Fantom
+	</string>
+	<string name="TooltipFlagTemporary">
+		Tymczasowy
+	</string>
+	<string name="TooltipFlagRightClickMenu">
+		(Menu - wciśnij prawy klawisz)
+	</string>
+	<string name="TooltipFreeToCopy">
+		Za darmo
+	</string>
+	<string name="TooltipForSaleL$">
+		Na Sprzedaż: L$[AMOUNT]
+	</string>
+	<!-- L$ version -->
+	<string name="TooltipForSaleMsg">
+		Na Sprzedaż: [MESSAGE]
+	</string>
+	<!-- Message (RetrievingData) -->
+	<string name="TooltipFlagGroupBuild">
+		Budowanie Grupowe
+	</string>
+	<string name="TooltipFlagNoBuild">
+		Budowanie Zabronione
+	</string>
+	<string name="TooltipFlagNoEdit">
+		Edycja Zabroniona
+	</string>
+	<string name="TooltipFlagNotSafe">
+		Niebezpieczny Obszar
+	</string>
+	<!-- damage area -->
+	<string name="TooltipFlagNoFly">
+		Latanie Zabronione
+	</string>
+	<string name="TooltipFlagGroupScripts">
+		Skrypty Grupowe
+	</string>
+	<string name="TooltipFlagNoScripts">
+		Skrypty Zabronione
+	</string>
+	<string name="TooltipLand">
+		Posiadłość:
+	</string>
+	<string name="TooltipMustSingleDrop">
+		Tylko pojedynczy obiekt może być tutaj przeciągnięty
+	</string>
+	<!-- Indicates that an avatar&apos;s name or other similar datum is being retrieved. General usage. -->
+	<string name="RetrievingData">
+		Odzyskiwanie danych...
+	</string>
+	<string name="ReleaseNotes">
+		O Tej Wersji
+	</string>
+	<!-- Indicates something is being loaded. Maybe should be merged with RetrievingData -->
+	<string name="LoadingData">
+		Ładowanie danych...
+	</string>
+	<!-- namecache -->
+	<!-- Avatar name: text shown for LLUUID::null -->
+	<string name="AvatarNameNobody">
+		(brak danych)
+	</string>
+	<!-- Avatar name: text shown while fetching name -->
+	<string name="AvatarNameWaiting">
+		(ładowanie)
+	</string>
+	<!-- Avatar name: text shown as an alternative to AvatarNameFetching, easter egg. -->
+	<string name="AvatarNameHippos">
+		(Twój avatar ulegnie samozniszczeniu za 5 sec. Pożegnaj się z SL!)
+	</string>
+	<!-- Group name: text shown for LLUUID::null -->
+	<string name="GroupNameNone">
+		(brak danych)
+	</string>
+	<!-- Asset errors. Used in llassetstorage.cpp, translation from error code to error message. -->
+	<string name="AssetErrorNone">
+		OK
+	</string>
+	<string name="AssetErrorRequestFailed">
+		Pobieranie danych: błąd
+	</string>
+	<string name="AssetErrorNonexistentFile">
+		Pobieranie danych: brak pliku
+	</string>
+	<string name="AssetErrorNotInDatabase">
+		Pobieranie danych: dane nie znalezione w bazie danych
+	</string>
+	<string name="AssetErrorEOF">
+		Koniec pliku
+	</string>
+	<string name="AssetErrorCannotOpenFile">
+		Nie można otworzyć pliku
+	</string>
+	<string name="AssetErrorFileNotFound">
+		Brak pliku
+	</string>
+	<string name="AssetErrorTCPTimeout">
+		Transfer pliku - przekroczony limit czasu
+	</string>
+	<string name="AssetErrorCircuitGone">
+		Połączenie przerwane
+	</string>
+	<string name="AssetErrorUnknownStatus">
+		Status nieznany
+	</string>
+	<!-- llvoavatar. Displayed in the avatar&apos;s chat bubble -->
+	<string name="AvatarEditingApparance">
+		(Edycja Wyglądu)
+	</string>
+	<string name="AvatarAway">
+		Tryb Nieobecności
+	</string>
+	<string name="AvatarBusy">
+		Tryb Pracusia
+	</string>
+	<string name="AvatarMuted">
+		Tryb Wyciszony
+	</string>
+	<!-- animations -->
+	<string name="anim_express_afraid">
+		Strach
+	</string>
+	<string name="anim_express_anger">
+		Złość
+	</string>
+	<string name="anim_away">
+		Nieobecność
+	</string>
+	<string name="anim_backflip">
+		Salto
+	</string>
+	<string name="anim_express_laugh">
+		Śmiech do Rozpuku
+	</string>
+	<string name="anim_express_toothsmile">
+		Wielki Uśmiech
+	</string>
+	<string name="anim_blowkiss">
+		Całusek
+	</string>
+	<string name="anim_express_bored">
+		Ale Nudy!
+	</string>
+	<string name="anim_bow">
+		Ukłon
+	</string>
+	<string name="anim_clap">
+		Oklaski
+	</string>
+	<string name="anim_courtbow">
+		Dworski Ukłon
+	</string>
+	<string name="anim_express_cry">
+		Płacz
+	</string>
+	<string name="anim_dance1">
+		Taniec 1
+	</string>
+	<string name="anim_dance2">
+		Taniec 2
+	</string>
+	<string name="anim_dance3">
+		Taniec 3
+	</string>
+	<string name="anim_dance4">
+		Taniec 4
+	</string>
+	<string name="anim_dance5">
+		Taniec 5
+	</string>
+	<string name="anim_dance6">
+		Taniec 6
+	</string>
+	<string name="anim_dance7">
+		Taniec 7
+	</string>
+	<string name="anim_dance8">
+		Taniec 8
+	</string>
+	<string name="anim_express_disdain">
+		Pogarda
+	</string>
+	<string name="anim_drink">
+		Picie
+	</string>
+	<string name="anim_express_embarrased">
+		Zakłopotanie
+	</string>
+	<string name="anim_angry_fingerwag">
+		Grożenie Paluszkiem
+	</string>
+	<string name="anim_fist_pump">
+		Udało sie!
+	</string>
+	<string name="anim_yoga_float">
+		Yoga
+	</string>
+	<string name="anim_express_frown">
+		Grymas
+	</string>
+	<string name="anim_impatient">
+		Niecierpliwość
+	</string>
+	<string name="anim_jumpforjoy">
+		Radocha
+	</string>
+	<string name="anim_kissmybutt">
+		Pocałuj Mnie Gdzieś
+	</string>
+	<string name="anim_express_kiss">
+		Pocałunek
+	</string>
+	<string name="anim_laugh_short">
+		Śmiech
+	</string>
+	<string name="anim_musclebeach">
+		Szpan
+	</string>
+	<string name="anim_no_unhappy">
+		Nie (Smutno)
+	</string>
+	<string name="anim_no_head">
+		Nie
+	</string>
+	<string name="anim_nyanya">
+		Nie-nie-nie
+	</string>
+	<string name="anim_punch_onetwo">
+		Za Ciosem Cios
+	</string>
+	<string name="anim_express_open_mouth">
+		Szczęka Opada
+	</string>
+	<string name="anim_peace">
+		Pokój
+	</string>
+	<string name="anim_point_you">
+		Wskazuj na Innych
+	</string>
+	<string name="anim_point_me">
+		Wskazuj na Siebie
+	</string>
+	<string name="anim_punch_l">
+		Uderz z Lewej
+	</string>
+	<string name="anim_punch_r">
+		Uderz z Prawej
+	</string>
+	<string name="anim_rps_countdown">
+		KPN Licz
+	</string>
+	<string name="anim_rps_paper">
+		KPN Papier
+	</string>
+	<string name="anim_rps_rock">
+		KPN Kamień
+	</string>
+	<string name="anim_rps_scissors">
+		KPN Nożyce
+	</string>
+	<string name="anim_express_repulsed">
+		Odrzuca Mnie
+	</string>
+	<string name="anim_kick_roundhouse_r">
+		Kopniak
+	</string>
+	<string name="anim_express_sad">
+		Smutek
+	</string>
+	<string name="anim_salute">
+		Pozdrów
+	</string>
+	<string name="anim_shout">
+		Krzycz
+	</string>
+	<string name="anim_express_shrug">
+		Wzrusz Ramionami
+	</string>
+	<string name="anim_express_smile">
+		Uśmiechaj się
+	</string>
+	<string name="anim_smoke_idle">
+		Pal
+	</string>
+	<string name="anim_smoke_inhale">
+		Pal i Zaciągaj się
+	</string>
+	<string name="anim_smoke_throw_down">
+		Rzuć Papierosa
+	</string>
+	<string name="anim_express_surprise">
+		Zaskoczenie
+	</string>
+	<string name="anim_sword_strike_r">
+		Uderz Mieczem
+	</string>
+	<string name="anim_angry_tantrum">
+		Wściekłość
+	</string>
+	<string name="anim_express_tongue_out">
+		Pokaż Język
+	</string>
+	<string name="anim_hello">
+		Pomachaj
+	</string>
+	<string name="anim_whisper">
+		Zaszeptaj
+	</string>
+	<string name="anim_whistle">
+		Zagwiżdż
+	</string>
+	<string name="anim_express_wink">
+		Puść Oko
+	</string>
+	<string name="anim_wink_hollywood">
+		Puść Oko (Hollywood)
+	</string>
+	<string name="anim_express_worry">
+		Zmartwienie
+	</string>
+	<string name="anim_yes_happy">
+		Tak (Szczęście)
+	</string>
+	<string name="anim_yes_head">
+		Tak
+	</string>
+	<string name="texture_loading">
+		Ładowanie...
+	</string>
+	<string name="worldmap_offline">
+		Niedostępna
+	</string>
+	<!-- Chat -->
+	<string name="whisper">
+		szepcze:
+	</string>
+	<string name="shout">
+		krzyczy:
+	</string>
+</strings>

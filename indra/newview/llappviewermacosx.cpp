@@ -48,7 +48,7 @@
 #include "llurldispatcher.h"
 #include <Carbon/Carbon.h>
 #include "lldir.h"
-
+#include <signal.h>
 class LLWebBrowserCtrl;		// for LLURLDispatcher
 
 namespace 
@@ -196,22 +196,106 @@ bool LLAppViewerMacOSX::initParseCommandLine(LLCommandLineParser& clp)
     return true;
 }
 
+// *FIX:Mani It would be nice to provide a clean interface to get the
+// default_unix_signal_handler for the LLApp class.
+extern void default_unix_signal_handler(int, siginfo_t *, void *);
+bool LLAppViewerMacOSX::restoreErrorTrap()
+{
+	// This method intends to reinstate signal handlers.
+	// *NOTE:Mani It was found that the first execution of a shader was overriding
+	// our initial signal handlers somehow.
+	// This method will be called (at least) once per mainloop execution.
+	// *NOTE:Mani The signals used below are copied over from the 
+	// setup_signals() func in LLApp.cpp
+	// LLApp could use some way of overriding that func, but for this viewer
+	// fix I opt to avoid affecting the server code.
+	
+	// Set up signal handlers that may result in program termination
+	//
+	struct sigaction act;
+	struct sigaction old_act;
+	act.sa_sigaction = default_unix_signal_handler;
+	sigemptyset( &act.sa_mask );
+	act.sa_flags = SA_SIGINFO;
+	
+	unsigned int reset_count = 0;
+	
+#define SET_SIG(S) 	sigaction(SIGABRT, &act, &old_act); \
+					if((unsigned int)act.sa_sigaction != (unsigned int) old_act.sa_sigaction) \
+						++reset_count;
+	// Synchronous signals
+	SET_SIG(SIGABRT)
+	SET_SIG(SIGALRM)
+	SET_SIG(SIGBUS)
+	SET_SIG(SIGFPE)
+	SET_SIG(SIGHUP) 
+	SET_SIG(SIGILL)
+	SET_SIG(SIGPIPE)
+	SET_SIG(SIGSEGV)
+	SET_SIG(SIGSYS)
+	
+	SET_SIG(LL_HEARTBEAT_SIGNAL)
+	SET_SIG(LL_SMACKDOWN_SIGNAL)
+	
+	// Asynchronous signals that are normally ignored
+	SET_SIG(SIGCHLD)
+	SET_SIG(SIGUSR2)
+	
+	// Asynchronous signals that result in attempted graceful exit
+	SET_SIG(SIGHUP)
+	SET_SIG(SIGTERM)
+	SET_SIG(SIGINT)
+	
+	// Asynchronous signals that result in core
+	SET_SIG(SIGQUIT)	
+#undef SET_SIG
+	
+	return reset_count == 0;
+}
+
 void LLAppViewerMacOSX::handleSyncCrashTrace()
 {
 	// do nothing
 }
 
-void LLAppViewerMacOSX::handleCrashReporting()
+void LLAppViewerMacOSX::handleCrashReporting(bool reportFreeze)
 {
-	// Macintosh
 	std::string command_str;
-	command_str += "open mac-crash-logger.app";	
+	//command_str = "open Second Life.app/Contents/Resources/mac-crash-logger.app";
+	command_str = "mac-crash-logger.app/Contents/MacOS/mac-crash-logger";
 	
-	clear_signals();
-	llinfos << "Launching crash reporter using: '" << command_str << "'" << llendl;
-	system(command_str.c_str());		/* Flawfinder: ignore */
-	llinfos << "returned from crash reporter... dying" << llendl;	
-	_exit(1);
+	FSRef appRef;
+	Boolean isDir = 0;
+	OSStatus os_result = FSPathMakeRef((UInt8*)command_str.c_str(),
+									   &appRef,
+									   &isDir);
+	if(os_result >= 0)
+	{
+		LSApplicationParameters appParams;
+		memset(&appParams, 0, sizeof(appParams));
+	 	appParams.version = 0;
+		appParams.flags = kLSLaunchNoParams | kLSLaunchStartClassic;
+		appParams.application = &appRef;
+		
+		if(reportFreeze)
+		{
+			// Make sure freeze reporting launches the crash logger synchronously, lest 
+			// Log files get changed by SL while the logger is running.
+		}
+		else
+		{
+			appParams.flags |= kLSLaunchAsync;
+			clear_signals();
+		}
+		
+		ProcessSerialNumber o_psn;
+		os_result = LSOpenApplication(&appParams, &o_psn);
+	}
+
+	if(!reportFreeze)
+	{
+		_exit(1);
+	}
 }
 
 std::string LLAppViewerMacOSX::generateSerialNumber()

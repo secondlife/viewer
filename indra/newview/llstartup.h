@@ -87,6 +87,7 @@ public:
 	// Always use this to set gStartupState so changes are logged
 	static void setStartupState( EStartupState state );
 	static EStartupState getStartupState() { return gStartupState; };
+	static std::string getStartupStateString() { return startupStateToString(gStartupState); };
 
 	static void multimediaInit();
 		// Initialize LLViewerMedia multimedia engine.

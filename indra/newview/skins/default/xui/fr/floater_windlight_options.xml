@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="WindLight floater" title="Éditeur de ciel avancé">
+<floater name="WindLight floater" title="Éditeur de ciel avancé" width="706">
 	<text name="KeyFramePresetsText">
 		Préréglages ciel :
 	</text>
@@ -8,7 +8,7 @@
 	<button label="Supprimer" label_selected="Supprimer" name="WLDeletePreset" left_delta="80"/>
 	<button label="Éditeur du cycle du jour" label_selected="Éditeur du cycle du jour"
 	     name="WLDayCycleMenuButton" width="150" left_delta="95" />
-	<tab_container name="WindLight Tabs">
+	<tab_container name="WindLight Tabs" width="706">
 		<panel label="Atmosphère" name="Atmosphere">
 			<text name="BHText">
 				Bleu de l&apos;horizon

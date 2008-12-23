@@ -212,7 +212,7 @@ void LLFloaterTopObjects::handleReply(LLMessageSystem *msg, void** data)
 		if (mCurrentMode == STAT_REPORT_TOP_SCRIPTS
 			&& have_extended_data)
 		{
-			element["columns"][5]["column"] = "Mono Time";
+			element["columns"][5]["column"] = "mono_time";
 			element["columns"][5]["value"] = llformat("%0.3f", mono_score);
 			element["columns"][5]["font"] = "SANSSERIF";
 		}
@@ -238,6 +238,7 @@ void LLFloaterTopObjects::handleReply(LLMessageSystem *msg, void** data)
 	{
 		setTitle(getString("top_scripts_title"));
 		list->setColumnLabel("score", getString("scripts_score_label"));
+		list->setColumnLabel("mono_time", getString("scripts_mono_time_label"));
 		
 		LLUIString format = getString("top_scripts_text");
 		format.setArg("[COUNT]", llformat("%d", total_count));
@@ -248,6 +249,7 @@ void LLFloaterTopObjects::handleReply(LLMessageSystem *msg, void** data)
 	{
 		setTitle(getString("top_colliders_title"));
 		list->setColumnLabel("score", getString("colliders_score_label"));
+		list->setColumnLabel("mono_time", "");
 		LLUIString format = getString("top_colliders_text");
 		format.setArg("[COUNT]", llformat("%d", total_count));
 		childSetValue("title_text", LLSD(format));

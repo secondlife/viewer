@@ -1,10 +1,66 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="buy currency" title="Adquira Lindens (L$)">
-	<text name="cp">
-		A partir de agora você já pode comprar seus Lindens. 
-
-Para isso, siga até o menu superior e clique no item 
-Seviços e em seguida selecione &quot;Compra de Lindens&quot;.
+	<text name="info_buying">
+		Comprando Moeda:
 	</text>
-	<button label="Fechar" name="cancel_btn" />
+	<text name="info_cannot_buy">
+		Não pode comprar agora:
+	</text>
+	<text name="info_need_more">
+		Você precisa de mais moeda:
+	</text>
+	<text name="error_message">
+		Algo não está certo.
+	</text>
+	<button label="Ir para website" name="error_web"/>
+	<text name="contacting">
+		Contatando LindeX...
+	</text>
+	<text name="buy_action_unknown">
+		Comprar L$ sobre o câmbio corrente da LindeX
+	</text>
+	<text name="buy_action">
+		[NAME] L$ [PRICE]
+	</text>
+	<text name="currency_action">
+		Comprar L$
+	</text>
+	<line_editor name="currency_amt">
+		1234
+	</line_editor>
+	<text name="currency_est">
+		Por aproximadamente. US$ [dólares americanos]
+	</text>
+	<text name="getting_data">
+		Primeiros dados...
+	</text>
+	<text name="balance_label">
+		Você tem atualmente
+	</text>
+	<text name="balance_amount">
+		L$ [AMT]
+	</text>
+	<text name="buying_label">
+		Você está comprando
+	</text>
+	<text name="buying_amount">
+		L$ [AMT]
+	</text>
+	<text name="total_label">
+		Seu saldo será
+	</text>
+	<text name="total_amount">
+		L$ [AMT]
+	</text>
+	<text name="purchase_warning_repurchase">
+		Confirmando esta compra só compra a moeda.  Você precisará tentar novamente a operação.
+	</text>
+	<text name="purchase_warning_notenough">
+		Você não está comprando moeda suficiente  Aumente a quantidade de compra.
+	</text>
+	<button label="Fechar" name="cancel_btn"/>
+	<button label="Adquirir" name="buy_btn"/>
+	<string name="buy_currency">
+		Comprar L$ [LINDENS] por aproximadamente US$ [dólares americanos]
+	</string>
 </floater>

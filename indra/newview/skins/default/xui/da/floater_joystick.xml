@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="Joystick" title="Joystick Configuration">
+	<check_box name="enable_joystick">
+		Aktiver Joystick:
+	</check_box>
+	<spinner label="X Axis Mapping" name="JoystickAxis1" />
+	<spinner label="Y Axis Mapping" name="JoystickAxis2" />
+	<spinner label="Z Axis Mapping" name="JoystickAxis0" />
+	<spinner label="Pitch Mapping" name="JoystickAxis4" />
+	<spinner label="Yaw Mapping" name="JoystickAxis5" />
+	<spinner label="Roll Mapping" name="JoystickAxis3" />
+	<spinner label="Zoom Mapping" name="JoystickAxis6" />
+	<check_box label="Direkte Zoom" name="ZoomDirect" />
+	<check_box label="3D Cursor" name="Cursor3D" />
+	<check_box label="Auto Level" name="AutoLeveling" />
+	<text type="string" length="1" name="Control Modes:">
+		Kontrol:
+	</text>
+	<check_box name="JoystickAvatarEnabled">
+		Figur
+	</check_box>
+	<check_box name="JoystickBuildEnabled">
+		Byg
+	</check_box>
+	<check_box name="JoystickFlycamEnabled">
+		Flyvekamera
+	</check_box>
+	<text name="XScale">
+		X Scale
+	</text>
+	<text name="YScale">
+		Y Scale
+	</text>
+	<text name="ZScale">
+		Z Scale
+	</text>
+	<text name="PitchScale">
+		Pitch Scale
+	</text>
+	<text name="YawScale">
+		Yaw Scale
+	</text>
+	<text name="RollScale">
+		Roll Scale
+	</text>
+	<text name="XDeadZone">
+		X Dead Zone
+	</text>
+	<text name="YDeadZone">
+		Y Dead Zone
+	</text>
+	<text name="ZDeadZone">
+		Z Dead Zone
+	</text>
+	<text name="PitchDeadZone">
+		Pitch Dead Zone
+	</text>
+	<text name="YawDeadZone">
+		Yaw Dead Zone
+	</text>
+	<text name="RollDeadZone">
+		Roll Dead Zone
+	</text>
+	<text name="Feathering">
+		Feathering
+	</text>
+	<slider label="" name="AvatarFeathering" />
+	<slider label="" name="BuildFeathering" />
+	<slider label="" name="FlycamFeathering" />
+	<text name="ZoomScale2">
+		Zoom Scale
+	</text>
+	<spinner label="" name="FlycamAxisScale6" />
+	<text name="ZoomDeadZone">
+		Zoom Dead Zone
+	</text>
+	<spinner label="" name="FlycamAxisDeadZone6" />
+	<button label="SpaceNavigator Defaults" name="SpaceNavigatorDefaults" />
+	<string name="JoystickMonitor">
+		Joystick Overvågning
+	</string>
+	<string name="Axis">
+		Axis [NUM]
+	</string>
+	<string name="NoDevice">
+		intet joystick fundet
+	</string>
+</floater>

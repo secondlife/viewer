@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater name="Joystick" title="Configuration du joystick">
 	<check_box name="enable_joystick">
-		Activer le joystick :
+		Activer :
 	</check_box>
 	<spinner label="Mapping axe des X " name="JoystickAxis1" />
 	<spinner label="Mapping axe des Y" name="JoystickAxis2" />
@@ -78,6 +78,6 @@
 		Axe [NUM]
 	</string>
 	<string name="NoDevice">
-		aucun dispositif détecté
+		aucun joystick détecté
 	</string>
 </floater>

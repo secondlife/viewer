@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="mute by name" title="Bloker Objekt via navn">
+	<text name="message">
+		Blokering via navn har ikke betydning for lyde.
+		Du skal skrive det præcise navn på objektet.
+	</text>
+	<line_editor name="object_name">
+		Objekt Navn
+	</line_editor>
+	<button label="Ok" name="OK" />
+	<button label="Annuller" name="Cancel" />
+</floater>

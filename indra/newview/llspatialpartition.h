@@ -52,6 +52,7 @@ class LLSpatialBridge;
 class LLSpatialGroup;
 
 S32 AABBSphereIntersect(const LLVector3& min, const LLVector3& max, const LLVector3 &origin, const F32 &rad);
+S32 AABBSphereIntersectR2(const LLVector3& min, const LLVector3& max, const LLVector3 &origin, const F32 &radius_squared);
 
 class LLDrawInfo : public LLRefCount 
 {

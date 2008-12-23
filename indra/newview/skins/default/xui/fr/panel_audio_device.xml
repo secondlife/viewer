@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="device_settings">
 	<text name="Audio Devices">
 		Matériel audio
@@ -7,16 +7,15 @@
 		Périphérique d&apos;entrée (micro) :
 	</text>
 	<text name="Output device (speakers):">
-		Périphérique de sortie (speakers) :
+		Périphérique de sortie (haut-parleurs) :
 	</text>
 	<text name="Input level:">
 		Volume d&apos;entrée
 	</text>
 	<text_editor name="voice_intro_text1">
-		Pour que les autres résidents vous entendent plus ou moins fort, utilisez le curseur. Pour tester le volume d&apos;entrée, il vous suffit de parler dans le micro.
+		Pour que les autres résidents vous entendent plus ou moins fort, utilisez le curseur. Pour tester le volume, parlez dans le micro.
 	</text_editor>
-	<volume_slider name="mic_volume_slider"
-	     tool_tip="Réglez le volume à l&apos;aide de ce curseur." />
+	<volume_slider name="mic_volume_slider" tool_tip="Réglez le volume avec ce curseur."/>
 	<text name="wait_text">
 		Veuillez patienter
 	</text>

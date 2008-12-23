@@ -1,20 +1,22 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="sell land" title="Vendre terrain">
-	<text name="info_parcel_label">
+	<text name="info_parcel_label" width="48">
 		Parcelle :
 	</text>
-	<text name="info_parcel">
-		Nom de la parcelle
+	<text name="info_parcel" left="66">
+		PARCEL NAME
 	</text>
 	<text name="info_size_label">
 		Taille :
 	</text>
-	<text name="info_size">
+	<text name="info_size"  left="66">
 		[AREA] m²
 	</text>
-	<text name="info_action">
-		Pour vendre cette parcelle :
+	<text name="info_action" bottom_delta="-60">
+		Pour vendre cette
+parcelle :
 	</text>
+	<icon bottom_delta="-86" name="step_price" />
 	<text name="price_label">
 		Votre prix de vente :
 	</text>
@@ -22,18 +24,19 @@
 		Fixez un prix convenable pour ce terrain.
 	</text>
 	<text name="price_ld">
-		$L
+		L$
 	</text>
 	<text name="price_per_m">
-		([PER_METER] $L par mètre carré)
+		([PER_METER] L$ par mètre carré)
 	</text>
 	<text name="sell_to_label">
 		Vos acheteurs :
 	</text>
 	<text name="sell_to_text">
-		Vendez votre terrain à n&apos;importe qui ou uniquement à un acheteur spécifique.
+		Vendez votre terrain à n&apos;importe qui ou uniquement à un acheteur
+spécifique.
 	</text>
-	<combo_box name="sell_to">
+	<combo_box name="sell_to" bottom_delta="-32">
 		<combo_item name="--selectone--">
 			-- Sélectionnez --
 		</combo_item>
@@ -44,14 +47,15 @@
 			Acheteur spécifique :
 		</combo_item>
 	</combo_box>
-	<button label="Sélectionner..." name="sell_to_select_agent" />
+	<button label="Sélectionner..." name="sell_to_select_agent" width="100"/>
 	<text name="sell_objects_label">
 		Vendez-vous des objets avec ce terrain ?
 	</text>
 	<text name="sell_objects_text">
-		Les objets transférables se trouvant sur la parcelle changeront de propriétaire.
+		Les objets transférables se trouvant sur la parcelle changeront
+de propriétaire.
 	</text>
-	<radio_group name="sell_objects">
+	<radio_group name="sell_objects" right="430" bottom_delta="-54">
 		<radio_item name="no">
 			Non, rester le propriétaire des objets
 		</radio_item>
@@ -59,10 +63,10 @@
 			Oui, vendre les objets avec le terrain
 		</radio_item>
 	</radio_group>
-	<button label="Afficher les objets" name="show_objects" />
-	<text name="nag_message_label">
-		Rappel : toute vente est définitive.
+	<button label="Afficher les objets" name="show_objects" right="420" width="120"/>
+	<text name="nag_message_label" bottom_delta="-30">
+		Rappel : Toute vente est définitive.
 	</text>
-	<button label="Mettre le terrain en vente" name="sell_btn" />
-	<button label="Annuler" name="cancel_btn" />
+	<button label="Mettre le terrain en vente" name="sell_btn" width="165"/>
+	<button label="Annuler" name="cancel_btn"/>
 </floater>

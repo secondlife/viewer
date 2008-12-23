@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="move floater" title="">
+	<string name="rotate_tooltip">
+		Odwracaj kamerę wokół obiektu
+	</string>
+	<string name="zoom_tooltip">
+		Najedź kamerą w kierunku obiektu
+	</string>
+	<string name="move_tooltip">
+		Poruszaj kamerą w dół/górę oraz w prawo/lewo
+	</string>
+</floater>

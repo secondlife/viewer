@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="sell land" title="Sælg Land">
+	<text name="info_parcel_label">
+		Parcel:
+	</text>
+	<text name="info_parcel">
+		PARCEL NAME
+	</text>
+	<text name="info_size_label">
+		Størrelse:
+	</text>
+	<text name="info_size">
+		[AREA] m2
+	</text>
+	<text name="info_action">
+		Sælg dette parcel:
+	</text>
+	<text name="price_label">
+		Sæt en pris:
+	</text>
+	<text name="price_text">
+		Vælg en fornuftig pris for jorden.
+	</text>
+	<text name="price_ld">
+		L$
+	</text>
+	<text name="price_per_m">
+		(L$[PER_METER] pr. kvadratmeter)
+	</text>
+	<text name="sell_to_label">
+		Sælg denne jord til:
+	</text>
+	<text name="sell_to_text">
+		Vælg om du vil sælge til hvem som helst eller en specifik køber.
+	</text>
+	<combo_box name="sell_to">
+		<combo_item name="--selectone--">
+			-- Vælg --
+		</combo_item>
+		<combo_item name="Anyone">
+			Alle
+		</combo_item>
+		<combo_item name="Specificuser:">
+			Specifik Beboer:
+		</combo_item>
+	</combo_box>
+	<button label="Vælg..." name="sell_to_select_agent" />
+	<text name="sell_objects_label">
+		Sælg objekter sammen med jorden?
+	</text>
+	<text name="sell_objects_text">
+		Jord Ejer&apos;s objekter der kan videregives sælges med jorden.
+	</text>
+	<radio_group name="sell_objects">
+		<radio_item name="no">
+			Nej, behold ejerskab over objekterne
+		</radio_item>
+		<radio_item name="yes">
+			Ja, sælg dem med jorden
+		</radio_item>
+	</radio_group>
+	<button label="Show Objects" name="show_objects" />
+	<text name="nag_message_label">
+		HUSK: Alle salg er endegyldige.
+	</text>
+	<button label="Sæt land til salg" name="sell_btn" />
+	<button label="Annuller" name="cancel_btn" />
+</floater>

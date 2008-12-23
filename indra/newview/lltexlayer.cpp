@@ -60,8 +60,6 @@
 // SJB: We really always want to use the GL cache;
 // let GL page textures in and out of video RAM instead of trying to do so by hand.
 
-LLGradientPaletteList gGradientPaletteList;
-
 // static
 S32 LLTexLayerSetBuffer::sGLByteCount = 0;
 S32 LLTexLayerSetBuffer::sGLBumpByteCount = 0;
@@ -1796,8 +1794,6 @@ BOOL LLTexLayerParamAlphaInfo::parseXml(LLXmlTreeNode* node)
 	static LLStdStringHandle domain_string = LLXmlTree::addAttributeString("domain");
 	param_alpha_node->getFastAttributeF32( domain_string, mDomain );
 
-	gGradientPaletteList.initPalette(mDomain);
-
 	return TRUE;
 }
 
@@ -1992,7 +1988,7 @@ BOOL LLTexLayerParamAlpha::render( S32 x, S32 y, S32 width, S32 height )
 		if(	!mCachedProcessedImageGL ||
 			(mCachedProcessedImageGL->getWidth() != image_tga_width) ||
 			(mCachedProcessedImageGL->getHeight() != image_tga_height) ||
-			(weight_changed && !(gGLManager.mHasPalettedTextures && gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_PALETTE))) )
+			(weight_changed ))
 		{
 //			llinfos << "Building Cached Alpha: " << mName << ": (" << mStaticImageRaw->getWidth() << ", " << mStaticImageRaw->getHeight() << ") " << effective_weight << llendl;
 			mCachedEffectiveWeight = effective_weight;
@@ -2004,32 +2000,15 @@ BOOL LLTexLayerParamAlpha::render( S32 x, S32 y, S32 width, S32 height )
 				// We now have something in one of our caches
 				LLTexLayerSet::sHasCaches |= mCachedProcessedImageGL ? TRUE : FALSE;
 
-				if (gGLManager.mHasPalettedTextures && gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_PALETTE))
-				{
-					// interpret luminance values as color index table
-					mCachedProcessedImageGL->setExplicitFormat( GL_COLOR_INDEX8_EXT, GL_COLOR_INDEX ); 
-				}
-				else
-				{
-					mCachedProcessedImageGL->setExplicitFormat( GL_ALPHA8, GL_ALPHA );
-				}
+
+				mCachedProcessedImageGL->setExplicitFormat( GL_ALPHA8, GL_ALPHA );
 			}
 
 			// Applies domain and effective weight to data as it is decoded. Also resizes the raw image if needed.
-			if (gGLManager.mHasPalettedTextures && gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_PALETTE))
-			{
-				mStaticImageRaw = NULL;
-				mStaticImageRaw = new LLImageRaw;
-				mStaticImageTGA->decode(mStaticImageRaw);
-				mNeedsCreateTexture = TRUE;
-			}
-			else
-			{
-				mStaticImageRaw = NULL;
-				mStaticImageRaw = new LLImageRaw;
-				mStaticImageTGA->decodeAndProcess( mStaticImageRaw, getInfo()->mDomain, effective_weight );
-				mNeedsCreateTexture = TRUE;
-			}
+			mStaticImageRaw = NULL;
+			mStaticImageRaw = new LLImageRaw;
+			mStaticImageTGA->decodeAndProcess( mStaticImageRaw, getInfo()->mDomain, effective_weight );
+			mNeedsCreateTexture = TRUE;
 		}
 
 		if( mCachedProcessedImageGL )
@@ -2047,10 +2026,6 @@ BOOL LLTexLayerParamAlpha::render( S32 x, S32 y, S32 width, S32 height )
 
 				LLGLSNoAlphaTest gls_no_alpha_test;
 				gGL.getTexUnit(0)->bind(mCachedProcessedImageGL);
-				if (gGLManager.mHasPalettedTextures && gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_PALETTE))
-				{					
-					gGradientPaletteList.setHardwarePalette( getInfo()->mDomain, effective_weight );			
-				}
 				gl_rect_2d_simple_tex( width, height );
 				gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 				stop_glerror();
@@ -2540,68 +2515,3 @@ LLMaskedMorph::LLMaskedMorph( LLPolyMorphTarget *morph_target, BOOL invert ) : m
 	morph_target->addPendingMorphMask();
 }
 
-
-//-----------------------------------------------------------------------------
-// LLGradientPaletteList
-//-----------------------------------------------------------------------------
-
-LLGradientPaletteList::~LLGradientPaletteList()
-{
-	// Note: can't just call deleteAllData() because the data values are arrays.
-	for( palette_map_t::iterator iter = mPaletteMap.begin();
-		 iter != mPaletteMap.end(); iter++ )
-	{
-		U8* data = iter->second;
-		delete []data;
-	}
-}
-
-void LLGradientPaletteList::initPalette(F32 domain)
-{
-	palette_map_t::iterator iter = mPaletteMap.find( domain );
-	if( iter == mPaletteMap.end() )
-	{
-		U8 *palette = new U8[512 * 4];
-		mPaletteMap[domain] = palette;
-		S32 ramp_start = 255 - llfloor(domain * 255.f);
-		S32 ramp_end = 255;
-		F32 ramp_factor = (ramp_end == ramp_start) ? 0.f : (255.f / ((F32)ramp_end - (F32)ramp_start));
-
-		// *TODO: move conditionals outside of loop, since this really
-		// is just a sequential process.
-		for (S32 i = 0; i < 512; i++)
-		{
-			palette[(i * 4) + 1] = 0;
-			palette[(i * 4) + 2] = 0;
-			if (i <= ramp_start)
-			{
-				palette[(i * 4)] = 0;
-				palette[(i * 4) + 3] = 0;
-			}
-			else if (i < ramp_end)
-			{
-				palette[(i * 4)] = llfloor(((F32)i - (F32)ramp_start) * ramp_factor);
-				palette[(i * 4) + 3] = llfloor(((F32)i - (F32)ramp_start) * ramp_factor);
-			}
-			else
-			{
-				palette[(i * 4)] = 255;
-				palette[(i * 4) + 3] = 255;
-			}
-		}
-	}
-}
-
-void LLGradientPaletteList::setHardwarePalette( F32 domain, F32 effective_weight )
-{
-	palette_map_t::iterator iter = mPaletteMap.find( domain );
-	if( iter != mPaletteMap.end() )
-	{
-		U8* palette = iter->second;
-		set_palette( palette + llfloor(effective_weight * (255.f * (1.f - domain))) * 4);
-	}
-	else
-	{
-		llwarns << "LLGradientPaletteList::setHardwarePalette() missing domain " << domain << llendl;
-	}
-}

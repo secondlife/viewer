@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<menu name="Popup">
+	<menu_item_call label="K&#248;b" name="Task Buy" />
+	<menu_item_call label="&#197;ben" name="Task Open" />
+	<menu_item_call label="Afspil" name="Task Play" />
+	<menu_item_call label="Egenskaber" name="Task Properties" />
+	<menu_item_call label="Omd&#248;b" name="Task Rename" />
+	<menu_item_call label="Slet" name="Task Remove" />
+	<menu_item_call label="T&#248;m Papirkurv" name="Empty Trash" />
+	<menu_item_call label="T&#248;m Tabt og Fundet" name="Empty Lost And Found" />
+	<menu_item_call label="Ny Mappe" name="New Folder" />
+	<menu_item_call label="Ny Kode" name="New Script" />
+	<menu_item_call label="Ny Note" name="New Note" />
+	<menu_item_call label="Ny Hilsen" name="New Gesture" />
+	<menu name="Nyt T&#248;j">
+		<menu_item_call label="Ny Tr&#248;je" name="New Shirt" />
+		<menu_item_call label="Nye Bukser" name="New Pants" />
+		<menu_item_call label="Nye Sko" name="New Shoes" />
+		<menu_item_call label="Nye Sokker" name="New Socks" />
+		<menu_item_call label="Ny Jakke" name="New Jacket" />
+		<menu_item_call label="Ny Nederdel" name="New Skirt" />
+		<menu_item_call label="Nye Handsker" name="New Gloves" />
+		<menu_item_call label="Ny Undertr&#248;je" name="New Undershirt" />
+		<menu_item_call label="Nye Underbukser" name="New Underpants" />
+	</menu>
+	<menu name="Nye Krops Dele">
+		<menu_item_call label="Ny Figur" name="New Shape" />
+		<menu_item_call label="Ny Hud" name="New Skin" />
+		<menu_item_call label="Nyt H&#229;r" name="New Hair" />
+		<menu_item_call label="Nye &#216;jne" name="New Eyes" />
+	</menu>
+	<menu_item_call label="Teleporter" name="Landmark Open" />
+	<menu_item_call label="&#197;ben" name="Animation Open" />
+	<menu_item_call label="&#197;ben" name="Sound Open" />
+	<menu_item_call label="Slet Ting" name="Purge Item" />
+	<menu_item_call label="Genskab Ting" name="Restore Item" />
+	<menu_item_call label="&#197;ben" name="Open" />
+	<menu_item_call label="Egenskaber" name="Properties" />
+	<menu_item_call label="Omd&#248;b" name="Rename" />
+	<menu_item_call label="Kopier Asset UUID" name="Copy Asset UUID" />
+	<menu_item_call label="Kopier" name="Copy" />
+	<menu_item_call label="Inds&#230;t" name="Paste" />
+	<menu_item_call label="Slet" name="Delete" />
+	<menu_item_call label="Aftag Objekter" name="Take Off Items" />
+	<menu_item_call label="Tilf&#248;j til P&#229;kl&#230;dning" name="Add To Outfit" />
+	<menu_item_call label="Erstat P&#229;kl&#230;dning" name="Replace Outfit" />
+	<menu_item_call label="Start konference Chat" name="Conference Chat Folder" />
+	<menu_item_call label="Afspil" name="Sound Play" />
+	<menu_item_call label="Om Landem&#230;rke" name="Teleport To Landmark" />
+	<menu_item_call label="Play in World" name="Animation Play" />
+	<menu_item_call label="Play Locally" name="Animation Audition" />
+	<menu_item_call label="Send Privat Besked" name="Send Instant Message" />
+	<menu_item_call label="Tilbyd Teleport..." name="Offer Teleport..." />
+	<menu_item_call label="Start konference Chat" name="Conference Chat" />
+	<menu_item_call label="Aktiver" name="Activate" />
+	<menu_item_call label="Deaktiver" name="Deactivate" />
+	<menu_item_call label="Aftag fra dig selv" name="Detach From Yourself" />
+	<menu_item_call label="Tag p&#229;" name="Object Wear" />
+	<menu label="S&#230;t p&#229;" name="Attach To" />
+	<menu label="S&#230;t p&#229; HUD" name="Attach To HUD" />
+	<menu_item_call label="Rediger" name="Wearable Edit" />
+	<menu_item_call label="Tag p&#229;" name="Wearable Wear" />
+	<menu_item_call label="Aftag" name="Take Off" />
+	<menu_item_call label="--ingen muligheder--" name="--no options--" />
+</menu>

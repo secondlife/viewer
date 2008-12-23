@@ -1,4 +1,4 @@
-version 17
+version 19
 
 // NOTE: This is mostly identical to featuretable_mac.txt with a few differences
 // Should be combined into one table
@@ -367,28 +367,40 @@ Disregard96DefaultDrawDistance	1	0
 
 list ATI_Radeon_X300 
 Disregard128DefaultDrawDistance	1	0
+RenderVBOEnable				1	0
 list ATI_Radeon_X400 
 Disregard128DefaultDrawDistance	1	0
+RenderVBOEnable				1	0
 list ATI_Radeon_X500 
 Disregard128DefaultDrawDistance	1	0
+RenderVBOEnable				1	0
 list ATI_Radeon_X600 
 Disregard128DefaultDrawDistance	1	0
+RenderVBOEnable				1	0
 list ATI_Radeon_X700 
 Disregard128DefaultDrawDistance	1	0
+RenderVBOEnable				1	0
 list ATI_Radeon_X1300 
 Disregard128DefaultDrawDistance	1	0
+RenderVBOEnable				1	0
 UseStartScreen					0	0
 list ATI_Radeon_X1400 
 Disregard128DefaultDrawDistance	1	0
+RenderVBOEnable				1	0
 list ATI_Radeon_X1500 
 Disregard128DefaultDrawDistance	1	0
+RenderVBOEnable				1	0
 UseStartScreen					0	0
 list ATI_Radeon_X1600 
 Disregard128DefaultDrawDistance	1	0
+RenderVBOEnable				1	0
 list ATI_Radeon_X1700 
 Disregard128DefaultDrawDistance	1	0
+RenderVBOEnable				1	0
 list ATI_Mobility_Radeon_X1xxx
 Disregard128DefaultDrawDistance	1	0
+RenderVBOEnable				1	0
+
 list ATI_Radeon_HD_2300
 Disregard128DefaultDrawDistance	1	0
 list ATI_Radeon_HD_2400

@@ -3,9 +3,6 @@
 	<text type="string" length="1" name="object_name">
 		[DESC]:
 	</text>
-	<button label="Copier vers l&apos;inventaire"
-	     label_selected="Copier vers l&apos;inventaire"
-	     name="copy_to_inventory_button" />
-	<button label="Copier et porter" label_selected="Copier et porter"
-	     name="copy_and_wear_button" />
+	<button label="Copier vers l&apos;inventaire" label_selected="Copier vers l&apos;inventaire" name="copy_to_inventory_button" width="132" />
+	<button label="Copier et porter" label_selected="Copier et porter" name="copy_and_wear_button" left="152"/>
 </floater>

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Debug" name="Debug">
 	<text name="region_text_lbl">
 		Região:
@@ -6,29 +6,35 @@
 	<text name="region_text">
 		nenhum
 	</text>
-	<check_box label="Desabilitar Scripts" name="disable_scripts_check"
-	     tool_tip="Desabilitar todos scripts nesta região" />
-	<button label="?" name="disable_scripts_help" />
-	<check_box label="Desabilitar colisões" name="disable_collisions_check"
-	     tool_tip="Desabilitar colisões dos avateres nessa região" />
-	<button label="?" name="disable_collisions_help" />
-	<check_box label="Desabilitar física" name="disable_physics_check"
-	     tool_tip="Desabilitar fisíca nessa região" />
-	<button label="?" name="disable_physics_help" />
-	<button label="Aplicar" name="apply_btn" />
-	<button label="Escolher o avatar..." name="choose_avatar_btn" />
-	<button label="Retornar objetos com scripts no terreno de outros"
-	     name="return_scripted_other_land_btn" />
-	<button label="Retornar todos os objetos com script" name="return_scripted_all_btn" />
-	<button label="Ranking-Colisões" name="top_colliders_btn"
-	     tool_tip="Lista dos objetos que experimentam as colisões " />
-	<button label="?" name="top_colliders_help" />
-	<button label="Ranking-Scripts" name="top_scripts_btn"
-	     tool_tip="List of objects spending the most time running scripts" />
-	<button label="?" name="top_scripts_help" />
-	<button label="Restart Region" name="restart_btn"
-	     tool_tip="Inicio da contagem regressiva em 2 minutos" />
-	<button label="?" name="restart_help" />
-	<button label="Cancelar Reinicio" name="cancel_restart_btn"
-	     tool_tip="Cancelar o reinicio da região" />
+	<check_box label="Desabilitar Scripts" name="disable_scripts_check" tool_tip="Desabilitar todos scripts nesta região"/>
+	<button label="?" name="disable_scripts_help"/>
+	<check_box label="Desabilitar colisões" name="disable_collisions_check" tool_tip="Desabilitar colisões dos avateres nessa região"/>
+	<button label="?" name="disable_collisions_help"/>
+	<check_box label="Desabilitar física" name="disable_physics_check" tool_tip="Desabilitar fisíca nessa região"/>
+	<button label="?" name="disable_physics_help"/>
+	<button label="Aplicar" name="apply_btn"/>
+	<text name="objret_text_lbl">
+		Retornar Objeto
+	</text>
+	<text name="resident_text_lbl">
+		Residente:
+	</text>
+	<line_editor name="target_avatar_name">
+		(nenhum)
+	</line_editor>
+	<button label="Escolher..." name="choose_avatar_btn"/>
+	<text name="options_text_lbl">
+		Opções:
+	</text>
+	<check_box label="Retornar apenas aqueles objetos que contenham scripts" name="return_scripts" tool_tip="Retornar apenas objetos que contenham scripts."/>
+	<check_box label="Retornar apenas aqueles objetos na terra de alguém" name="return_other_land" tool_tip="Retornar apenas objetos que estejam em uma terra pertencente a alguém"/>
+	<check_box label="Retornar objetos em cada região desta propriedade" name="return_estate_wide" tool_tip="Retornar objetos em todas as regiões que constituem esta propriedade"/>
+	<button label="Retornar" name="return_btn"/>
+	<button label="Ranking-Colisões" name="top_colliders_btn" tool_tip="Lista dos objetos que experimentam as colisões "/>
+	<button label="?" name="top_colliders_help"/>
+	<button label="Ranking-Scripts" name="top_scripts_btn" tool_tip="List of objects spending the most time running scripts"/>
+	<button label="?" name="top_scripts_help"/>
+	<button label="Restart Region" name="restart_btn" tool_tip="Inicio da contagem regressiva em 2 minutos"/>
+	<button label="?" name="restart_help"/>
+	<button label="Cancelar Reinicio" name="cancel_restart_btn" tool_tip="Cancelar o reinicio da região"/>
 </panel>

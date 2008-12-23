@@ -13,5 +13,5 @@
 	<spinner label="x" name="val_spinner_2" />
 	<spinner label="x" name="val_spinner_3" />
 	<spinner label="x" name="val_spinner_4" />
-	<button label="Standard wiederherstellen" name="default_btn" />
+	<button label="Standard wiederherstellen" name="default_btn" width="170" />
 </floater>

@@ -552,6 +552,7 @@ void LLViewerMedia::buildMediaManagerData( LLMediaManagerData* init_data )
 // static
 void LLViewerMedia::cleanupClass()
 {
+	stop() ;
 	LLMediaManager::cleanupClass();
 }
 

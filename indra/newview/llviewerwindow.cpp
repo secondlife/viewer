@@ -29,12 +29,12 @@
  * $/LicenseInfo$
  */
 
+#include "llviewerprecompiledheaders.h"
+
 // system library includes
 #include <stdio.h>
 #include <iostream>
 #include <fstream>
-
-#include "llviewerprecompiledheaders.h"
 
 #include "llpanellogin.h"
 #include "llviewerkeyboard.h"
@@ -183,7 +183,6 @@
 #include "llviewernetwork.h"
 
 #if LL_WINDOWS
-#include "llwindebug.h"
 #include <tchar.h> // For Unicode conversion methods
 #endif
 
@@ -1436,12 +1435,12 @@ LLViewerWindow::LLViewerWindow(
 		!gNoRender,
 		ignore_pixel_depth,
 		gSavedSettings.getU32("RenderFSAASamples"));
-#if LL_WINDOWS
-	if (!LLWinDebug::checkExceptionHandler())
+
+	if (!LLAppViewer::instance()->restoreErrorTrap())
 	{
-		LL_WARNS("Window") << " Someone took over my exception handler (post createWindow)!" << LL_ENDL;
+		LL_WARNS("Window") << " Someone took over my signal/exception handler (post createWindow)!" << LL_ENDL;
 	}
-#endif
+
 
 	if (NULL == mWindow)
 	{
@@ -3588,7 +3587,7 @@ LLViewerObject* LLViewerWindow::cursorIntersect(S32 mouse_x, S32 mouse_y, F32 de
 	LLVector3 mouse_hud_end   = mouse_point_hud + LLVector3(depth, 0, 0);
 	
 	// world coordinates of mouse
-	LLVector3		mouse_direction_global = mouseDirectionGlobal(x,y);
+	LLVector3 mouse_direction_global = mouseDirectionGlobal(x,y);
 	LLVector3 mouse_point_global = LLViewerCamera::getInstance()->getOrigin();
 	LLVector3 mouse_world_start = mouse_point_global;
 	LLVector3 mouse_world_end   = mouse_point_global + mouse_direction_global * depth;
@@ -4620,12 +4619,10 @@ void LLViewerWindow::restoreGL(const std::string& progress_message)
 			setProgressString(progress_message);
 		}
 		llinfos << "...Restoring GL done" << llendl;
-#if LL_WINDOWS
-		if(!LLWinDebug::checkExceptionHandler())
+		if(!LLAppViewer::instance()->restoreErrorTrap())
 		{
-			llwarns << " Someone took over my exception handler (post restoreGL)!" << llendl;
+			llwarns << " Someone took over my signal/exception handler (post restoreGL)!" << llendl;
 		}
-#endif
 
 	}
 }
@@ -5232,7 +5229,7 @@ void LLPickInfo::fetchResults()
 	LLVector3 intersection, normal, binormal;
 	LLVector2 uv;
 
-	LLViewerObject* hit_object = gViewerWindow->cursorIntersect(-1, -1, 512.f,
+	LLViewerObject* hit_object = gViewerWindow->cursorIntersect(mMousePt.mX, mMousePt.mY, 512.f,
 									NULL, -1, mPickTransparent, &face_hit,
 									&intersection, &uv, &normal, &binormal);
 	

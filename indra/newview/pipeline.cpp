@@ -220,6 +220,7 @@ void display_update_camera();
 
 S32		LLPipeline::sCompiles = 0;
 
+BOOL	LLPipeline::sPickAvatar = TRUE;
 BOOL	LLPipeline::sDynamicLOD = TRUE;
 BOOL	LLPipeline::sShowHUDAttachments = TRUE;
 BOOL	LLPipeline::sRenderPhysicalBeacons = TRUE;
@@ -2342,7 +2343,7 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 		}
 	}
 
-	
+	LLAppViewer::instance()->pingMainloopTimeout("Pipeline:ForceVBO");
 	
 	//by bao
 	//fake vertex buffer updating
@@ -2389,12 +2390,16 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 	
 	U32 cur_type = 0;
 
+	LLAppViewer::instance()->pingMainloopTimeout("Pipeline:RenderDrawPools");
+	
 	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_PICKING))
 	{
+		LLAppViewer::instance()->pingMainloopTimeout("Pipeline:RenderForSelect");
 		gObjectList.renderObjectsForSelect(camera, gViewerWindow->getVirtualWindowRect());
 	}
 	else if (gSavedSettings.getBOOL("RenderDeferred"))
 	{
+		LLAppViewer::instance()->pingMainloopTimeout("Pipeline:RenderDeferred");
 		renderGeomDeferred();
 	}
 	else
@@ -2482,6 +2487,8 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 			stop_glerror();
 		}
 	}
+	
+	LLAppViewer::instance()->pingMainloopTimeout("Pipeline:RenderDrawPoolsEnd");
 
 	LLVertexBuffer::unbind();
 	LLGLState::checkStates();
@@ -2505,6 +2512,8 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 	LLGLState::checkTextureChannels();
 	LLGLState::checkClientArrays();
 
+	LLAppViewer::instance()->pingMainloopTimeout("Pipeline:RenderHighlights");
+
 	if (!sReflectionRender)
 	{
 		renderHighlights();
@@ -2514,6 +2523,8 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 	// have touch-handlers.
 	mHighlightFaces.clear();
 
+	LLAppViewer::instance()->pingMainloopTimeout("Pipeline:RenderDebug");
+	
 	renderDebug();
 
 	LLVertexBuffer::unbind();
@@ -2525,6 +2536,8 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 		LLHUDObject::renderAll();
 		gObjectList.resetObjectBeacons();
 	}
+
+	LLAppViewer::instance()->pingMainloopTimeout("Pipeline:RenderGeomEnd");
 
 	//HACK: preserve/restore matrices around HUD render
 	if (gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_HUD))
@@ -4022,6 +4035,8 @@ LLViewerObject* LLPipeline::lineSegmentIntersectInWorld(const LLVector3& start, 
 
 	LLVector3 position;
 
+	sPickAvatar = LLToolMgr::getInstance()->inBuildMode() ? FALSE : TRUE;
+	
 	for (LLWorld::region_list_t::iterator iter = LLWorld::getInstance()->getRegionList().begin(); 
 			iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
 	{
@@ -4048,6 +4063,31 @@ LLViewerObject* LLPipeline::lineSegmentIntersectInWorld(const LLVector3& start, 
 			}
 		}
 	}
+	
+	if (!sPickAvatar)
+	{
+		if (!drawable || !drawable->getVObj()->isAttachment())
+		{ //check against avatars
+				sPickAvatar = TRUE;
+				for (LLWorld::region_list_t::iterator iter = LLWorld::getInstance()->getRegionList().begin(); 
+						iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
+				{
+					LLViewerRegion* region = *iter;
+
+					LLSpatialPartition* part = region->getSpatialPartition(LLViewerRegion::PARTITION_BRIDGE);
+					if (part && hasRenderType(part->mDrawableType))
+					{
+						LLDrawable* hit = part->lineSegmentIntersect(start, local_end, pick_transparent, face_hit, &position, tex_coord, normal, bi_normal);
+						if (hit)
+						{
+							drawable = hit;
+							local_end = position;						
+						}
+					}
+				}
+			}
+		}
+
 
 	//check all avatar nametags (silly, isn't it?)
 	for (std::vector< LLCharacter* >::iterator iter = LLCharacter::sInstances.begin();

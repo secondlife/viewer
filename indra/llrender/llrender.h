@@ -135,12 +135,17 @@ public:
 	// Disables the current texture unit
 	void disable(void);	
 	
-	// Binds the LLImageGL to this texture unit (automatically enables the unit for the LLImageGL's texture type)
-	bool bind(const LLImageGL* texture);
-	// Binds a cubemap to this texture unit (automatically enables the texture unit for cubemaps)
+	// Binds the LLImageGL to this texture unit 
+	// (automatically enables the unit for the LLImageGL's texture type)
+	bool bind(const LLImageGL* texture, bool forceBind = false);
+
+	// Binds a cubemap to this texture unit 
+	// (automatically enables the texture unit for cubemaps)
 	bool bind(LLCubeMap* cubeMap);
+
 	// Binds a render target to this texture unit (automatically enables the texture unit for the RT's texture type)
 	bool bind(LLRenderTarget * renderTarget, bool bindDepth = false);
+
 	// Manually binds a texture to the texture unit (automatically enables the tex unit for the given texture type)
 	bool bindManual(eTextureType type, U32 texture);
 	

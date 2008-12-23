@@ -30,7 +30,7 @@
 		Sie können:
 	</text>
 	<check_box label="Bearbeiten" name="CheckOwnerModify" />
-	<check_box label="Kopieren" name="CheckOwnerCopy" />
+	<check_box label="Kopieren" name="CheckOwnerCopy" left_delta="85" />
 	<check_box label="Verkaufen/Weggeben" name="CheckOwnerTransfer" />
 	<text name="BaseMaskDebug">
 		B:

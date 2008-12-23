@@ -584,7 +584,7 @@ class LLManifest(object):
 
     def wildcard_regex(self, src_glob, dst_glob):
         src_re = re.escape(src_glob)
-        src_re = src_re.replace('\*', '([-a-zA-Z0-9._ ]+)')
+        src_re = src_re.replace('\*', '([-a-zA-Z0-9._ ]*)')
         dst_temp = dst_glob
         i = 1
         while dst_temp.count("*") > 0:
@@ -621,6 +621,7 @@ class LLManifest(object):
             count = 0
             if self.wildcard_pattern.search(src):
                 for s,d in self.expand_globs(src, dst):
+                    assert(s != d)
                     count += self.process_file(s, d)
             else:
                 # if we're specifying a single path (not a glob),

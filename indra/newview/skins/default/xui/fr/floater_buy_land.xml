@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="buy land" title="Acheter le terrain">
 	<text name="region_name_label">
 		Région :
@@ -19,7 +19,7 @@
 		(inconnu)
 	</text>
 	<text name="resellable_changeable_label">
-		Terrains achetés dans cette région :
+		Terrain acheté dans cette région :
 	</text>
 	<text name="resellable_clause">
 		Le terrain acheté dans cette région peut être revendu ou pas.
@@ -31,9 +31,9 @@
 		Vous devez accepter le règlement du domaine :
 	</text>
 	<text_editor name="covenant_editor">
-		Chargement en cours...
+		Chargement...
 	</text_editor>
-	<check_box label="J&apos;accepte le règlement ci-dessus." name="agree_covenant" />
+	<check_box label="J&apos;accepte le règlement ci-dessus." name="agree_covenant"/>
 	<text name="info_parcel_label">
 		Parcelle :
 	</text>
@@ -50,15 +50,15 @@
 		Prix :
 	</text>
 	<text name="info_price">
-		1500 $L, objets inclus
+		1500 L$, objets inclus
 	</text>
-	<text name="info_action">
+	<text name="info_action" width="275">
 		Si vous achetez ce terrain :
 	</text>
 	<text name="error_message">
 		Quelque chose ne va pas.
 	</text>
-	<button label="Aller sur le site" name="error_web" />
+	<button label="Aller sur le site" name="error_web"/>
 	<text name="account_action">
 		Vous passerez à un compte Premium.
 	</text>
@@ -67,44 +67,43 @@
 	</text>
 	<combo_box name="account_level">
 		<combo_item name="US$9.95/month,billedmonthly">
-			9,95 $US/mois, facturation mensuelle
+			9,95 US$/mois, facturation mensuelle
 		</combo_item>
 		<combo_item name="US$7.50/month,billedquarterly">
-			7,50 $US/mois, facturation trimestrielle
+			7,50 US$/mois, facturation trimestrielle
 		</combo_item>
 		<combo_item name="US$6.00/month,billedannually">
-			6,00 $US/mois, facturation annuelle
+			6,00 US$/mois, facturation annuelle
 		</combo_item>
 	</combo_box>
-	<text name="land_use_action">
-		Augmentez vos frais d&apos;occupation de terrain à 40 $US/mois.
+	<text name="land_use_action" width="210" right="430">
+		Augmentez vos frais d&apos;occupation de terrain à 40 US$/mois.
 	</text>
 	<text name="land_use_reason">
 		Vous possédez un terrain de 1,309 mètres carrés. 
 Cette parcelle fait 512 mètres carrés.
 	</text>
 	<text name="purchase_action">
-		Payez au résident X 4 000 $L pour le terrain
+		Payez au résident X 4 000 L$ pour le terrain
 	</text>
 	<text name="currency_reason">
-		Vous avez 2 100 $L.
+		Vous avez 2 100 L$.
 	</text>
 	<text name="currency_action">
-		Acheter des $L
+		Acheter des L$
 	</text>
 	<line_editor name="currency_amt">
 		1000
 	</line_editor>
 	<text name="currency_est">
-		pour environ [AMOUNT2] $US
+		pour environ [AMOUNT2] US$
 	</text>
 	<text name="currency_balance">
-		Vous avez 2 100 $L.
+		Vous avez 2 100 L$.
 	</text>
-	<check_box label="Supprimer [AMOUNT] mètres carrés de votre contribution au groupe."
-	     name="remove_contribution" />
-	<button label="Acheter" name="buy_btn" />
-	<button label="Annuler" name="cancel_btn" />
+	<check_box label="Supprimer [AMOUNT] mètres carrés de votre contribution au groupe." name="remove_contribution"/>
+	<button label="Acheter" name="buy_btn"/>
+	<button label="Annuler" name="cancel_btn"/>
 	<text name="can_resell">
 		Peut être revendu.
 	</text>
@@ -184,20 +183,20 @@ et la seule fois où vous pouvez acheter une parcelle &apos;Premier Terrain&apos
 	</text>
 	<text name="first_time_but_not_first_land">
 		Ceci est votre première acquisition de terrain, mais cette
-parcelle n&apos;est pas réservée aux nouveaux acheteurs.  Vous devriez
-peut-être chercher une parcelle &apos;Premier Terrain&apos; moins chère.
+parcelle n&apos;est pas réservée aux nouveaux acheteurs. Vous devriez
+peut-être chercher une parcelle Premier Terrain moins chère.
 	</text>
 	<text name="land_holdings">
-		Vous possédez un terrain de [BUYER] mètres carrés.
+		Vous possédez un terrain de [BUYER] m².
 	</text>
 	<text name="pay_to_for_land">
-		Payez [AMOUNT] $L à [SELLER] pour ce terrain
+		Payez [AMOUNT] L$ à [SELLER] pour ce terrain
 	</text>
 	<text name="buy_for_US">
-		Acheter [AMOUNT] $L pour environ [AMOUNT2] $US,
+		Acheter [AMOUNT] L$ pour environ [AMOUNT2] US$,
 	</text>
 	<text name="parcel_meters">
-		Cette parcelle fait [AMOUNT] mètres carrés.
+		Cette parcelle fait [AMOUNT] m².
 	</text>
 	<text name="premium_land">
 		Ce terrain est premium et les frais associés sont de [AMOUNT]/m².
@@ -206,7 +205,8 @@ peut-être chercher une parcelle &apos;Premier Terrain&apos; moins chère.
 		Ce terrain est en solde et les frais associés sont de [AMOUNT]/m².
 	</text>
 	<text name="meters_supports_object">
-		[AMOUNT] m² peuvent prendre en charge [AMOUNT2] objets
+		[AMOUNT] m²
+peuvent contenir [AMOUNT2] prims
 	</text>
 	<text name="sold_with_objects">
 		vendu avec objets
@@ -215,21 +215,21 @@ peut-être chercher une parcelle &apos;Premier Terrain&apos; moins chère.
 		Ce groupe, [GROUP], aura besoin de suffisamment de crédit pour payer les frais d&apos;occupation de terrain avant que l&apos;achat de cette parcelle ne soit finalisé.
 	</text>
 	<text name="have_enough_lindens">
-		Vous avez [AMOUNT]$L, ce qui est suffisant pour acheter ce terrain.
+		Vous avez [AMOUNT]L$, ce qui est suffisant pour acheter ce terrain.
 	</text>
 	<text name="not_enough_lindens">
-		Vous n&apos;avez que [AMOUNT] $L et vous avez besoin de [AMOUNT2] $L de plus.
+		Vous n&apos;avez que [AMOUNT] L$ et vous avez besoin de [AMOUNT2] L$ de plus.
 	</text>
 	<text name="balance_left">
-		Après cet achat, il vous restera [AMOUNT] $L.
+		Après cet achat, il vous restera [AMOUNT] L$.
 	</text>
 	<text name="balance_needed">
-		Pour avoir les moyens d&apos;acquérir ce terrain, vous devez acheter au moins [AMOUNT] $L.
+		Pour avoir les moyens d&apos;acquérir ce terrain, vous devez acheter au moins [AMOUNT] L$.
 	</text>
 	<string name="no_parcel_selected">
 		(aucune parcelle sélectionnée)
 	</string>
 	<string name="buy_currency">
-		Acheter [LINDENS] $L pour environ [USD] $US
+		Acheter [LINDENS] L$ pour environ [USD] US$
 	</string>
 </floater>

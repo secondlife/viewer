@@ -60,6 +60,8 @@
 #include "llviewerstats.h"
 #include "lluictrlfactory.h"
 
+#include "llselectmgr.h"
+
 ///----------------------------------------------------------------------------
 /// Local function declarations, constants, enums, and typedefs
 ///----------------------------------------------------------------------------
@@ -194,7 +196,20 @@ BOOL LLFloaterScriptQueue::start()
 {
 	//llinfos << "LLFloaterCompileQueue::start()" << llendl;
 	std::string buffer;
-	buffer = llformat("Starting %s of %d items.", mStartString.c_str(), mObjectIDs.count()); // *TODO: Translate
+
+	LLSelectMgr *mgr = LLSelectMgr::getInstance();
+	LLObjectSelectionHandle selectHandle = mgr->getSelection();
+	U32 n_objects = 0;
+	if (gSavedSettings.getBOOL("EditLinkedParts"))
+	{
+		n_objects = selectHandle->getObjectCount();
+	}
+	else
+	{
+		n_objects = selectHandle->getRootObjectCount();
+	}
+
+	buffer = llformat("Starting %s of %d items.", mStartString.c_str(), n_objects); // *TODO: Translate
 	
 	LLScrollListCtrl* list = getChild<LLScrollListCtrl>("queue output");
 	list->addCommentText(buffer);

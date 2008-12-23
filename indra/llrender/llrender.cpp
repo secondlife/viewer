@@ -175,7 +175,7 @@ void LLTexUnit::disable(void)
 	}
 }
 
-bool LLTexUnit::bind(const LLImageGL* texture)
+bool LLTexUnit::bind(const LLImageGL* texture, bool forceBind)
 {
 	if (mIndex < 0) return false;
 
@@ -183,25 +183,27 @@ bool LLTexUnit::bind(const LLImageGL* texture)
 
 	if (texture == NULL)
 	{
-		return texture->bindError(mIndex);
+		llwarns << "NULL LLTexUnit::bind texture" << llendl;
+		return false;
 	}
 
-	if (!texture->isInitialized())
+	if (!texture->isInitialized() && !forceBind)
+	{
+		return texture->bindDefaultImage(mIndex);
+	}
+
+	if (!texture->getTexName()) //if texture does not exist
 	{
 		return texture->bindDefaultImage(mIndex);
 	}
 
 	// Disabled caching of binding state.
-	if (texture != NULL)
-	{
-		activate();
-		enable(texture->getTarget());
-		mCurrTexture = texture->getTexName();
-		glBindTexture(sGLTextureType[texture->getTarget()], mCurrTexture);
-		texture->updateBindStats();
-		return true;
-	}
-	return false;
+	activate();
+	enable(texture->getTarget());
+	mCurrTexture = texture->getTexName();
+	glBindTexture(sGLTextureType[texture->getTarget()], mCurrTexture);
+	texture->updateBindStats();
+	return true;
 }
 
 bool LLTexUnit::bind(LLCubeMap* cubeMap)

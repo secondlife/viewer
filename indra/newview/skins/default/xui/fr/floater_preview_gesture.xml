@@ -33,12 +33,14 @@
 	<text name="steps_label">
 		Étapes :
 	</text>
+	<!-- Revert translations as interim fix to VWR-9985 while the code is not properly internationalized
 	<scroll_list name="library_list">
 		Animation
 Son
 Chat
 Attendre
 	</scroll_list>
+	-->
 	<button label="Ajouter &gt;&gt;" name="add_btn" />
 	<button label="Monter" name="up_btn" />
 	<button label="Descendre" name="down_btn" />
@@ -60,6 +62,6 @@ ajoutez des pauses.
 	<check_box label="temps en secondes" name="wait_time_check" />
 	<check_box label="Actifs" name="active_check"
 	     tool_tip="Les gestes actifs peuvent être déclenchés en saisissant leur raccourci dans le chat ou en appuyant sur les raccourcis. Les gestes deviennent généralement inactifs lorsqu&apos;il y a un conflit entre les raccourcis." />
-	<button label="Prévisualiser" name="preview_btn" />
-	<button label="Enregistrer" name="save_btn" />
+	<button label="Prévisualiser" name="preview_btn" width="86" />
+	<button label="Enregistrer" name="save_btn" width="86" left_delta="96"/>
 </floater>

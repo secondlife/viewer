@@ -1,51 +1,55 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="top_objects" title="en cours de chargement...">
 	<text name="title_text">
-		Chargement en cours...
+		Chargement...
 	</text>
 	<scroll_list name="objects_list">
-		<column label="Score" name="score" />
-		<column label="Nom" name="name" />
-		<column label="Propriétaire" name="owner" />
-		<column label="Emplacement" name="location" />
-		<column label="Heure" name="time" />
+		<column label="Score" name="score"/>
+		<column label="Nom" name="name"/>
+		<column label="Propriétaire" name="owner"/>
+		<column label="Lieu" name="location"/>
+		<column label="Heure" name="time"/>
+		<column label="Heure Mono" name="mono_time"/>
 	</scroll_list>
 	<text name="id_text">
 		ID de l&apos;objet :
 	</text>
-	<button label="Afficher balise" name="show_beacon_btn" />
+	<button label="Afficher balise" name="show_beacon_btn"/>
 	<text name="obj_name_text">
 		Nom :
 	</text>
-	<button label="Filtre" name="filter_object_btn" />
+	<button label="Filtre" name="filter_object_btn"/>
 	<text name="owner_name_text">
 		Nom :
 	</text>
-	<button label="Filtre" name="filter_owner_btn" />
-	<button label="Renvoyer" name="return_selected_btn" />
-	<button label="Renvoyer tous" name="return_all_btn" />
-	<button label="Désactiver" name="disable_selected_btn" />
-	<button label="Désactiver tous" name="disable_all_btn" />
-	<button label="Rafraîchir" name="refresh_btn" />
-	<text name="top_scripts_title">
+	<button label="Filtre" name="filter_owner_btn"/>
+	<button label="Renvoyer" name="return_selected_btn"/>
+	<button label="Renvoyer tous" name="return_all_btn"/>
+	<button label="Désactiver" name="disable_selected_btn"/>
+	<button label="Désactiver tous" name="disable_all_btn"/>
+	<button label="Rafraîchir" name="refresh_btn"/>
+	<string name="top_scripts_title">
 		Scripts principaux
-	</text>
-	<text name="top_scripts_text">
+	</string>
+	<string name="top_scripts_text">
 		[COUNT] scripts prenant un total de [TIME] ms
-	</text>
-	<text name="scripts_score_label">
+	</string>
+	<string name="scripts_score_label">
 		Heure
-	</text>
-	<text name="top_colliders_title">
+	</string>
+	<string name="scripts_mono_time_label">
+		Heure Mono
+	</string>
+	<string name="top_colliders_title">
 		Objets souvent responsables de collision
-	</text>
-	<text name="top_colliders_text">
-		[COUNT] objets le plus souvent responsables de collisions
-	</text>
-	<text name="colliders_score_label">
+	</string>
+	<string name="top_colliders_text">
+		[COUNT] objets souvent responsables de collisions
+	</string>
+	<string name="colliders_score_label">
 		Score
-	</text>
-	<text name="none_descriptor">
+	</string>
+	<string name="none_descriptor">
 		Aucun résultat.
-	</text>
+	</string>
 </floater>

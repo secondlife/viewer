@@ -1,11 +1,11 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <mimetypes name="default">
 	<widgetset name="web">
 		<label name="web_label">
 			Contenu web
 		</label>
 		<tooltip name="web_tooltip">
-			Il y a du contenu web à cet endroit
+			Cette parcelle propose du contenu multimédia
 		</tooltip>
 		<playtip name="web_playtip">
 			Afficher le contenu web
@@ -35,7 +35,7 @@
 			Image
 		</label>
 		<tooltip name="image_tooltip">
-			Il y a une image ici
+			Cette parcelle contient une image
 		</tooltip>
 		<playtip name="image_playtip">
 			Afficher l&apos;image qui se trouve ici
@@ -46,7 +46,7 @@
 			Audio
 		</label>
 		<tooltip name="audio_tooltip">
-			Il y a du contenu audio ici
+			Cette parcelle propose du contenu audio
 		</tooltip>
 		<playtip name="audio_playtip">
 			Jouer le contenu audio qui se trouve ici

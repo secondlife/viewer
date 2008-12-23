@@ -1,50 +1,51 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="top_objects" title="Carregando...">
 	<text name="title_text">
 		Carregando...
 	</text>
 	<scroll_list name="objects_list">
-		<column label="Placar" name="score" />
-		<column label="Nome" name="name" />
-		<column label="Proprietário" name="owner" />
-		<column label="Local" name="location" />
+		<column label="Placar" name="score"/>
+		<column label="Nome" name="name"/>
+		<column label="Proprietário" name="owner"/>
+		<column label="Local" name="location"/>
+		<column label="Tempo" name="time"/>
 	</scroll_list>
 	<text name="id_text">
 		ID do Objeto:
 	</text>
-	<button label="Mostrar Avisos" name="show_beacon_btn" />
+	<button label="Mostrar Avisos" name="show_beacon_btn"/>
 	<text name="obj_name_text">
 		Nome do Objeto:
 	</text>
-	<button label="Filtro" name="filter_object_btn" />
+	<button label="Filtro" name="filter_object_btn"/>
 	<text name="owner_name_text">
 		Nome do Proprietário:
 	</text>
-	<button label="Filtro" name="filter_owner_btn" />
-	<button label="Retornar Selecionado" name="return_selected_btn" />
-	<button label="Retornar Tudo" name="return_all_btn" />
-	<button label="Desabilitar Selecionado" name="disable_selected_btn" />
-	<button label="Desabilitar Tudo" name="disable_all_btn" />
-	<button label="Atualizar" name="refresh_btn" />
-	<text name="top_scripts_title">
+	<button label="Filtro" name="filter_owner_btn"/>
+	<button label="Retornar Selecionado" name="return_selected_btn"/>
+	<button label="Retornar Tudo" name="return_all_btn"/>
+	<button label="Desabilitar Selecionado" name="disable_selected_btn"/>
+	<button label="Desabilitar Tudo" name="disable_all_btn"/>
+	<button label="Atualizar" name="refresh_btn"/>
+	<string name="top_scripts_title">
 		Top Scripts
-	</text>
-	<text name="top_scripts_text">
+	</string>
+	<string name="top_scripts_text">
 		[COUNT] scripts tomando um total de [TIME] ms
-	</text>
-	<text name="scripts_score_label">
+	</string>
+	<string name="scripts_score_label">
 		Tempo
-	</text>
-	<text name="top_colliders_title">
+	</string>
+	<string name="top_colliders_title">
 		Top Colisões
-	</text>
-	<text name="top_colliders_text">
+	</string>
+	<string name="top_colliders_text">
 		Top [COUNT] objetos experimentando muitas colisções em potencial
-	</text>
-	<text name="colliders_score_label">
+	</string>
+	<string name="colliders_score_label">
 		Placar
-	</text>
-	<text name="none_descriptor">
+	</string>
+	<string name="none_descriptor">
 		Nenhum encotrado.
-	</text>
+	</string>
 </floater>

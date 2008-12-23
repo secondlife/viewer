@@ -1,37 +1,33 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Général" name="general_tab">
 	<text name="help_text">
-		L&apos;onglet Général contient des infos générales sur le groupe, une liste des propriétaires et des membres visibles, les préférences relatives au groupe ainsi que différentes options concernant les membres.
+		L&apos;onglet Général contient les infos générales et les préférences du groupe ainsi que la liste des propriétaires et des membres visibles.
 
-Pour obtenir de l&apos;aide, survolez les options avec votre souris.
 	</text>
 	<string name="group_info_unchanged">
-		Les infos générales du groupe ont changé.
+		Le profil du groupe a changé.
 	</string>
-	<button label="?" label_selected="?" name="help_button" />
+	<button label="?" label_selected="?" name="help_button"/>
 	<line_editor label="Saisissez le nom du groupe ici" name="group_name_editor">
-		Entrez le nom de votre nouveau groupe ici
+		Saisissez le nom du groupe ici
 	</line_editor>
 	<text name="group_name">
 		Saisissez le nom du groupe ici
 	</text>
 	<text name="prepend_founded_by">
-		Fondé par
-	</text>
-	<text name="founder_name">
+		Fondé par </text>
+	<text name="founder_name" left_delta="54">
 		(en attente)
 	</text>
 	<text name="group_charter_label">
 		Charte du groupe
 	</text>
-	<texture_picker label="Emblème du groupe" name="insignia"
-	     tool_tip="Cliquez pour sélectionner une image" />
+	<texture_picker label="Logo du groupe" name="insignia" tool_tip="Cliquez pour sélectionner une image"/>
 	<text_editor name="charter">
-		Charte du groupe
+		Indiquez ici la charte de votre groupe
 	</text_editor>
-	<button label="Rejoindre (0$L)" label_selected="Rejoindre (0$L)" name="join_button" />
-	<button label="Affichage détaillé" label_selected="Affichage détaillé"
-	     name="info_button" />
+	<button label="Rejoindre (0L$)" label_selected="Rejoindre (0L$)" name="join_button"/>
+	<button label="Affichage détaillé" label_selected="Affichage détaillé" name="info_button"/>
 	<text>
 		Propriétaires et membres visibles
 	</text>
@@ -50,54 +46,44 @@ Pour obtenir de l&apos;aide, survolez les options avec votre souris.
 		<column label="Dernière connexion" name="online" relwidth="0.35"/>
 	</name_list>
 	<text name="text_group_preferences">
-		Préférences du groupe
+		Préférences
 	</text>
 	<text name="incomplete_member_data_str">
 		Extraction des données du résident en cours
 	</text>
 	<text name="confirm_group_create_str">
-		La création de ce groupe coûte 100 $L. 
-Êtes-vous vraiment certain de vouloir dépenser 100 $L pour créer ce groupe ?
-Sachez que si personne ne rejoint ce groupe sous 48h, il sera démantelé et ne pourra plus être utilisé à l&apos;avenir.
+		La création de ce groupe coûte 100 L$. 
+Êtes-vous vraiment certain de vouloir dépenser 100 L$ pour créer ce groupe ?
+Sachez que si personne ne rejoint ce groupe sous 48h, il sera démantelé et ne pourra plus être utilisé.
 	</text>
 	<text>
-		Préférences du Groupe
+		Préférences
 	</text>
 	<panel name="preferences_container">
-		<check_box label="Afficher dans la recherche" name="show_in_group_list"
-		     tool_tip="Afficher ce groupe dans les résultats de recherche." />
-		<check_box label="Publier sur le web" name="publish_on_web"
-		     tool_tip="Cochez pour publier les informations de ce groupe sur le web." />
-		<check_box label="Inscription libre" name="open_enrollement"
-		     tool_tip="Indique si une invitation est nécessaire pour devenir membre de ce groupe." />
-		<check_box label="Frais d&apos;inscription : $L" name="check_enrollment_fee"
-		     tool_tip="Indique s&apos;il y a des frais d&apos;inscription pour devenir membre." />
-		<spinner name="spin_enrollment_fee"
-		     tool_tip="Lorsque la case Frais d&apos;inscription est cochée, cela signifie qu&apos;il faut payer des frais pour devenir membre." />
-		<check_box label="Adulte" name="mature"
-		     tool_tip="Cochez si les informations de votre groupe sont à caractère adulte." />
-		<combo_box width="195" name="group_mature_check"
-		     tool_tip="Indique si les informations de votre groupe sont considérées comme étant réservées aux adultes.">
-			<combo_item name="select_mature" >
-				- Sélectionner Pour adultes -
+		<check_box label="Afficher dans la recherche" name="show_in_group_list" tool_tip="Afficher ce groupe dans les résultats de recherche."/>
+		<check_box label="Publier sur le web" name="publish_on_web" tool_tip="Cochez pour publier les informations de ce groupe sur le web."/>
+		<check_box label="Inscription libre" name="open_enrollement" tool_tip="Indique si une invitation est nécessaire pour devenir membre de ce groupe."/>
+		<check_box label="Frais d&apos;inscription : L$" name="check_enrollment_fee" tool_tip="Indique s&apos;il y a des frais d&apos;inscription pour devenir membre."/>
+		<spinner name="spin_enrollment_fee" tool_tip="Si la case Frais d&apos;inscription est cochée, cela signifie qu&apos;il faut payer des frais pour devenir membre."/>
+		<check_box label="Adulte" name="mature" tool_tip="Cochez si les informations de votre groupe sont à caractère adulte."/>
+		<combo_box name="group_mature_check" tool_tip="Indique si les informations de votre groupe sont considérées comme étant réservées aux adultes." width="195">
+			<combo_item name="select_mature">
+				- Type de public -
 			</combo_item>
 			<combo_item name="mature">
-				Contenu pour adultes
+				Adulte
 			</combo_item>
 			<combo_item name="not_mature">
-				Contenu non réservé aux adultes
+				Tout public
 			</combo_item>
 		</combo_box>
 		<panel name="title_container">
 			<text name="active_title_label">
 				Mon titre actuel
 			</text>
-			<combo_box name="active_title"
-			     tool_tip="Définit le titre qui apparaît près du nom de votre avatar lorsque ce groupe est actif." />
+			<combo_box name="active_title" tool_tip="Définit le titre qui apparaît près du nom de votre avatar lorsque ce groupe est actif."/>
 		</panel>
-		<check_box label="Recevoir des notes de groupe" name="receive_notices"
-		     tool_tip="Définit si vous souhaitez recevoir les notes envoyées au groupe.  Décochez si ce groupe vous envoie des spams." />
-		<check_box label="Afficher dans mon profil" name="list_groups_in_profile"
-		     tool_tip="Indique si vous voulez que ce groupe apparaisse dans votre profil" />
+		<check_box label="Recevoir les notices" name="receive_notices" tool_tip="Cochez si vous souhaitez recevoir les notices envoyées au groupe. Décochez si ce groupe vous envoie des spams."/>
+		<check_box label="Afficher dans mon profil" name="list_groups_in_profile" tool_tip="Indique si vous voulez que ce groupe apparaisse dans votre profil"/>
 	</panel>
 </panel>

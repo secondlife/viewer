@@ -1,32 +1,38 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="status">
-	<text type="string" length="1" name="ParcelNameText"
-	     tool_tip="Nome do pedaço de terra em que você esta. Clique para informações.">
+	<text length="1" name="ParcelNameText" tool_tip="Nome do pedaço de terra em que você esta. Clique para informações." type="string">
 		Nome do pedaço de terra vai aqui.
 	</text>
-	<text type="string" length="1" name="BalanceText" tool_tip="Cotação de Compra">
+	<text length="1" name="BalanceText" tool_tip="Cotação de Compra" type="string">
 		L$
 	</text>
-	<button label="" label_selected="" name="buycurrency" tool_tip="Compras" />
-	<text type="string" length="12" name="TimeText" tool_tip="Hora atual (Pacific)">
+	<button label="" label_selected="" name="buycurrency" tool_tip="Compras"/>
+	<text length="12" name="TimeText" tool_tip="Hora atual (Pacific)" type="string">
 		12:00 AM
 	</text>
-	<button label="" label_selected="" name="scriptout" tool_tip="Erros e avisos do Script" />
-	<button label="" label_selected="" name="health" tool_tip="Saúde" />
-	<text type="string" length="1" name="HealthText" tool_tip="Saúde">
+	<string name="StatBarDaysOfWeek">
+		Domingo:Segunda-feira:terça-feira:Quarta-feira:Quinta-feira:Sexta-feira:Sábado
+	</string>
+	<string name="StatBarMonthsOfYear">
+		Janeiro: Fevereiro: Março: Abril: Maio: Junho: Julho: Agosto: Setembro: Outubro: Novembro: Dezembro
+	</string>
+	<button label="" label_selected="" name="scriptout" tool_tip="Erros e avisos do Script"/>
+	<button label="" label_selected="" name="health" tool_tip="Saúde"/>
+	<text length="1" name="HealthText" tool_tip="Saúde" type="string">
 		100%
 	</text>
-	<button label="" label_selected="" name="fly" tool_tip="Sem voar." />
-	<button label="" label_selected="" name="build" tool_tip="Sem construções." />
-	<button label="" label_selected="" name="scripts" tool_tip="Sem scripts." />
-	<button label="" label_selected="" name="restrictpush"
-	     tool_tip="Restriro llEmpurrar objeto." />
-	<button label="" label_selected="" name="buyland" tool_tip="Comprar esse pedaço" />
-	<line_editor label="Procurar" name="search_editor" tool_tip="Procurar em Second Life" />
-	<text name="packet_loss_tooltip">
+	<button label="" label_selected="" name="no_fly" tool_tip="Não é permitido Voar"/>
+	<button label="" label_selected="" name="no_build" tool_tip="construir/Rezzar não permitido"/>
+	<button label="" label_selected="" name="no_scripts" tool_tip="Scripts não permitidos"/>
+	<button label="" label_selected="" name="restrictpush" tool_tip="Não Empurrar"/>
+	<button label="" label_selected="" name="status_no_voice" tool_tip="Voz não disponível aqui"/>
+	<button label="" label_selected="" name="buyland" tool_tip="Comprar esse pedaço"/>
+	<line_editor label="Buscar" name="search_editor" tool_tip="Buscar no Second Life"/>
+	<button label="" label_selected="" name="search_btn" tool_tip="Buscar no Second Life"/>
+	<string name="packet_loss_tooltip">
 		Perda de pacote
-	</text>
-	<text name="bandwidth_tooltip">
+	</string>
+	<string name="bandwidth_tooltip">
 		Banda
-	</text>
+	</string>
 </panel>

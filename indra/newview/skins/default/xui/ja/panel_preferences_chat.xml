@@ -17,13 +17,13 @@
 	<text length="1" name="text_box2" type="string">
 		チャット・カラー：
 	</text>
-	<color_swatch label="貴方" name="user"/>
-	<color_swatch label="その他" name="agent"/>
+	<color_swatch label="貴方" name="user" width="56"/>
+	<color_swatch label="その他" name="agent" left_delta="60"/>
 	<color_swatch label="IM" name="im"/>
 	<color_swatch label="ｼｽﾃﾑ" name="system"/>
 	<color_swatch label="チャット" name="users"/>
-	<color_swatch label="所有者" name="objects"/>
-	<color_swatch label="所有者" name="owner"/>
+	<color_swatch label="ｵﾌﾞｼﾞｪｸﾄ" name="objects" width="56"/>
+	<color_swatch label="所有者" name="owner" left_delta="60"/>
 	<color_swatch label="吹出し" name="background"/>
 	<color_swatch label="URL" name="links"/>
 	<text length="1" name="text_box3" type="string">

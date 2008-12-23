@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel label="不動産" name="Estate">
 	<text name="estate_help_text">
-		このタブの設定を変更するとこの不動産内の全ての地域に影響を与えます。
+		このタブの設定を変更するとこの不動産内
+の全ての地域に影響を与えます。
 	</text>
 	<text name="estate_text">
 		不動産：

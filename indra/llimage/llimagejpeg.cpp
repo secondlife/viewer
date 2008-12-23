@@ -465,7 +465,8 @@ void LLImageJPEG::errorOutputMessage( j_common_ptr cinfo )
 	char buffer[JMSG_LENGTH_MAX];	/* Flawfinder: ignore */
 	(*cinfo->err->format_message) (cinfo, buffer);
 
-	((LLImageJPEG*) cinfo->client_data)->setLastError( buffer );
+	std::string error = buffer ;
+	LLImage::setLastError(error);
 
 	BOOL is_decode = (cinfo->is_decompressor != 0);
 	llwarns << "LLImageJPEG " << (is_decode ? "decode " : "encode ") << " failed: " << buffer << llendl;

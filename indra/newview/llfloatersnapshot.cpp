@@ -899,6 +899,13 @@ void LLSnapshotLivePreview::getSize(S32& w, S32& h) const
 
 LLFloaterPostcard* LLSnapshotLivePreview::savePostcard()
 {
+	if(mViewerImage[mCurImageIndex].isNull())
+	{
+		//this should never happen!!
+		llwarns << "The snapshot image has not been generated!" << llendl ;
+		return NULL ;
+	}
+
 	// calculate and pass in image scale in case image data only use portion
 	// of viewerimage buffer
 	LLVector2 image_scale(1.f, 1.f);
@@ -914,9 +921,10 @@ LLFloaterPostcard* LLSnapshotLivePreview::savePostcard()
 		return NULL;
 	}
 	LLFloaterPostcard* floater = LLFloaterPostcard::showFromSnapshot(jpg, mViewerImage[mCurImageIndex], image_scale, mPosTakenGlobal);
-	// relinquish lifetime of viewerimage and jpeg image to postcard floater
-	mViewerImage[mCurImageIndex] = NULL;
+	// relinquish lifetime of jpeg image to postcard floater
 	mFormattedImage = NULL;
+	mDataSize = 0;
+	updateSnapshot(FALSE, FALSE);
 
 	return floater;
 }
@@ -963,11 +971,19 @@ void LLSnapshotLivePreview::saveTexture()
 	}
 
 	LLViewerStats::getInstance()->incStat(LLViewerStats::ST_SNAPSHOT_COUNT );
+	
+	mDataSize = 0;
 }
 
 BOOL LLSnapshotLivePreview::saveLocal()
 {
 	BOOL success = gViewerWindow->saveImageNumbered(mFormattedImage);
+
+	// Relinquish image memory. Save button will be disabled as a side-effect.
+	mFormattedImage = NULL;
+	mDataSize = 0;
+	updateSnapshot(FALSE, FALSE);
+
 	if(success)
 	{
 		gViewerWindow->playSnapshotAnimAndSound();
@@ -1247,14 +1263,14 @@ void LLFloaterSnapshot::Impl::updateControls(LLFloaterSnapshot* floater)
 	BOOL got_bytes = previewp && previewp->getDataSize() > 0;
 	BOOL got_snap = previewp->getSnapshotUpToDate();
 
-	floater->childSetEnabled("send_btn",   shot_type == LLSnapshotLivePreview::SNAPSHOT_POSTCARD && got_bytes && got_snap && previewp->getDataSize() <= MAX_POSTCARD_DATASIZE);
-	floater->childSetEnabled("upload_btn", shot_type == LLSnapshotLivePreview::SNAPSHOT_TEXTURE  && got_bytes && got_snap);
-	floater->childSetEnabled("save_btn",   shot_type == LLSnapshotLivePreview::SNAPSHOT_LOCAL    && got_bytes && got_snap);
+	floater->childSetEnabled("send_btn",   shot_type == LLSnapshotLivePreview::SNAPSHOT_POSTCARD && got_snap && previewp->getDataSize() <= MAX_POSTCARD_DATASIZE);
+	floater->childSetEnabled("upload_btn", shot_type == LLSnapshotLivePreview::SNAPSHOT_TEXTURE  && got_snap);
+	floater->childSetEnabled("save_btn",   shot_type == LLSnapshotLivePreview::SNAPSHOT_LOCAL    && got_snap);
 
 	LLLocale locale(LLLocale::USER_LOCALE);
 	std::string bytes_string;
 	LLResMgr::getInstance()->getIntegerString(bytes_string, (previewp->getDataSize()) >> 10 );
-	floater->childSetTextArg("file_size_label", "[SIZE]", got_snap ? bytes_string : got_bytes ? floater->getString("unknown") : std::string("???"));
+	floater->childSetTextArg("file_size_label", "[SIZE]", got_snap ? bytes_string : floater->getString("unknown"));
 	floater->childSetColor("file_size_label", 
 		shot_type == LLSnapshotLivePreview::SNAPSHOT_POSTCARD 
 		&& got_bytes
@@ -1384,6 +1400,8 @@ void LLFloaterSnapshot::Impl::onClickKeep(void* data)
 		{
 			checkAutoSnapshot(previewp);
 		}
+
+		updateControls(view);
 	}
 }
 
@@ -1638,6 +1656,9 @@ void LLFloaterSnapshot::Impl::updateResolution(LLUICtrl* ctrl, void* data, BOOL 
 	LLSnapshotLivePreview* previewp = getPreviewView(view);
 	if (previewp && combobox->getCurrentIndex() >= 0)
 	{
+		S32 original_width = 0 , original_height = 0 ;
+		previewp->getSize(original_width, original_height) ;
+		
 		if (width == 0 || height == 0)
 		{
 			// take resolution from current window size
@@ -1662,12 +1683,17 @@ void LLFloaterSnapshot::Impl::updateResolution(LLUICtrl* ctrl, void* data, BOOL 
 		{
 			resetSnapshotSizeOnUI(view, width, height) ;
 		}
-		previewp->setSize(width, height);
-
+		
 		if(view->childGetValue("snapshot_width").asInteger() != width || view->childGetValue("snapshot_height").asInteger() != height)
 		{
 			view->childSetValue("snapshot_width", width);
 			view->childSetValue("snapshot_height", height);
+		}
+
+		if(original_width != width || original_height != height)
+		{
+			previewp->setSize(width, height);
+
 			// hide old preview as the aspect ratio could be wrong
 			checkAutoSnapshot(previewp, FALSE);
 			getPreviewView(view)->updateSnapshot(FALSE, TRUE);

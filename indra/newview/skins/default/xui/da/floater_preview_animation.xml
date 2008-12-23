@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="preview_anim">
+	<text type="string" length="1" name="desc txt">
+		Beskrivelse:
+	</text>
+	<button label="Afspil i Verden" label_selected="Stop" name="Anim play btn"
+	     tool_tip="Afspil denne animation s&#229; andre kan se den." />
+	<button label="Afspil Lokalt" label_selected="Stop" name="Anim audition btn"
+	     tool_tip="Afspil denne animation s&#229; kun du kan se den." />
+</floater>

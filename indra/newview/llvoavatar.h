@@ -913,6 +913,9 @@ public:
 	static BOOL		sJointDebug;
 	static ETextureIndex sBakedTextureIndices[BAKED_TEXTURE_COUNT];
 
+	static F32 		sUnbakedTime; // Total seconds with >=1 unbaked avatars
+	static F32 		sGreyTime; // Total seconds with >=1 grey avatars
+	
 	//--------------------------------------------------------------------
 	// Texture Layer Sets and Global Colors
 	//--------------------------------------------------------------------	
@@ -977,6 +980,7 @@ protected:
 	F32					mLastFadeDistance;
 	F32					mMinPixelArea; // debug
 	F32					mMaxPixelArea; // debug
+	BOOL				mHasGrey; // debug
 	
 	//--------------------------------------------------------------------
 	// Global Colors
@@ -1012,7 +1016,7 @@ protected:
 	
 	BOOL			isFullyBaked();
 	void			deleteLayerSetCaches();
-	static BOOL		areAllNearbyInstancesBaked();
+	static BOOL		areAllNearbyInstancesBaked(S32& grey_avatars);
 
 	static void		onBakedTextureMasksLoaded(BOOL success, LLViewerImage *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata);
 

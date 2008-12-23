@@ -2,8 +2,8 @@
 <floater name="land holdings floater" title="Mein Land">
 	<scroll_list name="parcel list">
 		<column label="Name" name="name" />
-		<column label="Location" name="location" />
-		<column label="Area" name="area" />
+		<column label="Lage" name="location" />
+		<column label="Gebiet" name="area" />
 		<column label="" name="hidden" />
 	</scroll_list>
 	<button label="Teleportieren" label_selected="Teleportieren" name="Teleport"
@@ -14,8 +14,8 @@
 		Beiträge zu Ihren Gruppen:
 	</text>
 	<scroll_list name="grant list">
-		<column label="Group" name="group" />
-		<column label="Area" name="area" />
+		<column label="Gruppe" name="group" />
+		<column label="Gebiet" name="area" />
 	</scroll_list>
 	<text name="allowed_label">
 		Zulässiger Landbesitz bei aktuellem Zahlungsplan:

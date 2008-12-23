@@ -5,7 +5,7 @@
 	</text>
 	<button label="Jouer dans le Monde" label_selected="Jouer dans le Monde"
 	     name="Sound play btn"
-	     tool_tip="Jouer ce son et partagez-le avec d&apos;autres." width="125" left_delta="-136"/>
+	     tool_tip="Jouer ce son et partagez-le avec d&apos;autres." width="131" left_delta="-142"/>
 	<button label="Jouer localement" label_selected="Jouer localement"
 	     name="Sound audition btn"
 	     tool_tip="Jouer ce son et soyez le seul à l&apos;entendre." width="125" left="162"/>

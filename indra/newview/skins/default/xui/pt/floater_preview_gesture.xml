@@ -1,32 +1,39 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="gesture_preview">
+	<string name="stop_txt">
+		Parar
+	</string>
+	<string name="preview_txt">
+		Prévia
+	</string>
+	<string name="none_text">
+		-- Nenhum --
+	</string>
 	<text name="desc_label">
 		Descrição:
 	</text>
 	<text name="trigger_label">
 		Gatilho:
 	</text>
-	<text name="replace_text"
-	     tool_tip="Substituir a(s) palavra(s) gatilho por estas palavras.">
+	<text name="replace_text" tool_tip="Substituir a(s) palavra(s) gatilho por estas palavras.">
 		Substituir por:
 	</text>
-	<line_editor name="replace_editor"
-	     tool_tip="Substituir a(s) palavra(s) gatilho por estas palavras. " />
+	<line_editor name="replace_editor" tool_tip="Substituir a(s) palavra(s) gatilho por estas palavras. "/>
 	<text name="key_label">
 		Tecla de Atalho:
 	</text>
-	<combo_box label="Nenhum" name="modifier_combo" />
-	<combo_box label="Nenhum" name="key_combo" />
+	<combo_box label="Nenhum" name="modifier_combo"/>
+	<combo_box label="Nenhum" name="key_combo"/>
 	<text name="library_label">
 		Biblioteca:
 	</text>
 	<text name="steps_label">
 		Passos:
 	</text>
-	<button label="Incluir" name="add_btn" />
-	<button label="Mover Para Cima" name="up_btn" />
-	<button label="Mover Para Baixo" name="down_btn" />
-	<button label="Remover" name="delete_btn" />
+	<button label="Incluir" name="add_btn"/>
+	<button label="Mover Para Cima" name="up_btn"/>
+	<button label="Mover Para Baixo" name="down_btn"/>
+	<button label="Remover" name="delete_btn"/>
 	<text name="help_label">
 		Todos os passos acontecem simultaneamente, a menos que você inclua passos de espera.
 	</text>
@@ -38,10 +45,9 @@
 			Parar
 		</radio_item>
 	</radio_group>
-	<check_box label="Até que a animação esteja concluída" name="wait_anim_check" />
-	<check_box label="tempo em segundos" name="wait_time_check" />
-	<check_box label="Ativar" name="active_check"
-	     tool_tip="Gesto ativos pode ser engatilhados escrevendo suas frases gatilho no chat ou através de suas teclas de atalho. Gestos normalmente ficam inativos quando existe um conflito nas teclas de atalho." />
-	<button label="Preview" name="preview_btn" />
-	<button label="Salvar" name="save_btn" />
+	<check_box label="Até que a animação esteja concluída" name="wait_anim_check"/>
+	<check_box label="tempo em segundos" name="wait_time_check"/>
+	<check_box label="Ativar" name="active_check" tool_tip="Gesto ativos pode ser engatilhados escrevendo suas frases gatilho no chat ou através de suas teclas de atalho. Gestos normalmente ficam inativos quando existe um conflito nas teclas de atalho."/>
+	<button label="Preview" name="preview_btn"/>
+	<button label="Salvar" name="save_btn"/>
 </floater>

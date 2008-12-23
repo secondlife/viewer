@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="Postcard" title="Enviar cartão postal">
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Postcard" title="Instantâneo por email">
 	<text name="to_label">
 		Email do Destinatário:
 	</text>
@@ -12,17 +12,25 @@
 	<text name="subject_label">
 		Assunto:
 	</text>
+	<line_editor label="Digite seu assunto aqui." name="subject_form"/>
 	<text name="msg_label">
 		Mensagem:
 	</text>
-	<check_box label="Publicar na Web" name="allow_publish_check"
-	     tool_tip="Publicar este postcard na web" />
-	<check_box label="Conteúdo Adulto" name="mature_check"
-	     tool_tip="Este postcard possui conteúdo adulto." />
-	<button label="?" name="publish_help_btn" />
+	<text_editor name="msg_form">
+		Digite sua mensagem aqui.
+	</text_editor>
 	<text name="fine_print">
-		Se o destinatário do seu postcard é residente em SL, você receberá um bonus..
+		Se seu indicado entrar no SL, você receberá um bônus pela indicação.
 	</text>
-	<button label="Cancelar" name="cancel_btn" />
-	<button label="Enviar" name="send_btn" />
+	<button label="Cancelar" name="cancel_btn"/>
+	<button label="Enviar" name="send_btn"/>
+	<string name="default_subject">
+		Cartão postal do Second Life.
+	</string>
+	<string name="default_message">
+		Dá uma olhada nisto!
+	</string>
+	<string name="upload_message">
+		&quot;Enviando...&quot;
+	</string>
 </floater>

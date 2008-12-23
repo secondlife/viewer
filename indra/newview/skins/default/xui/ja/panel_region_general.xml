@@ -3,20 +3,20 @@
 	<text name="region_text_lbl">
 		地域：
 	</text>
-	<text name="region_text">
+	<text name="region_text" left="90">
 		未知
 	</text>
-	<text name="version_channel_text_lbl">
-		バージョン:
+	<text name="version_channel_text_lbl" width="100">
+		バージョン：
 	</text>
-	<text name="version_channel_text">
+	<text name="version_channel_text" left="90">
 		不明
 	</text>
 	<check_box label="土地整備をブロック" name="block_terraform_check" />
 	<button label="?" name="terraform_help" />
 	<check_box label="飛行をブロック" name="block_fly_check" />
 	<button label="?" name="fly_help" />
-	<check_box label="損害を許可" name="allow_damage_check" />
+	<check_box label="ダメージを許可" name="allow_damage_check" />
 	<button label="?" name="damage_help" />
 	<check_box label="プッシュを制限" name="restrict_pushobject" />
 	<button label="?" name="restrict_pushobject_help" />
@@ -46,6 +46,6 @@
 	<button label="適用" name="apply_btn" />
 	<button label="ユーザー1人ホームテレポート" name="kick_btn" />
 	<button label="ユーザー全員ホームテレポート" name="kick_all_btn" />
-	<button label="メッセージを領域へ送信..." name="im_btn" />
+	<button label="メッセージを地域へ送信..." name="im_btn" />
 	<button label="テレハブの管理..." name="manage_telehub_btn" />
 </panel>

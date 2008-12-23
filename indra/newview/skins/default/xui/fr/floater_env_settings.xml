@@ -1,27 +1,27 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="Environment Editor Floater" title="Editeur d&apos;environnement">
-	<text name="EnvTimeText" bottom="-45" >
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Environment Editor Floater" title="Éditeur d&apos;environnement">
+	<text bottom="-45" name="EnvTimeText">
 		Heure de la
 journée
 	</text>
-	<text name="EnvTimeText2" bottom_delta="-36" >
+	<text bottom_delta="-36" name="EnvTimeText2">
 		Midi
 	</text>
 	<text name="EnvCloudText">
 		Couverture
 nuageuse
 	</text>
-	<text name="EnvWaterColorText" bottom="-45" >
+	<text bottom="-45" name="EnvWaterColorText">
 		Couleur de
 l&apos;eau
 	</text>
-	<color_swatch name="EnvWaterColor" tool_tip="Cliquer pour ouvrir le sélecteur de couleurs" />
+	<color_swatch name="EnvWaterColor" tool_tip="Cliquer pour ouvrir le sélecteur de couleurs"/>
 	<text name="EnvWaterFogText">
 		Brouillard
 dans l&apos;eau
 	</text>
-	<button label="Utiliser heure du domaine" name="EnvUseEstateTimeButton" bottom="-144"/>
-	<button label="Ciel avancé" name="EnvAdvancedSkyButton" />
-	<button label="Eau avancée" name="EnvAdvancedWaterButton" />
-	<button label="?" name="EnvSettingsHelpButton" />
+	<button bottom="-144" label="Utiliser heure du domaine" name="EnvUseEstateTimeButton" width="145"/>
+	<button label="Ciel avancé" name="EnvAdvancedSkyButton" width="145" left="162" />
+	<button label="Eau avancée" name="EnvAdvancedWaterButton" width="145" left="316"/>
+	<button label="?" name="EnvSettingsHelpButton"/>
 </floater>

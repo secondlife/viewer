@@ -50,15 +50,14 @@
 		Eventos (M)
 	</text>
 	<check_box label=" " name="event_mature_chk" />
-	<combo_box label="Meus Amigos" name="friend combo" tool_tip="Amigos para mostrar no Mapa">
+	<combo_box label="Amigos Conectados" name="friend combo" tool_tip="Amigos para mostrar no Mapa">
 		<combo_item name="none_selected">
-			Meus Amigos
+			Amigos Conectados
 		</combo_item>
 	</combo_box>
-	<combo_box label="Minhas Landmarks" name="landmark combo"
-	     tool_tip="Landmark para mostrar no Mapa">
+	<combo_box label="Landmarks" name="landmark combo" tool_tip="Landmark para mostrar no Mapa">
 		<combo_item name="none_selected">
-			Minhas Landmarks
+			Landmarks
 		</combo_item>
 	</combo_box>
 	<line_editor label="Procurar por nome de região" name="location"

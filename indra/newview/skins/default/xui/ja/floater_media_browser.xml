@@ -3,7 +3,7 @@
 	<layout_stack name="stack1">
 		<layout_panel name="nav_controls">
 			<button label="戻る" name="back" />
-			<button label="転送" name="forward" />
+			<button label="進む" name="forward" />
 			<button label="再ロード" name="reload" />
 			<button label="行く" name="go" />
 		</layout_panel>

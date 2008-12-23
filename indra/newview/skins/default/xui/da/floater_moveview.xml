@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="move floater" title="">
+	<button label="" label_selected="" name="turn left btn" tool_tip="Drej til venstre" />
+	<button label="" label_selected="" name="turn right btn" tool_tip="Drej til højre" />
+	<button label="" label_selected="" name="move up btn" tool_tip="Hop eller flyv op" />
+	<button label="" label_selected="" name="move down btn" tool_tip="Duk eller flyv ned" />
+	<joystick_slide name="slide left btn" tool_tip="Gå til venstre" />
+	<joystick_slide name="slide right btn" tool_tip="Gå til højre" />
+	<joystick_turn name="forward btn" tool_tip="Gå fremad" />
+	<joystick_turn name="backward btn" tool_tip="Gå bagud" />
+</floater>

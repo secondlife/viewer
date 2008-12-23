@@ -123,6 +123,33 @@ void trimSLLog(std::string& sllog)
 	}
 }
 
+std::string getStartupStateFromLog(std::string& sllog)
+{
+	std::string startup_state = "STATE_FIRST";
+	std::string startup_token = "Startup state changing from ";
+
+	int index = sllog.rfind(startup_token);
+	if (index < 0 || index + startup_token.length() > sllog.length()) {
+		return startup_state;
+	}
+
+	// find new line
+	char cur_char = sllog[index + startup_token.length()];
+	std::string::size_type newline_loc = index + startup_token.length();
+	while(cur_char != '\n' && newline_loc < sllog.length())
+	{
+		newline_loc++;
+		cur_char = sllog[newline_loc];
+	}
+	
+	// get substring and find location of " to "
+	std::string state_line = sllog.substr(index, newline_loc - index);
+	std::string::size_type state_index = state_line.find(" to ");
+	startup_state = state_line.substr(state_index + 4, state_line.length() - state_index - 4);
+
+	return startup_state;
+}
+
 void LLCrashLogger::gatherFiles()
 {
 
@@ -154,6 +181,9 @@ void LLCrashLogger::gatherFiles()
 	if (debug_log_file.is_open())
 	{		
 		LLSDSerialize::fromXML(mDebugLog, debug_log_file);
+
+		mCrashInPreviousExec = mDebugLog["CrashNotHandled"].asBoolean();
+
 		mFileMap["SecondLifeLog"] = mDebugLog["SLLog"].asString();
 		mFileMap["SettingsXml"] = mDebugLog["SettingsFilename"].asString();
 		if(mDebugLog.has("CAFilename"))
@@ -174,6 +204,16 @@ void LLCrashLogger::gatherFiles()
 		LLCurl::setCAFile(gDirUtilp->getCAFile());
 		mFileMap["SecondLifeLog"] = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"SecondLife.log");
 		mFileMap["SettingsXml"] = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS,"settings.xml");
+	}
+
+	if(mCrashInPreviousExec)
+	{
+		// Replace the log file ext with .old, since the 
+		// instance that launched this process has overwritten
+		// SecondLife.log
+		std::string log_filename = mFileMap["SecondLifeLog"];
+		log_filename.replace(log_filename.size() - 4, 4, ".old");
+		mFileMap["SecondLifeLog"] = log_filename;
 	}
 
 	gatherPlatformSpecificFiles();
@@ -219,6 +259,10 @@ void LLCrashLogger::gatherFiles()
 		std::string crash_info = s.str();
 		if(itr->first == "SecondLifeLog")
 		{
+			if(!mCrashInfo["DebugLog"].has("StartupState"))
+			{
+				mCrashInfo["DebugLog"]["StartupState"] = getStartupStateFromLog(crash_info);
+			}
 			trimSLLog(crash_info);
 		}
 
@@ -229,12 +273,6 @@ void LLCrashLogger::gatherFiles()
 LLSD LLCrashLogger::constructPostData()
 {
 	LLSD ret;
-
-	if(mCrashInPreviousExec)
-	{
-		mCrashInfo["CrashInPreviousExecution"] = "Y";
-	}
-
 	return mCrashInfo;
 }
 
@@ -337,25 +375,6 @@ bool LLCrashLogger::init()
 
 	llinfos << "Loading crash behavior setting" << llendl;
 	mCrashBehavior = loadCrashBehaviorSetting();
-
-	//Run through command line options
-	if(getOption("previous").isDefined())
-	{
-		llinfos << "Previous execution did not remove SecondLife.exec_marker" << llendl;
-		mCrashInPreviousExec = TRUE;
-	}
-
-	if(getOption("dialog").isDefined())
-	{
-		llinfos << "Show the user dialog" << llendl;
-		mCrashBehavior = CRASH_BEHAVIOR_ASK;
-	}
-	
-	LLSD name = getOption("name");
-	if(name.isDefined())
-	{	
-		mProductName = name.asString();
-	}
 
 	// If user doesn't want to send, bail out
 	if (mCrashBehavior == CRASH_BEHAVIOR_NEVER_SEND)

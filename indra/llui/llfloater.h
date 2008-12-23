@@ -206,6 +206,11 @@ public:
 
 	LLHandle<LLFloater> getHandle() const { return mHandle; }
 
+	// Return a closeable floater, if any, given the current focus.
+	static LLFloater* getClosableFloaterFromFocus(); 
+
+	// Close the floater returned by getClosableFloaterFromFocus() and 
+	// handle refocusing.
 	static void		closeFocusedFloater();
 
 	static void		onClickClose(void *userdata);

@@ -5,7 +5,7 @@
 	</text>
 	<radio_group label="スナップショット・タイプ" name="snapshot_type_radio">
 		<radio_item name="postcard">
-			電子メールで送信
+			Eメールで送信
 		</radio_item>
 		<radio_item name="texture">
 			持ち物に保存(L$10)
@@ -34,12 +34,12 @@
 	<text name="type_label2">
 		サイズ
 	</text>
-	<text name="format_label">
-		フォーマット
+	<text name="format_label" width="75">
+		形式
 	</text>
 	<combo_box label="解像度" name="postcard_size_combo">
 		<combo_item name="CurrentWindow">
-			現在のウィンドウ
+			現在のｳｨﾝﾄﾞｳ
 		</combo_item>
 		<combo_item name="640x480">
 			640x480
@@ -56,7 +56,7 @@
 	</combo_box>
 	<combo_box label="解像度" name="texture_size_combo">
 		<combo_item name="CurrentWindow">
-			現在のウィンドウ
+			現在のｳｨﾝﾄﾞｳ
 		</combo_item>
 		<combo_item name="Small(128x128)">
 			小（128x128）
@@ -73,7 +73,7 @@
 	</combo_box>
 	<combo_box label="解像度" name="local_size_combo">
 		<combo_item name="CurrentWindow">
-			現在のウィンドウ
+			現在のｳｨﾝﾄﾞｳ
 		</combo_item>
 		<combo_item name="320x240">
 			320x240
@@ -97,7 +97,7 @@
 			カスタム
 		</combo_item>
 	</combo_box>
-	<combo_box label="フォーマット" name="local_format_combo">
+	<combo_box label="形式" name="local_format_combo">
 		<combo_item name="PNG">
 			PNG
 		</combo_item>
@@ -108,9 +108,9 @@
 			BMP
 		</combo_item>
 	</combo_box>
-	<spinner label="幅" name="snapshot_width"/>
-	<spinner label="高さ" name="snapshot_height"/>
-	<check_box label="比率の制限" name="keep_aspect_check"/>
+	<spinner label="幅" name="snapshot_width" label_width="25" width="90"/>
+	<spinner label="高さ" name="snapshot_height" label_width="30" left="115" width="90"/>
+	<check_box label="縦横比の固定" name="keep_aspect_check"/>
 	<slider label="画質" name="image_quality_slider"/>
 	<text name="layer_type_label">
 		ｷｬﾌﾟﾁｬ：
@@ -129,7 +129,7 @@
 	<check_box label="インタフェースを表示" name="ui_check"/>
 	<check_box label="HUD オブジェクトを表示" name="hud_check"/>
 	<check_box label="保存後も開いた状態を保持" name="keep_open_check"/>
-	<check_box label="フレームをフリーズ（全画面）" name="freeze_frame_check"/>
+	<check_box label="画面全体を静止させる" name="freeze_frame_check"/>
 	<check_box label="自動更新" name="auto_snapshot_check"/>
 	<string name="unknown">
 		未知

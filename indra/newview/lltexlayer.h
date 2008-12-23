@@ -527,41 +527,6 @@ public:
 };
 
 
-//-----------------------------------------------------------------------------
-// LLGradientPaletteList
-// A static set of ramp grayscale palettes.  The "effective_weight" is used 
-// to determine the x position of the ramp (offset)
-//
-// "Domain" isn't really the right word.  It refers to the width of the 
-// ramp portion of the function that relates input and output pixel values.
-// A domain of 0 gives a step function.
-// 
-//   |                      /----------------
-//  O|                     / |
-//  u|                    /  |
-//  t|                   /   |
-//  p|------------------/    |
-//  u|                  |    | 
-//  t|<---------------->|<-->|
-//   |  "offset"         "domain"
-//   |
-// --+---Input--------------------------------
-//   |
-//-----------------------------------------------------------------------------
-class LLGradientPaletteList
-{
-public:
-	LLGradientPaletteList() {}
-	~LLGradientPaletteList();
-
-	void		 initPalette(F32 domain);
-	void		 setHardwarePalette(F32 domain, F32 effective_weight);
-	
-private:
-	typedef std::map<F32, U8*> palette_map_t;
-	palette_map_t		mPaletteMap;
-};
-
 // Used by LLTexLayerSetBuffer for a callback.
 class LLBakedUploadData
 {

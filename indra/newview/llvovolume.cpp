@@ -1998,7 +1998,7 @@ BOOL LLVOVolume::lineSegmentIntersect(const LLVector3& start, const LLVector3& e
 			face_hit = volume->lineSegmentIntersect(v_start, v_end, i,
 													&p, &tc, &n, &bn);
 			
-			if (face_hit >= 0)
+			if (face_hit >= 0 && mDrawable->getNumFaces() > face_hit)
 			{
 				LLFace* face = mDrawable->getFace(face_hit);
 				if (pick_transparent || !face->getTexture() || face->getTexture()->getMask(face->surfaceToTexture(tc, p, n)))

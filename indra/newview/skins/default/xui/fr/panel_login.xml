@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_login">
 	<string name="forgot_password_url">
 		http://secondlife.com/account/request.php
@@ -17,7 +17,7 @@
 	</text>
 	<combo_box name="start_location_combo">
 		<combo_item name="MyHome">
-			Mon domicile
+			Domicile
 		</combo_item>
 		<combo_item name="MyLastLocation">
 			Dernier emplacement
@@ -29,16 +29,14 @@
 			&lt;Nom de la région&gt;
 		</combo_item>
 	</combo_box>
-	<check_box label="Enregistrer le mot de passe" name="remember_check" />
+	<check_box label="Mémoriser" name="remember_check"/>
 	<text name="full_screen_text">
 		Le plein écran sera activé après identification.
 	</text>
-	<button label="Nouveau Compte..." label_selected="Nouveau Compte..."
-	     name="new_account_btn" />
-	<button label="Me connecter" label_selected="Me connecter" name="connect_btn" />
-	<button label="Préférences..." label_selected="Préférences..."
-	     name="preferences_btn" />
-	<button label="Quitter" label_selected="Quitter" name="quit_btn" />
+	<button label="Nouveau Compte..." label_selected="Nouveau Compte..." name="new_account_btn"/>
+	<button label="Me connecter" label_selected="Me connecter" name="connect_btn"/>
+	<button label="Préférences..." label_selected="Préférences..." name="preferences_btn"/>
+	<button label="Quitter" label_selected="Quitter" name="quit_btn"/>
 	<text name="version_text">
 		1.23.4 (5)
 	</text>

@@ -1,0 +1,455 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="floater customize" title="Udseende">
+	<tab_container name="customize tab container">
+		<panel label="Krops Dele" name="body_parts_placeholder" />
+		<panel label="Figur" name="Shape">
+			<button label="Annuller" label_selected="Annuller" name="Revert" />
+			<button label="Krop" label_selected="Krop" name="Body" />
+			<button label="Hoved" label_selected="Hoved" name="Head" />
+			<button label="&#216;jne" label_selected="&#216;jne" name="Eyes" />
+			<button label="&#216;rer" label_selected="&#216;rer" name="Ears" />
+			<button label="N&#230;se" label_selected="N&#230;se" name="Nose" />
+			<button label="Mund" label_selected="Mund" name="Mouth" />
+			<button label="Kinder" label_selected="Kinder" name="Chin" />
+			<button label="Overkrop" label_selected="Overkrop" name="Torso" />
+			<button label="Ben" label_selected="Ben" name="Legs" />
+			<radio_group name="sex radio">
+				<radio_item type="string" length="1" name="radio">
+					Kvinde
+				</radio_item>
+				<radio_item type="string" length="1" name="radio2">
+					Mand
+				</radio_item>
+			</radio_group>
+			<button label="Tilf&#230;ldig" label_selected="Tilf&#230;ldig" name="Randomize" />
+			<text type="string" length="1" name="title">
+				[DESC]
+			</text>
+			<text type="string" length="1" name="title_no_modify">
+				[DESC]: Kan ikke redigeres
+			</text>
+			<text type="string" length="1" name="title_loading">
+				[DESC]: indl&#230;ser...
+			</text>
+			<text type="string" length="1" name="title_not_worn">
+				[DESC]: ikke b&#229;ret
+			</text>
+			<text type="string" length="1" name="path">
+				Fundet i [PATH]
+			</text>
+			<text type="string" length="1" name="not worn instructions">
+				Put on a new shape by dragging one from your inventory
+to your avatar. Alternately, you create a new one from
+scratch and wear it.
+			</text>
+			<text type="string" length="1" name="no modify instructions">
+				Du har ikke rettigheder til at redigere denne del.
+			</text>
+			<button label="Lav Ny Figur" label_selected="Lav Ny Figur" name="Create New" />
+			<button label="Aftag" label_selected="Aftag" name="Take Off" />
+			<button label="Gem" label_selected="Gem" name="Save" />
+			<button label="Gem Som" label_selected="Gem Som" name="Save As" />
+		</panel>
+		<panel label="Hud" name="Skin">
+			<button label="Hudfarve" label_selected="Hudfarve" name="Skin Color" />
+			<button label="Detaljer" label_selected="Detaljer" name="Face Detail" />
+			<button label="Sminke" label_selected="Sminke" name="Makeup" />
+			<button label="Krops Detaljer" label_selected="Krops Detaljer" name="Body Detail" />
+			<text type="string" length="1" name="title">
+				[DESC]
+			</text>
+			<text type="string" length="1" name="title_no_modify">
+				[DESC]: Kan ikke redigeres
+			</text>
+			<text type="string" length="1" name="title_loading">
+				[DESC]: indl&#230;ser...
+			</text>
+			<text type="string" length="1" name="title_not_worn">
+				[DESC]: ikke b&#229;ret
+			</text>
+			<text type="string" length="1" name="path">
+				Fundet i [PATH]
+			</text>
+			<text type="string" length="1" name="not worn instructions">
+				Put on a new skin by dragging one from your inventory
+to your avatar. Alternately, you create a new one from
+scratch and wear it.
+			</text>
+			<text type="string" length="1" name="no modify instructions">
+				Du har ikke rettigheder til at redigere denne del.
+			</text>
+			<texture_picker label="Hoved Tatoveringer" name="Hoved Tatoveringer" tool_tip="Click to choose a picture" />
+			<texture_picker label="&#216;vre Tatoveringer" name="&#216;vre Tatoveringer" tool_tip="Click to choose a picture" />
+			<texture_picker label="Nedre Tatoveringer" name="Nedre Tatoveringer" tool_tip="Click to choose a picture" />
+			<button label="Tilf&#230;ldig" label_selected="Tilf&#230;ldig" name="Randomize" />
+			<button label="Lav Ny Hud" label_selected="Lav Ny Hud" name="Create New" />
+			<button label="Aftag" label_selected="Aftag" name="Take Off" />
+			<button label="Gem" label_selected="Gem" name="Save" />
+			<button label="Gem Som" label_selected="Gem Som" name="Save As" />
+			<button label="Annuller" label_selected="Annuller" name="Revert" />
+		</panel>
+		<panel label="H&#229;r" name="Hair">
+			<button label="Farve" label_selected="Farve" name="Color" />
+			<button label="Stil" label_selected="Stil" name="Style" />
+			<button label="&#216;jenbryn" label_selected="&#216;jenbryn" name="Eyebrows" />
+			<button label="Sk&#230;g" label_selected="Sk&#230;g" name="Facial" />
+			<text type="string" length="1" name="title">
+				[DESC]
+			</text>
+			<text type="string" length="1" name="title_no_modify">
+				[DESC]: Kan ikke redigeres
+			</text>
+			<text type="string" length="1" name="title_loading">
+				[DESC]: indl&#230;ser...
+			</text>
+			<text type="string" length="1" name="title_not_worn">
+				[DESC]: ikke b&#229;ret
+			</text>
+			<text type="string" length="1" name="path">
+				Fundet i [PATH]
+			</text>
+			<text type="string" length="1" name="not worn instructions">
+				Put on a new hair by dragging one from your inventory
+to your avatar. Alternately, you create a new one from
+scratch and wear it.
+			</text>
+			<text type="string" length="1" name="no modify instructions">
+				Du har ikke rettigheder til at redigere denne del.
+			</text>
+			<texture_picker label="Tekstur" name="Tekstur" tool_tip="Klik for at v&#230;lge billede" />
+			<button label="Tilf&#230;ldig" label_selected="Tilf&#230;ldig" name="Randomize" />
+			<button label="Lav Nyt H&#229;r" label_selected="Lav Nyt H&#229;r" name="Create New" />
+			<button label="Aftag" label_selected="Aftag" name="Take Off" />
+			<button label="Gem" label_selected="Gem" name="Save" />
+			<button label="Gem Som" label_selected="Gem Som" name="Save As" />
+			<button label="Annuller" label_selected="Annuller" name="Revert" />
+		</panel>
+		<panel label="&#216;jne" name="Eyes">
+			<text type="string" length="1" name="title">
+				[DESC]
+			</text>
+			<text type="string" length="1" name="title_no_modify">
+				[DESC]: Kan ikke redigeres
+			</text>
+			<text type="string" length="1" name="title_loading">
+				[DESC]: indl&#230;ser...
+			</text>
+			<text type="string" length="1" name="title_not_worn">
+				[DESC]: ikke b&#229;ret
+			</text>
+			<text type="string" length="1" name="path">
+				Fundet i [PATH]
+			</text>
+			<text type="string" length="1" name="not worn instructions">
+				Put on a new eyes by dragging one from your inventory
+to your avatar. Alternately, you create a new one from
+scratch and wear it.
+			</text>
+			<text type="string" length="1" name="no modify instructions">
+				Du har ikke rettigheder til at redigere denne del.
+			</text>
+			<texture_picker label="Iris" name="Iris" tool_tip="Click to choose a picture" />
+			<button label="Tilf&#230;ldig" label_selected="Tilf&#230;ldig" name="Randomize" />
+			<button label="Lav Nye &#216;jne" label_selected="Lav Nye &#216;jne" name="Create New" />
+			<button label="Aftag" label_selected="Aftag" name="Take Off" />
+			<button label="Gem" label_selected="Gem" name="Save" />
+			<button label="Gem Som" label_selected="Gem Som" name="Save As" />
+			<button label="Annuller" label_selected="Annuller" name="Revert" />
+		</panel>
+		<panel label="T&#248;j" name="clothes_placeholder" />
+		<panel label="Tr&#248;je" name="Shirt">
+			<texture_picker label="Stof" name="Fabric" tool_tip="Klik for at v&#230;lge et billede" />
+			<color_swatch label="Farve" name="Farve" tool_tip="Klik her for at v&#230;lge farve" />
+			<button label="Lav Ny Tr&#248;je" label_selected="Lav Ny Tr&#248;je" name="Create New" />
+			<button label="Aftag" label_selected="Aftag" name="Take Off" />
+			<button label="Gem" label_selected="Gem" name="Save" />
+			<button label="Gem Som" label_selected="Gem Som" name="Save As" />
+			<button label="Annuller" label_selected="Annuller" name="Revert" />
+			<text type="string" length="1" name="title">
+				[DESC]
+			</text>
+			<text type="string" length="1" name="title_no_modify">
+				[DESC]: Kan ikke redigeres
+			</text>
+			<text type="string" length="1" name="title_loading">
+				[DESC]: indl&#230;ser...
+			</text>
+			<text type="string" length="1" name="title_not_worn">
+				[DESC]: ikke b&#229;ret
+			</text>
+			<text type="string" length="1" name="path">
+				Fundet i [PATH]
+			</text>
+			<text type="string" length="1" name="not worn instructions">
+				Put on a new shirt by dragging one from your inventory
+to your avatar. Alternately, you create a new one from
+scratch and wear it.
+			</text>
+			<text type="string" length="1" name="no modify instructions">
+				Du har ikke rettigheder til at redigere denne del.
+			</text>
+		</panel>
+		<panel label="Bukser" name="Pants">
+			<texture_picker label="Stof" name="Stof" tool_tip="Klik for at v&#230;lge et billede" />
+			<color_swatch label="Farve" name="Farve" tool_tip="Klik her for at v&#230;lge farve" />
+			<button label="Lav Nye Bukser" label_selected="Lav Nye Bukser" name="Create New" />
+			<button label="Aftag" label_selected="Aftag" name="Take Off" />
+			<button label="Gem" label_selected="Gem" name="Save" />
+			<button label="Gem Som" label_selected="Gem Som" name="Save As" />
+			<button label="Annuller" label_selected="Annuller" name="Revert" />
+			<text type="string" length="1" name="title">
+				[DESC]
+			</text>
+			<text type="string" length="1" name="title_no_modify">
+				[DESC]: Kan ikke redigeres
+			</text>
+			<text type="string" length="1" name="title_loading">
+				[DESC]: indl&#230;ser...
+			</text>
+			<text type="string" length="1" name="title_not_worn">
+				[DESC]: ikke b&#229;ret
+			</text>
+			<text type="string" length="1" name="path">
+				Fundet i [PATH]
+			</text>
+			<text type="string" length="1" name="not worn instructions">
+				Put on a new pants by dragging one from your inventory
+to your avatar. Alternately, you create a new one from
+scratch and wear it.
+			</text>
+			<text type="string" length="1" name="no modify instructions">
+				Du har ikke rettigheder til at redigere denne del.
+			</text>
+		</panel>
+		<panel label="Sko" name="Shoes">
+			<text type="string" length="1" name="title">
+				[DESC]
+			</text>
+			<text type="string" length="1" name="title_no_modify">
+				[DESC]: Kan ikke redigeres
+			</text>
+			<text type="string" length="1" name="title_loading">
+				[DESC]: indl&#230;ser...
+			</text>
+			<text type="string" length="1" name="title_not_worn">
+				[DESC]: ikke b&#229;ret
+			</text>
+			<text type="string" length="1" name="path">
+				Fundet i [PATH]
+			</text>
+			<text type="string" length="1" name="not worn instructions">
+				Put on a new shoes by dragging one from your inventory
+to your avatar. Alternately, you create a new one from
+scratch and wear it.
+			</text>
+			<text type="string" length="1" name="no modify instructions">
+				Du har ikke rettigheder til at redigere denne del.
+			</text>
+			<texture_picker label="Stof" name="Fabric" tool_tip="Klik for at v&#230;lge et billede" />
+			<color_swatch label="Farve" name="Farve" tool_tip="Klik her for at v&#230;lge farve" />
+			<button label="Lav Nye Sko" label_selected="Lav Nye Sko" name="Create New" />
+			<button label="Aftag" label_selected="Aftag" name="Take Off" />
+			<button label="Gem" label_selected="Gem" name="Save" />
+			<button label="Gem Som" label_selected="Gem Som" name="Save As" />
+			<button label="Annuller" label_selected="Annuller" name="Revert" />
+		</panel>
+		<panel label="Sokker" name="Socks">
+			<text type="string" length="1" name="title">
+				[DESC]
+			</text>
+			<text type="string" length="1" name="title_no_modify">
+				[DESC]: Kan ikke redigeres
+			</text>
+			<text type="string" length="1" name="title_loading">
+				[DESC]: indl&#230;&#230;ser...
+			</text>
+			<text type="string" length="1" name="title_not_worn">
+				[DESC]: ikke b&#229;ret
+			</text>
+			<text type="string" length="1" name="path">
+				Fundet i [PATH]
+			</text>
+			<text type="string" length="1" name="not worn instructions">
+				Put on a new socks by dragging one from your inventory
+to your avatar. Alternately, you create a new one from
+scratch and wear it.
+			</text>
+			<text type="string" length="1" name="no modify instructions">
+				Du har ikke rettigheder til at redigere denne del.
+			</text>
+			<texture_picker label="Stof" name="Fabric" tool_tip="Klik for at v&#230;lge et billede" />
+			<color_swatch label="Farve" name="Farve" tool_tip="Klik her for at v&#230;lge farve" />
+			<button label="Lav Nye Sokker" label_selected="Lav Nye Sokker" name="Create New" />
+			<button label="Aftag" label_selected="Aftag" name="Take Off" />
+			<button label="Gem" label_selected="Gem" name="Save" />
+			<button label="Gem Som" label_selected="Gem Som" name="Save As" />
+			<button label="Annuller" label_selected="Annuller" name="Revert" />
+		</panel>
+		<panel label="Jakke" name="Jacket">
+			<text type="string" length="1" name="title">
+				[DESC]
+			</text>
+			<text type="string" length="1" name="title_no_modify">
+				[DESC]: Kan ikke redigeres
+			</text>
+			<text type="string" length="1" name="title_loading">
+				[DESC]: indl&#230;ser...
+			</text>
+			<text type="string" length="1" name="title_not_worn">
+				[DESC]: ikke b&#229;ret
+			</text>
+			<text type="string" length="1" name="path">
+				Fundet i [PATH]
+			</text>
+			<text type="string" length="1" name="not worn instructions">
+				Put on a new jacket by dragging one from your inventory
+to your avatar. Alternately, you create a new one from
+scratch and wear it.
+			</text>
+			<text type="string" length="1" name="no modify instructions">
+				Du har ikke rettigheder til at redigere denne del.
+			</text>
+			<texture_picker label="&#216;vre Stof" name="&#216;vre Stof" tool_tip="Klik for at v&#230;lge et billede" />
+			<texture_picker label="Nedre Stof" name="Nedre Stof" tool_tip="Klik for at v&#230;lge et billede" />
+			<color_swatch label="Farve" name="Farve" tool_tip="Klik her for at v&#230;lge farve" />
+			<button label="Lav Ny Jakke" label_selected="Lav Ny Jakke" name="Create New" />
+			<button label="Aftag" label_selected="Aftag" name="Take Off" />
+			<button label="Gem" label_selected="Gem" name="Save" />
+			<button label="Gem Som" label_selected="Gem Som" name="Save As" />
+			<button label="Annuller" label_selected="Annuller" name="Revert" />
+		</panel>
+		<panel label="Handsker" name="Gloves">
+			<text type="string" length="1" name="title">
+				[DESC]
+			</text>
+			<text type="string" length="1" name="title_no_modify">
+				[DESC]: Kan ikke redigeres
+			</text>
+			<text type="string" length="1" name="title_loading">
+				[DESC]: indl&#230;ser...
+			</text>
+			<text type="string" length="1" name="title_not_worn">
+				[DESC]: ikke b&#229;ret
+			</text>
+			<text type="string" length="1" name="path">
+				Fundet i [PATH]
+			</text>
+			<text type="string" length="1" name="not worn instructions">
+				Put on a new gloves by dragging one from your inventory
+to your avatar. Alternately, you create a new one from
+scratch and wear it.
+			</text>
+			<text type="string" length="1" name="no modify instructions">
+				Du har ikke rettigheder til at redigere denne del.
+			</text>
+			<texture_picker label="Stof" name="Fabric" tool_tip="Klik for at v&#230;lge et billede" />
+			<color_swatch label="Farve" name="Farve" tool_tip="Klik her for at v&#230;lge farve" />
+			<button label="Lav Nye Handsker" label_selected="Create New Gloves" name="Create New" />
+			<button label="Aftag" label_selected="Aftag" name="Take Off" />
+			<button label="Gem" label_selected="Gem" name="Save" />
+			<button label="Gem Som" label_selected="Gem Som" name="Save As" />
+			<button label="Annuller" label_selected="Annuller" name="Revert" />
+		</panel>
+		<panel label="Undertr&#248;je" name="Undershirt">
+			<text type="string" length="1" name="title">
+				[DESC]
+			</text>
+			<text type="string" length="1" name="title_no_modify">
+				[DESC]: Kan ikke redigeres
+			</text>
+			<text type="string" length="1" name="title_loading">
+				[DESC]: indl&#230;ser...
+			</text>
+			<text type="string" length="1" name="title_not_worn">
+				[DESC]: ikke b&#229;ret
+			</text>
+			<text type="string" length="1" name="path">
+				Fundet i [PATH]
+			</text>
+			<text type="string" length="1" name="not worn instructions">
+				Put on a new undershirt by dragging one from your inventory
+to your avatar. Alternately, you create a new one from
+scratch and wear it.
+			</text>
+			<text type="string" length="1" name="no modify instructions">
+				Du har ikke rettigheder til at redigere denne del.
+			</text>
+			<texture_picker label="Stof" name="Fabric" tool_tip="Klik for at v&#230;lge et billede" />
+			<color_swatch label="Farve" name="Farve" tool_tip="Klik her for at v&#230;lge farve" />
+			<button label="Lav Ny Undertr&#248;je" label_selected="Lav Ny Undertr&#248;je"
+			     name="Create New" />
+			<button label="Aftag" label_selected="Aftag" name="Take Off" />
+			<button label="Gem" label_selected="Gem" name="Save" />
+			<button label="Gem Som" label_selected="Gem Som" name="Save As" />
+			<button label="Annuller" label_selected="Annuller" name="Revert" />
+		</panel>
+		<panel label="Underbukser" name="Underpants">
+			<text type="string" length="1" name="title">
+				[DESC]
+			</text>
+			<text type="string" length="1" name="title_no_modify">
+				[DESC]: Kan ikke redigeres
+			</text>
+			<text type="string" length="1" name="title_loading">
+				[DESC]: indl&#230;ser...
+			</text>
+			<text type="string" length="1" name="title_not_worn">
+				[DESC]: ikke b&#229;ret
+			</text>
+			<text type="string" length="1" name="path">
+				Fundet i [PATH]
+			</text>
+			<text type="string" length="1" name="not worn instructions">
+				Put on a new underpants by dragging one from your inventory
+to your avatar. Alternately, you create a new one from
+scratch and wear it.
+			</text>
+			<text type="string" length="1" name="no modify instructions">
+				Du har ikke rettigheder til at redigere denne del.
+			</text>
+			<texture_picker label="Stof" name="Fabric" tool_tip="Klik for at v&#230;lge et billede" />
+			<color_swatch label="Farve" name="Farve" tool_tip="Klik her for at v&#230;lge farve" />
+			<button label="Lav Nye Underbukser" label_selected="Lav Nye Underbukser"
+			     name="Create New" />
+			<button label="Aftag" label_selected="Aftag" name="Take Off" />
+			<button label="Gem" label_selected="Gem" name="Save" />
+			<button label="Gem Som" label_selected="Gem Som" name="Save As" />
+			<button label="Annuller" label_selected="Annuller" name="Revert" />
+		</panel>
+		<panel label="Nederdel" name="Skirt">
+			<text type="string" length="1" name="title">
+				[DESC]
+			</text>
+			<text type="string" length="1" name="title_no_modify">
+				[DESC]: Kan ikke redigeres
+			</text>
+			<text type="string" length="1" name="title_loading">
+				[DESC]: indl&#230;ser...
+			</text>
+			<text type="string" length="1" name="title_not_worn">
+				[DESC]: ikke b&#229;ret
+			</text>
+			<text type="string" length="1" name="path">
+				Fundet i [PATH]
+			</text>
+			<text type="string" length="1" name="not worn instructions">
+				Put on a new skirt by dragging one from your inventory
+to your avatar. Alternately, you create a new one from
+scratch and wear it.
+			</text>
+			<text type="string" length="1" name="no modify instructions">
+				Du har ikke rettigheder til at redigere denne del.
+			</text>
+			<texture_picker label="Stof" name="Fabric" tool_tip="Klik for at v&#230;lge et billede" />
+			<color_swatch label="Farve" name="Farve" tool_tip="Klik her for at v&#230;lge farve" />
+			<button label="Lav Ny Nederdel" label_selected="Lav Ny Nederdel" name="Create New" />
+			<button label="Aftag" label_selected="Aftag" name="Take Off" />
+			<button label="Gem" label_selected="Gem" name="Save" />
+			<button label="Gem Som" label_selected="Gem Som" name="Save As" />
+			<button label="Annuller" label_selected="Annuller" name="Revert" />
+		</panel>
+	</tab_container>
+	<button label="Luk" label_selected="Luk" name="Close" />
+	<button label="Gem Alt" label_selected="Gem Alt" name="Save All" />
+	<button label="Lav S&#230;t" label_selected="Lav S&#230;t" name="Make Outfit" />
+</floater>

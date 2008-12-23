@@ -1,4 +1,6 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floater_about" title="Sobre o Second Life">
-
+	<string name="you_are_at">
+		Você está em [POSITION]
+	</string>
 </floater>

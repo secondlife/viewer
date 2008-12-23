@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Ogólne" name="general_panel">
+	<radio_group name="default_start_location">
+		<radio_item name="MyHome" tool_tip="Domyślnie loguj mnie do mojego miejsca startu.">
+			Miejsce Startu
+		</radio_item>
+		<radio_item name="MyLastLocation" tool_tip="Domyślnie loguj mnie do ostatnio odwiedzonego miejsca.">
+			Ostatnie Miejsce
+		</radio_item>
+	</radio_group>
+	<check_box label="Pokaż Miejsce Startu na Ekranie Logowania" name="show_location_checkbox"/>
+	<combo_box name="fade_out_combobox">
+		<combo_item name="Never">
+			Nigdy
+		</combo_item>
+		<combo_item name="Show Temporarily">
+			Tymczasowo
+		</combo_item>
+		<combo_item name="Always">
+			Zawsze
+		</combo_item>
+	</combo_box>
+	<check_box label="Używaj Małych Imion Awatarów" name="small_avatar_names_checkbox"/>
+	<check_box label="Nie Wyświetlaj Mojego Imienia" name="show_my_name_checkbox"/>
+	<text length="1" name="group_titles_textbox" type="string">
+		Tytuły Grupowe:
+	</text>
+	<check_box label="Nie Wyświetlaj Żadnych Tytułów Grupowych" name="show_all_title_checkbox"/>
+	<check_box label="Nie Wyświetlaj Mojego Tytułu Grupowego" name="show_my_title_checkbox"/>
+	<color_swatch label="" name="effect_color_swatch" tool_tip="Selekcja koloru"/>
+	<text length="1" name="UI Size:" type="string">
+		Wymiar Interfejsu (UI):
+	</text>
+	<slider name="ui_scale_slider"/>
+	<check_box label="Używaj Skali Nizależnej od Rozdzielczości" name="ui_auto_scale"/>
+	<spinner label="Tryb Nieobecności:" name="afk_timeout_spinner"/>
+	<check_box label="Obracaj Mini-Mapę" name="rotate_mini_map_checkbox"/>
+	<check_box label="Powiadamiaj o Wydatkach i Zarobkach (L$)" name="notify_money_change_checkbox"/>
+	<check_box label="Używaj Domyślnej Selekcji Koloru" name="use_system_color_picker_checkbox" tool_tip="Używaj domyślnej / systemowej selekcji koloru"/>
+	<check_box label="Pokaż Wyszukiwarkę" name="show_search_panel" tool_tip="Pokaż wbudowaną wyszukiwarkę"/>
+	<text length="1" name="start_location_textbox" type="string">
+		Miejsce Startu:
+	</text>
+	<text length="1" name="show_names_textbox" type="string">
+		Imiona:
+	</text>
+	<text length="1" name="effects_color_textbox" type="string">
+		Kolor dla Moich Efektów:
+	</text>
+	<text length="1" name="seconds_textbox" type="string">
+		sekund
+	</text>
+	<text length="1" name="crash_report_textbox" type="string">
+		Zgłaszanie Błędów:
+	</text>
+	<text length="1" name="language_textbox" type="string">
+		Język:
+	</text>
+	<text length="1" name="language_textbox2" type="string">
+		(Restart wymagany)
+	</text>
+	<string name="region_name_prompt">
+		&lt;Wpisz Region&gt;
+	</string>
+	<combo_box name="crash_behavior_combobox">
+		<combo_item length="1" name="Askbeforesending" type="string">
+			Pytaj przed wysłaniem
+		</combo_item>
+		<combo_item length="1" name="Alwayssend" type="string">
+			Zawsze wysyłaj
+		</combo_item>
+		<combo_item length="1" name="Neversend" type="string">
+			Nigdy nie wysyłaj
+		</combo_item>
+	</combo_box>
+	<combo_box name="language_combobox">
+		<combo_item length="1" name="System Default Language" type="string">
+			Domyślny
+		</combo_item>
+		<combo_item length="1" name="English" type="string">
+			English (Angielski)
+		</combo_item>
+		<combo_item length="1" name="Chinese" type="string">
+			汉语/漢語 (Chiński) - Beta
+		</combo_item>
+		<combo_item length="1" name="Deutsch(German)" type="string">
+			Deutsch (Niemiecki) - Beta
+		</combo_item>
+		<combo_item length="1" name="French" type="string">
+			Français (Francuski) - Beta
+		</combo_item>
+		<combo_item length="1" name="(Japanese)" type="string">
+			日本語 (Japoński) - Beta
+		</combo_item>
+		<combo_item length="1" name="(Korean)" type="string">
+			한국어 (Koreański) - Beta
+		</combo_item>
+		<combo_item length="1" name="Polish" type="string">
+			Polski - Beta
+		</combo_item>
+		<combo_item length="1" name="Portugese" type="string">
+			Portugués (Portugalski) - Beta
+		</combo_item>
+		<combo_item length="1" name="Spanish" type="string">
+			Español (Hiszpański) - Beta
+		</combo_item>
+	</combo_box>
+	<check_box label="Język znany publicznie" name="language_is_public" tool_tip="Pozwala obiektom w świecie poznać Twój wybór język."/>
+</panel>

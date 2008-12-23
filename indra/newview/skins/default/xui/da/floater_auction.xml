@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="floater_auction" title="Start Linden Jord Salg">
+	<check_box label="Vis også gult jord hegn" name="fence_check" />
+	<button label="Billede" label_selected="Billede" name="snapshot_btn" />
+	<button label="OK" label_selected="OK" name="ok_btn" />
+	<string name="already for sale">
+		Du kan ikke sætte jord på auktion der allerede er sat til salg.
+	</string>
+</floater>

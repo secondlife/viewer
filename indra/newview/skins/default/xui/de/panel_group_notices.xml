@@ -6,7 +6,7 @@ Mitglieder auf dem Laufenden zu halten und
 Objekte im Anhang zu versenden. Mitteilungen werden
 nur an Mitglieder mit einer entsprechenden Rolle 
 gesendet. Mitteilungen können unter 
-&apos;Allgemein&apos; ausgeschaltet werden.
+„Allgemein“ ausgeschaltet werden.
 	</text>
 	<text name="no_notices_text">
 		Keine älteren Mitteilungen.
@@ -17,7 +17,7 @@ gesendet. Mitteilungen können unter
 	</text>
 	<text name="lbl2">
 		Mitteilungen werden 14 Tage lang aufbewahrt. Klicken Sie auf eine Mitteilung,
-um sie anzuzeigen. Klicken Sie auf &apos;Aktualisieren&apos;, um neue Mitteilungen zu suchen.
+um sie anzuzeigen. Klicken Sie auf „Aktualisieren“, um neue Mitteilungen zu suchen.
 Eine Mitteilungsliste speichert maximal 200 Mitteilungen pro Gruppe täglich.
 	</text>
 	<scroll_list name="notice_list">
@@ -63,7 +63,7 @@ und transferierbar sein. Ordner können nicht gesendet werden.
 			Archivierte Mitteilung
 		</text>
 		<text name="lbl2">
-			Klicken Sie zum Senden einer Mitteilung auf &apos;Neue Mitteilung&apos;.
+			Klicken Sie zum Senden einer Mitteilung auf „Neue Mitteilung“.
 		</text>
 		<text name="lbl3">
 			Betreff:

@@ -3,9 +3,9 @@
 	<text name="media_label">
 		メディア URL：
 	</text>
-	<button label="OK" name="ok_btn" />
-	<button label="キャンセル" name="cancel_btn" />
-	<button label="キャンセル" name="cancel_btn2" />
+	<combo_box left="100" name="media_entry" width="360" />
+	<button label="OK" name="ok_btn" width="78"/>
+	<button label="キャンセル" name="cancel_btn" width="80"/>
 	<button label="クリア" name="clear_btn" />
 	<text name="loading_label">
 		ロード中．．．

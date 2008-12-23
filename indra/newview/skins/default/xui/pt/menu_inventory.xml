@@ -29,7 +29,7 @@
 		<menu_item_call label="Novo cabelo" name="New Hair" />
 		<menu_item_call label="Novos olhos" name="New Eyes" />
 	</menu>
-	<menu_item_call label="Abrir" name="Landmark Open" />
+	<menu_item_call label="Teletransporte" name="Landmark Open"/>
 	<menu_item_call label="Abrir" name="Animation Open" />
 	<menu_item_call label="Abrir" name="Sound Open" />
 	<menu_item_call label="Remover item." name="Purge Item" />
@@ -48,7 +48,7 @@
 	<menu_item_call label="Contatos IM Online na pasta." name="IM Online Contacts In Folder" />
 	<menu_item_call label="Todos contantos MI na pasta." name="IM All Contacts In Folder" />
 	<menu_item_call label="Executar" name="Sound Play" />
-	<menu_item_call label="Teleportar para Landmark" name="Teleport To Landmark" />
+	<menu_item_call label="Sobre as Landmarks" name="Teleport To Landmark"/>
 	<menu_item_call label="Executar in World" name="Animation Play" />
 	<menu_item_call label="Executar localmente." name="Animation Audition" />
 	<menu_item_call label="Mandar Mensagem Instantânea" name="Send Instant Message" />

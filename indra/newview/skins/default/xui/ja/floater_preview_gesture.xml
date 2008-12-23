@@ -22,7 +22,7 @@
 	<text name="key_label">
 		ショートカット・キー：
 	</text>
-	<combo_box label="なし" name="modifier_combo"/>
+	<combo_box label="なし" name="modifier_combo" left="160"/>
 	<combo_box label="なし" name="key_combo"/>
 	<text name="library_label">
 		ライブラリ：
@@ -30,12 +30,14 @@
 	<text name="steps_label">
 		手順：
 	</text>
+	<!-- Revert translations as interim fix to VWR-9985 while the code is not properly internationalized
 	<scroll_list name="library_list">
 		アニメーション
 サウンド
 チャット
 待機
 	</scroll_list>
+	-->
 	<button label="追加＞＞" name="add_btn"/>
 	<button label="上に移動" name="up_btn"/>
 	<button label="下に移動" name="down_btn"/>
@@ -55,7 +57,7 @@
 	</radio_group>
 	<check_box label="アニメーションが完了するまで" name="wait_anim_check"/>
 	<check_box label="秒表示の時間" name="wait_time_check"/>
-	<check_box label="アクティブ" name="active_check" tool_tip="アクティブ・ジェスチャーは、トリガー・フレーズを使うか、またはホット・キーを押すことによってトリガーできます。  1つのショートカット・キーに2つ以上のジェスチャーが割り当てられた場合、そのジェスチャーは両方ともアクティブではなくなります。"/>
+	<check_box label="アクティブ" left="120" name="active_check" tool_tip="アクティブ・ジェスチャーは、トリガー・フレーズを使うか、またはホット・キーを押すことによってトリガーできます。  1つのショートカット・キーに2つ以上のジェスチャーが割り当てられた場合、そのジェスチャーは両方ともアクティブではなくなります。"/>
 	<button label="プレビュー" name="preview_btn"/>
 	<button label="保存" name="save_btn"/>
 </floater>

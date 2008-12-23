@@ -316,7 +316,7 @@ public:
 	// If firstonly is FALSE, returns the AND of all apply() calls.
 	// Else returns TRUE immediately if any apply() call succeeds (i.e. OR with early exit)
 	bool applyToRootObjects(LLSelectedObjectFunctor* func, bool firstonly = false);
-	bool applyToObjects(LLSelectedObjectFunctor* func, bool firstonly = false);
+	bool applyToObjects(LLSelectedObjectFunctor* func);
 	bool applyToTEs(LLSelectedTEFunctor* func, bool firstonly = false);
 	bool applyToRootNodes(LLSelectedNodeFunctor* func, bool firstonly = false);
 	bool applyToNodes(LLSelectedNodeFunctor* func, bool firstonly = false);

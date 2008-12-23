@@ -154,7 +154,7 @@ void LLImageGL::destroyGL(BOOL save_state)
 		LLImageGL* glimage = *iter;
 		if (glimage->mTexName && glimage->mComponents)
 		{
-			if (save_state)
+			if (save_state && glimage->isInitialized())
 			{
 				glimage->mSaveData = new LLImageRaw;
 				glimage->readBackRaw(glimage->mCurrentDiscardLevel, glimage->mSaveData, false);
@@ -748,7 +748,7 @@ BOOL LLImageGL::setSubImage(const LLImageRaw* imageraw, S32 x_pos, S32 y_pos, S3
 // Copy sub image from frame buffer
 BOOL LLImageGL::setSubImageFromFrameBuffer(S32 fb_x, S32 fb_y, S32 x_pos, S32 y_pos, S32 width, S32 height)
 {
-	if (gGL.getTexUnit(0)->bind(this))
+	if (gGL.getTexUnit(0)->bind(this, true))
 	{
 		glCopyTexSubImage2D(GL_TEXTURE_2D, 0, fb_x, fb_y, x_pos, y_pos, width, height);
 		mInitialized = true;

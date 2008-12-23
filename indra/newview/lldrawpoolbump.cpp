@@ -445,7 +445,6 @@ void LLDrawPoolBump::endShiny(bool invisible)
 			gGL.getTexUnit(cube_channel)->setTextureBlendType(LLTexUnit::TB_MULT);
 		}
 	}
-	
 	gGL.getTexUnit(diffuse_channel)->disable();
 	gGL.getTexUnit(cube_channel)->disable();
 

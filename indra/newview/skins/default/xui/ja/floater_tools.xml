@@ -4,7 +4,7 @@
 	<text name="tool label">
 		フォーカス
 	</text>
-	<button label="" label_selected="" name="button move" tool_tip="動く" />
+	<button label="" label_selected="" name="button move" tool_tip="動かす" />
 	<text name="tool label2">
 		移動
 	</text>
@@ -137,7 +137,7 @@
 			<text name="perm_modify">
 				このオブジェクトは修正できます。
 			</text>
-			<check_box label="グループ分担" name="checkbox share with group"
+			<check_box label="グループで共同管理" name="checkbox share with group"
 			     tool_tip="グループ・メンバーに対して移動、修正、コピー、削除を許可" />
 			<text name="text deed continued">
 				譲渡...
@@ -253,7 +253,7 @@
 		</panel>
 		<panel label="オブジェクト" name="Object">
 			<text name="select_single">
-				パラメーターを編集するには、基本要素を1つだけ選択してください。
+				プリムを1つだけ選択して編集してください
 			</text>
 			<text name="edit_object">
 				オブジェクトのパラメーターを編集：
@@ -289,19 +289,19 @@
 			</text>
 			<combo_box name="material">
 				<combo_item name="Stone">
-					石
+					石材
 				</combo_item>
 				<combo_item name="Metal">
 					金属
 				</combo_item>
 				<combo_item name="Glass">
-					グラス
+					ガラス
 				</combo_item>
 				<combo_item name="Wood">
-					木
+					木材
 				</combo_item>
 				<combo_item name="Flesh">
-					肉体
+					肌
 				</combo_item>
 				<combo_item name="Plastic">
 					プラスチック
@@ -336,7 +336,7 @@
 					リング
 				</combo_item>
 				<combo_item name="Sculpted">
-					変形済み
+					スカルプト
 				</combo_item>
 			</combo_box>
 			<text name="text cut">
@@ -345,13 +345,13 @@
 			<spinner label="B" name="cut begin" />
 			<spinner label="E" name="cut end" />
 			<text name="text hollow">
-				中空
+				中空(空洞)
 			</text>
 			<text name="text skew">
 				傾斜
 			</text>
 			<text name="Hollow Shape">
-				中空の形
+				中空（空洞）の形
 			</text>
 			<combo_box name="hole">
 				<combo_item name="Default">
@@ -386,10 +386,10 @@
 			<spinner label="X" name="Shear X" />
 			<spinner label="Y" name="Shear Y" />
 			<text name="advanced_cut">
-				プロフィール・カットの始点と終点
+				ﾌﾟﾛﾌｨｰﾙ･ｶｯﾄの始点と終点
 			</text>
 			<text name="advanced_dimple">
-				さざなみの始点と終点
+				くぼみの始点と終点
 			</text>
 			<spinner label="B" name="Path Limit Begin" />
 			<spinner label="E" name="Path Limit End" />
@@ -402,9 +402,9 @@
 				半径
 			</text>
 			<text name="text revolutions">
-				レボリューション
+				回転体
 			</text>
-			<texture_picker label="変形テクスチャー" name="sculpt texture control"
+			<texture_picker label="スカルプトテクスチャー" name="sculpt texture control"
 			     tool_tip="クリックして写真を選択してください。" />
 			<check_box label="ミラー" name="sculpt mirror control"
 			     tool_tip="スカルプトされたプリムをX軸上で反転" />
@@ -433,7 +433,7 @@
 		</panel>
 		<panel label="特徴" name="Features">
 			<text name="select_single">
-				特徴を編集するには、基本要素を1つだけ選択してください。
+				プリムを1つだけ選択して編集してください
 			</text>
 			<text name="edit_object">
 				オブジェクトの特徴を編集：
@@ -605,7 +605,7 @@
 		<button label="土地を放棄..." label_selected="土地を放棄..."
 		     name="button abandon land" />
 		<button label="再分割..." label_selected="再分割..." name="button subdivide land" />
-		<button label="参加する..." label_selected="参加する..."
+		<button label="統合する..." label_selected="統合する..."
 		     name="button join land" />
 		<button label="土地情報..." label_selected="土地情報..."
 		     name="button about land" />
@@ -623,7 +623,7 @@
 		土地をクリックし、ボタンを押したまま入力して修正変更
 	</text>
 	<text name="status_camera">
-		ビューをクリックし、ドラッグして変更
+		クリックしドラッグして視界を調整
 	</text>
 	<text name="status_grab">
 		ﾄﾞﾗｯｸﾞし移動､Ctrlで持上げ､Ctrl+Shiftでｽﾋﾟﾝ

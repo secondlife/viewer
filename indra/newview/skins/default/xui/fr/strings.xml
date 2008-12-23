@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <strings>
 	<string name="LoginInProgress">
 		La connexion à [APP_NAME] apparaît peut-être comme étant gelée. Veuillez patienter.
@@ -82,7 +82,7 @@
 		Toucher
 	</string>
 	<string name="TooltipFlagL$">
-		$L
+		L$
 	</string>
 	<string name="TooltipFlagDropInventory">
 		Laisser tomber l&apos;inventaire
@@ -100,7 +100,7 @@
 		Copie autorisée
 	</string>
 	<string name="TooltipForSaleL$">
-		À vendre : [AMOUNT] $L
+		À vendre : [AMOUNT] L$
 	</string>
 	<string name="TooltipForSaleMsg">
 		À vendre : [MESSAGE]
@@ -139,7 +139,7 @@
 		Notes de version
 	</string>
 	<string name="LoadingData">
-		Chargement en cours...
+		Chargement..
 	</string>
 	<string name="AvatarNameNobody">
 		(personne)
@@ -301,7 +301,7 @@
 		Non
 	</string>
 	<string name="anim_nyanya">
-		Na na na nère
+		Na na na na nère
 	</string>
 	<string name="anim_punch_onetwo">
 		Gauche-droite
@@ -403,15 +403,15 @@
 		Oui
 	</string>
 	<string name="texture_loading">
-		Chargement en cours...
+		Chargement...
 	</string>
 	<string name="worldmap_offline">
 		Hors ligne
 	</string>
 	<string name="whisper">
-		chuchotages :
+		chuchote :
 	</string>
 	<string name="shout">
-		cris :
+		crie :
 	</string>
 </strings>

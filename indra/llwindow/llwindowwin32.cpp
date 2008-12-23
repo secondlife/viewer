@@ -1559,7 +1559,13 @@ void LLWindowWin32::captureMouse()
 
 void LLWindowWin32::releaseMouse()
 {
+	// *NOTE:Mani ReleaseCapture will spawn new windows messages...
+	// which will in turn call our MainWindowProc. It therefore requires
+	// pausing *and more importantly resumption* of the mainlooptimeout...
+	// just like DispatchMessage below.
+	mCallbacks->handlePauseWatchdog(this);
 	ReleaseCapture();
+	mCallbacks->handleResumeWatchdog(this);
 }
 
 
