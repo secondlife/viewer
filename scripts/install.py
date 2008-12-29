@@ -80,6 +80,18 @@ from sets import Set as set, ImmutableSet as frozenset
 from indra.base import llsd
 from indra.util import helpformatter
 
+# *HACK: Necessary for python 2.3. Consider removing this code wart
+# after etch has deployed everywhere. 2008-12-23 Phoenix
+try:
+    sorted = sorted
+except NameError:
+    def sorted(in_list):
+        "Return a list which is a sorted copy of in_list."
+        # Copy the source to be more functional and side-effect free.
+        out_list = copy.copy(in_list)
+        out_list.sort()
+        return out_list
+
 class InstallFile(object):
     "This is just a handy way to throw around details on a file in memory."
     def __init__(self, pkgname, url, md5sum, cache_dir, platform_path):
@@ -309,7 +321,7 @@ class Installer(object):
 
     def list_installables(self):
         "Return a list of all known installables."
-        return self._installables.keys()
+        return sorted(self._installables.keys())
 
     def detail_installable(self, name):
         "Return a installable definition detail"
@@ -317,7 +329,7 @@ class Installer(object):
 
     def list_licenses(self):
         "Return a list of all known licenses."
-        return self._licenses.keys()
+        return sorted(self._licenses.keys())
 
     def detail_license(self, name):
         "Return a license definition detail"
@@ -325,7 +337,7 @@ class Installer(object):
 
     def list_installed(self):
         "Return a list of installed packages."
-        return self._installed.keys()
+        return sorted(self._installed.keys())
 
     def detail_installed(self, name):
         "Return file list for specific installed package."
