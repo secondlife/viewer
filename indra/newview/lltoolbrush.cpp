@@ -648,9 +648,9 @@ void LLToolBrushLand::alertNoTerraform(LLViewerRegion* regionp)
 {
 	if (!regionp) return;
 	
-	LLStringUtil::format_map_t args;
-	args["[REGION]"] = regionp->getName();
-	gViewerWindow->alertXml("RegionNoTerraforming", args);
+	LLSD args;
+	args["REGION"] = regionp->getName();
+	LLNotifications::instance().add("RegionNoTerraforming", args);
 
 }
 

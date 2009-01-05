@@ -98,17 +98,9 @@ LLFloaterDayCycle::~LLFloaterDayCycle()
 void LLFloaterDayCycle::onClickHelp(void* data)
 {
 	LLFloaterDayCycle* self = LLFloaterDayCycle::instance();
-	const std::string* xml_alert = (std::string*)data;
 
-	LLAlertDialog* dialogp = gViewerWindow->alertXml(*xml_alert);
-	if (dialogp)
-	{
-		LLFloater* root_floater = gFloaterView->getParentFloater(self);
-		if (root_floater)
-		{
-			root_floater->addDependentFloater(dialogp);
-		}
-	}
+	std::string xml_alert = *(std::string *) data;
+	LLNotifications::instance().add(self->contextualNotification(xml_alert));
 }
 
 void LLFloaterDayCycle::initHelpBtn(const std::string& name, const std::string& xml_alert)

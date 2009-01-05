@@ -113,8 +113,8 @@ private:
 	void			showCopyToInvDialog( LLInventoryItem* item );
 	void			showUnsavedAlertDialog( LLInventoryItem* item );
 
-	static void		onCopyToInvDialog( S32 option, void* userdata );
-	static void		onNotecardDialog( S32 option, void* userdata );
+	bool			onCopyToInvDialog(const LLSD& notification, const LLSD& response );
+	static bool		onNotecardDialog(const LLSD& notification, const LLSD& response );
 	
 	LLPointer<LLInventoryItem> mDragItem;
 	BOOL mDragItemSaved;

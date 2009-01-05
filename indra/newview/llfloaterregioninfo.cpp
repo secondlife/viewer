@@ -59,6 +59,7 @@
 #include "llfloatergroups.h"
 #include "llfloatertelehub.h"
 #include "llfloaterwindlight.h"
+#include "llinventorymodel.h"
 #include "lllineeditor.h"
 #include "llalertdialog.h"
 #include "llnamelistctrl.h"
@@ -540,8 +541,8 @@ void LLPanelRegionInfo::initHelpBtn(const std::string& name, const std::string& 
 // static
 void LLPanelRegionInfo::onClickHelp(void* data)
 {
-	const std::string* xml_alert = (std::string*)data;
-	gViewerWindow->alertXml(*xml_alert);
+	std::string* xml_alert = (std::string*)data;
+	LLNotifications::instance().add(*xml_alert);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -638,16 +639,17 @@ void LLPanelRegionGeneralInfo::onKickCommit(const std::vector<std::string>& name
 void LLPanelRegionGeneralInfo::onClickKickAll(void* userdata)
 {
 	llinfos << "LLPanelRegionGeneralInfo::onClickKickAll" << llendl;
-	gViewerWindow->alertXml("KickUsersFromRegion", onKickAllCommit, userdata);
+	LLNotifications::instance().add("KickUsersFromRegion", 
+									LLSD(), 
+									LLSD(), 
+									boost::bind(&LLPanelRegionGeneralInfo::onKickAllCommit, (LLPanelRegionGeneralInfo*)userdata, _1, _2));
 }
 
-// static
-void LLPanelRegionGeneralInfo::onKickAllCommit(S32 option, void* userdata)
+bool LLPanelRegionGeneralInfo::onKickAllCommit(const LLSD& notification, const LLSD& response)
 {
+	S32 option = LLNotification::getSelectedOption(notification, response);
 	if (option == 0)
 	{
-		LLPanelRegionGeneralInfo* self = (LLPanelRegionGeneralInfo*)userdata;
-		if(!self) return;
 		strings_t strings;
 		// [0] = our agent id
 		std::string buffer;
@@ -656,26 +658,29 @@ void LLPanelRegionGeneralInfo::onKickAllCommit(S32 option, void* userdata)
 
 		LLUUID invoice(LLFloaterRegionInfo::getLastInvoice());
 		// historical message name
-		self->sendEstateOwnerMessage(gMessageSystem, "teleporthomeallusers", invoice, strings);
+		sendEstateOwnerMessage(gMessageSystem, "teleporthomeallusers", invoice, strings);
 	}
+	return false;
 }
 
 // static
 void LLPanelRegionGeneralInfo::onClickMessage(void* userdata)
 {
 	llinfos << "LLPanelRegionGeneralInfo::onClickMessage" << llendl;
-	gViewerWindow->alertXmlEditText("MessageRegion", LLStringUtil::format_map_t(),
-									NULL, NULL,
-									onMessageCommit, userdata);
+	LLNotifications::instance().add("MessageRegion", 
+		LLSD(), 
+		LLSD(), 
+		boost::bind(&LLPanelRegionGeneralInfo::onMessageCommit, (LLPanelRegionGeneralInfo*)userdata, _1, _2));
 }
 
 // static
-void LLPanelRegionGeneralInfo::onMessageCommit(S32 option, const std::string& text, void* userdata)
+bool LLPanelRegionGeneralInfo::onMessageCommit(const LLSD& notification, const LLSD& response)
 {
-	if(option != 0) return;
-	if(text.empty()) return;
-	LLPanelRegionGeneralInfo* self = (LLPanelRegionGeneralInfo*)userdata;
-	if(!self) return;
+	if(LLNotification::getSelectedOption(notification, response) != 0) return false;
+
+	std::string text = response["message"].asString();
+	if (text.empty()) return false;
+
 	llinfos << "Message to everyone: " << text << llendl;
 	strings_t strings;
 	// [0] grid_x, unused here
@@ -693,7 +698,8 @@ void LLPanelRegionGeneralInfo::onMessageCommit(S32 option, const std::string& te
 	strings.push_back(strings_t::value_type(name));
 	strings.push_back(strings_t::value_type(text));
 	LLUUID invoice(LLFloaterRegionInfo::getLastInvoice());
-	self->sendEstateOwnerMessage(gMessageSystem, "simulatormessage", invoice, strings);
+	sendEstateOwnerMessage(gMessageSystem, "simulatormessage", invoice, strings);
+	return false;
 }
 
 // static
@@ -780,7 +786,7 @@ BOOL LLPanelRegionGeneralInfo::sendUpdate()
 		LLViewerRegion* region = gAgent.getRegion();
 		if (region && access != region->getSimAccess() )
 		{
-			gViewerWindow->alertXml("RegionMaturityChange");
+			LLNotifications::instance().add("RegionMaturityChange");
 		}
 	}
 
@@ -881,48 +887,56 @@ void LLPanelRegionDebugInfo::onClickReturn(void* data)
 	LLPanelRegionDebugInfo* panelp = (LLPanelRegionDebugInfo*) data;
 	if (panelp->mTargetAvatar.isNull()) return;
 
-	LLStringUtil::format_map_t args;
-	args["[USER_NAME]"] = panelp->childGetValue("target_avatar_name").asString();
-	gViewerWindow->alertXml("EstateObjectReturn", args, callbackReturn, data);
+	LLSD args;
+	args["USER_NAME"] = panelp->childGetValue("target_avatar_name").asString();
+	LLSD payload;
+	payload["avatar_id"] = panelp->mTargetAvatar;
+	
+	U32 flags = SWD_ALWAYS_RETURN_OBJECTS;
+
+	if (panelp->childGetValue("return_scripts").asBoolean())
+	{
+		flags |= SWD_SCRIPTED_ONLY;
+	}
+	
+	if (panelp->childGetValue("return_other_land").asBoolean())
+	{
+		flags |= SWD_OTHERS_LAND_ONLY;
+	}
+	payload["flags"] = int(flags);
+	payload["return_estate_wide"] = panelp->childGetValue("return_estate_wide").asBoolean();
+	LLNotifications::instance().add("EstateObjectReturn", args, payload, 
+									boost::bind(&LLPanelRegionDebugInfo::callbackReturn, panelp, _1, _2));
 }
 
-// static
-void LLPanelRegionDebugInfo::callbackReturn( S32 option, void* userdata )
+bool LLPanelRegionDebugInfo::callbackReturn(const LLSD& notification, const LLSD& response)
 {
-	if (option != 0) return;
+	S32 option = LLNotification::getSelectedOption(notification, response);
+	if (option != 0) return false;
 
-	LLPanelRegionDebugInfo* self = (LLPanelRegionDebugInfo*) userdata;
-	if (!self->mTargetAvatar.isNull())
+	LLUUID target_avatar = notification["payload"]["avatar_id"].asUUID();
+	if (!target_avatar.isNull())
 	{
-		U32 flags = SWD_ALWAYS_RETURN_OBJECTS;
-
-		if (self->childGetValue("return_scripts").asBoolean())
-		{
-			flags |= SWD_SCRIPTED_ONLY;
-		}
-		
-		if (self->childGetValue("return_other_land").asBoolean())
-		{
-			flags |= SWD_OTHERS_LAND_ONLY;
-		}
-
-		if (self->childGetValue("return_estate_wide").asBoolean())
+		U32 flags = notification["payload"]["flags"].asInteger();
+		bool return_estate_wide = notification["payload"]["return_estate_wide"];
+		if (return_estate_wide)
 		{
 			// send as estate message - routed by spaceserver to all regions in estate
 			strings_t strings;
 			strings.push_back(llformat("%d", flags));
-			strings.push_back(self->mTargetAvatar.asString());
+			strings.push_back(target_avatar.asString());
 
 			LLUUID invoice(LLFloaterRegionInfo::getLastInvoice());
 		
-			self->sendEstateOwnerMessage(gMessageSystem, "estateobjectreturn", invoice, strings);
+			sendEstateOwnerMessage(gMessageSystem, "estateobjectreturn", invoice, strings);
 		}
 		else
 		{
 			// send to this simulator only
-			send_sim_wide_deletes(self->mTargetAvatar, flags);
-		}
+  			send_sim_wide_deletes(target_avatar, flags);
+  		}
 	}
+	return false;
 }
 
 
@@ -953,19 +967,20 @@ void LLPanelRegionDebugInfo::onClickTopScripts(void* data)
 // static
 void LLPanelRegionDebugInfo::onClickRestart(void* data)
 {
-	gViewerWindow->alertXml("ConfirmRestart", callbackRestart, data);
+	LLNotifications::instance().add("ConfirmRestart", LLSD(), LLSD(), 
+		boost::bind(&LLPanelRegionDebugInfo::callbackRestart, (LLPanelRegionDebugInfo*)data, _1, _2));
 }
 
-// static
-void LLPanelRegionDebugInfo::callbackRestart(S32 option, void* data)
+bool LLPanelRegionDebugInfo::callbackRestart(const LLSD& notification, const LLSD& response)
 {
-	if (option != 0) return;
+	S32 option = LLNotification::getSelectedOption(notification, response);
+	if (option != 0) return false;
 
-	LLPanelRegionDebugInfo* self = (LLPanelRegionDebugInfo*)data;
 	strings_t strings;
 	strings.push_back("120");
 	LLUUID invoice(LLFloaterRegionInfo::getLastInvoice());
-	self->sendEstateOwnerMessage(gMessageSystem, "restart", invoice, strings);
+	sendEstateOwnerMessage(gMessageSystem, "restart", invoice, strings);
+	return false;
 }
 
 // static
@@ -1123,21 +1138,21 @@ BOOL LLPanelRegionTextureInfo::validateTextureSizes()
 
 		if (components != 3)
 		{
-			LLStringUtil::format_map_t args;
-			args["[TEXTURE_NUM]"] = llformat("%d",i+1);
-			args["[TEXTURE_BIT_DEPTH]"] = llformat("%d",components * 8);
-			gViewerWindow->alertXml("InvalidTerrainBitDepth", args);
+			LLSD args;
+			args["TEXTURE_NUM"] = i+1;
+			args["TEXTURE_BIT_DEPTH"] = llformat("%d",components * 8);
+			LLNotifications::instance().add("InvalidTerrainBitDepth", args);
 			return FALSE;
 		}
 
 		if (width > 512 || height > 512)
 		{
 
-			LLStringUtil::format_map_t args;
-			args["[TEXTURE_NUM]"] = llformat("%d",i+1);
-			args["[TEXTURE_SIZE_X]"] = llformat("%d",width);
-			args["[TEXTURE_SIZE_Y]"] = llformat("%d",height);
-			gViewerWindow->alertXml("InvalidTerrainSize", args);
+			LLSD args;
+			args["TEXTURE_NUM"] = i+1;
+			args["TEXTURE_SIZE_X"] = width;
+			args["TEXTURE_SIZE_Y"] = height;
+			LLNotifications::instance().add("InvalidTerrainSize", args);
 			return FALSE;
 			
 		}
@@ -1334,26 +1349,27 @@ void LLPanelRegionTerrainInfo::onClickUploadRaw(void* data)
 	LLUUID invoice(LLFloaterRegionInfo::getLastInvoice());
 	self->sendEstateOwnerMessage(gMessageSystem, "terrain", invoice, strings);
 
-	gViewerWindow->alertXml("RawUploadStarted");
+	LLNotifications::instance().add("RawUploadStarted");
 }
 
 // static
 void LLPanelRegionTerrainInfo::onClickBakeTerrain(void* data)
 {
-	gViewerWindow->alertXml("ConfirmBakeTerrain", 
-							 callbackBakeTerrain, data);
+	LLNotifications::instance().add(
+		LLNotification::Params("ConfirmBakeTerrain")
+		.functor(boost::bind(&LLPanelRegionTerrainInfo::callbackBakeTerrain, (LLPanelRegionTerrainInfo*)data, _1, _2)));
 }
 
-// static
-void LLPanelRegionTerrainInfo::callbackBakeTerrain(S32 option, void* data)
+bool LLPanelRegionTerrainInfo::callbackBakeTerrain(const LLSD& notification, const LLSD& response)
 {
-	if (option != 0) return;
+	S32 option = LLNotification::getSelectedOption(notification, response);
+	if (option != 0) return false;
 
-	LLPanelRegionTerrainInfo* self = (LLPanelRegionTerrainInfo*)data;
 	strings_t strings;
 	strings.push_back("bake");
 	LLUUID invoice(LLFloaterRegionInfo::getLastInvoice());
-	self->sendEstateOwnerMessage(gMessageSystem, "terrain", invoice, strings);
+	sendEstateOwnerMessage(gMessageSystem, "terrain", invoice, strings);
+	return false;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1440,9 +1456,9 @@ void LLPanelEstateInfo::onClickAddAllowedAgent(void* user_data)
 	{
 		//args
 
-		LLStringUtil::format_map_t args;
-		args["[MAX_AGENTS]"] = llformat("%d",ESTATE_MAX_ACCESS_IDS);
-		gViewerWindow->alertXml("MaxAllowedAgentOnRegion", args);
+		LLSD args;
+		args["MAX_AGENTS"] = llformat("%d",ESTATE_MAX_ACCESS_IDS);
+		LLNotifications::instance().add("MaxAllowedAgentOnRegion", args);
 		return;
 	}
 	accessAddCore(ESTATE_ACCESS_ALLOWED_AGENT_ADD, "EstateAllowedAgentAdd");
@@ -1462,35 +1478,36 @@ void LLPanelEstateInfo::onClickAddAllowedGroup(void* user_data)
 	if (!list) return;
 	if (list->getItemCount() >= ESTATE_MAX_ACCESS_IDS)
 	{
-		LLStringUtil::format_map_t args;
-		args["[MAX_GROUPS]"] = llformat("%d",ESTATE_MAX_ACCESS_IDS);
-		gViewerWindow->alertXml("MaxAllowedGroupsOnRegion", args);
+		LLSD args;
+		args["MAX_GROUPS"] = llformat("%d",ESTATE_MAX_ACCESS_IDS);
+		LLNotifications::instance().add("MaxAllowedGroupsOnRegion", args);
 		return;
 	}
+
+	LLNotification::Params params("ChangeLindenAccess");
+	params.functor(boost::bind(&LLPanelEstateInfo::addAllowedGroup, self, _1, _2));
 	if (isLindenEstate())
 	{
-		gViewerWindow->alertXml("ChangeLindenAccess", addAllowedGroup, user_data);
+		LLNotifications::instance().add(params);
 	}
 	else
 	{
-		addAllowedGroup(0, user_data);
+		LLNotifications::instance().forceResponse(params, 0);
 	}
 }
 
-// static
-void LLPanelEstateInfo::addAllowedGroup(S32 option, void* user_data)
+bool LLPanelEstateInfo::addAllowedGroup(const LLSD& notification, const LLSD& response)
 {
-	if (option != 0) return;
+	S32 option = LLNotification::getSelectedOption(notification, response);
+	if (option != 0) return false;
 
-	LLPanelEstateInfo* panelp = (LLPanelEstateInfo*)user_data;
-
-	LLFloater* parent_floater = gFloaterView->getParentFloater(panelp);
+	LLFloater* parent_floater = gFloaterView->getParentFloater(this);
 
 	LLFloaterGroupPicker* widget;
 	widget = LLFloaterGroupPicker::showInstance(LLSD(gAgent.getID()));
 	if (widget)
 	{
-		widget->setSelectCallback(addAllowedGroup2, user_data);
+		widget->setSelectCallback(addAllowedGroup2, NULL);
 		if (parent_floater)
 		{
 			LLRect new_rect = gFloaterView->findNeighboringPosition(parent_floater, widget);
@@ -1498,6 +1515,8 @@ void LLPanelEstateInfo::addAllowedGroup(S32 option, void* user_data)
 			parent_floater->addDependentFloater(widget);
 		}
 	}
+
+	return false;
 }
 
 // static
@@ -1514,9 +1533,9 @@ void LLPanelEstateInfo::onClickAddBannedAgent(void* user_data)
 	if (!list) return;
 	if (list->getItemCount() >= ESTATE_MAX_ACCESS_IDS)
 	{
-		LLStringUtil::format_map_t args;
-		args["[MAX_BANNED]"] = llformat("%d",ESTATE_MAX_ACCESS_IDS);
-		gViewerWindow->alertXml("MaxBannedAgentsOnRegion", args);
+		LLSD args;
+		args["MAX_BANNED"] = llformat("%d",ESTATE_MAX_ACCESS_IDS);
+		LLNotifications::instance().add("MaxBannedAgentsOnRegion", args);
 		return;
 	}
 	accessAddCore(ESTATE_ACCESS_BANNED_AGENT_ADD, "EstateBannedAgentAdd");
@@ -1536,9 +1555,9 @@ void LLPanelEstateInfo::onClickAddEstateManager(void* user_data)
 	if (!list) return;
 	if (list->getItemCount() >= ESTATE_MAX_MANAGERS)
 	{	// Tell user they can't add more managers
-		LLStringUtil::format_map_t args;
-		args["[MAX_MANAGER]"] = llformat("%d",ESTATE_MAX_MANAGERS);
-		gViewerWindow->alertXml("MaxManagersOnRegion", args);
+		LLSD args;
+		args["MAX_MANAGER"] = llformat("%d",ESTATE_MAX_MANAGERS);
+		LLNotifications::instance().add("MaxManagersOnRegion", args);
 	}
 	else
 	{	// Go pick managers to add
@@ -1558,7 +1577,6 @@ void LLPanelEstateInfo::onClickRemoveEstateManager(void* user_data)
 struct LLKickFromEstateInfo
 {
 	LLPanelEstateInfo *mEstatePanelp;
-	std::string    mDialogName;
 	LLUUID      mAgentID;
 };
 
@@ -1590,45 +1608,42 @@ void LLPanelEstateInfo::onKickUserCommit(const std::vector<std::string>& names, 
 	//keep track of what user they want to kick and other misc info
 	LLKickFromEstateInfo *kick_info = new LLKickFromEstateInfo();
 	kick_info->mEstatePanelp = self;
-	kick_info->mDialogName  = "EstateKickUser";
 	kick_info->mAgentID     = ids[0];
 
 	//Bring up a confirmation dialog
-	LLStringUtil::format_map_t args;
-	args["[EVIL_USER]"] = names[0];
-	gViewerWindow->alertXml(kick_info->mDialogName, args, LLPanelEstateInfo::kickUserConfirm, (void*)kick_info);
+	LLSD args;
+	args["EVIL_USER"] = names[0];
+	LLSD payload;
+	payload["agent_id"] = ids[0];
+	LLNotifications::instance().add("EstateKickUser", args, payload, boost::bind(&LLPanelEstateInfo::kickUserConfirm, self, _1, _2));
 
 }
 
-void LLPanelEstateInfo::kickUserConfirm(S32 option, void* userdata)
+bool LLPanelEstateInfo::kickUserConfirm(const LLSD& notification, const LLSD& response)
 {
-	//extract the callback parameter
-	LLKickFromEstateInfo *kick_info = (LLKickFromEstateInfo*) userdata;
-	if (!kick_info) return;
-
-	LLUUID invoice(LLFloaterRegionInfo::getLastInvoice());
-	strings_t strings;
-	std::string buffer;
-
+	S32 option = LLNotification::getSelectedOption(notification, response);
 	switch(option)
 	{
 	case 0:
-		//Kick User
-		kick_info->mAgentID.toString(buffer);
-		strings.push_back(buffer);
+		{
+			//Kick User
+			strings_t strings;
+			strings.push_back(notification["payload"]["agent_id"].asString());
 
-		kick_info->mEstatePanelp->sendEstateOwnerMessage(gMessageSystem, "kickestate", invoice, strings);
-		break;
+			sendEstateOwnerMessage(gMessageSystem, "kickestate", LLFloaterRegionInfo::getLastInvoice(), strings);
+			break;
+		}
 	default:
 		break;
 	}
-
-	delete kick_info;
-	kick_info = NULL;
+	return false;
 }
 
 //---------------------------------------------------------------------------
 // Core Add/Remove estate access methods
+// TODO: INTERNATIONAL: don't build message text here;
+// instead, create multiple translatable messages and choose
+// one based on the status.
 //---------------------------------------------------------------------------
 std::string all_estates_text()
 {
@@ -1669,6 +1684,33 @@ bool LLPanelEstateInfo::isLindenEstate()
 typedef std::vector<LLUUID> AgentOrGroupIDsVector;
 struct LLEstateAccessChangeInfo
 {
+	LLEstateAccessChangeInfo(const LLSD& sd)
+	{
+		mDialogName = sd["dialog_name"].asString();
+		mOperationFlag = (U32)sd["operation"].asInteger();
+		LLSD::array_const_iterator end_it = sd["allowed_ids"].endArray();
+		for (LLSD::array_const_iterator id_it = sd["allowed_ids"].beginArray();
+			id_it != end_it;
+			++id_it)
+		{
+			mAgentOrGroupIDs.push_back(id_it->asUUID());
+		}
+	}
+
+	const LLSD asLLSD() const
+	{
+		LLSD sd;
+		sd["name"] = mDialogName;
+		sd["operation"] = (S32)mOperationFlag;
+		for (AgentOrGroupIDsVector::const_iterator it = mAgentOrGroupIDs.begin();
+			it != mAgentOrGroupIDs.end();
+			++it)
+		{
+			sd["allowed_ids"].append(*it);
+		}
+		return sd;
+	}
+
 	U32 mOperationFlag;	// ESTATE_ACCESS_BANNED_AGENT_ADD, _REMOVE, etc.
 	std::string mDialogName;
 	AgentOrGroupIDsVector mAgentOrGroupIDs; // List of agent IDs to apply to this change
@@ -1678,56 +1720,65 @@ struct LLEstateAccessChangeInfo
 // static
 void LLPanelEstateInfo::addAllowedGroup2(LLUUID id, void* user_data)
 {
-	LLEstateAccessChangeInfo* change_info = new LLEstateAccessChangeInfo;
-	change_info->mOperationFlag = ESTATE_ACCESS_ALLOWED_GROUP_ADD;
-	change_info->mDialogName = "EstateAllowedGroupAdd";
-	change_info->mAgentOrGroupIDs.push_back(id);
+	LLSD payload;
+	payload["operation"] = (S32)ESTATE_ACCESS_ALLOWED_GROUP_ADD;
+	payload["dialog_name"] = "EstateAllowedGroupAdd";
+	payload["allowed_ids"].append(id);
 
+	LLSD args;
+	args["ALL_ESTATES"] = all_estates_text();
+
+	LLNotification::Params params("EstateAllowedGroupAdd");
+	params.payload(payload)
+		.substitutions(args)
+		.functor(accessCoreConfirm);
 	if (isLindenEstate())
 	{
-		accessCoreConfirm(0, (void*)change_info);
+		LLNotifications::instance().forceResponse(params, 0);
 	}
 	else
 	{
-		LLStringUtil::format_map_t args;
-		args["[ALL_ESTATES]"] = all_estates_text();
-		gViewerWindow->alertXml(change_info->mDialogName, args, accessCoreConfirm, (void*)change_info);
+		LLNotifications::instance().add(params);
 	}
 }
 
 // static
 void LLPanelEstateInfo::accessAddCore(U32 operation_flag, const std::string& dialog_name)
 {
-	LLEstateAccessChangeInfo* change_info = new LLEstateAccessChangeInfo;
-	change_info->mOperationFlag = operation_flag;
-	change_info->mDialogName = dialog_name;
+	LLSD payload;
+	payload["operation"] = (S32)operation_flag;
+	payload["dialog_name"] = dialog_name;
 	// agent id filled in after avatar picker
+
+	LLNotification::Params params("ChangeLindenAccess");
+	params.payload(payload)
+		.functor(accessAddCore2);
 
 	if (isLindenEstate())
 	{
-		gViewerWindow->alertXml("ChangeLindenAccess", accessAddCore2, change_info);
+		LLNotifications::instance().add(params);
 	}
 	else
 	{
 		// same as clicking "OK"
-		accessAddCore2(0, change_info);
+		LLNotifications::instance().forceResponse(params, 0);
 	}
 }
 
 // static
-void LLPanelEstateInfo::accessAddCore2(S32 option, void* data)
+bool LLPanelEstateInfo::accessAddCore2(const LLSD& notification, const LLSD& response)
 {
-	LLEstateAccessChangeInfo* change_info = (LLEstateAccessChangeInfo*)data;
+	S32 option = LLNotification::getSelectedOption(notification, response);
 	if (option != 0)
 	{
 		// abort change
-		delete change_info;
-		change_info = NULL;
-		return;
+		return false;
 	}
 
+	LLEstateAccessChangeInfo* change_info = new LLEstateAccessChangeInfo(notification["payload"]);
 	// avatar picker yes multi-select, yes close-on-select
 	LLFloaterAvatarPicker::show(accessAddCore3, (void*)change_info, TRUE, TRUE);
+	return false;
 }
 
 // static
@@ -1756,12 +1807,12 @@ void LLPanelEstateInfo::accessAddCore3(const std::vector<std::string>& names, co
 		int currentCount = (list ? list->getItemCount() : 0);
 		if (ids.size() + currentCount > ESTATE_MAX_ACCESS_IDS)
 		{
-			LLStringUtil::format_map_t args;
-			args["[NUM_ADDED]"] = llformat("%d",ids.size());
-			args["[MAX_AGENTS]"] = llformat("%d",ESTATE_MAX_ACCESS_IDS);
-			args["[LIST_TYPE]"] = "Allowed Residents";
-			args["[NUM_EXCESS]"] = llformat("%d",(ids.size()+currentCount)-ESTATE_MAX_ACCESS_IDS);
-			gViewerWindow->alertXml("MaxAgentOnRegionBatch", args);
+			LLSD args;
+			args["NUM_ADDED"] = llformat("%d",ids.size());
+			args["MAX_AGENTS"] = llformat("%d",ESTATE_MAX_ACCESS_IDS);
+			args["LIST_TYPE"] = "Allowed Residents";
+			args["NUM_EXCESS"] = llformat("%d",(ids.size()+currentCount)-ESTATE_MAX_ACCESS_IDS);
+			LLNotifications::instance().add("MaxAgentOnRegionBatch", args);
 			delete change_info;
 			return;
 		}
@@ -1772,28 +1823,34 @@ void LLPanelEstateInfo::accessAddCore3(const std::vector<std::string>& names, co
 		int currentCount = (list ? list->getItemCount() : 0);
 		if (ids.size() + currentCount > ESTATE_MAX_ACCESS_IDS)
 		{
-			LLStringUtil::format_map_t args;
-			args["[NUM_ADDED]"] = llformat("%d",ids.size());
-			args["[MAX_AGENTS]"] = llformat("%d",ESTATE_MAX_ACCESS_IDS);
-			args["[LIST_TYPE]"] = "Banned Residents";
-			args["[NUM_EXCESS]"] = llformat("%d",(ids.size()+currentCount)-ESTATE_MAX_ACCESS_IDS);
-			gViewerWindow->alertXml("MaxAgentOnRegionBatch", args);
+			LLSD args;
+			args["NUM_ADDED"] = llformat("%d",ids.size());
+			args["MAX_AGENTS"] = llformat("%d",ESTATE_MAX_ACCESS_IDS);
+			args["LIST_TYPE"] = "Banned Residents";
+			args["NUM_EXCESS"] = llformat("%d",(ids.size()+currentCount)-ESTATE_MAX_ACCESS_IDS);
+			LLNotifications::instance().add("MaxAgentOnRegionBatch", args);
 			delete change_info;
 			return;
 		}
 	}
 
+	LLSD args;
+	args["ALL_ESTATES"] = all_estates_text();
+
+	LLNotification::Params params(change_info->mDialogName);
+	params.substitutions(args)
+		.payload(change_info->asLLSD())
+		.functor(accessCoreConfirm);
+
 	if (isLindenEstate())
 	{
 		// just apply to this estate
-		accessCoreConfirm(0, (void*)change_info);
+		LLNotifications::instance().forceResponse(params, 0);
 	}
 	else
 	{
 		// ask if this estate or all estates with this owner
-		LLStringUtil::format_map_t args;
-		args["[ALL_ESTATES]"] = all_estates_text();
-		gViewerWindow->alertXml(change_info->mDialogName, args, accessCoreConfirm, (void*)change_info);
+		LLNotifications::instance().add(params);
 	}
 }
 
@@ -1809,85 +1866,87 @@ void LLPanelEstateInfo::accessRemoveCore(U32 operation_flag, const std::string& 
 	if (list_vector.size() == 0)
 		return;
 
-	LLEstateAccessChangeInfo* change_info = new LLEstateAccessChangeInfo;
-	change_info->mOperationFlag = operation_flag;
-	change_info->mDialogName = dialog_name;
+	LLSD payload;
+	payload["operation"] = (S32)operation_flag;
+	payload["dialog_name"] = dialog_name;
 	
 	for (std::vector<LLScrollListItem*>::const_iterator iter = list_vector.begin();
 	     iter != list_vector.end();
 	     iter++)
 	{
 		LLScrollListItem *item = (*iter);
-		change_info->mAgentOrGroupIDs.push_back(item->getUUID());
+		payload["allowed_ids"].append(item->getUUID());
 	}
 	
+	LLNotification::Params params("ChangeLindenAccess");
+	params.payload(payload)
+		.functor(accessRemoveCore2);
+
 	if (isLindenEstate())
 	{
 		// warn on change linden estate
-		gViewerWindow->alertXml("ChangeLindenAccess", 
-					accessRemoveCore2,
-					(void*)change_info);
+		LLNotifications::instance().add(params);
 	}
 	else
 	{
 		// just proceed, as if clicking OK
-		accessRemoveCore2(0, (void*)change_info);
+		LLNotifications::instance().forceResponse(params, 0);
 	}
 }
 
 // static
-void LLPanelEstateInfo::accessRemoveCore2(S32 option, void* data)
+bool LLPanelEstateInfo::accessRemoveCore2(const LLSD& notification, const LLSD& response)
 {
-	LLEstateAccessChangeInfo* change_info = (LLEstateAccessChangeInfo*)data;
+	S32 option = LLNotification::getSelectedOption(notification, response);
 	if (option != 0)
 	{
 		// abort
-		delete change_info;
-		change_info = NULL;
-		return;
+		return false;
 	}
 
 	// If Linden estate, can only apply to "this" estate, not all estates
 	// owned by NULL.
 	if (isLindenEstate())
 	{
-		accessCoreConfirm(0, (void*)change_info);
+		accessCoreConfirm(notification, response);
 	}
 	else
 	{
-		LLStringUtil::format_map_t args;
-		args["[ALL_ESTATES]"] = all_estates_text();
-		gViewerWindow->alertXml(change_info->mDialogName, 
-					args, 
-					accessCoreConfirm, 
-					(void*)change_info);
+		LLSD args;
+		args["ALL_ESTATES"] = all_estates_text();
+		LLNotifications::instance().add(notification["payload"]["dialog_name"], 
+										args,
+										notification["payload"],
+										accessCoreConfirm);
 	}
+	return false;
 }
 
 // Used for both access add and remove operations, depending on the mOperationFlag
 // passed in (ESTATE_ACCESS_BANNED_AGENT_ADD, ESTATE_ACCESS_ALLOWED_AGENT_REMOVE, etc.)
 // static
-void LLPanelEstateInfo::accessCoreConfirm(S32 option, void* data)
+bool LLPanelEstateInfo::accessCoreConfirm(const LLSD& notification, const LLSD& response)
 {
-	LLEstateAccessChangeInfo* change_info = (LLEstateAccessChangeInfo*)data;
-	const U32 originalFlags = change_info->mOperationFlag;
-	AgentOrGroupIDsVector& ids = change_info->mAgentOrGroupIDs;
+	S32 option = LLNotification::getSelectedOption(notification, response);
+	const U32 originalFlags = (U32)notification["payload"]["operation"].asInteger();
 
 	LLViewerRegion* region = gAgent.getRegion();
 	
-	for (AgentOrGroupIDsVector::const_iterator iter = ids.begin();
-	     iter != ids.end();
+	LLSD::array_const_iterator end_it = notification["payload"]["allowed_ids"].endArray();
+
+	for (LLSD::array_const_iterator iter = notification["payload"]["allowed_ids"].beginArray();
+		iter != end_it;
 	     iter++)
 	{
 		U32 flags = originalFlags;
-		if (iter + 1 != ids.end())
+		if (iter + 1 != end_it)
 			flags |= ESTATE_ACCESS_NO_REPLY;
 
-		const LLUUID id = (*iter);
-		if ((change_info->mOperationFlag & ESTATE_ACCESS_BANNED_AGENT_ADD)
+		const LLUUID id = iter->asUUID();
+		if (((U32)notification["payload"]["operation"].asInteger() & ESTATE_ACCESS_BANNED_AGENT_ADD)
 		    && region && (region->getOwner() == id))
 		{
-			gViewerWindow->alertXml("OwnerCanNotBeDenied");
+			LLNotifications::instance().add("OwnerCanNotBeDenied");
 			break;
 		}
 		switch(option)
@@ -1919,8 +1978,7 @@ void LLPanelEstateInfo::accessCoreConfirm(S32 option, void* data)
 			    break;
 		}
 	}
-	delete change_info;
-	change_info = NULL;
+	return false;
 }
 
 // key = "estateaccessdelta"
@@ -2146,34 +2204,34 @@ BOOL LLPanelEstateInfo::sendUpdate()
 {
 	llinfos << "LLPanelEsateInfo::sendUpdate()" << llendl;
 
+	LLNotification::Params params("ChangeLindenEstate");
+	params.functor(boost::bind(&LLPanelEstateInfo::callbackChangeLindenEstate, this, _1, _2));
+
 	if (getEstateID() <= ESTATE_LAST_LINDEN)
 	{
 		// trying to change reserved estate, warn
-		gViewerWindow->alertXml("ChangeLindenEstate",
-							   callbackChangeLindenEstate,
-							   this);
+		LLNotifications::instance().add(params);
 	}
 	else
 	{
 		// for normal estates, just make the change
-		callbackChangeLindenEstate(0, this);
+		LLNotifications::instance().forceResponse(params, 0);
 	}
 	return TRUE;
 }
 
-// static
-void LLPanelEstateInfo::callbackChangeLindenEstate(S32 option, void* data)
+bool LLPanelEstateInfo::callbackChangeLindenEstate(const LLSD& notification, const LLSD& response)
 {
-	LLPanelEstateInfo* self = (LLPanelEstateInfo*)data;
+	S32 option = LLNotification::getSelectedOption(notification, response);
 	switch(option)
 	{
 	case 0:
 		// send the update
-		if (!self->commitEstateInfoCaps())
+		if (!commitEstateInfoCaps())
 		{
 			// the caps method failed, try the old way
 			LLFloaterRegionInfo::nextInvoice();
-			self->commitEstateInfoDataserver();
+			commitEstateInfoDataserver();
 		}
 		// we don't want to do this because we'll get it automatically from the sim
 		// after the spaceserver processes it
@@ -2188,6 +2246,7 @@ void LLPanelEstateInfo::callbackChangeLindenEstate(S32 option, void* data)
 		// do nothing
 		break;
 	}
+	return false;
 }
 
 
@@ -2572,18 +2631,15 @@ BOOL LLPanelEstateInfo::checkSunHourSlider(LLUICtrl* child_ctrl)
 void LLPanelEstateInfo::onClickMessageEstate(void* userdata)
 {
 	llinfos << "LLPanelEstateInfo::onClickMessageEstate" << llendl;
-	gViewerWindow->alertXmlEditText("MessageEstate", LLStringUtil::format_map_t(),
-									NULL, NULL,
-									onMessageCommit, userdata);
+	LLNotifications::instance().add("MessageEstate", LLSD(), LLSD(), boost::bind(&LLPanelEstateInfo::onMessageCommit, (LLPanelEstateInfo*)userdata, _1, _2));
 }
 
-// static
-void LLPanelEstateInfo::onMessageCommit(S32 option, const std::string& text, void* userdata)
+bool LLPanelEstateInfo::onMessageCommit(const LLSD& notification, const LLSD& response)
 {
-	if(option != 0) return;
-	if(text.empty()) return;
-	LLPanelEstateInfo* self = (LLPanelEstateInfo*)userdata;
-	if(!self) return;
+	S32 option = LLNotification::getSelectedOption(notification, response);
+	std::string text = response["message"].asString();
+	if(option != 0) return false;
+	if(text.empty()) return false;
 	llinfos << "Message to everyone: " << text << llendl;
 	strings_t strings;
 	//integers_t integers;
@@ -2592,7 +2648,8 @@ void LLPanelEstateInfo::onMessageCommit(S32 option, const std::string& text, voi
 	strings.push_back(strings_t::value_type(name));
 	strings.push_back(strings_t::value_type(text));
 	LLUUID invoice(LLFloaterRegionInfo::getLastInvoice());
-	self->sendEstateOwnerMessage(gMessageSystem, "instantmessage", invoice, strings);
+	sendEstateOwnerMessage(gMessageSystem, "instantmessage", invoice, strings);
+	return false;
 }
 
 LLPanelEstateCovenant::LLPanelEstateCovenant()
@@ -2695,9 +2752,10 @@ BOOL LLPanelEstateCovenant::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop
 		*accept = ACCEPT_YES_COPY_SINGLE;
 		if (item && drop)
 		{
-			gViewerWindow->alertXml("EstateChangeCovenant",
-									LLPanelEstateCovenant::confirmChangeCovenantCallback,
-									item);
+			LLSD payload;
+			payload["item_id"] = item->getUUID();
+			LLNotifications::instance().add("EstateChangeCovenant", LLSD(), payload,
+									LLPanelEstateCovenant::confirmChangeCovenantCallback);
 		}
 		break;
 	default:
@@ -2709,12 +2767,13 @@ BOOL LLPanelEstateCovenant::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop
 } 
 
 // static 
-void LLPanelEstateCovenant::confirmChangeCovenantCallback(S32 option, void* userdata)
+bool LLPanelEstateCovenant::confirmChangeCovenantCallback(const LLSD& notification, const LLSD& response)
 {
-	LLInventoryItem* item = (LLInventoryItem*)userdata;
+	S32 option = LLNotification::getSelectedOption(notification, response);
+	LLInventoryItem* item = gInventory.getItem(notification["payload"]["item_id"].asUUID());
 	LLPanelEstateCovenant* self = LLFloaterRegionInfo::getPanelCovenant();
 
-	if (!item || !self) return;
+	if (!item || !self) return false;
 
 	switch(option)
 	{
@@ -2724,22 +2783,22 @@ void LLPanelEstateCovenant::confirmChangeCovenantCallback(S32 option, void* user
 	default:
 		break;
 	}
+	return false;
 }
 
 // static
 void LLPanelEstateCovenant::resetCovenantID(void* userdata)
 {
-	gViewerWindow->alertXml("EstateChangeCovenant",
-							LLPanelEstateCovenant::confirmResetCovenantCallback,
-							NULL);
+	LLNotifications::instance().add("EstateChangeCovenant", LLSD(), LLSD(), confirmResetCovenantCallback);
 }
 
 // static
-void LLPanelEstateCovenant::confirmResetCovenantCallback(S32 option, void* userdata)
+bool LLPanelEstateCovenant::confirmResetCovenantCallback(const LLSD& notification, const LLSD& response)
 {
 	LLPanelEstateCovenant* self = LLFloaterRegionInfo::getPanelCovenant();
-	if (!self) return;
+	if (!self) return false;
 
+	S32 option = LLNotification::getSelectedOption(notification, response);
 	switch(option)
 	{
 	case 0:		
@@ -2748,6 +2807,7 @@ void LLPanelEstateCovenant::confirmResetCovenantCallback(S32 option, void* userd
 	default:
 		break;
 	}
+	return false;
 }
 
 void LLPanelEstateCovenant::loadInvItem(LLInventoryItem *itemp)
@@ -2808,7 +2868,7 @@ void LLPanelEstateCovenant::onLoadComplete(LLVFS *vfs,
 				if( !panelp->mEditor->importBuffer( buffer, file_length+1 ) )
 				{
 					llwarns << "Problem importing estate covenant." << llendl;
-					gViewerWindow->alertXml("ProblemImportingEstateCovenant");
+					LLNotifications::instance().add("ProblemImportingEstateCovenant");
 				}
 				else
 				{
@@ -2829,15 +2889,15 @@ void LLPanelEstateCovenant::onLoadComplete(LLVFS *vfs,
 			if( LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE == status ||
 				LL_ERR_FILE_EMPTY == status)
 			{
-				gViewerWindow->alertXml("MissingNotecardAssetID");
+				LLNotifications::instance().add("MissingNotecardAssetID");
 			}
 			else if (LL_ERR_INSUFFICIENT_PERMISSIONS == status)
 			{
-				gViewerWindow->alertXml("NotAllowedToViewNotecard");
+				LLNotifications::instance().add("NotAllowedToViewNotecard");
 			}
 			else
 			{
-				gViewerWindow->alertXml("UnableToLoadNotecard");
+				LLNotifications::instance().add("UnableToLoadNotecardAsset");
 			}
 
 			llwarns << "Problem loading notecard: " << status << llendl;

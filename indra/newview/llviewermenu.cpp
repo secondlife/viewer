@@ -1,3 +1,4 @@
+
 /** 
  * @file llviewermenu.cpp
  * @brief Builds menus out of items.
@@ -309,7 +310,7 @@ BOOL is_selection_buy_not_take();
 S32 selection_price();
 BOOL enable_take();
 void handle_take();
-void confirm_take(S32 option, void* data);
+bool confirm_take(const LLSD& notification, const LLSD& response);
 BOOL enable_buy(void*); 
 void handle_buy(void *);
 void handle_buy_object(LLSaleInfo sale_info);
@@ -999,6 +1000,7 @@ void init_debug_world_menu(LLMenuGL* menu)
 
 void handle_export_menus_to_xml(void*)
 {
+
 	LLFilePicker& picker = LLFilePicker::instance();
 	if(!picker.getSaveFile(LLFilePicker::FFSAVE_XML))
 	{
@@ -2122,9 +2124,10 @@ class LLGoToObject : public view_listener_t
 //---------------------------------------------------------------------------
 // Parcel freeze, eject, etc.
 //---------------------------------------------------------------------------
-void callback_freeze(S32 option, void* data)
+bool callback_freeze(const LLSD& notification, const LLSD& response)
 {
-	LLUUID* avatar_id = (LLUUID*) data;
+	LLUUID avatar_id = notification["payload"]["avatar_id"].asUUID();
+	S32 option = LLNotification::getSelectedOption(notification, response);
 
 	if (0 == option || 1 == option)
 	{
@@ -2136,7 +2139,7 @@ void callback_freeze(S32 option, void* data)
 		}
 
 		LLMessageSystem* msg = gMessageSystem;
-		LLViewerObject* avatar = gObjectList.findObject(*avatar_id);
+		LLViewerObject* avatar = gObjectList.findObject(avatar_id);
 
 		if (avatar)
 		{
@@ -2145,15 +2148,14 @@ void callback_freeze(S32 option, void* data)
 			msg->addUUID("AgentID", gAgent.getID());
 			msg->addUUID("SessionID", gAgent.getSessionID());
 			msg->nextBlock("Data");
-			msg->addUUID("TargetID", *avatar_id );
+			msg->addUUID("TargetID", avatar_id );
 			msg->addU32("Flags", flags );
 			msg->sendReliable( avatar->getRegion()->getHost() );
 		}
 	}
-
-	delete avatar_id;
-	avatar_id = NULL;
+	return false;
 }
+
 
 class LLAvatarFreeze : public view_listener_t
 {
@@ -2162,23 +2164,25 @@ class LLAvatarFreeze : public view_listener_t
 		LLVOAvatar* avatar = find_avatar_from_object( LLSelectMgr::getInstance()->getSelection()->getPrimaryObject() );
 		if( avatar )
 		{
-			LLUUID* avatar_id = new LLUUID( avatar->getID() );
 			std::string fullname = avatar->getFullname();
+			LLSD payload;
+			payload["avatar_id"] = avatar->getID();
 
 			if (!fullname.empty())
 			{
-				LLStringUtil::format_map_t args;
-				args["[AVATAR_NAME]"] = fullname;
-				gViewerWindow->alertXml("FreezeAvatarFullname",
+				LLSD args;
+				args["AVATAR_NAME"] = fullname;
+				LLNotifications::instance().add("FreezeAvatarFullname",
 							args,
-							callback_freeze,
-							(void*)avatar_id);
+							payload,
+							callback_freeze);
 			}
 			else
 			{
-				gViewerWindow->alertXml("FreezeAvatar",
-							callback_freeze,
-							(void*)avatar_id);
+				LLNotifications::instance().add("FreezeAvatar",
+							LLSD(),
+							payload,
+							callback_freeze);
 			}
 		}
 		return true;
@@ -2224,26 +2228,16 @@ class LLAvatarDebug : public view_listener_t
 	}
 };
 
-struct MenuCallbackData
+bool callback_eject(const LLSD& notification, const LLSD& response)
 {
-	bool ban_enabled;
-	LLUUID avatar_id;
-};
-
-void callback_eject(S32 option, void* data)
-{
-	MenuCallbackData *callback_data = (MenuCallbackData*)data;
-	if (!callback_data)
-	{
-		return;
-	}
+	S32 option = LLNotification::getSelectedOption(notification, response);
 	if (2 == option)
 	{
-		// Cancle button.
-		return;
+		// Cancel button.
+		return false;
 	}
-	LLUUID avatar_id = callback_data->avatar_id;
-	bool ban_enabled = callback_data->ban_enabled;
+	LLUUID avatar_id = notification["payload"]["avatar_id"].asUUID();
+	bool ban_enabled = notification["payload"]["ban_enabled"].asBoolean();
 
 	if (0 == option)
 	{
@@ -2285,10 +2279,7 @@ void callback_eject(S32 option, void* data)
 			msg->sendReliable( avatar->getRegion()->getHost() );
 		}
 	}
-
-
-	delete callback_data;
-	callback_data = NULL;
+	return false;
 }
 
 class LLAvatarEject : public view_listener_t
@@ -2298,8 +2289,8 @@ class LLAvatarEject : public view_listener_t
 		LLVOAvatar* avatar = find_avatar_from_object( LLSelectMgr::getInstance()->getSelection()->getPrimaryObject() );
 		if( avatar )
 		{
-			MenuCallbackData *data = new MenuCallbackData;
-			(*data).avatar_id = avatar->getID();
+			LLSD payload;
+			payload["avatar_id"] = avatar->getID();
 			std::string fullname = avatar->getFullname();
 
 			const LLVector3d& pos = avatar->getPositionGlobal();
@@ -2307,40 +2298,42 @@ class LLAvatarEject : public view_listener_t
 			
 			if (LLViewerParcelMgr::getInstance()->isParcelOwnedByAgent(parcel,GP_LAND_MANAGE_BANNED))
 			{
-				(*data).ban_enabled = true;
+                payload["ban_enabled"] = true;
 				if (!fullname.empty())
 				{
-					LLStringUtil::format_map_t args;
-					args["[AVATAR_NAME]"] = fullname;
-					gViewerWindow->alertXml("EjectAvatarFullname",
-						args,
-						callback_eject,
-						(void*)data);
+    				LLSD args;
+    				args["AVATAR_NAME"] = fullname;
+    				LLNotifications::instance().add("EjectAvatarFullname",
+    							args,
+    							payload,
+    							callback_eject);
 				}
 				else
 				{
-					gViewerWindow->alertXml("EjectAvatar",
-						callback_eject,
-						(void*)data);
+    				LLNotifications::instance().add("EjectAvatarFullname",
+    							LLSD(),
+    							payload,
+    							callback_eject);
 				}
 			}
 			else
 			{
-				(*data).ban_enabled = false;
+                payload["ban_enabled"] = false;
 				if (!fullname.empty())
 				{
-					LLStringUtil::format_map_t args;
-					args["[AVATAR_NAME]"] = fullname;
-					gViewerWindow->alertXml("EjectAvatarFullnameNoBan",
-						args,
-						callback_eject,
-						(void*)data);
+    				LLSD args;
+    				args["AVATAR_NAME"] = fullname;
+    				LLNotifications::instance().add("EjectAvatarFullnameNoBan",
+    							args,
+    							payload,
+    							callback_eject);
 				}
 				else
 				{
-					gViewerWindow->alertXml("EjectAvatarNoBan",
-						callback_eject,
-						(void*)data);
+    				LLNotifications::instance().add("EjectAvatarNoBan",
+    							LLSD(),
+    							payload,
+    							callback_eject);
 				}
 			}
 		}
@@ -2387,13 +2380,16 @@ class LLAvatarGiveCard : public view_listener_t
 		if(dest && dest->isAvatar())
 		{
 			bool found_name = false;
-			LLStringUtil::format_map_t args;
+			LLSD args;
+			LLSD old_args;
 			LLNameValue* nvfirst = dest->getNVPair("FirstName");
 			LLNameValue* nvlast = dest->getNVPair("LastName");
 			if(nvfirst && nvlast)
 			{
-				args["[FIRST]"] = nvfirst->getString();
-				args["[LAST]"] = nvlast->getString();
+				args["FIRST"] = nvfirst->getString();
+				args["LAST"] = nvlast->getString();
+				old_args["FIRST"] = nvfirst->getString();
+				old_args["LAST"] = nvlast->getString();
 				found_name = true;
 			}
 			LLViewerRegion* region = dest->getRegion();
@@ -2415,11 +2411,11 @@ class LLAvatarGiveCard : public view_listener_t
 				transaction_id.generate();
 				msg->addUUIDFast(_PREHASH_TransactionID, transaction_id);
 				msg->sendReliable(dest_host);
-				LLNotifyBox::showXml("OfferedCard", args);
+				LLNotifications::instance().add("OfferedCard", args);
 			}
 			else
 			{
-				gViewerWindow->alertXml("CantOfferCallingCard", args);
+				LLNotifications::instance().add("CantOfferCallingCard", old_args);
 			}
 		}
 		return true;
@@ -2436,8 +2432,9 @@ void login_done(S32 which, void *user)
 }
 
 
-void callback_leave_group(S32 option, void *userdata)
+bool callback_leave_group(const LLSD& notification, const LLSD& response)
 {
+	S32 option = LLNotification::getSelectedOption(notification, response);
 	if (option == 0)
 	{
 		LLMessageSystem *msg = gMessageSystem;
@@ -2450,15 +2447,16 @@ void callback_leave_group(S32 option, void *userdata)
 		msg->addUUIDFast(_PREHASH_GroupID, gAgent.mGroupID );
 		gAgent.sendReliableMessage();
 	}
+	return false;
 }
 
 void handle_leave_group(void *)
 {
 	if (gAgent.getGroupID() != LLUUID::null)
 	{
-		LLStringUtil::format_map_t args;
-		args["[GROUP]"] = gAgent.mGroupName;
-		gViewerWindow->alertXml("GroupLeaveConfirmMember", args, callback_leave_group);
+		LLSD args;
+		args["GROUP"] = gAgent.mGroupName;
+		LLNotifications::instance().add("GroupLeaveConfirmMember", args, LLSD(), callback_leave_group);
 	}
 }
 
@@ -2521,7 +2519,7 @@ void handle_buy_object(LLSaleInfo sale_info)
 {
 	if(!LLSelectMgr::getInstance()->selectGetAllRootsValid())
 	{
-		LLNotifyBox::showXml("UnableToBuyWhileDownloading");
+		LLNotifications::instance().add("UnableToBuyWhileDownloading");
 		return;
 	}
 
@@ -2530,7 +2528,7 @@ void handle_buy_object(LLSaleInfo sale_info)
 	BOOL owners_identical = LLSelectMgr::getInstance()->selectGetOwner(owner_id, owner_name);
 	if (!owners_identical)
 	{
-		LLNotifyBox::showXml("CannotBuyObjectsFromDifferentOwners");
+		LLNotifications::instance().add("CannotBuyObjectsFromDifferentOwners");
 		return;
 	}
 
@@ -2540,7 +2538,7 @@ void handle_buy_object(LLSaleInfo sale_info)
 	valid &= LLSelectMgr::getInstance()->selectGetAggregatePermissions(ag_perm);
 	if(!valid || !sale_info.isForSale() || !perm.allowTransferTo(gAgent.getID()))
 	{
-		LLNotifyBox::showXml("ObjectNotForSale");
+		LLNotifications::instance().add("ObjectNotForSale");
 		return;
 	}
 
@@ -2686,22 +2684,22 @@ void set_god_level(U8 god_level)
 	// inventory in items may change in god mode
 	gObjectList.dirtyAllObjectInventory();
 
-    if(gViewerWindow)
-    {
-        gViewerWindow->setMenuBackgroundColor(god_level > GOD_NOT,
+        if(gViewerWindow)
+        {
+            gViewerWindow->setMenuBackgroundColor(god_level > GOD_NOT,
             LLViewerLogin::getInstance()->isInProductionGrid());
-    }
-
-    LLStringUtil::format_map_t args;
+        }
+    
+        LLSD args;
 	if(god_level > GOD_NOT)
 	{
-		args["[LEVEL]"] = llformat("%d",(S32)god_level);
-		LLNotifyBox::showXml("EnteringGodMode", args);
+		args["LEVEL"] = llformat("%d",(S32)god_level);
+		LLNotifications::instance().add("EnteringGodMode", args);
 	}
 	else
 	{
-		args["[LEVEL]"] = llformat("%d",(S32)old_god_level);
-		LLNotifyBox::showXml("LeavingGodMode", args);
+		args["LEVEL"] = llformat("%d",(S32)old_god_level);
+		LLNotifications::instance().add("LeavingGodMode", args);
 	}
 
 
@@ -2826,13 +2824,13 @@ void request_friendship(const LLUUID& dest_id)
 	if(dest && dest->isAvatar())
 	{
 		std::string fullname;
-		LLStringUtil::format_map_t args;
+		LLSD args;
 		LLNameValue* nvfirst = dest->getNVPair("FirstName");
 		LLNameValue* nvlast = dest->getNVPair("LastName");
 		if(nvfirst && nvlast)
 		{
-			args["[FIRST]"] = nvfirst->getString();
-			args["[LAST]"] = nvlast->getString();
+			args["FIRST"] = nvfirst->getString();
+			args["LAST"] = nvlast->getString();
 			fullname = nvfirst->getString();
 			fullname += " ";
 			fullname += nvlast->getString();
@@ -2843,7 +2841,7 @@ void request_friendship(const LLUUID& dest_id)
 		}
 		else
 		{
-			gViewerWindow->alertXml("CantOfferFriendship");
+			LLNotifications::instance().add("CantOfferFriendship");
 		}
 	}
 }
@@ -2853,12 +2851,8 @@ class LLEditEnableCustomizeAvatar : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		LLVOAvatar* avatar = gAgent.getAvatarObject();
-
-		bool enabled = ((avatar && avatar->isFullyLoaded()) &&
-				   (gAgent.getWearablesLoaded()));
-
-		gMenuHolder->findControl(userdata["control"].asString())->setValue(enabled);
+		bool new_value = gAgent.areWearablesLoaded();
+		gMenuHolder->findControl(userdata["control"].asString())->setValue(new_value);
 		return true;
 	}
 };
@@ -3184,7 +3178,7 @@ void disabled_duplicate(void*)
 {
 	if (LLSelectMgr::getInstance()->getSelection()->getPrimaryObject())
 	{
-		LLNotifyBox::showXml("CopyFailed");
+		LLNotifications::instance().add("CopyFailed");
 	}
 }
 
@@ -3317,7 +3311,7 @@ void handle_claim_public_land(void*)
 {
 	if (LLViewerParcelMgr::getInstance()->getSelectionRegion() != gAgent.getRegion())
 	{
-		LLNotifyBox::showXml("ClaimPublicLand");
+		LLNotifications::instance().add("ClaimPublicLand");
 		return;
 	}
 
@@ -3550,7 +3544,7 @@ void derez_objects(EDeRezDestination dest, const LLUUID& dest_id)
 	}
 	else if(!error.empty())
 	{
-		gViewerWindow->alertXml(error);
+		LLNotifications::instance().add(error);
 	}
 }
 
@@ -3577,16 +3571,13 @@ class LLObjectReturn : public view_listener_t
 		
 		mObjectSelection = LLSelectMgr::getInstance()->getEditSelection();
 
-		gViewerWindow->alertXml("ReturnToOwner",
-			onReturnToOwner,
-			(void*)this);
+		LLNotifications::instance().add("ReturnToOwner", LLSD(), LLSD(), boost::bind(&LLObjectReturn::onReturnToOwner, this, _1, _2));
 		return true;
 	}
 
-	static void onReturnToOwner(S32 option, void* data)
+	bool onReturnToOwner(const LLSD& notification, const LLSD& response)
 	{
-		LLObjectReturn* object_return = (LLObjectReturn*)data;
-
+		S32 option = LLNotification::getSelectedOption(notification, response);
 		if (0 == option)
 		{
 			// Ignore category ID for this derez destination.
@@ -3594,7 +3585,8 @@ class LLObjectReturn : public view_listener_t
 		}
 
 		// drop reference to current selection
-		object_return->mObjectSelection = NULL;
+		mObjectSelection = NULL;
+		return false;
 	}
 
 protected:
@@ -3731,48 +3723,46 @@ void handle_take()
 	{
 		category_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_OBJECT);
 	}
-	LLUUID* cat_id = new LLUUID(category_id);
+	LLSD payload;
+	payload["folder_id"] = category_id;
+
+	LLNotification::Params params("ConfirmObjectTakeLock");
+	params.payload(payload)
+		.functor(confirm_take);
+
 	if(locked_but_takeable_object ||
 	   !you_own_everything)
 	{
 		if(locked_but_takeable_object && you_own_everything)
 		{
-			gViewerWindow->alertXml("ConfirmObjectTakeLock",
-			confirm_take,
-			(void*)cat_id);
+			params.name("ConfirmObjectTakeLock");
 
 		}
 		else if(!locked_but_takeable_object && !you_own_everything)
 		{
-			gViewerWindow->alertXml("ConfirmObjectTakeNoOwn",
-			confirm_take,
-			(void*)cat_id);
+			params.name("ConfirmObjectTakeNoOwn");
 		}
 		else
 		{
-			gViewerWindow->alertXml("ConfirmObjectTakeLockNoOwn",
-			confirm_take,
-			(void*)cat_id);
+			params.name("ConfirmObjectTakeLockNoOwn");
 		}
-
-
+	
+		LLNotifications::instance().add(params);
 	}
-
 	else
 	{
-		confirm_take(0, (void*)cat_id);
+		LLNotifications::instance().forceResponse(params, 0);
 	}
 }
 
-void confirm_take(S32 option, void* data)
+bool confirm_take(const LLSD& notification, const LLSD& response)
 {
-	LLUUID* cat_id = (LLUUID*)data;
-	if(!cat_id) return;
+	S32 option = LLNotification::getSelectedOption(notification, response);
 	if(enable_take() && (option == 0))
 	{
-		derez_objects(DRD_TAKE_INTO_AGENT_INVENTORY, *cat_id);
+		derez_objects(DRD_TAKE_INTO_AGENT_INVENTORY, notification["payload"]["folder_id"].asUUID());
 	}
-	delete cat_id;
+	return false;
 }
 
 // You can take an item when it is public and transferrable, or when
@@ -3934,13 +3924,15 @@ S32 selection_price()
 	return total_price;
 }
 
-void callback_show_buy_currency(S32 option, void*)
+bool callback_show_buy_currency(const LLSD& notification, const LLSD& response)
 {
+	S32 option = LLNotification::getSelectedOption(notification, response);
 	if (0 == option)
 	{
 		llinfos << "Loading page " << BUY_CURRENCY_URL << llendl;
 		LLWeb::loadURL(BUY_CURRENCY_URL);
 	}
+	return false;
 }
 
 
@@ -3955,14 +3947,13 @@ void show_buy_currency(const char* extra)
 	}
 	mesg << "Go to " << BUY_CURRENCY_URL << "\nfor information on purchasing currency?";
 
-	LLStringUtil::format_map_t args;
+	LLSD args;
 	if (extra != NULL)
 	{
-		args["[EXTRA]"] = extra;
+		args["EXTRA"] = extra;
 	}
-	args["[URL]"] = BUY_CURRENCY_URL;
-	gViewerWindow->alertXml("PromptGoToCurrencyPage", args, 
-		callback_show_buy_currency);
+	args["URL"] = BUY_CURRENCY_URL;
+	LLNotifications::instance().add("PromptGoToCurrencyPage", args, LLSD(), callback_show_buy_currency);
 }
 
 void handle_buy_currency(void*)
@@ -4142,29 +4133,29 @@ class LLToolsLink : public view_listener_t
 	{
 		if(!LLSelectMgr::getInstance()->selectGetAllRootsValid())
 		{
-			LLNotifyBox::showXml("UnableToLinkWhileDownloading");
+			LLNotifications::instance().add("UnableToLinkWhileDownloading");
 			return true;
 		}
 
 		S32 object_count = LLSelectMgr::getInstance()->getSelection()->getObjectCount();
 		if (object_count > MAX_CHILDREN_PER_TASK + 1)
 		{
-			LLStringUtil::format_map_t args;
-			args["[COUNT]"] = llformat("%d", object_count);
+			LLSD args;
+			args["COUNT"] = llformat("%d", object_count);
 			int max = MAX_CHILDREN_PER_TASK+1;
-			args["[MAX]"] = llformat("%d", max);
-			gViewerWindow->alertXml("UnableToLinkObjects", args);
+			args["MAX"] = llformat("%d", max);
+			LLNotifications::instance().add("UnableToLinkObjects", args);
 			return true;
 		}
 
 		if(LLSelectMgr::getInstance()->getSelection()->getRootObjectCount() < 2)
 		{
-			gViewerWindow->alertXml("CannotLinkIncompleteSet");
+			LLNotifications::instance().add("CannotLinkIncompleteSet");
 			return true;
 		}
 		if(!LLSelectMgr::getInstance()->selectGetRootsModify())
 		{
-			gViewerWindow->alertXml("CannotLinkModify");
+			LLNotifications::instance().add("CannotLinkModify");
 			return true;
 		}
 		LLUUID owner_id;
@@ -4174,7 +4165,7 @@ class LLToolsLink : public view_listener_t
 			// we don't actually care if you're the owner, but novices are
 			// the most likely to be stumped by this one, so offer the
 			// easiest and most likely solution.
-			gViewerWindow->alertXml("CannotLinkDifferentOwners");
+			LLNotifications::instance().add("CannotLinkDifferentOwners");
 			return true;
 		}
 		LLSelectMgr::getInstance()->sendLink();
@@ -4738,7 +4729,7 @@ class LLWorldSetBusy : public view_listener_t
 		else
 		{
 			gAgent.setBusy();
-			gViewerWindow->alertXml("BusyModeSet");
+			LLNotifications::instance().add("BusyModeSet");
 		}
 		return true;
 	}
@@ -4764,7 +4755,7 @@ class LLWorldCreateLandmark : public view_listener_t
 		if (!agent_parcel->getAllowLandmark()
 			&& !LLViewerParcelMgr::isParcelOwnedByAgent(agent_parcel, GP_LAND_ALLOW_LANDMARK))
 		{
-			gViewerWindow->alertXml("CannotCreateLandmarkNotOwner");
+			LLNotifications::instance().add("CannotCreateLandmarkNotOwner");
 			return true;
 		}
 
@@ -4871,15 +4862,13 @@ class LLAvatarAddFriend : public view_listener_t
 	}
 };
 
-void complete_give_money(S32 option, void* user_data)
+bool complete_give_money(const LLSD& notification, const LLSD& response, LLObjectSelectionHandle handle)
 {
+	S32 option = LLNotification::getSelectedOption(notification, response);
 	if (option == 0)
 	{
 		gAgent.clearBusy();
 	}
-
-	LLObjectSelectionHandle handle(*(LLObjectSelectionHandle*)user_data);
-	delete (LLObjectSelectionHandle*)user_data;
 
 	LLViewerObject* objectp = handle->getPrimaryObject();
 
@@ -4906,19 +4895,22 @@ void complete_give_money(S32 option, void* user_data)
 			LLFloaterPay::payViaObject(&give_money, objectp->getID());
 		}
 	}
+	return false;
 }
 
 bool handle_give_money_dialog()
 {
-	LLObjectSelectionHandle* handlep = new LLObjectSelectionHandle(LLSelectMgr::getInstance()->getSelection());
+	LLNotification::Params params("BusyModePay");
+	params.functor(boost::bind(complete_give_money, _1, _2, LLSelectMgr::getInstance()->getSelection()));
+
 	if (gAgent.getBusy())
 	{
 		// warn users of being in busy mode during a transaction
-		gViewerWindow->alertXml("BusyModePay", complete_give_money, handlep);
+		LLNotifications::instance().add(params);
 	}
 	else
 	{
-		complete_give_money(1, handlep);
+		LLNotifications::instance().forceResponse(params, 1);
 	}
 	return true;
 }
@@ -5069,7 +5061,7 @@ class LLShowFloater : public view_listener_t
 		}
 		else if (floater_name == "appearance")
 		{
-			if (gAgent.getWearablesLoaded())
+			if (gAgent.areWearablesLoaded())
 			{
 				gAgent.changeCameraToCustomizeAvatar();
 			}
@@ -5272,14 +5264,14 @@ class LLFloaterVisible : public view_listener_t
 	}
 };
 
-void callback_show_url(S32 option, void* data)
+bool callback_show_url(const LLSD& notification, const LLSD& response)
 {
-	std::string* urlp = (std::string*)data;
+	S32 option = LLNotification::getSelectedOption(notification, response);
 	if (0 == option)
 	{
-		LLWeb::loadURL(*urlp);
+		LLWeb::loadURL(notification["payload"]["url"].asString());
 	}
-	delete urlp;
+	return false;
 }
 
 class LLPromptShowURL : public view_listener_t
@@ -5292,20 +5284,54 @@ class LLPromptShowURL : public view_listener_t
 		{
 			std::string alert = param.substr(0, offset);
 			std::string url = param.substr(offset+1);
-			std::string* url_copy = new std::string(url);
 
 			if(gSavedSettings.getBOOL("UseExternalBrowser"))
 			{ 
-				gViewerWindow->alertXml(alert, callback_show_url, url_copy);
+    			LLSD payload;
+    			payload["url"] = url;
+    			LLNotifications::instance().add(alert, LLSD(), payload, callback_show_url);
 			}
 			else
 			{
-				callback_show_url(0, url_copy);
+		        LLWeb::loadURL(url);
 			}
 		}
 		else
 		{
 			llinfos << "PromptShowURL invalid parameters! Expecting \"ALERT,URL\"." << llendl;
+		}
+		return true;
+	}
+};
+
+bool callback_show_file(const LLSD& notification, const LLSD& response)
+{
+	S32 option = LLNotification::getSelectedOption(notification, response);
+	if (0 == option)
+	{
+		LLWeb::loadURL(notification["payload"]["url"]);
+	}
+	return false;
+}
+
+class LLPromptShowFile : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		std::string param = userdata.asString();
+		std::string::size_type offset = param.find(",");
+		if (offset != param.npos)
+		{
+			std::string alert = param.substr(0, offset);
+			std::string file = param.substr(offset+1);
+
+			LLSD payload;
+			payload["url"] = file;
+			LLNotifications::instance().add(alert, LLSD(), payload, callback_show_file);
+		}
+		else
+		{
+			llinfos << "PromptShowFile invalid parameters! Expecting \"ALERT,FILE\"." << llendl;
 		}
 		return true;
 	}
@@ -5940,11 +5966,11 @@ void queue_actions(LLFloaterScriptQueue* q, const std::string& noscriptmsg, cons
 	{
 		if ( !func.scripted )
 		{
-			gViewerWindow->alertXml(noscriptmsg);
+			LLNotifications::instance().add(noscriptmsg);
 		}
 		else if ( !func.modifiable )
 		{
-			gViewerWindow->alertXml(nomodmsg);
+			LLNotifications::instance().add(nomodmsg);
 		}
 		else
 		{
@@ -6933,7 +6959,7 @@ void handle_save_to_xml(void*)
 	LLFloater* frontmost = gFloaterView->getFrontmost();
 	if (!frontmost)
 	{
-		gViewerWindow->alertXml("NoFrontmostFloater");
+        LLNotifications::instance().add("NoFrontmostFloater");
 		return;
 	}
 

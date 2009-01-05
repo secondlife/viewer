@@ -35,6 +35,7 @@
 #define LL_LLDATE_H
 
 #include <iosfwd>
+#include <string>
 
 #include "stdtypes.h"
 
@@ -53,7 +54,7 @@ public:
 	LLDate();
 
 	/** 
-	 * @brief Construct a date equal to epoch.
+	 * @brief Construct a date equal the source date.
 	 */
 	LLDate(const LLDate& date);
 
@@ -111,6 +112,32 @@ public:
 	 * @param seconds The number of seconds since epoch UTC.
 	 */
 	void secondsSinceEpoch(F64 seconds);
+    
+    /**
+     * @brief Create an LLDate object set to the current time.
+	 *
+	 * @return The number of seconds since epoch UTC.
+	 */
+    static LLDate now();
+
+	/** 
+	 * @brief Compare dates using operator< so we can order them using STL.
+	 *
+	 * @param rhs -- the right hand side of the comparison operator
+	 */
+	bool operator<(const LLDate& rhs) const;
+    
+	/** 
+	 * @brief Remaining comparison operators in terms of operator<
+     * This conforms to the expectation of STL.
+	 *
+	 * @param rhs -- the right hand side of the comparison operator
+	 */
+    bool operator>(const LLDate& rhs) const { return rhs < *this; }
+    bool operator<=(const LLDate& rhs) const { return !(rhs < *this); }
+    bool operator>=(const LLDate& rhs) const { return !(*this < rhs); }
+    bool operator!=(const LLDate& rhs) const { return (*this < rhs) || (rhs < *this); }
+    bool operator==(const LLDate& rhs) const { return !(*this != rhs); }
 
 private:
 	F64 mSecondsSinceEpoch;

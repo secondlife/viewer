@@ -349,7 +349,7 @@ namespace
 
 		virtual bool has(const LLSD::String&) const; 
 		virtual LLSD get(const LLSD::String&) const; 
-		        void insert(const LLSD::String& k, const LLSD& v);
+		        LLSD& insert(const LLSD::String& k, const LLSD& v);
 		virtual void erase(const LLSD::String&);
 		              LLSD& ref(const LLSD::String&);
 		virtual const LLSD& ref(const LLSD::String&) const;
@@ -388,9 +388,14 @@ namespace
 		return (i != mData.end()) ? i->second : LLSD();
 	}
 	
-	void ImplMap::insert(const LLSD::String& k, const LLSD& v)
+	LLSD& ImplMap::insert(const LLSD::String& k, const LLSD& v)
 	{
 		mData.insert(DataMap::value_type(k, v));
+		#ifdef LL_MSVC7
+			return *((LLSD*)this);
+		#else
+			return *dynamic_cast<LLSD*>(this);
+		#endif
 	}
 	
 	void ImplMap::erase(const LLSD::String& k)
@@ -436,7 +441,7 @@ namespace
 		virtual int size() const; 
 		virtual LLSD get(LLSD::Integer) const;
 		        void set(LLSD::Integer, const LLSD&);
-		        void insert(LLSD::Integer, const LLSD&);
+		        LLSD& insert(LLSD::Integer, const LLSD&);
 		        void append(const LLSD&);
 		virtual void erase(LLSD::Integer);
 		              LLSD& ref(LLSD::Integer);
@@ -485,9 +490,15 @@ namespace
 		mData[index] = v;
 	}
 	
-	void ImplArray::insert(LLSD::Integer i, const LLSD& v)
+	LLSD& ImplArray::insert(LLSD::Integer i, const LLSD& v)
 	{
-		if (i < 0) { return; }
+		if (i < 0) {
+			#ifdef LL_MSVC7
+				return *((LLSD*)this);
+			#else
+				return *dynamic_cast<LLSD*>(this);
+			#endif
+		}
 		DataVector::size_type index = i;
 		
 		if (index >= mData.size())
@@ -496,6 +507,11 @@ namespace
 		}
 		
 		mData.insert(mData.begin() + index, v);
+		#ifdef LL_MSVC7
+			return *((LLSD*)this);
+		#else
+			return *dynamic_cast<LLSD*>(this);
+		#endif
 	}
 	
 	void ImplArray::append(const LLSD& v)
@@ -739,8 +755,11 @@ LLSD LLSD::emptyMap()
 bool LLSD::has(const String& k) const	{ return safe(impl).has(k); }
 LLSD LLSD::get(const String& k) const	{ return safe(impl).get(k); } 
 
-void LLSD::insert(const String& k, const LLSD& v)
-										{ makeMap(impl).insert(k, v); }
+LLSD& LLSD::insert(const String& k, const LLSD& v)
+										{ 
+											makeMap(impl).insert(k, v); 
+											return *dynamic_cast<LLSD*>(this);
+										}
 void LLSD::erase(const String& k)		{ makeMap(impl).erase(k); }
 
 LLSD&		LLSD::operator[](const String& k)
@@ -761,8 +780,11 @@ int LLSD::size() const					{ return safe(impl).size(); }
 LLSD LLSD::get(Integer i) const			{ return safe(impl).get(i); } 
 void LLSD::set(Integer i, const LLSD& v){ makeArray(impl).set(i, v); }
 
-void LLSD::insert(Integer i, const LLSD& v)
-										{ makeArray(impl).insert(i, v); }
+LLSD& LLSD::insert(Integer i, const LLSD& v)
+										{ 
+											makeArray(impl).insert(i, v); 
+											return *this;
+										}
 void LLSD::append(const LLSD& v)		{ makeArray(impl).append(v); }
 void LLSD::erase(Integer i)				{ makeArray(impl).erase(i); }
 

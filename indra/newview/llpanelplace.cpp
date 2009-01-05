@@ -416,24 +416,24 @@ void LLPanelPlace::onClickLandmark(void* data)
 void LLPanelPlace::onClickAuction(void* data)
 {
 	LLPanelPlace* self = (LLPanelPlace*)data;
+	LLSD payload;
+	payload["auction_id"] = self->mAuctionID;
 
-	gViewerWindow->alertXml("GoToAuctionPage",
-		callbackAuctionWebPage, 
-		self);
+	LLNotifications::instance().add("GoToAuctionPage", LLSD(), payload, callbackAuctionWebPage);
 }
 
 // static
-void LLPanelPlace::callbackAuctionWebPage(S32 option, void* data)
+bool LLPanelPlace::callbackAuctionWebPage(const LLSD& notification, const LLSD& response)
 {
-	LLPanelPlace* self = (LLPanelPlace*)data;
-
+	S32 option = LLNotification::getSelectedOption(notification, response);
 	if (0 == option)
 	{
 		std::string url;
-		url = AUCTION_URL + llformat( "%010d", self->mAuctionID);
+		url = AUCTION_URL + llformat("%010d", response["auction_id"].asInteger());
 
 		llinfos << "Loading auction page " << url << llendl;
 
 		LLWeb::loadURL(url);
 	}
+	return false;
 }

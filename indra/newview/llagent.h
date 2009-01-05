@@ -591,10 +591,8 @@ public:
 	//--------------------------------------------------------------------
 	// Wearables
 	//--------------------------------------------------------------------
-	BOOL			getWearablesLoaded() const	{ return mWearablesLoaded; }
-
 	void			setWearable( LLInventoryItem* new_item, LLWearable* wearable );
-	static void		onSetWearableDialog( S32 option, void* userdata );
+	static bool		onSetWearableDialog( const LLSD& notification, const LLSD& response, LLWearable* wearable );
 	void			setWearableFinal( LLInventoryItem* new_item, LLWearable* new_wearable );
 	void			setWearableOutfit( 	const LLInventoryItem::item_array_t& items, const LLDynamicArray< LLWearable* >& wearables, BOOL remove );
 	void			queryWearableCache();
@@ -624,7 +622,7 @@ public:
 	void			makeNewOutfitDone(S32 index);
 
 	void			removeWearable( EWearableType type );
-	static void		onRemoveWearableDialog( S32 option, void* userdata );
+	static bool		onRemoveWearableDialog(const LLSD& notification, const LLSD& response );
 	void			removeWearableFinal( EWearableType type );
 	
 	void			sendAgentWearablesUpdate();

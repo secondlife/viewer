@@ -81,7 +81,7 @@ public:
 
 	// How many "lines" the "document" has scrolled.
 	// 0 <= DocPos <= DocSize - DocVisibile
-	void				setDocPos( S32 pos );
+	void				setDocPos( S32 pos, BOOL update_thumb = TRUE );
 	S32					getDocPos() const		{ return mDocPos; }
 
 	BOOL				isAtBeginning();

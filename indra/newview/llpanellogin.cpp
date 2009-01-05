@@ -899,16 +899,17 @@ void LLPanelLogin::onClickConnect(void *)
 		}
 		else
 		{
-			gViewerWindow->alertXml("MustHaveAccountToLogIn",
-									LLPanelLogin::newAccountAlertCallback);
+			LLNotifications::instance().add("MustHaveAccountToLogIn", LLSD(), LLSD(),
+										LLPanelLogin::newAccountAlertCallback);
 		}
 	}
 }
 
 
 // static
-void LLPanelLogin::newAccountAlertCallback(S32 option, void*)
+bool LLPanelLogin::newAccountAlertCallback(const LLSD& notification, const LLSD& response)
 {
+	S32 option = LLNotification::getSelectedOption(notification, response);
 	if (0 == option)
 	{
 		llinfos << "Going to account creation URL" << llendl;
@@ -918,6 +919,7 @@ void LLPanelLogin::newAccountAlertCallback(S32 option, void*)
 	{
 		sInstance->setFocus(TRUE);
 	}
+	return false;
 }
 
 
@@ -964,7 +966,7 @@ void LLPanelLogin::onPassKey(LLLineEditor* caller, void* user_data)
 {
 	if (gKeyboard->getKeyDown(KEY_CAPSLOCK) && sCapslockDidNotification == FALSE)
 	{
-		LLNotifyBox::showXml("CapsKeyOn");
+		LLNotifications::instance().add("CapsKeyOn");
 		sCapslockDidNotification = TRUE;
 	}
 }

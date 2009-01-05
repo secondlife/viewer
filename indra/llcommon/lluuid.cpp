@@ -908,6 +908,21 @@ BOOL LLUUID::parseUUID(const std::string& buf, LLUUID* value)
 	return FALSE;
 }
 
+//static
+LLUUID LLUUID::generateNewID(std::string hash_string)
+{
+	LLUUID new_id;
+	if (hash_string.empty())
+	{
+		new_id.generate();
+	}
+	else
+	{
+		new_id.generate(hash_string);
+	}
+	return new_id;
+}
+
 LLAssetID LLTransactionID::makeAssetID(const LLUUID& session) const
 {
 	LLAssetID result;

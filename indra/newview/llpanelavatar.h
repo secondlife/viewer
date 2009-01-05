@@ -117,7 +117,7 @@ public:
 	static void onDoubleClickGroup(void* userdata);
 	static void onClickPublishHelp(void *userdata);
 	static void onClickPartnerHelp(void *userdata);
-	static void onClickPartnerHelpLoadURL(S32 option, void* userdata);
+	static bool onClickPartnerHelpLoadURL(const LLSD& notification, const LLSD& response);
 	static void onClickPartnerInfo(void *userdata);
 
 	// Clear out the controls anticipating new network data.
@@ -231,8 +231,8 @@ private:
 	static void onClickNew(void* data);
 	static void onClickDelete(void* data);
 
-	static void callbackDelete(S32 option, void* data);
-	static void callbackNew(S32 option, void* data);
+	bool callbackDelete(const LLSD& notification, const LLSD& response);
+	bool callbackNew(const LLSD& notification, const LLSD& response);
 };
 
 
@@ -257,7 +257,7 @@ private:
 	static void onClickNew(void* data);
 	static void onClickDelete(void* data);
 
-	static void callbackDelete(S32 option, void* data);
+	bool callbackDelete(const LLSD& notification, const LLSD& response);
 };
 
 
@@ -325,9 +325,9 @@ public:
 private:
 	void enableOKIfReady();
 
-	static void finishKick(S32 option, const std::string& text, void* userdata);
-	static void finishFreeze(S32 option, const std::string& text, void* userdata);
-	static void finishUnfreeze(S32 option, const std::string& text, void* userdata);
+	static bool finishKick(const LLSD& notification, const LLSD& response);
+	static bool finishFreeze(const LLSD& notification, const LLSD& response);
+	static bool finishUnfreeze(const LLSD& notification, const LLSD& response);
 
 	static void showProfileCallback(S32 option, void *userdata);
 

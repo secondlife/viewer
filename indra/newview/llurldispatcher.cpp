@@ -43,7 +43,6 @@
 #include "llpanellogin.h"
 #include "llstartup.h"			// gStartupState
 #include "llurlsimstring.h"
-#include "llviewerwindow.h"		// alertXml()
 #include "llweb.h"
 #include "llworldmap.h"
 
@@ -147,8 +146,8 @@ bool LLURLDispatcherImpl::dispatchCore(const std::string& url,
 	/*
 	// Inform the user we can't handle this
 	std::map<std::string, std::string> args;
-	args["[SLURL]"] = url;
-	gViewerWindow->alertXml("BadURL", args);
+	args["SLURL"] = url;
+	r;
 	*/
 	
 	return false;

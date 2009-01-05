@@ -980,13 +980,10 @@ void LLGLState::initClass()
 {
 	sStateMap[GL_DITHER] = GL_TRUE;
 	// sStateMap[GL_TEXTURE_2D] = GL_TRUE;
-
+	
 	//make sure multisample defaults to disabled
 	sStateMap[GL_MULTISAMPLE_ARB] = GL_FALSE;
 	glDisable(GL_MULTISAMPLE_ARB);
-
-	//default vertex arrays to enabled.
-	glEnableClientState(GL_VERTEX_ARRAY);
 }
 
 //static

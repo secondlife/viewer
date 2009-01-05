@@ -103,6 +103,30 @@ const F32 FP_MAG_THRESHOLD = 0.0000001f;
 // TODO: Replace with logic like is_approx_equal
 inline BOOL is_approx_zero( F32 f ) { return (-F_APPROXIMATELY_ZERO < f) && (f < F_APPROXIMATELY_ZERO); }
 
+// These functions work by interpreting sign+exp+mantissa as an unsigned
+// integer.
+// For example:
+// x = <sign>1 <exponent>00000010 <mantissa>00000000000000000000000
+// y = <sign>1 <exponent>00000001 <mantissa>11111111111111111111111
+//
+// interpreted as ints = 
+// x = 10000001000000000000000000000000
+// y = 10000000111111111111111111111111
+// which is clearly a different of 1 in the least significant bit
+// Values with the same exponent can be trivially shown to work.
+//
+// WARNING: Denormals of opposite sign do not work
+// x = <sign>1 <exponent>00000000 <mantissa>00000000000000000000001
+// y = <sign>0 <exponent>00000000 <mantissa>00000000000000000000001
+// Although these values differ by 2 in the LSB, the sign bit makes
+// the int comparison fail.
+//
+// WARNING: NaNs can compare equal
+// There is no special treatment of exceptional values like NaNs
+//
+// WARNING: Infinity is comparable with F32_MAX and negative 
+// infinity is comparable with F32_MIN
+
 inline BOOL is_approx_equal(F32 x, F32 y)
 {
 	const S32 COMPARE_MANTISSA_UP_TO_BIT = 0x02;

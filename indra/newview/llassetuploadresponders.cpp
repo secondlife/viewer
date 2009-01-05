@@ -102,21 +102,21 @@ void LLAssetUploadResponder::error(U32 statusNum, const std::string& reason)
 {
 	llinfos << "LLAssetUploadResponder::error " << statusNum 
 			<< " reason: " << reason << llendl;
-	LLStringUtil::format_map_t args;
+	LLSD args;
 	switch(statusNum)
 	{
 		case 400:
-			args["[FILE]"] = (mFileName.empty() ? mVFileID.asString() : mFileName);
-			args["[REASON]"] = "Error in upload request.  Please visit "
+			args["FILE"] = (mFileName.empty() ? mVFileID.asString() : mFileName);
+			args["REASON"] = "Error in upload request.  Please visit "
 				"http://secondlife.com/support for help fixing this problem.";
-			gViewerWindow->alertXml("CannotUploadReason", args);
+			LLNotifications::instance().add("CannotUploadReason", args);
 			break;
 		case 500:
 		default:
-			args["[FILE]"] = (mFileName.empty() ? mVFileID.asString() : mFileName);
-			args["[REASON]"] = "The server is experiencing unexpected "
+			args["FILE"] = (mFileName.empty() ? mVFileID.asString() : mFileName);
+			args["REASON"] = "The server is experiencing unexpected "
 				"difficulties.";
-			gViewerWindow->alertXml("CannotUploadReason", args);
+			LLNotifications::instance().add("CannotUploadReason", args);
 			break;
 	}
 	LLUploadDialog::modalUploadFinished();
@@ -171,10 +171,10 @@ void LLAssetUploadResponder::uploadFailure(const LLSD& content)
 	}
 	else
 	{
-		LLStringUtil::format_map_t args;
-		args["[FILE]"] = (mFileName.empty() ? mVFileID.asString() : mFileName);
-		args["[REASON]"] = content["message"].asString();
-		gViewerWindow->alertXml("CannotUploadReason", args);
+		LLSD args;
+		args["FILE"] = (mFileName.empty() ? mVFileID.asString() : mFileName);
+		args["REASON"] = content["message"].asString();
+		LLNotifications::instance().add("CannotUploadReason", args);
 	}
 }
 
@@ -220,9 +220,9 @@ void LLNewAgentInventoryResponder::uploadComplete(const LLSD& content)
 		gMessageSystem->addUUIDFast(_PREHASH_TransactionID, LLUUID::null );
 		gAgent.sendReliableMessage();
 
-		LLStringUtil::format_map_t args;
-		args["[AMOUNT]"] = llformat("%d",LLGlobalEconomy::Singleton::getInstance()->getPriceUpload());
-		LLNotifyBox::showXml("UploadPayment", args);
+		LLSD args;
+		args["AMOUNT"] = llformat("%d",LLGlobalEconomy::Singleton::getInstance()->getPriceUpload());
+		LLNotifications::instance().add("UploadPayment", args);
 	}
 
 	// Actually add the upload to viewer inventory

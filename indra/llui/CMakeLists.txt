@@ -36,6 +36,7 @@ set(llui_SOURCE_FILES
     lleditmenuhandler.cpp
     llfloater.cpp
     llfocusmgr.cpp
+    llfunctorregistry.cpp
     lliconctrl.cpp
     llkeywords.cpp
     lllineeditor.cpp
@@ -43,6 +44,7 @@ set(llui_SOURCE_FILES
     llmodaldialog.cpp
     llmultislider.cpp
     llmultisliderctrl.cpp
+    llnotifications.cpp
     llpanel.cpp
     llprogressbar.cpp
     llradiogroup.cpp
@@ -86,6 +88,7 @@ set(llui_HEADER_FILES
     lleditmenuhandler.h
     llfloater.h
     llfocusmgr.h
+    llfunctorregistry.h
     llhtmlhelp.h
     lliconctrl.h
     llkeywords.h
@@ -95,6 +98,7 @@ set(llui_HEADER_FILES
     llmodaldialog.h
     llmultisliderctrl.h
     llmultislider.h
+    llnotifications.h
     llpanel.h
     llprogressbar.h
     llradiogroup.h

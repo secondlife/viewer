@@ -229,9 +229,7 @@ BOOL LLPreviewNotecard::canClose()
 	else
 	{
 		// Bring up view-modal dialog: Save changes? Yes, No, Cancel
-		gViewerWindow->alertXml("SaveChanges",
-								  &LLPreviewNotecard::handleSaveChangesDialog,
-								  this);
+		LLNotifications::instance().add("SaveChanges", LLSD(), LLSD(), boost::bind(&LLPreviewNotecard::handleSaveChangesDialog,this, _1, _2));
 								  
 		return FALSE;
 	}
@@ -403,15 +401,15 @@ void LLPreviewNotecard::onLoadComplete(LLVFS *vfs,
 			if( LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE == status ||
 				LL_ERR_FILE_EMPTY == status)
 			{
-				LLNotifyBox::showXml("NotecardMissing");
+				LLNotifications::instance().add("NotecardMissing");
 			}
 			else if (LL_ERR_INSUFFICIENT_PERMISSIONS == status)
 			{
-				LLNotifyBox::showXml("NotecardNoPermissions");
+				LLNotifications::instance().add("NotecardNoPermissions");
 			}
 			else
 			{
-				LLNotifyBox::showXml("UnableToLoadNotecard");
+				LLNotifications::instance().add("UnableToLoadNotecard");
 			}
 
 			llwarns << "Problem loading notecard: " << status << llendl;
@@ -578,7 +576,7 @@ void LLPreviewNotecard::onSaveComplete(const LLUUID& asset_uuid, void* user_data
 			}
 			else
 			{
-				gViewerWindow->alertXml("SaveNotecardFailObjectNotFound");
+				LLNotifications::instance().add("SaveNotecardFailObjectNotFound");
 			}
 		}
 		// Perform item copy to inventory
@@ -601,9 +599,9 @@ void LLPreviewNotecard::onSaveComplete(const LLUUID& asset_uuid, void* user_data
 	else
 	{
 		llwarns << "Problem saving notecard: " << status << llendl;
-		LLStringUtil::format_map_t args;
-		args["[REASON]"] = std::string(LLAssetStorage::getErrorString(status));
-		gViewerWindow->alertXml("SaveNotecardFailReason",args);
+		LLSD args;
+		args["REASON"] = std::string(LLAssetStorage::getErrorString(status));
+		LLNotifications::instance().add("SaveNotecardFailReason", args);
 	}
 
 	std::string uuid_string;
@@ -614,20 +612,19 @@ void LLPreviewNotecard::onSaveComplete(const LLUUID& asset_uuid, void* user_data
 	delete info;
 }
 
-// static
-void LLPreviewNotecard::handleSaveChangesDialog(S32 option, void* userdata)
+bool LLPreviewNotecard::handleSaveChangesDialog(const LLSD& notification, const LLSD& response)
 {
-	LLPreviewNotecard* self = (LLPreviewNotecard*)userdata;
+	S32 option = LLNotification::getSelectedOption(notification, response);
 	switch(option)
 	{
 	case 0:  // "Yes"
-		self->mCloseAfterSave = TRUE;
-		LLPreviewNotecard::onClickSave((void*)self);
+		mCloseAfterSave = TRUE;
+		LLPreviewNotecard::onClickSave((void*)this);
 		break;
 
 	case 1:  // "No"
-		self->mForceClose = TRUE;
-		self->close();
+		mForceClose = TRUE;
+		close();
 		break;
 
 	case 2: // "Cancel"
@@ -636,6 +633,7 @@ void LLPreviewNotecard::handleSaveChangesDialog(S32 option, void* userdata)
 		LLAppViewer::instance()->abortQuit();
 		break;
 	}
+	return false;
 }
 
 void LLPreviewNotecard::reshape(S32 width, S32 height, BOOL called_from_parent)

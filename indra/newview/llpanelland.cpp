@@ -266,5 +266,5 @@ void LLPanelLandInfo::onClickAbout(void*)
 
 void LLPanelLandInfo::onShowOwnersHelp(void* user_data)
 {
-	gViewerWindow->alertXml("ShowOwnersHelp");
+	LLNotifications::instance().add("ShowOwnersHelp");
 }

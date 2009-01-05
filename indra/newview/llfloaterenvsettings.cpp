@@ -67,18 +67,8 @@ LLFloaterEnvSettings::~LLFloaterEnvSettings()
 
 void LLFloaterEnvSettings::onClickHelp(void* data)
 {
-	LLFloaterEnvSettings* self = static_cast<LLFloaterEnvSettings*>(data);
-
-	const char* xml_alert = "EnvSettingsHelpButton";
-	LLAlertDialog* dialogp = gViewerWindow->alertXml(xml_alert);
-	if (dialogp)
-	{
-		LLFloater* root_floater = gFloaterView->getParentFloater(self);
-		if (root_floater)
-		{
-			root_floater->addDependentFloater(dialogp);
-		}
-	}
+	LLFloaterEnvSettings* self = (LLFloaterEnvSettings*)data;
+	LLNotifications::instance().add(self->contextualNotification("EnvSettingsHelpButton"));
 }
 
 void LLFloaterEnvSettings::initCallbacks(void) 

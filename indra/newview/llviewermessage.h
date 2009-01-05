@@ -192,11 +192,15 @@ void process_decline_callingcard(LLMessageSystem* msg, void**);
 void invalid_message_callback(LLMessageSystem*, void*, EMessageException);
 
 void process_initiate_download(LLMessageSystem* msg, void**);
-void inventory_offer_callback(S32 option, void* user_data);
 void start_new_inventory_observer();
 
 struct LLOfferInfo
 {
+	LLOfferInfo() {};
+	LLOfferInfo(const LLSD& sd);
+
+	void forceResponse(InventoryOfferResponse response);
+
 	EInstantMessage mIM;
 	LLUUID mFromID;
 	BOOL mFromGroup;
@@ -208,6 +212,10 @@ struct LLOfferInfo
 	std::string mFromName;
 	std::string mDesc;
 	LLHost mHost;
+
+	LLSD asLLSD();
+	bool inventory_offer_callback(const LLSD& notification, const LLSD& response);
+
 };
 
 void process_feature_disabled_message(LLMessageSystem* msg, void**);

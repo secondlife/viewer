@@ -485,7 +485,7 @@ public:
 			// did we find *something* with that name?
 			if (child)
 			{
-				llwarns << "Found child named " << name << " but of wrong type" << llendl;
+				llwarns << "Found child named " << name << " but of wrong type " << typeid(child).name() << ", expecting " << typeid(T).name() << llendl;
 			}
 			if (create_if_missing)
 			{
@@ -494,6 +494,11 @@ public:
 			}
 		}
 		return result;
+	}
+
+	template <class T> T& getChildRef(const std::string& name, BOOL recurse = TRUE) const
+	{
+		return *getChild<T>(name, recurse, TRUE);
 	}
 
 	virtual LLView* getChildView(const std::string& name, BOOL recurse = TRUE, BOOL create_if_missing = TRUE) const;

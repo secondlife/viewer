@@ -141,7 +141,7 @@ public:
 	
 	static LLView* fromXML(LLXMLNodePtr node, LLView* parent, class LLUICtrlFactory* factory);
 
-	LLUICtrl*		findRootMostFocusRoot() const;
+	LLUICtrl*		findRootMostFocusRoot();
 
 	class LLTextInputFilter : public LLQueryFilter, public LLSingleton<LLTextInputFilter>
 	{

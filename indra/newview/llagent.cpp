@@ -583,7 +583,7 @@ void LLAgent::onAppFocusGained()
 
 void LLAgent::ageChat()
 {
-	if (mAvatarObject)
+	if (mAvatarObject.notNull())
 	{
 		// get amount of time since I last chatted
 		F64 elapsed_time = (F64)mAvatarObject->mChatTimer.getElapsedTimeF32();
@@ -600,7 +600,7 @@ void LLAgent::unlockView()
 {
 	if (getFocusOnAvatar())
 	{
-		if (mAvatarObject)
+		if (mAvatarObject.notNull())
 		{
 			setFocusGlobal( LLVector3d::zero, mAvatarObject->mID );
 		}
@@ -1017,7 +1017,7 @@ void LLAgent::sendReliableMessage()
 //-----------------------------------------------------------------------------
 LLVector3 LLAgent::getVelocity() const
 {
-	if (mAvatarObject)
+	if (mAvatarObject.notNull())
 	{
 		return mAvatarObject->getVelocity();
 	}
@@ -1038,7 +1038,7 @@ void LLAgent::setPositionAgent(const LLVector3 &pos_agent)
 		llerrs << "setPositionAgent is not a number" << llendl;
 	}
 
-	if (!mAvatarObject.isNull() && mAvatarObject->getParent())
+	if (mAvatarObject.notNull() && mAvatarObject->getParent())
 	{
 		LLVector3 pos_agent_sitting;
 		LLVector3d pos_agent_d;
@@ -1076,7 +1076,7 @@ void LLAgent::slamLookAt(const LLVector3 &look_at)
 //-----------------------------------------------------------------------------
 const LLVector3d &LLAgent::getPositionGlobal() const
 {
-	if (!mAvatarObject.isNull() && !mAvatarObject->mDrawable.isNull())
+	if (mAvatarObject.notNull() && !mAvatarObject->mDrawable.isNull())
 	{
 		mPositionGlobal = getPosGlobalFromAgent(mAvatarObject->getRenderPosition());
 	}
@@ -1093,7 +1093,7 @@ const LLVector3d &LLAgent::getPositionGlobal() const
 //-----------------------------------------------------------------------------
 const LLVector3 &LLAgent::getPositionAgent()
 {
-	if(!mAvatarObject.isNull() && !mAvatarObject->mDrawable.isNull())
+	if(mAvatarObject.notNull() && !mAvatarObject->mDrawable.isNull())
 	{
 		mFrameAgent.setOrigin(mAvatarObject->getRenderPosition());	
 	}
@@ -2345,11 +2345,11 @@ void LLAgent::stopAutoPilot(BOOL user_cancel)
 		if (user_cancel && !mAutoPilotBehaviorName.empty())
 		{
 			if (mAutoPilotBehaviorName == "Sit")
-				LLNotifyBox::showXml("CancelledSit");
+				LLNotifications::instance().add("CancelledSit");
 			else if (mAutoPilotBehaviorName == "Attach")
-				LLNotifyBox::showXml("CancelledAttach");
+				LLNotifications::instance().add("CancelledAttach");
 			else
-				LLNotifyBox::showXml("Cancelled");
+				LLNotifications::instance().add("Cancelled");
 		}
 	}
 }
@@ -2374,7 +2374,7 @@ void LLAgent::autoPilot(F32 *delta_yaw)
 			mAutoPilotTargetGlobal = object->getPositionGlobal();
 		}
 		
-		if (!mAvatarObject)
+		if (mAvatarObject.isNull())
 		{
 			return;
 		}
@@ -2455,7 +2455,7 @@ void LLAgent::autoPilot(F32 *delta_yaw)
 		// If we're flying, handle autopilot points above or below you.
 		if (getFlying() && xy_distance < AUTOPILOT_HEIGHT_ADJUST_DISTANCE)
 		{
-			if (mAvatarObject)
+			if (mAvatarObject.notNull())
 			{
 				F64 current_height = mAvatarObject->getPositionGlobal().mdV[VZ];
 				F32 delta_z = (F32)(mAutoPilotTargetGlobal.mdV[VZ] - current_height);
@@ -2540,7 +2540,7 @@ void LLAgent::propagate(const F32 dt)
 	pitch(PITCH_RATE * (F32) mPitchKey * dt);
 	
 	// handle auto-land behavior
-	if (mAvatarObject)
+	if (mAvatarObject.notNull())
 	{
 		BOOL in_air = mAvatarObject->mInAir;
 		LLVector3 land_vel = getVelocity();
@@ -2591,7 +2591,7 @@ void LLAgent::updateLookAt(const S32 mouse_x, const S32 mouse_y)
 	static LLVector3 last_at_axis;
 
 
-	if ( mAvatarObject.isNull() )
+	if (mAvatarObject.isNull())
 	{
 		return;
 	}
@@ -2864,7 +2864,7 @@ void LLAgent::endAnimationUpdateUI()
 		}
 
 		// Disable mouselook-specific animations
-		if (mAvatarObject)
+		if (mAvatarObject.notNull())
 		{
 			if( mAvatarObject->isAnyAnimationSignaled(AGENT_GUN_AIM_ANIMS, NUM_AGENT_GUN_AIM_ANIMS) )
 			{
@@ -2910,7 +2910,7 @@ void LLAgent::endAnimationUpdateUI()
 			gMorphView->setVisible( FALSE );
 		}
 
-		if (mAvatarObject)
+		if (mAvatarObject.notNull())
 		{
 			if(mCustomAnim)
 			{
@@ -2953,7 +2953,7 @@ void LLAgent::endAnimationUpdateUI()
 		gIMMgr->setFloaterOpen( FALSE );
 		gConsole->setVisible( TRUE );
 
-		if (mAvatarObject)
+		if (mAvatarObject.notNull())
 		{
 			// Trigger mouselook-specific animations
 			if( mAvatarObject->isAnyAnimationSignaled(AGENT_GUN_HOLD_ANIMS, NUM_AGENT_GUN_HOLD_ANIMS) )
@@ -3014,7 +3014,7 @@ void LLAgent::endAnimationUpdateUI()
 		}
 
 		// freeze avatar
-		if (mAvatarObject)
+		if (mAvatarObject.notNull())
 		{
 			mPauseRequest = mAvatarObject->requestPause();
 		}
@@ -3048,7 +3048,7 @@ void LLAgent::updateCamera()
 
 	validateFocusObject();
 
-	if (!mAvatarObject.isNull() && 
+	if (mAvatarObject.notNull() && 
 		mAvatarObject->mIsSitting &&
 		camera_mode == CAMERA_MODE_MOUSELOOK)
 	{
@@ -3162,7 +3162,7 @@ void LLAgent::updateCamera()
 	//Ventrella
 	if ( mCameraMode == CAMERA_MODE_FOLLOW )
 	{
-		if ( !mAvatarObject.isNull() )
+		if ( mAvatarObject.notNull() )
 		{
 			//--------------------------------------------------------------------------------
 			// this is where the avatar's position and rotation are given to followCam, and 
@@ -3472,7 +3472,7 @@ LLVector3d LLAgent::calcFocusPositionTargetGlobal()
 	{
 		LLVector3d at_axis(1.0, 0.0, 0.0);
 		LLQuaternion agent_rot = mFrameAgent.getQuaternion();
-		if (!mAvatarObject.isNull() && mAvatarObject->getParent())
+		if (mAvatarObject.notNull() && mAvatarObject->getParent())
 		{
 			LLViewerObject* root_object = (LLViewerObject*)mAvatarObject->getRoot();
 			if (!root_object->flagCameraDecoupled())
@@ -3770,7 +3770,7 @@ LLVector3d LLAgent::calcCameraPositionTargetGlobal(BOOL *hit_limit)
 			camera_offset.setVec( local_camera_offset );
 			camera_position_global = frame_center_global + head_offset + camera_offset;
 
-			if (!mAvatarObject.isNull())
+			if (mAvatarObject.notNull())
 			{
 				LLVector3d camera_lag_d;
 				F32 lag_interp = LLCriticalDamp::getInterpolant(CAMERA_LAG_HALF_LIFE);
@@ -4001,7 +4001,7 @@ void LLAgent::changeCameraToMouselook(BOOL animate)
 	gSavedSettings.setBOOL("ThirdPersonBtnState",	FALSE);
 	gSavedSettings.setBOOL("BuildBtnState",			FALSE);
 
-	if (mAvatarObject)
+	if (mAvatarObject.notNull())
 	{
 		mAvatarObject->stopMotion( ANIM_AGENT_BODY_NOISE );
 		mAvatarObject->stopMotion( ANIM_AGENT_BREATHE_ROT );
@@ -4089,7 +4089,7 @@ void LLAgent::changeCameraToFollow(BOOL animate)
 			LLToolMgr::getInstance()->setCurrentToolset(gBasicToolset);
 		}
 
-		if (mAvatarObject)
+		if (mAvatarObject.notNull())
 		{
 			mAvatarObject->mPelvisp->setPosition(LLVector3::zero);
 			mAvatarObject->startMotion( ANIM_AGENT_BODY_NOISE );
@@ -4137,7 +4137,7 @@ void LLAgent::changeCameraToThirdPerson(BOOL animate)
 
 	mCameraZoomFraction = INITIAL_ZOOM_FRACTION;
 
-	if (mAvatarObject)
+	if (mAvatarObject.notNull())
 	{
 		if (!mAvatarObject->mIsSitting)
 		{
@@ -4183,7 +4183,7 @@ void LLAgent::changeCameraToThirdPerson(BOOL animate)
 	}
 
 	// Remove any pitch from the avatar
-	if (!mAvatarObject.isNull() && mAvatarObject->getParent())
+	if (mAvatarObject.notNull() && mAvatarObject->getParent())
 	{
 		LLQuaternion obj_rot = ((LLViewerObject*)mAvatarObject->getParent())->getRenderRotation();
 		at_axis = LLViewerCamera::getInstance()->getAtAxis();
@@ -4262,7 +4262,7 @@ void LLAgent::changeCameraToCustomizeAvatar(BOOL avatar_animate, BOOL camera_ani
 		LLVOAvatar::onCustomizeStart();
 	}
 
-	if (!mAvatarObject.isNull())
+	if (mAvatarObject.notNull())
 	{
 		if(avatar_animate)
 		{
@@ -4362,7 +4362,7 @@ void LLAgent::setFocusGlobal(const LLVector3d& focus, const LLUUID &object_id)
 	{
 		if (focus.isExactlyZero())
 		{
-			if (!mAvatarObject.isNull())
+			if (mAvatarObject.notNull())
 			{
 				mFocusTargetGlobal = getPosGlobalFromAgent(mAvatarObject->mHeadp->getWorldPosition());
 			}
@@ -4407,7 +4407,7 @@ void LLAgent::setFocusGlobal(const LLVector3d& focus, const LLUUID &object_id)
 	{
 		if (focus.isExactlyZero())
 		{
-			if (!mAvatarObject.isNull())
+			if (mAvatarObject.notNull())
 			{
 				mFocusTargetGlobal = getPosGlobalFromAgent(mAvatarObject->mHeadp->getWorldPosition());
 			}
@@ -4544,7 +4544,7 @@ void LLAgent::setFocusOnAvatar(BOOL focus_on_avatar, BOOL animate)
 		if (mCameraMode == CAMERA_MODE_THIRD_PERSON)
 		{
 			LLVector3 at_axis;
-			if (!mAvatarObject.isNull() && mAvatarObject->getParent())
+			if (mAvatarObject.notNull() && mAvatarObject->getParent())
 			{
 				LLQuaternion obj_rot = ((LLViewerObject*)mAvatarObject->getParent())->getRenderRotation();
 				at_axis = LLViewerCamera::getInstance()->getAtAxis();
@@ -4611,7 +4611,7 @@ void LLAgent::lookAtLastChat()
 		if (chatter->isAvatar())
 		{
 			LLVOAvatar *chatter_av = (LLVOAvatar*)chatter;
-			if (!mAvatarObject.isNull() && chatter_av->mHeadp)
+			if (mAvatarObject.notNull() && chatter_av->mHeadp)
 			{
 				delta_pos = chatter_av->mHeadp->getWorldPosition() - mAvatarObject->mHeadp->getWorldPosition();
 			}
@@ -4692,7 +4692,7 @@ void LLAgent::setStartPosition( U32 location_id )
       LLVector3 agent_pos = getPositionAgent();
       LLVector3 agent_look_at = mFrameAgent.getAtAxis();
 
-      if (mAvatarObject)
+      if (mAvatarObject.notNull())
       {
 	// the z height is at the agent's feet
 	agent_pos.mV[VZ] -= 0.5f * mAvatarObject->mBodySize.mV[VZ];
@@ -4853,7 +4853,7 @@ void LLAgent::setTeen(bool teen)
 
 void LLAgent::buildFullname(std::string& name) const
 {
-	if (mAvatarObject)
+	if (mAvatarObject.notNull())
 	{
 		name = mAvatarObject->getFullname();
 	}
@@ -4871,7 +4871,7 @@ void LLAgent::buildFullnameAndTitle(std::string& name) const
 		name.erase(0, name.length());
 	}
 
-	if (mAvatarObject)
+	if (mAvatarObject.notNull())
 	{
 		name += mAvatarObject->getFullname();
 	}
@@ -5226,7 +5226,7 @@ void LLAgent::getName(std::string& name)
 {
 	name.clear();
 
-	if (mAvatarObject)
+	if (mAvatarObject.notNull())
 	{
 		LLNameValue *first_nv = mAvatarObject->getNVPair("FirstName");
 		LLNameValue *last_nv = mAvatarObject->getNVPair("LastName");
@@ -6726,7 +6726,7 @@ void LLAgent::onInitialWearableAssetArrived( LLWearable* wearable, void* userdat
 void LLAgent::recoverMissingWearable( EWearableType type )
 {
 	// Try to recover by replacing missing wearable with a new one.
-	LLNotifyBox::showXml("ReplacedMissingWearable");
+	LLNotifications::instance().add("ReplacedMissingWearable");
 	lldebugs << "Wearable " << LLWearable::typeToTypeLabel( type ) << " could not be downloaded.  Replaced inventory item with default wearable." << llendl;
 	LLWearable* new_wearable = gWearableList.createNewWearable(type);
 
@@ -7157,8 +7157,10 @@ void LLAgent::removeWearable( EWearableType type )
 	{
 		if( old_wearable->isDirty() )
 		{
+			LLSD payload;
+			payload["wearable_type"] = (S32)type;
 			// Bring up view-modal dialog: Save changes? Yes, No, Cancel
-			gViewerWindow->alertXml("WearableSave", LLAgent::onRemoveWearableDialog, (void*)type );
+			LLNotifications::instance().add("WearableSave", LLSD(), payload, &LLAgent::onRemoveWearableDialog);
 			return;
 		}
 		else
@@ -7169,9 +7171,10 @@ void LLAgent::removeWearable( EWearableType type )
 }
 
 // static 
-void LLAgent::onRemoveWearableDialog( S32 option, void* userdata )
+bool LLAgent::onRemoveWearableDialog(const LLSD& notification, const LLSD& response )
 {
-	EWearableType type = (EWearableType)(intptr_t)userdata;
+	S32 option = LLNotification::getSelectedOption(notification, response);
+	EWearableType type = (EWearableType)notification["payload"]["wearable_type"].asInteger();
 	switch( option )
 	{
 	case 0:  // "Save"
@@ -7190,6 +7193,7 @@ void LLAgent::onRemoveWearableDialog( S32 option, void* userdata )
 		llassert(0);
 		break;
 	}
+	return false;
 }
 
 // Called by removeWearable() and onRemoveWearableDialog() to actually do the removal.
@@ -7388,8 +7392,9 @@ void LLAgent::setWearable( LLInventoryItem* new_item, LLWearable* new_wearable )
 		if( old_wearable->isDirty() )
 		{
 			// Bring up modal dialog: Save changes? Yes, No, Cancel
-			gViewerWindow->alertXml( "WearableSave", LLAgent::onSetWearableDialog,
-				new LLSetWearableData( new_item->getUUID(), new_wearable ));
+			LLSD payload;
+			payload["item_id"] = new_item->getUUID();
+			LLNotifications::instance().add( "WearableSave", LLSD(), payload, boost::bind(LLAgent::onSetWearableDialog, _1, _2, new_wearable));
 			return;
 		}
 	}
@@ -7398,25 +7403,25 @@ void LLAgent::setWearable( LLInventoryItem* new_item, LLWearable* new_wearable )
 }
 
 // static 
-void LLAgent::onSetWearableDialog( S32 option, void* userdata )
+bool LLAgent::onSetWearableDialog( const LLSD& notification, const LLSD& response, LLWearable* wearable )
 {
-	LLSetWearableData* data = (LLSetWearableData*)userdata;
-	LLInventoryItem* new_item = gInventory.getItem( data->mNewItemID );
+	S32 option = LLNotification::getSelectedOption(notification, response);
+	LLInventoryItem* new_item = gInventory.getItem( notification["payload"]["item_id"].asUUID());
 	if( !new_item )
 	{
-		delete data;
-		return;
+		delete wearable;
+		return false;
 	}
 
 	switch( option )
 	{
 	case 0:  // "Save"
-		gAgent.saveWearable( data->mNewWearable->getType() );
-		gAgent.setWearableFinal( new_item, data->mNewWearable );
+		gAgent.saveWearable( wearable->getType() );
+		gAgent.setWearableFinal( new_item, wearable );
 		break;
 
 	case 1:  // "Don't Save"
-		gAgent.setWearableFinal( new_item, data->mNewWearable );
+		gAgent.setWearableFinal( new_item, wearable );
 		break;
 
 	case 2: // "Cancel"
@@ -7427,7 +7432,8 @@ void LLAgent::onSetWearableDialog( S32 option, void* userdata )
 		break;
 	}
 
-	delete data;
+	delete wearable;
+	return false;
 }
 
 // Called from setWearable() and onSetWearableDialog() to actually set the wearable.

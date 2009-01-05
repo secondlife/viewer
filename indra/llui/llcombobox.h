@@ -188,6 +188,7 @@ protected:
 	LLScrollListCtrl*	mList;
 	EPreferredPosition	mListPosition;
 	LLPointer<LLUIImage>	mArrowImage;
+	std::string			mLabel;
 
 private:
 	S32					mButtonPadding;

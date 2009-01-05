@@ -222,7 +222,7 @@ public:
 		
 		bool has(const String&) const;
 		LLSD get(const String&) const;
-		void insert(const String&, const LLSD&);
+		LLSD& insert(const String&, const LLSD&);
 		void erase(const String&);
 		
 		LLSD& operator[](const String&);
@@ -237,7 +237,7 @@ public:
 		
 		LLSD get(Integer) const;
 		void set(Integer, const LLSD&);
-		void insert(Integer, const LLSD&);
+		LLSD& insert(Integer, const LLSD&);
 		void append(const LLSD&);
 		void erase(Integer);
 		

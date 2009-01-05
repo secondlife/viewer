@@ -349,15 +349,15 @@ void LLPreviewTexture::onFileLoadedForSave(BOOL success,
 		LLPointer<LLImageTGA> image_tga = new LLImageTGA;
 		if( !image_tga->encode( src ) )
 		{
-			LLStringUtil::format_map_t args;
-			args["[FILE]"] = self->mSaveFileName;
-			gViewerWindow->alertXml("CannotEncodeFile", args);
+			LLSD args;
+			args["FILE"] = self->mSaveFileName;
+			LLNotifications::instance().add("CannotEncodeFile", args);
 		}
 		else if( !image_tga->save( self->mSaveFileName ) )
 		{
-			LLStringUtil::format_map_t args;
-			args["[FILE]"] = self->mSaveFileName;
-			gViewerWindow->alertXml("CannotWriteFile", args);
+			LLSD args;
+			args["FILE"] = self->mSaveFileName;
+			LLNotifications::instance().add("CannotWriteFile", args);
 		}
 		else
 		{
@@ -370,7 +370,7 @@ void LLPreviewTexture::onFileLoadedForSave(BOOL success,
 
 	if( self && !success )
 	{
-		gViewerWindow->alertXml("CannotDownloadFile");
+		LLNotifications::instance().add("CannotDownloadFile");
 	}
 }
 

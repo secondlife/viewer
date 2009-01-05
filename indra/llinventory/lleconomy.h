@@ -47,6 +47,8 @@ public:
 	// become a singleton and this pattern will more easily disambiguate them.
 	typedef LLSingleton<LLGlobalEconomy> Singleton;
 
+	void initSingleton() { }
+
 	virtual void print();
 
 	static void processEconomyData(LLMessageSystem *msg, LLGlobalEconomy* econ_data);

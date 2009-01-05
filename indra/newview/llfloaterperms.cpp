@@ -153,5 +153,5 @@ U32 LLFloaterPerms::getNextOwnerPerms(std::string prefix)
 //static
 void LLFloaterPerms::onClickHelp(void* data)
 {
-	gViewerWindow->alertXml("ClickUploadHelpPermissions");
+	LLNotifications::instance().add("ClickUploadHelpPermissions");
 }

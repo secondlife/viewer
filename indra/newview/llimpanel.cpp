@@ -306,13 +306,13 @@ void LLVoiceCallCapResponder::error(U32 status, const std::string& reason)
 		if ( 403 == status )
 		{
 			//403 == no ability
-			LLNotifyBox::showXml(
+			LLNotifications::instance().add(
 				"VoiceNotAllowed",
 				channelp->getNotifyArgs());
 		}
 		else
 		{
-			LLNotifyBox::showXml(
+			LLNotifications::instance().add(
 				"VoiceCallGenericError",
 				channelp->getNotifyArgs());
 		}
@@ -348,7 +348,7 @@ LLVoiceChannel::LLVoiceChannel(const LLUUID& session_id, const std::string& sess
 	mSessionName(session_name),
 	mIgnoreNextSessionLeave(FALSE)
 {
-	mNotifyArgs["[VOICE_CHANNEL_NAME]"] = mSessionName;
+	mNotifyArgs["VOICE_CHANNEL_NAME"] = mSessionName;
 
 	if (!sVoiceChannelMap.insert(std::make_pair(session_id, this)).second)
 	{
@@ -384,13 +384,13 @@ void LLVoiceChannel::setChannelInfo(
 	{
 		if (mURI.empty())
 		{
-			LLNotifyBox::showXml("VoiceChannelJoinFailed", mNotifyArgs);
+			LLNotifications::instance().add("VoiceChannelJoinFailed", mNotifyArgs);
 			llwarns << "Received empty URI for channel " << mSessionName << llendl;
 			deactivate();
 		}
 		else if (mCredentials.empty())
 		{
-			LLNotifyBox::showXml("VoiceChannelJoinFailed", mNotifyArgs);
+			LLNotifications::instance().add("VoiceChannelJoinFailed", mNotifyArgs);
 			llwarns << "Received empty credentials for channel " << mSessionName << llendl;
 			deactivate();
 		}
@@ -433,25 +433,26 @@ void LLVoiceChannel::handleStatusChange(EStatusType type)
 	switch(type)
 	{
 	case STATUS_LOGIN_RETRY:
-		mLoginNotificationHandle = LLNotifyBox::showXml("VoiceLoginRetry")->getHandle();
+		//mLoginNotificationHandle = LLNotifyBox::showXml("VoiceLoginRetry")->getHandle();
+		LLNotifications::instance().add("VoiceLoginRetry");
 		break;
 	case STATUS_LOGGED_IN:
-		if (!mLoginNotificationHandle.isDead())
-		{
-			LLNotifyBox* notifyp = (LLNotifyBox*)mLoginNotificationHandle.get();
-			if (notifyp)
-			{
-				notifyp->close();
-			}
-			mLoginNotificationHandle.markDead();
-		}
+		//if (!mLoginNotificationHandle.isDead())
+		//{
+		//	LLNotifyBox* notifyp = (LLNotifyBox*)mLoginNotificationHandle.get();
+		//	if (notifyp)
+		//	{
+		//		notifyp->close();
+		//	}
+		//	mLoginNotificationHandle.markDead();
+		//}
 		break;
 	case STATUS_LEFT_CHANNEL:
 		if (callStarted() && !mIgnoreNextSessionLeave && !sSuspended)
 		{
 			// if forceably removed from channel
 			// update the UI and revert to default channel
-			LLNotifyBox::showXml("VoiceChannelDisconnected", mNotifyArgs);
+			LLNotifications::instance().add("VoiceChannelDisconnected", mNotifyArgs);
 			deactivate();
 		}
 		mIgnoreNextSessionLeave = FALSE;
@@ -793,9 +794,9 @@ void LLVoiceChannelGroup::handleError(EStatusType status)
 	// notification
 	if (!notify.empty())
 	{
-		LLNotifyBox::showXml(notify, mNotifyArgs);
+		LLNotificationPtr notification = LLNotifications::instance().add(notify, mNotifyArgs);
 		// echo to im window
-		gIMMgr->addMessage(mSessionID, LLUUID::null, SYSTEM_FROM, LLNotifyBox::getTemplateMessage(notify, mNotifyArgs));
+		gIMMgr->addMessage(mSessionID, LLUUID::null, SYSTEM_FROM, notification->getMessage());
 	}
 
 	LLVoiceChannel::handleError(status);
@@ -896,7 +897,7 @@ void LLVoiceChannelProximal::handleError(EStatusType status)
 	// notification
 	if (!notify.empty())
 	{
-		LLNotifyBox::showXml(notify, mNotifyArgs);
+		LLNotifications::instance().add(notify, mNotifyArgs);
 	}
 
 	LLVoiceChannel::handleError(status);
@@ -934,12 +935,12 @@ void LLVoiceChannelP2P::handleStatusChange(EStatusType type)
 			if (mState == STATE_RINGING)
 			{
 				// other user declined call
-				LLNotifyBox::showXml("P2PCallDeclined", mNotifyArgs);
+				LLNotifications::instance().add("P2PCallDeclined", mNotifyArgs);
 			}
 			else
 			{
 				// other user hung up
-				LLNotifyBox::showXml("VoiceChannelDisconnectedP2P", mNotifyArgs);
+				LLNotifications::instance().add("VoiceChannelDisconnectedP2P", mNotifyArgs);
 			}
 			deactivate();
 		}
@@ -957,7 +958,7 @@ void LLVoiceChannelP2P::handleError(EStatusType type)
 	switch(type)
 	{
 	case ERROR_NOT_AVAILABLE:
-		LLNotifyBox::showXml("P2PCallNoAnswer", mNotifyArgs);
+		LLNotifications::instance().add("P2PCallNoAnswer", mNotifyArgs);
 		break;
 	default:
 		break;
@@ -2213,35 +2214,33 @@ void LLFloaterIMPanel::showSessionStartError(
 	//their own XML file which would be read in by any LLIMPanel
 	//post build function instead of repeating the same info
 	//in the group, adhoc and normal IM xml files.
-	LLStringUtil::format_map_t args;
-	args["[REASON]"] =
+	LLSD args;
+	args["REASON"] =
 		LLFloaterIM::sErrorStringsMap[error_string];
-	args["[RECIPIENT]"] = getTitle();
+	args["RECIPIENT"] = getTitle();
 
-	gViewerWindow->alertXml(
+	LLSD payload;
+	payload["session_id"] = mSessionUUID;
+
+	LLNotifications::instance().add(
 		"ChatterBoxSessionStartError",
 		args,
-		onConfirmForceCloseError,
-		new LLUUID(mSessionUUID));
+		payload,
+		onConfirmForceCloseError);
 }
 
 void LLFloaterIMPanel::showSessionEventError(
 	const std::string& event_string,
 	const std::string& error_string)
 {
-	LLStringUtil::format_map_t args;
-	std::string event;
+	LLSD args;
+	args["REASON"] =
+		LLFloaterIM::sErrorStringsMap[error_string];
+	args["EVENT"] =
+		LLFloaterIM::sEventStringsMap[event_string];
+	args["RECIPIENT"] = getTitle();
 
-	event = LLFloaterIM::sEventStringsMap[event_string];
-	args["[RECIPIENT]"] = getTitle();
-	LLStringUtil::format(event, args);
-
-
-	args = LLStringUtil::format_map_t();
-	args["[REASON]"] = LLFloaterIM::sErrorStringsMap[error_string];
-	args["[EVENT]"] = event;
-
-	gViewerWindow->alertXml(
+	LLNotifications::instance().add(
 		"ChatterBoxSessionEventError",
 		args);
 }
@@ -2249,16 +2248,19 @@ void LLFloaterIMPanel::showSessionEventError(
 void LLFloaterIMPanel::showSessionForceClose(
 	const std::string& reason_string)
 {
-	LLStringUtil::format_map_t args;
+	LLSD args;
 
-	args["[NAME]"] = getTitle();
-	args["[REASON]"] = LLFloaterIM::sForceCloseSessionMap[reason_string];
+	args["NAME"] = getTitle();
+	args["REASON"] = LLFloaterIM::sForceCloseSessionMap[reason_string];
 
-	gViewerWindow->alertXml(
+	LLSD payload;
+	payload["session_id"] = mSessionUUID;
+
+	LLNotifications::instance().add(
 		"ForceCloseChatterBoxSession",
 		args,
-		LLFloaterIMPanel::onConfirmForceCloseError,
-		new LLUUID(mSessionUUID));
+		payload,
+		LLFloaterIMPanel::onConfirmForceCloseError);
 
 }
 
@@ -2268,10 +2270,10 @@ void LLFloaterIMPanel::onKickSpeaker(void* user_data)
 
 }
 
-void LLFloaterIMPanel::onConfirmForceCloseError(S32 option, void* data)
+bool LLFloaterIMPanel::onConfirmForceCloseError(const LLSD& notification, const LLSD& response)
 {
 	//only 1 option really
-	LLUUID session_id = *((LLUUID*) data);
+	LLUUID session_id = notification["payload"]["session_id"];
 
 	if ( gIMMgr )
 	{
@@ -2280,6 +2282,7 @@ void LLFloaterIMPanel::onConfirmForceCloseError(S32 option, void* data)
 
 		if ( floaterp ) floaterp->close(FALSE);
 	}
+	return false;
 }
 
 

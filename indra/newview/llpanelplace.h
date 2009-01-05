@@ -83,7 +83,7 @@ protected:
 	static void onClickAuction(void* data);
 
 	// Go to auction web page if user clicked OK
-	static void callbackAuctionWebPage(S32 option, void* data);
+	static bool callbackAuctionWebPage(const LLSD& notification, const LLSD& response);
 
 protected:
 	LLUUID			mParcelID;

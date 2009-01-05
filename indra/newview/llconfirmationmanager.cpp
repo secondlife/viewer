@@ -45,24 +45,22 @@ LLConfirmationManager::ListenerBase::~ListenerBase()
 }
 
 
-static void onConfirmAlert(S32 option, void* data)
+static bool onConfirmAlert(const LLSD& notification, const LLSD& response, LLConfirmationManager::ListenerBase* listener)
 {
-	LLConfirmationManager::ListenerBase* listener
-		= (LLConfirmationManager::ListenerBase*)data;
-		
+	S32 option = LLNotification::getSelectedOption(notification, response);
 	if (option == 0)
 	{
 		listener->confirmed("");
 	}
 	
 	delete listener;
+	return false;
 }
 
-static void onConfirmAlertPassword(
-	S32 option, const std::string& text, void* data)
+static bool onConfirmAlertPassword(const LLSD& notification, const LLSD& response, LLConfirmationManager::ListenerBase* listener)
 {
-	LLConfirmationManager::ListenerBase* listener
-		= (LLConfirmationManager::ListenerBase*)data;
+	std::string text = response["message"].asString();
+	S32 option = LLNotification::getSelectedOption(notification, response);
 		
 	if (option == 0)
 	{
@@ -70,6 +68,7 @@ static void onConfirmAlertPassword(
 	}
 	
 	delete listener;
+	return false;
 }
 
  
@@ -77,22 +76,17 @@ void LLConfirmationManager::confirm(Type type,
 	const std::string& action,
 	ListenerBase* listener)
 {
-	LLStringUtil::format_map_t args;
-	args["[ACTION]"] = action;
+	LLSD args;
+	args["ACTION"] = action;
 
 	switch (type)
 	{
 		case TYPE_CLICK:
-		  gViewerWindow->alertXml("ConfirmPurchase", args,
-								  onConfirmAlert, listener);
+			LLNotifications::instance().add("ConfirmPurchase", args, LLSD(), boost::bind(onConfirmAlert, _1, _2, listener));
 		  break;
 
 		case TYPE_PASSWORD:
-		  gViewerWindow->alertXmlEditText("ConfirmPurchasePassword", args,
-										  NULL, NULL,
-										  onConfirmAlertPassword, listener,
-										  LLStringUtil::format_map_t(),
-										  TRUE);
+			LLNotifications::instance().add("ConfirmPurchasePassword", args, LLSD(), boost::bind(onConfirmAlertPassword, _1, _2, listener));
 		  break;
 		case TYPE_NONE:
 		default:

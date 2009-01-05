@@ -82,9 +82,9 @@ void LLWLDayCycle::loadDayCycle(const std::string & fileName)
 			if(!success)
 			{
 				// alert the user
-				LLStringUtil::format_map_t args;
-				args["[SKY]"] = day_data[i][1].asString();
-				gViewerWindow->alertXml("WLMissingSky", args);
+				LLSD args;
+				args["SKY"] = day_data[i][1].asString();
+				LLNotifications::instance().add("WLMissingSky", args);
 				continue;
 			}
 			

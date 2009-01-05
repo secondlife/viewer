@@ -68,7 +68,7 @@ public:
 					const LLVector3& position = LLVector3::zero,
 					bool link_name = false);
 
-	void addSystemMessage(const LLUUID& session_id, const std::string& message_name, const LLStringUtil::format_map_t& args);
+	void addSystemMessage(const LLUUID& session_id, const std::string& message_name, const LLSD& args);
 
 	// This method returns TRUE if the local viewer has a session
 	// currently open keyed to the uuid. The uuid can be keyed by
@@ -157,7 +157,7 @@ public:
 
 	static LLUUID computeSessionID(EInstantMessage dialog, const LLUUID& other_participant_id);
 
-	void clearPendingInviation(const LLUUID& session_id);
+	void clearPendingInvitation(const LLUUID& session_id);
 
 	LLSD getPendingAgentListUpdates(const LLUUID& session_id);
 	void addPendingAgentListUpdates(
@@ -169,8 +169,6 @@ public:
 	const std::set<LLHandle<LLFloater> >& getIMFloaterHandles() { return mFloaters; }
 
 private:
-	class LLIMSessionInvite;
-
 	// create a panel and update internal representation for
 	// consistency. Returns the pointer, caller (the class instance
 	// since it is a private method) is not responsible for deleting
@@ -197,7 +195,6 @@ private:
 
 	void processIMTypingCore(const LLIMInfo* im_info, BOOL typing);
 
-	static void inviteUserResponse(S32 option, void* user_data);
 	static void onInviteNameLookup(const LLUUID& id, const std::string& first, const std::string& last, BOOL is_group, void* userdata);
 
 private:

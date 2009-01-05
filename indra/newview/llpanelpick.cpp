@@ -476,7 +476,7 @@ void LLPanelPick::onClickSet(void* data)
 	// is the location and nothing else
 	if ( gAgent.getRegion ()->getName () != self->mSimName )
 	{
-		gViewerWindow->alertXml("SetPickLocation");
+		LLNotifications::instance().add("SetPickLocation");
 	};
 
 	self->mLocationEditor->setText(location_text);

@@ -101,7 +101,7 @@ protected:
 							   void* user_data,
 							   S32 status, LLExtStat ext_status);
 
-	static void handleSaveChangesDialog(S32 option, void* userdata);
+	bool handleSaveChangesDialog(const LLSD& notification, const LLSD& response);
 
 	virtual const char *getTitleName() const { return "Note"; }
 

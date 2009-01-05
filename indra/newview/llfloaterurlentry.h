@@ -63,7 +63,7 @@ private:
 	static void		onBtnOK(void*);
 	static void		onBtnCancel(void*);
 	static void		onBtnClear(void*);
-	static void		callback_clear_url_list(S32 option, void* userdata);
+	bool		callback_clear_url_list(const LLSD& notification, const LLSD& response);
 };
 
 #endif  // LL_LLFLOATERURLENTRY_H

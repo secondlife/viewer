@@ -80,10 +80,10 @@ public:
 
 	BOOL			canClose();
 
-	static void		handleSaveChangesDialog(S32 option, void* userdata);
-	static void		handleReloadFromServerDialog(S32 option, void* userdata);
+	bool			handleSaveChangesDialog(const LLSD& notification, const LLSD& response);
+	bool			handleReloadFromServerDialog(const LLSD& notification, const LLSD& response);
 
-	static void		onHelpWebDialog(S32 option, void* userdata);
+	static bool		onHelpWebDialog(const LLSD& notification, const LLSD& response);
 	static void		onBtnHelp(void* userdata);
 	static void		onBtnDynamicHelp(void* userdata);
 	static void		onCheckLock(LLUICtrl*, void*);

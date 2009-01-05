@@ -262,32 +262,30 @@ void LLFloaterURLEntry::onBtnCancel( void* userdata )
 //-----------------------------------------------------------------------------
 void LLFloaterURLEntry::onBtnClear( void* userdata )
 {
-	gViewerWindow->alertXml( "ConfirmClearMediaUrlList", callback_clear_url_list, userdata );
+	LLNotifications::instance().add( "ConfirmClearMediaUrlList", LLSD(), LLSD(), 
+									boost::bind(&LLFloaterURLEntry::callback_clear_url_list, (LLFloaterURLEntry*)userdata, _1, _2) );
 }
 
-void LLFloaterURLEntry::callback_clear_url_list(S32 option, void* userdata)
+bool LLFloaterURLEntry::callback_clear_url_list(const LLSD& notification, const LLSD& response)
 {
+	S32 option = LLNotification::getSelectedOption(notification, response);
 	if ( option == 0 ) // YES
 	{
-		LLFloaterURLEntry *self =(LLFloaterURLEntry *)userdata;
-
-		if ( self )
+		// clear saved list
+		LLCtrlListInterface* url_list = childGetListInterface("media_entry");
+		if ( url_list )
 		{
-			// clear saved list
-			LLCtrlListInterface* url_list = self->childGetListInterface("media_entry");
-			if ( url_list )
-			{
-				url_list->operateOnAll( LLCtrlListInterface::OP_DELETE );
-			}
-
-			// clear current contents of combo box
-			self->mMediaURLEdit->clear();
-
-			// clear stored version of list
-			LLURLHistory::clear("parcel");
-
-			// cleared the list so disable Clear button
-			self->childSetEnabled( "clear_btn", false );
+			url_list->operateOnAll( LLCtrlListInterface::OP_DELETE );
 		}
+
+		// clear current contents of combo box
+		mMediaURLEdit->clear();
+
+		// clear stored version of list
+		LLURLHistory::clear("parcel");
+
+		// cleared the list so disable Clear button
+		childSetEnabled( "clear_btn", false );
 	}
+	return false;
 }

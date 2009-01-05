@@ -1260,7 +1260,7 @@ void LLView::draw()
 	{
 		LLView *viewp = *child_iter;
 
-		if (viewp->getVisible() && viewp != focus_view)
+		if (viewp->getVisible() && viewp != focus_view && viewp->getRect().isValid())
 		{
 			// Only draw views that are within the root view
 			localRectToScreen(viewp->getRect(),&screenRect);
@@ -1357,7 +1357,8 @@ void LLView::drawChild(LLView* childp, S32 x_offset, S32 y_offset, BOOL force_dr
 	{
 		++sDepth;
 
-		if (childp->getVisible() || force_draw)
+		if ((childp->getVisible() && childp->getRect().isValid()) 
+			|| force_draw)
 		{
 			glMatrixMode(GL_MODELVIEW);
 			LLUI::pushMatrix();

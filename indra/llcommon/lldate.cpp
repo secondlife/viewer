@@ -36,8 +36,11 @@
 
 #include "apr_time.h"
 
+#include <time.h>
 #include <iomanip>
 #include <sstream>
+
+#include "lltimer.h"
 
 static const F64 DATE_EPOCH = 0.0;
 
@@ -122,7 +125,7 @@ void LLDate::toHTTPDateStream(std::ostream& s) const
       << " GMT";
 
     // RFC 1123 date does not use microseconds
-    llinfos << "Date in RFC 1123 format is " << s << llendl;
+    //llinfos << "Date in RFC 1123 format is " << s << llendl;
 }
 
 void LLDate::toStream(std::ostream& s) const
@@ -239,6 +242,17 @@ bool operator!=(const LLDate& first, const LLDate& second)
 	return (first.secondsSinceEpoch() != second.secondsSinceEpoch());
 }
 
+/* static */ LLDate LLDate::now()
+{
+	// time() returns seconds, we want fractions of a second, which LLTimer provides --RN
+	return LLDate(LLTimer::getTotalSeconds());
+}
+
+bool LLDate::operator<(const LLDate& rhs) const
+{
+    return mSecondsSinceEpoch < rhs.mSecondsSinceEpoch;
+}
+
 std::ostream& operator<<(std::ostream& s, const LLDate& date)
 {
 	date.toStream(s);
@@ -250,3 +264,4 @@ std::istream& operator>>(std::istream& s, LLDate& date)
 	date.fromStream(s);
 	return s;
 }
+

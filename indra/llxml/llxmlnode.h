@@ -87,12 +87,13 @@ class LLVector3d;
 class LLVector4;
 class LLVector4U;
 
-struct LLXMLChildren
+struct LLXMLChildren : public LLThreadSafeRefCount
 {
 	LLXMLChildList map;			// Map of children names->pointers
 	LLXMLNodePtr head;			// Head of the double-linked list
 	LLXMLNodePtr tail;			// Tail of the double-linked list
 };
+typedef LLPointer<LLXMLChildren> LLXMLChildrenPtr;
 
 class LLXMLNode : public LLThreadSafeRefCount
 {
@@ -124,11 +125,13 @@ public:
 	LLXMLNode();
 	LLXMLNode(const char* name, BOOL is_attribute);
 	LLXMLNode(LLStringTableEntry* name, BOOL is_attribute);
+	LLXMLNode(const LLXMLNode& rhs);
+	LLXMLNodePtr deepCopy();
 
 	BOOL isNull();
 
 	BOOL deleteChild(LLXMLNode* child);
-    void addChild(LLXMLNodePtr new_parent); 
+    void addChild(LLXMLNodePtr new_child, LLXMLNodePtr after_child = LLXMLNodePtr(NULL)); 
     void setParent(LLXMLNodePtr new_parent); // reparent if necessary
 
     // Serialization
@@ -146,8 +149,9 @@ public:
 		LLXMLNodePtr& node, 
 		LLXMLNode* defaults);
 	static bool updateNode(
-	LLXMLNodePtr& node,
-	LLXMLNodePtr& update_node);
+		LLXMLNodePtr& node,
+		LLXMLNodePtr& update_node);
+	static LLXMLNodePtr replaceNode(LLXMLNodePtr node, LLXMLNodePtr replacement_node);
 	static void writeHeaderToFile(LLFILE *fOut);
     void writeToFile(LLFILE *fOut, const std::string& indent = std::string());
     void writeToOstream(std::ostream& output_stream, const std::string& indent = std::string());
@@ -175,6 +179,10 @@ public:
     U32 getNodeRefValue(U32 expected_length, LLXMLNode **array);
 
 	BOOL hasAttribute(const char* name );
+
+        // these are designed to be more generic versions of the functions
+    // rather than relying on LL-types
+    bool getAttribute_bool(const char* name, bool& value ); 
 
 	BOOL getAttributeBOOL(const char* name, BOOL& value );
 	BOOL getAttributeU8(const char* name, U8& value );
@@ -211,13 +219,16 @@ public:
     bool getChild(const LLStringTableEntry* name, LLXMLNodePtr& node, BOOL use_default_if_missing = TRUE);
     void getChildren(const char* name, LLXMLNodeList &children, BOOL use_default_if_missing = TRUE) const;
     void getChildren(const LLStringTableEntry* name, LLXMLNodeList &children, BOOL use_default_if_missing = TRUE) const;
+	
+	// recursively finds all children at any level matching name
+	void getDescendants(const LLStringTableEntry* name, LLXMLNodeList &children) const;
 
 	bool getAttribute(const char* name, LLXMLNodePtr& node, BOOL use_default_if_missing = TRUE);
 	bool getAttribute(const LLStringTableEntry* name, LLXMLNodePtr& node, BOOL use_default_if_missing = TRUE);
 
 	// The following skip over attributes
-	LLXMLNodePtr getFirstChild();
-	LLXMLNodePtr getNextSibling();
+	LLXMLNodePtr getFirstChild() const;
+	LLXMLNodePtr getNextSibling() const;
 
     LLXMLNodePtr getRoot();
 
@@ -251,7 +262,6 @@ public:
 	void setName(LLStringTableEntry* name);
 
 	// Escapes " (quot) ' (apos) & (amp) < (lt) > (gt)
-	// TomY TODO: Make this private
 	static std::string escapeXML(const std::string& xml);
 
 	// Set the default node corresponding to this default node
@@ -291,7 +301,7 @@ public:
 	Encoding mEncoding;			// The value encoding
 
 	LLXMLNode* mParent;				// The parent node
-	LLXMLChildren* mChildren;		// The child nodes
+	LLXMLChildrenPtr mChildren;		// The child nodes
 	LLXMLAttribList mAttributes;		// The attribute nodes
 	LLXMLNodePtr mPrev;				// Double-linked list previous node
 	LLXMLNodePtr mNext;				// Double-linked list next node

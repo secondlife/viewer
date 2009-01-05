@@ -72,11 +72,12 @@ LLComboBox::LLComboBox(	const std::string& name, const LLRect &rect, const std::
 	mTextEntryTentative(TRUE),
 	mListPosition(BELOW),
 	mPrearrangeCallback( NULL ),
-	mTextEntryCallback( NULL )
+	mTextEntryCallback( NULL ),
+	mLabel(label)
 {
 	// Always use text box 
 	// Text label button
-	mButton = new LLButton(label,
+	mButton = new LLButton(mLabel,
 								LLRect(), 
 								LLStringUtil::null,
 								NULL, this);
@@ -197,7 +198,12 @@ LLView* LLComboBox::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *
 		}
 	}
 
-	combo_box->selectFirstItem();
+	// if providing user text entry or descriptive label
+	// don't select an item under the hood
+	if (!combo_box->acceptsTextInput() && combo_box->mLabel.empty())
+	{
+		combo_box->selectFirstItem();
+	}
 
 	return combo_box;
 }
@@ -259,7 +265,10 @@ LLScrollListItem* LLComboBox::add(const std::string& name, EAddPosition pos, BOO
 {
 	LLScrollListItem* item = mList->addSimpleElement(name, pos);
 	item->setEnabled(enabled);
-	mList->selectFirstItem();
+	if (!mAllowTextEntry && mLabel.empty())
+	{
+		selectFirstItem();
+	}
 	return item;
 }
 
@@ -268,7 +277,10 @@ LLScrollListItem* LLComboBox::add(const std::string& name, const LLUUID& id, EAd
 {
 	LLScrollListItem* item = mList->addSimpleElement(name, pos, id);
 	item->setEnabled(enabled);
-	mList->selectFirstItem();
+	if (!mAllowTextEntry && mLabel.empty())
+	{
+		selectFirstItem();
+	}
 	return item;
 }
 
@@ -278,7 +290,10 @@ LLScrollListItem* LLComboBox::add(const std::string& name, void* userdata, EAddP
 	LLScrollListItem* item = mList->addSimpleElement(name, pos);
 	item->setEnabled(enabled);
 	item->setUserdata( userdata );
-	mList->selectFirstItem();
+	if (!mAllowTextEntry && mLabel.empty())
+	{
+		selectFirstItem();
+	}
 	return item;
 }
 
@@ -287,7 +302,10 @@ LLScrollListItem* LLComboBox::add(const std::string& name, LLSD value, EAddPosit
 {
 	LLScrollListItem* item = mList->addSimpleElement(name, pos, value);
 	item->setEnabled(enabled);
-	mList->selectFirstItem();
+	if (!mAllowTextEntry && mLabel.empty())
+	{
+		selectFirstItem();
+	}
 	return item;
 }
 

@@ -47,6 +47,7 @@
 #include "lltimer.h"
 #include "llstat.h"
 #include "llalertdialog.h"
+#include "llnotifications.h"
 
 class LLView;
 class LLViewerObject;
@@ -353,20 +354,10 @@ public:
 
 	void			drawPickBuffer() const;
 
-	LLAlertDialog* alertXml(const std::string& xml_filename,
-				  LLAlertDialog::alert_callback_t callback = NULL, void* user_data = NULL);
-	LLAlertDialog* alertXml(const std::string& xml_filename, const LLStringUtil::format_map_t& args,
-				  LLAlertDialog::alert_callback_t callback = NULL, void* user_data = NULL);
-	LLAlertDialog* alertXmlEditText(const std::string& xml_filename, const LLStringUtil::format_map_t& args,
-						  LLAlertDialog::alert_callback_t callback, void* user_data,
-						  LLAlertDialog::alert_text_callback_t text_callback, void *text_data,
-						  const LLStringUtil::format_map_t& edit_args = LLStringUtil::format_map_t(),
-						  BOOL draw_asterixes = FALSE);
-
-	static bool alertCallback(S32 modal);
-	
 private:
 	bool                    shouldShowToolTipFor(LLMouseHandler *mh);
+	static bool onAlert(const LLSD& notify);
+	
 	void			switchToolByMask(MASK mask);
 	void			destroyWindow();
 	void			drawMouselookInstructions();

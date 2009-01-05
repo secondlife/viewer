@@ -349,7 +349,7 @@ LLView* LLNameListCtrl::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFacto
 
 	LLSD columns;
 	S32 index = 0;
-	S32 total_static = 0;
+	//S32 total_static = 0;
 	LLXMLNodePtr child;
 	for (child = node->getFirstChild(); child.notNull(); child = child->getNextSibling())
 	{
@@ -383,7 +383,7 @@ LLView* LLNameListCtrl::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFacto
 			LLFontGL::HAlign h_align = LLFontGL::LEFT;
 			h_align = LLView::selectFontHAlign(child);
 
-			if(!columndynamicwidth) total_static += llmax(0, columnwidth);
+			//if(!columndynamicwidth) total_static += llmax(0, columnwidth);
 
 			columns[index]["name"] = columnname;
 			columns[index]["label"] = labelname;
@@ -394,7 +394,6 @@ LLView* LLNameListCtrl::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFacto
 			index++;
 		}
 	}
-	name_list->setTotalStaticColumnWidth(total_static);
 	name_list->setColumnHeadings(columns);
 
 

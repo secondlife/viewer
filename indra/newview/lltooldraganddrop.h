@@ -209,13 +209,13 @@ protected:
 
 
 	// give inventory item functionality
-	static void handleCopyProtectedItem(S32 option, void* data);
+	static bool handleCopyProtectedItem(const LLSD& notification, const LLSD& response);
 	static void commitGiveInventoryItem(const LLUUID& to_agent,
 										LLInventoryItem* item,
 										const LLUUID &im_session_id = LLUUID::null);
 
 	// give inventory category functionality
-	static void handleCopyProtectedCategory(S32 option, void* data);
+	static bool handleCopyProtectedCategory(const LLSD& notification, const LLSD& response);
 	static void commitGiveInventoryCategory(const LLUUID& to_agent,
 						LLInventoryCategory* cat);
 public:

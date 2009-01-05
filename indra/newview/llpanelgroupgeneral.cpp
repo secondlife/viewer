@@ -344,18 +344,18 @@ void LLPanelGroupGeneral::onClickJoin(void *userdata)
 	if (gdatap)
 	{
 		S32 cost = gdatap->mMembershipFee;
-		LLStringUtil::format_map_t args;
-		args["[COST]"] = llformat("%d", cost);
-		
+		LLSD args;
+		args["COST"] = llformat("%d", cost);
+		LLSD payload;
+		payload["group_id"] = self->mGroupID;
+
 		if (can_afford_transaction(cost))
 		{
-			gViewerWindow->alertXml("JoinGroupCanAfford", args,
-						LLPanelGroupGeneral::joinDlgCB,
-						self);
+			LLNotifications::instance().add("JoinGroupCanAfford", args, payload, LLPanelGroupGeneral::joinDlgCB);
 		}
 		else
 		{
-			gViewerWindow->alertXml("JoinGroupCannotAfford", args);
+			LLNotifications::instance().add("JoinGroupCannotAfford", args, payload);
 		}
 	}
 	else
@@ -366,17 +366,18 @@ void LLPanelGroupGeneral::onClickJoin(void *userdata)
 }
 
 // static
-void LLPanelGroupGeneral::joinDlgCB(S32 which, void *userdata)
+bool LLPanelGroupGeneral::joinDlgCB(const LLSD& notification, const LLSD& response)
 {
-	LLPanelGroupGeneral* self = (LLPanelGroupGeneral*) userdata;
+	S32 option = LLNotification::getSelectedOption(notification, response);
 
-	if (which == 1 || !self)
+	if (option == 1)
 	{
 		// user clicked cancel
-		return;
+		return false;
 	}
 
-	LLGroupMgr::getInstance()->sendGroupMemberJoin(self->mGroupID);
+	LLGroupMgr::getInstance()->sendGroupMemberJoin(notification["payload"]["group_id"].asUUID());
+	return false;
 }
 
 // static
@@ -444,9 +445,8 @@ bool LLPanelGroupGeneral::apply(std::string& mesg)
 		if(mComboMature &&
 		   mComboMature->getCurrentIndex() == DECLINE_TO_STATE)
 		{
-			LLStringUtil::format_map_t args;
-			gViewerWindow->alertXml("SetGroupMature", &callbackConfirmMatureApply,
-				new LLHandle<LLPanel>(getHandle()));
+			LLNotifications::instance().add("SetGroupMature", LLSD(), LLSD(), 
+											boost::bind(&LLPanelGroupGeneral::confirmMatureApply, this, _1, _2));
 			return false;
 		}
 
@@ -464,10 +464,9 @@ bool LLPanelGroupGeneral::apply(std::string& mesg)
 				return false;
 			}
 
-			LLStringUtil::format_map_t args;
-			args["[MESSAGE]"] = mConfirmGroupCreateStr;
-			gViewerWindow->alertXml("GenericAlertYesCancel", args,
-				createGroupCallback, new LLHandle<LLPanel>(getHandle()) );
+			LLSD args;
+			args["MESSAGE"] = mConfirmGroupCreateStr;
+			LLNotifications::instance().add("GenericAlertYesCancel", args, LLSD(), boost::bind(&LLPanelGroupGeneral::createGroupCallback, this, _1, _2));
 
 			return false;
 		}
@@ -545,22 +544,10 @@ void LLPanelGroupGeneral::cancel()
 	notifyObservers();
 }
 
-
-// static
-void LLPanelGroupGeneral::callbackConfirmMatureApply(S32 option, void* data)
-{
-	LLHandle<LLPanel>* handlep = (LLHandle<LLPanel>*)data;
-	LLPanelGroupGeneral* self = dynamic_cast<LLPanelGroupGeneral*>(handlep->get());
-	delete handlep;
-	if (self)
-	{
-		self->confirmMatureApply(option);
-	}
-}
-
 // invoked from callbackConfirmMature
-void LLPanelGroupGeneral::confirmMatureApply(S32 option)
+bool LLPanelGroupGeneral::confirmMatureApply(const LLSD& notification, const LLSD& response)
 {
+	S32 option = LLNotification::getSelectedOption(notification, response);
 	// 0 == Yes
 	// 1 == No
 	// 2 == Cancel
@@ -573,39 +560,35 @@ void LLPanelGroupGeneral::confirmMatureApply(S32 option)
 		mComboMature->setCurrentByIndex(NON_MATURE_CONTENT);
 		break;
 	default:
-		return;
+		return false;
 	}
 
 	// If we got here it means they set a valid value
 	std::string mesg = "";
 	apply(mesg);
+	return false;
 }
 
 // static
-void LLPanelGroupGeneral::createGroupCallback(S32 option, void* userdata)
+bool LLPanelGroupGeneral::createGroupCallback(const LLSD& notification, const LLSD& response)
 {
-	LLHandle<LLPanel> panel_handle = *(LLHandle<LLPanel>*)userdata;
-	delete (LLHandle<LLPanel>*)userdata;
-
-	LLPanelGroupGeneral* self = dynamic_cast<LLPanelGroupGeneral*>(panel_handle.get());
-	if (!self) return;
-
+	S32 option = LLNotification::getSelectedOption(notification, response);
 	switch(option)
 	{
 	case 0:
 		{
 			// Yay!  We are making a new group!
-			U32 enrollment_fee = (self->mCtrlEnrollmentFee->get() ? 
-									(U32) self->mSpinEnrollmentFee->get() : 0);
+			U32 enrollment_fee = (mCtrlEnrollmentFee->get() ? 
+									(U32) mSpinEnrollmentFee->get() : 0);
 		
-			LLGroupMgr::getInstance()->sendCreateGroupRequest(self->mGroupNameEditor->getText(),
-												self->mEditCharter->getText(),
-												self->mCtrlShowInGroupList->get(),
-												self->mInsignia->getImageAssetID(),
+			LLGroupMgr::getInstance()->sendCreateGroupRequest(mGroupNameEditor->getText(),
+												mEditCharter->getText(),
+												mCtrlShowInGroupList->get(),
+												mInsignia->getImageAssetID(),
 												enrollment_fee,
-												self->mCtrlOpenEnrollment->get(),
+												mCtrlOpenEnrollment->get(),
 												false,
-												self->mComboMature->getCurrentIndex() == MATURE_CONTENT);
+												mComboMature->getCurrentIndex() == MATURE_CONTENT);
 
 		}
 		break;
@@ -613,6 +596,7 @@ void LLPanelGroupGeneral::createGroupCallback(S32 option, void* userdata)
 	default:
 		break;
 	}
+	return false;
 }
 
 static F32 sSDTime = 0.0f;

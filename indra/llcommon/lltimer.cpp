@@ -569,6 +569,14 @@ LLEventTimer::LLEventTimer(F32 period)
 	sActiveList.push_back(this);
 }
 
+LLEventTimer::LLEventTimer(const LLDate& time)
+: mEventTimer()
+{
+	mPeriod = (F32)(time.secondsSinceEpoch() - LLDate::now().secondsSinceEpoch());
+	sActiveList.push_back(this);
+}
+
+
 LLEventTimer::~LLEventTimer() 
 {
 	sActiveList.remove(this);

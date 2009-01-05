@@ -409,53 +409,58 @@ protected:
 //
 //   class Foo: public LLSingleton<Foo>{};
 //
-//   Foo* instance = Foo::getInstance();
+//   Foo& instance = Foo::instance();
 //
-// The second way is to define a seperate class that exposes the singleton
-// interface:
+// The second way is to use the singleton class directly, without inheritance:
 //
-//   class FooSingleton: public LLSingleton<Foo>{};
+//   typedef LLSingleton<Foo> FooSingleton;
 //
-//   Foo* instance = FooSingleton::getInstance();
+//   Foo& instance = FooSingleton::instance();
+//
+// In this case, the class being managed as a singleton needs to provide an
+// initSingleton() method since the LLSingleton virtual method won't be
+// available
 //
 // As currently written, it is not thread-safe.
-#if LL_WINDOWS && _MSC_VER < 1400 // this is Visual C++ 2003 or earlier
+template <typename T>
+class LLSingleton
+{
+public:
+	virtual ~LLSingleton() {}
+#ifdef  LL_MSVC7
 // workaround for VC7 compiler bug
 // adapted from http://www.codeproject.com/KB/tips/VC2003MeyersSingletonBug.aspx
 // our version doesn't introduce a nested struct so that you can still declare LLSingleton<MyClass>
 // a friend and hide your constructor
-
-template <typename T>
-class LLSingleton
-{
-public:
- 	static T* getInstance()
+	static T* getInstance()
     {
         LLSingleton<T> singleton;
-        return singleton.get();
-    }
-private:
-	T* get()
-    {
-        static T instance;
-        return &instance;
+        return singleton.vsHack();
     }
 
-};
+	T* vsHack()
 #else
-
-template <typename T>
-class LLSingleton
-{
-public:
 	static T* getInstance()
+#endif
 	{
 		static T instance;
+		static bool needs_init = true;
+		if (needs_init)
+		{
+			needs_init = false;
+			instance.initSingleton();
+		}
 		return &instance;
 	}
-};
 
-#endif
+	static T& instance()
+	{
+		return *getInstance();
+	}
+
+private:
+	virtual void initSingleton() {}
+};
 
 //----------------------------------------------------------------------------
 

@@ -213,7 +213,7 @@ void LLFloaterBuyLand::buyLand(
 {
 	if(is_for_group && !gAgent.hasPowerInActiveGroup(GP_LAND_DEED))
 	{
-		gViewerWindow->alertXml("OnlyOfficerCanBuyLand");
+		LLNotifications::instance().add("OnlyOfficerCanBuyLand");
 		return;
 	}
 
@@ -976,7 +976,7 @@ BOOL LLFloaterBuyLandUI::canClose()
 	if (!can_close)
 	{
 		// explain to user why they can't do this, see DEV-9605
-		gViewerWindow->alertXml("CannotCloseFloaterBuyLand");
+		LLNotifications::instance().add("CannotCloseFloaterBuyLand");
 	}
 	return can_close;
 }

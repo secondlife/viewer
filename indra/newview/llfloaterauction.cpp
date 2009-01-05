@@ -238,7 +238,7 @@ void LLFloaterAuction::onClickOK(void* data)
 								   FALSE);
 		self->getWindow()->incBusyCount();
 
-		LLNotifyBox::showXml("UploadingAuctionSnapshot");
+		LLNotifications::instance().add("UploadingAuctionSnapshot");
 
 	}
 	LLMessageSystem* msg = gMessageSystem;
@@ -277,13 +277,13 @@ void auction_tga_upload_done(const LLUUID& asset_id, void* user_data, S32 status
 
 	if (0 == status)
 	{
-		LLNotifyBox::showXml("UploadWebSnapshotDone");
+		LLNotifications::instance().add("UploadWebSnapshotDone");
 	}
 	else
 	{
-		LLStringUtil::format_map_t args;
-		args["[REASON]"] = std::string(LLAssetStorage::getErrorString(status));
-		gViewerWindow->alertXml("UploadAuctionSnapshotFail", args);
+		LLSD args;
+		args["REASON"] = std::string(LLAssetStorage::getErrorString(status));
+		LLNotifications::instance().add("UploadAuctionSnapshotFail", args);
 	}
 }
 
@@ -298,12 +298,12 @@ void auction_j2c_upload_done(const LLUUID& asset_id, void* user_data, S32 status
 
 	if (0 == status)
 	{
-		LLNotifyBox::showXml("UploadSnapshotDone");
+		LLNotifications::instance().add("UploadSnapshotDone");
 	}
 	else
 	{
-		LLStringUtil::format_map_t args;
-		args["[REASON]"] = std::string(LLAssetStorage::getErrorString(status));
-		gViewerWindow->alertXml("UploadAuctionSnapshotFail", args);
+		LLSD args;
+		args["REASON"] = std::string(LLAssetStorage::getErrorString(status));
+		LLNotifications::instance().add("UploadAuctionSnapshotFail", args);
 	}
 }

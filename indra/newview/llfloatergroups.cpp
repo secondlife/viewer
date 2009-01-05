@@ -388,10 +388,11 @@ void LLPanelGroups::leave()
 		}
 		if(i < count)
 		{
-			LLUUID* cb_data = new LLUUID((const LLUUID&)group_id);
-			LLStringUtil::format_map_t args;
-			args["[GROUP]"] = gAgent.mGroups.get(i).mName;
-			gViewerWindow->alertXml("GroupLeaveConfirmMember", args, callbackLeaveGroup, (void*)cb_data);
+			LLSD args;
+			args["GROUP"] = gAgent.mGroups.get(i).mName;
+			LLSD payload;
+			payload["group_id"] = group_id;
+			LLNotifications::instance().add("GroupLeaveConfirmMember", args, payload, callbackLeaveGroup);
 		}
 	}
 }
@@ -402,10 +403,11 @@ void LLPanelGroups::search()
 }
 
 // static
-void LLPanelGroups::callbackLeaveGroup(S32 option, void* userdata)
+bool LLPanelGroups::callbackLeaveGroup(const LLSD& notification, const LLSD& response)
 {
-	LLUUID* group_id = (LLUUID*)userdata;
-	if(option == 0 && group_id)
+	S32 option = LLNotification::getSelectedOption(notification, response);
+	LLUUID group_id = notification["payload"]["group_id"].asUUID();
+	if(option == 0)
 	{
 		LLMessageSystem* msg = gMessageSystem;
 		msg->newMessageFast(_PREHASH_LeaveGroupRequest);
@@ -413,10 +415,10 @@ void LLPanelGroups::callbackLeaveGroup(S32 option, void* userdata)
 		msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
 		msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
 		msg->nextBlockFast(_PREHASH_GroupData);
-		msg->addUUIDFast(_PREHASH_GroupID, *group_id);
+		msg->addUUIDFast(_PREHASH_GroupID, group_id);
 		gAgent.sendReliableMessage();
 	}
-	delete group_id;
+	return false;
 }
 
 void LLPanelGroups::onGroupList(LLUICtrl* ctrl, void* userdata)

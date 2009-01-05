@@ -109,12 +109,6 @@ void LLVOGrass::updateSpecies()
 }
 
 
-void alert_done(S32 option, void* user_data)
-{
-	return;
-}
-
-
 void LLVOGrass::initClass()
 {
 	LLVector3 pos(0.0f, 0.0f, 0.0f);
@@ -224,9 +218,9 @@ void LLVOGrass::initClass()
 
 	if (!have_all_grass) 
 	{
-		LLStringUtil::format_map_t args;
-		args["[SPECIES]"] = err;
-		gViewerWindow->alertXml("ErrorUndefinedGrasses", args, alert_done );
+		LLSD args;
+		args["SPECIES"] = err;
+		LLNotifications::instance().add("ErrorUndefinedGrasses", args);
 	}
 
 	for (S32 i = 0; i < GRASS_MAX_BLADES; ++i)

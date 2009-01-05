@@ -207,10 +207,10 @@ void LLFloaterReporter::processRegionInfo(LLMessageSystem* msg)
 	{
 		if ( gEmailToEstateOwner )
 		{
-			gViewerWindow->alertXml("HelpReportAbuseEmailEO");
+			LLNotifications::instance().add("HelpReportAbuseEmailEO");
 		}
 		else
-			gViewerWindow->alertXml("HelpReportAbuseEmailLL");
+			LLNotifications::instance().add("HelpReportAbuseEmailLL");
 	};
 }
 
@@ -406,7 +406,7 @@ void LLFloaterReporter::onClickSend(void *userdata)
 					category_value == IP_CONTENT_REMOVAL ||
 					category_value == IP_PERMISSONS_EXPLOIT)
 				{
-					gViewerWindow->alertXml("HelpReportAbuseContainsCopyright");
+					LLNotifications::instance().add("HelpReportAbuseContainsCopyright");
 					self->mCopyrightWarningSeen = TRUE;
 					return;
 				}
@@ -415,7 +415,7 @@ void LLFloaterReporter::onClickSend(void *userdata)
 			{
 				// IP_CONTENT_REMOVAL *always* shows the dialog - 
 				// ergo you can never send that abuse report type.
-				gViewerWindow->alertXml("HelpReportAbuseContainsCopyright");
+				LLNotifications::instance().add("HelpReportAbuseContainsCopyright");
 				return;
 			}
 		}
@@ -524,7 +524,7 @@ void LLFloaterReporter::showFromMenu(EReportType report_type)
 
 		if (report_type == BUG_REPORT)
 		{
- 			gViewerWindow->alertXml("HelpReportBug");
+ 			LLNotifications::instance().add("HelpReportBug");
 		}
 		else
 		{
@@ -610,11 +610,11 @@ bool LLFloaterReporter::validateReport()
 	{
 		if ( mReportType != BUG_REPORT )
 		{
-			gViewerWindow->alertXml("HelpReportAbuseSelectCategory");
+			LLNotifications::instance().add("HelpReportAbuseSelectCategory");
 		}
 		else
 		{
-			gViewerWindow->alertXml("HelpReportBugSelectCategory");
+			LLNotifications::instance().add("HelpReportBugSelectCategory");
 		}
 		return false;
 	}
@@ -623,13 +623,13 @@ bool LLFloaterReporter::validateReport()
 	{
 	  if ( childGetText("abuser_name_edit").empty() )
 	  {
-		  gViewerWindow->alertXml("HelpReportAbuseAbuserNameEmpty");
+		  LLNotifications::instance().add("HelpReportAbuseAbuserNameEmpty");
 		  return false;
 	  };
   
 	  if ( childGetText("abuse_location_edit").empty() )
 	  {
-		  gViewerWindow->alertXml("HelpReportAbuseAbuserLocationEmpty");
+		  LLNotifications::instance().add("HelpReportAbuseAbuserLocationEmpty");
 		  return false;
 	  };
 	};
@@ -638,11 +638,11 @@ bool LLFloaterReporter::validateReport()
 	{
 		if ( mReportType != BUG_REPORT )
 		{
-			gViewerWindow->alertXml("HelpReportAbuseSummaryEmpty");
+			LLNotifications::instance().add("HelpReportAbuseSummaryEmpty");
 		}
 		else
 		{
-			gViewerWindow->alertXml("HelpReportBugSummaryEmpty");
+			LLNotifications::instance().add("HelpReportBugSummaryEmpty");
 		}
 		return false;
 	};
@@ -651,11 +651,11 @@ bool LLFloaterReporter::validateReport()
 	{
 		if ( mReportType != BUG_REPORT )
 		{
-			gViewerWindow->alertXml("HelpReportAbuseDetailsEmpty");
+			LLNotifications::instance().add("HelpReportAbuseDetailsEmpty");
 		}
 		else
 		{
-			gViewerWindow->alertXml("HelpReportBugDetailsEmpty");
+			LLNotifications::instance().add("HelpReportBugDetailsEmpty");
 		}
 		return false;
 	};
@@ -951,13 +951,12 @@ void LLFloaterReporter::uploadDoneCallback(const LLUUID &uuid, void *user_data, 
 
 	if(result < 0)
 	{
-		LLStringUtil::format_map_t args;
-		std::string reason = std::string(LLAssetStorage::getErrorString(result));
-		args["[REASON]"] = reason;
-		gViewerWindow->alertXml("ErrorUploadingReportScreenshot", args);
+		LLSD args;
+		args["REASON"] = std::string(LLAssetStorage::getErrorString(result));
+		LLNotifications::instance().add("ErrorUploadingReportScreenshot", args);
 
 		std::string err_msg("There was a problem uploading a report screenshot");
-		err_msg += " due to the following reason: " + reason;
+		err_msg += " due to the following reason: " + args["REASON"].asString();
 		llwarns << err_msg << llendl;
 		return;
 	}

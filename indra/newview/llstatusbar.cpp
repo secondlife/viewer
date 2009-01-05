@@ -767,7 +767,7 @@ static void onClickBuyCurrency(void* data)
 
 static void onClickHealth(void* )
 {
-	LLNotifyBox::showXml("NotSafe");
+	LLNotifications::instance().add("NotSafe");
 }
 
 static void onClickScriptDebug(void*)
@@ -777,22 +777,22 @@ static void onClickScriptDebug(void*)
 
 static void onClickFly(void* )
 {
-	LLNotifyBox::showXml("NoFly");
+	LLNotifications::instance().add("NoFly");
 }
 
 static void onClickPush(void* )
 {
-	LLNotifyBox::showXml("PushRestricted");
+	LLNotifications::instance().add("PushRestricted");
 }
 
 static void onClickVoice(void* )
 {
-	LLNotifyBox::showXml("NoVoice");
+	LLNotifications::instance().add("NoVoice");
 }
 
 static void onClickBuild(void*)
 {
-	LLNotifyBox::showXml("NoBuild");
+	LLNotifications::instance().add("NoBuild");
 }
 
 static void onClickScripts(void*)
@@ -800,15 +800,15 @@ static void onClickScripts(void*)
 	LLViewerRegion* region = gAgent.getRegion();
 	if(region && region->getRegionFlags() & REGION_FLAGS_ESTATE_SKIP_SCRIPTS)
 	{
-		LLNotifyBox::showXml("ScriptsStopped");
+		LLNotifications::instance().add("ScriptsStopped");
 	}
 	else if(region && region->getRegionFlags() & REGION_FLAGS_SKIP_SCRIPTS)
 	{
-		LLNotifyBox::showXml("ScriptsNotRunning");
+		LLNotifications::instance().add("ScriptsNotRunning");
 	}
 	else
 	{
-		LLNotifyBox::showXml("NoOutsideScripts");
+		LLNotifications::instance().add("NoOutsideScripts");
 	}
 }
 

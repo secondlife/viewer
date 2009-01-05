@@ -178,9 +178,9 @@ const std::string upload_pick(void* data)
 		std::string short_name = gDirUtilp->getBaseFileName(filename);
 		
 		// No extension
-		LLStringUtil::format_map_t args;
-		args["[FILE]"] = short_name;
-		gViewerWindow->alertXml("NoFileExtension", args);
+		LLSD args;
+		args["FILE"] = short_name;
+		LLNotifications::instance().add("NoFileExtension", args);
 		return std::string();
 	}
 	else
@@ -220,11 +220,11 @@ const std::string upload_pick(void* data)
 		{
 			//should only get here if the extension exists
 			//but is invalid
-			LLStringUtil::format_map_t args;
-			args["[EXTENSION]"] = ext;
-			args["[VALIDS]"] = valid_extensions;
-			gViewerWindow->alertXml("InvalidFileExtension", args);
-			return std::string();
+			LLSD args;
+			args["EXTENSION"] = ext;
+			args["VALIDS"] = valid_extensions;
+			LLNotifications::instance().add("InvalidFileExtension", args);
+			return NULL;
 		}
 	}//end else (non-null extension)
 
@@ -239,9 +239,9 @@ const std::string upload_pick(void* data)
 		if (check_for_invalid_wav_formats(filename,error_msg))
 		{
 			llinfos << error_msg << ": " << filename << llendl;
-			LLStringUtil::format_map_t args;
-			args["[FILE]"] = filename;
-			gViewerWindow->alertXml( error_msg, args );
+			LLSD args;
+			args["FILE"] = filename;
+			LLNotifications::instance().add( error_msg, args );
 			return std::string();
 		}
 	}//end if a wave/sound file
@@ -337,10 +337,10 @@ class LLFileUploadBulk : public view_listener_t
 	}
 };
 
-void upload_error(const std::string& error_message, const std::string& label, const std::string& filename, const LLStringUtil::format_map_t args) 
+void upload_error(const std::string& error_message, const std::string& label, const std::string& filename, const LLSD& args) 
 {
 	llwarns << error_message << llendl;
-	gViewerWindow->alertXml(label, args);
+	LLNotifications::instance().add(label, args);
 	if(LLFile::remove(filename) == -1)
 	{
 		lldebugs << "unable to remove temp file" << llendl;
@@ -531,10 +531,9 @@ void upload_new_resource(const std::string& src_filename, std::string name,
 	LLTransactionID tid;
 	LLAssetID uuid;
 	
-	LLStringUtil::format_map_t args;
+	LLSD args;
 
 	std::string exten = gDirUtilp->getExtension(src_filename);
-
 	LLAssetType::EType asset_type = LLAssetType::AT_NONE;
 	std::string error_message;
 
@@ -548,7 +547,7 @@ void upload_new_resource(const std::string& src_filename, std::string name,
 		error_message = llformat(
 				"No file extension for the file: '%s'\nPlease make sure the file has a correct file extension",
 				short_name.c_str());
-		args["[FILE]"] = short_name;
+		args["FILE"] = short_name;
  		upload_error(error_message, "NofileExtension", filename, args);
 		return;
 	}
@@ -560,9 +559,9 @@ void upload_new_resource(const std::string& src_filename, std::string name,
 												 IMG_CODEC_BMP ))
 		{
 			error_message = llformat( "Problem with file %s:\n\n%s\n",
-					 src_filename.c_str(), LLImage::getLastError().c_str());
-			args["[FILE]"] = src_filename;
-			args["[ERROR]"] = LLImage::getLastError();
+					src_filename.c_str(), LLImage::getLastError().c_str());
+			args["FILE"] = src_filename;
+			args["ERROR"] = LLImage::getLastError();
 			upload_error(error_message, "ProblemWithFile", filename, args);
 			return;
 		}
@@ -576,8 +575,8 @@ void upload_new_resource(const std::string& src_filename, std::string name,
 		{
 			error_message = llformat("Problem with file %s:\n\n%s\n",
 					src_filename.c_str(), LLImage::getLastError().c_str());
-			args["[FILE]"] = src_filename;
-			args["[ERROR]"] = LLImage::getLastError();
+			args["FILE"] = src_filename;
+			args["ERROR"] = LLImage::getLastError();
 			upload_error(error_message, "ProblemWithFile", filename, args);
 			return;
 		}
@@ -591,8 +590,8 @@ void upload_new_resource(const std::string& src_filename, std::string name,
 		{
 			error_message = llformat("Problem with file %s:\n\n%s\n",
 					src_filename.c_str(), LLImage::getLastError().c_str());
-			args["[FILE]"] = src_filename;
-			args["[ERROR]"] = LLImage::getLastError();
+			args["FILE"] = src_filename;
+			args["ERROR"] = LLImage::getLastError();
 			upload_error(error_message, "ProblemWithFile", filename, args);
 			return;
 		}
@@ -606,8 +605,8 @@ void upload_new_resource(const std::string& src_filename, std::string name,
  		{
  			error_message = llformat("Problem with file %s:\n\n%s\n",
  					src_filename.c_str(), LLImage::getLastError().c_str());
- 			args["[FILE]"] = src_filename;
- 			args["[ERROR]"] = LLImage::getLastError();
+ 			args["FILE"] = src_filename;
+ 			args["ERROR"] = LLImage::getLastError();
  			upload_error(error_message, "ProblemWithFile", filename, args);
  			return;
  		}
@@ -627,13 +626,13 @@ void upload_new_resource(const std::string& src_filename, std::string name,
 			{
 				case LLVORBISENC_DEST_OPEN_ERR:
 				    error_message = llformat( "Couldn't open temporary compressed sound file for writing: %s\n", filename.c_str());
-					args["[FILE]"] = filename;
+					args["FILE"] = filename;
 					upload_error(error_message, "CannotOpenTemporarySoundFile", filename, args);
 					break;
 
 				default:	
 				  error_message = llformat("Unknown vorbis encode failure on: %s\n", src_filename.c_str());
-					args["[FILE]"] = src_filename;
+					args["FILE"] = src_filename;
 					upload_error(error_message, "UnknownVorbisEncodeFailure", filename, args);
 					break;	
 			}	
@@ -675,7 +674,7 @@ void upload_new_resource(const std::string& src_filename, std::string name,
                                          {	 	
                                                  fclose(in);	 	
                                                  error_message = llformat("corrupt resource file: %s", src_filename.c_str());
-												 args["[FILE]"] = src_filename;
+												 args["FILE"] = src_filename;
 												 upload_error(error_message, "CorruptResourceFile", filename, args);
                                                  return;
                                          }	 	
@@ -703,7 +702,7 @@ void upload_new_resource(const std::string& src_filename, std::string name,
                          {	 	
                                  fclose(in);	 	
                                  error_message = llformat("unknown linden resource file version in file: %s", src_filename.c_str());
-								 args["[FILE]"] = src_filename;
+								 args["FILE"] = src_filename;
 								 upload_error(error_message, "UnknownResourceFileVersion", filename, args);
                                  return;
                          }	 	
@@ -745,7 +744,7 @@ void upload_new_resource(const std::string& src_filename, std::string name,
                  {	 	
                          fclose(in);	 	
                          error_message = llformat( "Unable to create output file: %s", filename.c_str());
-						 args["[FILE]"] = filename;
+						 args["FILE"] = filename;
 						 upload_error(error_message, "UnableToCreateOutputFile", filename, args);
                          return;
                  }	 	
@@ -815,9 +814,9 @@ void upload_new_resource(const std::string& src_filename, std::string name,
 	else
 	{
 		llwarns << error_message << llendl;
-		LLStringUtil::format_map_t args;
-		args["[ERROR_MESSAGE]"] = error_message;
-		gViewerWindow->alertXml("ErrorMessage", args);
+		LLSD args;
+		args["ERROR_MESSAGE"] = error_message;
+		LLNotifications::instance().add("ErrorMessage", args);
 		if(LLFile::remove(filename) == -1)
 		{
 			lldebugs << "unable to remove temp file" << llendl;
@@ -900,10 +899,10 @@ void upload_done_callback(const LLUUID& uuid, void* user_data, S32 result, LLExt
 	}
 	else // 	if(result >= 0)
 	{
-		LLStringUtil::format_map_t args;
-		args["[FILE]"] = LLInventoryType::lookupHumanReadable(data->mInventoryType);
-		args["[REASON]"] = std::string(LLAssetStorage::getErrorString(result));
-		gViewerWindow->alertXml("CannotUploadReason", args);
+		LLSD args;
+		args["FILE"] = LLInventoryType::lookupHumanReadable(data->mInventoryType);
+		args["REASON"] = std::string(LLAssetStorage::getErrorString(result));
+		LLNotifications::instance().add("CannotUploadReason", args);
 	}
 
 	LLUploadDialog::modalUploadFinished();

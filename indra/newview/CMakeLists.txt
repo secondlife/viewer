@@ -169,6 +169,7 @@ set(viewer_SOURCE_FILES
     llfloatermute.cpp
     llfloaternamedesc.cpp
     llfloaternewim.cpp
+    llfloaternotificationsconsole.cpp
     llfloaterobjectiminfo.cpp
     llfloateropenobject.cpp
     llfloaterparcel.cpp
@@ -570,6 +571,7 @@ set(viewer_HEADER_FILES
     llfloatermute.h
     llfloaternamedesc.h
     llfloaternewim.h
+    llfloaternotificationsconsole.h
     llfloaterobjectiminfo.h
     llfloateropenobject.h
     llfloaterparcel.h
@@ -1091,6 +1093,8 @@ set(viewer_XUI_FILES
     skins/default/xui/en-us/floater_name_description.xml
     skins/default/xui/en-us/floater_new_im.xml
     skins/default/xui/en-us/floater_new_outfit_dialog.xml
+    skins/default/xui/en-us/floater_notifications_console.xml
+    skins/default/xui/en-us/floater_notification.xml
     skins/default/xui/en-us/floater_object_im_info.xml
     skins/default/xui/en-us/floater_openobject.xml
     skins/default/xui/en-us/floater_pay_object.xml
@@ -1149,6 +1153,7 @@ set(viewer_XUI_FILES
     skins/default/xui/en-us/menu_slurl.xml
     skins/default/xui/en-us/menu_viewer.xml
     skins/default/xui/en-us/mime_types.xml
+    skins/default/xui/en-us/notifications.xml
     skins/default/xui/en-us/notify.xml
     skins/default/xui/en-us/panel_audio_device.xml
     skins/default/xui/en-us/panel_audio.xml
@@ -1177,6 +1182,7 @@ set(viewer_XUI_FILES
     skins/default/xui/en-us/panel_media_controls.xml
     skins/default/xui/en-us/panel_media_remote_expanded.xml
     skins/default/xui/en-us/panel_media_remote.xml
+    skins/default/xui/en-us/panel_notifications_channel.xml
     skins/default/xui/en-us/panel_overlaybar.xml
     skins/default/xui/en-us/panel_place_small.xml
     skins/default/xui/en-us/panel_place.xml

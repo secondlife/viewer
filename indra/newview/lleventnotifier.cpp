@@ -77,11 +77,11 @@ void LLEventNotifier::update()
 
 			if (np->getEventDate() < (alert_time))
 			{
-				LLStringUtil::format_map_t args;
-				args["[NAME]"] = np->getEventName();
-				args["[DATE]"] = np->getEventDateStr();
-				LLNotifyBox::showXml("EventNotification", args, 
-									 notifyCallback, np);
+				LLSD args;
+				args["NAME"] = np->getEventName();
+				args["DATE"] = np->getEventDateStr();
+				LLNotifications::instance().add("EventNotification", args, LLSD(),
+					boost::bind(&LLEventNotification::handleResponse, np, _1, _2));
 				mEventNotifications.erase(iter++);
 			}
 			else
@@ -173,38 +173,9 @@ void LLEventNotifier::remove(const U32 event_id)
 	mEventNotifications.erase(iter);
 }
 
-//static
-void LLEventNotifier::notifyCallback(S32 option, void *user_data)
-{
-	LLEventNotification *np = (LLEventNotification *)user_data;
-	if (!np)
-	{
-		llwarns << "Event notification callback without data!" << llendl;
-		return;
-	}
-	switch (option)
-	{
-	case 0:
-		gAgent.teleportViaLocation(np->getEventPosGlobal());
-		gFloaterWorldMap->trackLocation(np->getEventPosGlobal());
-		break;
-	case 1:
-		gDisplayEventHack = TRUE;
-		LLFloaterDirectory::showEvents(np->getEventID());
-		break;
-	case 2:
-		break;
-	}
-
-	// We could clean up the notification on the server now if we really wanted to.
-}
-
-
-
 LLEventNotification::LLEventNotification() :
 	mEventID(0),
-	mEventName(""),
-	mEventDate(0)
+	mEventName("")
 {
 }
 
@@ -213,6 +184,26 @@ LLEventNotification::~LLEventNotification()
 {
 }
 
+bool LLEventNotification::handleResponse(const LLSD& notification, const LLSD& response)
+{
+	S32 option = LLNotification::getSelectedOption(notification, response);
+	switch (option)
+	{
+	case 0:
+		gAgent.teleportViaLocation(getEventPosGlobal());
+		gFloaterWorldMap->trackLocation(getEventPosGlobal());
+		break;
+	case 1:
+		gDisplayEventHack = TRUE;
+		LLFloaterDirectory::showEvents(getEventID());
+		break;
+	case 2:
+		break;
+	}
+
+	// We could clean up the notification on the server now if we really wanted to.
+	return false;
+}
 
 BOOL LLEventNotification::load(const LLUserAuth::response_t &response)
 {

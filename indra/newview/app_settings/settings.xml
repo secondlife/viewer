@@ -55,6 +55,17 @@
         <real>1.0</real>
       </array>
     </map>
+    <key>AlertedUnsupportedHardware</key>
+    <map>
+      <key>Comment</key>
+      <string>Set if there's unsupported hardware and we've already done a notification.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>AllowIdleAFK</key>
     <map>
       <key>Comment</key>

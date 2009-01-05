@@ -2695,7 +2695,8 @@ void LLSelectMgr::selectDelete()
 		return;
 	}
 
-	LLObjectSelectionHandle* selection_handlep = new LLObjectSelectionHandle(getSelection());
+	LLNotification::Params params("ConfirmObjectDeleteLock");
+	params.functor(boost::bind(&LLSelectMgr::confirmDelete, _1, _2, getSelection()));
 
 	if(locked_but_deleteable_object ||
 	   no_copy_but_deleteable_object ||
@@ -2711,72 +2712,55 @@ void LLSelectMgr::selectDelete()
 		if(locked_but_deleteable_object && !no_copy_but_deleteable_object && all_owned_by_you)
 		{
 			//Locked only
-			gViewerWindow->alertXml(  "ConfirmObjectDeleteLock",
-								  &LLSelectMgr::confirmDelete,
-								  selection_handlep);
+			params.name("ConfirmObjectDeleteLock");
 		}
 		else if(!locked_but_deleteable_object && no_copy_but_deleteable_object && all_owned_by_you)
 		{
 			//No Copy only
-			gViewerWindow->alertXml(  "ConfirmObjectDeleteNoCopy",
-								  &LLSelectMgr::confirmDelete,
-								  selection_handlep);
+			params.name("ConfirmObjectDeleteNoCopy");
 		}
 		else if(!locked_but_deleteable_object && !no_copy_but_deleteable_object && !all_owned_by_you)
 		{
 			//not owned only
-			gViewerWindow->alertXml(  "ConfirmObjectDeleteNoOwn",
-								  &LLSelectMgr::confirmDelete,
-								  selection_handlep);
+			params.name("ConfirmObjectDeleteNoOwn");
 		}
 		else if(locked_but_deleteable_object && no_copy_but_deleteable_object && all_owned_by_you)
 		{
 			//locked and no copy
-			gViewerWindow->alertXml(  "ConfirmObjectDeleteLockNoCopy",
-								  &LLSelectMgr::confirmDelete,
-								  selection_handlep);
+			params.name("ConfirmObjectDeleteLockNoCopy");
 		}
 		else if(locked_but_deleteable_object && !no_copy_but_deleteable_object && !all_owned_by_you)
 		{
 			//locked and not owned
-			gViewerWindow->alertXml(  "ConfirmObjectDeleteLockNoOwn",
-								  &LLSelectMgr::confirmDelete,
-								  selection_handlep);
+			params.name("ConfirmObjectDeleteLockNoOwn");
 		}
 		else if(!locked_but_deleteable_object && no_copy_but_deleteable_object && !all_owned_by_you)
 		{
 			//no copy and not owned
-			gViewerWindow->alertXml(  "ConfirmObjectDeleteNoCopyNoOwn",
-								  &LLSelectMgr::confirmDelete,
-								  selection_handlep);
+			params.name("ConfirmObjectDeleteNoCopyNoOwn");
 		}
 		else
 		{
 			//locked, no copy and not owned
-			gViewerWindow->alertXml(  "ConfirmObjectDeleteLockNoCopyNoOwn",
-								  &LLSelectMgr::confirmDelete,
-								  selection_handlep);
+			params.name("ConfirmObjectDeleteLockNoCopyNoOwn");
 		}
 		
-		
-		
+		LLNotifications::instance().add(params);
 	}
 	else
 	{
-		confirmDelete(0, (void*)selection_handlep);
+		LLNotifications::instance().forceResponse(params, 0);
 	}
 }
 
 // static
-void LLSelectMgr::confirmDelete(S32 option, void* data)
+bool LLSelectMgr::confirmDelete(const LLSD& notification, const LLSD& response, LLObjectSelectionHandle handle)
 {
-	LLObjectSelectionHandle handle = *(LLObjectSelectionHandle*)data;
-	delete (LLObjectSelectionHandle*)data;
-
+	S32 option = LLNotification::getSelectedOption(notification, response);
 	if (!handle->getObjectCount())
 	{
 		llwarns << "Nothing to delete!" << llendl;
-		return;
+		return false;
 	}
 
 	switch(option)
@@ -2815,6 +2799,7 @@ void LLSelectMgr::confirmDelete(S32 option, void* data)
 	default:
 		break;
 	}
+	return false;
 }
 
 

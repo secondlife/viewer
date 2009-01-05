@@ -235,18 +235,17 @@ std::string load_password_from_disk();
 void save_password_to_disk(const char* hashed_password);
 bool is_hex_string(U8* str, S32 len);
 void show_first_run_dialog();
-void first_run_dialog_callback(S32 option, void* userdata);
+bool first_run_dialog_callback(const LLSD& notification, const LLSD& response);
 void set_startup_status(const F32 frac, const std::string& string, const std::string& msg);
-void login_alert_status(S32 option, void* user_data);
+bool login_alert_status(const LLSD& notification, const LLSD& response);
 void update_app(BOOL mandatory, const std::string& message);
-void update_dialog_callback(S32 option, void *userdata);
+bool update_dialog_callback(const LLSD& notification, const LLSD& response);
 void login_packet_failed(void**, S32 result);
 void use_circuit_callback(void**, S32 result);
 void register_viewer_callbacks(LLMessageSystem* msg);
 void init_stat_view();
 void asset_callback_nothing(LLVFS*, const LLUUID&, LLAssetType::EType, void*, S32);
-void dialog_choose_gender_first_start();
-void callback_choose_gender(S32 option, void* userdata);
+bool callback_choose_gender(const LLSD& notification, const LLSD& response);
 void init_start_screen(S32 location_id);
 void release_start_screen();
 void reset_login();
@@ -387,16 +386,16 @@ bool idle_startup()
 
 		if (LLFeatureManager::getInstance()->isSafe())
 		{
-			gViewerWindow->alertXml("DisplaySetToSafe");
+			LLNotifications::instance().add("DisplaySetToSafe");
 		}
 		else if ((gSavedSettings.getS32("LastFeatureVersion") < LLFeatureManager::getInstance()->getVersion()) &&
 				 (gSavedSettings.getS32("LastFeatureVersion") != 0))
 		{
-			gViewerWindow->alertXml("DisplaySetToRecommended");
+			LLNotifications::instance().add("DisplaySetToRecommended");
 		}
 		else if (!gViewerWindow->getInitAlert().empty())
 		{
-			gViewerWindow->alertXml(gViewerWindow->getInitAlert());
+			LLNotifications::instance().add(gViewerWindow->getInitAlert());
 		}
 			
 		gSavedSettings.setS32("LastFeatureVersion", LLFeatureManager::getInstance()->getVersion());
@@ -419,10 +418,11 @@ bool idle_startup()
 		}
 		if (!xml_ok)
 		{
-			// *TODO:translate (maybe - very unlikely error message)
-			// Note: alerts.xml may be invalid - if this gets translated it will need to be in the code
-			std::string bad_xui_msg = "An error occured while updating Second Life. Please download the latest version from www.secondlife.com.";
-            LLAppViewer::instance()->earlyExit(bad_xui_msg);
+			// If XML is bad, there's a good possibility that notifications.xml is ALSO bad.
+			// If that's so, then we'll get a fatal error on attempting to load it, 
+			// which will display a nontranslatable error message that says so.
+			// Otherwise, we'll display a reasonable error message that IS translatable.
+			LLAppViewer::instance()->earlyExit("BadInstallation");
 		}
 		//
 		// Statistics stuff
@@ -440,9 +440,9 @@ bool idle_startup()
 
 		if (ll_init_ares() == NULL || !gAres->isInitialized())
 		{
-			LL_WARNS("AppInit") << "Could not start address resolution system" << LL_ENDL;
-			std::string msg = LLTrans::getString("LoginFailedNoNetwork");
-			LLAppViewer::instance()->earlyExit(msg);
+			std::string diagnostic = "Could not start address resolution system";
+			LL_WARNS("AppInit") << diagnostic << LL_ENDL;
+			LLAppViewer::instance()->earlyExit("LoginFailedNoNetwork", LLSD().insert("DIAGNOSTIC", diagnostic));
 		}
 		
 		//
@@ -500,9 +500,9 @@ bool idle_startup()
 				   circuit_heartbeat_interval,
 				   circuit_timeout))
 			{
-				std::string msg = LLTrans::getString("LoginFailedNoNetwork");
-				msg.append(llformat(" Error: %d", gMessageSystem->getErrorCode()));
-				LLAppViewer::instance()->earlyExit(msg);
+				std::string diagnostic = llformat(" Error: %d", gMessageSystem->getErrorCode());
+				LL_WARNS("AppInit") << diagnostic << LL_ENDL;
+				LLAppViewer::instance()->earlyExit("LoginFailedNoNetwork", LLSD().insert("DIAGNOSTIC", diagnostic));
 			}
 
 			#if LL_WINDOWS
@@ -525,7 +525,7 @@ bool idle_startup()
 		}
 		else
 		{
-			LLAppViewer::instance()->earlyExit("Message Template " + message_template_path + " not found.");
+			LLAppViewer::instance()->earlyExit("MessageTemplateNotFound", LLSD().insert("PATH", message_template_path));
 		}
 
 		if(gMessageSystem && gMessageSystem->isOK())
@@ -1551,9 +1551,9 @@ bool idle_startup()
 					exit(0);
 				}
 				// Bounce back to the login screen.
-				LLStringUtil::format_map_t args;
-				args["[ERROR_MESSAGE]"] = emsg.str();
-				gViewerWindow->alertXml("ErrorMessage", args, login_alert_done);
+				LLSD args;
+				args["ERROR_MESSAGE"] = emsg.str();
+				LLNotifications::instance().add("ErrorMessage", args, LLSD(), login_alert_done);
 				reset_login();
 				gSavedSettings.setBOOL("AutoLogin", FALSE);
 				show_connect_box = true;
@@ -1571,9 +1571,9 @@ bool idle_startup()
 				exit(0);
 			}
 			// Bounce back to the login screen.
-			LLStringUtil::format_map_t args;
-			args["[ERROR_MESSAGE]"] = emsg.str();
-			gViewerWindow->alertXml("ErrorMessage", args, login_alert_done);
+			LLSD args;
+			args["ERROR_MESSAGE"] = emsg.str();
+			LLNotifications::instance().add("ErrorMessage", args, LLSD(), login_alert_done);
 			reset_login();
 			gSavedSettings.setBOOL("AutoLogin", FALSE);
 			show_connect_box = true;
@@ -2300,23 +2300,23 @@ bool idle_startup()
 				// location is not your expected location. So, if this is
 				// your first login, then you do not have an expectation,
 				// thus, do not show this alert.
-				LLStringUtil::format_map_t args;
+				LLSD args;
 				if (url_ok)
 				{
-					args["[TYPE]"] = "desired";
-					args["[HELP]"] = "";
+					args["TYPE"] = "desired";
+					args["HELP"] = "";
 				}
 				else if (gSavedSettings.getBOOL("LoginLastLocation"))
 				{
-					args["[TYPE]"] = "last";
-					args["[HELP]"] = "";
+					args["TYPE"] = "last";
+					args["HELP"] = "";
 				}
 				else
 				{
-					args["[TYPE]"] = "home";
-					args["[HELP]"] = "You may want to set a new home location.";
+					args["TYPE"] = "home";
+					args["HELP"] = "You may want to set a new home location.";
 				}
-				gViewerWindow->alertXml("AvatarMoved", args);
+				LLNotifications::instance().add("AvatarMoved", args);
 			}
 			else
 			{
@@ -2411,16 +2411,15 @@ bool idle_startup()
 			// initial outfit, but if the load hasn't started
 			// already then something is wrong so fall back
 			// to generic outfits. JC
-			gViewerWindow->alertXml("WelcomeChooseSex",
-				callback_choose_gender, NULL);
+			LLNotifications::instance().add("WelcomeChooseSex", LLSD(), LLSD(),
+				callback_choose_gender);
 			LLStartUp::setStartupState( STATE_CLEANUP );
 			return TRUE;
 		}
 		
 		if (wearables_time > MAX_WEARABLES_TIME)
 		{
-			// It's taken too long to load, show the world
-			gViewerWindow->alertXml("ClothingLoading");
+			LLNotifications::instance().add("ClothingLoading");
 			LLViewerStats::getInstance()->incStat(LLViewerStats::ST_WEARABLES_TOO_LONG);
 			LLStartUp::setStartupState( STATE_CLEANUP );
 			return TRUE;
@@ -2440,7 +2439,7 @@ bool idle_startup()
 		else
 		{
 			// OK to just get the wearables
-			if ( gAgent.getWearablesLoaded() )
+			if ( gAgent.areWearablesLoaded() )
 			{
 				// We have our clothing, proceed.
 				//llinfos << "wearables loaded" << llendl;
@@ -2722,11 +2721,12 @@ bool is_hex_string(U8* str, S32 len)
 
 void show_first_run_dialog()
 {
-	gViewerWindow->alertXml("FirstRun", first_run_dialog_callback, NULL);
+	LLNotifications::instance().add("FirstRun", LLSD(), LLSD(), first_run_dialog_callback);
 }
 
-void first_run_dialog_callback(S32 option, void* userdata)
+bool first_run_dialog_callback(const LLSD& notification, const LLSD& response)
 {
+	S32 option = LLNotification::getSelectedOption(notification, response);
 	if (0 == option)
 	{
 		LL_DEBUGS("AppInit") << "First run dialog cancelling" << LL_ENDL;
@@ -2734,6 +2734,7 @@ void first_run_dialog_callback(S32 option, void* userdata)
 	}
 
 	LLPanelLogin::giveFocus();
+	return false;
 }
 
 
@@ -2746,8 +2747,9 @@ void set_startup_status(const F32 frac, const std::string& string, const std::st
 	gViewerWindow->setProgressMessage(msg);
 }
 
-void login_alert_status(S32 option, void* user_data)
+bool login_alert_status(const LLSD& notification, const LLSD& response)
 {
+	S32 option = LLNotification::getSelectedOption(notification, response);
     // Buttons
     switch( option )
     {
@@ -2766,6 +2768,7 @@ void login_alert_status(S32 option, void* user_data)
     }
 
 	LLPanelLogin::giveFocus();
+	return false;
 }
 
 void update_app(BOOL mandatory, const std::string& auth_msg)
@@ -2781,67 +2784,66 @@ void update_app(BOOL mandatory, const std::string& auth_msg)
 	{
 		msg = "(" + auth_msg + ") \n";
 	}
-	LLStringUtil::format_map_t args;
-	args["[MESSAGE]"] = msg;
+
+	LLSD args;
+	args["MESSAGE"] = msg;
 	
-	// represent a bool as a null/non-null pointer
-	void *mandatoryp = mandatory ? &mandatory : NULL;
+	LLSD payload;
+	payload["mandatory"] = mandatory;
 
+/*
+ We're constructing one of the following 6 strings here:
+	 "DownloadWindowsMandatory"
+	 "DownloadWindowsReleaseForDownload"
+	 "DownloadWindows"
+	 "DownloadMacMandatory"
+	 "DownloadMacReleaseForDownload"
+	 "DownloadMac"
+ 
+ I've called them out explicitly in this comment so that they can be grepped for.
+ 
+ Also, we assume that if we're not Windows we're Mac. If we ever intend to support 
+ Linux with autoupdate, this should be an explicit #elif LL_DARWIN, but 
+ we'd rather deliver the wrong message than no message, so until Linux is supported
+ we'll leave it alone.
+ */
+	std::string notification_name = "Download";
+	
 #if LL_WINDOWS
+	notification_name += "Windows";
+#else
+	notification_name += "Mac";
+#endif
+	
 	if (mandatory)
 	{
-		gViewerWindow->alertXml("DownloadWindowsMandatory", args,
-								update_dialog_callback,
-								mandatoryp);
+		notification_name += "Mandatory";
 	}
 	else
 	{
 #if LL_RELEASE_FOR_DOWNLOAD
-		gViewerWindow->alertXml("DownloadWindowsReleaseForDownload", args,
-								update_dialog_callback,
-								mandatoryp);
-#else
-		gViewerWindow->alertXml("DownloadWindows", args,
-								update_dialog_callback,
-								mandatoryp);
+		notification_name += "ReleaseForDownload";
 #endif
 	}
-#else
-	if (mandatory)
-	{
-		gViewerWindow->alertXml("DownloadMacMandatory", args,
-								update_dialog_callback,
-								mandatoryp);
-	}
-	else
-	{
-#if LL_RELEASE_FOR_DOWNLOAD
-		gViewerWindow->alertXml("DownloadMacReleaseForDownload", args,
-								update_dialog_callback,
-								mandatoryp);
-#else
-		gViewerWindow->alertXml("DownloadMac", args,
-								update_dialog_callback,
-								mandatoryp);
-#endif
-	}
-#endif
-
+	
+	LLNotifications::instance().add(notification_name, args, payload, update_dialog_callback);
+	
 }
 
-
-void update_dialog_callback(S32 option, void *userdata)
+bool update_dialog_callback(const LLSD& notification, const LLSD& response)
 {
-	bool mandatory = userdata != NULL;
+	S32 option = LLNotification::getSelectedOption(notification, response);
+	std::string update_exe_path;
+	bool mandatory = notification["payload"]["mandatory"].asBoolean();
 
 #if !LL_RELEASE_FOR_DOWNLOAD
 	if (option == 2)
 	{
 		LLStartUp::setStartupState( STATE_LOGIN_AUTH_INIT ); 
-		return;
+		return false;
 	}
 #endif
-	
+
 	if (option == 1)
 	{
 		// ...user doesn't want to do it
@@ -2855,7 +2857,7 @@ void update_dialog_callback(S32 option, void *userdata)
 		{
 			LLStartUp::setStartupState( STATE_LOGIN_AUTH_INIT );
 		}
-		return;
+		return false;
 	}
 	
 	LLSD query_map = LLSD::emptyMap();
@@ -2890,7 +2892,7 @@ void update_dialog_callback(S32 option, void *userdata)
 		// We're hosed, bail
 		LL_WARNS("AppInit") << "LLDir::getTempFilename() failed" << LL_ENDL;
 		LLAppViewer::instance()->forceQuit();
-		return;
+		return false;
 	}
 
 	LLAppViewer::sUpdaterInfo->mUpdateExePath += ".exe";
@@ -2911,7 +2913,7 @@ void update_dialog_callback(S32 option, void *userdata)
 
 		LL_WARNS("AppInit") << "Unable to copy the updater!" << LL_ENDL;
 		LLAppViewer::instance()->forceQuit();
-		return;
+		return false;
 	}
 
 	// if a sim name was passed in via command line parameter (typically through a SLURL)
@@ -2955,6 +2957,7 @@ void update_dialog_callback(S32 option, void *userdata)
 		LLStringUtil::null, OSMB_OK);
 #endif
 	LLAppViewer::instance()->forceQuit();
+	return false;
 }
 
 void use_circuit_callback(void**, S32 result)
@@ -2968,8 +2971,7 @@ void use_circuit_callback(void**, S32 result)
 		{
 			// Make sure user knows something bad happened. JC
 			LL_WARNS("AppInit") << "Backing up to login screen!" << LL_ENDL;
-			gViewerWindow->alertXml("LoginPacketNeverReceived",
-				login_alert_status, NULL);
+			LLNotifications::instance().add("LoginPacketNeverReceived", LLSD(), LLSD(), login_alert_status);
 			reset_login();
 		}
 		else
@@ -3753,8 +3755,9 @@ const S32 OPT_CLOSED_WINDOW = -1;
 const S32 OPT_MALE = 0;
 const S32 OPT_FEMALE = 1;
 
-void callback_choose_gender(S32 option, void* userdata)
-{
+bool callback_choose_gender(const LLSD& notification, const LLSD& response)
+{	
+	S32 option = LLNotification::getSelectedOption(notification, response);
 	switch(option)
 	{
 	case OPT_MALE:
@@ -3767,6 +3770,7 @@ void callback_choose_gender(S32 option, void* userdata)
 		LLStartUp::loadInitialOutfit( FEMALE_OUTFIT_FOLDER, "female" );
 		break;
 	}
+	return false;
 }
 
 void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
@@ -3809,8 +3813,8 @@ void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
 	// This is really misnamed -- it means we have started loading
 	// an outfit/shape that will give the avatar a gender eventually. JC
 	gAgent.setGenderChosen(TRUE);
+
 }
-			
 
 // Loads a bitmap to display during load
 // location_id = 0 => last position
@@ -3990,9 +3994,10 @@ bool LLStartUp::dispatchURL()
 	return false;
 }
 
-void login_alert_done(S32 option, void* user_data)
+bool login_alert_done(const LLSD& notification, const LLSD& response)
 {
 	LLPanelLogin::giveFocus();
+	return false;
 }
 
 

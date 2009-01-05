@@ -66,7 +66,7 @@ public:
 	static void callbackAddUsers(const std::vector<std::string>& names,
 								 const std::vector<LLUUID>& agent_ids,
 								 void* user_data);
-	static void inviteOwnerCallback(S32 option, void* userdata);
+	bool inviteOwnerCallback(const LLSD& notification, const LLSD& response);
 
 public:
 	LLUUID mGroupID;
@@ -158,9 +158,9 @@ void LLPanelGroupInvite::impl::submitInvitations()
 		// owner role: display confirmation and wait for callback
 		if ((role_id == gdatap->mOwnerRole) && (!mConfirmedOwnerInvite))
 		{
-			LLStringUtil::format_map_t args;
-			args["[MESSAGE]"] = mOwnerWarning;
-			gViewerWindow->alertXml("GenericAlertYesCancel", args, inviteOwnerCallback, this);
+			LLSD args;
+			args["MESSAGE"] = mOwnerWarning;
+			LLNotifications::instance().add("GenericAlertYesCancel", args, LLSD(), boost::bind(&LLPanelGroupInvite::impl::inviteOwnerCallback, this, _1, _2));
 			return; // we'll be called again if user confirms
 		}
 	}
@@ -180,24 +180,23 @@ void LLPanelGroupInvite::impl::submitInvitations()
 	(*mCloseCallback)(mCloseCallbackUserData);
 }
 
-//static
-void LLPanelGroupInvite::impl::inviteOwnerCallback(S32 option, void* userdata)
+bool LLPanelGroupInvite::impl::inviteOwnerCallback(const LLSD& notification, const LLSD& response)
 {
-	LLPanelGroupInvite::impl* self = (LLPanelGroupInvite::impl*)userdata;
-	if (!self) return;
+	S32 option = LLNotification::getSelectedOption(notification, response);
 
 	switch(option)
 	{
 	case 0:
 		// user confirmed that they really want a new group owner
-		self->mConfirmedOwnerInvite = true;
-		self->submitInvitations();
+		mConfirmedOwnerInvite = true;
+		submitInvitations();
 		break;
 	case 1:
 		// fall through
 	default:
 		break;
 	}
+	return false;
 }
 
 
@@ -396,16 +395,14 @@ void LLPanelGroupInvite::addUsers(std::vector<LLUUID>& agent_ids)
 		if(dest && dest->isAvatar())
 		{
 			std::string fullname;
-			LLStringUtil::format_map_t args;
+			LLSD args;
 			LLNameValue* nvfirst = dest->getNVPair("FirstName");
 			LLNameValue* nvlast = dest->getNVPair("LastName");
 			if(nvfirst && nvlast)
 			{
-				args["[FIRST]"] = nvfirst->getString();
-				args["[LAST]"] = nvlast->getString();
-				fullname = nvfirst->getString();
-				fullname += " ";
-				fullname += nvlast->getString();
+				args["FIRST"] = std::string(nvfirst->getString());
+				args["LAST"] = std::string(nvlast->getString());
+				fullname = std::string(nvfirst->getString()) + " " + std::string(nvlast->getString());
 			}
 			if (!fullname.empty())
 			{

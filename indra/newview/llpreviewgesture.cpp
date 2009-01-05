@@ -284,9 +284,8 @@ BOOL LLPreviewGesture::canClose()
 	else
 	{
 		// Bring up view-modal dialog: Save changes? Yes, No, Cancel
-		gViewerWindow->alertXml("SaveChanges",
-								  handleSaveChangesDialog,
-								  this );
+		LLNotifications::instance().add("SaveChanges", LLSD(), LLSD(),
+			boost::bind(&LLPreviewGesture::handleSaveChangesDialog, this, _1, _2) );
 		return FALSE;
 	}
 }
@@ -320,22 +319,21 @@ void LLPreviewGesture::setMinimized(BOOL minimize)
 }
 
 
-// static
-void LLPreviewGesture::handleSaveChangesDialog(S32 option, void* data)
+bool LLPreviewGesture::handleSaveChangesDialog(const LLSD& notification, const LLSD& response)
 {
-	LLPreviewGesture* self = (LLPreviewGesture*)data;
+	S32 option = LLNotification::getSelectedOption(notification, response);
 	switch(option)
 	{
 	case 0:  // "Yes"
-		gGestureManager.stopGesture(self->mPreviewGesture);
-		self->mCloseAfterSave = TRUE;
-		onClickSave(data);
+		gGestureManager.stopGesture(mPreviewGesture);
+		mCloseAfterSave = TRUE;
+		onClickSave(this);
 		break;
 
 	case 1:  // "No"
-		gGestureManager.stopGesture(self->mPreviewGesture);
-		self->mDirty = FALSE; // Force the dirty flag because user has clicked NO on confirm save dialog...
-		self->close();
+		gGestureManager.stopGesture(mPreviewGesture);
+		mDirty = FALSE; // Force the dirty flag because user has clicked NO on confirm save dialog...
+		close();
 		break;
 
 	case 2: // "Cancel"
@@ -344,6 +342,7 @@ void LLPreviewGesture::handleSaveChangesDialog(S32 option, void* data)
 		LLAppViewer::instance()->abortQuit();
 		break;
 	}
+	return false;
 }
 
 
@@ -1114,14 +1113,14 @@ void LLPreviewGesture::saveIfNeeded()
 
 	if (dp.getCurrentSize() > 1000)
 	{
-		gViewerWindow->alertXml("GestureSaveFailedTooManySteps");
+		LLNotifications::instance().add("GestureSaveFailedTooManySteps");
 
 		delete gesture;
 		gesture = NULL;
 	}
 	else if (!ok)
 	{
-		gViewerWindow->alertXml("GestureSaveFailedTryAgain");
+		LLNotifications::instance().add("GestureSaveFailedTryAgain");
 		delete gesture;
 		gesture = NULL;
 	}
@@ -1260,7 +1259,7 @@ void LLPreviewGesture::onSaveComplete(const LLUUID& asset_uuid, void* user_data,
 			}
 			else
 			{
-				gViewerWindow->alertXml("GestureSaveFailedObjectNotFound");
+				LLNotifications::instance().add("GestureSaveFailedObjectNotFound");
 			}
 		}
 
@@ -1274,9 +1273,9 @@ void LLPreviewGesture::onSaveComplete(const LLUUID& asset_uuid, void* user_data,
 	else
 	{
 		llwarns << "Problem saving gesture: " << status << llendl;
-		LLStringUtil::format_map_t args;
-		args["[REASON]"] = std::string(LLAssetStorage::getErrorString(status));
-		gViewerWindow->alertXml("GestureSaveFailedReason",args);
+		LLSD args;
+		args["REASON"] = std::string(LLAssetStorage::getErrorString(status));
+		LLNotifications::instance().add("GestureSaveFailedReason", args);
 	}
 	delete info;
 	info = NULL;

@@ -918,34 +918,31 @@ void LLPanelGridTools::refresh()
 // static
 void LLPanelGridTools::onClickKickAll(void* userdata)
 {
-	LLPanelGridTools* self = (LLPanelGridTools*) userdata;
-
 	S32 left, top;
 	gFloaterView->getNewFloaterPosition(&left, &top);
 	LLRect rect(left, top, left+400, top-300);
 
-	gViewerWindow->alertXmlEditText("KickAllUsers", LLStringUtil::format_map_t(),
-									NULL, NULL,
-									LLPanelGridTools::confirmKick, self);
+	LLNotifications::instance().add("KickAllUsers", LLSD(), LLSD(), LLPanelGridTools::confirmKick);
 }
 
 
-void LLPanelGridTools::confirmKick(S32 option, const std::string& text, void* userdata)
+bool LLPanelGridTools::confirmKick(const LLSD& notification, const LLSD& response)
 {
-	LLPanelGridTools* self = (LLPanelGridTools*) userdata;
-
-	if (option == 0)
+	if (LLNotification::getSelectedOption(notification, response) == 0)
 	{
-		self->mKickMessage = text;
-		gViewerWindow->alertXml("ConfirmKick",LLPanelGridTools::finishKick, self);
+		LLSD payload;
+		payload["kick_message"] = response["message"].asString();
+		LLNotifications::instance().add("ConfirmKick", LLSD(), payload, LLPanelGridTools::finishKick);
 	}
+	return false;
 }
 
 
 // static
-void LLPanelGridTools::finishKick(S32 option, void* userdata)
+bool LLPanelGridTools::finishKick(const LLSD& notification, const LLSD& response)
 {
-	LLPanelGridTools* self = (LLPanelGridTools*) userdata;
+	S32 option = LLNotification::getSelectedOption(notification, response);
+
 
 	if (option == 0)
 	{
@@ -957,26 +954,24 @@ void LLPanelGridTools::finishKick(S32 option, void* userdata)
 		msg->addUUIDFast(_PREHASH_GodSessionID, gAgent.getSessionID());
 		msg->addUUIDFast(_PREHASH_AgentID,   LL_UUID_ALL_AGENTS );
 		msg->addU32("KickFlags", KICK_FLAGS_DEFAULT );
-		msg->addStringFast(_PREHASH_Reason,    self->mKickMessage );
+		msg->addStringFast(_PREHASH_Reason,    notification["payload"]["kick_message"].asString());
 		gAgent.sendReliableMessage();
 	}
+	return false;
 }
 
 
 // static
 void LLPanelGridTools::onClickFlushMapVisibilityCaches(void* data)
 {
-	gViewerWindow->alertXml("FlushMapVisibilityCaches",
-							flushMapVisibilityCachesConfirm, data);
+	LLNotifications::instance().add("FlushMapVisibilityCaches", LLSD(), LLSD(), flushMapVisibilityCachesConfirm);
 }
 
 // static
-void LLPanelGridTools::flushMapVisibilityCachesConfirm(S32 option, void* data)
+bool LLPanelGridTools::flushMapVisibilityCachesConfirm(const LLSD& notification, const LLSD& response)
 {
-	if (option != 0) return;
-
-	LLPanelGridTools* self = (LLPanelGridTools*)data;
-	if (!self) return;
+	S32 option = LLNotification::getSelectedOption(notification, response);
+	if (option != 0) return false;
 
 	// HACK: Send this as an EstateOwnerRequest so it gets routed
 	// correctly by the spaceserver. JC
@@ -992,6 +987,7 @@ void LLPanelGridTools::flushMapVisibilityCachesConfirm(S32 option, void* data)
 	msg->nextBlock("ParamList");
 	msg->addString("Parameter", gAgent.getID().asString());
 	gAgent.sendReliableMessage();
+	return false;
 }
 
 
@@ -1182,13 +1178,16 @@ void LLPanelObjectTools::onClickDeletePublicOwnedBy(void* userdata)
 		panelp->mSimWideDeletesFlags = 
 			SWD_SCRIPTED_ONLY | SWD_OTHERS_LAND_ONLY;
 
-		LLStringUtil::format_map_t args;
-		args["[AVATAR_NAME]"] = panelp->childGetValue("target_avatar_name").asString();
+		LLSD args;
+		args["AVATAR_NAME"] = panelp->childGetValue("target_avatar_name").asString();
+		LLSD payload;
+		payload["avatar_id"] = panelp->mTargetAvatar;
+		payload["flags"] = (S32)panelp->mSimWideDeletesFlags;
 
-		gViewerWindow->alertXml( "GodDeleteAllScriptedPublicObjectsByUser",
+		LLNotifications::instance().add( "GodDeleteAllScriptedPublicObjectsByUser",
 								args,
-								callbackSimWideDeletes, 
-								userdata);
+								payload,
+								callbackSimWideDeletes);
 	}
 }
 
@@ -1201,13 +1200,16 @@ void LLPanelObjectTools::onClickDeleteAllScriptedOwnedBy(void* userdata)
 	{
 		panelp->mSimWideDeletesFlags = SWD_SCRIPTED_ONLY;
 
-		LLStringUtil::format_map_t args;
-		args["[AVATAR_NAME]"] = panelp->childGetValue("target_avatar_name").asString();
+		LLSD args;
+		args["AVATAR_NAME"] = panelp->childGetValue("target_avatar_name").asString();
+		LLSD payload;
+		payload["avatar_id"] = panelp->mTargetAvatar;
+		payload["flags"] = (S32)panelp->mSimWideDeletesFlags;
 
-		gViewerWindow->alertXml( "GodDeleteAllScriptedObjectsByUser",
+		LLNotifications::instance().add( "GodDeleteAllScriptedObjectsByUser",
 								args,
-								callbackSimWideDeletes, 
-								userdata);
+								payload,
+								callbackSimWideDeletes);
 	}
 }
 
@@ -1220,28 +1222,32 @@ void LLPanelObjectTools::onClickDeleteAllOwnedBy(void* userdata)
 	{
 		panelp->mSimWideDeletesFlags = 0;
 
-		LLStringUtil::format_map_t args;
-		args["[AVATAR_NAME]"] = panelp->childGetValue("target_avatar_name").asString();
+		LLSD args;
+		args["AVATAR_NAME"] = panelp->childGetValue("target_avatar_name").asString();
+		LLSD payload;
+		payload["avatar_id"] = panelp->mTargetAvatar;
+		payload["flags"] = (S32)panelp->mSimWideDeletesFlags;
 
-		gViewerWindow->alertXml( "GodDeleteAllObjectsByUser",
+		LLNotifications::instance().add( "GodDeleteAllObjectsByUser",
 								args,
-								callbackSimWideDeletes, 
-								userdata);
+								payload,
+								callbackSimWideDeletes);
 	}
 }
 
 // static
-void LLPanelObjectTools::callbackSimWideDeletes( S32 option, void* userdata )
+bool LLPanelObjectTools::callbackSimWideDeletes( const LLSD& notification, const LLSD& response )
 {
+	S32 option = LLNotification::getSelectedOption(notification, response);
 	if (option == 0)
 	{
-		LLPanelObjectTools* object_tools = (LLPanelObjectTools*) userdata;
-		if (!object_tools->mTargetAvatar.isNull())
+		if (!notification["payload"]["avatar_id"].asUUID().isNull())
 		{
-			send_sim_wide_deletes(object_tools->mTargetAvatar, 
-								  object_tools->mSimWideDeletesFlags);
+			send_sim_wide_deletes(notification["payload"]["avatar_id"].asUUID(), 
+								  notification["payload"]["flags"].asInteger());
 		}
 	}
+	return false;
 }
 
 void LLPanelObjectTools::onClickSet(void* data)
@@ -1420,7 +1426,7 @@ void LLPanelRequestTools::onClickRequest(void* data)
 
 void terrain_download_done(void** data, S32 status, LLExtStat ext_status)
 {
-	LLNotifyBox::showXml("TerrainDownloaded");
+	LLNotifications::instance().add("TerrainDownloaded");
 }
 
 

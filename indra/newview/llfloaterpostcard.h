@@ -65,7 +65,7 @@ public:
 	static void updateUserInfo(const std::string& email);
 
 	static void onMsgFormFocusRecieved(LLFocusableElement* receiver, void* data);
-	static void missingSubjMsgAlertCallback(S32 option, void* data);
+	bool missingSubjMsgAlertCallback(const LLSD& notification, const LLSD& response);
 
 	void sendPostcard();
 

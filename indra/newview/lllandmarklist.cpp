@@ -119,11 +119,11 @@ void LLLandmarkList::processGetAssetReply(
 
 		if( LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE == status )
 		{
-			LLNotifyBox::showXml("LandmarkMissing");
+			LLNotifications::instance().add("LandmarkMissing");
 		}
 		else
 		{
-			LLNotifyBox::showXml("UnableToLoadLandmark");
+			LLNotifications::instance().add("UnableToLoadLandmark");
 		}
 
 		gLandmarkList.mBadList.insert(uuid);

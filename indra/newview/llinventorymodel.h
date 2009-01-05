@@ -92,7 +92,6 @@ class LLViewerInventoryItem;
 class LLViewerInventoryCategory;
 class LLMessageSystem;
 class LLInventoryCollectFunctor;
-class LLAlertDialog;
 
 class LLInventoryModel
 {

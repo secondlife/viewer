@@ -1052,9 +1052,9 @@ BOOL LLToolDragAndDrop::handleDropTextureProtections(LLViewerObject* hit_obj,
 	if (hit_obj->isInventoryDirty())
 	{
 		hit_obj->fetchInventoryFromServer();
-		LLStringUtil::format_map_t args;
-		args["[ERROR_MESSAGE]"] = "Unable to add texture.\nPlease wait a few seconds and try again.";
-		gViewerWindow->alertXml("ErrorMessage", args);
+		LLSD args;
+		args["ERROR_MESSAGE"] = "Unable to add texture.\nPlease wait a few seconds and try again.";
+		LLNotifications::instance().add("ErrorMessage", args);
 		return FALSE;
 	}
 	if (hit_obj->getInventoryItemByAsset(item->getAssetUUID()))
@@ -1505,45 +1505,42 @@ void LLToolDragAndDrop::giveInventory(const LLUUID& to_agent,
 	else
 	{
 		// ask if the agent is sure.
-		LLGiveInventoryInfo* info = new LLGiveInventoryInfo(to_agent,
-															item->getUUID(),
-															im_session_id);
-
-		gViewerWindow->alertXml("CannotCopyWarning",
-								&LLToolDragAndDrop::handleCopyProtectedItem,
-								(void*)info);
+		LLSD payload;
+		payload["agent_id"] = to_agent;
+		payload["item_id"] = item->getUUID();
+		LLNotifications::instance().add("CannotCopyWarning", LLSD(), payload, 
+		        &LLToolDragAndDrop::handleCopyProtectedItem);
 	}
 }
-
 // static
-void LLToolDragAndDrop::handleCopyProtectedItem(S32 option, void* data)
+bool LLToolDragAndDrop::handleCopyProtectedItem(const LLSD& notification, const LLSD& response)
 {
-	LLGiveInventoryInfo* info = (LLGiveInventoryInfo*)data;
+	S32 option = LLNotification::getSelectedOption(notification, response);
 	LLInventoryItem* item = NULL;
 	switch(option)
 	{
 	case 0:  // "Yes"
-		item = gInventory.getItem(info->mInventoryObjectID);
+		item = gInventory.getItem(notification["payload"]["item_id"].asUUID());
 		if(item)
 		{
-			LLToolDragAndDrop::commitGiveInventoryItem(info->mToAgentID,
-													   item,
-													   info->mIMSessionID);
+			LLToolDragAndDrop::commitGiveInventoryItem(notification["payload"]["agent_id"].asUUID(),
+													   item);
 			// delete it for now - it will be deleted on the server
 			// quickly enough.
-			gInventory.deleteObject(info->mInventoryObjectID);
+			gInventory.deleteObject(notification["payload"]["item_id"].asUUID());
 			gInventory.notifyObservers();
 		}
 		else
 		{
-			gViewerWindow->alertXml("CannotGiveItem");		
+			LLNotifications::instance().add("CannotGiveItem");		
 		}
 		break;
 
 	default: // no, cancel, whatever, who cares, not yes.
-		gViewerWindow->alertXml("TransactionCancelled");
+		LLNotifications::instance().add("TransactionCancelled");
 		break;
 	}
+	return false;
 }
 
 // static
@@ -1592,7 +1589,7 @@ void LLToolDragAndDrop::commitGiveInventoryItem(const LLUUID& to_agent,
 	// If this item was given by drag-and-drop into an IM panel, log this action in the IM panel chat.
 	if (im_session_id != LLUUID::null)
 	{
-		LLStringUtil::format_map_t args;
+		LLSD args;
 		gIMMgr->addSystemMessage(im_session_id, "inventory_item_offered", args);
 	}
 
@@ -1632,18 +1629,18 @@ void LLToolDragAndDrop::giveInventoryCategory(const LLUUID& to_agent,
 	}
 	if(!complete)
 	{
-		LLNotifyBox::showXml("IncompleteInventory");
+		LLNotifications::instance().add("IncompleteInventory");
 		return;
 	}
  	count = items.count() + cats.count();
  	if(count > MAX_ITEMS)
   	{
-		gViewerWindow->alertXml("TooManyItems");
+		LLNotifications::instance().add("TooManyItems");
   		return;
   	}
  	else if(count == 0)
   	{
-		gViewerWindow->alertXml("NoItems");
+		LLNotifications::instance().add("NoItems");
   		return;
   	}
 	else
@@ -1656,29 +1653,29 @@ void LLToolDragAndDrop::giveInventoryCategory(const LLUUID& to_agent,
 		{
 			LLGiveInventoryInfo* info = NULL;
 			info = new LLGiveInventoryInfo(to_agent, cat->getUUID());
-			LLStringUtil::format_map_t args;
-			args["[COUNT]"] = llformat("%d",giveable.countNoCopy());
-			gViewerWindow->alertXml("CannotCopyCountItems", args,
-				&LLToolDragAndDrop::handleCopyProtectedCategory,
-				(void*)info);
-				
+			LLSD args;
+			args["COUNT"] = llformat("%d",giveable.countNoCopy());
+			LLSD payload;
+			payload["agent_id"] = to_agent;
+			payload["folder_id"] = cat->getUUID();
+			LLNotifications::instance().add("CannotCopyCountItems", args, payload, &LLToolDragAndDrop::handleCopyProtectedCategory);
 		}
 	}
 }
 
 
 // static
-void LLToolDragAndDrop::handleCopyProtectedCategory(S32 option, void* data)
+bool LLToolDragAndDrop::handleCopyProtectedCategory(const LLSD& notification, const LLSD& response)
 {
-	LLGiveInventoryInfo* info = (LLGiveInventoryInfo*)data;
+	S32 option = LLNotification::getSelectedOption(notification, response);
 	LLInventoryCategory* cat = NULL;
 	switch(option)
 	{
 	case 0:  // "Yes"
-		cat = gInventory.getCategory(info->mInventoryObjectID);
+		cat = gInventory.getCategory(notification["payload"]["folder_id"].asUUID());
 		if(cat)
 		{
-			LLToolDragAndDrop::commitGiveInventoryCategory(info->mToAgentID,
+			LLToolDragAndDrop::commitGiveInventoryCategory(notification["payload"]["agent_id"].asUUID(),
 														   cat);
 			LLViewerInventoryCategory::cat_array_t cats;
 			LLViewerInventoryItem::item_array_t items;
@@ -1697,14 +1694,15 @@ void LLToolDragAndDrop::handleCopyProtectedCategory(S32 option, void* data)
 		}
 		else
 		{
-			gViewerWindow->alertXml("CannotGiveCategory");
+			LLNotifications::instance().add("CannotGiveCategory");
 		}
 		break;
 
 	default: // no, cancel, whatever, who cares, not yes.
-		gViewerWindow->alertXml("TransactionCancelled");
+		LLNotifications::instance().add("TransactionCancelled");
 		break;
 	}
+	return false;
 }
 
 // static
@@ -1731,12 +1729,12 @@ void LLToolDragAndDrop::commitGiveInventoryCategory(const LLUUID& to_agent,
  	S32 count = items.count() + cats.count();
  	if(count > MAX_ITEMS)
   	{
-		gViewerWindow->alertXml("TooManyItems");
+		LLNotifications::instance().add("TooManyItems");
   		return;
   	}
  	else if(count == 0)
   	{
-		gViewerWindow->alertXml("NoItems");
+		LLNotifications::instance().add("NoItems");
   		return;
   	}
 	else
@@ -2299,7 +2297,7 @@ EAcceptance LLToolDragAndDrop::dad3dWearItem(
 			// destroy clothing items.
 			if (!gAgent.areWearablesLoaded()) 
 			{
-				gViewerWindow->alertXml("CanNotChangeAppearanceUntilLoaded");
+				LLNotifications::instance().add("CanNotChangeAppearanceUntilLoaded");
 				return ACCEPT_NO;
 			}
 
@@ -2394,7 +2392,7 @@ EAcceptance LLToolDragAndDrop::dad3dWearCategory(
 		// destroy clothing items.
 		if (!gAgent.areWearablesLoaded()) 
 		{
-			gViewerWindow->alertXml("CanNotChangeAppearanceUntilLoaded");
+			LLNotifications::instance().add("CanNotChangeAppearanceUntilLoaded");
 			return ACCEPT_NO;
 		}
 	}

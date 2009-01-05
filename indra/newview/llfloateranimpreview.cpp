@@ -1001,7 +1001,7 @@ void LLFloaterAnimPreview::onBtnOK(void* userdata)
 			else
 			{
 				llwarns << "Failure writing animation data." << llendl;
-				gViewerWindow->alertXml("WriteAnimationFail");
+				LLNotifications::instance().add("WriteAnimationFail");
 			}
 		}
 

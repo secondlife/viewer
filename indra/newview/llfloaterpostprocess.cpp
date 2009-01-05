@@ -169,11 +169,13 @@ void LLFloaterPostProcess::onSaveEffect(void* userData)
 {
 	LLLineEditor* editBox = static_cast<LLLineEditor*>(userData);
 
-	LLSD::String effectName(editBox->getValue().asString());
+	std::string effectName(editBox->getValue().asString());
 
 	if (gPostProcess->mAllEffects.has(effectName))
 	{
-		gViewerWindow->alertXml("PPSaveEffectAlert", &LLFloaterPostProcess::saveAlertCallback, userData);
+		LLSD payload;
+		payload["effect_name"] = effectName;
+		LLNotifications::instance().add("PPSaveEffectAlert", LLSD(), payload, &LLFloaterPostProcess::saveAlertCallback);
 	}
 	else
 	{
@@ -192,20 +194,18 @@ void LLFloaterPostProcess::onChangeEffectName(LLUICtrl* ctrl, void * userData)
 	editBox->setValue(comboBox->getSelectedValue());
 }
 
-void LLFloaterPostProcess::saveAlertCallback(S32 option, void* userData)
+bool LLFloaterPostProcess::saveAlertCallback(const LLSD& notification, const LLSD& response)
 {
-	LLLineEditor* editBox = static_cast<LLLineEditor*>(userData);
+	S32 option = LLNotification::getSelectedOption(notification, response);
 
 	// if they choose save, do it.  Otherwise, don't do anything
 	if (option == 0)
 	{
-		LLSD::String effectName(editBox->getValue().asString());
-
-		gPostProcess->saveEffect(effectName);
+		gPostProcess->saveEffect(notification["payload"]["effect_name"].asString());
 
 		sPostProcess->syncMenu();
 	}
-
+	return false;
 }
 
 void LLFloaterPostProcess::show()

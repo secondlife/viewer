@@ -87,8 +87,7 @@ public:
 	void updateTabVisibility();
 
 	// Used by attemptTransition to query the user's response to a tab that needs to apply. 
-	static void onNotifyCallback(S32 option, void* user_data);
-	void handleNotifyCallback(S32 option);
+	bool handleNotifyCallback(const LLSD& notification, const LLSD& response);
 
 	bool apply();
 	void refreshData();

@@ -120,7 +120,7 @@ protected:
 	void search();
 	void callVote();
 
-	static void callbackLeaveGroup(S32 option, void* userdata);
+	static bool callbackLeaveGroup(const LLSD& notification, const LLSD& response);
 
 };
 

@@ -966,7 +966,7 @@ void LLSnapshotLivePreview::saveTexture()
 	}
 	else
 	{
-		gViewerWindow->alertXml("ErrorEncodingSnapshot");
+		LLNotifications::instance().add("ErrorEncodingSnapshot");
 		llwarns << "Error encoding snapshot" << llendl;
 	}
 

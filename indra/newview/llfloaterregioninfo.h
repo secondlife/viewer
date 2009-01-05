@@ -161,9 +161,9 @@ protected:
 	static void onClickKick(void* userdata);
 	static void onKickCommit(const std::vector<std::string>& names, const std::vector<LLUUID>& ids, void* userdata);
 	static void onClickKickAll(void* userdata);
-	static void onKickAllCommit(S32 option, void* userdata);
+	bool onKickAllCommit(const LLSD& notification, const LLSD& response);
 	static void onClickMessage(void* userdata);
-	static void onMessageCommit(S32 option, const std::string& text, void* userdata);
+	bool onMessageCommit(const LLSD& notification, const LLSD& response);
 	static void onClickManageTelehub(void* data);
 };
 
@@ -186,11 +186,11 @@ protected:
 	static void onClickChooseAvatar(void*);
 	static void callbackAvatarID(const std::vector<std::string>& names, const std::vector<LLUUID>& ids, void* data);
 	static void onClickReturn(void *);
-	static void callbackReturn(S32 option, void*);
+	bool callbackReturn(const LLSD& notification, const LLSD& response);
 	static void onClickTopColliders(void*);
 	static void onClickTopScripts(void*);
 	static void onClickRestart(void* data);
-	static void callbackRestart(S32 option, void* data);
+	bool callbackRestart(const LLSD& notification, const LLSD& response);
 	static void onClickCancelRestart(void* data);
 	
 private:
@@ -240,7 +240,7 @@ protected:
 	static void onClickDownloadRaw(void*);
 	static void onClickUploadRaw(void*);
 	static void onClickBakeTerrain(void*);
-	static void callbackBakeTerrain(S32 option, void* data);
+	bool callbackBakeTerrain(const LLSD& notification, const LLSD& response);
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -269,27 +269,27 @@ public:
 	static void onClickKickUser(void* userdata);
 
 	// Group picker callback is different, can't use core methods below
-	static void addAllowedGroup(S32 option, void* data);
+	bool addAllowedGroup(const LLSD& notification, const LLSD& response);
 	static void addAllowedGroup2(LLUUID id, void* data);
 
 	// Core methods for all above add/remove button clicks
 	static void accessAddCore(U32 operation_flag, const std::string& dialog_name);
-	static void accessAddCore2(S32 option, void* data);
+	static bool accessAddCore2(const LLSD& notification, const LLSD& response);
 	static void accessAddCore3(const std::vector<std::string>& names, const std::vector<LLUUID>& ids, void* data);
 
 	static void accessRemoveCore(U32 operation_flag, const std::string& dialog_name, const std::string& list_ctrl_name);
-	static void accessRemoveCore2(S32 option, void* data);
+	static bool accessRemoveCore2(const LLSD& notification, const LLSD& response);
 
 	// used for both add and remove operations
-	static void accessCoreConfirm(S32 option, void* data);
-	static void kickUserConfirm(S32 option, void* userdata);
+	static bool accessCoreConfirm(const LLSD& notification, const LLSD& response);
+	bool kickUserConfirm(const LLSD& notification, const LLSD& response);
 
 	// Send the actual EstateOwnerRequest "estateaccessdelta" message
 	static void sendEstateAccessDelta(U32 flags, const LLUUID& agent_id);
 
 	static void onKickUserCommit(const std::vector<std::string>& names, const std::vector<LLUUID>& ids, void* userdata);
 	static void onClickMessageEstate(void* data);
-	static void onMessageCommit(S32 option, const std::string& text, void* data);
+	bool onMessageCommit(const LLSD& notification, const LLSD& response);
 	
 	LLPanelEstateInfo();
 	~LLPanelEstateInfo() {}
@@ -344,7 +344,7 @@ public:
 protected:
 	virtual BOOL sendUpdate();
 	// confirmation dialog callback
-	static void callbackChangeLindenEstate(S32 opt, void* data);
+	bool callbackChangeLindenEstate(const LLSD& notification, const LLSD& response);
 
 	void commitEstateInfoDataserver();
 	bool commitEstateInfoCaps();
@@ -377,9 +377,9 @@ public:
 						   BOOL drop, EDragAndDropType cargo_type,
 						   void *cargo_data, EAcceptance *accept,
 						   std::string& tooltip_msg);
-	static void confirmChangeCovenantCallback(S32 option, void* userdata);
+	static bool confirmChangeCovenantCallback(const LLSD& notification, const LLSD& response);
 	static void resetCovenantID(void* userdata);
-	static void confirmResetCovenantCallback(S32 option, void* userdata);
+	static bool confirmResetCovenantCallback(const LLSD& notification, const LLSD& response);
 	void sendChangeCovenantID(const LLUUID &asset_id);
 	void loadInvItem(LLInventoryItem *itemp);
 	static void onLoadComplete(LLVFS *vfs,

@@ -109,7 +109,7 @@ void LLFloaterOpenObject::show()
 	LLObjectSelectionHandle object_selection = LLSelectMgr::getInstance()->getSelection();
 	if (object_selection->getRootObjectCount() != 1)
 	{
-		gViewerWindow->alertXml("UnableToViewContentsMoreThanOne");
+		LLNotifications::instance().add("UnableToViewContentsMoreThanOne");
 		return;
 	}
 
@@ -131,7 +131,7 @@ void LLFloaterOpenObject::moveToInventory(bool wear)
 {
 	if (mObjectSelection->getRootObjectCount() != 1)
 	{
-		gViewerWindow->alertXml("OnlyCopyContentsOfSingleItem");
+		LLNotifications::instance().add("OnlyCopyContentsOfSingleItem");
 		return;
 	}
 
@@ -172,7 +172,7 @@ void LLFloaterOpenObject::moveToInventory(bool wear)
 		delete data;
 		data = NULL;
 
-		gViewerWindow->alertXml("OpenObjectCannotCopy");
+		LLNotifications::instance().add("OpenObjectCannotCopy");
 	}
 }
 

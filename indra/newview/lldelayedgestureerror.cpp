@@ -98,18 +98,18 @@ void LLDelayedGestureError::onIdle(void *userdata)
 //static 
 bool LLDelayedGestureError::doDialog(const LLErrorEntry &ent, bool uuid_ok)
 {
-	LLStringUtil::format_map_t args;
+	LLSD args;
 	LLInventoryItem *item = gInventory.getItem( ent.mItemID );
 
 	if ( item )
 	{
-		args["[NAME]"] = item->getName();
+		args["NAME"] = item->getName();
 	}
 	else
 	{
 		if ( uuid_ok || ent.mTimer.getElapsedTimeF32() > MAX_NAME_WAIT_TIME )
 		{
-			args["[NAME]"] = std::string( ent.mItemID.asString() );
+			args["NAME"] = ent.mItemID.asString();
 		}
 		else
 		{
@@ -118,7 +118,7 @@ bool LLDelayedGestureError::doDialog(const LLErrorEntry &ent, bool uuid_ok)
 	}
 	 
 
-	LLNotifyBox::showXml(ent.mNotifyName, args);
+	LLNotifications::instance().add(ent.mNotifyName, args);
 
 	return true;
 }

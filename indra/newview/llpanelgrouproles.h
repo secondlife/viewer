@@ -73,9 +73,8 @@ public:
 	void transitionToTab();
 
 	// Used by attemptTransition to query the user's response to a tab that needs to apply. 
-	static void onNotifyCallback(S32 option, void* user_data);
-	void handleNotifyCallback(S32 option);
-	static void onModalClose(S32 option, void* user_data);
+	bool handleNotifyCallback(const LLSD& notification, const LLSD& response);
+	bool onModalClose(const LLSD& notification, const LLSD& response);
 
 	// Most of these messages are just passed on to the current sub-tab.
 	virtual std::string getHelpText() const;
@@ -188,7 +187,7 @@ public:
 						 LLRoleMemberChangeType type);
 
 	void applyMemberChanges();
-	static void addOwnerCB(S32 option, void* data);
+	bool addOwnerCB(const LLSD& notification, const LLSD& response);
 
 	virtual void activate();
 	virtual void deactivate();
@@ -250,7 +249,7 @@ public:
 
 	static void onActionCheck(LLUICtrl*, void*);
 	void handleActionCheck(LLCheckBoxCtrl*, bool force=false);
-	static void addActionCB(S32 option, void* data);
+	bool addActionCB(const LLSD& notification, const LLSD& response, LLCheckBoxCtrl* check);
 
 	static void onPropertiesKey(LLLineEditor*, void*);
 

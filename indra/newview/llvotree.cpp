@@ -253,9 +253,9 @@ void LLVOTree::initClass()
 
 		if (!have_all_trees) 
 		{
-			LLStringUtil::format_map_t args;
-			args["[SPECIES]"] = err;
-			gViewerWindow->alertXml("ErrorUndefinedTrees", args );
+			LLSD args;
+			args["SPECIES"] = err;
+			LLNotifications::instance().add("ErrorUndefinedTrees", args);
 		}
 };
 

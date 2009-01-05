@@ -867,9 +867,9 @@ void LLWearable::saveNewAsset()
 		std::string buffer = llformat("Unable to save '%s' to wearable file.", mName.c_str());
 		llwarns << buffer << llendl;
 		
-		LLStringUtil::format_map_t args;
-		args["[NAME]"] = mName;
-		gViewerWindow->alertXml("CannotSaveWearableOutOfSpace", args);
+		LLSD args;
+		args["NAME"] = mName;
+		LLNotifications::instance().add("CannotSaveWearableOutOfSpace", args);
 		return;
 	}
 
@@ -915,9 +915,9 @@ void LLWearable::onSaveNewAssetComplete(const LLUUID& new_asset_id, void* userda
 	{
 		std::string buffer = llformat("Unable to save %s to central asset store.", type_name.c_str());
 		llwarns << buffer << " Status: " << status << llendl;
-		LLStringUtil::format_map_t args;
-		args["[NAME]"] = type_name;
-		gViewerWindow->alertXml("CannotSaveToAssetStore", args);
+		LLSD args;
+		args["NAME"] = type_name;
+		LLNotifications::instance().add("CannotSaveToAssetStore", args);
 	}
 
 	// Delete temp file

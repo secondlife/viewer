@@ -223,6 +223,11 @@ public:
 		return *this;
 	}
 
+	bool isValid() const
+	{
+		return mLeft <= mRight && mBottom <= mTop;
+	}
+
 	bool isNull() const
 	{
 		return mLeft == mRight || mBottom == mTop;

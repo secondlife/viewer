@@ -307,7 +307,10 @@ void LLToolBar::refresh()
 	}
 	gSavedSettings.setBOOL("BuildBtnState", build_mode);
 
-	updateCommunicateList();
+	if (isInVisibleChain())
+	{
+		updateCommunicateList();
+	}
 }
 
 void LLToolBar::updateCommunicateList()
@@ -444,7 +447,7 @@ void LLToolBar::onClickChat(void* user_data)
 // static
 void LLToolBar::onClickAppearance(void*)
 {
-	if (gAgent.getWearablesLoaded())
+	if (gAgent.areWearablesLoaded())
 	{
 		gAgent.changeCameraToCustomizeAvatar();
 	}

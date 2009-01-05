@@ -100,17 +100,15 @@ public:
     static void processClassifiedInfoReply(LLMessageSystem* msg, void**);
 
 	// Confirmation dialogs flow in this order
-	static void callbackConfirmMature(S32 option, void* data);
-	void confirmMature(S32 option);
+	bool confirmMature(const LLSD& notification, const LLSD& response);
 	void gotMature();
 	static void callbackGotPriceForListing(S32 option, std::string text, void* data);
-	static void callbackConfirmPublish(S32 option, void* data);
-	void confirmPublish(S32 option);
+	bool confirmPublish(const LLSD& notification, const LLSD& response);
 
 	void sendClassifiedClickMessage(const std::string& type);
 
 protected:
-	static void saveCallback(S32 option, void* data);
+	bool saveCallback(const LLSD& notification, const LLSD& response);
 
 	static void onClickUpdate(void* data);
     static void onClickTeleport(void* data);

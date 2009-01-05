@@ -102,7 +102,7 @@ void LLFloaterHUD::showHUD()
 	// do not build the floater if there the url is empty
 	if (gSavedSettings.getString("TutorialURL") == "")
 	{
-		LLAlertDialog::showXml("TutorialNotFound");
+		LLNotifications::instance().add("TutorialNotFound");
 		return;
 	}
 

@@ -952,9 +952,9 @@ void LLGestureManager::onLoadComplete(LLVFS *vfs,
 					&& gGestureManager.mDeactivateSimilarNames.length() > 0)
 				{
 					// we're done with this set of deactivations
-					LLStringUtil::format_map_t args;
-					args["[NAMES]"] = gGestureManager.mDeactivateSimilarNames;
-					LLNotifyBox::showXml("DeactivatedGesturesTrigger", args);
+					LLSD args;
+					args["NAMES"] = gGestureManager.mDeactivateSimilarNames;
+					LLNotifications::instance().add("DeactivatedGesturesTrigger", args);
 				}
 			}
 

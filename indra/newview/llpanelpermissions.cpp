@@ -876,8 +876,9 @@ void LLPanelPermissions::cbGroupID(LLUUID group_id, void* userdata)
 	LLSelectMgr::getInstance()->sendGroup(group_id);
 }
 
-void callback_deed_to_group(S32 option, void*)
+bool callback_deed_to_group(const LLSD& notification, const LLSD& response)
 {
+	S32 option = LLNotification::getSelectedOption(notification, response);
 	if (0 == option)
 	{
 		LLUUID group_id;
@@ -888,12 +889,12 @@ void callback_deed_to_group(S32 option, void*)
 //			LLViewerStats::getInstance()->incStat(LLViewerStats::ST_RELEASE_COUNT);
 		}
 	}
+	return false;
 }
 
 void LLPanelPermissions::onClickDeedToGroup(void* data)
 {
-			gViewerWindow->alertXml( "DeedObjectToGroup",
-			callback_deed_to_group, NULL);
+	LLNotifications::instance().add( "DeedObjectToGroup", LLSD(), LLSD(), callback_deed_to_group);
 }
 
 ///----------------------------------------------------------------------------
@@ -1092,7 +1093,7 @@ void LLPanelPermissions::onCommitClickAction(LLUICtrl* ctrl, void*)
 		LLSelectMgr::getInstance()->selectGetSaleInfo(sale_info);
 		if (!sale_info.isForSale())
 		{
-			gViewerWindow->alertXml("CantSetBuyObject");
+			LLNotifications::instance().add("CantSetBuyObject");
 
 			// Set click action back to its old value
 			U8 click_action = 0;
@@ -1110,7 +1111,7 @@ void LLPanelPermissions::onCommitClickAction(LLUICtrl* ctrl, void*)
 		if (!can_pay)
 		{
 			// Warn, but do it anyway.
-			gViewerWindow->alertXml("ClickActionNotPayable");
+			LLNotifications::instance().add("ClickActionNotPayable");
 		}
 	}
 	LLSelectMgr::getInstance()->selectionSetClickAction(click_action);

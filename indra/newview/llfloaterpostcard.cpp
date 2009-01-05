@@ -249,20 +249,20 @@ void LLFloaterPostcard::onClickSend(void* data)
 		
 		if (to.empty() || !boost::regex_match(to, emailFormat))
 		{
-			gViewerWindow->alertXml("PromptRecipientEmail");
+			LLNotifications::instance().add("PromptRecipientEmail");
 			return;
 		}
 
 		if (from.empty() || !boost::regex_match(from, emailFormat))
 		{
-			gViewerWindow->alertXml("PromptSelfEmail");
+			LLNotifications::instance().add("PromptSelfEmail");
 			return;
 		}
 
 		std::string subject(self->childGetValue("subject_form").asString());
 		if(subject.empty() || !self->mHasFirstMsgFocus)
 		{
-			gViewerWindow->alertXml("PromptMissingSubjMsg", missingSubjMsgAlertCallback, self);
+			LLNotifications::instance().add("PromptMissingSubjMsg", LLSD(), LLSD(), boost::bind(&LLFloaterPostcard::missingSubjMsgAlertCallback, self, _1, _2));
 			return;
 		}
 
@@ -272,7 +272,7 @@ void LLFloaterPostcard::onClickSend(void* data)
 		}
 		else
 		{
-			gViewerWindow->alertXml("ErrorProcessingSnapshot");
+			LLNotifications::instance().add("ErrorProcessingSnapshot");
 		}
 	}
 }
@@ -286,9 +286,9 @@ void LLFloaterPostcard::uploadCallback(const LLUUID& asset_id, void *user_data, 
 	
 	if (result)
 	{
-		LLStringUtil::format_map_t args;
-		args["[REASON]"] = std::string(LLAssetStorage::getErrorString(result));
-		gViewerWindow->alertXml("ErrorUploadingPostcard", args);
+		LLSD args;
+		args["REASON"] = std::string(LLAssetStorage::getErrorString(result));
+		LLNotifications::instance().add("ErrorUploadingPostcard", args);
 	}
 	else
 	{
@@ -345,30 +345,28 @@ void LLFloaterPostcard::onMsgFormFocusRecieved(LLFocusableElement* receiver, voi
 	}
 }
 
-void LLFloaterPostcard::missingSubjMsgAlertCallback(S32 option, void* data)
+bool LLFloaterPostcard::missingSubjMsgAlertCallback(const LLSD& notification, const LLSD& response)
 {
-	if(data)
+	S32 option = LLNotification::getSelectedOption(notification, response);
+	if(0 == option)
 	{
-		LLFloaterPostcard* self = static_cast<LLFloaterPostcard*>(data);
-		if(0 == option)
+		// User clicked OK
+		if((childGetValue("subject_form").asString()).empty())
 		{
-			// User clicked OK
-			if((self->childGetValue("subject_form").asString()).empty())
-			{
-				// Stuff the subject back into the form.
-				self->childSetValue("subject_form", self->getString("default_subject"));
-			}
-
-			if(!self->mHasFirstMsgFocus)
-			{
-				// The user never switched focus to the messagee window. 
-				// Using the default string.
-				self->childSetValue("msg_form", self->getString("default_message"));
-			}
-
-			self->sendPostcard();
+			// Stuff the subject back into the form.
+			childSetValue("subject_form", getString("default_subject"));
 		}
+
+		if(!mHasFirstMsgFocus)
+		{
+			// The user never switched focus to the messagee window. 
+			// Using the default string.
+			childSetValue("msg_form", getString("default_message"));
+		}
+
+		sendPostcard();
 	}
+	return false;
 }
 
 void LLFloaterPostcard::sendPostcard()

@@ -63,7 +63,8 @@ public:
 	void forceQuit(); // Puts the viewer into 'shutting down without error' mode.
 	void requestQuit(); // Request a quit. A kinder, gentler quit.
 	void userQuit(); // The users asks to quit. Confirm, then requestQuit()
-    void earlyExit(const std::string& msg); // Display an error dialog and forcibly quit.
+    void earlyExit(const std::string& name, 
+				   const LLSD& substitutions = LLSD()); // Display an error dialog and forcibly quit.
     void forceExit(S32 arg); // exit() immediately (after some cleanup).
     void abortQuit();  // Called to abort a quit request.
 

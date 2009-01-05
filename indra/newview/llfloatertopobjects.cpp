@@ -353,17 +353,19 @@ void LLFloaterTopObjects::doToObjects(int action, bool all)
 }
 
 //static
-void LLFloaterTopObjects::callbackReturnAll(S32 option, void* userdata)
+bool LLFloaterTopObjects::callbackReturnAll(const LLSD& notification, const LLSD& response)
 {
+	S32 option = LLNotification::getSelectedOption(notification, response);
 	if (option == 0)
 	{
 		sInstance->doToObjects(ACTION_RETURN, true);
 	}
+	return false;
 }
 
 void LLFloaterTopObjects::onReturnAll(void* data)
 {	
-	gViewerWindow->alertXml("ReturnAllTopObjects", callbackReturnAll, NULL);
+	LLNotifications::instance().add("ReturnAllTopObjects", LLSD(), LLSD(), &callbackReturnAll);
 }
 
 
@@ -374,17 +376,19 @@ void LLFloaterTopObjects::onReturnSelected(void* data)
 
 
 //static
-void LLFloaterTopObjects::callbackDisableAll(S32 option, void* userdata)
+bool LLFloaterTopObjects::callbackDisableAll(const LLSD& notification, const LLSD& response)
 {
+	S32 option = LLNotification::getSelectedOption(notification, response);
 	if (option == 0)
 	{
 		sInstance->doToObjects(ACTION_DISABLE, true);
 	}
+	return false;
 }
 
 void LLFloaterTopObjects::onDisableAll(void* data)
 {
-	gViewerWindow->alertXml("DisableAllTopObjects", callbackDisableAll, NULL);
+	LLNotifications::instance().add("DisableAllTopObjects", LLSD(), LLSD(), callbackDisableAll);
 }
 
 void LLFloaterTopObjects::onDisableSelected(void* data)

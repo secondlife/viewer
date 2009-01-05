@@ -72,8 +72,8 @@ private:
 	static void onDisableAll(void* data);
 	static void onDisableSelected(void* data);
 
-	static void callbackReturnAll(S32 option, void* userdata);
-	static void callbackDisableAll(S32 option, void* userdata);
+	static bool callbackReturnAll(const LLSD& notification, const LLSD& response);
+	static bool callbackDisableAll(const LLSD& notification, const LLSD& response);
 
 	static void onGetByOwnerName(LLUICtrl* ctrl, void* data);
 	static void onGetByObjectName(LLUICtrl* ctrl, void* data);

@@ -86,7 +86,7 @@ void LLFloaterBuy::show(const LLSaleInfo& sale_info)
 
 	if (selection->getRootObjectCount() != 1)
 	{
-		gViewerWindow->alertXml("BuyOneObjectOnly");
+		LLNotifications::instance().add("BuyOneObjectOnly");
 		return;
 	}
 
@@ -136,7 +136,7 @@ void LLFloaterBuy::show(const LLSaleInfo& sale_info)
 	BOOL owners_identical = LLSelectMgr::getInstance()->selectGetOwner(owner_id, owner_name);
 	if (!owners_identical)
 	{
-		gViewerWindow->alertXml("BuyObjectOneOwner");
+		LLNotifications::instance().add("BuyObjectOneOwner");
 		return;
 	}
 

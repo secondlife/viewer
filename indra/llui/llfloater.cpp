@@ -147,6 +147,7 @@ LLFloater::LLFloater() :
 	}
 	mDragHandle = NULL;
 	mHandle.bind(this);
+	mNotificationContext = new LLFloaterNotificationContext(getHandle());
 }
 
 LLFloater::LLFloater(const std::string& name)
@@ -220,6 +221,7 @@ void LLFloater::initFloater(const std::string& title,
 					 BOOL drag_on_left, BOOL minimizable, BOOL close_btn)
 {
 	mHandle.bind(this);
+	mNotificationContext = new LLFloaterNotificationContext(getHandle());
 
 	// Init function can be called more than once, so clear out old data.
 	for (S32 i = 0; i < BUTTON_COUNT; i++)
@@ -429,6 +431,9 @@ void LLFloater::initFloater(const std::string& title,
 // virtual
 LLFloater::~LLFloater()
 {
+	delete mNotificationContext;
+	mNotificationContext = NULL;
+
 	control_map_t::iterator itor;
 	for (itor = mFloaterControls.begin(); itor != mFloaterControls.end(); ++itor)
 	{

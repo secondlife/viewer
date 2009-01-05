@@ -403,7 +403,7 @@ void LLViewerInventoryCategory::updateServer(BOOL is_new) const
 	// communicate that change with the server.
 	if(LLAssetType::AT_NONE != mPreferredType)
 	{
-		LLNotifyBox::showXml("CannotModifyProtectedCategories");
+		LLNotifications::instance().add("CannotModifyProtectedCategories");
 		return;
 	}
 
@@ -427,7 +427,7 @@ void LLViewerInventoryCategory::removeFromServer( void )
 	// communicate that change with the server.
 	if(LLAssetType::AT_NONE != mPreferredType)
 	{
-		LLNotifyBox::showXml("CannotRemoveProtectedCategories");
+		LLNotifications::instance().add("CannotRemoveProtectedCategories");
 		return;
 	}
 

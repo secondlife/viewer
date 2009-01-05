@@ -127,6 +127,8 @@ LLScrollbar::LLScrollbar(
 	}
 	line_up_btn->setHeldDownCallback( &LLScrollbar::onLineUpBtnPressed );
 	line_up_btn->setTabStop(FALSE);
+	line_up_btn->setScaleImage(TRUE);
+
 	addChild(line_up_btn);
 
 	LLButton* line_down_btn = new LLButton(std::string("Line Down"), line_down_rect,
@@ -136,6 +138,7 @@ LLScrollbar::LLScrollbar(
 	line_down_btn->setFollowsBottom();
 	line_down_btn->setHeldDownCallback( &LLScrollbar::onLineDownBtnPressed );
 	line_down_btn->setTabStop(FALSE);
+	line_down_btn->setScaleImage(TRUE);
 	addChild(line_down_btn);
 }
 
@@ -148,20 +151,29 @@ LLScrollbar::~LLScrollbar()
 void LLScrollbar::setDocParams( S32 size, S32 pos )
 {
 	mDocSize = size;
-	mDocPos = llclamp( pos, 0, getDocPosMax() );
+	setDocPos(pos);
 	mDocChanged = TRUE;
 
 	updateThumbRect();
 }
 
-void LLScrollbar::setDocPos(S32 pos)
+void LLScrollbar::setDocPos(S32 pos, BOOL update_thumb)
 {
+	pos = llclamp(pos, 0, getDocPosMax());
 	if (pos != mDocPos)
 	{
-		mDocPos = llclamp( pos, 0, getDocPosMax() );
+		mDocPos = pos;
 		mDocChanged = TRUE;
 
-		updateThumbRect();
+		if( mChangeCallback )
+		{
+			mChangeCallback( mDocPos, this, mCallbackUserData );
+		}
+
+		if( update_thumb )
+		{
+			updateThumbRect();
+		}
 	}
 }
 
@@ -170,7 +182,7 @@ void LLScrollbar::setDocSize(S32 size)
 	if (size != mDocSize)
 	{
 		mDocSize = size;
-		mDocPos = llclamp( mDocPos, 0, getDocPosMax() );
+		setDocPos(mDocPos);
 		mDocChanged = TRUE;
 
 		updateThumbRect();
@@ -182,7 +194,7 @@ void LLScrollbar::setPageSize( S32 page_size )
 	if (page_size != mPageSize)
 	{
 		mPageSize = page_size;
-		mDocPos = llclamp( mDocPos, 0, getDocPosMax() );
+		setDocPos(mDocPos);
 		mDocChanged = TRUE;
 
 		updateThumbRect();
@@ -208,9 +220,9 @@ void LLScrollbar::updateThumbRect()
 	const S32 THUMB_MIN_LENGTH = 16;
 
 	S32 window_length = (mOrientation == LLScrollbar::HORIZONTAL) ? getRect().getWidth() : getRect().getHeight();
-	S32 thumb_bg_length = window_length - 2 * SCROLLBAR_SIZE;
+	S32 thumb_bg_length = llmax(0, window_length - 2 * SCROLLBAR_SIZE);
 	S32 visible_lines = llmin( mDocSize, mPageSize );
-	S32 thumb_length = mDocSize ? llmax( visible_lines * thumb_bg_length / mDocSize, THUMB_MIN_LENGTH ) : thumb_bg_length;
+	S32 thumb_length = mDocSize ? llmin(llmax( visible_lines * thumb_bg_length / mDocSize, THUMB_MIN_LENGTH), thumb_bg_length) : thumb_bg_length;
 
 	S32 variable_lines = mDocSize - visible_lines;
 
@@ -218,7 +230,7 @@ void LLScrollbar::updateThumbRect()
 	{ 
 		S32 thumb_start_max = thumb_bg_length + SCROLLBAR_SIZE;
 		S32 thumb_start_min = SCROLLBAR_SIZE + THUMB_MIN_LENGTH;
-		S32 thumb_start = variable_lines ? llclamp( thumb_start_max - (mDocPos * (thumb_bg_length - thumb_length)) / variable_lines, thumb_start_min, thumb_start_max ) : thumb_start_max;
+		S32 thumb_start = variable_lines ? llmin( llmax(thumb_start_max - (mDocPos * (thumb_bg_length - thumb_length)) / variable_lines, thumb_start_min), thumb_start_max ) : thumb_start_max;
 
 		mThumbRect.mLeft =  0;
 		mThumbRect.mTop = thumb_start;
@@ -230,7 +242,7 @@ void LLScrollbar::updateThumbRect()
 		// Horizontal
 		S32 thumb_start_max = thumb_bg_length + SCROLLBAR_SIZE - thumb_length;
 		S32 thumb_start_min = SCROLLBAR_SIZE;
-		S32 thumb_start = variable_lines ? llclamp( thumb_start_min + (mDocPos * (thumb_bg_length - thumb_length)) / variable_lines, thumb_start_min, thumb_start_max ) : thumb_start_min;
+		S32 thumb_start = variable_lines ? llmin(llmax( thumb_start_min + (mDocPos * (thumb_bg_length - thumb_length)) / variable_lines, thumb_start_min), thumb_start_max ) : thumb_start_min;
 	
 		mThumbRect.mLeft = thumb_start;
 		mThumbRect.mTop = SCROLLBAR_SIZE;
@@ -446,7 +458,7 @@ BOOL LLScrollbar::handleMouseUp(S32 x, S32 y, MASK mask)
 	}
 	else
 	{
-		// Opaque, so don't just check children
+		// Opaque, so don't just check children	
 		handled = LLView::handleMouseUp( x, y, mask );
 	}
 
@@ -455,13 +467,31 @@ BOOL LLScrollbar::handleMouseUp(S32 x, S32 y, MASK mask)
 
 void LLScrollbar::reshape(S32 width, S32 height, BOOL called_from_parent)
 {
+	if (width == getRect().getWidth() && height == getRect().getHeight()) return;
 	LLView::reshape( width, height, called_from_parent );
+	LLButton* up_button = getChild<LLButton>("Line Up");
+	LLButton* down_button = getChild<LLButton>("Line Down");
+
+	if (mOrientation == VERTICAL)
+	{
+		up_button->reshape(up_button->getRect().getWidth(), llmin(getRect().getHeight() / 2, SCROLLBAR_SIZE));
+		down_button->reshape(down_button->getRect().getWidth(), llmin(getRect().getHeight() / 2, SCROLLBAR_SIZE));
+		up_button->setOrigin(up_button->getRect().mLeft, getRect().getHeight() - up_button->getRect().getHeight());
+	}
+	else
+	{
+		up_button->reshape(llmin(getRect().getWidth() / 2, SCROLLBAR_SIZE), up_button->getRect().getHeight());
+		down_button->reshape(llmin(getRect().getWidth() / 2, SCROLLBAR_SIZE), down_button->getRect().getHeight());
+		down_button->setOrigin(getRect().getWidth() - down_button->getRect().getWidth(), down_button->getRect().mBottom);
+	}
 	updateThumbRect();
 }
 
 
 void LLScrollbar::draw()
 {
+	if (!getRect().isValid()) return;
+
 	S32 local_mouse_x;
 	S32 local_mouse_y;
 	LLUI::getCursorPositionLocal(this, &local_mouse_x, &local_mouse_y);
@@ -531,21 +561,7 @@ void LLScrollbar::draw()
 
 void LLScrollbar::changeLine( S32 delta, BOOL update_thumb )
 {
-	S32 new_pos = llclamp( mDocPos + delta, 0, getDocPosMax() );
-	if( new_pos != mDocPos )
-	{
-		mDocPos = new_pos;
-	}
-
-	if( mChangeCallback )
-	{
-		mChangeCallback( mDocPos, this, mCallbackUserData );
-	}
-
-	if( update_thumb )
-	{
-		updateThumbRect();
-	}
+	setDocPos(mDocPos + delta, update_thumb);
 }
 
 void LLScrollbar::setValue(const LLSD& value) 
@@ -561,22 +577,22 @@ BOOL LLScrollbar::handleKeyHere(KEY key, MASK mask)
 	switch( key )
 	{
 	case KEY_HOME:
-		changeLine( -mDocPos, TRUE );
+		setDocPos( 0 );
 		handled = TRUE;
 		break;
 	
 	case KEY_END:
-		changeLine( getDocPosMax() - mDocPos, TRUE );
+		setDocPos( getDocPosMax() );
 		handled = TRUE;
 		break;
 	
 	case KEY_DOWN:
-		changeLine( mStepSize, TRUE );
+		setDocPos( getDocPos() + mStepSize );
 		handled = TRUE;
 		break;
 	
 	case KEY_UP:
-		changeLine( - mStepSize, TRUE );
+		setDocPos( getDocPos() - mStepSize );
 		handled = TRUE;
 		break;
 

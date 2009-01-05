@@ -38,6 +38,7 @@
 #include <limits.h>
 
 #include "stdtypes.h"
+#include "lldate.h"
 
 #include <string>
 #include <list>
@@ -173,6 +174,7 @@ class LLEventTimer
 {
 public:
 	LLEventTimer(F32 period);	// period is the amount of time between each call to tick() in seconds
+	LLEventTimer(const LLDate& time);
 	virtual ~LLEventTimer();
 
 	//function to be called at the supplied frequency

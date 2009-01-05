@@ -110,7 +110,7 @@ public:
 	void selectCollisionParcel();
 
 	// Select the parcel at a specific point
-	LLSafeHandle<LLParcelSelection> selectParcelAt(const LLVector3d& pos_global);
+	LLParcelSelectionHandle selectParcelAt(const LLVector3d& pos_global);
 
 	// Take the current rectangle select, and select the parcel contained
 	// within it.
@@ -259,7 +259,7 @@ public:
 	static BOOL isParcelModifiableByAgent(const LLParcel* parcelp, U64 group_proxy_power);
 
 private:
-	static void releaseAlertCB(S32 option, void *data);
+	static bool releaseAlertCB(const LLSD& notification, const LLSD& response);
 
 	// If the user is claiming land and the current selection 
 	// borders a piece of land the user already owns, ask if he
@@ -272,12 +272,10 @@ private:
 	// move land from current owner to it's group.
 	void deedLandToGroup();
 
-	static void claimAlertCB(S32 option, void* data);
-	static void buyAlertCB(S32 option, void* data);
-	static void deedAlertCB(S32 option, void*);
+	static bool deedAlertCB(const LLSD& notification, const LLSD& response);
 
-	static void callbackDivideLand(S32 option, void* data);
-	static void callbackJoinLand(S32 option, void* data);
+	static bool callbackDivideLand(const LLSD& notification, const LLSD& response);
+	static bool callbackJoinLand(const LLSD& notification, const LLSD& response);
 
 	//void	finishClaim(BOOL user_to_user_sale, U32 join);
 	LLViewerImage* getBlockedImage() const;

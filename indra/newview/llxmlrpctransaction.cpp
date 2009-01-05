@@ -417,28 +417,10 @@ void LLXMLRPCTransaction::Impl::setStatus(Status status,
 				mStatusMessage =
 					"Despite our best efforts, something unexpected has gone wrong. \n"
 					" \n"
-					"Please check www.secondlife.com/status \n"
+					"Please check secondlife.com/status \n"
 					"to see if there is a known problem with the service.";
 
 				mStatusURI = "http://secondlife.com/status/";
-				/*
-				mStatusMessage =
-					"Despite our best efforts, something unexpected has gone wrong.\n"
-					"Please go to the Support section of the SecondLife.com web site\n"
-					"and report the problem.  If possible, include your SecondLife.log\n"
-					"file from:\n"
-#if LL_WINDOWS
-					"C:\\Documents and Settings\\<name>\\Application Data\\SecondLife\\logs\n"
-#elif LL_DARWIN
-					"~/Library/Application Support/SecondLife/logs\n"
-#elif LL_LINUX
-					"~/.secondlife/logs\n"
-#else
-#error "Need platform here."
-#endif
-					"Thank you.";
-				mStatusURI = "http://secondlife.com/community/support.php";
-				*/
 		}
 	}
 }

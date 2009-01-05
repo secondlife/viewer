@@ -151,8 +151,7 @@ public:
 	static void finalizeSetSellChange(void * userdata);
 	static void onSalePriceChange(LLUICtrl *ctrl, void * userdata);
 
-	static void cbBuyPass(S32 option, void*);
-	static BOOL buyPassDialogVisible();
+	static bool cbBuyPass(const LLSD& notification, const LLSD& response);
 
 	static void onClickSellLand(void* data);
 	static void onClickStopSellLand(void* data);
@@ -234,10 +233,10 @@ public:
 	void refresh();
 	virtual void draw();
 
-	static void callbackReturnOwnerObjects(S32, void*);
-	static void callbackReturnGroupObjects(S32, void*);
-	static void callbackReturnOtherObjects(S32, void*);
-	static void callbackReturnOwnerList(S32, void*);
+	bool callbackReturnOwnerObjects(const LLSD& notification, const LLSD& response);
+	bool callbackReturnGroupObjects(const LLSD& notification, const LLSD& response);
+	bool callbackReturnOtherObjects(const LLSD& notification, const LLSD& response);
+	bool callbackReturnOwnerList(const LLSD& notification, const LLSD& response);
 
 	static void clickShowCore(LLPanelLandObjects* panelp, S32 return_type, uuid_list_t* list = 0);
 	static void onClickShowOwnerObjects(void*);

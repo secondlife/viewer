@@ -149,27 +149,27 @@ void LLWearableList::processGetAssetReply( const char* filename, const LLAssetID
 		  {
 			  // Fail
 			  break;
-		  }
+		}
 		  default:
-		  {
+		{
 			  static const S32 MAX_RETRIES = 3;
 			  if (data->mRetries < MAX_RETRIES)
 			  {
-				  // Try again
+			  // Try again
 				  data->mRetries++;
-				  gAssetStorage->getAssetData(uuid,
-											  data->mAssetType,
-											  LLWearableList::processGetAssetReply,
-											  userdata);  // re-use instead of deleting.
-				  return;
-			  }
+			  gAssetStorage->getAssetData(uuid,
+										  data->mAssetType,
+										  LLWearableList::processGetAssetReply,
+										  userdata);  // re-use instead of deleting.
+			  return;
+		}
 			  else
 			  {
 				  // Fail
 				  break;
 			  }
 		  }
-		}
+	}
 	}
 
 	if (wearable) // success
@@ -180,17 +180,17 @@ void LLWearableList::processGetAssetReply( const char* filename, const LLAssetID
 	}
 	else
 	{
-		LLStringUtil::format_map_t args;
+		LLSD args;
 		// *TODO:translate
-		args["[TYPE]"] = LLAssetType::lookupHumanReadable(data->mAssetType);
+		args["TYPE"] = LLAssetType::lookupHumanReadable(data->mAssetType);
 		if (data->mName.empty())
 		{
-			LLNotifyBox::showXml("FailedToFindWearableUnnamed", args);
+			LLNotifications::instance().add("FailedToFindWearableUnnamed", args);
 		}
 		else
 		{
-			args["[DESC]"] = data->mName;
-			LLNotifyBox::showXml("FailedToFindWearable", args);
+			args["DESC"] = data->mName;
+			LLNotifications::instance().add("FailedToFindWearable", args);
 		}
 	}
 	// Always call callback; wearable will be NULL if we failed

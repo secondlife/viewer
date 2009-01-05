@@ -82,7 +82,7 @@ public:
 private:
 	static void onClickConnect(void*);
 	static void onClickNewAccount(void*);
-	static void newAccountAlertCallback(S32 option, void*);
+	static bool newAccountAlertCallback(const LLSD& notification, const LLSD& response);
 	static void onClickQuit(void*);
 	static void onClickVersion(void*);
 	virtual void onNavigateComplete( const EventType& eventIn );

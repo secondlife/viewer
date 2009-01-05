@@ -1288,9 +1288,9 @@ void LLGroupMgr::processCreateGroupReply(LLMessageSystem* msg, void ** data)
 	else
 	{
 		// *TODO:translate
-		LLStringUtil::format_map_t args;
-		args["[MESSAGE]"] = message;
-		gViewerWindow->alertXml("UnableToCreateGroup", args);
+		LLSD args;
+		args["MESSAGE"] = message;
+		LLNotifications::instance().add("UnableToCreateGroup", args);
 	}
 }
 

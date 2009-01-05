@@ -81,7 +81,7 @@ public:
 	EState getState() { return mState; }
 
 	void updateSessionID(const LLUUID& new_session_id);
-	const LLStringUtil::format_map_t& getNotifyArgs() { return mNotifyArgs; }
+	const LLSD& getNotifyArgs() { return mNotifyArgs; }
 
 	static LLVoiceChannel* getChannelByID(const LLUUID& session_id);
 	static LLVoiceChannel* getChannelByURI(std::string uri);
@@ -100,7 +100,7 @@ protected:
 	LLUUID		mSessionID;
 	EState		mState;
 	std::string	mSessionName;
-	LLStringUtil::format_map_t mNotifyArgs;
+	LLSD mNotifyArgs;
 	BOOL		mIgnoreNextSessionLeave;
 	LLHandle<LLPanel> mLoginNotificationHandle;
 
@@ -266,7 +266,7 @@ public:
 		const std::string& error_string);
 	void showSessionForceClose(const std::string& reason);
 
-	static void onConfirmForceCloseError(S32 option, void* data);
+	static bool onConfirmForceCloseError(const LLSD& notification, const LLSD& response);
 
 private:
 	// called by constructors

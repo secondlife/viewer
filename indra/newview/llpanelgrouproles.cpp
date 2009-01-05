@@ -237,11 +237,11 @@ BOOL LLPanelGroupRoles::attemptTransition()
 			mesg = mDefaultNeedsApplyMesg;
 		}
 		// Create a notify box, telling the user about the unapplied tab.
-		LLStringUtil::format_map_t args;
-		args["[NEEDS_APPLY_MESSAGE]"] = mesg;
-		args["[WANT_APPLY_MESSAGE]"] = mWantApplyMesg;
-		gViewerWindow->alertXml("PanelGroupApply", args,
-								onNotifyCallback, (void*) this);
+		LLSD args;
+		args["NEEDS_APPLY_MESSAGE"] = mesg;
+		args["WANT_APPLY_MESSAGE"] = mWantApplyMesg;
+		LLNotifications::instance().add("PanelGroupApply", args, LLSD(),
+			boost::bind(&LLPanelGroupRoles::handleNotifyCallback, this, _1, _2));
 		mHasModal = TRUE;
 		// We need to reselect the current tab, since it isn't finished.
 		if (mSubTabContainer)
@@ -282,18 +282,9 @@ void LLPanelGroupRoles::transitionToTab()
 	}
 }
 
-// static
-void LLPanelGroupRoles::onNotifyCallback(S32 option, void* user_data)
+bool LLPanelGroupRoles::handleNotifyCallback(const LLSD& notification, const LLSD& response)
 {
-	LLPanelGroupRoles* self = static_cast<LLPanelGroupRoles*>(user_data);
-	if (self)
-	{
-		self->handleNotifyCallback(option);
-	}
-}
-
-void LLPanelGroupRoles::handleNotifyCallback(S32 option)
-{
+	S32 option = LLNotification::getSelectedOption(notification, response);
 	mHasModal = FALSE;
 	switch (option)
 	{
@@ -307,9 +298,9 @@ void LLPanelGroupRoles::handleNotifyCallback(S32 option)
 			if ( !apply_mesg.empty() )
 			{
 				mHasModal = TRUE;
-				LLStringUtil::format_map_t args;
-				args["[MESSAGE]"] = apply_mesg;
-				gViewerWindow->alertXml("GenericAlert", args, onModalClose, (void*) this);
+				LLSD args;
+				args["MESSAGE"] = apply_mesg;
+				LLNotifications::instance().add("GenericAlert", args, LLSD(), boost::bind(&LLPanelGroupRoles::onModalClose, this, _1, _2));
 			}
 			// Skip switching tabs.
 			break;
@@ -337,16 +328,13 @@ void LLPanelGroupRoles::handleNotifyCallback(S32 option)
 		// Do nothing.  The user is canceling the action.
 		break;
 	}
+	return false;
 }
 
-// static
-void LLPanelGroupRoles::onModalClose(S32 option, void* user_data)
+bool LLPanelGroupRoles::onModalClose(const LLSD& notification, const LLSD& response)
 {
-	LLPanelGroupRoles* self = static_cast<LLPanelGroupRoles*>(user_data);
-	if (self)
-	{
-		self->mHasModal = FALSE;
-	}
+	mHasModal = FALSE;
+	return false;
 }
 
 
@@ -1375,16 +1363,16 @@ bool LLPanelGroupMembersSubTab::apply(std::string& mesg)
 		if ( mNumOwnerAdditions > 0 )
 		{
 			LLRoleData rd;
-			LLStringUtil::format_map_t args;
+			LLSD args;
 
 			if ( gdatap->getRoleData(gdatap->mOwnerRole, rd) )
 			{
 				mHasModal = TRUE;
-				args["[ROLE_NAME]"] = rd.mRoleName;
-				gViewerWindow->alertXml("AddGroupOwnerWarning",
+				args["ROLE_NAME"] = rd.mRoleName;
+				LLNotifications::instance().add("AddGroupOwnerWarning",
 										args,
-										addOwnerCB,
-										this);
+										LLSD(),
+										boost::bind(&LLPanelGroupMembersSubTab::addOwnerCB, this, _1, _2));
 			}
 			else
 			{
@@ -1404,20 +1392,17 @@ bool LLPanelGroupMembersSubTab::apply(std::string& mesg)
 	return true;
 }
 
-//static
-void LLPanelGroupMembersSubTab::addOwnerCB(S32 option, void* data)
+bool LLPanelGroupMembersSubTab::addOwnerCB(const LLSD& notification, const LLSD& response)
 {
-	LLPanelGroupMembersSubTab* self = (LLPanelGroupMembersSubTab*) data;
-
-	if (!self) return;
-	
-	self->mHasModal = FALSE;
+	S32 option = LLNotification::getSelectedOption(notification, response);
+	mHasModal = FALSE;
 
 	if (0 == option)
 	{
 		// User clicked "Yes"
-		self->applyMemberChanges();
+		applyMemberChanges();
 	}
+	return false;
 }
 
 void LLPanelGroupMembersSubTab::applyMemberChanges()
@@ -2225,22 +2210,19 @@ void LLPanelGroupRolesSubTab::handleActionCheck(LLCheckBoxCtrl* check, bool forc
 			check->set(FALSE);
 
 			LLRoleData rd;
-			LLStringUtil::format_map_t args;
+			LLSD args;
 
 			if ( gdatap->getRoleData(role_id, rd) )
 			{
-				args["[ACTION_NAME]"] = rap->mDescription;
-				args["[ROLE_NAME]"] = rd.mRoleName;
-				struct ActionCBData* cb_data = new ActionCBData;
-				cb_data->mSelf = this;
-				cb_data->mCheck = check;
+				args["ACTION_NAME"] = rap->mDescription;
+				args["ROLE_NAME"] = rd.mRoleName;
 				mHasModal = TRUE;
 				std::string warning = "AssignDangerousActionWarning";
 				if (GP_ROLE_CHANGE_ACTIONS == power)
 				{
 					warning = "AssignDangerousAbilityWarning";
 				}
-				gViewerWindow->alertXml(warning, args, addActionCB, cb_data);
+				LLNotifications::instance().add(warning, args, LLSD(), boost::bind(&LLPanelGroupRolesSubTab::addActionCB, this, _1, _2, check));
 			}
 			else
 			{
@@ -2262,22 +2244,21 @@ void LLPanelGroupRolesSubTab::handleActionCheck(LLCheckBoxCtrl* check, bool forc
 	notifyObservers();
 }
 
-//static
-void LLPanelGroupRolesSubTab::addActionCB(S32 option, void* data)
+bool LLPanelGroupRolesSubTab::addActionCB(const LLSD& notification, const LLSD& response, LLCheckBoxCtrl* check)
 {
-	struct ActionCBData* cb_data = (struct ActionCBData*) data;
+	if (!check) return false;
 
-	if (!cb_data || !cb_data->mSelf || !cb_data->mCheck) return;
+	mHasModal = FALSE;
 
-	cb_data->mSelf->mHasModal = FALSE;
-
+	S32 option = LLNotification::getSelectedOption(notification, response);
 	if (0 == option)
 	{
 		// User clicked "Yes"
-		cb_data->mCheck->set(TRUE);
+		check->set(TRUE);
 		const bool force_add = true;
-		cb_data->mSelf->handleActionCheck(cb_data->mCheck, force_add);
+		handleActionCheck(check, force_add);
 	}
+	return false;
 }
 
 
@@ -2413,9 +2394,9 @@ void LLPanelGroupRolesSubTab::handleDeleteRole()
 
 	if (role_item->getUUID().isNull() || role_item->getUUID() == gdatap->mOwnerRole)
 	{
-		LLStringUtil::format_map_t args;
-		args["[MESSAGE]"] = mRemoveEveryoneTxt;
-		LLNotifyBox::showXml("GenericNotify", args);
+		LLSD args;
+		args["MESSAGE"] = mRemoveEveryoneTxt;
+		LLNotifications::instance().add("GenericNotify", args);
 		return;
 	}
 

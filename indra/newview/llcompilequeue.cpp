@@ -524,9 +524,9 @@ void LLFloaterCompileQueue::onSaveTextComplete(const LLUUID& asset_id, void* use
 	if (status)
 	{
 		llwarns << "Unable to save text for script." << llendl;
-		LLStringUtil::format_map_t args;
-		args["[REASON]"] = std::string(LLAssetStorage::getErrorString(status));
-		gViewerWindow->alertXml("CompileQueueSaveText", args);
+		LLSD args;
+		args["REASON"] = std::string(LLAssetStorage::getErrorString(status));
+		LLNotifications::instance().add("CompileQueueSaveText", args);
 	}
 }
 
@@ -545,9 +545,9 @@ void LLFloaterCompileQueue::onSaveBytecodeComplete(const LLUUID& asset_id, void*
 	else
 	{
 		llwarns << "Unable to save bytecode for script." << llendl;
-		LLStringUtil::format_map_t args;
-		args["[REASON]"] = std::string(LLAssetStorage::getErrorString(status));
-		gViewerWindow->alertXml("CompileQueueSaveBytecode", args);
+		LLSD args;
+		args["REASON"] = std::string(LLAssetStorage::getErrorString(status));
+		LLNotifications::instance().add("CompileQueueSaveBytecode", args);
 	}
 	delete data;
 	data = NULL;

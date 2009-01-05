@@ -63,7 +63,7 @@ public:
 	static void onClickHelp(void* data);
 	void initHelpBtn(const std::string& name, const std::string& xml_alert);
 
-	static void newPromptCallback(S32 option, const std::string& text, void* userData);
+	static bool newPromptCallback(const LLSD& notification, const LLSD& response);
 
 	/// general purpose callbacks for dealing with color controllers
 	static void onColorControlRMoved(LLUICtrl* ctrl, void* userData);
@@ -94,13 +94,13 @@ public:
 	static void onSavePreset(void* userData);
 
 	/// prompts a user when overwriting a preset
-	static void saveAlertCallback(S32 option, void* userdata);
+	static bool saveAlertCallback(const LLSD& notification, const LLSD& response);
 
 	/// when user hits the save preset button
 	static void onDeletePreset(void* userData);
 
 	/// prompts a user when overwriting a preset
-	static void deleteAlertCallback(S32 option, void* userdata);
+	bool deleteAlertCallback(const LLSD& notification, const LLSD& response);
 
 	/// what to do when you change the preset name
 	static void onChangePresetName(LLUICtrl* ctrl, void* userData);

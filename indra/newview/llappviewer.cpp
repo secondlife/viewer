@@ -652,6 +652,7 @@ bool LLAppViewer::init()
 
 	// Widget construction depends on LLUI being initialized
 	LLUI::initClass(&gSavedSettings, 
+					&gSavedSettings, 
 					&gColors, 
 					LLUIImageList::getInstance(),
 					ui_audio_callback,
@@ -663,7 +664,7 @@ bool LLAppViewer::init()
 				&LLURLDispatcher::dispatchFromTextEditor);
 	
 	LLUICtrlFactory::getInstance()->setupPaths(); // update paths with correct language set
-	
+
 	/////////////////////////////////////////////////
 	//
 	// Load settings files
@@ -736,7 +737,10 @@ bool LLAppViewer::init()
 	//
 	initWindow();
 
-#if LL_LCD_COMPILE
+	// call all self-registered classes
+	LLInitClassList::instance().fireCallbacks();
+
+	#if LL_LCD_COMPILE
 		// start up an LCD window on a logitech keyboard, if there is one
 		HINSTANCE hInstance = GetModuleHandle(NULL);
 		gLcdScreen = new LLLCD(hInstance);
@@ -762,64 +766,67 @@ bool LLAppViewer::init()
 	// If we don't have the right GL requirements, exit.
 	if (!gGLManager.mHasRequirements && !gNoRender)
 	{	
-		// can't use an alert here since we're existing and
+		// can't use an alert here since we're exiting and
 		// all hell breaks lose.
 		OSMessageBox(
-			LLAlertDialog::getTemplateMessage("UnsupportedGLRequirements"),
+			LLNotifications::instance().getGlobalString("UnsupportedGLRequirements"),
 			LLStringUtil::null,
 			OSMB_OK);
 		return 0;
 	}
 
-
-	bool unsupported = false;
-	LLStringUtil::format_map_t args;
-	std::string minSpecs;
+	// alert the user if they are using unsupported hardware
+	if(!gSavedSettings.getBOOL("AlertedUnsupportedHardware"))
+	{
+		bool unsupported = false;
+		LLSD args;
+		std::string minSpecs;
 		
-	// get cpu data from xml
-	std::stringstream minCPUString(LLAlertDialog::getTemplateMessage("UnsupportedCPUAmount"));
-	S32 minCPU = 0;
-	minCPUString >> minCPU;
+		// get cpu data from xml
+		std::stringstream minCPUString(LLNotifications::instance().getGlobalString("UnsupportedCPUAmount"));
+		S32 minCPU = 0;
+		minCPUString >> minCPU;
 
-	// get RAM data from XML
-	std::stringstream minRAMString(LLAlertDialog::getTemplateMessage("UnsupportedRAMAmount"));
-	U64 minRAM = 0;
-	minRAMString >> minRAM;
-	minRAM = minRAM * 1024 * 1024;
+		// get RAM data from XML
+		std::stringstream minRAMString(LLNotifications::instance().getGlobalString("UnsupportedRAMAmount"));
+		U64 minRAM = 0;
+		minRAMString >> minRAM;
+		minRAM = minRAM * 1024 * 1024;
 
-	if(!LLFeatureManager::getInstance()->isGPUSupported() && LLFeatureManager::getInstance()->getGPUClass() != GPU_CLASS_UNKNOWN)
-	{
-		minSpecs += LLAlertDialog::getTemplateMessage("UnsupportedGPU");
-		minSpecs += "\n";
-		unsupported = true;
-	}
-	if(gSysCPU.getMhz() < minCPU)
-	{
-		minSpecs += LLAlertDialog::getTemplateMessage("UnsupportedCPU");
-		minSpecs += "\n";
-		unsupported = true;
-	}
-	if(gSysMemory.getPhysicalMemoryClamped() < minRAM)
-	{
-		minSpecs += LLAlertDialog::getTemplateMessage("UnsupportedRAM");
-		minSpecs += "\n";
-		unsupported = true;
-	}
-
-	if (LLFeatureManager::getInstance()->getGPUClass() == GPU_CLASS_UNKNOWN)
-	{
-		gViewerWindow->alertXml("UnknownGPU");
-	} 
-		
-	if(unsupported)
-	{
-		if(!gSavedSettings.controlExists("WarnUnsupportedHardware") 
-			|| gSavedSettings.getBOOL("WarnUnsupportedHardware"))
+		if(!LLFeatureManager::getInstance()->isGPUSupported() && LLFeatureManager::getInstance()->getGPUClass() != GPU_CLASS_UNKNOWN)
 		{
-			args["MINSPECS"] = minSpecs;
-			gViewerWindow->alertXml("UnsupportedHardware", args );
+			minSpecs += LLNotifications::instance().getGlobalString("UnsupportedGPU");
+			minSpecs += "\n";
+			unsupported = true;
+		}
+		if(gSysCPU.getMhz() < minCPU)
+		{
+			minSpecs += LLNotifications::instance().getGlobalString("UnsupportedCPU");
+			minSpecs += "\n";
+			unsupported = true;
+		}
+		if(gSysMemory.getPhysicalMemoryClamped() < minRAM)
+		{
+			minSpecs += LLNotifications::instance().getGlobalString("UnsupportedRAM");
+			minSpecs += "\n";
+			unsupported = true;
 		}
 
+		if (LLFeatureManager::getInstance()->getGPUClass() == GPU_CLASS_UNKNOWN)
+		{
+			LLNotifications::instance().add("UnknownGPU");
+		} 
+			
+		if(unsupported)
+		{
+			if(!gSavedSettings.controlExists("WarnUnsupportedHardware") 
+				|| gSavedSettings.getBOOL("WarnUnsupportedHardware"))
+			{
+				args["MINSPECS"] = minSpecs;
+				LLNotifications::instance().add("UnsupportedHardware", args );
+			}
+
+		}
 	}
 
 	// save the graphics card
@@ -1152,8 +1159,6 @@ bool LLAppViewer::cleanup()
 	gCacheName = NULL;
 
 	// Note: this is where gLocalSpeakerMgr and gActiveSpeakerMgr used to be deleted.
-
-	LLNotifyBox::cleanup();
 
 	LLWorldMap::getInstance()->reset(); // release any images
 	
@@ -1705,25 +1710,6 @@ bool LLAppViewer::initConfiguration()
 	LLFirstUse::addConfigVariable("FirstVoice");
 	LLFirstUse::addConfigVariable("FirstMedia");
 		
-    //////
-    // *FIX:Mani - Find a way to remove the gUICtrlFactory and
-    // LLAlertDialog::parseAlerts dependecies on the being loaded
-    // *before* the user settings. Having to do this init here
-    // seems odd. 
-
-	// This is where gUICtrlFactory used to be instantiated with a new LLUICtrlFactory
-	// which needed to happen before calling parseAlerts below.
-	// TODO: That method is still dependant upon the base LLUICtrlFactory constructor being called
-	// which registers some callbacks so I'm leaving in a call to getInstance here to cause that to
-	// still happen. This needs to be cleaned up later when the base and derived classes
-	// are planned to be combined. -MG
-	LLUICtrlFactory::getInstance();
-	
-
-	// Pre-load alerts.xml to define the warnings settings (always loads from skins/xui/en-us/)
-	// Do this *before* loading the settings file
-	LLAlertDialog::parseAlerts("alerts.xml", &gSavedSettings, TRUE);
-
 	// - read command line settings.
 	LLControlGroupCLP clp;
 	std::string	cmd_line_config	= gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,
@@ -2151,8 +2137,6 @@ bool LLAppViewer::initWindow()
 
 	LLUI::sWindow = gViewerWindow->getWindow();
 
-	LLAlertDialog::parseAlerts("alerts.xml");
-	LLNotifyBox::parseNotify("notify.xml");
 	LLTrans::parseStrings("strings.xml");
 
 	// Show watch cursor
@@ -2614,32 +2598,34 @@ void LLAppViewer::requestQuit()
 	mQuitRequested = true;
 }
 
-static void finish_quit(S32 option, void *userdata)
+static bool finish_quit(const LLSD& notification, const LLSD& response)
 {
+	S32 option = LLNotification::getSelectedOption(notification, response);
+
 	if (option == 0)
 	{
 		LLAppViewer::instance()->requestQuit();
 	}
+	return false;
 }
+static LLNotificationFunctorRegistration finish_quit_reg("ConfirmQuit", finish_quit);
 
 void LLAppViewer::userQuit()
 {
-	gViewerWindow->alertXml("ConfirmQuit", finish_quit, NULL);
+	LLNotifications::instance().add("ConfirmQuit");
 }
 
-static void finish_early_exit(S32 option, void* userdata)
+static bool finish_early_exit(const LLSD& notification, const LLSD& response)
 {
 	LLAppViewer::instance()->forceQuit();
+	return false;
 }
 
-void LLAppViewer::earlyExit(const std::string& msg)
+void LLAppViewer::earlyExit(const std::string& name, const LLSD& substitutions)
 {
-   	llwarns << "app_early_exit: " << msg << llendl;
+   	llwarns << "app_early_exit: " << name << llendl;
 	gDoDisconnect = TRUE;
-// 	LLStringUtil::format_map_t args;
-// 	args["[MESSAGE]"] = mesg;
-// 	gViewerWindow->alertXml("AppEarlyExit", args, finish_early_exit);
-	LLAlertDialog::showCritical(msg, finish_early_exit, NULL);
+	LLNotifications::instance().add(name, substitutions, LLSD(), finish_early_exit);
 }
 
 void LLAppViewer::forceExit(S32 arg)
@@ -2953,18 +2939,22 @@ const std::string& LLAppViewer::getWindowTitle() const
 }
 
 // Callback from a dialog indicating user was logged out.  
-void finish_disconnect(S32 option, void* userdata)
+bool finish_disconnect(const LLSD& notification, const LLSD& response)
 {
+	S32 option = LLNotification::getSelectedOption(notification, response);
+
 	if (1 == option)
 	{
         LLAppViewer::instance()->forceQuit();
 	}
+	return false;
 }
 
 // Callback from an early disconnect dialog, force an exit
-void finish_forced_disconnect(S32 /* option */, void* /* userdata */)
+bool finish_forced_disconnect(const LLSD& notification, const LLSD& response)
 {
 	LLAppViewer::instance()->forceQuit();
+	return false;
 }
 
 
@@ -2984,19 +2974,19 @@ void LLAppViewer::forceDisconnect(const std::string& mesg)
 		big_reason = mesg;
 	}
 
-	LLStringUtil::format_map_t args;
+	LLSD args;
 	gDoDisconnect = TRUE;
 
 	if (LLStartUp::getStartupState() < STATE_STARTED)
 	{
 		// Tell users what happened
-		args["[ERROR_MESSAGE]"] = big_reason;
-		gViewerWindow->alertXml("ErrorMessage", args, finish_forced_disconnect);
+		args["ERROR_MESSAGE"] = big_reason;
+		LLNotifications::instance().add("ErrorMessage", args, LLSD(), &finish_forced_disconnect);
 	}
 	else
 	{
-		args["[MESSAGE]"] = big_reason;
-		gViewerWindow->alertXml("YouHaveBeenLoggedOut", args, finish_disconnect );
+		args["MESSAGE"] = big_reason;
+		LLNotifications::instance().add("YouHaveBeenLoggedOut", args, LLSD(), &finish_disconnect );
 	}
 }
 
@@ -3762,6 +3752,9 @@ void LLAppViewer::disconnectViewer()
 	// This is where we used to call gObjectList.destroy() and then delete gWorldp.
 	// Now we just ask the LLWorld singleton to cleanly shut down.
 	LLWorld::getInstance()->destroyClass();
+
+	// call all self-registered classes
+	LLDestroyClassList::instance().fireCallbacks();
 
 	cleanup_xfer_manager();
 	gDisconnected = TRUE;

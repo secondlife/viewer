@@ -119,8 +119,8 @@ private:
 
 	// callback methods
 	static void onSelectName(LLUICtrl* ctrl, void* user_data);
-	static void callbackAddFriendWithMessage(S32 option, const std::string& text, void* user_data);
-	static void callbackAddFriend(S32 option, void* user_data);
+	static bool callbackAddFriend(const LLSD& notification, const LLSD& response);
+	static bool callbackAddFriendWithMessage(const LLSD& notification, const LLSD& response);
 	static void onPickAvatar(const std::vector<std::string>& names, const std::vector<LLUUID>& ids, void* user_data);
 	static void onMaximumSelect(void* user_data);
 
@@ -134,8 +134,8 @@ private:
 
 	static void onClickModifyStatus(LLUICtrl* ctrl, void* user_data);
 
-	static void handleRemove(S32 option, void* user_data);
-	static void modifyRightsConfirmation(S32 option, void* user_data);
+	static bool handleRemove(const LLSD& notification, const LLSD& response);
+	bool modifyRightsConfirmation(const LLSD& notification, const LLSD& response, rights_map_t* rights);
 
 private:
 	// member data

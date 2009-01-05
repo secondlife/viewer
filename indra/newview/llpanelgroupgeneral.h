@@ -57,8 +57,7 @@ public:
 	virtual bool needsApply(std::string& mesg);
 	virtual bool apply(std::string& mesg);
 	virtual void cancel();
-	static void createGroupCallback(S32 option, void* user_data);
-	static void callbackConfirmMatureApply(S32 option, void* data);
+	bool createGroupCallback(const LLSD& notification, const LLSD& response);
 	
 	virtual void update(LLGroupChange gc);
 	
@@ -77,11 +76,11 @@ private:
 	static void onReceiveNotices(LLUICtrl* ctrl, void* data);
 	static void openProfile(void* data);
 
-    static void joinDlgCB(S32 which, void *userdata);
+    static bool joinDlgCB(const LLSD& notification, const LLSD& response);
 
 	void updateMembers();
 	void updateChanged();
-	void confirmMatureApply(S32 option);
+	bool confirmMatureApply(const LLSD& notification, const LLSD& response);
 
 	BOOL			mPendingMemberUpdate;
 	BOOL			mChanged;

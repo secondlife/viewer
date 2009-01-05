@@ -30,6 +30,7 @@
  */
 
 // Utilities functions the user interface needs
+
 #include "linden_common.h"
 
 #include <string>
@@ -65,6 +66,7 @@ std::map<std::string, std::string> gTranslation;
 std::list<std::string> gUntranslated;
 
 LLControlGroup* LLUI::sConfigGroup = NULL;
+LLControlGroup* LLUI::sIgnoresGroup = NULL;
 LLControlGroup* LLUI::sColorsGroup = NULL;
 LLImageProviderInterface* LLUI::sImageProvider = NULL;
 LLUIAudioCallback LLUI::sAudioCallback = NULL;
@@ -90,7 +92,7 @@ void make_ui_sound(const char* namep)
 		LLUUID uuid(LLUI::sConfigGroup->getString(name));		
 		if (uuid.isNull())
 		{
-			if ("00000000-0000-0000-0000-000000000000" == LLUI::sConfigGroup->getString(name))
+			if (LLUI::sConfigGroup->getString(name) == LLUUID::null.asString())
 			{
 				if (LLUI::sConfigGroup->getBOOL("UISndDebugSpamToggle"))
 				{
@@ -1552,6 +1554,7 @@ bool handleShowXUINamesChanged(const LLSD& newvalue)
 }
 
 void LLUI::initClass(LLControlGroup* config, 
+					 LLControlGroup* ignores, 
 					 LLControlGroup* colors, 
 					 LLImageProviderInterface* image_provider,
 					 LLUIAudioCallback audio_callback,
@@ -1559,7 +1562,16 @@ void LLUI::initClass(LLControlGroup* config,
 					 const std::string& language)
 {
 	sConfigGroup = config;
+	sIgnoresGroup = ignores;
 	sColorsGroup = colors;
+
+	if (sConfigGroup == NULL
+		|| sIgnoresGroup == NULL
+		|| sColorsGroup == NULL)
+	{
+		llerrs << "Failure to initialize configuration groups" << llendl;
+	}
+
 	sImageProvider = image_provider;
 	sAudioCallback = audio_callback;
 	sGLScaleFactor = (scale_factor == NULL) ? LLVector2(1.f, 1.f) : *scale_factor;
@@ -1567,7 +1579,7 @@ void LLUI::initClass(LLControlGroup* config,
 	LLFontGL::sShadowColor = colors->getColor("ColorDropShadow");
 
 	LLUI::sShowXUINames = LLUI::sConfigGroup->getBOOL("ShowXUINames");
-	LLUI::sConfigGroup->getControl("ShowXUINames")->getSignal()->connect(boost::bind(&handleShowXUINamesChanged, _1));
+	LLUI::sConfigGroup->getControl("ShowXUINames")->getSignal()->connect(&handleShowXUINamesChanged);
 }
 
 void LLUI::cleanupClass()

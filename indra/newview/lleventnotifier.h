@@ -56,7 +56,6 @@ public:
 
 	typedef std::map<U32, LLEventNotification *> en_map;
 
-	static void notifyCallback(S32 option, void *user_data);
 protected:
 	en_map	mEventNotifications;
 	LLFrameTimer	mNotificationTimer;
@@ -78,6 +77,7 @@ public:
 	time_t				getEventDate() const			{ return mEventDate; }
 	const std::string	&getEventDateStr() const		{ return mEventDateStr; }
 	LLVector3d			getEventPosGlobal() const		{ return mEventPosGlobal; }
+	bool				handleResponse(const LLSD& notification, const LLSD& payload);
 protected:
 	U32			mEventID;			// EventID for this event
 	std::string	mEventName;

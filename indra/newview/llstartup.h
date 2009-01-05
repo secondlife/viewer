@@ -38,7 +38,7 @@
 bool idle_startup();
 std::string load_password_from_disk();
 void release_start_screen();
-void login_alert_done(S32 option, void* user_data);
+bool login_alert_done(const LLSD& notification, const LLSD& response);
 
 // constants, variables,  & enumerations
 extern std::string SCREEN_HOME_FILENAME;

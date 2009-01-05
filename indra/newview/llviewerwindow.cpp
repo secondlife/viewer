@@ -182,6 +182,9 @@
 #include "llviewerjoystick.h"
 #include "llviewernetwork.h"
 
+#include "llfloatertest.h" // HACK!
+#include "llfloaternotificationsconsole.h"
+
 #if LL_WINDOWS
 #include <tchar.h> // For Unicode conversion methods
 #endif
@@ -244,6 +247,7 @@ std::string	LLViewerWindow::sSnapshotDir;
 std::string	LLViewerWindow::sMovieBaseName;
 
 extern void toggle_debug_menus(void*);
+
 
 
 ////////////////////////////////////////////////////////////////////////////
@@ -1421,6 +1425,13 @@ LLViewerWindow::LLViewerWindow(
 	mIsFullscreenChecked(false),
 	mCurrResolutionIndex(0)
 {
+	// these are self registering so they don't need to be retained here
+	new LLNotificationChannel("VW_alerts", "Visible", LLNotificationFilters::filterBy<std::string>(&LLNotification::getType, "alert"));
+	new LLNotificationChannel("VW_alertmodal", "Visible", LLNotificationFilters::filterBy<std::string>(&LLNotification::getType, "alertmodal"));
+
+	LLNotifications::instance().getChannel("VW_alerts")->connectChanged(&LLViewerWindow::onAlert);
+	LLNotifications::instance().getChannel("VW_alertmodal")->connectChanged(&LLViewerWindow::onAlert);
+
 	// Default to application directory.
 	LLViewerWindow::sSnapshotBaseName = "Snapshot";
 	LLViewerWindow::sMovieBaseName = "SLmovie";
@@ -1531,8 +1542,6 @@ LLViewerWindow::LLViewerWindow(
 	mOverlayTitle = gSavedSettings.getString("OverlayTitle");
 	// Can't have spaces in settings.ini strings, so use underscores instead and convert them.
 	LLStringUtil::replaceChar(mOverlayTitle, '_', ' ');
-
-	LLAlertDialog::setDisplayCallback(alertCallback); // call this before calling any modal dialogs
 
 	// sync the keyboard's setting with the saved setting
 	gSavedSettings.getControl("NumpadControl")->firePropertyChanged();
@@ -2179,7 +2188,7 @@ void LLViewerWindow::setNormalControlsVisible( BOOL visible )
 
 void LLViewerWindow::setMenuBackgroundColor(bool god_mode, bool dev_grid)
 {
-   	LLStringUtil::format_map_t args;
+    LLSD args;
     LLColor4 new_bg_color;
 
     if(god_mode && LLViewerLogin::getInstance()->isInProductionGrid())
@@ -2232,12 +2241,6 @@ void LLViewerWindow::draw()
 	stop_glerror();
 	
 	LLUI::setLineWidth(1.f);
-	//popup alerts from the UI
-	LLAlertInfo alert;
-	while (LLPanel::nextAlert(alert))
-	{
-		alertXml(alert.mLabel, alert.mArgs);
-	}
 
 	LLUI::setLineWidth(1.f);
 	// Reset any left-over transforms
@@ -2419,6 +2422,15 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 			// Initialize visibility (and don't force visibility - use prefs)
 			LLPanelLogin::refreshLocation( false );
 		}
+	}
+
+	// Debugging view for unified notifications
+	if ((MASK_SHIFT & mask) 
+		&& (MASK_CONTROL & mask)
+		&& ('N' == key || 'n' == key))
+	{
+		LLFloaterNotificationConsole::showInstance();
+		return TRUE;
 	}
 
 	// handle escape key
@@ -4909,10 +4921,10 @@ BOOL LLViewerWindow::changeDisplaySettings(BOOL fullscreen, LLCoordScreen size, 
 
 	if (!result_first_try)
 	{
-		LLStringUtil::format_map_t args;
-		args["[RESX]"] = llformat("%d",size.mX);
-		args["[RESY]"] = llformat("%d",size.mY);
-		alertXml("ResolutionSwitchFail", args);
+		LLSD args;
+		args["RESX"] = llformat("%d",size.mX);
+		args["RESY"] = llformat("%d",size.mY);
+		LLNotifications::instance().add("ResolutionSwitchFail", args);
 		size = old_size; // for reshape below
 	}
 
@@ -5027,47 +5039,19 @@ S32 LLViewerWindow::getChatConsoleBottomPad()
 
 //----------------------------------------------------------------------------
 
-// static
-bool LLViewerWindow::alertCallback(S32 modal)
+
+//static 
+bool LLViewerWindow::onAlert(const LLSD& notify)
 {
+	LLNotificationPtr notification = LLNotifications::instance().find(notify["id"].asUUID());
+
 	if (gNoRender)
 	{
+		llinfos << "Alert: " << notification->getName() << llendl;
+		notification->respond(LLSD::emptyMap());
+		LLNotifications::instance().cancel(notification);
 		return false;
 	}
-	else
-	{
-// 		if (modal) // we really always want to take you out of mouselook
-		{
-			// If we're in mouselook, the mouse is hidden and so the user can't click 
-			// the dialog buttons.  In that case, change to First Person instead.
-			if( gAgent.cameraMouselook() )
-			{
-				gAgent.changeCameraToDefault();
-			}
-		}
-		return true;
-	}
-}
-
-LLAlertDialog* LLViewerWindow::alertXml(const std::string& xml_filename,
-							  LLAlertDialog::alert_callback_t callback, void* user_data)
-{
-	LLStringUtil::format_map_t args;
-	return alertXml( xml_filename, args, callback, user_data );
-}
-
-LLAlertDialog* LLViewerWindow::alertXml(const std::string& xml_filename, const LLStringUtil::format_map_t& args,
-							  LLAlertDialog::alert_callback_t callback, void* user_data)
-{
-	if (gNoRender)
-	{
-		llinfos << "Alert: " << xml_filename << llendl;
-		if (callback)
-		{
-			callback(-1, user_data);
-		}
-		return NULL;
-	}
 
 	// If we're in mouselook, the mouse is hidden and so the user can't click 
 	// the dialog buttons.  In that case, change to First Person instead.
@@ -5075,46 +5059,7 @@ LLAlertDialog* LLViewerWindow::alertXml(const std::string& xml_filename, const L
 	{
 		gAgent.changeCameraToDefault();
 	}
-
-	// Note: object adds, removes, and destroys itself.
-	return LLAlertDialog::showXml( xml_filename, args, callback, user_data );
-}
-
-LLAlertDialog* LLViewerWindow::alertXmlEditText(const std::string& xml_filename, const LLStringUtil::format_map_t& args,
-									  LLAlertDialog::alert_callback_t callback, void* user_data,
-									  LLAlertDialog::alert_text_callback_t text_callback, void *text_data,
-									  const LLStringUtil::format_map_t& edit_args, BOOL draw_asterixes)
-{
-	if (gNoRender)
-	{
-		llinfos << "Alert: " << xml_filename << llendl;
-		if (callback)
-		{
-			callback(-1, user_data);
-		}
-		return NULL;
-	}
-
-	// If we're in mouselook, the mouse is hidden and so the user can't click 
-	// the dialog buttons.  In that case, change to First Person instead.
-	if( gAgent.cameraMouselook() )
-	{
-		gAgent.changeCameraToDefault();
-	}
-
-	// Note: object adds, removes, and destroys itself.
-	LLAlertDialog* alert = LLAlertDialog::createXml( xml_filename, args, callback, user_data );
-	if (alert)
-	{
-		if (text_callback)
-		{
-			alert->setEditTextCallback(text_callback, text_data);
-		}
-		alert->setEditTextArgs(edit_args);
-		alert->setDrawAsterixes(draw_asterixes);
-		alert->show();
-	}
-	return alert;
+	return false;
 }
 
 ////////////////////////////////////////////////////////////////////////////

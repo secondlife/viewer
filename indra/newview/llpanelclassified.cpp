@@ -317,12 +317,12 @@ BOOL LLPanelClassified::titleIsValid()
 	const std::string& name = mNameEditor->getText();
 	if (name.empty())
 	{
-		gViewerWindow->alertXml("BlankClassifiedName");
+		LLNotifications::instance().add("BlankClassifiedName");
 		return FALSE;
 	}
 	if (!isalnum(name[0]))
 	{
-		gViewerWindow->alertXml("ClassifiedMustBeAlphanumeric");
+		LLNotifications::instance().add("ClassifiedMustBeAlphanumeric");
 		return FALSE;
 	}
 
@@ -339,31 +339,24 @@ void LLPanelClassified::apply()
 	}
 }
 
-
-// static
-void LLPanelClassified::saveCallback(S32 option, void* data)
+bool LLPanelClassified::saveCallback(const LLSD& notification, const LLSD& response)
 {
-	LLPanelClassified* self = (LLPanelClassified*)data;
+	S32 option = LLNotification::getSelectedOption(notification, response);
+
 	switch(option)
 	{
 		case 0: // Save
-			self->sendClassifiedInfoUpdate();
+			sendClassifiedInfoUpdate();
 			// fall through to close
 
 		case 1: // Don't Save
 			{
-				self->mForceClose = true;
+				mForceClose = true;
 				// Close containing floater
-				LLView* view = self;
-				while (view)
+				LLFloater* parent_floater = gFloaterView->getParentFloater(this);
+				if (parent_floater)
 				{
-					LLFloater* floaterp = dynamic_cast<LLFloater*>(view);
-					if (floaterp)
-					{
-						floaterp->close();
-						break;
-					}
-					view = view->getParent();
+					parent_floater->close();
 				}
 			}
 			break;
@@ -373,16 +366,18 @@ void LLPanelClassified::saveCallback(S32 option, void* data)
             LLAppViewer::instance()->abortQuit();
 			break;
 	}
+	return false;
 }
+
 
 BOOL LLPanelClassified::canClose()
 {
 	if (mForceClose || !checkDirty()) 
 		return TRUE;
 
-	LLStringUtil::format_map_t args;
-	args["[NAME]"] = mNameEditor->getText();
-	LLAlertDialog::showXml("ClassifiedSave", args, saveCallback, this);
+	LLSD args;
+	args["NAME"] = mNameEditor->getText();
+	LLNotifications::instance().add("ClassifiedSave", args, LLSD(), boost::bind(&LLPanelClassified::saveCallback, this, _1, _2));
 	return FALSE;
 }
 
@@ -785,8 +780,11 @@ void LLPanelClassified::onClickUpdate(void* data)
 	// If user has not set mature, do not allow publish
 	if(self->mMatureCombo->getCurrentIndex() == DECLINE_TO_STATE)
 	{
-		LLStringUtil::format_map_t args;
-		gViewerWindow->alertXml("SetClassifiedMature", &callbackConfirmMature, self);
+		// Tell user about it
+		LLNotifications::instance().add("SetClassifiedMature", 
+				LLSD(), 
+				LLSD(), 
+				boost::bind(&LLPanelClassified::confirmMature, self, _1, _2));
 		return;
 	}
 
@@ -794,16 +792,11 @@ void LLPanelClassified::onClickUpdate(void* data)
 	self->gotMature();
 }
 
-// static
-void LLPanelClassified::callbackConfirmMature(S32 option, void* data)
+// Callback from a dialog indicating response to mature notification
+bool LLPanelClassified::confirmMature(const LLSD& notification, const LLSD& response)
 {
-	LLPanelClassified* self = (LLPanelClassified*)data;
-	self->confirmMature(option);
-}
-
-// invoked from callbackConfirmMature
-void LLPanelClassified::confirmMature(S32 option)
-{
+	S32 option = LLNotification::getSelectedOption(notification, response);
+	
 	// 0 == Yes
 	// 1 == No
 	// 2 == Cancel
@@ -816,11 +809,12 @@ void LLPanelClassified::confirmMature(S32 option)
 		mMatureCombo->setCurrentByIndex(NON_MATURE_CONTENT);
 		break;
 	default:
-		return;
+		return false;
 	}
 	
 	// If we got here it means they set a valid value
 	gotMature();
+	return false;
 }
 
 // Called after we have determined whether this classified has
@@ -830,7 +824,9 @@ void LLPanelClassified::gotMature()
 	// if already paid for, just do the update
 	if (mPaidFor)
 	{
-		callbackConfirmPublish(0, this);
+		LLNotification::Params params("PublishClassified");
+		params.functor(boost::bind(&LLPanelClassified::confirmPublish, this, _1, _2));
+		LLNotifications::instance().forceResponse(params, 0);
 	}
 	else
 	{
@@ -850,11 +846,11 @@ void LLPanelClassified::callbackGotPriceForListing(S32 option, std::string text,
 	S32 price_for_listing = strtol(text.c_str(), NULL, 10);
 	if (price_for_listing < MINIMUM_PRICE_FOR_LISTING)
 	{
-		LLStringUtil::format_map_t args;
+		LLSD args;
 		std::string price_text = llformat("%d", MINIMUM_PRICE_FOR_LISTING);
-		args["[MIN_PRICE]"] = price_text;
+		args["MIN_PRICE"] = price_text;
 			
-		gViewerWindow->alertXml("MinClassifiedPrice", args);
+		LLNotifications::instance().add("MinClassifiedPrice", args);
 		return;
 	}
 
@@ -862,10 +858,10 @@ void LLPanelClassified::callbackGotPriceForListing(S32 option, std::string text,
 	// update send
 	self->mPriceForListing = price_for_listing;
 
-	LLStringUtil::format_map_t args;
-	args["[AMOUNT]"] = llformat("%d", price_for_listing);
-	gViewerWindow->alertXml("PublishClassified", args, &callbackConfirmPublish, self);
-
+	LLSD args;
+	args["AMOUNT"] = llformat("%d", price_for_listing);
+	LLNotifications::instance().add("PublishClassified", args, LLSD(), 
+									boost::bind(&LLPanelClassified::confirmPublish, self, _1, _2));
 }
 
 void LLPanelClassified::resetDirty()
@@ -889,10 +885,11 @@ void LLPanelClassified::resetDirty()
 }
 
 // invoked from callbackConfirmPublish
-void LLPanelClassified::confirmPublish(S32 option)
+bool LLPanelClassified::confirmPublish(const LLSD& notification, const LLSD& response)
 {
+	S32 option = LLNotification::getSelectedOption(notification, response);
 	// Option 0 = publish
-	if (option != 0) return;
+	if (option != 0) return false;
 
 	sendClassifiedInfoUpdate();
 
@@ -911,14 +908,9 @@ void LLPanelClassified::confirmPublish(S32 option)
 	}
 
 	resetDirty();
+	return false;
 }
 
-// static
-void LLPanelClassified::callbackConfirmPublish(S32 option, void* data)
-{
-	LLPanelClassified* self = (LLPanelClassified*)data;
-	self->confirmPublish(option);
-}
 
 // static
 void LLPanelClassified::onClickTeleport(void* data)

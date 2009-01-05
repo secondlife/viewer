@@ -39,6 +39,7 @@
 #include "llpanel.h"
 #include "lluuid.h"
 #include "lltabcontainer.h"
+#include "llnotifications.h"
 #include <set>
 
 class LLDragHandle;
@@ -46,6 +47,7 @@ class LLResizeHandle;
 class LLResizeBar;
 class LLButton;
 class LLMultiFloater;
+class LLFloater;
 
 const S32 LLFLOATER_VPAD = 6;
 const S32 LLFLOATER_HPAD = 6;
@@ -69,6 +71,20 @@ const BOOL CLOSE_NO = FALSE;
 
 const BOOL ADJUST_VERTICAL_YES = TRUE;
 const BOOL ADJUST_VERTICAL_NO = FALSE;
+
+// associates a given notification instance with a particular floater
+class LLFloaterNotificationContext : 
+	public LLNotificationContext
+{
+public:
+	LLFloaterNotificationContext(LLHandle<LLFloater> floater_handle) :
+		mFloaterHandle(floater_handle)
+	{}
+
+	LLFloater* getFloater() { return mFloaterHandle.get(); }
+private:
+	LLHandle<LLFloater> mFloaterHandle;
+};
 
 
 class LLFloater : public LLPanel
@@ -213,6 +229,11 @@ public:
 	// handle refocusing.
 	static void		closeFocusedFloater();
 
+	LLNotification::Params contextualNotification(const std::string& name) 
+	{ 
+	    return LLNotification::Params(name).context(mNotificationContext); 
+	}
+
 	static void		onClickClose(void *userdata);
 	static void		onClickMinimize(void *userdata);
 	static void		onClickTearOff(void *userdata);
@@ -299,7 +320,7 @@ private:
 	S32				mPreviousMinimizedBottom;
 	S32				mPreviousMinimizedLeft;
 	
-private:
+	LLFloaterNotificationContext* mNotificationContext;
 	LLRootHandle<LLFloater>		mHandle;	
 };
 
@@ -466,7 +487,6 @@ public:
 template <class T> class LLFloaterSingleton : public LLUISingleton<T, VisibilityPolicy<LLFloater> >
 {
 };
-
 
 extern LLFloaterView* gFloaterView;
 

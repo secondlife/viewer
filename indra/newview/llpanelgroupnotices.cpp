@@ -53,6 +53,7 @@
 #include "roles_constants.h"
 #include "llviewerwindow.h"
 #include "llviewermessage.h"
+#include "llnotifications.h"
 
 const S32 NOTICE_DATE_STRING_SIZE = 30;
 
@@ -195,7 +196,8 @@ LLPanelGroupNotices::~LLPanelGroupNotices()
 	if (mInventoryOffer)
 	{
 		// Cancel the inventory offer.
-		inventory_offer_callback( IOR_DECLINE , mInventoryOffer); 
+		mInventoryOffer->forceResponse(IOR_DECLINE);
+
 		mInventoryOffer = NULL;
 	}
 }
@@ -345,7 +347,7 @@ void LLPanelGroupNotices::onClickOpenAttachment(void* data)
 {
 	LLPanelGroupNotices* self = (LLPanelGroupNotices*)data;
 
-	inventory_offer_callback( IOR_ACCEPT , self->mInventoryOffer);
+	self->mInventoryOffer->forceResponse(IOR_ACCEPT);
 	self->mInventoryOffer = NULL;
 	self->mBtnOpenAttachment->setEnabled(FALSE);
 }
@@ -357,7 +359,7 @@ void LLPanelGroupNotices::onClickSendMessage(void* data)
 	if (self->mCreateSubject->getText().empty())
 	{
 		// Must supply a subject
-		gViewerWindow->alertXml("MustSpecifyGroupNoticeSubject");
+		LLNotifications::instance().add("MustSpecifyGroupNoticeSubject");
 		return;
 	}
 	send_group_notice(
@@ -384,7 +386,7 @@ void LLPanelGroupNotices::onClickNewMessage(void* data)
 
 	if (self->mInventoryOffer)
 	{
-		inventory_offer_callback( IOR_DECLINE , self->mInventoryOffer);
+		self->mInventoryOffer->forceResponse(IOR_DECLINE);
 		self->mInventoryOffer = NULL;
 	}
 
@@ -535,7 +537,7 @@ void LLPanelGroupNotices::showNotice(const std::string& subject,
 	if (mInventoryOffer)
 	{
 		// Cancel the inventory offer for the previously viewed notice
-		inventory_offer_callback( IOR_DECLINE , mInventoryOffer); 
+		mInventoryOffer->forceResponse(IOR_DECLINE); 
 		mInventoryOffer = NULL;
 	}
 

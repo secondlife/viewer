@@ -78,6 +78,7 @@ public:
 	static bool getLayeredXMLNode(const std::string &filename, LLXMLNodePtr& root);
 
 private:
+	bool getLayeredXMLNodeImpl(const std::string &filename, LLXMLNodePtr& root);
 
 	typedef std::map<LLHandle<LLPanel>, std::string> built_panel_t;
 	built_panel_t mBuiltPanels;

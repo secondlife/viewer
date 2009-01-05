@@ -1420,58 +1420,50 @@ void LLViewerTextEditor::openEmbeddedLandmark( LLInventoryItem* item )
 
 void LLViewerTextEditor::openEmbeddedNotecard( LLInventoryItem* item )
 {
-	//if (saved)
-	//{
-		// An LLInventoryItem needs to be in an inventory to be opened.
-		// This will give the item to the viewer's agent.
-		// The callback will attempt to open it if its not already opened.
 	copyInventory(item, gInventoryCallbacks.registerCB(mInventoryCallback));
-
-	//}
-	//else
-	//{
-	//	LLNotecardCopyInfo *info = new LLNotecardCopyInfo(this, item);
-	//	gViewerWindow->alertXml("ConfirmNotecardSave",		
-	//							LLViewerTextEditor::onNotecardDialog, (void*)info);
-	//}
 }
 
 void LLViewerTextEditor::showUnsavedAlertDialog( LLInventoryItem* item )
 {
-	LLNotecardCopyInfo *info = new LLNotecardCopyInfo(this, item);
-	gViewerWindow->alertXml( "ConfirmNotecardSave",
-		LLViewerTextEditor::onNotecardDialog, (void*)info);
+	LLSD payload;
+	payload["item_id"] = item->getUUID();
+	payload["notecard_id"] = mNotecardInventoryID;
+	LLNotifications::instance().add( "ConfirmNotecardSave", LLSD(), payload, LLViewerTextEditor::onNotecardDialog);
 }
+
 // static
-void LLViewerTextEditor::onNotecardDialog( S32 option, void* userdata )
+bool LLViewerTextEditor::onNotecardDialog(const LLSD& notification, const LLSD& response )
 {
-	LLNotecardCopyInfo *info = (LLNotecardCopyInfo *)userdata;
+	S32 option = LLNotification::getSelectedOption(notification, response);
 	if( option == 0 )
 	{
 		// itemptr is deleted by LLPreview::save
-		LLPointer<LLInventoryItem>* itemptr = new LLPointer<LLInventoryItem>(info->mItem);
-		LLPreview::save( info->mTextEd->mNotecardInventoryID, itemptr);
+		LLPointer<LLInventoryItem>* itemptr = new LLPointer<LLInventoryItem>(gInventory.getItem(notification["payload"]["item_id"].asUUID()));
+		LLPreview::save( notification["payload"]["notecard_id"].asUUID() , itemptr);
 	}
+	return false;
 }
 
 
 
 void LLViewerTextEditor::showCopyToInvDialog( LLInventoryItem* item )
 {
-	LLNotecardCopyInfo *info = new LLNotecardCopyInfo(this, item);
-	gViewerWindow->alertXml( "ConfirmItemCopy",
-		LLViewerTextEditor::onCopyToInvDialog, (void*)info);
+	LLSD payload;
+	payload["item_id"] = item->getUUID();
+	payload["notecard_id"] = mNotecardInventoryID;
+	LLNotifications::instance().add( "ConfirmItemCopy", LLSD(), payload,
+		boost::bind(&LLViewerTextEditor::onCopyToInvDialog, this, _1, _2));
 }
 
-// static
-void LLViewerTextEditor::onCopyToInvDialog( S32 option, void* userdata )
+bool LLViewerTextEditor::onCopyToInvDialog(const LLSD& notification, const LLSD& response)
 {
-	LLNotecardCopyInfo *info = (LLNotecardCopyInfo *)userdata;
+	S32 option = LLNotification::getSelectedOption(notification, response);
 	if( 0 == option )
 	{
-		info->mTextEd->copyInventory(info->mItem);
+		LLInventoryItem* itemp = gInventory.getItem(notification["payload"]["item_id"].asUUID());
+		copyInventory(itemp);
 	}
-	delete info;
+	return false;
 }
 
 

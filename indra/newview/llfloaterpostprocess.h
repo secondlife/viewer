@@ -68,7 +68,7 @@ public:
 	static void onChangeEffectName(LLUICtrl* ctrl, void * userData);
 
 	/// prompts a user when overwriting an effect
-	static void saveAlertCallback(S32 option, void* userData);
+	static bool saveAlertCallback(const LLSD& notification, const LLSD& response);
 
 	/// show off our menu
 	static void show();

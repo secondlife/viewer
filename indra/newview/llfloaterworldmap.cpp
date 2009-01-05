@@ -1303,10 +1303,10 @@ void LLFloaterWorldMap::onCopySLURL(void* data)
 	LLFloaterWorldMap* self = (LLFloaterWorldMap*)data;
 	gViewerWindow->mWindow->copyTextToClipboard(utf8str_to_wstring(self->mSLURL));
 	
-	LLStringUtil::format_map_t args;
-	args["[SLURL]"] = self->mSLURL;
+	LLSD args;
+	args["SLURL"] = self->mSLURL;
 
-	LLAlertDialog::showXml("CopySLURL", args);
+	LLNotifications::instance().add("CopySLURL", args);
 }
 
 void LLFloaterWorldMap::onCheckEvents(LLUICtrl*, void* data)

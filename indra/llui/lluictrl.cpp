@@ -475,10 +475,10 @@ BOOL LLUICtrl::focusPrevItem(BOOL text_fields_only)
 	return focusPrev(result);
 }
 
-LLUICtrl* LLUICtrl::findRootMostFocusRoot() const
+LLUICtrl* LLUICtrl::findRootMostFocusRoot()
 {
-	const LLUICtrl* focus_root = NULL;
-	const LLUICtrl* next_view = this;
+	LLUICtrl* focus_root = NULL;
+	LLUICtrl* next_view = this;
 	while(next_view)
 	{
 		if (next_view->isFocusRoot())
@@ -487,9 +487,8 @@ LLUICtrl* LLUICtrl::findRootMostFocusRoot() const
 		}
 		next_view = next_view->getParentUICtrl();
 	}
-	// since focus_root could be this, need to cast away const to return
-	// a non-const result
-	return const_cast<LLUICtrl*>(focus_root);
+
+	return focus_root;
 }
 
 
