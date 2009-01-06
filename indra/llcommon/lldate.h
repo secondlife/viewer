@@ -143,9 +143,6 @@ private:
 	F64 mSecondsSinceEpoch;
 };
 
-// this operator required for tut
-bool operator!=(const LLDate& first, const LLDate& second);
-
 // Helper function to stream out a date
 std::ostream& operator<<(std::ostream& s, const LLDate& date);
 
