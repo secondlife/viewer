@@ -215,22 +215,12 @@ const std::string  LLDir::getCacheDir(bool get_default) const
 {
 	if (mCacheDir.empty() || get_default)
 	{
-		std::string res;
-		if (getOSCacheDir().empty())
-		{
-			if (getOSUserAppDir().empty())
-			{
-				res = "data";
-			}
-			else
-			{
-				res = getOSUserAppDir() + mDirDelimiter + "cache";
-			}
+		if (!mDefaultCacheDir.empty())
+		{	// Set at startup - can't set here due to const API
+			return mDefaultCacheDir;
 		}
-		else
-		{
-			res = getOSCacheDir() + mDirDelimiter + "SecondLife";
-		}
+		
+		std::string res = buildSLOSCacheDir();
 		return res;
 	}
 	else
@@ -238,6 +228,30 @@ const std::string  LLDir::getCacheDir(bool get_default) const
 		return mCacheDir;
 	}
 }
+
+// Return the default cache directory
+std::string LLDir::buildSLOSCacheDir() const
+{
+	std::string res;
+	if (getOSCacheDir().empty())
+	{
+		if (getOSUserAppDir().empty())
+		{
+			res = "data";
+		}
+		else
+		{
+			res = getOSUserAppDir() + mDirDelimiter + "cache";
+		}
+	}
+	else
+	{
+		res = getOSCacheDir() + mDirDelimiter + "SecondLife";
+	}
+	return res;
+}
+
+
 
 const std::string &LLDir::getOSCacheDir() const
 {

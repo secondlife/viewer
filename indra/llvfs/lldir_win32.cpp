@@ -128,6 +128,20 @@ LLDir_Win32::LLDir_Win32()
 		mAppRODataDir = getCurPath();
 	else
 		mAppRODataDir = mExecutableDir;
+
+
+	// Build the default cache directory
+	mDefaultCacheDir = buildSLOSCacheDir();
+	
+	// Make sure it exists
+	int res = LLFile::mkdir(mDefaultCacheDir);
+	if (res == -1)
+	{
+		if (errno != EEXIST)
+		{
+			llwarns << "Couldn't create LL_PATH_CACHE dir " << mDefaultCacheDir << llendl;
+		}
+	}
 }
 
 LLDir_Win32::~LLDir_Win32()

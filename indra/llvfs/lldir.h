@@ -126,6 +126,9 @@ class LLDir
 
 	virtual void dumpCurrentDirectories();
 	
+	// Utility routine
+	std::string buildSLOSCacheDir() const;
+
 protected:
 	std::string mAppName;               // install directory under progams/ ie "SecondLife"   
 	std::string mExecutablePathAndName; // full path + Filename of .exe
@@ -141,6 +144,7 @@ protected:
 	std::string mCAFile;				 // Location of the TLS certificate authority PEM file.
 	std::string mTempDir;
 	std::string mCacheDir;			// cache directory as set by user preference
+	std::string mDefaultCacheDir;	// default cache diretory
 	std::string mOSCacheDir;		// operating system cache dir
 	std::string mDirDelimiter;
 	std::string mSkinDir;			// Location for current skin info.
