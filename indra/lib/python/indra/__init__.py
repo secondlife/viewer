@@ -4,7 +4,7 @@
 
 $LicenseInfo:firstyear=2006&license=internal$
 
-Copyright (c) 2006-2007, Linden Research, Inc.
+Copyright (c) 2006-2009, Linden Research, Inc.
 
 The following source code is PROPRIETARY AND CONFIDENTIAL. Use of
 this source code is governed by the Linden Lab Source Code Disclosure

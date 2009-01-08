@@ -4,7 +4,7 @@
 
 $LicenseInfo:firstyear=2006&license=mit$
 
-Copyright (c) 2006-2007, Linden Research, Inc.
+Copyright (c) 2006-2009, Linden Research, Inc.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
