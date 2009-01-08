@@ -32,9 +32,7 @@
 
 #ifndef LL_LLCACHENAME_H
 #define LL_LLCACHENAME_H
-#include "llhttpclient.h"
-#include "llhost.h"
-#include "lluri.h"
+
 class LLMessageSystem;
 class LLHost;
 class LLUUID;
@@ -100,15 +98,10 @@ public:
 	// This method needs to be called from time to time to send out
 	// requests.
 	void processPending();
-	void setAgentURL(const std::string& url);
-	void setGroupURL(const std::string& url);
-	
+
 	// Expire entries created more than "secs" seconds ago.
 	void deleteEntriesOlderThan(S32 secs);
 
-	//send the information retrived from backbone
-	void sendAgentNames(const LLUUID& id, std::string& first, std::string& last);
-	void sendGroupNames(const LLUUID& id, std::string& name);
 	// Debugging
 	void dump();		// Dumps the contents of the cache
 	void dumpStats();	// Dumps the sizes of the cache and associated queues.
@@ -119,8 +112,9 @@ private:
 
 	class Impl;
 	Impl& impl;
-
 };
+
+
 
 extern LLCacheName* gCacheName;
 
