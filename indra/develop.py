@@ -129,24 +129,6 @@ class PlatformSetup(object):
                 '-DUNATTENDED:BOOL=%(unattended)s '
                 '-G %(generator)r %(opts)s %(dir)r' % args)
 
-    def run(self, command, name=None):
-        '''Run a program.  If the program fails, raise an exception.'''
-        ret = os.system(command)
-        if ret:
-            if name is None:
-                name = command.split(None, 1)[0]
-            if os.WIFEXITED(ret):
-                event = 'exited'
-                status = 'status %d' % os.WEXITSTATUS(ret)
-            elif os.WIFSIGNALED(ret):
-                event = 'was killed'
-                status = 'signal %d' % os.WTERMSIG(ret)
-            else:
-                event = 'died unexpectedly (!?)'
-                status = '16-bit status %d' % ret
-            raise CommandError('the command %r %s with %s' %
-                               (name, event, status))
-
     def run_cmake(self, args=[]):
         '''Run cmake.'''
 
@@ -208,9 +190,27 @@ class PlatformSetup(object):
 
         return os.path.isdir(os.path.join(self.script_dir, 'newsim'))
 
+    def find_in_path(self, name, defval=None, basename=False):
+        for ext in self.exe_suffixes:
+            name_ext = name + ext
+            if os.sep in name_ext:
+                path = os.path.abspath(name_ext)
+                if os.access(path, os.X_OK):
+                    return [basename and os.path.basename(path) or path]
+            for p in os.getenv('PATH', self.search_path).split(os.pathsep):
+                path = os.path.join(p, name_ext)
+                if os.access(path, os.X_OK):
+                    return [basename and os.path.basename(path) or path]
+        if defval:
+            return [defval]
+        return []
+
 
 class UnixSetup(PlatformSetup):
     '''Generic Unixy build instructions.'''
+
+    search_path = '/usr/bin:/usr/local/bin'
+    exe_suffixes = ('',)
 
     def __init__(self):
         super(UnixSetup, self).__init__()
@@ -230,6 +230,25 @@ class UnixSetup(PlatformSetup):
         elif cpu == 'Power Macintosh':
             cpu = 'ppc'
         return cpu
+
+    def run(self, command, name=None):
+        '''Run a program.  If the program fails, raise an exception.'''
+        ret = os.system(command)
+        if ret:
+            if name is None:
+                name = command.split(None, 1)[0]
+            if os.WIFEXITED(ret):
+                st = os.WEXITSTATUS(ret)
+                if st == 127:
+                    event = 'was not found'
+                else:
+                    event = 'exited with status %d' % st
+            elif os.WIFSIGNALED(ret):
+                event = 'was killed by signal %d' % os.WTERMSIG(ret)
+            else:
+                event = 'died unexpectedly (!?) with 16-bit status %d' % ret
+            raise CommandError('the command %r %s' %
+                               (name, event))
 
 
 class LinuxSetup(UnixSetup):
@@ -257,15 +276,6 @@ class LinuxSetup(UnixSetup):
             return ['server-' + platform_build]
         else:
             return ['viewer-' + platform_build]
-
-    def find_in_path(self, name, defval=None, basename=False):
-        for p in os.getenv('PATH', '/usr/bin').split(':'):
-            path = os.path.join(p, name)
-            if os.access(path, os.X_OK):
-                return [basename and os.path.basename(path) or path]
-        if defval:
-            return [defval]
-        return []
 
     def cmake_commandline(self, src_dir, build_dir, opts, simple):
         args = dict(
@@ -457,6 +467,9 @@ class WindowsSetup(PlatformSetup):
     gens['vs2005'] = gens['vc80']
     gens['vs2008'] = gens['vc90']
 
+    search_path = r'C:\windows'
+    exe_suffixes = ('.exe', '.bat', '.com')
+
     def __init__(self):
         super(WindowsSetup, self).__init__()
         self._generator = None
@@ -536,15 +549,18 @@ class WindowsSetup(PlatformSetup):
         return ('"%sdevenv.com" %s.sln /build %s' % 
                 (self.find_visual_studio(), self.project_name, self.build_type))
 
-    # this override of run exists because the PlatformSetup version
-    # uses Unix/Mac only calls. Freakin' os module!
     def run(self, command, name=None):
         '''Run a program.  If the program fails, raise an exception.'''
         ret = os.system(command)
         if ret:
             if name is None:
                 name = command.split(None, 1)[0]
-            raise CommandError('the command %r exited with %s' %
+            path = self.find_in_path(name)
+            if not path:
+                ret = 'was not found'
+            else:
+                ret = 'exited with status %d' % ret
+            raise CommandError('the command %r %s' %
                                (name, ret))
 
     def run_cmake(self, args=[]):
