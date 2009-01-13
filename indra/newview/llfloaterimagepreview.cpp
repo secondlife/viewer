@@ -76,7 +76,7 @@ LLFloaterImagePreview::LLFloaterImagePreview(const std::string& filename) :
 {
 	mLastMouseX = 0;
 	mLastMouseY = 0;
-	mGLName = 0;
+	mImagep = NULL ;
 	loadImage(mFilenameAndPath);
 }
 
@@ -139,10 +139,7 @@ LLFloaterImagePreview::~LLFloaterImagePreview()
 	delete mAvatarPreview;
 	delete mSculptedPreview;
 	
-	if (mGLName)
-	{
-		glDeleteTextures(1, &mGLName );
-	}
+	mImagep = NULL ;
 }
 
 //static 
@@ -225,28 +222,16 @@ void LLFloaterImagePreview::draw()
 			gl_rect_2d_checkerboard(mPreviewRect);
 			LLGLDisable gls_alpha(GL_ALPHA_TEST);
 
-			GLenum format_options[4] = { GL_LUMINANCE, GL_LUMINANCE_ALPHA, GL_RGB, GL_RGBA };
-			GLenum format = format_options[mRawImagep->getComponents()-1];
-
-			GLenum internal_format_options[4] = { GL_LUMINANCE8, GL_LUMINANCE8_ALPHA8, GL_RGB8, GL_RGBA8 };
-			GLenum internal_format = internal_format_options[mRawImagep->getComponents()-1];
-		
-			if (mGLName)
+			if(mImagep.notNull())
 			{
-				gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, mGLName);
+				gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, mImagep->getTexName());
 			}
 			else
 			{
-				glGenTextures(1, &mGLName );
-				stop_glerror();
-
-				gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, mGLName);
-				stop_glerror();
-
-				glTexImage2D(
-					GL_TEXTURE_2D, 0, internal_format, 
-					mRawImagep->getWidth(), mRawImagep->getHeight(),
-					0, format, GL_UNSIGNED_BYTE, mRawImagep->getData());
+				mImagep = new LLImageGL(mRawImagep, FALSE) ;
+				
+				gGL.getTexUnit(0)->unbind(mImagep->getTarget()) ;
+				gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, mImagep->getTexName());
 				stop_glerror();
 
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -255,8 +240,8 @@ void LLFloaterImagePreview::draw()
 				gGL.getTexUnit(0)->setTextureAddressMode(LLTexUnit::TAM_CLAMP);
 				if (mAvatarPreview)
 				{
-					mAvatarPreview->setTexture(mGLName);
-					mSculptedPreview->setTexture(mGLName);
+					mAvatarPreview->setTexture(mImagep->getTexName());
+					mSculptedPreview->setTexture(mImagep->getTexName());
 				}
 			}
 

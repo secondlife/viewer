@@ -21,13 +21,13 @@
 	</text>
 	<button label="プロフィール..." label_selected="" name="BtnOwner" />
 	<text name="LabelAcquiredTitle">
-		入手：
+		入手日時：
 	</text>
 	<text name="LabelAcquiredDate">
 		2006年5月24日水曜日12:50:46
 	</text>
 	<text name="OwnerLabel">
-		できることは：
+		できること：
 	</text>
 	<check_box label="修正" name="CheckOwnerModify" />
 	<check_box label="コピー" name="CheckOwnerCopy" />
@@ -50,7 +50,7 @@
 	<check_box label="グループ分担" name="CheckShareWithGroup" />
 	<check_box label="誰に対してもコピーを許可" name="CheckEveryoneCopy" />
 	<text name="NextOwnerLabel">
-		次のオーナーが実行できる操作：
+		次のオーナーができること：
 	</text>
 	<check_box label="修正" name="CheckNextOwnerModify" />
 	<check_box label="コピー" name="CheckNextOwnerCopy" />
@@ -77,7 +77,7 @@
 		(公共)
 	</text>
 	<text name="you_can">
-		次のことができます：
+		できること：
 	</text>
 	<text name="owner_can">
 		オーナーは次のことができます：

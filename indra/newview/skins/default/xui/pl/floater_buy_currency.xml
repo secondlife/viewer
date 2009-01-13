@@ -12,7 +12,7 @@
 	<text name="error_message">
 		Pojawienie się błedu.
 	</text>
-	<button label="Idź do strony internetowej" name="error_web" />
+	<button label="Idź do strony internetowej" name="error_web" width="168"/>
 	<text name="contacting">
 		Kontaktowanie z LindeX...
 	</text>
@@ -53,12 +53,13 @@
 		[AMT]L$
 	</text>
 	<text name="purchase_warning_repurchase">
-		Potwierdzając tę transkację zgadzasz się na zakup TYLKO waluty.
-Proszę spróbować wykonać operację jeszcze raz.
+		Potwierdzając tę transkację zgadzasz się na zakup
+TYLKO waluty. Proszę spróbować wykonać
+operację jeszcze raz.
 	</text>
 	<text name="purchase_warning_notenough">
 		Nie zakupujesz wystarczającej ilości waluty.
-proszę zwiększyć ilość.
+Proszę zwiększyć ilość.
 	</text>
 	<button label="Anuluj" name="cancel_btn" />
 	<button label="Kup" name="buy_btn" />

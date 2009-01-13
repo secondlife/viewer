@@ -30,7 +30,7 @@
 	<check_box label="Odeślij wyłącznie obiekty które są na posiadłościach innych osób" name="return_other_land" tool_tip="Odeślij wyłącznie obiekty które są na posiadłościach innych osób"/>
 	<check_box label="Odeślij obiekty z wszystkich regionów w tym majątku" name="return_estate_wide" tool_tip="Odeślij obiekty z wszystkich regionów w tym majątku"/>
 	<button label="Odeślij" name="return_btn"/>
-	<button label="Znajdź Glówne Kolizje..." name="top_colliders_btn" tool_tip="Lista obiektów doświadczających najwięcej potencjalnych kolizji"/>
+	<button label="Znajdź Główne Kolizje..." name="top_colliders_btn" tool_tip="Lista obiektów doświadczających najwięcej potencjalnych kolizji"/>
 	<button label="?" name="top_colliders_help"/>
 	<button label="Główne Skrypty..." name="top_scripts_btn" tool_tip="Lista obiektów najdłużej wykonujących skrypty"/>
 	<button label="?" name="top_scripts_help"/>

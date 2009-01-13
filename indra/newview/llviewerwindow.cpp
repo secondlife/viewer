@@ -182,6 +182,7 @@
 #include "llspatialpartition.h"
 #include "llviewerjoystick.h"
 #include "llviewernetwork.h"
+#include "llpostprocess.h"
 
 #include "llfloatertest.h" // HACK!
 #include "llfloaternotificationsconsole.h"
@@ -3575,6 +3576,29 @@ LLPickInfo LLViewerWindow::pickImmediate(S32 x, S32 y_from_bot,  BOOL pick_trans
 	return mLastPick;
 }
 
+LLHUDIcon* LLViewerWindow::cursorIntersectIcon(S32 mouse_x, S32 mouse_y, F32 depth,
+										   LLVector3* intersection)
+{
+	S32 x = mouse_x;
+	S32 y = mouse_y;
+
+	if ((mouse_x == -1) && (mouse_y == -1)) // use current mouse position
+	{
+		x = getCurrentMouseX();
+		y = getCurrentMouseY();
+	}
+
+	// world coordinates of mouse
+	LLVector3 mouse_direction_global = mouseDirectionGlobal(x,y);
+	LLVector3 mouse_point_global = LLViewerCamera::getInstance()->getOrigin();
+	LLVector3 mouse_world_start = mouse_point_global;
+	LLVector3 mouse_world_end   = mouse_point_global + mouse_direction_global * depth;
+
+	return LLHUDIcon::lineSegmentIntersectAll(mouse_world_start, mouse_world_end, intersection);
+
+	
+}
+
 LLViewerObject* LLViewerWindow::cursorIntersect(S32 mouse_x, S32 mouse_y, F32 depth,
 												LLViewerObject *this_object,
 												S32 this_face,
@@ -3684,7 +3708,7 @@ LLVector3 LLViewerWindow::mousePointHUD(const S32 x, const S32 y) const
 	F32 hud_x = -((F32)x - (F32)width/2.f)  / height;
 	F32 hud_y = ((F32)y - (F32)height/2.f) / height;
 
-	return LLVector3(0.f, hud_x, hud_y);
+	return LLVector3(0.f, hud_x/gAgent.mHUDCurZoom, hud_y/gAgent.mHUDCurZoom);
 }
 
 // Returns unit vector relative to camera in camera space
@@ -4552,6 +4576,10 @@ void LLViewerWindow::dumpState()
 
 void LLViewerWindow::stopGL(BOOL save_state)
 {
+	//Note: --bao
+	//if not necessary, do not change the order of the function calls in this function.
+	//if change something, make sure it will not break anything.
+	//especially be careful to put anything behind gImageList.destroyGL(save_state);
 	if (!gGLManager.mIsDisabled)
 	{
 		llinfos << "Shutting down GL..." << llendl;
@@ -4560,12 +4588,12 @@ void LLViewerWindow::stopGL(BOOL save_state)
 		LLAppViewer::getTextureCache()->pause();
 		LLAppViewer::getImageDecodeThread()->pause();
 		LLAppViewer::getTextureFetch()->pause();
-		
+				
 		gSky.destroyGL();
-		stop_glerror();
-	
-		gImageList.destroyGL(save_state);
-		stop_glerror();
+		stop_glerror();		
+
+		LLManipTranslate::destroyGL() ;
+		stop_glerror();		
 
 		gBumpImageList.destroyGL();
 		stop_glerror();
@@ -4589,6 +4617,14 @@ void LLViewerWindow::stopGL(BOOL save_state)
 		gSphere.cleanupGL();
 		gCylinder.cleanupGL();
 		
+		if(gPostProcess)
+		{
+			gPostProcess->invalidate();
+		}
+
+		gImageList.destroyGL(save_state);
+		stop_glerror();
+
 		gGLManager.mIsDisabled = TRUE;
 		stop_glerror();
 		
@@ -4598,25 +4634,32 @@ void LLViewerWindow::stopGL(BOOL save_state)
 
 void LLViewerWindow::restoreGL(const std::string& progress_message)
 {
+	//Note: --bao
+	//if not necessary, do not change the order of the function calls in this function.
+	//if change something, make sure it will not break anything. 
+	//especially, be careful to put something before gImageList.restoreGL();
 	if (gGLManager.mIsDisabled)
 	{
 		llinfos << "Restoring GL..." << llendl;
 		gGLManager.mIsDisabled = FALSE;
+		
+		initGLDefaults();
+		LLGLState::restoreGL();
+		gImageList.restoreGL();
 
 		// for future support of non-square pixels, and fonts that are properly stretched
 		//LLFontGL::destroyDefaultFonts();
 		initFonts();
-		initGLDefaults();
-		LLGLState::restoreGL();
+				
 		gSky.restoreGL();
 		gPipeline.restoreGL();
 		LLDrawPoolWater::restoreGL();
 		LLManipTranslate::restoreGL();
-		gImageList.restoreGL();
+		
 		gBumpImageList.restoreGL();
 		LLDynamicTexture::restoreGL();
 		LLVOAvatar::restoreGL();
-
+		
 		gResizeScreenTexture = TRUE;
 
 		if (gFloaterCustomize && gFloaterCustomize->getVisible())
@@ -4665,6 +4708,7 @@ void LLViewerWindow::toggleFullscreen(BOOL show_progress)
 	if (mWindow)
 	{
 		mWantFullscreen = mWindow->getFullscreen() ? FALSE : TRUE;
+		mIsFullscreenChecked =  mWindow->getFullscreen() ? FALSE : TRUE;
 		mShowFullscreenProgress = show_progress;
 	}
 }
@@ -5175,6 +5219,13 @@ void LLPickInfo::fetchResults()
 	LLVector3 intersection, normal, binormal;
 	LLVector2 uv;
 
+	LLHUDIcon* hit_icon = gViewerWindow->cursorIntersectIcon(mMousePt.mX, mMousePt.mY, 512.f, &intersection);
+	
+	F32 icon_dist = 0.f;
+	if (hit_icon)
+	{
+		icon_dist = (LLViewerCamera::getInstance()->getOrigin()-intersection).magVec();
+	}
 	LLViewerObject* hit_object = gViewerWindow->cursorIntersect(mMousePt.mX, mMousePt.mY, 512.f,
 									NULL, -1, mPickTransparent, &face_hit,
 									&intersection, &uv, &normal, &binormal);
@@ -5284,16 +5335,15 @@ void LLPickInfo::fetchResults()
 			}
 		}
 	}
-	//else
-	//{
+	if (hit_icon && 
+		(!objectp || 
+		icon_dist < (LLViewerCamera::getInstance()->getOrigin()-intersection).magVec()))
+	{
 		// was this name referring to a hud icon?
-	//	mHUDIcon = LLHUDIcon::handlePick(pick_id);
-	//	if (mHUDIcon)
-	//	{
-	//		mPickType = PICK_ICON;
-	//		mPosGlobal = mHUDIcon->getPositionGlobal();
-	//	}
-	//}
+		mHUDIcon = hit_icon;
+		mPickType = PICK_ICON;
+		mPosGlobal = mHUDIcon->getPositionGlobal();
+	}
 
 	if (mPickCallback)
 	{

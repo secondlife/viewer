@@ -110,9 +110,9 @@
 	<text name="DrawDistanceMeterText2">
 		m
 	</text>
-	<slider label="Medir Distancia:" name="DrawDistance"/>
-	<slider label="Contador máximo de partículas" name="MaxParticleCount"/>
-	<slider label="Qualidade de Post Process:" name="RenderPostProcess"/>
+	<slider label="Medir Distancia:" name="DrawDistance" width="255" label_width="146" />
+	<slider label="Contador máx de partículas:" name="MaxParticleCount" width="262" label_width="146" />
+	<slider label="Qualidade de Post Process:" name="RenderPostProcess" width="223" label_width="146" />
 	<text name="MeshDetailText">
 		Detalhes de Malha:
 	</text>
@@ -157,7 +157,7 @@
 	<text name="TerrainDetailText">
 		Detalhes do Terreno:
 	</text>
-	<radio_group name="TerrainDetailRadio">
+	<radio_group name="TerrainDetailRadio" left_delta="45" width="276">
 		<radio_item name="0">
 			Baixo
 		</radio_item>

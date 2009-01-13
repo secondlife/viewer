@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Terra L$" name="land_money_tab">
 	<string name="help_text">
-		Lotes pertencentes ao grupo são listadas com detalhes de contribuição. Um aviso aparece até que o total de Terras em Uso seja menor ou igual ao Total de Contribuições. As abas de Planejamento, Detalhes e Vendas fornecem informações sobre as finanças do grupo.
+		Lotes pertencentes ao grupo são listadas com detalhes de contribuição. Um aviso aparece até que o total de Terras em Uso seja menor ou igual ao Total de Contribuições. As abas de Detalhes e Vendas fornecem informações sobre as finanças do grupo.
 	</string>
 	<button label="?" name="help_button"/>
 	<string name="cant_view_group_land_text">

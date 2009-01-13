@@ -24,7 +24,7 @@
 		<menu_item_call label="新しいパンツ" name="New Underpants" />
 	</menu>
 	<menu name="New Body Parts">
-		<menu_item_call label="新しい形" name="New Shape" />
+		<menu_item_call label="新しいシェイプ(体型)" name="New Shape" />
 		<menu_item_call label="新しいスキン" name="New Skin" />
 		<menu_item_call label="新しい髪" name="New Hair" />
 		<menu_item_call label="新しい眼" name="New Eyes" />
@@ -37,7 +37,7 @@
 	<menu_item_call label="開く" name="Open" />
 	<menu_item_call label="プロパティ" name="Properties" />
 	<menu_item_call label="名前の変更" name="Rename" />
-	<menu_item_call label="資産UUIDをコピー" name="Copy Asset UUID" />
+	<menu_item_call label="UUIDをコピー" name="Copy Asset UUID" />
 	<menu_item_call label="コピー" name="Copy" />
 	<menu_item_call label="貼り付け" name="Paste" />
 	<menu_item_call label="削除" name="Delete" />
@@ -57,8 +57,8 @@
 	<menu_item_call label="非アクティブ" name="Deactivate" />
 	<menu_item_call label="自分から取り外す" name="Detach From Yourself" />
 	<menu_item_call label="装着" name="Object Wear" />
-	<menu label="添付先" name="Attach To" />
-	<menu label="HUDに添付" name="Attach To HUD" />
+	<menu label="装着先" name="Attach To" />
+	<menu label="HUD装着先" name="Attach To HUD" />
 	<menu_item_call label="装着" name="Wearable Wear" />
 	<menu_item_call label="編集" name="Wearable Edit" />
 	<menu_item_call label="取り外す" name="Take Off" />

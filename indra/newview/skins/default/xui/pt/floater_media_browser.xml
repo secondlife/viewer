@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_about" title="Navegador de Mídia" width="570" min_width="477">
+	<layout_stack name="stack1" width="550">
+		<layout_panel name="nav_controls">
+			<button label="Para trás" name="back" width="75"/>
+			<button label="Para a frente" name="forward" width="90" left_delta="75" />
+			<button label="Recarregar" name="reload" left_delta="95" width="76"/>
+			<combo_box left_delta="80" name="address" width="240"/>
+			<button label="Ir" name="go" left_delta="245" width="35"  />
+		</layout_panel>
+		<layout_panel name="parcel_owner_controls">
+			<button label="Enviar a URL Atual Para o Terreno" name="assign"/>
+		</layout_panel>
+		<layout_panel name="external_controls">
+			<button label="Abrir no meu Navegador de Web" name="open_browser" width="196"/>
+			<check_box label="Sempre abrir no meu navegador de web" name="open_always" left_delta="201" />
+			<button label="Fechar" name="close"/>
+		</layout_panel>
+	</layout_stack>
+</floater>

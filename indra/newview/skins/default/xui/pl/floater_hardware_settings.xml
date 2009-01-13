@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="Hardware Settings Floater" title="Ustawienia Dysku Twardego">
+<floater name="Hardware Settings Floater" title="Ustawienia Sprzętowe">
 	<text type="string" length="1" name="Filtering:">
 		Filtrowanie:
 	</text>
@@ -7,7 +7,7 @@
 	<text type="string" length="1" name="Antialiasing:">
 		Antialiasing:
 	</text>
-	<combo_box label="Antialiasing" name="fsaa">
+	<combo_box label="Antialiasing" name="fsaa" width="84">
 		<combo_item name="FSAADisabled">
 			Wyłączone
 		</combo_item>
@@ -26,7 +26,7 @@
 	</combo_box>
 	<spinner label="Gamma:" name="gamma" />
 	<text type="string" length="1" name="(brightness, lower is brighter)">
-		(jaskrawość, jasny, 0=domyślny)
+		(jaskrawość, mniej jest jaśniej, 0=domyślny)
 	</text>
 	<text type="string" length="1" name="Enable VBO:">
 		Włącz VBO:

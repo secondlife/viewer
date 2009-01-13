@@ -45,7 +45,7 @@
 			<text length="1" name="Selling with no objects in parcel." type="string">
 				Objets non inclus dans la vente.
 			</text>
-			<button label="Annuler la vente du terrain" label_selected="Annuler la vente du terrain" name="Cancel Land Sale"/>
+			<button label="Annuler la vente du terrain" label_selected="Annuler la vente du terrain" name="Cancel Land Sale" width="165" left="275"/>
 			<text length="1" name="Claimed:" type="string">
 				Acquis :
 			</text>

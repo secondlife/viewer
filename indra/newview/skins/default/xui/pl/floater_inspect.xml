@@ -6,8 +6,8 @@
 		<column label="Twórca" name="creator_name" />
 		<column label="Data Kreacji" name="creation_date" />
 	</scroll_list>
-	<button label="Zobacz Profil Właściciela..." label_selected="" name="button owner"
+	<button label="Profil Właściciela..." label_selected="" name="button owner"
 	     tool_tip="" />
-	<button label="Zobacz Profil Twórcy..." label_selected="" name="button creator"
+	<button label="Profil Twórcy..." label_selected="" name="button creator"
 	     tool_tip="" />
 </floater>

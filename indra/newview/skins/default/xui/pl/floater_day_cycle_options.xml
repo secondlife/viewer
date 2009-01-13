@@ -86,8 +86,8 @@
 			<text type="string" length="1" name="DayCycleText3">
 				Wygląd:
 			</text>
-			<button label="Patrz" label_selected="Patrz" name="WLAnimSky" />
-			<button label="Wyłącz" label_selected="Wyłącz" name="WLStopAnimSky" />
+			<button label="Start" label_selected="Start" name="WLAnimSky" />
+			<button label="Stop" label_selected="Stop" name="WLStopAnimSky" />
 			<button label="Używaj Czasu Regionu" label_selected="Używaj Czasu Regionu"
 			     name="WLUseLindenTime" />
 			<button label="Zapisz Test Dnia" label_selected="Zapisz Test Dnia"

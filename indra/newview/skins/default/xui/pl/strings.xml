@@ -207,13 +207,13 @@
 		(Edycja Wyglądu)
 	</string>
 	<string name="AvatarAway">
-		Tryb Nieobecności
+		Śpi
 	</string>
 	<string name="AvatarBusy">
-		Tryb Pracusia
+		Pracuje
 	</string>
 	<string name="AvatarMuted">
-		Tryb Wyciszony
+		Wyciszony
 	</string>
 	<!-- animations -->
 	<string name="anim_express_afraid">
@@ -223,7 +223,7 @@
 		Złość
 	</string>
 	<string name="anim_away">
-		Nieobecność
+		Sen
 	</string>
 	<string name="anim_backflip">
 		Salto

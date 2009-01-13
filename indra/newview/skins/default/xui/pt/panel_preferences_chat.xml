@@ -33,11 +33,12 @@
 	<text length="1" name="text_box3" type="string">
 		Console do Chat:
 	</text>
-	<spinner label="Ocultar Chat depois" name="fade_chat_time"/>
-	<text length="1" name="text_box4" type="string">
+	<spinner label="Ocultar Chat depois" name="fade_chat_time" label_width="112" width="162"/>
+	<text length="1" name="text_box4" type="string" left="310">
 		(segundos)
 	</text>
-	<text length="1" name="text_box5" type="string">
+	<spinner left="373" name="max_chat_count"/>
+	<text length="1" name="text_box5" type="string" left="435" width="94">
 		(# linhas)
 	</text>
 	<slider label="Opacidade" name="console_opacity"/>

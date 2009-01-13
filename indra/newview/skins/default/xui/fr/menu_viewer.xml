@@ -196,7 +196,7 @@
 			<menu_item_separator label="-----------" name="separator7"/>
 			<menu_item_call label="Comment signaler des bugs ?" name="Bug Reporing 101..."/>
 			<menu_item_call label="Comment signaler un problème de sécurité ?" name="Security Issues...">
-				<on_click name="SecurityIssues_url" userdata="WebLaunchSecurityIssues,http://wiki.secondlife.com/wiki/Security_issues" />
+				<on_click name="SecurityIssues_url" userdata="WebLaunchSecurityIssues,http://wiki.secondlife.com/wiki/Security_issues/fr" />
 			</menu_item_call>
 			<menu_item_call label="Wiki Assurance Qualité…" name="QA Wiki..."/>
 			<menu_item_separator label="-----------" name="separator9"/>

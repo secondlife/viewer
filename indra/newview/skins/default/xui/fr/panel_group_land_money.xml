@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Terrain et L$" name="land_money_tab">
 	<text name="help_text">
-		Les parcelles appartenant au groupe sont indiquées avec le détail des contributions. Un avertissement apparaît si la surface utilisée par le groupe est supérieure ou égale au total des contributions. Les onglets Planification, Détails et Ventes correspondent aux finances du groupe.
+		Les parcelles appartenant au groupe sont indiquées avec le détail des contributions. Un avertissement apparaît si la surface utilisée par le groupe est supérieure ou égale au total des contributions. Les onglets Détails et Ventes correspondent aux finances du groupe.
 	</text>
 	<button label="?" name="help_button"/>
 	<text name="cant_view_group_land_text">

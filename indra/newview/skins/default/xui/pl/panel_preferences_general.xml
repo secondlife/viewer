@@ -2,7 +2,7 @@
 <panel label="Ogólne" name="general_panel">
 	<radio_group name="default_start_location">
 		<radio_item name="MyHome" tool_tip="Domyślnie loguj mnie do mojego miejsca startu.">
-			Miejsce Startu
+			Mój Start
 		</radio_item>
 		<radio_item name="MyLastLocation" tool_tip="Domyślnie loguj mnie do ostatnio odwiedzonego miejsca.">
 			Ostatnie Miejsce
@@ -33,7 +33,7 @@
 	</text>
 	<slider name="ui_scale_slider"/>
 	<check_box label="Używaj Skali Nizależnej od Rozdzielczości" name="ui_auto_scale"/>
-	<spinner label="Tryb Nieobecności:" name="afk_timeout_spinner"/>
+	<spinner label="Zasypiaj w:" name="afk_timeout_spinner"/>
 	<check_box label="Obracaj Mini-Mapę" name="rotate_mini_map_checkbox"/>
 	<check_box label="Powiadamiaj o Wydatkach i Zarobkach (L$)" name="notify_money_change_checkbox"/>
 	<check_box label="Używaj Domyślnej Selekcji Koloru" name="use_system_color_picker_checkbox" tool_tip="Używaj domyślnej / systemowej selekcji koloru"/>
@@ -81,7 +81,7 @@
 			English (Angielski)
 		</combo_item>
 		<combo_item length="1" name="Chinese" type="string">
-			汉语/漢語 (Chiński) - Beta
+			中文 (简体) (Chiński) - Beta
 		</combo_item>
 		<combo_item length="1" name="Deutsch(German)" type="string">
 			Deutsch (Niemiecki) - Beta

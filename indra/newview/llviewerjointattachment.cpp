@@ -139,6 +139,8 @@ void LLViewerJointAttachment::setupDrawable(LLDrawable* drawablep)
 		{
 			childp->mDrawable->setState(LLDrawable::USE_BACKLIGHT);
 			gPipeline.markTextured(childp->mDrawable); // face may need to change draw pool to/from POOL_HUD
+			gPipeline.markMoved(childp->mDrawable);
+
 			if(mIsHUDAttachment)
 			{
 				for (S32 face_num = 0; face_num < childp->mDrawable->getNumFaces(); face_num++)

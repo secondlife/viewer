@@ -62,7 +62,55 @@ S32 LLImageGL::sCount					= 0;
 BOOL LLImageGL::sGlobalUseAnisotropic	= FALSE;
 F32 LLImageGL::sLastFrameTime			= 0.f;
 
+S32 LLImageGL::sMaxTextureSize          = 0 ;
+
 std::set<LLImageGL*> LLImageGL::sImageList;
+
+//**************************************************************************************
+//below are functions for debug use
+//do not delete them even though they are not currently being used.
+void check_all_images()
+{
+	for (std::set<LLImageGL*>::iterator iter = LLImageGL::sImageList.begin();
+		 iter != LLImageGL::sImageList.end(); iter++)
+	{
+		LLImageGL* glimage = *iter;
+		if (glimage->getTexName() && glimage->isGLTextureCreated())
+		{
+			gGL.getTexUnit(0)->bind(glimage) ;
+			glimage->checkTexSize() ;
+			gGL.getTexUnit(0)->unbind(glimage->getTarget()) ;
+		}
+	}
+}
+
+void LLImageGL::checkTexSize() const
+{
+	if (gDebugGL && mTarget == GL_TEXTURE_2D)
+	{
+		GLint texname;
+		glGetIntegerv(GL_TEXTURE_BINDING_2D, &texname);
+		if (texname != mTexName)
+		{
+			llerrs << "Invalid texture bound!" << llendl;
+		}
+		stop_glerror() ;
+		LLGLint x = 0, y = 0 ;
+		glGetTexLevelParameteriv(mTarget, 0, GL_TEXTURE_WIDTH, (GLint*)&x);
+		glGetTexLevelParameteriv(mTarget, 0, GL_TEXTURE_HEIGHT, (GLint*)&y) ;
+		stop_glerror() ;
+		if(!x || !y)
+		{
+			return ;
+		}
+		if(x != (mWidth >> mCurrentDiscardLevel) || y != (mHeight >> mCurrentDiscardLevel))
+		{
+			llerrs << "wrong texture size and discard level!" << llendl ;
+		}
+	}
+}
+//end of debug functions
+//**************************************************************************************
 
 //----------------------------------------------------------------------------
 
@@ -149,17 +197,22 @@ void LLImageGL::destroyGL(BOOL save_state)
 	{
 		gGL.getTexUnit(stage)->unbind(LLTexUnit::TT_TEXTURE);
 	}
+	
 	for (std::set<LLImageGL*>::iterator iter = sImageList.begin();
 		 iter != sImageList.end(); iter++)
 	{
 		LLImageGL* glimage = *iter;
-		if (glimage->mTexName && glimage->mComponents)
+		if (glimage->mTexName)
 		{
-			if (save_state && glimage->isInitialized())
+			if (save_state && glimage->isGLTextureCreated() && glimage->mComponents)
 			{
 				glimage->mSaveData = new LLImageRaw;
-				glimage->readBackRaw(glimage->mCurrentDiscardLevel, glimage->mSaveData, false);
+				if(!glimage->readBackRaw(glimage->mCurrentDiscardLevel, glimage->mSaveData, false))
+				{
+					glimage->mSaveData = NULL ;
+				}
 			}
+
 			glimage->destroyGLTexture();
 			stop_glerror();
 		}
@@ -173,9 +226,13 @@ void LLImageGL::restoreGL()
 		 iter != sImageList.end(); iter++)
 	{
 		LLImageGL* glimage = *iter;
-		if (glimage->mSaveData.notNull() && glimage->mSaveData->getComponents())
+		if(glimage->getTexName())
 		{
-			if (glimage->getComponents())
+			llerrs << "tex name is not 0." << llendl ;
+		}
+		if (glimage->mSaveData.notNull())
+		{
+			if (glimage->getComponents() && glimage->mSaveData->getComponents())
 			{
 				glimage->createGLTexture(glimage->mCurrentDiscardLevel, glimage->mSaveData);
 				stop_glerror();
@@ -283,7 +340,7 @@ void LLImageGL::init(BOOL usemipmaps)
 	mFormatSwapBytes = FALSE;
 	mHasExplicitFormat = FALSE;
 
-	mInitialized = true;
+	mGLTextureCreated = FALSE ;
 }
 
 void LLImageGL::cleanup()
@@ -322,6 +379,16 @@ void LLImageGL::setSize(S32 width, S32 height, S32 ncomponents)
 {
 	if (width != mWidth || height != mHeight || ncomponents != mComponents)
 	{
+		if(width > 1024 || height > 1024)
+		{
+			llwarns << "texture size is big: width: " << width << " height: " << height << llendl ;
+			if(!sMaxTextureSize)
+			{
+				glGetIntegerv(GL_MAX_TEXTURE_SIZE, (GLint*)&sMaxTextureSize) ;
+			}
+			llwarns << "max texture size is: " << sMaxTextureSize << llendl ;
+		}
+
 		// Check if dimensions are a power of two!
 		if (!checkSize(width,height))
 		{
@@ -645,7 +712,7 @@ void LLImageGL::setImage(const U8* data_in, BOOL data_hasmips)
 		mHasMipMaps = FALSE;
 	}
 	stop_glerror();
-	mInitialized = true;
+	mGLTextureCreated = true;
 }
 
 BOOL LLImageGL::setSubImage(const U8* datap, S32 data_width, S32 data_height, S32 x_pos, S32 y_pos, S32 width, S32 height)
@@ -735,9 +802,8 @@ BOOL LLImageGL::setSubImage(const U8* datap, S32 data_width, S32 data_height, S3
 
 		glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 		stop_glerror();
-		mInitialized = true;
+		mGLTextureCreated = true;
 	}
-	
 	return TRUE;
 }
 
@@ -752,7 +818,7 @@ BOOL LLImageGL::setSubImageFromFrameBuffer(S32 fb_x, S32 fb_y, S32 x_pos, S32 y_
 	if (gGL.getTexUnit(0)->bind(this, true))
 	{
 		glCopyTexSubImage2D(GL_TEXTURE_2D, 0, fb_x, fb_y, x_pos, y_pos, width, height);
-		mInitialized = true;
+		mGLTextureCreated = true;
 		stop_glerror();
 		return TRUE;
 	}
@@ -762,6 +828,36 @@ BOOL LLImageGL::setSubImageFromFrameBuffer(S32 fb_x, S32 fb_y, S32 x_pos, S32 y_
 	}
 }
 
+//create an empty GL texture: just create a texture name
+//the texture is assiciate with some image by calling glTexImage outside LLImageGL
+BOOL LLImageGL::createGLTexture()
+{
+	if (gGLManager.mIsDisabled)
+	{
+		llwarns << "Trying to create a texture while GL is disabled!" << llendl;
+		return FALSE;
+	}
+	
+	mGLTextureCreated = false ; //do not save this texture when gl is destroyed.
+
+	llassert(gGLManager.mInited);
+	stop_glerror();
+
+	if(mTexName)
+	{
+		glDeleteTextures(1, (reinterpret_cast<GLuint*>(&mTexName))) ;
+	}
+	
+	glGenTextures(1, (GLuint*)&mTexName);
+	stop_glerror();
+	if (!mTexName)
+	{
+		llerrs << "LLImageGL::createGLTexture failed to make an empty texture" << llendl;
+	}
+
+	return TRUE ;
+}
+
 BOOL LLImageGL::createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S32 usename/*=0*/)
 {
 	if (gGLManager.mIsDisabled)
@@ -769,6 +865,7 @@ BOOL LLImageGL::createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S
 		llwarns << "Trying to create a texture while GL is disabled!" << llendl;
 		return FALSE;
 	}
+	mGLTextureCreated = false ;
 	llassert(gGLManager.mInited);
 	stop_glerror();
 
@@ -874,7 +971,7 @@ BOOL LLImageGL::createGLTexture(S32 discard_level, const U8* data_in, BOOL data_
 #endif
 	}
 
-	mCurrentDiscardLevel = discard_level;
+	mCurrentDiscardLevel = discard_level;	
 
 	setImage(data_in, data_hasmips);
 
@@ -975,7 +1072,7 @@ BOOL LLImageGL::readBackRaw(S32 discard_level, LLImageRaw* imageraw, bool compre
 		discard_level = mCurrentDiscardLevel;
 	}
 	
-	if (mTexName == 0 || discard_level < mCurrentDiscardLevel)
+	if (mTexName == 0 || discard_level < mCurrentDiscardLevel || discard_level > mMaxDiscardLevel )
 	{
 		return FALSE;
 	}
@@ -986,18 +1083,8 @@ BOOL LLImageGL::readBackRaw(S32 discard_level, LLImageRaw* imageraw, bool compre
 	gGL.getTexUnit(0)->unbind(mBindTarget);
 	llverify(gGL.getTexUnit(0)->bind(this));	
 
-	if (gDebugGL)
-	{
-		if (mTarget == GL_TEXTURE_2D)
-		{
-			GLint texname;
-			glGetIntegerv(GL_TEXTURE_BINDING_2D, &texname);
-			if (texname != mTexName)
-			{
-				llerrs << "Invalid texture bound!" << llendl;
-			}
-		}
-	}
+	//debug code, leave it there commented.
+	//checkTexSize() ;
 
 	LLGLint glwidth = 0;
 	glGetTexLevelParameteriv(mTarget, gl_discard, GL_TEXTURE_WIDTH, (GLint*)&glwidth);
@@ -1006,13 +1093,20 @@ BOOL LLImageGL::readBackRaw(S32 discard_level, LLImageRaw* imageraw, bool compre
 		// No mip data smaller than current discard level
 		return FALSE;
 	}
-
+	
 	S32 width = getWidth(discard_level);
 	S32 height = getHeight(discard_level);
 	S32 ncomponents = getComponents();
 	if (ncomponents == 0)
 	{
 		return FALSE;
+	}
+	if(width < glwidth)
+	{
+		llwarns << "texture size is smaller than it should be." << llendl ;
+		llwarns << "width: " << width << " glwidth: " << glwidth << " mWidth: " << mWidth << 
+			" mCurrentDiscardLevel: " << (S32)mCurrentDiscardLevel << " discard_level: " << (S32)discard_level << llendl ;
+		return FALSE ;
 	}
 
 	if (width <= 0 || width > 2048 || height <= 0 || height > 2048 || ncomponents < 1 || ncomponents > 4)
@@ -1099,7 +1193,7 @@ void LLImageGL::destroyGLTexture()
 
 		glDeleteTextures(1, (GLuint*)&mTexName);
 		mTexName = 0;
-
+		mGLTextureCreated = FALSE ;
 		stop_glerror();
 	}
 }

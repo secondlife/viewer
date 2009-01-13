@@ -672,9 +672,7 @@ public:
 		  mConcave(FALSE),
 		  mDirty(TRUE),
 		  mTotalOut(0),
-		  mTotal(2),
-		  mMinX(0.f),
-		  mMaxX(0.f)
+		  mTotal(2)
 	{
 	}
 
@@ -722,9 +720,6 @@ protected:
 
 	S32			  mTotalOut;
 	S32			  mTotal;
-
-	F32			  mMaxX;
-	F32			  mMinX;
 };
 
 //-------------------------------------------------------------------

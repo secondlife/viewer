@@ -60,9 +60,9 @@
 			<text length="1" name="DwellText" type="string">
 				0
 			</text>
-			<button label="Kup Posiadłość" label_selected="Kup Posiadłość" name="Buy Land..."/>
+			<button label="Kup Posiadłość..." label_selected="Kup Posiadłość..." name="Buy Land..." width="125" left="130"/>
 			<button label="Kup dla Grupy..." label_selected="Kup dla Grupy..." name="Buy For Group..."/>
-			<button label="Kup Przepustkę..." label_selected="Kup Przeputkę..." name="Buy Pass..." tool_tip="Przepustka udostępnia tymczasowy wstęp na posiadłość."/>
+			<button label="Kup Przepustkę..." label_selected="Kup Przeputkę..." name="Buy Pass..." tool_tip="Przepustka udostępnia tymczasowy wstęp na posiadłość." width="125" left="130"/>
 			<button label="Porzuć z Posiadłości..." label_selected="Porzuć z Posiadłości..." name="Abandon Land..."/>
 			<button label="Odzyskaj Posiadłość..." label_selected="Odzyskaj Posiadłość..." name="Reclaim Land..."/>
 			<button label="Sprzedaż przez Lindenów..." label_selected="Sprzedaż przez Lindenów..." name="Linden Sale..." tool_tip="Posiadłość musi mieć właściciela, zawartość oraz nie może być wystawiona na aukcę."/>
@@ -73,7 +73,7 @@
 				Każdy
 			</string>
 			<string name="area_text">
-				Obszar
+				Obszar:
 			</string>
 			<string name="area_size_text">
 				[AREA] m
@@ -158,7 +158,7 @@ Idź do Świat &gt; O Posiadłości albo wybierz inną posiadłość żeby pokaz
 			<text length="1" name="Simulator primitive usage:" type="string">
 				Ilość używanych elementów:
 			</text>
-			<text length="1" name="objects_available" type="string">
+			<text length="1" name="objects_available" type="string" width="230">
 				[COUNT] z [MAX] ([AVAILABLE] jest dostępne)
 			</text>
 			<string name="objects_available_text">
@@ -212,11 +212,11 @@ Idź do Świat &gt; O Posiadłości albo wybierz inną posiadłość żeby pokaz
 			<text length="1" name="Autoreturn" type="string">
 				Zwracaj obiekty innych Rezydentów (minut, 0 = wyłącz):
 			</text>
-			<text length="1" name="Object Owners:" type="string">
-				Właściciel Obiektów
+			<text length="1" name="Object Owners:" type="string" width="108">
+				Właściciel Obiektów:
 			</text>
-			<button label="Odśwież Listę" label_selected="Odśwież Listę" name="Refresh List"/>
-			<button label="Zwróć obiekty..." label_selected="Zwróć obiekty..." name="Return objects..."/>
+			<button label="Odśwież Listę" label_selected="Odśwież Listę" name="Refresh List" left="112"/>
+			<button label="Zwróć obiekty..." label_selected="Zwróć obiekty..." name="Return objects..." left="224"/>
 			<name_list name="owner list">
 				<column label="Typ" name="type"/>
 				<column name="online_status"/>
@@ -334,7 +334,7 @@ Idź do Świat &gt; O Posiadłości albo wybierz inną posiadłość żeby pokaz
 			</text>
 			<combo_box name="media type" tool_tip=""/>
 			<text length="1" name="at URL:" type="string">
-				Media URL:
+				URL Mediów:
 			</text>
 			<button label="Ustaw..." label_selected="Ustaw..." name="set_media_url"/>
 			<text length="1" name="Description:" type="string">
@@ -357,7 +357,7 @@ Mediów:
 			</text>
 			<check_box label="Automatyczna Skala" name="media_auto_scale" tool_tip="Wybranie tej opcji dobierze odpowiedni rozmiar zawartości mediów dla tej posiadłości automatycznie. Może to mieć znaczący wpływ na jakość odtwarzanego materialu - może zwolnić i zmniejszyć jakość materiału."/>
 			<check_box label="Powtórka Odtwarzania" name="media_loop" tool_tip="Odtwarzaj media z powtórką. Po wyświetleniu materialu, rozpocznie się odtwarzanie od początku."/>
-			<check_box label="Ukryj Media URL" name="hide_media_url" tool_tip="Wybranie tej opcji, zablokuje widok adresu do medów wszystkim nieautoryzowanym użytkownikom. Nie dotyczy to jednak typów HTML."/>
+			<check_box label="Ukryj URL Mediów" name="hide_media_url" tool_tip="Wybranie tej opcji, zablokuje widok adresu do medów wszystkim nieautoryzowanym użytkownikom. Nie dotyczy to jednak typów HTML."/>
 			<check_box label="Ukryj URL Muzyki" name="hide_music_url" tool_tip="Wybranie tej opcji, zablokuje widok adresu do medów muzycznych w posiadłości wszystkim nieautoryzowanym użytkownikom"/>
 			<text length="1" name="media_size" tool_tip="Rozmiar dla ładowania mediów internetowych. Zostaw 0 dla ustawień domyślnych." type="string">
 				Rozmiar:
@@ -385,7 +385,7 @@ Mediów:
 					Użyj kanału prywatnego na posiadlości
 				</radio_item>
 				<radio_item length="1" name="Disabled" type="string">
-					Zablokuj używanie kanału przestrzennego na posiadlości
+					Zablokuj kanał przestrzenny na posiadlości
 				</radio_item>
 			</radio_group>
 		</panel>

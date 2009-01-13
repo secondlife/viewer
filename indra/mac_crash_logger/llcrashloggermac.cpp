@@ -134,6 +134,8 @@ OSStatus dialogHandler(EventHandlerCallRef handler, EventRef event, void *userda
 					QuitAppModalLoopForWindow(gWindow);
 					result = noErr;
 				break;
+				default:
+					result = eventNotHandledErr;
 			}
 		}
 	}

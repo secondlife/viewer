@@ -94,17 +94,59 @@ LLTexLayerSetBuffer::LLTexLayerSetBuffer( LLTexLayerSet* owner, S32 width, S32 h
 	mNeedsUpdate( TRUE ),
 	mNeedsUpload( FALSE ),
 	mUploadPending( FALSE ), // Not used for any logic here, just to sync sending of updates
-	mTexLayerSet( owner ),
-	mBumpTexName(0)
+	mTexLayerSet( owner )	
 {
 	LLTexLayerSetBuffer::sGLByteCount += getSize();
+	mHasBump = has_bump ;
+	mBumpTex = NULL ;
 
-	if( has_bump )
+	createBumpTexture() ;
+}
+
+LLTexLayerSetBuffer::~LLTexLayerSetBuffer()
+{
+	LLTexLayerSetBuffer::sGLByteCount -= getSize();
+
+	if( mBumpTex.notNull())
+	{
+		mBumpTex = NULL ;
+		LLImageGL::sGlobalTextureMemory -= mWidth * mHeight * 4;
+		LLTexLayerSetBuffer::sGLBumpByteCount -= mWidth * mHeight * 4;
+	}
+}
+//virtual 
+void LLTexLayerSetBuffer::restoreGLTexture() 
+{	
+	createBumpTexture() ;
+	LLDynamicTexture::restoreGLTexture() ;
+}
+
+//virtual 
+void LLTexLayerSetBuffer::destroyGLTexture() 
+{
+	if( mBumpTex.notNull() )
+	{
+		mBumpTex = NULL ;
+		LLImageGL::sGlobalTextureMemory -= mWidth * mHeight * 4;
+		LLTexLayerSetBuffer::sGLBumpByteCount -= mWidth * mHeight * 4;
+	}
+
+	LLDynamicTexture::destroyGLTexture() ;
+}
+
+void LLTexLayerSetBuffer::createBumpTexture()
+{
+	if( mHasBump )
 	{
 		LLGLSUIDefault gls_ui;
-		glGenTextures(1, (GLuint*) &mBumpTexName);
+		mBumpTex = new LLImageGL(FALSE) ;
+		if(!mBumpTex->createGLTexture())
+		{
+			mBumpTex = NULL ;
+			return ;
+		}
 
-		gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, mBumpTexName);
+		gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, mBumpTex->getTexName());
 		stop_glerror();
 
 		gGL.getTexUnit(0)->setTextureAddressMode(LLTexUnit::TAM_CLAMP);
@@ -112,28 +154,13 @@ LLTexLayerSetBuffer::LLTexLayerSetBuffer( LLTexLayerSet* owner, S32 width, S32 h
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, mWidth, mHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 		stop_glerror();
 
 		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
 		LLImageGL::sGlobalTextureMemory += mWidth * mHeight * 4;
 		LLTexLayerSetBuffer::sGLBumpByteCount += mWidth * mHeight * 4;
-	}
-}
-
-LLTexLayerSetBuffer::~LLTexLayerSetBuffer()
-{
-	LLTexLayerSetBuffer::sGLByteCount -= getSize();
-
-	if( mBumpTexName )
-	{
-		glDeleteTextures(1, (GLuint*) &mBumpTexName);
-		stop_glerror();
-		mBumpTexName = 0;
-
-		LLImageGL::sGlobalTextureMemory -= mWidth * mHeight * 4;
-		LLTexLayerSetBuffer::sGLBumpByteCount -= mWidth * mHeight * 4;
 	}
 }
 
@@ -245,7 +272,7 @@ BOOL LLTexLayerSetBuffer::render()
 	BOOL success = TRUE;
 
 	// Composite bump
-	if( mBumpTexName )
+	if( mBumpTex.notNull() )
 	{
 		// Composite the bump data
 		success &= mTexLayerSet->renderBump( mOrigin.mX, mOrigin.mY, mWidth, mHeight );
@@ -256,7 +283,7 @@ BOOL LLTexLayerSetBuffer::render()
 			LLGLSUIDefault gls_ui;
 
 			// read back into texture (this is done externally for the color data)
-			gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, mBumpTexName);
+			gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, mBumpTex->getTexName());
 			stop_glerror();
 
 			glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, mOrigin.mX, mOrigin.mY, mWidth, mHeight);
@@ -296,7 +323,7 @@ BOOL LLTexLayerSetBuffer::render()
 	gGL.setSceneBlendType(LLRender::BT_ALPHA);
 
 	// we have valid texture data now
-	mTexture->setInitialized(true);
+	mTexture->setGLTextureCreated(true);
 	mNeedsUpdate = FALSE;
 
 	return success;
@@ -304,7 +331,7 @@ BOOL LLTexLayerSetBuffer::render()
 
 bool LLTexLayerSetBuffer::isInitialized(void) const
 {
-	return mTexture->isInitialized();
+	return mTexture.notNull() && mTexture->isGLTextureCreated();
 }
 
 BOOL LLTexLayerSetBuffer::updateImmediate()
@@ -352,11 +379,11 @@ void LLTexLayerSetBuffer::readBackAndUpload(U8* baked_bump_data)
 	// writes into baked_color_data
 	const char* comment_text = NULL;
 
-	S32 baked_image_components = mBumpTexName ? 5 : 4; // red green blue [bump] clothing
+	S32 baked_image_components = mBumpTex.notNull() ? 5 : 4; // red green blue [bump] clothing
 	LLPointer<LLImageRaw> baked_image = new LLImageRaw( mWidth, mHeight, baked_image_components );
 	U8* baked_image_data = baked_image->getData();
 	
-	if( mBumpTexName )
+	if( mBumpTex.notNull() )
 	{
 		comment_text = LINDEN_J2C_COMMENT_PREFIX "RGBHM"; // 5 channels: rgb, heightfield/alpha, mask
 
@@ -555,9 +582,9 @@ void LLTexLayerSetBuffer::onTextureUploadComplete(const LLUUID& uuid, void* user
 
 void LLTexLayerSetBuffer::bindBumpTexture( U32 stage )
 {
-	if( mBumpTexName ) 
+	if( mBumpTex.notNull() ) 
 	{
-		gGL.getTexUnit(stage)->bindManual(LLTexUnit::TT_TEXTURE, mBumpTexName);
+		gGL.getTexUnit(stage)->bindManual(LLTexUnit::TT_TEXTURE, mBumpTex->getTexName());
 		gGL.getTexUnit(0)->activate();
 	
 		if( mLastBindTime != LLImageGL::sLastFrameTime )

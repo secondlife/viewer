@@ -34,25 +34,25 @@
 		Ładowanie...
 	</text_editor>
 	<check_box label="Zgadzam się na Powyższą Umowę." name="agree_covenant" />
-	<text name="info_parcel_label">
+	<text name="info_parcel_label" width="60">
 		Posiadłość:
 	</text>
-	<text name="info_parcel">
+	<text name="info_parcel" left_delta="62">
 		Scotopteryx 138,204
 	</text>
 	<text name="info_size_label">
 		Obszar:
 	</text>
-	<text name="info_size">
+	<text name="info_size" left_delta="62">
 		1024 m.
 	</text>
 	<text name="info_price_label">
 		Cena:
 	</text>
-	<text name="info_price">
+	<text name="info_price" left_delta="62">
 		1500 L$, obiekty wliczone
 	</text>
-	<text name="info_action">
+	<text name="info_action" width="350">
 		Zakup tej Posiadłości spowoduje:
 	</text>
 	<text name="error_message">

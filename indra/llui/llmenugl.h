@@ -90,6 +90,7 @@ public:
 	static const LLColor4& getHighlightFGColor() { return sHighlightForeground; }
 
 	LLMenuItemGL( const std::string& name, const std::string& label, KEY key = KEY_NONE, MASK = MASK_NONE );
+	virtual ~LLMenuItemGL() {};
 
 	virtual void setValue(const LLSD& value) { setLabel(value.asString()); }
 
@@ -562,8 +563,11 @@ private:
 class LLMenuItemBranchGL : public LLMenuItemGL
 {
 public:
-	LLMenuItemBranchGL( const std::string& name, const std::string& label, LLMenuGL* branch,
+	LLMenuItemBranchGL( const std::string& name, const std::string& label, LLHandle<LLView> branch,
 						KEY key = KEY_NONE, MASK mask = MASK_NONE );
+
+	virtual ~LLMenuItemBranchGL();
+
 	virtual LLXMLNodePtr getXML(bool save_children = true) const;
 
 	virtual std::string getType() const { return "menu"; }
@@ -590,11 +594,11 @@ public:
 
 	virtual BOOL handleKeyHere(KEY key, MASK mask);
 
-	virtual BOOL isActive() const { return isOpen() && mBranch->getHighlightedItem(); }
+	virtual BOOL isActive() const { return isOpen() && getBranch()->getHighlightedItem(); }
 
-	virtual BOOL isOpen() const { return mBranch->isOpen(); }
+	virtual BOOL isOpen() const { return getBranch() && getBranch()->isOpen(); }
 
-	LLMenuGL *getBranch() const { return mBranch; }
+	LLMenuGL *getBranch() const { return (LLMenuGL*)(mBranch.get()); }
 
 	virtual void updateBranchParent( LLView* parentp );
 
@@ -603,14 +607,14 @@ public:
 
 	virtual void draw();
 
-	virtual void setEnabledSubMenus(BOOL enabled) { mBranch->setEnabledSubMenus(enabled); }
+	virtual void setEnabledSubMenus(BOOL enabled) { if(getBranch()) getBranch()->setEnabledSubMenus(enabled); }
 
 	virtual void openMenu();
 
 	virtual LLView* getChildView(const std::string& name, BOOL recurse = TRUE, BOOL create_if_missing = TRUE) const;
 
 private:
-	LLMenuGL* mBranch;
+	LLHandle<LLView> mBranch;
 }; // end class LLMenuItemBranchGL
 
 

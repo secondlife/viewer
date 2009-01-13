@@ -241,7 +241,7 @@ BOOL LLVisualParamHint::render()
 	}
 	avatarp->setVisualParamWeight(mVisualParam, mLastParamWeight);
 	gGL.color4f(1,1,1,1);
-	mTexture->setInitialized(true);
+	mTexture->setGLTextureCreated(true);
 	return TRUE;
 }
 

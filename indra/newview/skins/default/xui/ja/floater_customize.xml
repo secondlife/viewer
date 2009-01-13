@@ -3,7 +3,7 @@
 	<tab_container name="customize tab container">
 		<panel label="身体部位" />
 		<panel label="身体部位" name="body_parts_placeholder" />
-		<panel label="形" name="Shape">
+		<panel label="シェイプ" name="Shape">
 			<button label="戻す" label_selected="戻す" name="Revert" />
 			<button label="身体" label_selected="身体" name="Body" />
 			<button label="頭" label_selected="頭" name="Head" />
@@ -39,12 +39,12 @@
 				[PATH]に所在
 			</text>
 			<text type="string" length="1" name="not worn instructions">
-				新しい形を持ち物からアバターにドラッグして装着しましょう。完全に新規の状態から作成して装着することもできます。
+				新しいシェイプ(体型)を持ち物からアバターにドラッグして装着しましょう。完全に新規の状態から作成して装着することもできます。
 			</text>
 			<text type="string" length="1" name="no modify instructions">
 				あなたはこの服の修正を許されていません。
 			</text>
-			<button label="新しい形を作成" label_selected="新しい形を作成"
+			<button label="新しいシェイプ(体型)を作成" label_selected="新しいシェイプ(体型)を作成"
 			     name="Create New" />
 			<button label="取り外す" label_selected="取り外す" name="Take Off" />
 			<button label="保存" label_selected="保存" name="Save" />

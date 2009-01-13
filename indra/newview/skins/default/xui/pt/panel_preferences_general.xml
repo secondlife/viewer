@@ -9,7 +9,7 @@
 		</radio_item>
 	</radio_group>
 	<check_box label="Mostrar Posição Inicial na Tela de Login" name="show_location_checkbox"/>
-	<combo_box name="fade_out_combobox">
+	<combo_box name="fade_out_combobox" width="166">
 		<combo_item name="Never">
 			Nunca
 		</combo_item>
@@ -55,13 +55,13 @@
 	<text name="language_textbox">
 		Linguagem:
 	</text>
-	<text length="1" name="language_textbox2" type="string">
+	<text length="1" name="language_textbox2" type="string" left_delta="313">
 		(Precisa de reinício para efetivar)
 	</text>
 	<string name="region_name_prompt">
 		Digite o nome da Região
 	</string>
-	<combo_box name="crash_behavior_combobox">
+	<combo_box name="crash_behavior_combobox" width="166">
 		<combo_item length="1" name="Askbeforesending" type="string">
 			Perguntar antes de enviar
 		</combo_item>
@@ -72,7 +72,7 @@
 			Nunca Enviar
 		</combo_item>
 	</combo_box>
-	<combo_box name="language_combobox">
+	<combo_box name="language_combobox" width="166">
 		<combo_item name="System Default Language">
 			Padrão do Sistema
 		</combo_item>
@@ -92,7 +92,7 @@
 			Português - Beta
 		</combo_item>
 		<combo_item name="Chinese">
-			汉语/漢語 (Chinês) - Beta
+			中文 (简体) (Chinês) - Beta
 		</combo_item>
 		<combo_item name="(Japanese)">
 			日本語 (Japonês) - Beta

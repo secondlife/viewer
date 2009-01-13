@@ -6,7 +6,7 @@
 	<button label="L$20" label_selected="L$20" name="fastpay 20" />
 	<button label="Betal" label_selected="Betal" name="pay btn" />
 	<button label="Annuller" label_selected="Annuller" name="cancel btn" />
-	<text type="string" length="1" name="payee_label">
+	<text type="string" length="1" name="payee_label" left="5" width="81">
 		Betal Beboer:
 	</text>
 	<text type="string" length="1" name="payee_name">
@@ -15,7 +15,7 @@
 	<text type="string" length="1" name="fastpay text">
 		Hurtig Betal:
 	</text>
-	<text type="string" length="1" name="amount text">
+	<text type="string" length="1" name="amount text" left="4" >
 		Beløb:
 	</text>
 </floater>

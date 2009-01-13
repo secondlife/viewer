@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel label="Land und L$" name="land_money_tab">
 	<text name="help_text">
-		Es werden Parzellen in Gruppenbesitz und Beitragsdetails angezeigt. Solange der Wert für „Insgesamt verwendetes Land“ unter oder gleich dem Wert für „Gesamtbeitrag“ ist, wird eine Warnung angezeigt. Die Registerkarten „Planung“, „Details“ und „Verkäufe“ enthalten Informationen über die Gruppenfinanzen.
+		Es werden Parzellen in Gruppenbesitz und Beitragsdetails angezeigt. Solange der Wert für „Insgesamt verwendetes Land“ unter oder gleich dem Wert für „Gesamtbeitrag“ ist, wird eine Warnung angezeigt. Die Registerkarten „Details“ und „Verkäufe“ enthalten Informationen über die Gruppenfinanzen.
 	</text>
 	<button label="?" name="help_button" />
 	<text name="cant_view_group_land_text">

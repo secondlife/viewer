@@ -74,7 +74,6 @@ const U32 VERTEX_MASK_SHINY = LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_N
 const U32 VERTEX_MASK_BUMP = LLVertexBuffer::MAP_VERTEX |LLVertexBuffer::MAP_TEXCOORD | LLVertexBuffer::MAP_TEXCOORD2;
 
 U32 LLDrawPoolBump::sVertexMask = VERTEX_MASK_SHINY;
-static LLPointer<LLCubeMap> sCubeMap;
 
 static LLGLSLShader* shader = NULL;
 static S32 cube_channel = -1;
@@ -389,8 +388,6 @@ void LLDrawPoolBump::renderShiny(bool invisible)
 		return;
 	}
 
-	sCubeMap = NULL;
-
 	if( gSky.mVOSkyp->getCubeMap() )
 	{
 		LLGLEnable blend_enable(GL_BLEND);
@@ -513,8 +510,6 @@ void LLDrawPoolBump::renderFullbrightShiny()
 	{
 		return;
 	}
-
-	sCubeMap = NULL;
 
 	if( gSky.mVOSkyp->getCubeMap() )
 	{

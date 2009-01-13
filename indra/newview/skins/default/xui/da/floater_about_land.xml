@@ -359,10 +359,10 @@ Indstillinger:
 			<check_box label="Gentag Medie" name="media_loop" tool_tip="Gentager automatisk medie, når det er færdigt med at spille starter det automatisk forfra."/>
 			<check_box label="Skjul Medie URL." name="hide_media_url" tool_tip="Klik her for at skjule Medie adressen så det kun er dig og evt. parcel gruppens ejer/officere der kan se den."/>
 			<check_box label="Skjul Musik URL" name="hide_music_url" tool_tip="Klik her for at skjule Musik adressen så det kun er dig og evt. parcel gruppens ejer/officere der kan se den."/>
-			<text length="1" name="media_size" tool_tip="Size to render Web media, leave 0 for default." type="string">
+			<text length="1" name="media_size" tool_tip="Size to render Web media, leave 0 for default." type="string" width="105">
 				Medie Størrelse:
 			</text>
-			<spinner name="media_size_width" tool_tip="Størrelse på Web Medier, 0 for standard."/>
+			<spinner name="media_size_width" tool_tip="Størrelse på Web Medier, 0 for standard." left_delta="89"/>
 			<spinner name="media_size_height" tool_tip="Størrelse på Web Medier, 0 for standard."/>
 			<text length="1" name="pixels" type="string">
 				pixels

@@ -2,8 +2,8 @@
 <floater name="Inventory" title="持ち物">
 	<search_editor label="ここにタイプして検索" name="inventory search editor" />
 	<tab_container name="inventory filter tabs">
-		<inventory_panel label="All Items" name="All Items" />
-		<inventory_panel label="Recent Items" name="Recent Items" />
+		<inventory_panel label="すべて" name="All Items" />
+		<inventory_panel label="最近の入手アイテム" name="Recent Items" />
 	</tab_container>
 	<menu_bar name="Inventory Menu">
 		<menu label="ファイル" name="File">
@@ -31,7 +31,7 @@
 				<menu_item_call label="新しいパンツ" name="New Underpants" />
 			</menu>
 			<menu name="New Body Parts">
-				<menu_item_call label="新しい形" name="New Shape" />
+				<menu_item_call label="新しいシェイプ(体型)" name="New Shape" />
 				<menu_item_call label="新しいスキン" name="New Skin" />
 				<menu_item_call label="新しい髪" name="New Hair" />
 				<menu_item_call label="新しい眼" name="New Eyes" />

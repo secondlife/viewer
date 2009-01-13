@@ -20,7 +20,7 @@
 	</text>
 	<combo_box name="start_location_combo">
 		<combo_item name="MyHome">
-			Miejsce Startu
+			Mój Start
 		</combo_item>
 		<combo_item name="MyLastLocation">
 			Ostatnie Miejsce

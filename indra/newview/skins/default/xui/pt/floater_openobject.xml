@@ -4,7 +4,7 @@
 		[DESC]:
 	</text>
 	<button label="Copiar para Inventário" label_selected="Copiar para Inventário"
-	     name="copy_to_inventory_button" />
+	     name="copy_to_inventory_button" width="132" />
 	<button label="Copiar e Vestir" label_selected="Copiar e Vestir"
-	     name="copy_and_wear_button" />
+	     name="copy_and_wear_button" left="152"/>
 </floater>

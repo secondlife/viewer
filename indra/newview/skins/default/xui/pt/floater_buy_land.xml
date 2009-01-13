@@ -96,7 +96,7 @@ Este terreno tem 512 metros quadrados de terra.
 		1000
 	</line_editor>
 	<text name="currency_est">
-		por aproximadamente US$ [AMOUNT2]
+		por aproxim. US$ [AMOUNT2]
 	</text>
 	<text name="currency_balance">
 		Você tem L$2,100.

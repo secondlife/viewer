@@ -68,6 +68,7 @@ public:
 
 	static S32 generatePickIDs(S32 start_id, S32 step_size);
 	static LLHUDIcon* handlePick(S32 pick_id);
+	static LLHUDIcon* lineSegmentIntersectAll(const LLVector3& start, const LLVector3& end, LLVector3* intersection);
 
 	static void updateAll();
 	static void cleanupDeadIcons();
@@ -77,6 +78,8 @@ public:
 
 	BOOL getHidden() const { return mHidden; }
 	void setHidden( BOOL hide ) { mHidden = hide; }
+
+	BOOL lineSegmentIntersect(const LLVector3& start, const LLVector3& end, LLVector3* intersection);
 
 protected:
 	LLHUDIcon(const U8 type);

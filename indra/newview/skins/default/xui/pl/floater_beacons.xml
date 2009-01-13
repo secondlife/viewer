@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="beacons" title="Emitery">
 	<panel name="beacons_panel">
-		<check_box label="Dotykalne Obiekty Skryptowane" name="touch_only"/>
+		<check_box label="Obiekty Dotykalne" name="touch_only"/>
 		<check_box label="Obiekty Skryptowane" name="scripted"/>
 		<check_box label="Obiekty Fizyczne" name="physical"/>
 		<check_box label="Źródła Dźwięku" name="sounds"/>
 		<check_box label="Źródła Cząsteczek" name="particles"/>
-		<check_box label="Generuj Rozjaśnienia" name="highlights"/>
-		<check_box label="Generuj Emitery" name="beacons"/>
+		<check_box label="Pokaż Rozjaśnienia" name="highlights"/>
+		<check_box label="Pokaż Emitery" name="beacons"/>
 		<text name="beacon_width_label">
-			Szerokość Emitera:
+			Szerokość Emiterów:
 		</text>
 	</panel>
 </floater>

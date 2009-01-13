@@ -4,8 +4,8 @@
 		Parcelas pertenecientes al grupo son listadas 
 con detalles de contribución. Un aviso aparece hasta que 
 el terreno total en uso sea menor o igual al total
-de contribución. Las pestañas Planeamiento, Detalles y Ventas
-conceden informaciones sobre las finanzas&apos; del grupo.
+de contribución. Las pestañas Detalles y Ventas
+conceden informaciones sobre las finanzas del grupo.
 	</text>
 	<button label="?" name="help_button" />
 	<text name="cant_view_group_land_text">

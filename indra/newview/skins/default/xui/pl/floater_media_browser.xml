@@ -11,7 +11,7 @@
 			<button label="Wyślij Obecny URL do Posiadłości" name="assign" />
 		</layout_panel>
 		<layout_panel name="external_controls">
-			<button label="Open in My Web Browser" name="open_browser" />
+			<button label="Użyj Mojej Przeglądarki" name="open_browser" />
 			<check_box label="Zawsze otwieraj w mojej przeglądarce internetowej" name="open_always" />
 			<button label="Zamknij" name="close" />
 		</layout_panel>

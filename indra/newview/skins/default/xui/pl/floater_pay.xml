@@ -12,10 +12,11 @@
 	<text type="string" length="1" name="payee_name">
 		[FIRST] [LAST]
 	</text>
-	<text type="string" length="1" name="fastpay text">
+	<text type="string" length="1" name="fastpay text" halign="left" left="12">
 		Szybka Zapłata:
 	</text>
 	<text type="string" length="1" name="amount text">
 		Suma:
 	</text>
+	<line_editor left="52" name="amount" />
 </floater>

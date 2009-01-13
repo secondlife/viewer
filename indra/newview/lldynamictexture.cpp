@@ -113,7 +113,7 @@ void LLDynamicTexture::generateGLTexture(LLGLint internal_format, LLGLenum prima
 // 	llinfos << "ALLOCATING " << (mWidth*mHeight*mComponents)/1024 << "K" << llendl;
 	mTexture->createGLTexture(0, raw_image);
 	mTexture->setClamp(mClamp, mClamp);
-	mTexture->setInitialized(false);
+	mTexture->setGLTextureCreated(false);
 }
 
 //-----------------------------------------------------------------------------
@@ -198,6 +198,7 @@ BOOL LLDynamicTexture::updateAllInstances()
 	}
 
 	BOOL result = FALSE;
+	BOOL ret = FALSE ;
 	for( S32 order = 0; order < ORDER_COUNT; order++ )
 	{
 		for (instance_list_t::iterator iter = LLDynamicTexture::sInstances[order].begin();
@@ -212,9 +213,10 @@ BOOL LLDynamicTexture::updateAllInstances()
 				
 				gGL.color4f(1,1,1,1);
 				dynamicTexture->preRender();	// Must be called outside of startRender()
-
+				result = FALSE;
 				if (dynamicTexture->render())
 				{
+					ret = TRUE ;
 					result = TRUE;
 					sNumRenders++;
 				}
@@ -226,7 +228,19 @@ BOOL LLDynamicTexture::updateAllInstances()
 		}
 	}
 
-	return result;
+	return ret;
+}
+
+//virtual
+void LLDynamicTexture::restoreGLTexture() 
+{
+	generateGLTexture() ;
+}
+
+//virtual
+void LLDynamicTexture::destroyGLTexture() 
+{
+	releaseGLTexture() ;
 }
 
 //-----------------------------------------------------------------------------
@@ -235,6 +249,15 @@ BOOL LLDynamicTexture::updateAllInstances()
 //-----------------------------------------------------------------------------
 void LLDynamicTexture::destroyGL()
 {
+	for( S32 order = 0; order < ORDER_COUNT; order++ )
+	{
+		for (instance_list_t::iterator iter = LLDynamicTexture::sInstances[order].begin();
+			 iter != LLDynamicTexture::sInstances[order].end(); ++iter)
+		{
+			LLDynamicTexture *dynamicTexture = *iter;
+			dynamicTexture->destroyGLTexture() ;
+		}
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -243,4 +266,18 @@ void LLDynamicTexture::destroyGL()
 //-----------------------------------------------------------------------------
 void LLDynamicTexture::restoreGL()
 {
+	if (gGLManager.mIsDisabled)
+	{
+		return ;
+	}			
+	
+	for( S32 order = 0; order < ORDER_COUNT; order++ )
+	{
+		for (instance_list_t::iterator iter = LLDynamicTexture::sInstances[order].begin();
+			 iter != LLDynamicTexture::sInstances[order].end(); ++iter)
+		{
+			LLDynamicTexture *dynamicTexture = *iter;
+			dynamicTexture->restoreGLTexture() ;
+		}
+	}
 }

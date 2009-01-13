@@ -91,6 +91,7 @@ public:
 
 	void setSize(S32 width, S32 height, S32 ncomponents);
 
+	BOOL createGLTexture() ;
 	BOOL createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S32 usename = 0);
 	BOOL createGLTexture(S32 discard_level, const U8* data, BOOL data_hasmips = FALSE, S32 usename = 0);
 	void setImage(const LLImageRaw* imageraw);
@@ -114,6 +115,8 @@ public:
 	S32	 getDiscardLevel() const		{ return mCurrentDiscardLevel; }
 	S32	 getMaxDiscardLevel() const		{ return mMaxDiscardLevel; }
 
+	S32  getCurrentWidth() const { return mWidth ;}
+	S32  getCurrentHeight() const { return mHeight ;}
 	S32	 getWidth(S32 discard_level = -1) const;
 	S32	 getHeight(S32 discard_level = -1) const;
 	U8	 getComponents() const { return mComponents; }
@@ -135,8 +138,8 @@ public:
 	void setTarget(const LLGLenum target, const LLTexUnit::eTextureType bind_target);
 
 	LLTexUnit::eTextureType getTarget(void) const { return mBindTarget; }
-	bool isInitialized(void) const { return mInitialized; }
-	void setInitialized (bool initialized) { mInitialized = initialized; }
+	bool isGLTextureCreated(void) const { return mGLTextureCreated ; }
+	void setGLTextureCreated (bool initialized) { mGLTextureCreated = initialized; }
 
 	BOOL getUseMipMaps() const { return mUseMipMaps; }
 	void setUseMipMaps(BOOL usemips) { mUseMipMaps = usemips; }
@@ -147,6 +150,8 @@ public:
 
 	void updatePickMask(S32 width, S32 height, const U8* data_in);
 	BOOL getMask(const LLVector2 &tc);
+
+	void checkTexSize() const ;
 
 protected:
 	void init(BOOL usemipmaps);
@@ -165,21 +170,20 @@ private:
 	S8 mHasExplicitFormat; // If false (default), GL format is f(mComponents)
 	S8 mAutoGenMips;
 	
+	bool     mGLTextureCreated ;
+	LLGLuint mTexName;
+	U16      mWidth;
+	U16      mHeight;	
+	S8       mCurrentDiscardLevel;
+
 protected:
 	LLGLenum mTarget;		// Normally GL_TEXTURE2D, sometimes something else (ex. cube maps)
 	LLTexUnit::eTextureType mBindTarget;	// Normally TT_TEXTURE, sometimes something else (ex. cube maps)
-	bool mInitialized;
-
-	LLGLuint mTexName;
-
+	
 	LLGLboolean mIsResident;
-
-	U16 mWidth;
-	U16 mHeight;
 	
 	S8 mComponents;
-	S8 mMaxDiscardLevel;
-	S8 mCurrentDiscardLevel;
+	S8 mMaxDiscardLevel;	
 	S8 mDontDiscard;			// Keep full res version of this image (for UI, etc)
 
 	S8 mClampS;					// Need to save clamp state
@@ -210,6 +214,7 @@ public:
 	static U32 sUniqueCount;				// Tracks number of unique texture binds for current frame
 	static BOOL sGlobalUseAnisotropic;
 
+	static S32 sMaxTextureSize ;
 #if DEBUG_MISS
 	BOOL mMissed; // Missed on last bind?
 	BOOL getMissed() const { return mMissed; };

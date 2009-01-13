@@ -1034,30 +1034,47 @@ void LLMenuItemToggleGL::doIt( void )
 }
 
 
-LLMenuItemBranchGL::LLMenuItemBranchGL( const std::string& name, const std::string& label, LLMenuGL* branch,
+LLMenuItemBranchGL::LLMenuItemBranchGL( const std::string& name, const std::string& label, LLHandle<LLView> branch,
 										KEY key, MASK mask ) :
 	LLMenuItemGL( name, label, key, mask ),
 	mBranch( branch )
 {
-	mBranch->setVisible( FALSE );
-	mBranch->setParentMenuItem(this);
+	if(!dynamic_cast<LLMenuGL*>(branch.get()))
+	{
+		llerrs << "Non-menu handle passed as branch reference." << llendl;
+	}
+
+	if(getBranch())
+	{
+		getBranch()->setVisible( FALSE );
+		getBranch()->setParentMenuItem(this);
+	}
+}
+
+LLMenuItemBranchGL::~LLMenuItemBranchGL()
+{
+	LLView::deleteViewByHandle(mBranch);
 }
 
 // virtual
 LLView* LLMenuItemBranchGL::getChildView(const std::string& name, BOOL recurse, BOOL create_if_missing) const
 {
 	// richard: this is redundant with parent, remove
-	if (mBranch->getName() == name)
+	if (getBranch())
 	{
-		return mBranch;
+		if(getBranch()->getName() == name)
+		{
+			return getBranch();
+		}
+
+		// Always recurse on branches
+		LLView* child = getBranch()->getChildView(name, recurse, FALSE);
+		if(child)
+		{
+			return child;
+		}
 	}
-	// Always recurse on branches
-	LLView* child = mBranch->getChildView(name, recurse, FALSE);
-	if (!child)
-	{
-		child = LLView::getChildView(name, recurse, create_if_missing);
-	}
-	return child;
+	return LLView::getChildView(name, recurse, create_if_missing);;
 }
 
 // virtual
@@ -1073,15 +1090,19 @@ BOOL LLMenuItemBranchGL::handleMouseUp(S32 x, S32 y, MASK mask)
 
 BOOL LLMenuItemBranchGL::handleAcceleratorKey(KEY key, MASK mask)
 {
-	return mBranch->handleAcceleratorKey(key, mask);
+	if(getBranch())
+	{
+		return getBranch()->handleAcceleratorKey(key, mask);
+	}
+	return FALSE;
 }
 
 // virtual
 LLXMLNodePtr LLMenuItemBranchGL::getXML(bool save_children) const
 {
-	if (mBranch)
+	if (getBranch())
 	{
-		return mBranch->getXML();
+		return getBranch()->getXML();
 	}
 
 	return LLMenuItemGL::getXML();
@@ -1092,14 +1113,17 @@ LLXMLNodePtr LLMenuItemBranchGL::getXML(bool save_children) const
 // if not, it will be added to the list
 BOOL LLMenuItemBranchGL::addToAcceleratorList(std::list<LLKeyBinding*> *listp)
 {
-	U32 item_count = mBranch->getItemCount();
-	LLMenuItemGL *item;
-
-	while (item_count--)
+	if(getBranch())
 	{
-		if ((item = mBranch->getItem(item_count)))
+		U32 item_count = getBranch()->getItemCount();
+		LLMenuItemGL *item;
+
+		while (item_count--)
 		{
-			return item->addToAcceleratorList(listp);
+			if ((item = getBranch()->getItem(item_count)))
+			{
+				return item->addToAcceleratorList(listp);
+			}
 		}
 	}
 	return FALSE;
@@ -1123,18 +1147,18 @@ void LLMenuItemBranchGL::doIt( void )
 
 	// keyboard navigation automatically propagates highlight to sub-menu
 	// to facilitate fast menu control via jump keys
-	if (LLMenuGL::getKeyboardMode() && !mBranch->getHighlightedItem())
+	if (getBranch() && LLMenuGL::getKeyboardMode() && !getBranch()->getHighlightedItem())
 	{
-		mBranch->highlightNextItem(NULL);
+		getBranch()->highlightNextItem(NULL);
 	}
 }
 
 BOOL LLMenuItemBranchGL::handleKey(KEY key, MASK mask, BOOL called_from_parent)
 {
 	BOOL handled = FALSE;
-	if (called_from_parent)
+	if (called_from_parent && getBranch())
 	{
-		handled = mBranch->handleKey(key, mask, called_from_parent);
+		handled = getBranch()->handleKey(key, mask, called_from_parent);
 	}
 
 	if (!handled)
@@ -1148,9 +1172,9 @@ BOOL LLMenuItemBranchGL::handleKey(KEY key, MASK mask, BOOL called_from_parent)
 BOOL LLMenuItemBranchGL::handleUnicodeChar(llwchar uni_char, BOOL called_from_parent)
 {
 	BOOL handled = FALSE;
-	if (called_from_parent)
+	if (called_from_parent && getBranch())
 	{
-		handled = mBranch->handleUnicodeChar(uni_char, TRUE);
+		handled = getBranch()->handleUnicodeChar(uni_char, TRUE);
 	}
 
 	if (!handled)
@@ -1166,14 +1190,19 @@ void LLMenuItemBranchGL::setHighlight( BOOL highlight )
 {
 	if (highlight == getHighlight()) return;
 
-	BOOL auto_open = getEnabled() && (!mBranch->getVisible() || mBranch->getTornOff());
+	if(!getBranch())
+	{ 
+		return;
+	}
+
+	BOOL auto_open = getEnabled() && (!getBranch()->getVisible() || getBranch()->getTornOff());
 	// torn off menus don't open sub menus on hover unless they have focus
 	if (getMenu()->getTornOff() && !((LLFloater*)getMenu()->getParent())->hasFocus())
 	{
 		auto_open = FALSE;
 	}
 	// don't auto open torn off sub-menus (need to explicitly active menu item to give them focus)
-	if (mBranch->getTornOff())
+	if (getBranch()->getTornOff())
 	{
 		auto_open = FALSE;
 	}
@@ -1187,14 +1216,14 @@ void LLMenuItemBranchGL::setHighlight( BOOL highlight )
 	}
 	else
 	{
-		if (mBranch->getTornOff())
+		if (getBranch()->getTornOff())
 		{
-			((LLFloater*)mBranch->getParent())->setFocus(FALSE);
-			mBranch->clearHoverItem();
+			((LLFloater*)getBranch()->getParent())->setFocus(FALSE);
+			getBranch()->clearHoverItem();
 		}
 		else
 		{
-			mBranch->setVisible( FALSE );
+			getBranch()->setVisible( FALSE );
 		}
 	}
 }
@@ -1202,7 +1231,7 @@ void LLMenuItemBranchGL::setHighlight( BOOL highlight )
 void LLMenuItemBranchGL::draw()
 {
 	LLMenuItemGL::draw();
-	if (mBranch->getVisible() && !mBranch->getTornOff())
+	if (getBranch() && getBranch()->getVisible() && !getBranch()->getTornOff())
 	{
 		setHighlight(TRUE);
 	}
@@ -1210,33 +1239,33 @@ void LLMenuItemBranchGL::draw()
 
 void LLMenuItemBranchGL::updateBranchParent(LLView* parentp)
 {
-	if (mBranch->getParent() == NULL)
+	if (getBranch() && getBranch()->getParent() == NULL)
 	{
 		// make the branch menu a sibling of my parent menu
-		mBranch->updateParent(parentp);
+		getBranch()->updateParent(parentp);
 	}
 }
 
 void LLMenuItemBranchGL::onVisibilityChange( BOOL new_visibility )
 {
-	if (new_visibility == FALSE && !mBranch->getTornOff())
+	if (new_visibility == FALSE && getBranch() && !getBranch()->getTornOff())
 	{
-		mBranch->setVisible(FALSE);
+		getBranch()->setVisible(FALSE);
 	}
 	LLMenuItemGL::onVisibilityChange(new_visibility);
 }
 
 BOOL LLMenuItemBranchGL::handleKeyHere( KEY key, MASK mask )
 {
-	if (getMenu()->getVisible() && mBranch->getVisible() && key == KEY_LEFT)
+	if (getMenu()->getVisible() && getBranch() && getBranch()->getVisible() && key == KEY_LEFT)
 	{
 		// switch to keyboard navigation mode
 		LLMenuGL::setKeyboardMode(TRUE);
 
-		BOOL handled = mBranch->clearHoverItem();
-		if (mBranch->getTornOff())
+		BOOL handled = getBranch()->clearHoverItem();
+		if (getBranch()->getTornOff())
 		{
-			((LLFloater*)mBranch->getParent())->setFocus(FALSE);
+			((LLFloater*)getBranch()->getParent())->setFocus(FALSE);
 		}
 		if (handled && getMenu()->getTornOff())
 		{
@@ -1247,12 +1276,12 @@ BOOL LLMenuItemBranchGL::handleKeyHere( KEY key, MASK mask )
 
 	if (getHighlight() && 
 		getMenu()->isOpen() && 
-		key == KEY_RIGHT && !mBranch->getHighlightedItem())
+		key == KEY_RIGHT && getBranch() && !getBranch()->getHighlightedItem())
 	{
 		// switch to keyboard navigation mode
 		LLMenuGL::setKeyboardMode(TRUE);
 
-		LLMenuItemGL* itemp = mBranch->highlightNextItem(NULL);
+		LLMenuItemGL* itemp = getBranch()->highlightNextItem(NULL);
 		if (itemp)
 		{
 			return TRUE;
@@ -1264,37 +1293,39 @@ BOOL LLMenuItemBranchGL::handleKeyHere( KEY key, MASK mask )
 
 void LLMenuItemBranchGL::openMenu()
 {
-	if (mBranch->getTornOff())
+	if(!getBranch()) return;
+
+	if (getBranch()->getTornOff())
 	{
-		gFloaterView->bringToFront((LLFloater*)mBranch->getParent());
+		gFloaterView->bringToFront((LLFloater*)getBranch()->getParent());
 		// this might not be necessary, as torn off branches don't get focus and hence no highligth
-		mBranch->highlightNextItem(NULL);
+		getBranch()->highlightNextItem(NULL);
 	}
-	else if( !mBranch->getVisible() )
+	else if( !getBranch()->getVisible() )
 	{
 		// get valid rectangle for menus
 		const LLRect menu_region_rect = LLMenuGL::sMenuContainer->getMenuRect();
 
-		mBranch->arrange();
+		getBranch()->arrange();
 
-		LLRect rect = mBranch->getRect();
+		LLRect rect = getBranch()->getRect();
 		// calculate root-view relative position for branch menu
 		S32 left = getRect().mRight;
 		S32 top = getRect().mTop - getRect().mBottom;
 
-		localPointToOtherView(left, top, &left, &top, mBranch->getParent());
+		localPointToOtherView(left, top, &left, &top, getBranch()->getParent());
 
 		rect.setLeftTopAndSize( left, top,
 								rect.getWidth(), rect.getHeight() );
 
-		if (mBranch->getCanTearOff())
+		if (getBranch()->getCanTearOff())
 		{
 			rect.translate(0, TEAROFF_SEPARATOR_HEIGHT_PIXELS);
 		}
-		mBranch->setRect( rect );
+		getBranch()->setRect( rect );
 		S32 x = 0;
 		S32 y = 0;
-		mBranch->localPointToOtherView( 0, 0, &x, &y, mBranch->getParent() ); 
+		getBranch()->localPointToOtherView( 0, 0, &x, &y, getBranch()->getParent() ); 
 		S32 delta_x = 0;
 		S32 delta_y = 0;
 		if( y < menu_region_rect.mBottom )
@@ -1308,9 +1339,9 @@ void LLMenuItemBranchGL::openMenu()
 			// move sub-menu over to left side
 			delta_x = llmax(-x, (-1 * (rect.getWidth() + getRect().getWidth())));
 		}
-		mBranch->translate( delta_x, delta_y );
-		mBranch->setVisible( TRUE );
-		mBranch->getParent()->sendChildToFront(mBranch);
+		getBranch()->translate( delta_x, delta_y );
+		getBranch()->setVisible( TRUE );
+		getBranch()->getParent()->sendChildToFront(getBranch());
 	}
 }
 
@@ -1327,7 +1358,7 @@ class LLMenuItemBranchDownGL : public LLMenuItemBranchGL
 protected:
 
 public:
-	LLMenuItemBranchDownGL( const std::string& name, const std::string& label, LLMenuGL* branch,
+	LLMenuItemBranchDownGL( const std::string& name, const std::string& label, LLHandle<LLView> branch,
 							KEY key = KEY_NONE, MASK mask = MASK_NONE );
 
 	virtual std::string getType() const	{ return "menu"; }
@@ -1360,7 +1391,7 @@ public:
 
 LLMenuItemBranchDownGL::LLMenuItemBranchDownGL( const std::string& name,
 												const std::string& label,
-												LLMenuGL* branch, 
+												LLHandle<LLView> branch, 
 												KEY key, MASK mask ) :
 	LLMenuItemBranchGL( name, label, branch, key, mask )
 {
@@ -2258,7 +2289,7 @@ void LLMenuGL::createSpilloverBranch()
 		mSpilloverMenu->setBackgroundColor( mBackgroundColor );
 		mSpilloverMenu->setCanTearOff(FALSE);
 
-		mSpilloverBranch = new LLMenuItemBranchGL(std::string("More"), std::string("More"), mSpilloverMenu);
+		mSpilloverBranch = new LLMenuItemBranchGL(std::string("More"), std::string("More"), mSpilloverMenu->getHandle());
 		mSpilloverBranch->setFontStyle(LLFontGL::ITALIC);
 	}
 }
@@ -2278,9 +2309,6 @@ void LLMenuGL::cleanupSpilloverBranch()
 			mItems.erase(found_iter);
 		}
 
-		delete mSpilloverBranch;
-		mSpilloverBranch = NULL;
-
 		// pop off spillover items
 		while (mSpilloverMenu->getItemCount())
 		{
@@ -2291,6 +2319,12 @@ void LLMenuGL::cleanupSpilloverBranch()
 			mItems.push_back(itemp);
 			addChild(itemp);
 		}
+
+		// Delete the branch, and since the branch will delete the menu,
+		// set the menu* to null.
+		delete mSpilloverBranch;
+		mSpilloverBranch = NULL;
+		mSpilloverMenu = NULL;
 	}
 }
 
@@ -2463,7 +2497,7 @@ BOOL LLMenuGL::appendMenu( LLMenuGL* menu )
 	BOOL success = TRUE;
 
 	LLMenuItemBranchGL* branch = NULL;
-	branch = new LLMenuItemBranchGL( menu->getName(), menu->getLabel(), menu );
+	branch = new LLMenuItemBranchGL( menu->getName(), menu->getLabel(), menu->getHandle() );
 	branch->setJumpKey(menu->getJumpKey());
 	success &= append( branch );
 
@@ -4072,7 +4106,7 @@ BOOL LLMenuBarGL::appendMenu( LLMenuGL* menu )
 	BOOL success = TRUE;
 
 	LLMenuItemBranchGL* branch = NULL;
-	branch = new LLMenuItemBranchDownGL( menu->getName(), menu->getLabel(), menu );
+	branch = new LLMenuItemBranchDownGL( menu->getName(), menu->getLabel(), menu->getHandle());
 	success &= branch->addToAcceleratorList(&mAccelerators);
 	success &= append( branch );
 	branch->setJumpKey(branch->getJumpKey());

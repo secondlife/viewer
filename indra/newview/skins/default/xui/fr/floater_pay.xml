@@ -12,7 +12,7 @@
 	<text length="1" name="payee_name" type="string">
 		[FIRST] [LAST]
 	</text>
-	<text length="1" name="fastpay text" type="string">
+	<text length="1" name="fastpay text" type="string" width="100" halign="left">
 		Paiement rapide :
 	</text>
 	<text left="4" length="1" name="amount text" type="string">

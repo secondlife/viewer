@@ -82,7 +82,7 @@
 		<menu_item_check label="Właściciele Posiadłości" name="Land Owners"/>
 		<menu_item_separator label="-----------" name="separator4"/>
 		<menu label="Podpowiedzi" name="Hover Tips">
-			<menu_item_check label="Tutorial" name="Show Tips"/>
+			<menu_item_check label="Pokaż Podpowiedzi" name="Show Tips"/>
 			<menu_item_separator label="-----------" name="separator"/>
 			<menu_item_check label="Posiadłość: wskazówki" name="Land Tips"/>
 			<menu_item_check label="Obiekty: wskazówki" name="Tips On All Objects"/>
@@ -109,10 +109,10 @@
 		<menu_item_separator label="-----------" name="separator2"/>
 		<menu_item_call label="Teleportuj do Miejsca Startu" name="Teleport Home"/>
 		<menu_item_separator label="-----------" name="separator3"/>
-		<menu_item_call label="Włącz Tryb Nieobecności" name="Set Away"/>
-		<menu_item_call label="Włącz Tryb Pracusia" name="Set Busy"/>
+		<menu_item_call label="Śpij" name="Set Away"/>
+		<menu_item_call label="Pracuj" name="Set Busy"/>
 		<menu_item_call label="Zatrzymaj Wszystkie Animacje" name="Stop All Animations"/>
-		<menu_item_call label="Release Keys" name="Release Keys"/>
+		<menu_item_call label="Zwolnij Klawisze" name="Release Keys"/>
 		<menu_item_separator label="-----------" name="separator4"/>
 		<menu_item_call label="Historia Konta..." name="Account History..."/>
 		<menu_item_call label="Zarządzaj Kontem..." name="Manage My Account..."/>
@@ -176,7 +176,7 @@
 	</menu>
 	<menu label="Pomoc" name="Help">
 		<menu_item_call label="Second Life: Pomoc" name="Second Life Help"/>
-		<menu_item_call label="Tutorial" name="Tutorial"/>
+		<menu_item_call label="Samouczek" name="Tutorial"/>
 		<menu_item_separator label="-----------" name="separator"/>
 		<menu_item_call label="Oficjalny Blog Second Life..." name="Official Linden Blog..."/>
 		<menu_item_separator label="-----------" name="separator2"/>
@@ -196,6 +196,6 @@
 			<menu_item_separator label="-----------" name="separator9"/>
 			<menu_item_call label="Wyślij Raport Błędu..." name="Report Bug..."/>
 		</menu>
-		<menu_item_call label="About Second Life..." name="About Second Life..."/>
+		<menu_item_call label="O Second Life..." name="About Second Life..."/>
 	</menu>
 </menu_bar>

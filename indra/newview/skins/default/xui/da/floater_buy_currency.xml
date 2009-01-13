@@ -53,10 +53,12 @@
 		L$ [AMT]
 	</text>
 	<text name="purchase_warning_repurchase">
-		Der er sket en fejl, og k&#248;bet er afbrudt. Fors&#248;g venligst igen.
+		Der er sket en fejl, og k&#248;bet er afbrudt.
+Fors&#248;g venligst igen.
 	</text>
 	<text name="purchase_warning_notenough">
-		Du k&#248;ber ikke nok valuta, tast et st&#248;rre bel&#248;b og pr&#248;v igen.
+		Du k&#248;ber ikke nok valuta, tast et st&#248;rre bel&#248;b
+og pr&#248;v igen.
 	</text>
 	<button label="Annuller" name="cancel_btn" />
 	<button label="K&#248;b" name="buy_btn" />

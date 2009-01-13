@@ -1298,6 +1298,7 @@ if (FMOD)
         PROPERTIES
         BUILD_WITH_INSTALL_RPATH 1
         INSTALL_NAME_DIR "@executable_path/../Resources"
+        LINK_FLAGS "-unexported_symbols_list ../newview/fmod_hidden_symbols.exp"
         )
     endif (DARWIN)
     set(FMODWRAPPER_LIBRARY fmodwrapper)

@@ -594,7 +594,7 @@
 		Pour faire tourner l&apos;objet, faîtes glisser les bandes de couleur.
 	</string>
 	<string name="status_scale">
-		Pour étirer le côté sélectionné, cliquez et faîtes glisser
+		Pour étirer le côté sélectionné, cliquez et faites glisser
 	</string>
 	<string name="status_move">
 		Faîtes glisser pour déplacer, Maj-faire glisser pour copier.
@@ -603,7 +603,7 @@
 		Cliquez et maintenez pour modifier le terrain
 	</string>
 	<string name="status_camera">
-		Cliquez et faîtes glisser pour changer l&apos;affichage
+		Cliquez et faites glisser pour changer l&apos;affichage
 	</string>
 	<string name="status_grab">
 		Faîtes glisser pour déplacer les objets, appuyez sur Ctrl pour soulever, Crtl-Maj pour faire tourner
@@ -612,7 +612,7 @@
 		Cliquez dans le Monde pour créer, Maj-clic pour sélectionner
 	</string>
 	<string name="status_selectland">
-		Cliquez et faîtes glisser pour sélectionner le terrain
+		Cliquez et faites glisser pour sélectionner le terrain
 	</string>
 	<string name="grid_screen_text">
 		Écran

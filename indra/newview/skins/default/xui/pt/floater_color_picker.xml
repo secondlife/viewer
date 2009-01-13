@@ -10,7 +10,7 @@
 		Azul:
 	</text>
 	<text name="h_val_text">
-		Luminosidade:
+		Hue:
 	</text>
 	<text name="s_val_text">
 		Sat:
@@ -26,6 +26,7 @@
 		Cor atual:
 	</text>
 	<text name="(Drag below to save.)">
-		(Arraste abaixo para salvar.)
+		(Arraste abaixo
+para salvar.)
 	</text>
 </floater>

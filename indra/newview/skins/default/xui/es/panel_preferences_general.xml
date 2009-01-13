@@ -81,7 +81,7 @@
 			한국어 (Coreano) - Beta
 		</combo_item>
 		<combo_item type="string" length="1" name="Chinese">
-			汉语/漢語 (Chino) - Beta
+			中文 (简体) (Chino) - Beta
 		</combo_item>
 		<combo_item type="string" name="Spanish">
 			Español - Beta

@@ -20,19 +20,19 @@
 	<check_box label="Obróć (Ctrl)" name="radio rotate"/>
 	<check_box label="Rozciągnij (Ctrl-Shift)" name="radio stretch"/>
 	<check_box label="Wybierz Teksturę" name="radio select face"/>
-	<check_box label="Edytuj Zlinkowane Części" name="checkbox edit linked parts"/>
+	<check_box label="Edytuj Połączone Części" name="checkbox edit linked parts"/>
 	<text name="text ruler mode">
-		Tryb Linijki:
+		Linijka:
 	</text>
 	<combo_box name="combobox grid mode">
 		<combo_item name="World">
 			Świat
 		</combo_item>
 		<combo_item name="Local">
-			Lokalnie
+			Lokalna
 		</combo_item>
 		<combo_item name="Reference">
-			Odniesienia
+			Względna
 		</combo_item>
 	</combo_box>
 	<check_box label="Rozciągnij 2 Strony" name="checkbox uniform"/>
@@ -59,7 +59,7 @@
 	<button label="" label_selected="" name="ToolRing" tool_tip="Pierścień"/>
 	<button label="" label_selected="" name="ToolTree" tool_tip="Drzewo"/>
 	<button label="" label_selected="" name="ToolGrass" tool_tip="Trawa"/>
-	<check_box label="Zostaw Narzędzia Wybrane" name="checkbox sticky"/>
+	<check_box label="Pamiętaj Wybrane Narzędzia" name="checkbox sticky"/>
 	<check_box label="Kopiuj Selekcję" name="checkbox copy selection"/>
 	<check_box label="Kopia Środka" name="checkbox copy centers"/>
 	<check_box label="Kopia Obrotu" name="checkbox copy rotates"/>
@@ -169,10 +169,10 @@
 			</text>
 			<combo_box name="clickaction">
 				<combo_item name="Touch/grab(default)">
-					Dotknij/chwyć (ustawienie domyślne)
+					Dotknij (domyślne)
 				</combo_item>
 				<combo_item name="Sitonobject">
-					Usiądź na Obiekt
+					Usiądź na Obiekcie
 				</combo_item>
 				<combo_item name="Buyobject">
 					Kup Obiekt
@@ -247,9 +247,9 @@
 			<text name="edit_object">
 				Edytuj parametry obiektu:
 			</text>
-			<check_box label="Zablokowane" name="checkbox locked" tool_tip="Chroni obiekty przed ich przesunięciem lub usunięciem. Pomocne także w czasie budowania by uniknąc niepotrzebnych edycji."/>
-			<check_box label="Fizyczne" name="Physical Checkbox Ctrl" tool_tip="Umożliwia obcność sił grawitacyjnych i oddziaływania pomiędzy obiektami."/>
-			<check_box label="Tymczasowe" name="Temporary Checkbox Ctrl" tool_tip="Umożliwia usunięcie obiektu po 1 minucie od jego stworzenia."/>
+			<check_box label="Zablokowany" name="checkbox locked" tool_tip="Chroni obiekty przed ich przesunięciem lub usunięciem. Pomocne także w czasie budowania by uniknąc niepotrzebnych edycji."/>
+			<check_box label="Fizyczny" name="Physical Checkbox Ctrl" tool_tip="Umożliwia obcność sił grawitacyjnych i oddziaływania pomiędzy obiektami."/>
+			<check_box label="Tymczasowy" name="Temporary Checkbox Ctrl" tool_tip="Umożliwia usunięcie obiektu po 1 minucie od jego stworzenia."/>
 			<check_box label="Fantom" name="Phantom Checkbox Ctrl" tool_tip="Umożliwia zanik kolizji pomiędzy obiektami a awatarami."/>
 			<text name="label position">
 				Pozycja (metry)
@@ -448,14 +448,14 @@
 			<texture_picker label="Tekstura" name="texture control" tool_tip="Kliknij by wybrać obraz"/>
 			<color_swatch label="Kolor" name="colorswatch" tool_tip="Kliknij by wybrać kolor"/>
 			<text name="color trans">
-				Transparencja %
+				Przejrzystość %
 			</text>
 			<spinner name="ColorTrans"/>
 			<text name="glow label">
 				Blask
 			</text>
 			<spinner name="glow"/>
-			<check_box label="Jasność" name="checkbox fullbright"/>
+			<check_box label="Jaskrawość" name="checkbox fullbright"/>
 			<text name="tex gen">
 				Mapowanie
 			</text>
@@ -555,26 +555,26 @@
 			</text>
 			<spinner name="TexRot"/>
 			<string name="string repeats per meter">
-				Powtórzenia /metr
+				Powtórzenia / m
 			</string>
 			<string name="string repeats per face">
-				Powtórzenia /powierzchnia
+				Powtórzenia
 			</string>
 			<text name="rpt">
-				Powtórzenia /metr
+				Powtórzenia / m
 			</text>
 			<spinner name="rptctrl"/>
 			<button label="Zastosuj" label_selected="Zastosuj" name="button apply"/>
 			<text name="tex offset">
-				Wyrównanie
+				Dopasowanie
 			</text>
 			<spinner label="Poziome (U)" name="TexOffsetU"/>
 			<spinner label="Pionowe (V)" name="TexOffsetV"/>
 			<text name="textbox autofix">
-				Wyrównaj Teksturę Mediów
-(must load first)
+				Dopasuj Teksturę Mediów
+(najpierw załaduj)
 			</text>
-			<button label="Wyrównaj" label_selected="Wyrównaj" name="button align"/>
+			<button label="Dopasuj" label_selected="Dopasuj" name="button align"/>
 		</panel>
 		<panel label="Treść" name="Contents">
 			<button label="Nowy Skrypt..." label_selected="Nowy Skrypt..." name="button new script"/>
@@ -607,7 +607,7 @@
 		Kliknij i przytrzymaj żeby modyfikować teren
 	</string>
 	<string name="status_camera">
-		Kliknij i przeciągnij by zmienić widok
+		Kliknij i przeciągnij żeby zmienić widok
 	</string>
 	<string name="status_grab">
 		Opcje:
@@ -622,13 +622,13 @@
 		Widok
 	</string>
 	<string name="grid_local_text">
-		Lokalnie
+		Lokalna
 	</string>
 	<string name="grid_world_text">
 		Świat
 	</string>
 	<string name="grid_reference_text">
-		Odniesienia
+		Względa
 	</string>
 	<string name="grid_attachment_text">
 		Załączniki

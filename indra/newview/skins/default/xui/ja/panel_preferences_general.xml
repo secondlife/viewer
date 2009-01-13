@@ -80,7 +80,7 @@
 			English (英語)
 		</combo_item>
 		<combo_item length="1" name="Chinese" type="string">
-			汉语/漢語(中国語) – ベータ
+			中文 (简体) (中国語) – ベータ
 		</combo_item>
 		<combo_item length="1" name="Deutsch(German)" type="string">
 			Deutsch (ドイツ語) – ベータ

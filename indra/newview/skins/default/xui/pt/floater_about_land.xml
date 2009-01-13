@@ -41,7 +41,7 @@
 			<text length="1" name="Selling with no objects in parcel." type="string">
 				A Venda (Objetos não Incluídos).
 			</text>
-			<button label="Cancelar venda do terreno" label_selected="Cancelar venda do terreno" name="Cancel Land Sale"/>
+			<button label="Cancelar venda do terreno" label_selected="Cancelar venda do terreno" name="Cancel Land Sale" width="165" left="275"/>
 			<text length="1" name="Claimed:" type="string">
 				Solicitado
 			</text>
@@ -60,9 +60,9 @@
 			<text length="1" name="DwellText" type="string">
 				0
 			</text>
-			<button label="Comprar Terra..." label_selected="Comprar Terra..." name="Buy Land..."/>
+			<button label="Comprar Terra..." label_selected="Comprar Terra..." name="Buy Land..." width="125" left="130"/>
 			<button label="Comprar para o Grupo..." label_selected="Comprar para o Grupo..." name="Buy For Group..."/>
-			<button label="Comprar Passe..." label_selected="Comprar Passe..." name="Buy Pass..." tool_tip="Uma passagem concede a você acesso temporário a esta terra."/>
+			<button label="Comprar Passe..." label_selected="Comprar Passe..." name="Buy Pass..." tool_tip="Uma passagem concede a você acesso temporário a esta terra." width="125" left="130"/>
 			<button label="Abandonar Terra.." label_selected="Abandonar Terra.." name="Abandon Land..."/>
 			<button label="Reclamar Terra..." label_selected="Reclamar Terra..." name="Reclaim Land..."/>
 			<button label="Linden Sale..." label_selected="Linden Sale..." name="Linden Sale..." tool_tip="A terra precisa ser proprietária, estar com o conteúdo configurado e não estar pronta para leilão."/>
@@ -252,7 +252,7 @@ Vá para o menu Mundo &gt; Sobre a Terra ou selecione outro terreno para mostrar
 			<check_box label="Salvo (sem dano)" name="check safe" tool_tip="Se ativado, ajusta o terreno para Seguro, desabilitando combate com danos. Se não ativado, o combate com danos é habilitado."/>
 			<check_box label="Sem Empurrar" name="PushRestrictCheck" tool_tip="Evita scripts que empurram. A ativação dessa opção pode ser útil para prevenir comportamentos desordeiros na sua terra."/>
 			<check_box label="Mostra o Lugar na Busca (L$30/semana) sob" name="ShowDirectoryCheck" tool_tip="Permitir que as pessoas vejam este terreno nos resultados de busca"/>
-			<combo_box name="land category" left="286" width="146" >
+			<combo_box name="land category" left="276" width="146" >
 				<combo_item name="AnyCategory">
 					Qualquer Categoria
 				</combo_item>
@@ -293,7 +293,7 @@ Vá para o menu Mundo &gt; Sobre a Terra ou selecione outro terreno para mostrar
 					Outros
 				</combo_item>
 			</combo_box>
-			<button label="?" label_selected="?" name="?"/>
+			<button label="?" label_selected="?" name="?" left="426"/>
 			<check_box label="Mature content" name="MatureCheck" tool_tip="As informações do seu lote são consideradas para Adultos."/>
 			<text length="1" name="Snapshot:" type="string">
 				Foto:
@@ -349,7 +349,8 @@ Texture:
 			<texture_picker label="" name="media texture" tool_tip="Clique para escolher uma imagem" left="97"/>
 			<text name="replace_texture_help">
 				(Objetos usando esta textura, mostrarão o filme ou
-a página web depois que você clicar na seta de reproduzir.)
+a página web depois que você clicar na seta de
+reproduzir.)
 			</text>
 			<text name="Options:">
 				Mídia
@@ -359,10 +360,10 @@ Options:
 			<check_box label="Mídia em Repetição" name="media_loop" tool_tip="Executar a mídia repetidamente. Quando a mídia terminar a execução, ela reiniciará do começo."/>
 			<check_box left="97" label="Esconder a URL da Mídia" name="hide_media_url" tool_tip="Ativando esta opção, a URL da mídia se ocultará para quaisquer visualizadores não autorizados a ver esta informação do terreno. Notar que isto não está disponível para tipos HTML."/>
 			<check_box label="Esconder a URL de Música" name="hide_music_url" tool_tip="Ativando esta opção, a URL de música se esconderá para visualizadores não autorizados a ver esta informação do terreno"/>
-			<text name="media_size" tool_tip="Tamanho para desenhar a mídia Web, deixar 0 como padrão." width="105" left="102">
+			<text name="media_size" tool_tip="Tamanho para desenhar a mídia Web, deixar 0 como padrão." width="115" left="102">
 				Tamanho da mídia:
 			</text>
-			<spinner name="media_size_width" tool_tip="Tamanho para desenhar a mídia Web, deixar 0 como padrão." left_delta="89"/>
+			<spinner name="media_size_width" tool_tip="Tamanho para desenhar a mídia Web, deixar 0 como padrão." left_delta="99"/>
 			<spinner name="media_size_height" tool_tip="Tamanho para desenhar a mídia Web, deixar 0 como padrão."/>
 			<text name="pixels">
 				pixels

@@ -108,8 +108,8 @@
 			BMP
 		</combo_item>
 	</combo_box>
-	<spinner label="Szer" name="snapshot_width"/>
-	<spinner label="Wys" name="snapshot_height"/>
+	<spinner label="Szer." name="snapshot_width"/>
+	<spinner label="Wys." name="snapshot_height"/>
 	<check_box label="Ograniczone Proporcje" name="keep_aspect_check"/>
 	<slider label="Jakość Zdjęcia" name="image_quality_slider"/>
 	<text name="layer_type_label">

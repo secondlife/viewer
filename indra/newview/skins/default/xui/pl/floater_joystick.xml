@@ -109,7 +109,7 @@
 		Martwa Ogniskowa
 	</text>
 	<spinner label="" name="FlycamAxisDeadZone6"/>
-	<button label="Ustawienia Domyślne Nawigatora Przestrzeni" name="SpaceNavigatorDefaults"/>
+	<button label="Ustawienia Domyślne" name="SpaceNavigatorDefaults"/>
 	<button label="OK" label_selected="OK" name="ok_btn"/>
 	<button label="Anuluj" label_selected="Anuluj" name="cancel_btn"/>
 	<string name="JoystickMonitor">

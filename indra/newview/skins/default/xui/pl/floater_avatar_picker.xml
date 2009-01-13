@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater name="avatarpicker" title="Wybierz Rezydenta">
 	<text name="instruct_search_resident_name">
-		Wpisz imię Rezydenta
+		Wpisz imię Rezydenta:
 	</text>
 	<button label="Znajdź" label_selected="Znajdź" name="Find" />
 	<text name="Or select their calling card:">

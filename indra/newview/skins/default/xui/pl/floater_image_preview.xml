@@ -38,15 +38,15 @@
 			Spódnica
 		</combo_item>
 		<combo_item name="SculptedPrim">
-			Prim Rzeźbiony
+			Sculpt
 		</combo_item>
 	</combo_box>
 	<text name="bad_image_text">
-		Unable to read image.
+		Nie można wczytać obrazu.
 
-Próbuj zachować obraz jako 24 bit Targa (.tga).
+Spróbuj zapisać obraz jako 24 bitową Targa (.tga).
 	</text>
-	<check_box label="Use lossless compression" name="lossless_check" />
+	<check_box label="Użyj kompresji bez strat" name="lossless_check" />
 	<button label="Anuluj" name="cancel_btn" />
-	<button label="Załaduj (L$[AMOUNT])" name="ok_btn" />
+	<button label="Załaduj ([AMOUNT]L$)" name="ok_btn" />
 </floater>

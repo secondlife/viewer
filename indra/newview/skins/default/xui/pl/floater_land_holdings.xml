@@ -18,7 +18,7 @@
 		<column label="Obszar" name="area" />
 	</scroll_list>
 	<text name="allowed_label">
-		Dozwolone udziały w Posiadłościach przy obecnym planie płatności:
+		Dozwolone udziały przy obecnym planie płatności:
 	</text>
 	<text name="allowed_text">
 		[AREA] metrów

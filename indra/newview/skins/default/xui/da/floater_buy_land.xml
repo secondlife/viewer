@@ -37,19 +37,19 @@
 	<text name="info_parcel_label">
 		Parcel:
 	</text>
-	<text name="info_parcel">
+	<text name="info_parcel" left_delta="62">
 		Scotopteryx 138,204
 	</text>
-	<text name="info_size_label">
+	<text name="info_size_label" width="60">
 		St&#248;rrelse:
 	</text>
-	<text name="info_size">
+	<text name="info_size" left_delta="62">
 		1024 m2
 	</text>
 	<text name="info_price_label">
 		Pris:
 	</text>
-	<text name="info_price">
+	<text name="info_price" left_delta="62">
 		L$ 1500, objekter inkluderet
 	</text>
 	<text name="info_action">
@@ -76,7 +76,7 @@
 			US$6.00/md, &#229;rlig afregning
 		</combo_item>
 	</combo_box>
-	<text name="land_use_action">
+	<text name="land_use_action" width="210" right="430">
 		For&#248;g dine m&#229;nedlige arealanvendelse gebyrer til US $ 40/month.
 	</text>
 	<text name="land_use_reason">
@@ -84,7 +84,7 @@
 Dette parcel er p&#229; 512 kvadratmeter jord.
 	</text>
 	<text name="purchase_action">
-		Betal Joe Resident L $ 4000 dette areal
+		Betal Joe Resident L$ 4000 dette areal
 	</text>
 	<text name="currency_reason">
 		Du har L$2,100.

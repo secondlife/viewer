@@ -23,7 +23,7 @@
 	<text name="select_object_label">
 		Kliknij na przycisk, a pózniej na obiekt:
 	</text>
-	<button label="" label_selected="" name="pick_btn" tool_tip="Wybór obiektu - identyfikacja obiektu jako źródło raportu"/>
+	<button label="" label_selected="" name="pick_btn" tool_tip="Wybór obiektu - wybierz obiekt, którego dotyczy raport"/>
 	<text name="object_name_label">
 		Nazwa:
 	</text>
@@ -36,7 +36,7 @@
 	<text name="owner_name">
 		Hendrerit Vulputate
 	</text>
-	<combo_box name="category_combo" tool_tip="Kategoria -- wybierz kategorię, która najlepiej opisuje materię tego raportu">
+	<combo_box name="category_combo" tool_tip="Wybór kategorii - wybierz kategorię, której dotyczy raport">
 		<combo_item name="Select_category">
 			Wybierz Kategorię:
 		</combo_item>
@@ -59,7 +59,7 @@
 			Napaść &gt; Piaskownica do testowania broni
 		</combo_item>
 		<combo_item name="Commerce__Failure_to_deliver_product_or_service">
-			Handel &gt; Niedostarczenie produktu lub uslugi
+			Handel &gt; Niedostarczenie produktu lub usługi
 		</combo_item>
 		<combo_item name="Disclosure__Real_world_information">
 			Naruszenie tajemnicy &gt; Informacje z rzeczywistego świata
@@ -110,22 +110,22 @@
 			Prześladowanie &gt; Molestowanie seksualne
 		</combo_item>
 		<combo_item name="Harassment__Solicting_inciting_others_to_violate_ToS">
-			Prześladowanie &gt; Namawianie/zachęcanie innych do łamania Warunków Umowy (Terms of Service)
+			Prześladowanie &gt; Namawianie/zachęcanie innych do łamania Warunków Umowy (ToS)
 		</combo_item>
 		<combo_item name="Harassment__Verbal_abuse">
 			Prześladowanie &gt; Znieważanie słowne
 		</combo_item>
 		<combo_item name="Indecency__Broadly_offensive_content_or_conduct">
-			Nieprzyzwoitość &gt; Bardzo obraźliwa treść lub postępowanie
+			Nieprzyzwoitość &gt; Generalnie obraźliwa treść lub postępowanie
 		</combo_item>
 		<combo_item name="Indecency__Broadly_visible_mature_content">
-			Nieprzyzwoitość &gt; Bardzo widoczna treść dla dorosłych
+			Nieprzyzwoitość &gt; Generalnie widoczna treść dla dorosłych
 		</combo_item>
 		<combo_item name="Indecency__Inappropriate_avatar_name">
 			Nieprzyzwoitość &gt; Niestosowne imię awatara
 		</combo_item>
 		<combo_item name="Indecency__Mature_content_in_PG_region">
-			Nieprzyzwoitość &gt; Zawartość dla dorosłych (18+) w regionie dla wszystkich (BO)
+			Nieprzyzwoitość &gt; Treść dla dorosłych (18+) w regionie dla wszystkich (BO)
 		</combo_item>
 		<combo_item name="Intellectual_property_infringement_Content_Removal">
 			Naruszenie praw autorskich &gt; Usunięcie Treści
@@ -172,12 +172,12 @@
 		Szczegóły:
 	</text>
 	<text name="bug_aviso">
-		Proszę zachować specyfikę daty, miejsca, 
-materii nadużycia, fragmentów czatu/IM oraz obiektów.
+		Podaj datę, miejsce, kategorię nadużycia, fragmenty
+czatu/IM, dane obiektów.
 	</text>
 	<text_editor name="details_edit"/>
 	<text name="incomplete_title">
-		Pamiętaj: Niedokończone raporty nie podlegają inwestygacji!
+		Pamiętaj: Niedokończone raporty nie będą rozpatrywane!
 	</text>
 	<button label="Anuluj" label_selected="Anuluj" name="cancel_btn"/>
 	<button label="Wyślij" label_selected="Wyślij" name="send_btn"/>

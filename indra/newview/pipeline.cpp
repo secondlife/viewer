@@ -4036,7 +4036,7 @@ LLViewerObject* LLPipeline::lineSegmentIntersectInWorld(const LLVector3& start, 
 
 	LLVector3 position;
 
-	sPickAvatar = LLToolMgr::getInstance()->inBuildMode() ? FALSE : TRUE;
+	sPickAvatar = FALSE; //LLToolMgr::getInstance()->inBuildMode() ? FALSE : TRUE;
 	
 	for (LLWorld::region_list_t::iterator iter = LLWorld::getInstance()->getRegionList().begin(); 
 			iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
@@ -4067,6 +4067,32 @@ LLViewerObject* LLPipeline::lineSegmentIntersectInWorld(const LLVector3& start, 
 	
 	if (!sPickAvatar)
 	{
+		//save hit info in case we need to restore
+		//due to attachment override
+		LLVector3 local_normal;
+		LLVector3 local_binormal;
+		LLVector2 local_texcoord;
+		S32 local_face_hit = -1;
+
+		if (face_hit)
+		{ 
+			local_face_hit = *face_hit;
+		}
+		if (tex_coord)
+		{
+			local_texcoord = *tex_coord;
+		}
+		if (bi_normal)
+		{
+			local_binormal = *bi_normal;
+		}
+		if (normal)
+		{
+			local_normal = *normal;
+		}
+				
+		const F32 ATTACHMENT_OVERRIDE_DIST = 0.1f;
+
 		if (!drawable || !drawable->getVObj()->isAttachment())
 		{ //check against avatars
 				sPickAvatar = TRUE;
@@ -4081,8 +4107,35 @@ LLViewerObject* LLPipeline::lineSegmentIntersectInWorld(const LLVector3& start, 
 						LLDrawable* hit = part->lineSegmentIntersect(start, local_end, pick_transparent, face_hit, &position, tex_coord, normal, bi_normal);
 						if (hit)
 						{
-							drawable = hit;
-							local_end = position;						
+							if (!drawable || 
+								!drawable->getVObj()->isAttachment() ||
+								(position-local_end).magVec() > ATTACHMENT_OVERRIDE_DIST)
+							{ //avatar overrides if previously hit drawable is not an attachment or 
+							  //attachment is far enough away from detected intersection
+								drawable = hit;
+								local_end = position;						
+							}
+							else
+							{ //prioritize attachments over avatars
+								position = local_end;
+
+								if (face_hit)
+								{
+									*face_hit = local_face_hit;
+								}
+								if (tex_coord)
+								{
+									*tex_coord = local_texcoord;
+								}
+								if (bi_normal)
+								{
+									*bi_normal = local_binormal;
+								}
+								if (normal)
+								{
+									*normal = local_normal;
+								}
+							}
 						}
 					}
 				}

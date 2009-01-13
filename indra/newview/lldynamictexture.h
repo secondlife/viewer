@@ -61,6 +61,9 @@ public:
 	virtual BOOL render();
 	virtual void postRender(BOOL success);
 
+	virtual void restoreGLTexture() ;
+	virtual void destroyGLTexture() ;
+
 	LLImageGL* getTexture(void) const { return mTexture; }
 
 	static BOOL	updateAllInstances();
