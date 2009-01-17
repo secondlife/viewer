@@ -13,6 +13,7 @@ include_directories(
 set(llvfs_SOURCE_FILES
     lldir.cpp
     lllfsthread.cpp
+    llpidlock.cpp
     llvfile.cpp
     llvfs.cpp
     llvfsthread.cpp
@@ -23,6 +24,7 @@ set(llvfs_HEADER_FILES
 
     lldir.h
     lllfsthread.h
+    llpidlock.h
     llvfile.h
     llvfs.h
     llvfsthread.h

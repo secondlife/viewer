@@ -277,6 +277,15 @@ BOOL LLPermissions::setOwnerAndGroup(
 	return allowed;
 }
 
+// only call this if you know what you're doing
+// there are usually perm-bit consequences when the 
+// ownerhsip changes
+void LLPermissions::yesReallySetOwner(const LLUUID& owner, bool group_owned)
+{
+	mOwner = owner;
+	mIsGroupOwned = group_owned;
+}
+
 BOOL LLPermissions::deedToGroup(const LLUUID& agent, const LLUUID& group)
 {
 	if(group.notNull() && (agent.isNull() || ((group == mGroup)

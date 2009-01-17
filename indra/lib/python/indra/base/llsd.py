@@ -28,6 +28,7 @@ $/LicenseInfo$
 
 import datetime
 import base64
+import string
 import struct
 import time
 import types
@@ -940,6 +941,7 @@ def parse_notation(something):
 
 def parse(something):
     try:
+        something = string.lstrip(something)   #remove any pre-trailing whitespace
         if something.startswith('<?llsd/binary?>'):
             return parse_binary(something)
         # This should be better.

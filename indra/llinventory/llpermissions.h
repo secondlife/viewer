@@ -224,6 +224,11 @@ public:
 	// item.
 	BOOL setOwnerAndGroup(const LLUUID& agent, const LLUUID& owner, const LLUUID& group, bool is_atomic);	
 
+	// only call this if you know what you're doing
+	// there are usually perm-bit consequences when the 
+	// ownerhsip changes
+	void yesReallySetOwner(const LLUUID& owner, bool group_owned);
+
 	// saves last owner, sets owner to uuid null, sets group
 	// owned. group_id must be the group of the object (that's who it
 	// is being deeded to) and the object must be group

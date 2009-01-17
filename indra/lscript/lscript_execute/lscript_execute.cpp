@@ -42,6 +42,10 @@
 #include "lscript_heapruntime.h"
 #include "lscript_alloc.h"
 
+// Static
+const	S32	DEFAULT_SCRIPT_TIMER_CHECK_SKIP = 4;
+S32		LLScriptExecute::sTimerCheckSkip = DEFAULT_SCRIPT_TIMER_CHECK_SKIP;
+
 void (*binary_operations[LST_EOF][LST_EOF])(U8 *buffer, LSCRIPTOpCodesEnum opcode);
 void (*unary_operations[LST_EOF])(U8 *buffer, LSCRIPTOpCodesEnum opcode);
 
@@ -924,7 +928,7 @@ void LLScriptExecute::runInstructions(BOOL b_print, const LLUUID &id,
 // Run for a single timeslice, or until a yield or state transition is due
 F32 LLScriptExecute::runQuanta(BOOL b_print, const LLUUID &id, const char **errorstr, F32 quanta, U32& events_processed, LLTimer& timer)
 {
-	U32 timer_checks = 0;
+	S32 timer_checks = 0;
 	F32 inloop = 0;
 
 	// Loop while not finished, yield not due and time remaining
@@ -936,12 +940,11 @@ F32 LLScriptExecute::runQuanta(BOOL b_print, const LLUUID &id, const char **erro
 		runInstructions(b_print, id, errorstr,
 						events_processed, quanta);
 		
-		static const S32 lsl_timer_check_skip = 4;
 		if(isYieldDue())
 		{
 			break;
 		}
-		else if(timer_checks++ == lsl_timer_check_skip)
+		else if(timer_checks++ >= LLScriptExecute::sTimerCheckSkip)
 		{
 			inloop = timer.getElapsedTimeF32();
 			if(inloop > quanta)

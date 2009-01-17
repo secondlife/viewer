@@ -452,9 +452,16 @@ public:
 	// Called when the script is scheduled to be stopped from newsim/LLScriptData
 	virtual void stopRunning() = 0;
 	
+	// A timer is regularly checked to see if script takes too long, but we
+	// don't do it every opcode due to performance hits.
+	static void		setTimerCheckSkip( S32 value )			{ sTimerCheckSkip = value;		}
+	static S32		getTimerCheckSkip()						{ return sTimerCheckSkip;		}
+
 private:
 
 	BOOL mReset;
+
+	static	S32		sTimerCheckSkip;		// Number of times to skip the timer check for performance reasons
 };
 
 class LLScriptExecuteLSL2 : public LLScriptExecute

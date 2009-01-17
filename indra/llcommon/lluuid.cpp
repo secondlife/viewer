@@ -209,7 +209,7 @@ std::string LLUUID::asString() const
 
 BOOL LLUUID::set(const char* in_string, BOOL emit)
 {
-	return set(ll_safe_string(in_string));
+	return set(ll_safe_string(in_string),emit);
 }
 
 BOOL LLUUID::set(const std::string& in_string, BOOL emit)
@@ -231,7 +231,7 @@ BOOL LLUUID::set(const std::string& in_string, BOOL emit)
 		{
 			if(emit)
 			{
-				llinfos << "Warning! Using broken UUID string format" << llendl;
+				llwarns << "Warning! Using broken UUID string format" << llendl;
 			}
 			broken_format = TRUE;
 		}
@@ -240,7 +240,8 @@ BOOL LLUUID::set(const std::string& in_string, BOOL emit)
 			// Bad UUID string.  Spam as INFO, as most cases we don't care.
 			if(emit)
 			{
-				llinfos << "Bad UUID string: " << in_string << llendl;
+				//don't spam the logs because a resident can't spell.
+				llwarns << "Bad UUID string: " << in_string << llendl;
 			}
 			setNull();
 			return FALSE;

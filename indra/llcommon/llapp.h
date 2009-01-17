@@ -189,6 +189,8 @@ public:
 #if !LL_WINDOWS
 	static U32  getSigChildCount();
 	static void incSigChildCount();
+#else
+#define getpid GetCurrentProcessId
 #endif
 	static int getPid();
 

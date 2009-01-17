@@ -2902,6 +2902,7 @@ LLInventoryObject* LLToolDragAndDrop::locateMultipleInventory(LLViewerInventoryC
 
 void pack_permissions_slam(LLMessageSystem* msg, U32 flags, const LLPermissions& perms)
 {
+	// CRUFT -- the server no longer pays attention to this data
 	U32 group_mask		= perms.getMaskGroup();
 	U32 everyone_mask	= perms.getMaskEveryone();
 	U32 next_owner_mask	= perms.getMaskNextOwner();
