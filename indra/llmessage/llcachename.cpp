@@ -894,7 +894,7 @@ void LLCacheName::Impl::processUUIDReply(LLMessageSystem* msg, bool isGroup)
 		else
 		{	// is group
 			msg->getStringFast(_PREHASH_UUIDNameBlock, _PREHASH_GroupName, entry->mGroupName, i);
-			LLStringFn::replace_nonprintable(entry->mGroupName, LL_UNKNOWN_CHAR);
+			LLStringFn::replace_ascii_controlchars(entry->mGroupName, LL_UNKNOWN_CHAR);
 		}
 
 		if (!isGroup)

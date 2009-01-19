@@ -663,7 +663,8 @@ S32	LLStringOps::collate(const llwchar* a, const llwchar* b)
 
 namespace LLStringFn
 {
-	void replace_nonprintable(std::basic_string<char>& string, char replacement)
+	// NOTE - this restricts output to ascii
+	void replace_nonprintable_in_ascii(std::basic_string<char>& string, char replacement)
 	{
 		const char MIN = 0x20;
 		std::basic_string<char>::size_type len = string.size();
@@ -676,23 +677,9 @@ namespace LLStringFn
 		}
 	}
 
-	void replace_nonprintable(
-		std::basic_string<llwchar>& string,
-		llwchar replacement)
-	{
-		const llwchar MIN = 0x20;
-		const llwchar MAX = 0x7f;
-		std::basic_string<llwchar>::size_type len = string.size();
-		for(std::basic_string<llwchar>::size_type ii = 0; ii < len; ++ii)
-		{
-			if((string[ii] < MIN) || (string[ii] > MAX))
-			{
-				string[ii] = replacement;
-			}
-		}
-	}
 
-	void replace_nonprintable_and_pipe(std::basic_string<char>& str,
+	// NOTE - this restricts output to ascii
+	void replace_nonprintable_and_pipe_in_ascii(std::basic_string<char>& str,
 									   char replacement)
 	{
 		const char MIN  = 0x20;
@@ -701,22 +688,6 @@ namespace LLStringFn
 		for(std::basic_string<char>::size_type ii = 0; ii < len; ++ii)
 		{
 			if( (str[ii] < MIN) || (str[ii] == PIPE) )
-			{
-				str[ii] = replacement;
-			}
-		}
-	}
-
-	void replace_nonprintable_and_pipe(std::basic_string<llwchar>& str,
-									   llwchar replacement)
-	{
-		const llwchar MIN  = 0x20;
-		const llwchar MAX  = 0x7f;
-		const llwchar PIPE = 0x7c;
-		std::basic_string<llwchar>::size_type len = str.size();
-		for(std::basic_string<llwchar>::size_type ii = 0; ii < len; ++ii)
-		{
-			if( (str[ii] < MIN) || (str[ii] > MAX) || (str[ii] == PIPE) )
 			{
 				str[ii] = replacement;
 			}
@@ -748,6 +719,23 @@ namespace LLStringFn
 		return output;
 	}
 
+	/**
+	 * @brief Replace all control characters (c < 0x20) with replacement in
+	 * string.
+	 */
+	void replace_ascii_controlchars(std::basic_string<char>& string, char replacement)
+	{
+		const unsigned char MIN = 0x20;
+		std::basic_string<char>::size_type len = string.size();
+		for(std::basic_string<char>::size_type ii = 0; ii < len; ++ii)
+		{
+			const unsigned char c = (unsigned char) string[ii];
+			if(c < MIN)
+			{
+				string[ii] = replacement;
+			}
+		}
+	}
 }
 
 

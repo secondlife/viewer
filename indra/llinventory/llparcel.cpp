@@ -278,7 +278,7 @@ void LLParcel::setName(const std::string& name)
     // The escaping here must match the escaping in the database
     // abstraction layer.
     mName = name;
-    LLStringFn::replace_nonprintable(mName, LL_UNKNOWN_CHAR);
+    LLStringFn::replace_nonprintable_in_ascii(mName, LL_UNKNOWN_CHAR);
 }
 
 void LLParcel::setDesc(const std::string& desc)
@@ -296,7 +296,7 @@ void LLParcel::setMusicURL(const std::string& url)
     // abstraction layer.
     // This should really filter the url in some way. Other than
     // simply requiring non-printable.
-    LLStringFn::replace_nonprintable(mMusicURL, LL_UNKNOWN_CHAR);
+    LLStringFn::replace_nonprintable_in_ascii(mMusicURL, LL_UNKNOWN_CHAR);
 }
 
 void LLParcel::setMediaURL(const std::string& url)
@@ -306,7 +306,7 @@ void LLParcel::setMediaURL(const std::string& url)
     // abstraction layer if it's ever added.
     // This should really filter the url in some way. Other than
     // simply requiring non-printable.
-    LLStringFn::replace_nonprintable(mMediaURL, LL_UNKNOWN_CHAR);
+    LLStringFn::replace_nonprintable_in_ascii(mMediaURL, LL_UNKNOWN_CHAR);
 }
 
 void LLParcel::setMediaDesc(const std::string& desc)

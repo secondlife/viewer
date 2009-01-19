@@ -487,48 +487,29 @@ namespace LLStringFn
 	/**
 	 * @brief Replace all non-printable characters with replacement in
 	 * string.
+	 * NOTE - this will zap non-ascii
 	 *
 	 * @param [in,out] string the to modify. out value is the string
 	 * with zero non-printable characters.
 	 * @param The replacement character. use LL_UNKNOWN_CHAR if unsure.
 	 */
-	void replace_nonprintable(
+	void replace_nonprintable_in_ascii(
 		std::basic_string<char>& string,
 		char replacement);
 
-	/**
-	 * @brief Replace all non-printable characters with replacement in
-	 * a wide string.
-	 *
-	 * @param [in,out] string the to modify. out value is the string
-	 * with zero non-printable characters.
-	 * @param The replacement character. use LL_UNKNOWN_CHAR if unsure.
-	 */
-	void replace_nonprintable(
-		std::basic_string<llwchar>& string,
-		llwchar replacement);
 
 	/**
 	 * @brief Replace all non-printable characters and pipe characters
 	 * with replacement in a string.
+	 * NOTE - this will zap non-ascii
 	 *
 	 * @param [in,out] the string to modify. out value is the string
 	 * with zero non-printable characters and zero pipe characters.
 	 * @param The replacement character. use LL_UNKNOWN_CHAR if unsure.
 	 */
-	void replace_nonprintable_and_pipe(std::basic_string<char>& str,
+	void replace_nonprintable_and_pipe_in_ascii(std::basic_string<char>& str,
 									   char replacement);
 
-	/**
-	 * @brief Replace all non-printable characters and pipe characters
-	 * with replacement in a wide string.
-	 *
-	 * @param [in,out] the string to modify. out value is the string
-	 * with zero non-printable characters and zero pipe characters.
-	 * @param The replacement wide character. use LL_UNKNOWN_CHAR if unsure.
-	 */
-	void replace_nonprintable_and_pipe(std::basic_string<llwchar>& str,
-									   llwchar replacement);
 
 	/**
 	 * @brief Remove all characters that are not allowed in XML 1.0.
@@ -536,6 +517,19 @@ namespace LLStringFn
 	 * Works with US ASCII and UTF-8 encoded strings.  JC
 	 */
 	std::string strip_invalid_xml(const std::string& input);
+
+
+	/**
+	 * @brief Replace all control characters (0 <= c < 0x20) with replacement in
+	 * string.   This is safe for utf-8
+	 *
+	 * @param [in,out] string the to modify. out value is the string
+	 * with zero non-printable characters.
+	 * @param The replacement character. use LL_UNKNOWN_CHAR if unsure.
+	 */
+	void replace_ascii_controlchars(
+		std::basic_string<char>& string,
+		char replacement);
 }
 
 ////////////////////////////////////////////////////////////
