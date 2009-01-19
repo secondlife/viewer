@@ -71,6 +71,7 @@ static WSADATA stWSAData;
 struct sockaddr_in stDstAddr;
 struct sockaddr_in stSrcAddr;
 struct sockaddr_in stLclAddr;
+static U32 gsnReceivingIFAddr = INVALID_HOST_IP_ADDRESS; // Address to which datagram was sent
 
 #if LL_DARWIN
 #ifndef _SOCKLEN_T
@@ -108,6 +109,16 @@ U32 get_sender_ip(void)
 U32 get_sender_port() 
 {
 	return ntohs(stSrcAddr.sin_port);
+}
+
+LLHost get_receiving_interface()
+{
+	return LLHost(gsnReceivingIFAddr, INVALID_PORT);
+}
+
+U32 get_receiving_interface_ip(void)
+{
+	return gsnReceivingIFAddr;
 }
 
 const char* u32_to_ip_string(U32 ip)
@@ -455,6 +466,21 @@ S32 start_net(S32& socket_out, int& nPort)
 	llinfos << "startNet - receive buffer size : " << rec_size << llendl;
 	llinfos << "startNet - send buffer size    : " << snd_size << llendl;
 
+#if LL_LINUX
+	// Turn on recipient address tracking
+	{
+		int use_pktinfo = 1;
+		if( setsockopt( hSocket, SOL_IP, IP_PKTINFO, &use_pktinfo, sizeof(use_pktinfo) ) == -1 )
+		{
+			llwarns << "No IP_PKTINFO available" << llendl;
+		}
+		else
+		{
+			llinfos << "IP_PKKTINFO enabled" << llendl;
+		}
+	}
+#endif
+
 	//  Setup a destination address
 	char achMCAddr[MAXADDRSTR] = "127.0.0.1";	/* Flawfinder: ignore */ 
 	stDstAddr.sin_family =      AF_INET;
@@ -473,6 +499,52 @@ void end_net(S32& socket_out)
 	}
 }
 
+#if LL_LINUX
+static int recvfrom_destip( int socket, void *buf, int len, struct sockaddr *from, socklen_t *fromlen, U32 *dstip )
+{
+	int size;
+	struct iovec iov[1];
+	char cmsg[CMSG_SPACE(sizeof(struct in_pktinfo))];
+	struct cmsghdr *cmsgptr;
+	struct msghdr msg = {0};
+
+	iov[0].iov_base = buf;
+	iov[0].iov_len = len;
+
+	memset( &msg, 0, sizeof msg );
+	msg.msg_name = from;
+	msg.msg_namelen = *fromlen;
+	msg.msg_iov = iov;
+	msg.msg_iovlen = 1;
+	msg.msg_control = &cmsg;
+	msg.msg_controllen = sizeof(cmsg);
+
+	size = recvmsg( socket, &msg, 0 );
+
+	if( size == -1 )
+	{
+		return -1;
+	}
+
+	for( cmsgptr = CMSG_FIRSTHDR(&msg); cmsgptr != NULL; cmsgptr = CMSG_NXTHDR( &msg, cmsgptr ) )
+	{
+		if( cmsgptr->cmsg_level == SOL_IP && cmsgptr->cmsg_type == IP_PKTINFO )
+		{
+			in_pktinfo *pktinfo = (in_pktinfo *)CMSG_DATA(cmsgptr);
+			if( pktinfo )
+			{
+				// Two choices. routed and specified. ipi_addr is routed, ipi_spec_dst is
+				// routed. We should stay with specified until we go to multiple
+				// interfaces
+				*dstip = pktinfo->ipi_spec_dst.s_addr;
+			}
+		}
+	}
+
+	return size;
+}
+#endif
+
 int receive_packet(int hSocket, char * receiveBuffer)
 {
 	//  Receives data asynchronously from the socket set by initNet().
@@ -482,13 +554,23 @@ int receive_packet(int hSocket, char * receiveBuffer)
 	int nRet;
 	socklen_t addr_size = sizeof(struct sockaddr_in);
 
-	nRet = recvfrom(hSocket, receiveBuffer, NET_BUFFER_SIZE, 0, (struct sockaddr*)&stSrcAddr, &addr_size);
+	gsnReceivingIFAddr = INVALID_HOST_IP_ADDRESS;
+
+#if LL_LINUX
+	nRet = recvfrom_destip(hSocket, receiveBuffer, NET_BUFFER_SIZE, (struct sockaddr*)&stSrcAddr, &addr_size, &gsnReceivingIFAddr);
+#else	
+	int recv_flags = 0;
+	nRet = recvfrom(hSocket, receiveBuffer, NET_BUFFER_SIZE, recv_flags, (struct sockaddr*)&stSrcAddr, &addr_size);
+#endif
 
 	if (nRet == -1)
 	{
 		// To maintain consistency with the Windows implementation, return a zero for size on error.
 		return 0;
 	}
+
+	// Uncomment for testing if/when implementing for Mac or Windows:
+	// llinfos << "Received datagram to in addr " << u32_to_ip_string(get_receiving_interface_ip()) << llendl;
 
 	return nRet;
 }

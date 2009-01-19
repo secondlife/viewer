@@ -74,5 +74,6 @@ void LLPacketBuffer::init (S32 hSocket)
 {
 	mSize = receive_packet(hSocket, mData);
 	mHost = ::get_sender();
+	mReceivingIF = ::get_receiving_interface();
 }
-	
+

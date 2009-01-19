@@ -306,6 +306,9 @@ LLMessageSystem::LLMessageSystem(const std::string& filename, U32 port,
 	// default to not accepting packets from not alive circuits
 	mbProtected = TRUE;
 
+	// default to blocking trusted connections on a public interface if one is specified
+	mBlockUntrustedInterface = true;
+
 	mSendPacketFailureCount = 0;
 
 	mCircuitPrintFreq = 60.f;		// seconds
@@ -440,6 +443,7 @@ void LLMessageSystem::clearReceiveState()
 	mCurrentRecvPacketID = 0;
 	mIncomingCompressedSize = 0;
 	mLastSender.invalidate();
+	mLastReceivingIF.invalidate();
 	mMessageReader->clearMessage();
 }
 
@@ -589,6 +593,7 @@ BOOL LLMessageSystem::checkMessages( S64 frame_count )
 		
 		receive_size = mTrueReceiveSize;
 		mLastSender = mPacketRing.getLastSender();
+		mLastReceivingIF = mPacketRing.getLastReceivingInterface();
 		
 		if (receive_size < (S32) LL_MINIMUM_VALID_PACKET_SIZE)
 		{
@@ -2353,6 +2358,23 @@ void process_create_trusted_circuit(LLMessageSystem *msg, void **)
 	{
 		//	Don't respond to requests that use the same end point ID
 		return;
+	}
+
+	U32 untrusted_interface = msg->getUntrustedInterface().getAddress();
+	U32 last_interface = msg->getReceivingInterface().getAddress();
+	if ( ( untrusted_interface != INVALID_HOST_IP_ADDRESS ) && ( untrusted_interface == last_interface ) )
+	{
+		if( msg->getBlockUntrustedInterface() )
+		{
+			LL_WARNS("Messaging") << "Refusing trust on public interface from host: "
+				<< msg->getSender() << llendl;
+			return;
+		}
+		else
+		{
+			LL_WARNS("Messaging") << "Establishing trust on public interface from host: "
+				<< msg->getSender() << llendl;
+		}
 	}
 
 	char their_digest[MD5HEX_STR_SIZE];	/* Flawfinder: ignore */

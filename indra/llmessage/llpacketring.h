@@ -62,6 +62,7 @@ public:
 	BOOL sendPacket(int h_socket, char * send_buffer, S32 buf_size, LLHost host);
 
 	inline LLHost getLastSender();
+	inline LLHost getLastReceivingInterface();
 
 	S32 getAndResetActualInBits()				{ S32 bits = mActualBitsIn; mActualBitsIn = 0; return bits;}
 	S32 getAndResetActualOutBits()				{ S32 bits = mActualBitsOut; mActualBitsOut = 0; return bits;}
@@ -86,12 +87,18 @@ protected:
 	std::queue<LLPacketBuffer *> mSendQueue;
 
 	LLHost mLastSender;
+	LLHost mLastReceivingIF;
 };
 
 
 inline LLHost LLPacketRing::getLastSender()
 {
 	return mLastSender;
+}
+
+inline LLHost LLPacketRing::getLastReceivingInterface()
+{
+	return mLastReceivingIF;
 }
 
 #endif

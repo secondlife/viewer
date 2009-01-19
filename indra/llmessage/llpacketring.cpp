@@ -141,6 +141,7 @@ S32 LLPacketRing::receiveFromRing (S32 socket, char *datap)
 	}
 	// need to set sender IP/port!!
 	mLastSender = packetp->getHost();
+	mLastReceivingIF = packetp->getReceivingInterface();
 	delete packetp;
 
 	this->mInBufferLength -= packet_size;
@@ -223,6 +224,7 @@ S32 LLPacketRing::receivePacket (S32 socket, char *datap)
 		// no delay, pull straight from net
 		packet_size = receive_packet(socket, datap);		
 		mLastSender = ::get_sender();
+		mLastReceivingIF = ::get_receiving_interface();
 
 		if (packet_size)  // did we actually get a packet?
 		{

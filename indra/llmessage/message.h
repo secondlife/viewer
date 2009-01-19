@@ -212,6 +212,9 @@ class LLMessageSystem
 	U8					mSendBuffer[MAX_BUFFER_SIZE];
 	S32					mSendSize;
 
+	bool				mBlockUntrustedInterface;
+	LLHost				mUntrustedInterface;
+
  public:
 	LLPacketRing				mPacketRing;
 	LLReliablePacketParams			mReliablePacketParams;
@@ -351,6 +354,8 @@ public:
 	const LLHost& getSender() const;
 	U32		getSenderIP() const;			// getSender() is preferred
 	U32		getSenderPort() const;		// getSender() is preferred
+
+	const LLHost& getReceivingInterface() const;
 
 	// This method returns the uuid associated with the sender. The
 	// UUID will be null if it is not yet known or is a server
@@ -564,6 +569,12 @@ public:
 	/** Return false true if name is unknown or trusted */
 	bool isUntrustedMessage(const std::string& name) const;
 
+	// Mark an interface ineligible for trust
+	void setUntrustedInterface( const LLHost host ) { mUntrustedInterface = host; }
+	LLHost getUntrustedInterface() const { return mUntrustedInterface; }
+	void setBlockUntrustedInterface( bool block ) { mBlockUntrustedInterface = block; } // Throw a switch to allow, sending warnings only
+	bool getBlockUntrustedInterface() const { return mBlockUntrustedInterface; }
+
 	// Change this message to be UDP black listed.
 	void banUdpMessage(const std::string& name);
 
@@ -747,6 +758,7 @@ private:
 	void init(); // ctor shared initialisation.
 
 	LLHost mLastSender;
+	LLHost mLastReceivingIF;
 	S32 mIncomingCompressedSize;		// original size of compressed msg (0 if uncomp.)
 	TPACKETID mCurrentRecvPacketID;       // packet ID of current receive packet (for reporting)
 
@@ -966,6 +978,7 @@ inline void *ntohmemcpy(void *s, const void *ct, EMsgVariableType type, size_t n
 
 
 inline const LLHost& LLMessageSystem::getSender() const {return mLastSender;}
+inline const LLHost& LLMessageSystem::getReceivingInterface() const {return mLastReceivingIF;}
 
 inline U32 LLMessageSystem::getSenderIP() const 
 {
@@ -976,6 +989,7 @@ inline U32 LLMessageSystem::getSenderPort() const
 {
 	return mLastSender.getPort();
 }
+
 
 //-----------------------------------------------------------------------------
 // Transmission aliases
