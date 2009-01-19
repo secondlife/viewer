@@ -71,7 +71,6 @@ static WSADATA stWSAData;
 struct sockaddr_in stDstAddr;
 struct sockaddr_in stSrcAddr;
 struct sockaddr_in stLclAddr;
-static U32 gsnReceivingIFAddr = INVALID_HOST_IP_ADDRESS; // Address to which datagram was sent
 
 #if LL_DARWIN
 #ifndef _SOCKLEN_T
@@ -82,6 +81,7 @@ typedef int socklen_t;
 
 #endif
 
+static U32 gsnReceivingIFAddr = INVALID_HOST_IP_ADDRESS; // Address to which datagram was sent
 
 const char* LOOPBACK_ADDRESS_STRING = "127.0.0.1";
 
