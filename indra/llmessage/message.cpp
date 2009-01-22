@@ -2366,13 +2366,13 @@ void process_create_trusted_circuit(LLMessageSystem *msg, void **)
 	{
 		if( msg->getBlockUntrustedInterface() )
 		{
-			LL_WARNS("Messaging") << "Refusing trust on public interface from host: "
+			LL_WARNS("Messaging") << "Ignoring CreateTrustedCircuit on public interface from host: "
 				<< msg->getSender() << llendl;
 			return;
 		}
 		else
 		{
-			LL_WARNS("Messaging") << "Establishing trust on public interface from host: "
+			LL_WARNS("Messaging") << "Processing CreateTrustedCircuit on public interface from host: "
 				<< msg->getSender() << llendl;
 		}
 	}
@@ -2433,6 +2433,24 @@ void process_deny_trusted_circuit(LLMessageSystem *msg, void **)
 		//	Don't respond to requests that use the same end point ID
 		return;
 	}
+	
+	U32 untrusted_interface = msg->getUntrustedInterface().getAddress();
+	U32 last_interface = msg->getReceivingInterface().getAddress();
+	if ( ( untrusted_interface != INVALID_HOST_IP_ADDRESS ) && ( untrusted_interface == last_interface ) )
+	{
+		if( msg->getBlockUntrustedInterface() )
+		{
+			LL_WARNS("Messaging") << "Ignoring DenyTrustedCircuit on public interface from host: "
+				<< msg->getSender() << llendl;
+			return;
+		}
+		else
+		{
+			LL_WARNS("Messaging") << "Processing DenyTrustedCircuit on public interface from host: "
+				<< msg->getSender() << llendl;
+		}
+	}
+
 
 	// Assume that we require trust to proceed, so resend.
 	// This catches the case where a circuit that was trusted
