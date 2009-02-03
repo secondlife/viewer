@@ -73,6 +73,7 @@
 #include "lldrawpool.h"
 #include "llfirstuse.h"
 #include "llfloateractivespeakers.h"
+#include "llfloateranimpreview.h"
 #include "llfloaterbuycurrency.h"
 #include "llfloaterbuyland.h"
 #include "llfloaterchat.h"
@@ -133,7 +134,6 @@
 #include "pipeline.h"
 #include "llappviewer.h"
 #include "llfloaterworldmap.h"
-#include "llkeythrottle.h"
 #include "llviewerdisplay.h"
 #include "llkeythrottle.h"
 
@@ -227,6 +227,8 @@ bool friendship_offer_callback(const LLSD& notification, const LLSD& response)
 		break;
 	case 1:
 		// decline
+		// We no longer notify other viewers, but we DO still send
+		// the rejection to the simulator to delete the pending userop.
 		msg->newMessageFast(_PREHASH_DeclineFriendship);
 		msg->nextBlockFast(_PREHASH_AgentData);
 		msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
@@ -721,7 +723,7 @@ private:
 //instance of the AddedObserver for TaskOffers
 //and it never dies.  We do this because we don't know the UUID of 
 //task offers until they are accepted, so we don't wouldn't 
-//know what to watch for, so instead we just watch for all additions. -Gigs
+//know what to watch for, so instead we just watch for all additions.
 class LLOpenTaskOffer : public LLInventoryAddedObserver
 {
 protected:
@@ -797,7 +799,7 @@ protected:
 
 //Returns TRUE if we are OK, FALSE if we are throttled
 //Set check_only true if you want to know the throttle status 
-//without registering a hit -Gigs
+//without registering a hit
 bool check_offer_throttle(const std::string& from_name, bool check_only)
 {
 	static U32 throttle_count;
@@ -824,14 +826,14 @@ bool check_offer_throttle(const std::string& from_name, bool check_only)
 	{
 		LL_DEBUGS("Messaging") << "Throttle Not Expired, Count: " << throttle_count << LL_ENDL;
 		// When downloading the initial inventory we get a lot of new items
-		// coming in and can't tell that from spam.  JC
+		// coming in and can't tell that from spam.
 		if (LLStartUp::getStartupState() >= STATE_STARTED
 			&& throttle_count >= OFFER_THROTTLE_MAX_COUNT)
 		{
 			if (!throttle_logged)
 			{
 				// Use the name of the last item giver, who is probably the person
-				// spamming you. JC
+				// spamming you.
 				std::ostringstream message;
 				message << LLAppViewer::instance()->getSecondLifeTitle();
 				if (!from_name.empty())
@@ -879,10 +881,10 @@ void open_offer(const std::vector<LLUUID>& items, const std::string& from_name)
 		}
 		LLAssetType::EType asset_type = item->getType();
 
-		//if we are throttled, don't display them - Gigs
+		//if we are throttled, don't display them
 		if (check_offer_throttle(from_name, false))
 		{
-			// I'm not sure this is a good idea.  JC
+			// I'm not sure this is a good idea.
 			bool show_keep_discard = item->getPermissions().getCreator() != gAgent.getID();
 			//bool show_keep_discard = true;
 			switch(asset_type)
@@ -934,7 +936,7 @@ void open_offer(const std::vector<LLUUID>& items, const std::string& from_name)
 			return;
 		}
 
-		//Not sure about this check.  Could make it easy to miss incoming items. -Gigs
+		//Not sure about this check.  Could make it easy to miss incoming items.
 		//don't dick with highlight while the user is working
 		//if(inventory_has_focus && !user_is_away)
 		//	break;
@@ -1037,7 +1039,7 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 	// This must be done here because:
 	// * callback may be called immediately,
 	// * adding the mute sends a message,
-	// * we can't build two messages at once.  JC
+	// * we can't build two messages at once.
 	if (2 == button)
 	{
 		gCacheName->get(mFromID, mFromGroup, inventory_offer_mute_callback, this);
@@ -1301,7 +1303,7 @@ void inventory_offer_handler(LLOfferInfo* info, BOOL from_task)
 	}
 
 	// Name cache callbacks don't store userdata, so can't save
-	// off the LLOfferInfo.  Argh.  JC
+	// off the LLOfferInfo.  Argh.
 	BOOL name_found = FALSE;
 	if (info->mFromGroup)
 	{
@@ -1948,6 +1950,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 					<< LLURI::mapToQueryString(query_string);
 
 			chat.mURL = link.str();
+			chat.mText = name + separator_string + message.substr(message_offset);
 
 			// Note: lie to LLFloaterChat::addChat(), pretending that this is NOT an IM, because
 			// IMs from objcts don't open IM sessions.
@@ -2092,11 +2095,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 		}
 		break;
 
-	case IM_FRIENDSHIP_DECLINED:
-		args["NAME"] = name;
-		LLNotifications::instance().add("FriendshipDeclined", args);
-		break;
-
+	case IM_FRIENDSHIP_DECLINED_DEPRECATED:
 	default:
 		LL_WARNS("Messaging") << "Instant message calling for unknown dialog "
 				<< (S32)dialog << LL_ENDL;
@@ -2769,7 +2768,7 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 	if (!avatarp)
 	{
 		// Could happen if you were immediately god-teleported away on login,
-		// maybe other cases.  Continue, but warn.  JC
+		// maybe other cases.  Continue, but warn.
 		LL_WARNS("Messaging") << "agent_movement_complete() with NULL avatarp." << LL_ENDL;
 	}
 
@@ -2809,7 +2808,7 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 
 	if( is_teleport )
 	{
-		// Force the camera back onto the agent, don't animate. JC
+		// Force the camera back onto the agent, don't animate.
 		gAgent.setFocusOnAvatar(TRUE, FALSE);
 		gAgent.slamLookAt(look_at);
 		gAgent.updateCamera();
@@ -4261,7 +4260,7 @@ void process_mean_collision_alert_message(LLMessageSystem *msgsystem, void **use
 {
 	if (gAgent.inPrelude())
 	{
-		// JC: In prelude, bumping is OK.  This dialog is rather confusing to 
+		// In prelude, bumping is OK.  This dialog is rather confusing to 
 		// newbies, so we don't show it.  Drop the packet on the floor.
 		return;
 	}
@@ -4336,7 +4335,11 @@ void process_economy_data(LLMessageSystem *msg, void** /*user_data*/)
 	LLGlobalEconomy::processEconomyData(msg, LLGlobalEconomy::Singleton::getInstance());
 
 	S32 upload_cost = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
+
+	LL_INFOS_ONCE("Messaging") << "EconomyData message arrived; upload cost is L$" << upload_cost << LL_ENDL;
+
 	LLFloaterImagePreview::setUploadAmount(upload_cost);
+	LLFloaterAnimPreview::setUploadAmount(upload_cost);
 
 	gMenuHolder->childSetLabelArg("Upload Image", "[COST]", llformat("%d", upload_cost));
 	gMenuHolder->childSetLabelArg("Upload Sound", "[COST]", llformat("%d", upload_cost));
@@ -4521,14 +4524,26 @@ void process_script_question(LLMessageSystem *msg, void **user_data)
 	msg->getStringFast(_PREHASH_Data, _PREHASH_ObjectOwner, owner_name);
 	msg->getS32Fast(_PREHASH_Data, _PREHASH_Questions, questions );
 
-	// don't display permission requests if this object is muted - JS.
+	// Special case. If the objects are owned by this agent, throttle per-object instead
+	// of per-owner. It's common for residents to reset a ton of scripts that re-request
+	// permissions, as with tier boxes. UUIDs can't be valid agent names and vice-versa,
+	// so we'll reuse the same namespace for both throttle types.
+	std::string throttle_name = owner_name;
+	std::string self_name;
+	gAgent.getName( self_name );
+	if( owner_name == self_name )
+	{
+		throttle_name = taskid.getString();
+	}
+	
+	// don't display permission requests if this object is muted
 	if (LLMuteList::getInstance()->isMuted(taskid)) return;
-
+	
 	// throttle excessive requests from any specific user's scripts
 	typedef LLKeyThrottle<std::string> LLStringThrottle;
 	static LLStringThrottle question_throttle( LLREQUEST_PERMISSION_THROTTLE_LIMIT, LLREQUEST_PERMISSION_THROTTLE_INTERVAL );
 
-	switch (question_throttle.noteAction(owner_name))
+	switch (question_throttle.noteAction(throttle_name))
 	{
 		case LLStringThrottle::THROTTLE_NEWLY_BLOCKED:
 			LL_INFOS("Messaging") << "process_script_question throttled"
@@ -5426,7 +5441,7 @@ void invalid_message_callback(LLMessageSystem* msg,
 }
 
 // Please do not add more message handlers here. This file is huge.
-// Put them in a file related to the functionality you are implementing. JC
+// Put them in a file related to the functionality you are implementing.
 
 void LLOfferInfo::forceResponse(InventoryOfferResponse response)
 {

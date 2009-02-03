@@ -82,6 +82,7 @@ public:
 	virtual void	setFocus( BOOL b );
 	virtual void	clear();
 	virtual BOOL	isDirty() const { return( mValue != mInitialValue ); }
+	virtual void    resetDirty() { mInitialValue = mValue; }
 
 	virtual void	setPrecision(S32 precision);
 	virtual void	setMinValue(F32 min)			{ mMinValue = min; }

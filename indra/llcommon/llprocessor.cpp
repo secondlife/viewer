@@ -279,7 +279,7 @@ bool CProcessor::AnalyzeIntelProcessor()
 
 	// Only override the brand if we have it in the lookup table.  We should
 	// already have a string here from GetCPUInfo().  JC
-	if (CPUInfo.uiBrandID < (sizeof(INTEL_BRAND)/sizeof(INTEL_BRAND[0])))
+	if ( CPUInfo.uiBrandID < LL_ARRAY_SIZE(INTEL_BRAND) )
 	{
 		strcpy(CPUInfo.strBrandID, INTEL_BRAND[CPUInfo.uiBrandID]);
 
@@ -1665,6 +1665,10 @@ const ProcessorInfo *CProcessor::GetCPUInfo()
 #elif LL_SOLARIS
 #include <kstat.h>
 
+#if defined(__i386)
+#include <sys/auxv.h>
+#endif
+
 // ======================
 // Class constructor:
 /////////////////////////
@@ -1778,6 +1782,37 @@ const ProcessorInfo *CProcessor::GetCPUInfo()
 
 	// DEBUG llinfo << "The system has " << ncpus << " CPUs with a clock rate of " <<  uqwFrequency << "MHz." << llendl;
 	
+#if defined (__i386)  //  we really don't care about the CPU extensions on SPARC but on x86...
+
+	// Now get cpu extensions
+
+	uint_t ui;
+
+	(void) getisax(&ui, 1);
+	
+	if(ui & AV_386_FPU)
+		CPUInfo._Ext.FPU_FloatingPointUnit = true;
+	if(ui & AV_386_CX8)
+		CPUInfo._Ext.CX8_COMPXCHG8B_Instruction = true;
+	if(ui & AV_386_MMX)
+		CPUInfo._Ext.MMX_MultimediaExtensions = true;
+	if(ui & AV_386_AMD_MMX)
+		CPUInfo._Ext.MMX_MultimediaExtensions = true;
+	if(ui & AV_386_FXSR)
+		CPUInfo._Ext.FXSR_FastStreamingSIMD_ExtensionsSaveRestore = true;
+	if(ui & AV_386_SSE)
+		 CPUInfo._Ext.SSE_StreamingSIMD_Extensions = true;
+	if(ui & AV_386_SSE2)
+		CPUInfo._Ext.SSE2_StreamingSIMD2_Extensions = true;
+/* Left these here since they may get used later
+	if(ui & AV_386_SSE3)
+		CPUInfo._Ext.... = true;
+	if(ui & AV_386_AMD_3DNow)
+		CPUInfo._Ext.... = true;
+	if(ui & AV_386_AMD_3DNowx)
+		CPUInfo._Ext.... = true;
+*/
+#endif
 	return (&CPUInfo);
 }
 

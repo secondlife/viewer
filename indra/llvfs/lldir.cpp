@@ -433,7 +433,7 @@ std::string LLDir::getExpandedFilename(ELLPath location, const std::string& subd
 		expanded_filename.assign("");
 	}
 
-	//llinfos << "*** EXPANDED FILENAME: <" << mExpandedFilename << ">" << llendl;
+	//llinfos << "*** EXPANDED FILENAME: <" << expanded_filename << ">" << llendl;
 
 	return expanded_filename;
 }
@@ -661,6 +661,11 @@ void LLDir::dumpCurrentDirectories()
 	LL_DEBUGS2("AppInit","Directories") << "  TempDir:               " << getTempDir() << LL_ENDL;
 	LL_DEBUGS2("AppInit","Directories") << "  CAFile:				 " << getCAFile() << LL_ENDL;
 	LL_DEBUGS2("AppInit","Directories") << "  SkinDir:               " << getSkinDir() << LL_ENDL;
+
+#if LL_LIBXUL_ENABLED
+ 	LL_DEBUGS2("AppInit","Directories") << "  HTML Path:             " << getExpandedFilename( LL_PATH_HTML, "" ) << llendl;
+ 	LL_DEBUGS2("AppInit","Directories") << "  Mozilla Profile Path:  " << getExpandedFilename( LL_PATH_MOZILLA_PROFILE, "" ) << llendl;
+#endif
 }
 
 

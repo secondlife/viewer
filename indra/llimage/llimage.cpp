@@ -1137,7 +1137,7 @@ file_extensions[] =
 	{ "dxt", IMG_CODEC_DXT },
 	{ "png", IMG_CODEC_PNG }
 };
-#define NUM_FILE_EXTENSIONS sizeof(file_extensions)/sizeof(file_extensions[0])
+#define NUM_FILE_EXTENSIONS LL_ARRAY_SIZE(file_extensions)
 
 static std::string find_file(std::string &name, S8 *codec)
 {

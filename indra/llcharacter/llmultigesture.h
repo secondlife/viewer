@@ -108,6 +108,8 @@ public:
 };
 
 
+// Order must match the library_list in floater_preview_gesture.xml!
+
 enum EStepType
 {
 	STEP_ANIMATION = 0,

@@ -42,30 +42,32 @@ class LLTransactionID;
 void init_menu_file();
 
 void upload_new_resource(const std::string& src_filename, 
-						 std::string name,
-						 std::string desc, 
-						 S32 compression_info,
-						 LLAssetType::EType destination_folder_type,
-						 LLInventoryType::EType inv_type,
-						 U32 next_owner_perms = 0x0,	// PERM_NONE
-						 U32 group_perms = 0x0,	// PERM_NONE
-						 U32 everyone_perms = 0x0,	// PERM_NONE
-						 const std::string& display_name = LLStringUtil::null,
-						 LLAssetStorage::LLStoreAssetCallback callback = NULL,
-						 void *userdata = NULL);
+			 std::string name,
+			 std::string desc, 
+			 S32 compression_info,
+			 LLAssetType::EType destination_folder_type,
+			 LLInventoryType::EType inv_type,
+			 U32 next_owner_perms,
+			 U32 group_perms,
+			 U32 everyone_perms,
+			 const std::string& display_name,
+			 LLAssetStorage::LLStoreAssetCallback callback,
+			 S32 expected_upload_cost,
+			 void *userdata);
 
 void upload_new_resource(const LLTransactionID &tid, 
-						 LLAssetType::EType type,
-						 std::string name,
-						 std::string desc, 
-						 S32 compression_info,
-						 LLAssetType::EType destination_folder_type,
-						 LLInventoryType::EType inv_type,
-						 U32 next_owner_perms = 0x0,	// PERM_NONE
-						 U32 group_perms = 0x0,	// PERM_NONE
-						 U32 everyone_perms = 0x0,	// PERM_NONE
-						 const std::string& display_name = LLStringUtil::null,
-						 LLAssetStorage::LLStoreAssetCallback callback = NULL,
-						 void *userdata = NULL);
+			 LLAssetType::EType type,
+			 std::string name,
+			 std::string desc, 
+			 S32 compression_info,
+			 LLAssetType::EType destination_folder_type,
+			 LLInventoryType::EType inv_type,
+			 U32 next_owner_perms,
+			 U32 group_perms,
+			 U32 everyone_perms,
+			 const std::string& display_name,
+			 LLAssetStorage::LLStoreAssetCallback callback,
+			 S32 expected_upload_cost,
+			 void *userdata);
 
 #endif

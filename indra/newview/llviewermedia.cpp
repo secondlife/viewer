@@ -526,6 +526,14 @@ void LLViewerMedia::buildMediaManagerData( LLMediaManagerData* init_data )
 	std::string component_dir( gDirUtilp->getExpandedFilename( LL_PATH_APP_SETTINGS, "" ) );
 	component_dir += gDirUtilp->getDirDelimiter();
 	component_dir += "mozilla-runtime-linux-i686";
+#elif LL_SOLARIS
+	std::string component_dir( gDirUtilp->getExpandedFilename( LL_PATH_APP_SETTINGS, "" ) );
+	component_dir += gDirUtilp->getDirDelimiter();
+	#ifdef  __sparc
+		component_dir += "mozilla-solaris-sparc";
+	#else
+		component_dir += "mozilla-solaris-i686";
+	#endif
 #else
 	std::string component_dir( gDirUtilp->getExpandedFilename( LL_PATH_APP_SETTINGS, "" ) );
 	component_dir += gDirUtilp->getDirDelimiter();

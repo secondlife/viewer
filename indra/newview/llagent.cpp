@@ -4348,7 +4348,19 @@ void LLAgent::setFocusObject(LLViewerObject* object)
 //-----------------------------------------------------------------------------
 void LLAgent::setFocusGlobal(const LLPickInfo& pick)
 {
-	setFocusGlobal(pick.mPosGlobal, pick.mObjectID);
+	LLViewerObject* objectp = gObjectList.findObject(pick.mObjectID);
+
+	if (objectp)
+	{
+		// focus on object plus designated offset
+		// which may or may not be same as pick.mPosGlobal
+		setFocusGlobal(objectp->getPositionGlobal() + LLVector3d(pick.mObjectOffset), pick.mObjectID);
+	}
+	else
+	{
+		// focus directly on point where user clicked
+		setFocusGlobal(pick.mPosGlobal, pick.mObjectID);
+	}
 }
 
 
@@ -5831,7 +5843,12 @@ bool LLAgent::teleportCore(bool is_local)
 		return false;
 	}
 
-	// Stop all animation before actual teleporting
+#if 0
+	// This should not exist. It has been added, removed, added, and now removed again.
+	// This change needs to come from the simulator. Otherwise, the agent ends up out of
+	// sync with other viewers. Discuss in DEV-14145/VWR-6744 before reenabling.
+
+	// Stop all animation before actual teleporting 
 	LLVOAvatar* avatarp = gAgent.getAvatarObject();
         if (avatarp)
 	{
@@ -5843,6 +5860,7 @@ bool LLAgent::teleportCore(bool is_local)
                }
                avatarp->processAnimationStateChanges();
        }
+#endif
 
 	// Don't call LLFirstUse::useTeleport because we don't know
 	// yet if the teleport will succeed.  Look in 

@@ -364,7 +364,7 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 
 
 	//copy file into memory
-	while(fgets((char *)buff, 1024, file) != NULL && count < (sizeof(buff)/sizeof(buff[0]))) 
+	while( fgets((char *)buff, 1024, file) != NULL && count < LL_ARRAY_SIZE(buff) ) 
 	{
 		text[count++] = (GLcharARB *)strdup((char *)buff); 
 	}

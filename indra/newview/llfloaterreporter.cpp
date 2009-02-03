@@ -693,6 +693,9 @@ LLSD LLFloaterReporter::gatherReport()
 #elif LL_LINUX
 	const char* platform = "Lnx";
 	const char* short_platform = "O:L";
+#elif LL_SOLARIS
+	const char* platform = "Sol";
+	const char* short_platform = "O:S";
 #else
 	const char* platform = "???";
 	const char* short_platform = "O:?";
@@ -885,6 +888,8 @@ void LLFloaterReporter::takeScreenshot()
 
 	// create a resource data
 	mResourceDatap->mInventoryType = LLInventoryType::IT_NONE;
+	mResourceDatap->mNextOwnerPerm = 0; // not used
+	mResourceDatap->mExpectedUploadCost = 0; // we expect that abuse screenshots are free
 	mResourceDatap->mAssetInfo.mTransactionID.generate();
 	mResourceDatap->mAssetInfo.mUuid = mResourceDatap->mAssetInfo.mTransactionID.makeAssetID(gAgent.getSecureSessionID());
 	if (BUG_REPORT == mReportType)

@@ -989,15 +989,19 @@ void LLFloaterAnimPreview::onBtnOK(void* userdata)
 			{
 				std::string name = floaterp->childGetValue("name_form").asString();
 				std::string desc = floaterp->childGetValue("description_form").asString();
+				LLAssetStorage::LLStoreAssetCallback callback = NULL;
+				S32 expected_upload_cost = sUploadAmount;
+				void *userdata = NULL;
 				upload_new_resource(floaterp->mTransactionID, // tid
-									LLAssetType::AT_ANIMATION,
-									name,
-									desc,
-									0,
-									LLAssetType::AT_NONE,
-									LLInventoryType::IT_ANIMATION,
-									LLFloaterPerms::getNextOwnerPerms(), LLFloaterPerms::getGroupPerms(), LLFloaterPerms::getEveryonePerms(),
-									name);
+						    LLAssetType::AT_ANIMATION,
+						    name,
+						    desc,
+						    0,
+						    LLAssetType::AT_NONE,
+						    LLInventoryType::IT_ANIMATION,
+						    LLFloaterPerms::getNextOwnerPerms(), LLFloaterPerms::getGroupPerms(), LLFloaterPerms::getEveryonePerms(),
+						    name,
+						    callback, expected_upload_cost, userdata);
 			}
 			else
 			{

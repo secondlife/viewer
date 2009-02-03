@@ -863,7 +863,7 @@ LLVoiceClient::LLVoiceClient()
 	// This now happens when init() is called instead.
 	mPump = NULL;
 	
-#if LL_DARWIN || LL_LINUX
+#if LL_DARWIN || LL_LINUX || LL_SOLARIS
 		// MBW -- XXX -- THIS DOES NOT BELONG HERE
 		// When the vivox daemon dies, the next write attempt on our socket generates a SIGPIPE, which kills us.
 		// This should cause us to ignore SIGPIPE and handle the error through proper channels.

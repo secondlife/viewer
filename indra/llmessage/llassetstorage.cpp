@@ -1210,6 +1210,9 @@ const char* LLAssetStorage::getErrorString(S32 status)
 	case LL_ERR_CIRCUIT_GONE:
 		return "Circuit gone";
 
+	case LL_ERR_PRICE_MISMATCH:
+		return "Viewer and server do not agree on price";
+
 	default:
 		return "Unknown status";
 	}

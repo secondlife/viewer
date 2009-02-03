@@ -51,6 +51,7 @@
 #include "llfocusmgr.h"
 #include "llbutton.h"
 #include "llcombobox.h"
+#include "lleconomy.h"
 #include "llsliderctrl.h"
 #include "llspinctrl.h"
 #include "llviewercontrol.h"
@@ -952,17 +953,21 @@ void LLSnapshotLivePreview::saveTexture()
 		gAgent.buildLocationString(pos_string);
 		std::string who_took_it;
 		gAgent.buildFullname(who_took_it);
+		LLAssetStorage::LLStoreAssetCallback callback = NULL;
+		S32 expected_upload_cost = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
+		void *userdata = NULL;
 		upload_new_resource(tid,	// tid
-							LLAssetType::AT_TEXTURE,
-							"Snapshot : " + pos_string,
-							"Taken by " + who_took_it + " at " + pos_string,
-							0,
-							LLAssetType::AT_SNAPSHOT_CATEGORY,
-							LLInventoryType::IT_SNAPSHOT,
-							PERM_ALL,  // Note: Snapshots to inventory is a special case of content upload
-							PERM_NONE, // that ignores the user's premissions preferences and continues to
-							PERM_NONE, // always use these fairly permissive hard-coded initial perms. - MG
-							"Snapshot : " + pos_string);
+				    LLAssetType::AT_TEXTURE,
+				    "Snapshot : " + pos_string,
+				    "Taken by " + who_took_it + " at " + pos_string,
+				    0,
+				    LLAssetType::AT_SNAPSHOT_CATEGORY,
+				    LLInventoryType::IT_SNAPSHOT,
+				    PERM_ALL,  // Note: Snapshots to inventory is a special case of content upload
+				    PERM_NONE, // that ignores the user's premissions preferences and continues to
+				    PERM_NONE, // always use these fairly permissive hard-coded initial perms. - MG
+				    "Snapshot : " + pos_string,
+				    callback, expected_upload_cost, userdata);
 		gViewerWindow->playSnapshotAnimAndSound();
 	}
 	else
@@ -1271,6 +1276,9 @@ void LLFloaterSnapshot::Impl::updateControls(LLFloaterSnapshot* floater)
 	LLLocale locale(LLLocale::USER_LOCALE);
 	std::string bytes_string;
 	LLResMgr::getInstance()->getIntegerString(bytes_string, (previewp->getDataSize()) >> 10 );
+	S32 upload_cost = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
+	floater->childSetLabelArg("texture", "[AMOUNT]", llformat("%d",upload_cost));
+	floater->childSetLabelArg("upload_btn", "[AMOUNT]", llformat("%d",upload_cost));
 	floater->childSetTextArg("file_size_label", "[SIZE]", got_snap ? bytes_string : floater->getString("unknown"));
 	floater->childSetColor("file_size_label", 
 		shot_type == LLSnapshotLivePreview::SNAPSHOT_POSTCARD 

@@ -53,6 +53,7 @@ const int LL_ERR_FILE_NOT_FOUND = -43;
 const int LL_ERR_FILE_EMPTY     = -44;
 const int LL_ERR_TCP_TIMEOUT    = -23016;
 const int LL_ERR_CIRCUIT_GONE   = -23017;
+const int LL_ERR_PRICE_MISMATCH = -23018;
 
 
 

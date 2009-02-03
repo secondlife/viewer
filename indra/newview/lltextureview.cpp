@@ -235,7 +235,7 @@ void LLTextureBar::draw()
 		{ "MIS", LLColor4::red }, // LAST_STATE+4
 		{ "---", LLColor4::white }, // LAST_STATE+5
 	};
-	const S32 fetch_state_desc_size = (S32)(sizeof(fetch_state_desc)/sizeof(fetch_state_desc[0]));
+	const S32 fetch_state_desc_size = (S32)LL_ARRAY_SIZE(fetch_state_desc);
 	S32 state =
 		mImagep->mNeedsCreateTexture ? LAST_STATE+1 :
 		mImagep->mFullyLoaded ? LAST_STATE+2 :

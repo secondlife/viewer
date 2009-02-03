@@ -1322,6 +1322,8 @@ BOOL LLTextEditor::handleMouseUp(S32 x, S32 y, MASK mask)
 			
 			setCursorAtLocalPos( x, y, TRUE );
 			endSelection();
+
+			updateScrollFromCursor();
 		}
 		
 		if( !hasSelection() )

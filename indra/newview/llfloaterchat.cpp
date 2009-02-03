@@ -393,7 +393,11 @@ void LLFloaterChat::addChat(const LLChat& chat,
 			text_color = gSavedSettings.getColor("IMChatColor");
 			size = INSTANT_MSG_SIZE;
 		}
-		gConsole->addLine(chat.mText, size, text_color);
+		// We display anything if it's not an IM. If it's an IM, check pref...
+		if	( !from_instant_message || gSavedSettings.getBOOL("IMInChatHistory") ) 
+		{
+			gConsole->addLine(chat.mText, size, text_color);
+		}
 	}
 
 	if(from_instant_message && gSavedPerAccountSettings.getBOOL("LogChatIM"))

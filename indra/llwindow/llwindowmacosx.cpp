@@ -702,7 +702,7 @@ BOOL LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits
 		"Radeon DDR",
 		"Radeon VE",
 		"GDI Generic" };
-		const S32 CARD_COUNT = sizeof(CARD_LIST)/sizeof(char*);
+		const S32 CARD_COUNT = LL_ARRAY_SIZE(CARD_LIST);
 
 		// Future candidates:
 		// ProSavage/Twister

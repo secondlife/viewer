@@ -127,8 +127,9 @@ public:
 	static void		clearLastClick() { sHandledLastClick = FALSE; }
 
 	// if the view changes, download additional sim info as needed
-	void			updateBlock(S32 block_x, S32 block_y);
-	void			updateVisibleBlocks();
+	// return value is number of blocks newly requested.
+	U32				updateBlock(S32 block_x, S32 block_y);
+	U32				updateVisibleBlocks();
 
 protected:
 	void			setDirectionPos( LLTextBox* text_box, F32 rotation );

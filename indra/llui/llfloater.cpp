@@ -780,7 +780,7 @@ void LLFloater::snappedTo(const LLView* snap_view)
 
 void LLFloater::userSetShape(const LLRect& new_rect)
 {
-	const LLRect& old_rect = getRect();
+	const LLRect old_rect = getRect();
 	LLView::userSetShape(new_rect);
 
 	// if not minimized, adjust all snapped dependents to new shape

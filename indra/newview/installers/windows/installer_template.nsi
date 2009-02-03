@@ -68,8 +68,8 @@ Name ${INSTNAME}
 SubCaption 0 $(LicenseSubTitleSetup)	; override "license agreement" text
 
 BrandingText " "						; bottom of window text
-Icon %%SOURCE%%\res\install_icon.ico	; our custom icon
-UninstallIcon %%SOURCE%%\res\uninstall_icon.ico    ; our custom icon
+Icon          %%SOURCE%%\installers\windows\install_icon.ico
+UninstallIcon %%SOURCE%%\installers\windows\uninstall_icon.ico
 WindowIcon on							; show our icon in left corner
 BGGradient off							; no big background window
 CRCCheck on								; make sure CRC is OK

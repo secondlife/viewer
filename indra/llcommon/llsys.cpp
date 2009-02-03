@@ -59,6 +59,17 @@
 #	include <sys/sysinfo.h>
 const char MEMINFO_FILE[] = "/proc/meminfo";
 const char CPUINFO_FILE[] = "/proc/cpuinfo";
+#elif LL_SOLARIS
+#	include <stdio.h>
+#	include <unistd.h>
+#	include <sys/utsname.h>
+#	define _STRUCTURED_PROC 1
+#	include <sys/procfs.h>
+#	include <sys/types.h>
+#	include <sys/stat.h>
+#	include <fcntl.h>
+#	include <errno.h>
+extern int errno;
 #endif
 
 

@@ -104,6 +104,7 @@
 #include "llviewermenu.h"
 #include "llselectmgr.h"
 #include "lltrans.h"
+#include "lluitrans.h"
 #include "lltracker.h"
 #include "llviewerparcelmgr.h"
 #include "llworldmapview.h"
@@ -604,25 +605,6 @@ bool LLAppViewer::init()
 	/////////////////////////////////////////////////
 	// OS-specific login dialogs
 	/////////////////////////////////////////////////
-#if LL_WINDOWS
-	/*
-	// Display initial login screen, comes up quickly. JC
-	{
-		LLSplashScreen::hide();
-
-		INT_PTR result = DialogBox(hInstance, L"CONNECTBOX", NULL, login_dialog_func);
-		if (result < 0)
-		{
-			llwarns << "Connect dialog box failed, returned " << result << llendl;
-			return 1;
-		}
-		// success, result contains which button user clicked
-		llinfos << "Connect dialog box clicked " << result << llendl;
-
-		LLSplashScreen::show();
-	}
-	*/
-#endif
 
 	//test_cached_control();
 
@@ -1292,6 +1274,13 @@ bool LLAppViewer::cleanup()
 	LLVFile::cleanupClass();
 	llinfos << "VFS cleaned up" << llendflush;
 
+	// Quitting with "Remember Password" turned off should always stomp your
+	// saved password, whether or not you successfully logged in.  JC
+	if (!gSavedSettings.getBOOL("RememberPassword"))
+	{
+		LLStartUp::deletePasswordFromDisk();
+	}
+	
 	// Store the time of our current logoff
 	gSavedPerAccountSettings.setU32("LastLogoff", time_corrected());
 
@@ -2139,6 +2128,7 @@ bool LLAppViewer::initWindow()
 	LLUI::sWindow = gViewerWindow->getWindow();
 
 	LLTrans::parseStrings("strings.xml");
+	LLUITrans::parseStrings("ui_strings.xml");
 
 	// Show watch cursor
 	gViewerWindow->setCursor(UI_CURSOR_WAIT);

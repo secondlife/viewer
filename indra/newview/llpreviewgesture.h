@@ -34,6 +34,7 @@
 #define LL_LLPREVIEWGESTURE_H
 
 #include "llpreview.h"
+#include "llmultigesture.h"
 
 class LLMultiGesture;
 class LLLineEditor;
@@ -109,7 +110,7 @@ protected:
 
 	// Add a step.  Pass the name of the step, like "Animation",
 	// "Sound", "Chat", or "Wait"
-	LLScrollListItem* addStep(const std::string& step_name);
+	LLScrollListItem* addStep(const enum EStepType step_type);
 
 	static void updateLabel(LLScrollListItem* item);
 

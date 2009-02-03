@@ -195,6 +195,7 @@ BOOL LLPanelGroupGeneral::postBuild()
 		mSpinEnrollmentFee->setCommitCallback(onCommitAny);
 		mSpinEnrollmentFee->setCallbackUserData(this);
 		mSpinEnrollmentFee->setPrecision(0);
+		mSpinEnrollmentFee->resetDirty();
 	}
 
 	BOOL accept_notices = FALSE;
@@ -221,6 +222,7 @@ BOOL LLPanelGroupGeneral::postBuild()
 		mCtrlListGroup->setCallbackUserData(this);
 		mCtrlListGroup->set(list_in_profile);
 		mCtrlListGroup->setEnabled(data.mID.notNull());
+		mCtrlListGroup->resetDirty();
 	}
 
 	mActiveTitleLabel = getChild<LLTextBox>("active_title_label", recurse);
@@ -230,6 +232,7 @@ BOOL LLPanelGroupGeneral::postBuild()
 	{
 		mComboActiveTitle->setCommitCallback(onCommitTitle);
 		mComboActiveTitle->setCallbackUserData(this);
+		mComboActiveTitle->resetDirty();
 	}
 
 	mIncompleteMemberDataStr = getString("incomplete_member_data_str");
@@ -259,7 +262,7 @@ BOOL LLPanelGroupGeneral::postBuild()
 void LLPanelGroupGeneral::onFocusEdit(LLFocusableElement* ctrl, void* data)
 {
 	LLPanelGroupGeneral* self = (LLPanelGroupGeneral*)data;
-	self->mChanged = TRUE;
+	self->updateChanged();
 	self->notifyObservers();
 }
 
@@ -317,6 +320,7 @@ void LLPanelGroupGeneral::onCommitTitle(LLUICtrl* ctrl, void* data)
 	if (self->mGroupID.isNull() || !self->mAllowEdit) return;
 	LLGroupMgr::getInstance()->sendGroupTitleUpdate(self->mGroupID,self->mComboActiveTitle->getCurrentID());
 	self->update(GC_TITLES);
+	self->mComboActiveTitle->resetDirty();
 }
 
 // static
@@ -398,6 +402,7 @@ void LLPanelGroupGeneral::openProfile(void* data)
 
 bool LLPanelGroupGeneral::needsApply(std::string& mesg)
 { 
+	updateChanged();
 	mesg = getString("group_info_unchanged");
 	return mChanged || mGroupID.isNull();
 }
@@ -660,6 +665,8 @@ void LLPanelGroupGeneral::update(LLGroupChange gc)
 				mComboActiveTitle->setCurrentByID(LLUUID::null);
 			}
 		}
+
+		mComboActiveTitle->resetDirty();
 	}
 
 	// If this was just a titles update, we are done.
@@ -674,6 +681,8 @@ void LLPanelGroupGeneral::update(LLGroupChange gc)
 	{
 		mCtrlShowInGroupList->set(gdatap->mShowInList);
 		mCtrlShowInGroupList->setEnabled(mAllowEdit && can_change_ident);
+		mCtrlShowInGroupList->resetDirty();
+
 	}
 	if (mComboMature)
 	{
@@ -687,24 +696,29 @@ void LLPanelGroupGeneral::update(LLGroupChange gc)
 		}
 		mComboMature->setEnabled(mAllowEdit && can_change_ident);
 		mComboMature->setVisible( !gAgent.isTeen() );
+		mComboMature->resetDirty();
 	}
 	if (mCtrlOpenEnrollment) 
 	{
 		mCtrlOpenEnrollment->set(gdatap->mOpenEnrollment);
 		mCtrlOpenEnrollment->setEnabled(mAllowEdit && can_change_member_opts);
+		mCtrlOpenEnrollment->resetDirty();
 	}
 	if (mCtrlEnrollmentFee) 
 	{	
 		mCtrlEnrollmentFee->set(gdatap->mMembershipFee > 0);
 		mCtrlEnrollmentFee->setEnabled(mAllowEdit && can_change_member_opts);
+		mCtrlEnrollmentFee->resetDirty();
 	}
 	
 	if (mSpinEnrollmentFee)
 	{
 		S32 fee = gdatap->mMembershipFee;
 		mSpinEnrollmentFee->set((F32)fee);
-		mSpinEnrollmentFee->setEnabled( mAllowEdit 
-								&& (fee > 0) && can_change_member_opts);
+		mSpinEnrollmentFee->setEnabled( mAllowEdit &&
+						(fee > 0) &&
+						can_change_member_opts);
+		mSpinEnrollmentFee->resetDirty();
 	}
 	if ( mBtnJoinGroup )
 	{
@@ -733,8 +747,9 @@ void LLPanelGroupGeneral::update(LLGroupChange gc)
 		{
 			mCtrlReceiveNotices->setEnabled(mAllowEdit);
 		}
+		mCtrlReceiveNotices->resetDirty();
 	}
-	
+
 
 	if (mInsignia) mInsignia->setEnabled(mAllowEdit && can_change_ident);
 	if (mEditCharter) mEditCharter->setEnabled(mAllowEdit && can_change_ident);
@@ -750,11 +765,15 @@ void LLPanelGroupGeneral::update(LLGroupChange gc)
 		}
 		else
 		{
-			
 			mInsignia->setImageAssetID(mDefaultIconID);
 		}
 	}
-	if (mEditCharter) mEditCharter->setText(gdatap->mCharter);
+
+	if (mEditCharter)
+	{
+		mEditCharter->setText(gdatap->mCharter);
+		mEditCharter->resetDirty();
+	}
 	
 	if (mListVisibleMembers)
 	{
@@ -882,7 +901,7 @@ void LLPanelGroupGeneral::updateChanged()
 
 	mChanged = FALSE;
 
-	for( int i= 0; i< sizeof(check_list)/sizeof(*check_list); i++ )
+	for( int i= 0; i< LL_ARRAY_SIZE(check_list); i++ )
 	{
 		if( check_list[i] && check_list[i]->isDirty() )
 		{

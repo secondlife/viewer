@@ -69,7 +69,7 @@ LLWLParamSet::LLWLParamSet(void) :
 		std::make_pair("gamma",					LLVector4(2.0f, 2.0f, 2.0f, 0.0f)),
 	};
 	std::map<std::string, LLVector4>::value_type const * endHardcodedPreset = 
-		hardcodedPreset + sizeof(hardcodedPreset)/sizeof(hardcodedPreset[0]);
+		hardcodedPreset + LL_ARRAY_SIZE(hardcodedPreset);
 
 	mParamValues.insert(hardcodedPreset, endHardcodedPreset);
 */

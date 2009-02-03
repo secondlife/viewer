@@ -38,6 +38,13 @@
 #include <wchar.h>
 #endif
 
+#if LL_SOLARIS
+// stricmp and strnicmp do not exist on Solaris:
+#include <string.h>
+#define stricmp strcasecmp
+#define strnicmp strncasecmp
+#endif
+
 const char LL_UNKNOWN_CHAR = '?';
 
 #if LL_DARWIN || LL_LINUX || LL_SOLARIS

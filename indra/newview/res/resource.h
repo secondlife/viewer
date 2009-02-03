@@ -36,17 +36,9 @@
 #define IDREMOVE                        3
 #define IDI_LL_ICON                     103
 #define IDC_GRABHAND                    104
-#define IDR_MENU1                       112
-#define IDD_DIALOG1                     113
-#define IDI_INSTALL_ICON                133
 #define IDC_CURSOR1                     134
 #define IDC_CURSOR2                     136
-#define IDB_BITMAP1                     138
-#define IDB_BITMAP2                     140
-#define IDB_BITMAP3                     144
 #define IDC_CURSOR3                     147
-#define IDB_BITMAP4                     148
-#define IDB_BITMAP5                     149
 #define IDB_LOGIN                       149
 #define IDC_CURSOR4                     153
 #define IDC_CURSOR5                     154

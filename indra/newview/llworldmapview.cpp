@@ -61,6 +61,7 @@
 #include "llviewerregion.h"
 #include "llviewerwindow.h"
 #include "llworldmap.h"
+#include "lltexturefetch.h"
 #include "llappviewer.h"				// Only for constants!
 #include "lltrans.h"
 
@@ -422,30 +423,24 @@ void LLWorldMapView::draw()
 	F32 sim_alpha = 1.f;
 
 	// Draw one image per region, centered on the camera position.
+	const S32 MAX_SIMULTANEOUS_TEX = 100;
+	const S32 MAX_REQUEST_PER_TICK = 5;
+	const S32 MIN_REQUEST_PER_TICK = 1;
+	S32 textures_requested_this_tick = 0;
+
 	for (LLWorldMap::sim_info_map_t::iterator it = LLWorldMap::getInstance()->mSimInfoMap.begin();
 		 it != LLWorldMap::getInstance()->mSimInfoMap.end(); ++it)
 	{
 		U64 handle = (*it).first;
 		LLSimInfo* info = (*it).second;
 
-		if (info->mCurrentImage.isNull())
-		{
-			info->mCurrentImage = gImageList.getImage(info->mMapImageID[LLWorldMap::getInstance()->mCurrentMap], MIPMAP_TRUE, FALSE);
-		}
-		if (info->mOverlayImage.isNull() && info->mMapImageID[2].notNull())
-		{
-			info->mOverlayImage = gImageList.getImage(info->mMapImageID[2], MIPMAP_TRUE, FALSE);
-			gGL.getTexUnit(0)->bind(info->mOverlayImage.get());
-			info->mOverlayImage->setClamp(TRUE, TRUE);
-		}
-		
 		LLViewerImage* simimage = info->mCurrentImage;
 		LLViewerImage* overlayimage = info->mOverlayImage;
 
 		if (gMapScale < SIM_MAP_SCALE)
 		{
-			simimage->setBoostLevel(0);
-			if (overlayimage) overlayimage->setBoostLevel(0);
+			if (simimage != NULL) simimage->setBoostLevel(0);
+			if (overlayimage != NULL) overlayimage->setBoostLevel(0);
 			continue;
 		}
 		
@@ -476,6 +471,7 @@ void LLWorldMapView::draw()
 
 		bool sim_visible =
 			(gMapScale >= map_scale_cutoff) &&
+			(simimage != NULL) &&
 			(simimage->getHasGLTexture());
 
 		if (sim_visible)
@@ -502,9 +498,36 @@ void LLWorldMapView::draw()
 			right < 0.f ||
 			left > width )
 		{
-			simimage->setBoostLevel(0);
-			if (overlayimage) overlayimage->setBoostLevel(0);
+			if (simimage != NULL) simimage->setBoostLevel(0);
+			if (overlayimage != NULL) overlayimage->setBoostLevel(0);
 			continue;
+		}
+
+		if (info->mCurrentImage.isNull())
+		{
+			if ((textures_requested_this_tick < MIN_REQUEST_PER_TICK) ||
+				((LLAppViewer::getTextureFetch()->getNumRequests() < MAX_SIMULTANEOUS_TEX) &&
+				 (textures_requested_this_tick < MAX_REQUEST_PER_TICK)))
+			{
+				textures_requested_this_tick++;
+				info->mCurrentImage = gImageList.getImage(info->mMapImageID[LLWorldMap::getInstance()->mCurrentMap], MIPMAP_TRUE, FALSE);
+				info->mCurrentImage->setClamp(TRUE, TRUE);
+				simimage = info->mCurrentImage;
+				gGL.getTexUnit(0)->bind(simimage);
+			}
+		}
+		if (info->mOverlayImage.isNull() && info->mMapImageID[2].notNull())
+		{
+			if ((textures_requested_this_tick < MIN_REQUEST_PER_TICK) ||
+				((LLAppViewer::getTextureFetch()->getNumRequests() < MAX_SIMULTANEOUS_TEX) &&
+				 (textures_requested_this_tick < MAX_REQUEST_PER_TICK)))
+			{
+				textures_requested_this_tick++;
+				info->mOverlayImage = gImageList.getImage(info->mMapImageID[2], MIPMAP_TRUE, FALSE);
+				info->mOverlayImage->setClamp(TRUE, TRUE);
+				overlayimage = info->mOverlayImage;
+				gGL.getTexUnit(0)->bind(overlayimage);
+			}
 		}
 
 		mVisibleRegions.push_back(handle);
@@ -521,10 +544,13 @@ void LLWorldMapView::draw()
 		center_global.mdV[VY] += 128.0;
 
 		S32 draw_size = llround(gMapScale);
-		simimage->setBoostLevel(LLViewerImage::BOOST_MAP);
-		simimage->setKnownDrawSize(llround(draw_size * LLUI::sGLScaleFactor.mV[VX]), llround(draw_size * LLUI::sGLScaleFactor.mV[VY]));
+		if (simimage != NULL)
+		{
+			simimage->setBoostLevel(LLViewerImage::BOOST_MAP);
+			simimage->setKnownDrawSize(llround(draw_size * LLUI::sGLScaleFactor.mV[VX]), llround(draw_size * LLUI::sGLScaleFactor.mV[VY]));
+		}
 
-		if (overlayimage)
+		if (overlayimage != NULL)
 		{
 			overlayimage->setBoostLevel(LLViewerImage::BOOST_MAP);
 			overlayimage->setKnownDrawSize(llround(draw_size * LLUI::sGLScaleFactor.mV[VX]), llround(draw_size * LLUI::sGLScaleFactor.mV[VY]));
@@ -537,7 +563,8 @@ void LLWorldMapView::draw()
 			// Draw using the texture.  If we don't clamp we get artifact at
 			// the edge.
 			LLGLSUIDefault gls_ui;
-			gGL.getTexUnit(0)->bind(simimage);
+			if (simimage != NULL)
+				gGL.getTexUnit(0)->bind(simimage);
 
 			gGL.setSceneBlendType(LLRender::BT_ALPHA);
 			F32 alpha = sim_alpha * info->mAlpha;
@@ -663,7 +690,8 @@ void LLWorldMapView::draw()
 			
 			// If map texture is still loading,
 			// display "Loading" placeholder text.
-			if (simimage->getDiscardLevel() != 1 &&
+			if ((simimage != NULL) &&
+				simimage->getDiscardLevel() != 1 &&
 				simimage->getDiscardLevel() != 0)
 			{
 				font->renderUTF8(
@@ -1658,43 +1686,59 @@ BOOL LLWorldMapView::handleMouseUp( S32 x, S32 y, MASK mask )
 	return FALSE;
 }
 
-void LLWorldMapView::updateBlock(S32 block_x, S32 block_y)
+U32 LLWorldMapView::updateBlock(S32 block_x, S32 block_y)
 {
+	U32 blocks_requested = 0;
 	S32 offset = block_x | (block_y * MAP_BLOCK_RES);
 	if (!LLWorldMap::getInstance()->mMapBlockLoaded[LLWorldMap::getInstance()->mCurrentMap][offset])
 	{
 // 		llinfos << "Loading Block (" << block_x << "," << block_y << ")" << llendl;
 		LLWorldMap::getInstance()->sendMapBlockRequest(block_x << 3, block_y << 3, (block_x << 3) + 7, (block_y << 3) + 7);
 		LLWorldMap::getInstance()->mMapBlockLoaded[LLWorldMap::getInstance()->mCurrentMap][offset] = TRUE;
+		blocks_requested++;
 	}
+	return blocks_requested;
 }
 
-void LLWorldMapView::updateVisibleBlocks()
+U32 LLWorldMapView::updateVisibleBlocks()
 {
 	if (gMapScale < SIM_MAP_SCALE)
 	{
 		// We don't care what is loaded if we're zoomed out
-		return;
+		return 0;
 	}
-	// check if we've loaded the 9 potentially visible zones
+
 	LLVector3d camera_global = gAgent.getCameraPositionGlobal();
-
+	
+	F32 pixels_per_region = gMapScale;
+	const S32 width = getRect().getWidth();
+	const S32 height = getRect().getHeight();
 	// Convert pan to sim coordinates
-	S32 world_center_x = S32((-sPanX / gMapScale) + (camera_global.mdV[0] / REGION_WIDTH_METERS));
-	S32 world_center_y = S32((-sPanY / gMapScale) + (camera_global.mdV[1] / REGION_WIDTH_METERS));
-
+	S32 world_center_x_lo = S32(((-sPanX - width/2) / pixels_per_region) + (camera_global.mdV[0] / REGION_WIDTH_METERS));
+	S32 world_center_x_hi = S32(((-sPanX + width/2) / pixels_per_region) + (camera_global.mdV[0] / REGION_WIDTH_METERS));
+	S32 world_center_y_lo = S32(((-sPanY - height/2) / pixels_per_region) + (camera_global.mdV[1] / REGION_WIDTH_METERS));
+	S32 world_center_y_hi = S32(((-sPanY + height/2)/ pixels_per_region) + (camera_global.mdV[1] / REGION_WIDTH_METERS));
+	
 	// Find the corresponding 8x8 block
-	S32 world_block_x = world_center_x >> 3;
-	S32 world_block_y = world_center_y >> 3;
+	S32 world_block_x_lo = world_center_x_lo >> 3;
+	S32 world_block_x_hi = world_center_x_hi >> 3;
+	S32 world_block_y_lo = world_center_y_lo >> 3;
+	S32 world_block_y_hi = world_center_y_hi >> 3;
+	
+	U32 blocks_requested = 0;
+	const U32 max_blocks_requested = 9;
 
-	for (S32 block_x = llmax(world_block_x-1, 0); block_x <= llmin(world_block_x+1, MAP_BLOCK_RES-1); ++block_x)
+	for (S32 block_x = llmax(world_block_x_lo, 0); block_x <= llmin(world_block_x_hi, MAP_BLOCK_RES-1); ++block_x)
 	{
-		for (S32 block_y = llmax(world_block_y-1, 0); block_y <= llmin(world_block_y+1, MAP_BLOCK_RES-1); ++block_y)
+		for (S32 block_y = llmax(world_block_y_lo, 0); block_y <= llmin(world_block_y_hi, MAP_BLOCK_RES-1); ++block_y)
 		{
-			updateBlock(block_x, block_y);
+			blocks_requested += updateBlock(block_x, block_y);
+			if (blocks_requested >= max_blocks_requested)
+				return blocks_requested;
 		}
 	}
-}
+	return blocks_requested;
+} 
 
 BOOL LLWorldMapView::handleHover( S32 x, S32 y, MASK mask )
 {

@@ -171,7 +171,7 @@ class WindowsManifest(ViewerManifest):
                 '../../libraries/i686-win32/lib/release/llkdu.dll'), 
                   dst='llkdu.dll')
         except:
-            print "Skipping llkdu,.dll"
+            print "Skipping llkdu.dll"
         self.path(src="licenses-win32.txt", dst="licenses.txt")
 
         self.path("featuretable.txt")
@@ -578,13 +578,6 @@ class LinuxManifest(ViewerManifest):
 
 
     def package_finish(self):
-        # stripping all the libs removes a few megabytes from the end-user package
-        for s,d in self.file_list:
-            if re.search("lib/lib.+\.so.*", d):
-                self.run_command('strip -S %s' % d)
-            if re.search("app_settings/mozilla-runtime-.*/lib.+\.so.*", d):
-                self.run_command('strip %s' % d)
-
         if 'installer_name' in self.args:
             installer_name = self.args['installer_name']
         else:
@@ -628,6 +621,17 @@ class LinuxManifest(ViewerManifest):
 class Linux_i686Manifest(LinuxManifest):
     def construct(self):
         super(Linux_i686Manifest, self).construct()
+
+        # install either the libllkdu we just built, or a prebuilt one, in
+        # decreasing order of preference.  for linux package, this goes to bin/
+        try:
+            self.path(self.find_existing_file(
+                '../llkdu/libllkdu.so',
+                '../../libraries/i686-linux/lib_release_client/libllkdu.so'), 
+                  dst='bin/libllkdu.so')
+        except:
+            print "Skipping libllkdu.so - not found"
+
         self.path("secondlife-stripped","bin/do-not-directly-run-secondlife-bin")
         self.path("../linux_crash_logger/linux-crash-logger-stripped","linux-crash-logger.bin")
         self.path("linux_tools/launch_url.sh","launch_url.sh")
@@ -642,7 +646,7 @@ class Linux_i686Manifest(LinuxManifest):
         self.path("app_settings/mozilla-runtime-linux-i686")
 
         if self.prefix("../../libraries/i686-linux/lib_release_client", dst="lib"):
-            self.path("libkdu_v42R.so")
+            self.path("libkdu_v42R.so", "libkdu.so")
             self.path("libfmod-3.75.so")
             self.path("libapr-1.so.0")
             self.path("libaprutil-1.so.0")
@@ -650,12 +654,10 @@ class Linux_i686Manifest(LinuxManifest):
             self.path("libcrypto.so.0.9.7")
             self.path("libexpat.so.1")
             self.path("libssl.so.0.9.7")
-            self.path("libstdc++.so.6")
             self.path("libuuid.so", "libuuid.so.1")
             self.path("libSDL-1.2.so.0")
             self.path("libELFIO.so")
-            self.path("libopenjpeg.so.2")
-            self.path("libllkdu.so", "../bin/libllkdu.so") # llkdu goes in bin for some reason
+            self.path("libopenjpeg.so.1.3.0", "libopenjpeg.so.1.3")
             self.path("libalut.so")
             self.path("libopenal.so", "libopenal.so.1")
             self.end_prefix("lib")

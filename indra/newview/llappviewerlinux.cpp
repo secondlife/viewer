@@ -540,9 +540,11 @@ void LLAppViewerLinux::handleCrashReporting(bool reportFreeze)
 	cmd += gDirUtilp->getDirDelimiter();
 #if LL_LINUX
 	cmd += "linux-crash-logger.bin";
-#else // LL_SOLARIS
-	cmd += "bin/solaris-crash-logger";
-#endif // LL_LINUX
+#elif LL_SOLARIS
+	cmd += "solaris-crash-logger";
+#else
+# error Unknown platform
+#endif
 
 	if(reportFreeze)
 	{
@@ -623,7 +625,10 @@ void LLAppViewerLinux::handleCrashReporting(bool reportFreeze)
 bool LLAppViewerLinux::beingDebugged()
 {
 	static enum {unknown, no, yes} debugged = unknown;
-	
+
+#if LL_SOLARIS
+	return debugged == no;	// BUG: fix this for Solaris
+#else
 	if (debugged == unknown)
 	{
 		pid_t ppid = getppid();
@@ -658,6 +663,7 @@ bool LLAppViewerLinux::beingDebugged()
 	}
 
 	return debugged == yes;
+#endif
 }
 
 bool LLAppViewerLinux::initLogging()

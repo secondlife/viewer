@@ -248,7 +248,7 @@ void LLFloaterProperties::refresh()
 			"RadioSaleType",
 			"EditPrice"
 		};
-		for(size_t t=0; t<sizeof(enableNames)/sizeof(char*); ++t)
+		for(size_t t=0; t<LL_ARRAY_SIZE(enableNames); ++t)
 		{
 			childSetEnabled(enableNames[t],false);
 		}
@@ -259,7 +259,7 @@ void LLFloaterProperties::refresh()
 			"EveryoneMaskDebug",
 			"NextMaskDebug"
 		};
-		for(size_t t=0; t<sizeof(hideNames)/sizeof(char*); ++t)
+		for(size_t t=0; t<LL_ARRAY_SIZE(hideNames); ++t)
 		{
 			childSetVisible(hideNames[t],false);
 		}

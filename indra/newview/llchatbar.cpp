@@ -523,7 +523,8 @@ void LLChatBar::onInputEditorKeystroke( LLLineEditor* caller, void* userdata )
 		{
 			if (self->mInputEditor)
 			{
-				self->mInputEditor->setText(utf8_out_str);
+				std::string rest_of_match = utf8_out_str.substr(utf8_trigger.size());
+				self->mInputEditor->setText(utf8_trigger + rest_of_match); // keep original capitalization for user-entered part
 				S32 outlength = self->mInputEditor->getLength(); // in characters
 			
 				// Select to end of line, starting from the character

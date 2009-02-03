@@ -546,8 +546,9 @@ void LLPanelLogin::show(const LLRect &rect,
 }
 
 // static
-void LLPanelLogin::setFields(const std::string& firstname, const std::string& lastname, const std::string& password,
-							 BOOL remember)
+void LLPanelLogin::setFields(const std::string& firstname,
+			     const std::string& lastname,
+			     const std::string& password)
 {
 	if (!sInstance)
 	{
@@ -581,8 +582,6 @@ void LLPanelLogin::setFields(const std::string& firstname, const std::string& la
 		pass.hex_digest(munged_password);
 		sInstance->mMungedPassword = munged_password;
 	}
-
-	sInstance->childSetValue("remember_check", remember);
 }
 
 
@@ -601,8 +600,9 @@ void LLPanelLogin::addServer(const std::string& server, S32 domain_name)
 }
 
 // static
-void LLPanelLogin::getFields(std::string &firstname, std::string &lastname, std::string &password,
-							BOOL &remember)
+void LLPanelLogin::getFields(std::string *firstname,
+			     std::string *lastname,
+			     std::string *password)
 {
 	if (!sInstance)
 	{
@@ -610,14 +610,13 @@ void LLPanelLogin::getFields(std::string &firstname, std::string &lastname, std:
 		return;
 	}
 
-	firstname = sInstance->childGetText("first_name_edit");
-	LLStringUtil::trim(firstname);
+	*firstname = sInstance->childGetText("first_name_edit");
+	LLStringUtil::trim(*firstname);
 
-	lastname = sInstance->childGetText("last_name_edit");
-	LLStringUtil::trim(lastname);
+	*lastname = sInstance->childGetText("last_name_edit");
+	LLStringUtil::trim(*lastname);
 
-	password = sInstance->mMungedPassword;
-	remember = sInstance->childGetValue("remember_check");
+	*password = sInstance->mMungedPassword;
 }
 
 // static

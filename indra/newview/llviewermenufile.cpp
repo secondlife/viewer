@@ -274,6 +274,7 @@ class LLFileUploadSound : public view_listener_t
 		{
 			LLFloaterNameDesc* floaterp = new LLFloaterNameDesc(filename);
 			LLUICtrlFactory::getInstance()->buildFloater(floaterp, "floater_sound_preview.xml");
+			floaterp->childSetLabelArg("ok_btn", "[AMOUNT]", llformat("%d", LLGlobalEconomy::Singleton::getInstance()->getPriceUpload() ));
 		}
 		return true;
 	}
@@ -324,8 +325,14 @@ class LLFileUploadBulk : public view_listener_t
 			LLStringUtil::stripNonprintable(asset_name);
 			LLStringUtil::trim(asset_name);
 			
+			std::string display_name = LLStringUtil::null;
+			LLAssetStorage::LLStoreAssetCallback callback = NULL;
+			S32 expected_upload_cost = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
+			void *userdata = NULL;
 			upload_new_resource(filename, asset_name, asset_name, 0, LLAssetType::AT_NONE, LLInventoryType::IT_NONE,
-				LLFloaterPerms::getNextOwnerPerms(), LLFloaterPerms::getGroupPerms(), LLFloaterPerms::getEveryonePerms());
+				LLFloaterPerms::getNextOwnerPerms(), LLFloaterPerms::getGroupPerms(), LLFloaterPerms::getEveryonePerms(),
+					    display_name,
+					    callback, expected_upload_cost, userdata);
 
 			// *NOTE: Ew, we don't iterate over the file list here,
 			// we handle the next files in upload_done_callback()
@@ -482,6 +489,7 @@ void handle_upload(void* data)
 	{
 		LLFloaterNameDesc* floaterp = new LLFloaterNameDesc(filename);
 		LLUICtrlFactory::getInstance()->buildFloater(floaterp, "floater_name_description.xml");
+		floaterp->childSetLabelArg("ok_btn", "[AMOUNT]", llformat("%d", LLGlobalEconomy::Singleton::getInstance()->getPriceUpload() ));
 	}
 }
 
@@ -517,15 +525,16 @@ void handle_compress_image(void*)
 }
 
 void upload_new_resource(const std::string& src_filename, std::string name,
-						 std::string desc, S32 compression_info,
-						 LLAssetType::EType destination_folder_type,
-						 LLInventoryType::EType inv_type,
-						 U32 next_owner_perms,
-						 U32 group_perms,
-						 U32 everyone_perms,
-						 const std::string& display_name,
-						 LLAssetStorage::LLStoreAssetCallback callback,
-						 void *userdata)
+			 std::string desc, S32 compression_info,
+			 LLAssetType::EType destination_folder_type,
+			 LLInventoryType::EType inv_type,
+			 U32 next_owner_perms,
+			 U32 group_perms,
+			 U32 everyone_perms,
+			 const std::string& display_name,
+			 LLAssetStorage::LLStoreAssetCallback callback,
+			 S32 expected_upload_cost,
+			 void *userdata)
 {	
 	// Generate the temporary UUID.
 	std::string filename = gDirUtilp->getTempFilename();
@@ -809,8 +818,8 @@ void upload_new_resource(const std::string& src_filename, std::string name,
 			t_disp_name = src_filename;
 		}
 		upload_new_resource(tid, asset_type, name, desc, compression_info, // tid
-							destination_folder_type, inv_type, next_owner_perms, group_perms, everyone_perms,
-							display_name, callback, userdata);
+				    destination_folder_type, inv_type, next_owner_perms, group_perms, everyone_perms,
+				    display_name, callback, expected_upload_cost, userdata);
 	}
 	else
 	{
@@ -829,8 +838,10 @@ void upload_new_resource(const std::string& src_filename, std::string name,
 void upload_done_callback(const LLUUID& uuid, void* user_data, S32 result, LLExtStat ext_status) // StoreAssetData callback (fixed)
 {
 	LLResourceData* data = (LLResourceData*)user_data;
+	S32 expected_upload_cost = data ? data->mExpectedUploadCost : 0;
 	//LLAssetType::EType pref_loc = data->mPreferredLocation;
 	BOOL is_balance_sufficient = TRUE;
+
 	if(result >= 0)
 	{
 		LLAssetType::EType dest_loc = (data->mPreferredLocation == LLAssetType::AT_NONE) ? data->mAssetInfo.mType : data->mPreferredLocation;
@@ -841,20 +852,19 @@ void upload_done_callback(const LLUUID& uuid, void* user_data, S32 result, LLExt
 		{
 			// Charge the user for the upload.
 			LLViewerRegion* region = gAgent.getRegion();
-			S32 upload_cost = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
 
-			if(!(can_afford_transaction(upload_cost)))
+			if(!(can_afford_transaction(expected_upload_cost)))
 			{
 				LLFloaterBuyCurrency::buyCurrency(
 					llformat("Uploading %s costs",
 							 data->mAssetInfo.getName().c_str()), // *TODO: Translate
-					upload_cost);
+					expected_upload_cost);
 				is_balance_sufficient = FALSE;
 			}
 			else if(region)
 			{
 				// Charge user for upload
-				gStatusBar->debitBalance(upload_cost);
+				gStatusBar->debitBalance(expected_upload_cost);
 				
 				LLMessageSystem* msg = gMessageSystem;
 				msg->newMessageFast(_PREHASH_MoneyTransferRequest);
@@ -865,7 +875,9 @@ void upload_done_callback(const LLUUID& uuid, void* user_data, S32 result, LLExt
 				msg->addUUIDFast(_PREHASH_SourceID, gAgent.getID());
 				msg->addUUIDFast(_PREHASH_DestID, LLUUID::null);
 				msg->addU8("Flags", 0);
-				msg->addS32Fast(_PREHASH_Amount, upload_cost);
+				// we tell the sim how much we were expecting to pay so it
+				// can respond to any discrepancy
+				msg->addS32Fast(_PREHASH_Amount, expected_upload_cost);
 				msg->addU8Fast(_PREHASH_AggregatePermNextOwner, (U8)LLAggregatePermissions::AP_EMPTY);
 				msg->addU8Fast(_PREHASH_AggregatePermInventory, (U8)LLAggregatePermissions::AP_EMPTY);
 				msg->addS32Fast(_PREHASH_TransactionType, TRANS_UPLOAD_CHARGE);
@@ -921,22 +933,31 @@ void upload_done_callback(const LLUUID& uuid, void* user_data, S32 result, LLExt
 		LLStringUtil::stripNonprintable(asset_name);
 		LLStringUtil::trim(asset_name);
 
+		std::string display_name = LLStringUtil::null;
+		LLAssetStorage::LLStoreAssetCallback callback = NULL;
+		void *userdata = NULL;
 		upload_new_resource(next_file, asset_name, asset_name,	// file
-							0, LLAssetType::AT_NONE, LLInventoryType::IT_NONE);
+				    0, LLAssetType::AT_NONE, LLInventoryType::IT_NONE,
+				    PERM_NONE, PERM_NONE, PERM_NONE,
+				    display_name,
+				    callback,
+				    expected_upload_cost, // assuming next in a group of uploads is of roughly the same type, i.e. same upload cost
+				    userdata);
 	}
 }
 
 void upload_new_resource(const LLTransactionID &tid, LLAssetType::EType asset_type,
-						 std::string name,
-						 std::string desc, S32 compression_info,
-						 LLAssetType::EType destination_folder_type,
-						 LLInventoryType::EType inv_type,
-						 U32 next_owner_perms,
-						 U32 group_perms,
-						 U32 everyone_perms,
-						 const std::string& display_name,
-						 LLAssetStorage::LLStoreAssetCallback callback,
-						 void *userdata)
+			 std::string name,
+			 std::string desc, S32 compression_info,
+			 LLAssetType::EType destination_folder_type,
+			 LLInventoryType::EType inv_type,
+			 U32 next_owner_perms,
+			 U32 group_perms,
+			 U32 everyone_perms,
+			 const std::string& display_name,
+			 LLAssetStorage::LLStoreAssetCallback callback,
+			 S32 expected_upload_cost,
+			 void *userdata)
 {
 	if(gDisconnected)
 	{
@@ -985,6 +1006,7 @@ void upload_new_resource(const LLTransactionID &tid, LLAssetType::EType asset_ty
 	llinfos << "UUID: " << uuid << llendl;
 	llinfos << "Name: " << name << llendl;
 	llinfos << "Desc: " << desc << llendl;
+	llinfos << "Expected Upload Cost: " << expected_upload_cost << llendl;
 	lldebugs << "Folder: " << gInventory.findCategoryUUIDForType((destination_folder_type == LLAssetType::AT_NONE) ? asset_type : destination_folder_type) << llendl;
 	lldebugs << "Asset Type: " << LLAssetType::lookup(asset_type) << llendl;
 	std::string url = gAgent.getRegion()->getCapability("NewFileAgentInventory");
@@ -1000,6 +1022,7 @@ void upload_new_resource(const LLTransactionID &tid, LLAssetType::EType asset_ty
 		body["next_owner_mask"] = LLSD::Integer(next_owner_perms);
 		body["group_mask"] = LLSD::Integer(group_perms);
 		body["everyone_mask"] = LLSD::Integer(everyone_perms);
+		body["expected_upload_cost"] = LLSD::Integer(expected_upload_cost);
 		
 		//std::ostringstream llsdxml;
 		//LLSDSerialize::toPrettyXML(body, llsdxml);
@@ -1016,12 +1039,11 @@ void upload_new_resource(const LLTransactionID &tid, LLAssetType::EType asset_ty
 			LLAssetType::AT_TEXTURE == asset_type ||
 			LLAssetType::AT_ANIMATION == asset_type)
 		{
-			S32 upload_cost = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
 			S32 balance = gStatusBar->getBalance();
-			if (balance < upload_cost)
+			if (balance < expected_upload_cost)
 			{
 				// insufficient funds, bail on this upload
-				LLFloaterBuyCurrency::buyCurrency("Uploading costs", upload_cost);
+				LLFloaterBuyCurrency::buyCurrency("Uploading costs", expected_upload_cost);
 				return;
 			}
 		}
@@ -1033,6 +1055,7 @@ void upload_new_resource(const LLTransactionID &tid, LLAssetType::EType asset_ty
 		data->mAssetInfo.mCreatorID = gAgentID;
 		data->mInventoryType = inv_type;
 		data->mNextOwnerPerm = next_owner_perms;
+		data->mExpectedUploadCost = expected_upload_cost;
 		data->mUserData = userdata;
 		data->mAssetInfo.setName(name);
 		data->mAssetInfo.setDescription(desc);

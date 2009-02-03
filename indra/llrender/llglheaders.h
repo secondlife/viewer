@@ -33,11 +33,215 @@
 #ifndef LL_LLGLHEADERS_H
 #define LL_LLGLHEADERS_H
 
-#if LL_MESA
+#if LL_SOLARIS
+#   if defined(__sparc)
+#      define I_NEED_OS2_H 	//  avoiding BOOL conflicts
+#   endif
+#   include "GL/gl.h"
+#   if defined(__sparc)
+#      undef I_NEED_OS2_H
+#      ifdef BOOL
+#         undef BOOL		// now get rid of Xmd.h crap
+#      endif
+#   endif
+#   include "GL/glx.h"
+#   define  GL_GLEXT_PROTOTYPES 1
+#   include "GL/glext.h"
+#   include "GL/glu.h"
+#   include "GL/glx.h"
+#   define  GLX_GLXEXT_PROTOTYPES 1
+#   include "GL/glxext.h"
+//#   define  GLH_EXT_GET_PROC_ADDRESS(p) glXGetProcAddressARB((const GLubyte*)(p))
+#   define  GLH_EXT_GET_PROC_ADDRESS(p) glXGetProcAddress((const GLubyte*)(p))
+//  the X headers define 'Status'.  Undefine to avoid confusion.
+#undef Status
+
+// The __APPLE__ kludge is to make glh_extensions.h not symbol-clash horribly
+// This header is distributed with SL.  You'll find it in linden/libraries/include/GL/
+# define __APPLE__
+# include "GL/glh_extensions.h"
+# undef __APPLE__
+
+
+// GL_ARB_vertex_buffer_object
+extern PFNGLBINDBUFFERARBPROC		glBindBufferARB;
+extern PFNGLDELETEBUFFERSARBPROC	glDeleteBuffersARB;
+extern PFNGLGENBUFFERSARBPROC		glGenBuffersARB;
+extern PFNGLISBUFFERARBPROC			glIsBufferARB;
+extern PFNGLBUFFERDATAARBPROC		glBufferDataARB;
+extern PFNGLBUFFERSUBDATAARBPROC	glBufferSubDataARB;
+extern PFNGLGETBUFFERSUBDATAARBPROC glGetBufferSubDataARB;
+extern PFNGLMAPBUFFERARBPROC		glMapBufferARB;
+extern PFNGLUNMAPBUFFERARBPROC		glUnmapBufferARB;
+extern PFNGLGETBUFFERPARAMETERIVARBPROC	glGetBufferParameterivARB;
+extern PFNGLGETBUFFERPOINTERVARBPROC	glGetBufferPointervARB;
+
+// GL_ATI_vertex_array_object
+extern PFNGLNEWOBJECTBUFFERATIPROC			glNewObjectBufferATI;
+extern PFNGLISOBJECTBUFFERATIPROC			glIsObjectBufferATI;
+extern PFNGLUPDATEOBJECTBUFFERATIPROC		glUpdateObjectBufferATI;
+extern PFNGLGETOBJECTBUFFERFVATIPROC		glGetObjectBufferfvATI;
+extern PFNGLGETOBJECTBUFFERIVATIPROC		glGetObjectBufferivATI;
+extern PFNGLFREEOBJECTBUFFERATIPROC		    glFreeObjectBufferATI;
+extern PFNGLARRAYOBJECTATIPROC				glArrayObjectATI;
+extern PFNGLVERTEXATTRIBARRAYOBJECTATIPROC	glVertexAttribArrayObjectATI;
+extern PFNGLGETARRAYOBJECTFVATIPROC			glGetArrayObjectfvATI;
+extern PFNGLGETARRAYOBJECTIVATIPROC			glGetArrayObjectivATI;
+extern PFNGLVARIANTARRAYOBJECTATIPROC		glVariantObjectArrayATI;
+extern PFNGLGETVARIANTARRAYOBJECTFVATIPROC	glGetVariantArrayObjectfvATI;
+extern PFNGLGETVARIANTARRAYOBJECTIVATIPROC	glGetVariantArrayObjectivATI;
+
+// GL_ARB_occlusion_query
+extern PFNGLGENQUERIESARBPROC glGenQueriesARB;
+extern PFNGLDELETEQUERIESARBPROC glDeleteQueriesARB;
+extern PFNGLISQUERYARBPROC glIsQueryARB;
+extern PFNGLBEGINQUERYARBPROC glBeginQueryARB;
+extern PFNGLENDQUERYARBPROC glEndQueryARB;
+extern PFNGLGETQUERYIVARBPROC glGetQueryivARB;
+extern PFNGLGETQUERYOBJECTIVARBPROC glGetQueryObjectivARB;
+extern PFNGLGETQUERYOBJECTUIVARBPROC glGetQueryObjectuivARB;
+
+// GL_ARB_point_parameters
+extern PFNGLPOINTPARAMETERFARBPROC glPointParameterfARB;
+extern PFNGLPOINTPARAMETERFVARBPROC glPointParameterfvARB;
+
+// GL_ARB_shader_objects
+extern PFNGLDELETEOBJECTARBPROC glDeleteObjectARB;
+extern PFNGLGETHANDLEARBPROC glGetHandleARB;
+extern PFNGLDETACHOBJECTARBPROC glDetachObjectARB;
+extern PFNGLCREATESHADEROBJECTARBPROC glCreateShaderObjectARB;
+extern PFNGLSHADERSOURCEARBPROC glShaderSourceARB;
+extern PFNGLCOMPILESHADERARBPROC glCompileShaderARB;
+extern PFNGLCREATEPROGRAMOBJECTARBPROC glCreateProgramObjectARB;
+extern PFNGLATTACHOBJECTARBPROC glAttachObjectARB;
+extern PFNGLLINKPROGRAMARBPROC glLinkProgramARB;
+extern PFNGLUSEPROGRAMOBJECTARBPROC glUseProgramObjectARB;
+extern PFNGLVALIDATEPROGRAMARBPROC glValidateProgramARB;
+extern PFNGLUNIFORM1FARBPROC glUniform1fARB;
+extern PFNGLUNIFORM2FARBPROC glUniform2fARB;
+extern PFNGLUNIFORM3FARBPROC glUniform3fARB;
+extern PFNGLUNIFORM4FARBPROC glUniform4fARB;
+extern PFNGLUNIFORM1IARBPROC glUniform1iARB;
+extern PFNGLUNIFORM2IARBPROC glUniform2iARB;
+extern PFNGLUNIFORM3IARBPROC glUniform3iARB;
+extern PFNGLUNIFORM4IARBPROC glUniform4iARB;
+extern PFNGLUNIFORM1FVARBPROC glUniform1fvARB;
+extern PFNGLUNIFORM2FVARBPROC glUniform2fvARB;
+extern PFNGLUNIFORM3FVARBPROC glUniform3fvARB;
+extern PFNGLUNIFORM4FVARBPROC glUniform4fvARB;
+extern PFNGLUNIFORM1IVARBPROC glUniform1ivARB;
+extern PFNGLUNIFORM2IVARBPROC glUniform2ivARB;
+extern PFNGLUNIFORM3IVARBPROC glUniform3ivARB;
+extern PFNGLUNIFORM4IVARBPROC glUniform4ivARB;
+extern PFNGLUNIFORMMATRIX2FVARBPROC glUniformMatrix2fvARB;
+extern PFNGLUNIFORMMATRIX3FVARBPROC glUniformMatrix3fvARB;
+extern PFNGLUNIFORMMATRIX4FVARBPROC glUniformMatrix4fvARB;
+extern PFNGLGETOBJECTPARAMETERFVARBPROC glGetObjectParameterfvARB;
+extern PFNGLGETOBJECTPARAMETERIVARBPROC glGetObjectParameterivARB;
+extern PFNGLGETINFOLOGARBPROC glGetInfoLogARB;
+extern PFNGLGETATTACHEDOBJECTSARBPROC glGetAttachedObjectsARB;
+extern PFNGLGETUNIFORMLOCATIONARBPROC glGetUniformLocationARB;
+extern PFNGLGETACTIVEUNIFORMARBPROC glGetActiveUniformARB;
+extern PFNGLGETUNIFORMFVARBPROC glGetUniformfvARB;
+extern PFNGLGETUNIFORMIVARBPROC glGetUniformivARB;
+extern PFNGLGETSHADERSOURCEARBPROC glGetShaderSourceARB;
+
+// GL_ARB_vertex_shader
+extern PFNGLVERTEXATTRIB1DARBPROC glVertexAttrib1dARB;
+extern PFNGLVERTEXATTRIB1DVARBPROC glVertexAttrib1dvARB;
+extern PFNGLVERTEXATTRIB1FARBPROC glVertexAttrib1fARB;
+extern PFNGLVERTEXATTRIB1FVARBPROC glVertexAttrib1fvARB;
+extern PFNGLVERTEXATTRIB1SARBPROC glVertexAttrib1sARB;
+extern PFNGLVERTEXATTRIB1SVARBPROC glVertexAttrib1svARB;
+extern PFNGLVERTEXATTRIB2DARBPROC glVertexAttrib2dARB;
+extern PFNGLVERTEXATTRIB2DVARBPROC glVertexAttrib2dvARB;
+extern PFNGLVERTEXATTRIB2FARBPROC glVertexAttrib2fARB;
+extern PFNGLVERTEXATTRIB2FVARBPROC glVertexAttrib2fvARB;
+extern PFNGLVERTEXATTRIB2SARBPROC glVertexAttrib2sARB;
+extern PFNGLVERTEXATTRIB2SVARBPROC glVertexAttrib2svARB;
+extern PFNGLVERTEXATTRIB3DARBPROC glVertexAttrib3dARB;
+extern PFNGLVERTEXATTRIB3DVARBPROC glVertexAttrib3dvARB;
+extern PFNGLVERTEXATTRIB3FARBPROC glVertexAttrib3fARB;
+extern PFNGLVERTEXATTRIB3FVARBPROC glVertexAttrib3fvARB;
+extern PFNGLVERTEXATTRIB3SARBPROC glVertexAttrib3sARB;
+extern PFNGLVERTEXATTRIB3SVARBPROC glVertexAttrib3svARB;
+extern PFNGLVERTEXATTRIB4NBVARBPROC glVertexAttrib4nbvARB;
+extern PFNGLVERTEXATTRIB4NIVARBPROC glVertexAttrib4nivARB;
+extern PFNGLVERTEXATTRIB4NSVARBPROC glVertexAttrib4nsvARB;
+extern PFNGLVERTEXATTRIB4NUBARBPROC glVertexAttrib4nubARB;
+extern PFNGLVERTEXATTRIB4NUBVARBPROC glVertexAttrib4nubvARB;
+extern PFNGLVERTEXATTRIB4NUIVARBPROC glVertexAttrib4nuivARB;
+extern PFNGLVERTEXATTRIB4NUSVARBPROC glVertexAttrib4nusvARB;
+extern PFNGLVERTEXATTRIB4BVARBPROC glVertexAttrib4bvARB;
+extern PFNGLVERTEXATTRIB4DARBPROC glVertexAttrib4dARB;
+extern PFNGLVERTEXATTRIB4DVARBPROC glVertexAttrib4dvARB;
+extern PFNGLVERTEXATTRIB4FARBPROC glVertexAttrib4fARB;
+extern PFNGLVERTEXATTRIB4FVARBPROC glVertexAttrib4fvARB;
+extern PFNGLVERTEXATTRIB4IVARBPROC glVertexAttrib4ivARB;
+extern PFNGLVERTEXATTRIB4SARBPROC glVertexAttrib4sARB;
+extern PFNGLVERTEXATTRIB4SVARBPROC glVertexAttrib4svARB;
+extern PFNGLVERTEXATTRIB4UBVARBPROC glVertexAttrib4ubvARB;
+extern PFNGLVERTEXATTRIB4UIVARBPROC glVertexAttrib4uivARB;
+extern PFNGLVERTEXATTRIB4USVARBPROC glVertexAttrib4usvARB;
+extern PFNGLVERTEXATTRIBPOINTERARBPROC glVertexAttribPointerARB;
+extern PFNGLENABLEVERTEXATTRIBARRAYARBPROC glEnableVertexAttribArrayARB;
+extern PFNGLDISABLEVERTEXATTRIBARRAYARBPROC glDisableVertexAttribArrayARB;
+extern PFNGLPROGRAMSTRINGARBPROC glProgramStringARB;
+extern PFNGLBINDPROGRAMARBPROC glBindProgramARB;
+extern PFNGLDELETEPROGRAMSARBPROC glDeleteProgramsARB;
+extern PFNGLGENPROGRAMSARBPROC glGenProgramsARB;
+extern PFNGLPROGRAMENVPARAMETER4DARBPROC glProgramEnvParameter4dARB;
+extern PFNGLPROGRAMENVPARAMETER4DVARBPROC glProgramEnvParameter4dvARB;
+extern PFNGLPROGRAMENVPARAMETER4FARBPROC glProgramEnvParameter4fARB;
+extern PFNGLPROGRAMENVPARAMETER4FVARBPROC glProgramEnvParameter4fvARB;
+extern PFNGLPROGRAMLOCALPARAMETER4DARBPROC glProgramLocalParameter4dARB;
+extern PFNGLPROGRAMLOCALPARAMETER4DVARBPROC glProgramLocalParameter4dvARB;
+extern PFNGLPROGRAMLOCALPARAMETER4FARBPROC glProgramLocalParameter4fARB;
+extern PFNGLPROGRAMLOCALPARAMETER4FVARBPROC glProgramLocalParameter4fvARB;
+extern PFNGLGETPROGRAMENVPARAMETERDVARBPROC glGetProgramEnvParameterdvARB;
+extern PFNGLGETPROGRAMENVPARAMETERFVARBPROC glGetProgramEnvParameterfvARB;
+extern PFNGLGETPROGRAMLOCALPARAMETERDVARBPROC glGetProgramLocalParameterdvARB;
+extern PFNGLGETPROGRAMLOCALPARAMETERFVARBPROC glGetProgramLocalParameterfvARB;
+extern PFNGLGETPROGRAMIVARBPROC glGetProgramivARB;
+extern PFNGLGETPROGRAMSTRINGARBPROC glGetProgramStringARB;
+extern PFNGLGETVERTEXATTRIBDVARBPROC glGetVertexAttribdvARB;
+extern PFNGLGETVERTEXATTRIBFVARBPROC glGetVertexAttribfvARB;
+extern PFNGLGETVERTEXATTRIBIVARBPROC glGetVertexAttribivARB;
+extern PFNGLGETVERTEXATTRIBPOINTERVARBPROC glGetVertexAttribPointervARB;
+extern PFNGLISPROGRAMARBPROC glIsProgramARB;
+extern PFNGLBINDATTRIBLOCATIONARBPROC glBindAttribLocationARB;
+extern PFNGLGETACTIVEATTRIBARBPROC glGetActiveAttribARB;
+extern PFNGLGETATTRIBLOCATIONARBPROC glGetAttribLocationARB;
+
+extern PFNGLCOMPRESSEDTEXIMAGE2DARBPROC glCompressedTexImage2DARB;
+extern PFNGLGETCOMPRESSEDTEXIMAGEARBPROC glGetCompressedTexImageARB;
+
+extern PFNGLCOLORTABLEEXTPROC glColorTableEXT;
+
+//GL_EXT_framebuffer_object
+extern PFNGLISRENDERBUFFEREXTPROC glIsRenderbufferEXT;
+extern PFNGLBINDRENDERBUFFEREXTPROC glBindRenderbufferEXT;
+extern PFNGLDELETERENDERBUFFERSEXTPROC glDeleteRenderbuffersEXT;
+extern PFNGLGENRENDERBUFFERSEXTPROC glGenRenderbuffersEXT;
+extern PFNGLRENDERBUFFERSTORAGEEXTPROC glRenderbufferStorageEXT;
+extern PFNGLGETRENDERBUFFERPARAMETERIVEXTPROC glGetRenderbufferParameterivEXT;
+extern PFNGLISFRAMEBUFFEREXTPROC glIsFramebufferEXT;
+extern PFNGLBINDFRAMEBUFFEREXTPROC glBindFramebufferEXT;
+extern PFNGLDELETEFRAMEBUFFERSEXTPROC glDeleteFramebuffersEXT;
+extern PFNGLGENFRAMEBUFFERSEXTPROC glGenFramebuffersEXT;
+extern PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC glCheckFramebufferStatusEXT;
+extern PFNGLFRAMEBUFFERTEXTURE1DEXTPROC glFramebufferTexture1DEXT;
+extern PFNGLFRAMEBUFFERTEXTURE2DEXTPROC glFramebufferTexture2DEXT;
+extern PFNGLFRAMEBUFFERTEXTURE3DEXTPROC glFramebufferTexture3DEXT;
+extern PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC glFramebufferRenderbufferEXT;
+extern PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVEXTPROC glGetFramebufferAttachmentParameterivEXT;
+extern PFNGLGENERATEMIPMAPEXTPROC glGenerateMipmapEXT;
+
+#elif LL_MESA
 //----------------------------------------------------------------------------
 // MESA headers
 // quotes so we get libraries/.../GL/ version
-#define GL_GLEXT_PROTOTYPES
+#define GL_GLEXT_PROTOTYPES 1
 #include "GL/gl.h"
 #include "GL/glext.h"
 #include "GL/glu.h"
@@ -47,7 +251,7 @@
 # include "GL/glh_extensions.h"
 # undef __APPLE__
 
-#elif LL_LINUX
+#elif LL_LINUX 
 //----------------------------------------------------------------------------
 // Linux, MESA headers, but not necessarily assuming MESA runtime.
 // quotes so we get libraries/.../GL/ version

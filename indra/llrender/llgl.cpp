@@ -65,7 +65,7 @@ LLMatrix4 gGLObliqueProjectionInverse;
 
 LLGLNamePool::pool_list_t LLGLNamePool::sInstances;
 
-#if (LL_WINDOWS || LL_LINUX) && !LL_MESA_HEADLESS
+#if (LL_WINDOWS || LL_LINUX || LL_SOLARIS)  && !LL_MESA_HEADLESS
 // ATI prototypes
 // vertex blending prototypes
 PFNGLWEIGHTPOINTERARBPROC			glWeightPointerARB = NULL;
@@ -175,7 +175,7 @@ PFNGLGETUNIFORMIVARBPROC glGetUniformivARB = NULL;
 PFNGLGETSHADERSOURCEARBPROC glGetShaderSourceARB = NULL;
 
 // vertex shader prototypes
-#if LL_LINUX
+#if LL_LINUX || LL_SOLARIS
 PFNGLVERTEXATTRIB1DARBPROC glVertexAttrib1dARB = NULL;
 PFNGLVERTEXATTRIB1DVARBPROC glVertexAttrib1dvARB = NULL;
 PFNGLVERTEXATTRIB1FARBPROC glVertexAttrib1fARB = NULL;
@@ -194,7 +194,7 @@ PFNGLVERTEXATTRIB3FARBPROC glVertexAttrib3fARB = NULL;
 PFNGLVERTEXATTRIB3FVARBPROC glVertexAttrib3fvARB = NULL;
 PFNGLVERTEXATTRIB3SARBPROC glVertexAttrib3sARB = NULL;
 PFNGLVERTEXATTRIB3SVARBPROC glVertexAttrib3svARB = NULL;
-#endif // LL_LINUX
+#endif // LL_LINUX || LL_SOLARIS
 PFNGLVERTEXATTRIB4NBVARBPROC glVertexAttrib4nbvARB = NULL;
 PFNGLVERTEXATTRIB4NIVARBPROC glVertexAttrib4nivARB = NULL;
 PFNGLVERTEXATTRIB4NSVARBPROC glVertexAttrib4nsvARB = NULL;
@@ -202,7 +202,7 @@ PFNGLVERTEXATTRIB4NUBARBPROC glVertexAttrib4nubARB = NULL;
 PFNGLVERTEXATTRIB4NUBVARBPROC glVertexAttrib4nubvARB = NULL;
 PFNGLVERTEXATTRIB4NUIVARBPROC glVertexAttrib4nuivARB = NULL;
 PFNGLVERTEXATTRIB4NUSVARBPROC glVertexAttrib4nusvARB = NULL;
-#if LL_LINUX
+#if LL_LINUX  || LL_SOLARIS
 PFNGLVERTEXATTRIB4BVARBPROC glVertexAttrib4bvARB = NULL;
 PFNGLVERTEXATTRIB4DARBPROC glVertexAttrib4dARB = NULL;
 PFNGLVERTEXATTRIB4DVARBPROC glVertexAttrib4dvARB = NULL;
@@ -240,7 +240,7 @@ PFNGLGETVERTEXATTRIBFVARBPROC glGetVertexAttribfvARB = NULL;
 PFNGLGETVERTEXATTRIBIVARBPROC glGetVertexAttribivARB = NULL;
 PFNGLGETVERTEXATTRIBPOINTERVARBPROC glGetVertexAttribPointervARB = NULL;
 PFNGLISPROGRAMARBPROC glIsProgramARB = NULL;
-#endif // LL_LINUX
+#endif // LL_LINUX || LL_SOLARIS
 PFNGLBINDATTRIBLOCATIONARBPROC glBindAttribLocationARB = NULL;
 PFNGLGETACTIVEATTRIBARBPROC glGetActiveAttribARB = NULL;
 PFNGLGETATTRIBLOCATIONARBPROC glGetAttribLocationARB = NULL;
@@ -248,10 +248,6 @@ PFNGLGETATTRIBLOCATIONARBPROC glGetAttribLocationARB = NULL;
 #if LL_WINDOWS
 PFNWGLSWAPINTERVALEXTPROC			wglSwapIntervalEXT = NULL;
 #endif
-
-#if LL_LINUX
-PFNGLCOLORTABLEEXTPROC glColorTableEXT = NULL;
-#endif // LL_LINUX
 
 #endif
 
@@ -490,7 +486,7 @@ std::string LLGLManager::getGLInfoString()
 	info_str += std::string("GL_RENDERER    ") + ll_safe_string((const char *)glGetString(GL_RENDERER)) + std::string("\n");
 	info_str += std::string("GL_VERSION     ") + ll_safe_string((const char *)glGetString(GL_VERSION)) + std::string("\n");
 
-#if !LL_MESA_HEADLESS
+#if !LL_MESA_HEADLESS 
 	all_exts = (const char *)gGLHExts.mSysExts;
 	LLStringUtil::replaceChar(all_exts, ' ', '\n');
 	info_str += std::string("GL_EXTENSIONS:\n") + all_exts + std::string("\n");
@@ -597,7 +593,8 @@ void LLGLManager::initExtensions()
 	mHasFragmentShader = ExtensionExists("GL_ARB_fragment_shader", gGLHExts.mSysExts) && ExtensionExists("GL_ARB_shading_language_100", gGLHExts.mSysExts);
 #endif
 
-#if LL_LINUX
+#if LL_LINUX || LL_SOLARIS
+	llinfos << "initExtensions() checking shell variables to adjust features..." << llendl;
 	// Our extension support for the Linux Client is very young with some
 	// potential driver gotchas, so offer a semi-secret way to turn it off.
 	if (getenv("LL_GL_NOEXT"))	/* Flawfinder: ignore */
@@ -657,7 +654,7 @@ void LLGLManager::initExtensions()
 		if (strchr(blacklist,'p')) mHasPointParameters = FALSE;//S
 		if (strchr(blacklist,'q')) mHasFramebufferObject = FALSE;//S
 	}
-#endif // LL_LINUX
+#endif // LL_LINUX || LL_SOLARIS
 	
 	if (!mHasMultitexture)
 	{
@@ -720,7 +717,7 @@ void LLGLManager::initExtensions()
 	glGetIntegerv(GL_MAX_ELEMENTS_VERTICES, (GLint*) &mGLMaxVertexRange);
 	glGetIntegerv(GL_MAX_ELEMENTS_INDICES, (GLint*) &mGLMaxIndexRange);
 	
-#if (LL_WINDOWS || LL_LINUX) && !LL_MESA_HEADLESS
+#if (LL_WINDOWS || LL_LINUX || LL_SOLARIS) && !LL_MESA_HEADLESS
 	LL_DEBUGS("RenderInit") << "GL Probe: Getting symbols" << LL_ENDL;
 	if (mHasVertexBufferObject)
 	{
@@ -745,6 +742,7 @@ void LLGLManager::initExtensions()
 	}
 	if (mHasFramebufferObject)
 	{
+		llinfos << "initExtensions() FramebufferObject-related procs..." << llendl;
 		glIsRenderbufferEXT = (PFNGLISRENDERBUFFEREXTPROC) GLH_EXT_GET_PROC_ADDRESS("glIsRenderbufferEXT");
 		glBindRenderbufferEXT = (PFNGLBINDRENDERBUFFEREXTPROC) GLH_EXT_GET_PROC_ADDRESS("glBindRenderbufferEXT");
 		glDeleteRenderbuffersEXT = (PFNGLDELETERENDERBUFFERSEXTPROC) GLH_EXT_GET_PROC_ADDRESS("glDeleteRenderbuffersEXT");
@@ -763,7 +761,7 @@ void LLGLManager::initExtensions()
 		glGetFramebufferAttachmentParameterivEXT = (PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVEXTPROC) GLH_EXT_GET_PROC_ADDRESS("glGetFramebufferAttachmentParameterivEXT");
 		glGenerateMipmapEXT = (PFNGLGENERATEMIPMAPEXTPROC) GLH_EXT_GET_PROC_ADDRESS("glGenerateMipmapEXT");
 	}
-#if !LL_LINUX
+#if !LL_LINUX && !LL_SOLARIS
 	// This is expected to be a static symbol on Linux GL implementations
 	glDrawRangeElements = (PFNGLDRAWRANGEELEMENTSPROC)GLH_EXT_GET_PROC_ADDRESS("glDrawRangeElements");
 	if (!glDrawRangeElements)
@@ -775,6 +773,7 @@ void LLGLManager::initExtensions()
 
 	if (mHasOcclusionQuery)
 	{
+		llinfos << "initExtensions() OcclusionQuery-related procs..." << llendl;
 		glGenQueriesARB = (PFNGLGENQUERIESARBPROC)GLH_EXT_GET_PROC_ADDRESS("glGenQueriesARB");
 		glDeleteQueriesARB = (PFNGLDELETEQUERIESARBPROC)GLH_EXT_GET_PROC_ADDRESS("glDeleteQueriesARB");
 		glIsQueryARB = (PFNGLISQUERYARBPROC)GLH_EXT_GET_PROC_ADDRESS("glIsQueryARB");
@@ -786,6 +785,7 @@ void LLGLManager::initExtensions()
 	}
 	if (mHasPointParameters)
 	{
+		llinfos << "initExtensions() PointParameters-related procs..." << llendl;
 		glPointParameterfARB = (PFNGLPOINTPARAMETERFARBPROC)GLH_EXT_GET_PROC_ADDRESS("glPointParameterfARB");
 		glPointParameterfvARB = (PFNGLPOINTPARAMETERFVARBPROC)GLH_EXT_GET_PROC_ADDRESS("glPointParameterfvARB");
 	}
@@ -833,6 +833,7 @@ void LLGLManager::initExtensions()
 	}
 	if (mHasVertexShader)
 	{
+		llinfos << "initExtensions() VertexShader-related procs..." << llendl;
 		glGetAttribLocationARB = (PFNGLGETATTRIBLOCATIONARBPROC) GLH_EXT_GET_PROC_ADDRESS("glGetAttribLocationARB");
 		glBindAttribLocationARB = (PFNGLBINDATTRIBLOCATIONARBPROC) GLH_EXT_GET_PROC_ADDRESS("glBindAttribLocationARB");
 		glGetActiveAttribARB = (PFNGLGETACTIVEATTRIBARBPROC) GLH_EXT_GET_PROC_ADDRESS("glGetActiveAttribARB");

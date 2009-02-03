@@ -42,6 +42,7 @@ struct LLResourceData
 	LLAssetType::EType mPreferredLocation;
 	LLInventoryType::EType mInventoryType;
 	U32 mNextOwnerPerm;
+	S32 mExpectedUploadCost;
 	void *mUserData;
 };
 

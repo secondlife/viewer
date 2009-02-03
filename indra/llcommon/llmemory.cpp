@@ -39,7 +39,7 @@
 # include <sys/types.h>
 # include <mach/task.h>
 # include <mach/mach_init.h>
-#elif defined(LL_LINUX)
+#elif LL_LINUX || LL_SOLARIS
 # include <unistd.h>
 #endif
 
@@ -389,6 +389,34 @@ bail:
 	return rss;
 }
 
+#elif LL_SOLARIS
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#define _STRUCTURED_PROC 1
+#include <sys/procfs.h>
+
+U64 getCurrentRSS()
+{
+	char path [LL_MAX_PATH];	/* Flawfinder: ignore */ 
+
+	sprintf(path, "/proc/%d/psinfo", (int)getpid());
+	int proc_fd = -1;
+	if((proc_fd = open(path, O_RDONLY)) == -1){
+		llwarns << "LLmemory::getCurrentRSS() unable to open " << path << ". Returning 0 RSS!" << llendl;
+		return 0;
+	}
+	psinfo_t proc_psinfo;
+	if(read(proc_fd, &proc_psinfo, sizeof(psinfo_t)) != sizeof(psinfo_t)){
+		llwarns << "LLmemory::getCurrentRSS() Unable to read from " << path << ". Returning 0 RSS!" << llendl;
+		close(proc_fd);
+		return 0;
+	}
+
+	close(proc_fd);
+
+	return((U64)proc_psinfo.pr_rssize * 1024);
+}
 #else
 
 U64 getCurrentRSS()

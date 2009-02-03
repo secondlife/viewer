@@ -49,6 +49,13 @@
 
 const F32 REQUEST_ITEMS_TIMER =  10.f * 60.f; // 10 minutes
 
+// For DEV-17507, do lazy image loading in llworldmapview.cpp instead,
+// limiting requests to currently visible regions and minimizing the
+// number of textures being requested simultaneously.
+//
+// Uncomment IMMEDIATE_IMAGE_LOAD to restore the old behavior
+//
+//#define IMMEDIATE_IMAGE_LOAD
 LLItemInfo::LLItemInfo(F32 global_x, F32 global_y,
 					   const std::string& name, 
 					   LLUUID id,
@@ -611,13 +618,17 @@ void LLWorldMap::processMapBlockReply(LLMessageSystem* msg, void**)
 			siminfo->mRegionFlags = region_flags;
 			siminfo->mWaterHeight = (F32) water_height;
 			siminfo->mMapImageID[agent_flags] = image_id;
+#ifdef IMMEDIATE_IMAGE_LOAD
 			siminfo->mCurrentImage = gImageList.getImage(siminfo->mMapImageID[LLWorldMap::getInstance()->mCurrentMap], MIPMAP_TRUE, FALSE);
 			gGL.getTexUnit(0)->bind(siminfo->mCurrentImage.get());
 			siminfo->mCurrentImage->setClamp(TRUE, TRUE);
+#endif
 			
 			if (siminfo->mMapImageID[2].notNull())
 			{
+#ifdef IMMEDIATE_IMAGE_LOAD
 				siminfo->mOverlayImage = gImageList.getImage(siminfo->mMapImageID[2], MIPMAP_TRUE, FALSE);
+#endif
 			}
 			else
 			{

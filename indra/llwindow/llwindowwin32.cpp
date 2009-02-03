@@ -2931,7 +2931,7 @@ void LLWindowWin32::spawnWebBrowser(const std::string& escaped_url )
 	/*
 	std::string reg_path_str = gURLProtocolWhitelistHandler[i] + "\\shell\\open\\command";
 	WCHAR reg_path_wstr[256];
-	mbstowcs(reg_path_wstr, reg_path_str.c_str(), sizeof(reg_path_wstr)/sizeof(reg_path_wstr[0]));
+	mbstowcs( reg_path_wstr, reg_path_str.c_str(), LL_ARRAY_SIZE(reg_path_wstr) );
 
 	HKEY key;
 	WCHAR browser_open_wstr[1024];

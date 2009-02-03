@@ -33,14 +33,12 @@
 	<text name="steps_label">
 		Étapes :
 	</text>
-	<!-- Revert translations as interim fix to VWR-9985 while the code is not properly internationalized
 	<scroll_list name="library_list">
 		Animation
 Son
 Chat
 Attendre
 	</scroll_list>
-	-->
 	<button label="Ajouter &gt;&gt;" name="add_btn" />
 	<button label="Monter" name="up_btn" />
 	<button label="Descendre" name="down_btn" />

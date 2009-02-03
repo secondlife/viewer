@@ -68,6 +68,7 @@ set(llui_SOURCE_FILES
     lluictrl.cpp
     lluictrlfactory.cpp
     lluistring.cpp
+    lluitrans.cpp
     llundo.cpp
     llviewborder.cpp
     llview.cpp
@@ -124,6 +125,7 @@ set(llui_HEADER_FILES
     lluifwd.h
     llui.h
     lluistring.h
+    lluitrans.h
     lluixmltags.h
     llundo.h
     llviewborder.h

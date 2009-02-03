@@ -58,6 +58,7 @@
 #include "llviewerwindow.h"		// *TODO: remove, only used for width/height
 #include "llworld.h"
 #include "llfeaturemanager.h"
+#include "llviewernetwork.h"
 #if LL_LCD_COMPILE
 #include "lllcd.h"
 #endif
@@ -662,7 +663,7 @@ void send_stats()
 	time(&ltime);
 	F32 run_time = F32(LLFrameTimer::getElapsedSeconds());
 
-	agent["start_time"] = ltime - run_time;
+	agent["start_time"] = S32(ltime - S32(run_time));
 
 	// The first stat set must have a 0 run time if it doesn't actually
 	// contain useful data in terms of FPS, etc.  We use half the
@@ -701,7 +702,11 @@ void send_stats()
 	system["ram"] = (S32) gSysMemory.getPhysicalMemoryKB();
 	system["os"] = LLAppViewer::instance()->getOSInfo().getOSStringSimple();
 	system["cpu"] = gSysCPU.getCPUString();
-
+	std::string macAddressString = llformat("%02x-%02x-%02x-%02x-%02x-%02x",
+											gMACAddress[0],gMACAddress[1],gMACAddress[2],
+											gMACAddress[3],gMACAddress[4],gMACAddress[5]);
+	system["mac_address"] = macAddressString;
+	system["serial_number"] = LLAppViewer::instance()->getSerialNumber();
 	std::string gpu_desc = llformat(
 		"%-6s Class %d ",
 		gGLManager.mGLVendorShort.substr(0,6).c_str(),

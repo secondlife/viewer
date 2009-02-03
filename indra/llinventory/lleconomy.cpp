@@ -74,6 +74,18 @@ void LLGlobalEconomy::processEconomyData(LLMessageSystem *msg, LLGlobalEconomy* 
 	econ_data->setPricePublicObjectDelete(i);
 	msg->getS32Fast(_PREHASH_Info, _PREHASH_PriceUpload, i);
 	econ_data->setPriceUpload(i);
+#if LL_LINUX
+	// We can optionally fake the received upload price for testing.
+	// Note that the server is within its rights to not obey our fake
+	// price. :)
+	const char* fakeprice_str = getenv("LL_FAKE_UPLOAD_PRICE");
+	if (fakeprice_str)
+	{
+		S32 fakeprice = (S32)atoi(fakeprice_str);
+		llwarns << "LL_FAKE_UPLOAD_PRICE: Faking upload price as L$" << fakeprice << llendl;
+		econ_data->setPriceUpload(fakeprice);
+	}
+#endif
 	msg->getS32Fast(_PREHASH_Info, _PREHASH_PriceRentLight, i);
 	econ_data->setPriceRentLight(i);
 	msg->getS32Fast(_PREHASH_Info, _PREHASH_TeleportMinPrice, i);

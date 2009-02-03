@@ -59,14 +59,15 @@ public:
 		void (*callback)(S32 option, void* user_data), 
 		void* callback_data);
 
+	// Remember password checkbox is set via gSavedSettings "RememberPassword"
 	static void setFields(const std::string& firstname, const std::string& lastname, 
-		const std::string& password, BOOL remember);
+		const std::string& password);
 
 	static void addServer(const std::string& server, S32 domain_name);
 	static void refreshLocation( bool force_visible );
 
-	static void getFields(std::string& firstname, std::string& lastname,
-						  std::string& password, BOOL& remember);
+	static void getFields(std::string *firstname, std::string *lastname,
+						  std::string *password);
 
 	static BOOL isGridComboDirty();
 	static void getLocation(std::string &location);

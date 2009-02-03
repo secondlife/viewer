@@ -206,6 +206,7 @@ void LLNewAgentInventoryResponder::uploadComplete(const LLSD& content)
 
 	LLAssetType::EType asset_type = LLAssetType::lookup(mPostData["asset_type"].asString());
 	LLInventoryType::EType inventory_type = LLInventoryType::lookup(mPostData["inventory_type"].asString());
+	S32 expected_upload_cost = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
 
 	// Update L$ and ownership credit information
 	// since it probably changed on the server
@@ -222,7 +223,7 @@ void LLNewAgentInventoryResponder::uploadComplete(const LLSD& content)
 		gAgent.sendReliableMessage();
 
 		LLSD args;
-		args["AMOUNT"] = llformat("%d",LLGlobalEconomy::Singleton::getInstance()->getPriceUpload());
+		args["AMOUNT"] = llformat("%d", expected_upload_cost);
 		LLNotifications::instance().add("UploadPayment", args);
 	}
 
@@ -320,9 +321,14 @@ void LLNewAgentInventoryResponder::uploadComplete(const LLSD& content)
 		U32 everyone_perms   = mPostData.has("everyone_mask")   ? mPostData.get("everyone_mask"  ).asInteger() : PERM_NONE;
 		U32 group_perms      = mPostData.has("group_mask")      ? mPostData.get("group_mask"     ).asInteger() : PERM_NONE;
 		U32 next_owner_perms = mPostData.has("next_owner_mask") ? mPostData.get("next_owner_mask").asInteger() : PERM_NONE;
+		std::string display_name = LLStringUtil::null;
+		LLAssetStorage::LLStoreAssetCallback callback = NULL;
+		void *userdata = NULL;
 		upload_new_resource(next_file, asset_name, asset_name,
-							0, LLAssetType::AT_NONE, LLInventoryType::IT_NONE,
-							next_owner_perms, group_perms, everyone_perms);
+				    0, LLAssetType::AT_NONE, LLInventoryType::IT_NONE,
+				    next_owner_perms, group_perms,
+				    everyone_perms, display_name,
+				    callback, expected_upload_cost, userdata);
 	}
 }
 

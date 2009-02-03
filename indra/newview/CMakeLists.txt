@@ -41,6 +41,7 @@ if (WINDOWS)
 endif (WINDOWS)
 
 include_directories(
+    ${DBUSGLIB_INCLUDE_DIRS}
     ${ELFIO_INCLUDE_DIR}
     ${LLAUDIO_INCLUDE_DIRS}
     ${LLCHARACTER_INCLUDE_DIRS}
@@ -937,11 +938,8 @@ if (WINDOWS)
         res/arrowcop.cur
         res/arrowcopmulti.cur
         res/arrowdrag.cur
-        res/bitmap2.bmp
         res/circleandline.cur
         res/icon1.ico
-        res/install_icon.BMP
-        res/install_icon.ico
         res/llarrow.cur
         res/llarrowdrag.cur
         res/llarrowdragmulti.cur
@@ -963,7 +961,6 @@ if (WINDOWS)
         res/lltoolzoomout.cur
         res/ll_icon.BMP
         res/ll_icon.ico
-        res/loginbackground.bmp
         res/resource.h
         res/toolbuy.cur
         res/toolopen.cur
@@ -973,8 +970,6 @@ if (WINDOWS)
         res/toolpickobject3.cur
         res/toolpipette.cur
         res/toolsit.cur
-        res/uninstall_icon.BMP
-        res/uninstall_icon.ico
         )
 
     set_source_files_properties(${viewer_RESOURCE_FILES}
@@ -1070,7 +1065,6 @@ set(viewer_XUI_FILES
     skins/default/xui/en-us/floater_html_simple.xml
     skins/default/xui/en-us/floater_hud.xml
     skins/default/xui/en-us/floater_image_preview.xml
-    skins/default/xui/en-us/floater_import.xml
     skins/default/xui/en-us/floater_im.xml
     skins/default/xui/en-us/floater_inspect.xml
     skins/default/xui/en-us/floater_instant_message_ad_hoc.xml
@@ -1516,6 +1510,25 @@ if (DARWIN)
   if (PACKAGE)
       add_custom_target(package ALL DEPENDS ${VIEWER_BINARY_NAME}) 
       add_dependencies(package mac-updater mac-crash-logger)
+
+      add_custom_command(
+        TARGET package POST_BUILD
+        COMMAND ${PYTHON_EXECUTABLE}
+        ARGS
+          ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
+          --grid=${GRID}
+          --configuration=${CMAKE_CFG_INTDIR}
+          --channel=${VIEWER_CHANNEL}
+          --login_channel=${VIEWER_LOGIN_CHANNEL}
+          --source=${CMAKE_CURRENT_SOURCE_DIR}
+          --artwork=${ARTWORK_DIR}
+          --build=${CMAKE_CURRENT_BINARY_DIR}
+          --dest=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/${product}.app
+          --touch=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/.${product}.touched
+        DEPENDS
+          ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
+      )
+
 
       add_custom_command(
         TARGET package POST_BUILD

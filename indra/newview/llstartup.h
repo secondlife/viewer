@@ -37,7 +37,6 @@
 
 // functions
 bool idle_startup();
-std::string load_password_from_disk();
 void release_start_screen();
 bool login_alert_done(const LLSD& notification, const LLSD& response);
 
@@ -99,6 +98,15 @@ public:
 	static void loadInitialOutfit( const std::string& outfit_folder_name,
 								   const std::string& gender_name );
 
+	// Load MD5 of user's password from local disk file.
+	static std::string loadPasswordFromDisk();
+	
+	// Record MD5 of user's password for subsequent login.
+	static void savePasswordToDisk(const std::string& hashed_password);
+	
+	// Delete the saved password local disk file.
+	static void deletePasswordFromDisk();
+	
 	static bool dispatchURL();
 		// if we have a SLURL or sim string ("Ahern/123/45") that started
 		// the viewer, dispatch it

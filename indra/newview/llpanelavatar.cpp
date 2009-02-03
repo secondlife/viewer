@@ -78,9 +78,6 @@
 #include "llweb.h"
 #include "llinventorymodel.h"
 #include "roles_constants.h"
-
-#define	kArraySize( _kArray ) ( sizeof( (_kArray) ) / sizeof( _kArray[0] ) )
-
 #include "lluictrlfactory.h"
 
 // Statics
@@ -504,17 +501,17 @@ BOOL LLPanelAvatarPicks::postBuild(void)
 
 BOOL LLPanelAvatarAdvanced::postBuild()
 {
-	for(size_t ii = 0; ii < kArraySize(mWantToCheck); ++ii)
+	for(size_t ii = 0; ii < LL_ARRAY_SIZE(mWantToCheck); ++ii)
 		mWantToCheck[ii] = NULL;
-	for(size_t ii = 0; ii < kArraySize(mSkillsCheck); ++ii)
+	for(size_t ii = 0; ii < LL_ARRAY_SIZE(mSkillsCheck); ++ii)
 		mSkillsCheck[ii] = NULL;
-	mWantToCount = (8>kArraySize(mWantToCheck))?kArraySize(mWantToCheck):8;
+	mWantToCount = (8>LL_ARRAY_SIZE(mWantToCheck))?LL_ARRAY_SIZE(mWantToCheck):8;
 	for(S32 tt=0; tt < mWantToCount; ++tt)
 	{	
 		std::string ctlname = llformat("chk%d", tt);
 		mWantToCheck[tt] = getChild<LLCheckBoxCtrl>(ctlname);
 	}	
-	mSkillsCount = (6>kArraySize(mSkillsCheck))?kArraySize(mSkillsCheck):6;
+	mSkillsCount = (6>LL_ARRAY_SIZE(mSkillsCheck))?LL_ARRAY_SIZE(mSkillsCheck):6;
 
 	for(S32 tt=0; tt < mSkillsCount; ++tt)
 	{
@@ -1817,7 +1814,7 @@ void LLPanelAvatar::processAvatarPropertiesReply(LLMessageSystem *msg, void**)
 				"AcctTypeCharterMember",
 				"AcctTypeEmployee"
 			};
-			caption_index = llclamp(caption_index, (U8)0, (U8)(sizeof(ACCT_TYPE)/sizeof(ACCT_TYPE[0])-1));
+			caption_index = llclamp(caption_index, (U8)0, (U8)(LL_ARRAY_SIZE(ACCT_TYPE)-1));
 			args["[ACCTTYPE]"] = self->mPanelSecondLife->getString(ACCT_TYPE[caption_index]);
 
 			std::string payment_text = " ";

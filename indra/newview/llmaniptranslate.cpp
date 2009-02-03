@@ -1635,7 +1635,7 @@ void LLManipTranslate::highlightIntersection(LLVector3 normal,
 	}
 	
 	U32 types[] = { LLRenderPass::PASS_SIMPLE, LLRenderPass::PASS_ALPHA, LLRenderPass::PASS_FULLBRIGHT, LLRenderPass::PASS_SHINY };
-	U32 num_types = sizeof(types)/sizeof(U32);
+	U32 num_types = LL_ARRAY_SIZE(types);
 
 	GLuint stencil_mask = 0xFFFFFFFF;
 	//stencil in volumes

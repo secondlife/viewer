@@ -37,14 +37,13 @@
 #include "llrand.h"
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <fcntl.h>
-#include <sys/param.h>
 #include <unistd.h>
 #include <glob.h>
 #include <pwd.h>
 #include <sys/utsname.h>
 #define _STRUCTURED_PROC 1
 #include <sys/procfs.h>
+#include <fcntl.h>
 
 static std::string getCurrentUserHome(char* fallback)
 {
@@ -83,7 +82,16 @@ LLDir_Solaris::LLDir_Solaris()
 	mDirp = NULL;
 
 	char tmp_str[LL_MAX_PATH];	/* Flawfinder: ignore */ 
-	getcwd(tmp_str, LL_MAX_PATH);
+	if (getcwd(tmp_str, LL_MAX_PATH) == NULL)
+	{
+		strcpy(tmp_str, "/tmp");
+		llwarns << "Could not get current directory; changing to "
+				<< tmp_str << llendl;
+		if (chdir(tmp_str) == -1)
+		{
+			llerrs << "Could not change directory to " << tmp_str << llendl;
+		}
+	}
 
 	mExecutableFilename = "";
 	mExecutablePathAndName = "";
@@ -122,20 +130,35 @@ LLDir_Solaris::LLDir_Solaris()
 		return;
 	}
 
+	char *p = execpath;			// nuke trash in link, if any exists
+	int i = 0;
+	while(*p != NULL && ++i < LL_MAX_PATH && isprint((int)(*p++)));
+	*p = NULL;
+
 	mExecutablePathAndName = strdup(execpath);
 	llinfos << "mExecutablePathAndName = [" << mExecutablePathAndName << "]" << llendl;
 
+	//NOTE: Why force people to cd into the package directory?
+	//      Look for SECONDLIFE env variable and use it, if set.
+
+	char *dcf = getenv("SECONDLIFE");
+	if(dcf != NULL){
+		(void)strcpy(path, dcf);
+		(void)strcat(path, "/bin");	//NOTE:  make sure we point at the bin
+		mExecutableDir = strdup(path);
+	}else{
 			// plunk a null at last '/' to get exec dir
-	char *s = execpath + strlen(execpath) -1;
-	while(*s != '/' && s != execpath){
-		--s;
-	}
+		char *s = execpath + strlen(execpath) -1;
+		while(*s != '/' && s != execpath){
+			--s;
+		}
 	
-	if(s != execpath){
-		*s = (char)NULL;
+		if(s != execpath){
+			*s = (char)NULL;
 	
-		mExecutableDir = strdup(execpath);
-		llinfos << "mExecutableDir = [" << mExecutableDir << "]" << llendl;
+			mExecutableDir = strdup(execpath);
+			llinfos << "mExecutableDir = [" << mExecutableDir << "]" << llendl;
+		}
 	}
 	
 	// *TODO: don't use /tmp, use $HOME/.secondlife/tmp or something.
@@ -355,12 +378,16 @@ void LLDir_Solaris::getRandomFileInDir(const std::string &dirname, const std::st
 std::string LLDir_Solaris::getCurPath()
 {
 	char tmp_str[LL_MAX_PATH];	/* Flawfinder: ignore */ 
-	getcwd(tmp_str, LL_MAX_PATH);
+	if (getcwd(tmp_str, LL_MAX_PATH) == NULL)
+	{
+		llwarns << "Could not get current directory" << llendl;
+		tmp_str[0] = '\0';
+	}
 	return tmp_str;
 }
 
 
-BOOL LLDir_Solaris::fileExists(const std::string &filename)
+BOOL LLDir_Solaris::fileExists(const std::string &filename) const
 {
 	struct stat stat_data;
 	// Check the age of the file

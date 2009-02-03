@@ -417,10 +417,8 @@ static const IDToCode primary_to_code[] = {
 /*{LANG_WALON,      "wa"},*/
   {LANG_CHINESE,    "zh"},
 };
-static int num_primary_to_code =
-  sizeof(primary_to_code) / sizeof(*primary_to_code);
-static int num_both_to_code =
-  sizeof(both_to_code) / sizeof(*both_to_code);
+static int num_primary_to_code = LL_ARRAY_SIZE(primary_to_code);
+static int num_both_to_code = LL_ARRAY_SIZE(both_to_code);
 
 static const int
 lcid_to_fl(LCID lcid,

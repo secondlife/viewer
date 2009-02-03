@@ -236,14 +236,14 @@ BOOL LLPreviewGesture::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 					LLScrollListItem* line = NULL;
 					if (cargo_type == DAD_ANIMATION)
 					{
-						line = addStep("Animation");
+						line = addStep( STEP_ANIMATION );
 						LLGestureStepAnimation* anim = (LLGestureStepAnimation*)line->getUserdata();
 						anim->mAnimAssetID = item->getAssetUUID();
 						anim->mAnimName = item->getName();
 					}
 					else if (cargo_type == DAD_SOUND)
 					{
-						line = addStep("Sound");
+						line = addStep( STEP_SOUND );
 						LLGestureStepSound* sound = (LLGestureStepSound*)line->getUserdata();
 						sound->mSoundAssetID = item->getAssetUUID();
 						sound->mSoundName = item->getName();
@@ -847,18 +847,18 @@ void LLPreviewGesture::refresh()
 void LLPreviewGesture::initDefaultGesture()
 {
 	LLScrollListItem* item;
-	item = addStep("Animation");
+	item = addStep( STEP_ANIMATION );
 	LLGestureStepAnimation* anim = (LLGestureStepAnimation*)item->getUserdata();
 	anim->mAnimAssetID = ANIM_AGENT_HELLO;
 	anim->mAnimName = "Wave";
 	updateLabel(item);
 
-	item = addStep("Wait");
+	item = addStep( STEP_WAIT );
 	LLGestureStepWait* wait = (LLGestureStepWait*)item->getUserdata();
 	wait->mFlags = WAIT_FLAG_ALL_ANIM;
 	updateLabel(item);
 
-	item = addStep("Chat");
+	item = addStep( STEP_CHAT );
 	LLGestureStepChat* chat_step = (LLGestureStepChat*)item->getUserdata();
 	chat_step->mChatText = "Hello, avatar!";
 	updateLabel(item);
@@ -1597,38 +1597,44 @@ void LLPreviewGesture::onClickAdd(void* data)
 	LLScrollListItem* library_item = self->mLibraryList->getFirstSelected();
 	if (!library_item) return;
 
+	S32 library_item_index = self->mLibraryList->getFirstSelectedIndex();
+
 	const LLScrollListCell* library_cell = library_item->getColumn(0);
 	const std::string& library_text = library_cell->getValue().asString();
 
-	self->addStep(library_text);
+	if( library_item_index >= STEP_EOF )
+	{
+		llerrs << "Unknown step type: " << library_text << llendl;
+		return;
+	}
 
+	self->addStep( (EStepType)library_item_index );
 	self->mDirty = TRUE;
 	self->refresh();
 }
 
-LLScrollListItem* LLPreviewGesture::addStep(const std::string& library_text)
+LLScrollListItem* LLPreviewGesture::addStep( const EStepType step_type )
 {
+	// Order of enum EStepType MUST match the library_list element in floater_preview_gesture.xml
+
 	LLGestureStep* step = NULL;
-	if (!LLStringUtil::compareInsensitive(library_text, "Animation"))
+	switch( step_type)
 	{
-		step = new LLGestureStepAnimation();
-	}
-	else if (!LLStringUtil::compareInsensitive(library_text, "Sound"))
-	{
-		step = new LLGestureStepSound();
-	}
-	else if (!LLStringUtil::compareInsensitive(library_text, "Chat"))
-	{
-		step = new LLGestureStepChat();
-	}
-	else if (!LLStringUtil::compareInsensitive(library_text, "Wait"))
-	{
-		step = new LLGestureStepWait();
-	}
-	else
-	{
-		llerrs << "Unknown step type: " << library_text << llendl;;
-		return NULL;
+		case STEP_ANIMATION:
+			step = new LLGestureStepAnimation();
+			break;
+		case STEP_SOUND:
+			step = new LLGestureStepSound();
+			break;
+		case STEP_CHAT:
+			step = new LLGestureStepChat();
+			break;
+		case STEP_WAIT:
+			step = new LLGestureStepWait();
+			break;
+		default:
+			llerrs << "Unknown step type: " << (S32)step_type << llendl;
+			return NULL;
 	}
 
 	// Create an enabled item with this step

@@ -259,8 +259,8 @@ bool LLCrashLoggerWindows::init(void)
 	if(!ok) return false;
 
 	/*
-	mbstowcs(gProductName, mProductName.c_str(), sizeof(gProductName)/sizeof(gProductName[0]));
-	gProductName[ sizeof(gProductName)/sizeof(gProductName[0]) - 1 ] = 0;
+	mbstowcs( gProductName, mProductName.c_str(), LL_ARRAY_SIZE(gProductName) );
+	gProductName[ LL_ARRY_SIZE(gProductName) - 1 ] = 0;
 	swprintf(gProductName, L"Second Life");
 	*/
 

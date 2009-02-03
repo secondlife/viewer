@@ -414,7 +414,7 @@ void LLXMLRPCTransaction::Impl::setStatus(Status status,
 				
 			default:
 				// Usually this means that there's a problem with the login server,
-				// not with the client.  Direct user to status page. JC
+				// not with the client.  Direct user to status page.
 				mStatusMessage =
 					"Despite our best efforts, something unexpected has gone wrong. \n"
 					" \n"

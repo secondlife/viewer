@@ -90,7 +90,7 @@ private:
 	
 #endif
 
-#if LL_LINUX
+#if LL_LINUX || LL_SOLARIS
 	// On Linux we just implement LLDirPicker on top of LLFilePicker
 	LLFilePicker *mFilePicker;
 #endif

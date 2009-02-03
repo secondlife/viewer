@@ -232,8 +232,6 @@ EStartupState LLStartUp::gStartupState = STATE_FIRST;
 
 void login_show();
 void login_callback(S32 option, void* userdata);
-std::string load_password_from_disk();
-void save_password_to_disk(const char* hashed_password);
 bool is_hex_string(U8* str, S32 len);
 void show_first_run_dialog();
 bool first_run_dialog_callback(const LLSD& notification, const LLSD& response);
@@ -351,7 +349,6 @@ bool idle_startup()
 	static S32  location_which = START_LOCATION_ID_LAST;
 
 	static bool show_connect_box = true;
-	static BOOL remember_password = TRUE;
 
 	static bool stipend_since_login = false;
 
@@ -684,7 +681,6 @@ bool idle_startup()
 			char md5pass[33];               /* Flawfinder: ignore */
 			pass.hex_digest(md5pass);
 			password = md5pass;
-			remember_password = gSavedSettings.getBOOL("RememberPassword");
 			
 #ifdef USE_VIEWER_AUTH
 			show_connect_box = true;
@@ -697,9 +693,8 @@ bool idle_startup()
 		{
 			firstname = gSavedSettings.getString("FirstName");
 			lastname = gSavedSettings.getString("LastName");
-			password = load_password_from_disk();
+			password = LLStartUp::loadPasswordFromDisk();
 			gSavedSettings.setBOOL("RememberPassword", TRUE);
-			remember_password = TRUE;
 			
 #ifdef USE_VIEWER_AUTH
 			show_connect_box = true;
@@ -713,8 +708,7 @@ bool idle_startup()
 			// a valid grid is selected
 			firstname = gSavedSettings.getString("FirstName");
 			lastname = gSavedSettings.getString("LastName");
-			password = load_password_from_disk();
-			remember_password = gSavedSettings.getBOOL("RememberPassword");
+			password = LLStartUp::loadPasswordFromDisk();
 			show_connect_box = true;
 		}
 
@@ -753,7 +747,7 @@ bool idle_startup()
 			// Load all the name information out of the login view
 			// NOTE: Hits "Attempted getFields with no login view shown" warning, since we don't
 			// show the login view until login_show() is called below.  
-			// LLPanelLogin::getFields(firstname, lastname, password, remember_password);
+			// LLPanelLogin::getFields(firstname, lastname, password);
 
 			if (gNoRender)
 			{
@@ -765,7 +759,7 @@ bool idle_startup()
 			// Show the login dialog
 			login_show();
 			// connect dialog is already shown, so fill in the names
-			LLPanelLogin::setFields( firstname, lastname, password, remember_password );
+			LLPanelLogin::setFields( firstname, lastname, password);
 
 			LLPanelLogin::giveFocus();
 
@@ -834,7 +828,7 @@ bool idle_startup()
 		{
 			// TODO if not use viewer auth
 			// Load all the name information out of the login view
-			LLPanelLogin::getFields(firstname, lastname, password, remember_password);
+			LLPanelLogin::getFields(&firstname, &lastname, &password);
 			// end TODO
 	 
 			// HACK: Try to make not jump on login
@@ -845,16 +839,6 @@ bool idle_startup()
 		{
 			gSavedSettings.setString("FirstName", firstname);
 			gSavedSettings.setString("LastName", lastname);
-
-			if (remember_password)
-			{
-				   save_password_to_disk(password.c_str());
-			}
-			else
-			{
-				   save_password_to_disk(NULL);
-			}
-			gSavedSettings.setBOOL("RememberPassword", remember_password);
 
 			LL_INFOS("AppInit") << "Attempting login as: " << firstname << " " << lastname << LL_ENDL;
 			gDebugInfo["LoginName"] = firstname + " " + lastname;	
@@ -1362,15 +1346,17 @@ bool idle_startup()
 			gSavedSettings.setString("FirstName", firstname);
 			gSavedSettings.setString("LastName", lastname);
 
-			if (remember_password)
+			if (gSavedSettings.getBOOL("RememberPassword"))
 			{
-				   save_password_to_disk(password.c_str());
+				// Successful login means the password is valid, so save it.
+				LLStartUp::savePasswordToDisk(password);
 			}
 			else
 			{
-				   save_password_to_disk(NULL);
+				// Don't leave password from previous session sitting around
+				// during this login session.
+				LLStartUp::deletePasswordFromDisk();
 			}
-			gSavedSettings.setBOOL("RememberPassword", remember_password);
 
 			text = LLUserAuth::getInstance()->getResponse("agent_access");
 			if(!text.empty() && (text[0] == 'M'))
@@ -1563,7 +1549,7 @@ bool idle_startup()
 			// Pass the user information to the voice chat server interface.
 			gVoiceClient->userAuthorized(firstname, lastname, gAgentID);
 		}
-		else
+		else // if(successful_login)
 		{
 			if (gNoRender)
 			{
@@ -1578,8 +1564,6 @@ bool idle_startup()
 			reset_login();
 			gSavedSettings.setBOOL("AutoLogin", FALSE);
 			show_connect_box = true;
-			// Don't save an incorrect password to disk.
-			save_password_to_disk(NULL);
 		}
 		return FALSE;
 	}
@@ -2571,16 +2555,11 @@ void login_callback(S32 option, void *userdata)
 	{
 		// Make sure we don't save the password if the user is trying to clear it.
 		std::string first, last, password;
-		BOOL remember = TRUE;
-		LLPanelLogin::getFields(first, last, password, remember);
-		if (!remember)
+		LLPanelLogin::getFields(&first, &last, &password);
+		if (!gSavedSettings.getBOOL("RememberPassword"))
 		{
 			// turn off the setting and write out to disk
-			gSavedSettings.setBOOL("RememberPassword", FALSE);
 			gSavedSettings.saveToFile( gSavedSettings.getString("ClientSettingsFile") , TRUE );
-
-			// stomp the saved password on disk
-			save_password_to_disk(NULL);
 		}
 
 		// Next iteration through main loop should shut down the app cleanly.
@@ -2598,8 +2577,18 @@ void login_callback(S32 option, void *userdata)
 	}
 }
 
-std::string load_password_from_disk()
+
+// static
+std::string LLStartUp::loadPasswordFromDisk()
 {
+	// Only load password if we also intend to save it (otherwise the user
+	// wonders what we're doing behind his back).  JC
+	BOOL remember_password = gSavedSettings.getBOOL("RememberPassword");
+	if (!remember_password)
+	{
+		return std::string("");
+	}
+
 	std::string hashed_password("");
 
 	// Look for legacy "marker" password from settings.ini
@@ -2651,40 +2640,44 @@ std::string load_password_from_disk()
 	return hashed_password;
 }
 
-void save_password_to_disk(const char* hashed_password)
+
+// static
+void LLStartUp::savePasswordToDisk(const std::string& hashed_password)
 {
 	std::string filepath = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS,
 													   "password.dat");
-	if (!hashed_password)
+	LLFILE* fp = LLFile::fopen(filepath, "wb");		/* Flawfinder: ignore */
+	if (!fp)
 	{
-		// No password, remove the file.
-		LLFile::remove(filepath);
+		return;
 	}
-	else
+
+	// Encipher with MAC address
+	const S32 HASHED_LENGTH = 32;
+	U8 buffer[HASHED_LENGTH+1];
+
+	LLStringUtil::copy((char*)buffer, hashed_password.c_str(), HASHED_LENGTH+1);
+
+	LLXORCipher cipher(gMACAddress, 6);
+	cipher.encrypt(buffer, HASHED_LENGTH);
+
+	if (fwrite(buffer, HASHED_LENGTH, 1, fp) != 1)
 	{
-		LLFILE* fp = LLFile::fopen(filepath, "wb");		/* Flawfinder: ignore */
-		if (!fp)
-		{
-			return;
-		}
-
-		// Encipher with MAC address
-		const S32 HASHED_LENGTH = 32;
-		U8 buffer[HASHED_LENGTH+1];
-
-		LLStringUtil::copy((char*)buffer, hashed_password, HASHED_LENGTH+1);
-
-		LLXORCipher cipher(gMACAddress, 6);
-		cipher.encrypt(buffer, HASHED_LENGTH);
-
-		if (fwrite(buffer, HASHED_LENGTH, 1, fp) != 1)
-		{
-			LL_WARNS("AppInit") << "Short write" << LL_ENDL;
-		}
-
-		fclose(fp);
+		LL_WARNS("AppInit") << "Short write" << LL_ENDL;
 	}
+
+	fclose(fp);
 }
+
+
+// static
+void LLStartUp::deletePasswordFromDisk()
+{
+	std::string filepath = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS,
+														  "password.dat");
+	LLFile::remove(filepath);
+}
+
 
 bool is_hex_string(U8* str, S32 len)
 {
@@ -2869,6 +2862,8 @@ bool update_dialog_callback(const LLSD& notification, const LLSD& response)
 	query_map["os"] = "mac";
 #elif LL_LINUX
 	query_map["os"] = "lnx";
+#elif LL_SOLARIS
+	query_map["os"] = "sol";
 #endif
 	// *TODO change userserver to be grid on both viewer and sim, since
 	// userserver no longer exists.
@@ -2952,7 +2947,7 @@ bool update_dialog_callback(const LLSD& notification, const LLSD& response)
 	// Run the auto-updater.
 	system(LLAppViewer::sUpdaterInfo->mUpdateExePath.c_str()); /* Flawfinder: ignore */
 
-#elif LL_LINUX
+#elif LL_LINUX || LL_SOLARIS
 	OSMessageBox("Automatic updating is not yet implemented for Linux.\n"
 		"Please download the latest version from www.secondlife.com.",
 		LLStringUtil::null, OSMB_OK);

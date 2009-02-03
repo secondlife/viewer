@@ -205,7 +205,7 @@ static struct ft_display_info ft_display_table[] =
 	{ LLFastTimer::FTM_OTHER,				" Other",			&red0 }
 };
 static int ft_display_didcalc = 0;
-static const int FTV_DISPLAY_NUM  = (sizeof(ft_display_table)/sizeof(ft_display_table[0]));
+static const int FTV_DISPLAY_NUM  = LL_ARRAY_SIZE(ft_display_table);
 
 S32 ft_display_idx[FTV_DISPLAY_NUM]; // line of table entry for display purposes (for collapse)
 

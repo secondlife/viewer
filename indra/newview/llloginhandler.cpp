@@ -192,14 +192,9 @@ bool LLLoginHandler::handle(const LLSD& tokens,
 			LLMD5 pass((unsigned char*)password.c_str());
 			char md5pass[33];		/* Flawfinder: ignore */
 			pass.hex_digest(md5pass);
-			password = ll_safe_string(md5pass, 32);
-			save_password_to_disk(password.c_str());
+			std::string hashed_password = ll_safe_string(md5pass, 32);
+			LLStartUp::savePasswordToDisk(hashed_password);
 		}
-	}
-	else
-	{
-		save_password_to_disk(NULL);
-		gSavedSettings.setBOOL("RememberPassword", FALSE);
 	}
 			
 
@@ -207,12 +202,8 @@ bool LLLoginHandler::handle(const LLSD& tokens,
 	{
 		if (!mFirstName.empty() || !mLastName.empty())
 		{
-			// Fill in the name, and maybe the password, preserving the
-			// remember-password setting. JC
-			std::string ignore;
-			BOOL remember;
-			LLPanelLogin::getFields(ignore, ignore, ignore, remember);
-			LLPanelLogin::setFields(mFirstName, mLastName, password, remember);
+			// Fill in the name, and maybe the password
+			LLPanelLogin::setFields(mFirstName, mLastName, password);
 		}
 
 		if (mWebLoginKey.isNull())

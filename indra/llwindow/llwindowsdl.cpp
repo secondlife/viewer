@@ -85,8 +85,6 @@ static bool ATIbug = false;
 // be only one object of this class at any time.  Currently this is true.
 static LLWindowSDL *gWindowImplementation = NULL;
 
-static BOOL was_fullscreen = FALSE;
-
 
 void maybe_lock_display(void)
 {
@@ -324,8 +322,7 @@ static int x11_detect_VRAM_kb_fp(FILE *fp, const char *prefix_str)
 
 static int x11_detect_VRAM_kb()
 {
-#if LL_SOLARIS
-#error Can this be done without an explicit architecture test, ie a test FOR xorg? Was followed by: && defined(__sparc)
+#if LL_SOLARIS && defined(__sparc)
       //  NOTE: there's no Xorg server on SPARC so just return 0
       //        and allow SDL to attempt to get the amount of VRAM
       return(0);
@@ -421,7 +418,7 @@ BOOL LLWindowSDL::createContext(int x, int y, int width, int height, int bits, B
 	if (SDL_Init(SDL_INIT_VIDEO) < 0)
 	{
 		llinfos << "sdl_init() failed! " << SDL_GetError() << llendl;
-		setupFailure("window creation error", "error", OSMB_OK);
+		setupFailure("sdl_init() failure,  window creation error", "error", OSMB_OK);
 		return false;
 	}
 
@@ -442,7 +439,7 @@ BOOL LLWindowSDL::createContext(int x, int y, int width, int height, int bits, B
 	if (!videoInfo)
 	{
 		llinfos << "SDL_GetVideoInfo() failed! " << SDL_GetError() << llendl;
-		setupFailure("Window creation error", "Error", OSMB_OK);
+		setupFailure("SDL_GetVideoInfo() failed, Window creation error", "Error", OSMB_OK);
 		return FALSE;
 	}
 
@@ -498,7 +495,6 @@ BOOL LLWindowSDL::createContext(int x, int y, int width, int height, int bits, B
         // *FIX: try to toggle vsync here?
 
 	mFullscreen = fullscreen;
-	was_fullscreen = fullscreen;
 
 	int sdlflags = SDL_OPENGL | SDL_RESIZABLE | SDL_ANYFORMAT;
 
@@ -574,7 +570,6 @@ BOOL LLWindowSDL::createContext(int x, int y, int width, int height, int bits, B
 		if (mWindow)
 		{
 			mFullscreen = TRUE;
-			was_fullscreen = TRUE;
 			mFullscreenWidth   = mWindow->w;
 			mFullscreenHeight  = mWindow->h;
 			mFullscreenBits    = mWindow->format->BitsPerPixel;
@@ -591,7 +586,6 @@ BOOL LLWindowSDL::createContext(int x, int y, int width, int height, int bits, B
 			llwarns << "createContext: fullscreen creation failure. SDL: " << SDL_GetError() << llendl;
 			// No fullscreen support
 			mFullscreen = FALSE;
-			was_fullscreen = FALSE;
 			mFullscreenWidth   = -1;
 			mFullscreenHeight  = -1;
 			mFullscreenBits    = -1;
@@ -673,8 +667,8 @@ BOOL LLWindowSDL::createContext(int x, int y, int width, int height, int bits, B
 	// fixme: actually, it's REALLY important for picking that we get at
 	// least 8 bits each of red,green,blue.  Alpha we can be a bit more
 	// relaxed about if we have to.
-#if LL_SOLARIS
-#error && defined(__sparc)
+#if LL_SOLARIS && defined(__sparc)
+//  again the __sparc required because Xsun support, 32bit are very pricey on SPARC
 	if(colorBits < 24)		//HACK:  on SPARC allow 24-bit color
 #else
 	if (colorBits < 32)
@@ -682,8 +676,7 @@ BOOL LLWindowSDL::createContext(int x, int y, int width, int height, int bits, B
 	{
 		close();
 		setupFailure(
-#if LL_SOLARIS
-#error && defined(__sparc)
+#if LL_SOLARIS && defined(__sparc)
 			"Second Life requires at least 24-bit color on SPARC to run in a window.\n"
 			"Please use fbconfig to set your default color depth to 24 bits.\n"
 			"You may also need to adjust the X11 setting in SMF.  To do so use\n"
@@ -927,7 +920,6 @@ BOOL LLWindowSDL::getSize(LLCoordScreen *size)
 	return (TRUE);
     }
 
-    llwarns << "LLWindowSDL::getPosition(): no window and not fullscreen!" << llendl;
     return (FALSE);
 }
 
@@ -940,7 +932,6 @@ BOOL LLWindowSDL::getSize(LLCoordWindow *size)
 	return (TRUE);
     }
 
-    llwarns << "LLWindowSDL::getPosition(): no window and not fullscreen!" << llendl;
     return (FALSE);
 }
 
@@ -959,11 +950,18 @@ BOOL LLWindowSDL::setSize(const LLCoordScreen size)
 {
 	if(mWindow)
 	{
-        // *FIX: (???)
-		//SizeWindow(mWindow, size.mX, size.mY, true);
-	}
+		// Push a resize event onto SDL's queue - we'll handle it
+		// when it comes out again.
+		SDL_Event event;
+		event.type = SDL_VIDEORESIZE;
+		event.resize.w = size.mX;
+		event.resize.h = size.mY;
+		SDL_PushEvent(&event); // copied into queue
 
-	return TRUE;
+		return TRUE;
+	}
+		
+	return FALSE;
 }
 
 void LLWindowSDL::swapBuffers()
@@ -1107,24 +1105,28 @@ F32 LLWindowSDL::getPixelAspectRatio()
 }
 
 
-// some of this stuff is to support 'temporarily windowed' mode so that
-// dialogs are still usable in fullscreen.  HOWEVER! - it's not enabled/working
-// yet.
-static LLCoordScreen old_size;
-static BOOL old_fullscreen;
+// This is to support 'temporarily windowed' mode so that
+// dialogs are still usable in fullscreen.
 void LLWindowSDL::beforeDialog()
 {
+	bool running_x11 = false;
+#if LL_X11
+	running_x11 = (mSDL_XWindowID != None);
+#endif //LL_X11
+
 	llinfos << "LLWindowSDL::beforeDialog()" << llendl;
 
-	if (SDLReallyCaptureInput(FALSE) // must ungrab input so popup works!
-	    && getSize(&old_size))
+	if (SDLReallyCaptureInput(FALSE)) // must ungrab input so popup works!
 	{
-		old_fullscreen = was_fullscreen;
-		
-		if (old_fullscreen)
+		if (mFullscreen)
 		{
-			// NOT YET WORKING
-			//switchContext(FALSE, old_size, TRUE);
+			// need to temporarily go non-fullscreen; bless SDL
+			// for providing a SDL_WM_ToggleFullScreen() - though
+			// it only works in X11
+			if (running_x11 && mWindow)
+			{
+				SDL_WM_ToggleFullScreen(mWindow);
+			}
 		}
 	}
 
@@ -1150,17 +1152,24 @@ void LLWindowSDL::beforeDialog()
 
 void LLWindowSDL::afterDialog()
 {
+	bool running_x11 = false;
+#if LL_X11
+	running_x11 = (mSDL_XWindowID != None);
+#endif //LL_X11
+
 	llinfos << "LLWindowSDL::afterDialog()" << llendl;
 
 	maybe_unlock_display();
 
-	if (old_fullscreen && !was_fullscreen)
+	if (mFullscreen)
 	{
-		// *FIX: NOT YET WORKING (see below)
-		//switchContext(TRUE, old_size, TRUE);
+		// need to restore fullscreen mode after dialog - only works
+		// in X11
+		if (running_x11 && mWindow)
+		{
+			SDL_WM_ToggleFullScreen(mWindow);
+		}
 	}
-	// *FIX: we need to restore the GL context using
-	// LLViewerWindow::restoreGL() - but how??
 }
 
 
@@ -1703,12 +1712,12 @@ void LLWindowSDL::gatherInput()
 			// which confuses the focus code [SL-24071].
 			if (event.active.gain != mHaveInputFocus)
 			{
-				if (event.active.gain)
+				mHaveInputFocus = !!event.active.gain;
+
+				if (mHaveInputFocus)
 					mCallbacks->handleFocus(this);
 				else
 					mCallbacks->handleFocusLost(this);
-			
-				mHaveInputFocus = !!event.active.gain;
 			}
                 }
                 if (event.active.state & SDL_APPACTIVE)
@@ -1716,10 +1725,10 @@ void LLWindowSDL::gatherInput()
 			// Change in iconification/minimization state.
 			if ((!event.active.gain) != mIsMinimized)
 			{
-				mCallbacks->handleActivate(this, !!event.active.gain);
-				llinfos << "SDL deiconification state switched to " << BOOL(event.active.gain) << llendl;
-	
 				mIsMinimized = (!event.active.gain);
+
+				mCallbacks->handleActivate(this, !mIsMinimized);
+				llinfos << "SDL deiconification state switched to " << BOOL(event.active.gain) << llendl;
 			}
 			else
 			{
@@ -2047,10 +2056,7 @@ S32 OSMessageBoxSDL(const std::string& text, const std::string& caption, U32 typ
 	if(gWindowImplementation != NULL)
 		gWindowImplementation->beforeDialog();
 
-	if (LLWindowSDL::ll_try_gtk_init()
-	    // We can NOT expect to combine GTK and SDL's aggressive fullscreen
-	    && ((NULL==gWindowImplementation) || (!was_fullscreen))
-	    )
+	if (LLWindowSDL::ll_try_gtk_init())
 	{
 		GtkWidget *win = NULL;
 
@@ -2155,10 +2161,7 @@ BOOL LLWindowSDL::dialog_color_picker ( F32 *r, F32 *g, F32 *b)
 
 	beforeDialog();
 
-	if (ll_try_gtk_init()
-	    // We can NOT expect to combine GTK and SDL's aggressive fullscreen
-	    && !was_fullscreen
-	    )
+	if (ll_try_gtk_init())
 	{
 		GtkWidget *win = NULL;
 

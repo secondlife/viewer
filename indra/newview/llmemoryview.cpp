@@ -138,7 +138,7 @@ static const struct mtv_display_info mtv_display_table[] =
 
  	{ LLMemType::MTYPE_OTHER,			"Other",			&red0 },
 };
-static const int MTV_DISPLAY_NUM  = (sizeof(mtv_display_table)/sizeof(mtv_display_table[0]));
+static const int MTV_DISPLAY_NUM  = LL_ARRAY_SIZE(mtv_display_table);
 
 void LLMemoryView::draw()
 {

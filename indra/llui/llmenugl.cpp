@@ -59,6 +59,8 @@
 #include "llresmgr.h"
 #include "llui.h"
 
+#include "lluitrans.h"
+
 #include "llstl.h"
 
 #include "v2math.h"
@@ -267,24 +269,24 @@ void LLMenuItemGL::appendAcceleratorString( std::string& st ) const
 	{
 		if ( mAcceleratorMask & MASK_MAC_CONTROL )
 		{
-			st.append( "Ctrl-" );
+			st.append( LLUITrans::getString("accel-mac-control") );
 		}
 		else
 		{
-			st.append( "Cmd-" );		// Symbol would be "\xE2\x8C\x98"
+			st.append( LLUITrans::getString("accel-mac-command") );		// Symbol would be "\xE2\x8C\x98"
 		}
 	}
 	if( mAcceleratorMask & MASK_ALT )
-		st.append( "Opt-" );		// Symbol would be "\xE2\x8C\xA5"
+		st.append( LLUITrans::getString("accel-mac-option") );		// Symbol would be "\xE2\x8C\xA5"
 	if( mAcceleratorMask & MASK_SHIFT )
-		st.append( "Shift-" );		// Symbol would be "\xE2\x8C\xA7"
+		st.append( LLUITrans::getString("accel-mac-shift") );		// Symbol would be "\xE2\x8C\xA7"
 #else
 	if( mAcceleratorMask & MASK_CONTROL )
-		st.append( "Ctrl-" );
+		st.append( LLUITrans::getString("accel-win-control") );
 	if( mAcceleratorMask & MASK_ALT )
-		st.append( "Alt-" );
+		st.append( LLUITrans::getString("accel-win-alt") );
 	if( mAcceleratorMask & MASK_SHIFT )
-		st.append( "Shift-" );
+		st.append( LLUITrans::getString("accel-win-shift") );
 #endif
 
 	std::string keystr = LLKeyboard::stringFromKey( mAcceleratorKey );

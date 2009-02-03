@@ -40,7 +40,16 @@
 #include <endian.h>
 #endif	//	LL_LINUX
 
-#if (defined(LL_WINDOWS) || (defined(LL_LINUX) && (__BYTE_ORDER == __LITTLE_ENDIAN)) || (defined(LL_DARWIN) && defined(__LITTLE_ENDIAN__)))
+#if LL_SOLARIS
+#   ifdef  __sparc     // Since we're talking Solaris 10 and up, only 64 bit is supported.
+#      define LL_BIG_ENDIAN 1
+#      define LL_SOLARIS_ALIGNED_CPU 1     //  used to designate issues where SPARC alignment is addressed
+#      define LL_SOLARIS_NON_MESA_GL 1      //  The SPARC GL does not provide a MESA-based GL API
+#   endif
+#   include <sys/isa_defs.h> // ensure we know which end is up
+#endif // LL_SOLARIS
+
+#if (defined(LL_WINDOWS) || (defined(LL_LINUX) && (__BYTE_ORDER == __LITTLE_ENDIAN)) || (defined(LL_DARWIN) && defined(__LITTLE_ENDIAN__)) || (defined(LL_SOLARIS) && defined(__i386)))
 #define LL_LITTLE_ENDIAN 1
 #else
 #define LL_BIG_ENDIAN 1

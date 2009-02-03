@@ -95,12 +95,6 @@ you wish.
 4. KNOWN ISSUES
 -=-=-=-=-=-=-=-
 
-These are the most commonly-encountered known issues which are specific to
-the Beta release of the Linux client.
-
-* UPLOAD / SAVE / COLOR-PICKER DIALOGS - These only appear when the client
-  is in 'windowed' mode, not 'fullscreen' mode.
-
 * UPDATING - when the client detects that a new version of Second Life
   is available, it will ask you if you wish to download the new version.
   This option is not implemented; to upgrade, you should manually download a

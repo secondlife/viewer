@@ -34,21 +34,25 @@
 
 #include "llfloatertos.h"
 
-#include "llbutton.h"
-#include "llradiogroup.h"
-#include "llvfile.h"
-#include "lltextbox.h"
-#include "llviewertexteditor.h"
+// viewer includes
+#include "llagent.h"
 #include "llappviewer.h"
 #include "llstartup.h"
-#include "message.h"
-#include "llagent.h"
-#include "lluictrlfactory.h"
-#include "llviewerwindow.h"
 #include "llviewerstats.h"
-#include "llui.h"
+#include "llviewertexteditor.h"
+#include "llviewerwindow.h"
+
+// linden library includes
+#include "llbutton.h"
 #include "llhttpclient.h"
+#include "llhttpstatuscodes.h"	// for HTTP_FOUND
 #include "llradiogroup.h"
+#include "lltextbox.h"
+#include "llui.h"
+#include "lluictrlfactory.h"
+#include "llvfile.h"
+#include "message.h"
+
 
 // static 
 LLFloaterTOS* LLFloaterTOS::sInstance = NULL;
@@ -115,7 +119,13 @@ class LLIamHere : public LLHTTPClient::Responder
 		virtual void error( U32 status, const std::string& reason )
 		{
 			if ( mParent )
-				mParent->setSiteIsAlive( false );
+			{
+				// *HACK: For purposes of this alive check, 302 Found
+				// (aka Moved Temporarily) is considered alive.  The web site
+				// redirects this link to a "cache busting" temporary URL. JC
+				bool alive = (status == HTTP_FOUND);
+				mParent->setSiteIsAlive( alive );
+			}
 		};
 };
 
@@ -185,12 +195,6 @@ void LLFloaterTOS::setSiteIsAlive( bool alive )
 			// but if the page is unavailable, we need to do this now
 			LLCheckBoxCtrl* tos_agreement = getChild<LLCheckBoxCtrl>("agree_chk");
 			tos_agreement->setEnabled( true );
-
-			if ( web_browser )
-			{
-				// hide browser control (revealing default text message)
-				web_browser->setVisible( FALSE );
-			};
 		};
 	};
 }

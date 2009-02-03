@@ -30,14 +30,12 @@
 	<text name="steps_label">
 		Schritte:
 	</text>
-	<!-- Revert translations as interim fix to VWR-9985 while the code is not properly internationalized
 	<scroll_list name="library_list">
 		Animation
 Ton
 Chat
 Warten
 	</scroll_list>
-	-->
 	<button label="Hinzufügen &gt;&gt;" name="add_btn"/>
 	<button label="Nach oben" name="up_btn"/>
 	<button label="Nach unten" name="down_btn"/>
