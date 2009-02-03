@@ -54,6 +54,7 @@ const F32 PART_SIM_BOX_RAD = 0.5f*F_SQRT3*PART_SIM_BOX_SIDE;
 //static
 S32 LLViewerPartSim::sMaxParticleCount = 0;
 S32 LLViewerPartSim::sParticleCount = 0;
+S32 LLViewerPartSim::sParticleCount2 = 0;
 // This controls how greedy individual particle burst sources are allowed to be, and adapts according to how near the particle-count limit we are.
 F32 LLViewerPartSim::sParticleAdaptiveRate = 0.0625f;
 F32 LLViewerPartSim::sParticleBurstRate = 0.5f;
@@ -85,12 +86,16 @@ LLViewerPart::LLViewerPart() :
 {
 	LLMemType mt(LLMemType::MTYPE_PARTICLES);
 	mPartSourcep = NULL;
+
+	++LLViewerPartSim::sParticleCount2 ;
 }
 
 LLViewerPart::~LLViewerPart()
 {
 	LLMemType mt(LLMemType::MTYPE_PARTICLES);
 	mPartSourcep = NULL;
+
+	--LLViewerPartSim::sParticleCount2 ;
 }
 
 void LLViewerPart::init(LLPointer<LLViewerPartSource> sourcep, LLViewerImage *imagep, LLVPCallback cb)
@@ -264,6 +269,8 @@ void LLViewerPartGroup::updateParticles(const F32 lastdt)
 	
 	LLVector3 gravity(0.f, 0.f, GRAVITY);
 
+	LLViewerPartSim::checkParticleCount(mParticles.size());
+
 	LLViewerRegion *regionp = getRegion();
 	S32 end = (S32) mParticles.size();
 	for (S32 i = 0 ; i < (S32)mParticles.size();)
@@ -417,6 +424,8 @@ void LLViewerPartGroup::updateParticles(const F32 lastdt)
 		gObjectList.killObject(mVOPartGroupp);
 		mVOPartGroupp = NULL;
 	}
+
+	LLViewerPartSim::checkParticleCount() ;
 }
 
 
@@ -452,6 +461,19 @@ void LLViewerPartGroup::removeParticlesByID(const U32 source_id)
 //
 //
 
+//static
+void LLViewerPartSim::checkParticleCount(U32 size)
+{
+	if(LLViewerPartSim::sParticleCount2 != LLViewerPartSim::sParticleCount)
+	{
+		llerrs << "sParticleCount: " << LLViewerPartSim::sParticleCount << " ; sParticleCount2: " << LLViewerPartSim::sParticleCount2 << llendl ;
+	}
+
+	if(size > (U32)LLViewerPartSim::sParticleCount2)
+	{
+		llerrs << "curren particle size: " << LLViewerPartSim::sParticleCount2 << " array size: " << size << llendl ;
+	}
+}
 
 LLViewerPartSim::LLViewerPartSim()
 {
@@ -510,6 +532,12 @@ void LLViewerPartSim::addPart(LLViewerPart* part)
 	{
 		put(part);
 	}
+	else
+	{
+		//delete the particle if can not add it in
+		delete part ;
+		part = NULL ;
+	}
 }
 
 
@@ -545,7 +573,7 @@ LLViewerPartGroup *LLViewerPartSim::put(LLViewerPart* part)
 		if(!return_group)
 		{
 			llassert_always(part->mPosAgent.isFinite());
-	LLViewerPartGroup *groupp = createViewerPartGroup(part->mPosAgent, desired_size, part->mFlags & LLPartData::LL_PART_HUD);
+			LLViewerPartGroup *groupp = createViewerPartGroup(part->mPosAgent, desired_size, part->mFlags & LLPartData::LL_PART_HUD);
 			groupp->mUniformParticles = (part->mScale.mV[0] == part->mScale.mV[1] && 
 									!(part->mFlags & LLPartData::LL_PART_FOLLOW_VELOCITY_MASK));
 			if (!groupp->addPart(part))

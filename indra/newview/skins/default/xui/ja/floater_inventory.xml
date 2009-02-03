@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater name="Inventory" title="持ち物">
-	<search_editor label="ここにタイプして検索" name="inventory search editor" />
+	<search_editor label="ここに入力して検索" name="inventory search editor" />
 	<tab_container name="inventory filter tabs">
 		<inventory_panel label="すべて" name="All Items" />
 		<inventory_panel label="最近の入手アイテム" name="Recent Items" />
@@ -37,7 +37,7 @@
 				<menu_item_call label="新しい眼" name="New Eyes" />
 			</menu>
 		</menu>
-		<menu label="振り分け" name="Sort">
+		<menu label="並べ替え" name="Sort">
 			<menu_item_check label="名前" name="By Name" />
 			<menu_item_check label="日付" name="By Date" />
 			<menu_item_check label="フォルダは常に名前順" name="Folders Always By Name" />

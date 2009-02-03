@@ -49,7 +49,7 @@
 			Há um audio neste local
 		</tooltip>
 		<playtip name="audio_playtip">
-			Iniciar audio disponípivel nest local
+			Iniciar audio disponível nest local
 		</playtip>
 	</widgetset>
 	<scheme name="rtsp">

@@ -86,14 +86,15 @@ BOOL LLPanelVoiceDeviceSettings::postBuild()
 void LLPanelVoiceDeviceSettings::draw()
 {
 	// let user know that volume indicator is not yet available
-	childSetVisible("wait_text", !gVoiceClient->inTuningMode());
+	bool is_in_tuning_mode = gVoiceClient->inTuningMode();
+	childSetVisible("wait_text", !is_in_tuning_mode);
 
 	LLPanel::draw();
 
 	F32 voice_power = gVoiceClient->tuningGetEnergy();
 	S32 discrete_power = 0;
 
-	if (!gVoiceClient->inTuningMode())
+	if (!is_in_tuning_mode)
 	{
 		discrete_power = 0;
 	}
@@ -102,7 +103,7 @@ void LLPanelVoiceDeviceSettings::draw()
 		discrete_power = llmin(4, llfloor((voice_power / LLVoiceClient::OVERDRIVEN_POWER_LEVEL) * 4.f));
 	}
 	
-	if (gVoiceClient->inTuningMode())
+	if (is_in_tuning_mode)
 	{
 		for(S32 power_bar_idx = 0; power_bar_idx < 5; power_bar_idx++)
 		{
@@ -137,7 +138,11 @@ void LLPanelVoiceDeviceSettings::apply()
 	}
 
 	// assume we are being destroyed by closing our embedding window
-	gSavedSettings.setF32("AudioLevelMic", mMicVolume);
+	LLSlider* volume_slider = getChild<LLSlider>("mic_volume_slider");
+	if(volume_slider)
+	{
+		gSavedSettings.setF32("AudioLevelMic", (F32)volume_slider->getValue().asReal());
+	}
 }
 
 void LLPanelVoiceDeviceSettings::cancel()
@@ -150,6 +155,13 @@ void LLPanelVoiceDeviceSettings::cancel()
 
 	if(mCtrlOutputDevices)
 		mCtrlOutputDevices->setSimple(mOutputDevice);
+
+	gSavedSettings.setF32("AudioLevelMic", mMicVolume);
+	LLSlider* volume_slider = getChild<LLSlider>("mic_volume_slider");
+	if(volume_slider)
+	{
+		volume_slider->setValue(mMicVolume);
+	}
 }
 
 void LLPanelVoiceDeviceSettings::refresh()
@@ -157,8 +169,8 @@ void LLPanelVoiceDeviceSettings::refresh()
 	//grab current volume
 	LLSlider* volume_slider = getChild<LLSlider>("mic_volume_slider");
 	// set mic volume tuning slider based on last mic volume setting
-	mMicVolume = (F32)volume_slider->getValue().asReal();
-	gVoiceClient->tuningSetMicVolume(mMicVolume);
+	F32 current_volume = (F32)volume_slider->getValue().asReal();
+	gVoiceClient->tuningSetMicVolume(current_volume);
 
 	// Fill in popup menus
 	mCtrlInputDevices = getChild<LLComboBox>("voice_input_device");
@@ -248,13 +260,19 @@ void LLPanelVoiceDeviceSettings::onClose(bool app_quitting)
 // static
 void LLPanelVoiceDeviceSettings::onCommitInputDevice(LLUICtrl* ctrl, void* user_data)
 {
-	gSavedSettings.setString("VoiceInputAudioDevice", ctrl->getValue().asString());
+	if(gVoiceClient)
+	{
+		gVoiceClient->setCaptureDevice(ctrl->getValue().asString());
+	}
 }
 
 // static
 void LLPanelVoiceDeviceSettings::onCommitOutputDevice(LLUICtrl* ctrl, void* user_data)
 {
-	gSavedSettings.setString("VoiceOutputAudioDevice", ctrl->getValue().asString());
+	if(gVoiceClient)
+	{
+		gVoiceClient->setRenderDevice(ctrl->getValue().asString());
+	}
 }
 
 //

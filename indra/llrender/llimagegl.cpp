@@ -62,8 +62,6 @@ S32 LLImageGL::sCount					= 0;
 BOOL LLImageGL::sGlobalUseAnisotropic	= FALSE;
 F32 LLImageGL::sLastFrameTime			= 0.f;
 
-S32 LLImageGL::sMaxTextureSize          = 0 ;
-
 std::set<LLImageGL*> LLImageGL::sImageList;
 
 //**************************************************************************************
@@ -379,16 +377,6 @@ void LLImageGL::setSize(S32 width, S32 height, S32 ncomponents)
 {
 	if (width != mWidth || height != mHeight || ncomponents != mComponents)
 	{
-		if(width > 1024 || height > 1024)
-		{
-			llwarns << "texture size is big: width: " << width << " height: " << height << llendl ;
-			if(!sMaxTextureSize)
-			{
-				glGetIntegerv(GL_MAX_TEXTURE_SIZE, (GLint*)&sMaxTextureSize) ;
-			}
-			llwarns << "max texture size is: " << sMaxTextureSize << llendl ;
-		}
-
 		// Check if dimensions are a power of two!
 		if (!checkSize(width,height))
 		{

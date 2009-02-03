@@ -83,7 +83,7 @@ const std::string LLAppViewerWin32::sWindowClass = "Second Life";
 LONG WINAPI viewer_windows_exception_handler(struct _EXCEPTION_POINTERS *exception_infop)
 {
     // *NOTE:Mani - this code is stolen from LLApp, where its never actually used.
-	
+	//OSMessageBox("Attach Debugger Now", "Error", OSMB_OK);
     // Translate the signals/exceptions into cross-platform stuff
 	// Windows implementation
     _tprintf( _T("Entering Windows Exception Handler...\n") );

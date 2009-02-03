@@ -923,7 +923,7 @@ BOOL LLViewerWindow::handleRightMouseDown(LLWindow *window,  LLCoordGL pos, MASK
 
 	// *HACK: this should be rolled into the composite tool logic, not
 	// hardcoded at the top level.
-	if (CAMERA_MODE_CUSTOMIZE_AVATAR != gAgent.getCameraMode())
+	if (CAMERA_MODE_CUSTOMIZE_AVATAR != gAgent.getCameraMode() && LLToolMgr::getInstance()->getCurrentTool() != LLToolPie::getInstance())
 	{
 		// If the current tool didn't process the click, we should show
 		// the pie menu.  This can be done by passing the event to the pie
@@ -2135,12 +2135,7 @@ void LLViewerWindow::reshape(S32 width, S32 height)
 		gSavedSettings.setBOOL("FullScreen", mWantFullscreen);
 
 		// store new settings for the mode we are in, regardless
-		if (mWindow->getFullscreen())
-		{
-			gSavedSettings.setS32("FullScreenWidth", width);
-			gSavedSettings.setS32("FullScreenHeight", height);
-		}
-		else
+		if (!mWindow->getFullscreen())
 		{
 			// Only save size if not maximized
 			BOOL maximized = mWindow->getMaximized();
@@ -3626,6 +3621,16 @@ LLViewerObject* LLViewerWindow::cursorIntersect(S32 mouse_x, S32 mouse_y, F32 de
 	// world coordinates of mouse
 	LLVector3 mouse_direction_global = mouseDirectionGlobal(x,y);
 	LLVector3 mouse_point_global = LLViewerCamera::getInstance()->getOrigin();
+	
+	//get near clip plane
+	LLVector3 n = LLViewerCamera::getInstance()->getAtAxis();
+	LLVector3 p = mouse_point_global + n * LLViewerCamera::getInstance()->getNear();
+
+	//project mouse point onto plane
+	LLVector3 pos;
+	line_plane(mouse_point_global, mouse_direction_global, p, n, pos);
+	mouse_point_global = pos;
+
 	LLVector3 mouse_world_start = mouse_point_global;
 	LLVector3 mouse_world_end   = mouse_point_global + mouse_direction_global * depth;
 
@@ -4735,78 +4740,12 @@ void LLViewerWindow::getTargetWindow(BOOL& fullscreen, S32& width, S32& height) 
 	}
 }
 
-bool LLViewerWindow::updateResolution()
-{
-	if (gSavedSettings.getBOOL("FullScreenAutoDetectAspectRatio"))
-	{
-		getWindow()->setNativeAspectRatio(0.f);
-	}
-	else
-	{
-		getWindow()->setNativeAspectRatio(gSavedSettings.getF32("FullScreenAspectRatio"));
-	}
-	
-	reshape(getWindowDisplayWidth(), getWindowDisplayHeight());
-	
-	// Screen resolution
-	S32 num_resolutions;
-	LLWindow::LLWindowResolution* supported_resolutions = getWindow()->getSupportedResolutions(num_resolutions);
-	
-	// check if resolution has changed
-	BOOL targetFullscreen;
-	S32 targetWidth;
-	S32 targetHeight;
-	
-	getTargetWindow(targetFullscreen, targetWidth, targetHeight);
-	
-	if ((mIsFullscreenChecked != (bool) targetFullscreen) ||
-		(mIsFullscreenChecked &&
-		 (supported_resolutions[mCurrResolutionIndex].mWidth != targetWidth ||
-		  supported_resolutions[mCurrResolutionIndex].mHeight != targetHeight)
-		 ))
-	{
-		// change fullscreen resolution or switch in/out of windowed mode
-		BOOL result;
-		
-		BOOL logged_in = (LLStartUp::getStartupState() >= STATE_STARTED);
-		if (mIsFullscreenChecked)
-		{
-			result = changeDisplaySettings(TRUE, 
-											LLCoordScreen(	supported_resolutions[mCurrResolutionIndex].mWidth, 
-															supported_resolutions[mCurrResolutionIndex].mHeight), 
-											gSavedSettings.getBOOL("DisableVerticalSync"),
-											logged_in);
-		}
-		else
-		{
-			result = changeDisplaySettings(FALSE, 
-											LLCoordScreen(gSavedSettings.getS32("WindowWidth"), gSavedSettings.getS32("WindowHeight")), 
-											TRUE,
-											logged_in);
-		}
-		if (!result)
-		{
-			
-			// GL is non-existent at this point, so we can't continue.
-			llerrs << "LLPanelDisplay::apply() failed" << llendl;
-		}
-	}
-	
-	// force aspect ratio
-	if (mIsFullscreenChecked)
-	{
-		LLViewerCamera::getInstance()->setAspect( getDisplayAspectRatio() );
-	}
-	return true;
-}
-
-void LLViewerWindow::requestResolutionUpdate(bool fullscreen_checked, U32 resolution_index)
+void LLViewerWindow::requestResolutionUpdate(bool fullscreen_checked)
 {
 	mResDirty = true;
+	mWantFullscreen = fullscreen_checked;
 	mIsFullscreenChecked = fullscreen_checked;
-	mCurrResolutionIndex = resolution_index;
 }
-
 
 BOOL LLViewerWindow::checkSettings()
 {
@@ -4820,42 +4759,70 @@ BOOL LLViewerWindow::checkSettings()
 	// We want to update the resolution AFTER the states getting refreshed not before.
 	if (mResDirty)
 	{
-		updateResolution();
+		if (gSavedSettings.getBOOL("FullScreenAutoDetectAspectRatio"))
+		{
+			getWindow()->setNativeAspectRatio(0.f);
+		}
+		else
+		{
+			getWindow()->setNativeAspectRatio(gSavedSettings.getF32("FullScreenAspectRatio"));
+		}
+		
+		reshape(getWindowDisplayWidth(), getWindowDisplayHeight());
+
+		// force aspect ratio
+		if (mIsFullscreenChecked)
+		{
+			LLViewerCamera::getInstance()->setAspect( getDisplayAspectRatio() );
+		}
+
 		mResDirty = false;
 		// This will force a state update the next frame.
 		mStatesDirty = true;
 	}
 		
 	BOOL is_fullscreen = mWindow->getFullscreen();
-	if (is_fullscreen && !mWantFullscreen)
+	if(mWantFullscreen)
 	{
-		changeDisplaySettings(FALSE, 
-							  LLCoordScreen(gSavedSettings.getS32("WindowWidth"),
-											gSavedSettings.getS32("WindowHeight")),
-							  TRUE,
-							  mShowFullscreenProgress);
-		mStatesDirty = true;
-		return TRUE;
-	}
-	else if (!is_fullscreen && mWantFullscreen)
-	{
-		if (!LLStartUp::canGoFullscreen())
+		LLCoordScreen screen_size;
+		LLCoordScreen desired_screen_size(gSavedSettings.getS32("FullScreenWidth"),
+								   gSavedSettings.getS32("FullScreenHeight"));
+		getWindow()->getSize(&screen_size);
+		if(!is_fullscreen || 
+		    screen_size.mX != desired_screen_size.mX 
+			|| screen_size.mY != desired_screen_size.mY)
 		{
-			return FALSE;
-		}
-		
-		LLGLState::checkStates();
-		LLGLState::checkTextureChannels();
-		changeDisplaySettings(TRUE, 
-							  LLCoordScreen(gSavedSettings.getS32("FullScreenWidth"),
-											gSavedSettings.getS32("FullScreenHeight")),
-							  gSavedSettings.getBOOL("DisableVerticalSync"),
-							  mShowFullscreenProgress);
+			if (!LLStartUp::canGoFullscreen())
+			{
+				return FALSE;
+			}
+			
+			LLGLState::checkStates();
+			LLGLState::checkTextureChannels();
+			changeDisplaySettings(TRUE, 
+								  desired_screen_size,
+								  gSavedSettings.getBOOL("DisableVerticalSync"),
+								  mShowFullscreenProgress);
 
-		LLGLState::checkStates();
-		LLGLState::checkTextureChannels();
-		mStatesDirty = true;
-		return TRUE;
+			LLGLState::checkStates();
+			LLGLState::checkTextureChannels();
+			mStatesDirty = true;
+			return TRUE;
+		}
+	}
+	else
+	{
+		if(is_fullscreen)
+		{
+			// Changing to windowed mode.
+			changeDisplaySettings(FALSE, 
+								  LLCoordScreen(gSavedSettings.getS32("WindowWidth"),
+												gSavedSettings.getS32("WindowHeight")),
+								  TRUE,
+								  mShowFullscreenProgress);
+			mStatesDirty = true;
+			return TRUE;
+		}
 	}
 	return FALSE;
 }
@@ -4886,13 +4853,9 @@ BOOL LLViewerWindow::changeDisplaySettings(BOOL fullscreen, LLCoordScreen size, 
 	BOOL old_fullscreen = mWindow->getFullscreen();
 	if (!old_fullscreen && fullscreen && !LLStartUp::canGoFullscreen())
 	{
-		// we can't do this now, so do it later
-		
-		gSavedSettings.setS32("FullScreenWidth", size.mX);
-		gSavedSettings.setS32("FullScreenHeight", size.mY);
-		//gSavedSettings.setBOOL("DisableVerticalSync", disable_vsync);
-		
-		return TRUE;	// a lie..., because we'll get to it later
+		// Not allowed to switch to fullscreen now, so exit early.
+		// *NOTE: This case should never be reached, but just-in-case.
+		return TRUE;
 	}
 
 	U32 fsaa = gSavedSettings.getU32("RenderFSAASamples");
@@ -4979,7 +4942,7 @@ BOOL LLViewerWindow::changeDisplaySettings(BOOL fullscreen, LLCoordScreen size, 
 #if LL_WINDOWS
 		// Only trigger a reshape after switching to fullscreen; otherwise rely on the windows callback
 		// (otherwise size is wrong; this is the entire window size, reshape wants the visible window size)
-		if (fullscreen)
+		if (fullscreen && result_first_try)
 #endif
 		{
 			reshape(size.mX, size.mY);
@@ -5283,7 +5246,16 @@ void LLPickInfo::fetchResults()
 	//{
 	//	mPickType = PICK_PARCEL_WALL;
 	//}
-	if (objectp)
+	if (hit_icon && 
+		(!objectp || 
+		icon_dist < (LLViewerCamera::getInstance()->getOrigin()-intersection).magVec()))
+	{
+		// was this name referring to a hud icon?
+		mHUDIcon = hit_icon;
+		mPickType = PICK_ICON;
+		mPosGlobal = mHUDIcon->getPositionGlobal();
+	}
+	else if (objectp)
 	{
 		if( objectp->getPCode() == LLViewerObject::LL_VO_SURFACE_PATCH )
 		{
@@ -5335,16 +5307,7 @@ void LLPickInfo::fetchResults()
 			}
 		}
 	}
-	if (hit_icon && 
-		(!objectp || 
-		icon_dist < (LLViewerCamera::getInstance()->getOrigin()-intersection).magVec()))
-	{
-		// was this name referring to a hud icon?
-		mHUDIcon = hit_icon;
-		mPickType = PICK_ICON;
-		mPosGlobal = mHUDIcon->getPositionGlobal();
-	}
-
+	
 	if (mPickCallback)
 	{
 		mPickCallback(*this);

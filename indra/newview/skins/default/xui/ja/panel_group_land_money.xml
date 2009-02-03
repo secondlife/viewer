@@ -21,9 +21,9 @@
 		グループの保有地
 	</text>
 	<scroll_list name="group_parcel_list">
-		<column label="Parcel Name" name="name" />
-		<column label="Region" name="location" />
-		<column label="Area" name="area" />
+		<column name="name" />
+		<column name="location" />
+		<column name="area" />
 		<column label="" name="hidden" />
 	</scroll_list>
 	<button label="地図上に表示" label_selected="地図上に表示"
@@ -31,20 +31,20 @@
 	<text name="total_contributed_land_label">
 		寄付総額：
 	</text>
-	<text name="total_contributed_land_value">
-		［AREA］平方メートル
+	<text name="total_contributed_land_value" width="150">
+		[AREA]平方メートル
 	</text>
 	<text name="total_land_in_use_label">
 		土地利用の合計：
 	</text>
-	<text name="total_land_in_use_value">
-		［AREA］平方メートル
+	<text name="total_land_in_use_value" width="150">
+		[AREA]平方メートル
 	</text>
 	<text name="land_available_label">
 		利用可の土地：
 	</text>
-	<text name="land_available_value">
-		［AREA］平方メートル
+	<text name="land_available_value" width="150">
+		[AREA]平方メートル
 	</text>
 	<text name="your_contribution_label">
 		あなたの貢献：
@@ -74,19 +74,19 @@
 			<text_editor name="group_money_details_text">
 				計算中…
 			</text_editor>
-			<button label="＜前" label_selected="＜前" name="earlier_details_button"
-			     tool_tip="時間を戻す" />
-			<button label="あとで＞" label_selected="あとで＞" name="later_details_button"
-			     tool_tip="時間を進める" />
+			<button label="前の週" label_selected="前の週" name="earlier_details_button"
+			     tool_tip="前の週の履歴" />
+			<button label="次の週" label_selected="次の週" name="later_details_button"
+			     tool_tip="次の週の履歴" />
 		</panel>
 		<panel label="販売" name="group_money_sales_tab">
 			<text_editor name="group_money_sales_text">
 				計算中…
 			</text_editor>
-			<button label="＜前" label_selected="＜前" name="earlier_sales_button"
-			     tool_tip="時間を戻す" />
-			<button label="あとで＞" label_selected="あとで＞" name="later_sales_button"
-			     tool_tip="時間を進める" />
+			<button label="前の週" label_selected="前の週" name="earlier_sales_button"
+			     tool_tip="前の週の履歴" />
+			<button label="次の週" label_selected="次の週" name="later_sales_button"
+			     tool_tip="次の週の履歴" />
 		</panel>
 	</tab_container>
 </panel>

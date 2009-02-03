@@ -22,6 +22,7 @@ Aimee Trescothick
 	VWR-6550
 	VWR-6583
 	VWR-6482
+    VWR-7109
 	VWR-7383
 	VWR-8341
 	VWR-8430
@@ -436,6 +437,8 @@ tenebrous pau
 	VWR-247
 Tharax Ferraris
 	VWR-605
+Thickbrick Sleaford
+	VWR-7109
 Thraxis Epsilon
 	SVC-371
 	VWR-383

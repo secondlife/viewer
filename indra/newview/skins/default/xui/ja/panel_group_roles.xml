@@ -51,7 +51,7 @@
 			<button label="全てを表示" name="show_all_button" />
 			<name_list name="member_list">
 				<column label="メンバー名" name="name" />
-				<column label="Donated Tier" name="donated" />
+				<column name="donated" />
 				<column label="前回のログイン" name="online" />
 			</name_list>
 			<button label="新しい人を招待..." name="member_invite" />
@@ -67,7 +67,7 @@ Ctrl キーを押しながらメンバー名をクリックすると
 			<button label="すべてを表示" name="show_all_button" />
 			<scroll_list name="role_list">
 				<column label="役割名" name="name" />
-				<column label="Title" name="title" />
+				<column label="肩書き" name="title" />
 				<column label="メンバー" name="members" />
 			</scroll_list>
 			<button label="新しい役割を作成..." name="role_create" />

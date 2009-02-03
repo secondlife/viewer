@@ -32,9 +32,9 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include "lleventpoll.h"
 #include "llappviewer.h"
 #include "llagent.h"
-#include "lleventpoll.h"
 
 #include "llhttpclient.h"
 #include "llhttpstatuscodes.h"
@@ -42,6 +42,7 @@
 #include "lltimer.h"
 #include "llviewerregion.h"
 #include "message.h"
+#include "lltrans.h"
 
 namespace
 {
@@ -226,11 +227,15 @@ namespace
 			// They are essentially disconnected from the region even though some things may still work.
 			// Since things won't get better until they relog we force a disconnect now.
 
-			// *NOTE:Mani - This force disconnect was causing logouts even when disconnected
-			// from neighboring regions.
-			// *FIX:Mani We may want to re enable forceDisconnect for the agents main region.  
-			// *FIX:Mani If reimplemting Translate!!!!
-			// LLAppViewer::instance()->forceDisconnect("You have been disconnected from the region you were in.");
+			// *NOTE:Mani - The following condition check to see if this failing event poll
+			// is attached to the Agent's main region. If so we disconnect the viewer.
+			// Else... its a child region and we just leave the dead event poll stopped and 
+			// continue running.
+			if(gAgent.getRegion() && gAgent.getRegion()->getHost().getIPandPort() == mSender)
+			{
+				llwarns << "Forcing disconnect due to stalled main region event poll."  << llendl;
+				LLAppViewer::instance()->forceDisconnect(LLTrans::getString("AgentLostConnection"));
+			}
 		}
 	}
 

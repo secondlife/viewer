@@ -114,10 +114,10 @@
 		<menu_item_call label="アニメーションをすべて停止" name="Stop All Animations"/>
 		<menu_item_call label="キー制御を解除" name="Release Keys"/>
 		<menu_item_separator label="-----------" name="separator4"/>
-		<menu_item_call label="口座履歴..." name="Account History...">
+		<menu_item_call label="アカウントの履歴..." name="Account History...">
 			<on_click name="AccountHistory_url" userdata="WebLaunchAccountHistory,http://secondlife.com/account/transactions.php?lang=ja" />
 		</menu_item_call>
-		<menu_item_call label="自分の口座の管理..." name="Manage My Account...">
+		<menu_item_call label="マイアカウントの管理..." name="Manage My Account...">
 			<on_click name="ManageMyAccount_url" userdata="WebLaunchJoinNow,http://secondlife.com/account/index.php?lang=ja" />
 		</menu_item_call>
 		<menu_item_call label="L$（リンデン・ドル）を購入" name="Buy and Sell L$..."/>

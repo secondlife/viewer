@@ -73,6 +73,24 @@
 #include "llviewerobject.h" 
 #include "llviewerobjectlist.h"
 
+namespace 
+{
+	// This method is used to return an object to mute given an object id.
+	// Its used by the LLMute constructor and LLMuteList::isMuted.
+	LLViewerObject* get_object_to_mute_from_id(LLUUID object_id)
+	{
+		LLViewerObject *objectp = gObjectList.findObject(object_id);
+		if ((objectp) && (!objectp->isAvatar()))
+		{
+			LLViewerObject *parentp = (LLViewerObject *)objectp->getParent();
+			if (parentp && parentp->getID() != gAgent.getID())
+			{
+				objectp = parentp;
+			}
+		}
+		return objectp;
+	}
+}
 
 // "emptymutelist"
 class LLDispatchEmptyMuteList : public LLDispatchHandler
@@ -107,15 +125,21 @@ LLMute::LLMute(const LLUUID& id, const std::string& name, EType type, U32 flags)
 	mFlags(flags)
 {
 	// muting is done by root objects only - try to find this objects root
-	LLViewerObject *objectp = gObjectList.findObject(mID);
-	if ((objectp) && (!objectp->isAvatar()))
+	LLViewerObject* mute_object = get_object_to_mute_from_id(id);
+	if(mute_object && mute_object->getID() != id)
 	{
-		LLViewerObject *parentp = (LLViewerObject *)objectp->getParent();
-		if (parentp)
+		mID = mute_object->getID();
+		LLNameValue* firstname = mute_object->getNVPair("FirstName");
+		LLNameValue* lastname = mute_object->getNVPair("LastName");
+		if (firstname && lastname)
 		{
-			mID = parentp->getID();
+			mName.assign( firstname->getString() );
+			mName.append(" ");
+			mName.append( lastname->getString() );
 		}
+		mType = mute_object->isAvatar() ? AGENT : OBJECT;
 	}
+
 }
 
 
@@ -664,19 +688,10 @@ BOOL LLMuteList::saveToFile(const std::string& filename)
 
 BOOL LLMuteList::isMuted(const LLUUID& id, const std::string& name, U32 flags) const
 {
-	LLUUID id_to_check = id;
-	
 	// for objects, check for muting on their parent prim
-	LLViewerObject *objectp = gObjectList.findObject(id);
-	if ((objectp) && (!objectp->isAvatar()))
-	{
-		LLViewerObject *parentp = (LLViewerObject *)objectp->getParent();
-		if (parentp)
-		{
-			id_to_check = parentp->getID();
-		}
-	}
-	
+	LLViewerObject* mute_object = get_object_to_mute_from_id(id);
+	LLUUID id_to_check  = (mute_object) ? mute_object->getID() : id;
+
 	// don't need name or type for lookup
 	LLMute mute(id_to_check);
 	mute_set_t::const_iterator mute_it = mMutes.find(mute);

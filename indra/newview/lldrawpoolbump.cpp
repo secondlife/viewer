@@ -593,7 +593,7 @@ BOOL LLDrawPoolBump::bindBumpMap(LLDrawInfo& params)
 		if( bump_code < LLStandardBumpmap::sStandardBumpmapCount )
 		{
 			bump = gStandardBumpmapList[bump_code].mImage;
-			gBumpImageList.addTextureStats(bump_code, tex->getID(), params.mVSize, 1, 1);
+			gBumpImageList.addTextureStats(bump_code, tex->getID(), params.mVSize);
 		}
 		break;
 	}
@@ -735,14 +735,13 @@ LLBumpImageList::~LLBumpImageList()
 
 
 // Note: Does nothing for entries in gStandardBumpmapList that are not actually standard bump images (e.g. none, brightness, and darkness)
-void LLBumpImageList::addTextureStats(U8 bump, const LLUUID& base_image_id,
-									  F32 pixel_area, F32 texel_area_ratio, F32 cos_center_angle)
+void LLBumpImageList::addTextureStats(U8 bump, const LLUUID& base_image_id, F32 virtual_size)
 {
 	bump &= TEM_BUMP_MASK;
 	LLViewerImage* bump_image = gStandardBumpmapList[bump].mImage;
 	if( bump_image )
 	{
-		bump_image->addTextureStats(pixel_area, texel_area_ratio, cos_center_angle);
+		bump_image->addTextureStats(virtual_size);
 	}
 }
 

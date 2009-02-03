@@ -119,30 +119,16 @@ BOOL LLVOTextBubble::idleUpdate(LLAgent &agent, LLWorld	&world, const F64 &time)
 void LLVOTextBubble::updateTextures(LLAgent &agent)
 {
 	// Update the image levels of all textures...
-	// First we do some quick checks.
-	U32 i;
 
-	// This doesn't take into account whether the object is in front
-	// or behind...
-
-	LLVector3 position_local = getPositionAgent() - agent.getCameraPositionAgent();
-	F32 dot_product = position_local * agent.getFrameAgent().getAtAxis();
-	F32 cos_angle = dot_product / position_local.length();
-
-	if (cos_angle > 1.f)
-	{
-		cos_angle = 1.f;
-	}
-
-	for (i = 0; i < getNumTEs(); i++)
+	for (U32 i = 0; i < getNumTEs(); i++)
 	{
 		const LLTextureEntry *te = getTE(i);
 		F32 texel_area_ratio = fabs(te->mScaleS * te->mScaleT);
-
+		texel_area_ratio = llclamp(texel_area_ratio, .125f, 16.f);
 		LLViewerImage *imagep = getTEImage(i);
 		if (imagep)
 		{
-			imagep->addTextureStats(mPixelArea, texel_area_ratio, cos_angle);
+			imagep->addTextureStats(mPixelArea / texel_area_ratio);
 		}
 	}
 }

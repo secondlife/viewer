@@ -41,6 +41,7 @@
 #include "llappviewer.h"
 
 #include "pipeline.h" 
+#include "lltexturefetch.h" 
 #include "llviewerobjectlist.h" 
 #include "llviewerimagelist.h" 
 #include "lltexlayer.h"
@@ -564,15 +565,12 @@ void update_statistics(U32 frame_count)
 	LLViewerStats::getInstance()->mAssetKBitStat.addValue(gTransferManager.getTransferBitsIn(LLTCT_ASSET)/1024.f);
 	gTransferManager.resetTransferBitsIn(LLTCT_ASSET);
 
-	static S32 tex_bits_idle_count = 0;
-	if (LLViewerImageList::sTextureBits == 0)
+	if (LLAppViewer::getTextureFetch()->getNumRequests() == 0)
 	{
-		if (++tex_bits_idle_count >= 30)
-			gDebugTimers[0].pause();
+		gDebugTimers[0].pause();
 	}
 	else
 	{
-		tex_bits_idle_count = 0;
 		gDebugTimers[0].unpause();
 	}
 	
@@ -767,12 +765,15 @@ void send_stats()
 // 	misc["int_2"] = LLFloaterDirectory::sNewSearchCount; // Steve: 1.18.6
 // 	misc["int_1"] = LLSD::Integer(gSavedSettings.getU32("RenderQualityPerformance")); // Steve: 1.21
 // 	misc["int_2"] = LLSD::Integer(gFrameStalls); // Steve: 1.21
-	F32 unbaked_time = LLVOAvatar::sUnbakedTime / gFrameTime;
-	misc["int_1"] = LLSD::Integer(unbaked_time * 1000.f); // Steve: 1.22
-	F32 grey_time = LLVOAvatar::sGreyTime / gFrameTime;
-	misc["int_2"] = LLSD::Integer(grey_time * 1000.f); // Steve: 1.22
+
+	F32 unbaked_time = LLVOAvatar::sUnbakedTime * 1000.f / gFrameTimeSeconds;
+	misc["int_1"] = LLSD::Integer(unbaked_time); // Steve: 1.22
+	F32 grey_time = LLVOAvatar::sGreyTime * 1000.f / gFrameTimeSeconds;
+	misc["int_2"] = LLSD::Integer(grey_time); // Steve: 1.22
+
+	llinfos << "Misc Stats: int_1: " << misc["int_1"] << " int_2: " << misc["int_2"] << llendl;
+	llinfos << "Misc Stats: string_1: " << misc["string_1"] << " string_2: " << misc["string_2"] << llendl;
 	
 	LLViewerStats::getInstance()->addToMessage(body);
-
 	LLHTTPClient::post(url, body, new ViewerStatsResponder());
 }

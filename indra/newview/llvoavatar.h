@@ -915,7 +915,9 @@ public:
 	static ETextureIndex sBakedTextureIndices[BAKED_TEXTURE_COUNT];
 
 	static F32 		sUnbakedTime; // Total seconds with >=1 unbaked avatars
+	static F32 		sUnbakedUpdateTime; // Last time stats were updated (to prevent multiple updates per frame) 
 	static F32 		sGreyTime; // Total seconds with >=1 grey avatars
+	static F32 		sGreyUpdateTime; // Last time stats were updated (to prevent multiple updates per frame) 
 	
 	//--------------------------------------------------------------------
 	// Texture Layer Sets and Global Colors

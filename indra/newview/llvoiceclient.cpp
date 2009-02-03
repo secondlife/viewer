@@ -933,6 +933,8 @@ void LLVoiceClient::updateSettings()
 	setCaptureDevice(inputDevice);
 	std::string outputDevice = gSavedSettings.getString("VoiceOutputAudioDevice");
 	setRenderDevice(outputDevice);
+	F32 mic_level = gSavedSettings.getF32("AudioLevelMic");
+	setMicGain(mic_level);
 	setLipSyncEnabled(gSavedSettings.getBOOL("LipSyncEnabled"));
 }
 

@@ -181,6 +181,8 @@ BOOL LLVOPartGroup::updateGeometry(LLDrawable *drawable)
 	F32 pixel_meter_ratio = LLViewerCamera::getInstance()->getPixelMeterRatio();
 	pixel_meter_ratio *= pixel_meter_ratio;
 
+	LLViewerPartSim::checkParticleCount(mViewerPartGroupp->mParticles.size()) ;
+
 	S32 count=0;
 	mDepth = 0.f;
 	S32 i = 0 ;

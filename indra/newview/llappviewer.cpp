@@ -3278,8 +3278,6 @@ void LLAppViewer::idle()
 		return;
     }
 
-	gViewerWindow->handlePerFrameHover();
-
 	///////////////////////////////////////
 	// Agent and camera movement
 	//
@@ -3557,12 +3555,12 @@ void LLAppViewer::sendLogoutRequest()
 		if (mLogoutMarkerFile)
 		{
 			llinfos << "Created logout marker file " << mLogoutMarkerFileName << llendl;
+    		apr_file_close(mLogoutMarkerFile);
 		}
 		else
 		{
 			llwarns << "Cannot create logout marker file " << mLogoutMarkerFileName << llendl;
 		}
-		apr_file_close(mLogoutMarkerFile);
 	}
 }
 
@@ -3784,6 +3782,11 @@ void LLAppViewer::forceErrorSoftwareException()
 {
     // *FIX: Any way to insure it won't be handled?
     throw; 
+}
+
+void LLAppViewer::forceErrorDriverCrash()
+{
+	glDeleteTextures(1, NULL);
 }
 
 void LLAppViewer::initMainloopTimeout(const std::string& state, F32 secs)

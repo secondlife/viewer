@@ -21,9 +21,9 @@
 	</text>
 	<scroll_list name="notice_list">
 		<column label="" name="icon" />
-		<column label="Subject" name="subject" />
-		<column label="From" name="from" />
-		<column label="Date" name="date" />
+		<column name="subject" />
+		<column name="from" />
+		<column name="date" />
 	</scroll_list>
 	<text name="notice_list_none_found">
 		何も見つかりませんでした。
@@ -53,8 +53,7 @@
 		<button label="添付物を削除" label_selected="添付物を削除"
 		     name="remove_attachment" />
 		<button label="通知を送信" label_selected="通知を送信" name="send_notice" />
-		<panel name="drop_target"
-		     tool_tip="Drag an inventory item onto the message box to send it with the notice. You must have permission to copy and transfer the object to send it with the notice." />
+		<panel name="drop_target" />
 	</panel>
 	<panel label="過去の通知を表示" name="panel_view_past_notice">
 		<text name="lbl">

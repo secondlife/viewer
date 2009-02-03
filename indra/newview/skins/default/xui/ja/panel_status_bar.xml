@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="status">
-	<text length="1" name="ParcelNameText" tool_tip="あなたが立っている土地区画の名前。 「土地情報」をクリックしてください。" type="string">
+	<text length="1" name="ParcelNameText" tool_tip="あなたが立っている土地区画の名 前。クリックすると「土地情報」が開きます。" type="string">
 		区画名はここです
 	</text>
 	<text length="1" name="BalanceText" tool_tip="口座残高" type="string">
@@ -25,7 +25,7 @@
 	<button label="" label_selected="" name="build" tool_tip="作成禁止"/>
 	<button label="" label_selected="" name="scripts" tool_tip="スクリプトなし"/>
 	<button name="no_fly" tool_tip="飛行禁止"/>
-	<button name="no_build" tool_tip="制作/ＲＥＺ禁止"/>
+	<button name="no_build" tool_tip="制作／Rez禁止"/>
 	<button name="no_scripts" tool_tip="スクリプト禁止"/>
 	<button label="" label_selected="" name="restrictpush" tool_tip="プッシングを制限"/>
 	<button name="status_voice" tool_tip="ボイス有効"/>

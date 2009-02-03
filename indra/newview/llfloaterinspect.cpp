@@ -214,6 +214,12 @@ void LLFloaterInspect::refresh()
 		LLSD row;
 		char time[MAX_STRING];
 		std::string owner_name, creator_name;
+
+		if (obj->mCreationDate == 0)
+		{	// Don't have valid information from the server, so skip this one
+			continue;
+		}
+
 		time_t timestamp = (time_t) (obj->mCreationDate/1000000);
 		LLStringUtil::copy(time, ctime(&timestamp), MAX_STRING);
 		time[24] = '\0';

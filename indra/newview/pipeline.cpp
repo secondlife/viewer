@@ -4093,55 +4093,52 @@ LLViewerObject* LLPipeline::lineSegmentIntersectInWorld(const LLVector3& start, 
 				
 		const F32 ATTACHMENT_OVERRIDE_DIST = 0.1f;
 
-		if (!drawable || !drawable->getVObj()->isAttachment())
-		{ //check against avatars
-				sPickAvatar = TRUE;
-				for (LLWorld::region_list_t::iterator iter = LLWorld::getInstance()->getRegionList().begin(); 
-						iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
+		//check against avatars
+		sPickAvatar = TRUE;
+		for (LLWorld::region_list_t::iterator iter = LLWorld::getInstance()->getRegionList().begin(); 
+				iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
+		{
+			LLViewerRegion* region = *iter;
+
+			LLSpatialPartition* part = region->getSpatialPartition(LLViewerRegion::PARTITION_BRIDGE);
+			if (part && hasRenderType(part->mDrawableType))
+			{
+				LLDrawable* hit = part->lineSegmentIntersect(start, local_end, pick_transparent, face_hit, &position, tex_coord, normal, bi_normal);
+				if (hit)
 				{
-					LLViewerRegion* region = *iter;
+					if (!drawable || 
+						!drawable->getVObj()->isAttachment() ||
+						(position-local_end).magVec() > ATTACHMENT_OVERRIDE_DIST)
+					{ //avatar overrides if previously hit drawable is not an attachment or 
+					  //attachment is far enough away from detected intersection
+						drawable = hit;
+						local_end = position;						
+					}
+					else
+					{ //prioritize attachments over avatars
+						position = local_end;
 
-					LLSpatialPartition* part = region->getSpatialPartition(LLViewerRegion::PARTITION_BRIDGE);
-					if (part && hasRenderType(part->mDrawableType))
-					{
-						LLDrawable* hit = part->lineSegmentIntersect(start, local_end, pick_transparent, face_hit, &position, tex_coord, normal, bi_normal);
-						if (hit)
+						if (face_hit)
 						{
-							if (!drawable || 
-								!drawable->getVObj()->isAttachment() ||
-								(position-local_end).magVec() > ATTACHMENT_OVERRIDE_DIST)
-							{ //avatar overrides if previously hit drawable is not an attachment or 
-							  //attachment is far enough away from detected intersection
-								drawable = hit;
-								local_end = position;						
-							}
-							else
-							{ //prioritize attachments over avatars
-								position = local_end;
-
-								if (face_hit)
-								{
-									*face_hit = local_face_hit;
-								}
-								if (tex_coord)
-								{
-									*tex_coord = local_texcoord;
-								}
-								if (bi_normal)
-								{
-									*bi_normal = local_binormal;
-								}
-								if (normal)
-								{
-									*normal = local_normal;
-								}
-							}
+							*face_hit = local_face_hit;
+						}
+						if (tex_coord)
+						{
+							*tex_coord = local_texcoord;
+						}
+						if (bi_normal)
+						{
+							*bi_normal = local_binormal;
+						}
+						if (normal)
+						{
+							*normal = local_normal;
 						}
 					}
 				}
 			}
 		}
-
+	}
 
 	//check all avatar nametags (silly, isn't it?)
 	for (std::vector< LLCharacter* >::iterator iter = LLCharacter::sInstances.begin();

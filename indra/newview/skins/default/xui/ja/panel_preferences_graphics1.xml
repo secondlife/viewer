@@ -69,7 +69,7 @@
 	</text>
 	<check_box label="解像度単独スケールを使用" name="ui_auto_scale" />
 	<spinner label="描画距離：" name="draw_distance" />
-	<check_box label="アバターをマウスルックで表示" name="avfp" />
+	<check_box label="アバターを一人称視点（マウスルック）で表示" name="avfp" />
 	<text name="HigherText">
 		品質および
 	</text>

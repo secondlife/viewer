@@ -69,8 +69,7 @@
 const S32 MIN_QUIET_FRAMES_COALESCE = 30;
 const F32 FORCE_SIMPLE_RENDER_AREA = 512.f;
 const F32 FORCE_CULL_AREA = 8.f;
-// sadly - we can't lower sculptie rez below b/c residents have a LOT of content that depends on the 128
-const S32 SCULPT_REZ = 128;
+const S32 MAX_SCULPT_REZ = 128;
 
 BOOL gAnimateTextures = TRUE;
 extern BOOL gHideSelectedObjects;
@@ -499,6 +498,7 @@ void LLVOVolume::updateTextures()
 		else if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_TEXTURE_PRIORITY))
 		{
 			F32 pri = imagep->getDecodePriority();
+			pri = llmax(pri, 0.0f);
 			if (pri < min_vsize) min_vsize = pri;
 			if (pri > max_vsize) max_vsize = pri;
 		}
@@ -517,7 +517,10 @@ void LLVOVolume::updateTextures()
 		mSculptTexture = gImageList.getImage(id);
 		if (mSculptTexture.notNull())
 		{
-			mSculptTexture->addTextureStats(SCULPT_REZ * SCULPT_REZ);
+			S32 lod = llmin(mLOD, 3);
+			F32 lodf = ((F32)(4-lod)/4.f); // 0 -> 1.0, 3 -> .25
+			F32 tex_size = lodf * MAX_SCULPT_REZ;
+			mSculptTexture->addTextureStats(2.f * tex_size * tex_size);
 			mSculptTexture->setBoostLevel(llmax((S32)mSculptTexture->getBoostLevel(),
 												(S32)LLViewerImage::BOOST_SCULPTED));
 		}
@@ -1947,6 +1950,8 @@ BOOL LLVOVolume::lineSegmentIntersect(const LLVector3& start, const LLVector3& e
 		return FALSE;
 	}
 
+	BOOL ret = FALSE;
+
 	LLVolume* volume = getVolume();
 	if (volume)
 	{	
@@ -2002,6 +2007,8 @@ BOOL LLVOVolume::lineSegmentIntersect(const LLVector3& start, const LLVector3& e
 			if (face_hit >= 0 && mDrawable->getNumFaces() > face_hit)
 			{
 				LLFace* face = mDrawable->getFace(face_hit);
+				v_end = p;
+
 				if (pick_transparent || !face->getTexture() || face->getTexture()->getMask(face->surfaceToTexture(tc, p, n)))
 				{
 					if (face_hitp != NULL)
@@ -2031,13 +2038,13 @@ BOOL LLVOVolume::lineSegmentIntersect(const LLVector3& start, const LLVector3& e
 						*tex_coord = tc;
 					}
 					
-					return TRUE;
+					ret = TRUE;
 				}
 			}
 		}
 	}
 		
-	return FALSE;
+	return ret;
 }
 
 U32 LLVOVolume::getPartitionType() const

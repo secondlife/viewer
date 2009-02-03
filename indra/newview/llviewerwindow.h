@@ -346,8 +346,7 @@ public:
 	void			toggleFullscreen(BOOL show_progress);
 
 	// handle shutting down GL and bringing it back up
-	bool			updateResolution(void);
-	void			requestResolutionUpdate(bool fullscreen_checked, U32 resolution_index);
+	void			requestResolutionUpdate(bool fullscreen_checked);
 	BOOL			checkSettings();
 	void			restartDisplay(BOOL show_progress_bar);
 	BOOL			changeDisplaySettings(BOOL fullscreen, LLCoordScreen size, BOOL disable_vsync, BOOL show_progress_bar);

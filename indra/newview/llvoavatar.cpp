@@ -289,7 +289,9 @@ BOOL LLVOAvatar::sJointDebug = FALSE;
 S32 LLVOAvatar::sCurJoint = 0;
 S32 LLVOAvatar::sCurVolume = 0;
 F32 LLVOAvatar::sUnbakedTime = 0.f;
+F32 LLVOAvatar::sUnbakedUpdateTime = 0.f;
 F32 LLVOAvatar::sGreyTime = 0.f;
+F32 LLVOAvatar::sGreyUpdateTime = 0.f;
 
 struct LLAvatarTexData
 {
@@ -4722,7 +4724,7 @@ void LLVOAvatar::addLocalTextureStats( LLVOAvatar::ELocTexIndex idx, LLViewerIma
 				desired_pixels = llmin(mPixelArea, (F32)LOCTEX_IMAGE_AREA_OTHER );
 				imagep->setBoostLevel(LLViewerImage::BOOST_AVATAR);
 			}
-			imagep->addTextureStats( desired_pixels, texel_area_ratio );
+			imagep->addTextureStats( desired_pixels / texel_area_ratio );
 			if (imagep->getDiscardLevel() < 0)
 			{
 				mHasGrey = TRUE; // for statistics gathering
@@ -4744,7 +4746,7 @@ void LLVOAvatar::addBakedTextureStats( LLViewerImage* imagep, F32 pixel_area, F3
 {
 	mMaxPixelArea = llmax(pixel_area, mMaxPixelArea);
 	mMinPixelArea = llmin(pixel_area, mMinPixelArea);
-	imagep->addTextureStats(pixel_area, texel_area_ratio);
+	imagep->addTextureStats(pixel_area / texel_area_ratio);
 	imagep->setBoostLevel(boost_level);
 }
 
@@ -9172,9 +9174,19 @@ void LLVOAvatar::cullAvatarsByPixelArea()
 	}
 	else
 	{
-		sUnbakedTime += gFrameTimeSeconds;
+		if (gFrameTimeSeconds != sUnbakedUpdateTime) // only update once per frame
+		{
+			sUnbakedUpdateTime = gFrameTimeSeconds;
+			sUnbakedTime += gFrameIntervalSeconds;
+		}
 		if (grey_avatars > 0)
-			sGreyTime += gFrameTimeSeconds;
+		{
+			if (gFrameTimeSeconds != sGreyUpdateTime) // only update once per frame
+			{
+				sGreyUpdateTime = gFrameTimeSeconds;
+				sGreyTime += gFrameIntervalSeconds;
+			}
+		}
 	}
 }
 

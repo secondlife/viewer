@@ -107,7 +107,8 @@ void LLLogChat::loadHistory(std::string filename , void (*callback)(ELogLineType
 {
 	if(!filename.size())
 	{
-		llerrs << "Filename is Empty!" << llendl;
+		llwarns << "Filename is Empty!" << llendl;
+		return ;
 	}
 
 	LLFILE* fptr = LLFile::fopen(makeLogFileName(filename), "r");		/*Flawfinder: ignore*/

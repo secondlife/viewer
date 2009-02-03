@@ -198,6 +198,12 @@ protected:
 	static const F32 PART_THROTTLE_RESCALE;
 	static const F32 PART_ADAPT_RATE_MULT;
 	static const F32 PART_ADAPT_RATE_MULT_RECIP;
+
+//debug use only
+public:
+	static S32 sParticleCount2;
+
+	static void checkParticleCount(U32 size = 0) ;
 };
 
 #endif // LL_LLVIEWERPARTSIM_H

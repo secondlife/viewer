@@ -442,8 +442,10 @@ bool LLHUDEffectPointAt::calcTargetPosition()
 
 	mTargetPos -= mSourceObject->getRenderPosition();
 
-	if (!mTargetPos.isFinite())
+	if (!llfinite(mTargetPos.lengthSquared()))
+	{
 		return false;
+	}
 
 	if (mSourceObject->isAvatar())
 	{

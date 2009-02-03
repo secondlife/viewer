@@ -116,6 +116,7 @@ public:
     virtual void forceErrorBadMemoryAccess();
     virtual void forceErrorInifiniteLoop();
     virtual void forceErrorSoftwareException();
+    virtual void forceErrorDriverCrash();
 
 	// *NOTE: There are currently 3 settings files: 
 	// "Global", "PerAccount" and "CrashSettings"

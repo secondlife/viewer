@@ -499,7 +499,7 @@ F32 LLDrawable::updateXform(BOOL undamped)
 	F32 dist_squared = 0.f;
 	F32 camdist2 = (mDistanceWRTCamera * mDistanceWRTCamera);
 
-	if (damped && mDistanceWRTCamera > 0.0f)
+	if (damped && isVisible())
 	{
 		F32 lerp_amt = llclamp(LLCriticalDamp::getInterpolant(OBJECT_DAMPING_TIME_CONSTANT), 0.f, 1.f);
 		LLVector3 new_pos = lerp(old_pos, target_pos, lerp_amt);
@@ -523,11 +523,19 @@ F32 LLDrawable::updateXform(BOOL undamped)
 		{
 			// snap to final position
 			dist_squared = 0.0f;
+			if (!isRoot())
+			{ //child prim snapping to some position, needs a rebuild
+				gPipeline.markRebuild(this, LLDrawable::REBUILD_POSITION, TRUE);
+			}
 		}
 	}
 
 	if ((mCurrentScale != target_scale) ||
-		(!isRoot() && (dist_squared >= MIN_INTERPOLATE_DISTANCE_SQUARED) || !mVObjp->getAngularVelocity().isExactlyZero()))
+		(!isRoot() && 
+		 (dist_squared >= MIN_INTERPOLATE_DISTANCE_SQUARED) || 
+		 !mVObjp->getAngularVelocity().isExactlyZero() ||
+		 target_pos != mXform.getPosition() ||
+		 target_rot != mXform.getRotation()))
 	{ //child prim moving or scale change requires immediate rebuild
 		gPipeline.markRebuild(this, LLDrawable::REBUILD_POSITION, TRUE);
 	}

@@ -404,6 +404,7 @@ void force_error_llerror(void *);
 void force_error_bad_memory_access(void *);
 void force_error_infinite_loop(void *);
 void force_error_software_exception(void *);
+void force_error_driver_crash(void *);
 
 void handle_stopall(void*);
 //void handle_hinge(void*);
@@ -937,6 +938,7 @@ void init_client_menu(LLMenuGL* menu)
 		sub->append(new LLMenuItemCallGL("Force LLError And Crash", &force_error_llerror));
         sub->append(new LLMenuItemCallGL("Force Bad Memory Access", &force_error_bad_memory_access));
 		sub->append(new LLMenuItemCallGL("Force Infinite Loop", &force_error_infinite_loop));
+		sub->append(new LLMenuItemCallGL("Force Driver Crash", &force_error_driver_crash));
 		sub->append(new LLMenuItemCallGL("Force Disconnect Viewer", &handle_disconnect_viewer));
 		// *NOTE:Mani this isn't handled yet... sub->append(new LLMenuItemCallGL("Force Software Exception", &force_error_unhandled_exception)); 
 		sub->createJumpKeys();
@@ -6881,6 +6883,11 @@ void force_error_infinite_loop(void *)
 void force_error_software_exception(void *)
 {
     LLAppViewer::instance()->forceErrorSoftwareException();
+}
+
+void force_error_driver_crash(void *)
+{
+    LLAppViewer::instance()->forceErrorDriverCrash();
 }
 
 class LLToolsUseSelectionForGrid : public view_listener_t

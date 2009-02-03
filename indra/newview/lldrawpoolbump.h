@@ -132,8 +132,7 @@ public:
 
 	LLImageGL*	getBrightnessDarknessImage(LLViewerImage* src_image, U8 bump_code);
 //	LLImageGL*	getTestImage();
-	void		addTextureStats(U8 bump, const LLUUID& base_image_id,
-								F32 pixel_area, F32 texel_area_ratio, F32 cos_center_angle);
+	void		addTextureStats(U8 bump, const LLUUID& base_image_id, F32 virtual_size);
 
 	static void onSourceBrightnessLoaded( BOOL success, LLViewerImage *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata );
 	static void onSourceDarknessLoaded( BOOL success, LLViewerImage *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata );

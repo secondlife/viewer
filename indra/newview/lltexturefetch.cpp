@@ -563,6 +563,14 @@ bool LLTextureFetchWorker::doWork(S32 param)
 	{
 		mFetchTimer.reset();
 	}
+
+	if (mImagePriority <= 0.0f)
+	{
+		if (mState < WRITE_TO_CACHE)
+		{
+			return true; // cancel request
+		}
+	}
 	
 	if (mState == INIT)
 	{
@@ -709,7 +717,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			mFetcher->lockQueue();
 			mFetcher->removeFromNetworkQueue(this);
 			mFetcher->unlockQueue();
-			if (!mFormattedImage->getDataSize())
+			if (mFormattedImage.isNull() || !mFormattedImage->getDataSize())
 			{
 				// processSimulatorPackets() failed
 // 				llwarns << "processSimulatorPackets() failed to load buffer" << llendl;
@@ -1051,17 +1059,22 @@ void LLTextureFetchWorker::removeFromCache()
 
 bool LLTextureFetchWorker::processSimulatorPackets()
 {
+	if (mFormattedImage.isNull() || mRequestedSize < 0)
+	{
+		// not sure how we got here, but not a valid state, abort!
+		mFormattedImage = NULL;
+		return true;
+	}
+	
 	if (mLastPacket >= mFirstPacket)
 	{
-		llassert_always(mFormattedImage) ;
 		S32 buffer_size = mFormattedImage->getDataSize();
 		for (S32 i = mFirstPacket; i<=mLastPacket; i++)
 		{
-			llassert_always(mPackets[i]) ;
+			llassert_always(mPackets[i]);
 			buffer_size += mPackets[i]->mSize;
 		}
 		bool have_all_data = mLastPacket >= mTotalPackets-1;
-		llassert_always(mRequestedSize > 0);
 		if (buffer_size >= mRequestedSize || have_all_data)
 		{
 			/// We have enough (or all) data
@@ -1228,7 +1241,12 @@ void LLTextureFetchWorker::callbackDecoded(bool success)
 
 bool LLTextureFetchWorker::decodeImage()
 {
-	llassert_always(mImageWorker);
+	if(!mImageWorker)
+	{
+		//LLTextureFetchWorker is aborted, skip image decoding.
+		return true ;
+	}
+
 	bool res = true;
 	if (mRawImage.isNull())
 	{
@@ -1642,7 +1660,7 @@ void LLTextureFetch::sendRequestListToSimulators()
 				S32 packet = req->mLastPacket + 1;
 				gMessageSystem->nextBlockFast(_PREHASH_RequestImage);
 				gMessageSystem->addUUIDFast(_PREHASH_Image, req->mID);
-				gMessageSystem->addS8Fast(_PREHASH_DiscardLevel, (S8)req->mSimRequestedDiscard);
+				gMessageSystem->addS8Fast(_PREHASH_DiscardLevel, (S8)req->mDesiredDiscard);
 				gMessageSystem->addF32Fast(_PREHASH_DownloadPriority, req->mImagePriority);
 				gMessageSystem->addU32Fast(_PREHASH_Packet, packet);
 				gMessageSystem->addU8Fast(_PREHASH_Type, req->mType);

@@ -18,10 +18,10 @@
 	<button label="?" name="fixed_sun_help" />
 	<slider label="Pora Doby" name="sun_hour_slider" />
 	<button label="Zastosuj" name="apply_btn" />
-	<button label="Załaduj Surowy Teren..." name="download_raw_btn"
+	<button label="Zapisz Surowy Teren..." name="download_raw_btn"
 	     tool_tip="Dostępne tylko dla Właścicieli Majątku, nie dla Zarządców" />
 	<button label="?" name="download_raw_help" />
-	<button label="Zapisz Surowy Teren..." name="upload_raw_btn"
+	<button label="Załaduj Surowy Teren..." name="upload_raw_btn"
 	     tool_tip="Dostępne tylko dla Właścicieli Majątku, nie dla Zarządców" />
 	<button label="?" name="upload_raw_help" />
 	<button label="Ustal Teren" name="bake_terrain_btn"

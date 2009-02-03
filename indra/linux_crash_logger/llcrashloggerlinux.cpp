@@ -125,11 +125,20 @@ void LLCrashLoggerLinux::gatherPlatformSpecificFiles()
 
 bool LLCrashLoggerLinux::mainLoop()
 {
-	if(!do_ask_dialog())
+	bool send_logs = true;
+	if(CRASH_BEHAVIOR_ASK == getCrashBehavior())
 	{
-		return true;
+		send_logs = do_ask_dialog();
 	}
-	sendCrashLogs();
+	else if(CRASH_BEHAVIOR_NEVER_SEND == getCrashBehavior())
+	{
+		send_logs = false;
+	}
+
+	if(send_logs)
+	{
+		sendCrashLogs();
+	}
 	return true;
 }
 

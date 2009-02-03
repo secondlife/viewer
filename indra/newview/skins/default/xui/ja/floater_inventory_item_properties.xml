@@ -49,7 +49,7 @@
 	</text>
 	<check_box label="グループ分担" name="CheckShareWithGroup" />
 	<check_box label="誰に対してもコピーを許可" name="CheckEveryoneCopy" />
-	<text name="NextOwnerLabel">
+	<text name="NextOwnerLabel" width="158">
 		次のオーナーができること：
 	</text>
 	<check_box label="修正" name="CheckNextOwnerModify" />
