@@ -170,6 +170,7 @@ class WindowsManifest(ViewerManifest):
                 '../llkdu/%s/llkdu.dll' % self.args['configuration'],
                 '../../libraries/i686-win32/lib/release/llkdu.dll'), 
                   dst='llkdu.dll')
+            pass
         except:
             print "Skipping llkdu.dll"
         self.path(src="licenses-win32.txt", dst="licenses.txt")
@@ -629,6 +630,7 @@ class Linux_i686Manifest(LinuxManifest):
                 '../llkdu/libllkdu.so',
                 '../../libraries/i686-linux/lib_release_client/libllkdu.so'), 
                   dst='bin/libllkdu.so')
+            pass
         except:
             print "Skipping libllkdu.so - not found"
 
