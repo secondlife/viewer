@@ -172,6 +172,7 @@ class WindowsManifest(ViewerManifest):
             pass
         except:
             print "Skipping llkdu.dll"
+            pass
         self.path(src="licenses-win32.txt", dst="licenses.txt")
 
         self.path("featuretable.txt")
@@ -632,6 +633,7 @@ class Linux_i686Manifest(LinuxManifest):
             pass
         except:
             print "Skipping libllkdu.so - not found"
+            pass
 
         self.path("secondlife-stripped","bin/do-not-directly-run-secondlife-bin")
         self.path("../linux_crash_logger/linux-crash-logger-stripped","linux-crash-logger.bin")
