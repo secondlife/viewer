@@ -166,8 +166,7 @@ class WindowsManifest(ViewerManifest):
         self.path(self.find_existing_file('debug/secondlife-bin.exe', 'release/secondlife-bin.exe', 'relwithdebinfo/secondlife-bin.exe'), dst=self.final_exe())
         # need to get the kdu dll from any of the build directories as well
         try:
-            self.path(self.find_existing_file(
-                '../llkdu/%s/llkdu.dll' % self.args['configuration'],
+            self.path(self.find_existing_file('../llkdu/%s/llkdu.dll' % self.args['configuration'],
                 '../../libraries/i686-win32/lib/release/llkdu.dll'), 
                   dst='llkdu.dll')
             pass
@@ -626,8 +625,7 @@ class Linux_i686Manifest(LinuxManifest):
         # install either the libllkdu we just built, or a prebuilt one, in
         # decreasing order of preference.  for linux package, this goes to bin/
         try:
-            self.path(self.find_existing_file(
-                '../llkdu/libllkdu.so',
+            self.path(self.find_existing_file('../llkdu/libllkdu.so',
                 '../../libraries/i686-linux/lib_release_client/libllkdu.so'), 
                   dst='bin/libllkdu.so')
             # keep this one to preserve syntax, open source mangling removes previous lines
