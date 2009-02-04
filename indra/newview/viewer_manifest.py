@@ -630,7 +630,8 @@ class Linux_i686Manifest(LinuxManifest):
                 '../llkdu/libllkdu.so',
                 '../../libraries/i686-linux/lib_release_client/libllkdu.so'), 
                   dst='bin/libllkdu.so')
-            pass # keep this one to preserve syntax, open source mangling removes previous lines
+            # keep this one to preserve syntax, open source mangling removes previous lines
+            pass
         except:
             print "Skipping libllkdu.so - not found"
 
