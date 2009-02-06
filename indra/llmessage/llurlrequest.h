@@ -287,11 +287,13 @@ class LLURLRequestComplete : public LLIOPipe
 {
 public:
 	
+	// Called once for each header received, except status lines
 	virtual void header(const std::string& header, const std::string& value);
-	    ///< Called once for each header received, prior to httpStatus
 
-	virtual void httpStatus(U32 status, const std::string& reason);
-	    ///< Always called on request completion, prior to complete
+	// May be called more than once, particularly for redirects and proxy madness.
+	// Ex. a 200 for a connection to https through a proxy, followed by the "real" status
+	//     a 3xx for a redirect followed by a "real" status, or more redirects.
+	virtual void httpStatus(U32 status, const std::string& reason) { }
 
 	virtual void complete(
 		const LLChannelDescriptors& channels,
@@ -328,9 +330,6 @@ public:
 	LLURLRequestComplete();
 	virtual ~LLURLRequestComplete();
 
-	// The first line of an http response must be the status line
-	// true if we have already parsed this line.
-	bool haveHTTPStatus() const { return mHaveHTTPStatus; }
 protected:
 	/* @name LLIOPipe virtual implementations
 	 */
@@ -349,8 +348,6 @@ protected:
 	// value to note if we actually got the response. This value
 	// depends on correct useage from the LLURLRequest instance.
 	EStatus mRequestStatus;
-
-	bool mHaveHTTPStatus;
 };
 
 

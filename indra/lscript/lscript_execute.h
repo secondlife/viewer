@@ -434,6 +434,13 @@ public:
 						  F32 quanta,
 						  U32& events_processed, LLTimer& timer);
 
+	// NOTE: babbage: this must be used on occasions where another script may already be executing. Only 2 levels of nesting are allowed.
+	// Provided to support bizarre detach behaviour only. Do not use.
+	virtual F32 runNested(BOOL b_print, const LLUUID &id,
+						  const char **errorstr, 
+						  F32 quanta,
+						  U32& events_processed, LLTimer& timer);
+
 	// Run smallest possible amount of code: an instruction for LSL2, a segment
 	// between save tests for Mono
 	void runInstructions(BOOL b_print, const LLUUID &id,

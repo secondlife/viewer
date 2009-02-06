@@ -961,6 +961,11 @@ F32 LLScriptExecute::runQuanta(BOOL b_print, const LLUUID &id, const char **erro
 	return inloop;
 }
 
+F32 LLScriptExecute::runNested(BOOL b_print, const LLUUID &id, const char **errorstr, F32 quanta, U32& events_processed, LLTimer& timer)
+{
+	return LLScriptExecute::runQuanta(b_print, id, errorstr, quanta, events_processed, timer);
+}
+
 BOOL run_noop(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id)
 {
 	if (b_print)
