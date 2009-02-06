@@ -156,7 +156,7 @@ Idź do Świat &gt; O Posiadłości albo wybierz inną posiadłość żeby pokaz
 				Ilość Ekstra Obiektów: [BONUS]
 			</text>
 			<text length="1" name="Simulator primitive usage:" type="string">
-				Ilość używanych elementów:
+				Ilość używanych primóww:
 			</text>
 			<text length="1" name="objects_available" type="string" width="230">
 				[COUNT] z [MAX] ([AVAILABLE] jest dostępne)
@@ -168,13 +168,13 @@ Idź do Świat &gt; O Posiadłości albo wybierz inną posiadłość żeby pokaz
 				[COUNT] z [MAX] ([DELETED] zostanie usunięte)
 			</string>
 			<text length="1" name="Primitives parcel supports:" type="string">
-				Maksymalna ilość elementów:
+				Maksymalna ilość primów:
 			</text>
 			<text length="1" name="object_contrib_text" type="string">
 				[COUNT]
 			</text>
 			<text length="1" name="Primitives on parcel:" type="string">
-				Elementy w posiadłości:
+				Primy na posiadłości:
 			</text>
 			<text length="1" name="total_objects_text" type="string">
 				[COUNT]

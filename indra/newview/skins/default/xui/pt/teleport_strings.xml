@@ -28,7 +28,7 @@ www.secondlife.com/support
 			A fluxo nesta região é atualmente tão alto e entupido que seu pedido de teleporte não será possível teleportar com êxito em tempo oportuno. Por favor, tente novamente em alguns minutos ou vá a uma área menos ocupada.
 		</message>
 		<message name="expired_tport">
-			Desculpe, mas o sistema não conseguiu concluir o seu pedido teleporte em tempo hábil. Por favor, tente novamente em alguns minutos.
+			Desculpe, mas o sistema não conseguiu concluir o seu pedido de teleporte em tempo hábil. Por favor, tente novamente em alguns minutos.
 		</message>
 		<message name="expired_region_handoff">
 			Desculpe, mas o sistema não pôde concluir a sua travessia de região em tempo hábil. Por favor, tente novamente em alguns minutos.

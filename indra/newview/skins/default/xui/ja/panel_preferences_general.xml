@@ -79,29 +79,35 @@
 		<combo_item length="1" name="English" type="string">
 			English (英語)
 		</combo_item>
-		<combo_item length="1" name="Chinese" type="string">
-			中文 (简体) (中国語) – ベータ
+		<combo_item length="1" name="Danish" type="string">
+			Dansk (デンマーク語) – ベータ
 		</combo_item>
 		<combo_item length="1" name="Deutsch(German)" type="string">
 			Deutsch (ドイツ語) – ベータ
 		</combo_item>
+		<combo_item length="1" name="Spanish" type="string">
+			Español (スペイン語) – ベータ
+		</combo_item>
 		<combo_item length="1" name="French" type="string">
 			Français (フランス語) – ベータ
+		</combo_item>
+		<combo_item name="Hungarian">
+			Magyar (ハンガリー語) - ベータ
+		</combo_item>
+		<combo_item name="Polish">
+			Polski (ポーランド語) - ベータ
+		</combo_item>
+		<combo_item length="1" name="Portugese" type="string">
+			Português (ポルトガル語) – ベータ
+		</combo_item>
+		<combo_item length="1" name="Chinese" type="string">
+			中文 (简体) (中国語) - ベータ
 		</combo_item>
 		<combo_item length="1" name="(Japanese)" type="string">
 			日本語 – ベータ
 		</combo_item>
 		<combo_item length="1" name="(Korean)" type="string">
 			한국어 (韓国語) – ベータ
-		</combo_item>
-		<combo_item length="1" name="Danish" type="string">
-			Dansk (デンマーク語) - Beta
-		</combo_item>
-		<combo_item length="1" name="Portugese" type="string">
-			Português (ポルトガル語) – ベータ
-		</combo_item>
-		<combo_item length="1" name="Spanish" type="string">
-			Español (スペイン語) – ベータ
 		</combo_item>
 	</combo_box>
 	<check_box label="言語をオブジェクトと共有" name="language_is_public" tool_tip="優先言語をインワールドのオブジェクトが認識する"/>

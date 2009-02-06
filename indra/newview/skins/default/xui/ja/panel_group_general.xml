@@ -1,16 +1,16 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="一般" name="general_tab">
-	<text name="help_text">
+	<string name="help_text">
 		[一般]タブには、このグループに関する
 一般情報、オーナーと表示可能なメンバーのリスト 
 一般的な[グループ環境設定]、メンバーのオプションが含まれます。
 
 オプションの上でマウスカーソルを動かすと、ヘルプ情報を得られます。
-	</text>
+	</string>
 	<string name="group_info_unchanged">
 		グループ設定が変更されました。
 	</string>
-	<button label="?" label_selected="?" name="help_button" />
+	<button label="?" label_selected="?" name="help_button"/>
 	<line_editor label="新しいグループ名をここに入力してください。" name="group_name_editor" width="330"/>
 	<text name="group_name" width="330">
 		新しいグループ名をここに入力してください。
@@ -24,20 +24,12 @@
 	<text name="group_charter_label">
 		グループ憲章
 	</text>
-	<texture_picker label="グループ記章" name="insignia"
-	     tool_tip="写真をクリックして選択" />
+	<texture_picker label="グループ記章" name="insignia" tool_tip="写真をクリックして選択"/>
 	<text_editor name="charter">
 		グループ憲章
 	</text_editor>
-	<button label="参加する（L$0）" label_selected="参加する（L$0）"
-	     name="join_button" />
-	<button label="詳細表示" label_selected="詳細表示" name="info_button" />
-	<text>
-		オーナーと可視メンバー
-	</text>
-	<text>
-		（オーナーは太字）
-	</text>
+	<button label="参加する（L$0）" label_selected="参加する（L$0）" name="join_button"/>
+	<button label="詳細表示" label_selected="詳細表示" name="info_button"/>
 	<text name="text_owners_and_visible_members">
 		オーナーと可視メンバー
 	</text>
@@ -45,39 +37,19 @@
 		（オーナーは太字で表示されています）
 	</text>
 	<name_list name="visible_members">
-		<column name="name" />
-		<column name="title" />
-		<column name="online" />
+		<column label="メンバー名" name="name"/>
+		<column label="タイトル" name="title"/>
+		<column label="最終ログイン" name="online"/>
 	</name_list>
 	<text name="text_group_preferences">
 		グループ環境設定
 	</text>
-	<text name="incomplete_member_data_str">
-		メンバー・データを検索
-	</text>
-	<text name="confirm_group_create_str">
-		このグループの作成にはL$100かかります。 
-このグループの作成にL$100ものお金をかけてもかまいませんか？ 慎重に判断してください。
-48時間以内に誰もこのグループに参加しなかった場合、グループは解体され、グループの名前は今後使用できなくなります。
-	</text>
-	<text>
-		グループの環境設定
-	</text>
 	<panel name="preferences_container">
-		<check_box label="検索に表示" name="show_in_group_list"
-		     tool_tip="このグループを検索結果に表示させます" />
-		<check_box label="ウェブ上で公開" name="publish_on_web"
-		     tool_tip="このグループの情報をウェブ上で公開できるようにするかどうかを指定します" />
-		<check_box label="会員募集" name="open_enrollement"
-		     tool_tip="招待状なしに自由にこのグループに加入することを許可するかどうかを指定します" />
-		<check_box label="入会費：L$" name="check_enrollment_fee"
-		     tool_tip="このグループへの参加に入会費を必須とするかどうかを指定します" />
-		<spinner name="spin_enrollment_fee"
-		     tool_tip="「入会費」がチェックされている場合、新規会員は入会時にここに指定された金額を支払う必要があります" />
-		<check_box label="成人向けグループ" name="mature"
-		     tool_tip="あなたのグループ情報が成人向けとみなされるかどうかを指定します" />
-		<combo_box name="group_mature_check"
-		     tool_tip="あなたのグループ情報が成人向けとみなされるかどうかを指定します">
+		<check_box label="検索に表示" name="show_in_group_list" tool_tip="このグループを検索結果に表示させます"/>
+		<check_box label="会員募集" name="open_enrollement" tool_tip="招待状なしに自由にこのグループに加入することを許可するかどうかを指定します"/>
+		<check_box label="入会費：L$" name="check_enrollment_fee" tool_tip="このグループへの参加に入会費を必須とするかどうかを指定します"/>
+		<spinner name="spin_enrollment_fee" tool_tip="「入会費」がチェックされている場合、新規会員は入会時にここに指定された金額を支払う必要があります"/>
+		<combo_box name="group_mature_check" tool_tip="あなたのグループ情報が成人向けとみなされるかどうかを指定します">
 			<combo_item name="select_mature">
 				-成熟度を選択-
 			</combo_item>
@@ -92,12 +64,17 @@
 			<text name="active_title_label">
 				私のアクティブ・タイトル
 			</text>
-			<combo_box name="active_title" />
+			<combo_box name="active_title" tool_tip="このグループをアクティブ設定にした際アバターのネームタグに表示されるタイトルの設定"/>
 		</panel>
-		<check_box label="グループ通知を受信" name="receive_notices"
-		     tool_tip="グループからの通知を受信するかどうかを指定します。 このグループがスパム行為をしている場合は、このボックスのチェックを外してください" />
-		<check_box label="ﾌﾟﾛﾌｨｰﾙにｸﾞﾙｰﾌﾟを表示"
-		     name="list_groups_in_profile"
-		     tool_tip="このグループをあなたのプロフィールに表示するかどうかを設定します" />
+		<check_box label="グループ通知を受信" name="receive_notices" tool_tip="グループからの通知を受信するかどうかを指定します。 このグループがスパム行為をしている場合は、このボックスのチェックを外してください"/>
+		<check_box label="ﾌﾟﾛﾌｨｰﾙにｸﾞﾙｰﾌﾟを表示" name="list_groups_in_profile" tool_tip="このグループをあなたのプロフィールに表示するかどうかを設定します"/>
 	</panel>
+	<string name="incomplete_member_data_str">
+		メンバー・データを検索
+	</string>
+	<string name="confirm_group_create_str">
+		このグループの作成にはL$100かかります。 
+このグループの作成にL$100ものお金をかけてもかまいませんか？ 慎重に判断してください。
+48時間以内に誰もこのグループに参加しなかった場合、グループは解体され、グループの名前は今後使用できなくなります。
+	</string>
 </panel>

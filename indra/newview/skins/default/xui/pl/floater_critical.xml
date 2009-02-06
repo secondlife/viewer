@@ -3,7 +3,7 @@
 	<button label="Kontynuuj" label_selected="Kontynuuj" name="Continue" />
 	<button label="Anuluj" label_selected="Anuluj" name="Cancel" />
 	<text name="tos_heading">
-		Proszę przeczytać poniższą wiadomość ostrożnie.
+		Proszę przeczytać poniższą wiadomość ostrożnie
 	</text>
 	<text_editor name="tos_text">
 		TOS_TEXT

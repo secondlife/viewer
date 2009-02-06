@@ -8,7 +8,7 @@
 			Wyślij (email) pocztówkę
 		</radio_item>
 		<radio_item name="texture">
-			Załaduj do inwentarza (10L$)
+			Załaduj do szafy (10L$)
 		</radio_item>
 		<radio_item name="local">
 			Zapisz na dysk

@@ -7,7 +7,7 @@
 		[FIRST] [LAST] está offline.
 	</string>
 	<string name="invite_message">
-		Clique no botão [BUTTON NAME] para aceitar/ conectar para esse pate- papo em voz.
+		Clique no botão [BUTTON NAME] para aceitar/ conectar para esse bate-papo em voz. 
 	</string>
 	<string name="muted_message">
 		Você emudeceu este residente. Enviar uma mensagem vai automaticamente reativá-lo novamente .

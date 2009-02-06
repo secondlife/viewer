@@ -32,7 +32,7 @@
 	<menu_item_call label="Teleportuj" name="Landmark Open" />
 	<menu_item_call label="Otwórz" name="Animation Open" />
 	<menu_item_call label="Otwórz" name="Sound Open" />
-	<menu_item_call label="Wyczyść Obiekt" name="Purge Item" />
+	<menu_item_call label="Usuń Obiekt" name="Purge Item" />
 	<menu_item_call label="Przywróć Obiekt" name="Restore Item" />
 	<menu_item_call label="Otwórz" name="Open" />
 	<menu_item_call label="Właściwości" name="Properties" />

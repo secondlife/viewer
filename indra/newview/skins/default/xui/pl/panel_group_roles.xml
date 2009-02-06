@@ -12,8 +12,8 @@
 			Funkcje Członków
 		</text>
 		<text name="static2">
-			Członkowie Grupy mają przydzielone Funkcje z Przywilejami. Te ustawienia
-można łatwo zmienić, pozwalając na lepszą organizację i zastosowanie.
+			Członkowie Grupy mają przydzielone Funkcje z Przywilejami. Ustawienia te 
+można łatwo zmienić, umożliwiając grupie lepszą organizację i działaność. 
 		</text>
 	</panel>
 	<panel name="roles_header">
@@ -48,7 +48,7 @@ Przywilejem.
 			<button label="Wszystko" name="show_all_button" />
 			<name_list name="member_list">
 				<column label="Imię" name="name" />
-				<column label="Donacje" name="donated" />
+				<column label="Kontrybucje" name="donated" />
 				<column label="Ostatnio w SL" name="online" />
 			</name_list>
 			<button label="Zaproś Nową Osobę..." name="member_invite" />

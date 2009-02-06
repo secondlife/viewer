@@ -1,15 +1,12 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="メンバーと役割" name="roles_tab">
-	<text name="default_needs_apply_text">
+	<string name="default_needs_apply_text">
 		現在のサブタブに、未適用の変更があります。
-	</text>
-	<text name="want_apply_text">
+	</string>
+	<string name="want_apply_text">
 		これらの変更を適用しますか？
-	</text>
-	<text name="cant_delete_role">
-		「全員」と「オーナー」は特別な役割なので、削除できません。
-	</text>
-	<button label="?" name="help_button" />
+	</string>
+	<button label="?" name="help_button"/>
 	<panel name="members_header">
 		<text name="static">
 			メンバーと役割
@@ -47,52 +44,52 @@
 	</panel>
 	<tab_container name="roles_tab_container">
 		<panel label="メンバー" name="members_sub_tab" tool_tip="Members">
-			<button label="検索" name="search_button" />
-			<button label="全てを表示" name="show_all_button" />
+			<button label="検索" name="search_button"/>
+			<button label="全てを表示" name="show_all_button"/>
 			<name_list name="member_list">
-				<column label="メンバー名" name="name" />
-				<column name="donated" />
-				<column label="前回のログイン" name="online" />
+				<column label="メンバー名" name="name"/>
+				<column label="寄付されたTier" name="donated"/>
+				<column label="最終ログイン" name="online"/>
 			</name_list>
-			<button label="新しい人を招待..." name="member_invite" />
-			<button label="グループから追放" name="member_eject" />
-			<text name="help_text">
+			<button label="新しい人を招待..." name="member_invite"/>
+			<button label="グループから追放" name="member_eject"/>
+			<string name="help_text">
 				あなたはメンバーに割り当てられた役割を付加、削除できます。
 Ctrl キーを押しながらメンバー名をクリックすると
 複数の人を選択できます。
-			</text>
+			</string>
 		</panel>
 		<panel label="役割" name="roles_sub_tab">
-			<button label="検索" name="search_button" />
-			<button label="すべてを表示" name="show_all_button" />
+			<button label="検索" name="search_button"/>
+			<button label="すべてを表示" name="show_all_button"/>
 			<scroll_list name="role_list">
-				<column label="役割名" name="name" />
-				<column label="肩書き" name="title" />
-				<column label="メンバー" name="members" />
+				<column label="役割名" name="name"/>
+				<column label="肩書き" name="title"/>
+				<column label="メンバー" name="members"/>
 			</scroll_list>
-			<button label="新しい役割を作成..." name="role_create" />
-			<button label="役割を削除" name="role_delete" />
-			<text name="help_text">
+			<button label="新しい役割を作成..." name="role_create"/>
+			<button label="役割を削除" name="role_delete"/>
+			<string name="help_text">
 				役割にはタイトルがあり、メンバーが行使可能な
 能力のリストが定義されます。 メンバーは、
 1つまたは複数の役割に属することができます。 1つのグループに対し、
 「全員」と「オーナー」の役割を含めて最高で10の役割を持たせることができます。
-			</text>
+			</string>
 			<string name="cant_delete_role">
 				「全員」と「オーナー」は特別な役割なので、削除できません。
 			</string>
 		</panel>
 		<panel label="能力" name="actions_sub_tab">
-			<button label="検索" name="search_button" />
-			<button label="すべてを表示" name="show_all_button" />
+			<button label="検索" name="search_button"/>
+			<button label="すべてを表示" name="show_all_button"/>
 			<scroll_list name="action_list" tool_tip="能力を選択して詳細を表示します。">
-				<column label="" name="icon" />
-				<column label="" name="action" />
+				<column label="" name="icon"/>
+				<column label="" name="action"/>
 			</scroll_list>
-			<text name="help_text">
+			<string name="help_text">
 				このグループ内で役割を与えられているメンバーが実行できる操作は、
 能力によって決まります。 さまざまな能力が用意されています。
-			</text>
+			</string>
 		</panel>
 	</tab_container>
 	<panel name="members_footer">
@@ -103,13 +100,12 @@ Ctrl キーを押しながらメンバー名をクリックすると
 			許可された能力
 		</text>
 		<scroll_list name="member_assigned_roles">
-			<column label="" name="checkbox" />
-			<column label="" name="role" />
+			<column label="" name="checkbox"/>
+			<column label="" name="role"/>
 		</scroll_list>
-		<scroll_list name="member_allowed_actions"
-		     tool_tip="許可された能力の詳細は「能力」タブをご覧ください。">
-			<column label="" name="icon" />
-			<column label="" name="action" />
+		<scroll_list name="member_allowed_actions" tool_tip="許可された能力の詳細は「能力」タブをご覧ください。">
+			<column label="" name="icon"/>
+			<column label="" name="action"/>
 		</scroll_list>
 	</panel>
 	<panel name="roles_footer">
@@ -134,17 +130,14 @@ Ctrl キーを押しながらメンバー名をクリックすると
 		<text name="static4">
 			割当られたメンバー
 		</text>
-		<text name="static5"
-		     tool_tip="現在選択されている役割で実行できる能力のリスト">
+		<text name="static5" tool_tip="現在選択されている役割で実行できる能力のリスト">
 			許可された能力
 		</text>
-		<check_box label="メンバーが可視状態" name="role_visible_in_list"
-		     tool_tip="この役割のメンバーをグループ外の人の一般タブに表示するかどうかを設定します。" />
-		<scroll_list name="role_allowed_actions"
-		     tool_tip="許可された能力の詳細は「能力」タブをご覧ください。">
-			<column label="" name="icon" />
-			<column label="" name="checkbox" />
-			<column label="" name="action" />
+		<check_box label="メンバーが可視状態" name="role_visible_in_list" tool_tip="この役割のメンバーをグループ外の人の一般タブに表示するかどうかを設定します。"/>
+		<scroll_list name="role_allowed_actions" tool_tip="許可された能力の詳細は「能力」タブをご覧ください。">
+			<column label="" name="icon"/>
+			<column label="" name="checkbox"/>
+			<column label="" name="action"/>
 		</scroll_list>
 	</panel>
 	<panel name="actions_footer">

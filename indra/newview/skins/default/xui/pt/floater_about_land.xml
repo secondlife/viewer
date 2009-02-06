@@ -344,7 +344,7 @@ Vá para o menu Mundo &gt; Sobre a Terra ou selecione outro terreno para mostrar
 			<line_editor name="url_description" tool_tip="Texto mostrado ao lado do botão reproduzir/carregar" left="97"/>
 			<text length="1" name="Media texture:" type="string">
 				Substituir
-Texture:
+Textura:
 			</text>
 			<texture_picker label="" name="media texture" tool_tip="Clique para escolher uma imagem" left="97"/>
 			<text name="replace_texture_help">
@@ -353,8 +353,8 @@ a página web depois que você clicar na seta de
 reproduzir.)
 			</text>
 			<text name="Options:">
-				Mídia
-Options:
+				Opções de
+Mídia:
 			</text>
 			<check_box left="97" label="Escala automática" name="media_auto_scale" tool_tip="Marcando esta opção o conteúdo se ajustará ao lote automaticamente. O lote pode se tornar lento e com baixa qualidade visual nenhum outro ajuste de textura ou alinhamento será necessário."/>
 			<check_box label="Mídia em Repetição" name="media_loop" tool_tip="Executar a mídia repetidamente. Quando a mídia terminar a execução, ela reiniciará do começo."/>
@@ -387,7 +387,7 @@ Options:
 					Usar um canal especial privado
 				</radio_item>
 				<radio_item name="Disabled">
-					Desabilitar audio espacial neste terreno
+					Desabilitar áudio espacial neste terreno
 				</radio_item>
 			</radio_group>
 		</panel>

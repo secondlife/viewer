@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater name="contents" title="Kup kopię obiektu">
 	<text name="contents_text">
-		i jego zawartość:
+		i jej zawartość:
 	</text>
 	<text name="buy_text">
-		Kup za [AMOUNT]L$ od [NAME]?
+		Kupić za [AMOUNT]L$ od [NAME]?
 	</text>
 	<button label="Anuluj" label_selected="Anuluj" name="cancel_btn" />
 	<button label="Kup" label_selected="Kup" name="buy_btn" />

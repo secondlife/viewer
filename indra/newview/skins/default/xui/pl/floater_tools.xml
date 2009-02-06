@@ -418,7 +418,7 @@
 			</combo_box>
 		</panel>
 		<!-- Features sub-tab -->
-		<panel label="Dodatki" name="Features">
+		<panel label="Atrybuty" name="Features">
 			<text name="select_single">
 				Wybierz tylko jeden element by edytować jego cechę.
 			</text>
@@ -448,7 +448,7 @@
 			<texture_picker label="Tekstura" name="texture control" tool_tip="Kliknij by wybrać obraz"/>
 			<color_swatch label="Kolor" name="colorswatch" tool_tip="Kliknij by wybrać kolor"/>
 			<text name="color trans">
-				Przejrzystość %
+				Przezroczystość %
 			</text>
 			<spinner name="ColorTrans"/>
 			<text name="glow label">

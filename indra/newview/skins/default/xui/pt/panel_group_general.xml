@@ -41,13 +41,13 @@
 		Preferências de Grupos
 	</text>
 	<panel name="preferences_container">
-		<check_box label="Mostre na busca" name="show_in_group_list" tool_tip="Deixe as pessoas ver este grupo nos resultados de busca."/>
+		<check_box label="Mostre na busca" name="show_in_group_list" tool_tip="Deixe as pessoas verem este grupo nos resultados de busca. "/>
 		<check_box label="Aberta inscrição" name="open_enrollement" tool_tip="Esse grupo permite que novos membros entrem sem serem convidados"/>
 		<check_box label="Taxa de inscrição: L$" name="check_enrollment_fee" tool_tip="É necessário uma taxa de registro."/>
 		<spinner name="spin_enrollment_fee" tool_tip="Os novos membros terão de pagar a taxa de registro para fazerem parte do grupo."/>
 		<combo_box name="group_mature_check" tool_tip="Define se a informação do seu grupo é considerada adulta.">
 			<combo_item name="select_mature">
-				- Selecinar conteúdo adulto -
+				- Selecionar conteúdo adulto -
 			</combo_item>
 			<combo_item name="mature">
 				Conteúdo adulto
@@ -71,6 +71,6 @@
 	<string name="confirm_group_create_str">
 		Criar este grupo irá custar L$100. 
 Você está realmente, realmente, REALMENTE seguro que deseja gastar L$100 para criar este grupo? 
-Esteja consciente de que ninguém mais se juntar este grupo dentro de 48 horas, será dissolvido e o nome não estará disponível para uso futuro.
+Esteja consciente de que se ninguém mais se juntar este grupo dentro de 48 horas, este será dissolvido e o nome não estará disponível para uso futuro.
 	</string>
 </panel>

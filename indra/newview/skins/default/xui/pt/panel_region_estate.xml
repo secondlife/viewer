@@ -26,7 +26,7 @@ todas as regiões do Terreno.
 	<text name="Only Allow">
 		Acesso restrito a:
 	</text>
-	<check_box label="Residentes com informações de pagamento em arquivo" name="limit_payment" tool_tip="Banir residents não identificados."/>
+	<check_box label="Residentes com informações de pagamento em arquivo" name="limit_payment" tool_tip="Banir residentes não identificados."/>
 	<check_box label="Idade verificada -adultos" name="limit_age_verified" tool_tip="Banir residentes que não tenham confirmado a sua idade. Ver support.secondlife.com para mais informações."/>
 	<check_box label="Permitir conversa de voz" name="voice_chat_check"/>
 	<button label="?" name="voice_chat_help"/>

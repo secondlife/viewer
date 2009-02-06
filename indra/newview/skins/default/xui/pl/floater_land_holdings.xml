@@ -11,7 +11,7 @@
 	<button label="Pokaż na Mapie" label_selected="Show on Map" name="Show on Map"
 	     tool_tip="Pokaż to miejsce na mapie świata." />
 	<text name="contrib_label">
-		Donacje dla Twoich Grup:
+		Kontrybucje do Twoich Grup:
 	</text>
 	<scroll_list name="grant list">
 		<column label="Grupa" name="group" />

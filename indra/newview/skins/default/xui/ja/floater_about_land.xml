@@ -27,7 +27,7 @@
 				売り出し中：
 			</text>
 			<text length="1" name="Not for sale." type="string">
-				販売対象外。
+				販売対象外
 			</text>
 			<text length="1" name="For Sale: Price L$[PRICE]." type="string">
 				料金：L$[PRICE]
@@ -37,10 +37,10 @@
 				販売先：[BUYER]
 			</text>
 			<text length="1" name="Sell with landowners objects in parcel." type="string">
-				販売に含めるオブジェクト。
+				オブジェクトも販売価格に含まれます
 			</text>
 			<text length="1" name="Selling with no objects in parcel." type="string">
-				販売に含めないオブジェクト。
+				オブジェクトは販売対象外です
 			</text>
 			<button label="土地販売の取り消し" label_selected="土地販売の取り消し" name="Cancel Land Sale"/>
 			<text length="1" name="Claimed:" type="string">

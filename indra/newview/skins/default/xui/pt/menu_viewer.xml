@@ -125,9 +125,9 @@
 		<menu_item_separator label="-----------" name="separator6"/>
 		<menu label="Configurações de ambiente" name="Environment Settings">
 			<menu_item_call label="Amanhecer" name="Sunrise"/>
-			<menu_item_call label="Meio dia" name="Noon"/>
+			<menu_item_call label="Meio-dia" name="Noon"/>
 			<menu_item_call label="Pôr do sol" name="Sunset"/>
-			<menu_item_call label="Meia noite" name="Midnight"/>
+			<menu_item_call label="Meia-noite" name="Midnight"/>
 			<menu_item_call label="Reverter ao padrão da região" name="Revert to Region Default"/>
 			<menu_item_separator label="-----------" name="separator"/>
 			<menu_item_call label="Editor de ambiente" name="Environment Editor"/>
@@ -178,7 +178,7 @@
 		<menu_item_call label="Ajuda Second Life" name="Second Life Help"/>
 		<menu_item_call label="Tutorial" name="Tutorial"/>
 		<menu_item_separator label="-----------" name="separator"/>
-		<menu_item_call label="Blog official da Linden..." name="Official Linden Blog..."/>
+		<menu_item_call label="Blog oficial da Linden..." name="Official Linden Blog..."/>
 		<menu_item_separator label="-----------" name="separator2"/>
 		<menu_item_call label="Portal de Scripts..." name="Scripting Portal..."/>
 		<menu_item_separator label="-----------" name="separator3"/>

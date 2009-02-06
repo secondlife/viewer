@@ -63,7 +63,7 @@
 		Causa possível: Carregamento de Imagens
 	</string>
 	<string name="client_texture_memory_cause_msg">
-		Causa possível: Muitas imagens na memoria
+		Causa possível: Muitas imagens na memória
 	</string>
 	<string name="client_complex_objects_cause_msg">
 		Causa possível: Muitos objetos complexos na cena

@@ -38,11 +38,11 @@ Spróbuj jeszcze raz za kilka minut albo teleportuj się do mniej zatłoczonego 
 			Przepraszamy, ale nie udało się przeprowadzić zmiany regionu wystarczająco szybko. Spróbuj jeszcze raz za kilka minut.
 		</message>
 		<message name="no_host">
-			Nie możemy znaleść miejsca docelowego. Miejsce te może być chwilowo nieosiągalne albo przestało istnieć.
+			Nie możemy znaleść miejsca docelowego. To miejsce może być chwilowo nieosiągalne albo przestało istnieć.
 Spróbuj jeszcze raz za kilka minut.
 		</message>
 		<message name="no_inventory_host">
-			System inwentarza chwilowo nie działa.
+			Szafa chwilowo nie działa.
 		</message>
 	</message_set>
 	<message_set name="progress">

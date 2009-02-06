@@ -14,7 +14,7 @@
 	<button label="?" name="disable_physics_help"/>
 	<button label="Aplicar" name="apply_btn"/>
 	<text name="objret_text_lbl">
-		Retornar Objeto
+		Retornar objeto
 	</text>
 	<text name="resident_text_lbl">
 		Residente:

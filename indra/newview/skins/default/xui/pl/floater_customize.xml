@@ -38,7 +38,7 @@
 				Zapisane w [PATH]
 			</text>
 			<text type="string" length="1" name="not worn instructions">
-				Załóż nowy kształt poprzez przeciągnięcie go ze swojego inwentarza 
+				Załóż nowy kształt poprzez przeciągnięcie go ze swojej szafy 
 na awatara. Alternatywnie, możesz także stworzyć własny kształt 
 z plików roboczych. --&gt; (Kliknij na Nowy Kształt)
 			</text>
@@ -71,7 +71,7 @@ z plików roboczych. --&gt; (Kliknij na Nowy Kształt)
 				Zapisane w [PATH]
 			</text>
 			<text type="string" length="1" name="not worn instructions">
-				Załóż nową skórkę poprzez przeciągnięcie jej ze swojego inwentarza 
+				Załóż nową skórkę poprzez przeciągnięcie jej ze swojej szafy
 na awatara. Alternatywnie, możesz także stworzyć własną skórkę 
 z plików roboczych. --&gt; (Kliknij na Nowa Skórka)
 			</text>
@@ -112,7 +112,7 @@ z plików roboczych. --&gt; (Kliknij na Nowa Skórka)
 				Zapisane w [PATH]
 			</text>
 			<text type="string" length="1" name="not worn instructions">
-				Załóż nowe włosy poprzez przeciągnięcie ich ze swojego inwentarza 
+				Załóż nowe włosy poprzez przeciągnięcie ich ze swojej szafy 
 na awatara. Alternatywnie, możesz także stworzyć własne włosy 
 z plików roboczych. --&gt; (Kliknij na Nowe Włosy)
 			</text>
@@ -144,7 +144,7 @@ z plików roboczych. --&gt; (Kliknij na Nowe Włosy)
 				Zapisane w [PATH]
 			</text>
 			<text type="string" length="1" name="not worn instructions">
-				Załóż nowe oczy poprzez przeciągnięcie ich ze swojego inwentarza 
+				Załóż nowe oczy poprzez przeciągnięcie ich ze swojej szafy 
 na awatara. Alternatywnie, możesz także stworzyć własne oczy 
 z plików roboczych. --&gt; (Kliknij na Nowe Oczy)
 			</text>
@@ -184,7 +184,7 @@ z plików roboczych. --&gt; (Kliknij na Nowe Oczy)
 				Zapisane w [PATH]
 			</text>
 			<text type="string" length="1" name="not worn instructions">
-				Załóż nową koszulę poprzez przeciągnięcie jej ze swojego inwentarza 
+				Załóż nową koszulę poprzez przeciągnięcie jej ze swojej szafy 
 na awatara. Alternatywnie, możesz także stworzyć własną koszulę 
 z plików roboczych. --&gt; (Kliknij na Nowa Koszula)
 			</text>
@@ -216,7 +216,7 @@ z plików roboczych. --&gt; (Kliknij na Nowa Koszula)
 				Zapisane w [PATH]
 			</text>
 			<text type="string" length="1" name="not worn instructions">
-				Załóż nowe spodnie poprzez przeciągnięcie ich ze swojego inwentarza 
+				Załóż nowe spodnie poprzez przeciągnięcie ich ze swojej szafy 
 na awatara. Alternatywnie, możesz także stworzyć własne spodnie 
 z plików roboczych. --&gt; (Kliknij na Nowe Spodnie)
 			</text>
@@ -241,7 +241,7 @@ z plików roboczych. --&gt; (Kliknij na Nowe Spodnie)
 				Zapisane w [PATH]
 			</text>
 			<text type="string" length="1" name="not worn instructions">
-				Załóż nowe buty poprzez przeciągnięcie ich ze swojego inwentarza 
+				Załóż nowe buty poprzez przeciągnięcie ich ze swojej szafy 
 na awatara. Alternatywnie, możesz także stworzyć własne buty 
 z plików roboczych. --&gt; (Kliknij na Nowe Buty)
 			</text>
@@ -273,7 +273,7 @@ z plików roboczych. --&gt; (Kliknij na Nowe Buty)
 				Zapisane w [PATH]
 			</text>
 			<text type="string" length="1" name="not worn instructions">
-				Załóż nowe skarpety poprzez przeciągnięcie ich ze swojego inwentarza 
+				Załóż nowe skarpety poprzez przeciągnięcie ich ze swojej szafy 
 na awatara. Alternatywnie, możesz także stworzyć własne skarpety 
 z plików roboczych. --&gt; (Kliknij na Nowe Skarpety)
 			</text>
@@ -305,7 +305,7 @@ z plików roboczych. --&gt; (Kliknij na Nowe Skarpety)
 				Zapisane w [PATH]
 			</text>
 			<text type="string" length="1" name="not worn instructions">
-				Załóż nową kurtkę poprzez przeciągnięcie jej ze swojego inwentarza 
+				Załóż nową kurtkę poprzez przeciągnięcie jej ze swojej szafy 
 na awatara. Alternatywnie, możesz także stworzyć własną kurtkę 
 z plików roboczych. --&gt; (Kliknij na Nowa Kurtka)
 			</text>
@@ -338,7 +338,7 @@ z plików roboczych. --&gt; (Kliknij na Nowa Kurtka)
 				Zapisane w [PATH]
 			</text>
 			<text type="string" length="1" name="not worn instructions">
-				Załóż nowe rękawiczki poprzez przeciągnięcie ich ze swojego inwentarza 
+				Załóż nowe rękawiczki poprzez przeciągnięcie ich ze swojej szafy 
 na awatara. Alternatywnie, możesz także stworzyć własne rękawiczki 
 z plików roboczych. --&gt; (Kliknij na Nowe Rękawiczki)
 			</text>
@@ -370,7 +370,7 @@ z plików roboczych. --&gt; (Kliknij na Nowe Rękawiczki)
 				Zapisane w [PATH]
 			</text>
 			<text type="string" length="1" name="not worn instructions">
-				Załóż nowy podkoszulek poprzez przeciągnięcie ich ze swojego inwentarza 
+				Załóż nowy podkoszulek poprzez przeciągnięcie ich ze swojej szafy 
 na awatara. Alternatywnie, możesz także stworzyć własny podkoszulek 
 z plików roboczych. --&gt; (Kliknij na Nowy Podkoszulek)
 			</text>
@@ -402,7 +402,7 @@ z plików roboczych. --&gt; (Kliknij na Nowy Podkoszulek)
 				Zapisane w [PATH]
 			</text>
 			<text type="string" length="1" name="not worn instructions">
-				Załóż nową bieliznę poprzez przeciągnięcie jej ze swojego inwentarza 
+				Załóż nową bieliznę poprzez przeciągnięcie jej ze swojej szafy 
 na awatara. Alternatywnie, możesz także stworzyć własną bieliznę 
 z plików roboczych. --&gt; (Kliknij na Nowa Bielizna)
 			</text>
@@ -434,7 +434,7 @@ z plików roboczych. --&gt; (Kliknij na Nowa Bielizna)
 				Zapisane w [PATH]
 			</text>
 			<text type="string" length="1" name="not worn instructions">
-				Załóż nową spódnicę poprzez przeciągnięcie jej ze swojego inwentarza 
+				Załóż nową spódnicę poprzez przeciągnięcie jej ze swojej szafy 
 na awatara. Alternatywnie, możesz także stworzyć własną spódnicę 
 z plików roboczych. --&gt; (Kliknij na Nowa Spódnica)
 			</text>

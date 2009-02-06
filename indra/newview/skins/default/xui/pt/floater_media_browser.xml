@@ -9,11 +9,11 @@
 			<button label="Ir" name="go" left_delta="245" width="35"  />
 		</layout_panel>
 		<layout_panel name="parcel_owner_controls">
-			<button label="Enviar a URL Atual Para o Terreno" name="assign"/>
+			<button label="Enviar a URL atual para o terreno" name="assign"/>
 		</layout_panel>
 		<layout_panel name="external_controls">
 			<button label="Abrir no meu Navegador de Web" name="open_browser" width="196"/>
-			<check_box label="Sempre abrir no meu navegador de web" name="open_always" left_delta="201" />
+			<check_box label="Sempre abrir no meu Navegador de Web" name="open_always" left_delta="201" />
 			<button label="Fechar" name="close"/>
 		</layout_panel>
 	</layout_stack>

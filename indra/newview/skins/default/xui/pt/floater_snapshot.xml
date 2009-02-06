@@ -29,8 +29,8 @@
 		</flyout_button_item>
 	</flyout_button>
 	<button label="Cancelar" name="discard_btn"/>
-	<button label="Mais &gt;&gt;" name="more_btn" tool_tip="Opções Avançadas"/>
-	<button label="&lt;&lt; Menos" name="less_btn" tool_tip="Opções Avançadas"/>
+	<button label="Mais &gt;" name="more_btn" tool_tip="Opções Avançadas"/>
+	<button label="&lt; Menos" name="less_btn" tool_tip="Opções Avançadas"/>
 	<text name="type_label2">
 		Tamanho
 	</text>

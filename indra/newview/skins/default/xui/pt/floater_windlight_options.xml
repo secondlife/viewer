@@ -100,7 +100,7 @@
 				I
 			</text>
 			<text name="WLEastAngleText">
-				Angulo Leste
+				Ângulo Leste
 			</text>
 			<button label="?" name="WLEastAngleHelp"/>
 			<text name="SunGlowText">
@@ -114,7 +114,7 @@
 			</text>
 			<button label="?" name="WLSceneGammaHelp"/>
 			<text name="WLStarText">
-				Brilho da Estrêla
+				Brilho da Estrela
 			</text>
 			<button label="?" name="WLStarBrightnessHelp"/>
 		</panel>

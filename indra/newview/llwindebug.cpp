@@ -122,6 +122,14 @@ MODULE32_NEST	Module32Next_;
 #define	CALL_TRACE_MAX	((DUMP_SIZE_MAX - 2000) / (MAX_PATH + 40))	//max number of traced calls
 #define	NL				L"\r\n"	//new line
 
+
+typedef struct STACK
+{
+	STACK *	Ebp;
+	PBYTE	Ret_Addr;
+	DWORD	Param[0];
+} STACK, * PSTACK;
+
 BOOL WINAPI Get_Module_By_Ret_Addr(PBYTE Ret_Addr, LPWSTR Module_Name, PBYTE & Module_Addr);
 void WINAPI Get_Call_Stack(const EXCEPTION_RECORD* exception_record, 
 						   const CONTEXT* context_record, 
@@ -338,6 +346,31 @@ PBYTE get_valid_frame(PBYTE esp)
 
 	return NULL;
 }
+
+bool shouldUseStackWalker(PSTACK Ebp, int max_depth)
+{
+	WCHAR	Module_Name[MAX_PATH];
+	PBYTE	Module_Addr = 0;
+	int depth = 0;
+
+	while (depth < max_depth) 
+	{
+		if (IsBadReadPtr(Ebp, sizeof(PSTACK)) || 
+			IsBadReadPtr(Ebp->Ebp, sizeof(PSTACK)) ||
+			Ebp->Ebp < Ebp ||
+			Ebp->Ebp - Ebp > 0xFFFFFF ||
+			IsBadCodePtr(FARPROC(Ebp->Ebp->Ret_Addr)) ||
+			!Get_Module_By_Ret_Addr(Ebp->Ebp->Ret_Addr, Module_Name, Module_Addr))
+		{
+			return true;
+		}
+		depth++;
+		Ebp = Ebp->Ebp;
+	}
+
+	return false;
+}
+
 //******************************************************************
 void WINAPI Get_Call_Stack(const EXCEPTION_RECORD* exception_record, 
 						   const CONTEXT* context_record, 
@@ -355,16 +388,9 @@ void WINAPI Get_Call_Stack(const EXCEPTION_RECORD* exception_record,
 
 	bool fake_frame = false;
 	bool ebp_used = false;
-	const int HEURISTIC_MAX_WALK = 10;
+	const int HEURISTIC_MAX_WALK = 20;
 	int heuristic_walk_i = 0;
 	int Ret_Addr_I = 0;
-
-	typedef struct STACK
-	{
-		STACK *	Ebp;
-		PBYTE	Ret_Addr;
-		DWORD	Param[0];
-	} STACK, * PSTACK;
 
 	STACK	Stack = {0, 0};
 	PSTACK	Ebp;
@@ -434,10 +460,9 @@ void WINAPI Get_Call_Stack(const EXCEPTION_RECORD* exception_record,
 
 		// is next ebp valid?
 		// only run if we've never found a good ebp
+		// and make sure the one after is valid as well
 		if(	!ebp_used && 
-			(IsBadReadPtr(Ebp->Ebp, sizeof(PSTACK)) || 
-			IsBadCodePtr(FARPROC(Ebp->Ebp->Ret_Addr)) ||
-			!Get_Module_By_Ret_Addr(Ebp->Ebp->Ret_Addr, Module_Name, Module_Addr)))
+			shouldUseStackWalker(Ebp, 2))
 		{
 			heuristic_walk_i++;
 			PBYTE new_ebp = get_valid_frame(Esp);
@@ -452,9 +477,9 @@ void WINAPI Get_Call_Stack(const EXCEPTION_RECORD* exception_record,
 			Ebp = Ebp->Ebp;
 		}
 	}
-
+/* TODO remove or turn this code back on to edit the stack after i see a few raw ones. -Palmer
 	// Now go back through and edit out heuristic stacks that could very well be bogus.
-	// Leave the top and the last stack chosen by the heuristic, however.
+	// Leave the top and the last 3 stack chosen by the heuristic, however.
 	if(heuristic_walk_i > 2)
 	{
 		info["CallStack"][0] = tmp_info["CallStack"][0];
@@ -471,7 +496,10 @@ void WINAPI Get_Call_Stack(const EXCEPTION_RECORD* exception_record,
 	{
 		info = tmp_info;
 	}
-
+*/
+	info = tmp_info;
+	info["HeuristicWalkI"] = heuristic_walk_i;
+	info["EbpUsed"] = ebp_used;
 
 } //Get_Call_Stack
 

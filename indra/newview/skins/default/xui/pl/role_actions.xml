@@ -139,7 +139,7 @@
 		     longdescription="Odsyłanie obiektów nie przypisanych do Grupy pod O Posiadłości &gt; Obiekty."
 		     name="land return non group" />
 		<action description="Ogrodnictwo używając roślin z Linden Labs"
-		     longdescription="Ogrodnictwo pozwala na umiszczanie i przemiszczanie drzew, roślin i trawy z Linden Labs. Te obiekty znajdują się w Twoim Inwentarzu pod Zbiór &gt; Obiekty, mogą też być stworzone używając przycisku Buduj."
+		     longdescription="Ogrodnictwo pozwala na umiszczanie i przemiszczanie drzew, roślin i trawy z Linden Labs. Te obiekty znajdują się w Twojej Szafie pod Zbiór &gt; Obiekty, mogą też być stworzone używając przycisku Buduj."
 		     name="land gardening" />
 	</action_set>
 	<action_set

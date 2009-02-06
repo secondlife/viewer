@@ -7,7 +7,7 @@
 		<column name="icon_online_status" tool_tip="Status Online"/>
 		<column label="Name" name="friend_name" tool_tip="Nome"/>
 		<column name="icon_visible_online" tool_tip="Amigo pod ever quando você está online"/>
-		<column name="icon_visible_map" tool_tip="Amigo pode localiza-lo no mapa"/>
+		<column name="icon_visible_map" tool_tip="Amigo pode localizá-lo no mapa"/>
 		<column name="icon_edit_mine" tool_tip="Amigo pode editar, apagar ou pegar os seus objetos"/>
 		<column name="icon_edit_theirs" tool_tip="Você pode editar os objetos deste amigo"/>
 	</scroll_list>

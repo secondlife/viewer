@@ -4,7 +4,7 @@
 		<panel label="Ciclo do dia" name="Day Cycle">
 			<button label="?" name="WLDayCycleHelp"/>
 			<text name="WL12am">
-				12:00 meia noite
+				12:00 meia-noite
 			</text>
 			<text name="WL3am">
 				3:00 da manhã

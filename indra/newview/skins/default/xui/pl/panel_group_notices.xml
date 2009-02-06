@@ -19,7 +19,7 @@ Limit dzienny ogłoszeń dla grupy wynosi 200.
 	<scroll_list name="notice_list">
 		<column label="" name="icon" />
 		<column label="Temat" name="subject" />
-		<column label="Od" name="from" />
+		<column label="Autor" name="from" />
 		<column label="Data" name="date" />
 	</scroll_list>
 	<text name="notice_list_none_found">
@@ -34,8 +34,8 @@ Limit dzienny ogłoszeń dla grupy wynosi 200.
 		</text>
 		<text name="lbl2">
 			By wysłać ogłoszenie musisz nadać mu tytuł. 
-Możesz także dołączyć pojedynczy załącznik ze swojego 
-inwentarza. Załącznik musi mieć prawo modyfikacyjne 
+Możesz także dołączyć pojedynczy załącznik ze swojej 
+szafy. Załącznik musi mieć prawo modyfikacyjne 
 do kopiowania oraz transferu.
 		</text>
 		<text name="lbl3">
