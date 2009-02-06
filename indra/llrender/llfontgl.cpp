@@ -76,7 +76,7 @@ const F32 EXT_KERNING = 1.f;
 const F32 PIXEL_BORDER_THRESHOLD = 0.0001f;
 const F32 PIXEL_CORRECTION_DISTANCE = 0.01f;
 
-const F32 PAD_AMT = 0.5f;
+const F32 PAD_UVY = 0.5f; // half of vertical padding between glyphs in the glyph texture
 const F32 DROP_SHADOW_SOFT_STRENGTH = 0.3f;
 
 F32 llfont_round_x(F32 x)
@@ -624,25 +624,12 @@ S32 LLFontGL::render(const LLWString &wstr,
 	gGL.pushMatrix();
 	glLoadIdentity();
 	gGL.translatef(floorf(sCurOrigin.mX*sScaleX), floorf(sCurOrigin.mY*sScaleY), sCurOrigin.mZ);
-	//glScalef(sScaleX, sScaleY, 1.0f);
-	
-	// avoid half pixels
-	// RN: if we're going to this trouble, might as well snap to nearest pixel all the time
-	// but the plan is to get rid of this so that fonts "just work"
-	//F32 half_pixel_distance = llabs(fmodf(sCurOrigin.mX * sScaleX, 1.f) - 0.5f);
-	//if (half_pixel_distance < PIXEL_BORDER_THRESHOLD)
-	//{
-		gGL.translatef(PIXEL_CORRECTION_DISTANCE*sScaleX, 0.f, 0.f);
-	//}
 
-	// this code would just snap to pixel grid, although it seems to introduce more jitter
-	//F32 pixel_offset_x = llround(sCurOrigin.mX * sScaleX) - (sCurOrigin.mX * sScaleX);
-	//F32 pixel_offset_y = llround(sCurOrigin.mY * sScaleY) - (sCurOrigin.mY * sScaleY);
-	//gGL.translatef(-pixel_offset_x, -pixel_offset_y, 0.f);
+	// this code snaps the text origin to a pixel grid to start with
+	F32 pixel_offset_x = llround((F32)sCurOrigin.mX) - (sCurOrigin.mX);
+	F32 pixel_offset_y = llround((F32)sCurOrigin.mY) - (sCurOrigin.mY);
+	gGL.translatef(-pixel_offset_x, -pixel_offset_y, 0.f);
 
-	// scale back to native pixel size
-	//glScalef(1.f / sScaleX, 1.f / sScaleY, 1.f);
-	//glScaled(1.0 / (F64) sScaleX, 1.0 / (F64) sScaleY, 1.0f);
 	LLFastTimer t(LLFastTimer::FTM_RENDER_FONTS);
 
 	gGL.color4fv( color.mV );
@@ -705,10 +692,6 @@ S32 LLFontGL::render(const LLWString &wstr,
 		break;
 	}
 
-	// Round properly.
-	//cur_render_y = (F32)llfloor(cur_y/sScaleY + 0.5f)*sScaleY;
-	//cur_render_x = (F32)llfloor(cur_x/sScaleX + 0.5f)*sScaleX;
-	
 	cur_render_y = cur_y;
 	cur_render_x = cur_x;
 
@@ -763,8 +746,9 @@ S32 LLFontGL::render(const LLWString &wstr,
 			}
 
 			gGL.getTexUnit(0)->bind(ext_image);
-			const F32 ext_x = cur_render_x + (EXT_X_BEARING * sScaleX);
-			const F32 ext_y = cur_render_y + (EXT_Y_BEARING * sScaleY + mAscender - mLineHeight);
+			// snap origin to whole screen pixel
+			const F32 ext_x = (F32)llround(cur_render_x + (EXT_X_BEARING * sScaleX));
+			const F32 ext_y = (F32)llround(cur_render_y + (EXT_Y_BEARING * sScaleY + mAscender - mLineHeight));
 
 			LLRectf uv_rect(0.f, 1.f, 1.f, 0.f);
 			LLRectf screen_rect(ext_x, ext_y + ext_height, ext_x + ext_width, ext_y);
@@ -819,15 +803,16 @@ S32 LLFontGL::render(const LLWString &wstr,
 
 			// Draw the text at the appropriate location
 			//Specify vertices and texture coordinates
-			LLRectf uv_rect((fgi->mXBitmapOffset - PAD_AMT) * inv_width,
-							(fgi->mYBitmapOffset + fgi->mHeight + PAD_AMT) * inv_height,
-							(fgi->mXBitmapOffset + fgi->mWidth + PAD_AMT) * inv_width,
-							(fgi->mYBitmapOffset - PAD_AMT) * inv_height);
-			LLRectf screen_rect(cur_render_x + (F32)fgi->mXBearing - PAD_AMT,
-								cur_render_y + (F32)fgi->mYBearing + PAD_AMT,
-								cur_render_x + (F32)fgi->mXBearing + (F32)fgi->mWidth + PAD_AMT,
-								cur_render_y + (F32)fgi->mYBearing - (F32)fgi->mHeight - PAD_AMT);
-
+			LLRectf uv_rect((fgi->mXBitmapOffset) * inv_width,
+					(fgi->mYBitmapOffset + fgi->mHeight + PAD_UVY) * inv_height,
+					(fgi->mXBitmapOffset + fgi->mWidth) * inv_width,
+					(fgi->mYBitmapOffset - PAD_UVY) * inv_height);
+			// snap glyph origin to whole screen pixel
+			LLRectf screen_rect(llround(cur_render_x + (F32)fgi->mXBearing),
+					    llround(cur_render_y + (F32)fgi->mYBearing),
+					    llround(cur_render_x + (F32)fgi->mXBearing) + (F32)fgi->mWidth,
+					    llround(cur_render_y + (F32)fgi->mYBearing) - (F32)fgi->mHeight);
+			
 			drawGlyph(screen_rect, uv_rect, color, style, drop_shadow_strength);
 
 			chars_drawn++;

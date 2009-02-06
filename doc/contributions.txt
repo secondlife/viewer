@@ -205,6 +205,9 @@ Hiro Sommambulist
 	VWR-143
 Hoze Menges
 	VWR-255
+Ian Kas
+	VWR-8780 (Russian localization)
+        [NO JIRA] (Ukranian localization)
 Iskar Ariantho
 	VWR-1223
 Jacek Antonelli

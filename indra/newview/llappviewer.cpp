@@ -165,13 +165,6 @@
 
 #include "llcommandlineparser.h"
 
-// annoying detail to determine whether font prefs are over-ridden
-#if LL_LINUX
-# define LL_DYNAMIC_FONT_DISCOVERY 1
-#else
-# define LL_DYNAMIC_FONT_DISCOVERY 0
-#endif
-
 // *FIX: These extern globals should be cleaned up.
 // The globals either represent state/config/resource-storage of either 
 // this app, or another 'component' of the viewer. App globals should be 
@@ -1656,12 +1649,6 @@ bool LLAppViewer::initConfiguration()
         gSavedSettings.setBOOL("AllowMultipleViewers", TRUE);
 #endif
 
-#if !LL_DYNAMIC_FONT_DISCOVERY
-	// static font discovery - user settings can override.
-	gSavedSettings.setString("FontSansSerifFallback",
-				 LLWindow::getFontListSans());
-#endif
-
 	//*FIX:Mani - Set default to disabling watchdog mainloop 
 	// timeout for mac and linux. There is no call stack info 
 	// on these platform to help debug.
@@ -1744,20 +1731,14 @@ bool LLAppViewer::initConfiguration()
 	// - load overrides from user_settings 
 	loadSettingsFromDirectory("User");
 
-#if LL_DYNAMIC_FONT_DISCOVERY
-	// Linux does *dynamic* font discovery which is preferable to
-	// whatever got written-out into the config file last time.  This
-	// does remove the ability of the user to hand-define the fallbacks
-	// though, so from a config-management point of view this is hacky.
 	gSavedSettings.setString("FontSansSerifFallback",
-				 LLWindow::getFontListSans());
-#endif
+				 gSavedSettings.getString("FontSansSerifBundledFallback") + ";" + LLWindow::getFontListSans() );
 
 	// - apply command line settings 
 	clp.notify(); 
 
 	// Handle initialization from settings.
-	// Start up	the	debugging console before handling other	options.
+	// Start up the debugging console before handling other options.
 	if (gSavedSettings.getBOOL("ShowConsoleWindow"))
 	{
 		initConsole();

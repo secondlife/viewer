@@ -3724,31 +3724,42 @@
     <key>FontMonospace</key>
     <map>
       <key>Comment</key>
-      <string>Name of monospace font (Truetype file name)</string>
+      <string>Name of monospace font that definitely exists (Truetype file name)</string>
       <key>Persist</key>
-      <integer>1</integer>
+      <integer>0</integer>
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>profontwindows.ttf</string>
+      <string>DejaVuSansMono.ttf</string>
     </map>
     <key>FontSansSerif</key>
     <map>
       <key>Comment</key>
-      <string>Name of san-serif font (Truetype file name)</string>
+      <string>Name of primary sans-serif font that definitely exists (Truetype file name)</string>
       <key>Persist</key>
-      <integer>1</integer>
+      <integer>0</integer>
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
       <string>MtBkLfRg.ttf</string>
+    </map>
+    <key>FontSansSerifBundledFallback</key>
+    <map>
+      <key>Comment</key>
+      <string>Name of secondary sans-serif font that definitely exists (Truetype file name)</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>DejaVuSansCondensed.ttf</string>
     </map>
     <key>FontSansSerifBold</key>
     <map>
       <key>Comment</key>
       <string>Name of bold font (Truetype file name)</string>
       <key>Persist</key>
-      <integer>1</integer>
+      <integer>0</integer>
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
@@ -3757,9 +3768,9 @@
     <key>FontSansSerifFallback</key>
     <map>
       <key>Comment</key>
-      <string>Name of san-serif font (Truetype file name)</string>
+      <string>Name of sans-serif font (Truetype file name)</string>
       <key>Persist</key>
-      <integer>1</integer>
+      <integer>0</integer>
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
@@ -3829,7 +3840,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>9.0</real>
+      <real>8.1</real>
     </map>
     <key>FontSizeSmall</key>
     <map>
