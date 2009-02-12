@@ -1472,7 +1472,7 @@ if (LINUX)
 
   if (NOT INSTALL)
     add_custom_target(package ALL DEPENDS ${product}.tar.bz2)
-    add_dependencies(package linux-crash-logger-stripped)
+    add_dependencies(package linux-crash-logger-strip-target)
   endif (NOT INSTALL)
 endif (LINUX)
 
