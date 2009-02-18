@@ -72,12 +72,17 @@ target_link_libraries(windows-crash-logger
     ${LLCOMMON_LIBRARIES}
     ${WINDOWS_LIBRARIES}
     ${DXGUID_LIBRARY}
+    user32
+    gdi32
+    ole32
+    oleaut32
+    Wldap32
     )
     
 if (WINDOWS)
     set_target_properties(windows-crash-logger
         PROPERTIES 
-        LINK_FLAGS "/NODEFAULTLIB:MSVCRT"
-        LINK_FLAGS_DEBUG "/NODEFAULTLIB:LIBCMT /NODEFAULTLIB:MSVCRTD"
+        LINK_FLAGS "/NODEFAULTLIB:LIBCMT"
+        LINK_FLAGS_DEBUG "/NODEFAULTLIB:\"LIBCMT;LIBCMTD;MSVCRT\""
         )
 endif (WINDOWS)

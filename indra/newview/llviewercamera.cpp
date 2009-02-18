@@ -83,6 +83,21 @@ glh::matrix4f gl_perspective(GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloa
 						 0, 0, -1.f, 0);
 }
 
+glh::matrix4f gl_lookat(LLVector3 eye, LLVector3 center, LLVector3 up)
+{
+	LLVector3 f = center-eye;
+	f.normVec();
+	up.normVec();
+	LLVector3 s = f % up;
+	LLVector3 u = s % f;
+
+	return glh::matrix4f(s[0], s[1], s[2], 0,
+					  u[0], u[1], u[2], 0,
+					  -f[0], -f[1], -f[2], 0,
+					  0, 0, 0, 1);
+	
+}
+
 LLViewerCamera::LLViewerCamera() : LLCamera()
 {
 	calcProjection(getFar());
@@ -183,7 +198,7 @@ void LLViewerCamera::calcProjection(const F32 far_distance) const
 // height.
 
 //static
-void LLViewerCamera::updateFrustumPlanes(LLCamera& camera, BOOL ortho, BOOL zflip)
+void LLViewerCamera::updateFrustumPlanes(LLCamera& camera, BOOL ortho, BOOL zflip, BOOL no_hacks)
 {
 	GLint* viewport = (GLint*) gGLViewport;
 	GLdouble* model = gGLModelView;
@@ -192,7 +207,27 @@ void LLViewerCamera::updateFrustumPlanes(LLCamera& camera, BOOL ortho, BOOL zfli
 
 	LLVector3 frust[8];
 
-	if (zflip)
+	if (no_hacks)
+	{
+		gluUnProject(viewport[0],viewport[1],0,model,proj,viewport,&objX,&objY,&objZ);
+		frust[0].setVec((F32)objX,(F32)objY,(F32)objZ);
+		gluUnProject(viewport[0]+viewport[2],viewport[1],0,model,proj,viewport,&objX,&objY,&objZ);
+		frust[1].setVec((F32)objX,(F32)objY,(F32)objZ);
+		gluUnProject(viewport[0]+viewport[2],viewport[1]+viewport[3],0,model,proj,viewport,&objX,&objY,&objZ);
+		frust[2].setVec((F32)objX,(F32)objY,(F32)objZ);
+		gluUnProject(viewport[0],viewport[1]+viewport[3],0,model,proj,viewport,&objX,&objY,&objZ);
+		frust[3].setVec((F32)objX,(F32)objY,(F32)objZ);
+
+		gluUnProject(viewport[0],viewport[1],1,model,proj,viewport,&objX,&objY,&objZ);
+		frust[4].setVec((F32)objX,(F32)objY,(F32)objZ);
+		gluUnProject(viewport[0]+viewport[2],viewport[1],1,model,proj,viewport,&objX,&objY,&objZ);
+		frust[5].setVec((F32)objX,(F32)objY,(F32)objZ);
+		gluUnProject(viewport[0]+viewport[2],viewport[1]+viewport[3],1,model,proj,viewport,&objX,&objY,&objZ);
+		frust[6].setVec((F32)objX,(F32)objY,(F32)objZ);
+		gluUnProject(viewport[0],viewport[1]+viewport[3],1,model,proj,viewport,&objX,&objY,&objZ);
+		frust[7].setVec((F32)objX,(F32)objY,(F32)objZ);
+	}
+	else if (zflip)
 	{
 		gluUnProject(viewport[0],viewport[1]+viewport[3],0,model,proj,viewport,&objX,&objY,&objZ);
 		frust[0].setVec((F32)objX,(F32)objY,(F32)objZ);
@@ -232,7 +267,7 @@ void LLViewerCamera::updateFrustumPlanes(LLCamera& camera, BOOL ortho, BOOL zfli
 		
 		if (ortho)
 		{
-			LLVector3 far_shift = LLVector3(camera.getFar()*2.0f,0,0);
+			LLVector3 far_shift = camera.getAtAxis()*camera.getFar()*2.f; 
 			for (U32 i = 0; i < 4; i++)
 			{
 				frust[i+4] = frust[i] + far_shift;
@@ -369,13 +404,13 @@ void LLViewerCamera::setPerspective(BOOL for_selection,
 
 	updateFrustumPlanes(*this);
 
-	if (gSavedSettings.getBOOL("CameraOffset"))
+	/*if (gSavedSettings.getBOOL("CameraOffset"))
 	{
 		glMatrixMode(GL_PROJECTION);
 		glTranslatef(0,0,-50);
 		glRotatef(20.0,1,0,0);
 		glMatrixMode(GL_MODELVIEW);
-	}
+	}*/
 }
 
 

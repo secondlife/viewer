@@ -167,7 +167,7 @@ createUI ()
 	}
 	mRGBImage = new LLImageGL ( (LLImageRaw*)raw, FALSE );
 	gGL.getTexUnit(0)->bind(mRGBImage);
-	mRGBImage->setClamp(TRUE, TRUE);
+	mRGBImage->setAddressMode(LLTexUnit::TAM_CLAMP);
 	
 	// create palette
 	for ( S32 each = 0; each < numPaletteColumns * numPaletteRows; ++each )

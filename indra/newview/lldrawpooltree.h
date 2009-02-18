@@ -43,7 +43,7 @@ public:
 	{
 		VERTEX_DATA_MASK =	LLVertexBuffer::MAP_VERTEX |
 							LLVertexBuffer::MAP_NORMAL |
-							LLVertexBuffer::MAP_TEXCOORD							
+							LLVertexBuffer::MAP_TEXCOORD0							
 	};
 
 	virtual U32 getVertexDataMask() { return VERTEX_DATA_MASK; }
@@ -53,6 +53,17 @@ public:
 	/*virtual*/ LLDrawPool *instancePool();
 
 	/*virtual*/ void prerender();
+
+	/*virtual*/ S32 getNumDeferredPasses() { return 1; }
+	/*virtual*/ void beginDeferredPass(S32 pass);
+	/*virtual*/ void endDeferredPass(S32 pass);
+	/*virtual*/ void renderDeferred(S32 pass);
+
+	/*virtual*/ S32 getNumShadowPasses() { return 1; }
+	/*virtual*/ void beginShadowPass(S32 pass);
+	/*virtual*/ void endShadowPass(S32 pass);
+	/*virtual*/ void renderShadow(S32 pass);
+
 	/*virtual*/ void beginRenderPass( S32 pass );
 	/*virtual*/ void render(S32 pass = 0);
 	/*virtual*/ void endRenderPass( S32 pass );

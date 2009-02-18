@@ -38,6 +38,8 @@
 class LLViewerShaderMgr: public LLShaderMgr
 {
 public:
+	static BOOL sInitialized;
+
 	LLViewerShaderMgr();
 	/* virtual */ ~LLViewerShaderMgr();
 
@@ -109,6 +111,17 @@ public:
 		CLOUD_SCALE,
 		GAMMA,
 		SCENE_LIGHT_STRENGTH,
+		DEFERRED_DEPTH,
+		DEFERRED_SHADOW0,
+		DEFERRED_SHADOW1,
+		DEFERRED_SHADOW2,
+		DEFERRED_SHADOW3,
+		DEFERRED_NORMAL,
+		DEFERRED_POSITION,
+		DEFERRED_DIFFUSE,
+		DEFERRED_SPECULAR,
+		DEFERRED_NOISE,
+		DEFERRED_LIGHT,
 		END_RESERVED_UNIFORMS
 	} eGLSLReservedUniforms;
 
@@ -305,7 +318,23 @@ extern LLGLSLShader			gPostColorFilterProgram;
 extern LLGLSLShader			gPostNightVisionProgram;
 
 // Deferred rendering shaders
+extern LLGLSLShader			gDeferredImpostorProgram;
+extern LLGLSLShader			gDeferredWaterProgram;
 extern LLGLSLShader			gDeferredDiffuseProgram;
+extern LLGLSLShader			gDeferredBumpProgram;
+extern LLGLSLShader			gDeferredTerrainProgram;
+extern LLGLSLShader			gDeferredTreeProgram;
+extern LLGLSLShader			gDeferredLightProgram;
+extern LLGLSLShader			gDeferredMultiLightProgram;
+extern LLGLSLShader			gDeferredSunProgram;
+extern LLGLSLShader			gDeferredBlurLightProgram;
+extern LLGLSLShader			gDeferredAvatarProgram;
+extern LLGLSLShader			gDeferredSoftenProgram;
+extern LLGLSLShader			gDeferredShadowProgram;
+extern LLGLSLShader			gDeferredAvatarShadowProgram;
+extern LLGLSLShader			gDeferredAlphaProgram;
+extern LLGLSLShader			gDeferredFullbrightProgram;
+extern LLGLSLShader			gDeferredAvatarAlphaProgram;
 
 //current avatar shader parameter pointer
 extern GLint				gAvatarMatrixParam;

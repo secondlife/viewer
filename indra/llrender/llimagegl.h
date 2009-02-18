@@ -46,6 +46,7 @@
 
 class LLImageGL : public LLRefCount
 {
+	friend class LLTexUnit;
 public:
 	// Size calculation
 	static S32 dataFormatBits(S32 dataformat);
@@ -80,16 +81,21 @@ public:
 protected:
 	virtual ~LLImageGL();
 
-private:
-	void glClamp (BOOL clamps, BOOL clampt);
-	void glClampCubemap (BOOL clamps, BOOL clampt, BOOL clampr = FALSE);
+	void analyzeAlpha(const void* data_in, S32 w, S32 h);
 
 public:
 	virtual void dump();	// debugging info to llinfos
 	virtual bool bindError(const S32 stage = 0) const;
 	virtual bool bindDefaultImage(const S32 stage = 0) const;
+	virtual void forceImmediateUpdate() ;
 
 	void setSize(S32 width, S32 height, S32 ncomponents);
+
+	// These 3 functions currently wrap glGenTextures(), glDeleteTextures(), and glTexImage2D() 
+	// for tracking purposes and will be deprecated in the future
+	static void generateTextures(S32 numTextures, U32 *textures);
+	static void deleteTextures(S32 numTextures, U32 *textures);
+	static void setManualImage(U32 target, S32 miplevel, S32 intformat, S32 width, S32 height, U32 pixformat, U32 pixtype, const void *pixels);
 
 	BOOL createGLTexture() ;
 	BOOL createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S32 usename = 0);
@@ -103,14 +109,9 @@ public:
 	// Read back a raw image for this discard level, if it exists
 	BOOL readBackRaw(S32 discard_level, LLImageRaw* imageraw, bool compressed_ok); 
 	void destroyGLTexture();
-	
-	void setClampCubemap (BOOL clamps, BOOL clampt, BOOL clampr = FALSE);
-	void setClamp(BOOL clamps, BOOL clampt);
-	void overrideClamp (BOOL clamps, BOOL clampt);
-	void restoreClamp (void);
-	void setMipFilterNearest(BOOL mag_nearest, BOOL min_nearest = FALSE);
+
 	void setExplicitFormat(LLGLint internal_format, LLGLenum primary_format, LLGLenum type_format = 0, BOOL swap_bytes = FALSE);
-	void dontDiscard() { mDontDiscard = 1; }
+	void dontDiscard() { mDontDiscard = 1; mTextureState = NO_DELETE; }
 
 	S32	 getDiscardLevel() const		{ return mCurrentDiscardLevel; }
 	S32	 getMaxDiscardLevel() const		{ return mMaxDiscardLevel; }
@@ -124,14 +125,11 @@ public:
 	S32  getMipBytes(S32 discard_level = -1) const;
 	BOOL getBoundRecently() const;
 	LLGLenum getPrimaryFormat() const { return mFormatPrimary; }
-	
-	BOOL getClampS() const { return mClampS; }
-	BOOL getClampT() const { return mClampT; }
-	BOOL getClampR() const { return mClampR; }
-	BOOL getMipFilterNearest() const { return mMagFilterNearest; }
-	
+
 	BOOL getHasGLTexture() const { return mTexName != 0; }
 	LLGLuint getTexName() const { return mTexName; }
+
+	BOOL getIsAlphaMask() const { return mIsMask; }
 
 	BOOL getIsResident(BOOL test_now = FALSE); // not const
 
@@ -152,6 +150,27 @@ public:
 	BOOL getMask(const LLVector2 &tc);
 
 	void checkTexSize() const ;
+	
+	// Sets the addressing mode used to sample the texture 
+	//  (such as wrapping, mirrored wrapping, and clamp)
+	// Note: this actually gets set the next time the texture is bound.
+	void setAddressMode(LLTexUnit::eTextureAddressMode mode);
+	LLTexUnit::eTextureAddressMode getAddressMode(void) const { return mAddressMode; }
+
+	// Sets the filtering options used to sample the texture 
+	//  (such as point sampling, bilinear interpolation, mipmapping, and anisotropic filtering)
+	// Note: this actually gets set the next time the texture is bound.
+	void setFilteringOption(LLTexUnit::eTextureFilterOptions option);
+	LLTexUnit::eTextureFilterOptions getFilteringOption(void) const { return mFilterOption; }
+
+	BOOL isDeleted() ;
+	BOOL isInactive() ;
+	BOOL isDeletionCandidate();
+	void setDeletionCandidate() ;
+	void setInactive() ;
+	void setActive() ;
+	void forceActive() ;
+	void setNoDelete() ;
 
 protected:
 	void init(BOOL usemipmaps);
@@ -166,9 +185,10 @@ private:
 	LLPointer<LLImageRaw> mSaveData; // used for destroyGL/restoreGL
 	U8* mPickMask;  //downsampled bitmap approximation of alpha channel.  NULL if no alpha channel
 	S8 mUseMipMaps;
-	S8 mHasMipMaps;
 	S8 mHasExplicitFormat; // If false (default), GL format is f(mComponents)
 	S8 mAutoGenMips;
+
+	BOOL mIsMask;
 	
 	bool     mGLTextureCreated ;
 	LLGLuint mTexName;
@@ -179,6 +199,7 @@ private:
 protected:
 	LLGLenum mTarget;		// Normally GL_TEXTURE2D, sometimes something else (ex. cube maps)
 	LLTexUnit::eTextureType mBindTarget;	// Normally TT_TEXTURE, sometimes something else (ex. cube maps)
+	bool mHasMipMaps;
 	
 	LLGLboolean mIsResident;
 	
@@ -186,17 +207,27 @@ protected:
 	S8 mMaxDiscardLevel;	
 	S8 mDontDiscard;			// Keep full res version of this image (for UI, etc)
 
-	S8 mClampS;					// Need to save clamp state
-	S8 mClampT;
-	S8 mClampR;
-	S8 mMagFilterNearest;		// if TRUE, set magfilter to GL_NEAREST
-	S8 mMinFilterNearest;		// if TRUE, set minfilter to GL_NEAREST
+	bool	mTexOptionsDirty;
+	LLTexUnit::eTextureAddressMode		mAddressMode;	// Defaults to TAM_WRAP
+	LLTexUnit::eTextureFilterOptions	mFilterOption;	// Defaults to TFO_TRILINEAR
+
 	
 	LLGLint  mFormatInternal; // = GL internalformat
 	LLGLenum mFormatPrimary;  // = GL format (pixel data format)
 	LLGLenum mFormatType;
 	BOOL	 mFormatSwapBytes;// if true, use glPixelStorei(GL_UNPACK_SWAP_BYTES, 1)
 
+protected:
+	typedef enum 
+	{
+		DELETED = 0,         //removed from memory
+		DELETION_CANDIDATE,  //ready to be removed from memory
+		INACTIVE,            //not be used for the last certain period (i.e., 30 seconds).
+		ACTIVE,              //just being used, can become inactive if not being used for a certain time (10 seconds).
+		NO_DELETE = 99       //stay in memory, can not be removed.
+	} LLGLTexureState;
+	LLGLTexureState  mTextureState ;
+	
 	// STATICS
 public:	
 	static std::set<LLImageGL*> sImageList;

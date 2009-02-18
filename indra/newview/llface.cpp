@@ -165,6 +165,7 @@ void LLFace::init(LLDrawable* drawablep, LLViewerObject* objp)
 	mReferenceIndex = -1;
 
 	mTextureMatrix = NULL;
+	mDrawInfo = NULL;
 
 	mFaceColor = LLColor4(1,0,0,1);
 
@@ -178,9 +179,6 @@ void LLFace::init(LLDrawable* drawablep, LLViewerObject* objp)
 
 void LLFace::destroy()
 {
-	mDrawablep = NULL;
-	mVObjp = NULL;
-
 	if (mDrawPoolp)
 	{
 		mDrawPoolp->removeFace(this);
@@ -191,7 +189,21 @@ void LLFace::destroy()
 	{
 		delete mTextureMatrix;
 		mTextureMatrix = NULL;
+
+		if (mDrawablep.notNull())
+		{
+			LLSpatialGroup* group = mDrawablep->getSpatialGroup();
+			if (group)
+			{
+				group->dirtyGeom();
+			}
+		}
 	}
+
+	setDrawInfo(NULL);
+	
+	mDrawablep = NULL;
+	mVObjp = NULL;
 }
 
 
@@ -289,7 +301,7 @@ U16 LLFace::getGeometryAvatar(
 	{
 		mVertexBuffer->getVertexStrider      (vertices, mGeomIndex);
 		mVertexBuffer->getNormalStrider      (normals, mGeomIndex);
-		mVertexBuffer->getTexCoordStrider    (tex_coords, mGeomIndex);
+		mVertexBuffer->getTexCoord0Strider    (tex_coords, mGeomIndex);
 		mVertexBuffer->getWeightStrider(vertex_weights, mGeomIndex);
 		mVertexBuffer->getClothWeightStrider(clothing_weights, mGeomIndex);
 	}
@@ -309,9 +321,9 @@ U16 LLFace::getGeometry(LLStrider<LLVector3> &vertices, LLStrider<LLVector3> &no
 		{
 			mVertexBuffer->getNormalStrider(normals,    mGeomIndex);
 		}
-		if (mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_TEXCOORD))
+		if (mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_TEXCOORD0))
 		{
-			mVertexBuffer->getTexCoordStrider(tex_coords, mGeomIndex);
+			mVertexBuffer->getTexCoord0Strider(tex_coords, mGeomIndex);
 		}
 
 		mVertexBuffer->getIndexStrider(indicesp, mIndicesIndex);
@@ -435,12 +447,13 @@ void LLFace::renderSelected(LLImageGL *imagep, const LLColor4& color)
 		setFaceColor(color);
 		renderSetColor();
 
-		mVertexBuffer->setBuffer(LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD);
+		mVertexBuffer->setBuffer(LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0);
 #if !LL_RELEASE_FOR_DOWNLOAD
-		LLGLState::checkClientArrays("", LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD);
+		LLGLState::checkClientArrays("", LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0);
 #endif
 		mVertexBuffer->draw(LLRender::TRIANGLES, mIndicesCount, mIndicesIndex);
-				
+
+		unsetFaceColor();
 		unsetFaceColor();
 		gGL.popMatrix();
 	}
@@ -477,8 +490,26 @@ void LLFace::renderSelectedUV()
 	glMatrixMode(GL_MODELVIEW);
 	gGL.blendFunc(LLRender::BF_SOURCE_ALPHA, LLRender::BF_ONE_MINUS_SOURCE_ALPHA);
 }
-
 */
+
+void LLFace::setDrawInfo(LLDrawInfo* draw_info)
+{
+	if (draw_info)
+	{
+		if (draw_info->mFace)
+		{
+			draw_info->mFace->setDrawInfo(NULL);
+		}
+		draw_info->mFace = this;
+	}
+	
+	if (mDrawInfo)
+	{
+		mDrawInfo->mFace = NULL;
+	}
+
+	mDrawInfo = draw_info;
+}
 
 void LLFace::printDebugInfo() const
 {
@@ -587,11 +618,11 @@ BOOL LLFace::genVolumeBBoxes(const LLVolume &volume, S32 f,
 	//get bounding box
 	if (mDrawablep->isState(LLDrawable::REBUILD_VOLUME | LLDrawable::REBUILD_POSITION))
 	{
-		if (mDrawablep->isState(LLDrawable::REBUILD_VOLUME))
-		{ //vertex buffer no longer valid
-			mVertexBuffer = NULL;
-			mLastVertexBuffer = NULL;
-		}
+		//if (mDrawablep->isState(LLDrawable::REBUILD_VOLUME))
+		//{ //vertex buffer no longer valid
+		//	mVertexBuffer = NULL;
+		//	mLastVertexBuffer = NULL;
+		//}
 
 		LLVector3 min,max;
 	
@@ -739,6 +770,34 @@ LLVector2 LLFace::surfaceToTexture(LLVector2 surface_coord, LLVector3 position, 
 	return tc;
 }
 
+void LLFace::updateRebuildFlags()
+{
+	if (!mDrawablep->isState(LLDrawable::REBUILD_VOLUME))
+	{
+		BOOL moved = TRUE;
+		if (mLastVertexBuffer == mVertexBuffer && 
+			!mVertexBuffer->isEmpty())
+		{	//this face really doesn't need to be regenerated, try real hard not to do so
+			if (mLastGeomCount == mGeomCount &&
+				mLastGeomIndex == mGeomIndex &&
+				mLastIndicesCount == mIndicesCount &&
+				mLastIndicesIndex == mIndicesIndex)
+			{ //data is in same location in vertex buffer
+				moved = FALSE;
+			}
+		}
+		mLastMoveTime = gFrameTimeSeconds;
+		
+		if (moved)
+		{
+			mDrawablep->setState(LLDrawable::REBUILD_VOLUME);
+		}
+	}
+	else
+	{
+		mLastUpdateTime = gFrameTimeSeconds;
+	}
+}
 
 BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 							   const S32 &f,
@@ -764,16 +823,16 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 		}
 	}
 
-	LLStrider<LLVector3> old_verts,vertices;
-	LLStrider<LLVector2> old_texcoords,tex_coords;
-	LLStrider<LLVector2> old_texcoords2,tex_coords2;
-	LLStrider<LLVector3> old_normals,normals;
-	LLStrider<LLColor4U> old_colors,colors;
+	LLStrider<LLVector3> vertices;
+	LLStrider<LLVector2> tex_coords;
+	LLStrider<LLVector2> tex_coords2;
+	LLStrider<LLVector3> normals;
+	LLStrider<LLColor4U> colors;
+	LLStrider<LLVector3> binormals;
 	LLStrider<U16> indicesp;
 
 	BOOL full_rebuild = mDrawablep->isState(LLDrawable::REBUILD_VOLUME);
-	BOOL moved = TRUE;
-
+	
 	BOOL global_volume = mDrawablep->getVOVolume()->isVolumeGlobal();
 	LLVector3 scale;
 	if (global_volume)
@@ -784,35 +843,12 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 	{
 		scale = mVObjp->getScale();
 	}
-
-	if (!full_rebuild)
-	{   
-		if (mLastVertexBuffer == mVertexBuffer && 
-			!mVertexBuffer->isEmpty())
-		{	//this face really doesn't need to be regenerated, try real hard not to do so
-			if (mLastGeomCount == mGeomCount &&
-				mLastGeomIndex == mGeomIndex &&
-				mLastIndicesCount == mIndicesCount &&
-				mLastIndicesIndex == mIndicesIndex)
-			{ //data is in same location in vertex buffer
-				moved = FALSE;
-			}
-			
-			if (!moved && !mDrawablep->isState(LLDrawable::REBUILD_ALL))
-			{ //nothing needs to be done
-				return FALSE;
-			}
-		}
-		mLastMoveTime = gFrameTimeSeconds;
-	}
-	else
-	{
-		mLastUpdateTime = gFrameTimeSeconds;
-	}
 	
-	BOOL rebuild_pos = full_rebuild || moved || mDrawablep->isState(LLDrawable::REBUILD_POSITION);
-	BOOL rebuild_color = full_rebuild || moved || mDrawablep->isState(LLDrawable::REBUILD_COLOR);
-	BOOL rebuild_tcoord = full_rebuild || moved || mDrawablep->isState(LLDrawable::REBUILD_TCOORD);
+	BOOL rebuild_pos = full_rebuild || mDrawablep->isState(LLDrawable::REBUILD_POSITION);
+	BOOL rebuild_color = full_rebuild || mDrawablep->isState(LLDrawable::REBUILD_COLOR);
+	BOOL rebuild_tcoord = full_rebuild || mDrawablep->isState(LLDrawable::REBUILD_TCOORD);
+	BOOL rebuild_normal = rebuild_pos && mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_NORMAL);
+	BOOL rebuild_binormal = rebuild_pos && mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_BINORMAL);
 
 	const LLTextureEntry *tep = mVObjp->getTE(f);
 	U8  bump_code = tep ? tep->getBumpmap() : 0;
@@ -820,14 +856,21 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 	if (rebuild_pos)
 	{
 		mVertexBuffer->getVertexStrider(vertices, mGeomIndex);
+	}
+	if (rebuild_normal)
+	{
 		mVertexBuffer->getNormalStrider(normals, mGeomIndex);
+	}
+	if (rebuild_binormal)
+	{
+		mVertexBuffer->getBinormalStrider(binormals, mGeomIndex);
 	}
 	if (rebuild_tcoord)
 	{
-		mVertexBuffer->getTexCoordStrider(tex_coords, mGeomIndex);
-		if (bump_code)
+		mVertexBuffer->getTexCoord0Strider(tex_coords, mGeomIndex);
+		if (bump_code && mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_TEXCOORD1))
 		{
-			mVertexBuffer->getTexCoord2Strider(tex_coords2, mGeomIndex);
+			mVertexBuffer->getTexCoord1Strider(tex_coords2, mGeomIndex);
 		}
 	}
 	if (rebuild_color)
@@ -922,14 +965,14 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 			0.75f
 		};
 
-		if (getPoolType() != LLDrawPool::POOL_ALPHA && LLPipeline::sRenderBump && tep->getShiny())
+		if (getPoolType() != LLDrawPool::POOL_ALPHA && (LLPipeline::sRenderDeferred || LLPipeline::sRenderBump && tep->getShiny()))
 		{
 			color.mV[3] = U8 (alpha[tep->getShiny()] * 255);
 		}
 	}
 
     // INDICES
-	if (full_rebuild || moved)
+	if (full_rebuild)
 	{
 		mVertexBuffer->getIndexStrider(indicesp, mIndicesIndex);
 		for (U16 i = 0; i < num_indices; i++)
@@ -1046,7 +1089,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 			*tex_coords++ = tc;
 		
-			if (bump_code)
+			if (bump_code && mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_TEXCOORD1))
 			{
 				LLVector3 tangent = vf.mVertices[i].mBinormal % vf.mVertices[i].mNormal;
 
@@ -1066,37 +1109,30 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 				*tex_coords2++ = tc;
 			}	
 		}
-		else if (moved)
-		{
-			*tex_coords++ = *old_texcoords++;
-			if (bump_code)
-			{
-				*tex_coords2++ = *old_texcoords2++;
-			}
-		}
 			
 		if (rebuild_pos)
 		{
 			*vertices++ = vf.mVertices[i].mPosition * mat_vert;
-
+		}
+		
+		if (rebuild_normal)
+		{
 			LLVector3 normal = vf.mVertices[i].mNormal * mat_normal;
 			normal.normVec();
 			
 			*normals++ = normal;
 		}
-		else if (moved)
+		
+		if (rebuild_binormal)
 		{
-			*normals++ = *old_normals++;
-			*vertices++ = *old_verts++;
+			LLVector3 binormal = vf.mVertices[i].mBinormal * mat_normal;
+			binormal.normVec();
+			*binormals++ = binormal;
 		}
-
+		
 		if (rebuild_color)
 		{
 			*colors++ = color;		
-		}
-		else if (moved)
-		{
-			*colors++ = *old_colors++;
 		}
 	}
 

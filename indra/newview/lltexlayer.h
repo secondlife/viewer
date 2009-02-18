@@ -533,7 +533,6 @@ public:
 	S32 mTGABytes;
 };
 
-
 // Used by LLTexLayerSetBuffer for a callback.
 class LLBakedUploadData
 {

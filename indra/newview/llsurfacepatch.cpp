@@ -128,7 +128,7 @@ void LLSurfacePatch::setSurface(LLSurface *surfacep)
 		mVObjp = (LLVOSurfacePatch *)gObjectList.createObjectViewer(LLViewerObject::LL_VO_SURFACE_PATCH, mSurfacep->getRegion());
 		mVObjp->setPatch(this);
 		mVObjp->setPositionRegion(mCenterRegion);
-		gPipeline.addObject(mVObjp);
+		gPipeline.createObject(mVObjp);
 	}
 } 
 

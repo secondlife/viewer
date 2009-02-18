@@ -351,7 +351,6 @@ void LLViewerStats::addToMessage(LLSD &body) const
 // Moving them here, but not merging them into LLViewerStats yet.
 void reset_statistics()
 {
-	gPipeline.resetFrameStats();	// Reset per-frame statistics.
 	if (LLSurface::sTextureUpdateTime)
 	{
 		LLSurface::sTexelsUpdatedPerSecStat.addValue(0.001f*(LLSurface::sTexelsUpdated / LLSurface::sTextureUpdateTime));

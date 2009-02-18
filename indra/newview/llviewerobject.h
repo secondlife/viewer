@@ -131,6 +131,8 @@ protected:
 
 public:
 	typedef std::list<LLPointer<LLViewerObject> > child_list_t;
+	typedef std::list<LLPointer<LLViewerObject> > vobj_list_t;
+
 	typedef const child_list_t const_child_list_t;
 
 	LLViewerObject(const LLUUID &id, const LLPCode type, LLViewerRegion *regionp, BOOL is_global = FALSE);

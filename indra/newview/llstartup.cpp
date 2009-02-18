@@ -737,8 +737,6 @@ bool idle_startup()
 		LL_DEBUGS("AppInit") << "Initializing Window" << LL_ENDL;
 		
 		gViewerWindow->getWindow()->setCursor(UI_CURSOR_ARROW);
-		// Push our window frontmost
-		gViewerWindow->getWindow()->show();
 
 		timeout_count = 0;
 
@@ -793,6 +791,10 @@ bool idle_startup()
 		gViewerWindow->setNormalControlsVisible( FALSE );	
 		gLoginMenuBarView->setVisible( TRUE );
 		gLoginMenuBarView->setEnabled( TRUE );
+
+		// Push our window frontmost
+		gViewerWindow->getWindow()->show();
+		display_startup();
 
 		// DEV-16927.  The following code removes errant keystrokes that happen while the window is being 
 		// first made visible.
@@ -1800,7 +1802,13 @@ bool idle_startup()
 		{
 			LL_DEBUGS("AppInit") << "Initializing sky..." << LL_ENDL;
 			// Initialize all of the viewer object classes for the first time (doing things like texture fetches.
+			LLGLState::checkStates();
+			LLGLState::checkTextureChannels();
+
 			gSky.init(initial_sun_direction);
+
+			LLGLState::checkStates();
+			LLGLState::checkTextureChannels();
 		}
 
 		LL_DEBUGS("AppInit") << "Decoding images..." << LL_ENDL;
@@ -2372,8 +2380,14 @@ bool idle_startup()
 		{
 			update_texture_fetch();
 			set_startup_status(0.60f + 0.30f * timeout_frac,
-				"Loading world...",
+				LLTrans::getString("LoginPrecaching"),
 					gAgent.mMOTD);
+			display_startup();
+			if (!LLViewerShaderMgr::sInitialized)
+			{
+				LLViewerShaderMgr::sInitialized = TRUE;
+				LLViewerShaderMgr::instance()->setShaders();
+			}
 		}
 
 		return TRUE;

@@ -532,10 +532,10 @@ F32 LLDrawable::updateXform(BOOL undamped)
 
 	if ((mCurrentScale != target_scale) ||
 		(!isRoot() && 
-		 (dist_squared >= MIN_INTERPOLATE_DISTANCE_SQUARED) || 
+		 (dist_squared >= MIN_INTERPOLATE_DISTANCE_SQUARED || 
 		 !mVObjp->getAngularVelocity().isExactlyZero() ||
 		 target_pos != mXform.getPosition() ||
-		 target_rot != mXform.getRotation()))
+		 target_rot != mXform.getRotation())))
 	{ //child prim moving or scale change requires immediate rebuild
 		gPipeline.markRebuild(this, LLDrawable::REBUILD_POSITION, TRUE);
 	}
@@ -1233,7 +1233,8 @@ void LLSpatialBridge::setVisible(LLCamera& camera_in, std::vector<LLDrawable*>* 
 	LLVector3 center = (mExtents[0] + mExtents[1]) * 0.5f;
 	LLVector3 size = (mExtents[1]-mExtents[0]) * 0.5f;
 
-	if (LLPipeline::sImpostorRender ||
+	if ((LLPipeline::sShadowRender && camera_in.AABBInFrustum(center, size)) ||
+		LLPipeline::sImpostorRender ||
 		(camera_in.AABBInFrustumNoFarClip(center, size) && 
 		AABBSphereIntersect(mExtents[0], mExtents[1], camera_in.getOrigin(), camera_in.mFrustumCornerDist)))
 	{
@@ -1290,7 +1291,6 @@ void LLSpatialBridge::updateDistance(LLCamera& camera_in)
 			LLDrawable* drawable = child->mDrawable;					
 			if (!drawable)
 			{
-				llwarns << "Corrupt drawable found while updating spatial bridge distance." << llendl;
 				continue;
 			}
 

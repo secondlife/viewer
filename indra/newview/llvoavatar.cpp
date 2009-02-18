@@ -684,9 +684,6 @@ LLVOAvatar::LLVOAvatar(
 	mLowerMaskTexName(0),
 	mCulled( FALSE ),
 	mVisibilityRank(0),
-	mFadeTime(0.f),
-	mLastFadeTime(0.f),
-	mLastFadeDistance(1.f),
 	mTexSkinColor( NULL ),
 	mTexHairColor( NULL ),
 	mTexEyeColor( NULL ),
@@ -764,7 +761,7 @@ LLVOAvatar::LLVOAvatar(
 
 	mShadowImagep = gImageList.getImageFromFile("foot_shadow.j2c");
 	gGL.getTexUnit(0)->bind(mShadowImagep.get());
-	mShadowImagep->setClamp(TRUE, TRUE);
+	mShadowImagep->setAddressMode(LLTexUnit::TAM_CLAMP);
 	
 	mInAir = FALSE;
 
@@ -1362,11 +1359,11 @@ void LLVOAvatar::deleteCachedImages()
 		LLTexLayerSet::sHasCaches = FALSE;
 	}
 	
-	for( GLuint* namep = (GLuint*)sScratchTexNames.getFirstData(); 
+	for( LLGLuint * namep = sScratchTexNames.getFirstData(); 
 		 namep; 
-		 namep = (GLuint*)sScratchTexNames.getNextData() )
+		 namep = sScratchTexNames.getNextData() )
 	{
-		glDeleteTextures(1, namep );
+		LLImageGL::deleteTextures(1, (U32 *)namep );
 		stop_glerror();
 	}
 
@@ -2868,12 +2865,15 @@ void LLVOAvatar::idleUpdateMisc(bool detailed_update)
 		}
 	}
 
-	mDrawable->movePartition();
-	
-	//force a move if sitting on an active object
-	if (getParent() && ((LLViewerObject*) getParent())->mDrawable->isActive())
+	if (mDrawable.notNull())
 	{
-		gPipeline.markMoved(mDrawable, TRUE);
+		mDrawable->movePartition();
+		
+		//force a move if sitting on an active object
+		if (getParent() && ((LLViewerObject*) getParent())->mDrawable->isActive())
+		{
+			gPipeline.markMoved(mDrawable, TRUE);
+		}
 	}
 }
 
@@ -3576,6 +3576,10 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 		{ //back 25% of max visible avatars are slow updating impostors
 			mUpdatePeriod = 8;
 		}
+		else if (visible && mVisibilityRank > (U32) LLVOAvatar::sMaxVisible)
+		{ //background avatars are REALLY slow updating impostors
+			mUpdatePeriod = 16;
+		}
 		else if (visible && mImpostorPixelArea <= impostor_area)
 		{  // stuff in between gets an update period based on pixel area
 			mUpdatePeriod = llclamp((S32) sqrtf(impostor_area*4.f/mImpostorPixelArea), 2, 8);
@@ -4193,7 +4197,7 @@ U32 LLVOAvatar::renderSkinned(EAvatarRenderPass pass)
 				mSkirtLOD.updateJointGeometry();
 			}
 
-			if (!mIsSelf || gAgent.needsRenderHead())
+			if (!mIsSelf || gAgent.needsRenderHead() || LLPipeline::sShadowRender)
 			{
 				mEyeLashLOD.updateJointGeometry();
 				mHeadLOD.updateJointGeometry();
@@ -4294,18 +4298,22 @@ U32 LLVOAvatar::renderSkinned(EAvatarRenderPass pass)
 	if (pass == AVATAR_RENDER_PASS_SINGLE)
 	{
 		BOOL first_pass = TRUE;
-		if (!mIsSelf || gAgent.needsRenderHead())
+		if (!LLDrawPoolAvatar::sSkipOpaque)
 		{
-			num_indices += mHeadLOD.render(mAdjustedPixelArea);
-			first_pass = FALSE;
+			if (!mIsSelf || gAgent.needsRenderHead() || LLPipeline::sShadowRender)
+			{
+				num_indices += mHeadLOD.render(mAdjustedPixelArea);
+				first_pass = FALSE;
+			}
+			num_indices += mUpperBodyLOD.render(mAdjustedPixelArea, first_pass);
+			num_indices += mLowerBodyLOD.render(mAdjustedPixelArea, FALSE);
 		}
-		num_indices += mUpperBodyLOD.render(mAdjustedPixelArea, first_pass);
-		num_indices += mLowerBodyLOD.render(mAdjustedPixelArea, FALSE);
 
+		if (!LLDrawPoolAvatar::sSkipTransparent || LLPipeline::sImpostorRender)
 		{
 			LLGLEnable blend(GL_BLEND);
 			LLGLEnable test(GL_ALPHA_TEST);
-			num_indices += renderTransparent();
+			num_indices += renderTransparent(first_pass);
 		}
 	}
 	
@@ -4318,10 +4326,9 @@ U32 LLVOAvatar::renderSkinned(EAvatarRenderPass pass)
 	return num_indices;
 }
 
-U32 LLVOAvatar::renderTransparent()
+U32 LLVOAvatar::renderTransparent(BOOL first_pass)
 {
 	U32 num_indices = 0;
-	BOOL first_pass = FALSE;
 	if( isWearingWearableType( WT_SKIRT ) )
 	{
 		gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.25f);
@@ -4330,7 +4337,7 @@ U32 LLVOAvatar::renderTransparent()
 		gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
 	}
 
-	if (!mIsSelf || gAgent.needsRenderHead())
+	if (!mIsSelf || gAgent.needsRenderHead() || LLPipeline::sShadowRender)
 	{
 		if (LLPipeline::sImpostorRender)
 		{
@@ -4402,7 +4409,7 @@ U32 LLVOAvatar::renderFootShadows()
 	}
 
 	U32 foot_mask = LLVertexBuffer::MAP_VERTEX |
-					LLVertexBuffer::MAP_TEXCOORD;
+					LLVertexBuffer::MAP_TEXCOORD0;
 
 	LLGLDepthTest test(GL_TRUE, GL_FALSE);
 	//render foot shadows
@@ -4435,23 +4442,6 @@ U32 LLVOAvatar::renderImpostor(LLColor4U color)
 	LLGLEnable test(GL_ALPHA_TEST);
 	gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.f);
 
-	F32 blend = gFrameTimeSeconds - mFadeTime;
-
-	LLGLState gl_blend(GL_BLEND, blend < 1.f ? TRUE : FALSE);
-	gGL.setSceneBlendType(LLRender::BT_ALPHA);
-
-	F32 alpha;
-	if (mVisibilityRank >= (U32) LLVOAvatar::sMaxVisible)
-	{ //fade out
-		alpha = 1.f - llmin(blend, 1.f);
-	}
-	else 
-	{ //fade in
-		alpha = llmin(blend, 1.f);
-	}
-
-	color.mV[3] = (U8) (alpha*255);
-	
 	gGL.color4ubv(color.mV);
 	gGL.getTexUnit(0)->bind(&mImpostor);
 	gGL.begin(LLRender::QUADS);
@@ -5945,6 +5935,11 @@ void LLVOAvatar::setPixelAreaAndAngle(LLAgent &agent)
 {
 	LLMemType mt(LLMemType::MTYPE_AVATAR);
 
+	if (mDrawable.isNull())
+	{
+		return;
+	}
+
 	const LLVector3* ext = mDrawable->getSpatialExtents();
 	LLVector3 center = (ext[1] + ext[0]) * 0.5f;
 	LLVector3 size = (ext[1]-ext[0])*0.5f;
@@ -6349,15 +6344,21 @@ BOOL LLVOAvatar::attachObject(LLViewerObject *viewer_object)
 //-----------------------------------------------------------------------------
 void LLVOAvatar::lazyAttach()
 {
+	std::vector<LLPointer<LLViewerObject> > still_pending;
+	
 	for (U32 i = 0; i < mPendingAttachment.size(); i++)
 	{
 		if (mPendingAttachment[i]->mDrawable)
 		{
 			attachObject(mPendingAttachment[i]);
 		}
+		else
+		{
+			still_pending.push_back(mPendingAttachment[i]);
+		}
 	}
 
-	mPendingAttachment.clear();
+	mPendingAttachment = still_pending;
 }
 
 void LLVOAvatar::resetHUDAttachments()
@@ -6957,8 +6958,7 @@ void LLVOAvatar::dumpTotalLocalTextureByteCount()
 BOOL LLVOAvatar::isVisible()
 {
 	return mDrawable.notNull()
-		&& (mDrawable->isVisible() || mIsDummy)
-		&& (mVisibilityRank < (U32) sMaxVisible || gFrameTimeSeconds - mFadeTime < 1.f); 
+		&& (mDrawable->isVisible() || mIsDummy);
 }
 
 
@@ -7133,23 +7133,21 @@ LLGLuint LLVOAvatar::getScratchTexName( LLGLenum format, U32* texture_bytes )
 
 		LLGLSUIDefault gls_ui;
 
-		GLuint name = 0;
-		glGenTextures(1, &name );
+		U32 name = 0;
+		LLImageGL::generateTextures(1, &name );
 		stop_glerror();
 
 		gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, name);
 		stop_glerror();
 
-		glTexImage2D(
+		LLImageGL::setManualImage(
 			GL_TEXTURE_2D, 0, internal_format, 
 			VOAVATAR_SCRATCH_TEX_WIDTH, VOAVATAR_SCRATCH_TEX_HEIGHT,
-			0, format, GL_UNSIGNED_BYTE, NULL );
+			format, GL_UNSIGNED_BYTE, NULL );
 		stop_glerror();
 
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
-		glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
+		gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_BILINEAR);
+		gGL.getTexUnit(0)->setTextureAddressMode(LLTexUnit::TAM_CLAMP);
 		stop_glerror();
 
 		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
@@ -8758,20 +8756,19 @@ void LLVOAvatar::onBakedTextureMasksLoaded( BOOL success, LLViewerImage *src_vi,
 			}
 
 			U32 gl_name;
-			glGenTextures(1, (GLuint*) &gl_name );
+			LLImageGL::generateTextures(1, &gl_name );
 			stop_glerror();
 
 			gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, gl_name);
 			stop_glerror();
 
-			glTexImage2D(
+			LLImageGL::setManualImage(
 				GL_TEXTURE_2D, 0, GL_ALPHA8, 
 				aux_src->getWidth(), aux_src->getHeight(),
-				0, GL_ALPHA, GL_UNSIGNED_BYTE, aux_src->getData());
+				GL_ALPHA, GL_UNSIGNED_BYTE, aux_src->getData());
 			stop_glerror();
 
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_BILINEAR);
 
 			if( id == head_baked->getID() )
 			{
@@ -8783,7 +8780,7 @@ void LLVOAvatar::onBakedTextureMasksLoaded( BOOL success, LLViewerImage *src_vi,
 					self->mHeadMaskDiscard = discard_level;
 					if (self->mHeadMaskTexName)
 					{
-						glDeleteTextures(1, (GLuint*) &self->mHeadMaskTexName);
+						LLImageGL::deleteTextures(1, &self->mHeadMaskTexName);
 					}
 					self->mHeadMaskTexName = gl_name;
 				}
@@ -8803,7 +8800,7 @@ void LLVOAvatar::onBakedTextureMasksLoaded( BOOL success, LLViewerImage *src_vi,
 					self->mUpperMaskDiscard = discard_level;
 					if (self->mUpperMaskTexName)
 					{
-						glDeleteTextures(1, (GLuint*) &self->mUpperMaskTexName);
+						LLImageGL::deleteTextures(1, &self->mUpperMaskTexName);
 					}
 					self->mUpperMaskTexName = gl_name;
 				}
@@ -8823,7 +8820,7 @@ void LLVOAvatar::onBakedTextureMasksLoaded( BOOL success, LLViewerImage *src_vi,
 					self->mLowerMaskDiscard = discard_level;
 					if (self->mLowerMaskTexName)
 					{
-						glDeleteTextures(1, (GLuint*) &self->mLowerMaskTexName);
+						LLImageGL::deleteTextures(1, &self->mLowerMaskTexName);
 					}
 					self->mLowerMaskTexName = gl_name;
 				}
@@ -9010,7 +9007,9 @@ void LLVOAvatar::useBakedTexture( const LLUUID& id )
 void LLVOAvatar::dumpArchetypeXML( void* )
 {
 	LLVOAvatar* avatar = gAgent.getAvatarObject();
-	apr_file_t* file = ll_apr_file_open(gDirUtilp->getExpandedFilename(LL_PATH_CHARACTER,"new archetype.xml"), LL_APR_WB );
+	LLAPRFile outfile ;
+	outfile.open(gDirUtilp->getExpandedFilename(LL_PATH_CHARACTER,"new archetype.xml"), LL_APR_WB );
+	apr_file_t* file = outfile.getFileHandle() ;
 	if( !file )
 	{
 		return;
@@ -9053,7 +9052,6 @@ void LLVOAvatar::dumpArchetypeXML( void* )
 	}
 	apr_file_printf( file, "\t</archetype>\n" );
 	apr_file_printf( file, "\n</linden_genepool>\n" );
-	apr_file_close( file );
 }
 
 
@@ -9069,33 +9067,7 @@ void LLVOAvatar::setVisibilityRank(U32 rank)
 		return;
 	}
 
-	BOOL stale = gFrameTimeSeconds - mLastFadeTime > 10.f;
-	
-	//only raise visibility rank or trigger a fade out every 10 seconds
-	if (mVisibilityRank >= (U32) LLVOAvatar::sMaxVisible && rank < (U32) LLVOAvatar::sMaxVisible ||
-		(stale && mVisibilityRank < (U32) LLVOAvatar::sMaxVisible && rank >= (U32) LLVOAvatar::sMaxVisible))
-	{ //remember the time we became visible/invisible based on visibility rank
-		mVisibilityRank = rank;
-		mLastFadeTime = gFrameTimeSeconds;
-		mLastFadeDistance = mDrawable->mDistanceWRTCamera;
-
-		F32 blend = gFrameTimeSeconds - mFadeTime;
-		mFadeTime = gFrameTimeSeconds;
-		if (blend < 1.f)
-		{ //move the blend time back if a blend is already in progress (prevent flashes)
-			mFadeTime -= 1.f-blend;
-		}
-	}
-	else if (stale)
-	{
-		mLastFadeTime = gFrameTimeSeconds;
-		mLastFadeDistance = mDrawable->mDistanceWRTCamera;
-		mVisibilityRank = rank;
-	}
-	else
-	{
-		mVisibilityRank = llmin(mVisibilityRank, rank);
-	}
+	mVisibilityRank = rank;
 }
 
 // Assumes LLVOAvatar::sInstances has already been sorted.
@@ -10023,7 +9995,7 @@ BOOL LLVOAvatar::isImpostor() const
 
 BOOL LLVOAvatar::needsImpostorUpdate() const
 {
-	return mNeedsImpostorUpdate ;
+	return mNeedsImpostorUpdate;
 }
 
 const LLVector3& LLVOAvatar::getImpostorOffset() const

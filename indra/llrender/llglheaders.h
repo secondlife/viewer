@@ -281,6 +281,18 @@ extern PFNGLGENERATEMIPMAPEXTPROC glGenerateMipmapEXT;
 #undef Status
 #endif // LL_LINUX && !LL_MESA_HEADLESS
 
+#if LL_LINUX && defined(WINGDIAPI)
+// WINGDIAPI gets set if we are using the linux nvidia gl.h header which needs
+// the functions below setting up.
+# define LL_LINUX_NV_GL_HEADERS
+#endif // LL_LINUX && defined(WINGDIAPI)
+
+#ifdef LL_LINUX_NV_GL_HEADERS
+// Missing functions when using nvidia headers:
+extern PFNGLACTIVETEXTUREARBPROC	glActiveTextureARB;
+extern PFNGLCLIENTACTIVETEXTUREARBPROC	glClientActiveTextureARB;
+extern PFNGLDRAWRANGEELEMENTSPROC 	glDrawRangeElements;
+#endif // LL_LINUX_NV_GL_HEADERS
 
 // GL_ARB_vertex_buffer_object
 extern PFNGLBINDBUFFERARBPROC		glBindBufferARB;
@@ -435,8 +447,6 @@ extern PFNGLGETATTRIBLOCATIONARBPROC glGetAttribLocationARB;
 extern PFNGLCOMPRESSEDTEXIMAGE2DARBPROC glCompressedTexImage2DARB;
 extern PFNGLGETCOMPRESSEDTEXIMAGEARBPROC glGetCompressedTexImageARB;
 
-extern PFNGLCOLORTABLEEXTPROC glColorTableEXT;
-
 //GL_EXT_framebuffer_object
 extern PFNGLISRENDERBUFFEREXTPROC glIsRenderbufferEXT;
 extern PFNGLBINDRENDERBUFFEREXTPROC glBindRenderbufferEXT;
@@ -456,6 +466,14 @@ extern PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC glFramebufferRenderbufferEXT;
 extern PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVEXTPROC glGetFramebufferAttachmentParameterivEXT;
 extern PFNGLGENERATEMIPMAPEXTPROC glGenerateMipmapEXT;
 
+// GL_EXT_framebuffer_multisample
+extern PFNGLRENDERBUFFERSTORAGEMULTISAMPLEEXTPROC glRenderbufferStorageMultisampleEXT;
+
+// GL_EXT_framebuffer_blit
+extern PFNGLBLITFRAMEBUFFEREXTPROC glBlitFramebufferEXT;
+
+//GL_ARB_draw_buffers
+extern PFNGLDRAWBUFFERSARBPROC glDrawBuffersARB;
 
 #elif LL_WINDOWS
 
@@ -644,6 +662,14 @@ extern PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC glFramebufferRenderbufferEXT;
 extern PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVEXTPROC glGetFramebufferAttachmentParameterivEXT;
 extern PFNGLGENERATEMIPMAPEXTPROC glGenerateMipmapEXT;
 
+// GL_EXT_framebuffer_multisample
+extern PFNGLRENDERBUFFERSTORAGEMULTISAMPLEEXTPROC glRenderbufferStorageMultisampleEXT;
+
+// GL_EXT_framebuffer_blit
+extern PFNGLBLITFRAMEBUFFEREXTPROC glBlitFramebufferEXT;
+
+//GL_ARB_draw_buffers
+extern PFNGLDRAWBUFFERSARBPROC glDrawBuffersARB;
 
 #elif LL_DARWIN
 //----------------------------------------------------------------------------
@@ -680,6 +706,8 @@ extern void glFramebufferRenderbufferEXT(GLenum target, GLenum attachment, GLenu
 extern void glGetFramebufferAttachmentParameterivEXT(GLenum target, GLenum attachment, GLenum pname, GLint *params) AVAILABLE_MAC_OS_X_VERSION_10_4_AND_LATER;
 extern void glGenerateMipmapEXT(GLenum target) AVAILABLE_MAC_OS_X_VERSION_10_4_AND_LATER;
 
+// GL_ARB_draw_buffers
+extern void glDrawBuffersARB(GLsizei n, const GLenum* bufs) AVAILABLE_MAC_OS_X_VERSION_10_4_AND_LATER;
 
 #ifdef __cplusplus
 extern "C" {

@@ -195,7 +195,7 @@ void LLSprite::updateFace(LLFace &face)
 	if (face.mVertexBuffer.isNull())
 	{	
 		face.mVertexBuffer = new LLVertexBuffer(LLVertexBuffer::MAP_VERTEX | 
-												LLVertexBuffer::MAP_TEXCOORD,
+												LLVertexBuffer::MAP_TEXCOORD0,
 												GL_STREAM_DRAW_ARB);
 		face.mVertexBuffer->allocateBuffer(4, 12, TRUE);
 		face.setGeomIndex(0);

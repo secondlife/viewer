@@ -43,6 +43,7 @@
 #include "llviewercamera.h"
 #include "llviewershadermgr.h"
 #include "llrender.h"
+#include "llviewercontrol.h"
 
 S32 LLDrawPoolTree::sDiffTex = 0;
 static LLGLSLShader* shader = NULL;
@@ -52,7 +53,7 @@ LLDrawPoolTree::LLDrawPoolTree(LLViewerImage *texturep) :
 	mTexturep(texturep)
 {
 	gGL.getTexUnit(0)->bind(mTexturep.get());
-	mTexturep->setClamp(FALSE, FALSE);
+	mTexturep->setAddressMode(LLTexUnit::TAM_WRAP);
 }
 
 LLDrawPool *LLDrawPoolTree::instancePool()
@@ -91,7 +92,7 @@ void LLDrawPoolTree::beginRenderPass(S32 pass)
 
 void LLDrawPoolTree::render(S32 pass)
 {
-	LLFastTimer t(LLFastTimer::FTM_RENDER_TREES);
+	LLFastTimer t(LLPipeline::sShadowRender ? LLFastTimer::FTM_SHADOW_TREE : LLFastTimer::FTM_RENDER_TREES);
 
 	if (mDrawFace.empty())
 	{
@@ -101,7 +102,23 @@ void LLDrawPoolTree::render(S32 pass)
 	LLGLEnable test(GL_ALPHA_TEST);
 	LLOverrideFaceColor color(this, 1.f, 1.f, 1.f, 1.f);
 
-	renderTree();
+	if (gSavedSettings.getBOOL("RenderAnimateTrees"))
+	{
+		renderTree();
+	}
+	else
+	{
+		gGL.getTexUnit(sDiffTex)->bind(mTexturep);
+					
+		for (std::vector<LLFace*>::iterator iter = mDrawFace.begin();
+			 iter != mDrawFace.end(); iter++)
+		{
+			LLFace *face = *iter;
+			face->mVertexBuffer->setBuffer(LLDrawPoolTree::VERTEX_DATA_MASK);
+			face->mVertexBuffer->drawRange(LLRender::TRIANGLES, 0, face->mVertexBuffer->getRequestedVerts()-1, face->mVertexBuffer->getRequestedIndices(), 0); 
+			gPipeline.addTrianglesDrawn(face->mVertexBuffer->getRequestedIndices()/3);
+		}
+	}
 }
 
 void LLDrawPoolTree::endRenderPass(S32 pass)
@@ -114,6 +131,54 @@ void LLDrawPoolTree::endRenderPass(S32 pass)
 		shader->unbind();
 	}
 }
+
+//============================================
+// deferred implementation
+//============================================
+void LLDrawPoolTree::beginDeferredPass(S32 pass)
+{
+	LLFastTimer t(LLFastTimer::FTM_RENDER_TREES);
+	gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.5f);
+		
+	shader = &gDeferredTreeProgram;
+	shader->bind();
+}
+
+void LLDrawPoolTree::renderDeferred(S32 pass)
+{
+	render(pass);
+}
+
+void LLDrawPoolTree::endDeferredPass(S32 pass)
+{
+	LLFastTimer t(LLFastTimer::FTM_RENDER_TREES);
+	gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
+	
+	shader->unbind();
+}
+
+//============================================
+// shadow implementation
+//============================================
+void LLDrawPoolTree::beginShadowPass(S32 pass)
+{
+	LLFastTimer t(LLFastTimer::FTM_SHADOW_TREE);
+	gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.5f);
+	gDeferredShadowProgram.bind();
+}
+
+void LLDrawPoolTree::renderShadow(S32 pass)
+{
+	render(pass);
+}
+
+void LLDrawPoolTree::endShadowPass(S32 pass)
+{
+	LLFastTimer t(LLFastTimer::FTM_SHADOW_TREE);
+	gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
+	gDeferredShadowProgram.unbind();
+}
+
 
 void LLDrawPoolTree::renderForSelect()
 {
@@ -133,7 +198,43 @@ void LLDrawPoolTree::renderForSelect()
 	gGL.getTexUnit(0)->setTextureColorBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_PREV_COLOR);
 	gGL.getTexUnit(0)->setTextureAlphaBlend(LLTexUnit::TBO_MULT, LLTexUnit::TBS_TEX_ALPHA, LLTexUnit::TBS_VERT_ALPHA);
 
-	renderTree(TRUE);
+	if (gSavedSettings.getBOOL("RenderAnimateTrees"))
+	{
+		renderTree(TRUE);
+	}
+	else
+	{
+		gGL.getTexUnit(sDiffTex)->bind(mTexturep);
+				
+		for (std::vector<LLFace*>::iterator iter = mDrawFace.begin();
+			 iter != mDrawFace.end(); iter++)
+		{
+			LLFace *face = *iter;
+			LLDrawable *drawablep = face->getDrawable();
+
+			if (drawablep->isDead() || face->mVertexBuffer.isNull())
+			{
+				continue;
+			}
+
+			// Render each of the trees
+			LLVOTree *treep = (LLVOTree *)drawablep->getVObj().get();
+
+			LLColor4U color(255,255,255,255);
+
+			if (treep->mGLName != 0)
+			{
+				S32 name = treep->mGLName;
+				color = LLColor4U((U8)(name >> 16), (U8)(name >> 8), (U8)name, 255);
+				
+				LLFacePool::LLOverrideFaceColor col(this, color);
+				
+				face->mVertexBuffer->setBuffer(LLDrawPoolTree::VERTEX_DATA_MASK);
+				face->mVertexBuffer->drawRange(LLRender::TRIANGLES, 0, face->mVertexBuffer->getRequestedVerts()-1, face->mVertexBuffer->getRequestedIndices(), 0); 
+				gPipeline.addTrianglesDrawn(face->mVertexBuffer->getRequestedIndices()/3);
+			}
+		}
+	}
 
 	gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
 	gGL.setSceneBlendType(LLRender::BT_ALPHA);

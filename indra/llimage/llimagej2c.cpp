@@ -419,7 +419,9 @@ BOOL LLImageJ2C::loadAndValidate(const std::string &filename)
 	resetLastError();
 
 	S32 file_size = 0;
-	apr_file_t* apr_file = ll_apr_file_open(filename, LL_APR_RB, &file_size);
+	LLAPRFile infile ;
+	infile.open(filename, LL_APR_RB, NULL, &file_size);
+	apr_file_t* apr_file = infile.getFileHandle() ;
 	if (!apr_file)
 	{
 		setLastError("Unable to open file for reading", filename);
@@ -428,7 +430,6 @@ BOOL LLImageJ2C::loadAndValidate(const std::string &filename)
 	else if (file_size == 0)
 	{
 		setLastError("File is empty",filename);
-		apr_file_close(apr_file);
 		res = FALSE;
 	}
 	else
@@ -436,7 +437,8 @@ BOOL LLImageJ2C::loadAndValidate(const std::string &filename)
 		U8 *data = new U8[file_size];
 		apr_size_t bytes_read = file_size;
 		apr_status_t s = apr_file_read(apr_file, data, &bytes_read); // modifies bytes_read	
-		apr_file_close(apr_file);
+		infile.close() ;
+
 		if (s != APR_SUCCESS || (S32)bytes_read != file_size)
 		{
 			delete[] data;
@@ -448,7 +450,7 @@ BOOL LLImageJ2C::loadAndValidate(const std::string &filename)
 			res = validate(data, file_size);
 		}
 	}
-
+	
 	if (!mLastError.empty())
 	{
 		LLImage::setLastError(mLastError);

@@ -131,7 +131,7 @@ void LLHUDObject::cleanupHUDObjects()
 		(*object_it)->markDead();
 		if ((*object_it)->getNumRefs() > 1)
 		{
-			llinfos << "LLHUDObject " << (LLHUDObject *)(*object_it) << " has " << (*object_it)->getNumRefs() << " refs!" << llendl;
+			llinfos << "LLHUDObject " << (LLHUDObject *)(*object_it) << " type " << (S32)(*object_it)->getType() << " has " << (*object_it)->getNumRefs() << " refs!" << llendl;			
 		}
 	}
 	sHUDObjects.clear();

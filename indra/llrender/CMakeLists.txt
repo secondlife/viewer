@@ -27,9 +27,7 @@ set(llrender_SOURCE_FILES
     llglslshader.cpp
     llimagegl.cpp
     llpostprocess.cpp
-    llrender.cpp
     llrendersphere.cpp
-    llrendertarget.cpp
     llshadermgr.cpp
     llvertexbuffer.cpp
     )
@@ -50,7 +48,6 @@ set(llrender_HEADER_FILES
     llpostprocess.h
     llrender.h
     llrendersphere.h
-    llrendertarget.h
     llshadermgr.h
     llvertexbuffer.h
     )
@@ -63,6 +60,7 @@ list(APPEND llrender_SOURCE_FILES ${llrender_HEADER_FILES})
 if (SERVER AND NOT WINDOWS AND NOT DARWIN)
   copy_server_sources(
       llgl
+      llrender
       )
 
 
@@ -78,6 +76,8 @@ if (SERVER AND NOT WINDOWS AND NOT DARWIN)
 else (SERVER AND NOT WINDOWS AND NOT DARWIN)
   list(APPEND llrender_SOURCE_FILES
       llgl.cpp
+      llrender.cpp
+      llrendertarget.cpp
       )
 endif (SERVER AND NOT WINDOWS AND NOT DARWIN)
 add_library (llrender ${llrender_SOURCE_FILES})

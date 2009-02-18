@@ -98,6 +98,7 @@ public:
 	const LLVector3		  getPositionAgent() const;
 	const LLVector3d&	  getPositionGroup() const		{ return mPositionGroup; }
 	const LLVector3&	  getScale() const				{ return mCurrentScale; }
+	void				  setScale(const LLVector3& scale) { mCurrentScale = scale; }
 	const LLQuaternion&   getWorldRotation() const		{ return mXform.getWorldRotation(); }
 	const LLQuaternion&   getRotation() const			{ return mXform.getRotation(); }
 	F32			          getIntensity() const			{ return llmin(mXform.getScale().mV[0], 4.f); }

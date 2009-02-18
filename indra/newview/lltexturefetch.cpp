@@ -416,7 +416,7 @@ LLTextureFetchWorker::LLTextureFetchWorker(LLTextureFetch* fetcher,
 	  mInLocalCache(FALSE),
 	  mRetryAttempt(0),
 	  mActiveCount(0),
-	  mWorkMutex(fetcher->getWorkerAPRPool()),
+	  mWorkMutex(NULL),
 	  mFirstPacket(0),
 	  mLastPacket(-1),
 	  mTotalPackets(0),
@@ -435,7 +435,6 @@ LLTextureFetchWorker::LLTextureFetchWorker(LLTextureFetch* fetcher,
 
 LLTextureFetchWorker::~LLTextureFetchWorker()
 {
-	llassert_always(LLWorkerClass::sDeleteLock) ;
 // 	llinfos << "Destroy: " << mID
 // 			<< " Decoded=" << mDecodedDiscard
 // 			<< " Requested=" << mRequestedDiscard

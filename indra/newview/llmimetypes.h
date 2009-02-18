@@ -101,10 +101,10 @@ public:
 		std::string mPlayTip;
 			// custom tool tip to display for Play button
 
-		bool mAllowResize;
+		BOOL mAllowResize;
 			// enable/disable media size edit fields
 
-		bool mAllowLooping;
+		BOOL mAllowLooping;
 			// enable/disable media looping checkbox
 	};
 	typedef std::map< std::string, LLMIMEInfo > mime_info_map_t;

@@ -74,8 +74,8 @@ LLViewerParcelOverlay::LLViewerParcelOverlay(LLViewerRegion* region, F32 region_
 	mTexture->createGLTexture(0, mImageRaw);
 	gGL.getTexUnit(0)->activate();
 	gGL.getTexUnit(0)->bind(mTexture);
-	mTexture->setClamp(TRUE, TRUE);
-	mTexture->setMipFilterNearest(TRUE);
+	mTexture->setAddressMode(LLTexUnit::TAM_CLAMP);
+	mTexture->setFilteringOption(LLTexUnit::TFO_POINT);
 
 	//
 	// Initialize the GL texture with empty data.

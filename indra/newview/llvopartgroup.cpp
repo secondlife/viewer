@@ -418,7 +418,9 @@ void LLParticlePartition::addGeometryCount(LLSpatialGroup* group, U32& vertex_co
 void LLParticlePartition::getGeometry(LLSpatialGroup* group)
 {
 	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
-	LLFastTimer ftm(LLFastTimer::FTM_REBUILD_PARTICLE_VB);
+	LLFastTimer ftm(mDrawableType == LLPipeline::RENDER_TYPE_GRASS ?
+					LLFastTimer::FTM_REBUILD_GRASS_VB :
+					LLFastTimer::FTM_REBUILD_PARTICLE_VB);
 
 	std::sort(mFaceList.begin(), mFaceList.end(), LLFace::CompareDistanceGreater());
 
@@ -438,7 +440,7 @@ void LLParticlePartition::getGeometry(LLSpatialGroup* group)
 	buffer->getVertexStrider(verticesp);
 	buffer->getNormalStrider(normalsp);
 	buffer->getColorStrider(colorsp);
-	buffer->getTexCoordStrider(texcoordsp);
+	buffer->getTexCoord0Strider(texcoordsp);
 	buffer->getIndexStrider(indicesp);
 
 	LLSpatialGroup::drawmap_elem_t& draw_vec = group->mDrawMap[mRenderPass];	
@@ -479,8 +481,12 @@ void LLParticlePartition::getGeometry(LLSpatialGroup* group)
 			U32 offset = facep->getIndicesStart();
 			U32 count = facep->getIndicesCount();
 			LLDrawInfo* info = new LLDrawInfo(start,end,count,offset,facep->getTexture(), buffer, fullbright); 
+			info->mExtents[0] = group->mObjectExtents[0];
+			info->mExtents[1] = group->mObjectExtents[1];
 			info->mVSize = vsize;
 			draw_vec.push_back(info);
+			//for alpha sorting
+			facep->setDrawInfo(info);
 		}
 	}
 

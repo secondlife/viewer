@@ -737,11 +737,12 @@ void LLHUDText::updateVisibility()
 	dir_from_camera.normVec();
 
 	if (dir_from_camera * LLViewerCamera::getInstance()->getAtAxis() <= 0.f)
-	{
-		mPositionAgent -= projected_vec(vec_from_camera, LLViewerCamera::getInstance()->getAtAxis()) * 1.f;
-		mPositionAgent += LLViewerCamera::getInstance()->getAtAxis() * (LLViewerCamera::getInstance()->getNear() + 0.1f);
+	{ //text is behind camera, don't render
+		mVisible = FALSE;
+		return;
 	}
-	else if (vec_from_camera * LLViewerCamera::getInstance()->getAtAxis() <= LLViewerCamera::getInstance()->getNear() + 0.1f + mSourceObject->getVObjRadius())
+		
+	if (vec_from_camera * LLViewerCamera::getInstance()->getAtAxis() <= LLViewerCamera::getInstance()->getNear() + 0.1f + mSourceObject->getVObjRadius())
 	{
 		mPositionAgent = LLViewerCamera::getInstance()->getOrigin() + vec_from_camera * ((LLViewerCamera::getInstance()->getNear() + 0.1f) / (vec_from_camera * LLViewerCamera::getInstance()->getAtAxis()));
 	}
@@ -1068,6 +1069,10 @@ void LLHUDText::markDead()
 
 void LLHUDText::renderAllHUD()
 {
+	LLGLState::checkStates();
+	LLGLState::checkTextureChannels();
+	LLGLState::checkClientArrays();
+	
 	LLGLEnable color_mat(GL_COLOR_MATERIAL);
 	LLGLDepthTest depth(GL_FALSE, GL_FALSE);
 	
@@ -1077,6 +1082,10 @@ void LLHUDText::renderAllHUD()
 	{
 		(*text_it)->renderText(FALSE);
 	}
+
+	LLGLState::checkStates();
+	LLGLState::checkTextureChannels();
+	LLGLState::checkClientArrays();
 }
 
 void LLHUDText::shiftAll(const LLVector3& offset)

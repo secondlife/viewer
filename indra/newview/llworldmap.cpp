@@ -506,9 +506,9 @@ void LLWorldMap::processMapLayerReply(LLMessageSystem* msg, void**)
 		new_layer.LayerDefined = TRUE;
 		msg->getUUIDFast(_PREHASH_LayerData, _PREHASH_ImageID, new_layer.LayerImageID, block);
 		new_layer.LayerImage = gImageList.getImage(new_layer.LayerImageID, MIPMAP_TRUE, FALSE);
-		
+
 		gGL.getTexUnit(0)->bind(new_layer.LayerImage.get());
-		new_layer.LayerImage->setClamp(TRUE, TRUE);
+		new_layer.LayerImage->setAddressMode(LLTexUnit::TAM_CLAMP);
 		
 		U32 left, right, top, bottom;
 		msg->getU32Fast(_PREHASH_LayerData, _PREHASH_Left, left, block);
@@ -618,10 +618,11 @@ void LLWorldMap::processMapBlockReply(LLMessageSystem* msg, void**)
 			siminfo->mRegionFlags = region_flags;
 			siminfo->mWaterHeight = (F32) water_height;
 			siminfo->mMapImageID[agent_flags] = image_id;
+
 #ifdef IMMEDIATE_IMAGE_LOAD
 			siminfo->mCurrentImage = gImageList.getImage(siminfo->mMapImageID[LLWorldMap::getInstance()->mCurrentMap], MIPMAP_TRUE, FALSE);
 			gGL.getTexUnit(0)->bind(siminfo->mCurrentImage.get());
-			siminfo->mCurrentImage->setClamp(TRUE, TRUE);
+			siminfo->mCurrentImage->setAddressMode(LLTexUnit::TAM_CLAMP);
 #endif
 			
 			if (siminfo->mMapImageID[2].notNull())

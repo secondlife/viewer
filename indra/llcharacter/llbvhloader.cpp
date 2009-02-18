@@ -178,7 +178,9 @@ LLBVHLoader::Status LLBVHLoader::loadTranslationTable(const char *fileName)
 	//--------------------------------------------------------------------
 	std::string path = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,fileName);
 
-	apr_file_t *fp = ll_apr_file_open(path, LL_APR_R);
+	LLAPRFile infile ;
+	infile.open(path, LL_APR_R);
+	apr_file_t *fp = infile.getFileHandle();
 	if (!fp)
 		return ST_NO_XLT_FILE;
 
@@ -187,8 +189,7 @@ LLBVHLoader::Status LLBVHLoader::loadTranslationTable(const char *fileName)
 	//--------------------------------------------------------------------
 	// register file to be closed on function exit
 	//--------------------------------------------------------------------
-	FileCloser fileCloser(fp);
-
+	
 	//--------------------------------------------------------------------
 	// load header
 	//--------------------------------------------------------------------
@@ -618,6 +619,8 @@ LLBVHLoader::Status LLBVHLoader::loadTranslationTable(const char *fileName)
 		}
 
 	}
+
+	infile.close() ;
 	return ST_OK;
 }
 

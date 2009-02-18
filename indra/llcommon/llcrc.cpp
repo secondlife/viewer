@@ -197,6 +197,10 @@ void LLCRC::update(const std::string& filename)
 			update(data, nread);
 			delete[] data;
 		}
+		else
+		{
+			fclose(fp);
+		}
 	}
 }
 

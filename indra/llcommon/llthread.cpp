@@ -102,12 +102,20 @@ LLThread::LLThread(const std::string& name, apr_pool_t *poolp) :
 		apr_pool_create(&mAPRPoolp, NULL); // Create a subpool for this thread
 	}
 	mRunCondition = new LLCondition(mAPRPoolp);
+
+	mLocalAPRFilePoolp = NULL ;
 }
 
 
 LLThread::~LLThread()
 {
 	shutdown();
+
+	if(mLocalAPRFilePoolp)
+	{
+		delete mLocalAPRFilePoolp ;
+		mLocalAPRFilePoolp = NULL ;
+	}
 }
 
 void LLThread::shutdown()

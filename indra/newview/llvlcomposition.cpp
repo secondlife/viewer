@@ -107,6 +107,7 @@ void LLVLComposition::setDetailTextureID(S32 corner, const LLUUID& id)
 		return;
 	}
 	mDetailTextures[corner] = gImageList.getImage(id);
+	mDetailTextures[corner]->setNoDelete() ;
 	mRawImages[corner] = NULL;
 }
 

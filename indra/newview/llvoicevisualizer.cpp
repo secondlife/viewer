@@ -149,6 +149,8 @@ LLVoiceVisualizer::LLVoiceVisualizer( const U8 type )
 		mSoundSymbol.mWaveExpansion			[i] = 1.0f;
 	}
 
+	mSoundSymbol.mTexture[0]->setFilteringOption(LLTexUnit::TFO_ANISOTROPIC);
+
 	// The first instance loads the initial state from prefs.
 	if (!sPrefsInitialized)
 	{

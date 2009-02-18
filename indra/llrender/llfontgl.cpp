@@ -535,7 +535,7 @@ BOOL LLFontGL::loadFace(const std::string& filename,
 	}
 	mImageGLp->createGLTexture(0, mRawImageGLp);
 	gGL.getTexUnit(0)->bind(mImageGLp);
-	mImageGLp->setMipFilterNearest(TRUE, TRUE);
+	mImageGLp->setFilteringOption(LLTexUnit::TFO_POINT);
 	return TRUE;
 }
 
@@ -549,7 +549,7 @@ BOOL LLFontGL::addChar(const llwchar wch)
 	stop_glerror();
 	mImageGLp->setSubImage(mRawImageGLp, 0, 0, mImageGLp->getWidth(), mImageGLp->getHeight());
 	gGL.getTexUnit(0)->bind(mImageGLp);
-	mImageGLp->setMipFilterNearest(TRUE, TRUE);
+	mImageGLp->setFilteringOption(LLTexUnit::TFO_POINT);
 	stop_glerror();
 	return TRUE;
 }
@@ -565,7 +565,7 @@ S32 LLFontGL::renderUTF8(const std::string &text, const S32 offset,
 					 BOOL use_ellipses) const
 {
 	LLWString wstr = utf8str_to_wstring(text);
-	return render(wstr, offset, x, y, color, halign, valign, style, max_chars, max_pixels, right_x, use_ellipses);
+	return render(wstr, offset, x, y, color, halign, valign, style, max_chars, max_pixels, right_x, FALSE, use_ellipses);
 }
 
 S32 LLFontGL::render(const LLWString &wstr, 
@@ -1104,59 +1104,32 @@ S32	LLFontGL::firstDrawableChar(const llwchar* wchars, F32 max_pixels, S32 text_
 		llwchar wch = wchars[i];
 
 		const embedded_data_t* ext_data = getEmbeddedCharData(wch);
-		if (ext_data)
+		F32 char_width = ext_data ? getEmbeddedCharAdvance(ext_data) : getXAdvance(wch);
+
+		if( scaled_max_pixels < (total_width + char_width) )
 		{
-			F32 char_width = getEmbeddedCharAdvance(ext_data);
-
-			if( scaled_max_pixels < (total_width + char_width) )
-			{
-				break;
-			}
-
-			total_width += char_width;
-
-			drawable_chars++;
-			if( max_chars >= 0 && drawable_chars >= max_chars )
-			{
-				break;
-			}
-
-			if ( i > 0 )
-			{
-				total_width += EXT_KERNING * sScaleX;
-			}
-
-			// Round after kerning.
-			total_width = (F32)llfloor(total_width + 0.5f);
+			break;
 		}
-		else
+
+		total_width += char_width;
+		drawable_chars++;
+
+		if( max_chars >= 0 && drawable_chars >= max_chars )
 		{
-			F32 char_width = getXAdvance(wch);
-			if( scaled_max_pixels < (total_width + char_width) )
-			{
-				break;
-			}
-
-			total_width += char_width;
-
-			drawable_chars++;
-			if( max_chars >= 0 && drawable_chars >= max_chars )
-			{
-				break;
-			}
-
-			if ( i > 0 )
-			{
-				// Kerning
-				total_width += getXKerning(wchars[i-1], wch);
-			}
-
-			// Round after kerning.
-			total_width = (F32)llfloor(total_width + 0.5f);
+			break;
 		}
+
+		if ( i > 0 )
+		{
+			// kerning
+			total_width += ext_data ? (EXT_KERNING * sScaleX) : getXKerning(wchars[i-1], wch);
+		}
+
+		// Round after kerning.
+		total_width = llround(total_width);
 	}
 
-	return text_len - drawable_chars;
+	return start_pos - drawable_chars;
 }
 
 

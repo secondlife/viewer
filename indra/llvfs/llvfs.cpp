@@ -2070,9 +2070,11 @@ void LLVFS::dumpFiles()
 			std::string extension = get_extension(type);
 			std::string filename = id.asString() + extension;
 			llinfos << " Writing " << filename << llendl;
-			apr_file_t* file = ll_apr_file_open(filename, LL_APR_WB);
-			ll_apr_file_write(file, buffer, size);
-			apr_file_close(file);
+			
+			LLAPRFile outfile ;
+			outfile.open(filename, LL_APR_WB);
+			outfile.write(buffer, size);
+			outfile.close();
 			delete[] buffer;
 			files_extracted++;
 		}

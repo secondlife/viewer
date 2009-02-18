@@ -71,6 +71,14 @@ public:
 		FTM_UPDATE_AVATAR,
 		
 		// common render components
+		FTM_SHADOW_GEOMETRY,
+		FTM_SHADOW_RENDER,
+		FTM_SHADOW_TERRAIN,
+		FTM_SHADOW_AVATAR,
+		FTM_SHADOW_SIMPLE,
+		FTM_SHADOW_ALPHA,
+		FTM_SHADOW_TREE,
+		
 		FTM_RENDER_GEOMETRY,
 		 FTM_RENDER_TERRAIN,
 		 FTM_RENDER_SIMPLE,
@@ -186,11 +194,13 @@ public:
 	enum { FTM_MAX_DEPTH = 64 };
 	
 public:
+	static LLFastTimer::EFastTimerType sCurType;
+
 	LLFastTimer(EFastTimerType type)
 	{
 #if FAST_TIMER_ON
 		mType = type;
-
+		sCurType = type;
 		// These don't get counted, because they use CPU clockticks
 		//gTimerBins[gCurTimerBin]++;
 		//LLTimer::sNumTimerCalls++;

@@ -75,7 +75,7 @@ static GLenum sGLCompareFunc[] =
 	GL_GREATER
 };
 
-const U32 immediate_mask = LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_COLOR | LLVertexBuffer::MAP_TEXCOORD;
+const U32 immediate_mask = LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_COLOR | LLVertexBuffer::MAP_TEXCOORD0;
 
 static GLenum sGLBlendFactor[] =
 {
@@ -96,7 +96,8 @@ LLTexUnit::LLTexUnit(S32 index)
 mCurrColorOp(TBO_MULT), mCurrAlphaOp(TBO_MULT),
 mCurrColorSrc1(TBS_TEX_COLOR), mCurrColorSrc2(TBS_PREV_COLOR),
 mCurrAlphaSrc1(TBS_TEX_ALPHA), mCurrAlphaSrc2(TBS_PREV_ALPHA),
-mCurrColorScale(1), mCurrAlphaScale(1), mCurrTexture(0)
+mCurrColorScale(1), mCurrAlphaScale(1), mCurrTexture(0),
+mHasMipMaps(false)
 {
 	llassert_always(index < LL_NUM_TEXTURE_LAYERS);
 	mIndex = index;
@@ -176,8 +177,9 @@ void LLTexUnit::disable(void)
 	}
 }
 
-bool LLTexUnit::bind(const LLImageGL* texture, bool forceBind)
+bool LLTexUnit::bind(LLImageGL* texture, bool forceBind)
 {
+	stop_glerror();
 	if (mIndex < 0) return false;
 
 	gGL.flush();
@@ -190,15 +192,30 @@ bool LLTexUnit::bind(const LLImageGL* texture, bool forceBind)
 	
 	if (!texture->getTexName()) //if texture does not exist
 	{
+		//if deleted, will re-generate it immediately
+		texture->forceImmediateUpdate() ;
+
 		return texture->bindDefaultImage(mIndex);
 	}
-	// Disabled caching of binding state.
-	activate();
-	enable(texture->getTarget());
-	mCurrTexture = texture->getTexName();
-	glBindTexture(sGLTextureType[texture->getTarget()], mCurrTexture);
-	texture->updateBindStats();
-	return true;
+	
+	if (texture != NULL && ((mCurrTexture != texture->getTexName()) || forceBind))
+	{
+		activate();
+		enable(texture->getTarget());
+		mCurrTexture = texture->getTexName();
+		glBindTexture(sGLTextureType[texture->getTarget()], mCurrTexture);
+		texture->updateBindStats();
+		texture->setActive() ;
+		mHasMipMaps = texture->mHasMipMaps;
+		if (texture->mTexOptionsDirty)
+		{
+			texture->mTexOptionsDirty = false;
+			setTextureAddressMode(texture->mAddressMode);
+			setTextureFilteringOption(texture->mFilterOption);
+		}
+		return true;
+	}
+	return false;
 }
 
 bool LLTexUnit::bind(LLCubeMap* cubeMap)
@@ -207,8 +224,7 @@ bool LLTexUnit::bind(LLCubeMap* cubeMap)
 
 	gGL.flush();
 
-	// Disabled caching of binding state.
-	if (cubeMap != NULL)
+	if (cubeMap != NULL && mCurrTexture != cubeMap->mImages[0]->getTexName())
 	{
 		if (gGLManager.mHasCubeMap && LLCubeMap::sUseCubeMaps)
 		{
@@ -216,8 +232,14 @@ bool LLTexUnit::bind(LLCubeMap* cubeMap)
 			enable(LLTexUnit::TT_CUBE_MAP);
 			mCurrTexture = cubeMap->mImages[0]->getTexName();
 			glBindTexture(GL_TEXTURE_CUBE_MAP_ARB, mCurrTexture);
+			mHasMipMaps = cubeMap->mImages[0]->mHasMipMaps;
 			cubeMap->mImages[0]->updateBindStats();
-			cubeMap->mImages[0]->setMipFilterNearest (FALSE, FALSE);
+			if (cubeMap->mImages[0]->mTexOptionsDirty)
+			{
+				cubeMap->mImages[0]->mTexOptionsDirty = false;
+				setTextureAddressMode(cubeMap->mImages[0]->mAddressMode);
+				setTextureFilteringOption(cubeMap->mImages[0]->mFilterOption);
+			}
 			return true;
 		}
 		else
@@ -228,6 +250,8 @@ bool LLTexUnit::bind(LLCubeMap* cubeMap)
 	return false;
 }
 
+// LLRenderTarget is unavailible on the mapserver since it uses FBOs.
+#if !LL_MESA_HEADLESS
 bool LLTexUnit::bind(LLRenderTarget* renderTarget, bool bindDepth)
 {
 	if (mIndex < 0) return false;
@@ -245,23 +269,26 @@ bool LLTexUnit::bind(LLRenderTarget* renderTarget, bool bindDepth)
 
 	return true;
 }
+#endif // LL_MESA_HEADLESS
 
-bool LLTexUnit::bindManual(eTextureType type, U32 texture)
+bool LLTexUnit::bindManual(eTextureType type, U32 texture, bool hasMips)
 {
-	if (mIndex < 0) return false;
+	if (mIndex < 0 || mCurrTexture == texture) return false;
 
-	// Disabled caching of binding state.
 	gGL.flush();
 	
 	activate();
 	enable(type);
 	mCurrTexture = texture;
 	glBindTexture(sGLTextureType[type], texture);
+	mHasMipMaps = hasMips;
 	return true;
 }
 
 void LLTexUnit::unbind(eTextureType type)
 {
+	stop_glerror();
+
 	if (mIndex < 0) return;
 
 	// Disabled caching of binding state.
@@ -277,17 +304,57 @@ void LLTexUnit::unbind(eTextureType type)
 
 void LLTexUnit::setTextureAddressMode(eTextureAddressMode mode)
 {
-	if (mIndex < 0) return;
+	if (mIndex < 0 || mCurrTexture == 0) return;
 
-	if (true)
+	activate();
+
+	glTexParameteri (sGLTextureType[mCurrTexType], GL_TEXTURE_WRAP_S, sGLAddressMode[mode]);
+	glTexParameteri (sGLTextureType[mCurrTexType], GL_TEXTURE_WRAP_T, sGLAddressMode[mode]);
+	if (mCurrTexType == TT_CUBE_MAP)
 	{
-		activate();
+		glTexParameteri (GL_TEXTURE_CUBE_MAP_ARB, GL_TEXTURE_WRAP_R, sGLAddressMode[mode]);
+	}
+}
 
-		glTexParameteri (sGLTextureType[mCurrTexType], GL_TEXTURE_WRAP_S, sGLAddressMode[mode]);
-		glTexParameteri (sGLTextureType[mCurrTexType], GL_TEXTURE_WRAP_T, sGLAddressMode[mode]);
-		if (mCurrTexType == TT_CUBE_MAP)
+void LLTexUnit::setTextureFilteringOption(LLTexUnit::eTextureFilterOptions option)
+{
+	if (mIndex < 0 || mCurrTexture == 0) return;
+
+	if (option == TFO_POINT)
+	{
+		glTexParameteri(sGLTextureType[mCurrTexType], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	}
+	else
+	{
+		glTexParameteri(sGLTextureType[mCurrTexType], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	}
+
+	if (option >= TFO_TRILINEAR && mHasMipMaps)
+	{
+		glTexParameteri(sGLTextureType[mCurrTexType], GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	} 
+	else if (option >= TFO_BILINEAR)
+	{
+		glTexParameteri(sGLTextureType[mCurrTexType], GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	}
+	else
+	{
+		glTexParameteri(sGLTextureType[mCurrTexType], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	}
+
+	if (gGLManager.mHasAnisotropic)
+	{
+		if (LLImageGL::sGlobalUseAnisotropic && option == TFO_ANISOTROPIC)
 		{
-			glTexParameteri (GL_TEXTURE_CUBE_MAP_ARB, GL_TEXTURE_WRAP_R, sGLAddressMode[mode]);
+			if (gGL.mMaxAnisotropy < 1.f)
+			{
+				glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &gGL.mMaxAnisotropy);
+			}
+			glTexParameterf(sGLTextureType[mCurrTexType], GL_TEXTURE_MAX_ANISOTROPY_EXT, gGL.mMaxAnisotropy);
+		}
+		else
+		{
+			glTexParameterf(sGLTextureType[mCurrTexType], GL_TEXTURE_MAX_ANISOTROPY_EXT, 1.f);
 		}
 	}
 }
@@ -590,12 +657,13 @@ void LLTexUnit::debugTextureUnit(void)
 
 
 LLRender::LLRender()
-: mDirty(false), mCount(0), mMode(LLRender::TRIANGLES)
+: mDirty(false), mCount(0), mMode(LLRender::TRIANGLES),
+	mMaxAnisotropy(0.f) 
 {
 	mBuffer = new LLVertexBuffer(immediate_mask, 0);
 	mBuffer->allocateBuffer(4096, 0, TRUE);
 	mBuffer->getVertexStrider(mVerticesp);
-	mBuffer->getTexCoordStrider(mTexcoordsp);
+	mBuffer->getTexCoord0Strider(mTexcoordsp);
 	mBuffer->getColorStrider(mColorsp);
 	
 	mTexUnits.reserve(LL_NUM_TEXTURE_LAYERS);
@@ -688,7 +756,10 @@ void LLRender::setColorMask(bool writeColorR, bool writeColorG, bool writeColorB
 	mCurrColorMask[2] = writeColorB;
 	mCurrColorMask[3] = writeAlpha;
 
-	glColorMask(writeColorR, writeColorG, writeColorB, writeAlpha);
+	glColorMask(writeColorR ? GL_TRUE : GL_FALSE, 
+				writeColorG ? GL_TRUE : GL_FALSE,
+				writeColorB ? GL_TRUE : GL_FALSE,
+				writeAlpha ? GL_TRUE : GL_FALSE);
 }
 
 void LLRender::setSceneBlendType(eBlendType type)
@@ -765,6 +836,14 @@ bool LLRender::verifyTexUnitActive(U32 unitToVerify)
 	{
 		llwarns << "TexUnit currently active: " << mCurrTextureUnitIndex << " (expecting " << unitToVerify << ")" << llendl;
 		return false;
+	}
+}
+
+void LLRender::clearErrors()
+{
+	while (glGetError())
+	{
+		//loop until no more error flags left
 	}
 }
 
@@ -853,13 +932,14 @@ void LLRender::flush()
 				
 		mBuffer->setBuffer(immediate_mask);
 		mBuffer->drawArrays(mMode, 0, mCount);
-
+		
 		mVerticesp[0] = mVerticesp[mCount];
 		mTexcoordsp[0] = mTexcoordsp[mCount];
 		mColorsp[0] = mColorsp[mCount];
 		mCount = 0;
 	}
 }
+
 void LLRender::vertex3f(const GLfloat& x, const GLfloat& y, const GLfloat& z)
 { 
 	//the range of mVerticesp, mColorsp and mTexcoordsp is [0, 4095]

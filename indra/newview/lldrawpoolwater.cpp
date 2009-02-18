@@ -59,6 +59,8 @@ const LLUUID WATER_TEST("2bfd3884-7e27-69b9-ba3a-3e673f680004");
 
 static float sTime;
 
+BOOL deferred_render = FALSE;
+
 BOOL LLDrawPoolWater::sSkipScreenCopy = FALSE;
 BOOL LLDrawPoolWater::sNeedsReflectionUpdate = TRUE;
 BOOL LLDrawPoolWater::sNeedsDistortionUpdate = TRUE;
@@ -70,14 +72,16 @@ LLDrawPoolWater::LLDrawPoolWater() :
 {
 	mHBTex[0] = gImageList.getImage(gSunTextureID, TRUE, TRUE);
 	gGL.getTexUnit(0)->bind(mHBTex[0].get());
-	mHBTex[0]->setClamp(TRUE, TRUE);
+	mHBTex[0]->setAddressMode(LLTexUnit::TAM_CLAMP);
 
 	mHBTex[1] = gImageList.getImage(gMoonTextureID, TRUE, TRUE);
 	gGL.getTexUnit(0)->bind(mHBTex[1].get());
-	mHBTex[1]->setClamp(TRUE, TRUE);
+	mHBTex[1]->setAddressMode(LLTexUnit::TAM_CLAMP);
 
 	mWaterImagep = gImageList.getImage(WATER_TEST);
+	mWaterImagep->setNoDelete() ;
 	mWaterNormp = gImageList.getImage(DEFAULT_WATER_NORMAL);
+	mWaterNormp->setNoDelete() ;
 
 	restoreGL();
 }
@@ -119,6 +123,18 @@ S32 LLDrawPoolWater::getNumPasses()
 	}
 
 	return 0;
+}
+
+void LLDrawPoolWater::beginPostDeferredPass(S32 pass)
+{
+	beginRenderPass(pass);
+	deferred_render = TRUE;
+}
+
+void LLDrawPoolWater::endPostDeferredPass(S32 pass)
+{
+	endRenderPass(pass);
+	deferred_render = FALSE;
 }
 
 void LLDrawPoolWater::render(S32 pass)
@@ -271,10 +287,7 @@ void LLDrawPoolWater::render(S32 pass)
 
 		gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
 
-		if (gSky.mVOSkyp->getCubeMap())
-		{
-			gSky.mVOSkyp->getCubeMap()->disable();
-		}
+		gSky.mVOSkyp->getCubeMap()->disable();
 		
 		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 		gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
@@ -375,7 +388,11 @@ void LLDrawPoolWater::shade()
 
 	F32 eyedepth = LLViewerCamera::getInstance()->getOrigin().mV[2] - gAgent.getRegion()->getWaterHeight();
 	
-	if (eyedepth < 0.f && LLPipeline::sWaterReflections)
+	if (deferred_render)
+	{
+		shader = &gDeferredWaterProgram;
+	}
+	else if (eyedepth < 0.f && LLPipeline::sWaterReflections)
 	{
 		shader = &gUnderWaterProgram;
 	}
@@ -408,21 +425,36 @@ void LLDrawPoolWater::shade()
 
 	mWaterNormp->addTextureStats(1024.f*1024.f);
 	gGL.getTexUnit(bumpTex)->bind(mWaterNormp.get());
-	mWaterNormp->setMipFilterNearest (mWaterNormp->getMipFilterNearest(),
-									  !gSavedSettings.getBOOL("RenderWaterMipNormal"));
+	if (gSavedSettings.getBOOL("RenderWaterMipNormal"))
+	{
+		mWaterNormp->setFilteringOption(LLTexUnit::TFO_ANISOTROPIC);
+	}
+	else 
+	{
+		mWaterNormp->setFilteringOption(LLTexUnit::TFO_POINT);
+	}
 	
 	S32 screentex = shader->enableTexture(LLViewerShaderMgr::WATER_SCREENTEX);	
-	stop_glerror();
+		
+	if (deferred_render)
+	{
+		gPipeline.bindDeferredShader(*shader);
+	}
+	else
+	{
+		shader->bind();
+	}
 	
-	shader->bind();
-
 	if (screentex > -1)
 	{
 		shader->uniform4fv(LLViewerShaderMgr::WATER_FOGCOLOR, 1, sWaterFogColor.mV);
 		shader->uniform1f(LLViewerShaderMgr::WATER_FOGDENSITY, 
 			param_mgr->getFogDensity());
+		gPipeline.mWaterDis.bindTexture(0, screentex);
 	}
-
+	
+	stop_glerror();
+	
 	gGL.getTexUnit(screentex)->bind(&gPipeline.mWaterDis);	
 
 	if (mVertexShaderLevel == 1)
@@ -534,7 +566,15 @@ void LLDrawPoolWater::shade()
 	shader->disableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
 	shader->disableTexture(LLViewerShaderMgr::WATER_REFTEX);
 	shader->disableTexture(LLViewerShaderMgr::WATER_SCREENDEPTH);
-	shader->unbind();
+
+	if (deferred_render)
+	{
+		gPipeline.unbindDeferredShader(*shader);
+	}
+	else
+	{
+		shader->unbind();
+	}
 
 	gGL.getTexUnit(0)->activate();
 	gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);

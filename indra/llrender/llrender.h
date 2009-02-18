@@ -71,6 +71,14 @@ public:
 		TAM_CLAMP 				// No texture type is currently enabled
 	} eTextureAddressMode;
 
+	typedef enum
+	{	// Note: If mipmapping or anisotropic are not enabled or supported it should fall back gracefully
+		TFO_POINT = 0,			// Equal to: min=point, mag=point, mip=none.
+		TFO_BILINEAR,			// Equal to: min=linear, mag=linear, mip=point.
+		TFO_TRILINEAR,			// Equal to: min=linear, mag=linear, mip=linear.
+		TFO_ANISOTROPIC			// Equal to: min=anisotropic, max=anisotropic, mip=linear.
+	} eTextureFilterOptions;
+
 	typedef enum 
 	{
 		TB_REPLACE = 0,
@@ -131,29 +139,42 @@ public:
 	// Sets this tex unit to be the currently active one
 	void activate(void); 
 
-	// Enables this texture unit for the given texture type (automatically disables any previously enabled texture type)
+	// Enables this texture unit for the given texture type 
+	// (automatically disables any previously enabled texture type)
 	void enable(eTextureType type); 
+
 	// Disables the current texture unit
 	void disable(void);	
 	
 	// Binds the LLImageGL to this texture unit 
 	// (automatically enables the unit for the LLImageGL's texture type)
-	bool bind(const LLImageGL* texture, bool forceBind = false);
+	bool bind(LLImageGL* texture, bool forceBind = false);
 
 	// Binds a cubemap to this texture unit 
 	// (automatically enables the texture unit for cubemaps)
 	bool bind(LLCubeMap* cubeMap);
 
-	// Binds a render target to this texture unit (automatically enables the texture unit for the RT's texture type)
+	// Binds a render target to this texture unit 
+	// (automatically enables the texture unit for the RT's texture type)
 	bool bind(LLRenderTarget * renderTarget, bool bindDepth = false);
 
-	// Manually binds a texture to the texture unit (automatically enables the tex unit for the given texture type)
-	bool bindManual(eTextureType type, U32 texture);
+	// Manually binds a texture to the texture unit 
+	// (automatically enables the tex unit for the given texture type)
+	bool bindManual(eTextureType type, U32 texture, bool hasMips = false);
 	
-	// Unbinds the currently bound texture of the given type (only if there's a texture of the given type currently bound)
+	// Unbinds the currently bound texture of the given type 
+	// (only if there's a texture of the given type currently bound)
 	void unbind(eTextureType type);
 
+	// Sets the addressing mode used to sample the texture
+	// Warning: this stays set for the bound texture forever, 
+	// make sure you want to permanently change the address mode  for the bound texture.
 	void setTextureAddressMode(eTextureAddressMode mode);
+
+	// Sets the filtering options used to sample the texture
+	// Warning: this stays set for the bound texture forever, 
+	// make sure you want to permanently change the filtering for the bound texture.
+	void setTextureFilteringOption(LLTexUnit::eTextureFilterOptions option);
 
 	void setTextureBlendType(eTextureBlendType type);
 
@@ -165,6 +186,12 @@ public:
 	{ setTextureCombiner(op, src1, src2, true); }
 
 	static U32 getInternalType(eTextureType type);
+
+	U32 getCurrTexture(void) { return mCurrTexture; }
+
+	eTextureType getCurrType(void) { return mCurrTexType; }
+
+	void setHasMipMaps(bool hasMips) { mHasMipMaps = hasMips; }
 
 protected:
 	S32					mIndex;
@@ -179,6 +206,7 @@ protected:
 	eTextureBlendSrc	mCurrAlphaSrc2;
 	S32					mCurrColorScale;
 	S32					mCurrAlphaScale;
+	bool				mHasMipMaps;
 	
 	void debugTextureUnit(void);
 	void setColorScale(S32 scale);
@@ -292,6 +320,8 @@ public:
 
 	void debugTexUnits(void);
 
+	void clearErrors();
+
 	struct Vertex
 	{
 		GLfloat v[3];
@@ -316,6 +346,8 @@ private:
 	LLStrider<LLColor4U>		mColorsp;
 	std::vector<LLTexUnit*>		mTexUnits;
 	LLTexUnit*			mDummyTexUnit;
+
+	F32				mMaxAnisotropy;
 };
 
 extern F64 gGLModelView[16];

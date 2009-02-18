@@ -358,7 +358,6 @@ LLAgent::LLAgent() :
 
 	mFrameAgent(),
 
-	mCrouching(FALSE),
 	mIsBusy(FALSE),
 
 	mAtKey(0), // Either 1, 0, or -1... indicates that movement-key is pressed
@@ -477,8 +476,16 @@ void LLAgent::cleanup()
 {
 	setSitCamera(LLUUID::null);
 	mAvatarObject = NULL;
-	mLookAt = NULL;
-	mPointAt = NULL;
+	if(mLookAt)
+	{
+		mLookAt->markDead() ;
+		mLookAt = NULL;
+	}
+	if(mPointAt)
+	{
+		mPointAt->markDead() ;
+		mPointAt = NULL;
+	}
 	mRegionp = NULL;
 	setFocusObject(NULL);
 }
@@ -2726,7 +2733,7 @@ BOOL LLAgent::needsRenderAvatar()
 // TRUE if we need to render your own avatar's head.
 BOOL LLAgent::needsRenderHead()
 {
-	return mShowAvatar && !cameraMouselook();
+	return (LLVOAvatar::sVisibleInFirstPerson && LLPipeline::sReflectionRender) || (mShowAvatar && !cameraMouselook());
 }
 
 //-----------------------------------------------------------------------------

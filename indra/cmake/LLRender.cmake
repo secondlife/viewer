@@ -18,8 +18,8 @@ endif (SERVER AND LINUX)
 
 # mapserver requires certain files to be copied so LL_MESA_HEADLESS can be set
 # differently for different object files.
-macro (copy_server_sources _copied_SOURCES)
-  foreach (PREFIX ${_copied_SOURCES})
+macro (copy_server_sources )
+  foreach (PREFIX ${ARGV})
     add_custom_command(
         OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${PREFIX}_server.cpp
         COMMAND ${CMAKE_COMMAND}

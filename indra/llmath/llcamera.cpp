@@ -178,28 +178,95 @@ S32 LLCamera::AABBInFrustum(const LLVector3 &center, const LLVector3& radius)
 	U8 mask = 0;
 	S32 result = 2;
 
-	for (U32 i = 0; i < mPlaneCount; i++)
-	{
-		mask = mAgentPlanes[i].mask;
-		LLPlane p = mAgentPlanes[i].p;
-		LLVector3 n = LLVector3(p);
-		float d = p.mV[3];
-		LLVector3 rscale = radius.scaledVec(scaler[mask]);
+	if (radius.magVecSquared() > mFrustumCornerDist * mFrustumCornerDist)
+	{ //box is larger than frustum, check frustum quads against box planes
 
-		LLVector3 minp = center - rscale;
-		LLVector3 maxp = center + rscale;
-
-		if (n * minp > -d) 
+		static const LLVector3 dir[] = 
 		{
-			return 0;
+			LLVector3(1, 0, 0),
+			LLVector3(-1, 0, 0),
+			LLVector3(0, 1, 0),
+			LLVector3(0, -1, 0),
+			LLVector3(0, 0, 1),
+			LLVector3(0, 0, -1)
+		};
+
+		U32 quads[] = 
+		{
+			0, 1, 2, 3,
+			0, 1, 5, 4,
+			2, 3, 7, 6,
+			3, 0, 7, 4,
+			1, 2, 6, 4,
+			4, 5, 6, 7
+		};
+
+		result = 0;
+
+		BOOL total_inside = TRUE;
+		for (U32 i = 0; i < 6; i++)
+		{ 
+			LLVector3 p = center + radius.scaledVec(dir[i]);
+			F32 d = -p*dir[i];
+
+			for (U32 j = 0; j <	6; j++)
+			{ //for each quad
+				F32 dist = mAgentFrustum[quads[j*4+0]]*dir[i] + d;
+				if (dist > 0)
+				{ //at least one frustum point is outside the AABB
+					total_inside = FALSE;
+					for (U32 k = 1; k < 4; k++)
+					{ //for each other point on quad
+						if ( mAgentFrustum[quads[j*4+k]]*dir[i]+d  <= 0.f)
+						{ //quad is straddling some plane of AABB
+							return 1;
+						}
+					}
+				}
+				else
+				{
+					for (U32 k = 1; k < 4; k++)
+					{
+						if (mAgentFrustum[quads[j*4+k]]*dir[i]+d > 0.f)
+						{
+							return 1;
+						}
+					}
+				}
+			}
 		}
-	
-		if (n * maxp > -d)
+
+		if (total_inside)
 		{
 			result = 1;
 		}
 	}
+	else
+	{
+		for (U32 i = 0; i < mPlaneCount; i++)
+		{
+			mask = mAgentPlanes[i].mask;
+			LLPlane p = mAgentPlanes[i].p;
+			LLVector3 n = LLVector3(p);
+			float d = p.mV[3];
+			LLVector3 rscale = radius.scaledVec(scaler[mask]);
 
+			LLVector3 minp = center - rscale;
+			LLVector3 maxp = center + rscale;
+
+			if (n * minp > -d) 
+			{
+				return 0;
+			}
+		
+			if (n * maxp > -d)
+			{
+				result = 1;
+			}
+		}
+	}
+
+	
 	return result;
 }
 

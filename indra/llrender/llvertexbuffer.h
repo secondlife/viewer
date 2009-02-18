@@ -100,8 +100,10 @@ public:
 	enum {
 		TYPE_VERTEX,
 		TYPE_NORMAL,
-		TYPE_TEXCOORD,
+		TYPE_TEXCOORD0,
+		TYPE_TEXCOORD1,
 		TYPE_TEXCOORD2,
+		TYPE_TEXCOORD3,
 		TYPE_COLOR,
 		// These use VertexAttribPointer and should possibly be made generic
 		TYPE_BINORMAL,
@@ -113,16 +115,15 @@ public:
 	enum {
 		MAP_VERTEX = (1<<TYPE_VERTEX),
 		MAP_NORMAL = (1<<TYPE_NORMAL),
-		MAP_TEXCOORD = (1<<TYPE_TEXCOORD),
+		MAP_TEXCOORD0 = (1<<TYPE_TEXCOORD0),
+		MAP_TEXCOORD1 = (1<<TYPE_TEXCOORD1),
 		MAP_TEXCOORD2 = (1<<TYPE_TEXCOORD2),
+		MAP_TEXCOORD3 = (1<<TYPE_TEXCOORD3),
 		MAP_COLOR = (1<<TYPE_COLOR),
 		// These use VertexAttribPointer and should possibly be made generic
 		MAP_BINORMAL = (1<<TYPE_BINORMAL),
 		MAP_WEIGHT = (1<<TYPE_WEIGHT),
 		MAP_CLOTHWEIGHT = (1<<TYPE_CLOTHWEIGHT),
-		MAP_DRAW = 0x2000, // Buffer is in draw (read-only) mode
-		MAP_MAPPED = 0x4000, // Indicates that buffer has been mapped, but not to any type of data
-		MAP_UNMAPPED = 0x8000 // Indicates that buffer has been logically un-mapped
 	};
 	
 protected:
@@ -165,8 +166,8 @@ public:
 	//   vb->unmapBuffer();
 	bool getVertexStrider(LLStrider<LLVector3>& strider, S32 index=0);
 	bool getIndexStrider(LLStrider<U16>& strider, S32 index=0);
-	bool getTexCoordStrider(LLStrider<LLVector2>& strider, S32 index=0);
-	bool getTexCoord2Strider(LLStrider<LLVector2>& strider, S32 index=0);
+	bool getTexCoord0Strider(LLStrider<LLVector2>& strider, S32 index=0);
+	bool getTexCoord1Strider(LLStrider<LLVector2>& strider, S32 index=0);
 	bool getNormalStrider(LLStrider<LLVector3>& strider, S32 index=0);
 	bool getBinormalStrider(LLStrider<LLVector3>& strider, S32 index=0);
 	bool getColorStrider(LLStrider<LLColor4U>& strider, S32 index=0);

@@ -86,6 +86,7 @@ LLVOTree::LLVOTree(const LLUUID &id, const LLPCode pcode, LLViewerRegion *region
 	mSpecies = 0;
 	mFrameCount = 0;
 	mWind = mRegionp->mWind.getVelocity(getPositionRegion());
+	mTrunkLOD = 0;
 }
 
 
@@ -343,40 +344,68 @@ BOOL LLVOTree::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 		return TRUE;
 	}
 	
-	F32 mass_inv; 
-
-	//  For all tree objects, update the trunk bending with the current wind 
-	//  Walk sprite list in order away from viewer 
-	if (!(mFrameCount % FRAMES_PER_WIND_UPDATE)) 
+	if (gSavedSettings.getBOOL("RenderAnimateTrees"))
 	{
-		//  If needed, Get latest wind for this tree
-		mWind = mRegionp->mWind.getVelocity(getPositionRegion());
+		F32 mass_inv; 
+
+		//  For all tree objects, update the trunk bending with the current wind 
+		//  Walk sprite list in order away from viewer 
+		if (!(mFrameCount % FRAMES_PER_WIND_UPDATE)) 
+		{
+			//  If needed, Get latest wind for this tree
+			mWind = mRegionp->mWind.getVelocity(getPositionRegion());
+		}
+		mFrameCount++;
+
+		mass_inv = 1.f/(5.f + mDepth*mBranches*0.2f);
+		mTrunkVel += (mWind * mass_inv * TREE_WIND_SENSITIVITY);		//  Pull in direction of wind
+		mTrunkVel -= (mTrunkBend * mass_inv * TREE_TRUNK_STIFFNESS);		//  Restoring force in direction of trunk 	
+		mTrunkBend += mTrunkVel;
+		mTrunkVel *= 0.99f;									//  Add damping
+
+		if (mTrunkBend.length() > 1.f)
+		{
+			mTrunkBend.normalize();
+		}
+
+		if (mTrunkVel.length() > 1.f)
+		{
+			mTrunkVel.normalize();
+		}
 	}
-	mFrameCount++;
 
-	mass_inv = 1.f/(5.f + mDepth*mBranches*0.2f);
-	mTrunkVel += (mWind * mass_inv * TREE_WIND_SENSITIVITY);		//  Pull in direction of wind
-	mTrunkVel -= (mTrunkBend * mass_inv * TREE_TRUNK_STIFFNESS);		//  Restoring force in direction of trunk 	
-	mTrunkBend += mTrunkVel;
-	mTrunkVel *= 0.99f;									//  Add damping
+	S32 trunk_LOD = 0;
+	F32 app_angle = getAppAngle()*LLVOTree::sTreeFactor;
 
-	if (mTrunkBend.length() > 1.f)
+	for (S32 j = 0; j < 4; j++)
 	{
-		mTrunkBend.normalize();
+
+		if (app_angle > LLVOTree::sLODAngles[j])
+		{
+			trunk_LOD = j;
+			break;
+		}
+	} 
+
+	if (!gSavedSettings.getBOOL("RenderAnimateTrees"))
+	{
+		if (mReferenceBuffer.isNull())
+		{
+			gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_ALL, TRUE);
+		}
+		else if (trunk_LOD != mTrunkLOD)
+		{
+			gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_ALL, FALSE);
+		}
 	}
 
-	if (mTrunkVel.length() > 1.f)
-	{
-		mTrunkVel.normalize();
-	}
+	mTrunkLOD = trunk_LOD;
 
 	return TRUE;
 }
 
-
 const F32 TREE_BLEND_MIN = 1.f;
 const F32 TREE_BLEND_RANGE = 1.f;
-
 
 void LLVOTree::render(LLAgent &agent)
 {
@@ -450,338 +479,604 @@ const S32 LEAF_VERTICES = 16;
 BOOL LLVOTree::updateGeometry(LLDrawable *drawable)
 {
 	LLFastTimer ftm(LLFastTimer::FTM_UPDATE_TREE);
-	const F32 SRR3 = 0.577350269f; // sqrt(1/3)
-	const F32 SRR2 = 0.707106781f; // sqrt(1/2)
-	U32 i, j;
 
-	U32 slices = MAX_SLICES;
-
-	S32 max_indices = LEAF_INDICES;
-	S32 max_vertices = LEAF_VERTICES;
-	S32 lod;
-
-	LLFace *face = drawable->getFace(0);
-
-	face->mCenterAgent = getPositionAgent();
-	face->mCenterLocal = face->mCenterAgent;
-
-	for (lod = 0; lod < 4; lod++)
+	if (mReferenceBuffer.isNull() || mDrawable->getFace(0)->mVertexBuffer.isNull())
 	{
-		slices = sLODSlices[lod];
-		sLODVertexOffset[lod] = max_vertices;
-		sLODVertexCount[lod] = slices*slices;
-		sLODIndexOffset[lod] = max_indices;
-		sLODIndexCount[lod] = (slices-1)*(slices-1)*6;
-		max_indices += sLODIndexCount[lod];
-		max_vertices += sLODVertexCount[lod];
+		const F32 SRR3 = 0.577350269f; // sqrt(1/3)
+		const F32 SRR2 = 0.707106781f; // sqrt(1/2)
+		U32 i, j;
+
+		U32 slices = MAX_SLICES;
+
+		S32 max_indices = LEAF_INDICES;
+		S32 max_vertices = LEAF_VERTICES;
+		S32 lod;
+
+		LLFace *face = drawable->getFace(0);
+
+		face->mCenterAgent = getPositionAgent();
+		face->mCenterLocal = face->mCenterAgent;
+
+		for (lod = 0; lod < 4; lod++)
+		{
+			slices = sLODSlices[lod];
+			sLODVertexOffset[lod] = max_vertices;
+			sLODVertexCount[lod] = slices*slices;
+			sLODIndexOffset[lod] = max_indices;
+			sLODIndexCount[lod] = (slices-1)*(slices-1)*6;
+			max_indices += sLODIndexCount[lod];
+			max_vertices += sLODVertexCount[lod];
+		}
+
+		mReferenceBuffer = new LLVertexBuffer(LLDrawPoolTree::VERTEX_DATA_MASK, gSavedSettings.getBOOL("RenderAnimateTrees") ? GL_STATIC_DRAW_ARB : 0);
+		mReferenceBuffer->allocateBuffer(max_vertices, max_indices, TRUE);
+
+		LLStrider<LLVector3> vertices;
+		LLStrider<LLVector3> normals;
+		LLStrider<LLVector2> tex_coords;
+		LLStrider<U16> indicesp;
+
+		mReferenceBuffer->getVertexStrider(vertices);
+		mReferenceBuffer->getNormalStrider(normals);
+		mReferenceBuffer->getTexCoord0Strider(tex_coords);
+		mReferenceBuffer->getIndexStrider(indicesp);
+				
+		S32 vertex_count = 0;
+		S32 index_count = 0;
+		
+		// First leaf
+		*(normals++) =		LLVector3(-SRR2, -SRR2, 0.f);
+		*(tex_coords++) =	LLVector2(LEAF_LEFT, LEAF_BOTTOM);
+		*(vertices++) =		LLVector3(-0.5f*LEAF_WIDTH, 0.f, 0.f);
+		vertex_count++;
+
+		*(normals++) =		LLVector3(SRR3, -SRR3, SRR3);
+		*(tex_coords++) =	LLVector2(LEAF_RIGHT, LEAF_TOP);
+		*(vertices++) =		LLVector3(0.5f*LEAF_WIDTH, 0.f, 1.f);
+		vertex_count++;
+
+		*(normals++) =		LLVector3(-SRR3, -SRR3, SRR3);
+		*(tex_coords++) =	LLVector2(LEAF_LEFT, LEAF_TOP);
+		*(vertices++) =		LLVector3(-0.5f*LEAF_WIDTH, 0.f, 1.f);
+		vertex_count++;
+
+		*(normals++) =		LLVector3(SRR2, -SRR2, 0.f);
+		*(tex_coords++) =	LLVector2(LEAF_RIGHT, LEAF_BOTTOM);
+		*(vertices++) =		LLVector3(0.5f*LEAF_WIDTH, 0.f, 0.f);
+		vertex_count++;
+
+
+		*(indicesp++) = 0;
+		index_count++;
+		*(indicesp++) = 1;
+		index_count++;
+		*(indicesp++) = 2;
+		index_count++;
+
+		*(indicesp++) = 0;
+		index_count++;
+		*(indicesp++) = 3;
+		index_count++;
+		*(indicesp++) = 1;
+		index_count++;
+
+		// Same leaf, inverse winding/normals
+		*(normals++) =		LLVector3(-SRR2, SRR2, 0.f);
+		*(tex_coords++) =	LLVector2(LEAF_LEFT, LEAF_BOTTOM);
+		*(vertices++) =		LLVector3(-0.5f*LEAF_WIDTH, 0.f, 0.f);
+		vertex_count++;
+
+		*(normals++) =		LLVector3(SRR3, SRR3, SRR3);
+		*(tex_coords++) =	LLVector2(LEAF_RIGHT, LEAF_TOP);
+		*(vertices++) =		LLVector3(0.5f*LEAF_WIDTH, 0.f, 1.f);
+		vertex_count++;
+
+		*(normals++) =		LLVector3(-SRR3, SRR3, SRR3);
+		*(tex_coords++) =	LLVector2(LEAF_LEFT, LEAF_TOP);
+		*(vertices++) =		LLVector3(-0.5f*LEAF_WIDTH, 0.f, 1.f);
+		vertex_count++;
+
+		*(normals++) =		LLVector3(SRR2, SRR2, 0.f);
+		*(tex_coords++) =	LLVector2(LEAF_RIGHT, LEAF_BOTTOM);
+		*(vertices++) =		LLVector3(0.5f*LEAF_WIDTH, 0.f, 0.f);
+		vertex_count++;
+
+		*(indicesp++) = 4;
+		index_count++;
+		*(indicesp++) = 6;
+		index_count++;
+		*(indicesp++) = 5;
+		index_count++;
+
+		*(indicesp++) = 4;
+		index_count++;
+		*(indicesp++) = 5;
+		index_count++;
+		*(indicesp++) = 7;
+		index_count++;
+
+
+		// next leaf
+		*(normals++) =		LLVector3(SRR2, -SRR2, 0.f);
+		*(tex_coords++) =	LLVector2(LEAF_LEFT, LEAF_BOTTOM);
+		*(vertices++) =		LLVector3(0.f, -0.5f*LEAF_WIDTH, 0.f);
+		vertex_count++;
+
+		*(normals++) =		LLVector3(SRR3, SRR3, SRR3);
+		*(tex_coords++) =	LLVector2(LEAF_RIGHT, LEAF_TOP);
+		*(vertices++) =		LLVector3(0.f, 0.5f*LEAF_WIDTH, 1.f);
+		vertex_count++;
+
+		*(normals++) =		LLVector3(SRR3, -SRR3, SRR3);
+		*(tex_coords++) =	LLVector2(LEAF_LEFT, LEAF_TOP);
+		*(vertices++) =		LLVector3(0.f, -0.5f*LEAF_WIDTH, 1.f);
+		vertex_count++;
+
+		*(normals++) =		LLVector3(SRR2, SRR2, 0.f);
+		*(tex_coords++) =	LLVector2(LEAF_RIGHT, LEAF_BOTTOM);
+		*(vertices++) =		LLVector3(0.f, 0.5f*LEAF_WIDTH, 0.f);
+		vertex_count++;
+
+		*(indicesp++) = 8;
+		index_count++;
+		*(indicesp++) = 9;
+		index_count++;
+		*(indicesp++) = 10;
+		index_count++;
+
+		*(indicesp++) = 8;
+		index_count++;
+		*(indicesp++) = 11;
+		index_count++;
+		*(indicesp++) = 9;
+		index_count++;
+
+
+		// other side of same leaf
+		*(normals++) =		LLVector3(-SRR2, -SRR2, 0.f);
+		*(tex_coords++) =	LLVector2(LEAF_LEFT, LEAF_BOTTOM);
+		*(vertices++) =		LLVector3(0.f, -0.5f*LEAF_WIDTH, 0.f);
+		vertex_count++;
+
+		*(normals++) =		LLVector3(-SRR3, SRR3, SRR3);
+		*(tex_coords++) =	LLVector2(LEAF_RIGHT, LEAF_TOP);
+		*(vertices++) =		LLVector3(0.f, 0.5f*LEAF_WIDTH, 1.f);
+		vertex_count++;
+
+		*(normals++) =		LLVector3(-SRR3, -SRR3, SRR3);
+		*(tex_coords++) =	LLVector2(LEAF_LEFT, LEAF_TOP);
+		*(vertices++) =		LLVector3(0.f, -0.5f*LEAF_WIDTH, 1.f);
+		vertex_count++;
+
+		*(normals++) =		LLVector3(-SRR2, SRR2, 0.f);
+		*(tex_coords++) =	LLVector2(LEAF_RIGHT, LEAF_BOTTOM);
+		*(vertices++) =		LLVector3(0.f, 0.5f*LEAF_WIDTH, 0.f);
+		vertex_count++;
+
+		*(indicesp++) = 12;
+		index_count++;
+		*(indicesp++) = 14;
+		index_count++;
+		*(indicesp++) = 13;
+		index_count++;
+
+		*(indicesp++) = 12;
+		index_count++;
+		*(indicesp++) = 13;
+		index_count++;
+		*(indicesp++) = 15;
+		index_count++;
+
+		// Generate geometry for the cylinders
+
+		// Different LOD's
+
+		// Generate the vertices
+		// Generate the indices
+
+		for (lod = 0; lod < 4; lod++)
+		{
+			slices = sLODSlices[lod];
+			F32 base_radius = 0.65f;
+			F32 top_radius = base_radius * sSpeciesTable[mSpecies]->mTaper;
+			//llinfos << "Species " << ((U32) mSpecies) << ", taper = " << sSpeciesTable[mSpecies].mTaper << llendl;
+			//llinfos << "Droop " << mDroop << ", branchlength: " << mBranchLength << llendl;
+			F32 angle = 0;
+			F32 angle_inc = 360.f/(slices-1);
+			F32 z = 0.f;
+			F32 z_inc = 1.f;
+			if (slices > 3)
+			{
+				z_inc = 1.f/(slices - 3);
+			}
+			F32 radius = base_radius;
+
+			F32 x1,y1;
+			F32 noise_scale = sSpeciesTable[mSpecies]->mNoiseMag;
+			LLVector3 nvec;
+
+			const F32 cap_nudge = 0.1f;			// Height to 'peak' the caps on top/bottom of branch
+
+			const S32 fractal_depth = 5;
+			F32 nvec_scale = 1.f * sSpeciesTable[mSpecies]->mNoiseScale;
+			F32 nvec_scalez = 4.f * sSpeciesTable[mSpecies]->mNoiseScale;
+
+			F32 tex_z_repeat = sSpeciesTable[mSpecies]->mRepeatTrunkZ;
+
+			F32 start_radius;
+			F32 nangle = 0;
+			F32 height = 1.f;
+			F32 r0;
+
+			for (i = 0; i < slices; i++)
+			{
+				if (i == 0) 
+				{
+					z = - cap_nudge;
+					r0 = 0.0;
+				}
+				else if (i == (slices - 1))
+				{
+					z = 1.f + cap_nudge;//((i - 2) * z_inc) + cap_nudge;
+					r0 = 0.0;
+				}
+				else  
+				{
+					z = (i - 1) * z_inc;
+					r0 = base_radius + (top_radius - base_radius)*z;
+				}
+
+				for (j = 0; j < slices; j++)
+				{
+					if (slices - 1 == j)
+					{
+						angle = 0.f;
+					}
+					else
+					{
+						angle =  j*angle_inc;
+					}
+				
+					nangle = angle;
+					
+					x1 = cos(angle * DEG_TO_RAD);
+					y1 = sin(angle * DEG_TO_RAD);
+					LLVector2 tc;
+					// This isn't totally accurate.  Should compute based on slope as well.
+					start_radius = r0 * (1.f + 1.2f*fabs(z - 0.66f*height)/height);
+					nvec.set(	cos(nangle * DEG_TO_RAD)*start_radius*nvec_scale, 
+								sin(nangle * DEG_TO_RAD)*start_radius*nvec_scale, 
+								z*nvec_scalez); 
+					// First and last slice at 0 radius (to bring in top/bottom of structure)
+					radius = start_radius + turbulence3((F32*)&nvec.mV, (F32)fractal_depth)*noise_scale;
+
+					if (slices - 1 == j)
+					{
+						// Not 0.5 for slight slop factor to avoid edges on leaves
+						tc = LLVector2(0.490f, (1.f - z/2.f)*tex_z_repeat);
+					}
+					else
+					{
+						tc = LLVector2((angle/360.f)*0.5f, (1.f - z/2.f)*tex_z_repeat);
+					}
+
+					*(vertices++) =		LLVector3(x1*radius, y1*radius, z);
+					*(normals++) =		LLVector3(x1, y1, 0.f);
+					*(tex_coords++) = tc;
+					vertex_count++;
+				}
+			}
+
+			for (i = 0; i < (slices - 1); i++)
+			{
+				for (j = 0; j < (slices - 1); j++)
+				{
+					S32 x1_offset = j+1;
+					if ((j+1) == slices)
+					{
+						x1_offset = 0;
+					}
+					// Generate the matching quads
+					*(indicesp) = j + (i*slices) + sLODVertexOffset[lod];
+					llassert(*(indicesp) < (U32)max_vertices);
+					indicesp++;
+					index_count++;
+					*(indicesp) = x1_offset + ((i+1)*slices) + sLODVertexOffset[lod];
+					llassert(*(indicesp) < (U32)max_vertices);
+					indicesp++;
+					index_count++;
+					*(indicesp) = j + ((i+1)*slices) + sLODVertexOffset[lod];
+					llassert(*(indicesp) < (U32)max_vertices);
+					indicesp++;
+					index_count++;
+
+					*(indicesp) = j + (i*slices) + sLODVertexOffset[lod];
+					llassert(*(indicesp) < (U32)max_vertices);
+					indicesp++;
+					index_count++;
+					*(indicesp) = x1_offset + (i*slices) + sLODVertexOffset[lod];
+					llassert(*(indicesp) < (U32)max_vertices);
+					indicesp++;
+					index_count++;
+					*(indicesp) = x1_offset + ((i+1)*slices) + sLODVertexOffset[lod];
+					llassert(*(indicesp) < (U32)max_vertices);
+					indicesp++;
+					index_count++;
+				}
+			}
+			slices /= 2; 
+		}
+
+		mReferenceBuffer->setBuffer(0);
+		llassert(vertex_count == max_vertices);
+		llassert(index_count == max_indices);
 	}
 
+	if (gSavedSettings.getBOOL("RenderAnimateTrees"))
+	{
+		mDrawable->getFace(0)->mVertexBuffer = mReferenceBuffer;
+	}
+	else
+	{
+		//generate tree mesh
+		updateMesh();
+	}
+	
+	return TRUE;
+}
+
+void LLVOTree::updateMesh()
+{
+	LLMatrix4 matrix;
+	
+	// Translate to tree base  HACK - adjustment in Z plants tree underground
+	const LLVector3 &pos_agent = getPositionAgent();
+	//glTranslatef(pos_agent.mV[VX], pos_agent.mV[VY], pos_agent.mV[VZ] - 0.1f);
+	LLMatrix4 trans_mat;
+	trans_mat.setTranslation(pos_agent.mV[VX], pos_agent.mV[VY], pos_agent.mV[VZ] - 0.1f);
+	trans_mat *= matrix;
+	
+	// Rotate to tree position and bend for current trunk/wind
+	// Note that trunk stiffness controls the amount of bend at the trunk as 
+	// opposed to the crown of the tree
+	// 
+	const F32 TRUNK_STIFF = 22.f;
+	
+	LLQuaternion rot = 
+		LLQuaternion(mTrunkBend.magVec()*TRUNK_STIFF*DEG_TO_RAD, LLVector4(mTrunkBend.mV[VX], mTrunkBend.mV[VY], 0)) *
+		LLQuaternion(90.f*DEG_TO_RAD, LLVector4(0,0,1)) *
+		getRotation();
+
+	LLMatrix4 rot_mat(rot);
+	rot_mat *= trans_mat;
+
+	F32 radius = getScale().magVec()*0.05f;
+	LLMatrix4 scale_mat;
+	scale_mat.mMatrix[0][0] = 
+		scale_mat.mMatrix[1][1] =
+		scale_mat.mMatrix[2][2] = radius;
+
+	scale_mat *= rot_mat;
+
+//	const F32 THRESH_ANGLE_FOR_BILLBOARD = 15.f;
+//	const F32 BLEND_RANGE_FOR_BILLBOARD = 3.f;
+
+	F32 droop = mDroop + 25.f*(1.f - mTrunkBend.magVec());
+	
+	S32 stop_depth = 0;
+	F32 alpha = 1.0;
+	
+
+	U32 vert_count = 0;
+	U32 index_count = 0;
+	
+	calcNumVerts(vert_count, index_count, mTrunkLOD, stop_depth, mDepth, mTrunkDepth, mBranches);
+
+	LLFace* facep = mDrawable->getFace(0);
+	facep->mVertexBuffer = new LLVertexBuffer(LLDrawPoolTree::VERTEX_DATA_MASK, GL_STATIC_DRAW_ARB);
+	facep->mVertexBuffer->allocateBuffer(vert_count, index_count, TRUE);
+	
 	LLStrider<LLVector3> vertices;
 	LLStrider<LLVector3> normals;
 	LLStrider<LLVector2> tex_coords;
-	LLStrider<U16> indicesp;
+	LLStrider<U16> indices;
+	U16 idx_offset = 0;
 
-	face->setSize(max_vertices, max_indices);
+	facep->mVertexBuffer->getVertexStrider(vertices);
+	facep->mVertexBuffer->getNormalStrider(normals);
+	facep->mVertexBuffer->getTexCoord0Strider(tex_coords);
+	facep->mVertexBuffer->getIndexStrider(indices);
 
-	face->mVertexBuffer = new LLVertexBuffer(LLDrawPoolTree::VERTEX_DATA_MASK, GL_STATIC_DRAW_ARB);
-	face->mVertexBuffer->allocateBuffer(max_vertices, max_indices, TRUE);
-	face->setGeomIndex(0);
-	face->setIndicesIndex(0);
-
-	face->getGeometry(vertices, normals, tex_coords, indicesp);
+	genBranchPipeline(vertices, normals, tex_coords, indices, idx_offset, scale_mat, mTrunkLOD, stop_depth, mDepth, mTrunkDepth, 1.0, mTwist, droop, mBranches, alpha);
 	
+	mReferenceBuffer->setBuffer(0);
+	facep->mVertexBuffer->setBuffer(0);
 
-	S32 vertex_count = 0;
-	S32 index_count = 0;
+}
+
+void LLVOTree::appendMesh(LLStrider<LLVector3>& vertices, 
+						 LLStrider<LLVector3>& normals, 
+						 LLStrider<LLVector2>& tex_coords, 
+						 LLStrider<U16>& indices,
+						 U16& cur_idx,
+						 LLMatrix4& matrix,
+						 LLMatrix4& norm_mat,
+						 S32 vert_start,
+						 S32 vert_count,
+						 S32 index_count,
+						 S32 index_offset)
+{
+	LLStrider<LLVector3> v;
+	LLStrider<LLVector3> n;
+	LLStrider<LLVector2> t;
+	LLStrider<U16> idx;
+
+	mReferenceBuffer->getVertexStrider(v);
+	mReferenceBuffer->getNormalStrider(n);
+	mReferenceBuffer->getTexCoord0Strider(t);
+	mReferenceBuffer->getIndexStrider(idx);
 	
-	// First leaf
-	*(normals++) =		LLVector3(-SRR2, -SRR2, 0.f);
-	*(tex_coords++) =	LLVector2(LEAF_LEFT, LEAF_BOTTOM);
-	*(vertices++) =		LLVector3(-0.5f*LEAF_WIDTH, 0.f, 0.f);
-	vertex_count++;
-
-	*(normals++) =		LLVector3(SRR3, -SRR3, SRR3);
-	*(tex_coords++) =	LLVector2(LEAF_RIGHT, LEAF_TOP);
-	*(vertices++) =		LLVector3(0.5f*LEAF_WIDTH, 0.f, 1.f);
-	vertex_count++;
-
-	*(normals++) =		LLVector3(-SRR3, -SRR3, SRR3);
-	*(tex_coords++) =	LLVector2(LEAF_LEFT, LEAF_TOP);
-	*(vertices++) =		LLVector3(-0.5f*LEAF_WIDTH, 0.f, 1.f);
-	vertex_count++;
-
-	*(normals++) =		LLVector3(SRR2, -SRR2, 0.f);
-	*(tex_coords++) =	LLVector2(LEAF_RIGHT, LEAF_BOTTOM);
-	*(vertices++) =		LLVector3(0.5f*LEAF_WIDTH, 0.f, 0.f);
-	vertex_count++;
-
-
-	*(indicesp++) = 0;
-	index_count++;
-	*(indicesp++) = 1;
-	index_count++;
-	*(indicesp++) = 2;
-	index_count++;
-
-	*(indicesp++) = 0;
-	index_count++;
-	*(indicesp++) = 3;
-	index_count++;
-	*(indicesp++) = 1;
-	index_count++;
-
-	// Same leaf, inverse winding/normals
-	*(normals++) =		LLVector3(-SRR2, SRR2, 0.f);
-	*(tex_coords++) =	LLVector2(LEAF_LEFT, LEAF_BOTTOM);
-	*(vertices++) =		LLVector3(-0.5f*LEAF_WIDTH, 0.f, 0.f);
-	vertex_count++;
-
-	*(normals++) =		LLVector3(SRR3, SRR3, SRR3);
-	*(tex_coords++) =	LLVector2(LEAF_RIGHT, LEAF_TOP);
-	*(vertices++) =		LLVector3(0.5f*LEAF_WIDTH, 0.f, 1.f);
-	vertex_count++;
-
-	*(normals++) =		LLVector3(-SRR3, SRR3, SRR3);
-	*(tex_coords++) =	LLVector2(LEAF_LEFT, LEAF_TOP);
-	*(vertices++) =		LLVector3(-0.5f*LEAF_WIDTH, 0.f, 1.f);
-	vertex_count++;
-
-	*(normals++) =		LLVector3(SRR2, SRR2, 0.f);
-	*(tex_coords++) =	LLVector2(LEAF_RIGHT, LEAF_BOTTOM);
-	*(vertices++) =		LLVector3(0.5f*LEAF_WIDTH, 0.f, 0.f);
-	vertex_count++;
-
-	*(indicesp++) = 4;
-	index_count++;
-	*(indicesp++) = 6;
-	index_count++;
-	*(indicesp++) = 5;
-	index_count++;
-
-	*(indicesp++) = 4;
-	index_count++;
-	*(indicesp++) = 5;
-	index_count++;
-	*(indicesp++) = 7;
-	index_count++;
-
-
-	// next leaf
-	*(normals++) =		LLVector3(SRR2, -SRR2, 0.f);
-	*(tex_coords++) =	LLVector2(LEAF_LEFT, LEAF_BOTTOM);
-	*(vertices++) =		LLVector3(0.f, -0.5f*LEAF_WIDTH, 0.f);
-	vertex_count++;
-
-	*(normals++) =		LLVector3(SRR3, SRR3, SRR3);
-	*(tex_coords++) =	LLVector2(LEAF_RIGHT, LEAF_TOP);
-	*(vertices++) =		LLVector3(0.f, 0.5f*LEAF_WIDTH, 1.f);
-	vertex_count++;
-
-	*(normals++) =		LLVector3(SRR3, -SRR3, SRR3);
-	*(tex_coords++) =	LLVector2(LEAF_LEFT, LEAF_TOP);
-	*(vertices++) =		LLVector3(0.f, -0.5f*LEAF_WIDTH, 1.f);
-	vertex_count++;
-
-	*(normals++) =		LLVector3(SRR2, SRR2, 0.f);
-	*(tex_coords++) =	LLVector2(LEAF_RIGHT, LEAF_BOTTOM);
-	*(vertices++) =		LLVector3(0.f, 0.5f*LEAF_WIDTH, 0.f);
-	vertex_count++;
-
-	*(indicesp++) = 8;
-	index_count++;
-	*(indicesp++) = 9;
-	index_count++;
-	*(indicesp++) = 10;
-	index_count++;
-
-	*(indicesp++) = 8;
-	index_count++;
-	*(indicesp++) = 11;
-	index_count++;
-	*(indicesp++) = 9;
-	index_count++;
-
-
-	// other side of same leaf
-	*(normals++) =		LLVector3(-SRR2, -SRR2, 0.f);
-	*(tex_coords++) =	LLVector2(LEAF_LEFT, LEAF_BOTTOM);
-	*(vertices++) =		LLVector3(0.f, -0.5f*LEAF_WIDTH, 0.f);
-	vertex_count++;
-
-	*(normals++) =		LLVector3(-SRR3, SRR3, SRR3);
-	*(tex_coords++) =	LLVector2(LEAF_RIGHT, LEAF_TOP);
-	*(vertices++) =		LLVector3(0.f, 0.5f*LEAF_WIDTH, 1.f);
-	vertex_count++;
-
-	*(normals++) =		LLVector3(-SRR3, -SRR3, SRR3);
-	*(tex_coords++) =	LLVector2(LEAF_LEFT, LEAF_TOP);
-	*(vertices++) =		LLVector3(0.f, -0.5f*LEAF_WIDTH, 1.f);
-	vertex_count++;
-
-	*(normals++) =		LLVector3(-SRR2, SRR2, 0.f);
-	*(tex_coords++) =	LLVector2(LEAF_RIGHT, LEAF_BOTTOM);
-	*(vertices++) =		LLVector3(0.f, 0.5f*LEAF_WIDTH, 0.f);
-	vertex_count++;
-
-	*(indicesp++) = 12;
-	index_count++;
-	*(indicesp++) = 14;
-	index_count++;
-	*(indicesp++) = 13;
-	index_count++;
-
-	*(indicesp++) = 12;
-	index_count++;
-	*(indicesp++) = 13;
-	index_count++;
-	*(indicesp++) = 15;
-	index_count++;
-
-	// Generate geometry for the cylinders
-
-	// Different LOD's
-
-	// Generate the vertices
-	// Generate the indices
-
-	for (lod = 0; lod < 4; lod++)
-	{
-		slices = sLODSlices[lod];
-		F32 base_radius = 0.65f;
-		F32 top_radius = base_radius * sSpeciesTable[mSpecies]->mTaper;
-		//llinfos << "Species " << ((U32) mSpecies) << ", taper = " << sSpeciesTable[mSpecies].mTaper << llendl;
-		//llinfos << "Droop " << mDroop << ", branchlength: " << mBranchLength << llendl;
-		F32 angle = 0;
-		F32 angle_inc = 360.f/(slices-1);
-		F32 z = 0.f;
-		F32 z_inc = 1.f;
-		if (slices > 3)
-		{
-			z_inc = 1.f/(slices - 3);
-		}
-		F32 radius = base_radius;
-
-		F32 x1,y1;
-		F32 noise_scale = sSpeciesTable[mSpecies]->mNoiseMag;
-		LLVector3 nvec;
-
-		const F32 cap_nudge = 0.1f;			// Height to 'peak' the caps on top/bottom of branch
-
-		const S32 fractal_depth = 5;
-		F32 nvec_scale = 1.f * sSpeciesTable[mSpecies]->mNoiseScale;
-		F32 nvec_scalez = 4.f * sSpeciesTable[mSpecies]->mNoiseScale;
-
-		F32 tex_z_repeat = sSpeciesTable[mSpecies]->mRepeatTrunkZ;
-
-		F32 start_radius;
-		F32 nangle = 0;
-		F32 height = 1.f;
-		F32 r0;
-
-		for (i = 0; i < slices; i++)
-		{
-			if (i == 0) 
-			{
-				z = - cap_nudge;
-				r0 = 0.0;
-			}
-			else if (i == (slices - 1))
-			{
-				z = 1.f + cap_nudge;//((i - 2) * z_inc) + cap_nudge;
-				r0 = 0.0;
-			}
-			else  
-			{
-				z = (i - 1) * z_inc;
-				r0 = base_radius + (top_radius - base_radius)*z;
-			}
-
-			for (j = 0; j < slices; j++)
-			{
-				if (slices - 1 == j)
-				{
-					angle = 0.f;
-				}
-				else
-				{
-					angle =  j*angle_inc;
-				}
-			
-				nangle = angle;
-				
-				x1 = cos(angle * DEG_TO_RAD);
-				y1 = sin(angle * DEG_TO_RAD);
-				LLVector2 tc;
-				// This isn't totally accurate.  Should compute based on slope as well.
-				start_radius = r0 * (1.f + 1.2f*fabs(z - 0.66f*height)/height);
-				nvec.set(	cos(nangle * DEG_TO_RAD)*start_radius*nvec_scale, 
-							sin(nangle * DEG_TO_RAD)*start_radius*nvec_scale, 
-							z*nvec_scalez); 
-				// First and last slice at 0 radius (to bring in top/bottom of structure)
-				radius = start_radius + turbulence3((F32*)&nvec.mV, (F32)fractal_depth)*noise_scale;
-
-				if (slices - 1 == j)
-				{
-					// Not 0.5 for slight slop factor to avoid edges on leaves
-					tc = LLVector2(0.490f, (1.f - z/2.f)*tex_z_repeat);
-				}
-				else
-				{
-					tc = LLVector2((angle/360.f)*0.5f, (1.f - z/2.f)*tex_z_repeat);
-				}
-
-				*(vertices++) =		LLVector3(x1*radius, y1*radius, z);
-				*(normals++) =		LLVector3(x1, y1, 0.f);
-				*(tex_coords++) = tc;
-				vertex_count++;
-			}
-		}
-
-		for (i = 0; i < (slices - 1); i++)
-		{
-			for (j = 0; j < (slices - 1); j++)
-			{
-				S32 x1_offset = j+1;
-				if ((j+1) == slices)
-				{
-					x1_offset = 0;
-				}
-				// Generate the matching quads
-				*(indicesp) = j + (i*slices) + sLODVertexOffset[lod];
-				llassert(*(indicesp) < (U32)max_vertices);
-				indicesp++;
-				index_count++;
-				*(indicesp) = x1_offset + ((i+1)*slices) + sLODVertexOffset[lod];
-				llassert(*(indicesp) < (U32)max_vertices);
-				indicesp++;
-				index_count++;
-				*(indicesp) = j + ((i+1)*slices) + sLODVertexOffset[lod];
-				llassert(*(indicesp) < (U32)max_vertices);
-				indicesp++;
-				index_count++;
-
-				*(indicesp) = j + (i*slices) + sLODVertexOffset[lod];
-				llassert(*(indicesp) < (U32)max_vertices);
-				indicesp++;
-				index_count++;
-				*(indicesp) = x1_offset + (i*slices) + sLODVertexOffset[lod];
-				llassert(*(indicesp) < (U32)max_vertices);
-				indicesp++;
-				index_count++;
-				*(indicesp) = x1_offset + ((i+1)*slices) + sLODVertexOffset[lod];
-				llassert(*(indicesp) < (U32)max_vertices);
-				indicesp++;
-				index_count++;
-			}
-		}
-		slices /= 2; 
+	//copy/transform vertices into mesh - check
+	for (S32 i = 0; i < vert_count; i++)
+	{ 
+		U16 index = vert_start + i;
+		*vertices++ = v[index] * matrix;
+		LLVector3 norm = n[index] * norm_mat;
+		norm.normalize();
+		*normals++ = norm;
+		*tex_coords++ = t[index];
 	}
 
-	face->mVertexBuffer->setBuffer(0);
-	llassert(vertex_count == max_vertices);
-	llassert(index_count == max_indices);
+	//copy offset indices into mesh - check
+	for (S32 i = 0; i < index_count; i++)
+	{
+		U16 index = index_offset + i;
+		if (idx[index] >= vert_start + vert_count ||
+			idx[index] < vert_start)
+		{
+			llerrs << "WTF?" << llendl;
+		}
+		*indices++ = idx[index]-vert_start+cur_idx;
+	}
 
-	return TRUE;
+	//increment index offset - check
+	cur_idx += vert_count;
+}
+								 
+
+void LLVOTree::genBranchPipeline(LLStrider<LLVector3>& vertices, 
+								 LLStrider<LLVector3>& normals, 
+								 LLStrider<LLVector2>& tex_coords, 
+								 LLStrider<U16>& indices,
+								 U16& index_offset,
+								 LLMatrix4& matrix, 
+								 S32 trunk_LOD, 
+								 S32 stop_level, 
+								 U16 depth, 
+								 U16 trunk_depth,  
+								 F32 scale, 
+								 F32 twist, 
+								 F32 droop,  
+								 F32 branches, 
+								 F32 alpha)
+{
+	//
+	//  Generates a tree mesh by recursing, generating branches and then a 'leaf' texture.
+	
+	static F32 constant_twist;
+	static F32 width = 0;
+
+	F32 length = ((trunk_depth || (scale == 1.f))? mTrunkLength:mBranchLength);
+	F32 aspect = ((trunk_depth || (scale == 1.f))? mTrunkAspect:mBranchAspect);
+	
+	constant_twist = 360.f/branches;
+
+	if (stop_level >= 0)
+	{
+		if (depth > stop_level)
+		{
+			{
+				llassert(sLODIndexCount[trunk_LOD] > 0);
+				width = scale * length * aspect;
+				LLMatrix4 scale_mat;
+				scale_mat.mMatrix[0][0] = width;
+				scale_mat.mMatrix[1][1] = width;
+				scale_mat.mMatrix[2][2] = scale*length;
+				scale_mat *= matrix;
+
+				glh::matrix4f norm((F32*) scale_mat.mMatrix);
+				LLMatrix4 norm_mat = LLMatrix4(norm.inverse().transpose().m);
+
+				norm_mat.invert();
+				appendMesh(vertices, normals, tex_coords, indices, index_offset, scale_mat, norm_mat, 
+							sLODVertexOffset[trunk_LOD], sLODVertexCount[trunk_LOD], sLODIndexCount[trunk_LOD], sLODIndexOffset[trunk_LOD]);
+			}
+			
+			// Recurse to create more branches
+			for (S32 i=0; i < (S32)branches; i++) 
+			{
+				LLMatrix4 trans_mat;
+				trans_mat.setTranslation(0,0,scale*length);
+				trans_mat *= matrix;
+
+				LLQuaternion rot = 
+					LLQuaternion(20.f*DEG_TO_RAD, LLVector4(0.f, 0.f, 1.f)) *
+					LLQuaternion(droop*DEG_TO_RAD, LLVector4(0.f, 1.f, 0.f)) *
+					LLQuaternion(((constant_twist + ((i%2==0)?twist:-twist))*i)*DEG_TO_RAD, LLVector4(0.f, 0.f, 1.f));
+				
+				LLMatrix4 rot_mat(rot);
+				rot_mat *= trans_mat;
+
+				genBranchPipeline(vertices, normals, tex_coords, indices, index_offset, rot_mat, trunk_LOD, stop_level, depth - 1, 0, scale*mScaleStep, twist, droop, branches, alpha);
+			}
+			//  Recurse to continue trunk
+			if (trunk_depth)
+			{
+				LLMatrix4 trans_mat;
+				trans_mat.setTranslation(0,0,scale*length);
+				trans_mat *= matrix;
+
+				LLMatrix4 rot_mat(70.5f*DEG_TO_RAD, LLVector4(0,0,1));
+				rot_mat *= trans_mat; // rotate a bit around Z when ascending 
+				genBranchPipeline(vertices, normals, tex_coords, indices, index_offset, rot_mat, trunk_LOD, stop_level, depth, trunk_depth-1, scale*mScaleStep, twist, droop, branches, alpha);
+			}
+		}
+		else
+		{
+			//
+			//  Append leaves as two 90 deg crossed quads with leaf textures
+			//
+			{
+				LLMatrix4 scale_mat;
+				scale_mat.mMatrix[0][0] = 
+					scale_mat.mMatrix[1][1] =
+					scale_mat.mMatrix[2][2] = scale*mLeafScale;
+
+				scale_mat *= matrix;
+
+				glh::matrix4f norm((F32*) scale_mat.mMatrix);
+				LLMatrix4 norm_mat = LLMatrix4(norm.inverse().transpose().m);
+
+				appendMesh(vertices, normals, tex_coords, indices, index_offset, scale_mat, norm_mat, 0, LEAF_VERTICES, LEAF_INDICES, 0);	
+			}
+		}
+	}
+}
+
+
+
+void LLVOTree::calcNumVerts(U32& vert_count, U32& index_count, S32 trunk_LOD, S32 stop_level, U16 depth, U16 trunk_depth, F32 branches)
+{
+	if (stop_level >= 0)
+	{
+		if (depth > stop_level)
+		{
+			index_count += sLODIndexCount[trunk_LOD];
+			vert_count += sLODVertexCount[trunk_LOD];
+
+			// Recurse to create more branches
+			for (S32 i=0; i < (S32)branches; i++) 
+			{
+				calcNumVerts(vert_count, index_count, trunk_LOD, stop_level, depth - 1, 0, branches);
+			}
+			
+			//  Recurse to continue trunk
+			if (trunk_depth)
+			{
+				calcNumVerts(vert_count, index_count, trunk_LOD, stop_level, depth, trunk_depth-1, branches);
+			}
+		}
+		else
+		{
+			index_count += LEAF_INDICES;
+			vert_count += LEAF_VERTICES;
+		}
+	}
+	else
+	{
+		index_count += LEAF_INDICES;
+		vert_count += LEAF_VERTICES;
+	}
 }
 
 U32 LLVOTree::drawBranchPipeline(LLMatrix4& matrix, U16* indicesp, S32 trunk_LOD, S32 stop_level, U16 depth, U16 trunk_depth,  F32 scale, F32 twist, F32 droop,  F32 branches, F32 alpha)

@@ -134,7 +134,7 @@ public:
 protected:
 	F32				getOrbitRate();
 	virtual void	updateSlop();
-	void			drawRotatedImage( const LLImageGL* image, S32 rotations );
+	void			drawRotatedImage( LLImageGL* image, S32 rotations );
 
 protected:
 	BOOL			mInLeft;

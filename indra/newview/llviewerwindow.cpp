@@ -194,7 +194,7 @@
 //
 // Globals
 //
-void render_ui();
+void render_ui(F32 zoom_factor = 1.f, int subfield = 0);
 LLBottomPanel* gBottomPanel = NULL;
 
 extern BOOL gDebugClicks;
@@ -447,7 +447,7 @@ public:
 			if (gPipeline.mBatchCount > 0)
 			{
 				addText(xpos, ypos, llformat("Batch min/max/mean: %d/%d/%d", gPipeline.mMinBatchSize, gPipeline.mMaxBatchSize, 
-					gPipeline.mMeanBatchSize));
+					gPipeline.mTrianglesDrawn/gPipeline.mBatchCount));
 
 				gPipeline.mMinBatchSize = gPipeline.mMaxBatchSize;
 				gPipeline.mMaxBatchSize = 0;
@@ -464,9 +464,46 @@ public:
 			
 			ypos += y_inc;
 
+			addText(xpos,ypos, llformat("%d Lights visible", LLPipeline::sVisibleLightCount));
+			
+			ypos += y_inc;
+
 			LLVertexBuffer::sBindCount = LLImageGL::sBindCount = 
 				LLVertexBuffer::sSetCount = LLImageGL::sUniqueCount = 
-				gPipeline.mNumVisibleNodes = 0;
+				gPipeline.mNumVisibleNodes = LLPipeline::sVisibleLightCount = 0;
+		}
+		if (gSavedSettings.getBOOL("DebugShowRenderMatrices"))
+		{
+			addText(xpos, ypos, llformat("%.4f    .%4f    %.4f    %.4f", gGLProjection[12], gGLProjection[13], gGLProjection[14], gGLProjection[15]));
+			ypos += y_inc;
+
+			addText(xpos, ypos, llformat("%.4f    .%4f    %.4f    %.4f", gGLProjection[8], gGLProjection[9], gGLProjection[10], gGLProjection[11]));
+			ypos += y_inc;
+
+			addText(xpos, ypos, llformat("%.4f    .%4f    %.4f    %.4f", gGLProjection[4], gGLProjection[5], gGLProjection[6], gGLProjection[7]));
+			ypos += y_inc;
+
+			addText(xpos, ypos, llformat("%.4f    .%4f    %.4f    %.4f", gGLProjection[0], gGLProjection[1], gGLProjection[2], gGLProjection[3]));
+			ypos += y_inc;
+
+			addText(xpos, ypos, "Projection Matrix");
+			ypos += y_inc;
+
+
+			addText(xpos, ypos, llformat("%.4f    .%4f    %.4f    %.4f", gGLModelView[12], gGLModelView[13], gGLModelView[14], gGLModelView[15]));
+			ypos += y_inc;
+
+			addText(xpos, ypos, llformat("%.4f    .%4f    %.4f    %.4f", gGLModelView[8], gGLModelView[9], gGLModelView[10], gGLModelView[11]));
+			ypos += y_inc;
+
+			addText(xpos, ypos, llformat("%.4f    .%4f    %.4f    %.4f", gGLModelView[4], gGLModelView[5], gGLModelView[6], gGLModelView[7]));
+			ypos += y_inc;
+
+			addText(xpos, ypos, llformat("%.4f    .%4f    %.4f    %.4f", gGLModelView[0], gGLModelView[1], gGLModelView[2], gGLModelView[3]));
+			ypos += y_inc;
+
+			addText(xpos, ypos, "View Matrix");
+			ypos += y_inc;
 		}
 		if (gSavedSettings.getBOOL("DebugShowColor"))
 		{
@@ -3473,9 +3510,9 @@ void LLViewerWindow::schedulePick(LLPickInfo& pick_info)
 		LLGLState scissor_state(GL_SCISSOR_TEST);
 		scissor_state.enable();
 		glScissor(pick_info.mScreenRegion.mLeft, pick_info.mScreenRegion.mBottom, pick_info.mScreenRegion.getWidth(), pick_info.mScreenRegion.getHeight());
-	glClearColor(0.f, 0.f, 0.f, 0.f);
-	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-	//glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+		glClearColor(0.f, 0.f, 0.f, 0.f);
+		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+		//glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	}
 	
 	// build perspective transform and picking viewport
@@ -4028,6 +4065,10 @@ void LLViewerWindow::playSnapshotAnimAndSound()
 
 BOOL LLViewerWindow::thumbnailSnapshot(LLImageRaw *raw, S32 preview_width, S32 preview_height, BOOL show_ui, BOOL do_rebuild, ESnapshotType type)
 {
+	return rawSnapshot(raw, preview_width, preview_height, FALSE, FALSE, show_ui, do_rebuild, type);
+	
+	// *TODO below code was broken in deferred pipeline
+	/*
 	if ((!raw) || preview_width < 10 || preview_height < 10)
 	{
 		return FALSE;
@@ -4059,7 +4100,7 @@ BOOL LLViewerWindow::thumbnailSnapshot(LLImageRaw *raw, S32 preview_width, S32 p
 	LLVOAvatar::updateFreezeCounter(1) ; //pause avatar updating for one frame
 	
 	S32 w = preview_width ;
-	S32 h = preview_height ;	
+	S32 h = preview_height ;
 	LLVector2 display_scale = mDisplayScale ;
 	mDisplayScale.setVec((F32)w / mWindowRect.getWidth(), (F32)h / mWindowRect.getHeight()) ;
 	LLRect window_rect = mWindowRect;
@@ -4098,7 +4139,7 @@ BOOL LLViewerWindow::thumbnailSnapshot(LLImageRaw *raw, S32 preview_width, S32 p
 		gltype = GL_UNSIGNED_BYTE ;
 	}
 
-	raw->resize(w, h, glpixel_length);	
+	raw->resize(w, h, glpixel_length);
 	glReadPixels(0, 0, w, h, glformat, gltype, raw->getData());
 
 	if(SNAPSHOT_TYPE_DEPTH == type)
@@ -4160,7 +4201,7 @@ BOOL LLViewerWindow::thumbnailSnapshot(LLImageRaw *raw, S32 preview_width, S32 p
 	
 	gSavedSettings.setS32("RenderName", render_name);	
 	
-	return TRUE;
+	return TRUE;*/
 }
 
 // Saves the image from the screen to the specified filename and path.
@@ -4210,7 +4251,7 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 		F32 ratio = llmin( (F32)window_width / image_width , (F32)window_height / image_height) ;
 		snapshot_width = (S32)(ratio * image_width) ;
 		snapshot_height = (S32)(ratio * image_height) ;
-		scale_factor = llmax(1.0f, 1.0f / ratio) ;	
+		scale_factor = llmax(1.0f, 1.0f / ratio) ;
 	}
 	else //the scene(window) proportion needs to be maintained.
 	{
@@ -4227,7 +4268,7 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 					
 					snapshot_width = image_width;
 					snapshot_height = image_height;
-					target.allocate(snapshot_width, snapshot_height, GL_RGBA, TRUE, LLTexUnit::TT_RECT_TEXTURE, TRUE);
+					target.allocate(snapshot_width, snapshot_height, GL_RGBA, TRUE, TRUE, LLTexUnit::TT_RECT_TEXTURE, TRUE);
 					window_width = snapshot_width;
 					window_height = snapshot_height;
 					scale_factor = 1.f;
@@ -4304,9 +4345,10 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 			}
 			else
 			{
-				display(do_rebuild, scale_factor, subimage_x+(subimage_y*llceil(scale_factor)), TRUE);
+				const U32 subfield = subimage_x+(subimage_y*llceil(scale_factor));
+				display(do_rebuild, scale_factor, subfield, TRUE);
 				// Required for showing the GUI in snapshots?  See DEV-16350 for details. JC
-				render_ui();
+				render_ui(scale_factor, subfield);
 			}
 
 			S32 subimage_x_offset = llclamp(buffer_x_offset - (subimage_x * window_width), 0, window_width);
@@ -4777,8 +4819,6 @@ BOOL LLViewerWindow::checkSettings()
 		}
 
 		mResDirty = false;
-		// This will force a state update the next frame.
-		mStatesDirty = true;
 	}
 		
 	BOOL is_fullscreen = mWindow->getFullscreen();

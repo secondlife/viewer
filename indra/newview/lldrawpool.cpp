@@ -68,6 +68,12 @@ LLDrawPool *LLDrawPool::createPool(const U32 type, LLViewerImage *tex0)
 	case POOL_SIMPLE:
 		poolp = new LLDrawPoolSimple();
 		break;
+	case POOL_GRASS:
+		poolp = new LLDrawPoolGrass();
+		break;
+	case POOL_FULLBRIGHT:
+		poolp = new LLDrawPoolFullbright();
+		break;
 	case POOL_INVISIBLE:
 		poolp = new LLDrawPoolInvisible();
 		break;
@@ -133,9 +139,87 @@ void LLDrawPool::beginRenderPass( S32 pass )
 {
 }
 
+//virtual 
+S32	 LLDrawPool::getNumPasses()
+{
+	return 1;
+}
+	
+//virtual 
+void LLDrawPool::beginDeferredPass(S32 pass)
+{
+
+}
+
+//virtual 
+void LLDrawPool::endDeferredPass(S32 pass)
+{
+
+}
+
+//virtual 
+S32 LLDrawPool::getNumDeferredPasses()
+{
+	return 0;
+}
+
+//virtual 
+void LLDrawPool::renderDeferred(S32 pass)
+{
+
+}
+
+//virtual 
+void LLDrawPool::beginPostDeferredPass(S32 pass)
+{
+
+}
+
+//virtual 
+void LLDrawPool::endPostDeferredPass(S32 pass)
+{
+
+}
+
+//virtual 
+S32 LLDrawPool::getNumPostDeferredPasses()
+{
+	return 0;
+}
+
+//virtual 
+void LLDrawPool::renderPostDeferred(S32 pass)
+{
+
+}
+
 //virtual
 void LLDrawPool::endRenderPass( S32 pass )
 {
+}
+
+//virtual 
+void LLDrawPool::beginShadowPass(S32 pass)
+{
+
+}
+
+//virtual 
+void LLDrawPool::endShadowPass(S32 pass)
+{
+
+}
+
+//virtual 
+S32 LLDrawPool::getNumShadowPasses()
+{
+	return 0;
+}
+
+//virtual 
+void LLDrawPool::renderShadow(S32 pass)
+{
+
 }
 
 //=============================
@@ -414,6 +498,10 @@ void LLRenderPass::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture)
 	
 	if (params.mVertexBuffer.notNull())
 	{
+		if (params.mGroup)
+		{
+			params.mGroup->rebuildMesh();
+		}
 		params.mVertexBuffer->setBuffer(mask);
 		params.mVertexBuffer->drawRange(LLRender::TRIANGLES, params.mStart, params.mEnd, params.mCount, params.mOffset);
 		gPipeline.addTrianglesDrawn(params.mCount/3);

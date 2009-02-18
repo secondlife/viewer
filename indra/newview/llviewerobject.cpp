@@ -1406,7 +1406,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 				}
 
 				// Setup object text
-				if (!mText)
+				if (!mText && (value & 0x4))
 				{
 					mText = (LLHUDText *)LLHUDObject::addHUDObject(LLHUDObject::LL_HUD_TEXT);
 					mText->setFont(LLFontGL::sSansSerif);
@@ -1428,7 +1428,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 
 					setChanged(TEXTURE);
 				}
-				else
+				else if(mText.notNull())
 				{
 					mText->markDead();
 					mText = NULL;
@@ -3730,11 +3730,11 @@ S32 LLViewerObject::setTEColor(const U8 te, const LLColor4& color)
 	else if (color != tep->getColor())
 	{
 		retval = LLPrimitive::setTEColor(te, color);
-		setChanged(TEXTURE);
+		//setChanged(TEXTURE);
 		if (mDrawable.notNull() && retval)
 		{
 			// These should only happen on updates which are not the initial update.
-			gPipeline.markTextured(mDrawable);
+			dirtyMesh();
 		}
 	}
 	return retval;

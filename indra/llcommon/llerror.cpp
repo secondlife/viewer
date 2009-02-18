@@ -990,6 +990,38 @@ namespace LLError
 		
 		return new std::ostringstream;
 	}
+	
+	void Log::flush(std::ostringstream* out, char* message)
+    {
+       LogLock lock;
+       if (!lock.ok())
+       {
+           return;
+       }
+       
+	   if(strlen(out->str().c_str()) < 128)
+	   {
+		   strcpy(message, out->str().c_str());
+	   }
+	   else
+	   {
+		   strncpy(message, out->str().c_str(), 127);
+		   message[127] = '\0' ;
+	   }
+	   
+	   Globals& g = Globals::get();
+       if (out == &g.messageStream)
+       {
+           g.messageStream.clear();
+           g.messageStream.str("");
+           g.messageStreamInUse = false;
+       }
+       else
+       {
+           delete out;
+       }
+	   return ;
+    }
 
 	void Log::flush(std::ostringstream* out, const CallSite& site)
 	{
@@ -1203,5 +1235,96 @@ namespace LLError
 
 		return chars ? time_str : "time error";
 	}
+}
+
+namespace LLError
+{     
+	char** LLCallStacks::sBuffer = NULL ;
+	S32    LLCallStacks::sIndex  = 0 ;
+
+	//static
+   void LLCallStacks::push(const char* function, const int line)
+   {
+	   if(!sBuffer)
+	   {
+		   sBuffer = new char*[512] ;
+		   sBuffer[0] = new char[512 * 128] ;
+		   for(S32 i = 1 ; i < 512 ; i++)
+		   {
+			   sBuffer[i] = sBuffer[i-1] + 128 ;
+		   }
+		   sIndex = 0 ;
+	   }
+
+	   if(sIndex > 511)
+	   {
+		   clear() ;
+	   }
+
+	   strcpy(sBuffer[sIndex], function) ;
+	   sprintf(sBuffer[sIndex] + strlen(function), " line: %d ", line) ;
+	   sIndex++ ;
+
+	   return ;
+   }
+
+	//static
+   std::ostringstream* LLCallStacks::insert(const char* function, const int line)
+   {
+       std::ostringstream* _out = LLError::Log::out();
+	   *_out << function << " line " << line << " " ;
+             
+	   return _out ;
+   }
+
+   //static
+   void LLCallStacks::end(std::ostringstream* _out)
+   {
+	   if(!sBuffer)
+	   {
+		   sBuffer = new char*[512] ;
+		   sBuffer[0] = new char[512 * 128] ;
+		   for(S32 i = 1 ; i < 512 ; i++)
+		   {
+			   sBuffer[i] = sBuffer[i-1] + 128 ;
+		   }
+		   sIndex = 0 ;
+	   }
+
+	   if(sIndex > 511)
+	   {
+		   clear() ;
+	   }
+
+	   LLError::Log::flush(_out, sBuffer[sIndex++]) ;	   
+   }
+
+   //static
+   void LLCallStacks::print()
+   {
+       if(sIndex > 0)
+       {
+           llinfos << " ************* PRINT OUT LL CALL STACKS ************* " << llendl ;
+           while(sIndex > 0)
+           {                  
+			   sIndex-- ;
+               llinfos << sBuffer[sIndex] << llendl ;
+           }
+           llinfos << " *************** END OF LL CALL STACKS *************** " << llendl ;
+       }
+
+	   if(sBuffer)
+	   {
+		   delete[] sBuffer[0] ;
+		   delete[] sBuffer ;
+		   sBuffer = NULL ;
+	   }
+   }
+
+   //static
+   void LLCallStacks::clear()
+   {
+       sIndex = 0 ;
+   }
 }
 

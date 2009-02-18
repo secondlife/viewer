@@ -32,11 +32,16 @@ endif (LINUX)
 
 if (WINDOWS)
   set(WINDOWS_LIBRARIES
+      advapi32
+      shell32
       ws2_32
       mswsock
       psapi
       winmm
       netapi32
+      wldap32
+      gdi32
+      user32
       )
 else (WINDOWS)
   set(WINDOWS_LIBRARIES "")

@@ -133,6 +133,15 @@ PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC glFramebufferRenderbufferEXT = NULL;
 PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVEXTPROC glGetFramebufferAttachmentParameterivEXT = NULL;
 PFNGLGENERATEMIPMAPEXTPROC glGenerateMipmapEXT = NULL;
 
+// GL_EXT_framebuffer_multisample
+PFNGLRENDERBUFFERSTORAGEMULTISAMPLEEXTPROC glRenderbufferStorageMultisampleEXT = NULL;
+
+// GL_EXT_framebuffer_blit
+PFNGLBLITFRAMEBUFFEREXTPROC glBlitFramebufferEXT = NULL;
+
+// GL_ARB_draw_buffers
+PFNGLDRAWBUFFERSARBPROC glDrawBuffersARB = NULL;
+
 //shader object prototypes
 PFNGLDELETEOBJECTARBPROC glDeleteObjectARB = NULL;
 PFNGLGETHANDLEARBPROC glGetHandleARB = NULL;
@@ -249,6 +258,12 @@ PFNGLGETATTRIBLOCATIONARBPROC glGetAttribLocationARB = NULL;
 PFNWGLSWAPINTERVALEXTPROC			wglSwapIntervalEXT = NULL;
 #endif
 
+#if LL_LINUX_NV_GL_HEADERS
+// linux nvidia headers.  these define these differently to mesa's.  ugh.
+PFNGLACTIVETEXTUREARBPROC glActiveTextureARB = NULL;
+PFNGLCLIENTACTIVETEXTUREARBPROC glClientActiveTextureARB = NULL;
+PFNGLDRAWRANGEELEMENTSPROC glDrawRangeElements = NULL;
+#endif // LL_LINUX_NV_GL_HEADERS
 #endif
 
 LLGLManager gGLManager;
@@ -262,6 +277,7 @@ LLGLManager::LLGLManager() :
 	mHasMipMapGeneration(FALSE),
 	mHasCompressedTextures(FALSE),
 	mHasFramebufferObject(FALSE),
+	mHasFramebufferMultisample(FALSE),
 
 	mHasVertexBufferObject(FALSE),
 	mHasPBuffer(FALSE),
@@ -561,6 +577,16 @@ void LLGLManager::initExtensions()
 # else
 	mHasFramebufferObject = FALSE;
 # endif
+# if GL_EXT_framebuffer_multisample
+	mHasFramebufferMultisample = TRUE;
+# else
+	mHasFramebufferMultisample = FALSE;
+# endif
+# if GL_ARB_draw_buffers
+	mHasDrawBuffers = TRUE;
+#else
+	mHasDrawBuffers = FALSE;
+# endif
 	mHasMipMapGeneration = FALSE;
 	mHasSeparateSpecularColor = FALSE;
 	mHasAnisotropic = FALSE;
@@ -584,6 +610,8 @@ void LLGLManager::initExtensions()
 	// mask out FBO support when packed_depth_stencil isn't there 'cause we need it for LLRenderTarget -Brad
 	mHasFramebufferObject = ExtensionExists("GL_EXT_framebuffer_object", gGLHExts.mSysExts)
 		&& ExtensionExists("GL_EXT_packed_depth_stencil", gGLHExts.mSysExts);
+	mHasFramebufferMultisample = mHasFramebufferObject && ExtensionExists("GL_EXT_framebuffer_multisample", gGLHExts.mSysExts);
+	mHasDrawBuffers = ExtensionExists("GL_ARB_draw_buffers", gGLHExts.mSysExts);
 #if !LL_DARWIN
 	mHasPointParameters = !mIsATI && ExtensionExists("GL_ARB_point_parameters", gGLHExts.mSysExts);
 #endif
@@ -604,6 +632,8 @@ void LLGLManager::initExtensions()
 		mHasCompressedTextures = FALSE;
 		mHasVertexBufferObject = FALSE;
 		mHasFramebufferObject = FALSE;
+		mHasFramebufferMultisample = FALSE;
+		mHasDrawBuffers = FALSE;
 		mHasMipMapGeneration = FALSE;
 		mHasSeparateSpecularColor = FALSE;
 		mHasAnisotropic = FALSE;
@@ -653,6 +683,9 @@ void LLGLManager::initExtensions()
 		if (strchr(blacklist,'o')) mHasFragmentShader = FALSE;//S
 		if (strchr(blacklist,'p')) mHasPointParameters = FALSE;//S
 		if (strchr(blacklist,'q')) mHasFramebufferObject = FALSE;//S
+		if (strchr(blacklist,'r')) mHasDrawBuffers = FALSE;//S
+		if (strchr(blacklist,'s')) mHasFramebufferMultisample = FALSE;
+
 	}
 #endif // LL_LINUX || LL_SOLARIS
 	
@@ -761,15 +794,29 @@ void LLGLManager::initExtensions()
 		glGetFramebufferAttachmentParameterivEXT = (PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVEXTPROC) GLH_EXT_GET_PROC_ADDRESS("glGetFramebufferAttachmentParameterivEXT");
 		glGenerateMipmapEXT = (PFNGLGENERATEMIPMAPEXTPROC) GLH_EXT_GET_PROC_ADDRESS("glGenerateMipmapEXT");
 	}
-#if !LL_LINUX && !LL_SOLARIS
-	// This is expected to be a static symbol on Linux GL implementations
+	if (mHasFramebufferMultisample)
+	{
+		glRenderbufferStorageMultisampleEXT = (PFNGLRENDERBUFFERSTORAGEMULTISAMPLEEXTPROC) GLH_EXT_GET_PROC_ADDRESS("glRenderbufferStorageMultisampleEXT");
+		glBlitFramebufferEXT = (PFNGLBLITFRAMEBUFFEREXTPROC) GLH_EXT_GET_PROC_ADDRESS("glBlitFramebufferEXT");
+	}
+	if (mHasDrawBuffers)
+	{
+		glDrawBuffersARB = (PFNGLDRAWBUFFERSARBPROC) GLH_EXT_GET_PROC_ADDRESS("glDrawBuffersARB");
+	}
+#if (!LL_LINUX && !LL_SOLARIS) || LL_LINUX_NV_GL_HEADERS
+	// This is expected to be a static symbol on Linux GL implementations, except if we use the nvidia headers - bah
 	glDrawRangeElements = (PFNGLDRAWRANGEELEMENTSPROC)GLH_EXT_GET_PROC_ADDRESS("glDrawRangeElements");
 	if (!glDrawRangeElements)
 	{
 		mGLMaxVertexRange = 0;
 		mGLMaxIndexRange = 0;
 	}
-#endif // !LL_LINUX
+#endif // !LL_LINUX || LL_LINUX_NV_GL_HEADERS
+#if LL_LINUX_NV_GL_HEADERS
+	// nvidia headers are critically different from mesa-esque
+ 	glActiveTextureARB = (PFNGLACTIVETEXTUREARBPROC)GLH_EXT_GET_PROC_ADDRESS("glActiveTextureARB");
+ 	glClientActiveTextureARB = (PFNGLCLIENTACTIVETEXTUREARBPROC)GLH_EXT_GET_PROC_ADDRESS("glClientActiveTextureARB");
+#endif // LL_LINUX_NV_GL_HEADERS
 
 	if (mHasOcclusionQuery)
 	{
@@ -946,7 +993,7 @@ void assert_glerror()
 		{
 			// gluErrorString returns NULL for some extensions' error codes.
 			// you'll probably have to grep for the number in glext.h.
-			LL_WARNS("RenderState") << "GL Error: UNKNOWN 0x" << std::hex << error << LL_ENDL;
+			LL_WARNS("RenderState") << "GL Error: UNKNOWN 0x" << std::hex << error << std::dec << LL_ENDL;
 		}
 		error = glGetError();
 #endif
@@ -986,6 +1033,11 @@ void LLGLState::initClass()
 	//make sure multisample defaults to disabled
 	sStateMap[GL_MULTISAMPLE_ARB] = GL_FALSE;
 	glDisable(GL_MULTISAMPLE_ARB);
+
+	sStateMap[GL_MULTISAMPLE_ARB] = GL_FALSE;
+	glDisable(GL_MULTISAMPLE_ARB);
+
+	glEnableClientState(GL_VERTEX_ARRAY);
 }
 
 //static
@@ -1037,7 +1089,7 @@ void LLGLState::checkStates(const std::string& msg)
 	
 	if (src != GL_SRC_ALPHA || dst != GL_ONE_MINUS_SRC_ALPHA)
 	{
-		LL_GL_ERRS << "Blend function corrupted: " << std::hex << src << " " << std::hex << dst << "  " << msg << LL_ENDL;
+		LL_GL_ERRS << "Blend function corrupted: " << std::hex << src << " " << std::hex << dst << "  " << msg << std::dec << LL_ENDL;
 	}
 	
 	for (std::map<LLGLenum, LLGLboolean>::iterator iter = sStateMap.begin();
@@ -1076,7 +1128,7 @@ void LLGLState::checkTextureChannels(const std::string& msg)
 		if (tex_env_mode != GL_MODULATE)
 		{
 			error = TRUE;
-			LL_WARNS("RenderState") << "GL_TEXTURE_ENV_MODE invalid: " << std::hex << tex_env_mode << LL_ENDL;
+			LL_WARNS("RenderState") << "GL_TEXTURE_ENV_MODE invalid: " << std::hex << tex_env_mode << std::dec << LL_ENDL;
 		}
 	}
 
@@ -1092,7 +1144,8 @@ void LLGLState::checkTextureChannels(const std::string& msg)
 		"GL_TEXTURE_GEN_S",
 		"GL_TEXTURE_GEN_T",
 		"GL_TEXTURE_GEN_Q",
-		"GL_TEXTURE_GEN_R"
+		"GL_TEXTURE_GEN_R",
+		"GL_TEXTURE_RECTANGLE_ARB"
 	};
 
 	static GLint value[] =
@@ -1104,7 +1157,8 @@ void LLGLState::checkTextureChannels(const std::string& msg)
 		GL_TEXTURE_GEN_S,
 		GL_TEXTURE_GEN_T,
 		GL_TEXTURE_GEN_Q,
-		GL_TEXTURE_GEN_R
+		GL_TEXTURE_GEN_R,
+		GL_TEXTURE_RECTANGLE_ARB
 	};
 
 	GLint stackDepth = 0;
@@ -1132,13 +1186,25 @@ void LLGLState::checkTextureChannels(const std::string& msg)
 			LL_WARNS("RenderState") << "Texture matrix in channel " << i << " corrupt." << LL_ENDL;
 		}
 
-		for (S32 j = (i == 0 ? 1 : 0); j < 8; j++)
+		for (S32 j = (i == 0 ? 1 : 0); j < 9; j++)
 		{
 			if (glIsEnabled(value[j]))
 			{
 				error = TRUE;
 				LL_WARNS("RenderState") << "Texture channel " << i << " still has " << label[j] << " enabled." << LL_ENDL;
 			}
+		}
+
+		glh::matrix4f mat;
+		glh::matrix4f identity;
+		identity.identity();
+
+		glGetFloatv(GL_TEXTURE_MATRIX, mat.m);
+
+		if (mat != identity)
+		{
+			error = TRUE;
+			LL_WARNS("RenderState") << "Texture matrix " << i << " is not identity." << LL_ENDL;
 		}
 	}
 
@@ -1260,6 +1326,22 @@ void LLGLState::checkClientArrays(const std::string& msg, U32 data_mask)
 
 	glClientActiveTextureARB(GL_TEXTURE0_ARB);
 	gGL.getTexUnit(0)->activate();
+
+	if (gGLManager.mHasVertexShader)
+	{	//make sure vertex attribs are all disabled
+		GLint count;
+		glGetIntegerv(GL_MAX_VERTEX_ATTRIBS_ARB, &count);
+		for (GLint i = 0; i < count; i++)
+		{
+			GLint enabled;
+			glGetVertexAttribivARB((GLuint) i, GL_VERTEX_ATTRIB_ARRAY_ENABLED_ARB, &enabled);
+			if (enabled)
+			{
+				error = TRUE;
+				LL_WARNS("RenderState") << "GL still has vertex attrib array " << i << " enabled." << LL_ENDL;
+			}
+		}
+	}
 
 	if (error)
 	{
@@ -1646,6 +1728,7 @@ void LLGLNamePool::cleanupPools()
 LLGLDepthTest::LLGLDepthTest(GLboolean depth_enabled, GLboolean write_enabled, GLenum depth_func)
 : mPrevDepthEnabled(sDepthEnabled), mPrevDepthFunc(sDepthFunc), mPrevWriteEnabled(sWriteEnabled)
 {
+	stop_glerror();
 	if (depth_enabled != sDepthEnabled)
 	{
 		gGL.flush();

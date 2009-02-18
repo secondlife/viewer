@@ -20,8 +20,8 @@ void main()
 
 	/// CALCULATING LUMINANCE (Using NTSC lum weights)
 	/// http://en.wikipedia.org/wiki/Luma_%28video%29
-	float lum = smoothstep(minLuminance, 1.0, dot(col.rgb, lumWeights ) );
-	float warmth = smoothstep(minLuminance, 1.0, max(col.r * warmthWeights.r, max(col.g * warmthWeights.g, col.b * warmthWeights.b)) ); 
+	float lum = smoothstep(minLuminance, minLuminance+1.0, dot(col.rgb, lumWeights ) );
+	float warmth = smoothstep(minLuminance, minLuminance+1.0, max(col.r * warmthWeights.r, max(col.g * warmthWeights.g, col.b * warmthWeights.b)) ); 
 	
 	gl_FragColor.rgb = col.rgb; 
 	gl_FragColor.a = max(col.a, mix(lum, warmth, warmthAmount) * maxExtractAlpha);

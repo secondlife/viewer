@@ -73,7 +73,7 @@ extern BOOL gRenderForSelect;
 static LLPointer<LLVertexBuffer> sRenderBuffer = NULL;
 static const U32 sRenderMask = LLVertexBuffer::MAP_VERTEX |
 							   LLVertexBuffer::MAP_NORMAL |
-							   LLVertexBuffer::MAP_TEXCOORD;
+							   LLVertexBuffer::MAP_TEXCOORD0;
 
 
 //-----------------------------------------------------------------------------
@@ -459,14 +459,13 @@ void LLViewerJointMesh::uploadJointMatrices()
 			for (S32 axis = 0; axis < NUM_AXES; axis++)
 			{
 				F32* vector = gJointMatUnaligned[joint_num].mMatrix[axis];
-				//glProgramLocalParameter4fvARB(GL_VERTEX_PROGRAM_ARB, LL_CHARACTER_MAX_JOINTS_PER_MESH * axis + joint_num+5, (GLfloat*)vector);
 				U32 offset = LL_CHARACTER_MAX_JOINTS_PER_MESH*axis+joint_num;
 				memcpy(mat+offset*4, vector, sizeof(GLfloat)*4);
-				//glProgramLocalParameter4fvARB(GL_VERTEX_PROGRAM_ARB, LL_CHARACTER_MAX_JOINTS_PER_MESH * axis + joint_num+6, (GLfloat*)vector);
-				//cgGLSetParameterArray4f(gPipeline.mAvatarMatrix, offset, 1, vector);
 			}
 		}
+		stop_glerror();
 		glUniform4fvARB(gAvatarMatrixParam, 45, mat);
+		stop_glerror();
 	}
 }
 
@@ -536,6 +535,7 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass)
 	//----------------------------------------------------------------
 	llassert( !(mTexture.notNull() && mLayerSet) );  // mutually exclusive
 
+	LLTexUnit::eTextureAddressMode old_mode = LLTexUnit::TAM_WRAP;
 	if (mTestImageName)
 	{
 		gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, mTestImageName);
@@ -565,11 +565,9 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass)
 	else
 	if ( mTexture.notNull() )
 	{
-		if (!mTexture->getClampS() || !mTexture->getClampT())
-		{
-			gGL.getTexUnit(0)->bind(mTexture.get());
-			mTexture->overrideClamp (TRUE, TRUE);
-		}
+		old_mode = mTexture->getAddressMode();
+		gGL.getTexUnit(0)->bind(mTexture.get());
+		gGL.getTexUnit(0)->setTextureAddressMode(LLTexUnit::TAM_CLAMP);
 	}
 	else
 	{
@@ -628,7 +626,7 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass)
 	if (mTexture.notNull())
 	{
 		gGL.getTexUnit(0)->bind(mTexture.get());
-		mTexture->restoreClamp();
+		gGL.getTexUnit(0)->setTextureAddressMode(old_mode);
 	}
 
 	return triangle_count;

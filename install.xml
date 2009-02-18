@@ -127,9 +127,9 @@
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>352c46f39773b9415f8a9bf868c4c305</string>
+            <string>b9d23a69a25fdeed96dcc3bf696b6514</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/apr_suite-1.2.8-windows-20080618.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/apr_suite-1.2.12-windows-20080806.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -174,9 +174,9 @@
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>085a62de4c264d6a3718ad789aacd297</string>
+            <string>6a53b02a07527de680f1336e20f74f08</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ares-1.3.0-windows-20080618.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ares-1.4.0-windows-20080723.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -230,9 +230,9 @@
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>6f03592f4db4c177c7b255520283f547</string>
+            <string>d2b2ad9b46b9981c2a6be7c912bd17b4</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.32.0-windows-20080613.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.34.1-windows-20080723.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -277,9 +277,9 @@
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>fb42c5b40e34b043cee236aa216b141e</string>
+            <string>d391c33898a5dbc7e7537bf0d9cda36e</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/curl-7.16.0-windows-20080613.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/curl-7.18.1-windows-20080723.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -372,9 +372,9 @@
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>abd100b16dbe4621019a229af0411f5d</string>
+            <string>cca5ca3759f645d4a124d4b96df7f717</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/expat-1.95.8-windows-20080617.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/expat-1.95.8-windows-20080715.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -481,9 +481,9 @@
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>b22d33d86567561eb116aa2ccd024d88</string>
+            <string>688944a961e16c2a89f81b60b2ff3acf</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/freetype-2.1.5-windows-20080613.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/freetype-2.1.5-windows-20080822.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -730,9 +730,9 @@
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>475ab2d2f4b769834bd3f35562b8c445</string>
+            <string>e40d2df9aaefb3bd57289fe96766353a</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/jpeglib-6b-windows-20080613.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/jpeglib-6b-windows-20080723.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -817,9 +817,9 @@
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>87af253b1d76437290355e8e20029377</string>
+            <string>c4cf53deda9148549e6534a98b56e866</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/kdu-binaries-5.2.1-windows-20080617.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/kdu-binaries-4.2-windows-20080723.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -912,9 +912,9 @@ anguage Infrstructure (CLI) international standard</string>
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>96ad03239a2b1d50584dcaf66162e03e</string>
+            <string>230b6113158994c516ea742fb9e163c3</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/libpng-1.2.18-windows-20080613.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/libpng-1.2.29-windows-20080723.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -1010,9 +1010,9 @@ anguage Infrstructure (CLI) international standard</string>
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>42cb780c595d25881b4967292a4a0f40</string>
+            <string>3fd03d7bbd0efceddce1e158eb454fc9</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llmozlib-windows-20080828.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llmozlib-windows-20090123.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -1072,9 +1072,9 @@ anguage Infrstructure (CLI) international standard</string>
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>813e8621ca3cd5a720f709620927070f</string>
+            <string>98bac06680dca907e783d8dd4aa9edde</string>
             <key>url</key>
-            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/mysql-windows-20080611.tar.bz2</uri>
+            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/mysql-windows-20080804.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -1112,9 +1112,9 @@ anguage Infrstructure (CLI) international standard</string>
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>03cbdf59996f468f907f11cb9c64f93f</string>
+            <string>8ac100b5b711231b06be891c91cb68f3</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ndofdev-windows-20080618.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ndofdev-windows-20080723.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -1159,9 +1159,9 @@ anguage Infrstructure (CLI) international standard</string>
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>9667525f28adb4ad54bbc883b14324ac</string>
+            <string>9bf1fea65e66b2cd3075e6ffd7eb57ad</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ogg-vorbis-1.03-1.1.2-windows-20080613.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ogg-vorbis-1.1.3-1.2.0-windows-20080723.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -1202,9 +1202,9 @@ anguage Infrstructure (CLI) international standard</string>
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>8a75180cae12d268071c090abb031ba5</string>
+            <string>dd85209081b832e836de6e1538541d89</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/openSSL-0.9.7c-windows-20080613.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/openSSL-0.9.8j-windows-20090129.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -1289,9 +1289,9 @@ anguage Infrstructure (CLI) international standard</string>
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>33ceb9232a59c0399ef4d239373c3e42</string>
+            <string>48650448e3d9c8d3a97fd0169b22892c</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/openjpeg-1.2-windows-20080613.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/openjpeg-1.2-windows-20080723.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -1471,9 +1471,9 @@ anguage Infrstructure (CLI) international standard</string>
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>ef96676498fef5c2bd1a1de0144163e2</string>
+            <string>789988ea1fd8615137f843fbbe5b6bfa</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/xmlrpc-epi-0.51-windows-20080613.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/xmlrpc-epi-0.51-windows-20080723.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -1518,9 +1518,9 @@ anguage Infrstructure (CLI) international standard</string>
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>bebeba689d2a8d19cfde150582a4f85a</string>
+            <string>9ad657cc5146fef77ffa8dd1c069018f</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/zlib-1.1.4-windows-20080618.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/zlib-1.2.3-windows-20080723.tar.bz2</uri>
           </map>
         </map>
       </map>

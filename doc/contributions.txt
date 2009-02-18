@@ -108,6 +108,9 @@ Carjay McGinnis
 Catherine Pfeffer
 	VWR-1282
 	VWR-8624
+Celierra Darling
+	VWR-1274
+	VWR-6975
 Dale Glass
 	VWR-120
 	VWR-560
@@ -375,6 +378,7 @@ Renault Clio
 	VWR-1976
 Robin Cornelius
 	VWR-2488
+	VWR-9557
 Ryozu Kojima
 	VWR-287
 Sammy Frederix

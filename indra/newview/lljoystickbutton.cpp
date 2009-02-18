@@ -639,7 +639,7 @@ void LLJoystickCameraRotate::draw()
 }
 
 // Draws image rotated by multiples of 90 degrees
-void LLJoystickCameraRotate::drawRotatedImage( const LLImageGL* image, S32 rotations )
+void LLJoystickCameraRotate::drawRotatedImage( LLImageGL* image, S32 rotations )
 {
 	S32 width = image->getWidth();
 	S32 height = image->getHeight();

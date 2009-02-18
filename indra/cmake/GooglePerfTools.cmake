@@ -5,6 +5,11 @@ if (STANDALONE)
   include(FindGooglePerfTools)
 else (STANDALONE)
   use_prebuilt_binary(google)
+  if (WINDOWS)
+    set(TCMALLOC_LIBRARIES 
+        debug libtcmalloc_minimal-debug
+        optimized libtcmalloc_minimal-debug)
+  endif (WINDOWS)
   if (LINUX)
     set(TCMALLOC_LIBRARIES tcmalloc)
     set(STACKTRACE_LIBRARIES stacktrace)

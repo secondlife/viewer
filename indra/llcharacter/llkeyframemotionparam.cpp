@@ -354,7 +354,9 @@ BOOL LLKeyframeMotionParam::loadMotions()
 	// open the file
 	//-------------------------------------------------------------------------
 	S32 fileSize = 0;
-	apr_file_t* fp = ll_apr_file_open(path, LL_APR_R, &fileSize);
+	LLAPRFile infile ;
+	infile.open(path, LL_APR_R, NULL, &fileSize);
+	apr_file_t* fp = infile.getFileHandle() ;
 	if (!fp || fileSize == 0)
 	{
 		llinfos << "ERROR: can't open: " << path << llendl;
@@ -366,7 +368,6 @@ BOOL LLKeyframeMotionParam::loadMotions()
 	if ( !text )
 	{
 		llinfos << "ERROR: can't allocated keyframe text buffer." << llendl;
-		apr_file_close(fp);
 		return FALSE;
 	}
 
@@ -393,7 +394,7 @@ BOOL LLKeyframeMotionParam::loadMotions()
 	//-------------------------------------------------------------------------
 	// close the file
 	//-------------------------------------------------------------------------
-	apr_file_close( fp );
+	infile.close();
 
 	//-------------------------------------------------------------------------
 	// check for error

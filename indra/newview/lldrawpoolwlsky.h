@@ -41,7 +41,7 @@ class LLDrawPoolWLSky : public LLDrawPool {
 public:
 
 	static const U32 SKY_VERTEX_DATA_MASK =	LLVertexBuffer::MAP_VERTEX |
-							LLVertexBuffer::MAP_TEXCOORD;
+							LLVertexBuffer::MAP_TEXCOORD0;
 	static const U32 STAR_VERTEX_DATA_MASK =	LLVertexBuffer::MAP_VERTEX |
 							LLVertexBuffer::MAP_COLOR;
 
@@ -49,6 +49,11 @@ public:
 	/*virtual*/ ~LLDrawPoolWLSky();
 
 	/*virtual*/ BOOL isDead() { return FALSE; }
+
+	/*virtual*/ S32 getNumPostDeferredPasses() { return getNumPasses(); }
+	/*virtual*/ void beginPostDeferredPass(S32 pass) { beginRenderPass(pass); }
+	/*virtual*/ void endPostDeferredPass(S32 pass) { endRenderPass(pass); }
+	/*virtual*/ void renderPostDeferred(S32 pass) { render(pass); }
 
 	/*virtual*/ LLViewerImage *getDebugTexture();
 	/*virtual*/ void beginRenderPass( S32 pass );

@@ -37,6 +37,7 @@
 #include <deque>
 #include <string>
 #include "llstring.h"
+#include "llthread.h"
 
 // Fixed size buffer for console output and other things.
 
@@ -53,14 +54,19 @@ public:
 	std::deque<S32>			mLineLengths;
 
 	void clear(); // Clear the buffer, and reset it.
-	virtual void addLine(const std::string& utf8line);
-	virtual void addLine(const LLWString& line);
+
+	//do not make these two "virtual"
+	void addLine(const std::string& utf8line);
+	void addLine(const LLWString& line);
 
 	// Get lines currently in the buffer, up to max_size chars, max_length lines
 	char *getLines(U32 max_size = 0, U32 max_length = 0); 
 	void setMaxLines(S32 max_lines);
 protected:
 	virtual void removeExtraLines();
+
+protected:
+	LLMutex mMutex ;
 };
 
 const U32 FIXED_BUF_MAX_LINE_LEN = 255; // Not including termnating 0

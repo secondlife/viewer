@@ -260,6 +260,12 @@ class WindowsManifest(ViewerManifest):
                 "../win_updater/relwithdebinfo/windows-updater.exe"),
                   dst="updater.exe")
 
+        # For google-perftools tcmalloc allocator.
+        #if self.prefix(src="../../libraries/i686-win32/lib/release", dst=""):
+        #        self.path("libtcmalloc_minimal.dll")
+        #        self.end_prefix()
+
+
     def nsi_file_commands(self, install=True):
         def wpath(path):
             if path.endswith('/') or path.endswith(os.path.sep):

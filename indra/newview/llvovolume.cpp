@@ -409,7 +409,7 @@ BOOL LLVOVolume::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 void LLVOVolume::updateTextures(LLAgent &agent)
 {
 	const F32 TEXTURE_AREA_REFRESH_TIME = 5.f; // seconds
-	if (mTextureUpdateTimer.getElapsedTimeF32() > TEXTURE_AREA_REFRESH_TIME)
+	if (mDrawable.notNull() && mTextureUpdateTimer.getElapsedTimeF32() > TEXTURE_AREA_REFRESH_TIME)
 	{
 		if (mDrawable->isVisible())
 		{
@@ -467,17 +467,6 @@ void LLVOVolume::updateTextures()
 		mPixelArea = llmax(mPixelArea, face->getPixelArea());
 
 		F32 old_size = face->getVirtualSize();
-
-		if (face->getPoolType() == LLDrawPool::POOL_ALPHA)
-		{
-			
-			if (LLPipeline::sFastAlpha &&
-				vsize < MIN_ALPHA_SIZE && old_size > MIN_ALPHA_SIZE ||
-				vsize > MIN_ALPHA_SIZE && old_size < MIN_ALPHA_SIZE)
-			{
-				gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_COLOR, FALSE);
-			}
-		}
 
 		if (face->mTextureMatrix != NULL)
 		{
@@ -1283,10 +1272,12 @@ S32 LLVOVolume::setTEColor(const U8 te, const LLColor3& color)
 S32 LLVOVolume::setTEColor(const U8 te, const LLColor4& color)
 {
 	S32 res = LLViewerObject::setTEColor(te, color);
-	if (res)
+	if (res && mDrawable.notNull())
 	{
-		gPipeline.markTextured(mDrawable);
-		mFaceMappingChanged = TRUE;
+		//gPipeline.markTextured(mDrawable);
+		mDrawable->setState(LLDrawable::REBUILD_COLOR);
+		dirtyMesh();
+		//mFaceMappingChanged = TRUE;
 	}
 	return  res;
 }
@@ -1392,11 +1383,11 @@ S32 LLVOVolume::setTEScaleT(const U8 te, const F32 t)
 
 void LLVOVolume::updateTEData()
 {
-	if (mDrawable.notNull())
+	/*if (mDrawable.notNull())
 	{
 		mFaceMappingChanged = TRUE;
 		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_MATERIAL, TRUE);
-	}
+	}*/
 }
 
 //----------------------------------------------------------------------------
@@ -1824,7 +1815,9 @@ F32 LLVOVolume::getBinRadius()
 		{
 			LLFace* face = mDrawable->getFace(i);
 			if (face->getPoolType() == LLDrawPool::POOL_ALPHA &&
-				(!LLPipeline::sFastAlpha || face->getVirtualSize() > MIN_ALPHA_SIZE))
+				(!LLPipeline::sFastAlpha || 
+				face->getFaceColor().mV[3] != 1.f ||
+				!face->getTexture()->getIsAlphaMask()))
 			{
 				alpha_wrap = TRUE;
 				break;
@@ -1849,14 +1842,20 @@ F32 LLVOVolume::getBinRadius()
 	}
 	else if (mDrawable->isStatic())
 	{
-		if (mDrawable->getRadius() < 2.0f)
+		/*if (mDrawable->getRadius() < 2.0f)
 		{
 			radius = 16.f;
 		}
 		else
 		{
 			radius = llmax(mDrawable->getRadius(), 32.f);
-		}
+		}*/
+
+		radius = (((S32) mDrawable->getRadius())/2+1)*8;
+	}
+	else if (mDrawable->getVObj()->isAttachment())
+	{
+		radius = (((S32) (mDrawable->getRadius()*4)+1))*2;
 	}
 	else
 	{
@@ -2128,6 +2127,11 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 		glow = (U8) (facep->getTextureEntry()->getGlow() * 255);
 	}
 
+	if (facep->mVertexBuffer.isNull())
+	{
+		llerrs << "WTF?" << llendl;
+	}
+
 	if (idx >= 0 && 
 		draw_vec[idx]->mVertexBuffer == facep->mVertexBuffer &&
 		draw_vec[idx]->mEnd == facep->getGeomIndex()-1 &&
@@ -2146,6 +2150,8 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 		draw_vec[idx]->mEnd += facep->getGeomCount();
 		draw_vec[idx]->mVSize = llmax(draw_vec[idx]->mVSize, facep->getVirtualSize());
 		validate_draw_info(*draw_vec[idx]);
+		update_min_max(draw_vec[idx]->mExtents[0], draw_vec[idx]->mExtents[1], facep->mExtents[0]);
+		update_min_max(draw_vec[idx]->mExtents[0], draw_vec[idx]->mExtents[1], facep->mExtents[1]);
 	}
 	else
 	{
@@ -2161,6 +2167,12 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 		draw_info->mTextureMatrix = tex_mat;
 		draw_info->mModelMatrix = model_mat;
 		draw_info->mGlowColor.setVec(0,0,0,glow);
+		if (type == LLRenderPass::PASS_ALPHA)
+		{ //for alpha sorting
+			facep->setDrawInfo(draw_info);
+		}
+		draw_info->mExtents[0] = facep->mExtents[0];
+		draw_info->mExtents[1] = facep->mExtents[1];
 		validate_draw_info(*draw_info);
 	}
 }
@@ -2184,89 +2196,15 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 
 	group->mLastUpdateViewAngle = group->mViewAngle;
 
-	if (!group->isState(LLSpatialGroup::GEOM_DIRTY |
-						LLSpatialGroup::ALPHA_DIRTY))
+	if (!group->isState(LLSpatialGroup::GEOM_DIRTY | LLSpatialGroup::ALPHA_DIRTY))
 	{
-		if (group->isState(LLSpatialGroup::MESH_DIRTY))
+		if (group->isState(LLSpatialGroup::MESH_DIRTY) && !LLPipeline::sDelayVBUpdate)
 		{
-			S32 num_mapped_veretx_buffer = LLVertexBuffer::sMappedCount ;
-
-			group->mBuilt = 1.f;
 			LLFastTimer ftm(LLFastTimer::FTM_REBUILD_VBO);	
-
 			LLFastTimer ftm2(LLFastTimer::FTM_REBUILD_VOLUME_VB);
-
-			for (LLSpatialGroup::element_iter drawable_iter = group->getData().begin(); drawable_iter != group->getData().end(); ++drawable_iter)
-			{
-				LLDrawable* drawablep = *drawable_iter;
-
-				if (drawablep->isDead() || drawablep->isState(LLDrawable::FORCE_INVISIBLE) )
-				{
-					continue;
-				}
-
-				if (drawablep->isState(LLDrawable::REBUILD_ALL))
-				{
-					LLVOVolume* vobj = drawablep->getVOVolume();
-					vobj->preRebuild();
-					LLVolume* volume = vobj->getVolume();
-					for (S32 i = 0; i < drawablep->getNumFaces(); ++i)
-					{
-						LLFace* face = drawablep->getFace(i);
-						if (face && face->mVertexBuffer.notNull())
-						{
-							face->getGeometryVolume(*volume, face->getTEOffset(), 
-								vobj->getRelativeXform(), vobj->getRelativeXformInvTrans(), face->getGeomIndex());
-						}
-					}
-
-					drawablep->clearState(LLDrawable::REBUILD_ALL);
-				}
-			}
-			
-			//unmap all the buffers
-			for (LLSpatialGroup::buffer_map_t::iterator i = group->mBufferMap.begin(); i != group->mBufferMap.end(); ++i)
-			{
-				LLSpatialGroup::buffer_list_t& list = i->second;
-				for (LLSpatialGroup::buffer_list_t::iterator j = list.begin(); j != list.end(); ++j)
-				{
-					LLVertexBuffer* buffer = *j;
-					if (buffer->isLocked())
-					{
-						buffer->setBuffer(0);
-					}
-				}
-			}
-			
-			// don't forget alpha
-			if(	group != NULL && 
-				!group->mVertexBuffer.isNull() && 
-				group->mVertexBuffer->isLocked())
-			{
-				group->mVertexBuffer->setBuffer(0);
-			}
-
-			//if not all buffers are unmapped
-			if(num_mapped_veretx_buffer != LLVertexBuffer::sMappedCount) 
-			{
-				llwarns << "Not all mapped vertex buffers are unmapped!" << llendl ; 
-				for (LLSpatialGroup::element_iter drawable_iter = group->getData().begin(); drawable_iter != group->getData().end(); ++drawable_iter)
-				{
-					LLDrawable* drawablep = *drawable_iter;
-					for (S32 i = 0; i < drawablep->getNumFaces(); ++i)
-					{
-						LLFace* face = drawablep->getFace(i);
-						if (face && face->mVertexBuffer.notNull() && face->mVertexBuffer->isLocked())
-						{
-							face->mVertexBuffer->setBuffer(0) ;
-						}
-					}
-				} 
-			}
-
-			group->clearState(LLSpatialGroup::MESH_DIRTY);
+		
+			rebuildMesh(group);
 		}
-
 		return;
 	}
 
@@ -2279,15 +2217,20 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 
 	mFaceList.clear();
 
+	std::vector<LLFace*> fullbright_faces;
+	std::vector<LLFace*> bump_faces;
+	std::vector<LLFace*> simple_faces;
+
 	std::vector<LLFace*> alpha_faces;
-	U32 vertex_count = 0;
-	U32 index_count = 0;
 	U32 useage = group->mSpatialPartition->mBufferUsage;
 
 	U32 max_vertices = (gSavedSettings.getS32("RenderMaxVBOSize")*1024)/LLVertexBuffer::calcStride(group->mSpatialPartition->mVertexDataMask);
+	U32 max_total = (gSavedSettings.getS32("RenderMaxNodeSize")*1024)/LLVertexBuffer::calcStride(group->mSpatialPartition->mVertexDataMask);
 	max_vertices = llmin(max_vertices, (U32) 65535);
 
-	//get all the faces into a list, putting alpha faces in their own list
+	U32 cur_total = 0;
+
+	//get all the faces into a list
 	for (LLSpatialGroup::element_iter drawable_iter = group->getData().begin(); drawable_iter != group->getData().end(); ++drawable_iter)
 	{
 		LLDrawable* drawablep = *drawable_iter;
@@ -2313,6 +2256,16 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 			//sum up face verts and indices
 			drawablep->updateFaceSize(i);
 			LLFace* facep = drawablep->getFace(i);
+
+			if (cur_total > max_total)
+			{
+				facep->mVertexBuffer = NULL;
+				facep->mLastVertexBuffer = NULL;
+				continue;
+			}
+
+			cur_total += facep->getGeomCount();
+
 			if (facep->hasGeometry() && facep->mPixelArea > FORCE_CULL_AREA)
 			{
 				const LLTextureEntry* te = facep->getTextureEntry();
@@ -2349,36 +2302,14 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 
 				if (type == LLDrawPool::POOL_ALPHA)
 				{
-					BOOL alpha_opt = LLPipeline::sFastAlpha && gPipeline.canUseWindLightShadersOnObjects() && facep->getVirtualSize() < MIN_ALPHA_SIZE;
-
-					const LLColor4& col = facep->getTextureEntry()->getColor();
-
-					if (alpha_opt)
-					{ //if we're applying the alpha optimization, only blend faces that have alpha (0.15, 0.5]
-					  //for faces with alpha (0.5, 1.0], render with an alpha mask
-					  //for faces with alpha [0.0, 0.15], don't render
-						if (col.mV[3] > 0.5f)
-						{
-							mFaceList.push_back(facep);
-						}
-						else if (col.mV[3] > 0.15f)
-						{
-							vertex_count += facep->getGeomCount();
-							index_count += facep->getIndicesCount();
-							alpha_faces.push_back(facep);
-						}
-						else
-						{	//face has no renderable geometry
-							facep->mVertexBuffer = NULL;
-							facep->mLastVertexBuffer = NULL;
-							//don't alpha wrap drawables that have only tiny tiny alpha faces
-							facep->setPoolType(LLDrawPool::POOL_SIMPLE);
-						}
+					if (LLPipeline::sFastAlpha &&
+						(te->getColor().mV[VW] == 1.0f) &&
+						facep->getTexture()->getIsAlphaMask())
+					{ //can be treated as alpha mask
+						simple_faces.push_back(facep);
 					}
 					else
 					{
-						vertex_count += facep->getGeomCount();
-						index_count += facep->getIndicesCount();
 						alpha_faces.push_back(facep);
 					}
 				}
@@ -2388,124 +2319,300 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 					{
 						facep->mLastUpdateTime = gFrameTimeSeconds;
 					}
-					mFaceList.push_back(facep);
+
+					if (gPipeline.canUseWindLightShadersOnObjects()
+						&& LLPipeline::sRenderBump)
+					{
+						if (te->getBumpmap())
+						{ //needs normal + binormal
+							bump_faces.push_back(facep);
+						}
+						else if (te->getShiny() || !te->getFullbright())
+						{ //needs normal
+							simple_faces.push_back(facep);
+						}
+						else 
+						{ //doesn't need normal
+							fullbright_faces.push_back(facep);
+						}
+					}
+					else
+					{
+						if (te->getBumpmap() && LLPipeline::sRenderBump)
+						{ //needs normal + binormal
+							bump_faces.push_back(facep);
+						}
+						else if (te->getShiny() && LLPipeline::sRenderBump ||
+							!te->getFullbright())
+						{ //needs normal
+							simple_faces.push_back(facep);
+						}
+						else 
+						{ //doesn't need normal
+							fullbright_faces.push_back(facep);
+						}
+					}
 				}
 			}
 			else
 			{	//face has no renderable geometry
 				facep->mVertexBuffer = NULL;
 				facep->mLastVertexBuffer = NULL;
-				//don't alpha wrap drawables that have only tiny tiny alpha faces
-				facep->setPoolType(LLDrawPool::POOL_SIMPLE);
 			}		
 		}
 	}
 
-	U16 alpha_vertex_count = vertex_count > 65535 ? 65535 : vertex_count;
-	U32 alpha_index_count = index_count;
-
 	group->mBufferUsage = useage;
 
 	//PROCESS NON-ALPHA FACES
+	U32 simple_mask = LLVertexBuffer::MAP_TEXCOORD0 | LLVertexBuffer::MAP_NORMAL | LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_COLOR;
+	U32 alpha_mask = simple_mask | 0x80000000; //hack to give alpha verts their own VBO
+	U32 bump_mask = LLVertexBuffer::MAP_TEXCOORD0 | LLVertexBuffer::MAP_TEXCOORD1 | LLVertexBuffer::MAP_NORMAL | LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_COLOR;
+	U32 fullbright_mask = LLVertexBuffer::MAP_TEXCOORD0 | LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_COLOR;
+
+	if (LLPipeline::sRenderDeferred)
+	{
+		bump_mask |= LLVertexBuffer::MAP_BINORMAL;
+	}
+
+	genDrawInfo(group, simple_mask, simple_faces);
+	genDrawInfo(group, bump_mask, bump_faces);
+	genDrawInfo(group, fullbright_mask, fullbright_faces);
+	genDrawInfo(group, alpha_mask, alpha_faces, TRUE);
+
+	if (!LLPipeline::sDelayVBUpdate)
+	{
+		//drawables have been rebuilt, clear rebuild status
+		for (LLSpatialGroup::element_iter drawable_iter = group->getData().begin(); drawable_iter != group->getData().end(); ++drawable_iter)
+		{
+			LLDrawable* drawablep = *drawable_iter;
+			drawablep->clearState(LLDrawable::REBUILD_ALL);
+		}
+	}
+
+	group->mLastUpdateTime = gFrameTimeSeconds;
+	group->mBuilt = 1.f;
+	group->clearState(LLSpatialGroup::GEOM_DIRTY | LLSpatialGroup::ALPHA_DIRTY);
+
+	if (LLPipeline::sDelayVBUpdate)
+	{
+		group->setState(LLSpatialGroup::MESH_DIRTY);
+	}
+
+	mFaceList.clear();
+}
+
+void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
+{
+	if (group->isState(LLSpatialGroup::MESH_DIRTY))
+	{
+		S32 num_mapped_veretx_buffer = LLVertexBuffer::sMappedCount ;
+
+		group->mBuilt = 1.f;
+		
+		for (LLSpatialGroup::element_iter drawable_iter = group->getData().begin(); drawable_iter != group->getData().end(); ++drawable_iter)
+		{
+			LLDrawable* drawablep = *drawable_iter;
+
+			if (drawablep->isDead() || drawablep->isState(LLDrawable::FORCE_INVISIBLE) )
+			{
+				continue;
+			}
+
+			if (drawablep->isState(LLDrawable::REBUILD_ALL))
+			{
+				LLVOVolume* vobj = drawablep->getVOVolume();
+				vobj->preRebuild();
+				LLVolume* volume = vobj->getVolume();
+				for (S32 i = 0; i < drawablep->getNumFaces(); ++i)
+				{
+					LLFace* face = drawablep->getFace(i);
+					if (face && face->mVertexBuffer.notNull())
+					{
+						face->getGeometryVolume(*volume, face->getTEOffset(), 
+							vobj->getRelativeXform(), vobj->getRelativeXformInvTrans(), face->getGeomIndex());
+					}
+				}
+
+				drawablep->clearState(LLDrawable::REBUILD_ALL);
+			}
+		}
+		
+		//unmap all the buffers
+		for (LLSpatialGroup::buffer_map_t::iterator i = group->mBufferMap.begin(); i != group->mBufferMap.end(); ++i)
+		{
+			LLSpatialGroup::buffer_texture_map_t& map = i->second;
+			for (LLSpatialGroup::buffer_texture_map_t::iterator j = map.begin(); j != map.end(); ++j)
+			{
+				LLSpatialGroup::buffer_list_t& list = j->second;
+				for (LLSpatialGroup::buffer_list_t::iterator k = list.begin(); k != list.end(); ++k)
+				{
+					LLVertexBuffer* buffer = *k;
+					if (buffer->isLocked())
+					{
+						buffer->setBuffer(0);
+					}
+				}
+			}
+		}
+		
+		// don't forget alpha
+		if(	group != NULL && 
+			!group->mVertexBuffer.isNull() && 
+			group->mVertexBuffer->isLocked())
+		{
+			group->mVertexBuffer->setBuffer(0);
+		}
+
+		//if not all buffers are unmapped
+		if(num_mapped_veretx_buffer != LLVertexBuffer::sMappedCount) 
+		{
+			llwarns << "Not all mapped vertex buffers are unmapped!" << llendl ; 
+			for (LLSpatialGroup::element_iter drawable_iter = group->getData().begin(); drawable_iter != group->getData().end(); ++drawable_iter)
+			{
+				LLDrawable* drawablep = *drawable_iter;
+				for (S32 i = 0; i < drawablep->getNumFaces(); ++i)
+				{
+					LLFace* face = drawablep->getFace(i);
+					if (face && face->mVertexBuffer.notNull() && face->mVertexBuffer->isLocked())
+					{
+						face->mVertexBuffer->setBuffer(0) ;
+					}
+				}
+			} 
+		}
+
+		group->clearState(LLSpatialGroup::MESH_DIRTY);
+	}
+}
+
+void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::vector<LLFace*>& faces, BOOL distance_sort)
+{
+	//calculate maximum number of vertices to store in a single buffer
+	U32 max_vertices = (gSavedSettings.getS32("RenderMaxVBOSize")*1024)/LLVertexBuffer::calcStride(group->mSpatialPartition->mVertexDataMask);
+	max_vertices = llmin(max_vertices, (U32) 65535);
+
+	if (!distance_sort)
 	{
 		//sort faces by things that break batches
-		std::sort(mFaceList.begin(), mFaceList.end(), LLFace::CompareBatchBreaker());
-					
-		std::vector<LLFace*>::iterator face_iter = mFaceList.begin();
-		
-		LLSpatialGroup::buffer_map_t buffer_map;
+		std::sort(faces.begin(), faces.end(), LLFace::CompareBatchBreaker());
+	}
+	else
+	{
+		//sort faces by distance
+		std::sort(faces.begin(), faces.end(), LLFace::CompareDistanceGreater());
+	}
+				
+	std::vector<LLFace*>::iterator face_iter = faces.begin();
+	
+	LLSpatialGroup::buffer_map_t buffer_map;
 
-		LLViewerImage* last_tex = NULL;
-		U32 buffer_index = 0;
+	LLViewerImage* last_tex = NULL;
+	S32 buffer_index = 0;
 
-		while (face_iter != mFaceList.end())
+	if (distance_sort)
+	{
+		buffer_index = -1;
+	}
+
+	while (face_iter != faces.end())
+	{
+		//pull off next face
+		LLFace* facep = *face_iter;
+		LLViewerImage* tex = facep->getTexture();
+
+		if (distance_sort)
 		{
-			//pull off next face
-			LLFace* facep = *face_iter;
-			LLViewerImage* tex = facep->getTexture();
+			tex = NULL;
+		}
 
-			if (last_tex == tex)
+		if (last_tex == tex)
+		{
+			buffer_index++;
+		}
+		else
+		{
+			last_tex = tex;
+			buffer_index = 0;
+		}
+
+		U32 index_count = facep->getIndicesCount();
+		U32 geom_count = facep->getGeomCount();
+
+		//sum up vertices needed for this texture
+		std::vector<LLFace*>::iterator i = face_iter;
+		++i;
+		
+		while (i != faces.end() && 
+			(LLPipeline::sTextureBindTest || (distance_sort || (*i)->getTexture() == tex)))
+		{
+			facep = *i;
+			
+			if (geom_count + facep->getGeomCount() > max_vertices)
+			{ //cut vertex buffers on geom count too big
+				break;
+			}
+
+			++i;
+			index_count += facep->getIndicesCount();
+			geom_count += facep->getGeomCount();
+		}
+	
+		//create/delete/resize vertex buffer if needed
+		LLVertexBuffer* buffer = NULL;
+		LLSpatialGroup::buffer_texture_map_t::iterator found_iter = group->mBufferMap[mask].find(tex);
+		
+		if (found_iter != group->mBufferMap[mask].end())
+		{
+			if ((U32) buffer_index < found_iter->second.size())
 			{
-				buffer_index++;
+				buffer = found_iter->second[buffer_index];
+			}
+		}
+						
+		if (!buffer)
+		{ //create new buffer if needed
+			buffer = createVertexBuffer(mask, 
+											group->mBufferUsage);
+			buffer->allocateBuffer(geom_count, index_count, TRUE);
+		}
+		else 
+		{
+			if (LLVertexBuffer::sEnableVBOs && buffer->getUsage() != group->mBufferUsage)
+			{
+				buffer = createVertexBuffer(group->mSpatialPartition->mVertexDataMask, 
+											group->mBufferUsage);
+				buffer->allocateBuffer(geom_count, index_count, TRUE);
 			}
 			else
 			{
-				last_tex = tex;
-				buffer_index = 0;
+				buffer->resizeBuffer(geom_count, index_count);
 			}
+		}
 
-			U32 index_count = facep->getIndicesCount();
-			U32 geom_count = facep->getGeomCount();
+		buffer_map[mask][tex].push_back(buffer);
 
-			//sum up vertices needed for this texture
-			std::vector<LLFace*>::iterator i = face_iter;
-			++i;
-			
-			while (i != mFaceList.end() && 
-				(LLPipeline::sTextureBindTest || (*i)->getTexture() == tex))
+		//add face geometry
+
+		U32 indices_index = 0;
+		U16 index_offset = 0;
+
+		while (face_iter < i)
+		{
+			facep = *face_iter;
+			facep->mIndicesIndex = indices_index;
+			facep->mGeomIndex = index_offset;
+			facep->mVertexBuffer = buffer;
 			{
-				facep = *i;
-				
-				if (geom_count + facep->getGeomCount() > max_vertices)
-				{ //cut vertex buffers on geom count too big
-					break;
-				}
-
-				++i;
-				index_count += facep->getIndicesCount();
-				geom_count += facep->getGeomCount();
-			}
-		
-			//create/delete/resize vertex buffer if needed
-			LLVertexBuffer* buffer = NULL;
-			LLSpatialGroup::buffer_map_t::iterator found_iter = group->mBufferMap.find(tex);
-			if (found_iter != group->mBufferMap.end())
-			{
-				if (buffer_index < found_iter->second.size())
+				facep->updateRebuildFlags();
+				if (!LLPipeline::sDelayVBUpdate)
 				{
-					buffer = found_iter->second[buffer_index];
-				}
-			}
-							
-			if (!buffer)
-			{ //create new buffer if needed
-				buffer = createVertexBuffer(group->mSpatialPartition->mVertexDataMask, 
-												group->mBufferUsage);
-				buffer->allocateBuffer(geom_count, index_count, TRUE);
-			}
-			else 
-			{
-				if (LLVertexBuffer::sEnableVBOs && buffer->getUsage() != group->mBufferUsage)
-				{
-					buffer = createVertexBuffer(group->mSpatialPartition->mVertexDataMask, 
-												group->mBufferUsage);
-					buffer->allocateBuffer(geom_count, index_count, TRUE);
-				}
-				else
-				{
-					buffer->resizeBuffer(geom_count, index_count);
-				}
-			}
+					LLDrawable* drawablep = facep->getDrawable();
+					LLVOVolume* vobj = drawablep->getVOVolume();
+					LLVolume* volume = vobj->getVolume();
 
-			buffer_map[tex].push_back(buffer);
+					U32 te_idx = facep->getTEOffset();
 
-			//add face geometry
-
-			U32 indices_index = 0;
-			U16 index_offset = 0;
-
-			while (face_iter < i)
-			{
-				facep = *face_iter;
-				LLDrawable* drawablep = facep->getDrawable();
-				LLVOVolume* vobj = drawablep->getVOVolume();
-				LLVolume* volume = vobj->getVolume();
-
-				U32 te_idx = facep->getTEOffset();
-				facep->mIndicesIndex = indices_index;
-				facep->mGeomIndex = index_offset;
-				facep->mVertexBuffer = buffer;
-				{
 					if (facep->getGeometryVolume(*volume, te_idx, 
 						vobj->getRelativeXform(), vobj->getRelativeXformInvTrans(), index_offset))
 					{
@@ -2513,168 +2620,130 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 							facep->getIndicesStart(), facep->getIndicesCount());
 					}
 				}
-
-				index_offset += facep->getGeomCount();
-				indices_index += facep->mIndicesCount;
-
-				BOOL force_simple = facep->mPixelArea < FORCE_SIMPLE_RENDER_AREA;
-				BOOL fullbright = facep->isState(LLFace::FULLBRIGHT);
-				const LLTextureEntry* te = facep->getTextureEntry();
-
-				BOOL is_alpha = facep->getPoolType() == LLDrawPool::POOL_ALPHA ? TRUE : FALSE;
-
-				if (!is_alpha 
-					&& gPipeline.canUseWindLightShadersOnObjects()
-					&& LLPipeline::sRenderBump 
-					&& te->getShiny())
-				{
-					if (tex->getPrimaryFormat() == GL_ALPHA)
-					{
-						registerFace(group, facep, LLRenderPass::PASS_INVISI_SHINY);
-						registerFace(group, facep, LLRenderPass::PASS_INVISIBLE);
-					}
-					else if (fullbright)
-					{						
-						registerFace(group, facep, LLRenderPass::PASS_FULLBRIGHT_SHINY);
-					}
-					else
-					{
-						registerFace(group, facep, LLRenderPass::PASS_SHINY);
-					}
-				}
-				else
-				{
-					if (!is_alpha && tex->getPrimaryFormat() == GL_ALPHA)
-					{
-						registerFace(group, facep, LLRenderPass::PASS_INVISIBLE);
-					}
-					else if (fullbright)
-					{
-						registerFace(group, facep, LLRenderPass::PASS_FULLBRIGHT);
-					}
-					else
-					{
-						registerFace(group, facep, LLRenderPass::PASS_SIMPLE);
-					}
-					
-					if (!is_alpha && te->getShiny())
-					{
-						registerFace(group, facep, LLRenderPass::PASS_SHINY);
-					}
-				}
-				
-				if (!is_alpha)
-				{
-					facep->setPoolType(LLDrawPool::POOL_SIMPLE);
-					
-					if (!force_simple && te->getBumpmap())
-					{
-						registerFace(group, facep, LLRenderPass::PASS_BUMP);
-					}
-				}
-
-				if (LLPipeline::sRenderGlow && te->getGlow() > 0.f)
-				{
-					registerFace(group, facep, LLRenderPass::PASS_GLOW);
-				}
-							
-				++face_iter;
-			}
-
-			buffer->setBuffer(0);
-		}
-
-		group->mBufferMap.clear();
-		for (LLSpatialGroup::buffer_map_t::iterator i = buffer_map.begin(); i != buffer_map.end(); ++i)
-		{
-			group->mBufferMap[i->first] = i->second;
-		}
-	}
-
-	//PROCESS ALPHA FACES
-	if (!alpha_faces.empty())
-	{
-		//sort alpha faces by distance
-		std::sort(alpha_faces.begin(), alpha_faces.end(), LLFace::CompareDistanceGreater());
-
-		//store alpha faces in root vertex buffer
-		if (group->mVertexBuffer.isNull() || (LLVertexBuffer::sEnableVBOs && group->mBufferUsage != group->mVertexBuffer->getUsage()))
-		{
-			group->mVertexBuffer = createVertexBuffer(group->mSpatialPartition->mVertexDataMask, 
-													  group->mBufferUsage);
-			group->mVertexBuffer->allocateBuffer(alpha_vertex_count, alpha_index_count, true);
-			stop_glerror();
-		}
-		else
-		{
-			group->mVertexBuffer->resizeBuffer(alpha_vertex_count, alpha_index_count);
-			stop_glerror();
-		}
-
-		//get vertex buffer striders
-		LLVertexBuffer* buffer = group->mVertexBuffer;
-
-		U32 index_offset = 0;
-		U32 indices_index = 0;
-
-		for (std::vector<LLFace*>::iterator i = alpha_faces.begin(); i != alpha_faces.end(); ++i)
-		{
-			LLFace* facep = *i;
-
-			if (facep->mGeomCount + index_offset > 65535)
-			{ //cut off alpha nodes at 64k vertices
-				facep->mVertexBuffer = NULL ;
-				facep->mLastVertexBuffer = NULL ;
-				continue ;
-			}
-
-			LLDrawable* drawablep = facep->getDrawable();
-			LLVOVolume* vobj = drawablep->getVOVolume();
-			LLVolume* volume = vobj->getVolume();
-
-			U32 te_idx = facep->getTEOffset();
-			facep->mIndicesIndex = indices_index;
-			facep->mGeomIndex = index_offset;
-			facep->mVertexBuffer = group->mVertexBuffer;
-			if (facep->getGeometryVolume(*volume, te_idx, 
-										vobj->getRelativeXform(), vobj->getRelativeXformInvTrans(), 
-										index_offset))
-			{
-				buffer->markDirty(facep->getGeomIndex(), facep->getGeomCount(), 
-					facep->getIndicesStart(), facep->getIndicesCount());
 			}
 
 			index_offset += facep->getGeomCount();
 			indices_index += facep->mIndicesCount;
 
-			registerFace(group, facep, LLRenderPass::PASS_ALPHA);
+			BOOL force_simple = facep->mPixelArea < FORCE_SIMPLE_RENDER_AREA;
+			BOOL fullbright = facep->isState(LLFace::FULLBRIGHT);
+			const LLTextureEntry* te = facep->getTextureEntry();
 
-			if (LLPipeline::sRenderGlow && facep->getTextureEntry()->getGlow() > 0.f)
+			BOOL is_alpha = facep->getPoolType() == LLDrawPool::POOL_ALPHA ? TRUE : FALSE;
+		
+			if (is_alpha)
+			{
+				// can we safely treat this as an alpha mask?
+				if (LLPipeline::sFastAlpha &&
+				    (te->getColor().mV[VW] == 1.0f) &&
+				    facep->getTexture()->getIsAlphaMask())
+				{
+					if (te->getFullbright())
+					{
+						registerFace(group, facep, LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK);
+					}
+					else
+					{
+						registerFace(group, facep, LLRenderPass::PASS_ALPHA_MASK);
+					}
+				}
+				else
+				{
+					registerFace(group, facep, LLRenderPass::PASS_ALPHA);
+				}
+
+				if (LLPipeline::sRenderDeferred)
+				{
+					registerFace(group, facep, LLRenderPass::PASS_ALPHA_SHADOW);
+				}
+			}
+			else if (gPipeline.canUseVertexShaders()
+				&& LLPipeline::sRenderBump 
+				&& te->getShiny())
+			{
+				if (tex->getPrimaryFormat() == GL_ALPHA)
+				{
+					registerFace(group, facep, LLRenderPass::PASS_INVISI_SHINY);
+					registerFace(group, facep, LLRenderPass::PASS_INVISIBLE);
+				}
+				else if (LLPipeline::sRenderDeferred)
+				{
+					if (te->getBumpmap())
+					{
+						registerFace(group, facep, LLRenderPass::PASS_BUMP);
+					}
+					else if (te->getFullbright())
+					{
+						registerFace(group, facep, LLRenderPass::PASS_FULLBRIGHT_SHINY);
+					}
+					else
+					{
+						registerFace(group, facep, LLRenderPass::PASS_SIMPLE);
+					}
+				}
+				else if (fullbright)
+				{						
+					registerFace(group, facep, LLRenderPass::PASS_FULLBRIGHT_SHINY);
+				}
+				else
+				{
+					registerFace(group, facep, LLRenderPass::PASS_SHINY);
+				}
+			}
+			else
+			{
+				if (!is_alpha && tex->getPrimaryFormat() == GL_ALPHA)
+				{
+					registerFace(group, facep, LLRenderPass::PASS_INVISIBLE);
+				}
+				else if (fullbright)
+				{
+					registerFace(group, facep, LLRenderPass::PASS_FULLBRIGHT);
+				}
+				else
+				{
+					if (LLPipeline::sRenderDeferred && te->getBumpmap())
+					{
+						registerFace(group, facep, LLRenderPass::PASS_BUMP);
+					}
+					else
+					{
+						registerFace(group, facep, LLRenderPass::PASS_SIMPLE);
+					}
+				}
+				
+				if (!is_alpha && te->getShiny())
+				{
+					registerFace(group, facep, LLRenderPass::PASS_SHINY);
+				}
+			}
+			
+			if (!is_alpha && !LLPipeline::sRenderDeferred)
+			{
+				facep->setPoolType(LLDrawPool::POOL_SIMPLE);
+				
+				if (!force_simple && te->getBumpmap())
+				{
+					registerFace(group, facep, LLRenderPass::PASS_BUMP);
+				}
+			}
+
+			if (LLPipeline::sRenderGlow && te->getGlow() > 0.f)
 			{
 				registerFace(group, facep, LLRenderPass::PASS_GLOW);
-			}				
+			}
+						
+			++face_iter;
 		}
 
 		buffer->setBuffer(0);
 	}
-	else
+
+	group->mBufferMap[mask].clear();
+	for (LLSpatialGroup::buffer_texture_map_t::iterator i = buffer_map[mask].begin(); i != buffer_map[mask].end(); ++i)
 	{
-		group->mVertexBuffer = NULL;
+		group->mBufferMap[mask][i->first] = i->second;
 	}
-
-	//drawables have been rebuilt, clear rebuild status
-	for (LLSpatialGroup::element_iter drawable_iter = group->getData().begin(); drawable_iter != group->getData().end(); ++drawable_iter)
-	{
-		LLDrawable* drawablep = *drawable_iter;
-		drawablep->clearState(LLDrawable::REBUILD_ALL);
-	}
-
-	group->mLastUpdateTime = gFrameTimeSeconds;
-	group->mBuilt = 1.f;
-	group->clearState(LLSpatialGroup::GEOM_DIRTY |
-						LLSpatialGroup::ALPHA_DIRTY | LLSpatialGroup::MESH_DIRTY);
-
-	mFaceList.clear();
 }
 
 void LLGeometryManager::addGeometryCount(LLSpatialGroup* group, U32 &vertex_count, U32 &index_count)

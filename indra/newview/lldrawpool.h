@@ -58,10 +58,12 @@ public:
 		POOL_SKY,
 		POOL_WL_SKY,
 		POOL_GROUND,
-		POOL_BUMP,
 		POOL_INVISIBLE,
 		POOL_AVATAR,
 		POOL_WATER,
+		POOL_GRASS,
+		POOL_FULLBRIGHT,
+		POOL_BUMP,
 		POOL_GLOW,
 		POOL_ALPHA,
 		NUM_POOL_TYPES,
@@ -78,7 +80,23 @@ public:
 	virtual LLViewerImage *getDebugTexture();
 	virtual void beginRenderPass( S32 pass );
 	virtual void endRenderPass( S32 pass );
-	virtual S32	 getNumPasses() { return 1; }
+	virtual S32	 getNumPasses();
+	
+	virtual void beginDeferredPass(S32 pass);
+	virtual void endDeferredPass(S32 pass);
+	virtual S32 getNumDeferredPasses();
+	virtual void renderDeferred(S32 pass = 0);
+
+	virtual void beginPostDeferredPass(S32 pass);
+	virtual void endPostDeferredPass(S32 pass);
+	virtual S32 getNumPostDeferredPasses();
+	virtual void renderPostDeferred(S32 pass = 0);
+
+	virtual void beginShadowPass(S32 pass);
+	virtual void endShadowPass(S32 pass);
+	virtual S32 getNumShadowPasses();
+	virtual void renderShadow(S32 pass = 0);
+
 	virtual void render(S32 pass = 0) = 0;
 	virtual void prerender() = 0;
 	virtual U32 getVertexDataMask() = 0;
@@ -112,6 +130,9 @@ public:
 		PASS_BUMP,
 		PASS_GLOW,
 		PASS_ALPHA,
+		PASS_ALPHA_MASK,
+		PASS_FULLBRIGHT_ALPHA_MASK,
+		PASS_ALPHA_SHADOW,
 		NUM_RENDER_TYPES,
 	};
 

@@ -7,6 +7,7 @@
 
 vec3 scaleSoftClip(vec3 inColor);
 vec3 atmosTransport(vec3 inColor);
+vec3 applyWaterFog(vec4 inColor);
 
 uniform sampler2D diffuseMap;
 uniform sampler2D bumpMap;   

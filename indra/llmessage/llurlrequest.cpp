@@ -44,7 +44,7 @@
 #include "llsd.h"
 #include "llstring.h"
 #include "apr_env.h"
-
+#include "llapr.h"
 static const U32 HTTP_STATUS_PIPE_ERROR = 499;
 
 /**
@@ -166,18 +166,16 @@ void LLURLRequest::useProxy(bool use_proxy)
     if (use_proxy && (env_proxy == NULL))
     {
         apr_status_t status;
-        apr_pool_t* pool;
-        apr_pool_create(&pool, NULL);
-        status = apr_env_get(&env_proxy, "ALL_PROXY", pool);
+        LLAPRPool pool;
+		status = apr_env_get(&env_proxy, "ALL_PROXY", pool.getAPRPool());
         if (status != APR_SUCCESS)
         {
-            status = apr_env_get(&env_proxy, "http_proxy", pool);
+			status = apr_env_get(&env_proxy, "http_proxy", pool.getAPRPool());
         }
         if (status != APR_SUCCESS)
         {
            use_proxy = FALSE;
         }
-        apr_pool_destroy(pool);
     }
 
 

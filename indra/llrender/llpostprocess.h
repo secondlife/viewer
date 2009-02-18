@@ -256,7 +256,7 @@ private:
 	/// OpenGL Helper Functions
 	void getShaderUniforms(glslUniforms & uniforms, GLhandleARB & prog);
 	void createTexture(LLPointer<LLImageGL>& texture, unsigned int width, unsigned int height);
-	void copyFrameBuffer(GLuint & texture, unsigned int width, unsigned int height);
+	void copyFrameBuffer(U32 & texture, unsigned int width, unsigned int height);
 	void createNoiseTexture(LLPointer<LLImageGL>& texture);
 	bool checkError(void);
 	void checkShaderError(GLhandleARB shader);

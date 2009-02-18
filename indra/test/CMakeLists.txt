@@ -118,8 +118,8 @@ target_link_libraries(test
 if (WINDOWS)
   set_target_properties(test
           PROPERTIES 
-          LINK_FLAGS "/NODEFAULTLIB:MSVCRT"
-          LINK_FLAGS_DEBUG "/NODEFAULTLIB:LIBCMT"
+          LINK_FLAGS "/NODEFAULTLIB:LIBCMT"
+          LINK_FLAGS_DEBUG "/NODEFAULTLIB:\"LIBCMT;LIBCMTD;MSVCRT\""
           )
 endif (WINDOWS)
 

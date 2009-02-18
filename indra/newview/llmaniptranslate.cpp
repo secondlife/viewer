@@ -164,8 +164,7 @@ void LLManipTranslate::restoreGL()
 	GLuint* d = new GLuint[rez*rez];	
 
 	gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, sGridTex->getTexName());
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_TRILINEAR);
 
 	while (rez >= 1)
 	{
@@ -261,9 +260,9 @@ void LLManipTranslate::restoreGL()
 			}
 		}
 #ifdef LL_WINDOWS
-		glTexImage2D(GL_TEXTURE_2D, mip, GL_RGBA, rez, rez, 0, GL_RGBA, GL_UNSIGNED_BYTE, d);
+		LLImageGL::setManualImage(GL_TEXTURE_2D, mip, GL_RGBA, rez, rez, GL_RGBA, GL_UNSIGNED_BYTE, d);
 #else
-		glTexImage2D(GL_TEXTURE_2D, mip, GL_RGBA, rez, rez, 0, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8_REV, d);
+		LLImageGL::setManualImage(GL_TEXTURE_2D, mip, GL_RGBA, rez, rez, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8_REV, d);
 #endif
 		rez = rez >> 1;
 		mip++;

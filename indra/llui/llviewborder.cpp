@@ -232,8 +232,7 @@ void LLViewBorder::drawTextures()
 	//gGL.color4fv(UI_VERTEX_COLOR.mV);
 
 	//gGL.getTexUnit(0)->bind(mTexture);
-	//glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
-	//glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
+	//gGL.getTexUnit(0)->setTextureAddressMode(LLTexUnit::TAM_WRAP);
 
 	//drawTextureTrapezoid(   0.f, mBorderWidth, getRect().getWidth(),  0,					0 );
 	//drawTextureTrapezoid(  90.f, mBorderWidth, getRect().getHeight(), (F32)getRect().getWidth(),0 );

@@ -10,7 +10,9 @@ if (STANDALONE)
 else (STANDALONE)
   use_prebuilt_binary(zlib)
   if (WINDOWS)
-    set(ZLIB_LIBRARIES zlib)
+    set(ZLIB_LIBRARIES 
+      debug zlibd
+      optimized zlib)
   else (WINDOWS)
     set(ZLIB_LIBRARIES z)
   endif (WINDOWS)

@@ -37,16 +37,18 @@
 #include "llframecallbackmanager.h"
 #endif
 
-BOOL LLWorkerClass::sDeleteLock = FALSE ;
 //============================================================================
 // Run on MAIN thread
 
 LLWorkerThread::LLWorkerThread(const std::string& name, bool threaded) :
-	LLQueuedThread(name, threaded),
-	mWorkerAPRPoolp(NULL)
+	LLQueuedThread(name, threaded)
 {
-	apr_pool_create(&mWorkerAPRPoolp, NULL);
-	mDeleteMutex = new LLMutex(getAPRPool());
+	mDeleteMutex = new LLMutex(NULL);
+
+	if(!mLocalAPRFilePoolp)
+	{
+		mLocalAPRFilePoolp = new LLVolatileAPRPool() ;
+	}
 }
 
 LLWorkerThread::~LLWorkerThread()
@@ -96,7 +98,6 @@ S32 LLWorkerThread::update(U32 max_time_ms)
 	{
 		(*iter)->abortWork(false);
 	}
-	LLWorkerClass::sDeleteLock = TRUE ;
 	for (std::vector<LLWorkerClass*>::iterator iter = delete_list.begin();
 		 iter != delete_list.end(); ++iter)
 	{
@@ -110,8 +111,7 @@ S32 LLWorkerThread::update(U32 max_time_ms)
 		}
 		delete *iter;
 	}
-	LLWorkerClass::sDeleteLock = FALSE ;
-    // delete and aborted entries mean there's still work to do
+	// delete and aborted entries mean there's still work to do
 	res += delete_list.size() + abort_list.size();
 	return res;
 }
@@ -188,7 +188,7 @@ LLWorkerClass::LLWorkerClass(LLWorkerThread* workerthread, const std::string& na
 	: mWorkerThread(workerthread),
 	  mWorkerClassName(name),
 	  mRequestHandle(LLWorkerThread::nullHandle()),
-	  mMutex(workerthread->getWorkerAPRPool()),
+	  mMutex(NULL),
 	  mWorkFlags(0)
 {
 	if (!mWorkerThread)

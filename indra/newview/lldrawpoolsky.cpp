@@ -62,7 +62,7 @@ LLDrawPool *LLDrawPoolSky::instancePool()
 void LLDrawPoolSky::prerender()
 {
 	mVertexShaderLevel = LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_ENVIRONMENT);
-	gSky.mVOSkyp->updateGeometry(gSky.mVOSkyp->mDrawable);
+//	gSky.mVOSkyp->updateGeometry(gSky.mVOSkyp->mDrawable);
 }
 
 void LLDrawPoolSky::render(S32 pass)

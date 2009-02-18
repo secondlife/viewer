@@ -175,7 +175,7 @@ private:
 
 bool LLTextureCacheLocalFileWorker::doRead()
 {
-	S32 local_size = ll_apr_file_size(mFileName, mCache->getFileAPRPool());
+	S32 local_size = LLAPRFile::size(mFileName, mCache->getLocalAPRFilePool());
 
 	if (local_size > 0 && mFileName.size() > 4)
 	{
@@ -248,8 +248,9 @@ bool LLTextureCacheLocalFileWorker::doRead()
 		mDataSize = local_size;
 	}
 	mReadData = new U8[mDataSize];
-	S32 bytes_read = ll_apr_file_read_ex(mFileName, mCache->getFileAPRPool(),
-										 mReadData, mOffset, mDataSize);
+	
+	S32 bytes_read = LLAPRFile::readEx(mFileName, mReadData, mOffset, mDataSize, mCache->getLocalAPRFilePool());	
+
 	if (bytes_read != mDataSize)
 	{
 // 		llwarns << "Error reading file from local cache: " << mFileName
@@ -317,11 +318,11 @@ bool LLTextureCacheRemoteWorker::doRead()
 	{
 		std::string filename = mCache->getLocalFileName(mID);	
 		local_filename = filename + ".j2c";
-		local_size = ll_apr_file_size(local_filename, mCache->getFileAPRPool());
+		local_size = LLAPRFile::size(local_filename, mCache->getLocalAPRFilePool());
 		if (local_size == 0)
 		{
 			local_filename = filename + ".tga";
-			local_size = ll_apr_file_size(local_filename, mCache->getFileAPRPool());
+			local_size = LLAPRFile::size(local_filename, mCache->getLocalAPRFilePool());
 			if (local_size > 0)
 			{
 				mImageFormat = IMG_CODEC_TGA;
@@ -389,8 +390,8 @@ bool LLTextureCacheRemoteWorker::doRead()
 			mDataSize = local_size;
 		}
 		mReadData = new U8[mDataSize];
-		S32 bytes_read = ll_apr_file_read_ex(local_filename, mCache->getFileAPRPool(),
-											 mReadData, mOffset, mDataSize);
+		S32 bytes_read = LLAPRFile::readEx(local_filename, 
+											 mReadData, mOffset, mDataSize, mCache->getLocalAPRFilePool());
 		if (bytes_read != mDataSize)
 		{
 // 			llwarns << "Error reading file from local cache: " << local_filename
@@ -483,8 +484,8 @@ bool LLTextureCacheRemoteWorker::doRead()
 		S32 offset = idx * TEXTURE_CACHE_ENTRY_SIZE + mOffset;
 		S32 size = TEXTURE_CACHE_ENTRY_SIZE - mOffset;
 		mReadData = new U8[size];
-		S32 bytes_read = ll_apr_file_read_ex(mCache->mHeaderDataFileName, mCache->getFileAPRPool(),
-											 mReadData, offset, size);
+		S32 bytes_read = LLAPRFile::readEx(mCache->mHeaderDataFileName, 
+											 mReadData, offset, size, mCache->getLocalAPRFilePool());
 		if (bytes_read != size)
 		{
 // 			llwarns << "LLTextureCacheWorker: "  << mID
@@ -510,7 +511,7 @@ bool LLTextureCacheRemoteWorker::doRead()
 		if (mFileHandle == LLLFSThread::nullHandle())
 		{
 			std::string filename = mCache->getTextureFileName(mID);
-			S32 filesize = ll_apr_file_size(filename, mCache->getFileAPRPool());
+			S32 filesize = LLAPRFile::size(filename, mCache->getLocalAPRFilePool());
 			if (filesize > mOffset)
 			{
 				S32 datasize = TEXTURE_CACHE_ENTRY_SIZE + filesize;
@@ -569,7 +570,7 @@ bool LLTextureCacheRemoteWorker::doRead()
 		}
 #else
 		std::string filename = mCache->getTextureFileName(mID);
-		S32 filesize = ll_apr_file_size(filename, mCache->getFileAPRPool());
+		S32 filesize = LLAPRFile::size(filename, mCache->getLocalAPRFilePool());
 		S32 bytes_read = 0;
 		if (filesize > mOffset)
 		{
@@ -589,9 +590,10 @@ bool LLTextureCacheRemoteWorker::doRead()
 				delete[] mReadData;
 			}
 			mReadData = data;
-			bytes_read = ll_apr_file_read_ex(filename, mCache->getFileAPRPool(),
+			bytes_read = LLAPRFile::readEx(filename, 
 											 mReadData + data_offset,
-											 file_offset, file_size);
+											 file_offset, file_size,
+											 mCache->getLocalAPRFilePool());
 			if (bytes_read != file_size)
 			{
 // 				llwarns << "LLTextureCacheWorker: "  << mID
@@ -694,8 +696,7 @@ bool LLTextureCacheRemoteWorker::doWrite()
 		llassert_always(mOffset < TEXTURE_CACHE_ENTRY_SIZE);
 		S32 offset = idx * TEXTURE_CACHE_ENTRY_SIZE + mOffset;
 		S32 size = TEXTURE_CACHE_ENTRY_SIZE - mOffset;
-		S32 bytes_written = ll_apr_file_write_ex(mCache->mHeaderDataFileName, mCache->getFileAPRPool(),
-												 mWriteData, offset, size);
+		S32 bytes_written = LLAPRFile::writeEx(mCache->mHeaderDataFileName, mWriteData, offset, size, mCache->getLocalAPRFilePool());		
 
 		if (bytes_written <= 0)
 		{
@@ -770,9 +771,11 @@ bool LLTextureCacheRemoteWorker::doWrite()
 		if (file_size > 0 && mCache->appendToTextureEntryList(mID, file_size))
 		{
 			std::string filename = mCache->getTextureFileName(mID);
-			bytes_written = ll_apr_file_write_ex(filename, mCache->getFileAPRPool(),
+			
+			bytes_written = LLAPRFile::writeEx(filename, 
 												 mWriteData + data_offset,
-												 file_offset, file_size);
+												 file_offset, file_size,
+												 mCache->getLocalAPRFilePool());
 			if (bytes_written <= 0)
 			{
 				mDataSize = -1; // failed
@@ -793,13 +796,14 @@ bool LLTextureCacheRemoteWorker::doWrite()
 //virtual
 bool LLTextureCacheWorker::doWork(S32 param)
 {
+// *TODO reenable disabled apr_pool usage disabled due to maint-render-9 merge breakage -brad
 	//allocate a new local apr_pool
-	LLAPRPool pool ;
+//	LLAPRPool pool ;
 
 	//save the current mFileAPRPool to avoid breaking anything.
-	apr_pool_t* old_pool = mCache->getFileAPRPool() ;
+//	apr_pool_t* old_pool = mCache->getFileAPRPool() ;
 	//make mFileAPRPool to point to the local one
-	mCache->setFileAPRPool(pool.getAPRPool()) ;
+//	mCache->setFileAPRPool(pool.getAPRPool()) ;
 
 	bool res = false;
 	if (param == 0) // read
@@ -816,7 +820,7 @@ bool LLTextureCacheWorker::doWork(S32 param)
 	}
 
 	//set mFileAPRPool back, the local one will be released automatically.
-	mCache->setFileAPRPool(old_pool) ;
+//	mCache->setFileAPRPool(old_pool) ;
 
 	return res;
 }
@@ -880,20 +884,17 @@ void LLTextureCacheWorker::endWork(S32 param, bool aborted)
 
 LLTextureCache::LLTextureCache(bool threaded)
 	: LLWorkerThread("TextureCache", threaded),
-	  mWorkersMutex(getAPRPool()),
-	  mHeaderMutex(getAPRPool()),
-	  mListMutex(getAPRPool()),
-	  mFileAPRPool(NULL),
+	  mWorkersMutex(NULL),
+	  mHeaderMutex(NULL),
+	  mListMutex(NULL),
 	  mReadOnly(FALSE),
 	  mTexturesSizeTotal(0),
 	  mDoPurge(FALSE)
 {
-	apr_pool_create(&mFileAPRPool, NULL);
 }
 
 LLTextureCache::~LLTextureCache()
 {
-	apr_pool_destroy(mFileAPRPool);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -969,8 +970,10 @@ bool LLTextureCache::appendToTextureEntryList(const LLUUID& id, S32 bodysize)
 		{
 			llassert_always(bodysize > 0);
 			Entry* entry = new Entry(id, bodysize, time(NULL));
-			ll_apr_file_write_ex(mTexturesDirEntriesFileName, getFileAPRPool(),
-								 (U8*)entry, -1, 1*sizeof(Entry));
+
+			LLAPRFile::writeEx(mTexturesDirEntriesFileName,
+								 (U8*)entry, -1, 1*sizeof(Entry),
+								 getLocalAPRFilePool());			
 			delete entry;
 			if (iter != mTexturesSizeMap.end())
 			{
@@ -1018,8 +1021,8 @@ void LLTextureCache::purgeCache(ELLPath location)
 	{
 		setDirNames(location);
 	
-		ll_apr_file_remove(mHeaderEntriesFileName, NULL);
-		ll_apr_file_remove(mHeaderDataFileName, NULL);
+		LLAPRFile::remove(mHeaderEntriesFileName, getLocalAPRFilePool());
+		LLAPRFile::remove(mHeaderDataFileName, getLocalAPRFilePool());
 	}
 	purgeAllTextures(true);
 }
@@ -1081,15 +1084,16 @@ struct lru_data
 };
 
 // Called from either the main thread or the worker thread
-void LLTextureCache::readHeaderCache(apr_pool_t* poolp)
+void LLTextureCache::readHeaderCache()
 {
 	LLMutexLock lock(&mHeaderMutex);
 	mHeaderEntriesInfo.mVersion = 0.f;
 	mHeaderEntriesInfo.mEntries = 0;
-	if (ll_apr_file_exists(mHeaderEntriesFileName, poolp))
+	if (LLAPRFile::isExist(mHeaderEntriesFileName, getLocalAPRFilePool()))
 	{
-		ll_apr_file_read_ex(mHeaderEntriesFileName, poolp,
-							(U8*)&mHeaderEntriesInfo, 0, sizeof(EntriesInfo));
+		LLAPRFile::readEx(mHeaderEntriesFileName,
+							(U8*)&mHeaderEntriesInfo, 0, sizeof(EntriesInfo),
+							getLocalAPRFilePool());
 	}
 	if (mHeaderEntriesInfo.mVersion != sHeaderCacheVersion)
 	{
@@ -1097,8 +1101,10 @@ void LLTextureCache::readHeaderCache(apr_pool_t* poolp)
 		{
 			// Info with 0 entries
 			mHeaderEntriesInfo.mVersion = sHeaderCacheVersion;
-			ll_apr_file_write_ex(mHeaderEntriesFileName, poolp,
-								 (U8*)&mHeaderEntriesInfo, 0, sizeof(EntriesInfo));
+
+			LLAPRFile::writeEx(mHeaderEntriesFileName, 
+								 (U8*)&mHeaderEntriesInfo, 0, sizeof(EntriesInfo),
+								 getLocalAPRFilePool());
 		}
 	}
 	else
@@ -1107,8 +1113,11 @@ void LLTextureCache::readHeaderCache(apr_pool_t* poolp)
 		if (num_entries)
 		{
 			Entry* entries = new Entry[num_entries];
-			ll_apr_file_read_ex(mHeaderEntriesFileName, poolp,
-								(U8*)entries, sizeof(EntriesInfo), num_entries*sizeof(Entry));
+			{
+				LLAPRFile::readEx(mHeaderEntriesFileName, 
+								(U8*)entries, sizeof(EntriesInfo), num_entries*sizeof(Entry),
+								getLocalAPRFilePool());
+			}
 			typedef std::set<lru_data*, lru_data::Compare> lru_set_t;
 			lru_set_t lru;
 			for (S32 i=0; i<num_entries; i++)
@@ -1153,7 +1162,7 @@ void LLTextureCache::purgeAllTextures(bool purge_directories)
 				LLFile::rmdir(dirname);
 			}
 		}
-		ll_apr_file_remove(mTexturesDirEntriesFileName, NULL);
+		LLAPRFile::remove(mTexturesDirEntriesFileName, getLocalAPRFilePool());
 		if (purge_directories)
 		{
 			LLFile::rmdir(mTexturesDirName);
@@ -1174,7 +1183,7 @@ void LLTextureCache::purgeTextures(bool validate)
 
 	LLMutexLock lock(&mHeaderMutex);
 	
-	S32 filesize = ll_apr_file_size(mTexturesDirEntriesFileName, NULL);
+	S32 filesize = LLAPRFile::size(mTexturesDirEntriesFileName, getLocalAPRFilePool());
 	S32 num_entries = filesize / sizeof(Entry);
 	if (num_entries * (S32)sizeof(Entry) != filesize)
 	{
@@ -1188,8 +1197,9 @@ void LLTextureCache::purgeTextures(bool validate)
 	}
 	
 	Entry* entries = new Entry[num_entries];
-	S32 bytes_read = ll_apr_file_read_ex(mTexturesDirEntriesFileName, NULL,
-										 (U8*)entries, 0, num_entries*sizeof(Entry));
+	S32 bytes_read = LLAPRFile::readEx(mTexturesDirEntriesFileName, 
+										 (U8*)entries, 0, num_entries*sizeof(Entry),
+										 getLocalAPRFilePool());	
 	if (bytes_read != filesize)
 	{
 		LL_WARNS("TextureCache") << "Bad cache file (2): " << mTexturesDirEntriesFileName << " Purging." << LL_ENDL;
@@ -1248,7 +1258,7 @@ void LLTextureCache::purgeTextures(bool validate)
 			if (uuididx == validate_idx)
 			{
  				LL_DEBUGS("TextureCache") << "Validating: " << filename << "Size: " << entries[idx].mSize << LL_ENDL;
-				S32 bodysize = ll_apr_file_size(filename, NULL);
+				S32 bodysize = LLAPRFile::size(filename, getLocalAPRFilePool());
 				if (bodysize != entries[idx].mSize)
 				{
 					LL_WARNS("TextureCache") << "TEXTURE CACHE BODY HAS BAD SIZE: " << bodysize << " != " << entries[idx].mSize
@@ -1261,7 +1271,7 @@ void LLTextureCache::purgeTextures(bool validate)
 		{
 			purge_count++;
 	 		LL_DEBUGS("TextureCache") << "PURGING: " << filename << LL_ENDL;
-			ll_apr_file_remove(filename, NULL);
+			LLAPRFile::remove(filename, getLocalAPRFilePool());
 			total_size -= entries[idx].mSize;
 			entries[idx].mSize = 0;
 		}
@@ -1278,9 +1288,10 @@ void LLTextureCache::purgeTextures(bool validate)
 
 	LL_DEBUGS("TextureCache") << "TEXTURE CACHE: Writing Entries: " << num_entries << LL_ENDL;
 	
-	ll_apr_file_remove(mTexturesDirEntriesFileName, NULL);
-	ll_apr_file_write_ex(mTexturesDirEntriesFileName, NULL,
-						 (U8*)&entries[0], 0, num_entries*sizeof(Entry));
+	LLAPRFile::remove(mTexturesDirEntriesFileName, getLocalAPRFilePool());
+	LLAPRFile::writeEx(mTexturesDirEntriesFileName, 
+						 (U8*)&entries[0], 0, num_entries*sizeof(Entry),
+						 getLocalAPRFilePool());
 	
 	mTexturesSizeTotal = 0;
 	mTexturesSizeMap.clear();
@@ -1351,8 +1362,9 @@ S32 LLTextureCache::getHeaderCacheEntry(const LLUUID& id, bool touch, S32* image
 				idx = mHeaderEntriesInfo.mEntries++;
 				mHeaderIDMap[id] = idx;
 				// Update Info
-				ll_apr_file_write_ex(mHeaderEntriesFileName, getFileAPRPool(),
-									(U8*)&mHeaderEntriesInfo, 0, sizeof(EntriesInfo));
+				LLAPRFile::writeEx(mHeaderEntriesFileName, 
+									(U8*)&mHeaderEntriesInfo, 0, sizeof(EntriesInfo),
+									getLocalAPRFilePool());
 			}
 			else if (!mLRU.empty())
 			{
@@ -1377,8 +1389,9 @@ S32 LLTextureCache::getHeaderCacheEntry(const LLUUID& id, bool touch, S32* image
 				llassert_always(imagesize && *imagesize > 0);
 				Entry* entry = new Entry(id, *imagesize, time(NULL));
 				S32 offset = sizeof(EntriesInfo) + idx * sizeof(Entry);
-				ll_apr_file_write_ex(mHeaderEntriesFileName, getFileAPRPool(),
-									 (U8*)entry, offset, sizeof(Entry));
+				LLAPRFile::writeEx(mHeaderEntriesFileName, 
+									 (U8*)entry, offset, sizeof(Entry),
+									 getLocalAPRFilePool());
 				delete entry;
 			}
 			else if (imagesize)
@@ -1386,15 +1399,17 @@ S32 LLTextureCache::getHeaderCacheEntry(const LLUUID& id, bool touch, S32* image
 				// Get the image size
 				Entry entry;
 				S32 offset = sizeof(EntriesInfo) + idx * sizeof(Entry);
-				ll_apr_file_read_ex(mHeaderEntriesFileName, getFileAPRPool(),
-									(U8*)&entry, offset, sizeof(Entry));
+
+				LLAPRFile::readEx(mHeaderEntriesFileName, 
+									(U8*)&entry, offset, sizeof(Entry),
+									getLocalAPRFilePool());
 				*imagesize = entry.mSize;
 			}
 		}
 	}
 	if (retry)
 	{
-		readHeaderCache(getFileAPRPool()); // updates the lru
+		readHeaderCache(); // updates the lru
 		llassert_always(!mLRU.empty() || mHeaderEntriesInfo.mEntries < sCacheMaxEntries);
 		idx = getHeaderCacheEntry(id, touch, imagesize); // assert above ensures no inf. recursion
 	}
@@ -1468,7 +1483,7 @@ LLTextureCache::handle_t LLTextureCache::writeToCache(const LLUUID& id, U32 prio
 	{
 		// NOTE: This may cause an occasional hiccup,
 		//  but it really needs to be done on the control thread
-		//  (i.e. here)
+		//  (i.e. here)		
 		purgeTextures(false);
 		mDoPurge = FALSE;
 	}
@@ -1540,8 +1555,10 @@ bool LLTextureCache::removeHeaderCacheEntry(const LLUUID& id)
 		{
 			Entry* entry = new Entry(id, -1, time(NULL));
 			S32 offset = sizeof(EntriesInfo) + idx * sizeof(Entry);
-			ll_apr_file_write_ex(mHeaderEntriesFileName, NULL,
-								 (U8*)entry, offset, sizeof(Entry));
+
+			LLAPRFile::writeEx(mHeaderEntriesFileName,
+								 (U8*)entry, offset, sizeof(Entry),
+								 getLocalAPRFilePool());			
 			delete entry;
 			mLRU[idx] = id;
 			mHeaderIDMap.erase(id);
@@ -1558,7 +1575,7 @@ void LLTextureCache::removeFromCache(const LLUUID& id)
 	if (!mReadOnly)
 	{
 		removeHeaderCacheEntry(id);
-		ll_apr_file_remove(getTextureFileName(id), NULL);
+		LLAPRFile::remove(getTextureFileName(id), getLocalAPRFilePool());
 	}
 }
 

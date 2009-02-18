@@ -49,7 +49,7 @@ protected :
 public:
 	static U32 sVertexMask;
 	BOOL mShiny;
-
+	
 	virtual U32 getVertexDataMask() { return sVertexMask; }
 
 	LLDrawPoolBump();
@@ -63,8 +63,7 @@ public:
 
 	void renderBump(U32 type, U32 mask);
 	void renderGroup(LLSpatialGroup* group, U32 type, U32 mask, BOOL texture);
-	void renderGroupBump(LLSpatialGroup* group, U32 type, U32 mask);
-	
+		
 	S32 numBumpPasses();
 	
 	void beginShiny(bool invisible = false);
@@ -78,7 +77,18 @@ public:
 	void beginBump();
 	void renderBump();
 	void endBump();
-	BOOL bindBumpMap(LLDrawInfo& params);
+
+	virtual S32 getNumDeferredPasses() { return 1; }
+	/*virtual*/ void beginDeferredPass(S32 pass);
+	/*virtual*/ void endDeferredPass(S32 pass);
+	/*virtual*/ void renderDeferred(S32 pass);
+
+	virtual S32 getNumPostDeferredPasses() { return 1; }
+	/*virtual*/ void beginPostDeferredPass(S32 pass);
+	/*virtual*/ void endPostDeferredPass(S32 pass);
+	/*virtual*/ void renderPostDeferred(S32 pass);
+
+	BOOL bindBumpMap(LLDrawInfo& params, S32 channel = -2);
 };
 
 enum EBumpEffect
@@ -136,6 +146,9 @@ public:
 
 	static void onSourceBrightnessLoaded( BOOL success, LLViewerImage *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata );
 	static void onSourceDarknessLoaded( BOOL success, LLViewerImage *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata );
+	static void onSourceStandardLoaded( BOOL success, LLViewerImage *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata );
+	static void generateNormalMapFromAlpha(LLImageRaw* src, LLImageRaw* nrm_image);
+
 
 private:
 	static void onSourceLoaded( BOOL success, LLViewerImage *src_vi, LLImageRaw* src, LLUUID& source_asset_id, EBumpEffect bump );
@@ -166,6 +179,11 @@ public:
 	virtual void beginRenderPass( S32 pass ) { }
 	virtual void endRenderPass( S32 pass ) { }
 	virtual S32	 getNumPasses() {return 1;}
+
+	virtual S32 getNumDeferredPasses() { return 1; }
+	/*virtual*/ void beginDeferredPass(S32 pass);
+	/*virtual*/ void endDeferredPass(S32 pass);
+	/*virtual*/ void renderDeferred(S32 pass);
 };
 
 

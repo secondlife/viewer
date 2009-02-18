@@ -86,6 +86,8 @@ const F32	GRAVITY			= -9.8f;
 const F32	F_PI		= 3.1415926535897932384626433832795f;
 const F32	F_TWO_PI	= 6.283185307179586476925286766559f;
 const F32	F_PI_BY_TWO	= 1.5707963267948966192313216916398f;
+const F32	F_SQRT_TWO_PI = 2.506628274631000502415765284811f;
+const F32	F_E			= 2.71828182845904523536f;
 const F32	F_SQRT2		= 1.4142135623730950488016887242097f;
 const F32	F_SQRT3		= 1.73205080756888288657986402541f;
 const F32	OO_SQRT2	= 0.7071067811865475244008443621049f;
@@ -546,6 +548,12 @@ inline U32 get_next_power_two(U32 val, U32 max_power_two)
 	val++;
 
 	return val;
+}
+
+//get the gaussian value given the linear distance from axis x and guassian value o
+inline F32 llgaussian(F32 x, F32 o)
+{
+	return 1.f/(F_SQRT_TWO_PI*o)*powf(F_E, -(x*x)/(2*o*o));
 }
 
 #endif

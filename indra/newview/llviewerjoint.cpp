@@ -244,6 +244,8 @@ void LLViewerJoint::setValid( BOOL valid, BOOL recursive )
 //--------------------------------------------------------------------
 U32 LLViewerJoint::render( F32 pixelArea, BOOL first_pass )
 {
+	stop_glerror();
+
 	U32 triangle_count = 0;
 
 	//----------------------------------------------------------------
@@ -260,6 +262,10 @@ U32 LLViewerJoint::render( F32 pixelArea, BOOL first_pass )
 		if ( gRenderForSelect )
 		{
 			triangle_count += drawShape( pixelArea, first_pass );
+		}
+		else if (LLPipeline::sShadowRender)
+		{
+			triangle_count += drawShape(pixelArea, first_pass);
 		}
 		else if ( isTransparent() && !LLPipeline::sReflectionRender)
 		{

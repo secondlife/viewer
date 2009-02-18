@@ -57,6 +57,7 @@ class LLRenderFunc;
 class LLCubeMap;
 class LLCullResult;
 class LLVOAvatar;
+class LLGLSLShader;
 
 typedef enum e_avatar_skinning_method
 {
@@ -75,6 +76,7 @@ glh::matrix4f glh_get_current_projection();
 void glh_set_current_projection(glh::matrix4f& mat);
 glh::matrix4f gl_ortho(GLfloat left, GLfloat right, GLfloat bottom, GLfloat top, GLfloat znear, GLfloat zfar);
 glh::matrix4f gl_perspective(GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloat zFar);
+glh::matrix4f gl_lookat(LLVector3 eye, LLVector3 center, LLVector3 up);
 
 class LLPipeline
 {
@@ -88,14 +90,13 @@ public:
 	void resizeScreenTexture();
 	void releaseGLBuffers();
 	void createGLBuffers();
+	void allocateScreenBuffer(U32 resX, U32 resY);
 
 	void resetVertexBuffers(LLDrawable* drawable);
 	void setUseVBO(BOOL use_vbo);
 	void generateImpostor(LLVOAvatar* avatar);
-	void generateReflectionMap(LLCubeMap* cube_map, LLCamera& camera);
-	void blurReflectionMap(LLCubeMap* cube_in, LLCubeMap* cube_out);
 	void bindScreenToTexture();
-	void renderBloom(BOOL for_snapshot);
+	void renderBloom(BOOL for_snapshot, F32 zoom_factor = 1.f, int subfield = 0);
 
 	void init();
 	void cleanup();
@@ -176,7 +177,11 @@ public:
 	void updateMoveNormalAsync(LLDrawable* drawablep);
 	void updateMovedList(LLDrawable::drawable_vector_t& move_list);
 	void updateMove();
+	BOOL visibleObjectsInFrustum(LLCamera& camera);
+	BOOL getVisibleExtents(LLCamera& camera, LLVector3 &min, LLVector3& max);
 	void updateCull(LLCamera& camera, LLCullResult& result, S32 water_clip = 0);  //if water_clip is 0, ignore water plane, 1, cull to above plane, -1, cull to below plane
+	void createObjects(F32 max_dtime);
+	void createObject(LLViewerObject* vobj);
 	void updateGeom(F32 max_dtime);
 
 	//calculate pixel area of given box from vantage point of given camera
@@ -195,9 +200,15 @@ public:
 	void grabReferences(LLCullResult& result);
 
 	void renderGeom(LLCamera& camera, BOOL forceVBOUpdate = FALSE);
-	void renderGeomDeferred();
-
+	void renderGeomDeferred(LLCamera& camera);
+	void renderGeomPostDeferred(LLCamera& camera);
+	void renderGeomShadow(LLCamera& camera);
+	void bindDeferredShader(LLGLSLShader& shader, U32 light_index = 0);
+	void unbindDeferredShader(LLGLSLShader& shader);
+	void renderDeferredLighting();
+	
 	void generateWaterReflection(LLCamera& camera);
+	void generateSunShadow(LLCamera& camera);
 	void renderHighlights();
 	void renderDebug();
 
@@ -230,7 +241,7 @@ public:
 	LLCullResult::drawinfo_list_t::iterator endRenderMap(U32 type);
 	LLCullResult::sg_list_t::iterator beginAlphaGroups();
 	LLCullResult::sg_list_t::iterator endAlphaGroups();
-
+	
 	void addTrianglesDrawn(S32 count);
 	BOOL hasRenderType(const U32 type) const				{ return (type && (mRenderTypeMask & (1<<type))) ? TRUE : FALSE; }
 	BOOL hasRenderDebugFeatureMask(const U32 mask) const	{ return (mRenderDebugFeatureMask & mask) ? TRUE : FALSE; }
@@ -276,6 +287,8 @@ public:
 	static void toggleRenderHighlights(void* data);
 	static BOOL getRenderHighlights(void* data);
 
+	static void updateRenderDeferred();
+
 private:
 	void unloadShaders();
 	void addToQuickLookup( LLDrawPool* new_poolp );
@@ -295,6 +308,8 @@ public:
 		RENDER_TYPE_GROUND		= LLDrawPool::POOL_GROUND,	
 		RENDER_TYPE_TERRAIN		= LLDrawPool::POOL_TERRAIN,
 		RENDER_TYPE_SIMPLE		= LLDrawPool::POOL_SIMPLE,
+		RENDER_TYPE_GRASS		= LLDrawPool::POOL_GRASS,
+		RENDER_TYPE_FULLBRIGHT	= LLDrawPool::POOL_FULLBRIGHT,
 		RENDER_TYPE_BUMP		= LLDrawPool::POOL_BUMP,
 		RENDER_TYPE_AVATAR		= LLDrawPool::POOL_AVATAR,
 		RENDER_TYPE_TREE		= LLDrawPool::POOL_TREE,
@@ -306,7 +321,6 @@ public:
 		// Following are object types (only used in drawable mRenderType)
 		RENDER_TYPE_HUD = LLDrawPool::NUM_POOL_TYPES,
 		RENDER_TYPE_VOLUME,
-		RENDER_TYPE_GRASS,
 		RENDER_TYPE_PARTICLES,
 		RENDER_TYPE_CLOUDS,
 	};
@@ -326,24 +340,26 @@ public:
 
 	enum LLRenderDebugMask
 	{
-		RENDER_DEBUG_COMPOSITION		= 0x000020,
-		RENDER_DEBUG_VERIFY				= 0x000080,
-		RENDER_DEBUG_BBOXES				= 0x000200,
-		RENDER_DEBUG_OCTREE				= 0x000400,
-		RENDER_DEBUG_PICKING			= 0x000800,
-		RENDER_DEBUG_OCCLUSION			= 0x001000,
-		RENDER_DEBUG_POINTS				= 0x002000,
-		RENDER_DEBUG_TEXTURE_PRIORITY	= 0x004000,
-		RENDER_DEBUG_TEXTURE_AREA		= 0x008000,
-		RENDER_DEBUG_FACE_AREA			= 0x010000,
-		RENDER_DEBUG_PARTICLES			= 0x020000,
-		RENDER_DEBUG_GLOW				= 0x040000,
-		RENDER_DEBUG_TEXTURE_ANIM		= 0x080000,
-		RENDER_DEBUG_LIGHTS				= 0x100000,
-		RENDER_DEBUG_BATCH_SIZE			= 0x200000,
-		RENDER_DEBUG_RAYCAST            = 0x400000,
-		RENDER_DEBUG_SHAME				= 0x800000,
-		RENDER_DEBUG_SCULPTED           = 0x1000000
+		RENDER_DEBUG_COMPOSITION		= 0x0000001,
+		RENDER_DEBUG_VERIFY				= 0x0000002,
+		RENDER_DEBUG_BBOXES				= 0x0000004,
+		RENDER_DEBUG_OCTREE				= 0x0000008,
+		RENDER_DEBUG_PICKING			= 0x0000010,
+		RENDER_DEBUG_OCCLUSION			= 0x0000020,
+		RENDER_DEBUG_POINTS				= 0x0000040,
+		RENDER_DEBUG_TEXTURE_PRIORITY	= 0x0000080,
+		RENDER_DEBUG_TEXTURE_AREA		= 0x0000100,
+		RENDER_DEBUG_FACE_AREA			= 0x0000200,
+		RENDER_DEBUG_PARTICLES			= 0x0000400,
+		RENDER_DEBUG_GLOW				= 0x0000800,
+		RENDER_DEBUG_TEXTURE_ANIM		= 0x0001000,
+		RENDER_DEBUG_LIGHTS				= 0x0002000,
+		RENDER_DEBUG_BATCH_SIZE			= 0x0004000,
+		RENDER_DEBUG_ALPHA_BINS			= 0x0008000,
+		RENDER_DEBUG_RAYCAST            = 0x0010000,
+		RENDER_DEBUG_SHAME				= 0x0020000,
+		RENDER_DEBUG_SHADOW_FRUSTA		= 0x0040000,
+		RENDER_DEBUG_SCULPTED           = 0x0080000,
 	};
 
 public:
@@ -376,11 +392,13 @@ public:
 
 	static BOOL				sShowHUDAttachments;
 	static S32				sUseOcclusion;  // 0 = no occlusion, 1 = read only, 2 = read/write
+	static BOOL				sDelayVBUpdate;
 	static BOOL				sFastAlpha;
 	static BOOL				sDisableShaders; // if TRUE, rendering will be done without shaders
 	static BOOL				sRenderBump;
 	static BOOL				sUseFBO;
 	static BOOL				sUseFarClip;
+	static BOOL				sShadowRender;
 	static BOOL				sSkipUpdate; //skip lod updates
 	static BOOL				sWaterReflections;
 	static BOOL				sDynamicLOD;
@@ -393,10 +411,22 @@ public:
 	static BOOL				sRenderFrameTest;
 	static BOOL				sRenderAttachedLights;
 	static BOOL				sRenderAttachedParticles;
-	
+	static BOOL				sRenderDeferred;
+	static S32				sVisibleLightCount;
+
 	//screen texture
 	LLRenderTarget			mScreen;
-	
+	LLRenderTarget			mDeferredScreen;
+	LLRenderTarget			mDeferredLight[2];
+	LLMultisampleBuffer		mSampleBuffer;
+
+	//sun shadow map
+	LLRenderTarget			mSunShadow[4];
+	LLCamera				mShadowCamera[8];
+	LLVector3				mShadowExtents[4][2];
+	glh::matrix4f			mSunShadowMatrix[4];
+	LLVector4				mSunClipPlanes;
+
 	LLVector2				mScreenScale;
 
 	//water reflection texture
@@ -408,20 +438,9 @@ public:
 	//texture for making the glow
 	LLRenderTarget				mGlow[3];
 
-	//dynamic cube map scratch space
-	LLPointer<LLCubeMap>	mCubeBuffer;
+	//noise map
+	U32					mNoiseMap;
 
-	//cube map anti-aliasing buffers
-	GLuint					mBlurCubeBuffer[3];
-	GLuint					mBlurCubeTexture[3];
-
-	//frambuffer object for rendering dynamic cube maps
-	GLuint					mCubeFrameBuffer;
-	
-	//depth buffer object for rendering dynamic cube maps
-	GLuint					mCubeDepth;
-
-	
 	LLColor4				mSunDiffuse;
 	LLVector3				mSunDir;
 
@@ -481,6 +500,7 @@ protected:
 	//
 	LLDrawable::drawable_list_t 	mBuildQ1; // priority
 	LLDrawable::drawable_list_t 	mBuildQ2; // non-priority
+	LLViewerObject::vobj_list_t		mCreateQ;
 		
 	LLDrawable::drawable_set_t		mActiveQ;
 	
@@ -525,6 +545,8 @@ protected:
 	LLDrawPool*					mWaterPool;
 	LLDrawPool*					mGroundPool;
 	LLRenderPass*				mSimplePool;
+	LLRenderPass*				mGrassPool;
+	LLRenderPass*				mFullbrightPool;
 	LLDrawPool*					mInvisiblePool;
 	LLDrawPool*					mGlowPool;
 	LLDrawPool*					mBumpPool;

@@ -184,7 +184,7 @@ void LLHUDIcon::renderIcon(BOOL for_select)
 void LLHUDIcon::setImage(LLViewerImage* imagep)
 {
 	mImagep = imagep;
-	mImagep->setClamp(TRUE, TRUE);
+	mImagep->setAddressMode(LLTexUnit::TAM_CLAMP);
 }
 
 void LLHUDIcon::setScale(F32 fraction_of_fov)

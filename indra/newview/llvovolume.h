@@ -84,8 +84,8 @@ public:
 	{
 		VERTEX_DATA_MASK =	(1 << LLVertexBuffer::TYPE_VERTEX) |
 							(1 << LLVertexBuffer::TYPE_NORMAL) |
-							(1 << LLVertexBuffer::TYPE_TEXCOORD) |
-							(1 << LLVertexBuffer::TYPE_TEXCOORD2) |
+							(1 << LLVertexBuffer::TYPE_TEXCOORD0) |
+							(1 << LLVertexBuffer::TYPE_TEXCOORD1) |
 							(1 << LLVertexBuffer::TYPE_COLOR)
 	};
 

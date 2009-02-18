@@ -111,7 +111,7 @@ LLWorld::LLWorld() :
 	
 	mDefaultWaterTexturep = new LLViewerImage(raw, FALSE);
 	gGL.getTexUnit(0)->bind(mDefaultWaterTexturep.get());
-	mDefaultWaterTexturep->setClamp(TRUE, TRUE);
+	mDefaultWaterTexturep->setAddressMode(LLTexUnit::TAM_CLAMP);
 
 }
 
@@ -872,7 +872,7 @@ void LLWorld::updateWaterObjects()
 													 y + rwidth/2,
 													 256.f+DEFAULT_WATER_HEIGHT));
 				waterp->setScale(LLVector3((F32)rwidth, (F32)rwidth, 512.f));
-				gPipeline.addObject(waterp);
+				gPipeline.createObject(waterp);
 				mHoleWaterObjects.push_back(waterp);
 			}
 		}
@@ -923,7 +923,7 @@ void LLWorld::updateWaterObjects()
 			waterp = mEdgeWaterObjects[dir];
 			waterp->setUseTexture(FALSE);
 			waterp->setIsEdgePatch(TRUE);
-			gPipeline.addObject(waterp);
+			gPipeline.createObject(waterp);
 		}
 
 		waterp->setRegion(gAgent.getRegion());

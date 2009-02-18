@@ -57,7 +57,7 @@
 
 BOOL LLDrawPoolAlpha::sShowDebugAlpha = FALSE;
 
-
+static BOOL deferred_render = FALSE;
 
 LLDrawPoolAlpha::LLDrawPoolAlpha(U32 type) :
 		LLRenderPass(type), current_shader(NULL), target_shader(NULL),
@@ -74,6 +74,67 @@ LLDrawPoolAlpha::~LLDrawPoolAlpha()
 void LLDrawPoolAlpha::prerender()
 {
 	mVertexShaderLevel = LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_OBJECT);
+}
+
+S32 LLDrawPoolAlpha::getNumDeferredPasses()
+{
+	return 1;
+}
+
+void LLDrawPoolAlpha::beginDeferredPass(S32 pass)
+{
+	
+}
+
+void LLDrawPoolAlpha::endDeferredPass(S32 pass)
+{
+	gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.4f);
+	{
+		LLFastTimer t(LLFastTimer::FTM_RENDER_GRASS);
+		gDeferredTreeProgram.bind();
+		LLGLEnable test(GL_ALPHA_TEST);
+		//render alpha masked objects
+		LLRenderPass::renderTexture(LLRenderPass::PASS_ALPHA_MASK, getVertexDataMask());
+	}			
+	gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
+}
+
+void LLDrawPoolAlpha::renderDeferred(S32 pass)
+{
+	
+}
+
+
+S32 LLDrawPoolAlpha::getNumPostDeferredPasses() 
+{ 
+	return 1; 
+}
+
+void LLDrawPoolAlpha::beginPostDeferredPass(S32 pass) 
+{ 
+	LLFastTimer t(LLFastTimer::FTM_RENDER_ALPHA);
+
+	simple_shader = &gDeferredAlphaProgram;
+	fullbright_shader = &gDeferredFullbrightProgram;
+	
+	deferred_render = TRUE;
+	if (mVertexShaderLevel > 0)
+	{
+		// Start out with no shaders.
+		current_shader = target_shader = NULL;
+	}
+	gPipeline.enableLightsDynamic();
+}
+
+void LLDrawPoolAlpha::endPostDeferredPass(S32 pass) 
+{ 
+	deferred_render = FALSE;
+	endRenderPass(pass);
+}
+
+void LLDrawPoolAlpha::renderPostDeferred(S32 pass) 
+{ 
+	render(pass); 
 }
 
 void LLDrawPoolAlpha::beginRenderPass(S32 pass)
@@ -115,11 +176,39 @@ void LLDrawPoolAlpha::render(S32 pass)
 {
 	LLFastTimer t(LLFastTimer::FTM_RENDER_ALPHA);
 
-	LLGLDepthTest depth(GL_TRUE, LLDrawPoolWater::sSkipScreenCopy ? GL_TRUE : GL_FALSE);
-
 	LLGLSPipelineAlpha gls_pipeline_alpha;
-	
+
+	if (LLPipeline::sFastAlpha && !deferred_render)
+	{
+		gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.33f);
+		if (mVertexShaderLevel > 0)
+		{
+			if (!LLPipeline::sRenderDeferred)
+			{
+				simple_shader->bind();
+				pushBatches(LLRenderPass::PASS_ALPHA_MASK, getVertexDataMask());
+			}
+			fullbright_shader->bind();
+			pushBatches(LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK, getVertexDataMask());
+			LLGLSLShader::bindNoShader();
+		}
+		else
+		{
+			gPipeline.enableLightsFullbright(LLColor4(1,1,1,1));
+			pushBatches(LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK, getVertexDataMask());
+			gPipeline.enableLightsDynamic();
+			pushBatches(LLRenderPass::PASS_ALPHA_MASK, getVertexDataMask());
+		}
+		gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
+	}
+
+	LLGLDepthTest depth(GL_TRUE, LLDrawPoolWater::sSkipScreenCopy ? GL_TRUE : GL_FALSE);
 	renderAlpha(getVertexDataMask());
+
+	if (deferred_render && current_shader != NULL)
+	{
+		gPipeline.unbindDeferredShader(*current_shader);
+	}
 
 	if (sShowDebugAlpha)
 	{
@@ -132,20 +221,7 @@ void LLDrawPoolAlpha::render(S32 pass)
 		LLViewerImage::sSmokeImagep->addTextureStats(1024.f*1024.f);
 		gGL.getTexUnit(0)->bind(LLViewerImage::sSmokeImagep.get());
 		renderAlphaHighlight(LLVertexBuffer::MAP_VERTEX |
-							LLVertexBuffer::MAP_TEXCOORD);
-	}
-}
-
-void LLDrawPoolAlpha::renderAlpha(U32 mask)
-{
-	for (LLCullResult::sg_list_t::iterator i = gPipeline.beginAlphaGroups(); i != gPipeline.endAlphaGroups(); ++i)
-	{
-		LLSpatialGroup* group = *i;
-		if (group->mSpatialPartition->mRenderByGroup &&
-			!group->isDead())
-		{
-			renderGroupAlpha(group,LLRenderPass::PASS_ALPHA,mask,TRUE);
-		}
+							LLVertexBuffer::MAP_TEXCOORD0);
 	}
 }
 
@@ -169,7 +245,10 @@ void LLDrawPoolAlpha::renderAlphaHighlight(U32 mask)
 				}
 
 				LLRenderPass::applyModelMatrix(params);
-
+				if (params.mGroup)
+				{
+					params.mGroup->rebuildMesh();
+				}
 				params.mVertexBuffer->setBuffer(mask);
 				params.mVertexBuffer->drawRange(LLRender::TRIANGLES, params.mStart, params.mEnd, params.mCount, params.mOffset);
 				gPipeline.addTrianglesDrawn(params.mCount/3);
@@ -178,40 +257,15 @@ void LLDrawPoolAlpha::renderAlphaHighlight(U32 mask)
 	}
 }
 
-void LLDrawPoolAlpha::renderGroupAlpha(LLSpatialGroup* group, U32 type, U32 mask, BOOL texture)
+void LLDrawPoolAlpha::renderAlpha(U32 mask)
 {
 	BOOL initialized_lighting = FALSE;
 	BOOL light_enabled = TRUE;
-	BOOL is_particle = FALSE;
+	//BOOL is_particle = FALSE;
 	BOOL use_shaders = (LLPipeline::sUnderWaterRender && gPipeline.canUseVertexShaders())
 		|| gPipeline.canUseWindLightShadersOnObjects();
-	F32 dist;
-
-	// check to see if it's a particle and if it's "close"
-	is_particle = !LLPipeline::sUnderWaterRender && (group->mSpatialPartition->mDrawableType == LLPipeline::RENDER_TYPE_PARTICLES);
-	dist = group->mDistance;
 	
-	// don't use shader if debug setting is off and it's close or if it's a particle
-	// and it's close
-	if(is_particle && !gSavedSettings.getBOOL("RenderUseShaderNearParticles"))
-	{
-		if((dist < LLViewerCamera::getInstance()->getFar() * gSavedSettings.getF32("RenderShaderParticleThreshold")))
-		{
-			use_shaders = FALSE;
-		}
-	}
-
-	LLSpatialGroup::drawmap_elem_t& draw_info = group->mDrawMap[type];
-
-	if (group->mSpatialPartition->mDrawableType == LLPipeline::RENDER_TYPE_CLOUDS)
-	{		
-		if (!gSavedSettings.getBOOL("SkyUseClassicClouds"))
-		{
-			return;
-		}
-		gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
-	}
-	else
+	// check to see if it's a particle and if it's "close"
 	{
 		if (LLPipeline::sImpostorRender)
 		{
@@ -223,79 +277,109 @@ void LLDrawPoolAlpha::renderGroupAlpha(LLSpatialGroup* group, U32 type, U32 mask
 		}
 	}
 
-	for (LLSpatialGroup::drawmap_elem_t::iterator k = draw_info.begin(); k != draw_info.end(); ++k)	
+	for (LLCullResult::sg_list_t::iterator i = gPipeline.beginAlphaGroups(); i != gPipeline.endAlphaGroups(); ++i)
 	{
-		LLDrawInfo& params = **k;
-
-		LLRenderPass::applyModelMatrix(params);
-
-		if (texture && params.mTexture.notNull())
+		LLSpatialGroup* group = *i;
+		if (group->mSpatialPartition->mRenderByGroup &&
+			!group->isDead())
 		{
-			gGL.getTexUnit(0)->activate();
-			gGL.getTexUnit(0)->bind(params.mTexture.get());
-			params.mTexture->addTextureStats(params.mVSize);
-			if (params.mTextureMatrix)
-			{
-				glMatrixMode(GL_TEXTURE);
-				glLoadMatrixf((GLfloat*) params.mTextureMatrix->mMatrix);
-				gPipeline.mTextureMatrixOps++;
-			}
-		}
+			LLSpatialGroup::drawmap_elem_t& draw_info = group->mDrawMap[LLRenderPass::PASS_ALPHA];
 
-		if (params.mFullbright)
-		{
-			// Turn off lighting if it hasn't already been so.
-			if (light_enabled || !initialized_lighting)
+			for (LLSpatialGroup::drawmap_elem_t::iterator k = draw_info.begin(); k != draw_info.end(); ++k)	
 			{
-				initialized_lighting = TRUE;
-				if (use_shaders) 
+				LLDrawInfo& params = **k;
+
+				LLRenderPass::applyModelMatrix(params);
+
+				if (params.mTexture.notNull())
 				{
-					target_shader = fullbright_shader;
+					gGL.getTexUnit(0)->activate();
+					gGL.getTexUnit(0)->bind(params.mTexture.get());
+					params.mTexture->addTextureStats(params.mVSize);
+					if (params.mTextureMatrix)
+					{
+						glMatrixMode(GL_TEXTURE);
+						glLoadMatrixf((GLfloat*) params.mTextureMatrix->mMatrix);
+						gPipeline.mTextureMatrixOps++;
+					}
 				}
-				else
+
+				if (params.mFullbright)
 				{
-					gPipeline.enableLightsFullbright(LLColor4(1,1,1,1));
+					// Turn off lighting if it hasn't already been so.
+					if (light_enabled || !initialized_lighting)
+					{
+						initialized_lighting = TRUE;
+						if (use_shaders) 
+						{
+							target_shader = fullbright_shader;
+						}
+						else
+						{
+							gPipeline.enableLightsFullbright(LLColor4(1,1,1,1));
+						}
+						light_enabled = FALSE;
+					}
 				}
-				light_enabled = FALSE;
-			}
-		}
-		// Turn on lighting if it isn't already.
-		else if (!light_enabled || !initialized_lighting)
-		{
-			initialized_lighting = TRUE;
-			if (use_shaders) 
-			{
-				target_shader = simple_shader;
-			}
-			else
-			{
-				gPipeline.enableLightsDynamic();
-			}
-			light_enabled = TRUE;
-		}
+				// Turn on lighting if it isn't already.
+				else if (!light_enabled || !initialized_lighting)
+				{
+					initialized_lighting = TRUE;
+					if (use_shaders) 
+					{
+						target_shader = simple_shader;
+					}
+					else
+					{
+						gPipeline.enableLightsDynamic();
+					}
+					light_enabled = TRUE;
+				}
 
-		// If we need shaders, and we're not ALREADY using the proper shader, then bind it
-		// (this way we won't rebind shaders unnecessarily).
-		if(use_shaders && (current_shader != target_shader))
-		{
-			llassert(target_shader != NULL);
-			current_shader = target_shader;
-			current_shader->bind();
-		}
-		else if (!use_shaders && current_shader != NULL)
-		{
-			LLGLSLShader::bindNoShader();
-			current_shader = NULL;
-		}
+				// If we need shaders, and we're not ALREADY using the proper shader, then bind it
+				// (this way we won't rebind shaders unnecessarily).
+				if(use_shaders && (current_shader != target_shader))
+				{
+					llassert(target_shader != NULL);
+					if (deferred_render && current_shader != NULL)
+					{
+						gPipeline.unbindDeferredShader(*current_shader);
+					}
+					current_shader = target_shader;
+					if (deferred_render)
+					{
+						gPipeline.bindDeferredShader(*current_shader);
+					}
+					else
+					{
+						current_shader->bind();
+					}
+				}
+				else if (!use_shaders && current_shader != NULL)
+				{
+					LLGLSLShader::bindNoShader();
+					if (deferred_render)
+					{
+						gPipeline.unbindDeferredShader(*current_shader);
+					}
+					current_shader = NULL;
+				}
 
-		params.mVertexBuffer->setBuffer(mask);
-		params.mVertexBuffer->drawRange(LLRender::TRIANGLES, params.mStart, params.mEnd, params.mCount, params.mOffset);
-		gPipeline.addTrianglesDrawn(params.mCount/3);
+				if (params.mGroup)
+				{
+					params.mGroup->rebuildMesh();
+				}
+				params.mVertexBuffer->setBuffer(mask);
+				params.mVertexBuffer->drawRange(LLRender::TRIANGLES, params.mStart, params.mEnd, params.mCount, params.mOffset);
+				gPipeline.addTrianglesDrawn(params.mCount/3);
 
-		if (params.mTextureMatrix && texture && params.mTexture.notNull())
-		{
-			glLoadIdentity();
-			glMatrixMode(GL_MODELVIEW);
+				if (params.mTextureMatrix && params.mTexture.notNull())
+				{
+					gGL.getTexUnit(0)->activate();
+					glLoadIdentity();
+					glMatrixMode(GL_MODELVIEW);
+				}
+			}
 		}
 	}
 

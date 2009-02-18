@@ -85,9 +85,9 @@ void LLCubeMap::initGL()
 		// Not initialized, do stuff.
 		if (mImages[0].isNull())
 		{
-			GLuint texname = 0;
+			U32 texname = 0;
 			
-			glGenTextures(1, &texname);
+			LLImageGL::generateTextures(1, &texname);
 
 			for (int i = 0; i < 6; i++)
 			{
@@ -97,9 +97,10 @@ void LLCubeMap::initGL()
 				mImages[i]->createGLTexture(0, mRawImages[i], texname);
 				
 				gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_CUBE_MAP, texname); 
-				mImages[i]->setClampCubemap (TRUE, TRUE, TRUE);
+				mImages[i]->setAddressMode(LLTexUnit::TAM_CLAMP);
 				stop_glerror();
 			}
+			gGL.getTexUnit(0)->disable();
 		}
 		disable();
 	}
@@ -311,8 +312,8 @@ void LLCubeMap::restoreMatrix()
 void LLCubeMap::setReflection (void)
 {
 	gGL.getTexUnit(mTextureStage)->bindManual(LLTexUnit::TT_CUBE_MAP, getGLName());
-	mImages[0]->setMipFilterNearest (FALSE, FALSE);
-	mImages[0]->setClampCubemap (TRUE, TRUE);
+	mImages[0]->setFilteringOption(LLTexUnit::TFO_ANISOTROPIC);
+	mImages[0]->setAddressMode(LLTexUnit::TAM_CLAMP);
 }
 
 LLVector3 LLCubeMap::map(U8 side, U16 v_val, U16 h_val) const

@@ -77,7 +77,8 @@ public:
 	BOOL mHasMipMapGeneration;
 	BOOL mHasCompressedTextures;
 	BOOL mHasFramebufferObject;
-
+	BOOL mHasFramebufferMultisample;
+	
 	// ARB Extensions
 	BOOL mHasVertexBufferObject;
 	BOOL mHasPBuffer;
@@ -86,6 +87,7 @@ public:
 	BOOL mHasFragmentShader;
 	BOOL mHasOcclusionQuery;
 	BOOL mHasPointParameters;
+	BOOL mHasDrawBuffers;
 
 	// Other extensions.
 	BOOL mHasAnisotropic;

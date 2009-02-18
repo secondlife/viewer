@@ -54,6 +54,8 @@ WLSkyDetail					1	128
 Disregard128DefaultDrawDistance	1	1
 Disregard96DefaultDrawDistance	1	1
 RenderTextureMemoryMultiple		1	1.0
+RenderShaderLightingMaxLevel	1	3
+
 
 //
 // Low Graphics Settings
@@ -473,17 +475,47 @@ list NVIDIA_GeForce_Go_6
 RenderVBOEnable				1	0
 Disregard128DefaultDrawDistance	1	0
 
+list NVIDIA_GeForce_7000
+RenderShaderLightingMaxLevel	1	2
+list NVIDIA_GeForce_7100
+RenderShaderLightingMaxLevel	1	2
 list NVIDIA_GeForce_7200
 Disregard128DefaultDrawDistance	1	0
+RenderShaderLightingMaxLevel	1	2
 list NVIDIA_GeForce_7300
 Disregard128DefaultDrawDistance	1	0
+RenderShaderLightingMaxLevel	1	2
 list NVIDIA_GeForce_7400
 Disregard128DefaultDrawDistance	1	0
+RenderShaderLightingMaxLevel	1	2
+list NVIDIA_GeForce_7500
+RenderShaderLightingMaxLevel	1	2
+list NVIDIA_GeForce_7600
+RenderShaderLightingMaxLevel	1	2
+list NVIDIA_GeForce_7700
+RenderShaderLightingMaxLevel	1	2
+list NVIDIA_GeForce_7800
+RenderShaderLightingMaxLevel	1	2
+list NVIDIA_GeForce_7900
+RenderShaderLightingMaxLevel	1	2
 
 list NVIDIA_GeForce_Go_7200
 Disregard128DefaultDrawDistance	1	0
+RenderShaderLightingMaxLevel	1	2
 list NVIDIA_GeForce_Go_7300
 Disregard128DefaultDrawDistance	1	0
+RenderShaderLightingMaxLevel	1	2
+list NVIDIA_GeForce_Go_7300_LE
+RenderShaderLightingMaxLevel	1	2
 list NVIDIA_GeForce_Go_7400
 Disregard128DefaultDrawDistance	1	0
+RenderShaderLightingMaxLevel	1	2
+list NVIDIA_GeForce_Go_7600
+RenderShaderLightingMaxLevel	1	2
+list NVIDIA_GeForce_Go_7700
+RenderShaderLightingMaxLevel	1	2
+list NVIDIA_GeForce_Go_7800
+RenderShaderLightingMaxLevel	1	2
+list NVIDIA_GeForce_Go_7900
+RenderShaderLightingMaxLevel	1	2
 

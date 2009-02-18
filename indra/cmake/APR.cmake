@@ -1,5 +1,3 @@
-# -*- cmake -*-
-
 include(BerkeleyDB)
 include(Linking)
 include(Prebuilt)
@@ -19,12 +17,14 @@ else (STANDALONE)
       debug ${ARCH_PREBUILT_DIRS_DEBUG}/apr-1.lib
       optimized ${ARCH_PREBUILT_DIRS_RELEASE}/apr-1.lib
       )
-    set(APRUTIL_LIBRARIES 
-      debug ${ARCH_PREBUILT_DIRS_DEBUG}/aprutil-1.lib
-      optimized ${ARCH_PREBUILT_DIRS_RELEASE}/aprutil-1.lib
+    set(APRICONV_LIBRARIES 
+      debug ${ARCH_PREBUILT_DIRS_DEBUG}/apriconv-1.lib
+      optimized ${ARCH_PREBUILT_DIRS_RELEASE}/apriconv-1.lib
       )
-    # Doesn't need to link with iconv.dll
-    set(APRICONV_LIBRARIES "")
+    set(APRUTIL_LIBRARIES 
+      debug ${ARCH_PREBUILT_DIRS_DEBUG}/aprutil-1.lib ${APRICONV_LIBRARIES}
+      optimized ${ARCH_PREBUILT_DIRS_RELEASE}/aprutil-1.lib ${APRICONV_LIBRARIES}
+      )
   elseif (DARWIN)
     set(APR_LIBRARIES 
       debug ${ARCH_PREBUILT_DIRS_DEBUG}/libapr-1.a

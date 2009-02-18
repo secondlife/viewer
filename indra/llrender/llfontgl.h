@@ -181,7 +181,7 @@ public:
 								 F32* drawn_pixels = NULL) const;
 
 	// Returns the index of the first complete characters from text that can be drawn in max_pixels
-	// starting on the right side (at character start_pos).
+	// given that the character at start_pos should be the last character (or as close to last as possible).
 	virtual S32	firstDrawableChar(const llwchar* wchars, F32 max_pixels, S32 text_len, S32 start_pos=S32_MAX, S32 max_chars = S32_MAX) const;
 
 	// Returns the index of the character closest to pixel position x (ignoring text to the right of max_pixels and max_chars)

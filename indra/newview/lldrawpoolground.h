@@ -42,7 +42,7 @@ public:
 	enum
 	{
 		VERTEX_DATA_MASK =	LLVertexBuffer::MAP_VERTEX |
-							LLVertexBuffer::MAP_TEXCOORD
+							LLVertexBuffer::MAP_TEXCOORD0
 	};
 
 	virtual U32 getVertexDataMask() { return VERTEX_DATA_MASK; }

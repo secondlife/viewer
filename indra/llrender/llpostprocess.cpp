@@ -208,7 +208,7 @@ void LLPostProcess::applyShaders(void)
 		/// If any of the above shaders have been called update the frame buffer;
 		if (tweaks.useColorFilter())
 		{
-			GLuint tex = mSceneRenderTexture->getTexName() ;
+			U32 tex = mSceneRenderTexture->getTexName() ;
 			copyFrameBuffer(tex, screenW, screenH);
 		}
 		applyNightVisionShader();
@@ -218,7 +218,7 @@ void LLPostProcess::applyShaders(void)
 		/// If any of the above shaders have been called update the frame buffer;
 		if (tweaks.useColorFilter().asBoolean() || tweaks.useNightVisionShader().asBoolean())
 		{
-			GLuint tex = mSceneRenderTexture->getTexName() ;
+			U32 tex = mSceneRenderTexture->getTexName() ;
 			copyFrameBuffer(tex, screenW, screenH);
 		}
 		applyBloomShader();
@@ -360,7 +360,7 @@ void LLPostProcess::doEffects(void)
 
 	/// Copy the screen buffer to the render texture
 	{
-		GLuint tex = mSceneRenderTexture->getTexName() ;
+		U32 tex = mSceneRenderTexture->getTexName() ;
 		copyFrameBuffer(tex, screenW, screenH);
 	}
 
@@ -386,7 +386,7 @@ void LLPostProcess::doEffects(void)
 	checkError();
 }
 
-void LLPostProcess::copyFrameBuffer(GLuint & texture, unsigned int width, unsigned int height)
+void LLPostProcess::copyFrameBuffer(U32 & texture, unsigned int width, unsigned int height)
 {
 	gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_RECT_TEXTURE, texture);
 	glCopyTexImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, GL_RGBA, 0, 0, width, height, 0);
@@ -503,10 +503,8 @@ void LLPostProcess::createTexture(LLPointer<LLImageGL>& texture, unsigned int wi
 		gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_RECT_TEXTURE, texture->getTexName());
 		glTexImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, 4, width, height, 0,
 			GL_RGBA, GL_UNSIGNED_BYTE, &data[0]);
-		glTexParameteri(GL_TEXTURE_RECTANGLE_ARB,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_RECTANGLE_ARB,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_RECTANGLE_ARB,GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_RECTANGLE_ARB,GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_BILINEAR);
+		gGL.getTexUnit(0)->setTextureAddressMode(LLTexUnit::TAM_CLAMP);
 	}
 }
 
@@ -523,11 +521,9 @@ void LLPostProcess::createNoiseTexture(LLPointer<LLImageGL>& texture)
 	if(texture->createGLTexture())
 	{
 		gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, texture->getTexName());
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, NOISE_SIZE, NOISE_SIZE, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, &buffer[0]);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		LLImageGL::setManualImage(GL_TEXTURE_2D, 0, GL_LUMINANCE, NOISE_SIZE, NOISE_SIZE, GL_LUMINANCE, GL_UNSIGNED_BYTE, &buffer[0]);
+		gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_BILINEAR);
+		gGL.getTexUnit(0)->setTextureAddressMode(LLTexUnit::TAM_WRAP);
 	}
 }
 

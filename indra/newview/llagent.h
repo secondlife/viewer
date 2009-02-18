@@ -544,6 +544,7 @@ public:
 	void			setHomePosRegion( const U64& region_handle, const LLVector3& pos_region );
 	BOOL			getHomePosGlobal( LLVector3d* pos_global );
 	void			setCameraAnimating( BOOL b )	{ mCameraAnimating = b; }
+	BOOL			getCameraAnimating( )			{ return mCameraAnimating; }
 	void			setAnimationDuration( F32 seconds ) { mAnimationDuration = seconds; }
 
 	F32				getNearChatRadius() { return mNearChatRadius; }
@@ -811,7 +812,6 @@ private:
 
 	LLCoordFrame	mFrameAgent;					// Agent position and view, agent-region coordinates
 
-	BOOL			mCrouching;
 	BOOL			mIsBusy;
 
 	S32 			mAtKey;							// Either 1, 0, or -1... indicates that movement-key is pressed

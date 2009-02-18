@@ -102,7 +102,7 @@ LLViewerPartSourceScript::LLViewerPartSourceScript(LLViewerObject *source_objp) 
 	mPosAgent = mSourceObjectp->getPositionAgent();
 	mImagep = gImageList.getImageFromFile("pixiesmall.j2c");
 	gGL.getTexUnit(0)->bind(mImagep.get());
-	mImagep->setClamp(TRUE, TRUE);
+	mImagep->setAddressMode(LLTexUnit::TAM_CLAMP);
 }
 
 

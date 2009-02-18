@@ -30,6 +30,7 @@ include(LScript)
 include(Linking)
 include(Mozlib)
 include(NDOF)
+include(GooglePerfTools)
 include(TemplateCheck)
 include(UI)
 include(UnixInstall)
@@ -1330,8 +1331,8 @@ if (WINDOWS)
     
     set_target_properties(${VIEWER_BINARY_NAME}
         PROPERTIES
-        LINK_FLAGS "/debug /NODEFAULTLIB:MSVCRT /SUBSYSTEM:WINDOWS"
-        LINK_FLAGS_DEBUG "/NODEFAULTLIB:LIBCMT /NODEFAULTLIB:MSVCRTD"
+        LINK_FLAGS "/debug /NODEFAULTLIB:LIBCMT /SUBSYSTEM:WINDOWS"
+        LINK_FLAGS_DEBUG "/NODEFAULTLIB:\"LIBCMT;LIBCMTD;MSVCRT\""
         LINK_FLAGS_RELEASE ${release_flags}
         )
 

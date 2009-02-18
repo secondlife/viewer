@@ -38,6 +38,7 @@
 #include <set>
 
 #include "llqueuedthread.h"
+#include "llapr.h"
 
 #define USE_FRAME_CALLBACK_MANAGER 0
 
@@ -82,14 +83,11 @@ private:
 	typedef std::list<LLWorkerClass*> delete_list_t;
 	delete_list_t mDeleteList;
 	LLMutex* mDeleteMutex;
-	apr_pool_t* mWorkerAPRPoolp;
 	
 public:
 	LLWorkerThread(const std::string& name, bool threaded = true);
 	~LLWorkerThread();
 
-	apr_pool_t* getWorkerAPRPool() { return mWorkerAPRPoolp; }
-	
 	/*virtual*/ S32 update(U32 max_time_ms);
 	
 	handle_t addWorkRequest(LLWorkerClass* workerclass, S32 param, U32 priority = PRIORITY_NORMAL);
@@ -120,8 +118,6 @@ class LLWorkerClass
 	friend class LLWorkerThread;
 	friend class LLWorkerThread::WorkRequest;
 
-public:
-	static BOOL sDeleteLock ;
 public:
 	typedef LLWorkerThread::handle_t handle_t;
 	enum FLAGS

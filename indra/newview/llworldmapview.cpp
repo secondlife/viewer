@@ -511,7 +511,7 @@ void LLWorldMapView::draw()
 			{
 				textures_requested_this_tick++;
 				info->mCurrentImage = gImageList.getImage(info->mMapImageID[LLWorldMap::getInstance()->mCurrentMap], MIPMAP_TRUE, FALSE);
-				info->mCurrentImage->setClamp(TRUE, TRUE);
+                info->mCurrentImage->setAddressMode(LLTexUnit::TAM_CLAMP);
 				simimage = info->mCurrentImage;
 				gGL.getTexUnit(0)->bind(simimage);
 			}
@@ -524,7 +524,7 @@ void LLWorldMapView::draw()
 			{
 				textures_requested_this_tick++;
 				info->mOverlayImage = gImageList.getImage(info->mMapImageID[2], MIPMAP_TRUE, FALSE);
-				info->mOverlayImage->setClamp(TRUE, TRUE);
+				info->mOverlayImage->setAddressMode(LLTexUnit::TAM_CLAMP);
 				overlayimage = info->mOverlayImage;
 				gGL.getTexUnit(0)->bind(overlayimage);
 			}

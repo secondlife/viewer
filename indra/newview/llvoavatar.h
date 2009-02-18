@@ -263,7 +263,7 @@ public:
 	{
 		VERTEX_DATA_MASK =	(1 << LLVertexBuffer::TYPE_VERTEX) |
 							(1 << LLVertexBuffer::TYPE_NORMAL) |
-							(1 << LLVertexBuffer::TYPE_TEXCOORD) |
+							(1 << LLVertexBuffer::TYPE_TEXCOORD0) |
 							(1 << LLVertexBuffer::TYPE_WEIGHT) |
 							(1 << LLVertexBuffer::TYPE_CLOTHWEIGHT)							
 	};
@@ -306,7 +306,7 @@ public:
 	U32 renderImpostor(LLColor4U color = LLColor4U(255,255,255,255));
 	U32 renderRigid();
 	U32 renderSkinned(EAvatarRenderPass pass);
-	U32 renderTransparent();
+	U32 renderTransparent(BOOL first_pass);
 	void renderCollisionVolumes();
 	
 	/*virtual*/ BOOL lineSegmentIntersect(const LLVector3& start, const LLVector3& end,
@@ -978,9 +978,6 @@ protected:
 
 	BOOL				mCulled;
 	U32					mVisibilityRank;
-	F32					mFadeTime;
-	F32					mLastFadeTime;
-	F32					mLastFadeDistance;
 	F32					mMinPixelArea; // debug
 	F32					mMaxPixelArea; // debug
 	BOOL				mHasGrey; // debug

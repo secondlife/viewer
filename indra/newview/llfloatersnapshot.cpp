@@ -862,9 +862,17 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
 			}
 
 			previewp->mViewerImage[previewp->mCurImageIndex] = new LLImageGL(scaled, FALSE);
-			previewp->mViewerImage[previewp->mCurImageIndex]->setMipFilterNearest(previewp->getSnapshotType() != SNAPSHOT_TEXTURE);
-			gGL.getTexUnit(0)->bind(previewp->mViewerImage[previewp->mCurImageIndex]);
-			previewp->mViewerImage[previewp->mCurImageIndex]->setClamp(TRUE, TRUE);
+			LLPointer<LLImageGL> curr_preview_image = previewp->mViewerImage[previewp->mCurImageIndex];
+			gGL.getTexUnit(0)->bind(curr_preview_image);
+			if (previewp->getSnapshotType() != SNAPSHOT_TEXTURE)
+			{
+				curr_preview_image->setFilteringOption(LLTexUnit::TFO_POINT);
+			}
+			else
+			{
+				curr_preview_image->setFilteringOption(LLTexUnit::TFO_ANISOTROPIC);
+			}
+			curr_preview_image->setAddressMode(LLTexUnit::TAM_CLAMP);
 
 			previewp->mSnapshotUpToDate = TRUE;
 			previewp->generateThumbnailImage(TRUE) ;

@@ -198,7 +198,7 @@ private:
     bool mSecondInstance; // Is this a second instance of the app?
 
 	std::string mMarkerFileName;
-	apr_file_t* mMarkerFile; // A file created to indicate the app is running.
+	LLAPRFile mMarkerFile; // A file created to indicate the app is running.
 
 	std::string mLogoutMarkerFileName;
 	apr_file_t* mLogoutMarkerFile; // A file created to indicate the app is running.

@@ -2256,7 +2256,18 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>DebugShowTime</key>
+  <key>DebugShowRenderMatrices</key>
+  <map>
+    <key>Comment</key>
+    <string>Display values of current view and projection matrices.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>DebugShowTime</key>
     <map>
       <key>Comment</key>
       <string>Show depth buffer contents</string>
@@ -2635,6 +2646,17 @@
       <key>Value</key>
       <real>60.0</real>
     </map>
+    <key>FPSLogFrequency</key>
+        <map>
+        <key>Comment</key>
+            <string>Seconds between display of FPS in log (0 for never)</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>10.0</real>
+        </map>
     <key>FilterItemsPerFrame</key>
     <map>
       <key>Comment</key>
@@ -6141,7 +6163,102 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>RenderBumpmapMinDistanceSquared</key>
+
+  <key>RenderShadowGaussian</key>
+  <map>
+    <key>Comment</key>
+    <string>Gaussian coefficients for the two shadow/SSAO blurring passes (z component unused).</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Vector3</string>
+    <key>Value</key>
+    <array>
+      <real>2.0</real>
+      <real>2.0</real>
+      <real>0.0</real>
+    </array>
+  </map>
+
+  <key>RenderShadowNearDist</key>
+  <map>
+    <key>Comment</key>
+    <string>Near clip plane of shadow camera (affects precision of depth shadows).</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Vector3</string>
+    <key>Value</key>
+    <array>
+      <real>256</real>
+      <real>256</real>
+      <real>256</real>
+    </array>
+  </map>
+  <key>RenderShadowClipPlanes</key>
+  <map>
+    <key>Comment</key>
+    <string>Near clip plane split distances for shadow map frusta.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Vector3</string>
+    <key>Value</key>
+    <array>
+      <real>4.0</real>
+      <real>8.0</real>
+      <real>24.0</real>
+    </array>
+  </map>
+  <key>RenderSSAOScale</key>
+  <map>
+    <key>Comment</key>
+    <string>Scaling factor for the area to sample for occluders (pixels at 1 meter away, inversely varying with distance)</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>500.0</real>
+  </map>
+  <key>RenderSSAOMaxScale</key>
+  <map>
+    <key>Comment</key>
+    <string>Maximum screen radius for sampling (pixels)</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>60</integer>
+  </map>
+  <key>RenderSSAOFactor</key>
+  <map>
+    <key>Comment</key>
+    <string>Occlusion sensitivity factor for ambient occlusion (larger is more)</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>0.30</real>
+  </map>
+  <key>RenderSSAOEffect</key>
+  <map>
+    <key>Comment</key>
+    <string>Multiplier for (1) value and (2) saturation (HSV definition), for areas which are totally occluded.  Blends with original color for partly-occluded areas.  (Third component is unused.)</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Vector3</string>
+    <key>Value</key>
+    <array>
+      <real>0.40</real>
+      <real>1.00</real>
+      <real>0.00</real>
+    </array>
+  </map>
+  <key>RenderBumpmapMinDistanceSquared</key>
     <map>
       <key>Comment</key>
       <string>Maximum distance at which to render bumpmapped primitives (distance in meters, squared)</string>
@@ -6152,6 +6269,17 @@
       <key>Value</key>
       <real>100.0</real>
     </map>
+  <key>RenderNormalMapScale</key>
+  <map>
+    <key>Comment</key>
+    <string>Scaler applied to height map when generating normal maps</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>128</real>
+  </map>
     <key>RenderCubeMap</key>
     <map>
       <key>Comment</key>
@@ -6192,7 +6320,7 @@
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>Boolean</string>
+      <string>Boolean</string> 
       <key>Value</key>
       <integer>0</integer>
     </map>
@@ -6207,18 +6335,129 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>RenderDeferred</key>
-    <map>
-      <key>Comment</key>
-      <string>Use deferred rendering pipeline.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>RenderDynamicLOD</key>
+  <key>RenderDelayCreation</key>
+  <map>
+    <key>Comment</key>
+    <string>Throttle creation of drawables.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>RenderAnimateRes</key>
+  <map>
+    <key>Comment</key>
+    <string>Animate rezing prims.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+
+  <key>RenderAnimateTrees</key>
+  <map>
+    <key>Comment</key>
+    <string>Use GL matrix ops to animate tree branches.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>RenderDeferredAlphaSoften</key>
+  <map>
+    <key>Comment</key>
+    <string>Scalar for softening alpha surfaces (for soft particles).</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>0.75</real>
+  </map>
+  <key>RenderDeferredNoise</key>
+  <map>
+    <key>Comment</key>
+    <string>Noise scalar to hide banding in deferred render.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>4</real>
+  </map>
+  <key>RenderDeferred</key>
+  <map>
+    <key>Comment</key>
+    <string>Use deferred rendering pipeline.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>RenderDeferredSunShadow</key>
+  <map>
+    <key>Comment</key>
+    <string>Generate shadows from the sun.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
+  <key>RenderDeferredSunWash</key>
+  <map>
+    <key>Comment</key>
+    <string>Amount local lights are washed out by sun.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>0.5</real>
+  </map>
+  <key>RenderShadowNoise</key>
+  <map>
+    <key>Comment</key>
+    <string>Magnitude of noise on shadow samples.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>-0.0001</real>
+  </map>
+  <key>RenderShadowBlurSize</key>
+  <map>
+    <key>Comment</key>
+    <string>Scale of shadow softening kernel.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>0.7</real>
+  </map>
+  <key>RenderShadowBlurSamples</key>
+  <map>
+    <key>Comment</key>
+    <string>Number of samples to take for each pass of shadow blur (value range 1-16).  Actual number of samples is value * 2 - 1.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <real>5</real>
+  </map>
+  <key>RenderDynamicLOD</key>
     <map>
       <key>Comment</key>
       <string>Dynamically adjust level of detail.</string>
@@ -6368,13 +6607,13 @@
     <key>RenderGlowMinLuminance</key>
     <map>
       <key>Comment</key>
-      <string>Min luminance intensity necessary to consider an object bright enough to automatically glow. (Gets clamped to 0 - 1.0 range)</string>
+      <string>Min luminance intensity necessary to consider an object bright enough to automatically glow.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>1.0</real>
+      <real>2.5</real>
     </map>
     <key>RenderGlowResolutionPow</key>
     <map>
@@ -6534,6 +6773,17 @@
       <key>Value</key>
       <integer>4096</integer>
     </map>
+  <key>RenderMaxNodeSize</key>
+  <map>
+    <key>Comment</key>
+    <string>Maximum size of a single node's vertex data (in KB).</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>S32</string>
+    <key>Value</key>
+    <integer>4096</integer>
+  </map>
     <key>RenderMaxVBOSize</key>
     <map>
       <key>Comment</key>
@@ -6543,7 +6793,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>32</integer>
+      <integer>512</integer>
     </map>
     <key>RenderName</key>
     <map>
@@ -6643,6 +6893,17 @@
       <string>U32</string>
       <key>Value</key>
       <integer>1</integer>
+    </map>
+    <key>RenderShaderLightingMaxLevel</key>
+    <map>
+      <key>Comment</key>
+      <string>Max lighting level to use in the shader (class 3 is default, 2 is less lights, 1 is sun/moon only.  Works around shader compiler bugs on certain platforms.)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>3</integer>
     </map>
     <key>RenderShaderLODThreshold</key>
     <map>
@@ -9760,6 +10021,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>RenderDelayVBUpdate</key>
+    <map>
+      <key>Comment</key>
+      <string>Delay vertex buffer updates until just before rendering</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>UseStartScreen</key>
     <map>
       <key>Comment</key>
@@ -10507,7 +10779,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>1</integer>
+      <integer>0</integer>
     </map>
     <key>WindowWidth</key>
     <map>

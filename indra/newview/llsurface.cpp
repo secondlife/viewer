@@ -253,7 +253,7 @@ void LLSurface::createSTexture()
 		mSTexturep = new LLViewerImage(raw, FALSE);
 		mSTexturep->dontDiscard();
 		gGL.getTexUnit(0)->bind(mSTexturep.get());
-		mSTexturep->setClamp(TRUE, TRUE);
+		mSTexturep->setAddressMode(LLTexUnit::TAM_CLAMP);
 		gImageList.addImage(mSTexturep);
 	}
 }
@@ -278,7 +278,7 @@ void LLSurface::createWaterTexture()
 		mWaterTexturep = new LLViewerImage(raw, FALSE);
 		mWaterTexturep->dontDiscard();
 		gGL.getTexUnit(0)->bind(mWaterTexturep.get());
-		mWaterTexturep->setClamp(TRUE, TRUE);
+		mWaterTexturep->setAddressMode(LLTexUnit::TAM_CLAMP);
 		gImageList.addImage(mWaterTexturep);
 	}
 }
@@ -299,7 +299,7 @@ void LLSurface::initTextures()
 	{
 		createWaterTexture();
 		mWaterObjp = (LLVOWater *)gObjectList.createObjectViewer(LLViewerObject::LL_VO_WATER, mRegionp);
-		gPipeline.addObject(mWaterObjp);
+		gPipeline.createObject(mWaterObjp);
 		LLVector3d water_pos_global = from_region_handle(mRegionp->getHandle());
 		water_pos_global += LLVector3d(128.0, 128.0, DEFAULT_WATER_HEIGHT);
 		mWaterObjp->setPositionGlobal(water_pos_global);

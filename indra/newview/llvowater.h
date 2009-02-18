@@ -52,7 +52,7 @@ public:
 	{
 		VERTEX_DATA_MASK =	(1 << LLVertexBuffer::TYPE_VERTEX) |
 							(1 << LLVertexBuffer::TYPE_NORMAL) |
-							(1 << LLVertexBuffer::TYPE_TEXCOORD) 
+							(1 << LLVertexBuffer::TYPE_TEXCOORD0) 
 	};
 
 	LLVOWater(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp);

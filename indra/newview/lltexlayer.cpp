@@ -57,10 +57,6 @@
 
 //#include "../tools/imdebug/imdebug.h"
 
-
-// SJB: We really always want to use the GL cache;
-// let GL page textures in and out of video RAM instead of trying to do so by hand.
-
 // static
 S32 LLTexLayerSetBuffer::sGLByteCount = 0;
 S32 LLTexLayerSetBuffer::sGLBumpByteCount = 0;
@@ -151,10 +147,9 @@ void LLTexLayerSetBuffer::createBumpTexture()
 
 		gGL.getTexUnit(0)->setTextureAddressMode(LLTexUnit::TAM_CLAMP);
 
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_BILINEAR);
 
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, mWidth, mHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+		LLImageGL::setManualImage(GL_TEXTURE_2D, 0, GL_RGBA8, mWidth, mHeight, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 		stop_glerror();
 
 		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
@@ -1375,15 +1370,14 @@ BOOL LLTexLayer::render( S32 x, S32 y, S32 width, S32 height )
 				{
 					LLGLDisable alpha_test(getInfo()->mWriteAllChannels ? GL_ALPHA_TEST : 0);
 
-					BOOL old_clamps = image_gl->getClampS();
-					BOOL old_clampt = image_gl->getClampT();
+					LLTexUnit::eTextureAddressMode old_mode = image_gl->getAddressMode();
 					
 					gGL.getTexUnit(0)->bind(image_gl);
-					image_gl->setClamp(TRUE, TRUE);
+					gGL.getTexUnit(0)->setTextureAddressMode(LLTexUnit::TAM_CLAMP);
 
 					gl_rect_2d_simple_tex( width, height );
 
-					image_gl->setClamp(old_clamps, old_clampt);
+					gGL.getTexUnit(0)->setTextureAddressMode(old_mode);
 					gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 				}
 			}
@@ -1575,14 +1569,14 @@ BOOL LLTexLayer::renderAlphaMasks( S32 x, S32 y, S32 width, S32 height, LLColor4
 				{
 					LLGLSNoAlphaTest gls_no_alpha_test;
 
-					BOOL old_clamps = image_gl->getClampS();
-					BOOL old_clampt = image_gl->getClampT();					
+					LLTexUnit::eTextureAddressMode old_mode = image_gl->getAddressMode();
+					
 					gGL.getTexUnit(0)->bind(image_gl);
-					image_gl->setClamp(TRUE, TRUE);
+					gGL.getTexUnit(0)->setTextureAddressMode(LLTexUnit::TAM_CLAMP);
 
 					gl_rect_2d_simple_tex( width, height );
 
-					image_gl->setClamp(old_clamps, old_clampt);
+					gGL.getTexUnit(0)->setTextureAddressMode(old_mode);
 					gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 				}
 			}
@@ -1719,21 +1713,20 @@ BOOL LLTexLayer::renderImageRaw( U8* in_data, S32 in_width, S32 in_height, S32 i
 			internal_format = GL_ALPHA8;
 		}
 		
-		GLuint name = 0;
-		glGenTextures(1, &name );
+		U32 name = 0;
+		LLImageGL::generateTextures(1, &name );
 		stop_glerror();
 
 		gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, name);
 		stop_glerror();
 
-		glTexImage2D(
+		LLImageGL::setManualImage(
 			GL_TEXTURE_2D, 0, internal_format, 
 			in_width, in_height,
-			0, format, GL_UNSIGNED_BYTE, in_data );
+			format, GL_UNSIGNED_BYTE, in_data );
 		stop_glerror();
 
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_BILINEAR);
 		
 		gGL.getTexUnit(0)->setTextureAddressMode(LLTexUnit::TAM_CLAMP);
 
@@ -1741,7 +1734,7 @@ BOOL LLTexLayer::renderImageRaw( U8* in_data, S32 in_width, S32 in_height, S32 i
 
 		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
-		glDeleteTextures(1, &name );
+		LLImageGL::deleteTextures(1, &name );
 		stop_glerror();
 	}
 	else
@@ -2016,7 +2009,7 @@ BOOL LLTexLayerParamAlpha::render( S32 x, S32 y, S32 width, S32 height )
 		if(	!mCachedProcessedImageGL ||
 			(mCachedProcessedImageGL->getWidth() != image_tga_width) ||
 			(mCachedProcessedImageGL->getHeight() != image_tga_height) ||
-			(weight_changed ))
+			(weight_changed) )
 		{
 //			llinfos << "Building Cached Alpha: " << mName << ": (" << mStaticImageRaw->getWidth() << ", " << mStaticImageRaw->getHeight() << ") " << effective_weight << llendl;
 			mCachedEffectiveWeight = effective_weight;
@@ -2027,7 +2020,6 @@ BOOL LLTexLayerParamAlpha::render( S32 x, S32 y, S32 width, S32 height )
 
 				// We now have something in one of our caches
 				LLTexLayerSet::sHasCaches |= mCachedProcessedImageGL ? TRUE : FALSE;
-
 
 				mCachedProcessedImageGL->setExplicitFormat( GL_ALPHA8, GL_ALPHA );
 			}
@@ -2047,9 +2039,8 @@ BOOL LLTexLayerParamAlpha::render( S32 x, S32 y, S32 width, S32 height )
 				{
 					mCachedProcessedImageGL->createGLTexture(0, mStaticImageRaw);
 					mNeedsCreateTexture = FALSE;
-					
 					gGL.getTexUnit(0)->bind(mCachedProcessedImageGL);
-					mCachedProcessedImageGL->setClamp(TRUE, TRUE);
+					mCachedProcessedImageGL->setAddressMode(LLTexUnit::TAM_CLAMP);
 				}
 
 				LLGLSNoAlphaTest gls_no_alpha_test;
@@ -2504,7 +2495,7 @@ LLImageGL* LLTexStaticImageList::getImageGL(const std::string& file_name, BOOL i
 			image_gl->createGLTexture(0, image_raw);
 
 			gGL.getTexUnit(0)->bind(image_gl);
-			image_gl->setClamp(TRUE, TRUE);
+			image_gl->setAddressMode(LLTexUnit::TAM_CLAMP);
 
 			mStaticImageListGL [ namekey ] = image_gl;
 			mGLBytes += (S32)image_gl->getWidth() * image_gl->getHeight() * image_gl->getComponents();

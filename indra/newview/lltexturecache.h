@@ -109,18 +109,17 @@ public:
 
 protected:
 	// Accessed by LLTextureCacheWorker
-	apr_pool_t* getFileAPRPool() { return mFileAPRPool; }
 	bool appendToTextureEntryList(const LLUUID& id, S32 size);
 	std::string getLocalFileName(const LLUUID& id);
 	std::string getTextureFileName(const LLUUID& id);
 	void addCompleted(Responder* responder, bool success);
 	
 protected:
-	void setFileAPRPool(apr_pool_t* pool) { mFileAPRPool = pool ; }
+	//void setFileAPRPool(apr_pool_t* pool) { mFileAPRPool = pool ; }
 
 private:
 	void setDirNames(ELLPath location);
-	void readHeaderCache(apr_pool_t* poolp = NULL);
+	void readHeaderCache();
 	void purgeAllTextures(bool purge_directories);
 	void purgeTextures(bool validate);
 	S32 getHeaderCacheEntry(const LLUUID& id, bool touch, S32* imagesize = NULL);
@@ -133,7 +132,6 @@ private:
 	LLMutex mWorkersMutex;
 	LLMutex mHeaderMutex;
 	LLMutex mListMutex;
-	apr_pool_t* mFileAPRPool;
 	
 	typedef std::map<handle_t, LLTextureCacheWorker*> handle_map_t;
 	handle_map_t mReaders;

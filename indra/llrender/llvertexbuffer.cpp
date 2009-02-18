@@ -69,8 +69,10 @@ S32 LLVertexBuffer::sTypeOffsets[LLVertexBuffer::TYPE_MAX] =
 {
 	sizeof(LLVector3), // TYPE_VERTEX,
 	sizeof(LLVector3), // TYPE_NORMAL,
-	sizeof(LLVector2), // TYPE_TEXCOORD,
+	sizeof(LLVector2), // TYPE_TEXCOORD0,
+	sizeof(LLVector2), // TYPE_TEXCOORD1,
 	sizeof(LLVector2), // TYPE_TEXCOORD2,
+	sizeof(LLVector2), // TYPE_TEXCOORD3,
 	sizeof(LLColor4U), // TYPE_COLOR,
 	sizeof(LLVector3), // TYPE_BINORMAL,
 	sizeof(F32),	   // TYPE_WEIGHT,
@@ -103,8 +105,8 @@ void LLVertexBuffer::setupClientArrays(U32 data_mask)
 		{
 			MAP_VERTEX,
 			MAP_NORMAL,
-			MAP_TEXCOORD,
-			MAP_COLOR
+			MAP_TEXCOORD0,
+			MAP_COLOR,
 		};
 		
 		GLenum array[] =
@@ -112,7 +114,7 @@ void LLVertexBuffer::setupClientArrays(U32 data_mask)
 			GL_VERTEX_ARRAY,
 			GL_NORMAL_ARRAY,
 			GL_TEXTURE_COORD_ARRAY,
-			GL_COLOR_ARRAY
+			GL_COLOR_ARRAY,
 		};
 
 		for (U32 i = 0; i < 4; ++i)
@@ -123,7 +125,7 @@ void LLVertexBuffer::setupClientArrays(U32 data_mask)
 				{ //needs to be disabled
 					glDisableClientState(array[i]);
 				}
-				else
+				else if (gDebugGL)
 				{ //needs to be enabled, make sure it was (DEBUG TEMPORARY)
 					if (i > 0 && !glIsEnabled(array[i]))
 					{
@@ -137,29 +139,55 @@ void LLVertexBuffer::setupClientArrays(U32 data_mask)
 				{ //needs to be enabled
 					glEnableClientState(array[i]);
 				}
-				else if (glIsEnabled(array[i]))
+				else if (gDebugGL && glIsEnabled(array[i]))
 				{ //needs to be disabled, make sure it was (DEBUG TEMPORARY)
 					llerrs << "Bad client state! " << array[i] << " enabled." << llendl;
 				}
 			}
 		}
 
-		if (sLastMask & MAP_TEXCOORD2)
+		U32 map_tc[] = 
 		{
-			if (!(data_mask & MAP_TEXCOORD2))
+			MAP_TEXCOORD1,
+			MAP_TEXCOORD2,
+			MAP_TEXCOORD3
+		};
+
+		for (U32 i = 0; i < 3; i++)
+		{
+			if (sLastMask & map_tc[i])
 			{
-				glClientActiveTextureARB(GL_TEXTURE1_ARB);
+				if (!(data_mask & map_tc[i]))
+				{
+					glClientActiveTextureARB(GL_TEXTURE1_ARB+i);
+					glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+					glClientActiveTextureARB(GL_TEXTURE0_ARB);
+				}
+			}
+			else if (data_mask & map_tc[i])
+			{
+				glClientActiveTextureARB(GL_TEXTURE1_ARB+i);
+				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+				glClientActiveTextureARB(GL_TEXTURE0_ARB);
+			}
+		}
+
+		if (sLastMask & MAP_BINORMAL)
+		{
+			if (!(data_mask & MAP_BINORMAL))
+			{
+				glClientActiveTextureARB(GL_TEXTURE2_ARB);
 				glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 				glClientActiveTextureARB(GL_TEXTURE0_ARB);
 			}
 		}
-		else if (data_mask & MAP_TEXCOORD2)
+		else if (data_mask & MAP_BINORMAL)
 		{
-			glClientActiveTextureARB(GL_TEXTURE1_ARB);
+			glClientActiveTextureARB(GL_TEXTURE2_ARB);
 			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 			glClientActiveTextureARB(GL_TEXTURE0_ARB);
 		}
-
+	
 		sLastMask = data_mask;
 	}
 }
@@ -194,6 +222,7 @@ void LLVertexBuffer::drawRange(U32 mode, U32 start, U32 end, U32 count, U32 indi
 		return;
 	}
 
+	stop_glerror();
 	glDrawRangeElements(sGLMode[mode], start, end, count, GL_UNSIGNED_SHORT, 
 		((U16*) getIndicesPointer()) + indices_offset);
 	stop_glerror();
@@ -223,13 +252,14 @@ void LLVertexBuffer::draw(U32 mode, U32 count, U32 indices_offset) const
 		return;
 	}
 
+	stop_glerror();
 	glDrawElements(sGLMode[mode], count, GL_UNSIGNED_SHORT,
 		((U16*) getIndicesPointer()) + indices_offset);
+	stop_glerror();
 }
 
 void LLVertexBuffer::drawArrays(U32 mode, U32 first, U32 count) const
 {
-	
 	if (first >= (U32) mRequestedNumVerts ||
 		first + count > (U32) mRequestedNumVerts)
 	{
@@ -247,6 +277,7 @@ void LLVertexBuffer::drawArrays(U32 mode, U32 first, U32 count) const
 		return;
 	}
 
+	stop_glerror();
 	glDrawArrays(sGLMode[mode], first, count);
 	stop_glerror();
 }
@@ -767,11 +798,7 @@ U8* LLVertexBuffer::mapBuffer(S32 access)
 		stop_glerror();
 		mMappedIndexData = (U8*) glMapBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, GL_WRITE_ONLY_ARB);
 		stop_glerror();
-		/*if (sMapped)
-		{
-			llerrs << "Mapped two VBOs at the same time!" << llendl;
-		}
-		sMapped = TRUE;*/		
+
 		if (!mMappedData)
 		{
 			//--------------------
@@ -896,14 +923,22 @@ bool LLVertexBuffer::getIndexStrider(LLStrider<U16>& strider, S32 index)
 {
 	return VertexBufferStrider<U16,TYPE_INDEX>::get(*this, strider, index);
 }
-bool LLVertexBuffer::getTexCoordStrider(LLStrider<LLVector2>& strider, S32 index)
+bool LLVertexBuffer::getTexCoord0Strider(LLStrider<LLVector2>& strider, S32 index)
 {
-	return VertexBufferStrider<LLVector2,TYPE_TEXCOORD>::get(*this, strider, index);
+	return VertexBufferStrider<LLVector2,TYPE_TEXCOORD0>::get(*this, strider, index);
 }
-bool LLVertexBuffer::getTexCoord2Strider(LLStrider<LLVector2>& strider, S32 index)
+bool LLVertexBuffer::getTexCoord1Strider(LLStrider<LLVector2>& strider, S32 index)
+{
+	return VertexBufferStrider<LLVector2,TYPE_TEXCOORD1>::get(*this, strider, index);
+}
+/*bool LLVertexBuffer::getTexCoord2Strider(LLStrider<LLVector2>& strider, S32 index)
 {
 	return VertexBufferStrider<LLVector2,TYPE_TEXCOORD2>::get(*this, strider, index);
 }
+bool LLVertexBuffer::getTexCoord3Strider(LLStrider<LLVector2>& strider, S32 index)
+{
+	return VertexBufferStrider<LLVector2,TYPE_TEXCOORD3>::get(*this, strider, index);
+}*/
 bool LLVertexBuffer::getNormalStrider(LLStrider<LLVector3>& strider, S32 index)
 {
 	return VertexBufferStrider<LLVector3,TYPE_NORMAL>::get(*this, strider, index);
@@ -1101,24 +1136,39 @@ void LLVertexBuffer::setupVertexBuffer(U32 data_mask) const
 	{
 		glNormalPointer(GL_FLOAT, stride, (void*)(base + mOffsets[TYPE_NORMAL]));
 	}
+	if (data_mask & MAP_TEXCOORD3)
+	{
+		glClientActiveTextureARB(GL_TEXTURE3_ARB);
+		glTexCoordPointer(2,GL_FLOAT, stride, (void*)(base + mOffsets[TYPE_TEXCOORD3]));
+		glClientActiveTextureARB(GL_TEXTURE0_ARB);
+	}
 	if (data_mask & MAP_TEXCOORD2)
 	{
-		glClientActiveTextureARB(GL_TEXTURE1_ARB);
+		glClientActiveTextureARB(GL_TEXTURE2_ARB);
 		glTexCoordPointer(2,GL_FLOAT, stride, (void*)(base + mOffsets[TYPE_TEXCOORD2]));
 		glClientActiveTextureARB(GL_TEXTURE0_ARB);
 	}
-	if (data_mask & MAP_TEXCOORD)
+	if (data_mask & MAP_TEXCOORD1)
 	{
-		glTexCoordPointer(2,GL_FLOAT, stride, (void*)(base + mOffsets[TYPE_TEXCOORD]));
+		glClientActiveTextureARB(GL_TEXTURE1_ARB);
+		glTexCoordPointer(2,GL_FLOAT, stride, (void*)(base + mOffsets[TYPE_TEXCOORD1]));
+		glClientActiveTextureARB(GL_TEXTURE0_ARB);
+	}
+	if (data_mask & MAP_BINORMAL)
+	{
+		glClientActiveTextureARB(GL_TEXTURE2_ARB);
+		glTexCoordPointer(3,GL_FLOAT, stride, (void*)(base + mOffsets[TYPE_BINORMAL]));
+		glClientActiveTextureARB(GL_TEXTURE0_ARB);
+	}
+	if (data_mask & MAP_TEXCOORD0)
+	{
+		glTexCoordPointer(2,GL_FLOAT, stride, (void*)(base + mOffsets[TYPE_TEXCOORD0]));
 	}
 	if (data_mask & MAP_COLOR)
 	{
 		glColorPointer(4, GL_UNSIGNED_BYTE, stride, (void*)(base + mOffsets[TYPE_COLOR]));
 	}
-	if (data_mask & MAP_BINORMAL)
-	{
-		glVertexAttribPointerARB(6, 3, GL_FLOAT, FALSE,  stride, (void*)(base + mOffsets[TYPE_BINORMAL]));
-	}
+	
 	if (data_mask & MAP_WEIGHT)
 	{
 		glVertexAttribPointerARB(1, 1, GL_FLOAT, FALSE, stride, (void*)(base + mOffsets[TYPE_WEIGHT]));

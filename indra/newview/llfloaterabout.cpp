@@ -122,6 +122,14 @@ LLFloaterAbout::LLFloaterAbout()
 	std::string support;
 	support.append("\n\n");
 
+#if LL_MSVC
+    support.append(llformat("Built with MSVC version %d\n\n", _MSC_VER));
+#endif
+
+#if LL_GNUC
+    support.append(llformat("Built with GCC version %d\n\n", GCC_VERSION));
+#endif
+
 	// Position
 	LLViewerRegion* region = gAgent.getRegion();
 	if (region)

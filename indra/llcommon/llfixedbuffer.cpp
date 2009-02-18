@@ -33,6 +33,7 @@
 #include "llfixedbuffer.h"
 
 LLFixedBuffer::LLFixedBuffer(const U32 max_lines)
+			  : mMutex(NULL)
 {
 	mMaxLines = max_lines;
 	mTimer.reset();
@@ -47,9 +48,11 @@ LLFixedBuffer::~LLFixedBuffer()
 
 void LLFixedBuffer::clear()
 {
+	mMutex.lock() ;
 	mLines.clear();
 	mAddTimes.clear();
 	mLineLengths.clear();
+	mMutex.unlock() ;
 
 	mTimer.reset();
 }
@@ -70,9 +73,11 @@ void LLFixedBuffer::addLine(const LLWString& line)
 
 	removeExtraLines();
 
+	mMutex.lock() ;
 	mLines.push_back(line);
 	mLineLengths.push_back((S32)line.length());
 	mAddTimes.push_back(mTimer.getElapsedTimeF32());
+	mMutex.unlock() ;
 }
 
 
@@ -86,10 +91,12 @@ void LLFixedBuffer::setMaxLines(S32 max_lines)
 
 void LLFixedBuffer::removeExtraLines()
 {
+	mMutex.lock() ;
 	while ((S32)mLines.size() > llmax((S32)0, (S32)(mMaxLines - 1)))
 	{
 		mLines.pop_front();
 		mAddTimes.pop_front();
 		mLineLengths.pop_front();
 	}
+	mMutex.unlock() ;
 }

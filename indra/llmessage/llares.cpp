@@ -470,9 +470,7 @@ bool LLAres::process(U64 timeout)
 
 	int socks[ARES_GETSOCK_MAXNUM];
 	apr_pollfd_t aprFds[ARES_GETSOCK_MAXNUM];
-	apr_int32_t nsds = 0;
-	apr_status_t status;
-	apr_pool_t *pool;
+	apr_int32_t nsds = 0;	
 	int nactive = 0;
 	int bitmask;
 
@@ -480,10 +478,12 @@ bool LLAres::process(U64 timeout)
 
 	if (bitmask == 0)
 	{
-		goto bail;
+		return nsds > 0;
 	}
 
-	status = apr_pool_create(&pool, gAPRPoolp);
+	apr_status_t status;
+	LLAPRPool pool;
+	status = pool.getStatus() ;
 	ll_apr_assert_status(status);
 
 	for (int i = 0; i < ARES_GETSOCK_MAXNUM; i++)
@@ -501,16 +501,16 @@ bool LLAres::process(U64 timeout)
 
 		apr_socket_t *aprSock = NULL;
 
-		status = apr_os_sock_put(&aprSock, (apr_os_sock_t *) &socks[i], pool);
+		status = apr_os_sock_put(&aprSock, (apr_os_sock_t *) &socks[i], pool.getAPRPool());
 		if (status != APR_SUCCESS)
 		{
 			ll_apr_warn_status(status);
-			goto bail_pool;
+			return nsds > 0;
 		}
 
 		aprFds[nactive].desc.s = aprSock;
 		aprFds[nactive].desc_type = APR_POLL_SOCKET;
-		aprFds[nactive].p = pool;
+		aprFds[nactive].p = pool.getAPRPool();
 		aprFds[nactive].rtnevents = 0;
 		aprFds[nactive].client_data = &socks[i];
 
@@ -538,10 +538,6 @@ bool LLAres::process(U64 timeout)
 		}
 	}
 
-bail_pool:
-	apr_pool_destroy(pool);
-
-bail:
 	return nsds > 0;
 }
 
