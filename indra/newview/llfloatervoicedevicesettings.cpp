@@ -129,19 +129,23 @@ void LLPanelVoiceDeviceSettings::apply()
 	{
 		s = mCtrlInputDevices->getSimple();
 		gSavedSettings.setString("VoiceInputAudioDevice", s);
+		mInputDevice = s;
 	}
 
 	if(mCtrlOutputDevices)
 	{
 		s = mCtrlOutputDevices->getSimple();
 		gSavedSettings.setString("VoiceOutputAudioDevice", s);
+		mOutputDevice = s;
 	}
 
 	// assume we are being destroyed by closing our embedding window
 	LLSlider* volume_slider = getChild<LLSlider>("mic_volume_slider");
 	if(volume_slider)
 	{
-		gSavedSettings.setF32("AudioLevelMic", (F32)volume_slider->getValue().asReal());
+		F32 slider_value = (F32)volume_slider->getValue().asReal();
+		gSavedSettings.setF32("AudioLevelMic", slider_value);
+		mMicVolume = slider_value;
 	}
 }
 
