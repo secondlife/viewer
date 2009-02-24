@@ -51,6 +51,7 @@ namespace
 		{
 			mStatus = code;
 		}
+		virtual void extendedResult(S32 code, const std::string& message, const LLSD& headers) { }
 		S32 mStatus;
 	};
 }

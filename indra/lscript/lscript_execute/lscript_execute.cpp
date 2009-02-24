@@ -68,6 +68,12 @@ const char* LSCRIPTRunTimeFaultStrings[LSRF_EOF] =		/*Flawfinder: ignore*/
 void LLScriptExecuteLSL2::startRunning() {}
 void LLScriptExecuteLSL2::stopRunning() {}
 
+const char* URL_REQUEST_GRANTED = "URL_REQUEST_GRANTED";
+const char* URL_REQUEST_DENIED = "URL_REQUEST_DENIED";
+
+// HTTP Requests to LSL scripts will time out after 25 seconds.
+const U64 LSL_HTTP_REQUEST_TIMEOUT = 25 * USEC_PER_SEC; 
+
 LLScriptExecuteLSL2::LLScriptExecuteLSL2(LLFILE *fp)
 {
 	U8  sizearray[4];

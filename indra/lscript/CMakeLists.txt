@@ -1,6 +1,9 @@
 # -*- cmake -*-
 
 set(lscript_HEADER_FILES
+    llscriptresource.h
+    llscriptresourceconsumer.h
+    llscriptresourcepool.h
     lscript_alloc.h
     lscript_byteconvert.h
     lscript_byteformat.h

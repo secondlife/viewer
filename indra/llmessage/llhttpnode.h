@@ -38,7 +38,6 @@
 
 class LLChainIOFactory;
 
-
 /**
  * These classes represent the HTTP framework: The URL tree, and the LLSD
  * REST interface that such nodes implement.
@@ -99,6 +98,11 @@ public:
 		 * @brief Return the LLSD content and a 200 OK.
 		 */
 		virtual void result(const LLSD&) = 0;
+
+		/**
+		 * @brief return status code and message with headers.
+		 */
+		virtual void extendedResult(S32 code, const std::string& message, const LLSD& headers) = 0;
 
 		/**
 		 * @brief return status code and reason string on http header,
@@ -218,6 +222,14 @@ public:
 	const LLHTTPNode* rootNode() const;
 	const LLHTTPNode* findNode(const std::string& name) const;
 
+
+	enum EHTTPNodeContentType
+	{
+		CONTENT_TYPE_LLSD,
+		CONTENT_TYPE_TEXT
+	};
+
+	virtual EHTTPNodeContentType getContentType() const { return CONTENT_TYPE_LLSD; }
 	//@}
 
 	/* @name Description system
@@ -277,6 +289,7 @@ public:
 	static LLPointer<LLSimpleResponse> create();
 	
 	void result(const LLSD& result);
+	void extendedResult(S32 code, const std::string& body, const LLSD& headers);
 	void status(S32 code, const std::string& message);
 
 	void print(std::ostream& out) const;

@@ -451,6 +451,12 @@ void LLScriptLibrary::init()
 
 	addFunction(new LLScriptLibraryFunction(10.f, 0.f, dummy_func, "llSHA1String", "s", "s", "string llSHA1String(string sr)\nPerforms a SHA1 security Hash.  Returns a 40 character hex string."));
 
+	addFunction(new LLScriptLibraryFunction(10.f, 0.f, dummy_func, "llGetFreeURLs", "i", NULL, "integer llGetFreeURLs()\nreturns the available urls for the current script"));
+	addFunction(new LLScriptLibraryFunction(10.f, 0.f, dummy_func, "llRequestURL", "k", NULL, "key llRequestURL()\nRequests one HTTP:// url for use by this object\nTriggers an http_server event with results."));
+	addFunction(new LLScriptLibraryFunction(10.f, 0.f, dummy_func, "llRequestSecureURL", "k", NULL, "key llRequestSecureURL()\nRequests one HTTPS:// (SSL) url for use by this object\nTriggers an http_server event with results."));
+	addFunction(new LLScriptLibraryFunction(10.f, 0.f, dummy_func, "llReleaseURL", NULL, "s", "llReleaseURL(string url)\nReleases the specified URL, it will no longer be usable."));
+	addFunction(new LLScriptLibraryFunction(10.f, 0.f, dummy_func, "llHTTPResponse", NULL, "kis", "llHTTPResponse(key id, integer status, string body)\nResponds to request id with status and body."));
+	addFunction(new LLScriptLibraryFunction(10.f, 0.f, dummy_func, "llGetHTTPHeader", "s", "ks", "string llGetHTTPHeader(key id, string header)\nGet the value for header for request id."));
 
 	// energy, sleep, dummy_func, name, return type, parameters, help text, gods-only
 

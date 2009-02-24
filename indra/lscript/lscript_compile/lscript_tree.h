@@ -759,12 +759,12 @@ class LLScriptHTTPResponseEvent : public LLScriptEvent
 {
 public:
 	LLScriptHTTPResponseEvent(S32 line, S32 col,
-		LLScriptIdentifier *reqeust_id,
+		LLScriptIdentifier *request_id,
 		LLScriptIdentifier *status,
 		LLScriptIdentifier *metadata,
 		LLScriptIdentifier *body)
 		: LLScriptEvent(line, col, LSTT_HTTP_RESPONSE),
-		 mRequestId(reqeust_id), mStatus(status), mMetadata(metadata), mBody(body)
+		 mRequestId(request_id), mStatus(status), mMetadata(metadata), mBody(body)
 	{
 	}
 
@@ -780,6 +780,32 @@ public:
 	LLScriptIdentifier	*mRequestId;
 	LLScriptIdentifier	*mStatus;
 	LLScriptIdentifier	*mMetadata;
+	LLScriptIdentifier	*mBody;
+};
+
+class LLScriptHTTPRequestEvent : public LLScriptEvent
+{
+public:
+	LLScriptHTTPRequestEvent(S32 line, S32 col,
+		LLScriptIdentifier *request_id,
+		LLScriptIdentifier *method,
+		LLScriptIdentifier *body)
+		: LLScriptEvent(line, col, LSTT_HTTP_REQUEST),
+		 mRequestId(request_id), mMethod(method), mBody(body)
+	{
+	}
+
+	void recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompilePass pass,
+		LSCRIPTPruneType ptype, BOOL &prunearg, LLScriptScope *scope,
+		LSCRIPTType &type, LSCRIPTType basetype, U64 &count,
+		LLScriptByteCodeChunk *chunk, LLScriptByteCodeChunk *heap,
+		S32 stacksize, LLScriptScopeEntry *entry,
+		S32 entrycount, LLScriptLibData **ldata);
+		
+	S32 getSize();
+
+	LLScriptIdentifier	*mRequestId;
+	LLScriptIdentifier	*mMethod;
 	LLScriptIdentifier	*mBody;
 };
 

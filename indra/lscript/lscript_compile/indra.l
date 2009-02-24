@@ -118,6 +118,7 @@ extern "C" { int yyerror(const char *fmt, ...); }
 "object_rez"			{ count(); return(OBJECT_REZ); }
 "remote_data"			{ count(); return(REMOTE_DATA); }
 "http_response"			{ count(); return(HTTP_RESPONSE); }
+"http_request"			{ count(); return(HTTP_REQUEST); }
 "."						{ count(); return(PERIOD); }
 
 
@@ -221,16 +222,17 @@ extern "C" { int yyerror(const char *fmt, ...); }
 "INVENTORY_ALL"						{ count(); yylval.ival = LLAssetType::AT_NONE; return(INTEGER_CONSTANT); }
 "INVENTORY_NONE"					{ count(); yylval.ival = LLAssetType::AT_NONE; return(INTEGER_CONSTANT); }
 
-"CHANGED_INVENTORY"		{ count(); yylval.ival = 0x1; return(INTEGER_CONSTANT); }	
-"CHANGED_COLOR"			{ count(); yylval.ival = 0x2; return(INTEGER_CONSTANT); }	
-"CHANGED_SHAPE"			{ count(); yylval.ival = 0x4; return(INTEGER_CONSTANT); }	
-"CHANGED_SCALE"			{ count(); yylval.ival = 0x8; return(INTEGER_CONSTANT); }	
-"CHANGED_TEXTURE"		{ count(); yylval.ival = 0x10; return(INTEGER_CONSTANT); }	
-"CHANGED_LINK"			{ count(); yylval.ival = 0x20; return(INTEGER_CONSTANT); }	
-"CHANGED_ALLOWED_DROP"	{ count(); yylval.ival = 0x40; return(INTEGER_CONSTANT); }	
-"CHANGED_OWNER"			{ count(); yylval.ival = 0x80; return(INTEGER_CONSTANT); }	
-"CHANGED_REGION"		{ count(); yylval.ival = 0x100; return(INTEGER_CONSTANT); }	
-"CHANGED_TELEPORT"		{ count(); yylval.ival = 0x200; return(INTEGER_CONSTANT); }	
+"CHANGED_INVENTORY"		{ count(); yylval.ival = CHANGED_INVENTORY; return(INTEGER_CONSTANT); }	
+"CHANGED_COLOR"			{ count(); yylval.ival = CHANGED_COLOR; return(INTEGER_CONSTANT); }	
+"CHANGED_SHAPE"			{ count(); yylval.ival = CHANGED_SHAPE; return(INTEGER_CONSTANT); }	
+"CHANGED_SCALE"			{ count(); yylval.ival = CHANGED_SCALE; return(INTEGER_CONSTANT); }	
+"CHANGED_TEXTURE"		{ count(); yylval.ival = CHANGED_TEXTURE; return(INTEGER_CONSTANT); }	
+"CHANGED_LINK"			{ count(); yylval.ival = CHANGED_LINK; return(INTEGER_CONSTANT); }	
+"CHANGED_ALLOWED_DROP"	{ count(); yylval.ival = CHANGED_ALLOWED_DROP; return(INTEGER_CONSTANT); }	
+"CHANGED_OWNER"			{ count(); yylval.ival = CHANGED_OWNER; return(INTEGER_CONSTANT); }	
+"CHANGED_REGION"		{ count(); yylval.ival = CHANGED_REGION; return(INTEGER_CONSTANT); }	
+"CHANGED_TELEPORT"		{ count(); yylval.ival = CHANGED_TELEPORT; return(INTEGER_CONSTANT); }	
+"CHANGED_REGION_START"		{ count(); yylval.ival = CHANGED_REGION_START; return(INTEGER_CONSTANT); }	
 
 "OBJECT_UNKNOWN_DETAIL"	{ count(); yylval.ival = OBJECT_UNKNOWN_DETAIL; return(INTEGER_CONSTANT); }
 "OBJECT_NAME"			{ count(); yylval.ival = OBJECT_NAME; return(INTEGER_CONSTANT); }
@@ -252,6 +254,8 @@ extern "C" { int yyerror(const char *fmt, ...); }
 
 "NULL_KEY"				{ yylval.sval = new char[UUID_STR_LENGTH]; strcpy(yylval.sval, "00000000-0000-0000-0000-000000000000"); return(STRING_CONSTANT); }
 "EOF"					{ yylval.sval = new char[UUID_STR_LENGTH]; strcpy(yylval.sval, "\n\n\n"); return(STRING_CONSTANT); }
+"URL_REQUEST_GRANTED"	{ yylval.sval = new char[UUID_STR_LENGTH]; strcpy(yylval.sval, URL_REQUEST_GRANTED); return(STRING_CONSTANT); }
+"URL_REQUEST_DENIED"	{ yylval.sval = new char[UUID_STR_LENGTH]; strcpy(yylval.sval, URL_REQUEST_DENIED); return(STRING_CONSTANT); }
 
 "PI"					{ count(); yylval.fval = F_PI; return(FP_CONSTANT); }
 "TWO_PI"				{ count(); yylval.fval = F_TWO_PI; return(FP_CONSTANT); }

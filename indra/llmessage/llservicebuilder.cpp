@@ -86,6 +86,14 @@ void LLServiceBuilder::createServiceDefinition(
 	}
 }
 
+static
+bool starts_with(const std::string& text, const char* prefix)
+{
+	return text.substr(0, strlen(prefix)) == prefix;
+}
+
+// TODO: Build a real services.xml for windows development.
+//       and remove the base_url logic below.
 std::string LLServiceBuilder::buildServiceURI(const std::string& service_name)
 {
 	std::ostringstream service_url;
@@ -96,7 +104,19 @@ std::string LLServiceBuilder::buildServiceURI(const std::string& service_name)
 		LLApp* app = LLApp::instance();
 		if(app)
 		{
-			LLSD base_url = app->getOption("services-base-url");
+			// We define a base-url for some development configurations
+			// In production neither of these are defined and all services have full urls
+			LLSD base_url;
+
+			if (starts_with(service_name,"cap"))
+			{
+				base_url = app->getOption("cap-base-url");
+			}
+
+			if (base_url.asString().empty())
+			{
+				base_url = app->getOption("services-base-url");
+			}
 			service_url << base_url.asString();
 		}
 		service_url << mServiceMap[service_name];

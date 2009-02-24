@@ -36,8 +36,8 @@
 #include <boost/tokenizer.hpp>
 
 #include "llstl.h"
+#include "lliohttpserver.h" // for string constants
 
-static const std::string CONTEXT_REQUEST("request");
 static const std::string CONTEXT_WILDCARD("wildcard");
 
 /**
@@ -181,7 +181,8 @@ void  LLHTTPNode::options(ResponsePtr response, const LLSD& context) const
 	//llinfos << "options context: " << context << llendl;
 
 	// default implementation constructs an url to the documentation.
-	std::string host = context[CONTEXT_REQUEST]["headers"]["host"].asString();
+	std::string host(
+		context[CONTEXT_REQUEST][CONTEXT_HEADERS]["host"].asString());
 	if(host.empty())
 	{
 		response->status(400, "Bad Request -- need Host header");
@@ -473,6 +474,11 @@ LLSimpleResponse::~LLSimpleResponse()
 void LLSimpleResponse::result(const LLSD& result)
 {
 	status(200, "OK");
+}
+
+void LLSimpleResponse::extendedResult(S32 code, const std::string& body, const LLSD& headers)
+{
+	status(code,body);
 }
 
 void LLSimpleResponse::status(S32 code, const std::string& message)

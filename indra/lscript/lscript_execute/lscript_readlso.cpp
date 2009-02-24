@@ -625,6 +625,16 @@ void LLScriptLSOParse::printStates(LLFILE *fp)
 						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "\t\tstring %s\n", name);
 						break;
+					case LSTT_HTTP_REQUEST:	// LSTT_HTTP_REQUEST
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
+						fprintf(fp, "%s\n", name);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
+						fprintf(fp, "\t\tkey %s\n", name);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
+						fprintf(fp, "\t\tstring %s\n", name);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
+						fprintf(fp, "\t\tstring %s\n", name);
+						break;
 					default:
 						break;
 					}

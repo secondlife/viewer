@@ -10,6 +10,7 @@ include(LLMath)
 include(LLMessage)
 include(LLVFS)
 include(LLXML)
+include(LScript)
 include(Linking)
 
 include_directories(
@@ -20,6 +21,7 @@ include_directories(
     ${LLINVENTORY_INCLUDE_DIRS}
     ${LLVFS_INCLUDE_DIRS}
     ${LLXML_INCLUDE_DIRS}
+    ${LSCRIPT_INCLUDE_DIRS}
     )
 
 set(test_SOURCE_FILES
@@ -48,6 +50,7 @@ set(test_SOURCE_FILES
     llquaternion_tut.cpp
     llrandom_tut.cpp
     llsaleinfo_tut.cpp
+    llscriptresource_tut.cpp
     llsdmessagebuilder_tut.cpp
     llsdmessagereader_tut.cpp
     llsd_new_tut.cpp
@@ -58,6 +61,7 @@ set(test_SOURCE_FILES
     llstring_tut.cpp
     lltemplatemessagebuilder_tut.cpp
     lltiming_tut.cpp
+    lltranscode_tut.cpp
     lltut.cpp
     lluri_tut.cpp
     lluuidhashmap_tut.cpp
@@ -109,7 +113,9 @@ target_link_libraries(test
     ${LLMATH_LIBRARIES}
     ${LLVFS_LIBRARIES}
     ${LLXML_LIBRARIES}
+    ${LSCRIPT_LIBRARIES}
     ${LLCOMMON_LIBRARIES}
+    ${APRICONV_LIBRARIES}
     ${PTHREAD_LIBRARY}
     ${WINDOWS_LIBRARIES}
     ${DL_LIBRARY}

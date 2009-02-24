@@ -12,6 +12,9 @@ include_directories(
     )
 
 set(lscript_execute_SOURCE_FILES
+    llscriptresource.cpp
+    llscriptresourceconsumer.cpp
+    llscriptresourcepool.cpp
     lscript_execute.cpp
     lscript_heapruntime.cpp
     lscript_readlso.cpp
@@ -20,6 +23,9 @@ set(lscript_execute_SOURCE_FILES
 set(lscript_execute_HEADER_FILES
     CMakeLists.txt
 
+    ../llscriptresource.h
+    ../llscriptresourceconsumer.h
+    ../llscriptresourcepool.h
     ../lscript_execute.h
     ../lscript_rt_interface.h
     lscript_heapruntime.h

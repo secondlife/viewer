@@ -172,6 +172,7 @@ void LLFloaterTopObjects::handleReply(LLMessageSystem *msg, void** data)
 		std::string owner_buf;
 		F32 mono_score = 0.f;
 		bool have_extended_data = false;
+		S32 public_urls = 0;
 
 		msg->getU32Fast(_PREHASH_ReportData, _PREHASH_TaskLocalID, task_local_id, block);
 		msg->getUUIDFast(_PREHASH_ReportData, _PREHASH_TaskID, task_id, block);
@@ -186,6 +187,7 @@ void LLFloaterTopObjects::handleReply(LLMessageSystem *msg, void** data)
 			have_extended_data = true;
 			msg->getU32("DataExtended", "TimeStamp", time_stamp, block);
 			msg->getF32("DataExtended", "MonoScore", mono_score, block);
+			msg->getS32(_PREHASH_ReportData,"PublicURLs",public_urls,block);
 		}
 
 		LLSD element;
@@ -216,6 +218,10 @@ void LLFloaterTopObjects::handleReply(LLMessageSystem *msg, void** data)
 			element["columns"][5]["column"] = "mono_time";
 			element["columns"][5]["value"] = llformat("%0.3f", mono_score);
 			element["columns"][5]["font"] = "SANSSERIF";
+
+			element["columns"][6]["column"] = "URLs";
+			element["columns"][6]["value"] = llformat("%d", public_urls);
+			element["columns"][6]["font"] = "SANSSERIF";
 		}
 		
 		list->addElement(element);

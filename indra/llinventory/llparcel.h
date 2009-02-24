@@ -243,7 +243,7 @@ public:
 	void	setAllParcelFlags(U32 flags);
 	void	setParcelFlag(U32 flag, BOOL b);
 
-	void	setArea(S32 area, S32 sim_object_limit);
+	virtual void setArea(S32 area, S32 sim_object_limit);
 	void	setDiscountRate(F32 rate);
 
 	void	setAllowModify(BOOL b)	{ setParcelFlag(PF_CREATE_OBJECTS, b); }

@@ -92,6 +92,7 @@
 %token					LINK_MESSAGE
 %token					REMOTE_DATA
 %token					HTTP_RESPONSE
+%token					HTTP_REQUEST
 
 %token <sval>			IDENTIFIER
 %token <sval>			STATE_DEFAULT
@@ -195,6 +196,7 @@
 %type <event>			object_rez
 %type <event>			remote_data
 %type <event>			http_response
+%type <event>			http_request
 %type <event>			link_message
 %type <event>			timer
 %type <event>			chat
@@ -848,6 +850,11 @@ event
 		$$ = new LLScriptEventHandler(gLine, gColumn, $1, $2);
 		gAllocationManager->addAllocation($$);
 	}
+	| http_request compound_statement														
+	{  
+		$$ = new LLScriptEventHandler(gLine, gColumn, $1, $2);
+		gAllocationManager->addAllocation($$);
+	}
 	;
 	
 state_entry
@@ -1216,6 +1223,20 @@ http_response
 	}
 	;
 
+http_request
+	: HTTP_REQUEST '(' LLKEY IDENTIFIER ','  STRING IDENTIFIER ',' STRING IDENTIFIER ')'															
+	{  
+		LLScriptIdentifier	*id1 = new LLScriptIdentifier(gLine, gColumn, $4);	
+		gAllocationManager->addAllocation(id1);
+		LLScriptIdentifier	*id2 = new LLScriptIdentifier(gLine, gColumn, $7);	
+		gAllocationManager->addAllocation(id2);
+		LLScriptIdentifier	*id3 = new LLScriptIdentifier(gLine, gColumn, $10);	
+		gAllocationManager->addAllocation(id3);
+		$$ = new LLScriptHTTPRequestEvent(gLine, gColumn, id1, id2, id3);
+		gAllocationManager->addAllocation($$);
+	}
+	;
+	
 compound_statement
 	: '{' '}'																		
 	{  
