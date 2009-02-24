@@ -39,11 +39,11 @@
 		     name="role change actions" value="10" />
 	</action_set>
 	<action_set
-	     description="これらの能力には、グループの公開性や憲章、記章の変更といった、グループのアイデンティティを修正する権限が含まれます。"
+	     description="これらの能力には、グループの公開性や理念、記章の変更といった、グループのアイデンティティを修正する権限が含まれます。"
 	     name="Group Identity">
 		<action
-		     description="特権、記章、「Web上で公開」、およびグループ情報内で可視のメンバーを変更。"
-		     longdescription="特権、記章、「Web上で公開」、およびグループ情報内で可視のメンバーを変更します。 この操作には、一般タブを使用します。"
+		     description="理念、記章、「Web上で公開」、およびグループ情報内で公開のメンバーを変更。"
+		     longdescription="理念、記章、「Web上で公開」、およびグループ情報内で公開のメンバーを変更します。 この操作には、一般タブを使用します。"
 		     name="group change identity" value="11" />
 	</action_set>
 	<action_set

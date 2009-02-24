@@ -24,7 +24,7 @@
 			下にある役割を選択してください。  役割の名前、説明、メンバー・タイトルを修正することができます。
 		</text>
 		<text name="role_properties_not_modifiable">
-			以下の役割を選択し､役割のﾌﾟﾛﾊﾟﾃｨ､ﾒﾝﾊﾞｰ､および許可された能力を確
+			役割名を選択すると､説明、メンバー、能力を確認することができます。
 		</text>
 		<text name="role_actions_modifiable">
 			あなたは役割に能力を割り当てることもできます。
@@ -133,7 +133,7 @@ Ctrl キーを押しながらメンバー名をクリックすると
 		<text name="static5" tool_tip="現在選択されている役割で実行できる能力のリスト">
 			許可された能力
 		</text>
-		<check_box label="メンバーが可視状態" name="role_visible_in_list" tool_tip="この役割のメンバーをグループ外の人の一般タブに表示するかどうかを設定します。"/>
+		<check_box label="メンバーが公開状態" name="role_visible_in_list" tool_tip="この役割のメンバーをグループ外の人の一般タブに表示するかどうかを設定します。"/>
 		<scroll_list name="role_allowed_actions" tool_tip="許可された能力の詳細は「能力」タブをご覧ください。">
 			<column label="" name="icon"/>
 			<column label="" name="checkbox"/>

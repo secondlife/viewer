@@ -22,16 +22,16 @@
 		（待機中）
 	</text>
 	<text name="group_charter_label">
-		グループ憲章
+		グループ理念
 	</text>
 	<texture_picker label="グループ記章" name="insignia" tool_tip="写真をクリックして選択"/>
 	<text_editor name="charter">
-		グループ憲章
+		グループの理念、指針を記入してください
 	</text_editor>
 	<button label="参加する（L$0）" label_selected="参加する（L$0）" name="join_button"/>
 	<button label="詳細表示" label_selected="詳細表示" name="info_button"/>
 	<text name="text_owners_and_visible_members">
-		オーナーと可視メンバー
+		オーナーと公開メンバー
 	</text>
 	<text name="text_owners_are_shown_in_bold">
 		（オーナーは太字で表示されています）

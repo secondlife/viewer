@@ -507,7 +507,7 @@ void LLVOVolume::updateTextures()
 		if (mSculptTexture.notNull())
 		{
 			S32 lod = llmin(mLOD, 3);
-			F32 lodf = ((F32)(4-lod)/4.f); // 0 -> 1.0, 3 -> .25
+			F32 lodf = ((F32)(lod + 1.0f)/4.f); 
 			F32 tex_size = lodf * MAX_SCULPT_REZ;
 			mSculptTexture->addTextureStats(2.f * tex_size * tex_size);
 			mSculptTexture->setBoostLevel(llmax((S32)mSculptTexture->getBoostLevel(),
@@ -752,10 +752,10 @@ void LLVOVolume::sculpt()
 			// corrupted volume... don't update the sculpty
 			return;
 		}
-		else if (current_discard > max_discard)
+		else if (current_discard > MAX_DISCARD_LEVEL)
 		{
 			llwarns << "WARNING!!: Current discard of sculpty at " << current_discard 
-				<< " is more than than allowed max of " << max_discard << llendl;
+				<< " is more than than allowed max of " << MAX_DISCARD_LEVEL << llendl;
 			
 			// corrupted volume... don't update the sculpty			
 			return;
@@ -2006,10 +2006,10 @@ BOOL LLVOVolume::lineSegmentIntersect(const LLVector3& start, const LLVector3& e
 			if (face_hit >= 0 && mDrawable->getNumFaces() > face_hit)
 			{
 				LLFace* face = mDrawable->getFace(face_hit);
-				v_end = p;
-
+			
 				if (pick_transparent || !face->getTexture() || face->getTexture()->getMask(face->surfaceToTexture(tc, p, n)))
 				{
+					v_end = p;
 					if (face_hitp != NULL)
 					{
 						*face_hitp = face_hit;

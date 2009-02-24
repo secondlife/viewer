@@ -160,7 +160,7 @@ Allez dans le menu Monde &gt; À propos du terrain ou sélectionnez une autre pa
 				Facteur Bonus Objets : [BONUS]
 			</text>
 			<text length="1" name="Simulator primitive usage:" type="string">
-				Prims utilisés sur la parcelle :
+				Prims utilisées sur la parcelle :
 			</text>
 			<text name="objects_available" left="214" width="230">
 				[COUNT] sur [MAX] ([AVAILABLE] disponibles)
@@ -319,13 +319,13 @@ Allez dans le menu Monde &gt; À propos du terrain ou sélectionnez une autre pa
 			</text>
 			<combo_box name="landing type" tool_tip="Vous permet de paramétrer les téléportations sur votre terrain." left="140" width="140" bottom="-343">
 				<combo_item length="1" name="Blocked" type="string">
-					Bloquée
+					Bloqué
 				</combo_item>
 				<combo_item length="1" name="LandingPoint" type="string">
-					Lieu d&apos;arrivée défini
+					Lieu d&apos;arrivée fixe
 				</combo_item>
 				<combo_item length="1" name="Anywhere" type="string">
-					Lieu d&apos;arrivée indéfini
+					Lieu d&apos;arrivée libre
 				</combo_item>
 			</combo_box>
 			<string name="push_restrict_text">

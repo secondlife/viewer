@@ -5,7 +5,7 @@
 		<menu_item_call label="画像をアップロード（L$[COST]）..." name="Upload Image"/>
 		<menu_item_call label="サウンドをアップロード（L$[COST]）..." name="Upload Sound"/>
 		<menu_item_call label="アニメーションをアップロード（L$[COST]）..." name="Upload Animation"/>
-		<menu_item_call label="一括アップロード（L＄[COST]／ファイル）…" name="Bulk Upload"/>
+		<menu_item_call label="一括アップロード（L$[COST]／ファイル）…" name="Bulk Upload"/>
 		<menu_item_separator label="-----------" name="separator"/>
 		<menu_item_call label="ウィンドウを閉じる" name="Close Window"/>
 		<menu_item_call label="全てのウィンドウを閉じる" name="Close All Windows"/>
@@ -89,7 +89,7 @@
 		</menu>
 		<menu_item_check label="透明オブジェクトを強調表示" name="Highlight Transparent"/>
 		<menu_item_check label="ビーコン(標識)" name="beacons"/>
-		<menu_item_check label="パーティクルを隠す" name="Hide Particles"/>
+		<menu_item_check label="パーティクルを非表示" name="Hide Particles"/>
 		<menu_item_check label="HUD装着物を表示" name="Show HUD Attachments"/>
 		<menu_item_separator label="-----------" name="separator5"/>
 		<menu_item_call label="カメラ・ズームイン" name="Zoom In"/>
@@ -97,7 +97,7 @@
 		<menu_item_call label="カメラ・ズームアウト" name="Zoom Out"/>
 		<menu_item_separator label="-----------" name="separator6"/>
 		<menu_item_call label="[全画面表示]" name="Toggle Fullscreen"/>
-		<menu_item_call label="UIサイズをデフォルトに設定" name="Set UI Size to Default"/>
+		<menu_item_call label="UIサイズを標準設定に戻す" name="Set UI Size to Default"/>
 	</menu>
 	<menu label="世界" name="World">
 		<menu_item_call label="チャット" name="Chat"/>
@@ -149,20 +149,20 @@
 		<menu_item_check label="自分のオブジェクトのみ選択" name="Select Only My Objects"/>
 		<menu_item_check label="移動可能なオブジェクトのみ選択" name="Select Only Movable Objects"/>
 		<menu_item_check label="環境で選択" name="Select By Surrounding"/>
-		<menu_item_check label="非表示の選択を表示" name="Show Hidden Selection"/>
-		<menu_item_check label="ライト半径一覧を表示" name="Show Light Radius for Selection"/>
+		<menu_item_check label="隠れた位置の選択も表示" name="Show Hidden Selection"/>
+		<menu_item_check label="選択したものの光源範囲を表示" name="Show Light Radius for Selection"/>
 		<menu_item_check label="選択ビームを表示" name="Show Selection Beam"/>
 		<menu_item_separator label="-----------" name="separator2"/>
 		<menu_item_check label="グリッドにスナップ" name="Snap to Grid"/>
-		<menu_item_call label="オブジェクトXYをグリッドにスナップ" name="Snap Object XY to Grid"/>
+		<menu_item_call label="オブジェクトのXY移動をグリッドに合わせる" name="Snap Object XY to Grid"/>
 		<menu_item_call label="グリッド用に[選択]を使用" name="Use Selection for Grid"/>
 		<menu_item_call label="グリッドのオプション..." name="Grid Options..."/>
 		<menu_item_separator label="-----------" name="separator3"/>
-		<menu_item_check label="リンクされたパートを編集" name="Edit Linked Parts"/>
+		<menu_item_check label="リンクされた一部を編集" name="Edit Linked Parts"/>
 		<menu_item_call label="リンク" name="Link"/>
-		<menu_item_call label="リンクしない" name="Unlink"/>
+		<menu_item_call label="リンク解除" name="Unlink"/>
 		<menu_item_separator label="-----------" name="separator4"/>
-		<menu_item_call label="選択をフォーカス" name="Focus on Selection"/>
+		<menu_item_call label="選択対象に視点移動" name="Focus on Selection"/>
 		<menu_item_call label="選択範囲にズームイン" name="Zoom to Selection"/>
 		<menu_item_call label="オブジェクトを購入" name="Menu Object Take"/>
 		<menu_item_call label="コピーを取る" name="Take Copy"/>
@@ -170,13 +170,13 @@
 		<menu_item_call label="オブジェクトをオブジェクト・コンテンツに戻して保存" name="Save Object Back to Object Contents"/>
 		<menu_item_separator label="-----------" name="separator6"/>
 		<menu_item_call label="スクリプト警告／エラー・ウィンドウを表示" name="Show Script Warning/Error Window"/>
-		<menu label="選択したスクリプトを再コンパイル" name="Recompile Scripts in Selection">
-			<menu_item_call label="モノ" name="Mono"/>
+		<menu label="選択した（オブジェクトの中の）スクリプトを再コンパイル" name="Recompile Scripts in Selection">
+			<menu_item_call label="Mono" name="Mono"/>
 			<menu_item_call label="LSL" name="LSL"/>
 		</menu>
-		<menu_item_call label="選択したスクリプトをリセット" name="Reset Scripts in Selection"/>
-		<menu_item_call label="選択したスクリプトを起動する" name="Set Scripts to Running in Selection"/>
-		<menu_item_call label="選択したスクリプトを起動しない" name="Set Scripts to Not Running in Selection"/>
+		<menu_item_call label="選択した（オブジェクトの中の）スクリプトをリセット" name="Reset Scripts in Selection"/>
+		<menu_item_call label="選択した（オブジェクトの中の）スクリプトを起動する" name="Set Scripts to Running in Selection"/>
+		<menu_item_call label="選択した（オブジェクトの中の）スクリプトを停止する" name="Set Scripts to Not Running in Selection"/>
 	</menu>
 	<menu label="ヘルプ" name="Help">
 		<menu_item_call label="Second Life ヘルプ" name="Second Life Help"/>
@@ -187,7 +187,7 @@
 		<menu_item_call label="スクリプト・ポータル..." name="Scripting Portal..."/>
 		<menu_item_separator label="-----------" name="separator3"/>
 		<menu_item_call label="嫌がらせの報告..." name="Report Abuse..."/>
-		<menu_item_call label="ぶつかる、押す、および当たる..." name="Bumps, Pushes &amp;amp; Hits..."/>
+		<menu_item_call label="衝突の記録..." name="Bumps, Pushes &amp;amp; Hits..."/>
 		<menu_item_call label="ラグ メーター" name="Lag Meter"/>
 		<menu_item_separator label="-----------" name="separator7"/>
 		<menu label="バグの報告" name="Bug Reporting">
@@ -198,7 +198,7 @@
 			<menu_item_call label="セキュリティ問題..." name="Security Issues...">
 				<on_click name="SecurityIssues_url" userdata="WebLaunchSecurityIssues,http://wiki.secondlife.com/wiki/Security_issues/ja" />
 			</menu_item_call>
-			<menu_item_call label="QA Wiki..." name="QA Wiki..."/>
+			<menu_item_call label="品質保証関連Wiki..." name="QA Wiki..."/>
 			<menu_item_separator label="-----------" name="separator9"/>
 			<menu_item_call label="バグの報告..." name="Report Bug..."/>
 		</menu>

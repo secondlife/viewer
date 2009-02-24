@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="floater_bumps" title="ぶつかる、押す、および当たる">
+<floater name="floater_bumps" title="衝突の記録">
 	<text name="none_detected">
 		検出なし
 	</text>

@@ -10,7 +10,7 @@
 	</text>
 	<icon left="1113" name="square2"/>
 	<text name="auction_label">
-		Enchère
+		Terrain aux enchères
 	</text>
 	<icon left="973" name="self"/>
 	<text name="you_label">
@@ -67,7 +67,7 @@
 	<line_editor label="Rechercher par nom de région" name="location" tool_tip="Saisissez le nom d&apos;une région" width="155">
 		Recherche par nom de région
 	</line_editor>
-	<button label="Rechercher" label_selected="&gt;" left_delta="160" name="DoSearch" tool_tip="Rechercher dans la région" width="75"/>
+	<button label="Rechercher" label_selected="&gt;" left_delta="160" name="DoSearch" tool_tip="Recherchez sur la carte" width="75"/>
 	<text left="973" name="search_label">
 		Résultats de la recherche :
 	</text>

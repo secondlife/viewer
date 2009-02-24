@@ -79,9 +79,9 @@ unpacked it into - no installation step is required.
 
 Run ./secondlife from the installation directory to start Second Life.
 
-For in-world MOVIE PLAYBACK, you will need GStreamer 0.10 installed on your
-system.  This is optional - it is not required for general client
-functionality.  If you have GStreamer 0.10 installed, the selection of
+For in-world MOVIE and MUSIC PLAYBACK, you will need (32-bit) GStreamer 0.10
+installed on your system.  This is optional - it is not required for general
+client functionality.  If you have GStreamer 0.10 installed, the selection of
 in-world movies you can successfully play will depend on the GStreamer
 plugins you have; if you cannot play a certain in-world movie then you are
 probably missing the appropriate GStreamer plugin on your system - you may

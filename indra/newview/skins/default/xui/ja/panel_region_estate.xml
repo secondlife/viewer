@@ -20,7 +20,7 @@
 		次へのアクセスを制限：
 	</text>
 	<check_box label="支払い情報登録済みの住人" name="limit_payment"
-	     tool_tip="年齢未確認の住人を排除する" />
+	     tool_tip="支払い情報未登録の住人を排除する" />
 	<check_box label="年齢確認済みの成人" name="limit_age_verified"
 	     tool_tip="年齢確認を済ませていない住人を排除する詳細については、support.secondlife.comを参照してください。" />
 	<check_box label="ボイスチャットを許可" name="voice_chat_check" />

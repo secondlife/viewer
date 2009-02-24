@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="buy currency" title="Acheter des devises">
+<floater name="buy currency" title="Acheter des L$">
 	<text left="5" name="info_buying">
-		Achat de devises :
+		Achat de L$ :
 	</text>
 	<text left="5" name="info_cannot_buy" right="-5">
 		Impossible d&apos;acheter maintenant :
@@ -17,7 +17,7 @@
 		En train de contacter le Lindex...
 	</text>
 	<text name="buy_action_unknown" right="-5">
-		Acheter des L$ sur le marché des changes du LindeX
+		Acheter des L$ sur le marché du LindeX
 	</text>
 	<text name="buy_action">
 		[NAME] L$ [PRICE]

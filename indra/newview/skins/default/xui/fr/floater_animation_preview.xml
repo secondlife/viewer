@@ -138,7 +138,7 @@
 	</combo_box>
 	<spinner label_width="65" label="Transition &#10;début (s)" name="ease_in_time" tool_tip="Durée (en secondes) pendant laquelle l&apos;animation s&apos;intègre au mouvement."/>
 	<spinner label_width="65" left="160" width="125" label="Transition &#10;fin (s)" name="ease_out_time" tool_tip="Durée (en secondes) pendant laquelle l&apos;animation disparaît du mouvement."/>
-	<button label="" name="play_btn" tool_tip="Jouer/Pauser votre animation." bottom_delta="-48"/>
+	<button label="" name="play_btn" tool_tip="Jouer/Arrêter votre animation." bottom_delta="-48"/>
 	<button label="" name="stop_btn" tool_tip="Arrêter le playback"/>
 	<slider label="" name="playback_slider"/>
 	<text name="bad_animation_text">

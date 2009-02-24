@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <menu_bar name="Main Menu">
 	<menu label="Fichier" name="File">
 		<tearoff_menu label="~~~~~~~~~~~" name="~~~~~~~~~~~"/>
@@ -42,7 +42,7 @@
 			<menu_item_call label="Chaussettes" name="Socks"/>
 			<menu_item_call label="Veste" name="Jacket"/>
 			<menu_item_call label="Gants" name="Gloves"/>
-			<menu_item_call label="Tricot de peau" name="Menu Undershirt"/>
+			<menu_item_call label="Tricot" name="Menu Undershirt"/>
 			<menu_item_call label="Sous-vêtements" name="Menu Underpants"/>
 			<menu_item_call label="Jupe" name="Skirt"/>
 			<menu_item_call label="Tous les habits" name="All Clothes"/>
@@ -61,7 +61,7 @@
 		<tearoff_menu label="~~~~~~~~~~~" name="~~~~~~~~~~~"/>
 		<menu_item_call label="Vue subjective" name="Mouselook"/>
 		<menu_item_check label="Construire" name="Build"/>
-		<menu_item_check label="Vue avec le joystick" name="Joystick Flycam"/>
+		<menu_item_check label="Vue au joystick" name="Joystick Flycam"/>
 		<menu_item_call label="Réinitialiser l&apos;affichage" name="Reset View"/>
 		<menu_item_call label="Regarder le dernier intervenant" name="Look at Last Chatter" shortcut="alt|V"/>
 		<menu_item_separator label="-----------" name="separator"/>
@@ -82,15 +82,15 @@
 		<menu_item_check label="Propriétaires fonciers" name="Land Owners"/>
 		<menu_item_separator label="-----------" name="separator4"/>
 		<menu label="Infobulles" name="Hover Tips">
-			<menu_item_check label="Affichez les astuces" name="Show Tips"/>
+			<menu_item_check label="Affichez les infobulles" name="Show Tips"/>
 			<menu_item_separator label="-----------" name="separator"/>
-			<menu_item_check label="Astuces sur les terrains" name="Land Tips"/>
-			<menu_item_check label="Astuces sur tous les objets" name="Tips On All Objects"/>
+			<menu_item_check label="Infobulles des terrains" name="Land Tips"/>
+			<menu_item_check label="Infobulles de tous les objets" name="Tips On All Objects"/>
 		</menu>
 		<menu_item_check label="Voir les objets invisibles" name="Highlight Transparent"/>
 		<menu_item_check label="Balises" name="beacons"/>
 		<menu_item_check label="Masquer les particules" name="Hide Particles"/>
-		<menu_item_check label="Afficher les HUD" name="Show HUD Attachments"/>
+		<menu_item_check label="Afficher les éléments HUD" name="Show HUD Attachments"/>
 		<menu_item_separator label="-----------" name="separator5"/>
 		<menu_item_call label="Zoomer" name="Zoom In"/>
 		<menu_item_call label="Zoom par défaut" name="Zoom Default"/>
@@ -182,9 +182,9 @@
 		<menu_item_call label="Aide Second Life" name="Second Life Help"/>
 		<menu_item_call label="Didacticiel" name="Tutorial"/>
 		<menu_item_separator label="-----------" name="separator"/>
-		<menu_item_call label="Blog officiel des Lindens..." name="Official Linden Blog..."/>
+		<menu_item_call label="Blog officiel..." name="Official Linden Blog..."/>
 		<menu_item_separator label="-----------" name="separator2"/>
-		<menu_item_call label="Portail pour l&apos;écriture de scripts..." name="Scripting Portal..."/>
+		<menu_item_call label="Aide sur le LSL..." name="Scripting Portal..."/>
 		<menu_item_separator label="-----------" name="separator3"/>
 		<menu_item_call label="Signaler une infraction..." name="Report Abuse..."/>
 		<menu_item_call label="Collisions, coups et bousculades…" name="Bumps, Pushes &amp;amp; Hits..."/>

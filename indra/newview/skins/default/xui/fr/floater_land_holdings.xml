@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="land holdings floater" title="Mon terrain">
+<floater name="land holdings floater" title="Mes terrains">
 	<scroll_list name="parcel list">
 		<column label="Nom" name="name" />
 		<column label="Emplacement" name="location" />
@@ -7,9 +7,9 @@
 		<column label="" name="hidden" />
 	</scroll_list>
 	<button label="Téléporter" label_selected="Téléporter" name="Teleport"
-	     tool_tip="Téléporter au milieu de ce terrain." />
+	     tool_tip="Téléportez-vous au milieu de ce terrain." />
 	<button label="Voir sur la carte" label_selected="Voir sur la carte" name="Show on Map"
-	     tool_tip="Afficher ce terrain sur la carte du monde." />
+	     tool_tip="Affichez ce terrain sur la carte du monde." />
 	<text name="contrib_label">
 		Vos contributions :
 	</text>
@@ -18,7 +18,7 @@
 		<column label="Surface" name="area" />
 	</scroll_list>
 	<text name="allowed_label">
-		Surface de terrain autorisée avec votre compte actuel :
+		Surface de terrain autorisée avec votre compte :
 	</text>
 	<text name="allowed_text">
 		[AREA] m²

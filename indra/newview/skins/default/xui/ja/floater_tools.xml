@@ -582,11 +582,11 @@
 			</text>
 			<spinner label="水平（U）" name="TexOffsetU" />
 			<spinner label="垂直 (V)" name="TexOffsetV" />
-			<text name="textbox autofix">
+			<text name="textbox autofix" width="190">
 				メディア・テクスチャーを揃える
 （最初にロードすること）
 			</text>
-			<button label="揃える" label_selected="揃える" left="150" name="button align" />
+			<button label="揃える" label_selected="揃える" left="155" bottom="-361" name="button align" />
 		</panel>
 		<panel label="コンテンツ" name="Contents">
 			<button label="新しいスクリプト" label_selected="新しいスクリプト..."

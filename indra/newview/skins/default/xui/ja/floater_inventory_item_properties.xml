@@ -12,14 +12,14 @@
 	<text name="LabelCreatorName">
 		Nicole Linden
 	</text>
-	<button label="プロフィール..." label_selected="" name="BtnCreator" />
+	<button label="情報" label_selected="" name="BtnCreator" />
 	<text name="LabelOwnerTitle">
 		オーナー：
 	</text>
 	<text name="LabelOwnerName">
 		Thrax Linden
 	</text>
-	<button label="プロフィール..." label_selected="" name="BtnOwner" />
+	<button label="情報" label_selected="" name="BtnOwner" />
 	<text name="LabelAcquiredTitle">
 		入手日時：
 	</text>

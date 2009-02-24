@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater name="avatar_texture_debug" title="Textures de l&apos;avatar">
 	<text name="">
 		Baked Textures
@@ -20,7 +20,7 @@
 	<texture_picker label="Œil" name="eye_texture" />
 	<texture_picker label="Haut du corps" name="baked_upper_body" />
 	<texture_picker label="Tatouage haut du corps" name="upper_bodypaint" />
-	<texture_picker label="Tricot de peau" name="undershirt" />
+	<texture_picker label="Tricot" name="undershirt" />
 	<texture_picker label="Gants" name="gloves" />
 	<texture_picker label="Chemise" name="shirt" />
 	<texture_picker label="Veste (en haut)" name="upper_jacket" />

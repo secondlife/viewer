@@ -20,7 +20,7 @@
 		<menu_item_call label="Nouvelle veste" name="New Jacket"/>
 		<menu_item_call label="Nouvelle jupe" name="New Skirt"/>
 		<menu_item_call label="Nouveaux gants" name="New Gloves"/>
-		<menu_item_call label="Nouveau tricot de peau" name="New Undershirt"/>
+		<menu_item_call label="Nouveau tricot" name="New Undershirt"/>
 		<menu_item_call label="Nouveaux sous-vêtements" name="New Underpants"/>
 	</menu>
 	<menu name="New Body Parts">

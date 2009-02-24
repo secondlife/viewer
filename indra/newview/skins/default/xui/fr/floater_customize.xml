@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floater customize" title="Apparence" width="513">
 	<tab_container name="customize tab container" tab_min_width="115" width="511">
 		<panel label="Parties du corps"/>
@@ -348,8 +348,8 @@ et la porter.
 			<color_swatch label="Couleur/Teinte" name="Color/Tint" tool_tip="Cliquer pour ouvrir le sélecteur de couleurs" width="74"/>
 			<texture_picker label="Tissu" name="Fabric" tool_tip="Cliquez pour sélectionner une image" width="74"/>
 		</panel>
-		<panel label="Tricot de peau" name="Undershirt">
-			<button label="Créer un tricot de peau" label_selected="Créer un tricot" name="Create New"/>
+		<panel label="Tricot" name="Undershirt">
+			<button label="Créer un tricot" label_selected="Créer un tricot" name="Create New"/>
 			<button label="Enlever" label_selected="Enlever" left="12" name="Take Off" width="82"/>
 			<button label="Enregistrer" label_selected="Enregistrer" left="100" name="Save" width="82"/>
 			<button label="Enregistrer sous" label_selected="Enregistrer sous" left="188" name="Save As" width="105"/>

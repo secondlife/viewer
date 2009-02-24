@@ -63,7 +63,7 @@
 			</text>
 			<button label="土地を購入..." label_selected="土地を購入..." name="Buy Land..."/>
 			<button label="グループ用に購入..." label_selected="グループ用に購入..." name="Buy For Group..."/>
-			<button label="パスを購入..." label_selected="パスを購入..." name="Buy Pass..." tool_tip="パスはこの土地への一時的なアクセスを許可します。"/>
+			<button label="入場許可を購入..." label_selected="入場許可を購入..." name="Buy Pass..." tool_tip="この土地への一時的なアクセスを許可します。"/>
 			<button label="土地を放棄..." label_selected="土地を放棄..." name="Abandon Land..."/>
 			<button label="土地開拓..." label_selected="土地開拓..." name="Reclaim Land..."/>
 			<button label="Lindenセール..." label_selected="Lindenセール..." name="Linden Sale..." tool_tip="土地が所有されており、コンテンツが設定されている必要があります。オークションの対象になっていないことも必要条件です。"/>
@@ -211,7 +211,7 @@
 				[COUNT]
 			</text>
 			<text length="1" name="Autoreturn" type="string" width="500">
-				他の住人のオブジェクトの自動返却（分、オフの設定は0）
+				他の住人のオブジェクトの自動返却(分、0で自動返却なし)
 			</text>
 			<line_editor left_delta="5" name="clean other time" right="-80"/>
 			<text length="1" name="Object Owners:" type="string" width="150">
@@ -254,7 +254,7 @@
 			</text>
 			<check_box label="安全（ダメージなし）" name="check safe" tool_tip="チェックを入れるとこの土地でのダメージコンバットが無効になり、「安全」に設定されます。 チェックを外すとダメージコンバットが有効になります。"/>
 			<check_box label="プッシングを制限" name="PushRestrictCheck" tool_tip="スクリプトによるプッシングを制限します。 このオプションを選択することにより、あなたの土地での破壊的行動を妨げることができます。"/>
-			<check_box label="検索に表示＞（週L$30）以下の場所" name="ShowDirectoryCheck" tool_tip="検索結果で、この区画を人に見せる"/>
+			<check_box label="検索に表示＞（週L$30）以下の場所" name="ShowDirectoryCheck" tool_tip="検索結果でこの区画を表示させる"/>
 			<combo_box name="land category">
 				<combo_item name="AnyCategory">
 					全カテゴリー
@@ -311,11 +311,11 @@
 			<button label="設定" label_selected="設定" name="Set" tool_tip="訪問者の着地地点の設定を行います。この区画内に立って行ってください。"/>
 			<button label="クリア" label_selected="クリア" name="Clear" tool_tip="着地点をクリアしてください。"/>
 			<text length="1" name="Teleport Routing: " type="string">
-				テレポート・ルート:
+				テレポート制限：
 			</text>
 			<combo_box name="landing type" tool_tip="Teleport Routing -- select how to handle teleports onto your land.">
 				<combo_item length="1" name="Blocked" type="string">
-					ブロック済み
+					不可
 				</combo_item>
 				<combo_item length="1" name="LandingPoint" type="string">
 					着地点
@@ -399,13 +399,13 @@
 			<text name="Only Allow">
 				次の住人のアクセスをブロック：
 			</text>
-			<check_box label="Linden Labに支払い情報を登録していない住人" name="limit_payment" tool_tip="年齢未確認の住人を排除する"/>
+			<check_box label="Linden Labに支払い情報を登録していない住人" name="limit_payment" tool_tip="支払い情報未確認の住人を排除する"/>
 			<check_box label="年齢確認を済ませていない成人の住人" name="limit_age_verified" tool_tip="年齢確認を済ませていない住人を排除する詳細については、support.secondlife.comを参照してください。"/>
 			<string name="estate_override">
 				1つ以上のオプションが、不動産レベルで設定されています。
 			</string>
 			<check_box label="グループ・アクセスを許可：[GROUP]" name="GroupCheck" tool_tip="[一般]タブで、グループを選択してください。"/>
-			<check_box label="パスを販売：" name="PassCheck" tool_tip="この区画への一時的なアクセスを許可"/>
+			<check_box label="入場許可を販売：" name="PassCheck" tool_tip="この区画への一時的なアクセスを許可"/>
 			<combo_box name="pass_combo">
 				<combo_item name="Anyone">
 					誰でも
@@ -414,7 +414,7 @@
 					グループ
 				</combo_item>
 			</combo_box>
-			<spinner label="L$建て価格：" name="PriceSpin"/>
+			<spinner label="価格（L$）：" name="PriceSpin"/>
 			<spinner label="アクセス時間：" name="HoursSpin"/>
 			<text label="常に許可" name="AllowedText">
 				許可された住人
