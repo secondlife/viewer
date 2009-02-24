@@ -27,13 +27,6 @@
             <key>url</key>
             <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/GL-linux-20080812.tar.bz2</uri>
           </map>
-          <key>linux32</key>
-          <map>
-            <key>md5sum</key>
-            <string>301c05472d5d6f3303cfa1f9e4b78660</string>
-            <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/GL-linux-i686-gcc-4.1-20080915.tar.bz2</uri>
-          </map>
           <key>linux64</key>
           <map>
             <key>md5sum</key>
@@ -74,13 +67,6 @@
             <key>url</key>
             <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/SDL-1.2.5-linux-20080818.tar.bz2</uri>
           </map>
-          <key>linux32</key>
-          <map>
-            <key>md5sum</key>
-            <string>45e8fca9a6e7ae7d36b0c5a21dfbe3b9</string>
-            <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/SDL-1.2.5-linux-i686-gcc-4.1-20080915.tar.bz2</uri>
-          </map>
           <key>windows</key>
           <map>
             <key>md5sum</key>
@@ -109,13 +95,6 @@
             <string>7b84cd6a3c601a104d9c09e58ef2f50c</string>
             <key>url</key>
             <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/apr_suite-1.2.8-linux-20080812.tar.bz2</uri>
-          </map>
-          <key>linux32</key>
-          <map>
-            <key>md5sum</key>
-            <string>e97eb40a283165e3ddc7556f698b4e01</string>
-            <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/apr_suite-1.2.8-linux-i686-gcc-4.1-20080915.tar.bz2</uri>
           </map>
           <key>linux64</key>
           <map>
@@ -156,13 +135,6 @@
             <string>946c2e106f14f7a1e521d4a14e0e146f</string>
             <key>url</key>
             <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ares-1.4.0-linux-20081202.tar.bz2</uri>
-          </map>
-          <key>linux32</key>
-          <map>
-            <key>md5sum</key>
-            <string>247987b147e1c856d96e97d685e5b666</string>
-            <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ares-1.3.0-linux-i686-gcc-4.1-20080915.tar.bz2</uri>
           </map>
           <key>linux64</key>
           <map>
@@ -213,13 +185,6 @@
             <key>url</key>
             <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.32.0-linux-20080812.tar.bz2</uri>
           </map>
-          <key>linux32</key>
-          <map>
-            <key>md5sum</key>
-            <string>cdc0cb3e9bfb90517507a0df591f5c0b</string>
-            <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.34.0-linux-i686-gcc-4.1-20080915.tar.bz2</uri>
-          </map>
           <key>linux64</key>
           <map>
             <key>md5sum</key>
@@ -260,13 +225,6 @@
             <key>url</key>
             <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/curl-7.16.4-linux-20081202.tar.bz2</uri>
           </map>
-          <key>linux32</key>
-          <map>
-            <key>md5sum</key>
-            <string>3a8475b8990d17d8c9dc2a32980d2968</string>
-            <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/curl-7.16.4-linux-i686-gcc-4.1-20080915.tar.bz2</uri>
-          </map>
           <key>linux64</key>
           <map>
             <key>md5sum</key>
@@ -300,13 +258,6 @@
             <key>url</key>
             <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/dbusglib-linux-20080707.tar.bz2</uri>
           </map>
-          <key>linux32</key>
-          <map>
-            <key>md5sum</key>
-            <string>eb25444142d4102b0ce1b7ffaadb071e</string>
-            <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/dbusglib-linux-20080707.tar.bz2</uri>
-          </map>
         </map>
       </map>
       <key>elfio</key>
@@ -321,13 +272,6 @@
             <string>82ea408af2f968cfe5f013ab241323ef</string>
             <key>url</key>
             <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/elfio-1.0.3-linux-20080812.tar.bz2</uri>
-          </map>
-          <key>linux32</key>
-          <map>
-            <key>md5sum</key>
-            <string>3576f904306fba0edc659eaaa1a1159e</string>
-            <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/elfio-1.0.3-linux-i686-gcc-4.1-20080915.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -354,13 +298,6 @@
             <string>67b470fd446b08c9831d1039674eae4e</string>
             <key>url</key>
             <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/expat-1.95.8-linux-20080812.tar.bz2</uri>
-          </map>
-          <key>linux32</key>
-          <map>
-            <key>md5sum</key>
-            <string>af1f225afe6cd0c5d2e08ff578839794</string>
-            <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/expat-1.95.8-linux-i686-gcc-4.1-20080915.tar.bz2</uri>
           </map>
           <key>linux64</key>
           <map>
@@ -402,13 +339,6 @@
             <key>url</key>
             <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/fmod-3.75-linux-20080818.tar.bz2</uri>
           </map>
-          <key>linux32</key>
-          <map>
-            <key>md5sum</key>
-            <string>96eea0855dffefcbbd98e9e629b81275</string>
-            <key>url</key>
-            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/fmod-3.75-linux-i686-gcc-4.1-20080915.tar.bz2</uri>
-          </map>
           <key>windows</key>
           <map>
             <key>md5sum</key>
@@ -430,13 +360,6 @@
             <string>9af6a1ed39fa540bfcaa402b0ea22f78</string>
             <key>url</key>
             <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/fontconfig-2.2.3-linux-20080613.tar.bz2</uri>
-          </map>
-          <key>linux32</key>
-          <map>
-            <key>md5sum</key>
-            <string>53b09eee725de92b715b898388e06115</string>
-            <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/fontconfig-2.2.3-linux-i686-gcc-4.1-20080915.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -463,13 +386,6 @@
             <string>eeffb03bd6672b6e7751448e5306d874</string>
             <key>url</key>
             <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/freetype-2.1.5-linux-20081201.tar.bz2</uri>
-          </map>
-          <key>linux32</key>
-          <map>
-            <key>md5sum</key>
-            <string>c22a667d4b6b518cc7f942e2c861ca77</string>
-            <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/freetype-2.1.5-linux-i686-gcc-4.1-20080915.tar.bz2</uri>
           </map>
           <key>linux64</key>
           <map>
@@ -510,13 +426,6 @@
             <string>23bd9a75e5a2365a827461e6c324f52b</string>
             <key>url</key>
             <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/glh_linear-linux-20080812.tar.bz2</uri>
-          </map>
-          <key>linux32</key>
-          <map>
-            <key>md5sum</key>
-            <string>865d10ce141cdc7e07334486441d3e30</string>
-            <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/glh_linear-linux-i686-gcc-4.1-20080915.tar.bz2</uri>
           </map>
           <key>linux64</key>
           <map>
@@ -593,13 +502,6 @@
             <key>url</key>
             <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/gstreamer-linux-20080613.tar.bz2</uri>
           </map>
-          <key>linux32</key>
-          <map>
-            <key>md5sum</key>
-            <string>45eaa378465831e114a7406aa4d2ef35</string>
-            <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/gstreamer-linux-i686-gcc-4.1-20080915.tar.bz2</uri>
-          </map>
           <key>linux64</key>
           <map>
             <key>md5sum</key>
@@ -620,13 +522,6 @@
         <key>packages</key>
         <map>
           <key>linux</key>
-          <map>
-            <key>md5sum</key>
-            <string>21c16a74f8fc9a62e3ab944a6eb7403d</string>
-            <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/gtk-atk-pango-glib-linux-20080616.tar.bz</uri>
-          </map>
-          <key>linux32</key>
           <map>
             <key>md5sum</key>
             <string>21c16a74f8fc9a62e3ab944a6eb7403d</string>
@@ -665,13 +560,6 @@
             <string>af7b1fc9072443009f19e43fb3c8342f</string>
             <key>url</key>
             <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/havok-4.6.1-linux-20081029.tar.bz2</uri>
-          </map>
-          <key>linux32</key>
-          <map>
-            <key>md5sum</key>
-            <string>ca909a0a48c3dcc61656f1635fc3e3b4</string>
-            <key>url</key>
-            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/havok-4.6.1-linux-i686-gcc-4.1-20081030.tar.bz2</uri>
           </map>
           <key>linux64</key>
           <map>
@@ -713,13 +601,6 @@
             <key>url</key>
             <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/jpeglib-6b-linux-20081218.tar.bz2</uri>
           </map>
-          <key>linux32</key>
-          <map>
-            <key>md5sum</key>
-            <string>3896cfbf5e44450532101f9ab833be61</string>
-            <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/jpeglib-6b-linux-i686-gcc-4.1-20080915.tar.bz2</uri>
-          </map>
           <key>linux64</key>
           <map>
             <key>md5sum</key>
@@ -759,13 +640,6 @@
             <string>a6d2f0995c25d7f53bd12b8ec0d6b462</string>
             <key>url</key>
             <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/kdu-4.2.1-linux-20080930.tar.bz2</uri>
-          </map>
-          <key>linux32</key>
-          <map>
-            <key>md5sum</key>
-            <string>0f4f1eb22ea6a4d242614d146fd176a1</string>
-            <key>url</key>
-            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/kdu-4.2.1-linux32-20080926.tar.bz2</uri>
           </map>
           <key>linux64</key>
           <map>
@@ -807,13 +681,6 @@
             <key>url</key>
             <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/kdu-binaries-5.2.1-linux-20080617.tar.bz2</uri>
           </map>
-          <key>linux32</key>
-          <map>
-            <key>md5sum</key>
-            <string>ca87644e377a6cf16db4ba6dbd2f8689</string>
-            <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/kdu-binaries-5.2.1-linux-20080617.tar.bz2</uri>
-          </map>
           <key>windows</key>
           <map>
             <key>md5sum</key>
@@ -847,13 +714,6 @@ anguage Infrstructure (CLI) international standard</string>
             <string>9bc0f8b7d5e0ff194b6d5635daf9ae3a</string>
             <key>url</key>
             <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/libmono-1.2.6-linux-20080816a.tar.bz2</uri>
-          </map>
-          <key>linux32</key>
-          <map>
-            <key>md5sum</key>
-            <string>8b5810b9b40e8ce4243487fe33b62f56</string>
-            <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/libmono-1.2.6-linux32-20080926.tar.bz2</uri>
           </map>
           <key>linux64</key>
           <map>
@@ -895,13 +755,6 @@ anguage Infrstructure (CLI) international standard</string>
             <key>url</key>
             <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/libpng-1.2.33-linux-20081201.tar.bz2</uri>
           </map>
-          <key>linux32</key>
-          <map>
-            <key>md5sum</key>
-            <string>3c631ee1a4556c3a28b5490a53d86603</string>
-            <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/libpng-1.2.15-linux-i686-gcc-4.1-20080915.tar.bz2</uri>
-          </map>
           <key>linux64</key>
           <map>
             <key>md5sum</key>
@@ -935,13 +788,6 @@ anguage Infrstructure (CLI) international standard</string>
             <key>url</key>
             <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/libuuid-linux-20080812.tar.bz2</uri>
           </map>
-          <key>linux32</key>
-          <map>
-            <key>md5sum</key>
-            <string>cdc0778d924c6162c1f553274b72ba15</string>
-            <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/libuuid-linux-i686-gcc-4.1-20080915.tar.bz2</uri>
-          </map>
         </map>
       </map>
       <key>libxml</key>
@@ -956,13 +802,6 @@ anguage Infrstructure (CLI) international standard</string>
             <string>4b5d2dcfe8a49b73fb69f10aab441092</string>
             <key>url</key>
             <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/libxml-2.6.24-linux-20080613.tar.bz2</uri>
-          </map>
-          <key>linux32</key>
-          <map>
-            <key>md5sum</key>
-            <string>0e16b7794811407c387d360282c5d7b3</string>
-            <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/libxml-2.6.24-linux-i686-gcc-4.1-20080915.tar.bz2</uri>
           </map>
           <key>linux64</key>
           <map>
@@ -992,13 +831,6 @@ anguage Infrstructure (CLI) international standard</string>
             <string>6866c147730c83b7858765355df75047</string>
             <key>url</key>
             <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llmozlib-linux-20081218prfhk.tar.bz2</uri>
-          </map>
-          <key>linux32</key>
-          <map>
-            <key>md5sum</key>
-            <string>0af042c01975df3b127b742f4aad0c5c</string>
-            <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llmozlib-linux-i686-gcc-4.1-20080915.tar.bz2</uri>
           </map>
           <key>linux64</key>
           <map>
@@ -1032,13 +864,6 @@ anguage Infrstructure (CLI) international standard</string>
             <string>70d0bbe1145fff29a0131349c898260e</string>
             <key>url</key>
             <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/mesa-7.0-linux-20080812.tar.bz2</uri>
-          </map>
-          <key>linux32</key>
-          <map>
-            <key>md5sum</key>
-            <string>854f3dae9e048305a0fe77eaee0195d6</string>
-            <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/mesa-6.2.1-linux-i686-gcc-4.1-20080915.tar.bz2</uri>
           </map>
           <key>linux64</key>
           <map>
@@ -1102,13 +927,6 @@ anguage Infrstructure (CLI) international standard</string>
             <key>url</key>
             <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ndofdev-linux-0.2-20080828.tar.bz2</uri>
           </map>
-          <key>linux32</key>
-          <map>
-            <key>md5sum</key>
-            <string>c980300c14dddf47ba0c46608b29a027</string>
-            <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ndofdev-linux-i686-gcc-4.1-20080915.tar.bz2</uri>
-          </map>
           <key>windows</key>
           <map>
             <key>md5sum</key>
@@ -1141,13 +959,6 @@ anguage Infrstructure (CLI) international standard</string>
             <string>6dc0536329a0aadf76e3054ffd4da61c</string>
             <key>url</key>
             <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ogg-vorbis-1.2.0-linux-20081201.tar.bz2</uri>
-          </map>
-          <key>linux32</key>
-          <map>
-            <key>md5sum</key>
-            <string>df1809565b87b1dc28e3ca70db6e7d46</string>
-            <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ogg-vorbis-1.03-1.1.2-linux-20080812.tar.bz2</uri>
           </map>
           <key>linux64</key>
           <map>
@@ -1184,13 +995,6 @@ anguage Infrstructure (CLI) international standard</string>
             <string>f219ef07b02e2abb9282345c3a8f2b39</string>
             <key>url</key>
             <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/openSSL-0.9.7c-linux-20080812.tar.bz2</uri>
-          </map>
-          <key>linux32</key>
-          <map>
-            <key>md5sum</key>
-            <string>1037114c5b7ad906daca2b4820080b5b</string>
-            <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/openSSL-0.9.8g-linux-i686-gcc-4.1-20080915.tar.bz2</uri>
           </map>
           <key>linux64</key>
           <map>
@@ -1272,13 +1076,6 @@ anguage Infrstructure (CLI) international standard</string>
             <key>url</key>
             <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/openjpeg-1.3-linux-20081124b.tar.bz2</uri>
           </map>
-          <key>linux32</key>
-          <map>
-            <key>md5sum</key>
-            <string>dc1f50c6570cef2d45d40ccc7ac76013</string>
-            <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/openjpeg-1.2.0-linux-i686-gcc-4.1-20080919.tar.bz2</uri>
-          </map>
           <key>linux64</key>
           <map>
             <key>md5sum</key>
@@ -1332,13 +1129,6 @@ anguage Infrstructure (CLI) international standard</string>
             <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/smartheap-6.0.2-darwin-20080610.tar.bz2</uri>
           </map>
           <key>linux</key>
-          <map>
-            <key>md5sum</key>
-            <string>499208522bf7d7843e1d014d64214e06</string>
-            <key>url</key>
-            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/smartheap-6.0.2-linux-20080610.tar.bz2</uri>
-          </map>
-          <key>linux32</key>
           <map>
             <key>md5sum</key>
             <string>499208522bf7d7843e1d014d64214e06</string>
@@ -1414,13 +1204,6 @@ anguage Infrstructure (CLI) international standard</string>
             <key>url</key>
             <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/vivox-linux-20080613.tar.bz2</uri>
           </map>
-          <key>linux32</key>
-          <map>
-            <key>md5sum</key>
-            <string>7d6e9727edba3556015edf492d35e394</string>
-            <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/vivox-linux-i686-gcc-4.1-20080915.tar.bz2</uri>
-          </map>
           <key>windows</key>
           <map>
             <key>md5sum</key>
@@ -1453,13 +1236,6 @@ anguage Infrstructure (CLI) international standard</string>
             <string>84a219199240ea70f54439c02acef0cd</string>
             <key>url</key>
             <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/xmlrpc-epi-0.51-linux-20080812.tar.bz2</uri>
-          </map>
-          <key>linux32</key>
-          <map>
-            <key>md5sum</key>
-            <string>06ad9cbb166b89dcc0c62fd987cc34ce</string>
-            <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/xmlrpc-epi-0.51-linux-i686-gcc-4.1-20080915.tar.bz2</uri>
           </map>
           <key>linux64</key>
           <map>
@@ -1500,13 +1276,6 @@ anguage Infrstructure (CLI) international standard</string>
             <string>806637b1834825ab8888d5e487085df8</string>
             <key>url</key>
             <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/zlib-1.1.4-linux-20080818.tar.bz2</uri>
-          </map>
-          <key>linux32</key>
-          <map>
-            <key>md5sum</key>
-            <string>cb800ce00f9a5bdeff3371f14481fa38</string>
-            <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/zlib-1.2.3-linux-i686-gcc-4.1-20080915.tar.bz2</uri>
           </map>
           <key>linux64</key>
           <map>
