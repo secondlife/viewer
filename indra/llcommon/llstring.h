@@ -49,6 +49,8 @@ const char LL_UNKNOWN_CHAR = '?';
 
 #if LL_DARWIN || LL_LINUX || LL_SOLARIS
 // Template specialization of char_traits for U16s. Only necessary on Mac and Linux (exists on Windows already)
+#include <cstring>
+
 namespace std
 {
 template<>
