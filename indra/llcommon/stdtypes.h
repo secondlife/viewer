@@ -33,6 +33,7 @@
 #define LL_STDTYPES_H
 
 #include <cfloat>
+#include <climits>
 
 typedef signed char			S8;
 typedef unsigned char			U8;
