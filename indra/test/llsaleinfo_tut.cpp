@@ -54,7 +54,7 @@ namespace tut
 
 		S32 sale_price = 10000;
 		LLSaleInfo llsaleinfo(LLSaleInfo::FS_COPY, sale_price);
-		char* sale= "copy";
+		const char* sale= "copy";
 
 		LLSD llsd_obj1 = ll_create_sd_from_sale_info(llsaleinfo);
 		LLSaleInfo saleinfo1 = ll_sale_info_from_sd(llsd_obj1);
