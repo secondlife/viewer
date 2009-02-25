@@ -114,7 +114,8 @@ if (LINUX)
   # widespread of them.
 
   if (${CXX_VERSION} MATCHES "4.3")
-    add_definitions(-Wno-deprecated -Wno-parentheses)
+    add_definitions(-Wno-parentheses)
+    set(CMAKE_CXX_FLAGS "-Wno-deprecated ${CMAKE_CXX_FLAGS}")
   endif (${CXX_VERSION} MATCHES "4.3")
 
   # End of hacks.
