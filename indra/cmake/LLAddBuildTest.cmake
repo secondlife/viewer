@@ -69,8 +69,13 @@ MACRO(ADD_SIMULATOR_BUILD_TEST name parent)
 ENDMACRO(ADD_SIMULATOR_BUILD_TEST name parent)
 
 MACRO(ADD_BUILD_TEST_INTERNAL name parent libraries source_files)
-        
-    ADD_EXECUTABLE(${name}_test ${source_files})
+    SET(TEST_SOURCE_FILES ${source_files})
+    SET(HEADER "${name}.h")
+    set_source_files_properties(${HEADER}
+                            PROPERTIES HEADER_FILE_ONLY TRUE)
+    LIST(APPEND TEST_SOURCE_FILES ${HEADER})
+    INCLUDE_DIRECTORIES("${LIBS_OPEN_DIR}/test")
+    ADD_EXECUTABLE(${name}_test ${TEST_SOURCE_FILES})
     TARGET_LINK_LIBRARIES(${name}_test
         ${libraries}
         )
@@ -80,7 +85,7 @@ MACRO(ADD_BUILD_TEST_INTERNAL name parent libraries source_files)
     ADD_CUSTOM_COMMAND(
         OUTPUT ${TEST_OUTPUT}
         COMMAND ${TEST_EXE}
-        ARGS --touch=${TEST_OUTPUT}
+        ARGS --touch=${TEST_OUTPUT} --sourcedir=${CMAKE_CURRENT_SOURCE_DIR}
         DEPENDS ${name}_test
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
         )

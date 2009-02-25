@@ -51,7 +51,6 @@
 #endif
 
 // linden library includes
-#include "network.h"
 #include "llerror.h"
 #include "llhost.h"
 #include "lltimer.h"
@@ -395,11 +394,30 @@ S32 start_net(S32& socket_out, int& nPort)
 		return 1;
 	}
 
-	// Don't bind() if we want the operating system to assign our ports for 
-	// us.
 	if (NET_USE_OS_ASSIGNED_PORT == nPort)
 	{
-		// Do nothing; the operating system will do it for us.
+		// Although bind is not required it will tell us which port we were
+		// assigned to.
+		stLclAddr.sin_family      = AF_INET;
+		stLclAddr.sin_addr.s_addr = htonl(INADDR_ANY);
+		stLclAddr.sin_port        = htons(0);
+		llinfos << "attempting to connect on OS assigned port" << llendl;
+		nRet = bind(hSocket, (struct sockaddr*) &stLclAddr, sizeof(stLclAddr));
+		if (nRet < 0)
+		{
+			llwarns << "Failed to bind on an OS assigned port error: "
+					<< nRet << llendl;
+		}
+		else
+		{
+			sockaddr_in socket_info;
+			socklen_t len = sizeof(sockaddr_in);
+			int err = getsockname(hSocket, (sockaddr*)&socket_info, &len);
+			llinfos << "Get socket returned: " << err << " length " << len << llendl;
+			nPort = ntohs(socket_info.sin_port);
+			llinfos << "Assigned port: " << nPort << llendl;
+			
+		}
 	}
 	else
 	{

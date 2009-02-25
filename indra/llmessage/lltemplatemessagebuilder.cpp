@@ -41,7 +41,7 @@
 #include "v3math.h"
 #include "v4math.h"
 
-LLTemplateMessageBuilder::LLTemplateMessageBuilder(message_template_name_map_t& name_template_map) :
+LLTemplateMessageBuilder::LLTemplateMessageBuilder(const message_template_name_map_t& name_template_map) :
 	mCurrentSMessageData(NULL),
 	mCurrentSMessageTemplate(NULL),
 	mCurrentSDataBlock(NULL),
@@ -75,14 +75,14 @@ void LLTemplateMessageBuilder::newMessage(const char *name)
 	char* namep = (char*)name; 
 	if (mMessageTemplates.count(namep) > 0)
 	{
-		mCurrentSMessageTemplate = mMessageTemplates[namep];
+		mCurrentSMessageTemplate = mMessageTemplates.find(name)->second;
 		mCurrentSMessageData = new LLMsgData(namep);
 		mCurrentSMessageName = namep;
 		mCurrentSDataBlock = NULL;
 		mCurrentSBlockName = NULL;
 
 		// add at one of each block
-		const LLMessageTemplate* msg_template = mMessageTemplates[namep];
+		const LLMessageTemplate* msg_template = mMessageTemplates.find(name)->second;
 
 		if (msg_template->getDeprecation() != MD_NOTDEPRECATED)
 		{

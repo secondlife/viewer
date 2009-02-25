@@ -243,6 +243,24 @@
 					<key>trusted-sender</key>
 					<boolean>false</boolean>
 				</map>
+
+				<!-- Simulator to simulator reliable messages -->
+				<key>GodKickUser</key>
+				<map>
+					<key>flavor</key>
+					<string>llsd</string>
+					<key>trusted-sender</key>
+					<boolean>false</boolean>
+				</map>
+
+				<key>RoutedMoneyBalanceReply</key>
+				<map>
+				<key>flavor</key>
+				<string>llsd</string>
+				<key>trusted-sender</key>
+				<boolean>false</boolean>
+				</map>
+
 				<!-- Simulator to simulator unreliable messages -->
 				<key>EdgeDataPacket</key>
 				<map>
@@ -505,6 +523,23 @@
 					<key>trusted-sender</key>
 					<boolean>false</boolean>
 				</map>
+
+				<key>EstateOwnerMessage</key>
+				<map>
+					<key>flavor</key>
+					<string>llsd</string>
+					<key>trusted-sender</key>
+					<boolean>false</boolean>
+				</map>
+
+				<key>RpcScriptRequestInboundForward</key>
+				<map>
+					<key>flavor</key>
+					<string>llsd</string>
+					<key>trusted-sender</key>
+					<boolean>false</boolean>
+				</map>
+
 
 		  </map>
   	  	<key>capBans</key>

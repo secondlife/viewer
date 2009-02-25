@@ -8717,7 +8717,7 @@ version 2.0
 
 // spaceserver -> simulator
 {
-	RpcScriptRequestInboundForward Low 416 Trusted Unencoded
+	RpcScriptRequestInboundForward Low 416 Trusted Unencoded UDPDeprecated
 	{
 		DataBlock Single
 		{	RPCServerIP	IPADDR }

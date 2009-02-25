@@ -35,13 +35,13 @@
 #ifndef LL_LLTUT_H
 #define LL_LLTUT_H
 
-#include <tut/tut.hpp>
-
-#include "lldate.h"
-#include "lluri.h"
 #include "llmath.h"
 
+#include <tut/tut.hpp>
+
+class LLDate;
 class LLSD;
+class LLURI;
 
 namespace tut
 {

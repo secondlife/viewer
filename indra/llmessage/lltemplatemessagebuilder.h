@@ -49,7 +49,7 @@ public:
 	
 	typedef std::map<const char* , LLMessageTemplate*> message_template_name_map_t;
 
-	LLTemplateMessageBuilder(message_template_name_map_t&);
+	LLTemplateMessageBuilder(const message_template_name_map_t&);
 	virtual ~LLTemplateMessageBuilder();
 
 	virtual void newMessage(const char* name);
@@ -99,6 +99,7 @@ public:
 	virtual void copyFromMessageData(const LLMsgData& data);
 	virtual void copyFromLLSD(const LLSD&);
 
+	LLMsgData* getCurrentMessage() const { return mCurrentSMessageData; }
 private:
 	void addData(const char* varname, const void* data, 
 					 EMsgVariableType type, S32 size);
@@ -114,7 +115,7 @@ private:
 	BOOL mbSBuilt;
 	BOOL mbSClear;
 	S32	 mCurrentSendTotal;
-	message_template_name_map_t& mMessageTemplates;
+	const message_template_name_map_t& mMessageTemplates;
 };
 
 #endif // LL_LLTEMPLATEMESSAGEBUILDER_H

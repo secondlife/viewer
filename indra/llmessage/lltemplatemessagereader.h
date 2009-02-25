@@ -105,7 +105,7 @@ public:
 	virtual void copyToBuilder(LLMessageBuilder&) const;
 
 	BOOL validateMessage(const U8* buffer, S32 buffer_size, 
-						 const LLHost& sender);
+						 const LLHost& sender, bool trusted = false);
 	BOOL readMessage(const U8* buffer, const LLHost& sender);
 
 	bool isTrusted() const;

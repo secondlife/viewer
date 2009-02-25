@@ -755,18 +755,38 @@ BOOL LLTemplateMessageReader::decodeData(const U8* buffer, const LLHost& sender 
 
 BOOL LLTemplateMessageReader::validateMessage(const U8* buffer, 
 											  S32 buffer_size, 
-											  const LLHost& sender)
+											  const LLHost& sender,
+											  bool trusted)
 {
 	mReceiveSize = buffer_size;
-	BOOL result = decodeTemplate(buffer, buffer_size, &mCurrentRMessageTemplate );
-	if(result)
+	BOOL valid = decodeTemplate(buffer, buffer_size, &mCurrentRMessageTemplate );
+	if(valid)
 	{
 		mCurrentRMessageTemplate->mReceiveCount++;
-		//lldebugs << "MessageRecvd:" 
+		//lldebugs << "MessageRecvd:"
 		//						 << mCurrentRMessageTemplate->mName 
 		//						 << " from " << sender << llendl;
 	}
-	return result;
+
+	if (valid && isBanned(trusted))
+	{
+		LL_WARNS("Messaging") << "LLMessageSystem::checkMessages "
+			<< "received banned message "
+			<< getMessageName()
+			<< " from "
+			<< ((trusted) ? "trusted " : "untrusted ")
+			<< sender << llendl;
+		valid = FALSE;
+	}
+
+	if(valid && isUdpBanned())
+	{
+		llwarns << "Received UDP black listed message "
+				<<  getMessageName()
+				<< " from " << sender << llendl;
+		valid = FALSE;
+	}
+	return valid;
 }
 
 BOOL LLTemplateMessageReader::readMessage(const U8* buffer, 

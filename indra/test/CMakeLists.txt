@@ -60,6 +60,7 @@ set(test_SOURCE_FILES
     llstreamtools_tut.cpp
     llstring_tut.cpp
     lltemplatemessagebuilder_tut.cpp
+    lltimestampcache_tut.cpp
     lltiming_tut.cpp
     lltranscode_tut.cpp
     lltut.cpp

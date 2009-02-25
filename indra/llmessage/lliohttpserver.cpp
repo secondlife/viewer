@@ -844,6 +844,7 @@ LLIOPipe::EStatus LLHTTPResponder::process_impl(
 				= node->getProtocolHandler();
 			if (protocolHandler)
 			{
+				lldebugs << "HTTP context: " << context << llendl;
 				protocolHandler->build(chain, context);
 			}
 			else

@@ -235,6 +235,7 @@ LLSD LLHTTPAssetRequest::getFullDetails() const
 
 void LLHTTPAssetRequest::setupCurlHandle()
 {
+	// *NOTE: Similar code exists in mapserver/llcurlutil.cpp  JC
 	mCurlHandle = curl_easy_init();
 	curl_easy_setopt(mCurlHandle, CURLOPT_NOSIGNAL, 1);
 	curl_easy_setopt(mCurlHandle, CURLOPT_NOPROGRESS, 1);

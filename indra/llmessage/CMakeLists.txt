@@ -7,6 +7,7 @@ include(LLCommon)
 include(LLMath)
 include(LLMessage)
 include(LLVFS)
+include(LLAddBuildTest)
 
 include_directories (${CMAKE_CURRENT_SOURCE_DIR})
 
@@ -34,6 +35,7 @@ set(llmessage_SOURCE_FILES
     llhost.cpp
     llhttpassetstorage.cpp
     llhttpclient.cpp
+    llhttpclientadapter.cpp
     llhttpnode.cpp
     llhttpsender.cpp
     llinstantmessage.cpp
@@ -57,6 +59,7 @@ set(llmessage_SOURCE_FILES
     llpacketring.cpp
     llpartdata.cpp
     llpumpio.cpp
+    llregionpresenceverifier.cpp
     llsdappservices.cpp
     llsdhttpserver.cpp
     llsdmessagebuilder.cpp
@@ -65,7 +68,9 @@ set(llmessage_SOURCE_FILES
     llsdrpcserver.cpp
     llservicebuilder.cpp
     llservice.cpp
+    llstoredmessage.cpp
     lltemplatemessagebuilder.cpp
+    lltemplatemessagedispatcher.cpp
     lltemplatemessagereader.cpp
     llthrottle.cpp
     lltransfermanager.cpp
@@ -73,6 +78,7 @@ set(llmessage_SOURCE_FILES
     lltransfersourcefile.cpp
     lltransfertargetfile.cpp
     lltransfertargetvfile.cpp
+    lltrustedmessageservice.cpp
     llurlrequest.cpp
     lluseroperation.cpp
     llxfer.cpp
@@ -85,7 +91,6 @@ set(llmessage_SOURCE_FILES
     message_prehash.cpp
     message_string_table.cpp
     net.cpp
-    network.cpp
     partsyspacket.cpp
     patch_code.cpp
     patch_dct.cpp
@@ -115,7 +120,10 @@ set(llmessage_HEADER_FILES
     llhost.h
     llhttpassetstorage.h
     llhttpclient.h
+    llhttpclientinterface.h
+    llhttpclientadapter.h
     llhttpnode.h
+    llhttpnodeadapter.h
     llhttpsender.h
     llinstantmessage.h
     llinvite.h
@@ -144,6 +152,7 @@ set(llmessage_HEADER_FILES
     llqueryflags.h
     llregionflags.h
     llregionhandle.h
+    llregionpresenceverifier.h
     llsdappservices.h
     llsdhttpserver.h
     llsdmessagebuilder.h
@@ -152,9 +161,11 @@ set(llmessage_HEADER_FILES
     llsdrpcserver.h
     llservice.h
     llservicebuilder.h
+    llstoredmessage.h
     lltaskname.h
     llteleportflags.h
     lltemplatemessagebuilder.h
+    lltemplatemessagedispatcher.h
     lltemplatemessagereader.h
     llthrottle.h
     lltransfermanager.h
@@ -162,6 +173,7 @@ set(llmessage_HEADER_FILES
     lltransfersourcefile.h
     lltransfertargetfile.h
     lltransfertargetvfile.h
+    lltrustedmessageservice.h
     llurlrequest.h
     lluseroperation.h
     llvehicleparams.h
@@ -176,7 +188,6 @@ set(llmessage_HEADER_FILES
     message.h
     message_prehash.h
     net.h
-    network.h
     partsyspacket.h
     patch_code.h
     patch_dct.h
@@ -197,3 +208,13 @@ target_link_libraries(
     ${CRYPTO_LIBRARIES}
     ${XMLRPCEPI_LIBRARIES}
     )
+
+IF (NOT LINUX AND VIEWER)
+    # When building the viewer the tests links against the shared objects. 
+    # These can not be found when we try to run the tests, so we had to disable them, for the viewer build.
+    # TODO: Can someone with viewer knowledge figure out how to make these find the correct so.
+    #ADD_BUILD_TEST(llhttpclientadapter llmessage)
+    ADD_BUILD_TEST(lltrustedmessageservice llmessage)
+    ADD_BUILD_TEST(lltemplatemessagedispatcher llmessage)
+ENDIF (NOT LINUX AND VIEWER)
+

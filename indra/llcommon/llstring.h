@@ -33,6 +33,8 @@
 #ifndef LL_LLSTRING_H
 #define LL_LLSTRING_H
 
+#include <string>
+
 #if LL_LINUX || LL_SOLARIS
 #include <wctype.h>
 #include <wchar.h>

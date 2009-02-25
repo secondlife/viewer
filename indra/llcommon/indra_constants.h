@@ -118,6 +118,7 @@ const	char* const	DEFAULT_AGNI_DATA_SERVER	= "63.211.139.100";
 const	char* const	DEFAULT_AGNI_ASSET_SERVER	= "http://asset.agni.lindenlab.com:80";
 
 // Information about what ports are for what services is in the wiki Name Space Ports page
+// https://wiki.lindenlab.com/wiki/Name_Space_Ports
 const	char* const DEFAULT_LOCAL_ASSET_SERVER	= "http://localhost:12041/asset/tmp";
 const	char* const	LOCAL_ASSET_URL_FORMAT		= "http://%s:12041/asset";
 
@@ -137,6 +138,10 @@ const   U32		DEFAULT_LOCAL_ASSET_PORT		= 12041;
 const   U32		DEFAULT_CAP_PROXY_PORT			= 12043;
 const   U32		DEFAULT_INV_DATA_SERVER_PORT	= 12044;
 const	U32		DEFAULT_CGI_SERVICES_PORT		= 12045;
+
+// Mapserver uses ports 12124 - 12139 to allow multiple mapservers to run
+// on a single host for map tile generation. JC
+const	U32		DEFAULT_MAPSERVER_PORT			= 12124;
 
 // For automatic port discovery when running multiple viewers on one host
 const	U32		PORT_DISCOVERY_RANGE_MIN		= 13000;

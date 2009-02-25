@@ -103,6 +103,32 @@ const U32 RT_OTHER	= 0x1 << 3;
 const U32 RT_LIST	= 0x1 << 4;
 const U32 RT_SELL	= 0x1 << 5;
 
+
+// Timeouts for parcels
+// default is 21 days * 24h/d * 60m/h * 60s/m *1000000 usec/s = 1814400000000
+const U64 DEFAULT_USEC_CONVERSION_TIMEOUT = U64L(1814400000000);
+// ***** TESTING is 10 minutes
+//const U64 DEFAULT_USEC_CONVERSION_TIMEOUT = U64L(600000000);
+
+// group is 60 days * 24h/d * 60m/h * 60s/m *1000000 usec/s = 5184000000000
+const U64 GROUP_USEC_CONVERSION_TIMEOUT = U64L(5184000000000);
+// ***** TESTING is 10 minutes
+//const U64 GROUP_USEC_CONVERSION_TIMEOUT = U64L(600000000);
+
+// default sale timeout is 2 days -> 172800000000
+const U64 DEFAULT_USEC_SALE_TIMEOUT = U64L(172800000000);
+// ***** TESTING is 10 minutes
+//const U64 DEFAULT_USEC_SALE_TIMEOUT = U64L(600000000);
+
+// more grace period extensions.
+const U64 SEVEN_DAYS_IN_USEC = U64L(604800000000);
+
+// if more than 100,000s before sale revert, and no extra extension
+// has been given, go ahead and extend it more. That's about 1.2 days.
+const S32 EXTEND_GRACE_IF_MORE_THAN_SEC = 100000;
+
+
+
 class LLMessageSystem;
 class LLSD;
 
@@ -271,9 +297,9 @@ public:
 	void	setPassPrice(S32 price)				{ mPassPrice = price; }
 	void	setPassHours(F32 hours)				{ mPassHours = hours; }
 
-	BOOL	importStream(std::istream& input_stream);
+//	BOOL	importStream(std::istream& input_stream);
 	BOOL	importAccessEntry(std::istream& input_stream, LLAccessEntry* entry);
-	BOOL	exportStream(std::ostream& output_stream);
+//	BOOL	exportStream(std::ostream& output_stream);
 
 	void	packMessage(LLMessageSystem* msg);
 	void	packMessage(LLSD& msg);
@@ -631,6 +657,12 @@ public:
 	std::map<LLUUID,LLAccessEntry>	mTempBanList;
 	std::map<LLUUID,LLAccessEntry>	mTempAccessList;
 };
+
+
+const std::string& ownership_status_to_string(LLParcel::EOwnershipStatus status);
+LLParcel::EOwnershipStatus ownership_string_to_status(const std::string& s);
+LLParcel::ECategory category_string_to_category(const std::string& s);
+const std::string& category_to_string(LLParcel::ECategory category);
 
 
 #endif

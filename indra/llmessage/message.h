@@ -63,6 +63,9 @@
 #include "llstl.h"
 #include "llmsgvariabletype.h"
 #include "llmsgvariabletype.h"
+#include "llmessagesenderinterface.h"
+
+#include "llstoredmessage.h"
 
 const U32 MESSAGE_MAX_STRINGS_LENGTH = 64;
 const U32 MESSAGE_NUMBER_OF_HASH_BUCKETS = 8192;
@@ -206,7 +209,7 @@ public:
 	virtual void complete(const LLHost& host, const LLUUID& agent) const = 0;
 };
 
-class LLMessageSystem
+class LLMessageSystem : public LLMessageSenderInterface
 {
  private:
 	U8					mSendBuffer[MAX_BUFFER_SIZE];
@@ -373,14 +376,33 @@ public:
 	void newMessageFast(const char *name);
 	void newMessage(const char *name);
 
-	void	copyMessageRtoS();
-	void	clearMessage();
+
+public:
+	LLStoredMessagePtr getReceivedMessage() const; 
+	LLStoredMessagePtr getBuiltMessage() const;
+	S32 sendMessage(const LLHost &host, LLStoredMessagePtr message);
+
+private:
+	LLSD getReceivedMessageLLSD() const;
+	LLSD getBuiltMessageLLSD() const;
+
+	// NOTE: babbage: Only use to support legacy misuse of the
+	// LLMessageSystem API where values are dangerously written
+	// as one type and read as another. LLSD does not support
+	// dangerous conversions and so converting the message to an
+	// LLSD would result in the reads failing. All code which
+	// misuses the message system in this way should be made safe
+	// but while the unsafe code is run in old processes, this
+	// method should be used to forward unsafe messages.
+	LLSD wrapReceivedTemplateData() const;
+
+public:
+
+	void copyMessageReceivedToSend();
+	void clearMessage();
 
 	void nextBlockFast(const char *blockname);
-	void	nextBlock(const char *blockname)
-	{
-		nextBlockFast(LLMessageStringTable::getInstance()->getString(blockname));
-	}
+	void nextBlock(const char *blockname);
 
 public:
 	void addBinaryDataFast(const char *varname, const void *data, S32 size);
@@ -461,14 +483,14 @@ public:
 							void (*callback)(void **,S32), void ** callback_data);
 
 	// flush sends a message only if data's been pushed on it.
-	S32		flushSemiReliable(	const LLHost &host, 
+	S32	 flushSemiReliable(	const LLHost &host, 
 								void (*callback)(void **,S32), void ** callback_data);
 
-	S32		flushReliable(	const LLHost &host );
+	S32	flushReliable(	const LLHost &host );
 
-	void    forwardMessage(const LLHost &host);
-	void    forwardReliable(const LLHost &host);
-	void    forwardReliable(const U32 circuit_code);
+	void forwardMessage(const LLHost &host);
+	void forwardReliable(const LLHost &host);
+	void forwardReliable(const U32 circuit_code);
 	S32 forwardReliable(
 		const LLHost &host, 
 		S32 retries, 
@@ -480,9 +502,10 @@ public:
 	LLHTTPClient::ResponderPtr createResponder(const std::string& name);
 	S32		sendMessage(const LLHost &host);
 	S32		sendMessage(const U32 circuit);
+private:
 	S32		sendMessage(const LLHost &host, const char* name,
 						const LLSD& message);
-
+public:
 	// BOOL	decodeData(const U8 *buffer, const LLHost &host);
 
 	void	getBinaryDataFast(const char *blockname, const char *varname, void *datap, S32 size, S32 blocknum = 0, S32 max_size = S32_MAX);
@@ -561,7 +584,11 @@ public:
 	void	sendDenyTrustedCircuit(const LLHost &host);
 
 	/** Return false if host is unknown or untrusted */
+	// Note:DaveH/Babbage some trusted messages can be received without a circuit
 	bool isTrustedSender(const LLHost& host) const;
+
+	/** Return true if current message is from trusted source */
+	bool isTrustedSender() const;
 
 	/** Return false true if name is unknown or untrusted */
 	bool isTrustedMessage(const std::string& name) const;
@@ -577,6 +604,7 @@ public:
 
 	// Change this message to be UDP black listed.
 	void banUdpMessage(const std::string& name);
+
 
 private:
 	// A list of the circuits that need to be sent DenyTrustedCircuit messages.
@@ -594,6 +622,7 @@ public:
 	void	establishBidirectionalTrust(const LLHost &host, S64 frame_count = 0);
 
 	// returns whether the given host is on a trusted circuit
+	// Note:DaveH/Babbage some trusted messages can be received without a circuit
 	BOOL    getCircuitTrust(const LLHost &host);
 	
 	void	setCircuitAllowTimeout(const LLHost &host, BOOL allow);
@@ -663,6 +692,12 @@ public:
 						 const LLSD& message,
 						 LLHTTPNode::ResponsePtr responsep);
 
+	// this is added to support specific legacy messages and is
+	// ***not intended for general use*** Si, Gabriel, 2009
+	static void dispatchTemplate(const std::string& msg_name,
+						 const LLSD& message,
+						 LLHTTPNode::ResponsePtr responsep);
+
 	void setMessageBans(const LLSD& trusted, const LLSD& untrusted);
 
 	/**
@@ -690,9 +725,18 @@ public:
 
 	// Check UDP messages and pump http_pump to receive HTTP messages.
 	bool checkAllMessages(S64 frame_count, LLPumpIO* http_pump);
+
+	// Moved to allow access from LLTemplateMessageDispatcher
+	void clearReceiveState();
+
+	// This will cause all trust queries to return true until the next message
+	// is read: use with caution!
+	void receivedMessageFromTrustedSender();
 	
 private:
 
+	bool mLastMessageFromTrustedMessageService;
+	
 	// The mCircuitCodes is a map from circuit codes to session
 	// ids. This allows us to verify sessions on connect.
 	typedef std::map<U32, LLUUID> code_session_map_t;
@@ -703,7 +747,6 @@ private:
 	LLUUID mSessionID;
 	
 	void	addTemplate(LLMessageTemplate *templatep);
-	void		clearReceiveState();
 	BOOL		decodeTemplate( const U8* buffer, S32 buffer_size, LLMessageTemplate** msg_template );
 
 	void		logMsgFromInvalidCircuit( const LLHost& sender, BOOL recv_reliable );
@@ -799,7 +842,7 @@ bool start_messaging_system(
 	const F32 circuit_heartbeat_interval, 
 	const F32 circuit_timeout);
 
-void end_messaging_system();
+void end_messaging_system(bool print_summary = true);
 
 void null_message_callback(LLMessageSystem *msg, void **data);
 
@@ -976,8 +1019,6 @@ inline void *ntohmemcpy(void *s, const void *ct, EMsgVariableType type, size_t n
 	return(htonmemcpy(s,ct,type, n));
 }
 
-
-inline const LLHost& LLMessageSystem::getSender() const {return mLastSender;}
 inline const LLHost& LLMessageSystem::getReceivingInterface() const {return mLastReceivingIF;}
 
 inline U32 LLMessageSystem::getSenderIP() const 

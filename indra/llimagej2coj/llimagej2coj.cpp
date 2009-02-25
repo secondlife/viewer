@@ -58,26 +58,42 @@ void fallbackDestroyLLImageJ2CImpl(LLImageJ2CImpl* impl)
 	impl = NULL;
 }
 
+// Return string from message, eliminating final \n if present
+static std::string chomp(const char* msg)
+{
+	// stomp trailing \n
+	std::string message = msg;
+	if (!message.empty())
+	{
+		size_t last = message.size() - 1;
+		if (message[last] == '\n')
+		{
+			message.resize( last );
+		}
+	}
+	return message;
+}
+
 /**
 sample error callback expecting a LLFILE* client object
 */
 void error_callback(const char* msg, void*)
 {
-	lldebugs << "LLImageJ2CImpl error_callback: " << msg << llendl;
+	lldebugs << "LLImageJ2COJ: " << chomp(msg) << llendl;
 }
 /**
 sample warning callback expecting a LLFILE* client object
 */
 void warning_callback(const char* msg, void*)
 {
-	lldebugs << "LLImageJ2CImpl warning_callback: " << msg << llendl;
+	lldebugs << "LLImageJ2COJ: " << chomp(msg) << llendl;
 }
 /**
 sample debug callback expecting no client object
 */
 void info_callback(const char* msg, void*)
 {
-	lldebugs << "LLImageJ2CImpl info_callback: " << msg << llendl;
+	lldebugs << "LLImageJ2COJ: " << chomp(msg) << llendl;
 }
 
 

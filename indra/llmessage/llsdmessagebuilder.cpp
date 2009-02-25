@@ -268,10 +268,125 @@ void LLSDMessageBuilder::copyFromMessageData(const LLMsgData& data)
 		
 		for(; dit != dend; ++dit)
 		{
-			//const LLMsgVarData& mvci = *dit;
+			const LLMsgVarData& mvci = *dit;
+			const char* varname = mvci.getName();
 
-			// TODO: Copy mvci data in to block:
-			// (*mCurrentBlock)[varname] = v;
+			switch(mvci.getType())
+			{
+			case MVT_FIXED:
+				addBinaryData(varname, mvci.getData(), mvci.getSize());
+				break;
+
+			case MVT_VARIABLE:
+				{
+					const char end = ((const char*)mvci.getData())[mvci.getSize()-1]; // Ensure null terminated
+					if (mvci.getDataSize() == 1 && end == 0) 
+					{
+						addString(varname, (const char*)mvci.getData());
+					}
+					else
+					{
+						addBinaryData(varname, mvci.getData(), mvci.getSize());
+					}
+					break;
+				}
+
+			case MVT_U8:
+				addU8(varname, *(U8*)mvci.getData());
+				break;
+
+			case MVT_U16:
+				addU16(varname, *(U16*)mvci.getData());
+				break;
+
+			case MVT_U32:
+				addU32(varname, *(U32*)mvci.getData());
+				break;
+
+			case MVT_U64:
+				addU64(varname, *(U64*)mvci.getData());
+				break;
+
+			case MVT_S8:
+				addS8(varname, *(S8*)mvci.getData());
+				break;
+
+			case MVT_S16:
+				addS16(varname, *(S16*)mvci.getData());
+				break;
+
+			case MVT_S32:
+				addS32(varname, *(S32*)mvci.getData());
+				break;
+
+			// S64 not supported in LLSD so we just truncate it
+			case MVT_S64:
+				addS32(varname, *(S64*)mvci.getData());
+				break;
+
+			case MVT_F32:
+				addF32(varname, *(F32*)mvci.getData());
+				break;
+
+			case MVT_F64:
+				addF64(varname, *(F64*)mvci.getData());
+				break;
+
+			case MVT_LLVector3:
+				addVector3(varname, *(LLVector3*)mvci.getData());
+				break;
+
+			case MVT_LLVector3d:
+				addVector3d(varname, *(LLVector3d*)mvci.getData());
+				break;
+
+			case MVT_LLVector4:
+				addVector4(varname, *(LLVector4*)mvci.getData());
+				break;
+
+			case MVT_LLQuaternion:
+				{
+					LLVector3 v = *(LLVector3*)mvci.getData();
+					LLQuaternion q;
+					q.unpackFromVector3(v);
+					addQuat(varname, q);
+					break;
+				}
+
+			case MVT_LLUUID:
+				addUUID(varname, *(LLUUID*)mvci.getData());
+				break;	
+
+			case MVT_BOOL:
+				addBOOL(varname, *(BOOL*)mvci.getData());
+				break;
+
+			case MVT_IP_ADDR:
+				addIPAddr(varname, *(U32*)mvci.getData());
+				break;
+
+			case MVT_IP_PORT:
+				addIPPort(varname, *(U16*)mvci.getData());
+				break;
+
+			case MVT_U16Vec3:
+				//treated as an array of 6 bytes
+				addBinaryData(varname, mvci.getData(), 6);
+				break;
+
+			case MVT_U16Quat:
+				//treated as an array of 8 bytes
+				addBinaryData(varname, mvci.getData(), 8);
+				break;
+
+			case MVT_S16Array:
+				addBinaryData(varname, mvci.getData(), mvci.getSize());
+				break;
+
+			default:
+				llwarns << "Unknown type in conversion of message to LLSD" << llendl;
+				break;
+			}
 		}
 	}
 }

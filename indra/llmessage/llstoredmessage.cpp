@@ -1,10 +1,10 @@
 /** 
- * @file llversionserver.h
- * @brief
+ * @file 
+ * @brief 
  *
- * $LicenseInfo:firstyear=2002&license=viewergpl$
+ * $LicenseInfo:firstyear=2009&license=viewergpl$
  * 
- * Copyright (c) 2002-2009, Linden Research, Inc.
+ * Copyright (c) 2001-2009, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -30,15 +30,9 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVERSIONSERVER_H
-#define LL_LLVERSIONSERVER_H
+#include "llstoredmessage.h"
 
-const S32 LL_VERSION_MAJOR = 1;
-const S32 LL_VERSION_MINOR = 27;
-const S32 LL_VERSION_PATCH = 0;
-const S32 LL_VERSION_BUILD = 112940;
+LLStoredMessage::LLStoredMessage(const std::string& name, const LLSD& message) : mMessage(message), mName(name)
+{
+}
 
-const char * const LL_CHANNEL = "Second Life Server";
-
-
-#endif

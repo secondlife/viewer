@@ -33,10 +33,13 @@
  */
 
 #include "linden_common.h"
+
 #include "lltut.h"
 
+#include "lldate.h"
 #include "llformat.h"
 #include "llsd.h"
+#include "lluri.h"
 
 namespace tut
 {
@@ -74,7 +77,7 @@ namespace tut
 	void ensure_equals(const char* m, const LLSD& actual,
 		const LLSD& expected)
 	{
-		const std::string& msg = m;
+		const std::string& msg = m ? m : "";
 		
 		ensure_equals(msg + " type", actual.type(), expected.type());
 		switch (actual.type())
@@ -196,3 +199,4 @@ namespace tut
 		}
 	}
 }
+

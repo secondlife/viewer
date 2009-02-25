@@ -50,7 +50,7 @@
 
 const F32 MAX_OBJECT_SPAN = 54.f;		// max distance from outside edge of an object to the farthest edge
 const F32 OBJECT_SPAN_BONUS = 2.f;		// infinitesimally small prims can always link up to this distance
-const S32 MAX_PRIMS_PER_OBJECT = 255;
+const S32 MAX_PRIMS_PER_OBJECT = 256;
 
 
 template < typename DATA_TYPE >

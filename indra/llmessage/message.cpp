@@ -59,13 +59,16 @@
 #include "llerrorlegacy.h"
 #include "llfasttimer.h"
 #include "llhttpclient.h"
+#include "llhttpnodeadapter.h"
 #include "llhttpsender.h"
 #include "llmd5.h"
 #include "llmessagebuilder.h"
 #include "llmessageconfig.h"
+#include "lltemplatemessagedispatcher.h"
 #include "llpumpio.h"
 #include "lltemplatemessagebuilder.h"
 #include "lltemplatemessagereader.h"
+#include "lltrustedmessageservice.h"
 #include "llmessagetemplate.h"
 #include "llmessagetemplateparser.h"
 #include "llsd.h"
@@ -142,52 +145,6 @@ namespace
 	};
 }
 
-
-class LLTrustedMessageService : public LLHTTPNode
-{
-	virtual bool validate(const std::string& name, LLSD& context) const
-		{ return true; }
-
-	virtual void post(LLHTTPNode::ResponsePtr response,
-					  const LLSD& context,
-					  const LLSD& input) const;
-};
-
-//virtual
-void LLTrustedMessageService::post(LLHTTPNode::ResponsePtr response,
-								   const LLSD& context,
-								   const LLSD& input) const
-{
-	std::string name = context["request"]["wildcard"]["message-name"];
-	std::string senderIP = context["request"]["remote-host"];
-	std::string senderPort = context["request"]["headers"]
-		["x-secondlife-udp-listen-port"];
-
-	LLSD message_data;
-	std::string sender = senderIP + ":" + senderPort;
-	message_data["sender"] = sender;
-	message_data["body"] = input;
-	
-	// untrusted senders should not have access to the trusted message
-	// service, but this can happen in development, so check and warn
-	LLMessageConfig::SenderTrust trust =
-		LLMessageConfig::getSenderTrustedness(name);
-	if ((trust == LLMessageConfig::TRUSTED ||
-		 (trust == LLMessageConfig::NOT_SET &&
-		  gMessageSystem->isTrustedMessage(name)))
-		 && !gMessageSystem->isTrustedSender(LLHost(sender)))
-	{
-		LL_WARNS("Messaging") << "trusted message POST to /trusted-message/" 
-				<< name << " from unknown or untrusted sender "
-				<< sender << llendl;
-		response->status(403, "Unknown or untrusted sender");
-	}
-	else
-	{
-		LLMessageSystem::dispatch(name, message_data, response);
-	}
-}
-
 class LLMessageHandlerBridge : public LLHTTPNode
 {
 	virtual bool validate(const std::string& name, LLSD& context) const
@@ -222,9 +179,6 @@ void LLMessageHandlerBridge::post(LLHTTPNode::ResponsePtr response,
 
 LLHTTPRegistration<LLMessageHandlerBridge>
 	gHTTPRegistrationMessageWildcard("/message/<message-name>");
-
-LLHTTPRegistration<LLTrustedMessageService>
-	gHTTPRegistrationTrustedMessageWildcard("/trusted-message/<message-name>");
 
 //virtual
 LLUseCircuitCodeResponder::~LLUseCircuitCodeResponder()
@@ -293,7 +247,8 @@ LLMessageSystem::LLMessageSystem(const std::string& filename, U32 port,
 								 S32 version_patch,
 								 bool failure_is_fatal,
 								 const F32 circuit_heartbeat_interval, const F32 circuit_timeout) :
-	mCircuitInfo(circuit_heartbeat_interval, circuit_timeout)
+	mCircuitInfo(circuit_heartbeat_interval, circuit_timeout),
+	mLastMessageFromTrustedMessageService(false)
 {
 	init();
 
@@ -445,6 +400,7 @@ void LLMessageSystem::clearReceiveState()
 	mLastSender.invalidate();
 	mLastReceivingIF.invalidate();
 	mMessageReader->clearMessage();
+	mLastMessageFromTrustedMessageService = false;
 }
 
 
@@ -475,6 +431,17 @@ bool LLMessageSystem::isTrustedSender(const LLHost& host) const
 		return false;
 	}
 	return cdp->getTrusted();
+}
+
+void LLMessageSystem::receivedMessageFromTrustedSender()
+{
+	mLastMessageFromTrustedMessageService = true;
+}
+
+bool LLMessageSystem::isTrustedSender() const
+{	
+	return mLastMessageFromTrustedMessageService ||
+		isTrustedSender(getSender());
 }
 
 static LLMessageSystem::message_template_name_map_t::const_iterator 
@@ -717,11 +684,16 @@ BOOL LLMessageSystem::checkMessages( S64 frame_count )
 			// UseCircuitCode can be a valid, off-circuit packet.
 			// But we don't want to acknowledge UseCircuitCode until the circuit is
 			// available, which is why the acknowledgement test is done above.  JC
-
+			bool trusted = cdp && cdp->getTrusted();
 			valid_packet = mTemplateMessageReader->validateMessage(
 				buffer,
 				receive_size,
-				host);
+				host,
+				trusted);
+			if (!valid_packet)
+			{
+				clearReceiveState();
+			}
 
 			// UseCircuitCode is allowed in even from an invalid circuit, so that
 			// we can toss circuits around.
@@ -749,29 +721,6 @@ BOOL LLMessageSystem::checkMessages( S64 frame_count )
 				valid_packet = FALSE;
 			}
 
-			if (
-				valid_packet &&
-				mTemplateMessageReader->isBanned(cdp && cdp->getTrusted()))
-			{
-				LL_WARNS("Messaging") << "LLMessageSystem::checkMessages "
-					<< "received banned message "
-					<< mTemplateMessageReader->getMessageName()
-					<< " from "
-					<< ((cdp && cdp->getTrusted()) ? "trusted " : "untrusted ")
-					<< host << llendl;
-				clearReceiveState();
-				valid_packet = FALSE;
-			}
-
-			if( valid_packet && mTemplateMessageReader->isUdpBanned())
-			{
-				llwarns << "Received UDP black listed message "
-						<<  mTemplateMessageReader->getMessageName()
-						<< " from " << host << llendl;
-				clearReceiveState();
-				valid_packet = FALSE;
-			}
-
 			if( valid_packet )
 			{
 				logValidMsg(cdp, host, recv_reliable, recv_resent, (BOOL)(acks>0) );
@@ -784,94 +733,6 @@ BOOL LLMessageSystem::checkMessages( S64 frame_count )
 
 			if (valid_packet)
 			{
-				// enable this for output of message names
-				//LL_INFOS("Messaging") << "< \"" << mTemplateMessageReader->getMessageName()
-						//<< "\"" << llendl;
-
-				/* Code for dumping the complete contents of a message.  Keep for future use in optimizing messages.
-				if( 1 )
-				{
-					static char* object_update = LLMessageStringTable::getInstance()->getString("ObjectUpdate");
-					if(object_update == mTemplateMessageReader->getMessageName() )
-					{
-						LL_INFOS("Messaging") << "ObjectUpdate:" << llendl;
-						U32 i;
-						LL_INFOS("Messaging") << "    Zero Encoded: " << zero_unexpanded_size << llendl;
-						for( i = 0; i<zero_unexpanded_size; i++ )
-						{
-							LL_INFOS("Messaging") << "     " << i << ": " << (U32) zero_unexpanded_buffer[i] << llendl;
-						}
-						LL_INFOS("Messaging") << "" << llendl;
-
-						LL_INFOS("Messaging") << "    Zero Unencoded: " << receive_size << llendl;
-						for( i = 0; i<receive_size; i++ )
-						{
-							LL_INFOS("Messaging") << "     " << i << ": " << (U32) buffer[i] << llendl;
-						}
-						LL_INFOS("Messaging") << "" << llendl;
-
-						LL_INFOS("Messaging") << "    Blocks and variables: " << llendl;
-						S32 byte_count = 0;
-						for (LLMessageTemplate::message_block_map_t::iterator
-								 iter = mCurrentRMessageTemplate->mMemberBlocks.begin(),
-								 end = mCurrentRMessageTemplate->mMemberBlocks.end();
-							 iter != end; iter++)
-						{
-							LLMessageBlock* block = iter->second;
-							const char* block_name = block->mName;
-							for (LLMsgBlkData::msg_var_data_map_t::iterator
-									 iter = block->mMemberVariables.begin(),
-									 end = block->mMemberVariables.end();
-								 iter != end; iter++)
-							{
-								const char* var_name = iter->first;
-								
-								if( getNumberOfBlocksFast( block_name ) < 1 )
-								{
-									LL_INFOS("Messaging") << var_name << " has no blocks" << llendl;
-								}
-								for( S32 blocknum = 0; blocknum < getNumberOfBlocksFast( block_name ); blocknum++ )
-								{
-									char *bnamep = (char *)block_name + blocknum; // this works because it's just a hash.  The bnamep is never derefference
-									char *vnamep = (char *)var_name; 
-
-									LLMsgBlkData *msg_block_data = mCurrentRMessageData->mMemberBlocks[bnamep];
-
-									if (!msg_block_data)
-									{
-										std::string errmsg = llformat("Block %s #%d not in message %s", block_name, blocknum, mCurrentRMessageData->mName);
-										LL_ERRS("Messaging") << errmsg << llendl;
-									}
-
-									LLMsgVarData vardata = msg_block_data->mMemberVarData[vnamep];
-
-									if (!vardata.getName())
-									{
-										std::string errmsg = llformat("Variable %s not in message %s block %s", vnamep, mCurrentRMessageData->mName, bnamep);
-										LL_ERRS("Messaging") << errmsg << llendl;
-									}
-
-									const S32 vardata_size = vardata.getSize();
-									if( vardata_size )
-									{
-										for( i = 0; i < vardata_size; i++ )
-										{
-											byte_count++;
-											LL_INFOS("Messaging") << block_name << " " << var_name << " [" << blocknum << "][" << i << "]= " << (U32)(((U8*)vardata.getData())[i]) << llendl;
-										}
-									}
-									else
-									{
-										LL_INFOS("Messaging") << block_name << " " << var_name << " [" << blocknum << "] 0 bytes" << llendl;
-									}
-								}
-							}
-						}
-						LL_INFOS("Messaging") << "Byte count =" << byte_count << llendl;
-					}
-				}
-				*/
-
 				mPacketsIn++;
 				mBytesIn += mTrueReceiveSize;
 				
@@ -899,9 +760,6 @@ BOOL LLMessageSystem::checkMessages( S64 frame_count )
 					mInvalidOnCircuitPackets++;
 				}
 			}
-
-			// Code for dumping the complete contents of a message 
-			// delete [] zero_unexpanded_buffer;
 		}
 	} while (!valid_packet && receive_size > 0);
 
@@ -1004,7 +862,7 @@ void LLMessageSystem::processAcks()
 	}
 }
 
-void LLMessageSystem::copyMessageRtoS()
+void LLMessageSystem::copyMessageReceivedToSend()
 {
 	// NOTE: babbage: switch builder to match reader to avoid
 	// converting message format
@@ -1021,6 +879,72 @@ void LLMessageSystem::copyMessageRtoS()
 	mMessageReader->copyToBuilder(*mMessageBuilder);
 }
 
+LLSD LLMessageSystem::getReceivedMessageLLSD() const
+{
+	LLSDMessageBuilder builder;
+	mMessageReader->copyToBuilder(builder);
+	return builder.getMessage();
+}
+
+LLSD LLMessageSystem::getBuiltMessageLLSD() const 
+{
+	LLSD result;
+	if (mLLSDMessageBuilder == mMessageBuilder)
+	{
+		 result = mLLSDMessageBuilder->getMessage();
+	}
+	else
+	{
+		// TODO: implement as below?
+		llerrs << "Message not built as LLSD." << llendl; 
+	}
+	return result;
+}
+
+LLSD LLMessageSystem::wrapReceivedTemplateData() const
+{
+	if(mMessageReader == mTemplateMessageReader)
+	{
+		LLTemplateMessageBuilder builder(mMessageTemplates);
+		builder.newMessage(mMessageReader->getMessageName());
+		mMessageReader->copyToBuilder(builder);
+		U8 buffer[MAX_BUFFER_SIZE];
+		const U8 offset_to_data = 0;
+		U32 size = builder.buildMessage(buffer, MAX_BUFFER_SIZE,
+										offset_to_data);
+		std::vector<U8> binary_data(buffer, buffer+size);
+		LLSD wrapped_data = LLSD::emptyMap();
+		wrapped_data["binary-template-data"] = binary_data;
+		return wrapped_data;
+	}
+	else
+	{
+		return getReceivedMessageLLSD();
+	}
+}
+
+LLStoredMessagePtr LLMessageSystem::getReceivedMessage() const
+{
+	const std::string& name = mMessageReader->getMessageName();
+	LLSD message = wrapReceivedTemplateData();
+
+	return LLStoredMessagePtr(new LLStoredMessage(name, message));
+}
+
+LLStoredMessagePtr LLMessageSystem::getBuiltMessage() const
+{
+	const std::string& name = mMessageBuilder->getMessageName();
+	LLSD message = getBuiltMessageLLSD();
+
+	return LLStoredMessagePtr(new LLStoredMessage(name, message));
+}
+
+S32 LLMessageSystem::sendMessage(const LLHost &host, LLStoredMessagePtr message)
+{
+	return sendMessage(host, message->mName.c_str(), message->mMessage);
+}
+
+
 void LLMessageSystem::clearMessage()
 {
 	mSendReliable = FALSE;
@@ -1031,6 +955,11 @@ void LLMessageSystem::clearMessage()
 void LLMessageSystem::nextBlockFast(const char *blockname)
 {
 	mMessageBuilder->nextBlock(blockname);
+}
+
+void LLMessageSystem::nextBlock(const char *blockname)
+{
+	nextBlockFast(LLMessageStringTable::getInstance()->getString(blockname));
 }
 
 BOOL LLMessageSystem::isSendFull(const char* blockname)
@@ -1112,19 +1041,19 @@ S32 LLMessageSystem::sendReliable(	const LLHost &host,
 
 void LLMessageSystem::forwardMessage(const LLHost &host)
 {
-	copyMessageRtoS();
+	copyMessageReceivedToSend();
 	sendMessage(host);
 }
 
 void LLMessageSystem::forwardReliable(const LLHost &host)
 {
-	copyMessageRtoS();
+	copyMessageReceivedToSend();
 	sendReliable(host);
 }
 
 void LLMessageSystem::forwardReliable(const U32 circuit_code)
 {
-	copyMessageRtoS();
+	copyMessageReceivedToSend();
 	sendReliable(findHost(circuit_code));
 }
 
@@ -1135,7 +1064,7 @@ S32 LLMessageSystem::forwardReliable(	const LLHost &host,
 										void (*callback)(void **,S32), 
 										void ** callback_data)
 {
-	copyMessageRtoS();
+	copyMessageReceivedToSend();
 	return sendReliable(host, retries, ping_based_timeout, timeout, callback, callback_data);
 }
 
@@ -1461,13 +1390,6 @@ S32 LLMessageSystem::sendMessage(
 	if (!(host.isOk()))
 	{
 		LL_WARNS("Messaging") << "trying to send message to invalid host"	<< llendl;
-		return 0;
-	}
-	newMessage(name);	
-	if (mMessageBuilder != mLLSDMessageBuilder)
-	{
-		LL_WARNS("Messaging") << "trying to send llsd message when builder is not LLSD!"
-				<< llendl;
 		return 0;
 	}
 
@@ -2178,6 +2100,15 @@ void LLMessageSystem::dispatch(
 	handler->post(responsep, context, message);
 }
 
+//static 
+void LLMessageSystem::dispatchTemplate(const std::string& msg_name,
+										const LLSD& message,
+										LLHTTPNode::ResponsePtr responsep)
+{
+	LLTemplateMessageDispatcher dispatcher(*(gMessageSystem->mTemplateMessageReader));
+	dispatcher.dispatch(msg_name, message, responsep);
+}
+
 static void check_for_unrecognized_messages(
 		const char* type,
 		const LLSD& map,
@@ -2730,7 +2661,7 @@ void LLMessageSystem::summarizeLogs(std::ostream& str)
 	str << "END MESSAGE LOG SUMMARY" << std::endl;
 }
 
-void end_messaging_system()
+void end_messaging_system(bool print_summary)
 {
 	gTransferManager.cleanup();
 	LLTransferTargetVFile::updateQueue(true); // shutdown LLTransferTargetVFile
@@ -2738,9 +2669,12 @@ void end_messaging_system()
 	{
 		gMessageSystem->stopLogging();
 
-		std::ostringstream str;
-		gMessageSystem->summarizeLogs(str);
-		LL_INFOS("Messaging") << str.str().c_str() << llendl;
+		if (print_summary)
+		{
+			std::ostringstream str;
+			gMessageSystem->summarizeLogs(str);
+			LL_INFOS("Messaging") << str.str().c_str() << llendl;
+		}
 
 		delete gMessageSystem;
 		gMessageSystem = NULL;
@@ -4088,3 +4022,11 @@ void LLMessageSystem::banUdpMessage(const std::string& name)
 		llwarns << "Attempted to ban an unknown message: " << name << "." << llendl;
 	}
 }
+const LLHost& LLMessageSystem::getSender() const
+{
+	return mLastSender;
+}
+
+LLHTTPRegistration<LLHTTPNodeAdapter<LLTrustedMessageService> >
+	gHTTPRegistrationTrustedMessageWildcard("/trusted-message/<message-name>");
+
