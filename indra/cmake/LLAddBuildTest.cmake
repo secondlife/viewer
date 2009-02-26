@@ -3,7 +3,8 @@ INCLUDE(APR)
 INCLUDE(LLMath)
 
 MACRO(ADD_BUILD_TEST_NO_COMMON name parent)
-    IF (EXISTS tests/${name}_test.cpp)
+#   MESSAGE("${CMAKE_CURRENT_SOURCE_DIR}/tests/${name}_test.cpp")
+    IF (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/tests/${name}_test.cpp")
         SET(no_common_libraries
             ${APRUTIL_LIBRARIES}
             ${APR_LIBRARIES}
@@ -22,12 +23,14 @@ MACRO(ADD_BUILD_TEST_NO_COMMON name parent)
             ${CMAKE_SOURCE_DIR}/test/test.cpp
             )
         ADD_BUILD_TEST_INTERNAL(${name} ${parent} "${no_common_libraries}" "${no_common_source_files}")
-    ENDIF (EXISTS tests/${name}_test.cpp)
+    ENDIF (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/tests/${name}_test.cpp")
 ENDMACRO(ADD_BUILD_TEST_NO_COMMON name parent)
 
 
 MACRO(ADD_BUILD_TEST name parent)
-    IF (EXISTS tests/${name}_test.cpp)
+#   MESSAGE("${CMAKE_CURRENT_SOURCE_DIR}/tests/${name}_test.cpp")
+    IF (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/tests/${name}_test.cpp")
+
         SET(basic_libraries
             ${LLCOMMON_LIBRARIES}
             ${APRUTIL_LIBRARIES}
@@ -42,7 +45,7 @@ MACRO(ADD_BUILD_TEST name parent)
             ${CMAKE_SOURCE_DIR}/test/lltut.cpp
             )
         ADD_BUILD_TEST_INTERNAL(${name} ${parent} "${basic_libraries}" "${basic_source_files}")
-    ENDIF (EXISTS tests/${name}_test.cpp)
+    ENDIF (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/tests/${name}_test.cpp")
 ENDMACRO(ADD_BUILD_TEST name parent)
 
 
