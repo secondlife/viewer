@@ -358,7 +358,7 @@ LLVoiceChannel::LLVoiceChannel(const LLUUID& session_id, const std::string& sess
 		llwarns << "Duplicate voice channels registered for session_id " << session_id << llendl;
 	}
 
-	LLVoiceClient::getInstance()->addStatusObserver(this);
+	LLVoiceClient::getInstance()->addObserver(this);
 }
 
 LLVoiceChannel::~LLVoiceChannel()
@@ -366,7 +366,7 @@ LLVoiceChannel::~LLVoiceChannel()
 	// Don't use LLVoiceClient::getInstance() here -- this can get called during atexit() time and that singleton MAY have already been destroyed.
 	if(gVoiceClient)
 	{
-		gVoiceClient->removeStatusObserver(this);
+		gVoiceClient->removeObserver(this);
 	}
 	
 	sVoiceChannelMap.erase(mSessionID);
@@ -985,7 +985,8 @@ void LLVoiceChannelP2P::activate()
 		// otherwise answering the call
 		else
 		{
-			LLVoiceClient::getInstance()->answerInvite(mSessionHandle, mOtherUserID);
+			LLVoiceClient::getInstance()->answerInvite(mSessionHandle);
+			
 			// using the session handle invalidates it.  Clear it out here so we can't reuse it by accident.
 			mSessionHandle.clear();
 		}
@@ -1002,7 +1003,7 @@ void LLVoiceChannelP2P::getChannelInfo()
 }
 
 // receiving session from other user who initiated call
-void LLVoiceChannelP2P::setSessionHandle(const std::string& handle)
+void LLVoiceChannelP2P::setSessionHandle(const std::string& handle, const std::string &inURI)
 { 
 	BOOL needs_activate = FALSE;
 	if (callStarted())
@@ -1025,8 +1026,17 @@ void LLVoiceChannelP2P::setSessionHandle(const std::string& handle)
 	}
 
 	mSessionHandle = handle;
+
 	// The URI of a p2p session should always be the other end's SIP URI.
-	setURI(LLVoiceClient::getInstance()->sipURIFromID(mOtherUserID));
+	if(!inURI.empty())
+	{
+		setURI(inURI);
+	}
+	else
+	{
+		setURI(LLVoiceClient::getInstance()->sipURIFromID(mOtherUserID));
+	}
+	
 	mReceivedCall = TRUE;
 
 	if (needs_activate)
@@ -1209,7 +1219,23 @@ LLFloaterIMPanel::~LLFloaterIMPanel()
 {
 	delete mSpeakers;
 	mSpeakers = NULL;
-
+	
+	// End the text IM session if necessary
+	if(gVoiceClient && mOtherParticipantUUID.notNull())
+	{
+		switch(mDialog)
+		{
+			case IM_NOTHING_SPECIAL:
+			case IM_SESSION_P2P_INVITE:
+				gVoiceClient->endUserIMSession(mOtherParticipantUUID);
+			break;
+			
+			default:
+				// Appease the compiler
+			break;
+		}
+	}
+	
 	//kicks you out of the voice channel if it is currently active
 
 	// HAVE to do this here -- if it happens in the LLVoiceChannel destructor it will call the wrong version (since the object's partially deconstructed at that point).
@@ -1872,33 +1898,45 @@ void deliver_message(const std::string& utf8_text,
 					 EInstantMessage dialog)
 {
 	std::string name;
+	bool sent = false;
 	gAgent.buildFullname(name);
 
 	const LLRelationship* info = NULL;
 	info = LLAvatarTracker::instance().getBuddyInfo(other_participant_id);
+	
 	U8 offline = (!info || info->isOnline()) ? IM_ONLINE : IM_OFFLINE;
-
-	// default to IM_SESSION_SEND unless it's nothing special - in
-	// which case it's probably an IM to everyone.
-	U8 new_dialog = dialog;
-
-	if ( dialog != IM_NOTHING_SPECIAL )
+	
+	if((offline == IM_OFFLINE) && (LLVoiceClient::getInstance()->isOnlineSIP(other_participant_id)))
 	{
-		new_dialog = IM_SESSION_SEND;
+		// User is online through the OOW connector, but not with a regular viewer.  Try to send the message via SLVoice.
+		sent = gVoiceClient->sendTextMessage(other_participant_id, utf8_text);
 	}
+	
+	if(!sent)
+	{
+		// Send message normally.
 
-	pack_instant_message(
-		gMessageSystem,
-		gAgent.getID(),
-		FALSE,
-		gAgent.getSessionID(),
-		other_participant_id,
-		name,
-		utf8_text,
-		offline,
-		(EInstantMessage)new_dialog,
-		im_session_id);
-	gAgent.sendReliableMessage();
+		// default to IM_SESSION_SEND unless it's nothing special - in
+		// which case it's probably an IM to everyone.
+		U8 new_dialog = dialog;
+
+		if ( dialog != IM_NOTHING_SPECIAL )
+		{
+			new_dialog = IM_SESSION_SEND;
+		}
+		pack_instant_message(
+			gMessageSystem,
+			gAgent.getID(),
+			FALSE,
+			gAgent.getSessionID(),
+			other_participant_id,
+			name.c_str(),
+			utf8_text.c_str(),
+			offline,
+			(EInstantMessage)new_dialog,
+			im_session_id);
+		gAgent.sendReliableMessage();
+	}
 
 	// If there is a mute list and this is not a group chat...
 	if ( LLMuteList::getInstance() )

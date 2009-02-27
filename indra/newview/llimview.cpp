@@ -364,7 +364,8 @@ bool inviteUserResponse(const LLSD& notification, const LLSD& response)
 				session_id = gIMMgr->addP2PSession(
 					payload["session_name"].asString(),
 					payload["caller_id"].asUUID(),
-					payload["session_handle"].asString());
+					payload["session_handle"].asString(),
+					payload["session_uri"].asString());
 
 				LLFloaterIMPanel* im_floater =
 					gIMMgr->findFloaterBySession(
@@ -725,7 +726,8 @@ BOOL LLIMMgr::isIMSessionOpen(const LLUUID& uuid)
 
 LLUUID LLIMMgr::addP2PSession(const std::string& name,
 							const LLUUID& other_participant_id,
-							const std::string& voice_session_handle)
+							const std::string& voice_session_handle,
+							const std::string& caller_uri)
 {
 	LLUUID session_id = addSession(name, IM_NOTHING_SPECIAL, other_participant_id);
 
@@ -733,7 +735,7 @@ LLUUID LLIMMgr::addP2PSession(const std::string& name,
 	if(floater)
 	{
 		LLVoiceChannelP2P* voice_channelp = (LLVoiceChannelP2P*)floater->getVoiceChannel();
-		voice_channelp->setSessionHandle(voice_session_handle);
+		voice_channelp->setSessionHandle(voice_session_handle, caller_uri);		
 	}
 
 	return session_id;
@@ -856,7 +858,8 @@ void LLIMMgr::inviteToSession(
 	const std::string& caller_name,
 	EInstantMessage type,
 	EInvitationType inv_type,
-	const std::string& session_handle)
+	const std::string& session_handle,
+	const std::string& session_uri)
 {
 	//ignore invites from muted residents
 	if (LLMuteList::getInstance()->isMuted(caller_id))
@@ -898,6 +901,7 @@ void LLIMMgr::inviteToSession(
 	payload["type"] = type;
 	payload["inv_type"] = inv_type;
 	payload["session_handle"] = session_handle;
+	payload["session_uri"] = session_uri;
 	payload["notify_box_type"] = notify_box_type;
 	
 	LLVoiceChannel* channelp = LLVoiceChannel::getChannelByID(session_id);

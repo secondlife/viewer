@@ -237,11 +237,6 @@ class WindowsManifest(ViewerManifest):
         # Vivox runtimes
         if self.prefix(src="vivox-runtime/i686-win32", dst=""):
             self.path("SLVoice.exe")
-            self.path("SLVoiceAgent.exe")
-            self.path("libeay32.dll")
-            self.path("srtp.dll")
-            self.path("ssleay32.dll")
-            self.path("tntk.dll")
             self.path("alut.dll")
             self.path("vivoxsdk.dll")
             self.path("ortp.dll")
@@ -451,7 +446,6 @@ class DarwinManifest(ViewerManifest):
                 self.path("vivox-runtime/universal-darwin/libortp.dylib", "libortp.dylib")
                 self.path("vivox-runtime/universal-darwin/libvivoxsdk.dylib", "libvivoxsdk.dylib")
                 self.path("vivox-runtime/universal-darwin/SLVoice", "SLVoice")
-                self.path("vivox-runtime/universal-darwin/SLVoiceAgent.app", "SLVoiceAgent.app")
 
                 # llkdu dynamic library
                 self.path("../../libraries/universal-darwin/lib_release/libllkdu.dylib", "libllkdu.dylib")

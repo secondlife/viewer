@@ -98,7 +98,8 @@ public:
 	// Creates a P2P session with the requisite handle for responding to voice calls
 	LLUUID addP2PSession(const std::string& name,
 					  const LLUUID& other_participant_id,
-					  const std::string& voice_session_handle);
+					  const std::string& voice_session_handle,
+					  const std::string& caller_uri = LLStringUtil::null);
 
 	// This removes the panel referenced by the uuid, and then
 	// restores internal consistency. The internal pointer is not
@@ -112,7 +113,8 @@ public:
 		const std::string& caller_name,
 		EInstantMessage type,
 		EInvitationType inv_type, 
-		const std::string& session_handle = LLStringUtil::null);
+		const std::string& session_handle = LLStringUtil::null,
+		const std::string& session_uri = LLStringUtil::null);
 
 	//Updates a given session's session IDs.  Does not open,
 	//create or do anything new.  If the old session doesn't
