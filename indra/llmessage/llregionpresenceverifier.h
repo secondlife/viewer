@@ -2,7 +2,7 @@
  * @file 
  * @brief 
  *
- * $LicenseInfo:firstyear=2008&license=internal$
+ * $LicenseInfo:firstyear=2008&license=viewergpl$
  * 
  * Copyright (c) 2008, Linden Research, Inc.
  * 
