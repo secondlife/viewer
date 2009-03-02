@@ -12,6 +12,7 @@ include(LLVFS)
 include(LLXML)
 include(LScript)
 include(Linking)
+include(Tut)
 
 include_directories(
     ${LLCOMMON_INCLUDE_DIRS}

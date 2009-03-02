@@ -8,6 +8,7 @@ include(LLMath)
 include(LLMessage)
 include(LLVFS)
 include(LLAddBuildTest)
+include(Tut)
 
 include_directories (${CMAKE_CURRENT_SOURCE_DIR})
 

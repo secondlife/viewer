@@ -71,6 +71,7 @@ set(cmake_SOURCE_FILES
     Prebuilt.cmake
     QuickTime.cmake
     TemplateCheck.cmake
+    Tut.cmake
     UI.cmake
     UnixInstall.cmake
     Variables.cmake

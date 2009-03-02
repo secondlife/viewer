@@ -1,3 +1,4 @@
+# -*- cmake -*-
 
 INCLUDE(APR)
 INCLUDE(LLMath)
