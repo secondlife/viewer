@@ -386,10 +386,7 @@ class WindowsManifest(ViewerManifest):
         # If we're on a build machine, sign the code using our Authenticode certificate. JC
         sign_py = 'C:\\buildscripts\\code-signing\\sign.py'
         if os.path.exists(sign_py):
-            # Appears to require the "python" command to pass a proper argv
-            # to the script, but only on certain systems.  JC
-            self.run_command('python ' + sign_py + ' ' +
-                    self.dst_path_of(installer_file))
+            self.run_command(sign_py + ' ' + self.dst_path_of(installer_file))
         else:
             print "Skipping code signing,", sign_py, "does not exist"
         self.created_path(self.dst_path_of(installer_file))
