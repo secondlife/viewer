@@ -303,7 +303,8 @@ void LLPreviewTexture::saveAs()
 	if( mLoadingFullImage ) return;
 
 	LLFilePicker& file_picker = LLFilePicker::instance();
-	if( !file_picker.getSaveFile( LLFilePicker::FFSAVE_TGA, LLDir::getScrubbedFileName(getItem()->getName())) )
+	const LLViewerInventoryItem* item = getItem() ;
+	if( !file_picker.getSaveFile( LLFilePicker::FFSAVE_TGA, item ? LLDir::getScrubbedFileName(item->getName()) : LLStringUtil::null) )
 	{
 		// User canceled or we failed to acquire save file.
 		return;

@@ -172,7 +172,7 @@
 	<text name="bug_aviso">
 		Indiquez la date, le lieu, la nature de l&apos;infraction, ainsi que
 tout chat ou IM relatif à l&apos;infraction, en étant aussi précis
-que possible. Pensez à indiquer un objet.
+que possible. Pensez à indiquer un objet si possible.
 	</text>
 	<text bottom_delta="-16" name="incomplete_title">
 		Remarque : les rapports incomplets ne feront pas l&apos;objet d&apos;une

@@ -132,7 +132,7 @@
 			<menu_item_call label="正午" name="Noon"/>
 			<menu_item_call label="日没" name="Sunset"/>
 			<menu_item_call label="深夜" name="Midnight"/>
-			<menu_item_call label="地域デフォルトに戻す" name="Revert to Region Default"/>
+			<menu_item_call label="地域の標準設定に戻す" name="Revert to Region Default"/>
 			<menu_item_separator label="-----------" name="separator"/>
 			<menu_item_call label="環境編集" name="Environment Editor"/>
 		</menu>

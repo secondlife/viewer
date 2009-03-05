@@ -61,9 +61,9 @@
 			<text length="1" name="DwellText" type="string">
 				誤
 			</text>
-			<button label="土地を購入..." label_selected="土地を購入..." name="Buy Land..."/>
+			<button label="土地を購入..." label_selected="土地を購入..." name="Buy Land..." width="125" left="130"/>
 			<button label="グループ用に購入..." label_selected="グループ用に購入..." name="Buy For Group..."/>
-			<button label="入場許可を購入..." label_selected="入場許可を購入..." name="Buy Pass..." tool_tip="この土地への一時的なアクセスを許可します。"/>
+			<button label="入場許可を購入..." label_selected="入場許可を購入..." name="Buy Pass..." tool_tip="この土地への一時的なアクセスを許可します。" width="125" left="130"/>
 			<button label="土地を放棄..." label_selected="土地を放棄..." name="Abandon Land..."/>
 			<button label="土地開拓..." label_selected="土地開拓..." name="Reclaim Land..."/>
 			<button label="Lindenセール..." label_selected="Lindenセール..." name="Linden Sale..." tool_tip="土地が所有されており、コンテンツが設定されている必要があります。オークションの対象になっていないことも必要条件です。"/>

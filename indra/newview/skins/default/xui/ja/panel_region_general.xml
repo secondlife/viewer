@@ -27,7 +27,7 @@
 	<check_box label="土地の検索表示をブロック" name="block_parcel_search_check"
 	     tool_tip="検索結果で、この地域と区画を人に見せる" />
 	<button label="?" name="parcel_search_help" />
-	<spinner label="人物の制限" name="agent_limit_spin" />
+	<spinner label="アバター数上限" name="agent_limit_spin" />
 	<button label="?" name="agent_limit_help" />
 	<spinner label="物体ボーナス" name="object_bonus_spin" />
 	<button label="?" name="object_bonus_help" />

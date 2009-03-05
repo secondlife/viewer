@@ -76,7 +76,7 @@
 	<check_box label="土地を隆起させる" name="radio raise" />
 	<check_box label="土地を低くする" name="radio lower" />
 	<check_box label="土地を滑らかにする" name="radio smooth" />
-	<check_box label="土地を荒らす" name="radio noise" />
+	<check_box label="土地を凸凹にする" name="radio noise" />
 	<check_box label="土地を元に戻す" name="radio revert" />
 	<combo_box name="combobox brush size">
 		<combo_item name="Small">
@@ -558,7 +558,7 @@
 				</combo_item>
 			</combo_box>
 			<text name="tex scale">
-				顔ごとに繰り返す
+				面ごとに繰り返す
 			</text>
 			<spinner label="水平（U）" name="TexScaleU" />
 			<check_box label="反転" name="checkbox flip s" />
