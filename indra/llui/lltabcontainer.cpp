@@ -71,6 +71,7 @@ LLTabContainer::LLTabContainer(const std::string& name, const LLRect& rect, TabP
 	: 
 	LLPanel(name, rect, bordered),
 	mCurrentTabIdx(-1),
+	mNextTabIdx(-1),
 	mTabsHidden(FALSE),
 	mScrolled(FALSE),
 	mScrollPos(0),
@@ -1150,9 +1151,37 @@ BOOL LLTabContainer::selectTab(S32 which)
 	{
 		return FALSE;
 	}
-	
+
+	if (!selected_tuple->mPrecommitChangeCallback)
+	{
+		return setTab(which);
+	}
+
+	mNextTabIdx = which;
+	selected_tuple->mPrecommitChangeCallback(selected_tuple->mUserData, false);
+	return TRUE;
+}
+
+BOOL LLTabContainer::setTab(S32 which)
+{
+	if (which == -1)
+	{
+		if (mNextTabIdx == -1)
+		{
+			return FALSE;
+		}
+		which = mNextTabIdx;
+		mNextTabIdx = -1;
+	}
+
+	LLTabTuple* selected_tuple = getTab(which);
+	if (!selected_tuple)
+	{
+		return FALSE;
+	}
+
 	BOOL is_visible = FALSE;
-	if (getTab(which)->mButton->getEnabled())
+	if (selected_tuple->mButton->getEnabled())
 	{
 		setCurrentPanelIndex(which);
 
@@ -1332,6 +1361,15 @@ void LLTabContainer::setTabChangeCallback(LLPanel* tab, void (*on_tab_clicked)(v
 	}
 }
 
+void LLTabContainer::setTabPrecommitChangeCallback(LLPanel* tab, void (*on_precommit)(void*, bool))
+{
+	LLTabTuple* tuplep = getTabByPanel(tab);
+	if (tuplep)
+	{
+		tuplep->mPrecommitChangeCallback = on_precommit;
+	}
+}
+
 void LLTabContainer::setTabUserData(LLPanel* tab, void* userdata)
 {
 	LLTabTuple* tuplep = getTabByPanel(tab);
@@ -1371,11 +1409,6 @@ void LLTabContainer::onTabBtn( void* userdata )
 	LLTabTuple* tuple = (LLTabTuple*) userdata;
 	LLTabContainer* self = tuple->mTabContainer;
 	self->selectTabPanel( tuple->mTabPanel );
-	
-	if( tuple->mOnChangeCallback )
-	{
-		tuple->mOnChangeCallback( tuple->mUserData, true );
-	}
 
 	tuple->mTabPanel->setFocus(TRUE);
 }

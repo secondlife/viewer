@@ -955,7 +955,7 @@ void LLToolDragAndDrop::pickCallback(const LLPickInfo& pick_info)
 
 		if(hit_obj->isAvatar())
 		{
-			if(((LLVOAvatar*) hit_obj)->mIsSelf)
+			if(((LLVOAvatar*) hit_obj)->isSelf())
 			{
 				target = DT_SELF;
 				hit_face = -1;

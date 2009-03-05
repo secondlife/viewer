@@ -71,6 +71,22 @@ public:
 	virtual void uploadComplete(const LLSD& content);
 };
 
+class LLBakedUploadData;
+class LLSendTexLayerResponder : public LLAssetUploadResponder
+{
+public:
+	LLSendTexLayerResponder(const LLSD& post_data,
+							const LLUUID& vfile_id,
+							LLAssetType::EType asset_type,
+							LLBakedUploadData * baked_upload_data);
+
+	~LLSendTexLayerResponder();
+
+	virtual void uploadComplete(const LLSD& content);
+
+	LLBakedUploadData * mBakedUploadData;
+};
+
 class LLUpdateAgentInventoryResponder : public LLAssetUploadResponder
 {
 public:

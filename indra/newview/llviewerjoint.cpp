@@ -514,6 +514,16 @@ void LLViewerJoint::setVisible(BOOL visible, BOOL recursive)
 	}
 }
 
+
+void LLViewerJoint::setMeshesToChildren()
+{
+	removeAllChildren();
+	for (std::vector<LLViewerJointMesh*>::iterator iter = mMeshParts.begin();
+		iter != mMeshParts.end(); iter++)
+	{
+		addChild((LLViewerJointMesh *) *iter);
+	}
+}
 //-----------------------------------------------------------------------------
 // LLViewerJointCollisionVolume()
 //-----------------------------------------------------------------------------

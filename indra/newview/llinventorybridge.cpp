@@ -3883,7 +3883,7 @@ void wear_inventory_category_on_avatar( LLInventoryCategory* category, BOOL appe
 
 	if( gFloaterCustomize )
 	{
-		gFloaterCustomize->askToSaveAllIfDirty(
+		gFloaterCustomize->askToSaveIfDirty(
 			wear_inventory_category_on_avatar_step2,
 			userdata);
 	}
@@ -4154,7 +4154,7 @@ void remove_inventory_category_from_avatar( LLInventoryCategory* category )
 
 	if( gFloaterCustomize )
 	{
-		gFloaterCustomize->askToSaveAllIfDirty(
+		gFloaterCustomize->askToSaveIfDirty(
 			remove_inventory_category_from_avatar_step2,
 			uuid);
 	}

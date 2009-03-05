@@ -510,10 +510,8 @@ void LLImageGL::setImage(const U8* data_in, BOOL data_hasmips)
 		is_compressed = true;
 	}
 
-	{
 // 		LLFastTimer t2(LLFastTimer::FTM_TEMP2);
-		llverify(gGL.getTexUnit(0)->bind(this));
-	}
+	gGL.getTexUnit(0)->bind(this);
 	
 	if (mUseMipMaps)
 	{

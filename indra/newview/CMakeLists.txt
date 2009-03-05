@@ -203,7 +203,6 @@ set(viewer_SOURCE_FILES
     llfollowcam.cpp
     llframestats.cpp
     llframestatview.cpp
-    llgenepool.cpp
     llgesturemgr.cpp
     llgivemoney.cpp
     llglsandbox.cpp
@@ -406,6 +405,7 @@ set(viewer_SOURCE_FILES
     llvlcomposition.cpp
     llvlmanager.cpp
     llvoavatar.cpp
+    llvoavatardefines.cpp
     llvocache.cpp
     llvoclouds.cpp
     llvograss.cpp
@@ -605,7 +605,6 @@ set(viewer_HEADER_FILES
     llfollowcam.h
     llframestats.h
     llframestatview.h
-    llgenepool.h
     llgesturemgr.h
     llgivemoney.h
     llgroupmgr.h
@@ -810,6 +809,7 @@ set(viewer_HEADER_FILES
     llvlcomposition.h
     llvlmanager.h
     llvoavatar.h
+    llvoavatardefines.h
     llvocache.h
     llvoclouds.h
     llvograss.h

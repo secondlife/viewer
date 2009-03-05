@@ -237,7 +237,11 @@ BOOL LLVisualParamHint::render()
 	{
 		LLDrawPoolAvatar *avatarPoolp = (LLDrawPoolAvatar *)avatarp->mDrawable->getFace(0)->getPool();
 		LLGLDepthTest gls_depth(GL_TRUE, GL_TRUE);
+		gGL.setAlphaRejectSettings(LLRender::CF_ALWAYS);
+		gGL.setSceneBlendType(LLRender::BT_REPLACE);
 		avatarPoolp->renderAvatars(avatarp);  // renders only one avatar
+		gGL.setSceneBlendType(LLRender::BT_ALPHA);
+		gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
 	}
 	avatarp->setVisualParamWeight(mVisualParam, mLastParamWeight);
 	gGL.color4f(1,1,1,1);

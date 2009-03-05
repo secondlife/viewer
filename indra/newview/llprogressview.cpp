@@ -241,7 +241,7 @@ void LLProgressView::onCancelButtonClicked(void*)
 void LLProgressView::onClickMessage(void* data)
 {
 	LLProgressView* viewp = (LLProgressView*)data;
-	if ( ! viewp->mMessage.empty() )
+	if ( viewp != NULL && ! viewp->mMessage.empty() )
 	{
 		std::string url_to_open( "" );
 

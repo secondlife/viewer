@@ -114,7 +114,12 @@ public:
 	static BOOL sSkipTransparent;
 };
 
-
+class LLVertexBufferAvatar : public LLVertexBuffer
+{
+public:
+	LLVertexBufferAvatar();
+	virtual void setupVertexBuffer(U32 data_mask) const;
+};
 
 extern S32 AVATAR_OFFSET_POS;
 extern S32 AVATAR_OFFSET_NORMAL;

@@ -108,6 +108,7 @@ public:
 	BOOL 		selectTabPanel( LLPanel* child );
 	BOOL 		selectTab(S32 which);
 	BOOL 		selectTabByName(const std::string& title);
+	BOOL		setTab(S32 which);
 
 	BOOL        getTabPanelFlashing(LLPanel* child);
 	void		setTabPanelFlashing(LLPanel* child, BOOL state);
@@ -119,6 +120,7 @@ public:
 	S32			getTopBorderHeight() const;
 	
 	void 		setTabChangeCallback(LLPanel* tab, void (*on_tab_clicked)(void*,bool));
+	void		setTabPrecommitChangeCallback(LLPanel* tab, void (*on_precommit)(void*, bool));
 	void 		setTabUserData(LLPanel* tab, void* userdata);
 
 	void 		setRightTabBtnOffset( S32 offset );
@@ -148,12 +150,14 @@ private:
 	struct LLTabTuple
 	{
 		LLTabTuple( LLTabContainer* c, LLPanel* p, LLButton* b,
-					void (*cb)(void*,bool), void* userdata, LLTextBox* placeholder = NULL )
+					void (*cb)(void*,bool), void* userdata, LLTextBox* placeholder = NULL, 
+					void (*pcb)(void*,bool) = NULL)
 			:
 			mTabContainer(c),
 			mTabPanel(p),
 			mButton(b),
 			mOnChangeCallback( cb ),
+			mPrecommitChangeCallback( pcb ),
 			mUserData( userdata ),
 			mOldState(FALSE),
 			mPlaceholderText(placeholder),
@@ -164,6 +168,9 @@ private:
 		LLPanel*		 mTabPanel;
 		LLButton*		 mButton;
 		void			 (*mOnChangeCallback)(void*, bool);
+		void			 (*mPrecommitChangeCallback)(void*,bool);		// Precommit callback gets called before tab is changed and 
+																		// can prevent it from being changed. onChangeCallback is called
+																		// immediately after tab is actually changed - Nyx
 		void*			 mUserData;
 		BOOL			 mOldState;
 		LLTextBox*		 mPlaceholderText;
@@ -200,6 +207,7 @@ private:
 	tuple_list_t					mTabList;
 	
 	S32								mCurrentTabIdx;
+	S32								mNextTabIdx;
 	BOOL							mTabsHidden;
 
 	BOOL							mScrolled;

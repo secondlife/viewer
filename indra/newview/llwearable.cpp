@@ -49,6 +49,8 @@
 #include "llvoavatar.h"
 #include "llwearable.h"
 
+using namespace LLVOAvatarDefines;
+
 // static
 S32 LLWearable::sCurrentDefinitionVersion = 1;
 
@@ -392,6 +394,7 @@ BOOL LLWearable::importFile( LLFILE* file )
 	}
 	else
 	{
+		mType = WT_COUNT;
 		llwarns << "Bad Wearable asset: bad type #" << type <<  llendl;
 		return FALSE;
 	}
@@ -501,9 +504,9 @@ BOOL LLWearable::isOldVersion()
 
 
 	S32 te_count = 0;
-	for( S32 te = 0; te < LLVOAvatar::TEX_NUM_ENTRIES; te++ )
+	for( S32 te = 0; te < TEX_NUM_INDICES; te++ )
 	{
-		if( LLVOAvatar::getTEWearableType( te ) == mType )
+		if( LLVOAvatar::getTEWearableType((ETextureIndex) te ) == mType )
 		{
 			te_count++;
 			if( !is_in_map(mTEMap, te ) )
@@ -555,9 +558,9 @@ BOOL LLWearable::isDirty()
 		}
 	}
 
-	for( S32 te = 0; te < LLVOAvatar::TEX_NUM_ENTRIES; te++ )
+	for( S32 te = 0; te < TEX_NUM_INDICES; te++ )
 	{
-		if( LLVOAvatar::getTEWearableType( te ) == mType )
+		if( LLVOAvatar::getTEWearableType((ETextureIndex) te ) == mType )
 		{
 			LLViewerImage* avatar_image = avatar->getTEImage( te );
 			if( !avatar_image )
@@ -565,7 +568,7 @@ BOOL LLWearable::isDirty()
 				llassert( 0 );
 				continue;
 			}
-			const LLUUID& image_id = get_if_there(mTEMap,  te, LLVOAvatar::getDefaultTEImageID( te ) );
+			const LLUUID& image_id = get_if_there(mTEMap,  te, LLVOAvatar::getDefaultTEImageID((ETextureIndex) te ) );
 			if( avatar_image->getID() != image_id )
 			{
 				return TRUE;
@@ -607,11 +610,11 @@ void LLWearable::setParamsToDefaults()
 void LLWearable::setTexturesToDefaults()
 {
 	mTEMap.clear();
-	for( S32 te = 0; te < LLVOAvatar::TEX_NUM_ENTRIES; te++ )
+	for( S32 te = 0; te < TEX_NUM_INDICES; te++ )
 	{
-		if( LLVOAvatar::getTEWearableType( te ) == mType )
+		if( LLVOAvatar::getTEWearableType((ETextureIndex) te ) == mType )
 		{
-			mTEMap[te] = LLVOAvatar::getDefaultTEImageID( te );
+			mTEMap[te] = LLVOAvatar::getDefaultTEImageID((ETextureIndex) te );
 		}
 	}
 }
@@ -654,11 +657,11 @@ void LLWearable::writeToAvatar( BOOL set_by_user )
 	}
 
 	// Pull texture entries
-	for( S32 te = 0; te < LLVOAvatar::TEX_NUM_ENTRIES; te++ )
+	for( S32 te = 0; te < TEX_NUM_INDICES; te++ )
 	{
-		if( LLVOAvatar::getTEWearableType( te ) == mType )
+		if( LLVOAvatar::getTEWearableType((ETextureIndex) te ) == mType )
 		{
-			const LLUUID& image_id = get_if_there(mTEMap, te, LLVOAvatar::getDefaultTEImageID( te ) );
+			const LLUUID& image_id = get_if_there(mTEMap, te, LLVOAvatar::getDefaultTEImageID((ETextureIndex) te ) );
 			LLViewerImage* image = gImageList.getImage( image_id );
 			avatar->setLocTexTE( te, image, set_by_user );
 		}
@@ -731,9 +734,9 @@ void LLWearable::removeFromAvatar( EWearableType type, BOOL set_by_user )
 
 	// Pull textures
 	LLViewerImage* image = gImageList.getImage( IMG_DEFAULT_AVATAR );
-	for( S32 te = 0; te < LLVOAvatar::TEX_NUM_ENTRIES; te++ )
+	for( S32 te = 0; te < TEX_NUM_INDICES; te++ )
 	{
-		if( LLVOAvatar::getTEWearableType( te ) == type )
+		if( LLVOAvatar::getTEWearableType((ETextureIndex) te ) == type )
 		{
 			avatar->setLocTexTE( te, image, set_by_user );
 		}
@@ -777,9 +780,9 @@ void LLWearable::readFromAvatar()
 	}
 
 	mTEMap.clear();
-	for( S32 te = 0; te < LLVOAvatar::TEX_NUM_ENTRIES; te++ )
+	for( S32 te = 0; te < TEX_NUM_INDICES; te++ )
 	{
-		if( LLVOAvatar::getTEWearableType( te ) == mType )
+		if( LLVOAvatar::getTEWearableType((ETextureIndex) te ) == mType )
 		{
 			LLViewerImage* image = avatar->getTEImage( te );
 			if( image )
@@ -828,11 +831,11 @@ void LLWearable::copyDataFrom( LLWearable* src )
 	}
 
 	// Deep copy of mTEMap (copies only those tes that are current, filling in defaults where needed)
-	for( S32 te = 0; te < LLVOAvatar::TEX_NUM_ENTRIES; te++ )
+	for( S32 te = 0; te < TEX_NUM_INDICES; te++ )
 	{
-		if( LLVOAvatar::getTEWearableType( te ) == mType )
+		if( LLVOAvatar::getTEWearableType((ETextureIndex) te ) == mType )
 		{
-			const LLUUID& image_id = get_if_there(src->mTEMap, te, LLVOAvatar::getDefaultTEImageID( te ) );
+			const LLUUID& image_id = get_if_there(src->mTEMap, te, LLVOAvatar::getDefaultTEImageID((ETextureIndex) te ) );
 			mTEMap[te] = image_id;
 		}
 	}

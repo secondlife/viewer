@@ -102,6 +102,7 @@ void LLWearableList::getAsset( const LLAssetID& assetID, const std::string& wear
 // static
 void LLWearableList::processGetAssetReply( const char* filename, const LLAssetID& uuid, void* userdata, S32 status, LLExtStat ext_status )
 {
+	BOOL isNewWearable = FALSE;
 	LLWearableArrivedData* data = (LLWearableArrivedData*) userdata;
 	LLWearable* wearable = NULL; // NULL indicates failure
 	
@@ -124,6 +125,10 @@ void LLWearableList::processGetAssetReply( const char* filename, const LLAssetID
 			bool res = wearable->importFile( fp );
 			if (!res)
 			{
+				if (wearable->getType() == WT_COUNT)
+				{
+					isNewWearable = TRUE;
+				}
 				delete wearable;
 				wearable = NULL;
 			}
@@ -184,7 +189,11 @@ void LLWearableList::processGetAssetReply( const char* filename, const LLAssetID
 		LLSD args;
 		// *TODO:translate
 		args["TYPE"] = LLAssetType::lookupHumanReadable(data->mAssetType);
-		if (data->mName.empty())
+		if (isNewWearable)
+		{
+			LLNotifications::instance().add("InvalidWearable");
+		}
+		else if (data->mName.empty())
 		{
 			LLNotifications::instance().add("FailedToFindWearableUnnamed", args);
 		}

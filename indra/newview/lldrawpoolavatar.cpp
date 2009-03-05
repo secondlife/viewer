@@ -758,7 +758,7 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 			avatarp->renderCollisionVolumes();
 		}
 
-		if (avatarp->mIsSelf && LLAgent::sDebugDisplayTarget)
+		if (avatarp->isSelf() && LLAgent::sDebugDisplayTarget)
 		{
 			gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 			LLVector3 pos = avatarp->getPositionAgent();

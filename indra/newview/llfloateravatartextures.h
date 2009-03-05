@@ -36,6 +36,7 @@
 #include "llfloater.h"
 #include "lluuid.h"
 #include "llstring.h"
+#include "llvoavatardefines.h"
 
 class LLTextureCtrl;
 
@@ -58,26 +59,7 @@ private:
 private:
 	LLUUID	mID;
 	std::string mTitle;
-	LLTextureCtrl* mBakedHead;
-	LLTextureCtrl* mBakedEyes;
-	LLTextureCtrl* mBakedUpper;
-	LLTextureCtrl* mBakedLower;
-	LLTextureCtrl* mBakedSkirt;
-	LLTextureCtrl* mHair;
-	LLTextureCtrl* mMakeup;
-	LLTextureCtrl* mEye;
-	LLTextureCtrl* mShirt;
-	LLTextureCtrl* mUpperTattoo;
-	LLTextureCtrl* mUpperJacket;
-	LLTextureCtrl* mGloves;
-	LLTextureCtrl* mUndershirt;
-	LLTextureCtrl* mPants;
-	LLTextureCtrl* mLowerTattoo;
-	LLTextureCtrl* mShoes;
-	LLTextureCtrl* mSocks;
-	LLTextureCtrl* mJacket;
-	LLTextureCtrl* mUnderpants;
-	LLTextureCtrl* mSkirt;
+	LLTextureCtrl* mTextures[LLVOAvatarDefines::TEX_NUM_INDICES];
 };
 
 #endif

@@ -66,8 +66,8 @@ class LLWearable
 public:
 	~LLWearable();
 
-	const LLAssetID&		getID() { return mAssetID; }
-	const LLTransactionID&		getTransactionID() { return mTransactionID; }
+	const LLAssetID&		getID() const { return mAssetID; }
+	const LLTransactionID&		getTransactionID() const { return mTransactionID; }
 
 	BOOL				isDirty();
 	BOOL				isOldVersion();
@@ -84,16 +84,16 @@ public:
 	void				setType( EWearableType type )			{ mType = type; }
 
 	void				setName( const std::string& name )			{ mName = name; }
-	const std::string&	getName()								{ return mName; }
+	const std::string&	getName() const								{ return mName; }
 
 	void				setDescription( const std::string& desc )	{ mDescription = desc; }
-	const std::string&	getDescription()						{ return mDescription; }
+	const std::string&	getDescription() const						{ return mDescription; }
 
 	void				setPermissions( const LLPermissions& p ) { mPermissions = p; }
-	const LLPermissions& getPermissions()						{ return mPermissions; }
+	const LLPermissions& getPermissions() const						{ return mPermissions; }
 
 	void				setSaleInfo( const LLSaleInfo& info )	{ mSaleInfo = info; }
-	const LLSaleInfo&	getSaleInfo()							{ return mSaleInfo; }
+	const LLSaleInfo&	getSaleInfo() const							{ return mSaleInfo; }
 
 	const std::string&	getTypeLabel() const					{ return LLWearable::sTypeLabel[ mType ]; }
 	const std::string&	getTypeName() const						{ return LLWearable::sTypeName[ mType ]; }

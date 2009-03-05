@@ -40,6 +40,7 @@
 #include "llapr.h"
 
 class LLFace;
+class LLViewerJointMesh;
 
 //-----------------------------------------------------------------------------
 // class LLViewerJoint
@@ -133,8 +134,13 @@ public:
 
 	void setVisible( BOOL visible, BOOL recursive );
 
+	// Takes meshes in mMeshParts and sets each one as a child joint
+	void setMeshesToChildren();
+
 public:
 	static BOOL	sDisableLOD;
+	std::vector<LLViewerJointMesh*> mMeshParts;
+	void setMeshID( S32 id ) {mMeshID = id;}
 
 protected:
 	BOOL		mValid;
@@ -142,6 +148,7 @@ protected:
 	F32			mMinPixelArea;
 	PickName	mPickName;
 	BOOL		mVisible;
+	S32			mMeshID;
 };
 
 class LLViewerJointCollisionVolume : public LLViewerJoint

@@ -391,6 +391,7 @@ public:
 	static S32				sCompiles;
 
 	static BOOL				sShowHUDAttachments;
+	static BOOL				sForceOldBakedUpload; // If true will not use capabilities to upload baked textures.
 	static S32				sUseOcclusion;  // 0 = no occlusion, 1 = read only, 2 = read/write
 	static BOOL				sDelayVBUpdate;
 	static BOOL				sFastAlpha;

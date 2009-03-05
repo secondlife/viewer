@@ -3671,7 +3671,7 @@ void process_avatar_animation(LLMessageSystem *mesgsys, void **user_data)
 
 	avatarp->mSignaledAnimations.clear();
 	
-	if (avatarp->mIsSelf)
+	if (avatarp->isSelf())
 	{
 		LLUUID object_id;
 

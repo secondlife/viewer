@@ -56,6 +56,7 @@
 #include "llviewerobjectlist.h"
 #include "llviewermenufile.h"
 #include "llviewerwindow.h"
+#include "lltexlayer.h"
 
 // When uploading multiple files, don't display any of them when uploading more than this number.
 static const S32 FILE_COUNT_DISPLAY_THRESHOLD = 5;
@@ -139,6 +140,7 @@ void LLAssetUploadResponder::result(const LLSD& content)
 		if (mFileName.empty())
 		{
 			// rename the file in the VFS to the actual asset id
+			// llinfos << "Changing uploaded asset UUID to " << content["new_asset"].asUUID() << llendl;
 			gVFS->renameFile(mVFileID, mAssetType, content["new_asset"].asUUID(), mAssetType);
 		}
 		uploadComplete(content);
@@ -329,6 +331,48 @@ void LLNewAgentInventoryResponder::uploadComplete(const LLSD& content)
 				    next_owner_perms, group_perms,
 				    everyone_perms, display_name,
 				    callback, expected_upload_cost, userdata);
+	}
+}
+
+LLSendTexLayerResponder::LLSendTexLayerResponder(const LLSD& post_data,
+														   const LLUUID& vfile_id,
+														   LLAssetType::EType asset_type,
+														   LLBakedUploadData * baked_upload_data)
+												: LLAssetUploadResponder(post_data, vfile_id, asset_type),
+												mBakedUploadData(baked_upload_data)
+{
+}
+
+LLSendTexLayerResponder::~LLSendTexLayerResponder()
+{
+	// mBakedUploadData is normally deleted by calls to LLTexLayerSetBuffer::onTextureUploadComplete() below
+	if (mBakedUploadData)
+	{	// ...but delete it in the case where uploadComplete() is never called
+		delete mBakedUploadData;
+		mBakedUploadData = NULL;
+	}
+}
+
+
+// Baked texture upload completed
+void LLSendTexLayerResponder::uploadComplete(const LLSD& content)
+{
+	LLUUID item_id = mPostData["item_id"];
+
+	std::string result = content["state"];
+	LLUUID new_id = content["new_asset"];
+
+	llinfos << "LLSendTexLayerResponder::result from capabilities: " << result << llendl;
+	if (result == "complete"
+		&& mBakedUploadData != NULL)
+	{	// Invoke 
+		LLTexLayerSetBuffer::onTextureUploadComplete(new_id, (void*) mBakedUploadData, 0, LL_EXSTAT_NONE);
+		mBakedUploadData = NULL;	// deleted in onTextureUploadComplete()
+	}
+	else
+	{	// Invoke the original callback with an error result
+		LLTexLayerSetBuffer::onTextureUploadComplete(new_id, (void*) mBakedUploadData, -1, LL_EXSTAT_NONE);
+		mBakedUploadData = NULL;	// deleted in onTextureUploadComplete()
 	}
 }
 

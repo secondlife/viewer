@@ -1420,6 +1420,7 @@ void LLViewerRegion::setSeedCapability(const std::string& url)
 	capabilityNames.append("SendUserReportWithScreenshot");
 	capabilityNames.append("ServerReleaseNotes");
 	capabilityNames.append("StartGroupProposal");
+	capabilityNames.append("UntrustedSimulatorMessage");
 	capabilityNames.append("UpdateAgentLanguage");
 	capabilityNames.append("UpdateGestureAgentInventory");
 	capabilityNames.append("UpdateNotecardAgentInventory");
@@ -1427,8 +1428,8 @@ void LLViewerRegion::setSeedCapability(const std::string& url)
 	capabilityNames.append("UpdateGestureTaskInventory");
 	capabilityNames.append("UpdateNotecardTaskInventory");
 	capabilityNames.append("UpdateScriptTask");
+	capabilityNames.append("UploadBakedTexture");
 	capabilityNames.append("ViewerStartAuction");
-	capabilityNames.append("UntrustedSimulatorMessage");
 	capabilityNames.append("ViewerStats");
 	// Please add new capabilities alphabetically to reduce
 	// merge conflicts.

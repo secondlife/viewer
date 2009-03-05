@@ -197,8 +197,8 @@ bool LLTexUnit::bind(LLImageGL* texture, bool forceBind)
 
 		return texture->bindDefaultImage(mIndex);
 	}
-	
-	if (texture != NULL && ((mCurrTexture != texture->getTexName()) || forceBind))
+
+	if ((mCurrTexture != texture->getTexName()) || forceBind)
 	{
 		activate();
 		enable(texture->getTarget());
@@ -213,9 +213,8 @@ bool LLTexUnit::bind(LLImageGL* texture, bool forceBind)
 			setTextureAddressMode(texture->mAddressMode);
 			setTextureFilteringOption(texture->mFilterOption);
 		}
-		return true;
 	}
-	return false;
+	return true;
 }
 
 bool LLTexUnit::bind(LLCubeMap* cubeMap)
@@ -224,7 +223,13 @@ bool LLTexUnit::bind(LLCubeMap* cubeMap)
 
 	gGL.flush();
 
-	if (cubeMap != NULL && mCurrTexture != cubeMap->mImages[0]->getTexName())
+	if (cubeMap == NULL)
+	{
+		llwarns << "NULL LLTexUnit::bind cubemap" << llendl;
+		return false;
+	}
+
+	if (mCurrTexture != cubeMap->mImages[0]->getTexName())
 	{
 		if (gGLManager.mHasCubeMap && LLCubeMap::sUseCubeMaps)
 		{
@@ -244,10 +249,11 @@ bool LLTexUnit::bind(LLCubeMap* cubeMap)
 		}
 		else
 		{
-			llwarns << "Using cube map without extension!" << llendl
+			llwarns << "Using cube map without extension!" << llendl;
+			return false;
 		}
 	}
-	return false;
+	return true;
 }
 
 // LLRenderTarget is unavailible on the mapserver since it uses FBOs.

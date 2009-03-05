@@ -1072,16 +1072,20 @@ void LLHUDText::renderAllHUD()
 	LLGLState::checkStates();
 	LLGLState::checkTextureChannels();
 	LLGLState::checkClientArrays();
-	
-	LLGLEnable color_mat(GL_COLOR_MATERIAL);
-	LLGLDepthTest depth(GL_FALSE, GL_FALSE);
-	
-	VisibleTextObjectIterator text_it;
 
-	for (text_it = sVisibleHUDTextObjects.begin(); text_it != sVisibleHUDTextObjects.end(); ++text_it)
 	{
-		(*text_it)->renderText(FALSE);
+		LLGLEnable color_mat(GL_COLOR_MATERIAL);
+		LLGLDepthTest depth(GL_FALSE, GL_FALSE);
+		
+		VisibleTextObjectIterator text_it;
+
+		for (text_it = sVisibleHUDTextObjects.begin(); text_it != sVisibleHUDTextObjects.end(); ++text_it)
+		{
+			(*text_it)->renderText(FALSE);
+		}
 	}
+	
+	LLVertexBuffer::unbind();
 
 	LLGLState::checkStates();
 	LLGLState::checkTextureChannels();

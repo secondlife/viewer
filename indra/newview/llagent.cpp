@@ -133,6 +133,8 @@
 #include "llviewerjoystick.h"
 #include "llfollowcam.h"
 
+using namespace LLVOAvatarDefines;
+
 extern LLMenuBarGL* gMenuBarView;
 
 //drone wandering constants
@@ -206,26 +208,6 @@ const F32 OBJECT_EXTENTS_PADDING = 0.5f;
 const F32 MIN_RADIUS_ALPHA_SIZZLE = 0.5f;
 
 const F64 CHAT_AGE_FAST_RATE = 3.0;
-
-const S32 MAX_WEARABLES_PER_LAYERSET = 7;
-
-const EWearableType WEARABLE_BAKE_TEXTURE_MAP[BAKED_TEXTURE_COUNT][MAX_WEARABLES_PER_LAYERSET] = 
-{
-	{ WT_SHAPE,	WT_SKIN,	WT_HAIR,	WT_INVALID,	WT_INVALID,	WT_INVALID,		WT_INVALID    },	// TEX_HEAD_BAKED
-	{ WT_SHAPE, WT_SKIN,	WT_SHIRT,	WT_JACKET,	WT_GLOVES,	WT_UNDERSHIRT,	WT_INVALID	  },	// TEX_UPPER_BAKED
-	{ WT_SHAPE, WT_SKIN,	WT_PANTS,	WT_SHOES,	WT_SOCKS,	WT_JACKET,		WT_UNDERPANTS },	// TEX_LOWER_BAKED
-	{ WT_EYES,	WT_INVALID,	WT_INVALID,	WT_INVALID,	WT_INVALID,	WT_INVALID,		WT_INVALID    },	// TEX_EYES_BAKED
-	{ WT_SKIRT,	WT_INVALID,	WT_INVALID,	WT_INVALID,	WT_INVALID,	WT_INVALID,		WT_INVALID    }		// TEX_SKIRT_BAKED
-};
-
-const LLUUID BAKED_TEXTURE_HASH[BAKED_TEXTURE_COUNT] = 
-{
-	LLUUID("18ded8d6-bcfc-e415-8539-944c0f5ea7a6"),
-	LLUUID("338c29e3-3024-4dbb-998d-7c04cf4fa88f"),
-	LLUUID("91b4a2c7-1b1a-ba16-9a16-1f8f8dcc1c3f"),
-	LLUUID("b2cf28af-b840-1071-3c6a-78085d8128b5"),
-	LLUUID("ea800387-ea1a-14e0-56cb-24f2022f969a")
-};
 
 // The agent instance.
 LLAgent gAgent;
@@ -424,8 +406,8 @@ LLAgent::LLAgent() :
 		mControlsTakenPassedOnCount[i] = 0;
 	}
 
-	mActiveCacheQueries = new S32[BAKED_TEXTURE_COUNT];
-	for (i = 0; i < (U32)BAKED_TEXTURE_COUNT; i++)
+	mActiveCacheQueries = new S32[BAKED_NUM_INDICES];
+	for (i = 0; i < (U32)BAKED_NUM_INDICES; i++)
 	{
 		mActiveCacheQueries[i] = 0;
 	}
@@ -5756,11 +5738,11 @@ void LLAgent::processAgentCachedTextureResponse(LLMessageSystem *mesgsys, void *
 		mesgsys->getU8Fast(_PREHASH_WearableData, _PREHASH_TextureIndex, texture_index, texture_block);
 
 		if (texture_id.notNull() 
-			&& (S32)texture_index < BAKED_TEXTURE_COUNT 
+			&& (S32)texture_index < BAKED_NUM_INDICES 
 			&& gAgent.mActiveCacheQueries[ texture_index ] == query_id)
 		{
 			//llinfos << "Received cached texture " << (U32)texture_index << ": " << texture_id << llendl;
-			avatarp->setCachedBakedTexture((LLVOAvatar::ETextureIndex)LLVOAvatar::sBakedTextureIndices[texture_index], texture_id);
+			avatarp->setCachedBakedTexture(getTextureIndex((EBakedTextureIndex)texture_index), texture_id);
 			//avatarp->setTETexture( LLVOAvatar::sBakedTextureIndices[texture_index], texture_id );
 			gAgent.mActiveCacheQueries[ texture_index ] = 0;
 			num_results++;
@@ -7053,11 +7035,8 @@ void LLAgent::sendAgentSetAppearance()
 		return;
 	}
 
-	llinfos << "TAT: Sent AgentSetAppearance: " <<
-		(( mAvatarObject->getTEImage( LLVOAvatar::TEX_HEAD_BAKED )->getID() != IMG_DEFAULT_AVATAR )  ? "HEAD " : "head " ) <<
-		(( mAvatarObject->getTEImage( LLVOAvatar::TEX_UPPER_BAKED )->getID() != IMG_DEFAULT_AVATAR ) ? "UPPER " : "upper " ) <<
-		(( mAvatarObject->getTEImage( LLVOAvatar::TEX_LOWER_BAKED )->getID() != IMG_DEFAULT_AVATAR ) ? "LOWER " : "lower " ) <<
-		(( mAvatarObject->getTEImage( LLVOAvatar::TEX_EYES_BAKED )->getID() != IMG_DEFAULT_AVATAR )  ? "EYES" : "eyes" ) << llendl;
+
+	llinfos << "TAT: Sent AgentSetAppearance: " << mAvatarObject->getBakedStatusForPrintout() << llendl;
 	//dumpAvatarTEs( "sendAgentSetAppearance()" );
 
 	LLMessageSystem* msg = gMessageSystem;
@@ -7071,7 +7050,7 @@ void LLAgent::sendAgentSetAppearance()
 	// NOTE -- when we start correcting all of the other Havok geometry 
 	// to compensate for the COLLISION_TOLERANCE ugliness we will have 
 	// to tweak this number again
-	LLVector3 body_size = mAvatarObject->mBodySize;
+	const LLVector3 body_size = mAvatarObject->mBodySize;
 	msg->addVector3Fast(_PREHASH_Size, body_size);	
 
 	// To guard against out of order packets
@@ -7083,19 +7062,18 @@ void LLAgent::sendAgentSetAppearance()
 	// KLW - TAT this will probably need to check the local queue.
 	BOOL textures_current = !mAvatarObject->hasPendingBakedUploads() && mWearablesLoaded;
 
-	S32 baked_texture_index;
-	for( baked_texture_index = 0; baked_texture_index < BAKED_TEXTURE_COUNT; baked_texture_index++ )
+	for(U8 baked_index = 0; baked_index < BAKED_NUM_INDICES; baked_index++ )
 	{
-		S32 tex_index = LLVOAvatar::sBakedTextureIndices[baked_texture_index];
+		const ETextureIndex texture_index = getTextureIndex((EBakedTextureIndex)baked_index);
 
 		// if we're not wearing a skirt, we don't need the texture to be baked
-		if (tex_index == LLVOAvatar::TEX_SKIRT_BAKED && !mAvatarObject->isWearingWearableType(WT_SKIRT))
+		if (texture_index == TEX_SKIRT_BAKED && !mAvatarObject->isWearingWearableType(WT_SKIRT))
 		{
 			continue;
 		}
 
 		// IMG_DEFAULT_AVATAR means not baked
-		if (mAvatarObject->getTEImage( tex_index)->getID() == IMG_DEFAULT_AVATAR)
+		if (!mAvatarObject->isTextureDefined(texture_index))
 		{
 			textures_current = FALSE;
 			break;
@@ -7106,50 +7084,56 @@ void LLAgent::sendAgentSetAppearance()
 	if (textures_current)
 	{
 		llinfos << "TAT: Sending cached texture data" << llendl;
-		for (baked_texture_index = 0; baked_texture_index < BAKED_TEXTURE_COUNT; baked_texture_index++)
+		for (U8 baked_index = 0; baked_index < BAKED_NUM_INDICES; baked_index++)
 		{
+			const LLVOAvatarDictionary::WearableDictionaryEntry *wearable_dict = LLVOAvatarDictionary::getInstance()->getWearable((EBakedTextureIndex)baked_index);
 			LLUUID hash;
-
-			for( S32 wearable_num = 0; wearable_num < MAX_WEARABLES_PER_LAYERSET; wearable_num++ )
+			for (U8 i=0; i < wearable_dict->mWearablesVec.size(); i++)
 			{
-				EWearableType wearable_type = WEARABLE_BAKE_TEXTURE_MAP[baked_texture_index][wearable_num];
-
-				LLWearable* wearable = getWearable( wearable_type );
+				// EWearableType wearable_type = gBakedWearableMap[baked_index][wearable_num];
+				const EWearableType wearable_type = wearable_dict->mWearablesVec[i];
+				const LLWearable* wearable = getWearable(wearable_type);
 				if (wearable)
 				{
 					hash ^= wearable->getID();
 				}
 			}
-
 			if (hash.notNull())
 			{
-				hash ^= BAKED_TEXTURE_HASH[baked_texture_index];
+				hash ^= wearable_dict->mHashID;
 			}
 
-			S32 tex_index = LLVOAvatar::sBakedTextureIndices[baked_texture_index];
+			const ETextureIndex texture_index = getTextureIndex((EBakedTextureIndex)baked_index);
 
 			msg->nextBlockFast(_PREHASH_WearableData);
 			msg->addUUIDFast(_PREHASH_CacheID, hash);
-			msg->addU8Fast(_PREHASH_TextureIndex, (U8)tex_index);
+			msg->addU8Fast(_PREHASH_TextureIndex, (U8)texture_index);
 		}
+		msg->nextBlockFast(_PREHASH_ObjectData);
+		mAvatarObject->packTEMessage( gMessageSystem );
+	}
+	else
+	{
+		// If the textures aren't baked, send NULL for texture IDs
+		// This means the baked texture IDs on the server will be untouched.
+		// Once all textures are baked, another AvatarAppearance message will be sent to update the TEs
+		msg->nextBlockFast(_PREHASH_ObjectData);
+		gMessageSystem->addBinaryDataFast(_PREHASH_TextureEntry, NULL, 0);
 	}
 
-	msg->nextBlockFast(_PREHASH_ObjectData);
-	mAvatarObject->packTEMessage( gMessageSystem );
 
 	S32 transmitted_params = 0;
 	for (LLViewerVisualParam* param = (LLViewerVisualParam*)mAvatarObject->getFirstVisualParam();
 		 param;
 		 param = (LLViewerVisualParam*)mAvatarObject->getNextVisualParam())
 	{
-		F32 param_value = param->getWeight();
-	
 		if (param->getGroup() == VISUAL_PARAM_GROUP_TWEAKABLE)
 		{
 			msg->nextBlockFast(_PREHASH_VisualParam );
 			
 			// We don't send the param ids.  Instead, we assume that the receiver has the same params in the same sequence.
-			U8 new_weight = F32_to_U8(param_value, param->getMinWeight(), param->getMaxWeight());
+			const F32 param_value = param->getWeight();
+			const U8 new_weight = F32_to_U8(param_value, param->getMinWeight(), param->getMaxWeight());
 			msg->addU8Fast(_PREHASH_ParamValue, new_weight );
 			transmitted_params++;
 		}
@@ -7388,8 +7372,6 @@ void LLAgent::setWearableOutfit(
 		wearables[i]->writeToAvatar( TRUE );
 	}
 
-	LLFloaterCustomize::setCurrentWearableType( WT_SHAPE );
-
 	// Start rendering & update the server
 	mWearablesLoaded = TRUE; 
 	sendAgentWearablesUpdate();
@@ -7511,14 +7493,15 @@ void LLAgent::queryWearableCache()
 	gMessageSystem->addS32Fast(_PREHASH_SerialNum, mTextureCacheQueryID);
 
 	S32 num_queries = 0;
-	for (S32 baked_texture_index = 0; baked_texture_index < BAKED_TEXTURE_COUNT; baked_texture_index++)
+	for (U8 baked_index = 0; baked_index < BAKED_NUM_INDICES; baked_index++ )
 	{
+		const LLVOAvatarDictionary::WearableDictionaryEntry *wearable_dict = LLVOAvatarDictionary::getInstance()->getWearable((EBakedTextureIndex)baked_index);
 		LLUUID hash;
-		for (S32 wearable_num = 0; wearable_num < MAX_WEARABLES_PER_LAYERSET; wearable_num++)
+		for (U8 i=0; i < wearable_dict->mWearablesVec.size(); i++)
 		{
-			EWearableType wearable_type = WEARABLE_BAKE_TEXTURE_MAP[baked_texture_index][wearable_num];
-				
-			LLWearable* wearable = getWearable( wearable_type );
+			// EWearableType wearable_type = gBakedWearableMap[baked_index][wearable_num];
+			const EWearableType wearable_type = wearable_dict->mWearablesVec[i];
+			const LLWearable* wearable = getWearable(wearable_type);
 			if (wearable)
 			{
 				hash ^= wearable->getID();
@@ -7526,17 +7509,17 @@ void LLAgent::queryWearableCache()
 		}
 		if (hash.notNull())
 		{
-			hash ^= BAKED_TEXTURE_HASH[baked_texture_index];
+			hash ^= wearable_dict->mHashID;
 			num_queries++;
 			// *NOTE: make sure at least one request gets packed
 
-			//llinfos << "Requesting texture for hash " << hash << " in baked texture slot " << baked_texture_index << llendl;
+			//llinfos << "Requesting texture for hash " << hash << " in baked texture slot " << baked_index << llendl;
 			gMessageSystem->nextBlockFast(_PREHASH_WearableData);
 			gMessageSystem->addUUIDFast(_PREHASH_ID, hash);
-			gMessageSystem->addU8Fast(_PREHASH_TextureIndex, (U8)baked_texture_index);
+			gMessageSystem->addU8Fast(_PREHASH_TextureIndex, (U8)baked_index);
 		}
 
-		mActiveCacheQueries[ baked_texture_index ] = mTextureCacheQueryID;
+		mActiveCacheQueries[ baked_index ] = mTextureCacheQueryID;
 	}
 
 	llinfos << "Requesting texture cache entry for " << num_queries << " baked textures" << llendl;
@@ -7563,7 +7546,7 @@ void LLAgent::userRemoveAllClothes( void* userdata )
 	// We have to do this up front to avoid having to deal with the case of multiple wearables being dirty.
 	if( gFloaterCustomize )
 	{
-		gFloaterCustomize->askToSaveAllIfDirty( LLAgent::userRemoveAllClothesStep2, NULL );
+		gFloaterCustomize->askToSaveIfDirty( LLAgent::userRemoveAllClothesStep2, NULL );
 	}
 	else
 	{
