@@ -58,7 +58,7 @@ void default_unix_signal_handler(int signum, siginfo_t *info, void *);
 /* OSX doesn't support SIGRT* */
 S32 LL_SMACKDOWN_SIGNAL = SIGUSR1;
 S32 LL_HEARTBEAT_SIGNAL = SIGUSR2;
-# else
+# else // linux or (assumed) other similar unixoid
 /* We want reliable delivery of our signals - SIGRT* is it. */
 /* Old LinuxThreads versions eat SIGRTMIN+0 to SIGRTMIN+2, avoid those. */
 /* Note that SIGRTMIN/SIGRTMAX may expand to a glibc function call with a
@@ -559,7 +559,9 @@ void setup_signals()
 	sigaction(LL_SMACKDOWN_SIGNAL, &act, NULL);
 
 	// Asynchronous signals that are normally ignored
+#ifndef LL_IGNORE_SIGCHLD
 	sigaction(SIGCHLD, &act, NULL);
+#endif // LL_IGNORE_SIGCHLD
 	sigaction(SIGUSR2, &act, NULL);
 
 	// Asynchronous signals that result in attempted graceful exit
@@ -593,7 +595,9 @@ void clear_signals()
 	sigaction(LL_SMACKDOWN_SIGNAL, &act, NULL);
 
 	// Asynchronous signals that are normally ignored
+#ifndef LL_IGNORE_SIGCHLD
 	sigaction(SIGCHLD, &act, NULL);
+#endif // LL_IGNORE_SIGCHLD
 
 	// Asynchronous signals that result in attempted graceful exit
 	sigaction(SIGHUP, &act, NULL);

@@ -35,7 +35,7 @@
 #ifndef LL_LLTUT_H
 #define LL_LLTUT_H
 
-#include "llmath.h"
+#include "is_approx_equal_fraction.h" // instead of llmath.h
 
 #include <tut/tut.hpp>
 

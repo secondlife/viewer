@@ -37,6 +37,7 @@ set(cmake_SOURCE_FILES
     GStreamer.cmake
     GooglePerfTools.cmake
     JPEG.cmake
+    LLAddBuildTest.cmake
     LLAudio.cmake
     LLCharacter.cmake
     LLCommon.cmake
@@ -70,6 +71,7 @@ set(cmake_SOURCE_FILES
     Python.cmake
     Prebuilt.cmake
     QuickTime.cmake
+    RunBuildTest.cmake
     TemplateCheck.cmake
     Tut.cmake
     UI.cmake

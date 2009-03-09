@@ -284,10 +284,12 @@ extern PFNGLGENERATEMIPMAPEXTPROC glGenerateMipmapEXT;
 #if LL_LINUX && defined(WINGDIAPI)
 // WINGDIAPI gets set if we are using the linux nvidia gl.h header which needs
 // the functions below setting up.
-# define LL_LINUX_NV_GL_HEADERS
+# define LL_LINUX_NV_GL_HEADERS 1
+#else
+# define LL_LINUX_NV_GL_HEADERS 0
 #endif // LL_LINUX && defined(WINGDIAPI)
 
-#ifdef LL_LINUX_NV_GL_HEADERS
+#if LL_LINUX_NV_GL_HEADERS
 // Missing functions when using nvidia headers:
 extern PFNGLACTIVETEXTUREARBPROC	glActiveTextureARB;
 extern PFNGLCLIENTACTIVETEXTUREARBPROC	glClientActiveTextureARB;

@@ -91,7 +91,7 @@ static BOOL do_ask_dialog(void)
 
 	win = gtk_message_dialog_new(NULL,
 				     flags, messagetype, buttons,
-				     dialog_text);
+				     "%s", dialog_text);
 	gtk_window_set_type_hint(GTK_WINDOW(win),
 				 GDK_WINDOW_TYPE_HINT_DIALOG);
 	gtk_window_set_title(GTK_WINDOW(win), dialog_title);

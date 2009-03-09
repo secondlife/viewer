@@ -124,9 +124,7 @@ bool LLWindowSDL::ll_try_gtk_init(void)
 	if (!tried_gtk_init)
 	{
 		tried_gtk_init = TRUE;
-#if LL_GSTREAMER_ENABLED
 		if (!g_thread_supported ()) g_thread_init (NULL);
-#endif // LL_GSTREAMER_ENABLED
 		maybe_lock_display();
 		gtk_is_good = gtk_init_check(NULL, NULL);
 		maybe_unlock_display();

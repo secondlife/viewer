@@ -213,6 +213,7 @@ Ian Kas
         [NO JIRA] (Ukranian localization)
 Iskar Ariantho
 	VWR-1223
+	VWR-11759
 Jacek Antonelli
 	VWR-165
 	VWR-188
