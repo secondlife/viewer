@@ -9,6 +9,8 @@ include(LLImage)
 include(LLMath)
 include(LLRender)
 include(LLWindow)
+include(LLXML)
+include(LLVFS)
 
 include_directories(
     ${FREETYPE_INCLUDE_DIRS}
@@ -17,12 +19,16 @@ include_directories(
     ${LLMATH_INCLUDE_DIRS}
     ${LLRENDER_INCLUDE_DIRS}
     ${LLWINDOW_INCLUDE_DIRS}
+    ${LLXML_INCLUDE_DIRS}
+    ${LLVFS_INCLUDE_DIRS}
     )
 
 set(llrender_SOURCE_FILES
     llcubemap.cpp
     llfont.cpp
     llfontgl.cpp
+    llfontbitmapcache.cpp
+    llfontregistry.cpp
     llgldbg.cpp
     llglslshader.cpp
     llimagegl.cpp
@@ -38,6 +44,8 @@ set(llrender_HEADER_FILES
     llcubemap.h
     llfontgl.h
     llfont.h
+    llfontbitmapcache.h
+    llfontregistry.h
     llgl.h
     llgldbg.h
     llglheaders.h

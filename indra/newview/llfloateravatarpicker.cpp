@@ -35,6 +35,7 @@
 
 #include "message.h"
 
+#include "llagent.h"
 #include "llbutton.h"
 #include "llfocusmgr.h"
 #include "llinventoryview.h"
@@ -43,7 +44,8 @@
 #include "llscrolllistctrl.h"
 #include "lltextbox.h"
 #include "lluictrlfactory.h"
-#include "llagent.h"
+#include "llviewercontrol.h"
+#include "llworld.h"
 
 const S32 MIN_WIDTH = 200;
 const S32 MIN_HEIGHT = 340;
@@ -59,6 +61,8 @@ LLFloaterAvatarPicker* LLFloaterAvatarPicker::show(callback_t callback,
 												   BOOL allow_multiple,
 												   BOOL closeOnSelect)
 {
+	// TODO: This class should not be a singleton as it's used in multiple places
+	// and therefore can't be used simultaneously. -MG
 	if (!sInstance)
 	{
 		sInstance = new LLFloaterAvatarPicker();
@@ -78,6 +82,7 @@ LLFloaterAvatarPicker* LLFloaterAvatarPicker::show(callback_t callback,
 		sInstance->setAllowMultiple(allow_multiple);
 	}
 	
+	sInstance->mNearMeListComplete = FALSE;
 	sInstance->mCloseOnSelect = closeOnSelect;
 	return sInstance;
 }
@@ -98,37 +103,56 @@ BOOL LLFloaterAvatarPicker::postBuild()
 
 	childSetAction("Find", onBtnFind, this);
 	childDisable("Find");
+	childSetAction("Refresh", onBtnRefresh, this);
+	childSetCommitCallback("near_me_range", onRangeAdjust, this);
 
-	mListNames = getChild<LLScrollListCtrl>("Names");
-	childSetDoubleClickCallback("Names",onBtnAdd);
-	childSetCommitCallback("Names", onList, this);
-	childDisable("Names");
+	childSetDoubleClickCallback("SearchResults", onBtnSelect);
+	childSetDoubleClickCallback("NearMe", onBtnSelect);
+	childSetCommitCallback("SearchResults", onList, this);
+	childSetCommitCallback("NearMe", onList, this);
+	childDisable("SearchResults");
 
-	childSetAction("Select", onBtnAdd, this);
+	childSetAction("Select", onBtnSelect, this);
 	childDisable("Select");
 
-	childSetAction("Close", onBtnClose, this);
+	childSetAction("Cancel", onBtnClose, this);
 
 	childSetFocus("Edit");
 
-	if (mListNames)
+	LLPanel* search_panel = getChild<LLPanel>("SearchPanel");
+	if (search_panel)
 	{
-		mListNames->addCommentText(std::string("No results")); // *TODO: Translate
+		// Start searching when Return is pressed in the line editor.
+		search_panel->setDefaultBtn("Find");
 	}
 
-	mInventoryPanel = getChild<LLInventoryPanel>("Inventory Panel");
-	if(mInventoryPanel)
-	{
-		mInventoryPanel->setFilterTypes(0x1 << LLInventoryType::IT_CALLINGCARD);
-		mInventoryPanel->setFollowsAll();
-		mInventoryPanel->setShowFolderState(LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
-		mInventoryPanel->openDefaultFolderForType(LLAssetType::AT_CALLINGCARD);
-		mInventoryPanel->setSelectCallback(LLFloaterAvatarPicker::onSelectionChange, this);
-	}
+	getChild<LLScrollListCtrl>("SearchResults")->addCommentText(getString("no_results"));
+
+	LLInventoryPanel* inventory_panel = getChild<LLInventoryPanel>("InventoryPanel");
+	inventory_panel->setFilterTypes(0x1 << LLInventoryType::IT_CALLINGCARD);
+	inventory_panel->setFollowsAll();
+	inventory_panel->setShowFolderState(LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
+	inventory_panel->openDefaultFolderForType(LLAssetType::AT_CALLINGCARD);
+	inventory_panel->setSelectCallback(LLFloaterAvatarPicker::onCallingCardSelectionChange, this);
+
+	childSetTabChangeCallback("ResidentChooserTabs", "SearchPanel",			onTabChanged, this);
+	childSetTabChangeCallback("ResidentChooserTabs", "CallingCardsPanel",	onTabChanged, this);
+	childSetTabChangeCallback("ResidentChooserTabs", "NearMePanel",			onTabChanged, this);
 	
 	setAllowMultiple(FALSE);
 
 	return TRUE;
+}
+
+void LLFloaterAvatarPicker::onTabChanged(void* userdata, bool from_click)
+{
+	LLFloaterAvatarPicker* self = (LLFloaterAvatarPicker*)userdata;
+	if (!self)
+	{
+		return;
+	}
+	
+	self->childSetEnabled("Select", self->visibleItemsSelected());
 }
 
 // Destroys the object
@@ -145,27 +169,68 @@ void LLFloaterAvatarPicker::onBtnFind(void* userdata)
 	if(self) self->find();
 }
 
-void LLFloaterAvatarPicker::onBtnAdd(void* userdata)
+static void getSelectedAvatarData(const LLScrollListCtrl* from, std::vector<std::string>& avatar_names, std::vector<LLUUID>& avatar_ids)
+{
+	std::vector<LLScrollListItem*> items = from->getAllSelected();
+	for (std::vector<LLScrollListItem*>::iterator iter = items.begin(); iter != items.end(); ++iter)
+	{
+		LLScrollListItem* item = *iter;
+		if (item->getUUID().notNull())
+		{
+			avatar_names.push_back(item->getColumn(0)->getValue().asString());
+			avatar_ids.push_back(item->getUUID());
+		}
+	}
+}
+
+void LLFloaterAvatarPicker::onBtnSelect(void* userdata)
 {
 	LLFloaterAvatarPicker* self = (LLFloaterAvatarPicker*)userdata;
 
 	if(self->mCallback)
 	{
-		self->mCallback(self->mAvatarNames, self->mAvatarIDs, self->mCallbackUserdata);
+		LLPanel* active_panel = self->childGetVisibleTab("ResidentChooserTabs");
+
+		if(active_panel == self->getChild<LLPanel>("CallingCardsPanel"))
+		{
+			self->mCallback(self->mSelectedInventoryAvatarNames, self->mSelectedInventoryAvatarIDs, self->mCallbackUserdata);
+		}
+		else if(active_panel == self->getChild<LLPanel>("SearchPanel"))
+		{
+			std::vector<std::string>	avatar_names;
+			std::vector<LLUUID>			avatar_ids;
+			getSelectedAvatarData(self->getChild<LLScrollListCtrl>("SearchResults"), avatar_names, avatar_ids);
+			self->mCallback(avatar_names, avatar_ids, self->mCallbackUserdata);
+		}
+		else if(active_panel == self->getChild<LLPanel>("NearMePanel"))
+		{
+			std::vector<std::string>	avatar_names;
+			std::vector<LLUUID>			avatar_ids;
+			getSelectedAvatarData(self->getChild<LLScrollListCtrl>("NearMe"), avatar_names, avatar_ids);
+			self->mCallback(avatar_names, avatar_ids, self->mCallbackUserdata);
+		}
 	}
-	if (self->mInventoryPanel)
-	{
-		self->mInventoryPanel->setSelection(LLUUID::null, FALSE);
-	}
-	if (self->mListNames)
-	{
-		self->mListNames->deselectAllItems(TRUE);
-	}
+	self->getChild<LLInventoryPanel>("InventoryPanel")->setSelection(LLUUID::null, FALSE);
+	self->getChild<LLScrollListCtrl>("SearchResults")->deselectAllItems(TRUE);
+	self->getChild<LLScrollListCtrl>("NearMe")->deselectAllItems(TRUE);
 	if(self->mCloseOnSelect)
 	{
 		self->mCloseOnSelect = FALSE;
 		self->close();		
 	}
+}
+
+void LLFloaterAvatarPicker::onBtnRefresh(void* userdata)
+{
+	LLFloaterAvatarPicker* self = (LLFloaterAvatarPicker*)userdata;
+	if (!self)
+	{
+		return;
+	}
+	
+	self->getChild<LLScrollListCtrl>("NearMe")->deleteAllItems();
+	self->getChild<LLScrollListCtrl>("NearMe")->addCommentText(self->getString("searching"));
+	self->mNearMeListComplete = FALSE;
 }
 
 void LLFloaterAvatarPicker::onBtnClose(void* userdata)
@@ -174,62 +239,42 @@ void LLFloaterAvatarPicker::onBtnClose(void* userdata)
 	if(self) self->close();
 }
 
+void LLFloaterAvatarPicker::onRangeAdjust(LLUICtrl* source, void* data)
+{
+	LLFloaterAvatarPicker::onBtnRefresh(data);
+}
+
 void LLFloaterAvatarPicker::onList(LLUICtrl* ctrl, void* userdata)
 {
 	LLFloaterAvatarPicker* self = (LLFloaterAvatarPicker*)userdata;
-	if (!self)
+	if (self)
 	{
-		return;
-	}
-
-	self->mAvatarIDs.clear();
-	self->mAvatarNames.clear();
-
-	if (!self->mListNames)
-	{
-		return;
-	}
-	
-	std::vector<LLScrollListItem*> items =
-		self->mListNames->getAllSelected();
-	for (
-		std::vector<LLScrollListItem*>::iterator iter = items.begin();
-		iter != items.end();
-		++iter)
-	{
-		LLScrollListItem* item = *iter;
-		self->mAvatarNames.push_back(item->getColumn(0)->getValue().asString());
-		self->mAvatarIDs.push_back(item->getUUID());
-		self->childSetEnabled("Select", TRUE);
+		self->childSetEnabled("Select", self->visibleItemsSelected());
 	}
 }
 
 // static callback for inventory picker (select from calling cards)
-void LLFloaterAvatarPicker::onSelectionChange(const std::deque<LLFolderViewItem*> &items, BOOL user_action, void* data)
+void LLFloaterAvatarPicker::onCallingCardSelectionChange(const std::deque<LLFolderViewItem*> &items, BOOL user_action, void* data)
 {
 	LLFloaterAvatarPicker* self = (LLFloaterAvatarPicker*)data;
 	if (self)
 	{
-		self->doSelectionChange( items, user_action, data );
+		self->doCallingCardSelectionChange( items, user_action, data );
 	}
 }
 
 // Callback for inventory picker (select from calling cards)
-void LLFloaterAvatarPicker::doSelectionChange(const std::deque<LLFolderViewItem*> &items, BOOL user_action, void* data)
+void LLFloaterAvatarPicker::doCallingCardSelectionChange(const std::deque<LLFolderViewItem*> &items, BOOL user_action, void* data)
 {
-	if (!mListNames)
+	bool panel_active = (childGetVisibleTab("ResidentChooserTabs") == getChild<LLPanel>("CallingCardsPanel"));
+	
+	mSelectedInventoryAvatarIDs.clear();
+	mSelectedInventoryAvatarNames.clear();
+	
+	if (panel_active)
 	{
-		return;
-	}
-
-	std::vector<LLScrollListItem*> search_items = mListNames->getAllSelected();
-	if ( search_items.size() == 0 )
-	{	// Nothing selected in the search results
-		mAvatarIDs.clear();
-		mAvatarNames.clear();
 		childSetEnabled("Select", FALSE);
 	}
-	BOOL first_calling_card = TRUE;
 
 	std::deque<LLFolderViewItem*>::const_iterator item_it;
 	for (item_it = items.begin(); item_it != items.end(); ++item_it)
@@ -238,26 +283,97 @@ void LLFloaterAvatarPicker::doSelectionChange(const std::deque<LLFolderViewItem*
 		if (listenerp->getInventoryType() == LLInventoryType::IT_CALLINGCARD)
 		{
 			LLInventoryItem* item = gInventory.getItem(listenerp->getUUID());
-
 			if (item)
 			{
-				if ( first_calling_card )
-				{	// Have a calling card selected, so clear anything from the search panel
-					first_calling_card = FALSE;
-					mAvatarIDs.clear();
-					mAvatarNames.clear();
-					mListNames->deselectAllItems();
-				}
-
-				// Add calling card info to the selected avatars
-				mAvatarIDs.push_back(item->getCreatorUUID());
-				mAvatarNames.push_back(listenerp->getName());
-				childSetEnabled("Select", TRUE);
+				mSelectedInventoryAvatarIDs.push_back(item->getCreatorUUID());
+				mSelectedInventoryAvatarNames.push_back(listenerp->getName());
 			}
 		}
 	}
+
+	if (panel_active)
+	{
+		childSetEnabled("Select", visibleItemsSelected());
+	}
 }
 
+void LLFloaterAvatarPicker::populateNearMe()
+{
+	BOOL all_loaded = TRUE;
+	BOOL empty = TRUE;
+	LLScrollListCtrl* near_me_scroller = getChild<LLScrollListCtrl>("NearMe");
+	near_me_scroller->deleteAllItems();
+
+	std::vector<LLUUID> avatar_ids;
+	LLWorld::getInstance()->getAvatars(&avatar_ids, NULL, gAgent.getPositionGlobal(), gSavedSettings.getF32("NearMeRange"));
+	for(U32 i=0; i<avatar_ids.size(); i++)
+	{
+		LLUUID& av = avatar_ids[i];
+		if(av == gAgent.getID()) continue;
+		LLSD element;
+		element["id"] = av; // value
+		std::string fullname;
+		if(!gCacheName->getFullName(av, fullname))
+		{
+			element["columns"][0]["value"] = LLCacheName::getDefaultName();
+			all_loaded = FALSE;
+		}			
+		else
+		{
+			element["columns"][0]["value"] = fullname;
+		}
+		near_me_scroller->addElement(element);
+		empty = FALSE;
+	}
+
+	if (empty)
+	{
+		childDisable("NearMe");
+		childDisable("Select");
+		near_me_scroller->addCommentText(getString("no_one_near"));
+	}
+	else 
+	{
+		childEnable("NearMe");
+		childEnable("Select");
+		near_me_scroller->selectFirstItem();
+		onList(near_me_scroller, this);
+		near_me_scroller->setFocus(TRUE);
+	}
+
+	if (all_loaded)
+	{
+		mNearMeListComplete = TRUE;
+	}
+}
+
+void LLFloaterAvatarPicker::draw()
+{
+	LLFloater::draw();
+	if (!mNearMeListComplete && childGetVisibleTab("ResidentChooserTabs") == getChild<LLPanel>("NearMePanel"))
+	{
+		populateNearMe();
+	}
+}
+
+BOOL LLFloaterAvatarPicker::visibleItemsSelected() const
+{
+	LLPanel* active_panel = childGetVisibleTab("ResidentChooserTabs");
+
+	if(active_panel == getChild<LLPanel>("SearchPanel"))
+	{
+		return getChild<LLScrollListCtrl>("SearchResults")->getFirstSelectedIndex() >= 0;
+	}
+	else if(active_panel == getChild<LLPanel>("CallingCardsPanel"))
+	{
+		return mSelectedInventoryAvatarIDs.size() > 0;
+	}
+	else if(active_panel == getChild<LLPanel>("NearMePanel"))
+	{
+		return getChild<LLScrollListCtrl>("NearMe")->getFirstSelectedIndex() >= 0;
+	}
+	return FALSE;
+}
 
 void LLFloaterAvatarPicker::find()
 {
@@ -277,11 +393,8 @@ void LLFloaterAvatarPicker::find()
 
 	gAgent.sendReliableMessage();
 
-	if (mListNames)
-	{
-		mListNames->deleteAllItems();	
-		mListNames->addCommentText(std::string("Searching..."));  // *TODO: Translate
-	}
+	getChild<LLScrollListCtrl>("SearchResults")->deleteAllItems();
+	getChild<LLScrollListCtrl>("SearchResults")->addCommentText(getString("searching"));
 	
 	childSetEnabled("Select", FALSE);
 	mResultsReturned = FALSE;
@@ -289,15 +402,9 @@ void LLFloaterAvatarPicker::find()
 
 void LLFloaterAvatarPicker::setAllowMultiple(BOOL allow_multiple)
 {
-	mAllowMultiple = allow_multiple;
-	if (mInventoryPanel)
-	{
-		mInventoryPanel->setAllowMultiSelect(mAllowMultiple);
-	}
-	if (mListNames)
-	{
-		mListNames->setAllowMultipleSelection(mAllowMultiple);
-	}
+	getChild<LLScrollListCtrl>("SearchResults")->setAllowMultipleSelection(allow_multiple);
+	getChild<LLInventoryPanel>("InventoryPanel")->setAllowMultiSelect(allow_multiple);
+	getChild<LLScrollListCtrl>("NearMe")->setAllowMultipleSelection(allow_multiple);
 }
 
 // static 
@@ -325,52 +432,48 @@ void LLFloaterAvatarPicker::processAvatarPickerReply(LLMessageSystem* msg, void*
 		return;
 	}
 
-	if (!self->mResultsReturned)
-	{
-		// clear "Searching" label on first results
-		if (self->mListNames)
-		{
-			self->mListNames->deleteAllItems();
-		}
-	}
+	LLScrollListCtrl* search_results = self->getChild<LLScrollListCtrl>("SearchResults");
+
+	// clear "Searching" label on first results
+	search_results->deleteAllItems();
+
 	self->mResultsReturned = TRUE;
 
-	if (self->mListNames)
-	{
-		BOOL found_one = FALSE;
-		S32 num_new_rows = msg->getNumberOfBlocks("Data");
-		for (S32 i = 0; i < num_new_rows; i++)
-		{			
-			msg->getUUIDFast(  _PREHASH_Data,_PREHASH_AvatarID,	avatar_id, i);
-			msg->getStringFast(_PREHASH_Data,_PREHASH_FirstName, first_name, i);
-			msg->getStringFast(_PREHASH_Data,_PREHASH_LastName,	last_name, i);
-		
-			std::string avatar_name;
-			if (avatar_id.isNull())
-			{
-				LLStringUtil::format_map_t map;
-				map["[TEXT]"] = self->childGetText("Edit");
-				avatar_name = self->getString("NotFound", map);
-				self->mListNames->setEnabled(FALSE);
-			}
-			else
-			{
-				avatar_name = first_name + " " + last_name;
-				self->mListNames->setEnabled(TRUE);
-				found_one = TRUE;
-			}
-			LLSD element;
-			element["id"] = avatar_id; // value
-			element["columns"][0]["value"] = avatar_name;
-			self->mListNames->addElement(element);
-		}
+	BOOL found_one = FALSE;
+	S32 num_new_rows = msg->getNumberOfBlocks("Data");
+	for (S32 i = 0; i < num_new_rows; i++)
+	{			
+		msg->getUUIDFast(  _PREHASH_Data,_PREHASH_AvatarID,	avatar_id, i);
+		msg->getStringFast(_PREHASH_Data,_PREHASH_FirstName, first_name, i);
+		msg->getStringFast(_PREHASH_Data,_PREHASH_LastName,	last_name, i);
 	
-		if (found_one)
+		std::string avatar_name;
+		if (avatar_id.isNull())
 		{
-			self->mListNames->selectFirstItem();
-			self->onList(self->mListNames, self);
-			self->mListNames->setFocus(TRUE);
+			LLStringUtil::format_map_t map;
+			map["[TEXT]"] = self->childGetText("Edit");
+			avatar_name = self->getString("not_found", map);
+			search_results->setEnabled(FALSE);
+			self->childDisable("Select");
 		}
+		else
+		{
+			avatar_name = first_name + " " + last_name;
+			search_results->setEnabled(TRUE);
+			found_one = TRUE;
+		}
+		LLSD element;
+		element["id"] = avatar_id; // value
+		element["columns"][0]["value"] = avatar_name;
+		search_results->addElement(element);
+	}
+
+	if (found_one)
+	{
+		self->childEnable("Select");
+		search_results->selectFirstItem();
+		self->onList(search_results, self);
+		search_results->setFocus(TRUE);
 	}
 }
 
@@ -378,32 +481,23 @@ void LLFloaterAvatarPicker::processAvatarPickerReply(LLMessageSystem* msg, void*
 void LLFloaterAvatarPicker::editKeystroke(LLLineEditor* caller, void* user_data)
 {
 	LLFloaterAvatarPicker* self = (LLFloaterAvatarPicker*)user_data;
-	if (caller->getText().size() >= 3)
-	{
-		self->childSetEnabled("Find",TRUE);
-	}
-	else
-	{
-		self->childSetEnabled("Find",FALSE);
-	}
+	self->childSetEnabled("Find", caller->getText().size() >= 3);
 }
 
 // virtual
 BOOL LLFloaterAvatarPicker::handleKeyHere(KEY key, MASK mask)
 {
-	if (key == KEY_RETURN
-		&& mask == MASK_NONE)
+	if (key == KEY_RETURN && mask == MASK_NONE)
 	{
 		if (childHasFocus("Edit"))
 		{
 			onBtnFind(this);
-			return TRUE;
 		}
 		else
 		{
-			onBtnAdd(this);
-			return TRUE;
+			onBtnSelect(this);
 		}
+		return TRUE;
 	}
 	else if (key == KEY_ESCAPE && mask == MASK_NONE)
 	{

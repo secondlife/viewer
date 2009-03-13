@@ -464,7 +464,7 @@ LLView* LLSliderCtrl::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory
 	// HACK: Font might not be specified.
 	if (!font)
 	{
-		font = LLFontGL::sSansSerifSmall;
+		font = LLFontGL::getFontSansSerifSmall();
 	}
 
 	S32 label_width = 0;

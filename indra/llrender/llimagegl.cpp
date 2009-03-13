@@ -1373,6 +1373,9 @@ void LLImageGL::analyzeAlpha(const void* data_in, S32 w, S32 h)
 	case GL_RGBA:
 		stride = 4;
 		break;
+	case GL_BGRA_EXT:
+		stride = 4;
+		break;
 	default:
 		llwarns << "Cannot analyze alpha of image with primary format " << std::hex << mFormatPrimary << std::dec << llendl;
 		return;

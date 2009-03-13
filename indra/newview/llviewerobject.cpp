@@ -66,7 +66,6 @@
 #include "llface.h"
 #include "llfloaterproperties.h"
 #include "llfollowcam.h"
-#include "llnetmap.h"
 #include "llselectmgr.h"
 #include "llrendersphere.h"
 #include "lltooldraganddrop.h"
@@ -991,7 +990,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 					if (!mText)
 					{
 						mText = (LLHUDText *)LLHUDObject::addHUDObject(LLHUDObject::LL_HUD_TEXT);
-						mText->setFont(LLFontGL::sSansSerif);
+						mText->setFont(LLFontGL::getFontSansSerif());
 						mText->setVertAlignment(LLHUDText::ALIGN_VERT_TOP);
 						mText->setMaxLines(-1);
 						mText->setSourceObject(this);
@@ -1409,7 +1408,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 				if (!mText && (value & 0x4))
 				{
 					mText = (LLHUDText *)LLHUDObject::addHUDObject(LLHUDObject::LL_HUD_TEXT);
-					mText->setFont(LLFontGL::sSansSerif);
+					mText->setFont(LLFontGL::getFontSansSerif());
 					mText->setVertAlignment(LLHUDText::ALIGN_VERT_TOP);
 					mText->setMaxLines(-1); // Set to match current agni behavior.
 					mText->setSourceObject(this);
@@ -4057,7 +4056,7 @@ void LLViewerObject::setDebugText(const std::string &utf8text)
 	if (!mText)
 	{
 		mText = (LLHUDText *)LLHUDObject::addHUDObject(LLHUDObject::LL_HUD_TEXT);
-		mText->setFont(LLFontGL::sSansSerif);
+		mText->setFont(LLFontGL::getFontSansSerif());
 		mText->setVertAlignment(LLHUDText::ALIGN_VERT_TOP);
 		mText->setMaxLines(-1);
 		mText->setSourceObject(this);

@@ -2076,6 +2076,8 @@ void LLFloaterSnapshot::draw()
 void LLFloaterSnapshot::onClose(bool app_quitting)
 {
 	gSnapshotFloaterView->setEnabled(FALSE);
+	// Set invisible so it doesn't eat tooltips. JC
+	gSnapshotFloaterView->setVisible(FALSE);
 	destroy();
 }
 
@@ -2104,6 +2106,7 @@ void LLFloaterSnapshot::show(void*)
 	sInstance->open();		/* Flawfinder: ignore */
 	sInstance->focusFirstItem(FALSE);
 	gSnapshotFloaterView->setEnabled(TRUE);
+	gSnapshotFloaterView->setVisible(TRUE);
 	gSnapshotFloaterView->adjustToFitScreen(sInstance, FALSE);
 }
 

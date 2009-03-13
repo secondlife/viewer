@@ -96,6 +96,9 @@ public:
 	void		debitBalance(S32 debit);
 	void		creditBalance(S32 credit);
 
+	// Request the latest currency balance from the server
+	static void sendMoneyBalanceRequest();
+
 	void		setHealth(S32 percent);
 
 	void setLandCredit(S32 credit);

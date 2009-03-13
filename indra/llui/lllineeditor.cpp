@@ -152,7 +152,7 @@ LLLineEditor::LLLineEditor(const std::string& name, const LLRect& rect,
 	}
 	else
 	{
-		mGLFont = LLFontGL::sSansSerifSmall;
+		mGLFont = LLFontGL::getFontSansSerifSmall();
 	}
 
 	setFocusLostCallback(focus_lost_callback);

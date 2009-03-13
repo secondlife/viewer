@@ -2589,6 +2589,10 @@ version 2.0
 		{	East			F32		}
 		{	North			F32		}
 	}
+	{
+		ModifyBlockExtended Variable
+		{   BrushSize       F32 }
+	}
 }
 
 

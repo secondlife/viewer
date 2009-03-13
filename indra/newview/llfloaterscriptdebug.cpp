@@ -174,7 +174,7 @@ LLFloaterScriptDebugOutput::LLFloaterScriptDebugOutput(const LLUUID& object_id)
 		getRect().getWidth() - LLFLOATER_HPAD,
 				LLFLOATER_VPAD );
 	mHistoryEditor = new LLViewerTextEditor( std::string("Chat History Editor"), 
-										history_editor_rect, S32_MAX, LLStringUtil::null, LLFontGL::sSansSerif);
+										history_editor_rect, S32_MAX, LLStringUtil::null, LLFontGL::getFontSansSerif());
 	mHistoryEditor->setWordWrap( TRUE );
 	mHistoryEditor->setFollowsAll();
 	mHistoryEditor->setEnabled( FALSE );
@@ -197,7 +197,7 @@ void LLFloaterScriptDebugOutput::initFloater(const std::string& title, BOOL resi
 		getRect().getWidth() - LLFLOATER_HPAD,
 				LLFLOATER_VPAD );
 	mHistoryEditor = new LLViewerTextEditor( std::string("Chat History Editor"), 
-										history_editor_rect, S32_MAX, LLStringUtil::null, LLFontGL::sSansSerif);
+										history_editor_rect, S32_MAX, LLStringUtil::null, LLFontGL::getFontSansSerif());
 	mHistoryEditor->setWordWrap( TRUE );
 	mHistoryEditor->setFollowsAll();
 	mHistoryEditor->setEnabled( FALSE );

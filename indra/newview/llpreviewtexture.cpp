@@ -242,7 +242,7 @@ void LLPreviewTexture::draw()
 			if( mLoadingFullImage )
 			{
 				// *TODO: Translate
-				LLFontGL::sSansSerif->renderUTF8(std::string("Receiving:"), 0,
+				LLFontGL::getFontSansSerif()->renderUTF8(std::string("Receiving:"), 0,
 					interior.mLeft + 4, 
 					interior.mBottom + 4,
 					LLColor4::white, LLFontGL::LEFT, LLFontGL::BOTTOM,
@@ -279,7 +279,7 @@ void LLPreviewTexture::draw()
 			if( !mSavedFileTimer.hasExpired() )
 			{
 				// *TODO: Translate
-				LLFontGL::sSansSerif->renderUTF8(std::string("File Saved"), 0,
+				LLFontGL::getFontSansSerif()->renderUTF8(std::string("File Saved"), 0,
 					interior.mLeft + 4,
 					interior.mBottom + 4,
 					LLColor4::white, LLFontGL::LEFT, LLFontGL::BOTTOM,

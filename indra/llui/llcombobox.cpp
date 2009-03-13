@@ -89,7 +89,7 @@ LLComboBox::LLComboBox(	const std::string& name, const LLRect &rect, const std::
 	mButton->setScaleImage(TRUE);
 
 	mButton->setMouseDownCallback(onButtonDown);
-	mButton->setFont(LLFontGL::sSansSerifSmall);
+	mButton->setFont(LLFontGL::getFontSansSerifSmall());
 	mButton->setFollows(FOLLOWS_LEFT | FOLLOWS_BOTTOM | FOLLOWS_RIGHT);
 	mButton->setHAlign( LLFontGL::LEFT );
 	mButton->setRightHPad(2);
@@ -517,7 +517,7 @@ void LLComboBox::updateLayout()
 			mTextEntry = new LLLineEditor(std::string("combo_text_entry"),
 										text_entry_rect,
 										LLStringUtil::null,
-										LLFontGL::sSansSerifSmall,
+										LLFontGL::getFontSansSerifSmall(),
 										mMaxChars,
 										onTextCommit,
 										onTextEntry,

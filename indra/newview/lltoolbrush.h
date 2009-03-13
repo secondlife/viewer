@@ -96,11 +96,14 @@ protected:
 	F32 mStartingZ;
 	S32 mMouseX;
 	S32 mMouseY;
-	S32 mBrushIndex;
+	F32 mBrushSize;
 	BOOL mGotHover;
 	BOOL mBrushSelected;
 	// Order doesn't matter and we do check for existance of regions, so use a set
 	region_list_t mLastAffectedRegions;
+
+private:
+	U8 getBrushIndex();
 };
 
 

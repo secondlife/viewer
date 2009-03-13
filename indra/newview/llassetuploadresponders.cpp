@@ -34,12 +34,11 @@
 
 #include "llassetuploadresponders.h"
 
+// viewer includes
 #include "llagent.h"
 #include "llcompilequeue.h"
 #include "llfloaterbuycurrency.h"
-#include "lleconomy.h"
 #include "llfilepicker.h"
-#include "llfocusmgr.h"
 #include "llnotify.h"
 #include "llinventorymodel.h"
 #include "llinventoryview.h"
@@ -48,7 +47,7 @@
 #include "llpreviewscript.h"
 #include "llpreviewgesture.h"
 #include "llgesturemgr.h"
-#include "llscrolllistctrl.h"
+#include "llstatusbar.h"		// sendMoneyBalanceRequest()
 #include "llsdserialize.h"
 #include "lluploaddialog.h"
 #include "llviewerobject.h"
@@ -57,6 +56,12 @@
 #include "llviewermenufile.h"
 #include "llviewerwindow.h"
 #include "lltexlayer.h"
+
+// library includes
+#include "lleconomy.h"
+#include "llfocusmgr.h"
+#include "llscrolllistctrl.h"
+#include "llsdserialize.h"
 
 // When uploading multiple files, don't display any of them when uploading more than this number.
 static const S32 FILE_COUNT_DISPLAY_THRESHOLD = 5;
@@ -216,13 +221,7 @@ void LLNewAgentInventoryResponder::uploadComplete(const LLSD& content)
 		asset_type == LLAssetType::AT_SOUND ||
 		asset_type == LLAssetType::AT_ANIMATION)
 	{
-		gMessageSystem->newMessageFast(_PREHASH_MoneyBalanceRequest);
-		gMessageSystem->nextBlockFast(_PREHASH_AgentData);
-		gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-		gMessageSystem->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-		gMessageSystem->nextBlockFast(_PREHASH_MoneyData);
-		gMessageSystem->addUUIDFast(_PREHASH_TransactionID, LLUUID::null );
-		gAgent.sendReliableMessage();
+		LLStatusBar::sendMoneyBalanceRequest();
 
 		LLSD args;
 		args["AMOUNT"] = llformat("%d", expected_upload_cost);

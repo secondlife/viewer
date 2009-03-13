@@ -567,7 +567,7 @@ void LLTracker::renderBeacon(LLVector3d pos_global,
 	wstr += '\n';
 	wstr += utf8str_to_wstring(text);
 
-	hud_textp->setFont(LLFontGL::sSansSerif);
+	hud_textp->setFont(LLFontGL::getFontSansSerif());
 	hud_textp->setZCompare(FALSE);
 	hud_textp->setColor(LLColor4(1.f, 1.f, 1.f, llmax(0.2f, llmin(1.f,(dist-FADE_DIST)/FADE_DIST))));
 

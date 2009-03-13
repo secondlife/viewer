@@ -78,13 +78,14 @@ void LLFloaterPerms::onClickCancel(void* data)
 //static 
 void LLFloaterPerms::onCommitCopy(LLUICtrl* ctrl, void* data)
 {
+	LLFloaterPerms* self = static_cast<LLFloaterPerms*>(data);
 	// Implements fair use
 	BOOL copyable = gSavedSettings.getBOOL("NextOwnerCopy");
 	if(!copyable)
 	{
 		gSavedSettings.setBOOL("NextOwnerTransfer", TRUE);
 	}
-	LLCheckBoxCtrl* xfer = static_cast<LLFloaterPerms*>(data)->getChild<LLCheckBoxCtrl>("next_owner_transfer");
+	LLCheckBoxCtrl* xfer = self->getChild<LLCheckBoxCtrl>("next_owner_transfer");
 	xfer->setEnabled(copyable);
 }
 

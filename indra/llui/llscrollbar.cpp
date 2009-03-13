@@ -114,7 +114,7 @@ LLScrollbar::LLScrollbar(
 
 	LLButton* line_up_btn = new LLButton(std::string("Line Up"), line_up_rect,
 										 line_up_img, line_up_selected_img, LLStringUtil::null,
-										 &LLScrollbar::onLineUpBtnPressed, this, LLFontGL::sSansSerif );
+										 &LLScrollbar::onLineUpBtnPressed, this, LLFontGL::getFontSansSerif() );
 	if( LLScrollbar::VERTICAL == mOrientation )
 	{
 		line_up_btn->setFollowsRight();
@@ -134,7 +134,7 @@ LLScrollbar::LLScrollbar(
 
 	LLButton* line_down_btn = new LLButton(std::string("Line Down"), line_down_rect,
 										   line_down_img, line_down_selected_img, LLStringUtil::null,
-										   &LLScrollbar::onLineDownBtnPressed, this, LLFontGL::sSansSerif );
+										   &LLScrollbar::onLineDownBtnPressed, this, LLFontGL::getFontSansSerif() );
 	line_down_btn->setFollowsRight();
 	line_down_btn->setFollowsBottom();
 	line_down_btn->setHeldDownCallback( &LLScrollbar::onLineDownBtnPressed );

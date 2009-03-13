@@ -55,6 +55,10 @@
 #include "llkeyframestandmotion.h"
 #include "llkeyframewalkmotion.h"
 #include "llmutelist.h"
+#include "llnotify.h"
+#include "llquantize.h"
+#include "llregionhandle.h"
+#include "llresmgr.h"
 #include "llselectmgr.h"
 #include "llsprite.h"
 #include "lltargetingmotion.h"
@@ -3125,7 +3129,7 @@ void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
 			if (visible_chat)
 			{
 				mNameText->setDropShadow(TRUE);
-				mNameText->setFont(LLFontGL::sSansSerif);
+				mNameText->setFont(LLFontGL::getFontSansSerif());
 				mNameText->setTextAlignment(LLHUDText::ALIGN_TEXT_LEFT);
 				mNameText->setFadeDistance(CHAT_NORMAL_RADIUS * 2.f, 5.f);
 				if (new_name)
@@ -3202,11 +3206,11 @@ void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
 			{
 				if (gSavedSettings.getBOOL("SmallAvatarNames"))
 				{
-					mNameText->setFont(LLFontGL::sSansSerif);
+					mNameText->setFont(LLFontGL::getFontSansSerif());
 				}
 				else
 				{
-					mNameText->setFont(LLFontGL::sSansSerifBig);
+					mNameText->setFont(LLFontGL::getFontSansSerifBig());
 				}
 				mNameText->setTextAlignment(LLHUDText::ALIGN_TEXT_CENTER);
 				mNameText->setFadeDistance(CHAT_NORMAL_RADIUS, 5.f);

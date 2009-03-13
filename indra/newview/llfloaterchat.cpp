@@ -71,6 +71,7 @@
 #include "llchatbar.h"
 #include "lllogchat.h"
 #include "lltexteditor.h"
+#include "lltextparser.h"
 #include "llfloaterhtml.h"
 #include "llweb.h"
 #include "llstylemap.h"
@@ -263,6 +264,9 @@ void LLFloaterChat::addChatHistory(const LLChat& chat, bool log_to_file)
 	history_editor->setParseHTML(TRUE);
 	history_editor_with_mute->setParseHTML(TRUE);
 	
+	history_editor->setParseHighlights(TRUE);
+	history_editor_with_mute->setParseHighlights(TRUE);
+	
 	if (!chat.mMuted)
 	{
 		add_timestamped_line(history_editor, chat, color);
@@ -405,7 +409,10 @@ void LLFloaterChat::addChat(const LLChat& chat,
 	
 	if(from_instant_message && gSavedSettings.getBOOL("IMInChatHistory"))
 		addChatHistory(chat,false);
-	
+
+	LLTextParser* highlight = LLTextParser::getInstance();
+	highlight->triggerAlerts(gAgent.getID(), gAgent.getPositionGlobal(), chat.mText, gViewerWindow->getWindow());
+
 	if(!from_instant_message)
 		addChatHistory(chat);
 }

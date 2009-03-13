@@ -608,7 +608,7 @@ void LLToolPlacerPanel::addButton( const std::string& up_state, const std::strin
 		down_state,
 		LLStringUtil::null, &LLToolPlacerPanel::setObjectType,
 		pcode,
-		LLFontGL::sSansSerif);
+		LLFontGL::getFontSansSerif());
 	btn->setFollowsBottom();
 	btn->setFollowsLeft();
 	addChild(btn);

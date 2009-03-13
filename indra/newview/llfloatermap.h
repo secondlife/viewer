@@ -37,32 +37,26 @@
 
 class LLNetMap;
 
-//
-// Classes
-//
-class LLFloaterMap
-:	public LLFloater
+class LLFloaterMap :
+	public LLFloater,
+	public LLFloaterSingleton<LLFloaterMap>
 {
+	friend class LLUISingleton<LLFloaterMap, VisibilityPolicy<LLFloater> >;
 public:
-	LLFloaterMap(const std::string& name);
 	virtual ~LLFloaterMap();
 
-	static void		toggle(void*);
+	static void* createPanelMiniMap(void* data);
 
-	/*virtual*/ void	setVisible(BOOL visible);
+	BOOL postBuild();
+
 	/*virtual*/ void	draw();
+	/*virtual*/ void	onOpen();
 	/*virtual*/ void	onClose(bool app_quitting);
 	/*virtual*/ BOOL	canClose();
 
-protected:
-	LLNetMap*		mMap;
+private:
+	LLFloaterMap(const LLSD& key = LLSD());
+	LLNetMap*		mPanelMap;
 };
-
-
-//
-// Globals
-//
-
-extern LLFloaterMap *gFloaterMap;
 
 #endif  // LL_LLFLOATERMAP_H

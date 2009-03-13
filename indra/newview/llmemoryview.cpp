@@ -156,7 +156,7 @@ void LLMemoryView::draw()
 	S32 x, y;
 
 	S32 margin = 10;
-	S32 texth = (S32)LLFontGL::sMonospace->getLineHeight();
+	S32 texth = (S32)LLFontGL::getFontMonospace()->getLineHeight();
 
 	S32 xleft = margin;
 	S32 ytop = height - margin;
@@ -204,11 +204,11 @@ void LLMemoryView::draw()
 			S32 mbytes = bytes >> 20;
 
 			tdesc = llformat("%s [%4d MB] in %06d NEWS",mtv_display_table[i].desc,mbytes, LLMemType::sNewCount[tidx]);
-			LLFontGL::sMonospace->renderUTF8(tdesc, 0, x, y, LLColor4::white, LLFontGL::LEFT, LLFontGL::TOP);
+			LLFontGL::getFontMonospace()->renderUTF8(tdesc, 0, x, y, LLColor4::white, LLFontGL::LEFT, LLFontGL::TOP);
 			
 			y -= (texth + 2);
 
-			S32 textw = LLFontGL::sMonospace->getWidth(tdesc);
+			S32 textw = LLFontGL::getFontMonospace()->getWidth(tdesc);
 			if (textw > labelwidth)
 				labelwidth = textw;
 		}
@@ -230,7 +230,7 @@ void LLMemoryView::draw()
 		tdesc = llformat("Total Bytes: %d MB Overhead: %d KB Avs %d Motions:%d Loading:%d Loaded:%d Active:%d Dep:%d",
 						 LLMemType::sTotalMem >> 20, LLMemType::sOverheadMem >> 10,
 						 num_avatars, num_motions, num_loading_motions, num_loaded_motions, num_active_motions, num_deprecated_motions);
-		LLFontGL::sMonospace->renderUTF8(tdesc, 0, x, y, LLColor4::white, LLFontGL::LEFT, LLFontGL::TOP);
+		LLFontGL::getFontMonospace()->renderUTF8(tdesc, 0, x, y, LLColor4::white, LLFontGL::LEFT, LLFontGL::TOP);
 	}
 
 	// Bars

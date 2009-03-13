@@ -149,7 +149,11 @@ void LLUICtrlFactory::setupPaths()
 	}
 }
 
-
+// static
+const std::vector<std::string>& LLUICtrlFactory::getXUIPaths()
+{
+	return sXUIPaths;
+}
 
 //-----------------------------------------------------------------------------
 // getLayeredXMLNode()

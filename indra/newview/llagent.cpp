@@ -101,6 +101,7 @@
 #include "llstartup.h"
 #include "llimview.h"
 #include "lltool.h"
+#include "lltoolcomp.h"
 #include "lltoolfocus.h"
 #include "lltoolgrab.h"
 #include "lltoolmgr.h"
@@ -436,10 +437,8 @@ void LLAgent::init()
 
 	mCameraFocusOffsetTarget = LLVector4(gSavedSettings.getVector3("CameraOffsetBuild"));
 	mCameraOffsetDefault = gSavedSettings.getVector3("CameraOffsetDefault");
-//	mCameraOffsetNorm = mCameraOffsetDefault;
-//	mCameraOffsetNorm.normalize();
 	mCameraCollidePlane.clearVec();
-	mCurrentCameraDistance = mCameraOffsetDefault.magVec();
+	mCurrentCameraDistance = mCameraOffsetDefault.magVec() * gSavedSettings.getF32("CameraOffsetScale");
 	mTargetCameraDistance = mCurrentCameraDistance;
 	mCameraZoomFraction = 1.f;
 	mTrackFocusObject = gSavedSettings.getBOOL("TrackFocusObject");
@@ -1887,7 +1886,7 @@ void LLAgent::cameraOrbitIn(const F32 meters)
 {
 	if (mFocusOnAvatar && mCameraMode == CAMERA_MODE_THIRD_PERSON)
 	{
-		F32 camera_offset_dist = llmax(0.001f, mCameraOffsetDefault.magVec());
+		F32 camera_offset_dist = llmax(0.001f, mCameraOffsetDefault.magVec() * gSavedSettings.getF32("CameraOffsetScale"));
 		
 		mCameraZoomFraction = (mTargetCameraDistance - meters) / camera_offset_dist;
 
@@ -2814,7 +2813,7 @@ U8 LLAgent::getRenderState()
 static const LLFloaterView::skip_list_t& get_skip_list()
 {
 	static LLFloaterView::skip_list_t skip_list;
-	skip_list.insert(gFloaterMap);
+	skip_list.insert(LLFloaterMap::getInstance());
 	return skip_list;
 }
 
@@ -2892,7 +2891,7 @@ void LLAgent::endAnimationUpdateUI()
 		// let the mini-map go visible again. JC
         if (!LLAppViewer::instance()->quitRequested())
 		{
-			gFloaterMap->popVisible();
+			LLFloaterMap::getInstance()->popVisible();
 		}
 
 		if( gMorphView )
@@ -2989,7 +2988,7 @@ void LLAgent::endAnimationUpdateUI()
 	{
 		LLToolMgr::getInstance()->setCurrentToolset(gFaceEditToolset);
 
-		gFloaterMap->pushVisible(FALSE);
+		LLFloaterMap::getInstance()->pushVisible(FALSE);
 		/*
 		LLView *view;
 		for (view = gFloaterView->getFirstChild(); view; view = gFloaterView->getNextChild())
@@ -3257,8 +3256,11 @@ void LLAgent::updateCamera()
 	{
 		LLVector3d agent_pos = getPositionGlobal();
 		LLVector3d camera_pos_agent = camera_pos_global - agent_pos;
+		// Sitting on what you're manipulating can cause camera jitter with smoothing. 
+		// This turns off smoothing while editing. -MG
+		mCameraSmoothingStop |= (BOOL)LLToolMgr::getInstance()->inBuildMode();
 		
-		if (cameraThirdPerson() && !mCameraSmoothingStop) // only smooth in third person mode
+		if (cameraThirdPerson() && !mCameraSmoothingStop)
 		{
 			const F32 SMOOTHING_HALF_LIFE = 0.02f;
 			
@@ -3684,7 +3686,7 @@ LLVector3d LLAgent::calcCameraPositionTargetGlobal(BOOL *hit_limit)
 		}
 		else
 		{
-			local_camera_offset = mCameraZoomFraction * mCameraOffsetDefault;
+			local_camera_offset = mCameraZoomFraction * mCameraOffsetDefault * gSavedSettings.getF32("CameraOffsetScale");
 			
 			// are we sitting down?
 			if (mAvatarObject.notNull() && mAvatarObject->getParent())
@@ -3915,10 +3917,10 @@ void LLAgent::handleScrollWheel(S32 clicks)
 		}
 		else if (mFocusOnAvatar && mCameraMode == CAMERA_MODE_THIRD_PERSON)
 		{
-			F32 current_zoom_fraction = mTargetCameraDistance / mCameraOffsetDefault.magVec();
+			F32 current_zoom_fraction = mTargetCameraDistance / (mCameraOffsetDefault.magVec() * gSavedSettings.getF32("CameraOffsetScale"));
 			current_zoom_fraction *= 1.f - pow(ROOT_ROOT_TWO, clicks);
 			
-			cameraOrbitIn(current_zoom_fraction * mCameraOffsetDefault.magVec());
+			cameraOrbitIn(current_zoom_fraction * mCameraOffsetDefault.magVec() * gSavedSettings.getF32("CameraOffsetScale"));
 		}
 		else
 		{

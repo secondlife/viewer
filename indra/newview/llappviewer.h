@@ -304,7 +304,6 @@ extern BOOL		gDisconnected;
 
 // Map scale in pixels per region
 extern F32 gMapScale;
-extern F32 gMiniMapScale;
 
 extern LLFrameTimer	gRestoreGLTimer;
 extern BOOL			gRestoreGL;

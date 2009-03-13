@@ -67,7 +67,7 @@ LLColorSwatchCtrl::LLColorSwatchCtrl(const std::string& name, const LLRect& rect
 	mCaption = new LLTextBox( name,
 		LLRect( 0, BTN_HEIGHT_SMALL, getRect().getWidth(), 0 ),
 		name,
-		LLFontGL::sSansSerifSmall );
+		LLFontGL::getFontSansSerifSmall() );
 	mCaption->setFollows( FOLLOWS_LEFT | FOLLOWS_RIGHT | FOLLOWS_BOTTOM );
 	addChild( mCaption );
 
@@ -94,7 +94,7 @@ LLColorSwatchCtrl::LLColorSwatchCtrl(const std::string& name, const LLRect& rect
 	mCaption = new LLTextBox( label,
 		LLRect( 0, BTN_HEIGHT_SMALL, getRect().getWidth(), 0 ),
 		label,
-		LLFontGL::sSansSerifSmall );
+		LLFontGL::getFontSansSerifSmall() );
 	mCaption->setFollows( FOLLOWS_LEFT | FOLLOWS_RIGHT | FOLLOWS_BOTTOM );
 	addChild( mCaption );
 

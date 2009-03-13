@@ -1436,7 +1436,7 @@ void LLManipTranslate::renderSnapGuides()
 				LLVector3 selection_center_start = getSavedPivotPoint();//LLSelectMgr::getInstance()->getSavedBBoxOfSelection().getCenterAgent();
 
 				LLVector3 help_text_pos = selection_center_start + (snap_offset_meters_up * 3.f * mSnapOffsetAxis);
-				const LLFontGL* big_fontp = LLFontGL::sSansSerif;
+				const LLFontGL* big_fontp = LLFontGL::getFontSansSerif();
 
 				std::string help_text = "Move mouse cursor over ruler to snap";
 				LLColor4 help_text_color = LLColor4::white;

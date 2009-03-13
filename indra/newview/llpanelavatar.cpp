@@ -138,79 +138,15 @@ BOOL LLDropTarget::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 									 EAcceptance* accept,
 									 std::string& tooltip_msg)
 {
-	BOOL handled = FALSE;
 	if(getParent())
 	{
-		// check if inside
-		//LLRect parent_rect = mParentView->getRect();
-		//getRect().set(0, parent_rect.getHeight(), parent_rect.getWidth(), 0);
-		handled = TRUE;
+		LLToolDragAndDrop::handleGiveDragAndDrop(mAgentID, LLUUID::null, drop,
+												 cargo_type, cargo_data, accept);
 
-		// check the type
-		switch(cargo_type)
-		{
-		case DAD_TEXTURE:
-		case DAD_SOUND:
-		case DAD_LANDMARK:
-		case DAD_SCRIPT:
-		case DAD_OBJECT:
-		case DAD_NOTECARD:
-		case DAD_CLOTHING:
-		case DAD_BODYPART:
-		case DAD_ANIMATION:
-		case DAD_GESTURE:
-		{
-			LLViewerInventoryItem* inv_item = (LLViewerInventoryItem*)cargo_data;
-			if(gInventory.getItem(inv_item->getUUID())
-				&& LLToolDragAndDrop::isInventoryGiveAcceptable(inv_item))
-			{
-				// *TODO: get multiple object transfers working
-				*accept = ACCEPT_YES_COPY_SINGLE;
-				if(drop)
-				{
-					LLToolDragAndDrop::giveInventory(mAgentID, inv_item);
-				}
-			}
-			else
-			{
-				// It's not in the user's inventory (it's probably
-				// in an object's contents), so disallow dragging
-				// it here.  You can't give something you don't
-				// yet have.
-				*accept = ACCEPT_NO;
-			}
-			break;
-		}
-		case DAD_CATEGORY:
-		{
-			LLViewerInventoryCategory* inv_cat = (LLViewerInventoryCategory*)cargo_data;
-			if( gInventory.getCategory( inv_cat->getUUID() ) )
-			{
-				// *TODO: get multiple object transfers working
-				*accept = ACCEPT_YES_COPY_SINGLE;
-				if(drop)
-				{
-					LLToolDragAndDrop::giveInventoryCategory(mAgentID,
-																inv_cat);
-				}
-			}
-			else
-			{
-				// It's not in the user's inventory (it's probably
-				// in an object's contents), so disallow dragging
-				// it here.  You can't give something you don't
-				// yet have.
-				*accept = ACCEPT_NO;
-			}
-			break;
-		}
-		case DAD_CALLINGCARD:
-		default:
-			*accept = ACCEPT_NO;
-			break;
-		}
+		return TRUE;
 	}
-	return handled;
+
+	return FALSE;
 }
 
 

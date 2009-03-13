@@ -833,7 +833,7 @@ void LLViewerParcelMgr::renderParcelCollision()
 		mRenderCollision = FALSE;
 	}
 
-	if (mRenderCollision)
+	if (mRenderCollision && gSavedSettings.getBOOL("ShowBanLines"))
 	{
 		LLViewerRegion* regionp = gAgent.getRegion();
 		BOOL use_pass = mCollisionParcel->getParcelFlag(PF_USE_PASS_LIST);

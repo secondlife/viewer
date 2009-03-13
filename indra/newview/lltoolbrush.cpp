@@ -97,7 +97,24 @@ LLToolBrushLand::LLToolBrushLand()
 	mGotHover(FALSE),
 	mBrushSelected(FALSE)
 {
-	mBrushIndex = gSavedSettings.getS32("RadioLandBrushSize");
+	mBrushSize = gSavedSettings.getF32("LandBrushSize");
+}
+
+
+U8 LLToolBrushLand::getBrushIndex()
+{
+	// find the best index for desired size
+	// (compatibility with old sims, brush_index is now depricated - DEV-8252)
+	U8 index = 0;
+	for (U8 i = 0; i < LAND_BRUSH_SIZE_COUNT; i++)
+	{
+		if (mBrushSize > LAND_BRUSH_SIZE[i])
+		{
+			index = i;
+		}
+	}
+
+	return index;
 }
 
 void LLToolBrushLand::modifyLandAtPointGlobal(const LLVector3d &pos_global,
@@ -158,7 +175,6 @@ void LLToolBrushLand::modifyLandAtPointGlobal(const LLVector3d &pos_global,
 		F32 seconds = (1.0f / gFPSClamped) * gSavedSettings.getF32("LandBrushForce");
 		F32 x_pos = (F32)pos_region.mV[VX];
 		F32 y_pos = (F32)pos_region.mV[VY];
-		U8 brush_size = (U8)mBrushIndex;
 		LLMessageSystem* msg = gMessageSystem;
 		msg->newMessageFast(_PREHASH_ModifyLand);
 		msg->nextBlockFast(_PREHASH_AgentData);
@@ -166,7 +182,7 @@ void LLToolBrushLand::modifyLandAtPointGlobal(const LLVector3d &pos_global,
 		msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
 		msg->nextBlockFast(_PREHASH_ModifyBlock);
 		msg->addU8Fast(_PREHASH_Action, (U8)action);
-		msg->addU8Fast(_PREHASH_BrushSize, brush_size);
+		msg->addU8Fast(_PREHASH_BrushSize, getBrushIndex());
 		msg->addF32Fast(_PREHASH_Seconds, seconds);
 		msg->addF32Fast(_PREHASH_Height, mStartingZ);
 		msg->nextBlockFast(_PREHASH_ParcelData);
@@ -175,6 +191,8 @@ void LLToolBrushLand::modifyLandAtPointGlobal(const LLVector3d &pos_global,
 		msg->addF32Fast(_PREHASH_South, y_pos );
 		msg->addF32Fast(_PREHASH_East, x_pos );
 		msg->addF32Fast(_PREHASH_North, y_pos );
+		msg->nextBlock("ModifyBlockExtended");
+		msg->addF32("BrushSize", mBrushSize);
 		msg->sendMessage(regionp->getHost());
 	}
 }
@@ -295,7 +313,6 @@ void LLToolBrushLand::modifyLandInSelectionGlobal()
 		regionp->forceUpdate();
 
 		// tell the simulator what we've done
-		U8 brush_size = (U8)mBrushIndex;
 		LLMessageSystem* msg = gMessageSystem;
 		msg->newMessageFast(_PREHASH_ModifyLand);
 		msg->nextBlockFast(_PREHASH_AgentData);
@@ -303,7 +320,7 @@ void LLToolBrushLand::modifyLandInSelectionGlobal()
 		msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
 		msg->nextBlockFast(_PREHASH_ModifyBlock);
 		msg->addU8Fast(_PREHASH_Action, (U8)action);
-		msg->addU8Fast(_PREHASH_BrushSize, brush_size);
+		msg->addU8Fast(_PREHASH_BrushSize, getBrushIndex());
 		msg->addF32Fast(_PREHASH_Seconds, seconds);
 		msg->addF32Fast(_PREHASH_Height, mStartingZ);
 
@@ -328,6 +345,9 @@ void LLToolBrushLand::modifyLandInSelectionGlobal()
 			msg->addF32Fast(_PREHASH_East,  max_region.mV[VX] );
 			msg->addF32Fast(_PREHASH_North, max_region.mV[VY] );
 		}
+		
+		msg->nextBlock("ModifyBlockExtended");
+		msg->addF32("BrushSize", mBrushSize);
 
 		msg->sendMessage(regionp->getHost());
 	}
@@ -448,7 +468,8 @@ void LLToolBrushLand::render()
 			spot.mdV[VX] = floor( spot.mdV[VX] + 0.5 );
 			spot.mdV[VY] = floor( spot.mdV[VY] + 0.5 );
 
-			mBrushIndex = gSavedSettings.getS32("RadioLandBrushSize");
+			mBrushSize = gSavedSettings.getF32("LandBrushSize");
+			
 			region_list_t regions;
 			determineAffectedRegions(regions, spot);
 
@@ -500,7 +521,7 @@ void LLToolBrushLand::renderOverlay(LLSurface& land, const LLVector3& pos_region
 	
 	S32 i = (S32) pos_region.mV[VX];
 	S32 j = (S32) pos_region.mV[VY];
-	S32 half_edge = llfloor(LAND_BRUSH_SIZE[mBrushIndex]);
+	S32 half_edge = llfloor(mBrushSize);
 	S32 radioAction = gSavedSettings.getS32("RadioLandBrushAction");
 	F32 force = gSavedSettings.getF32("LandBrushForce"); // .1 to 100?
 	
@@ -557,27 +578,27 @@ void LLToolBrushLand::determineAffectedRegions(region_list_t& regions,
 											   const LLVector3d& spot ) const
 {
 	LLVector3d corner(spot);
-	corner.mdV[VX] -= (LAND_BRUSH_SIZE[mBrushIndex] / 2);
-	corner.mdV[VY] -= (LAND_BRUSH_SIZE[mBrushIndex] / 2);
+	corner.mdV[VX] -= (mBrushSize / 2);
+	corner.mdV[VY] -= (mBrushSize / 2);
 	LLViewerRegion* region = NULL;
 	region = LLWorld::getInstance()->getRegionFromPosGlobal(corner);
 	if(region && regions.find(region) == regions.end())
 	{
 		regions.insert(region);
 	}
-	corner.mdV[VY] += LAND_BRUSH_SIZE[mBrushIndex];
+	corner.mdV[VY] += mBrushSize;
 	region = LLWorld::getInstance()->getRegionFromPosGlobal(corner);
 	if(region && regions.find(region) == regions.end())
 	{
 		regions.insert(region);
 	}
-	corner.mdV[VX] += LAND_BRUSH_SIZE[mBrushIndex];
+	corner.mdV[VX] += mBrushSize;
 	region = LLWorld::getInstance()->getRegionFromPosGlobal(corner);
 	if(region && regions.find(region) == regions.end())
 	{
 		regions.insert(region);
 	}
-	corner.mdV[VY] -= LAND_BRUSH_SIZE[mBrushIndex];
+	corner.mdV[VY] -= mBrushSize;
 	region = LLWorld::getInstance()->getRegionFromPosGlobal(corner);
 	if(region && regions.find(region) == regions.end())
 	{

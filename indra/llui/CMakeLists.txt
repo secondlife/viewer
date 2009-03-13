@@ -64,6 +64,7 @@ set(llui_SOURCE_FILES
     lltabcontainervertical.cpp
     lltextbox.cpp
     lltexteditor.cpp
+    lltextparser.cpp
     llui.cpp
     lluictrl.cpp
     lluictrlfactory.cpp
@@ -119,6 +120,7 @@ set(llui_HEADER_FILES
     lltabcontainervertical.h
     lltextbox.h
     lltexteditor.h
+    lltextparser.h
     lluiconstants.h
     lluictrlfactory.h
     lluictrl.h

@@ -651,7 +651,7 @@ void LLWorldMapView::draw()
 		}
 
 		// Draw the region name in the lower left corner
-		LLFontGL* font = LLFontGL::sSansSerifSmall;
+		LLFontGL* font = LLFontGL::getFontSansSerifSmall();
 
 		std::string mesg;
 		if (gMapScale < sThresholdA)
@@ -763,7 +763,7 @@ void LLWorldMapView::draw()
 			TRUE, 
 			"You are here", 
 			"", 
-			llround(LLFontGL::sSansSerifSmall->getLineHeight())); // offset vertically by one line, to avoid overlap with target tracking
+			llround(LLFontGL::getFontSansSerifSmall()->getLineHeight())); // offset vertically by one line, to avoid overlap with target tracking
 	}
 
 	// Show your viewing angle
@@ -893,6 +893,9 @@ void LLWorldMapView::drawImageStack(const LLVector3d& global_pos, LLUIImagePtr i
 void LLWorldMapView::drawAgents()
 {
 	F32 agents_scale = (gMapScale * 0.9f) / 256.f;
+	
+	LLColor4 avatar_color = gColors.getColor( "MapAvatar" );
+	//	LLColor4 friend_color = gColors.getColor( "MapFriend" );
 
 	for (handle_list_t::iterator iter = mVisibleRegions.begin(); iter != mVisibleRegions.end(); ++iter)
 	{
@@ -915,8 +918,8 @@ void LLWorldMapView::drawAgents()
 				S32 agent_count = info.mExtra;
 				sim_agent_count += info.mExtra;
 				// Here's how we'd choose the color if info.mID were available but it's not being sent:
-				//LLColor4 color = (agent_count == 1 && is_agent_friend(info.mID)) ? gFriendMapColor : gAvatarMapColor;
-				drawImageStack(info.mPosGlobal, sAvatarSmallImage, agent_count, 3.f, gAvatarMapColor);
+				//LLColor4 color = (agent_count == 1 && is_agent_friend(info.mID)) ? friend_color : avatar_color;
+				drawImageStack(info.mPosGlobal, sAvatarSmallImage, agent_count, 3.f, avatar_color);
 			}
 			LLWorldMap::getInstance()->mNumAgents[handle] = sim_agent_count; // override mNumAgents for this sim
 		}
@@ -931,7 +934,7 @@ void LLWorldMapView::drawAgents()
 				region_center[VY] += REGION_WIDTH_METERS / 2;
 				// Reduce the stack size as you zoom out - always display at lease one agent where there is one or more
 				S32 agent_count = (S32)(((num_agents-1) * agents_scale + (num_agents-1) * 0.1f)+.1f) + 1;
-				drawImageStack(region_center, sAvatarSmallImage, agent_count, 3.f, gAvatarMapColor);
+				drawImageStack(region_center, sAvatarSmallImage, agent_count, 3.f, avatar_color);
 			}
 		}
 	}
@@ -1045,7 +1048,7 @@ void LLWorldMapView::drawTracking(const LLVector3d& pos_global, const LLColor4& 
 	LLVector3 pos_local = globalPosToView( pos_global );
 	S32 x = llround( pos_local.mV[VX] );
 	S32 y = llround( pos_local.mV[VY] );
-	LLFontGL* font = LLFontGL::sSansSerifSmall;
+	LLFontGL* font = LLFontGL::getFontSansSerifSmall();
 	S32 text_x = x;
 	S32 text_y = (S32)(y - sTrackCircleImage->getHeight()/2 - font->getLineHeight());
 
@@ -1278,7 +1281,7 @@ void LLWorldMapView::drawIconName(F32 x_pixels,
 						 - VERT_PAD);
 
 	// render text
-	LLFontGL::sSansSerif->renderUTF8(first_line, 0,
+	LLFontGL::getFontSansSerif()->renderUTF8(first_line, 0,
 		text_x,
 		text_y,
 		color,
@@ -1286,10 +1289,10 @@ void LLWorldMapView::drawIconName(F32 x_pixels,
 		LLFontGL::TOP,
 		LLFontGL::DROP_SHADOW);
 
-	text_y -= llround(LLFontGL::sSansSerif->getLineHeight());
+	text_y -= llround(LLFontGL::getFontSansSerif()->getLineHeight());
 
 	// render text
-	LLFontGL::sSansSerif->renderUTF8(second_line, 0,
+	LLFontGL::getFontSansSerif()->renderUTF8(second_line, 0,
 		text_x,
 		text_y,
 		color,

@@ -1658,14 +1658,14 @@ void LLTabContainer::initButtons()
 		in_id = "UIImgBtnJumpLeftInUUID";
 		mJumpPrevArrowBtn = new LLButton(std::string("Jump Left Arrow"), jump_left_arrow_btn_rect,
 										 out_id, in_id, LLStringUtil::null,
-										 &LLTabContainer::onJumpFirstBtn, this, LLFontGL::sSansSerif );
+										 &LLTabContainer::onJumpFirstBtn, this, LLFontGL::getFontSansSerif() );
 		mJumpPrevArrowBtn->setFollowsLeft();
 
 		out_id = "UIImgBtnScrollLeftOutUUID";
 		in_id = "UIImgBtnScrollLeftInUUID";
 		mPrevArrowBtn = new LLButton(std::string("Left Arrow"), left_arrow_btn_rect,
 									 out_id, in_id, LLStringUtil::null,
-									 &LLTabContainer::onPrevBtn, this, LLFontGL::sSansSerif );
+									 &LLTabContainer::onPrevBtn, this, LLFontGL::getFontSansSerif() );
 		mPrevArrowBtn->setHeldDownCallback(onPrevBtnHeld);
 		mPrevArrowBtn->setFollowsLeft();
 	
@@ -1674,7 +1674,7 @@ void LLTabContainer::initButtons()
 		mJumpNextArrowBtn = new LLButton(std::string("Jump Right Arrow"), jump_right_arrow_btn_rect,
 										 out_id, in_id, LLStringUtil::null,
 										 &LLTabContainer::onJumpLastBtn, this,
-										 LLFontGL::sSansSerif);
+										 LLFontGL::getFontSansSerif());
 		mJumpNextArrowBtn->setFollowsRight();
 
 		out_id = "UIImgBtnScrollRightOutUUID";
@@ -1682,7 +1682,7 @@ void LLTabContainer::initButtons()
 		mNextArrowBtn = new LLButton(std::string("Right Arrow"), right_arrow_btn_rect,
 									 out_id, in_id, LLStringUtil::null,
 									 &LLTabContainer::onNextBtn, this,
-									 LLFontGL::sSansSerif);
+									 LLFontGL::getFontSansSerif());
 		mNextArrowBtn->setFollowsRight();
 
 		if( getTabPosition() == TOP )

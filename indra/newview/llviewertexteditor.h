@@ -98,8 +98,8 @@ public:
 private:
 	// Embedded object operations
 	virtual llwchar	pasteEmbeddedItem(llwchar ext_char);
-	virtual void	bindEmbeddedChars(LLFontGL* font) const;
-	virtual void	unbindEmbeddedChars(LLFontGL* font) const;
+	virtual void	bindEmbeddedChars(const LLFontGL* font) const;
+	virtual void	unbindEmbeddedChars(const LLFontGL* font) const;
 
 	BOOL			getEmbeddedItemToolTipAtPos(S32 pos, LLWString &wmsg) const;
 	BOOL			openEmbeddedItemAtPos( S32 pos );

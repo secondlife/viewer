@@ -2353,7 +2353,7 @@ void LLWindowSDL::bringToFront()
 }
 
 //static
-std::string LLWindowSDL::getFontListSans()
+std::vector<std::string> LLWindowSDL::getDynamicFallbackFontList()
 {
 	// Use libfontconfig to find us a nice ordered list of fallback fonts
 	// specific to this system.
@@ -2370,7 +2370,7 @@ std::string LLWindowSDL::getFontListSans()
 	// renderable range if for some reason our FreeType actually fails
 	// to use some of the fonts we want it to.
 	const bool elide_unicode_coverage = true;
-	std::string rtn;
+	std::vector<std::string> rtns;
 	FcFontSet *fs = NULL;
 	FcPattern *sortpat = NULL;
 	int font_count = 0;
@@ -2404,7 +2404,8 @@ std::string LLWindowSDL::getFontListSans()
 	if (!FcInit())
 	{
 		llwarns << "FontConfig failed to initialize." << llendl;
-		return final_fallback;
+		rtns.push_back(final_fallback);
+		return rtns;
 	}
 
 	sortpat = FcNameParse((FcChar8*) sort_order.c_str());
@@ -2429,17 +2430,24 @@ std::string LLWindowSDL::getFontListSans()
 								&filename)
 			    && filename)
 			{
-				rtn += std::string((const char*)filename)+";";
+				rtns.push_back(std::string((const char*)filename));
 				++font_count;
 			}
 		}
 		FcFontSetDestroy (fs);
 	}
 
-	lldebugs << "Using font list: " << rtn << llendl;
+	lldebugs << "Using font list: " << llendl;
+	for (std::vector<std::string>::iterator it = rtns.begin();
+		 it != rtns.end();
+		 ++it)
+	{
+		lldebugs << "  file: " << *it << llendl;
+	}
 	llinfos << "Using " << font_count << " system font(s)." << llendl;
 
-	return rtn + final_fallback;
+	rtns.push_back(final_fallback);
+	return rtns;
 }
 
 #endif // LL_SDL

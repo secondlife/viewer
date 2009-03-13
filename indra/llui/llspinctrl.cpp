@@ -99,7 +99,7 @@ LLSpinCtrl::LLSpinCtrl(	const std::string& name, const LLRect& rect, const std::
 								   out_id,
 								   in_id,
 								   LLStringUtil::null,
-								   &LLSpinCtrl::onUpBtn, this, LLFontGL::sSansSerif );
+								   &LLSpinCtrl::onUpBtn, this, LLFontGL::getFontSansSerif() );
 	mUpBtn->setFollowsLeft();
 	mUpBtn->setFollowsBottom();
 	mUpBtn->setHeldDownCallback( &LLSpinCtrl::onUpBtn );
@@ -113,7 +113,7 @@ LLSpinCtrl::LLSpinCtrl(	const std::string& name, const LLRect& rect, const std::
 							out_id,
 							in_id,
 							LLStringUtil::null,
-							&LLSpinCtrl::onDownBtn, this, LLFontGL::sSansSerif );
+							&LLSpinCtrl::onDownBtn, this, LLFontGL::getFontSansSerif() );
 	mDownBtn->setFollowsLeft();
 	mDownBtn->setFollowsBottom();
 	mDownBtn->setHeldDownCallback( &LLSpinCtrl::onDownBtn );

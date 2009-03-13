@@ -292,7 +292,7 @@ BOOL LLFastTimerView::handleRightMouseDown(S32 x, S32 y, MASK mask)
 
 S32 LLFastTimerView::getLegendIndex(S32 y)
 {
-	S32 idx = (getRect().getHeight() - y) / ((S32) LLFontGL::sMonospace->getLineHeight()+2) - 5;
+	S32 idx = (getRect().getHeight() - y) / ((S32) LLFontGL::getFontMonospace()->getLineHeight()+2) - 5;
 	if (idx >= 0 && idx < FTV_DISPLAY_NUM)
 	{
 		return ft_display_idx[idx];
@@ -483,7 +483,7 @@ void LLFastTimerView::draw()
 		
 		x = xleft;
 		y = height - ytop;
-		texth = (S32)LLFontGL::sMonospace->getLineHeight();
+		texth = (S32)LLFontGL::getFontMonospace()->getLineHeight();
 
 		char modedesc[][32] = {
 			"2 x Average ",
@@ -498,16 +498,16 @@ void LLFastTimerView::draw()
 		};
 
 		tdesc = llformat("Full bar = %s [Click to pause/reset] [SHIFT-Click to toggle]",modedesc[mDisplayMode]);
-		LLFontGL::sMonospace->renderUTF8(tdesc, 0, x, y, LLColor4::white, LLFontGL::LEFT, LLFontGL::TOP);
+		LLFontGL::getFontMonospace()->renderUTF8(tdesc, 0, x, y, LLColor4::white, LLFontGL::LEFT, LLFontGL::TOP);
 
-		textw = LLFontGL::sMonospace->getWidth(tdesc);
+		textw = LLFontGL::getFontMonospace()->getWidth(tdesc);
 
 		x = xleft, y -= (texth + 2);
 		tdesc = llformat("Justification = %s [CTRL-Click to toggle]",centerdesc[mDisplayCenter]);
-		LLFontGL::sMonospace->renderUTF8(tdesc, 0, x, y, LLColor4::white, LLFontGL::LEFT, LLFontGL::TOP);
+		LLFontGL::getFontMonospace()->renderUTF8(tdesc, 0, x, y, LLColor4::white, LLFontGL::LEFT, LLFontGL::TOP);
 		y -= (texth + 2);
 
-		LLFontGL::sMonospace->renderUTF8(std::string("[Right-Click log selected] [ALT-Click toggle counts] [ALT-SHIFT-Click sub hidden]"),
+		LLFontGL::getFontMonospace()->renderUTF8(std::string("[Right-Click log selected] [ALT-Click toggle counts] [ALT-SHIFT-Click sub hidden]"),
 										 0, x, y, LLColor4::white, LLFontGL::LEFT, LLFontGL::TOP);
 		y -= (texth + 2);
 	}
@@ -632,15 +632,15 @@ void LLFastTimerView::draw()
 
 		if (is_child_of_hover_item)
 		{
-			LLFontGL::sMonospace->renderUTF8(tdesc, 0, x, y, color, LLFontGL::LEFT, LLFontGL::TOP, LLFontGL::BOLD);
+			LLFontGL::getFontMonospace()->renderUTF8(tdesc, 0, x, y, color, LLFontGL::LEFT, LLFontGL::TOP, LLFontGL::BOLD);
 		}
 		else
 		{
-			LLFontGL::sMonospace->renderUTF8(tdesc, 0, x, y, color, LLFontGL::LEFT, LLFontGL::TOP);
+			LLFontGL::getFontMonospace()->renderUTF8(tdesc, 0, x, y, color, LLFontGL::LEFT, LLFontGL::TOP);
 		}
 		y -= (texth + 2);
 
-		textw = dx + LLFontGL::sMonospace->getWidth(std::string(ft_display_table[i].desc)) + 40;
+		textw = dx + LLFontGL::getFontMonospace()->getWidth(std::string(ft_display_table[i].desc)) + 40;
 		if (textw > legendwidth)
 			legendwidth = textw;
 	}
@@ -654,7 +654,7 @@ void LLFastTimerView::draw()
 	// update rectangle that includes timer bars
 	mBarRect.mLeft = xleft;
 	mBarRect.mRight = getRect().mRight - xleft;
-	mBarRect.mTop = ytop - ((S32)LLFontGL::sMonospace->getLineHeight() + 4);
+	mBarRect.mTop = ytop - ((S32)LLFontGL::getFontMonospace()->getLineHeight() + 4);
 	mBarRect.mBottom = margin + LINE_GRAPH_HEIGHT;
 
 	y = ytop;
@@ -740,23 +740,23 @@ void LLFastTimerView::draw()
 			U32 ms = (U32)((F64)totalticks * iclock_freq) ;
 
 			tdesc = llformat("%.1f ms |", (F32)ms*.25f);
-			x = xleft + barw/4 - LLFontGL::sMonospace->getWidth(tdesc);
-			LLFontGL::sMonospace->renderUTF8(tdesc, 0, x, y, LLColor4::white,
+			x = xleft + barw/4 - LLFontGL::getFontMonospace()->getWidth(tdesc);
+			LLFontGL::getFontMonospace()->renderUTF8(tdesc, 0, x, y, LLColor4::white,
 										 LLFontGL::LEFT, LLFontGL::TOP);
 			
 			tdesc = llformat("%.1f ms |", (F32)ms*.50f);
-			x = xleft + barw/2 - LLFontGL::sMonospace->getWidth(tdesc);
-			LLFontGL::sMonospace->renderUTF8(tdesc, 0, x, y, LLColor4::white,
+			x = xleft + barw/2 - LLFontGL::getFontMonospace()->getWidth(tdesc);
+			LLFontGL::getFontMonospace()->renderUTF8(tdesc, 0, x, y, LLColor4::white,
 										 LLFontGL::LEFT, LLFontGL::TOP);
 			
 			tdesc = llformat("%.1f ms |", (F32)ms*.75f);
-			x = xleft + (barw*3)/4 - LLFontGL::sMonospace->getWidth(tdesc);
-			LLFontGL::sMonospace->renderUTF8(tdesc, 0, x, y, LLColor4::white,
+			x = xleft + (barw*3)/4 - LLFontGL::getFontMonospace()->getWidth(tdesc);
+			LLFontGL::getFontMonospace()->renderUTF8(tdesc, 0, x, y, LLColor4::white,
 										 LLFontGL::LEFT, LLFontGL::TOP);
 			
 			tdesc = llformat( "%d ms |", ms);
-			x = xleft + barw - LLFontGL::sMonospace->getWidth(tdesc);
-			LLFontGL::sMonospace->renderUTF8(tdesc, 0, x, y, LLColor4::white,
+			x = xleft + barw - LLFontGL::getFontMonospace()->getWidth(tdesc);
+			LLFontGL::getFontMonospace()->renderUTF8(tdesc, 0, x, y, LLColor4::white,
 										 LLFontGL::LEFT, LLFontGL::TOP);
 		}
 
@@ -768,7 +768,7 @@ void LLFastTimerView::draw()
 
 			S32 by = y + 2;
 			
-			y -= ((S32)LLFontGL::sMonospace->getLineHeight() + 4);
+			y -= ((S32)LLFontGL::getFontMonospace()->getLineHeight() + 4);
 
 			//heading
 			gl_rect_2d(xleft-5, by, getRect().getWidth()-5, y+5, FALSE);
@@ -962,10 +962,10 @@ void LLFastTimerView::draw()
 			else
 				tdesc = llformat("%4.2f ms", ms);
 							
-			x = graph_rect.mRight - LLFontGL::sMonospace->getWidth(tdesc)-5;
-			y = graph_rect.mTop - ((S32)LLFontGL::sMonospace->getLineHeight());
+			x = graph_rect.mRight - LLFontGL::getFontMonospace()->getWidth(tdesc)-5;
+			y = graph_rect.mTop - ((S32)LLFontGL::getFontMonospace()->getLineHeight());
  
-			LLFontGL::sMonospace->renderUTF8(tdesc, 0, x, y, LLColor4::white,
+			LLFontGL::getFontMonospace()->renderUTF8(tdesc, 0, x, y, LLColor4::white,
 										 LLFontGL::LEFT, LLFontGL::TOP);
 
 			//highlight visible range
@@ -1073,7 +1073,7 @@ void LLFastTimerView::draw()
 				x = (graph_rect.mRight + graph_rect.mLeft)/2;
 				y = graph_rect.mBottom + 8;
 
-				LLFontGL::sMonospace->renderUTF8(std::string(ft_display_table[mHoverIndex].desc), 0, x, y, LLColor4::white,
+				LLFontGL::getFontMonospace()->renderUTF8(std::string(ft_display_table[mHoverIndex].desc), 0, x, y, LLColor4::white,
 					LLFontGL::LEFT, LLFontGL::BOTTOM);
 			}					
 		}

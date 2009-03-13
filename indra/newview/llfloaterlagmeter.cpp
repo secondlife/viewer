@@ -100,18 +100,14 @@ LLFloaterLagMeter::LLFloaterLagMeter(const LLSD& key)
 	mMinWidth = atoi( config_string.c_str() );
 
 	mStringArgs["[CLIENT_FRAME_RATE_CRITICAL]"] = getString("client_frame_rate_critical_fps");
-	mStringArgs["[CLIENT_FRAME_RATE_CRITICAL]"] = getString("client_frame_rate_critical_fps");
 	mStringArgs["[CLIENT_FRAME_RATE_WARNING]"] = getString("client_frame_rate_warning_fps");
 
-	mStringArgs["[NETWORK_PACKET_LOSS_CRITICAL]"] = getString("network_packet_loss_critical_pct");
 	mStringArgs["[NETWORK_PACKET_LOSS_CRITICAL]"] = getString("network_packet_loss_critical_pct");
 	mStringArgs["[NETWORK_PACKET_LOSS_WARNING]"] = getString("network_packet_loss_warning_pct");
 
 	mStringArgs["[NETWORK_PING_CRITICAL]"] = getString("network_ping_critical_ms");
-	mStringArgs["[NETWORK_PING_CRITICAL]"] = getString("network_ping_critical_ms");
 	mStringArgs["[NETWORK_PING_WARNING]"] = getString("network_ping_warning_ms");
 
-	mStringArgs["[SERVER_FRAME_RATE_CRITICAL]"] = getString("server_frame_rate_critical_fps");
 	mStringArgs["[SERVER_FRAME_RATE_CRITICAL]"] = getString("server_frame_rate_critical_fps");
 	mStringArgs["[SERVER_FRAME_RATE_WARNING]"] = getString("server_frame_rate_warning_fps");
 
@@ -202,6 +198,12 @@ void LLFloaterLagMeter::determineNetwork()
 	bool find_cause_loss = false;
 	bool find_cause_ping = false;
 
+	// *FIXME: We can't blame a large ping time on anything in
+	// particular if the frame rate is low, because a low frame
+	// rate is a sure recipe for crappy ping times right now until
+	// the network handlers are de-synched from the rendering.
+	F32 client_frame_time_ms = 1000.0f * LLViewerStats::getInstance()->mFPSStat.getMeanDuration();
+	
 	if(packet_loss >= mNetworkPacketLossCritical)
 	{
 		mNetworkButton->setImageUnselected(LAG_CRITICAL_IMAGE_NAME);
@@ -211,8 +213,11 @@ void LLFloaterLagMeter::determineNetwork()
 	else if(ping_time >= mNetworkPingCritical)
 	{
 		mNetworkButton->setImageUnselected(LAG_CRITICAL_IMAGE_NAME);
-		mNetworkText->setText( getString("network_ping_critical_msg", mStringArgs) );
-		find_cause_ping = true;
+		if (client_frame_time_ms < mNetworkPingCritical)
+		{
+			mNetworkText->setText( getString("network_ping_critical_msg", mStringArgs) );
+			find_cause_ping = true;
+		}
 	}
 	else if(packet_loss >= mNetworkPacketLossWarning)
 	{
@@ -223,8 +228,11 @@ void LLFloaterLagMeter::determineNetwork()
 	else if(ping_time >= mNetworkPingWarning)
 	{
 		mNetworkButton->setImageUnselected(LAG_WARNING_IMAGE_NAME);
-		mNetworkText->setText( getString("network_ping_warning_msg", mStringArgs) );
-		find_cause_ping = true;
+		if (client_frame_time_ms < mNetworkPingWarning)
+		{
+			mNetworkText->setText( getString("network_ping_warning_msg", mStringArgs) );
+			find_cause_ping = true;
+		}
 	}
 	else
 	{

@@ -1547,7 +1547,7 @@ bool LLToolDragAndDrop::handleCopyProtectedItem(const LLSD& notification, const 
 // static
 void LLToolDragAndDrop::commitGiveInventoryItem(const LLUUID& to_agent,
 												LLInventoryItem* item,
-												const LLUUID &im_session_id)
+												const LLUUID& im_session_id)
 {
 	if(!item) return;
 	std::string name;
@@ -1597,7 +1597,9 @@ void LLToolDragAndDrop::commitGiveInventoryItem(const LLUUID& to_agent,
 }
 
 void LLToolDragAndDrop::giveInventoryCategory(const LLUUID& to_agent,
-											  LLInventoryCategory* cat)
+											  LLInventoryCategory* cat,
+											  const LLUUID& im_session_id)
+
 {
 	if(!cat) return;
 	llinfos << "LLToolDragAndDrop::giveInventoryCategory() - "
@@ -1648,12 +1650,12 @@ void LLToolDragAndDrop::giveInventoryCategory(const LLUUID& to_agent,
 	{
 		if(0 == giveable.countNoCopy())
 		{
-			LLToolDragAndDrop::commitGiveInventoryCategory(to_agent, cat);
+			LLToolDragAndDrop::commitGiveInventoryCategory(to_agent, cat, im_session_id);
 		}
 		else 
 		{
 			LLGiveInventoryInfo* info = NULL;
-			info = new LLGiveInventoryInfo(to_agent, cat->getUUID());
+			info = new LLGiveInventoryInfo(to_agent, cat->getUUID(), im_session_id);
 			LLSD args;
 			args["COUNT"] = llformat("%d",giveable.countNoCopy());
 			LLSD payload;
@@ -1708,7 +1710,9 @@ bool LLToolDragAndDrop::handleCopyProtectedCategory(const LLSD& notification, co
 
 // static
 void LLToolDragAndDrop::commitGiveInventoryCategory(const LLUUID& to_agent,
-													LLInventoryCategory* cat)
+													LLInventoryCategory* cat,
+													const LLUUID& im_session_id)
+
 {
 	if(!cat) return;
 	llinfos << "LLToolDragAndDrop::commitGiveInventoryCategory() - "
@@ -1799,6 +1803,13 @@ void LLToolDragAndDrop::commitGiveInventoryCategory(const LLUUID& to_agent,
 		gFloaterTools->dirty();
 
 		LLMuteList::getInstance()->autoRemove(to_agent, LLMuteList::AR_INVENTORY);
+
+		// If this item was given by drag-and-drop into an IM panel, log this action in the IM panel chat.
+		if (im_session_id != LLUUID::null)
+		{
+			LLSD args;
+			gIMMgr->addSystemMessage(im_session_id, "inventory_item_offered", args);
+		}
 	}
 }
 
@@ -1958,6 +1969,82 @@ EAcceptance LLToolDragAndDrop::willObjectAcceptInventory(LLViewerObject* obj, LL
 	}
 	return ACCEPT_NO;
 }
+
+
+// function used as drag-and-drop handler for simple agent give inventory requests
+//static
+bool LLToolDragAndDrop::handleGiveDragAndDrop(LLUUID dest_agent, LLUUID session_id, BOOL drop,
+											  EDragAndDropType cargo_type,
+											  void* cargo_data,
+											  EAcceptance* accept)
+{
+	// check the type
+	switch(cargo_type)
+	{
+	case DAD_TEXTURE:
+	case DAD_SOUND:
+	case DAD_LANDMARK:
+	case DAD_SCRIPT:
+	case DAD_OBJECT:
+	case DAD_NOTECARD:
+	case DAD_CLOTHING:
+	case DAD_BODYPART:
+	case DAD_ANIMATION:
+	case DAD_GESTURE:
+	{
+		LLViewerInventoryItem* inv_item = (LLViewerInventoryItem*)cargo_data;
+		if(gInventory.getItem(inv_item->getUUID())
+		   && LLToolDragAndDrop::isInventoryGiveAcceptable(inv_item))
+		{
+			// *TODO: get multiple object transfers working
+			*accept = ACCEPT_YES_COPY_SINGLE;
+			if(drop)
+			{
+				LLToolDragAndDrop::giveInventory(dest_agent, inv_item, session_id);
+			}
+		}
+		else
+		{
+			// It's not in the user's inventory (it's probably
+			// in an object's contents), so disallow dragging
+			// it here.  You can't give something you don't
+			// yet have.
+			*accept = ACCEPT_NO;
+		}
+		break;
+	}
+	case DAD_CATEGORY:
+	{
+		LLViewerInventoryCategory* inv_cat = (LLViewerInventoryCategory*)cargo_data;
+		if( gInventory.getCategory( inv_cat->getUUID() ) )
+		{
+			// *TODO: get multiple object transfers working
+			*accept = ACCEPT_YES_COPY_SINGLE;
+			if(drop)
+			{
+				LLToolDragAndDrop::giveInventoryCategory(dest_agent, inv_cat, session_id);
+			}
+		}
+		else
+		{
+			// It's not in the user's inventory (it's probably
+			// in an object's contents), so disallow dragging
+			// it here.  You can't give something you don't
+			// yet have.
+			*accept = ACCEPT_NO;
+		}
+		break;
+	}
+	case DAD_CALLINGCARD:
+	default:
+		*accept = ACCEPT_NO;
+		break;
+	}
+
+	return TRUE;
+}
+
+
 
 ///
 /// Methods called in the drag & drop array

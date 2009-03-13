@@ -1846,15 +1846,23 @@ void LLFolderBridge::folderOptionsMenu()
 	
 	LLInventoryModel* model = mInventoryPanel->getModel();
 	if(!model) return;
+
+	const LLInventoryCategory* category = model->getCategory(mUUID);
+	bool is_default_folder = category &&
+		(LLAssetType::AT_NONE != category->getPreferredType());
 	
 	// calling card related functionality for folders.
 
-	LLIsType is_callingcard(LLAssetType::AT_CALLINGCARD);
-	if (mCallingCards || checkFolderForContentsOfType(model, is_callingcard))
+	// Only enable calling-card related options for non-default folders.
+	if (!is_default_folder)
 	{
-		mItems.push_back(std::string("Calling Card Separator"));
-		mItems.push_back(std::string("Conference Chat Folder"));
-		mItems.push_back(std::string("IM All Contacts In Folder"));
+		LLIsType is_callingcard(LLAssetType::AT_CALLINGCARD);
+		if (mCallingCards || checkFolderForContentsOfType(model, is_callingcard))
+		{
+			mItems.push_back(std::string("Calling Card Separator"));
+			mItems.push_back(std::string("Conference Chat Folder"));
+			mItems.push_back(std::string("IM All Contacts In Folder"));
+		}
 	}
 	
 	// wearables related functionality for folders.
@@ -1871,8 +1879,7 @@ void LLFolderBridge::folderOptionsMenu()
 		mItems.push_back(std::string("Folder Wearables Separator"));
 
 		// Only enable add/replace outfit for non-default folders.
-		const LLInventoryCategory* category = model->getCategory(mUUID);
-		if (!category || (LLAssetType::AT_NONE == category->getPreferredType()))
+		if (!is_default_folder)
 		{
 			mItems.push_back(std::string("Add To Outfit"));
 			mItems.push_back(std::string("Replace Outfit"));

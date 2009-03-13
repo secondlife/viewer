@@ -38,7 +38,8 @@
 #include <vector>
 
 #include "llfloater.h"
-#include "llviewerimagelist.h"
+//#include "llviewerimagelist.h"
+#include "llmemory.h"	// LLPointer<>
 
 typedef std::set<LLUUID, lluuid_less> uuid_list_t;
 const F32 CACHE_REFRESH_TIME	= 2.5f;
@@ -56,6 +57,7 @@ class LLTabContainer;
 class LLTextBox;
 class LLTextEditor;
 class LLTextureCtrl;
+class LLUIImage;
 class LLViewerTextEditor;
 class LLParcelSelection;
 
@@ -90,8 +92,7 @@ protected:
 	LLFloaterLand(const LLSD& seed);
 	virtual ~LLFloaterLand();
 
-	void refresh();
-
+	/*virtual*/ void refresh();
 
 	static void* createPanelLandGeneral(void* data);
 	static void* createPanelLandCovenant(void* data);
@@ -131,7 +132,7 @@ class LLPanelLandGeneral
 public:
 	LLPanelLandGeneral(LLSafeHandle<LLParcelSelection>& parcelp);
 	virtual ~LLPanelLandGeneral();
-	void refresh();
+	/*virtual*/ void refresh();
 	void refreshNames();
 	virtual void draw();
 
@@ -231,7 +232,7 @@ class LLPanelLandObjects
 public:
 	LLPanelLandObjects(LLSafeHandle<LLParcelSelection>& parcelp);
 	virtual ~LLPanelLandObjects();
-	void refresh();
+	/*virtual*/ void refresh();
 	virtual void draw();
 
 	bool callbackReturnOwnerObjects(const LLSD& notification, const LLSD& response);
@@ -281,9 +282,9 @@ protected:
 	LLButton		*mBtnReturnOwnerList;
 	LLNameListCtrl	*mOwnerList;
 
-	LLUIImagePtr	mIconAvatarOnline;
-	LLUIImagePtr	mIconAvatarOffline;
-	LLUIImagePtr	mIconGroup;
+	LLPointer<LLUIImage>	mIconAvatarOnline;
+	LLPointer<LLUIImage>	mIconAvatarOffline;
+	LLPointer<LLUIImage>	mIconGroup;
 
 	BOOL			mFirstReply;
 
@@ -302,18 +303,20 @@ class LLPanelLandOptions
 public:
 	LLPanelLandOptions(LLSafeHandle<LLParcelSelection>& parcelp);
 	virtual ~LLPanelLandOptions();
-	void refresh();
+	/*virtual*/ BOOL postBuild();
+	/*virtual*/ void draw();
+	/*virtual*/ void refresh();
 
+private:
+	// Refresh the "show in search" checkbox and category selector.
+	void refreshSearch();
 
 	static void onCommitAny(LLUICtrl* ctrl, void *userdata);
 	static void onClickSet(void* userdata);
 	static void onClickClear(void* userdata);
 	static void onClickPublishHelp(void*);
 
-	virtual BOOL postBuild();
-	virtual void draw();
-
-protected:
+private:
 	LLCheckBoxCtrl*	mCheckEditObjects;
 	LLCheckBoxCtrl*	mCheckEditGroupObjects;
 	LLCheckBoxCtrl*	mCheckAllObjectEntry;

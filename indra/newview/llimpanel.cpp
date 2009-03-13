@@ -504,7 +504,13 @@ void LLVoiceChannel::deactivate()
 	if (callStarted())
 	{
 		setState(STATE_HUNG_UP);
+		// mute the microphone if required when returning to the proximal channel
+		if (gSavedSettings.getBOOL("AutoDisengageMic") && sCurrentVoiceChannel == this)
+		{
+			gSavedSettings.setBOOL("PTTCurrentlyEnabled", true);
+		}
 	}
+
 	if (sCurrentVoiceChannel == this)
 	{
 		// default channel is proximal channel
@@ -523,11 +529,14 @@ void LLVoiceChannel::activate()
 	// deactivate old channel and mark ourselves as the active one
 	if (sCurrentVoiceChannel != this)
 	{
-		if (sCurrentVoiceChannel)
-		{
-			sCurrentVoiceChannel->deactivate();
-		}
+		// mark as current before deactivating the old channel to prevent
+		// activating the proximal channel between IM calls
+		LLVoiceChannel* old_channel = sCurrentVoiceChannel;
 		sCurrentVoiceChannel = this;
+		if (old_channel)
+		{
+			old_channel->deactivate();
+		}
 	}
 
 	if (mState == STATE_NO_CHANNEL_INFO)
@@ -1282,6 +1291,7 @@ BOOL LLFloaterIMPanel::postBuild()
 
 		mHistoryEditor = getChild<LLViewerTextEditor>("im_history");
 		mHistoryEditor->setParseHTML(TRUE);
+		mHistoryEditor->setParseHighlights(TRUE);
 
 		if ( IM_SESSION_GROUP_START == mDialog )
 		{
@@ -1634,60 +1644,32 @@ BOOL LLFloaterIMPanel::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 								  EAcceptance* accept,
 								  std::string& tooltip_msg)
 {
-	BOOL accepted = FALSE;
-	switch(cargo_type)
-	{
-		case DAD_CALLINGCARD:
-		{
-			accepted = dropCallingCard((LLInventoryItem*)cargo_data, drop);
-			break;
-		}
-		case DAD_CATEGORY:
-		{
-			accepted = dropCategory((LLInventoryCategory*)cargo_data, drop);
-			break;
-		}
 
-		// See stdenums.h
-		case DAD_TEXTURE:
-		case DAD_SOUND:
-		// DAD_CALLINGCARD above
-		case DAD_LANDMARK:
-		case DAD_SCRIPT:
-		case DAD_CLOTHING:
-		case DAD_OBJECT:
-		case DAD_NOTECARD:
-		// DAD_CATEGORY above
-		case DAD_BODYPART:
-		case DAD_ANIMATION:
-		case DAD_GESTURE:
-		{
-			if (mDialog == IM_NOTHING_SPECIAL)
-			{
-				// See LLDropTarget for similar code.
-				LLViewerInventoryItem* inv_item = (LLViewerInventoryItem*)cargo_data;
-				if(gInventory.getItem(inv_item->getUUID())
-				   && LLToolDragAndDrop::isInventoryGiveAcceptable(inv_item))
-				{
-					accepted = true;
-					if(drop)
-					{
-						LLToolDragAndDrop::giveInventory(mOtherParticipantUUID, inv_item, mSessionUUID);
-					}
-				}
-			}
-			break;
-		}
-	default:
-		break;
-	}
-	if (accepted)
+	if (mDialog == IM_NOTHING_SPECIAL)
 	{
-		*accept = ACCEPT_YES_MULTI;
+		LLToolDragAndDrop::handleGiveDragAndDrop(mOtherParticipantUUID, mSessionUUID, drop,
+												 cargo_type, cargo_data, accept);
 	}
-	else
+	
+	// handle case for dropping calling cards (and folders of calling cards) onto invitation panel for invites
+	else if (isInviteAllowed())
 	{
 		*accept = ACCEPT_NO;
+		
+		if (cargo_type == DAD_CALLINGCARD)
+		{
+			if (dropCallingCard((LLInventoryItem*)cargo_data, drop))
+			{
+				*accept = ACCEPT_YES_MULTI;
+			}
+		}
+		else if (cargo_type == DAD_CATEGORY)
+		{
+			if (dropCategory((LLInventoryCategory*)cargo_data, drop))
+			{
+				*accept = ACCEPT_YES_MULTI;
+			}
+		}
 	}
 	return TRUE;
 } 

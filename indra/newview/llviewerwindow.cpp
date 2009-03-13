@@ -101,7 +101,6 @@
 #include "llfloatereditui.h" // HACK JAMESDEBUG for ui editor
 #include "llfloaterland.h"
 #include "llfloaterinspect.h"
-#include "llfloatermap.h"
 #include "llfloaternamedesc.h"
 #include "llfloaterpreference.h"
 #include "llfloatersnapshot.h"
@@ -556,7 +555,7 @@ public:
 			 iter != mLineList.end(); ++iter)
 		{
 			const Line& line = *iter;
-			LLFontGL::sMonospace->renderUTF8(line.text, 0, (F32)line.x, (F32)line.y, mTextColor,
+			LLFontGL::getFontMonospace()->renderUTF8(line.text, 0, (F32)line.x, (F32)line.y, mTextColor,
 											 LLFontGL::LEFT, LLFontGL::TOP,
 											 LLFontGL::NORMAL, S32_MAX, S32_MAX, NULL, FALSE);
 		}
@@ -1664,7 +1663,9 @@ void LLViewerWindow::initBase()
 	gFloaterView->setVisible(TRUE);
 
 	gSnapshotFloaterView = new LLSnapshotFloaterView("Snapshot Floater View", full_window);
-	gSnapshotFloaterView->setVisible(TRUE);
+	// Snapshot floater must start invisible otherwise it eats all
+	// the tooltips. JC
+	gSnapshotFloaterView->setVisible(FALSE);
 
 	// Console
 	llassert( !gConsole );
@@ -1860,6 +1861,8 @@ void LLViewerWindow::adjustRectanglesForFirstUse(const LLRect& window)
 
 	adjust_rect_bottom_left("FloaterDayCycleRect", window);
 
+	adjust_rect_top_right("FloaterStatisticsRect", window);
+
 
 	// bottom-right
 	r = gSavedSettings.getRect("FloaterInventoryRect");
@@ -1914,16 +1917,6 @@ void LLViewerWindow::initWorldUI()
 		gHoverView = new LLHoverView(std::string("gHoverView"), full_window);
 		gHoverView->setVisible(TRUE);
 		mRootView->addChild(gHoverView);
-
-		//
-		// Map
-		//
-		// TODO: Move instance management into class
-		gFloaterMap = new LLFloaterMap(std::string("Map"));
-		gFloaterMap->setFollows(FOLLOWS_TOP|FOLLOWS_RIGHT);
-
-		// keep onscreen
-		gFloaterView->adjustToFitScreen(gFloaterMap, FALSE);
 		
 		gIMMgr = LLIMMgr::getInstance();
 
@@ -2006,7 +1999,6 @@ void LLViewerWindow::shutdownViews()
 	gFloaterView		= NULL;
 	gMorphView			= NULL;
 
-	gFloaterMap	= NULL;
 	gHUDView = NULL;
 
 	gNotifyBoxView = NULL;
@@ -2383,7 +2375,7 @@ void LLViewerWindow::draw()
 		{
 			// Used for special titles such as "Second Life - Special E3 2003 Beta"
 			const S32 DIST_FROM_TOP = 20;
-			LLFontGL::sSansSerifBig->renderUTF8(
+			LLFontGL::getFontSansSerifBig()->renderUTF8(
 				mOverlayTitle, 0,
 				llround( getWindowWidth() * 0.5f),
 				getWindowHeight() - DIST_FROM_TOP,
@@ -4645,7 +4637,7 @@ void LLViewerWindow::stopGL(BOOL save_state)
 		gBumpImageList.destroyGL();
 		stop_glerror();
 
-		LLFontGL::destroyGL();
+		LLFontGL::destroyAllGL();
 		stop_glerror();
 
 		LLVOAvatar::destroyGL();
@@ -4732,23 +4724,12 @@ void LLViewerWindow::restoreGL(const std::string& progress_message)
 
 void LLViewerWindow::initFonts(F32 zoom_factor)
 {
-	LLFontGL::destroyGL();
+	LLFontGL::destroyAllGL();
 	LLFontGL::initDefaultFonts( gSavedSettings.getF32("FontScreenDPI"),
-				    mDisplayScale.mV[VX] * zoom_factor,
-				    mDisplayScale.mV[VY] * zoom_factor,
-				    gSavedSettings.getString("FontMonospace"),
-				    gSavedSettings.getF32("FontSizeMonospace"),
-				    gSavedSettings.getString("FontSansSerif"), 
-				    gSavedSettings.getString("FontSansSerifFallback"),
-				    gSavedSettings.getF32("FontSansSerifFallbackScale"),
-				    gSavedSettings.getF32("FontSizeSmall"),	
-				    gSavedSettings.getF32("FontSizeMedium"), 
-				    gSavedSettings.getF32("FontSizeLarge"),			 
-				    gSavedSettings.getF32("FontSizeHuge"),			 
-				    gSavedSettings.getString("FontSansSerifBold"),
-				    gSavedSettings.getF32("FontSizeMedium"),
-				    gDirUtilp->getAppRODataDir()
-				    );
+								mDisplayScale.mV[VX] * zoom_factor,
+								mDisplayScale.mV[VY] * zoom_factor,
+								gDirUtilp->getAppRODataDir(),
+								LLUICtrlFactory::getXUIPaths());
 }
 void LLViewerWindow::toggleFullscreen(BOOL show_progress)
 {

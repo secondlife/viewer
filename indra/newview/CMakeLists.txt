@@ -148,6 +148,7 @@ set(viewer_SOURCE_FILES
     llfloaterenvsettings.cpp
     llfloaterevent.cpp
     llfloaterfriends.cpp
+    llfloaterfonttest.cpp
     llfloatergesture.cpp
     llfloatergodtools.cpp
     llfloatergroupinfo.cpp
@@ -156,6 +157,7 @@ set(viewer_SOURCE_FILES
     llfloaterhandler.cpp
     llfloaterhardwaresettings.cpp
     llfloaterhtml.cpp
+    llfloaterhtmlcurrency.cpp
     llfloaterhtmlhelp.cpp
     llfloaterhtmlsimple.cpp
     llfloaterhud.cpp
@@ -549,6 +551,7 @@ set(viewer_HEADER_FILES
     llfloatereditui.h
     llfloaterenvsettings.h
     llfloaterevent.h
+    llfloaterfonttest.h
     llfloaterfriends.h
     llfloatergesture.h
     llfloatergodtools.h
@@ -558,6 +561,7 @@ set(viewer_HEADER_FILES
     llfloaterhandler.h
     llfloaterhardwaresettings.h
     llfloaterhtml.h
+    llfloaterhtmlcurrency.h
     llfloaterhtmlhelp.h
     llfloaterhtmlsimple.h
     llfloaterhud.h
@@ -1058,6 +1062,7 @@ set(viewer_XUI_FILES
     skins/default/xui/en-us/floater_device_settings.xml
     skins/default/xui/en-us/floater_directory.xml
     skins/default/xui/en-us/floater_env_settings.xml
+    skins/default/xui/en-us/floater_font_test.xml
     skins/default/xui/en-us/floater_gesture.xml
     skins/default/xui/en-us/floater_god_tools.xml
     skins/default/xui/en-us/floater_group_info.xml
@@ -1081,6 +1086,7 @@ set(viewer_XUI_FILES
     skins/default/xui/en-us/floater_live_lsleditor.xml
     skins/default/xui/en-us/floater_lsl_guide.xml
     skins/default/xui/en-us/floater_media_browser.xml
+    skins/default/xui/en-us/floater_mini_map.xml
     skins/default/xui/en-us/floater_moveview.xml
     skins/default/xui/en-us/floater_mute_object.xml
     skins/default/xui/en-us/floater_mute.xml
@@ -1126,6 +1132,7 @@ set(viewer_XUI_FILES
     skins/default/xui/en-us/floater_sim_release_message.xml
     skins/default/xui/en-us/floater_snapshot.xml
     skins/default/xui/en-us/floater_sound_preview.xml
+    skins/default/xui/en-us/floater_statistics.xml
     skins/default/xui/en-us/floater_telehub.xml
     skins/default/xui/en-us/floater_test.xml
     skins/default/xui/en-us/floater_texture_ctrl.xml
@@ -1138,11 +1145,13 @@ set(viewer_XUI_FILES
     skins/default/xui/en-us/floater_wearable_save_as.xml
     skins/default/xui/en-us/floater_windlight_options.xml
     skins/default/xui/en-us/floater_world_map.xml
+    skins/default/xui/en-us/fonts.xml
     skins/default/xui/en-us/menu_inventory.xml
     skins/default/xui/en-us/menu_login.xml
     skins/default/xui/en-us/menu_pie_attachment.xml
     skins/default/xui/en-us/menu_pie_avatar.xml
     skins/default/xui/en-us/menu_pie_land.xml
+    skins/default/xui/en-us/menu_mini_map.xml
     skins/default/xui/en-us/menu_pie_object.xml
     skins/default/xui/en-us/menu_pie_self.xml
     skins/default/xui/en-us/menu_slurl.xml
@@ -1177,6 +1186,7 @@ set(viewer_XUI_FILES
     skins/default/xui/en-us/panel_media_controls.xml
     skins/default/xui/en-us/panel_media_remote_expanded.xml
     skins/default/xui/en-us/panel_media_remote.xml
+    skins/default/xui/en-us/panel_mini_map.xml
     skins/default/xui/en-us/panel_notifications_channel.xml
     skins/default/xui/en-us/panel_overlaybar.xml
     skins/default/xui/en-us/panel_place_small.xml
@@ -1191,6 +1201,7 @@ set(viewer_XUI_FILES
     skins/default/xui/en-us/panel_preferences_popups.xml
     skins/default/xui/en-us/panel_preferences_voice.xml
     skins/default/xui/en-us/panel_preferences_web.xml
+    skins/default/xui/en-us/panel_progress.xml
     skins/default/xui/en-us/panel_region_covenant.xml
     skins/default/xui/en-us/panel_region_debug.xml
     skins/default/xui/en-us/panel_region_estate.xml

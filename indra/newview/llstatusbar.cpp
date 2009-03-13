@@ -34,18 +34,10 @@
 
 #include "llstatusbar.h"
 
-#include <iomanip>
-
-#include "imageids.h"
-#include "llfontgl.h"
-#include "llrect.h"
-#include "llerror.h"
-#include "llparcel.h"
-#include "llstring.h"
-#include "message.h"
-
+// viewer includes
 #include "llagent.h"
 #include "llbutton.h"
+#include "llcommandhandler.h"
 #include "llviewercontrol.h"
 #include "llfloaterbuycurrency.h"
 #include "llfloaterchat.h"
@@ -82,7 +74,18 @@
 #include "llfocusmgr.h"
 #include "llappviewer.h"
 
-//#include "llfirstuse.h"
+// library includes
+#include "imageids.h"
+#include "llfontgl.h"
+#include "llrect.h"
+#include "llerror.h"
+#include "llparcel.h"
+#include "llstring.h"
+#include "message.h"
+
+// system includes
+#include <iomanip>
+
 
 //
 // Globals
@@ -349,7 +352,7 @@ void LLStatusBar::refresh()
 		childSetRect("health", r);
 		x += buttonRect.getWidth();
 
-		const S32 health_width = S32( LLFontGL::sSansSerifSmall->getWidth(std::string("100%")) );
+		const S32 health_width = S32( LLFontGL::getFontSansSerifSmall()->getWidth(std::string("100%")) );
 		r.set(x, y+TEXT_HEIGHT - 2, x+health_width, y);
 		mTextHealth->setRect(r);
 		x += health_width;
@@ -678,6 +681,21 @@ void LLStatusBar::setBalance(S32 balance)
 	}
 }
 
+
+// static
+void LLStatusBar::sendMoneyBalanceRequest()
+{
+	LLMessageSystem* msg = gMessageSystem;
+	msg->newMessageFast(_PREHASH_MoneyBalanceRequest);
+	msg->nextBlockFast(_PREHASH_AgentData);
+	msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+	msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+	msg->nextBlockFast(_PREHASH_MoneyData);
+	msg->addUUIDFast(_PREHASH_TransactionID, LLUUID::null );
+	gAgent.sendReliableMessage();
+}
+
+
 void LLStatusBar::setHealth(S32 health)
 {
 	//llinfos << "Setting health to: " << buffer << llendl;
@@ -907,3 +925,25 @@ BOOL can_afford_transaction(S32 cost)
 {
 	return((cost <= 0)||((gStatusBar) && (gStatusBar->getBalance() >=cost)));
 }
+
+
+// Implements secondlife:///app/balance/request to request a L$ balance
+// update via UDP message system. JC
+class LLBalanceHandler : public LLCommandHandler
+{
+public:
+	// Requires "trusted" browser/URL source
+	LLBalanceHandler() : LLCommandHandler("balance", true) { }
+	bool handle(const LLSD& tokens, const LLSD& query_map, LLWebBrowserCtrl* web)
+	{
+		if (tokens.size() == 1
+			&& tokens[0].asString() == "request")
+		{
+			LLStatusBar::sendMoneyBalanceRequest();
+			return true;
+		}
+		return false;
+	}
+};
+// register with command dispatch system
+LLBalanceHandler gBalanceHandler;

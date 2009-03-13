@@ -78,6 +78,8 @@ public:
 
 	static bool getLayeredXMLNode(const std::string &filename, LLXMLNodePtr& root);
 
+	static const std::vector<std::string>& getXUIPaths();
+
 private:
 	bool getLayeredXMLNodeImpl(const std::string &filename, LLXMLNodePtr& root);
 

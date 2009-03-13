@@ -65,6 +65,7 @@
 #include "lltexturectrl.h"
 #include "lluiconstants.h"
 #include "lluictrlfactory.h"
+#include "llviewerimagelist.h"		// LLUIImageList
 #include "llviewermessage.h"
 #include "llviewerparcelmgr.h"
 #include "llviewerregion.h"
@@ -193,8 +194,6 @@ void LLFloaterLand::onClose(bool app_quitting)
 LLFloaterLand::LLFloaterLand(const LLSD& seed)
 :	LLFloater(std::string("floaterland"), std::string("FloaterLandRect5"), std::string("About Land"))
 {
-
-
 	LLCallbackMap::map_t factory_map;
 	factory_map["land_general_panel"] = LLCallbackMap(createPanelLandGeneral, this);
 
@@ -305,7 +304,6 @@ LLPanelLandGeneral::LLPanelLandGeneral(LLParcelSelectionHandle& parcel)
 
 BOOL LLPanelLandGeneral::postBuild()
 {
-
 	mEditName = getChild<LLLineEditor>("Name");
 	mEditName->setCommitCallback(onCommitAny);	
 	childSetPrevalidate("Name", LLLineEditor::prevalidatePrintableNotPipe);
@@ -335,7 +333,6 @@ BOOL LLPanelLandGeneral::postBuild()
 	mBtnSetGroup->setClickedCallback(onClickSetGroup, this);
 
 	
-
 	mCheckDeedToGroup = getChild<LLCheckBoxCtrl>( "check deed");
 	childSetCommitCallback("check deed", onCommitAny, this);
 
@@ -615,9 +612,9 @@ void LLPanelLandGeneral::refresh()
 								 &dwell);
 
 		// Area
-		LLUIString price = childGetText("area_size_text");
+		LLUIString price = getString("area_size_text");
 		price.setArg("[AREA]", llformat("%d",area));    
-		mTextPriceLabel->setText(childGetText("area_text"));
+		mTextPriceLabel->setText(getString("area_text"));
 		mTextPrice->setText(price.getString());
 
 		mTextDwell->setText(llformat("%.0f", dwell));
@@ -1425,7 +1422,7 @@ void LLPanelLandObjects::processParcelObjectOwnersReply(LLMessageSystem *msg, vo
 		return;
 	}
 	
-	const LLFontGL* FONT = LLFontGL::sSansSerif;
+	const LLFontGL* FONT = LLFontGL::getFontSansSerif();
 
 	// Extract all of the owners.
 	S32 rows = msg->getNumberOfBlocksFast(_PREHASH_Data);
@@ -1841,11 +1838,12 @@ LLPanelLandOptions::~LLPanelLandOptions()
 { }
 
 
-// public
+// virtual
 void LLPanelLandOptions::refresh()
 {
+	refreshSearch();
+
 	LLParcel *parcel = mParcel->getParcel();
-	
 	if (!parcel)
 	{
 		mCheckEditObjects	->set(FALSE);
@@ -1878,16 +1876,8 @@ void LLPanelLandOptions::refresh()
 		mCheckOtherScripts	->set(FALSE);
 		mCheckOtherScripts	->setEnabled(FALSE);
 
-		mCheckShowDirectory	->set(FALSE);
-		mCheckShowDirectory	->setEnabled(FALSE);
-
 		mPushRestrictionCtrl->set(FALSE);
 		mPushRestrictionCtrl->setEnabled(FALSE);
-
-		// *TODO:Translate
-		const std::string& none_string = LLParcel::getCategoryUIString(LLParcel::C_NONE);
-		mCategoryCombo->setSimple(none_string);
-		mCategoryCombo->setEnabled(FALSE);
 
 		mLandingTypeCombo->setCurrentByIndex(0);
 		mLandingTypeCombo->setEnabled(FALSE);
@@ -1952,20 +1942,14 @@ void LLPanelLandOptions::refresh()
 			mPushRestrictionCtrl->setEnabled(can_change_options);
 		}
 
-		BOOL can_change_identity = 
-			LLViewerParcelMgr::isParcelModifiableByAgent(parcel, GP_LAND_CHANGE_IDENTITY);
-		// Set by string in case the order in UI doesn't match the order by index.
-		// *TODO:Translate
-		LLParcel::ECategory cat = parcel->getCategory();
-		const std::string& category_string = LLParcel::getCategoryUIString(cat);
-		mCategoryCombo->setSimple(category_string);
-		mCategoryCombo->setEnabled( can_change_identity );
-
 		BOOL can_change_landing_point = LLViewerParcelMgr::isParcelModifiableByAgent(parcel, 
 														GP_LAND_SET_LANDING_POINT);
 		mLandingTypeCombo->setCurrentByIndex((S32)parcel->getLandingType());
 		mLandingTypeCombo->setEnabled( can_change_landing_point );
 
+		bool can_change_identity =
+				LLViewerParcelMgr::isParcelModifiableByAgent(
+					parcel, GP_LAND_CHANGE_IDENTITY);
 		mSnapshotCtrl->setImageAssetID(parcel->getSnapshotID());
 		mSnapshotCtrl->setEnabled( can_change_identity );
 
@@ -2003,36 +1987,109 @@ void LLPanelLandOptions::refresh()
 // virtual
 void LLPanelLandOptions::draw()
 {
-	LLParcel *parcel = LLViewerParcelMgr::getInstance()->getFloatingParcelSelection()->getParcel();
-	
-	if(parcel)
+	refreshSearch();	// Is this necessary?  JC
+	LLPanel::draw();
+}
+
+
+// private
+void LLPanelLandOptions::refreshSearch()
+{
+	LLParcel *parcel = mParcel->getParcel();
+	if (!parcel)
 	{
-		LLViewerRegion* region;
-		region = LLViewerParcelMgr::getInstance()->getSelectionRegion();
-		llassert(region); // Region should never be null.
+		mCheckShowDirectory->set(FALSE);
+		mCheckShowDirectory->setEnabled(FALSE);
 
-		BOOL can_change_identity = region ? 
-			LLViewerParcelMgr::isParcelModifiableByAgent(parcel, GP_LAND_CHANGE_IDENTITY) &&
-			! (region->getRegionFlags() & REGION_FLAGS_BLOCK_PARCEL_SEARCH) : false;
-
-		// There is a bug with this panel whereby the Show Directory bit can be 
-		// slammed off by the Region based on an override.  Since this data is cached
-		// locally the change will not reflect in the panel, which could cause confusion
-		// A workaround for this is to flip the bit off in the locally cached version
-		// when we detect a mismatch case.
-		if(! can_change_identity && parcel->getParcelFlag(PF_SHOW_DIRECTORY))
-		{
-			parcel->setParcelFlag(PF_SHOW_DIRECTORY, FALSE);
-		}
-		mCheckShowDirectory	->set(parcel->getParcelFlag(PF_SHOW_DIRECTORY));
-		mCheckShowDirectory	->setEnabled(can_change_identity);
-		mCategoryCombo->setEnabled(can_change_identity);
+		// *TODO:Translate
+		const std::string& none_string = LLParcel::getCategoryUIString(LLParcel::C_NONE);
+		mCategoryCombo->setSimple(none_string);
+		mCategoryCombo->setEnabled(FALSE);
+		return;
 	}
 
-	LLPanel::draw();
+	LLViewerRegion* region =
+			LLViewerParcelMgr::getInstance()->getSelectionRegion();
 
+	bool can_change =
+			LLViewerParcelMgr::isParcelModifiableByAgent(
+				parcel, GP_LAND_CHANGE_IDENTITY)
+			&& region
+			&& !(region->getRegionFlags() & REGION_FLAGS_BLOCK_PARCEL_SEARCH);
 
+	// There is a bug with this panel whereby the Show Directory bit can be 
+	// slammed off by the Region based on an override.  Since this data is cached
+	// locally the change will not reflect in the panel, which could cause confusion
+	// A workaround for this is to flip the bit off in the locally cached version
+	// when we detect a mismatch case.
+	if(!can_change && parcel->getParcelFlag(PF_SHOW_DIRECTORY))
+	{
+		parcel->setParcelFlag(PF_SHOW_DIRECTORY, FALSE);
+	}
+	BOOL show_directory = parcel->getParcelFlag(PF_SHOW_DIRECTORY);
+	mCheckShowDirectory	->set(show_directory);
+
+	// Set by string in case the order in UI doesn't match the order by index.
+	// *TODO:Translate
+	LLParcel::ECategory cat = parcel->getCategory();
+	const std::string& category_string = LLParcel::getCategoryUIString(cat);
+	mCategoryCombo->setSimple(category_string);
+
+	std::string tooltip;
+	bool enable_show_directory = false;
+	// Parcels <= 128 square meters cannot be listed in search, in an
+	// effort to reduce search spam from small parcels.  See also
+	// the search crawler "grid-crawl.py" in secondlife.com/doc/app/search/ JC
+	const S32 MIN_PARCEL_AREA_FOR_SEARCH = 128;
+	bool large_enough = parcel->getArea() > MIN_PARCEL_AREA_FOR_SEARCH;
+	if (large_enough)
+	{
+		if (can_change)
+		{
+			tooltip = getString("search_enabled_tooltip");
+			enable_show_directory = true;
+		}
+		else
+		{
+			tooltip = getString("search_disabled_permissions_tooltip");
+			enable_show_directory = false;
+		}
+	}
+	else
+	{
+		// not large enough to include in search
+		if (can_change)
+		{
+			if (show_directory)
+			{
+				// parcels that are too small, but are still in search for
+				// legacy reasons, need to have the check box enabled so
+				// the owner can delist the parcel. JC
+				tooltip = getString("search_enabled_tooltip");
+				enable_show_directory = true;
+			}
+			else
+			{
+				tooltip = getString("search_disabled_small_tooltip");
+				enable_show_directory = false;
+			}
+		}
+		else
+		{
+			// both too small and don't have permission, so just
+			// show the permissions as the reason (which is probably
+			// the more common case) JC
+			tooltip = getString("search_disabled_permissions_tooltip");
+			enable_show_directory = false;
+		}
+	}
+	mCheckShowDirectory->setToolTip(tooltip);
+	mCategoryCombo->setToolTip(tooltip);
+	mCheckShowDirectory->setEnabled(enable_show_directory);
+	mCategoryCombo->setEnabled(enable_show_directory);
 }
+
+
 // static
 void LLPanelLandOptions::onCommitAny(LLUICtrl *ctrl, void *userdata)
 {

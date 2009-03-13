@@ -113,7 +113,7 @@ public:
 	/*virtual*/ void interruptLanguageTextInput();
 	/*virtual*/ void spawnWebBrowser(const std::string& escaped_url);
 
-	static std::string getFontListSans();
+	static std::vector<std::string> getDynamicFallbackFontList();
 
 protected:
 	LLWindowMacOSX(

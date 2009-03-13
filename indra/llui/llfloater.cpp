@@ -1703,7 +1703,7 @@ void LLFloater::buildButtons()
 			LLStringUtil::null,
 			sButtonCallbacks[i],
 			this,
-			LLFontGL::sSansSerif);
+			LLFontGL::getFontSansSerif());
 
 		buttonp->setTabStop(FALSE);
 		buttonp->setFollowsTop();

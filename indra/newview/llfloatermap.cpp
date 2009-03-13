@@ -32,120 +32,43 @@
 
 #include "llviewerprecompiledheaders.h"
 
-// self include
 #include "llfloatermap.h"
 
-// Library includes
-#include "llfontgl.h"
-#include "llinventory.h"
-#include "message.h"
-
-// Viewer includes
 #include "llagent.h"
 #include "llcolorscheme.h"
 #include "llviewercontrol.h"
 #include "lldraghandle.h"
-#include "lleconomy.h"
-#include "llfloaterworldmap.h"
-#include "llfocusmgr.h"
 #include "llnetmap.h"
 #include "llregionhandle.h"
 #include "llresizebar.h"
-#include "llresizehandle.h"
-#include "llresmgr.h"
-#include "llsky.h"
-#include "llsliderctrl.h"
-#include "llspinctrl.h"
-#include "llstatgraph.h"
-#include "llstatusbar.h"
-//#include "lltextbox.h"
-#include "llui.h"
-#include "llviewermenu.h"
-#include "llviewerparceloverlay.h"
-#include "llviewerregion.h"
-#include "llviewerstats.h"
-#include "llurlsimstring.h"
+#include "lluictrlfactory.h"
 
-#include "llglheaders.h"
-
-//
-// Constants
-//
-const S32 LEGEND_SIZE = 16;
-
-const S32 HPAD = 4;
-
-const S32 MAP_COMBOBOX_WIDTH = 128;
-const S32 MAP_COMBOBOX_HEIGHT = 20;
-const S32 GO_BTN_WIDTH = 20;
-const S32 SLIDER_WIDTH = LEGEND_SIZE + MAP_COMBOBOX_WIDTH + HPAD + GO_BTN_WIDTH - HPAD;
-const S32 SLIDER_HEIGHT = 16;
-
-const S32 SIM_STAT_WIDTH = 8;
-
-const S32 MAP_SCALE_MIN = 35;	// in pixels per sim
-const S32 MAP_SCALE_MAX = 180;	// in pixels per sim
-const S32 MAP_SCALE_INCREMENT = 5;
-
-const S32 NETMAP_MIN_WIDTH = 128;
-const S32 NETMAP_MIN_HEIGHT = 128;
-
-const S32 FLOATERMAP_MIN_WIDTH = 
-	SLIDER_WIDTH + 
-	2 * (HPAD + LLPANEL_BORDER_WIDTH);
-
-const S32 MORE_BTN_VPAD = 2;
-
-const S32 SPIN_VPAD = 4;
-  
-const S32 TRACKING_LABEL_HEIGHT = 16;
-
-const S32 FLOATERMAP_MIN_HEIGHT_LARGE = 60;
-
-//
-// Globals
-//
-LLFloaterMap *gFloaterMap = NULL;
-
-
-
-
-//
-// Member functions
-//
-
-LLFloaterMap::LLFloaterMap(const std::string& name)
+LLFloaterMap::LLFloaterMap(const LLSD& key)
 	:
-	LLFloater(name, 
-				std::string("FloaterMiniMapRect"), 
-			    LLStringUtil::null, 
-				TRUE, 
-				FLOATERMAP_MIN_WIDTH, 
-				FLOATERMAP_MIN_HEIGHT_LARGE, 
-				FALSE, 
-				FALSE, 
-				TRUE)	// close button
+	LLFloater(std::string("minimap")),
+	mPanelMap(NULL)
 {
-	const S32 LEFT = LLPANEL_BORDER_WIDTH;
-	const S32 TOP = getRect().getHeight();
+	LLCallbackMap::map_t factory_map;
+	factory_map["mini_mapview"] = LLCallbackMap(createPanelMiniMap, this);
+	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_mini_map.xml", &factory_map, FALSE);
+}
 
-	S32 y = 0;
 
-	// Map itself
-	LLRect map_rect(
-		LEFT, 
-		TOP - LLPANEL_BORDER_WIDTH,
-		getRect().getWidth() - LLPANEL_BORDER_WIDTH,
-		y );
-	LLColor4 bg_color = gColors.getColor( "NetMapBackgroundColor" );
-	mMap = new LLNetMap("Net Map", map_rect, bg_color);
-	mMap->setFollowsAll();
-	addChildAtEnd(mMap);
+// static
+void* LLFloaterMap::createPanelMiniMap(void* data)
+{
+	LLFloaterMap* self = (LLFloaterMap*)data;
+	self->mPanelMap = new LLNetMap("Mapview");
+	return self->mPanelMap;
+}
 
-	// Get the drag handle all the way in back
+BOOL LLFloaterMap::postBuild()
+{
+	// Send the drag handle to the back, but make sure close stays on top
 	sendChildToBack(getDragHandle());
-
+	sendChildToFront(getChild<LLButton>("llfloater_close_btn"));
 	setIsChrome(TRUE);
+	return TRUE;
 }
 
 
@@ -155,11 +78,11 @@ LLFloaterMap::~LLFloaterMap()
 
 
 // virtual 
-void LLFloaterMap::setVisible(BOOL visible)
+void LLFloaterMap::onOpen()
 {
-	LLFloater::setVisible(visible);
+	gFloaterView->adjustToFitScreen(this, FALSE);
 
-	gSavedSettings.setBOOL("ShowMiniMap", visible);
+	gSavedSettings.setBOOL("ShowMiniMap", TRUE);
 }
 
 
@@ -189,7 +112,7 @@ void LLFloaterMap::draw()
 		setMouseOpaque(FALSE);
 		getDragHandle()->setMouseOpaque(FALSE);
 
-		drawChild(mMap);
+		drawChild(mPanelMap);
 	}
 	else
 	{
@@ -200,18 +123,3 @@ void LLFloaterMap::draw()
 	}
 }
 
-// static
-void LLFloaterMap::toggle(void*)
-{
-	if( gFloaterMap )
-	{
-		if (gFloaterMap->getVisible())
-		{
-			gFloaterMap->close();
-		}
-		else
-		{
-			gFloaterMap->open();		/* Flawfinder: ignore */
-		}
-	}
-}

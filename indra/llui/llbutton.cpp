@@ -188,7 +188,7 @@ LLButton::LLButton(const std::string& name, const LLRect& rect,
 
 void LLButton::init(void (*click_callback)(void*), void *callback_data, const LLFontGL* font, const std::string& control_name)
 {
-	mGLFont = ( font ? font : LLFontGL::sSansSerif);
+	mGLFont = ( font ? font : LLFontGL::getFontSansSerif());
 
 	// Hack to make sure there is space for at least one character
 	if (getRect().getWidth() - (mRightHPad + mLeftHPad) < mGLFont->getWidth(std::string(" ")))

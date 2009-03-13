@@ -37,14 +37,6 @@
 
 #include <vector>
 
-class LLUICtrl;
-class LLTextBox;
-class LLLineEditor;
-class LLButton;
-class LLScrollListCtrl;
-class LLMessageSystem;
-class LLInventoryPanel;
-class LLFolderViewItem;
 
 class LLFloaterAvatarPicker : public LLFloater
 {
@@ -58,47 +50,47 @@ public:
 									   BOOL closeOnSelect = FALSE);
 	virtual	BOOL postBuild();
 
-	static void processAvatarPickerReply(LLMessageSystem* msg, void**);
-	static void editKeystroke(LLLineEditor* caller, void* user_data);
+	static void processAvatarPickerReply(class LLMessageSystem* msg, void**);
 
-protected:
-	static void* createInventoryPanel(void* userdata);
+private:
+
+	static void editKeystroke(class LLLineEditor* caller, void* user_data);
 
 	static void onBtnFind(void* userdata);
-	static void onBtnAdd(void* userdata);
+	static void onBtnSelect(void* userdata);
+	static void onBtnRefresh(void* userdata);
+	static void onRangeAdjust(LLUICtrl* source, void* data);
 	static void onBtnClose(void* userdata);
-	static void onList(LLUICtrl* ctrl, void* userdata);
+	static void onList(class LLUICtrl* ctrl, void* userdata);
+	static void onTabChanged(void* userdata, bool from_click);
 	
-		   void doSelectionChange(const std::deque<LLFolderViewItem*> &items, BOOL user_action, void* data);
-	static void onSelectionChange(const std::deque<LLFolderViewItem*> &items, BOOL user_action, void* data);
+		   void doCallingCardSelectionChange(const std::deque<class LLFolderViewItem*> &items, BOOL user_action, void* data);
+	static void onCallingCardSelectionChange(const std::deque<class LLFolderViewItem*> &items, BOOL user_action, void* data);
+
+	void populateNearMe();
+	BOOL visibleItemsSelected() const; // Returns true if any items in the current tab are selected.
 
 	void find();
 	void setAllowMultiple(BOOL allow_multiple);
 
+	virtual void draw();
 	virtual BOOL handleKeyHere(KEY key, MASK mask);
 
-protected:
-	LLScrollListCtrl*	mListNames;
-	LLInventoryPanel*	mInventoryPanel;
-	
-	std::vector<LLUUID>				mAvatarIDs;
-	std::vector<std::string>		mAvatarNames;
-	BOOL				mAllowMultiple;
+	std::vector<LLUUID>				mSelectedInventoryAvatarIDs;
+	std::vector<std::string>		mSelectedInventoryAvatarNames;
 	LLUUID				mQueryID;
 	BOOL				mResultsReturned;
+	BOOL				mNearMeListComplete;
 	BOOL				mCloseOnSelect;
 
 	void (*mCallback)(const std::vector<std::string>& name, const std::vector<LLUUID>& id, void* userdata);
 	void* mCallbackUserdata;
 
-protected:
 	static LLFloaterAvatarPicker* sInstance;
 
-protected:
 	// do not call these directly
 	LLFloaterAvatarPicker();
 	virtual ~LLFloaterAvatarPicker();
 };
-
 
 #endif

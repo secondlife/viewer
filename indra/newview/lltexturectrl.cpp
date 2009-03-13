@@ -926,21 +926,21 @@ LLTextureCtrl::LLTextureCtrl(
 	mCaption = new LLTextBox( label, 
 		LLRect( 0, BTN_HEIGHT_SMALL, getRect().getWidth(), 0 ),
 		label,
-		LLFontGL::sSansSerifSmall );
+		LLFontGL::getFontSansSerifSmall() );
 	mCaption->setFollows( FOLLOWS_LEFT | FOLLOWS_RIGHT | FOLLOWS_BOTTOM );
 	addChild( mCaption );
 
 	S32 image_top = getRect().getHeight();
 	S32 image_bottom = BTN_HEIGHT_SMALL;
 	S32 image_middle = (image_top + image_bottom) / 2;
-	S32 line_height = llround(LLFontGL::sSansSerifSmall->getLineHeight());
+	S32 line_height = llround(LLFontGL::getFontSansSerifSmall()->getLineHeight());
 
 	mTentativeLabel = new LLTextBox( std::string("Multiple"), 
 		LLRect( 
 			0, image_middle + line_height / 2,
 			getRect().getWidth(), image_middle - line_height / 2 ),
 		std::string("Multiple"),
-		LLFontGL::sSansSerifSmall );
+		LLFontGL::getFontSansSerifSmall() );
 	mTentativeLabel->setHAlign( LLFontGL::HCENTER );
 	mTentativeLabel->setFollowsAll();
 	addChild( mTentativeLabel );
@@ -1355,7 +1355,7 @@ void LLTextureCtrl::draw()
 		 (mTexturep->getDiscardLevel() != 1) &&
 		 (mTexturep->getDiscardLevel() != 0))
 	{
-		LLFontGL* font = LLFontGL::sSansSerifBig;
+		LLFontGL* font = LLFontGL::getFontSansSerifBig();
 		font->renderUTF8(
 			mLoadingPlaceholderString, 0,
 			llfloor(interior.mLeft+10), 

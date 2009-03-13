@@ -119,7 +119,7 @@ public:
 
 	/*virtual*/ void spawnWebBrowser(const std::string& escaped_url);
 	
-	static std::string getFontListSans();
+	static std::vector<std::string> getDynamicFallbackFontList();
 
 	// Not great that these are public, but they have to be accessible
 	// by non-class code and it's better than making them global.

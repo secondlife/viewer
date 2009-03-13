@@ -148,8 +148,8 @@ public:
 	// return true if there are no embedded items.
 	bool empty();
 	
-	void	bindEmbeddedChars(LLFontGL* font) const;
-	void	unbindEmbeddedChars(LLFontGL* font) const;
+	void	bindEmbeddedChars(const LLFontGL* font) const;
+	void	unbindEmbeddedChars(const LLFontGL* font) const;
 
 	BOOL	insertEmbeddedItem(LLInventoryItem* item, llwchar* value, bool is_new);
 	BOOL	removeEmbeddedItem( llwchar ext_char );
@@ -369,7 +369,7 @@ BOOL LLEmbeddedItems::hasEmbeddedItem(llwchar ext_char)
 	return FALSE;
 }
 
-void LLEmbeddedItems::bindEmbeddedChars( LLFontGL* font ) const
+void LLEmbeddedItems::bindEmbeddedChars( const LLFontGL* font ) const
 {
 	if( sEntries.empty() )
 	{
@@ -439,7 +439,7 @@ void LLEmbeddedItems::bindEmbeddedChars( LLFontGL* font ) const
 	}
 }
 
-void LLEmbeddedItems::unbindEmbeddedChars( LLFontGL* font ) const
+void LLEmbeddedItems::unbindEmbeddedChars( const LLFontGL* font ) const
 {
 	if( sEntries.empty() )
 	{
@@ -1286,12 +1286,12 @@ llwchar LLViewerTextEditor::pasteEmbeddedItem(llwchar ext_char)
 	return LL_UNKNOWN_CHAR; // item not found or list full
 }
 
-void LLViewerTextEditor::bindEmbeddedChars(LLFontGL* font) const
+void LLViewerTextEditor::bindEmbeddedChars(const LLFontGL* font) const
 {
 	mEmbeddedItemList->bindEmbeddedChars( font );
 }
 
-void LLViewerTextEditor::unbindEmbeddedChars(LLFontGL* font) const
+void LLViewerTextEditor::unbindEmbeddedChars(const LLFontGL* font) const
 {
 	mEmbeddedItemList->unbindEmbeddedChars( font );
 }
@@ -1589,6 +1589,7 @@ LLView* LLViewerTextEditor::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlF
 	BOOL parse_html = text_editor->mParseHTML;
 	node->getAttributeBOOL("allow_html", parse_html);
 	text_editor->setParseHTML(parse_html);
+	text_editor->setParseHighlights(TRUE);
 
 	text_editor->initFromXML(node, parent);
 

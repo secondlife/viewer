@@ -709,9 +709,11 @@ BOOL LLView::handleToolTip(S32 x, S32 y, std::string& msg, LLRect* sticky_rect_s
 		LLView* viewp = *child_it;
 		S32 local_x = x - viewp->mRect.mLeft;
 		S32 local_y = y - viewp->mRect.mBottom;
+		// Allow tooltips for disabled views so we can explain to the user why
+		// the view is disabled. JC
 		if( viewp->pointInView(local_x, local_y) 
 			&& viewp->getVisible() 
-			&& viewp->getEnabled()
+			// && viewp->getEnabled()
 			&& viewp->handleToolTip(local_x, local_y, msg, sticky_rect_screen ))
 		{
 			// child provided a tooltip, just return
@@ -1290,6 +1292,8 @@ void LLView::draw()
 	{
 		drawDebugRect();
 	}
+
+	gGL.getTexUnit(0)->disable();
 }
 
 //Draw a box for debugging.
@@ -1344,7 +1348,7 @@ void LLView::drawDebugRect()
 			y = debug_rect.getHeight()/2;
 			std::string debug_text = llformat("%s (%d x %d)", getName().c_str(),
 										debug_rect.getWidth(), debug_rect.getHeight());
-			LLFontGL::sSansSerifSmall->renderUTF8(debug_text, 0, (F32)x, (F32)y, border_color,
+			LLFontGL::getFontSansSerifSmall()->renderUTF8(debug_text, 0, (F32)x, (F32)y, border_color,
 												LLFontGL::HCENTER, LLFontGL::BASELINE, LLFontGL::NORMAL,
 												S32_MAX, S32_MAX, NULL, FALSE);
 		}
@@ -2607,19 +2611,40 @@ void LLView::parseFollowsFlags(LLXMLNodePtr node)
 	}
 }
 
-
 // static
 LLFontGL* LLView::selectFont(LLXMLNodePtr node)
 {
-	LLFontGL* gl_font = NULL;
-
+	std::string font_name, font_size, font_style;
+	U8 style = 0;
+	
 	if (node->hasAttribute("font"))
 	{
-		std::string font_name;
 		node->getAttributeString("font", font_name);
-
-		gl_font = LLFontGL::fontFromName(font_name);
 	}
+	
+	if (node->hasAttribute("font_size"))
+	{
+		node->getAttributeString("font_size", font_size);
+	}
+
+	if (node->hasAttribute("font_style"))
+	{
+		node->getAttributeString("font_style", font_style);
+		style = LLFontGL::getStyleFromString(font_style);
+	}
+
+	if (node->hasAttribute("font-style"))
+	{
+		node->getAttributeString("font-style", font_style);
+		style = LLFontGL::getStyleFromString(font_style);
+	}
+
+	if (font_name.empty())
+		return NULL;
+
+	LLFontDescriptor desc(font_name, font_size, style);
+	LLFontGL* gl_font = LLFontGL::getFont(desc);
+
 	return gl_font;
 }
 

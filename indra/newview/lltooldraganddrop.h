@@ -218,7 +218,9 @@ protected:
 	// give inventory category functionality
 	static bool handleCopyProtectedCategory(const LLSD& notification, const LLSD& response);
 	static void commitGiveInventoryCategory(const LLUUID& to_agent,
-						LLInventoryCategory* cat);
+											LLInventoryCategory* cat,
+											const LLUUID &im_session_id = LLUUID::null);
+
 public:
 	// helper functions
 	static BOOL isInventoryDropAcceptable(LLViewerObject* obj, LLInventoryItem* item) { return (ACCEPT_YES_COPY_SINGLE <= willObjectAcceptInventory(obj, item)); }
@@ -257,7 +259,13 @@ public:
 							  LLInventoryItem* item,
 							  const LLUUID &session_id = LLUUID::null);
 	static void giveInventoryCategory(const LLUUID& to_agent,
-									  LLInventoryCategory* item);
+									  LLInventoryCategory* item,
+									  const LLUUID &session_id = LLUUID::null);
+
+	static bool handleGiveDragAndDrop(LLUUID agent, LLUUID session, BOOL drop,
+									  EDragAndDropType cargo_type,
+									  void* cargo_data,
+									  EAcceptance* accept);
 };
 
 // utility functions

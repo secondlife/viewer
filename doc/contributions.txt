@@ -13,6 +13,8 @@ Able Whitman
 Adam Marker
 	VWR-2755
 Aimee Trescothick
+	VWR-1813
+	VWR-3321
 	VWR-3336
 	VWR-3903
 	VWR-4083
@@ -22,12 +24,13 @@ Aimee Trescothick
 	VWR-6550
 	VWR-6583
 	VWR-6482
-    VWR-7109
+  VWR-7109
 	VWR-7383
 	VWR-8341
 	VWR-8430
 	VWR-8482
 	VWR-9255
+	VWR-11844
 Alejandro Rosenthal
 	VWR-1184
 Aleric Inglewood
@@ -81,6 +84,7 @@ Argent Stonecutter
 	VWR-68
 Asuka Neely
 	VWR-3434
+	VWR-8179
 Balp Allen
 	VWR-4157
 Benja Kepler
@@ -248,6 +252,7 @@ Matthew Dowd
 	VWR-1736
 	VWR-1737
 	VWR-1761
+	VWR-2681
 McCabe Maxsted
 	VWR-1318
 	VWR-4065
@@ -458,6 +463,8 @@ Tue Torok
 	CT-72
 	CT-73
 	CT-74
+Vadim Bigbear
+	VWR-2681
 Whoops Babii
 	VWR-631
 	VWR-1640

@@ -309,16 +309,16 @@ void *LLWindow::getMediaWindow()
 }
 
 // static
-std::string LLWindow::getFontListSans()
+std::vector<std::string> LLWindow::getDynamicFallbackFontList()
 {
 #if LL_WINDOWS
-	return LLWindowWin32::getFontListSans();
+	return LLWindowWin32::getDynamicFallbackFontList();
 #elif LL_DARWIN
-	return LLWindowMacOSX::getFontListSans();
+	return LLWindowMacOSX::getDynamicFallbackFontList();
 #elif LL_SDL
-	return LLWindowSDL::getFontListSans();
+	return LLWindowSDL::getDynamicFallbackFontList();
 #else
-	return "";
+	return std::vector<std::string>();
 #endif
 }
 

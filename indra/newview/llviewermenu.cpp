@@ -102,13 +102,15 @@
 #include "llfloatereditui.h"
 #include "llfloaterchatterbox.h"
 #include "llfloaterfriends.h"
+#include "llfloaterfonttest.h"
 #include "llfloatergesture.h"
 #include "llfloatergodtools.h"
 #include "llfloatergroupinfo.h"
 #include "llfloatergroupinvite.h"
 #include "llfloatergroups.h"
 #include "llfloaterhtml.h"
-#include "llfloaterhtmlhelp.h"
+#include "llfloaterhtmlcurrency.h"
+#include "llfloaterhtmlhelp.h"			// gViewerHtmlHelp
 #include "llfloaterhtmlsimple.h"
 #include "llfloaterhud.h"
 #include "llfloaterinspect.h"
@@ -186,6 +188,7 @@
 #include "llviewercamera.h"
 #include "llviewergenericmessage.h"
 #include "llviewergesture.h"
+#include "llviewerimagelist.h"	// gImageList
 #include "llviewerinventory.h"
 #include "llviewermenufile.h"	// init_menu_file()
 #include "llviewermessage.h"
@@ -418,7 +421,6 @@ void handle_force_delete(void*);
 void print_object_info(void*);
 void print_agent_nvpairs(void*);
 void toggle_debug_menus(void*);
-void toggle_map( void* user_data );
 void export_info_callback(LLAssetInfo *info, void **user_data, S32 result);
 void export_data_callback(LLVFS *vfs, const LLUUID& uuid, LLAssetType::EType type, void **user_data, S32 result);
 void upload_done_callback(const LLUUID& uuid, void* user_data, S32 result, LLExtStat ext_status);
@@ -1057,6 +1059,7 @@ void init_debug_ui_menu(LLMenuGL* menu)
 void init_debug_xui_menu(LLMenuGL* menu)
 {
 	menu->append(new LLMenuItemCallGL("Floater Test...", LLFloaterTest::show));
+	menu->append(new LLMenuItemCallGL("Font Test...", LLFloaterFontTest::show));
 	menu->append(new LLMenuItemCallGL("Export Menus to XML...", handle_export_menus_to_xml));
 	menu->append(new LLMenuItemCallGL("Edit UI...", LLFloaterEditUI::show));	
 	menu->append(new LLMenuItemCallGL("Load from XML...", handle_load_from_xml));
@@ -4580,22 +4583,6 @@ void toggle_debug_menus(void*)
 }
 
 
-void toggle_map( void* user_data )
-{
-	// Toggle the item
-	BOOL checked = gSavedSettings.getBOOL( static_cast<char*>(user_data) );
-	gSavedSettings.setBOOL( static_cast<char*>(user_data), !checked );
-	if (checked)
-	{
-		gFloaterMap->close();
-	}
-	else
-	{
-		gFloaterMap->open();		/* Flawfinder: ignore */	
-	}
-}
-
-
 // LLUUID gExporterRequestID;
 // std::string gExportDirectory;
 
@@ -5112,11 +5099,11 @@ class LLShowFloater : public view_listener_t
 		}
 		else if (floater_name == "mini map")
 		{
-			LLFloaterMap::toggle(NULL);
+			LLFloaterMap::toggleInstance();
 		}
 		else if (floater_name == "stat bar")
 		{
-			gDebugView->mFloaterStatsp->setVisible(!gDebugView->mFloaterStatsp->getVisible());
+			LLFloaterStats::toggleInstance();
 		}
 		else if (floater_name == "my land")
 		{
@@ -5248,7 +5235,7 @@ class LLFloaterVisible : public view_listener_t
 		}
 		else if (floater_name == "stat bar")
 		{
-			new_value = gDebugView->mFloaterStatsp->getVisible();
+			new_value = LLFloaterStats::instanceVisible();
 		}
 		else if (floater_name == "active speakers")
 		{
@@ -7046,7 +7033,7 @@ void handle_buy_currency_test(void*)
 
 	llinfos << "buy currency url " << url << llendl;
 
-	LLFloaterHtmlSimple* floater = LLFloaterHtmlSimple::showInstance(url);
+	LLFloaterHtmlCurrency* floater = LLFloaterHtmlCurrency::showInstance(url);
 	// Needed so we can use secondlife:///app/floater/self/close SLURLs
 	floater->setTrusted(true);
 	floater->center();
@@ -7440,6 +7427,19 @@ void initialize_menus()
 		F32 mVal;
 		bool mMult;
 	};
+	
+	class LLAvatarReportAbuse : public view_listener_t
+	{
+		bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+		{
+			LLVOAvatar* avatar = find_avatar_from_object( LLSelectMgr::getInstance()->getSelection()->getPrimaryObject() );
+			if(avatar)
+			{
+				LLFloaterReporter::showFromObject(avatar->getID());
+			}
+			return true;
+		}
+	};
 
 	// File menu
 	init_menu_file();
@@ -7574,6 +7574,7 @@ void initialize_menus()
 	addMenu(new LLAvatarGiveCard(), "Avatar.GiveCard");
 	addMenu(new LLAvatarEject(), "Avatar.Eject");
 	addMenu(new LLAvatarSendIM(), "Avatar.SendIM");
+	addMenu(new LLAvatarReportAbuse(), "Avatar.ReportAbuse");
 	
 	addMenu(new LLObjectEnableMute(), "Avatar.EnableMute");
 	addMenu(new LLAvatarEnableAddFriend(), "Avatar.EnableAddFriend");

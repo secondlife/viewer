@@ -947,7 +947,7 @@ void LLWorld::updateWaterObjects()
 
 void LLWorld::shiftRegions(const LLVector3& offset)
 {
-	for (region_list_t::iterator i = getRegionList().begin(); i != getRegionList().end(); ++i)
+	for (region_list_t::const_iterator i = getRegionList().begin(); i != getRegionList().end(); ++i)
 	{
 		LLViewerRegion* region = *i;
 		region->updateRenderMatrix();
@@ -1133,8 +1133,8 @@ void send_agent_pause()
 	gAgentPauseSerialNum++;
 	gMessageSystem->addU32Fast(_PREHASH_SerialNum, gAgentPauseSerialNum);
 
-	for (LLWorld::region_list_t::iterator iter = LLWorld::getInstance()->mActiveRegionList.begin();
-		 iter != LLWorld::getInstance()->mActiveRegionList.end(); ++iter)
+	for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin();
+		 iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
 	{
 		LLViewerRegion* regionp = *iter;
 		gMessageSystem->sendReliable(regionp->getHost());
@@ -1163,8 +1163,8 @@ void send_agent_resume()
 	gMessageSystem->addU32Fast(_PREHASH_SerialNum, gAgentPauseSerialNum);
 	
 
-	for (LLWorld::region_list_t::iterator iter = LLWorld::getInstance()->mActiveRegionList.begin();
-		 iter != LLWorld::getInstance()->mActiveRegionList.end(); ++iter)
+	for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin();
+		 iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
 	{
 		LLViewerRegion* regionp = *iter;
 		gMessageSystem->sendReliable(regionp->getHost());
@@ -1174,6 +1174,62 @@ void send_agent_resume()
 	LLViewerStats::getInstance()->mFPSStat.start();
 
 	LLAppViewer::instance()->resumeMainloopTimeout();
+}
+
+static LLVector3d unpackLocalToGlobalPosition(U32 compact_local, const LLVector3d& region_origin)
+{
+	LLVector3d pos_global;
+	LLVector3 pos_local;
+	U8 bits;
+
+	bits = compact_local & 0xFF;
+	pos_local.mV[VZ] = F32(bits) * 4.f;
+	compact_local >>= 8;
+
+	bits = compact_local & 0xFF;
+	pos_local.mV[VY] = (F32)bits;
+	compact_local >>= 8;
+
+	bits = compact_local & 0xFF;
+	pos_local.mV[VX] = (F32)bits;
+
+	pos_global.setVec( pos_local );
+	pos_global += region_origin;
+	return pos_global;
+}
+
+void LLWorld::getAvatars(std::vector<LLUUID>* avatar_ids, std::vector<LLVector3d>* positions, const LLVector3d& relative_to, F32 radius) const
+{
+	if(avatar_ids != NULL)
+	{
+		avatar_ids->clear();
+	}
+	if(positions != NULL)
+	{
+		positions->clear();
+	}
+	for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin();
+		iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
+	{
+		LLViewerRegion* regionp = *iter;
+		const LLVector3d& origin_global = regionp->getOriginGlobal();
+		S32 count = regionp->mMapAvatars.count();
+		for (S32 i = 0; i < count; i++)
+		{
+			LLVector3d pos_global = unpackLocalToGlobalPosition(regionp->mMapAvatars.get(i), origin_global);
+			if(dist_vec(pos_global, relative_to) <= radius)
+			{
+				if(positions != NULL)
+				{
+					positions->push_back(pos_global);
+				}
+				if(avatar_ids != NULL)
+				{
+					avatar_ids->push_back(regionp->mMapAvatarIDs.get(i));
+				}
+			}
+		}
+	}
 }
 
 

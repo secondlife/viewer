@@ -309,7 +309,7 @@ BOOL	LLFloaterTools::postBuild()
 
 	mSliderDozerSize = getChild<LLSlider>("slider brush size");
 	childSetCommitCallback("slider brush size", commit_slider_dozer_size,  (void*)0);
-	childSetValue( "slider brush size", gSavedSettings.getS32("RadioLandBrushSize"));
+	childSetValue( "slider brush size", gSavedSettings.getF32("LandBrushSize"));
 	
 	mSliderDozerForce = getChild<LLSlider>("slider force");
 	childSetCommitCallback("slider force",commit_slider_dozer_force,  (void*)0);
@@ -890,8 +890,8 @@ void click_popup_dozer_mode(LLUICtrl *, void *user)
 
 void commit_slider_dozer_size(LLUICtrl *ctrl, void*)
 {
-	S32 size = (S32)ctrl->getValue().asInteger();
-	gSavedSettings.setS32("RadioLandBrushSize", size);
+	F32 size = (F32)ctrl->getValue().asReal();
+	gSavedSettings.setF32("LandBrushSize", size);
 }
 
 void commit_slider_dozer_force(LLUICtrl *ctrl, void*)

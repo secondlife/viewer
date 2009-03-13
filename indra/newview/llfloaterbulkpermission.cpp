@@ -145,26 +145,27 @@ void LLFloaterBulkPermission::inventoryChanged(LLViewerObject* viewer_object,
 
 void LLFloaterBulkPermission::onApplyBtn(void* user_data)
 {
-	LLFloaterBulkPermission* self = (LLFloaterBulkPermission*)user_data;
+	LLFloaterBulkPermission* self = static_cast<LLFloaterBulkPermission*>(user_data);
 	self->doApply();
 }
 
 void LLFloaterBulkPermission::onCloseBtn(void* user_data)
 {
-	LLFloaterBulkPermission* self = (LLFloaterBulkPermission*)user_data;
+	LLFloaterBulkPermission* self = static_cast<LLFloaterBulkPermission*>(user_data);
 	self->onClose(false);
 }
 
 //static 
 void LLFloaterBulkPermission::onCommitCopy(LLUICtrl* ctrl, void* data)
 {
+	LLFloaterBulkPermission* self = static_cast<LLFloaterBulkPermission*>(data);
 	// Implements fair use
 	BOOL copyable = gSavedSettings.getBOOL("BulkChangeNextOwnerCopy");
 	if(!copyable)
 	{
 		gSavedSettings.setBOOL("BulkChangeNextOwnerTransfer", TRUE);
 	}
-	LLCheckBoxCtrl* xfer = static_cast<LLFloaterPerms*>(data)->getChild<LLCheckBoxCtrl>("next_owner_transfer");
+	LLCheckBoxCtrl* xfer = self->getChild<LLCheckBoxCtrl>("next_owner_transfer");
 	xfer->setEnabled(copyable);
 }
 

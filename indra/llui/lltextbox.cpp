@@ -41,7 +41,7 @@ static LLRegisterWidget<LLTextBox> r("text");
 LLTextBox::LLTextBox(const std::string& name, const LLRect& rect, const std::string& text,
 					 const LLFontGL* font, BOOL mouse_opaque)
 :	LLUICtrl(name, rect, mouse_opaque, NULL, NULL, FOLLOWS_LEFT | FOLLOWS_TOP ),
-	mFontGL(font ? font : LLFontGL::sSansSerifSmall)
+	mFontGL(font ? font : LLFontGL::getFontSansSerifSmall())
 {
 	initDefaults();
 	setText( text );
@@ -51,7 +51,7 @@ LLTextBox::LLTextBox(const std::string& name, const LLRect& rect, const std::str
 LLTextBox::LLTextBox(const std::string& name, const std::string& text, F32 max_width,
 					 const LLFontGL* font, BOOL mouse_opaque) :
 	LLUICtrl(name, LLRect(0, 0, 1, 1), mouse_opaque, NULL, NULL, FOLLOWS_LEFT | FOLLOWS_TOP),	
-	mFontGL(font ? font : LLFontGL::sSansSerifSmall)
+	mFontGL(font ? font : LLFontGL::getFontSansSerifSmall())
 {
 	initDefaults();
 	setWrappedText(text, max_width);
@@ -61,7 +61,7 @@ LLTextBox::LLTextBox(const std::string& name, const std::string& text, F32 max_w
 
 LLTextBox::LLTextBox(const std::string& name_and_label, const LLRect& rect) :
 	LLUICtrl(name_and_label, rect, TRUE, NULL, NULL, FOLLOWS_LEFT | FOLLOWS_TOP),	
-	mFontGL(LLFontGL::sSansSerifSmall)
+	mFontGL(LLFontGL::getFontSansSerifSmall())
 {
 	initDefaults();
 	setText( name_and_label );
@@ -431,7 +431,7 @@ LLView* LLTextBox::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *f
 	std::string font_style;
 	if (node->getAttributeString("font-style", font_style))
 	{
-		text_box->mFontStyle = LLFontGL::getStyleFromString(font_style);
+		text_box->mFontStyle |= LLFontGL::getStyleFromString(font_style);
 	}
 	
 	BOOL mouse_opaque = text_box->getMouseOpaque();

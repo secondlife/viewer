@@ -93,7 +93,7 @@ LLToolView::~LLToolView()
 // 		"",
 // 		&LLToolView::onClickToolButton,
 // 		contain,
-// 		LLFontGL::sSansSerif);
+// 		LLFontGL::getFontSansSerif());
 
 // 	contain->mPanel = panel;
 // 	contain->mTool = tool;

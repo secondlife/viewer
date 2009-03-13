@@ -96,7 +96,7 @@ void handle_map(void*)
 
 void handle_mini_map(void*)
 {
-	LLFloaterMap::toggle(NULL);
+	LLFloaterMap::toggleInstance();
 }
 
 

@@ -164,7 +164,7 @@ public:
 	void			setDisabledLabelColor( const LLColor4& c )		{ mDisabledLabelColor = c; }
 	
 	void			setFont(const LLFontGL *font)		
-		{ mGLFont = ( font ? font : LLFontGL::sSansSerif); }
+		{ mGLFont = ( font ? font : LLFontGL::getFontSansSerif()); }
 	void			setScaleImage(BOOL scale)			{ mScaleImage = scale; }
 	BOOL			getScaleImage() const				{ return mScaleImage; }
 

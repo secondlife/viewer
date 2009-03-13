@@ -142,7 +142,7 @@ LLMenuItemGL::LLMenuItemGL( const std::string& name, const std::string& label, K
 	mHighlight( FALSE ),
 	mGotHover( FALSE ),
 	mBriefItem( FALSE ),
-	mFont( LLFontGL::sSansSerif ),
+	mFont( LLFontGL::getFontSansSerif() ),
 	mStyle(LLFontGL::NORMAL),
 	mDrawTextDisabled( FALSE )
 {
@@ -2168,8 +2168,8 @@ void LLMenuGL::arrange( void )
 		U32 max_width = getTornOff() ? U32_MAX : menu_region_rect.getWidth();
 		U32 max_height = getTornOff() ? U32_MAX : menu_region_rect.getHeight();
 		// *FIX: create the item first and then ask for its dimensions?
-		S32 spillover_item_width = PLAIN_PAD_PIXELS + LLFontGL::sSansSerif->getWidth( std::string("More") );
-		S32 spillover_item_height = llround(LLFontGL::sSansSerif->getLineHeight()) + MENU_ITEM_PADDING;
+		S32 spillover_item_width = PLAIN_PAD_PIXELS + LLFontGL::getFontSansSerif()->getWidth( std::string("More") );
+		S32 spillover_item_height = llround(LLFontGL::getFontSansSerif()->getLineHeight()) + MENU_ITEM_PADDING;
 
 		if (mHorizontalLayout)
 		{
@@ -3495,7 +3495,7 @@ void LLPieMenu::drawBackground(LLMenuItemGL* itemp, LLColor4& color)
 BOOL LLPieMenu::append(LLMenuItemGL *item)
 {
 	item->setBriefItem(TRUE);
-	item->setFont( LLFontGL::sSansSerifSmall );
+	item->setFont( LLFontGL::getFontSansSerifSmall() );
 	return LLMenuGL::append(item);
 }
 
@@ -3503,7 +3503,7 @@ BOOL LLPieMenu::append(LLMenuItemGL *item)
 BOOL LLPieMenu::appendSeparator(const std::string &separator_name)
 {
 	LLMenuItemGL* separator = new LLMenuItemBlankGL();
-	separator->setFont( LLFontGL::sSansSerifSmall );
+	separator->setFont( LLFontGL::getFontSansSerifSmall() );
 	return append( separator );
 }
 
@@ -3517,7 +3517,7 @@ BOOL LLPieMenu::appendPieMenu(LLPieMenu *menu)
 	LLPieMenuBranch *item;
 	item = new LLPieMenuBranch(menu->getName(), menu->getLabel(), menu);
 	getParent()->addChild(item->getBranch());
-	item->setFont( LLFontGL::sSansSerifSmall );
+	item->setFont( LLFontGL::getFontSansSerifSmall() );
 	return append( item );
 }
 

@@ -3358,10 +3358,9 @@ void LLWindowMacOSX::interruptLanguageTextInput()
 }
 
 //static
-std::string LLWindowMacOSX::getFontListSans()
+std::vector<std::string> LLWindowMacOSX::getDynamicFallbackFontList()
 {
-	// This is a fairly complete Japanese font that ships with Mac OS X.
-	// The first filename is in UTF8, but it shows up in the font menu as "Hiragino Kaku Gothic Pro W3".
-	// The third filename is in UTF8, but it shows up in the font menu as "STHeiti Light"
-	return "\xE3\x83\x92\xE3\x83\xA9\xE3\x82\xAD\xE3\x82\x99\xE3\x83\x8E\xE8\xA7\x92\xE3\x82\xB3\xE3\x82\x99 Pro W3.otf;\xE3\x83\x92\xE3\x83\xA9\xE3\x82\xAD\xE3\x82\x99\xE3\x83\x8E\xE8\xA7\x92\xE3\x82\xB3\xE3\x82\x99 ProN W3.otf;AppleGothic.dfont;AppleGothic.ttf;\xe5\x8d\x8e\xe6\x96\x87\xe7\xbb\x86\xe9\xbb\x91.ttf";
+	// Fonts previously in getFontListSans() have moved to fonts.xml.
+	return std::vector<std::string>();
 }
+

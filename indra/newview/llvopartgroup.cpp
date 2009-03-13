@@ -186,12 +186,13 @@ BOOL LLVOPartGroup::updateGeometry(LLDrawable *drawable)
 	S32 count=0;
 	mDepth = 0.f;
 	S32 i = 0 ;
+	LLVector3 camera_agent = getCameraPosition();
 	for (i = 0 ; i < (S32)mViewerPartGroupp->mParticles.size(); i++)
 	{
 		const LLViewerPart *part = mViewerPartGroupp->mParticles[i];
 
 		LLVector3 part_pos_agent(part->mPosAgent);
-		LLVector3 at(part_pos_agent - LLViewerCamera::getInstance()->getOrigin());
+		LLVector3 at(part_pos_agent - camera_agent);
 
 		F32 camera_dist_squared = at.lengthSquared();
 		F32 inv_camera_dist_squared;
@@ -314,7 +315,7 @@ void LLVOPartGroup::getGeometry(S32 idx,
 	up *= 0.5f*part.mScale.mV[1];
 
 
-	const LLVector3& normal = -LLViewerCamera::getInstance()->getXAxis();
+	LLVector3 normal = -LLViewerCamera::getInstance()->getXAxis();
 		
 	*verticesp++ = part_pos_agent + up - right;
 	*verticesp++ = part_pos_agent - up - right;
@@ -500,12 +501,8 @@ F32 LLParticlePartition::calcPixelArea(LLSpatialGroup* group, LLCamera& camera)
 }
 
 U32 LLVOHUDPartGroup::getPartitionType() const
-{ 
-	// Commenting out and returning PARTITION_NONE because DEV-16909 
-	// (SVC-2396: Particles not handled properly as hud) didn't work completely 
-	// so this disables HUD particles until they can be fixed properly. -MG
-	//return LLViewerRegion::PARTITION_HUD_PARTICLE; 
-	return LLViewerRegion::PARTITION_NONE;
+{
+	return LLViewerRegion::PARTITION_HUD_PARTICLE; 
 }
 
 LLDrawable* LLVOHUDPartGroup::createDrawable(LLPipeline *pipeline)
@@ -520,3 +517,4 @@ LLVector3 LLVOHUDPartGroup::getCameraPosition() const
 {
 	return LLVector3(-1,0,0);
 }
+

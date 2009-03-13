@@ -957,14 +957,14 @@ void LLScrollListCtrl::calcColumnWidths()
 		column->setWidth(new_width);
 
 		// update max content width for this column, by looking at all items
-		column->mMaxContentWidth = column->mHeader ? LLFontGL::sSansSerifSmall->getWidth(column->mLabel) + mColumnPadding + HEADING_TEXT_PADDING : 0;
+		column->mMaxContentWidth = column->mHeader ? LLFontGL::getFontSansSerifSmall()->getWidth(column->mLabel) + mColumnPadding + HEADING_TEXT_PADDING : 0;
 		item_list::iterator iter;
 		for (iter = mItemList.begin(); iter != mItemList.end(); iter++)
 		{
 			LLScrollListCell* cellp = (*iter)->getColumn(column->mIndex);
 			if (!cellp) continue;
 
-			column->mMaxContentWidth = llmax(LLFontGL::sSansSerifSmall->getWidth(cellp->getValue().asString()) + mColumnPadding + COLUMN_TEXT_PADDING, column->mMaxContentWidth);
+			column->mMaxContentWidth = llmax(LLFontGL::getFontSansSerifSmall()->getWidth(cellp->getValue().asString()) + mColumnPadding + COLUMN_TEXT_PADDING, column->mMaxContentWidth);
 		}
 
 		max_item_width += column->mMaxContentWidth;
@@ -3711,8 +3711,8 @@ void LLColumnHeader::showList()
 			descending_string = mDescendingText.getString();
 		}
 
-		S32 text_width = LLFontGL::sSansSerifSmall->getWidth(ascending_string);
-		text_width = llmax(text_width, LLFontGL::sSansSerifSmall->getWidth(descending_string)) + 10;
+		S32 text_width = LLFontGL::getFontSansSerifSmall()->getWidth(ascending_string);
+		text_width = llmax(text_width, LLFontGL::getFontSansSerifSmall()->getWidth(descending_string)) + 10;
 		text_width = llmax(text_width, getRect().getWidth() - 30);
 
 		mList->getColumn(0)->setWidth(text_width);

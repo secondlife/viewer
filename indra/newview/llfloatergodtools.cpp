@@ -1351,8 +1351,8 @@ void LLPanelRequestTools::refresh()
 	list->operateOnAll(LLCtrlListInterface::OP_DELETE);
 	list->addSimpleElement(SELECTION);
 	list->addSimpleElement(AGENT_REGION);
-	for (LLWorld::region_list_t::iterator iter = LLWorld::getInstance()->mActiveRegionList.begin();
-		 iter != LLWorld::getInstance()->mActiveRegionList.end(); ++iter)
+	for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin();
+		 iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
 	{
 		LLViewerRegion* regionp = *iter;
 		std::string name = regionp->getName();
@@ -1412,8 +1412,8 @@ void LLPanelRequestTools::onClickRequest(void* data)
 	else
 	{
 		// find region by name
-		for (LLWorld::region_list_t::iterator iter = LLWorld::getInstance()->mActiveRegionList.begin();
-			 iter != LLWorld::getInstance()->mActiveRegionList.end(); ++iter)
+		for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin();
+			 iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
 		{
 			LLViewerRegion* regionp = *iter;
 			if(dest == regionp->getName())
