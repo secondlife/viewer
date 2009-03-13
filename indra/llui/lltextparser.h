@@ -2,8 +2,9 @@
  * @file llTextParser.h
  * @brief GUI for user-defined highlights
  *
- * Copyright (c) 2002-$CurrentYear$, Linden Research, Inc.
- * $License$
+ * $LicenseInfo:firstyear=2002&license=viewergpl$
+ * $/LicenseInfo$
+ *
  */
 
 #ifndef LL_LLTEXTPARSER_H
