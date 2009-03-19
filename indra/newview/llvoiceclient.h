@@ -255,6 +255,7 @@ static	void updatePosition(void);
 			participantState(const std::string &uri);
 
 			bool updateMuteState();
+			bool isAvatar();
 
 			std::string mURI;
 			LLUUID mAvatarID;
@@ -300,6 +301,9 @@ static	void updatePosition(void);
 
 			participantState *findParticipant(const std::string &uri);
 			participantState *findParticipantByID(const LLUUID& id);
+
+			bool isCallBackPossible();
+			bool isTextIMPossible();
 
 			std::string mHandle;
 			std::string mGroupHandle;
@@ -434,6 +438,7 @@ static	void updatePosition(void);
 		void sessionMediaConnectSendMessage(sessionState *session);		// just joins the audio session
 		void sessionTextConnectSendMessage(sessionState *session);		// just joins the text session
 		void sessionTerminateSendMessage(sessionState *session);
+		void sessionGroupTerminateSendMessage(sessionState *session);
 		void sessionMediaDisconnectSendMessage(sessionState *session);
 		void sessionTextDisconnectSendMessage(sessionState *session);
 
@@ -496,6 +501,21 @@ static	void updatePosition(void);
 		// Returns true if the indicated user is online via SIP presence according to SLVoice.
 		// Note that we only get SIP presence data for other users that are in our vivox buddy list.
 		bool isOnlineSIP(const LLUUID &id);
+
+		// Returns true if the indicated participant is really an SL avatar.
+		// This should be used to control the state of the "profile" button.
+		// Currently this will be false only for PSTN callers into group chats, and PSTN p2p calls.
+		bool isParticipantAvatar(const LLUUID &id);
+		
+		// Returns true if calling back the session URI after the session has closed is possible.
+		// Currently this will be false only for PSTN P2P calls.		
+		// NOTE: this will return true if the session can't be found. 
+		bool isSessionCallBackPossible(const LLUUID &session_id);
+		
+		// Returns true if the session can accepte text IM's.
+		// Currently this will be false only for PSTN P2P calls.
+		// NOTE: this will return true if the session can't be found. 
+		bool isSessionTextIMPossible(const LLUUID &session_id);
 		
 	private:
 

@@ -343,6 +343,10 @@ private:
 	BOOL mShowSpeakersOnConnect;
 
 	BOOL mAutoConnect;
+	
+	BOOL mTextIMPossible;
+	BOOL mProfileButtonEnabled;
+	BOOL mCallBackEnabled;
 
 	LLIMSpeakerMgr* mSpeakers;
 	LLPanelActiveSpeakers* mSpeakerPanel;

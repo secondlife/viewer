@@ -844,6 +844,16 @@ void LLVivoxProtocolParser::processResponse(std::string tag)
 			*/
 			// We don't need to process this, but we also shouldn't warn on it, since that confuses people.
 		}
+		
+		else if (!stricmp(eventTypeCstr, "SessionGroupRemovedEvent"))  
+		{
+			/*
+			<Event type="SessionGroupRemovedEvent">
+				<SessionGroupHandle>c1_m1000xFnPP04IpREWNkuw1cOXlhw==_sg0</SessionGroupHandle>
+			</Event>
+			*/
+			// We don't need to process this, but we also shouldn't warn on it, since that confuses people.
+		}
 		else
 		{
 			LL_WARNS("VivoxProtocolParser") << "Unknown event type " << eventTypeString << LL_ENDL;
@@ -1560,20 +1570,27 @@ void LLVoiceClient::stateMachine()
 			std::string regionName = region->getName();
 			std::string capURI = region->getCapability("ParcelVoiceInfoRequest");
 		
-//			LL_DEBUGS("Voice") << "Region name = \"" << regionName <<"\", " << "parcel local ID = " << parcelLocalID << LL_ENDL;
+//			LL_DEBUGS("Voice") << "Region name = \"" << regionName << "\", parcel local ID = " << parcelLocalID << ", cap URI = \"" << capURI << "\"" << LL_ENDL;
 
 			// The region name starts out empty and gets filled in later.  
 			// Also, the cap gets filled in a short time after the region cross, but a little too late for our purposes.
 			// If either is empty, wait for the next time around.
-			if(!regionName.empty() && !capURI.empty())
+			if(!regionName.empty())
 			{
-				if((parcelLocalID != mCurrentParcelLocalID) || (regionName != mCurrentRegionName))
+				if(!capURI.empty())
 				{
-					// We have changed parcels.  Initiate a parcel channel lookup.
-					mCurrentParcelLocalID = parcelLocalID;
-					mCurrentRegionName = regionName;
-					
-					parcelChanged();
+					if((parcelLocalID != mCurrentParcelLocalID) || (regionName != mCurrentRegionName))
+					{
+						// We have changed parcels.  Initiate a parcel channel lookup.
+						mCurrentParcelLocalID = parcelLocalID;
+						mCurrentRegionName = regionName;
+						
+						parcelChanged();
+					}
+				}
+				else
+				{
+					LL_WARNS("Voice") << "region doesn't have ParcelVoiceInfoRequest capability.  This is normal for a short time after teleporting, but bad if it persists for very long." << LL_ENDL;
 				}
 			}
 		}
@@ -1839,6 +1856,10 @@ void LLVoiceClient::stateMachine()
 							requestVoiceAccountProvision();
 						}
 						setState(stateConnectorStart);
+					}
+					else
+					{
+						LL_WARNS("Voice") << "region doesn't have ProvisionVoiceAccountRequest capability!" << LL_ENDL;
 					}
 				}
 			}
@@ -2308,12 +2329,27 @@ void LLVoiceClient::stateMachine()
 		
 		//MARK: stateLoggingOut
 		case stateLoggingOut:			// waiting for logout response
-			// The handler for the Account.Logout response will transition from here to stateLoggedOut.
+			// The handler for the AccountLoginStateChangeEvent will transition from here to stateLoggedOut.
 		break;
+		
 		//MARK: stateLoggedOut
 		case stateLoggedOut:			// logout response received
-			// shut down the connector
-			connectorShutdown();
+			
+			// Once we're logged out, all these things are invalid.
+			mAccountHandle.clear();
+			deleteAllSessions();
+			deleteAllBuddies();
+
+			if(mVoiceEnabled && !mRelogRequested)
+			{
+				// User was logged out, but wants to be logged in.  Send a new login request.
+				setState(stateNeedsLogin);
+			}
+			else
+			{
+				// shut down the connector
+				connectorShutdown();
+			}
 		break;
 		
 		//MARK: stateConnectorStopping
@@ -2332,6 +2368,10 @@ void LLVoiceClient::stateMachine()
 		break;
 		//MARK: stateConnectorFailedWaiting
 		case stateConnectorFailedWaiting:
+			if(!mVoiceEnabled)
+			{
+				setState(stateDisableCleanup);
+			}
 		break;
 
 		//MARK: stateLoginFailed
@@ -2340,7 +2380,10 @@ void LLVoiceClient::stateMachine()
 		break;
 		//MARK: stateLoginFailedWaiting
 		case stateLoginFailedWaiting:
-			// No way to recover from these.  Yet.
+			if(!mVoiceEnabled)
+			{
+				setState(stateDisableCleanup);
+			}
 		break;
 
 		//MARK: stateJoinSessionFailed
@@ -2684,6 +2727,19 @@ void LLVoiceClient::sessionTerminateSendMessage(sessionState *session)
 	stream
 	<< "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Session.Terminate.1\">"
 		<< "<SessionHandle>" << session->mHandle << "</SessionHandle>"
+	<< "</Request>\n\n\n";
+	
+	writeString(stream.str());
+}
+
+void LLVoiceClient::sessionGroupTerminateSendMessage(sessionState *session)
+{
+	std::ostringstream stream;
+	
+	LL_DEBUGS("Voice") << "Sending SessionGroup.Terminate with handle " << session->mGroupHandle << LL_ENDL;	
+	stream
+	<< "<Request requestId=\"" << mCommandCookie++ << "\" action=\"SessionGroup.Terminate.1\">"
+		<< "<SessionGroupHandle>" << session->mGroupHandle << "</SessionGroupHandle>"
 	<< "</Request>\n\n\n";
 	
 	writeString(stream.str());
@@ -3227,14 +3283,23 @@ void LLVoiceClient::sendPositionalUpdate(void)
 				// Can't set volume/mute for yourself
 				if(!p->mIsSelf)
 				{
-					int volume = p->mUserVolume;
+					int volume = 56; // nominal default value
 					bool mute = p->mOnMuteList;
+					
+					if(p->mUserVolume != -1)
+					{
+						// scale from user volume in the range 0-400 (with 100 as "normal") to vivox volume in the range 0-100 (with 56 as "normal")
+						if(p->mUserVolume < 100)
+							volume = (p->mUserVolume * 56) / 100;
+						else
+							volume = (((p->mUserVolume - 100) * (100 - 56)) / 300) + 56;
+					}
+					else if(p->mVolume != -1)
+					{
+						// Use the previously reported internal volume (comes in with a ParticipantUpdatedEvent)
+						volume = p->mVolume;
+					}
 										
-					// SLIM SDK: scale volume from 0-400 (with 100 as "normal") to 0-100 (with 56 as "normal")
-					if(volume < 100)
-						volume = (volume * 56) / 100;
-					else
-						volume = (((volume - 100) * (100 - 56)) / 300) + 56;
 
 					if(mute)
 					{
@@ -3813,11 +3878,6 @@ void LLVoiceClient::logoutResponse(int statusCode, std::string &statusString)
 		LL_WARNS("Voice") << "Account.Logout response failure: " << statusString << LL_ENDL;
 		// Should this ever fail?  do we care if it does?
 	}
-	
-	if(getState() == stateLoggingOut)
-	{
-		setState(stateLoggedOut);
-	}
 }
 
 void LLVoiceClient::connectorShutdownResponse(int statusCode, std::string &statusString)
@@ -3990,6 +4050,10 @@ void LLVoiceClient::sessionRemovedEvent(
 		// This message invalidates the session's handle.  Set it to empty.
 		setSessionHandle(session);
 		
+		// This also means that the session's session group is now empty.
+		// Terminate the session group so it doesn't leak.
+		sessionGroupTerminateSendMessage(session);
+		
 		// Reset the media state (we now have no info)
 		session->mMediaStreamState = streamStateUnknown;
 		session->mTextStreamState = streamStateUnknown;
@@ -4130,6 +4194,16 @@ void LLVoiceClient::accountLoginStateChangeEvent(
 		{
 			setState(stateLoggedIn);
 		}
+		break;
+
+		case 3:
+			// The user is in the process of logging out.
+			setState(stateLoggingOut);
+		break;
+
+		case 0:
+			// The user has been logged out.  
+			setState(stateLoggedOut);
 		break;
 		
 		default:
@@ -4756,9 +4830,9 @@ LLVoiceClient::participantState::participantState(const std::string &uri) :
 	 mIsModeratorMuted(false), 
 	 mLastSpokeTimestamp(0.f), 
 	 mPower(0.f), 
-	 mVolume(0), 
+	 mVolume(-1), 
 	 mOnMuteList(false), 
-	 mUserVolume(100), 
+	 mUserVolume(-1), 
 	 mVolumeDirty(false), 
 	 mAvatarIDValid(false),
 	 mIsSelf(false)
@@ -4841,6 +4915,11 @@ bool LLVoiceClient::participantState::updateMuteState()
 		}
 	}
 	return result;
+}
+
+bool LLVoiceClient::participantState::isAvatar()
+{
+	return mAvatarIDValid;
 }
 
 void LLVoiceClient::sessionState::removeParticipant(LLVoiceClient::participantState *participant)
@@ -5275,6 +5354,66 @@ bool LLVoiceClient::isOnlineSIP(const LLUUID &id)
 	
 	return result;
 }
+
+// Returns true if the indicated participant in the current audio session is really an SL avatar.
+// Currently this will be false only for PSTN callers into group chats, and PSTN p2p calls.
+bool LLVoiceClient::isParticipantAvatar(const LLUUID &id)
+{
+	bool result = true; 
+	sessionState *session = findSession(id);
+	
+	if(session != NULL)
+	{
+		// this is a p2p session with the indicated caller, or the session with the specified UUID.
+		if(session->mSynthesizedCallerID)
+			result = false;
+	}
+	else
+	{
+		// Didn't find a matching session -- check the current audio session for a matching participant
+		if(mAudioSession != NULL)
+		{
+			participantState *participant = findParticipantByID(id);
+			if(participant != NULL)
+			{
+				result = participant->isAvatar();
+			}
+		}
+	}
+	
+	return result;
+}
+
+// Returns true if calling back the session URI after the session has closed is possible.
+// Currently this will be false only for PSTN P2P calls.		
+bool LLVoiceClient::isSessionCallBackPossible(const LLUUID &session_id)
+{
+	bool result = true; 
+	sessionState *session = findSession(session_id);
+	
+	if(session != NULL)
+	{
+		result = session->isCallBackPossible();
+	}
+	
+	return result;
+}
+
+// Returns true if the session can accepte text IM's.
+// Currently this will be false only for PSTN P2P calls.
+bool LLVoiceClient::isSessionTextIMPossible(const LLUUID &session_id)
+{
+	bool result = true; 
+	sessionState *session = findSession(session_id);
+	
+	if(session != NULL)
+	{
+		result = session->isTextIMPossible();
+	}
+	
+	return result;
+}
+		
 
 void LLVoiceClient::declineInvite(std::string &sessionHandle)
 {
@@ -5928,9 +6067,41 @@ F32 LLVoiceClient::getUserVolume(const LLUUID& id)
 	participantState *participant = findParticipantByID(id);
 	if(participant)
 	{
-		S32 ires = participant->mUserVolume; // 0-400
+		S32 ires = 100; // nominal default volume
+		
+		if(participant->mIsSelf)
+		{
+			// Always make it look like the user's own volume is set at the default.
+		}
+		else if(participant->mUserVolume != -1)
+		{
+			// Use the internal volume
+			ires = participant->mUserVolume;
+			
+			// Enable this when debugging voice slider issues.  It's way to spammy even for debug-level logging.
+//			LL_DEBUGS("Voice") << "mapping from mUserVolume " << ires << LL_ENDL;
+		}
+		else if(participant->mVolume != -1)
+		{
+			// Map backwards from vivox volume 
+
+			// Enable this when debugging voice slider issues.  It's way to spammy even for debug-level logging.
+//			LL_DEBUGS("Voice") << "mapping from mVolume " << participant->mVolume << LL_ENDL;
+
+			if(participant->mVolume < 56)
+			{
+				ires = (participant->mVolume * 100) / 56;
+			}
+			else
+			{
+				ires = (((participant->mVolume - 56) * 300) / (100 - 56)) + 100;
+			}
+		}
 		result = sqrtf(((F32)ires) / 400.f);
 	}
+
+	// Enable this when debugging voice slider issues.  It's way to spammy even for debug-level logging.
+//	LL_DEBUGS("Voice") << "returning " << result << LL_ENDL;
 
 	return result;
 }
@@ -6095,6 +6266,21 @@ LLVoiceClient::sessionState::~sessionState()
 	removeAllParticipants();
 }
 
+bool LLVoiceClient::sessionState::isCallBackPossible()
+{
+	// This may change to be explicitly specified by vivox in the future...
+	// Currently, only PSTN P2P calls cannot be returned.
+	// Conveniently, this is also the only case where we synthesize a caller UUID.
+	return !mSynthesizedCallerID;
+}
+
+bool LLVoiceClient::sessionState::isTextIMPossible()
+{
+	// This may change to be explicitly specified by vivox in the future...
+	return !mSynthesizedCallerID;
+}
+
+
 LLVoiceClient::sessionIterator LLVoiceClient::sessionsBegin(void)
 {
 	return mSessions.begin();
@@ -6141,7 +6327,7 @@ LLVoiceClient::sessionState *LLVoiceClient::findSession(const LLUUID &participan
 	for(sessionIterator iter = sessionsBegin(); iter != sessionsEnd(); iter++)
 	{
 		sessionState *session = *iter;
-		if(session->mCallerID == participant_id)
+		if((session->mCallerID == participant_id) || (session->mIMSessionID == participant_id))
 		{
 			result = session;
 			break;

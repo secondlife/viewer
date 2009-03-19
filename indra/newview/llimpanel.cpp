@@ -1120,6 +1120,9 @@ LLFloaterIMPanel::LLFloaterIMPanel(
 	mSentTypingState(TRUE),
 	mShowSpeakersOnConnect(TRUE),
 	mAutoConnect(FALSE),
+	mTextIMPossible(TRUE),
+	mProfileButtonEnabled(TRUE),
+	mCallBackEnabled(TRUE),
 	mSpeakers(NULL),
 	mSpeakerPanel(NULL),
 	mFirstKeystrokeTimer(),
@@ -1165,7 +1168,13 @@ void LLFloaterIMPanel::init(const std::string& session_label)
 		break;
 	// just received text from another user
 	case IM_NOTHING_SPECIAL:
+
 		xml_filename = "floater_instant_message.xml";
+		
+		mTextIMPossible = LLVoiceClient::getInstance()->isSessionTextIMPossible(mSessionUUID);
+		mProfileButtonEnabled = LLVoiceClient::getInstance()->isParticipantAvatar(mSessionUUID);
+		mCallBackEnabled = LLVoiceClient::getInstance()->isSessionCallBackPossible(mSessionUUID);
+		
 		mVoiceChannel = new LLVoiceChannelP2P(mSessionUUID, mSessionLabel, mOtherParticipantUUID);
 		break;
 	default:
@@ -1297,6 +1306,11 @@ BOOL LLFloaterIMPanel::postBuild()
 		{
 			childSetEnabled("profile_btn", FALSE);
 		}
+		
+		if(!mProfileButtonEnabled)
+		{
+			childSetEnabled("profile_callee_btn", FALSE);
+		}
 
 		sTitleString = getString("title_string");
 		sTypingStartString = getString("typing_start_string");
@@ -1365,7 +1379,8 @@ void LLFloaterIMPanel::draw()
 	
 	BOOL enable_connect = (region && region->getCapability("ChatSessionRequest") != "")
 					  && mSessionInitialized
-					  && LLVoiceClient::voiceEnabled();
+					  && LLVoiceClient::voiceEnabled()
+					  && mCallBackEnabled;
 
 	// hide/show start call and end call buttons
 	childSetVisible("end_call_btn", LLVoiceClient::voiceEnabled() && mVoiceChannel->getState() >= LLVoiceChannel::STATE_CALL_STARTED);
@@ -1374,7 +1389,12 @@ void LLFloaterIMPanel::draw()
 	childSetEnabled("send_btn", !childGetValue("chat_editor").asString().empty());
 	
 	LLPointer<LLSpeaker> self_speaker = mSpeakers->findSpeaker(gAgent.getID());
-	if (self_speaker.notNull() && self_speaker->mModeratorMutedText)
+	if(!mTextIMPossible)
+	{
+		mInputEditor->setEnabled(FALSE);
+		mInputEditor->setLabel(getString("unavailable_text_label"));
+	}
+	else if (self_speaker.notNull() && self_speaker->mModeratorMutedText)
 	{
 		mInputEditor->setEnabled(FALSE);
 		mInputEditor->setLabel(getString("muted_text_label"));
