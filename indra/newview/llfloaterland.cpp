@@ -41,6 +41,7 @@
 #include "llfocusmgr.h"
 #include "llparcel.h"
 #include "message.h"
+#include "lluserauth.h"
 
 #include "llagent.h"
 #include "llfloateravatarpicker.h"
@@ -319,7 +320,9 @@ BOOL LLPanelLandGeneral::postBuild()
 	mTextSalePending = getChild<LLTextBox>("SalePending");
 	mTextOwnerLabel = getChild<LLTextBox>("Owner:");
 	mTextOwner = getChild<LLTextBox>("OwnerText");
-
+	
+	mContentRating = getChild<LLTextBox>("ContentRatingText");
+	mLandType = getChild<LLTextBox>("LandTypeText");
 	
 	mBtnProfile = getChild<LLButton>("Profile...");
 	mBtnProfile->setClickedCallback(onClickProfile, this);
@@ -445,6 +448,8 @@ void LLPanelLandGeneral::refresh()
 		mCheckContributeWithDeed->setEnabled(FALSE);
 
 		mTextOwner->setText(LLStringUtil::null);
+		mContentRating->setText(LLStringUtil::null);
+		mLandType->setText(LLStringUtil::null);
 		mBtnProfile->setLabel(getString("profile_text"));
 		mBtnProfile->setEnabled(FALSE);
 
@@ -478,6 +483,12 @@ void LLPanelLandGeneral::refresh()
 		   && !(regionp->getRegionFlags() & REGION_FLAGS_BLOCK_LAND_RESELL))
 		{
 			region_xfer = TRUE;
+		}
+		
+		if (regionp)
+		{
+			mContentRating->setText(regionp->getSimAccessString());
+			mLandType->setText(regionp->getSimProductName());
 		}
 
 		// estate owner/manager cannot edit other parts of the parcel
@@ -1768,8 +1779,7 @@ BOOL LLPanelLandOptions::postBuild()
 	mPublishHelpButton = getChild<LLButton>("?");
 	mPublishHelpButton->setClickedCallback(onClickPublishHelp, this);
 
-
-	if (gAgent.isTeen())
+	if (gAgent.wantsPGOnly())
 	{
 		// Disable these buttons if they are PG (Teen) users
 		mPublishHelpButton->setVisible(FALSE);
@@ -1777,26 +1787,14 @@ BOOL LLPanelLandOptions::postBuild()
 		mMatureCtrl->setVisible(FALSE);
 		mMatureCtrl->setEnabled(FALSE);
 	}
-
-		// Load up the category list
-	//now in xml file
-	/*
-	S32 i;
-	for (i = 0; i < LLParcel::C_COUNT; i++)
+	
+	if (!gAgent.getAgentAccess().isInTransition())
 	{
-		LLParcel::ECategory cat = (LLParcel::ECategory)i;
-
-		// Selecting Linden Location when you're not a god
-		// is also blocked on the server.
-		BOOL enabled = TRUE;
-		if (!gAgent.isGodlike()
-			&& i == LLParcel::C_LINDEN) 
-		{
-			enabled = FALSE;
-		}
-
-		mCategoryCombo->add( LLParcel::getCategoryUIString(cat), ADD_BOTTOM, enabled );
-	}*/
+		// remove category for adult if we're post-transition
+		// (this code can go away, and the category can be removed from the xml,
+		// once we've completed the transition period for adult)
+		mCategoryCombo->remove(getString("adult_land_category_label"));
+	}	
 
 	
 	mSnapshotCtrl = getChild<LLTextureCtrl>("snapshot_ctrl");
@@ -1969,17 +1967,43 @@ void LLPanelLandOptions::refresh()
 		mSetBtn->setEnabled( can_change_landing_point );
 		mClearBtn->setEnabled( can_change_landing_point );
 
-		mMatureCtrl->set(parcel->getMaturePublish());
-		mMatureCtrl->setEnabled( can_change_identity );
 		mPublishHelpButton->setEnabled( can_change_identity );
 
-		if (gAgent.isTeen())
+		if (gAgent.wantsPGOnly())
 		{
 			// Disable these buttons if they are PG (Teen) users
 			mPublishHelpButton->setVisible(FALSE);
 			mPublishHelpButton->setEnabled(FALSE);
 			mMatureCtrl->setVisible(FALSE);
 			mMatureCtrl->setEnabled(FALSE);
+		}
+		else
+		{
+			// not teen so fill in the data for the maturity control
+			mMatureCtrl->setVisible(TRUE);
+			mMatureCtrl->setLabel(getString("mature_check_mature"));
+			// they can see the checkbox, but its disposition depends on the 
+			// state of the region
+			LLViewerRegion* regionp = LLViewerParcelMgr::getInstance()->getSelectionRegion();
+			if (regionp)
+			{
+				if (regionp->getSimAccess() == SIM_ACCESS_PG)
+				{
+					mMatureCtrl->setEnabled(FALSE);
+					mMatureCtrl->set(FALSE);
+				}
+				else if (regionp->getSimAccess() == SIM_ACCESS_MATURE)
+				{
+					mMatureCtrl->setEnabled(can_change_identity);
+					mMatureCtrl->set(parcel->getMaturePublish());
+				}
+				else if (regionp->getSimAccess() == SIM_ACCESS_ADULT)
+				{
+					mMatureCtrl->setEnabled(FALSE);
+					mMatureCtrl->set(TRUE);
+					mMatureCtrl->setLabel(getString("mature_check_adult"));
+				}
+			}
 		}
 	}
 }
@@ -2749,6 +2773,18 @@ void LLPanelLandCovenant::refresh()
 		region_name->setText(region->getName());
 	}
 
+	LLTextBox* region_landtype = getChild<LLTextBox>("region_landtype_text");
+	if (region_landtype)
+	{
+		region_landtype->setText(region->getSimProductName());
+	}
+	
+	LLTextBox* region_maturity = getChild<LLTextBox>("region_maturity_text");
+	if (region_maturity)
+	{
+		region_maturity->setText(region->getSimAccessString());
+	}
+	
 	LLTextBox* resellable_clause = getChild<LLTextBox>("resellable_clause");
 	if (resellable_clause)
 	{

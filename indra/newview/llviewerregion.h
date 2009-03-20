@@ -182,18 +182,24 @@ public:
 	void setSimAccess(U8 sim_access)			{ mSimAccess = sim_access; }
 	U8 getSimAccess() const						{ return mSimAccess; }
 	const std::string getSimAccessString() const;
+	
+	// Homestead-related getters; there are no setters as nobody should be
+	// setting them other than the individual message handler which is a member
+	S32 getSimClassID()                    const { return mClassID; }
+	S32 getSimCPURatio()                   const { return mCPURatio; }
+	const std::string& getSimColoName()    const { return mColoName; }
+	const std::string& getSimProductSKU()  const { return mProductSKU; }
+	const std::string& getSimProductName() const { return mProductName; }
 
 	// Returns "Sandbox", "Expensive", etc.
 	static std::string regionFlagsToString(U32 flags);
 
-	// Returns "Mature", "PG", etc.
+	// Returns translated version of "Mature", "PG", "Adult", etc.
 	static std::string accessToString(U8 sim_access);
 
-	static U8 stringToAccess(const std::string& access_str);
-
-	// Returns "M", "PG", etc.
+	// Returns "M", "PG", "A" etc.
 	static std::string accessToShortString(U8 sim_access);
-
+	
 	// helper function which just makes sure all interested parties
 	// can process the message.
 	static void processRegionInfo(LLMessageSystem* msg, void**);
@@ -356,6 +362,14 @@ private:
 	F32 	mBillableFactor;
 	U32		mMaxTasks;				// max prim count
 	F32		mCameraDistanceSquared;	// updated once per frame
+	
+	// Information for Homestead / CR-53
+	S32 mClassID;
+	S32 mCPURatio;
+	std::string mColoName;
+	std::string mProductSKU;
+	std::string mProductName;
+	
 	
 	// Maps local ids to cache entries.
 	// Regions can have order 10,000 objects, so assume

@@ -2450,9 +2450,11 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 		}
 	}
 
-	// Debugging view for unified notifications
+	// Debugging view for unified notifications -- we need Ctrl+Shift+Alt to get it 
+	// since Ctrl+Shift maps to Nighttime under windlight.
 	if ((MASK_SHIFT & mask) 
 		&& (MASK_CONTROL & mask)
+		&& (MASK_ALT & mask)
 		&& ('N' == key || 'n' == key))
 	{
 		LLFloaterNotificationConsole::showInstance();

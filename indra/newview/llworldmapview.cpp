@@ -83,12 +83,14 @@ LLUIImagePtr LLWorldMapView::sInfohubImage = NULL;
 LLUIImagePtr LLWorldMapView::sHomeImage = NULL;
 LLUIImagePtr LLWorldMapView::sEventImage = NULL;
 LLUIImagePtr LLWorldMapView::sEventMatureImage = NULL;
+LLUIImagePtr LLWorldMapView::sEventAdultImage = NULL;
 
 LLUIImagePtr LLWorldMapView::sTrackCircleImage = NULL;
 LLUIImagePtr LLWorldMapView::sTrackArrowImage = NULL;
 
 LLUIImagePtr LLWorldMapView::sClassifiedsImage = NULL;
 LLUIImagePtr LLWorldMapView::sForSaleImage = NULL;
+LLUIImagePtr LLWorldMapView::sForSaleAdultImage = NULL;
 
 F32 LLWorldMapView::sThresholdA = 48.f;
 F32 LLWorldMapView::sThresholdB = 96.f;
@@ -125,11 +127,15 @@ void LLWorldMapView::initClass()
 	sInfohubImage = 		LLUI::getUIImage("map_infohub.tga");
 	sEventImage =			LLUI::getUIImage("map_event.tga");
 	sEventMatureImage =		LLUI::getUIImage("map_event_mature.tga");
+	// To Do: update the image resource for adult events.
+	sEventAdultImage =		LLUI::getUIImage("map_event_adult.tga");
 
 	sTrackCircleImage =		LLUI::getUIImage("map_track_16.tga");
 	sTrackArrowImage =		LLUI::getUIImage("direction_arrow.tga");
 	sClassifiedsImage =		LLUI::getUIImage("icon_top_pick.tga");
 	sForSaleImage =			LLUI::getUIImage("icon_for_sale.tga");
+	// To Do: update the image resource for adult lands on sale.
+	sForSaleAdultImage =    LLUI::getUIImage("icon_for_sale_adult.tga");
 	
 	sStringsMap["loading"] = LLTrans::getString("texture_loading");
 	sStringsMap["offline"] = LLTrans::getString("worldmap_offline");
@@ -149,11 +155,13 @@ void LLWorldMapView::cleanupClass()
 	sHomeImage = NULL;
 	sEventImage = NULL;
 	sEventMatureImage = NULL;
+	sEventAdultImage = NULL;
 
 	sTrackCircleImage = NULL;
 	sTrackArrowImage = NULL;
 	sClassifiedsImage = NULL;
 	sForSaleImage = NULL;
+	sForSaleAdultImage = NULL;
 }
 
 LLWorldMapView::LLWorldMapView(const std::string& name, const LLRect& rect )
@@ -332,12 +340,11 @@ void LLWorldMapView::draw()
 		}
 		LLWorldMapLayer *layer = &LLWorldMap::getInstance()->mMapLayers[LLWorldMap::getInstance()->mCurrentMap][layer_idx];
 		LLViewerImage *current_image = layer->LayerImage;
-#if 1 || LL_RELEASE_FOR_DOWNLOAD
+
 		if (current_image->isMissingAsset())
 		{
 			continue; // better to draw nothing than the missing asset image
 		}
-#endif
 		
 		LLVector3d origin_global((F64)layer->LayerExtents.mLeft * REGION_WIDTH_METERS, (F64)layer->LayerExtents.mBottom * REGION_WIDTH_METERS, 0.f);
 
@@ -419,7 +426,7 @@ void LLWorldMapView::draw()
 	gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
 	gGL.setColorMask(true, true);
 
-#if 1
+	// there used to be an #if 1 here, but it was uncommented; perhaps marking a block of code?
 	F32 sim_alpha = 1.f;
 
 	// Draw one image per region, centered on the camera position.
@@ -633,7 +640,11 @@ void LLWorldMapView::draw()
 			gGL.end();
 		}
 
-		// If this is mature, and you are not, draw a line across it
+		// As part of the AO project, we no longer want to draw access indicators;
+		// it's too complicated to get all the rules straight and will only 
+		// cause confusion.
+		/**********************
+		 // If this is mature, and you are not, draw a line across it
 		if (info->mAccess != SIM_ACCESS_DOWN
 			&& info->mAccess > SIM_ACCESS_PG
 			&& gAgent.isTeen())
@@ -649,6 +660,7 @@ void LLWorldMapView::draw()
 				gGL.vertex2f(right, top);
 			gGL.end();
 		}
+		 **********************/
 
 		// Draw the region name in the lower left corner
 		LLFontGL* font = LLFontGL::getFontSansSerifSmall();
@@ -705,10 +717,10 @@ void LLWorldMapView::draw()
 			}
 		}
 	}
-#endif
+	// #endif used to be here
 
 
-#if 1
+	// there used to be an #if 1 here, but it was uncommented; perhaps marking a block of code?
 	// Draw background rectangle
 	LLGLSUIDefault gls_ui;
 	{
@@ -744,8 +756,15 @@ void LLWorldMapView::draw()
 	if (gSavedSettings.getBOOL("MapShowLandForSale"))
 	{
 		drawGenericItems(LLWorldMap::getInstance()->mLandForSale, sForSaleImage);
+		// for 1.23, we're showing normal land and adult land in the same UI; you don't
+		// get a choice about which ones you want. If you're currently asking for adult
+		// content and land you'll get the adult land.
+		if (gAgent.canAccessAdult())
+		{
+			drawGenericItems(LLWorldMap::getInstance()->mLandForSaleAdult, sForSaleAdultImage);
+		}
 	}
-
+	
 	if (gSavedSettings.getBOOL("MapShowEvents"))
 	{
 		drawEvents();
@@ -809,7 +828,7 @@ void LLWorldMapView::draw()
 			drawTracking( LLWorldMap::getInstance()->mUnknownLocation, loading_color, TRUE, "Loading...", "");
 		}
 	}
-#endif
+	// #endif used to be here
 	
 	// turn off the scissor
 	LLGLDisable no_scissor(GL_SCISSOR_TEST);
@@ -943,7 +962,11 @@ void LLWorldMapView::drawAgents()
 
 void LLWorldMapView::drawEvents()
 {
-    BOOL show_mature = gSavedSettings.getBOOL("ShowMatureEvents");
+	bool mature_enabled = gAgent.canAccessMature();
+	bool adult_enabled = gAgent.canAccessAdult();
+
+    BOOL show_mature = mature_enabled && gSavedSettings.getBOOL("ShowMatureEvents");
+	BOOL show_adult = adult_enabled && gSavedSettings.getBOOL("ShowAdultEvents");
 
     // First the non-selected events
     LLWorldMap::item_info_list_t::const_iterator e;
@@ -964,7 +987,16 @@ void LLWorldMapView::drawEvents()
             }
         }
     }
-
+	if (show_adult)
+    {
+        for (e = LLWorldMap::getInstance()->mAdultEvents.begin(); e != LLWorldMap::getInstance()->mAdultEvents.end(); ++e)
+        {
+            if (!e->mSelected)
+            {
+                drawGenericItem(*e, sEventAdultImage);       
+            }
+        }
+    }
     // Then the selected events
     for (e = LLWorldMap::getInstance()->mPGEvents.begin(); e != LLWorldMap::getInstance()->mPGEvents.end(); ++e)
     {
@@ -980,6 +1012,16 @@ void LLWorldMapView::drawEvents()
             if (e->mSelected)
             {
                 drawGenericItem(*e, sEventMatureImage);       
+            }
+        }
+    }
+	if (show_adult)
+    {
+        for (e = LLWorldMap::getInstance()->mAdultEvents.begin(); e != LLWorldMap::getInstance()->mAdultEvents.end(); ++e)
+        {
+            if (e->mSelected)
+            {
+                drawGenericItem(*e, sEventAdultImage);       
             }
         }
     }
@@ -1572,6 +1614,10 @@ void LLWorldMapView::handleClick(S32 x, S32 y, MASK mask,
 	{
 		(*it).mSelected = FALSE;
 	}
+	for (it = LLWorldMap::getInstance()->mAdultEvents.begin(); it != LLWorldMap::getInstance()->mAdultEvents.end(); ++it)
+	{
+		(*it).mSelected = FALSE;
+	}
 	for (it = LLWorldMap::getInstance()->mLandForSale.begin(); it != LLWorldMap::getInstance()->mLandForSale.end(); ++it)
 	{
 		(*it).mSelected = FALSE;
@@ -1607,6 +1653,21 @@ void LLWorldMapView::handleClick(S32 x, S32 y, MASK mask,
 				}
 			}
 		}
+		if (gSavedSettings.getBOOL("ShowAdultEvents"))
+		{
+			for (it = LLWorldMap::getInstance()->mAdultEvents.begin(); it != LLWorldMap::getInstance()->mAdultEvents.end(); ++it)
+			{
+				LLItemInfo& event = *it;
+
+				if (checkItemHit(x, y, event, id, false))
+				{
+					*hit_type = MAP_ITEM_ADULT_EVENT;
+					mItemPicked = TRUE;
+					gFloaterWorldMap->trackEvent(event);
+					return;
+				}
+			}
+		}
 	}
 
 	if (gSavedSettings.getBOOL("MapShowLandForSale"))
@@ -1622,8 +1683,19 @@ void LLWorldMapView::handleClick(S32 x, S32 y, MASK mask,
 				return;
 			}
 		}
-	}
+		
+		for (it = LLWorldMap::getInstance()->mLandForSaleAdult.begin(); it != LLWorldMap::getInstance()->mLandForSaleAdult.end(); ++it)
+		{
+			LLItemInfo& land = *it;
 
+			if (checkItemHit(x, y, land, id, true))
+			{
+				*hit_type = MAP_ITEM_LAND_FOR_SALE_ADULT;
+				mItemPicked = TRUE;
+				return;
+			}
+		}
+	}
 	// If we get here, we haven't clicked on an icon
 
 	gFloaterWorldMap->trackLocation(pos_global);
@@ -1803,6 +1875,7 @@ BOOL LLWorldMapView::handleDoubleClick( S32 x, S32 y, MASK mask )
 		{
 		case MAP_ITEM_PG_EVENT:
 		case MAP_ITEM_MATURE_EVENT:
+		case MAP_ITEM_ADULT_EVENT:
 			{
 				gFloaterWorldMap->close();
 				// This is an ungainly hack
@@ -1815,6 +1888,7 @@ BOOL LLWorldMapView::handleDoubleClick( S32 x, S32 y, MASK mask )
 				break;
 			}
 		case MAP_ITEM_LAND_FOR_SALE:
+		case MAP_ITEM_LAND_FOR_SALE_ADULT:
 			{
 				gFloaterWorldMap->close();
 				LLFloaterDirectory::showLandForSale(id);

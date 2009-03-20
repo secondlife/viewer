@@ -314,6 +314,7 @@ char* _PREHASH_TextColor = LLMessageStringTable::getInstance()->getString("TextC
 char* _PREHASH_SlaveID = LLMessageStringTable::getInstance()->getString("SlaveID");
 char* _PREHASH_Charter = LLMessageStringTable::getInstance()->getString("Charter");
 char* _PREHASH_AlertData = LLMessageStringTable::getInstance()->getString("AlertData");
+char* _PREHASH_AlertInfo = LLMessageStringTable::getInstance()->getString("AlertInfo");
 char* _PREHASH_TargetBlock = LLMessageStringTable::getInstance()->getString("TargetBlock");
 char* _PREHASH_CheckParcelAuctions = LLMessageStringTable::getInstance()->getString("CheckParcelAuctions");
 char* _PREHASH_ParcelAuctions = LLMessageStringTable::getInstance()->getString("ParcelAuctions");
@@ -1375,4 +1376,6 @@ char* _PREHASH_AgeVerificationBlock = LLMessageStringTable::getInstance()->getSt
 char* _PREHASH_UCoord = LLMessageStringTable::getInstance()->getString("UCoord");
 char* _PREHASH_VCoord = LLMessageStringTable::getInstance()->getString("VCoord");
 char* _PREHASH_FaceIndex = LLMessageStringTable::getInstance()->getString("FaceIndex");
+char* _PREHASH_StatusData = LLMessageStringTable::getInstance()->getString("StatusData");
+
 

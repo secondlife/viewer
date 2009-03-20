@@ -232,7 +232,7 @@ struct LLVFSFileBlock_less
 
 const S32 LLVFSFileBlock::SERIAL_SIZE = 34;
      
-    
+
 LLVFS::LLVFS(const std::string& index_filename, const std::string& data_filename, const BOOL read_only, const U32 presize, const BOOL remove_after_crash)
 :	mRemoveAfterCrash(remove_after_crash)
 {
@@ -400,6 +400,12 @@ LLVFS::LLVFS(const std::string& index_filename, const std::string& data_filename
 				mDataFP = NULL;
 				LLFile::remove( mDataFilename );
 
+				LL_WARNS("VFS") << "Deleted corrupt VFS files " 
+					<< mDataFilename 
+					<< " and "
+					<< mIndexFilename
+					<< LL_ENDL;
+
 				mValid = VFSVALID_BAD_CORRUPT;
 				return;
 			}
@@ -505,6 +511,13 @@ LLVFS::LLVFS(const std::string& index_filename, const std::string& data_filename
 						<< " ID " << cur_file_block->mFileID 
 						<< " type " << cur_file_block->mFileType 
 						<< LL_ENDL;
+
+					LL_WARNS("VFS") << "Deleted corrupt VFS files " 
+						<< mDataFilename 
+						<< " and "
+						<< mIndexFilename
+						<< LL_ENDL;
+
 					mValid = VFSVALID_BAD_CORRUPT;
 					return;
 				}
@@ -718,8 +731,14 @@ S32  LLVFS::getMaxSize(const LLUUID &file_id, const LLAssetType::EType file_type
 
 BOOL LLVFS::checkAvailable(S32 max_size)
 {
+	lockData();
+	
 	blocks_length_map_t::iterator iter = mFreeBlocksByLength.lower_bound(max_size); // first entry >= size
-	return (iter == mFreeBlocksByLength.end()) ? FALSE : TRUE;
+	const BOOL res(iter == mFreeBlocksByLength.end() ? FALSE : TRUE);
+
+	unlockData();
+	
+	return res;
 }
 
 BOOL LLVFS::setMaxSize(const LLUUID &file_id, const LLAssetType::EType file_type, S32 max_size)
@@ -825,13 +844,20 @@ BOOL LLVFS::setMaxSize(const LLUUID &file_id, const LLAssetType::EType file_type
     
 			if (free_block)
 			{
+				// Save location where data is going, useFreeSpace will move free_block->mLocation;
+				U32 new_data_location = free_block->mLocation;
+
+				//mark the free block as used so it does not
+				//interfere with other operations such as addFreeBlock
+				useFreeSpace(free_block, max_size);		// useFreeSpace takes ownership (and may delete) free_block
+
 				if (block->mLength > 0)
 				{
 					// create a new free block where this file used to be
 					LLVFSBlock *new_free_block = new LLVFSBlock(block->mLocation, block->mLength);
 
 					addFreeBlock(new_free_block);
-    
+					
 					if (block->mSize > 0)
 					{
 						// move the file into the new block
@@ -839,7 +865,7 @@ BOOL LLVFS::setMaxSize(const LLUUID &file_id, const LLAssetType::EType file_type
 						fseek(mDataFP, block->mLocation, SEEK_SET);
 						if (fread(buffer, block->mSize, 1, mDataFP) == 1)
 						{
-							fseek(mDataFP, free_block->mLocation, SEEK_SET);
+							fseek(mDataFP, new_data_location, SEEK_SET);
 							if (fwrite(buffer, block->mSize, 1, mDataFP) != 1)
 							{
 								llwarns << "Short write" << llendl;
@@ -852,13 +878,10 @@ BOOL LLVFS::setMaxSize(const LLUUID &file_id, const LLAssetType::EType file_type
 					}
 				}
     
-				block->mLocation = free_block->mLocation;
+				block->mLocation = new_data_location;
     
 				block->mLength = max_size;
 
-				// Must call useFreeSpace before sync(), as sync()
-				// unlocks data structures.
-				useFreeSpace(free_block, max_size);
 
 				sync(block);
 
@@ -1073,14 +1096,14 @@ S32 LLVFS::getData(const LLUUID &file_id, const LLAssetType::EType file_type, U8
 		}
 	}
 
-	unlockData();
-
 	if (do_read)
 	{
 		fseek(mDataFP, location, SEEK_SET);
 		bytesread = (S32)fread(buffer, 1, length, mDataFP);
 	}
 	
+	unlockData();
+
 	return bytesread;
 }
     
@@ -1145,8 +1168,6 @@ S32 LLVFS::storeData(const LLUUID &file_id, const LLAssetType::EType file_type, 
 			}
 			U32 file_location = location + block->mLocation;
 			
-			unlockData();
-			
 			fseek(mDataFP, file_location, SEEK_SET);
 			S32 write_len = (S32)fwrite(buffer, 1, length, mDataFP);
 			if (write_len != length)
@@ -1155,7 +1176,6 @@ S32 LLVFS::storeData(const LLUUID &file_id, const LLAssetType::EType file_type, 
 			}
 			// fflush(mDataFP);
 			
-			lockData();
 			if (location + length > block->mSize)
 			{
 				block->mSize = location + write_len;
@@ -1404,7 +1424,7 @@ void LLVFS::addFreeBlock(LLVFSBlock *block)
 // 	}
 //}
 	
-
+// length bytes from free_block are going to be used (so they are no longer free)
 void LLVFS::useFreeSpace(LLVFSBlock *free_block, S32 length)
 {
 	if (free_block->mLength == length)
@@ -1487,8 +1507,6 @@ void LLVFS::sync(LLVFSFileBlock *block, BOOL remove)
 		block->serialize(buffer);
 	}
 
-	unlockData();
-
 	// If set_index_to_end, file pointer is already at seek_pos
 	// and we don't need to do anything.  Only seek if not at end.
 	if (!set_index_to_end)
@@ -1500,10 +1518,9 @@ void LLVFS::sync(LLVFSFileBlock *block, BOOL remove)
 	{
 		llwarns << "Short write" << llendl;
 	}
-	
+
+	// *NOTE:  Why was this commented out?
 	// fflush(mIndexFP);
-	
-	lockData();
 	
 	return;
 }

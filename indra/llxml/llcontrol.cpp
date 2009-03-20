@@ -102,11 +102,12 @@ bool LLControlVariable::llsd_compare(const LLSD& a, const LLSD & b)
 
 LLControlVariable::LLControlVariable(const std::string& name, eControlType type,
 							 LLSD initial, const std::string& comment,
-							 bool persist)
+							 bool persist, bool hidefromsettingseditor)
 	: mName(name),
 	  mComment(comment),
 	  mType(type),
-	  mPersist(persist)
+	  mPersist(persist),
+	  mHideFromSettingsEditor(hidefromsettingseditor)
 {
 	if (mPersist && mComment.empty())
 	{
@@ -213,6 +214,11 @@ void LLControlVariable::setPersist(bool state)
 	mPersist = state;
 }
 
+void LLControlVariable::setHiddenFromSettingsEditor(bool hide)
+{
+	mHideFromSettingsEditor = hide;
+}
+
 void LLControlVariable::setComment(const std::string& comment)
 {
 	mComment = comment;
@@ -296,17 +302,27 @@ std::string LLControlGroup::typeEnumToString(eControlType typeenum)
 	return mTypeString[typeenum];
 }
 
-BOOL LLControlGroup::declareControl(const std::string& name, eControlType type, const LLSD initial_val, const std::string& comment, BOOL persist)
+BOOL LLControlGroup::declareControl(const std::string& name, eControlType type, const LLSD initial_val, const std::string& comment, BOOL persist, BOOL hidefromsettingseditor)
 {
-	if(mNameTable.find(name) != mNameTable.end())
-	{
-		llwarns << "LLControlGroup::declareControl: Control named " << name << " already exists." << llendl;
-		mNameTable[name]->setValue(initial_val);
-		return TRUE;
+	LLControlVariable* existing_control = getControl(name);
+	if (existing_control)
+ 	{
+		if (persist && existing_control->isType(type))
+		{
+			// Sometimes we need to declare a control *after* it has been loaded from a settings file.
+			LLSD cur_value = existing_control->getValue(); // get the current value
+			existing_control->setDefaultValue(initial_val); // set the default to the declared value
+			existing_control->setValue(cur_value); // now set to the loaded value
+		}
+		else
+		{
+			llwarns << "Control named " << name << " already exists, ignoring new declaration." << llendl;
+		}
+ 		return TRUE;
 	}
 
 	// if not, create the control and add it to the name table
-	LLControlVariable* control = new LLControlVariable(name, type, initial_val, comment, persist);
+	LLControlVariable* control = new LLControlVariable(name, type, initial_val, comment, persist, hidefromsettingseditor);
 	mNameTable[name] = control;	
 	return TRUE;
 }
@@ -1043,7 +1059,8 @@ U32 LLControlGroup::loadFromFile(const std::string& filename, bool set_default_v
 	}
 
 	U32	validitems = 0;
-	bool persist = false;
+	bool persist = true;
+	bool hidefromsettingseditor = false;
 	for(LLSD::map_const_iterator itr = settings.beginMap(); itr != settings.endMap(); ++itr)
 	{
 		name = (*itr).first;
@@ -1052,6 +1069,18 @@ U32 LLControlGroup::loadFromFile(const std::string& filename, bool set_default_v
 		if(control_map.has("Persist")) 
 		{
 			persist = control_map["Persist"].asInteger();
+		}
+		
+		// Sometimes we want to use the settings system to provide cheap persistence, but we
+		// don't want the settings themselves to be easily manipulated in the UI because 
+		// doing so can cause support problems. So we have this option:
+		if(control_map.has("HideFromEditor"))
+		{
+			hidefromsettingseditor = control_map["HideFromEditor"].asInteger();
+		}
+		else
+		{
+			hidefromsettingseditor = false;
 		}
 		
 		// If the control exists just set the value from the input file.
@@ -1067,6 +1096,7 @@ U32 LLControlGroup::loadFromFile(const std::string& filename, bool set_default_v
 				{
 					existing_control->setDefaultValue(control_map["Value"]);
 					existing_control->setPersist(persist);
+					existing_control->setHiddenFromSettingsEditor(hidefromsettingseditor);
 					existing_control->setComment(control_map["Comment"].asString());
 				}
 				else
@@ -1090,7 +1120,8 @@ U32 LLControlGroup::loadFromFile(const std::string& filename, bool set_default_v
 						   typeStringToEnum(control_map["Type"].asString()), 
 						   control_map["Value"], 
 						   control_map["Comment"].asString(), 
-						   persist
+						   persist,
+						   hidefromsettingseditor
 						   );
 		}
 		

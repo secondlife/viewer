@@ -4118,29 +4118,158 @@ void process_money_balance_reply( LLMessageSystem* msg, void** )
 	}
 }
 
+bool handle_special_notification_callback(const LLSD& notification, const LLSD& response)
+{
+	S32 option = LLNotification::getSelectedOption(notification, response);
+	
+	if (0 == option)
+	{
+		// set the preference to the maturity of the region we're calling
+		int preferredMaturity = notification["payload"]["_region_access"].asInteger();
+		gSavedSettings.setU32("PreferredMaturity", preferredMaturity);
+		gAgent.sendMaturityPreferenceToServer(preferredMaturity);
+
+	}
+	
+	return false;
+}
+
+// some of the server notifications need special handling. This is where we do that.
+bool handle_special_notification(std::string notificationID, LLSD& llsdBlock)
+{
+	int regionAccess = llsdBlock["_region_access"].asInteger();
+	llsdBlock["REGIONMATURITY"] = LLViewerRegion::accessToString(regionAccess);
+	
+	// we're going to throw the LLSD in there in case anyone ever wants to use it
+	LLNotifications::instance().add(notificationID+"_Notify", llsdBlock);
+	
+	if (regionAccess == SIM_ACCESS_MATURE)
+	{
+		if (gAgent.isTeen())
+		{
+			LLNotifications::instance().add(notificationID+"_KB", llsdBlock);
+			return true;
+		}
+		else if (gAgent.prefersPG())
+		{
+			LLNotifications::instance().add(notificationID+"_Change", llsdBlock, llsdBlock, handle_special_notification_callback);
+			return true;
+		}
+	}
+	else if (regionAccess == SIM_ACCESS_ADULT)
+	{
+		if (!gAgent.isAdult())
+		{
+			LLNotifications::instance().add(notificationID+"_KB", llsdBlock);
+			return true;
+		}
+		else if (gAgent.prefersPG() || gAgent.prefersMature())
+		{
+			LLNotifications::instance().add(notificationID+"_Change", llsdBlock, llsdBlock, handle_special_notification_callback);
+			return true;
+		}
+	}
+	return false;
+}
+
+bool attempt_standard_notification(LLMessageSystem* msgsystem)
+{
+	// if we have additional alert data
+	if (msgsystem->getNumberOfBlocksFast(_PREHASH_AlertInfo) > 0)
+	{
+		// notification was specified using the new mechanism, so we can just handle it here
+		std::string notificationID;
+		std::string llsdRaw;
+		LLSD llsdBlock;
+		msgsystem->getStringFast(_PREHASH_AlertInfo, _PREHASH_Message, notificationID);
+		msgsystem->getStringFast(_PREHASH_AlertInfo, _PREHASH_ExtraParams, llsdRaw);
+		if (llsdRaw.length())
+		{
+			std::istringstream llsdData(llsdRaw);
+			if (!LLSDSerialize::deserialize(llsdBlock, llsdData, llsdRaw.length()))
+			{
+				llwarns << "attempt_standard_notification: Attempted to read notification parameter data into LLSD but failed:" << llsdRaw << llendl;
+			}
+		}
+		
+		if (
+			(notificationID == "RegionEntryAccessBlocked") ||
+			(notificationID == "LandClaimAccessBlocked") ||
+			(notificationID == "LandBuyAccessBlocked")
+		   )
+		{
+			/*---------------------------------------------------------------------
+			 (Commented so a grep will find the notification strings, since
+			 we construct them on the fly; if you add additional notifications,
+			 please update the comment.)
+			 
+			 Could throw any of the following notifications:
+			 
+				RegionEntryAccessBlocked
+				RegionEntryAccessBlocked_Notify
+				RegionEntryAccessBlocked_Change
+				RegionEntryAccessBlocked_KB
+				LandClaimAccessBlocked 
+				LandClaimAccessBlocked_Notify 
+				LandClaimAccessBlocked_Change 
+				LandClaimAccessBlocked_KB 
+				LandBuyAccessBlocked
+				LandBuyAccessBlocked_Notify
+				LandBuyAccessBlocked_Change
+				LandBuyAccessBlocked_KB
+			 
+			-----------------------------------------------------------------------*/ 
+			if (handle_special_notification(notificationID, llsdBlock))
+			{
+				return true;
+			}
+		}
+		
+		LLNotifications::instance().add(notificationID, llsdBlock);
+		return true;
+	}	
+	return false;
+}
+
+
 void process_agent_alert_message(LLMessageSystem* msgsystem, void** user_data)
-{
-	std::string buffer;
-	msgsystem->getStringFast(_PREHASH_AlertData, _PREHASH_Message, buffer);
-	BOOL modal = FALSE;
-	msgsystem->getBOOL("AlertData", "Modal", modal);
-	process_alert_core(buffer, modal);
-}
-
-void process_alert_message(LLMessageSystem *msgsystem, void **user_data)
-{
-	std::string buffer;
-	msgsystem->getStringFast(_PREHASH_AlertData, _PREHASH_Message, buffer);
-	BOOL modal = FALSE;
-	process_alert_core(buffer, modal);
-}
-
-void process_alert_core(const std::string& message, BOOL modal)
 {
 	// make sure the cursor is back to the usual default since the
 	// alert is probably due to some kind of error.
 	gViewerWindow->getWindow()->resetBusyCount();
+	
+	if (!attempt_standard_notification(msgsystem))
+	{
+		BOOL modal = FALSE;
+		msgsystem->getBOOL("AlertData", "Modal", modal);
+		std::string buffer;
+		msgsystem->getStringFast(_PREHASH_AlertData, _PREHASH_Message, buffer);
+		process_alert_core(buffer, modal);
+	}
+}
 
+// The only difference between this routine and the previous is the fact that
+// for this routine, the modal parameter is always false. Sadly, for the message
+// handled by this routine, there is no "Modal" parameter on the message, and
+// there's no API to tell if a message has the given parameter or not.
+// So we can't handle the messages with the same handler.
+void process_alert_message(LLMessageSystem *msgsystem, void **user_data)
+{
+	// make sure the cursor is back to the usual default since the
+	// alert is probably due to some kind of error.
+	gViewerWindow->getWindow()->resetBusyCount();
+		
+	if (!attempt_standard_notification(msgsystem))
+	{
+		BOOL modal = FALSE;
+		std::string buffer;
+		msgsystem->getStringFast(_PREHASH_AlertData, _PREHASH_Message, buffer);
+		process_alert_core(buffer, modal);
+	}
+}
+
+void process_alert_core(const std::string& message, BOOL modal)
+{
 	// HACK -- handle callbacks for specific alerts
 	if ( message == "You died and have been teleported to your home location")
 	{
@@ -4732,17 +4861,63 @@ std::string formatted_time(const time_t& the_time)
 void process_teleport_failed(LLMessageSystem *msg, void**)
 {
 	std::string reason;
-	msg->getStringFast(_PREHASH_Info, _PREHASH_Reason, reason);
-
+	std::string big_reason;
 	LLSD args;
-	std::string big_reason = LLAgent::sTeleportErrorMessages[reason];
-	if ( big_reason.size() > 0 )
-	{	// Substitute verbose reason from the local map
-		args["REASON"] = big_reason;
+
+	// if we have additional alert data
+	if (msg->getSizeFast(_PREHASH_AlertInfo, _PREHASH_Message) > 0)
+	{
+		// Get the message ID
+		msg->getStringFast(_PREHASH_AlertInfo, _PREHASH_Message, reason);
+		big_reason = LLAgent::sTeleportErrorMessages[reason];
+		if ( big_reason.size() > 0 )
+		{	// Substitute verbose reason from the local map
+			args["REASON"] = big_reason;
+		}
+		else
+		{	// Nothing found in the map - use what the server returned in the original message block
+			msg->getStringFast(_PREHASH_Info, _PREHASH_Reason, reason);
+			args["REASON"] = reason;
+		}
+
+		LLSD llsd_block;
+		std::string llsd_raw;
+		msg->getStringFast(_PREHASH_AlertInfo, _PREHASH_ExtraParams, llsd_raw);
+		if (llsd_raw.length())
+		{
+			std::istringstream llsd_data(llsd_raw);
+			if (!LLSDSerialize::deserialize(llsd_block, llsd_data, llsd_raw.length()))
+			{
+				llwarns << "process_teleport_failed: Attempted to read alert parameter data into LLSD but failed:" << llsd_raw << llendl;
+			}
+			else
+			{
+				// change notification name in this special case
+				if (handle_special_notification("RegionEntryAccessBlocked", llsd_block))
+				{
+					if( gAgent.getTeleportState() != LLAgent::TELEPORT_NONE )
+					{
+						gAgent.setTeleportState( LLAgent::TELEPORT_NONE );
+					}
+					return;
+				}
+			}
+		}
+
 	}
 	else
-	{	// Nothing found in the map - use what the server returned
-		args["REASON"] = reason;
+	{
+		msg->getStringFast(_PREHASH_Info, _PREHASH_Reason, reason);
+
+		big_reason = LLAgent::sTeleportErrorMessages[reason];
+		if ( big_reason.size() > 0 )
+		{	// Substitute verbose reason from the local map
+			args["REASON"] = big_reason;
+		}
+		else
+		{	// Nothing found in the map - use what the server returned
+			args["REASON"] = reason;
+		}
 	}
 
 	LLNotifications::instance().add("CouldNotTeleportReason", args);

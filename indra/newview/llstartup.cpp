@@ -1361,14 +1361,32 @@ bool idle_startup()
 				LLStartUp::deletePasswordFromDisk();
 			}
 
-			text = LLUserAuth::getInstance()->getResponse("agent_access");
-			if(!text.empty() && (text[0] == 'M'))
+			// this is their actual ability to access content
+			text = LLUserAuth::getInstance()->getResponse("agent_access_max");
+			if (!text.empty())
 			{
-				gAgent.setTeen(false);
+				// agent_access can be 'A', 'M', and 'PG'.
+				gAgent.setMaturity(text[0]);
 			}
-			else
+			
+			// this is the value of their preference setting for that content
+			// which will always be <= agent_access_max
+			text = LLUserAuth::getInstance()->getResponse("agent_region_access");
+			if (!text.empty())
 			{
-				gAgent.setTeen(true);
+				int preferredMaturity = LLAgent::convertTextToMaturity(text[0]);
+				gSavedSettings.setU32("PreferredMaturity", preferredMaturity);
+			}
+			// During the AO transition, this flag will be true. Then the flag will
+			// go away. After the AO transition, this code and all the code that
+			// uses it can be deleted.
+			text = LLUserAuth::getInstance()->getResponse("ao_transition");
+			if (!text.empty())
+			{
+				if (text == "1")
+				{
+					gAgent.setAOTransition();
+				}
 			}
 
 			text = LLUserAuth::getInstance()->getResponse("start_location");

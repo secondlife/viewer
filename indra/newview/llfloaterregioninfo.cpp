@@ -295,6 +295,7 @@ void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
 
 	// extract message
 	std::string sim_name;
+	std::string sim_type = "(unknown)";
 	U32 region_flags;
 	U8 agent_limit;
 	F32 object_bonus_factor;
@@ -315,10 +316,18 @@ void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
 	msg->getBOOL("RegionInfo", "UseEstateSun", use_estate_sun);
 	// actually the "last set" sun hour, not the current sun hour. JC
 	msg->getF32("RegionInfo", "SunHour", sun_hour);
+	// the only reasonable way to decide if we actually have any data is to
+	// check to see if any of these fields have nonzero sizes
+	if (msg->getSize("RegionInfo2", "ProductSKU") ||
+		msg->getSize("RegionInfo2", "ProductName"))
+	{
+		msg->getString("RegionInfo2", "ProductName", sim_type);
+	}
 
 	// GENERAL PANEL
 	panel = tab->getChild<LLPanel>("General");
 	panel->childSetValue("region_text", LLSD(sim_name));
+	panel->childSetValue("region_type", LLSD(sim_type));
 	panel->childSetValue("version_channel_text", gLastVersionChannel);
 
 	panel->childSetValue("block_terraform_check", (region_flags & REGION_FLAGS_BLOCK_TERRAFORM) ? TRUE : FALSE );
@@ -330,7 +339,7 @@ void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
 	panel->childSetValue("block_parcel_search_check", (region_flags & REGION_FLAGS_BLOCK_PARCEL_SEARCH) ? TRUE : FALSE );
 	panel->childSetValue("agent_limit_spin", LLSD((F32)agent_limit) );
 	panel->childSetValue("object_bonus_spin", LLSD(object_bonus_factor) );
-	panel->childSetValue("access_combo", LLSD(LLViewerRegion::accessToString(sim_access)) );
+	panel->childSetValue("access_combo", LLSD(sim_access) );
 
 
  	// detect teen grid for maturity
@@ -718,7 +727,7 @@ void LLPanelRegionGeneralInfo::onClickManageTelehub(void* data)
 // strings[3] = 'Y' - allow land sale, 'N' - not
 // strings[4] = agent limit
 // strings[5] = object bonus
-// strings[6] = sim access (0 = unknown, 13 = PG, 21 = Mature)
+// strings[6] = sim access (0 = unknown, 13 = PG, 21 = Mature, 42 = Adult)
 // strings[7] = restrict pushobject
 // strings[8] = 'Y' - allow parcel subdivide, 'N' - not
 // strings[9] = 'Y' - block parcel search, 'N' - allow
@@ -739,7 +748,7 @@ BOOL LLPanelRegionGeneralInfo::sendUpdate()
 		body["prim_bonus"] = childGetValue("object_bonus_spin");
 		// the combo box stores strings "Mature" and "PG", but we have to convert back to a number, 
 		// because the sim doesn't know from strings for this stuff
-		body["sim_access"] = LLViewerRegion::stringToAccess(childGetValue("access_combo").asString());
+		body["sim_access"] = childGetValue("access_combo");
 		body["restrict_pushobject"] = childGetValue("restrict_pushobject");
 		body["allow_parcel_changes"] = childGetValue("allow_parcel_changes_check");
 		body["block_parcel_search"] = childGetValue("block_parcel_search_check");
@@ -771,7 +780,7 @@ BOOL LLPanelRegionGeneralInfo::sendUpdate()
 		buffer = llformat("%f", value);
 		strings.push_back(strings_t::value_type(buffer));
 
-		U8 access = LLViewerRegion::stringToAccess(childGetValue("access_combo").asString());
+		U8 access = childGetValue("access_combo").asInteger();
 		buffer = llformat("%d", (S32)access);
 		strings.push_back(strings_t::value_type(buffer));
 

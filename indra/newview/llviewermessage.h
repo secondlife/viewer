@@ -107,6 +107,7 @@ void process_economy_data(LLMessageSystem *msg, void** /*user_data*/);
 void process_money_balance_reply(LLMessageSystem* msg_system, void**);
 void process_adjust_balance(LLMessageSystem* msg_system, void**);
 
+bool attempt_standard_notification(LLMessageSystem* msg);
 void process_alert_message(LLMessageSystem* msg, void**);
 void process_agent_alert_message(LLMessageSystem* msgsystem, void** user_data);
 void process_alert_core(const std::string& message, BOOL modal);

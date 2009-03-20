@@ -55,7 +55,7 @@ public:
 	LLDate();
 
 	/** 
-	 * @brief Construct a date equal the source date.
+	 * @brief Construct a date equal to the source date.
 	 */
 	LLDate(const LLDate& date);
 

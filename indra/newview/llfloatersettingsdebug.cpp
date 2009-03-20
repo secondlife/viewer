@@ -61,7 +61,10 @@ BOOL LLFloaterSettingsDebug::postBuild()
 		f(LLComboBox* c) : combo(c) {}
 		virtual void apply(const std::string& name, LLControlVariable* control)
 		{
-			combo->add(name, (void*)control);
+			if (!control->isHiddenFromSettingsEditor())
+			{
+				combo->add(name, (void*)control);
+			}
 		}
 	} func(settings_combo);
 

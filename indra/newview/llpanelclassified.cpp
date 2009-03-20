@@ -223,6 +223,7 @@ void LLPanelClassified::reset()
 	mPosGlobal.clearVec();
 
 	clearCtrls();
+	resetDirty();
 }
 
 
@@ -285,7 +286,7 @@ BOOL LLPanelClassified::postBuild()
 	mMatureCombo->setCurrentByIndex(0);
 	mMatureCombo->setCommitCallback(onCommitAny);
 	mMatureCombo->setCallbackUserData(this);
-	if (gAgent.isTeen())
+	if (gAgent.wantsPGOnly())
 	{
 		// Teens don't get to set mature flag. JC
 		mMatureCombo->setVisible(FALSE);
@@ -308,6 +309,7 @@ BOOL LLPanelClassified::postBuild()
 		mClickThroughText = getChild<LLTextBox>("click_through_text");
 	}
 	
+	resetDirty();
     return TRUE;
 }
 
@@ -540,7 +542,10 @@ void LLPanelClassified::sendClassifiedInfoUpdate()
 	{
 		auto_renew = mAutoRenewCheck->get();
 	}
-	U8 flags = pack_classified_flags(mature, auto_renew);
+    // These flags doesn't matter here.
+    const bool adult_enabled = false;
+	const bool is_pg = false;
+	U8 flags = pack_classified_flags_request(auto_renew, is_pg, mature, adult_enabled);
 	msg->addU8Fast(_PREHASH_ClassifiedFlags, flags);
 	msg->addS32("PriceForListing", mPriceForListing);
 	gAgent.sendReliableMessage();
@@ -678,6 +683,7 @@ void LLPanelClassified::processClassifiedInfoReply(LLMessageSystem *msg, void **
 
 		self->resetDirty();
 
+		// I don't know if a second call is deliberate or a bad merge, so I'm leaving it here. 
 		self->resetDirty();
     }
 }

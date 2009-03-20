@@ -474,8 +474,16 @@
 					<key>trusted-sender</key>
 					<boolean>true</boolean>
 				</map>
-				
-				<key>CrossedRegion</key>
+
+        <key>TeleportFailed</key>
+        <map>
+          <key>flavor</key>
+          <string>llsd</string>
+          <key>trusted-sender</key>
+          <boolean>true</boolean>
+        </map>
+
+        <key>CrossedRegion</key>
 				<map>
 					<key>flavor</key>
 					<string>llsd</string>
@@ -517,14 +525,6 @@
 				</map>
 				
 				<key>GroupProposalBallot</key>
-				<map>
-					<key>flavor</key>
-					<string>llsd</string>
-					<key>trusted-sender</key>
-					<boolean>false</boolean>
-				</map>
-
-				<key>EstateOwnerMessage</key>
 				<map>
 					<key>flavor</key>
 					<string>llsd</string>

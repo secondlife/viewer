@@ -294,9 +294,14 @@ void LLPanelPlace::processParcelInfoReply(LLMessageSystem *msg, void **)
 			self->mInfoEditor->setText(info_text);
 		}
 
-		// HACK: Flag 0x1 == mature region, otherwise assume PG
+		// HACK: Flag 0x2 == adult region,
+		// Flag 0x1 == mature region, otherwise assume PG
 		std::string rating = LLViewerRegion::accessToString(SIM_ACCESS_PG);
-		if (flags & 0x1)
+		if (flags & 0x2)
+		{
+			rating = LLViewerRegion::accessToString(SIM_ACCESS_ADULT);
+		}
+		else if (flags & 0x1)
 		{
 			rating = LLViewerRegion::accessToString(SIM_ACCESS_MATURE);
 		}

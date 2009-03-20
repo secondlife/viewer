@@ -283,7 +283,7 @@ LLAgent::LLAgent() :
 	mbAlwaysRun(false),
 	mbRunning(false),
 
-	mAccess(SIM_ACCESS_PG),
+	mAgentAccess(gSavedSettings),
 	mTeleportState( TELEPORT_NONE ),
 	mRegionp(NULL),
 
@@ -387,9 +387,7 @@ LLAgent::LLAgent() :
 	mHaveHomePosition(FALSE),
 	mHomeRegionHandle( 0 ),
 	mNearChatRadius(CHAT_NORMAL_RADIUS / 2.f),
-	mAdminOverride(FALSE),
 
-	mGodLevel( GOD_NOT ),
 	mNextFidgetTime(0.f),
 	mCurrentFidget(0),
 	mFirstLogin(FALSE),
@@ -4820,40 +4818,131 @@ void LLAgent::onAnimStop(const LLUUID& id)
 
 BOOL LLAgent::isGodlike() const
 {
-#ifdef HACKED_GODLIKE_VIEWER
-	return TRUE;
-#else
-	if(mAdminOverride) return TRUE;
-	return mGodLevel > GOD_NOT;
-#endif
+	return mAgentAccess.isGodlike();
 }
 
 U8 LLAgent::getGodLevel() const
 {
-#ifdef HACKED_GODLIKE_VIEWER
-	return GOD_MAINTENANCE;
-#else
-	if(mAdminOverride) return GOD_FULL;
-	return mGodLevel;
-#endif
+	return mAgentAccess.getGodLevel();
+}
+
+bool LLAgent::wantsPGOnly() const
+{
+	return mAgentAccess.wantsPGOnly();
+}
+
+bool LLAgent::canAccessMature() const
+{
+	return mAgentAccess.canAccessMature();
+}
+
+bool LLAgent::canAccessAdult() const
+{
+	return mAgentAccess.canAccessAdult();
+}
+
+bool LLAgent::prefersPG() const
+{
+	return mAgentAccess.prefersPG();
+}
+
+bool LLAgent::prefersMature() const
+{
+	return mAgentAccess.prefersMature();
+}
+	
+bool LLAgent::prefersAdult() const
+{
+	return mAgentAccess.prefersAdult();
 }
 
 bool LLAgent::isTeen() const
 {
-	return mAccess < SIM_ACCESS_MATURE;
+	return mAgentAccess.isTeen();
+}
+
+bool LLAgent::isMature() const
+{
+	return mAgentAccess.isMature();
+}
+
+bool LLAgent::isAdult() const
+{
+	return mAgentAccess.isAdult();
 }
 
 void LLAgent::setTeen(bool teen)
 {
-	if (teen)
-	{
-		mAccess = SIM_ACCESS_PG;
-	}
-	else
-	{
-		mAccess = SIM_ACCESS_MATURE;
-	}
+	mAgentAccess.setTeen(teen);
 }
+
+//static 
+int LLAgent::convertTextToMaturity(char text)
+{
+	return LLAgentAccess::convertTextToMaturity(text);
+}
+
+bool LLAgent::sendMaturityPreferenceToServer(int preferredMaturity)
+{
+	// Update agent access preference on the server
+	std::string url = getRegion()->getCapability("UpdateAgentInformation");
+	if (!url.empty())
+	{
+		// Set new access preference
+		LLSD access_prefs = LLSD::emptyMap();
+		if (preferredMaturity == SIM_ACCESS_PG)
+		{
+			access_prefs["max"] = "PG";
+		}
+		else if (preferredMaturity == SIM_ACCESS_MATURE)
+		{
+			access_prefs["max"] = "M";
+		}
+		if (preferredMaturity == SIM_ACCESS_ADULT)
+		{
+			access_prefs["max"] = "A";
+		}
+		
+		LLSD body = LLSD::emptyMap();
+		body["access_prefs"] = access_prefs;
+		llinfos << "Sending access prefs update to " << (access_prefs["max"].asString()) << " via capability to: "
+		<< url << llendl;
+		LLHTTPClient::post(url, body, new LLHTTPClient::Responder());    // Ignore response
+		return true;
+	}
+	return false;
+}
+
+BOOL LLAgent::getAdminOverride() const	
+{ 
+	return mAgentAccess.getAdminOverride(); 
+}
+
+void LLAgent::setMaturity(char text)
+{
+	mAgentAccess.setMaturity(text);
+}
+
+void LLAgent::setAdminOverride(BOOL b)	
+{ 
+	mAgentAccess.setAdminOverride(b);
+}
+
+void LLAgent::setGodLevel(U8 god_level)	
+{ 
+	mAgentAccess.setGodLevel(god_level);
+}
+
+void LLAgent::setAOTransition()
+{
+	mAgentAccess.setTransition();
+}
+
+const LLAgentAccess& LLAgent::getAgentAccess()
+{
+	return mAgentAccess;
+}
+
 
 void LLAgent::buildFullname(std::string& name) const
 {

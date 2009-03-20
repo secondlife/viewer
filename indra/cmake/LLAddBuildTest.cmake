@@ -88,10 +88,11 @@ MACRO(ADD_BUILD_TEST_INTERNAL name parent libraries source_files)
     GET_TARGET_PROPERTY(TEST_EXE ${name}_test LOCATION)
     SET(TEST_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${name}_test_ok.txt)
 
-    SET(TEST_CMD ${TEST_EXE} --touch=${TEST_OUTPUT} --sourcedir=${CMAKE_CURRENT_SOURCE_DIR})
-    IF (wrapper)
-      SET(TEST_CMD ${PYTHON_EXECUTABLE} ${wrapper} ${TEST_CMD})
-    ENDIF (wrapper)
+    IF ("${wrapper}" STREQUAL "")
+      SET(TEST_CMD ${TEST_EXE} --touch=${TEST_OUTPUT} --sourcedir=${CMAKE_CURRENT_SOURCE_DIR})
+    ELSE ("${wrapper}" STREQUAL "")
+      SET(TEST_CMD ${PYTHON_EXECUTABLE} ${wrapper} ${TEST_EXE} --touch=${TEST_OUTPUT} --sourcedir=${CMAKE_CURRENT_SOURCE_DIR})
+    ENDIF ("${wrapper}" STREQUAL "")
 
     #MESSAGE(STATUS "ADD_BUILD_TEST_INTERNAL ${name} test_cmd  = ${TEST_CMD}")
     SET(TEST_SCRIPT_CMD 
@@ -103,11 +104,11 @@ MACRO(ADD_BUILD_TEST_INTERNAL name parent libraries source_files)
 
     #MESSAGE(STATUS "ADD_BUILD_TEST_INTERNAL ${name} test_script  = ${TEST_SCRIPT_CMD}")
     ADD_CUSTOM_COMMAND(
-      OUTPUT ${TEST_OUTPUT}
-      COMMAND ${TEST_SCRIPT_CMD}
-      DEPENDS ${name}_test
-      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-      )
+        OUTPUT ${TEST_OUTPUT}
+        COMMAND ${TEST_SCRIPT_CMD}
+        DEPENDS ${name}_test
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+        )
 
     ADD_CUSTOM_TARGET(${name}_test_ok ALL DEPENDS ${TEST_OUTPUT})
     IF (${parent})

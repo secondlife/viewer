@@ -37,5 +37,6 @@ const U32 EVENT_FLAG_NONE   = 0x0000;
 
 // set for mature events
 const U32 EVENT_FLAG_MATURE = 0x0001;
+const U32 EVENT_FLAG_ADULT  = 0x0002;
 
 #endif

@@ -186,6 +186,7 @@ void LLWorldMap::eraseItems()
 		mInfohubs.clear();
 		mPGEvents.clear();
 		mMatureEvents.clear();
+		mAdultEvents.clear();
 		mLandForSale.clear();
 	}
 // 	mAgentLocationsMap.clear(); // persists
@@ -311,10 +312,22 @@ void LLWorldMap::setCurrentLayer(S32 layer, bool request_layer)
 		sendItemRequest(MAP_ITEM_MATURE_EVENT);
 	}
 
+	if (mAdultEvents.size() == 0)
+	{
+		// Request for events (adult)
+		sendItemRequest(MAP_ITEM_ADULT_EVENT);
+	}
+
 	if (mLandForSale.size() == 0)
 	{
 		// Request for Land For Sale
 		sendItemRequest(MAP_ITEM_LAND_FOR_SALE);
+	}
+	
+	if (mLandForSaleAdult.size() == 0)
+	{
+		// Request for Land For Sale
+		sendItemRequest(MAP_ITEM_LAND_FOR_SALE_ADULT);
 	}
 
 	clearImageRefs();
@@ -742,6 +755,7 @@ void LLWorldMap::processMapItemReply(LLMessageSystem* msg, void**)
 			}
 			case MAP_ITEM_PG_EVENT: // events
 			case MAP_ITEM_MATURE_EVENT:
+			case MAP_ITEM_ADULT_EVENT:
 			{
 				struct tm* timep;
 				// Convert to Pacific, based on server's opinion of whether
@@ -762,16 +776,29 @@ void LLWorldMap::processMapItemReply(LLMessageSystem* msg, void**)
 				{
 					LLWorldMap::getInstance()->mPGEvents.push_back(new_item);
 				}
-				else
+				else if (type == MAP_ITEM_MATURE_EVENT)
 				{
 					LLWorldMap::getInstance()->mMatureEvents.push_back(new_item);
 				}
+				else if (type == MAP_ITEM_ADULT_EVENT)
+				{
+					LLWorldMap::getInstance()->mAdultEvents.push_back(new_item);
+				}
+
 				break;
 			}
 			case MAP_ITEM_LAND_FOR_SALE: // land for sale
+			case MAP_ITEM_LAND_FOR_SALE_ADULT: // adult land for sale 
 			{
 				new_item.mToolTip = llformat("%d sq. m. L$%d", new_item.mExtra, new_item.mExtra2);
-				LLWorldMap::getInstance()->mLandForSale.push_back(new_item);
+				if (type == MAP_ITEM_LAND_FOR_SALE)
+				{
+					LLWorldMap::getInstance()->mLandForSale.push_back(new_item);
+				}
+				else if (type == MAP_ITEM_LAND_FOR_SALE_ADULT)
+				{
+					LLWorldMap::getInstance()->mLandForSaleAdult.push_back(new_item);
+				}
 				break;
 			}
 			case MAP_ITEM_CLASSIFIED: // classifieds

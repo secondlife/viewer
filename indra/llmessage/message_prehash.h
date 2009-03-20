@@ -314,6 +314,7 @@ extern char * _PREHASH_TextColor;
 extern char * _PREHASH_SlaveID;
 extern char * _PREHASH_Charter;
 extern char * _PREHASH_AlertData;
+extern char * _PREHASH_AlertInfo;
 extern char * _PREHASH_TargetBlock;
 extern char * _PREHASH_CheckParcelAuctions;
 extern char * _PREHASH_ParcelAuctions;
@@ -1375,5 +1376,6 @@ extern char * _PREHASH_AgeVerificationBlock;
 extern char * _PREHASH_UCoord;
 extern char * _PREHASH_VCoord;
 extern char * _PREHASH_FaceIndex;
+extern char * _PREHASH_StatusData;
 
 #endif

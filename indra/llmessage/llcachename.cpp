@@ -566,6 +566,7 @@ void LLCacheName::get(const LLUUID& id, BOOL is_group, LLCacheNameCallback callb
 	if(id.isNull())
 	{
 		callback(id, CN_NOBODY, "", is_group, user_data);
+		return;
 	}
 
 	LLCacheNameEntry* entry = get_ptr_in_map(impl.mCache, id );

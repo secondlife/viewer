@@ -197,8 +197,9 @@ LLQueuedThread::handle_t LLQueuedThread::generateHandle()
 	{
 		mNextHandle++;
 	}
+	const LLQueuedThread::handle_t res = mNextHandle++;
 	unlockData();
-	return mNextHandle++;
+	return res;
 }
 
 // MAIN thread

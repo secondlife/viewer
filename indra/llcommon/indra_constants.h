@@ -244,12 +244,11 @@ const F32 DEFAULT_WATER_HEIGHT 	= 20.0f;
 
 // Maturity ratings for simulators
 const U8 SIM_ACCESS_MIN 	= 0;		// Treated as 'unknown', usually ends up being SIM_ACCESS_PG
-const U8 SIM_ACCESS_TRIAL	= 7;
 const U8 SIM_ACCESS_PG		= 13;
 const U8 SIM_ACCESS_MATURE	= 21;
 const U8 SIM_ACCESS_ADULT	= 42;		// Seriously Adult Only
 const U8 SIM_ACCESS_DOWN	= 254;
-const U8 SIM_ACCESS_MAX 	= SIM_ACCESS_MATURE;
+const U8 SIM_ACCESS_MAX 	= SIM_ACCESS_ADULT;
 
 // group constants
 const S32 MAX_AGENT_GROUPS = 25;
@@ -360,6 +359,8 @@ const U32 MAP_ITEM_POPULAR = 0x04;
 const U32 MAP_ITEM_AGENT_LOCATIONS = 0x06;
 const U32 MAP_ITEM_LAND_FOR_SALE = 0x07;
 const U32 MAP_ITEM_CLASSIFIED = 0x08;
+const U32 MAP_ITEM_ADULT_EVENT = 0x09;
+const U32 MAP_ITEM_LAND_FOR_SALE_ADULT = 0x0a;
 
 // Crash reporter behavior
 const char* const CRASH_SETTINGS_FILE = "settings_crash_behavior.xml";

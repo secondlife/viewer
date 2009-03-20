@@ -43,12 +43,23 @@ const U8 CLASSIFIED_FLAG_UPDATE_TIME= 1 << 4;
 const U8 CLASSIFIED_FLAG_AUTO_RENEW = 1 << 5;
 
 const U8 CLASSIFIED_QUERY_FILTER_MATURE		= 1 << 1;
-const U8 CLASSIFIED_QUERY_FILTER_ENABLED	= 1 << 2;
-const U8 CLASSIFIED_QUERY_FILTER_PRICE		= 1 << 3;
+//const U8 CLASSIFIED_QUERY_FILTER_ENABLED	= 1 << 2;
+//const U8 CLASSIFIED_QUERY_FILTER_PRICE	= 1 << 3;
+
+// These are new with Adult-enabled viewers (1.23 and later)
+const U8 CLASSIFIED_QUERY_INC_PG			= 1 << 2;
+const U8 CLASSIFIED_QUERY_INC_MATURE		= 1 << 3;
+const U8 CLASSIFIED_QUERY_INC_ADULT			= 1 << 6;
+const U8 CLASSIFIED_QUERY_INC_NEW_VIEWER	= (CLASSIFIED_QUERY_INC_PG | CLASSIFIED_QUERY_INC_MATURE | CLASSIFIED_QUERY_INC_ADULT);
 
 const S32 MAX_CLASSIFIEDS = 100;
 
-ClassifiedFlags pack_classified_flags(BOOL is_mature, BOOL auto_renew);
+// This function is used in AO viewers to pack old query flags into the request 
+// so that they can talk to old dataservers properly. When the AO servers are deployed on agni
+// we can revert back to ClassifiedFlags pack_classified_flags and get rider of this one.
+ClassifiedFlags pack_classified_flags_request(BOOL auto_renew, BOOL is_pg, BOOL is_mature, BOOL is_adult);
+
+ClassifiedFlags pack_classified_flags(BOOL auto_renew, BOOL is_pg, BOOL is_mature, BOOL is_adult);
 bool is_cf_mature(ClassifiedFlags flags);
 //bool is_cf_enabled(ClassifiedFlags flags);
 bool is_cf_update_time(ClassifiedFlags flags);

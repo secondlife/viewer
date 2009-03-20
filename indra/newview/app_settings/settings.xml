@@ -4867,18 +4867,18 @@
       <key>Value</key>
       <real>0.0</real>
     </map>
-	<key>InstallLanguage</key>
-	<map>
-		<key>Comment</key>
-		<string>Language passed from installer (for UI)</string>
-		<key>Persist</key>
-		<integer>1</integer>
-		<key>Type</key>
-		<string>String</string>
-		<key>Value</key>
-		<string>default</string>
-	</map>
-	<key>InventoryAutoOpenDelay</key>
+    <key>InstallLanguage</key>
+    <map>
+      <key>Comment</key>
+      <string>Language passed from installer (for UI)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>default</string>
+    </map>
+    <key>InventoryAutoOpenDelay</key>
     <map>
       <key>Comment</key>
       <string>Seconds before automatically opening inventory when mouse is over inventory button when performing inventory drag and drop</string>
@@ -6409,6 +6409,17 @@
       <string>F32</string>
       <key>Value</key>
       <real>6.0</real>
+    </map>
+	<key>PreferredMaturity</key>
+    <map>
+      <key>Comment</key>
+      <string>Setting for the user's preferred maturity level.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+	  <integer>13</integer>
     </map>
     <key>PreviewAnimRect</key>
     <map>
@@ -7966,10 +7977,12 @@
       <string>URL to load for empty searches</string>
       <key>Persist</key>
       <integer>1</integer>
+	  <key>HideFromEditor</key>
+	  <integer>1</integer>
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>http://secondlife.com/app/search/index.php?</string>
+      <string>http://search.secondlife.com/client_search.php?</string>
     </map>
     <key>SearchURLQuery</key>
     <map>
@@ -7977,10 +7990,12 @@
       <string>URL to use for searches</string>
       <key>Persist</key>
       <integer>1</integer>
+	  <key>HideFromEditor</key>
+	  <integer>1</integer>
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>http://secondlife.com/app/search/search_proxy.php?q=[QUERY]&amp;s=[COLLECTION]&amp;</string>
+      <string>http://search.secondlife.com/client_search.php?q=[QUERY]&amp;s=[COLLECTION]&amp;</string>
     </map>
     <key>SearchURLSuffix2</key>
     <map>
@@ -7988,10 +8003,12 @@
       <string>Parameters added to end of search queries</string>
       <key>Persist</key>
       <integer>1</integer>
+	  <key>HideFromEditor</key>
+	  <integer>1</integer>
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>lang=[LANG]&amp;m=[MATURE]&amp;t=[TEEN]&amp;region=[REGION]&amp;x=[X]&amp;y=[Y]&amp;z=[Z]&amp;session=[SESSION]</string>
+      <string>lang=[LANG]&amp;mat=[MATURITY]&amp;t=[TEEN]&amp;region=[REGION]&amp;x=[X]&amp;y=[Y]&amp;z=[Z]&amp;session=[SESSION]</string>
     </map>
     <key>SelectMovableOnly</key>
     <map>
@@ -8301,16 +8318,135 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>ShowPGSearchAll</key>
+    <map>
+      <key>Comment</key>
+      <string>Display results of search All that are flagged as PG</string>
+      <key>Persist</key>
+      <integer>1</integer>
+	  <key>HideFromEditor</key>
+	  <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>ShowMatureSearchAll</key>
+    <map>
+      <key>Comment</key>
+      <string>Display results of search All that are flagged as mature</string>
+      <key>Persist</key>
+      <integer>1</integer>
+	  <key>HideFromEditor</key>
+	  <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>ShowAdultSearchAll</key>
+    <map>
+      <key>Comment</key>
+      <string>Display results of search All that are flagged as adult</string>
+      <key>Persist</key>
+      <integer>1</integer>
+	  <key>HideFromEditor</key>
+	  <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>ShowPGGroups</key>
+    <map>
+      <key>Comment</key>
+      <string>Display results of find groups that are flagged as PG</string>
+      <key>Persist</key>
+      <integer>1</integer>
+	  <key>HideFromEditor</key>
+	  <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>ShowMatureGroups</key>
+    <map>
+      <key>Comment</key>
+      <string>Display results of find groups that are flagged as mature</string>
+      <key>Persist</key>
+      <integer>1</integer>
+	  <key>HideFromEditor</key>
+	  <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>ShowAdultGroups</key>
+    <map>
+      <key>Comment</key>
+      <string>Display results of find groups that are flagged as adult</string>
+      <key>Persist</key>
+      <integer>1</integer>
+	  <key>HideFromEditor</key>
+	  <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>ShowPGClassifieds</key>
+    <map>
+      <key>Comment</key>
+      <string>Display results of find classifieds that are flagged as PG</string>
+      <key>Persist</key>
+      <integer>1</integer>
+	  <key>HideFromEditor</key>
+	  <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>ShowMatureClassifieds</key>
     <map>
       <key>Comment</key>
       <string>Display results of find classifieds that are flagged as mature</string>
       <key>Persist</key>
       <integer>1</integer>
+	  <key>HideFromEditor</key>
+	  <integer>1</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
+    </map>
+    <key>ShowAdultClassifieds</key>
+    <map>
+      <key>Comment</key>
+      <string>Display results of find classifieds that are flagged as adult</string>
+      <key>Persist</key>
+      <integer>1</integer>
+	  <key>HideFromEditor</key>
+	  <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>ShowPGEvents</key>
+    <map>
+      <key>Comment</key>
+      <string>Display results of find events that are flagged as PG</string>
+      <key>Persist</key>
+      <integer>1</integer>
+	  <key>HideFromEditor</key>
+	  <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
     </map>
     <key>ShowMatureEvents</key>
     <map>
@@ -8318,28 +8454,73 @@
       <string>Display results of find events that are flagged as mature</string>
       <key>Persist</key>
       <integer>1</integer>
+	  <key>HideFromEditor</key>
+	  <integer>1</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>ShowMatureFindAll</key>
+    <key>ShowAdultEvents</key>
     <map>
       <key>Comment</key>
-      <string>Display results of find all that are in mature sims</string>
+      <string>Display results of find events that are flagged as adult</string>
       <key>Persist</key>
       <integer>1</integer>
+	  <key>HideFromEditor</key>
+	  <integer>1</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>ShowMatureGroups</key>
+    <key>ShowPGLand</key>
     <map>
       <key>Comment</key>
-      <string>Display results of find groups that are in flagged as mature</string>
+      <string>Display results of find land sales that are flagged as PG</string>
       <key>Persist</key>
       <integer>1</integer>
+	  <key>HideFromEditor</key>
+	  <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>ShowMatureLand</key>
+    <map>
+      <key>Comment</key>
+      <string>Display results of find land sales that are flagged as mature</string>
+      <key>Persist</key>
+      <integer>1</integer>
+	  <key>HideFromEditor</key>
+	  <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>ShowAdultLand</key>
+    <map>
+      <key>Comment</key>
+      <string>Display results of find land sales that are flagged as adult</string>
+      <key>Persist</key>
+      <integer>1</integer>
+	  <key>HideFromEditor</key>
+	  <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>ShowPGSims</key>
+    <map>
+      <key>Comment</key>
+      <string>Display results of find places or find popular that are in PG sims</string>
+      <key>Persist</key>
+      <integer>1</integer>
+	  <key>HideFromEditor</key>
+	  <integer>1</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
@@ -8351,6 +8532,21 @@
       <string>Display results of find places or find popular that are in mature sims</string>
       <key>Persist</key>
       <integer>1</integer>
+	  <key>HideFromEditor</key>
+	  <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>ShowAdultSims</key>
+    <map>
+      <key>Comment</key>
+      <string>Display results of find places or find popular that are in adult sims</string>
+      <key>Persist</key>
+      <integer>1</integer>
+	  <key>HideFromEditor</key>
+	  <integer>1</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>

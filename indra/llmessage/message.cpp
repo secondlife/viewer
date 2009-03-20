@@ -923,6 +923,28 @@ LLSD LLMessageSystem::wrapReceivedTemplateData() const
 	}
 }
 
+LLSD LLMessageSystem::wrapBuiltTemplateData() const
+{
+	LLSD result;
+	if (mLLSDMessageBuilder == mMessageBuilder)
+	{
+		result = getBuiltMessageLLSD();
+	}
+	else
+	{
+		U8 buffer[MAX_BUFFER_SIZE];
+		const U8 offset_to_data = 0;
+		U32 size = mTemplateMessageBuilder->buildMessage(
+			buffer, MAX_BUFFER_SIZE,
+			offset_to_data);
+		std::vector<U8> binary_data(buffer, buffer+size);
+		LLSD wrapped_data = LLSD::emptyMap();
+		wrapped_data["binary-template-data"] = binary_data;
+		result = wrapped_data;
+	}
+	return result;
+}
+
 LLStoredMessagePtr LLMessageSystem::getReceivedMessage() const
 {
 	const std::string& name = mMessageReader->getMessageName();
@@ -934,7 +956,7 @@ LLStoredMessagePtr LLMessageSystem::getReceivedMessage() const
 LLStoredMessagePtr LLMessageSystem::getBuiltMessage() const
 {
 	const std::string& name = mMessageBuilder->getMessageName();
-	LLSD message = getBuiltMessageLLSD();
+	LLSD message = wrapBuiltTemplateData();
 
 	return LLStoredMessagePtr(new LLStoredMessage(name, message));
 }
@@ -1131,7 +1153,7 @@ LLHTTPClient::ResponderPtr LLMessageSystem::createResponder(const std::string& n
 		return new LLFnPtrResponder(
 			NULL,
 			NULL,
-			mMessageBuilder->getMessageName());
+			name);
 	}
 }
 

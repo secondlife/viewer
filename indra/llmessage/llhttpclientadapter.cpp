@@ -38,12 +38,19 @@ LLHTTPClientAdapter::~LLHTTPClientAdapter()
 
 void LLHTTPClientAdapter::get(const std::string& url, LLCurl::ResponderPtr responder) 
 {
-	LLHTTPClient::get(url, responder);
+	LLSD empty_pragma_header;
+	// Pragma is required to stop curl adding "no-cache"
+	// Space is required to stop llurlrequest from turnning off proxying
+	empty_pragma_header["Pragma"] = " "; 
+	LLHTTPClient::get(url, responder, empty_pragma_header);
 }
 
 void LLHTTPClientAdapter::get(const std::string& url, LLCurl::ResponderPtr responder, const LLSD& headers) 
 {
-	LLHTTPClient::get(url, responder, headers);
+	LLSD empty_pragma_header = headers;
+	// as above
+	empty_pragma_header["Pragma"] = " ";
+	LLHTTPClient::get(url, responder, empty_pragma_header);
 }
 
 void LLHTTPClientAdapter::put(const std::string& url, const LLSD& body, LLCurl::ResponderPtr responder) 

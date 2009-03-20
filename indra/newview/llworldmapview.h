@@ -148,10 +148,12 @@ public:
 	static LLUIImagePtr	sHomeImage;
 	static LLUIImagePtr	sEventImage;
 	static LLUIImagePtr	sEventMatureImage;
+	static LLUIImagePtr	sEventAdultImage;
 	static LLUIImagePtr	sTrackCircleImage;
 	static LLUIImagePtr	sTrackArrowImage;
 	static LLUIImagePtr	sClassifiedsImage;
 	static LLUIImagePtr	sForSaleImage;
+	static LLUIImagePtr	sForSaleAdultImage;
 
 	static F32		sThresholdA;
 	static F32		sThresholdB;

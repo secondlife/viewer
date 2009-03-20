@@ -395,6 +395,7 @@ private:
 	// but while the unsafe code is run in old processes, this
 	// method should be used to forward unsafe messages.
 	LLSD wrapReceivedTemplateData() const;
+	LLSD wrapBuiltTemplateData() const;
 
 public:
 

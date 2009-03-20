@@ -186,6 +186,9 @@ protected:
 	LLTextBox*		mTextOwnerLabel;
 	LLTextBox*		mTextOwner;
 	LLButton*		mBtnProfile;
+	
+	LLTextBox*		mContentRating;
+	LLTextBox*		mLandType;
 
 	LLTextBox*		mTextGroup;
 	LLTextBox*		mTextGroupLabel;

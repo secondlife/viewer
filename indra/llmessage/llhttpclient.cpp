@@ -402,6 +402,14 @@ LLSD LLHTTPClient::blockingGet(const std::string& url)
 	curl_easy_setopt(curlp, CURLOPT_ERRORBUFFER, curl_error_buffer);
 	curl_easy_setopt(curlp, CURLOPT_FAILONERROR, 1);
 
+	struct curl_slist *header_list = NULL;
+	header_list = curl_slist_append(header_list, "Accept: application/llsd+xml");
+	CURLcode curl_result = curl_easy_setopt(curlp, CURLOPT_HTTPHEADER, header_list);
+	if ( curl_result != CURLE_OK )
+	{
+		llinfos << "Curl is hosed - can't add Accept header for llsd+xml" << llendl;
+	}
+
 	LLSD response = LLSD::emptyMap();
 
 	S32 curl_success = curl_easy_perform(curlp);
@@ -423,6 +431,12 @@ LLSD LLHTTPClient::blockingGet(const std::string& url)
 		response["body"] = http_buffer.asLLSD();
 	}
 	
+	if(header_list)
+	{	// free the header list  
+		curl_slist_free_all(header_list); 
+		header_list = NULL;
+	}
+
 	curl_easy_cleanup(curlp);
 
 	return response;

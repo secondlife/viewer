@@ -40,6 +40,7 @@
 #include "llcontrol.h"
 #include "llcoordframe.h"
 #include "llevent.h"
+#include "llagentaccess.h"
 #include "llagentconstants.h"
 #include "llanimationstates.h"
 #include "lldbstrings.h"
@@ -223,8 +224,8 @@ public:
 	void			clearBusy();
 	BOOL			getBusy() const;
 
-	void			setAdminOverride(BOOL b)	{ mAdminOverride = b; }
-	void			setGodLevel(U8 god_level)	{ mGodLevel = god_level; }
+	void			setAdminOverride(BOOL b);
+	void			setGodLevel(U8 god_level);
 	void			setFirstLogin(BOOL b)		{ mFirstLogin = b; }
 	void			setGenderChosen(BOOL b)		{ mGenderChosen = b; }
 
@@ -250,8 +251,29 @@ public:
 		
 	BOOL			isGodlike() const;
 	U8				getGodLevel() const;
+	// note: this is a prime candidate for pulling out into a Maturity class
+	// rather than just expose the preference setting, we're going to actually
+	// expose what the client code cares about -- what the user should see
+	// based on a combination of the is* and prefers* flags, combined with God bit.
+	bool wantsPGOnly() const;
+	bool canAccessMature() const;
+	bool canAccessAdult() const;
+	bool prefersPG() const;
+	bool prefersMature() const;
+	bool prefersAdult() const;
 	bool isTeen() const;
+	bool isMature() const;
+	bool isAdult() const;
 	void setTeen(bool teen);
+	void setMaturity(char text);
+	static int convertTextToMaturity(char text);
+	bool sendMaturityPreferenceToServer(int preferredMaturity);
+	
+	const LLAgentAccess&  getAgentAccess();
+	
+	// This function can go away after the AO transition (see llstartup.cpp)
+	void setAOTransition();
+	
 	BOOL			isGroupTitleHidden() const		{ return mHideGroupTitle; }
 	BOOL			isGroupMember() const		{ return !mGroupID.isNull(); }		// This is only used for building titles!
 	const LLUUID	&getGroupID() const			{ return mGroupID; }
@@ -261,7 +283,7 @@ public:
 	F32				getFocusObjectDist() const	{ return mFocusObjectDist; }
 	BOOL			inPrelude();
 	BOOL			canManageEstate() const;
-	BOOL			getAdminOverride() const	{ return mAdminOverride; }
+	BOOL			getAdminOverride() const;
 
 	LLUUID			getLastChatter() const { return mLastChatterID; }
 	bool			getAlwaysRun() const { return mbAlwaysRun; }
@@ -741,8 +763,8 @@ private:
 	bool mbAlwaysRun; // should the avatar run by default rather than walk
 	bool mbRunning;	// is the avatar trying to run right now
 
-	// Access or "maturity" level
-	U8				mAccess;	// SIM_ACCESS_MATURE or SIM_ACCESS_PG
+	LLAgentAccess   mAgentAccess;
+	
 	ETeleportState	mTeleportState;
 	std::string		mTeleportMessage;
 
@@ -865,10 +887,7 @@ private:
 	LLFrameTimer	mChatTimer;
 	LLUUID			mLastChatterID;
 	F32				mNearChatRadius;
-	BOOL			mAdminOverride;
 
-	// See indra_constants.h for values.
-	U8				mGodLevel;
 	LLFrameTimer	mFidgetTimer;
 	LLFrameTimer	mFocusObjectFadeTimer;
 	F32				mNextFidgetTime;

@@ -429,9 +429,19 @@ void LLFloaterWorldMap::reshape( S32 width, S32 height, BOOL called_from_parent 
 void LLFloaterWorldMap::draw()
 {
 	// Hide/Show Mature Events controls
-	childSetVisible("events_mature_icon", !gAgent.isTeen());
-	childSetVisible("events_mature_label", !gAgent.isTeen());
-	childSetVisible("event_mature_chk", !gAgent.isTeen());
+	childSetVisible("events_mature_icon", gAgent.canAccessMature());
+	childSetVisible("events_mature_label", gAgent.canAccessMature());
+	childSetVisible("event_mature_chk", gAgent.canAccessMature());
+
+	childSetVisible("events_adult_icon", gAgent.canAccessMature());
+	childSetVisible("events_adult_label", gAgent.canAccessMature());
+	childSetVisible("event_adult_chk", gAgent.canAccessMature());
+	bool adult_enabled = gAgent.canAccessAdult();
+	if (!adult_enabled)
+	{
+		childSetValue("event_adult_chk", FALSE);
+	}
+	childSetEnabled("event_adult_chk", adult_enabled);
 
 	// On orientation island, users don't have a home location yet, so don't
 	// let them teleport "home".  It dumps them in an often-crowed welcome
@@ -1315,6 +1325,7 @@ void LLFloaterWorldMap::onCheckEvents(LLUICtrl*, void* data)
 	LLFloaterWorldMap* self = (LLFloaterWorldMap*)data;
 	if(!self) return;
 	self->childSetEnabled("event_mature_chk", self->childGetValue("event_chk"));
+	self->childSetEnabled("event_adult_chk", self->childGetValue("event_chk"));
 }
 
 // protected

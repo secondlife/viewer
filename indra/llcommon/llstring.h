@@ -40,9 +40,10 @@
 #include <wchar.h>
 #endif
 
+#include <string.h>
+
 #if LL_SOLARIS
 // stricmp and strnicmp do not exist on Solaris:
-#include <string.h>
 #define stricmp strcasecmp
 #define strnicmp strncasecmp
 #endif

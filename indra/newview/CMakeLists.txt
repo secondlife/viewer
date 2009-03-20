@@ -11,6 +11,7 @@ include(ELFIO)
 include(FMOD)
 include(OPENAL)
 include(FindOpenGL)
+include(LLAddBuildTest)
 include(LLAudio)
 include(LLCharacter)
 include(LLCommon)
@@ -64,6 +65,7 @@ include_directories(
 
 set(viewer_SOURCE_FILES
     llagent.cpp
+    llagentaccess.cpp
     llagentdata.cpp
     llagentlanguage.cpp
     llagentpilot.cpp
@@ -466,6 +468,7 @@ set(viewer_HEADER_FILES
     ViewerInstall.cmake
 
     llagent.h
+    llagentaccess.h
     llagentdata.h
     llagentlanguage.h
     llagentpilot.h
@@ -1566,3 +1569,5 @@ endif (DARWIN)
 if (INSTALL)
   include(${CMAKE_CURRENT_SOURCE_DIR}/ViewerInstall.cmake)
 endif (INSTALL)
+
+ADD_VIEWER_BUILD_TEST(llagentaccess viewer)

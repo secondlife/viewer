@@ -470,7 +470,6 @@ BOOL enable_grab_texture(void*);
 void handle_dump_region_object_cache(void*);
 
 BOOL menu_ui_enabled(void *user_data);
-void check_toggle_control( LLUICtrl *, void* user_data );
 BOOL menu_check_control( void* user_data);
 void menu_toggle_variable( void* user_data );
 BOOL menu_check_variable( void* user_data);
@@ -1025,6 +1024,11 @@ extern BOOL gDebugSelectMgr;
 
 void init_debug_ui_menu(LLMenuGL* menu)
 {
+	menu->append(new LLMenuItemCheckGL("Rotate Mini-Map", menu_toggle_control, NULL, menu_check_control, (void*)"MiniMapRotate"));
+	menu->append(new LLMenuItemCheckGL("Use default system color picker", menu_toggle_control, NULL, menu_check_control, (void*)"UseDefaultColorPicker"));
+	menu->append(new LLMenuItemCheckGL("Show search panel in overlay bar", menu_toggle_control, NULL, menu_check_control, (void*)"ShowSearchBar"));
+	menu->appendSeparator();
+
 	menu->append(new LLMenuItemCallGL("Web Browser Test", &handle_web_browser_test));
 	menu->append(new LLMenuItemCallGL("Buy Currency Test", &handle_buy_currency_test));
 	menu->append(new LLMenuItemCallGL("Editable UI", &edit_ui));
@@ -6181,13 +6185,6 @@ class LLToggleControl : public view_listener_t
 		return true;
 	}
 };
-
-// As above, but can be a callback from a LLCheckboxCtrl
-void check_toggle_control( LLUICtrl *, void* user_data )
-{
-	BOOL checked = gSavedSettings.getBOOL( static_cast<char*>(user_data) );
-	gSavedSettings.setBOOL( static_cast<char*>(user_data), !checked );
-}
 
 BOOL menu_check_control( void* user_data)
 {
