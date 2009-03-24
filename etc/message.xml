@@ -566,7 +566,7 @@
 			<boolean>false</boolean>
 
 			<key>UpdateNotecardTaskInventory</key>
-			<boolean>true</boolean>
+			<boolean>false</boolean>
 
 			<key>UpdateScriptTaskInventory</key>
 			<boolean>false</boolean>
