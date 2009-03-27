@@ -3,20 +3,27 @@
 @file simperf_oprof_interface.py
 @brief Manage OProfile data collection on a host
 
-$LicenseInfo:firstyear=2008&license=internal$
+$LicenseInfo:firstyear=2008&license=mit$
 
 Copyright (c) 2008-2009, Linden Research, Inc.
 
-The following source code is PROPRIETARY AND CONFIDENTIAL. Use of
-this source code is governed by the Linden Lab Source Code Disclosure
-Agreement ("Agreement") previously entered between you and Linden
-Lab. By accessing, using, copying, modifying or distributing this
-software, you acknowledge that you have been informed of your
-obligations under the Agreement and agree to abide by those obligations.
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
-WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
-COMPLETENESS OR PERFORMANCE.
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
 $/LicenseInfo$
 """
 
