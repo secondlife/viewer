@@ -7,9 +7,19 @@ include(Variables)
 
 # Portable compilation flags.
 
+if (EXISTS ${CMAKE_SOURCE_DIR}/llphysics)
+  # The release build should only offer to send crash reports if we're
+  # building from a Linden internal source tree.
+  set(release_crash_reports 1)
+else (EXISTS ${CMAKE_SOURCE_DIR}/llphysics)
+  set(release_crash_reports 0) 
+endif (EXISTS ${CMAKE_SOURCE_DIR}/llphysics)
+
 set(CMAKE_CXX_FLAGS_DEBUG "-D_DEBUG -DLL_DEBUG=1")
 set(CMAKE_CXX_FLAGS_RELEASE
-    "-DLL_RELEASE=1 -DLL_RELEASE_FOR_DOWNLOAD=1 -D_SECURE_SCL=0 -DLL_SEND_CRASH_REPORTS=1 -DNDEBUG")
+    "-DLL_RELEASE=1 -DLL_RELEASE_FOR_DOWNLOAD=1 -D_SECURE_SCL=0
+-DLL_SEND_CRASH_REPORTS=${release_crash_reports} -DNDEBUG") 
+
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO 
     "-DLL_RELEASE=1 -D_SECURE_SCL=0 -DLL_SEND_CRASH_REPORTS=0 -DNDEBUG -DLL_RELEASE_WITH_DEBUG_INFO=1")
 
