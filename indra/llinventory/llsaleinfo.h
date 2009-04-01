@@ -98,7 +98,7 @@ public:
 	BOOL exportLegacyStream(std::ostream& output_stream) const;
 	LLSD asLLSD() const;
 	operator LLSD() const { return asLLSD(); }
-	bool fromLLSD(LLSD& sd, BOOL& has_perm_mask, U32& perm_mask);
+	bool fromLLSD(const LLSD& sd, BOOL& has_perm_mask, U32& perm_mask);
 	BOOL importLegacyStream(std::istream& input_stream, BOOL& has_perm_mask, U32& perm_mask);
 
 	LLXMLNode *exportFileXML() const;

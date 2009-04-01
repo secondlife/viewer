@@ -39,6 +39,12 @@ const U8 DEFAULT_BUMP_CODE = 0;  // no bump or shininess
 
 const LLTextureEntry LLTextureEntry::null;
 
+// static 
+LLTextureEntry* LLTextureEntry::newTextureEntry()
+{
+	return new LLTextureEntry();
+}
+
 //===============================================================
 LLTextureEntry::LLTextureEntry()
 {
@@ -136,20 +142,23 @@ bool LLTextureEntry::operator==(const LLTextureEntry &rhs) const
 LLSD LLTextureEntry::asLLSD() const
 {
 	LLSD sd;
+	asLLSD(sd);
+	return sd;
+}
 
-	sd["imageid"] = getID();
-	sd["colors"] = ll_sd_from_color4(getColor());
+void LLTextureEntry::asLLSD(LLSD& sd) const
+{
+	sd["imageid"] = mID;
+	sd["colors"] = ll_sd_from_color4(mColor);
 	sd["scales"] = mScaleS;
 	sd["scalet"] = mScaleT;
 	sd["offsets"] = mOffsetS;
 	sd["offsett"] = mOffsetT;
-	sd["imagerot"] = getRotation();
+	sd["imagerot"] = mRotation;
 	sd["bump"] = getBumpShiny();
 	sd["fullbright"] = getFullbright();
-	sd["media_flags"] = getMediaTexGen();
-	sd["glow"] = getGlow();
-	
-	return sd;
+	sd["media_flags"] = mMediaFlags;
+	sd["glow"] = mGlow;
 }
 
 bool LLTextureEntry::fromLLSD(LLSD& sd)
@@ -208,6 +217,19 @@ fail:
 	return false;
 }
 
+// virtual 
+// override this method for each derived class
+LLTextureEntry* LLTextureEntry::newBlank() const
+{
+	return new LLTextureEntry();
+}
+
+// virtual 
+LLTextureEntry* LLTextureEntry::newCopy() const
+{
+	return new LLTextureEntry(*this);
+}
+
 S32 LLTextureEntry::setID(const LLUUID &tex_id)
 {
 	if (mID != tex_id)
@@ -215,7 +237,7 @@ S32 LLTextureEntry::setID(const LLUUID &tex_id)
 		mID = tex_id;
 		return TEM_CHANGE_TEXTURE;
 	}
-	return 0;
+	return TEM_CHANGE_NONE;
 }
 
 S32 LLTextureEntry::setScale(F32 s, F32 t)
@@ -233,6 +255,28 @@ S32 LLTextureEntry::setScale(F32 s, F32 t)
 	return retval;
 }
 
+S32 LLTextureEntry::setScaleS(F32 s)
+{
+	S32 retval = TEM_CHANGE_NONE;
+	if (mScaleS != s)
+	{
+		mScaleS = s;
+		retval = TEM_CHANGE_TEXTURE;
+	}
+	return retval;
+}
+
+S32 LLTextureEntry::setScaleT(F32 t)
+{
+	S32 retval = TEM_CHANGE_NONE;
+	if (mScaleT != t)
+	{
+		mScaleT = t;
+		retval = TEM_CHANGE_TEXTURE;
+	}
+	return retval;
+}
+
 S32 LLTextureEntry::setColor(const LLColor4 &color)
 {
 	if (mColor != color)
@@ -240,7 +284,7 @@ S32 LLTextureEntry::setColor(const LLColor4 &color)
 		mColor = color;
 		return TEM_CHANGE_COLOR;
 	}
-	return 0;
+	return TEM_CHANGE_NONE;
 }
 
 S32 LLTextureEntry::setColor(const LLColor3 &color)
@@ -251,7 +295,7 @@ S32 LLTextureEntry::setColor(const LLColor3 &color)
 		mColor.setVec(color);
 		return TEM_CHANGE_COLOR;
 	}
-	return 0;
+	return TEM_CHANGE_NONE;
 }
 
 S32 LLTextureEntry::setAlpha(const F32 alpha)
@@ -261,7 +305,7 @@ S32 LLTextureEntry::setAlpha(const F32 alpha)
 		mColor.mV[VW] = alpha;
 		return TEM_CHANGE_COLOR;
 	}
-	return 0;
+	return TEM_CHANGE_NONE;
 }
 
 S32 LLTextureEntry::setOffset(F32 s, F32 t)
@@ -279,6 +323,28 @@ S32 LLTextureEntry::setOffset(F32 s, F32 t)
 	return retval;
 }
 
+S32 LLTextureEntry::setOffsetS(F32 s)
+{
+	S32 retval = 0;
+	if (mOffsetS != s)
+	{
+		mOffsetS = s;
+		retval = TEM_CHANGE_TEXTURE;
+	}
+	return retval;
+}
+
+S32 LLTextureEntry::setOffsetT(F32 t)
+{
+	S32 retval = 0;
+	if (mOffsetT != t)
+	{
+		mOffsetT = t;
+		retval = TEM_CHANGE_TEXTURE;
+	}
+	return retval;
+}
+
 S32 LLTextureEntry::setRotation(F32 theta)
 {
 	if (mRotation != theta)
@@ -286,7 +352,7 @@ S32 LLTextureEntry::setRotation(F32 theta)
 		mRotation = theta;
 		return TEM_CHANGE_TEXTURE;
 	}
-	return 0;
+	return TEM_CHANGE_NONE;
 }
 
 S32 LLTextureEntry::setBumpShinyFullbright(U8 bump)
@@ -296,7 +362,7 @@ S32 LLTextureEntry::setBumpShinyFullbright(U8 bump)
 		mBump = bump;
 		return TEM_CHANGE_TEXTURE;
 	}
-	return 0;
+	return TEM_CHANGE_NONE;
 }
 
 S32 LLTextureEntry::setMediaTexGen(U8 media)
@@ -306,7 +372,7 @@ S32 LLTextureEntry::setMediaTexGen(U8 media)
 		mMediaFlags = media;
 		return TEM_CHANGE_TEXTURE;
 	}
-	return 0;
+	return TEM_CHANGE_NONE;
 }
 
 S32 LLTextureEntry::setBumpmap(U8 bump)
@@ -318,7 +384,7 @@ S32 LLTextureEntry::setBumpmap(U8 bump)
 		mBump |= bump;
 		return TEM_CHANGE_TEXTURE;
 	}
-	return 0;
+	return TEM_CHANGE_NONE;
 }
 
 S32 LLTextureEntry::setFullbright(U8 fullbright)
@@ -330,7 +396,7 @@ S32 LLTextureEntry::setFullbright(U8 fullbright)
 		mBump |= fullbright << TEM_FULLBRIGHT_SHIFT;
 		return TEM_CHANGE_TEXTURE;
 	}
-	return 0;
+	return TEM_CHANGE_NONE;
 }
 
 S32 LLTextureEntry::setShiny(U8 shiny)
@@ -342,7 +408,7 @@ S32 LLTextureEntry::setShiny(U8 shiny)
 		mBump |= shiny << TEM_SHINY_SHIFT;
 		return TEM_CHANGE_TEXTURE;
 	}
-	return 0;
+	return TEM_CHANGE_NONE;
 }
 
 S32 LLTextureEntry::setBumpShiny(U8 bump_shiny)
@@ -354,7 +420,7 @@ S32 LLTextureEntry::setBumpShiny(U8 bump_shiny)
 		mBump |= bump_shiny;
 		return TEM_CHANGE_TEXTURE;
 	}
-	return 0;
+	return TEM_CHANGE_NONE;
 }
 
 S32 LLTextureEntry::setMediaFlags(U8 media_flags)
@@ -366,7 +432,7 @@ S32 LLTextureEntry::setMediaFlags(U8 media_flags)
 		mMediaFlags |= media_flags;
 		return TEM_CHANGE_TEXTURE;
 	}
-	return 0;
+	return TEM_CHANGE_NONE;
 }
 
 S32 LLTextureEntry::setTexGen(U8 tex_gen)
@@ -378,7 +444,7 @@ S32 LLTextureEntry::setTexGen(U8 tex_gen)
 		mMediaFlags |= tex_gen;
 		return TEM_CHANGE_TEXTURE;
 	}
-	return 0;
+	return TEM_CHANGE_NONE;
 }
 
 S32 LLTextureEntry::setGlow(F32 glow)
@@ -388,5 +454,5 @@ S32 LLTextureEntry::setGlow(F32 glow)
 		mGlow = glow;
 		return TEM_CHANGE_TEXTURE;
 	}
-	return 0;
+	return TEM_CHANGE_NONE;
 }

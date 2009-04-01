@@ -111,7 +111,7 @@ LLSD LLSaleInfo::asLLSD() const
 	return sd;
 }
 
-bool LLSaleInfo::fromLLSD(LLSD& sd, BOOL& has_perm_mask, U32& perm_mask)
+bool LLSaleInfo::fromLLSD(const LLSD& sd, BOOL& has_perm_mask, U32& perm_mask)
 {
 	const char *w;
 

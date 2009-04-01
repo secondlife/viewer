@@ -89,7 +89,7 @@ public:
 	void copyObject(const LLInventoryObject* other); // LLRefCount requires custom copy
 
 	// accessors
-	const LLUUID& getUUID() const;
+	virtual const LLUUID& getUUID() const;
 	const LLUUID& getParentUUID() const;
 	const std::string& getName() const;
 	LLAssetType::EType getType() const;
@@ -225,10 +225,7 @@ public:
 	LLInventoryItem(const LLInventoryItem* other);
 	virtual void copyItem(const LLInventoryItem* other); // LLRefCount requires custom copy
 
-	// As a constructor alternative, the clone() method works like a
-	// copy constructor, but gens a new UUID.
-	// It is up to the caller to delete (unref) the item.
-	virtual void cloneItem(LLPointer<LLInventoryItem>& newitem) const;
+	void generateUUID() { mUUID.generate(); }
 	
 	// accessors
 	const LLPermissions& getPermissions() const;
@@ -276,7 +273,8 @@ public:
 	S32 packBinaryBucket(U8* bin_bucket, LLPermissions* perm_override = NULL) const;
 	void unpackBinaryBucket(U8* bin_bucket, S32 bin_bucket_size);
 	LLSD asLLSD() const;
-	bool fromLLSD(LLSD& sd);
+	void asLLSD( LLSD& sd ) const;
+	bool fromLLSD(const LLSD& sd);
 
 };
 
@@ -317,7 +315,7 @@ public:
 	virtual void unpackMessage(LLMessageSystem* msg, const char* block, S32 block_num = 0);
 
 	LLSD asLLSD() const;
-	bool fromLLSD(LLSD& sd);
+	bool fromLLSD(const LLSD& sd);
 
 	// file support
 	virtual BOOL importFile(LLFILE* fp);
@@ -338,85 +336,12 @@ protected:
 // Useful bits
 //-----------------------------------------------------------------------------
 
-// This functor tests if an item is transferrable and returns true if
-// it is. Derived from unary_function<> so that the object can be used
-// in stl-compliant adaptable predicates (eg, not1<>). You might want
-// to use this in std::partition() or similar logic.
-struct IsItemTransferable : public std::unary_function<LLInventoryItem*, bool>
-{
-	LLUUID mDestID;
-	IsItemTransferable(const LLUUID& dest_id) : mDestID(dest_id) {}
-	bool operator()(const LLInventoryItem* item) const
-	{
-		return (item->getPermissions().allowTransferTo(mDestID)) ? true:false;
-	}
-};
-
-// This functor is used to set the owner and group of inventory items,
-// for example, in a simple std::for_each() loop. Note that the call
-// to setOwnerAndGroup can fail if authority_id != LLUUID::null.
-struct SetItemOwnerAndGroup
-{
-	LLUUID mAuthorityID;
-	LLUUID mOwnerID;
-	LLUUID mGroupID;
-	SetItemOwnerAndGroup(const LLUUID& authority_id,
-						 const LLUUID& owner_id,
-						 const LLUUID& group_id) :
-		mAuthorityID(authority_id), mOwnerID(owner_id), mGroupID(group_id) {}
-	void operator()(LLInventoryItem* item) const
-	{
-		LLPermissions perm = item->getPermissions();
-		bool is_atomic = (LLAssetType::AT_OBJECT == item->getType()) ? false : true;
-		perm.setOwnerAndGroup(mAuthorityID, mOwnerID, mGroupID, is_atomic);
-		// If no owner id is set, this is equivalent to a deed action.
-		// Clear 'share with group'.
-		if (mOwnerID.isNull())
-		{
-			perm.setMaskGroup(PERM_NONE);
-		}
-		item->setPermissions(perm);
-	}
-};
-
-// This functor is used to unset the share with group, everyone perms, and
-// for sale info for objects being sold through contents.
-struct SetNotForSale
-{
-	LLUUID mAgentID;
-	LLUUID mGroupID;
-	SetNotForSale(const LLUUID& agent_id,
-				  const LLUUID& group_id) :
-			mAgentID(agent_id), mGroupID(group_id) {}
-	void operator()(LLInventoryItem* item) const
-	{
-		// Clear group & everyone permissions.
-		LLPermissions perm = item->getPermissions();
-		perm.setGroupBits(mAgentID, mGroupID, FALSE, PERM_MODIFY | PERM_MOVE | PERM_COPY);
-		perm.setEveryoneBits(mAgentID, mGroupID, FALSE, PERM_MOVE | PERM_COPY);
-		item->setPermissions(perm);
-
-		// Mark group & everyone permissions for overwrite on the next
-		// rez if it is an object.
-		if(LLAssetType::AT_OBJECT == item->getType())
-		{
-			U32 flags = item->getFlags();
-			flags |= LLInventoryItem::II_FLAGS_OBJECT_PERM_OVERWRITE_GROUP;
-			flags |= LLInventoryItem::II_FLAGS_OBJECT_PERM_OVERWRITE_EVERYONE;
-			item->setFlags(flags);
-		}
-
-		// Clear for sale info.
-		item->setSaleInfo(LLSaleInfo::DEFAULT);
-	}
-};
-
 typedef std::list<LLPointer<LLInventoryObject> > InventoryObjectList;
 
 // These functions convert between structured data and an inventroy
 // item, appropriate for serialization.
 LLSD ll_create_sd_from_inventory_item(LLPointer<LLInventoryItem> item);
-LLPointer<LLInventoryItem> ll_create_item_from_sd(const LLSD& sd_item);
+//LLPointer<LLInventoryItem> ll_create_item_from_sd(const LLSD& sd_item);
 LLSD ll_create_sd_from_inventory_category(LLPointer<LLInventoryCategory> cat);
 LLPointer<LLInventoryCategory> ll_create_category_from_sd(const LLSD& sd_cat);
 

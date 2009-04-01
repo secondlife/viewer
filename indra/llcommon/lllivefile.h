@@ -52,6 +52,8 @@ public:
 		// Normally, just calling checkAndReload() is enough.  In some cases
 		// though, you may need to let the live file periodically check itself.
 
+	void setRefreshPeriod(F32 seconds);
+
 protected:
 	virtual void loadFile() = 0; // Implement this to load your file if it changed
 

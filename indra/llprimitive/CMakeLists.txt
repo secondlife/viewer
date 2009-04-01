@@ -18,6 +18,7 @@ include_directories(
 set(llprimitive_SOURCE_FILES
     llmaterialtable.cpp
     llprimitive.cpp
+    llprimtexturelist.cpp
     lltextureanim.cpp
     lltextureentry.cpp
     lltreeparams.cpp
@@ -31,6 +32,7 @@ set(llprimitive_HEADER_FILES
     legacy_object_types.h
     llmaterialtable.h
     llprimitive.h
+    llprimtexturelist.h
     lltextureanim.h
     lltextureentry.h
     lltreeparams.h
