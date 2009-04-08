@@ -45,6 +45,7 @@
 // Money transaction failure codes
 const U8 TRANS_FAIL_SIMULATOR_TIMEOUT	= 1;
 const U8 TRANS_FAIL_DATASERVER_TIMEOUT	= 2;
+const U8 TRANS_FAIL_APPLICATION         = 3;
 
 // Codes up to 999 for error conditions
 const S32 TRANS_NULL				= 0;

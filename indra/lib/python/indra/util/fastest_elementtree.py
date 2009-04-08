@@ -36,7 +36,6 @@ $/LicenseInfo$
 
 # Using cElementTree might cause some unforeseen problems, so here's a
 # convenient off switch.
-
 use_celementree = True
 
 try:

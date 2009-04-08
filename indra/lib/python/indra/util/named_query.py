@@ -290,7 +290,10 @@ class NamedQuery(object):
 
         So, we need a vendor (or extention) for LIKE_STRING. Anyone
         want to write it?"""
-        utf8_value = unicode(value, "utf-8")
+        if isinstance(value, unicode):
+            utf8_value = value
+        else:
+            utf8_value = unicode(value, "utf-8")
         esc_list = []
         remove_chars = set(u"%_")
         for glyph in utf8_value:
@@ -351,11 +354,11 @@ class NamedQuery(object):
             cursor = connection.cursor(MySQLdb.cursors.DictCursor)
         else:
             cursor = connection.cursor()
-        
-        statement = self.sql(connection, params)
+
+        full_query, params = self._construct_sql(params)
         if DEBUG:
-            print "SQL:", statement
-        rows = cursor.execute(statement)
+            print "SQL:", self.sql(connection, params)
+        rows = cursor.execute(full_query, params)
         
         # *NOTE: the expect_rows argument is a very cheesy way to get some
         # validation on the result set.  If you want to add more expectation
@@ -364,8 +367,8 @@ class NamedQuery(object):
             expect_rows = 1
         if expect_rows is not None and rows != expect_rows:
             cursor.close()
-            raise ExpectationFailed("Statement expected %s rows, got %s.  Sql: %s" % (
-                expect_rows, rows, statement))
+            raise ExpectationFailed("Statement expected %s rows, got %s.  Sql: '%s' %s" % (
+                expect_rows, rows, full_query, params))
 
         # convert to dicts manually if we're not using a dictcursor
         if use_dictcursor:
@@ -391,11 +394,9 @@ class NamedQuery(object):
             return result_set[0]
         return result_set
 
-    def sql(self, connection, params):
-        """ Generates an SQL statement from the named query document
-        and a dictionary of parameters.
-
-        """
+    def _construct_sql(self, params):
+        """ Returns a query string and a dictionary of parameters,
+        suitable for directly passing to the execute() method."""
         self.refresh()
 
         # build the query from the options available and the params
@@ -443,10 +444,23 @@ class NamedQuery(object):
                 new_params[self._build_integer_key(key)] = int(params[key])
         params.update(new_params)
 
+        return full_query, params
+
+    def sql(self, connection, params):
+        """ Generates an SQL statement from the named query document
+        and a dictionary of parameters.
+
+        *NOTE: Only use for debugging, because it uses the
+         non-standard MySQLdb 'literal' method.
+        """
+        if not DEBUG:
+            import warnings
+            warnings.warn("Don't use named_query.sql() when not debugging.  Used on %s" % self._location)
         # do substitution using the mysql (non-standard) 'literal'
         # function to do the escaping.
-        sql = full_query % connection.literal(params)
-        return sql
+        full_query, params = self._construct_sql(params)
+        return full_query % connection.literal(params)
+        
 
     def refresh(self):
         """ Refresh self from the file on the filesystem.

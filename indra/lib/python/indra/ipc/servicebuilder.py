@@ -108,7 +108,7 @@ def on_in(query_name, host_key, schema_key):
     @param schema_key Logical name of destination schema.  Will
         be looked up in indra.xml.
     """
-    host_name = config.get(host_key)
-    schema_name = config.get(schema_key)
-    return '/'.join( ('on', host_name, 'in', schema_name, query_name.lstrip('/')) )
+    return "on/config:%s/in/config:%s/%s" % (host_key.strip('/'),
+                                             schema_key.strip('/'),
+                                             query_name.lstrip('/'))
 
