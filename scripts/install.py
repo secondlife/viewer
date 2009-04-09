@@ -779,7 +779,7 @@ def _get_platform():
             # TODO -- someday when install.py accepts a platform of the form 
             # os/arch/compiler/compiler_version then we can replace the 
             # 'linux64' platform with 'linux/x86_64/gcc/4.1'
-            this_platform = 'linux64'
+            this_platform = 'linux'
     return this_platform
 
 def _getuser():

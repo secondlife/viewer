@@ -920,6 +920,13 @@ anguage Infrstructure (CLI) international standard</string>
         <string>gpl</string>
         <key>packages</key>
         <map>
+          <key>linux</key>
+          <map>
+            <key>md5sum</key>
+            <string>cc86b4cc858655e23704d1168325d7b9</string>
+            <key>url</key>
+            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/mysqlclient-linux-20090320.tar.bz2</uri>
+          </map>
           <key>darwin</key>
           <map>
             <key>md5sum</key>
