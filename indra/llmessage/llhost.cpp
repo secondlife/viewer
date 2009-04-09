@@ -124,7 +124,7 @@ BOOL LLHost::setHostByName(const std::string& hostname)
 	he = gethostbyname(local_name.c_str());	
 	if(!he) 
 	{
-		U32 ip_address = inet_addr(hostname.c_str());
+		U32 ip_address = ip_string_to_u32(hostname.c_str());
 		he = gethostbyaddr((char *)&ip_address, sizeof(ip_address), AF_INET);
 	}
 

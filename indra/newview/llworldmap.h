@@ -65,7 +65,7 @@ public:
 	U64			mRegionHandle;
 };
 
-#define MAP_SIM_IMAGE_TYPES 3
+// Map layers, see indra_constants.h
 // 0 - Prim
 // 1 - Terrain Only
 // 2 - Overlay: Land For Sale

@@ -134,7 +134,6 @@ BOOL LLVector3::clampLength( F32 length_limit )
 			mV[0] *= length_limit;
 			mV[1] *= length_limit;
 			mV[2] *= length_limit;
-			changed = TRUE;
 		}
 	}
 

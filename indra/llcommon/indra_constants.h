@@ -362,6 +362,16 @@ const U32 MAP_ITEM_CLASSIFIED = 0x08;
 const U32 MAP_ITEM_ADULT_EVENT = 0x09;
 const U32 MAP_ITEM_LAND_FOR_SALE_ADULT = 0x0a;
 
+// Region map layer numbers
+const S32 MAP_SIM_OBJECTS = 0;	
+const S32 MAP_SIM_TERRAIN = 1;
+const S32 MAP_SIM_LAND_FOR_SALE = 2;			// Transparent alpha overlay of land for sale
+const S32 MAP_SIM_IMAGE_TYPES = 3;				// Number of map layers
+const S32 MAP_SIM_INFO_MASK  		= 0x00FFFFFF;		// Agent access may be stuffed into upper byte
+const S32 MAP_SIM_LAYER_MASK 		= 0x0000FFFF;		// Layer info is in lower 16 bits
+const S32 MAP_SIM_RETURN_NULL_SIMS 	= 0x00010000;
+const S32 MAP_SIM_PRELUDE 			= 0x00020000;
+
 // Crash reporter behavior
 const char* const CRASH_SETTINGS_FILE = "settings_crash_behavior.xml";
 const char* const CRASH_BEHAVIOR_SETTING = "CrashSubmitBehavior";
