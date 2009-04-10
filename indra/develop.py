@@ -79,7 +79,6 @@ class PlatformSetup(object):
     project_name = 'SecondLife'
     distcc = True
     cmake_opts = []
-    word_size = 32
 
     def __init__(self):
         self.script_dir = os.path.realpath(
@@ -121,7 +120,6 @@ class PlatformSetup(object):
             opts=quote(opts),
             standalone=self.standalone,
             unattended=self.unattended,
-            word_size=self.word_size,
             type=self.build_type.upper(),
             )
         #if simple:
@@ -129,7 +127,6 @@ class PlatformSetup(object):
         return ('cmake -DCMAKE_BUILD_TYPE:STRING=%(type)s '
                 '-DSTANDALONE:BOOL=%(standalone)s '
                 '-DUNATTENDED:BOOL=%(unattended)s '
-                '-DWORD_SIZE:STRING=%(word_size)s '
                 '-G %(generator)r %(opts)s %(dir)r' % args)
 
     def run_cmake(self, args=[]):
@@ -232,8 +229,6 @@ class UnixSetup(PlatformSetup):
             cpu = 'i686'
         elif cpu == 'Power Macintosh':
             cpu = 'ppc'
-        elif cpu == 'x86_64' and self.word_size == 32:
-            cpu = 'i686'
         return cpu
 
     def run(self, command, name=None):
@@ -268,7 +263,8 @@ class LinuxSetup(UnixSetup):
         return 'linux'
 
     def build_dirs(self):
-        # Only build the server code if we have it.
+        # Only build the server code if (a) we have it and (b) we're
+        # on 32-bit x86.
         platform_build = '%s-%s' % (self.platform(), self.build_type.lower())
 
         if self.arch() == 'i686' and self.is_internal_tree():
@@ -289,8 +285,7 @@ class LinuxSetup(UnixSetup):
             standalone=self.standalone,
             unattended=self.unattended,
             type=self.build_type.upper(),
-            project_name=self.project_name,
-            word_size=self.word_size,
+            project_name=self.project_name
             )
         if not self.is_internal_tree():
             args.update({'cxx':'g++', 'server':'OFF', 'viewer':'ON'})
@@ -316,7 +311,6 @@ class LinuxSetup(UnixSetup):
                 '-G %(generator)r -DSERVER:BOOL=%(server)s '
                 '-DVIEWER:BOOL=%(viewer)s -DSTANDALONE:BOOL=%(standalone)s '
                 '-DUNATTENDED:BOOL=%(unattended)s '
-                '-DWORD_SIZE:STRING=%(word_size)s '
                 '-DROOT_PROJECT_NAME:STRING=%(project_name)s '
                 '%(opts)s %(dir)r')
                % args)
@@ -419,11 +413,10 @@ class DarwinSetup(UnixSetup):
             generator=self.generator,
             opts=quote(opts),
             standalone=self.standalone,
-            word_size=self.word_size,
             unattended=self.unattended,
             project_name=self.project_name,
             universal='',
-            type=self.build_type.upper(),
+            type=self.build_type.upper()
             )
         if self.unattended == 'ON':
             args['universal'] = '-DCMAKE_OSX_ARCHITECTURES:STRING=\'i386;ppc\''
@@ -433,7 +426,6 @@ class DarwinSetup(UnixSetup):
                 '-DCMAKE_BUILD_TYPE:STRING=%(type)s '
                 '-DSTANDALONE:BOOL=%(standalone)s '
                 '-DUNATTENDED:BOOL=%(unattended)s '
-                '-DWORD_SIZE:STRING=%(word_size)s '
                 '-DROOT_PROJECT_NAME:STRING=%(project_name)s '
                 '%(universal)s '
                 '%(opts)s %(dir)r' % args)
@@ -513,15 +505,13 @@ class WindowsSetup(PlatformSetup):
             opts=quote(opts),
             standalone=self.standalone,
             unattended=self.unattended,
-            project_name=self.project_name,
-            word_size=self.word_size,
+            project_name=self.project_name
             )
         #if simple:
         #    return 'cmake %(opts)s "%(dir)s"' % args
         return ('cmake -G "%(generator)s" '
                 '-DSTANDALONE:BOOL=%(standalone)s '
                 '-DUNATTENDED:BOOL=%(unattended)s '
-                '-DWORD_SIZE:STRING=%(word_size)s '
                 '-DROOT_PROJECT_NAME:STRING=%(project_name)s '
                 '%(opts)s "%(dir)s"' % args)
 
@@ -630,15 +620,13 @@ class CygwinSetup(WindowsSetup):
             opts=quote(opts),
             standalone=self.standalone,
             unattended=self.unattended,
-            project_name=self.project_name,
-            word_size=self.word_size,
+            project_name=self.project_name
             )
         #if simple:
         #    return 'cmake %(opts)s "%(dir)s"' % args
         return ('cmake -G "%(generator)s" '
                 '-DUNATTENDED:BOOl=%(unattended)s '
                 '-DSTANDALONE:BOOL=%(standalone)s '
-                '-DWORD_SIZE:STRING=%(word_size)s '
                 '-DROOT_PROJECT_NAME:STRING=%(project_name)s '
                 '%(opts)s "%(dir)s"' % args)
 
@@ -659,7 +647,6 @@ Options:
        --unattended     build unattended, do not invoke any tools requiring
                         a human response
   -t | --type=NAME      build type ("Debug", "Release", or "RelWithDebInfo")
-  -m32 | -m64           build architecture (32-bit or 64-bit)
   -N | --no-distcc      disable use of distcc
   -G | --generator=NAME generator name
                         Windows: VC71 or VS2003 (default), VC80 (VS2005) or 
@@ -711,10 +698,6 @@ For example: develop.py configure -DSERVER:BOOL=OFF"""
             setup.standalone = 'ON'
         elif o in ('--unattended',):
             setup.unattended = 'ON'
-        elif o in ('-m32',):
-            setup.word_size = 32
-        elif o in ('-m64',):
-            setup.word_size = 64
         elif o in ('-t', '--type'):
             try:
                 setup.build_type = setup.build_types[a.lower()]

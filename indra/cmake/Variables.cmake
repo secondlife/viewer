@@ -45,28 +45,12 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
   set(ARCH i686)
   set(LL_ARCH ${ARCH}_win32)
   set(LL_ARCH_DIR ${ARCH}-win32)
-  set(WORD_SIZE 32)
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   set(LINUX ON BOOl FORCE)
-
-  # If someone has specified a word size, use that to determine the
-  # architecture.  Otherwise, let the architecture specify the word size.
-  if (WORD_SIZE EQUAL 32)
-    set(ARCH i686)
-  elseif (WORD_SIZE EQUAL 64)
-    set(ARCH x86_64)
-  else (WORD_SIZE EQUAL 32)
-    execute_process(COMMAND uname -m COMMAND sed s/i.86/i686/
-                    OUTPUT_VARIABLE ARCH OUTPUT_STRIP_TRAILING_WHITESPACE)
-    if (ARCH STREQUAL x86_64)
-      set(WORD_SIZE 64)
-    else (ARCH STREQUAL x86_64)
-      set(WORD_SIZE 64)
-    endif (ARCH STREQUAL x86_64)
-  endif (WORD_SIZE EQUAL 32)
-
+  execute_process(COMMAND uname -m COMMAND sed s/i.86/i686/
+                  OUTPUT_VARIABLE ARCH OUTPUT_STRIP_TRAILING_WHITESPACE)
   set(LL_ARCH ${ARCH}_linux)
   set(LL_ARCH_DIR ${ARCH}-linux)
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
@@ -89,7 +73,6 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   endif (CMAKE_OSX_ARCHITECTURES MATCHES "i386" AND CMAKE_OSX_ARCHITECTURES MATCHES "ppc")
   set(LL_ARCH ${ARCH}_darwin)
   set(LL_ARCH_DIR universal-darwin)
-  set(WORD_SIZE 32)
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 
 # Default deploy grid
