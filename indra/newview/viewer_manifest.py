@@ -447,8 +447,15 @@ class DarwinManifest(ViewerManifest):
                 self.path("vivox-runtime/universal-darwin/libvivoxsdk.dylib", "libvivoxsdk.dylib")
                 self.path("vivox-runtime/universal-darwin/SLVoice", "SLVoice")
 
-                # llkdu dynamic library
-                self.path("../../libraries/universal-darwin/lib_release/libllkdu.dylib", "libllkdu.dylib")
+                # need to get the kdu dll from any of the build directories as well
+                try:
+                    self.path(self.find_existing_file('../llkdu/%s/libllkdu.dylib' % self.args['configuration'],
+                        "../../libraries/universal-darwin/lib_release/libllkdu.dylib"),
+                        dst='libllkdu.dylib')
+                    pass
+                except:
+                    print "Skipping libllkdu.dylib"
+                    pass
                 
                 #libfmodwrapper.dylib
                 self.path(self.args['configuration'] + "/libfmodwrapper.dylib", "libfmodwrapper.dylib")
