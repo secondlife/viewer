@@ -1081,8 +1081,6 @@ set_source_files_properties(${viewer_APPSETTINGS_FILES}
 
 list(APPEND viewer_SOURCE_FILES ${viewer_APPSETTINGS_FILES})
 
-use_prebuilt_binary(artwork-common)
-
 set(viewer_CHARACTER_FILES
     character/attentions.xml
     character/attentionsN.xml
