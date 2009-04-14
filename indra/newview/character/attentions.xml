@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="US-ASCII" standalone="yes"?>
+<!--
+Default values for "Look At" controls.
+Various events compete for avatar attention. I.E. control where the
+user's avatar looks.
+The avatar's head will turn to look towards the source of those events
+as much as is possible. 
+If the head cannot turn due to an animation override, the eyes will still
+track those events.
+Avatar attention will be taken by events of equal of greater priorities
+and will last for timeout number of seconds before reverting to idle.
+Negative timeout values indicate attentions that never time out.
+Avatar sex determines which set of attention settings are used.
+Within each set, the following named attentions relate to the indicated events:
+
+IDLE: Tracks the mouse pointer movement.
+AUTO LISTEN: Tracks nearby chat.
+FREELOOK: Tracks "target objects" and a case of mouse moved in 3rd person mode.
+RESPOND: Tracks the beginning of typing.
+HOVER: Tracks objects the mouse lingers over when "show hover tooltips" is on.
+CONVERSATION: Tracks avatars and other objects clicked on.
+SEOECT: Tracks objects grabbed and being moved.
+FOCUS: Freezes during avatar customization and when focused on object or point.
+MOUSELOOK: Tracks center of view when in mouselook view mode.
+-->
+
+<linden_attentions version="1.0">
+   <gender name="Masculine">
+      <param attention="idle"         priority="1.0" timeout="3.0"  />
+      <param attention="auto_listen"  priority="3.0" timeout="4.0"  />
+      <param attention="freelook"     priority="2.0" timeout="2.0"  />
+      <param attention="respond"      priority="3.0" timeout="4.0"  />
+      <param attention="hover"        priority="4.0" timeout="1.0"  />
+      <param attention="conversation" priority="0.0" timeout="-1"   />
+      <param attention="select"       priority="6.0" timeout="-1"   />
+      <param attention="focus"        priority="6.0" timeout="-1"   />
+      <param attention="mouselook"    priority="7.0" timeout="-1"   />
+   </gender>
+   <gender name="Feminine">
+      <param attention="idle"         priority="1.0" timeout="3.0"  />
+      <param attention="auto_listen"  priority="3.0" timeout="4.0"  />
+      <param attention="freelook"     priority="2.0" timeout="2.0"  />
+      <param attention="respond"      priority="3.0" timeout="4.0"  />
+      <param attention="hover"        priority="4.0" timeout="1.0"  />
+      <param attention="conversation" priority="0.0" timeout="-1"   />
+      <param attention="select"       priority="6.0" timeout="-1"   />
+      <param attention="focus"        priority="6.0" timeout="-1"   />
+      <param attention="mouselook"    priority="7.0" timeout="-1"   />
+   </gender>
+</linden_attentions>
+
