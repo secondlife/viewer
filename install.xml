@@ -152,6 +152,39 @@
           </map>
         </map>
       </map>
+      <key>artwork-common</key>
+      <map>
+        <key>copyright</key>
+        <string>(C) 2008 Linden Research, Inc.</string>
+        <key>description</key>
+        <string>Second Life(TM) Viewer Artwork</string>
+        <key>license</key>
+        <string>artwork</string>
+        <key>packages</key>
+        <map>
+          <key>darwin</key>
+          <map>
+            <key>md5sum</key>
+            <string>5e047437d73d1017bf270a6c6e936f23</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/artwork-common-20090415.tar.bz2</uri>
+          </map>
+          <key>linux</key>
+          <map>
+            <key>md5sum</key>
+            <string>5e047437d73d1017bf270a6c6e936f23</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/artwork-common-20090415.tar.bz2</uri>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>md5sum</key>
+            <string>5e047437d73d1017bf270a6c6e936f23</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/artwork-common-20090415.tar.bz2</uri>
+          </map>
+        </map>
+      </map>
       <key>berkeley</key>
       <map>
         <key>copyright</key>
@@ -1310,6 +1343,36 @@ anguage Infrstructure (CLI) international standard</string>
       <map>
         <key>url</key>
         <string>http://www.apache.org/licenses/LICENSE-2.0</string>
+      </map>
+      <key>artwork</key>
+      <map>
+        <key>text</key>
+        <string>COPYRIGHT AND PERMISSION NOTICE
+
+Second Life(TM) Viewer Artwork.  Copyright (C) 2008 Linden Research, Inc.
+
+Linden Research, Inc. ("Linden Lab") licenses the Second Life viewer
+artwork and other works in the files distributed with this Notice under
+the Creative Commons Attribution-Share Alike 3.0 License, available at 
+http://creativecommons.org/licenses/by-sa/3.0/legalcode.  For the license
+summary, see http://creativecommons.org/licenses/by-sa/3.0/.
+
+Notwithstanding the foregoing, all of Linden Lab's trademarks, including
+but not limited to the Second Life brand name and Second Life Eye-in-Hand
+logo, are subject to our trademark policy at
+http://secondlife.com/corporate/trademark/.
+
+If you distribute any copies or adaptations of the Second Life viewer
+artwork or any other works in these files, you must include this Notice
+and clearly identify any changes made to the original works.  Include
+this Notice and information where copyright notices are usually included,
+for example, after your own copyright notice acknowledging your use of
+the Second Life viewer artwork, in a text file distributed with your
+program, in your application's About window, or on a credits page for
+your work.
+</string>
+        <key>url</key>
+        <string>http://svn.secondlife.com/svn/linden/trunk/doc/LICENSE-logos.txt</string>
       </map>
       <key>boost</key>
       <map>

@@ -1074,6 +1074,8 @@ set(viewer_APPSETTINGS_FILES
     ${CMAKE_SOURCE_DIR}/../scripts/messages/message_template.msg
     )
 
+use_prebuilt_binary(artwork-common)
+
 source_group("App Settings" FILES ${viewer_APPSETTINGS_FILES})
 
 set_source_files_properties(${viewer_APPSETTINGS_FILES}
