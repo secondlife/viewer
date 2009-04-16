@@ -37,7 +37,6 @@
 #include "llbutton.h"
 #include "llpanelgroupgeneral.h"
 #include "llpanelgrouproles.h"
-#include "llpanelgroupvoting.h"
 #include "llpanelgrouplandmoney.h"
 #include "llpanelgroupnotices.h"
 #include "lltabcontainer.h"
@@ -147,8 +146,6 @@ LLPanelGroup::LLPanelGroup(const std::string& filename,
 	mFactoryMap["roles_tab"]	= LLCallbackMap(LLPanelGroupRoles::createTab,
 												&mID);
 	mFactoryMap["notices_tab"]	= LLCallbackMap(LLPanelGroupNotices::createTab,
-												&mID);
-	mFactoryMap["voting_tab"]	= LLCallbackMap(LLPanelGroupVoting::createTab,
 												&mID);
 	mFactoryMap["land_money_tab"]= LLCallbackMap(LLPanelGroupLandMoney::createTab,
 												 &mID);

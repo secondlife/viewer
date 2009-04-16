@@ -318,7 +318,7 @@ void LLViewerRegion::loadCache()
 
 	LLUUID cache_id;
 	nread = fread(&cache_id.mData, 1, UUID_BYTES, fp);
-	if (nread != UUID_BYTES || mCacheID != cache_id)
+	if (nread != (size_t)UUID_BYTES || mCacheID != cache_id)
 	{
 		llinfos << "Cache ID doesn't match for this region, discarding"
 			<< llendl;
@@ -394,7 +394,7 @@ void LLViewerRegion::saveCache()
 	}
 
 	// write the cache id for this sim
-	if (fwrite(&mCacheID.mData, 1, UUID_BYTES, fp) != UUID_BYTES)
+	if (fwrite(&mCacheID.mData, 1, UUID_BYTES, fp) != (size_t)UUID_BYTES)
 	{
 		llwarns << "Short write" << llendl;
 	}
@@ -1387,11 +1387,12 @@ void LLViewerRegion::unpackRegionHandshake()
 
 void LLViewerRegion::setSeedCapability(const std::string& url)
 {
-  if (getCapability("Seed") == url)
+	if (getCapability("Seed") == url)
     {
-      llwarns << "Ignoring duplicate seed capability" << llendl;
-      return;
+		// llwarns << "Ignoring duplicate seed capability" << llendl;
+		return;
     }
+	
 	delete mEventPoll;
 	mEventPoll = NULL;
 	

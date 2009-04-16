@@ -1193,6 +1193,12 @@ BOOL LLFloater::handleRightMouseDown(S32 x, S32 y, MASK mask)
 	return was_minimized || LLPanel::handleRightMouseDown( x, y, mask );
 }
 
+BOOL LLFloater::handleMiddleMouseDown(S32 x, S32 y, MASK mask)
+{
+	bringToFront( x, y );
+	return LLPanel::handleMiddleMouseDown( x, y, mask );
+}
+
 
 // virtual
 BOOL LLFloater::handleDoubleClick(S32 x, S32 y, MASK mask)
@@ -2188,7 +2194,7 @@ BOOL LLFloaterView::allChildrenClosed()
 		LLView* viewp = *it;
 		LLFloater* floaterp = (LLFloater*)viewp;
 
-		if (floaterp->getVisible() && !floaterp->isDead() && floaterp->canClose())
+		if (floaterp->getVisible() && !floaterp->isDead() && floaterp->isCloseable())
 		{
 			return false;
 		}

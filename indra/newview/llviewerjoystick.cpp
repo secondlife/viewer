@@ -992,6 +992,13 @@ void LLViewerJoystick::scanJoystick()
 #endif
 	updateStatus();
 
+	// App focus check Needs to happen AFTER updateStatus in case the joystick
+	// is not centred when the app loses focus.
+	if (!gFocusMgr.getAppHasFocus())
+	{
+		return;
+	}
+
 	static long toggle_flycam = 0;
 
 	if (mBtn[0] == 1)

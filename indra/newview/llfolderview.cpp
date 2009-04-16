@@ -146,9 +146,9 @@ void LLFolderViewItem::cleanupClass()
 // Default constructor
 // NOTE: Optimize this, we call it a *lot* when opening a large inventory
 LLFolderViewItem::LLFolderViewItem( const std::string& name, LLUIImagePtr icon,
-								   S32 creation_date,
-								   LLFolderView* root,
-									LLFolderViewEventListener* listener ) :
+				    time_t creation_date,
+				    LLFolderView* root,
+				    LLFolderViewEventListener* listener ) :
 	LLUICtrl( name, LLRect(0, 0, 0, 0), TRUE, NULL, NULL, FOLLOWS_LEFT|FOLLOWS_TOP|FOLLOWS_RIGHT),
 	mLabel( name ),
 	mLabelWidth(0),
@@ -4684,7 +4684,7 @@ void LLInventoryFilter::setDateRangeLastLogoff(BOOL sl)
 
 BOOL LLInventoryFilter::isSinceLogoff()
 {
-	return (mFilterOps.mMinDate == mLastLogoff) &&
+	return (mFilterOps.mMinDate == (time_t)mLastLogoff) &&
 		(mFilterOps.mMaxDate == time_max());
 }
 

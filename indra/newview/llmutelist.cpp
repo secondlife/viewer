@@ -788,8 +788,9 @@ void LLMuteList::processMuteListUpdate(LLMessageSystem* msg, void**)
 		llwarns << "Got an mute list update for the wrong agent." << llendl;
 		return;
 	}
-	std::string filename;
-	msg->getStringFast(_PREHASH_MuteData, _PREHASH_Filename, filename);
+	std::string unclean_filename;
+	msg->getStringFast(_PREHASH_MuteData, _PREHASH_Filename, unclean_filename);
+	std::string filename = LLDir::getScrubbedFileName(unclean_filename);
 	
 	std::string *local_filename_and_path = new std::string(gDirUtilp->getExpandedFilename( LL_PATH_CACHE, filename ));
 	gXferManager->requestFile(*local_filename_and_path,

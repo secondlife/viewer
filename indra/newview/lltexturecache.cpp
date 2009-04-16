@@ -1254,7 +1254,7 @@ void LLTextureCache::purgeTextures(bool validate)
 		else if (validate)
 		{
 			// make sure file exists and is the correct size
-			S32 uuididx = entries[idx].mID.mData[0];
+			U32 uuididx = entries[idx].mID.mData[0];
 			if (uuididx == validate_idx)
 			{
  				LL_DEBUGS("TextureCache") << "Validating: " << filename << "Size: " << entries[idx].mSize << LL_ENDL;

@@ -195,7 +195,7 @@ public:
 	virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleRightMouseDown(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleDoubleClick(S32 x, S32 y, MASK mask);
-
+	virtual BOOL	handleMiddleMouseDown(S32 x, S32 y, MASK mask);
 	virtual void	draw();
 
 	virtual void	onOpen() {}

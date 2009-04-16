@@ -214,7 +214,7 @@ BOOL LLVLComposition::generateHeights(const F32 x, const F32 y,
 	return TRUE;
 }
 
-static const S32 BASE_SIZE = 128;
+static const U32 BASE_SIZE = 128;
 
 BOOL LLVLComposition::generateComposition()
 {
@@ -349,9 +349,9 @@ BOOL LLVLComposition::generateTexture(const F32 x, const F32 y,
 	tex_comps = texturep->getComponents();
 	tex_stride = tex_width * tex_comps;
 
-	S32 st_comps = 3;
-	S32 st_width = BASE_SIZE;
-	S32 st_height = BASE_SIZE;
+	U32 st_comps = 3;
+	U32 st_width = BASE_SIZE;
+	U32 st_height = BASE_SIZE;
 	
 	if (tex_comps != st_comps)
 	{

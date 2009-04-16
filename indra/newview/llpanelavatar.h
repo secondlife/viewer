@@ -144,6 +144,8 @@ public:
 	/*virtual*/ ~LLPanelAvatarWeb();
 	/*virtual*/ BOOL	postBuild(void);
 
+	/*virtual*/ void refresh();
+
 	void enableControls(BOOL own_avatar);
 
 	void setWebURL(std::string url);
@@ -160,6 +162,7 @@ public:
 
 private:
 	std::string			mHome;
+	std::string         mNavigateTo;
 	LLWebBrowserCtrl*	mWebBrowser;
 };
 

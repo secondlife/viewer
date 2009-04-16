@@ -121,7 +121,7 @@ void LLHUDEffectSpiral::unpackData(LLMessageSystem *mesgsys, S32 blocknum)
 
 	LLHUDEffect::unpackData(mesgsys, blocknum);
 	LLUUID object_id, target_object_id;
-	S32 size = mesgsys->getSizeFast(_PREHASH_Effect, blocknum, _PREHASH_TypeData);
+	size_t size = mesgsys->getSizeFast(_PREHASH_Effect, blocknum, _PREHASH_TypeData);
 	if (size != EFFECT_SIZE)
 	{
 		llwarns << "Spiral effect with bad size " << size << llendl;

@@ -73,7 +73,6 @@ BOOL	LLPanelFace::postBuild()
 	LLTextureCtrl*	mTextureCtrl;
 	LLColorSwatchCtrl*	mColorSwatch;
 
-	LLTextBox*		mLabelTexGen;
 	LLComboBox*		mComboTexGen;
 
 	LLCheckBoxCtrl	*mCheckFullbright;
@@ -81,7 +80,6 @@ BOOL	LLPanelFace::postBuild()
 	LLTextBox*		mLabelColorTransp;
 	LLSpinCtrl*		mCtrlColorTransp;		// transparency = 1 - alpha
 
-	LLTextBox*      mLabelGlow;
 	LLSpinCtrl*     mCtrlGlow;
 
 	setMouseOpaque(FALSE);
@@ -152,7 +150,7 @@ BOOL	LLPanelFace::postBuild()
 		mCheckFullbright->setCommitCallback(LLPanelFace::onCommitFullbright);
 		mCheckFullbright->setCallbackUserData( this );
 	}
-	mLabelTexGen = getChild<LLTextBox>("tex gen");
+
 	mComboTexGen = getChild<LLComboBox>("combobox texgen");
 	if(mComboTexGen)
 	{
@@ -161,7 +159,6 @@ BOOL	LLPanelFace::postBuild()
 		mComboTexGen->setCallbackUserData( this );
 	}
 
-	mLabelGlow = getChild<LLTextBox>("glow label");
 	mCtrlGlow = getChild<LLSpinCtrl>("glow");
 	if(mCtrlGlow)
 	{

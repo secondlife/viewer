@@ -56,8 +56,6 @@
 #include "llviewermessage.h"
 #include "llnotifications.h"
 
-const S32 NOTICE_DATE_STRING_SIZE = 30;
-
 /////////////////////////
 // LLPanelGroupNotices //
 /////////////////////////
@@ -170,14 +168,23 @@ BOOL LLGroupDropTarget::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 //-----------------------------------------------------------------------------
 // LLPanelGroupNotices
 //-----------------------------------------------------------------------------
-std::string build_notice_date(const time_t& the_time)
+std::string build_notice_date(const U32& the_time)
 {
-	time_t t = the_time;
-	if (!t) time(&t);
+	// ISO 8601 date format
+
+	time_t t = (time_t)the_time;
+	
+	if (!t)
+	{
+		time(&t);
+	}
+	
 	tm* lt = localtime(&t);
+	
 	//for some reason, the month is off by 1.  See other uses of
 	//"local" time in the code...
-	std::string buffer = llformat("%i/%i/%i", lt->tm_mon + 1, lt->tm_mday, lt->tm_year + 1900);
+	std::string buffer = llformat("%04i-%02i-%02i", lt->tm_year + 1900, lt->tm_mon + 1, lt->tm_mday);
+	
 	return buffer;
 }
 
@@ -469,7 +476,6 @@ void LLPanelGroupNotices::processNotices(LLMessageSystem* msg)
 		msg->getBOOL("Data","HasAttachment",has_attachment,i);
 		msg->getU8("Data","AssetType",asset_type,i);
 		msg->getU32("Data","Timestamp",timestamp,i);
-		time_t t = timestamp;
 
 		LLSD row;
 		row["id"] = id;
@@ -490,13 +496,11 @@ void LLPanelGroupNotices::processNotices(LLMessageSystem* msg)
 		row["columns"][2]["column"] = "from";
 		row["columns"][2]["value"] = name;
 
-		std::string buffer = build_notice_date(t);
 		row["columns"][3]["column"] = "date";
-		row["columns"][3]["value"] = buffer;
+		row["columns"][3]["value"] = build_notice_date(timestamp);
 
-		buffer = llformat( "%u", timestamp);
 		row["columns"][4]["column"] = "sort";
-		row["columns"][4]["value"] = buffer;
+		row["columns"][4]["value"] = llformat( "%u", timestamp);
 
 		mNoticesList->addElement(row, ADD_BOTTOM);
 	}

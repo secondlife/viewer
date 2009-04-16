@@ -141,7 +141,9 @@ const U64 GP_NOTICES_SEND			= 0x1LL << 42;	// Send Notices
 const U64 GP_NOTICES_RECEIVE		= 0x1LL << 43;	// Receive Notices and View Notice History
 
 // Proposals
+// TODO: _DEPRECATED suffix as part of vote removal - DEV-24856:
 const U64 GP_PROPOSAL_START		= 0x1LL << 44;	// Start Proposal
+// TODO: _DEPRECATED suffix as part of vote removal - DEV-24856:
 const U64 GP_PROPOSAL_VOTE		= 0x1LL << 45;	// Vote on Proposal
 
 // Group chat moderation related
@@ -152,20 +154,17 @@ const U64 GP_SESSION_MODERATOR = 0x1LL << 37; //can mute people's session
 const U64 GP_DEFAULT_MEMBER = GP_ACCOUNTING_ACCOUNTABLE
 								| GP_LAND_ALLOW_SET_HOME
 								| GP_NOTICES_RECEIVE
-								| GP_PROPOSAL_START
-								| GP_PROPOSAL_VOTE
-                                | GP_SESSION_JOIN
+								| GP_SESSION_JOIN
 								| GP_SESSION_VOICE
 								;
 
-const U64 GP_DEFAULT_OFFICER = GP_ACCOUNTING_ACCOUNTABLE
+const U64 GP_DEFAULT_OFFICER = GP_DEFAULT_MEMBER // Superset of GP_DEFAULT_MEMBER
 								| GP_GROUP_CHANGE_IDENTITY
 								| GP_LAND_ADMIN
 								| GP_LAND_ALLOW_EDIT_LAND
 								| GP_LAND_ALLOW_FLY
 								| GP_LAND_ALLOW_CREATE
 								| GP_LAND_ALLOW_LANDMARK
-								| GP_LAND_ALLOW_SET_HOME
 								| GP_LAND_CHANGE_IDENTITY
 								| GP_LAND_CHANGE_MEDIA
 								| GP_LAND_DEED
@@ -187,17 +186,12 @@ const U64 GP_DEFAULT_OFFICER = GP_ACCOUNTING_ACCOUNTABLE
 								| GP_MEMBER_INVITE	
 								| GP_MEMBER_OPTIONS
 								| GP_MEMBER_VISIBLE_IN_DIR
-								| GP_NOTICES_RECEIVE
 								| GP_NOTICES_SEND
 								| GP_OBJECT_DEED
 								| GP_OBJECT_MANIPULATE
 								| GP_OBJECT_SET_SALE
-								| GP_PROPOSAL_START
-								| GP_PROPOSAL_VOTE
 								| GP_ROLE_ASSIGN_MEMBER_LIMITED
 								| GP_ROLE_PROPERTIES
 								| GP_SESSION_MODERATOR
-								| GP_SESSION_JOIN
-								| GP_SESSION_VOICE
 								;
 #endif

@@ -364,8 +364,8 @@ void LLPreviewNotecard::onLoadComplete(LLVFS *vfs,
 
 			S32 file_length = file.getSize();
 
-			char* buffer = new char[file_length+1];
-			file.read((U8*)buffer, file_length);		/*Flawfinder: ignore*/
+			std::vector<char> buffer(file_length+1);
+			file.read((U8*)&buffer[0], file_length);
 
 			// put a EOS at the end
 			buffer[file_length] = 0;
@@ -373,9 +373,9 @@ void LLPreviewNotecard::onLoadComplete(LLVFS *vfs,
 			
 			LLViewerTextEditor* previewEditor = preview->getChild<LLViewerTextEditor>("Notecard Editor");
 
-			if( (file_length > 19) && !strncmp( buffer, "Linden text version", 19 ) )
+			if( (file_length > 19) && !strncmp( &buffer[0], "Linden text version", 19 ) )
 			{
-				if( !previewEditor->importBuffer( buffer, file_length+1 ) )
+				if( !previewEditor->importBuffer( &buffer[0], file_length+1 ) )
 				{
 					llwarns << "Problem importing notecard" << llendl;
 				}
@@ -383,7 +383,7 @@ void LLPreviewNotecard::onLoadComplete(LLVFS *vfs,
 			else
 			{
 				// Version 0 (just text, doesn't include version number)
-				previewEditor->setText(LLStringExplicit(buffer));
+				previewEditor->setText(LLStringExplicit(&buffer[0]));
 			}
 
 			previewEditor->makePristine();
@@ -392,7 +392,6 @@ void LLPreviewNotecard::onLoadComplete(LLVFS *vfs,
 			BOOL modifiable = item && gAgent.allowOperation(PERM_MODIFY,
 								item->getPermissions(), GP_OBJECT_MANIPULATE);
 			preview->setEnabled(modifiable);
-			delete[] buffer;
 			preview->mAssetStatus = PREVIEW_ASSET_LOADED;
 		}
 		else

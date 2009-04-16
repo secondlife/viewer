@@ -45,7 +45,7 @@
 // skips spaces and tabs
 bool skip_whitespace(std::istream& input_stream)
 {
-	char c = input_stream.peek();
+	int c = input_stream.peek();
 	while (('\t' == c || ' ' == c) && input_stream.good())
 	{
 		input_stream.get();
@@ -57,7 +57,7 @@ bool skip_whitespace(std::istream& input_stream)
 // skips whitespace, newlines, and carriage returns
 bool skip_emptyspace(std::istream& input_stream)
 {
-	char c = input_stream.peek();
+	int c = input_stream.peek();
 	while ( input_stream.good()
 			&& ('\t' == c || ' ' == c || '\n' == c || '\r' == c) )
 	{
@@ -72,7 +72,7 @@ bool skip_comments_and_emptyspace(std::istream& input_stream)
 {
 	while (skip_emptyspace(input_stream))
 	{
-		char c = input_stream.peek();
+		int c = input_stream.peek();
 		if ('#' == c )
 		{
 			while ('\n' != c && input_stream.good())
@@ -90,7 +90,7 @@ bool skip_comments_and_emptyspace(std::istream& input_stream)
 
 bool skip_line(std::istream& input_stream)
 {
-	char c;
+	int c;
 	do
 	{
 		c = input_stream.get();
@@ -100,7 +100,7 @@ bool skip_line(std::istream& input_stream)
 
 bool skip_to_next_word(std::istream& input_stream)
 {
-	char c = input_stream.peek();
+	int c = input_stream.peek();
 	while ( input_stream.good()
 			&& (   (c >= 'a' && c <= 'z')
 		   		|| (c >= 'A' && c <= 'Z')
@@ -132,7 +132,7 @@ bool skip_to_end_of_next_keyword(const char* keyword, std::istream& input_stream
 	while (input_stream.good())
 	{
 		skip_emptyspace(input_stream);
-		char c = input_stream.get();
+		int c = input_stream.get();
 		if (keyword[0] != c)
 		{
 			skip_line(input_stream);
@@ -181,7 +181,7 @@ bool skip_to_start_of_next_keyword(const char* keyword, std::istream& input_stre
 	while (input_stream.good())
 	{
 		skip_emptyspace(input_stream);
-		char c = input_stream.get();
+		int c = input_stream.get();
 		if (keyword[0] != c)
 		{
 			skip_line(input_stream);
@@ -229,7 +229,7 @@ bool skip_to_start_of_next_keyword(const char* keyword, std::istream& input_stre
 bool get_word(std::string& output_string, std::istream& input_stream)
 {
 	skip_emptyspace(input_stream);
-	char c = input_stream.peek();
+	int c = input_stream.peek();
 	while ( !isspace(c) 
 			&& '\n' != c 
 			&& '\r' != c 
@@ -246,7 +246,7 @@ bool get_word(std::string& output_string, std::istream& input_stream, int n)
 {
 	skip_emptyspace(input_stream);
 	int char_count = 0;
-	char c = input_stream.peek();
+	int c = input_stream.peek();
 	while (!isspace(c) 
 			&& '\n' != c 
 			&& '\r' != c 
@@ -265,7 +265,7 @@ bool get_word(std::string& output_string, std::istream& input_stream, int n)
 bool get_line(std::string& output_string, std::istream& input_stream)
 {
 	output_string.clear();
-	char c = input_stream.get();
+	int c = input_stream.get();
 	while (input_stream.good())
 	{
 		output_string += c;
@@ -285,7 +285,7 @@ bool get_line(std::string& output_string, std::istream& input_stream, int n)
 {
 	output_string.clear();
 	int char_count = 0;
-	char c = input_stream.get();
+	int c = input_stream.get();
 	while (input_stream.good() && char_count < n)
 	{
 		char_count++;
@@ -436,7 +436,7 @@ void get_keyword_and_value(std::string& keyword,
 	while (line_index < line_size)
 	{
 		c = line[line_index];
-		if (!isspace(c))
+		if (!LLStringOps::isSpace(c))
 		{
 			break;
 		}
@@ -448,7 +448,7 @@ void get_keyword_and_value(std::string& keyword,
 	while (line_index < line_size)
 	{
 		c = line[line_index];
-		if (isspace(c) || '\r' == c || '\n' == c)
+		if (LLStringOps::isSpace(c) || '\r' == c || '\n' == c)
 		{
 			break;
 		}

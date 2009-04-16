@@ -658,7 +658,7 @@ void upload_new_resource(const std::string& src_filename, std::string name,
          {	 	
                  // read in the file header	 	
                  char buf[16384];		/* Flawfinder: ignore */ 	
-                 S32 read;		/* Flawfinder: ignore */	 	
+                 size_t readbytes;
                  S32  version;	 	
                  if (fscanf(in, "LindenResource\nversion %d\n", &version))	 	
                  {	 	
@@ -741,9 +741,9 @@ void upload_new_resource(const std::string& src_filename, std::string name,
                  LLFILE* out = LLFile::fopen(filename, "wb");		/* Flawfinder: ignore */	
                  if (out)	 	
                  {	 	
-                         while((read = fread(buf, 1, 16384, in)))		/* Flawfinder: ignore */	 	
+                         while((readbytes = fread(buf, 1, 16384, in)))		/* Flawfinder: ignore */	 	
                          {	 	
-							 if (fwrite(buf, 1, read, out) != read)
+							 if (fwrite(buf, 1, readbytes, out) != readbytes)
 							 {
 								 llwarns << "Short write" << llendl;
 							 }

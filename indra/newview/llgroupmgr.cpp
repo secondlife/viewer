@@ -803,7 +803,12 @@ static void formatDateString(std::string &date_string)
 	const regex expression("([0-9]{1,2})/([0-9]{1,2})/([0-9]{4})");
 	if (regex_match(date_string.c_str(), result, expression))
 	{
-		date_string = result[3]+"/"+result[1]+"/"+result[2];
+		std::string year = result[3];
+		std::string month = result[1];
+		std::string day = result[2];
+
+		// ISO 8601 date format
+		date_string = llformat("%04s-%02s-%02s", year.c_str(), month.c_str(), day.c_str());
 	}
 }
 

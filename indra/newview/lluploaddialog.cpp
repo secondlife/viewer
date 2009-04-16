@@ -103,18 +103,10 @@ void LLUploadDialog::setMessage( const std::string& msg)
 	S32 max_msg_width = 0;
 	std::list<std::string> msg_lines;
 
-	S32 size = msg.size() + 1;// + strlen("Uploading...\n\n");
-	char* temp_msg = new char[size];
-	
-	//strcpy(temp_msg,"Uploading...\n\n");
-	if (temp_msg == NULL)
-	{
-		llerrs << "Memory Allocation Failed" << llendl;
-		return;
-	}
-	
-	strcpy( temp_msg, msg.c_str());		/* Flawfinder: ignore */
-	char* token = strtok( temp_msg, "\n" );
+	S32 size = msg.size() + 1;
+	std::vector<char> temp_msg(size); // non-const copy to make strtok happy
+	strcpy( &temp_msg[0], msg.c_str());
+	char* token = strtok( &temp_msg[0], "\n" );
 	while( token )
 	{
 		std::string tokstr(token);
@@ -123,8 +115,6 @@ void LLUploadDialog::setMessage( const std::string& msg)
 		msg_lines.push_back( tokstr );
 		token = strtok( NULL, "\n" );
 	}
-	delete[] temp_msg;
-
 
 	S32 line_height = S32( font->getLineHeight() + 0.99f );
 	S32 dialog_width = max_msg_width + 2 * HPAD;

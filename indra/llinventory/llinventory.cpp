@@ -1257,23 +1257,19 @@ void LLInventoryItem::unpackBinaryBucket(U8* bin_bucket, S32 bin_bucket_size)
 	// Early exit on an empty binary bucket.
 	if (bin_bucket_size <= 1) return;
 
-	// Convert the bin_bucket into a string.
-	char* item_buffer = new char[bin_bucket_size+1];
-	if ((item_buffer != NULL) && (bin_bucket != NULL))
+	if (NULL == bin_bucket)
 	{
-		memcpy(item_buffer, bin_bucket, bin_bucket_size);	/* Flawfinder: ignore */
-	}
-	else
-	{
-		llerrs << "unpackBinaryBucket failed. item_buffer or bin_bucket is Null." << llendl;
-		delete[] item_buffer;
+		llerrs << "unpackBinaryBucket failed.  bin_bucket is NULL." << llendl;
 		return;
 	}
-	item_buffer[bin_bucket_size] = '\0';
-	std::string str(item_buffer);
 
-	lldebugs << "item buffer: " << item_buffer << llendl;
-	delete[] item_buffer;
+	// Convert the bin_bucket into a string.
+	std::vector<char> item_buffer(bin_bucket_size+1);
+	memcpy(&item_buffer[0], bin_bucket, bin_bucket_size);	/* Flawfinder: ignore */
+	item_buffer[bin_bucket_size] = '\0';
+	std::string str(&item_buffer[0]);
+
+	lldebugs << "item buffer: " << str << llendl;
 
 	// Tokenize the string.
 	typedef boost::tokenizer<boost::char_separator<char> > tokenizer;

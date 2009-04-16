@@ -811,7 +811,7 @@ U8* LLVertexBuffer::mapBuffer(S32 access)
 
 			GLint buff;
 			glGetIntegerv(GL_ARRAY_BUFFER_BINDING_ARB, &buff);
-			if (buff != mGLBuffer)
+			if ((GLuint)buff != mGLBuffer)
 			{
 				llerrs << "Invalid GL vertex buffer bound: " << buff << llendl;
 			}
@@ -824,7 +824,7 @@ U8* LLVertexBuffer::mapBuffer(S32 access)
 		{
 			GLint buff;
 			glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING_ARB, &buff);
-			if (buff != mGLIndices)
+			if ((GLuint)buff != mGLIndices)
 			{
 				llerrs << "Invalid GL index buffer bound: " << buff << llendl;
 			}
@@ -1020,13 +1020,13 @@ void LLVertexBuffer::setBuffer(U32 data_mask)
 		{
 			GLint buff;
 			glGetIntegerv(GL_ARRAY_BUFFER_BINDING_ARB, &buff);
-			if (buff != mGLBuffer)
+			if ((GLuint)buff != mGLBuffer)
 			{
 				llerrs << "Invalid GL vertex buffer bound: " << buff << llendl;
 			}
 
 			glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING_ARB, &buff);
-			if (buff != mGLIndices)
+			if ((GLuint)buff != mGLIndices)
 			{
 				llerrs << "Invalid GL index buffer bound: " << buff << llendl;
 			}
@@ -1038,13 +1038,13 @@ void LLVertexBuffer::setBuffer(U32 data_mask)
 			{
 				GLint buff;
 				glGetIntegerv(GL_ARRAY_BUFFER_BINDING_ARB, &buff);
-				if (buff != mGLBuffer)
+				if ((GLuint)buff != mGLBuffer)
 				{
 					llerrs << "Invalid GL vertex buffer bound: " << buff << llendl;
 				}
 
 				glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING_ARB, &buff);
-				if (buff != mGLIndices)
+				if ((GLuint)buff != mGLIndices)
 				{
 					llerrs << "Invalid GL index buffer bound: " << buff << llendl;
 				}

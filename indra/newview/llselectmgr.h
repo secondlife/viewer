@@ -275,8 +275,6 @@ public:
 
 	BOOL isEmpty() const;
 
-	S32 getOwnershipCost(S32 &cost);
-
 	LLSelectNode*	getFirstNode(LLSelectedNodeFunctor* func = NULL);
 	LLSelectNode*	getFirstRootNode(LLSelectedNodeFunctor* func = NULL, BOOL non_root_ok = FALSE);
 	LLViewerObject* getFirstSelectedObject(LLSelectedNodeFunctor* func, BOOL get_parent = FALSE);
@@ -552,7 +550,6 @@ public:
 	// the value found if available.
 	BOOL selectGetGroup(LLUUID& id); 
 	BOOL selectGetPerm(	U8 which_perm, U32* mask_on, U32* mask_off);	// TRUE if all have data, returns two masks, each indicating which bits are all on and all off
-	BOOL selectGetOwnershipCost(S32* cost);								// sum of all ownership costs
 
 	BOOL selectIsGroupOwned();											// TRUE if all root objects have valid data and are group owned.
 

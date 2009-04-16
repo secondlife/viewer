@@ -1105,29 +1105,6 @@ namespace LLError
 				s.uniqueLogMessages[message] = 1;
 			}
 		}
-
-		if (site.mPrintOnce)
-		{
-			std::map<std::string, unsigned int>::iterator messageIter = s.uniqueLogMessages.find(message);
-			if (messageIter != s.uniqueLogMessages.end())
-			{
-				messageIter->second++;
-				unsigned int num_messages = messageIter->second;
-				if (num_messages == 10 || num_messages == 50 || (num_messages % 100) == 0)
-				{
-					prefix << "ONCE (" << num_messages << "th time seen): ";
-				} 
-				else
-				{
-					return;
-				}
-			}
-			else 
-			{
-				prefix << "ONCE: ";
-				s.uniqueLogMessages[message] = 1;
-			}
-		}
 		
 		prefix << message;
 		message = prefix.str();
@@ -1210,14 +1187,17 @@ namespace LLError
 	void crashAndLoop(const std::string& message)
 	{
 		// Now, we go kaboom!
-		int* crash = NULL;
+		int* make_me_crash = NULL;
 
-		*crash = 0;
+		*make_me_crash = 0;
 
 		while(true)
 		{
 			// Loop forever, in case the crash didn't work?
 		}
+		
+		// this is an attempt to let Coverity and other semantic scanners know that this function won't be returning ever.
+		exit(EXIT_FAILURE);
 	}
 #if LL_WINDOWS
 		#pragma optimize("", on)

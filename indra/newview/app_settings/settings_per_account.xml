@@ -11,6 +11,17 @@
         <key>Value</key>
             <string>The Resident you messaged is in &apos;busy mode&apos; which means they have requested not to be disturbed.  Your message will still be shown in their IM panel for later viewing.</string>
         </map>
+    <key>BusyModeResponse2</key>
+        <map>
+        <key>Comment</key>
+            <string>Auto response to instant messages while in busy mode, clean (unencoded) version of BusyModeResponse</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>String</string>
+        <key>Value</key>
+            <string>|TOKEN COPY BusyModeResponse|</string>
+        </map>
     <key>IMLogTimestamp</key>
         <map>
         <key>Comment</key>

@@ -74,6 +74,7 @@ enum EInstantMessage
 	// Group vote
 	// Name is name of person who called vote.
 	// ID is vote ID used for internal tracking
+	// TODO: _DEPRECATED suffix as part of vote removal - DEV-24856
 	IM_GROUP_VOTE = 7,
 
 	// Group message

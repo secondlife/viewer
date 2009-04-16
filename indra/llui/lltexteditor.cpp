@@ -933,7 +933,7 @@ BOOL LLTextEditor::selectionContainsLineBreaks()
 	if (hasSelection())
 	{
 		S32 left = llmin(mSelectionStart, mSelectionEnd);
-		S32 right = left + abs(mSelectionStart - mSelectionEnd);
+		S32 right = left + llabs(mSelectionStart - mSelectionEnd);
 
 		const LLWString &wtext = mWText;
 		for( S32 i = left; i < right; i++ )
@@ -989,7 +989,7 @@ void LLTextEditor::indentSelectedLines( S32 spaces )
 	{
 		const LLWString &text = mWText;
 		S32 left = llmin( mSelectionStart, mSelectionEnd );
-		S32 right = left + abs( mSelectionStart - mSelectionEnd );
+		S32 right = left + llabs( mSelectionStart - mSelectionEnd );
 		BOOL cursor_on_right = (mSelectionEnd > mSelectionStart);
 		S32 cur = left;
 
@@ -1203,6 +1203,18 @@ BOOL LLTextEditor::handleMouseDown(S32 x, S32 y, MASK mask)
 }
 
 
+BOOL LLTextEditor::handleMiddleMouseDown(S32 x, S32 y, MASK mask)
+{
+	setFocus( TRUE );
+	if( canPastePrimary() )
+	{
+		setCursorAtLocalPos( x, y, TRUE );
+		pastePrimary();
+	}
+	return TRUE;
+}
+
+
 BOOL LLTextEditor::handleHover(S32 x, S32 y, MASK mask)
 {
 	BOOL handled = FALSE;
@@ -1323,14 +1335,15 @@ BOOL LLTextEditor::handleMouseUp(S32 x, S32 y, MASK mask)
 			
 			setCursorAtLocalPos( x, y, TRUE );
 			endSelection();
-
-			updateScrollFromCursor();
 		}
 		
 		if( !hasSelection() )
 		{
 			handleMouseUpOverSegment( x, y, mask );
 		}
+
+		// take selection to 'primary' clipboard
+		updatePrimary();
 
 		handled = TRUE;
 	}
@@ -1394,8 +1407,12 @@ BOOL LLTextEditor::handleDoubleClick(S32 x, S32 y, MASK mask)
 		// delay cursor flashing
 		resetKeystrokeTimer();
 
+		// take selection to 'primary' clipboard
+		updatePrimary();
+
 		handled = TRUE;
 	}
+
 	return handled;
 }
 
@@ -1691,6 +1708,12 @@ BOOL LLTextEditor::handleSelectionKey(const KEY key, const MASK mask)
 		}
 	}
 
+	if( handled )
+	{
+		// take selection to 'primary' clipboard
+		updatePrimary();
+	}
+ 
 	return handled;
 }
 
@@ -1818,7 +1841,7 @@ void LLTextEditor::deleteSelection(BOOL group_with_next_op )
 	if( getEnabled() && hasSelection() )
 	{
 		S32 pos = llmin( mSelectionStart, mSelectionEnd );
-		S32 length = abs( mSelectionStart - mSelectionEnd );
+		S32 length = llabs( mSelectionStart - mSelectionEnd );
 	
 		remove( pos, length, group_with_next_op );
 
@@ -1841,7 +1864,7 @@ void LLTextEditor::cut()
 		return;
 	}
 	S32 left_pos = llmin( mSelectionStart, mSelectionEnd );
-	S32 length = abs( mSelectionStart - mSelectionEnd );
+	S32 length = llabs( mSelectionStart - mSelectionEnd );
 	gClipboard.copyFromSubstring( mWText, left_pos, length, mSourceID );
 	deleteSelection( FALSE );
 
@@ -1861,7 +1884,7 @@ void LLTextEditor::copy()
 		return;
 	}
 	S32 left_pos = llmin( mSelectionStart, mSelectionEnd );
-	S32 length = abs( mSelectionStart - mSelectionEnd );
+	S32 length = llabs( mSelectionStart - mSelectionEnd );
 	gClipboard.copyFromSubstring(mWText, left_pos, length, mSourceID);
 }
 
@@ -1870,22 +1893,56 @@ BOOL LLTextEditor::canPaste() const
 	return !mReadOnly && gClipboard.canPasteString();
 }
 
-
 // paste from clipboard
 void LLTextEditor::paste()
 {
-	if (!canPaste())
+	bool is_primary = false;
+	pasteHelper(is_primary);
+}
+
+// paste from primary
+void LLTextEditor::pastePrimary()
+{
+	bool is_primary = true;
+	pasteHelper(is_primary);
+}
+
+// paste from primary (itsprimary==true) or clipboard (itsprimary==false)
+void LLTextEditor::pasteHelper(bool is_primary)
+{
+	bool can_paste_it;
+	if (is_primary)
+	{
+		can_paste_it = canPastePrimary();
+	}
+	else
+	{
+		can_paste_it = canPaste();
+	}
+
+	if (!can_paste_it)
 	{
 		return;
 	}
+
 	LLUUID source_id;
-	LLWString paste = gClipboard.getPasteWString(&source_id);
+	LLWString paste;
+	if (is_primary)
+	{
+		paste = gClipboard.getPastePrimaryWString(&source_id);
+	}
+	else 
+	{
+		paste = gClipboard.getPasteWString(&source_id);
+	}
+
 	if (paste.empty())
 	{
 		return;
 	}
+
 	// Delete any selected characters (the paste replaces them)
-	if( hasSelection() )
+	if( (!is_primary) && hasSelection() )
 	{
 		deleteSelection(TRUE);
 	}
@@ -1918,6 +1975,32 @@ void LLTextEditor::paste()
 	needsReflow();
 }
 
+
+
+// copy selection to primary
+void LLTextEditor::copyPrimary()
+{
+	if( !canCopy() )
+	{
+		return;
+	}
+	S32 left_pos = llmin( mSelectionStart, mSelectionEnd );
+	S32 length = llabs( mSelectionStart - mSelectionEnd );
+	gClipboard.copyFromPrimarySubstring(mWText, left_pos, length, mSourceID);
+}
+
+BOOL LLTextEditor::canPastePrimary() const
+{
+	return !mReadOnly && gClipboard.canPastePrimaryString();
+}
+
+void LLTextEditor::updatePrimary()
+{
+	if (canCopy())
+	{
+		copyPrimary();
+	}
+}
 
 BOOL LLTextEditor::handleControlKey(const KEY key, const MASK mask)	
 {
@@ -1992,6 +2075,11 @@ BOOL LLTextEditor::handleControlKey(const KEY key, const MASK mask)
 			handled = FALSE;
 			break;
 		}
+	}
+
+	if (handled)
+	{
+		updatePrimary();
 	}
 
 	return handled;
@@ -4330,13 +4418,34 @@ S32 LLTextEditor::findHTMLToken(const std::string &line, S32 pos, BOOL reverse) 
 	} 
 	else
 	{
+		// adjust the search slightly, to allow matching parenthesis inside the URL
+		S32 paren_count = 0;
 		for (int index=pos; index<(S32)line.length(); index++)
 		{
 			char c = line[index];
-			S32 m2 = closers.find(c);
-			if (m2 >= 0)
+
+			if (c == '(')
 			{
-				return index;
+				paren_count++;
+			}
+			else if (c == ')')
+			{
+				if (paren_count <= 0)
+				{
+					return index;
+				}
+				else
+				{
+					paren_count--;
+				}
+			}
+			else
+			{
+				S32 m2 = closers.find(c);
+				if (m2 >= 0)
+				{
+					return index;
+				}
 			}
 		} 
 		return line.length();

@@ -222,8 +222,8 @@ LLWindowSDL::LLWindowSDL(const std::string& title, S32 x, S32 y, S32 width,
 	ll_try_gtk_init();
 #endif // LL_GTK
 
-	// Get the original aspect ratio of the main device.
-	mOriginalAspectRatio = 1024.0 / 768.0;  // !!! *FIX: ? //(double)CGDisplayPixelsWide(mDisplay) / (double)CGDisplayPixelsHigh(mDisplay);
+	// Assume 4:3 aspect ratio until we know better
+	mOriginalAspectRatio = 1024.0 / 768.0;
 
 	if (title.empty())
 		mWindowTitle = "SDL Window";  // *FIX: (???)
@@ -444,12 +444,18 @@ BOOL LLWindowSDL::createContext(int x, int y, int width, int height, int bits, B
 		<< int(r_sdl_version->minor) << "."
 		<< int(r_sdl_version->patch) << llendl;
 
-	const SDL_VideoInfo *videoInfo = SDL_GetVideoInfo( );
-	if (!videoInfo)
+	const SDL_VideoInfo *video_info = SDL_GetVideoInfo( );
+	if (!video_info)
 	{
 		llinfos << "SDL_GetVideoInfo() failed! " << SDL_GetError() << llendl;
 		setupFailure("SDL_GetVideoInfo() failed, Window creation error", "Error", OSMB_OK);
 		return FALSE;
+	}
+
+	if (video_info->current_h > 0)
+	{
+		mOriginalAspectRatio = (float)video_info->current_w / (float)video_info->current_h;
+		llinfos << "Original aspect ratio was " << video_info->current_w << ":" << video_info->current_h << "=" << mOriginalAspectRatio << llendl;
 	}
 
 	SDL_EnableUNICODE(1);
@@ -643,7 +649,7 @@ BOOL LLWindowSDL::createContext(int x, int y, int width, int height, int bits, B
 		// fallback to letting SDL detect VRAM.
 		// note: I've not seen SDL's detection ever actually find
 		// VRAM != 0, but if SDL *does* detect it then that's a bonus.
-		gGLManager.mVRAM = videoInfo->video_mem / 1024;
+		gGLManager.mVRAM = video_info->video_mem / 1024;
 		if (gGLManager.mVRAM != 0)
 		{
 			llinfos << "SDL detected " << gGLManager.mVRAM << "MB VRAM." << llendl;
@@ -1272,6 +1278,49 @@ BOOL LLWindowSDL::copyTextToClipboard(const LLWString &text)
 	return FALSE; // failure
 }
 
+
+BOOL LLWindowSDL::isPrimaryTextAvailable()
+{
+	if (ll_try_gtk_init())
+	{
+		GtkClipboard * const clipboard =
+			gtk_clipboard_get(GDK_SELECTION_PRIMARY);
+		return gtk_clipboard_wait_is_text_available(clipboard) ?
+			TRUE : FALSE;
+	}
+	return FALSE; // failure
+}
+
+BOOL LLWindowSDL::pasteTextFromPrimary(LLWString &text)
+{
+	if (ll_try_gtk_init())
+	{
+		GtkClipboard * const clipboard =
+			gtk_clipboard_get(GDK_SELECTION_PRIMARY);
+		gchar * const data = gtk_clipboard_wait_for_text(clipboard);
+		if (data)
+		{
+			text = LLWString(utf8str_to_wstring(data));
+			g_free(data);
+			return TRUE;
+		}
+	}
+	return FALSE; // failure
+}
+
+BOOL LLWindowSDL::copyTextToPrimary(const LLWString &text)
+{
+	if (ll_try_gtk_init())
+	{
+		const std::string utf8 = wstring_to_utf8str(text);
+		GtkClipboard * const clipboard =
+			gtk_clipboard_get(GDK_SELECTION_PRIMARY);
+		gtk_clipboard_set_text(clipboard, utf8.c_str(), utf8.length());
+		return TRUE;
+	}
+	return FALSE; // failure
+}
+
 #else
 
 BOOL LLWindowSDL::isClipboardTextAvailable()
@@ -1288,6 +1337,22 @@ BOOL LLWindowSDL::copyTextToClipboard(const LLWString &s)
 {
 	return FALSE;  // unsupported
 }
+
+BOOL LLWindowSDL::isPrimaryTextAvailable()
+{
+	return FALSE; // unsupported
+}
+
+BOOL LLWindowSDL::pasteTextFromPrimary(LLWString &dst)
+{
+	return FALSE; // unsupported
+}
+
+BOOL LLWindowSDL::copyTextToPrimary(const LLWString &s)
+{
+	return FALSE;  // unsupported
+}
+
 #endif // LL_GTK
 
 LLWindow::LLWindowResolution* LLWindowSDL::getSupportedResolutions(S32 &num_resolutions)
@@ -1962,14 +2027,14 @@ void LLWindowSDL::captureMouse()
 	// window, and in a less obnoxious way than SDL_WM_GrabInput
 	// which would confine the cursor to the window too.
 
-	//llinfos << "LLWindowSDL::captureMouse" << llendl;
+	lldebugs << "LLWindowSDL::captureMouse" << llendl;
 }
 
 void LLWindowSDL::releaseMouse()
 {
 	// see LWindowSDL::captureMouse()
 	
-	//llinfos << "LLWindowSDL::releaseMouse" << llendl;
+	lldebugs << "LLWindowSDL::releaseMouse" << llendl;
 }
 
 void LLWindowSDL::hideCursor()

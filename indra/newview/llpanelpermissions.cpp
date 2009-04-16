@@ -1034,7 +1034,7 @@ void LLPanelPermissions::setAllSaleInfo()
 	{
 		// Don't extract the price if it's labeled as MIXED or is empty.
 		const std::string& editPriceString = editPrice->getText();
-		if (editPriceString != getString("Cost Mixed") &&
+		if (editPriceString != getString("Cost Mixed") && editPriceString != getString("Sale Mixed") &&
 			!editPriceString.empty())
 		{
 			price = atoi(editPriceString.c_str());
@@ -1048,12 +1048,6 @@ void LLPanelPermissions::setAllSaleInfo()
 	if (price < 0)
 		sale_type = LLSaleInfo::FS_NOT;
 
-	// Force the sale price of not-for-sale items to DEFAULT_PRICE.
-	if (sale_type == LLSaleInfo::FS_NOT)
-	{
-		price = DEFAULT_PRICE;
-	}
-	// Pack up the sale info and send the update.
 	LLSaleInfo sale_info(sale_type, price);
 	LLSelectMgr::getInstance()->selectionSetObjectSaleInfo(sale_info);
 	

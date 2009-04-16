@@ -308,6 +308,28 @@ void *LLWindow::getMediaWindow()
 	return getPlatformWindow();
 }
 
+//virtual
+void LLWindow::processMiscNativeEvents()
+{
+	// do nothing unless subclassed
+}
+
+//virtual
+BOOL LLWindow::isPrimaryTextAvailable()
+{
+	return FALSE; // no
+}
+//virtual
+BOOL LLWindow::pasteTextFromPrimary(LLWString &dst)
+{
+	return FALSE; // fail
+}
+// virtual
+BOOL LLWindow::copyTextToPrimary(const LLWString &src)
+{
+	return FALSE; // fail
+}
+
 // static
 std::vector<std::string> LLWindow::getDynamicFallbackFontList()
 {
@@ -320,12 +342,6 @@ std::vector<std::string> LLWindow::getDynamicFallbackFontList()
 #else
 	return std::vector<std::string>();
 #endif
-}
-
-//virtual
-void LLWindow::processMiscNativeEvents()
-{
-	// do nothing unless subclassed
 }
 
 #define UTF16_IS_HIGH_SURROGATE(U) ((U16)((U) - 0xD800) < 0x0400)

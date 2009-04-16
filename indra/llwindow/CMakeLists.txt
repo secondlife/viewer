@@ -46,6 +46,7 @@ set(llwindows_HEADER_FILES
 
 set(viewer_SOURCE_FILES
     llwindow.cpp
+    llmousehandler.cpp
     )
 
 set(viewer_HEADER_FILES

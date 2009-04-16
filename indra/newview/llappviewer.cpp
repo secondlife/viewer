@@ -202,7 +202,6 @@ const F32 DEFAULT_AFK_TIMEOUT = 5.f * 60.f; // time with no input before user fl
 F32 gSimLastTime; // Used in LLAppViewer::init and send_stats()
 F32 gSimFrames;
 
-BOOL gAllowIdleAFK = TRUE;
 BOOL gAllowTapTapHoldRun = TRUE;
 BOOL gShowObjectUpdates = FALSE;
 BOOL gUseQuickTime = TRUE;
@@ -301,7 +300,7 @@ LLAppViewer::LLUpdaterInfo *LLAppViewer::sUpdaterInfo = NULL ;
 void idle_afk_check()
 {
 	// check idle timers
-	if (gAllowIdleAFK && (gAwayTriggerTimer.getElapsedTimeF32() > gSavedSettings.getF32("AFKTimeout")))
+	if (gSavedSettings.getBOOL("AllowIdleAFK") && (gAwayTriggerTimer.getElapsedTimeF32() > gSavedSettings.getF32("AFKTimeout")))
 	{
 		gAgent.setAFK();
 	}
@@ -394,7 +393,6 @@ static void settings_to_globals()
 	gAgent.mHideGroupTitle		= gSavedSettings.getBOOL("RenderHideGroupTitle");
 
 	gDebugWindowProc = gSavedSettings.getBOOL("DebugWindowProc");
-	gAllowIdleAFK = gSavedSettings.getBOOL("AllowIdleAFK");
 	gAllowTapTapHoldRun = gSavedSettings.getBOOL("AllowTapTapHoldRun");
 	gShowObjectUpdates = gSavedSettings.getBOOL("ShowObjectUpdates");
 	gMapScale = gSavedSettings.getF32("MapScale");
@@ -507,6 +505,7 @@ LLTextureFetch* LLAppViewer::sTextureFetch = NULL;
 
 LLAppViewer::LLAppViewer() : 
 	mMarkerFile(),
+	mLogoutMarkerFile(NULL),
 	mReportedCrash(false),
 	mNumSessions(0),
 	mPurgeCache(false),
@@ -2158,7 +2157,6 @@ void LLAppViewer::cleanupSavedSettings()
 
 	gSavedSettings.setBOOL("DebugWindowProc", gDebugWindowProc);
 		
-	gSavedSettings.setBOOL("AllowIdleAFK", gAllowIdleAFK);
 	gSavedSettings.setBOOL("AllowTapTapHoldRun", gAllowTapTapHoldRun);
 	gSavedSettings.setBOOL("ShowObjectUpdates", gShowObjectUpdates);
 	
@@ -3497,7 +3495,7 @@ void LLAppViewer::idleShutdown()
 		S32 finished_uploads = total_uploads - pending_uploads;
 		F32 percent = 100.f * finished_uploads / total_uploads;
 		gViewerWindow->setProgressPercent(percent);
-		gViewerWindow->setProgressString("Saving final data...");
+		gViewerWindow->setProgressString("Saving your settings...");
 		return;
 	}
 
@@ -3669,7 +3667,7 @@ void LLAppViewer::idleNetwork()
 	// Check that the circuit between the viewer and the agent's current
 	// region is still alive
 	LLViewerRegion *agent_region = gAgent.getRegion();
-	if (agent_region)
+	if (agent_region && (LLStartUp::getStartupState()==STATE_STARTED))
 	{
 		LLUUID this_region_id = agent_region->getRegionID();
 		bool this_region_alive = agent_region->isAlive();

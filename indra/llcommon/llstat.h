@@ -96,11 +96,18 @@ public:
 	
 	struct Bucket
 	{
-		F64		accum;
-		U64		endTime;
+		Bucket() :
+			accum(0.0),
+			endTime(0),
+			lastValid(false),
+			lastAccum(0.0)
+		{}
 
-		BOOL	lastValid;
-		F64		lastAccum;
+		F64	accum;
+		U64	endTime;
+
+		bool	lastValid;
+		F64	lastAccum;
 	};
 
 	Bucket	mBuckets[NUM_SCALES];

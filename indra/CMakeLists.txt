@@ -50,9 +50,9 @@ add_subdirectory(${LIBS_OPEN_PREFIX}llvfs)
 add_subdirectory(${LIBS_OPEN_PREFIX}llwindow)
 add_subdirectory(${LIBS_OPEN_PREFIX}llxml)
 
-if (EXISTS ${LIBS_CLOSED_DIR}llkdu AND NOT STANDALONE)
+if (EXISTS ${LIBS_CLOSED_DIR}llkdu)
   add_subdirectory(${LIBS_CLOSED_PREFIX}llkdu)
-endif (EXISTS ${LIBS_CLOSED_DIR}llkdu AND NOT STANDALONE)
+endif (EXISTS ${LIBS_CLOSED_DIR}llkdu)
 
 add_subdirectory(${LIBS_OPEN_PREFIX}lscript)
 

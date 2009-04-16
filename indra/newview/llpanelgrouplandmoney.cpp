@@ -974,7 +974,7 @@ void LLGroupMoneyTabEventHandler::clickLaterCallback(void* data)
 void LLGroupMoneyTabEventHandler::clickTabCallback(void* data, bool from_click)
 {
 	LLGroupMoneyTabEventHandler* selfp = (LLGroupMoneyTabEventHandler*) data;
-	if ( selfp ) selfp->onClickTab();
+	if ( selfp && from_click ) selfp->onClickTab();
 }
 
 //**************************************************

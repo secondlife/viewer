@@ -144,9 +144,15 @@ public:
 	virtual void captureMouse() = 0;
 	virtual void releaseMouse() = 0;
 	virtual void setMouseClipping( BOOL b ) = 0;
+
 	virtual BOOL isClipboardTextAvailable() = 0;
 	virtual BOOL pasteTextFromClipboard(LLWString &dst) = 0;
 	virtual BOOL copyTextToClipboard(const LLWString &src) = 0;
+
+	virtual BOOL isPrimaryTextAvailable();
+	virtual BOOL pasteTextFromPrimary(LLWString &dst);
+	virtual BOOL copyTextToPrimary(const LLWString &src);
+ 
 	virtual void flashIcon(F32 seconds) = 0;
 	virtual F32 getGamma() = 0;
 	virtual BOOL setGamma(const F32 gamma) = 0; // Set the gamma

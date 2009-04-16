@@ -209,7 +209,7 @@ BOOL LLGLSLShader::mapAttributes(const vector<string> * attributes)
 	{ //read back channel locations
 
 		//read back reserved channels first
-		for (U32 i = 0; i < (S32) LLShaderMgr::instance()->mReservedAttribs.size(); i++)
+		for (U32 i = 0; i < LLShaderMgr::instance()->mReservedAttribs.size(); i++)
 		{
 			const char* name = LLShaderMgr::instance()->mReservedAttribs[i].c_str();
 			S32 index = glGetAttribLocationARB(mProgramObject, (const GLcharARB *)name);

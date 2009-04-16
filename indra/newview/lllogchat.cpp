@@ -50,7 +50,7 @@ std::string LLLogChat::makeLogFileName(std::string filename)
 std::string LLLogChat::cleanFileName(std::string filename)
 {
 	std::string invalidChars = "\"\'\\/?*:<>|";
-	S32 position = filename.find_first_of(invalidChars);
+	std::string::size_type position = filename.find_first_of(invalidChars);
 	while (position != filename.npos)
 	{
 		filename[position] = '_';

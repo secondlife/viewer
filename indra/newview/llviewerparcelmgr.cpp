@@ -650,10 +650,9 @@ BOOL LLViewerParcelMgr::agentCanBuild() const
 {
 	if (mAgentParcel)
 	{
-		return (gAgent.isGodlike()
-				|| (mAgentParcel->allowModifyBy(
-						gAgent.getID(),
-						gAgent.getGroupID())));
+		return (gAgent.isGodlike() ||
+				(mAgentParcel->allowModifyBy(gAgent.getID(), gAgent.getGroupID())) ||
+				(isParcelOwnedByAgent(mAgentParcel, GP_LAND_ALLOW_CREATE)));
 	}
 	else
 	{

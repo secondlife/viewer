@@ -314,7 +314,8 @@ LLScriptEdCore::LLScriptEdCore(
 	mForceClose( FALSE ),
 	mLastHelpToken(NULL),
 	mLiveHelpHistorySize(0),
-	mEnableSave(FALSE)
+	mEnableSave(FALSE),
+	mHasScriptData(FALSE)
 {
 	setFollowsAll();
 	setBorderVisible(FALSE);
@@ -442,12 +443,21 @@ void LLScriptEdCore::initMenu()
 	menuItem->setEnabledCallback(NULL);
 }
 
+void LLScriptEdCore::setScriptText(const std::string& text, BOOL is_valid)
+{
+	if (mEditor)
+	{
+		mEditor->setText(text);
+		mHasScriptData = is_valid;
+	}
+}
+
 BOOL LLScriptEdCore::hasChanged(void* userdata)
 {
 	LLScriptEdCore* self = (LLScriptEdCore*)userdata;
 	if (!self || !self->mEditor) return FALSE;
 
-	return !self->mEditor->isPristine() || self->mEnableSave;
+	return ((!self->mEditor->isPristine() || self->mEnableSave) && self->mHasScriptData);
 }
 
 void LLScriptEdCore::draw()
@@ -975,8 +985,8 @@ bool LLScriptEdCore::handleReloadFromServerDialog(const LLSD& notification, cons
 	case 0: // "Yes"
 		if( mLoadCallback )
 		{
-			mEditor->setText( getString("loading") );
-			mLoadCallback( mUserdata );
+			setScriptText(getString("loading"), FALSE);
+			mLoadCallback(mUserdata);
 		}
 		break;
 
@@ -1189,7 +1199,7 @@ void LLPreviewLSL::loadAsset()
 		}
 		else
 		{
-			mScriptEd->mEditor->setText(mScriptEd->getString("can_not_view"));
+			mScriptEd->setScriptText(mScriptEd->getString("can_not_view"), FALSE);
 			mScriptEd->mEditor->makePristine();
 			mScriptEd->mEditor->setEnabled(FALSE);
 			mScriptEd->mFunctions->setEnabled(FALSE);
@@ -1200,7 +1210,7 @@ void LLPreviewLSL::loadAsset()
 	}
 	else
 	{
-		mScriptEd->mEditor->setText(std::string(HELLO_LSL));
+		mScriptEd->setScriptText(std::string(HELLO_LSL), TRUE);
 		mAssetStatus = PREVIEW_ASSET_LOADED;
 	}
 }
@@ -1506,14 +1516,13 @@ void LLPreviewLSL::onLoadComplete( LLVFS *vfs, const LLUUID& asset_uuid, LLAsset
 			LLVFile file(vfs, asset_uuid, type);
 			S32 file_length = file.getSize();
 
-			char* buffer = new char[file_length+1];
-			file.read((U8*)buffer, file_length);		/*Flawfinder: ignore*/
+			std::vector<char> buffer(file_length+1);
+			file.read((U8*)&buffer[0], file_length);
 
 			// put a EOS at the end
 			buffer[file_length] = 0;
-			preview->mScriptEd->mEditor->setText(LLStringExplicit(buffer));
+			preview->mScriptEd->setScriptText(LLStringExplicit(&buffer[0]), TRUE);
 			preview->mScriptEd->mEditor->makePristine();
-			delete [] buffer;
 			LLInventoryItem* item = gInventory.getItem(*item_uuid);
 			BOOL is_modifiable = FALSE;
 			if(item
@@ -1726,7 +1735,7 @@ void LLLiveLSLEditor::loadAsset(BOOL is_new)
 					   || !gAgent.allowOperation(PERM_MODIFY, item->getPermissions(), GP_OBJECT_MANIPULATE))))
 			{
 				mItem = new LLViewerInventoryItem(item);
-				mScriptEd->mEditor->setText(getString("not_allowed"));
+				mScriptEd->setScriptText(getString("not_allowed"), FALSE);
 				mScriptEd->mEditor->makePristine();
 				mScriptEd->mEditor->setEnabled(FALSE);
 				mScriptEd->enableSave(FALSE);
@@ -1758,7 +1767,7 @@ void LLLiveLSLEditor::loadAsset(BOOL is_new)
 			}
 			else
 			{
-				mScriptEd->mEditor->setText(LLStringUtil::null);
+				mScriptEd->setScriptText(LLStringUtil::null, FALSE);
 				mScriptEd->mEditor->makePristine();
 				mAssetStatus = PREVIEW_ASSET_LOADED;
 			}
@@ -1795,7 +1804,7 @@ void LLLiveLSLEditor::loadAsset(BOOL is_new)
 			// This may be better than having a accessible null pointer around,
 			// though this newly allocated object will most likely be replaced.
 			mItem = new LLViewerInventoryItem();
-			mScriptEd->mEditor->setText(LLStringUtil::null);
+			mScriptEd->setScriptText(LLStringUtil::null, FALSE);
 			mScriptEd->mEditor->makePristine();
 			mScriptEd->mEditor->setEnabled(FALSE);
 			mAssetStatus = PREVIEW_ASSET_LOADED;
@@ -1803,7 +1812,7 @@ void LLLiveLSLEditor::loadAsset(BOOL is_new)
 	}
 	else
 	{
-		mScriptEd->mEditor->setText(std::string(HELLO_LSL));
+		mScriptEd->setScriptText(std::string(HELLO_LSL), TRUE);
 		mScriptEd->enableSave(FALSE);
 		LLPermissions perm;
 		perm.init(gAgent.getID(), gAgent.getID(), LLUUID::null, gAgent.getGroupID());
@@ -1902,8 +1911,8 @@ void LLLiveLSLEditor::loadScriptText(LLVFS *vfs, const LLUUID &uuid, LLAssetType
 {
 	LLVFile file(vfs, uuid, type);
 	S32 file_length = file.getSize();
-	char *buffer = new char[file_length + 1];
-	file.read((U8*)buffer, file_length);		/*Flawfinder: ignore*/
+	std::vector<char> buffer(file_length + 1);
+	file.read((U8*)&buffer[0], file_length);
 
 	if (file.getLastBytesRead() != file_length ||
 		file_length <= 0)
@@ -1913,10 +1922,8 @@ void LLLiveLSLEditor::loadScriptText(LLVFS *vfs, const LLUUID &uuid, LLAssetType
 
 	buffer[file_length] = '\0';
 
-	mScriptEd->mEditor->setText(LLStringExplicit(buffer));
+	mScriptEd->setScriptText(LLStringExplicit(&buffer[0]), TRUE);
 	mScriptEd->mEditor->makePristine();
-	delete[] buffer;
-
 }
 
 

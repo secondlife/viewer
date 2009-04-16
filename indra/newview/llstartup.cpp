@@ -116,6 +116,7 @@
 #include "llkeyboard.h"
 #include "llloginhandler.h"			// gLoginHandler, SLURL support
 #include "llpanellogin.h"
+#include "llprefsim.h"
 #include "llmutelist.h"
 #include "llnotify.h"
 #include "llpanelavatar.h"
@@ -1294,16 +1295,9 @@ bool idle_startup()
 		if (update || gSavedSettings.getBOOL("ForceMandatoryUpdate"))
 		{
 			gSavedSettings.setBOOL("ForceMandatoryUpdate", FALSE);
-			if (show_connect_box)
-			{
-				update_app(TRUE, auth_message);
-				LLStartUp::setStartupState( STATE_UPDATE_CHECK );
-				return false;
-			}
-			else
-			{
-				quit = true;
-			}
+			update_app(TRUE, auth_message);
+			LLStartUp::setStartupState( STATE_UPDATE_CHECK );
+			return false;
 		}
 
 		// Version update and we're not showing the dialog
@@ -1976,6 +1970,9 @@ bool idle_startup()
 	//---------------------------------------------------------------------
 	if (STATE_INVENTORY_SEND == LLStartUp::getStartupState())
 	{
+		// Inform simulator of our language preference
+		LLAgentLanguage::update();
+
 		// unpack thin inventory
 		LLUserAuth::options_t options;
 		options.clear();
@@ -2291,9 +2288,6 @@ bool idle_startup()
 		// JC - 7/20/2002
 		gViewerWindow->sendShapeToSim();
 
-		// Inform simulator of our language preference
-		LLAgentLanguage::update();
-
 		
 		// Ignore stipend information for now.  Money history is on the web site.
 		// if needed, show the L$ history window
@@ -2351,6 +2345,9 @@ bool idle_startup()
 
         //DEV-17797.  get null folder.  Any items found here moved to Lost and Found
         LLInventoryModel::findLostItems();
+
+		//DEV-10530.  do cleanup.  remove at some later date.  jan-2009
+		LLPrefsIM::cleanupBadSetting();
 
 		LLStartUp::setStartupState( STATE_PRECACHE );
 		timeout.reset();

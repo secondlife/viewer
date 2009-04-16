@@ -1,6 +1,6 @@
 /**
  * @file llappviewermacosx.cpp
- * @brief The LLAppViewerWin32 class definitions
+ * @brief The LLAppViewerMacOSX class definitions
  *
  * $LicenseInfo:firstyear=2007&license=viewergpl$
  * 

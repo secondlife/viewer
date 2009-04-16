@@ -483,11 +483,20 @@ LLPanelAvatarWeb::~LLPanelAvatarWeb()
 	};
 }
 
+void LLPanelAvatarWeb::refresh()
+{
+	if (mNavigateTo != "")
+	{
+		llinfos << "Loading " << mNavigateTo << llendl;
+		mWebBrowser->navigateTo( mNavigateTo );
+		mNavigateTo = "";
+	}
+}
+
+
 void LLPanelAvatarWeb::enableControls(BOOL self)
 {	
 	childSetEnabled("url_edit",self);
-	childSetVisible("status_text",!self && !mHome.empty());
-	childSetText("status_text", LLStringUtil::null);
 }
 
 void LLPanelAvatarWeb::setWebURL(std::string url)
@@ -511,11 +520,8 @@ void LLPanelAvatarWeb::setWebURL(std::string url)
 	else
 	{
 		childSetVisible("profile_html",false);
+		childSetVisible("status_text", false);
 	}
-
-	BOOL own_avatar = (getPanelAvatar()->getAvatarID() == gAgent.getID() );
-	childSetVisible("status_text",!own_avatar && !mHome.empty());
-	
 }
 
 // static
@@ -538,13 +544,15 @@ void LLPanelAvatarWeb::load(std::string url)
 {
 	bool have_url = (!url.empty());
 
+	
+	childSetVisible("profile_html", have_url);
+	childSetVisible("status_text", have_url);
+	childSetText("status_text", LLStringUtil::null);
+
 	if (have_url)
 	{
-		llinfos << "Loading " << url << llendl;
-		mWebBrowser->navigateTo( url );
+		mNavigateTo = url;
 	}
-
-	childSetVisible("profile_html", have_url);
 }
 
 //static

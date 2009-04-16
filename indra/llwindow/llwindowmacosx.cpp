@@ -2527,19 +2527,33 @@ OSStatus LLWindowMacOSX::eventHandler (EventHandlerCallRef myHandler, EventRef e
 			}
 			mCallbacks->handleFocusLost(this);
 			break;
+			
 		case kEventWindowBoundsChanging:
 			{
+				// This is where we would constrain move/resize to a particular screen
+
+				const S32 MIN_WIDTH  = 320;
+				const S32 MIN_HEIGHT = 240;
+				
 				Rect currentBounds;
 				Rect previousBounds;
 
 				GetEventParameter(event, kEventParamCurrentBounds, typeQDRectangle, NULL, sizeof(Rect), NULL, &currentBounds);
 				GetEventParameter(event, kEventParamPreviousBounds, typeQDRectangle, NULL, sizeof(Rect), NULL, &previousBounds);
 
-				// This is where we would constrain move/resize to a particular screen
-				if(0)
+
+				if ((currentBounds.right - currentBounds.left) < MIN_WIDTH)
 				{
-					SetEventParameter(event, kEventParamCurrentBounds, typeQDRectangle, sizeof(Rect), &currentBounds);
+					currentBounds.right = currentBounds.left + MIN_WIDTH;
 				}
+
+				if ((currentBounds.bottom - currentBounds.top) < MIN_HEIGHT)
+				{
+					currentBounds.bottom = currentBounds.top + MIN_HEIGHT;
+				}
+				
+				SetEventParameter(event, kEventParamCurrentBounds, typeQDRectangle, sizeof(Rect), &currentBounds);
+				result = noErr;
 			}
 			break;
 
@@ -2597,7 +2611,6 @@ OSStatus LLWindowMacOSX::eventHandler (EventHandlerCallRef myHandler, EventRef e
 			//					BringToFront(mWindow);
 			//					result = noErr;
 			break;
-		
 		}
 		break;
 

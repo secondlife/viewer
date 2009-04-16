@@ -294,7 +294,7 @@ BOOL LLWearable::importFile( LLFILE* file )
 	}
 
 	// name
-	char next_char = fgetc( file );		/* Flawfinder: ignore */
+	int next_char = fgetc( file );		/* Flawfinder: ignore */
 	if( '\n' == next_char )
 	{
 		// no name

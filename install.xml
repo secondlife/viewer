@@ -63,9 +63,9 @@
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>ce71bd658c3fa9fd7f46b7c5adacef1c</string>
+            <string>25f8a8fc4ea94169fe6222571b8d5e55</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/SDL-1.2.5-linux-20080818.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/SDL-1.2.12-linux-20081222c.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
@@ -247,30 +247,30 @@
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>c426dfaad3b662405e49ed3701a55d38</string>
+            <string>1bece4ebdc5fc3818854bc3df14b511b</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/curl-7.16.0-darwin-20080812.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/curl-7.16.4a-darwin-20090304.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>a88e8285b3d97a21bf43cc5f90e87eb9</string>
+            <string>0f366e421ae9c72d9659bd20a2a326d6</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/curl-7.16.4-linux-20081202.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/curl-7.16.4a-linux-20090303a.tar.bz2</uri>
           </map>
           <key>linux64</key>
           <map>
             <key>md5sum</key>
-            <string>6e9242d11d785f643f34d925a29967e7</string>
+            <string>6994192cea7ab2d885a158a3de474273</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/curl-7.16.4-linux64-20080909.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/curl-7.16.4a-linux64-20090303.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>d391c33898a5dbc7e7537bf0d9cda36e</string>
+            <string>8c9d135f0e7cd1fae5681d4595942ee3</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/curl-7.18.1-windows-20080723.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/curl-7.16.4-windows-20090306.tar.bz2</uri>
           </map>
         </map>
       </map>

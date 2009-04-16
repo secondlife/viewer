@@ -901,7 +901,7 @@ void LLPanelGroupGeneral::updateChanged()
 
 	mChanged = FALSE;
 
-	for( int i= 0; i< LL_ARRAY_SIZE(check_list); i++ )
+	for( size_t i=0; i<LL_ARRAY_SIZE(check_list); i++ )
 	{
 		if( check_list[i] && check_list[i]->isDirty() )
 		{

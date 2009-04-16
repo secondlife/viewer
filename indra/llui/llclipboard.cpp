@@ -93,3 +93,44 @@ BOOL LLClipboard::canPasteString() const
 {
 	return LLView::getWindow()->isClipboardTextAvailable();
 }
+
+
+void LLClipboard::copyFromPrimarySubstring(const LLWString &src, S32 pos, S32 len, const LLUUID& source_id )
+{
+	mSourceID = source_id;
+	mString = src.substr(pos, len);
+	LLView::getWindow()->copyTextToPrimary( mString );
+}
+
+
+const LLWString& LLClipboard::getPastePrimaryWString( LLUUID* source_id )
+{
+	if( mSourceID.notNull() )
+	{
+		LLWString temp_string;
+		LLView::getWindow()->pasteTextFromPrimary(temp_string);
+
+		if( temp_string != mString )
+		{
+			mSourceID.setNull();
+			mString = temp_string;
+		}
+	}
+	else
+	{
+		LLView::getWindow()->pasteTextFromPrimary(mString);
+	}
+
+	if( source_id )
+	{
+		*source_id = mSourceID;
+	}
+
+	return mString;
+}
+
+
+BOOL LLClipboard::canPastePrimaryString() const
+{
+	return LLView::getWindow()->isPrimaryTextAvailable();
+}

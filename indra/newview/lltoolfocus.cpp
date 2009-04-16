@@ -128,8 +128,8 @@ BOOL LLToolCamera::handleMouseDown(S32 x, S32 y, MASK mask)
 	gViewerWindow->hideCursor();
 
 	gViewerWindow->pickAsync(x, y, mask, pickCallback);
-	// don't steal focus from UI
-	return FALSE;
+
+	return TRUE;
 }
 
 void LLToolCamera::pickCallback(const LLPickInfo& pick_info)

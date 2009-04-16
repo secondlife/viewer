@@ -2441,7 +2441,11 @@ void LLViewerObject::processTaskInv(LLMessageSystem* msg, void** user_data)
 	msg->getS16Fast(_PREHASH_InventoryData, _PREHASH_Serial, object->mInventorySerialNum);
 	LLFilenameAndTask* ft = new LLFilenameAndTask;
 	ft->mTaskID = task_id;
-	msg->getStringFast(_PREHASH_InventoryData, _PREHASH_Filename, ft->mFilename);
+
+	std::string unclean_filename;
+	msg->getStringFast(_PREHASH_InventoryData, _PREHASH_Filename, unclean_filename);
+	ft->mFilename = LLDir::getScrubbedFileName(unclean_filename);
+	
 	if(ft->mFilename.empty())
 	{
 		lldebugs << "Task has no inventory" << llendl;

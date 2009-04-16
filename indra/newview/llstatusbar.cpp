@@ -628,9 +628,16 @@ void LLStatusBar::refresh()
 	mTextParcelName->setRect(r);
 
 	// Set search bar visibility
-	childSetVisible("search_editor", search_visible);
-	childSetVisible("search_btn", search_visible);
-	childSetVisible("menubar_search_bevel_bg", search_visible);
+
+	if (gAgent.getCameraMode() != CAMERA_MODE_MOUSELOOK)
+	{
+		// don't monkey with search visibility in mouselook - it will be set
+		// with setVisibleForMouselook() below
+		childSetVisible("search_editor", search_visible);
+		childSetVisible("search_btn", search_visible);
+		childSetVisible("menubar_search_bevel_bg", search_visible);
+	}
+	
 	mSGBandwidth->setVisible(! search_visible);
 	mSGPacketLoss->setVisible(! search_visible);
 	childSetEnabled("stat_btn", ! search_visible);
@@ -643,6 +650,7 @@ void LLStatusBar::setVisibleForMouselook(bool visible)
 	childSetVisible("buycurrency", visible);
 	childSetVisible("search_editor", visible);
 	childSetVisible("search_btn", visible);
+	childSetVisible("menubar_search_bevel_bg", visible);
 	mSGBandwidth->setVisible(visible);
 	mSGPacketLoss->setVisible(visible);
 	setBackgroundVisible(visible);

@@ -92,7 +92,6 @@ LLViewerObject* getSelectedParentObject(LLViewerObject *object) ;
 
 const S32 NUM_SELECTION_UNDO_ENTRIES = 200;
 const F32 SILHOUETTE_UPDATE_THRESHOLD_SQUARED = 0.02f;
-const S32 OWNERSHIP_COST_PER_OBJECT = 10; // Must be the same as economy_constants.price_object_claim in the database.
 const S32 MAX_ACTION_QUEUE_SIZE = 20;
 const S32 MAX_SILS_PER_FRAME = 50;
 const S32 MAX_OBJECTS_PER_PACKET = 254;
@@ -2619,11 +2618,6 @@ BOOL LLSelectMgr::selectGetPerm(U8 which_perm, U32* mask_on, U32* mask_off)
 }
 
 
-
-BOOL LLSelectMgr::selectGetOwnershipCost(S32* out_cost)
-{
-	return mSelectedObjects->getOwnershipCost(*out_cost);
-}
 
 BOOL LLSelectMgr::selectGetPermissions(LLPermissions& result_perm)
 {
@@ -5867,16 +5861,6 @@ LLSelectNode* LLObjectSelection::findNode(LLViewerObject* objectp)
 BOOL LLObjectSelection::isEmpty() const
 {
 	return (mList.size() == 0);
-}
-
-//-----------------------------------------------------------------------------
-// getOwnershipCost()
-//-----------------------------------------------------------------------------
-BOOL LLObjectSelection::getOwnershipCost(S32 &cost)
-{
-	S32 count = getObjectCount();
-	cost = count * OWNERSHIP_COST_PER_OBJECT;
-	return (count > 0);
 }
 
 

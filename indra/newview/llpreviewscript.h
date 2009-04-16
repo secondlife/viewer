@@ -81,6 +81,8 @@ public:
 
 	BOOL			canClose();
 
+	void            setScriptText(const std::string& text, BOOL is_valid);
+
 	bool			handleSaveChangesDialog(const LLSD& notification, const LLSD& response);
 	bool			handleReloadFromServerDialog(const LLSD& notification, const LLSD& response);
 
@@ -150,6 +152,7 @@ private:
 	LLFrameTimer	mLiveHelpTimer;
 	S32				mLiveHelpHistorySize;
 	BOOL			mEnableSave;
+	BOOL			mHasScriptData;
 };
 
 

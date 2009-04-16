@@ -2862,20 +2862,14 @@ void LLPanelEstateCovenant::onLoadComplete(LLVFS *vfs,
 
 			S32 file_length = file.getSize();
 
-			char* buffer = new char[file_length+1];
-			if (buffer == NULL)
-			{
-				llerrs << "Memory Allocation Failed" << llendl;
-				return;
-			}
-
-			file.read((U8*)buffer, file_length);		/* Flawfinder: ignore */
+			std::vector<char> buffer(file_length+1);
+			file.read((U8*)&buffer[0], file_length);
 			// put a EOS at the end
 			buffer[file_length] = 0;
 
-			if( (file_length > 19) && !strncmp( buffer, "Linden text version", 19 ) )
+			if( (file_length > 19) && !strncmp( &buffer[0], "Linden text version", 19 ) )
 			{
-				if( !panelp->mEditor->importBuffer( buffer, file_length+1 ) )
+				if( !panelp->mEditor->importBuffer( &buffer[0], file_length+1 ) )
 				{
 					llwarns << "Problem importing estate covenant." << llendl;
 					LLNotifications::instance().add("ProblemImportingEstateCovenant");
@@ -2890,7 +2884,6 @@ void LLPanelEstateCovenant::onLoadComplete(LLVFS *vfs,
 				// Version 0 (just text, doesn't include version number)
 				panelp->sendChangeCovenantID(asset_uuid);
 			}
-			delete[] buffer;
 		}
 		else
 		{

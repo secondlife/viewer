@@ -367,9 +367,14 @@ LLVector3d	LLWorld::clipToVisibleRegions(const LLVector3d &start_pos, const LLVe
 		clip_factor = (region_coord.mV[VY] - region_width) / delta_pos_abs.mdV[VY];
 	}
 
-	// clamp to < 256 to stay in sim
+	// clamp to within region dimensions
 	LLVector3d final_region_pos = LLVector3d(region_coord) - (delta_pos * clip_factor);
-	final_region_pos.clamp(0.0, 255.999);
+	final_region_pos.mdV[VX] = llclamp(final_region_pos.mdV[VX], 0.0,
+									   (F64)(region_width - F_ALMOST_ZERO));
+	final_region_pos.mdV[VY] = llclamp(final_region_pos.mdV[VY], 0.0,
+									   (F64)(region_width - F_ALMOST_ZERO));
+	final_region_pos.mdV[VZ] = llclamp(final_region_pos.mdV[VZ], 0.0,
+									   (F64)(LLWorld::getInstance()->getRegionMaxHeight() - F_ALMOST_ZERO));
 	return regionp->getPosGlobalFromRegion(LLVector3(final_region_pos));
 }
 

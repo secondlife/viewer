@@ -160,6 +160,7 @@ void LLHUDEffectPointAt::unpackData(LLMessageSystem *mesgsys, S32 blocknum)
 	LLHUDEffect::unpackData(mesgsys, blocknum);
 	LLUUID source_id;
 	LLUUID target_id;
+	U8 pointAtTypeUnpacked = 0;
 	S32 size = mesgsys->getSizeFast(_PREHASH_Effect, blocknum, _PREHASH_TypeData);
 	if (size != PKT_SIZE)
 	{
@@ -169,6 +170,9 @@ void LLHUDEffectPointAt::unpackData(LLMessageSystem *mesgsys, S32 blocknum)
 	mesgsys->getBinaryDataFast(_PREHASH_Effect, _PREHASH_TypeData, packed_data, PKT_SIZE, blocknum);
 	
 	htonmemcpy(source_id.mData, &(packed_data[SOURCE_AVATAR]), MVT_LLUUID, 16);
+	htonmemcpy(target_id.mData, &(packed_data[TARGET_OBJECT]), MVT_LLUUID, 16);
+	htonmemcpy(new_target.mdV, &(packed_data[TARGET_POS]), MVT_LLVector3d, 24);
+	htonmemcpy(&pointAtTypeUnpacked, &(packed_data[POINTAT_TYPE]), MVT_U8, 1);
 
 	LLViewerObject *objp = gObjectList.findObject(source_id);
 	if (objp && objp->isAvatar())
@@ -181,11 +185,7 @@ void LLHUDEffectPointAt::unpackData(LLMessageSystem *mesgsys, S32 blocknum)
 		return;
 	}
 
-	htonmemcpy(target_id.mData, &(packed_data[TARGET_OBJECT]), MVT_LLUUID, 16);
-
 	objp = gObjectList.findObject(target_id);
-
-	htonmemcpy(new_target.mdV, &(packed_data[TARGET_POS]), MVT_LLVector3d, 24);
 
 	if (objp)
 	{
@@ -196,8 +196,6 @@ void LLHUDEffectPointAt::unpackData(LLMessageSystem *mesgsys, S32 blocknum)
 		setTargetPosGlobal(new_target);
 	}
 
-	U8 pointAtTypeUnpacked = 0;
-	htonmemcpy(&pointAtTypeUnpacked, &(packed_data[POINTAT_TYPE]), MVT_U8, 1);
 	mTargetType = (EPointAtType)pointAtTypeUnpacked;
 
 //	mKillTime = mTimer.getElapsedTimeF32() + mDuration;

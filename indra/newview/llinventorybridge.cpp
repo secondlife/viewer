@@ -1012,6 +1012,19 @@ BOOL LLItemBridge::isItemCopyable() const
 	LLViewerInventoryItem* item = getItem();
 	if (item)
 	{
+		// can't copy worn objects. DEV-15183
+		LLVOAvatar *avatarp = gAgent.getAvatarObject();
+		if( !avatarp )
+		{
+			return FALSE;
+		}
+
+		if( avatarp->isWearingAttachment( mUUID ) )
+		{
+			return FALSE;
+		}
+			
+
 		return (item->getPermissions().allowCopyBy(gAgent.getID()));
 	}
 	return FALSE;
@@ -4624,7 +4637,7 @@ void LLWearableBridge::onRemoveFromAvatarArrived(LLWearable* wearable,
 		{
 			EWearableType type = wearable->getType();
 	
-			if( !(type==WT_SHAPE || type==WT_SKIN || type==WT_HAIR ) ) //&&
+			if( !(type==WT_SHAPE || type==WT_SKIN || type==WT_HAIR || type==WT_EYES ) ) //&&
 				//!((!gAgent.isTeen()) && ( type==WT_UNDERPANTS || type==WT_UNDERSHIRT )) )
 			{
 				gAgent.removeWearable( type );

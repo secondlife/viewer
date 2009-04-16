@@ -165,14 +165,14 @@ static inline BOOL do_basic_glibc_backtrace()
 // amazing backtrace.
 static inline BOOL do_basic_glibc_backtrace()
 {
-	void *array[MAX_STACK_TRACE_DEPTH];
+	void *stackarray[MAX_STACK_TRACE_DEPTH];
 	size_t size;
 	char **strings;
 	size_t i;
 	BOOL success = FALSE;
 
-	size = backtrace(array, MAX_STACK_TRACE_DEPTH);
-	strings = backtrace_symbols(array, size);
+	size = backtrace(stackarray, MAX_STACK_TRACE_DEPTH);
+	strings = backtrace_symbols(stackarray, size);
 
 	std::string strace_filename = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"stack_trace.log");
 	llinfos << "Opening stack trace file " << strace_filename << llendl;
@@ -186,8 +186,13 @@ static inline BOOL do_basic_glibc_backtrace()
 	if (size)
 	{
 		for (i = 0; i < size; i++)
-			fputs((std::string(strings[i])+"\n").c_str(),
-			      StraceFile);
+		{
+			// the format of the StraceFile is very specific, to allow (kludgy) machine-parsing
+			fprintf(StraceFile, "%-3d ", i);
+			fprintf(StraceFile, "%-32s\t", "unknown");
+			fprintf(StraceFile, "%p ", stackarray[i]);
+			fprintf(StraceFile, "%s\n", strings[i]);
+		}
 
 		success = TRUE;
 	}
@@ -205,7 +210,7 @@ static inline BOOL do_basic_glibc_backtrace()
 // extraction without exporting symbols (which'd cause subtle, fatal bugs).
 static inline BOOL do_elfio_glibc_backtrace()
 {
-	void *array[MAX_STACK_TRACE_DEPTH];
+	void *stackarray[MAX_STACK_TRACE_DEPTH];
 	size_t btsize;
 	char **strings;
 	BOOL success = FALSE;
@@ -222,8 +227,8 @@ static inline BOOL do_elfio_glibc_backtrace()
 	}
 
 	// get backtrace address list and basic symbol info
-	btsize = backtrace(array, MAX_STACK_TRACE_DEPTH);
-	strings = backtrace_symbols(array, btsize);
+	btsize = backtrace(stackarray, MAX_STACK_TRACE_DEPTH);
+	strings = backtrace_symbols(stackarray, btsize);
 
 	// create ELF reader for our app binary
 	IELFI* pReader;
@@ -257,7 +262,8 @@ static inline BOOL do_elfio_glibc_backtrace()
 	size_t btpos;
 	for (btpos = 0; btpos < btsize; ++btpos)
 	{
-		fprintf(StraceFile, "%d:\t", btpos);
+		// the format of the StraceFile is very specific, to allow (kludgy) machine-parsing
+		fprintf(StraceFile, "%-3d ", btpos);
 		int symidx;
 		for (symidx = 0; symidx < nSymNo; ++symidx)
 		{
@@ -266,9 +272,13 @@ static inline BOOL do_elfio_glibc_backtrace()
 					       bind, type, section))
 			{
 				// check if trace address within symbol range
-				if (uintptr_t(array[btpos]) >= value &&
-				    uintptr_t(array[btpos]) < value+ssize)
+				if (uintptr_t(stackarray[btpos]) >= value &&
+				    uintptr_t(stackarray[btpos]) < value+ssize)
 				{
+					// symbol is inside viewer
+					fprintf(StraceFile, "%-32s\t", "com.secondlife.indra.viewer");
+					fprintf(StraceFile, "%p ", stackarray[btpos]);
+
 					char *demangled_str = NULL;
 					int demangle_result = 1;
 					demangled_str =
@@ -278,20 +288,19 @@ static inline BOOL do_elfio_glibc_backtrace()
 					if (0 == demangle_result &&
 					    NULL != demangled_str) {
 						fprintf(StraceFile,
-							"ELF(%s", demangled_str);
+							"%s", demangled_str);
 						free(demangled_str);
 					}
 					else // failed demangle; print it raw
 					{
 						fprintf(StraceFile,
-							"ELF(%s", name.c_str());
+							"%s", name.c_str());
 					}
 					// print offset from symbol start
 					fprintf(StraceFile,
-						"+0x%lx) [%p]\n",
-						uintptr_t(array[btpos]) -
-						value,
-						array[btpos]);
+						" + %lu\n",
+						uintptr_t(stackarray[btpos]) -
+						value);
 					goto got_sym; // early escape
 				}
 			}
@@ -299,6 +308,8 @@ static inline BOOL do_elfio_glibc_backtrace()
 		// Fallback:
 		// Didn't find a suitable symbol in the binary - it's probably
 		// a symbol in a DSO; use glibc's idea of what it should be.
+		fprintf(StraceFile, "%-32s\t", "unknown");
+		fprintf(StraceFile, "%p ", stackarray[btpos]);
 		fprintf(StraceFile, "%s\n", strings[btpos]);
 	got_sym:;
 	}

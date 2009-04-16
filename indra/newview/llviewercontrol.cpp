@@ -63,6 +63,7 @@
 #include "llviewerparcelmgr.h"
 #include "llparcel.h"
 #include "llnotify.h"
+#include "lloverlaybar.h"
 #include "llkeyboard.h"
 #include "llerrorcontrol.h"
 #include "llversionviewer.h"
@@ -269,17 +270,21 @@ static bool handleAudioStreamMusicChanged(const LLSD& newvalue)
 			if (LLViewerParcelMgr::getInstance()->getAgentParcel()
 				&& !LLViewerParcelMgr::getInstance()->getAgentParcel()->getMusicURL().empty())
 			{
-				// if stream is already playing, don't call this
-				// otherwise music will briefly stop
-				if ( !gAudiop->isInternetStreamPlaying() )
+				// if music isn't playing, start it
+				if (gOverlayBar && !gOverlayBar->musicPlaying())
 				{
-					gAudiop->startInternetStream(LLViewerParcelMgr::getInstance()->getAgentParcel()->getMusicURL());
+					LLOverlayBar::toggleMusicPlay(NULL);
 				}
 			}
 		}
 		else
 		{
-			gAudiop->stopInternetStream();
+			// if music is playing, stop it.
+			if (gOverlayBar && gOverlayBar->musicPlaying())
+				{
+					LLOverlayBar::toggleMusicPlay(NULL);
+				}
+
 		}
 	}
 	return true;

@@ -251,7 +251,6 @@ const S32 AGENT_UPDATES_PER_SECOND  = 10;
 
 extern LLSD gDebugInfo;
 
-extern BOOL	gAllowIdleAFK;
 extern BOOL	gAllowTapTapHoldRun;
 extern BOOL	gShowObjectUpdates;
 

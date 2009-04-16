@@ -279,7 +279,6 @@ set(viewer_SOURCE_FILES
     llpanelgrouplandmoney.cpp
     llpanelgroupnotices.cpp
     llpanelgrouproles.cpp
-    llpanelgroupvoting.cpp
     llpanelinput.cpp
     llpanelinventory.cpp
     llpanelland.cpp
@@ -683,7 +682,6 @@ set(viewer_HEADER_FILES
     llpanelgrouplandmoney.h
     llpanelgroupnotices.h
     llpanelgrouproles.h
-    llpanelgroupvoting.h
     llpanelinput.h
     llpanelinventory.h
     llpanelland.h

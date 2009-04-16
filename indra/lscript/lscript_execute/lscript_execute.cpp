@@ -77,7 +77,7 @@ const U64 LSL_HTTP_REQUEST_TIMEOUT = 25 * USEC_PER_SEC;
 LLScriptExecuteLSL2::LLScriptExecuteLSL2(LLFILE *fp)
 {
 	U8  sizearray[4];
-	S32 filesize;
+	size_t filesize;
 	S32 pos = 0;
 	if (fread(&sizearray, 1, 4, fp) != 4)
 	{

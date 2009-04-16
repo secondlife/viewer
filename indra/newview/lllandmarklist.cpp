@@ -89,11 +89,11 @@ void LLLandmarkList::processGetAssetReply(
 		LLVFile file(vfs, uuid, type);
 		S32 file_length = file.getSize();
 
-		char* buffer = new char[ file_length + 1 ];
-		file.read( (U8*)buffer, file_length);		/*Flawfinder: ignore*/
+		std::vector<char> buffer(file_length + 1);
+		file.read( (U8*)&buffer[0], file_length);
 		buffer[ file_length ] = 0;
 
-		LLLandmark* landmark = LLLandmark::constructFromString(buffer);
+		LLLandmark* landmark = LLLandmark::constructFromString(&buffer[0]);
 		if (landmark)
 		{
 			LLVector3d pos;
@@ -111,8 +111,6 @@ void LLLandmarkList::processGetAssetReply(
 			}
 			gLandmarkList.mList[ uuid ] = landmark;
 		}
-
-		delete[] buffer;
 	}
 	else
 	{

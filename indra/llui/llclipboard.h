@@ -44,10 +44,19 @@ public:
 	LLClipboard();
 	~LLClipboard();
 
+	/* We support two flavors of clipboard.  The default is the explicitly
+	   copy-and-pasted clipboard.  The second is the so-called 'primary' clipboard
+	   which is implicitly copied upon selection on platforms which expect this
+	   (i.e. X11/Linux). */
+
 	void		copyFromSubstring(const LLWString &copy_from, S32 pos, S32 len, const LLUUID& source_id = LLUUID::null );
 	BOOL		canPasteString() const;
 	const LLWString&	getPasteWString(LLUUID* source_id = NULL);
-	
+
+	void		copyFromPrimarySubstring(const LLWString &copy_from, S32 pos, S32 len, const LLUUID& source_id = LLUUID::null );
+	BOOL		canPastePrimaryString() const;
+	const LLWString&	getPastePrimaryWString(LLUUID* source_id = NULL);	
+
 private:
 	LLUUID		mSourceID;
 	LLWString	mString;

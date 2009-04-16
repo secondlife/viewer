@@ -41,7 +41,7 @@ applications such as the Second Life Viewer, as follows:
 * Ubuntu or Gentoo Linux Configuration:
   For a quick start, you can simply paste the following line into a terminal
   before plugging in your SpaceNavigator - this only needs to be done once:
-  sudo bash -c 'echo KERNEL==\"event[0-9]*\", SYSFS{idVendor}==\"046d\", SYSFS{idProduct}==\"c626\", SYMLINK+=\"input/spacenavigator\", GROUP=\"plugdev\", MODE=\"664\" >> /etc/udev/rules.d/91-spacenavigator.rules'
+  sudo bash -c 'echo KERNEL==\"event[0-9]*\", SYSFS{idVendor}==\"046d\", SYSFS{idProduct}==\"c626\", SYMLINK+=\"input/spacenavigator\", GROUP=\"plugdev\", MODE=\"664\" > /etc/udev/rules.d/91-spacenavigator-LL.rules ; echo "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?><deviceinfo version=\"0.2\"><device><match key=\"info.product\" contains=\"3Dconnexion SpaceNavigator\"><merge key=\"input.x11_driver\" type=\"string\"></merge></match></device></deviceinfo>" > /etc/hal/fdi/policy/3Dconnexion_SpaceNavigator_LL.fdi'
 
 For more comprehensive Linux SpaceNavigator configuration information please
 see the section 'Installing SpaceNavigator without the official driver' here:

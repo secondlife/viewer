@@ -354,18 +354,17 @@ LLVFS::LLVFS(const std::string& index_filename, const std::string& data_filename
 		(mIndexFP = openAndLock(mIndexFilename, file_mode, mReadOnly))
 		)
 	{	
-		U8 *buffer = new U8[fbuf.st_size];
-		size_t nread = fread(buffer, 1, fbuf.st_size, mIndexFP);
-    
-		U8 *tmp_ptr = buffer;
-    
+		std::vector<U8> buffer(fbuf.st_size);
+    		size_t buf_offset = 0;
+		size_t nread = fread(&buffer[0], 1, fbuf.st_size, mIndexFP);
+ 
 		std::vector<LLVFSFileBlock*> files_by_loc;
 		
-		while (tmp_ptr < buffer + nread)
+		while (buf_offset < nread)
 		{
 			LLVFSFileBlock *block = new LLVFSFileBlock();
     
-			block->deserialize(tmp_ptr, (S32)(tmp_ptr - buffer));
+			block->deserialize(&buffer[buf_offset], (S32)buf_offset);
     
 			// Do sanity check on this block.
 			// Note that this skips zero size blocks, which helps VFS
@@ -389,7 +388,6 @@ LLVFS::LLVFS(const std::string& index_filename, const std::string& data_filename
 				LL_WARNS("VFS") << "Length: " << block->mLength << "\tLocation: " << block->mLocation << "\tSize: " << block->mSize << LL_ENDL;
 				LL_WARNS("VFS") << "File has bad data - VFS removed" << LL_ENDL;
 
-				delete[] buffer;
 				delete block;
 
 				unlockAndClose( mIndexFP );
@@ -412,15 +410,13 @@ LLVFS::LLVFS(const std::string& index_filename, const std::string& data_filename
 			else
 			{
 				// this is a null or bad entry, skip it
-				S32 index_loc = (S32)(tmp_ptr - buffer);
-				mIndexHoles.push_back(index_loc);
+				mIndexHoles.push_back(buf_offset);
     
 				delete block;
 			}
     
-			tmp_ptr += LLVFSFileBlock::SERIAL_SIZE;
+			buf_offset += LLVFSFileBlock::SERIAL_SIZE;
 		}
-		delete[] buffer;
 
 		std::sort(
 			files_by_loc.begin(),
@@ -861,20 +857,18 @@ BOOL LLVFS::setMaxSize(const LLUUID &file_id, const LLAssetType::EType file_type
 					if (block->mSize > 0)
 					{
 						// move the file into the new block
-						U8 *buffer = new U8[block->mSize];
+						std::vector<U8> buffer(block->mSize);
 						fseek(mDataFP, block->mLocation, SEEK_SET);
-						if (fread(buffer, block->mSize, 1, mDataFP) == 1)
+						if (fread(&buffer[0], block->mSize, 1, mDataFP) == 1)
 						{
 							fseek(mDataFP, new_data_location, SEEK_SET);
-							if (fwrite(buffer, block->mSize, 1, mDataFP) != 1)
+							if (fwrite(&buffer[0], block->mSize, 1, mDataFP) != 1)
 							{
 								llwarns << "Short write" << llendl;
 							}
 						} else {
 							llwarns << "Short read" << llendl;
 						}
-    
-						delete[] buffer;
 					}
 				}
     
@@ -1698,32 +1692,32 @@ void LLVFS::audit()
 	fflush(mIndexFP);
 
 	fseek(mIndexFP, 0, SEEK_END);
-	long index_size = ftell(mIndexFP);
+	size_t index_size = ftell(mIndexFP);
 	fseek(mIndexFP, 0, SEEK_SET);
     
 	BOOL vfs_corrupt = FALSE;
 	
-	U8 *buffer = new U8[index_size];
+	std::vector<U8> buffer(index_size);
 
-	if (fread(buffer, 1, index_size, mIndexFP) != index_size)
+	if (fread(&buffer[0], 1, index_size, mIndexFP) != index_size)
 	{
 		llwarns << "Index truncated" << llendl;
 		vfs_corrupt = TRUE;
 	}
     
-	U8 *tmp_ptr = buffer;
+	size_t buf_offset = 0;
     
 	std::map<LLVFSFileSpecifier, LLVFSFileBlock*>	found_files;
 	U32 cur_time = (U32)time(NULL);
 
 	std::vector<LLVFSFileBlock*> audit_blocks;
-	while (!vfs_corrupt && tmp_ptr < buffer + index_size)
+	while (!vfs_corrupt && buf_offset < index_size)
 	{
 		LLVFSFileBlock *block = new LLVFSFileBlock();
 		audit_blocks.push_back(block);
 		
-		block->deserialize(tmp_ptr, (S32)(tmp_ptr - buffer));
-		tmp_ptr += block->SERIAL_SIZE;
+		block->deserialize(&buffer[buf_offset], (S32)buf_offset);
+		buf_offset += block->SERIAL_SIZE;
     
 		// do sanity check on this block
 		if (block->mLength >= 0 &&
@@ -1782,8 +1776,6 @@ void LLVFS::audit()
 		}
 	}
     
-	delete[] buffer;
-
 	if (!vfs_corrupt)
 	{
 		for (fileblock_map::iterator it = mFileBlocks.begin(); it != mFileBlocks.end(); ++it)
@@ -2078,21 +2070,21 @@ void LLVFS::dumpFiles()
 		{
 			LLUUID id = file_spec.mFileID;
 			LLAssetType::EType type = file_spec.mFileType;
-			U8* buffer = new U8[size];
+			std::vector<U8> buffer(size);
 
 			unlockData();
-			getData(id, type, buffer, 0, size);
+			getData(id, type, &buffer[0], 0, size);
 			lockData();
 			
 			std::string extension = get_extension(type);
 			std::string filename = id.asString() + extension;
 			llinfos << " Writing " << filename << llendl;
 			
-			LLAPRFile outfile ;
+			LLAPRFile outfile;
 			outfile.open(filename, LL_APR_WB);
-			outfile.write(buffer, size);
+			outfile.write(&buffer[0], size);
 			outfile.close();
-			delete[] buffer;
+
 			files_extracted++;
 		}
 	}

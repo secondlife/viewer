@@ -72,11 +72,14 @@ const S32 PREVIEW_TEXTURE_HEIGHT = 300;
 // LLFloaterImagePreview()
 //-----------------------------------------------------------------------------
 LLFloaterImagePreview::LLFloaterImagePreview(const std::string& filename) : 
-	LLFloaterNameDesc(filename)
+	LLFloaterNameDesc(filename),
+
+	mAvatarPreview(NULL),
+	mSculptedPreview(NULL),
+	mLastMouseX(0),
+	mLastMouseY(0),
+	mImagep(NULL)
 {
-	mLastMouseX = 0;
-	mLastMouseY = 0;
-	mImagep = NULL ;
 	loadImage(mFilenameAndPath);
 }
 
@@ -815,7 +818,7 @@ void LLImagePreviewSculpted::setPreviewTarget(LLImageRaw* imagep, F32 distance)
 	mVertexBuffer->getIndexStrider(index_strider);
 
 	// build vertices and normals
-	for (U32 i = 0; (S32)i < num_vertices; i++)
+	for (U32 i = 0; i < num_vertices; i++)
 	{
 		*(vertex_strider++) = vf.mVertices[i].mPosition;
 		LLVector3 normal = vf.mVertices[i].mNormal;

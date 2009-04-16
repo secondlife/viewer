@@ -24,18 +24,24 @@ Aimee Trescothick
 	VWR-6550
 	VWR-6583
 	VWR-6482
-  VWR-7109
+	VWR-7109
 	VWR-7383
 	VWR-8341
 	VWR-8430
 	VWR-8482
 	VWR-9255
-	VWR-11844
+	VWR-10990
+	VWR-11100
+	VWR-11111
+ 	VWR-11844
 Alejandro Rosenthal
 	VWR-1184
 Aleric Inglewood
+	VWR-10001
 	VWR-10759
 	VWR-10837
+Ales Beaumont
+    VWR-9352
 Alissa Sabre
 	VWR-81
 	VWR-83
@@ -82,6 +88,8 @@ Angus Boyd
 	VWR-592
 Argent Stonecutter
 	VWR-68
+Armin Weatherwax
+	VWR-8436
 Asuka Neely
 	VWR-3434
 	VWR-8179
@@ -109,6 +117,7 @@ Carjay McGinnis
 	VWR-4070
 	VWR-4212
 	VWR-6154
+	VWR-9400
 Catherine Pfeffer
 	VWR-1282
 	VWR-8624
@@ -184,6 +193,7 @@ Gigs Taggart
 	VWR-2502
 	VWR-2331
 	VWR-8781
+	VWR-8783
 Ginko Bayliss
 	VWR-4
 Grazer Kline
@@ -236,10 +246,14 @@ Kage Pixel
 Kerutsen Sellery
 	VWR-1350
 Khyota Wulluf
+	VWR-2085
 	VWR-9256
+	VWR-9966
 Kunnis Basiat
 	VWR-82
 	VWR-102
+Latif Khalifa
+	VWR-5370
 Lockhart Cordoso
 	VWR-108
 maciek marksman
@@ -257,6 +271,7 @@ McCabe Maxsted
 	VWR-1318
 	VWR-4065
 	VWR-4826
+	VWR-6518
 	VWR-7827
 	VWR-7877
 	VWR-7893

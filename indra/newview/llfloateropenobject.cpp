@@ -80,12 +80,26 @@ void LLFloaterOpenObject::refresh()
 {
 	mPanelInventory->refresh();
 
+	std::string name;
+	BOOL enabled;
+
 	LLSelectNode* node = mObjectSelection->getFirstRootNode();
 	if (node)
 	{
-		std::string name = node->mName;
-		childSetTextArg("object_name", "[DESC]", name);
+		name = node->mName;
+		enabled = TRUE;
 	}
+	else
+	{
+		name = "";
+		enabled = FALSE;
+	}
+
+	childSetTextArg("object_name", "[DESC]", name);
+	
+	childSetEnabled("copy_to_inventory_button", enabled);
+	childSetEnabled("copy_and_wear_button", enabled);
+
 }
 
 void LLFloaterOpenObject::draw()

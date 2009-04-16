@@ -181,11 +181,11 @@ LLWorldMapView::LLWorldMapView(const std::string& name, const LLRect& rect )
 	const S32 DIR_WIDTH = 10;
 	const S32 DIR_HEIGHT = 10;
 	LLRect major_dir_rect(  0, DIR_HEIGHT, DIR_WIDTH, 0 );
+	LLColor4 minor_color( 1.f, 1.f, 1.f, .7f );
 
 	mTextBoxNorth = new LLTextBox( std::string("N"), major_dir_rect );
+	mTextBoxNorth->setColor( minor_color );
 	addChild( mTextBoxNorth );
-
-	LLColor4 minor_color( 1.f, 1.f, 1.f, .7f );
 	
 	mTextBoxEast =	new LLTextBox( std::string("E"), major_dir_rect );
 	mTextBoxEast->setColor( minor_color );

@@ -76,6 +76,7 @@
 #include "llfloaterdirectory.h"
 #include "llfloatergroupinfo.h"
 #include "llfloatergroups.h"
+#include "llfloaterland.h"
 #include "llfloatermap.h"
 #include "llfloatermute.h"
 #include "llfloatersnapshot.h"
@@ -3835,7 +3836,7 @@ LLVector3d LLAgent::calcCameraPositionTargetGlobal(BOOL *hit_limit)
 		if(constrain)
 		{
 			F32 max_dist = ( CAMERA_MODE_CUSTOMIZE_AVATAR == mCameraMode ) ?
-				APPEARANCE_MAX_ZOOM : MAX_CAMERA_DISTANCE_FROM_AGENT;
+				APPEARANCE_MAX_ZOOM : mDrawDistance;
 
 			LLVector3d camera_offset = camera_position_global
 				- gAgent.getPositionGlobal();
@@ -5950,6 +5951,9 @@ bool LLAgent::teleportCore(bool is_local)
 	LLFloaterWorldMap::hide(NULL);
 	LLFloaterDirectory::hide(NULL);
 
+	// hide land floater too - it'll be out of date
+	LLFloaterLand::hideInstance();
+	
 	LLViewerParcelMgr::getInstance()->deselectLand();
 
 	// Close all pie menus, deselect land, etc.

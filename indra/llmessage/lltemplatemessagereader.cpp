@@ -677,7 +677,11 @@ BOOL LLTemplateMessageReader::decodeData(const U8* buffer, const LLHost& sender 
 						// default to 0s.
 						U32 size = mvci.getSize();
 						std::vector<U8> data(size);
-						memset(&(data[0]), 0, size);
+						if(size)
+						{
+							// Nonsense test to get past GCC 4.3.1 bug with -O3
+							memset(&(data[0]), 0, size);
+						}
 						cur_data_block->addData(mvci.getName(), &(data[0]), 
 												size, mvci.getType());
 					}

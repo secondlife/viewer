@@ -920,13 +920,13 @@ void LLPreviewGesture::onLoadComplete(LLVFS *vfs,
 			LLVFile file(vfs, asset_uuid, type, LLVFile::READ);
 			S32 size = file.getSize();
 
-			char* buffer = new char[size+1];
-			file.read((U8*)buffer, size);		/*Flawfinder: ignore*/
+			std::vector<char> buffer(size+1);
+			file.read((U8*)&buffer[0], size);
 			buffer[size] = '\0';
 
 			LLMultiGesture* gesture = new LLMultiGesture();
 
-			LLDataPackerAsciiBuffer dp(buffer, size+1);
+			LLDataPackerAsciiBuffer dp(&buffer[0], size+1);
 			BOOL ok = gesture->deserialize(dp);
 
 			if (ok)
@@ -946,9 +946,6 @@ void LLPreviewGesture::onLoadComplete(LLVFS *vfs,
 
 			delete gesture;
 			gesture = NULL;
-
-			delete [] buffer;
-			buffer = NULL;
 
 			self->mAssetStatus = PREVIEW_ASSET_LOADED;
 		}

@@ -68,8 +68,8 @@ EventHandlerRef gEventHandler = NULL;
 OSStatus gFailure = noErr;
 Boolean gCancelled = false;
 
-char *gUpdateURL;
-char *gProductName;
+const char *gUpdateURL;
+const char *gProductName;
 
 void *updatethreadproc(void*);
 
@@ -1032,7 +1032,7 @@ void *updatethreadproc(void*)
 		if(!mountOutput.empty())
 		{
 			const char *s = mountOutput.c_str();
-			char *prefix = "/dev/";
+			const char *prefix = "/dev/";
 			char *sub = strstr(s, prefix);
 			
 			if(sub != NULL)

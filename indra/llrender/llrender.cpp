@@ -99,7 +99,7 @@ mCurrAlphaSrc1(TBS_TEX_ALPHA), mCurrAlphaSrc2(TBS_PREV_ALPHA),
 mCurrColorScale(1), mCurrAlphaScale(1), mCurrTexture(0),
 mHasMipMaps(false)
 {
-	llassert_always(index < LL_NUM_TEXTURE_LAYERS);
+	llassert_always(index < (S32)LL_NUM_TEXTURE_LAYERS);
 	mIndex = index;
 }
 
@@ -141,7 +141,7 @@ void LLTexUnit::activate(void)
 {
 	if (mIndex < 0) return;
 
-	if (gGL.mCurrTextureUnitIndex != mIndex || gGL.mDirty)
+	if ((S32)gGL.mCurrTextureUnitIndex != mIndex || gGL.mDirty)
 	{
 		glActiveTextureARB(GL_TEXTURE0_ARB + mIndex);
 		gGL.mCurrTextureUnitIndex = mIndex;
@@ -821,7 +821,7 @@ void LLRender::blendFunc(eBlendFactor sfactor, eBlendFactor dfactor)
 
 LLTexUnit* LLRender::getTexUnit(U32 index)
 {
-	if ((index >= 0) && (index < mTexUnits.size()))
+	if (index < mTexUnits.size())
 	{
 		return mTexUnits[index];
 	}

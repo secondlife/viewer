@@ -417,22 +417,17 @@ void LLImageRaw::verticalFlip()
 {
 	LLMemType mt1((LLMemType::EMemType)mMemType);
 	S32 row_bytes = getWidth() * getComponents();
-	U8* line_buffer = new U8[row_bytes];
-	if (!line_buffer )
-	{
-		llerrs << "Out of memory in LLImageRaw::verticalFlip()" << llendl;
-		return;
-	}
+	llassert(row_bytes > 0);
+	std::vector<U8> line_buffer(row_bytes);
 	S32 mid_row = getHeight() / 2;
 	for( S32 row = 0; row < mid_row; row++ )
 	{
 		U8* row_a_data = getData() + row * row_bytes;
 		U8* row_b_data = getData() + (getHeight() - 1 - row) * row_bytes;
-		memcpy( line_buffer, row_a_data,  row_bytes );	/* Flawfinder: ignore */
-		memcpy( row_a_data,  row_b_data,  row_bytes );	/* Flawfinder: ignore */
-		memcpy( row_b_data,  line_buffer, row_bytes );	/* Flawfinder: ignore */
+		memcpy( &line_buffer[0], row_a_data,  row_bytes );
+		memcpy( row_a_data,  row_b_data,  row_bytes );
+		memcpy( row_b_data,  &line_buffer[0], row_bytes );
 	}
-	delete[] line_buffer;
 }
 
 
@@ -560,22 +555,21 @@ void LLImageRaw::compositeScaled4onto3(LLImageRaw* src)
 
 	llassert( (4 == src->getComponents()) && (3 == dst->getComponents()) );
 
-	// Vertical: scale but no composite
 	S32 temp_data_size = src->getWidth() * dst->getHeight() * src->getComponents();
-	U8* temp_buffer = new U8[ temp_data_size ];
+	llassert_always(temp_data_size > 0);
+	std::vector<U8> temp_buffer(temp_data_size);
+
+	// Vertical: scale but no composite
 	for( S32 col = 0; col < src->getWidth(); col++ )
 	{
-		copyLineScaled( src->getData() + (src->getComponents() * col), temp_buffer + (src->getComponents() * col), src->getHeight(), dst->getHeight(), src->getWidth(), src->getWidth() );
+		copyLineScaled( src->getData() + (src->getComponents() * col), &temp_buffer[0] + (src->getComponents() * col), src->getHeight(), dst->getHeight(), src->getWidth(), src->getWidth() );
 	}
 
 	// Horizontal: scale and composite
 	for( S32 row = 0; row < dst->getHeight(); row++ )
 	{
-		compositeRowScaled4onto3( temp_buffer + (src->getComponents() * src->getWidth() * row), dst->getData() + (dst->getComponents() * dst->getWidth() * row), src->getWidth(), dst->getWidth() );
+		compositeRowScaled4onto3( &temp_buffer[0] + (src->getComponents() * src->getWidth() * row), dst->getData() + (dst->getComponents() * dst->getWidth() * row), src->getWidth(), dst->getWidth() );
 	}
-
-	// Clean up
-	delete[] temp_buffer;
 }
 
 
@@ -805,23 +799,21 @@ void LLImageRaw::copyScaled( LLImageRaw* src )
 		return;
 	}
 
-	// Vertical
 	S32 temp_data_size = src->getWidth() * dst->getHeight() * getComponents();
 	llassert_always(temp_data_size > 0);
-	U8* temp_buffer = new U8[ temp_data_size ];
+	std::vector<U8> temp_buffer(temp_data_size);
+
+	// Vertical
 	for( S32 col = 0; col < src->getWidth(); col++ )
 	{
-		copyLineScaled( src->getData() + (getComponents() * col), temp_buffer + (getComponents() * col), src->getHeight(), dst->getHeight(), src->getWidth(), src->getWidth() );
+		copyLineScaled( src->getData() + (getComponents() * col), &temp_buffer[0] + (getComponents() * col), src->getHeight(), dst->getHeight(), src->getWidth(), src->getWidth() );
 	}
 
 	// Horizontal
 	for( S32 row = 0; row < dst->getHeight(); row++ )
 	{
-		copyLineScaled( temp_buffer + (getComponents() * src->getWidth() * row), dst->getData() + (getComponents() * dst->getWidth() * row), src->getWidth(), dst->getWidth(), 1, 1 );
+		copyLineScaled( &temp_buffer[0] + (getComponents() * src->getWidth() * row), dst->getData() + (getComponents() * dst->getWidth() * row), src->getWidth(), dst->getWidth(), 1, 1 );
 	}
-
-	// Clean up
-	delete[] temp_buffer;
 }
 
 
@@ -842,12 +834,14 @@ BOOL LLImageRaw::scale( S32 new_width, S32 new_height, BOOL scale_image_data )
 
 	if (scale_image_data)
 	{
-		// Vertical
 		S32 temp_data_size = old_width * new_height * getComponents();
-		U8* temp_buffer = new U8[ temp_data_size ];
+		llassert_always(temp_data_size > 0);
+		std::vector<U8> temp_buffer(temp_data_size);
+
+		// Vertical
 		for( S32 col = 0; col < old_width; col++ )
 		{
-			copyLineScaled( getData() + (getComponents() * col), temp_buffer + (getComponents() * col), old_height, new_height, old_width, old_width );
+			copyLineScaled( getData() + (getComponents() * col), &temp_buffer[0] + (getComponents() * col), old_height, new_height, old_width, old_width );
 		}
 
 		deleteData();
@@ -857,25 +851,15 @@ BOOL LLImageRaw::scale( S32 new_width, S32 new_height, BOOL scale_image_data )
 		// Horizontal
 		for( S32 row = 0; row < new_height; row++ )
 		{
-			copyLineScaled( temp_buffer + (getComponents() * old_width * row), new_buffer + (getComponents() * new_width * row), old_width, new_width, 1, 1 );
+			copyLineScaled( &temp_buffer[0] + (getComponents() * old_width * row), new_buffer + (getComponents() * new_width * row), old_width, new_width, 1, 1 );
 		}
-
-		// Clean up
-		delete[] temp_buffer;
 	}
 	else
 	{
 		// copy	out	existing image data
 		S32	temp_data_size = old_width * old_height	* getComponents();
-		U8*	temp_buffer	= new U8[ temp_data_size ];
-		if (!temp_buffer)
-		{
-			llwarns << "Out of memory in LLImageRaw::scale: old (w, h, c) = (" << old_width << ", " << old_height << ", " << (S32)getComponents() << 
-				") ; new (w, h, c) = (" << new_width << ", " << new_height << ", " << (S32)getComponents() << ")" << llendl;			
-
-			return FALSE ;
-		}
-		memcpy(temp_buffer,	getData(), temp_data_size);	/* Flawfinder: ignore */
+		std::vector<U8> temp_buffer(temp_data_size);
+		memcpy(&temp_buffer[0],	getData(), temp_data_size);
 
 		// allocate	new	image data,	will delete	old	data
 		U8*	new_buffer = allocateDataSize(new_width, new_height, getComponents());
@@ -884,7 +868,7 @@ BOOL LLImageRaw::scale( S32 new_width, S32 new_height, BOOL scale_image_data )
 		{
 			if (row	< old_height)
 			{
-				memcpy(new_buffer +	(new_width * row * getComponents()), temp_buffer + (old_width *	row	* getComponents()),	getComponents()	* llmin(old_width, new_width));	/* Flawfinder: ignore */
+				memcpy(new_buffer +	(new_width * row * getComponents()), &temp_buffer[0] + (old_width *	row	* getComponents()),	getComponents()	* llmin(old_width, new_width));
 				if (old_width <	new_width)
 				{
 					// pad out rest	of row with	black
@@ -897,9 +881,6 @@ BOOL LLImageRaw::scale( S32 new_width, S32 new_height, BOOL scale_image_data )
 				memset(new_buffer +	(new_width * row * getComponents()), 0,	new_width *	getComponents());
 			}
 		}
-
-		// Clean up
-		delete[] temp_buffer;
 	}
 
 	return TRUE ;
@@ -1239,7 +1220,7 @@ bool LLImageRaw::createFromFile(const std::string &filename, bool j2c_lowest_mip
 	llassert(image.notNull());
 
 	U8 *buffer = image->allocateData(length);
-	ifs.read ((char*)buffer, length);	/* Flawfinder: ignore */
+	ifs.read ((char*)buffer, length);
 	ifs.close();
 	
 	image->updateData();
