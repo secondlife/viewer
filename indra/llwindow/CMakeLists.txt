@@ -55,6 +55,13 @@ set(viewer_HEADER_FILES
     llmousehandler.h
     )
 
+# Libraries on which this library depends, needed for Linux builds
+# Sort by high-level to low-level
+set(llwindow_LINK_LIBRARIES
+    ${UI_LIBRARIES}     # for GTK
+    ${SDL_LIBRARY}
+    )
+
 if (DARWIN)
   list(APPEND llwindow_SOURCE_FILES
     llkeyboardmacosx.cpp
@@ -98,6 +105,9 @@ if (WINDOWS)
        lldxhardware.h
        llkeyboardwin32.h
        )
+  list(APPEND llwindow_LINK_LIBRARIES
+       comdlg32     # Common Dialogs for ChooseColor
+       )
 endif (WINDOWS)
 
 if (SOLARIS)
@@ -133,6 +143,7 @@ if (SERVER AND NOT WINDOWS AND NOT DARWIN)
     ${llwindow_SOURCE_FILES}
     ${server_SOURCE_FILES}
     )
+  target_link_libraries (llwindowheadless ${llwindow_LINK_LIBRARIES})
 endif (SERVER AND NOT WINDOWS AND NOT DARWIN)
 
 if (llwindow_HEADER_FILES)
@@ -145,4 +156,6 @@ if (VIEWER)
     ${llwindow_SOURCE_FILES}
     ${viewer_SOURCE_FILES}
     )
+  target_link_libraries (llwindow ${llwindow_LINK_LIBRARIES})
 endif (VIEWER)
+
