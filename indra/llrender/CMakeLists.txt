@@ -3,7 +3,6 @@
 project(llrender)
 
 include(00-Common)
-include(FindOpenGL)
 include(FreeType)
 include(LLCommon)
 include(LLImage)
@@ -90,9 +89,3 @@ else (SERVER AND NOT WINDOWS AND NOT DARWIN)
       )
 endif (SERVER AND NOT WINDOWS AND NOT DARWIN)
 add_library (llrender ${llrender_SOURCE_FILES})
-# Libraries on which this library depends, needed for Linux builds
-# Sort by high-level to low-level
-target_link_libraries(llrender 
-    llimage 
-    ${FREETYPE_LIBRARIES}
-    ${OPENGL_LIBRARIES})

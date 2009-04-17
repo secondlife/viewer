@@ -35,10 +35,8 @@ set_source_files_properties(${llxml_HEADER_FILES}
 list(APPEND llxml_SOURCE_FILES ${llxml_HEADER_FILES})
 
 add_library (llxml ${llxml_SOURCE_FILES})
-# Libraries on which this library depends, needed for Linux builds
-# Sort by high-level to low-level
-target_link_libraries( llxml
-    llmath
+target_link_libraries(
+    llxml
     ${BOOST_SIGNALS_LIBRARY}
     ${EXPAT_LIBRARIES}
     )
