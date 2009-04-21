@@ -76,7 +76,7 @@ public:
 	 *
 	 * @param service_name The name of the service you want to call.
 	 */
-	std::string buildServiceURI(const std::string& service_name);
+	std::string buildServiceURI(const std::string& service_name) const;
 
 	/** 
 	 * @brief Build a service url if the url with construction parameters.
@@ -88,7 +88,7 @@ public:
 	 */
 	std::string buildServiceURI(
 		const std::string& service_name,
-		const LLSD& option_map);	
+		const LLSD& option_map) const;	
 
 public:
 	/** 

@@ -1068,11 +1068,11 @@ version 2.0
 	}
 }
 
-// DirPopularQuery viewer->sim
+// DEPRECATED: DirPopularQuery viewer->sim
 // Special query for the land for sale/auction panel.
 // reliable
 {
-	DirPopularQuery Low 51 NotTrusted Zerocoded
+	DirPopularQuery Low 51 NotTrusted Zerocoded Deprecated
 	{
 		AgentData			Single
 		{	AgentID			LLUUID	}
@@ -1085,11 +1085,11 @@ version 2.0
 	}
 }
 
-// DirPopularQueryBackend sim->dataserver
+// DEPRECATED: DirPopularQueryBackend sim->dataserver
 // Special query for the land for sale/auction panel.
 // reliable
 {
-	DirPopularQueryBackend Low 52 Trusted Zerocoded
+	DirPopularQueryBackend Low 52 Trusted Zerocoded Deprecated
 	{
 		AgentData			Single
 		{	AgentID			LLUUID	}
@@ -1103,11 +1103,11 @@ version 2.0
 	}
 }
 
-// DirPopularReply
+// DEPRECATED: DirPopularReply
 // dataserver -> simulator -> viewer
 // reliable
 {
-	DirPopularReply Low 53 Trusted Zerocoded
+	DirPopularReply Low 53 Trusted Zerocoded Deprecated
 	{
 		AgentData			Single
 		{	AgentID			LLUUID	}
