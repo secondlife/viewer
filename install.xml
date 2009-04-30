@@ -817,9 +817,9 @@ anguage Infrstructure (CLI) international standard</string>
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>b5cc6062bd2f7421f606f7e1a5228829</string>
+            <string>91b194aed4b38bc23493b198009a8c6a</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/libuuid-linux-20080812.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/libuuid-linux-20090417.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -926,6 +926,13 @@ anguage Infrstructure (CLI) international standard</string>
             <string>df27f2db244ea2762759a06cd75ada4e</string>
             <key>url</key>
             <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/mysql-darwin-20080812.tar.bz2</uri>
+          </map>
+          <key>linux</key>
+          <map>
+            <key>md5sum</key>
+            <string>cc86b4cc858655e23704d1168325d7b9</string>
+            <key>url</key>
+            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/mysqlclient-linux-20090320.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
@@ -1306,9 +1313,9 @@ anguage Infrstructure (CLI) international standard</string>
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>806637b1834825ab8888d5e487085df8</string>
+            <string>80ee8d5a30563ce0f55d37fed6dfc744</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/zlib-1.1.4-linux-20080818.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/zlib-1.2.3-linux-20090417.tar.bz2</uri>
           </map>
           <key>linux64</key>
           <map>
