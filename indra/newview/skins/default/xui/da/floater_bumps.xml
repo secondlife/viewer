@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="floater_bumps" title="Bump, Skub &amp; Slag">
+<floater name="floater_bumps" title="Bump, skub &amp; slag">
 	<string name="none_detected">
 		Ingen registreret
 	</string>
@@ -7,13 +7,13 @@
 		[TIME]  [FIRST] [LAST] ramte dig
 	</string>
 	<string name="llpushobject">
-		[TIME]  [FIRST] [LAST] skubbede dig med en kode
+		[TIME]  [FIRST] [LAST] skubbede dig med et script
 	</string>
 	<string name="selected_object_collide">
 		[TIME]  [FIRST] [LAST] ramte dig med et objekt
 	</string>
 	<string name="scripted_object_collide">
-		[TIME]  [FIRST] [LAST] ramte dig med et kodet objekt
+		[TIME]  [FIRST] [LAST] ramte dig med et scriptet objekt
 	</string>
 	<string name="physical_object_collide">
 		[TIME]  [FIRST] [LAST] ramte dig med et fysisk objekt

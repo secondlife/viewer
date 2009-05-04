@@ -4,6 +4,6 @@
 		Beskrivelse:
 	</text>
 	<text type="string" length="1" name="dimensions">
-		Størrelse: [WIDTH] x [HEIGHT] pixels
+		Størrelse: [WIDTH] x [HEIGHT]
 	</text>
 </floater>

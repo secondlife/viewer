@@ -1,10 +1,10 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Postcard" title="E-mail Billede">
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="Postcard" title="E-mail billede">
 	<text name="to_label">
-		Modtager&apos;s E-mail:
+		Send til:
 	</text>
 	<text name="from_label">
-		Din E-mail:
+		Din e-mail:
 	</text>
 	<text name="name_label">
 		Dit navn:
@@ -12,7 +12,7 @@
 	<text name="subject_label">
 		Emne:
 	</text>
-	<line_editor label="Skriv dit emne her." name="subject_form"/>
+	<line_editor label="Skriv dit emne her." name="subject_form" />
 	<text name="msg_label">
 		Besked:
 	</text>
@@ -22,8 +22,8 @@
 	<text name="fine_print">
 		Hvis din modtager opretter en konto i SL, vil du få en henvisnings bonus.
 	</text>
-	<button label="Annuller" name="cancel_btn"/>
-	<button label="Send" name="send_btn"/>
+	<button label="Annullér" name="cancel_btn" />
+	<button label="Send" name="send_btn" />
 	<string name="default_subject">
 		Postkort fra Second Life.
 	</string>
@@ -31,6 +31,6 @@
 		Tjek det her ud!
 	</string>
 	<string name="upload_message">
-		&quot;Sender...&quot;
+		Sender...
 	</string>
 </floater>

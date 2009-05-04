@@ -8,7 +8,7 @@
 			Envoyer par e-mail
 		</radio_item>
 		<radio_item name="texture">
-			Enregistrer dans votre inventaire (10 L$)
+			Enregistrer dans votre inventaire ([AMOUNT] L$)
 		</radio_item>
 		<radio_item name="local">
 			Enregistrer sur votre disque dur
@@ -120,7 +120,7 @@
 	<check_box label="Prévisualisation plein écran (geler l&apos;écran)" name="freeze_frame_check"/>
 	<button label="Rafraîchir" name="new_snapshot_btn"/>
 	<check_box label="Rafraîchissement automatique" name="auto_snapshot_check"/>
-	<button label="Enregistrer (10 L$)" name="upload_btn" width="118"/>
+	<button label="Enregistrer ([AMOUNT] L$)" name="upload_btn" width="118"/>
 	<button label="Envoyer" name="send_btn" width="118"/>
 	<flyout_button label="Enregistrer" name="save_btn" tool_tip="Enregistrer l&apos;image dans un fichier" width="118">
 		<flyout_button_item name="save_item">

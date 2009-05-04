@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Generale" name="general_panel">
+	<radio_group name="default_start_location">
+		<radio_item name="MyHome" tool_tip="Vai a casa di default quando fai login">
+			Casa mia
+		</radio_item>
+		<radio_item name="MyLastLocation" tool_tip="Vai nell&apos;ultimo posto visitato di default quando fai login.">
+			Ultimo posto visitato
+		</radio_item>
+	</radio_group>
+	<check_box label="Mostra il posto di partenza sulla schermata d&apos;inizio" name="show_location_checkbox"/>
+	<combo_box name="fade_out_combobox" width="166">
+		<combo_item name="Never">
+			Mai
+		</combo_item>
+		<combo_item name="Show Temporarily">
+			Mostra temporanemente
+		</combo_item>
+		<combo_item name="Always">
+			Sempre
+		</combo_item>
+	</combo_box>
+	<check_box label="Nomi avatar in piccolo" name="small_avatar_names_checkbox"/>
+	<check_box label="Nascondi il mio nome sul mio schermo" name="show_my_name_checkbox"/>
+	<text name="group_titles_textbox">
+		Titoli di gruppo:
+	</text>
+	<check_box label="Nascondi i titoli di gruppo" name="show_all_title_checkbox"/>
+	<check_box label="Nascondi il mio titolo di gruppo" name="show_my_title_checkbox"/>
+	<color_swatch label="" name="effect_color_swatch" tool_tip="Clicca per aprire la tavolozza dei colori"/>
+	<text name="UI Size:">
+		Dimensione interfaccia:
+	</text>
+	<check_box label="Usa ridimensionamento indipendente dalla risoluzione" name="ui_auto_scale"/>
+	<spinner label="Assente dopo:" name="afk_timeout_spinner"/>
+	<check_box label="Ruota la Mini-Mappa" name="rotate_mini_map_checkbox"/>
+	<check_box label="Avvisami quando spendo o ricevo Linden Dollars (L$)" name="notify_money_change_checkbox"/>
+	<check_box label="Usa la tavolozza di scelta colori di default del sistema" name="use_system_color_picker_checkbox" tool_tip="Usa la tavolozza di scelta colori di default del sistema, invece di quella integrata in Second Life."/>
+	<check_box label="Mostra il pannello di ricerca nella barra" name="show_search_panel" tool_tip="Visualizza il pannello di ricerca integrato."/>
+	<text name="start_location_textbox">
+		Punto di inizio:
+	</text>
+	<text name="show_names_textbox">
+		Mostra Nomi:
+	</text>
+	<text name="effects_color_textbox">
+		Colore per i miei effetti:
+	</text>
+	<text name="seconds_textbox">
+		secondi
+	</text>
+	<text name="crash_report_textbox">
+		Rapporti crash:
+	</text>
+	<text name="language_textbox">
+		Lingua:
+	</text>
+	<text name="language_textbox2" left_delta="313">
+		(Richiede restart)
+	</text>
+	<string name="region_name_prompt">
+		&lt;Scrivi il nome della regione&gt;
+	</string>
+	<combo_box name="crash_behavior_combobox" width="166">
+		<combo_item name="Askbeforesending">
+			Chiedi prima di inviare
+		</combo_item>
+		<combo_item name="Alwayssend">
+			Invia sempre
+		</combo_item>
+		<combo_item name="Neversend">
+			Non inviare mai
+		</combo_item>
+	</combo_box>
+	<combo_box name="language_combobox" width="166">
+		<combo_item name="System Default Language">
+			Default di sistema
+		</combo_item>
+		<combo_item name="English">
+			English
+		</combo_item>
+		<combo_item name="Danish">
+			Dansk (Danese) - Beta
+		</combo_item>
+		<combo_item name="Deutsch(German)">
+			Deutsch (Tedesco) - Beta
+		</combo_item>
+		<combo_item name="Spanish">
+			Español (Spagnolo) - Beta
+		</combo_item>
+		<combo_item name="French">
+			Français (Francese) - Beta
+		</combo_item>
+		<combo_item name="Hungarian">
+			Magyar (Ungherese) - Beta
+		</combo_item>
+		<combo_item name="Polish">
+			Polski (Polacco) - Beta
+		</combo_item>
+		<combo_item name="Portugese">
+			Portugués (Portoghese) - Beta
+		</combo_item>
+		<combo_item name="Chinese">
+			中文 (简体) (Cinese) - Beta
+		</combo_item>
+		<combo_item name="(Japanese)">
+			日本語 (Giapponese) - Beta
+		</combo_item>
+		<combo_item name="(Korean)">
+			한국어 (Coreano) - Beta
+		</combo_item>
+	</combo_box>
+	<check_box label="Condividi la tua lingua con gli oggetti" name="language_is_public" tool_tip="Questo fa in modo che gli oggetti inworld riconoscano la tua lingua."/>
+</panel>

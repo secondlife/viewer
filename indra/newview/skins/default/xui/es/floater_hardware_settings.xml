@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Hardware Settings Floater" title="Configuración del hardware">
+	<text name="Filtering:">
+		Filtrado:
+	</text>
+	<check_box label="Filtrado anisotrópico (más lento si se activa)" name="ani"/>
+	<text name="Antialiasing:">
+		Antialiasing:
+	</text>
+	<combo_box label="Antialiasing" name="fsaa">
+		<combo_item name="FSAADisabled">
+			Desactivado
+		</combo_item>
+		<combo_item name="2x">
+			2x
+		</combo_item>
+		<combo_item name="4x">
+			4x
+		</combo_item>
+		<combo_item name="8x">
+			8x
+		</combo_item>
+		<combo_item name="16x">
+			16x
+		</combo_item>
+	</combo_box>
+	<spinner label="Gamma:" name="gamma"/>
+	<text name="(brightness, lower is brighter)">
+		(brillo; menor es más brillante, 0=predeterminado)
+	</text>
+	<text name="Enable VBO:">
+		Activar VBO:
+	</text>
+	<check_box label="Activar OpenGL Vertex Buffer Objects" name="vbo" tool_tip="En hardware moderno, habilitar esta opción mejora el rendimiento. Pero en hardware antiguo, el habilitarlo hace que, frecuentemente, se obtenga una implementación pobre de VBO, lo que puede provocarle caídas."/>
+	<slider label="Memoria para texturas (MB):" name="GrapicsCardTextureMemory" tool_tip="Cantidad de memoria asignada a las texturas. Por defecto es la memoria de la tarjeta de vídeo. Reducir esta cantidad puede mejorar el rendimiento, pero también puede hacer que las texturas se vean borrosas."/>
+	<spinner label="Intensidad de la niebla:" name="fog"/>
+	<button label="OK" label_selected="OK" name="OK"/>
+</floater>

@@ -6,7 +6,7 @@
 	<button label="" label_selected="" name="button create" tool_tip="Criar"/>
 	<button label="" label_selected="" name="button land" tool_tip="Terra"/>
 	<check_box label="Zoom" name="radio zoom"/>
-	<check_box label="Orbita (Ctrl)" name="radio orbit"/>
+	<check_box label="Órbita (Ctrl)" name="radio orbit"/>
 	<check_box label="Pan (Ctrl-Shift)" name="radio pan"/>
 	<check_box label="Mover" name="radio move"/>
 	<check_box label="Suspender (Ctrl)" name="radio lift"/>
@@ -15,9 +15,9 @@
 	<check_box label="Rotacionar (Ctrl)" name="radio rotate"/>
 	<check_box label="Esticar (Ctrl-Shift)" name="radio stretch"/>
 	<check_box label="Selecionar Textura" name="radio select face"/>
-	<check_box label="Editar partes linkadas" name="checkbox edit linked parts"/>
+	<check_box label="Editar partes unidas" name="checkbox edit linked parts"/>
 	<text name="text ruler mode">
-		Modo
+		Modo da régua:
 	</text>
 	<combo_box name="combobox grid mode">
 		<combo_item name="World">
@@ -32,7 +32,7 @@
 	</combo_box>
 	<check_box label="Esticar ambos os lados" name="checkbox uniform"/>
 	<check_box label="Esticar Texturas" name="checkbox stretch textures"/>
-	<check_box label="Grade" name="checkbox snap to grid"/>
+	<check_box label="Usar Grade" name="checkbox snap to grid"/>
 	<button label="Opções..." label_selected="Opções..." name="Options..."/>
 	<text name="text status">
 		Arraste para mover, shift+Arrastar para Copiar
@@ -55,13 +55,13 @@
 	<check_box label="Manter ferramenta selecionada" name="checkbox sticky"/>
 	<check_box label="Copiar Seleção" name="checkbox copy selection"/>
 	<check_box label="Copiar Centro" name="checkbox copy centers"/>
-	<check_box label="Rotacionar Copia" name="checkbox copy rotates"/>
+	<check_box label="Rotacionar Cópia" name="checkbox copy rotates"/>
 	<check_box label="Selecionar Terra" name="radio select land"/>
 	<check_box label="Aplainar Terra" name="radio flatten"/>
 	<check_box label="Elevar Terra" name="radio raise"/>
 	<check_box label="Baixar Terra" name="radio lower"/>
 	<check_box label="Suavizar Terra" name="radio smooth"/>
-	<check_box label="Terrano Rígido" name="radio noise"/>
+	<check_box label="Terreno Rígido" name="radio noise"/>
 	<check_box label="Reverter Terra" name="radio revert"/>
 	<combo_box name="combobox brush size">
 		<combo_item name="Small">
@@ -109,7 +109,7 @@
 			<text name="Group Name Proxy">
 				Os Lindens
 			</text>
-			<button label="Selecionar..." label_selected="Selecionar..." name="button set group"/>
+			<button label="Definir..." label_selected="Definir..." name="button set group"/>
 			<text name="prim info">
 				1 Objeto, 1 Primitiva
 			</text>
@@ -121,16 +121,16 @@
 			</text>
 			<check_box label="Compartilhar com o Grupo" name="checkbox share with group" tool_tip="Permitir que o membros do grupo movam, modifiquem, copiem e apaguem"/>
 			<string name="text deed continued">
-				Acionar...
+				Doar...
 			</string>
 			<string name="text deed">
-				Acionar
+				Doar
 			</string>
-			<button label="Acionar..." label_selected="Acionar..." name="button deed" tool_tip="Objetos compartilhados do Grupo pode ser acionados pelo gerente do grupo."/>
+			<button label="Doar..." label_selected="Doar..." name="button deed" tool_tip="Objetos compartilhados do Grupo pode ser doados pelo gerente do grupo."/>
 			<check_box label="Permitir que qualquer um mova" name="checkbox allow everyone move"/>
 			<check_box label="Permitir que qualquer um copie" name="checkbox allow everyone copy"/>
 			<check_box label="Mostrar na busca" name="search_check" tool_tip="Permitir que as pessoas vejam este objeto nos resultados de busca"/>
-			<check_box label="A Venda" name="checkbox for sale"/>
+			<check_box label="À Venda" name="checkbox for sale"/>
 			<text name="Cost">
 				Preço:  L$
 			</text>
@@ -139,7 +139,7 @@
 					Original
 				</radio_item>
 				<radio_item name="Copy">
-					Copiar
+					Cópia
 				</radio_item>
 				<radio_item name="Contents">
 					Conteúdo
@@ -171,10 +171,10 @@
 					Abrir
 				</combo_item>
 				<combo_item name="Play">
-					Executar a mídia do terreno
+					Executar a mídia do lote
 				</combo_item>
 				<combo_item name="Opemmedia">
-					Abrir a mídia do terreno
+					Abrir a mídia do lote
 				</combo_item>
 			</combo_box>
 			<text name="B:">
@@ -234,7 +234,7 @@
 				Editar os parâmetros do Objeto:
 			</text>
 			<check_box label="Travado" name="checkbox locked" tool_tip="Previne que o objeto seja movido ou apagado. Muito útil para evitar edições não intencionais durante a construção."/>
-			<check_box label="Física" name="Physical Checkbox Ctrl" tool_tip="Permite que os objetos sejam empurrados sofram efeito da gravidade"/>
+			<check_box label="Física" name="Physical Checkbox Ctrl" tool_tip="Permite que os objetos sejam empurrados e sofram efeito da gravidade"/>
 			<check_box label="Temporário" name="Temporary Checkbox Ctrl" tool_tip="Faz com que o objeto seja apagado 1 minuto após ser criado."/>
 			<check_box label="Fantasma" name="Phantom Checkbox Ctrl" tool_tip="Faz com que o objeto não colida com outros objetos ou avatares"/>
 			<text name="label position">
@@ -298,7 +298,7 @@
 					Esfera
 				</combo_item>
 				<combo_item name="Torus">
-					Tora
+					Toróide
 				</combo_item>
 				<combo_item name="Tube">
 					Tubo
@@ -307,7 +307,7 @@
 					Anel
 				</combo_item>
 				<combo_item name="Sculpted">
-					Sculpted
+					Esculpida
 				</combo_item>
 			</combo_box>
 			<text name="text cut">
@@ -339,7 +339,7 @@
 				</combo_item>
 			</combo_box>
 			<text name="text twist">
-				Torcer no Inicio e final
+				Torcer no Início e final
 			</text>
 			<spinner label="B" name="Twist Begin"/>
 			<spinner label="E" name="Twist End"/>
@@ -360,7 +360,7 @@
 				Perfil Recortado no Início e Final
 			</text>
 			<text name="advanced_dimple">
-				Cova Inicio e Final
+				Cova Início e Final
 			</text>
 			<spinner label="B" name="Path Limit Begin"/>
 			<spinner label="E" name="Path Limit End"/>
@@ -375,7 +375,7 @@
 			<text name="text revolutions">
 				Revoluções
 			</text>
-			<texture_picker label="Sculpt Texture" name="sculpt texture control" tool_tip="Click to choose a picture"/>
+			<texture_picker label="Texture de Escultura" name="sculpt texture control" tool_tip="Click to choose a picture"/>
 			<check_box label="Espelho" name="sculpt mirror control" tool_tip="Inverter a primitiva esculpida ao longo do eixo X."/>
 			<check_box label="De dentro para fora" name="sculpt invert control" tool_tip="Inverte as normais das primitivas esculpidas, fazendo-as parecer de dentro para fora."/>
 			<text name="label sculpt type">
@@ -401,10 +401,10 @@
 		</panel>
 		<panel label="Recursos" name="Features">
 			<text name="select_single">
-				Selecione uma primitiva para editar seus recursos.
+				Selecione apenas uma primitiva para editar suas características.
 			</text>
 			<text name="edit_object">
-				Editar recursos do Objeto:
+				Editar características do Objeto:
 			</text>
 			<check_box label="Flexíbilidade" name="Flexible1D Checkbox Ctrl" tool_tip="Permite que o objeto flexione no eixo Z. (Somente no lado do Cliente)"/>
 			<spinner label="Suavidade" name="FlexNumSections"/>
@@ -419,14 +419,14 @@
 			<text name="label color">
 				Cor
 			</text>
-			<color_swatch label="" name="colorswatch" tool_tip="Clique para abrir o seletor de Cores"/>
+			<color_swatch label="" name="colorswatch" tool_tip="Clique para abrir o Seletor de Cores"/>
 			<spinner label="Intensidade" name="Light Intensity"/>
-			<spinner label="Radius" name="Light Radius"/>
+			<spinner label="Raio" name="Light Radius"/>
 			<spinner label="Queda" name="Light Falloff"/>
 		</panel>
 		<panel label="Textura" name="Texture">
 			<texture_picker label="Textura" name="texture control" tool_tip="Clique para escolher uma imagem"/>
-			<color_swatch label="Cor" name="colorswatch" tool_tip="Clique para abrir o seletor de cores"/>
+			<color_swatch label="Cor" name="colorswatch" tool_tip="Clique para abrir o Seletor de Cores"/>
 			<text name="color trans">
 				Transparência %
 			</text>
@@ -463,7 +463,7 @@
 				</combo_item>
 			</combo_box>
 			<text name="label bumpiness">
-				Bumpiness
+				Ondulação
 			</text>
 			<combo_box name="combobox bumpiness">
 				<combo_item name="None">
@@ -476,10 +476,10 @@
 					Escuridão
 				</combo_item>
 				<combo_item name="woodgrain">
-					woodgrain
+					Granulação
 				</combo_item>
 				<combo_item name="bark">
-					bark
+					casca
 				</combo_item>
 				<combo_item name="bricks">
 					Tijolos
@@ -506,10 +506,10 @@
 					Pedrisco
 				</combo_item>
 				<combo_item name="siding">
-					Revetimento
+					Revestimento
 				</combo_item>
 				<combo_item name="stonetile">
-					stonetile
+					empedrado
 				</combo_item>
 				<combo_item name="stucco">
 					Grafiato
@@ -542,12 +542,12 @@
 			</text>
 			<button label="Aplicar" label_selected="Aplicar" name="button apply"/>
 			<text name="tex offset">
-				Offset
+				Deslocamento
 			</text>
 			<spinner label="Horizontal (U)" name="TexOffsetU"/>
 			<spinner label="Vertical (V)" name="TexOffsetV"/>
 			<text name="textbox autofix">
-				Alinhar Texturas (precisa ser carregada primeiro)
+				Alinhar Texturas
 			</text>
 			<button label="Alinhar" label_selected="Alinhar" name="button align"/>
 		</panel>
@@ -557,14 +557,14 @@
 	</tab_container>
 	<panel name="land info panel">
 		<text name="label_area_price">
-			Preço: L$[PRICE] por [AREA] m2.
+			Preço: L$[PRICE] por [AREA] m².
 		</text>
 		<text name="label_area">
-			Área: [AREA] m2.
+			Área: [AREA] m².
 		</text>
 		<button label="Comprar Terra..." label_selected="Comprar Terra.." name="button buy land"/>
 		<button label="Abandonar Terra..." label_selected="Abandonar Terra..." name="button abandon land"/>
-		<button label="Sub-Dividir..." label_selected="Subdivide..." name="button subdivide land"/>
+		<button label="Sub-Dividir..." label_selected="Sub-Dividir..." name="button subdivide land"/>
 		<button label="Unir..." label_selected="Unir..." name="button join land"/>
 		<button label="Sobre a Terra..." label_selected="Sobre a Terra..." name="button about land"/>
 	</panel>
@@ -590,7 +590,7 @@
 		Clicar no mundo para criar, shift-clicar para selecionar
 	</string>
 	<string name="status_selectland">
-		Clicar e arrastar para selecionar a terra.
+		Clicar e arrastar para selecionar a terra
 	</string>
 	<string name="grid_screen_text">
 		Tela

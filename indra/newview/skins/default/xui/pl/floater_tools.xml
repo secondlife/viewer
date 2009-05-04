@@ -548,7 +548,7 @@
 			</text>
 			<spinner label="Poziomo (U)" name="TexScaleU"/>
 			<check_box label="Odwróć" name="checkbox flip s"/>
-			<spinner label="Poziomo (V)" name="TexScaleV"/>
+			<spinner label="Pionowo (V)" name="TexScaleV"/>
 			<check_box label="Odwróć" name="checkbox flip t"/>
 			<text name="tex rotate">
 				Obrót (stopnie)

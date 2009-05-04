@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel label="Grafik" name="Display panel">
 	<button label="?" name="GraphicsPreferencesHelpButton" />
-	<check_box label="K&#248;r Second Life i et vindue" name="windowed mode" />
+	<check_box label="Kør Second Life i et vindue" name="windowed mode" />
 	<text_editor type="string" length="1" name="FullScreenInfo">
-		Hvis denne ikke er valgt k&#248;rer Second Life i Fuld sk&#230;rm.
+		Hvis dette ikke er valgt kører Second Life i Fuld skærm.
 	</text_editor>
 	<text type="string" length="1" name="WindowSizeLabel">
-		Opl&#248;sning:
+		Opløsning:
 	</text>
 	<combo_box name="windowsize combo">
 		<combo_item type="string" length="1" name="640x480">
@@ -26,12 +26,12 @@
 		</combo_item>
 	</combo_box>
 	<text type="string" length="1" name="DisplayResLabel">
-		Sk&#230;rm opl&#248;sning:
+		Skærm opløsning:
 	</text>
-	<text type="string" length="1" name="AspectRatioLabel1" tool_tip="width / height">
+	<text type="string" length="1" name="AspectRatioLabel1" tool_tip="bredde / højde">
 		Format:
 	</text>
-	<combo_box name="aspect_ratio" tool_tip="width / height">
+	<combo_box name="aspect_ratio" tool_tip="bredde/ højde">
 		<combo_item type="string" length="1" name="4:3(StandardCRT)">
 			4:3 (Standard CRT)
 		</combo_item>
@@ -45,7 +45,7 @@
 			16:9 (Widescreen)
 		</combo_item>
 	</combo_box>
-	<check_box label="Auto-detect ratio" name="aspect_auto_detect" />
+	<check_box label="Auto-detect format" name="aspect_auto_detect" />
 	<text type="string" length="1" name="HigherText">
 		Kvalitet og
 	</text>
@@ -59,16 +59,16 @@
 		Lav
 	</text>
 	<text type="string" length="1" name="ShadersPrefText2">
-		Mel
+		Middel
 	</text>
 	<text type="string" length="1" name="ShadersPrefText3">
-		H&#248;j
+		Høj
 	</text>
 	<text type="string" length="1" name="ShadersPrefText4">
 		Ultra
 	</text>
 	<text type="string" length="1" name="HigherText2">
-		H&#248;jere
+		Højere
 	</text>
 	<text type="string" length="1" name="QualityText2">
 		Kvalitet
@@ -78,51 +78,51 @@
 	<text type="string" length="1" name="ShadersText">
 		Overflader:
 	</text>
-	<check_box label="Glatte flader og Sk&#230;r" name="BumpShiny" />
-	<check_box label="Grundliggende Overflader" name="BasicShaders"
-	     tool_tip="Disabling this option may prevent some graphics card drivers from crashing." />
-	<check_box label="Atmosf&#230;re Overflader" name="WindLightUseAtmosShaders" />
-	<check_box label="Vand Reflektioner" name="Reflections" />
+	<check_box label="Glatte flader og skin" name="BumpShiny" />
+	<check_box label="Basale flader" name="BasicShaders"
+	     tool_tip="Ved at slå dette valg fra, kan det forhindres at visse grafikkort drivere crasher." />
+	<check_box label="Atmosfæriske flader" name="WindLightUseAtmosShaders" />
+	<check_box label="Reflektioner i vand" name="Reflections" />
 	<text type="string" length="1" name="ReflectionDetailText">
-		Spejlnings Detaljer:
+		Spejlnings detaljer:
 	</text>
 	<radio_group name="ReflectionDetailRadio">
 		<radio_item type="string" length="1" name="0">
-			Terr&#230;n og Tr&#230;er
+			Terræn og træer
 		</radio_item>
 		<radio_item type="string" length="1" name="1">
 			Alle statiske objekter
 		</radio_item>
 		<radio_item type="string" length="1" name="2">
-			Alle figurer og objekter
+			Alle avatarer og objekter
 		</radio_item>
 		<radio_item type="string" length="1" name="3">
 			Alt
 		</radio_item>
 	</radio_group>
 	<text type="string" length="1" name="AvatarRenderingText">
-		Figur Gengivelse:
+		Avatar gengivelse
 	</text>
-	<check_box label="Avatar Impostors" name="AvatarImpostors" />
+	<check_box label="Mini-figurer på lang afstand" name="AvatarImpostors" />
 	<check_box label="Hardware Skinning" name="AvatarVertexProgram" />
-	<check_box label="Avatar Cloth" name="AvatarCloth" />
+	<check_box label="Avatar tøj" name="AvatarCloth" />
 	<text type="string" length="1" name="DrawDistanceMeterText1">
 		m
 	</text>
 	<text type="string" length="1" name="DrawDistanceMeterText2">
 		m
 	</text>
-	<slider label="Vis afstand:" name="DrawDistance" />
-	<slider label="Max. Antal partikler:" name="MaxParticleCount" />
-	<slider label="F&#248;r Proces Kvalitet:" name="RenderPostProcess" />
+	<slider label="Maks. visnings-afstand:" name="DrawDistance" />
+	<slider label="Maks. antal partikler:" name="MaxParticleCount" />
+	<slider label="Efterbehandlingskvalitet:" name="RenderPostProcess" />
 	<text type="string" length="1" name="MeshDetailText">
-		Mesh Detail:
+		Netmaske detaljer:
 	</text>
 	<slider label="  Objekter:" name="ObjectMeshDetail" />
 	<slider label="  Flexiprims:" name="FlexibleMeshDetail" />
-	<slider label="  Tr&#230;er:" name="TreeMeshDetail" />
-	<slider label="  Figurer:" name="AvatarMeshDetail" />
-	<slider label="  Terr&#230;n:" name="TerrainMeshDetail" />
+	<slider label="  Træer:" name="TreeMeshDetail" />
+	<slider label="  Avatarer:" name="AvatarMeshDetail" />
+	<slider label="  Terræn:" name="TerrainMeshDetail" />
 	<slider label="  Himmel:" name="SkyMeshDetail" />
 	<text type="string" length="1" name="PostProcessText">
 		Lav
@@ -146,29 +146,29 @@
 		Lav
 	</text>
 	<text type="string" length="1" name="LightingDetailText">
-		Lys Detaljer:
+		Lys detaljer:
 	</text>
 	<radio_group name="LightingDetailRadio">
 		<radio_item type="string" length="1" name="SunMoon">
-			Kun Sol og M&#229;ne
+			Kun sol og måne
 		</radio_item>
 		<radio_item type="string" length="1" name="LocalLights">
-			Lys i n&#230;rheden
+			Lys i nærheden
 		</radio_item>
 	</radio_group>
 	<text type="string" length="1" name="TerrainDetailText">
-		Terr&#230;n Detaljer:
+		Terræn detaljer:
 	</text>
 	<radio_group name="TerrainDetailRadio">
 		<radio_item type="string" length="1" name="0">
 			Lav
 		</radio_item>
 		<radio_item type="string" length="1" name="2">
-			H&#248;j
+			Høj
 		</radio_item>
 	</radio_group>
-	<button label="Anbefalede Indstillinger" name="Defaults" />
-	<button label="Hardware Funktioner" label_selected="Hardware Options"
+	<button label="Anbefalede indstillinger" name="Defaults" />
+	<button label="Hardware valg" label_selected="Hardware Options"
 	     name="GraphicsHardwareButton" />
 	<string name="resolution_format">
 		[RES_X] x [RES_Y]

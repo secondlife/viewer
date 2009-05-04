@@ -48,6 +48,7 @@
 #include "v3dmath.h"
 #include "v3math.h"
 #include "llapr.h"
+#include "llbvhconsts.h"
 
 class LLKeyframeDataCache;
 class LLVFS;
@@ -198,18 +199,6 @@ public:
 
 	static void flushKeyframeCache();
 
-	typedef enum e_constraint_type
-	{
-		TYPE_POINT,
-		TYPE_PLANE
-	} EConstraintType;
-
-	typedef enum e_constraint_target_type
-	{
-		TYPE_BODY,
-		TYPE_GROUND
-	} EConstraintTargetType;
-
 protected:
 	//-------------------------------------------------------------------------
 	// JointConstraintSharedData
@@ -224,8 +213,8 @@ protected:
 			mEaseOutStartTime(0.f),
 			mEaseOutStopTime(0.f), 
 			mUseTargetOffset(FALSE),
-			mConstraintType(TYPE_POINT),
-			mConstraintTargetType(TYPE_BODY),
+			mConstraintType(CONSTRAINT_TYPE_POINT),
+			mConstraintTargetType(CONSTRAINT_TARGET_TYPE_BODY),
 			mSourceConstraintVolume(0),
 			mTargetConstraintVolume(0),
 			mJointStateIndices(NULL)

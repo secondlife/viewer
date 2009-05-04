@@ -128,9 +128,6 @@ BOOL LLToolBar::postBuild()
 	childSetAction("appearance_btn", onClickAppearance, this);
 	childSetControlName("appearance_btn", "");
 
-	childSetAction("clothing_btn", onClickClothing, this);
-	childSetControlName("clothing_btn", "ClothingBtnState");
-
 	childSetAction("fly_btn", onClickFly, this);
 	childSetControlName("fly_btn", "FlyBtnState");
 
@@ -286,8 +283,6 @@ void LLToolBar::refresh()
 	BOOL show = gSavedSettings.getBOOL("ShowToolBar");
 	BOOL mouselook = gAgent.cameraMouselook();
 	setVisible(show && !mouselook);
-
-	// Clothing button updated inside LLFloaterClothing
 
 	BOOL sitting = FALSE;
 	if (gAgent.getAvatarObject())
@@ -452,13 +447,6 @@ void LLToolBar::onClickAppearance(void*)
 	{
 		gAgent.changeCameraToCustomizeAvatar();
 	}
-}
-
-
-// static
-void LLToolBar::onClickClothing(void*)
-{
-	handle_clothing(NULL);
 }
 
 

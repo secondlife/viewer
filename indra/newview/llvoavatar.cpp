@@ -163,6 +163,8 @@ const S32 MAX_BUBBLE_CHAT_UTTERANCES = 12;
 const F32 CHAT_FADE_TIME = 8.0;
 const F32 BUBBLE_CHAT_TIME = CHAT_FADE_TIME * 3.f;
 
+const LLColor4 DUMMY_COLOR = LLColor4(0.5,0.5,0.5,1.0);
+
 enum ERenderName
 {
 	RENDER_NAME_NEVER,
@@ -681,7 +683,6 @@ BOOL LLVOAvatar::sDebugInvisible = FALSE;
 BOOL LLVOAvatar::sShowAttachmentPoints = FALSE;
 BOOL LLVOAvatar::sShowAnimationDebug = FALSE;
 BOOL LLVOAvatar::sShowFootPlane = FALSE;
-BOOL LLVOAvatar::sShowCollisionVolumes = FALSE;
 BOOL LLVOAvatar::sVisibleInFirstPerson = FALSE;
 F32 LLVOAvatar::sLODFactor = 1.f;
 BOOL LLVOAvatar::sUseImpostors = FALSE;
@@ -4138,9 +4139,11 @@ U32 LLVOAvatar::renderSkinned(EAvatarRenderPass pass)
 
 	if (pass == AVATAR_RENDER_PASS_SINGLE)
 	{
-		bool should_alpha_mask = mHasBakedHair && isTextureDefined(TEX_HEAD_BAKED) && isTextureDefined(TEX_UPPER_BAKED) 
-								&& isTextureDefined(TEX_LOWER_BAKED) && mBakedTextureData[BAKED_HEAD].mIsLoaded
-								&& mBakedTextureData[BAKED_UPPER].mIsLoaded && mBakedTextureData[BAKED_LOWER].mIsLoaded;
+		const bool should_alpha_mask = mHasBakedHair && isTextureDefined(TEX_HEAD_BAKED) && isTextureDefined(TEX_UPPER_BAKED) 
+										&& isTextureDefined(TEX_LOWER_BAKED) && mBakedTextureData[BAKED_HEAD].mIsLoaded
+										&& mBakedTextureData[BAKED_UPPER].mIsLoaded && mBakedTextureData[BAKED_LOWER].mIsLoaded
+										&& !LLDrawPoolAlpha::sShowDebugAlpha; // Don't alpha mask if "Highlight Transparent" checked
+
 		LLGLState test(GL_ALPHA_TEST, should_alpha_mask);
 
 		if (should_alpha_mask)
@@ -4153,21 +4156,21 @@ U32 LLVOAvatar::renderSkinned(EAvatarRenderPass pass)
 		{
 			if (!mIsSelf || gAgent.needsRenderHead() || LLPipeline::sShadowRender)
 			{
-				if (isTextureVisible(TEX_HEAD_BAKED))
+				if (isTextureVisible(TEX_HEAD_BAKED) || mIsDummy)
 				{
-					num_indices += mMeshLOD[MESH_ID_HEAD]->render(mAdjustedPixelArea);
+					num_indices += mMeshLOD[MESH_ID_HEAD]->render(mAdjustedPixelArea, TRUE, mIsDummy);
 					first_pass = FALSE;
 				}
 			}
-			if (isTextureVisible(TEX_UPPER_BAKED))
+			if (isTextureVisible(TEX_UPPER_BAKED) || mIsDummy)
 			{
-				num_indices += mMeshLOD[MESH_ID_UPPER_BODY]->render(mAdjustedPixelArea, first_pass);
+				num_indices += mMeshLOD[MESH_ID_UPPER_BODY]->render(mAdjustedPixelArea, first_pass, mIsDummy);
 				first_pass = FALSE;
 			}
 			
-			if (isTextureVisible(TEX_LOWER_BAKED))
+			if (isTextureVisible(TEX_LOWER_BAKED) || mIsDummy)
 			{
-				num_indices += mMeshLOD[MESH_ID_LOWER_BODY]->render(mAdjustedPixelArea, first_pass);
+				num_indices += mMeshLOD[MESH_ID_LOWER_BODY]->render(mAdjustedPixelArea, first_pass, mIsDummy);
 				first_pass = FALSE;
 			}
 		}
@@ -4176,8 +4179,11 @@ U32 LLVOAvatar::renderSkinned(EAvatarRenderPass pass)
 
 		if (!LLDrawPoolAvatar::sSkipTransparent || LLPipeline::sImpostorRender)
 		{
-			LLGLEnable blend(GL_BLEND);
-			LLGLEnable test(GL_ALPHA_TEST);
+			if (!mIsDummy)
+			{
+				LLGLEnable blend(GL_BLEND);
+				LLGLEnable test(GL_ALPHA_TEST);
+			}
 			num_indices += renderTransparent(first_pass);
 		}
 	}
@@ -4194,7 +4200,7 @@ U32 LLVOAvatar::renderSkinned(EAvatarRenderPass pass)
 U32 LLVOAvatar::renderTransparent(BOOL first_pass)
 {
 	U32 num_indices = 0;
-	if( isWearingWearableType( WT_SKIRT ) && isTextureVisible(TEX_SKIRT_BAKED) )
+	if( isWearingWearableType( WT_SKIRT ) && (mIsDummy || isTextureVisible(TEX_SKIRT_BAKED)) )
 	{
 		gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.25f);
 		num_indices += mMeshLOD[MESH_ID_SKIRT]->render(mAdjustedPixelArea, FALSE);
@@ -4211,12 +4217,14 @@ U32 LLVOAvatar::renderTransparent(BOOL first_pass)
 		
 		if (isTextureVisible(TEX_HEAD_BAKED))
 		{
-			num_indices += mMeshLOD[MESH_ID_EYELASH]->render(mAdjustedPixelArea, first_pass);
+			num_indices += mMeshLOD[MESH_ID_EYELASH]->render(mAdjustedPixelArea, first_pass, mIsDummy);
 			first_pass = FALSE;
 		}
-		if (isTextureVisible(TEX_HAIR_BAKED))
+		// Can't test for baked hair being defined, since that won't always be the case (not all viewers send baked hair)
+		// TODO: 1.25 will be able to switch this logic back to calling isTextureVisible();
+		if (getTEImage(TEX_HAIR_BAKED)->getID() != IMG_INVISIBLE || LLDrawPoolAlpha::sShowDebugAlpha)
 		{
-			num_indices += mMeshLOD[MESH_ID_HAIR]->render(mAdjustedPixelArea, first_pass);
+			num_indices += mMeshLOD[MESH_ID_HAIR]->render(mAdjustedPixelArea, first_pass, mIsDummy);
 			first_pass = FALSE;
 		}
 		if (LLPipeline::sImpostorRender)
@@ -4250,7 +4258,7 @@ U32 LLVOAvatar::renderRigid()
 		return 0;
 	}
 
-	if (isTextureVisible(TEX_EYES_BAKED))
+	if (isTextureVisible(TEX_EYES_BAKED) || mIsDummy)
 	{
 		// If the meshes need to be drawn, enable alpha masking but not blending
 		bool should_alpha_mask = mHasBakedHair && mBakedTextureData[BAKED_EYES].mIsLoaded;
@@ -4261,8 +4269,8 @@ U32 LLVOAvatar::renderRigid()
 			gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.5f);
 		}
 
-		num_indices += mMeshLOD[MESH_ID_EYEBALL_LEFT]->render(mAdjustedPixelArea);
-		num_indices += mMeshLOD[MESH_ID_EYEBALL_RIGHT]->render(mAdjustedPixelArea);
+		num_indices += mMeshLOD[MESH_ID_EYEBALL_LEFT]->render(mAdjustedPixelArea, TRUE, mIsDummy);
+		num_indices += mMeshLOD[MESH_ID_EYEBALL_RIGHT]->render(mAdjustedPixelArea, TRUE, mIsDummy);
 
 		gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
 	}
@@ -6882,10 +6890,10 @@ void LLVOAvatar::updateMeshTextures()
 	{
 		llwarns << "updateMeshTextures: invalid host for object: " << getID() << llendl;
 	}
-
+	
 	for (U32 i=0; i < mBakedTextureData.size(); i++)
 	{
-		if (use_lkg_baked_layer[i])
+		if (use_lkg_baked_layer[i] && !self_customizing )
 		{
 			LLViewerImage* baked_img = gImageList.getImageFromHost( mBakedTextureData[i].mLastTextureIndex, target_host );
 			for (U32 k=0; k < mBakedTextureData[i].mMeshes.size(); k++)
@@ -7181,6 +7189,7 @@ void LLVOAvatar::setNewBakedTexture( ETextureIndex te, const LLUUID& uuid )
 	updateMeshTextures();
 	dirtyMesh();
 
+
 	LLVOAvatar::cullAvatarsByPixelArea();
 
 	/* switch(te)
@@ -7190,6 +7199,7 @@ void LLVOAvatar::setNewBakedTexture( ETextureIndex te, const LLUUID& uuid )
 	if (text_dict->mIsBakedTexture)
 	{
 		llinfos << "New baked texture: " << text_dict->mName << " UUID: " << uuid <<llendl;
+		mBakedTextureData[text_dict->mBakedTextureIndex].mTexLayerSet->requestUpdate();
 	}
 	else
 	{
@@ -7519,6 +7529,11 @@ void LLVOAvatar::setInvisible(BOOL newvalue)
 	}
 }
 
+LLColor4 LLVOAvatar::getDummyColor()
+{
+	return DUMMY_COLOR;
+}
+
 // Given a texture entry, determine which wearable type owns it.
 // static
 EWearableType LLVOAvatar::getTEWearableType(ETextureIndex index )
@@ -7596,6 +7611,40 @@ BOOL LLVOAvatar::isWearingWearableType( EWearableType type )
 		}
 	}
 	return FALSE;
+}
+
+//-----------------------------------------------------------------------------
+// updatedWearable( EWearableType type )
+// forces an update to any baked textures relevant to type.
+// Should be called only on saving the wearable
+//-----------------------------------------------------------------------------
+void LLVOAvatar::wearableUpdated( EWearableType type )
+{
+	for (LLVOAvatarDictionary::wearable_map_t::const_iterator wearable_iter = LLVOAvatarDictionary::getInstance()->getWearables().begin();
+		wearable_iter != LLVOAvatarDictionary::getInstance()->getWearables().end();
+		wearable_iter++)
+	{
+		const LLVOAvatarDictionary::WearableDictionaryEntry *wearable_dict = wearable_iter->second;
+		const LLVOAvatarDefines::EBakedTextureIndex index = wearable_iter->first;
+		if (wearable_dict)
+		{
+			for (LLVOAvatarDefines::wearables_vec_t::const_iterator type_iter = wearable_dict->mWearablesVec.begin();
+				type_iter != wearable_dict->mWearablesVec.end();
+				type_iter++)
+			{
+				const EWearableType comp_type = *type_iter;
+				if (comp_type == type)
+				{
+					if (mBakedTextureData[index].mTexLayerSet)
+					{
+						mBakedTextureData[index].mTexLayerSet->requestUpdate();
+						mBakedTextureData[index].mTexLayerSet->requestUpload();
+					}
+					break;	
+				}
+			}
+		}
+	}
 }
 
 

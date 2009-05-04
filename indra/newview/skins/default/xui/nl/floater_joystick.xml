@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Joystick" title="Joystick configuratie">
+	<check_box name="enable_joystick">
+		Joystick inschakelen
+	</check_box>
+	<spinner label="X-as mapping" name="JoystickAxis1"/>
+	<spinner label="Y-as mapping" name="JoystickAxis2"/>
+	<spinner label="Z-as mapping" name="JoystickAxis0"/>
+	<spinner label="Stampen mapping" name="JoystickAxis4"/>
+	<spinner label="Gieren mapping" name="JoystickAxis5"/>
+	<spinner label="Rollen mapping" name="JoystickAxis3"/>
+	<spinner label="Zoom mapping" name="JoystickAxis6"/>
+	<check_box label="Directe zoom" name="ZoomDirect"/>
+	<check_box label="3D Cursor" name="Cursor3D"/>
+	<check_box label="Automatisch niveau" name="AutoLeveling"/>
+	<text name="Control Modes:">
+		Besturingsmodi:
+	</text>
+	<check_box name="JoystickAvatarEnabled">
+		Avatar
+	</check_box>
+	<check_box name="JoystickBuildEnabled">
+		Bouwen
+	</check_box>
+	<check_box name="JoystickFlycamEnabled">
+		Vliegcamera
+	</check_box>
+	<text name="XScale">
+		X schaal
+	</text>
+	<text name="YScale">
+		Y schaal
+	</text>
+	<text name="ZScale">
+		Z schaal
+	</text>
+	<text name="PitchScale">
+		Stampen schaal
+	</text>
+	<text name="YawScale">
+		Gieren schaal
+	</text>
+	<text name="RollScale">
+		Rollen schaal
+	</text>
+	<text name="XDeadZone">
+		X dode zone
+	</text>
+	<text name="YDeadZone">
+		Y dode zone
+	</text>
+	<text name="ZDeadZone">
+		Z dode zone
+	</text>
+	<text name="PitchDeadZone">
+		Stampen dode zone
+	</text>
+	<text name="YawDeadZone">
+		Gieren dode zone
+	</text>
+	<text name="RollDeadZone">
+		Rollen dode zone
+	</text>
+	<text name="Feathering">
+		Feathering
+	</text>
+	<text name="ZoomScale2">
+		Zoomschaal
+	</text>
+	<text name="ZoomDeadZone">
+		Zoom dode zone
+	</text>
+	<button label="SpaceNavigator standaardwaarden" name="SpaceNavigatorDefaults"/>
+	<string name="JoystickMonitor">
+		Joystick monitor
+	</string>
+	<string name="Axis">
+		As [NUM]
+	</string>
+	<string name="NoDevice">
+		Geen apparaat gedetecteerd
+	</string>
+</floater>

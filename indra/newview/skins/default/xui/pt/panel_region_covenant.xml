@@ -1,37 +1,36 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Corretagem" name="Covenant">
-	<text name="covenant_help_text" bottom="-25">
-		As mudanças à informação do convénio mostrarão em todos os pacotes
-na propriedade.
+	<text bottom="-25" name="covenant_help_text">
+		As mudanças nas informações de corretagem serão mostradas em todos os lotes da propriedade.
 	</text>
-	<text name="region_name_lbl" bottom_delta="-31">
+	<text bottom_delta="-31" name="region_name_lbl">
 		Região:
 	</text>
 	<text name="region_name_text">
 		(desconhecido)
 	</text>
-	<text name="estate_name_lbl" bottom_delta="-19">
+	<text bottom_delta="-19" name="estate_name_lbl">
 		Propriedade:
 	</text>
 	<text name="estate_name_text">
 		(desconhecido)
 	</text>
 	<text name="covenent_instructions">
-		Arraste e solte um notecard para alterar o Contrato para este Terreno.
+		Arraste e solte um notecard para alterar a corretagem desta propriedade.
 	</text>
-	<button label="?" name="covenant_help" />
-	<button label="Resetar" name="reset_covenant" />
-	<text name="estate_owner_lbl" bottom_delta="-19">
-		Proprietário final:
+	<button label="?" name="covenant_help"/>
+	<button label="Resetar" name="reset_covenant"/>
+	<text bottom_delta="-19" name="estate_owner_lbl">
+		Dono da propriedade:
 	</text>
 	<text name="estate_owner_text">
 		(desconhecido)
 	</text>
 	<text name="resellable_clause">
-		Terras compradas na região não poderão ser revendidas.
+		Terras compradas nesta região podem ou não, ser revendidas.
 	</text>
 	<text name="changeable_clause">
-		Terras compradas na região não poderão ser compartilhadas ou subdividas.
+		Terras compradas nesta região podem ou não, ser unidas ou subdivididas.
 	</text>
 	<text_editor name="covenant_editor">
 		Carregando...
@@ -43,9 +42,9 @@ na propriedade.
 		Terras compradas na região não poderão ser revendidas.
 	</text>
 	<text name="can_change">
-		O terreno comprado nesta região pode ser compartilhada ou subdividida.
+		O terreno comprado nesta região pode ser compartilhado ou subdividido.
 	</text>
 	<text name="can_not_change">
-		A terreno comprado nesta região não pode ser compartilhada ou subdividida.
+		O terreno comprado nesta região não pode ser compartilhado ou subdividido.
 	</text>
 </panel>

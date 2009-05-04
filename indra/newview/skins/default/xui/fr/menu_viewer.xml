@@ -1,11 +1,15 @@
-﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <menu_bar name="Main Menu">
 	<menu label="Fichier" name="File">
 		<tearoff_menu label="~~~~~~~~~~~" name="~~~~~~~~~~~"/>
-		<menu_item_call label="Charger une image ([COST] L$)..." name="Upload Image"/>
-		<menu_item_call label="Charger un son ([COST] L$)..." name="Upload Sound"/>
-		<menu_item_call label="Charger une animation ([COST] L$)..." name="Upload Animation"/>
-		<menu_item_call label="Charger un lot de fichiers ([COST] L$ par fichier)..." name="Bulk Upload"/>
+		<menu label="Importer" name="upload">
+			<menu_item_call label="Image ([COST] L$)..." name="Upload Image"/>
+			<menu_item_call label="Son ([COST] L$)..." name="Upload Sound"/>
+			<menu_item_call label="Animation ([COST] L$)..." name="Upload Animation"/>
+			<menu_item_call label="Lot ([COST] L$ par fichier)..." name="Bulk Upload"/>
+			<menu_item_separator label="-----------" name="separator"/>
+			<menu_item_call label="Définir les permissions par défaut..." name="perm prefs"/>
+		</menu>
 		<menu_item_separator label="-----------" name="separator"/>
 		<menu_item_call label="Fermer la fenêtre" name="Close Window"/>
 		<menu_item_call label="Fermer toutes les fenêtres" name="Close All Windows"/>
@@ -68,7 +72,7 @@
 		<menu_item_check label="Barre d&apos;outils" name="Toolbar"/>
 		<menu_item_check label="Chat local" name="Chat History"/>
 		<menu_item_check label="Communiquer" name="Instant Message"/>
-		<menu_item_call label="Inventaire" name="Inventory"/>
+		<menu_item_check label="Inventaire" name="Inventory"/>
 		<menu_item_check label="Intervenants actifs" name="Active Speakers"/>
 		<menu_item_check label="Liste des ignorés" name="Mute List"/>
 		<menu_item_separator label="-----------" name="separator2"/>
@@ -111,14 +115,14 @@
 		<menu_item_separator label="-----------" name="separator3"/>
 		<menu_item_call label="Me mettre absent(e)" name="Set Away"/>
 		<menu_item_call label="Me mettre occupé(e)" name="Set Busy"/>
-		<menu_item_call label="Arrêter mes animations" name="Stop All Animations"/>
+		<menu_item_call label="Arrêter d&apos;animer mon avatar" name="Stop Animating My Avatar"/>
 		<menu_item_call label="Reprendre le contrôle" name="Release Keys"/>
 		<menu_item_separator label="-----------" name="separator4"/>
 		<menu_item_call label="Historique de mon compte..." name="Account History...">
-			<on_click name="AccountHistory_url" userdata="WebLaunchAccountHistory,http://secondlife.com/account/transactions.php?lang=fr" />
+			<on_click name="AccountHistory_url" userdata="WebLaunchAccountHistory,http://secondlife.com/account/transactions.php?lang=fr"/>
 		</menu_item_call>
 		<menu_item_call label="Gérer mon compte..." name="Manage My Account...">
-			<on_click name="ManageMyAccount_url" userdata="WebLaunchJoinNow,http://secondlife.com/account/index.php?lang=fr" />
+			<on_click name="ManageMyAccount_url" userdata="WebLaunchJoinNow,http://secondlife.com/account/index.php?lang=fr"/>
 		</menu_item_call>
 		<menu_item_call label="Acheter des L$..." name="Buy and Sell L$..."/>
 		<menu_item_separator label="-----------" name="separator5"/>
@@ -196,7 +200,7 @@
 			<menu_item_separator label="-----------" name="separator7"/>
 			<menu_item_call label="Comment signaler des bugs ?" name="Bug Reporing 101..."/>
 			<menu_item_call label="Comment signaler un problème de sécurité ?" name="Security Issues...">
-				<on_click name="SecurityIssues_url" userdata="WebLaunchSecurityIssues,http://wiki.secondlife.com/wiki/Security_issues/fr" />
+				<on_click name="SecurityIssues_url" userdata="WebLaunchSecurityIssues,http://wiki.secondlife.com/wiki/Security_issues/fr"/>
 			</menu_item_call>
 			<menu_item_call label="Wiki Assurance Qualité…" name="QA Wiki..."/>
 			<menu_item_separator label="-----------" name="separator9"/>

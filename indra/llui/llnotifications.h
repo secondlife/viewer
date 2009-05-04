@@ -735,6 +735,13 @@ protected:
 	LLNotificationFilter mFilter;
 };
 
+// The type of the pointers that we're going to manage in the NotificationQueue system
+// Because LLNotifications is a singleton, we don't actually expect to ever 
+// destroy it, but if it becomes necessary to do so, the shared_ptr model
+// will ensure that we don't leak resources.
+class LLNotificationChannel;
+typedef boost::shared_ptr<LLNotificationChannel> LLNotificationChannelPtr;
+
 // manages a list of notifications
 // Note that if this is ever copied around, we might find ourselves with multiple copies
 // of a queue with notifications being added to different nonequivalent copies. So we 
@@ -742,8 +749,9 @@ protected:
 // 
 // NOTE: LLNotificationChannel is self-registering. The *correct* way to create one is to 
 // do something like:
-//		new LLNotificationChannel("name", "parent"...);
-// You can then retrieve the channel by using the registry:
+//		LLNotificationChannel::buildChannel("name", "parent"...);
+// This returns an LLNotificationChannelPtr, which you can store, or
+// you can then retrieve the channel by using the registry:
 //		LLNotifications::instance().getChannel("name")...
 //
 class LLNotificationChannel : 
@@ -754,13 +762,6 @@ class LLNotificationChannel :
 
 public:  
 	virtual ~LLNotificationChannel() {}
-    // Notification Channels have a filter, which determines which notifications
-	// will be added to this channel. 
-	// Channel filters cannot change.
-	LLNotificationChannel(const std::string& name, const std::string& parent,
-						LLNotificationFilter filter=LLNotificationFilters::includeEverything, 
-						LLNotificationComparator comparator=LLNotificationComparators::orderByUUID());
-
 	typedef LLNotificationSet::iterator Iterator;
     
 	std::string getName() const { return mName; }
@@ -777,6 +778,21 @@ public:
 	
 	std::string summarize();
 
+	// factory method for constructing these channels; since they're self-registering,
+	// we want to make sure that you can't use new to make them
+	static LLNotificationChannelPtr buildChannel(const std::string& name, const std::string& parent,
+						LLNotificationFilter filter=LLNotificationFilters::includeEverything, 
+						LLNotificationComparator comparator=LLNotificationComparators::orderByUUID());
+	
+protected:
+    // Notification Channels have a filter, which determines which notifications
+	// will be added to this channel. 
+	// Channel filters cannot change.
+	// Channels have a protected constructor so you can't make smart pointers that don't 
+	// come from our internal reference; call NotificationChannel::build(args)
+	LLNotificationChannel(const std::string& name, const std::string& parent,
+						  LLNotificationFilter filter, LLNotificationComparator comparator);
+
 private:
 	std::string mName;
 	std::string mParent;
@@ -784,12 +800,6 @@ private:
 };
 
 
-
-// The type of the pointers that we're going to manage in the NotificationQueue system
-// Because LLNotifications is a singleton, we don't actually expect to ever 
-// destroy it, but if it becomes necessary to do so, the shared_ptr model
-// will ensure that we don't leak resources.
-typedef boost::shared_ptr<LLNotificationChannel> LLNotificationChannelPtr;
 
 class LLNotifications : 
 	public LLSingleton<LLNotifications>, 

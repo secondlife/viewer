@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="avatarpicker" title="Escolha de pessoa">
+<floater name="avatarpicker" title="Escolha o Residente">
 	<text name="instruct_search_resident_name">
-		Digitar parte do nome do residente:
+		Digite parte do nome do residente:
 	</text>
 	<button label="Encontrar" label_selected="Encontrar" name="Find"/>
 	<text name="Or select their calling card:">
-		Ou selecione um cartão:
+		Ou selecione um cartão de visita:
 	</text>
 	<button label="Fechar" label_selected="Fechar" name="Close"/>
 	<button label="Selecionar" label_selected="Selecionar" name="Select"/>

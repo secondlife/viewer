@@ -2,10 +2,14 @@
 <menu_bar name="Main Menu">
 	<menu label="ファイル" name="File">
 		<tearoff_menu label="~~~~~~~~~~~" name="~~~~~~~~~~~"/>
-		<menu_item_call label="画像をアップロード（L$[COST]）..." name="Upload Image"/>
-		<menu_item_call label="サウンドをアップロード（L$[COST]）..." name="Upload Sound"/>
-		<menu_item_call label="アニメーションをアップロード（L$[COST]）..." name="Upload Animation"/>
-		<menu_item_call label="一括アップロード（L$[COST]／ファイル）…" name="Bulk Upload"/>
+		<menu label="アップロード" name="upload">
+			<menu_item_call label="画像 （L$[COST]）..." name="Upload Image"/>
+			<menu_item_call label="アニメーション （L$[COST]）..." name="Upload Sound"/>
+			<menu_item_call label="アニメーション （L$[COST]）..." name="Upload Animation"/>
+			<menu_item_call label="一括 （ファイルにつきL$[COST]）..." name="Bulk Upload"/>
+			<menu_item_separator label="-----------" name="separator"/>
+			<menu_item_call label="デフォルト権限の設定..." name="perm prefs"/>
+		</menu>
 		<menu_item_separator label="-----------" name="separator"/>
 		<menu_item_call label="ウィンドウを閉じる" name="Close Window"/>
 		<menu_item_call label="全てのウィンドウを閉じる" name="Close All Windows"/>
@@ -68,7 +72,7 @@
 		<menu_item_check label="ツールバー" name="Toolbar"/>
 		<menu_item_check label="ローカル・チャット" name="Chat History"/>
 		<menu_item_check label="コミュニケーション" name="Instant Message"/>
-		<menu_item_call label="持ち物" name="Inventory"/>
+		<menu_item_check label="持ち物" name="Inventory"/>
 		<menu_item_check label="ボイスチャット・ユーザー一覧" name="Active Speakers"/>
 		<menu_item_check label="無視リスト" name="Mute List"/>
 		<menu_item_separator label="-----------" name="separator2"/>
@@ -111,14 +115,14 @@
 		<menu_item_separator label="-----------" name="separator3"/>
 		<menu_item_call label="離席中に設定" name="Set Away"/>
 		<menu_item_call label="取り込み中に設定" name="Set Busy"/>
-		<menu_item_call label="アニメーションをすべて停止" name="Stop All Animations"/>
+		<menu_item_call label="自分のアバターのアニメーションを停止" name="Stop Animating My Avatar"/>
 		<menu_item_call label="キー制御を解除" name="Release Keys"/>
 		<menu_item_separator label="-----------" name="separator4"/>
 		<menu_item_call label="アカウントの履歴..." name="Account History...">
-			<on_click name="AccountHistory_url" userdata="WebLaunchAccountHistory,http://secondlife.com/account/transactions.php?lang=ja" />
+			<on_click name="AccountHistory_url" userdata="WebLaunchAccountHistory,http://secondlife.com/account/transactions.php?lang=ja"/>
 		</menu_item_call>
 		<menu_item_call label="マイアカウントの管理..." name="Manage My Account...">
-			<on_click name="ManageMyAccount_url" userdata="WebLaunchJoinNow,http://secondlife.com/account/index.php?lang=ja" />
+			<on_click name="ManageMyAccount_url" userdata="WebLaunchJoinNow,http://secondlife.com/account/index.php?lang=ja"/>
 		</menu_item_call>
 		<menu_item_call label="L$（リンデン・ドル）を購入" name="Buy and Sell L$..."/>
 		<menu_item_separator label="-----------" name="separator5"/>
@@ -155,7 +159,7 @@
 		<menu_item_separator label="-----------" name="separator2"/>
 		<menu_item_check label="グリッドにスナップ" name="Snap to Grid"/>
 		<menu_item_call label="オブジェクトのXY移動をグリッドに合わせる" name="Snap Object XY to Grid"/>
-		<menu_item_call label="グリッド用に[選択]を使用" name="Use Selection for Grid"/>
+		<menu_item_call label="グリッドをオブジェクトの位置基準で再設定" name="Use Selection for Grid"/>
 		<menu_item_call label="グリッドのオプション..." name="Grid Options..."/>
 		<menu_item_separator label="-----------" name="separator3"/>
 		<menu_item_check label="リンクされた一部を編集" name="Edit Linked Parts"/>
@@ -170,13 +174,13 @@
 		<menu_item_call label="オブジェクトをオブジェクト・コンテンツに戻して保存" name="Save Object Back to Object Contents"/>
 		<menu_item_separator label="-----------" name="separator6"/>
 		<menu_item_call label="スクリプト警告／エラー・ウィンドウを表示" name="Show Script Warning/Error Window"/>
-		<menu label="選択した（オブジェクトの中の）スクリプトを再コンパイル" name="Recompile Scripts in Selection">
+		<menu label="選択したオブジェクトの中のスクリプトを再コンパイル" name="Recompile Scripts in Selection">
 			<menu_item_call label="Mono" name="Mono"/>
 			<menu_item_call label="LSL" name="LSL"/>
 		</menu>
-		<menu_item_call label="選択した（オブジェクトの中の）スクリプトをリセット" name="Reset Scripts in Selection"/>
-		<menu_item_call label="選択した（オブジェクトの中の）スクリプトを起動する" name="Set Scripts to Running in Selection"/>
-		<menu_item_call label="選択した（オブジェクトの中の）スクリプトを停止する" name="Set Scripts to Not Running in Selection"/>
+		<menu_item_call label="選択したオブジェクトの中のスクリプトをリセット" name="Reset Scripts in Selection"/>
+		<menu_item_call label="選択したオブジェクトの中のスクリプトを起動する" name="Set Scripts to Running in Selection"/>
+		<menu_item_call label="選択したオブジェクトの中のスクリプトを停止する" name="Set Scripts to Not Running in Selection"/>
 	</menu>
 	<menu label="ヘルプ" name="Help">
 		<menu_item_call label="Second Life ヘルプ" name="Second Life Help"/>
@@ -196,7 +200,7 @@
 			<menu_item_separator label="-----------" name="separator7"/>
 			<menu_item_call label="バグの報告 101..." name="Bug Reporing 101..."/>
 			<menu_item_call label="セキュリティ問題..." name="Security Issues...">
-				<on_click name="SecurityIssues_url" userdata="WebLaunchSecurityIssues,http://wiki.secondlife.com/wiki/Security_issues/ja" />
+				<on_click name="SecurityIssues_url" userdata="WebLaunchSecurityIssues,http://wiki.secondlife.com/wiki/Security_issues/ja"/>
 			</menu_item_call>
 			<menu_item_call label="品質保証関連Wiki..." name="QA Wiki..."/>
 			<menu_item_separator label="-----------" name="separator9"/>

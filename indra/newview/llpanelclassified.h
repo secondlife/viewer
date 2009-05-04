@@ -120,6 +120,8 @@ protected:
 	static void focusReceived(LLFocusableElement* ctrl, void* data);
 	static void onCommitAny(LLUICtrl* ctrl, void* data);
 
+	void constrainAccessCombo(); // Force AO and PG regions to proper classified access
+	
 	BOOL checkDirty();		// Update and return mDirty
 
 protected:

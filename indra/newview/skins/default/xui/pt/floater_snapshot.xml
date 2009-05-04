@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Snapshot" title="Visualizar foto">
+<floater name="Snapshot" title="Prévia da foto">
 	<text name="type_label">
-		Instantâneo do destino
+		Destino da foto
 	</text>
 	<radio_group label="Tipo de Foto" name="snapshot_type_radio">
 		<radio_item name="postcard">
 			Enviar por email
 		</radio_item>
 		<radio_item name="texture">
-			Salvar no seu inventário (L$10)
+			Salvar no seu inventário (L$[AMOUNT])
 		</radio_item>
 		<radio_item name="local">
 			Salvar no seu disco rígido
@@ -17,9 +17,9 @@
 	<text name="file_size_label">
 		Tamanho do arquivo: [SIZE] KB
 	</text>
-	<button label="Atualizar o Instantâneo" name="new_snapshot_btn"/>
+	<button label="Atualizar a foto" name="new_snapshot_btn"/>
 	<button label="Enviar" name="send_btn"/>
-	<button label="Salvar (L$10)" name="upload_btn"/>
+	<button label="Salvar (L$[AMOUNT])" name="upload_btn"/>
 	<flyout_button label="Salvar" name="save_btn" tool_tip="Salvar imagem em um arquivo">
 		<flyout_button_item name="save_item">
 			Salvar
@@ -129,7 +129,7 @@
 	<check_box label="Mostrar interface na Foto" name="ui_check"/>
 	<check_box label="Mostrar Objetos HUD na Foto" name="hud_check"/>
 	<check_box label="Manter aberto após salvar" name="keep_open_check"/>
-	<check_box label="Quadro Congelado" name="freeze_frame_check"/>
+	<check_box label="Quadro Congelado (prévia da tela inteira)" name="freeze_frame_check"/>
 	<check_box label="Auto-atualizar" name="auto_snapshot_check"/>
 	<string name="unknown">
 		desconhecido

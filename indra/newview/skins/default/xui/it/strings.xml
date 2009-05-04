@@ -1,0 +1,421 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<!-- This file contains strings that used to be hardcoded in the source.
+     It is only for those strings which don&apos;t belong in a floater.
+     For example, the strings used in avatar chat bubbles, and strings 
+     that are returned from one component and may appear in many places-->
+<strings>
+	<string name="LoginInProgress">
+		In connessione. [APP_NAME] può sembrare rallentata.  Attendi.
+	</string>
+	<string name="LoginAuthenticating">
+		In autenticazione
+	</string>
+	<string name="LoginMaintenance">
+		Aggiornamento account in corso...
+	</string>
+	<string name="LoginAttempt">
+		Un precedente tentativo di login è fallito. Tentativo di connessione [NUMBER]
+	</string>
+	<string name="LoginPrecaching">
+		Sto caricando SecondLife...
+	</string>
+	<string name="LoginInitializingBrowser">
+		Inizializzazione del browser web incorporato...
+	</string>
+	<string name="LoginInitializingMultimedia">
+		Inizializzazione dati multimediali...
+	</string>
+	<string name="LoginVerifyingCache">
+		Verifica della cache corso (può impiegarci dai 60-90 secondi)...
+	</string>
+	<string name="LoginProcessingResponse">
+		Risposta in elaborazione...
+	</string>
+	<string name="LoginInitializingWorld">
+		Inizializzazione...
+	</string>
+	<string name="LoginDecodingImages">
+		Decodifica immagini...
+	</string>
+	<string name="LoginInitializingQuicktime">
+		Inizializzazione QuickTime...
+	</string>
+	<string name="LoginQuicktimeNotFound">
+		QuickTime non trovato - impossibile inizializzare.
+	</string>
+	<string name="LoginQuicktimeOK">
+		QuickTime configurato con successo.
+	</string>
+	<string name="LoginWaitingForRegionHandshake">
+		In attesa della risposta della regione...
+	</string>
+	<string name="LoginConnectingToRegion">
+		Connessione alla regione...
+	</string>
+	<string name="LoginDownloadingClothing">
+		Sto caricando i vestiti...
+	</string>
+	<string name="LoginFailedNoNetwork">
+		Errore di rete: impossibile connettersi, verifica la tua connessione.
+	</string>
+	<string name="AgentLostConnection">
+		Questa regione sta avendo problemi.  Verifica la tua connessione a Internet.
+	</string>
+	<string name="TooltipPerson">
+		Persona
+	</string>
+	<string name="TooltipNoName">
+		(nessun nome)
+	</string>
+	<string name="TooltipOwner">
+		Proprietario:
+	</string>
+	<string name="TooltipPublic">
+		Pubblico
+	</string>
+	<string name="TooltipIsGroup">
+		(Gruppo)
+	</string>
+	<string name="TooltipFlagScript">
+		Script
+	</string>
+	<string name="TooltipFlagPhysics">
+		Fisica
+	</string>
+	<string name="TooltipFlagTouch">
+		Tocca
+	</string>
+	<string name="TooltipFlagL$">
+		L$
+	</string>
+	<string name="TooltipFlagDropInventory">
+		Prendi dall&apos;inventario
+	</string>
+	<string name="TooltipFlagPhantom">
+		Fantasma
+	</string>
+	<string name="TooltipFlagTemporary">
+		Temporaneo
+	</string>
+	<string name="TooltipFlagRightClickMenu">
+		(Clicca con il tasto destro per il menù)
+	</string>
+	<string name="TooltipFreeToCopy">
+		Copia consentita
+	</string>
+	<string name="TooltipForSaleL$">
+		In Vendita: [AMOUNT]L$
+	</string>
+	<string name="TooltipForSaleMsg">
+		In Vendita: [MESSAGE]
+	</string>
+	<string name="TooltipFlagGroupBuild">
+		Costruzione solo con gruppo
+	</string>
+	<string name="TooltipFlagNoBuild">
+		Divieto di Costruire
+	</string>
+	<string name="TooltipFlagNoEdit">
+		Costruzione solo con gruppo
+	</string>
+	<string name="TooltipFlagNotSafe">
+		Non Sicuro
+	</string>
+	<string name="TooltipFlagNoFly">
+		Divieto di Volare
+	</string>
+	<string name="TooltipFlagGroupScripts">
+		Script solo con gruppo
+	</string>
+	<string name="TooltipFlagNoScripts">
+		Script vietati
+	</string>
+	<string name="TooltipLand">
+		Terreno:
+	</string>
+	<string name="TooltipMustSingleDrop">
+		Solo un singolo oggetto può essere creato qui
+	</string>
+	<string name="RetrievingData">
+		Recupero dati in corso...
+	</string>
+	<string name="ReleaseNotes">
+		Note sulla versione
+	</string>
+	<string name="LoadingData">
+		In caricamento...
+	</string>
+	<string name="AvatarNameNobody">
+		(nessuno)
+	</string>
+	<string name="AvatarNameWaiting">
+		(in attesa)
+	</string>
+	<string name="AvatarNameHippos">
+		(hippos)
+	</string>
+	<string name="GroupNameNone">
+		(nessuno)
+	</string>
+	<string name="AssetErrorNone">
+		Nessun errore
+	</string>
+	<string name="AssetErrorRequestFailed">
+		Richiesta risorsa: fallita
+	</string>
+	<string name="AssetErrorNonexistentFile">
+		Richiesta risorsa: file non esistente
+	</string>
+	<string name="AssetErrorNotInDatabase">
+		Richiesta risorsa: risorsa non trovata nel database
+	</string>
+	<string name="AssetErrorEOF">
+		Fine del file
+	</string>
+	<string name="AssetErrorCannotOpenFile">
+		Apertura del file non possibile
+	</string>
+	<string name="AssetErrorFileNotFound">
+		File non trovato
+	</string>
+	<string name="AssetErrorTCPTimeout">
+		Tempo esaurito per il trasferimento file
+	</string>
+	<string name="AssetErrorCircuitGone">
+		Circuito perso
+	</string>
+	<string name="AssetErrorUnknownStatus">
+		Stato sconosciuto
+	</string>
+	<string name="AvatarEditingApparance">
+		(In modifica dell&apos;aspetto fisico)
+	</string>
+	<string name="AvatarAway">
+		Assente
+	</string>
+	<string name="AvatarBusy">
+		Occupato
+	</string>
+	<string name="AvatarMuted">
+		Mutato
+	</string>
+	<string name="anim_express_afraid">
+		Dispiaciuto
+	</string>
+	<string name="anim_express_anger">
+		Arrabbiato
+	</string>
+	<string name="anim_away">
+		Assente
+	</string>
+	<string name="anim_backflip">
+		Salto all&apos;indietro
+	</string>
+	<string name="anim_express_laugh">
+		Ridere a crepapelle
+	</string>
+	<string name="anim_express_toothsmile">
+		Gran sorriso
+	</string>
+	<string name="anim_blowkiss">
+		Lancia un bacio
+	</string>
+	<string name="anim_express_bored">
+		Noia
+	</string>
+	<string name="anim_bow">
+		Inchino
+	</string>
+	<string name="anim_clap">
+		Applauso
+	</string>
+	<string name="anim_courtbow">
+		Inchino a corte
+	</string>
+	<string name="anim_express_cry">
+		Pianto
+	</string>
+	<string name="anim_dance1">
+		Ballo 1
+	</string>
+	<string name="anim_dance2">
+		Ballo 2
+	</string>
+	<string name="anim_dance3">
+		Ballo 3
+	</string>
+	<string name="anim_dance4">
+		Ballo 4
+	</string>
+	<string name="anim_dance5">
+		Ballo 5
+	</string>
+	<string name="anim_dance6">
+		Ballo 6
+	</string>
+	<string name="anim_dance7">
+		Ballo 7
+	</string>
+	<string name="anim_dance8">
+		Dance 8
+	</string>
+	<string name="anim_express_disdain">
+		Sdegno
+	</string>
+	<string name="anim_drink">
+		Bere
+	</string>
+	<string name="anim_express_embarrased">
+		Imbarazzo
+	</string>
+	<string name="anim_angry_fingerwag">
+		Negare col dito
+	</string>
+	<string name="anim_fist_pump">
+		Esultare con pugno
+	</string>
+	<string name="anim_yoga_float">
+		Yoga fluttuante
+	</string>
+	<string name="anim_express_frown">
+		Acciglio
+	</string>
+	<string name="anim_impatient">
+		Impazienza
+	</string>
+	<string name="anim_jumpforjoy">
+		Salto di gioia
+	</string>
+	<string name="anim_kissmybutt">
+		Baciami il sedere
+	</string>
+	<string name="anim_express_kiss">
+		Bacio
+	</string>
+	<string name="anim_laugh_short">
+		Risata
+	</string>
+	<string name="anim_musclebeach">
+		Muscoli da spiaggia
+	</string>
+	<string name="anim_no_unhappy">
+		No (Scontento)
+	</string>
+	<string name="anim_no_head">
+		No
+	</string>
+	<string name="anim_nyanya">
+		Na-na-na
+	</string>
+	<string name="anim_punch_onetwo">
+		Uno-due pugno
+	</string>
+	<string name="anim_express_open_mouth">
+		Bocca aperta
+	</string>
+	<string name="anim_peace">
+		Pace
+	</string>
+	<string name="anim_point_you">
+		Indicare altri
+	</string>
+	<string name="anim_point_me">
+		Indicare te stesso
+	</string>
+	<string name="anim_punch_l">
+		Pugno a sinistra
+	</string>
+	<string name="anim_punch_r">
+		Pugno a destra
+	</string>
+	<string name="anim_rps_countdown">
+		Contare nella morra cinese
+	</string>
+	<string name="anim_rps_paper">
+		Carta nella morra cinese
+	</string>
+	<string name="anim_rps_rock">
+		Sasso nella morra cinese
+	</string>
+	<string name="anim_rps_scissors">
+		Forbici nella morra cinese
+	</string>
+	<string name="anim_express_repulsed">
+		Repulsione
+	</string>
+	<string name="anim_kick_roundhouse_r">
+		Calcio con rotazione
+	</string>
+	<string name="anim_express_sad">
+		Triste
+	</string>
+	<string name="anim_salute">
+		Saluto
+	</string>
+	<string name="anim_shout">
+		Urlo
+	</string>
+	<string name="anim_express_shrug">
+		Spallucce
+	</string>
+	<string name="anim_express_smile">
+		Sorriso
+	</string>
+	<string name="anim_smoke_idle">
+		Fumare
+	</string>
+	<string name="anim_smoke_inhale">
+		Fumare inspirazione
+	</string>
+	<string name="anim_smoke_throw_down">
+		Fumare mandando giù
+	</string>
+	<string name="anim_express_surprise">
+		Sorpresa
+	</string>
+	<string name="anim_sword_strike_r">
+		Colpo di spada
+	</string>
+	<string name="anim_angry_tantrum">
+		Collera
+	</string>
+	<string name="anim_express_tongue_out">
+		Linguaccia
+	</string>
+	<string name="anim_hello">
+		Saluto con mano
+	</string>
+	<string name="anim_whisper">
+		Sussurro
+	</string>
+	<string name="anim_whistle">
+		Fischio
+	</string>
+	<string name="anim_express_wink">
+		Ammicca
+	</string>
+	<string name="anim_wink_hollywood">
+		Ammicca (Hollywood)
+	</string>
+	<string name="anim_express_worry">
+		Preoccupato
+	</string>
+	<string name="anim_yes_happy">
+		Si (Felice)
+	</string>
+	<string name="anim_yes_head">
+		Si
+	</string>
+	<string name="texture_loading">
+		Caricando...
+	</string>
+	<string name="worldmap_offline">
+		Offline
+	</string>
+	<string name="whisper">
+		sussurra:
+	</string>
+	<string name="shout">
+		grida:
+	</string>
+</strings>

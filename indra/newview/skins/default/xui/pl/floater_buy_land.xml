@@ -52,7 +52,7 @@
 	<text name="info_price" left_delta="62">
 		1500 L$, obiekty wliczone
 	</text>
-	<text name="info_action" width="350">
+	<text name="info_action">
 		Zakup tej Posiadłości spowoduje:
 	</text>
 	<text name="error_message">

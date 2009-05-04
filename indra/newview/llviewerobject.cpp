@@ -4372,8 +4372,13 @@ void LLViewerObject::setAttachedSound(const LLUUID &audio_uuid, const LLUUID& ow
 		{
 			mAudioSourcep->play(LLUUID::null);
 		}
-		//llinfos << "Playing attached sound " << audio_uuid << llendl;
-		mAudioSourcep->play(audio_uuid);
+		
+		// Play this sound if region maturity permits
+		if( gAgent.canAccessMaturityAtGlobal(this->getPositionGlobal()) )
+		{
+			//llinfos << "Playing attached sound " << audio_uuid << llendl;
+			mAudioSourcep->play(audio_uuid);
+		}
 	}
 }
 

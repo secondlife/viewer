@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="modal container" title=" ">
-	<button label="Guardar" label_selected="Guardar" name="Save" />
-	<button label="Cancelar" label_selected="Cancelar" name="Cancel" />
-	<text type="string" length="1" name="Save item as:">
-		Guardar ítem como:
+	<button label="Guardar" label_selected="Guardar" name="Save"/>
+	<button label="Cancelar" label_selected="Cancelar" name="Cancel"/>
+	<text length="1" name="Save item as:" type="string">
+		Guardar el ítem como:
 	</text>
 	<line_editor name="name ed">
 		Nuevo [DESC]

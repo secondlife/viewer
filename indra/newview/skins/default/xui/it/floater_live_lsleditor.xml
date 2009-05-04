@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="script ed float" title="Script: Nuovo script">
+	<button label="Ripristina" label_selected="Ripristina" name="Reset"/>
+	<check_box label="In esecuzione" name="running"/>
+	<check_box label="Mono" name="mono"/>
+	<string name="not_allowed">
+		Non sei autorizzato a visualizzare questo script.
+	</string>
+	<string name="script_running">
+		In esecuzione
+	</string>
+</floater>

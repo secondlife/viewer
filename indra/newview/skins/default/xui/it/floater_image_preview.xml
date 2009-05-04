@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Image Preview" title="">
+	<text name="name_label">
+		Nome:
+	</text>
+	<text name="description_label">
+		Descrizione:
+	</text>
+	<text name="preview_label">
+		Anteprima dell&apos;immagine come:
+	</text>
+	<combo_box label="Tipo d&apos;abito" name="clothing_type_combo">
+		<combo_item name="Image">
+			Immagine
+		</combo_item>
+		<combo_item name="Hair">
+			Capelli
+		</combo_item>
+		<combo_item name="FemaleHead">
+			Testa femminile
+		</combo_item>
+		<combo_item name="FemaleUpperBody">
+			Corpo femminile superiore
+		</combo_item>
+		<combo_item name="FemaleLowerBody">
+			Corpo femminile inferiore
+		</combo_item>
+		<combo_item name="MaleHead">
+			Testa maschile
+		</combo_item>
+		<combo_item name="MaleUpperBody">
+			Corpo maschile superiore
+		</combo_item>
+		<combo_item name="MaleLowerBody">
+			Corpo maschile inferiore
+		</combo_item>
+		<combo_item name="Skirt">
+			Gonna
+		</combo_item>
+		<combo_item name="SculptedPrim">
+			Oggetto sculpt
+		</combo_item>
+	</combo_box>
+	<text name="bad_image_text">
+		Non è stato possibile leggere l&apos;immagine.
+
+Prova a salvare in formato targa (.tga) a 24 bit.
+	</text>
+	<check_box label="Usa compressione ottimizzata" name="lossless_check"/>
+	<button label="Annulla" name="cancel_btn"/>
+	<button label="Carica ([AMOUNT] L$)" name="ok_btn"/>
+</floater>

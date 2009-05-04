@@ -1,13 +1,11 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="move floater" title="">
-	<button label="" label_selected="" name="turn left btn" tool_tip="Virar a esquerda" />
-	<button label="" label_selected="" name="turn right btn" tool_tip="Virar a direita" />
-	<button label="" label_selected="" name="move up btn" tool_tip="Pular ou Voar" />
-	<button label="" label_selected="" name="move down btn" tool_tip="Agaixar ou pousar." />
-	<button label="Voar" label_selected="Voar" name="fly btn"
-	     tool_tip="Começar ou parar de voar." />
-	<joystick_slide name="slide left btn" tool_tip="Mover para esquerda" />
-	<joystick_slide name="slide right btn" tool_tip="Mover para direita" />
-	<joystick_turn name="forward btn" tool_tip="Mover para frente." />
-	<joystick_turn name="backward btn" tool_tip="Mover para trás." />
+	<button label="" label_selected="" name="turn left btn" tool_tip="Virar à esquerda"/>
+	<button label="" label_selected="" name="turn right btn" tool_tip="Virar à direita"/>
+	<button label="" label_selected="" name="move up btn" tool_tip="Pular ou Voar"/>
+	<button label="" label_selected="" name="move down btn" tool_tip="Agaixar ou pousar"/>
+	<joystick_slide name="slide left btn" tool_tip="Mover para a esquerda"/>
+	<joystick_slide name="slide right btn" tool_tip="Mover para a direita"/>
+	<joystick_turn name="forward btn" tool_tip="Mover para a frente."/>
+	<joystick_turn name="backward btn" tool_tip="Mover para trás"/>
 </floater>

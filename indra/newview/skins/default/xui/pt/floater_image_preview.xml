@@ -7,7 +7,7 @@
 		Descrição:
 	</text>
 	<text name="preview_label">
-		Preview da Imagem como:
+		Prévia da Imagem como:
 	</text>
 	<combo_box label="Tipo de Roupas" name="clothing_type_combo">
 		<combo_item name="Image">
@@ -38,7 +38,7 @@
 			Saia
 		</combo_item>
 		<combo_item name="SculptedPrim">
-			Sculpted Prim
+			Primitiva Esculpida
 		</combo_item>
 	</combo_box>
 	<text name="bad_image_text">

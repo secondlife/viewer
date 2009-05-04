@@ -505,7 +505,7 @@ int compare_int(const void *a, const void *b)
 //--------------------------------------------------------------------
 // LLViewerJointMesh::drawShape()
 //--------------------------------------------------------------------
-U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass)
+U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass, BOOL is_dummy)
 {
 	if (!mValid || !mMesh || !mFace || !mVisible || 
 		mFace->mVertexBuffer.isNull() ||
@@ -523,7 +523,10 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass)
 	//----------------------------------------------------------------
 	if (!gRenderForSelect)
 	{
-		glColor4fv(mColor.mV);
+		if (is_dummy)
+			glColor4fv(LLVOAvatar::getDummyColor().mV);
+		else
+			glColor4fv(mColor.mV);
 	}
 
 	stop_glerror();
@@ -550,7 +553,7 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass)
 			gGL.getTexUnit(0)->setTextureColorBlend(LLTexUnit::TBO_LERP_TEX_ALPHA, LLTexUnit::TBS_TEX_COLOR, LLTexUnit::TBS_PREV_COLOR);
 		}
 	}
-	else if( mLayerSet )
+	else if( !is_dummy && mLayerSet )
 	{
 		if(	mLayerSet->hasComposite() )
 		{
@@ -568,7 +571,7 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass)
 		}
 	}
 	else
-	if ( mTexture.notNull() )
+	if ( !is_dummy && mTexture.notNull() )
 	{
 		old_mode = mTexture->getAddressMode();
 		gGL.getTexUnit(0)->bind(mTexture.get());
@@ -628,7 +631,7 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass)
 		gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
 	}
 
-	if (mTexture.notNull())
+	if (mTexture.notNull() && !is_dummy)
 	{
 		gGL.getTexUnit(0)->bind(mTexture.get());
 		gGL.getTexUnit(0)->setTextureAddressMode(old_mode);

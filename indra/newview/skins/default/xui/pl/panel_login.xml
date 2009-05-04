@@ -38,6 +38,6 @@
 		Nie pamiętasz hasła?
 	</text>
   <text name="channel_text">
-		[CHANNEL] [VERSION]
+		[VERSION]
 	</text>
 </panel>

@@ -8,7 +8,7 @@
 			Eメールで送信
 		</radio_item>
 		<radio_item name="texture">
-			持ち物に保存(L$10)
+			持ち物に保存（L$[AMOUNT]）
 		</radio_item>
 		<radio_item name="local">
 			ハードディスクに保存
@@ -19,7 +19,7 @@
 	</text>
 	<button label="スナップショットを更新" name="new_snapshot_btn"/>
 	<button label="送信" name="send_btn"/>
-	<button label="保存(L$10)" name="upload_btn"/>
+	<button label="保存（L$[AMOUNT]）" name="upload_btn"/>
 	<flyout_button label="保存" name="save_btn" tool_tip="画像をファイルに保存">
 		<flyout_button_item name="save_item">
 			保存

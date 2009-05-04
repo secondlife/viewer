@@ -7,7 +7,7 @@
 		<menu_item_call label="Indstillinger..." name="Preferences..." />
 	</menu>
 	<menu label="Hjælp" name="Help">
-		<menu_item_call label="Second Life Hjælp" name="Second Life Help" />
+		<menu_item_call label="Second Life hjælp" name="Second Life Help" />
 		<menu_item_call label="Om Second Life..." name="About Second Life..." />
 	</menu>
 </menu_bar>

@@ -1,20 +1,23 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<panel label="Invitar un miembro" name="invite_panel">
-	<text>
-		Usted puede seleccionar varios residentes para 
-invitar a su grupo. Haga clic en &apos;Abrir 
-selección de personaje&apos; para empezar.
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Invitar a un miembro" name="invite_panel">
+	<text name="help_text">
+		Puede seleccionar a varios residentes para 
+invitarles a su grupo. Para empezar, pulse
+&apos;Abrir el selector de personas&apos;.
 	</text>
-	<button label="Abrir selección de personaje" name="add_button" tool_tip="" />
-	<name_list name="invitee_list"
-	     tool_tip="Hold the Ctrl key and click resident names  to multi-select." />
-	<button label="Remover selección de la lista" name="remove_button"
-	     tool_tip="Remueve los residentes seleccionados arriba de la lista de invitaciones." />
-	<text>
-		Elija cual función designar para:
+	<button label="Abrir el selector de personas" name="add_button" tool_tip=""/>
+	<name_list name="invitee_list" tool_tip="Para seleccionar a varios residentes, mantenga pulsada la tecla Ctrl y vaya pulsando sus nombres."/>
+	<button label="Eliminar de la lista a los seleccionados" name="remove_button" tool_tip="Elimina los residentes seleccionados de la lista de invitaciones."/>
+	<text name="role_text">
+		Elegir qué rol asignarles:
 	</text>
-	<combo_box name="role_name"
-	     tool_tip="Choose from the list of Roles you  are allowed to assign members to." />
-	<button label="Enviar invitaciones" name="ok_button" />
-	<button label="Cancelar" name="cancel_button" />
+	<combo_box name="role_name" tool_tip="Elige de la lista de roles cuál asignar a los miembros."/>
+	<button label="Enviar las invitaciones" name="ok_button"/>
+	<button label="Cancelar" name="cancel_button"/>
+	<string name="confirm_invite_owner_str">
+		¿Está seguro de que quiere invitar a un nuevo propietario/s? ¡Esta acción es permanente!
+	</string>
+	<string name="loading">
+		(cargando...)
+	</string>
 </panel>

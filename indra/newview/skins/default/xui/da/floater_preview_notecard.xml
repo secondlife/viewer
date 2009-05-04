@@ -5,12 +5,9 @@
 		Beskrivelse:
 	</text>
 	<text_editor type="string" length="1" name="Notecard Editor">
-		Indl&#230;ser...
+		Indlæser...
 	</text_editor>
-	<string name="no_object">
-		Ikke i stand til at finde objekt med denne note.
-	</string>
 	<string name="not_allowed">
-		Du har ikke tilladelse til at l&#230;se denne note.
+		Du har ikke tilladelse til at læse denne note.
 	</string>
 </floater>

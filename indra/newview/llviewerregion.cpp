@@ -1304,10 +1304,10 @@ void LLViewerRegion::unpackRegionHandshake()
 	std::string productName;
 
 	// the only reasonable way to decide if we actually have any data is to
-	// check to see if any of these fields have nonzero sizes
-	if (msg->getSize("RegionInfo3", "ColoName") ||
-	    msg->getSize("RegionInfo3", "ProductSKU") ||
-	    msg->getSize("RegionInfo3", "ProductName"))
+	// check to see if any of these fields have positive sizes
+	if (msg->getSize("RegionInfo3", "ColoName") > 0 ||
+	    msg->getSize("RegionInfo3", "ProductSKU") > 0 ||
+	    msg->getSize("RegionInfo3", "ProductName") > 0)
 	{
 		msg->getS32     ("RegionInfo3", "CPUClassID",  classID);
 		msg->getS32     ("RegionInfo3", "CPURatio",    cpuRatio);
@@ -1416,6 +1416,7 @@ void LLViewerRegion::setSeedCapability(const std::string& url)
 	capabilityNames.append("NewFileAgentInventory");
 	capabilityNames.append("ParcelPropertiesUpdate");
 	capabilityNames.append("ParcelVoiceInfoRequest");
+	capabilityNames.append("ProductInfoRequest");
 	capabilityNames.append("ProvisionVoiceAccountRequest");
 	capabilityNames.append("RemoteParcelRequest");
 	capabilityNames.append("RequestTextureDownload");

@@ -6,12 +6,12 @@
 	<text name="description_label">
 		Descrição:
 	</text>
-	<spinner label="Prioridade" name="priority" tool_tip="Controle com o qual umas animações podem ser sobrepostas por outras."/>
+	<spinner label="Prioridade" name="priority" tool_tip="Controla quais animações podem se sobrepor a esta animação."/>
 	<check_box label="Loop" name="loop_check" tool_tip="Executa a animação repetidamente."/>
-	<spinner label="Dentro(%)" name="loop_in_point" tool_tip="Ajusta o ponto onde a repetição começa."/>
-	<spinner label="Fora(%)" name="loop_out_point" tool_tip="Ajusta o ponto onde a repetição termina."/>
+	<spinner label="Dentro(%)" name="loop_in_point" tool_tip="Ajusta o ponto da animação onde a repetição começa."/>
+	<spinner label="Fora(%)" name="loop_out_point" tool_tip="Ajusta o ponto da animação onde a repetição termina."/>
 	<text name="hand_label">
-		Posição Manual
+		Pose de Mão
 	</text>
 	<combo_box label="" name="hand_pose_combo" tool_tip="Controla o que as mãos fazem durante a animação">
 		<combo_item name="Spread">
@@ -122,7 +122,7 @@
 	<text name="preview_label">
 		Prever enquanto
 	</text>
-	<combo_box label="" name="preview_base_anim" tool_tip="Use isso para testar o comportamento de sua animação enquanto seu avatar executa ações comuns.">
+	<combo_box label="" name="preview_base_anim" tool_tip="Use isto para testar o comportamento de sua animação enquanto seu avatar executa ações comuns.">
 		<combo_item name="Standing">
 			Parado
 		</combo_item>
@@ -136,11 +136,10 @@
 			Voando
 		</combo_item>
 	</combo_box>
-	<spinner label="Ease In (sec)" name="ease_in_time" tool_tip="Quantidade de tempo (em segundos) para que as animações se mesclem."/>
-	<spinner label="Ease Out (sec)" name="ease_out_time" tool_tip="Quantidade de tempo (em segundos) para que a animações se mesclem."/>
+	<spinner label="Facilitar a entrada (sec)" name="ease_in_time" tool_tip="Quantidade de tempo (em segundos) para que as animações se mesclem."/>
+	<spinner label="Facilitar a saída (sec)" name="ease_out_time" tool_tip="Quantidade de tempo (em segundos) para que a animações se mesclem."/>
 	<button label="" name="play_btn" tool_tip="Executa/pausa sua animação."/>
 	<button label="" name="stop_btn" tool_tip="Interrompe a execução da animação."/>
-	<slider label="" name="playback_slider"/>
 	<text name="bad_animation_text">
 		Incapaz de ler o arquivo de animação. Nós recomendamos exportar arquivos BVH do Poser 4.
 	</text>
@@ -152,7 +151,7 @@
 	<string name="anim_too_long">
 		O arquivo de animação tem [LENGTH] segundos de duração. 
 
-Duração maxima de animação permitida é de [MAX_LENGTH] segundos.
+A duração máxima de animação permitida é de [MAX_LENGTH] segundos.
 	</string>
 	<string name="failed_file_read">
 		Não foi possível ler o arquivo de animação.

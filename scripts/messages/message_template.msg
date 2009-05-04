@@ -594,7 +594,7 @@ version 2.0
 // global x,y,z.  Otherwise, use center of the AABB.
 // reliable
 {
-	PlacesReply Low 30 Trusted Zerocoded
+	PlacesReply Low 30 Trusted Zerocoded UDPDeprecated
 	{
 		AgentData		Single
 		{	AgentID		LLUUID		}
@@ -619,6 +619,7 @@ version 2.0
 		{	SnapshotID		LLUUID			}
 		{	Dwell			F32				}
 		{	Price			S32				}
+		//{	ProductSKU		Variable	1	}
 	}
 }
 
@@ -1048,7 +1049,7 @@ version 2.0
 // dataserver -> simulator -> viewer
 // reliable
 {
-	DirLandReply Low 50 Trusted Zerocoded
+	DirLandReply Low 50 Trusted Zerocoded UDPDeprecated
 	{
 		AgentData			Single
 		{	AgentID			LLUUID	}
@@ -1065,6 +1066,7 @@ version 2.0
 		{	ForSale			BOOL		}
 		{	SalePrice		S32			}
 		{	ActualArea		S32			}
+		//{	ProductSKU		Variable 1	}
 	}
 }
 
@@ -5274,6 +5276,11 @@ version 2.0
 	{
 		VisualParam				Variable
 		{	ParamValue			U8	}
+	}
+	{
+		AgentAccess				Variable
+		{	AgentLegacyAccess		U8	}
+		{	AgentMaxAccess			U8	}
 	}
 }
 

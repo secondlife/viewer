@@ -49,7 +49,7 @@ class LLNotificationHistoryChannel : public LLNotificationChannel
 	LOG_CLASS(LLNotificationHistoryChannel);
 public:
 	LLNotificationHistoryChannel(const std::string& filename) : 
-		LLNotificationChannel("History", "Visible", &historyFilter),
+		LLNotificationChannel("History", "Visible", &historyFilter, LLNotificationComparators::orderByUUID()),
 		mFileName(filename)
 	{
 		connectChanged(boost::bind(&LLNotificationHistoryChannel::historyHandler, this, _1));
@@ -858,6 +858,20 @@ bool LLNotificationChannelBase::updateItem(const LLSD& payload, LLNotificationPt
 	return abortProcessing;
 }
 
+/* static */
+LLNotificationChannelPtr LLNotificationChannel::buildChannel(const std::string& name, 
+															 const std::string& parent,
+															 LLNotificationFilter filter, 
+															 LLNotificationComparator comparator)
+{
+	// note: this is not a leak; notifications are self-registering.
+	// This factory helps to prevent excess deletions by making sure all smart
+	// pointers to notification channels come from the same source
+	new LLNotificationChannel(name, parent, filter, comparator);
+	return LLNotifications::instance().getChannel(name);
+}
+
+
 LLNotificationChannel::LLNotificationChannel(const std::string& name, 
 											 const std::string& parent,
 											 LLNotificationFilter filter, 
@@ -1054,21 +1068,22 @@ void LLNotifications::createDefaultChannels()
 {
 	// now construct the various channels AFTER loading the notifications,
 	// because the history channel is going to rewrite the stored notifications file
-	new LLNotificationChannel("Expiration", "",
+	LLNotificationChannel::buildChannel("Expiration", "",
 		boost::bind(&LLNotifications::expirationFilter, this, _1));
-	new LLNotificationChannel("Unexpired", "",
+	LLNotificationChannel::buildChannel("Unexpired", "",
 		!boost::bind(&LLNotifications::expirationFilter, this, _1)); // use negated bind
-	new LLNotificationChannel("Unique", "Unexpired",
+	LLNotificationChannel::buildChannel("Unique", "Unexpired",
 		boost::bind(&LLNotifications::uniqueFilter, this, _1));
-	new LLNotificationChannel("Ignore", "Unique",
+	LLNotificationChannel::buildChannel("Ignore", "Unique",
 		filterIgnoredNotifications);
-	new LLNotificationChannel("Visible", "Ignore",
+	LLNotificationChannel::buildChannel("Visible", "Ignore",
 		&LLNotificationFilters::includeEverything);
 
 	// create special history channel
 	//std::string notifications_log_file = gDirUtilp->getExpandedFilename ( LL_PATH_PER_SL_ACCOUNT, "open_notifications.xml" );
 	// use ^^^ when done debugging notifications serialization
 	std::string notifications_log_file = gDirUtilp->getExpandedFilename ( LL_PATH_USER_SETTINGS, "open_notifications.xml" );
+	// this isn't a leak, don't worry about the empty "new"
 	new LLNotificationHistoryChannel(notifications_log_file);
 
 	// connect action methods to these channels

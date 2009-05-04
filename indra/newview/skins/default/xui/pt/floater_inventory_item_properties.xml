@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="item properties" title="Propriedades">
+<floater name="item properties" title="Propriedades do Item de Inventário">
 	<text name="LabelItemNameTitle">
 		Nome:
 	</text>
@@ -58,13 +58,13 @@
 	<text name="SaleLabel">
 		Marcar Item:
 	</text>
-	<check_box label="A venda" name="CheckPurchase"/>
+	<check_box label="À venda" name="CheckPurchase"/>
 	<radio_group name="RadioSaleType">
 		<radio_item name="radio">
 			Original
 		</radio_item>
 		<radio_item name="radio2">
-			Copia
+			Cópia
 		</radio_item>
 	</radio_group>
 	<text name="TextPrice">

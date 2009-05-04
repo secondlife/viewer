@@ -32,7 +32,7 @@
 				Pas à vendre
 			</text>
 			<text length="1" name="For Sale: Price L$[PRICE]." type="string">
-				Prix : [PRICE] L$.
+				Prix : [PRICE] L$ ([PRICE_PER_SQM] L$/m²).
 			</text>
 			<text name="SalePending"/>
 			<button label="Vendre le terrain..." label_selected="Vendre le terrain..." name="Sell Land..."/>
@@ -266,9 +266,8 @@ Allez dans le menu Monde &gt; À propos du terrain ou sélectionnez une autre pa
 				<combo_item name="LindenLocation">
 					Appartenant aux Lindens
 				</combo_item>
-				<combo_item name="Adult">
-					Adulte
-				</combo_item>
+
+
 				<combo_item name="Arts&amp;Culture">
 					Art et Culture
 				</combo_item>
@@ -301,7 +300,7 @@ Allez dans le menu Monde &gt; À propos du terrain ou sélectionnez une autre pa
 				</combo_item>
 			</combo_box>
 			<button label="?" label_selected="?" name="?" left="436" bottom="-160"/>
-			<check_box label="Contenu pour adultes" name="MatureCheck" tool_tip="Les infos sur votre parcelle, ou le contenu de cette dernière, sont à caractère adulte." bottom="-180"/>
+			<check_box name="MatureCheck" bottom="-180"/>
 			<text length="1" name="Snapshot:" type="string" bottom="-200">
 				Photo :
 			</text>

@@ -131,7 +131,6 @@ LLFontGL::~LLFontGL()
 
 void LLFontGL::reset()
 {
-	resetBitmapCache(); 
 	if (!mIsFallback)
 	{
 		// This is the head of the list - need to rebuild ourself and all fallbacks.
@@ -150,6 +149,7 @@ void LLFontGL::reset()
 			}
 		}
 	}
+	resetBitmapCache(); 
 }
 
 // static 
@@ -678,8 +678,6 @@ S32 LLFontGL::render(const LLWString &wstr,
 	}
 
 	gGL.popMatrix();
-
-	gGL.getTexUnit(0)->disable();
 
 	return chars_drawn;
 }

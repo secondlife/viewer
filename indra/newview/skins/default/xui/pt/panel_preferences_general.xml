@@ -25,9 +25,9 @@
 	<text name="group_titles_textbox">
 		Títulos dos Grupos:
 	</text>
-	<check_box label="Esconder Todos os Títulos de Grupos" name="show_all_title_checkbox"/>
+	<check_box label="Ocultar todos os Títulos de Grupos" name="show_all_title_checkbox"/>
 	<check_box label="Ocultar meu Título no Grupo" name="show_my_title_checkbox"/>
-	<color_swatch label="" name="effect_color_swatch" tool_tip="Clique para abrir po seletor de cores"/>
+	<color_swatch label="" name="effect_color_swatch" tool_tip="Clique para abrir o seletor de cores"/>
 	<text name="UI Size:">
 		Tamanho da UI:
 	</text>
@@ -35,7 +35,7 @@
 	<spinner label="Tempo para ficar Ausente:" name="afk_timeout_spinner"/>
 	<check_box label="Rotacionar Mini-Mapa" name="rotate_mini_map_checkbox"/>
 	<check_box label="Avisar quando receber ou gastar Linden dollars (L$)" name="notify_money_change_checkbox"/>
-	<check_box label="Usar a paleta de cores padrão do sistema" name="use_system_color_picker_checkbox" tool_tip="Usar a palheta de cores padrão do sistema ao invés de uma feita dentro de Second Life."/>
+	<check_box label="Usar a paleta de cores padrão do sistema" name="use_system_color_picker_checkbox" tool_tip="Usar a paleta de cores padrão do sistema ao invés de uma feita dentro de Second Life."/>
 	<check_box label="Mostrar o painel de busca na barra sobreposta" name="show_search_panel" tool_tip="Mostrar o painel de busca embutido."/>
 	<text length="1" name="start_location_textbox" type="string">
 		Posição Inicial:
@@ -55,7 +55,7 @@
 	<text name="language_textbox">
 		Linguagem:
 	</text>
-	<text length="1" name="language_textbox2" type="string" left_delta="313">
+	<text left_delta="313" length="1" name="language_textbox2" type="string">
 		(Precisa de reinício para efetivar)
 	</text>
 	<string name="region_name_prompt">
@@ -79,6 +79,9 @@
 		<combo_item name="English">
 			English (Inglês)
 		</combo_item>
+		<combo_item name="Danish">
+			Dansk (Dinamarquês) - Beta
+		</combo_item>
 		<combo_item name="Deutsch(German)">
 			Deutsch (Alemão) - Beta
 		</combo_item>
@@ -87,6 +90,12 @@
 		</combo_item>
 		<combo_item name="French">
 			Français (Francês) - Beta
+		</combo_item>
+		<combo_item name="Hungarian">
+			Magyar (Húngaro) - Beta
+		</combo_item>
+		<combo_item name="Polish">
+			Polski (Polonês) - Beta
 		</combo_item>
 		<combo_item name="Portugese">
 			Português - Beta

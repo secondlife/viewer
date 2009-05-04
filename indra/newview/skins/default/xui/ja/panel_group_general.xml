@@ -49,17 +49,7 @@
 		<check_box label="会員募集" name="open_enrollement" tool_tip="招待状なしに自由にこのグループに加入することを許可するかどうかを指定します"/>
 		<check_box label="入会費：L$" name="check_enrollment_fee" tool_tip="このグループへの参加に入会費を必須とするかどうかを指定します"/>
 		<spinner name="spin_enrollment_fee" tool_tip="「入会費」がチェックされている場合、新規会員は入会時にここに指定された金額を支払う必要があります"/>
-		<combo_box name="group_mature_check" tool_tip="あなたのグループ情報が成人向けとみなされるかどうかを指定します">
-			<combo_item name="select_mature">
-				-成熟度を選択-
-			</combo_item>
-			<combo_item name="mature">
-				成人向けコンテンツ
-			</combo_item>
-			<combo_item name="not_mature">
-				非成人向けコンテンツ
-			</combo_item>
-		</combo_box>
+
 		<panel name="title_container">
 			<text name="active_title_label">
 				私のアクティブ・タイトル

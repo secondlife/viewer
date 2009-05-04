@@ -1,13 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Inviter un résident" name="invite_panel">
-	<text>
-		Vous pouvez sélectionner plusieurs résidents
-à inviter dans votre groupe. Cliquez sur &apos;Ouvrir 
-le Sélecteur de Personnes&apos; pour commencer.
-	</text>
 	<text name="help_text">
-		Vous pouvez inviter plusieurs résidents.
-Pour commencer, cliquez sur
+		Vous pouvez inviter plusieurs résidents
+à la fois. Cliquez d&apos;abord sur
 Choisir un résident.
 	</text>
 	<button label="Choisir un résident" name="add_button" tool_tip=""/>

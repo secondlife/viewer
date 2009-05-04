@@ -38,9 +38,7 @@
 		Impreza
 	</text>
 	<check_box label="" name="event_chk" />
-	<text name="events_mature_label">
-		Impreza (18+)
-	</text>
+
 	<check_box label="" name="event_mature_chk" />
 	<combo_box label="Dostępni Znajomi" name="friend combo" tool_tip="Znajomi na mapie">
 		<combo_item name="none_selected">

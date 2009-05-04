@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_auction" title="Inizia a vendere terra Linden">
+	<check_box label="Includi barriere di selezione gialle" name="fence_check"/>
+	<button label="Fotografia" label_selected="Fotografia" name="snapshot_btn"/>
+	<button label="OK" label_selected="OK" name="ok_btn"/>
+	<string name="already for sale">
+		Non puoi mettere in asta terreni che sono già in vendita.
+	</string>
+</floater>

@@ -2271,6 +2271,14 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 				const LLTextureEntry* te = facep->getTextureEntry();
 				LLViewerImage* tex = facep->getTexture();
 
+				if (facep->isState(LLFace::TEXTURE_ANIM))
+				{
+					if (!vobj->mTexAnimMode)
+					{
+						facep->clearState(LLFace::TEXTURE_ANIM);
+					}
+				}
+
 				BOOL force_simple = (facep->mPixelArea < FORCE_SIMPLE_RENDER_AREA);
 				U32 type = gPipeline.getPoolTypeFromTE(te, tex);
 				if (type != LLDrawPool::POOL_ALPHA && force_simple)
@@ -2333,6 +2341,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 						}
 						else 
 						{ //doesn't need normal
+							facep->setState(LLFace::FULLBRIGHT);
 							fullbright_faces.push_back(facep);
 						}
 					}
@@ -2349,6 +2358,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 						}
 						else 
 						{ //doesn't need normal
+							facep->setState(LLFace::FULLBRIGHT);
 							fullbright_faces.push_back(facep);
 						}
 					}
@@ -2678,6 +2688,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 					}
 					else
 					{
+						llassert(mask & LLVertexBuffer::MAP_NORMAL);
 						registerFace(group, facep, LLRenderPass::PASS_SIMPLE);
 					}
 				}
@@ -2708,6 +2719,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 					}
 					else
 					{
+						llassert(mask & LLVertexBuffer::MAP_NORMAL);
 						registerFace(group, facep, LLRenderPass::PASS_SIMPLE);
 					}
 				}
@@ -2720,7 +2732,8 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 			
 			if (!is_alpha && !LLPipeline::sRenderDeferred)
 			{
-				facep->setPoolType(LLDrawPool::POOL_SIMPLE);
+				llassert((mask & LLVertexBuffer::MAP_NORMAL) || fullbright);
+				facep->setPoolType((fullbright) ? LLDrawPool::POOL_FULLBRIGHT : LLDrawPool::POOL_SIMPLE);
 				
 				if (!force_simple && te->getBumpmap())
 				{

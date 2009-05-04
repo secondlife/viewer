@@ -3359,6 +3359,12 @@ void process_sound_trigger(LLMessageSystem *msg, void **)
 		return;
 	}
 
+	// Don't play sounds from a region with maturity above current agent maturity
+	if( !gAgent.canAccessMaturityInRegion( region_handle ) )
+	{
+		return;
+	}
+		
 	gAudiop->triggerSound(sound_id, owner_id, gain, LLAudioEngine::AUDIO_TYPE_SFX, pos_global);
 }
 
@@ -3392,6 +3398,13 @@ void process_preload_sound(LLMessageSystem *msg, void **user_data)
 	// audio data into a buffer at this point, as it won't actually
 	// help us out.
 
+	// Don't play sounds from a region with maturity above current agent maturity
+	LLVector3d pos_global = objectp->getPositionGlobal();
+	if( !gAgent.canAccessMaturityAtGlobal( pos_global ) )
+	{
+		return;
+	}
+	
 	// Add audioData starts a transfer internally.
 	sourcep->addAudioData(datap, FALSE);
 }
@@ -3421,6 +3434,14 @@ void process_attached_sound(LLMessageSystem *msg, void **user_data)
 	
 	if (LLMuteList::getInstance()->isMuted(owner_id, LLMute::flagObjectSounds)) return;
 
+	
+	// Don't play sounds from a region with maturity above current agent maturity
+	LLVector3d pos = objectp->getPositionGlobal();
+	if( !gAgent.canAccessMaturityAtGlobal(pos) )
+	{
+		return;
+	}
+	
 	objectp->setAttachedSound(sound_id, owner_id, gain, flags);
 }
 
@@ -4839,7 +4860,7 @@ void process_teleport_failed(LLMessageSystem *msg, void**)
 	LLSD args;
 
 	// if we have additional alert data
-	if (msg->getSizeFast(_PREHASH_AlertInfo, _PREHASH_Message) > 0)
+	if (msg->getNumberOfBlocksFast(_PREHASH_AlertInfo) > 0)
 	{
 		// Get the message ID
 		msg->getStringFast(_PREHASH_AlertInfo, _PREHASH_Message, reason);

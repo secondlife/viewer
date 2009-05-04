@@ -259,9 +259,7 @@ Idź do Świat &gt; O Posiadłości albo wybierz inną posiadłość żeby pokaz
 				<combo_item name="LindenLocation">
 					Linden Lokacja
 				</combo_item>
-				<combo_item name="Adult">
-					Dla osób 18+
-				</combo_item>
+
 				<combo_item name="Arts&amp;Culture">
 					Sztuka i Kultura
 				</combo_item>
@@ -294,7 +292,7 @@ Idź do Świat &gt; O Posiadłości albo wybierz inną posiadłość żeby pokaz
 				</combo_item>
 			</combo_box>
 			<button label="?" label_selected="?" name="?"/>
-			<check_box label="Dla osób 18+" name="MatureCheck" tool_tip="Informacje dotyczące posiadłości lub jej zawartość zakwalifikowana jest dla osób dorosłych (18+)"/>
+			<check_box name="MatureCheck" />
 			<text length="1" name="Snapshot:" type="string">
 				Zdjęcie:
 			</text>

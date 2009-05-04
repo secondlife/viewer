@@ -1,0 +1,421 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<!-- This file contains strings that used to be hardcoded in the source.
+     It is only for those strings which don&apos;t belong in a floater.
+     For example, the strings used in avatar chat bubbles, and strings 
+     that are returned from one component and may appear in many places-->
+<strings>
+	<string name="LoginInProgress">
+		Iniciando la sesión. [APP_NAME] debe de aparecer congelado. Por favor, espere.
+	</string>
+	<string name="LoginAuthenticating">
+		Autenticando
+	</string>
+	<string name="LoginMaintenance">
+		Realizando el mantenimiento de la cuenta...
+	</string>
+	<string name="LoginAttempt">
+		Ha fallado el intento previo de iniciar sesión. Iniciando sesión, intento [NUMBER]
+	</string>
+	<string name="LoginPrecaching">
+		Cargando el mundo...
+	</string>
+	<string name="LoginInitializingBrowser">
+		Iniciando el navegador web incorporado...
+	</string>
+	<string name="LoginInitializingMultimedia">
+		Iniciando multimedia...
+	</string>
+	<string name="LoginVerifyingCache">
+		Comprobando los archivos de la caché (puede tardar entre 60 y 90 segundos)...
+	</string>
+	<string name="LoginProcessingResponse">
+		Procesando la respuesta...
+	</string>
+	<string name="LoginInitializingWorld">
+		Iniciando el mundo...
+	</string>
+	<string name="LoginDecodingImages">
+		Decodificando las imágenes...
+	</string>
+	<string name="LoginInitializingQuicktime">
+		Iniciando QuickTime...
+	</string>
+	<string name="LoginQuicktimeNotFound">
+		No se ha encontrado QuickTime. Imposible iniciarlo.
+	</string>
+	<string name="LoginQuicktimeOK">
+		QuickTime se ha iniciado adecuadamente.
+	</string>
+	<string name="LoginWaitingForRegionHandshake">
+		Esperando la conexión con la región...
+	</string>
+	<string name="LoginConnectingToRegion">
+		Conectando con la región...
+	</string>
+	<string name="LoginDownloadingClothing">
+		Descargando la ropa...
+	</string>
+	<string name="LoginFailedNoNetwork">
+		Error de red: no se ha podido conectar; por favor, revise su conexión a internet.
+	</string>
+	<string name="AgentLostConnection">
+		Esta región puede estar teniendo problemas. Por favor, compruebe su conexión a internet.
+	</string>
+	<string name="TooltipPerson">
+		Persona
+	</string>
+	<string name="TooltipNoName">
+		(sin nombre)
+	</string>
+	<string name="TooltipOwner">
+		Propietario:
+	</string>
+	<string name="TooltipPublic">
+		Público
+	</string>
+	<string name="TooltipIsGroup">
+		(Grupo)
+	</string>
+	<string name="TooltipFlagScript">
+		Script
+	</string>
+	<string name="TooltipFlagPhysics">
+		Propiedades físicas
+	</string>
+	<string name="TooltipFlagTouch">
+		Tocar
+	</string>
+	<string name="TooltipFlagL$">
+		L$
+	</string>
+	<string name="TooltipFlagDropInventory">
+		Desplegar el inventario
+	</string>
+	<string name="TooltipFlagPhantom">
+		Inmaterial
+	</string>
+	<string name="TooltipFlagTemporary">
+		Temporal
+	</string>
+	<string name="TooltipFlagRightClickMenu">
+		(pulse el botón derecho del ratón para ver el menú)
+	</string>
+	<string name="TooltipFreeToCopy">
+		Copia gratis
+	</string>
+	<string name="TooltipForSaleL$">
+		En venta: [AMOUNT] L$
+	</string>
+	<string name="TooltipForSaleMsg">
+		En venta: [MESSAGE]
+	</string>
+	<string name="TooltipFlagGroupBuild">
+		Construir el grupo
+	</string>
+	<string name="TooltipFlagNoBuild">
+		No construir
+	</string>
+	<string name="TooltipFlagNoEdit">
+		Construir el grupo
+	</string>
+	<string name="TooltipFlagNotSafe">
+		No seguro
+	</string>
+	<string name="TooltipFlagNoFly">
+		No volar
+	</string>
+	<string name="TooltipFlagGroupScripts">
+		Scripts el grupo
+	</string>
+	<string name="TooltipFlagNoScripts">
+		No scripts
+	</string>
+	<string name="TooltipLand">
+		Terreno:
+	</string>
+	<string name="TooltipMustSingleDrop">
+		Aquí se puede arrastrar sólo un ítem
+	</string>
+	<string name="RetrievingData">
+		Reintentando...
+	</string>
+	<string name="ReleaseNotes">
+		Notas de la versión
+	</string>
+	<string name="LoadingData">
+		Cargando...
+	</string>
+	<string name="AvatarNameNobody">
+		(nadie)
+	</string>
+	<string name="AvatarNameWaiting">
+		(esperando)
+	</string>
+	<string name="AvatarNameHippos">
+		(hipopótamos)
+	</string>
+	<string name="GroupNameNone">
+		(ninguno)
+	</string>
+	<string name="AssetErrorNone">
+		No hay ningún error
+	</string>
+	<string name="AssetErrorRequestFailed">
+		Petición de asset: fallida
+	</string>
+	<string name="AssetErrorNonexistentFile">
+		Petición de asset: el archivo no existe
+	</string>
+	<string name="AssetErrorNotInDatabase">
+		Petición de asset: no se encontró el asset en la base de datos
+	</string>
+	<string name="AssetErrorEOF">
+		Fin del archivo
+	</string>
+	<string name="AssetErrorCannotOpenFile">
+		No puede abrirse el archivo
+	</string>
+	<string name="AssetErrorFileNotFound">
+		No se ha encontrado el archivo
+	</string>
+	<string name="AssetErrorTCPTimeout">
+		Tiempo de transferencia del archivo
+	</string>
+	<string name="AssetErrorCircuitGone">
+		Circuito desconectado
+	</string>
+	<string name="AssetErrorUnknownStatus">
+		Estado desconocido
+	</string>
+	<string name="AvatarEditingApparance">
+		(Modificando la apariencia)
+	</string>
+	<string name="AvatarAway">
+		Ausente
+	</string>
+	<string name="AvatarBusy">
+		Ocupado
+	</string>
+	<string name="AvatarMuted">
+		Ignorado
+	</string>
+	<string name="anim_express_afraid">
+		Susto
+	</string>
+	<string name="anim_express_anger">
+		Enfado
+	</string>
+	<string name="anim_away">
+		Ausente
+	</string>
+	<string name="anim_backflip">
+		Salto mortal atrás
+	</string>
+	<string name="anim_express_laugh">
+		Carcajada
+	</string>
+	<string name="anim_express_toothsmile">
+		Gran sonrisa
+	</string>
+	<string name="anim_blowkiss">
+		Mandar un beso
+	</string>
+	<string name="anim_express_bored">
+		Aburrimiento
+	</string>
+	<string name="anim_bow">
+		Reverencia
+	</string>
+	<string name="anim_clap">
+		Aplauso
+	</string>
+	<string name="anim_courtbow">
+		Reverencia floreada
+	</string>
+	<string name="anim_express_cry">
+		Llanto
+	</string>
+	<string name="anim_dance1">
+		Baile 1
+	</string>
+	<string name="anim_dance2">
+		Baile 2
+	</string>
+	<string name="anim_dance3">
+		Baile 3
+	</string>
+	<string name="anim_dance4">
+		Baile 4
+	</string>
+	<string name="anim_dance5">
+		Baile 5
+	</string>
+	<string name="anim_dance6">
+		Baile 6
+	</string>
+	<string name="anim_dance7">
+		Baile 7
+	</string>
+	<string name="anim_dance8">
+		Baile 8
+	</string>
+	<string name="anim_express_disdain">
+		Desdén
+	</string>
+	<string name="anim_drink">
+		Beber
+	</string>
+	<string name="anim_express_embarrased">
+		Azorarse
+	</string>
+	<string name="anim_angry_fingerwag">
+		Negar con el dedo
+	</string>
+	<string name="anim_fist_pump">
+		Éxito con el puño
+	</string>
+	<string name="anim_yoga_float">
+		Yoga flotando
+	</string>
+	<string name="anim_express_frown">
+		Fruncir el ceño
+	</string>
+	<string name="anim_impatient">
+		Impaciente
+	</string>
+	<string name="anim_jumpforjoy">
+		Salto de alegría
+	</string>
+	<string name="anim_kissmybutt">
+		Bésame el culo
+	</string>
+	<string name="anim_express_kiss">
+		Besar
+	</string>
+	<string name="anim_laugh_short">
+		Reír
+	</string>
+	<string name="anim_musclebeach">
+		Sacar músculo
+	</string>
+	<string name="anim_no_unhappy">
+		No (con enfado)
+	</string>
+	<string name="anim_no_head">
+		No
+	</string>
+	<string name="anim_nyanya">
+		Ña-Ña-Ña
+	</string>
+	<string name="anim_punch_onetwo">
+		Puñetazo uno-dos
+	</string>
+	<string name="anim_express_open_mouth">
+		Abrir la boca
+	</string>
+	<string name="anim_peace">
+		&apos;V&apos; con los dedos
+	</string>
+	<string name="anim_point_you">
+		Señalar a otro/a
+	</string>
+	<string name="anim_point_me">
+		Señalarse
+	</string>
+	<string name="anim_punch_l">
+		Puñetazo izquierdo
+	</string>
+	<string name="anim_punch_r">
+		Puñetazo derecho
+	</string>
+	<string name="anim_rps_countdown">
+		PPT cuenta
+	</string>
+	<string name="anim_rps_paper">
+		PPT papel
+	</string>
+	<string name="anim_rps_rock">
+		PPT piedra
+	</string>
+	<string name="anim_rps_scissors">
+		PPT tijera
+	</string>
+	<string name="anim_express_repulsed">
+		Repulsa
+	</string>
+	<string name="anim_kick_roundhouse_r">
+		Patada circular
+	</string>
+	<string name="anim_express_sad">
+		Triste
+	</string>
+	<string name="anim_salute">
+		Saludo militar
+	</string>
+	<string name="anim_shout">
+		Gritar
+	</string>
+	<string name="anim_express_shrug">
+		Encogerse de hombros
+	</string>
+	<string name="anim_express_smile">
+		Sonreír
+	</string>
+	<string name="anim_smoke_idle">
+		Fumar: en la mano
+	</string>
+	<string name="anim_smoke_inhale">
+		Fumar
+	</string>
+	<string name="anim_smoke_throw_down">
+		Fumar: tirar el cigarro
+	</string>
+	<string name="anim_express_surprise">
+		Sorpresa
+	</string>
+	<string name="anim_sword_strike_r">
+		Estocadas
+	</string>
+	<string name="anim_angry_tantrum">
+		Berrinche
+	</string>
+	<string name="anim_express_tongue_out">
+		Sacar la lengua
+	</string>
+	<string name="anim_hello">
+		Agitar la mano
+	</string>
+	<string name="anim_whisper">
+		Cuchichear
+	</string>
+	<string name="anim_whistle">
+		Pitar
+	</string>
+	<string name="anim_express_wink">
+		Guiño
+	</string>
+	<string name="anim_wink_hollywood">
+		Guiño (Hollywood)
+	</string>
+	<string name="anim_express_worry">
+		Preocuparse
+	</string>
+	<string name="anim_yes_happy">
+		Sí (contento)
+	</string>
+	<string name="anim_yes_head">
+		Sí
+	</string>
+	<string name="texture_loading">
+		Cargando...
+	</string>
+	<string name="worldmap_offline">
+		Desconectado/a
+	</string>
+	<string name="whisper">
+		susurra:
+	</string>
+	<string name="shout">
+		grita:
+	</string>
+</strings>

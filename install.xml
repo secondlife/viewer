@@ -777,30 +777,30 @@ anguage Infrstructure (CLI) international standard</string>
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>edd0877544dab4c521473279ed237dcc</string>
+            <string>82659b48831cbf58bf04b86602939e0b</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/libpng-1.2.18-darwin-20080812.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/libpng-1.2.35-darwin-20090304.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>8ccd6155e0236b78548125a8aabebf79</string>
+            <string>f5e84c991f6e3caacb26db259593cbea</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/libpng-1.2.33-linux-20081201.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/libpng-1.2.35-linux-20090304.tar.bz2</uri>
           </map>
           <key>linux64</key>
           <map>
             <key>md5sum</key>
-            <string>fbc162f986c869d158633ccdba6ee6e4</string>
+            <string>5ee1e62bde38520c7f134c4afb9ac9b1</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/libpng-1.2.18-linux64-20080909.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/libpng-1.2.35-linux64-20090304.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>230b6113158994c516ea742fb9e163c3</string>
+            <string>a3975dcdb9a3ba0ca179b673b5e9b55e</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/libpng-1.2.29-windows-20080723.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/libpng-1.2.35-windows-20090306.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -854,16 +854,16 @@ anguage Infrstructure (CLI) international standard</string>
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>6995c99b4855c4bf9301267c334aedc3</string>
+            <string>c951587726618d33646f2b169c290bd3</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llmozlib-darwin-20080812.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llmozlib-2_0_0_21-darwin-20090304.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>6866c147730c83b7858765355df75047</string>
+            <string>b7ebcf0fb764ed4fa57c62d068b4a769</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llmozlib-linux-20081218prfhk.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llmozlib-linux-20090304prfhk.tar.bz2</uri>
           </map>
           <key>linux64</key>
           <map>
@@ -875,9 +875,9 @@ anguage Infrstructure (CLI) international standard</string>
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>3fd03d7bbd0efceddce1e158eb454fc9</string>
+            <string>e9454e258b99668782d8570481b5eda1</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llmozlib-windows-20090123.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llmozlib-windows-20090306.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -1126,9 +1126,9 @@ anguage Infrstructure (CLI) international standard</string>
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>48650448e3d9c8d3a97fd0169b22892c</string>
+            <string>41541a98106894e28a6bf585010fea65</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/openjpeg-1.2-windows-20080723.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/openjpeg-1.3-windows-20090407.tar.bz2</uri>
           </map>
         </map>
       </map>

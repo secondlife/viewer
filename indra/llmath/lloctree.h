@@ -331,6 +331,16 @@ public:
 				//push center in direction of data
 				LLOctreeNode<T>::pushCenter(center, size, data);
 
+				// handle case where floating point number gets too small
+				if( llabs(center.mdV[0] - getCenter().mdV[0]) < F_APPROXIMATELY_ZERO &&
+					llabs(center.mdV[1] - getCenter().mdV[1]) < F_APPROXIMATELY_ZERO &&
+					llabs(center.mdV[2] - getCenter().mdV[2]) < F_APPROXIMATELY_ZERO)
+				{
+					mData.insert(data);
+					BaseType::insert(data);
+					return true;
+				}
+
 #if LL_OCTREE_PARANOIA_CHECK
 				if (getChildCount() == 8)
 				{

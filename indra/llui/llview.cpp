@@ -1370,8 +1370,6 @@ void LLView::draw()
 	{
 		drawDebugRect();
 	}
-
-	gGL.getTexUnit(0)->disable();
 }
 
 //Draw a box for debugging.

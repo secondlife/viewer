@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="gestures" title="Aktive bevægelser">
+	<text name="help_label">
+		Dobbelt-klik på en bevægelse for at afspille animation og lyd.
+	</text>
+	<scroll_list name="gesture_list">
+		<column label="Genvej" name="trigger" />
+		<column label="Taste" name="shortcut" />
+		<column label="" name="key" />
+		<column label="Navn" name="name" />
+	</scroll_list>
+	<button label="Ny" name="new_gesture_btn" />
+	<button label="Redigér" name="edit_btn" />
+	<button label="Afspil" name="play_btn" />
+	<button label="Stop" name="stop_btn" />
+</floater>

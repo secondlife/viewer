@@ -20,6 +20,7 @@
 		Zum Verkauf
 dieser Parzelle:
 	</text>
+	<icon bottom_delta="-76" name="step_price" />
 	<text name="price_label">
 		Preis festlegen:
 	</text>

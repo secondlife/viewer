@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<!-- This file contains strings that used to be hardcoded in the source.
+     It is only for those strings which don&apos;t belong in a floater.
+     For example, the strings used in avatar chat bubbles, and strings 
+     that are returned from one component and may appear in many places-->
 <strings>
 	<string name="LoginInProgress">
 		La connexion à [APP_NAME] apparaît peut-être comme étant gelée. Veuillez patienter.
@@ -50,9 +54,6 @@
 	</string>
 	<string name="LoginDownloadingClothing">
 		Habits en cours de téléchargement...
-	</string>
-	<string name="LoginFailedNoNetwork">
-		Erreur réseau : impossible d&apos;établir la connexion. Veuillez vérifier votre connexion réseau.
 	</string>
 	<string name="AgentLostConnection">
 		Il y a peut-être des problèmes techniques dans cette region. Veuillez vérifier votre connexion Internet.
@@ -179,6 +180,9 @@
 	</string>
 	<string name="AssetErrorCircuitGone">
 		Disparition du circuit
+	</string>
+	<string name="AssetErrorPriceMismatch">
+		Il y a une différence de prix entre le client et le serveur
 	</string>
 	<string name="AssetErrorUnknownStatus">
 		Statut inconnu
@@ -413,5 +417,50 @@
 	</string>
 	<string name="shout">
 		crie :
+	</string>
+	<string name="all_files">
+		Tous fichiers
+	</string>
+	<string name="sound_files">
+		Sons
+	</string>
+	<string name="animation_files">
+		Animations
+	</string>
+	<string name="image_files">
+		Images
+	</string>
+	<string name="save_file_verb">
+		Enregistrer
+	</string>
+	<string name="load_file_verb">
+		Charger
+	</string>
+	<string name="targa_image_files">
+		Images Targa
+	</string>
+	<string name="bitmap_image_files">
+		Images Bitmap
+	</string>
+	<string name="avi_movie_file">
+		Fichier de film AVI
+	</string>
+	<string name="xaf_animation_file">
+		Fichier d&apos;animation XAF
+	</string>
+	<string name="xml_file">
+		Fichier XML
+	</string>
+	<string name="dot_raw_file">
+		Fichier RAW
+	</string>
+	<string name="compressed_image_files">
+		Images compressées
+	</string>
+	<string name="load_files">
+		Charger des fichiers
+	</string>
+	<string name="choose_the_directory">
+		Choisir le répertoire
 	</string>
 </strings>

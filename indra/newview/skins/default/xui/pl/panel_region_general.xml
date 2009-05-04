@@ -34,14 +34,9 @@
 	<text label="Ograniczenia Wieku" name="access_text">
 		Dozwolony:
 	</text>
-	<combo_box label="Wiek" name="access_combo">
-		<combo_item name="PG">
-			BO
-		</combo_item>
-		<combo_item name="Mature">
-			18+
-		</combo_item>
-	</combo_box>
+
+
+
 	<button label="?" name="access_help" />
 	<button label="Zastosuj" name="apply_btn" />
 	<button label="Wyrzuć Awatara..." name="kick_btn" />

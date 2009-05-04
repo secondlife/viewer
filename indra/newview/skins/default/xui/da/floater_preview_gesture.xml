@@ -4,7 +4,7 @@
 		Stop
 	</string>
 	<string name="preview_txt">
-		Fremvis
+		Vis
 	</string>
 	<string name="none_text">
 		-- Intet --
@@ -16,16 +16,16 @@
 		Udløser:
 	</text>
 	<text name="replace_text"
-	     tool_tip="Udskift udløser ordet/ordene med dette/disse ord. Eksempelvis, udløser &apos;hallo&apos; udskift med &apos;hejsa&apos; vil ændre &apos;Jeg ville bare sige hallo &apos; ud med &apos;Jeg ville bare sig hejsa&apos; samt afspille hilsenen!">
-		Udskift med:
+	     tool_tip="Replace the trigger word(s) with these words. For example, trigger &apos;hello&apos; replace with &apos;howdy&apos; will turn the chat &apos;I wanted to say hello&apos; into &apos;I wanted to say howdy&apos; as well as playing the gesture!">
+		Erstat med:
 	</text>
 	<line_editor name="replace_editor"
-	     tool_tip="Udskift udløser ordet/ordene med dette/disse ord. Eksempelvis, udløser &apos;hallo&apos; udskift med &apos;hejsa&apos; vil ændre &apos;Jeg ville bare sige hallo &apos; ud med &apos;Jeg ville bare sig hejsa&apos; samt afspille hilsenen!" />
+	     tool_tip="Replace the trigger word(s) with these words. For example, trigger &apos;hello&apos; replace with &apos;howdy&apos; will turn the chat &apos;I wanted to say hello&apos; into &apos;I wanted to say howdy&apos; as well as playing the gesture" />
 	<text name="key_label">
-		Genvejs Tast:
+		Genvejstast:
 	</text>
-	<combo_box label="None" name="modifier_combo" />
-	<combo_box label="None" name="key_combo" />
+	<combo_box label="Ingen" name="modifier_combo" />
+	<combo_box label="Ingen" name="key_combo" />
 	<text name="library_label">
 		Type:
 	</text>
@@ -49,9 +49,8 @@ medmindre du tilføjer vente trin.
 		</radio_item>
 	</radio_group>
 	<check_box label="Indtil animation er færdig" name="wait_anim_check" />
-	<check_box label="Tid i sekunder" name="wait_time_check" />
-	<check_box label="Aktiv" name="active_check"
-	     tool_tip="Aktiv hilsener kan blive udløst ved chat, deres sætninger eller ved at trykke på deres hot keys. Hilsener bliver normalt inaktive, når der er en genvejstast konflikt.." />
-	<button label="Fremvis" name="preview_btn" />
+	<check_box label="tid i sekunder" name="wait_time_check" />
+	<check_box label="Aktiv" name="active_check" />
+	<button label="Vis" name="preview_btn" />
 	<button label="Gem" name="save_btn" />
 </floater>

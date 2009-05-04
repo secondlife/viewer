@@ -1,15 +1,11 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="move floater" title="">
-	<button label="" label_selected="" name="turn left btn" tool_tip="Girar a la izquierda" />
-	<button label="" label_selected="" name="turn right btn" tool_tip="Girar a la derecha" />
-	<button label="" label_selected="" name="move up btn"
-	     tool_tip="Saltar o volar más alto" />
-	<button label="" label_selected="" name="move down btn"
-	     tool_tip="Bajar o volar más bajo" />
-	<button label="Volar" label_selected="Volar" name="fly btn"
-	     tool_tip="Empezar o parar de volar" />
-	<joystick_slide name="slide left btn" tool_tip="Mover para la izquierda" />
-	<joystick_slide name="slide right btn" tool_tip="Mover para la derecha" />
-	<joystick_turn name="forward btn" tool_tip="Mover para frente" />
-	<joystick_turn name="backward btn" tool_tip="Mover para tras" />
+	<button label="" label_selected="" name="turn left btn" tool_tip="Girar a la izquierda"/>
+	<button label="" label_selected="" name="turn right btn" tool_tip="Girar a la derecha"/>
+	<button label="" label_selected="" name="move up btn" tool_tip="Saltar o ascender"/>
+	<button label="" label_selected="" name="move down btn" tool_tip="Agacharse o descender"/>
+	<joystick_slide name="slide left btn" tool_tip="Ir hacia la izquierda"/>
+	<joystick_slide name="slide right btn" tool_tip="Ir hacia la derecha"/>
+	<joystick_turn name="forward btn" tool_tip="Ir hacia adelante"/>
+	<joystick_turn name="backward btn" tool_tip="Ir hacia atrás"/>
 </floater>

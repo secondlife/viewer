@@ -1,7 +1,8 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="build options floater" title="Opciones de red">
-	<spinner label="Unidad de la red (metros)" name="GridResolution" />
-	<spinner label="Extensión de la red (metros)" name="GridDrawSize" />
-	<check_box label="Activar subunidad de captura" name="GridSubUnit" />
-	<slider label="Opacidad de la red" name="GridOpacity" />
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="build options floater" title="Opciones de la cuadrícula">
+	<spinner label="Unidad de la cuadrícula (metros)" name="GridResolution"/>
+	<spinner label="Graduación de la cuadrícula (metros)" name="GridDrawSize"/>
+	<check_box label="Activar subunidades" name="GridSubUnit"/>
+	<check_box label="Ver la sección transversal" name="GridCrossSection"/>
+	<slider label="Opacidad de la cuadrícula" name="GridOpacity"/>
 </floater>

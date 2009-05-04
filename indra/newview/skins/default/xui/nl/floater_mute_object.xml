@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="mute by name" title="Negeer object op naam">
+	<text name="message">
+		Negeer op naam heeft alleen invloed op object chat en IM, niet op geluiden. U dient de naam van het object exact te typen.
+	</text>
+	<line_editor name="object_name">
+		Object naam
+	</line_editor>
+	<button label="Ok" name="OK"/>
+	<button label="Annuleren" name="Cancel"/>
+</floater>

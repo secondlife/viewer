@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="ColorPicker" title="Tavolozza colori">
+	<text name="r_val_text">
+		Rosso:
+	</text>
+	<text name="g_val_text">
+		Verde:
+	</text>
+	<text name="b_val_text">
+		Blu:
+	</text>
+	<text name="h_val_text">
+		Tonalità:
+	</text>
+	<text name="s_val_text">
+		Saturazione:
+	</text>
+	<text name="l_val_text">
+		Luminosità:
+	</text>
+	<check_box label="Applica Immediatamente" name="apply_immediate"/>
+	<button label="Annulla" label_selected="Annulla" name="cancel_btn"/>
+	<button label="Seleziona" label_selected="Seleziona" name="select_btn"/>
+	<text name="Current color:">
+		Colore attuale:
+	</text>
+	<text name="(Drag below to save.)">
+		(Trascina qui sotto per salvare.)
+	</text>
+</floater>

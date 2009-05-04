@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater name="worldmap" title="Verdenskort">
 	<tab_container name="maptab">
-		<panel label="Objects" name="objects_mapview" />
-		<panel label="Terrain" name="terrain_mapview" />
+		<panel label="Objekter" name="objects_mapview" />
+		<panel label="Terræn" name="terrain_mapview" />
 	</tab_container>
 	<text name="land_for_sale_label">
-		Land til Salg
+		Land til salg
 	</text>
 	<text name="auction_label">
 		Auktion
@@ -16,12 +16,8 @@
 	<text name="home_label">
 		Hjem
 	</text>
-	<button label="Tag Hjem" label_selected="Tag Hjem" name="Go Home"
+	<button label="Tag hjem" label_selected="Tag hjem" name="Go Home"
 	     tool_tip="Teleporter til dit hjem" />
-	<text name="classifieds_label">
-		Annoncer
-	</text>
-	<check_box label=" " name="class_chk" />
 	<text name="person_label">
 		Person
 	</text>
@@ -39,28 +35,28 @@
 	</text>
 	<check_box label="" name="land_for_sale_chk" />
 	<text name="events_label">
-		Begivenheder
+		Events
 	</text>
 	<check_box label="" name="event_chk" />
-	<text name="events_mature_label">
-		Begivenheder (V)
-	</text>
+	<text name="events_mature_label" />
 	<check_box label="" name="event_mature_chk" />
-	<combo_box label="Online Friends" name="friend combo" tool_tip="Ven der skal vises p� kortet">
+	<combo_box label="Venner online" name="friend combo"
+	     tool_tip="Ven der skal vises på kortet">
 		<combo_item name="none_selected">
-			Online Venner
+			Venner online
 		</combo_item>
 	</combo_box>
-	<combo_box label="Landmarks" name="landmark combo" tool_tip="Landem�rke der skal vises p� kortet">
+	<combo_box label="Landemærker" name="landmark combo"
+	     tool_tip="Landemærke der skal vises på kortet">
 		<combo_item name="none_selected">
-			Landem�rker
+			Landemærker
 		</combo_item>
 	</combo_box>
-	<line_editor label="Search by Region Name" name="location"
-	     tool_tip="Skriv navnet p� en region" />
-	<button label="Search" name="DoSearch" tool_tip="Search for region" />
+	<line_editor label="Søg på region navn" name="location"
+	     tool_tip="Skriv navnet på en region" />
+	<button label="Søg" name="DoSearch" tool_tip="Søg efter en region" />
 	<text name="search_label">
-		S�ge resultater:
+		Søgeresultater:
 	</text>
 	<scroll_list name="search_results">
 		<column label="" name="icon" />
@@ -69,18 +65,17 @@
 	<text name="location_label">
 		Lokation:
 	</text>
-	<spinner name="spin x" tool_tip="X coordinate of location to show on map" />
-	<spinner name="spin y" tool_tip="Y coordinate of location to show on map" />
-	<spinner name="spin z" tool_tip="Z coordinate of location to show on map" />
-	<button label="Teleporter" label_selected="Teleporter" name="Teleport"
-	     tool_tip="Teleporter til valgte lokation" />
-	<button label="Vis Destination" label_selected="Vis Destination"
-	     name="Show Destination" tool_tip="Centrer kortet p� valgte lokation" />
-	<button label="Slet alt" label_selected="Slet alt" name="Clear" tool_tip="Stop s�gning" />
-	<button label="Vis min Lokation" label_selected="Vis min Lokation"
-	     name="Show My Location"
-	     tool_tip="Centrer kortet p� din avatar&apos;s lokation" />
-	<button label="Kopier SLURL til udklipsholder" name="copy_slurl"
-	     tool_tip="Kopierer den nuv�rende lokation som et SLURL, s� det kan bruges p� nettet." />
+	<spinner name="spin x" tool_tip="X koordinat for lokation der skal vises på kortet" />
+	<spinner name="spin y" tool_tip="Y koordinat for lokation der skal vises på kortet" />
+	<spinner name="spin z" tool_tip="Z koordinat for lokation der skal vises på kortet" />
+	<button label="Teleport" label_selected="Teleport" name="Teleport"
+	     tool_tip="Teleportér til den valgte lokation" />
+	<button label="Vis destination" label_selected="Vis destination"
+	     name="Show Destination" tool_tip="Centrér kortet på valgte lokation" />
+	<button label="Slet" label_selected="Slet" name="Clear" tool_tip="Stop søg" />
+	<button label="Vis min position" label_selected="Vis min position"
+	     name="Show My Location" tool_tip="Centrer kortet på din avatars lokation" />
+	<button label="Kopiér SLURL til udklipsholder" name="copy_slurl"
+	     tool_tip="Kopierer den nuværende lokation som et SLURL, så det kan bruges på nettet." />
 	<slider label="Zoom" name="zoom slider" />
 </floater>

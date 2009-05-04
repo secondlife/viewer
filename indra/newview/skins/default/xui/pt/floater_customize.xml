@@ -38,9 +38,8 @@
 				Localizado em [PATH]
 			</text>
 			<text length="1" name="not worn instructions" type="string">
-				Coloque um novo formato arrastando um dos seus de seu inventário
-para seu avatar. Alternativamente, você pode criar um novo a partir
-deste e usá-lo.
+				Coloque uma nova forma arrastando uma do seu inventário
+para seu avatar. Alternativamente, você pode criar uma nova de um esboço e usá-la.
 			</text>
 			<text length="1" name="no modify instructions" type="string">
 				Você não tem permissão para modificar esta vestimenta.
@@ -72,12 +71,12 @@ deste e usá-lo.
 			</text>
 			<text length="1" name="not worn instructions" type="string">
 				Coloque uma nova pele arrastando uma de seu inventário para seu avatar.
-Alternativamente, você pode criar uma nova forma a partir deste e usá-lo.
+Alternativamente, você pode criar uma nova forma a partir de um esboço e usá-la.
 			</text>
 			<text length="1" name="no modify instructions" type="string">
 				Você não tem permissão para modificar esta vestimenta.
 			</text>
-			<texture_picker label="Tatuagens para cabeça" name="Head Tattoos" tool_tip="Clique para escolher um desenho"/>
+			<texture_picker label="Tatuagens para a cabeça" name="Head Tattoos" tool_tip="Clique para escolher um desenho"/>
 			<texture_picker label="Tattoos Superiores" name="Upper Tattoos" tool_tip="Clique para escolher um desenho"/>
 			<texture_picker label="Tattoos Inferiores" name="Lower Tattoos" tool_tip="Clique para escolher um desenho"/>
 			<button label="Aleatório" label_selected="Aleatório" name="Randomize"/>
@@ -109,7 +108,7 @@ Alternativamente, você pode criar uma nova forma a partir deste e usá-lo.
 			</text>
 			<text length="1" name="not worn instructions" type="string">
 				Ponha um novo cabelo em seu avatar arrastando um do seu inventário.
-Alternativamente, você pode criar um novo modelo a partir deste e
+Alternativamente, você pode criar um novo modelo a partir de um esboço e
 usá-lo.
 			</text>
 			<text length="1" name="no modify instructions" type="string">
@@ -141,13 +140,13 @@ usá-lo.
 			</text>
 			<text length="1" name="not worn instructions" type="string">
 				Para colocar novos olhos, arraste um do seu inventário para seu avatar.
-Alternativamente, você pode criar um novo modelo a partir deste e
+Alternativamente, você pode criar um novo modelo de um esboço e
 usá-lo.
 			</text>
 			<text length="1" name="no modify instructions" type="string">
 				Você não tem permissão para alterar esta vestimenta.
 			</text>
-			<texture_picker label="Iris" name="Iris" tool_tip="Clique para escolher uma imagem"/>
+			<texture_picker label="Íris" name="Iris" tool_tip="Clique para escolher uma imagem"/>
 			<button label="Aleatório" label_selected="Aleatório" name="Randomize"/>
 			<button label="Criar Novos Olhos" label_selected="Criar Novos Olhos" name="Create New"/>
 			<button label="Remover" label_selected="Remover" name="Take Off"/>
@@ -180,9 +179,9 @@ usá-lo.
 				Localizado em [PATH]
 			</text>
 			<text length="1" name="not worn instructions" type="string">
-				Para por uma nova camisa em seu avatar, arraste uma nova do seu
+				Para por uma nova camisa em seu avatar, arraste uma do seu
 inventário para seu avatar. Alternativamente, você pode criar um
-novo modelo a partir deste e usá-lo.
+novo modelo a partir de um esboço e usá-lo.
 			</text>
 			<text length="1" name="no modify instructions" type="string">
 				Você não ter permissão para modificar esta vestimenta.
@@ -214,13 +213,13 @@ novo modelo a partir deste e usá-lo.
 			<text length="1" name="not worn instructions" type="string">
 				Para por uma nova calça em seu avatar, basta arrastar uma outra do seu
 inventário. Alternativamente, você pode criar um novo modelo a partir
-deste e usá-lo.
+de um esboço e usá-lo.
 			</text>
 			<text length="1" name="no modify instructions" type="string">
 				Você não tem permissão para modificar esta vestimenta.
 			</text>
 		</panel>
-		<panel label="Calçados" name="Shoes">
+		<panel label="Sapatos" name="Shoes">
 			<text length="1" name="title" type="string">
 				[DESC]
 			</text>
@@ -237,17 +236,17 @@ deste e usá-lo.
 				Localizado em [PATH]
 			</text>
 			<text length="1" name="not worn instructions" type="string">
-				Para por novos calçados em seu avatar, basta arrastar um novo do seu
+				Para por novos sapatos em seu avatar, basta arrastar um novo do seu
 inventário. Alternativamente, você pode criar um novo modelo a partir
-deste e usá-lo.
+de um esboço e usá-lo.
 			</text>
 			<text length="1" name="no modify instructions" type="string">
 				Você não tem permissão para modificar esta vestimenta.
 			</text>
 			<texture_picker label="Tecido" name="Fabric" tool_tip="Clique para escolher uma imagem"/>
 			<color_swatch label="Cor/Tint" name="Color/Tint" tool_tip="Clique para pegar o conta-gotas"/>
-			<button label="Criar Novos Calçados" label_selected="Criar Novos Sapatos" name="Create New" width="166"/>
-			<button label="Despir" label_selected="Despir" name="Take Off"/>
+			<button label="Criar Novos Sapatos" label_selected="Criar Novos Sapatos" name="Create New" width="166"/>
+			<button label="Remover" label_selected="Remover" name="Take Off"/>
 			<button label="Salvar" label_selected="Salvar" name="Save"/>
 			<button label="Salvar Como" label_selected="Salvar Como" name="Save As"/>
 			<button label="Reverter" label_selected="Reverter" name="Revert"/>
@@ -269,9 +268,8 @@ deste e usá-lo.
 				Localizado em [PATH]
 			</text>
 			<text length="1" name="not worn instructions" type="string">
-				Para por uma nova meia em seu avatar, basta arrastar uma nova do seu
-inventário. Alternativamente, você pode criar um novo modelo a partir
-deste e usá-lo.
+				Para por novas meias em seu avatar, basta arrastar uma nova do seu
+inventário. Alternativamente, você pode criar novas meias a partir de um esboço e usá-las.
 			</text>
 			<text length="1" name="no modify instructions" type="string">
 				Você não tem permissão para modificar essa vestimenta.
@@ -303,7 +301,7 @@ deste e usá-lo.
 			<text length="1" name="not worn instructions" type="string">
 				Para por uma nova jaqueta em seu avatar, basta arrastar um novo modelo
 do seu inventário. Alternativamente, você pode criar um novo modelo a
-partir deste e usá-lo.
+partir de um esboço e usá-lo.
 			</text>
 			<text length="1" name="no modify instructions" type="string">
 				Você não tem permissão para modificar esta vestimenta.
@@ -334,9 +332,9 @@ partir deste e usá-lo.
 				Localizado em [PATH]
 			</text>
 			<text length="1" name="not worn instructions" type="string">
-				Pra por uma nova jaqueta em seu avatar, basta arastar um novo modelo
+				Para colocar uma nova jaqueta em seu avatar, basta arrastar um novo modelo
 do seu inventário. Alternativamente, você pode criar uma novo modelo a
-partir deste e usá-lo.
+partir de um esboço e usá-lo.
 			</text>
 			<text length="1" name="no modify instructions" type="string">
 				Você não tem permissão para modificar essa vestimenta.
@@ -368,7 +366,7 @@ partir deste e usá-lo.
 			<text length="1" name="not worn instructions" type="string">
 				Para por uma nova Camiseta em seu avatar, basta arrastar um novo
 modelo de seu inventário. Alternativamente, você pode criar um
-novo modelo a partir deste e usá-lo.
+novo modelo a partir de um esboço e usá-lo.
 			</text>
 			<text length="1" name="no modify instructions" type="string">
 				Você não ter permissão para modificar essa vestimenta.
@@ -400,7 +398,7 @@ novo modelo a partir deste e usá-lo.
 			<text length="1" name="not worn instructions" type="string">
 				Para por novas roupas de baixo em seu avatar, basta arrastar um novo
 modelo do seu inventário. Alternativamente, você pode criar um novo
-modelo a partir deste e usá-lo.
+modelo a partir de um esboço e usá-lo.
 			</text>
 			<text length="1" name="no modify instructions" type="string">
 				Você não tem permissão para modificar essa vestimenta.
@@ -432,10 +430,10 @@ modelo a partir deste e usá-lo.
 			<text length="1" name="not worn instructions" type="string">
 				Para por uma nova saia em seu avatar, basta arrastar um novo modelo
 do seu inventário. Alternativamente, você pode criar um novo modelo a
-partir deste e usá-lo.
+partir de um esboço e usá-lo.
 			</text>
 			<text length="1" name="no modify instructions" type="string">
-				Você não tem permissão para modificar essa vestimenta.
+				Você não tem permissão para modificar esta vestimenta.
 			</text>
 			<texture_picker label="Tecido" name="Fabric" tool_tip="Clique para escolher uma imagem"/>
 			<color_swatch label="Cor/Tint" name="Color/Tint" tool_tip="Click to open Color Picker"/>

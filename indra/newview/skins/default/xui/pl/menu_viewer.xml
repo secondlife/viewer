@@ -2,10 +2,12 @@
 <menu_bar name="Main Menu">
   <menu label="Plik" name="File">
     <tearoff_menu label="~~~~~~~~~~~" name="~~~~~~~~~~~" />
-    <menu_item_call label="Załaduj Obraz (L$[COST])..." name="Upload Image" />
-    <menu_item_call label="Załaduj Dźwięk (L$[COST])..." name="Upload Sound" />
-    <menu_item_call label="Załaduj Animację (L$[COST])..." name="Upload Animation" />
-    <menu_item_call label="Załaduj Zbiór Plików (L$[COST] za plik)..." name="Bulk Upload" />
+    <menu label="Załaduj" name="upload">
+    <menu_item_call label="Obraz (L$[COST])..." name="Upload Image" />
+    <menu_item_call label="Dźwięk (L$[COST])..." name="Upload Sound" />
+    <menu_item_call label="Animację (L$[COST])..." name="Upload Animation" />
+    <menu_item_call label="Zbiór Plików (L$[COST] za plik)..." name="Bulk Upload" />
+    </menu>
     <menu_item_separator label="-----------" name="separator" />
     <menu_item_call label="Zamknij Bieżące Okno" name="Close Window" />
     <menu_item_call label="Zamknij Wszystkie Okna" name="Close All Windows" />

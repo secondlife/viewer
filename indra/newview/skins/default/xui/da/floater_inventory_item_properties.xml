@@ -31,34 +31,34 @@
 	</text>
 	<check_box label="Redigere" name="CheckOwnerModify" />
 	<check_box label="Kopiere" name="CheckOwnerCopy" />
-	<check_box label="S&#230;lge/Give V&#230;k" name="CheckOwnerTransfer" />
+	<check_box label="Sælge/give væk" name="CheckOwnerTransfer" />
 	<text name="BaseMaskDebug">
-		B:
+		S:
 	</text>
 	<text name="OwnerMaskDebug">
-		O:
+		E:
 	</text>
 	<text name="GroupMaskDebug">
 		G:
 	</text>
 	<text name="EveryoneMaskDebug">
-		E:
+		A:
 	</text>
 	<text name="NextMaskDebug">
 		N:
 	</text>
-	<check_box label="Del med Gruppe" name="CheckShareWithGroup" />
+	<check_box label="Del med gruppe" name="CheckShareWithGroup" />
 	<check_box label="Tillad alle at kopiere" name="CheckEveryoneCopy" />
 	<text name="NextOwnerLabel">
-		N&#230;ste ejer kan:
+		Næste ejer kan:
 	</text>
 	<check_box label="Redigere" name="CheckNextOwnerModify" />
 	<check_box label="Kopiere" name="CheckNextOwnerCopy" />
-	<check_box label="S&#230;lge/Give v&#230;k" name="CheckNextOwnerTransfer" />
+	<check_box label="Sælge/Give væk" name="CheckNextOwnerTransfer" />
 	<text name="SaleLabel">
-		Marker Ting:
+		Markér ting:
 	</text>
-	<check_box label="Til Salg" name="CheckPurchase" />
+	<check_box label="Til salg" name="CheckPurchase" />
 	<radio_group name="RadioSaleType">
 		<radio_item name="radio">
 			Original

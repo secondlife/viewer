@@ -207,7 +207,9 @@ void LLProgressView::setPercent(const F32 percent)
 void LLProgressView::setMessage(const std::string& msg)
 {
 	mMessage = msg;
-	mURLInMessage = mMessage.find( "http://" ) != std::string::npos;
+	mURLInMessage = (mMessage.find( "https://" ) != std::string::npos ||
+			 mMessage.find( "http://" ) != std::string::npos ||
+			 mMessage.find( "ftp://" ) != std::string::npos);
 
 	getChild<LLTextBox>("message_text")->setWrappedText(LLStringExplicit(mMessage));
 	getChild<LLTextBox>("message_text")->setHoverActive(mURLInMessage);
@@ -244,7 +246,13 @@ void LLProgressView::onClickMessage(void* data)
 	{
 		std::string url_to_open( "" );
 
-		size_t start_pos = viewp->mMessage.find( "http://" );
+		size_t start_pos;
+		start_pos = viewp->mMessage.find( "https://" );
+		if (start_pos == std::string::npos)
+			start_pos = viewp->mMessage.find( "http://" );
+		if (start_pos == std::string::npos)
+			start_pos = viewp->mMessage.find( "ftp://" );
+			
 		if ( start_pos != std::string::npos )
 		{
 			size_t end_pos = viewp->mMessage.find_first_of( " \n\r\t", start_pos );

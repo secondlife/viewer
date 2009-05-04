@@ -81,6 +81,7 @@ public:
 
 	void setPreviewTarget(const std::string& joint_name, const std::string& mesh_name, LLImageRaw* imagep, F32 distance, BOOL male);
 	void setTexture(U32 name) { mTextureName = name; }
+	void clearPreviewTexture(const std::string& mesh_name);
 
 	BOOL	render();
 	void	refresh();
@@ -117,6 +118,8 @@ public:
 
 	static void onMouseCaptureLostImagePreview(LLMouseHandler*);
 	static void setUploadAmount(S32 amount) { sUploadAmount = amount; }
+
+	void clearAllPreviewTextures();
 
 protected:
 	static void		onPreviewTypeCommit(LLUICtrl*,void*);

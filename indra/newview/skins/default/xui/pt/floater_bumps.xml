@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floater_bumps" title="Colisões, impulsos e batidas">
 	<text name="none_detected">
 		Nada detectado
@@ -13,7 +13,7 @@
 		[TIME]  [FIRST] [LAST] o atingiu com um objeto
 	</text>
 	<text name="scripted_object_collide">
-		[TIME]  [FIRST] [LAST] o atingiu com um objeto programado (scripted)
+		[TIME]  [FIRST] [LAST] o atingiu com um objeto programado
 	</text>
 	<text name="physical_object_collide">
 		[TIME]  [FIRST] [LAST] o atingiu com um objeto físico

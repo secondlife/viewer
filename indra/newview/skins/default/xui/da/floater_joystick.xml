@@ -1,78 +1,78 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="Joystick" title="Joystick Configuration">
+<floater name="Joystick" title="Joystick opsætning">
 	<check_box name="enable_joystick">
 		Aktiver Joystick:
 	</check_box>
-	<spinner label="X Axis Mapping" name="JoystickAxis1" />
-	<spinner label="Y Axis Mapping" name="JoystickAxis2" />
-	<spinner label="Z Axis Mapping" name="JoystickAxis0" />
-	<spinner label="Pitch Mapping" name="JoystickAxis4" />
-	<spinner label="Yaw Mapping" name="JoystickAxis5" />
-	<spinner label="Roll Mapping" name="JoystickAxis3" />
-	<spinner label="Zoom Mapping" name="JoystickAxis6" />
-	<check_box label="Direkte Zoom" name="ZoomDirect" />
+	<spinner label="X akse mapping" name="JoystickAxis1" />
+	<spinner label="Y akse mapping" name="JoystickAxis2" />
+	<spinner label="Z akse mapping" name="JoystickAxis0" />
+	<spinner label="Hældning mapping" name="JoystickAxis4" />
+	<spinner label="Drejning mapping" name="JoystickAxis5" />
+	<spinner label="Rulning mapping" name="JoystickAxis3" />
+	<spinner label="Zoom mapping" name="JoystickAxis6" />
+	<check_box label="Direkte zoom" name="ZoomDirect" />
 	<check_box label="3D Cursor" name="Cursor3D" />
-	<check_box label="Auto Level" name="AutoLeveling" />
+	<check_box label="Auto opret" name="AutoLeveling" />
 	<text type="string" length="1" name="Control Modes:">
-		Kontrol:
+		Kontrollér:
 	</text>
 	<check_box name="JoystickAvatarEnabled">
-		Figur
+		Avatar
 	</check_box>
 	<check_box name="JoystickBuildEnabled">
-		Byg
+		Build
 	</check_box>
 	<check_box name="JoystickFlycamEnabled">
-		Flyvekamera
+		Flycam
 	</check_box>
 	<text name="XScale">
-		X Scale
+		X følsomhed
 	</text>
 	<text name="YScale">
-		Y Scale
+		Y følsomhed
 	</text>
 	<text name="ZScale">
-		Z Scale
+		Z følsomhed
 	</text>
 	<text name="PitchScale">
-		Pitch Scale
+		Hæld følsomhed
 	</text>
 	<text name="YawScale">
-		Yaw Scale
+		Drej følsomhed
 	</text>
 	<text name="RollScale">
-		Roll Scale
+		Rul følsomhed
 	</text>
 	<text name="XDeadZone">
-		X Dead Zone
+		X min. udslag
 	</text>
 	<text name="YDeadZone">
-		Y Dead Zone
+		Y min. udslag
 	</text>
 	<text name="ZDeadZone">
-		Z Dead Zone
+		Z min. udslag
 	</text>
 	<text name="PitchDeadZone">
-		Pitch Dead Zone
+		Hæld min. udslag
 	</text>
 	<text name="YawDeadZone">
-		Yaw Dead Zone
+		Drej min. udslag
 	</text>
 	<text name="RollDeadZone">
-		Roll Dead Zone
+		Rul min. udslag
 	</text>
 	<text name="Feathering">
-		Feathering
+		Respons
 	</text>
 	<slider label="" name="AvatarFeathering" />
 	<slider label="" name="BuildFeathering" />
 	<slider label="" name="FlycamFeathering" />
 	<text name="ZoomScale2">
-		Zoom Scale
+		Zoom følsomhed
 	</text>
 	<spinner label="" name="FlycamAxisScale6" />
 	<text name="ZoomDeadZone">
-		Zoom Dead Zone
+		Zoom min. udslag
 	</text>
 	<spinner label="" name="FlycamAxisDeadZone6" />
 	<button label="SpaceNavigator Defaults" name="SpaceNavigatorDefaults" />
@@ -80,7 +80,7 @@
 		Joystick Overvågning
 	</string>
 	<string name="Axis">
-		Axis [NUM]
+		Akse [NUM]
 	</string>
 	<string name="NoDevice">
 		intet joystick fundet

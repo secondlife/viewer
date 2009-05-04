@@ -40,6 +40,7 @@
 #include <vector>
 
 #include "llchat.h"
+#include "lldrawpoolalpha.h"
 #include "llviewerobject.h"
 #include "llcharacter.h"
 #include "llviewerjointmesh.h"
@@ -325,6 +326,7 @@ public:
 	static LLUUID			getDefaultTEImageID(LLVOAvatarDefines::ETextureIndex te );
 	static void		onChangeSelfInvisible(BOOL newvalue);
 	void			setInvisible(BOOL newvalue);
+	static LLColor4 getDummyColor();
 
 
 
@@ -337,6 +339,7 @@ public:
 	BOOL			teToColorParams( LLVOAvatarDefines::ETextureIndex te, const char* param_name[3] );
 
 	BOOL			isWearingWearableType( EWearableType type );
+	void			wearableUpdated( EWearableType type );
 
 	//--------------------------------------------------------------------
 	// texture compositing
@@ -510,7 +513,6 @@ public:
 	static BOOL		sShowAnimationDebug; // show animation debug info
 	static BOOL		sUseImpostors; //use impostors for far away avatars
 	static BOOL		sShowFootPlane;	// show foot collision plane reported by server
-	static BOOL		sShowCollisionVolumes;	// show skeletal collision volumes
 	static BOOL		sVisibleInFirstPerson;
 	static S32		sNumLODChangesThisFrame;
 	static S32		sNumVisibleChatBubbles;
@@ -755,7 +757,9 @@ inline BOOL LLVOAvatar::isTextureDefined(U8 te) const
 
 inline BOOL LLVOAvatar::isTextureVisible(U8 te) const
 {
-	return (!isTextureDefined(te) || getTEImage(te)->getID() != IMG_INVISIBLE);
+	return ((isTextureDefined(te) || isSelf())
+			&& (getTEImage(te)->getID() != IMG_INVISIBLE 
+				|| LLDrawPoolAlpha::sShowDebugAlpha));
 }
 
 #endif // LL_VO_AVATAR_H

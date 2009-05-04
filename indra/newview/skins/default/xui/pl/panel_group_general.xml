@@ -51,18 +51,7 @@ ustawienia grupy oraz opcje członkostwa.
 		     tool_tip="Ustaw opłatę za przyłączenie się do grupy." />
 		<spinner name="spin_enrollment_fee"
 		     tool_tip="Nowi członkowie grupy muszą zapłacić wymaganą opłatę by dołączyć do grupy." />
-		<combo_box name="group_mature_check"
-		     tool_tip="Ustaw jeżeli informacje dotyczące grupy są o treści dla osob 18+">
-			<combo_item name="select_mature">
-				- Określ treść -
-			</combo_item>
-			<combo_item name="mature">
-				Treść dla osób 18+
-			</combo_item>
-			<combo_item name="not_mature">
-				Treść dla wszystkich
-			</combo_item>
-		</combo_box>
+
 		<panel name="title_container">
 			<text name="active_title_label">
 				Mój Aktywny Tytuł

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Terrein" name="Terrain">
+	<text name="region_text_lbl">
+		Regio:
+	</text>
+	<text name="region_text">
+		onbekend
+	</text>
+	<spinner label="Waterhoogte" name="water_height_spin"/>
+	<button label="?" name="water_height_help"/>
+	<spinner label="Terrein verhooglimiet" name="terrain_raise_spin"/>
+	<button label="?" name="terrain_raise_help"/>
+	<spinner label="Terrein verlaaglimiet" name="terrain_lower_spin"/>
+	<button label="?" name="terrain_lower_help"/>
+	<check_box label="Gebruik estate zon" name="use_estate_sun_check"/>
+	<button label="?" name="use_estate_sun_help"/>
+	<check_box label="Vaste zon" name="fixed_sun_check"/>
+	<button label="?" name="fixed_sun_help"/>
+	<slider label="Fase" name="sun_hour_slider"/>
+	<button label="Toepassen" name="apply_btn"/>
+	<button label="Download RAW terrein..." name="download_raw_btn" tool_tip="Alleen beschikbaar voor estate-eigenaren, niet beheerders"/>
+	<button label="?" name="download_raw_help"/>
+	<button label="Upload RAW terrein..." name="upload_raw_btn" tool_tip="Alleen beschikbaar voor estate-eigenaren, niet beheerders"/>
+	<button label="?" name="upload_raw_help"/>
+	<button label="Bake terrein" name="bake_terrain_btn" tool_tip="Huidig terrein instellen als middelpunt voor verhoog/verlaag limieten"/>
+	<button label="?" name="bake_terrain_help"/>
+</panel>

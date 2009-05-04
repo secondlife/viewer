@@ -508,7 +508,8 @@ void LLSnapshotLivePreview::draw()
 				gGL.end();
 			}
 
-			if (mShineAnimTimer.getElapsedTimeF32() > SHINE_TIME)
+			// if we're at the end of the animation, stop
+			if (shine_interp >= 1.f)
 			{
 				mShineAnimTimer.stop();
 			}

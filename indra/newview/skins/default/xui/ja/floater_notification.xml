@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="notification" title="通知コンソール">
+	<text_editor name="payload">
+		ローディング...
+	</text_editor>
+	<combo_box label="応答" name="response"/>
+</floater>

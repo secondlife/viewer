@@ -1336,6 +1336,12 @@ BOOL LLTexLayer::render( S32 x, S32 y, S32 width, S32 height )
 	LLColor4 net_color;
 	color_specified = findNetColor( &net_color );
 
+	if (mTexLayerSet->getAvatar()->mIsDummy)
+	{
+		color_specified = true;
+		net_color = LLVOAvatar::getDummyColor();
+	}
+
 	// If you can't see the layer, don't render it.
 	if( is_approx_zero( net_color.mV[VW] ) )
 	{

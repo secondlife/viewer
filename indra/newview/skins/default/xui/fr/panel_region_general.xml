@@ -33,14 +33,9 @@
 	<text label="Maturité" name="access_text">
 		Maturité :
 	</text>
-	<combo_box label="Adulte" name="access_combo">
-		<combo_item name="PG">
-			Tout public
-		</combo_item>
-		<combo_item name="Mature">
-			Adulte
-		</combo_item>
-	</combo_box>
+
+
+
 	<button label="?" name="access_help"/>
 	<button label="Appliquer" name="apply_btn"/>
 	<button label="Téléporter un résident chez lui..." name="kick_btn"/>

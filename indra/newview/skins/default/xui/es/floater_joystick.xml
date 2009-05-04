@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Joystick" title="Configuración del joystick">
+	<check_box name="enable_joystick">
+		Activar el joystick:
+	</check_box>
+	<spinner label="Mapping: X" name="JoystickAxis1"/>
+	<spinner label="Mapping: Y" name="JoystickAxis2"/>
+	<spinner label="Mapping: Z" name="JoystickAxis0"/>
+	<spinner label="Mapping: arriba/abajo" name="JoystickAxis4"/>
+	<spinner label="Mapping: izq./der." name="JoystickAxis5"/>
+	<spinner label="Mapping: giro" name="JoystickAxis3"/>
+	<spinner label="Mapping: zoom" name="JoystickAxis6"/>
+	<check_box label="Zoom directo" name="ZoomDirect"/>
+	<check_box label="Cursor 3D" name="Cursor3D"/>
+	<check_box label="Nivel automático" name="AutoLeveling"/>
+	<text name="Control Modes:">
+		Modos de control:
+	</text>
+	<check_box name="JoystickAvatarEnabled">
+		Avatar
+	</check_box>
+	<check_box name="JoystickBuildEnabled">
+		Construir
+	</check_box>
+	<check_box name="JoystickFlycamEnabled">
+		Flycam
+	</check_box>
+	<text name="XScale">
+		Escala: X
+	</text>
+	<text name="YScale">
+		Escala: Y
+	</text>
+	<text name="ZScale">
+		Escala: Z
+	</text>
+	<text name="PitchScale">
+		Escala: arriba/abajo
+	</text>
+	<text name="YawScale">
+		Escala: izq./der.
+	</text>
+	<text name="RollScale">
+		Escala: giro
+	</text>
+	<text name="XDeadZone">
+		Zona muerta X
+	</text>
+	<text name="YDeadZone">
+		Zona muerta Y
+	</text>
+	<text name="ZDeadZone">
+		Zona muerta Z
+	</text>
+	<text name="PitchDeadZone">
+		Zona muerta arriba/abajo
+	</text>
+	<text name="YawDeadZone">
+		Zona muerta izq./der
+	</text>
+	<text name="RollDeadZone">
+		Zona muerta giro
+	</text>
+	<text name="Feathering">
+		Rigidez
+	</text>
+	<text name="ZoomScale2">
+		Escala: zoom
+	</text>
+	<text name="ZoomDeadZone">
+		Zona muerta zoom
+	</text>
+	<button label="Predeterminados del SpaceNavigator" name="SpaceNavigatorDefaults"/>
+	<string name="JoystickMonitor">
+		Monitor del joystick
+	</string>
+	<string name="Axis">
+		Eje [NUM]
+	</string>
+	<string name="NoDevice">
+		no se ha detectado el dispositivo
+	</string>
+</floater>

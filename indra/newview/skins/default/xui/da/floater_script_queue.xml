@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="queue" title="Reset Progress">
+<floater name="queue" title="Nulstil forløb">
 	<button label="Luk" label_selected="Luk" name="close" />
 </floater>

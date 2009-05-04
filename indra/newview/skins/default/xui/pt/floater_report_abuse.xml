@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floater_report_abuse" title="Reportar abuso">
-	<texture_picker label="" name="screenshot"/>
-	<check_box label="Incluir screenshot" name="screen_check"/>
+	<check_box label="Incluir cópia da tela" name="screen_check"/>
 	<text name="reporter_title">
 		Denunciador:
 	</text>
@@ -23,7 +22,7 @@
 	<text name="select_object_label">
 		Clique no botão e em seguida no objeto:
 	</text>
-	<button label="" label_selected="" name="pick_btn" tool_tip="Object Picker - Identifica um objeto com assunto deste report"/>
+	<button label="" label_selected="" name="pick_btn" tool_tip="Object Picker - Identifica um objeto como o assunto deste report"/>
 	<text name="object_name_label">
 		Nome:
 	</text>
@@ -46,9 +45,9 @@
 		<combo_item name="Age__Adult_resident_on_Teen_Second_Life">
 			Idade &gt; Residente adulto no Second Life Jovem
 		</combo_item>
-		<combo_item name="Age__Underage_resident_on_Adult_Second_Life">
-			Idade &gt; Residente menor no Second Life Adulto
-		</combo_item>
+		
+		
+		
 		<combo_item name="Assault__Combat_sandbox___unsafe_area">
 			Assalto &gt; Sandbox de combate / área não segura
 		</combo_item>
@@ -118,15 +117,15 @@
 		<combo_item name="Indecency__Broadly_offensive_content_or_conduct">
 			Indecência &gt; Conteúdo ou conduta amplamente ofensivos
 		</combo_item>
-		<combo_item name="Indecency__Broadly_visible_mature_content">
-			Indecência &gt; Conteúdo maduro visível de um modo geral
-		</combo_item>
+		
+		
+		
 		<combo_item name="Indecency__Inappropriate_avatar_name">
 			Indecência &gt; Nome de avatar inapropriado
 		</combo_item>
-		<combo_item name="Indecency__Mature_content_in_PG_region">
-			Indecência &gt; Conteúdo maduro numa região PG
-		</combo_item>
+		
+		
+		
 		<combo_item name="Intellectual_property_infringement_Content_Removal">
 			Violação de propriedade intelectual &gt; Remoção de Conteúdo
 		</combo_item>
@@ -158,8 +157,8 @@
 	<text name="abuser_name_title">
 		Nome do Denunciado:
 	</text>
-	<button label="Escolher Residente" label_selected="" name="select_abuser" tool_tip="Selecione o nome do Denuncionado numa lista"/>
-	<check_box label="Não sei o nome do molestador" name="omit_abuser_name" tool_tip="Marque aqui se você não consegue fornecer o nome do agressor"/>
+	<button label="Escolher Residente" label_selected="" name="select_abuser" tool_tip="Selecione o nome do Denunciado numa lista"/>
+	<check_box label="Não sei o nome do denunciado" name="omit_abuser_name" tool_tip="Marque aqui se você não consegue fornecer o nome do denunciado"/>
 	<text name="abuser_name_title2">
 		Local do Abuso:
 	</text>
@@ -170,7 +169,9 @@
 		Detalhes:
 	</text>
 	<text name="bug_aviso">
-		Por favor, seja específico(a) sobre data, localidade, natureza do abuso, texto relevante de conversa/MI e selecione o objeto, se possível.
+		Por favor, seja específico(a) sobre data, localidade,
+natureza do abuso, texto relevante de conversa/MI e selecione o objeto,
+se possível.
 	</text>
 	<text name="incomplete_title">
 		Nota: Relatos incompletos não serão investigados.

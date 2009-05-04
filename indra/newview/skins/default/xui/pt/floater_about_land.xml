@@ -20,30 +20,30 @@
 			</text>
 			<button label="Ajustar..." label_selected="Ajustar..." name="Set..."/>
 			<check_box label="Permitir posse para o grupo" name="check deed" tool_tip="O gerente do grupo pode acionar essa terra ao grupo, então esta será mantida pelo gestor da ilha"/>
-			<button label="Passar..." label_selected="Deed..." name="Deed..." tool_tip="Você só pode acionar esta terra se você for um gerente selecionado pelo grupo.."/>
-			<check_box label="Proprietário faz contribuição com acionamento" name="check contrib" tool_tip="Quando a terra é acionada ao grupo, o proprietário anterior contribui alocando terra suficiente para mantê-la."/>
+			<button label="Passar..." label_selected="Passar..." name="Deed..." tool_tip="Você só pode delegar esta terra se você for um gerente selecionado pelo grupo."/>
+			<check_box label="Proprietário faz contribuição com delegação" name="check contrib" tool_tip="Quando a terra é delegada ao grupo, o proprietário anterior contribui alocando terra suficiente para mantê-la."/>
 			<text length="1" name="For Sale:" type="string">
-				A Venda:
+				À Venda:
 			</text>
 			<text length="1" name="Not for sale." type="string">
-				Não Está a Venda.
+				Não está à Venda.
 			</text>
 			<text length="1" name="For Sale: Price L$[PRICE]." type="string">
 				Preço: L$[PRICE].
 			</text>
 			<button label="Vender Terra..." label_selected="Vender Terra..." name="Sell Land..."/>
 			<text length="1" name="For sale to" type="string">
-				A venda para: [BUYER]
+				À venda para: [BUYER]
 			</text>
 			<text length="1" name="Sell with landowners objects in parcel." type="string">
-				A venda (Objetos incluídos).
+				À venda (Objetos incluídos).
 			</text>
 			<text length="1" name="Selling with no objects in parcel." type="string">
-				A Venda (Objetos não Incluídos).
+				À venda (Objetos não Incluídos).
 			</text>
-			<button label="Cancelar venda do terreno" label_selected="Cancelar venda do terreno" name="Cancel Land Sale" width="165" left="275"/>
+			<button label="Cancelar venda do terreno" label_selected="Cancelar venda do terreno" left="275" name="Cancel Land Sale" width="165"/>
 			<text length="1" name="Claimed:" type="string">
-				Solicitado
+				Reclamado:
 			</text>
 			<text length="1" name="DateClaimText" type="string">
 				Ter Ago 15 13:47:25 2006
@@ -52,7 +52,7 @@
 				Área:
 			</text>
 			<text length="1" name="PriceText" type="string">
-				4048 m2.
+				4048 m².
 			</text>
 			<text length="1" name="Traffic:" type="string">
 				Tráfego:
@@ -60,12 +60,12 @@
 			<text length="1" name="DwellText" type="string">
 				0
 			</text>
-			<button label="Comprar Terra..." label_selected="Comprar Terra..." name="Buy Land..." width="125" left="130"/>
+			<button label="Comprar Terra..." label_selected="Comprar Terra..." left="130" name="Buy Land..." width="125"/>
 			<button label="Comprar para o Grupo..." label_selected="Comprar para o Grupo..." name="Buy For Group..."/>
-			<button label="Comprar Passe..." label_selected="Comprar Passe..." name="Buy Pass..." tool_tip="Uma passagem concede a você acesso temporário a esta terra." width="125" left="130"/>
+			<button label="Comprar Passe..." label_selected="Comprar Passe..." left="130" name="Buy Pass..." tool_tip="Um passe concede a você acesso temporário a esta terra." width="125"/>
 			<button label="Abandonar Terra.." label_selected="Abandonar Terra.." name="Abandon Land..."/>
 			<button label="Reclamar Terra..." label_selected="Reclamar Terra..." name="Reclaim Land..."/>
-			<button label="Linden Sale..." label_selected="Linden Sale..." name="Linden Sale..." tool_tip="A terra precisa ser proprietária, estar com o conteúdo configurado e não estar pronta para leilão."/>
+			<button label="Venda Linden..." label_selected="Venda Linden..." name="Linden Sale..." tool_tip="A terra precisa ser possuída, estar com o conteúdo configurado e não estar pronta para leilão."/>
 			<string name="new users only">
 				Somente novos usuários
 			</string>
@@ -76,7 +76,7 @@
 				Área
 			</string>
 			<string name="area_size_text">
-				[AREA] m2.
+				[AREA] m².
 			</string>
 			<string name="auction_id_text">
 				ID do Leilão: [ID]
@@ -103,8 +103,8 @@
 				(Venda Pendente)
 			</string>
 			<string name="no_selection_text">
-				Nenhum terreno selecionado.
-Vá para o menu Mundo &gt; Sobre a Terra ou selecione outro terreno para mostrar seus detalhes.
+				Nenhum lote selecionado.
+Vá para o menu Mundo &gt; Sobre a Terra ou selecione outro lote para mostrar seus detalhes.
 			</string>
 		</panel>
 		<panel label="Corretor" name="land_covenant_panel">
@@ -118,13 +118,13 @@ Vá para o menu Mundo &gt; Sobre a Terra ou selecione outro terreno para mostrar
 				leyla
 			</text>
 			<text length="1" name="estate_name_lbl" type="string">
-				Estado:
+				Propriedade:
 			</text>
 			<text length="1" name="estate_name_text" type="string">
 				mainland
 			</text>
 			<text length="1" name="estate_owner_lbl" type="string">
-				Proprietário do Estado:
+				Dono da Propriedade:
 			</text>
 			<text length="1" name="estate_owner_text" type="string">
 				(nenhum)
@@ -136,7 +136,7 @@ Vá para o menu Mundo &gt; Sobre a Terra ou selecione outro terreno para mostrar
 				Terra comrpada nesta região não poderá ser compartilhada ou sub-dividida.
 			</text>
 			<text_editor length="1" name="covenant_editor" type="string">
-				Não há corretor para este Estado.
+				Não há corretor para esta Propriedade.
 			</text_editor>
 			<string name="can_resell">
 				Terra comprada nesta região pode ser revendida.
@@ -148,7 +148,7 @@ Vá para o menu Mundo &gt; Sobre a Terra ou selecione outro terreno para mostrar
 				Terra comprada nesta região pode ser compartilhada ou sub-dividida.
 			</string>
 			<string name="can_not_change">
-				Terra comprada nesta região não pode ser compartilhada ou sub-dividida..
+				Terra comprada nesta região não pode ser compartilhada ou sub-dividida.
 			</string>
 		</panel>
 		<panel label="Objetos" name="land_objects_panel">
@@ -158,7 +158,7 @@ Vá para o menu Mundo &gt; Sobre a Terra ou selecione outro terreno para mostrar
 			<text length="1" name="Simulator primitive usage:" type="string">
 				Uso do simulador de primitivas:
 			</text>
-			<text name="objects_available" left="214" width="230">
+			<text left="214" name="objects_available" width="230">
 				[COUNT] de [MAX] ([AVAILABLE] disponíveis)
 			</text>
 			<string name="objects_available_text">
@@ -168,60 +168,61 @@ Vá para o menu Mundo &gt; Sobre a Terra ou selecione outro terreno para mostrar
 				[COUNT] de [MAX] ([DELETED] serão deletados)
 			</string>
 			<text length="1" name="Primitives parcel supports:" type="string" width="200">
-				Primitivas suportadas pelo terreno:
+				Primitivas suportadas pelo lote:
 			</text>
-			<text length="1" name="object_contrib_text" type="string" left="214" width="152">
+			<text left="214" length="1" name="object_contrib_text" type="string" width="152">
 				[COUNT]
 			</text>
 			<text length="1" name="Primitives on parcel:" type="string">
 				Primitivas no Lote:
 			</text>
-			<text length="1" name="total_objects_text" type="string" left="214" width="48">
+			<text left="214" length="1" name="total_objects_text" type="string" width="48">
 				[COUNT]
 			</text>
-			<text length="1" name="Owned by parcel owner:" type="string" left="14" width="180">
-				Pertencentes ao dono:
+			<text left="14" length="1" name="Owned by parcel owner:" type="string" width="180">
+				Pertencentes ao dono do lote:
 			</text>
-			<text length="1" name="owner_objects_text" type="string" left="214" width="48">
+			<text left="214" length="1" name="owner_objects_text" type="string" width="48">
 				[COUNT]
 			</text>
 			<button label="Mostrar" label_selected="Mostrar" name="ShowOwner" right="-135" width="60"/>
-			<button label="Retornar..." label_selected="Retornar..." name="ReturnOwner..." tool_tip="Retorno os objetos aos seus proprietários." right="-10" width="119"/>
-			<text length="1" name="Set to group:" type="string" left="14" width="180">
+			<button label="Retornar..." label_selected="Retornar..." name="ReturnOwner..." right="-10" tool_tip="Retornar os objetos aos seus donos." width="119"/>
+			<text left="14" length="1" name="Set to group:" type="string" width="180">
 				Configurados ao grupo:
 			</text>
-			<text length="1" name="group_objects_text" type="string" left="214" width="48">
+			<text left="214" length="1" name="group_objects_text" type="string" width="48">
 				[COUNT]
 			</text>
-			<button label="Mostrar" label_selected="Mostrar" name="ShowGroup" width="60" right="-135"/>
-			<button label="Retornar..." label_selected="Retornar..." name="ReturnGroup..." tool_tip="Retornar os objetos para seus proprietários." right="-10" width="119"/>
-			<text length="1" name="Owned by others:" type="string" left="14" width="128">
+			<button label="Mostrar" label_selected="Mostrar" name="ShowGroup" right="-135" width="60"/>
+			<button label="Retornar..." label_selected="Retornar..." name="ReturnGroup..." right="-10" tool_tip="Retornar os objetos para seus donos." width="119"/>
+			<text left="14" length="1" name="Owned by others:" type="string" width="128">
 				Propriedade de Outros:
 			</text>
-			<text length="1" name="other_objects_text" type="string" left="214" width="48">
+			<text left="214" length="1" name="other_objects_text" type="string" width="48">
 				[COUNT]
 			</text>
 			<button label="Mostrar" label_selected="Mostrar" name="ShowOther" right="-135" width="60"/>
-			<button label="Retornar..." label_selected="Retornar..." name="ReturnOther..." tool_tip="Retornar os objetos aos seus proprietários."  right="-10" width="119"/>
-			<text length="1" name="Selected / sat upon:" type="string" left="14" width="193">
+			<button label="Retornar..." label_selected="Retornar..." name="ReturnOther..." right="-10" tool_tip="Retornar os objetos aos seus donos." width="119"/>
+			<text left="14" length="1" name="Selected / sat upon:" type="string" width="193">
 				Selecionado/Sentado:
 			</text>
-			<text length="1" name="selected_objects_text" type="string" left="214" width="48">
+			<text left="214" length="1" name="selected_objects_text" type="string" width="48">
 				[COUNT]
 			</text>
-			<text length="1" name="Autoreturn" type="string" width="412" left="4">
-				Auto-retornar objetos dos outros residentes (minutos):
+			<text left="4" length="1" name="Autoreturn" type="string" width="412">
+				Auto-retornar objetos dos outros residentes (minutos,0 para desligado):
 			</text>
-			<line_editor name="clean other time" right="-6" width="36" />
+			<line_editor name="clean other time" right="-6" width="36"/>
 			<text length="1" name="Object Owners:" type="string">
-				Proprietários:
+				Donos dos Objetos:
 			</text>
 			<button label="Atualizar Lista" label_selected="Atualizar Lista" name="Refresh List"/>
-			<button label="Objetos Retornados..." label_selected="Objetos Retornados..." name="Return objects..."/>
+			<button label="Retornar objetos..." label_selected="Retornar objetos..." name="Return objects..."/>
 			<name_list name="owner list">
 				<column label="Tipo" name="type"/>
 				<column label="Nome" name="name"/>
 				<column label="Contar" name="count"/>
+				<column label="Mais recente" name="mostrecent"/>
 			</name_list>
 		</panel>
 		<panel label="Opções" name="land_options_panel">
@@ -252,16 +253,14 @@ Vá para o menu Mundo &gt; Sobre a Terra ou selecione outro terreno para mostrar
 			<check_box label="Salvo (sem dano)" name="check safe" tool_tip="Se ativado, ajusta o terreno para Seguro, desabilitando combate com danos. Se não ativado, o combate com danos é habilitado."/>
 			<check_box label="Sem Empurrar" name="PushRestrictCheck" tool_tip="Evita scripts que empurram. A ativação dessa opção pode ser útil para prevenir comportamentos desordeiros na sua terra."/>
 			<check_box label="Mostra o Lugar na Busca (L$30/semana) sob" name="ShowDirectoryCheck" tool_tip="Permitir que as pessoas vejam este terreno nos resultados de busca"/>
-			<combo_box name="land category" left="276" width="146" >
+			<combo_box left="276" name="land category" width="146">
 				<combo_item name="AnyCategory">
 					Qualquer Categoria
 				</combo_item>
 				<combo_item name="LindenLocation">
 					Locação Linden
 				</combo_item>
-				<combo_item name="Adult">
-					Adulto
-				</combo_item>
+
 				<combo_item name="Arts&amp;Culture">
 					Artes e Cultura
 				</combo_item>
@@ -293,8 +292,8 @@ Vá para o menu Mundo &gt; Sobre a Terra ou selecione outro terreno para mostrar
 					Outros
 				</combo_item>
 			</combo_box>
-			<button label="?" label_selected="?" name="?" left="426"/>
-			<check_box label="Mature content" name="MatureCheck" tool_tip="As informações do seu lote são consideradas para Adultos."/>
+			<button label="?" label_selected="?" left="426" name="?"/>
+			<check_box name="MatureCheck" />
 			<text length="1" name="Snapshot:" type="string">
 				Foto:
 			</text>
@@ -305,17 +304,17 @@ Vá para o menu Mundo &gt; Sobre a Terra ou selecione outro terreno para mostrar
 			<string name="landing_point_none">
 				(nenhum)
 			</string>
-			<button label="Set" label_selected="Ajustar" name="Set" tool_tip="Define o ponto de aterrissagem aonde o visitante chega. Define a localidade para seu avatar dentro deste terreno."/>
-			<button label="Limpar" label_selected="Limpar" name="Clear" tool_tip="Limpar o landing point."/>
+			<button label="Definir" label_selected="Definir" name="Set" tool_tip="Define o ponto de aterrissagem aonde o visitante chega. Define para o ponto em que seu avatar se encontra neste lote."/>
+			<button label="Limpar" label_selected="Limpar" name="Clear" tool_tip="Limpar o ponto de aterrissagem."/>
 			<text length="1" name="Teleport Routing: " type="string">
 				Rota de Tele-transporte:
 			</text>
-			<combo_box name="landing type" tool_tip="Rota de Teletransporte -- Selecione como tratar os tele-transportes no seu lote." left="140" width="140" >
+			<combo_box left="140" name="landing type" tool_tip="Rota de Teletransporte -- Selecione como tratar os tele-transportes no seu lote." width="140">
 				<combo_item length="1" name="Blocked" type="string">
 					Bloqueado
 				</combo_item>
 				<combo_item length="1" name="LandingPoint" type="string">
-					Landing Point
+					Ponto de Aterrissagem
 				</combo_item>
 				<combo_item length="1" name="Anywhere" type="string">
 					Qualquer lugar
@@ -332,21 +331,21 @@ Vá para o menu Mundo &gt; Sobre a Terra ou selecione outro terreno para mostrar
 			<text name="with media:" width="85">
 				Tipo de Mídia:
 			</text>
-			<combo_box name="media type" tool_tip="Especificar se a URL é um filme, uma página web ou outra mídia" left="97"/>
+			<combo_box left="97" name="media type" tool_tip="Especificar se a URL é um filme, uma página web ou outra mídia"/>
 			<text name="at URL:" width="85">
 				URL da Mídia:
 			</text>
-			<line_editor name="media_url" left="97"/>
-			<button label="Definir..." label_selected="Ajustar..." name="set_media_url"/>
+			<line_editor left="97" name="media_url"/>
+			<button label="Definir..." label_selected="Definir..." name="set_media_url"/>
 			<text name="Description:">
 				Descrição:
 			</text>
-			<line_editor name="url_description" tool_tip="Texto mostrado ao lado do botão reproduzir/carregar" left="97"/>
+			<line_editor left="97" name="url_description" tool_tip="Texto mostrado ao lado do botão reproduzir/carregar"/>
 			<text length="1" name="Media texture:" type="string">
 				Substituir
 Textura:
 			</text>
-			<texture_picker label="" name="media texture" tool_tip="Clique para escolher uma imagem" left="97"/>
+			<texture_picker label="" left="97" name="media texture" tool_tip="Clique para escolher uma imagem"/>
 			<text name="replace_texture_help">
 				(Objetos usando esta textura, mostrarão o filme ou
 a página web depois que você clicar na seta de
@@ -356,14 +355,14 @@ reproduzir.)
 				Opções de
 Mídia:
 			</text>
-			<check_box left="97" label="Escala automática" name="media_auto_scale" tool_tip="Marcando esta opção o conteúdo se ajustará ao lote automaticamente. O lote pode se tornar lento e com baixa qualidade visual nenhum outro ajuste de textura ou alinhamento será necessário."/>
+			<check_box label="Escala automática" left="97" name="media_auto_scale" tool_tip="Marcando esta opção o conteúdo se ajustará ao lote automaticamente. A mídia pode se tornar lenta e com baixa qualidade visual mas nenhum outro ajuste de textura ou alinhamento será necessário."/>
 			<check_box label="Mídia em Repetição" name="media_loop" tool_tip="Executar a mídia repetidamente. Quando a mídia terminar a execução, ela reiniciará do começo."/>
-			<check_box left="97" label="Esconder a URL da Mídia" name="hide_media_url" tool_tip="Ativando esta opção, a URL da mídia se ocultará para quaisquer visualizadores não autorizados a ver esta informação do terreno. Notar que isto não está disponível para tipos HTML."/>
-			<check_box label="Esconder a URL de Música" name="hide_music_url" tool_tip="Ativando esta opção, a URL de música se esconderá para visualizadores não autorizados a ver esta informação do terreno"/>
-			<text name="media_size" tool_tip="Tamanho para desenhar a mídia Web, deixar 0 como padrão." width="115" left="102">
+			<check_box label="Esconder a URL da Mídia" left="97" name="hide_media_url" tool_tip="Ativando esta opção, a URL da mídia se ocultará para quaisquer visualizadores não autorizados a ver esta informação do lote. Notar que isto não está disponível para tipos HTML."/>
+			<check_box label="Esconder a URL de Música" name="hide_music_url" tool_tip="Ativando esta opção, a URL de música se esconderá para visualizadores não autorizados a ver esta informação do lote"/>
+			<text left="102" name="media_size" tool_tip="Tamanho para desenhar a mídia Web, deixar 0 como padrão." width="115">
 				Tamanho da mídia:
 			</text>
-			<spinner name="media_size_width" tool_tip="Tamanho para desenhar a mídia Web, deixar 0 como padrão." left_delta="99"/>
+			<spinner left_delta="99" name="media_size_width" tool_tip="Tamanho para desenhar a mídia Web, deixar 0 como padrão."/>
 			<spinner name="media_size_height" tool_tip="Tamanho para desenhar a mídia Web, deixar 0 como padrão."/>
 			<text name="pixels">
 				pixels
@@ -371,15 +370,15 @@ Mídia:
 			<text name="MusicURL:">
 				URL da Música:
 			</text>
-			<line_editor name="music_url" left="97"/>
+			<line_editor left="97" name="music_url"/>
 			<text name="Sound:">
 				Som:
 			</text>
-			<check_box label="Restringir som espacial a este lote" name="check sound local" left="97"/>
+			<check_box label="Restringir som espacial a este lote" left="97" name="check sound local"/>
 			<text name="Voice settings:">
 				Voz:
 			</text>
-			<radio_group name="parcel_voice_channel" left="97" width="310">
+			<radio_group left="97" name="parcel_voice_channel" width="310">
 				<radio_item name="Estate">
 					Usar o canal espacial da Propriedade
 				</radio_item>
@@ -387,13 +386,13 @@ Mídia:
 					Usar um canal especial privado
 				</radio_item>
 				<radio_item name="Disabled">
-					Desabilitar áudio espacial neste terreno
+					Desabilitar áudio espacial neste lote
 				</radio_item>
 			</radio_group>
 		</panel>
 		<panel label="Acesso" name="land_access_panel">
 			<text length="1" name="Limit access to this parcel to:" type="string">
-				Acesso a Este Terreno
+				Acesso a Este Lote
 			</text>
 			<check_box label="Permitir Acesso Público" name="public_access"/>
 			<text name="Only Allow">

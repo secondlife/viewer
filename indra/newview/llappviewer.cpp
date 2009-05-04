@@ -848,7 +848,6 @@ bool LLAppViewer::mainLoop()
 		try
 		{
 			LLFastTimer t(LLFastTimer::FTM_FRAME);
-			
 			pingMainloopTimeout("Main:MiscNativeWindowEvents");
 			
 			{
@@ -1999,38 +1998,9 @@ bool LLAppViewer::initConfiguration()
 		}
 
 		initMarkerFile();
-		
-#if LL_SEND_CRASH_REPORTS
-		if (gLastExecEvent == LAST_EXEC_FROZE)
-		{
-			llinfos << "Last execution froze, requesting to send crash report." << llendl;
-			//
-			// Pop up a freeze or crash warning dialog
-			//
-			std::ostringstream msg;
-			msg << gSecondLife
-				<< " appears to have frozen or crashed on the previous run.\n"
-				<< "Would you like to send a crash report?";
-			std::string alert;
-			alert = gSecondLife;
-			alert += " Alert";
-			S32 choice = OSMessageBox(msg.str(),
-									  alert,
-									  OSMB_YESNO);
-			if (OSBTN_YES == choice)
-			{
-				llinfos << "Sending crash report." << llendl;
-
-				bool report_freeze = true;
-				handleCrashReporting(report_freeze);
-			}
-			else
-			{
-				llinfos << "Not sending crash report." << llendl;
-			}
-		}
-#endif // #if LL_SEND_CRASH_REPORTS
-	}
+        
+        checkForCrash();
+    }
 	else
 	{
 		mSecondInstance = anotherInstanceRunning();
@@ -2048,6 +2018,11 @@ bool LLAppViewer::initConfiguration()
 		}
 
 		initMarkerFile();
+        
+        if(!mSecondInstance)
+        {
+            checkForCrash();
+        }
 	}
 
    	// need to do this here - need to have initialized global settings first
@@ -2060,6 +2035,43 @@ bool LLAppViewer::initConfiguration()
 	gLastRunVersion = gSavedSettings.getString("LastRunVersion");
 
 	return true; // Config was successful.
+}
+
+
+void LLAppViewer::checkForCrash(void)
+{
+    
+#if LL_SEND_CRASH_REPORTS
+    if (gLastExecEvent == LAST_EXEC_FROZE || gLastExecEvent == LAST_EXEC_OTHER_CRASH)
+    {
+        llinfos << "Last execution froze, requesting to send crash report." << llendl;
+        //
+        // Pop up a freeze or crash warning dialog
+        //
+        std::ostringstream msg;
+        msg << gSecondLife
+        << " appears to have frozen or crashed on the previous run.\n"
+        << "Would you like to send a crash report?";
+        std::string alert;
+        alert = gSecondLife;
+        alert += " Alert";
+        S32 choice = OSMessageBox(msg.str(),
+                                  alert,
+                                  OSMB_YESNO);
+        if (OSBTN_YES == choice)
+        {
+            llinfos << "Sending crash report." << llendl;
+            
+            bool report_freeze = true;
+            handleCrashReporting(report_freeze);
+        }
+        else
+        {
+            llinfos << "Not sending crash report." << llendl;
+        }
+    }
+#endif // LL_SEND_CRASH_REPORTS    
+    
 }
 
 bool LLAppViewer::initWindow()
@@ -2397,6 +2409,10 @@ void LLAppViewer::handleViewerCrash()
 
 	LLError::logToFile("");
 
+// On Mac, we send the report on the next run, since we need macs crash report
+// for a stack trace, so we have to let it the app fail.
+#if !LL_DARWIN
+
 	// Remove the marker file, since otherwise we'll spawn a process that'll keep it locked
 	if(gDebugInfo["LastExecEvent"].asInteger() == LAST_EXEC_LOGOUT_CRASH)
 	{
@@ -2410,6 +2426,8 @@ void LLAppViewer::handleViewerCrash()
 	// Call to pure virtual, handled by platform specific llappviewer instance.
 	pApp->handleCrashReporting(); 
 
+#endif //!LL_DARWIN
+    
 	return;
 }
 
@@ -2465,6 +2483,13 @@ void LLAppViewer::initMarkerFile()
 	std::string llerror_marker_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, LLERROR_MARKER_FILE_NAME);
 	std::string error_marker_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, ERROR_MARKER_FILE_NAME);
 
+	
+	if (LLAPRFile::isExist(mMarkerFileName, NULL, LL_APR_RB) && !anotherInstanceRunning())
+	{
+		gLastExecEvent = LAST_EXEC_FROZE;
+		LL_INFOS("MarkerFile") << "Exec marker found: program froze on previous execution" << LL_ENDL;
+	}    
+    
 	if(LLAPRFile::isExist(logout_marker_file, NULL, LL_APR_RB))
 	{
 		LL_INFOS("MarkerFile") << "Last exec LLError crashed, setting LastExecEvent to " << LAST_EXEC_LLERROR_CRASH << LL_ENDL;
@@ -2487,16 +2512,10 @@ void LLAppViewer::initMarkerFile()
 	LLAPRFile::remove(llerror_marker_file);
 	LLAPRFile::remove(error_marker_file);
 	
-	//Freeze case checks
+	// No new markers if another instance is running.
 	if(anotherInstanceRunning()) 
 	{
 		return;
-	}
-	
-	if (LLAPRFile::isExist(mMarkerFileName, NULL, LL_APR_RB))
-	{		
-		gLastExecEvent = LAST_EXEC_FROZE;
-		LL_INFOS("MarkerFile") << "Exec marker found: program froze on previous execution" << LL_ENDL;
 	}
 	
 	// Create the marker file for this execution & lock it
@@ -2873,17 +2892,17 @@ bool LLAppViewer::initCache()
 	gSavedSettings.setU32("VFSSalt", new_salt);
 
 	// Don't remove VFS after viewer crashes.  If user has corrupt data, they can reinstall. JC
-	gVFS = new LLVFS(new_vfs_index_file, new_vfs_data_file, false, vfs_size_u32, false);
-	if( VFSVALID_BAD_CORRUPT == gVFS->getValidState() )
+	gVFS = LLVFS::createLLVFS(new_vfs_index_file, new_vfs_data_file, false, vfs_size_u32, false);
+	if( !gVFS )
 	{
-		// Try again with fresh files 
-		// (The constructor deletes corrupt files when it finds them.)
-		LL_WARNS("AppCache") << "VFS corrupt, deleted.  Making new VFS." << LL_ENDL;
-		delete gVFS;
-		gVFS = new LLVFS(new_vfs_index_file, new_vfs_data_file, false, vfs_size_u32, false);
+		return false;
 	}
 
-	gStaticVFS = new LLVFS(static_vfs_index_file, static_vfs_data_file, true, 0, false);
+	gStaticVFS = LLVFS::createLLVFS(static_vfs_index_file, static_vfs_data_file, true, 0, false);
+	if( !gStaticVFS )
+	{
+		return false;
+	}
 
 	BOOL success = gVFS->isValid() && gStaticVFS->isValid();
 	if( !success )

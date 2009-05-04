@@ -15,7 +15,6 @@
 	<check_box label="Mostrar Pastas" name="show_folders_check"/>
 	<search_editor label="Clique aqui para buscar" name="inventory search editor"/>
 	<check_box label="Aplicar Imediatamente" name="apply_immediate_check"/>
-	<button label="" label_selected="" name="Pipette"/>
 	<button label="Cancelar" label_selected="Cancelar" name="Cancel"/>
 	<button label="Selecionar" label_selected="Selecionar" name="Select"/>
 	<string name="pick title">

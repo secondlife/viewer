@@ -752,67 +752,6 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 
 	if( !single_avatar || (avatarp == single_avatar) )
 	{
-		if (LLVOAvatar::sShowCollisionVolumes)
-		{
-			gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-			avatarp->renderCollisionVolumes();
-		}
-
-		if (avatarp->isSelf() && LLAgent::sDebugDisplayTarget)
-		{
-			gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-			LLVector3 pos = avatarp->getPositionAgent();
-
-			gGL.color4f(1.0f, 0.0f, 0.0f, 0.8f);
-			gGL.begin(LLRender::LINES);
-			{
-				gGL.vertex3fv((pos - LLVector3(0.2f, 0.f, 0.f)).mV);
-				gGL.vertex3fv((pos + LLVector3(0.2f, 0.f, 0.f)).mV);
-				gGL.vertex3fv((pos - LLVector3(0.f, 0.2f, 0.f)).mV);
-				gGL.vertex3fv((pos + LLVector3(0.f, 0.2f, 0.f)).mV);
-				gGL.vertex3fv((pos - LLVector3(0.f, 0.f, 0.2f)).mV);
-				gGL.vertex3fv((pos + LLVector3(0.f, 0.f, 0.2f)).mV);
-			}gGL.end();
-
-			pos = avatarp->mDrawable->getPositionAgent();
-			gGL.color4f(1.0f, 0.0f, 0.0f, 0.8f);
-			gGL.begin(LLRender::LINES);
-			{
-				gGL.vertex3fv((pos - LLVector3(0.2f, 0.f, 0.f)).mV);
-				gGL.vertex3fv((pos + LLVector3(0.2f, 0.f, 0.f)).mV);
-				gGL.vertex3fv((pos - LLVector3(0.f, 0.2f, 0.f)).mV);
-				gGL.vertex3fv((pos + LLVector3(0.f, 0.2f, 0.f)).mV);
-				gGL.vertex3fv((pos - LLVector3(0.f, 0.f, 0.2f)).mV);
-				gGL.vertex3fv((pos + LLVector3(0.f, 0.f, 0.2f)).mV);
-			}gGL.end();
-
-			pos = avatarp->mRoot.getWorldPosition();
-			gGL.color4f(1.0f, 1.0f, 1.0f, 0.8f);
-			gGL.begin(LLRender::LINES);
-			{
-				gGL.vertex3fv((pos - LLVector3(0.2f, 0.f, 0.f)).mV);
-				gGL.vertex3fv((pos + LLVector3(0.2f, 0.f, 0.f)).mV);
-				gGL.vertex3fv((pos - LLVector3(0.f, 0.2f, 0.f)).mV);
-				gGL.vertex3fv((pos + LLVector3(0.f, 0.2f, 0.f)).mV);
-				gGL.vertex3fv((pos - LLVector3(0.f, 0.f, 0.2f)).mV);
-				gGL.vertex3fv((pos + LLVector3(0.f, 0.f, 0.2f)).mV);
-			}gGL.end();
-
-			pos = avatarp->mPelvisp->getWorldPosition();
-			gGL.color4f(0.0f, 0.0f, 1.0f, 0.8f);
-			gGL.begin(LLRender::LINES);
-			{
-				gGL.vertex3fv((pos - LLVector3(0.2f, 0.f, 0.f)).mV);
-				gGL.vertex3fv((pos + LLVector3(0.2f, 0.f, 0.f)).mV);
-				gGL.vertex3fv((pos - LLVector3(0.f, 0.2f, 0.f)).mV);
-				gGL.vertex3fv((pos + LLVector3(0.f, 0.2f, 0.f)).mV);
-				gGL.vertex3fv((pos - LLVector3(0.f, 0.f, 0.2f)).mV);
-				gGL.vertex3fv((pos + LLVector3(0.f, 0.f, 0.2f)).mV);
-			}gGL.end();	
-
-			color.setColor(1.0f, 1.0f, 1.0f, 1.0f);
-		}
-
 		avatarp->renderSkinned(AVATAR_RENDER_PASS_SINGLE);
 	}
 }

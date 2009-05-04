@@ -1,18 +1,15 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="gestures" title="Posturas activas">
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="gestures" title="Gestos disponibles">
 	<text name="help_label">
-		En el chat, una frase o tecla toca animaciones
-y sonidos.
+		Pulse dos veces en un gesto para reproducir las animaciones y sonidos.
 	</text>
 	<scroll_list name="gesture_list">
-		<column label="Trigger" name="trigger" />
-		<column label="Key" name="shortcut" />
-		<column label="" name="key" />
-		<column label="Name" name="name" />
+		<column label="Botón" name="trigger"/>
+		<column label="Tecla" name="shortcut"/>
+		<column label="Nombre" name="name"/>
 	</scroll_list>
-	<button label="Nueva" name="new_gesture_btn" />
-	<button label="Inventario" name="inventory_btn" />
-	<button label="Editar" name="edit_btn" />
-	<button label="Reproducir" name="play_btn" />
-	<button label="Parar" name="stop_btn" />
+	<button label="Nuevo" name="new_gesture_btn"/>
+	<button label="Editar" name="edit_btn"/>
+	<button label="Reproducir" name="play_btn"/>
+	<button label="Parar" name="stop_btn"/>
 </floater>

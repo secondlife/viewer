@@ -1,8 +1,8 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Preferences" title="Preferências">
-	<button label="OK" label_selected="OK" name="OK" />
-	<button label="Cancelar" label_selected="Cancelar" name="Cancel" />
-	<button label="Aplicar" label_selected="Aplicar" name="Apply" />
-	<button label="Sobre..." label_selected="Sobre..." name="About..." />
-	<button label="Help" label_selected="Help" name="Help" />
+	<button label="OK" label_selected="OK" name="OK"/>
+	<button label="Cancelar" label_selected="Cancelar" name="Cancel"/>
+	<button label="Aplicar" label_selected="Aplicar" name="Apply"/>
+	<button label="Sobre" label_selected="Sobre" name="About..."/>
+	<button label="Ajuda" label_selected="Ajuda" name="Help"/>
 </floater>

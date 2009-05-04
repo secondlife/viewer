@@ -7,10 +7,10 @@
 		[FIRST] [LAST] está offline.
 	</string>
 	<string name="invite_message">
-		Clique no botão [BUTTON NAME] para aceitar/ conectar para esse bate-papo em voz. 
+		Clique no botão [BUTTON NAME] para aceitar/ conectar a este bate-papo em voz.
 	</string>
 	<string name="muted_message">
-		Você emudeceu este residente. Enviar uma mensagem vai automaticamente reativá-lo novamente .
+		Você emudeceu este residente. Enviar uma mensagem vai automaticamente reativá-lo novamente.
 	</string>
 	<string name="generic_request_error">
 		Erro na requisição, por favor, tente novamente.
@@ -28,7 +28,7 @@
 		Você não é um moderador de sessão.
 	</string>
 	<string name="muted_error">
-		Moderador do grupo desabilitou seu bate-papo em texto.
+		Um moderador do grupo desabilitou seu bate-papo em texto.
 	</string>
 	<string name="add_session_event">
 		Não foi possível adicionar usuários na sessão de bate-papo com [RECIPIENT].
@@ -40,6 +40,6 @@
 		Você foi removido do grupo.
 	</string>
 	<string name="close_on_no_ability">
-		Você não possui mais a habilidade de estar na sessão de bate- papo.
+		Você não possui mais a habilidade de estar na sessão de bate-papo.
 	</string>
 </multi_floater>

@@ -1,90 +1,114 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="General" name="general_panel">
-	<check_box label="Mostrar localización en la pantalla de inicio de sesión"
-	     name="show_location_checkbox" />
-	<radio_group name="fade_out_radio">
-		<radio_item type="string" length="1" name="Never">
-			Nunca
+	<radio_group name="default_start_location">
+		<radio_item name="MyHome" tool_tip="Por defecto, iniciar sesión en mi Base.">
+			Mi Base
 		</radio_item>
-		<radio_item type="string" length="1" name="Temporarily">
-			Mostrar Temporariamente
-		</radio_item>
-		<radio_item type="string" length="1" name="Always">
-			Siempre
+		<radio_item name="MyLastLocation" tool_tip="Por defecto, iniciar sesión en mi última posición.">
+			Mi última posición
 		</radio_item>
 	</radio_group>
-	<check_box label="Ocultar mi nombre en la pantalla" name="show_my_name_checkbox" />
-	<check_box label="Ocultar título de mi grupo" name="show_my_title_checkbox" />
-	<check_box label="Nombres de avatares pequeños" name="small_avatar_names_checkbox" />
-	<color_swatch label="" name="effect_color_swatch"
-	     tool_tip="Haga clic para abrir la selección de color" />
-	<spinner label="Intervalo ausente:" name="afk_timeout_spinner" />
-	<check_box label="Mostrar notificación de amigo online"
-	     name="friends_online_notify_checkbox" />
-	<check_box label="Girar minimapa" name="rotate_mini_map_checkbox" />
-	<check_box label="Notificar cuando Linden dólares (L$) son gastos o recibidos"
-	     name="notify_money_change_checkbox" />
-	<check_box label="Autodetectar hardware gráfico en la próxima vez que iniciar"
-	     name="probe_hardware_checkbox"
-	     tool_tip="Seconf Life automáticamente ajusta algunas configuraciones gráficas con base en su hardware.  Si usted instala un  nuevo hardware,  Second Life debe detectarlo nuevamente." />
-	<check_box label="Usar sistema de color patrón" name="use_system_color_picker_checkbox"
-	     tool_tip="Usar selección del color de sistema patrón al revés del construido en Second Life." />
-	<text type="string" length="1" name="start_location_textbox">
-		Local de inicio:
+	<check_box label="Ver mi posición inicial en la pantalla de inicio de sesión" name="show_location_checkbox"/>
+	<combo_box name="fade_out_combobox" width="166">
+		<combo_item name="Never">
+			Nunca
+		</combo_item>
+		<combo_item name="Show Temporarily">
+			Mostrarlos temporalmente
+		</combo_item>
+		<combo_item name="Always">
+			Siempre
+		</combo_item>
+	</combo_box>
+	<check_box label="Nombres de avatar en pequeño" name="small_avatar_names_checkbox"/>
+	<check_box label="No ver mi nombre en mi pantalla" name="show_my_name_checkbox"/>
+	<text name="group_titles_textbox">
+		Etiquetas de grupo:
 	</text>
-	<text type="string" length="1" name="show_names_textbox">
-		Mostrar nombres:
+	<check_box label="Ocultar las etiquetas de grupo" name="show_all_title_checkbox"/>
+	<check_box label="Ocultar mi etiqueta de grupo" name="show_my_title_checkbox"/>
+	<color_swatch label="" name="effect_color_swatch" tool_tip="Pulse para abrir el selector de color"/>
+	<text name="UI Size:">
+		Tamaño de la interfaz:
 	</text>
-	<text type="string" length="1" name="effects_color_textbox">
-		Color para mis efectos:
+	<check_box label="Resolución independiente del tamaño" name="ui_auto_scale"/>
+	<spinner label="Ausente tras:" name="afk_timeout_spinner"/>
+	<check_box label="Girar el minimapa" name="rotate_mini_map_checkbox"/>
+	<check_box label="Avisar cuando gasto o recibo dólares Linden (L$)" name="notify_money_change_checkbox"/>
+	<check_box label="Usar los colores del SO" name="use_system_color_picker_checkbox" tool_tip="Usar los colores del propio sistema operativo en vez de los propios de Second Life."/>
+	<check_box label="Incluir una ventana de búsqueda en la barra superior" name="show_search_panel" tool_tip="Muestra el panel de búsqueda insertado."/>
+	<text length="1" name="start_location_textbox" type="string">
+		Posición inicial:
 	</text>
-	<text type="string" length="1" name="seconds_textbox">
+	<text length="1" name="show_names_textbox" type="string">
+		Mostrar los nombres:
+	</text>
+	<text length="1" name="effects_color_textbox" type="string">
+		Color de mis efectos:
+	</text>
+	<text length="1" name="seconds_textbox" type="string">
 		segundos
 	</text>
-	<text type="string" length="1" name="crash_report_textbox">
-		Informes de trabamiento:
+	<text length="1" name="crash_report_textbox" type="string">
+		Informes de caídas:
 	</text>
-	<text type="string" length="1" name="language_textbox">
+	<text length="1" name="language_textbox" type="string">
 		Idioma:
 	</text>
-	<text type="string" length="1" name="language_textbox2">
-		(Requiere reinicio para completar efecto)
+	<text length="1" name="language_textbox2" type="string" left_delta="313" >
+		(Tendrá efecto tras reiniciar)
 	</text>
-	<text name="region_name_prompt">
-		&lt;Teclee un nombre de región&gt;
-	</text>
-	<combo_box name="crash_behavior_combobox">
-		<combo_item type="string" length="1" name="Askbeforesending">
+	<string name="region_name_prompt">
+		&lt;escriba el nombre de la región&gt;
+	</string>
+	<combo_box name="crash_behavior_combobox" width="166">
+		<combo_item length="1" name="Askbeforesending" type="string">
 			Preguntar antes de enviar
 		</combo_item>
-		<combo_item type="string" length="1" name="Alwayssend">
-			Siempre enviar
+		<combo_item length="1" name="Alwayssend" type="string">
+			Enviar siempre
 		</combo_item>
-		<combo_item type="string" length="1" name="Neversend">
-			Nunca enviar
+		<combo_item length="1" name="Neversend" type="string">
+			No enviar nunca
 		</combo_item>
 	</combo_box>
-	<combo_box name="language_combobox">
-		<combo_item type="string" length="1" name="English">
-			Inglés
+	<combo_box name="language_combobox" width="166">
+		<combo_item name="System Default Language">
+			Predeterminado del sistema
 		</combo_item>
-		<combo_item type="string" length="1" name="Deutsch(German)">
+		<combo_item length="1" name="English" type="string">
+			English (Inglés)
+		</combo_item>
+		<combo_item name="Danish">
+			Dansk (Danés) - Beta
+		</combo_item>
+		<combo_item length="1" name="Deutsch(German)" type="string">
 			Deutsch (Alemán) - Beta
 		</combo_item>
-		<combo_item type="string" length="1" name="French">
-			Français (Francés) - Beta
-		</combo_item>
-		<combo_item type="string" length="1" name="(Japanese)">
-			日本語 (Japonés) - Beta
-		</combo_item>
-		<combo_item type="string" length="1" name="(Korean)">
-			한국어 (Coreano) - Beta
-		</combo_item>
-		<combo_item type="string" length="1" name="Chinese">
-			中文 (简体) (Chino) - Beta
-		</combo_item>
-		<combo_item type="string" name="Spanish">
+		<combo_item name="Spanish" type="string">
 			Español - Beta
 		</combo_item>
+		<combo_item length="1" name="French" type="string">
+			Français (Francés) - Beta
+		</combo_item>
+		<combo_item name="Hungarian">
+			Magyar (Húngaro) - Beta
+		</combo_item>
+		<combo_item name="Polish">
+			Polski (Polaco) - Beta
+		</combo_item>
+		<combo_item name="Portugese">
+			Portugués (Portugués) - Beta
+		</combo_item>
+		<combo_item length="1" name="Chinese" type="string">
+			中文 (简体) (Chino) - Beta
+		</combo_item>
+		<combo_item length="1" name="(Japanese)" type="string">
+			日本語 (Japonés) - Beta
+		</combo_item>
+		<combo_item length="1" name="(Korean)" type="string">
+			한국어 (Coreano) - Beta
+		</combo_item>
 	</combo_box>
+	<check_box label="Compartir el idioma con los objetos" name="language_is_public" tool_tip="Hace que los objetos con script del mundo sepan su idioma preferido."/>
 </panel>

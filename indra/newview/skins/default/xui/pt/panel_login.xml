@@ -29,9 +29,9 @@
 		Registrar-se para uma conta
 	</text>
 	<text name="forgot_password_text">
-		Esqueceu seu nome de usuário e senha?
+		Esqueceu seu nome de usuário ou senha?
 	</text>
 	<text name="channel_text">
-		[CHANNEL] [VERSION]
+		[VERSION]
 	</text>
 </panel>

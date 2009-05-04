@@ -70,6 +70,7 @@
 #include "lltextbox.h"
 #include "llinventory.h"
 #include "lltexturectrl.h"
+#include "lltrans.h"
 #include "llviewercontrol.h"
 #include "lluictrlfactory.h"
 #include "llviewerimage.h"
@@ -129,9 +130,12 @@ void unpack_request_params(
 		// LLUUID in compressed form which may have embedded \0's,)
 		str_buf[0] = '\0';
 		S32 data_size = msg->getSizeFast(_PREHASH_StringData, i, _PREHASH_SParam);
-		msg->getBinaryDataFast(_PREHASH_StringData, _PREHASH_SParam,
-							   str_buf, data_size, i, MAX_STRING - 1);
-		strings.push_back(std::string(str_buf, data_size));
+		if (data_size >= 0)
+		{
+			msg->getBinaryDataFast(_PREHASH_StringData, _PREHASH_SParam,
+								   str_buf, data_size, i, MAX_STRING - 1);
+			strings.push_back(std::string(str_buf, data_size));
+		}
 	}
 
 	U32 int_buf;
@@ -295,7 +299,7 @@ void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
 
 	// extract message
 	std::string sim_name;
-	std::string sim_type = "(unknown)";
+	std::string sim_type = LLTrans::getString("land_type_unknown");
 	U32 region_flags;
 	U8 agent_limit;
 	F32 object_bonus_factor;
@@ -318,8 +322,8 @@ void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
 	msg->getF32("RegionInfo", "SunHour", sun_hour);
 	// the only reasonable way to decide if we actually have any data is to
 	// check to see if any of these fields have nonzero sizes
-	if (msg->getSize("RegionInfo2", "ProductSKU") ||
-		msg->getSize("RegionInfo2", "ProductName"))
+	if (msg->getSize("RegionInfo2", "ProductSKU") > 0 ||
+		msg->getSize("RegionInfo2", "ProductName") > 0)
 	{
 		msg->getString("RegionInfo2", "ProductName", sim_type);
 	}
@@ -746,8 +750,6 @@ BOOL LLPanelRegionGeneralInfo::sendUpdate()
 		body["allow_land_resell"] = childGetValue("allow_land_resell_check");
 		body["agent_limit"] = childGetValue("agent_limit_spin");
 		body["prim_bonus"] = childGetValue("object_bonus_spin");
-		// the combo box stores strings "Mature" and "PG", but we have to convert back to a number, 
-		// because the sim doesn't know from strings for this stuff
 		body["sim_access"] = childGetValue("access_combo");
 		body["restrict_pushobject"] = childGetValue("restrict_pushobject");
 		body["allow_parcel_changes"] = childGetValue("allow_parcel_changes_check");
@@ -780,8 +782,7 @@ BOOL LLPanelRegionGeneralInfo::sendUpdate()
 		buffer = llformat("%f", value);
 		strings.push_back(strings_t::value_type(buffer));
 
-		U8 access = childGetValue("access_combo").asInteger();
-		buffer = llformat("%d", (S32)access);
+		buffer = llformat("%d", childGetValue("access_combo").asInteger());
 		strings.push_back(strings_t::value_type(buffer));
 
 		buffer = llformat("%s", (childGetValue("restrict_pushobject").asBoolean() ? "Y" : "N"));
@@ -792,17 +793,14 @@ BOOL LLPanelRegionGeneralInfo::sendUpdate()
 
 		LLUUID invoice(LLFloaterRegionInfo::getLastInvoice());
 		sendEstateOwnerMessage(gMessageSystem, "setregioninfo", invoice, strings);
-
-		LLViewerRegion* region = gAgent.getRegion();
-		if (region && access != region->getSimAccess() )
-		{
-			LLNotifications::instance().add("RegionMaturityChange");
-		}
 	}
 
-
-	//integers_t integers;
-
+	// if we changed access levels, tell user about it
+	LLViewerRegion* region = gAgent.getRegion();
+	if (region && (childGetValue("access_combo").asInteger() != region->getSimAccess()) )
+	{
+		LLNotifications::instance().add("RegionMaturityChange");
+	}	
 
 	return TRUE;
 }
@@ -2702,6 +2700,19 @@ bool LLPanelEstateCovenant::refreshFromRegion(LLViewerRegion* region)
 		}
 	}
 
+	LLTextBox* region_maturity = getChild<LLTextBox>("region_maturity_text");
+	if (region_maturity)
+	{
+		region_maturity->setText(region->getSimAccessString());
+	}
+	
+	LLTextBox* region_landtype = getChild<LLTextBox>("region_landtype_text");
+	if (region_landtype)
+	{
+		region_landtype->setText(region->getSimProductName());
+	}
+	
+	
 	// let the parent class handle the general data collection. 
 	bool rv = LLPanelRegionInfo::refreshFromRegion(region);
 	LLMessageSystem *msg = gMessageSystem;

@@ -34,14 +34,8 @@
 	<text label="Alterseinstufung" name="access_text">
 		Alterseinstufung:
 	</text>
-	<combo_box label="Ab 18" name="access_combo">
-		<combo_item name="PG">
-			Jugendfrei
-		</combo_item>
-		<combo_item name="Mature">
-			Ab 18
-		</combo_item>
-	</combo_box>
+
+
 	<button label="?" name="access_help" />
 	<button label="Übernehmen" name="apply_btn" />
 	<button label="Einen Benutzer nach Hause teleportieren..." name="kick_btn" />

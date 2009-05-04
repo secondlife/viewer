@@ -1,13 +1,13 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="script search" title="Búsqueda de script">
-	<check_box label="Caso insensible" name="case_text" />
-	<button label="Buscar" label_selected="Buscar" name="search_btn" />
-	<button label="Sustituir" label_selected="Sustituir" name="replace_btn" />
-	<button label="Sustituir todos" label_selected="Sustituir todos" name="replace_all_btn" />
-	<text type="string" length="1" name="txt">
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="script search" title="Buscar en el script">
+	<check_box label="Indiferente mays./mins." name="case_text"/>
+	<button label="Buscar" label_selected="Buscar" name="search_btn"/>
+	<button label="Reemplazar" label_selected="Reemplazar" name="replace_btn"/>
+	<button label="Reemplazar todos" label_selected="Reemplazar todos" name="replace_all_btn"/>
+	<text length="1" name="txt" type="string">
 		Buscar
 	</text>
-	<text type="string" length="1" name="txt2">
-		Sustituir
+	<text length="1" name="txt2" type="string">
+		Reemplazar
 	</text>
 </floater>

@@ -4,9 +4,8 @@
 		<column label="Nome" name="name"/>
 		<column label="Localização" name="location"/>
 		<column label="Área" name="area"/>
-		<column label="" name="hidden"/>
 	</scroll_list>
-	<button label="Teleporte" label_selected="Teleporte" name="Teleport" tool_tip="Teleportar para o centro do terreno."/>
+	<button label="Teletransporte" label_selected="Teletransporte" name="Teleport" tool_tip="Teletransportar para o centro do terreno."/>
 	<button label="Mostrar no mapa" label_selected="Mostrar no mapa" name="Show on Map" tool_tip="Mostrar esse terreno no mapa do mundo."/>
 	<text name="contrib_label">
 		Contribuições para os seus grupos:
@@ -16,24 +15,24 @@
 		<column label="Área" name="area"/>
 	</scroll_list>
 	<text name="allowed_label">
-		Permitir marcações no terreno.
+		Propriedades de terreno permitidas com o plano de pagamento atual:
 	</text>
 	<text name="allowed_text">
-		[AREA] m2
+		[AREA] m²
 	</text>
 	<text name="current_label">
-		Marcações atuais:
+		Propriedades de terrenos atuais:
 	</text>
 	<text name="current_text">
-		[AREA] m2
+		[AREA] m²
 	</text>
 	<text name="available_label">
-		Disponivel para compra de terras:
+		Disponível para compra de terras:
 	</text>
 	<text name="available_text">
-		[AREA] m2
+		[AREA] m²
 	</text>
 	<string name="area_string">
-		[AREA] m2
+		[AREA] m²
 	</string>
 </floater>

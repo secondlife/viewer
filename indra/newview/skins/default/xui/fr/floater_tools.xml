@@ -1,25 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="toolbox floater" title="">
 	<button label="" label_selected="" name="button focus" tool_tip="Mise au point"/>
-	<text name="tool label">
-		Mise au point
-	</text>
 	<button label="" label_selected="" name="button move" tool_tip="Déplacer"/>
-	<text name="tool label2">
-		Se déplacer
-	</text>
 	<button label="" label_selected="" name="button edit" tool_tip="Modifier"/>
-	<text name="tool label3">
-		Edition
-	</text>
 	<button label="" label_selected="" name="button create" tool_tip="Créer"/>
-	<text name="tool label4">
-		Créer
-	</text>
 	<button label="" label_selected="" name="button land" tool_tip="Terrain"/>
-	<text name="tool label5">
-		Terrain
-	</text>
 	<check_box label="Zoom" name="radio zoom"/>
 	<check_box label="Orbite (Ctrl)" name="radio orbit"/>
 	<check_box label="Panoramique (Ctrl-Maj)" name="radio pan"/>
@@ -31,16 +16,8 @@
 	<check_box label="Étirer (Ctrl-Maj)" name="radio stretch"/>
 	<check_box label="Sélectionner une face" name="radio select face"/>
 	<check_box label="Modifier les parties liées" name="checkbox edit linked parts"/>
-	<check_box label="Utiliser la grille" name="checkbox snap to grid"/>
-	<button label="Options..." label_selected="Options..." name="Options..."/>
-	<check_box label="Étirer les deux côtés" name="checkbox uniform"/>
-	<check_box label="Étirer les textures" name="checkbox stretch textures"/>
 	<text name="text ruler mode">
 		Axe :
-	</text>
-	<text name="text status">
-		Faîtes glisser pour déplacer, Maj-faire glisser pour
-		copier.
 	</text>
 	<combo_box name="combobox grid mode">
 		<combo_item name="World">
@@ -53,6 +30,14 @@
 			Référence
 		</combo_item>
 	</combo_box>
+	<check_box label="Étirer les deux côtés" name="checkbox uniform"/>
+	<check_box label="Étirer les textures" name="checkbox stretch textures"/>
+	<check_box label="Utiliser la grille" name="checkbox snap to grid"/>
+	<button label="Options..." label_selected="Options..." name="Options..."/>
+	<text name="text status">
+		Faîtes glisser pour déplacer, Maj-faire glisser pour
+		copier.
+	</text>
 	<button label="" label_selected="" name="ToolCube" tool_tip="Cube"/>
 	<button label="" label_selected="" name="ToolPrism" tool_tip="Prisme"/>
 	<button label="" label_selected="" name="ToolPyramid" tool_tip="Pyramide"/>
@@ -63,40 +48,38 @@
 	<button label="" label_selected="" name="ToolHemiCone" tool_tip="Demi-cône"/>
 	<button label="" label_selected="" name="ToolSphere" tool_tip="Sphère"/>
 	<button label="" label_selected="" name="ToolHemiSphere" tool_tip="Demi-sphère"/>
-	<check_box label="Copier la sélection" name="checkbox copy selection"/>
 	<button label="" label_selected="" name="ToolTorus" tool_tip="Tore"/>
 	<button label="" label_selected="" name="ToolTube" tool_tip="Tube"/>
 	<button label="" label_selected="" name="ToolRing" tool_tip="Anneau"/>
 	<button label="" label_selected="" name="ToolTree" tool_tip="Arbre"/>
 	<button label="" label_selected="" name="ToolGrass" tool_tip="Herbe"/>
 	<check_box label="Maintenir l&apos;outil sélectionné" name="checkbox sticky"/>
-	<check_box label="Centrer la copie" name="checkbox copy centers"/>
-	<check_box label="Pivoter la copie" name="checkbox copy rotates"/>
+	<check_box label="Copier la sélection" name="checkbox copy selection"/>
+	<check_box label="Centrer" name="checkbox copy centers"/>
+	<check_box label="Pivoter" name="checkbox copy rotates"/>
 	<check_box label="Sélectionner le terrain" name="radio select land"/>
-	<check_box label="Aplatir le terrain" name="radio flatten"/>
-	<check_box label="Élever le terrain" name="radio raise"/>
-	<check_box label="Abaisser le terrain" name="radio lower"/>
-	<check_box label="Lisser le terrain" name="radio smooth"/>
-	<check_box label="Bosseler le terrain" name="radio noise"/>
+	<check_box label="Aplatir" name="radio flatten"/>
+	<check_box label="Élever" name="radio raise"/>
+	<check_box label="Abaisser" name="radio lower"/>
+	<check_box label="Lisser" name="radio smooth"/>
+	<check_box label="Bosseler" name="radio noise"/>
 	<check_box label="Annuler modification" name="radio revert"/>
-	<combo_box name="combobox brush size">
-		<combo_item name="Small">
-			Petit
-		</combo_item>
-		<combo_item name="Medium">
-			Moyen
-		</combo_item>
-		<combo_item name="Large">
-			Grand
-		</combo_item>
-	</combo_box>
-	<text name="Strength:">
-		Force :
+	<button label="Appliquer" label_selected="Appliquer" name="button apply to selection" tool_tip="Modifier le terrain sélectionné"/>
+	<text name="Bulldozer:">
+		Bulldozer :
 	</text>
-	<button label="Appliquer à la sélection" label_selected="Appliquer à la sélection" name="button apply to selection" tool_tip="Modifier le terrain sélectionné"/>
-	<check_box label="Afficher les limites" name="checkbox show owners"/>
-	<button label="Plus &gt;&gt;" name="button more" tool_tip="Options avancées"/>
-	<button label="&lt;&lt; Moins" name="button less" tool_tip="Options avancées"/>
+	<text name="Dozer Size:">
+		Taille
+	</text>
+	<text name="Strength:">
+		Force
+	</text>
+	<text name="obj_count">
+		Objets sélectionnés : [COUNT]
+	</text>
+	<text name="prim_count">
+		Prims : [COUNT]
+	</text>
 	<tab_container name="Object Info Tabs">
 		<panel label="Général" name="General">
 			<text name="Name:">
@@ -126,9 +109,6 @@
 				Les Lindens
 			</text>
 			<button label="Définir..." label_selected="Définir..." name="button set group"/>
-			<text name="prim info">
-				1 objet, 1 prim
-			</text>
 			<text name="Permissions:">
 				Autorisations :
 			</text>
@@ -136,20 +116,17 @@
 				Vous pouvez modifier cet objet.
 			</text>
 			<check_box label="Partager avec le groupe" name="checkbox share with group" tool_tip="Autoriser les membres du groupe à déplacer, copier et supprimer."/>
-			<text name="text deed continued">
+			<string name="text deed continued">
 				Transférer...
-			</text>
-			<text name="text deed">
+			</string>
+			<string name="text deed">
 				Transférer
-			</text>
+			</string>
 			<button label="Céder..." label_selected="Céder..." name="button deed" tool_tip="Les objets partagés par un groupe peuvent être cédés par un officier."/>
 			<check_box label="Autoriser tout le monde à déplacer" name="checkbox allow everyone move"/>
 			<check_box label="Autoriser tout le monde à copier" name="checkbox allow everyone copy"/>
 			<check_box label="Afficher dans la recherche" name="search_check" tool_tip="Afficher l&apos;objet dans les résultats de recherche"/>
 			<check_box label="À vendre" name="checkbox for sale"/>
-			<text name="Price:  L$">
-				Prix : L$
-			</text>
 			<text name="Cost">
 				Prix : L$
 			</text>
@@ -168,7 +145,7 @@
 				Le prochain propriétaire pourra :
 			</text>
 			<check_box label="Modifier" name="checkbox next owner can modify"/>
-			<check_box label="Copier" name="checkbox next owner can copy" left_delta="66" />
+			<check_box label="Copier" left_delta="66" name="checkbox next owner can copy"/>
 			<check_box label="Revendre/Donner" name="checkbox next owner can transfer"/>
 			<text name="label click action">
 				Action du clic-gauche :
@@ -214,21 +191,21 @@
 			<text name="F:">
 				F :
 			</text>
-			<text name="text modify info 1">
+			<string name="text modify info 1">
 				Vous pouvez modifier cet objet.
-			</text>
-			<text name="text modify info 2">
+			</string>
+			<string name="text modify info 2">
 				Vous pouvez modifier ces objets.
-			</text>
-			<text name="text modify info 3">
+			</string>
+			<string name="text modify info 3">
 				Vous ne pouvez pas modifier cet objet.
-			</text>
-			<text name="text modify info 4">
+			</string>
+			<string name="text modify info 4">
 				Vous ne pouvez pas modifier ces objets.
-			</text>
-			<text name="text modify warning">
+			</string>
+			<string name="text modify warning">
 				Sélectionnez l&apos;objet en entier.
-			</text>
+			</string>
 			<string name="Cost Default">
 				Prix :           L$
 			</string>
@@ -380,6 +357,9 @@
 			</text>
 			<text name="advanced_dimple">
 				Début et fin du creux
+			</text>
+			<text name="advanced_slice">
+				Début et fin de la tranche
 			</text>
 			<spinner label="D" name="Path Limit Begin"/>
 			<spinner label="F" name="Path Limit End"/>
@@ -550,7 +530,7 @@
 			<text name="tex rotate">
 				Rotation (degrés)
 			</text>
-			<spinner left="122" name="TexRot" width="58" />
+			<spinner left="122" name="TexRot" width="58"/>
 			<string name="string repeats per meter">
 				Répétitions au mètre
 			</string>
@@ -560,8 +540,8 @@
 			<text name="rpt" width="160">
 				Répétitions au mètre
 			</text>
-			<spinner left="122" name="rptctrl" width="58" />
-			<button label="Appliquer" label_selected="Appliquer" name="button apply" left_delta="68" width="75"/>
+			<spinner left="122" name="rptctrl" width="58"/>
+			<button label="Appliquer" label_selected="Appliquer" left_delta="68" name="button apply" width="75"/>
 			<text name="tex offset">
 				Décalage
 			</text>
@@ -571,24 +551,36 @@
 				Ajuster la texture du média
 (chargement préalable)
 			</text>
-			<button left="150" label="Ajuster" label_selected="Ajuster" name="button align"/>
+			<button label="Ajuster" label_selected="Ajuster" left="150" name="button align"/>
 		</panel>
 		<panel label="Contenu" name="Contents">
-			<button label="Nouveau script..." label_selected="Nouveau script..." name="button new script"/>
+			<button label="Nouveau script" label_selected="Nouveau script..." name="button new script"/>
+			<button label="Permissions..." name="button permissions"/>
 		</panel>
 	</tab_container>
 	<panel name="land info panel">
+		<text name="label_parcel_info">
+			Informations sur la parcelle
+		</text>
 		<text name="label_area_price">
 			Prix : [PRICE] L$ pour [AREA] m².
 		</text>
 		<text name="label_area">
 			Surface : [AREA] m²
 		</text>
-		<button label="Acheter le terrain..." label_selected="Acheter le terrain..." name="button buy land" width="132"/>
-		<button label="Abandonner le terrain..." label_selected="Abandonner le terrain..." name="button abandon land" width="132"/>
+		<button label="À propos du terrain..." label_selected="À propos du terrain..." name="button about land" width="132"/>
+		<check_box label="Afficher les propriétaires" name="checkbox show owners" tool_tip="Colorie les parcelles en fonction de leur propriétaire"/>
+		<button label="?" label_selected="?" name="button show owners help"/>
+		<text name="label_parcel_modify">
+			Modifier la parcelle
+		</text>
 		<button label="Diviser..." label_selected="Diviser..." name="button subdivide land" width="132"/>
 		<button label="Fusionner..." label_selected="Fusionner..." name="button join land" width="132"/>
-		<button label="À propos du terrain..." label_selected="À propos du terrain..." name="button about land" width="132"/>
+		<text name="label_parcel_trans">
+			Transactions
+		</text>
+		<button label="Acheter le terrain..." label_selected="Acheter le terrain..." name="button buy land" width="132"/>
+		<button label="Abandonner le terrain..." label_selected="Abandonner le terrain..." name="button abandon land" width="132"/>
 	</panel>
 	<string name="status_rotate">
 		Pour faire tourner l&apos;objet, faîtes glisser les bandes de couleur.
@@ -606,10 +598,10 @@
 		Cliquez et faites glisser pour changer l&apos;affichage
 	</string>
 	<string name="status_grab">
-		Faîtes glisser pour déplacer les objets, appuyez sur Ctrl pour soulever, Crtl-Maj pour faire tourner
+		Faîtes glisser pour déplacer, appuyez sur Ctrl pour soulever, Crtl-Maj pour pivoter
 	</string>
 	<string name="status_place">
-		Cliquez dans le Monde pour créer, Maj-clic pour sélectionner
+		Cliquez dans le monde pour construire
 	</string>
 	<string name="status_selectland">
 		Cliquez et faites glisser pour sélectionner le terrain

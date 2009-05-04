@@ -6,8 +6,8 @@
 	<button label="新規" label_selected="新規" name="WLNewPreset" />
 	<button label="保存" label_selected="保存" name="WLSavePreset" />
 	<button label="削除" label_selected="削除" name="WLDeletePreset" />
-	<button label="デイ・サイクル編集"
-	     label_selected="デイ・サイクル編集" name="WLDayCycleMenuButton" />
+	<button label="デイサイクル編集"
+	     label_selected="デイサイクル編集" name="WLDayCycleMenuButton" />
 	<tab_container name="WindLight Tabs">
 		<panel label="大気" name="Atmosphere">
 			<text name="BHText">

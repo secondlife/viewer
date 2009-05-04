@@ -234,7 +234,9 @@ const S32 LLVFSFileBlock::SERIAL_SIZE = 34;
      
 
 LLVFS::LLVFS(const std::string& index_filename, const std::string& data_filename, const BOOL read_only, const U32 presize, const BOOL remove_after_crash)
-:	mRemoveAfterCrash(remove_after_crash)
+:	mRemoveAfterCrash(remove_after_crash),
+	mDataFP(NULL),
+	mIndexFP(NULL)
 {
 	mDataMutex = new LLMutex(0);
 
@@ -250,17 +252,21 @@ LLVFS::LLVFS(const std::string& index_filename, const std::string& data_filename
     
 	const char *file_mode = mReadOnly ? "rb" : "r+b";
     
-	if (! (mDataFP = openAndLock(mDataFilename, file_mode, mReadOnly)))
+	LL_INFOS("VFS") << "Attempting to open VFS index file " << mIndexFilename << LL_ENDL;
+	LL_INFOS("VFS") << "Attempting to open VFS data file " << mDataFilename << LL_ENDL;
+
+	mDataFP = openAndLock(mDataFilename, file_mode, mReadOnly);
+	if (!mDataFP)
 	{
-    	
 		if (mReadOnly)
 		{
 			LL_WARNS("VFS") << "Can't find " << mDataFilename << " to open read-only VFS" << LL_ENDL;
 			mValid = VFSVALID_BAD_CANNOT_OPEN_READONLY;
 			return;
 		}
-    
-		if((mDataFP = openAndLock(mDataFilename, "w+b", FALSE)))
+
+		mDataFP = openAndLock(mDataFilename, "w+b", FALSE);
+		if (mDataFP)
 		{
 			// Since we're creating this data file, assume any index file is bogus
 			// remove the index, since this vfs is now blank
@@ -268,41 +274,12 @@ LLVFS::LLVFS(const std::string& index_filename, const std::string& data_filename
 		}
 		else
 		{
-			LL_WARNS("VFS") << "Can't open VFS data file " << mDataFilename << " attempting to use alternate" << LL_ENDL;
-    
-			std::string temp_index;
-			std::string temp_data;
-
-			for (U32 count = 0; count < 256; count++)
-			{
-				temp_index = mIndexFilename + llformat(".%u",count);
-				temp_data = mDataFilename + llformat(".%u", count);
-    
-				// try just opening, then creating, each alternate
-				if ((mDataFP = openAndLock(temp_data, "r+b", FALSE)))
-				{
-					break;
-				}
-
-				if ((mDataFP = openAndLock(temp_data, "w+b", FALSE)))
-				{
-					// we're creating the datafile, so nuke the indexfile
-					LLFile::remove(temp_index);
-					break;
-				}
-			}
-    
-			if (! mDataFP)
-			{
-				LL_WARNS("VFS") << "Couldn't open vfs data file after trying many alternates" << LL_ENDL;
-				mValid = VFSVALID_BAD_CANNOT_CREATE;
-				return;
-			}
-
-			mIndexFilename = temp_index;
-			mDataFilename = temp_data;
+			LL_WARNS("VFS") << "Couldn't open vfs data file " 
+				<< mDataFilename << LL_ENDL;
+			mValid = VFSVALID_BAD_CANNOT_CREATE;
+			return;
 		}
-    
+
 		if (presize)
 		{
 			presizeDataFile(presize);
@@ -351,7 +328,7 @@ LLVFS::LLVFS(const std::string& index_filename, const std::string& data_filename
 	llstat fbuf;
 	if (! LLFile::stat(mIndexFilename, &fbuf) &&
 		fbuf.st_size >= LLVFSFileBlock::SERIAL_SIZE &&
-		(mIndexFP = openAndLock(mIndexFilename, file_mode, mReadOnly))
+		(mIndexFP = openAndLock(mIndexFilename, file_mode, mReadOnly))	// Yes, this is an assignment and not '=='
 		)
 	{	
 		std::vector<U8> buffer(fbuf.st_size);
@@ -539,7 +516,7 @@ LLVFS::LLVFS(const std::string& index_filename, const std::string& data_filename
 			addFreeBlock(new LLVFSBlock(0, data_size));
 		}
 	}
-	else
+	else	// Pre-existing index file wasn't opened
 	{
 		if (mReadOnly)
 		{
@@ -579,8 +556,8 @@ LLVFS::LLVFS(const std::string& index_filename, const std::string& data_filename
 		}
 	}
 
-	LL_WARNS("VFS") << "Using index file " << mIndexFilename << LL_ENDL;
-	LL_WARNS("VFS") << "Using data file " << mDataFilename << LL_ENDL;
+	LL_INFOS("VFS") << "Using VFS index file " << mIndexFilename << LL_ENDL;
+	LL_INFOS("VFS") << "Using VFS data file " << mDataFilename << LL_ENDL;
 
 	mValid = VFSVALID_OK;
 }
@@ -618,6 +595,47 @@ LLVFS::~LLVFS()
 
 	delete mDataMutex;
 }
+
+
+// Use this function normally to create LLVFS files.  
+// Will append digits to the end of the filename with multiple re-trys
+// static 
+LLVFS * LLVFS::createLLVFS(const std::string& index_filename, 
+		const std::string& data_filename, 
+		const BOOL read_only, 
+		const U32 presize, 
+		const BOOL remove_after_crash)
+{
+	LLVFS * new_vfs = new LLVFS(index_filename, data_filename, read_only, presize, remove_after_crash);
+
+	if( !new_vfs->isValid() )
+	{	// First name failed, retry with new names
+		std::string retry_vfs_index_name;
+		std::string retry_vfs_data_name;
+		S32 count = 0;
+		while (!new_vfs->isValid() &&
+				count < 256)
+		{	// Append '.<number>' to end of filenames
+			retry_vfs_index_name = index_filename + llformat(".%u",count);
+			retry_vfs_data_name = data_filename + llformat(".%u", count);
+
+			delete new_vfs;	// Delete bad VFS and try again
+			new_vfs = new LLVFS(retry_vfs_index_name, retry_vfs_data_name, read_only, presize, remove_after_crash);
+
+			count++;
+		}
+	}
+
+	if( !new_vfs->isValid() )
+	{
+		delete new_vfs;		// Delete bad VFS
+		new_vfs = NULL;		// Total failure
+	}
+
+	return new_vfs;
+}
+
+
 
 void LLVFS::presizeDataFile(const U32 size)
 {

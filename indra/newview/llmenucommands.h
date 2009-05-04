@@ -43,7 +43,6 @@ void handle_mini_map(void*);
 void handle_find(void*);
 void handle_events(void*);
 void handle_inventory(void*);
-void handle_clothing(void*);
 void handle_chat(void*);
 void handle_return_key(void*);
 void handle_slash_key(void*);

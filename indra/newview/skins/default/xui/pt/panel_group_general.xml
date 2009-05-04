@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Geral" name="general_tab">
 	<string name="help_text">
-		A aba diversos contém informações gerais sobre esse grupo, a lista dos donos e seus membros, preferências gerais do grupo e opções dos membros. Passe o seu mouse por cima para ver mais informações. Ajuda.
+		A aba Geral contém informações gerais sobre este grupo, a lista dos donos e membros visíveis, preferências gerais do grupo e opções dos membros. Passe o mouse sobre as opções para mais ajuda.
 	</string>
 	<string name="group_info_unchanged">
 		Informações gerais do grupo foram modificadas
@@ -18,13 +18,13 @@
 		(espera)
 	</text>
 	<text name="group_charter_label">
-		Patente do Grupo
+		Declaração do Grupo
 	</text>
-	<texture_picker label="Group Insignia" name="insignia" tool_tip="Clique para escolher uma imagem"/>
+	<texture_picker label="Insígnia do Grupo" name="insignia" tool_tip="Clique para escolher uma imagem"/>
 	<text_editor name="charter">
-		Patente do grupo
+		Declaração do grupo
 	</text_editor>
-	<button label="Juntar (L$0)" label_selected="Juntar (L$0)" name="join_button"/>
+	<button label="Unir (L$0)" label_selected="Unir (L$0)" name="join_button"/>
 	<button label="Vista detalhada" label_selected="Vista detalhada" name="info_button"/>
 	<text name="text_owners_and_visible_members">
 		Proprietários &amp; Membros visíveis
@@ -38,31 +38,21 @@
 		<column label="Último login" name="online"/>
 	</name_list>
 	<text name="text_group_preferences">
-		Preferências de Grupos
+		Preferências do Grupo
 	</text>
 	<panel name="preferences_container">
-		<check_box label="Mostre na busca" name="show_in_group_list" tool_tip="Deixe as pessoas verem este grupo nos resultados de busca. "/>
-		<check_box label="Aberta inscrição" name="open_enrollement" tool_tip="Esse grupo permite que novos membros entrem sem serem convidados"/>
-		<check_box label="Taxa de inscrição: L$" name="check_enrollment_fee" tool_tip="É necessário uma taxa de registro."/>
-		<spinner name="spin_enrollment_fee" tool_tip="Os novos membros terão de pagar a taxa de registro para fazerem parte do grupo."/>
-		<combo_box name="group_mature_check" tool_tip="Define se a informação do seu grupo é considerada adulta.">
-			<combo_item name="select_mature">
-				- Selecionar conteúdo adulto -
-			</combo_item>
-			<combo_item name="mature">
-				Conteúdo adulto
-			</combo_item>
-			<combo_item name="not_mature">
-				Conteúdo não adulto
-			</combo_item>
-		</combo_box>
+		<check_box label="Mostre na busca" name="show_in_group_list" tool_tip="Deixe as pessoas verem este grupo nos resultados de busca."/>
+		<check_box label="Adesão aberta" name="open_enrollement" tool_tip="Definir se este grupo permite que novos membros entrem sem serem convidados"/>
+		<check_box label="Taxa de adesão: L$" name="check_enrollment_fee" tool_tip="Define se é necessária uma taxa de adesão para se unir ao grupo."/>
+		<spinner name="spin_enrollment_fee" tool_tip="Os novos membros devem pagar esta taxa para se unir ao grupo quando a Taxa de Adesão está marcada."/>
+
 		<panel name="title_container">
 			<text name="active_title_label">
 				Meu título ativo
 			</text>
-			<combo_box name="active_title" tool_tip="Mude o título que aparece em seu avatar quando o grupo estiver ativo."/>
+			<combo_box name="active_title" tool_tip="Define o título que aparece em seu avatar quando o grupo estiver ativo."/>
 		</panel>
-		<check_box label="Receber avisos do grupo" name="receive_notices" tool_tip="Você quer receber notícias desse grupo"/>
+		<check_box label="Receber notícias do grupo" name="receive_notices" tool_tip="Define se Você deseja receber notícias deste grupo. Desmarque esta caixa se o grupo está lhe fazendo spam."/>
 		<check_box label="Listar grupo no meu perfil" name="list_groups_in_profile" tool_tip="Define se você deseja listar este grupo no seu Perfil"/>
 	</panel>
 	<string name="incomplete_member_data_str">
@@ -71,6 +61,6 @@
 	<string name="confirm_group_create_str">
 		Criar este grupo irá custar L$100. 
 Você está realmente, realmente, REALMENTE seguro que deseja gastar L$100 para criar este grupo? 
-Esteja consciente de que se ninguém mais se juntar este grupo dentro de 48 horas, este será dissolvido e o nome não estará disponível para uso futuro.
+Esteja consciente de que se ninguém mais se juntar a este grupo dentro de 48 horas, este será dissolvido e o nome não estará disponível para uso futuro.
 	</string>
 </panel>

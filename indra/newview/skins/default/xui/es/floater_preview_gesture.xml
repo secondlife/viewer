@@ -1,48 +1,60 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="gesture_preview">
+	<string name="stop_txt">
+		Parar
+	</string>
+	<string name="preview_txt">
+		Vista previa
+	</string>
+	<string name="none_text">
+		-- Ninguno --
+	</string>
 	<text name="desc_label">
 		Descripción:
 	</text>
 	<text name="trigger_label">
-		Trigger:
+		Palabra clave:
 	</text>
-	<text name="replace_text"
-	     tool_tip="Sustituir la palabra(s) clave(s) por estas palabras. Por ejemplo, palabra clave &apos;¡hola!&apos; sustituida por  &apos;¿que tal?&apos; devolverá al chat &apos;Yo quería decir ¿que tal?&apos; al revés de &apos;Yo quería decir ¡hola!&apos; allende exhibir la postura!">
-		Sustituir con:
+	<text name="replace_text" tool_tip="Reemplaza la/s palabra/s clave con estas palabras. Por ejemplo, si cambia la palabra clave &apos;hola&apos; por &apos;qué tal&apos;, se cambiará en el chat &apos;Quise decir hola&apos; por &apos;Quise decir qué tal&apos; en cuanto realice el gesto.">
+		Reemplazar por:
 	</text>
-	<line_editor name="replace_editor"
-	     tool_tip="Sustituir la palabra(s) clave(s) por estas palabras. Por ejemplo, palabra clave &apos;¡hola!&apos; sustituida por  &apos;¿que tal?&apos; devolverá al chat &apos;Yo quería decir ¿que tal?&apos; al revés de &apos;Yo quería decir ¡hola!&apos; allende exhibir la postura" />
+	<line_editor name="replace_editor" tool_tip="Reemplaza la/s palabra/s clave con estas palabras. Por ejemplo, si cambia la palabra clave &apos;hola&apos; por &apos;qué tal&apos;, se cambiará en el chat &apos;Quise decir hola&apos; por &apos;Quise decir qué tal&apos; en cuanto realice el gesto."/>
 	<text name="key_label">
-		Tecla de atajo:
+		Atajo de teclado:
 	</text>
-	<combo_box label="Ningún" name="modifier_combo" />
-	<combo_box label="Ningún" name="key_combo" />
-	<text>
+	<combo_box label="Ninguno" name="modifier_combo"/>
+	<combo_box label="Ninguno" name="key_combo"/>
+	<text name="library_label">
 		Biblioteca:
 	</text>
-	<text>
+	<text name="steps_label">
 		Pasos:
 	</text>
-	<button label="Adicionar &gt;&gt;" name="add_btn" />
-	<button label="Mover hacia arriba" name="up_btn" />
-	<button label="Mover hacia bajo" name="down_btn" />
-	<button label="Remover" name="delete_btn" />
+	<scroll_list name="library_list">
+		Animación
+Sonido
+Chat
+Esperar
+	</scroll_list>
+	<button label="Añadir &gt;&gt;" name="add_btn"/>
+	<button label="Hacia arriba" name="up_btn"/>
+	<button label="Hacia abajo" name="down_btn"/>
+	<button label="Quitar" name="delete_btn"/>
 	<text name="help_label">
-		Todos los pasos acontecen simultáneamente, 
-a menos que usted adicione espera de pasos.
+		Todos los pasos suceden a la vez, 
+a menos que añada pasos de espera.
 	</text>
 	<radio_group name="animation_trigger_type">
-		<radio_item>
+		<radio_item name="start">
 			Empezar
 		</radio_item>
-		<radio_item>
+		<radio_item name="stop">
 			Parar
 		</radio_item>
 	</radio_group>
-	<check_box label="hasta que las animaciones estén prontas" name="wait_anim_check" />
-	<check_box label="tiempo en segundos" name="wait_time_check" />
-	<check_box label="Activo" name="active_check"
-	     tool_tip="Posturas activas pueden ser llamadas por el chat a través de sus frases clave o manteniendo pulsada sus teclas de atajo.  Las posturas normalmente se ponen inactivas cuando entran en conflicto con una acción clave." />
-	<button label="Vista previa" name="preview_btn" />
-	<button label="Guardar" name="save_btn" />
+	<check_box label="hasta que las animaciones estén hechas" name="wait_anim_check"/>
+	<check_box label="tiempo en segundos" name="wait_time_check"/>
+	<check_box label="Disponible" name="active_check" tool_tip="Los gestos disponibles pueden realizarse escribiendo en el chat su frase clave o pulsando su tecla de acceso rápido. Generalmente, los gestos pasan a no disponibles cuando hay un conflicto de teclas."/>
+	<button label="Vista previa" name="preview_btn"/>
+	<button label="Guardar" name="save_btn"/>
 </floater>

@@ -121,29 +121,32 @@ bool LLDispatcher::unpackMessage(
 		// we treat the SParam as binary data (since it might be an 
 		// LLUUID in compressed form which may have embedded \0's,)
 		size = msg->getSizeFast(_PREHASH_ParamList, i, _PREHASH_Parameter);
-		msg->getBinaryDataFast(
-			_PREHASH_ParamList, _PREHASH_Parameter,
-			buf, size, i, MAX_STRING-1);
+		if (size >= 0)
+		{
+			msg->getBinaryDataFast(
+				_PREHASH_ParamList, _PREHASH_Parameter,
+				buf, size, i, MAX_STRING-1);
 
-		// If the last byte of the data is 0x0, this is either a normally
-		// packed string, or a binary packed UUID (which for these messages
-		// are packed with a 17th byte 0x0).  Unpack into a std::string
-		// without the trailing \0, so "abc\0" becomes std::string("abc", 3)
-		// which matches const char* "abc".
-		if (size > 0
-			&& buf[size-1] == 0x0)
-		{
-			// special char*/size constructor because UUIDs may have embedded
-			// 0x0 bytes.
-			std::string binary_data(buf, size-1);
-			parameters.push_back(binary_data);
-		}
-		else
-		{
-			// This is either a NULL string, or a string that was packed 
-			// incorrectly as binary data, without the usual trailing '\0'.
-			std::string string_data(buf, size);
-			parameters.push_back(string_data);
+			// If the last byte of the data is 0x0, this is either a normally
+			// packed string, or a binary packed UUID (which for these messages
+			// are packed with a 17th byte 0x0).  Unpack into a std::string
+			// without the trailing \0, so "abc\0" becomes std::string("abc", 3)
+			// which matches const char* "abc".
+			if (size > 0
+				&& buf[size-1] == 0x0)
+			{
+				// special char*/size constructor because UUIDs may have embedded
+				// 0x0 bytes.
+				std::string binary_data(buf, size-1);
+				parameters.push_back(binary_data);
+			}
+			else
+			{
+				// This is either a NULL string, or a string that was packed 
+				// incorrectly as binary data, without the usual trailing '\0'.
+				std::string string_data(buf, size);
+				parameters.push_back(string_data);
+			}
 		}
 	}
 	return true;

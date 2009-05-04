@@ -73,7 +73,7 @@ public:
 	// Traverses the entire joint hierarchy, setting up
 	// transforms and calling the drawShape().
 	// Derived classes may add text/graphic output.
-	virtual U32 render( F32 pixelArea, BOOL first_pass = TRUE );	// Returns triangle count
+	virtual U32 render( F32 pixelArea, BOOL first_pass = TRUE, BOOL is_dummy = FALSE );	// Returns triangle count
 
 	// Returns true if this object is transparent.
 	// This is used to determine in which order to draw objects.
@@ -84,7 +84,7 @@ public:
 
 	// Draws the shape attached to a joint.
 	// Called by render().
-	virtual U32 drawShape( F32 pixelArea, BOOL first_pass = TRUE );
+	virtual U32 drawShape( F32 pixelArea, BOOL first_pass = TRUE, BOOL is_dummy = FALSE );
 	virtual void drawNormals() {}
 
 	enum Components

@@ -34,10 +34,7 @@
 	<slider name="ui_scale_slider"/>
 	<check_box label="Utiliser une échelle indépendante de la résolution" name="ui_auto_scale"/>
 	<spinner label="Absent(e) après :" name="afk_timeout_spinner"/>
-	<check_box label="Pivoter la mini-carte" name="rotate_mini_map_checkbox"/>
 	<check_box label="M&apos;avertir lorsque je dépense ou reçois des L$" name="notify_money_change_checkbox"/>
-	<check_box label="Utiliser le sélecteur de couleur par défaut" name="use_system_color_picker_checkbox" tool_tip="Utiliser le sélecteur de couleur par défaut au lieu de celui intégré à Second Life."/>
-	<check_box label="Afficher la boîte de recherche en haut à droite de l&apos;écran" name="show_search_panel" tool_tip="Affiche la boîte de recherche incorporée."/>
 	<text length="1" name="start_location_textbox" type="string">
 		Lieu de départ :
 	</text>
@@ -45,7 +42,8 @@
 		Afficher les noms :
 	</text>
 	<text bottom="-174" length="1" name="effects_color_textbox" type="string">
-		Couleur du faisceau &#10;de sélection :
+		Couleur du faisceau 
+de sélection :
 	</text>
 	<text length="1" name="seconds_textbox" type="string">
 		secondes
@@ -100,6 +98,12 @@
 		</combo_item>
 		<combo_item name="Portugese">
 			Portugués (Portugais) - Bêta
+		</combo_item>
+		<combo_item name="Russian">
+			Русский (Russe) - Bêta
+		</combo_item>
+		<combo_item name="Ukrainian">
+			Українська (Ukrainien) - Bêta
 		</combo_item>
 		<combo_item length="1" name="Chinese" type="string">
 			中文 (简体) (Chinois) - Bêta

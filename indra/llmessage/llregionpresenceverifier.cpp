@@ -41,7 +41,7 @@ void LLRegionPresenceVerifier::RegionResponder::result(const LLSD& content)
 	llinfos << "Verifying " << destination.getString() << " is region " << id << llendl;
 
 	std::stringstream uri;
-	uri << "http://" << destination.getString() << "/state/basic";
+	uri << "http://" << destination.getString() << "/state/basic/";
 	mSharedData->getHttpClient().get(uri.str(), new VerifiedDestinationResponder(mSharedData, content));
 }
 
@@ -68,20 +68,35 @@ void LLRegionPresenceVerifier::VerifiedDestinationResponder::result(const LLSD& 
 	LLUUID actual_region_id = content["region_id"];
 	LLUUID expected_region_id = mContent["region_id"];
 
-	if (mSharedData->checkValidity(content))
+	lldebugs << "Actual region: " << content << llendl;
+	lldebugs << "Expected region: " << mContent << llendl;
+
+	if (mSharedData->checkValidity(content) &&
+		(actual_region_id == expected_region_id))
 	{
 		mSharedData->onRegionVerified(mContent);
 	}
-	else if ((mSharedData->shouldRetry()) && (actual_region_id != expected_region_id)) // If the region is correct, then it means we've deliberately changed the data
+	else if (mSharedData->shouldRetry())
 	{
-		LLSD headers;
-		headers["Cache-Control"] = "no-cache, max-age=0";
-		llinfos << "Requesting region information, get uncached for region " << mSharedData->getRegionUri() << llendl;
-		mSharedData->decrementRetries();
-		mSharedData->getHttpClient().get(mSharedData->getRegionUri(), new RegionResponder(mSharedData), headers);
+		retry();
 	}
 	else
 	{
 		llwarns << "Could not correctly look up region from region presence service. Region: " << mSharedData->getRegionUri() << llendl;
 	}
 }
+
+void LLRegionPresenceVerifier::VerifiedDestinationResponder::retry()
+{
+	LLSD headers;
+	headers["Cache-Control"] = "no-cache, max-age=0";
+	llinfos << "Requesting region information, get uncached for region " << mSharedData->getRegionUri() << llendl;
+	mSharedData->decrementRetries();
+	mSharedData->getHttpClient().get(mSharedData->getRegionUri(), new RegionResponder(mSharedData), headers);
+}
+
+void LLRegionPresenceVerifier::VerifiedDestinationResponder::error(U32 status, const std::string& reason)
+{
+	retry();
+}
+

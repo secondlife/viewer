@@ -896,7 +896,7 @@ void LLPanelLandGeneral::onClickStartAuction(void* data)
 	{
 		if(parcelp->getForSale())
 		{
-			LLNotifications::instance().add("CannotStartAuctionAlreadForSale");
+			LLNotifications::instance().add("CannotStartAuctionAlreadyForSale");
 		}
 		else
 		{
@@ -1770,8 +1770,24 @@ BOOL LLPanelLandOptions::postBuild()
 	childSetCommitCallback("ShowDirectoryCheck", onCommitAny, this);
 
 	
-	mCategoryCombo = getChild<LLComboBox>( "land category");
-	childSetCommitCallback("land category", onCommitAny, this);
+	if (gAgent.getAgentAccess().isInTransition())
+	{
+		// during the AO transition, this combo has an Adult item.
+		// Post-transition, it goes away. We can remove this conditional
+		// after the transition and just use the "else" clause.
+		mCategoryCombo = getChild<LLComboBox>( "land category with adult");
+		childSetCommitCallback("land category with adult", onCommitAny, this);
+	}
+	else
+	{
+		// this is the code that should be preserved post-transition
+		// you could also change the XML to set visibility and enabled true.
+		mCategoryCombo = getChild<LLComboBox>( "land category");
+		childSetCommitCallback("land category", onCommitAny, this);
+	}
+	mCategoryCombo->setVisible(true);
+	mCategoryCombo->setEnabled(true);
+	
 
 	mMatureCtrl = getChild<LLCheckBoxCtrl>( "MatureCheck");
 	childSetCommitCallback("MatureCheck", onCommitAny, this);
@@ -1788,14 +1804,6 @@ BOOL LLPanelLandOptions::postBuild()
 		mMatureCtrl->setEnabled(FALSE);
 	}
 	
-	if (!gAgent.getAgentAccess().isInTransition())
-	{
-		// remove category for adult if we're post-transition
-		// (this code can go away, and the category can be removed from the xml,
-		// once we've completed the transition period for adult)
-		mCategoryCombo->remove(getString("adult_land_category_label"));
-	}	
-
 	
 	mSnapshotCtrl = getChild<LLTextureCtrl>("snapshot_ctrl");
 	if (mSnapshotCtrl)
@@ -1982,6 +1990,7 @@ void LLPanelLandOptions::refresh()
 			// not teen so fill in the data for the maturity control
 			mMatureCtrl->setVisible(TRUE);
 			mMatureCtrl->setLabel(getString("mature_check_mature"));
+			mMatureCtrl->setToolTip(getString("mature_check_mature_tooltip"));
 			// they can see the checkbox, but its disposition depends on the 
 			// state of the region
 			LLViewerRegion* regionp = LLViewerParcelMgr::getInstance()->getSelectionRegion();
@@ -2002,6 +2011,7 @@ void LLPanelLandOptions::refresh()
 					mMatureCtrl->setEnabled(FALSE);
 					mMatureCtrl->set(TRUE);
 					mMatureCtrl->setLabel(getString("mature_check_adult"));
+					mMatureCtrl->setToolTip(getString("mature_check_adult_tooltip"));
 				}
 			}
 		}
@@ -2140,7 +2150,8 @@ void LLPanelLandOptions::onCommitAny(LLUICtrl *ctrl, void *userdata)
 	BOOL mature_publish		= self->mMatureCtrl->get();
 	BOOL push_restriction	= self->mPushRestrictionCtrl->get();
 	BOOL show_directory		= self->mCheckShowDirectory->get();
-	S32  category_index		= self->mCategoryCombo->getCurrentIndex();
+	// we have to get the index from a lookup, not from the position in the dropdown!
+	S32  category_index		= LLParcel::getCategoryFromString(self->mCategoryCombo->getSelectedValue());
 	S32  landing_type_index	= self->mLandingTypeCombo->getCurrentIndex();
 	LLUUID snapshot_id		= self->mSnapshotCtrl->getImageAssetID();
 	LLViewerRegion* region;

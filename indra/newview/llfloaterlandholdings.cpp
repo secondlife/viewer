@@ -41,13 +41,14 @@
 #include "message.h"
 
 #include "llagent.h"
+#include "llbutton.h"
 #include "llfloatergroupinfo.h"
 #include "llfloaterworldmap.h"
-//#include "llinventoryview.h"	// for mOpenNextNewItem
+#include "llproductinforequest.h"
+#include "llscrolllistctrl.h"
 #include "llstatusbar.h"
 #include "lltextbox.h"
-#include "llscrolllistctrl.h"
-#include "llbutton.h"
+#include "lltrans.h"
 #include "lluiconstants.h"
 #include "llviewermessage.h"
 #include "lluictrlfactory.h"
@@ -192,7 +193,9 @@ void LLFloaterLandHoldings::processPlacesReply(LLMessageSystem* msg, void**)
 	F32		global_x;
 	F32		global_y;
 	std::string	sim_name;
-
+	std::string land_sku;
+	std::string land_type;
+	
 	S32 i;
 	S32 count = msg->getNumberOfBlocks("QueryData");
 	for (i = 0; i < count; i++)
@@ -206,6 +209,18 @@ void LLFloaterLandHoldings::processPlacesReply(LLMessageSystem* msg, void**)
 		msg->getF32("QueryData", "GlobalX", global_x, i);
 		msg->getF32("QueryData", "GlobalY", global_y, i);
 		msg->getString("QueryData", "SimName", sim_name, i);
+
+		if ( msg->getSizeFast(_PREHASH_QueryData, i, _PREHASH_ProductSKU) > 0 )
+		{
+			msg->getStringFast(	_PREHASH_QueryData, _PREHASH_ProductSKU, land_sku, i);
+			llinfos << "Land sku: " << land_sku << llendl;
+			land_type = LLProductInfoRequestManager::instance().getDescriptionForSku(land_sku);
+		}
+		else
+		{
+			land_sku.clear();
+			land_type = LLTrans::getString("land_type_unknown");
+		}
 		
 		self->mActualArea += actual_area;
 		self->mBillableArea += billable_area;
@@ -225,7 +240,7 @@ void LLFloaterLandHoldings::processPlacesReply(LLMessageSystem* msg, void**)
 		{
 			area = llformat("%d / %d", billable_area, actual_area);
 		}
-
+		
 		std::string hidden;
 		hidden = llformat("%f %f", global_x, global_y);
 
@@ -233,19 +248,26 @@ void LLFloaterLandHoldings::processPlacesReply(LLMessageSystem* msg, void**)
 		element["columns"][0]["column"] = "name";
 		element["columns"][0]["value"] = name;
 		element["columns"][0]["font"] = "SANSSERIF";
+		
 		element["columns"][1]["column"] = "location";
 		element["columns"][1]["value"] = location;
 		element["columns"][1]["font"] = "SANSSERIF";
+		
 		element["columns"][2]["column"] = "area";
 		element["columns"][2]["value"] = area;
 		element["columns"][2]["font"] = "SANSSERIF";
-		element["columns"][3]["column"] = "hidden";
-		element["columns"][3]["value"] = hidden;
+		
+		element["columns"][3]["column"] = "type";
+		element["columns"][3]["value"] = land_type;
 		element["columns"][3]["font"] = "SANSSERIF";
+		
+		// hidden is always last column
+		element["columns"][4]["column"] = "hidden";
+		element["columns"][4]["value"] = hidden;
 
 		list->addElement(element);
 	}
-
+	
 	self->refreshAggregates();
 }
 
@@ -257,7 +279,8 @@ void LLFloaterLandHoldings::buttonCore(S32 which)
 	S32 index = list->getFirstSelectedIndex();
 	if (index < 0) return;
 
-	std::string location = list->getSelectedItemLabel(3);
+	// hidden is always last column
+	std::string location = list->getSelectedItemLabel(list->getNumColumns()-1);
 
 	F32 global_x = 0.f;
 	F32 global_y = 0.f;

@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="buy land" title="Compra terra">
+	<text name="region_name_label">
+		Regione:
+	</text>
+	<text name="region_name_text">
+		(sconosciuto)
+	</text>
+	<text name="estate_name_label">
+		Proprietà:
+	</text>
+	<text name="estate_name_text">
+		(sconosciuto)
+	</text>
+	<text name="estate_owner_label">
+		Proprietario della regione
+	</text>
+	<text name="estate_owner_text">
+		(sconosciuto)
+	</text>
+	<text name="resellable_changeable_label">
+		Terra acquistata in questa regione:
+	</text>
+	<text name="resellable_clause">
+		La terra acquistata in questa regione può o non può essere rivenduta
+	</text>
+	<text name="changeable_clause">
+		Può o non può essere unita o suddivisa.
+	</text>
+	<text name="covenant_text">
+		Devi accettare il regolamento della regione:
+	</text>
+	<text_editor name="covenant_editor">
+		Attendi...
+	</text_editor>
+	<check_box label="Accetto il regolamento succitato." name="agree_covenant"/>
+	<text name="info_parcel_label">
+		Terreno:
+	</text>
+	<text name="info_parcel">
+		Scotopteryx 138,204
+	</text>
+	<text name="info_size_label">
+		Grandezza:
+	</text>
+	<text name="info_size">
+		1024 sq. m.
+	</text>
+	<text name="info_price_label">
+		Prezzo:
+	</text>
+	<text name="info_price">
+		1500 L$, oggetti inclusi
+	</text>
+	<text name="info_action">
+		Comprando questa terra:
+	</text>
+	<text name="error_message">
+		Qualcosa non è andato a buon fine.
+	</text>
+	<button label="Vai al sito" name="error_web"/>
+	<text name="account_action">
+		Trasforma il tuo avatar in un membro premium.
+	</text>
+	<text name="account_reason">
+		Solo i membri premium possono possedere terra.
+	</text>
+	<combo_box name="account_level">
+		<combo_item name="US$9.95/month,billedmonthly">
+			9.95 US$/mese, addebitati mensilmente
+		</combo_item>
+		<combo_item name="US$7.50/month,billedquarterly">
+			7.50 US$/mese, addebitati ogni quadrimestre
+		</combo_item>
+		<combo_item name="US$6.00/month,billedannually">
+			6.00 US$/mese, addebitati annualmente
+		</combo_item>
+	</combo_box>
+	<text name="land_use_action">
+		Aumenta il tasso di pagamento mensile delle tasse d&apos;uso della terra a 40 US$/mese.
+	</text>
+	<text name="land_use_reason">
+		Possiedi 1.309 metri quadri di terra. 
+Questo appezzamento è di 512 metri quadri.
+	</text>
+	<text name="purchase_action">
+		Paga il residente Joe 4000 L$ per la terra
+	</text>
+	<text name="currency_reason">
+		Possiedi 2.100 L$.
+	</text>
+	<text name="currency_action">
+		Compra ulteriori L$
+	</text>
+	<line_editor name="currency_amt">
+		1000
+	</line_editor>
+	<text name="currency_est">
+		per circa [AMOUNT2] US$
+	</text>
+	<text name="currency_balance">
+		Possiedi 2.100 L$.
+	</text>
+	<check_box label="Rimuovi [AMOUNT] metri quadri di contribuzione dal gruppo." name="remove_contribution"/>
+	<button label="Compra" name="buy_btn"/>
+	<button label="Annulla" name="cancel_btn"/>
+	<string name="can_resell">
+		Può essere rivenduta.
+	</string>
+	<string name="can_not_resell">
+		Può non essere rivenduta.
+	</string>
+	<string name="can_change">
+		Può essere unita o suddivisa.
+	</string>
+	<string name="can_not_change">
+		Non può essere unita o suddivisa.
+	</string>
+	<string name="cant_buy_for_group">
+		Non hai il permesso di comprare terra per il tuo gruppo attivo.
+	</string>
+	<string name="no_land_selected">
+		Nessuna terra selezionata.
+	</string>
+	<string name="multiple_parcels_selected">
+		Hai selezionato appezzamenti diversi. 
+Prova a selezionare un&apos;area più piccola.
+	</string>
+	<string name="no_permission">
+		Non hai il permesso di comprare terra per il tuo gruppo attivo.
+	</string>
+	<string name="parcel_not_for_sale">
+		Il terreno selezionato non è in vendita.
+	</string>
+	<string name="group_already_owns">
+		Il gruppo possiede già il terreno.
+	</string>
+	<string name="you_already_own">
+		Possiedi già il terreno.
+	</string>
+	<string name="set_to_sell_to_other">
+		Il terreno selezionato è già impostato per la vendita ad un altro gruppo.
+	</string>
+	<string name="no_public_land">
+		L&apos;area selezionata non è pubblica.
+	</string>
+	<string name="not_owned_by_you">
+		Hai selezionato una terra posseduta da un altro utente. 
+Prova a selezionare un&apos;area più piccola.
+	</string>
+	<string name="processing">
+		Stiamo elaborando il tuo acquisto...
+ 
+(Potrebbe volerci un minuto o due.)
+	</string>
+	<string name="fetching_error">
+		C&apos;e stato un errore mentre si stavano ottenendo le informazioni sull&apos;acquisto della terra.
+	</string>
+	<string name="buying_will">
+		Comprando questa terra:
+	</string>
+	<string name="buying_for_group">
+		Comprando questa terra per il gruppo:
+	</string>
+	<string name="cannot_buy_now">
+		Non puoi comprare ora:
+	</string>
+	<string name="not_for_sale">
+		Non in vendita:
+	</string>
+	<string name="none_needed">
+		nessuno necessario
+	</string>
+	<string name="must_upgrade">
+		Il tuo tipo di account ha bisogno di un upgrade per possedere terra.
+	</string>
+	<string name="cant_own_land">
+		Il tuo account può possedere terra.
+	</string>
+	<string name="land_holdings">
+		Possiedi [BUYER] di metri quadri di terra.
+	</string>
+	<string name="pay_to_for_land">
+		Paga [AMOUNT] L$ a [SELLER] per questa terra
+	</string>
+	<string name="buy_for_US">
+		Compra [AMOUNT] L$ per appross. [AMOUNT2] US$,
+	</string>
+	<string name="parcel_meters">
+		Questo terreno è di [AMOUNT] metri quadri.
+	</string>
+	<string name="premium_land">
+		Questa terra è premium, e sarà  addebitata come [AMOUNT] metri quadri.
+	</string>
+	<string name="discounted_land">
+		Questa terra è scontata, e sarà  addebitata come [AMOUNT] metri quadri.
+	</string>
+	<string name="meters_supports_object">
+		[AMOUNT] metri quadri
+supporta [AMOUNT2] oggetti
+	</string>
+	<string name="sold_with_objects">
+		venduta con oggetti
+	</string>
+	<string name="insufficient_land_credits">
+		Il gruppo [GROUP] avrà bisogno di contribuzioni anticipate, mediante crediti d&apos;uso terriero,
+sufficienti a coprire l&apos;area del terreno prima che l&apos;acquisto
+sia completato.
+	</string>
+	<string name="have_enough_lindens">
+		Hai [AMOUNT] L$, che sono sufficienti per comprare questa terra.
+	</string>
+	<string name="not_enough_lindens">
+		Hai solo [AMOUNT] L$, ed hai bisogno di altri [AMOUNT2] L$.
+	</string>
+	<string name="balance_left">
+		Dopo l&apos;acquisto, ti rimarranno [AMOUNT] L$.
+	</string>
+	<string name="balance_needed">
+		Hai bisogno di acquistare almeno [AMOUNT] L$ per comprare questo terreno.
+	</string>
+	<string name="no_parcel_selected">
+		(nessun terreno selezionato)
+	</string>
+	<string name="buy_currency">
+		Compra [LINDENS] L$ per appross. [USD] US$
+	</string>
+</floater>

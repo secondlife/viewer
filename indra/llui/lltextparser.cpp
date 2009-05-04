@@ -121,7 +121,7 @@ S32 LLTextParser::findPattern(const std::string &text, LLSD highlight)
 		pattern= utf8str_tolower(pattern);
 	}
 
-	S32 found=std::string::npos;
+	size_t found=std::string::npos;
 	
 	switch ((S32)highlight["condition"])
 	{

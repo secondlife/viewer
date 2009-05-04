@@ -953,13 +953,6 @@ void init_client_menu(LLMenuGL* menu)
 										&menu_check_control,
 										(void*)"SaveMinidump"));
 
-	// TomY Temporary menu item so we can test this floater
-	menu->append(new LLMenuItemCheckGL("Clothing...", 
-												&handle_clothing,
-												NULL,
-												NULL,
-												NULL));
-
 	menu->append(new LLMenuItemCallGL("Debug Settings...", LLFloaterSettingsDebug::show, NULL, NULL));
 	menu->append(new LLMenuItemCheckGL("View Admin Options", &handle_admin_override_toggle, NULL, &check_admin_override, NULL, 'V', MASK_CONTROL | MASK_ALT));
 
@@ -1369,8 +1362,14 @@ void init_debug_avatar_menu(LLMenuGL* menu)
 	//menu->append(new LLMenuItemToggleGL("Show Attachment Points", &LLVOAvatar::sShowAttachmentPoints));
 	//diabling collision plane due to DEV-14477 -brad
 	//menu->append(new LLMenuItemToggleGL("Show Collision Plane", &LLVOAvatar::sShowFootPlane));
-	menu->append(new LLMenuItemToggleGL("Show Collision Skeleton", &LLVOAvatar::sShowCollisionVolumes));
-	menu->append(new LLMenuItemToggleGL( "Display Agent Target", &LLAgent::sDebugDisplayTarget));
+	menu->append(new LLMenuItemCheckGL("Show Collision Skeleton",
+									   &LLPipeline::toggleRenderDebug, NULL,
+									   &LLPipeline::toggleRenderDebugControl,
+									   (void*)LLPipeline::RENDER_DEBUG_AVATAR_VOLUME));
+	menu->append(new LLMenuItemCheckGL("Display Agent Target",
+									   &LLPipeline::toggleRenderDebug, NULL,
+									   &LLPipeline::toggleRenderDebugControl,
+									   (void*)LLPipeline::RENDER_DEBUG_AGENT_TARGET));
 	menu->append(new LLMenuItemToggleGL( "Debug Rotation", &LLVOAvatar::sDebugAvatarRotation));
 	menu->append(new LLMenuItemCallGL("Dump Attachments", handle_dump_attachments));
 	menu->append(new LLMenuItemCallGL("Rebake Textures", handle_rebake_textures, NULL, NULL, 'R', MASK_ALT | MASK_CONTROL ));
@@ -4032,18 +4031,6 @@ BOOL sitting_on_selection()
 	return (avatar->mIsSitting && avatar->getRoot() == root_object);
 }
 
-class LLToolsSaveToInventory : public view_listener_t
-{
-	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
-	{
-		if(enable_save_into_inventory(NULL))
-		{
-			derez_objects(DRD_SAVE_INTO_AGENT_INVENTORY, LLUUID::null);
-		}
-		return true;
-	}
-};
-
 class LLToolsSaveToObjectInventory : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
@@ -6423,16 +6410,6 @@ BOOL enable_save_into_inventory(void*)
 	return FALSE;
 }
 
-class LLToolsEnableSaveToInventory : public view_listener_t
-{
-	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
-	{
-		bool new_value = enable_save_into_inventory(NULL);
-		gMenuHolder->findControl(userdata["control"].asString())->setValue(new_value);
-		return true;
-	}
-};
-
 BOOL enable_save_into_task_inventory(void*)
 {
 	LLSelectNode* node = LLSelectMgr::getInstance()->getSelection()->getFirstRootNode();
@@ -7547,7 +7524,6 @@ void initialize_menus()
 	addMenu(new LLToolsLookAtSelection(), "Tools.LookAtSelection");
 	addMenu(new LLToolsBuyOrTake(), "Tools.BuyOrTake");
 	addMenu(new LLToolsTakeCopy(), "Tools.TakeCopy");
-	addMenu(new LLToolsSaveToInventory(), "Tools.SaveToInventory");
 	addMenu(new LLToolsSaveToObjectInventory(), "Tools.SaveToObjectInventory");
 	addMenu(new LLToolsSelectedScriptAction(), "Tools.SelectedScriptAction");
 
@@ -7556,7 +7532,6 @@ void initialize_menus()
 	addMenu(new LLToolsEnableUnlink(), "Tools.EnableUnlink");
 	addMenu(new LLToolsEnableBuyOrTake(), "Tools.EnableBuyOrTake");
 	addMenu(new LLToolsEnableTakeCopy(), "Tools.EnableTakeCopy");
-	addMenu(new LLToolsEnableSaveToInventory(), "Tools.EnableSaveToInventory");
 	addMenu(new LLToolsEnableSaveToObjectInventory(), "Tools.EnableSaveToObjectInventory");
 
 	/*addMenu(new LLToolsVisibleBuyObject(), "Tools.VisibleBuyObject");

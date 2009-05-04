@@ -57,7 +57,7 @@
 		Normal
 	</string>
 	<string name="client_draw_distance_cause_msg">
-		Causa possível: Distância do desenho ajustada muito alta
+		Causa possível: Distância de desenho ajustada muito alta
 	</string>
 	<string name="client_texture_loading_cause_msg">
 		Causa possível: Carregamento de Imagens
@@ -102,7 +102,7 @@
 		Possível conexão ruim ou &apos;Largura de Banda&apos; escolhida muito alta.
 	</string>
 	<string name="network_ping_cause_msg">
-		Possível conexão ruim ou aplic. compartilhando arquivos.
+		Possível conexão ruim ou aplicativos compartilhando arquivos.
 	</string>
 	<string name="server_text_msg">
 		Servidor

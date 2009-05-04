@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="beacons" title="Segnali luminosi">
+	<panel name="beacons_panel">
+		<check_box label="Oggetti scriptati con solo &apos;tocca&apos; abilitato" name="touch_only"/>
+		<check_box label="Oggetti scriptati" name="scripted"/>
+		<check_box label="Oggetti fisici" name="physical"/>
+		<check_box label="Sorgenti di suoni" name="sounds"/>
+		<check_box label="Sorgenti di particelle" name="particles"/>
+		<check_box label="Visualizza l&apos;evidenziato" name="highlights"/>
+		<check_box label="Visualizza segnali" name="beacons"/>
+		<text name="beacon_width_label">
+			Ampiezza segnali:
+		</text>
+	</panel>
+</floater>

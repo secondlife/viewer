@@ -1,17 +1,17 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="settings_debug" title="Debug configurações">
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="settings_debug" title="Configurações de Debug">
 	<combo_box name="boolean_combo">
 		<combo_item name="TRUE">
-			Verdadeiro
+			VERDADEIRO
 		</combo_item>
 		<combo_item name="FALSE">
 			FALSO
 		</combo_item>
 	</combo_box>
-	<color_swatch label="Cor" name="color_swatch" />
-	<spinner label="x" name="val_spinner_1" />
-	<spinner label="x" name="val_spinner_2" />
-	<spinner label="x" name="val_spinner_3" />
-	<spinner label="x" name="val_spinner_4" />
-	<button label="Restaurar padrão" name="default_btn" />
+	<color_swatch label="Cor" name="color_swatch"/>
+	<spinner label="x" name="val_spinner_1"/>
+	<spinner label="x" name="val_spinner_2"/>
+	<spinner label="x" name="val_spinner_3"/>
+	<spinner label="x" name="val_spinner_4"/>
+	<button label="Restaurar padrão" name="default_btn"/>
 </floater>

@@ -1,0 +1,5770 @@
+<?xml version="1.0" ?><notifications>
+
+  <global name="skipnexttime">
+
+		Nicht mehr anzeigen
+  </global>
+
+  <global name="alwayschoose">
+
+		Diese Option immer auswählen
+  </global>
+
+  <template name="okbutton">
+    <form>
+      <button
+       
+       
+       name="OK"
+       text="$yestext"/>
+    </form>
+  </template>
+
+  <template name="okignore">
+    <form>
+      <button
+       
+       
+       name="OK"
+       text="$yestext"/>
+      <ignore text="$ignoretext"/>
+    </form>
+  </template>
+
+  <template name="okcancelbuttons">
+    <form>
+      <button
+       
+       
+       name="OK"
+       text="$yestext"/>
+      <button
+       
+       name="Cancel"
+       text="$notext"/>
+    </form>
+  </template>
+
+  <template name="okcancelignore">
+    <form>
+      <button
+       
+       
+       name="OK"
+       text="$yestext"/>
+      <button
+       
+       name="Cancel"
+       text="$notext"/>
+      <ignore text="$ignoretext"/>
+    </form>
+  </template>
+
+  <template name="okhelpbuttons">
+    <form>
+      <button
+       
+       
+       name="OK"
+       text="$yestext"/>
+      <button
+       
+       name="Help"
+       text="$helptext"/>
+    </form>
+  </template>
+
+  <template name="yesnocancelbuttons">
+    <form>
+      <button
+       
+       
+       name="Yes"
+       text="$yestext"/>
+      <button
+       
+       name="No"
+       text="$notext"/>
+      <button
+       
+       name="Cancel"
+       text="$canceltext"/>
+    </form>
+  </template>
+
+  <notification
+   functor="GenericAcknowledge"
+   
+   name="MissingAlert"
+   >
+Der Fehler „[_NAME]“ fehlt in notifications.xml.
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="FloaterNotFound"
+   >
+Floater-Fehler: Folgende Steuerelemente wurden nicht gefunden:
+
+[CONTROLS]
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="TutorialNotFound"
+   >
+Derzeit ist kein Tutorial verfügbar.
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="GenericAlert"
+   >
+[MESSAGE]
+  </notification>
+
+  <notification
+   
+   name="GenericAlertYesCancel"
+   >
+[MESSAGE]
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="Ja"/>
+  </notification>
+
+  <notification
+   
+   name="WearableSave"
+   >
+Änderung an aktueller Kleidung/Körperteil speichern?
+    <usetemplate
+     canceltext="Abbrechen"
+     name="yesnocancelbuttons"
+     notext="Nicht speichern"
+     yestext="Speichern"/>
+  </notification>
+
+  <notification
+   
+   name="CompileQueueSaveText"
+   >
+Der Text für ein Skript konnte aus folgendem Grund nicht hochgeladen werden: [REASON]. Bitte versuchen Sie es erneut.
+  </notification>
+
+  <notification
+   
+   name="CompileQueueSaveBytecode"
+   >
+Eine kompiliertes Skript konnte aus folgendem Grund nicht hochgeladen werden: [REASON]. Bitte versuchen Sie es erneut.
+  </notification>
+
+  <notification
+   
+   name="WriteAnimationFail"
+   >
+Fehler beim Schreiben von Animationsdaten.  Bitte versuchen Sie es erneut.
+  </notification>
+
+  <notification
+   
+   name="UploadAuctionSnapshotFail"
+   >
+Eine Auktions-Screenshot konnte aus folgendem Grund nicht hochgeladen werden: [REASON]
+  </notification>
+
+  <notification
+   
+   name="UnableToViewContentsMoreThanOne"
+   >
+Es kann nur jeweils der Inhalt von einem Objekt angezeigt werden.
+Wählen Sie ein einzelnes Objekt aus und versuchen Sie es erneut.
+  </notification>
+
+  <notification
+   
+   name="SaveClothingBodyChanges"
+   >
+Änderung an Kleidung/Körperteilen speichern?
+    <usetemplate
+     canceltext="Abbrechen"
+     name="yesnocancelbuttons"
+     notext="Nicht speichern"
+     yestext="Alles speichern"/>
+  </notification>
+
+  <notification
+   
+   name="GrantModifyRights"
+   >
+Die Gewährung von Änderungsrechten an andere Einwohner ermöglicht es diesen, JEDES BELIEBIGE Objekt zu ändern oder an sich zu nehmen, das Sie in der Second Life-Welt besitzen. Seien Sie SEHR vorsichtig beim Erteilen dieser Erlaubnis.
+Möchten Sie [FIRST_NAME] [LAST_NAME] Änderungsrechte gewähren?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Nein"
+     yestext="Ja"/>
+  </notification>
+
+  <notification
+   
+   name="GrantModifyRightsMultiple"
+   >
+Die Gewährung von Änderungsrechten an andere Einwohner ermöglicht es diesen, JEDES BELIEBIGE Objekt zu ändern, das Sie in der Second Life-Welt besitzen. Seien Sie SEHR vorsichtig beim Erteilen dieser Erlaubnis.
+Möchten Sie den ausgewählten Einwohnern Änderungsrechte gewähren?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Nein"
+     yestext="Ja"/>
+  </notification>
+
+  <notification
+   
+   name="RevokeModifyRights"
+   >
+Möchten Sie [FIRST_NAME] [LAST_NAME] die Änderungsrechte entziehen?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Nein"
+     yestext="Ja"/>
+  </notification>
+
+  <notification
+   
+   name="RevokeModifyRightsMultiple"
+   >
+Möchten Sie den ausgewählten Einwohnern die Änderungsrechte entziehen?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Nein"
+     yestext="Ja"/>
+  </notification>
+
+  <notification
+   
+   name="UnableToCreateGroup"
+   >
+Gruppe konnte nicht erstellt werden.
+[MESSAGE]
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="PanelGroupApply"
+   >
+[NEEDS_APPLY_MESSAGE]
+[WANT_APPLY_MESSAGE]
+    <usetemplate
+     canceltext="Abbrechen"
+     name="yesnocancelbuttons"
+     notext="Änderungen verwerfen"
+     yestext="Änderungen übernehmen"/>
+  </notification>
+
+  <notification
+   
+   name="MustSpecifyGroupNoticeSubject"
+   >
+Geben Sie einen Betreff für die Gruppenmitteilung ein.
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="AddGroupOwnerWarning"
+   >
+Sie sind im Begriff, Gruppenmitgliedern die Rolle [ROLE_NAME] zuzuweisen.
+Diese Rolle kann Mitgliedern nicht mehr entzogen werden.
+Sie müssen die Rolle selbst niederlegen.
+Möchten Sie fortfahren?
+    <usetemplate
+     ignoretext="Beim Hinzufügen von Gruppenmitgliedern zur Eigentümerrolle"
+     name="okcancelignore"
+     notext="Nein"
+     yestext="Ja"/>
+  </notification>
+
+  <notification
+   
+   name="AssignDangerousActionWarning"
+   >
+Sie sind im Begriff, der Rolle „[ROLE_NAME]“ die Fähigkeit „[ACTION_NAME]“ zuzuweisen.
+
+ *ACHTUNG*
+ Mitglieder in einer Rolle mit dieser Fähigkeit können sich selbst -
+ und allen anderen Mitgliedern – Rollen zuweisen, die mehr Rechte
+ beinhalten als sie derzeit haben, und damit nahezu
+ Eigentümerrechte erreichen. Überlegen Sie sich, wem Sie diese Fähigkeit
+ verleihen.
+
+Der Rolle „[ROLE_NAME]“ diese Fähigkeit zuweisen?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Nein"
+     yestext="Ja"/>
+  </notification>
+
+  <notification
+   
+   name="AssignDangerousAbilityWarning"
+   >
+Sie sind im Begriff, der Rolle „[ROLE_NAME]“ die Fähigkeit „[ACTION_NAME]“ zuzuweisen.
+
+ *ACHTUNG*
+ Mitglieder in einer Rolle mit dieser Fähigkeit können sich selbst -
+ und allen anderen Mitgliedern – alle Fähigkeiten zuweisen und
+ damit fast Eigentümerrechte erreichen.
+
+Der Rolle „[ROLE_NAME]“ diese Fähigkeit zuweisen?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Nein"
+     yestext="Ja"/>
+  </notification>
+
+  <notification
+   
+   name="ClickPublishHelpLand"
+   >
+Auswahl von „In Suche veröffentlichen“
+Dieses Kontrollkästchen zeigt Folgendes an:
+- diese Parzelle in den Suchergebnissen
+- die öffentlichen Objekte dieser Parzelle
+- diese Parzelle in der Websuche
+  </notification>
+
+  <notification
+   
+   name="ClickPublishHelpLandDisabled"
+   >
+Diese Parzelle kann nicht in der Suche angezeigt werden, da sie sich in einer Region befindet, die das verbietet.
+  </notification>
+
+  <notification
+   
+   name="ClickPublishHelpAvatar"
+   >
+Auswahl von „In Suche anzeigen“ zeigt Folgendes an:
+- Ihr Profil in den Suchergebnissen
+- einen Link auf Ihr Profil in den öffentlichen Gruppenseiten
+  </notification>
+
+  <notification
+   
+   name="ClickPartnerHelpAvatar"
+   >
+Auf der [SECOND_LIFE] Website können Sie anderen Einwohnern eine Partnerschaft vorschlagen und bestehende Partnerschaften lösen.
+
+Die Second Life Website für weitere Informationen über Partnerschaften öffnen?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="Gehe zu Seite"/>
+  </notification>
+
+  <notification
+   
+   name="ClickWebProfileHelpAvatar"
+   >
+Wenn dieser Einwohner einen Webprofil-URL angegeben hat, können Sie:
+ * Auf „Laden“ klicken und die Seite in dieser Web-Registerkarte anzeigen.
+ * Auf Laden &gt; „In externem Browser“ klicken und die Seite im Standard-Browser anzeigen.
+ * Auf Laden &gt; „Start-URL“ klicken und zum Webprofil des Bewohners zurückkehren.
+
+In Ihrem eigenen Profil können Sie jeden beliebigen URL als Ihr Webprofil eingeben und mit OK übernehmen.
+Wenn sich andere Einwohner Ihr Profil ansehen, können sie diesen URL besuchen.
+  </notification>
+
+  <notification
+   
+   name="JoinGroupCanAfford"
+   >
+Der Beitritt zu dieser Gruppe kostet [COST] L$.
+Fortfahren?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="Beitreten"/>
+  </notification>
+
+  <notification
+   
+   name="JoinGroupCannotAfford"
+   >
+Der Beitritt zu dieser Gruppe kostet [COST] L$.
+Sie haben nicht genug L$, um dieser Gruppe beizutreten.
+  </notification>
+
+  <notification
+   
+   name="LandBuyPass"
+   >
+Sie können dieses Land („[PARCEL_NAME]“) für [COST] L$
+[TIME] Stunden lang betreten.  Pass kaufen?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="SalePriceRestriction"
+   >
+Der Verkaufspreis muss beim allgemeinen Verkauf über 0 L$ liegen.
+Wählen Sie eine bestimmte Person aus, wenn Sie für 0 L$ verkaufen.
+  </notification>
+
+  <notification
+   
+   name="ConfirmLandSaleChange"
+   
+   >
+Die ausgewählten [LAND_SIZE] qm Land werden zum Verkauf freigegeben.
+Der Verkaufspreis beträgt [SALE_PRICE] L$ und wird automatisch für den Verkauf an [NAME] autorisiert.
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="ConfirmLandSaleToAnyoneChange"
+   >
+ACHTUNG: Wenn Sie auf „An jeden verkaufen“ klicken, kann jeder in Second Life Ihr Land kaufen, auch Einwohner in anderen Regionen.
+
+Die ausgewählten [LAND_SIZE] qm Land werden zum Verkauf freigegeben.
+Der Verkaufspreis beträgt [SALE_PRICE] L$ und wird automatisch für den Verkauf an [NAME] autorisiert.
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="ReturnObjectsDeededToGroup"
+   >
+Möchten Sie alle Ihre Objekte auf dieser Parzelle, die der Gruppe „[NAME]“ gehören, zurück in das jeweilige Inventar ihrer vorherigen Eigentümer transferieren?
+
+*WARNUNG* Alle nicht transferierbaren Objekte, die der Gruppe übertragen wurden, werden dabei gelöscht!
+
+Objekte: [N]
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="ReturnObjectsOwnedByUser"
+   >
+Möchten Sie alle Objekte auf dieser Parzelle, die dem Einwohner „[NAME]“ gehören, in das jeweilige Inventar ihrer Eigentümer transferieren?
+
+Objekte: [N]
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="ReturnObjectsOwnedBySelf"
+   >
+Möchten Sie alle Objekte auf dieser Parzelle, die Ihnen gehören, zurück in Ihr Inventar transferieren?
+
+Objekte: [N]
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="ReturnObjectsNotOwnedBySelf"
+   >
+Möchten Sie alle Objekte auf dieser Parzelle, die NICHT Ihnen gehören, in das Inventar ihrer Eigentümer transferieren?
+Transferierbare Objekte, die an eine Gruppe übertragen wurden, werden ihren vorherigen Eigentümern zurückgegeben.
+
+*WARNUNG* Alle nicht transferierbaren Objekte, die der Gruppe übertragen wurden, werden dabei gelöscht!
+
+Objekte: [N]
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="ReturnObjectsNotOwnedByUser"
+   >
+Möchten Sie alle Objekte auf dieser Parzelle, die NICHT [NAME] gehören, in das Inventar ihrer Eigentümer transferieren?
+Transferierbare Objekte, die an eine Gruppe übertragen wurden, werden ihren vorherigen Eigentümern zurückgegeben.
+
+*WARNUNG* Alle nicht transferierbaren Objekte, die der Gruppe übertragen wurden, werden dabei gelöscht!
+
+Objekte: [N]
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="ReturnAllTopObjects"
+   >
+Möchten Sie alle aufgeführten Objekte ihren Eigentümern zurückgeben?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="DisableAllTopObjects"
+   >
+Möchten Sie alle Objekte in dieser Region deaktivieren?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="ReturnObjectsNotOwnedByGroup"
+   >
+Objekte auf dieser Parzelle, die von der Gruppe [NAME] nicht gemeinsam genutzt werden, an ihre Eigentümer zurückgeben?
+
+Objekte: [N]
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="UnableToDisableOutsideScripts"
+   >
+Skriptdeaktivierung nicht möglich.
+Für die gesamte Region ist Schaden aktiviert.
+Damit Waffen funktionieren, müssen Skripts erlaubt sein.
+  </notification>
+
+  <notification
+   
+   name="MustBeInParcel"
+   >
+Sie müssen auf einer Landparzelle stehen, um ihren Landepunkt festzulegen.
+  </notification>
+
+  <notification
+   
+   name="PromptRecipientEmail"
+   >
+Bitte geben Sie für den/die Empfänger eine gültige Email-Adresse ein.
+  </notification>
+
+  <notification
+   
+   name="PromptSelfEmail"
+   >
+Geben Sie Ihre E-Mail-Adresse ein.
+  </notification>
+
+  <notification
+   
+   name="PromptMissingSubjMsg"
+   >
+Foto mit Standardbetreff bzw. -nachricht als E-Mail versenden?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="ErrorProcessingSnapshot"
+   >
+Fehler beim Verarbeiten der Fotodaten
+  </notification>
+
+  <notification
+   
+   name="ErrorEncodingSnapshot"
+   >
+Fehler beim Erstellen des Fotos!
+  </notification>
+
+  <notification
+   
+   name="ErrorUploadingPostcard"
+   >
+Ein Foto konnte aus folgendem Grund nicht gesendet werden: [REASON]
+  </notification>
+
+  <notification
+   
+   name="ErrorUploadingReportScreenshot"
+   >
+Ein Report-Screenshot konnte aus folgendem Grund nicht hochgeladen werden: [REASON]
+  </notification>
+
+  <notification
+   
+   name="MustAgreeToLogIn"
+   >
+Bevor Sie sich in [SECOND_LIFE] anmelden können, müssen Sie den Nutzungsbedingungen zustimmen.
+  </notification>
+
+  <notification
+   
+   name="CouldNotPutOnOutfit"
+   >
+Outfit konnte nicht angezogen werden.
+Der Outfit-Ordner enthält keine Kleidung, Körperteile oder Anhänge.
+  </notification>
+
+  <notification
+   
+   name="CannotWearTrash"
+   >
+Kleider oder Körperteile im Papierkorb können nicht getragen werden
+  </notification>
+
+  <notification
+   
+   name="CannotWearInfoNotComplete"
+   >
+Sie können das Objekt nicht anziehen, weil es noch nicht geladen wurde. Warten Sie kurz und versuchen Sie es dann noch einmal.
+  </notification>
+
+  <notification
+   
+   name="MustHaveAccountToLogIn"
+   >
+Hoppla! Da fehlt noch etwas.
+Geben Sie bitte den Vor- und den Nachnamen Ihres Avatars ein.
+
+Sie benötigen ein Benutzerkonto, um [SECOND_LIFE] betreten zu können. Möchten Sie jetzt ein Benutzerkonto anlegen?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Erneut versuchen"
+     yestext="Neues Benutzerkonto anlegen"/>
+  </notification>
+
+  <notification
+   
+   name="AddClassified"
+   >
+Anzeigen erscheinen für eine Woche unter „Anzeigen“ im Suchverzeichnis. Füllen Sie Ihre Anzeige aus und klicken Sie auf „Veröffentlichen...“, um sie zum Verzeichnis hinzuzufügen. Sie werden gebeten, einen Preis zu bezahlen, wenn Sie auf „Veröffentlichen“ klicken. Wenn Sie mehr bezahlen oder ein Benutzer nach Ihren Suchbegriffen sucht, erscheint Ihre Anzeige weiter oben in der Liste.
+    <usetemplate
+     ignoretext="Beim Hinzufügen einer neuen Anzeige"
+     name="okcancelignore"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="DeleteClassified"
+   >
+Anzeige „[NAME]“ löschen?
+Gebühren werden nicht rückerstattet.
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="ClassifiedSave"
+   >
+Änderung an Anzeige [NAME] speichern?
+    <usetemplate
+     canceltext="Abbrechen"
+     name="yesnocancelbuttons"
+     notext="Nicht speichern"
+     yestext="Speichern"/>
+  </notification>
+
+  <notification
+   
+   name="DeleteAvatarPick"
+   >
+Auswahl [PICK] löschen?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="PromptGoToEventsPage"
+   >
+Zur [SECOND_LIFE] Events-Webseite?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="SelectProposalToView"
+   >
+Wählen Sie ein Angebot zur Ansicht.
+  </notification>
+
+  <notification
+   
+   name="SelectHistoryItemToView"
+   >
+Wählen Sie ein Element zur Ansicht.
+  </notification>
+
+  <notification
+   
+   name="ResetShowNextTimeDialogs"
+   >
+Möchten Sie alle Popups wieder aktivieren, die Sie zuvor auf „Nicht mehr anzeigen“ gesetzt haben?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="SkipShowNextTimeDialogs"
+   >
+Möchten Sie alle Popups, die übersprungen werden können, deaktivieren?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="CacheWillClear"
+   >
+Der Cache wird nach einem Neustart von [SECOND_LIFE] geleert.
+  </notification>
+
+  <notification
+   
+   name="CacheWillBeMoved"
+   >
+Der Cache wird nach einem Neustart von [SECOND_LIFE] verschoben.
+Hinweis: Der Cache wird dabei gelöscht/geleert.
+  </notification>
+
+  <notification
+   
+   name="ChangeConnectionPort"
+   >
+Die Port-Einstellungen werden nach einem Neustart von [SECOND_LIFE] wirksam.
+  </notification>
+
+
+
+  <notification
+   
+   name="GoToAuctionPage"
+   >
+Zur [SECOND_LIFE]-Webseite, um Auktionen anzuzeigen oder ein Gebot abzugeben?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="SaveChanges"
+   >
+Änderungen speichern?
+    <usetemplate
+     canceltext="Abbrechen"
+     name="yesnocancelbuttons"
+     notext="Nicht speichern"
+     yestext="Speichern"/>
+  </notification>
+
+  <notification
+   
+   name="GestureSaveFailedTooManySteps"
+   >
+Speichern der Geste fehlgeschlagen.
+Die Geste besteht aus zu vielen Schritten.
+Löschen Sie einige Schritte und versuchen Sie es erneut.
+  </notification>
+
+  <notification
+   
+   name="GestureSaveFailedTryAgain"
+   >
+Speichern der Geste fehlgeschlagen.  Warten Sie kurz und versuchen Sie es dann noch einmal.
+  </notification>
+
+  <notification
+   
+   name="GestureSaveFailedObjectNotFound"
+   >
+Geste konnte nicht gespeichert werden, da das Objekt oder das zugehörige Objektinventar nicht gefunden wurden.
+Das Objekt ist möglicherweise außer Reichweite oder wurde gelöscht.
+  </notification>
+
+  <notification
+   
+   name="GestureSaveFailedReason"
+   >
+Eine Geste konnte aus folgendem Grund nicht gespeichert werden: [REASON].  Speichern Sie die Geste bitte später.
+  </notification>
+
+  <notification
+   
+   name="SaveNotecardFailObjectNotFound"
+   >
+Notizkarte konnte nicht gespeichert werden, da das Objekt oder das zugehörige Objektinventar nicht gefunden wurden.
+Das Objekt ist möglicherweise außer Reichweite oder wurde gelöscht.
+  </notification>
+
+  <notification
+   
+   name="SaveNotecardFailReason"
+   >
+Eine Notizkarte konnte aus folgendem Grund nicht gespeichert werden: [REASON].  Speichern Sie die Notizkarte bitte später.
+  </notification>
+
+  <notification
+   
+   name="ScriptCannotUndo"
+   >
+Es konnten nicht alle Änderungen in Ihrer Skriptversion rückgängig gemacht werden.
+Möchten Sie die letzte gespeicherte Version vom Server laden?
+(**Warnung** Dieser Vorgang kann nicht rückgängig gemacht werden.)
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="SaveScriptFailReason"
+   >
+Ein Skript konnte aus folgendem Grund nicht gespeichert werden: [REASON].  Speichern Sie das Skript bitte später.
+  </notification>
+
+  <notification
+   
+   name="SaveScriptFailObjectNotFound"
+   >
+Skript konnte nicht gespeichert werden, weil das zugehörige Objekt nicht gefunden wurde.
+Das Objekt ist möglicherweise außer Reichweite oder wurde gelöscht.
+  </notification>
+
+  <notification
+   
+   name="SaveBytecodeFailReason"
+   >
+Ein kompiliertes Skript konnte aus folgendem Grund nicht gespeichert werden: [REASON].  Speichern Sie das Skript bitte später.
+  </notification>
+
+  <notification
+   
+   name="CouldNotStartStopScript"
+   >
+Skript konnte nicht gestartet oder beendet werden, weil das zugehörige Objekt nicht gefunden wurde.
+Das Objekt ist möglicherweise außer Reichweite oder wurde gelöscht.
+  </notification>
+
+  <notification
+   
+   name="CannotDownloadFile"
+   >
+Dateidownload nicht möglich
+  </notification>
+
+  <notification
+   
+   name="CannotWriteFile"
+   >
+Datei [[FILE]] kann nicht geschrieben werden
+  </notification>
+
+  <notification
+   
+   name="UnsupportedHardware"
+   >
+Achtung: Ihr System erfüllt nicht die Mindestanforderungen von Second Life. Dies kann eine schlechte Darstellungsleistung in Second Life zur Folge haben. Für nicht unterstützte Systemkonfigurationen bieten wir keinen technischen Support.
+
+MINSPECS
+Die Seite [_URL] für weitere Informationen öffnen?
+    <url option="0" name="url">
+
+			http://secondlife.com/support/sysreqs.php?lang=de
+    </url>
+    <usetemplate
+     ignoretext="Bei Entdeckung nicht unterstützter Hardware"
+     name="okcancelignore"
+     notext="Nein"
+     yestext="Ja"/>
+  </notification>
+
+  <notification
+   
+   name="UnknownGPU"
+   >
+Ihr System verwendet eine uns zurzeit unbekannte Grafikkarte.
+Dies ist häufig der Fall bei neuer Hardware, die wir noch nicht testen konnten.
+Second Life funktioniert aller Voraussicht nach normal, möglicherweise müssen Sie aber die Grafikeinstellungen anpassen.
+(Bearbeiten &gt; Einstellungen &gt; Grafik).
+    <form name="form">
+      <ignore name="ignore"
+       text="Bei Entdeckung einer unbekannten Grafikkarte"/>
+    </form>
+  </notification>
+
+  <notification
+   
+   name="DisplaySettingsNoShaders"
+   >
+[SECOND_LIFE] ist bei der Initialisierung der Grafiktreiber abgestürzt.
+Die Grafikqualität wird auf eine niedrige Stufe zurückgesetzt, um einige typische Treiberfehler zu vermeiden.
+Einige Grafikfunktionen werden ausgeschaltet.
+Wir empfehlen die Aktualisierung Ihrer Grafikkartentreiber.
+Sie können die Grafikqualität unter „Einstellungen“ &gt; „Grafik“ wieder erhöhen.
+  </notification>
+
+  <notification
+   
+   name="RegionNoTerraforming"
+   >
+Die Region [REGION] erlaubt kein Terraforming.
+  </notification>
+
+  <notification
+   
+   name="CannotCopyWarning"
+   >
+Sie sind nicht berechtigt, dieses Objekt zu kopieren und verlieren es aus Ihrem Inventar, wenn Sie es weggeben. Möchten Sie dieses Objekt anbieten?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Nein"
+     yestext="Ja"/>
+  </notification>
+
+  <notification
+   
+   name="CannotGiveItem"
+   >
+Inventarobjekt kann nicht übergeben werden.
+  </notification>
+
+  <notification
+   
+   name="TransactionCancelled"
+   >
+Transaktion abgebrochen.
+  </notification>
+
+  <notification
+   
+   name="TooManyItems"
+   >
+Es können maximal 42 Objekte auf einmal in das Inventar transferiert werden.
+  </notification>
+
+  <notification
+   
+   name="NoItems"
+   >
+Sie sind nicht berechtigt, die ausgewählten Objekte zu kopieren.
+  </notification>
+
+  <notification
+   
+   name="CannotCopyCountItems"
+   >
+Sie sind nicht berechtigt, [COUNT] der ausgewählten Objekte zu kopieren. Diese Objekte werden aus Ihrem Inventar gelöscht.
+Möchten Sie diese Objekte weggeben?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Nein"
+     yestext="Ja"/>
+  </notification>
+
+  <notification
+   
+   name="CannotGiveCategory"
+   >
+Sie sind nicht berechtigt, den ausgewählten Ordner zu kopieren.
+  </notification>
+
+  <notification
+   
+   name="FreezeAvatar"
+   >
+Diesen Avatar einfrieren?
+Der Avatar wird außer Gefecht gesetzt und kann sich nicht mehr bewegen, chatten oder mit der Welt interagieren.
+    <usetemplate
+     canceltext="Abbrechen"
+     name="yesnocancelbuttons"
+     notext="Auftauen"
+     yestext="Einfrieren"/>
+  </notification>
+
+  <notification
+   
+   name="FreezeAvatarFullname"
+   >
+[AVATAR_NAME] einfrieren?
+Der Avatar wird außer Gefecht gesetzt und kann sich nicht mehr bewegen, chatten oder mit der Welt interagieren.
+    <usetemplate
+     canceltext="Abbrechen"
+     name="yesnocancelbuttons"
+     notext="Auftauen"
+     yestext="Einfrieren"/>
+  </notification>
+
+  <notification
+   
+   name="EjectAvatarFullname"
+   >
+[AVATAR_NAME] von Ihrem Land werfen?
+    <usetemplate
+     canceltext="Abbrechen"
+     name="yesnocancelbuttons"
+     notext="Ausschließen und Verbannen"
+     yestext="Ausschließen"/>
+  </notification>
+
+  <notification
+   
+   name="EjectAvatarNoBan"
+   >
+Diesen Avatar aus Ihrem Land werfen?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="Hinauswerfen"/>
+  </notification>
+
+  <notification
+   
+   name="EjectAvatarFullnameNoBan"
+   >
+[AVATAR_NAME] aus Ihrem Land werfen?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="Hinauswerfen"/>
+  </notification>
+
+  <notification
+   
+   name="AcquireErrorTooManyObjects"
+   >
+FEHLER: Zu viele Objekte ausgewählt.
+  </notification>
+
+  <notification
+   
+   name="AcquireErrorObjectSpan"
+   >
+FEHLER: Die Objekte überspannen mehrere Regionen.
+Verschieben Sie alle betreffenden Objekte in dieselbe Region.
+  </notification>
+
+  <notification
+   
+   name="PromptGoToCurrencyPage"
+   >
+[EXTRA]
+
+[URL] für Informationen zum Deviseneinkauf öffnen?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="UnableToLinkObjects"
+   >
+Verknüpfung dieser [COUNT] Objekte nicht möglich.
+Sie können maximal [MAX] Objekte verknüpfen.
+  </notification>
+
+  <notification
+   
+   name="CannotLinkIncompleteSet"
+   >
+Sie können nur vollständige Objektsätze verknüpfen und Sie müssen mehr als ein Objekt auswählen.
+  </notification>
+
+  <notification
+   
+   name="CannotLinkModify"
+   >
+Verknüpfung nicht möglich, da Sie nicht alle Objekte bearbeiten dürfen.
+
+Stellen Sie sicher, dass kein Objekt gesperrt ist und alle Objekte Ihnen gehören.
+  </notification>
+
+  <notification
+   
+   name="CannotLinkDifferentOwners"
+   >
+Verknüpfung nicht möglich, da nicht alle Objekte denselben Eigentümer haben.
+
+Stellen Sie sicher, dass alle ausgewählten Objekte Ihnen gehören.
+  </notification>
+
+  <notification
+   
+   name="NoFileExtension"
+   >
+Kein Dateityp für Datei: „[FILE]“
+
+Vergewissern Sie sich, dass die Datei den richtigen Dateityp hat.
+  </notification>
+
+  <notification
+   
+   name="InvalidFileExtension"
+   >
+Ungültige Datei-Endung [EXTENSION]
+Erwartet wurde [VALIDS]
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="CannotUploadSoundFile"
+   >
+Sounddatei konnte nicht hochgeladen werden:
+[FILE]
+  </notification>
+
+  <notification
+   
+   name="SoundFileNotRIFF"
+   >
+Die Datei ist anscheinend keine RIFF WAVE-Datei:
+[FILE]
+  </notification>
+
+  <notification
+   
+   name="SoundFileNotPCM"
+   >
+Die Datei ist anscheinend keine PCM WAVE-Audiodatei:
+[FILE]
+  </notification>
+
+  <notification
+   
+   name="SoundFileInvalidChannelCount"
+   >
+Die Datei hat eine ungültige Anzahl Tonkanäle (muss Mono oder Stereo sein):
+[FILE]
+  </notification>
+
+  <notification
+   
+   name="SoundFileInvalidSampleRate"
+   >
+Die Sample-Rate dieser Datei wird nicht unterstützt (muss 44,1 K sein):
+[FILE]
+  </notification>
+
+  <notification
+   
+   name="SoundFileInvalidWordSize"
+   >
+Die Word-Größe dieser Datei wird nicht unterstützt (muss 8 oder 16 Bit sein):
+[FILE]
+  </notification>
+
+  <notification
+   
+   name="SoundFileInvalidHeader"
+   >
+„Daten“-Chunk in WAV-Header nicht gefunden:
+[FILE]
+  </notification>
+
+  <notification
+   
+   name="SoundFileInvalidTooLong"
+   >
+Audiodatei ist zu lang (max. 10 Sekunden):
+[FILE]
+  </notification>
+
+  <notification
+   
+   name="ProblemWithFile"
+   >
+Problem mit Datei [FILE]:
+
+[ERROR]
+  </notification>
+
+  <notification
+   
+   name="CannotOpenTemporarySoundFile"
+   >
+Temporäre komprimierte Sounddatei konnte nicht geöffnet werden: [FILE]
+  </notification>
+
+  <notification
+   
+   name="UnknownVorbisEncodeFailure"
+   >
+Unbekannter Vorbis-Kodierungsfehler in: [FILE]
+  </notification>
+
+  <notification
+   
+   name="CorruptResourceFile"
+   >
+Ressourcendatei beschädigt: [FILE]
+  </notification>
+
+  <notification
+   
+   name="UnknownResourceFileVersion"
+   >
+Unbekannte Linden-Ressourcenversion in Datei: [FILE]
+  </notification>
+
+  <notification
+   
+   name="UnableToCreateOutputFile"
+   >
+Ausgabedatei konnte nicht erstellt werden: [FILE]
+  </notification>
+
+  <notification
+   
+   name="DoNotSupportBulkAnimationUpload"
+   >
+Der Mehrfach-Upload von Animationsdateien wird zurzeit nicht unterstützt.
+  </notification>
+
+  <notification
+   
+   name="CannotUploadReason"
+   >
+Datei [FILE] kann aus folgendem Grund nicht hochgeladen werden: [REASON]
+Bitte versuchen Sie es erneut.
+  </notification>
+
+  <notification
+   
+   name="CannotCreateLandmarkNotOwner"
+   >
+Sie können hier keine Landmarke erstellen, da der Landeigentümer dies verboten hat.
+  </notification>
+
+  <notification
+   
+   name="CannotRecompileSelectObjectsNoScripts"
+   >
+„Rekompilieren“ nicht möglich.
+Objekt mit Skript wählen.
+  </notification>
+
+  <notification
+   
+   name="CannotRecompileSelectObjectsNoPermission"
+   >
+„Rekompilieren“ nicht möglich.
+
+Wählen Sie Objekte mit Skripts, die Sie bearbeiten dürfen.
+  </notification>
+
+  <notification
+   
+   name="CannotResetSelectObjectsNoScripts"
+   >
+„Zurücksetzen“ nicht möglich.
+
+Wählen Sie Objekte mit Skripts.
+  </notification>
+
+  <notification
+   
+   name="CannotResetSelectObjectsNoPermission"
+   >
+„Zurücksetzen“ nicht möglich.
+
+Wählen Sie Objekte mit Skripts, die Sie bearbeiten dürfen.
+  </notification>
+
+  <notification
+   
+   name="CannotSetRunningSelectObjectsNoScripts"
+   >
+„Ausführen“ von Skripts nicht möglich.
+
+Wählen Sie Objekte mit Skripts.
+  </notification>
+
+  <notification
+   
+   name="CannotSetRunningNotSelectObjectsNoScripts"
+   >
+„Deaktivieren“ von Skripts nicht möglich.
+
+Wählen Sie Objekte mit Skripts.
+  </notification>
+
+  <notification
+   
+   name="NoFrontmostFloater"
+   >
+Kein vorderster Floater zum Speichern.
+  </notification>
+
+  <notification
+   
+   name="SeachFilteredOnShortWords"
+   >
+Ihre Suchanfrage wurde geändert.
+Zu kurze Begriffe wurden entfernt.
+
+Ihre Suchanfrage: [FINALQUERY]
+  </notification>
+
+  <notification
+   
+   name="SeachFilteredOnShortWordsEmpty"
+   >
+Ihre Suchbegriffe sind zu kurz.
+Es wurde keine Suche durchgeführt.
+  </notification>
+
+  <notification
+   
+   name="CouldNotTeleportReason"
+   >
+Teleport fehlgeschlagen.
+[REASON]
+  </notification>
+
+  <notification
+   
+   name="CannotSetLandOwnerNothingSelected"
+   >
+Landeigentümer kann nicht festgelegt werden:
+Keine Parzelle ausgewählt.
+  </notification>
+
+  <notification
+   
+   name="CannotSetLandOwnerMultipleRegions"
+   >
+Eine erzwungene Landübertragung ist nicht möglich, da die Auswahl mehrere Regionen umfasst. Wählen Sie ein kleineres Gebiet und versuchen Sie es erneut.
+  </notification>
+
+  <notification
+   
+   name="ForceOwnerAuctionWarning"
+   >
+Diese Parzelle steht zur Auktion. Eine zwangsweise Eigentumsübertragung beendet die Auktion und verärgert womöglich Einwohner, die bereits ein Gebot abgegeben haben. Eigentumsübertragung erzwingen?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="CannotContentifyNothingSelected"
+   >
+Inhaltsidentifizierung nicht möglich:
+Keine Parzelle ausgewählt.
+  </notification>
+
+  <notification
+   
+   name="CannotContentifyNoRegion"
+   >
+Inhaltsidentifizierung nicht möglich:
+Keine Region ausgewählt.
+  </notification>
+
+  <notification
+   
+   name="CannotReleaseLandNothingSelected"
+   >
+Land kann nicht aufgegeben werden:
+Keine Parzelle ausgewählt.
+  </notification>
+
+  <notification
+   
+   name="CannotReleaseLandNoRegion"
+   >
+Land kann nicht aufgegeben werden:
+Region nicht gefunden.
+  </notification>
+
+  <notification
+   
+   name="CannotBuyLandNothingSelected"
+   >
+Land kann nicht gekauft werden:
+Keine Parzelle ausgewählt.
+  </notification>
+
+  <notification
+   
+   name="CannotBuyLandNoRegion"
+   >
+Land kann nicht gekauft werden:
+Kann die Region nicht finden, in der sich dieses Land befindet.
+  </notification>
+
+  <notification
+   
+   name="CannotCloseFloaterBuyLand"
+   >
+Das Fenster „Land kaufen“ kann erst geschlossen werden,
+nachdem Second Life den Transaktionspreis geschätzt hat.
+  </notification>
+
+  <notification
+   
+   name="CannotDeedLandNothingSelected"
+   >
+Land kann nicht übertragen werden:
+Keine Parzelle ausgewählt.
+  </notification>
+
+  <notification
+   
+   name="CannotDeedLandNoGroup"
+   >
+Land kann nicht übertragen werden:
+Keine Gruppe ausgewählt.
+  </notification>
+
+  <notification
+   
+   name="CannotDeedLandNoRegion"
+   >
+Land kann nicht übertragen werden:
+Kann die Region nicht finden, in der sich dieses Land befindet.
+Bitte melden Sie dies über „Hilfe“ &gt; „Fehler melden“.
+  </notification>
+
+  <notification
+   
+   name="CannotDeedLandMultipleSelected"
+   >
+Land kann nicht übertragen werden:
+Mehrere Parzellen ausgewählt.
+
+Wählen Sie eine einzelne Parzelle.
+  </notification>
+
+  <notification
+   
+   name="ParcelCanPlayMedia"
+   >
+Dieser Ort kann Streaming-Medien abspielen.
+Streaming-Medien erfordern eine schnelle Internet-Verbindung.
+
+Streaming-Medien abspielen, wenn verfügbar?
+(Sie können diese Option später unter „Einstellungen“ &gt; „Audio &amp; Video“ ändern.)
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Deaktivieren"
+     yestext="Medien wiedergeben"/>
+  </notification>
+
+  <notification
+   
+   name="CannotDeedLandWaitingForServer"
+   >
+Land kann nicht übertragen werden:
+Warte auf Server für Eigentümerinformationen.
+
+Bitte versuchen Sie es erneut.
+  </notification>
+
+  <notification
+   
+   name="CannotDeedLandNoTransfer"
+   >
+Land kann nicht übertragen werden:
+Die Region [REGION] erlaubt keine Landübertragung.
+  </notification>
+
+  <notification
+   
+   name="CannotReleaseLandWatingForServer"
+   >
+Land kann nicht aufgegeben werden:
+Server muss Parzelleninformation aktualisieren.
+
+Versuchen Sie es in einigen Sekunden erneut.
+  </notification>
+
+  <notification
+   
+   name="CannotReleaseLandSelected"
+   >
+Land kann nicht aufgegeben werden:
+Die ausgewählten Parzellen gehören Ihnen nicht.
+
+Wählen Sie eine einzelne Parzelle.
+  </notification>
+
+  <notification
+   
+   name="CannotReleaseLandDontOwn"
+   >
+Land kann nicht aufgegeben werden:
+Ihnen fehlt die Berechtigung zur Freigabe dieser Parzelle.
+Parzellen, die Ihnen gehören, werden grün dargestellt.
+  </notification>
+
+  <notification
+   
+   name="CannotReleaseLandRegionNotFound"
+   >
+Land kann nicht aufgegeben werden:
+Kann die Region nicht finden, in der sich dieses Land befindet.
+
+Bitte melden Sie dies über „Hilfe“ &gt; „Fehler melden“.
+  </notification>
+
+  <notification
+   
+   name="CannotReleaseLandNoTransfer"
+   >
+Land kann nicht aufgegeben werden:
+Die Region [REGION] erlaubt keine Landübertragung.
+  </notification>
+
+  <notification
+   
+   name="CannotReleaseLandPartialSelection"
+   >
+Land kann nicht aufgegeben werden:
+Zum Freigeben müssen Sie eine ganze Parzelle auswählen.
+
+Wählen Sie eine ganze Parzelle oder teilen Sie Ihre Parzelle.
+  </notification>
+
+  <notification
+   
+   name="ReleaseLandWarning"
+   >
+Sie sind im Begriff, [AREA] qm Land aufzugeben.
+Wenn Sie diese Parzelle aufgeben, wird sie ohne L$-Erstattung von Ihrem Landbesitz entfernt.
+
+Dieses Land aufgeben?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="CannotDivideLandNothingSelected"
+   >
+Land kann nicht aufgeteilt werden:
+
+Keine Parzellen ausgewählt.
+  </notification>
+
+  <notification
+   
+   name="CannotDivideLandPartialSelection"
+   >
+Land kann nicht aufgeteilt werden:
+
+Sie haben eine ganze Parzelle ausgewählt.
+Wählen Sie einen Parzellenabschnitt aus.
+  </notification>
+
+  <notification
+   
+   name="LandDivideWarning"
+   >
+Wenn Sie dieses Land teilen, wird diese Parzelle in zwei geteilt, jede mit ihren eigenen Einstellungen. Einige dieser Einstellungen werden aufgrund dieses Vorgangs zurückgesetzt.
+
+Land teilen?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="CannotDivideLandNoRegion"
+   >
+Land kann nicht aufgeteilt werden:
+Kann die Region nicht finden, in der sich dieses Land befindet.
+
+Bitte melden Sie dies über „Hilfe“ &gt; „Fehler melden“.
+  </notification>
+
+  <notification
+   
+   name="CannotJoinLandNoRegion"
+   >
+Land kann nicht zusammengelegt werden:
+Kann die Region nicht finden, in der sich dieses Land befindet.
+
+Bitte melden Sie dies über „Hilfe“ &gt; „Fehler melden“.
+  </notification>
+
+  <notification
+   
+   name="CannotJoinLandNothingSelected"
+   >
+Land kann nicht zusammengelegt werden:
+Keine Parzellen ausgewählt.
+  </notification>
+
+  <notification
+   
+   name="CannotJoinLandEntireParcelSelected"
+   >
+Land kann nicht zusammengelegt werden:
+Sie haben nur eine Parzelle ausgewählt.
+
+Wählen Sie Land auf beiden Parzellen aus.
+  </notification>
+
+  <notification
+   
+   name="CannotJoinLandSelection"
+   >
+Land kann nicht zusammengelegt werden:
+Sie müssen mehrere Parzellen auswählen.
+
+Wählen Sie Land auf beiden Parzellen aus.
+  </notification>
+
+  <notification
+   
+   name="JoinLandWarning"
+   >
+Beim Zusammenlegen entsteht aus den vom Auswahlrechteck
+erfassten Parzellen eine große Parzelle.
+Sie müssen der neuen Parzelle einen Namen geben und ihre Optionen festlegen.
+
+Land zusammenlegen?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="ConfirmNotecardSave"
+   >
+Um das Objekt kopieren oder anzeigen zu können, müssen Sie zuerst diese Notizkarte speichern. Notizkarte speichern?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="ConfirmItemCopy"
+   >
+Dieses Objekt in Ihr Inventar kopieren?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="Kopieren"/>
+  </notification>
+
+  <notification
+   
+   name="ResolutionSwitchFail"
+   >
+Auflösung konnte nicht auf [RESX] x [RESY] gesetzt werden
+  </notification>
+
+  <notification
+   
+   name="ErrorUndefinedGrasses"
+   >
+Fehler: Nicht definierte Gräser: [SPECIES]
+  </notification>
+
+  <notification
+   
+   name="ErrorUndefinedTrees"
+   >
+Fehler: Nicht definierte Bäume: [SPECIES]
+  </notification>
+
+  <notification
+   
+   name="CannotSaveWearableOutOfSpace"
+   >
+„[NAME]“ konnte nicht in Kleidungsdatei gespeichert werden.  Geben Sie Speicherplatz auf dem Computer frei und speichern Sie das Kleidungsstück erneut.
+  </notification>
+
+  <notification
+   
+   name="CannotSaveToAssetStore"
+   >
+[NAME] kann nicht in Zentral-Asset-Speicher geladen werden.
+Dies ist ein temporärer Fehler. Bitte passen Sie das Kleidungsstück in einigen Minuten noch einmal an und speichern Sie es erneut.
+
+Tritt dieses Problem wiederholt auf, klicken Sie auf das Pulldown-Menü „Hilfe“ &gt; „Fehler melden“ und geben Sie Details zu Ihrem Netzwerk-Setup an.
+  </notification>
+
+  <notification
+   
+   name="YouHaveBeenLoggedOut"
+   >
+Sie wurden von [SECOND_LIFE] abgemeldet:
+            [MESSAGE]
+Klicken Sie auf „IM &amp; Chat anzeigen“, um vorhandene Nachrichten und Chat weiterhin anzuzeigen. Klicken Sie andernfalls auf „Beenden“, um [SECOND_LIFE] sofort zu beenden.
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Beenden"
+     yestext="IM &amp; Chat anzeigen"/>
+  </notification>
+
+  <notification
+   
+   name="OnlyOfficerCanBuyLand"
+   >
+Landkauf für Gruppe nicht möglich:
+Sie sind nicht berechtigt, Land für die aktive Gruppe zu kaufen.
+  </notification>
+
+  <notification
+   
+   label="Freund hinzufügen"
+   name="AddFriend"
+   >
+Freunde können sich gegenseitig die Berechtigung erteilen, sich auf der Karte zu verfolgen und Online-Status Benachrichtigungen zu empfangen.
+
+[NAME] Freundschaft anbieten?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   label="Freund hinzufügen"
+   name="AddFriendWithMessage"
+   >
+Freunde können sich gegenseitig die Berechtigung erteilen, sich auf der Karte zu verfolgen und Online-Status Benachrichtigungen zu empfangen.
+
+[NAME] Freundschaft anbieten?
+    <form name="form">
+      <input name="message" type="text">
+Wollen wir Freunde sein?
+      </input>
+      <button
+       
+       
+       name="Offer"
+       text="OK"/>
+      <button
+       
+       name="Cancel"
+       text="Abbrechen"/>
+    </form>
+  </notification>
+
+  <notification
+   
+   name="RemoveFromFriends"
+   >
+Möchten Sie [FIRST_NAME] [LAST_NAME] aus Ihrer Freundesliste entfernen?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="RemoveMultipleFromFriends"
+   >
+Möchten Sie mehrere Freunde aus Ihrer Freundesliste entfernen?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="GodDeleteAllScriptedPublicObjectsByUser"
+   >
+Möchten Sie alle geskripteten Objekte von
+** [AVATAR_NAME] **
+auf allen anderen Ländern in diesem Sim löschen?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="GodDeleteAllScriptedObjectsByUser"
+   >
+Möchten Sie ALLE geskripteten Objekte von
+** [AVATAR_NAME] **
+auf ALLEN LÄNDERN in diesem Sim LÖSCHEN?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="GodDeleteAllObjectsByUser"
+   >
+Möchten Sie ALLE Objekte (einschließlich geskriptete) von
+** [AVATAR_NAME] **
+auf ALLEN LÄNDERN in diesem Sim LÖSCHEN?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="BlankClassifiedName"
+   >
+Geben Sie einen Namen für die Anzeige ein.
+  </notification>
+
+  <notification
+   
+   name="MinClassifiedPrice"
+   >
+Der Mindestbetrag für die Listung ist [MIN_PRICE] L$.
+
+Geben sie einen höheren Betrag ein.
+  </notification>
+
+  <notification
+   
+   name="ConfirmObjectDeleteLock"
+   >
+Mindestens ein ausgewähltes Objekt ist gesperrt.
+
+Möchten Sie diese Objekte löschen?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="ConfirmObjectDeleteNoCopy"
+   >
+Mindestens ein ausgewähltes Objekt kann nicht kopiert werden.
+
+Möchten Sie diese Objekte löschen?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="ConfirmObjectDeleteNoOwn"
+   >
+Mindestens eines der ausgewählten Objekt gehört nicht Ihnen.
+
+Möchten Sie diese Objekte löschen?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="ConfirmObjectDeleteLockNoCopy"
+   >
+Mindestens ein Objekt ist gesperrt.
+Mindestens ein Objekt kann nicht kopiert werden.
+
+Möchten Sie diese Objekte löschen?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="ConfirmObjectDeleteLockNoOwn"
+   >
+Mindestens ein Objekt ist gesperrt.
+Mindestens ein Objekt gehört nicht Ihnen.
+
+Möchten Sie diese Objekte löschen?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="ConfirmObjectDeleteNoCopyNoOwn"
+   >
+Mindestens ein Objekt kann nicht kopiert werden.
+Mindestens ein Objekt gehört nicht Ihnen.
+
+Möchten Sie diese Objekte löschen?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="ConfirmObjectDeleteLockNoCopyNoOwn"
+   >
+Mindestens ein Objekt ist gesperrt.
+Mindestens ein Objekt kann nicht kopiert werden.
+Mindestens ein Objekt gehört nicht Ihnen.
+
+Möchten Sie diese Objekte löschen?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="ConfirmObjectTakeLock"
+   >
+Mindestens ein Objekt ist gesperrt.
+
+Möchten Sie diese Objekte nehmen?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="ConfirmObjectTakeNoOwn"
+   >
+Nicht alle Objekte, die Sie aufgenommen haben, gehören Ihnen.
+Wenn Sie fortfahren, werden die Rechte für den nächsten Eigentümer angewandt und Sie können die Objekte möglicherweise nicht bearbeiten oder kopieren.
+
+Möchten Sie diese Objekte nehmen?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="ConfirmObjectTakeLockNoOwn"
+   >
+Mindestens ein Objekt ist gesperrt.
+Nicht alle Objekte, die Sie aufgenommen haben, gehören Ihnen.
+Wenn Sie fortfahren, werden die Rechte für den nächsten Eigentümer abgefragt und Sie können die Objekte möglicherweise nicht bearbeiten oder kopieren.
+Die aktuelle Auswahl können Sie jedoch aufnehmen.
+
+Möchten Sie diese Objekte nehmen?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="CantBuyLandAcrossMultipleRegions"
+   >
+Landkauf nicht möglich, da die Auswahl mehrere Regionen umfasst.
+
+Wählen Sie ein kleineres Gebiet und versuchen Sie es erneut.
+  </notification>
+
+  <notification
+   
+   name="DeedLandToGroup"
+   >
+Die Schenkung dieser Parzelle setzt voraus, dass die Gruppe über ausreichende Landnutzungsrechte verfügt.
+Dem Eigentümer wird der Kaufpreis für das Land nicht rückerstattet. Bei Verkauf der übertragenen Parzelle wird der Erlös zwischen den Gruppenmitgliedern aufgeteilt.
+
+Der Gruppe „[GROUP_NAME]“
+ [AREA] m² Land schenken?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="DeedLandToGroupWithContribution"
+   >
+Die Schenkung dieser Parzelle setzt voraus, dass die Gruppe über ausreichende Landnutzungsrechte verfügt.
+Die Schenkung beinhaltet eine Landübertragung an die Gruppe von „[FIRST_NAME] [LAST_NAME]“.
+Dem Eigentümer wird der Kaufpreis für das Land nicht rückerstattet. Bei Verkauf der übertragenen Parzelle wird der Erlös zwischen den Gruppenmitgliedern aufgeteilt.
+
+Der Gruppe „[GROUP_NAME]“
+ [AREA] m² Land schenken?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="DisplaySetToSafe"
+   >
+Es wurden sichere Anzeige-Einstellungen gewählt, da die Option -safe verwendet wurde.
+  </notification>
+
+  <notification
+   
+   name="DisplaySetToRecommended"
+   >
+Es wurden die für Ihre Systemkonfiguration empfohlenen Anzeige-Einstellungen gewählt.
+  </notification>
+
+  <notification
+   
+   name="ErrorMessage"
+   >
+[ERROR_MESSAGE]
+  </notification>
+
+  <notification
+   
+   name="AvatarMoved"
+   >
+Ihr [TYPE]-Ort ist zurzeit nicht verfügbar. [HELP]
+Sie wurden zur nächstgelegenen Region teleportiert.
+  </notification>
+
+  <notification
+   
+   name="ClothingLoading"
+   >
+Ihre Kleidung wird noch heruntergeladen.
+Sie können [SECOND_LIFE] normal verwenden. Andere Benutzer können Sie korrekt dargestellt sehen.
+    <form name="form">
+      <ignore name="ignore"
+       text="Wenn das Herunterladen von Kleidung lange dauert"/>
+    </form>
+  </notification>
+
+  <notification
+   
+   name="FirstRun"
+   >
+Die Installation von [SECOND_LIFE] ist abgeschlossen.
+
+Wenn Sie [SECOND_LIFE] das erste Mal verwenden, müssen Sie ein Konto anlegen, bevor Sie sich anmelden können.
+Möchten Sie auf www.secondlife.com ein Konto erstellen?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Weiter"
+     yestext="Neues Konto..."/>
+  </notification>
+
+  <notification
+   
+   name="LoginPacketNeverReceived"
+   >
+Die Verbindung kann nicht hergestellt werden. Möglicherweise besteht ein Problem mit Ihrer Internetverbindung oder den Second Life-Servern.
+
+Überprüfen Sie Ihre Internetverbindung und versuchen Sie es dann erneut, oder klicken Sie auf „Hilfe“, um zu unserer Supportseite zu gelangen, oder klicken Sie auf „Teleportieren“, um nach Hause zu teleportieren.
+    <form name="form">
+      <button
+       
+       
+       name="OK"
+       text="OK"/>
+      <button
+       
+       name="Help"
+       text="Hilfe"/>
+      <button
+       
+       name="Teleport"
+       text="Teleportieren"/>
+    </form>
+  </notification>
+
+  <notification
+   
+   name="WelcomeChooseSex"
+   >
+Ihr Avatar erscheint jeden Moment.
+
+Benutzen Sie die Pfeiltasten, um sich fortzubewegen.
+Drücken Sie F1 für Hilfe oder für weitere Informationen über [SECOND_LIFE].
+Bitte wählen Sie einen männlichen oder weiblichen Avatar.
+Sie können sich später noch umentscheiden.
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Weiblich"
+     yestext="Männlich"/>
+  </notification>
+
+  <notification
+   
+   name="NotEnoughCurrency"
+   >
+[NAME] [PRICE] L$  Sie haben nicht genügend L$, um diese Aktion auszuführen.
+  </notification>
+
+  <notification
+   
+   name="GrantedModifyRights"
+   >
+Sie verfügen über Änderungsrechte für die Objekte von [FIRST_NAME] [LAST_NAME].
+  </notification>
+
+  <notification
+   
+   name="RevokedModifyRights"
+   >
+Ihnen wurden die Änderungsrechte für die Objekte von [FIRST_NAME] [LAST_NAME] entzogen.
+  </notification>
+
+  <notification
+   
+   name="FlushMapVisibilityCaches"
+   >
+Der Kartencache dieser Region wird geleert.
+Diese Aktion ist nur beim Debugging sinnvoll.
+(Auf dem Produktionssystem warten Sie einfach 5 Minuten. Die Karten werden nach erneuter Anmeldung automatisch aktualisiert.)
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="OnlyCopyContentsOfSingleItem"
+   >
+Es kann nur jeweils der Inhalt von einem Objekt kopiert werden.
+Wählen Sie ein einzelnes Objekt aus und versuchen Sie es erneut.
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="KickUsersFromRegion"
+   >
+Alle Einwohner in dieser Region nach Hause teleportieren?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="EstateObjectReturn"
+   >
+Möchten Sie wirklich alle Objekte zurückgeben, die [USER_NAME] gehören?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="InvalidTerrainBitDepth"
+   >
+Die Regionstexturen konnten nicht festgelegt werden:
+Die Terraintextur [TEXTURE_NUM] hat eine ungültige Bit-Tiefe [TEXTURE_BIT_DEPTH].
+
+Ersetzen Sie die Textur [TEXTURE_NUM] mit einer Bilddatei von maximal 512x512 und 24 Bit und klicken Sie dann erneut auf „Übernehmen“.
+  </notification>
+
+  <notification
+   
+   name="InvalidTerrainSize"
+   >
+Die Regionstexturen konnten nicht festgelegt werden:
+Die Terraintextur [TEXTURE_NUM] ist mit [TEXTURE_SIZE_X]x[TEXTURE_SIZE_Y] zu groß.
+
+Ersetzen Sie die Textur [TEXTURE_NUM] mit einer Bilddatei von maximal 512x512 und 24 Bit und klicken Sie dann erneut auf „Übernehmen“.
+  </notification>
+
+  <notification
+   
+   name="RawUploadStarted"
+   >
+Hochladen gestartet. Je nach Verbindungsgeschwindigkeit kann der Vorgang bis zu 2 Minuten dauern.
+  </notification>
+
+  <notification
+   
+   name="ConfirmBakeTerrain"
+   >
+Möchten Sie das aktuelle Terrain formen, es zum Mittelpunkt der oberen und unteren Terraingrenzen und zum Standard des „Zurücksetzen“-Tools machen?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="MaxAllowedAgentOnRegion"
+   >
+Es sind maximal [MAX_AGENTS] zulässige Einwohner erlaubt.
+  </notification>
+
+  <notification
+   
+   name="MaxBannedAgentsOnRegion"
+   >
+Es sind maximal [MAX_BANNED] verbannte Einwohner erlaubt.
+  </notification>
+
+  <notification
+   
+   name="MaxAgentOnRegionBatch"
+   >
+Fehler beim Versuch, [NUM_ADDED] Agenten hinzuzufügen:
+Überschreitet den Grenzwert [MAX_AGENTS] [LIST_TYPE] um [NUM_EXCESS].
+  </notification>
+
+  <notification
+   
+   name="MaxAllowedGroupsOnRegion"
+   >
+Es sind maximal [MAX_GROUPS] zulässige Gruppen erlaubt.
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="Formen"/>
+  </notification>
+
+  <notification
+   
+   name="MaxManagersOnRegion"
+   >
+Es sind maximal [MAX_MANAGER]  verbannte Einwohner erlaub.
+  </notification>
+
+  <notification
+   
+   name="OwnerCanNotBeDenied"
+   >
+Der Eigentümer des Grundstücks kann nicht zur Liste der „Verbannten Einwohner“ hinzugefügt werden.
+  </notification>
+
+  <notification
+   
+   name="CanNotChangeAppearanceUntilLoaded"
+   >
+Das Aussehen lässt sich erst ändern, wenn Kleider und Form/Gestalt geladen sind.
+  </notification>
+
+  <notification
+   
+   name="ClassifiedMustBeAlphanumeric"
+   >
+Der Name der Anzeige muss mit einem Buchstaben von A bis Z oder einer Ziffer beginnen.  Satzzeichen sind nicht erlaubt.
+  </notification>
+
+  <notification
+   
+   name="CantSetBuyObject"
+   >
+„Objekt kaufen“ nicht möglich, da das Objekt nicht zum Verkauf freigegeben ist.
+Geben Sie das Objekt zum Verkauf frei und versuchen Sie es erneut.
+  </notification>
+
+  <notification
+   
+   name="FinishedRawDownload"
+   >
+Raw-Terrain-Datei wurde heruntergeladen nach:
+[DOWNLOAD_PATH].
+  </notification>
+
+  <notification
+   
+   name="DownloadWindowsMandatory"
+   >
+Eine neue Version von [SECOND_LIFE] ist verfügbar.
+[MESSAGE]
+Sie müssen das Update herunterladen, um [SECOND_LIFE] weiter verwenden zu können.
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Beenden"
+     yestext="Herunterladen"/>
+  </notification>
+
+  <notification
+   
+   name="DownloadWindows"
+   >
+Eine aktualisierte Version von [SECOND_LIFE] ist verfügbar.
+[MESSAGE]
+Dieses Update ist nicht erforderlich, für bessere Leistung und Stabilität sollte es jedoch installiert werden.
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Weiter"
+     yestext="Herunterladen"/>
+  </notification>
+
+  <notification
+   
+   name="DownloadWindowsReleaseForDownload"
+   >
+Eine aktualisierte Version von [SECOND_LIFE] ist verfügbar.
+[MESSAGE]
+Dieses Update ist nicht erforderlich, für bessere Leistung und Stabilität sollte es jedoch installiert werden.
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Weiter"
+     yestext="Herunterladen"/>
+  </notification>
+
+  <notification
+   
+   name="DownloadMacMandatory"
+   >
+Eine neue Version von [SECOND_LIFE] ist verfügbar.
+[MESSAGE]
+Sie müssen das Update herunterladen, um [SECOND_LIFE] weiter verwenden zu können.
+
+In Ihren Anwendungsordner herunterladen?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Beenden"
+     yestext="Herunterladen"/>
+  </notification>
+
+  <notification
+   
+   name="DownloadMac"
+   >
+Eine aktualisierte Version von [SECOND_LIFE] ist verfügbar.
+[MESSAGE]
+Dieses Update ist nicht erforderlich, für bessere Leistung und Stabilität sollte es jedoch installiert werden.
+
+In Ihren Anwendungsordner herunterladen?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Weiter"
+     yestext="Herunterladen"/>
+  </notification>
+
+  <notification
+   
+   name="DownloadMacReleaseForDownload"
+   >
+Eine aktualisierte Version von [SECOND_LIFE] ist verfügbar.
+[MESSAGE]
+Dieses Update ist nicht erforderlich, für bessere Leistung und Stabilität sollte es jedoch installiert werden.
+
+In Ihren Anwendungsordner herunterladen?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Weiter"
+     yestext="Herunterladen"/>
+  </notification>
+
+  <notification
+   
+   name="DeedObjectToGroup"
+   >
+Bei Übertragung dieses Objekts erhält die Gruppe:
+* An das Objekt bezahlte L$
+    <usetemplate
+     ignoretext="Beim Übertragen von Objekten an Gruppen"
+     name="okcancelignore"
+     notext="Abbrechen"
+     yestext="Übertragung"/>
+  </notification>
+
+  <notification
+   
+   name="WebLaunchExternalTarget"
+   >
+Den System-Webbrowser öffnen, um diesen Inhalt anzuzeigen?
+    <usetemplate
+     ignoretext="Wenn der System-Webbrowser zur Anzeige einer Webseite geöffnet wird"
+     name="okcancelignore"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="WebLaunchJoinNow"
+   >
+Zu www.secondlife.com, um Ihr Konto zu verwalten?
+    <usetemplate
+     ignoretext="Beim Starten eines Browsers, um Ihr Konto zu verwalten"
+     name="okcancelignore"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="WebLaunchBugReport101"
+   >
+Informieren Sie sich im [SECOND_LIFE] Wiki, wie man Fehler richtig meldet.
+    <usetemplate
+     ignoretext="Beim Starten eines Browsers, um das Fehlermeldungs-Wiki anzuzeigen"
+     name="okcancelignore"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="WebLaunchSecurityIssues"
+   >
+Informieren Sie sich im [SECOND_LIFE] Wiki, wie man Sicherheitsprobleme richtig meldet.
+    <usetemplate
+     ignoretext="Beim Starten eines Browsers, um das Sicherheitsfragen-Wiki anzuzeigen"
+     name="okcancelignore"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="WebLaunchQAWiki"
+   >
+Besuchen Sie das [SECOND_LIFE] QA-Wiki.
+    <usetemplate
+     ignoretext="Beim Starten eines Browsers, um das QA-Wiki anzuzeigen"
+     name="okcancelignore"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="WebLaunchPublicIssue"
+   >
+Im [SECOND_LIFE] Allgemeine-Fragen-Tracker können Sie Fehler und andere Probleme melden.
+    <usetemplate
+     ignoretext="Beim Starten eines Browsers, um den Allgemeine Probleme Tracker anzuzeigen"
+     name="okcancelignore"
+     notext="Abbrechen"
+     yestext="Gehe zu Seite"/>
+  </notification>
+
+  <notification
+   
+   name="WebLaunchPublicIssueHelp"
+   >
+Informieren Sie sich im [SECOND_LIFE] Wiki über den Allgemeine Fragen-Tracker.
+    <usetemplate
+     ignoretext="Beim Starten eines Browsers, um das Allgemeine Fragen-Wiki anzuzeigen"
+     name="okcancelignore"
+     notext="Abbrechen"
+     yestext="Gehe zu Seite"/>
+  </notification>
+
+  <notification
+   
+   name="WebLaunchSupportWiki"
+   >
+Im offiziellen Linden-Blog finden Sie die neuesten Nachrichten und Informationen.
+    <usetemplate
+     ignoretext="Beim Starten eines Browsers, um das Blog anzuzeigen"
+     name="okcancelignore"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="WebLaunchLSLGuide"
+   >
+Zur Scripting-Anleitung, um Scripting-Hilfe zu erhalten?
+    <usetemplate
+     ignoretext="Beim Starten eines Browsers, um die Scripting-Anleitung anzuzeigen"
+     name="okcancelignore"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="WebLaunchLSLWiki"
+   >
+Zum LSL-Portal, um Scripting-Hilfe zu erhalten?
+    <usetemplate
+     ignoretext="Beim Starten eines Browsers, um das LSL-Portal anzuzeigen"
+     name="okcancelignore"
+     notext="Abbrechen"
+     yestext="Gehe zu Seite"/>
+  </notification>
+
+  <notification
+   
+   name="ReturnToOwner"
+   >
+Möchten Sie die ausgewählten Objekte an ihre Eigentümer zurückgeben? Transferierbare übertragene Objekte werden ihren früheren Eigentümern zurückgegeben.
+
+*WARNUNG* Nicht transferierbare übertragene Objekte werden dabei gelöscht!
+    <usetemplate
+     ignoretext="Beim Zurückgeben von Objekten an ihre Eigentümer"
+     name="okcancelignore"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="GroupLeaveConfirmMember"
+   >
+Sie sind Mitglied der Gruppe [GROUP].
+Diese Gruppe verlassen?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="ConfirmKick"
+   >
+Möchten Sie WIRKLICH alle Benutzer aus dem Grid werfen?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="Alle Benutzer hinauswerfen"/>
+  </notification>
+
+  <notification
+   
+   name="MuteLinden"
+   >
+Lindens können nicht stummgeschaltet werden.
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   label="Objekt nach Name stummschalten fehlgeschlagen"
+   name="MuteByNameFailed"
+   >
+Dieser Name ist bereits stummgeschaltet.
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="RemoveItemWarn"
+   >
+Diese Aktion ist zwar erlaubt, aber beim Löschen von Inhalten wird das Objekt beschädigt. Möchten Sie dieses Element löschen?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="CantOfferCallingCard"
+   >
+Sie können gerade keine Visitenkarte übergeben. Warten Sie kurz und versuchen Sie es dann noch einmal.
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="CantOfferFriendship"
+   >
+Sie können gerade keine Freundschaft anbieten. Warten Sie kurz und versuchen Sie es dann noch einmal.
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="BusyModeSet"
+   >
+Beschäftigt-Modus aktiviert.
+Chat und Instant Messages werden ausgeblendet. Instant Messages erhalten Ihre Beschäftigt-Antwort. Alle Teleport-Angebote werden ausgeschlagen. Alle Inventar-Angebote werden in den Papierkorb verschoben.
+    <usetemplate
+     ignoretext="Beim Aktivieren des Beschäftigt-Modus"
+     name="okignore"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="JoinedTooManyGroupsMember"
+   >
+Sie sind bereits in zu vielen Gruppen Mitglied und können keiner weiteren beitreten. Bitte verlassen Sie eine Gruppe, bevor Sie dieser beitreten oder lehnen Sie das Angebot ab.
+Die Option zum Austritt aus einer Gruppe finden Sie unter „Bearbeiten“ &gt; „Gruppen...“.
+[NAME] hat Sie eingeladen, einer Gruppe beizutreten.
+[INVITE]
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Ablehnen"
+     yestext="Beitreten"/>
+  </notification>
+
+  <notification
+   
+   name="KickUser"
+   >
+Beim Hinauswerfen dieses Benutzers welche Meldung anzeigen?
+    <form name="form">
+      <input name="message" type="text">
+Sie wurden von einem Administrator abgemeldet.
+      </input>
+      <button
+       
+       
+       name="OK"
+       text="OK"/>
+      <button
+       
+       name="Cancel"
+       text="Abbrechen"/>
+    </form>
+  </notification>
+
+  <notification
+   
+   name="KickAllUsers"
+   >
+Beim Hinauswerfen aller Personen vom Grid welche Meldung anzeigen?
+    <form name="form">
+      <input name="message" type="text">
+Sie wurden von einem Administrator abgemeldet.
+      </input>
+      <button
+       
+       
+       name="OK"
+       text="OK"/>
+      <button
+       
+       name="Cancel"
+       text="Abbrechen"/>
+    </form>
+  </notification>
+
+  <notification
+   
+   name="FreezeUser"
+   >
+Beim Einfrieren dieses Benutzers welche Meldung anzeigen?
+    <form name="form">
+      <input name="message" type="text">
+Sie wurden eingefroren. Bewegen oder Chatten ist nicht mehr möglich. Ein Administrator wird sich über IM an Sie wenden
+      </input>
+      <button
+       
+       
+       name="OK"
+       text="OK"/>
+      <button
+       
+       name="Cancel"
+       text="Abbrechen"/>
+    </form>
+  </notification>
+
+  <notification
+   
+   name="UnFreezeUser"
+   >
+Beim Auftauen dieses Benutzers welche Meldung anzeigen?
+    <form name="form">
+      <input name="message" type="text">
+Sie sind nicht mehr eingefroren.
+      </input>
+      <button
+       
+       
+       name="OK"
+       text="OK"/>
+      <button
+       
+       name="Cancel"
+       text="Abbrechen"/>
+    </form>
+  </notification>
+
+  <notification
+   
+   name="OfferTeleport"
+   >
+Teleport an Ihre Position mit der folgenden Meldung anbieten?
+    <form name="form">
+      <input name="message" type="text">
+Triff mich in [REGION]
+      </input>
+      <button
+       
+       
+       name="OK"
+       text="OK"/>
+      <button
+       
+       name="Cancel"
+       text="Abbrechen"/>
+    </form>
+  </notification>
+
+  <notification
+   
+   name="OfferTeleportFromGod"
+   >
+Benutzer an Ihrem Standort herbeirufen?
+    <form name="form">
+      <input name="message" type="text">
+Triff mich in [REGION]
+      </input>
+      <button
+       
+       
+       name="OK"
+       text="OK"/>
+      <button
+       
+       name="Cancel"
+       text="Abbrechen"/>
+    </form>
+  </notification>
+
+  <notification
+   
+   name="TeleportFromLandmark"
+   >
+Möchten Sie sich wirklich teleportieren?
+    <usetemplate
+     ignoretext="Beim Teleportieren von einer Landmarke im Inventar"
+     name="okcancelignore"
+     notext="Abbrechen"
+     yestext="Teleportieren"/>
+  </notification>
+
+  <notification
+   
+   label="Nachricht an alle auf diesem Grundstück"
+   name="MessageEstate"
+   >
+Geben Sie eine kurze Nachricht ein, die an jede Person auf Ihrem Grundstück gesendet wird.
+    <form name="form">
+      <input name="message" type="text"/>
+      <button
+       
+       
+       name="OK"
+       text="OK"/>
+      <button
+       
+       name="Cancel"
+       text="Abbrechen"/>
+    </form>
+  </notification>
+
+  <notification
+   
+   label="Linden-Grundstück ändern"
+   name="ChangeLindenEstate"
+   >
+Sie sind im Begriff, ein Grundstück in Linden-Besitz (Mainland, Teen-Raster, Orientierung usw.) zu verändern.
+
+Dies ist ÄUSSERST GEFÄHRLICH, da es grundlegende Auswirkungen auf das Benutzererlebnis hat.  Auf dem Mainland werden tausende Regionen geändert, was den Spaceserver stark belastet.
+
+Fortfahren?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   label="Zugang zu Linden-Grundstück ändern"
+   name="ChangeLindenAccess"
+   >
+Sie sind im Begriff, die Zugangsliste für ein Grundstück in Linden-Besitz (Mainland, Teen-Raster, Orientierung usw.) zu verändern.
+
+Dies ist GEFÄHRLICH und sollte nur erfolgen, um Objekte/L$ per Hack in und aus dem Raster zu entfernen.
+Tausende Regionen werden verändert und der Spaceserver wird dadurch stark belastet.
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   label="Grundstück wählen"
+   name="EstateAllowedAgentAdd"
+   >
+Nur für dieses Grundstück oder für alle [ALL_ESTATES] zur Erlaubnisliste hinzufügen?
+    <usetemplate
+     canceltext="Abbrechen"
+     name="yesnocancelbuttons"
+     notext="Alle Grundstücke"
+     yestext="Dieses Grundstück"/>
+  </notification>
+
+  <notification
+   
+   label="Grundstück wählen"
+   name="EstateAllowedAgentRemove"
+   >
+Nur für dieses Grundstück oder für alle [ALL_ESTATES] von Erlaubnisliste entfernen?
+    <usetemplate
+     canceltext="Abbrechen"
+     name="yesnocancelbuttons"
+     notext="Alle Grundstücke"
+     yestext="Dieses Grundstück"/>
+  </notification>
+
+  <notification
+   
+   label="Grundstück wählen"
+   name="EstateAllowedGroupAdd"
+   >
+Nur für dieses Grundstück oder für alle [ALL_ESTATES] zur Gruppen-Erlaubnisliste hinzufügen?
+    <usetemplate
+     canceltext="Abbrechen"
+     name="yesnocancelbuttons"
+     notext="Alle Grundstücke"
+     yestext="Dieses Grundstück"/>
+  </notification>
+
+  <notification
+   
+   label="Grundstück wählen"
+   name="EstateAllowedGroupRemove"
+   >
+Nur für dieses Grundstück oder für alle [ALL_ESTATES] von Gruppen-Erlaubnisliste entfernen?
+    <usetemplate
+     canceltext="Abbrechen"
+     name="yesnocancelbuttons"
+     notext="Alle Grundstücke"
+     yestext="Dieses Grundstück"/>
+  </notification>
+
+  <notification
+   
+   label="Grundstück wählen"
+   name="EstateBannedAgentAdd"
+   >
+Zugang nur für dieses Grundstück oder für [ALL_ESTATES] verweigern?
+    <usetemplate
+     canceltext="Abbrechen"
+     name="yesnocancelbuttons"
+     notext="Alle Grundstücke"
+     yestext="Dieses Grundstück"/>
+  </notification>
+
+  <notification
+   
+   label="Grundstück wählen"
+   name="EstateBannedAgentRemove"
+   >
+Einwohner nur für dieses Grundstück oder für alle [ALL_ESTATES] von der Bannliste entfernen?
+    <usetemplate
+     canceltext="Abbrechen"
+     name="yesnocancelbuttons"
+     notext="Alle Grundstücke"
+     yestext="Dieses Grundstück"/>
+  </notification>
+
+  <notification
+   
+   label="Grundstück wählen"
+   name="EstateManagerAdd"
+   >
+Verwalter nur für dieses Grundstück oder für [ALL_ESTATES] festlegen?
+    <usetemplate
+     canceltext="Abbrechen"
+     name="yesnocancelbuttons"
+     notext="Alle Grundstücke"
+     yestext="Dieses Grundstück"/>
+  </notification>
+
+  <notification
+   
+   label="Grundstück wählen"
+   name="EstateManagerRemove"
+   >
+Verwalter nur für dieses Grundstück oder für [ALL_ESTATES] entfernen?
+    <usetemplate
+     canceltext="Abbrechen"
+     name="yesnocancelbuttons"
+     notext="Alle Grundstücke"
+     yestext="Dieses Grundstück"/>
+  </notification>
+
+  <notification
+   
+   label="Rauswurf bestätigen"
+   name="EstateKickUser"
+   >
+Benutzer [EVIL_USER] von diesem Grundstück werfen?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="EstateChangeCovenant"
+   >
+Möchten Sie den Grundstücksvertrag wirklich ändern?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="ProblemImportingEstateCovenant"
+   >
+Problem beim Import des Grundstückvertrags.
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="ProblemAddingEstateManager"
+   >
+Es gibt Probleme beim Hinzufügen eines neuen Grundstücksverwalters.  Bei mindestens einem Grundstück ist die Verwalterliste voll.
+  </notification>
+
+  <notification
+   
+   name="ProblemAddingEstateGeneric"
+   >
+Problem beim Hinzufügen zu dieser Grundstücksliste.  Bei mindestens einem Grundstück ist die Liste voll.
+  </notification>
+
+  <notification
+   
+   name="UnableToLoadNotecard"
+   >
+Notizkarten-Asset konnte nicht geladen werden.
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="NotAllowedToViewNotecard"
+   >
+Unzureichende Rechte, um die mit der angeforderten Asset-ID verbundene Notizkarte anzuzeigen.
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="MissingNotecardAssetID"
+   >
+Asset-ID für Notizkarte fehlt in Datenbank.
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="PublishClassified"
+   >
+Hinweis: Anzeigengebühren werden nicht zurückerstattet.
+
+Anzeige für [AMOUNT] L$ veröffentlichen?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+
+
+
+
+  <notification
+   
+   label="Neustart bestätigen"
+   name="ConfirmRestart"
+   >
+Möchten Sie diese Region in 2 Minuten neu starten?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   label="Nachricht an alle in dieser Region"
+   name="MessageRegion"
+   >
+Geben Sie eine kurze Nachricht ein, die an jede Person in dieser Region gesendet wird.
+    <form name="form">
+      <input name="message" type="text"/>
+      <button
+       
+       
+       name="OK"
+       text="OK"/>
+      <button
+       
+       name="Cancel"
+       text="Abbrechen"/>
+    </form>
+  </notification>
+
+  <notification
+   
+   label="Terraformen blockieren"
+   name="HelpRegionBlockTerraform"
+   >
+Wenn diese Option aktiviert ist, können Landeigentümer Ihr Land nicht terraformen. Ausgenommen davon ist die parzelleneigene Einstellung „Terrain bearbeiten“.
+
+Standard: deaktiviert
+  </notification>
+
+  <notification
+   
+   label="Fliegen blockieren"
+   name="HelpRegionBlockFly"
+   >
+Wenn diese Option aktiviert ist, ist Fliegen in dieser Region nicht möglich, auch wenn für die Parzelle eine andere Einstellung aktiv ist.
+
+Standard: deaktiviert
+  </notification>
+
+  <notification
+   
+   label="Schaden zulassen"
+   name="HelpRegionAllowDamage"
+   >
+Wenn diese Option aktiviert ist, ist das Gesundheitssystem auf allen Parzellen aktiviert, unabhängig von den Parzelleneinstellungen. Ist die Option links deaktiviert, können die Parzelleneigentümer das Gesundheitssystem individuell einschalten.
+
+Standard: deaktiviert
+  </notification>
+
+  <notification
+   
+   label="Avatar-Limit"
+   name="HelpRegionAgentLimit"
+   >
+Legt die maximale Anzahl an Avataren für diese Region fest.
+Die Leistung hängt von der Anzahl der Avatare in der Region ab.
+
+Standard: 40
+  </notification>
+
+  <notification
+   
+   label="Objektbonus"
+   name="HelpRegionObjectBonus"
+   >
+Der Objektbonus ist ein Multiplikator für die Anzahl an zulässigen Primitiven auf einer Parzelle. Gültig sind Werte zwischen 1 und 10. „1“ erlaubt auf einer 512 qm großen Parzelle 117 Objekte. „2“ erlaubt auf einer 512 qm großen Parzelle 234 Objekte, also die doppelte Menge. Die maximale Objektanzahl in einer Region beträgt unabhängig vom Objektbonus 15.000.
+Eine nachträglich Senkung des Objektbonus führt dazu, dass Objekte zurückgegeben oder gelöscht werden.
+
+Standard: 1.0
+  </notification>
+
+
+
+
+  <notification
+   
+   label="Stoßen beschränken"
+   name="HelpRegionRestrictPushObject"
+   >
+Aktivieren sie diese Option, um in der gesamten Region das Stoßen zu beschränken. Wenn aktiviert, können Einwohner nur von sich selbst oder vom Parzelleneigentümer gestoßen werden.
+(Stoßen meint die LSL-Funktion llPushObject().)
+
+Standard: deaktiviert
+  </notification>
+
+  <notification
+   
+   label="Parzelle zusammenlegen/teilen"
+   name="HelpParcelChanges"
+   >
+Dieses Kontrollkästchen steuert, ob Parzellen des Grundstückseigentümers zusammengelegt bzw. unterteilt werden können. Wenn deaktiviert:
+ * Nur Grundstückseigentümer bzw. –verwalter können Parzellen zusammenlegen/teilen.  * Sie können nur Parzellen zusammenlegen/teilen, die dem Eigentümer oder einer Gruppe gehören, bei der sie entsprechende Gruppenrechte innehaben.
+Wenn aktiviert:
+ * Die Parzelleneigentümer können ihre Parzellen selbst zusammenlegen/teilen.
+ * Parzellen in Gruppeneigentum können von Mitgliedern mit den entsprechenden Rechten zusammengelegt bzw. unterteilt werden.
+
+Standard: aktiviert
+  </notification>
+
+  <notification
+   
+   label="Nicht in Suche anzeigen"
+   name="HelpRegionSearch"
+   >
+Wenn Sie diese Option auswählen, können Parzelleneigentümer ihre Parzellen nicht in der Suche anzeigen lassen
+
+Standard: deaktiviert
+  </notification>
+
+  <notification
+   
+   label="Alterseinstufung der Region ändern"
+   name="RegionMaturityChange"
+   >
+Die Alterseinstufung dieser Region wurde aktualisiert.
+Es kann eine Weile dauern, bis sich die Änderung auf die Karte auswirkt.
+  </notification>
+
+  <notification
+   
+   label="Landwiederverkauf"
+   name="HelpRegionLandResell"
+   >
+Grundstückseigentümer und -verwalter können jedes Land im Besitz des Grundstückseigentümers verkaufen.
+Ist diese Option deaktiviert, können Käufer ihr Land in dieser Region nicht weiterverkaufen.
+Ist die Option aktiviert, können Käufer ihr Land in dieser Region weiterverkaufen.
+
+Standard: deaktiviert
+  </notification>
+
+  <notification
+   
+   label="Skripts deaktivieren"
+   name="HelpRegionDisableScripts"
+   >
+Schlechte Sim-Performance ist oftmals auf ein Skript zurückzuführen. Öffnen Sie die Statistikleiste (Strg-Umschalt-1). Sehen Sie sich den Wert für „Simulator Physics FPS“ (Simulator Physik-FPS) an.
+Wenn der Wert unter 45 liegt, öffnen Sie den Bereich „Time“ (Zeit) ganz unten in der Statistikleiste. Wenn der Wert für „Script Time“ (Skriptzeit) 25 ms oder höher ist, klicken Sie auf „Top-Skripts“. Der Name und die Position der Skripts, die für die schlechte Performance verantwortlich sind, werden angezeigt.
+Wenn Sie das Kontrollkästchen „Skripts deaktivieren“ aktivieren und auf „Übernehmen“ klicken, werden alle Skripts in der Region zeitweilig deaktiviert. Dieser Schritt ist eventuell notwendig, damit Sie an die Position des gemeldeten „Top-Skripts“ reisen können. Sobald Sie dort angekommen sind, sollten Sie das Skript auf die Ursache des Problems hin untersuchen. Möglicherweise müssen Sie sich an den Skript-Eigentümer wenden oder das Objekt löschen bzw. zurückgeben. Um die Skripte in der Region wieder zu aktivieren, deaktivieren Sie „Skript deaktivieren“ und klicken Sie auf „Übernehmen“.
+
+Standard: deaktiviert
+  </notification>
+
+  <notification
+   
+   label="Kollisionen deaktivieren"
+   name="HelpRegionDisableCollisions"
+   >
+Schlechte Sim-Performance ist oftmals auf physische Objekte zurückzuführen.
+Öffnen Sie die Statistikleiste (Strg-Umschalt-1). Sehen Sie sich den Wert „Simulator Physics FPS“ an. Liegt dieser unter 45, öffnen Sie unten in der Statistikleiste den „Time“-Bereich. Liegt die „Sim Time (Physics)“ bei 20 ms oder darüber, klicken Sie auf „Top-Kollisionsobjekte“.
+Der Name und der Standort der physischen Objekte, die das Problem verursachen, werden angezeigt.
+
+Wenn Sie das Kontrollkästchen „Kollisionen deaktivieren“ aktivieren und auf „Übernehmen“ klicken, werden alle Objekt-Objekt-Kollisionen in der Region zeitweilig deaktiviert. Dieser Schritt ist eventuell notwendig, damit Sie an die Position des gemeldeten „Top-Kollisionsobjekts“ reisen können. Überprüfen Sie das Objekt an der angegebenen Position.
+Kollidiert es ständig mit anderen Objekten? Wenden Sie sich eventuell an den Eigentümer des Objekts, löschen Sie es oder geben Sie es zurück.
+Deaktivieren Sie die Option „Kollisionen deaktivieren“ und klicken Sie auf „Übernehmen“, um Kollisionen in dieser Region wieder zu aktivieren.
+
+Standard: deaktiviert
+  </notification>
+
+  <notification
+   
+   label="Physik deaktivieren"
+   name="HelpRegionDisablePhysics"
+   >
+Das Deaktivieren der Physik ähnelt dem Deaktivieren von Kollisionen, außer dass die gesamte Physiksimulation ausgeschaltet wird.  Das hat nicht nur zur Folge, dass Objekte nicht mehr kollidieren, sondern dass Avatare sich nicht mehr bewegen können.
+
+Diese Option sollte nur verwendet werden, wenn das Deaktivieren von Kollisionen keine ausreichende Leistungssteigerung bringt, um Physikprobleme in der Region oder die Top-Kollisionsobjekte zu erkennen.
+
+Schalten Sie die Physiksimulation hinterher wieder ein. Andernfalls können sich Avatare nicht mehr bewegen.
+
+Standard: deaktiviert
+  </notification>
+
+  <notification
+   
+   label="Top-Kollisionsobjekte"
+   name="HelpRegionTopColliders"
+   >
+Zeigt eine Liste der Objekte mit den potenziell meisten Objekt-Objekt-Kollisionen an.  Diese Objekte können die Leistung beeinträchtigen.  Wählen Sie „Ansicht“ &gt; „Statistikleiste“ aus und sehen Sie unter „Simulator“ &gt; „Time“ &gt; „Sim Time (Physics)“ nach, ob die Physikberechnung länger als 20 ms dauert.
+  </notification>
+
+  <notification
+   
+   label="Top-Skripts"
+   name="HelpRegionTopScripts"
+   >
+Zeigt eine Liste der Objekte an, die die meiste Zeit benötigen, um LSL-Skripts auszuführen.  Diese Objekte können die Leistung beeinträchtigen.
+Wählen Sie „Ansicht“ &gt; „Statistikleiste“ und sehen Sie unter „Simulator“ &gt; „Time“ &gt; „Script Time“ nach, ob mehr als 25 ms für Skripts benötigt werden.
+  </notification>
+
+  <notification
+   
+   label="Region neu starten"
+   name="HelpRegionRestart"
+   >
+Starten Sie den Serverprozess für diese Region nach der 2-Minuten-Warnung neu. Die Verbindung aller Einwohner in dieser Region wird getrennt.  Die Region wird gespeichert und sollte nach 90 Sekunden wieder verfügbar sein.
+
+Der Neustart der Region behebt die meisten Leistungs-probleme, sollte aber nur nach Anweisung erfolgen.
+  </notification>
+
+  <notification
+   
+   label="Wasserhöhe"
+   name="HelpRegionWaterHeight"
+   >
+Die Höhe der Wasserlinie in Metern. Liegt dieser Wert unter 20 und haben Sie Wasser nahe am Rand der Welt oder „offenes“ Wasser definiert, wird eine deutliche Lücke sichtbar.
+
+Standard: 20
+  </notification>
+
+  <notification
+   
+   label="Obere Terraingrenze"
+   name="HelpRegionTerrainRaise"
+   >
+Der maximale Betrag in Metern, um den Parzelleneigentümer ihr Terrain über die Standardhöhe des „geformten“ Terrains erhöhen können.
+
+Standard: 4
+  </notification>
+
+  <notification
+   
+   label="Untere Terraingrenze"
+   name="HelpRegionTerrainLower"
+   >
+Der maximale Betrag in Metern, um den Parzelleneigentümer ihr Terrain unter die Standardhöhe des „geformten“ Terrains absenken können.
+
+Standard: -4
+  </notification>
+
+  <notification
+   
+   label="RAW-Terrain hochladen"
+   name="HelpRegionUploadRaw"
+   >
+Mit dieser Schaltfläche laden Sie eine RAW-Datei in die Region hoch, in der Sie sich befinden.
+Die Datei muss die korrekten Maße (RGB, 256x256) und 13 Kanäle haben.  Um eine neue Terraindatei zu erstellen, laden Sie am besten die vorhandene RAW-Datei herunter.  Beginnen Sie damit, den Rot-Kanal (Höhe des Landes) zu bearbeiten und laden Sie die Datei wieder hoch.
+
+Der Ladevorgang kann bis zu 45 Sekunden dauern. Beachten Sie, dass beim Hochladen einer Terraindatei die Objekte auf dem Land *nicht* verschoben werden, sondern nur das Land und die mit den Parzellen verbundenen Berechtigungen.  Dies kann dazu führen, dass Objekte unter dem Terrain verschwinden.
+
+Weitere Informationen zur Bearbeitung der Höhendaten der Region enthält die F1-Hilfe.
+  </notification>
+
+  <notification
+   
+   label="RAW-Terrain herunterladen"
+   name="HelpRegionDownloadRaw"
+   >
+Mit dieser Schaltfläche laden Sie eine Datei herunter, welche die Höhendaten, Maße, den Verkaufsstatus der Parzelle und einige Parzellenrechte für diese Region enthält. Wenn Sie diese Datei in einem Programm wie Photoshop öffnen, müssen Sie die Bilddaten eingeben. Diese sind: RGB, 256x256 mit 13 Kanälen. Anders lässt sich diese Terraindatei nicht öffnen.
+
+Weitere Informationen zur Bearbeitung der Höhendaten der Region enthält die F1-Hilfe.
+  </notification>
+
+  <notification
+   
+   label="Grundstücksonne verwenden"
+   name="HelpRegionUseEstateSun"
+   >
+Aktivieren Sie diese Option, um in dieser Region denselben Sonnenstand wie auf dem restlichen Grundstück einzustellen.
+
+Standard: aktiviert
+  </notification>
+
+  <notification
+   
+   label="Sonne fest"
+   name="HelpRegionFixedSun"
+   >
+Aktivieren Sie diese Option, um den Sonnenstand auf die im Regler definierte Position festzulegen und die Animation auszuschalten.
+
+Standard: deaktiviert
+  </notification>
+
+  <notification
+   
+   label="Terrain formen"
+   name="HelpRegionBakeTerrain"
+   >
+Mit dieser Schaltfläche speichern Sie die aktuelle Terrain-Form als neuen Standard für die Region. Nach der Formung können Sie und andere das Land mit der Option „Terrain bearbeiten“ &gt; „Zurücksetzen“ in den ursprünglichen Zustand zurückversetzen. Das geformte Terrain ist auch das Zentrum für die oberen und unteren Terraingrenzen.
+  </notification>
+
+  <notification
+   
+   label="Grundstücksverwalter"
+   name="HelpEstateEstateManager"
+   >
+Ein Grundstücksverwalter ist ein Einwohner, dem Sie die Kontrolle über die Regions- und Grundstückseinstellungen übertragen haben.  Ein Grundstücksverwalter kann alle Einstellungen ändern, außer das Hochladen, Herunterladen und Formen von Terrain.  Vor allem kann er Einwohner auf dem Grundstück erlauben und davon verbannen.
+
+Nur der Eigentümer kann den Grundstücksverwalter bestimmen und entlassen. Der Verwalter hat dieses Recht nicht.  Wählen Sie nur vertrauenswürdige Einwohner als Grundstücksverwalter, da Sie letztlich für deren Handlungen verantwortlich sind.
+  </notification>
+
+  <notification
+   
+   label="Globale Zeit verwenden"
+   name="HelpEstateUseGlobalTime"
+   >
+Aktivieren Sie diese Option, um auf Ihrem Grundstück denselben Sonnenstand wie auf dem Linden-„Mainland“ einzustellen.
+
+Standard: aktiviert
+  </notification>
+
+  <notification
+   
+   label="Sonne fest"
+   name="HelpEstateFixedSun"
+   >
+Aktivieren Sie diese Option, um den Sonnenstand auf die im Regler definierte Position festzulegen und die Animation auszuschalten.
+  </notification>
+
+  <notification
+   
+   label="Öffentlich"
+   name="HelpEstateExternallyVisible"
+   >
+Aktivieren Sie diese Option, um Einwohnern den Zugang zu diesem Grundstück zu erlauben, ohne auf der Zugangsliste zu stehen.
+
+Standard: aktiviert
+  </notification>
+
+  <notification
+   
+   label="Direktteleport zulassen"
+   name="HelpEstateAllowDirectTeleport"
+   >
+Wenn aktiviert, können sich Einwohner an jede Stelle auf Ihrem Grundstück teleportieren.  Wenn deaktiviert, werden Einwohner zum nächstgelegenen Telehub teleportiert.
+
+Standard: deaktiviert
+  </notification>
+
+  <notification
+   
+   label="Zugang erlauben"
+   name="HelpEstateAllowResident"
+   >
+Der Zugang zu diesem Grundstück wird auf die hier aufgeführten Einwohner und Gruppen beschränkt.  Diese Einstellung ist nur verfügbar, wenn „Öffentlich“ deaktiviert ist.
+  </notification>
+
+  <notification
+   
+   label="Gruppenzugang erlauben"
+   name="HelpEstateAllowGroup"
+   >
+Der Zugang zu diesem Grundstück wird auf die hier aufgeführten Einwohner und Gruppen beschränkt.  Diese Einstellung ist nur verfügbar, wenn „Öffentlich“ deaktiviert ist.
+  </notification>
+
+  <notification
+   
+   label="E-Mail-Adresse für Missbrauchsmeldungen"
+   name="HelpEstateAbuseEmailAddress"
+   >
+Geben Sie hier eine E-Mail-Adresse ein, an die Missbrauchsmeldungen von diesem Grundstück gesendet werden.
+Wenn dieses Feld leer ist, werden Missbrauchsmeldungen nur an Linden Lab gesendet.
+  </notification>
+
+  <notification
+   
+   label="Zugang verweigern"
+   name="HelpEstateBanResident"
+   >
+Einwohnern auf dieser Liste wird der Zugang zum Grundstück verwehrt, unabhängig von etwaigen anderen Einstellungen.
+  </notification>
+
+  <notification
+   
+   label="Voice-Chat erlauben"
+   name="HelpEstateVoiceChat"
+   >
+Die Parzellen auf diesem Grundstück können über eigene Voice-Channel verfügen, die es Einwohnern ermöglichen, sich mit anderen Personen in der Nähe zu unterhalten.
+
+Standard: deaktiviert
+  </notification>
+
+  <notification
+   
+   label="Falsche Voice-Version"
+   name="VoiceVersionMismatch"
+   >
+Diese Version von Second ist mit dem Voice-Chat-Feature in dieser Region nicht kompatibel. Damit Voice-Chat funktioniert, müssen Sie Second Life aktualisieren.
+  </notification>
+
+  <notification
+   
+   label="Grunstücksvertrag"
+   name="HelpEstateCovenant"
+   >
+Ein Grundstücksvertrag ermöglicht es Ihnen, Grundstücksparzellen zu verkaufen. Ohne Vertrag können Sie kein Land verkaufen. Wenn Sie keine Regeln festlegen oder Käufern vor dem Kauf keine anderen Informationen über das Land bereitstellen möchten, können Sie die Vertrags-Notizkarte auch leer lassen.
+
+Ein Vertrag kann Regeln und Richtlinien, kulturelle Informationen oder einfach nur Ihre eigenen Erwartungen bezüglich der Landnutzung durch den Käufer enthalten. Das kann Zoning, Baubeschränkungen, Zahloptionen und alle möglichen anderen Informationen betreffen, die der neue Eigentümer Ihrer Meinung nach kennen und akzeptieren sollte.
+
+Der Käufer muss dem Vertrag durch Auswahl dieses Kontrollkästchens zustimmen, bevor der Kauf abgeschlossen werden kann. Grundstücksverträge sind jederzeit unter „Land-Info“ für jede Parzelle einsehbar, für die ein Vertrag definiert wurde.
+  </notification>
+
+  <notification
+   
+   label="Objekte können nicht gekauft werden"
+   name="BuyObjectOneOwner"
+   >
+Objekte können nicht von mehreren Eigentümern gleichzeitig gekauft werden.
+Wählen Sie ein einzelnes Objekt aus und versuchen Sie es erneut.
+  </notification>
+
+  <notification
+   
+   label="Inhalte können nicht gekauft werden"
+   name="BuyContentsOneOnly"
+   >
+Inhalte können jeweils nur für ein Objekt gekauft werden.
+Wählen Sie ein einzelnes Objekt aus und versuchen Sie es erneut.
+  </notification>
+
+  <notification
+   
+   label="Inhalte können nicht gekauft werden"
+   name="BuyContentsOneOwner"
+   >
+Objekte können nicht von mehreren Eigentümern gleichzeitig gekauft werden.
+Wählen Sie ein einzelnes Objekt aus und versuchen Sie es erneut.
+  </notification>
+
+  <notification
+   
+   name="BuyOriginal"
+   >
+Von [OWNER] Originalobjekt für [PRICE] L$ kaufen?
+Sie werden der Eigentümer dieses Objekts.
+Sie können das Objekt:
+ Bearbeiten: [MODIFYPERM]
+ Kopieren: [COPYPERM]
+ Verkaufen oder weggeben: [RESELLPERM]
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="BuyOriginalNoOwner"
+   >
+Originalobjekt für [PRICE] L$ kaufen?
+Sie werden der Eigentümer dieses Objekts.
+Sie können das Objekt:
+ Bearbeiten: [MODIFYPERM]
+ Kopieren: [COPYPERM]
+ Verkaufen oder weggeben: [RESELLPERM]
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="BuyCopy"
+   >
+Von [OWNER] Kopie für [PRICE] L$ kaufen?
+Das Objekt wird in Ihr Inventar kopiert.
+Sie können das Objekt:
+ Bearbeiten: [MODIFYPERM]
+ Kopieren: [COPYPERM]
+ Verkaufen oder weggeben: [RESELLPERM]
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="BuyCopyNoOwner"
+   >
+Kopie für [PRICE] L$ kaufen?
+Das Objekt wird in Ihr Inventar kopiert.
+Sie können das Objekt:
+ Bearbeiten: [MODIFYPERM]
+ Kopieren: [COPYPERM]
+ Verkaufen oder weggeben: [RESELLPERM]
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="BuyContents"
+   >
+Von [OWNER] Inhalte für [PRICE] L$ kaufen?
+Die Inhalte werden in Ihr Inventar kopiert.
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="BuyContentsNoOwner"
+   >
+Inhalte für [PRICE] L$ kaufen?
+Die Inhalte werden in Ihr Inventar kopiert.
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="ConfirmPurchase"
+   >
+Transaktion:
+[ACTION]
+
+Möchten Sie diesen Kauf fortsetzen?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="ConfirmPurchasePassword"
+   type="password">
+Transaktion:
+[ACTION]
+
+Möchten Sie diesen Kauf fortsetzen?
+Geben Sie Ihr Kennwort erneut ein und klicken Sie auf OK.
+    <form name="form">
+      <input
+       name="message"
+       type="password"/>
+      <button
+       
+       
+       name="ConfirmPurchase"
+       text="OK"/>
+      <button
+       
+       name="Cancel"
+       text="Abbrechen"/>
+    </form>
+  </notification>
+
+  <notification
+   
+   name="SetPickLocation"
+   >
+Hinweis:
+Sie haben die Position dieser Auswahl aktualisiert, aber die anderen Daten behalten ihre ursprünglichen Werte.
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="MoveInventoryFromObject"
+   >
+Sie haben „nicht kopierfähige“ Inventarobjekte ausgewählt.
+Diese Objekte werden nicht kopiert, sondern in Ihr Inventar verschoben.
+
+Inventarobjekt(e) verschieben?
+    <usetemplate
+     ignoretext="Beim Verschieben von nicht-kopierfähigem Inventar von Objekten"
+     name="okcancelignore"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="MoveInventoryFromScriptedObject"
+   >
+Sie haben „nicht kopierfähige“ Inventarobjekte ausgewählt.  Diese Objekte werden nicht kopiert, sondern in Ihr Inventar verschoben.
+Da es sich um ein geskriptetes Objekt handelt, geht die Skriptfunktion beim Verschieben in das Inventar möglicherweise verloren.
+
+Inventarobjekt(e) verschieben?
+    <usetemplate
+     ignoretext="Beim Verschieben von nicht-kopierfähigem Inventar von geskripteten Objekten"
+     name="okcancelignore"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="ClickActionNotPayable"
+   >
+Achtung: Die Klick-Aktion „Objekt bezahlen“ wurde definiert, sie funktioniert aber nur, wenn ein Skript mit einem money() Ereignis hinzugefügt wird.
+    <form name="form">
+      <ignore name="ignore"
+       text="Beim Einrichten von Events mit „Objektbezahlung“ ohne Geld"/>
+    </form>
+  </notification>
+
+  <notification
+   
+   name="OpenObjectCannotCopy"
+   >
+Sie haben keine Berechtigung zum Kopieren von Elementen in diesem Objekt.
+  </notification>
+
+  <notification
+   
+   name="WebLaunchAccountHistory"
+   >
+Zur Second Life-Website, um Ihre Kontostatistik anzuzeigen?
+    <usetemplate
+     ignoretext="Beim Laden der Kontostatistik-Website"
+     name="okcancelignore"
+     notext="Abbrechen"
+     yestext="Gehe zu Seite"/>
+  </notification>
+
+  <notification
+   
+   name="ClickOpenF1Help"
+   >
+Die Support-Website von Second Life öffnen?
+    <usetemplate
+     ignoretext="Bei Besuch der Second Life Support-Website."
+     name="okcancelignore"
+     notext="Abbrechen"
+     yestext="Los"/>
+  </notification>
+
+  <notification
+   
+   name="ConfirmQuit"
+   >
+Wirklich beenden?
+    <usetemplate
+     ignoretext="Beim Beenden von Second Life."
+     name="okcancelignore"
+     notext="Weiter"
+     yestext="Beenden"/>
+  </notification>
+
+  <notification
+   
+   name="HelpReportAbuseEmailLL"
+   >
+Verwenden Sie dieses Tool, um Verletzungen der Servicebedingungen und Community-Standards zu melden. Siehe:
+
+http://secondlife.com/corporate/tos.php
+http://secondlife.com/corporate/cs.php
+
+Alle gemeldeten Verletzungen der Servicebedingungen und Community-Standards werden geprüft und geklärt Sie können den Prozess im Incident Report (Vorfallsbericht) verfolgen:
+
+http://secondlife.com/support/incidentreport.php
+  </notification>
+
+  <notification
+   
+   name="HelpReportAbuseEmailEO"
+   >
+WICHTIG: Diese Meldung wird an den Eigentümer der Region gesendet, in der Sie sich gerade befinden, nicht an Linden Lab.
+-
+Als besonderen Service für Einwohner und Besucher übernimmt der Eigentümer dieser Region die Bearbeitung aller anfallenden Meldungen. Von diesem Standort aus eingereichte Meldungen werden nicht von Linden Lab bearbeitet. Der Eigentümer der Region bearbeitet Meldungen auf Grundlage der Richtlinien, die im für diese Region geltenden Grundstücksvertrag festgelegt sind.
+(Den Vertrag können Sie unter „Welt“ &gt; „Land-Info“ einsehen.)
+-
+Das Resultat, das sich aus dieser Meldung ergibt, betrifft nur diese Region; der Einwohnerzugang zu anderen Bereichen von Second Life ist davon nicht betroffen. Nur Linden Lab kann den Zugang zu Second Life beschränken.
+  </notification>
+
+  <notification
+   
+   name="HelpReportBug"
+   >
+Verwenden Sie dieses Tool *nur*, um technische Features zu melden, die nicht wie beschrieben oder erwartet funktionieren. Bitte machen Sie so viele Angaben wie möglich. Sie können auf die automatische Antwort-E-Mail antworten, um Ihre Meldung noch zu ergänzen.
+Alle gemeldeten Fehler werden geprüft und bewertet. Sie erhalten keine persönliche Antwort auf Ihre E-Mail.
+-
+Bei technischen Problemen wenden Sie sich bitte an den Support unter:
+http://secondlife.com/community/support.php
+-
+Hinweis: Unvollständige Meldungen werden nicht bearbeitet.
+  </notification>
+
+  <notification
+   
+   name="HelpReportAbuseSelectCategory"
+   >
+Wählen Sie eine Missbrauchskategorie aus.
+Die Angabe einer Kategorie hilft uns bei der Bearbeitung des Berichts.
+  </notification>
+
+  <notification
+   
+   name="HelpReportBugSelectCategory"
+   >
+Wählen Sie eine Fehler-Kategorie aus.
+Die Angabe einer Kategorie hilft uns bei der Bearbeitung des Berichts.
+  </notification>
+
+  <notification
+   
+   name="HelpReportAbuseAbuserNameEmpty"
+   >
+Geben Sie den Namen des Täters ein.
+Eine genaue Angabe hilft uns, Fälle von Missbrauch zu ahnden.
+  </notification>
+
+  <notification
+   
+   name="HelpReportAbuseAbuserLocationEmpty"
+   >
+Bitte geben Sie den Ort an, an dem der Missbrauch stattgefunden hat.
+Eine genaue Angabe hilft uns, Fälle von Missbrauch zu ahnden.
+  </notification>
+
+  <notification
+   
+   name="HelpReportAbuseSummaryEmpty"
+   >
+Bitte geben Sie eine Zusammenfassung des Vorfalls ein.
+Eine genaue Zusammenfassung hilft uns, Fälle von Missbrauch zu ahnden.
+  </notification>
+
+  <notification
+   
+   name="HelpReportBugSummaryEmpty"
+   >
+Bitte geben Sie eine Zusammenfassung des Fehlers ein.
+Eine genaue Zusammenfassung hilft uns, Fehler schneller zu beseitigen.
+  </notification>
+
+  <notification
+   
+   name="HelpReportAbuseDetailsEmpty"
+   >
+Bitte geben Sie eine ausführliche Beschreibung des Vorfalls ein.
+Eine möglichst genaue Beschreibung mit Namen und Einzelheiten hilft uns, Fälle von Missbrauch zu ahnden.
+  </notification>
+
+  <notification
+   
+   name="HelpReportBugDetailsEmpty"
+   >
+Bitte geben Sie eine ausführliche Fehlerbeschreibung ein.
+Eine möglichst genaue Beschreibung mit Schritten zur Reproduktion des Fehlers hilft uns, Fehler schneller zu beseitigen.
+  </notification>
+
+  <notification
+   
+   name="HelpReportAbuseContainsCopyright"
+   >
+Sehr geehrte(r) Einwohner(in),
+
+Sie melden eine Urheberrechtsverletzung. Sind Sie wirklich sicher, dass Sie eine Verletzung des Urheberrechts melden möchten?
+
+1. Missbrauch melden. Wenn Sie der Meinung sind, ein Einwohner nutzt das Berechtigungssystem von Second Life auf unerlaubte Weise zu seinem Vorteil aus, indem er zum Beispiel einen CopyBot oder ähnliche Kopiertools verwendet und damit eine Urheberrechtsverletzung begeht, können Sie diesen Missbrauch melden. Das Missbrauchsteam untersucht etwaige Verstöße gegen die Second Life Community Standards oder die Nutzungsbedingungen und verhängt entsprechende Strafen. Das Missbrauchsteam ist jedoch nicht dafür zuständig, Inhalte aus der Second Life-Welt zu entfernen und reagiert auch nicht auf entsprechende Anfragen.
+
+2. Der DMCA oder das Entfernen von Inhalten. Sie können das Entfernen von Inhalten aus Second Life beantragen. Dazu MÜSSEN Sie eine Urheberrechtsverletzung gemäß den in unserer DMCA-Richtlinie unter http://secondlife.com/corporate/dmca.php dargelegten Anweisungen einreichen.
+
+Wenn Sie mit der Missbrauchmeldung jetzt fortfahren möchten, schließen Sie bitte dieses Fenster und senden Sie Ihren Bericht ein.  Möglicherweise müssen Sie Kategorie „CopyBot oder Berechtigungs-Exploit“ auswählen.
+
+Vielen Dank,
+
+Linden Lab
+  </notification>
+
+  <notification
+   
+   name="FailedRequirementsCheck"
+   >
+Die folgenden erforderlichen Komponenten fehlen in [FLOATER]:
+[COMPONENTS]
+  </notification>
+
+  <notification
+   
+   label="Vorhandenen Anhang ersetzen"
+   name="ReplaceAttachment"
+   >
+An dieser Körperstelle ist bereits ein Objekt angebracht.
+Möchten Sie es mit dem ausgewählten Objekt ersetzen?
+    <form name="form">
+      <ignore name="ignore"
+       save_option="true"
+       text="Beim Wechseln von Anhängen"/>
+      <button
+       
+       ignore="Replace Automatically"
+       
+       name="Yes"
+       text="OK"/>
+      <button
+       ignore="Never Replace"
+       
+       name="No"
+       text="Abbrechen"/>
+    </form>
+  </notification>
+
+  <notification
+   
+   label="Beschäftigt-Modus-Warnung"
+   name="BusyModePay"
+   >
+Sie sind im Beschäftigt-Modus, sodass Sie im Austausch für diese Zahlung keine Objekte erhalten können.
+
+Möchten Sie den Bechäftigt-Modus verlassen, bevor Sie diese Transaktion abschließen?
+    <form name="form">
+      <ignore name="ignore"
+       save_option="true"
+       text="Beim Bezahlen einer Person oder eines Objekts im Beschäftigt-Modus"/>
+      <button
+       
+       ignore="Always leave Busy Mode"
+       
+       name="Yes"
+       text="OK"/>
+      <button
+       ignore="Never leave Busy Mode"
+       
+       name="No"
+       text="Abbrechen"/>
+    </form>
+  </notification>
+
+  <notification
+   
+   name="ConfirmEmptyTrash"
+   >
+Möchten Sie den Inhalt Ihres Papierkorbs wirklich löschen?
+    <usetemplate
+     ignoretext="Beim Leeren des Inventar-Papierkorbs"
+     name="okcancelignore"
+     notext="Abbrechen"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="ConfirmClearBrowserCache"
+   >
+Möchten Sie Ihren Browser-Cache wirklich leeren?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="Ja"/>
+  </notification>
+
+  <notification
+   
+   name="ConfirmClearCookies"
+   >
+Sind Sie sicher, dass Sie Ihre Cookies löschen möchten?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="Ja"/>
+  </notification>
+
+  <notification
+   
+   name="ConfirmClearMediaUrlList"
+   >
+Die Liste mit gespeicherten URLs wirklich löschen?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Abbrechen"
+     yestext="Ja"/>
+  </notification>
+
+  <notification
+   
+   name="ConfirmEmptyLostAndFound"
+   >
+Möchten Sie den Inhalt Ihres Fundstücke-Ordners wirklich permanent löschen?
+    <usetemplate
+     ignoretext="Beim Leeren von Inventar und Fundstückeordner-"
+     name="okcancelignore"
+     notext="Nein"
+     yestext="Ja"/>
+  </notification>
+
+  <notification
+   
+   name="CopySLURL"
+   >
+Die folgende SLURL wurde in die Zwischenablage kopiert:
+ [SLURL]
+
+Veröffentlichen Sie sie auf einer Website, um anderen den Zugang zu diesem Ort zu erleichtern, oder testen Sie sie, indem Sie sie in die Adressleiste Ihres Browsers kopieren.
+    <form name="form">
+      <ignore name="ignore"
+       text="Beim Kopieren einer SLURL in die Zwischenablage"/>
+    </form>
+  </notification>
+
+  <notification
+   
+   name="GraphicsPreferencesHelp"
+   >
+Die Optionen in diesem Dialog steuern Fenstergröße und Auflösung sowie die Qualität der Grafikdarstellung im Client.  Im Fenster „Einstellungen“ &gt; „Grafik“ stehen vier Grafikeinstellungen zur Wahl: Niedrig, Mittel, Hoch und Ultra. Die Grafikeinstellungen lassen sich auch individuell anpassen; aktivieren Sie das Kontrollkästchen „Benutzerdefiniert“, um die folgenden Einstellungen zu bearbeiten:
+
+Shader: Aktivieren oder deaktivieren Sie die verschiedenen Pixel-Shader.
+
+Spiegelung: Legen Sie hier fest, welche Objekte sich in Wasser spiegeln.
+
+Avatar-Darstellung: Einige Optionen, die über die Darstellung Ihres Avatars bestimmen.
+
+Sichtweite: Legt fest, bis zu welcher Entfernung von Ihrem Avatar die Objekte in der Szene berechnet und dargestellt werden.
+
+Max. Partikelzahl: Legt fest, wie viele Partikel gleichzeitig berechnet und angezeigt werden.
+
+Post-Processing-Qualität: Legt fest, mit welcher Auflösung der Glüheffekt berechnet wird.
+
+Gitterdetails: Legt den Detailgrad bzw. die Anzahl an Dreiecken bei der Berechnung bestimmter Objekte fest. Höhere Werte führen zu einer genaueren Darstellung, dauern aber länger in der Berechnung.
+
+Beleuchtungsdetails: Legt fest, welche Lichtquellen berechnet werden.
+
+Terraindetails: Legt den Detailgrad bei der Berechnung der Terraintextur fest.
+  </notification>
+
+  <notification
+   
+   name="WLSavePresetAlert"
+   >
+Die gespeicherte Voreinstellung überschreiben?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Nein"
+     yestext="Ja"/>
+  </notification>
+
+  <notification
+   
+   name="WLDeletePresetAlert"
+   >
+[SKY] löschen?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Nein"
+     yestext="Ja"/>
+  </notification>
+
+  <notification
+   
+   name="WLNoEditDefault"
+   >
+Standardvoreinstellungen können nicht bearbeitet oder gelöscht werden.
+  </notification>
+
+  <notification
+   
+   name="WLMissingSky"
+   >
+Diese Tageszyklusdatei verweist auf eine fehlende Himmel-Datei: [SKY].
+  </notification>
+
+  <notification
+   
+   name="PPSaveEffectAlert"
+   >
+Post-Processing-Effekt bereits vorhanden. Möchten Sie ihn überschreiben?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Nein"
+     yestext="Ja"/>
+  </notification>
+
+  <notification
+   
+   name="HelpEditSky"
+   >
+Verschieben Sie die WindLight-Regler, um verschiedene Himmelsansichten zu erstellen und zu speichern.
+  </notification>
+
+  <notification
+   
+   name="HelpEditDayCycle"
+   >
+Wählen Sie für jede Tageszeit eine Himmelsansicht aus.
+  </notification>
+
+  <notification
+   
+   name="EnvSettingsHelpButton"
+   >
+Diese Einstellungen haben Auswirkung auf die lokale Darstellung der Umwelt auf Ihrem Computer. Zugriff auf alle Einstellungen haben Sie nur, wenn Ihre Grafikkarte Atmosphären-Shader unterstützt.
+
+Mit dem Regler „Tageszeit“ stellen Sie die lokal in Ihrem Viewer dargestellte Tageszeit ein.
+
+Mit dem Regler „Wolkendecke“ steuern Sie die Wolkendichte am Himmel.
+
+Unter „Wasserfarbe“ können Sie eine Farbe für die Wasserdarstellung auswählen.
+
+Mit dem Regler „Wassertrübung“ steuern Sie die Sichtweite unter Wasser.
+
+Klicken Sie auf „Grundstückszeit verw.“, um die aktuelle Zeit in der Region fest als Tageszeit einzustellen.
+
+Klicken Sie auf „Himmel (erweitert)“, um einen Editor mit erweiterten Einstellungen für die Himmeldarstellung anzuzeigen.
+
+Klicken Sie auf „Wasser (erweitert)“, um einen Editor mit erweiterten Einstellungen für die Wasserdarstellung anzuzeigen.
+  </notification>
+
+  <notification
+   
+   name="HelpDayCycle"
+   >
+Im Tageszyklus-Editor steuern Sie den Tag-/Nachtzyklus am Second Life Himmel. Dabei handelt es sich um den Zyklus, der mit dem Tageszeit-Regler im Umwelt-Basiseditor gesteuert wird.
+
+Der Tageszyklus-Editor verwendet sogenannte Keyframes zur Steuerung des Tag-/Nachtablaufs. Dabei handelt es sich um „Schlüsselbilder“ (die grauen Kreise auf der Zeitskala), für die bestimmte Himmelseinstellungen definiert wurden. Bei voranschreitender Tageszeit interpoliert WindLight den Übergang zwischen diesen Keyframes und erzeugt eine entsprechende Himmelsanimation.
+
+Der gelbe Pfeil über der Zeitskala repräsentiert die aktuelle Tageszeit-Darstellung. Ziehen Sie den Pfeil, um die Tagesanimation anzuzeigen. Mit „Key hinzu“ und „Key löschen“ rechts neben der Zeitskala können Sie neue Keys einfügen und vorhandene löschen.
+
+Keyframes lassen sich einfach entlang der Zeitskala verschieben, oder Sie geben die Werte manuell unter „Keyframe-Einstellungen“ ein. Hier wählen Sie auch eine WindLight-Voreinstellung für den Keyframe aus.
+
+„Zykluslänge“ bestimmt die Gesamtlänge eines „Tages“. Ein niedriger Wert (z.B. 2 Minuten) führt dazu, dass ein ganzer 24-Stunden-Tag innerhalb von zwei Minuten Echtzeit abgespult wird! Wenn Sie alle Einstellungen auf der Zeitskala und für die einzelnen Keyframes vorgenommen haben, können Sie mit „Start“ und „Stopp“ die Animation anzeigen. Das funktioniert natürlich genauso interaktiv, indem Sie den gelben Pfeil über der Zeitskala verschieben. Mit der Schaltfläche „Grundstückszeit verw.“ synchronisieren Sie die Tageszeit und -länge mit den auf dem Grundstück geltenden Einstellungen.
+
+Ihre Tageszyklus-Einstellungen lassen sich mit den Schaltflächen „Testtag speichern“ und „Testtag laden“ speichern bzw. laden. Bis dato kann nur ein Tageszyklus gleichzeitig in Verwendung sein.
+  </notification>
+
+  <notification
+   
+   name="HelpBlueHorizon"
+   >
+Mit den Reglern für Rot/Grün/Blau (RGB) steuern Sie die Farbe des Himmels. Verwenden Sie den Intensitätsregler (I), um alle drei RGB-Regler gleichzeitig zu verschieben.
+  </notification>
+
+  <notification
+   
+   name="HelpHazeHorizon"
+   >
+Horizonttrübung ist einer der wichtigsten Parameter, um die Gesamtlichtsituation in der Szene zu steuern.  Damit lassen sich viele Belichtungseinstellungen simulieren, z.B. ein Überstrahlen durch die Sonne oder starker Dunst.
+  </notification>
+
+  <notification
+   
+   name="HelpBlueDensity"
+   >
+Farbintensität steuert die Gesamtfarbsättigung von Himmel und Nebel. Je weiter Sie den Intensitätsregler (I) nach rechts verschieben, desto heller und lebendiger werden die Farben. Wenn Sie ihn ganz nach links verschieben, verlieren die Farben an Intensität und gehen in Schwarz oder Weiß über. Volle Kontrolle über die Farbsättigung des Himmels bieten ihnen die Regler für Rot/Grün/Blau (RGB).
+  </notification>
+
+  <notification
+   
+   name="HelpHazeDensity"
+   >
+Trübungsintensität steuert die Stärke des grauen Dunsts in der Atmosphäre.  Damit lassen sich zum Beispiel starker Rauch oder Luftverschmutzung simulieren.  Auch für Nebel und Sprühregen geeignet.
+  </notification>
+
+  <notification
+   
+   name="HelpDensityMult"
+   >
+Der Dichtemultiplikator beeinflusst die Gesamtdichte der Atmosphäre. Niedrige Einstellungen erzeugen den Eindruck dünner, sauberer Luft, hohe Einstellungen erzeugen den Eindruck schweren Smogs.
+  </notification>
+
+  <notification
+   
+   name="HelpDistanceMult"
+   >
+Steuert die Entfernungswirkung von WindLight.  Ein Wert von Null schaltet den Einfluss von WindLight auf Terrain und Objekte praktisch aus.  Werte über 1 simulieren größere Entfernungen und verstärken den Atmosphäreneffekt.
+  </notification>
+
+  <notification
+   
+   name="HelpMaxAltitude"
+   >
+Max. Höhe steuert die Höhenberechnungen von WindLight bei der Berechnung der atmosphärischen Beleuchtung. Zu späteren Tageszeiten lässt sich damit zum Beispiel die „Intensität“ des Sonnenuntergangs beeinflussen.
+  </notification>
+
+  <notification
+   
+   name="HelpSunlightColor"
+   >
+Steuert Farbe und Intensität von direktem Licht in der Szene.
+  </notification>
+
+  <notification
+   
+   name="HelpSunAmbient"
+   >
+Steuert Farbe und Intensität von atmosphärischem Umgebungslicht in der Szene.
+  </notification>
+
+  <notification
+   
+   name="HelpSunGlow"
+   >
+Der Regler „Größe“ steuert die Größe der Sonne.
+Der Regler „Fokus“ steuert, wie unscharf die Sonne am Himmel erscheint.
+  </notification>
+
+  <notification
+   
+   name="HelpSceneGamma"
+   >
+Regelt den Hell/Dunkel-Wert des Bildschirms.
+  </notification>
+
+  <notification
+   
+   name="HelpStarBrightness"
+   >
+Regelt die Helligkeit der Sterne am Himmel.
+  </notification>
+
+  <notification
+   
+   name="HelpTimeOfDay"
+   >
+Steuert die Sonnenstellung am Himmel.
+Entspricht der Elevation.
+  </notification>
+
+  <notification
+   
+   name="HelpEastAngle"
+   >
+Steuert die Sonnenstellung am Himmel.
+Entspricht dem Azimut.
+  </notification>
+
+  <notification
+   
+   name="HelpCloudColor"
+   >
+Steuert die Wolkenfarbe. Generell empfiehlt sich hier ein Weißton, aber hey, warum nicht ein bisschen Spaß haben?
+  </notification>
+
+  <notification
+   
+   name="HelpCloudDetail"
+   >
+Steuert das Detailbild, welches über das Wolken-Hauptbild gelegt wird.  X und Y bestimmen seine Position.  D (Dichte) regelt, wie ausgebeult oder zerrissen die Wolken wirken.
+  </notification>
+
+  <notification
+   
+   name="HelpCloudDensity"
+   >
+Mit den X- und Y-Reglern steuern Sie die Position der Wolken, mit dem Regler D die Wolkendichte.
+  </notification>
+
+  <notification
+   
+   name="HelpCloudCoverage"
+   >
+Steuert, wie stark die Wolken den Himmel bedecken.
+  </notification>
+
+  <notification
+   
+   name="HelpCloudScale"
+   >
+Steuert die Skalierung des Wolkenbilds auf der Himmelskuppel.
+  </notification>
+
+  <notification
+   
+   name="HelpCloudScrollX"
+   >
+Steuert die Bewegungsgeschwindigkeit der Wolken in X-Richtung.
+  </notification>
+
+  <notification
+   
+   name="HelpCloudScrollY"
+   >
+Steuert die Bewegungsgeschwindigkeit der Wolken in Y-Richtung.
+  </notification>
+
+  <notification
+   
+   name="HelpClassicClouds"
+   >
+Aktivieren Sie dieses Kontrollkästchen, um die Darstellung der klassischen Second Life Wolken zusätzlich zu den WindLight-Wolken zu erzwingen.
+  </notification>
+
+  <notification
+   
+   name="HelpWaterFogColor"
+   >
+Steuert die Farbe der Wassertrübung
+  </notification>
+
+  <notification
+   
+   name="HelpWaterFogDensity"
+   >
+Steuert die Dichte der Wassertrübung und wie weit Sie unter Wasser sehen können.
+  </notification>
+
+  <notification
+   
+   name="HelpUnderWaterFogMod"
+   >
+Beeinflusst die Auswirkung des Wassertrübungs-Exponenten und regelt die Sichtweite Ihres Avatars unter Wasser.
+  </notification>
+
+  <notification
+   
+   name="HelpWaterGlow"
+   >
+Steuert, wie groß der Anteil der leuchtenden Wasseroberfläche ist.
+  </notification>
+
+  <notification
+   
+   name="HelpWaterNormalScale"
+   >
+Steuert die Skalierung der drei Elementarwellen, die das Wasser ausmachen.
+  </notification>
+
+  <notification
+   
+   name="HelpWaterFresnelScale"
+   >
+Steuert die winkelabhängige Lichtreflexion.
+  </notification>
+
+  <notification
+   
+   name="HelpWaterFresnelOffset"
+   >
+Steuert die Intensität des reflektierten Lichts.
+  </notification>
+
+  <notification
+   
+   name="HelpWaterScaleAbove"
+   >
+Steuert die Stärke der Lichtbrechung von oberhalb der Wasseroberfläche aus gesehen.
+  </notification>
+
+  <notification
+   
+   name="HelpWaterScaleBelow"
+   >
+Steuert die Stärke der Lichtbrechung von unterhalb der Wasseroberfläche aus gesehen.
+  </notification>
+
+  <notification
+   
+   name="HelpWaterBlurMultiplier"
+   >
+Steuert die Mischung von Wellen und Reflexionen.
+  </notification>
+
+  <notification
+   
+   name="HelpWaterNormalMap"
+   >
+Ermöglicht die Auswahl einer Normal-Map zur Berechnung von Reflexionen/Brechungen auf dem Wasser.
+  </notification>
+
+  <notification
+   
+   name="HelpWaterWave1"
+   >
+Steuert die Bewegungsgeschwindigkeit und -richtung der großen Normal-Map-Version in X- und Y-Richtung.
+  </notification>
+
+  <notification
+   
+   name="HelpWaterWave2"
+   >
+Steuert die Bewegungsgeschwindigkeit und -richtung der kleinen Normal-Map-Version in X- und Y-Richtung.
+  </notification>
+
+  <notification
+   
+   name="NewSkyPreset"
+   >
+Wählen Sie einen Namen für den neuen Himmel.
+    <form name="form">
+      <input name="message" type="text">
+Neue Voreinstellung
+      </input>
+      <button
+       
+       
+       name="OK"
+       text="OK"/>
+      <button
+       
+       name="Cancel"
+       text="Abbrechen"/>
+    </form>
+  </notification>
+
+  <notification
+   
+   name="ExistsSkyPresetAlert"
+   >
+Voreinstellung bereits vorhanden!
+  </notification>
+
+  <notification
+   
+   name="NewWaterPreset"
+   >
+Wählen Sie einen Namen für die neue Wasservoreinstellung.
+    <form name="form">
+      <input name="message" type="text">
+Neue Voreinstellung
+      </input>
+      <button
+       
+       
+       name="OK"
+       text="OK"/>
+      <button
+       
+       name="Cancel"
+       text="Abbrechen"/>
+    </form>
+  </notification>
+
+  <notification
+   
+   name="ExistsWaterPresetAlert"
+   >
+Voreinstellung bereits vorhanden!
+  </notification>
+
+  <notification
+   
+   name="WaterNoEditDefault"
+   >
+Standardvoreinstellungen können nicht bearbeitet oder gelöscht werden.
+  </notification>
+
+  <notification
+   
+   name="ChatterBoxSessionStartError"
+   >
+Neue Chat-Sitzung mit [RECIPIENT] konnte nicht gestartet werden.
+[REASON]
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="ChatterBoxSessionEventError"
+   >
+[EVENT]
+[REASON]
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="ForceCloseChatterBoxSession"
+   >
+Ihre Chat-Sitzung mit [NAME] muss beendet werden.
+[REASON]
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="Cannot_Purchase_an_Attachment"
+   >
+Objekte können nicht gekauft werden, solange sie Teil eines Anhangs sind.
+  </notification>
+
+  <notification
+   
+   label="Info zur Abfrage der Abbucherlaubnis"
+   name="DebitPermissionDetails"
+   >
+Wenn Sie dieser Anfrage zustimmen, erhält das Skript die Erlaubnis, regelmäßig Linden-Dollar (L$) von Ihrem Konto abzubuchen. Diese Erlaubnis kann nur zurückgezogen werden, wenn der Eigentümer das Objekt löscht oder die Skripts in dem Objekt zurücksetzt.
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   
+   name="AutoWearNewClothing"
+   >
+Möchten Sie das neu erstellte Kleidungsstück automatisch anziehen?
+    <usetemplate
+     ignoretext="Neue Kleidung automatisch tragen"
+     name="okcancelignore"
+     notext="Nein"
+     yestext="Ja"/>
+  </notification>
+
+  <notification
+   
+   name="NotAgeVerified"
+   >
+Um Zugang zu dieser Parzelle zu erhalten, müssen Sie sich einer Altersprüfung unterziehen.
+Möchten Sie auf der Second Life Website eine Altersüberprüfung durchführen?
+
+[_URL]
+    <url option="0" name="url">
+
+			https://secondlife.com/account/verification.php?lang=de
+    </url>
+    <usetemplate
+     ignoretext="Auf fehlende Altersprüfung aufmerksam machen"
+     name="okcancelignore"
+     notext="Nein"
+     yestext="Ja"/>
+  </notification>
+
+  <notification
+   
+   name="Cannot enter parcel: no payment info on file"
+   >
+Um Zugang zu dieser Parzelle zu erhalten, müssen Sie Zahlungsinformationen hinterlegt haben.
+Möchten Sie die Second Life Website öffnen, um diese Angaben zu hinterlegen?
+
+[_URL]
+    <url option="0" name="url">
+
+			https://secondlife.com/account/index.php?lang=de
+    </url>
+    <usetemplate
+     ignoretext="Auf fehlende Zahlungsinformationen aufmerksam machen"
+     name="okcancelignore"
+     notext="Nein"
+     yestext="Ja"/>
+  </notification>
+
+  <notification
+   
+   name="MissingString"
+   >
+Der String „[STRING_NAME]“ fehlt in strings.xml
+  </notification>
+
+  <notification
+   
+   name="SystemMessageTip"
+   >
+[MESSAGE]
+  </notification>
+
+  <notification
+   
+   name="Cancelled"
+   >
+Abgebrochen
+  </notification>
+
+  <notification
+   
+   name="CancelledSit"
+   >
+Sitzen beendet
+  </notification>
+
+  <notification
+   
+   name="CancelledAttach"
+   >
+Anhängen abgebrochen
+  </notification>
+
+  <notification
+   
+   name="ReplacedMissingWearable"
+   >
+Fehlende(s) Kleidung/Körperteil mit Standard ersetzt.
+  </notification>
+
+  <notification
+   
+   name="GroupNotice"
+   >
+Betreff: [SUBJECT], Nachricht: [MESSAGE]
+  </notification>
+
+  <notification
+   
+   name="FriendOnline"
+   >
+[FIRST] [LAST] ist online
+  </notification>
+
+  <notification
+   
+   name="FriendOffline"
+   >
+[FIRST] [LAST] ist offline
+  </notification>
+
+  <notification
+   
+   name="AddSelfFriend"
+   >
+Sie können sich nicht selbst als Freund hinzufügen.
+  </notification>
+
+  <notification
+   
+   name="UploadingAuctionSnapshot"
+   >
+In-Welt- und Website-Fotos werden hochgeladen...
+(Dauert ca. 5 Minuten.)
+  </notification>
+
+  <notification
+   
+   name="UploadPayment"
+   >
+Sie haben für das Hochladen [AMOUNT] L$ bezahlt.
+  </notification>
+
+  <notification
+   
+   name="UploadWebSnapshotDone"
+   >
+Das Website-Foto wurde hochgeladen.
+  </notification>
+
+  <notification
+   
+   name="UploadSnapshotDone"
+   >
+In-Welt-Foto hochgeladen
+  </notification>
+
+  <notification
+   
+   name="TerrainDownloaded"
+   >
+Terrain.raw heruntergeladen
+  </notification>
+
+  <notification
+   
+   name="GestureMissing"
+   >
+Geste [NAME] fehlt in Datenbank.
+  </notification>
+
+  <notification
+   
+   name="UnableToLoadGesture"
+   >
+Geste [NAME] konnte nicht geladen werden.
+Bitte versuchen Sie es erneut.
+  </notification>
+
+  <notification
+   
+   name="LandmarkMissing"
+   >
+Landmarke fehlt in Datenbank.
+  </notification>
+
+  <notification
+   
+   name="UnableToLoadLandmark"
+   >
+Landmarke konnte nicht geladen werden.  Bitte versuchen Sie es erneut.
+  </notification>
+
+  <notification
+   
+   name="CapsKeyOn"
+   >
+Die Feststelltaste ist aktiv.
+Da dies Auswirkung auf die Kennworteingabe hat, sollten Sie die Taste besser ausschalten.
+  </notification>
+
+  <notification
+   
+   name="NotecardMissing"
+   >
+Notizkarte fehlt in Datenbank.
+  </notification>
+
+  <notification
+   
+   name="NotecardNoPermissions"
+   >
+Unzureichende Rechte zur Anzeige der Notizkarte.
+  </notification>
+
+  <notification
+   
+   name="RezItemNoPermissions"
+   >
+Keine Berechtigung zum Rezzen von Objekten.
+  </notification>
+
+  <notification
+   
+   name="UnableToLoadNotecard"
+   >
+Notizkarte konnte nicht geladen werden.
+Bitte versuchen Sie es erneut.
+  </notification>
+
+  <notification
+   
+   name="ScriptMissing"
+   >
+Skript fehlt in Datenbank.
+  </notification>
+
+  <notification
+   
+   name="ScriptNoPermissions"
+   >
+Unzureichende Rechte zur Anzeige des Skripts.
+  </notification>
+
+  <notification
+   
+   name="UnableToLoadScript"
+   >
+Skript konnte nicht geladen werden.  Bitte versuchen Sie es erneut.
+  </notification>
+
+  <notification
+   
+   name="IncompleteInventory"
+   >
+Die von Ihnen angebotenen Inhalte sind noch nicht vollständig lokal verfügbar. Warten Sie kurz und wiederholen Sie dann das Angebot.
+  </notification>
+
+  <notification
+   
+   name="CannotModifyProtectedCategories"
+   >
+Geschützte Kategorien können nicht geändert werden.
+  </notification>
+
+  <notification
+   
+   name="CannotRemoveProtectedCategories"
+   >
+Geschützte Kategorien können nicht entfernt werden.
+  </notification>
+
+  <notification
+   
+   name="OfferedCard"
+   >
+Sie haben [FIRST] [LAST] eine Visitenkarte angeboten.
+  </notification>
+
+  <notification
+   
+   name="OfferedFriendship"
+   >
+Sie haben [FIRST] [LAST] die Freundschaft angeboten.
+  </notification>
+
+  <notification
+   
+   name="UnableToBuyWhileDownloading"
+   >
+Kauf nicht möglich. Objektdaten werden noch geladen.
+Bitte versuchen Sie es erneut.
+  </notification>
+
+  <notification
+   
+   name="UnableToLinkWhileDownloading"
+   >
+Verknüpfung nicht möglich. Objektdaten werden noch geladen.
+Bitte versuchen Sie es erneut.
+  </notification>
+
+  <notification
+   
+   name="CannotBuyObjectsFromDifferentOwners"
+   >
+Objekte können nicht von mehreren Eigentümern gleichzeitig gekauft werden.
+Wählen Sie ein einzelnes Objekt aus.
+  </notification>
+
+  <notification
+   
+   name="ObjectNotForSale"
+   >
+Objekt ist nicht zu verkaufen.
+  </notification>
+
+  <notification
+   
+   name="EnteringGodMode"
+   >
+Gott-Modus aktiviert, Level [LEVEL]
+  </notification>
+
+  <notification
+   
+   name="LeavingGodMode"
+   >
+Gott-Modus deaktiviert, Level [LEVEL]
+  </notification>
+
+  <notification
+   
+   name="CopyFailed"
+   >
+Kopieren aufgrund fehlender Kopierrechte fehlgeschlagen
+  </notification>
+
+  <notification
+   
+   name="InventoryAccepted"
+   >
+[NAME] hat Ihr Inventarangebot akzeptiert.
+  </notification>
+
+  <notification
+   
+   name="InventoryDeclined"
+   >
+[NAME] hat Ihr Inventarangebot abgelehnt.
+  </notification>
+
+  <notification
+   
+   name="ObjectMessage"
+   >
+[NAME]: [MESSAGE]
+  </notification>
+
+  <notification
+   
+   name="CallingCardAccepted"
+   >
+Ihre Visitenkarte wurde akzeptiert.
+  </notification>
+
+  <notification
+   
+   name="CallingCardDeclined"
+   >
+Ihre Visitenkarte wurde abgelehnt.
+  </notification>
+
+  <notification
+   
+   name="TeleportToLandmark"
+   >
+Jetzt, nachdem Sie das Mainland erreicht haben, können Sie sich an Positionen wie „[NAME]“ teleportieren, indem Sie unten rechts im Fenster auf „Inventar“ klicken und den Ordner „Landmarken“ auswählen.
+Klicken Sie eine Landmarke doppelt an und wählen Sie „Teleportieren“, um an diesen Ort zu gelangen.
+  </notification>
+
+  <notification
+   
+   name="TeleportToPerson"
+   >
+Jetzt, nachdem Sie das Mainland erreicht haben, können Sie mit Einwohnern wie „[NAME]“ Kontakt aufnehmen, indem Sie unten rechts im Fenster auf „Inventar“ klicken und den Ordner „Visitenkarten“ auswählen.
+Klicken Sie die Karte doppelt an, wählen Sie „Instant Message“ und geben Sie eine Nachricht ein.
+  </notification>
+
+  <notification
+   
+   name="CantSelectLandFromMultipleRegions"
+   >
+Land kann nicht über Servergrenzen hinweg ausgewählt werden.
+Wählen Sie eine kleinere Landfläche.
+  </notification>
+
+  <notification
+   
+   name="GroupVote"
+   >
+[NAME] hat eine Abstimmung vorgeschlagen über:
+[MESSAGE]
+    <form name="form">
+      <button
+       
+       name="VoteNow"
+       text="Abstimmen"/>
+      <button
+       
+       name="Later"
+       text="Später"/>
+    </form>
+  </notification>
+
+  <notification
+   
+   name="SystemMessage"
+   >
+[MESSAGE]
+  </notification>
+
+  <notification
+   
+   name="EventNotification"
+   >
+Event-Benachrichtigung:
+
+[NAME]
+[DATE]
+    <form name="form">
+      <button
+       
+       name="Teleport"
+       text="Teleportieren"/>
+      <button
+       
+       name="Description"
+       text="Beschreibung"/>
+      <button
+       
+       name="Cancel"
+       text="Abbrechen"/>
+    </form>
+  </notification>
+
+  <notification
+   
+   name="TransferObjectsHighlighted"
+   >
+Alle Objekte auf dieser Parzelle, die an den Käufer der Parzelle übertragen werden, sind jetzt markiert.
+
+* Übertragene Bäume und Gräser sind nicht markiert.
+    <form name="form">
+      <button
+       
+       name="Done"
+       text="Fertig"/>
+    </form>
+  </notification>
+
+  <notification
+   
+   name="DeactivatedGesturesTrigger"
+   >
+Gesten mit demselben Trigger wurden deaktiviert:
+[NAMES]
+  </notification>
+
+  <notification
+   
+   name="NoQuickTime"
+   >
+Apple QuickTime ist auf Ihrem System anscheinend nicht installiert.
+Laden Sie QuickTime von der QuickTime-Webseite (http://www.apple.com/de/quicktime) herunter, um auf Parzellen, die diese Funktion unterstützen, Streaming-Inhalte wiederzugeben.
+  </notification>
+
+  <notification
+   
+   name="OwnedObjectsReturned"
+   >
+Ihre Objekte auf der ausgewählten Parzelle wurden in Ihr Inventar transferiert.
+  </notification>
+
+  <notification
+   
+   name="OtherObjectsReturned"
+   >
+Die Objekte von [FIRST] [LAST] auf dieser Parzelle wurden in das Inventar dieser Person transferiert.
+  </notification>
+
+  <notification
+   
+   name="OtherObjectsReturned2"
+   >
+Die Objekte von [FIRST] [LAST] auf dieser
+Parzelle von „[NAME]“ wurden an ihren Eigentümer zurückgegeben.
+  </notification>
+
+  <notification
+   
+   name="GroupObjectsReturned"
+   >
+Die mit der Gruppe [GROUPNAME] gemeinsam genutzten Objekte auf dieser Parzelle wurden in das Inventar ihrer Eigentümer transferiert.
+Transferierbare übertragene Objekte wurden an ihre früheren Eigentümer zurückgegeben.
+Nicht transferierbare an die Gruppe übertragene Objekte wurden gelöscht.
+  </notification>
+
+  <notification
+   
+   name="UnOwnedObjectsReturned"
+   >
+Alle Objekte auf der ausgewählten Parzelle, die NICHT Ihnen gehören, wurden ihren Eigentümern zurückgegeben.
+  </notification>
+
+  <notification
+   
+   name="NotSafe"
+   >
+Auf diesem Land ist Schaden aktiviert („Unsicher“).
+Verletzungen sind möglich. Wenn Sie sterben, werden Sie zu Ihrem Heimatstandort teleportiert.
+  </notification>
+
+  <notification
+   
+   name="NoFly"
+   >
+Auf diesem Land ist Fliegen deaktiviert („Fliegen aus“).
+Fliegen ist hier nicht möglich.
+  </notification>
+
+  <notification
+   
+   name="PushRestricted"
+   >
+Auf diesem Land gilt „Kein Stoßen“.
+Sie können keine anderen Personen stoßen, außer Ihnen gehört das Land.
+  </notification>
+
+  <notification
+   
+   name="NoVoice"
+   >
+Auf diesem Land ist Voice deaktiviert.
+  </notification>
+
+  <notification
+   
+   name="NoBuild"
+   >
+Auf diesem Land ist Bauen deaktiviert („Bauen aus“).
+Sie können hier keine Objekte erstellen.
+  </notification>
+
+  <notification
+   
+   name="ScriptsStopped"
+   >
+Ein Administrator hat die Skriptausführung in dieser Region vorübergehend deaktiviert.
+  </notification>
+
+  <notification
+   
+   name="ScriptsNotRunning"
+   >
+In dieser Region werden keine Skipts ausgeführt.
+  </notification>
+
+  <notification
+   
+   name="NoOutsideScripts"
+   >
+Auf diesem Land sind externe Skripts deaktiviert
+(„Externe Skripts aus“).
+Nur Skripts, die dem Landeigentümer gehören, funktionieren.
+  </notification>
+
+  <notification
+   
+   name="ClaimPublicLand"
+   >
+Öffentliches Land kann nur in der Region in Besitz genommen werden, in der Sie sich befinden.
+  </notification>
+
+  <notification
+   
+   name="ObjectGiveItem"
+   >
+Das Objekt [OBJECTFROMNAME] von [FIRST] [LAST] hat Ihnen Folgendes übergeben: [OBJECTTYPE] ([OBJECTNAME]).
+    <form name="form">
+      <button
+       
+       name="Keep"
+       text="Behalten"/>
+      <button
+       
+       name="Discard"
+       text="Verwerfen"/>
+      <button
+       
+       name="Mute"
+       text="Stummschalten"/>
+    </form>
+  </notification>
+
+  <notification
+   
+   name="ObjectGiveItemUnknownUser"
+   >
+Das Objekt [OBJECTFROMNAME] von (unbekannt) hat Ihnen Folgendes übergeben: [OBJECTTYPE] ([OBJECTNAME]).
+    <form name="form">
+      <button
+       
+       name="Keep"
+       text="Behalten"/>
+      <button
+       
+       name="Discard"
+       text="Verwerfen"/>
+      <button
+       
+       name="Mute"
+       text="Stummschalten"/>
+    </form>
+  </notification>
+
+  <notification
+   
+   name="UserGiveItem"
+   >
+[NAME] hat Ihnen ein [OBJECTTYPE] namens „[OBJECTNAME]“ gegeben.
+    <form name="form">
+      <button
+       
+       name="Keep"
+       text="Behalten"/>
+      <button
+       
+       name="Discard"
+       text="Verwerfen"/>
+      <button
+       
+       name="Mute"
+       text="Stummschalten"/>
+    </form>
+  </notification>
+
+  <notification
+   
+   name="GodMessage"
+   >
+[NAME]
+[MESSAGE]
+  </notification>
+
+  <notification
+   
+   name="JoinGroup"
+   >
+[MESSAGE]
+    <form name="form">
+      <button
+       
+       name="Join"
+       text="Beitreten"/>
+      <button
+       
+       name="Decline"
+       text="Ablehnen"/>
+      <button
+       
+       name="Info"
+       text="Info"/>
+    </form>
+  </notification>
+
+  <notification
+   
+   name="TeleportOffered"
+   >
+[NAME] hat angeboten, Sie zu ihrem/seinem Standort zu teleportieren:
+
+[MESSAGE]
+    <form name="form">
+      <button
+       
+       name="Teleport"
+       text="Teleportieren"/>
+      <button
+       
+       name="Cancel"
+       text="Abbrechen"/>
+    </form>
+  </notification>
+
+  <notification
+   
+   name="GotoURL"
+   >
+[MESSAGE]
+[URL]
+    <form name="form">
+      <button
+       
+       name="Later"
+       text="Später"/>
+      <button
+       
+       name="GoNow..."
+       text="Jetzt gehen..."/>
+    </form>
+  </notification>
+
+  <notification
+   
+   name="OfferFriendship"
+   >
+[NAME] bietet Ihnen die Freundschaft an.
+
+[MESSAGE]
+
+(Standardmäßig werden Sie gegenseitig ihren Online-Status sehen können.)
+    <form name="form">
+      <button
+       
+       name="Accept"
+       text="Akzeptieren"/>
+      <button
+       
+       name="Decline"
+       text="Ablehnen"/>
+    </form>
+  </notification>
+
+  <notification
+   
+   name="OfferFriendshipNoMessage"
+   >
+[NAME] bietet Ihnen die Freundschaft an.
+
+(Sie werden dadurch den gegenseitigen Online-Status sehen können.)
+    <form name="form">
+      <button
+       
+       name="Accept"
+       text="Akzeptieren"/>
+      <button
+       
+       name="Decline"
+       text="Ablehnen"/>
+    </form>
+  </notification>
+
+  <notification
+   
+   name="FriendshipAccepted"
+   >
+[NAME] hat Ihr Freundschaftsangebot akzeptiert.
+  </notification>
+
+  <notification
+   
+   name="FriendshipDeclined"
+   >
+[NAME] hat Ihr Freundschaftsangebot abgelehnt.
+  </notification>
+
+  <notification
+   
+   name="OfferCallingCard"
+   >
+[FIRST] [LAST] bietet Ihnen eine Visitenkarte an.
+Dies erstellt ein Lesezeichen in Ihrem Inventar, damit Sie diesen Einwohner jederzeit über IM erreichen.
+    <form name="form">
+      <button
+       
+       name="Accept"
+       text="Akzeptieren"/>
+      <button
+       
+       name="Decline"
+       text="Ablehnen"/>
+    </form>
+  </notification>
+
+  <notification
+   
+   name="RegionRestartMinutes"
+   
+   
+   >
+Region wird in [MINUTES] Minuten neu gestartet.
+Wenn Sie in dieser Region bleiben, werden Sie abgemeldet.
+  </notification>
+
+  <notification
+   
+   name="RegionRestartSeconds"
+   
+   
+   >
+Region wird in [SECONDS] Sekunden neu gestartet.
+Wenn Sie in dieser Region bleiben, werden Sie abgemeldet.
+  </notification>
+
+  <notification
+   
+   name="LoadWebPage"
+   >
+Webseite [URL] laden?
+
+[MESSAGE]
+
+Von Objekt: [OBJECTNAME], Eigentümer: [NAME]?
+    <form name="form">
+      <button
+       
+       name="Gotopage"
+       text="Gehe zu Seite"/>
+      <button
+       
+       name="Cancel"
+       text="Abbrechen"/>
+    </form>
+  </notification>
+
+  <notification
+   
+   name="FailedToFindWearableUnnamed"
+   >
+[TYPE] nicht in Datenbank.
+  </notification>
+
+  <notification
+   
+   name="FailedToFindWearable"
+   >
+[TYPE] namens [DESC] nicht in Datenbank.
+  </notification>
+
+  <notification
+   
+   name="ScriptQuestion"
+   >
+Das Objekt „[OBJECTNAME]“, Eigentum von „[NAME]“, möchte:
+
+[QUESTIONS]
+Ist das OK?
+    <form name="form">
+      <button
+       
+       name="Yes"
+       text="Ja"/>
+      <button
+       
+       name="No"
+       text="Nein"/>
+      <button
+       
+       name="Mute"
+       text="Stummschalten"/>
+    </form>
+  </notification>
+
+  <notification
+   
+   name="ScriptQuestionCaution"
+   >
+Das Objekt „[OBJECTNAME]“, Eigentum von „[NAME]“, möchte:
+
+[QUESTIONS]
+Wenn Sie diesem Objekt und seinem Ersteller nicht vertrauen, sollten Sie diese Anfrage ablehnen. Klicken Sie für weitere Informationen auf „Info...“.
+
+Anfrage gestatten?
+    <form name="form">
+      <button
+       
+       name="Grant"
+       text="Gewähren"/>
+      <button
+       
+       name="Deny"
+       text="Verweigern"/>
+      <button
+       
+       name="Details"
+       text="Info..."/>
+    </form>
+  </notification>
+
+  <notification
+   
+   name="ScriptDialog"
+   >
+[FIRST] [LAST]s „[TITLE]“
+[MESSAGE]
+    <form name="form">
+      <button
+       
+       name="Ignore"
+       text="Ignorieren"/>
+    </form>
+  </notification>
+
+  <notification
+   
+   name="ScriptDialogGroup"
+   >
+[GROUPNAME]s „[TITLE]“
+[MESSAGE]
+    <form name="form">
+      <button
+       
+       name="Ignore"
+       text="Ignorieren"/>
+    </form>
+  </notification>
+
+  <notification
+   
+   name="FirstBalanceIncrease"
+   >
+Sie haben gerade [AMOUNT] L$ erhalten.
+Objekte und andere Benutzer können Ihnen L$ geben.
+Ihren Kontostand sehen Sie in der oberen rechten Ecke des Bildschirms.
+  </notification>
+
+  <notification
+   
+   name="FirstBalanceDecrease"
+   >
+Sie haben gerade [AMOUNT] L$ bezahlt.
+Ihren Kontostand sehen Sie in der oberen rechten Ecke des Bildschirms.
+  </notification>
+
+  <notification
+   
+   name="FirstSit"
+   >
+Sie sitzen.
+Benutzen Sie die Pfeil- oder WASD-Tasten, um die Ansicht zu ändern.
+Klicken Sie auf „Aufstehen“, um aufzustehen.
+  </notification>
+
+  <notification
+   
+   name="FirstMap"
+   >
+Zum Verschieben der Karte klicken und ziehen.
+Zum Teleportieren doppelklicken.
+Nutzen Sie die Optionen links, um Dinge zu finden und um verschiedene Hintergründe anzuzeigen.
+  </notification>
+
+  <notification
+   
+   name="FirstBuild"
+   >
+In einigen Bereichen von [SECOND_LIFE] können Sie neue Objekte erstellen.
+Verwenden Sie zum Bauen die Werkzeuge oben links.
+Mit den Strg- und Alt-Tasten können Sie schnell zwischen den Werkzeugen umschalten.
+Drücken Sie Esc, um das Bauen abzubrechen.
+  </notification>
+
+  <notification
+   
+   name="FirstLeftClickNoHit"
+   >
+Die linke Maustaste ermöglicht Objektinteraktionen.
+Der Mauszeiger zeigt eine Hand, wenn Sie
+mit dem Objekt interagieren können.
+Die rechte Maustaste zeigt immer ein Aktionsmenü an.
+  </notification>
+
+  <notification
+   
+   name="FirstTeleport"
+   >
+Diese Region unterstützt keine direkten Teleports. Sie wurden zum nächstgelegenen Telehub transportiert.
+Ihr Ziel ist mit einem großen roten Strahl markiert. Folgen Sie dem roten Pfeil zum Strahl oder klicken Sie auf den Pfeil, um den Strahl zu entfernen.
+  </notification>
+
+  <notification
+   
+   name="FirstOverrideKeys"
+   >
+Ihre Bewegungstasten werden jetzt von einem Objekt gesteuert.
+Probieren Sie die Pfeil- oder WASD-Tasten aus.
+Manche Objekte (wie Waffen) müssen per Mouselook gesteuert werden.
+Drücken Sie dazu „M“.
+  </notification>
+
+  <notification
+   
+   name="FirstAppearance"
+   >
+Sie bearbeiten gerade Ihr Aussehen.
+Benutzen Sie die Pfeiltasten zum Drehen und Zoomen.
+Klicken Sie auf „Alles speichern“, wenn Sie fertig sind, um Ihr Aussehen zu speichern.
+Sie können Ihr Aussehen jederzeit verändern.
+  </notification>
+
+  <notification
+   
+   name="FirstInventory"
+   >
+Ihr Inventar. Es enthält Objekte, Notizkarten, Kleidung und andere Dinge in Ihrem Besitz.
+* Zum Anziehen eines Objekts oder Outfit-Ordners ziehen Sie es/ihn auf sich.
+* Um ein Objekt in der Welt abzulegen, ziehen Sie es auf den Boden.
+* Zum Lesen einer Notizkarte klicken Sie sie doppelt an.
+  </notification>
+
+  <notification
+   
+   name="FirstSandbox"
+   >
+Dies ist eine Sandkastenregion.
+Objekte, die Sie hier bauen, können gelöscht werden, wenn Sie das Gebiet verlassen. Sandkästen werden regelmäßig gereinigt. Weitere Informationen hierzu finden Sie oben im Bild neben dem Regionsnamen.
+
+Sandkastenregionen kommen selten vor und sind entsprechend gekennzeichnet.
+  </notification>
+
+  <notification
+   
+   name="FirstFlexible"
+   >
+Dieses Objekt ist flexibel.
+Ein flexibles Objekt ist ein Phantom und nicht physisch, bis die Option „Flexibel“ deaktiviert wurde.
+  </notification>
+
+  <notification
+   
+   name="FirstDebugMenus"
+   >
+Sie haben das Advanced-Menü aktiviert.
+Dieses Menü enthält nützliche Funktionen zum Debuggen von Second Life.
+Drücken Sie in Windows Strg-Alt-D (Mac: Befehl-Opt-Umschalt-D) zum Ein- und Ausschalten dieses Menüs.
+  </notification>
+
+  <notification
+   
+   name="FirstSculptedPrim"
+   >
+Sie bearbeiten ein geformtes Primitiv.
+Geformte Primitive benötigen eine spezielle Textur, die ihre Form definiert.
+Beispiele für Formtexturen finden Sie in der Inventarbibliothek.
+  </notification>
+
+  <notification
+   
+   name="FirstMedia"
+   >
+Sie haben die Medienwiedergabe gestartet.  Unter „Audio und Video“ im Fenster „Einstellungen“ können Sie festlegen, dass Medien automatisch wiedergegeben werden. Beachten Sie, dass dies bei nicht vertrauenswürdigen Medienseiten ein Sicherheitsrisiko darstellen kann.
+  </notification>
+
+  <notification
+   
+   name="MaxListSelectMessage"
+   >
+Sie können maximal [MAX_SELECT] Objekte
+von der Liste auswählen.
+  </notification>
+
+  <notification
+   
+   name="VoiceInviteP2P"
+   >
+[NAME] lädt Sie zu einem Voice-Chat ein.
+Klicken Sie auf „Akzeptieren“, um dem Gespräch beizutreten, oder auf „Ablehnen“, um die Einladung auszuschlagen. Klicken Sie auf „Stummschalten“, um diesen Anrufer stumm zu schalten.
+    <form name="form">
+      <button
+       
+       name="Accept"
+       text="Akzeptieren"/>
+      <button
+       
+       name="Decline"
+       text="Ablehnen"/>
+      <button
+       
+       name="Mute"
+       text="Stummschalten"/>
+    </form>
+  </notification>
+
+  <notification
+   
+   name="AutoUnmuteByIM"
+   >
+[FIRST] [LAST] hat eine Instant Message erhalten; die Stummschaltung wurde aufgehoben.
+  </notification>
+
+  <notification
+   
+   name="AutoUnmuteByMoney"
+   >
+[FIRST] [LAST] hat Geld erhalten; die Stummschaltung wurde aufgehoben.
+  </notification>
+
+  <notification
+   
+   name="AutoUnmuteByInventory"
+   >
+[FIRST] [LAST] wurde ein Inventarobjekt angeboten; die Stummschaltung wurde aufgehoben.
+  </notification>
+
+  <notification
+   
+   name="VoiceInviteGroup"
+   >
+[NAME] ist einem Voice-Chat mit der Gruppe [GROUP] beigetreten.
+Klicken Sie auf „Akzeptieren“, um dem Gespräch beizutreten, oder auf „Ablehnen“, um die Einladung auszuschlagen. Klicken Sie auf „Stummschalten“, um diesen Anrufer stumm zu schalten.
+    <form name="form">
+      <button
+       
+       name="Accept"
+       text="Akzeptieren"/>
+      <button
+       
+       name="Decline"
+       text="Ablehnen"/>
+      <button
+       
+       name="Mute"
+       text="Stummschalten"/>
+    </form>
+  </notification>
+
+  <notification
+   
+   name="VoiceInviteAdHoc"
+   >
+[NAME] ist einem Voice-Konferenz-Chat beigetreten.
+Klicken Sie auf „Akzeptieren“, um dem Gespräch beizutreten, oder auf „Ablehnen“, um die Einladung auszuschlagen. Klicken Sie auf „Stummschalten“, um diesen Benutzer stumm zu schalten.
+    <form name="form">
+      <button
+       
+       name="Accept"
+       text="Akzeptieren"/>
+      <button
+       
+       name="Decline"
+       text="Ablehnen"/>
+      <button
+       
+       name="Mute"
+       text="Stummschalten"/>
+    </form>
+  </notification>
+
+  <notification
+   
+   name="InviteAdHoc"
+   >
+[NAME] lädt Sie zu einem Konferenz-Chat ein.
+Klicken Sie auf „Akzeptieren“, um dem Chat beizutreten, oder auf „Ablehnen“, um die Einladung auszuschlagen. Klicken Sie auf „Stummschalten“, um diesen Benutzer stumm zu schalten.
+    <form name="form">
+      <button
+       
+       name="Accept"
+       text="Akzeptieren"/>
+      <button
+       
+       name="Decline"
+       text="Ablehnen"/>
+      <button
+       
+       name="Mute"
+       text="Stummschalten"/>
+    </form>
+  </notification>
+
+  <notification
+   
+   name="VoiceChannelFull"
+   >
+Der Voice-Chat, dem Sie beitreten möchten, [VOICE_CHANNEL_NAME], hat seine maximale Teilnehmerzahl erreicht. Bitte versuchen Sie es erneut.
+  </notification>
+
+  <notification
+   
+   name="ProximalVoiceChannelFull"
+   >
+Es tut uns Leid.  Dieses Gebiet hat seine maximale Kapazität für Voice-Gespräche erreicht.  Bitte versuchen Sie es in einem anderen Gebiet.
+  </notification>
+
+  <notification
+   
+   name="VoiceChannelDisconnected"
+   >
+Sie haben [VOICE_CHANNEL_NAME] verlassen.  Sie werden nun wieder mit dem Umgebungs-Voice-Chat verbunden.
+  </notification>
+
+  <notification
+   
+   name="VoiceChannelDisconnectedP2P"
+   >
+[VOICE_CHANNEL_NAME] hat das Gespräch beendet.  Sie werden nun wieder mit dem Umgebungs-Voice-Chat verbunden.
+  </notification>
+
+  <notification
+   
+   name="P2PCallDeclined"
+   >
+[VOICE_CHANNEL_NAME] hat Ihren Anruf abgelehnt.  Sie werden nun wieder mit dem Umgebungs-Voice-Chat verbunden.
+  </notification>
+
+  <notification
+   
+   name="P2PCallNoAnswer"
+   >
+[VOICE_CHANNEL_NAME] ist zurzeit nicht erreichbar.  Sie werden nun wieder mit dem Umgebungs-Voice-Chat verbunden.
+  </notification>
+
+  <notification
+   
+   name="VoiceChannelJoinFailed"
+   >
+Verbindung zu [VOICE_CHANNEL_NAME] nicht möglich. Bitte versuchen Sie es später.  Sie werden nun wieder mit dem Umgebungs-Voice-Chat verbunden.
+  </notification>
+
+  <notification
+   
+   name="VoiceLoginRetry"
+   >
+Wir erstellen einen Voice-Kanal für Sie. Bitte warten Sie einen Moment.
+  </notification>
+
+  <notification
+   
+   name="Cannot enter parcel: not a group member"
+   >
+Zugang zur Parzelle verweigert, Sie gehören keiner berechtigten Gruppe an.
+  </notification>
+
+  <notification
+   
+   name="Cannot enter parcel: banned"
+   >
+Zugang zur Parzelle verweigert. Sie wurden verbannt.
+  </notification>
+
+  <notification
+   
+   name="Cannot enter parcel: not on access list"
+   >
+Zugang zur Parzelle verweigert. Sie stehen nicht auf der Zugangsliste.
+  </notification>
+
+  <notification
+   
+   name="VoiceNotAllowed"
+   >
+Sie sind nicht berechtigt, einem Voice-Chat in [VOICE_CHANNEL_NAME] beizutreten.
+  </notification>
+
+  <notification
+   
+   name="VoiceCallGenericError"
+   >
+Fehler beim Versuch, eine Voice-Chat-Verbindung zu [VOICE_CHANNEL_NAME] herzustellen.  Bitte versuchen Sie es erneut.
+  </notification>
+
+  <notification
+   
+   name="ServerVersionChanged"
+   >
+Die Region, die Sie betreten haben, verwendet eine andere Simulatorversion. Klicken Sie auf diese Nachricht, um weitere Informationen zu erhalten.
+  </notification>
+
+  <notification
+   
+   name="UnableToOpenCommandURL"
+   >
+Die URL, die Sie angeklickt haben, kann in diesem Web Browser nicht geöffnet werden.
+  </notification>
+
+  <global name="UnsupportedCPU">
+- Ihre CPU-Geschwindigkeit entspricht nicht den Mindestanforderungen.
+  </global>
+
+  <global name="UnsupportedGLRequirements">
+Ihr Computer entspricht nicht den Hardwareanforderungen von Second Life. Second Life setzt eine OpenGL-Grafikkarte mit Multitextur-Unterstützung voraus. Falls Ihre Grafikkarte diese Funktion unterstützt, installieren Sie die neuesten Treiber sowie die aktuellen Service Packs und Patches für Ihr Betriebssystem.
+
+Sollte das Problem fortbestehen, finden Sie weitere Hilfestellung unter: http://www.secondlife.com/support
+  </global>
+
+  <global name="UnsupportedCPUAmount">
+796
+  </global>
+
+  <global name="UnsupportedRAMAmount">
+510
+  </global>
+
+  <global name="UnsupportedGPU">
+- Ihre Grafikkarte entspricht nicht den Mindestanforderungen.
+  </global>
+
+  <global name="UnsupportedRAM">
+- Ihr Arbeitsspeicher entspricht nicht den Mindestanforderungen.
+  </global>
+
+  <global name="PermYes">
+Ja
+  </global>
+
+  <global name="PermNo">
+Nein
+  </global>
+</notifications>
+

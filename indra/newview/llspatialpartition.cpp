@@ -2234,6 +2234,22 @@ void renderVisibility(LLSpatialGroup* group, LLCamera* camera)
 	}
 }
 
+void renderCrossHairs(LLVector3 position, F32 size, LLColor4 color)
+{
+	gGL.color4fv(color.mV);
+	gGL.begin(LLRender::LINES);
+	{
+		gGL.vertex3fv((position - LLVector3(size, 0.f, 0.f)).mV);
+		gGL.vertex3fv((position + LLVector3(size, 0.f, 0.f)).mV);
+		gGL.vertex3fv((position - LLVector3(0.f, size, 0.f)).mV);
+		gGL.vertex3fv((position + LLVector3(0.f, size, 0.f)).mV);
+		gGL.vertex3fv((position - LLVector3(0.f, 0.f, size)).mV);
+		gGL.vertex3fv((position + LLVector3(0.f, 0.f, size)).mV);
+	}
+	gGL.end();
+}
+
+
 void renderBoundingBox(LLDrawable* drawable, BOOL set_color = TRUE)
 {
 	if (set_color)
@@ -2405,7 +2421,7 @@ void renderTextureAnim(LLDrawInfo* params)
 	}
 	
 	LLGLEnable blend(GL_BLEND);
-	gGL.color4f(1,1,0,0.5f);
+	glColor4f(1,1,0,0.5f);
 	pushVerts(params, LLVertexBuffer::MAP_VERTEX);
 }
 
@@ -2507,6 +2523,25 @@ void renderRaycast(LLDrawable* drawablep)
 	}
 }
 
+
+void renderAvatarCollisionVolumes(LLVOAvatar* avatar)
+{
+	avatar->renderCollisionVolumes();
+}
+
+void renderAgentTarget(LLVOAvatar* avatar)
+{
+	// render these for self only (why, i don't know)
+	if (avatar->isSelf())
+	{
+		renderCrossHairs(avatar->getPositionAgent(), 0.2f, LLColor4(1, 0, 0, 0.8f));
+		renderCrossHairs(avatar->mDrawable->getPositionAgent(), 0.2f, LLColor4(1, 0, 0, 0.8f));
+		renderCrossHairs(avatar->mRoot.getWorldPosition(), 0.2f, LLColor4(1, 1, 1, 0.8f));
+		renderCrossHairs(avatar->mPelvisp->getWorldPosition(), 0.2f, LLColor4(0, 0, 1, 0.8f));
+	}
+}
+
+
 class LLOctreeRenderNonOccluded : public LLOctreeTraveler<LLDrawable>
 {
 public:
@@ -2591,6 +2626,19 @@ public:
 			{
 				renderRaycast(drawable);
 			}
+
+			LLVOAvatar* avatar = dynamic_cast<LLVOAvatar*>(drawable->getVObj().get());
+			
+			if (avatar && gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_AVATAR_VOLUME))
+			{
+				renderAvatarCollisionVolumes(avatar);
+			}
+
+			if (avatar && gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_AGENT_TARGET))
+			{
+				renderAgentTarget(avatar);
+			}
+			
 		}
 		
 		for (LLSpatialGroup::draw_map_t::iterator i = group->mDrawMap.begin(); i != group->mDrawMap.end(); ++i)
@@ -2667,7 +2715,9 @@ void LLSpatialPartition::renderDebug()
 									  LLPipeline::RENDER_DEBUG_POINTS |
 									  LLPipeline::RENDER_DEBUG_TEXTURE_PRIORITY |
 									  LLPipeline::RENDER_DEBUG_TEXTURE_ANIM |
-									  LLPipeline::RENDER_DEBUG_RAYCAST))
+									  LLPipeline::RENDER_DEBUG_RAYCAST |
+									  LLPipeline::RENDER_DEBUG_AVATAR_VOLUME |
+									  LLPipeline::RENDER_DEBUG_AGENT_TARGET))
 	{
 		return;
 	}

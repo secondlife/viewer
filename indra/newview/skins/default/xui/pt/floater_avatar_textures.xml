@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="avatar_texture_debug" title="Textura do Avatar">
+<floater name="avatar_texture_debug" title="Texturas do Avatar">
 	<text name="baked_label">
 		Texturas sobrepostas
 	</text>

@@ -1,26 +1,26 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="buy currency" title="Comprar moneda">
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="buy currency" title="Comprar dinero">
 	<text name="info_buying">
-		Comprando moneda:
+		Comprando dinero:
 	</text>
 	<text name="info_cannot_buy">
-		No fue posible comprar ahora:
+		No puede comprar en este momento:
 	</text>
 	<text name="info_need_more">
-		Usted necesita de más moneda:
+		Necesita más dinero:
 	</text>
 	<text name="error_message">
-		Algo no está&apos; cierto.
+		Algo no va bien.
 	</text>
-	<button label="Ir hacia el sitio" name="error_web" />
+	<button label="Ir al sitio web" name="error_web"/>
 	<text name="contacting">
-		Contactando LindeX...
+		Contactando con el LindeX...
 	</text>
 	<text name="buy_action_unknown">
-		Comrpar L$ en el actual cambio LindeX
+		Comprar L$ en el sistema LindeX de cambio de moneda
 	</text>
 	<text name="buy_action">
-		[NAME] L$ [PRICE]
+		[NAME] [PRICE] L$
 	</text>
 	<text name="currency_action">
 		Comprar L$
@@ -29,34 +29,40 @@
 		1234
 	</line_editor>
 	<text name="currency_est">
-		por aproximadamente US$ [USD]
+		por, aprox., [USD] US$
+	</text>
+	<text name="getting_data">
+		Obteniendo los datos...
 	</text>
 	<text name="balance_label">
-		Usted tiene
+		Actualmente, tiene
 	</text>
 	<text name="balance_amount">
-		L$ [AMT]
+		[AMT] L$
 	</text>
 	<text name="buying_label">
-		Usted está comprando
+		Está comprando
 	</text>
 	<text name="buying_amount">
-		L$ [AMT]
+		[AMT] L$
 	</text>
 	<text name="total_label">
-		Su balance será
+		Su saldo será de
 	</text>
 	<text name="total_amount">
-		L$ [AMT]
+		[AMT] L$
 	</text>
 	<text name="purchase_warning_repurchase">
-		Confirmar esta compra solamente compra la moneda.
-Usted necesitará&apos; repetir la operación.
+		Confirmando esta compra sólo compra la moneda.
+Tendrá que intentar de nuevo la operación.
 	</text>
 	<text name="purchase_warning_notenough">
-		Usted no está&apos; comprando moneda suficiente.
-Aumente la cuantía para comprar.
+		No está comprando dinero suficiente.
+Aumente la cantidad a comprar.
 	</text>
-	<button label="Comprar" name="buy_btn" />
-	<button label="Cancelar" name="cancel_btn" />
+	<button label="Cancelar" name="cancel_btn"/>
+	<button label="Comprar" name="buy_btn"/>
+	<string name="buy_currency">
+		Comprar L$ [LINDENS] por, aprox., [USD] U$D
+	</string>
 </floater>

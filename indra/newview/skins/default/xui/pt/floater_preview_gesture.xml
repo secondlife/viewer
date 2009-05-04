@@ -15,10 +15,10 @@
 	<text name="trigger_label">
 		Gatilho:
 	</text>
-	<text name="replace_text" tool_tip="Substituir a(s) palavra(s) gatilho por estas palavras.">
+	<text name="replace_text" tool_tip="Substituir a(s) palavra(s) de gatilho por estas palavras. Por exemplo, o gatilho &apos;oi&apos; substituído por &apos;olá&apos;, mudará a conversa de &apos;Eu digo oi&apos; para &apos;Eu digo olá&apos; e também executando o gesto!">
 		Substituir por:
 	</text>
-	<line_editor name="replace_editor" tool_tip="Substituir a(s) palavra(s) gatilho por estas palavras. "/>
+	<line_editor name="replace_editor" tool_tip="Substituir a(s) palavra(s) gatilho por estas palavras.Por exemplo, o gatilho &apos;oi&apos; substituído por &apos;olá&apos;, mudará a conversa de &apos;Eu digo oi&apos; para &apos;Eu digo olá&apos; e também executando o gesto!"/>
 	<text name="key_label">
 		Tecla de Atalho:
 	</text>
@@ -30,6 +30,12 @@
 	<text name="steps_label">
 		Passos:
 	</text>
+	<scroll_list name="library_list">
+		Animação
+Som
+Bate Papo
+Esperar
+	</scroll_list>
 	<button label="Incluir" name="add_btn"/>
 	<button label="Mover Para Cima" name="up_btn"/>
 	<button label="Mover Para Baixo" name="down_btn"/>
@@ -45,9 +51,9 @@
 			Parar
 		</radio_item>
 	</radio_group>
-	<check_box label="Até que a animação esteja concluída" name="wait_anim_check"/>
+	<check_box label="até que as animações estejam concluídas" name="wait_anim_check"/>
 	<check_box label="tempo em segundos" name="wait_time_check"/>
-	<check_box label="Ativar" name="active_check" tool_tip="Gesto ativos pode ser engatilhados escrevendo suas frases gatilho no chat ou através de suas teclas de atalho. Gestos normalmente ficam inativos quando existe um conflito nas teclas de atalho."/>
-	<button label="Preview" name="preview_btn"/>
+	<check_box label="Ativar" name="active_check" tool_tip="Gestos ativos podem ser gatilhados escrevendo suas frases de gatilho no chat ou através de suas teclas de atalho. Gestos normalmente ficam inativos quando existe um conflito nas teclas de atalho."/>
+	<button label="Prévia" name="preview_btn"/>
 	<button label="Salvar" name="save_btn"/>
 </floater>

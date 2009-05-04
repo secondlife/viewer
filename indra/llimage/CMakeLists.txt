@@ -14,6 +14,7 @@ include_directories(
     ${LLMATH_INCLUDE_DIRS}
     ${LLVFS_INCLUDE_DIRS}
     ${PNG_INCLUDE_DIRS}
+    ${ZLIB_INCLUDE_DIRS}
     )
 
 set(llimage_SOURCE_FILES

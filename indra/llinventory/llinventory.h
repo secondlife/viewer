@@ -200,6 +200,16 @@ public:
 		// EWearableType enumeration found in newview/llwearable.h
 		//
 		II_FLAGS_WEARABLES_MASK = 0xff,
+
+		// these bits need to be cleared whenever the asset_id is updated
+		// on a pre-existing inventory item (DEV-28098 and DEV-30997)
+		II_FLAGS_PERM_OVERWRITE_MASK  =   II_FLAGS_OBJECT_SLAM_PERM 
+										| II_FLAGS_OBJECT_SLAM_SALE 
+										| II_FLAGS_OBJECT_PERM_OVERWRITE_BASE
+										| II_FLAGS_OBJECT_PERM_OVERWRITE_OWNER
+										| II_FLAGS_OBJECT_PERM_OVERWRITE_GROUP
+										| II_FLAGS_OBJECT_PERM_OVERWRITE_EVERYONE
+										| II_FLAGS_OBJECT_PERM_OVERWRITE_NEXT_OWNER,
 	};
 
 protected:

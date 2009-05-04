@@ -1,0 +1,421 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<!-- This file contains strings that used to be hardcoded in the source.
+     It is only for those strings which don&apos;t belong in a floater.
+     For example, the strings used in avatar chat bubbles, and strings 
+     that are returned from one component and may appear in many places-->
+<strings>
+	<string name="LoginInProgress">
+		Inloggen. Het kan lijken dat [APP_NAME] is vastgelopen. Wacht u alstublieft... .
+	</string>
+	<string name="LoginAuthenticating">
+		Authenticeren
+	</string>
+	<string name="LoginMaintenance">
+		Account onderhoud wordt uitgevoerd...
+	</string>
+	<string name="LoginAttempt">
+		Vorige loginpoging is mislukt. Inloggen, poging [NUMBER]
+	</string>
+	<string name="LoginPrecaching">
+		Wereld laden...
+	</string>
+	<string name="LoginInitializingBrowser">
+		Geïntegreerde web browser initialiseren...
+	</string>
+	<string name="LoginInitializingMultimedia">
+		Multimedia initialiseren...
+	</string>
+	<string name="LoginVerifyingCache">
+		Cache bestanden verifiëren (kan 60-90 seconden duren)...
+	</string>
+	<string name="LoginProcessingResponse">
+		Antwoord verwerken...
+	</string>
+	<string name="LoginInitializingWorld">
+		Wereld initialiseren...
+	</string>
+	<string name="LoginDecodingImages">
+		Afbeeldingen decoderen...
+	</string>
+	<string name="LoginInitializingQuicktime">
+		QuickTime initialiseren...
+	</string>
+	<string name="LoginQuicktimeNotFound">
+		QuickTime niet gevonden - kan niet initialiseren.
+	</string>
+	<string name="LoginQuicktimeOK">
+		QuickTime succesvol geïnitialiseerd.
+	</string>
+	<string name="LoginWaitingForRegionHandshake">
+		Wachten op overeenstemming met regio...
+	</string>
+	<string name="LoginConnectingToRegion">
+		Verbinden met regio...
+	</string>
+	<string name="LoginDownloadingClothing">
+		Kleding downloaden...
+	</string>
+	<string name="LoginFailedNoNetwork">
+		Netwerk fout: Kan geen verbinding opzetten, controleer alstublieft uw netwerkverbinding
+	</string>
+	<string name="AgentLostConnection">
+		Deze regio kan problemen ondervinden. Controleer alstublieft uw verbinding met het internet.
+	</string>
+	<string name="TooltipPerson">
+		Persoon
+	</string>
+	<string name="TooltipNoName">
+		(geen naam)
+	</string>
+	<string name="TooltipOwner">
+		Eigenaar:
+	</string>
+	<string name="TooltipPublic">
+		Openbaar
+	</string>
+	<string name="TooltipIsGroup">
+		(Groep)
+	</string>
+	<string name="TooltipFlagScript">
+		Script
+	</string>
+	<string name="TooltipFlagPhysics">
+		Fysiek
+	</string>
+	<string name="TooltipFlagTouch">
+		Aanraken
+	</string>
+	<string name="TooltipFlagL$">
+		L$
+	</string>
+	<string name="TooltipFlagDropInventory">
+		Deponeer inventaris
+	</string>
+	<string name="TooltipFlagPhantom">
+		Fantoom
+	</string>
+	<string name="TooltipFlagTemporary">
+		Tijdelijk
+	</string>
+	<string name="TooltipFlagRightClickMenu">
+		(Rechtsklikken voor menu)
+	</string>
+	<string name="TooltipFreeToCopy">
+		Vrij te kopiëren
+	</string>
+	<string name="TooltipForSaleL$">
+		Te koop: L$[AMOUNT]
+	</string>
+	<string name="TooltipForSaleMsg">
+		Te koop: [MESSAGE]
+	</string>
+	<string name="TooltipFlagGroupBuild">
+		Groep bouwen
+	</string>
+	<string name="TooltipFlagNoBuild">
+		Niet bouwen
+	</string>
+	<string name="TooltipFlagNoEdit">
+		Groep bouwen
+	</string>
+	<string name="TooltipFlagNotSafe">
+		Niet veilig
+	</string>
+	<string name="TooltipFlagNoFly">
+		Niet vliegen
+	</string>
+	<string name="TooltipFlagGroupScripts">
+		Groep scripts
+	</string>
+	<string name="TooltipFlagNoScripts">
+		Geen scripts
+	</string>
+	<string name="TooltipLand">
+		Land:
+	</string>
+	<string name="TooltipMustSingleDrop">
+		Slechts een enkel item kan hier naartoe gesleept worden
+	</string>
+	<string name="RetrievingData">
+		Ophalen...
+	</string>
+	<string name="ReleaseNotes">
+		Release Notes
+	</string>
+	<string name="LoadingData">
+		Laden...
+	</string>
+	<string name="AvatarNameNobody">
+		(niemand)
+	</string>
+	<string name="AvatarNameWaiting">
+		(wachten)
+	</string>
+	<string name="AvatarNameHippos">
+		(hippos)
+	</string>
+	<string name="GroupNameNone">
+		(geen)
+	</string>
+	<string name="AssetErrorNone">
+		Geen fout
+	</string>
+	<string name="AssetErrorRequestFailed">
+		Asset verzoek: mislukt
+	</string>
+	<string name="AssetErrorNonexistentFile">
+		Asset verzoek: niet-bestaand bestand
+	</string>
+	<string name="AssetErrorNotInDatabase">
+		Asset verzoek: asset niet gevonden in de database
+	</string>
+	<string name="AssetErrorEOF">
+		Einde van bestand
+	</string>
+	<string name="AssetErrorCannotOpenFile">
+		Kan bestand niet openen
+	</string>
+	<string name="AssetErrorFileNotFound">
+		Bestand niet gevonden
+	</string>
+	<string name="AssetErrorTCPTimeout">
+		Bestandsoverdracht time-out
+	</string>
+	<string name="AssetErrorCircuitGone">
+		Circuit verdwenen
+	</string>
+	<string name="AssetErrorUnknownStatus">
+		Onbekende status
+	</string>
+	<string name="AvatarEditingApparance">
+		(Uiterlijk bewerken)
+	</string>
+	<string name="AvatarAway">
+		Afwezig
+	</string>
+	<string name="AvatarBusy">
+		Bezet
+	</string>
+	<string name="AvatarMuted">
+		Genegeerd
+	</string>
+	<string name="anim_express_afraid">
+		Bang
+	</string>
+	<string name="anim_express_anger">
+		Boos
+	</string>
+	<string name="anim_away">
+		Afwezig
+	</string>
+	<string name="anim_backflip">
+		Salto achterwaarts
+	</string>
+	<string name="anim_express_laugh">
+		Daverende lach
+	</string>
+	<string name="anim_express_toothsmile">
+		Grote lach
+	</string>
+	<string name="anim_blowkiss">
+		Blaas kus
+	</string>
+	<string name="anim_express_bored">
+		Verveeld
+	</string>
+	<string name="anim_bow">
+		Buigen
+	</string>
+	<string name="anim_clap">
+		Klappen
+	</string>
+	<string name="anim_courtbow">
+		Hof buiging
+	</string>
+	<string name="anim_express_cry">
+		Huilen
+	</string>
+	<string name="anim_dance1">
+		Dansen 1
+	</string>
+	<string name="anim_dance2">
+		Dansen 2
+	</string>
+	<string name="anim_dance3">
+		Dansen 3
+	</string>
+	<string name="anim_dance4">
+		Dansen 4
+	</string>
+	<string name="anim_dance5">
+		Dansen 5
+	</string>
+	<string name="anim_dance6">
+		Dansen 6
+	</string>
+	<string name="anim_dance7">
+		Dansen 7
+	</string>
+	<string name="anim_dance8">
+		Dansen 8
+	</string>
+	<string name="anim_express_disdain">
+		Minachting
+	</string>
+	<string name="anim_drink">
+		Drinken
+	</string>
+	<string name="anim_express_embarrased">
+		Beschaamd
+	</string>
+	<string name="anim_angry_fingerwag">
+		Vinger opsteken
+	</string>
+	<string name="anim_fist_pump">
+		Vuist pompen
+	</string>
+	<string name="anim_yoga_float">
+		Zwevende Yoga
+	</string>
+	<string name="anim_express_frown">
+		Fronsen
+	</string>
+	<string name="anim_impatient">
+		Ongeduldig
+	</string>
+	<string name="anim_jumpforjoy">
+		Vreugdesprong
+	</string>
+	<string name="anim_kissmybutt">
+		Kus mijn reet
+	</string>
+	<string name="anim_express_kiss">
+		Kussen
+	</string>
+	<string name="anim_laugh_short">
+		Lachen
+	</string>
+	<string name="anim_musclebeach">
+		Spieren tonen
+	</string>
+	<string name="anim_no_unhappy">
+		Nee (ongelukkig)
+	</string>
+	<string name="anim_no_head">
+		Nee
+	</string>
+	<string name="anim_nyanya">
+		Nya-nya-nya
+	</string>
+	<string name="anim_punch_onetwo">
+		Een-twee stomp
+	</string>
+	<string name="anim_express_open_mouth">
+		Open mond
+	</string>
+	<string name="anim_peace">
+		Vrede
+	</string>
+	<string name="anim_point_you">
+		Wijzen naar ander
+	</string>
+	<string name="anim_point_me">
+		Wijzen naar jezelf
+	</string>
+	<string name="anim_punch_l">
+		Stomp links
+	</string>
+	<string name="anim_punch_r">
+		Stomp rechts
+	</string>
+	<string name="anim_rps_countdown">
+		SPS tellen
+	</string>
+	<string name="anim_rps_paper">
+		SPS papier
+	</string>
+	<string name="anim_rps_rock">
+		SPS steen
+	</string>
+	<string name="anim_rps_scissors">
+		SPS schaar
+	</string>
+	<string name="anim_express_repulsed">
+		Afkeer
+	</string>
+	<string name="anim_kick_roundhouse_r">
+		Ronddraaiende trap
+	</string>
+	<string name="anim_express_sad">
+		Droevig
+	</string>
+	<string name="anim_salute">
+		Groet
+	</string>
+	<string name="anim_shout">
+		Roepen
+	</string>
+	<string name="anim_express_shrug">
+		Schouders ophalen
+	</string>
+	<string name="anim_express_smile">
+		Glimlachen
+	</string>
+	<string name="anim_smoke_idle">
+		Roken inactief
+	</string>
+	<string name="anim_smoke_inhale">
+		Roken inhaleren
+	</string>
+	<string name="anim_smoke_throw_down">
+		Roken neergooien
+	</string>
+	<string name="anim_express_surprise">
+		Verrassing
+	</string>
+	<string name="anim_sword_strike_r">
+		Zwaardslag
+	</string>
+	<string name="anim_angry_tantrum">
+		Woedeaanval
+	</string>
+	<string name="anim_express_tongue_out">
+		Tong uitsteken
+	</string>
+	<string name="anim_hello">
+		Zwaaien
+	</string>
+	<string name="anim_whisper">
+		Fluisteren
+	</string>
+	<string name="anim_whistle">
+		Fluiten
+	</string>
+	<string name="anim_express_wink">
+		Knipogen
+	</string>
+	<string name="anim_wink_hollywood">
+		Knipogen (Hollywood)
+	</string>
+	<string name="anim_express_worry">
+		Bezorgd
+	</string>
+	<string name="anim_yes_happy">
+		Ja (vrolijk)
+	</string>
+	<string name="anim_yes_head">
+		Ja
+	</string>
+	<string name="texture_loading">
+		Laden...
+	</string>
+	<string name="worldmap_offline">
+		Offline
+	</string>
+	<string name="whisper">
+		fluistert:
+	</string>
+	<string name="shout">
+		schreeuwt:
+	</string>
+</strings>

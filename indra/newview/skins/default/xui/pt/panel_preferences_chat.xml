@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Chat" name="chat">
 	<text length="1" name="text_box" type="string">
-		Tamanho da Fonte &#10;do Chat:
+		Tamanho da Fonte 
+do Chat:
 	</text>
 	<radio_group name="chat_font_size">
 		<radio_item name="radio">
@@ -24,7 +25,7 @@
 	<color_swatch label="Erros" name="script_error"/>
 	<color_swatch label="Objetos" name="objects"/>
 	<color_swatch label="Dono" name="owner"/>
-	<color_swatch label="Bubble" name="background"/>
+	<color_swatch label="Bolha" name="background"/>
 	<color_swatch label="URLs" name="links"/>
 	<text length="1" name="text_box8" type="string">
 		Erros de Script:
@@ -33,12 +34,12 @@
 	<text length="1" name="text_box3" type="string">
 		Console do Chat:
 	</text>
-	<spinner label="Ocultar Chat depois" name="fade_chat_time" label_width="112" width="162"/>
-	<text length="1" name="text_box4" type="string" left="310">
+	<spinner label="Ocultar Chat depois" label_width="112" name="fade_chat_time" width="162"/>
+	<text left="310" length="1" name="text_box4" type="string">
 		(segundos)
 	</text>
 	<spinner left="373" name="max_chat_count"/>
-	<text length="1" name="text_box5" type="string" left="435" width="94">
+	<text left="435" length="1" name="text_box5" type="string" width="94">
 		(# linhas)
 	</text>
 	<slider label="Opacidade" name="console_opacity"/>
@@ -47,11 +48,11 @@
 		Opções do Chat:
 	</text>
 	<check_box label="Feche a barra de conversa após pressionar retornar" name="close_chat_on_return_check"/>
-	<check_box label="Teclas de Setas movem o avatar durante o chat" name="arrow_keys_move_avatar_check"/>
+	<check_box label="Teclas de Setas sempre movem o avatar durante a conversa" name="arrow_keys_move_avatar_check"/>
 	<check_box label="Mostrar a hora na conversa local" name="show_timestamps_check"/>
 	<check_box label="Executar animação digitada quando estiver conversando" name="play_typing_animation"/>
 	<text length="1" name="text_box7" type="string">
-		Bubble Chat:
+		Chat com bolha:
 	</text>
 	<check_box label="Mostrar bolhas do chat" name="bubble_text_chat"/>
 	<slider label="Opacidade" name="bubble_chat_opacity"/>

@@ -46,6 +46,7 @@ set(llcharacter_HEADER_FILES
 
     llanimationstates.h
     llbvhloader.h
+    llbvhconsts.h
     llcharacter.h
     lleditingmotion.h
     llgesture.h

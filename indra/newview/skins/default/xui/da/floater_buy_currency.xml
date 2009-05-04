@@ -1,47 +1,47 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="buy currency" title="K&#248;b Valuta">
+<floater name="buy currency" title="Køb valuta">
 	<text name="info_buying">
-		K&#248;ber Valuta:
+		Køber valuta:
 	</text>
 	<text name="info_cannot_buy">
-		Kan ikke k&#248;be nu:
+		Kan ikke købe nu:
 	</text>
 	<text name="info_need_more">
 		Du har ikke penge nok:
 	</text>
 	<text name="error_message">
-		Noget er g&#229;et galt.
+		Noget er gået galt.
 	</text>
-	<button label="Go to website" name="error_web" />
+	<button label="Gå til hjemmeside" name="error_web" />
 	<text name="contacting">
 		Kontakter LindeX...
 	</text>
 	<text name="buy_action_unknown">
-		K&#248;b L$ p&#229; LindeX Valuta marked
+		Køb L$ på LindeX valuta marked
 	</text>
 	<text name="buy_action">
 		[NAME] L$ [PRICE]
 	</text>
 	<text name="currency_action">
-		K&#248;b L$
+		Køb L$
 	</text>
 	<line_editor name="currency_amt">
 		1234
 	</line_editor>
 	<text name="currency_est">
-		for omkring US$ [USD]
+		for ca. US$ [USD]
 	</text>
 	<text name="getting_data">
 		Henter data...
 	</text>
 	<text name="balance_label">
-		Du har i &#248;jeblikket
+		Du har i øjeblikket
 	</text>
 	<text name="balance_amount">
 		L$ [AMT]
 	</text>
 	<text name="buying_label">
-		Du k&#248;ber
+		Du køber
 	</text>
 	<text name="buying_amount">
 		L$ [AMT]
@@ -53,16 +53,16 @@
 		L$ [AMT]
 	</text>
 	<text name="purchase_warning_repurchase">
-		Der er sket en fejl, og k&#248;bet er afbrudt.
-Fors&#248;g venligst igen.
+		Bekræfter at denne handel kun omfatter valuta.
+Gentag operationen venligst igen.
 	</text>
 	<text name="purchase_warning_notenough">
-		Du k&#248;ber ikke nok valuta, tast et st&#248;rre bel&#248;b
-og pr&#248;v igen.
+		Du køber ikke nok valuta, tast et større beløb
+og prøv igen.
 	</text>
-	<button label="Annuller" name="cancel_btn" />
-	<button label="K&#248;b" name="buy_btn" />
+	<button label="Annullér" name="cancel_btn" />
+	<button label="Køb" name="buy_btn" />
 	<string name="buy_currency">
-		K&#248;b L$ [LINDENS] for omkring US$ [USD]
+		Buy L$ [LINDENS] for approx. US$ [USD]
 	</string>
 </floater>

@@ -72,8 +72,9 @@
 #include "llappviewer.h"	// abortQuit()
 
 const S32 MINIMUM_PRICE_FOR_LISTING = 50;	// L$
+const S32 MATURE_UNDEFINED = -1;
 const S32 MATURE_CONTENT = 1;
-const S32 NON_MATURE_CONTENT = 2;
+const S32 PG_CONTENT = 2;
 const S32 DECLINE_TO_STATE = 0;
 
 //static
@@ -290,7 +291,7 @@ BOOL LLPanelClassified::postBuild()
 	{
 		// Teens don't get to set mature flag. JC
 		mMatureCombo->setVisible(FALSE);
-		mMatureCombo->setCurrentByIndex(NON_MATURE_CONTENT);
+		mMatureCombo->setCurrentByIndex(PG_CONTENT);
 	}
 
 	if (!mInFinder)
@@ -408,6 +409,9 @@ void LLPanelClassified::initNewClassified()
 	}
 
 	mUpdateBtn->setLabel(getString("publish_txt"));
+	
+	// simulate clicking the "location" button
+	LLPanelClassified::onClickSet(this);
 }
 
 
@@ -663,7 +667,7 @@ void LLPanelClassified::processClassifiedInfoReply(LLMessageSystem *msg, void **
 		}
 		else
 		{
-			self->mMatureCombo->setCurrentByIndex(NON_MATURE_CONTENT);
+			self->mMatureCombo->setCurrentByIndex(PG_CONTENT);
 		}
 		if (self->mAutoRenewCheck)
 		{
@@ -751,8 +755,22 @@ void LLPanelClassified::refresh()
 		//mPriceEditor->setEnabled(is_self);
 		mCategoryCombo->setEnabled(is_self);
 
-		mMatureCombo->setEnabled(is_self);
-
+		if( is_self )
+		{							
+			if( mMatureCombo->getCurrentIndex() == 0 )
+			{
+				// It's a new panel.
+				// PG regions must have PG classifieds. AO must have mature.
+				// Only Mature can be PG or Mature.
+								
+				constrainAccessCombo();
+			}
+		}
+		else
+		{
+			mMatureCombo->setEnabled( FALSE );
+		}
+		
 		if (mAutoRenewCheck)
 		{
 			mAutoRenewCheck->setEnabled(is_self);
@@ -813,7 +831,7 @@ bool LLPanelClassified::confirmMature(const LLSD& notification, const LLSD& resp
 		mMatureCombo->setCurrentByIndex(MATURE_CONTENT);
 		break;
 	case 1:
-		mMatureCombo->setCurrentByIndex(NON_MATURE_CONTENT);
+		mMatureCombo->setCurrentByIndex(PG_CONTENT);
 		break;
 	default:
 		return false;
@@ -970,7 +988,13 @@ void LLPanelClassified::onClickSet(void* data)
 	self->mPosGlobal = gAgent.getPositionGlobal();
 
 	std::string location_text;
-	location_text.assign("(will update after publish)");
+	std::string regionName = "(will update after publish)";
+	LLViewerRegion* pRegion = gAgent.getRegion();
+	if (pRegion)
+	{
+		regionName = pRegion->getName();
+	}
+	location_text.assign(regionName);
 	location_text.append(", ");
 
     S32 region_x = llround((F32)self->mPosGlobal.mdV[VX]) % REGION_WIDTH_UNITS;
@@ -982,6 +1006,8 @@ void LLPanelClassified::onClickSet(void* data)
 
 	self->mLocationEditor->setText(location_text);
 	self->mLocationChanged = true;
+	
+	self->constrainAccessCombo();	
 
 	// Set this to null so it updates on the next save.
 	self->mParcelID.setNull();
@@ -1109,4 +1135,37 @@ void LLFloaterPriceForListing::buttonCore(S32 button, void* data)
 		self->mCallback(button, text, self->mUserData);
 		self->close();
 	}
+}
+
+void LLPanelClassified::constrainAccessCombo()
+{
+	// Location changed.
+	// PG regions must have PG classifieds. AO must have mature.
+	// Only Mature can be PG or Mature.
+
+	bool pref_visible = TRUE;
+
+	S32 force_access = MATURE_UNDEFINED;
+	LLViewerRegion *regionp = gAgent.getRegion();
+
+	switch( regionp->getSimAccess() )
+	{
+		case SIM_ACCESS_PG:	
+			force_access = PG_CONTENT;
+			break;
+		case SIM_ACCESS_ADULT:
+			force_access = MATURE_CONTENT;
+			break;
+		default:
+			// You are free to move about the cabin.
+			break;
+	}
+	
+	if ( force_access != MATURE_UNDEFINED )
+	{
+		pref_visible = FALSE;
+		mMatureCombo->setCurrentByIndex(force_access);
+	}
+	
+	mMatureCombo->setEnabled(pref_visible);
 }

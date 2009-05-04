@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Generale" name="general_tab">
+	<string name="help_text">
+		Il pannello &apos;Generale&apos; contiene informazioni generali riguardanti il
+gruppo, un elenco dei proprietari e i membri visibili,
+le preferenze generali di gruppo e le opzioni dei membri.
+
+Passa il mouse sulle opzioni per un aiuto aggiuntivo.
+	</string>
+	<string name="group_info_unchanged">
+		Le informazioni generali del gruppo sono cambiate.
+	</string>
+	<button label="?" label_selected="?" name="help_button"/>
+	<line_editor label="Scrivi il nome del nuovo gruppo qui" name="group_name_editor"/>
+	<text name="group_name">
+		Scrivi il nome del nuovo gruppo qui
+	</text>
+	<text name="prepend_founded_by">
+		Fondato da
+	</text>
+	<text name="founder_name">
+		(attendi)
+	</text>
+	<text name="group_charter_label">
+		Statuto del gruppo
+	</text>
+	<texture_picker label="Immagine del gruppo" name="insignia" tool_tip="Clicca per scegliere una immagine"/>
+	<text_editor name="charter">
+		Statuto del gruppo
+	</text_editor>
+	<button label="Unisciti (0 L$)" label_selected="Unisciti (0 L$)" name="join_button"/>
+	<button label="Visualizza dettagli" label_selected="Visualizza dettagli" name="info_button"/>
+	<text name="text_owners_and_visible_members">
+		Proprietari &amp; Membri visibili
+	</text>
+	<text name="text_owners_are_shown_in_bold">
+		(I proprietari sono scritti in neretto)
+	</text>
+	<name_list name="visible_members">
+		<column label="Nome del membro" name="name"/>
+		<column label="Titolo" name="title"/>
+		<column label="Ultimo login" name="online"/>
+	</name_list>
+	<text name="text_group_preferences">
+		Preferenze di gruppo
+	</text>
+	<panel name="preferences_container">
+		<check_box label="Mostra nella ricerca" name="show_in_group_list" tool_tip="Lascia che i residenti vedano questo gruppo nella ricerca."/>
+		<check_box label="Iscrizione libera" name="open_enrollement" tool_tip="Imposta se questo gruppo permette ai nuovi membri di unirsi senza essere invitati."/>
+		<check_box label="Tassa di iscrizione: L$" name="check_enrollment_fee" tool_tip="Imposta se richiedere una tassa di iscrizione per unirsi al gruppo."/>
+		<spinner name="spin_enrollment_fee" tool_tip="I nuovi membri devono pagare questa tassa per unirsi al gruppo. La tassa di iscrizione è selezionata."/>
+
+		<panel name="title_container">
+			<text name="active_title_label">
+				Il mio titolo attivo
+			</text>
+			<combo_box name="active_title" tool_tip="Imposta il titolo che appare sulla testa del tuo avatar quando il gruppo è attivo."/>
+		</panel>
+		<check_box label="Ricevi avvisi dal gruppo" name="receive_notices" tool_tip="Imposta se vuoi ricevere avvisi da questo gruppo.   Togli la spunta da questa casella se questo gruppo ti sta spammando."/>
+		<check_box label="Elenca il gruppo nel mio profilo" name="list_groups_in_profile" tool_tip="Imposta se vuoi elencare questo gruppo nel tuo profilo"/>
+	</panel>
+	<string name="incomplete_member_data_str">
+		Rilevando i dati dei membri
+	</string>
+	<string name="confirm_group_create_str">
+		Creare questo gruppo ti costerà 100 L$. 
+Sei davvero, davvero, DAVVERO sicuro che vuoi spendere 100 L$ per creare questo gruppo?
+Fai attenzione che se nessun altro viene unito al gruppo entro 48 ore, questo gruppo verrà dismesso e il nome del gruppo non sarà più disponibile in futuro.
+	</string>
+</panel>

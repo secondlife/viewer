@@ -1,56 +1,57 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<panel label="Chat" name="chat">
-	<text type="string" length="1" name="text_box">
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Chat de texto" name="chat">
+	<text length="1" name="text_box" type="string">
 		Tamaño de la fuente del chat:
 	</text>
-	<radio_group name="chat font size">
-		<radio_item type="string" length="1" name="radio">
+	<radio_group name="chat_font_size">
+		<radio_item name="radio">
 			Pequeño
 		</radio_item>
-		<radio_item type="string" length="1" name="radio2">
+		<radio_item name="radio2">
 			Medio
 		</radio_item>
-		<radio_item type="string" length="1" name="radio3">
+		<radio_item name="radio3">
 			Grande
 		</radio_item>
 	</radio_group>
-	<text type="string" length="1" name="text_box2">
+	<text length="1" name="text_box2" type="string">
 		Color del chat:
 	</text>
-	<color_swatch label="Sistema" name="system" />
-	<color_swatch label="Usuarios" name="users" />
-	<color_swatch label="Objetos" name="objects" />
-	<color_swatch label="Burbuja" name="background" />
-	<color_swatch label="URLs" name="links" />
-	<text type="string" length="1" name="text_box3">
-		Consola del chat:
-	</text>
-	<spinner label="Desaparecer chat después de" name="fade_chat_time" />
-	<text type="string" length="1" name="text_box4">
-		(segundos)
-	</text>
-	<text type="string" length="1" name="text_box5">
-		(# líneas)
-	</text>
-	<slider label="Opacidad" name="console_opacity" />
-	<text type="string" length="1" name="text_box6">
-		Opciones del chat:
-	</text>
-	<check_box label="Chat usa anchura de pantalla completa (después de reinicio)"
-	     name="chat_full_width_check" />
-	<check_box label="Cerrar chat después de pulsar Enter" name="close_chat_on_return_check" />
-	<check_box label="Arrow keys always move avatar when chatting"
-	     name="arrow_keys_move_avatar_check" />
-	<check_box label="Mostrar fecha/hora en el chat" name="show_timestamps_check" />
-	<text type="string" length="1" name="text_box7">
-		Burbuja de chat:
-	</text>
-	<check_box label="Mostrar burbujas de chat" name="bubble_text_chat" />
-	<slider label="Opacidad" name="bubble_chat_opacity" />
-	<text type="string" length="1" name="text_box8">
+	<color_swatch label="Usted" name="user"/>
+	<color_swatch label="Otros" name="agent" width="60" left_delta="48"/>
+	<color_swatch label="MI" name="im" left_delta="64" width="50"/>
+	<color_swatch label="Sistema" name="system"/>
+	<color_swatch label="Errores" name="script_error" left_delta="48"/>
+	<color_swatch label="Objetos" name="objects"/>
+	<color_swatch label="Propietario" name="owner" width="60" left_delta="48"/>
+	<color_swatch label="Bocadillo" name="background" left_delta="64"  width="50"/>
+	<color_swatch label="URL" name="links" />
+	<text length="1" name="text_box8" type="string">
 		Errores de script:
 	</text>
-	<check_box label="Mostrar errores de script y avisos como chat convencional"
-	     name="script_errors_as_chat" />
-	<color_swatch label="Color" name="script_error" />
+	<check_box label="Ver en el chat los avisos y errores de los scripts" name="script_errors_as_chat"/>
+	<text length="1" name="text_box3" type="string">
+		Consola del chat:
+	</text>
+	<spinner label="Quitar el chat tras" name="fade_chat_time" label_width="95" width="145" />
+	<text length="1" name="text_box4" type="string" left="297" >
+		(s)
+	</text>
+	<text length="1" name="text_box5" type="string">
+		(# líneas)
+	</text>
+	<slider label="Opacidad" name="console_opacity"/>
+	<check_box label="Usar el ancho de la pantalla (tras reiniciar)" name="chat_full_width_check"/>
+	<text length="1" name="text_box6" type="string">
+		Opciones del chat:
+	</text>
+	<check_box label="Cerrar el chat al pulsar Intro" name="close_chat_on_return_check"/>
+	<check_box label="En el chat, las teclas del cursor mueven el avatar" name="arrow_keys_move_avatar_check"/>
+	<check_box label="Incluir la hora en el chat" name="show_timestamps_check"/>
+	<check_box label="Ejecutar la animación de escribir al hacerlo en el chat" name="play_typing_animation"/>
+	<text length="1" name="text_box7" type="string">
+		Bocadillos del chat:
+	</text>
+	<check_box label="Mostrar el chat en bocadillos" name="bubble_text_chat"/>
+	<slider label="Opacidad" name="bubble_chat_opacity"/>
 </panel>

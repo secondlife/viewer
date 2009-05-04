@@ -130,6 +130,7 @@
 #include "llpanelgroupnotices.h"
 #include "llpreview.h"
 #include "llpreviewscript.h"
+#include "llproductinforequest.h"
 #include "llsecondlifeurls.h"
 #include "llselectmgr.h"
 #include "llsky.h"
@@ -2511,6 +2512,11 @@ bool idle_startup()
 		// If we've got a startup URL, dispatch it
 		LLStartUp::dispatchURL();
 
+		// Retrieve information about the land data
+		// (just accessing this the first time will fetch it,
+		// then the data is cached for the viewer's lifetime)
+		LLProductInfoRequestManager::instance();
+		
 		// Clean up the userauth stuff.
 		LLUserAuth::getInstance()->reset();
 

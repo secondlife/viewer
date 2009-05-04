@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater name="texture picker" title="Vælg: Tekstur">
 	<string name="choose_picture">
-		Vælg et billede
+		Klik for at vælge et billede
 	</string>
 	<text type="string" length="1" name="Multiple">
 		Flere
@@ -12,11 +12,11 @@
 	<button label="Standard" label_selected="Standard" name="Default" />
 	<button label="Ingen" label_selected="Ingen" name="None" />
 	<button label="Blank" label_selected="Blank" name="Blank" />
-	<check_box label="Vis Mapper" name="show_folders_check" />
+	<check_box label="Vis mapper" name="show_folders_check" />
 	<search_editor label="Skriv her for at søge" name="inventory search editor" />
-	<check_box label="Anvend Omgående" name="apply_immediate_check" />
+	<check_box label="Benyt straks" name="apply_immediate_check" />
 	<button label="" label_selected="" name="Pipette" />
-	<button label="Annuller" label_selected="Annuller" name="Cancel" />
+	<button label="Annullér" label_selected="Annullér" name="Cancel" />
 	<button label="Vælg" label_selected="Vælg" name="Select" />
 	<string name="pick title">
 		Vælg:

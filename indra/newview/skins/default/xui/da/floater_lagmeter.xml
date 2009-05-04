@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="floater_lagmeter" title="Lag Meter">
-	<button label="" label_selected="" name="client_lagmeter" tool_tip="Klient lag status" />
+<floater name="floater_lagmeter" title="Lag måler">
+	<button label="" label_selected="" name="client_lagmeter" />
 	<text name="client">
-		Klient
+		Klient:
 	</text>
 	<text name="client_text">
 		Normal
 	</text>
 	<button label="" label_selected="" name="network_lagmeter"
-	     tool_tip="Netværks lag status" />
+	     tool_tip="Network lag status" />
 	<text name="network">
 		Netværk:
 	</text>
 	<text name="network_text">
 		Normal
 	</text>
-	<button label="" label_selected="" name="server_lagmeter" tool_tip="Server lag status" />
+	<button label="" label_selected="" name="server_lagmeter" />
 	<text name="server">
 		Server:
 	</text>
@@ -25,7 +25,7 @@
 	<button label="?" name="server_help" />
 	<button label="&gt;&gt;" name="minimize" />
 	<string name="max_title_msg">
-		Lag Meter
+		Lag måler
 	</string>
 	<string name="max_width_px">
 		360
@@ -49,25 +49,25 @@
 		Normal, vindue i baggrund
 	</string>
 	<string name="client_frame_time_critical_msg">
-		Klient frame rate er under [CLIENT_FRAME_RATE_CRITICAL]
+		Klients billeder/sek under [CLIENT_FRAME_RATE_CRITICAL]
 	</string>
 	<string name="client_frame_time_warning_msg">
-		Klient frame rate er mellem [CLIENT_FRAME_RATE_CRITICAL] og [CLIENT_FRAME_RATE_WARNING]
+		Klients billeder/sek mellem [CLIENT_FRAME_RATE_CRITICAL] og [CLIENT_FRAME_RATE_WARNING]
 	</string>
 	<string name="client_frame_time_normal_msg">
 		Normal
 	</string>
 	<string name="client_draw_distance_cause_msg">
-		Kan skyldes: Visuel afstand sat for høj
+		Mulig årsag: &apos;Vis afstand&apos; sat for højt i grafik indstillinger
 	</string>
 	<string name="client_texture_loading_cause_msg">
-		Kan skyldes: Billede indlæses
+		Mulig årsag: Billeder hentes
 	</string>
 	<string name="client_texture_memory_cause_msg">
-		Kan skyldes: For mange billeder i hukommelse
+		Mulig årsag: For mange billeder i hukommelse
 	</string>
 	<string name="client_complex_objects_cause_msg">
-		Kan skyldes: Alt for mange komplekse objekter i scene
+		Mulig årsag: For mange komplekse objekter i scenariet
 	</string>
 	<string name="network_text_msg">
 		Netværk
@@ -100,7 +100,7 @@
 		Forbindelsens ping tider er [NETWORK_PING_WARNING]-[NETWORK_PING_CRITICAL] ms
 	</string>
 	<string name="network_packet_loss_cause_msg">
-		Muligvis dårlig forbindelse eller &apos;Båndbredde&apos; grafik sat for højt.
+		Muligvis dårlig forbindelse eller &apos;båndbredde&apos; sat for højt i netværksopsætning.
 	</string>
 	<string name="network_ping_cause_msg">
 		Muligvis dårlig forbindelse eller fil delings program.
@@ -126,23 +126,26 @@
 	<string name="server_frame_time_normal_msg">
 		Normal
 	</string>
+	<string name="server_frame_time_normal_msg">
+		Normal
+	</string>
 	<string name="server_physics_cause_msg">
-		Kan skyldes: For mange fysiske objekter
+		Mulig årsag: For mange fysiske objekter
 	</string>
 	<string name="server_scripts_cause_msg">
-		Kan skyldes: For mange kodede objekter
+		Mulig årsag: For mange objekter med script
 	</string>
 	<string name="server_net_cause_msg">
-		Kan skyldes: For meget netværks traffik
+		Mulig årsag: For meget netværks trafik
 	</string>
 	<string name="server_agent_cause_msg">
-		Kan skyldes: For mange omvandrende folk i regionen
+		Mulig årsag: For mange avatarer i bevægelse i regionen
 	</string>
 	<string name="server_images_cause_msg">
-		Kan skyldes: For mange billed udregninger
+		Mulig årsag: For mange billed udregninger
 	</string>
 	<string name="server_generic_cause_msg">
-		Kan skyldes: Simulator belastning for tung
+		Mulig årsag: Simulator belastning for stor
 	</string>
 	<string name="smaller_label">
 		&gt;&gt;

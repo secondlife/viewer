@@ -631,6 +631,8 @@ extern char * _PREHASH_OfferCallingCard;
 extern char * _PREHASH_AcceptCallingCard;
 extern char * _PREHASH_DeclineCallingCard;
 extern char * _PREHASH_AgentAccess;
+extern char * _PREHASH_AgentLegacyAccess;
+extern char * _PREHASH_AgentMaxAccess;
 extern char * _PREHASH_DataHomeLocationReply;
 extern char * _PREHASH_EventLocationReply;
 extern char * _PREHASH_TerseDateID;
@@ -1377,5 +1379,5 @@ extern char * _PREHASH_UCoord;
 extern char * _PREHASH_VCoord;
 extern char * _PREHASH_FaceIndex;
 extern char * _PREHASH_StatusData;
-
+extern char * _PREHASH_ProductSKU;
 #endif

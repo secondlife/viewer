@@ -71,7 +71,9 @@ public:
 	public:
 		VerifiedDestinationResponder(ResponsePtr data, const LLSD& content);
 		virtual void result(const LLSD& content);
+		virtual void error(U32 status, const std::string& reason);
 	private:
+		void retry();
 		ResponsePtr mSharedData;
 		LLSD mContent;
 	};

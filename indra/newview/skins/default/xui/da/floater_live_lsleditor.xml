@@ -1,10 +1,10 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="script ed float" title="Kode: Ny Kode">
-	<button label="Nulstil" label_selected="Nulstil" name="Reset"/>
-	<check_box label="Kører" name="running"/>
-	<check_box label="Mono" name="mono"/>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="script ed float" title="Script: Nyt script">
+	<button label="Nulstil" label_selected="Reset" name="Reset" />
+	<check_box label="Kører" name="running" />
+	<check_box label="Mono" name="mono" />
 	<string name="not_allowed">
-		Du har ikke tilladelse til at se denne kode.
+		Du har ikke rettigheder til at se dette script.
 	</string>
 	<string name="script_running">
 		Kører

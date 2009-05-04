@@ -47,7 +47,6 @@
 #include "llviewercontrol.h"
 #include "llfirstuse.h"
 #include "llfloaterchat.h"
-#include "llfloaterclothing.h"
 #include "llfloaterdirectory.h"
 #include "llfloatermap.h"
 #include "llfloaterworldmap.h"
@@ -119,12 +118,6 @@ void handle_inventory(void*)
 	LLFirstUse::useInventory();
 
 	LLInventoryView::toggleVisibility(NULL);
-}
-
-
-void handle_clothing(void*)
-{
-	LLFloaterClothing::toggleVisibility();
 }
 
 

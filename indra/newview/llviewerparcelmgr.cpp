@@ -1324,9 +1324,9 @@ void LLViewerParcelMgr::processParcelOverlay(LLMessageSystem *msg, void **user)
 	// Extract the packed overlay information
 	S32 packed_overlay_size = msg->getSizeFast(_PREHASH_ParcelData, _PREHASH_Data);
 
-	if (packed_overlay_size == 0)
+	if (packed_overlay_size <= 0)
 	{
-		llwarns << "Overlay size 0" << llendl;
+		llwarns << "Overlay size " << packed_overlay_size << llendl;
 		return;
 	}
 
@@ -2026,6 +2026,25 @@ bool LLViewerParcelMgr::canAgentBuyParcel(LLParcel* parcel, bool forGroup) const
 	{
 		return true;	// change this if want to make it gods only
 	}
+	
+	LLViewerRegion* regionp = LLViewerParcelMgr::getInstance()->getSelectionRegion();
+	if (regionp)
+	{
+		U8 sim_access = regionp->getSimAccess();
+		const LLAgentAccess& agent_access = gAgent.getAgentAccess();
+		// if the region is PG, we're happy already, so do nothing
+		// but if we're set to avoid either mature or adult, get us outta here
+		if ((sim_access == SIM_ACCESS_MATURE) &&
+			!agent_access.canAccessMature())
+		{
+			return false;
+		}
+		else if ((sim_access == SIM_ACCESS_ADULT) &&
+				 !agent_access.canAccessAdult())
+		{
+			return false;
+		}
+	}	
 	
 	bool isForSale = parcel->getForSale()
 			&& ((parcel->getSalePrice() > 0) || (authorizeBuyer.notNull()));

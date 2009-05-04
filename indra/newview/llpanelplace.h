@@ -66,7 +66,9 @@ public:
 	void setRegionID(const LLUUID& region_id) { mRegionID = region_id; }
 	void setSnapshot(const LLUUID& snapshot_id);
 	void setLocationString(const std::string& location);
+	void setLandTypeString(const std::string& land_type);
 	void setErrorStatus(U32 status, const std::string& reason);
+	void resetName(const std::string& name);
 
 	void sendParcelInfoRequest();
 	void displayParcelInfo(const LLVector3& pos_region,
@@ -104,7 +106,8 @@ protected:
 	LLTextBox* mNameEditor;
 	LLTextEditor* mDescEditor;
 	LLTextBox* mInfoEditor;
-	LLTextBox* mLocationEditor;
+	LLTextBox* mLandTypeEditor;
+	LLTextBox* mLocationDisplay; //not calling it "editor" because it isn't
 
 	LLButton*	mTeleportBtn;
 	LLButton*	mMapBtn;

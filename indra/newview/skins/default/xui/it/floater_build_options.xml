@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="build options floater" title="Opzioni della griglia">
+	<spinner label="Unità di misura della griglia (metri)" name="GridResolution"/>
+	<spinner label="Estensione della griglia (metri)" name="GridDrawSize"/>
+	<check_box label="Abilita sotto-unità di movimento" name="GridSubUnit"/>
+	<check_box label="Mostra piani d&apos;intersezione" name="GridCrossSection"/>
+	<slider label="Trasparenza della griglia" name="GridOpacity"/>
+</floater>

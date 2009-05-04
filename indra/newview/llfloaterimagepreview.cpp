@@ -138,6 +138,8 @@ BOOL LLFloaterImagePreview::postBuild()
 //-----------------------------------------------------------------------------
 LLFloaterImagePreview::~LLFloaterImagePreview()
 {
+	clearAllPreviewTextures();
+
 	mRawImagep = NULL;
 	delete mAvatarPreview;
 	delete mSculptedPreview;
@@ -203,6 +205,21 @@ void	LLFloaterImagePreview::onPreviewTypeCommit(LLUICtrl* ctrl, void* userdata)
 	
 	fp->mAvatarPreview->refresh();
 	fp->mSculptedPreview->refresh();
+}
+
+
+//-----------------------------------------------------------------------------
+// clearAllPreviewTextures()
+//-----------------------------------------------------------------------------
+void LLFloaterImagePreview::clearAllPreviewTextures()
+{
+	mAvatarPreview->clearPreviewTexture("mHairMesh0");
+	mAvatarPreview->clearPreviewTexture("mUpperBodyMesh0");
+	mAvatarPreview->clearPreviewTexture("mLowerBodyMesh0");
+	mAvatarPreview->clearPreviewTexture("mHeadMesh0");
+	mAvatarPreview->clearPreviewTexture("mUpperBodyMesh0");
+	mAvatarPreview->clearPreviewTexture("mLowerBodyMesh0");
+	mAvatarPreview->clearPreviewTexture("mSkirtMesh0");
 }
 
 //-----------------------------------------------------------------------------
@@ -646,6 +663,19 @@ void LLImagePreviewAvatar::setPreviewTarget(const std::string& joint_name, const
 	mCameraPitch = 0.f;
 	mCameraYaw = 0.f;
 	mCameraOffset.clearVec();
+}
+
+//-----------------------------------------------------------------------------
+// clearPreviewTexture()
+//-----------------------------------------------------------------------------
+void LLImagePreviewAvatar::clearPreviewTexture(const std::string& mesh_name)
+{
+	LLViewerJointMesh *mesh = (LLViewerJointMesh*)mDummyAvatar->mRoot.findJoint(mesh_name);
+	// clear out existing test mesh
+	if (mesh)
+	{
+		mesh->setTestTexture(0);
+	}
 }
 
 //-----------------------------------------------------------------------------

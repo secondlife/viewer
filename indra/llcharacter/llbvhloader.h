@@ -37,9 +37,9 @@
 #include "m3math.h"
 #include "llmath.h"
 #include "llapr.h"
+#include "llbvhconsts.h"
 
 const S32 BVH_PARSER_LINE_SIZE = 2048;
-const F32 MAX_ANIM_DURATION = 30.f;
 class LLDataPacker;
 
 //------------------------------------------------------------------------
@@ -131,12 +131,6 @@ struct Joint
 	S32				mPriority;
 };
 
-
-typedef enum e_constraint_type
-{
-	CONSTRAINT_TYPE_POINT,
-	CONSTRAINT_TYPE_PLANE
-} EConstraintType;
 
 struct Constraint
 {

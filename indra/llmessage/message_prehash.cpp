@@ -631,6 +631,8 @@ char* _PREHASH_OfferCallingCard = LLMessageStringTable::getInstance()->getString
 char* _PREHASH_AcceptCallingCard = LLMessageStringTable::getInstance()->getString("AcceptCallingCard");
 char* _PREHASH_DeclineCallingCard = LLMessageStringTable::getInstance()->getString("DeclineCallingCard");
 char* _PREHASH_AgentAccess = LLMessageStringTable::getInstance()->getString("AgentAccess");
+char* _PREHASH_AgentLegacyAccess = LLMessageStringTable::getInstance()->getString("AgentLegacyAccess");
+char* _PREHASH_AgentMaxAccess = LLMessageStringTable::getInstance()->getString("AgentMaxAccess");
 char* _PREHASH_DataHomeLocationReply = LLMessageStringTable::getInstance()->getString("DataHomeLocationReply");
 char* _PREHASH_EventLocationReply = LLMessageStringTable::getInstance()->getString("EventLocationReply");
 char* _PREHASH_TerseDateID = LLMessageStringTable::getInstance()->getString("TerseDateID");
@@ -1377,5 +1379,4 @@ char* _PREHASH_UCoord = LLMessageStringTable::getInstance()->getString("UCoord")
 char* _PREHASH_VCoord = LLMessageStringTable::getInstance()->getString("VCoord");
 char* _PREHASH_FaceIndex = LLMessageStringTable::getInstance()->getString("FaceIndex");
 char* _PREHASH_StatusData = LLMessageStringTable::getInstance()->getString("StatusData");
-
-
+char* _PREHASH_ProductSKU = LLMessageStringTable::getInstance()->getString("ProductSKU");

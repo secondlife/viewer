@@ -46,9 +46,9 @@
 		<combo_item name="Age__Adult_resident_on_Teen_Second_Life">
 			年齢&gt;成人の住人がTeen Second Life上にいる
 		</combo_item>
-		<combo_item name="Age__Underage_resident_on_Adult_Second_Life">
-			年齢&gt;未成年の住人がAdult Second Life上にいる
-		</combo_item>
+		
+		
+		
 		<combo_item name="Assault__Combat_sandbox___unsafe_area">
 			攻撃&gt;コンバット・サンドボックス/危険なエリア
 		</combo_item>
@@ -118,15 +118,15 @@
 		<combo_item name="Indecency__Broadly_offensive_content_or_conduct">
 			わいせつ&gt;著しく不快であると見なされるコンテンツまたは行為
 		</combo_item>
-		<combo_item name="Indecency__Broadly_visible_mature_content">
-			わいせつ&gt;あからさまに見せつけられる成人向けと見なされるコンテンツ
-		</combo_item>
+		
+		
+		
 		<combo_item name="Indecency__Inappropriate_avatar_name">
 			わいせつ&gt;不適切なアバター名
 		</combo_item>
-		<combo_item name="Indecency__Mature_content_in_PG_region">
-			わいせつ&gt;PG地域で成人向けと見なされるコンテンツ
-		</combo_item>
+		
+		
+		
 		<combo_item name="Intellectual_property_infringement_Content_Removal">
 			知的財産の侵害 &gt; コンテンツの撤去
 		</combo_item>

@@ -44,6 +44,12 @@ class LLVector3;
 class LLVector3d;
 class LLVector4;
 
+// Error return values for getSize() functions
+const S32 LL_BLOCK_NOT_IN_MESSAGE = -1;
+const S32 LL_VARIABLE_NOT_IN_BLOCK = -2;
+const S32 LL_MESSAGE_ERROR = -3;
+
+
 class LLMessageReader
 {
  public:

@@ -57,7 +57,7 @@ quels membres ces pouvoirs sont assignés.
 				<column label="Surface donnée" name="donated" width="116"/>
 				<column label="Dernière connexion" name="online" width="136"/>
 			</name_list>
-			<button label="Inviter un nouveau membre" name="member_invite" width="165"/>
+			<button label="Inviter un membre..." name="member_invite" width="165"/>
 			<button label="Expulser un membre" name="member_eject"/>
 			<text name="help_text">
 				Vous pouvez ajouter ou supprimer les rôles assignés aux membres.

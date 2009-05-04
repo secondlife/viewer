@@ -1,22 +1,401 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <strings>
+	<string name="LoginInProgress">
+		Logger p. [APP_NAME] kan virke laast.  Vent venligst.
+	</string>
+	<string name="LoginAuthenticating">
+		Validerer adgang
+	</string>
+	<string name="LoginMaintenance">
+		Udfører konto vedligeholdelse...
+	</string>
+	<string name="LoginAttempt">
+		Tidligere forsø på login fejlede. Logger på, forsøg [NUMBER]
+	</string>
+	<string name="LoginPrecaching">
+		verden...
+	</string>
+	<string name="LoginInitializingBrowser">
+		Klargør indbyggede web browser...
+	</string>
+	<string name="LoginInitializingMultimedia">
+		Klargør multimedia...
+	</string>
+	<string name="LoginVerifyingCache">
+		Verificérer cache filer (kan tage 60-90 sekunder)...
+	</string>
+	<string name="LoginProcessingResponse">
+		Behandler svar...
+	</string>
+	<string name="LoginInitializingWorld">
+		Initialiserer verden...
+	</string>
+	<string name="LoginDecodingImages">
+		Behandler billeder...
+	</string>
+	<string name="LoginInitializingQuicktime">
+		Initialiserer QuickTime...
+	</string>
+	<string name="LoginQuicktimeNotFound">
+		QuickTime ikke fundet- kunne derfor ikke initialisere.
+	</string>
+	<string name="LoginQuicktimeOK">
+		QuickTime initialiseret.
+	</string>
+	<string name="LoginWaitingForRegionHandshake">
+		Venter på svar fra region...
+	</string>
+	<string name="LoginConnectingToRegion">
+		Tilslutter til region...
+	</string>
+	<string name="LoginDownloadingClothing">
+		Henter tøj...
+	</string>
 	<string name="LoginFailedNoNetwork">
 		Netværks fejl: Kunne ikke oprette forbindelse, tjek venligst din netværksforbindelse.
 	</string>
-	<!-- Disconnection -->
 	<string name="AgentLostConnection">
 		Denne region kan have problemer. Tjek venligst din forbindelse til internettet.
 	</string>
+	<string name="TooltipOwner">
+		Ejer:
+	</string>
+	<string name="TooltipPublic">
+		Offentlig
+	</string>
+	<string name="TooltipIsGroup">
+		(Gruppe)
+	</string>
+	<string name="TooltipFlagScript">
+		Script
+	</string>
+	<string name="TooltipFlagPhysics">
+		Fysik
+	</string>
+	<string name="TooltipFlagTouch">
+		Rør
+	</string>
+	<string name="TooltipFlagL$">
+		L$
+	</string>
+	<string name="TooltipFlagPhantom">
+		Fantom
+	</string>
+	<string name="TooltipFlagTemporary">
+		Temporær
+	</string>
+	<string name="TooltipFreeToCopy">
+		Kan kopieres
+	</string>
+	<string name="TooltipForSaleL$">
+		Til salg: L$[AMOUNT]
+	</string>
+	<string name="TooltipForSaleMsg">
+		Til salg: [MESSAGE]
+	</string>
+	<string name="TooltipFlagGroupBuild">
+		Gruppe byg
+	</string>
+	<string name="TooltipFlagNoBuild">
+		Må ikke bygge
+	</string>
+	<string name="TooltipFlagNoEdit">
+		Gruppe byg
+	</string>
+	<string name="TooltipFlagNotSafe">
+		Ikke sikker område
+	</string>
+	<string name="TooltipFlagNoFly">
+		Ingen flyvning
+	</string>
+	<string name="TooltipFlagGroupScripts">
+		Gruppe scripts
+	</string>
+	<string name="TooltipFlagNoScripts">
+		Ingen Scripts
+	</string>
+	<string name="TooltipLand">
+		Land:
+	</string>
 	<string name="TooltipMustSingleDrop">
-		Kun en enkelt ting kan trækkes hertil
+		Kun et enkelt element kan trækkes ind her
+	</string>
+	<string name="RetrievingData">
+		Henter...
 	</string>
 	<string name="ReleaseNotes">
-		Udgivelses Noter
+		Noter om version
+	</string>
+	<string name="LoadingData">
+		Henter...
+	</string>
+	<string name="AvatarNameNobody">
+		(ingen)
+	</string>
+	<string name="AvatarNameWaiting">
+		(venter)
+	</string>
+	<string name="AvatarNameHippos">
+		(hippos)
+	</string>
+	<string name="GroupNameNone">
+		(ingen)
+	</string>
+	<string name="AssetErrorNone">
+		Ingen fejl
+	</string>
+	<string name="AssetErrorRequestFailed">
+		Element forespørgsel: fejlede
+	</string>
+	<string name="AssetErrorNonexistentFile">
+		Element forespørgsel: fil findes ikke
+	</string>
+	<string name="AssetErrorNotInDatabase">
+		Element forespørgsel: element ikke fundet i database
+	</string>
+	<string name="AssetErrorEOF">
+		Slutning af fil
+	</string>
+	<string name="AssetErrorCannotOpenFile">
+		Kan ikke åbne fil
+	</string>
+	<string name="AssetErrorFileNotFound">
+		Fil ikke fundet
+	</string>
+	<string name="AssetErrorTCPTimeout">
+		Tidsgrænse overskredet ved filhentning
+	</string>
+	<string name="AssetErrorCircuitGone">
+		Forbindelsen mistet
+	</string>
+	<string name="AssetErrorUnknownStatus">
+		Ukendt status
+	</string>
+	<string name="AvatarEditingApparance">
+		(Ændrer udseende)
+	</string>
+	<string name="AvatarAway">
+		Væk
+	</string>
+	<string name="AvatarBusy">
+		Optaget
+	</string>
+	<string name="AvatarMuted">
+		Blokeret
+	</string>
+	<string name="anim_express_afraid">
+		Bange
+	</string>
+	<string name="anim_express_anger">
+		Vred
+	</string>
+	<string name="anim_away">
+		Væk
+	</string>
+	<string name="anim_backflip">
+		Baglæns salto
+	</string>
+	<string name="anim_express_laugh">
+		Hjertelig latter
+	</string>
+	<string name="anim_express_toothsmile">
+		Stort smil
+	</string>
+	<string name="anim_blowkiss">
+		Sende kys
+	</string>
+	<string name="anim_express_bored">
+		Keder sig
+	</string>
+	<string name="anim_bow">
+		Buk
+	</string>
+	<string name="anim_clap">
+		Klap
+	</string>
+	<string name="anim_courtbow">
+		Højtideligt buk
+	</string>
+	<string name="anim_express_cry">
+		Græd
+	</string>
+	<string name="anim_dance1">
+		Dans 1
+	</string>
+	<string name="anim_dance2">
+		Dans 2
+	</string>
+	<string name="anim_dance3">
+		Dans 3
+	</string>
+	<string name="anim_dance4">
+		Dans 4
+	</string>
+	<string name="anim_dance5">
+		Dans 5
+	</string>
+	<string name="anim_dance6">
+		Dans 6
+	</string>
+	<string name="anim_dance7">
+		Dans 7
+	</string>
+	<string name="anim_dance8">
+		Dans 8
+	</string>
+	<string name="anim_express_disdain">
+		Foragt
+	</string>
+	<string name="anim_drink">
+		Drik
+	</string>
+	<string name="anim_express_embarrased">
+		Flov
+	</string>
+	<string name="anim_angry_fingerwag">
+		Løftet finger
+	</string>
+	<string name="anim_fist_pump">
+		Knytnæve
+	</string>
+	<string name="anim_yoga_float">
+		Svævende yoga
+	</string>
+	<string name="anim_express_frown">
+		Mistroisk
+	</string>
+	<string name="anim_impatient">
+		Utålmodig
+	</string>
+	<string name="anim_jumpforjoy">
+		Glædeshop
+	</string>
+	<string name="anim_kissmybutt">
+		Kys min r..
+	</string>
+	<string name="anim_express_kiss">
+		Kys
+	</string>
+	<string name="anim_laugh_short">
+		Grin
+	</string>
+	<string name="anim_musclebeach">
+		Bodybuilder
+	</string>
+	<string name="anim_no_unhappy">
+		Nej (sur)
+	</string>
+	<string name="anim_no_head">
+		Nej
+	</string>
+	<string name="anim_nyanya">
+		Æv-bæv
+	</string>
+	<string name="anim_punch_onetwo">
+		Et-to slag
+	</string>
+	<string name="anim_express_open_mouth">
+		Åben mund
+	</string>
+	<string name="anim_peace">
+		Peace
+	</string>
+	<string name="anim_point_you">
+		Peg på andre
+	</string>
+	<string name="anim_point_me">
+		Peg på dig selv
+	</string>
+	<string name="anim_punch_l">
+		Slå venstre
+	</string>
+	<string name="anim_punch_r">
+		Slå højre
+	</string>
+	<string name="anim_rps_countdown">
+		SSP - Tæl
+	</string>
+	<string name="anim_rps_paper">
+		SSP - Papir
+	</string>
+	<string name="anim_rps_rock">
+		SSP - Sten
+	</string>
+	<string name="anim_rps_scissors">
+		SSP - Saks
+	</string>
+	<string name="anim_express_repulsed">
+		Misfornøjet
+	</string>
+	<string name="anim_kick_roundhouse_r">
+		Karatepark
+	</string>
+	<string name="anim_express_sad">
+		Ked af det
+	</string>
+	<string name="anim_salute">
+		Honnør
+	</string>
+	<string name="anim_shout">
+		Råb
+	</string>
+	<string name="anim_express_shrug">
+		Skuldertræk
+	</string>
+	<string name="anim_express_smile">
+		Smil
+	</string>
+	<string name="anim_smoke_idle">
+		Ryg
+	</string>
+	<string name="anim_smoke_inhale">
+		Indhalér
+	</string>
+	<string name="anim_smoke_throw_down">
+		Smid cigaret
+	</string>
+	<string name="anim_express_surprise">
+		Overrasket
+	</string>
+	<string name="anim_sword_strike_r">
+		Sværdslag
+	</string>
+	<string name="anim_angry_tantrum">
+		Ekstatisk
+	</string>
+	<string name="anim_express_tongue_out">
+		Tunge ud
+	</string>
+	<string name="anim_hello">
+		Vink
+	</string>
+	<string name="anim_whisper">
+		Knib øje i
+	</string>
+	<string name="anim_whistle">
+		Pift
+	</string>
+	<string name="anim_express_wink">
+		Blink
+	</string>
+	<string name="anim_wink_hollywood">
+		Blink (Hollywood)
+	</string>
+	<string name="anim_express_worry">
+		Bekymret
+	</string>
+	<string name="anim_yes_happy">
+		Ja (glad)
+	</string>
+	<string name="anim_yes_head">
+		Ja
 	</string>
 	<string name="texture_loading">
-		Indlæser...
+		Henter...
 	</string>
-	<!-- Chat -->
+	<string name="worldmap_offline">
+		Offline
+	</string>
 	<string name="whisper">
 		hvisker:
 	</string>

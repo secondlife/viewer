@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Gráficos" name="Display panel">
 	<button label="?" name="GraphicsPreferencesHelpButton"/>
-	<check_box label="Execute Second Life emu ma janela" name="windowed mode"/>
+	<check_box label="Execute Second Life em uma janela" name="windowed mode"/>
 	<text_editor bottom="-56" height="40" name="FullScreenInfo" width="480">
-		Caso contrário, visualizador irá exibir em tela inteira quando fizer o acesso.
+		Se desmarcado, o visualizador irá exibir em tela inteira quando fizer o acesso.
 	</text_editor>
 	<text name="WindowSizeLabel">
 		Tamanho da Janela:
@@ -29,7 +29,7 @@
 		Resolução de Display:
 	</text>
 	<text name="AspectRatioLabel1" tool_tip="largura / altura">
-		Aspecto da tela:
+		Relação de Aspecto:
 	</text>
 	<combo_box name="aspect_ratio" tool_tip="largura / altura">
 		<combo_item length="1" name="4:3(StandardCRT)" type="string">
@@ -42,10 +42,10 @@
 			8:5 (tela ampla)
 		</combo_item>
 		<combo_item length="1" name="16:9(Widescreen)" type="string">
-			16:9 (Widescreen)
+			16:9 (tela ampla)
 		</combo_item>
 	</combo_box>
-	<check_box label="Auto-detectar ratio" name="aspect_auto_detect"/>
+	<check_box label="Auto-detectar a relação" name="aspect_auto_detect"/>
 	<text name="HigherText">
 		Qualidade e
 	</text>
@@ -53,13 +53,14 @@
 		Performance:
 	</text>
 	<text name="FasterText">
-		Mais &#10;rápido
+		Mais 
+rápido
 	</text>
 	<text name="ShadersPrefText">
 		Baixo
 	</text>
 	<text name="ShadersPrefText2">
-		Mid
+		Meio
 	</text>
 	<text name="ShadersPrefText3">
 		Alto
@@ -73,13 +74,13 @@
 	<text name="QualityText2">
 		Qualidade
 	</text>
-	<check_box label="Padrão" name="CustomSettings" left="395" />
+	<check_box label="Padrão" left="395" name="CustomSettings"/>
 	<text name="ShadersText">
-		Sombreamentos:
+		Sombreadores:
 	</text>
 	<check_box label="Bump de Mapeamento e Brilho" name="BumpShiny"/>
-	<check_box label="Sombreamento básico" name="BasicShaders" tool_tip="Desabilitar esta opção poderá impedir que alguns drivers de placa de vídeo a travem."/>
-	<check_box label="Sombreamento Atmosférico" name="WindLightUseAtmosShaders"/>
+	<check_box label="Sombreadores básicos" name="BasicShaders" tool_tip="Desabilitar esta opção poderá impedir que alguns drivers de placa de vídeo a travem."/>
+	<check_box label="Sombreadores Atmosféricos" name="WindLightUseAtmosShaders"/>
 	<check_box label="Reflexos de Água" name="Reflections"/>
 	<text name="ReflectionDetailText">
 		Detalhes de Reflexão:
@@ -101,8 +102,8 @@
 	<text name="AvatarRenderingText">
 		Renderização de Avatar:
 	</text>
-	<check_box label="Avatar Impostors" name="AvatarImpostors"/>
-	<check_box label="Hardware Skinning" name="AvatarVertexProgram"/>
+	<check_box label="Atributos do Avatar" name="AvatarImpostors"/>
+	<check_box label="Melhoria de Hardware" name="AvatarVertexProgram"/>
 	<check_box label="Vestimenta do Avatar" name="AvatarCloth"/>
 	<text name="DrawDistanceMeterText1">
 		m
@@ -110,14 +111,14 @@
 	<text name="DrawDistanceMeterText2">
 		m
 	</text>
-	<slider label="Medir Distancia:" name="DrawDistance" width="255" label_width="146" />
-	<slider label="Contador máx de partículas:" name="MaxParticleCount" width="262" label_width="146" />
-	<slider label="Qualidade de Post Process:" name="RenderPostProcess" width="223" label_width="146" />
+	<slider label="Distancia de desenho:" label_width="146" name="DrawDistance" width="255"/>
+	<slider label="Contador máx. de partículas:" label_width="146" name="MaxParticleCount" width="262"/>
+	<slider label="Qualidade de Pós-processamento:" label_width="146" name="RenderPostProcess" width="223"/>
 	<text name="MeshDetailText">
 		Detalhes de Malha:
 	</text>
 	<slider label="Objetos:" name="ObjectMeshDetail"/>
-	<slider label="Primitivos Flexiveis:" name="FlexibleMeshDetail"/>
+	<slider label="Primitivas Flexiveis:" name="FlexibleMeshDetail"/>
 	<slider label="Árvores:" name="TreeMeshDetail"/>
 	<slider label="Avatares:" name="AvatarMeshDetail"/>
 	<slider label="Terreno:" name="TerrainMeshDetail"/>
@@ -155,9 +156,9 @@
 		</radio_item>
 	</radio_group>
 	<text name="TerrainDetailText">
-		Detalhes do Terreno:
+		Detalhe do Terreno:
 	</text>
-	<radio_group name="TerrainDetailRadio" left_delta="45" width="276">
+	<radio_group left_delta="45" name="TerrainDetailRadio" width="276">
 		<radio_item name="0">
 			Baixo
 		</radio_item>

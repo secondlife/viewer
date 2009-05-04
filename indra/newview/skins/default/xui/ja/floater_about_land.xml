@@ -30,7 +30,7 @@
 				販売対象外
 			</text>
 			<text length="1" name="For Sale: Price L$[PRICE]." type="string">
-				料金：L$[PRICE]
+				価格： L$[PRICE] （L$[PRICE_PER_SQM]/平方メートル）
 			</text>
 			<button label="土地を販売..." label_selected="土地を販売..." name="Sell Land..."/>
 			<text length="1" name="For sale to" type="string">
@@ -262,9 +262,7 @@
 				<combo_item name="LindenLocation">
 					Linden所在地
 				</combo_item>
-				<combo_item name="Adult">
-					成人
-				</combo_item>
+
 				<combo_item name="Arts&amp;Culture">
 					アート&amp;カルチャー
 				</combo_item>
@@ -297,7 +295,7 @@
 				</combo_item>
 			</combo_box>
 			<button label="?" label_selected="?" name="?"/>
-			<check_box label="成人向けコンテンツ" name="MatureCheck" tool_tip="あなたの区画情報またはコンテンツが成人向けと見なされています。"/>
+			<check_box name="MatureCheck" />
 			<text length="1" name="Snapshot:" type="string">
 				スナップショット：
 			</text>
@@ -375,19 +373,19 @@
 			<text name="Sound:">
 				サウンド：
 			</text>
-			<check_box label="空間音響をこの区画だけに限定" name="check sound local"/>
+			<check_box label="この区画だけに限定" name="check sound local"/>
 			<text name="Voice settings:">
 				ボイス：
 			</text>
 			<radio_group name="parcel_voice_channel" width="310">
 				<radio_item name="Estate">
-					不動産空間チャンネルを使用
+					不動産（エステート）全体
 				</radio_item>
 				<radio_item name="Private">
-					プライベート空間チャンネルを使用
+					この区画のみ
 				</radio_item>
 				<radio_item name="Disabled">
-					この区画の空間オーディオを無効にする
+					使用不可
 				</radio_item>
 			</radio_group>
 		</panel>

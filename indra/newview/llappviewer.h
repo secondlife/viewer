@@ -85,7 +85,8 @@ public:
 	virtual void handleSyncCrashTrace() = 0; // any low-level crash-prep that has to happen in the context of the crashing thread before the crash report is delivered.
 	static void handleViewerCrash(); // Hey! The viewer crashed. Do this, soon.
 	static void handleSyncViewerCrash(); // Hey! The viewer crashed. Do this right NOW in the context of the crashing thread.
-
+    void checkForCrash();
+    
 	// Thread accessors
 	static LLTextureCache* getTextureCache() { return sTextureCache; }
 	static LLWorkerThread* getImageDecodeThread() { return sImageDecodeThread; }

@@ -402,7 +402,23 @@
 					<boolean>true</boolean>
 				</map>
 
-				<key>avatarnotesrequest</key>
+        <key>PlacesReply</key>
+        <map>
+          <key>flavor</key>
+          <string>llsd</string>
+          <key>trusted-sender</key>
+          <boolean>true</boolean>
+        </map>
+
+        <key>DirLandReply</key>
+        <map>
+          <key>flavor</key>
+          <string>llsd</string>
+          <key>trusted-sender</key>
+          <boolean>true</boolean>
+        </map>
+
+        <key>avatarnotesrequest</key>
 				<map>
 					<key>service_name</key>
 					<string>avatar-notes</string>

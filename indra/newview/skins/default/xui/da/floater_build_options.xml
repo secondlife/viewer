@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="build options floater" title="Gitter Indstillinger">
-	<spinner label="Gitter Enhed (meter)" name="GridResolution" />
-	<spinner label="Gitter Bredde (meter)" name="GridDrawSize" />
-	<check_box label="Aktiver Sub-Enheds magnet" name="GridSubUnit" />
-	<check_box label="Vis modsat akse" name="GridCrossSection" />
+<floater name="build options floater" title="Gitter indstillinger">
+	<spinner label="Gitter enhed (meter)" name="GridResolution" />
+	<spinner label="Gitter rækkevidde (meter)" name="GridDrawSize" />
+	<check_box label="Aktiver låsning til under-enheder" name="GridSubUnit" />
+	<check_box label="Vis &apos;cross sections&apos;" name="GridCrossSection" />
 	<slider label="Gitter synlighed" name="GridOpacity" />
 </floater>

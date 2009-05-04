@@ -1,52 +1,50 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<panel label="Pacto" name="Covenant">
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Contrato" name="Covenant">
 	<text name="covenant_help_text">
-		Cambiar las informaciones de pacto irá a mostrar todas las parcelas en la propiedad.
+		Los cambios que se hagan en la información del contrato se mostrarán en todas las parcelas del estado.
 	</text>
 	<text name="region_name_lbl">
 		Región:
 	</text>
 	<text name="region_name_text">
-		(desconocido)
+		(desconocida)
 	</text>
 	<text name="estate_name_lbl">
-		Propiedad:
+		Estado:
 	</text>
 	<text name="estate_name_text">
 		(desconocido)
 	</text>
 	<text name="covenent_instructions">
-		Arrastre y suelte una tarjeta de anotación
-para mudar el pacto
-para esta propiedad.
+		Para cambiar el contrato de este estado, arrastre y suelte una nota.
 	</text>
-	<button label="?" name="covenant_help" />
-	<button label="Restaurar" name="reset_covenant" />
+	<button label="?" name="covenant_help"/>
+	<button label="Cambiar" name="reset_covenant"/>
 	<text name="estate_owner_lbl">
-		Dueño de la propiedad:
+		Propietario del estado:
 	</text>
 	<text name="estate_owner_text">
 		(desconocido)
 	</text>
 	<text name="resellable_clause">
-		Terreno comprado en esta región podrá o no ser revendido.
+		El terreno comprado en esta región se podrá o no revender.
 	</text>
 	<text name="changeable_clause">
-		Terreno comprado en esta región podrá o no ser unido o subdividido.
+		El terreno comprado en esta región se podrá o no unir o subdividir.
 	</text>
 	<text_editor name="covenant_editor">
 		Cargando...
 	</text_editor>
 	<text name="can_resell">
-		Terreno comprado en esta región podrá ser revendido.
+		El terreno comprado en esta región se podrá revender.
 	</text>
 	<text name="can_not_resell">
-		Terreno comprado en esta región no podrá ser revendido.
+		El terreno comprado en esta región no se podrá revender.
 	</text>
 	<text name="can_change">
-		Terreno comprado en esta región podrá ser unido o subdividido.
+		El terreno comprado en esta región se podrá unir o subdividir.
 	</text>
 	<text name="can_not_change">
-		Terreno comprado en esta región no podrá ser unido o subdividido.
+		El terreno comprado en esta región no se podrá unir ni subdividir.
 	</text>
 </panel>

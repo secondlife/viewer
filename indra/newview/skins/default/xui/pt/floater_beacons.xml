@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="beacons" title="Balizas">
 	<panel name="beacons_panel">
-		<check_box label="Objetos escriptados com toque único" name="touch_only"/>
-		<check_box label="Objetos escriptados" name="scripted"/>
+		<check_box label="Objetos programados com toque apenas" name="touch_only"/>
+		<check_box label="Objetos programados" name="scripted"/>
 		<check_box label="Objetos físicos" name="physical"/>
 		<check_box label="Fontes de Som" name="sounds"/>
 		<check_box label="Fontes de Partículas" name="particles"/>

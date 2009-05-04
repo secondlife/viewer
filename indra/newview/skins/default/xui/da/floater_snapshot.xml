@@ -1,43 +1,36 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Snapshot" title="Snapshot Preview">
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="Snapshot" title="Se foto">
 	<text name="type_label">
-		Billede sti
+		Hvor skal foto hen?
 	</text>
 	<radio_group label="Snapshot type" name="snapshot_type_radio">
 		<radio_item name="postcard">
 			Send via e-mail
 		</radio_item>
 		<radio_item name="texture">
-			Gem til beholdning (L$10)
+			Gem i din beholdning (L$[AMOUNT])
 		</radio_item>
 		<radio_item name="local">
 			Gem på din computer
 		</radio_item>
 	</radio_group>
 	<text name="file_size_label">
-		Fil Størrelse: [SIZE] KB
+		Fil størrelse: [SIZE] KB
 	</text>
-	<button label="Tag nyt Billede" name="new_snapshot_btn"/>
-	<button label="Send" name="send_btn"/>
-	<button label="Gem (L$10)" name="upload_btn"/>
-	<flyout_button label="Gem" name="save_btn" tool_tip="Gem billede til fil">
-		<flyout_button_item name="save_item">
-			Gem
-		</flyout_button_item>
-		<flyout_button_item name="saveas_item">
-			Gem som...
-		</flyout_button_item>
-	</flyout_button>
-	<button label="Annuller" name="discard_btn"/>
-	<button label="Normal &gt;&gt;" name="more_btn" tool_tip="Advanced Options"/>
-	<button label="&lt;&lt; Avanceret" name="less_btn" tool_tip="Advanced Options"/>
+	<button label="Tag nyt foto" name="new_snapshot_btn" />
+	<button label="Send" name="send_btn" />
+	<button label="Gem (L$[AMOUNT])" name="upload_btn" />
+	<flyout_button label="Gem" name="save_btn"  />
+	<button label="Annullér" name="discard_btn" />
+	<button label="Mere &gt;&gt;" name="more_btn"  />
+	<button label="&lt;&lt; Mindre" name="less_btn"  />
 	<text name="type_label2">
 		Størrelse
 	</text>
 	<text name="format_label">
 		Format
 	</text>
-	<combo_box label="Resolution" name="postcard_size_combo">
+	<combo_box label="Opløsning" name="postcard_size_combo">
 		<combo_item name="CurrentWindow">
 			Aktuelle vindue
 		</combo_item>
@@ -54,15 +47,15 @@
 			Manuel
 		</combo_item>
 	</combo_box>
-	<combo_box label="Resolution" name="texture_size_combo">
+	<combo_box label="Opløsning" name="texture_size_combo">
 		<combo_item name="CurrentWindow">
-			Aktuelle Vindue
+			Aktuelle vindue
 		</combo_item>
 		<combo_item name="Small(128x128)">
 			Lille (128x128)
 		</combo_item>
 		<combo_item name="Medium(256x256)">
-			Mellem (256x256)
+			Medium (256x256)
 		</combo_item>
 		<combo_item name="Large(512x512)">
 			Stor (512x512)
@@ -73,7 +66,7 @@
 	</combo_box>
 	<combo_box label="Opløsning" name="local_size_combo">
 		<combo_item name="CurrentWindow">
-			Aktuelle Vindue
+			Aktuelle vindue
 		</combo_item>
 		<combo_item name="320x240">
 			320x240
@@ -94,10 +87,10 @@
 			1600x1200
 		</combo_item>
 		<combo_item name="Custom">
-			Manuel
+			Manuelt
 		</combo_item>
 	</combo_box>
-	<combo_box label="Format" name="local_format_combo">
+	<combo_box label="Fil-format" name="local_format_combo">
 		<combo_item name="PNG">
 			PNG
 		</combo_item>
@@ -108,14 +101,14 @@
 			BMP
 		</combo_item>
 	</combo_box>
-	<spinner label="Bredde" name="snapshot_width"/>
-	<spinner label="Højde" name="snapshot_height"/>
-	<check_box label="Låst størrelse" name="keep_aspect_check"/>
-	<slider label="Billedkvalitet" name="image_quality_slider"/>
+	<spinner label="Bredde" name="snapshot_width" />
+	<spinner label="Højde" name="snapshot_height" />
+	<check_box label="Fasthold proportioner" name="keep_aspect_check" />
+	<slider label="Billed-kvalitet" name="image_quality_slider" />
 	<text name="layer_type_label">
-		Fang:
+		Benyt:
 	</text>
-	<combo_box label="Image Layers" name="layer_types">
+	<combo_box label="Billedlag" name="layer_types">
 		<combo_item name="Colors">
 			Farver
 		</combo_item>
@@ -126,12 +119,9 @@
 			Materinger
 		</combo_item>
 	</combo_box>
-	<check_box label="Vis grænseflade i billedet" name="ui_check"/>
-	<check_box label="Vis HUD objekter i billedet" name="hud_check"/>
-	<check_box label="Hold denne menu åben" name="keep_open_check"/>
-	<check_box label="Frys billede (Fuldskærms visning )" name="freeze_frame_check"/>
-	<check_box label="Auto-opdater" name="auto_snapshot_check"/>
-	<string name="unknown">
-		unknown
-	</string>
+	<check_box label="Vis brugerflade på foto" name="ui_check" />
+	<check_box label="Vis HUD objekter på foto" name="hud_check" />
+	<check_box label="Luk ikke vindue ved gemning" name="keep_open_check" />
+	<check_box label="Frys billede og vis" name="freeze_frame_check" />
+	<check_box label="Auto-opdater" name="auto_snapshot_check" />
 </floater>

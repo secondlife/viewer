@@ -205,7 +205,6 @@ class WindowsManifest(ViewerManifest):
         # Mozilla runtime DLLs (CP)
         if self.prefix(src="../../libraries/i686-win32/lib/release", dst=""):
             self.path("freebl3.dll")
-            self.path("gksvggdiplus.dll")
             self.path("js3250.dll")
             self.path("nspr4.dll")
             self.path("nss3.dll")
@@ -598,8 +597,8 @@ class LinuxManifest(ViewerManifest):
             else:
                 installer_name += '_' + self.channel_oneword().upper()
 
-                # Fix access permissions
-                self.run_command("""
+        # Fix access permissions
+        self.run_command("""
                 find %(dst)s -type d | xargs --no-run-if-empty chmod 755;
                 find %(dst)s -type f -perm 0700 | xargs --no-run-if-empty chmod 0755;
                 find %(dst)s -type f -perm 0500 | xargs --no-run-if-empty chmod 0555;

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater name="modal container" title="">
 	<button label="Gem" label_selected="Gem" name="Save" />
-	<button label="Annuller" label_selected="Annuller" name="Cancel" />
+	<button label="Annullér" label_selected="Annullér" name="Cancel" />
 	<text type="string" length="1" name="Save item as:">
-		Gem Ting Som:
+		Gem ting som::
 	</text>
 	<line_editor name="name ed">
 		Ny [DESC]

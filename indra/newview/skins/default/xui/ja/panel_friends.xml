@@ -45,7 +45,7 @@
 	<button label="支払う..." name="pay_btn"
 	     tool_tip="リンデンドル (L$) をこのフレンドにあげる"
 	     width="90" />
-	<button label="取り除く..." name="remove_btn"
+	<button label="削除..." name="remove_btn"
 	     tool_tip="この人物をフレンドリストから外します。"
 	     width="90" />
 	<button label="追加..." name="add_btn"

@@ -37,9 +37,9 @@
 		Events
 	</text>
 	<check_box label=" " name="event_chk"/>
-	<text name="events_mature_label">
-		Events (18+)
-	</text>
+
+
+
 	<check_box label=" " name="event_mature_chk"/>
 	<combo_box label="Online-Freunde" name="friend combo" tool_tip="Freund, der auf Karte angezeigt werden soll">
 		<combo_item name="none_selected">

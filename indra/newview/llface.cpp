@@ -932,12 +932,6 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 		{
 			clearState(TEXTURE_ANIM);
 		}
-		//else if (getVirtualSize() <= 512.f)
-		//{			
-		//	//vobj->mTextureAnimp->animateTextures(os, ot, ms, mt, r);
-		//	//cos_ang = cos(r);
-		//	//sin_ang = sin(r);
-		//}
 		else
 		{
 			os = ot = 0.f;

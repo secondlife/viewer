@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Environment Editor Floater" title="Omgeving editor">
+	<text name="EnvTimeText">
+		Tijd van de dag
+	</text>
+	<text name="EnvTimeText2">
+		0:00
+	</text>
+	<text name="EnvCloudText">
+		Wolkendek
+	</text>
+	<text name="EnvWaterColorText">
+		Waterkleur
+	</text>
+	<color_swatch label="" name="EnvWaterColor" tool_tip="Klik om de kleurkiezer te openen"/>
+	<text name="EnvWaterFogText">
+		Watermist
+	</text>
+	<button label="Gebruik estate tijd" name="EnvUseEstateTimeButton"/>
+	<button label="Geavanceerde lucht" name="EnvAdvancedSkyButton"/>
+	<button label="Geavanceerd water" name="EnvAdvancedWaterButton"/>
+	<button label="?" name="EnvSettingsHelpButton"/>
+</floater>

@@ -63,7 +63,7 @@ LLNotificationChannelPanel::LLNotificationChannelPanel(const std::string& channe
 {
 	mChannelPtr = LLNotifications::instance().getChannel(channel_name);
 	mChannelRejectsPtr = LLNotificationChannelPtr(
-		new LLNotificationChannel(channel_name + "rejects", mChannelPtr->getParentChannelName(), !boost::bind(mChannelPtr->getFilter(), _1)));
+												  LLNotificationChannel::buildChannel(channel_name + "rejects", mChannelPtr->getParentChannelName(), !boost::bind(mChannelPtr->getFilter(), _1)));
 	LLUICtrlFactory::instance().buildPanel(this, "panel_notifications_channel.xml");
 }
 

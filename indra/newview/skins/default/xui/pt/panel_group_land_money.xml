@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="Terra L$" name="land_money_tab">
+<panel label="Terra &amp; L$" name="land_money_tab">
 	<string name="help_text">
-		Lotes pertencentes ao grupo são listadas com detalhes de contribuição. Um aviso aparece até que o total de Terras em Uso seja menor ou igual ao Total de Contribuições. As abas de Detalhes e Vendas fornecem informações sobre as finanças do grupo.
+		Lotes pertencentes ao grupo são listados com detalhes de contribuição. Um aviso aparece até que o total de Terras em Uso seja menor ou igual ao Total de Contribuições. As abas de Planejamento, Detalhes e Vendas fornecem informações sobre as finanças do grupo.
 	</string>
 	<button label="?" name="help_button"/>
 	<string name="cant_view_group_land_text">
@@ -14,32 +14,31 @@
 		Carregando...
 	</string>
 	<text name="group_land_heading">
-		Terra percentence ao grupo
+		Terra percentente ao grupo
 	</text>
 	<scroll_list name="group_parcel_list">
 		<column label="Nome do Lote" name="name"/>
 		<column label="Região" name="location"/>
 		<column label="Área" name="area"/>
-		<column label="" name="hidden"/>
 	</scroll_list>
 	<button label="Mostrar no Mapa" label_selected="Mostrar no Mapa" name="map_button"/>
 	<text name="total_contributed_land_label">
 		Contribuição Total:
 	</text>
 	<text name="total_contributed_land_value">
-		[AREA] m2
+		[AREA] m²
 	</text>
 	<text name="total_land_in_use_label">
 		Total de Terra em Uso:
 	</text>
 	<text name="total_land_in_use_value">
-		[AREA] m2
+		[AREA] m²
 	</text>
 	<text name="land_available_label">
 		Terra Disponível:
 	</text>
 	<text name="land_available_value">
-		[AREA] m2
+		[AREA] m²
 	</text>
 	<text name="your_contribution_label">
 		Sua Contribuição:
@@ -48,7 +47,7 @@
 		Não é possível definir sua contribuição para o terreno.
 	</string>
 	<text name="your_contribution_max_value">
-		m2 ([AMOUNT] máxima)
+		m² ([AMOUNT] máxima)
 	</text>
 	<text name="group_over_limit_text">
 		Membros do grupo precisam contribuir com mais créditos de Terra para garantir a terra em uso.
@@ -69,7 +68,7 @@
 				Computando...
 			</text_editor>
 			<button label="&lt; Mais Cedo" label_selected="&lt; Mais Cedo" name="earlier_sales_button" tool_tip="Voltar no Tempo"/>
-			<button label="Mais Tarde" label_selected="Mais Tarde" name="later_sales_button" tool_tip="Adiantar o Tempo"/>
+			<button label="Mais Tarde &gt;" label_selected="Mais Tarde &gt;" name="later_sales_button" tool_tip="Adiantar o Tempo"/>
 		</panel>
 	</tab_container>
 </panel>

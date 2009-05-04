@@ -74,7 +74,6 @@ public:
 	static void onClickCommunicate(LLUICtrl*, void*);
 	static void onClickChat(void* data);
 	static void onClickAppearance(void* data);
-	static void onClickClothing(void* data);
 	static void onClickFly(void*);
 	static void onClickSit(void*);
 	static void onClickSnapshot(void* data);

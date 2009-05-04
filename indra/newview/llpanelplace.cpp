@@ -97,8 +97,9 @@ BOOL LLPanelPlace::postBuild()
     mDescEditor = getChild<LLTextEditor>("desc_editor");
 
 	mInfoEditor = getChild<LLTextBox>("info_editor");
+	mLandTypeEditor = getChild<LLTextBox>("land_type_display");
 
-    mLocationEditor = getChild<LLTextBox>("location_editor");
+    mLocationDisplay = getChild<LLTextBox>("location_editor");
 
 	mTeleportBtn = getChild<LLButton>( "teleport_btn");
 	mTeleportBtn->setClickedCallback(onClickTeleport);
@@ -148,7 +149,32 @@ void LLPanelPlace::resetLocation()
 	mNameEditor->setText( LLStringUtil::null );
 	mDescEditor->setText( LLStringUtil::null );
 	mInfoEditor->setText( LLStringUtil::null );
-	mLocationEditor->setText( LLStringUtil::null );
+	mLandTypeEditor->setText( LLStringUtil::null );
+	mLocationDisplay->setText( LLStringUtil::null );
+}
+
+
+// Set the name and clear other bits of info.  Used for SLURL clicks
+void LLPanelPlace::resetName(const std::string& name)
+{
+	setName(name);
+	if(mDescEditor)
+	{
+		mDescEditor->setText( LLStringUtil::null );
+	}
+	if(mNameEditor)
+	{
+		llinfos << "Clearing place name" << llendl;
+		mNameEditor->setText( LLStringUtil::null );
+	}
+	if(mInfoEditor)
+	{
+		mInfoEditor->setText( LLStringUtil::null );
+	}
+	if(mLandTypeEditor)
+	{
+		mLandTypeEditor->setText( LLStringUtil::null );
+	}
 }
 
 void LLPanelPlace::setParcelID(const LLUUID& parcel_id)
@@ -165,7 +191,12 @@ void LLPanelPlace::setSnapshot(const LLUUID& snapshot_id)
 
 void LLPanelPlace::setLocationString(const std::string& location)
 {
-	mLocationEditor->setText(location);
+	mLocationDisplay->setText(location);
+}
+
+void LLPanelPlace::setLandTypeString(const std::string& land_type)
+{
+	mLandTypeEditor->setText(land_type);
 }
 
 void LLPanelPlace::sendParcelInfoRequest()
@@ -326,9 +357,9 @@ void LLPanelPlace::processParcelInfoReply(LLMessageSystem *msg, void **)
 
 		std::string location = llformat("%s %d, %d, %d (%s)",
 										sim_name.c_str(), region_x, region_y, region_z, rating.c_str());
-		if (self->mLocationEditor)
+		if (self->mLocationDisplay)
 		{
-			self->mLocationEditor->setText(location);
+			self->mLocationDisplay->setText(location);
 		}
 
 		BOOL show_auction = (auction_id > 0);

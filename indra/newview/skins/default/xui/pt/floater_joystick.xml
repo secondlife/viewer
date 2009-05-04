@@ -64,7 +64,6 @@
 	<text name="Feathering">
 		Alisar
 	</text>
-	<slider label="" name="FlycamFeathering"/>
 	<text name="ZoomScale2">
 		Escala de Zoom
 	</text>

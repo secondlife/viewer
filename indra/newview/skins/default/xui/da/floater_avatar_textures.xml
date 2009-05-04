@@ -1,27 +1,27 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="avatar_texture_debug" title="Figur Teksturer">
+<floater name="avatar_texture_debug" title="Avatar teksturer">
 	<text name="baked_label">
-		Baked Textures
+		Faste teksturer
 	</text>
 	<text name="composite_label">
-		Composite Textures
+		Blandede teksturer
 	</text>
 	<texture_picker label="Hoved" name="baked_head" />
 	<texture_picker label="Makeup" name="head_bodypaint" />
 	<texture_picker label="Hår" name="hair" />
 	<button label="Drop" label_selected="Dump" name="Dump" />
-	<texture_picker label="Øjne" name="baked_eyes" />
-	<texture_picker label="Øje" name="eye_texture" />
-	<texture_picker label="Øvre Krop" name="baked_upper_body" />
-	<texture_picker label="Øvre Krops Tatovering" name="upper_bodypaint" />
+	<texture_picker label="øjne" name="baked_eyes" />
+	<texture_picker label="øje" name="eye_texture" />
+	<texture_picker label="Overkrop" name="baked_upper_body" />
+	<texture_picker label="Tatovering overkrop" name="upper_bodypaint" />
 	<texture_picker label="Undertrøje" name="undershirt" />
 	<texture_picker label="Handsker" name="gloves" />
 	<texture_picker label="Trøje" name="shirt" />
-	<texture_picker label="Øvre Jakke" name="upper_jacket" />
-	<texture_picker label="Nedre Krop" name="baked_lower_body" />
-	<texture_picker label="Nedre Krops Tatovering" name="lower_bodypaint" />
+	<texture_picker label="øvre jakke" name="upper_jacket" />
+	<texture_picker label="Underkrop" name="baked_lower_body" />
+	<texture_picker label="Tatovering underkrop" name="lower_bodypaint" />
 	<texture_picker label="Underbukser" name="underpants" />
-	<texture_picker label="Sokker" name="socks" />
+	<texture_picker label="Strømper" name="socks" />
 	<texture_picker label="Sko" name="shoes" />
 	<texture_picker label="Bukser" name="pants" />
 	<texture_picker label="Jakke" name="jacket" />

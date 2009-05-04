@@ -2397,7 +2397,7 @@ void LLPanelGroupRolesSubTab::handleDeleteRole()
 	{
 		LLSD args;
 		args["MESSAGE"] = mRemoveEveryoneTxt;
-		LLNotifications::instance().add("GenericNotify", args);
+		LLNotifications::instance().add("GenericAlert", args);
 		return;
 	}
 

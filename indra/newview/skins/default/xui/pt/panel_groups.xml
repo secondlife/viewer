@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="groups">
+	<text name="groupdesc">
+		Seu grupo ativo atual es&apos;ta mostrado em negrito.
+	</text>
+	<text name="groupcount">
+		Você pertence a [COUNT] grupos (de no máximo [MAX]).
+aximo
+	</text>
+	<button label="MI/Chamada" name="IM" tool_tip="Abrir sessão de Mensagem Instantânea"/>
+	<button label="Informações" name="Info"/>
+	<button label="Ativar" name="Activate"/>
+	<button label="Deixar" name="Leave"/>
+	<button label="Criar..." name="Create"/>
+	<button label="Buscar..." name="Search..."/>
+</panel>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel label="Covenant" name="Covenant">
+	<text name="covenant_help_text">
+		Ændringer i regel information vil blive vist i alle parceller til denne estate.
+	</text>
+	<text name="region_name_lbl">
+		Region:
+	</text>
+	<text name="region_name_text">
+		(ukendt)
+	</text>
+	<text name="estate_name_lbl">
+		Estate:
+	</text>
+	<text name="estate_name_text">
+		(ukendt)
+	</text>
+	<text name="estate_owner_lbl">
+		Estate ejer:
+	</text>
+	<text name="estate_owner_text">
+		(ukendt)
+	</text>
+	<text name="resellable_clause">
+		Valgfrit om købt land i denne region må sælges videre
+	</text>
+	<text name="changeable_clause">
+		Valgfrit om købt land i denne region må deles eller samles.
+	</text>
+	<text name="covenent_instructions">
+		Træk og slip et notecard her for at ændre regler for dette estate.
+	</text>
+	<text_editor name="covenant_editor">
+		Henter...
+	</text_editor>
+	<button label="Reset" name="reset_covenant" />
+	<string name="can_resell">
+		Købt land i denne region må sælges videre
+	</string>
+	<string name="can_not_resell">
+		Købt land i denne region må ikke sælges videre
+	</string>
+	<string name="can_change">
+		Købt land i denne region må deles eller samles.
+	</string>
+	<string name="can_not_change">
+		Købt land i denne region må ikke deles eller samles.
+	</string>
+	<button label="?" name="covenant_help" />
+</panel>

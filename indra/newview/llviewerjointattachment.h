@@ -61,7 +61,7 @@ public:
 
 	// Draws the shape attached to a joint.
 	// Called by render().
-	/*virtual*/ U32 drawShape( F32 pixelArea, BOOL first_pass );
+	/*virtual*/ U32 drawShape( F32 pixelArea, BOOL first_pass, BOOL is_dummy );
 	
 	/*virtual*/ BOOL updateLOD(F32 pixel_area, BOOL activate);
 

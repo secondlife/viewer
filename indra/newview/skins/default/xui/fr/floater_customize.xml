@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater customize" title="Apparence" width="513">
-	<tab_container name="customize tab container" tab_min_width="115" width="511">
+<floater name="floater customize" title="Apparence" width="563">
+	<tab_container name="customize tab container" tab_min_width="165" width="561">
 		<panel label="Parties du corps"/>
 		<panel label="Parties du corps" name="body_parts_placeholder"/>
-		<panel label="Silhouette" left="119" name="Shape" width="389">
+		<panel label="Silhouette" left="169" name="Shape" width="389">
 			<button label="Créer une silhouette" label_selected="Créer une silhouette" name="Create New" width="140"/>
 			<button label="Enlever" label_selected="Enlever" left="12" name="Take Off" width="82"/>
 			<button label="Enregistrer" label_selected="Enregistrer" left="100" name="Save" width="82"/>
@@ -348,8 +348,8 @@ et la porter.
 			<color_swatch label="Couleur/Teinte" name="Color/Tint" tool_tip="Cliquer pour ouvrir le sélecteur de couleurs" width="74"/>
 			<texture_picker label="Tissu" name="Fabric" tool_tip="Cliquez pour sélectionner une image" width="74"/>
 		</panel>
-		<panel label="Tricot" name="Undershirt">
-			<button label="Créer un tricot" label_selected="Créer un tricot" name="Create New"/>
+		<panel label="Sous-vêtements (homme)" name="Undershirt">
+			<button label="Créer des sous-vêtements" label_selected="Créer des sous-vêtements" name="Create New" width="166"/>
 			<button label="Enlever" label_selected="Enlever" left="12" name="Take Off" width="82"/>
 			<button label="Enregistrer" label_selected="Enregistrer" left="100" name="Save" width="82"/>
 			<button label="Enregistrer sous" label_selected="Enregistrer sous" left="188" name="Save As" width="105"/>
@@ -364,14 +364,14 @@ et la porter.
 				[DESC]: en cours de chargement...
 			</text>
 			<text length="1" name="title_not_worn" type="string">
-				[DESC]: non porté
+				[DESC]: non portés
 			</text>
 			<text length="1" name="path" type="string">
 				Emplacement : [PATH]
 			</text>
 			<text length="1" name="not worn instructions" type="string">
-				Pour changer de tricot, faites-en glisser un à partir de votre inventaire.
-Vous pouvez aussi en créer un nouveau et le porter.
+				Pour changer de sous-vêtement, faites-en glisser une paire à partir de
+votre inventaire. Vous pouvez aussi en créer des nouveaux et les porter.
 			</text>
 			<text length="1" name="no modify instructions" type="string">
 				Vous n&apos;avez pas la permission de modifier cet objet.
@@ -379,7 +379,7 @@ Vous pouvez aussi en créer un nouveau et le porter.
 			<color_swatch label="Couleur/Teinte" name="Color/Tint" tool_tip="Cliquer pour ouvrir le sélecteur de couleurs" width="74"/>
 			<texture_picker label="Tissu" name="Fabric" tool_tip="Cliquez pour sélectionner une image" width="74"/>
 		</panel>
-		<panel label="Sous-vêtements" name="Underpants">
+		<panel label="Sous-vêtements (femme)" name="Underpants">
 			<button label="Créer des sous-vêtements" label_selected="Créer des sous-vêtements" name="Create New" width="166"/>
 			<button label="Enlever" label_selected="Enlever" left="12" name="Take Off" width="82"/>
 			<button label="Enregistrer" label_selected="Enregistrer" left="100" name="Save" width="82"/>
@@ -442,7 +442,7 @@ Vous pouvez aussi en créer une nouvelle et la porter.
 			<texture_picker label="Tissu" name="Fabric" tool_tip="Cliquez pour sélectionner une image" width="74"/>
 		</panel>
 	</tab_container>
-	<scroll_container left="216" name="panel_container"/>
+	<scroll_container left="266" name="panel_container"/>
 	<button label="Créer un ensemble" label_selected="Créer un ensemble" name="Make Outfit" right="-252" width="115"/>
 	<button label="Tout enregistrer" label_selected="Tout enregistrer" name="Save All" right="-131" width="115"/>
 	<button label="Fermer" label_selected="Fermer" name="Close" width="115"/>

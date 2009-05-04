@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="move floater" title="">
+	<string name="rotate_tooltip">
+		Girar la cámara alrededor de lo enfocado
+	</string>
+	<string name="zoom_tooltip">
+		Hacer zoom con la cámara en lo enfocado
+	</string>
+	<string name="move_tooltip">
+		Mover la cámara arriba y abajo, izquierda y derecha.
+	</string>
+</floater>

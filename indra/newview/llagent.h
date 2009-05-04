@@ -208,7 +208,7 @@ public:
 
 	void			heardChat(const LLUUID& id);
 	void			lookAtLastChat();
-	F32			getTypingTime() { return mTypingTimer.getElapsedTimeF32(); }
+	F32				getTypingTime() { return mTypingTimer.getElapsedTimeF32(); }
 
 	void			setAFK();
 	void			clearAFK();
@@ -258,6 +258,8 @@ public:
 	bool wantsPGOnly() const;
 	bool canAccessMature() const;
 	bool canAccessAdult() const;
+	bool canAccessMaturityInRegion( U64 region_handle ) const;
+	bool canAccessMaturityAtGlobal( LLVector3d pos_global ) const;
 	bool prefersPG() const;
 	bool prefersMature() const;
 	bool prefersAdult() const;
@@ -743,7 +745,6 @@ public:
 
 	BOOL			mInitialized;
 
-	static BOOL		sDebugDisplayTarget;
 	S32				mNumPendingQueries;
 	S32*			mActiveCacheQueries;
 

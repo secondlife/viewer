@@ -7,7 +7,7 @@
 		Description :
 	</text>
 	<button label="Annuler" label_selected="Annuler" name="cancel_btn"/>
-	<button label="Charger (10 L$)" label_selected="Charger (10 L$)" name="ok_btn"/>
+	<button label="Importer ([AMOUNT] L$)" label_selected="Charger ([AMOUNT] L$)" name="ok_btn"/>
 	<text name="text">
 		Débit (kbps) :
 	</text>

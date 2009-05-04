@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="top_objects" title="laden…">
+	<text name="title_text">
+		Laden…
+	</text>
+	<scroll_list name="objects_list">
+		<column label="Score" name="score"/>
+		<column label="Naam" name="name"/>
+		<column label="Eigenaar" name="owner"/>
+		<column label="Locatie" name="location"/>
+		<column label="Tijd" name="time"/>
+		<column label="Mono tijd" name="mono_time"/>
+	</scroll_list>
+	<text name="id_text">
+		Object ID:
+	</text>
+	<button label="Toon baken" name="show_beacon_btn"/>
+	<text name="obj_name_text">
+		Object naam:
+	</text>
+	<button label="Filter" name="filter_object_btn"/>
+	<text name="owner_name_text">
+		Eigenaar naam:
+	</text>
+	<button label="Filter" name="filter_owner_btn"/>
+	<button label="Geselecteerde retourneren" name="return_selected_btn"/>
+	<button label="Alles retourneren" name="return_all_btn"/>
+	<button label="Geselecteerde uitschakelen" name="disable_selected_btn"/>
+	<button label="Alles uitschakelen" name="disable_all_btn"/>
+	<button label="Verversen" name="refresh_btn"/>
+	<string name="top_scripts_title">
+		Top scripts
+	</string>
+	<string name="top_scripts_text">
+		[COUNT] scripts besteden in totaal [TIME] ms
+	</string>
+	<string name="scripts_score_label">
+		Tijd
+	</string>
+	<string name="scripts_mono_time_label">
+		Mono tijd
+	</string>
+	<string name="top_colliders_title">
+		Top botsingen
+	</string>
+	<string name="top_colliders_text">
+		Top [COUNT] objecten die veel mogelijke botsingen ervaren.
+	</string>
+	<string name="colliders_score_label">
+		Score
+	</string>
+	<string name="none_descriptor">
+		Geen gevonden.
+	</string>
+</floater>

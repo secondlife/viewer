@@ -862,7 +862,7 @@ void LLKeyframeMotion::activateConstraint(JointConstraint* constraint)
 	S32 joint_num;
 
 	// grab ground position if we need to
-	if (shared_data->mConstraintTargetType == TYPE_GROUND)
+	if (shared_data->mConstraintTargetType == CONSTRAINT_TARGET_TYPE_GROUND)
 	{
 		LLVector3 source_pos = mCharacter->getVolumePos(shared_data->mSourceConstraintVolume, shared_data->mSourceConstraintOffset);
 		LLVector3 ground_pos_agent;
@@ -889,7 +889,7 @@ void LLKeyframeMotion::deactivateConstraint(JointConstraint *constraintp)
 		constraintp->mSourceVolume->mUpdateXform = FALSE;
 	}
 
-	if (!constraintp->mSharedData->mConstraintTargetType == TYPE_GROUND)
+	if (!constraintp->mSharedData->mConstraintTargetType == CONSTRAINT_TARGET_TYPE_GROUND)
 	{
 		if (constraintp->mTargetVolume)
 		{
@@ -959,11 +959,11 @@ void LLKeyframeMotion::applyConstraint(JointConstraint* constraint, F32 time, U8
 
 	switch(shared_data->mConstraintTargetType)
 	{
-	case TYPE_GROUND:
+	case CONSTRAINT_TARGET_TYPE_GROUND:
 		target_pos = mCharacter->getPosAgentFromGlobal(constraint->mGroundPos);
 //		llinfos << "Target Pos " << constraint->mGroundPos << " on " << mCharacter->findCollisionVolume(shared_data->mSourceConstraintVolume)->getName() << llendl;
 		break;
-	case TYPE_BODY:
+	case CONSTRAINT_TARGET_TYPE_BODY:
 		target_pos = mCharacter->getVolumePos(shared_data->mTargetConstraintVolume, shared_data->mTargetConstraintOffset);
 		break;
 	default:
@@ -974,14 +974,14 @@ void LLKeyframeMotion::applyConstraint(JointConstraint* constraint, F32 time, U8
 	LLJoint *source_jointp = NULL;
 	LLJoint *target_jointp = NULL;
 
-	if (shared_data->mConstraintType == TYPE_PLANE)
+	if (shared_data->mConstraintType == CONSTRAINT_TYPE_PLANE)
 	{
 		switch(shared_data->mConstraintTargetType)
 		{
-		case TYPE_GROUND:
+		case CONSTRAINT_TARGET_TYPE_GROUND:
 			norm = constraint->mGroundNorm;
 			break;
-		case TYPE_BODY:
+		case CONSTRAINT_TARGET_TYPE_BODY:
 			target_jointp = mCharacter->findCollisionVolume(shared_data->mTargetConstraintVolume);
 			if (target_jointp)
 			{
@@ -1227,6 +1227,12 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 		llwarns << "can't read duration" << llendl;
 		return FALSE;
 	}
+	
+	if (mJointMotionList->mDuration > MAX_ANIM_DURATION )
+	{
+		llwarns << "invalid animation duration" << llendl;
+		return FALSE;
+	}
 
 	//-------------------------------------------------------------------------
 	// get emote (optional)
@@ -1282,6 +1288,13 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 		llwarns << "can't read hand pose" << llendl;
 		return FALSE;
 	}
+	
+	if(word > LLHandMotion::NUM_HAND_POSES)
+	{
+		llwarns << "invalid LLHandMotion::eHandPose index: " << word << llendl;
+		return FALSE;
+	}
+	
 	mJointMotionList->mHandPose = (LLHandMotion::eHandPose)word;
 
 	//-------------------------------------------------------------------------
@@ -1325,7 +1338,13 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 			llwarns << "can't read joint name" << llendl;
 			return FALSE;
 		}
-	
+
+		if (joint_name == "mScreen" || joint_name == "mRoot")
+		{
+			llwarns << "attempted to animate special " << joint_name << " joint" << llendl;
+			return FALSE;
+		}
+				
 		//---------------------------------------------------------------------
 		// find the corresponding joint
 		//---------------------------------------------------------------------
@@ -1409,6 +1428,12 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 				}
 
 				time = U16_to_F32(time_short, 0.f, mJointMotionList->mDuration);
+				
+				if (time < 0 || time > mJointMotionList->mDuration)
+				{
+					llwarns << "invalid frame time" << llendl;
+					return FALSE;
+				}
 			}
 			
 			RotationKey rot_key;
@@ -1438,6 +1463,12 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 				rot_key.mRotation.unpackFromVector3(rot_vec);
 			}
 
+			if( !(rot_key.mRotation.isFinite()) )
+			{
+				llwarns << "non-finite angle in rotation key" << llendl;
+				success = FALSE;
+			}
+			
 			if (!success)
 			{
 				llwarns << "can't read rotation key (" << k << ")" << llendl;
@@ -1509,7 +1540,13 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 				pos_key.mPosition.mV[VY] = U16_to_F32(y, -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
 				pos_key.mPosition.mV[VZ] = U16_to_F32(z, -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
 			}
-
+			
+			if( !(pos_key.mPosition.isFinite()) )
+			{
+				llwarns << "non-finite position in key" << llendl;
+				success = FALSE;
+			}
+			
 			if (!success)
 			{
 				llwarns << "can't read position key (" << k << ")" << llendl;
@@ -1539,7 +1576,7 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 
 	if (num_constraints > MAX_CONSTRAINTS)
 	{
-		llwarns << "Too many constraints...ignoring" << llendl;
+		llwarns << "Too many constraints... ignoring" << llendl;
 	}
 	else
 	{
@@ -1561,9 +1598,23 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 			}
 			constraintp->mChainLength = (S32) byte;
 
+			if((U32)constraintp->mChainLength > mJointMotionList->getNumJointMotions())
+			{
+				llwarns << "invalid constraint chain length" << llendl;
+				delete constraintp;
+				return FALSE;
+			}
+
 			if (!dp.unpackU8(byte, "constraint_type"))
 			{
 				llwarns << "can't read constraint type" << llendl;
+				delete constraintp;
+				return FALSE;
+			}
+			
+			if( byte >= NUM_CONSTRAINT_TYPES )
+			{
+				llwarns << "invalid constraint type" << llendl;
 				delete constraintp;
 				return FALSE;
 			}
@@ -1588,7 +1639,14 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 				delete constraintp;
 				return FALSE;
 			}
-
+			
+			if( !(constraintp->mSourceConstraintOffset.isFinite()) )
+			{
+				llwarns << "non-finite constraint source offset" << llendl;
+				delete constraintp;
+				return FALSE;
+			}
+			
 			if (!dp.unpackBinaryDataFixed(bin_data, BIN_DATA_LENGTH, "target_volume"))
 			{
 				llwarns << "can't read target volume name" << llendl;
@@ -1601,11 +1659,11 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 			if (str == "GROUND")
 			{
 				// constrain to ground
-				constraintp->mConstraintTargetType = TYPE_GROUND;
+				constraintp->mConstraintTargetType = CONSTRAINT_TARGET_TYPE_GROUND;
 			}
 			else
 			{
-				constraintp->mConstraintTargetType = TYPE_BODY;
+				constraintp->mConstraintTargetType = CONSTRAINT_TARGET_TYPE_BODY;
 				constraintp->mTargetConstraintVolume = mCharacter->getCollisionVolumeID(str);
 			}
 
@@ -1616,9 +1674,23 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 				return FALSE;
 			}
 
+			if( !(constraintp->mTargetConstraintOffset.isFinite()) )
+			{
+				llwarns << "non-finite constraint target offset" << llendl;
+				delete constraintp;
+				return FALSE;
+			}
+			
 			if (!dp.unpackVector3(constraintp->mTargetConstraintDir, "target_dir"))
 			{
 				llwarns << "can't read constraint target direction" << llendl;
+				delete constraintp;
+				return FALSE;
+			}
+
+			if( !(constraintp->mTargetConstraintDir.isFinite()) )
+			{
+				llwarns << "non-finite constraint target direction" << llendl;
 				delete constraintp;
 				return FALSE;
 			}
@@ -1686,8 +1758,13 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 						break;
 					}
 				}
+				if (constraintp->mJointStateIndices[i] < 0 )
+				{
+					llwarns << "No joint index for constraint " << i << llendl;
+					delete constraintp;
+					return FALSE;
+				}
 			}
-
 		}
 	}
 
@@ -1777,7 +1854,7 @@ BOOL LLKeyframeMotion::serialize(LLDataPacker& dp) const
 				 mCharacter->findCollisionVolume(shared_constraintp->mSourceConstraintVolume)->getName().c_str()); 
 		success &= dp.packBinaryDataFixed((U8*)volume_name, 16, "source_volume");
 		success &= dp.packVector3(shared_constraintp->mSourceConstraintOffset, "source_offset");
-		if (shared_constraintp->mConstraintTargetType == TYPE_GROUND)
+		if (shared_constraintp->mConstraintTargetType == CONSTRAINT_TARGET_TYPE_GROUND)
 		{
 			snprintf(volume_name,sizeof(volume_name), "%s", "GROUND");	/* Flawfinder: ignore */
 		}

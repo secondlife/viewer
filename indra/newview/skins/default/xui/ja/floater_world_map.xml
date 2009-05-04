@@ -19,7 +19,7 @@
 	<button label="ホームへ" label_selected="ホームへ" name="Go Home"
 	     tool_tip="自分のホームにテレポート" />
 	<text name="classifieds_label">
-		ｸﾗｼﾌｧｲﾄﾞ
+		クラシファイド広告
 	</text>
 	<check_box label=" " name="class_chk" />
 	<text name="person_label">
@@ -46,10 +46,8 @@
 		イベント
 	</text>
 	<check_box label=" " name="event_chk" />
-	<text name="events_mature_label">
-		イベント(M)
-	</text>
-	<check_box label=" " name="event_mature_chk" />
+
+	<check_box label="" name="event_mature_chk" />
 	<combo_box label="オンラインのフレンド" name="friend combo"
 	     tool_tip="Friend to Show on Map">
 		<combo_item name="none_selected">

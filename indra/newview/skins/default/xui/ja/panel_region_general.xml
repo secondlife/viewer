@@ -34,14 +34,10 @@
 	<text label="成人指定" name="access_text">
 		成人指定：
 	</text>
-	<combo_box label="成人" name="access_combo">
-		<combo_item name="PG">
-			PG
-		</combo_item>
-		<combo_item name="Mature">
-			成人
-		</combo_item>
-	</combo_box>
+
+
+
+
 	<button label="?" name="access_help" />
 	<button label="適用" name="apply_btn" />
 	<button label="ユーザー1人ホームテレポート" name="kick_btn" />

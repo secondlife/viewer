@@ -9,6 +9,7 @@
 		<column label="Proprietário" name="owner"/>
 		<column label="Local" name="location"/>
 		<column label="Tempo" name="time"/>
+		<column label="Hora Mono" name="mono_time"/>
 	</scroll_list>
 	<text name="id_text">
 		ID do Objeto:
@@ -28,7 +29,7 @@
 	<button label="Desabilitar Tudo" name="disable_all_btn"/>
 	<button label="Atualizar" name="refresh_btn"/>
 	<string name="top_scripts_title">
-		Top Scripts
+		Principais Scripts
 	</string>
 	<string name="top_scripts_text">
 		[COUNT] scripts tomando um total de [TIME] ms
@@ -36,16 +37,19 @@
 	<string name="scripts_score_label">
 		Tempo
 	</string>
+	<string name="scripts_mono_time_label">
+		Hora Mono
+	</string>
 	<string name="top_colliders_title">
-		Top Colisões
+		Principais Colidentes
 	</string>
 	<string name="top_colliders_text">
-		Top [COUNT] objetos experimentando muitas colisções em potencial
+		[COUNT] objetos principais experimentando muitas potenciais colisões
 	</string>
 	<string name="colliders_score_label">
 		Placar
 	</string>
 	<string name="none_descriptor">
-		Nenhum encotrado.
+		Nenhum encontrado.
 	</string>
 </floater>

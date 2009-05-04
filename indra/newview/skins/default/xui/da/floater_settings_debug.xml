@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="settings_debug" title="Fejlret Indstillinger">
+<floater name="settings_debug" title="Tekniske indstillinger">
 	<combo_box name="boolean_combo">
 		<combo_item name="TRUE">
-			TRUE
+			TRUE (Valgt)
 		</combo_item>
 		<combo_item name="FALSE">
-			FALSE
+			FALSE (Fravalgt)
 		</combo_item>
 	</combo_box>
 	<color_swatch label="Farve" name="color_swatch" />
@@ -13,5 +13,5 @@
 	<spinner label="x" name="val_spinner_2" />
 	<spinner label="x" name="val_spinner_3" />
 	<spinner label="x" name="val_spinner_4" />
-	<button label="Nulstil til standard" name="default_btn" />
+	<button label="Sæt til standard" name="default_btn" />
 </floater>

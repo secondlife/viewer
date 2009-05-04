@@ -765,7 +765,9 @@ void LLWorldMapView::draw()
 		}
 	}
 	
-	if (gSavedSettings.getBOOL("MapShowEvents"))
+	if (gSavedSettings.getBOOL("MapShowEvents") ||
+		gSavedSettings.getBOOL("ShowMatureEvents") ||
+		gSavedSettings.getBOOL("ShowAdultEvents") )
 	{
 		drawEvents();
 	}
@@ -965,18 +967,22 @@ void LLWorldMapView::drawEvents()
 	bool mature_enabled = gAgent.canAccessMature();
 	bool adult_enabled = gAgent.canAccessAdult();
 
+	BOOL show_pg = gSavedSettings.getBOOL("MapShowEvents");
     BOOL show_mature = mature_enabled && gSavedSettings.getBOOL("ShowMatureEvents");
 	BOOL show_adult = adult_enabled && gSavedSettings.getBOOL("ShowAdultEvents");
 
     // First the non-selected events
     LLWorldMap::item_info_list_t::const_iterator e;
-    for (e = LLWorldMap::getInstance()->mPGEvents.begin(); e != LLWorldMap::getInstance()->mPGEvents.end(); ++e)
-    {
-        if (!e->mSelected)
-        {
-            drawGenericItem(*e, sEventImage);   
-        }
-    }
+	if (show_pg)
+	{
+		for (e = LLWorldMap::getInstance()->mPGEvents.begin(); e != LLWorldMap::getInstance()->mPGEvents.end(); ++e)
+		{
+			if (!e->mSelected)
+			{
+				drawGenericItem(*e, sEventImage);   
+			}
+		}
+	}
     if (show_mature)
     {
         for (e = LLWorldMap::getInstance()->mMatureEvents.begin(); e != LLWorldMap::getInstance()->mMatureEvents.end(); ++e)
@@ -998,13 +1004,16 @@ void LLWorldMapView::drawEvents()
         }
     }
     // Then the selected events
-    for (e = LLWorldMap::getInstance()->mPGEvents.begin(); e != LLWorldMap::getInstance()->mPGEvents.end(); ++e)
-    {
-        if (e->mSelected)
-        {
-            drawGenericItem(*e, sEventImage);
-        }
-    }
+	if (show_pg)
+	{
+		for (e = LLWorldMap::getInstance()->mPGEvents.begin(); e != LLWorldMap::getInstance()->mPGEvents.end(); ++e)
+		{
+			if (e->mSelected)
+			{
+				drawGenericItem(*e, sEventImage);
+			}
+		}
+	}
     if (show_mature)
     {
         for (e = LLWorldMap::getInstance()->mMatureEvents.begin(); e != LLWorldMap::getInstance()->mMatureEvents.end(); ++e)
@@ -1638,34 +1647,34 @@ void LLWorldMapView::handleClick(S32 x, S32 y, MASK mask,
 				return;
 			}
 		}
-		if (gSavedSettings.getBOOL("ShowMatureEvents"))
+	}
+	if (gSavedSettings.getBOOL("ShowMatureEvents"))
+	{
+		for (it = LLWorldMap::getInstance()->mMatureEvents.begin(); it != LLWorldMap::getInstance()->mMatureEvents.end(); ++it)
 		{
-			for (it = LLWorldMap::getInstance()->mMatureEvents.begin(); it != LLWorldMap::getInstance()->mMatureEvents.end(); ++it)
-			{
-				LLItemInfo& event = *it;
+			LLItemInfo& event = *it;
 
-				if (checkItemHit(x, y, event, id, false))
-				{
-					*hit_type = MAP_ITEM_MATURE_EVENT;
-					mItemPicked = TRUE;
-					gFloaterWorldMap->trackEvent(event);
-					return;
-				}
+			if (checkItemHit(x, y, event, id, false))
+			{
+				*hit_type = MAP_ITEM_MATURE_EVENT;
+				mItemPicked = TRUE;
+				gFloaterWorldMap->trackEvent(event);
+				return;
 			}
 		}
-		if (gSavedSettings.getBOOL("ShowAdultEvents"))
+	}
+	if (gSavedSettings.getBOOL("ShowAdultEvents"))
+	{
+		for (it = LLWorldMap::getInstance()->mAdultEvents.begin(); it != LLWorldMap::getInstance()->mAdultEvents.end(); ++it)
 		{
-			for (it = LLWorldMap::getInstance()->mAdultEvents.begin(); it != LLWorldMap::getInstance()->mAdultEvents.end(); ++it)
-			{
-				LLItemInfo& event = *it;
+			LLItemInfo& event = *it;
 
-				if (checkItemHit(x, y, event, id, false))
-				{
-					*hit_type = MAP_ITEM_ADULT_EVENT;
-					mItemPicked = TRUE;
-					gFloaterWorldMap->trackEvent(event);
-					return;
-				}
+			if (checkItemHit(x, y, event, id, false))
+			{
+				*hit_type = MAP_ITEM_ADULT_EVENT;
+				mItemPicked = TRUE;
+				gFloaterWorldMap->trackEvent(event);
+				return;
 			}
 		}
 	}

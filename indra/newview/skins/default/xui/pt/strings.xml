@@ -89,7 +89,7 @@
 		L$
 	</string>
 	<string name="TooltipFlagDropInventory">
-		Largar Estoque
+		Dar Inventário
 	</string>
 	<string name="TooltipFlagPhantom">
 		Imaterial
@@ -161,13 +161,13 @@
 		Nenhum erro
 	</string>
 	<string name="AssetErrorRequestFailed">
-		Valor pedido falhou
+		Item pedido falhou
 	</string>
 	<string name="AssetErrorNonexistentFile">
-		Valor pedido: arquivo inexistente
+		Item pedido: arquivo inexistente
 	</string>
 	<string name="AssetErrorNotInDatabase">
-		Valor pedido: valor não encontrado na base de dados.
+		Item pedido: item não encontrado na base de dados.
 	</string>
 	<string name="AssetErrorEOF">
 		Fim do arquivo
@@ -182,7 +182,7 @@
 		Tempo de transferência de arquivo expirado
 	</string>
 	<string name="AssetErrorCircuitGone">
-		Circuito caiu (Circuit gone)
+		Circuito caiu
 	</string>
 	<string name="AssetErrorUnknownStatus">
 		Status desconhecido
@@ -197,7 +197,7 @@
 		Ocupado
 	</string>
 	<string name="AvatarMuted">
-		Emudecido
+		Mudo
 	</string>
 	<string name="anim_express_afraid">
 		Temeroso
@@ -293,7 +293,7 @@
 		Beijar
 	</string>
 	<string name="anim_laugh_short">
-		rir
+		Rir
 	</string>
 	<string name="anim_musclebeach">
 		Exibir músculos
@@ -308,7 +308,7 @@
 		Nya-nya-nya
 	</string>
 	<string name="anim_punch_onetwo">
-		Um-Dois soco
+		Soco Um-Dois
 	</string>
 	<string name="anim_express_open_mouth">
 		Abrir a boca

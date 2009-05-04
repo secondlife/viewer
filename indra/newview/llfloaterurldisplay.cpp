@@ -88,8 +88,8 @@ void LLFloaterURLDisplay::setSnapshotDisplay(const LLUUID& snapshot_id)
 }
 
 void LLFloaterURLDisplay::setName(const std::string& name)
-{
-	mPlacePanel->setName(name);
+{	// Set the name and also clear description
+	mPlacePanel->resetName(name);
 }
 
 void LLFloaterURLDisplay::setLocationString(const std::string& name)

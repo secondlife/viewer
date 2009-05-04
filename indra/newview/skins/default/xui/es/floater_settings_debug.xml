@@ -1,16 +1,17 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="settings_debug" title="Configuraciones de Debug">
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="settings_debug" title="Configuración del depurador">
 	<combo_box name="boolean_combo">
 		<combo_item name="TRUE">
-			VERDADERO
+			TRUE
 		</combo_item>
 		<combo_item name="FALSE">
-			FALSO
+			FALSE
 		</combo_item>
 	</combo_box>
-	<color_swatch label="Color" name="color_swatch" />
-	<spinner label="x" name="val_spinner_1" />
-	<spinner label="x" name="val_spinner_2" />
-	<spinner label="x" name="val_spinner_3" />
-	<spinner label="x" name="val_spinner_4" />
+	<color_swatch label="Color" name="color_swatch"/>
+	<spinner label="x" name="val_spinner_1"/>
+	<spinner label="x" name="val_spinner_2"/>
+	<spinner label="x" name="val_spinner_3"/>
+	<spinner label="x" name="val_spinner_4"/>
+	<button label="Volver a las opciones por defecto" name="default_btn"/>
 </floater>

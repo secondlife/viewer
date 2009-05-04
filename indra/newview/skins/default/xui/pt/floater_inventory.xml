@@ -37,11 +37,11 @@
 				<menu_item_call label="Novos Olhos" name="New Eyes"/>
 			</menu>
 		</menu>
-		<menu label="Organizar" name="Sort">
+		<menu label="Ordenar" name="Sort">
 			<menu_item_check label="Por Nome" name="By Name"/>
 			<menu_item_check label="Por Data" name="By Date"/>
 			<menu_item_check label="Pastas Sempre por Nome" name="Folders Always By Name"/>
-			<menu_item_check label="Pastas em primeiro" name="System Folders To Top"/>
+			<menu_item_check label="Pastas do sistema primeiro" name="System Folders To Top"/>
 		</menu>
 	</menu_bar>
 </floater>

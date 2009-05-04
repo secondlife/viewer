@@ -1,23 +1,46 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="Snapshot" title="Muestra de imagen">
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Snapshot" title="Vista previa de la foto">
 	<text name="type_label">
-		¿Qué le gustaría hacer?
+		Destino de la foto
 	</text>
-	<radio_group label="Tipo de foto instatánea" name="snapshot_type_radio">
+	<radio_group label="Tipo de la foto" name="snapshot_type_radio">
 		<radio_item name="postcard">
-			Enviar una tarjeta
+			Enviar por correo electrónico
 		</radio_item>
 		<radio_item name="texture">
-			Enviar una foto instantánea
+			Guardarla en su inventario ([AMOUNT] L$)
 		</radio_item>
 		<radio_item name="local">
-			Guardar foto instantánea en el disco duro
+			Guardarla en su disco duro
 		</radio_item>
 	</radio_group>
+	<text name="file_size_label">
+		Tamaño del archivo: [SIZE] KB
+	</text>
+	<button label="Actualizar la foto" name="new_snapshot_btn"/>
+	<button label="Enviar" name="send_btn"/>
+	<button label="Guardar ([AMOUNT] L$)" name="upload_btn"/>
+	<flyout_button label="Guardar" name="save_btn" tool_tip="Guardar la imagen en un archivo">
+		<flyout_button_item name="save_item">
+			Guardar
+		</flyout_button_item>
+		<flyout_button_item name="saveas_item">
+			Guardar como...
+		</flyout_button_item>
+	</flyout_button>
+	<button label="Cancelar" name="discard_btn"/>
+	<button label="Más &gt;&gt;" name="more_btn" tool_tip="Opciones avanzadas"/>
+	<button label="&lt;&lt; Menos" name="less_btn" tool_tip="Opciones avanzadas"/>
 	<text name="type_label2">
-		&gt;¿Cuál el tamaño de la imagen que usted necesita?
+		Tamaño
+	</text>
+	<text name="format_label">
+		Formato
 	</text>
 	<combo_box label="Resolución" name="postcard_size_combo">
+		<combo_item name="CurrentWindow">
+			Ventana actual
+		</combo_item>
 		<combo_item name="640x480">
 			640x480
 		</combo_item>
@@ -26,9 +49,6 @@
 		</combo_item>
 		<combo_item name="1024x768">
 			1024x768
-		</combo_item>
-		<combo_item name="CurrentWindow">
-			Ventana actual
 		</combo_item>
 		<combo_item name="Custom">
 			Personalizar
@@ -77,9 +97,21 @@
 			Personalizar
 		</combo_item>
 	</combo_box>
-	<spinner label="Anchura" name="snapshot_width" />
-	<spinner label="Altura" name="snapshot_height" />
-	<slider label="Calidad de la imagen" name="image_quality_slider" />
+	<combo_box label="Formato" name="local_format_combo">
+		<combo_item name="PNG">
+			PNG
+		</combo_item>
+		<combo_item name="JPEG">
+			JPEG
+		</combo_item>
+		<combo_item name="BMP">
+			BMP
+		</combo_item>
+	</combo_box>
+	<spinner label="Ancho" name="snapshot_width"/>
+	<spinner label="Alto" name="snapshot_height"/>
+	<check_box label="Mantener las proporciones" name="keep_aspect_check"/>
+	<slider label="Calidad de la imagen" name="image_quality_slider"/>
 	<text name="layer_type_label">
 		Captura:
 	</text>
@@ -91,22 +123,15 @@
 			Profundidad
 		</combo_item>
 		<combo_item name="ObjectMattes">
-			Objeto sin brillo
+			Bandas negras
 		</combo_item>
 	</combo_box>
-	<text name="file_size_label">
-		Tamaño del archivo: [SIZE]
-	</text>
-	<check_box label="Mostrar interface en la foto instantánea" name="ui_check" />
-	<check_box label="Mostrar objetos de la pantalla en la foto instantánea" name="hud_check" />
-	<check_box label="Mantener abierto después de guardar" name="keep_open_check" />
-	<check_box label="Mantener tasa de aspecto especificada" name="keep_aspect_check" />
-	<check_box label="Congelar cuadro (demostración en pantalla completa)"
-	     name="freeze_frame_check" />
-	<button label="Nueva foto instantánea" name="new_snapshot_btn" />
-	<check_box label="Foto instantánea automática" name="auto_snapshot_check" />
-	<button label="Enviar (L$10)" name="upload_btn" />
-	<button label="Enviar" name="send_btn" />
-	<button label="Guardar" name="save_btn" />
-	<button label="Descartar" name="discard_btn" />
+	<check_box label="Incluir la interfaz en la foto" name="ui_check"/>
+	<check_box label="Incluir los HUD en la foto" name="hud_check"/>
+	<check_box label="Mantenerla abierta tras guardarla" name="keep_open_check"/>
+	<check_box label="Congelar la toma (vista previa en pantalla completa)" name="freeze_frame_check"/>
+	<check_box label="Actualizar automáticamente" name="auto_snapshot_check"/>
+	<string name="unknown">
+		desconocido
+	</string>
 </floater>

@@ -43,7 +43,7 @@
 		</text>
 	</panel>
 	<tab_container name="roles_tab_container">
-		<panel label="メンバー" name="members_sub_tab" tool_tip="Members">
+		<panel label="メンバー" name="members_sub_tab" tool_tip="メンバー">
 			<button label="検索" name="search_button"/>
 			<button label="全てを表示" name="show_all_button"/>
 			<name_list name="member_list">
@@ -51,7 +51,7 @@
 				<column label="寄付されたTier" name="donated"/>
 				<column label="最終ログイン" name="online"/>
 			</name_list>
-			<button label="新しい人を招待..." name="member_invite"/>
+			<button label="新しいメンバーを招待" name="member_invite"/>
 			<button label="グループから追放" name="member_eject"/>
 			<string name="help_text">
 				あなたはメンバーに割り当てられた役割を付加、削除できます。

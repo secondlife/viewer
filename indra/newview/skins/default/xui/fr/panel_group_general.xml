@@ -65,17 +65,8 @@ Sachez que si personne ne rejoint ce groupe sous 48h, il sera démantelé et ne 
 		<check_box label="Inscription libre" name="open_enrollement" tool_tip="Indique si une invitation est nécessaire pour devenir membre de ce groupe."/>
 		<check_box label="Frais d&apos;inscription : L$" name="check_enrollment_fee" tool_tip="Indique s&apos;il y a des frais d&apos;inscription pour devenir membre."/>
 		<spinner name="spin_enrollment_fee" tool_tip="Si la case Frais d&apos;inscription est cochée, cela signifie qu&apos;il faut payer des frais pour devenir membre."/>
-		<check_box label="Adulte" name="mature" tool_tip="Cochez si les informations de votre groupe sont à caractère adulte."/>
-		<combo_box name="group_mature_check" tool_tip="Indique si les informations de votre groupe sont considérées comme étant réservées aux adultes." width="195">
-			<combo_item name="select_mature">
-				- Type de public -
-			</combo_item>
-			<combo_item name="mature">
-				Adulte
-			</combo_item>
-			<combo_item name="not_mature">
-				Tout public
-			</combo_item>
+		<check_box name="mature" />
+		<combo_box name="group_mature_check" width="195">
 		</combo_box>
 		<panel name="title_container">
 			<text name="active_title_label">

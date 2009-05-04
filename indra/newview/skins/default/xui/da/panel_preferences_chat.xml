@@ -1,57 +1,61 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="Tekst Chat" name="chat">
-	<text length="1" name="text_box" type="string">
-		Chat Skrift Størrelse:
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel label="Tekst chat" name="chat">
+	<text type="string" length="1" name="text_box">
+		Chat skriftstørrelse:
 	</text>
 	<radio_group name="chat_font_size">
-		<radio_item name="radio">
+		<radio_item type="string" length="1" name="radio">
 			Lille
 		</radio_item>
-		<radio_item name="radio2">
+		<radio_item type="string" length="1" name="radio2">
 			Mellem
 		</radio_item>
-		<radio_item name="radio3">
+		<radio_item type="string" length="1" name="radio3">
 			Stor
 		</radio_item>
 	</radio_group>
-	<text length="1" name="text_box2" type="string">
-		Chat Farve:
+	<text type="string" length="1" name="text_box2">
+		Chat farve:
 	</text>
-	<color_swatch label="Dig" name="user"/>
-	<color_swatch label="Andre" name="agent"/>
-	<color_swatch label="IM" name="im"/>
-	<color_swatch label="System" name="system"/>
-	<color_swatch label="Fejl" name="script_error"/>
-	<color_swatch label="Objekter" name="objects"/>
-	<color_swatch label="Ejer" name="owner"/>
-	<color_swatch label="Bobler" name="background"/>
-	<color_swatch label="URLs" name="links"/>
-	<text length="1" name="text_box8" type="string">
-		Kodnings fejl:
+	<color_swatch label="Dig" name="user" />
+	<color_swatch label="Andre" name="agent" />
+	<color_swatch label="IM" name="im" />
+	<color_swatch label="System" name="system" />
+	<color_swatch label="Fejl" name="script_error" />
+	<color_swatch label="Objekter" name="objects" />
+	<color_swatch label="Ejer" name="owner" />
+	<color_swatch label="Bobler" name="background" />
+	<color_swatch label="URL&apos;er" name="links" />
+	<text type="string" length="1" name="text_box8">
+		Script fejl:
 	</text>
-	<check_box label="Vis kodnings fejl og advarsler i almindelig chat" name="script_errors_as_chat"/>
-	<text length="1" name="text_box3" type="string">
-		Chat Vindue:
+	<check_box label="Vis script fejl og advarsler i almindelig chat"
+	     name="script_errors_as_chat" />
+	<text type="string" length="1" name="text_box3">
+		Chat vindue:
 	</text>
-	<spinner label="Fade chat efter" name="fade_chat_time"/>
-	<text length="1" name="text_box4" type="string">
+	<spinner label="Udfas chat efter" name="fade_chat_time" label_width="90" width="140" />
+	<text type="string" length="1" name="text_box4" left="292" >
 		(sekunder)
 	</text>
-	<text length="1" name="text_box5" type="string">
-		(# linjer)
+	<spinner left="350" name="max_chat_count"/>
+	<text type="string" length="1" name="text_box5" left="415">
+		(linier)
 	</text>
-	<slider label="Opacitet" name="console_opacity"/>
-	<check_box label="Brug fuldskærms bredde  (Kræver genstart)" name="chat_full_width_check"/>
-	<text length="1" name="text_box6" type="string">
-		Chat Indstillinger:
+	<slider label="Gennemsigtighed" name="console_opacity" />
+	<check_box label="Brug fuldskærms bredde  (Kræver genstart)"
+	     name="chat_full_width_check" />
+	<text type="string" length="1" name="text_box6">
+		Chat indstillinger:
 	</text>
-	<check_box label="Luk chat efter tryk på enter" name="close_chat_on_return_check"/>
-	<check_box label="Piletaster flytter altid figur under chat" name="arrow_keys_move_avatar_check"/>
-	<check_box label="Vis klokkeslæt i lokal chat" name="show_timestamps_check"/>
-	<check_box label="Afspil skrive animation ved chat" name="play_typing_animation"/>
-	<text length="1" name="text_box7" type="string">
-		Chat Bobler:
+	<check_box label="Luk chat efter tryk på enter" name="close_chat_on_return_check" />
+	<check_box label="Piletaster flytter altid figur under chat"
+	     name="arrow_keys_move_avatar_check" />
+	<check_box label="Vis klokkeslæt i lokal chat" name="show_timestamps_check" />
+	<check_box label="Afspil skrive animation ved chat" name="play_typing_animation" />
+	<text type="string" length="1" name="text_box7">
+		Chat talebobler:
 	</text>
-	<check_box label="Vis chat bobler" name="bubble_text_chat"/>
-	<slider label="Opacitet" name="bubble_chat_opacity"/>
+	<check_box label="Vis chat bobler" name="bubble_text_chat" />
+	<slider label="Gennemsigtighed" name="bubble_chat_opacity" />
 </panel>

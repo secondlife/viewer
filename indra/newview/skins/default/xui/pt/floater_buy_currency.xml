@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="buy currency" title="Adquira Lindens (L$)">
+<floater name="buy currency" title="Comprar Dinheiro">
 	<text name="info_buying">
-		Comprando Moeda:
+		Comprando Dinheiro:
 	</text>
 	<text name="info_cannot_buy">
 		Não pode comprar agora:
 	</text>
 	<text name="info_need_more">
-		Você precisa de mais moeda:
+		Você precisa de mais dinheiro:
 	</text>
 	<text name="error_message">
 		Algo não está certo.
 	</text>
-	<button label="Ir para website" name="error_web"/>
+	<button label="Ir para o website" name="error_web"/>
 	<text name="contacting">
 		Contatando LindeX...
 	</text>
 	<text name="buy_action_unknown">
-		Comprar L$ sobre o câmbio corrente da LindeX
+		Comprar L$ no câmbio atual da LindeX
 	</text>
 	<text name="buy_action">
 		[NAME] L$ [PRICE]
@@ -32,7 +32,7 @@
 		por aproxim. US$ [USD]
 	</text>
 	<text name="getting_data">
-		Primeiros dados...
+		Obtendo dados...
 	</text>
 	<text name="balance_label">
 		Você tem atualmente
@@ -63,6 +63,6 @@ Aumente a quantidade de compra.
 	<button label="Fechar" name="cancel_btn"/>
 	<button label="Adquirir" name="buy_btn"/>
 	<string name="buy_currency">
-		Comprar L$ [LINDENS] por aproximadamente US$ [dólares americanos]
+		Comprar L$ [LINDENS] por aproximadamente US$ [USD]
 	</string>
 </floater>

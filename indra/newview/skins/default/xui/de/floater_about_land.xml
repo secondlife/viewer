@@ -187,7 +187,7 @@
 			</text>
 			<button label="Anzeigen" label_selected="Anzeigen" name="ShowOwner" right="-135" width="60"/>
 			<button label="Zurückgeben..." label_selected="Zurückgeben..." name="ReturnOwner..." tool_tip="Objekte an ihre Eigentümer zurückgeben." right="-10" width="119"/>
-			<text name="Set to group:" left="14" width="200">
+			<text name="XXXXSet to group:" left="14" width="200">
 				Der Gruppe übereignen:
 			</text>
 			<text name="group_objects_text" left="204" width="48">
@@ -260,9 +260,7 @@
 				<combo_item name="LindenLocation">
 					Lindenort
 				</combo_item>
-				<combo_item name="Adult">
-					Ab 18
-				</combo_item>
+
 				<combo_item name="Arts&amp;Culture">
 					Kunst und Kultur
 				</combo_item>
@@ -295,7 +293,7 @@
 				</combo_item>
 			</combo_box>
 			<button label="?" label_selected="?" name="?"/>
-			<check_box label="Ab-18-Inhalt" name="MatureCheck" tool_tip="Die Informationen oder Inhalte Ihrer Parzelle sind nicht jugenfrei."/>
+			<check_box name="MatureCheck" />
 			<text name="Snapshot:">
 				Foto:
 			</text>

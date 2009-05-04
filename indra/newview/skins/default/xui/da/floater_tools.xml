@@ -2,22 +2,22 @@
 <floater name="toolbox floater" title="">
 	<button label="" label_selected="" name="button focus" tool_tip="Fokus" />
 	<button label="" label_selected="" name="button move" tool_tip="Flyt" />
-	<button label="" label_selected="" name="button edit" tool_tip="Rediger" />
-	<button label="" label_selected="" name="button create" tool_tip="Byg" />
-	<button label="" label_selected="" name="button land" tool_tip="Jord" />
+	<button label="" label_selected="" name="button edit" tool_tip="Redigér" />
+	<button label="" label_selected="" name="button create" tool_tip="Opret" />
+	<button label="" label_selected="" name="button land" tool_tip="Land" />
 	<check_box label="Zoom" name="radio zoom" />
 	<check_box label="Kredsløb (Ctrl)" name="radio orbit" />
-	<check_box label="Panorering (Ctrl-Shift)" name="radio pan" />
+	<check_box label="Panorér (Ctrl-Shift)" name="radio pan" />
 	<check_box label="Flyt" name="radio move" />
 	<check_box label="Løft (Ctrl)" name="radio lift" />
-	<check_box label="Snur (Ctrl-Shift)" name="radio spin" />
+	<check_box label="Spin (Ctrl-Shift)" name="radio spin" />
 	<check_box label="Position" name="radio position" />
 	<check_box label="Rotér (Ctrl)" name="radio rotate" />
 	<check_box label="Stræk (Ctrl-Shift)" name="radio stretch" />
-	<check_box label="Vælg Tekstur" name="radio select face" />
-	<check_box label="Rediger samlede dele" name="checkbox edit linked parts" />
+	<check_box label="Vælg tekstur" name="radio select face" />
+	<check_box label="Redigér sammenlænkede dele" name="checkbox edit linked parts" />
 	<text name="text ruler mode">
-		Lineal Tilstand:
+		Lineal:
 	</text>
 	<combo_box name="combobox grid mode">
 		<combo_item name="World">
@@ -32,37 +32,37 @@
 	</combo_box>
 	<check_box label="Stræk begge sider" name="checkbox uniform" />
 	<check_box label="Stræk teksturer" name="checkbox stretch textures" />
-	<check_box label="Brug Net" name="checkbox snap to grid" />
-	<button label="Funktioner..." label_selected="Funktioner..." name="Options..." />
+	<check_box label="Benyt gitter" name="checkbox snap to grid" />
+	<button label="Valg..." label_selected="Valg..." name="Options..." />
 	<text name="text status">
-		Træk for at flytte, Shift-Flyt for at kopiere
+		Træk for at flytte, shift+træk for at kopiere
 	</text>
-	<button label="" label_selected="" name="ToolCube" tool_tip="Rør" />
+	<button label="" label_selected="" name="ToolCube" tool_tip="Terning" />
 	<button label="" label_selected="" name="ToolPrism" tool_tip="Prisme" />
 	<button label="" label_selected="" name="ToolPyramid" tool_tip="Pyramide" />
-	<button label="" label_selected="" name="ToolTetrahedron" tool_tip="Tetrahedron" />
+	<button label="" label_selected="" name="ToolTetrahedron" tool_tip="Tetraed" />
 	<button label="" label_selected="" name="ToolCylinder" tool_tip="Cylinder" />
-	<button label="" label_selected="" name="ToolHemiCylinder" tool_tip="Halvcylinder" />
+	<button label="" label_selected="" name="ToolHemiCylinder" tool_tip="Hemicylinder" />
 	<button label="" label_selected="" name="ToolCone" tool_tip="Kegle" />
-	<button label="" label_selected="" name="ToolHemiCone" tool_tip="HalvKegle" />
-	<button label="" label_selected="" name="ToolSphere" tool_tip="Bold" />
-	<button label="" label_selected="" name="ToolHemiSphere" tool_tip="Halv Bold" />
-	<button label="" label_selected="" name="ToolTorus" tool_tip="Tønde" />
+	<button label="" label_selected="" name="ToolHemiCone" tool_tip="Hemikegle" />
+	<button label="" label_selected="" name="ToolSphere" tool_tip="Sfære" />
+	<button label="" label_selected="" name="ToolHemiSphere" tool_tip="Hemisfære" />
+	<button label="" label_selected="" name="ToolTorus" tool_tip="Kuglering" />
 	<button label="" label_selected="" name="ToolTube" tool_tip="Rør" />
 	<button label="" label_selected="" name="ToolRing" tool_tip="Ring" />
 	<button label="" label_selected="" name="ToolTree" tool_tip="Træ" />
-	<button label="" label_selected="" name="ToolGrass" tool_tip="Gras" />
-	<check_box label="Hold værktøj valgt" name="checkbox sticky" />
-	<check_box label="Kopier det valgte" name="checkbox copy selection" />
-	<check_box label="Centér Kopi" name="checkbox copy centers" />
-	<check_box label="Rotér Kopi" name="checkbox copy rotates" />
-	<check_box label="Vælg Jord" name="radio select land" />
-	<check_box label="Tromle Jord" name="radio flatten" />
-	<check_box label="Højne Jord" name="radio raise" />
-	<check_box label="Sænke Jord" name="radio lower" />
-	<check_box label="Udglat Jord" name="radio smooth" />
-	<check_box label="Grov Jord" name="radio noise" />
-	<check_box label="Nulstil Jord" name="radio revert" />
+	<button label="" label_selected="" name="ToolGrass" tool_tip="Græs" />
+	<check_box label="Hold værktøjet valgt" name="checkbox sticky" />
+	<check_box label="Kopiér valgte" name="checkbox copy selection" />
+	<check_box label="Centréret kopi" name="checkbox copy centers" />
+	<check_box label="Rotér kopi" name="checkbox copy rotates" />
+	<check_box label="Vælg land" name="radio select land" />
+	<check_box label="Udflad land" name="radio flatten" />
+	<check_box label="Hæv land" name="radio raise" />
+	<check_box label="Sænk land" name="radio lower" />
+	<check_box label="Udjævn land" name="radio smooth" />
+	<check_box label="Gør land ujævnt" name="radio noise" />
+	<check_box label="Tilbagefør" name="radio revert" />
 	<combo_box name="combobox brush size">
 		<combo_item name="Small">
 			Lille
@@ -74,14 +74,14 @@
 			Stor
 		</combo_item>
 	</combo_box>
-	<text name="Strength:">
+	<text type="string" length="1" name="Strength:">
 		Styrke:
 	</text>
-	<button label="Tilføj til valgte" label_selected="Tilføj til valgte"
-	     name="button apply to selection" tool_tip="Rediger det valgte land" />
-	<check_box label="Vis Ejere" name="checkbox show owners" />
-	<button label="Mere &gt;&gt;" name="button more" tool_tip="Avancerede Funktioner" />
-	<button label="&lt;&lt; Mindre" name="button less" tool_tip="Avancerede Funktioner" />
+	<button label="Anvend på valgte" label_selected="Anvend på valgte"
+	     name="button apply to selection" tool_tip="Redigér valgt land" />
+	<check_box label="Vis ejere" name="checkbox show owners" />
+	<button label="Mere &gt;&gt;" name="button more" tool_tip="Adancerede valgmuligheder" />
+	<button label="&lt;&lt; Mindre" name="button less" tool_tip="Adancerede valgmuligheder" />
 	<tab_container name="Object Info Tabs">
 		<panel label="Generelt" name="General">
 			<text name="Name:">
@@ -103,39 +103,39 @@
 			<text name="Owner Name">
 				Thrax Linden
 			</text>
-			<button label="Profile..." label_selected="Profile..." name="button owner profile" />
+			<button label="Profil..." label_selected="Profil..." name="button owner profile" />
 			<text name="Group:">
 				Gruppe:
 			</text>
 			<text name="Group Name Proxy">
 				The Lindens
 			</text>
-			<button label="Set..." label_selected="Set..." name="button set group" />
+			<button label="Sæt..." label_selected="Sæt..." name="button set group" />
 			<text name="prim info">
 				1 Objekt, 1 Prim
 			</text>
 			<text name="Permissions:">
-				Rettigheder:
+				Tilladelser:
 			</text>
 			<text name="perm_modify">
-				Du kan redigere objektet.
+				Du kan redigére dette objekt.
 			</text>
 			<check_box label="Del med gruppe" name="checkbox share with group"
-			     tool_tip="Tillad gruppe medlemmer at flytte, redigere og slette." />
+			     tool_tip="Tillad gruppemedlemmer at flytte, ændre, kopiere og slette." />
 			<string name="text deed continued">
-				Dedikér...
+				Deed...
 			</string>
 			<string name="text deed">
-				Dedikér
+				Deed
 			</string>
 			<button label="Dedikér..." label_selected="Dedikér..." name="button deed"
-			     tool_tip="Gruppe delte objekter kan blive dedikéret af en gruppe officér." />
-			<check_box label="Tillad alle at flytte" name="checkbox allow everyone move" />
-			<check_box label="Tillad alle at kopiere" name="checkbox allow everyone copy" />
+			     tool_tip="Gruppedelte genstande kan dedikeres af en gruppeadministrator." />
+			<check_box label="Tillad enhver at flytte" name="checkbox allow everyone move" />
+			<check_box label="Tillad enhver at kopiére" name="checkbox allow everyone copy" />
 			<check_box label="Vis i søgning" name="search_check"
-			     tool_tip="Lad folk se dette objekter i søge resultaterne" />
-			<check_box label="Til Salg" name="checkbox for sale" />
-			<text name="Price:  L$">
+			     tool_tip="Lad folk se dette objekt i søgeresultater" />
+			<check_box label="Til salg" name="checkbox for sale" />
+			<text name="Cost">
 				Pris:  L$
 			</text>
 			<radio_group name="sale type">
@@ -152,15 +152,15 @@
 			<text name="Next owner can:">
 				Næste ejer kan:
 			</text>
-			<check_box label="Redigere" name="checkbox next owner can modify" />
-			<check_box label="Kopiere" name="checkbox next owner can copy" />
+			<check_box label="Redigére" name="checkbox next owner can modify" />
+			<check_box label="Kopiére" name="checkbox next owner can copy" />
 			<check_box label="Sælge/Give væk" name="checkbox next owner can transfer" />
 			<text name="label click action">
-				Ved venstre klik:
+				Når der venstreklikkes:
 			</text>
 			<combo_box name="clickaction">
 				<combo_item name="Touch/grab(default)">
-					Rør ved/Tag fat (standard)
+					Rør/tag (standard)
 				</combo_item>
 				<combo_item name="Sitonobject">
 					Sid på objekt
@@ -175,10 +175,10 @@
 					Åben
 				</combo_item>
 				<combo_item name="Play">
-					Afspil parcel medie
+					Afspil medie på parcel
 				</combo_item>
 				<combo_item name="Opemmedia">
-					Åben parcel medie
+					Åben media på parcel
 				</combo_item>
 			</combo_box>
 			<text name="B:">
@@ -199,26 +199,358 @@
 			<text name="F:">
 				F:
 			</text>
-			<string name="Cost Default">
-				Pris:           L$
-			</string>
-			<string name="Cost Total">
-				Total Pris:  L$
-			</string>
-			<string name="Cost Per Unit">
-				Pris pr:     L$
-			</string>
-			<string name="Cost Mixed">
-				Blandet pris
-			</string>
-			<string name="Sale Mixed">
-				Blandet Salg
-			</string>
 		</panel>
-		<panel name="Object">
-			<check_box label="Spejl" name="sculpt mirror control" tool_tip="Vipper moduleret prim på X aksen."/>
-			<check_box label="Vrangen ud" name="sculpt invert control" tool_tip="Invereterer den modelerede prims normaler, så den vender med vrangen ud."/>
-
+		<panel label="Objekt" name="Object">
+			<text name="select_single">
+				Vælg kun én prim for at ændre indstillinger.
+			</text>
+			<text name="edit_object">
+				Ret objektets indstillinger:
+			</text>
+			<check_box label="Låst" name="checkbox locked"
+			     tool_tip="Forhindrer objektet i at blive flyttet eller slettet. Ofte brugbar under byggeri for at forhindre utilsigtet ændring." />
+			<check_box label="Fysisk" name="Physical Checkbox Ctrl"
+			     tool_tip="Tillader objekter at blive skubbet og at være påvirkelig af tyngdekraften" />
+			<check_box label="Temporær" name="Temporary Checkbox Ctrl"
+			     tool_tip="Medfårer at objekter bliver slettet 1 minut efter de er skabt." />
+			<check_box label="Uden masse" name="Phantom Checkbox Ctrl"
+			     tool_tip="Får objektet til ikke at kollidere med andre objekter eller personer" />
+			<text name="label position">
+				Position (meter)
+			</text>
+			<spinner label="X" name="Pos X" />
+			<spinner label="Y" name="Pos Y" />
+			<spinner label="Z" name="Pos Z" />
+			<text name="label size">
+				Størrelse (meter)
+			</text>
+			<spinner label="X" name="Scale X" />
+			<spinner label="Y" name="Scale Y" />
+			<spinner label="Z" name="Scale Z" />
+			<text name="label rotation">
+				Rotation (grader)
+			</text>
+			<spinner label="X" name="Rot X" />
+			<spinner label="Y" name="Rot Y" />
+			<spinner label="Z" name="Rot Z" />
+			<text name="label material">
+				Materiale
+			</text>
+			<combo_box name="material">
+				<combo_item name="Stone">
+					Sten
+				</combo_item>
+				<combo_item name="Metal">
+					Metal
+				</combo_item>
+				<combo_item name="Glass">
+					Glas
+				</combo_item>
+				<combo_item name="Wood">
+					Træ
+				</combo_item>
+				<combo_item name="Flesh">
+					Kød
+				</combo_item>
+				<combo_item name="Plastic">
+					Plastik
+				</combo_item>
+				<combo_item name="Rubber">
+					Gummi
+				</combo_item>
+			</combo_box>
+			<text name="label basetype">
+				Byggegeometrisk figur
+			</text>
+			<combo_box name="comboBaseType">
+				<combo_item name="Box">
+					Terning
+				</combo_item>
+				<combo_item name="Cylinder">
+					Cylinder
+				</combo_item>
+				<combo_item name="Prism">
+					Prisme
+				</combo_item>
+				<combo_item name="Sphere">
+					Spfære
+				</combo_item>
+				<combo_item name="Torus">
+					Kuglering
+				</combo_item>
+				<combo_item name="Tube">
+					Rør
+				</combo_item>
+				<combo_item name="Ring">
+					Ring
+				</combo_item>
+				<combo_item name="Sculpted">
+					Sculpted
+				</combo_item>
+			</combo_box>
+			<text name="text cut">
+				Snit begynd og slut
+			</text>
+			<spinner label="B" name="cut begin" />
+			<spinner label="E" name="cut end" />
+			<text name="text hollow">
+				Hul
+			</text>
+			<text name="text skew">
+				Skævhed
+			</text>
+			<text name="Hollow Shape">
+				Form på hul
+			</text>
+			<combo_box name="hole">
+				<combo_item name="Default">
+					Standard
+				</combo_item>
+				<combo_item name="Circle">
+					Cirkel
+				</combo_item>
+				<combo_item name="Square">
+					Firkant
+				</combo_item>
+				<combo_item name="Triangle">
+					Trekant
+				</combo_item>
+			</combo_box>
+			<text name="text twist">
+				Vrid - start og slut
+			</text>
+			<spinner label="B" name="Twist Begin" />
+			<spinner label="E" name="Twist End" />
+			<text name="scale_taper">
+				Konus
+			</text>
+			<text name="scale_hole">
+				Hulstørrelse
+			</text>
+			<spinner label="X" name="Taper Scale X" />
+			<spinner label="Y" name="Taper Scale Y" />
+			<text name="text topshear">
+				Topforskydning
+			</text>
+			<spinner label="X" name="Shear X" />
+			<spinner label="Y" name="Shear Y" />
+			<text name="advanced_cut">
+				Profilsnit - begynd og slut
+			</text>
+			<text name="advanced_dimple">
+				Fordybning - begynd og slut
+			</text>
+			<spinner label="B" name="Path Limit Begin" />
+			<spinner label="E" name="Path Limit End" />
+			<text name="text taper2">
+				Konus
+			</text>
+			<spinner label="X" name="Taper X" />
+			<spinner label="Y" name="Taper Y" />
+			<text name="text radius delta">
+				Radius
+			</text>
+			<text name="text revolutions">
+				Omdrejninger
+			</text>
+			<texture_picker label="Sculpt tekstur" name="sculpt texture control"
+			     tool_tip="Klik her for at vælge billede" />
+			<check_box label="Spejlet" name="sculpt mirror control"
+			     tool_tip="Spejler sculpted prim omkring X aksen." />
+			<check_box label="Vrangen ud" name="sculpt invert control"
+			     tool_tip="Vender &apos;vrangen&apos; ud på sculpted prim." />
+			<text name="label sculpt type">
+				Sting type
+			</text>
+			<combo_box name="sculpt type control">
+				<combo_item name="None">
+					(ingen)
+				</combo_item>
+				<combo_item name="Sphere">
+					Sfære
+				</combo_item>
+				<combo_item name="Torus">
+					Kuglering
+				</combo_item>
+				<combo_item name="Plane">
+					Plan
+				</combo_item>
+				<combo_item name="Cylinder">
+					Cylinder
+				</combo_item>
+			</combo_box>
+		</panel>
+		<panel label="Features" name="Features">
+			<text name="select_single">
+				Vælg kun én prim for at ændre egenskaber.
+			</text>
+			<text name="edit_object">
+				Redigér objektets egenskaber:
+			</text>
+			<check_box label="Fleksibel/blød" name="Flexible1D Checkbox Ctrl"
+			     tool_tip="Tillader objektet at ændre form omkring Z-aksen. (Kun på klient-siden)" />
+			<spinner label="Blødhed" name="FlexNumSections" />
+			<spinner label="Tyngdekraft" name="FlexGravity" />
+			<spinner label="Træk" name="FlexFriction" />
+			<spinner label="Vind" name="FlexWind" />
+			<spinner label="Spændstighed" name="FlexTension" />
+			<spinner label="Kraft X" name="FlexForceX" />
+			<spinner label="Kraft Y" name="FlexForceY" />
+			<spinner label="Kraft Z" name="FlexForceZ" />
+			<check_box label="Lys" name="Light Checkbox Ctrl"
+			     tool_tip="Medfårer at objektet afgiver lys" />
+			<text name="label color">
+				Farve
+			</text>
+			<color_swatch label="" name="colorswatch" tool_tip="Klik for at åbne farvevælger" />
+			<spinner label="Intensitet" name="Light Intensity" />
+			<spinner label="Radius" name="Light Radius" />
+			<spinner label="Udfasning" name="Light Falloff" />
+		</panel>
+		<panel label="Tekstur" name="Texture">
+			<texture_picker label="Tekstur" name="texture control" tool_tip="Klik for at vælge billede" />
+			<color_swatch label="Farve" name="colorswatch" tool_tip="Klik for at åbne farvevælger" />
+			<text name="color trans">
+				Gennemsigtighed %
+			</text>
+			<text name="glow label">
+				Glød
+			</text>
+			<check_box label="Selvlysende" name="checkbox fullbright" />
+			<text name="tex gen">
+				Afbildning
+			</text>
+			<combo_box name="combobox texgen">
+				<combo_item name="Default">
+					Standard
+				</combo_item>
+				<combo_item name="Planar">
+					Plan
+				</combo_item>
+			</combo_box>
+			<text name="label shininess">
+				Blankhed
+			</text>
+			<combo_box name="combobox shininess">
+				<combo_item name="None">
+					Ingen
+				</combo_item>
+				<combo_item name="Low">
+					Lav
+				</combo_item>
+				<combo_item name="Medium">
+					Mellem
+				</combo_item>
+				<combo_item name="High">
+					Høj
+				</combo_item>
+			</combo_box>
+			<text name="label bumpiness">
+				Struktur
+			</text>
+			<combo_box name="combobox bumpiness">
+				<combo_item name="None">
+					Ingen
+				</combo_item>
+				<combo_item name="Brightness">
+					Lysintensitet
+				</combo_item>
+				<combo_item name="Darkness">
+					Mørke
+				</combo_item>
+				<combo_item name="woodgrain">
+					træårer
+				</combo_item>
+				<combo_item name="bark">
+					bark
+				</combo_item>
+				<combo_item name="bricks">
+					mursten
+				</combo_item>
+				<combo_item name="checker">
+					tern
+				</combo_item>
+				<combo_item name="concrete">
+					beton
+				</combo_item>
+				<combo_item name="crustytile">
+					rustik flise
+				</combo_item>
+				<combo_item name="cutstone">
+					Skåret sten
+				</combo_item>
+				<combo_item name="discs">
+					plader
+				</combo_item>
+				<combo_item name="gravel">
+					grus
+				</combo_item>
+				<combo_item name="petridish">
+					petriskål
+				</combo_item>
+				<combo_item name="siding">
+					udvendig beklædning
+				</combo_item>
+				<combo_item name="stonetile">
+					stenflise
+				</combo_item>
+				<combo_item name="stucco">
+					puds
+				</combo_item>
+				<combo_item name="suction">
+					rør
+				</combo_item>
+				<combo_item name="weave">
+					væv
+				</combo_item>
+			</combo_box>
+			<text name="tex scale">
+				Gentagelser pr. overflade
+			</text>
+			<spinner label="Vandret (U)" name="TexScaleU" />
+			<check_box label="Vend" name="checkbox flip s" />
+			<spinner label="Lodret (V)" name="TexScaleV" />
+			<check_box label="Vend" name="checkbox flip t" />
+			<text name="tex rotate">
+				Rotation (grader)
+			</text>
+			<string name="string repeats per meter">
+				Gentagelser pr. meter
+			</string>
+			<string name="string repeats per face">
+				Gentagelser pr. overflade
+			</string>
+			<text name="rpt">
+				Gentagelser pr. meter
+			</text>
+			<button label="Gem" label_selected="Gem" name="button apply" />
+			<text name="tex offset">
+				Offset
+			</text>
+			<spinner label="Vandret (U)" name="TexOffsetU" />
+			<spinner label="Lodret (V)" name="TexOffsetV" />
+			<text name="textbox autofix">
+				Rette medie tekstur ind
+(skal indlæses først)
+			</text>
+			<button label="Ret ind" label_selected="Ret ind" name="button align" />
+		</panel>
+		<panel label="Indhold" name="Contents">
+			<button label="Nyt script..." label_selected="Nyt script..." name="button new script" />
 		</panel>
 	</tab_container>
+	<panel name="land info panel">
+		<text name="label_area_price">
+			Pris: L$[PRICE] for [AREA] m².
+		</text>
+		<text name="label_area">
+			Område: [AREA] m².
+		</text>
+		<button label="Køb land..." label_selected="Køb land..." name="button buy land" />
+		<button label="Flyt fra land..." label_selected="Flyt fra land..."
+		     name="button abandon land" />
+		<button label="Opdel..." label_selected="Opdel..." name="button subdivide land" />
+		<button label="Saml..." label_selected="Saml..." name="button join land" />
+		<button label="Om land..." label_selected="Om land..." name="button about land" />
+	</panel>
 </floater>

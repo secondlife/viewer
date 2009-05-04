@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="groups">
+	<text name="groupdesc">
+		Il tuo gruppo attualmente attivo è visualizzato in grassetto.
+	</text>
+	<text name="groupcount">
+		Appartieni a [COUNT] gruppi (su un massimo di [MAX]).
+	</text>
+	<button label="IM/Chiama" name="IM" tool_tip="Apri una sessione di IM/Instant Messages"/>
+	<button label="Informazioni" name="Info"/>
+	<button label="Attiva" name="Activate"/>
+	<button label="Abbandona" name="Leave"/>
+	<button label="Crea..." name="Create"/>
+	<button label="Cerca..." name="Search..."/>
+</panel>

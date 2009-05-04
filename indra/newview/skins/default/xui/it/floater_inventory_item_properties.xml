@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="item properties" title="Proprietà dell&apos;oggetto nell&apos;inventario">
+	<text name="LabelItemNameTitle">
+		Nome:
+	</text>
+	<text name="LabelItemDescTitle">
+		Descrizione:
+	</text>
+	<text name="LabelCreatorTitle">
+		Creatore:
+	</text>
+	<text name="LabelCreatorName">
+		Nicole Linden
+	</text>
+	<button label="Profilo..." label_selected="" name="BtnCreator"/>
+	<text name="LabelOwnerTitle">
+		proprietario:
+	</text>
+	<text name="LabelOwnerName">
+		Thrax Linden
+	</text>
+	<button label="Profilo..." label_selected="" name="BtnOwner"/>
+	<text name="LabelAcquiredTitle">
+		Acquisito:
+	</text>
+	<text name="LabelAcquiredDate">
+		Wed May 24 12:50:46 2006
+	</text>
+	<text name="OwnerLabel">
+		Tu puoi:
+	</text>
+	<check_box label="Modificare" name="CheckOwnerModify"/>
+	<check_box label="Copiare" name="CheckOwnerCopy"/>
+	<check_box label="Rivendere/Regalare" name="CheckOwnerTransfer"/>
+	<text name="BaseMaskDebug">
+		B:
+	</text>
+	<text name="OwnerMaskDebug">
+		O:
+	</text>
+	<text name="GroupMaskDebug">
+		G:
+	</text>
+	<text name="EveryoneMaskDebug">
+		E:
+	</text>
+	<text name="NextMaskDebug">
+		N:
+	</text>
+	<check_box label="Condividi con il gruppo" name="CheckShareWithGroup"/>
+	<check_box label="Permetti a tutti di copiare" name="CheckEveryoneCopy"/>
+	<text name="NextOwnerLabel">
+		Il prossimo proprietario può:
+	</text>
+	<check_box label="Modificare" name="CheckNextOwnerModify"/>
+	<check_box label="Copiare" name="CheckNextOwnerCopy"/>
+	<check_box label="Rivendere/Regalare" name="CheckNextOwnerTransfer"/>
+	<text name="SaleLabel">
+		Metti l&apos;oggetto:
+	</text>
+	<check_box label="In vendita" name="CheckPurchase"/>
+	<radio_group name="RadioSaleType">
+		<radio_item name="radio">
+			Originale
+		</radio_item>
+		<radio_item name="radio2">
+			Copia
+		</radio_item>
+	</radio_group>
+	<text name="TextPrice">
+		Prezzo:  L$
+	</text>
+	<string name="unknown">
+		(sconosciuto)
+	</string>
+	<string name="public">
+		(pubblico)
+	</string>
+	<string name="you_can">
+		Tu puoi:
+	</string>
+	<string name="owner_can">
+		Il proprietario può:
+	</string>
+</floater>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Regolamento" name="Covenant">
+	<text name="covenant_help_text">
+		Le modifiche alle informazioni del regolamento saranno esposte in tutti i terreni della proprietà immobiliare.
+	</text>
+	<text name="region_name_lbl">
+		Regione:
+	</text>
+	<text name="region_name_text">
+		(sconosciuta)
+	</text>
+	<text name="estate_name_lbl">
+		Proprietà immobiliare:
+	</text>
+	<text name="estate_name_text">
+		(sconosciuta)
+	</text>
+	<text name="estate_owner_lbl">
+		Proprietario immobiliare:
+	</text>
+	<text name="estate_owner_text">
+		(sconosciuto)
+	</text>
+	<text name="resellable_clause">
+		Un terreno acquistato in questa regione può o non può essere rivenduto.
+	</text>
+	<text name="changeable_clause">
+		Un terreno acquistato in questa regione può o non può essere unito o suddiviso.
+	</text>
+	<text name="covenent_instructions">
+		Trascina e rilascia una notecard per cambiare il Regolamento di questa Proprietà Immobiliare.
+	</text>
+	<text_editor name="covenant_editor">
+		In caricamento...
+	</text_editor>
+	<button label="Ripristina" name="reset_covenant"/>
+	<string name="can_resell">
+		Un terreno acquistato in questa regione può essere rivenduto.
+	</string>
+	<string name="can_not_resell">
+		Un terreno acquistato in questa regione non può essere rivenduto.
+	</string>
+	<string name="can_change">
+		Un terreno acquistato in questa regione può essere unito o suddiviso.
+	</string>
+	<string name="can_not_change">
+		Un terreno acquistato in questa regione non può essere unito o suddiviso.
+	</string>
+	<button label="?" name="covenant_help"/>
+</panel>

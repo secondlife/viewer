@@ -33,10 +33,7 @@
 	</text>
 	<check_box label="解像度独立スケールを使用" name="ui_auto_scale"/>
 	<spinner label="退席までの時間：" name="afk_timeout_spinner"/>
-	<check_box label="ミニマップを回転" name="rotate_mini_map_checkbox"/>
 	<check_box label="リンデン・ドル（L$）の支払い/受け取りを通知" name="notify_money_change_checkbox"/>
-	<check_box label="デフォルト・システムのカラー選択を使用" name="use_system_color_picker_checkbox" tool_tip="Second Life内蔵でない、デフォルト・システムのカラー選択を使用"/>
-	<check_box label="オーバーレイ・バーに検索パネルを表示" name="show_search_panel" tool_tip="組み込みの検索パネルを表示します。"/>
 	<text length="1" name="start_location_textbox" type="string">
 		ログイン位置：
 	</text>
@@ -99,6 +96,12 @@
 		</combo_item>
 		<combo_item length="1" name="Portugese" type="string">
 			Português (ポルトガル語) – ベータ
+		</combo_item>
+		<combo_item name="Russian">
+			Русский (ロシア語) - ベータ
+		</combo_item>
+		<combo_item name="Ukrainian">
+			Українська (ウクライナ語) - ベータ
 		</combo_item>
 		<combo_item length="1" name="Chinese" type="string">
 			中文 (简体) (中国語) - ベータ

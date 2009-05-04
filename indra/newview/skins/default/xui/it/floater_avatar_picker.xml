@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="avatarpicker" title="Scegli residente">
+	<text name="instruct_search_resident_name">
+		Scrivi parte del nome del residente:
+	</text>
+	<button label="Trova" label_selected="Trova" name="Find"/>
+	<text name="Or select their calling card:">
+		Oppure seleziona un biglietto da visita:
+	</text>
+	<button label="Chiudi" label_selected="Chiudi" name="Close"/>
+	<button label="Seleziona" label_selected="Seleziona" name="Select"/>
+	<string name="NotFound">
+		&apos;[TEXT]&apos; non trovato
+	</string>
+</floater>

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="sell land" title="Verkoop land">
+	<text name="info_parcel_label">
+		Perceel:
+	</text>
+	<text name="info_parcel">
+		PERCEEL NAAM
+	</text>
+	<text name="info_size_label">
+		Grootte:
+	</text>
+	<text name="info_size">
+		[AREA] m2
+	</text>
+	<text name="info_action">
+		Om dit perceel te verkopen:
+	</text>
+	<text name="price_label">
+		Stel een prijs in:
+	</text>
+	<text name="price_text">
+		Kies een geschikte prijs voor dit land
+	</text>
+	<text name="price_ld">
+		L$
+	</text>
+	<text name="price_per_m">
+		(L$[PER_METER] per vierkante meter)
+	</text>
+	<text name="sell_to_label">
+		Verkoop het land aan:
+	</text>
+	<text name="sell_to_text">
+		Kies of u aan iedereen wil verkopen of een specifieke koper.
+	</text>
+	<combo_box name="sell_to">
+		<combo_item name="--selectone--">
+			-- selecteer een --
+		</combo_item>
+		<combo_item name="Anyone">
+			Iedereen
+		</combo_item>
+		<combo_item name="Specificuser:">
+			Specifieke gebruiker:
+		</combo_item>
+	</combo_box>
+	<button label="Selecteren..." name="sell_to_select_agent"/>
+	<text name="sell_objects_label">
+		Verkoop de objecten samen met het land?
+	</text>
+	<text name="sell_objects_text">
+		Overdraagbare objecten die eigendom zijn van de landeigenaar zullen van eigenaar veranderen.
+	</text>
+	<radio_group name="sell_objects">
+		<radio_item name="no">
+			Nee, behoud het eigendom van objecten
+		</radio_item>
+		<radio_item name="yes">
+			Ja, verkoop objecten met het land
+		</radio_item>
+	</radio_group>
+	<button label="Toon objecten" name="show_objects"/>
+	<text name="nag_message_label">
+		ONTHOUD: Alle verkopen zijn definitief.
+	</text>
+	<button label="Zet het land te koop" name="sell_btn"/>
+	<button label="Annuleren" name="cancel_btn"/>
+</floater>

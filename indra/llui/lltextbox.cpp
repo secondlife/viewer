@@ -431,7 +431,7 @@ LLView* LLTextBox::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *f
 	std::string font_style;
 	if (node->getAttributeString("font-style", font_style))
 	{
-		text_box->mFontStyle |= LLFontGL::getStyleFromString(font_style);
+		text_box->mFontStyle = LLFontGL::getStyleFromString(font_style);
 	}
 	
 	BOOL mouse_opaque = text_box->getMouseOpaque();

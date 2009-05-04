@@ -1,28 +1,28 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="telehub" title="Telehub">
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="telehub" title="Punto de Teleporte">
 	<text name="status_text_connected">
-		Telehub conectado al objeto [OBJECT]
+		Punto de Teleporte conectado al objeto [OBJECT]
 	</text>
 	<text name="status_text_not_connected">
-		Sin telehub conectado.
+		Punto de Teleporte sin conectar.
 	</text>
 	<text name="help_text_connected">
-		Para remover, haga clic en Desconectar.
+		Para quitar, pulse Desconectar.
 	</text>
 	<text name="help_text_not_connected">
-		Seleccione el objeto y haga clic en Conectar Telehub.
+		Seleccione el objeto y pulse Conectar el Punto de Teleporte.
 	</text>
-	<button label="Conectar al Telehub" name="connect_btn" />
-	<button label="Desconectar" name="disconnect_btn" />
+	<button label="Conectar el Punto de Teleporte" name="connect_btn"/>
+	<button label="Desconectar" name="disconnect_btn"/>
 	<text name="spawn_points_text">
-		Puntos de resurgimiento (posiciones, no objetos):
+		Spawn Points (positions, not objects):
 	</text>
-	<button label="Adicionar punto de generación" name="add_spawn_point_btn" />
-	<button label="Remover punto de resurgimiento" name="remove_spawn_point_btn" />
+	<button label="Añadir sucursales" name="add_spawn_point_btn"/>
+	<button label="Quitar sucursales" name="remove_spawn_point_btn"/>
 	<text name="spawn_point_help">
-		Seleccione el objeto y haga clic en Adicionar para posición específica.
-Usted podrá entonces mover o borrar el objeto.
-Posiciones son relativas al centro telehub.
-Seleccione el ítem en la lista para mostrar la posición en el mundo.
+		Seleccione el objeto y pulse Añadir para especificar la posición.
+Hecho eso, puede mover o borrar el objeto.
+Las posiciones son relativas al centro del Punto de Teleporte.
+Seleccione un ítem de la lista para mostrar su posición en el mundo.
 	</text>
 </floater>

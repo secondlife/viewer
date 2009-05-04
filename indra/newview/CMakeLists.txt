@@ -141,7 +141,6 @@ set(viewer_SOURCE_FILES
     llfloaterchat.cpp
     llfloaterchatterbox.cpp
     llfloaterclassified.cpp
-    llfloaterclothing.cpp
     llfloatercolorpicker.cpp
     llfloatercustomize.cpp
     llfloaterdaycycle.cpp
@@ -311,6 +310,7 @@ set(viewer_SOURCE_FILES
     llpreviewscript.cpp
     llpreviewsound.cpp
     llpreviewtexture.cpp
+    llproductinforequest.cpp
     llprogressview.cpp
     llregionposition.cpp
     llremoteparcelrequest.cpp
@@ -545,7 +545,6 @@ set(viewer_HEADER_FILES
     llfloaterchat.h
     llfloaterchatterbox.h
     llfloaterclassified.h
-    llfloaterclothing.h
     llfloatercolorpicker.h
     llfloatercustomize.h
     llfloaterdaycycle.h
@@ -715,6 +714,7 @@ set(viewer_HEADER_FILES
     llpreviewscript.h
     llpreviewsound.h
     llpreviewtexture.h
+    llproductinforequest.h
     llprogressview.h
     llregionposition.h
     llremoteparcelrequest.h

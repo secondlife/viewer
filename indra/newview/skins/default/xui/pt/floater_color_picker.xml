@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="ColorPicker" title="Color Picker">
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="ColorPicker" title="Seletor de Cor">
 	<text name="r_val_text">
 		Vermelho:
 	</text>
@@ -10,7 +10,7 @@
 		Azul:
 	</text>
 	<text name="h_val_text">
-		Hue:
+		Matiz:
 	</text>
 	<text name="s_val_text">
 		Sat:
@@ -18,15 +18,13 @@
 	<text name="l_val_text">
 		Lum:
 	</text>
-	<check_box label="Aplicar imediatamente" name="apply_immediate" />
-	<button label="" label_selected="" name="color_pipette" />
-	<button label="Cancelar" label_selected="Cancelar" name="cancel_btn" />
-	<button label="Selecionar" label_selected="Selecionar" name="select_btn" />
+	<check_box label="Aplicar imediatamente" name="apply_immediate"/>
+	<button label="Cancelar" label_selected="Cancelar" name="cancel_btn"/>
+	<button label="Selecionar" label_selected="Selecionar" name="select_btn"/>
 	<text name="Current color:">
 		Cor atual:
 	</text>
 	<text name="(Drag below to save.)">
-		(Arraste abaixo
-para salvar.)
+		(Arraste abaixo para salvar.)
 	</text>
 </floater>

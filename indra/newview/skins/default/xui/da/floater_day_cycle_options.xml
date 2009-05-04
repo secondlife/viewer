@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="Dags Cyklus" title="Day Cycle Editor">
+<floater name="Day Cycle Floater" title="Dag cyklus opsætning">
 	<tab_container name="Day Cycle Tabs">
-		<panel label="Day Cycle" name="Day Cycle">
+		<panel label="Dag cyklus" name="Day Cycle">
 			<button label="?" name="WLDayCycleHelp" />
 			<multi_slider label="" name="WLTimeSlider" />
 			<multi_slider label="" name="WLDayCycleKeys" />
@@ -9,13 +9,13 @@
 				00:00
 			</text>
 			<text type="string" length="1" name="WL3am">
-				3:00
+				03:00
 			</text>
 			<text type="string" length="1" name="WL6am">
-				6:00
+				06:00
 			</text>
 			<text type="string" length="1" name="WL9amHash">
-				9:00
+				09:00
 			</text>
 			<text type="string" length="1" name="WL12pmHash">
 				12:00
@@ -59,6 +59,39 @@
 			<text type="string" length="1" name="WL12amHash2">
 				|
 			</text>
+			<button label="Tilføj key" label_selected="Tilføj key" name="WLAddKey" />
+			<button label="Slet key" label_selected="Slet key" name="WLDeleteKey" />
+			<text type="string" length="1" name="WLCurKeyFrameText">
+				Key-frame indstillinger:
+			</text>
+			<text type="string" length="1" name="WLCurKeyTimeText">
+				Key tid:
+			</text>
+			<spinner label="Timer" name="WLCurKeyHour" />
+			<spinner label="Min." name="WLCurKeyMin" />
+			<text type="string" length="1" name="WLCurKeyTimeText2">
+				Key fast indstilling:
+			</text>
+			<combo_box label="Faste" name="WLKeyPresets" />
+			<text type="string" length="1" name="DayCycleText">
+				Snap:
+			</text>
+			<combo_box label="5 min" name="WLSnapOptions" />
+			<text type="string" length="1" name="DayCycleText2">
+				Cycluslængde:
+			</text>
+			<spinner label="Timer" name="WLLengthOfDayHour" />
+			<spinner label="Min." name="WLLengthOfDayMin" />
+			<spinner label="Sek." name="WLLengthOfDaySec" />
+			<text type="string" length="1" name="DayCycleText3">
+				Vis:
+			</text>
+			<button label="Afspil" label_selected="Afspil" name="WLAnimSky" />
+			<button label="Stop!" label_selected="Stop" name="WLStopAnimSky" />
+			<button label="Benyt estate tid" label_selected="Gå til estate tid"
+			     name="WLUseLindenTime" />
+			<button label="Gem test-dag" label_selected="Gem test-dag" name="WLSaveDayCycle" />
+			<button label="Hent test-dag" label_selected="Hent test-dag" name="WLLoadDayCycle" />
 		</panel>
 	</tab_container>
 </floater>

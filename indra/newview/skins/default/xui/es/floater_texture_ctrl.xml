@@ -1,17 +1,24 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="texture picker" title="Coger: Textura">
-	<text type="string" length="1" name="Multiple">
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="texture picker" title="Elegir: Textura">
+	<string name="choose_picture">
+		Pulse para elegir una imagen
+	</string>
+	<text length="1" name="Multiple" type="string">
 		Múltiple
 	</text>
-	<text type="string" length="1" name="unknown">
-		Dimensiones: 512 x 512
+	<text length="1" name="unknown" type="string">
+		Dimensiones: [DIMENSIONS]
 	</text>
-	<button label="Patrón" label_selected="Patrón" name="Default" />
-	<button label="Ningún" label_selected="Ningún" name="None" />
-	<button label="En blanco" label_selected="En blanco" name="Blank" />
-	<check_box label="Mostrar carpetas" name="show_folders_check" />
-	<check_box label="Aplicar ahora" name="apply_immediate_check" />
-	<button label="" label_selected="" name="Pipette" />
-	<button label="Cancelar" label_selected="Cancelar" name="Cancel" />
-	<button label="Seleccionar" label_selected="Seleccionar" name="Select" />
+	<button label="Por defecto" label_selected="Por defecto" name="Default"/>
+	<button label="Ninguna" label_selected="Ninguna" name="None"/>
+	<button label="Blanca" label_selected="Blanca" name="Blank"/>
+	<check_box label="Ver las carpetas" name="show_folders_check"/>
+	<search_editor label="Escriba aquí para buscar una" name="inventory search editor"/>
+	<check_box label="Aplicar ahora mismo" name="apply_immediate_check"/>
+	<button label="" label_selected="" name="Pipette"/>
+	<button label="Cancelar" label_selected="Cancelar" name="Cancel"/>
+	<button label="Elegir" label_selected="Elegir" name="Select"/>
+	<string name="pick title">
+		Elegir:
+	</string>
 </floater>

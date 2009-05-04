@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="avatar_texture_debug" title="Texture dell&apos;Avatar">
+	<text name="baked_label">
+		Texture Visualizzate
+	</text>
+	<text name="composite_label">
+		Texture Composite
+	</text>
+	<texture_picker label="Testa" name="baked_head"/>
+	<texture_picker label="Trucco" name="head_bodypaint"/>
+	<texture_picker label="Capelli" name="hair"/>
+	<button label="Deposito" label_selected="Deposito" name="Dump"/>
+	<texture_picker label="Occhi" name="baked_eyes"/>
+	<texture_picker label="Occhio" name="eye_texture"/>
+	<texture_picker label="Parte superiore del corpo" name="baked_upper_body"/>
+	<texture_picker label="Tatuaggio parte superiore del corpo" name="upper_bodypaint"/>
+	<texture_picker label="Canottiera" name="undershirt"/>
+	<texture_picker label="Guanti" name="gloves"/>
+	<texture_picker label="Maglietta" name="shirt"/>
+	<texture_picker label="Giacca, parte superiore" name="upper_jacket"/>
+	<texture_picker label="Parte inferiore del corpo" name="baked_lower_body"/>
+	<texture_picker label="Tatuaggio parte inferiore del corpo" name="lower_bodypaint"/>
+	<texture_picker label="Mutande" name="underpants"/>
+	<texture_picker label="Calze" name="socks"/>
+	<texture_picker label="Scarpe" name="shoes"/>
+	<texture_picker label="Pantaloni" name="pants"/>
+	<texture_picker label="Giacca" name="jacket"/>
+	<texture_picker label="Gonna" name="baked_skirt"/>
+	<texture_picker label="Gonna" name="skirt_texture"/>
+</floater>

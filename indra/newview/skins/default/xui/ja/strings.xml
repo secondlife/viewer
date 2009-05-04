@@ -4,7 +4,6 @@
      For example, the strings used in avatar chat bubbles, and strings 
      that are returned from one component and may appear in many places-->
 <strings>
-	<!-- Login -->
 	<string name="LoginInProgress">
 		ログイン中です。[APP_NAME]の表示がフリーズする場合があります。  しばらくお待ちください。
 	</string>
@@ -56,34 +55,24 @@
 	<string name="LoginDownloadingClothing">
 		服をダウンロードしています...
 	</string>
-	<string name="LoginFailedNoNetwork">
-		ネットワークエラー： 接続が確立できませんでした。接続を確認してください.
-	</string>
-	<!-- Disconnection -->
 	<string name="AgentLostConnection">
 		この地域には、問題が発生している可能性があります。  インターネット接続を確認してください。
 	</string>
-	<!-- Tooltip, llhoverview.cpp -->
 	<string name="TooltipPerson">
 		人
 	</string>
-	<!-- Object under mouse pointer is an avatar -->
 	<string name="TooltipNoName">
 		(名前なし)
 	</string>
-	<!-- No name on an object -->
 	<string name="TooltipOwner">
 		オーナー:
 	</string>
-	<!-- Owner name follows -->
 	<string name="TooltipPublic">
 		公共
 	</string>
-	<!-- Public permissions on an object -->
 	<string name="TooltipIsGroup">
 		(グループ)
 	</string>
-	<!-- The name before this text is that of a group -->
 	<string name="TooltipFlagScript">
 		スクリプト
 	</string>
@@ -114,11 +103,9 @@
 	<string name="TooltipForSaleL$">
 		売り出し中:L$[AMOUNT]
 	</string>
-	<!-- L$ version -->
 	<string name="TooltipForSaleMsg">
 		売り出し中: [MESSAGE]
 	</string>
-	<!-- Message (RetrievingData) -->
 	<string name="TooltipFlagGroupBuild">
 		グループ作成
 	</string>
@@ -131,7 +118,6 @@
 	<string name="TooltipFlagNotSafe">
 		危険
 	</string>
-	<!-- damage area -->
 	<string name="TooltipFlagNoFly">
 		飛行禁止
 	</string>
@@ -147,35 +133,27 @@
 	<string name="TooltipMustSingleDrop">
 		1つのアイテムのみをここにドラッグできます
 	</string>
-	<!-- Indicates that an avatar&apos;s name or other similar datum is being retrieved. General usage. -->
 	<string name="RetrievingData">
 		検索中...
 	</string>
 	<string name="ReleaseNotes">
 		リリースノート
 	</string>
-	<!-- Indicates something is being loaded. Maybe should be merged with RetrievingData -->
 	<string name="LoadingData">
 		ロード中...
 	</string>
-	<!-- namecache -->
-	<!-- Avatar name: text shown for LLUUID::null -->
 	<string name="AvatarNameNobody">
 		(無人)
 	</string>
-	<!-- Avatar name: text shown while fetching name -->
 	<string name="AvatarNameWaiting">
 		(待機中)
 	</string>
-	<!-- Avatar name: text shown as an alternative to AvatarNameFetching, easter egg. -->
 	<string name="AvatarNameHippos">
 		(カバ)
 	</string>
-	<!-- Group name: text shown for LLUUID::null -->
 	<string name="GroupNameNone">
 		(なし)
 	</string>
-	<!-- Asset errors. Used in llassetstorage.cpp, translation from error code to error message. -->
 	<string name="AssetErrorNone">
 		エラーなし
 	</string>
@@ -203,10 +181,12 @@
 	<string name="AssetErrorCircuitGone">
 		接続が解除されました
 	</string>
+	<string name="AssetErrorPriceMismatch">
+		ビューワとサーバーの価格が一致していません
+	</string>
 	<string name="AssetErrorUnknownStatus">
 		ステータスが不明です
 	</string>
-	<!-- llvoavatar. Displayed in the avatar&apos;s chat bubble -->
 	<string name="AvatarEditingApparance">
 		(容姿の編集)
 	</string>
@@ -219,7 +199,6 @@
 	<string name="AvatarMuted">
 		ミュート
 	</string>
-	<!-- animations -->
 	<string name="anim_express_afraid">
 		怖れ
 	</string>
@@ -433,11 +412,55 @@
 	<string name="worldmap_offline">
 		オフライン
 	</string>
-	<!-- Chat -->
 	<string name="whisper">
 		のささやき:
 	</string>
 	<string name="shout">
 		の叫び:
+	</string>
+	<string name="all_files">
+		全てのファイル
+	</string>
+	<string name="sound_files">
+		サウンド
+	</string>
+	<string name="animation_files">
+		アニメーション
+	</string>
+	<string name="image_files">
+		画像
+	</string>
+	<string name="save_file_verb">
+		保存
+	</string>
+	<string name="load_file_verb">
+		ロード
+	</string>
+	<string name="targa_image_files">
+		Targa画像
+	</string>
+	<string name="bitmap_image_files">
+		ビットマップ画像
+	</string>
+	<string name="avi_movie_file">
+		AVIムービーファイル
+	</string>
+	<string name="xaf_animation_file">
+		XAFアニメーションファイル
+	</string>
+	<string name="xml_file">
+		XMLファイル
+	</string>
+	<string name="dot_raw_file">
+		RAWファイル
+	</string>
+	<string name="compressed_image_files">
+		圧縮画像
+	</string>
+	<string name="load_files">
+		ファイルのロード
+	</string>
+	<string name="choose_the_directory">
+		参照
 	</string>
 </strings>

@@ -17,7 +17,7 @@ gesendet. Mitteilungen können unter
 	</text>
 	<text name="lbl2">
 		Mitteilungen werden 14 Tage lang aufbewahrt. Klicken Sie auf eine Mitteilung,
-um sie anzuzeigen. Klicken Sie auf „Aktualisieren“, um neue Mitteilungen zu suchen.
+um sie anzuzeigen. Klicken Sie „Aktualisieren“, um neue Mitteilungen zu suchen.
 Eine Mitteilungsliste speichert maximal 200 Mitteilungen pro Gruppe täglich.
 	</text>
 	<scroll_list name="notice_list">

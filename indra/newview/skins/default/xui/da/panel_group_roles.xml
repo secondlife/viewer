@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel label="Medlemmer &amp; roller" name="roles_tab">
+	<string name="default_needs_apply_text">
+		Der er ændringer her, der ikke er gemt.
+	</string>
+	<string name="want_apply_text">
+		Vil du gemme disse ændringer?
+	</string>
+	<button label="?" name="help_button" />
+	<panel name="members_header">
+		<text name="static">
+			Medlemmer &amp; roller
+		</text>
+		<text name="static2">
+			Gruppemedlemmer får tildelt roller med rettigheder. Disse indstillinger kan 
+let tilpasses efter ønske, så gruppen kan vokse og blive mere fleksibel.
+		</text>
+	</panel>
+	<panel name="roles_header">
+		<text name="static">
+			Roller
+		</text>
+		<text name="role_properties_modifiable">
+			Vælg en rolle nedenfor.  Du kan ændre dens navn, beskrivelse og medlemstitel.
+		</text>
+		<text name="role_properties_not_modifiable">
+			Vælg rolle forneden for at se dens egenskaber, medlemmer og rettigheder.
+		</text>
+		<text name="role_actions_modifiable">
+			Du kan også tildele rettigheder til rollen.
+		</text>
+		<text name="role_actions_not_modifiable">
+			Du kan se, men ikke ændre, tildelte rettigheder.
+		</text>
+	</panel>
+	<panel name="actions_header">
+		<text name="static">
+			Rettigheder
+		</text>
+		<text name="static2">
+			Du kan se en rettigheds beskrivelse og hvilke roller og medlemmer, 
+der har denne rettighed.
+		</text>
+	</panel>
+	<tab_container name="roles_tab_container">
+		<panel label="Medlemmer" name="members_sub_tab" tool_tip="Medlemmer">
+			<button label="Søg" name="search_button" />
+			<button label="Vis alle" name="show_all_button" />
+			<name_list name="member_list">
+				<column label="Medlemsnavn" name="name" />
+				<column label="Doneret leje" name="donated" />
+				<column label="Sidst på den" name="online" />
+			</name_list>
+			<button label="Inviter ny person ..." name="member_invite" />
+			<button label="Udmeld" name="member_eject" />
+			<string name="help_text">
+				Du kan tilføje eller fjerne roller, der er tildelt medlemmerne.
+Vælg flere medlemmer ved at holde Ctrl-tasten nede og
+klik på deres navne.
+			</string>
+		</panel>
+		<panel label="Roller" name="roles_sub_tab">
+			<button label="Søg" name="search_button" />
+			<button label="Vis alle" name="show_all_button" />
+			<scroll_list name="role_list">
+				<column label="Rollenavn" name="name" />
+				<column label="Titel" name="title" />
+				<column label="Medlemmer" name="members" />
+			</scroll_list>
+			<button label="Opret ny rolle ..." name="role_create" />
+			<button label="Slet rolle" name="role_delete" />
+			<string name="help_text">
+				Roller har en titel og en tilladelsesliste med rettigheder,
+som medlemmerne kan bruge. Medlemmer kan høre til 
+en eller flere roller. En gruppe kan have op til 10 roller,
+inkluderet alle- og ejerroller.
+			</string>
+			<string name="cant_delete_role">
+				&apos;Alle-&apos; og &apos;Ejerroller&apos; er specielle og kan ikke slettes.
+			</string>
+		</panel>
+		<panel label="Rettigheder" name="actions_sub_tab">
+			<button label="Søg" name="search_button" />
+			<button label="Vis alle" name="show_all_button" />
+			<scroll_list name="action_list" tool_tip="Vælg en rettighed for at se flere detaljer">
+				<column label="" name="icon" />
+				<column label="" name="action" />
+			</scroll_list>
+			<string name="help_text">
+				Rettigheder giver medlemmer i roller mulighed for at gøre specifikke
+ting i denne gruppe. Der er en bred vifte af rettigheder.
+			</string>
+		</panel>
+	</tab_container>
+	<panel name="members_footer">
+		<text name="static">
+			Tildelte roller
+		</text>
+		<text name="static2">
+			Tilladte rettigheder
+		</text>
+		<scroll_list name="member_assigned_roles">
+			<column label="" name="checkbox" />
+			<column label="" name="role" />
+		</scroll_list>
+		<scroll_list name="member_allowed_actions"
+		     tool_tip="For detaljer om hver tilladte rettighed, se rettighedsfanebladet.">
+			<column label="" name="icon" />
+			<column label="" name="action" />
+		</scroll_list>
+	</panel>
+	<panel name="roles_footer">
+		<text name="static">
+			Navn
+		</text>
+		<text name="static2">
+			Beskrivelse
+		</text>
+		<line_editor name="role_name">
+			Ansatte
+		</line_editor>
+		<text name="static3">
+			Titel
+		</text>
+		<line_editor name="role_title">
+			(venter)
+		</line_editor>
+		<text_editor name="role_description">
+			(venter)
+		</text_editor>
+		<text name="static4">
+			Tildelte medlemmer
+		</text>
+		<text name="static5"
+		     tool_tip="A list of Abilities the currently selected role can perform.">
+			Tilladte rettigheder
+		</text>
+		<check_box label="Medlemmer er synlige" name="role_visible_in_list"
+		     tool_tip=" Angiver om medlemmer med denne rolle er synlige i fanen &apos;Generelt&apos; for avatarer uden for gruppen." />
+		<scroll_list name="role_allowed_actions"
+		     tool_tip="For detaljer om hver rettighed se under rettigheder fanebladet.">
+			<column label="" name="icon" />
+			<column label="" name="checkbox" />
+			<column label="" name="action" />
+		</scroll_list>
+	</panel>
+	<panel name="actions_footer">
+		<text name="static">
+			Beskrivelse
+		</text>
+		<text_editor name="action_description">
+			Denne rettigheder &apos;Udmeld medlemmer fra denne gruppe&apos;. Kun en ejer kan udmelde en anden ejer.
+		</text_editor>
+		<text name="static2">
+			Roller med rettighed
+		</text>
+		<text name="static3">
+			Medlemmer med rettighed
+		</text>
+	</panel>
+</panel>

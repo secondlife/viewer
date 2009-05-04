@@ -1092,6 +1092,10 @@ LLFloaterIMPanel::LLFloaterIMPanel(
 	mNumUnreadMessages(0),
 	mShowSpeakersOnConnect(TRUE),
 	mAutoConnect(FALSE),
+	mTextIMPossible(TRUE),
+	mProfileButtonEnabled(TRUE),
+	mCallBackEnabled(TRUE),
+	mSpeakers(NULL),
 	mSpeakerPanel(NULL),
 	mFirstKeystrokeTimer(),
 	mLastKeystrokeTimer()

@@ -1174,7 +1174,7 @@ void LLFloaterBuyLandUI::refreshUI()
 		else if (mParcelBillableArea == mParcelActualArea)
 		{
 			LLStringUtil::format_map_t string_args;
-			string_args["[AMOUNT]"] = llformat("%d", mParcelActualArea);
+			string_args["[AMOUNT]"] = llformat("%d ", mParcelActualArea);
 			message += getString("parcel_meters", string_args);
 		}
 		else
@@ -1183,13 +1183,13 @@ void LLFloaterBuyLandUI::refreshUI()
 			if (mParcelBillableArea > mParcelActualArea)
 			{	
 				LLStringUtil::format_map_t string_args;
-				string_args["[AMOUNT]"] = llformat("%d", mParcelBillableArea);
+				string_args["[AMOUNT]"] = llformat("%d ", mParcelBillableArea);
 				message += getString("premium_land", string_args);
 			}
 			else
 			{
 				LLStringUtil::format_map_t string_args;
-				string_args["[AMOUNT]"] = llformat("%d", mParcelBillableArea);
+				string_args["[AMOUNT]"] = llformat("%d ", mParcelBillableArea);
 				message += getString("discounted_land", string_args);
 			}
 		}

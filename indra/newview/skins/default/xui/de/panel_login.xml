@@ -38,7 +38,7 @@
 		Konto erstellen
 	</text>
 	<text name="channel_text">
-		[CHANNEL] [VERSION]
+		[VERSION]
 	</text>
 	<text name="forgot_password_text">
 		Namen oder Kennwort vergessen?
