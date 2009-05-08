@@ -56,7 +56,7 @@
 #endif
 
 #include <boost/bind.hpp>
-#include <boost/signal.hpp>
+#include <boost/signals2.hpp>
 
 #if LL_WINDOWS
 # if (_MSC_VER >= 1300 && _MSC_VER < 1400)
@@ -92,8 +92,8 @@ class LLControlVariable : public LLRefCount, boost::noncopyable
 	friend class LLControlGroup;
 	
 public:
-	typedef boost::signal<bool(LLControlVariable* control, const LLSD&), boost_boolean_combiner> validate_signal_t;
-	typedef boost::signal<void(LLControlVariable* control, const LLSD&)> commit_signal_t;
+	typedef boost::signals2::signal<bool(LLControlVariable* control, const LLSD&), boost_boolean_combiner> validate_signal_t;
+	typedef boost::signals2::signal<void(LLControlVariable* control, const LLSD&)> commit_signal_t;
 
 private:
 	std::string		mName;
@@ -378,7 +378,7 @@ private:
 private:
     T							mCachedValue;
 	eControlType				mType;
-    boost::signals::connection	mConnection;
+    boost::signals2::connection	mConnection;
 };
 
 template <typename T>

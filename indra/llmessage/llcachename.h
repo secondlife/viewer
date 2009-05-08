@@ -34,17 +34,17 @@
 #define LL_LLCACHENAME_H
 
 #include <boost/bind.hpp>
-#include <boost/signals.hpp>
+#include <boost/signals2.hpp>
 
 class LLMessageSystem;
 class LLHost;
 class LLUUID;
 
 
-typedef boost::signal<void (const LLUUID& id,
-							const std::string& first_name,
-							const std::string& last_name,
-							BOOL is_group)> LLCacheNameSignal;
+typedef boost::signals2::signal<void (const LLUUID& id,
+                                      const std::string& first_name,
+                                      const std::string& last_name,
+                                      BOOL is_group)> LLCacheNameSignal;
 typedef LLCacheNameSignal::slot_type LLCacheNameCallback;
 
 // Old callback with user data for compatability
@@ -69,7 +69,7 @@ public:
 	// for simulators, this is the data server
 	void setUpstream(const LLHost& upstream_host);
 
-	boost::signals::connection addObserver(const LLCacheNameCallback& callback);
+	boost::signals2::connection addObserver(const LLCacheNameCallback& callback);
 
 	// janky old format. Remove after a while. Phoenix. 2008-01-30
 	void importFile(LLFILE* fp);
@@ -96,10 +96,10 @@ public:
 	// If the data is currently available, may call the callback immediatly
 	// otherwise, will request the data, and will call the callback when
 	// available.  There is no garuntee the callback will ever be called.
-	boost::signals::connection get(const LLUUID& id, BOOL is_group, const LLCacheNameCallback& callback);
+	boost::signals2::connection get(const LLUUID& id, BOOL is_group, const LLCacheNameCallback& callback);
 	
 	// LEGACY
-	boost::signals::connection get(const LLUUID& id, BOOL is_group, old_callback_t callback, void* user_data);
+	boost::signals2::connection get(const LLUUID& id, BOOL is_group, old_callback_t callback, void* user_data);
 
 	// This method needs to be called from time to time to send out
 	// requests.

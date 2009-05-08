@@ -35,7 +35,7 @@
 #define LL_LLERRORCONTROL_H
 
 #include "llerror.h"
-
+#include "boost/function.hpp"
 #include <string>
 
 class LLFixedBuffer;
@@ -83,16 +83,38 @@ namespace LLError
 		Control functions.
 	*/
 
-	typedef void(*FatalFunction)(const std::string& message);
+	typedef boost::function<void(const std::string&)> FatalFunction;
 	void crashAndLoop(const std::string& message);
-		// Default fatal funtion: access null pointer and loops forever
+		// Default fatal function: access null pointer and loops forever
 
-	void setFatalFunction(FatalFunction);
+	void setFatalFunction(const FatalFunction&);
 		// The fatal function will be called when an message of LEVEL_ERROR
 		// is logged.  Note: supressing a LEVEL_ERROR message from being logged
 		// (by, for example, setting a class level to LEVEL_NONE), will keep
 		// the that message from causing the fatal funciton to be invoked.
-		
+
+    FatalFunction getFatalFunction();
+        // Retrieve the previously-set FatalFunction
+
+    /// temporarily override the FatalFunction for the duration of a
+    /// particular scope, e.g. for unit tests
+    class OverrideFatalFunction
+    {
+    public:
+        OverrideFatalFunction(const FatalFunction& func):
+            mPrev(getFatalFunction())
+        {
+            setFatalFunction(func);
+        }
+        ~OverrideFatalFunction()
+        {
+            setFatalFunction(mPrev);
+        }
+
+    private:
+        FatalFunction mPrev;
+    };
+
 	typedef std::string (*TimeFunction)();
 	std::string utcTime();
 	

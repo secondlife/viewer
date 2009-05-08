@@ -58,6 +58,8 @@
 
 static LLRegisterWidget<LLNetMap> r1("net_map");
 
+using namespace LLOldEvents;
+
 const F32 MAP_SCALE_MIN = 64;
 const F32 MAP_SCALE_MID = 172;
 const F32 MAP_SCALE_MAX = 512;

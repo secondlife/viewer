@@ -763,7 +763,7 @@ public:
 	void setFilterPermMask(PermissionMask filter_perm_mask) { mFilter.setFilterPermissions(filter_perm_mask); }
 	void setAllowMultiSelect(BOOL allow) { mAllowMultiSelect = allow; }
 	
-	typedef boost::signal<void (const std::deque<LLFolderViewItem*>& items, BOOL user_action)> signal_t;	
+	typedef boost::signals2::signal<void (const std::deque<LLFolderViewItem*>& items, BOOL user_action)> signal_t;	
 	void setSelectCallback(const signal_t::slot_type& cb) { mSelectSignal.connect(cb); }
 	
 	LLInventoryFilter* getFilter() { return &mFilter; }

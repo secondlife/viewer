@@ -285,12 +285,12 @@ public:
 	
 	//virtual void draw();
 	
-	boost::signals::connection setClickCallback( const commit_signal_t::slot_type& cb )
+	boost::signals2::connection setClickCallback( const commit_signal_t::slot_type& cb )
 	{
 		return setCommitCallback(cb);
 	}
 	
-	boost::signals::connection setEnableCallback( const enable_signal_t::slot_type& cb )
+	boost::signals2::connection setEnableCallback( const enable_signal_t::slot_type& cb )
 	{
 		return mEnableSignal.connect(cb);
 	}
@@ -335,7 +335,7 @@ public:
 	// called to rebuild the draw label
 	virtual void buildDrawLabel( void );
 	
-	boost::signals::connection setCheckCallback( const enable_signal_t::slot_type& cb )
+	boost::signals2::connection setCheckCallback( const enable_signal_t::slot_type& cb )
 	{
 		return mCheckSignal.connect(cb);
 	}
@@ -823,7 +823,7 @@ private:
 
 // *TODO: Eliminate
 // For backwards compatability only; generally just use boost::bind
-class view_listener_t : public boost::signals::trackable
+class view_listener_t : public boost::signals2::trackable
 {
 public:
 	virtual bool handleEvent(const LLSD& userdata) = 0;

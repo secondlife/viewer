@@ -48,7 +48,7 @@
 #include "llfloater.h"
 #include <map>
 #include <boost/function.hpp>
-#include <boost/signal.hpp>
+#include <boost/signals2.hpp>
 
 class LLUICtrl;
 class LLTextBox;
@@ -63,7 +63,7 @@ public:
 	~LLFloaterGroupPicker();
 	
 	// Note: Don't return connection; use boost::bind + boost::signal::trackable to disconnect slots
-	typedef boost::signal<void (LLUUID id)> signal_t;	
+	typedef boost::signals2::signal<void (LLUUID id)> signal_t;	
 	void setSelectGroupCallback(const signal_t::slot_type& cb) { mGroupSelectSignal.connect(cb); }
 	void setPowersMask(U64 powers_mask);
 	BOOL postBuild();
@@ -87,14 +87,14 @@ protected:
 	static instance_map_t sInstances;
 };
 
-class LLPanelGroups : public LLPanel, public LLSimpleListener
+class LLPanelGroups : public LLPanel, public LLOldEvents::LLSimpleListener
 {
 public:
 	LLPanelGroups();
 	virtual ~LLPanelGroups();
 
 	//LLEventListener
-	/*virtual*/ bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata);
+	/*virtual*/ bool handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
 	
 	// clear the group list, and get a fresh set of info.
 	void reset();

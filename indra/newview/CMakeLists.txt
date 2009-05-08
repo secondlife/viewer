@@ -80,6 +80,7 @@ set(viewer_SOURCE_FILES
     llbox.cpp
     llcallbacklist.cpp
     llcallingcard.cpp
+    llcapabilitylistener.cpp
     llcaphttpsender.cpp
     llchatbar.cpp
     llclassifiedinfo.cpp
@@ -474,6 +475,8 @@ set(viewer_HEADER_FILES
     llbox.h
     llcallbacklist.h
     llcallingcard.h
+    llcapabilitylistener.h
+    llcapabilityprovider.h
     llcaphttpsender.h
     llchatbar.h
     llclassifiedinfo.h
@@ -1385,3 +1388,5 @@ if (INSTALL)
 endif (INSTALL)
 
 ADD_VIEWER_BUILD_TEST(llagentaccess viewer)
+ADD_VIEWER_COMM_BUILD_TEST(llcapabilitylistener viewer 
+  ${CMAKE_CURRENT_SOURCE_DIR}/../llmessage/tests/test_llsdmessage_peer.py)

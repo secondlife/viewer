@@ -460,12 +460,12 @@ void LLMultiSliderCtrl::setPrecision(S32 precision)
 	updateText();
 }
 
-boost::signals::connection LLMultiSliderCtrl::setSliderMouseDownCallback( const commit_signal_t::slot_type& cb )
+boost::signals2::connection LLMultiSliderCtrl::setSliderMouseDownCallback( const commit_signal_t::slot_type& cb )
 {
 	return mMultiSlider->setMouseDownCallback( cb );
 }
 
-boost::signals::connection LLMultiSliderCtrl::setSliderMouseUpCallback( const commit_signal_t::slot_type& cb )
+boost::signals2::connection LLMultiSliderCtrl::setSliderMouseUpCallback( const commit_signal_t::slot_type& cb )
 {
 	return mMultiSlider->setMouseUpCallback( cb );
 }

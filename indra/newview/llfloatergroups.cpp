@@ -59,6 +59,8 @@
 #include "llimview.h"
 #include "lltrans.h"
 
+using namespace LLOldEvents;
+
 // static
 std::map<const LLUUID, LLFloaterGroupPicker*> LLFloaterGroupPicker::sInstances;
 

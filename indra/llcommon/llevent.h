@@ -38,6 +38,9 @@
 #include "llpointer.h"
 #include "llthread.h"
 
+namespace LLOldEvents
+{
+
 class LLEventListener;
 class LLEvent;
 class LLEventDispatcher;
@@ -193,5 +196,7 @@ public:
 	LLSD getValue() { return mValue; }
 	LLSD mValue;
 };
+
+} // LLOldEvents
 
 #endif // LL_EVENT_H

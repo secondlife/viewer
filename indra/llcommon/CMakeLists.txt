@@ -3,6 +3,7 @@
 project(llcommon)
 
 include(00-Common)
+include(LLAddBuildTest)
 include(LLCommon)
 include(Boost)
 
@@ -28,9 +29,11 @@ set(llcommon_SOURCE_FILES
     llcriticaldamp.cpp
     llcursortypes.cpp
     lldate.cpp
+    lldependencies.cpp
     llerror.cpp
     llerrorthread.cpp
     llevent.cpp
+    llevents.cpp
     llfasttimer.cpp
     llfile.cpp
     llfindlocale.cpp
@@ -103,6 +106,7 @@ set(llcommon_HEADER_FILES
     lldarrayptr.h
     lldate.h
     lldefs.h
+    lldependencies.h
     lldepthstack.h
     lldlinked.h
     lldoubledispatch.h
@@ -114,6 +118,7 @@ set(llcommon_HEADER_FILES
     llerrorlegacy.h
     llerrorthread.h
     llevent.h
+    llevents.h
     lleventemitter.h
     llextendedstatus.h
     llfasttimer.h
@@ -129,6 +134,7 @@ set(llcommon_HEADER_FILES
     llindraconfigfile.h
     llinstancetracker.h
     llkeythrottle.h
+    lllazy.h
     lllinkedqueue.h
     llliveappconfig.h
     lllivefile.h
@@ -194,6 +200,7 @@ set(llcommon_HEADER_FILES
     stdenums.h
     stdtypes.h
     string_table.h
+    stringize.h
     timer.h
     timing.h
     u64.h
@@ -214,3 +221,5 @@ target_link_libraries(
     ${BOOST_PROGRAM_OPTIONS_LIBRARY}
     ${BOOST_REGEX_LIBRARY}
     )
+
+ADD_BUILD_TEST(lllazy llcommon)

@@ -71,6 +71,8 @@
 // system libraries
 #include <boost/tokenizer.hpp>
 
+using namespace LLOldEvents;
+
 class LLFileEnableSaveAs : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)

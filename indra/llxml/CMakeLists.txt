@@ -42,6 +42,5 @@ add_library (llxml ${llxml_SOURCE_FILES})
 target_link_libraries( llxml
     llvfs
     llmath
-    ${BOOST_SIGNALS_LIBRARY}
     ${EXPAT_LIBRARIES}
     )

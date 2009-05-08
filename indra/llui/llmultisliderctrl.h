@@ -115,8 +115,8 @@ public:
 	void			setLabelColor(const LLColor4& c)			{ mTextEnabledColor = c; }
 	void			setDisabledLabelColor(const LLColor4& c)	{ mTextDisabledColor = c; }
 
-	boost::signals::connection setSliderMouseDownCallback( const commit_signal_t::slot_type& cb );
-	boost::signals::connection setSliderMouseUpCallback( const commit_signal_t::slot_type& cb );
+	boost::signals2::connection setSliderMouseDownCallback( const commit_signal_t::slot_type& cb );
+	boost::signals2::connection setSliderMouseUpCallback( const commit_signal_t::slot_type& cb );
 
 	virtual void	onTabInto();
 

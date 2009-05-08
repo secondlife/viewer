@@ -45,7 +45,7 @@
 #include "lluiimage.h"		// *TODO: break this dependency, need to add #include "lluiimage.h" to all widgets that hold an Optional<LLUIImage*> in their paramblocks
 #include "llinitparam.h"
 #include "llregistry.h"
-#include <boost/signal.hpp>
+#include <boost/signals2.hpp>
 #include "lllazyvalue.h"
 
 // LLUIFactory
@@ -576,7 +576,7 @@ public:
 class LLCallbackRegistry
 {
 public:
-	typedef boost::signal<void()> callback_signal_t;
+	typedef boost::signals2::signal<void()> callback_signal_t;
 	
 	void registerCallback(const callback_signal_t::slot_type& slot)
 	{

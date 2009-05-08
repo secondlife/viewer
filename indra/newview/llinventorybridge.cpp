@@ -89,6 +89,8 @@
 #include "llfloateropenobject.h"
 #include "lltrans.h"
 
+using namespace LLOldEvents;
+
 // Helpers
 // bug in busy count inc/dec right now, logic is complex... do we really need it?
 void inc_busy_count()

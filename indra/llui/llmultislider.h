@@ -78,8 +78,8 @@ public:
 	/*virtual*/ void	setValue(const LLSD& value);
 	/*virtual*/ LLSD	getValue() const		{ return mValue; }
 
-	boost::signals::connection setMouseDownCallback( const commit_signal_t::slot_type& cb ) { return mMouseDownSignal.connect(cb); }
-	boost::signals::connection setMouseUpCallback(	const commit_signal_t::slot_type& cb )   { return mMouseUpSignal.connect(cb); }
+	boost::signals2::connection setMouseDownCallback( const commit_signal_t::slot_type& cb ) { return mMouseDownSignal.connect(cb); }
+	boost::signals2::connection setMouseUpCallback(	const commit_signal_t::slot_type& cb )   { return mMouseUpSignal.connect(cb); }
 
 	bool			findUnusedValue(F32& initVal);
 	const std::string&	addSlider();

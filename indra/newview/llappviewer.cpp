@@ -96,6 +96,7 @@
 #include "lltexturecache.h"
 #include "lltexturefetch.h"
 #include "llimageworker.h"
+#include "llevents.h"
 
 // The files below handle dependencies from cleanup.
 #include "llkeyframemotion.h"
@@ -841,7 +842,14 @@ bool LLAppViewer::mainLoop()
 	LLTimer debugTime;
 	LLViewerJoystick* joystick(LLViewerJoystick::getInstance());
 	joystick->setNeedsReset(true);
- 	
+
+    LLEventPump& mainloop(LLEventPumps::instance().obtain("mainloop"));
+    // As we do not (yet) send data on the mainloop LLEventPump that varies
+    // with each frame, no need to instantiate a new LLSD event object each
+    // time. Obviously, if that changes, just instantiate the LLSD at the
+    // point of posting.
+    LLSD newFrame;
+
 	// Handle messages
 	while (!LLApp::isExiting())
 	{
@@ -883,6 +891,9 @@ bool LLAppViewer::mainLoop()
 			{
 				LLFloaterMemLeak::getInstance()->idle() ;				
 			}			
+
+            // canonical per-frame event
+            mainloop.post(newFrame);
 
 			if (!LLApp::isExiting())
 			{

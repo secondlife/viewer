@@ -96,7 +96,7 @@ public:
 	{
 	}
 	
-	boost::signals::connection setCallback(const LLCacheNameCallback& cb)
+	boost::signals2::connection setCallback(const LLCacheNameCallback& cb)
 	{
 		return mSignal.connect(cb);
 	}
@@ -215,7 +215,7 @@ public:
 	Impl(LLMessageSystem* msg);
 	~Impl();
 	
-	boost::signals::connection addPending(const LLUUID& id, const LLCacheNameCallback& callback);
+	boost::signals2::connection addPending(const LLUUID& id, const LLCacheNameCallback& callback);
 	void addPending(const LLUUID& id, const LLHost& host);
 	
 	void processPendingAsks();
@@ -276,10 +276,10 @@ LLCacheName::Impl::~Impl()
 	for_each(mReplyQueue.begin(), mReplyQueue.end(), DeletePointer());
 }
 
-boost::signals::connection LLCacheName::Impl::addPending(const LLUUID& id, const LLCacheNameCallback& callback)
+boost::signals2::connection LLCacheName::Impl::addPending(const LLUUID& id, const LLCacheNameCallback& callback)
 {
 	PendingReply* reply = new PendingReply(id, LLHost());
-	boost::signals::connection res = reply->setCallback(callback);
+	boost::signals2::connection res = reply->setCallback(callback);
 	mReplyQueue.push_back(reply);
 	return res;
 }
@@ -295,7 +295,7 @@ void LLCacheName::setUpstream(const LLHost& upstream_host)
 	impl.mUpstreamHost = upstream_host;
 }
 
-boost::signals::connection LLCacheName::addObserver(const LLCacheNameCallback& callback)
+boost::signals2::connection LLCacheName::addObserver(const LLCacheNameCallback& callback)
 {
 	return impl.mSignal.connect(callback);
 }
@@ -554,9 +554,9 @@ BOOL LLCacheName::getGroupName(const LLUUID& id, std::string& group)
 //  we call it immediately. -Steve
 // NOTE: Even though passing first and last name is a bit of extra overhead, it eliminates the
 //  potential need for any parsing should any code need to handle first and last name independently.
-boost::signals::connection LLCacheName::get(const LLUUID& id, BOOL is_group, const LLCacheNameCallback& callback)
+boost::signals2::connection LLCacheName::get(const LLUUID& id, BOOL is_group, const LLCacheNameCallback& callback)
 {
-	boost::signals::connection res;
+	boost::signals2::connection res;
 	
 	if(id.isNull())
 	{
@@ -600,7 +600,7 @@ boost::signals::connection LLCacheName::get(const LLUUID& id, BOOL is_group, con
 	return res;
 }
 
-boost::signals::connection LLCacheName::get(const LLUUID& id, BOOL is_group, old_callback_t callback, void* user_data)
+boost::signals2::connection LLCacheName::get(const LLUUID& id, BOOL is_group, old_callback_t callback, void* user_data)
 {
 	return get(id, is_group, boost::bind(callback, _1, _2, _3, _4, user_data));
 }

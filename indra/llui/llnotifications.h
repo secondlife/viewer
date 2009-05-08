@@ -91,49 +91,20 @@
 
 #include <boost/utility.hpp>
 #include <boost/shared_ptr.hpp>
-#include <boost/signal.hpp>
+#include <boost/enable_shared_from_this.hpp>
 #include <boost/type_traits.hpp>
 
 // we want to minimize external dependencies, but this one is important
 #include "llsd.h"
 
 // and we need this to manage the notification callbacks
+#include "llevents.h"
 #include "llfunctorregistry.h"
 #include "llui.h"
 #include "llmemory.h"
 
 class LLNotification;
 typedef boost::shared_ptr<LLNotification> LLNotificationPtr;
-
-/*****************************************************************************
-*   Signal and handler declarations
-*   Using a single handler signature means that we can have a common handler
-*   type, rather than needing a distinct one for each different handler.
-*****************************************************************************/
-
-/**
- * A boost::signals Combiner that stops the first time a handler returns true
- * We need this because we want to have our handlers return bool, so that
- * we have the option to cause a handler to stop further processing. The
- * default handler fails when the signal returns a value but has no slots.
- */
-struct LLStopWhenHandled
-{
-    typedef bool result_type;
-
-    template<typename InputIterator>
-    result_type operator()(InputIterator first, InputIterator last) const
-    {
-        for (InputIterator si = first; si != last; ++si)
-		{
-            if (*si)
-			{
-                return true;
-			}
-		}
-        return false;
-    }
-};
 
 	
 typedef enum e_notification_priority
@@ -145,26 +116,10 @@ typedef enum e_notification_priority
 	NOTIFICATION_PRIORITY_CRITICAL
 } ENotificationPriority;
 
-/**
- * We want to have a standard signature for all signals; this way,
- * we can easily document a protocol for communicating across
- * dlls and into scripting languages someday.
- * we want to return a bool to indicate whether the signal has been
- * handled and should NOT be passed on to other listeners.
- * Return true to stop further handling of the signal, and false
- * to continue.
- * We take an LLSD because this way the contents of the signal
- * are independent of the API used to communicate it.
- * It is const ref because then there's low cost to pass it;
- * if you only need to inspect it, it's very cheap.
- */
-
 typedef boost::function<void (const LLSD&, const LLSD&)> LLNotificationResponder;
 
 typedef LLFunctorRegistry<LLNotificationResponder> LLNotificationFunctorRegistry;
 typedef LLFunctorRegistration<LLNotificationResponder> LLNotificationFunctorRegistration;
-
-typedef boost::signal<bool(const LLSD&), LLStopWhenHandled>  LLStandardSignal;
 
 // context data that can be looked up via a notification's payload by the display logic
 // derive from this class to implement specific contexts
@@ -713,7 +668,7 @@ typedef std::multimap<std::string, LLNotificationPtr> LLNotificationMap;
 // all of the built-in tests should attach to the "Visible" channel
 //
 class LLNotificationChannelBase :
-	public boost::signals::trackable
+	public LLEventTrackable
 {
 	LOG_CLASS(LLNotificationChannelBase);
 public:
@@ -723,15 +678,45 @@ public:
 	virtual ~LLNotificationChannelBase() {}
 	// you can also connect to a Channel, so you can be notified of
 	// changes to this channel
-	virtual void connectChanged(const LLStandardSignal::slot_type& slot);
-	virtual void connectPassedFilter(const LLStandardSignal::slot_type& slot);
-	virtual void connectFailedFilter(const LLStandardSignal::slot_type& slot);
+	template <typename LISTENER>
+    LLBoundListener connectChanged(const LISTENER& slot)
+    {
+        // Examine slot to see if it binds an LLEventTrackable subclass, or a
+        // boost::shared_ptr to something, or a boost::weak_ptr to something.
+        // Call this->connectChangedImpl() to actually connect it.
+        return LLEventDetail::visit_and_connect(slot,
+                                  boost::bind(&LLNotificationChannelBase::connectChangedImpl,
+                                              this,
+                                              _1));
+    }
+    template <typename LISTENER>
+	LLBoundListener connectPassedFilter(const LISTENER& slot)
+    {
+        // see comments in connectChanged()
+        return LLEventDetail::visit_and_connect(slot,
+                                  boost::bind(&LLNotificationChannelBase::connectPassedFilterImpl,
+                                              this,
+                                              _1));
+    }
+    template <typename LISTENER>
+	LLBoundListener connectFailedFilter(const LISTENER& slot)
+    {
+        // see comments in connectChanged()
+        return LLEventDetail::visit_and_connect(slot,
+                                  boost::bind(&LLNotificationChannelBase::connectFailedFilterImpl,
+                                              this,
+                                              _1));
+    }
 
 	// use this when items change or to add a new one
 	bool updateItem(const LLSD& payload);
 	const LLNotificationFilter& getFilter() { return mFilter; }
 
 protected:
+    LLBoundListener connectChangedImpl(const LLEventListener& slot);
+    LLBoundListener connectPassedFilterImpl(const LLEventListener& slot);
+    LLBoundListener connectFailedFilterImpl(const LLEventListener& slot);
+
 	LLNotificationSet mItems;
 	LLStandardSignal mChanged;
 	LLStandardSignal mPassedFilter;

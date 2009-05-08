@@ -13,6 +13,7 @@ include(LLXML)
 include(LScript)
 include(Linking)
 include(Tut)
+include(Boost)
 
 include_directories(
     ${LLCOMMON_INCLUDE_DIRS}
@@ -35,7 +36,9 @@ set(test_SOURCE_FILES
     llbuffer_tut.cpp
     lldate_tut.cpp
     lldoubledispatch_tut.cpp
+    lldependencies_tut.cpp
     llerror_tut.cpp
+    llevents_tut.cpp
     llhost_tut.cpp
     llhttpdate_tut.cpp
     llhttpclient_tut.cpp
@@ -73,6 +76,7 @@ set(test_SOURCE_FILES
     math.cpp
     message_tut.cpp
     reflection_tut.cpp
+    stringize_tut.cpp
     test.cpp
     v2math_tut.cpp
     v3color_tut.cpp

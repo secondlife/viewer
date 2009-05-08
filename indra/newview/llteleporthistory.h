@@ -38,7 +38,7 @@
 #include <vector>
 #include <string>
 #include <boost/function.hpp>
-#include <boost/signals/connection.hpp>
+#include <boost/signals2/connection.hpp>
 
 
 /**
@@ -206,7 +206,7 @@ private:
 	 * Using this connection we get notified when a teleport finishes
 	 * or initial location update occurs.
 	 */
-	boost::signals::connection	mTeleportFinishedConn;
+	boost::signals2::connection	mTeleportFinishedConn;
 };
 
 #endif

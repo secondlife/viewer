@@ -119,7 +119,7 @@ inline bool operator==(const LLGroupData &a, const LLGroupData &b)
 
 //
 
-class LLAgent : public LLObservable
+class LLAgent : public LLOldEvents::LLObservable
 {
 	LOG_CLASS(LLAgent);
 	
@@ -176,7 +176,7 @@ public:
 	// Set the home data
 	void			setRegion(LLViewerRegion *regionp);
 	LLViewerRegion	*getRegion() const;
-	const LLHost&	getRegionHost() const;
+	LLHost			getRegionHost() const;
 	std::string		getSLURL() const;
 	
 	void			updateAgentPosition(const F32 dt, const F32 yaw, const S32 mouse_x, const S32 mouse_y);		// call once per frame to update position, angles radians

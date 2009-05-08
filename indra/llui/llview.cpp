@@ -56,6 +56,8 @@
 #include "lltexteditor.h"
 #include "lltextbox.h"
 
+using namespace LLOldEvents;
+
 BOOL	LLView::sDebugRects = FALSE;
 BOOL	LLView::sDebugKeys = FALSE;
 S32		LLView::sDepth = 0;

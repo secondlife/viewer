@@ -1,4 +1,4 @@
- /** 
+/** 
  * @file llviewermenu.cpp
  * @brief Builds menus out of items.
  *
@@ -210,6 +210,7 @@
 #include "lltexlayer.h"
 
 using namespace LLVOAvatarDefines;
+using namespace LLOldEvents;
 
 BOOL enable_land_build(void*);
 BOOL enable_object_build(void*);

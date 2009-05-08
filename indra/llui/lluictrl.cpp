@@ -749,11 +749,11 @@ LLUICtrl* LLUICtrl::getParentUICtrl() const
 }
 
 // *TODO: Deprecate; for backwards compatability only:
-boost::signals::connection LLUICtrl::setCommitCallback( boost::function<void (LLUICtrl*,void*)> cb, void* data)
+boost::signals2::connection LLUICtrl::setCommitCallback( boost::function<void (LLUICtrl*,void*)> cb, void* data)
 {
 	return setCommitCallback( boost::bind(cb, _1, data));
 }
-boost::signals::connection LLUICtrl::setValidateBeforeCommit( boost::function<bool (const LLSD& data)> cb )
+boost::signals2::connection LLUICtrl::setValidateBeforeCommit( boost::function<bool (const LLSD& data)> cb )
 {
 	return mValidateSignal.connect(boost::bind(cb, _2));
 }

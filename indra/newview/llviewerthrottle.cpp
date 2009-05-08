@@ -40,6 +40,8 @@
 #include "llviewerstats.h"
 #include "lldatapacker.h"
 
+using namespace LLOldEvents;
+
 // consts
 
 // The viewer is allowed to set the under-the-hood bandwidth to 50%
