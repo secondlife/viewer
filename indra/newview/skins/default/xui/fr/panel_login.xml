@@ -16,18 +16,10 @@
 		Lieu de départ :
 	</text>
 	<combo_box name="start_location_combo">
-		<combo_box.item name="MyHome">
-			Domicile
-		</combo_box.item>
-		<combo_box.item name="MyLastLocation">
-			Dernier emplacement
-		</combo_box.item>
-		<combo_box.item name="&lt;Typeregionname&gt;">
-			&lt;Choisir région&gt;
-		</combo_box.item>
-		<combo_box.item name="Typeregionname">
-			&lt;Nom de la région&gt;
-		</combo_box.item>
+		<combo_box.item name="MyHome" label="Domicile" />
+		<combo_box.item name="MyLastLocation" label="Dernier emplacement" />
+		<combo_box.item name="&lt;Typeregionname&gt;" label="lt;Choisir région&gt;" />
+		<combo_box.item name="Typeregionname" label="lt;Nom de la région&gt;" />
 	</combo_box>
 	<check_box label="Mémoriser" name="remember_check"/>
 	<text name="full_screen_text">

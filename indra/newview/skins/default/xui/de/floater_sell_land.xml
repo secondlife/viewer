@@ -44,15 +44,9 @@ dieser Parzelle:
 beschränkt ist.
 	</text>
 	<combo_box follows="top|right" height="16" left="72" name="sell_to" bottom_delta="-32" width="140">
-		<combo_box.item name="--selectone--">
-			-- select one --
-		</combo_box.item>
-		<combo_box.item name="Anyone">
-			Jeder
-		</combo_box.item>
-		<combo_box.item name="Specificuser:">
-			Bestimmter Benutzer:
-		</combo_box.item>
+		<combo_box.item name="--selectone--" label="select one --" />
+		<combo_box.item name="Anyone" label="Jeder" />
+		<combo_box.item name="Specificuser:" label="Bestimmter Benutzer:" />
 	</combo_box>
 	<button label="Auswählen..." name="sell_to_select_agent" />
 	<text name="sell_objects_label">

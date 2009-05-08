@@ -34,15 +34,9 @@
 		Scegli se vendere a tutti o ad un compratore in particolare.
 	</text>
 	<combo_box name="sell_to">
-		<combo_item name="--selectone--">
-			-- selezionane uno --
-		</combo_item>
-		<combo_item name="Anyone">
-			Chiunque
-		</combo_item>
-		<combo_item name="Specificuser:">
-			Utente specifico:
-		</combo_item>
+		<combo_box.item name="--selectone--" label="selezionane uno --"/>
+		<combo_box.item name="Anyone" label="Chiunque"/>
+		<combo_box.item name="Specificuser:" label="Utente specifico:"/>
 	</combo_box>
 	<button label="Seleziona..." name="sell_to_select_agent"/>
 	<text name="sell_objects_label">

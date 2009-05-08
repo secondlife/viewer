@@ -66,15 +66,9 @@
 		Tylko członkowie z kontem Premium mogą mieć Posiadłosci.
 	</text>
 	<combo_box name="account_level">
-		<combo_box.item name="US$9.95/month,billedmonthly">
-			9.95US$/miesiąc, płatne miesięcznie
-		</combo_box.item>
-		<combo_box.item name="US$7.50/month,billedquarterly">
-			7.50US$/miesiąc, płatne kwartalnie
-		</combo_box.item>
-		<combo_box.item name="US$6.00/month,billedannually">
-			6.00US$/miesiąc, płatne rocznie
-		</combo_box.item>
+		<combo_box.item name="US$9.95/month,billedmonthly" label="9.95US$/miesiąc, płatne miesięcznie" />
+		<combo_box.item name="US$7.50/month,billedquarterly" label="7.50US$/miesiąc, płatne kwartalnie" />
+		<combo_box.item name="US$6.00/month,billedannually" label="6.00US$/miesiąc, płatne rocznie" />
 	</combo_box>
 	<text name="land_use_action">
 		Zwiększ opłatę za używanie Posiadłości do 40US$/miesiąc.

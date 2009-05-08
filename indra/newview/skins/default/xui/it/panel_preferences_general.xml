@@ -10,15 +10,9 @@
 	</radio_group>
 	<check_box label="Mostra il posto di partenza sulla schermata d&apos;inizio" name="show_location_checkbox"/>
 	<combo_box name="fade_out_combobox" width="166">
-		<combo_item name="Never">
-			Mai
-		</combo_item>
-		<combo_item name="Show Temporarily">
-			Mostra temporanemente
-		</combo_item>
-		<combo_item name="Always">
-			Sempre
-		</combo_item>
+		<combo_box.item name="Never" label="Mai"/>
+		<combo_box.item name="Show Temporarily" label="Mostra temporanemente"/>
+		<combo_box.item name="Always" label="Sempre"/>
 	</combo_box>
 	<check_box label="Nomi avatar in piccolo" name="small_avatar_names_checkbox"/>
 	<check_box label="Nascondi il mio nome sul mio schermo" name="show_my_name_checkbox"/>
@@ -62,53 +56,23 @@
 		&lt;Scrivi il nome della regione&gt;
 	</string>
 	<combo_box name="crash_behavior_combobox" width="166">
-		<combo_item name="Askbeforesending">
-			Chiedi prima di inviare
-		</combo_item>
-		<combo_item name="Alwayssend">
-			Invia sempre
-		</combo_item>
-		<combo_item name="Neversend">
-			Non inviare mai
-		</combo_item>
+		<combo_box.item name="Askbeforesending" label="Chiedi prima di inviare"/>
+		<combo_box.item name="Alwayssend" label="Invia sempre"/>
+		<combo_box.item name="Neversend" label="Non inviare mai"/>
 	</combo_box>
 	<combo_box name="language_combobox" width="166">
-		<combo_item name="System Default Language">
-			Default di sistema
-		</combo_item>
-		<combo_item name="English">
-			English
-		</combo_item>
-		<combo_item name="Danish">
-			Dansk (Danese) - Beta
-		</combo_item>
-		<combo_item name="Deutsch(German)">
-			Deutsch (Tedesco) - Beta
-		</combo_item>
-		<combo_item name="Spanish">
-			Español (Spagnolo) - Beta
-		</combo_item>
-		<combo_item name="French">
-			Français (Francese) - Beta
-		</combo_item>
-		<combo_item name="Hungarian">
-			Magyar (Ungherese) - Beta
-		</combo_item>
-		<combo_item name="Polish">
-			Polski (Polacco) - Beta
-		</combo_item>
-		<combo_item name="Portugese">
-			Portugués (Portoghese) - Beta
-		</combo_item>
-		<combo_item name="Chinese">
-			中文 (简体) (Cinese) - Beta
-		</combo_item>
-		<combo_item name="(Japanese)">
-			日本語 (Giapponese) - Beta
-		</combo_item>
-		<combo_item name="(Korean)">
-			한국어 (Coreano) - Beta
-		</combo_item>
+		<combo_box.item name="System Default Language" label="Default di sistema"/>
+		<combo_box.item name="English" label="English"/>
+		<combo_box.item name="Danish" label="Dansk (Danese) - Beta"/>
+		<combo_box.item name="Deutsch(German)" label="Deutsch (Tedesco) - Beta"/>
+		<combo_box.item name="Spanish" label="Español (Spagnolo) - Beta"/>
+		<combo_box.item name="French" label="Français (Francese) - Beta"/>
+		<combo_box.item name="Hungarian" label="Magyar (Ungherese) - Beta"/>
+		<combo_box.item name="Polish" label="Polski (Polacco) - Beta"/>
+		<combo_box.item name="Portugese" label="Portugués (Portoghese) - Beta"/>
+		<combo_box.item name="Chinese" label="中文 (简体) (Cinese) - Beta"/>
+		<combo_box.item name="(Japanese)" label="日本語 (Giapponese) - Beta"/>
+		<combo_box.item name="(Korean)" label="한국어 (Coreano) - Beta"/>
 	</combo_box>
 	<check_box label="Condividi la tua lingua con gli oggetti" name="language_is_public" tool_tip="Questo fa in modo che gli oggetti inworld riconoscano la tua lingua."/>
 </panel>

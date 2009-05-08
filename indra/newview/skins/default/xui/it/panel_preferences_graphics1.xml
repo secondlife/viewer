@@ -9,21 +9,11 @@
 		Dimensione della finestra:
 	</text>
 	<combo_box name="windowsize combo">
-		<combo_item name="640x480">
-			640x480
-		</combo_item>
-		<combo_item name="800x600">
-			800x600
-		</combo_item>
-		<combo_item name="720x480">
-			720x480 (NTSC)
-		</combo_item>
-		<combo_item name="768x576">
-			768x576 (PAL)
-		</combo_item>
-		<combo_item name="1024x768">
-			1024x768
-		</combo_item>
+		<combo_box.item name="640x480" label="640x480"/>
+		<combo_box.item name="800x600" label="800x600"/>
+		<combo_box.item name="720x480" label="720x480 (NTSC)"/>
+		<combo_box.item name="768x576" label="768x576 (PAL)"/>
+		<combo_box.item name="1024x768" label="1024x768"/>
 	</combo_box>
 	<text name="DisplayResLabel">
 		Risoluzione del monitor:
@@ -32,18 +22,10 @@
 		Rapporto di visualizzazione:
 	</text>
 	<combo_box name="aspect_ratio" tool_tip="larghezza/altezza">
-		<combo_item name="4:3(StandardCRT)">
-			4:3 (Monitor Standard)
-		</combo_item>
-		<combo_item name="5:4(1280x1024LCD)">
-			5:4 (1280x1024 LCD)
-		</combo_item>
-		<combo_item name="8:5(Widescreen)">
-			8:5 (Widescreen)
-		</combo_item>
-		<combo_item name="16:9(Widescreen)">
-			16:9 (Widescreen)
-		</combo_item>
+		<combo_box.item name="4:3(StandardCRT)" label="4:3 (Monitor Standard)"/>
+		<combo_box.item name="5:4(1280x1024LCD)" label="5:4 (1280x1024 LCD)"/>
+		<combo_box.item name="8:5(Widescreen)" label="8:5 (Widescreen)"/>
+		<combo_box.item name="16:9(Widescreen)" label="16:9 (Widescreen)"/>
 	</combo_box>
 	<check_box label="Autoconfigurazione" name="aspect_auto_detect"/>
 	<text name="HigherText">

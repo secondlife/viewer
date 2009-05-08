@@ -34,14 +34,10 @@
 	</text>
 
 	<combo_box label="Amigos Conectados" name="friend combo" tool_tip="Amigos para mostrar no Mapa">
-		<combo_box.item name="none_selected">
-			Amigos Conectados
-		</combo_box.item>
+		<combo_box.item name="none_selected" label="Amigos Conectados" />
 	</combo_box>
 	<combo_box label="Landmarks" name="landmark combo" tool_tip="Landmark para mostrar no Mapa">
-		<combo_box.item name="none_selected">
-			Landmarks
-		</combo_box.item>
+		<combo_box.item name="none_selected" label="Landmarks" />
 	</combo_box>
 	<line_editor label="Procurar por nome de região" name="location" tool_tip="Digite o nome de uma Região"/>
 	<button label="Procurar" name="DoSearch" tool_tip="Procurar por região"/>

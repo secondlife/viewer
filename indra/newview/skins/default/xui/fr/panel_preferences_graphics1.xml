@@ -8,21 +8,11 @@
 		Taille de la fenêtre :
 	</text>
 	<combo_box name="windowsize combo">
-		<combo_box.item name="640x480">
-			640 x 480
-		</combo_box.item>
-		<combo_box.item name="800x600">
-			800 x 600
-		</combo_box.item>
-		<combo_box.item name="720x480">
-			720 x 480 (NTSC)
-		</combo_box.item>
-		<combo_box.item name="768x576">
-			768 x 576 (PAL)
-		</combo_box.item>
-		<combo_box.item name="1024x768">
-			1024 x 768
-		</combo_box.item>
+		<combo_box.item name="640x480" label="640 x 480" />
+		<combo_box.item name="800x600" label="800 x 600" />
+		<combo_box.item name="720x480" label="720 x 480 (NTSC)" />
+		<combo_box.item name="768x576" label="768 x 576 (PAL)" />
+		<combo_box.item name="1024x768" label="1024 x 768" />
 	</combo_box>
 	<text name="DisplayResLabel" width="165">
 		Résolution de l&apos;affichage :
@@ -31,18 +21,10 @@
 		Rapport hauteur/largeur :
 	</text>
 	<combo_box name="aspect_ratio" tool_tip="largeur/hauteur">
-		<combo_box.item length="1" name="4:3(StandardCRT)" type="string">
-			4:3 (Standard CRT)
-		</combo_box.item>
-		<combo_box.item length="1" name="5:4(1280x1024LCD)" type="string">
-			5:4 (1280 x 1024 LCD)
-		</combo_box.item>
-		<combo_box.item name="8:5(Widescreen)">
-			8:5 (écran large)
-		</combo_box.item>
-		<combo_box.item length="1" name="16:9(Widescreen)" type="string">
-			16:9 (plein écran)
-		</combo_box.item>
+		<combo_box.item length="1" name="4:3(StandardCRT)" type="string" label="4:3 (Standard CRT)" />
+		<combo_box.item length="1" name="5:4(1280x1024LCD)" type="string" label="5:4 (1280 x 1024 LCD)" />
+		<combo_box.item name="8:5(Widescreen)" label="8:5 (écran large)" />
+		<combo_box.item length="1" name="16:9(Widescreen)" type="string" label="16:9 (plein écran)" />
 	</combo_box>
 	<text length="1" name="text" type="string">
 		Résolution d&apos;affichage :

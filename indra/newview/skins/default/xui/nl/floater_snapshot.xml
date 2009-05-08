@@ -34,75 +34,33 @@
 		Formaat
 	</text>
 	<combo_box label="Resolutie" name="postcard_size_combo">
-		<combo_item name="CurrentWindow">
-			Huidig venster
-		</combo_item>
-		<combo_item name="640x480">
-			640x480
-		</combo_item>
-		<combo_item name="800x600">
-			800x600
-		</combo_item>
-		<combo_item name="1024x768">
-			1024x768
-		</combo_item>
-		<combo_item name="Custom">
-			Aangepast
-		</combo_item>
+		<combo_box.item name="CurrentWindow" label="Huidig venster"/>
+		<combo_box.item name="640x480" label="640x480"/>
+		<combo_box.item name="800x600" label="800x600"/>
+		<combo_box.item name="1024x768" label="1024x768"/>
+		<combo_box.item name="Custom" label="Aangepast"/>
 	</combo_box>
 	<combo_box label="Resolutie" name="texture_size_combo">
-		<combo_item name="CurrentWindow">
-			Huidig venster
-		</combo_item>
-		<combo_item name="Small(128x128)">
-			Klein (128x128)
-		</combo_item>
-		<combo_item name="Medium(256x256)">
-			Middel (256x256)
-		</combo_item>
-		<combo_item name="Large(512x512)">
-			Groot (512x512)
-		</combo_item>
-		<combo_item name="Custom">
-			Aangepast
-		</combo_item>
+		<combo_box.item name="CurrentWindow" label="Huidig venster"/>
+		<combo_box.item name="Small(128x128)" label="Klein (128x128)"/>
+		<combo_box.item name="Medium(256x256)" label="Middel (256x256)"/>
+		<combo_box.item name="Large(512x512)" label="Groot (512x512)"/>
+		<combo_box.item name="Custom" label="Aangepast"/>
 	</combo_box>
 	<combo_box label="Resolutie" name="local_size_combo">
-		<combo_item name="CurrentWindow">
-			Huidig venster
-		</combo_item>
-		<combo_item name="320x240">
-			320x240
-		</combo_item>
-		<combo_item name="640x480">
-			640x480
-		</combo_item>
-		<combo_item name="800x600">
-			800x600
-		</combo_item>
-		<combo_item name="1024x768">
-			1024x768
-		</combo_item>
-		<combo_item name="1280x1024">
-			1280x1024
-		</combo_item>
-		<combo_item name="1600x1200">
-			1600x1200
-		</combo_item>
-		<combo_item name="Custom">
-			Aangepast
-		</combo_item>
+		<combo_box.item name="CurrentWindow" label="Huidig venster"/>
+		<combo_box.item name="320x240" label="320x240"/>
+		<combo_box.item name="640x480" label="640x480"/>
+		<combo_box.item name="800x600" label="800x600"/>
+		<combo_box.item name="1024x768" label="1024x768"/>
+		<combo_box.item name="1280x1024" label="1280x1024"/>
+		<combo_box.item name="1600x1200" label="1600x1200"/>
+		<combo_box.item name="Custom" label="Aangepast"/>
 	</combo_box>
 	<combo_box label="Formaat" name="local_format_combo">
-		<combo_item name="PNG">
-			PNG
-		</combo_item>
-		<combo_item name="JPEG">
-			JPEG
-		</combo_item>
-		<combo_item name="BMP">
-			BMP
-		</combo_item>
+		<combo_box.item name="PNG" label="PNG"/>
+		<combo_box.item name="JPEG" label="JPEG"/>
+		<combo_box.item name="BMP" label="BMP"/>
 	</combo_box>
 	<spinner label="Breedte" name="snapshot_width"/>
 	<spinner label="Hoogte" name="snapshot_height"/>
@@ -112,15 +70,9 @@
 		Vastleggen:
 	</text>
 	<combo_box label="Afbeeldingslagen" name="layer_types">
-		<combo_item name="Colors">
-			Kleuren
-		</combo_item>
-		<combo_item name="Depth">
-			Diepte
-		</combo_item>
-		<combo_item name="ObjectMattes">
-			Object matheid
-		</combo_item>
+		<combo_box.item name="Colors" label="Kleuren"/>
+		<combo_box.item name="Depth" label="Diepte"/>
+		<combo_box.item name="ObjectMattes" label="Object matheid"/>
 	</combo_box>
 	<check_box label="Toon interface in foto" name="ui_check"/>
 	<check_box label="Toon HUD objecten in foto" name="hud_check"/>

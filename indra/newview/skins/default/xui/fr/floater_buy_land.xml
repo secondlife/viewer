@@ -68,15 +68,9 @@
 		Seuls les membres Premium peuvent posséder du terrain.
 	</text>
 	<combo_box name="account_level">
-		<combo_item name="US$9.95/month,billedmonthly">
-			9,95 US$/mois, facturation mensuelle
-		</combo_item>
-		<combo_item name="US$7.50/month,billedquarterly">
-			7,50 US$/mois, facturation trimestrielle
-		</combo_item>
-		<combo_item name="US$6.00/month,billedannually">
-			6,00 US$/mois, facturation annuelle
-		</combo_item>
+		<combo_box.item name="US$9.95/month,billedmonthly" label="9,95 US$/mois, facturation mensuelle"/>
+		<combo_box.item name="US$7.50/month,billedquarterly" label="7,50 US$/mois, facturation trimestrielle"/>
+		<combo_box.item name="US$6.00/month,billedannually" label="6,00 US$/mois, facturation annuelle"/>
 	</combo_box>
 	<text name="land_use_action" right="430" width="210">
 		Augmentez vos frais d&apos;occupation de terrain à 40 US$/mois.

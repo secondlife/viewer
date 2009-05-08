@@ -38,75 +38,33 @@
 		Format
 	</text>
 	<combo_box label="Rozdzielczość" name="postcard_size_combo">
-		<combo_box.item name="CurrentWindow">
-			Obecne Okno
-		</combo_box.item>
-		<combo_box.item name="640x480">
-			640x480
-		</combo_box.item>
-		<combo_box.item name="800x600">
-			800x600
-		</combo_box.item>
-		<combo_box.item name="1024x768">
-			1024x768
-		</combo_box.item>
-		<combo_box.item name="Custom">
-			Wybierz
-		</combo_box.item>
+		<combo_box.item name="CurrentWindow" label="Obecne Okno" />
+		<combo_box.item name="640x480" label="640x480" />
+		<combo_box.item name="800x600" label="800x600" />
+		<combo_box.item name="1024x768" label="1024x768" />
+		<combo_box.item name="Custom" label="Wybierz" />
 	</combo_box>
 	<combo_box label="Rozdzielczość" name="texture_size_combo">
-		<combo_box.item name="CurrentWindow">
-			Obecne Okno
-		</combo_box.item>
-		<combo_box.item name="Small(128x128)">
-			Mały (128x128)
-		</combo_box.item>
-		<combo_box.item name="Medium(256x256)">
-			Średni (256x256)
-		</combo_box.item>
-		<combo_box.item name="Large(512x512)">
-			Duży (512x512)
-		</combo_box.item>
-		<combo_box.item name="Custom">
-			Wybierz
-		</combo_box.item>
+		<combo_box.item name="CurrentWindow" label="Obecne Okno" />
+		<combo_box.item name="Small(128x128)" label="Mały (128x128)" />
+		<combo_box.item name="Medium(256x256)" label="Średni (256x256)" />
+		<combo_box.item name="Large(512x512)" label="Duży (512x512)" />
+		<combo_box.item name="Custom" label="Wybierz" />
 	</combo_box>
 	<combo_box label="Rozdzielczość" name="local_size_combo">
-		<combo_box.item name="CurrentWindow">
-			Obecne Okno
-		</combo_box.item>
-		<combo_box.item name="320x240">
-			320x240
-		</combo_box.item>
-		<combo_box.item name="640x480">
-			640x480
-		</combo_box.item>
-		<combo_box.item name="800x600">
-			800x600
-		</combo_box.item>
-		<combo_box.item name="1024x768">
-			1024x768
-		</combo_box.item>
-		<combo_box.item name="1280x1024">
-			1280x1024
-		</combo_box.item>
-		<combo_box.item name="1600x1200">
-			1600x1200
-		</combo_box.item>
-		<combo_box.item name="Custom">
-			Wybierz
-		</combo_box.item>
+		<combo_box.item name="CurrentWindow" label="Obecne Okno" />
+		<combo_box.item name="320x240" label="320x240" />
+		<combo_box.item name="640x480" label="640x480" />
+		<combo_box.item name="800x600" label="800x600" />
+		<combo_box.item name="1024x768" label="1024x768" />
+		<combo_box.item name="1280x1024" label="1280x1024" />
+		<combo_box.item name="1600x1200" label="1600x1200" />
+		<combo_box.item name="Custom" label="Wybierz" />
 	</combo_box>
 	<combo_box label="Format" name="local_format_combo">
-		<combo_box.item name="PNG">
-			PNG
-		</combo_box.item>
-		<combo_box.item name="JPEG">
-			JPEG
-		</combo_box.item>
-		<combo_box.item name="BMP">
-			BMP
-		</combo_box.item>
+		<combo_box.item name="PNG" label="PNG" />
+		<combo_box.item name="JPEG" label="JPEG" />
+		<combo_box.item name="BMP" label="BMP" />
 	</combo_box>
 	<spinner label="Szer." name="snapshot_width"/>
 	<spinner label="Wys." name="snapshot_height"/>
@@ -116,15 +74,9 @@
 		Zapisz:
 	</text>
 	<combo_box label="Warstwy Obrazu" name="layer_types">
-		<combo_box.item name="Colors">
-			Kolory
-		</combo_box.item>
-		<combo_box.item name="Depth">
-			Głębokość
-		</combo_box.item>
-		<combo_box.item name="ObjectMattes">
-			Obiekty Ślepe
-		</combo_box.item>
+		<combo_box.item name="Colors" label="Kolory" />
+		<combo_box.item name="Depth" label="Głębokość" />
+		<combo_box.item name="ObjectMattes" label="Obiekty Ślepe" />
 	</combo_box>
 	<check_box label="Pokaż interfejs na zdjęciu" name="ui_check"/>
 	<check_box label="Pokaż obiekty HUD na zdjęciu" name="hud_check"/>

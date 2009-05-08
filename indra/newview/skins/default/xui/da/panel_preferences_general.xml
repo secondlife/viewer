@@ -10,15 +10,9 @@
 	</radio_group>
 	<check_box label="Vis start lokation på login billedet" name="show_location_checkbox" />
 	<combo_box name="fade_out_combobox">
-		<combo_item name="Never">
-			Aldrig
-		</combo_item>
-		<combo_item name="Show Temporarily">
-			Vis midlertidigt
-		</combo_item>
-		<combo_item name="Always">
-			Altid
-		</combo_item>
+		<combo_box.item name="Never" label="Aldrig"/>
+		<combo_box.item name="Show Temporarily" label="Vis midlertidigt"/>
+		<combo_box.item name="Always" label="Altid"/>
 	</combo_box>
 	<check_box label="Små avatar navne" name="small_avatar_names_checkbox" />
 	<check_box label="Skjul mit navn på min skærm" name="show_my_name_checkbox" />
@@ -65,53 +59,23 @@
 		&lt;Skriv regions navn&gt;
 	</string>
 	<combo_box name="crash_behavior_combobox">
-		<combo_item type="string" length="1" name="Askbeforesending">
-			Bed om bekræftigelse
-		</combo_item>
-		<combo_item type="string" length="1" name="Alwayssend">
-			Send altid
-		</combo_item>
-		<combo_item type="string" length="1" name="Neversend">
-			Send aldrig
-		</combo_item>
+		<combo_box.item type="string" length="1" name="Askbeforesending" label="Bed om bekræftigelse"/>
+		<combo_box.item type="string" length="1" name="Alwayssend" label="Send altid"/>
+		<combo_box.item type="string" length="1" name="Neversend" label="Send aldrig"/>
 	</combo_box>
 	<combo_box name="language_combobox">
-		<combo_item type="string" length="1" name="System Default Language">
-			System standard
-		</combo_item>
-		<combo_item type="string" length="1" name="English">
-			English (Engelsk)
-		</combo_item>
-		<combo_item type="string" length="1" name="Danish">
-			Dansk - Beta
-		</combo_item>
-		<combo_item type="string" length="1" name="Deutsch(German)">
-			Deutsch (Tysk) - Beta
-		</combo_item>
-		<combo_item type="string" length="1" name="Spanish">
-			Español (Spansk) - Beta
-		</combo_item>
-		<combo_item type="string" length="1" name="French">
-			Français (Fransk) - Beta
-		</combo_item>
-		<combo_item type="string" length="1" name="Hungarian">
-			Magyar (Ungarsk) - Beta
-		</combo_item>
-		<combo_item type="string" length="1" name="Polish">
-			Polski (Polsk) - Beta
-		</combo_item>
-		<combo_item type="string" length="1" name="Portugese">
-			Portugués (Portugisisk) - Beta
-		</combo_item>
-		<combo_item type="string" length="1" name="Chinese">
-			中文 (简体) (Kinesisk) - Beta
-		</combo_item>
-		<combo_item type="string" length="1" name="(Japanese)">
-			日本語 (Japansk) - Beta
-		</combo_item>
-		<combo_item type="string" length="1" name="(Korean)">
-			한국어 (Koreansk) - Beta
-		</combo_item>
+		<combo_box.item type="string" length="1" name="System Default Language" label="System standard"/>
+		<combo_box.item type="string" length="1" name="English" label="English (Engelsk)"/>
+		<combo_box.item type="string" length="1" name="Danish" label="Dansk - Beta"/>
+		<combo_box.item type="string" length="1" name="Deutsch(German)" label="Deutsch (Tysk) - Beta"/>
+		<combo_box.item type="string" length="1" name="Spanish" label="Español (Spansk) - Beta"/>
+		<combo_box.item type="string" length="1" name="French" label="Français (Fransk) - Beta"/>
+		<combo_box.item type="string" length="1" name="Hungarian" label="Magyar (Ungarsk) - Beta"/>
+		<combo_box.item type="string" length="1" name="Polish" label="Polski (Polsk) - Beta"/>
+		<combo_box.item type="string" length="1" name="Portugese" label="Portugués (Portugisisk) - Beta"/>
+		<combo_box.item type="string" length="1" name="Chinese" label="中文 (简体) (Kinesisk) - Beta"/>
+		<combo_box.item type="string" length="1" name="(Japanese)" label="日本語 (Japansk) - Beta"/>
+		<combo_box.item type="string" length="1" name="(Korean)" label="한국어 (Koreansk) - Beta"/>
 	</combo_box>
 	<check_box label="Del sprog med objekter" name="language_is_public"
 	     tool_tip="Dette lader objekter i verden vide hvad dit foretrukne sprog er." />

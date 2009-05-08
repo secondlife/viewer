@@ -34,75 +34,33 @@
 		Formato
 	</text>
 	<combo_box label="Risoluzione" name="postcard_size_combo">
-		<combo_item name="CurrentWindow">
-			Finestra corrente
-		</combo_item>
-		<combo_item name="640x480">
-			640x480
-		</combo_item>
-		<combo_item name="800x600">
-			800x600
-		</combo_item>
-		<combo_item name="1024x768">
-			1024x768
-		</combo_item>
-		<combo_item name="Custom">
-			Personalizzata
-		</combo_item>
+		<combo_box.item name="CurrentWindow" label="Finestra corrente"/>
+		<combo_box.item name="640x480" label="640x480"/>
+		<combo_box.item name="800x600" label="800x600"/>
+		<combo_box.item name="1024x768" label="1024x768"/>
+		<combo_box.item name="Custom" label="Personalizzata"/>
 	</combo_box>
 	<combo_box label="Risoluzione" name="texture_size_combo">
-		<combo_item name="CurrentWindow">
-			Finestra corrente
-		</combo_item>
-		<combo_item name="Small(128x128)">
-			Piccola (128x128)
-		</combo_item>
-		<combo_item name="Medium(256x256)">
-			Media (256x256)
-		</combo_item>
-		<combo_item name="Large(512x512)">
-			Larga (512x512)
-		</combo_item>
-		<combo_item name="Custom">
-			Personalizzata
-		</combo_item>
+		<combo_box.item name="CurrentWindow" label="Finestra corrente"/>
+		<combo_box.item name="Small(128x128)" label="Piccola (128x128)"/>
+		<combo_box.item name="Medium(256x256)" label="Media (256x256)"/>
+		<combo_box.item name="Large(512x512)" label="Larga (512x512)"/>
+		<combo_box.item name="Custom" label="Personalizzata"/>
 	</combo_box>
 	<combo_box label="Risoluzione" name="local_size_combo">
-		<combo_item name="CurrentWindow">
-			Finestra corrente
-		</combo_item>
-		<combo_item name="320x240">
-			320x240
-		</combo_item>
-		<combo_item name="640x480">
-			640x480
-		</combo_item>
-		<combo_item name="800x600">
-			800x600
-		</combo_item>
-		<combo_item name="1024x768">
-			1024x768
-		</combo_item>
-		<combo_item name="1280x1024">
-			1280x1024
-		</combo_item>
-		<combo_item name="1600x1200">
-			1600x1200
-		</combo_item>
-		<combo_item name="Custom">
-			Personalizzata
-		</combo_item>
+		<combo_box.item name="CurrentWindow" label="Finestra corrente"/>
+		<combo_box.item name="320x240" label="320x240"/>
+		<combo_box.item name="640x480" label="640x480"/>
+		<combo_box.item name="800x600" label="800x600"/>
+		<combo_box.item name="1024x768" label="1024x768"/>
+		<combo_box.item name="1280x1024" label="1280x1024"/>
+		<combo_box.item name="1600x1200" label="1600x1200"/>
+		<combo_box.item name="Custom" label="Personalizzata"/>
 	</combo_box>
 	<combo_box label="Formato" name="local_format_combo">
-		<combo_item name="PNG">
-			PNG
-		</combo_item>
-		<combo_item name="JPEG">
-			JPEG
-		</combo_item>
-		<combo_item name="BMP">
-			BMP
-		</combo_item>
+		<combo_box.item name="PNG" label="PNG"/>
+		<combo_box.item name="JPEG" label="JPEG"/>
+		<combo_box.item name="BMP" label="BMP"/>
 	</combo_box>
 	<spinner label="Larghezza" name="snapshot_width"/>
 	<spinner label="Altezza" name="snapshot_height"/>
@@ -112,15 +70,9 @@
 		Fotografa:
 	</text>
 	<combo_box label="Layer dell&apos;immagine" name="layer_types">
-		<combo_item name="Colors">
-			Colori
-		</combo_item>
-		<combo_item name="Depth">
-			Profondità
-		</combo_item>
-		<combo_item name="ObjectMattes">
-			Colori primari degli oggetti
-		</combo_item>
+		<combo_box.item name="Colors" label="Colori"/>
+		<combo_box.item name="Depth" label="Profondità"/>
+		<combo_box.item name="ObjectMattes" label="Colori primari degli oggetti"/>
 	</combo_box>
 	<check_box label="Mostra l&apos;interfaccia nella fotografia" name="ui_check"/>
 	<check_box label="Mostra i dispositivi indossati nella fotografia" name="hud_check"/>

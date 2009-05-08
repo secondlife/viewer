@@ -20,15 +20,9 @@
 		Liniaal modus
 	</text>
 	<combo_box name="combobox grid mode">
-		<combo_item name="World">
-			Wereld
-		</combo_item>
-		<combo_item name="Local">
-			Lokaal
-		</combo_item>
-		<combo_item name="Reference">
-			Referentie
-		</combo_item>
+		<combo_box.item name="World" label="Wereld"/>
+		<combo_box.item name="Local" label="Lokaal"/>
+		<combo_box.item name="Reference" label="Referentie"/>
 	</combo_box>
 	<check_box label="Beide zijden uitrekken" name="checkbox uniform"/>
 	<check_box label="Texturen uitrekken" name="checkbox stretch textures"/>
@@ -64,15 +58,9 @@
 	<check_box label="Land opruwen" name="radio noise"/>
 	<check_box label="Herstel land" name="radio revert"/>
 	<combo_box name="combobox brush size">
-		<combo_item name="Small">
-			Klein
-		</combo_item>
-		<combo_item name="Medium">
-			Medium
-		</combo_item>
-		<combo_item name="Large">
-			Groot
-		</combo_item>
+		<combo_box.item name="Small" label="Klein"/>
+		<combo_box.item name="Medium" label="Medium"/>
+		<combo_box.item name="Large" label="Groot"/>
 	</combo_box>
 	<text name="Strength:">
 		Sterkte:
@@ -155,27 +143,13 @@
 				Wanneer links-geklikt:
 			</text>
 			<combo_box name="clickaction">
-				<combo_item name="Touch/grab(default)">
-					Aanraken/pakken (standaard)
-				</combo_item>
-				<combo_item name="Sitonobject">
-					Zit op object
-				</combo_item>
-				<combo_item name="Buyobject">
-					Koop object
-				</combo_item>
-				<combo_item name="Payobject">
-					Betaal object
-				</combo_item>
-				<combo_item name="Open">
-					Open
-				</combo_item>
-				<combo_item name="Play">
-					Perceelmedia afspelen
-				</combo_item>
-				<combo_item name="Opemmedia">
-					Perceelmedia openen
-				</combo_item>
+				<combo_box.item name="Touch/grab(default)" label="Aanraken/pakken (standaard)"/>
+				<combo_box.item name="Sitonobject" label="Zit op object"/>
+				<combo_box.item name="Buyobject" label="Koop object"/>
+				<combo_box.item name="Payobject" label="Betaal object"/>
+				<combo_box.item name="Open" label="Open"/>
+				<combo_box.item name="Play" label="Perceelmedia afspelen"/>
+				<combo_box.item name="Opemmedia" label="Perceelmedia openen"/>
 			</combo_box>
 			<text name="B:">
 				B:
@@ -259,56 +233,26 @@
 				Materiaal
 			</text>
 			<combo_box name="material">
-				<combo_item name="Stone">
-					Steen
-				</combo_item>
-				<combo_item name="Metal">
-					Metaal
-				</combo_item>
-				<combo_item name="Glass">
-					Glas
-				</combo_item>
-				<combo_item name="Wood">
-					Hout
-				</combo_item>
-				<combo_item name="Flesh">
-					Vlees
-				</combo_item>
-				<combo_item name="Plastic">
-					Plastic
-				</combo_item>
-				<combo_item name="Rubber">
-					Rubber
-				</combo_item>
+				<combo_box.item name="Stone" label="Steen"/>
+				<combo_box.item name="Metal" label="Metaal"/>
+				<combo_box.item name="Glass" label="Glas"/>
+				<combo_box.item name="Wood" label="Hout"/>
+				<combo_box.item name="Flesh" label="Vlees"/>
+				<combo_box.item name="Plastic" label="Plastic"/>
+				<combo_box.item name="Rubber" label="Rubber"/>
 			</combo_box>
 			<text name="label basetype">
 				Bouwbloktype
 			</text>
 			<combo_box name="comboBaseType">
-				<combo_item name="Box">
-					Kubus
-				</combo_item>
-				<combo_item name="Cylinder">
-					Cilinder
-				</combo_item>
-				<combo_item name="Prism">
-					Prisma
-				</combo_item>
-				<combo_item name="Sphere">
-					Bol
-				</combo_item>
-				<combo_item name="Torus">
-					Torus
-				</combo_item>
-				<combo_item name="Tube">
-					Buis
-				</combo_item>
-				<combo_item name="Ring">
-					Ring
-				</combo_item>
-				<combo_item name="Sculpted">
-					Sculpted
-				</combo_item>
+				<combo_box.item name="Box" label="Kubus"/>
+				<combo_box.item name="Cylinder" label="Cilinder"/>
+				<combo_box.item name="Prism" label="Prisma"/>
+				<combo_box.item name="Sphere" label="Bol"/>
+				<combo_box.item name="Torus" label="Torus"/>
+				<combo_box.item name="Tube" label="Buis"/>
+				<combo_box.item name="Ring" label="Ring"/>
+				<combo_box.item name="Sculpted" label="Sculpted"/>
 			</combo_box>
 			<text name="text cut">
 				Uitsnede begin en einde
@@ -325,18 +269,10 @@
 				Holtevorm
 			</text>
 			<combo_box name="hole">
-				<combo_item name="Default">
-					Standaard
-				</combo_item>
-				<combo_item name="Circle">
-					Cirkel
-				</combo_item>
-				<combo_item name="Square">
-					Vierkant
-				</combo_item>
-				<combo_item name="Triangle">
-					Driehoek
-				</combo_item>
+				<combo_box.item name="Default" label="Standaard"/>
+				<combo_box.item name="Circle" label="Cirkel"/>
+				<combo_box.item name="Square" label="Vierkant"/>
+				<combo_box.item name="Triangle" label="Driehoek"/>
 			</combo_box>
 			<text name="text twist">
 				Verdraai begin en einde
@@ -382,21 +318,11 @@
 				Hechtingstype
 			</text>
 			<combo_box name="sculpt type control">
-				<combo_item name="None">
-					(none)
-				</combo_item>
-				<combo_item name="Sphere">
-					Bol
-				</combo_item>
-				<combo_item name="Torus">
-					Torus
-				</combo_item>
-				<combo_item name="Plane">
-					Vlak
-				</combo_item>
-				<combo_item name="Cylinder">
-					Cilinder
-				</combo_item>
+				<combo_box.item name="None" label="none)"/>
+				<combo_box.item name="Sphere" label="Bol"/>
+				<combo_box.item name="Torus" label="Torus"/>
+				<combo_box.item name="Plane" label="Vlak"/>
+				<combo_box.item name="Cylinder" label="Cilinder"/>
 			</combo_box>
 		</panel>
 		<panel label="Kenmerken" name="Features">
@@ -438,88 +364,40 @@
 				Mapping
 			</text>
 			<combo_box name="combobox texgen">
-				<combo_item name="Default">
-					Standaard
-				</combo_item>
-				<combo_item name="Planar">
-					Vlak
-				</combo_item>
+				<combo_box.item name="Default" label="Standaard"/>
+				<combo_box.item name="Planar" label="Vlak"/>
 			</combo_box>
 			<text name="label shininess">
 				Glans
 			</text>
 			<combo_box name="combobox shininess">
-				<combo_item name="None">
-					Geen
-				</combo_item>
-				<combo_item name="Low">
-					Laag
-				</combo_item>
-				<combo_item name="Medium">
-					Middel
-				</combo_item>
-				<combo_item name="High">
-					Hoog
-				</combo_item>
+				<combo_box.item name="None" label="Geen"/>
+				<combo_box.item name="Low" label="Laag"/>
+				<combo_box.item name="Medium" label="Middel"/>
+				<combo_box.item name="High" label="Hoog"/>
 			</combo_box>
 			<text name="label bumpiness">
 				Bumpiness
 			</text>
 			<combo_box name="combobox bumpiness">
-				<combo_item name="None">
-					Geen
-				</combo_item>
-				<combo_item name="Brightness">
-					Helderheid
-				</combo_item>
-				<combo_item name="Darkness">
-					Donkerheid
-				</combo_item>
-				<combo_item name="woodgrain">
-					Houtnerf
-				</combo_item>
-				<combo_item name="bark">
-					Schors
-				</combo_item>
-				<combo_item name="bricks">
-					Stenen
-				</combo_item>
-				<combo_item name="checker">
-					Dambord
-				</combo_item>
-				<combo_item name="concrete">
-					Beton
-				</combo_item>
-				<combo_item name="crustytile">
-					gebarsten tegels
-				</combo_item>
-				<combo_item name="cutstone">
-					natuursteen
-				</combo_item>
-				<combo_item name="discs">
-					schijven
-				</combo_item>
-				<combo_item name="gravel">
-					grind
-				</combo_item>
-				<combo_item name="petridish">
-					petrischaal
-				</combo_item>
-				<combo_item name="siding">
-					wandpaneel
-				</combo_item>
-				<combo_item name="stonetile">
-					plavuizen
-				</combo_item>
-				<combo_item name="stucco">
-					stucwerk
-				</combo_item>
-				<combo_item name="suction">
-					zuignappen
-				</combo_item>
-				<combo_item name="weave">
-					weven
-				</combo_item>
+				<combo_box.item name="None" label="Geen"/>
+				<combo_box.item name="Brightness" label="Helderheid"/>
+				<combo_box.item name="Darkness" label="Donkerheid"/>
+				<combo_box.item name="woodgrain" label="Houtnerf"/>
+				<combo_box.item name="bark" label="Schors"/>
+				<combo_box.item name="bricks" label="Stenen"/>
+				<combo_box.item name="checker" label="Dambord"/>
+				<combo_box.item name="concrete" label="Beton"/>
+				<combo_box.item name="crustytile" label="gebarsten tegels"/>
+				<combo_box.item name="cutstone" label="natuursteen"/>
+				<combo_box.item name="discs" label="schijven"/>
+				<combo_box.item name="gravel" label="grind"/>
+				<combo_box.item name="petridish" label="petrischaal"/>
+				<combo_box.item name="siding" label="wandpaneel"/>
+				<combo_box.item name="stonetile" label="plavuizen"/>
+				<combo_box.item name="stucco" label="stucwerk"/>
+				<combo_box.item name="suction" label="zuignappen"/>
+				<combo_box.item name="weave" label="weven"/>
 			</combo_box>
 			<text name="tex scale">
 				Herhalingen per zijde

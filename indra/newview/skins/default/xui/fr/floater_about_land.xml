@@ -260,44 +260,20 @@ Allez dans le menu Monde &gt; À propos du terrain ou sélectionnez une autre pa
 				name="PushRestrictCheck" tool_tip="Empêche l&apos;utilisation de scripts causant des bousculades. Cette option est utile pour empêcher les comportements abusifs sur votre terrain."/>
 			<check_box label="Afficher dans la recherche (30 L$/semaine) sous" name="ShowDirectoryCheck" tool_tip="Afficher la parcelle dans les résultats de recherche" bottom="-160"/>
 			<combo_box name="land category" left="286" width="146" bottom="-160">
-				<combo_item name="AnyCategory">
-					Toutes catégories
-				</combo_item>
-				<combo_item name="LindenLocation">
-					Appartenant aux Lindens
-				</combo_item>
+				<combo_box.item name="AnyCategory" label="Toutes catégories"/>
+				<combo_box.item name="LindenLocation" label="Appartenant aux Lindens"/>
 
 
-				<combo_item name="Arts&amp;Culture">
-					Art et Culture
-				</combo_item>
-				<combo_item name="Business">
-					Affaires
-				</combo_item>
-				<combo_item name="Educational">
-					Éducation
-				</combo_item>
-				<combo_item name="Gaming">
-					Jeux
-				</combo_item>
-				<combo_item name="Hangout">
-					Favoris
-				</combo_item>
-				<combo_item name="NewcomerFriendly">
-					Accueil pour les nouveaux
-				</combo_item>
-				<combo_item name="Parks&amp;Nature">
-					Parcs et Nature
-				</combo_item>
-				<combo_item name="Residential">
-					Résidentiel
-				</combo_item>
-				<combo_item name="Shopping">
-					Shopping
-				</combo_item>
-				<combo_item name="Other">
-					Autre
-				</combo_item>
+				<combo_box.item name="Arts&amp;Culture" label="Art et Culture"/>
+				<combo_box.item name="Business" label="Affaires"/>
+				<combo_box.item name="Educational" label="Éducation"/>
+				<combo_box.item name="Gaming" label="Jeux"/>
+				<combo_box.item name="Hangout" label="Favoris"/>
+				<combo_box.item name="NewcomerFriendly" label="Accueil pour les nouveaux"/>
+				<combo_box.item name="Parks&amp;Nature" label="Parcs et Nature"/>
+				<combo_box.item name="Residential" label="Résidentiel"/>
+				<combo_box.item name="Shopping" label="Shopping"/>
+				<combo_box.item name="Other" label="Autre"/>
 			</combo_box>
 			<button label="?" label_selected="?" name="?" left="436" bottom="-160"/>
 			<check_box name="MatureCheck" bottom="-180"/>
@@ -317,15 +293,9 @@ Allez dans le menu Monde &gt; À propos du terrain ou sélectionnez une autre pa
 				Règles de téléportation :
 			</text>
 			<combo_box name="landing type" tool_tip="Vous permet de paramétrer les téléportations sur votre terrain." left="140" width="140" bottom="-343">
-				<combo_item length="1" name="Blocked" type="string">
-					Bloqué
-				</combo_item>
-				<combo_item length="1" name="LandingPoint" type="string">
-					Lieu d&apos;arrivée fixe
-				</combo_item>
-				<combo_item length="1" name="Anywhere" type="string">
-					Lieu d&apos;arrivée libre
-				</combo_item>
+				<combo_box.item length="1" name="Blocked" type="string" label="Bloqué"/>
+				<combo_box.item length="1" name="LandingPoint" type="string" label="Lieu d&apos;arrivée fixe"/>
+				<combo_box.item length="1" name="Anywhere" type="string" label="Lieu d&apos;arrivée libre"/>
 			</combo_box>
 			<string name="push_restrict_text">
 				Pas de bousculades
@@ -414,12 +384,8 @@ musique :
 			<check_box label="Autoriser l&apos;accès au groupe : [GROUP]" name="GroupCheck" tool_tip="Définir le groupe à l&apos;onglet Général."/>
 			<check_box label="Vendre des pass à :" name="PassCheck" tool_tip="Autoriser un accès temporaire à cette parcelle"/>
 			<combo_box name="pass_combo">
-				<combo_item name="Anyone">
-					Tout le monde
-				</combo_item>
-				<combo_item name="Group">
-					Groupe
-				</combo_item>
+				<combo_box.item name="Anyone" label="Tout le monde"/>
+				<combo_box.item name="Group" label="Groupe"/>
 			</combo_box>
 			<spinner label="Prix en L$ :" name="PriceSpin"/>
 			<spinner label="Durée en heures :" name="HoursSpin"/>

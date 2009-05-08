@@ -252,43 +252,19 @@
 			<check_box label="Niet duwen" name="PushRestrictCheck" tool_tip="Weerhoudt scripts van duwen. Het aanvinken van deze optie kan handig zijn om storend gedrag op uw land te voorkomen."/>
 			<check_box label="Toon plaats in Zoeken (L$30/week) onder" name="ShowDirectoryCheck" tool_tip="Laat mensen dit perceel zien in zoekresultaten."/>
 			<combo_box name="land category">
-				<combo_item name="AnyCategory">
-					Alle categorieën
-				</combo_item>
-				<combo_item name="LindenLocation">
-					Linden Locatie
-				</combo_item>
+				<combo_box.item name="AnyCategory" label="Alle categorieën"/>
+				<combo_box.item name="LindenLocation" label="Linden Locatie"/>
 
-				<combo_item name="Arts&amp;Culture">
-					Kunst &amp; Cultuur
-				</combo_item>
-				<combo_item name="Business">
-					Zakelijk
-				</combo_item>
-				<combo_item name="Educational">
-					Educatief
-				</combo_item>
-				<combo_item name="Gaming">
-					Spelen
-				</combo_item>
-				<combo_item name="Hangout">
-					Ontmoetingsplaats
-				</combo_item>
-				<combo_item name="NewcomerFriendly">
-					Nieuwkomervriendelijk
-				</combo_item>
-				<combo_item name="Parks&amp;Nature">
-					Parken &amp; Natuur
-				</combo_item>
-				<combo_item name="Residential">
-					Woongebied
-				</combo_item>
-				<combo_item name="Shopping">
-					Winkelen
-				</combo_item>
-				<combo_item name="Other">
-					Anders
-				</combo_item>
+				<combo_box.item name="Arts&amp;Culture" label="Kunst &amp; Cultuur"/>
+				<combo_box.item name="Business" label="Zakelijk"/>
+				<combo_box.item name="Educational" label="Educatief"/>
+				<combo_box.item name="Gaming" label="Spelen"/>
+				<combo_box.item name="Hangout" label="Ontmoetingsplaats"/>
+				<combo_box.item name="NewcomerFriendly" label="Nieuwkomervriendelijk"/>
+				<combo_box.item name="Parks&amp;Nature" label="Parken &amp; Natuur"/>
+				<combo_box.item name="Residential" label="Woongebied"/>
+				<combo_box.item name="Shopping" label="Winkelen"/>
+				<combo_box.item name="Other" label="Anders"/>
 			</combo_box>
 			<button label="?" label_selected="?" name="?"/>
 			<check_box name="MatureCheck" />
@@ -308,15 +284,9 @@
 				Teleport routering:
 			</text>
 			<combo_box name="landing type" tool_tip="Teleport routering -- selecteer hoe teleports naar uw land moeten worden afgehandeld.">
-				<combo_item name="Blocked">
-					Geblokkeerd
-				</combo_item>
-				<combo_item name="LandingPoint">
-					Landingsplaats
-				</combo_item>
-				<combo_item name="Anywhere">
-					Overal
-				</combo_item>
+				<combo_box.item name="Blocked" label="Geblokkeerd"/>
+				<combo_box.item name="LandingPoint" label="Landingsplaats"/>
+				<combo_box.item name="Anywhere" label="Overal"/>
 			</combo_box>
 			<string name="push_restrict_text">
 				Niet duwen
@@ -398,12 +368,8 @@
 			<check_box label="Groepstoegang toestaan: [GROUP]" name="GroupCheck" tool_tip="Stel de groep in op het tabblad Algemeen"/>
 			<check_box label="Verkoop toegangspassen aan:" name="PassCheck" tool_tip="Tijdelijke toegang tot dit perceel toestaan"/>
 			<combo_box name="pass_combo">
-				<combo_item name="Anyone">
-					Iedereen
-				</combo_item>
-				<combo_item name="Group">
-					Groep
-				</combo_item>
+				<combo_box.item name="Anyone" label="Iedereen"/>
+				<combo_box.item name="Group" label="Groep"/>
 			</combo_box>
 			<spinner label="Prijs in L$:" name="PriceSpin"/>
 			<spinner label="Toegangsuren" name="HoursSpin"/>

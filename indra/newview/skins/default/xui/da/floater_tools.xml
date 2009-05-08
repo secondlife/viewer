@@ -20,15 +20,9 @@
 		Lineal:
 	</text>
 	<combo_box name="combobox grid mode">
-		<combo_item name="World">
-			Verden
-		</combo_item>
-		<combo_item name="Local">
-			Lokal
-		</combo_item>
-		<combo_item name="Reference">
-			Reference
-		</combo_item>
+		<combo_box.item name="World" label="Verden"/>
+		<combo_box.item name="Local" label="Lokal"/>
+		<combo_box.item name="Reference" label="Reference"/>
 	</combo_box>
 	<check_box label="Stræk begge sider" name="checkbox uniform" />
 	<check_box label="Stræk teksturer" name="checkbox stretch textures" />
@@ -64,15 +58,9 @@
 	<check_box label="Gør land ujævnt" name="radio noise" />
 	<check_box label="Tilbagefør" name="radio revert" />
 	<combo_box name="combobox brush size">
-		<combo_item name="Small">
-			Lille
-		</combo_item>
-		<combo_item name="Medium">
-			Mellem
-		</combo_item>
-		<combo_item name="Large">
-			Stor
-		</combo_item>
+		<combo_box.item name="Small" label="Lille"/>
+		<combo_box.item name="Medium" label="Mellem"/>
+		<combo_box.item name="Large" label="Stor"/>
 	</combo_box>
 	<text type="string" length="1" name="Strength:">
 		Styrke:
@@ -159,27 +147,13 @@
 				Når der venstreklikkes:
 			</text>
 			<combo_box name="clickaction">
-				<combo_item name="Touch/grab(default)">
-					Rør/tag (standard)
-				</combo_item>
-				<combo_item name="Sitonobject">
-					Sid på objekt
-				</combo_item>
-				<combo_item name="Buyobject">
-					Køb objekt
-				</combo_item>
-				<combo_item name="Payobject">
-					Betal objekt
-				</combo_item>
-				<combo_item name="Open">
-					Åben
-				</combo_item>
-				<combo_item name="Play">
-					Afspil medie på parcel
-				</combo_item>
-				<combo_item name="Opemmedia">
-					Åben media på parcel
-				</combo_item>
+				<combo_box.item name="Touch/grab(default)" label="Rør/tag (standard)"/>
+				<combo_box.item name="Sitonobject" label="Sid på objekt"/>
+				<combo_box.item name="Buyobject" label="Køb objekt"/>
+				<combo_box.item name="Payobject" label="Betal objekt"/>
+				<combo_box.item name="Open" label="Åben"/>
+				<combo_box.item name="Play" label="Afspil medie på parcel"/>
+				<combo_box.item name="Opemmedia" label="Åben media på parcel"/>
 			</combo_box>
 			<text name="B:">
 				B:
@@ -237,56 +211,26 @@
 				Materiale
 			</text>
 			<combo_box name="material">
-				<combo_item name="Stone">
-					Sten
-				</combo_item>
-				<combo_item name="Metal">
-					Metal
-				</combo_item>
-				<combo_item name="Glass">
-					Glas
-				</combo_item>
-				<combo_item name="Wood">
-					Træ
-				</combo_item>
-				<combo_item name="Flesh">
-					Kød
-				</combo_item>
-				<combo_item name="Plastic">
-					Plastik
-				</combo_item>
-				<combo_item name="Rubber">
-					Gummi
-				</combo_item>
+				<combo_box.item name="Stone" label="Sten"/>
+				<combo_box.item name="Metal" label="Metal"/>
+				<combo_box.item name="Glass" label="Glas"/>
+				<combo_box.item name="Wood" label="Træ"/>
+				<combo_box.item name="Flesh" label="Kød"/>
+				<combo_box.item name="Plastic" label="Plastik"/>
+				<combo_box.item name="Rubber" label="Gummi"/>
 			</combo_box>
 			<text name="label basetype">
 				Byggegeometrisk figur
 			</text>
 			<combo_box name="comboBaseType">
-				<combo_item name="Box">
-					Terning
-				</combo_item>
-				<combo_item name="Cylinder">
-					Cylinder
-				</combo_item>
-				<combo_item name="Prism">
-					Prisme
-				</combo_item>
-				<combo_item name="Sphere">
-					Spfære
-				</combo_item>
-				<combo_item name="Torus">
-					Kuglering
-				</combo_item>
-				<combo_item name="Tube">
-					Rør
-				</combo_item>
-				<combo_item name="Ring">
-					Ring
-				</combo_item>
-				<combo_item name="Sculpted">
-					Sculpted
-				</combo_item>
+				<combo_box.item name="Box" label="Terning"/>
+				<combo_box.item name="Cylinder" label="Cylinder"/>
+				<combo_box.item name="Prism" label="Prisme"/>
+				<combo_box.item name="Sphere" label="Spfære"/>
+				<combo_box.item name="Torus" label="Kuglering"/>
+				<combo_box.item name="Tube" label="Rør"/>
+				<combo_box.item name="Ring" label="Ring"/>
+				<combo_box.item name="Sculpted" label="Sculpted"/>
 			</combo_box>
 			<text name="text cut">
 				Snit begynd og slut
@@ -303,18 +247,10 @@
 				Form på hul
 			</text>
 			<combo_box name="hole">
-				<combo_item name="Default">
-					Standard
-				</combo_item>
-				<combo_item name="Circle">
-					Cirkel
-				</combo_item>
-				<combo_item name="Square">
-					Firkant
-				</combo_item>
-				<combo_item name="Triangle">
-					Trekant
-				</combo_item>
+				<combo_box.item name="Default" label="Standard"/>
+				<combo_box.item name="Circle" label="Cirkel"/>
+				<combo_box.item name="Square" label="Firkant"/>
+				<combo_box.item name="Triangle" label="Trekant"/>
 			</combo_box>
 			<text name="text twist">
 				Vrid - start og slut
@@ -363,21 +299,11 @@
 				Sting type
 			</text>
 			<combo_box name="sculpt type control">
-				<combo_item name="None">
-					(ingen)
-				</combo_item>
-				<combo_item name="Sphere">
-					Sfære
-				</combo_item>
-				<combo_item name="Torus">
-					Kuglering
-				</combo_item>
-				<combo_item name="Plane">
-					Plan
-				</combo_item>
-				<combo_item name="Cylinder">
-					Cylinder
-				</combo_item>
+				<combo_box.item name="None" label="ingen)"/>
+				<combo_box.item name="Sphere" label="Sfære"/>
+				<combo_box.item name="Torus" label="Kuglering"/>
+				<combo_box.item name="Plane" label="Plan"/>
+				<combo_box.item name="Cylinder" label="Cylinder"/>
 			</combo_box>
 		</panel>
 		<panel label="Features" name="Features">
@@ -421,88 +347,40 @@
 				Afbildning
 			</text>
 			<combo_box name="combobox texgen">
-				<combo_item name="Default">
-					Standard
-				</combo_item>
-				<combo_item name="Planar">
-					Plan
-				</combo_item>
+				<combo_box.item name="Default" label="Standard"/>
+				<combo_box.item name="Planar" label="Plan"/>
 			</combo_box>
 			<text name="label shininess">
 				Blankhed
 			</text>
 			<combo_box name="combobox shininess">
-				<combo_item name="None">
-					Ingen
-				</combo_item>
-				<combo_item name="Low">
-					Lav
-				</combo_item>
-				<combo_item name="Medium">
-					Mellem
-				</combo_item>
-				<combo_item name="High">
-					Høj
-				</combo_item>
+				<combo_box.item name="None" label="Ingen"/>
+				<combo_box.item name="Low" label="Lav"/>
+				<combo_box.item name="Medium" label="Mellem"/>
+				<combo_box.item name="High" label="Høj"/>
 			</combo_box>
 			<text name="label bumpiness">
 				Struktur
 			</text>
 			<combo_box name="combobox bumpiness">
-				<combo_item name="None">
-					Ingen
-				</combo_item>
-				<combo_item name="Brightness">
-					Lysintensitet
-				</combo_item>
-				<combo_item name="Darkness">
-					Mørke
-				</combo_item>
-				<combo_item name="woodgrain">
-					træårer
-				</combo_item>
-				<combo_item name="bark">
-					bark
-				</combo_item>
-				<combo_item name="bricks">
-					mursten
-				</combo_item>
-				<combo_item name="checker">
-					tern
-				</combo_item>
-				<combo_item name="concrete">
-					beton
-				</combo_item>
-				<combo_item name="crustytile">
-					rustik flise
-				</combo_item>
-				<combo_item name="cutstone">
-					Skåret sten
-				</combo_item>
-				<combo_item name="discs">
-					plader
-				</combo_item>
-				<combo_item name="gravel">
-					grus
-				</combo_item>
-				<combo_item name="petridish">
-					petriskål
-				</combo_item>
-				<combo_item name="siding">
-					udvendig beklædning
-				</combo_item>
-				<combo_item name="stonetile">
-					stenflise
-				</combo_item>
-				<combo_item name="stucco">
-					puds
-				</combo_item>
-				<combo_item name="suction">
-					rør
-				</combo_item>
-				<combo_item name="weave">
-					væv
-				</combo_item>
+				<combo_box.item name="None" label="Ingen"/>
+				<combo_box.item name="Brightness" label="Lysintensitet"/>
+				<combo_box.item name="Darkness" label="Mørke"/>
+				<combo_box.item name="woodgrain" label="træårer"/>
+				<combo_box.item name="bark" label="bark"/>
+				<combo_box.item name="bricks" label="mursten"/>
+				<combo_box.item name="checker" label="tern"/>
+				<combo_box.item name="concrete" label="beton"/>
+				<combo_box.item name="crustytile" label="rustik flise"/>
+				<combo_box.item name="cutstone" label="Skåret sten"/>
+				<combo_box.item name="discs" label="plader"/>
+				<combo_box.item name="gravel" label="grus"/>
+				<combo_box.item name="petridish" label="petriskål"/>
+				<combo_box.item name="siding" label="udvendig beklædning"/>
+				<combo_box.item name="stonetile" label="stenflise"/>
+				<combo_box.item name="stucco" label="puds"/>
+				<combo_box.item name="suction" label="rør"/>
+				<combo_box.item name="weave" label="væv"/>
 			</combo_box>
 			<text name="tex scale">
 				Gentagelser pr. overflade

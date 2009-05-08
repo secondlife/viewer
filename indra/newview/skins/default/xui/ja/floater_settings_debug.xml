@@ -1,12 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater name="settings_debug" title="デバッグ設定">
 	<combo_box name="boolean_combo">
-		<combo_box.item name="TRUE">
-			正
-		</combo_box.item>
-		<combo_box.item name="FALSE">
-			誤
-		</combo_box.item>
+		<combo_box.item name="TRUE" label="正" />
+		<combo_box.item name="FALSE" label="誤" />
 	</combo_box>
 	<color_swatch label="色" name="color_swatch" />
 	<spinner label="x" name="val_spinner_1" />

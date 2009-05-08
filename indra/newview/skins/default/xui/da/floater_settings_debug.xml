@@ -1,12 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater name="settings_debug" title="Tekniske indstillinger">
 	<combo_box name="boolean_combo">
-		<combo_box.item name="TRUE">
-			TRUE (Valgt)
-		</combo_box.item>
-		<combo_box.item name="FALSE">
-			FALSE (Fravalgt)
-		</combo_box.item>
+		<combo_box.item name="TRUE" label="TRUE (Valgt)" />
+		<combo_box.item name="FALSE" label="FALSE (Fravalgt)" />
 	</combo_box>
 	<color_swatch label="Farve" name="color_swatch" />
 	<spinner label="x" name="val_spinner_1" />

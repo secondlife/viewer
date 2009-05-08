@@ -20,15 +20,9 @@
 		Modo da régua:
 	</text>
 	<combo_box name="combobox grid mode">
-		<combo_item name="World">
-			Mundo
-		</combo_item>
-		<combo_item name="Local">
-			Local
-		</combo_item>
-		<combo_item name="Reference">
-			Referência
-		</combo_item>
+		<combo_box.item name="World" label="Mundo"/>
+		<combo_box.item name="Local" label="Local"/>
+		<combo_box.item name="Reference" label="Referência"/>
 	</combo_box>
 	<check_box label="Esticar ambos os lados" name="checkbox uniform"/>
 	<check_box label="Esticar Texturas" name="checkbox stretch textures"/>
@@ -64,15 +58,9 @@
 	<check_box label="Terreno Rígido" name="radio noise"/>
 	<check_box label="Reverter Terra" name="radio revert"/>
 	<combo_box name="combobox brush size">
-		<combo_item name="Small">
-			Pequeno
-		</combo_item>
-		<combo_item name="Medium">
-			Médio
-		</combo_item>
-		<combo_item name="Large">
-			Grande
-		</combo_item>
+		<combo_box.item name="Small" label="Pequeno"/>
+		<combo_box.item name="Medium" label="Médio"/>
+		<combo_box.item name="Large" label="Grande"/>
 	</combo_box>
 	<text name="Strength:">
 		Força:
@@ -155,27 +143,13 @@
 				Quando clicado com o botão esquerdo:
 			</text>
 			<combo_box name="clickaction">
-				<combo_item name="Touch/grab(default)">
-					Tocar/Pegar (padrão)
-				</combo_item>
-				<combo_item name="Sitonobject">
-					Sentar no objeto
-				</combo_item>
-				<combo_item name="Buyobject">
-					Comprar objeto
-				</combo_item>
-				<combo_item name="Payobject">
-					Pagar Objeto
-				</combo_item>
-				<combo_item name="Open">
-					Abrir
-				</combo_item>
-				<combo_item name="Play">
-					Executar a mídia do lote
-				</combo_item>
-				<combo_item name="Opemmedia">
-					Abrir a mídia do lote
-				</combo_item>
+				<combo_box.item name="Touch/grab(default)" label="Tocar/Pegar (padrão)"/>
+				<combo_box.item name="Sitonobject" label="Sentar no objeto"/>
+				<combo_box.item name="Buyobject" label="Comprar objeto"/>
+				<combo_box.item name="Payobject" label="Pagar Objeto"/>
+				<combo_box.item name="Open" label="Abrir"/>
+				<combo_box.item name="Play" label="Executar a mídia do lote"/>
+				<combo_box.item name="Opemmedia" label="Abrir a mídia do lote"/>
 			</combo_box>
 			<text name="B:">
 				B:
@@ -259,56 +233,26 @@
 				Material
 			</text>
 			<combo_box name="material">
-				<combo_item name="Stone">
-					Pedra
-				</combo_item>
-				<combo_item name="Metal">
-					Metal
-				</combo_item>
-				<combo_item name="Glass">
-					Vidro
-				</combo_item>
-				<combo_item name="Wood">
-					Madeira
-				</combo_item>
-				<combo_item name="Flesh">
-					Carne
-				</combo_item>
-				<combo_item name="Plastic">
-					Plástico
-				</combo_item>
-				<combo_item name="Rubber">
-					Couro
-				</combo_item>
+				<combo_box.item name="Stone" label="Pedra"/>
+				<combo_box.item name="Metal" label="Metal"/>
+				<combo_box.item name="Glass" label="Vidro"/>
+				<combo_box.item name="Wood" label="Madeira"/>
+				<combo_box.item name="Flesh" label="Carne"/>
+				<combo_box.item name="Plastic" label="Plástico"/>
+				<combo_box.item name="Rubber" label="Couro"/>
 			</combo_box>
 			<text name="label basetype">
 				Forma básica
 			</text>
 			<combo_box name="comboBaseType">
-				<combo_item name="Box">
-					Caixa
-				</combo_item>
-				<combo_item name="Cylinder">
-					Cilindro
-				</combo_item>
-				<combo_item name="Prism">
-					Prisma
-				</combo_item>
-				<combo_item name="Sphere">
-					Esfera
-				</combo_item>
-				<combo_item name="Torus">
-					Toróide
-				</combo_item>
-				<combo_item name="Tube">
-					Tubo
-				</combo_item>
-				<combo_item name="Ring">
-					Anel
-				</combo_item>
-				<combo_item name="Sculpted">
-					Esculpida
-				</combo_item>
+				<combo_box.item name="Box" label="Caixa"/>
+				<combo_box.item name="Cylinder" label="Cilindro"/>
+				<combo_box.item name="Prism" label="Prisma"/>
+				<combo_box.item name="Sphere" label="Esfera"/>
+				<combo_box.item name="Torus" label="Toróide"/>
+				<combo_box.item name="Tube" label="Tubo"/>
+				<combo_box.item name="Ring" label="Anel"/>
+				<combo_box.item name="Sculpted" label="Esculpida"/>
 			</combo_box>
 			<text name="text cut">
 				Recorte inicial e final
@@ -325,18 +269,10 @@
 				Forma Vazia
 			</text>
 			<combo_box name="hole">
-				<combo_item name="Default">
-					Padrão
-				</combo_item>
-				<combo_item name="Circle">
-					Circulo
-				</combo_item>
-				<combo_item name="Square">
-					Quadrado
-				</combo_item>
-				<combo_item name="Triangle">
-					Triâgulo
-				</combo_item>
+				<combo_box.item name="Default" label="Padrão"/>
+				<combo_box.item name="Circle" label="Circulo"/>
+				<combo_box.item name="Square" label="Quadrado"/>
+				<combo_box.item name="Triangle" label="Triâgulo"/>
 			</combo_box>
 			<text name="text twist">
 				Torcer no Início e final
@@ -382,21 +318,11 @@
 				Tipo costura
 			</text>
 			<combo_box name="sculpt type control">
-				<combo_item name="None">
-					(nenhum)
-				</combo_item>
-				<combo_item name="Sphere">
-					Esfera
-				</combo_item>
-				<combo_item name="Torus">
-					Toróide
-				</combo_item>
-				<combo_item name="Plane">
-					Plano
-				</combo_item>
-				<combo_item name="Cylinder">
-					Cilindro
-				</combo_item>
+				<combo_box.item name="None" label="nenhum)"/>
+				<combo_box.item name="Sphere" label="Esfera"/>
+				<combo_box.item name="Torus" label="Toróide"/>
+				<combo_box.item name="Plane" label="Plano"/>
+				<combo_box.item name="Cylinder" label="Cilindro"/>
 			</combo_box>
 		</panel>
 		<panel label="Recursos" name="Features">
@@ -438,88 +364,40 @@
 				Mapeamento
 			</text>
 			<combo_box name="combobox texgen">
-				<combo_item name="Default">
-					Padrão
-				</combo_item>
-				<combo_item name="Planar">
-					Planar
-				</combo_item>
+				<combo_box.item name="Default" label="Padrão"/>
+				<combo_box.item name="Planar" label="Planar"/>
 			</combo_box>
 			<text name="label shininess">
 				Brilho
 			</text>
 			<combo_box name="combobox shininess">
-				<combo_item name="None">
-					Nenhum
-				</combo_item>
-				<combo_item name="Low">
-					Baixo
-				</combo_item>
-				<combo_item name="Medium">
-					Médio
-				</combo_item>
-				<combo_item name="High">
-					Alto
-				</combo_item>
+				<combo_box.item name="None" label="Nenhum"/>
+				<combo_box.item name="Low" label="Baixo"/>
+				<combo_box.item name="Medium" label="Médio"/>
+				<combo_box.item name="High" label="Alto"/>
 			</combo_box>
 			<text name="label bumpiness">
 				Ondulação
 			</text>
 			<combo_box name="combobox bumpiness">
-				<combo_item name="None">
-					Nenhum
-				</combo_item>
-				<combo_item name="Brightness">
-					Claridade
-				</combo_item>
-				<combo_item name="Darkness">
-					Escuridão
-				</combo_item>
-				<combo_item name="woodgrain">
-					Granulação
-				</combo_item>
-				<combo_item name="bark">
-					casca
-				</combo_item>
-				<combo_item name="bricks">
-					Tijolos
-				</combo_item>
-				<combo_item name="checker">
-					Caixa
-				</combo_item>
-				<combo_item name="concrete">
-					Concreto
-				</combo_item>
-				<combo_item name="crustytile">
-					Encaroçado
-				</combo_item>
-				<combo_item name="cutstone">
-					Pedra Cortante
-				</combo_item>
-				<combo_item name="discs">
-					Discos
-				</combo_item>
-				<combo_item name="gravel">
-					Cascalho
-				</combo_item>
-				<combo_item name="petridish">
-					Pedrisco
-				</combo_item>
-				<combo_item name="siding">
-					Revestimento
-				</combo_item>
-				<combo_item name="stonetile">
-					empedrado
-				</combo_item>
-				<combo_item name="stucco">
-					Grafiato
-				</combo_item>
-				<combo_item name="suction">
-					Sulcos
-				</combo_item>
-				<combo_item name="weave">
-					weave
-				</combo_item>
+				<combo_box.item name="None" label="Nenhum"/>
+				<combo_box.item name="Brightness" label="Claridade"/>
+				<combo_box.item name="Darkness" label="Escuridão"/>
+				<combo_box.item name="woodgrain" label="Granulação"/>
+				<combo_box.item name="bark" label="casca"/>
+				<combo_box.item name="bricks" label="Tijolos"/>
+				<combo_box.item name="checker" label="Caixa"/>
+				<combo_box.item name="concrete" label="Concreto"/>
+				<combo_box.item name="crustytile" label="Encaroçado"/>
+				<combo_box.item name="cutstone" label="Pedra Cortante"/>
+				<combo_box.item name="discs" label="Discos"/>
+				<combo_box.item name="gravel" label="Cascalho"/>
+				<combo_box.item name="petridish" label="Pedrisco"/>
+				<combo_box.item name="siding" label="Revestimento"/>
+				<combo_box.item name="stonetile" label="empedrado"/>
+				<combo_box.item name="stucco" label="Grafiato"/>
+				<combo_box.item name="suction" label="Sulcos"/>
+				<combo_box.item name="weave" label="weave"/>
 			</combo_box>
 			<text name="tex scale">
 				Repetir por Face

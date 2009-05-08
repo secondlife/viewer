@@ -38,123 +38,51 @@ dann auf das Objekt:
 		Hendrerit Vulputate
 	</text>
 	<combo_box name="category_combo" tool_tip="Kategorie -- wählen Sie die Kategorie aus, die am besten auf diesen Bericht zutrifft">
-		<combo_item name="Select_category">
-			Kategorie auswählen
-		</combo_item>
-		<combo_item name="Age__Age_play">
-			Alter&gt; Age-Play
-		</combo_item>
-		<combo_item name="Age__Adult_resident_on_Teen_Second_Life">
-			Alter&gt; Erwachsener Einwohner in Teen Second Life
-		</combo_item>
+		<combo_box.item name="Select_category" label="Kategorie auswählen"/>
+		<combo_box.item name="Age__Age_play" label="Alter&gt; Age-Play"/>
+		<combo_box.item name="Age__Adult_resident_on_Teen_Second_Life" label="Alter&gt; Erwachsener Einwohner in Teen Second Life"/>
 		
 		
 		
-		<combo_item name="Assault__Combat_sandbox___unsafe_area">
-			Angriff&gt; Kampf-Sandbox / unsichere Region
-		</combo_item>
-		<combo_item name="Assault__Safe_area">
-			Angriff&gt; Sichere Region
-		</combo_item>
-		<combo_item name="Assault__Weapons_testing_sandbox">
-			Angriff &gt; Sandbox für Waffentest
-		</combo_item>
-		<combo_item name="Commerce__Failure_to_deliver_product_or_service">
-			Handel &gt; Produkt nicht geliefert oder Dienstleistung nicht erbracht
-		</combo_item>
-		<combo_item name="Disclosure__Real_world_information">
-			Offenlegung &gt; Informationen aus realer Welt
-		</combo_item>
-		<combo_item name="Disclosure__Remotely_monitoring chat">
-			Offenlegung &gt; Abhören eines Chats aus der Ferne
-		</combo_item>
-		<combo_item name="Disclosure__Second_Life_information_chat_IMs">
-			Offenlegung &gt; Second Life-Informationen/Chat/IMs
-		</combo_item>
-		<combo_item name="Disturbing_the_peace__Unfair_use_of_region_resources">
-			Ruhestörung &gt; Unfaire Nutzung von Regionsressourcen
-		</combo_item>
-		<combo_item name="Disturbing_the_peace__Excessive_scripted_objects">
-			Ruhestörung &gt; Exzessive Nutzung geskripteter Objekte
-		</combo_item>
-		<combo_item name="Disturbing_the_peace__Object_littering">
-			Ruhestörung &gt; Wildes Erzeugen von Objekten
-		</combo_item>
-		<combo_item name="Disturbing_the_peace__Repetitive_spam">
-			Ruhestörung &gt; Ständige Spam-Wiederholung
-		</combo_item>
-		<combo_item name="Disturbing_the_peace__Unwanted_advert_spam">
-			Ruhestörung &gt; Unerwünschte Spam-Werbung
-		</combo_item>
-		<combo_item name="Fraud__L$">
-			Betrug &gt; L$
-		</combo_item>
-		<combo_item name="Fraud__Land">
-			Betrug&gt; Land
-		</combo_item>
-		<combo_item name="Fraud__Pyramid_scheme_or_chain_letter">
-			Betrug &gt; Schneeballsystem oder Kettenbrief
-		</combo_item>
-		<combo_item name="Fraud__US$">
-			Betrug &gt; US$
-		</combo_item>
-		<combo_item name="Harassment__Advert_farms___visual_spam">
-			Belästigung &gt; Werbefarmen / visueller Spam
-		</combo_item>
-		<combo_item name="Harassment__Defaming_individuals_or_groups">
-			Belästigung &gt; Diffamieren von Einzelpersonen/Gruppen
-		</combo_item>
-		<combo_item name="Harassment__Impeding_movement">
-			Belästigung &gt; Bewegungseinschränkung
-		</combo_item>
-		<combo_item name="Harassment__Sexual_harassment">
-			Belästigung &gt; Sexuelle Belästigung
-		</combo_item>
-		<combo_item name="Harassment__Solicting_inciting_others_to_violate_ToS">
-			Belästigung &gt; Anstiften Dritter zur Missachtung der Nutzungsbedingungen
-		</combo_item>
-		<combo_item name="Harassment__Verbal_abuse">
-			Belästigung &gt; Beschimpfung
-		</combo_item>
-		<combo_item name="Indecency__Broadly_offensive_content_or_conduct">
-			Unanständigkeit &gt; Anstößige Inhalte oder Handlungen in der Öffentlichkeit
-		</combo_item>
+		<combo_box.item name="Assault__Combat_sandbox___unsafe_area" label="Angriff&gt; Kampf-Sandbox / unsichere Region"/>
+		<combo_box.item name="Assault__Safe_area" label="Angriff&gt; Sichere Region"/>
+		<combo_box.item name="Assault__Weapons_testing_sandbox" label="Angriff &gt; Sandbox für Waffentest"/>
+		<combo_box.item name="Commerce__Failure_to_deliver_product_or_service" label="Handel &gt; Produkt nicht geliefert oder Dienstleistung nicht erbracht"/>
+		<combo_box.item name="Disclosure__Real_world_information" label="Offenlegung &gt; Informationen aus realer Welt"/>
+		<combo_box.item name="Disclosure__Remotely_monitoring chat" label="Offenlegung &gt; Abhören eines Chats aus der Ferne"/>
+		<combo_box.item name="Disclosure__Second_Life_information_chat_IMs" label="Offenlegung &gt; Second Life-Informationen/Chat/IMs"/>
+		<combo_box.item name="Disturbing_the_peace__Unfair_use_of_region_resources" label="Ruhestörung &gt; Unfaire Nutzung von Regionsressourcen"/>
+		<combo_box.item name="Disturbing_the_peace__Excessive_scripted_objects" label="Ruhestörung &gt; Exzessive Nutzung geskripteter Objekte"/>
+		<combo_box.item name="Disturbing_the_peace__Object_littering" label="Ruhestörung &gt; Wildes Erzeugen von Objekten"/>
+		<combo_box.item name="Disturbing_the_peace__Repetitive_spam" label="Ruhestörung &gt; Ständige Spam-Wiederholung"/>
+		<combo_box.item name="Disturbing_the_peace__Unwanted_advert_spam" label="Ruhestörung &gt; Unerwünschte Spam-Werbung"/>
+		<combo_box.item name="Fraud__L$" label="Betrug &gt; L$"/>
+		<combo_box.item name="Fraud__Land" label="Betrug&gt; Land"/>
+		<combo_box.item name="Fraud__Pyramid_scheme_or_chain_letter" label="Betrug &gt; Schneeballsystem oder Kettenbrief"/>
+		<combo_box.item name="Fraud__US$" label="Betrug &gt; US$"/>
+		<combo_box.item name="Harassment__Advert_farms___visual_spam" label="Belästigung &gt; Werbefarmen / visueller Spam"/>
+		<combo_box.item name="Harassment__Defaming_individuals_or_groups" label="Belästigung &gt; Diffamieren von Einzelpersonen/Gruppen"/>
+		<combo_box.item name="Harassment__Impeding_movement" label="Belästigung &gt; Bewegungseinschränkung"/>
+		<combo_box.item name="Harassment__Sexual_harassment" label="Belästigung &gt; Sexuelle Belästigung"/>
+		<combo_box.item name="Harassment__Solicting_inciting_others_to_violate_ToS" label="Belästigung &gt; Anstiften Dritter zur Missachtung der Nutzungsbedingungen"/>
+		<combo_box.item name="Harassment__Verbal_abuse" label="Belästigung &gt; Beschimpfung"/>
+		<combo_box.item name="Indecency__Broadly_offensive_content_or_conduct" label="Unanständigkeit &gt; Anstößige Inhalte oder Handlungen in der Öffentlichkeit"/>
 		
 		
 		
-		<combo_item name="Indecency__Inappropriate_avatar_name">
-			Unanständigkeit &gt; Anstößiger Avatarname
-		</combo_item>
+		<combo_box.item name="Indecency__Inappropriate_avatar_name" label="Unanständigkeit &gt; Anstößiger Avatarname"/>
 		
 		
 		
-		<combo_item name="Intellectual_property_infringement_Content_Removal">
-			Urheberrechtsverletzung &gt; Entfernen von Inhalten
-		</combo_item>
-		<combo_item name="Intellectual_property_infringement_CopyBot_or_Permissions_Exploit">
-			Urheberrechtsverletzung &gt; CopyBot oder Berechtigungs-Exploit
-		</combo_item>
-		<combo_item name="Intolerance">
-			Intoleranz
-		</combo_item>
-		<combo_item name="Land__Abuse_of_sandbox_resources">
-			Land &gt; Missbrauch der Sandbox-Ressourcen
-		</combo_item>
-		<combo_item name="Land__Encroachment__Objects_textures">
-			Land &gt; Unbefugte Nutzung &gt; Objekte/Texturen
-		</combo_item>
-		<combo_item name="Land__Encroachment__Particles">
-			Land &gt; Unbefugte Nutzung &gt; Partikel
-		</combo_item>
-		<combo_item name="Land__Encroachment__Trees_plants">
-			Land &gt; Unbefugte Nutzung &gt; Bäume/Pflanzen
-		</combo_item>
-		<combo_item name="Wagering_gambling">
-			Wetten/Glücksspiel
-		</combo_item>
-		<combo_item name="Other">
-			Sonstige
-		</combo_item>
+		<combo_box.item name="Intellectual_property_infringement_Content_Removal" label="Urheberrechtsverletzung &gt; Entfernen von Inhalten"/>
+		<combo_box.item name="Intellectual_property_infringement_CopyBot_or_Permissions_Exploit" label="Urheberrechtsverletzung &gt; CopyBot oder Berechtigungs-Exploit"/>
+		<combo_box.item name="Intolerance" label="Intoleranz"/>
+		<combo_box.item name="Land__Abuse_of_sandbox_resources" label="Land &gt; Missbrauch der Sandbox-Ressourcen"/>
+		<combo_box.item name="Land__Encroachment__Objects_textures" label="Land &gt; Unbefugte Nutzung &gt; Objekte/Texturen"/>
+		<combo_box.item name="Land__Encroachment__Particles" label="Land &gt; Unbefugte Nutzung &gt; Partikel"/>
+		<combo_box.item name="Land__Encroachment__Trees_plants" label="Land &gt; Unbefugte Nutzung &gt; Bäume/Pflanzen"/>
+		<combo_box.item name="Wagering_gambling" label="Wetten/Glücksspiel"/>
+		<combo_box.item name="Other" label="Sonstige"/>
 	</combo_box>
 	<text name="abuser_name_title">
 		Name des Beschuldigten:

@@ -1,12 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="settings_debug" title="Ustawienia Usuwania Błędów">
 	<combo_box name="boolean_combo">
-		<combo_box.item name="TRUE">
-			PRAWDA
-		</combo_box.item>
-		<combo_box.item name="FALSE">
-			NIEPRAWDA
-		</combo_box.item>
+		<combo_box.item name="TRUE" label="PRAWDA" />
+		<combo_box.item name="FALSE" label="NIEPRAWDA" />
 	</combo_box>
 	<color_swatch label="Kolor" name="color_swatch"/>
 	<spinner label="x" name="val_spinner_1"/>

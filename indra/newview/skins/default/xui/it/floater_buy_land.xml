@@ -66,15 +66,9 @@
 		Solo i membri premium possono possedere terra.
 	</text>
 	<combo_box name="account_level">
-		<combo_item name="US$9.95/month,billedmonthly">
-			9.95 US$/mese, addebitati mensilmente
-		</combo_item>
-		<combo_item name="US$7.50/month,billedquarterly">
-			7.50 US$/mese, addebitati ogni quadrimestre
-		</combo_item>
-		<combo_item name="US$6.00/month,billedannually">
-			6.00 US$/mese, addebitati annualmente
-		</combo_item>
+		<combo_box.item name="US$9.95/month,billedmonthly" label="9.95 US$/mese, addebitati mensilmente"/>
+		<combo_box.item name="US$7.50/month,billedquarterly" label="7.50 US$/mese, addebitati ogni quadrimestre"/>
+		<combo_box.item name="US$6.00/month,billedannually" label="6.00 US$/mese, addebitati annualmente"/>
 	</combo_box>
 	<text name="land_use_action">
 		Aumenta il tasso di pagamento mensile delle tasse d&apos;uso della terra a 40 US$/mese.

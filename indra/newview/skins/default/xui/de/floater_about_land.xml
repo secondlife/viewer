@@ -254,43 +254,19 @@
 			<check_box label="Kein Stoßen" name="PushRestrictCheck" tool_tip="Verhindert Skripte am Stoßen. Durch Aktivieren dieser Option verhindern Sie störendes Verhalten auf Ihrem Land."/>
 			<check_box label="Ort in Suche anzeigen (30 L$/Woche) unter" name="ShowDirectoryCheck" tool_tip="Diese Parzelle in Suchergebnissen anzeigen."/>
 			<combo_box name="land category" left="266" width="130">
-				<combo_item name="AnyCategory">
-					Alle Kategorien
-				</combo_item>
-				<combo_item name="LindenLocation">
-					Lindenort
-				</combo_item>
+				<combo_box.item name="AnyCategory" label="Alle Kategorien"/>
+				<combo_box.item name="LindenLocation" label="Lindenort"/>
 
-				<combo_item name="Arts&amp;Culture">
-					Kunst und Kultur
-				</combo_item>
-				<combo_item name="Business">
-					Business
-				</combo_item>
-				<combo_item name="Educational">
-					Bildung
-				</combo_item>
-				<combo_item name="Gaming">
-					Spielen
-				</combo_item>
-				<combo_item name="Hangout">
-					Treffpunkt
-				</combo_item>
-				<combo_item name="NewcomerFriendly">
-					Anfängergerecht
-				</combo_item>
-				<combo_item name="Parks&amp;Nature">
-					Parks und Natur
-				</combo_item>
-				<combo_item name="Residential">
-					Wohngebiet
-				</combo_item>
-				<combo_item name="Shopping">
-					Shopping
-				</combo_item>
-				<combo_item name="Other">
-					Sonstige
-				</combo_item>
+				<combo_box.item name="Arts&amp;Culture" label="Kunst und Kultur"/>
+				<combo_box.item name="Business" label="Business"/>
+				<combo_box.item name="Educational" label="Bildung"/>
+				<combo_box.item name="Gaming" label="Spielen"/>
+				<combo_box.item name="Hangout" label="Treffpunkt"/>
+				<combo_box.item name="NewcomerFriendly" label="Anfängergerecht"/>
+				<combo_box.item name="Parks&amp;Nature" label="Parks und Natur"/>
+				<combo_box.item name="Residential" label="Wohngebiet"/>
+				<combo_box.item name="Shopping" label="Shopping"/>
+				<combo_box.item name="Other" label="Sonstige"/>
 			</combo_box>
 			<button label="?" label_selected="?" name="?"/>
 			<check_box name="MatureCheck" />
@@ -310,15 +286,9 @@
 				Teleport-Route:
 			</text>
 			<combo_box name="landing type" tool_tip="Teleport-Route -- festlegen, wie Teleports auf Ihrem Land gehandhabt werden sollen." >
-				<combo_item name="Blocked">
-					Blockiert
-				</combo_item>
-				<combo_item name="LandingPoint">
-					Landepunkt
-				</combo_item>
-				<combo_item name="Anywhere">
-					Überall
-				</combo_item>
+				<combo_box.item name="Blocked" label="Blockiert"/>
+				<combo_box.item name="LandingPoint" label="Landepunkt"/>
+				<combo_box.item name="Anywhere" label="Überall"/>
 			</combo_box>
 			<string name="push_restrict_text">
 				Kein Stoßen
@@ -403,12 +373,8 @@ Optionen:
 			<check_box label="Gruppenzugang erlauben: [GROUP]" name="GroupCheck" tool_tip="Gruppe im Register „Allgemein“ festlegen."/>
 			<check_box label="Pässe verkaufen an:" name="PassCheck" tool_tip="Ermöglicht befristeten Zugang zu dieser Parzelle"/>
 			<combo_box name="pass_combo">
-				<combo_item name="Anyone">
-					Jeden
-				</combo_item>
-				<combo_item name="Group">
-					Gruppe
-				</combo_item>
+				<combo_box.item name="Anyone" label="Jeden"/>
+				<combo_box.item name="Group" label="Gruppe"/>
 			</combo_box>
 			<spinner label="Preis in L$:" name="PriceSpin"/>
 			<spinner label="Online-Zeit:" name="HoursSpin"/>

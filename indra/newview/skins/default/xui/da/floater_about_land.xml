@@ -271,42 +271,18 @@ Gå til &apos;Verden&apos; &gt; &apos;Om land&apos; eller vælg en anden parcel 
 			<check_box label="Vis sted i søgning (L$30/uge) i kategorien:" name="ShowDirectoryCheck"
 			     tool_tip="Lad dit parcel blive vist i søge resultaterne" />
 			<combo_box name="land category">
-				<combo_box.item name="AnyCategory">
-					Alle kategorier
-				</combo_box.item>
-				<combo_box.item name="LindenLocation">
-					Linden Location
-				</combo_box.item>
-				<combo_box.item name="Arts&amp;Culture">
-					Kunst &amp; kultur
-				</combo_box.item>
-				<combo_box.item name="Business">
-					Business
-				</combo_box.item>
-				<combo_box.item name="Educational">
-					Uddannelse
-				</combo_box.item>
-				<combo_box.item name="Gaming">
-					Spil
-				</combo_box.item>
-				<combo_box.item name="Hangout">
-					Afslapning
-				</combo_box.item>
-				<combo_box.item name="NewcomerFriendly">
-					Nybegynder venligt
-				</combo_box.item>
-				<combo_box.item name="Parks&amp;Nature">
-					Parker &amp; natur
-				</combo_box.item>
-				<combo_box.item name="Residential">
-					Beboelse
-				</combo_box.item>
-				<combo_box.item name="Shopping">
-					Indkøb
-				</combo_box.item>
-				<combo_box.item name="Other">
-					Andet
-				</combo_box.item>
+				<combo_box.item name="AnyCategory" label="Alle kategorier" />
+				<combo_box.item name="LindenLocation" label="Linden Location" />
+				<combo_box.item name="Arts&amp;Culture" label="Kunst &amp; kultur" />
+				<combo_box.item name="Business" label="Business" />
+				<combo_box.item name="Educational" label="Uddannelse" />
+				<combo_box.item name="Gaming" label="Spil" />
+				<combo_box.item name="Hangout" label="Afslapning" />
+				<combo_box.item name="NewcomerFriendly" label="Nybegynder venligt" />
+				<combo_box.item name="Parks&amp;Nature" label="Parker &amp; natur" />
+				<combo_box.item name="Residential" label="Beboelse" />
+				<combo_box.item name="Shopping" label="Indkøb" />
+				<combo_box.item name="Other" label="Andet" />
 			</combo_box>
 			<button label="?" label_selected="?" name="?" />
 			<check_box name="MatureCheck" />
@@ -328,15 +304,9 @@ Gå til &apos;Verden&apos; &gt; &apos;Om land&apos; eller vælg en anden parcel 
 				Teleport valg:
 			</text>
 			<combo_box name="landing type" tool_tip="Vælg hvordan du vil håndtere teleporteringer til dit land.">
-				<combo_box.item length="1" name="Blocked" type="string">
-					Blokeret
-				</combo_box.item>
-				<combo_box.item length="1" name="LandingPoint" type="string">
-					Landingspunkt
-				</combo_box.item>
-				<combo_box.item length="1" name="Anywhere" type="string">
-					Hvor som helst
-				</combo_box.item>
+				<combo_box.item length="1" name="Blocked" type="string" label="Blokeret" />
+				<combo_box.item length="1" name="LandingPoint" type="string" label="Landingspunkt" />
+				<combo_box.item length="1" name="Anywhere" type="string" label="Hvor som helst" />
 			</combo_box>
 			<string name="push_restrict_text">
 				Skub forbudt
@@ -432,12 +402,8 @@ web-siden, efter du klikker på play knappen.)
 			<check_box label="Sælg adgang til:" name="PassCheck"
 			     tool_tip="Tillader midlertidig adgang til denne parcel" />
 			<combo_box name="pass_combo">
-				<combo_box.item name="Anyone">
-					Alle
-				</combo_box.item>
-				<combo_box.item name="Group">
-					Gruppe
-				</combo_box.item>
+				<combo_box.item name="Anyone" label="Alle" />
+				<combo_box.item name="Group" label="Gruppe" />
 			</combo_box>
 			<spinner label="Pris i L$:" name="PriceSpin" />
 			<spinner label="Timers adgang:" name="HoursSpin" />

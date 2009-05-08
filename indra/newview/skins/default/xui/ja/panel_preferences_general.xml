@@ -10,15 +10,9 @@
 	</radio_group>
 	<check_box label="ログイン画面にログイン位置を表示" name="show_location_checkbox"/>
 	<combo_box name="fade_out_combobox">
-		<combo_item name="Never">
-			なし
-		</combo_item>
-		<combo_item name="Show Temporarily">
-			一時的に表示
-		</combo_item>
-		<combo_item name="Always">
-			いつも
-		</combo_item>
+		<combo_box.item name="Never" label="なし"/>
+		<combo_box.item name="Show Temporarily" label="一時的に表示"/>
+		<combo_box.item name="Always" label="いつも"/>
 	</combo_box>
 	<check_box label="小さなアバター名" name="small_avatar_names_checkbox"/>
 	<check_box label="画面上で自分の名前を隠す" name="show_my_name_checkbox"/>
@@ -59,59 +53,25 @@
 		&lt;地域の名前入力&gt;
 	</string>
 	<combo_box name="crash_behavior_combobox">
-		<combo_item length="1" name="Askbeforesending" type="string">
-			送る前に確認する
-		</combo_item>
-		<combo_item length="1" name="Alwayssend" type="string">
-			常に送信
-		</combo_item>
-		<combo_item length="1" name="Neversend" type="string">
-			送信しない
-		</combo_item>
+		<combo_box.item length="1" name="Askbeforesending" type="string" label="送る前に確認する"/>
+		<combo_box.item length="1" name="Alwayssend" type="string" label="常に送信"/>
+		<combo_box.item length="1" name="Neversend" type="string" label="送信しない"/>
 	</combo_box>
 	<combo_box name="language_combobox">
-		<combo_item length="1" name="System Default Language" type="string">
-			システム・デフォルト
-		</combo_item>
-		<combo_item length="1" name="English" type="string">
-			English (英語)
-		</combo_item>
-		<combo_item length="1" name="Danish" type="string">
-			Dansk (デンマーク語) – ベータ
-		</combo_item>
-		<combo_item length="1" name="Deutsch(German)" type="string">
-			Deutsch (ドイツ語) – ベータ
-		</combo_item>
-		<combo_item length="1" name="Spanish" type="string">
-			Español (スペイン語) – ベータ
-		</combo_item>
-		<combo_item length="1" name="French" type="string">
-			Français (フランス語) – ベータ
-		</combo_item>
-		<combo_item name="Hungarian">
-			Magyar (ハンガリー語) - ベータ
-		</combo_item>
-		<combo_item name="Polish">
-			Polski (ポーランド語) - ベータ
-		</combo_item>
-		<combo_item length="1" name="Portugese" type="string">
-			Português (ポルトガル語) – ベータ
-		</combo_item>
-		<combo_item name="Russian">
-			Русский (ロシア語) - ベータ
-		</combo_item>
-		<combo_item name="Ukrainian">
-			Українська (ウクライナ語) - ベータ
-		</combo_item>
-		<combo_item length="1" name="Chinese" type="string">
-			中文 (简体) (中国語) - ベータ
-		</combo_item>
-		<combo_item length="1" name="(Japanese)" type="string">
-			日本語 – ベータ
-		</combo_item>
-		<combo_item length="1" name="(Korean)" type="string">
-			한국어 (韓国語) – ベータ
-		</combo_item>
+		<combo_box.item length="1" name="System Default Language" type="string" label="システム・デフォルト"/>
+		<combo_box.item length="1" name="English" type="string" label="English (英語)"/>
+		<combo_box.item length="1" name="Danish" type="string" label="Dansk (デンマーク語) – ベータ"/>
+		<combo_box.item length="1" name="Deutsch(German)" type="string" label="Deutsch (ドイツ語) – ベータ"/>
+		<combo_box.item length="1" name="Spanish" type="string" label="Español (スペイン語) – ベータ"/>
+		<combo_box.item length="1" name="French" type="string" label="Français (フランス語) – ベータ"/>
+		<combo_box.item name="Hungarian" label="Magyar (ハンガリー語) - ベータ"/>
+		<combo_box.item name="Polish" label="Polski (ポーランド語) - ベータ"/>
+		<combo_box.item length="1" name="Portugese" type="string" label="Português (ポルトガル語) – ベータ"/>
+		<combo_box.item name="Russian" label="Русский (ロシア語) - ベータ"/>
+		<combo_box.item name="Ukrainian" label="Українська (ウクライナ語) - ベータ"/>
+		<combo_box.item length="1" name="Chinese" type="string" label="中文 (简体) (中国語) - ベータ"/>
+		<combo_box.item length="1" name="(Japanese)" type="string" label="日本語 – ベータ"/>
+		<combo_box.item length="1" name="(Korean)" type="string" label="한국어 (韓国語) – ベータ"/>
 	</combo_box>
 	<check_box label="言語をオブジェクトと共有" name="language_is_public" tool_tip="優先言語をインワールドのオブジェクトが認識する"/>
 </panel>

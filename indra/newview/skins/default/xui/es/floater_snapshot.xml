@@ -34,75 +34,33 @@
 		Formato
 	</text>
 	<combo_box label="Resolución" name="postcard_size_combo">
-		<combo_item name="CurrentWindow">
-			Ventana actual
-		</combo_item>
-		<combo_item name="640x480">
-			640x480
-		</combo_item>
-		<combo_item name="800x600">
-			800x600
-		</combo_item>
-		<combo_item name="1024x768">
-			1024x768
-		</combo_item>
-		<combo_item name="Custom">
-			Personalizar
-		</combo_item>
+		<combo_box.item name="CurrentWindow" label="Ventana actual"/>
+		<combo_box.item name="640x480" label="640x480"/>
+		<combo_box.item name="800x600" label="800x600"/>
+		<combo_box.item name="1024x768" label="1024x768"/>
+		<combo_box.item name="Custom" label="Personalizar"/>
 	</combo_box>
 	<combo_box label="Resolución" name="texture_size_combo">
-		<combo_item name="CurrentWindow">
-			Ventana actual
-		</combo_item>
-		<combo_item name="Small(128x128)">
-			Pequeño (128x128)
-		</combo_item>
-		<combo_item name="Medium(256x256)">
-			Medio (256x256)
-		</combo_item>
-		<combo_item name="Large(512x512)">
-			Grande (512x512)
-		</combo_item>
-		<combo_item name="Custom">
-			Personalizar
-		</combo_item>
+		<combo_box.item name="CurrentWindow" label="Ventana actual"/>
+		<combo_box.item name="Small(128x128)" label="Pequeño (128x128)"/>
+		<combo_box.item name="Medium(256x256)" label="Medio (256x256)"/>
+		<combo_box.item name="Large(512x512)" label="Grande (512x512)"/>
+		<combo_box.item name="Custom" label="Personalizar"/>
 	</combo_box>
 	<combo_box label="Resolución" name="local_size_combo">
-		<combo_item name="CurrentWindow">
-			Ventana actual
-		</combo_item>
-		<combo_item name="320x240">
-			320x240
-		</combo_item>
-		<combo_item name="640x480">
-			640x480
-		</combo_item>
-		<combo_item name="800x600">
-			800x600
-		</combo_item>
-		<combo_item name="1024x768">
-			1024x768
-		</combo_item>
-		<combo_item name="1280x1024">
-			1280x1024
-		</combo_item>
-		<combo_item name="1600x1200">
-			1600x1200
-		</combo_item>
-		<combo_item name="Custom">
-			Personalizar
-		</combo_item>
+		<combo_box.item name="CurrentWindow" label="Ventana actual"/>
+		<combo_box.item name="320x240" label="320x240"/>
+		<combo_box.item name="640x480" label="640x480"/>
+		<combo_box.item name="800x600" label="800x600"/>
+		<combo_box.item name="1024x768" label="1024x768"/>
+		<combo_box.item name="1280x1024" label="1280x1024"/>
+		<combo_box.item name="1600x1200" label="1600x1200"/>
+		<combo_box.item name="Custom" label="Personalizar"/>
 	</combo_box>
 	<combo_box label="Formato" name="local_format_combo">
-		<combo_item name="PNG">
-			PNG
-		</combo_item>
-		<combo_item name="JPEG">
-			JPEG
-		</combo_item>
-		<combo_item name="BMP">
-			BMP
-		</combo_item>
+		<combo_box.item name="PNG" label="PNG"/>
+		<combo_box.item name="JPEG" label="JPEG"/>
+		<combo_box.item name="BMP" label="BMP"/>
 	</combo_box>
 	<spinner label="Ancho" name="snapshot_width"/>
 	<spinner label="Alto" name="snapshot_height"/>
@@ -112,15 +70,9 @@
 		Captura:
 	</text>
 	<combo_box label="Capas de la imagen" name="layer_types">
-		<combo_item name="Colors">
-			Colores
-		</combo_item>
-		<combo_item name="Depth">
-			Profundidad
-		</combo_item>
-		<combo_item name="ObjectMattes">
-			Bandas negras
-		</combo_item>
+		<combo_box.item name="Colors" label="Colores"/>
+		<combo_box.item name="Depth" label="Profundidad"/>
+		<combo_box.item name="ObjectMattes" label="Bandas negras"/>
 	</combo_box>
 	<check_box label="Incluir la interfaz en la foto" name="ui_check"/>
 	<check_box label="Incluir los HUD en la foto" name="hud_check"/>

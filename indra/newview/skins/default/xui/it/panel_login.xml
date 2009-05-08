@@ -19,15 +19,9 @@
 		Luogo di partenza:
 	</text>
 	<combo_box name="start_location_combo">
-		<combo_item name="MyHome">
-			Casa Mia
-		</combo_item>
-		<combo_item name="MyLastLocation">
-			Ultimo luogo dove sono stato
-		</combo_item>
-		<combo_item name="Typeregionname">
-			&lt;Scrivi la regione di partenza&gt;
-		</combo_item>
+		<combo_box.item name="MyHome" label="Casa Mia"/>
+		<combo_box.item name="MyLastLocation" label="Ultimo luogo dove sono stato"/>
+		<combo_box.item name="Typeregionname" label="lt;Scrivi la regione di partenza&gt;"/>
 	</combo_box>
 	<check_box label="Ricorda password" name="remember_check"/>
 	<button label="Log In" label_selected="Log In" name="connect_btn"/>

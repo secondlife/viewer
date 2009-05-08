@@ -253,43 +253,19 @@ Idź do Świat &gt; O Posiadłości albo wybierz inną posiadłość żeby pokaz
 			<check_box label="Popychanie niedozwolone" name="PushRestrictCheck" tool_tip="Nie pozwalaj skryptom na popychanie. Wybranie tej opcji może być przydatne do ograniczenia zakłóceń spokoju w Twojej posiadłości."/>
 			<check_box label="Wyświetlaj w wyszukiwarce (30L$/tyg.)" name="ShowDirectoryCheck" tool_tip="Udostępnij ukazywanie się nazwy posiadłości w wyszukiwarce"/>
 			<combo_box name="land category">
-				<combo_item name="AnyCategory">
-					Każda
-				</combo_item>
-				<combo_item name="LindenLocation">
-					Linden Lokacja
-				</combo_item>
+				<combo_box.item name="AnyCategory" label="Każda"/>
+				<combo_box.item name="LindenLocation" label="Linden Lokacja"/>
 
-				<combo_item name="Arts&amp;Culture">
-					Sztuka i Kultura
-				</combo_item>
-				<combo_item name="Business">
-					Biznes
-				</combo_item>
-				<combo_item name="Educational">
-					Edukacyjna
-				</combo_item>
-				<combo_item name="Gaming">
-					Gra
-				</combo_item>
-				<combo_item name="Hangout">
-					Poznawanie ludzi
-				</combo_item>
-				<combo_item name="NewcomerFriendly">
-					Przyjazna dla nowych
-				</combo_item>
-				<combo_item name="Parks&amp;Nature">
-					Parki i Natura
-				</combo_item>
-				<combo_item name="Residential">
-					Mieszkalna
-				</combo_item>
-				<combo_item name="Shopping">
-					Komercja/Sklepy
-				</combo_item>
-				<combo_item name="Other">
-					Inna
-				</combo_item>
+				<combo_box.item name="Arts&amp;Culture" label="Sztuka i Kultura"/>
+				<combo_box.item name="Business" label="Biznes"/>
+				<combo_box.item name="Educational" label="Edukacyjna"/>
+				<combo_box.item name="Gaming" label="Gra"/>
+				<combo_box.item name="Hangout" label="Poznawanie ludzi"/>
+				<combo_box.item name="NewcomerFriendly" label="Przyjazna dla nowych"/>
+				<combo_box.item name="Parks&amp;Nature" label="Parki i Natura"/>
+				<combo_box.item name="Residential" label="Mieszkalna"/>
+				<combo_box.item name="Shopping" label="Komercja/Sklepy"/>
+				<combo_box.item name="Other" label="Inna"/>
 			</combo_box>
 			<button label="?" label_selected="?" name="?"/>
 			<check_box name="MatureCheck" />
@@ -309,15 +285,9 @@ Idź do Świat &gt; O Posiadłości albo wybierz inną posiadłość żeby pokaz
 				Trasa Teleportacji:
 			</text>
 			<combo_box name="landing type" tool_tip="Trasa Teleportacj-ustaw w jaki sposób będzie sę odbywać proces telportacji w posiadłości.">
-				<combo_item length="1" name="Blocked" type="string">
-					Zablokowana
-				</combo_item>
-				<combo_item length="1" name="LandingPoint" type="string">
-					Punkt Lądowania
-				</combo_item>
-				<combo_item length="1" name="Anywhere" type="string">
-					Gdziekolwiek
-				</combo_item>
+				<combo_box.item length="1" name="Blocked" type="string" label="Zablokowana"/>
+				<combo_box.item length="1" name="LandingPoint" type="string" label="Punkt Lądowania"/>
+				<combo_box.item length="1" name="Anywhere" type="string" label="Gdziekolwiek"/>
 			</combo_box>
 			<string name="push_restrict_text">
 				Popychanie niedozwolone
@@ -403,12 +373,8 @@ Mediów:
 			<check_box label="Udostępnij wejście grupie: [GROUP]" name="GroupCheck" tool_tip="Ustaw grupę w głównej zakładce"/>
 			<check_box label="Sprzedaj wejściówki:" name="PassCheck" tool_tip="Otwórz tymczasowy dostęp do tej posiadłości"/>
 			<combo_box name="pass_combo">
-				<combo_item name="Anyone">
-					Każdemu
-				</combo_item>
-				<combo_item name="Group">
-					Grupie
-				</combo_item>
+				<combo_box.item name="Anyone" label="Każdemu"/>
+				<combo_box.item name="Group" label="Grupie"/>
 			</combo_box>
 			<spinner label="Cena w L$:" name="PriceSpin"/>
 			<spinner label="Ilość godzin dostępu:" name="HoursSpin"/>

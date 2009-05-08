@@ -8,21 +8,11 @@
 		Antialiasing:
 	</text>
 	<combo_box label="Antialiasing" name="fsaa">
-		<combo_item name="FSAADisabled">
-			Slået fra
-		</combo_item>
-		<combo_item name="2x">
-			2x
-		</combo_item>
-		<combo_item name="4x">
-			4x
-		</combo_item>
-		<combo_item name="8x">
-			8x
-		</combo_item>
-		<combo_item name="16x">
-			16x
-		</combo_item>
+		<combo_box.item name="FSAADisabled" label="Slået fra"/>
+		<combo_box.item name="2x" label="2x"/>
+		<combo_box.item name="4x" label="4x"/>
+		<combo_box.item name="8x" label="8x"/>
+		<combo_box.item name="16x" label="16x"/>
 	</combo_box>
 	<spinner label="Gamma:" name="gamma" />
 	<text type="string" length="1" name="(brightness, lower is brighter)">

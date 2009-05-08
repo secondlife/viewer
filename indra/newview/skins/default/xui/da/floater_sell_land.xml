@@ -34,15 +34,9 @@
 		Vælg om du vil sælge til hvem som helst eller en specifik køber.
 	</text>
 	<combo_box name="sell_to">
-		<combo_box.item name="--selectone--">
-			-- Vælg --
-		</combo_box.item>
-		<combo_box.item name="Anyone">
-			Alle
-		</combo_box.item>
-		<combo_box.item name="Specificuser:">
-			Specifik bruger:
-		</combo_box.item>
+		<combo_box.item name="--selectone--" label="Vælg --" />
+		<combo_box.item name="Anyone" label="Alle" />
+		<combo_box.item name="Specificuser:" label="Specifik bruger:" />
 	</combo_box>
 	<button label="Vælg..." name="sell_to_select_agent" />
 	<text name="sell_objects_label">

@@ -42,15 +42,11 @@
 	<check_box label="" name="event_mature_chk" />
 	<combo_box label="Venner online" name="friend combo"
 	     tool_tip="Ven der skal vises på kortet">
-		<combo_box.item name="none_selected">
-			Venner online
-		</combo_box.item>
+		<combo_box.item name="none_selected" label="Venner online" />
 	</combo_box>
 	<combo_box label="Landemærker" name="landmark combo"
 	     tool_tip="Landemærke der skal vises på kortet">
-		<combo_box.item name="none_selected">
-			Landemærker
-		</combo_box.item>
+		<combo_box.item name="none_selected" label="Landemærker" />
 	</combo_box>
 	<line_editor label="Søg på region navn" name="location"
 	     tool_tip="Skriv navnet på en region" />
