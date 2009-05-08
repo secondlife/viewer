@@ -154,41 +154,41 @@ public:
 
 	struct Params : public LLInitParam::Block<Params>
 	{
-		Mandatory<std::string>	name;
+		Mandatory<std::string>		name;
 
-		Optional<bool>			enabled,
-								visible;
-		Optional<bool>			mouse_opaque;
-		Optional<bool>			use_bounding_rect;
-		Optional<S32>			tab_group,
-								default_tab_group;
-		Optional<std::string>	tool_tip;
+		Optional<bool>				enabled,
+									visible;
+		Optional<bool>				mouse_opaque;
+		Optional<bool>				use_bounding_rect;
+		Optional<S32>				tab_group,
+									default_tab_group;
+		Optional<std::string>		tool_tip;
 
-		Optional<S32>			sound_flags;
-		Optional<bool>			serializable;
-		Optional<Follows>		follows;
-		Optional<std::string>	hover_cursor;
+		Optional<S32>				sound_flags;
+		Optional<bool>				serializable;
+		Optional<Follows>			follows;
+		Optional<std::string>		hover_cursor;
 		
 		// font params
 		Optional<const LLFontGL*>	font;
 		Optional<LLFontGL::HAlign>	font_halign;
 		Optional<LLFontGL::VAlign>	font_valign;
 
-		Optional<std::string>	layout;
-		Optional<LLRect>		rect;
-		Optional<S32>			top_delta,
-								bottom_delta,
-								right_delta,
-								left_delta;
-								
-		Optional<bool>			center_horiz,
-								center_vert;
+		Optional<std::string>		layout;
+		Optional<LLRect>			rect;
+		Optional<S32>				top_delta,
+									bottom_delta,
+									right_delta,
+									left_delta;
+									
+		Optional<bool>				center_horiz,
+									center_vert;
 
 		// these are nested attributes for LLLayoutPanel
 		//FIXME: get parent context involved in parsing traversal
-		Deprecated				user_resize,
-								auto_resize,
-								needs_translate;
+		Deprecated					user_resize,
+									auto_resize,
+									needs_translate;
 
 		Params();
 	};

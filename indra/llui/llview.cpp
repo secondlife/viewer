@@ -2341,7 +2341,14 @@ void LLView::initFromParams(const LLView::Params& params)
 
 void LLView::parseFollowsFlags(const LLView::Params& params)
 {
-	if (params.follows.string.isProvided())
+	// preserve follows flags set by code if user did not override
+	if (!params.follows.isProvided()) 
+	{
+		return;
+	}
+
+	// interpret either string or bitfield version of follows
+	if (params.follows.string.isChosen())
 	{
 		setFollows(FOLLOWS_NONE);
 
@@ -2378,7 +2385,7 @@ void LLView::parseFollowsFlags(const LLView::Params& params)
 			++token_iter;
 		}
 	}
-	else if (params.follows.flags.isProvided())
+	else if (params.follows.flags.isChosen())
 	{
 		setFollows(params.follows.flags);
 	}

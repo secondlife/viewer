@@ -1,6 +1,6 @@
 /**
- * @file llfloaternamedesc.h
- * @brief LLFloaterNameDesc class definition
+ * @file llfloaterurlentry.h
+ * @brief LLFloaterURLEntry class definition
  *
  * $LicenseInfo:firstyear=2007&license=viewergpl$
  * 

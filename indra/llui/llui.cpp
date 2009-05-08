@@ -1930,7 +1930,7 @@ LLLocalClipRect::LLLocalClipRect(const LLRect &rect, BOOL enabled)
 
 namespace LLInitParam
 {
-	TypedParam<LLUIColor >::TypedParam(BlockDescriptor& descriptor, const std::string& name, const LLUIColor& value, ParamDescriptor::validation_func_t func)
+	TypedParam<LLUIColor >::TypedParam(BlockDescriptor& descriptor, const char* name, const LLUIColor& value, ParamDescriptor::validation_func_t func)
 	:	super_t(descriptor, name, value, func),
 		red("red"),
 		green("green"),
@@ -1960,7 +1960,7 @@ namespace LLInitParam
 		declare("blue", LLColor4::blue);
 	}
 
-	TypedParam<const LLFontGL*>::TypedParam(BlockDescriptor& descriptor, const std::string& name, const LLFontGL*const value, ParamDescriptor::validation_func_t func)
+	TypedParam<const LLFontGL*>::TypedParam(BlockDescriptor& descriptor, const char* name, const LLFontGL*const value, ParamDescriptor::validation_func_t func)
 	:	super_t(descriptor, name, value, func),
 		name("", std::string("")),
 		size("size", std::string("")),
@@ -1991,7 +1991,7 @@ namespace LLInitParam
 		return mData.mValue;
 	}
 
-	TypedParam<LLRect>::TypedParam(BlockDescriptor& descriptor, const std::string& name, const LLRect& value, ParamDescriptor::validation_func_t func)
+	TypedParam<LLRect>::TypedParam(BlockDescriptor& descriptor, const char* name, const LLRect& value, ParamDescriptor::validation_func_t func)
 	:	super_t(descriptor, name, value, func),
 		left("left"),
 		top("top"),

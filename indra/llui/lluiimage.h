@@ -94,7 +94,7 @@ namespace LLInitParam
 	public:
 		Optional<std::string> name;
 
-		TypedParam(BlockDescriptor& descriptor, const std::string& name, super_t::value_assignment_t value, ParamDescriptor::validation_func_t func)
+		TypedParam(BlockDescriptor& descriptor, const char* name, super_t::value_assignment_t value, ParamDescriptor::validation_func_t func)
 		:	super_t(descriptor, name, value, func)
 		{
 		}

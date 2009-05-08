@@ -1462,26 +1462,26 @@ void LLPanelLandObjects::processParcelObjectOwnersReply(LLMessageSystem *msg, vo
 
 		if (is_group_owned)
 		{
-			item_params.cells.add().type("icon").value(self->mIconGroup->getName());
-			item_params.cells.add().value(OWNER_GROUP).font(FONT);
+			item_params.cells.add().type("icon").value(self->mIconGroup->getName()).column("type");
+			item_params.cells.add().value(OWNER_GROUP).font(FONT).column("online_status");
 		}
 		else if (is_online)
 		{
-			item_params.cells.add().type("icon").value(self->mIconAvatarOnline->getName());
-			item_params.cells.add().value(OWNER_ONLINE).font(FONT);
+			item_params.cells.add().type("icon").value(self->mIconAvatarOnline->getName()).column("type");
+			item_params.cells.add().value(OWNER_ONLINE).font(FONT).column("online_status");
 		}
 		else  // offline
 		{
-			item_params.cells.add().type("icon").value(self->mIconAvatarOffline->getName());
-			item_params.cells.add().value(OWNER_OFFLINE).font(FONT);
+			item_params.cells.add().type("icon").value(self->mIconAvatarOffline->getName()).column("type");
+			item_params.cells.add().value(OWNER_OFFLINE).font(FONT).column("online_status");
 		}
 
 		// Placeholder for name.
-		item_params.cells.add().font(FONT);
+		item_params.cells.add().font(FONT).column("name");
 
 		object_count_str = llformat("%d", object_count);
-		item_params.cells.add().value(object_count_str).font(FONT);
-		item_params.cells.add().value(formatted_time((time_t)most_recent_time)).font(FONT);
+		item_params.cells.add().value(object_count_str).font(FONT).column("count");
+		item_params.cells.add().value(formatted_time((time_t)most_recent_time)).font(FONT).column("mostrecent");
 
 		self->mOwnerList->addRow(item_params);
 

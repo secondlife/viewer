@@ -66,9 +66,19 @@ public:
 		{}		
 	};
 
+	struct NameColumn : public LLInitParam::Choice<NameColumn>
+	{
+		Option<S32>				column_index;
+		Option<std::string>		column_name;
+		NameColumn()
+		:	column_name("name_column"),
+			column_index("name_column_index", 0)
+		{}
+	};
+
 	struct Params : public LLInitParam::Block<Params, LLScrollListCtrl::Params>
 	{
-		Optional<std::string>	name_column;
+		Optional<NameColumn>	name_column;
 		Optional<bool>	allow_calling_card_drop;
 		Params();
 	};

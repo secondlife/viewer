@@ -54,7 +54,7 @@ void LLNameListCtrl::NameTypeNames::declareValues()
 }
 
 LLNameListCtrl::Params::Params()
-:	name_column("name_column"),
+:	name_column(""),
 	allow_calling_card_drop("allow_calling_card_drop", false)
 {
 	name = "name_list";
@@ -63,8 +63,8 @@ LLNameListCtrl::Params::Params()
 LLNameListCtrl::LLNameListCtrl(const LLNameListCtrl::Params& p)
 :	LLScrollListCtrl(p),
 	mAllowCallingCardDrop(p.allow_calling_card_drop),
-	mNameColumn(p.name_column),
-	mNameColumnIndex(0)
+	mNameColumn(p.name_column.column_name),
+	mNameColumnIndex(p.name_column.column_index)
 {}
 
 // public
