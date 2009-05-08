@@ -42,7 +42,7 @@
 //#include "llfloaterchat.h"
 #include "llviewerstats.h"
 #include "llnotify.h"
-
+#include "lltrans.h"
 // Globals
 LLWearableList gWearableList; // Globally constructed; be careful that there's no dependency with gAgent.
 
@@ -187,8 +187,7 @@ void LLWearableList::processGetAssetReply( const char* filename, const LLAssetID
 	else
 	{
 		LLSD args;
-		// *TODO:translate
-		args["TYPE"] = LLAssetType::lookupHumanReadable(data->mAssetType);
+		args["TYPE"] =LLTrans::getString(LLAssetType::lookupHumanReadable(data->mAssetType));
 		if (isNewWearable)
 		{
 			LLNotifications::instance().add("InvalidWearable");

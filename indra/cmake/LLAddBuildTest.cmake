@@ -31,6 +31,7 @@ MACRO(ADD_BUILD_TEST name parent)
 
         SET(basic_libraries
             ${LLCOMMON_LIBRARIES}
+            ${LLMATH_LIBRARIES}
             ${APRUTIL_LIBRARIES}
             ${APR_LIBRARIES}
             ${PTHREAD_LIBRARY}

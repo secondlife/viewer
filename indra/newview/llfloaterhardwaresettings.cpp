@@ -33,27 +33,28 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llfloaterhardwaresettings.h"
+
+// Viewer includes
 #include "llfloaterpreference.h"
 #include "llviewerwindow.h"
 #include "llviewercontrol.h"
 #include "llviewerimagelist.h"
 #include "llfeaturemanager.h"
 #include "llstartup.h"
+#include "pipeline.h"
 
+// Linden library includes
 #include "llradiogroup.h"
 #include "lluictrlfactory.h"
-
+#include "llwindow.h"
 #include "llimagegl.h"
-#include "pipeline.h"
 
 LLFloaterHardwareSettings* LLFloaterHardwareSettings::sHardwareSettings = NULL;
 
-LLFloaterHardwareSettings::LLFloaterHardwareSettings() : LLFloater(std::string("Hardware Settings Floater"))
+LLFloaterHardwareSettings::LLFloaterHardwareSettings()
+  : LLFloater()
 {
 	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_hardware_settings.xml");
-	
-	// load it up
-	initCallbacks();
 }
 
 LLFloaterHardwareSettings::~LLFloaterHardwareSettings()
@@ -114,7 +115,7 @@ LLFloaterHardwareSettings* LLFloaterHardwareSettings::instance()
 	if (!sHardwareSettings)
 	{
 		sHardwareSettings = new LLFloaterHardwareSettings();
-		sHardwareSettings->close();
+		sHardwareSettings->closeFloater();
 	}
 	return sHardwareSettings;
 }
@@ -128,7 +129,7 @@ void LLFloaterHardwareSettings::show()
 	//LLUICtrlFactory::getInstance()->buildFloater(hardSettings, "floater_hardware_settings.xml");
 	//hardSettings->initCallbacks();
 
-	hardSettings->open();
+	hardSettings->openFloater();
 }
 
 bool LLFloaterHardwareSettings::isOpen()
@@ -158,6 +159,8 @@ BOOL LLFloaterHardwareSettings::postBuild()
 
 	refresh();
 
+	// load it up
+	initCallbacks();
 	return TRUE;
 }
 
@@ -203,7 +206,7 @@ void LLFloaterHardwareSettings::cancel()
 	gSavedSettings.setF32("RenderFogRatio", mFogRatio);
 	gSavedSettings.setBOOL("ProbeHardwareOnStartup", mProbeHardwareOnStartup );
 
-	close();
+	closeFloater();
 }
 
 // static 
@@ -211,6 +214,6 @@ void LLFloaterHardwareSettings::onBtnOK( void* userdata )
 {
 	LLFloaterHardwareSettings *fp =(LLFloaterHardwareSettings *)userdata;
 	fp->apply();
-	fp->close(false);
+	fp->closeFloater(false);
 }
 

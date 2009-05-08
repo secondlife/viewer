@@ -166,7 +166,7 @@ void LLViewerParcelMedia::update(LLParcel* parcel)
 				}
 
 				// First use warning
-				if(	gSavedSettings.getWarning("FirstStreamingVideo") )
+				if(	gWarningSettings.getBOOL("FirstStreamingVideo") )
 				{
 					LLNotifications::instance().add("ParcelCanPlayMedia", LLSD(), LLSD(),
 						boost::bind(callback_play_media, _1, _2, parcel));
@@ -189,9 +189,9 @@ void LLViewerParcelMedia::update(LLParcel* parcel)
 			std::string mediaUrl = std::string ( parcel->getMediaURL () );
 			if (!mediaUrl.empty ())
 			{
-				if (gSavedSettings.getWarning("QuickTimeInstalled"))
+				if (gWarningSettings.getBOOL("QuickTimeInstalled"))
 				{
-					gSavedSettings.setWarning("QuickTimeInstalled", FALSE);
+					gWarningSettings.setBOOL("QuickTimeInstalled", FALSE);
 
 					LLNotifications::instance().add("NoQuickTime" );
 				};
@@ -395,7 +395,7 @@ bool callback_play_media(const LLSD& notification, const LLSD& response, LLParce
 	{
 		gSavedSettings.setBOOL("AudioStreamingVideo", FALSE);
 	}
-	gSavedSettings.setWarning("FirstStreamingVideo", FALSE);
+	gWarningSettings.setBOOL("FirstStreamingVideo", FALSE);
 	return false;
 }
 

@@ -89,7 +89,7 @@ void* LLOverlayBar::createMediaRemote(void* userdata)
 void* LLOverlayBar::createVoiceRemote(void* userdata)
 {
 	LLOverlayBar *self = (LLOverlayBar*)userdata;	
-	self->mVoiceRemote = new LLVoiceRemoteCtrl(std::string("voice_remote"));
+	self->mVoiceRemote = new LLVoiceRemoteCtrl();
 	return self->mVoiceRemote;
 }
 
@@ -110,22 +110,23 @@ LLOverlayBar::LLOverlayBar()
 
 	mBuilt = false;
 
-	LLCallbackMap::map_t factory_map;
-	factory_map["media_remote"] = LLCallbackMap(LLOverlayBar::createMediaRemote, this);
-	factory_map["voice_remote"] = LLCallbackMap(LLOverlayBar::createVoiceRemote, this);
-	factory_map["chat_bar"] = LLCallbackMap(LLOverlayBar::createChatBar, this);
+	mFactoryMap["media_remote"] = LLCallbackMap(LLOverlayBar::createMediaRemote, this);
+	mFactoryMap["voice_remote"] = LLCallbackMap(LLOverlayBar::createVoiceRemote, this);
+	mFactoryMap["chat_bar"] = LLCallbackMap(LLOverlayBar::createChatBar, this);
 	
-	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_overlaybar.xml", &factory_map);
+	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_overlaybar.xml");
 }
 
 BOOL LLOverlayBar::postBuild()
 {
-	childSetAction("IM Received",onClickIMReceived,this);
 	childSetAction("Set Not Busy",onClickSetNotBusy,this);
 	childSetAction("Mouselook",onClickMouselook,this);
 	childSetAction("Stand Up",onClickStandUp,this);
  	childSetAction("Flycam",onClickFlycam,this);
 	childSetVisible("chat_bar", gSavedSettings.getBOOL("ChatVisible"));
+
+	mVoiceRemote->expandOrCollapse();
+	mMediaRemote->expandOrCollapse();
 
 	setFocusRoot(TRUE);
 	mBuilt = true;
@@ -281,13 +282,6 @@ void LLOverlayBar::refresh()
 //-----------------------------------------------------------------------
 // Static functions
 //-----------------------------------------------------------------------
-
-// static
-void LLOverlayBar::onClickIMReceived(void*)
-{
-	gIMMgr->setFloaterOpen(TRUE);
-}
-
 
 // static
 void LLOverlayBar::onClickSetNotBusy(void*)

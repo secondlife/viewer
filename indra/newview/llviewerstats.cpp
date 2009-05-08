@@ -36,6 +36,8 @@
 #include "llviewerthrottle.h"
 
 #include "message.h"
+#include "llfloaterreg.h"
+#include "llmemory.h"
 #include "lltimer.h"
 
 #include "llappviewer.h"
@@ -60,9 +62,6 @@
 #include "llworld.h"
 #include "llfeaturemanager.h"
 #include "llviewernetwork.h"
-#if LL_LCD_COMPILE
-#include "lllcd.h"
-#endif
 
 
 class StatAttributes
@@ -199,16 +198,76 @@ const StatAttributes STAT_INFO[LLViewerStats::ST_COUNT] =
 	// ST_TEX_BAKES
 	StatAttributes("Texture Bakes", FALSE, FALSE),
 	// ST_TEX_REBAKES
-	StatAttributes("Texture Rebakes", FALSE, FALSE),
-
-	// ST_LOGITECH_KEYBOARD
-	StatAttributes("Logitech LCD", FALSE, FALSE)
+	StatAttributes("Texture Rebakes", FALSE, FALSE)
 
 };
 
-LLViewerStats::LLViewerStats()
-	: mPacketsLostPercentStat(64),
-	  mLastTimeDiff(0.0)
+LLViewerStats::LLViewerStats() :
+	mKBitStat("kbitstat"),
+	mLayersKBitStat("layerskbitstat"),
+	mObjectKBitStat("objectkbitstat"),
+	mAssetKBitStat("assetkbitstat"),
+	mTextureKBitStat("texturekbitstat"),
+	mVFSPendingOperations("vfspendingoperations"),
+	mObjectsDrawnStat("objectsdrawnstat"),
+	mObjectsCulledStat("objectsculledstat"),
+	mObjectsTestedStat("objectstestedstat"),
+	mObjectsComparedStat("objectscomparedstat"),
+	mObjectsOccludedStat("objectsoccludedstat"),
+	mFPSStat("fpsstat"),
+	mPacketsInStat("packetsinstat"),
+	mPacketsLostStat("packetsloststat"),
+	mPacketsOutStat("packetsoutstat"),
+	mPacketsLostPercentStat("packetslostpercentstat", 64),
+	mTexturePacketsStat("texturepacketsstat"),
+	mActualInKBitStat("actualinkbitstat"),
+	mActualOutKBitStat("actualoutkbitstat"),
+	mTrianglesDrawnStat("trianglesdrawnstat"),
+	mSimTimeDilation("simtimedilation"),
+	mSimFPS("simfps"),
+	mSimPhysicsFPS("simphysicsfps"),
+	mSimAgentUPS("simagentups"),
+	mSimScriptEPS("simscripteps"),
+	mSimFrameMsec("simframemsec"),
+	mSimNetMsec("simnetmsec"),
+	mSimSimOtherMsec("simsimothermsec"),
+	mSimSimPhysicsMsec("simsimphysicsmsec"),
+	mSimSimPhysicsStepMsec("simsimphysicsstepmsec"),
+	mSimSimPhysicsShapeUpdateMsec("simsimphysicsshapeupdatemsec"),
+	mSimSimPhysicsOtherMsec("simsimphysicsothermsec"),
+	mSimAgentMsec("simagentmsec"),
+	mSimImagesMsec("simimagesmsec"),
+	mSimScriptMsec("simscriptmsec"),
+	mSimSpareMsec("simsparemsec"),
+	mSimSleepMsec("simsleepmsec"),
+	mSimPumpIOMsec("simpumpiomsec"),
+	mSimMainAgents("simmainagents"),
+	mSimChildAgents("simchildagents"),
+	mSimObjects("simobjects"),
+	mSimActiveObjects("simactiveobjects"),
+	mSimActiveScripts("simactivescripts"),
+	mSimInPPS("siminpps"),
+	mSimOutPPS("simoutpps"),
+	mSimPendingDownloads("simpendingdownloads"),
+	mSimPendingUploads("simpendinguploads"),
+	mSimPendingLocalUploads("simpendinglocaluploads"),
+	mSimTotalUnackedBytes("simtotalunackedbytes"),
+	mPhysicsPinnedTasks("physicspinnedtasks"),
+	mPhysicsLODTasks("physicslodtasks"),
+	mPhysicsMemoryAllocated("physicsmemoryallocated"),
+	mSimPingStat("simpingstat"),
+	mNumImagesStat("numimagesstat", 32, TRUE),
+	mNumRawImagesStat("numrawimagesstat", 32, TRUE),
+	mGLTexMemStat("gltexmemstat", 32, TRUE),
+	mGLBoundMemStat("glboundmemstat", 32, TRUE),
+	mRawMemStat("rawmemstat", 32, TRUE),
+	mFormattedMemStat("formattedmemstat", 32, TRUE),
+	mNumObjectsStat("numobjectsstat"),
+	mNumActiveObjectsStat("numactiveobjectsstat"),
+	mNumNewObjectsStat("numnewobjectsstat"),
+	mNumSizeCulledStat("numsizeculledstat"),
+	mNumVisCulledStat("numvisculledstat"),
+	mLastTimeDiff(0.0)
 {
 	for (S32 i = 0; i < ST_COUNT; i++)
 	{
@@ -353,7 +412,6 @@ void reset_statistics()
 {
 	if (LLSurface::sTextureUpdateTime)
 	{
-		LLSurface::sTexelsUpdatedPerSecStat.addValue(0.001f*(LLSurface::sTexelsUpdated / LLSurface::sTextureUpdateTime));
 		LLSurface::sTexelsUpdated = 0;
 		LLSurface::sTextureUpdateTime = 0.f;
 	}
@@ -507,7 +565,7 @@ void update_statistics(U32 frame_count)
 {
 	gTotalWorldBytes += gVLManager.getTotalBytes();
 	gTotalObjectBytes += gObjectBits / 8;
-	gTotalTextureBytes += LLViewerImageList::sTextureBits / 8;
+	gTotalTextureBytes += gImageList.mTextureBits / 8;
 
 	// make sure we have a valid time delta for this frame
 	if (gFrameIntervalSeconds > 0.f)
@@ -520,7 +578,7 @@ void update_statistics(U32 frame_count)
 		{
 			LLViewerStats::getInstance()->incStat(LLViewerStats::ST_AVATAR_EDIT_SECONDS, gFrameIntervalSeconds);
 		}
-		else if (gFloaterTools && gFloaterTools->getVisible())
+		else if (LLFloaterReg::instanceVisible("build"))
 		{
 			LLViewerStats::getInstance()->incStat(LLViewerStats::ST_TOOLBOX_SECONDS, gFrameIntervalSeconds);
 		}
@@ -559,7 +617,7 @@ void update_statistics(U32 frame_count)
 	F32 layer_bits = (F32)(gVLManager.getLandBits() + gVLManager.getWindBits() + gVLManager.getCloudBits());
 	LLViewerStats::getInstance()->mLayersKBitStat.addValue(layer_bits/1024.f);
 	LLViewerStats::getInstance()->mObjectKBitStat.addValue(gObjectBits/1024.f);
-	LLViewerStats::getInstance()->mTextureKBitStat.addValue(LLViewerImageList::sTextureBits/1024.f);
+	LLViewerStats::getInstance()->mTextureKBitStat.addValue(gImageList.mTextureBits/1024.f);
 	LLViewerStats::getInstance()->mVFSPendingOperations.addValue(LLVFile::getVFSThread()->getPending());
 	LLViewerStats::getInstance()->mAssetKBitStat.addValue(gTransferManager.getTransferBitsIn(LLTCT_ASSET)/1024.f);
 	gTransferManager.resetTransferBitsIn(LLTCT_ASSET);
@@ -573,7 +631,7 @@ void update_statistics(U32 frame_count)
 		gDebugTimers[0].unpause();
 	}
 	
-	LLViewerStats::getInstance()->mTexturePacketsStat.addValue(LLViewerImageList::sTexturePackets);
+	LLViewerStats::getInstance()->mTexturePacketsStat.addValue(gImageList.mTexturePackets);
 
 	{
 		static F32 visible_avatar_frames = 0.f;
@@ -594,15 +652,9 @@ void update_statistics(U32 frame_count)
 	gObjectBits = 0;
 //	gDecodedBits = 0;
 
-	LLViewerImageList::sTextureBits = 0;
-	LLViewerImageList::sTexturePackets = 0;
+	gImageList.mTextureBits = 0;
+	gImageList.mTexturePackets = 0;
 
-#if LL_LCD_COMPILE
-	bool LCDenabled = gLcdScreen->Enabled();
-	LLViewerStats::getInstance()->setStat(LLViewerStats::ST_LOGITECH_LCD, LCDenabled);
-#else
-	LLViewerStats::getInstance()->setStat(LLViewerStats::ST_LOGITECH_LCD, false);
-#endif
 }
 
 class ViewerStatsResponder : public LLHTTPClient::Responder
@@ -692,7 +744,7 @@ void send_stats()
 	agent["ping"] = gAvgSimPing;
 	agent["meters_traveled"] = gAgent.getDistanceTraveled();
 	agent["regions_visited"] = gAgent.getRegionsVisited();
-	agent["mem_use"] = getCurrentRSS() / 1024.0;
+	agent["mem_use"] = LLMemory::getCurrentRSS() / 1024.0;
 
 	LLSD &system = body["system"];
 	

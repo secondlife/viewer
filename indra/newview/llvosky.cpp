@@ -368,7 +368,7 @@ LLVOSky::LLVOSky(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
 		initSunDirection(mSunDefaultPosition, LLVector3(0, 0, 0));
 	}
 	mAmbientScale = gSavedSettings.getF32("SkyAmbientScale");
-	mNightColorShift = gSavedSettings.getColor3("SkyNightColorShift");
+	mNightColorShift = gSavedSkinSettings.getColor3("SkyNightColorShift");
 	mFogColor.mV[VRED] = mFogColor.mV[VGREEN] = mFogColor.mV[VBLUE] = 0.5f;
 	mFogColor.mV[VALPHA] = 0.0f;
 	mFogRatio = 1.2f;

@@ -114,29 +114,29 @@
 				Destino:
 			</text>
 			<combo_box name="destination">
-				<combo_item name="Selection">
+				<combo_box.item name="Selection">
 					Selección
-				</combo_item>
-				<combo_item name="AgentRegion">
+				</combo_box.item>
+				<combo_box.item name="AgentRegion">
 					Agente de región
-				</combo_item>
+				</combo_box.item>
 			</combo_box>
 			<text name="Request:">
 				Exigencia:
 			</text>
 			<combo_box name="request">
-				<combo_item name="colliders&lt;steps&gt;">
+				<combo_box.item name="colliders&lt;steps&gt;">
 					colisionadores &lt;pasos&gt;
-				</combo_item>
-				<combo_item name="scripts&lt;count&gt;,&lt;optionalpattern&gt;">
+				</combo_box.item>
+				<combo_box.item name="scripts&lt;count&gt;,&lt;optionalpattern&gt;">
 					scripts &lt;contar&gt;,&lt;patrón opcional&gt;
-				</combo_item>
-				<combo_item name="objects&lt;pattern&gt;">
+				</combo_box.item>
+				<combo_box.item name="objects&lt;pattern&gt;">
 					objetos &lt;patrón&gt;
-				</combo_item>
-				<combo_item name="rez&lt;asset_id&gt;">
+				</combo_box.item>
+				<combo_box.item name="rez&lt;asset_id&gt;">
 					rez &lt;asset_id&gt;
-				</combo_item>
+				</combo_box.item>
 			</combo_box>
 			<text name="Parameter:">
 				Parámetro:

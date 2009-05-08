@@ -38,6 +38,7 @@
 #include "timing.h"
 #include "llfasttimer.h"
 #include "llrender.h"
+#include "llwindow.h"		// decBusyCount()
 
 #include "llviewercontrol.h"
 #include "llface.h"
@@ -251,7 +252,7 @@ void LLViewerObjectList::processUpdateCore(LLViewerObject* objectp,
 
 		objectp->mCreateSelected = false;
 		gViewerWindow->getWindow()->decBusyCount();
-		gViewerWindow->getWindow()->setCursor( UI_CURSOR_ARROW );
+		gViewerWindow->setCursor( UI_CURSOR_ARROW );
 	}
 }
 
@@ -768,10 +769,10 @@ void LLViewerObjectList::update(LLAgent &agent, LLWorld &world)
 	}
 	*/
 
-	mNumObjectsStat.addValue(mObjects.count());
-	mNumActiveObjectsStat.addValue(num_active_objects);
-	mNumSizeCulledStat.addValue(mNumSizeCulled);
-	mNumVisCulledStat.addValue(mNumVisCulled);
+	LLViewerStats::getInstance()->mNumObjectsStat.addValue(mObjects.count());
+	LLViewerStats::getInstance()->mNumActiveObjectsStat.addValue(num_active_objects);
+	LLViewerStats::getInstance()->mNumSizeCulledStat.addValue(mNumSizeCulled);
+	LLViewerStats::getInstance()->mNumVisCulledStat.addValue(mNumVisCulled);
 }
 
 void LLViewerObjectList::clearDebugText()
@@ -1016,16 +1017,16 @@ void LLViewerObjectList::shiftObjects(const LLVector3 &offset)
 
 void LLViewerObjectList::renderObjectsForMap(LLNetMap &netmap)
 {
-	LLColor4 above_water_color = gColors.getColor( "NetMapOtherOwnAboveWater" );
-	LLColor4 below_water_color = gColors.getColor( "NetMapOtherOwnBelowWater" );
+	LLColor4 above_water_color = gSavedSkinSettings.getColor( "NetMapOtherOwnAboveWater" );
+	LLColor4 below_water_color = gSavedSkinSettings.getColor( "NetMapOtherOwnBelowWater" );
 	LLColor4 you_own_above_water_color = 
-						gColors.getColor( "NetMapYouOwnAboveWater" );
+						gSavedSkinSettings.getColor( "NetMapYouOwnAboveWater" );
 	LLColor4 you_own_below_water_color = 
-						gColors.getColor( "NetMapYouOwnBelowWater" );
+						gSavedSkinSettings.getColor( "NetMapYouOwnBelowWater" );
 	LLColor4 group_own_above_water_color = 
-						gColors.getColor( "NetMapGroupOwnAboveWater" );
+						gSavedSkinSettings.getColor( "NetMapGroupOwnAboveWater" );
 	LLColor4 group_own_below_water_color = 
-						gColors.getColor( "NetMapGroupOwnBelowWater" );
+						gSavedSkinSettings.getColor( "NetMapGroupOwnBelowWater" );
 
 
 	for (S32 i = 0; i < mMapObjects.count(); i++)

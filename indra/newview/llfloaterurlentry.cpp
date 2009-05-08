@@ -86,12 +86,22 @@ public:
 // LLFloaterURLEntry()
 //-----------------------------------------------------------------------------
 LLFloaterURLEntry::LLFloaterURLEntry(LLHandle<LLPanel> parent)
-	:
-	LLFloater(),
-	mPanelLandMediaHandle(parent)
+	: LLFloater(),
+	  mPanelLandMediaHandle(parent)
 {
 	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_url_entry.xml");
+}
 
+//-----------------------------------------------------------------------------
+// ~LLFloaterURLEntry()
+//-----------------------------------------------------------------------------
+LLFloaterURLEntry::~LLFloaterURLEntry()
+{
+	sInstance = NULL;
+}
+
+BOOL LLFloaterURLEntry::postBuild()
+{
 	mMediaURLEdit = getChild<LLComboBox>("media_entry");
 
 	// Cancel button
@@ -99,7 +109,6 @@ LLFloaterURLEntry::LLFloaterURLEntry(LLHandle<LLPanel> parent)
 
 	// Cancel button
 	childSetAction("clear_btn", onBtnClear, this);
-
 	// clear media list button
 	LLSD parcel_history = LLURLHistory::getURLHistory("parcel");
 	bool enable_clear_button = parcel_history.size() > 0 ? true : false;
@@ -111,17 +120,8 @@ LLFloaterURLEntry::LLFloaterURLEntry(LLHandle<LLPanel> parent)
 	setDefaultBtn("ok_btn");
 	buildURLHistory();
 
-	sInstance = this;
+	return TRUE;
 }
-
-//-----------------------------------------------------------------------------
-// ~LLFloaterURLEntry()
-//-----------------------------------------------------------------------------
-LLFloaterURLEntry::~LLFloaterURLEntry()
-{
-	sInstance = NULL;
-}
-
 void LLFloaterURLEntry::buildURLHistory()
 {
 	LLCtrlListInterface* url_list = childGetListInterface("media_entry");
@@ -155,7 +155,7 @@ void LLFloaterURLEntry::headerFetchComplete(U32 status, const std::string& mime_
 	// Decrement the cursor
 	getWindow()->decBusyCount();
 	childSetVisible("loading_label", false);
-	close();
+	closeFloater();
 }
 
 // static
@@ -163,7 +163,7 @@ LLHandle<LLFloater> LLFloaterURLEntry::show(LLHandle<LLPanel> parent)
 {
 	if (sInstance)
 	{
-		sInstance->open();
+		sInstance->openFloater();
 	}
 	else
 	{
@@ -254,7 +254,7 @@ void LLFloaterURLEntry::onBtnOK( void* userdata )
 void LLFloaterURLEntry::onBtnCancel( void* userdata )
 {
 	LLFloaterURLEntry *self =(LLFloaterURLEntry *)userdata;
-	self->close();
+	self->closeFloater();
 }
 
 // static

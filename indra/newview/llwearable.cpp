@@ -48,11 +48,13 @@
 #include "llviewerregion.h"
 #include "llvoavatar.h"
 #include "llwearable.h"
+#include "lltrans.h"
 
 using namespace LLVOAvatarDefines;
 
 // static
 S32 LLWearable::sCurrentDefinitionVersion = 1;
+std::string LLWearable::sTypeLabel [WT_COUNT+1];
 
 // static
 const std::string LLWearable::sTypeName[ WT_COUNT+1 ] =
@@ -73,25 +75,13 @@ const std::string LLWearable::sTypeName[ WT_COUNT+1 ] =
 	"invalid"
 };
 
-// static
-const std::string LLWearable::sTypeLabel[ WT_COUNT+1 ] =
+void LLWearable::initClass ()
 {
-	"Shape",
-	"Skin",
-	"Hair",
-	"Eyes",
-	"Shirt",
-	"Pants",
-	"Shoes",
-	"Socks",
-	"Jacket",
-	"Gloves",
-	"Undershirt",
-	"Underpants",
-	"Skirt",
-	"invalid"
-};
-
+	for (int i = 0; i <= WT_COUNT; i++)
+	{
+		sTypeLabel[i] = LLTrans::getString(sTypeName[i]);
+	}
+}
 
 // static
 LLAssetType::EType LLWearable::typeToAssetType(EWearableType wearable_type)
@@ -685,7 +675,7 @@ void LLWearable::writeToAvatar( BOOL set_by_user )
 			}
 		}
 		gFloaterCustomize->setWearable(mType, this, perm_mask, is_complete);
-		LLFloaterCustomize::setCurrentWearableType( mType );
+		gFloaterCustomize->setCurrentWearableType( mType );
 	}
 
 	ESex new_sex = avatar->getSex();

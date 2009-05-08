@@ -48,6 +48,7 @@
 #include "llrendertarget.h"
 #include "llwearable.h"
 #include "llvoavatardefines.h"
+#include "llcontrol.h"
 
 extern const LLUUID ANIM_AGENT_BODY_NOISE;
 extern const LLUUID ANIM_AGENT_BREATHE_ROT;
@@ -361,6 +362,8 @@ private:
 	S32             mFullyLoadedFrameCounter;
 	LLFrameTimer    mFullyLoadedTimer;
 
+	LLCachedControl<bool>		mDebugAvatarRotation; // show animation debug info
+	
 	//--------------------------------------------------------------------
 	// Collision Volumes
 	//--------------------------------------------------------------------
@@ -520,7 +523,6 @@ public:
 	static BOOL		sShowAttachmentPoints;
 	static F32		sLODFactor; // user-settable LOD factor
 	static BOOL		sJointDebug; // output total number of joints being touched for each avatar
-	static BOOL     sDebugAvatarRotation;
 
 	static S32 sNumVisibleAvatars; // Number of instances of this class
 	

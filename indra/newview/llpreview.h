@@ -33,7 +33,7 @@
 #ifndef LL_LLPREVIEW_H
 #define LL_LLPREVIEW_H
 
-#include "llfloater.h"
+#include "llmultifloater.h"
 #include "llresizehandle.h"
 #include "llmap.h"
 #include "lluuid.h"
@@ -49,18 +49,12 @@ class LLPreview;
 class LLMultiPreview : public LLMultiFloater
 {
 public:
-	LLMultiPreview(const LLRect& rect);
+	LLMultiPreview();
 
-	/*virtual*/void open();		/*Flawfinder: ignore*/
+	/*virtual*/void onOpen(const LLSD& key);
 	/*virtual*/void tabOpen(LLFloater* opened_floater, bool from_click);
-	/*virtual*/ void userSetShape(const LLRect& new_rect);
+	/*virtual*/ void handleReshape(const LLRect& new_rect, bool by_user = false);
 
-	static LLMultiPreview* getAutoOpenInstance(const LLUUID& id);
-	static void setAutoOpenInstance(LLMultiPreview* previewp, const LLUUID& id);
-
-protected:
-	typedef std::map<LLUUID, LLHandle<LLFloater> > handle_map_t;
-	static handle_map_t sAutoOpenPreviewHandles;
 };
 
 // https://wiki.lindenlab.com/mediawiki/index.php?title=LLPreview&oldid=81373
@@ -76,28 +70,24 @@ public:
 		PREVIEW_ASSET_LOADED
 	} EAssetStatus;
 public:
-	// Used for XML-based construction.
-	LLPreview(const std::string& name);
-	LLPreview(const std::string& name, const LLRect& rect, const std::string& title, const LLUUID& item_uuid, const LLUUID& object_uuid, BOOL allow_resize = FALSE, S32 min_width = 0, S32 min_height = 0, LLPointer<LLViewerInventoryItem> inv_item = NULL );
+	LLPreview(const LLSD& key );
 	virtual ~LLPreview();
-
-	void setItemID(const LLUUID& item_id);
+		
+	/*virtual*/ BOOL postBuild();
+	
 	void setObjectID(const LLUUID& object_id);
-	void setSourceID(const LLUUID& source_id);
-	const LLViewerInventoryItem *getItem() const; // searches if not constructed with it
+	void setItem( LLInventoryItem* item );
+	
+	const LLInventoryItem* getItem() const; // searches if not constructed with it
 
-	static LLPreview* find(const LLUUID& item_uuid);
-	static LLPreview*	show(const LLUUID& item_uuid, BOOL take_focus = TRUE );
-	static void			hide(const LLUUID& item_uuid, BOOL no_saving = FALSE );
-	static void			rename(const LLUUID& item_uuid, const std::string& new_name);
-	static bool			save(const LLUUID& item_uuid, LLPointer<LLInventoryItem>* itemptr);
-
+	static void hide(const LLUUID& item_uuid, BOOL no_saving = FALSE );
+	static void	dirty(const LLUUID& item_uuid);
+	
 	virtual BOOL handleMouseDown(S32 x, S32 y, MASK mask);
 	virtual BOOL handleMouseUp(S32 x, S32 y, MASK mask);
 	virtual BOOL handleHover(S32 x, S32 y, MASK mask);
-	virtual void open();		/*Flawfinder: ignore*/
-	virtual bool saveItem(LLPointer<LLInventoryItem>* itemptr);
- 
+	virtual void onOpen(const LLSD& key);
+	
 	void setAuxItem( const LLInventoryItem* item )
 	{
 		if ( mAuxItem ) 
@@ -109,7 +99,7 @@ public:
 	void				addKeepDiscardButtons();
 	static void			onKeepBtn(void* data);
 	static void			onDiscardBtn(void* data);
-	/*virtual*/ void	userSetShape(const LLRect& new_rect);
+	/*virtual*/ void	handleReshape(const LLRect& new_rect, bool by_user = false);
 
 	void userResized() { mUserResized = TRUE; };
 
@@ -122,7 +112,7 @@ public:
 
 	// llview
 	virtual void draw();
-	void refreshFromItem(const LLInventoryItem* item);
+	void refreshFromItem();
 	
 protected:
 	virtual void onCommit();
@@ -135,11 +125,9 @@ protected:
 	// for LLInventoryObserver 
 	virtual void changed(U32 mask);	
 	BOOL mDirty;
-	virtual const char *getTitleName() const { return "Preview"; }
 	
 protected:
 	LLUUID mItemUUID;
-	LLUUID	mSourceID;
 
 	// mObjectID will have a value if it is associated with a task in
 	// the world, and will be == LLUUID::null if it's in the agent
@@ -149,6 +137,7 @@ protected:
 	LLRect mClientRect;
 
 	LLPointer<LLInventoryItem> mAuxItem;  // HACK!
+	LLPointer<LLInventoryItem> mItem;  // For embedded items (Landmarks)
 	LLButton* mCopyToInvBtn;
 
 	// Close without saving changes
@@ -162,27 +151,18 @@ protected:
 
 	EAssetStatus mAssetStatus;
 
-	typedef std::map<LLUUID, LLPreview*> preview_map_t;
-	typedef std::multimap<LLUUID, LLHandle<LLFloater> > preview_multimap_t;
-
-	static preview_multimap_t sPreviewsBySource;
-	static preview_map_t sInstances;
 	LLUUID mNotecardInventoryID;
 	LLUUID mObjectID;
-	LLPointer<LLViewerInventoryItem> mItem;
 };
 
 
 const S32 PREVIEW_BORDER = 4;
 const S32 PREVIEW_PAD = 5;
-const S32 PREVIEW_BUTTON_WIDTH = 100;
 
 const S32 PREVIEW_LINE_HEIGHT = 19;
-const S32 PREVIEW_CLOSE_BOX_SIZE = 16;
 const S32 PREVIEW_BORDER_WIDTH = 2;
 const S32 PREVIEW_RESIZE_HANDLE_SIZE = S32(RESIZE_HANDLE_WIDTH * OO_SQRT2) + PREVIEW_BORDER_WIDTH;
 const S32 PREVIEW_VPAD = 2;
-const S32 PREVIEW_HPAD = PREVIEW_RESIZE_HANDLE_SIZE;
 const S32 PREVIEW_HEADER_SIZE = 2*PREVIEW_LINE_HEIGHT + 2 * PREVIEW_VPAD;
 
 #endif  // LL_LLPREVIEW_H

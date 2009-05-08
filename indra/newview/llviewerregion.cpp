@@ -35,6 +35,7 @@
 #include "llviewerregion.h"
 
 #include "indra_constants.h"
+#include "llfloaterreg.h"
 #include "llmath.h"
 #include "llhttpclient.h"
 #include "llregionflags.h"
@@ -762,11 +763,6 @@ void LLViewerRegion::calculateCenterGlobal()
 void LLViewerRegion::calculateCameraDistance()
 {
 	mCameraDistanceSquared = (F32)(gAgent.getCameraPositionGlobal() - getCenterGlobal()).magVecSquared();
-}
-
-U32 LLViewerRegion::getNetDetailsForLCD()
-{
-	return mPingDelay;
 }
 
 std::ostream& operator<<(std::ostream &s, const LLViewerRegion &region)

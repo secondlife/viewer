@@ -46,6 +46,7 @@
 
 #include "llagent.h"
 #include "llbutton.h"
+#include "llfloaterreg.h"
 #include "llfloatergroupinfo.h"
 #include "llfloaterdirectory.h"
 #include "llfocusmgr.h"
@@ -56,6 +57,7 @@
 #include "lluictrlfactory.h"
 #include "llviewerwindow.h"
 #include "llimview.h"
+#include "lltrans.h"
 
 // static
 std::map<const LLUUID, LLFloaterGroupPicker*> LLFloaterGroupPicker::sInstances;
@@ -82,29 +84,21 @@ LLFloaterGroupPicker* LLFloaterGroupPicker::findInstance(const LLSD& seed)
 LLFloaterGroupPicker* LLFloaterGroupPicker::createInstance(const LLSD &seed)
 {
 	LLFloaterGroupPicker* pickerp = new LLFloaterGroupPicker(seed);
-	LLUICtrlFactory::getInstance()->buildFloater(pickerp, "floater_choose_group.xml");
 	return pickerp;
 }
 
-LLFloaterGroupPicker::LLFloaterGroupPicker(const LLSD& seed) : 
-	mSelectCallback(NULL),
-	mCallbackUserdata(NULL),
+LLFloaterGroupPicker::LLFloaterGroupPicker(const LLSD& seed)
+: 	LLFloater(),
 	mPowersMask(GP_ALL_POWERS)
 {
 	mID = seed.asUUID();
 	sInstances.insert(std::make_pair(mID, this));
+	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_choose_group.xml");
 }
 
 LLFloaterGroupPicker::~LLFloaterGroupPicker()
 {
 	sInstances.erase(mID);
-}
-
-void LLFloaterGroupPicker::setSelectCallback(void (*callback)(LLUUID, void*), 
-									void* userdata)
-{
-	mSelectCallback = callback;
-	mCallbackUserdata = userdata;
 }
 
 void LLFloaterGroupPicker::setPowersMask(U64 powers_mask)
@@ -124,8 +118,7 @@ BOOL LLFloaterGroupPicker::postBuild()
 
 	setDefaultBtn("OK");
 
-	childSetDoubleClickCallback("group list", onBtnOK);
-	childSetUserData("group list", this);
+	getChild<LLScrollListCtrl>("group list")->setDoubleClickCallback(onBtnOK, this);
 
 	childEnable("OK");
 
@@ -141,7 +134,7 @@ void LLFloaterGroupPicker::onBtnOK(void* userdata)
 void LLFloaterGroupPicker::onBtnCancel(void* userdata)
 {
 	LLFloaterGroupPicker* self = (LLFloaterGroupPicker*)userdata;
-	if(self) self->close();
+	if(self) self->closeFloater();
 }
 
 
@@ -153,12 +146,9 @@ void LLFloaterGroupPicker::ok()
 	{
 		group_id = group_list->getCurrentID();
 	}
-	if(mSelectCallback)
-	{
-		mSelectCallback(group_id, mCallbackUserdata);
-	}
+	mGroupSelectSignal(group_id);
 
-	close();
+	closeFloater();
 }
 
 ///----------------------------------------------------------------------------
@@ -227,8 +217,7 @@ BOOL LLPanelGroups::postBuild()
 
 	setDefaultBtn("IM");
 
-	childSetDoubleClickCallback("group list", onBtnIM);
-	childSetUserData("group list", this);
+	getChild<LLScrollListCtrl>("group list")->setDoubleClickCallback(onBtnIM, this);
 
 	reset();
 
@@ -357,7 +346,6 @@ void LLPanelGroups::startIM()
 		LLGroupData group_data;
 		if (gAgent.getGroupData(group_id, group_data))
 		{
-			gIMMgr->setFloaterOpen(TRUE);
 			gIMMgr->addSession(
 				group_data.mName,
 				IM_SESSION_GROUP_START,
@@ -400,7 +388,7 @@ void LLPanelGroups::leave()
 
 void LLPanelGroups::search()
 {
-	LLFloaterDirectory::showGroups();
+	LLFloaterReg::showInstance("search", LLSD().insert("panel", "group"));
 }
 
 // static
@@ -454,7 +442,7 @@ void init_group_list(LLScrollListCtrl* ctrl, const LLUUID& highlight_id, U64 pow
 			element["columns"][0]["column"] = "name";
 			element["columns"][0]["value"] = group_datap->mName;
 			element["columns"][0]["font"] = "SANSSERIF";
-			element["columns"][0]["font-style"] = style;
+			element["columns"][0]["font"]["style"] = style;
 
 			group_list->addElement(element, ADD_SORTED);
 		}
@@ -470,9 +458,9 @@ void init_group_list(LLScrollListCtrl* ctrl, const LLUUID& highlight_id, U64 pow
 		LLSD element;
 		element["id"] = LLUUID::null;
 		element["columns"][0]["column"] = "name";
-		element["columns"][0]["value"] = "none"; // *TODO: Translate
+		element["columns"][0]["value"] = LLTrans::getString("GroupsNone");
 		element["columns"][0]["font"] = "SANSSERIF";
-		element["columns"][0]["font-style"] = style;
+		element["columns"][0]["font"]["style"] = style;
 
 		group_list->addElement(element, ADD_TOP);
 	}

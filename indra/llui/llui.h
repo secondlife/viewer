@@ -35,28 +35,34 @@
 #ifndef LL_LLUI_H
 #define LL_LLUI_H
 
+#include "llpointer.h"		// LLPointer<>
 #include "llrect.h"
 #include "llcontrol.h"
-#include "llrect.h"
 #include "llcoord.h"
 //#include "llhtmlhelp.h"
 #include "llgl.h"			// *TODO: break this dependency
 #include <stack>
-//#include "llimagegl.h"
+#include "lluiimage.h"		// *TODO: break this dependency, need to add #include "lluiimage.h" to all widgets that hold an Optional<LLUIImage*> in their paramblocks
+#include "llinitparam.h"
+#include "llregistry.h"
 #include <boost/signal.hpp>
+#include "lllazyvalue.h"
 
 // LLUIFactory
 #include "llsd.h"
+
+// for initparam specialization
+#include "llfontgl.h"
 
 class LLColor4; 
 class LLHtmlHelp;
 class LLImageGL;
 class LLVector3;
 class LLVector2;
+class LLUIImage;
 class LLUUID;
 class LLWindow;
 class LLView;
-class LLUIImage;
 
 // UI colors
 extern const LLColor4 UI_VERTEX_COLOR;
@@ -157,9 +163,8 @@ public:
 	//
 	// Methods
 	//
-	static void initClass(LLControlGroup* config, 
-						  LLControlGroup* ignores,
-						  LLControlGroup* colors, 
+	typedef std::map<std::string, LLControlGroup*> settings_map_t;
+	static void initClass(const settings_map_t& settings,
 						  LLImageProviderInterface* image_provider,
 						  LLUIAudioCallback audio_callback = NULL,
 						  const LLVector2 *scale_factor = NULL,
@@ -174,41 +179,45 @@ public:
 	// Return the ISO639 language name ("en", "ko", etc.) for the viewer UI.
 	// http://www.loc.gov/standards/iso639-2/php/code_list.php
 	static std::string getLanguage();
-
+	
+	static void setupPaths();
+	static const std::vector<std::string>& getXUIPaths() { return sXUIPaths; }
+	static std::string getSkinPath() { return sXUIPaths.front(); }
+	
 	//helper functions (should probably move free standing rendering helper functions here)
+	static LLView* getRootView() { return sRootView; }
+	static void setRootView(LLView* view) { sRootView = view; }
 	static std::string locateSkin(const std::string& filename);
 	static void setCursorPositionScreen(S32 x, S32 y);
 	static void setCursorPositionLocal(const LLView* viewp, S32 x, S32 y);
 	static void getCursorPositionLocal(const LLView* viewp, S32 *x, S32 *y);
 	static void setScaleFactor(const LLVector2& scale_factor);
 	static void setLineWidth(F32 width);
-	static LLUIImage* getUIImage(const std::string& name);
+	static LLPointer<LLUIImage> getUIImageByID(const LLUUID& image_id);
+	static LLPointer<LLUIImage> getUIImage(const std::string& name);
 	static LLVector2 getWindowSize();
 	static void screenPointToGL(S32 screen_x, S32 screen_y, S32 *gl_x, S32 *gl_y);
 	static void glPointToScreen(S32 gl_x, S32 gl_y, S32 *screen_x, S32 *screen_y);
 	static void screenRectToGL(const LLRect& screen, LLRect *gl);
 	static void glRectToScreen(const LLRect& gl, LLRect *screen);
 	static void setHtmlHelp(LLHtmlHelp* html_help);
-
+	static boost::function<const LLColor4&()> getCachedColorFunctor(const std::string& color_name);
+	// Returns the control group containing the control name, or the default group
+	static LLControlGroup& getControlControlGroup (const std::string& controlname);
+	
 	//
 	// Data
 	//
-	static LLControlGroup* sConfigGroup;
-	static LLControlGroup* sIgnoresGroup;
-	static LLControlGroup* sColorsGroup;
-	static LLImageProviderInterface* sImageProvider;
+	static settings_map_t sSettingGroups;
 	static LLUIAudioCallback sAudioCallback;
 	static LLVector2		sGLScaleFactor;
 	static LLWindow*		sWindow;
 	static BOOL             sShowXUINames;
 	static LLHtmlHelp*		sHtmlHelp;
-
-	// *TODO: remove the following when QAR-369 settings clean-up work is in.
-	// Also remove the call to this method which will then be obsolete.
-	// Search for QAR-369 below to enable the proper accessing of this feature. -MG
-	static void setQAMode(BOOL b);
-	static BOOL sQAMode;
-
+	static LLView*			sRootView;
+private:
+	static LLImageProviderInterface* sImageProvider;
+	static std::vector<std::string> sXUIPaths;
 };
 
 //	FactoryPolicy is a static class that controls the creation and lookup of UI elements, 
@@ -365,7 +374,6 @@ protected:
 
 	// T must derive from LLUISingleton<T>
 	LLUISingleton() { sInstance = static_cast<T*>(this); }
-
 	~LLUISingleton() { sInstance = NULL; }
 
 public:
@@ -383,6 +391,12 @@ public:
 		return sInstance;
 	}
 
+	static void destroyInstance()
+	{
+		delete sInstance;
+		sInstance = NULL;
+	}
+	
 private:
 	static T*	sInstance;
 };
@@ -412,49 +426,6 @@ class LLLocalClipRect : public LLScreenClipRect
 public:
 	LLLocalClipRect(const LLRect& rect, BOOL enabled = TRUE);
 };
-
-class LLUIImage : public LLRefCount
-{
-public:
-	LLUIImage(const std::string& name, LLPointer<LLImageGL> image);
-
-	void setClipRegion(const LLRectf& region);
-	void setScaleRegion(const LLRectf& region);
-
-	LLPointer<LLImageGL> getImage() { return mImage; }
-	const LLPointer<LLImageGL>& getImage() const { return mImage; }
-
-	void draw(S32 x, S32 y, S32 width, S32 height, const LLColor4& color = UI_VERTEX_COLOR) const;
-	void draw(S32 x, S32 y, const LLColor4& color = UI_VERTEX_COLOR) const;
-	void draw(const LLRect& rect, const LLColor4& color = UI_VERTEX_COLOR) const { draw(rect.mLeft, rect.mBottom, rect.getWidth(), rect.getHeight(), color); }
-	
-	void drawSolid(S32 x, S32 y, S32 width, S32 height, const LLColor4& color) const;
-	void drawSolid(const LLRect& rect, const LLColor4& color) const { drawSolid(rect.mLeft, rect.mBottom, rect.getWidth(), rect.getHeight(), color); }
-	void drawSolid(S32 x, S32 y, const LLColor4& color) const { drawSolid(x, y, mImage->getWidth(0), mImage->getHeight(0), color); }
-
-	void drawBorder(S32 x, S32 y, S32 width, S32 height, const LLColor4& color, S32 border_width) const;
-	void drawBorder(const LLRect& rect, const LLColor4& color, S32 border_width) const { drawBorder(rect.mLeft, rect.mBottom, rect.getWidth(), rect.getHeight(), color, border_width); }
-	void drawBorder(S32 x, S32 y, const LLColor4& color, S32 border_width) const { drawBorder(x, y, mImage->getWidth(0), mImage->getHeight(0), color, border_width); }
-	
-	const std::string& getName() const { return mName; }
-
-	S32 getWidth() const;
-	S32 getHeight() const;
-
-	// returns dimensions of underlying textures, which might not be equal to ui image portion
-	S32 getTextureWidth() const;
-	S32 getTextureHeight() const;
-
-protected:
-	std::string			mName;
-	LLRectf				mScaleRegion;
-	LLRectf				mClipRegion;
-	LLPointer<LLImageGL> mImage;
-	BOOL				mUniformScaling;
-	BOOL				mNoClip;
-};
-
-typedef LLPointer<LLUIImage> LLUIImagePtr;
 
 template <typename T>
 class LLTombStone : public LLRefCount
@@ -593,70 +564,14 @@ private:
 //RN: maybe this needs to moved elsewhere?
 class LLImageProviderInterface
 {
-public:
+protected:
 	LLImageProviderInterface() {};
 	virtual ~LLImageProviderInterface() {};
-
-	virtual LLUIImagePtr getUIImage(const std::string& name) = 0;
-	virtual LLUIImagePtr getUIImageByID(const LLUUID& id) = 0;
+public:
+	virtual LLPointer<LLUIImage> getUIImage(const std::string& name) = 0;
+	virtual LLPointer<LLUIImage> getUIImageByID(const LLUUID& id) = 0;
 	virtual void cleanUp() = 0;
 };
-
-// This mix-in class adds support for tracking all instances of the specificed class parameter T
-// The (optional) key associates a value of type KEY with a given instance of T, for quick lookup
-// If KEY is not provided, then instances are stored in a simple list
-template<typename T, typename KEY = T*>
-class LLInstanceTracker : boost::noncopyable
-{
-public:
-	typedef typename std::map<KEY, T*>::iterator instance_iter;
-	typedef typename std::map<KEY, T*>::const_iterator instance_const_iter;
-
-	static T* getInstance(KEY k) { instance_iter found = sInstances.find(k); return (found == sInstances.end()) ? NULL : found->second; }
-
-	static instance_iter beginInstances() { return sInstances.begin(); }
-	static instance_iter endInstances() { return sInstances.end(); }
-	static S32 instanceCount() { return sInstances.size(); }
-protected:
-	LLInstanceTracker(KEY key) { add(key); }
-	virtual ~LLInstanceTracker() { remove(); }
-	virtual void setKey(KEY key) { remove(); add(key); }
-	virtual const KEY& getKey() const { return mKey; }
-
-private:
-	void add(KEY key) 
-	{ 
-		mKey = key; 
-		sInstances[key] = static_cast<T*>(this); 
-	}
-	void remove() { sInstances.erase(mKey); }
-
-private:
-
-	KEY mKey;
-	static std::map<KEY, T*> sInstances;
-};
-
-template<typename T>
-class LLInstanceTracker<T, T*> : boost::noncopyable
-{
-public:
-	typedef typename std::set<T*>::iterator instance_iter;
-	typedef typename std::set<T*>::const_iterator instance_const_iter;
-
-	static instance_iter instancesBegin() { return sInstances.begin(); }
-	static instance_iter instancesEnd() { return sInstances.end(); }
-	static S32 instanceCount() { return sInstances.size(); }
-
-protected:
-	LLInstanceTracker() { sInstances.insert(static_cast<T*>(this)); }
-	virtual ~LLInstanceTracker() { sInstances.erase(static_cast<T*>(this)); }
-
-	static std::set<T*> sInstances;
-};
-
-template <typename T, typename KEY> std::map<KEY, T*> LLInstanceTracker<T, KEY>::sInstances;
-template <typename T> std::set<T*> LLInstanceTracker<T, T*>::sInstances;
 
 class LLCallbackRegistry
 {
@@ -746,93 +661,116 @@ private:
 template <typename T> LLRegisterWith<LLInitClassList> LLInitClass<T>::sRegister(&T::initClass);
 template <typename T> LLRegisterWith<LLDestroyClassList> LLDestroyClass<T>::sRegister(&T::destroyClass);
 
-
-template <typename DERIVED>
-class LLParamBlock
+// useful parameter blocks
+struct TimeIntervalParam : public LLInitParam::Choice<TimeIntervalParam>
 {
-protected:
-	LLParamBlock() { sBlock = (DERIVED*)this; }
-
-	typedef typename boost::add_const<DERIVED>::type Tconst;
-
-	template <typename T>
-	class LLMandatoryParam
-	{
-	public:
-		typedef typename boost::add_const<T>::type T_const;
-
-		LLMandatoryParam(T_const initial_val) : mVal(initial_val), mBlock(sBlock) {}
-		LLMandatoryParam(const LLMandatoryParam<T>& other) : mVal(other.mVal) {}
-
-		DERIVED& operator ()(T_const set_value) { mVal = set_value; return *mBlock; }
-		operator T() const { return mVal; } 
-		T operator=(T_const set_value) { mVal = set_value; return mVal; }
-
-	private: 
-		T	mVal;
-		DERIVED* mBlock;
-	};
-
-	template <typename T>
-	class LLOptionalParam
-	{
-	public:
-		typedef typename boost::add_const<T>::type T_const;
-
-		LLOptionalParam(T_const initial_val) : mVal(initial_val), mBlock(sBlock) {}
-		LLOptionalParam() : mBlock(sBlock) {}
-		LLOptionalParam(const LLOptionalParam<T>& other) : mVal(other.mVal) {}
-
-		DERIVED& operator ()(T_const set_value) { mVal = set_value; return *mBlock; }
-		operator T() const { return mVal; } 
-		T operator=(T_const set_value) { mVal = set_value; return mVal; }
-
-	private:
-		T	mVal;
-		DERIVED* mBlock;
-	};
-
-	// specialization that requires initialization for reference types 
-	template <typename T>
-	class LLOptionalParam <T&>
-	{
-	public:
-		typedef typename boost::add_const<T&>::type T_const;
-
-		LLOptionalParam(T_const initial_val) : mVal(initial_val), mBlock(sBlock) {}
-		LLOptionalParam(const LLOptionalParam<T&>& other) : mVal(other.mVal) {}
-
-		DERIVED& operator ()(T_const set_value) { mVal = set_value; return *mBlock; }
-		operator T&() const { return mVal; } 
-		T& operator=(T_const set_value) { mVal = set_value; return mVal; }
-
-	private:
-		T&	mVal;
-		DERIVED* mBlock;
-	};
-
-	// specialization that initializes pointer params to NULL
-	template<typename T> 
-	class LLOptionalParam<T*>
-	{
-	public:
-		typedef typename boost::add_const<T*>::type T_const;
-
-		LLOptionalParam(T_const initial_val) : mVal(initial_val), mBlock(sBlock) {}
-		LLOptionalParam() : mVal((T*)NULL), mBlock(sBlock)  {}
-		LLOptionalParam(const LLOptionalParam<T*>& other) : mVal(other.mVal) {}
-
-		DERIVED& operator ()(T_const set_value) { mVal = set_value; return *mBlock; }
-		operator T*() const { return mVal; } 
-		T* operator=(T_const set_value) { mVal = set_value; return mVal; }
-	private:
-		T*	mVal;
-		DERIVED* mBlock;
-	};
-
-	static DERIVED* sBlock;
+	Option<F32>		seconds;
+	Option<S32>		frames;
+	TimeIntervalParam()
+	:	seconds("seconds"),
+		frames("frames")
+	{}
 };
 
-template <typename T> T* LLParamBlock<T>::sBlock = NULL;
+template <class T>
+class LLUICachedControl : public LLCachedControl<T>
+{
+public:
+	// This constructor will declare a control if it doesn't exist in the contol group
+	LLUICachedControl(const std::string& name,
+					  const T& default_value,
+					  const std::string& comment = "Declared In Code")
+	:	LLCachedControl<T>(LLUI::getControlControlGroup(name), name, default_value, comment)
+	{}
+
+	// This constructor will signal an error if the control doesn't exist in the control group
+	LLUICachedControl(const std::string& name)
+	:	LLCachedControl<T>(LLUI::getControlControlGroup(name), name)
+	{}
+};
+
+typedef LLLazyValue<LLColor4> LLUIColor;
+
+namespace LLInitParam
+{
+	template<>
+	class TypedParam<LLRect> 
+	:	public BlockValue<LLRect>
+	{
+        typedef BlockValue<LLRect> super_t;
+	public:
+		Optional<S32>	left,
+						top,
+						right,
+						bottom,
+						width,
+						height;
+
+		TypedParam(BlockDescriptor& descriptor, const std::string& name, const LLRect& value, ParamDescriptor::validation_func_t func);
+
+		LLRect getValueFromBlock() const;
+	};
+
+	template<>
+	struct TypeValues<LLUIColor> : public TypeValuesHelper<LLUIColor>
+	{
+		static void declareValues();
+	};
+
+	template<>
+	class TypedParam<LLUIColor> 
+	:	public BlockValue<LLUIColor>
+	{
+        typedef BlockValue<LLUIColor> super_t;
+	public:
+		Optional<F32> red;
+		Optional<F32> green;
+		Optional<F32> blue;
+		Optional<F32> alpha;
+		Optional<std::string> control;
+
+		TypedParam(BlockDescriptor& descriptor, const std::string& name, const LLUIColor& value, ParamDescriptor::validation_func_t func);
+		LLUIColor getValueFromBlock() const;
+	};
+
+	template<>
+	class TypedParam<const LLFontGL*> 
+	:	public BlockValue<const LLFontGL*>
+	{
+        typedef BlockValue<const LLFontGL*> super_t;
+	public:
+		Optional<std::string> name;
+		Optional<std::string> size;
+		Optional<std::string> style;
+
+		TypedParam(BlockDescriptor& descriptor, const std::string& name, const LLFontGL* const value, ParamDescriptor::validation_func_t func);
+		const LLFontGL* getValueFromBlock() const;
+	};
+
+	template<>
+	struct TypeValues<LLFontGL::HAlign> : public TypeValuesHelper<LLFontGL::HAlign>
+	{
+		static void declareValues();
+	};
+
+	template<>
+	struct TypeValues<LLFontGL::VAlign> : public TypeValuesHelper<LLFontGL::VAlign>
+	{
+		static void declareValues();
+	};
+
+	template<>
+	struct TypeValues<LLFontGL::ShadowType> : public TypeValuesHelper<LLFontGL::ShadowType>
+	{
+		static void declareValues();
+	};
+}
+
+namespace LLInitParam
+{
+    template<>
+	bool ParamCompare<LLLazyValue<LLColor4> >::equals(
+		const LLLazyValue<LLColor4> &a, const LLLazyValue<LLColor4> &b); 
+}
 
 #endif

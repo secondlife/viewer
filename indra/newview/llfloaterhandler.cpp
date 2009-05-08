@@ -70,7 +70,7 @@ bool LLFloaterHandler::handle(const LLSD &params, const LLSD &query_map, LLWebBr
 	{
 		if (floater)
 		{
-			floater->close();
+			floater->closeFloater();
 			return true;
 		}
 	}

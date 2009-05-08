@@ -37,6 +37,7 @@
 #include "v3dmath.h"
 #include "lluuid.h"
 #include "llwebbrowserctrl.h"
+#include "llavatarpropertiesprocessor.h"
 
 class LLButton;
 class LLCheckBoxCtrl;
@@ -69,8 +70,7 @@ enum EOnlineStatus
 class LLPanelAvatarTab : public LLPanel
 {
 public:
-	LLPanelAvatarTab(const std::string& name, const LLRect &rect, 
-		LLPanelAvatar* panel_avatar);
+	LLPanelAvatarTab(LLPanelAvatar* panel_avatar);
 
 	// Calls refresh() once per frame when panel is visible
 	/*virtual*/ void draw();
@@ -96,7 +96,7 @@ private:
 class LLPanelAvatarFirstLife : public LLPanelAvatarTab
 {
 public:
-	LLPanelAvatarFirstLife(const std::string& name, const LLRect &rect, LLPanelAvatar* panel_avatar);
+	LLPanelAvatarFirstLife(LLPanelAvatar* panel_avatar);
 
 	/*virtual*/ BOOL postBuild(void);
 
@@ -108,7 +108,7 @@ class LLPanelAvatarSecondLife
 : public LLPanelAvatarTab
 {
 public:
-	LLPanelAvatarSecondLife(const std::string& name, const LLRect &rect, LLPanelAvatar* panel_avatar );
+	LLPanelAvatarSecondLife(LLPanelAvatar* panel_avatar );
 
 	/*virtual*/ BOOL postBuild(void);
 	/*virtual*/ void refresh();
@@ -140,7 +140,7 @@ class LLPanelAvatarWeb :
 	, public LLWebBrowserCtrlObserver
 {
 public:
-	LLPanelAvatarWeb(const std::string& name, const LLRect& rect, LLPanelAvatar* panel_avatar);
+	LLPanelAvatarWeb(LLPanelAvatar* panel_avatar);
 	/*virtual*/ ~LLPanelAvatarWeb();
 	/*virtual*/ BOOL	postBuild(void);
 
@@ -170,7 +170,7 @@ private:
 class LLPanelAvatarAdvanced : public LLPanelAvatarTab
 {
 public:
-	LLPanelAvatarAdvanced(const std::string& name, const LLRect& rect, LLPanelAvatar* panel_avatar);
+	LLPanelAvatarAdvanced(LLPanelAvatar* panel_avatar);
 
 	/*virtual*/ BOOL	postBuild(void);
 
@@ -195,7 +195,7 @@ private:
 class LLPanelAvatarNotes : public LLPanelAvatarTab
 {
 public:
-	LLPanelAvatarNotes(const std::string& name, const LLRect& rect, LLPanelAvatar* panel_avatar);
+	LLPanelAvatarNotes(LLPanelAvatar* panel_avatar);
 
 	/*virtual*/ BOOL	postBuild(void);
 
@@ -210,7 +210,7 @@ public:
 class LLPanelAvatarClassified : public LLPanelAvatarTab
 {
 public:
-	LLPanelAvatarClassified(const std::string& name, const LLRect& rect, LLPanelAvatar* panel_avatar);
+	LLPanelAvatarClassified(LLPanelAvatar* panel_avatar);
 
 	/*virtual*/ BOOL postBuild(void);
 
@@ -243,7 +243,7 @@ private:
 class LLPanelAvatarPicks : public LLPanelAvatarTab
 {
 public:
-	LLPanelAvatarPicks(const std::string& name, const LLRect& rect, LLPanelAvatar* panel_avatar);
+	LLPanelAvatarPicks(LLPanelAvatar* panel_avatar);
 
 	/*virtual*/ BOOL	postBuild(void);
 
@@ -265,10 +265,10 @@ private:
 };
 
 
-class LLPanelAvatar : public LLPanel
+class LLPanelAvatar : public LLPanel, public LLAvatarPropertiesObserver
 {
 public:
-	LLPanelAvatar(const std::string& name, const LLRect &rect, BOOL allow_edit);
+	LLPanelAvatar(BOOL allow_edit);
 	/*virtual*/ ~LLPanelAvatar();
 
 	/*virtual*/ BOOL	postBuild(void);
@@ -306,7 +306,9 @@ public:
 	BOOL haveData() { return mHaveProperties && mHaveStatistics; }
 	BOOL isEditable() const { return mAllowEdit; }
 
-	static void processAvatarPropertiesReply(LLMessageSystem *msg, void **);
+	// LLAvatarPropertiesProcessor observer trigger
+	virtual void processAvatarProperties(const LLAvatarData& avatar_data);
+
 	static void processAvatarInterestsReply(LLMessageSystem *msg, void **);
 	static void processAvatarGroupsReply(LLMessageSystem* msg, void**);
 	static void processAvatarNotesReply(LLMessageSystem *msg, void **);

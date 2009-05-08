@@ -40,7 +40,7 @@
 #include "llhudtext.h"
 #include "llhudicon.h"
 #include "llinventory.h"
-#include "llmemory.h"
+#include "llrefcount.h"
 #include "llmemtype.h"
 #include "llprimitive.h"
 #include "lluuid.h"

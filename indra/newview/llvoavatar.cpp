@@ -78,6 +78,8 @@
 #include "llviewershadermgr.h"
 #include "llsky.h"
 #include "llanimstatelabels.h"
+#include "lltrans.h"
+
 #include "llgesturemgr.h" //needed to trigger the voice gesticulations
 #include "llvoiceclient.h"
 #include "llvoicevisualizer.h" // Ventrella
@@ -651,7 +653,6 @@ private:
 //-----------------------------------------------------------------------------
 LLXmlTree LLVOAvatar::sXMLTree;
 LLXmlTree LLVOAvatar::sSkeletonXMLTree;
-BOOL LLVOAvatar::sDebugAvatarRotation = FALSE;
 LLVOAvatarSkeletonInfo* LLVOAvatar::sAvatarSkeletonInfo = NULL;
 LLVOAvatarXmlInfo* LLVOAvatar::sAvatarXmlInfo = NULL;
 LLVOAvatarDictionary *LLVOAvatar::sAvatarDictionary = NULL;
@@ -742,7 +743,9 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mNeedsSkin(FALSE),
 	mUpdatePeriod(1),
 	mFullyLoadedInitialized(FALSE),
-	mHasBakedHair( FALSE )
+	mHasBakedHair( FALSE ),
+	mDebugAvatarRotation (LLCachedControl<bool>(gSavedSettings, "DebugAvatarRotation", FALSE))
+
 {
 	LLMemType mt(LLMemType::MTYPE_AVATAR);
 	//VTResume();  // VTune
@@ -976,6 +979,7 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	
 	mVoiceVisualizer->setVoiceEnabled( gVoiceClient->getVoiceEnabled( mID ) );
 	mCurrentGesticulationLevel = 0;		
+
 }
 
 //------------------------------------------------------------------------
@@ -1933,30 +1937,69 @@ void LLVOAvatar::buildCharacter()
 	//-------------------------------------------------------------------------
 	if (mIsSelf)
 	{
-		// *TODO: Translate
 		gAttachBodyPartPieMenus[0] = NULL;
-		gAttachBodyPartPieMenus[1] = new LLPieMenu(std::string("Right Arm >"));
-		gAttachBodyPartPieMenus[2] = new LLPieMenu(std::string("Head >"));
-		gAttachBodyPartPieMenus[3] = new LLPieMenu(std::string("Left Arm >"));
+
+		LLContextMenu::Params params;
+		params.label(LLTrans::getString("BodyPartsRightArm") + " >");
+		params.name(params.label);
+		params.visible(false);
+		gAttachBodyPartPieMenus[1] = LLUICtrlFactory::create<LLContextMenu> (params);
+
+		params.label(LLTrans::getString("BodyPartsHead") + " >");
+		params.name(params.label);
+		gAttachBodyPartPieMenus[2] = LLUICtrlFactory::create<LLContextMenu> (params);
+
+		params.label(LLTrans::getString("BodyPartsLeftArm") + " >");
+		params.name(params.label);
+		gAttachBodyPartPieMenus[3] = LLUICtrlFactory::create<LLContextMenu> (params);
+
 		gAttachBodyPartPieMenus[4] = NULL;
-		gAttachBodyPartPieMenus[5] = new LLPieMenu(std::string("Left Leg >"));
-		gAttachBodyPartPieMenus[6] = new LLPieMenu(std::string("Torso >"));
-		gAttachBodyPartPieMenus[7] = new LLPieMenu(std::string("Right Leg >"));
+
+		params.label(LLTrans::getString("BodyPartsLeftLeg") + " >");
+		params.name(params.label);
+		gAttachBodyPartPieMenus[5] = LLUICtrlFactory::create<LLContextMenu> (params);
+
+		params.label(LLTrans::getString("BodyPartsTorso") + " >");
+		params.name(params.label);
+		gAttachBodyPartPieMenus[6] = LLUICtrlFactory::create<LLContextMenu> (params);
+
+		params.label(LLTrans::getString("BodyPartsRightLeg") + " >");
+		params.name(params.label);
+		gAttachBodyPartPieMenus[7] = LLUICtrlFactory::create<LLContextMenu> (params);
 
 		gDetachBodyPartPieMenus[0] = NULL;
-		gDetachBodyPartPieMenus[1] = new LLPieMenu(std::string("Right Arm >"));
-		gDetachBodyPartPieMenus[2] = new LLPieMenu(std::string("Head >"));
-		gDetachBodyPartPieMenus[3] = new LLPieMenu(std::string("Left Arm >"));
+
+		params.label(LLTrans::getString("BodyPartsRightArm") + " >");
+		params.name(params.label);
+		gDetachBodyPartPieMenus[1] = LLUICtrlFactory::create<LLContextMenu> (params);
+
+		params.label(LLTrans::getString("BodyPartsHead") + " >");
+		params.name(params.label);
+		gDetachBodyPartPieMenus[2] = LLUICtrlFactory::create<LLContextMenu> (params);
+
+		params.label(LLTrans::getString("BodyPartsLeftArm") + " >");
+		params.name(params.label);
+		gDetachBodyPartPieMenus[3] = LLUICtrlFactory::create<LLContextMenu> (params);
+
 		gDetachBodyPartPieMenus[4] = NULL;
-		gDetachBodyPartPieMenus[5] = new LLPieMenu(std::string("Left Leg >"));
-		gDetachBodyPartPieMenus[6] = new LLPieMenu(std::string("Torso >"));
-		gDetachBodyPartPieMenus[7] = new LLPieMenu(std::string("Right Leg >"));
+
+		params.label(LLTrans::getString("BodyPartsLeftLeg") + " >");
+		params.name(params.label);
+		gDetachBodyPartPieMenus[5] = LLUICtrlFactory::create<LLContextMenu> (params);
+
+		params.label(LLTrans::getString("BodyPartsTorso") + " >");
+		params.name(params.label);
+		gDetachBodyPartPieMenus[6] = LLUICtrlFactory::create<LLContextMenu> (params);
+
+		params.label(LLTrans::getString("BodyPartsRightLeg") + " >");
+		params.name(params.label);
+		gDetachBodyPartPieMenus[7] = LLUICtrlFactory::create<LLContextMenu> (params);
 
 		for (S32 i = 0; i < 8; i++)
 		{
 			if (gAttachBodyPartPieMenus[i])
 			{
-				gAttachPieMenu->appendPieMenu( gAttachBodyPartPieMenus[i] );
+				gAttachPieMenu->appendContextSubMenu( gAttachBodyPartPieMenus[i] );
 			}
 			else
 			{
@@ -1968,13 +2011,25 @@ void LLVOAvatar::buildCharacter()
 					LLViewerJointAttachment* attachment = curiter->second;
 					if (attachment->getGroup() == i)
 					{
-						LLMenuItemCallGL* item;
-						item = new LLMenuItemCallGL(attachment->getName(), 
-													NULL, 
-													object_selected_and_point_valid);
-						item->addListener(gMenuHolder->getListenerByName("Object.AttachToAvatar"), "on_click", curiter->first);
+						LLMenuItemCallGL::Params item_params;
 						
-						gAttachPieMenu->append(item);
+						std::string sub_piemenu_name = attachment->getName();
+						if (LLTrans::getString(sub_piemenu_name) != "")
+						{
+						    item_params.label = LLTrans::getString(sub_piemenu_name);
+						}
+						else
+						{
+							 item_params.label = sub_piemenu_name;
+						}
+						item_params.name =(item_params.label );
+						item_params.on_click.function_name = "Object.AttachToAvatar";
+						item_params.on_click.parameter = curiter->first;
+						item_params.on_enable.function_name = "Object.EnableWear";
+						item_params.on_enable.parameter = curiter->first;
+						LLMenuItemCallGL* item = LLUICtrlFactory::create<LLMenuItemCallGL>(item_params);
+
+						gAttachPieMenu->addChild(item);
 
 						attachment_found = TRUE;
 						break;
@@ -1984,13 +2039,13 @@ void LLVOAvatar::buildCharacter()
 
 				if (!attachment_found)
 				{
-					gAttachPieMenu->appendSeparator();
+					gAttachPieMenu->addSeparator();
 				}
 			}
 
 			if (gDetachBodyPartPieMenus[i])
 			{
-				gDetachPieMenu->appendPieMenu( gDetachBodyPartPieMenus[i] );
+				gDetachPieMenu->appendContextSubMenu( gDetachBodyPartPieMenus[i] );
 			}
 			else
 			{
@@ -2002,9 +2057,25 @@ void LLVOAvatar::buildCharacter()
 					LLViewerJointAttachment* attachment = curiter->second;
 					if (attachment->getGroup() == i)
 					{
-						gDetachPieMenu->append(new LLMenuItemCallGL(attachment->getName(), 
-							&handle_detach_from_avatar, object_attached, attachment));
+						LLMenuItemCallGL::Params item_params;
+						std::string sub_piemenu_name = attachment->getName();
+						if (LLTrans::getString(sub_piemenu_name) != "")
+						{
+						    item_params.label = LLTrans::getString(sub_piemenu_name);
+						}
+						else
+						{
+							item_params.label = sub_piemenu_name;
+						}
+						item_params.name =(item_params.label );
+						item_params.on_click.function_name = "Attachment.Detach";
+						item_params.on_click.parameter = curiter->first;
+						item_params.on_enable.function_name = "Attachment.EnableDetach";
+						item_params.on_enable.parameter = curiter->first;
+						LLMenuItemCallGL* item = LLUICtrlFactory::create<LLMenuItemCallGL>(item_params);
 
+						gDetachPieMenu->addChild(item);
+						
 						attachment_found = TRUE;
 						break;
 					}
@@ -2012,7 +2083,7 @@ void LLVOAvatar::buildCharacter()
 
 				if (!attachment_found)
 				{
-					gDetachPieMenu->appendSeparator();
+					gDetachPieMenu->addSeparator();
 				}
 			}
 		}
@@ -2025,19 +2096,40 @@ void LLVOAvatar::buildCharacter()
 			LLViewerJointAttachment* attachment = curiter->second;
 			if (attachment->getGroup() == 8)
 			{
-				LLMenuItemCallGL* item;
-				item = new LLMenuItemCallGL(attachment->getName(), 
-											NULL, 
-											object_selected_and_point_valid);
-				item->addListener(gMenuHolder->getListenerByName("Object.AttachToAvatar"), "on_click", curiter->first);
-				gAttachScreenPieMenu->append(item);
-				gDetachScreenPieMenu->append(new LLMenuItemCallGL(attachment->getName(), 
-							&handle_detach_from_avatar, object_attached, attachment));
+				LLMenuItemCallGL::Params item_params;
+				std::string sub_piemenu_name = attachment->getName();
+				if (LLTrans::getString(sub_piemenu_name) != "")
+				{
+					item_params.label = LLTrans::getString(sub_piemenu_name);
+				}
+				else
+				{
+					item_params.label = sub_piemenu_name;
+				}
+				item_params.name =(item_params.label );
+				item_params.on_click.function_name = "Object.AttachToAvatar";
+				item_params.on_click.parameter = curiter->first;
+				item_params.on_enable.function_name = "Object.EnableWear";
+				item_params.on_enable.parameter = curiter->first;			
+				LLMenuItemCallGL* item = LLUICtrlFactory::create<LLMenuItemCallGL>(item_params);
+				gAttachScreenPieMenu->addChild(item);
+
+				item_params.on_click.function_name = "Attachment.DetachFromPoint";
+				item_params.on_click.parameter = curiter->first;
+				item_params.on_enable.function_name = "Attachment.PointFilled";
+				item_params.on_enable.parameter = curiter->first;
+				item = LLUICtrlFactory::create<LLMenuItemCallGL>(item_params);
+				gDetachScreenPieMenu->addChild(item);
 			}
 		}
 
 		for (S32 pass = 0; pass < 2; pass++)
 		{
+			// *TODO: Skinning - gAttachSubMenu is an awful, awful hack
+			if (!gAttachSubMenu)
+			{
+				break;
+			}
 			for (attachment_map_t::iterator iter = mAttachmentPoints.begin(); 
 				 iter != mAttachmentPoints.end(); )
 			{
@@ -2047,21 +2139,44 @@ void LLVOAvatar::buildCharacter()
 				{
 					continue;
 				}
-				LLMenuItemCallGL* item = new LLMenuItemCallGL(attachment->getName(), 
-															  NULL, &object_selected_and_point_valid,
-															  &attach_label, attachment);
-				item->addListener(gMenuHolder->getListenerByName("Object.AttachToAvatar"), "on_click", curiter->first);
-				gAttachSubMenu->append(item);
-
-				gDetachSubMenu->append(new LLMenuItemCallGL(attachment->getName(), 
-					&handle_detach_from_avatar, object_attached, &detach_label, attachment));
+				LLMenuItemCallGL::Params item_params;
+				std::string sub_piemenu_name = attachment->getName();
+				if (LLTrans::getString(sub_piemenu_name) != "")
+				{
+					item_params.label = LLTrans::getString(sub_piemenu_name);
+				}
+				else
+				{
+					item_params.label = sub_piemenu_name;
+				}
+				item_params.name =(item_params.label );
+				item_params.on_click.function_name = "Object.AttachToAvatar";
+				item_params.on_click.parameter = curiter->first;
+				item_params.on_enable.function_name = "Object.EnableWear";
+				item_params.on_enable.parameter = curiter->first;
+				//* TODO: Skinning:
+				//LLSD params;
+				//params["index"] = curiter->first;
+				//params["label"] = attachment->getName();
+				//item->addEventHandler("on_enable", LLMenuItemCallGL::MenuCallback().function_name("Attachment.Label").parameter(params));
 				
+				LLMenuItemCallGL* item = LLUICtrlFactory::create<LLMenuItemCallGL>(item_params);
+				gAttachSubMenu->addChild(item);
+
+				item_params.on_click.function_name = "Attachment.DetachFromPoint";
+				item_params.on_click.parameter = curiter->first;
+				item_params.on_enable.function_name = "Attachment.PointFilled";
+				item_params.on_enable.parameter = curiter->first;
+				//* TODO: Skinning: item->addEventHandler("on_enable", LLMenuItemCallGL::MenuCallback().function_name("Attachment.Label").parameter(params));
+
+				item = LLUICtrlFactory::create<LLMenuItemCallGL>(item_params);
+				gDetachSubMenu->addChild(item);
 			}
 			if (pass == 0)
 			{
 				// put separator between non-hud and hud attachments
-				gAttachSubMenu->appendSeparator();
-				gDetachSubMenu->appendSeparator();
+				gAttachSubMenu->addSeparator();
+				gDetachSubMenu->addSeparator();
 			}
 		}
 
@@ -2098,21 +2213,31 @@ void LLVOAvatar::buildCharacter()
 				S32 attach_index = attach_it->second;
 				while (cur_pie_slice < requested_pie_slice)
 				{
-					gAttachBodyPartPieMenus[group]->appendSeparator();
-					gDetachBodyPartPieMenus[group]->appendSeparator();
+					gAttachBodyPartPieMenus[group]->addSeparator();
+					gDetachBodyPartPieMenus[group]->addSeparator();
 					cur_pie_slice++;
 				}
 
 				LLViewerJointAttachment* attachment = get_if_there(mAttachmentPoints, attach_index, (LLViewerJointAttachment*)NULL);
 				if (attachment)
 				{
-					LLMenuItemCallGL* item = new LLMenuItemCallGL(attachment->getName(), 
-																  NULL, object_selected_and_point_valid);
-					gAttachBodyPartPieMenus[group]->append(item);
-					item->addListener(gMenuHolder->getListenerByName("Object.AttachToAvatar"), "on_click", attach_index);
-					gDetachBodyPartPieMenus[group]->append(new LLMenuItemCallGL(attachment->getName(), 
-																				&handle_detach_from_avatar,
-																				object_attached, attachment));
+					LLMenuItemCallGL::Params item_params;
+					item_params.name = attachment->getName();
+					item_params.label = attachment->getName();
+					item_params.on_click.function_name = "Object.AttachToAvatar";
+					item_params.on_click.parameter = attach_index;
+					item_params.on_enable.function_name = "Object.EnableWear";
+					item_params.on_enable.parameter = attach_index;
+
+					LLMenuItemCallGL* item = LLUICtrlFactory::create<LLMenuItemCallGL>(item_params);
+					gAttachBodyPartPieMenus[group]->addChild(item);
+					
+					item_params.on_click.function_name = "Attachment.DetachFromPoint";
+					item_params.on_click.parameter = attach_index;
+					item_params.on_enable.function_name = "Attachment.PointFilled";
+					item_params.on_enable.parameter = attach_index;
+					item = LLUICtrlFactory::create<LLMenuItemCallGL>(item_params);
+					gDetachBodyPartPieMenus[group]->addChild(item);
 					cur_pie_slice++;
 				}
 			}
@@ -3001,7 +3126,7 @@ void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
 					new_name = TRUE;
 				}
 				
-				LLColor4 avatar_name_color = gColors.getColor( "AvatarNameColor" );
+				LLColor4 avatar_name_color = gSavedSkinSettings.getColor( "AvatarNameColor" );
 				avatar_name_color.setAlpha(alpha);
 				mNameText->setColor(avatar_name_color);
 				
@@ -3089,7 +3214,7 @@ void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
 					line += " (";
 					if (is_away)
 					{
-						line += "Away";
+						line += LLTrans::getString("AvatarAway");
 						need_comma = TRUE;
 					}
 					if (is_busy)
@@ -3098,7 +3223,7 @@ void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
 						{
 							line += ", ";
 						}
-						line += "Busy";
+						line += LLTrans::getString("AvatarBusy");
 						need_comma = TRUE;
 					}
 					if (is_muted)
@@ -3107,7 +3232,7 @@ void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
 						{
 							line += ", ";
 						}
-						line += "Muted";
+						line += LLTrans::getString("AvatarMuted");
 						need_comma = TRUE;
 					}
 					line += ")";
@@ -3115,7 +3240,7 @@ void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
 				if (is_appearance)
 				{
 					line += "\n";
-					line += "(Editing Appearance)";
+					line += LLTrans::getString("AvatarEditingAppearance");
 				}
 				mNameAway = is_away;
 				mNameBusy = is_busy;
@@ -3143,7 +3268,7 @@ void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
 				std::deque<LLChat>::iterator chat_iter = mChats.begin();
 				mNameText->clearString();
 
-				LLColor4 new_chat = gColors.getColor( "AvatarNameColor" );
+				LLColor4 new_chat = gSavedSkinSettings.getColor( "AvatarNameColor" );
 				LLColor4 normal_chat = lerp(new_chat, LLColor4(0.8f, 0.8f, 0.8f, 1.f), 0.7f);
 				LLColor4 old_chat = lerp(normal_chat, LLColor4(0.6f, 0.6f, 0.6f, 1.f), 0.7f);
 				if (mTyping && mChats.size() >= MAX_BUBBLE_CHAT_UTTERANCES) 
@@ -3607,7 +3732,7 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 			F32 root_roll, root_pitch, root_yaw;
 			root_rotation.getEulerAngles(&root_roll, &root_pitch, &root_yaw);
 
-			if (sDebugAvatarRotation)
+			if (mDebugAvatarRotation)
 			{
 				llinfos << "root_roll " << RAD_TO_DEG * root_roll 
 					<< " root_pitch " << RAD_TO_DEG * root_pitch
@@ -7491,6 +7616,7 @@ void LLVOAvatar::updateAttachmentVisibility(U32 camera_mode)
 }
 
 // Given a texture entry, determine which wearable type owns it.
+
 // static
 LLUUID LLVOAvatar::getDefaultTEImageID(ETextureIndex index )
 {

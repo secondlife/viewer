@@ -49,8 +49,8 @@ public:
 	void apply();
 	void cancel();
 	void refresh();
-	void onOpen();
-	void onClose(bool app_quitting);
+	void initialize();
+	void cleanup();
 
 protected:
 	static void onCommitInputDevice(LLUICtrl* ctrl, void* user_data);
@@ -68,7 +68,7 @@ class LLFloaterVoiceDeviceSettings : public LLFloater, public LLFloaterSingleton
 {
 public:
 	LLFloaterVoiceDeviceSettings(const LLSD& seed);
-	/*virtual*/ void onOpen();
+	/*virtual*/ void onOpen(const LLSD& key);
 	/*virtual*/ void onClose(bool app_quitting);
 	/*virtual*/ void draw();
 	void apply();

@@ -43,7 +43,15 @@ class LLFloaterCustomize;
 class LLMorphView : public LLView
 {
 public:
-	LLMorphView(const std::string& name, const LLRect& rect);
+	struct Params : public LLInitParam::Block<Params, LLView::Params>
+	{
+		Params()
+		{
+			mouse_opaque(false);
+			follows.flags(FOLLOWS_ALL);
+		}
+	};
+	LLMorphView(const LLMorphView::Params&);
 	
 	void		initialize();
 	void		shutdown();

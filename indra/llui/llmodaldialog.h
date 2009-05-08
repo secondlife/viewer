@@ -48,7 +48,7 @@ public:
 	LLModalDialog( const std::string& title, S32 width, S32 height, BOOL modal = true );
 	/*virtual*/ ~LLModalDialog();
 
-	/*virtual*/ void	open();	/* Flawfinder: ignore */
+	/*virtual*/ void	openFloater(const LLSD& key = LLSD());
 	
 	/*virtual*/ void 	reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 	

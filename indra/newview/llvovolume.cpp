@@ -72,7 +72,7 @@ const F32 FORCE_CULL_AREA = 8.f;
 const S32 MAX_SCULPT_REZ = 128;
 
 BOOL gAnimateTextures = TRUE;
-extern BOOL gHideSelectedObjects;
+//extern BOOL gHideSelectedObjects;
 
 F32 LLVOVolume::sLODFactor = 1.f;
 F32	LLVOVolume::sLODSlopDistanceFactor = 0.5f; //Changing this to zero, effectively disables the LOD transition slop 
@@ -1941,10 +1941,9 @@ BOOL LLVOVolume::lineSegmentIntersect(const LLVector3& start, const LLVector3& e
 									  LLVector3* intersection,LLVector2* tex_coord, LLVector3* normal, LLVector3* bi_normal)
 	
 {
-	if (!mbCanSelect ||
-		(gHideSelectedObjects && isSelected()) ||
-			mDrawable->isDead() || 
-			!gPipeline.hasRenderType(mDrawable->getRenderType()))
+	if (!mbCanSelect 
+		|| mDrawable->isDead() 
+		|| !gPipeline.hasRenderType(mDrawable->getRenderType()))
 	{
 		return FALSE;
 	}
@@ -2084,7 +2083,7 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 {
 	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
 
-	if (facep->getViewerObject()->isSelected() && gHideSelectedObjects)
+	if (facep->getViewerObject()->isSelected() && LLSelectMgr::getInstance()->mHideSelectedObjects)
 	{
 		return;
 	}

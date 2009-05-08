@@ -84,7 +84,9 @@ public:
 	std::string asString() const;
 	std::string asRFC1123() const;
 	void toStream(std::ostream&) const;
-	void toHTTPDateStream(std::ostream&) const;
+	std::string toHTTPDateString (std::string fmt) const;
+	static std::string toHTTPDateString (tm * gmt, std::string fmt);
+	static void toHTTPDateStream(std::ostream&, tm *, std::string);
 	/** 
 	 * @brief Set the date from an ISO-8601 string.
 	 *

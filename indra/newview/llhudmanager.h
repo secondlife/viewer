@@ -36,7 +36,7 @@
 // Responsible for managing all HUD elements.
 
 #include "llhudobject.h"
-#include "lldarray.h"
+#include "lldarrayptr.h"
 
 class LLViewerObject;
 class LLHUDEffect;

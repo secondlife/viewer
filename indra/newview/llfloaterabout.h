@@ -36,16 +36,15 @@
 #include "llfloater.h"
 
 class LLFloaterAbout 
-: public LLFloater
+	: public LLFloater, public LLFloaterSingleton<LLFloaterAbout>
 {
-public:
-	LLFloaterAbout();
+	friend class LLUISingleton<LLFloaterAbout, VisibilityPolicy<LLFloater> >;
+protected:
+	LLFloaterAbout(const LLSD& key);
 	virtual ~LLFloaterAbout();
 
-	static void show(void*);
-
-private:
-	static LLFloaterAbout* sInstance;
+public:
+	/*virtual*/ BOOL postBuild();
 };
 
 

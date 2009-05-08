@@ -31,17 +31,25 @@ set(llui_SOURCE_FILES
     llcheckboxctrl.cpp
     llclipboard.cpp
     llcombobox.cpp
+    llconsole.cpp
+    llcontainerview.cpp
     llctrlselectioninterface.cpp
     lldraghandle.cpp
     lleditmenuhandler.cpp
+    llf32uictrl.cpp
     llfloater.cpp
+    llfloaterreg.cpp
+    llflyoutbutton.cpp 
     llfocusmgr.cpp
     llfunctorregistry.cpp
     lliconctrl.cpp
+    llinitparam.cpp
     llkeywords.cpp
+    lllayoutstack.cpp
     lllineeditor.cpp
     llmenugl.cpp
     llmodaldialog.cpp
+    llmultifloater.cpp 
     llmultislider.cpp
     llmultisliderctrl.cpp
     llnotifications.cpp
@@ -51,27 +59,35 @@ set(llui_SOURCE_FILES
     llresizebar.cpp
     llresizehandle.cpp
     llresmgr.cpp
-    llrootview.cpp
     llscrollbar.cpp
     llscrollcontainer.cpp
     llscrollingpanellist.cpp
+    llscrolllistcell.cpp
+    llscrolllistcolumn.cpp
     llscrolllistctrl.cpp
+    llscrolllistitem.cpp
+    llsdparam.cpp
+    llsearcheditor.cpp 
     llslider.cpp
     llsliderctrl.cpp
     llspinctrl.cpp
+    llstatbar.cpp
+    llstatgraph.cpp
+    llstatview.cpp
     llstyle.cpp
     lltabcontainer.cpp
-    lltabcontainervertical.cpp
     lltextbox.cpp
     lltexteditor.cpp
     lltextparser.cpp
+    lltrans.cpp
     llui.cpp
     lluictrl.cpp
     lluictrlfactory.cpp
+    lluiimage.cpp
     lluistring.cpp
-    lluitrans.cpp
     llundo.cpp
     llviewborder.cpp
+    llviewmodel.cpp
     llview.cpp
     llviewquery.cpp
     )
@@ -85,52 +101,68 @@ set(llui_HEADER_FILES
     llcheckboxctrl.h
     llclipboard.h
     llcombobox.h
+    llconsole.h
+    llcontainerview.h
     llctrlselectioninterface.h
     lldraghandle.h
     lleditmenuhandler.h
+    llf32uictrl.h
     llfloater.h
+    llfloaterreg.h
+    llflyoutbutton.h 
     llfocusmgr.h
     llfunctorregistry.h
     llhtmlhelp.h
     lliconctrl.h
+    llinitparam.h
     llkeywords.h
+    lllayoutstack.h
+    lllazyvalue.h
     lllineeditor.h
-    llmemberlistener.h
     llmenugl.h
     llmodaldialog.h
+    llmultifloater.h 
     llmultisliderctrl.h
     llmultislider.h
     llnotifications.h
     llpanel.h
     llprogressbar.h
     llradiogroup.h
+    llregistry.h
     llresizebar.h
     llresizehandle.h
     llresmgr.h
-    llrootview.h
+    llsearcheditor.h 
     llscrollbar.h
     llscrollcontainer.h
     llscrollingpanellist.h
+    llscrolllistcell.h
+    llscrolllistcolumn.h
     llscrolllistctrl.h
+    llscrolllistitem.h
+    llsdparam.h
     llsliderctrl.h
     llslider.h
     llspinctrl.h
+    llstatbar.h
+    llstatgraph.h
+    llstatview.h
     llstyle.h
     lltabcontainer.h
-    lltabcontainervertical.h
     lltextbox.h
     lltexteditor.h
     lltextparser.h
+    lltrans.h
     lluiconstants.h
     lluictrlfactory.h
     lluictrl.h
     lluifwd.h
     llui.h
+    lluiimage.h
     lluistring.h
-    lluitrans.h
-    lluixmltags.h
     llundo.h
     llviewborder.h
+    llviewmodel.h
     llview.h
     llviewquery.h
     )

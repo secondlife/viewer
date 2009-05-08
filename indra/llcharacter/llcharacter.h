@@ -42,7 +42,7 @@
 #include "llmotioncontroller.h"
 #include "llvisualparam.h"
 #include "string_table.h"
-#include "llmemory.h"
+#include "llpointer.h"
 #include "llthread.h"
 
 class LLPolyMesh;

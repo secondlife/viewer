@@ -35,7 +35,7 @@
 
 #include "lldarrayptr.h"
 #include "llframetimer.h"
-#include "llmemory.h"
+#include "llpointer.h"
 #include "llpartdata.h"
 #include "llviewerpartsource.h"
 

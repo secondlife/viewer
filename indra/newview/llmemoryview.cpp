@@ -51,11 +51,10 @@
 
 
 
-LLMemoryView::LLMemoryView(const std::string& name, const LLRect& rect)
-:	LLView(name, rect, TRUE),
-mDelay(120)
+LLMemoryView::LLMemoryView(const LLMemoryView::Params& p)
+:	LLView(p),
+	mDelay(120)
 {
-	setVisible(FALSE);
 	mDumpTimer.reset();
 
 #ifdef MEM_DUMP_DATA

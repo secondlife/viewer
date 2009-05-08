@@ -227,6 +227,40 @@ const LLColor4&	LLColor4::setVec(const LLColor3 &vec, F32 a)
 	return (*this);
 }
 
+void LLColor4::setValue(const LLSD& sd)
+{
+#if 0
+	// Clamping on setValue from LLSD is inconsistent with other set behavior
+	F32 val;
+	bool out_of_range = false;
+	val = sd[0].asReal();
+	mV[0] = llclamp(val, 0.f, 1.f);
+	out_of_range = mV[0] != val;
+
+	val = sd[1].asReal();
+	mV[1] = llclamp(val, 0.f, 1.f);
+	out_of_range |= mV[1] != val;
+
+	val = sd[2].asReal();
+	mV[2] = llclamp(val, 0.f, 1.f);
+	out_of_range |= mV[2] != val;
+
+	val = sd[3].asReal();
+	mV[3] = llclamp(val, 0.f, 1.f);
+	out_of_range |= mV[3] != val;
+
+	if (out_of_range)
+	{
+		llwarns << "LLSD color value out of range!" << llendl;
+	}
+#else
+	mV[0] = (F32) sd[0].asReal();
+	mV[1] = (F32) sd[1].asReal();
+	mV[2] = (F32) sd[2].asReal();
+	mV[3] = (F32) sd[3].asReal();
+#endif
+}
+
 const LLColor4& LLColor4::operator=(const LLColor3 &a)
 {
 	mV[VX] = a.mV[VX];

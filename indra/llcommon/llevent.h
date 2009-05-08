@@ -35,7 +35,7 @@
 #define LL_EVENT_H
 
 #include "llsd.h"
-#include "llmemory.h"
+#include "llpointer.h"
 #include "llthread.h"
 
 class LLEventListener;

@@ -51,6 +51,7 @@ class LLFloaterBulkPermission : public LLFloater, public LLVOInventoryListener, 
 public:
 
 	LLFloaterBulkPermission(const LLSD& seed);
+	BOOL postBuild();
 
 private:
 	virtual ~LLFloaterBulkPermission() {}

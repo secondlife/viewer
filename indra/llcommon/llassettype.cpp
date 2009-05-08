@@ -70,6 +70,7 @@ asset_info_t asset_types[] =
 	{ LLAssetType::AT_ANIMATION, "ANIMATION" },
 	{ LLAssetType::AT_GESTURE, "GESTURE" },
 	{ LLAssetType::AT_SIMSTATE, "SIMSTATE" },
+	{ LLAssetType::AT_FAVORITE, "FAVORITE" },
 	{ LLAssetType::AT_NONE, "NONE" },
 };
 
@@ -129,7 +130,8 @@ const char* LLAssetType::mAssetTypeNames[LLAssetType::AT_COUNT] =
 	"jpeg",
 	"animatn",
 	"gesture",
-	"simstate"
+	"simstate",
+	"favorite"
 };
 
 // This table is meant for decoding to human readable form. Put any
@@ -160,6 +162,7 @@ const char* LLAssetType::mAssetTypeHumanNames[LLAssetType::AT_COUNT] =
 	"animation",
 	"gesture",
 	"simstate"
+	"favorite"
 };
 
 ///----------------------------------------------------------------------------

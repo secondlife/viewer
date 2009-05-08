@@ -30,65 +30,66 @@
  * $/LicenseInfo$
  */
 
+#define INSTANTIATE_GETCHILD_TEXTBOX
+
 #include "linden_common.h"
 #include "lltextbox.h"
 #include "lluictrlfactory.h"
 #include "llfocusmgr.h"
 #include "llwindow.h"
 
+template LLTextBox* LLView::getChild<LLTextBox>( const std::string& name, BOOL recurse, BOOL create_if_missing ) const;
+
 static LLRegisterWidget<LLTextBox> r("text");
 
-LLTextBox::LLTextBox(const std::string& name, const LLRect& rect, const std::string& text,
-					 const LLFontGL* font, BOOL mouse_opaque)
-:	LLUICtrl(name, rect, mouse_opaque, NULL, NULL, FOLLOWS_LEFT | FOLLOWS_TOP ),
-	mFontGL(font ? font : LLFontGL::getFontSansSerifSmall())
-{
-	initDefaults();
-	setText( text );
-	setTabStop(FALSE);
-}
+LLTextBox::Params::Params()
+:	text_color("text_color"),
+	length("length"),
+	type("type"),
+	highlight_on_hover("hover", false),
+	border_visible("border_visible", false),
+	border_drop_shadow_visible("border_drop_shadow_visible", false),
+	bg_visible("bg_visible", false),
+	use_ellipses("use_ellipses"),
+	word_wrap("word_wrap", false),
+	drop_shadow_visible("drop_shadow_visible"),
+	hover_color("hover_color"),
+	disabled_color("disabled_color"),
+	background_color("background_color"),
+	border_color("border_color"),
+	v_pad("v_pad", 0),
+	h_pad("h_pad", 0),
+	line_spacing("line_spacing", 0),
+	text("text"),
+	font_shadow("font_shadow", LLFontGL::NO_SHADOW)
+{}
 
-LLTextBox::LLTextBox(const std::string& name, const std::string& text, F32 max_width,
-					 const LLFontGL* font, BOOL mouse_opaque) :
-	LLUICtrl(name, LLRect(0, 0, 1, 1), mouse_opaque, NULL, NULL, FOLLOWS_LEFT | FOLLOWS_TOP),	
-	mFontGL(font ? font : LLFontGL::getFontSansSerifSmall())
+LLTextBox::LLTextBox(const LLTextBox::Params& p)
+:	LLUICtrl(p),
+    mFontGL(p.font),
+	mHoverActive( p.highlight_on_hover ),
+	mHasHover( FALSE ),
+	mBackgroundVisible( p.bg_visible ),
+	mBorderVisible( p.border_visible ),
+	mShadowType( p.font_shadow ),
+	mBorderDropShadowVisible( p.border_drop_shadow_visible ),
+	mUseEllipses( p.use_ellipses ),
+	mHPad(p.h_pad),
+	mVPad(p.v_pad),
+	mVAlign( LLFontGL::TOP ),
+	mClickedCallback(NULL),
+	mTextColor(p.text_color()),
+	mDisabledColor(p.disabled_color()),
+	mBackgroundColor(p.background_color()),
+	mBorderColor(p.border_color()),
+	mHoverColor(p.hover_color()),
+	mHAlign(p.font_halign),
+	mLineSpacing(p.line_spacing),
+	mWordWrap( p.word_wrap ),
+	mDidWordWrap(FALSE),
+	mFontStyle(LLFontGL::getStyleFromString(p.font.style))
 {
-	initDefaults();
-	setWrappedText(text, max_width);
-	reshapeToFitText();
-	setTabStop(FALSE);
-}
-
-LLTextBox::LLTextBox(const std::string& name_and_label, const LLRect& rect) :
-	LLUICtrl(name_and_label, rect, TRUE, NULL, NULL, FOLLOWS_LEFT | FOLLOWS_TOP),	
-	mFontGL(LLFontGL::getFontSansSerifSmall())
-{
-	initDefaults();
-	setText( name_and_label );
-	setTabStop(FALSE);
-}
-
-void LLTextBox::initDefaults()
-{
-	mTextColor = LLUI::sColorsGroup->getColor("LabelTextColor");
-	mDisabledColor = LLUI::sColorsGroup->getColor("LabelDisabledColor");
-	mBackgroundColor = LLUI::sColorsGroup->getColor("DefaultBackgroundColor");
-	mBorderColor = LLUI::sColorsGroup->getColor("DefaultHighlightLight");
-	mHoverColor = LLUI::sColorsGroup->getColor( "LabelSelectedColor" );
-	mHoverActive = FALSE;
-	mHasHover = FALSE;
-	mBackgroundVisible = FALSE;
-	mBorderVisible = FALSE;
-	mFontStyle = LLFontGL::DROP_SHADOW_SOFT;
-	mBorderDropShadowVisible = FALSE;
-	mUseEllipses = FALSE;
-	mLineSpacing = 0;
-	mHPad = 0;
-	mVPad = 0;
-	mHAlign = LLFontGL::LEFT;
-	mVAlign = LLFontGL::TOP;
-	mClickedCallback = NULL;
-	mCallbackUserData = NULL;
+	setText( p.text() );
 }
 
 BOOL LLTextBox::handleMouseDown(S32 x, S32 y, MASK mask)
@@ -112,7 +113,6 @@ BOOL LLTextBox::handleMouseDown(S32 x, S32 y, MASK mask)
 
 	return handled;
 }
-
 
 BOOL LLTextBox::handleMouseUp(S32 x, S32 y, MASK mask)
 {
@@ -139,7 +139,7 @@ BOOL LLTextBox::handleMouseUp(S32 x, S32 y, MASK mask)
 		// If mouseup in the widget, it's been clicked
 		if (mClickedCallback)
 		{
-			(*mClickedCallback)( mCallbackUserData );
+			mClickedCallback();
 		}
 	}
 
@@ -160,8 +160,15 @@ BOOL LLTextBox::handleHover(S32 x, S32 y, MASK mask)
 
 void LLTextBox::setText(const LLStringExplicit& text)
 {
-	mText.assign(text);
-	setLineLengths();
+	if(mWordWrap && !mDidWordWrap)
+	{
+		setWrappedText(text);
+	}
+	else
+	{
+		mText.assign(text);
+		setLineLengths();
+	}
 }
 
 void LLTextBox::setLineLengths()
@@ -193,7 +200,7 @@ void LLTextBox::setLineLengths()
 
 void LLTextBox::setWrappedText(const LLStringExplicit& in_text, F32 max_width)
 {
-	if (max_width < 0.0)
+	if (max_width < 0.0f)
 	{
 		max_width = (F32)getRect().getWidth();
 	}
@@ -203,7 +210,8 @@ void LLTextBox::setWrappedText(const LLStringExplicit& in_text, F32 max_width)
 
 	LLWString::size_type  cur = 0;;
 	LLWString::size_type  len = wtext.size();
-
+	F32 line_height =  mFontGL->getLineHeight();
+	S32 line_num = 1;
 	while (cur < len)
 	{
 		LLWString::size_type end = wtext.find('\n', cur);
@@ -221,6 +229,8 @@ void LLTextBox::setWrappedText(const LLStringExplicit& in_text, F32 max_width)
 
 			final_wtext.append(wtext, cur, useLen);
 			cur += useLen;
+			// not enough room to add any more characters
+			if (useLen == 0) break;
 		}
 
 		if (cur < len)
@@ -229,12 +239,22 @@ void LLTextBox::setWrappedText(const LLStringExplicit& in_text, F32 max_width)
 			{
 				cur += 1;
 			}
-			final_wtext += '\n';
+			line_num +=1;
+			// Don't wrap the last line if the text is going to spill off
+			// the bottom of the rectangle.  Assume we prefer to run off
+			// the right edge.
+			// *TODO: Is this the right behavior?
+			if((line_num-1)*line_height <= (F32)getRect().getHeight())
+			{
+				final_wtext += '\n';
+			}
 		}
 	}
-
+	
+	mDidWordWrap = TRUE;
 	std::string final_text = wstring_to_utf8str(final_wtext);
 	setText(final_text);
+
 }
 
 S32 LLTextBox::getTextPixelWidth()
@@ -272,6 +292,11 @@ S32 LLTextBox::getTextPixelHeight()
 	return (S32)(num_lines * mFontGL->getLineHeight());
 }
 
+void LLTextBox::setValue(const LLSD& value )
+{ 
+	mDidWordWrap = FALSE;
+	setText(value.asString());
+}
 
 BOOL LLTextBox::setTextArg( const std::string& key, const LLStringExplicit& text )
 {
@@ -289,8 +314,8 @@ void LLTextBox::draw()
 
 	if( mBorderDropShadowVisible )
 	{
-		static LLColor4 color_drop_shadow = LLUI::sColorsGroup->getColor("ColorDropShadow");
-		static S32 drop_shadow_tooltip = LLUI::sConfigGroup->getS32("DropShadowTooltip");
+		static LLUICachedControl<LLColor4> color_drop_shadow ("ColorDropShadow", *(new LLColor4));
+		static LLUICachedControl<S32> drop_shadow_tooltip ("DropShadowTooltip", 0);
 		gl_drop_shadow(0, getRect().getHeight(), getRect().getWidth(), 0,
 			color_drop_shadow, drop_shadow_tooltip);
 	}
@@ -298,7 +323,7 @@ void LLTextBox::draw()
 	if (mBackgroundVisible)
 	{
 		LLRect r( 0, getRect().getHeight(), getRect().getWidth(), 0 );
-		gl_rect_2d( r, mBackgroundColor );
+		gl_rect_2d( r, mBackgroundColor.get() );
 	}
 
 	S32 text_x = 0;
@@ -321,22 +346,29 @@ void LLTextBox::draw()
 	{
 		if(mHasHover)
 		{
-			drawText( text_x, text_y, mHoverColor );
+			drawText( text_x, text_y, mHoverColor.get() );
 		}
 		else
 		{
-			drawText( text_x, text_y, mTextColor );
+			drawText( text_x, text_y, mTextColor.get() );
 		}				
 	}
 	else
 	{
-		drawText( text_x, text_y, mDisabledColor );
+		drawText( text_x, text_y, mDisabledColor.get() );
 	}
 
 	if (sDebugRects)
 	{
 		drawDebugRect();
 	}
+
+	//// *HACK: also draw debug rectangles around currently-being-edited LLView, and any elements that are being highlighted by GUI preview code (see LLFloaterUIPreview)
+	//std::set<LLView*>::iterator iter = std::find(sPreviewHighlightedElements.begin(), sPreviewHighlightedElements.end(), this);
+	//if ((sEditingUI && this == sEditingUIView) || (iter != sPreviewHighlightedElements.end() && sDrawPreviewHighlights))
+	//{
+	//	drawDebugRect();
+	//}
 
 	mHasHover = FALSE; // This is reset every frame.
 }
@@ -355,6 +387,7 @@ void LLTextBox::drawText( S32 x, S32 y, const LLColor4& color )
 		mFontGL->render(mText.getWString(), 0, (F32)x, (F32)y, color,
 						mHAlign, mVAlign, 
 						mFontStyle,
+						mShadowType,
 						S32_MAX, getRect().getWidth(), NULL, TRUE, mUseEllipses);
 	}
 	else
@@ -367,6 +400,7 @@ void LLTextBox::drawText( S32 x, S32 y, const LLColor4& color )
 			mFontGL->render(mText.getWString(), cur_pos, (F32)x, (F32)y, color,
 							mHAlign, mVAlign,
 							mFontStyle,
+							mShadowType,
 							line_length, getRect().getWidth(), NULL, TRUE, mUseEllipses );
 			cur_pos += line_length + 1;
 			y -= llfloor(mFontGL->getLineHeight()) + mLineSpacing;
@@ -379,87 +413,4 @@ void LLTextBox::reshapeToFitText()
 	S32 width = getTextPixelWidth();
 	S32 height = getTextPixelHeight();
 	reshape( width + 2 * mHPad, height + 2 * mVPad );
-}
-
-// virtual
-LLXMLNodePtr LLTextBox::getXML(bool save_children) const
-{
-	LLXMLNodePtr node = LLUICtrl::getXML();
-
-	// Attributes
-	node->createChild("font", TRUE)->setStringValue(LLFontGL::nameFromFont(mFontGL));
-	node->createChild("halign", TRUE)->setStringValue(LLFontGL::nameFromHAlign(mHAlign));
-	addColorXML(node, mTextColor, "text_color", "LabelTextColor");
-	addColorXML(node, mDisabledColor, "disabled_color", "LabelDisabledColor");
-	addColorXML(node, mBackgroundColor, "bg_color", "DefaultBackgroundColor");
-	addColorXML(node, mBorderColor, "border_color", "DefaultHighlightLight");
-	node->createChild("bg_visible", TRUE)->setBoolValue(mBackgroundVisible);
-	node->createChild("border_visible", TRUE)->setBoolValue(mBorderVisible);
-	node->createChild("border_drop_shadow_visible", TRUE)->setBoolValue(mBorderDropShadowVisible);
-	node->createChild("h_pad", TRUE)->setIntValue(mHPad);
-	node->createChild("v_pad", TRUE)->setIntValue(mVPad);
-
-	// Contents
-	node->setStringValue(mText);
-
-	return node;
-}
-
-// static
-LLView* LLTextBox::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory)
-{
-	std::string name("text_box");
-	node->getAttributeString("name", name);
-	LLFontGL* font = LLView::selectFont(node);
-
-	std::string text = node->getTextContents();
-
-	LLTextBox* text_box = new LLTextBox(name,
-		LLRect(),
-		text,
-		font,
-		FALSE);
-		
-
-	LLFontGL::HAlign halign = LLView::selectFontHAlign(node);
-	text_box->setHAlign(halign);
-
-	text_box->initFromXML(node, parent);
-
-	node->getAttributeS32("line_spacing", text_box->mLineSpacing);
-
-	std::string font_style;
-	if (node->getAttributeString("font-style", font_style))
-	{
-		text_box->mFontStyle = LLFontGL::getStyleFromString(font_style);
-	}
-	
-	BOOL mouse_opaque = text_box->getMouseOpaque();
-	if (node->getAttributeBOOL("mouse_opaque", mouse_opaque))
-	{
-		text_box->setMouseOpaque(mouse_opaque);
-	}	
-
-	if(node->hasAttribute("text_color"))
-	{
-		LLColor4 color;
-		LLUICtrlFactory::getAttributeColor(node, "text_color", color);
-		text_box->setColor(color);
-	}
-
-	if(node->hasAttribute("hover_color"))
-	{
-		LLColor4 color;
-		LLUICtrlFactory::getAttributeColor(node, "hover_color", color);
-		text_box->setHoverColor(color);
-		text_box->setHoverActive(true);
-	}
-
-	BOOL hover_active = FALSE;
-	if(node->getAttributeBOOL("hover", hover_active))
-	{
-		text_box->setHoverActive(hover_active);
-	}
-
-	return text_box;
 }

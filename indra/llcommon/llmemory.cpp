@@ -275,27 +275,12 @@ void operator delete[] (void *p)
 }
 
 #endif
-
-//----------------------------------------------------------------------------
-
-LLRefCount::LLRefCount() :
-	mRef(0)
-{
-}
-
-LLRefCount::~LLRefCount()
-{ 
-	if (mRef != 0)
-	{
-		llerrs << "deleting non-zero reference" << llendl;
-	}
-}
 	
 //----------------------------------------------------------------------------
 
 #if defined(LL_WINDOWS)
 
-U64 getCurrentRSS()
+U64 LLMemory::getCurrentRSS()
 {
 	HANDLE self = GetCurrentProcess();
 	PROCESS_MEMORY_COUNTERS counters;
@@ -333,7 +318,7 @@ U64 getCurrentRSS()
 // 	}
 // }
 
-U64 getCurrentRSS()
+U64 LLMemory::getCurrentRSS()
 {
 	U64 residentSize = 0;
 	task_basic_info_data_t basicInfo;
@@ -357,7 +342,7 @@ U64 getCurrentRSS()
 
 #elif defined(LL_LINUX)
 
-U64 getCurrentRSS()
+U64 LLMemory::getCurrentRSS()
 {
 	static const char statPath[] = "/proc/self/stat";
 	LLFILE *fp = LLFile::fopen(statPath, "r");
@@ -396,7 +381,7 @@ bail:
 #define _STRUCTURED_PROC 1
 #include <sys/procfs.h>
 
-U64 getCurrentRSS()
+U64 LLMemory::getCurrentRSS()
 {
 	char path [LL_MAX_PATH];	/* Flawfinder: ignore */ 
 
@@ -419,7 +404,7 @@ U64 getCurrentRSS()
 }
 #else
 
-U64 getCurrentRSS()
+U64 LLMemory::getCurrentRSS()
 {
 	return 0;
 }

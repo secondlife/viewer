@@ -42,30 +42,29 @@
 
 using namespace LLVOAvatarDefines;
 
-LLFloaterAvatarTextures::LLFloaterAvatarTextures(const LLUUID& id) : 
-	LLFloater(std::string("avatar_texture_debug")),
+LLFloaterAvatarTextures* LLFloaterAvatarTextures::sInstance = NULL;
+LLFloaterAvatarTextures::LLFloaterAvatarTextures(const LLUUID& id)
+  : LLFloater(),
 	mID(id)
 {
+	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_avatar_textures.xml");
 }
 
 LLFloaterAvatarTextures::~LLFloaterAvatarTextures()
 {
+	sInstance = NULL;
 }
 
 LLFloaterAvatarTextures* LLFloaterAvatarTextures::show(const LLUUID &id)
 {
-
-	LLFloaterAvatarTextures* floaterp = new LLFloaterAvatarTextures(id);
-
-	// Builds and adds to gFloaterView
-	LLUICtrlFactory::getInstance()->buildFloater(floaterp, "floater_avatar_textures.xml");
-
-	gFloaterView->addChild(floaterp);
-	floaterp->open();	/*Flawfinder: ignore*/
-
-	gFloaterView->adjustToFitScreen(floaterp, FALSE);
-
-	return floaterp;
+	if (!sInstance)
+	{
+		sInstance = new LLFloaterAvatarTextures(id);
+		gFloaterView->addChild(sInstance);
+		gFloaterView->adjustToFitScreen(sInstance, FALSE);
+	}
+	sInstance->openFloater();
+	return sInstance;
 }
 
 BOOL LLFloaterAvatarTextures::postBuild()
@@ -142,7 +141,7 @@ void LLFloaterAvatarTextures::refresh()
 	}
 	else
 	{
-		setTitle(mTitle + ": INVALID AVATAR (" + mID.asString() + ")");
+		setTitle(mTitle + ": " + getString("InvalidAvatar") + " (" + mID.asString() + ")");
 	}
 }
 

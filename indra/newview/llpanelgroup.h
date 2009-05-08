@@ -58,10 +58,7 @@ class LLPanelGroup : public LLPanel,
 					 public LLPanelGroupTabObserver
 {
 public:
-	LLPanelGroup(const std::string& filename,
-				 const std::string& name,
-				 const LLUUID& group_id,
-				 const std::string& initial_tab_selected = std::string());
+	LLPanelGroup(const LLUUID& group_id);
 	virtual ~LLPanelGroup();
 
 	virtual BOOL postBuild();
@@ -70,7 +67,6 @@ public:
 	static void onBtnCancel(void*);
 	static void onBtnApply(void*);
 	static void onBtnRefresh(void*);
-	static void onClickTab(void*,bool);
 	void handleClickTab();
 
 	void setGroupID(const LLUUID& group_id);
@@ -92,7 +88,7 @@ public:
 
 	bool apply();
 	void refreshData();
-	void close();
+	void closePanel();
 	void draw();
 
 	// Group manager observer trigger.
@@ -120,9 +116,6 @@ protected:
 
 	BOOL mForceClose;
 
-	std::string mInitialTab;
-	std::string mFilename;
-
 	std::string mDefaultNeedsApplyMesg;
 	std::string mWantApplyMesg;
 
@@ -133,8 +126,7 @@ protected:
 class LLPanelGroupTab : public LLPanel
 {
 public:
-	LLPanelGroupTab(const std::string& name, const LLUUID& group_id)
-	: LLPanel(name), mGroupID(group_id), mAllowEdit(TRUE), mHasModal(FALSE) { }
+	LLPanelGroupTab(const LLUUID& group_id);
 	virtual ~LLPanelGroupTab();
 
 	// Factory that returns a new LLPanelGroupFoo tab.
@@ -167,7 +159,6 @@ public:
 	virtual std::string getHelpText() const { return mHelpText; }
 
 	// Display anything returned by getHelpText
-	static void onClickHelp(void* data);
 	void handleClickHelp();
 
 	// This just connects the help button callback.

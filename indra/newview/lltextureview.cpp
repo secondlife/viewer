@@ -83,12 +83,20 @@ public:
 	S32 mHilite;
 
 public:
-	LLTextureBar(const std::string& name, const LLRect& r, LLTextureView* texview)
-		: LLView(name, r, FALSE),
-		  mHilite(0),
-		  mTextureView(texview)
+	struct Params : public LLInitParam::Block<Params, LLView::Params>
 	{
-	}
+		Mandatory<LLTextureView*> texture_view;
+		Params()
+		:	texture_view("texture_view")
+		{
+			mouse_opaque(false);
+		}
+	};
+	LLTextureBar(const Params& p)
+	:	LLView(p),
+		mHilite(0),
+		mTextureView(p.texture_view)
+	{}
 
 	virtual void draw();
 	virtual BOOL handleMouseDown(S32 x, S32 y, MASK mask);
@@ -366,13 +374,21 @@ LLRect LLTextureBar::getRequiredRect()
 class LLGLTexMemBar : public LLView
 {
 public:
-	LLGLTexMemBar(const std::string& name, LLTextureView* texview)
-		: LLView(name, FALSE),
-		  mTextureView(texview)
+	struct Params : public LLInitParam::Block<Params, LLView::Params>
 	{
-		S32 line_height = (S32)(LLFontGL::getFontMonospace()->getLineHeight() + .5f);
-		setRect(LLRect(0,0,100,line_height * 4));
-	}
+		Mandatory<LLTextureView*>	texture_view;
+		Params()
+		:	texture_view("texture_view")
+		{
+			S32 line_height = (S32)(LLFontGL::getFontMonospace()->getLineHeight() + .5f);
+			rect(LLRect(0,0,100,line_height * 4));
+		}
+	};
+
+	LLGLTexMemBar(const Params& p)
+	:	LLView(p),
+		mTextureView(p.texture_view)
+	{}
 
 	virtual void draw();	
 	virtual BOOL handleMouseDown(S32 x, S32 y, MASK mask);
@@ -521,8 +537,8 @@ LLRect LLGLTexMemBar::getRequiredRect()
 
 ////////////////////////////////////////////////////////////////////////////
 
-LLTextureView::LLTextureView(const std::string& name, const LLRect& rect)
-	:	LLContainerView(name, rect),
+LLTextureView::LLTextureView(const LLTextureView::Params& p)
+	:	LLContainerView(p),
 		mFreezeView(FALSE),
 		mOrderFetch(FALSE),
 		mPrintList(FALSE),
@@ -709,7 +725,10 @@ void LLTextureView::draw()
 		else
 			sortChildren(LLTextureBar::sort());
 
-		mGLTexMemBar = new LLGLTexMemBar("gl texmem bar", this);
+		LLGLTexMemBar::Params tmbp;
+		tmbp.name("gl texmem bar");
+		tmbp.texture_view(this);
+		mGLTexMemBar = LLUICtrlFactory::create<LLGLTexMemBar>(tmbp);
 		addChild(mGLTexMemBar);
 	
 		reshape(getRect().getWidth(), getRect().getHeight(), TRUE);
@@ -746,7 +765,11 @@ BOOL LLTextureView::addBar(LLViewerImage *imagep, S32 hilite)
 
 	mNumTextureBars++;
 
-	barp = new LLTextureBar("texture bar", r, this);
+	LLTextureBar::Params tbp;
+	tbp.name("texture bar");
+	tbp.rect(r);
+	tbp.texture_view(this);
+	barp = LLUICtrlFactory::create<LLTextureBar>(tbp);
 	barp->mImagep = imagep;	
 	barp->mHilite = hilite;
 

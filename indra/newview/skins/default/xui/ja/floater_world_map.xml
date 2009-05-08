@@ -50,15 +50,15 @@
 	<check_box label="" name="event_mature_chk" />
 	<combo_box label="オンラインのフレンド" name="friend combo"
 	     tool_tip="Friend to Show on Map">
-		<combo_item name="none_selected">
+		<combo_box.item name="none_selected">
 			オンラインのフレンド
-		</combo_item>
+		</combo_box.item>
 	</combo_box>
 	<combo_box label="ランドマーク" name="landmark combo"
 	     tool_tip="Landmark to Show on Map">
-		<combo_item name="none_selected">
+		<combo_box.item name="none_selected">
 			ランドマーク
-		</combo_item>
+		</combo_box.item>
 	</combo_box>
 	<line_editor label="地域名で検索" name="location"
 	     tool_tip="地域名を入力してください。" />

@@ -67,7 +67,6 @@ public:
 	// helpers for returning desired state
 	BOOL musicPlaying() { return mMusicState == PLAYING; }
 	
-	static void onClickIMReceived(void* data);
 	static void onClickSetNotBusy(void* data);
 	static void onClickMouselook(void* data);
 	static void onClickStandUp(void* data);

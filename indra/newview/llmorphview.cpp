@@ -67,9 +67,8 @@ const F32 CAMERA_DIST_STEP = 1.5f;
 //-----------------------------------------------------------------------------
 // LLMorphView()
 //-----------------------------------------------------------------------------
-LLMorphView::LLMorphView(const std::string& name, const LLRect& rect)
-	: 
-	LLView(name, rect, FALSE, FOLLOWS_ALL),
+LLMorphView::LLMorphView(const LLMorphView::Params& p)
+: 	LLView(p),
 	mCameraTargetJoint( NULL ),
 	mCameraOffset(-0.5f, 0.05f, 0.07f ),
 	mCameraTargetOffset(0.f, 0.f, 0.05f ),
@@ -78,8 +77,7 @@ LLMorphView::LLMorphView(const std::string& name, const LLRect& rect)
 	mCameraYaw( 0.f ),
 	mCameraDist( -1.f ),
 	mCameraDrivenByKeys( FALSE )
-{
-}
+{}
 
 //-----------------------------------------------------------------------------
 // initialize()
@@ -137,7 +135,7 @@ void LLMorphView::setVisible(BOOL visible)
 			llassert( !gFloaterCustomize );
 			gFloaterCustomize = new LLFloaterCustomize();
 			gFloaterCustomize->fetchInventory();
-			gFloaterCustomize->open();	/*Flawfinder: ignore*/
+			gFloaterCustomize->openFloater();
 
 			// Must do this _after_ gFloaterView is initialized.
 			gFloaterCustomize->switchToDefaultSubpart();

@@ -40,14 +40,14 @@ class LLSliderCtrl;
 /// Menuing system for all of windlight's functionality
 class LLFloaterHardwareSettings : public LLFloater
 {
-	friend class LLPreferenceCore;
+	friend class LLFloaterPreference;
 
 public:
 
 	LLFloaterHardwareSettings();
-	virtual ~LLFloaterHardwareSettings();
+	/*virtual*/ ~LLFloaterHardwareSettings();
 	
-	virtual BOOL postBuild();
+	/*virtual*/ BOOL postBuild();
 
 	/// initialize all the callbacks for the menu
 	void initCallbacks(void);

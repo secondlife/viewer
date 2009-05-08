@@ -113,7 +113,6 @@ LLHUDText::LLHUDText(const U8 type) :
 	mRadius = 0.1f;
 	LLPointer<LLHUDText> ptr(this);
 	sTextObjects.insert(ptr);
-	//LLDebugVarMessageBox::show("max width", &HUD_TEXT_MAX_WIDTH, 500.f, 1.f);
 }
 
 LLHUDText::~LLHUDText()
@@ -293,7 +292,7 @@ void LLHUDText::renderText(BOOL for_select)
 	LLUIImagePtr imagep = LLUI::getUIImage("rounded_square.tga");
 
 	// *TODO: make this a per-text setting
-	LLColor4 bg_color = gSavedSettings.getColor4("BackgroundChatColor");
+	LLColor4 bg_color = gSavedSkinSettings.getColor4("BackgroundChatColor");
 	bg_color.setAlpha(gSavedSettings.getF32("ChatBubbleOpacity") * alpha_factor);
 
 	const S32 border_height = 16;
@@ -509,7 +508,7 @@ void LLHUDText::renderText(BOOL for_select)
 
 			LLColor4 label_color(0.f, 0.f, 0.f, 1.f);
 			label_color.mV[VALPHA] = alpha_factor;
-			hud_render_text(segment_iter->getText(), render_position, *fontp, segment_iter->mStyle, x_offset, y_offset, label_color, mOnHUDAttachment);
+			hud_render_text(segment_iter->getText(), render_position, *fontp, segment_iter->mStyle, LLFontGL::NO_SHADOW, x_offset, y_offset, label_color, mOnHUDAttachment);
 		}
 	}
 
@@ -535,9 +534,10 @@ void LLHUDText::renderText(BOOL for_select)
 			y_offset -= fontp->getLineHeight();
 
 			U8 style = segment_iter->mStyle;
+			LLFontGL::ShadowType shadow = LLFontGL::NO_SHADOW;
 			if (mDropShadow)
 			{
-				style |= LLFontGL::DROP_SHADOW;
+				shadow = LLFontGL::DROP_SHADOW;
 			}
 	
 			F32 x_offset;
@@ -553,7 +553,7 @@ void LLHUDText::renderText(BOOL for_select)
 			text_color = segment_iter->mColor;
 			text_color.mV[VALPHA] *= alpha_factor;
 
-			hud_render_text(segment_iter->getText(), render_position, *fontp, style, x_offset, y_offset, text_color, mOnHUDAttachment);
+			hud_render_text(segment_iter->getText(), render_position, *fontp, style, shadow, x_offset, y_offset, text_color, mOnHUDAttachment);
 		}
 	}
 	/// Reset the default color to white.  The renderer expects this to be the default. 

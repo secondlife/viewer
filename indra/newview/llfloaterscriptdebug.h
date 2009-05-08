@@ -33,7 +33,7 @@
 #ifndef LL_LLFLOATERSCRIPTDEBUG_H
 #define LL_LLFLOATERSCRIPTDEBUG_H
 
-#include "llfloater.h"
+#include "llmultifloater.h"
 
 class LLTextEditor;
 class LLUUID;
@@ -48,7 +48,7 @@ public:
 	static void addScriptLine(const std::string &utf8mesg, const std::string &user_name, const LLColor4& color, const LLUUID& source_id);
 
 protected:
-	LLFloaterScriptDebug();
+	LLFloaterScriptDebug(const std::string& filename);
 
 	static LLFloater* addOutputWindow(const LLUUID& object_id);
 
@@ -63,12 +63,10 @@ public:
 	LLFloaterScriptDebugOutput(const LLUUID& object_id);
 	~LLFloaterScriptDebugOutput();
 
-	virtual void		initFloater(const std::string& title, BOOL resizable, 
-						S32 min_width, S32 min_height, BOOL drag_on_left,
-						BOOL minimizable, BOOL close_btn);
-
 	void addLine(const std::string &utf8mesg, const std::string &user_name, const LLColor4& color);
 
+	virtual BOOL postBuild();
+	
 	static LLFloaterScriptDebugOutput* show(const LLUUID& object_id);
 	static LLFloaterScriptDebugOutput* getFloaterByID(const LLUUID& id);
 

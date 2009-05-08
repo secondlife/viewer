@@ -124,6 +124,17 @@ LLMaterialTable::~LLMaterialTable()
 	mMaterialInfoList.clear();
 }
 
+void LLMaterialTable::initTableTransNames(std::map<std::string, std::string> namemap)
+{
+	for (info_list_t::iterator iter = mMaterialInfoList.begin();
+		 iter != mMaterialInfoList.end(); ++iter)
+	{
+		LLMaterialInfo *infop = *iter;
+		std::string name = infop->mName;
+		infop->mName = namemap[name];
+	}
+}
+
 void LLMaterialTable::initBasicTable()
 {
 	// *TODO: Translate

@@ -41,9 +41,9 @@
 #include "llviewercontrol.h"
 #include "llfasttimer.h"
 #include "llfontgl.h"
-#include "llmemory.h"
 #include "llmemtype.h"
 #include "llnamevalue.h"
+#include "llpointer.h"
 #include "llprimitive.h"
 #include "llvolume.h"
 #include "material_codes.h"
@@ -52,6 +52,7 @@
 #include "llui.h" 
 #include "llglheaders.h"
 #include "llrender.h"
+#include "llwindow.h"	// swapBuffers()
 
 // newview includes
 #include "llagent.h"
@@ -65,7 +66,6 @@
 #include "llface.h"
 #include "llfeaturemanager.h"
 #include "llfloatertelehub.h"
-#include "llframestats.h"
 #include "llgldbg.h"
 #include "llhudmanager.h"
 #include "lllightconstants.h"
@@ -93,8 +93,8 @@
 #include "llvopartgroup.h"
 #include "llworld.h"
 #include "llcubemap.h"
-#include "lldebugmessagebox.h"
 #include "llviewershadermgr.h"
+#include "llviewerstats.h"
 #include "llviewerjoystick.h"
 #include "llviewerdisplay.h"
 #include "llwlparammanager.h"
@@ -121,8 +121,7 @@ const U32 REFLECTION_MAP_RES = 128;
 const S32 MAX_OCCLUDER_COUNT = 2;
 
 extern S32 gBoxFrame;
-extern BOOL gRenderLightGlows;
-extern BOOL gHideSelectedObjects;
+//extern BOOL gHideSelectedObjects;
 extern BOOL gDisplaySwapBuffers;
 extern BOOL gDebugGL;
 
@@ -337,7 +336,7 @@ void LLPipeline::init()
 	getPool(LLDrawPool::POOL_BUMP);
 	getPool(LLDrawPool::POOL_GLOW);
 
-	mTrianglesDrawnStat.reset();
+	LLViewerStats::getInstance()->mTrianglesDrawnStat.reset();
 	resetFrameStats();
 
 	mRenderTypeMask = 0xffffffff;	// All render types start on
@@ -1093,7 +1092,7 @@ void LLPipeline::resetFrameStats()
 {
 	assertInitialized();
 
-	mTrianglesDrawnStat.addValue(mTrianglesDrawn/1000.f);
+	LLViewerStats::getInstance()->mTrianglesDrawnStat.addValue(mTrianglesDrawn/1000.f);
 
 	if (mBatchCount > 0)
 	{
@@ -1960,7 +1959,7 @@ void LLPipeline::stateSort(LLDrawable* drawablep, LLCamera& camera)
 		return;
 	}
 	
-	if (gHideSelectedObjects)
+	if (LLSelectMgr::getInstance()->mHideSelectedObjects)
 	{
 		if (drawablep->getVObj().notNull() &&
 			drawablep->getVObj()->isSelected())
@@ -2509,7 +2508,6 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 	//
 
 	stop_glerror();
-	gFrameStats.start(LLFrameStats::RENDER_SYNC);
 
 	LLVertexBuffer::unbind();
 
@@ -2535,7 +2533,6 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 	if(forceVBOUpdate)
 		gSky.mVOSkyp->updateDummyVertexBuffer() ;
 
-	gFrameStats.start(LLFrameStats::RENDER_GEOM);
 
 	// Initialize lots of GL state to "safe" values
 	glMatrixMode(GL_TEXTURE);
@@ -3295,7 +3292,7 @@ void LLPipeline::renderForSelect(std::set<LLViewerObject*>& objects, BOOL render
 		LLDrawable* drawable = vobj->mDrawable;
 		if (vobj->isDead() || 
 			vobj->isHUDAttachment() ||
-			(gHideSelectedObjects && vobj->isSelected()) ||
+			(LLSelectMgr::getInstance()->mHideSelectedObjects && vobj->isSelected()) ||
 			drawable->isDead() || 
 			!hasRenderType(drawable->getRenderType()))
 		{
@@ -5073,8 +5070,8 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 		F32 minLum = llmax(gSavedSettings.getF32("RenderGlowMinLuminance"), 0.0f);
 		F32 maxAlpha = gSavedSettings.getF32("RenderGlowMaxExtractAlpha");		
 		F32 warmthAmount = gSavedSettings.getF32("RenderGlowWarmthAmount");	
-		LLVector3 lumWeights = gSavedSettings.getVector3("RenderGlowLumWeights");
-		LLVector3 warmthWeights = gSavedSettings.getVector3("RenderGlowWarmthWeights");
+		LLVector3 lumWeights = gSavedSkinSettings.getVector3("RenderGlowLumWeights");
+		LLVector3 warmthWeights = gSavedSkinSettings.getVector3("RenderGlowWarmthWeights");
 		gGlowExtractProgram.uniform1f("minLuminance", minLum);
 		gGlowExtractProgram.uniform1f("maxExtractAlpha", maxAlpha);
 		gGlowExtractProgram.uniform3f("lumWeights", lumWeights.mV[0], lumWeights.mV[1], lumWeights.mV[2]);

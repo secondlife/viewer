@@ -21,12 +21,8 @@
 	<button label="Enviar" name="send_btn"/>
 	<button label="Guardar ([AMOUNT] L$)" name="upload_btn"/>
 	<flyout_button label="Guardar" name="save_btn" tool_tip="Guardar la imagen en un archivo">
-		<flyout_button_item name="save_item">
-			Guardar
-		</flyout_button_item>
-		<flyout_button_item name="saveas_item">
-			Guardar como...
-		</flyout_button_item>
+		<flyout_button_item name="save_item" label="Guardar"/>
+		<flyout_button_item name="saveas_item" label="Guardar como..."/>
 	</flyout_button>
 	<button label="Cancelar" name="discard_btn"/>
 	<button label="Más &gt;&gt;" name="more_btn" tool_tip="Opciones avanzadas"/>

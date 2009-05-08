@@ -13,15 +13,15 @@
 		Startposition:
 	</text>
 	<combo_box name="start_location_combo">
-		<combo_item name="MyHome">
+		<combo_box.item name="MyHome">
 			Mein Heimatort
-		</combo_item>
-		<combo_item name="MyLastLocation">
+		</combo_box.item>
+		<combo_box.item name="MyLastLocation">
 			Mein letzter Standort
-		</combo_item>
-		<combo_item name="Typeregionname">
+		</combo_box.item>
+		<combo_box.item name="Typeregionname">
 			&lt;Region eingeben&gt;
-		</combo_item>
+		</combo_box.item>
 	</combo_box>
 	<check_box label="Kennwort merken" name="remember_check"/>
 	<text name="full_screen_text">

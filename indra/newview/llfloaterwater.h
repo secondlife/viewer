@@ -53,7 +53,7 @@ public:
 
 	LLFloaterWater();
 	virtual ~LLFloaterWater();
-	
+	/*virtual*/	BOOL	postBuild();
 	/// initialize all
 	void initCallbacks(void);
 
@@ -107,7 +107,7 @@ public:
 	static bool deleteAlertCallback(const LLSD& notification, const LLSD& response);
 
 	/// what to do when you change the preset name
-	static void onChangePresetName(LLUICtrl* ctrl, void* userData);
+	void onChangePresetName(LLUICtrl* ctrl);
 
 	//// menu management
 

@@ -57,11 +57,10 @@ class LLTextBox;
 class LLMessageSystem;
 
 class LLFloaterGodTools
-: public LLFloater
+	: public LLFloater, public LLFloaterSingleton<LLFloaterGodTools>
 {
+	friend class LLUISingleton<LLFloaterGodTools, VisibilityPolicy<LLFloater> >;
 public:
-
-	static LLFloaterGodTools* instance();
 
 	enum EGodPanel
 	{
@@ -72,9 +71,6 @@ public:
 		PANEL_COUNT
 	};
 
-	static void show(void *);
-	static void hide(void *);
-
 	static void* createPanelGrid(void *userdata);
 	static void* createPanelRegion(void *userdata);
 	static void* createPanelObjects(void *userdata);
@@ -84,6 +80,7 @@ public:
 
 	void showPanel(const std::string& panel_name);
 
+	virtual void onOpen(const LLSD& key);
 	virtual void onClose(bool app_quitting);
 
 	virtual void draw();
@@ -101,20 +98,16 @@ public:
 	// Send possibly changed values to simulator.
 	void sendGodUpdateRegionInfo();
 
-	static void onTabChanged(void *data, bool from_click);
-
 protected:
 	U32 computeRegionFlags() const;
 
 protected:
-	LLFloaterGodTools();
+	LLFloaterGodTools(const LLSD& key);
 	~LLFloaterGodTools();
-
+	/*virtual*/	BOOL	postBuild();
 	// When the floater is going away, reset any options that need to be 
 	// cleared.
 	void resetToolState();
-
-	static LLFloaterGodTools* sInstance;
 
 public:
 	LLPanelRegionTools 	*mPanelRegionTools;
@@ -133,7 +126,7 @@ class LLPanelRegionTools
 : public LLPanel
 {
 public:
-	LLPanelRegionTools(const std::string& name);
+	LLPanelRegionTools();
 	/*virtual*/ ~LLPanelRegionTools();
 
 	BOOL postBuild();
@@ -194,7 +187,7 @@ class LLPanelGridTools
 : public LLPanel
 {
 public:
-	LLPanelGridTools(const std::string& name);
+	LLPanelGridTools();
 	virtual ~LLPanelGridTools();
 
 	BOOL postBuild();
@@ -221,7 +214,7 @@ class LLPanelObjectTools
 : public LLPanel
 {
 public:
-	LLPanelObjectTools(const std::string& name);
+	LLPanelObjectTools();
 	/*virtual*/ ~LLPanelObjectTools();
 
 	BOOL postBuild();
@@ -262,7 +255,7 @@ protected:
 class LLPanelRequestTools : public LLPanel
 {
 public:
-	LLPanelRequestTools(const std::string& name);
+	LLPanelRequestTools();
 	/*virtual*/ ~LLPanelRequestTools();
 
 	BOOL postBuild();

@@ -10,33 +10,33 @@
 		Previsualizar la imagen como:
 	</text>
 	<combo_box label="Tipo de ropa" name="clothing_type_combo">
-		<combo_item name="Image">
+		<combo_box.item name="Image">
 			Imagen
-		</combo_item>
-		<combo_item name="Hair">
+		</combo_box.item>
+		<combo_box.item name="Hair">
 			Pelo
-		</combo_item>
-		<combo_item name="FemaleHead">
+		</combo_box.item>
+		<combo_box.item name="FemaleHead">
 			Cabeza de mujer
-		</combo_item>
-		<combo_item name="FemaleUpperBody">
+		</combo_box.item>
+		<combo_box.item name="FemaleUpperBody">
 			Mujer: parte superior del cuerpo
-		</combo_item>
-		<combo_item name="FemaleLowerBody">
+		</combo_box.item>
+		<combo_box.item name="FemaleLowerBody">
 			Mujer: parte inferior del cuerpo
-		</combo_item>
-		<combo_item name="MaleHead">
+		</combo_box.item>
+		<combo_box.item name="MaleHead">
 			Cabeza de varón
-		</combo_item>
-		<combo_item name="MaleUpperBody">
+		</combo_box.item>
+		<combo_box.item name="MaleUpperBody">
 			Varón: parte superior del cuerpo
-		</combo_item>
-		<combo_item name="MaleLowerBody">
+		</combo_box.item>
+		<combo_box.item name="MaleLowerBody">
 			Varón: parte inferior del cuerpo
-		</combo_item>
-		<combo_item name="Skirt">
+		</combo_box.item>
+		<combo_box.item name="Skirt">
 			Falda
-		</combo_item>
+		</combo_box.item>
 		<combo_item name="SculptedPrim">
 			Prim sculpted
 		</combo_item>

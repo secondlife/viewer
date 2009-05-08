@@ -39,7 +39,7 @@
 class LLFastTimerView : public LLFloater
 {
 public:
-	LLFastTimerView(const std::string& name, const LLRect& rect);
+	LLFastTimerView(const LLRect& rect);
 	virtual ~LLFastTimerView();
 
 	virtual BOOL handleMouseDown(S32 x, S32 y, MASK mask);

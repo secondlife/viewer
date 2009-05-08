@@ -80,6 +80,7 @@ public:
 	BOOL				exportFile(LLFILE* file);
 	BOOL				importFile(LLFILE* file);
 
+	static void			initClass ();
 	EWearableType		getType() const							{ return mType; }
 	void				setType( EWearableType type )			{ mType = type; }
 
@@ -140,7 +141,7 @@ private:
 	te_map_t mTEMap;				// maps TE to Image ID
 
 	static const std::string sTypeName[ WT_COUNT+1 ];
-	static const std::string sTypeLabel[ WT_COUNT+1 ];
+	static std::string sTypeLabel[ WT_COUNT+1 ];
 };
 
 #endif  // LL_LLWEARABLE_H

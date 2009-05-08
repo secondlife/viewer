@@ -37,7 +37,7 @@
  * Base class and manager for in-world 2.5D non-interactive objects
  */
 
-#include "llmemory.h"
+#include "llpointer.h"
 
 #include "v4color.h"
 #include "v3math.h"

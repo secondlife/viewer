@@ -37,6 +37,7 @@
 #include <functional>
 #include "llcachename.h"
 #include "lldbstrings.h"
+#include "llfloaterreg.h"
 #include "llinventory.h"
 
 #include "llagent.h"
@@ -51,11 +52,13 @@
 #include "roles_constants.h"
 #include "llselectmgr.h"
 #include "lltextbox.h"
+#include "lltrans.h"
 #include "lluiconstants.h"
 #include "llviewerinventory.h"
 #include "llviewerobjectlist.h"
 #include "llviewerregion.h"
 #include "llviewercontrol.h"
+#include "llviewerwindow.h"
 
 #include "lluictrlfactory.h"
 
@@ -135,7 +138,13 @@ LLFloaterProperties* LLFloaterProperties::show(const LLUUID& item_id,
 		}
 
 		instance->refresh();
-		instance->open();		/* Flawfinder: ignore */
+		instance->openFloater();
+	}
+	else
+	{
+		LLFloaterProperties* floater = new LLFloaterProperties(item_id, object_id);
+		// keep onscreen
+		gFloaterView->adjustToFitScreen(floater, FALSE);
 	}
 	return instance;
 }
@@ -151,14 +160,14 @@ void LLFloaterProperties::dirtyAll()
 }
 
 // Default constructor
-LLFloaterProperties::LLFloaterProperties(const std::string& name, const LLRect& rect, const std::string& title, const LLUUID& item_id, const LLUUID& object_id) :
-	LLFloater(name, rect, title),
+LLFloaterProperties::LLFloaterProperties(const LLUUID& item_id, const LLUUID& object_id)
+  : LLFloater(),
 	mItemID(item_id),
 	mObjectID(object_id),
 	mDirty(TRUE)
 {
 	LLUICtrlFactory::getInstance()->buildFloater(this,"floater_inventory_item_properties.xml");
-
+	
 	if (!sPropertiesObserver)
 	{
 		sPropertiesObserver = new LLPropertiesObserver;
@@ -168,6 +177,28 @@ LLFloaterProperties::LLFloaterProperties(const std::string& name, const LLRect& 
 	// add the object to the static structure
 	LLUUID key = mItemID ^ mObjectID;
 	sInstances.insert(instance_map::value_type(key, this));
+
+}
+
+// Destroys the object
+LLFloaterProperties::~LLFloaterProperties()
+{
+	// clean up the static data.
+	instance_map::iterator it = sInstances.find(mItemID ^ mObjectID);
+	if(it != sInstances.end())
+	{
+		sInstances.erase(it);
+	}
+	sPropertiesObserverCount--;
+	if (!sPropertiesObserverCount)
+	{
+		delete sPropertiesObserver;
+		sPropertiesObserver = NULL;
+	}
+}
+// virtual
+BOOL LLFloaterProperties::postBuild()
+{
 	// build the UI
 	// item name & description
 	childSetPrevalidate("LabelItemName",&LLLineEditor::prevalidatePrintableNotPipe);
@@ -196,23 +227,8 @@ LLFloaterProperties::LLFloaterProperties(const std::string& name, const LLRect& 
 	childSetCommitCallback("EditPrice",&onCommitSaleInfo, this);
 	// The UI has been built, now fill in all the values
 	refresh();
-}
 
-// Destroys the object
-LLFloaterProperties::~LLFloaterProperties()
-{
-	// clean up the static data.
-	instance_map::iterator it = sInstances.find(mItemID ^ mObjectID);
-	if(it != sInstances.end())
-	{
-		sInstances.erase(it);
-	}
-	sPropertiesObserverCount--;
-	if (!sPropertiesObserverCount)
-	{
-		delete sPropertiesObserver;
-		sPropertiesObserver = NULL;
-	}
+	return TRUE;
 }
 
 void LLFloaterProperties::refresh()
@@ -372,8 +388,7 @@ void LLFloaterProperties::refreshFromItem(LLInventoryItem* item)
 	//////////////////
 	// ACQUIRE DATE //
 	//////////////////
-
-	// *TODO: Localize / translate this
+	
 	time_t time_utc = item->getCreationDate();
 	if (0 == time_utc)
 	{
@@ -381,7 +396,11 @@ void LLFloaterProperties::refreshFromItem(LLInventoryItem* item)
 	}
 	else
 	{
-		childSetText("LabelAcquiredDate", std::string(ctime(&time_utc)) );
+		std::string timeStr = getString("acquiredDate");
+		LLSD substitution;
+		substitution["datetime"] = (S32) time_utc;
+		LLStringUtil::format (timeStr, substitution);
+		childSetText ("LabelAcquiredDate", timeStr);
 	}
 
 	///////////////////////
@@ -938,7 +957,7 @@ void LLFloaterProperties::closeByID(const LLUUID& item_id, const LLUUID &object_
 
 	if (floaterp)
 	{
-		floaterp->close();
+		floaterp->closeFloater();
 	}
 }
 
@@ -946,8 +965,24 @@ void LLFloaterProperties::closeByID(const LLUUID& item_id, const LLUUID &object_
 /// LLMultiProperties
 ///----------------------------------------------------------------------------
 
-LLMultiProperties::LLMultiProperties(const LLRect &rect) : LLMultiFloater(std::string("Properties"), rect)
+LLMultiProperties::LLMultiProperties()
+	: LLMultiFloater()
 {
+	// *TODO: There should be a .xml file for this
+	const LLRect& nextrect = LLFloaterReg::getFloaterRect("properties"); // place where the next properties should show up
+	if (nextrect.getWidth() > 0)
+	{
+		setRect(nextrect);
+	}
+	else
+	{
+		// start with a small rect in the top-left corner ; will get resized
+		LLRect rect;
+		rect.setLeftTopAndSize(0, gViewerWindow->getWindowHeight(), 20, 20);
+		setRect(rect);
+	}
+	setTitle(LLTrans::getString("MultiPropertiesTitle"));
+	buildTabContainer();
 }
 
 ///----------------------------------------------------------------------------

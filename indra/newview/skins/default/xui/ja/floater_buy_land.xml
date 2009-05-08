@@ -68,15 +68,15 @@
 		土地を保有できるのはプレミアム・メンバーだけです
 	</text>
 	<combo_box name="account_level">
-		<combo_item name="US$9.95/month,billedmonthly">
+		<combo_box.item name="US$9.95/month,billedmonthly">
 			月額9.95米ドル、月払い
-		</combo_item>
-		<combo_item name="US$7.50/month,billedquarterly">
+		</combo_box.item>
+		<combo_box.item name="US$7.50/month,billedquarterly">
 			月額7.50米ドル、年4回払い
-		</combo_item>
-		<combo_item name="US$6.00/month,billedannually">
+		</combo_box.item>
+		<combo_box.item name="US$6.00/month,billedannually">
 			月額6.00米ドル、年払い
-		</combo_item>
+		</combo_box.item>
 	</combo_box>
 	<text name="land_use_action">
 		毎月の土地使用料をUS$40に引き上げます

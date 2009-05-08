@@ -40,7 +40,6 @@
 #define LL_LLFLOATERPREFERENCE_H
 
 #include "llfloater.h"
-#include "lltabcontainervertical.h"
 
 class LLPanelGeneral;
 class LLPanelInput;
@@ -58,76 +57,57 @@ class LLPanelMsgs;
 class LLPanelSkins;
 class LLScrollListCtrl;
 
-class LLPreferenceCore
-{
-
-public:
-	LLPreferenceCore(LLTabContainer* tab_container, LLButton * default_btn);
-	~LLPreferenceCore();
-
-	void apply();
-	void cancel();
-
-	LLTabContainer* getTabContainer() { return mTabContainer; }
-
-	void setPersonalInfo(const std::string& visibility, bool im_via_email, const std::string&  email);
-
-	static void onTabChanged(void* user_data, bool from_click);
-	
-	// refresh all the graphics preferences menus
-	void refreshEnabledGraphics();
-
-private:
-	LLTabContainer	*mTabContainer;
-	LLPanelGeneral	        *mGeneralPanel;
-	LLPanelSkins			*mSkinsPanel;
-	LLPanelInput			*mInputPanel;
-	LLPanelNetwork	        *mNetworkPanel;
-	LLPanelDisplay	        *mDisplayPanel;
-	LLPanelAudioPrefs		*mAudioPanel;
-//	LLPanelDebug			*mDebugPanel;
-	LLPrefsChat				*mPrefsChat;
-	LLPrefsVoice			*mPrefsVoice;
-	LLPrefsIM				*mPrefsIM;
-	LLPanelWeb				*mWebPanel;
-	LLPanelMsgs				*mMsgPanel;
-	LLPanelLCD				*mLCDPanel;
-};
+class LLSD;
 
 // Floater to control preferences (display, audio, bandwidth, general.
 class LLFloaterPreference : public LLFloater
 {
 public: 
-	LLFloaterPreference();
+	LLFloaterPreference(const LLSD& key);
 	~LLFloaterPreference();
 
 	void apply();
 	void cancel();
 	virtual BOOL postBuild();
-	static void show(void*);
+	virtual void onOpen(const LLSD& key);
+	virtual void onClose(bool app_quitting);
 
 	// static data update, called from message handler
 	static void updateUserInfo(const std::string& visibility, bool im_via_email, const std::string& email);
 
 	// refresh all the graphics preferences menus
 	static void refreshEnabledGraphics();
-
+	
 protected:
-	LLPreferenceCore		*mPreferenceCore;
-
-	/*virtual*/ void		onClose(bool app_quitting);
-
-	LLButton*	mAboutBtn;
-	LLButton	*mOKBtn;
-	LLButton	*mCancelBtn;
-	LLButton	*mApplyBtn;
-
 	static void		onClickAbout(void*);
 	static void		onBtnOK(void*);
 	static void		onBtnCancel(void*);
 	static void		onBtnApply(void*);
+	
+private:
+	LLPanelSkins			*mSkinsPanel;
+	LLPanelInput			*mInputPanel;
+	LLPanelNetwork	        *mNetworkPanel;
+	LLPanelDisplay	        *mDisplayPanel;
+	LLPanelAudioPrefs		*mAudioPanel;
+	LLPrefsChat				*mPrefsChat;
+	LLPrefsVoice			*mPrefsVoice;
+	LLPrefsIM				*mPrefsIM;
+	LLPanelWeb				*mWebPanel;
+	LLPanelMsgs				*mMsgPanel;
+};
 
-	static LLFloaterPreference* sInstance;
+class LLPanelPreference : public LLPanel
+{
+public:
+	/*virtual*/ BOOL postBuild();
+	
+	virtual void apply();
+	virtual void cancel();
+	
+private:
+	typedef std::map<LLControlVariable*, LLSD> control_values_map_t;
+	control_values_map_t mSavedValues;
 };
 
 #endif  // LL_LLPREFERENCEFLOATER_H

@@ -34,7 +34,7 @@
 #define LL_LLFLOATERPROPERTIES_H
 
 #include <map>
-#include "llfloater.h"
+#include "llmultifloater.h"
 #include "lliconctrl.h"
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -54,16 +54,16 @@ class LLFloaterProperties : public LLFloater
 {
 public:
 	static LLFloaterProperties* find(const LLUUID& item_id,
-									 const LLUUID& object_id);
+									 const LLUUID& object_id = LLUUID::null);
 	static LLFloaterProperties* show(const LLUUID& item_id,
-									 const LLUUID& object_id);
+									 const LLUUID& object_id = LLUUID::null);
 	static void dirtyAll();
 
 	static void closeByID(const LLUUID& item_id, const LLUUID& object_id);
 
-	LLFloaterProperties(const std::string& name, const LLRect& rect, const std::string& title, const LLUUID& item_id, const LLUUID& object_id);
+	LLFloaterProperties(const LLUUID& item_id, const LLUUID& object_id);
 	virtual ~LLFloaterProperties();
-
+	/*virtual*/ BOOL postBuild();
 	// do everything necessary
 	void dirty() { mDirty = TRUE; }
 	void refresh();
@@ -104,7 +104,7 @@ protected:
 class LLMultiProperties : public LLMultiFloater
 {
 public:
-	LLMultiProperties(const LLRect& rect);
+	LLMultiProperties();
 };
 
 #endif // LL_LLFLOATERPROPERTIES_H

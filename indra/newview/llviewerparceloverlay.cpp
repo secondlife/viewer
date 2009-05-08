@@ -36,6 +36,7 @@
 
 // indra includes
 #include "llparcel.h"
+#include "llfloaterreg.h"
 #include "llgl.h"
 #include "llrender.h"
 #include "v4color.h"
@@ -205,13 +206,12 @@ void LLViewerParcelOverlay::updateOverlayTexture()
 	{
 		return;
 	}
-	// Can do this because gColors are actually stored as LLColor4U
-	const LLColor4U avail = gColors.getColor4U("PropertyColorAvail");
-	const LLColor4U owned = gColors.getColor4U("PropertyColorOther");
-	const LLColor4U group = gColors.getColor4U("PropertyColorGroup");
-	const LLColor4U self  = gColors.getColor4U("PropertyColorSelf");
-	const LLColor4U for_sale  = gColors.getColor4U("PropertyColorForSale");
-	const LLColor4U auction  = gColors.getColor4U("PropertyColorAuction");
+	const LLColor4U avail = gSavedSkinSettings.getColor4("PropertyColorAvail");
+	const LLColor4U owned = gSavedSkinSettings.getColor4("PropertyColorOther");
+	const LLColor4U group = gSavedSkinSettings.getColor4("PropertyColorGroup");
+	const LLColor4U self  = gSavedSkinSettings.getColor4("PropertyColorSelf");
+	const LLColor4U for_sale  = gSavedSkinSettings.getColor4("PropertyColorForSale");
+	const LLColor4U auction  = gSavedSkinSettings.getColor4("PropertyColorAuction");
 
 	// Create the base texture.
 	U8 *raw = mImageRaw->getData();
@@ -314,12 +314,11 @@ void LLViewerParcelOverlay::updatePropertyLines()
 	
 	S32 row, col;
 
-	// Can do this because gColors are actually stored as LLColor4U
-	const LLColor4U self_coloru  = gColors.getColor4U("PropertyColorSelf");
-	const LLColor4U other_coloru = gColors.getColor4U("PropertyColorOther");
-	const LLColor4U group_coloru = gColors.getColor4U("PropertyColorGroup");
-	const LLColor4U for_sale_coloru = gColors.getColor4U("PropertyColorForSale");
-	const LLColor4U auction_coloru = gColors.getColor4U("PropertyColorAuction");
+	const LLColor4U self_coloru  = gSavedSkinSettings.getColor4("PropertyColorSelf");
+	const LLColor4U other_coloru = gSavedSkinSettings.getColor4("PropertyColorOther");
+	const LLColor4U group_coloru = gSavedSkinSettings.getColor4("PropertyColorGroup");
+	const LLColor4U for_sale_coloru = gSavedSkinSettings.getColor4("PropertyColorForSale");
+	const LLColor4U auction_coloru = gSavedSkinSettings.getColor4("PropertyColorAuction");
 
 	// Build into dynamic arrays, then copy into static arrays.
 	LLDynamicArray<LLVector3, 256> new_vertex_array;
@@ -841,8 +840,8 @@ S32 LLViewerParcelOverlay::renderPropertyLines	()
 		drawn += vertex_per_edge;
 
 		gGL.end();
-
-		if (LLSelectMgr::sRenderHiddenSelections && gFloaterTools && gFloaterTools->getVisible())
+		
+		if (LLSelectMgr::sRenderHiddenSelections && LLFloaterReg::instanceVisible("build"))
 		{
 			LLGLDepthTest depth(GL_TRUE, GL_FALSE, GL_GREATER);
 			

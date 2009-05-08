@@ -60,6 +60,7 @@ private:
 	LLUUID	mID;
 	std::string mTitle;
 	LLTextureCtrl* mTextures[LLVOAvatarDefines::TEX_NUM_INDICES];
+	static LLFloaterAvatarTextures* sInstance;
 };
 
 #endif

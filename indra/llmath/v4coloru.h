@@ -138,6 +138,12 @@ public:
 
 	static BOOL parseColor4U(const std::string& buf, LLColor4U* value);
 
+	// conversion
+	operator const LLColor4() const
+	{
+		return LLColor4(*this);
+	}
+
 	static LLColor4U white;
 	static LLColor4U black;
 	static LLColor4U red;

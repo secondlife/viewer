@@ -56,7 +56,6 @@
 #include "llsky.h"
 #include "lltexlayer.h"
 #include "lltoolmgr.h"
-#include "lltoolview.h"
 #include "llui.h"
 #include "llviewercamera.h"
 #include "llviewerimagelist.h"

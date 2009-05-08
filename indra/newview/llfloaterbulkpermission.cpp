@@ -52,20 +52,28 @@
 #include "llviewerstats.h"
 #include "lluictrlfactory.h"
 #include "llselectmgr.h"
+#include "llcheckboxctrl.h"
 
 #include "roles_constants.h" // for GP_OBJECT_MANIPULATE
 
 
-LLFloaterBulkPermission::LLFloaterBulkPermission(const LLSD& seed) : mDone(FALSE)
+LLFloaterBulkPermission::LLFloaterBulkPermission(const LLSD& seed) 
+:	LLFloater(),
+	mDone(FALSE)
 {
 	mID.generate();
 	LLUICtrlFactory::getInstance()->buildFloater(this,"floater_bulk_perms.xml");
+}
+
+BOOL LLFloaterBulkPermission::postBuild()
+{
 	childSetEnabled("next_owner_transfer", gSavedSettings.getBOOL("BulkChangeNextOwnerCopy"));
 	childSetAction("apply", onApplyBtn, this);
 	childSetAction("close", onCloseBtn, this);
 	childSetAction("check_all", onCheckAll, this);
 	childSetAction("check_none", onUncheckAll, this);
 	childSetCommitCallback("next_owner_copy", &onCommitCopy, this);
+	return TRUE;
 }
 
 void LLFloaterBulkPermission::doApply()
@@ -92,7 +100,7 @@ void LLFloaterBulkPermission::doApply()
 	LLSelectMgr::getInstance()->getSelection()->applyToNodes(&gatherer);
 	if(mObjectIDs.empty())
 	{
-		list->addCommentText(getString("nothing_to_modify_text"));
+		list->setCommentText(getString("nothing_to_modify_text"));
 	}
 	else
 	{
@@ -172,7 +180,7 @@ void LLFloaterBulkPermission::onCommitCopy(LLUICtrl* ctrl, void* data)
 BOOL LLFloaterBulkPermission::start()
 {
 	// note: number of top-level objects to modify is mObjectIDs.count().
-	getChild<LLScrollListCtrl>("queue output")->addCommentText(getString("start_text"));
+	getChild<LLScrollListCtrl>("queue output")->setCommentText(getString("start_text"));
 	return nextObject();
 }
 
@@ -195,7 +203,7 @@ BOOL LLFloaterBulkPermission::nextObject()
 
 	if(isDone() && !mDone)
 	{
-		getChild<LLScrollListCtrl>("queue output")->addCommentText(getString("done_text"));
+		getChild<LLScrollListCtrl>("queue output")->setCommentText(getString("done_text"));
 		mDone = TRUE;
 	}
 	return successful_start;
@@ -262,6 +270,7 @@ void LLFloaterBulkPermission::handleInventory(LLViewerObject* viewer_obj, Invent
 			( asstype == LLAssetType::AT_CLOTHING  && gSavedSettings.getBOOL("BulkChangeIncludeClothing"  )) ||
 			( asstype == LLAssetType::AT_GESTURE   && gSavedSettings.getBOOL("BulkChangeIncludeGestures"  )) ||
 			( asstype == LLAssetType::AT_LANDMARK  && gSavedSettings.getBOOL("BulkChangeIncludeLandmarks" )) ||
+			( asstype == LLAssetType::AT_FAVORITE  && gSavedSettings.getBOOL("BulkChangeIncludeFavourite" )) ||
 			( asstype == LLAssetType::AT_NOTECARD  && gSavedSettings.getBOOL("BulkChangeIncludeNotecards" )) ||
 			( asstype == LLAssetType::AT_OBJECT    && gSavedSettings.getBOOL("BulkChangeIncludeObjects"   )) ||
 			( asstype == LLAssetType::AT_LSL_TEXT  && gSavedSettings.getBOOL("BulkChangeIncludeScripts"   )) ||
@@ -311,7 +320,7 @@ void LLFloaterBulkPermission::handleInventory(LLViewerObject* viewer_obj, Invent
 					status_text.setArg("[STATUS]", "");
 				}
 				
-				list->addCommentText(status_text.getString());
+				list->setCommentText(status_text.getString());
 
 				//TODO if we are an object inside an object we should check a recuse flag and if set
 				//open the inventory of the object and recurse - Michelle2 Zenovka

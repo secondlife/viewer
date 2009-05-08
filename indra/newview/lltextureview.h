@@ -43,8 +43,10 @@ class LLTextureView : public LLContainerView
 {
 	friend class LLTextureBar;
 	friend class LLGLTexMemBar;
+protected:
+	LLTextureView(const Params&);
+	friend class LLUICtrlFactory;
 public:
-	LLTextureView(const std::string& name, const LLRect& rect);
 	~LLTextureView();
 
 	/*virtual*/ void draw();

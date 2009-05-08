@@ -38,8 +38,8 @@
 #include <vector>
 
 #include "llfloater.h"
-//#include "llviewerimagelist.h"
-#include "llmemory.h"	// LLPointer<>
+#include "llpointer.h"	// LLPointer<>
+#include "llsafehandle.h"
 
 typedef std::set<LLUUID, lluuid_less> uuid_list_t;
 const F32 CACHE_REFRESH_TIME	= 2.5f;
@@ -82,7 +82,7 @@ public:
 
 	// Destroys itself on close.
 	virtual void onClose(bool app_quitting);
-	virtual void onOpen();
+	virtual void onOpen(const LLSD& key);
 	virtual BOOL postBuild();
 
 protected:
@@ -138,8 +138,7 @@ public:
 
 	void setGroup(const LLUUID& group_id);
 	static void onClickProfile(void*);
-	static void onClickSetGroup(void*);
-	static void cbGroupID(LLUUID group_id, void* userdata);
+		   void onClickSetGroup();
 	static BOOL enableDeedToGroup(void*);
 	static void onClickDeed(void*);
 	static void onClickBuyLand(void* data);

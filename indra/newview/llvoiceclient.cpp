@@ -1103,58 +1103,61 @@ static void killGateway()
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
-LLVoiceClient::LLVoiceClient()
+LLVoiceClient::LLVoiceClient() :
+	mState(stateDisabled),
+	mSessionTerminateRequested(false),
+	mRelogRequested(false),
+	mConnected(false),
+	mPump(NULL),
+	
+	mTuningMode(false),
+	mTuningEnergy(0.0f),
+	mTuningMicVolume(0),
+	mTuningMicVolumeDirty(true),
+	mTuningSpeakerVolume(0),
+	mTuningSpeakerVolumeDirty(true),
+	mTuningExitState(stateDisabled),
+	
+	mAreaVoiceDisabled(false),
+	mAudioSession(NULL),
+	mAudioSessionChanged(false),
+	mNextAudioSession(NULL),
+	
+	mCurrentParcelLocalID(0),
+	mNumberOfAliases(0),
+	mCommandCookie(0),
+	mLoginRetryCount(0),
+	
+	mBuddyListMapPopulated(false),
+	mBlockRulesListReceived(false),
+	mAutoAcceptRulesListReceived(false),
+	mCaptureDeviceDirty(false),
+	mRenderDeviceDirty(false),
+	mSpatialCoordsDirty(false),
+
+	mPTTDirty(true),
+	mPTT(true),
+	mUsePTT(true),
+	mPTTIsMiddleMouse(false),
+	mPTTKey(0),
+	mPTTIsToggle(false),
+	mUserPTTState(false),
+	mMuteMic(false),
+	mFriendsListDirty(true),
+	
+	mEarLocation(0),
+	mSpeakerVolumeDirty(true),
+	mSpeakerMuteDirty(true),
+	mSpeakerVolume(0),
+	mMicVolume(0),
+	mMicVolumeDirty(true),
+	
+	mVoiceEnabled(false),
+	mWriteInProgress(false),
+	
+	mLipSyncEnabled(false)
 {	
 	gVoiceClient = this;
-	mWriteInProgress = false;
-	mAreaVoiceDisabled = false;
-	mPTT = true;
-	mUserPTTState = false;
-	mMuteMic = false;
-	mSessionTerminateRequested = false;
-	mRelogRequested = false;
-	mCommandCookie = 0;
-	mCurrentParcelLocalID = 0;
-	mLoginRetryCount = 0;
-
-	mSpeakerVolume = 0;
-	mMicVolume = 0;
-
-	mAudioSession = NULL;
-	mAudioSessionChanged = false;
-
-	// Initial dirty state
-	mSpatialCoordsDirty = false;
-	mPTTDirty = true;
-	mFriendsListDirty = true;
-	mSpeakerVolumeDirty = true;
-	mMicVolumeDirty = true;
-	mBuddyListMapPopulated = false;
-	mBlockRulesListReceived = false;
-	mAutoAcceptRulesListReceived = false;
-	mCaptureDeviceDirty = false;
-	mRenderDeviceDirty = false;
-
-	// Use default values for everything then call updateSettings() after preferences are loaded
-	mVoiceEnabled = false;
-	mUsePTT = true;
-	mPTTIsToggle = false;
-	mEarLocation = 0;
-	mLipSyncEnabled = false;
-	
-	mTuningMode = false;
-	mTuningEnergy = 0.0f;
-	mTuningMicVolume = 0;
-	mTuningMicVolumeDirty = true;
-	mTuningSpeakerVolume = 0;
-	mTuningSpeakerVolumeDirty = true;
-					
-	//  gMuteListp isn't set up at this point, so we defer this until later.
-//	gMuteListp->addObserver(&mutelist_listener);
-	
-	// stash the pump for later use
-	// This now happens when init() is called instead.
-	mPump = NULL;
 	
 #if LL_DARWIN || LL_LINUX || LL_SOLARIS
 		// HACK: THIS DOES NOT BELONG HERE
@@ -5773,6 +5776,11 @@ void LLVoiceClient::setMuteMic(bool muted)
 	mMuteMic = muted;
 }
 
+bool LLVoiceClient::getMuteMic() const
+{
+	return mMuteMic;
+}
+
 void LLVoiceClient::setUserPTTState(bool ptt)
 {
 	mUserPTTState = ptt;
@@ -6901,11 +6909,11 @@ void LLVoiceClient::notifyFriendObservers()
 
 void LLVoiceClient::lookupName(const LLUUID &id)
 {
-	gCacheName->getName(id, onAvatarNameLookup);
+	gCacheName->get(id, FALSE, &LLVoiceClient::onAvatarNameLookup);
 }
 
 //static
-void LLVoiceClient::onAvatarNameLookup(const LLUUID& id, const std::string& first, const std::string& last, BOOL is_group, void* user_data)
+void LLVoiceClient::onAvatarNameLookup(const LLUUID& id, const std::string& first, const std::string& last, BOOL is_group)
 {
 	if(gVoiceClient)
 	{

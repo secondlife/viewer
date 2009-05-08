@@ -65,29 +65,14 @@
 //
 static LLRegisterWidget<LLTextEditor> r("simple_text_editor");
 
-BOOL gDebugTextEditorTips = FALSE;
-
 //
 // Constants
 //
-const S32	UI_TEXTEDITOR_BUFFER_BLOCK_SIZE = 512;
-const S32	UI_TEXTEDITOR_BORDER = 1;
-const S32	UI_TEXTEDITOR_H_PAD = 4;
-const S32	UI_TEXTEDITOR_V_PAD_TOP = 4;
 const S32	UI_TEXTEDITOR_LINE_NUMBER_MARGIN = 32;
 const S32	UI_TEXTEDITOR_LINE_NUMBER_DIGITS = 4;
 const F32	CURSOR_FLASH_DELAY = 1.0f;  // in seconds
 const S32	CURSOR_THICKNESS = 2;
 const S32	SPACES_PER_TAB = 4;
-
-const F32	PREEDIT_MARKER_BRIGHTNESS = 0.4f;
-const S32	PREEDIT_MARKER_GAP = 1;
-const S32	PREEDIT_MARKER_POSITION = 2;
-const S32	PREEDIT_MARKER_THICKNESS = 1;
-const F32	PREEDIT_STANDOUT_BRIGHTNESS = 0.6f;
-const S32	PREEDIT_STANDOUT_GAP = 1;
-const S32	PREEDIT_STANDOUT_POSITION = 2;
-const S32	PREEDIT_STANDOUT_THICKNESS = 2;
 
 
 LLColor4 LLTextEditor::mLinkColor = LLColor4::blue;
@@ -243,18 +228,9 @@ private:
 
 
 ///////////////////////////////////////////////////////////////////
-
-LLTextEditor::LLTextEditor(	
-	const std::string& name, 
-	const LLRect& rect, 
-	S32 max_length,						// In bytes
-	const std::string &default_text, 
-	const LLFontGL* font,
-	BOOL allow_embedded_items)
-	:	
-	LLUICtrl( name, rect, TRUE, NULL, NULL, FOLLOWS_TOP | FOLLOWS_LEFT ),
-	mTextIsUpToDate(TRUE),
-	mMaxTextByteLength( max_length ),
+LLTextEditor::LLTextEditor(const LLTextEditor::Params& p)
+	:	LLUICtrl(p, LLTextViewModelPtr(new LLTextViewModel)),
+	mMaxTextByteLength( p.max_text_length ),
 	mBaseDocIsPristine(TRUE),
 	mPristineCmd( NULL ),
 	mLastCmd( NULL ),
@@ -265,44 +241,39 @@ LLTextEditor::LLTextEditor(
 	mScrolledToBottom( TRUE ),
 	mOnScrollEndCallback( NULL ),
 	mOnScrollEndData( NULL ),
-	mCursorColor(		LLUI::sColorsGroup->getColor( "TextCursorColor" ) ),
-	mFgColor(			LLUI::sColorsGroup->getColor( "TextFgColor" ) ),
-	mDefaultColor(		LLUI::sColorsGroup->getColor( "TextDefaultColor" ) ),
-	mReadOnlyFgColor(	LLUI::sColorsGroup->getColor( "TextFgReadOnlyColor" ) ),
-	mWriteableBgColor(	LLUI::sColorsGroup->getColor( "TextBgWriteableColor" ) ),
-	mReadOnlyBgColor(	LLUI::sColorsGroup->getColor( "TextBgReadOnlyColor" ) ),
-	mFocusBgColor(		LLUI::sColorsGroup->getColor( "TextBgFocusColor" ) ),
-	mReadOnly(FALSE),
-	mWordWrap( FALSE ),
+	mCursorColor(		p.cursor_color() ),
+	mFgColor(			p.text_color() ),
+	mDefaultColor(		p.default_color() ),
+	mReadOnlyFgColor(	p.text_readonly_color() ),
+	mWriteableBgColor(	p.bg_writeable_color() ),
+	mReadOnlyBgColor(	p.bg_readonly_color() ),
+	mFocusBgColor(		p.bg_focus_color() ),
+	mReadOnly(p.read_only),
+	mWordWrap( p.word_wrap ),
 	mShowLineNumbers ( FALSE ),
-	mTabsToNextField( TRUE ),
 	mCommitOnFocusLost( FALSE ),
 	mHideScrollbarForShortDocs( FALSE ),
-	mTakesNonScrollClicks( TRUE ),
-	mTrackBottom( FALSE ),
-	mAllowEmbeddedItems( allow_embedded_items ),
+	mTakesNonScrollClicks( p.takes_non_scroll_clicks ),
+	mTrackBottom( p.track_bottom ),
+	mAllowEmbeddedItems( p.allow_embedded_items ),
 	mAcceptCallingCardNames(FALSE),
 	mHandleEditKeysDirectly( FALSE ),
 	mMouseDownX(0),
 	mMouseDownY(0),
 	mLastSelectionX(-1),
-	mLastSelectionY(-1),
 	mReflowNeeded(FALSE),
-	mScrollNeeded(FALSE)
+	mScrollNeeded(FALSE),
+	mLastSelectionY(-1),
+	mTabsToNextField(p.ignore_tab),
+	mGLFont(p.font),
+	mGLFontStyle(LLFontGL::getStyleFromString(p.font.style))
 {
+	static LLUICachedControl<S32> scrollbar_size ("UIScrollbarSize", 0);
+
 	mSourceID.generate();
 
 	// reset desired x cursor position
 	mDesiredXPixel = -1;
-
-	if (font)
-	{
-		mGLFont = font;
-	}
-	else
-	{
-		mGLFont = LLFontGL::getFontSansSerif();
-	}
 
 	updateTextRect();
 
@@ -312,36 +283,57 @@ LLTextEditor::LLTextEditor(
 	// Init the scrollbar
 	LLRect scroll_rect;
 	scroll_rect.setOriginAndSize( 
-		getRect().getWidth() - SCROLLBAR_SIZE,
+		getRect().getWidth() - scrollbar_size,
 		1,
-		SCROLLBAR_SIZE,
+		scrollbar_size,
 		getRect().getHeight() - 1);
 	S32 lines_in_doc = getLineCount();
-	mScrollbar = new LLScrollbar( std::string("Scrollbar"), scroll_rect,
-		LLScrollbar::VERTICAL,
-		lines_in_doc,						
-		0,						
-		page_size,
-		NULL, this );
-	mScrollbar->setFollowsRight();
-	mScrollbar->setFollowsTop();
-	mScrollbar->setFollowsBottom();
-	mScrollbar->setEnabled( TRUE );
-	mScrollbar->setVisible( TRUE );
+	LLScrollbar::Params sbparams;
+	sbparams.name("Scrollbar");
+	sbparams.rect(scroll_rect);
+	sbparams.orientation(LLScrollbar::VERTICAL);
+	sbparams.doc_size(lines_in_doc);
+	sbparams.doc_pos(0);
+	sbparams.page_size(page_size);
+	sbparams.follows.flags(FOLLOWS_RIGHT | FOLLOWS_TOP | FOLLOWS_BOTTOM);
+	mScrollbar = LLUICtrlFactory::create<LLScrollbar> (sbparams);
 	mScrollbar->setOnScrollEndCallback(mOnScrollEndCallback, mOnScrollEndData);
 	addChild(mScrollbar);
 
-	mBorder = new LLViewBorder( std::string("text ed border"), LLRect(0, getRect().getHeight(), getRect().getWidth(), 0), LLViewBorder::BEVEL_IN, LLViewBorder::STYLE_LINE, UI_TEXTEDITOR_BORDER );
+	static LLUICachedControl<S32> text_editor_border ("UITextEditorBorder", 0);
+	LLViewBorder::Params params;
+	params.name("text ed border");
+	params.rect(getLocalRect());
+	params.bevel_type(LLViewBorder::BEVEL_IN);
+	params.border_thickness(text_editor_border);
+	mBorder = LLUICtrlFactory::create<LLViewBorder> (params);
 	addChild( mBorder );
+	mBorder->setVisible(!p.hide_border);
 
-	appendText(default_text, FALSE, FALSE);
-	
-	resetDirty();		// Update saved text state
+	appendText(p.default_text, FALSE, FALSE);
+
+	setHideScrollbarForShortDocs(p.hide_scrollbar);
 
 	mParseHTML=FALSE;
 	mHTML.clear();
 }
 
+void LLTextEditor::initFromParams( const LLTextEditor::Params& p)
+{
+	resetDirty();		// Update saved text state
+	LLUICtrl::initFromParams(p);
+	// HACK: work around enabled == readonly design bug -- RN
+	// setEnabled will modify our read only status, so do this after
+	// LLUICtrl::initFromParams
+	if (p.read_only.isProvided())
+	{
+		mReadOnly = p.read_only;
+		updateSegments();
+		updateAllowingLanguageInput();
+	}
+	// HACK:  text editors always need to be enabled so that we can scroll
+	LLView::setEnabled(true);
+}
 
 LLTextEditor::~LLTextEditor()
 {
@@ -360,6 +352,11 @@ LLTextEditor::~LLTextEditor()
 	std::for_each(mUndoStack.begin(), mUndoStack.end(), DeletePointer());
 }
 
+LLTextViewModel* LLTextEditor::getViewModel() const
+{
+	return (LLTextViewModel*)mViewModel.get();
+}
+
 void LLTextEditor::setTrackColor( const LLColor4& color )
 { 
 	mScrollbar->setTrackColor(color); 
@@ -368,16 +365,6 @@ void LLTextEditor::setTrackColor( const LLColor4& color )
 void LLTextEditor::setThumbColor( const LLColor4& color ) 
 { 
 	mScrollbar->setThumbColor(color); 
-}
-
-void LLTextEditor::setHighlightColor( const LLColor4& color ) 
-{ 
-	mScrollbar->setHighlightColor(color); 
-}
-
-void LLTextEditor::setShadowColor( const LLColor4& color ) 
-{ 
-	mScrollbar->setShadowColor(color); 
 }
 
 void LLTextEditor::updateLineStartList(S32 startpos)
@@ -400,7 +387,8 @@ void LLTextEditor::updateLineStartList(S32 startpos)
 		seg_offset = iter->mOffset;
 		mLineStartList.erase(iter, mLineStartList.end());
 	}
-	
+
+    LLWString text(getWText());
 	while( seg_idx < seg_num )
 	{
 		mLineStartList.push_back(line_info(seg_idx,seg_offset));
@@ -412,7 +400,7 @@ void LLTextEditor::updateLineStartList(S32 startpos)
 			LLTextSegment* segment = mSegments[seg_idx];
 			S32 start_idx = segment->getStart() + seg_offset;
 			S32 end_idx = start_idx;
-			while (end_idx < segment->getEnd() && mWText[end_idx] != '\n')
+			while (end_idx < segment->getEnd() && text[end_idx] != '\n')
 			{
 				end_idx++;
 			}
@@ -433,7 +421,7 @@ void LLTextEditor::updateLineStartList(S32 startpos)
 			}
 			else
 			{ 
-				const llwchar* str = mWText.c_str() + start_idx;
+				const llwchar* str = text.c_str() + start_idx;
 				S32 drawn = mGLFont->maxDrawableChars(str, (F32)abs(mTextRect.getWidth()) - line_width,
 													  end_idx - start_idx, mWordWrap, mAllowEmbeddedItems );
 				if( 0 == drawn && line_width == start_x)
@@ -447,7 +435,7 @@ void LLTextEditor::updateLineStartList(S32 startpos)
 				if (end_idx < segment->getEnd())
 				{
 					line_ended = TRUE;
-					if (mWText[end_idx] == '\n')
+					if (text[end_idx] == '\n')
 					{
 						seg_offset++; // skip newline
 					}
@@ -490,17 +478,17 @@ BOOL LLTextEditor::truncate()
 	BOOL did_truncate = FALSE;
 
 	// First rough check - if we're less than 1/4th the size, we're OK
-	if (mWText.size() >= (size_t) (mMaxTextByteLength / 4))
+	if (getLength() >= S32(mMaxTextByteLength / 4))
 	{	
 		// Have to check actual byte size
-		S32 utf8_byte_size = wstring_utf8_length( mWText );
+        LLWString text(getWText());
+		S32 utf8_byte_size = wstring_utf8_length(text);
 		if ( utf8_byte_size > mMaxTextByteLength )
 		{
 			// Truncate safely in UTF-8
-			std::string temp_utf8_text = wstring_to_utf8str( mWText );
+			std::string temp_utf8_text = wstring_to_utf8str(text);
 			temp_utf8_text = utf8str_truncate( temp_utf8_text, mMaxTextByteLength );
-			mWText = utf8str_to_wstring( temp_utf8_text );
-			mTextIsUpToDate = FALSE;
+			getViewModel()->setDisplay(utf8str_to_wstring( temp_utf8_text ));
 			did_truncate = TRUE;
 		}
 	}
@@ -511,10 +499,7 @@ BOOL LLTextEditor::truncate()
 void LLTextEditor::setText(const LLStringExplicit &utf8str)
 {
 	// LLStringUtil::removeCRLF(utf8str);
-	mUTF8Text = utf8str_removeCRLF(utf8str);
-	// mUTF8Text = utf8str;
-	mWText = utf8str_to_wstring(mUTF8Text);
-	mTextIsUpToDate = TRUE;
+	mViewModel->setValue(utf8str_removeCRLF(utf8str));
 
 	truncate();
 	blockUndo();
@@ -529,9 +514,7 @@ void LLTextEditor::setText(const LLStringExplicit &utf8str)
 
 void LLTextEditor::setWText(const LLWString &wtext)
 {
-	mWText = wtext;
-	mUTF8Text.clear();
-	mTextIsUpToDate = FALSE;
+	getViewModel()->setDisplay(wtext);
 
 	truncate();
 	blockUndo();
@@ -550,24 +533,13 @@ void LLTextEditor::setValue(const LLSD& value)
 	setText(value.asString());
 }
 
-const std::string& LLTextEditor::getText() const
+std::string LLTextEditor::getText() const
 {
-	if (!mTextIsUpToDate)
+	if (mAllowEmbeddedItems)
 	{
-		if (mAllowEmbeddedItems)
-		{
-			llwarns << "getText() called on text with embedded items (not supported)" << llendl;
-		}
-		mUTF8Text = wstring_to_utf8str(mWText);
-		mTextIsUpToDate = TRUE;
+		llwarns << "getText() called on text with embedded items (not supported)" << llendl;
 	}
-	return mUTF8Text;
-}
-
-// virtual
-LLSD LLTextEditor::getValue() const
-{
-	return LLSD(getText());
+	return mViewModel->getValue().asString();
 }
 
 void LLTextEditor::setWordWrap(BOOL b)
@@ -709,7 +681,7 @@ void LLTextEditor::setCursorAtLocalPos( S32 local_x, S32 local_y, BOOL round )
 
 S32 LLTextEditor::prevWordPos(S32 cursorPos) const
 {
-	const LLWString& wtext = mWText;
+	LLWString wtext(getWText());
 	while( (cursorPos > 0) && (wtext[cursorPos-1] == ' ') )
 	{
 		cursorPos--;
@@ -723,7 +695,7 @@ S32 LLTextEditor::prevWordPos(S32 cursorPos) const
 
 S32 LLTextEditor::nextWordPos(S32 cursorPos) const
 {
-	const LLWString& wtext = mWText;
+	LLWString wtext(getWText());
 	while( (cursorPos < getLength()) && isPartOfWord( wtext[cursorPos] ) )
 	{
 		cursorPos++;
@@ -849,12 +821,13 @@ S32 LLTextEditor::getCursorPosFromLocalCoord( S32 local_x, S32 local_y, BOOL rou
 	{
 		S32 line_len = line_end - line_start;
 		S32 pos;
+        LLWString text(getWText());
 
 		if (mAllowEmbeddedItems)
 		{
 			// Figure out which character we're nearest to.
 			bindEmbeddedChars(mGLFont);
-			pos = mGLFont->charFromPixelOffset(mWText.c_str(), line_start,
+			pos = mGLFont->charFromPixelOffset(text.c_str(), line_start,
 											   (F32)(local_x - mTextRect.mLeft),
 											   (F32)(mTextRect.getWidth()),
 											   line_len,
@@ -863,7 +836,7 @@ S32 LLTextEditor::getCursorPosFromLocalCoord( S32 local_x, S32 local_y, BOOL rou
 		}
 		else
 		{
-			pos = mGLFont->charFromPixelOffset(mWText.c_str(), line_start,
+			pos = mGLFont->charFromPixelOffset(text.c_str(), line_start,
 											   (F32)(local_x - mTextRect.mLeft),
 											   (F32)mTextRect.getWidth(),
 											   line_len,
@@ -876,14 +849,15 @@ S32 LLTextEditor::getCursorPosFromLocalCoord( S32 local_x, S32 local_y, BOOL rou
 
 void LLTextEditor::setCursor(S32 row, S32 column)
 {
-	const llwchar* doc = mWText.c_str();
+    LLWString text(getWText());
+	const llwchar* doc = text.c_str();
 	const char CR = 10;
 	while(row--)
 	{
 		while (CR != *doc++);
 	}
 	doc += column;
-	setCursorPos(doc - mWText.c_str());
+	setCursorPos(doc - text.c_str());
 }
 
 void LLTextEditor::setCursorPos(S32 offset)
@@ -935,7 +909,7 @@ BOOL LLTextEditor::selectionContainsLineBreaks()
 		S32 left = llmin(mSelectionStart, mSelectionEnd);
 		S32 right = left + llabs(mSelectionStart - mSelectionEnd);
 
-		const LLWString &wtext = mWText;
+		LLWString wtext = getWText();
 		for( S32 i = left; i < right; i++ )
 		{
 			if (wtext[i] == '\n')
@@ -972,7 +946,7 @@ S32 LLTextEditor::indentLine( S32 pos, S32 spaces )
 		// Unindent
 		for(S32 i=0; i < -spaces; i++)
 		{
-			const LLWString &wtext = mWText;
+			LLWString wtext = getWText();
 			if (wtext[pos] == ' ')
 			{
 				delta_spaces += remove( pos, 1, FALSE );
@@ -987,7 +961,7 @@ void LLTextEditor::indentSelectedLines( S32 spaces )
 {
 	if( hasSelection() )
 	{
-		const LLWString &text = mWText;
+		LLWString text = getWText();
 		S32 left = llmin( mSelectionStart, mSelectionEnd );
 		S32 right = left + llabs( mSelectionStart - mSelectionEnd );
 		BOOL cursor_on_right = (mSelectionEnd > mSelectionStart);
@@ -1217,6 +1191,7 @@ BOOL LLTextEditor::handleMiddleMouseDown(S32 x, S32 y, MASK mask)
 
 BOOL LLTextEditor::handleHover(S32 x, S32 y, MASK mask)
 {
+	static LLUICachedControl<S32> scrollbar_size ("UIScrollbarSize", 0);
 	BOOL handled = FALSE;
 
 	mHoverSegment = NULL;
@@ -1291,7 +1266,7 @@ BOOL LLTextEditor::handleHover(S32 x, S32 y, MASK mask)
 		if( !handled )
 		{
 			lldebugst(LLERR_USER_INPUT) << "hover handled by " << getName() << " (inactive)" << llendl;		
-			if (!mScrollbar->getVisible() || x < getRect().getWidth() - SCROLLBAR_SIZE)
+			if (!mScrollbar->getVisible() || x < getRect().getWidth() - scrollbar_size)
 			{
 				getWindow()->setCursor(UI_CURSOR_IBEAM);
 			}
@@ -1374,7 +1349,7 @@ BOOL LLTextEditor::handleDoubleClick(S32 x, S32 y, MASK mask)
 		setCursorAtLocalPos( x, y, FALSE );
 		deselect();
 
-		const LLWString &text = mWText;
+		LLWString text = getWText();
 		
 		if( isPartOfWord( text[mCursorPos] ) )
 		{
@@ -1471,12 +1446,12 @@ S32 LLTextEditor::remove(const S32 pos, const S32 length, const BOOL group_with_
 
 S32 LLTextEditor::append(const LLWString &wstr, const BOOL group_with_next_op)
 {
-	return insert(mWText.length(), wstr, group_with_next_op);
+	return insert(getLength(), wstr, group_with_next_op);
 }
 
 S32 LLTextEditor::overwriteChar(S32 pos, llwchar wc)
 {
-	if ((S32)mWText.length() == pos)
+	if ((S32)getLength() == pos)
 	{
 		return addChar(pos, wc);
 	}
@@ -1498,7 +1473,7 @@ void LLTextEditor::removeCharOrTab()
 	{
 		S32 chars_to_remove = 1;
 
-		const LLWString &text = mWText;
+		LLWString text = getWText();
 		if (text[mCursorPos - 1] == ' ')
 		{
 			// Try to remove a "tab"
@@ -1563,7 +1538,7 @@ void LLTextEditor::removeChar()
 // Add a single character to the text
 S32 LLTextEditor::addChar(S32 pos, llwchar wc)
 {
-	if ( (wstring_utf8_length( mWText ) + wchar_utf8_length( wc ))  >= mMaxTextByteLength)
+	if ( (wstring_utf8_length( getWText() ) + wchar_utf8_length( wc ))  >= mMaxTextByteLength)
 	{
 		make_ui_sound("UISndBadKeystroke");
 		return 0;
@@ -1865,7 +1840,7 @@ void LLTextEditor::cut()
 	}
 	S32 left_pos = llmin( mSelectionStart, mSelectionEnd );
 	S32 length = llabs( mSelectionStart - mSelectionEnd );
-	gClipboard.copyFromSubstring( mWText, left_pos, length, mSourceID );
+	gClipboard.copyFromSubstring( getWText(), left_pos, length, mSourceID );
 	deleteSelection( FALSE );
 
 	needsReflow();
@@ -1885,7 +1860,7 @@ void LLTextEditor::copy()
 	}
 	S32 left_pos = llmin( mSelectionStart, mSelectionEnd );
 	S32 length = llabs( mSelectionStart - mSelectionEnd );
-	gClipboard.copyFromSubstring(mWText, left_pos, length, mSourceID);
+	gClipboard.copyFromSubstring(getWText(), left_pos, length, mSourceID);
 }
 
 BOOL LLTextEditor::canPaste() const
@@ -1986,7 +1961,7 @@ void LLTextEditor::copyPrimary()
 	}
 	S32 left_pos = llmin( mSelectionStart, mSelectionEnd );
 	S32 length = llabs( mSelectionStart - mSelectionEnd );
-	gClipboard.copyFromPrimarySubstring(mWText, left_pos, length, mSourceID);
+	gClipboard.copyFromPrimarySubstring(getWText(), left_pos, length, mSourceID);
 }
 
 BOOL LLTextEditor::canPastePrimary() const
@@ -2237,7 +2212,7 @@ void LLTextEditor::unindentLineBeforeCloseBrace()
 {
 	if( mCursorPos >= 1 )
 	{
-		const LLWString &text = mWText;
+		LLWString text = getWText();
 		if( ' ' == text[ mCursorPos - 1 ] )
 		{
 			removeCharOrTab();
@@ -2401,7 +2376,7 @@ void LLTextEditor::doDelete()
 	{	
 		S32 i;
 		S32 chars_to_remove = 1;
-		const LLWString &text = mWText;
+		LLWString text = getWText();
 		if( (text[ mCursorPos ] == ' ') && (mCursorPos + SPACES_PER_TAB < getLength()) )
 		{
 			// Try to remove a full tab's worth of spaces
@@ -2565,10 +2540,10 @@ void LLTextEditor::drawBackground()
 	S32 right = getRect().getWidth();
 	S32 bottom = 0;
 
-	LLColor4 bg_color = mReadOnly ? mReadOnlyBgColor
-		: gFocusMgr.getKeyboardFocus() == this ? mFocusBgColor : mWriteableBgColor;
+	LLColor4 bg_color = mReadOnly ? mReadOnlyBgColor.get()
+		: gFocusMgr.getKeyboardFocus() == this ? mFocusBgColor.get() : mWriteableBgColor.get();
 	if( mShowLineNumbers ) {
-		gl_rect_2d(left, top, UI_TEXTEDITOR_LINE_NUMBER_MARGIN, bottom, mReadOnlyBgColor ); // line number area always read-only
+		gl_rect_2d(left, top, UI_TEXTEDITOR_LINE_NUMBER_MARGIN, bottom, mReadOnlyBgColor.get() ); // line number area always read-only
 		gl_rect_2d(UI_TEXTEDITOR_LINE_NUMBER_MARGIN, top, right, bottom, bg_color); // body text area to the right of line numbers
 		gl_rect_2d(UI_TEXTEDITOR_LINE_NUMBER_MARGIN, top, UI_TEXTEDITOR_LINE_NUMBER_MARGIN-1, bottom, LLColor4::grey3); // separator
 	} else {
@@ -2584,7 +2559,7 @@ void LLTextEditor::drawSelectionBackground()
 	// Draw selection even if we don't have keyboard focus for search/replace
 	if( hasSelection() )
 	{
-		const LLWString &text = mWText;
+		LLWString text = getWText();
 		const S32 text_len = getLength();
 		std::queue<S32> line_endings;
 
@@ -2683,7 +2658,7 @@ void LLTextEditor::drawSelectionBackground()
 		if( selection_visible )
 		{
 			gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-			const LLColor4& color = mReadOnly ? mReadOnlyBgColor : mWriteableBgColor;
+			const LLColor4& color = mReadOnly ? mReadOnlyBgColor.get() : mWriteableBgColor.get();
 			F32 alpha = hasFocus() ? 1.f : 0.5f;
 			gGL.color4f( 1.f - color.mV[0], 1.f - color.mV[1], 1.f - color.mV[2], alpha );
 			S32 margin_offset = mShowLineNumbers ? UI_TEXTEDITOR_LINE_NUMBER_MARGIN : 0;
@@ -2735,7 +2710,7 @@ void LLTextEditor::drawCursor()
 	if( gFocusMgr.getKeyboardFocus() == this
 		&& gShowTextEditCursor && !mReadOnly)
 	{
-		const LLWString &text = mWText;
+		LLWString text = getWText();
 		const S32 text_len = getLength();
 
 		// Skip through the lines we aren't drawing.
@@ -2819,7 +2794,7 @@ void LLTextEditor::drawCursor()
 				
 				gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
-				gGL.color4fv( mCursorColor.mV );
+				gGL.color4fv( mCursorColor.get().mV );
 				
 				gl_rect_2d(llfloor(cursor_left), llfloor(cursor_top),
 					llfloor(cursor_right), llfloor(cursor_bottom));
@@ -2834,21 +2809,22 @@ void LLTextEditor::drawCursor()
 					}
 					else if (mReadOnly)
 					{
-						text_color = mReadOnlyFgColor;
+						text_color = mReadOnlyFgColor.get();
 					}
 					else
 					{
-						text_color = mFgColor;
+						text_color = mFgColor.get();
 					}
 					mGLFont->render(text, mCursorPos, next_char_left, cursor_bottom + line_height, 
 						LLColor4(1.f - text_color.mV[VRED], 1.f - text_color.mV[VGREEN], 1.f - text_color.mV[VBLUE], 1.f),
 						LLFontGL::LEFT, LLFontGL::TOP,
 						LLFontGL::NORMAL,
+						LLFontGL::NO_SHADOW,
 						1);
 				}
 
 				// Make sure the IME is in the right place
-				LLRect screen_pos = getScreenRect();
+				LLRect screen_pos = calcScreenRect();
 				LLCoordGL ime_pos( screen_pos.mLeft + llfloor(cursor_left), screen_pos.mBottom + llfloor(cursor_top) );
 
 				ime_pos.mX = (S32) (ime_pos.mX * LLUI::sGLScaleFactor.mV[VX]);
@@ -2861,12 +2837,22 @@ void LLTextEditor::drawCursor()
 
 void LLTextEditor::drawPreeditMarker()
 {
+	static LLUICachedControl<F32> preedit_marker_brightness ("UIPreeditMarkerBrightness", 0);
+	static LLUICachedControl<S32> preedit_marker_gap ("UIPreeditMarkerGap", 0);
+	static LLUICachedControl<S32> preedit_marker_position ("UIPreeditMarkerPosition", 0);
+	static LLUICachedControl<S32> preedit_marker_thickness ("UIPreeditMarkerThickness", 0);
+	static LLUICachedControl<F32> preedit_standout_brightness ("UIPreeditStandoutBrightness", 0);
+	static LLUICachedControl<S32> preedit_standout_gap ("UIPreeditStandoutGap", 0);
+	static LLUICachedControl<S32> preedit_standout_position ("UIPreeditStandoutPosition", 0);
+	static LLUICachedControl<S32> preedit_standout_thickness ("UIPreeditStandoutThickness", 0);
+
 	if (!hasPreeditString())
 	{
 		return;
 	}
 
-	const llwchar *text = mWText.c_str();
+    const LLWString textString(getWText());
+	const llwchar *text = textString.c_str();
 	const S32 text_len = getLength();
 	const S32 num_lines = getLineCount();
 
@@ -2929,19 +2915,19 @@ void LLTextEditor::drawPreeditMarker()
 
 				if (mPreeditStandouts[i])
 				{
-					gl_rect_2d(preedit_left + PREEDIT_STANDOUT_GAP,
-							line_y + PREEDIT_STANDOUT_POSITION,
-							preedit_right - PREEDIT_STANDOUT_GAP - 1,
-							line_y + PREEDIT_STANDOUT_POSITION - PREEDIT_STANDOUT_THICKNESS,
-							(mCursorColor * PREEDIT_STANDOUT_BRIGHTNESS + mWriteableBgColor * (1 - PREEDIT_STANDOUT_BRIGHTNESS)).setAlpha(1.0f));
+					gl_rect_2d(preedit_left + preedit_standout_gap,
+							line_y + preedit_standout_position,
+							preedit_right - preedit_standout_gap - 1,
+							line_y + preedit_standout_position - preedit_standout_thickness,
+							(mCursorColor.get() * preedit_standout_brightness + mWriteableBgColor.get() * (1 - preedit_standout_brightness)).setAlpha(1.0f));
 				}
 				else
 				{
-					gl_rect_2d(preedit_left + PREEDIT_MARKER_GAP,
-							line_y + PREEDIT_MARKER_POSITION,
-							preedit_right - PREEDIT_MARKER_GAP - 1,
-							line_y + PREEDIT_MARKER_POSITION - PREEDIT_MARKER_THICKNESS,
-							(mCursorColor * PREEDIT_MARKER_BRIGHTNESS + mWriteableBgColor * (1 - PREEDIT_MARKER_BRIGHTNESS)).setAlpha(1.0f));
+					gl_rect_2d(preedit_left + preedit_marker_gap,
+							line_y + preedit_marker_position,
+							preedit_right - preedit_marker_gap - 1,
+							line_y + preedit_marker_position - preedit_marker_thickness,
+							(mCursorColor.get() * preedit_marker_brightness + mWriteableBgColor.get() * (1 - preedit_marker_brightness)).setAlpha(1.0f));
 				}
 			}
 		}
@@ -2956,9 +2942,12 @@ void LLTextEditor::drawPreeditMarker()
 
 void LLTextEditor::drawText()
 {
-	const LLWString &text = mWText;
+	LLWString text = getWText();
 	const S32 text_len = getLength();
-	if( text_len <= 0 ) return;
+	if( text_len <= 0 )
+	{
+		return;
+	}
 	S32 selection_left = -1;
 	S32 selection_right = -1;
 	// Draw selection even if we don't have keyboard focus for search/replace
@@ -2970,26 +2959,14 @@ void LLTextEditor::drawText()
 
 	LLGLSUIDefault gls_ui;
 
-	// There are several concepts that are important for understanding the following drawing code.
-	// The document is logically a sequence of characters (stored in a LLWString).
-	// Variables below with "start" or "end" in their names refer to positions or offsets into it.
-	// Next there are two kinds of "line" variables to understand. Newline characters in the
-	// character sequence represent logical lines. These are what get numbered and so variables
-	// representing this kind of line have "num" in their names.
-	// The others represent line fragments or displayed lines which the scrollbar deals with.
-	// When the "show line numbers" property is turned on, we draw line numbers to the left of the 
-	// beginning of each logical line and not in front of wrapped "continuation" display lines. -MG
-
-	S32 cur_line = mScrollbar->getDocPos(); // scrollbar counts each wrap as a new line.
+	S32 cur_line = mScrollbar->getDocPos();
 	S32 num_lines = getLineCount();
-	if (cur_line >= num_lines) return;
-	S32 line_start = getLineStart(cur_line);
-	S32 prev_start = getLineStart(cur_line-1);
-	S32 cur_line_num  = getLineForPosition(line_start); // doesn't count wraps. i.e. only counts newlines.
-	S32 prev_line_num = getLineForPosition(prev_start);
-	BOOL cur_line_is_continuation = cur_line_num > 0 && cur_line_num == prev_line_num;
-	BOOL line_wraps = FALSE;
+	if (cur_line >= num_lines)
+	{
+		return;
+	}
 	
+	S32 line_start = getLineStart(cur_line);
 	LLTextSegment t(line_start);
 	segment_list_t::iterator seg_iter;
 	seg_iter = std::upper_bound(mSegments.begin(), mSegments.end(), &t, LLTextSegment::compare());
@@ -3008,36 +2985,12 @@ void LLTextEditor::drawText()
 			next_start = getLineStart(cur_line + 1);
 			line_end = next_start;
 		}
-		line_wraps = text[line_end-1] != '\n';
-		if ( ! line_wraps )
+		if ( text[line_end-1] == '\n' )
 		{
-			--line_end; // don't attempt to draw the newline char.
+			--line_end;
 		}
 		
-		F32 text_start = (F32)mTextRect.mLeft;
-		F32 text_x = text_start + (mShowLineNumbers ? UI_TEXTEDITOR_LINE_NUMBER_MARGIN : 0);
-		
-		// draw the line numbers
-		if( mShowLineNumbers && !cur_line_is_continuation) 
-		{
-			const LLFontGL *num_font = LLFontGL::getFontMonospace();
-			F32 y_top = text_y + ((F32)llround(num_font->getLineHeight()) / 2);
-			const LLWString ltext = utf8str_to_wstring(llformat("%*d", UI_TEXTEDITOR_LINE_NUMBER_DIGITS, cur_line_num ));
-			BOOL is_cur_line = getCurrentLine() == cur_line_num;
-			const U8 style = is_cur_line ? LLFontGL::BOLD : LLFontGL::NORMAL;
-			const LLColor4 fg_color = is_cur_line ? mCursorColor : mReadOnlyFgColor;
-			num_font->render( 
-				ltext, // string to draw
-				0, // begin offset
-				3., // x
-				y_top, // y
-				fg_color, 
-				LLFontGL::LEFT, // horizontal alignment
-				LLFontGL::VCENTER, // vertical alignment
-				style, 
-				S32_MAX, // max chars
-				UI_TEXTEDITOR_LINE_NUMBER_MARGIN); // max pixels
-		}
+		F32 text_x = (F32)mTextRect.mLeft;
 
 		S32 seg_start = line_start;
 		while( seg_start < line_end )
@@ -3082,30 +3035,19 @@ void LLTextEditor::drawText()
 
 				drawClippedSegment( text, seg_start, clipped_end, text_x, text_y, selection_left, selection_right, style, &text_x );
 
-				if( text_x == text_start && mShowLineNumbers ) 
-				{
-					text_x += UI_TEXTEDITOR_LINE_NUMBER_MARGIN;
-				}
-
 				// Note: text_x is incremented by drawClippedSegment()
 				seg_start += clipped_len;
 			}
 		}
 
-		// move down one line
-		text_y -= (F32)line_height;
-
-		if( line_wraps )
-		{
-			cur_line_num--;
-		}
-		cur_line_is_continuation = line_wraps; // so as to not not number the continuation lines
+			// move down one line
+			text_y -= (F32)line_height;
 
 		line_start = next_start;
 		cur_line++;
-		cur_line_num++;
 	}
 }
+
 
 // Draws a single text segment, reversing the color for selection if needed.
 void LLTextEditor::drawClippedSegment(const LLWString &text, S32 seg_start, S32 seg_end, F32 x, F32 y, S32 selection_left, S32 selection_right, const LLStyleSP& style, F32* right_x )
@@ -3121,7 +3063,7 @@ void LLTextEditor::drawClippedSegment(const LLWString &text, S32 seg_start, S32 
 
 	if ( style->getFontString()[0] )
 	{
-		font = LLResMgr::getInstance()->getRes(style->getFontID());
+		font = style->getFont();
 	}
 
 	U8 font_flags = LLFontGL::NORMAL;
@@ -3141,13 +3083,15 @@ void LLTextEditor::drawClippedSegment(const LLWString &text, S32 seg_start, S32 
 
 	if (style->getIsEmbeddedItem())
 	{
+		static LLUICachedControl<LLColor4> text_embedded_item_readonly_color ("TextEmbeddedItemReadOnlyColor", *(new LLColor4));
+		static LLUICachedControl<LLColor4> text_embedded_item_color ("TextEmbeddedItemColor", *(new LLColor4));
 		if (mReadOnly)
 		{
-			color = LLUI::sColorsGroup->getColor("TextEmbeddedItemReadOnlyColor");
+			color = text_embedded_item_readonly_color;
 		}
 		else
 		{
-			color = LLUI::sColorsGroup->getColor("TextEmbeddedItemColor");
+			color = text_embedded_item_color;
 		}
 	}
 
@@ -3159,7 +3103,7 @@ void LLTextEditor::drawClippedSegment(const LLWString &text, S32 seg_start, S32 
 		S32 start = seg_start;
 		S32 end = llmin( selection_left, seg_end );
 		S32 length =  end - start;
-		font->render(text, start, x, y_top, color, LLFontGL::LEFT, LLFontGL::TOP, font_flags, length, S32_MAX, right_x, mAllowEmbeddedItems);
+		font->render(text, start, x, y_top, color, LLFontGL::LEFT, LLFontGL::TOP, mGLFontStyle, LLFontGL::NO_SHADOW, length, S32_MAX, right_x, mAllowEmbeddedItems);
 	}
 	x = *right_x;
 	
@@ -3172,7 +3116,7 @@ void LLTextEditor::drawClippedSegment(const LLWString &text, S32 seg_start, S32 
 
 		font->render(text, start, x, y_top,
 					 LLColor4( 1.f - color.mV[0], 1.f - color.mV[1], 1.f - color.mV[2], 1.f ),
-					 LLFontGL::LEFT, LLFontGL::TOP, font_flags, length, S32_MAX, right_x, mAllowEmbeddedItems);
+					 LLFontGL::LEFT, LLFontGL::TOP, mGLFontStyle, LLFontGL::NO_SHADOW, length, S32_MAX, right_x, mAllowEmbeddedItems);
 	}
 	x = *right_x;
 	if( selection_right < seg_end )
@@ -3181,7 +3125,7 @@ void LLTextEditor::drawClippedSegment(const LLWString &text, S32 seg_start, S32 
 		S32 start = llmax( selection_right, seg_start );
 		S32 end = seg_end;
 		S32 length = end - start;
-		font->render(text, start, x, y_top, color, LLFontGL::LEFT, LLFontGL::TOP, font_flags, length, S32_MAX, right_x, mAllowEmbeddedItems);
+		font->render(text, start, x, y_top, color, LLFontGL::LEFT, LLFontGL::TOP, mGLFontStyle, LLFontGL::NO_SHADOW, length, S32_MAX, right_x, mAllowEmbeddedItems);
 	}
  }
 
@@ -3203,17 +3147,18 @@ void LLTextEditor::draw()
 	}
 
 	{
-		LLLocalClipRect clip(LLRect(0, getRect().getHeight(), getRect().getWidth() - (mScrollbar->getVisible() ? SCROLLBAR_SIZE : 0), 0));
+		static LLUICachedControl<S32> scrollbar_size ("UIScrollbarSize", 0);
+		LLLocalClipRect clip(LLRect(0, getRect().getHeight(), getRect().getWidth() - (mScrollbar->getVisible() ? scrollbar_size : 0), 0));
 
-			bindEmbeddedChars(mGLFont);
+		bindEmbeddedChars( mGLFont );
 
-			drawBackground();
-			drawSelectionBackground();
-			drawPreeditMarker();
-			drawText();
-			drawCursor();
+		drawBackground();
+		drawSelectionBackground();
+		drawPreeditMarker();
+		drawText();
+		drawCursor();
 
-			unbindEmbeddedChars(mGLFont);
+		unbindEmbeddedChars( mGLFont );
 
 		//RN: the decision was made to always show the orange border for keyboard focus but do not put an insertion caret
 		// when in readonly mode
@@ -3346,7 +3291,8 @@ void LLTextEditor::changeLine( S32 delta )
 	// if remembered position was reset (thus -1), calculate new one here
 	if( desired_x_pixel == -1 )
 	{
-		desired_x_pixel = mGLFont->getWidth(mWText.c_str(), line_start, offset, mAllowEmbeddedItems );
+        LLWString text(getWText());
+		desired_x_pixel = mGLFont->getWidth(text.c_str(), line_start, offset, mAllowEmbeddedItems );
 	}
 
 	S32 new_line = 0;
@@ -3376,7 +3322,8 @@ void LLTextEditor::changeLine( S32 delta )
 	S32 new_line_len = new_line_end - new_line_start;
 
 	S32 new_offset;
-	new_offset = mGLFont->charFromPixelOffset(mWText.c_str(), new_line_start,
+    LLWString text(getWText());
+	new_offset = mGLFont->charFromPixelOffset(text.c_str(), new_line_start,
 											  (F32)desired_x_pixel,
 											  (F32)mTextRect.getWidth(),
 											  new_line_len,
@@ -3424,7 +3371,7 @@ void LLTextEditor::getLineAndColumnForPosition( S32 position, S32* line, S32* co
 	}
 	else
 	{
-		const LLWString &text = mWText;
+		LLWString text = getWText();
 		S32 line_count = 0;
 		S32 line_start = 0;
 		S32 i;
@@ -3561,7 +3508,7 @@ void LLTextEditor::autoIndent()
 	S32 space_count = 0;
 	S32 i;
 
-	const LLWString &text = mWText;
+	LLWString text = getWText();
 	while( ' ' == text[line_start] )
 	{
 		space_count++;
@@ -3813,17 +3760,18 @@ void LLTextEditor::removeTextFromEnd(S32 num_chars)
 
 S32 LLTextEditor::insertStringNoUndo(const S32 pos, const LLWString &wstr)
 {
-	S32 old_len = mWText.length();		// length() returns character length
+    LLWString text(getWText());
+	S32 old_len = text.length();		// length() returns character length
 	S32 insert_len = wstr.length();
 
-	mWText.insert(pos, wstr);
-	mTextIsUpToDate = FALSE;
+	text.insert(pos, wstr);
+    getViewModel()->setDisplay(text);
 
 	if ( truncate() )
 	{
 		// The user's not getting everything he's hoping for
 		make_ui_sound("UISndBadKeystroke");
-		insert_len = mWText.length() - old_len;
+		insert_len = getLength() - old_len;
 	}
 
 	return insert_len;
@@ -3831,19 +3779,21 @@ S32 LLTextEditor::insertStringNoUndo(const S32 pos, const LLWString &wstr)
 
 S32 LLTextEditor::removeStringNoUndo(S32 pos, S32 length)
 {
-	mWText.erase(pos, length);
-	mTextIsUpToDate = FALSE;
+    LLWString text(getWText());
+	text.erase(pos, length);
+    getViewModel()->setDisplay(text);
 	return -length;	// This will be wrong if someone calls removeStringNoUndo with an excessive length
 }
 
 S32 LLTextEditor::overwriteCharNoUndo(S32 pos, llwchar wc)
 {
-	if (pos > (S32)mWText.length())
+	if (pos > (S32)getLength())
 	{
 		return 0;
 	}
-	mWText[pos] = wc;
-	mTextIsUpToDate = FALSE;
+    LLWString text(getWText());
+	text[pos] = wc;
+    getViewModel()->setDisplay(text);
 	return 1;
 }
 
@@ -3912,11 +3862,16 @@ BOOL LLTextEditor::tryToRevertToPristineState()
 
 void LLTextEditor::updateTextRect()
 {
+	static LLUICachedControl<S32> texteditor_border ("UITextEditorBorder", 0);
+	static LLUICachedControl<S32> texteditor_h_pad ("UITextEditorHPad", 0);
+	static LLUICachedControl<S32> scrollbar_size ("UIScrollbarSize", 0);
+	static LLUICachedControl<S32> texteditor_vpad_top ("UITextEditorVPadTop", 0);
+
 	mTextRect.setOriginAndSize( 
-		UI_TEXTEDITOR_BORDER + UI_TEXTEDITOR_H_PAD,
-		UI_TEXTEDITOR_BORDER, 
-		getRect().getWidth() - SCROLLBAR_SIZE - 2 * (UI_TEXTEDITOR_BORDER + UI_TEXTEDITOR_H_PAD),
-		getRect().getHeight() - 2 * UI_TEXTEDITOR_BORDER - UI_TEXTEDITOR_V_PAD_TOP );
+		texteditor_border + texteditor_h_pad,
+		texteditor_border, 
+		getRect().getWidth() - scrollbar_size - 2 * (texteditor_border + texteditor_h_pad),
+		getRect().getHeight() - 2 * texteditor_border - texteditor_vpad_top );
 }
 
 void LLTextEditor::loadKeywords(const std::string& filename,
@@ -3933,7 +3888,7 @@ void LLTextEditor::loadKeywords(const std::string& filename,
 			mKeywords.addToken(LLKeywordToken::WORD, name, color, tooltips[i] );
 		}
 
-		mKeywords.findSegments( &mSegments, mWText, mDefaultColor );
+		mKeywords.findSegments( &mSegments, getWText(), mDefaultColor.get() );
 
 		llassert( mSegments.front()->getStart() == 0 );
 		llassert( mSegments.back()->getEnd() == getLength() );
@@ -3945,7 +3900,7 @@ void LLTextEditor::updateSegments()
 	if (mKeywords.isLoaded())
 	{
 		// HACK:  No non-ascii keywords for now
-		mKeywords.findSegments(&mSegments, mWText, mDefaultColor);
+		mKeywords.findSegments(&mSegments, getWText(), mDefaultColor.get());
 	}
 	else if (mAllowEmbeddedItems)
 	{
@@ -3960,8 +3915,8 @@ void LLTextEditor::updateSegments()
 	}
 	if (mSegments.empty())
 	{
-		LLColor4& text_color = ( mReadOnly ? mReadOnlyFgColor : mFgColor );
-		LLTextSegment* default_segment = new LLTextSegment( text_color, 0, mWText.length() );
+		LLColor4 text_color = ( mReadOnly ? mReadOnlyFgColor.get() : mFgColor.get() );
+		LLTextSegment* default_segment = new LLTextSegment( text_color, 0, getLength() );
 		default_segment->setIsDefault(TRUE);
 		mSegments.push_back(default_segment);
 	}
@@ -3971,7 +3926,7 @@ void LLTextEditor::updateSegments()
 // *NOTE: Using this will invalidate references to mSegments from mLineStartList.
 void LLTextEditor::pruneSegments()
 {
-	S32 len = mWText.length();
+	S32 len = getLength();
 	// Find and update the first valid segment
 	segment_list_t::iterator iter = mSegments.end();
 	while(iter != mSegments.begin())
@@ -4008,7 +3963,7 @@ void LLTextEditor::findEmbeddedItemSegments()
 	mSegments.clear();
 
 	BOOL found_embedded_items = FALSE;
-	const LLWString &text = mWText;
+	LLWString text = getWText();
 	S32 idx = 0;
 	while( text[idx] )
 	{
@@ -4029,7 +3984,7 @@ void LLTextEditor::findEmbeddedItemSegments()
 
 	BOOL in_text = FALSE;
 
-	LLColor4& text_color = ( mReadOnly ? mReadOnlyFgColor : mFgColor  );
+	LLColor4 text_color = ( mReadOnly ? mReadOnlyFgColor.get() : mFgColor.get()  );
 
 	if( idx > 0 )
 	{
@@ -4222,7 +4177,7 @@ BOOL LLTextEditor::exportBuffer(std::string &buffer )
 	outstream << "Linden text version 1\n";
 	outstream << "{\n";
 
-	outstream << llformat("Text length %d\n", mWText.length() );
+	outstream << llformat("Text length %d\n", getLength() );
 	outstream << getText();
 	outstream << "}\n";
 
@@ -4295,103 +4250,6 @@ void LLTextSegment::dump() const
 		getEnd() << "]" <<
 		llendl;
 
-}
-
-// virtual
-LLXMLNodePtr LLTextEditor::getXML(bool save_children) const
-{
-	LLXMLNodePtr node = LLUICtrl::getXML();
-
-	// Attributes
-
-	node->createChild("max_length", TRUE)->setIntValue(getMaxLength());
-	node->createChild("embedded_items", TRUE)->setBoolValue(mAllowEmbeddedItems);
-	node->createChild("font", TRUE)->setStringValue(LLFontGL::nameFromFont(mGLFont));
-	node->createChild("word_wrap", TRUE)->setBoolValue(mWordWrap);
-	node->createChild("hide_scrollbar", TRUE)->setBoolValue(mHideScrollbarForShortDocs);
-
-	addColorXML(node, mCursorColor, "cursor_color", "TextCursorColor");
-	addColorXML(node, mFgColor, "text_color", "TextFgColor");
-	addColorXML(node, mDefaultColor, "text_default_color", "TextDefaultColor");
-	addColorXML(node, mReadOnlyFgColor, "text_readonly_color", "TextFgReadOnlyColor");
-	addColorXML(node, mReadOnlyBgColor, "bg_readonly_color", "TextBgReadOnlyColor");
-	addColorXML(node, mWriteableBgColor, "bg_writeable_color", "TextBgWriteableColor");
-	addColorXML(node, mFocusBgColor, "bg_focus_color", "TextBgFocusColor");
-
-	// Contents
- 	node->setStringValue(getText());
-
-	return node;
-}
-
-// static
-LLView* LLTextEditor::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory)
-{
-	std::string name("text_editor");
-	node->getAttributeString("name", name);
-
-	LLRect rect;
-	createRect(node, rect, parent, LLRect());
-
-	U32 max_text_length = 255;
-	node->getAttributeU32("max_length", max_text_length);
-
-	BOOL allow_embedded_items;
-	node->getAttributeBOOL("embedded_items", allow_embedded_items);
-
-	LLFontGL* font = LLView::selectFont(node);
-
-	std::string text = node->getTextContents().substr(0, max_text_length - 1);
-
-	LLTextEditor* text_editor = new LLTextEditor(name, 
-								rect,
-								max_text_length,
-								text,
-								font,
-								allow_embedded_items);
-
-	text_editor->setTextEditorParameters(node);
-
-	BOOL hide_scrollbar = FALSE;
-	node->getAttributeBOOL("hide_scrollbar",hide_scrollbar);
-	text_editor->setHideScrollbarForShortDocs(hide_scrollbar);
-
-	text_editor->initFromXML(node, parent);
-
-	return text_editor;
-}
-
-void LLTextEditor::setTextEditorParameters(LLXMLNodePtr node)
-{
-	BOOL word_wrap = FALSE;
-	node->getAttributeBOOL("word_wrap", word_wrap);
-	setWordWrap(word_wrap);
-
-	node->getAttributeBOOL("show_line_numbers", mShowLineNumbers);
-
-	node->getAttributeBOOL("track_bottom", mTrackBottom);
-
-	LLColor4 color;
-	if (LLUICtrlFactory::getAttributeColor(node,"cursor_color", color)) 
-	{
-		setCursorColor(color);
-	}
-	if(LLUICtrlFactory::getAttributeColor(node,"text_color", color))
-	{
-		setFgColor(color);
-	}
-	if(LLUICtrlFactory::getAttributeColor(node,"text_readonly_color", color))
-	{
-		setReadOnlyFgColor(color);
-	}
-	if(LLUICtrlFactory::getAttributeColor(node,"bg_readonly_color", color))
-	{
-		setReadOnlyBgColor(color);
-	}
-	if(LLUICtrlFactory::getAttributeColor(node,"bg_writeable_color", color))
-	{
-		setWriteableBgColor(color);
-	}
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -4559,13 +4417,19 @@ BOOL LLTextEditor::findHTML(const std::string &line, S32 *begin, S32 *end) const
 
 void LLTextEditor::updateAllowingLanguageInput()
 {
+	LLWindow* window = getWindow();
+	if (!window)
+	{
+		// test app, no window available
+		return;	
+	}
 	if (hasFocus() && !mReadOnly)
 	{
-		getWindow()->allowLanguageTextInput(this, TRUE);
+		window->allowLanguageTextInput(this, TRUE);
 	}
 	else
 	{
-		getWindow()->allowLanguageTextInput(this, FALSE);
+		window->allowLanguageTextInput(this, FALSE);
 	}
 }
 
@@ -4694,7 +4558,8 @@ BOOL LLTextEditor::getPreeditLocation(S32 query_offset, LLCoordGL *coord, LLRect
 		current_line++;
 	}
 
-	const llwchar * const text = mWText.c_str();
+    const LLWString textString(getWText());
+	const llwchar * const text = textString.c_str();
 	const S32 line_height = llround(mGLFont->getLineHeight());
 
 	if (coord)
@@ -4772,7 +4637,7 @@ void LLTextEditor::markAsPreedit(S32 position, S32 length)
 	{
 		llwarns << "markAsPreedit invoked when hasPreeditString is true." << llendl;
 	}
-	mPreeditWString = LLWString( mWText, position, length );
+	mPreeditWString = LLWString( getWText(), position, length );
 	if (length > 0)
 	{
 		mPreeditPositions.resize(2);
@@ -4799,4 +4664,9 @@ void LLTextEditor::markAsPreedit(S32 position, S32 length)
 S32 LLTextEditor::getPreeditFontSize() const
 {
 	return llround(mGLFont->getLineHeight() * LLUI::sGLScaleFactor.mV[VY]);
+}
+
+LLWString       LLTextEditor::getWText() const
+{
+    return getViewModel()->getDisplay();
 }

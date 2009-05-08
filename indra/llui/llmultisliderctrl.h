@@ -33,17 +33,12 @@
 #ifndef LL_MULTI_SLIDERCTRL_H
 #define LL_MULTI_SLIDERCTRL_H
 
-#include "lluictrl.h"
+#include "llf32uictrl.h"
 #include "v4color.h"
 #include "llmultislider.h"
 #include "lltextbox.h"
 #include "llrect.h"
 
-//
-// Constants
-//
-const S32	MULTI_SLIDERCTRL_SPACING	=  4;			// space between label, slider, and text
-const S32	MULTI_SLIDERCTRL_HEIGHT		=  16;
 
 //
 // Classes
@@ -53,27 +48,35 @@ class LLLineEditor;
 class LLSlider;
 
 
-class LLMultiSliderCtrl : public LLUICtrl
+class LLMultiSliderCtrl : public LLF32UICtrl
 {
 public:
-	LLMultiSliderCtrl(const std::string& name, 
-		const LLRect& rect, 
-		const std::string& label, 
-		const LLFontGL* font,
-		S32 slider_left,
-		S32 text_left,
-		BOOL show_text,
-		BOOL can_edit_text,
-		void (*commit_callback)(LLUICtrl*, void*),
-		void* callback_userdata,
-		F32 initial_value, F32 min_value, F32 max_value, F32 increment,
-		S32 max_sliders, BOOL allow_overlap, BOOL draw_track,
-		BOOL use_triangle,
-		const std::string& control_which = LLStringUtil::null );
+	struct Params : public LLInitParam::Block<Params, LLF32UICtrl::Params>
+	{
+		Optional<S32>			label_width,
+								text_width;
+		Optional<bool>			show_text,
+								can_edit_text;
+		Optional<S32>			decimal_digits;
+		Optional<S32>			max_sliders;	
+		Optional<bool>			allow_overlap,
+								draw_track,
+								use_triangle;
 
+		Optional<LLUIColor>		text_color,
+								text_disabled_color;
+
+		Optional<CommitCallbackParam>	mouse_down_callback,
+										mouse_up_callback;
+
+		Params();
+	};
+
+protected:
+	LLMultiSliderCtrl(const Params&);
+	friend class LLUICtrlFactory;
+public:
 	virtual ~LLMultiSliderCtrl();
-	virtual LLXMLNodePtr getXML(bool save_children = true) const;
-	static LLView* fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
 
 	F32				getSliderValue(const std::string& name) const;
 	void			setSliderValue(const std::string& name, F32 v, BOOL from_event = FALSE);
@@ -112,8 +115,8 @@ public:
 	void			setLabelColor(const LLColor4& c)			{ mTextEnabledColor = c; }
 	void			setDisabledLabelColor(const LLColor4& c)	{ mTextDisabledColor = c; }
 
-	void			setSliderMouseDownCallback(	void (*slider_mousedown_callback)(LLUICtrl* caller, void* userdata) );
-	void			setSliderMouseUpCallback(	void (*slider_mouseup_callback)(LLUICtrl* caller, void* userdata) );
+	boost::signals::connection setSliderMouseDownCallback( const commit_signal_t::slot_type& cb );
+	boost::signals::connection setSliderMouseUpCallback( const commit_signal_t::slot_type& cb );
 
 	virtual void	onTabInto();
 
@@ -121,13 +124,10 @@ public:
 	virtual void	onCommit();						// mark not tentative, then commit
 
 	virtual void		setControlName(const std::string& control_name, LLView* context);
-	virtual std::string 	getControlName() const;
 	
-	static void		onSliderCommit(LLUICtrl* caller, void* userdata);
-	static void		onSliderMouseDown(LLUICtrl* caller,void* userdata);
-	static void		onSliderMouseUp(LLUICtrl* caller,void* userdata);
-
-	static void		onEditorCommit(LLUICtrl* caller, void* userdata);
+	static void		onSliderCommit(LLUICtrl* caller, const LLSD& userdata);
+	
+	static void		onEditorCommit(LLUICtrl* ctrl, const LLSD& userdata);
 	static void		onEditorGainFocus(LLFocusableElement* caller, void *userdata);
 	static void		onEditorChangeFocus(LLUICtrl* caller, S32 direction, void *userdata);
 
@@ -149,11 +149,8 @@ private:
 	LLLineEditor*	mEditor;
 	LLTextBox*		mTextBox;
 
-	LLColor4		mTextEnabledColor;
-	LLColor4		mTextDisabledColor;
-
-	void			(*mSliderMouseUpCallback)( LLUICtrl* ctrl, void* userdata );
-	void			(*mSliderMouseDownCallback)( LLUICtrl* ctrl, void* userdata );
+	LLUIColor	mTextEnabledColor;
+	LLUIColor	mTextDisabledColor;
 };
 
 #endif  // LL_MULTI_SLIDERCTRL_H

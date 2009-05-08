@@ -42,19 +42,12 @@
 
 
 class LLFloaterBuildOptions
-:	public LLFloater
+	:	public LLFloater, public LLFloaterSingleton<LLFloaterBuildOptions>
 {
+	friend class LLUISingleton<LLFloaterBuildOptions, VisibilityPolicy<LLFloater> >;
 protected:
-	LLFloaterBuildOptions();
+	LLFloaterBuildOptions(const LLSD& key);
 	~LLFloaterBuildOptions();
-
-public:
-	static void		show(void*);
-	static LLFloaterBuildOptions* getInstance();
-	static BOOL		visible(void*);
-
-protected:
-	static LLFloaterBuildOptions*	sInstance;
 };
 
 #endif

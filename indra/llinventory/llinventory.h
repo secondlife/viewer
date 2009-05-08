@@ -40,6 +40,7 @@
 #include "llinventorytype.h"
 #include "llmemtype.h"
 #include "llpermissions.h"
+#include "llrefcount.h"
 #include "llsaleinfo.h"
 #include "llsd.h"
 #include "lluuid.h"
@@ -272,9 +273,6 @@ public:
 
 	virtual BOOL importLegacyStream(std::istream& input_stream);
 	virtual BOOL exportLegacyStream(std::ostream& output_stream, BOOL include_asset_key = TRUE) const;
-
-	virtual LLXMLNode *exportFileXML(BOOL include_asset_key = TRUE) const;
-	BOOL importXML(LLXMLNode* node);
 
 	// helper functions
 

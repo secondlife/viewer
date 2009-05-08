@@ -46,7 +46,7 @@ class LLPanelLandInfo
 :	public LLPanel
 {
 public:
-	LLPanelLandInfo(const std::string& name);
+	LLPanelLandInfo();
 	virtual ~LLPanelLandInfo();
 
 	void refresh();

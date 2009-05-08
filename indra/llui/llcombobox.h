@@ -41,14 +41,13 @@
 #include "llctrlselectioninterface.h"
 #include "llimagegl.h"
 #include "llrect.h"
+#include "llscrolllistctrl.h"
+#include "lllineeditor.h"
+#include <boost/function.hpp>
 
 // Classes
 
 class LLFontGL;
-class LLButton;
-class LLSquareButton;
-class LLScrollListCtrl;
-class LLLineEditor;
 class LLViewBorder;
 
 extern S32 LLCOMBOBOX_HEIGHT;
@@ -57,30 +56,61 @@ extern S32 LLCOMBOBOX_WIDTH;
 class LLComboBox
 :	public LLUICtrl, public LLCtrlListInterface
 {
-public:
+public:	
 	typedef enum e_preferred_position
 	{
 		ABOVE,
 		BELOW
 	} EPreferredPosition;
 
-	LLComboBox(
-		const std::string& name, 
-		const LLRect &rect,
-		const std::string& label,
-		void (*commit_callback)(LLUICtrl*, void*) = NULL,
-		void *callback_userdata = NULL
-		);
+	struct PreferredPositionValues : public LLInitParam::TypeValuesHelper<EPreferredPosition, PreferredPositionValues>
+	{
+		static void declareValues();
+	};
+
+
+	struct ItemParams : public LLInitParam::Block<ItemParams, LLScrollListItem::Params>
+	{
+		Optional<std::string>	label;
+		ItemParams();
+	};
+
+	struct Params 
+	:	public LLInitParam::Block<Params, LLUICtrl::Params>
+	{
+		Optional<bool>						allow_text_entry,
+											show_text_as_tentative;
+		Optional<S32>						max_chars;
+		Optional<commit_callback_t> 		prearrange_callback,
+											text_entry_callback,
+											selection_callback;
+		Optional<LLUIImage*>				arrow_image;
+
+		Optional<EPreferredPosition, PreferredPositionValues>	list_position;
+		
+		// components
+		Optional<LLButton::Params>			combo_button;
+		Optional<LLScrollListCtrl::Params>	combo_list;
+		Optional<LLLineEditor::Params>		combo_editor;
+
+		Multiple<ItemParams>				items;
+		
+		Params();
+	};
+
+
 	virtual ~LLComboBox(); 
+	/*virtual*/ BOOL postBuild();
+	
+protected:
+	friend class LLUICtrlFactory;
+	LLComboBox(const Params&);
+	void	initFromParams(const Params&);
 
+public:
 	// LLView interface
-
-	virtual LLXMLNodePtr getXML(bool save_children = true) const;
-	static LLView* fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
-
 	virtual void	draw();
 	virtual void	onFocusLost();
-	virtual void	onLostTop();
 
 	virtual void	setEnabled(BOOL enabled);
 
@@ -105,7 +135,6 @@ public:
 	// items, this is just the label.
 	virtual LLSD	getValue() const;
 
-	void			setAllowTextEntry(BOOL allow, S32 max_chars = 50, BOOL make_tentative = TRUE);
 	void			setTextEntry(const LLStringExplicit& text);
 
 	LLScrollListItem*	add(const std::string& name, EAddPosition pos = ADD_BOTTOM, BOOL enabled = TRUE);	// add item "name" to menu
@@ -134,7 +163,7 @@ public:
 	BOOL			setCurrentByIndex( S32 index );
 	S32				getCurrentIndex() const;
 
-	virtual void	updateLayout();
+	void			createLineEditor(const Params&);
 
 	//========================================================================
 	LLCtrlSelectionInterface* getSelectionInterface()	{ return (LLCtrlSelectionInterface*)this; };
@@ -170,26 +199,28 @@ public:
 	
 	void*			getCurrentUserdata();
 
-	void			setPrearrangeCallback( void (*cb)(LLUICtrl*,void*) ) { mPrearrangeCallback = cb; }
-	void			setTextEntryCallback( void (*cb)(LLLineEditor*, void*) ) { mTextEntryCallback = cb; }
+	void			setPrearrangeCallback( commit_callback_t cb ) { mPrearrangeCallback = cb; }
+	void			setTextEntryCallback( commit_callback_t cb ) { mTextEntryCallback = cb; }
+	void			setSelectionCallback( commit_callback_t cb ) { mSelectionCallback = cb; }
 
 	void			setButtonVisible(BOOL visible);
 
-	static void		onButtonDown(void *userdata);
-	static void		onItemSelected(LLUICtrl* item, void *userdata);
-	static void		onTextEntry(LLLineEditor* line_editor, void* user_data);
-	static void		onTextCommit(LLUICtrl* caller, void* user_data);
+	void			onButtonDown();
+	void			onItemSelected(const LLSD& data);
+	void			onTextCommit(const LLSD& data);
 
 	void			updateSelection();
 	virtual void	showList();
 	virtual void	hideList();
-
+	
+	void			onTextEntry(LLLineEditor* line_editor);
+	
 protected:
 	LLButton*			mButton;
 	LLScrollListCtrl*	mList;
 	EPreferredPosition	mListPosition;
 	LLPointer<LLUIImage>	mArrowImage;
-	std::string			mLabel;
+	LLUIString			mLabel;
 
 private:
 	S32					mButtonPadding;
@@ -197,39 +228,16 @@ private:
 	BOOL				mAllowTextEntry;
 	S32					mMaxChars;
 	BOOL				mTextEntryTentative;
-	void				(*mPrearrangeCallback)(LLUICtrl*,void*);
-	void				(*mTextEntryCallback)(LLLineEditor*, void*);
+	commit_callback_t	mPrearrangeCallback;
+	commit_callback_t	mTextEntryCallback;
+	commit_callback_t	mSelectionCallback;
 };
 
-class LLFlyoutButton : public LLComboBox
-{
-public:
-	LLFlyoutButton(
-		const std::string& name, 
-		const LLRect &rect,
-		const std::string& label,
-		void (*commit_callback)(LLUICtrl*, void*) = NULL,
-		void *callback_userdata = NULL);
-
-	virtual void	updateLayout();
-	virtual void	draw();
-	virtual void	setEnabled(BOOL enabled);
-
-	void setToggleState(BOOL state);
-
-	static LLView* fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
-	static void		onActionButtonClick(void *userdata);
-	static void		onSelectAction(LLUICtrl* ctrl, void *userdata);
-
-protected:
-	LLButton*				mActionButton;
-	LLPointer<LLUIImage>	mActionButtonImage;
-	LLPointer<LLUIImage>	mExpanderButtonImage;
-	LLPointer<LLUIImage>	mActionButtonImageSelected;
-	LLPointer<LLUIImage>	mExpanderButtonImageSelected;
-	LLPointer<LLUIImage>	mActionButtonImageDisabled;
-	LLPointer<LLUIImage>	mExpanderButtonImageDisabled;
-	BOOL					mToggleState;
-};
+#ifdef LL_WINDOWS
+#ifndef INSTANTIATE_GETCHILD_COMBOBOX
+#pragma warning (disable : 4231)
+extern template LLComboBox* LLView::getChild<LLComboBox>( const std::string& name, BOOL recurse, BOOL create_if_missing ) const;
+#endif
+#endif
 
 #endif

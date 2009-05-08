@@ -41,7 +41,9 @@
 #endif
 
 #include "lldir.h"
+
 #include "llerror.h"
+#include "lltimer.h"	// ms_sleep()
 #include "lluuid.h"
 
 #if LL_WINDOWS
@@ -125,16 +127,20 @@ S32 LLDir::deleteFilesInDir(const std::string &dirname, const std::string &mask)
 }
 
 const std::string LLDir::findFile(const std::string &filename, 
-						   const std::string searchPath1, 
-						   const std::string searchPath2, 
-						   const std::string searchPath3) const
+						   const std::string& searchPath1, 
+						   const std::string& searchPath2, 
+						   const std::string& searchPath3) const
 {
 	std::vector<std::string> search_paths;
 	search_paths.push_back(searchPath1);
 	search_paths.push_back(searchPath2);
 	search_paths.push_back(searchPath3);
+	return findFile(filename, search_paths);
+}
 
-	std::vector<std::string>::iterator search_path_iter;
+const std::string LLDir::findFile(const std::string& filename, const std::vector<std::string> search_paths) const
+{
+	std::vector<std::string>::const_iterator search_path_iter;
 	for (search_path_iter = search_paths.begin();
 		search_path_iter != search_paths.end();
 		++search_path_iter)
@@ -319,17 +325,11 @@ std::string LLDir::getExpandedFilename(ELLPath location, const std::string& subd
 		prefix += mDirDelimiter;
 		prefix += "app_settings";
 		break;
-		
+	
 	case LL_PATH_CHARACTER:
 		prefix = getAppRODataDir();
 		prefix += mDirDelimiter;
 		prefix += "character";
-		break;
-		
-	case LL_PATH_MOTIONS:
-		prefix = getAppRODataDir();
-		prefix += mDirDelimiter;
-		prefix += "motions";
 		break;
 		
 	case LL_PATH_HELP:
@@ -372,17 +372,29 @@ std::string LLDir::getExpandedFilename(ELLPath location, const std::string& subd
 		prefix = getSkinDir();
 		break;
 
+	case LL_PATH_DEFAULT_SKIN:
+		prefix = getDefaultSkinDir();
+		break;
+
+	case LL_PATH_USER_SKIN:
+		prefix = getOSUserAppDir();
+		prefix += mDirDelimiter;
+		prefix += "user_settings";
+		prefix += mDirDelimiter;
+		prefix += "skins";
+		break;
+
 	case LL_PATH_SKINS:
 		prefix = getAppRODataDir();
 		prefix += mDirDelimiter;
 		prefix += "skins";
 		break;
 
-	//case LL_PATH_HTML:
-	//	prefix = getSkinDir();
-	//	prefix += mDirDelimiter;
-	//	prefix += "html";
-	//	break;
+	case LL_PATH_LOCAL_ASSETS:
+		prefix = getAppRODataDir();
+		prefix += mDirDelimiter;
+		prefix += "local_assets";
+		break;
 
 	case LL_PATH_MOZILLA_PROFILE:
 		prefix = getOSUserAppDir();
@@ -488,11 +500,14 @@ std::string LLDir::findSkinnedFilename(const std::string &subdir1, const std::st
 	std::string subdirs = ((subdir1.empty() ? "" : mDirDelimiter) + subdir1)
 						 + ((subdir2.empty() ? "" : mDirDelimiter) + subdir2);
 
-	std::string found_file = findFile(filename,
-		getUserSkinDir() + subdirs,		// first look in user skin override
-		getSkinDir() + subdirs,			// then in current skin
-		getDefaultSkinDir() + subdirs); // and last in default skin
+	std::vector<std::string> search_paths;
+	
+	search_paths.push_back(getUserSkinDir() + subdirs);		// first look in user skin override
+	search_paths.push_back(getSkinDir() + subdirs);			// then in current skin
+	search_paths.push_back(getDefaultSkinDir() + subdirs);  // then default skin
+	search_paths.push_back(getCacheDir() + subdirs);		// and last in preload directory
 
+	std::string found_file = findFile(filename, search_paths);
 	return found_file;
 }
 

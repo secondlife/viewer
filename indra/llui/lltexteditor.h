@@ -43,18 +43,79 @@
 #include "llstyle.h"
 #include "lleditmenuhandler.h"
 #include "lldarray.h"
+#include "llviewborder.h" // for params
 
 #include "llpreeditor.h"
+#include "llcontrol.h"
 
 class LLFontGL;
 class LLScrollbar;
-class LLViewBorder;
 class LLKeywordToken;
 class LLTextCmd;
 class LLUICtrlFactory;
 
 class LLTextEditor : public LLUICtrl, LLEditMenuHandler, protected LLPreeditor
 {
+public:
+	struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
+	{
+		Optional<std::string>	default_text;
+		Optional<S32>			max_text_length;
+
+		Optional<bool>			read_only,
+								allow_embedded_items,
+								hide_scrollbar,
+								word_wrap,
+								ignore_tab,
+								hide_border,
+								track_bottom,
+								takes_non_scroll_clicks;
+
+		//colors
+		Optional<LLUIColor>		cursor_color,
+								default_color,
+								text_color,
+								text_readonly_color,
+								bg_readonly_color,
+								bg_writeable_color,
+								bg_focus_color;
+
+		Optional<LLViewBorder::Params> border;
+
+		Deprecated				type,
+								length,
+								is_unicode;
+
+
+		Params()
+		:	max_text_length("max_length", 255),
+			read_only("read_only", false),
+			allow_embedded_items("embedded_items", false),
+			hide_scrollbar("hide_scrollbar", false),
+			hide_border("hide_border", false),
+			word_wrap("word_wrap", false),
+			ignore_tab("ignore_tab", true),
+			track_bottom("track_bottom", false),
+			takes_non_scroll_clicks("takes_non_scroll_clicks", true),
+			cursor_color("cursor_color"),
+			default_color("default_color"),
+			text_color("text_color"),
+			text_readonly_color("text_readonly_color"),
+			bg_readonly_color("bg_readonly_color"),
+			bg_writeable_color("bg_writeable_color"),
+			bg_focus_color("bg_focus_color"),
+			length("length"),
+			type("type"),
+			is_unicode("is_unicode")
+		{}
+			
+			
+	};
+
+	void initFromParams(const Params&);
+protected:
+	LLTextEditor(const Params&);
+	friend class LLUICtrlFactory;
 public:
 	//
 	// Constants
@@ -63,18 +124,8 @@ public:
 	static const llwchar LAST_EMBEDDED_CHAR =  0x10ffff;
 	static const S32 MAX_EMBEDDED_ITEMS = LAST_EMBEDDED_CHAR - FIRST_EMBEDDED_CHAR + 1;
 
-	LLTextEditor(const std::string& name,
-				 const LLRect& rect,
-				 S32 max_length,
-				 const std::string &default_text, 
-				 const LLFontGL* glfont = NULL,
-				 BOOL allow_embedded_items = FALSE);
-
 	virtual ~LLTextEditor();
 
-	virtual LLXMLNodePtr getXML(bool save_children = true) const;
-	static LLView* fromXML(LLXMLNodePtr node, LLView *parent, class LLUICtrlFactory *factory);
-	void    setTextEditorParameters(LLXMLNodePtr node);
 	void	setParseHTML(BOOL parsing) {mParseHTML=parsing;}
 	void	setParseHighlights(BOOL parsing) {mParseHighlights=parsing;}
 
@@ -195,8 +246,6 @@ public:
 	void 			setReadOnlyBgColor( const LLColor4& c )		{ mReadOnlyBgColor = c; }
 	void			setTrackColor( const LLColor4& color );
 	void			setThumbColor( const LLColor4& color );
-	void			setHighlightColor( const LLColor4& color );
-	void			setShadowColor( const LLColor4& color );
 
 	// Hacky methods to make it into a word-wrapping, potentially scrolling,
 	// read-only text box.
@@ -235,9 +284,8 @@ public:
 
 	// new methods
 	void 			setValue(const LLSD& value);
-	LLSD 			getValue() const;
 
- 	const std::string&	getText() const;
+ 	std::string     getText() const;
 	
 	// Non-undoable
 	void			setText(const LLStringExplicit &utf8str);
@@ -255,9 +303,9 @@ public:
 	BOOL			isScrolledToBottom();
 
 	// Getters
-	const LLWString& getWText() const { return mWText; }
-	llwchar			getWChar(S32 pos) const { return mWText[pos]; }
-	LLWString		getWSubString(S32 pos, S32 len) const { return mWText.substr(pos, len); }
+	LLWString       getWText() const;
+	llwchar			getWChar(S32 pos) const { return getWText()[pos]; }
+	LLWString		getWSubString(S32 pos, S32 len) const { return getWText().substr(pos, len); }
 	
 	const LLTextSegment*	getCurrentSegment() const { return getSegmentAtOffset(mCursorPos); }
 	const LLTextSegment*	getPreviousSegment() const;
@@ -270,7 +318,7 @@ protected:
 	// Methods
 	//
 
-	S32				getLength() const { return mWText.length(); }
+	S32				getLength() const { return getWText().length(); }
 	void			getSegmentAndOffset( S32 startpos, S32* segidxp, S32* offsetp ) const;
 	void			drawPreeditMarker();
 
@@ -439,8 +487,10 @@ private:
 	//
 	// Methods
 	//
-	void	                pasteHelper(bool is_primary);
+	void	        pasteHelper(bool is_primary);
 
+	virtual 		LLTextViewModel* getViewModel() const;
+					
 	void			updateSegments();
 	void			pruneSegments();
 
@@ -473,13 +523,10 @@ private:
 	class LLTextCmdOverwriteChar;
 	class LLTextCmdRemove;
 
-	LLWString		mWText;
-	mutable std::string mUTF8Text;
-	mutable BOOL	mTextIsUpToDate;
-	
 	S32				mMaxTextByteLength;		// Maximum length mText is allowed to be in bytes
 
 	const LLFontGL*	mGLFont;
+	U8              mGLFontStyle; // the font style from xml
 
 	class LLViewBorder*	mBorder;
 
@@ -519,14 +566,13 @@ private:
 
 	LLFrameTimer	mKeystrokeTimer;
 
-	LLColor4		mCursorColor;
-
-	LLColor4		mFgColor;
-	LLColor4		mDefaultColor;
-	LLColor4		mReadOnlyFgColor;
-	LLColor4		mWriteableBgColor;
-	LLColor4		mReadOnlyBgColor;
-	LLColor4		mFocusBgColor;
+	LLUIColor	mCursorColor;
+	LLUIColor	mFgColor;
+	LLUIColor	mDefaultColor;
+	LLUIColor	mReadOnlyFgColor;
+	LLUIColor	mWriteableBgColor;
+	LLUIColor	mReadOnlyBgColor;
+	LLUIColor	mFocusBgColor;
 
 	BOOL			mReadOnly;
 	BOOL			mWordWrap;

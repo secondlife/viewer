@@ -21,12 +21,12 @@
 	<button label="Wyślij" name="send_btn"/>
 	<button label="Załaduj (L$[AMOUNT])" name="upload_btn"/>
 	<flyout_button label="Zapisz" name="save_btn" tool_tip="Zapisz zdjęcie na dysk">
-		<flyout_button_item name="save_item">
-			Zapisz
-		</flyout_button_item>
-		<flyout_button_item name="saveas_item">
-			Zapisz Jako...
-		</flyout_button_item>
+    <flyout_button.item name="save_item">
+      Zapisz
+    </flyout_button.item>
+    <flyout_button.item name="saveas_item">
+      Zapisz Jako...
+    </flyout_button.item>
 	</flyout_button>
 	<button label="Anuluj" name="discard_btn"/>
 	<button label="Więcej &gt;&gt;" name="more_btn" tool_tip="Ustawienia Zaawansowane"/>
@@ -38,75 +38,75 @@
 		Format
 	</text>
 	<combo_box label="Rozdzielczość" name="postcard_size_combo">
-		<combo_item name="CurrentWindow">
+		<combo_box.item name="CurrentWindow">
 			Obecne Okno
-		</combo_item>
-		<combo_item name="640x480">
+		</combo_box.item>
+		<combo_box.item name="640x480">
 			640x480
-		</combo_item>
-		<combo_item name="800x600">
+		</combo_box.item>
+		<combo_box.item name="800x600">
 			800x600
-		</combo_item>
-		<combo_item name="1024x768">
+		</combo_box.item>
+		<combo_box.item name="1024x768">
 			1024x768
-		</combo_item>
-		<combo_item name="Custom">
+		</combo_box.item>
+		<combo_box.item name="Custom">
 			Wybierz
-		</combo_item>
+		</combo_box.item>
 	</combo_box>
 	<combo_box label="Rozdzielczość" name="texture_size_combo">
-		<combo_item name="CurrentWindow">
+		<combo_box.item name="CurrentWindow">
 			Obecne Okno
-		</combo_item>
-		<combo_item name="Small(128x128)">
+		</combo_box.item>
+		<combo_box.item name="Small(128x128)">
 			Mały (128x128)
-		</combo_item>
-		<combo_item name="Medium(256x256)">
+		</combo_box.item>
+		<combo_box.item name="Medium(256x256)">
 			Średni (256x256)
-		</combo_item>
-		<combo_item name="Large(512x512)">
+		</combo_box.item>
+		<combo_box.item name="Large(512x512)">
 			Duży (512x512)
-		</combo_item>
-		<combo_item name="Custom">
+		</combo_box.item>
+		<combo_box.item name="Custom">
 			Wybierz
-		</combo_item>
+		</combo_box.item>
 	</combo_box>
 	<combo_box label="Rozdzielczość" name="local_size_combo">
-		<combo_item name="CurrentWindow">
+		<combo_box.item name="CurrentWindow">
 			Obecne Okno
-		</combo_item>
-		<combo_item name="320x240">
+		</combo_box.item>
+		<combo_box.item name="320x240">
 			320x240
-		</combo_item>
-		<combo_item name="640x480">
+		</combo_box.item>
+		<combo_box.item name="640x480">
 			640x480
-		</combo_item>
-		<combo_item name="800x600">
+		</combo_box.item>
+		<combo_box.item name="800x600">
 			800x600
-		</combo_item>
-		<combo_item name="1024x768">
+		</combo_box.item>
+		<combo_box.item name="1024x768">
 			1024x768
-		</combo_item>
-		<combo_item name="1280x1024">
+		</combo_box.item>
+		<combo_box.item name="1280x1024">
 			1280x1024
-		</combo_item>
-		<combo_item name="1600x1200">
+		</combo_box.item>
+		<combo_box.item name="1600x1200">
 			1600x1200
-		</combo_item>
-		<combo_item name="Custom">
+		</combo_box.item>
+		<combo_box.item name="Custom">
 			Wybierz
-		</combo_item>
+		</combo_box.item>
 	</combo_box>
 	<combo_box label="Format" name="local_format_combo">
-		<combo_item name="PNG">
+		<combo_box.item name="PNG">
 			PNG
-		</combo_item>
-		<combo_item name="JPEG">
+		</combo_box.item>
+		<combo_box.item name="JPEG">
 			JPEG
-		</combo_item>
-		<combo_item name="BMP">
+		</combo_box.item>
+		<combo_box.item name="BMP">
 			BMP
-		</combo_item>
+		</combo_box.item>
 	</combo_box>
 	<spinner label="Szer." name="snapshot_width"/>
 	<spinner label="Wys." name="snapshot_height"/>
@@ -116,15 +116,15 @@
 		Zapisz:
 	</text>
 	<combo_box label="Warstwy Obrazu" name="layer_types">
-		<combo_item name="Colors">
+		<combo_box.item name="Colors">
 			Kolory
-		</combo_item>
-		<combo_item name="Depth">
+		</combo_box.item>
+		<combo_box.item name="Depth">
 			Głębokość
-		</combo_item>
-		<combo_item name="ObjectMattes">
+		</combo_box.item>
+		<combo_box.item name="ObjectMattes">
 			Obiekty Ślepe
-		</combo_item>
+		</combo_box.item>
 	</combo_box>
 	<check_box label="Pokaż interfejs na zdjęciu" name="ui_check"/>
 	<check_box label="Pokaż obiekty HUD na zdjęciu" name="hud_check"/>

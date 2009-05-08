@@ -34,9 +34,8 @@
 
 #include "llfloatergroupinvite.h"
 #include "llpanelgroupinvite.h"
-
-const char FLOATER_TITLE[] = "Group Invitation";
-const LLRect FGI_RECT(0, 380, 210, 0);
+#include "lltrans.h"
+#include "lldraghandle.h"
 
 class LLFloaterGroupInvite::impl
 {
@@ -73,25 +72,26 @@ void LLFloaterGroupInvite::impl::closeFloater(void* data)
 {
 	LLFloaterGroupInvite* floaterp = (LLFloaterGroupInvite*) data;
 
-	if ( floaterp ) floaterp->close();
+	if ( floaterp ) floaterp->closeFloater();
 }
 
 //-----------------------------------------------------------------------------
 // Implementation
 //-----------------------------------------------------------------------------
-LLFloaterGroupInvite::LLFloaterGroupInvite(const std::string& name,
-										   const LLRect &rect,
-										   const std::string& title,
-										   const LLUUID& group_id)
-:	LLFloater(name, rect, title)
+LLFloaterGroupInvite::LLFloaterGroupInvite(const LLUUID& group_id)
+:	LLFloater()
 {
-	LLRect contents(getRect());
-	contents.mTop -= LLFLOATER_HEADER_SIZE;
+	static LLUICachedControl<S32> floater_header_size ("UIFloaterHeaderSize", 0);
+	LLRect contents;
 
 	mImpl = new impl(group_id);
 
-	mImpl->mInvitePanelp = new LLPanelGroupInvite("Group Invite Panel",
-												  group_id);
+	mImpl->mInvitePanelp = new LLPanelGroupInvite(group_id);
+
+	contents = mImpl->mInvitePanelp->getRect();
+	contents.mTop -= floater_header_size;
+
+	setTitle (LLTrans::getString("GroupInvitation"));
 
 	mImpl->mInvitePanelp->setCloseCallback(impl::closeFloater, this);
 
@@ -114,6 +114,9 @@ LLFloaterGroupInvite::~LLFloaterGroupInvite()
 // static
 void LLFloaterGroupInvite::showForGroup(const LLUUID& group_id, std::vector<LLUUID> *agent_ids)
 {
+	static LLUICachedControl<S32> floater_header_size ("UIFloaterHeaderSize", 0);
+	LLRect contents;
+
 	// Make sure group_id isn't null
 	if (group_id.isNull())
 	{
@@ -127,10 +130,12 @@ void LLFloaterGroupInvite::showForGroup(const LLUUID& group_id, std::vector<LLUU
 											 (LLFloaterGroupInvite*)NULL);
 	if (!fgi)
 	{
-		fgi = new LLFloaterGroupInvite("groupinfo",
-									   FGI_RECT,
-									   FLOATER_TITLE,
-									   group_id);
+		fgi = new LLFloaterGroupInvite(group_id);
+		contents = fgi->mImpl->mInvitePanelp->getRect();
+		contents.mTop += floater_header_size;
+		fgi->setRect(contents);
+		fgi->getDragHandle()->setRect(contents);
+		fgi->getDragHandle()->setTitle(LLTrans::getString("GroupInvitation"));
 
 		impl::sInstances[group_id] = fgi;
 
@@ -143,6 +148,6 @@ void LLFloaterGroupInvite::showForGroup(const LLUUID& group_id, std::vector<LLUU
 	}
 	
 	fgi->center();
-	fgi->open();	/*Flawfinder: ignore*/
+	fgi->openFloater();
 	fgi->mImpl->mInvitePanelp->update();
 }

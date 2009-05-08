@@ -35,9 +35,10 @@
 
 #define SG_MIN_DIST_RATIO 0.00001f
 
-#include "llmemory.h"
 #include "lldrawable.h"
 #include "lloctree.h"
+#include "llpointer.h"
+#include "llrefcount.h"
 #include "llvertexbuffer.h"
 #include "llgltypes.h"
 #include "llcubemap.h"

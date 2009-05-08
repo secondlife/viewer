@@ -39,6 +39,7 @@
 #include "llpanelpick.h"
 
 #include "lldir.h"
+#include "llfloaterreg.h"
 #include "llparcel.h"
 #include "message.h"
 
@@ -47,7 +48,7 @@
 #include "llcheckboxctrl.h"
 #include "llviewercontrol.h"
 #include "lllineeditor.h"
-#include "lltabcontainervertical.h"
+#include "lltabcontainer.h"
 #include "lltextbox.h"
 #include "llviewertexteditor.h"
 #include "lltexturectrl.h"
@@ -63,9 +64,8 @@
 //static
 std::list<LLPanelPick*> LLPanelPick::sAllPanels;
 
-LLPanelPick::LLPanelPick(BOOL top_pick)
-:	LLPanel(std::string("Top Picks Panel")),
-	mTopPick(top_pick),
+LLPanelPick::LLPanelPick()
+:	LLPanel(),
 	mPickID(),
 	mCreatorID(),
 	mParcelID(),
@@ -87,14 +87,8 @@ LLPanelPick::LLPanelPick(BOOL top_pick)
     sAllPanels.push_back(this);
 
 	std::string pick_def_file;
-	if (top_pick)
-	{
-		LLUICtrlFactory::getInstance()->buildPanel(this, "panel_top_pick.xml");
-	}
-	else
-	{
-		LLUICtrlFactory::getInstance()->buildPanel(this, "panel_avatar_pick.xml");
-	}	
+	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_avatar_pick.xml");
+		
 }
 
 
@@ -123,45 +117,37 @@ void LLPanelPick::reset()
 BOOL LLPanelPick::postBuild()
 {
     mSnapshotCtrl = getChild<LLTextureCtrl>("snapshot_ctrl");
-	mSnapshotCtrl->setCommitCallback(onCommitAny);
-	mSnapshotCtrl->setCallbackUserData(this);
+	mSnapshotCtrl->setCommitCallback(onCommitAny, this);
 
     mNameEditor = getChild<LLLineEditor>("given_name_editor");
 	mNameEditor->setCommitOnFocusLost(TRUE);
-	mNameEditor->setCommitCallback(onCommitAny);
-	mNameEditor->setCallbackUserData(this);
+	mNameEditor->setCommitCallback(onCommitAny, this);
 
     mDescEditor = getChild<LLTextEditor>("desc_editor");
 	mDescEditor->setCommitOnFocusLost(TRUE);
-	mDescEditor->setCommitCallback(onCommitAny);
-	mDescEditor->setCallbackUserData(this);
+	mDescEditor->setCommitCallback(onCommitAny, this);
 	mDescEditor->setTabsToNextField(TRUE);
 
     mLocationEditor = getChild<LLLineEditor>("location_editor");
 
     mSetBtn = getChild<LLButton>( "set_location_btn");
-    mSetBtn->setClickedCallback(onClickSet);
-    mSetBtn->setCallbackUserData(this);
+    mSetBtn->setClickedCallback(onClickSet, this);
 
     mTeleportBtn = getChild<LLButton>( "pick_teleport_btn");
-    mTeleportBtn->setClickedCallback(onClickTeleport);
-    mTeleportBtn->setCallbackUserData(this);
+    mTeleportBtn->setClickedCallback(onClickTeleport, this);
 
     mMapBtn = getChild<LLButton>( "pick_map_btn");
-    mMapBtn->setClickedCallback(onClickMap);
-    mMapBtn->setCallbackUserData(this);
+    mMapBtn->setClickedCallback(onClickMap, this);
 
 	mSortOrderText = getChild<LLTextBox>("sort_order_text");
 
 	mSortOrderEditor = getChild<LLLineEditor>("sort_order_editor");
 	mSortOrderEditor->setPrevalidate(LLLineEditor::prevalidateInt);
 	mSortOrderEditor->setCommitOnFocusLost(TRUE);
-	mSortOrderEditor->setCommitCallback(onCommitAny);
-	mSortOrderEditor->setCallbackUserData(this);
+	mSortOrderEditor->setCommitCallback(onCommitAny, this);
 
 	mEnabledCheck = getChild<LLCheckBoxCtrl>( "enabled_check");
-	mEnabledCheck->setCommitCallback(onCommitAny);
-	mEnabledCheck->setCallbackUserData(this);
+	mEnabledCheck->setCommitCallback(onCommitAny, this);
 
     return TRUE;
 }
@@ -243,7 +229,7 @@ void LLPanelPick::sendPickInfoUpdate()
 	msg->nextBlock("Data");
 	msg->addUUID("PickID", mPickID);
 	msg->addUUID("CreatorID", mCreatorID);
-	msg->addBOOL("TopPick", mTopPick);
+	msg->addBOOL("TopPick", FALSE);	//legacy var  need to be deleted -angela
 	// fills in on simulator if null
 	msg->addUUID("ParcelID", mParcelID);
 	msg->addString("Name", mNameEditor->getText());
@@ -253,14 +239,8 @@ void LLPanelPick::sendPickInfoUpdate()
 	
 	// Only top picks have a sort order
 	S32 sort_order;
-	if (mTopPick)
-	{
-		sort_order = atoi(mSortOrderEditor->getText().c_str());
-	}
-	else
-	{
-		sort_order = 0;
-	}
+	sort_order = 0;
+	
 	msg->addS32("SortOrder", sort_order);
 	msg->addBOOL("Enabled", mEnabledCheck->get());
 	gAgent.sendReliableMessage();
@@ -287,6 +267,7 @@ void LLPanelPick::processPickInfoReply(LLMessageSystem *msg, void **)
     LLUUID creator_id;
     msg->getUUID("Data", "CreatorID", creator_id);
 
+	// ** top_pick should be deleted, not being used anymore - angela
 	BOOL top_pick;
 	msg->getBOOL("Data", "TopPick", top_pick);
 
@@ -382,44 +363,26 @@ void LLPanelPick::refresh()
 	}
 
     // Check for god mode
-    BOOL godlike = gAgent.isGodlike();
+	//BOOL godlike = gAgent.isGodlike();
 	BOOL is_self = (gAgent.getID() == mCreatorID);
 
-    // Set button visibility/enablement appropriately
-	if (mTopPick)
-	{
-		mSnapshotCtrl->setEnabled(godlike);
-		mNameEditor->setEnabled(godlike);
-		mDescEditor->setEnabled(godlike);
+	// Set button visibility/enablement appropriately
 
-		mSortOrderText->setVisible(godlike);
+	mSnapshotCtrl->setEnabled(is_self);
+	mNameEditor->setEnabled(is_self);
+	mDescEditor->setEnabled(is_self);
 
-		mSortOrderEditor->setVisible(godlike);
-		mSortOrderEditor->setEnabled(godlike);
+	mSortOrderText->setVisible(FALSE);
 
-		mEnabledCheck->setVisible(godlike);
-		mEnabledCheck->setEnabled(godlike);
+	mSortOrderEditor->setVisible(FALSE);
+	mSortOrderEditor->setEnabled(FALSE);
 
-		mSetBtn->setVisible(godlike);
-		mSetBtn->setEnabled(godlike);
-	}
-	else
-	{
-		mSnapshotCtrl->setEnabled(is_self);
-		mNameEditor->setEnabled(is_self);
-		mDescEditor->setEnabled(is_self);
+	mEnabledCheck->setVisible(FALSE);
+	mEnabledCheck->setEnabled(FALSE);
 
-		mSortOrderText->setVisible(FALSE);
+	mSetBtn->setVisible(is_self);
+	mSetBtn->setEnabled(is_self);
 
-		mSortOrderEditor->setVisible(FALSE);
-		mSortOrderEditor->setEnabled(FALSE);
-
-		mEnabledCheck->setVisible(FALSE);
-		mEnabledCheck->setEnabled(FALSE);
-
-		mSetBtn->setVisible(is_self);
-		mSetBtn->setEnabled(is_self);
-	}
 }
 
 
@@ -431,7 +394,7 @@ void LLPanelPick::onClickTeleport(void* data)
     if (!self->mPosGlobal.isExactlyZero())
     {
         gAgent.teleportViaLocation(self->mPosGlobal);
-        gFloaterWorldMap->trackLocation(self->mPosGlobal);
+        LLFloaterWorldMap::getInstance()->trackLocation(self->mPosGlobal);
     }
 }
 
@@ -440,8 +403,8 @@ void LLPanelPick::onClickTeleport(void* data)
 void LLPanelPick::onClickMap(void* data)
 {
 	LLPanelPick* self = (LLPanelPick*)data;
-	gFloaterWorldMap->trackLocation(self->mPosGlobal);
-	LLFloaterWorldMap::show(NULL, TRUE);
+	LLFloaterWorldMap::getInstance()->trackLocation(self->mPosGlobal);
+	LLFloaterReg::showInstance("world_map", "center");
 }
 
 // static

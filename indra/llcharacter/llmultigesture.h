@@ -130,7 +130,7 @@ public:
 	virtual EStepType getType() = 0;
 
 	// Return a user-readable label for this step
-	virtual std::string getLabel() const = 0;
+	virtual std::vector<std::string> getLabel() const = 0;
 
 	virtual S32 getMaxSerialSize() const = 0;
 	virtual BOOL serialize(LLDataPacker& dp) const = 0;
@@ -152,7 +152,7 @@ public:
 
 	virtual EStepType getType() { return STEP_ANIMATION; }
 
-	virtual std::string getLabel() const;
+	virtual std::vector<std::string> getLabel() const;
 
 	virtual S32 getMaxSerialSize() const;
 	virtual BOOL serialize(LLDataPacker& dp) const;
@@ -175,7 +175,7 @@ public:
 
 	virtual EStepType getType() { return STEP_SOUND; }
 
-	virtual std::string getLabel() const;
+	virtual std::vector<std::string> getLabel() const;
 
 	virtual S32 getMaxSerialSize() const;
 	virtual BOOL serialize(LLDataPacker& dp) const;
@@ -198,7 +198,7 @@ public:
 
 	virtual EStepType getType() { return STEP_CHAT; }
 
-	virtual std::string getLabel() const;
+	virtual std::vector<std::string> getLabel() const;
 
 	virtual S32 getMaxSerialSize() const;
 	virtual BOOL serialize(LLDataPacker& dp) const;
@@ -223,7 +223,7 @@ public:
 
 	virtual EStepType getType() { return STEP_WAIT; }
 
-	virtual std::string getLabel() const;
+	virtual std::vector<std::string> getLabel() const;
 
 	virtual S32 getMaxSerialSize() const;
 	virtual BOOL serialize(LLDataPacker& dp) const;

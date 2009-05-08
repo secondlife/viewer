@@ -78,30 +78,21 @@ LLFloaterPostcard::instance_list_t LLFloaterPostcard::sInstances;
 ///----------------------------------------------------------------------------
 
 LLFloaterPostcard::LLFloaterPostcard(LLImageJPEG* jpeg, LLImageGL *img, const LLVector2& img_scale, const LLVector3d& pos_taken_global)
-:	LLFloater(std::string("Postcard Floater")),
+:	LLFloater(),
 	mJPEGImage(jpeg),
 	mViewerImage(img),
 	mImageScale(img_scale),
 	mPosTakenGlobal(pos_taken_global),
 	mHasFirstMsgFocus(false)
 {
-	init();
-}
-
-void LLFloaterPostcard::init()
-{
-	// pick up the user's up-to-date email address
-	if(!gAgent.getID().isNull())
-	{
-		// we're logged in, so we can get this info.
-		gMessageSystem->newMessageFast(_PREHASH_UserInfoRequest);
-		gMessageSystem->nextBlockFast(_PREHASH_AgentData);
-		gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-		gMessageSystem->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-		gAgent.sendReliableMessage();
-	}
+	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_postcard.xml");
 
 	sInstances.insert(this);
+	
+	// pick up the user's up-to-date email address
+	gAgent.sendAgentUserInfoRequest();
+
+	openFloater();
 }
 
 // Destroys the object
@@ -144,14 +135,6 @@ LLFloaterPostcard* LLFloaterPostcard::showFromSnapshot(LLImageJPEG *jpeg, LLImag
 	// Take the images from the caller
 	// It's now our job to clean them up
 	LLFloaterPostcard *instance = new LLFloaterPostcard(jpeg, img, image_scale, pos_taken_global);
-
-	LLUICtrlFactory::getInstance()->buildFloater(instance, "floater_postcard.xml");
-
-	S32 left, top;
-	gFloaterView->getNewFloaterPosition(&left, &top);
-	instance->setOrigin(left, top - instance->getRect().getHeight());
-	
-	instance->open();		/*Flawfinder: ignore*/
 
 	return instance;
 }
@@ -215,7 +198,7 @@ void LLFloaterPostcard::onClickCancel(void* data)
 	{
 		LLFloaterPostcard *self = (LLFloaterPostcard *)data;
 
-		self->close(false);
+		self->closeFloater(false);
 	}
 }
 
@@ -313,7 +296,7 @@ void LLFloaterPostcard::uploadCallback(const LLUUID& asset_id, void *user_data, 
 		gAgent.sendReliableMessage();
 	}
 
-	self->close();
+	self->closeFloater();
 }
 
 // static

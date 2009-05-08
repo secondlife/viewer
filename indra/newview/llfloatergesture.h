@@ -41,7 +41,7 @@
 
 #include "lldarray.h"
 
-class LLScrollableContainerView;
+class LLScrollContainer;
 class LLView;
 class LLButton;
 class LLLineEditor;

@@ -51,39 +51,71 @@
 #include "llviewborder.h"
 
 #include "llpreeditor.h"
+#include <boost/function.hpp>
 
 class LLFontGL;
 class LLLineEditorRollback;
 class LLButton;
 
-typedef BOOL (*LLLinePrevalidateFunc)(const LLWString &wstr);
-
+typedef boost::function<BOOL (const LLWString &wstr)> LLLinePrevalidateFunc;
 
 class LLLineEditor
 : public LLUICtrl, public LLEditMenuHandler, protected LLPreeditor
 {
-
 public:
-	LLLineEditor(const std::string& name, 
-				 const LLRect& rect,
-				 const std::string& default_text = LLStringUtil::null,
-				 const LLFontGL* glfont = NULL,
-				 S32 max_length_bytes = 254,
-				 void (*commit_callback)(LLUICtrl* caller, void* user_data) = NULL,
-				 void (*keystroke_callback)(LLLineEditor* caller, void* user_data) = NULL,
-				 void (*focus_lost_callback)(LLFocusableElement* caller, void* user_data) = NULL,
-				 void* userdata = NULL,
-				 LLLinePrevalidateFunc prevalidate_func = NULL,
-				 LLViewBorder::EBevel border_bevel = LLViewBorder::BEVEL_IN,
-				 LLViewBorder::EStyle border_style = LLViewBorder::STYLE_LINE,
-				 S32 border_thickness = 1);
 
+	struct PrevalidateNamedFuncs
+	:	public LLInitParam::TypeValuesHelper<LLLinePrevalidateFunc, PrevalidateNamedFuncs>
+
+	{
+		static void declareValues();
+	};
+	
+	typedef boost::function<void (LLLineEditor* caller)> keystroke_callback_t;
+	
+	struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
+	{
+		Optional<std::string>			default_text;
+		Optional<S32>					max_length_bytes;
+
+		Optional<keystroke_callback_t>	keystroke_callback;
+
+		Optional<LLLinePrevalidateFunc, PrevalidateNamedFuncs>	prevalidate_callback;
+		
+		Optional<LLViewBorder::Params>	border;
+
+		Optional<LLUIImage*>			background_image;
+
+		Optional<bool>					select_on_focus,
+										handle_edit_keys_directly,
+										commit_on_focus_lost,
+										ignore_tab;
+
+		// colors
+		Optional<LLUIColor>				cursor_color,
+										text_color,
+										text_readonly_color,
+										text_tentative_color,
+										bg_readonly_color,
+										bg_writeable_color,
+										bg_focus_color;
+
+		Optional<S32>					text_pad_left,
+										text_pad_right;
+
+		Deprecated						is_unicode,
+										drop_shadow_visible,	
+										border_drop_shadow_visible,
+										bg_visible;
+
+		Params();
+	};
+protected:
+	LLLineEditor(const Params&);
+	friend class LLUICtrlFactory;
+	friend class LLFloaterEditUI;
+public:
 	virtual ~LLLineEditor();
-
-	virtual LLXMLNodePtr getXML(bool save_children = true) const;
-	void setColorParameters(LLXMLNodePtr node);
-	static LLView* fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
-	static void cleanupLineEditor();
 
 	// mousehandler overrides
 	/*virtual*/ BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
@@ -144,7 +176,7 @@ public:
 	void			setText(const LLStringExplicit &new_text);
 
 	const std::string& getText() const		{ return mText.getString(); }
-	const LLWString& getWText() const	{ return mText.getWString(); }
+	LLWString       getWText() const	{ return mText.getWString(); }
 	LLWString getConvertedText() const; // trimmed text with paragraphs converted to newlines
 
 	S32				getLength() const	{ return mText.length(); }
@@ -160,7 +192,7 @@ public:
 	void			setRevertOnEsc( BOOL b )		{ mRevertOnEsc = b; }
 
 	void setCursorColor(const LLColor4& c)			{ mCursorColor = c; }
-	const LLColor4& getCursorColor() const			{ return mCursorColor; }
+	const LLColor4& getCursorColor() const			{ return mCursorColor.get(); }
 
 	void setFgColor( const LLColor4& c )			{ mFgColor = c; }
 	void setReadOnlyFgColor( const LLColor4& c )	{ mReadOnlyFgColor = c; }
@@ -169,12 +201,12 @@ public:
 	void setReadOnlyBgColor( const LLColor4& c )	{ mReadOnlyBgColor = c; }
 	void setFocusBgColor(const LLColor4& c)			{ mFocusBgColor = c; }
 
-	const LLColor4& getFgColor() const			{ return mFgColor; }
-	const LLColor4& getReadOnlyFgColor() const	{ return mReadOnlyFgColor; }
-	const LLColor4& getTentativeFgColor() const { return mTentativeFgColor; }
-	const LLColor4& getWriteableBgColor() const	{ return mWriteableBgColor; }
-	const LLColor4& getReadOnlyBgColor() const	{ return mReadOnlyBgColor; }
-	const LLColor4& getFocusBgColor() const		{ return mFocusBgColor; }
+	const LLColor4& getFgColor() const			{ return mFgColor.get(); }
+	const LLColor4& getReadOnlyFgColor() const	{ return mReadOnlyFgColor.get(); }
+	const LLColor4& getTentativeFgColor() const { return mTentativeFgColor.get(); }
+	const LLColor4& getWriteableBgColor() const	{ return mWriteableBgColor.get(); }
+	const LLColor4& getReadOnlyBgColor() const	{ return mReadOnlyBgColor.get(); }
+	const LLColor4& getFocusBgColor() const		{ return mFocusBgColor.get(); }
 
 	void			setIgnoreArrowKeys(BOOL b)		{ mIgnoreArrowKeys = b; }
 	void			setIgnoreTab(BOOL b)			{ mIgnoreTab = b; }
@@ -193,14 +225,14 @@ public:
 
 	void			setHandleEditKeysDirectly( BOOL b ) { mHandleEditKeysDirectly = b; }
 	void			setSelectAllonFocusReceived(BOOL b);
-
-	void			setKeystrokeCallback(void (*keystroke_callback)(LLLineEditor* caller, void* user_data));
+	
+	typedef boost::function<void (LLLineEditor* caller, void* user_data)> callback_t;
+	void			setKeystrokeCallback(callback_t callback, void* user_data);
 
 	void			setMaxTextLength(S32 max_text_length);
-	void			setTextPadding(S32 left, S32 right); // Used to specify room for children before or after text.
 
 	// Prevalidation controls which keystrokes can affect the editor
-	void			setPrevalidate( BOOL (*func)(const LLWString &) );
+	void			setPrevalidate( LLLinePrevalidateFunc func );
 	static BOOL		prevalidateFloat(const LLWString &str );
 	static BOOL		prevalidateInt(const LLWString &str );
 	static BOOL		prevalidatePositiveS32(const LLWString &str);
@@ -233,6 +265,7 @@ private:
 	BOOL			handleSelectionKey(KEY key, MASK mask);
 	BOOL			handleControlKey(KEY key, MASK mask);
 	S32				handleCommitKey(KEY key, MASK mask);
+	void			updateTextPadding();
 
 	//
 	// private data members
@@ -261,6 +294,7 @@ protected:
 
 	LLViewBorder* mBorder;
 	const LLFontGL*	mGLFont;
+	U8          mGLFontStyle;
 	S32			mMaxLengthBytes;			// Max length of the UTF8 string in bytes
 	S32			mCursorPos;					// I-beam is just after the mCursorPos-th character.
 	S32			mScrollHPos;				// Horizontal offset from the start of mText.  Used for scrolling.
@@ -273,7 +307,7 @@ protected:
 	BOOL		mCommitOnFocusLost;
 	BOOL		mRevertOnEsc;
 
-	void		(*mKeystrokeCallback)( LLLineEditor* caller, void* userdata );
+	keystroke_callback_t mKeystrokeCallback;
 
 	BOOL		mIsSelecting;				// Selection for clipboard operations
 	S32			mSelectionStart;
@@ -283,18 +317,17 @@ protected:
 	S32			mLastSelectionStart;
 	S32			mLastSelectionEnd;
 
-	S32			(*mPrevalidateFunc)(const LLWString &str);
+	LLLinePrevalidateFunc mPrevalidateFunc;
 
 	LLFrameTimer mKeystrokeTimer;
 
-	LLColor4	mCursorColor;
-
-	LLColor4	mFgColor;
-	LLColor4	mReadOnlyFgColor;
-	LLColor4	mTentativeFgColor;
-	LLColor4	mWriteableBgColor;
-	LLColor4	mReadOnlyBgColor;
-	LLColor4	mFocusBgColor;
+	LLUIColor	mCursorColor;
+	LLUIColor	mFgColor;
+	LLUIColor	mReadOnlyFgColor;
+	LLUIColor	mTentativeFgColor;
+	LLUIColor	mWriteableBgColor;
+	LLUIColor	mReadOnlyBgColor;
+	LLUIColor	mFocusBgColor;
 
 	S32			mBorderThickness;
 
@@ -314,11 +347,6 @@ protected:
 	LLPreeditor::standouts_t mPreeditStandouts;
 
 private:
-	// Utility on top of LLUI::getUIImage, looks up a named image in a given XML node and returns it if possible
-	// or returns a given default image if anything in the process fails.
-	static LLPointer<LLUIImage> parseImage(std::string name, LLXMLNodePtr from, LLPointer<LLUIImage> def);
-	// Global instance used as default for member instance below.
-	static LLPointer<LLUIImage> sImage;
 	// Instances that by default point to the statics but can be overidden in XML.
 	LLPointer<LLUIImage> mImage;
 
@@ -363,45 +391,22 @@ private:
 
 }; // end class LLLineEditor
 
+#ifdef LL_WINDOWS
+#ifndef INSTANTIATE_GETCHILD_LINEEDITOR
+#pragma warning (disable : 4231)
+extern template LLLineEditor* LLView::getChild<LLLineEditor>( const std::string& name, BOOL recurse, BOOL create_if_missing ) const;
+#endif
+#endif
 
-
-/*
- * @brief A line editor with a button to clear it and a callback to call on every edit event.
- */
-class LLSearchEditor : public LLUICtrl
+namespace LLInitParam
 {
-public:
-	LLSearchEditor(const std::string& name, 
-		const LLRect& rect,
-		S32 max_length_bytes,
-		void (*search_callback)(const std::string& search_string, void* user_data),
-		void* userdata);
+    template<>
+	bool ParamCompare<LLLinePrevalidateFunc>::equals(
+		const LLLinePrevalidateFunc &a, const LLLinePrevalidateFunc &b); 
 
-	virtual ~LLSearchEditor() {}
-
-	/*virtual*/ void	draw();
-
-	static LLView* fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
-
-	void setText(const LLStringExplicit &new_text) { mSearchEdit->setText(new_text); }
-
-	void setSearchCallback(void (*search_callback)(const std::string& search_string, void* user_data), void* data) { mSearchCallback = search_callback; mCallbackUserData = data; }
-
-	// LLUICtrl interface
-	virtual void	setValue(const LLSD& value );
-	virtual LLSD	getValue() const;
-	virtual BOOL	setTextArg( const std::string& key, const LLStringExplicit& text );
-	virtual BOOL	setLabelArg( const std::string& key, const LLStringExplicit& text );
-	virtual void	clear();
-
-private:
-	static void onSearchEdit(LLLineEditor* caller, void* user_data );
-	static void onClearSearch(void* user_data);
-
-	LLLineEditor* mSearchEdit;
-	class LLButton* mClearSearchButton;
-	void (*mSearchCallback)(const std::string& search_string, void* user_data);
-
-};
+    template<>
+	bool ParamCompare<boost::function<void (LLLineEditor *)> >::equals(
+		const boost::function<void (LLLineEditor *)> &a, const boost::function<void (LLLineEditor *)> &b); 
+}
 
 #endif  // LL_LINEEDITOR_

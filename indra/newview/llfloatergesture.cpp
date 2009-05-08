@@ -53,6 +53,7 @@
 #include "llscrollcontainer.h"
 #include "llscrolllistctrl.h"
 #include "lltextbox.h"
+#include "lltrans.h"
 #include "lluictrlfactory.h"
 #include "llviewergesture.h"
 #include "llviewerimagelist.h"
@@ -81,10 +82,8 @@ public:
 // LLFloaterGesture
 //---------------------------------------------------------------------------
 LLFloaterGesture::LLFloaterGesture()
-:	LLFloater(std::string("Gesture Floater"))
+:	LLFloater()
 {
-	sInstance = this;
-
 	sObserver = new LLFloaterGestureObserver;
 	gGestureManager.addObserver(sObserver);
 }
@@ -97,10 +96,6 @@ LLFloaterGesture::~LLFloaterGesture()
 	sObserver = NULL;
 
 	sInstance = NULL;
-
-	// Custom saving rectangle, since load must be done
-	// after postBuild.
-	gSavedSettings.setRect("FloaterGestureRect2", getRect());
 }
 
 // virtual
@@ -108,13 +103,12 @@ BOOL LLFloaterGesture::postBuild()
 {
 	std::string label;
 
-	// Translate title
 	label = getTitle();
 	
 	setTitle(label);
 
 	childSetCommitCallback("gesture_list", onCommitList, this);
-	childSetDoubleClickCallback("gesture_list", onClickPlay);
+	getChild<LLScrollListCtrl>("gesture_list")->setDoubleClickCallback(onClickPlay, this);
 
 	childSetAction("inventory_btn", onClickInventory, this);
 
@@ -138,25 +132,20 @@ void LLFloaterGesture::show()
 {
 	if (sInstance)
 	{
-		sInstance->open();		/*Flawfinder: ignore*/
+		sInstance->openFloater();
 		return;
 	}
 
-	LLFloaterGesture *self = new LLFloaterGesture();
+	sInstance = new LLFloaterGesture();
 
 	// Builds and adds to gFloaterView
-	LLUICtrlFactory::getInstance()->buildFloater(self, "floater_gesture.xml");
+	LLUICtrlFactory::getInstance()->buildFloater(sInstance, "floater_gesture.xml");
 
-	// Fix up rectangle
-	LLRect rect = gSavedSettings.getRect("FloaterGestureRect2");
-	self->reshape(rect.getWidth(), rect.getHeight());
-	self->setRect(rect);
+	sInstance->buildGestureList();
 
-	self->buildGestureList();
+	sInstance->childSetFocus("gesture_list");
 
-	self->childSetFocus("gesture_list");
-
-	LLCtrlListInterface *list = self->childGetListInterface("gesture_list");
+	LLCtrlListInterface *list = sInstance->childGetListInterface("gesture_list");
 	if (list)
 	{
 		const BOOL ascending = TRUE;
@@ -164,11 +153,11 @@ void LLFloaterGesture::show()
 		list->selectFirstItem();
 	}
 	
-	self->mSelectedID = LLUUID::null;
+	sInstance->mSelectedID = LLUUID::null;
 
 	// Update button labels
-	onCommitList(NULL, self);
-	self->open();	/*Flawfinder: ignore*/
+	onCommitList(NULL, sInstance);
+	sInstance->openFloater();
 }
 
 // static
@@ -176,7 +165,7 @@ void LLFloaterGesture::toggleVisibility()
 {
 	if(sInstance && sInstance->getVisible())
 	{
-		sInstance->close();
+		sInstance->closeFloater();
 	}
 	else
 	{
@@ -231,7 +220,7 @@ void LLFloaterGesture::buildGestureList()
 		LLMultiGesture* gesture = (*it).second;
 
 		// Note: Can have NULL item if inventory hasn't arrived yet.
-		std::string item_name = "Loading...";
+		std::string item_name = getString("loading");
 		LLInventoryItem* item = gInventory.getItem(item_id);
 		if (item)
 		{
@@ -254,7 +243,7 @@ void LLFloaterGesture::buildGestureList()
 			element["columns"][0]["column"] = "trigger";
 			element["columns"][0]["value"] = gesture->mTrigger;
 			element["columns"][0]["font"] = "SANSSERIF";
-			element["columns"][0]["font-style"] = font_style;
+			element["columns"][0]["font"]["style"] = font_style;
 
 			std::string key_string = LLKeyboard::stringFromKey(gesture->mKey);
 			std::string buffer;
@@ -281,42 +270,42 @@ void LLFloaterGesture::buildGestureList()
 			element["columns"][1]["column"] = "shortcut";
 			element["columns"][1]["value"] = buffer;
 			element["columns"][1]["font"] = "SANSSERIF";
-			element["columns"][1]["font-style"] = font_style;
+			element["columns"][1]["font"]["style"] = font_style;
 
 			// hidden column for sorting
 			element["columns"][2]["column"] = "key";
 			element["columns"][2]["value"] = key_string;
 			element["columns"][2]["font"] = "SANSSERIF";
-			element["columns"][2]["font-style"] = font_style;
+			element["columns"][2]["font"]["style"] = font_style;
 
 			// Only add "playing" if we've got the name, less confusing. JC
 			if (item && gesture->mPlaying)
 			{
-				item_name += " (Playing)";
+				item_name += " " + getString("playing");
 			}
 			element["columns"][3]["column"] = "name";
 			element["columns"][3]["value"] = item_name;
 			element["columns"][3]["font"] = "SANSSERIF";
-			element["columns"][3]["font-style"] = font_style;
+			element["columns"][3]["font"]["style"] = font_style;
 		}
 		else
 		{
 			element["columns"][0]["column"] = "trigger";
 			element["columns"][0]["value"] = "";
 			element["columns"][0]["font"] = "SANSSERIF";
-			element["columns"][0]["font-style"] = font_style;
+			element["columns"][0]["font"]["style"] = font_style;
 			element["columns"][0]["column"] = "trigger";
 			element["columns"][0]["value"] = "---";
 			element["columns"][0]["font"] = "SANSSERIF";
-			element["columns"][0]["font-style"] = font_style;
+			element["columns"][0]["font"]["style"] = font_style;
 			element["columns"][2]["column"] = "key";
 			element["columns"][2]["value"] = "~~~";
 			element["columns"][2]["font"] = "SANSSERIF";
-			element["columns"][2]["font-style"] = font_style;
+			element["columns"][2]["font"]["style"] = font_style;
 			element["columns"][3]["column"] = "name";
 			element["columns"][3]["value"] = item_name;
 			element["columns"][3]["font"] = "SANSSERIF";
-			element["columns"][3]["font-style"] = font_style;
+			element["columns"][3]["font"]["style"] = font_style;
 		}
 		list->addElement(element, ADD_BOTTOM);
 	}
@@ -360,24 +349,16 @@ void LLFloaterGesture::onClickPlay(void* data)
 class GestureShowCallback : public LLInventoryCallback
 {
 public:
-	GestureShowCallback(std::string &title)
-	{
-		mTitle = title;
-	}
 	void fire(const LLUUID &inv_item)
 	{
-		LLPreviewGesture::show(mTitle, inv_item, LLUUID::null);
+		LLPreviewGesture::show(inv_item, LLUUID::null);
 	}
-private:
-	std::string mTitle;
 };
 
 // static
 void LLFloaterGesture::onClickNew(void* data)
 {
-	std::string title("Gesture: ");
-	title.append("New Gesture");
-	LLPointer<LLInventoryCallback> cb = new GestureShowCallback(title);
+	LLPointer<LLInventoryCallback> cb = new GestureShowCallback();
 	create_inventory_item(gAgent.getID(), gAgent.getSessionID(),
 		LLUUID::null, LLTransactionID::tnull, "New Gesture", "", LLAssetType::AT_GESTURE,
 		LLInventoryType::IT_GESTURE, NOT_WEARABLE, PERM_MOVE | PERM_TRANSFER, cb);
@@ -396,10 +377,7 @@ void LLFloaterGesture::onClickEdit(void* data)
 	LLInventoryItem* item = gInventory.getItem(item_id);
 	if (!item) return;
 
-	std::string title("Gesture: ");
-	title.append(item->getName());
-
-	LLPreviewGesture* previewp = LLPreviewGesture::show(title, item_id, LLUUID::null);
+	LLPreviewGesture* previewp = LLPreviewGesture::show(item_id, LLUUID::null);
 	if (!previewp->getHost())
 	{
 		previewp->setRect(gFloaterView->findNeighboringPosition(self, previewp));

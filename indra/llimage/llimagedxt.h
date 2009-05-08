@@ -33,6 +33,7 @@
 #define LL_LLIMAGEDXT_H
 
 #include "llimage.h"
+#include "llpointer.h"
 
 // This class decodes and encodes LL DXT files (which may unclude uncompressed RGB or RGBA mipped data)
 

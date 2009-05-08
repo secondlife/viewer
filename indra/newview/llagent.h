@@ -46,7 +46,7 @@
 #include "lldbstrings.h"
 #include "llhudeffectlookat.h"
 #include "llhudeffectpointat.h"
-#include "llmemory.h"
+#include "llpointer.h"
 #include "llstring.h"
 #include "lluuid.h"
 #include "m3math.h"
@@ -271,6 +271,10 @@ public:
 	static int convertTextToMaturity(char text);
 	bool sendMaturityPreferenceToServer(int preferredMaturity);
 	
+	// maturity callbacks for PreferredMaturity control variable
+	void handleMaturity(const LLSD& newvalue);
+	bool validateMaturity(const LLSD& newvalue);
+	
 	const LLAgentAccess&  getAgentAccess();
 	
 	// This function can go away after the AO transition (see llstartup.cpp)
@@ -318,8 +322,15 @@ public:
 	// in a dialog.  We don't render the avatar until they choose.
 	BOOL isGenderChosen() const { return mGenderChosen; }
 
+	typedef enum e_location_format
+	{
+		LOCATION_FORMAT_NORMAL,
+		LOCATION_FORMAT_LANDMARK,
+		LOCATION_FORMAT_FULL,
+	} ELocationFormat;
+
 	// utility to build a location string
-	void buildLocationString(std::string& str);
+	BOOL buildLocationString(std::string& str, ELocationFormat fmt = LOCATION_FORMAT_LANDMARK);
 
 	LLQuaternion	getHeadRotation();
  	LLVOAvatar	   *getAvatarObject() const			{ return mAvatarObject; }
@@ -391,7 +402,8 @@ public:
 	// Flight management
 	BOOL			getFlying() const				{ return mControlFlags & AGENT_CONTROL_FLY; }
 	void			setFlying(BOOL fly);
-	void			toggleFlying();
+	static void		toggleFlying();
+	static bool		enableFlying();
 
 	// Does this parcel allow you to fly?
 	BOOL canFly();
@@ -607,9 +619,10 @@ public:
 	void			requestLeaveGodMode();
 
 	void			sendAgentSetAppearance();
-
 	void 			sendAgentDataUpdateRequest();
-
+	void 			sendAgentUserInfoRequest();
+	
+	
 	// Ventrella
 	LLFollowCam mFollowCam;
 	// end Ventrella 
@@ -692,7 +705,7 @@ public:
 	static void		processAgentInitialWearablesUpdate(LLMessageSystem* mesgsys, void** user_data);
 	static void		userRemoveWearable( void* userdata );	// userdata is EWearableType
 	static void		userRemoveAllClothes( void* userdata );	// userdata is NULL
-	static void		userRemoveAllClothesStep2(BOOL proceed, void* userdata ); // userdata is NULL
+	static void		userRemoveAllClothesStep2(BOOL proceed );
 	static void		userRemoveAllAttachments( void* userdata);	// userdata is NULL
 	static BOOL		selfHasWearable( void* userdata );			// userdata is EWearableType
 

@@ -151,8 +151,14 @@ LLDir_Win32::~LLDir_Win32()
 
 // Implementation
 
-void LLDir_Win32::initAppDirs(const std::string &app_name)
+void LLDir_Win32::initAppDirs(const std::string &app_name,
+							  const std::string& app_read_only_data_dir)
 {
+	// Allow override so test apps can read newview directory
+	if (!app_read_only_data_dir.empty())
+	{
+		mAppRODataDir = app_read_only_data_dir;
+	}
 	mAppName = app_name;
 	mOSUserAppDir = mOSUserDir;
 	mOSUserAppDir += "\\";
@@ -205,7 +211,14 @@ void LLDir_Win32::initAppDirs(const std::string &app_name)
 			llwarns << "Couldn't create LL_PATH_MOZILLA_PROFILE dir " << getExpandedFilename(LL_PATH_MOZILLA_PROFILE,"") << llendl;
 		}
 	}
-	
+	res = LLFile::mkdir(getExpandedFilename(LL_PATH_USER_SKIN,""));
+	if (res == -1)
+	{
+		if (errno != EEXIST)
+		{
+			llwarns << "Couldn't create LL_PATH_SKINS dir " << getExpandedFilename(LL_PATH_USER_SKIN,"") << llendl;
+		}
+	}
 	mCAFile = getExpandedFilename(LL_PATH_APP_SETTINGS, "CA.pem");
 }
 

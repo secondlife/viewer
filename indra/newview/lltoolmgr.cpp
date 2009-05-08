@@ -34,8 +34,13 @@
 
 #include "lltoolmgr.h"
 
-#include "lltool.h"
+#include "lluictrl.h"
+#include "llmenugl.h"
+#include "llfloaterreg.h"
+
+#include "llfirstuse.h"
 // tools and manipulators
+#include "lltool.h"
 #include "llmanipscale.h"
 #include "llselectmgr.h"
 #include "lltoolbrush.h"
@@ -47,12 +52,14 @@
 #include "lltoolindividual.h"
 #include "lltoolmorph.h"
 #include "lltoolpie.h"
-#include "lltoolplacer.h"
 #include "lltoolselectland.h"
 #include "lltoolobjpicker.h"
 #include "lltoolpipette.h"
 #include "llagent.h"
 #include "llviewercontrol.h"
+#include "llviewerjoystick.h"
+#include "llviewermenu.h"
+#include "llviewerparcelmgr.h"
 
 
 // Used when app not active to avoid processing hover.
@@ -76,6 +83,10 @@ LLToolMgr::LLToolMgr()
 	mSelectedTool( NULL ),
 	mCurrentToolset( NULL )
 {
+	LLUICtrl::EnableCallbackRegistry::currentRegistrar().add("Build.Active", boost::bind(&LLToolMgr::inEdit, this));
+	LLUICtrl::EnableCallbackRegistry::currentRegistrar().add("Build.Enabled", boost::bind(&LLToolMgr::canEdit, this));
+	LLUICtrl::CommitCallbackRegistry::currentRegistrar().add("Build.Toggle", boost::bind(&LLToolMgr::toggleBuildMode, this));
+	
 	gToolNull = new LLTool(LLStringUtil::null);  // Does nothing
 	setCurrentTool(gToolNull);
 
@@ -172,7 +183,7 @@ void LLToolMgr::setCurrentTool( LLTool* tool )
 
 LLTool* LLToolMgr::getCurrentTool()
 {
-	MASK override_mask = gKeyboard->currentMask(TRUE);
+	MASK override_mask = gKeyboard ? gKeyboard->currentMask(TRUE) : 0;
 
 	LLTool* cur_tool = NULL;
 	// always use transient tools if available
@@ -226,9 +237,75 @@ void LLToolMgr::updateToolStatus()
 	getCurrentTool();
 }
 
-BOOL LLToolMgr::inEdit()
+bool LLToolMgr::inEdit()
 {
 	return mBaseTool != LLToolPie::getInstance() && mBaseTool != gToolNull;
+}
+
+bool LLToolMgr::canEdit()
+{
+	return LLViewerParcelMgr::getInstance()->agentCanBuild();
+}
+
+void LLToolMgr::toggleBuildMode()
+{
+	if (inBuildMode())
+	{
+		if (gSavedSettings.getBOOL("EditCameraMovement"))
+		{
+			// just reset the view, will pull us out of edit mode
+			handle_reset_view();
+		}
+		else
+		{
+			// manually disable edit mode, but do not affect the camera
+			gAgent.resetView(false);
+			LLFloaterReg::hideInstance("build");
+			gViewerWindow->showCursor();			
+		}
+		// avoid spurious avatar movements pulling out of edit mode
+		LLViewerJoystick::getInstance()->setNeedsReset();
+	}
+	else
+	{
+		ECameraMode camMode = gAgent.getCameraMode();
+		if (CAMERA_MODE_MOUSELOOK == camMode ||	CAMERA_MODE_CUSTOMIZE_AVATAR == camMode)
+		{
+			// pull the user out of mouselook or appearance mode when entering build mode
+			handle_reset_view();
+		}
+
+		if (gSavedSettings.getBOOL("EditCameraMovement"))
+		{
+			// camera should be set
+			if (LLViewerJoystick::getInstance()->getOverrideCamera())
+			{
+				handle_toggle_flycam();
+			}
+
+			if (gAgent.getFocusOnAvatar())
+			{
+				// zoom in if we're looking at the avatar
+				gAgent.setFocusOnAvatar(FALSE, ANIMATE);
+				gAgent.setFocusGlobal(gAgent.getPositionGlobal() + 2.0 * LLVector3d(gAgent.getAtAxis()));
+				gAgent.cameraZoomIn(0.666f);
+				gAgent.cameraOrbitOver( 30.f * DEG_TO_RAD );
+			}
+		}
+
+		
+		setCurrentToolset(gBasicToolset);
+		getCurrentToolset()->selectTool( LLToolCompCreate::getInstance() );
+
+		// Could be first use
+		LLFirstUse::useBuild();
+
+		gAgent.resetView(false);
+
+		// avoid spurious avatar movements
+		LLViewerJoystick::getInstance()->setNeedsReset();
+
+	}
 }
 
 bool LLToolMgr::inBuildMode()
@@ -396,8 +473,6 @@ void LLToolset::selectPrevTool()
 	}
 }
 
-void select_tool( void *tool_pointer )
-{
-	LLTool *tool = (LLTool *)tool_pointer;
-	LLToolMgr::getInstance()->getCurrentToolset()->selectTool( tool );
-}
+////////////////////////////////////////////////////////////////////////////
+
+

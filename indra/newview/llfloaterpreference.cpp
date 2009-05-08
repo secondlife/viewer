@@ -40,389 +40,162 @@
 
 #include "llfloaterpreference.h"
 
-#include "llbutton.h"
-#include "llcheckboxctrl.h"
-#include "lldir.h"
-#include "llfocusmgr.h"
-#include "llscrollbar.h"
-#include "llspinctrl.h"
 #include "message.h"
 
+#include "llfocusmgr.h"
+#include "lltabcontainer.h"
+#include "llfloaterreg.h"
+
+#include "llagent.h"
 #include "llcommandhandler.h"
 #include "llfloaterabout.h"
-#include "llfloaterpreference.h"
+#include "llfloaterhardwaresettings.h"
 #include "llpanelnetwork.h"
 #include "llpanelaudioprefs.h"
 #include "llpaneldisplay.h"
-#include "llpaneldebug.h"
 #include "llpanelgeneral.h"
 #include "llpanelinput.h"
 #include "llpanellogin.h"
-#include "llpanelLCD.h"
 #include "llpanelmsgs.h"
 #include "llpanelweb.h"
 #include "llpanelskins.h"
 #include "llprefschat.h"
 #include "llprefsvoice.h"
 #include "llprefsim.h"
-#include "llresizehandle.h"
-#include "llresmgr.h"
-#include "llassetstorage.h"
-#include "llagent.h"
 #include "llviewercontrol.h"
-#include "llviewernetwork.h"
-#include "lluictrlfactory.h"
-#include "llviewerwindow.h"
-#include "llkeyboard.h"
-#include "llscrollcontainer.h"
-#include "llfloaterhardwaresettings.h"
-
-const S32 PREF_BORDER = 4;
-const S32 PREF_PAD = 5;
-const S32 PREF_BUTTON_WIDTH = 70;
-const S32 PREF_CATEGORY_WIDTH = 150;
-
-const S32 PREF_FLOATER_MIN_HEIGHT = 2 * SCROLLBAR_SIZE + 2 * LLPANEL_BORDER_WIDTH + 96;
-
-LLFloaterPreference* LLFloaterPreference::sInstance = NULL;
-
-
-class LLPreferencesHandler : public LLCommandHandler
-{
-public:
-	// requires trusted browser
-	LLPreferencesHandler() : LLCommandHandler("preferences", true) { }
-	bool handle(const LLSD& tokens, const LLSD& query_map,
-				LLWebBrowserCtrl* web)
-	{
-		LLFloaterPreference::show(NULL);
-		return true;
-	}
-};
-
-LLPreferencesHandler gPreferencesHandler;
-
-
-// Must be done at run time, not compile time. JC
-S32 pref_min_width()
-{
-	return  
-	2 * PREF_BORDER + 
-	2 * PREF_BUTTON_WIDTH + 
-	PREF_PAD + RESIZE_HANDLE_WIDTH +
-	PREF_CATEGORY_WIDTH +
-	PREF_PAD;
-}
-
-S32 pref_min_height()
-{
-	return
-	2 * PREF_BORDER +
-	3*(BTN_HEIGHT + PREF_PAD) +
-	PREF_FLOATER_MIN_HEIGHT;
-}
-
-
-LLPreferenceCore::LLPreferenceCore(LLTabContainer* tab_container, LLButton * default_btn) :
-	mTabContainer(tab_container),
-	mGeneralPanel(NULL),
-	mInputPanel(NULL),
-	mNetworkPanel(NULL),
-	mDisplayPanel(NULL),
-	mAudioPanel(NULL),
-	mMsgPanel(NULL),
-	mSkinsPanel(NULL),
-	mLCDPanel(NULL)
-{
-	mGeneralPanel = new LLPanelGeneral();
-	mTabContainer->addTabPanel(mGeneralPanel, mGeneralPanel->getLabel(), FALSE, onTabChanged, mTabContainer);
-	mGeneralPanel->setDefaultBtn(default_btn);
-
-	mInputPanel = new LLPanelInput();
-	mTabContainer->addTabPanel(mInputPanel, mInputPanel->getLabel(), FALSE, onTabChanged, mTabContainer);
-	mInputPanel->setDefaultBtn(default_btn);
-
-	mNetworkPanel = new LLPanelNetwork();
-	mTabContainer->addTabPanel(mNetworkPanel, mNetworkPanel->getLabel(), FALSE, onTabChanged, mTabContainer);
-	mNetworkPanel->setDefaultBtn(default_btn);
-
-	mWebPanel = new LLPanelWeb();
-	mTabContainer->addTabPanel(mWebPanel, mWebPanel->getLabel(), FALSE, onTabChanged, mTabContainer);
-	mWebPanel->setDefaultBtn(default_btn);
-
-	mDisplayPanel = new LLPanelDisplay();
-	mTabContainer->addTabPanel(mDisplayPanel, mDisplayPanel->getLabel(), FALSE, onTabChanged, mTabContainer);
-	mDisplayPanel->setDefaultBtn(default_btn);
-
-	mAudioPanel = new LLPanelAudioPrefs();
-	mTabContainer->addTabPanel(mAudioPanel, mAudioPanel->getLabel(), FALSE, onTabChanged, mTabContainer);
-	mAudioPanel->setDefaultBtn(default_btn);
-
-	mPrefsChat = new LLPrefsChat();
-	mTabContainer->addTabPanel(mPrefsChat->getPanel(), mPrefsChat->getPanel()->getLabel(), FALSE, onTabChanged, mTabContainer);
-	mPrefsChat->getPanel()->setDefaultBtn(default_btn);
-
-	mPrefsVoice = new LLPrefsVoice();
-	mTabContainer->addTabPanel(mPrefsVoice, mPrefsVoice->getLabel(), FALSE, onTabChanged, mTabContainer);
-	mPrefsVoice->setDefaultBtn(default_btn);
-
-	mPrefsIM = new LLPrefsIM();
-	mTabContainer->addTabPanel(mPrefsIM->getPanel(), mPrefsIM->getPanel()->getLabel(), FALSE, onTabChanged, mTabContainer);
-	mPrefsIM->getPanel()->setDefaultBtn(default_btn);
-
-#if LL_LCD_COMPILE
-
-	// only add this option if we actually have a logitech keyboard / speaker set
-	if (gLcdScreen->Enabled())
-	{
-		mLCDPanel = new LLPanelLCD();
-		mTabContainer->addTabPanel(mLCDPanel, mLCDPanel->getLabel(), FALSE, onTabChanged, mTabContainer);
-		mLCDPanel->setDefaultBtn(default_btn);
-	}
-
-#else
-	mLCDPanel = NULL;
-#endif
-
-	mMsgPanel = new LLPanelMsgs();
-	mTabContainer->addTabPanel(mMsgPanel, mMsgPanel->getLabel(), FALSE, onTabChanged, mTabContainer);
-	mMsgPanel->setDefaultBtn(default_btn);
-	
-	mSkinsPanel = new LLPanelSkins();
-	mTabContainer->addTabPanel(mSkinsPanel, mSkinsPanel->getLabel(), FALSE, onTabChanged, mTabContainer);
-	mSkinsPanel->setDefaultBtn(default_btn);
-
-	if (!mTabContainer->selectTab(gSavedSettings.getS32("LastPrefTab")))
-	{
-		mTabContainer->selectFirstTab();
-	}
-}
-
-LLPreferenceCore::~LLPreferenceCore()
-{
-	if (mGeneralPanel)
-	{
-		delete mGeneralPanel;
-		mGeneralPanel = NULL;
-	}
-	if (mInputPanel)
-	{
-		delete mInputPanel;
-		mInputPanel = NULL;
-	}
-	if (mNetworkPanel)
-	{
-		delete mNetworkPanel;
-		mNetworkPanel = NULL;
-	}
-	if (mDisplayPanel)
-	{
-		delete mDisplayPanel;
-		mDisplayPanel = NULL;
-	}
-
-	if (mAudioPanel)
-	{
-		delete mAudioPanel;
-		mAudioPanel = NULL;
-	}
-	if (mPrefsChat)
-	{
-		delete mPrefsChat;
-		mPrefsChat = NULL;
-	}
-	if (mPrefsIM)
-	{
-		delete mPrefsIM;
-		mPrefsIM = NULL;
-	}
-	if (mMsgPanel)
-	{
-		delete mMsgPanel;
-		mMsgPanel = NULL;
-	}
-	if (mWebPanel)
-	{
-		delete mWebPanel;
-		mWebPanel = NULL;
-	}
-	if (mSkinsPanel)
-	{
-		delete mSkinsPanel;
-		mSkinsPanel = NULL;
-	}
-
-}
-
-
-void LLPreferenceCore::apply()
-{
-	mGeneralPanel->apply();
-	mInputPanel->apply();
-	mNetworkPanel->apply();
-	mDisplayPanel->apply();
-	mAudioPanel->apply();
-	mPrefsChat->apply();
-	mPrefsVoice->apply();
-	mPrefsIM->apply();
-	mMsgPanel->apply();
-	mSkinsPanel->apply();
-
-	// hardware menu apply
-	LLFloaterHardwareSettings::instance()->apply();
-
-	mWebPanel->apply();
-#if LL_LCD_COMPILE
-	// only add this option if we actually have a logitech keyboard / speaker set
-	if (gLcdScreen->Enabled())
-	{
-		mLCDPanel->apply();
-	}
-#endif
-//	mWebPanel->apply();
-}
-
-
-void LLPreferenceCore::cancel()
-{
-	mGeneralPanel->cancel();
-	mInputPanel->cancel();
-	mNetworkPanel->cancel();
-	mDisplayPanel->cancel();
-	mAudioPanel->cancel();
-	mPrefsChat->cancel();
-	mPrefsVoice->cancel();
-	mPrefsIM->cancel();
-	mMsgPanel->cancel();
-	mSkinsPanel->cancel();
-
-	// cancel hardware menu
-	LLFloaterHardwareSettings::instance()->cancel();
-
-	mWebPanel->cancel();
-#if LL_LCD_COMPILE
-	// only add this option if we actually have a logitech keyboard / speaker set
-	if (gLcdScreen->Enabled())
-	{
-		mLCDPanel->cancel();
-	}
-#endif
-//	mWebPanel->cancel();
-}
-
-// static
-void LLPreferenceCore::onTabChanged(void* user_data, bool from_click)
-{
-	LLTabContainer* self = (LLTabContainer*)user_data;
-
-	gSavedSettings.setS32("LastPrefTab", self->getCurrentPanelIndex());
-}
-
-
-void LLPreferenceCore::setPersonalInfo(const std::string& visibility, bool im_via_email, const std::string& email)
-{
-	mPrefsIM->setPersonalInfo(visibility, im_via_email, email);
-}
-
-void LLPreferenceCore::refreshEnabledGraphics()
-{
-	LLFloaterHardwareSettings::instance()->refreshEnabledState();
-	mDisplayPanel->refreshEnabledState();
-}
 
 //////////////////////////////////////////////
 // LLFloaterPreference
 
-LLFloaterPreference::LLFloaterPreference()
+LLFloaterPreference::LLFloaterPreference(const LLSD& key)
+	: LLFloater(key),
+	  mInputPanel(NULL),
+	  mNetworkPanel(NULL),
+	  mWebPanel(NULL),
+	  mDisplayPanel(NULL),
+	  mAudioPanel(NULL),
+	  mPrefsChat(NULL),
+	  mPrefsVoice(NULL),
+	  mPrefsIM(NULL),
+	  mMsgPanel(NULL),
+	  mSkinsPanel(NULL)
 {
-	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_preferences.xml");
+	mFactoryMap["general"] = LLCallbackMap((LLCallbackMap::callback_t)LLCallbackMap::buildPanel<LLPanelGeneral>);
+	mFactoryMap["input"] = LLCallbackMap((LLCallbackMap::callback_t)LLCallbackMap::buildPanel<LLPanelInput>);
+	mFactoryMap["network"] = LLCallbackMap((LLCallbackMap::callback_t)LLCallbackMap::buildPanel<LLPanelNetwork>);
+	mFactoryMap["web"] = LLCallbackMap((LLCallbackMap::callback_t)LLCallbackMap::buildPanel<LLPanelWeb>);
+	mFactoryMap["display"] = LLCallbackMap((LLCallbackMap::callback_t)LLCallbackMap::buildPanel<LLPanelDisplay>);
+	mFactoryMap["audio"] = LLCallbackMap((LLCallbackMap::callback_t)LLCallbackMap::buildPanel<LLPanelAudioPrefs>);
+	mFactoryMap["chat"] = LLCallbackMap((LLCallbackMap::callback_t)LLCallbackMap::buildPanel<LLPrefsChat>);
+	mFactoryMap["voice"] = LLCallbackMap((LLCallbackMap::callback_t)LLCallbackMap::buildPanel<LLPrefsVoice>);
+	mFactoryMap["im"] = LLCallbackMap((LLCallbackMap::callback_t)LLCallbackMap::buildPanel<LLPrefsIM>);
+	mFactoryMap["msgs"] = LLCallbackMap((LLCallbackMap::callback_t)LLCallbackMap::buildPanel<LLPanelMsgs>);
+	mFactoryMap["skins"] = LLCallbackMap((LLCallbackMap::callback_t)LLCallbackMap::buildPanel<LLPanelSkins>);
+	
+	//Called from floater reg: LLUICtrlFactory::getInstance()->buildFloater(this, "floater_preferences.xml", FALSE);
 }
 
 BOOL LLFloaterPreference::postBuild()
 {
-	requires<LLButton>("About...");
-	requires<LLButton>("OK");
-	requires<LLButton>("Cancel");
-	requires<LLButton>("Apply");
-	requires<LLTabContainer>("pref core");
-
-	if (!checkRequirements())
-	{
-		return FALSE;
-	}
-
-	mAboutBtn = getChild<LLButton>("About...");
-	mAboutBtn->setClickedCallback(onClickAbout, this);
+	getChild<LLButton>("About...")->setClickedCallback(onClickAbout, this);
+	getChild<LLButton>("Apply")->setClickedCallback(onBtnApply, this);
+	getChild<LLButton>("Cancel")->setClickedCallback(onBtnCancel, this);
+	getChild<LLButton>("OK")->setClickedCallback(onBtnOK, this);
 	
-	mApplyBtn = getChild<LLButton>("Apply");
-	mApplyBtn->setClickedCallback(onBtnApply, this);
-		
-	mCancelBtn = getChild<LLButton>("Cancel");
-	mCancelBtn->setClickedCallback(onBtnCancel, this);
+	LLTabContainer* tabcontainer = getChild<LLTabContainer>("pref core");
+	if (!tabcontainer->selectTab(gSavedSettings.getS32("LastPrefTab")))
+		tabcontainer->selectFirstTab();
 
-	mOKBtn = getChild<LLButton>("OK");
-	mOKBtn->setClickedCallback(onBtnOK, this);
-			
-	mPreferenceCore = new LLPreferenceCore(
-		getChild<LLTabContainer>("pref core"),
-		getChild<LLButton>("OK")
-		);
+	// Panels that don't yet derive from LLPanelPreferenc
+	// *TODO: Skinning - conver these to derive from LLPanelPreference
+	mWebPanel = dynamic_cast<LLPanelWeb*>(getChild<LLPanel>("web"));
+	mDisplayPanel = dynamic_cast<LLPanelDisplay*>(getChild<LLPanel>("display"));
+	mAudioPanel = dynamic_cast<LLPanelAudioPrefs*>(getChild<LLPanel>("audio"));
+	mPrefsChat = dynamic_cast<LLPrefsChat*>(getChild<LLPanel>("chat"));
+	mPrefsVoice = dynamic_cast<LLPrefsVoice*>(getChild<LLPanel>("voice"));
+	mPrefsIM = dynamic_cast<LLPrefsIM*>(getChild<LLPanel>("im"));
+	mMsgPanel = dynamic_cast<LLPanelMsgs*>(getChild<LLPanel>("msgs"));
+	mSkinsPanel = dynamic_cast<LLPanelSkins*>(getChild<LLPanel>("skins"));
 	
-	sInstance = this;
-
 	return TRUE;
 }
 
 
 LLFloaterPreference::~LLFloaterPreference()
 {
-	sInstance = NULL;
-	delete mPreferenceCore;
 }
 
 void LLFloaterPreference::apply()
 {
-	this->mPreferenceCore->apply();
-}
+	LLTabContainer* tabcontainer = getChild<LLTabContainer>("pref core");
+	// Call apply() on all panels that derive from LLPanelPreference
+	for (child_list_t::const_iterator iter = tabcontainer->getChildList()->begin();
+		 iter != tabcontainer->getChildList()->end(); ++iter)
+	{
+		LLView* view = *iter;
+		LLPanelPreference* panel = dynamic_cast<LLPanelPreference*>(view);
+		if (panel)
+			panel->apply();
+	}
 
+	if (mWebPanel) mWebPanel->apply();
+	if (mDisplayPanel) mDisplayPanel->apply();
+	if (mAudioPanel) mAudioPanel->apply();
+	if (mPrefsChat) mPrefsChat->apply();
+	if (mPrefsVoice) mPrefsVoice->apply();
+	if (mPrefsIM) mPrefsIM->apply();
+	if (mMsgPanel) mMsgPanel->apply();
+	if (mSkinsPanel) mSkinsPanel->apply();
+
+	// hardware menu apply
+	LLFloaterHardwareSettings::instance()->apply();
+}
 
 void LLFloaterPreference::cancel()
 {
-	this->mPreferenceCore->cancel();
+	LLTabContainer* tabcontainer = getChild<LLTabContainer>("pref core");
+	// Call cancel() on all panels that derive from LLPanelPreference
+	for (child_list_t::const_iterator iter = tabcontainer->getChildList()->begin();
+		iter != tabcontainer->getChildList()->end(); ++iter)
+	{
+		LLView* view = *iter;
+		LLPanelPreference* panel = dynamic_cast<LLPanelPreference*>(view);
+		if (panel)
+			panel->cancel();
+	}
+
+	if (mWebPanel) mWebPanel->apply();
+	if (mDisplayPanel) mDisplayPanel->cancel();
+	if (mAudioPanel) mAudioPanel->cancel();
+	if (mPrefsChat) mPrefsChat->cancel();
+	if (mPrefsVoice) mPrefsVoice->cancel();
+	if (mPrefsIM) mPrefsIM->cancel();
+	if (mMsgPanel) mMsgPanel->cancel();
+	if (mSkinsPanel) mSkinsPanel->cancel();
+
+	// cancel hardware menu
+	LLFloaterHardwareSettings::instance()->cancel();
 }
 
-
-// static
-void LLFloaterPreference::show(void*)
+void LLFloaterPreference::onOpen(const LLSD& key)
 {
-	if (!sInstance)
-	{
-		new LLFloaterPreference();
-		sInstance->center();
-	}
-
-	sInstance->open();		/* Flawfinder: ignore */
-
-	if(!gAgent.getID().isNull())
-	{
-		// we're logged in, so we can get this info.
-		gMessageSystem->newMessageFast(_PREHASH_UserInfoRequest);
-		gMessageSystem->nextBlockFast(_PREHASH_AgentData);
-		gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-		gMessageSystem->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-		gAgent.sendReliableMessage();
-	}
-
+	gAgent.sendAgentUserInfoRequest();
 	LLPanelLogin::setAlwaysRefresh(true);
 }
 
+void LLFloaterPreference::onClose(bool app_quitting)
+{
+	gSavedSettings.setS32("LastPrefTab", getChild<LLTabContainer>("pref core")->getCurrentPanelIndex());
+	LLPanelLogin::setAlwaysRefresh(false);
+	cancel(); // will be a no-op if OK or apply was performed just prior.
+	destroy();
+}
 
 // static
 void LLFloaterPreference::onClickAbout(void*)
 {
-	LLFloaterAbout::show(NULL);
+	LLFloaterAbout::showInstance();
 }
-
 
 // static 
 void LLFloaterPreference::onBtnOK( void* userdata )
@@ -441,10 +214,10 @@ void LLFloaterPreference::onBtnOK( void* userdata )
 	if (fp->canClose())
 	{
 		fp->apply();
-		fp->close(false);
+		fp->closeFloater(false);
 
 		gSavedSettings.saveToFile( gSavedSettings.getString("ClientSettingsFile"), TRUE );
-		
+		gSavedSkinSettings.saveToFile(gSavedSettings.getString("SkinningSettingsFile") , TRUE );
 		std::string crash_settings_filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, CRASH_SETTINGS_FILE);
 		// save all settings, even if equals defaults
 		gCrashSettings.saveToFile(crash_settings_filename, FALSE);
@@ -477,14 +250,6 @@ void LLFloaterPreference::onBtnApply( void* userdata )
 }
 
 
-void LLFloaterPreference::onClose(bool app_quitting)
-{
-	LLPanelLogin::setAlwaysRefresh(false);
-	cancel(); // will be a no-op if OK or apply was performed just prior.
-	LLFloater::onClose(app_quitting);
-}
-
-
 // static 
 void LLFloaterPreference::onBtnCancel( void* userdata )
 {
@@ -497,20 +262,80 @@ void LLFloaterPreference::onBtnCancel( void* userdata )
 			cur_focus->onCommit();
 		}
 	}
-	fp->close(); // side effect will also cancel any unsaved changes.
+
+	fp->closeFloater(); // side effect will also cancel any unsaved changes.
 }
 
 
 // static
 void LLFloaterPreference::updateUserInfo(const std::string& visibility, bool im_via_email, const std::string& email)
 {
-	if(sInstance && sInstance->mPreferenceCore)
+	LLFloaterPreference* instance = LLFloaterReg::findTypedInstance<LLFloaterPreference>("preferences");
+	if(instance && instance->mPrefsIM)
 	{
-		sInstance->mPreferenceCore->setPersonalInfo(visibility, im_via_email, email);
+		instance->mPrefsIM->setPersonalInfo(visibility, im_via_email, email);
 	}
 }
 
+// static
 void LLFloaterPreference::refreshEnabledGraphics()
 {
-	sInstance->mPreferenceCore->refreshEnabledGraphics();
+	LLFloaterPreference* instance = LLFloaterReg::findTypedInstance<LLFloaterPreference>("preferences");
+	if(instance)
+	{
+		LLFloaterHardwareSettings::instance()->refreshEnabledState();
+		if (instance->mDisplayPanel)
+			instance->mDisplayPanel->refreshEnabledState();
+	}
+}
+
+//----------------------------------------------------------------------------
+
+//virtual
+BOOL LLPanelPreference::postBuild()
+{
+	apply();
+	return true;
+}
+
+void LLPanelPreference::apply()
+{
+	// Save the value of all controls in the hierarchy
+	mSavedValues.clear();
+	std::list<LLView*> view_stack;
+	view_stack.push_back(this);
+	while(!view_stack.empty())
+	{
+		// Process view on top of the stack
+		LLView* curview = view_stack.front();
+		view_stack.pop_front();
+		LLUICtrl* ctrl = dynamic_cast<LLUICtrl*>(curview);
+		if (ctrl)
+		{
+			LLControlVariable* control = ctrl->getControlVariable();
+			if (control)
+			{
+				mSavedValues[control] = control->getValue();
+			}
+		}
+		
+		// Push children onto the end of the work stack
+		for (child_list_t::const_iterator iter = curview->getChildList()->begin();
+			 iter != curview->getChildList()->end(); ++iter)
+		{
+			view_stack.push_back(*iter);
+		}
+	}
+		
+}
+
+void LLPanelPreference::cancel()
+{
+	for (control_values_map_t::iterator iter =  mSavedValues.begin();
+		 iter !=  mSavedValues.end(); ++iter)
+	{
+		LLControlVariable* control = iter->first;
+		LLSD ctrl_value = iter->second;
+		control->set(ctrl_value);
+	}
 }

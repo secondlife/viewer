@@ -33,7 +33,7 @@
 #ifndef LL_LLHUDICON_H
 #define LL_LLHUDICON_H
 
-#include "llmemory.h"
+#include "llpointer.h"
 #include "lldarrayptr.h"
 
 #include "llhudobject.h"

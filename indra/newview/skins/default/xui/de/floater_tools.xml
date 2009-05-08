@@ -10,17 +10,23 @@
 	<text left="170" name="tool label4" width="70" />
 	<button label="" label_selected="" name="button land" tool_tip="Land" />
 	<text left="240" name="tool label5" />
-	<check_box label="Zoom" name="radio zoom" />
-	<check_box label="Orbit (Strg)" name="radio orbit" />
-	<check_box label="Schwenken (Strg-Umschalt)" name="radio pan" />
-	<check_box label="Verschieben" name="radio move" />
-	<check_box label="Heben (Strg)" name="radio lift" />
-	<check_box label="Rotieren (Strg-Umschalt)" name="radio spin" />
-	<check_box label="Position" name="radio position" />
-	<check_box label="Drehen (Strg)" name="radio rotate" />
-	<check_box label="Dehnen (Strg-Umschalt)" name="radio stretch" />
-	<check_box label="Textur auswählen" name="radio select face" />
-	<check_box label="Verknüpfte Teile bearbeiten" name="checkbox edit linked parts" />
+  <radio_group name="focus_radio_group">
+    <radio_item label="Zoom" name="radio zoom" />
+    <radio_item label="Orbit (Strg)" name="radio orbit" />
+    <radio_item label="Schwenken (Strg-Umschalt)" name="radio pan" />
+  </radio_group>
+  <radio_group name="move_radio_group">
+    <radio_item label="Verschieben" name="radio move" />
+    <radio_item label="Heben (Strg)" name="radio lift" />
+    <radio_item label="Rotieren (Strg-Umschalt)" name="radio spin" />
+  </radio_group>
+  <radio_group name="edit_radio_group">
+    <radio_item label="Position" name="radio position" />
+    <radio_item label="Drehen (Strg)" name="radio rotate" />
+    <radio_item label="Dehnen (Strg-Umschalt)" name="radio stretch" />
+    <radio_item label="Textur auswählen" name="radio select face" />
+  </radio_group>
+  <check_box label="Verknüpfte Teile bearbeiten" name="checkbox edit linked parts" />
 	<check_box label="Raster verwenden" name="checkbox snap to grid" />
 	<button label="Optionen..." label_selected="Optionen..." name="Options..." />
 	<check_box label="Beide Seiten dehnen" name="checkbox uniform" />
@@ -32,15 +38,15 @@
 		Zum Verschieben ziehen, zum Kopieren Umschalttaste-Ziehen
 	</text>
 	<combo_box name="combobox grid mode">
-		<combo_item name="World">
+		<combo_box.item name="World">
 			Welt
-		</combo_item>
-		<combo_item name="Local">
+		</combo_box.item>
+		<combo_box.item name="Local">
 			Lokal
-		</combo_item>
-		<combo_item name="Reference">
+		</combo_box.item>
+		<combo_box.item name="Reference">
 			Referenz
-		</combo_item>
+		</combo_box.item>
 	</combo_box>
 	<button label="" label_selected="" name="ToolCube" tool_tip="Würfel" />
 	<button label="" label_selected="" name="ToolPrism" tool_tip="Prisma" />
@@ -61,23 +67,26 @@
 	<check_box label="Tool ausgewählt lassen" name="checkbox sticky" />
 	<check_box label="Kopie zentrieren" name="checkbox copy centers" />
 	<check_box label="Kopie drehen" name="checkbox copy rotates" />
-	<check_box label="Land auswählen" name="radio select land" />
-	<check_box label="Land einebnen" name="radio flatten" />
-	<check_box label="Land anheben" name="radio raise" />
-	<check_box label="Land absenken" name="radio lower" />
-	<check_box label="Land glätten" name="radio smooth" />
-	<check_box label="Land rau machen" name="radio noise" />
-	<check_box label="Land zurückführen" name="radio revert" />
+
+  <radio_group name="land_radio_group">
+    <radio_item label="Land auswählen" name="radio select land" />
+    <radio_item label="Land einebnen" name="radio flatten" />
+    <radio_item label="Land anheben" name="radio raise" />
+    <radio_item label="Land absenken" name="radio lower" />
+    <radio_item label="Land glätten" name="radio smooth" />
+    <radio_item label="Land rau machen" name="radio noise" />
+    <radio_item label="Land zurückführen" name="radio revert" />
+  </radio_group>
 	<combo_box name="combobox brush size">
-		<combo_item name="Small">
+		<combo_box.item name="Small">
 			Klein
-		</combo_item>
-		<combo_item name="Medium">
+		</combo_box.item>
+		<combo_box.item name="Medium">
 			Mittel
-		</combo_item>
-		<combo_item name="Large">
+		</combo_box.item>
+		<combo_box.item name="Large">
 			Groß
-		</combo_item>
+		</combo_box.item>
 	</combo_box>
 	<text name="Strength:">
 		Stärke:
@@ -169,27 +178,27 @@
 				Bei Linksklicken:
 			</text>
 			<combo_box name="clickaction" width="178">
-				<combo_item name="Touch/grab(default)">
+				<combo_box.item name="Touch/grab(default)">
 					Berühren/Greifen (Standard)
-				</combo_item>
-				<combo_item name="Sitonobject">
+				</combo_box.item>
+				<combo_box.item name="Sitonobject">
 					Auf Objekt sitzen
-				</combo_item>
-				<combo_item name="Buyobject">
+				</combo_box.item>
+				<combo_box.item name="Buyobject">
 					Objekt kaufen
-				</combo_item>
-				<combo_item name="Payobject">
+				</combo_box.item>
+				<combo_box.item name="Payobject">
 					Objekt bezahlen
-				</combo_item>
-				<combo_item name="Open">
+				</combo_box.item>
+				<combo_box.item name="Open">
 					Öffnen
-				</combo_item>
-				<combo_item name="Play">
+				</combo_box.item>
+				<combo_box.item name="Play">
 					Parzellenmedien wiedergeben
-				</combo_item>
-				<combo_item name="Opemmedia">
+				</combo_box.item>
+				<combo_box.item name="Opemmedia">
 					Parzellenmedien öffnen
-				</combo_item>
+				</combo_box.item>
 			</combo_box>
 			<text name="B:">
 				B:
@@ -277,56 +286,56 @@
 				Material
 			</text>
 			<combo_box name="material">
-				<combo_item name="Stone">
+				<combo_box.item name="Stone">
 					Stein
-				</combo_item>
-				<combo_item name="Metal">
+				</combo_box.item>
+				<combo_box.item name="Metal">
 					Metall
-				</combo_item>
-				<combo_item name="Glass">
+				</combo_box.item>
+				<combo_box.item name="Glass">
 					Glas
-				</combo_item>
-				<combo_item name="Wood">
+				</combo_box.item>
+				<combo_box.item name="Wood">
 					Holz
-				</combo_item>
-				<combo_item name="Flesh">
+				</combo_box.item>
+				<combo_box.item name="Flesh">
 					Fleisch
-				</combo_item>
-				<combo_item name="Plastic">
+				</combo_box.item>
+				<combo_box.item name="Plastic">
 					Kunststoff
-				</combo_item>
-				<combo_item name="Rubber">
+				</combo_box.item>
+				<combo_box.item name="Rubber">
 					Gummi
-				</combo_item>
+				</combo_box.item>
 			</combo_box>
 			<text left="115" name="label basetype">
 				Bausteintyp
 			</text>
 			<combo_box left="115" name="comboBaseType">
-				<combo_item name="Box">
+				<combo_box.item name="Box">
 					Quader
-				</combo_item>
-				<combo_item name="Cylinder">
+				</combo_box.item>
+				<combo_box.item name="Cylinder">
 					Zylinder
-				</combo_item>
-				<combo_item name="Prism">
+				</combo_box.item>
+				<combo_box.item name="Prism">
 					Prisma
-				</combo_item>
-				<combo_item name="Sphere">
+				</combo_box.item>
+				<combo_box.item name="Sphere">
 					Kugel
-				</combo_item>
-				<combo_item name="Torus">
+				</combo_box.item>
+				<combo_box.item name="Torus">
 					Torus
-				</combo_item>
-				<combo_item name="Tube">
+				</combo_box.item>
+				<combo_box.item name="Tube">
 					Rohr
-				</combo_item>
-				<combo_item name="Ring">
+				</combo_box.item>
+				<combo_box.item name="Ring">
 					Ring
-				</combo_item>
-				<combo_item name="Sculpted">
+				</combo_box.item>
+				<combo_box.item name="Sculpted">
 					Geformt
-				</combo_item>
+				</combo_box.item>
 			</combo_box>
 			<text left="115" name="text cut" width="146">
 				Pfadschnitt Beginn und Ende
@@ -345,18 +354,18 @@
 				Hohlform
 			</text>
 			<combo_box left="115" name="hole">
-				<combo_item name="Default">
+				<combo_box.item name="Default">
 					Standard
-				</combo_item>
-				<combo_item name="Circle">
+				</combo_box.item>
+				<combo_box.item name="Circle">
 					Kreis
-				</combo_item>
-				<combo_item name="Square">
+				</combo_box.item>
+				<combo_box.item name="Square">
 					Quadrat
-				</combo_item>
-				<combo_item name="Triangle">
+				</combo_box.item>
+				<combo_box.item name="Triangle">
 					Dreieck
-				</combo_item>
+				</combo_box.item>
 			</combo_box>
 			<text left="115" name="text twist">
 				Torsion
@@ -406,21 +415,21 @@
 				Naht
 			</text>
 			<combo_box name="sculpt type control">
-				<combo_item name="None">
+				<combo_box.item name="None">
 					(keiner)
-				</combo_item>
-				<combo_item name="Sphere">
+				</combo_box.item>
+				<combo_box.item name="Sphere">
 					Kugel
-				</combo_item>
-				<combo_item name="Torus">
+				</combo_box.item>
+				<combo_box.item name="Torus">
 					Torus
-				</combo_item>
-				<combo_item name="Plane">
+				</combo_box.item>
+				<combo_box.item name="Plane">
 					Fläche
-				</combo_item>
-				<combo_item name="Cylinder">
+				</combo_box.item>
+				<combo_box.item name="Cylinder">
 					Zylinder
-				</combo_item>
+				</combo_box.item>
 			</combo_box>
 		</panel>
 		<panel label="Eigenschaften" name="Features">
@@ -465,88 +474,88 @@
 				Zuordnung
 			</text>
 			<combo_box name="combobox texgen">
-				<combo_item name="Default">
+				<combo_box.item name="Default">
 					Standard
-				</combo_item>
-				<combo_item name="Planar">
+				</combo_box.item>
+				<combo_box.item name="Planar">
 					Eben
-				</combo_item>
+				</combo_box.item>
 			</combo_box>
 			<text name="label shininess">
 				Glanz
 			</text>
 			<combo_box name="combobox shininess">
-				<combo_item name="None">
+				<combo_box.item name="None">
 					Kein
-				</combo_item>
-				<combo_item name="Low">
+				</combo_box.item>
+				<combo_box.item name="Low">
 					Niedrig
-				</combo_item>
-				<combo_item name="Medium">
+				</combo_box.item>
+				<combo_box.item name="Medium">
 					Mittel
-				</combo_item>
-				<combo_item name="High">
+				</combo_box.item>
+				<combo_box.item name="High">
 					Hoch
-				</combo_item>
+				</combo_box.item>
 			</combo_box>
 			<text name="label bumpiness">
 				Holprigkeit
 			</text>
 			<combo_box name="combobox bumpiness">
-				<combo_item name="None">
+				<combo_box.item name="None">
 					Keine
-				</combo_item>
-				<combo_item name="Brightness">
+				</combo_box.item>
+				<combo_box.item name="Brightness">
 					Helligkeit
-				</combo_item>
-				<combo_item name="Darkness">
+				</combo_box.item>
+				<combo_box.item name="Darkness">
 					Dunkelheit
-				</combo_item>
-				<combo_item name="woodgrain">
+				</combo_box.item>
+				<combo_box.item name="woodgrain">
 					Holzmaserung
-				</combo_item>
-				<combo_item name="bark">
+				</combo_box.item>
+				<combo_box.item name="bark">
 					Rinde
-				</combo_item>
-				<combo_item name="bricks">
+				</combo_box.item>
+				<combo_box.item name="bricks">
 					Ziegel
-				</combo_item>
-				<combo_item name="checker">
+				</combo_box.item>
+				<combo_box.item name="checker">
 					Karo
-				</combo_item>
-				<combo_item name="concrete">
+				</combo_box.item>
+				<combo_box.item name="concrete">
 					Beton
-				</combo_item>
-				<combo_item name="crustytile">
+				</combo_box.item>
+				<combo_box.item name="crustytile">
 					verkrustete Fliesen
-				</combo_item>
-				<combo_item name="cutstone">
+				</combo_box.item>
+				<combo_box.item name="cutstone">
 					Steinplatten
-				</combo_item>
-				<combo_item name="discs">
+				</combo_box.item>
+				<combo_box.item name="discs">
 					Scheiben
-				</combo_item>
-				<combo_item name="gravel">
+				</combo_box.item>
+				<combo_box.item name="gravel">
 					Kies
-				</combo_item>
-				<combo_item name="petridish">
+				</combo_box.item>
+				<combo_box.item name="petridish">
 					Petrischale
-				</combo_item>
-				<combo_item name="siding">
+				</combo_box.item>
+				<combo_box.item name="siding">
 					Verkleidung
-				</combo_item>
-				<combo_item name="stonetile">
+				</combo_box.item>
+				<combo_box.item name="stonetile">
 					Steinfliesen
-				</combo_item>
-				<combo_item name="stucco">
+				</combo_box.item>
+				<combo_box.item name="stucco">
 					Stuck
-				</combo_item>
-				<combo_item name="suction">
+				</combo_box.item>
+				<combo_box.item name="suction">
 					Saugen
-				</combo_item>
-				<combo_item name="weave">
+				</combo_box.item>
+				<combo_box.item name="weave">
 					gewoben
-				</combo_item>
+				</combo_box.item>
 			</combo_box>
 			<text name="tex scale">
 				Wiederholungen

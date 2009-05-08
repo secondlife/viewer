@@ -203,8 +203,14 @@ LLDir_Mac::~LLDir_Mac()
 // Implementation
 
 
-void LLDir_Mac::initAppDirs(const std::string &app_name)
+void LLDir_Mac::initAppDirs(const std::string &app_name,
+							const std::string& app_read_only_data_dir)
 {
+	// Allow override so test apps can read newview directory
+	if (!app_read_only_data_dir.empty())
+	{
+		mAppRODataDir = app_read_only_data_dir;
+	}
 	mCAFile = getExpandedFilename(LL_PATH_APP_SETTINGS, "CA.pem");
 
 	//dumpCurrentDirectories();

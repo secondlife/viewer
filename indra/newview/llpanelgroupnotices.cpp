@@ -49,7 +49,9 @@
 #include "lliconctrl.h"
 #include "llcheckboxctrl.h"
 #include "llscrolllistctrl.h"
+#include "llscrolllistitem.h"
 #include "lltextbox.h"
+#include "lltrans.h"
 
 #include "roles_constants.h"
 #include "llviewerwindow.h"
@@ -69,7 +71,19 @@
 class LLGroupDropTarget : public LLView
 {
 public:
-	LLGroupDropTarget(const std::string& name, const LLRect& rect, LLPanelGroupNotices* panel, const LLUUID& group_id);
+	struct Params : public LLInitParam::Block<Params, LLView::Params>
+	{
+		Mandatory<LLPanelGroupNotices*> panel;
+		Mandatory<LLUUID>	group_id;
+		Params()
+		:	panel("panel"),
+			group_id("group_id")
+		{
+			mouse_opaque(false);
+			follows.flags(FOLLOWS_ALL);
+		}
+	};
+	LLGroupDropTarget(const Params&);
 	~LLGroupDropTarget() {};
 
 	void doDrop(EDragAndDropType cargo_type, void* cargo_data);
@@ -81,18 +95,21 @@ public:
 								   void* cargo_data,
 								   EAcceptance* accept,
 								   std::string& tooltip_msg);
+	void setPanel (LLPanelGroupNotices* panel) {mGroupNoticesPanel = panel;};
+	void setGroup (LLUUID group) {mGroupID = group;};
+
 protected:
 	LLPanelGroupNotices* mGroupNoticesPanel;
 	LLUUID	mGroupID;
 };
 
-LLGroupDropTarget::LLGroupDropTarget(const std::string& name, const LLRect& rect,
-						   LLPanelGroupNotices* panel, const LLUUID& group_id) :
-	LLView(name, rect, NOT_MOUSE_OPAQUE, FOLLOWS_ALL),
-	mGroupNoticesPanel(panel),
-	mGroupID(group_id)
-{
-}
+static LLRegisterWidget<LLGroupDropTarget> r("group_drop_target");
+
+LLGroupDropTarget::LLGroupDropTarget(const LLGroupDropTarget::Params& p) 
+:	LLView(p),
+	mGroupNoticesPanel(p.panel),
+	mGroupID(p.group_id)
+{}
 
 void LLGroupDropTarget::doDrop(EDragAndDropType cargo_type, void* cargo_data)
 {
@@ -179,18 +196,16 @@ std::string build_notice_date(const U32& the_time)
 		time(&t);
 	}
 	
-	tm* lt = localtime(&t);
-	
-	//for some reason, the month is off by 1.  See other uses of
-	//"local" time in the code...
-	std::string buffer = llformat("%04i-%02i-%02i", lt->tm_year + 1900, lt->tm_mon + 1, lt->tm_mday);
-	
-	return buffer;
+
+	std::string dateStr = LLTrans::getString("GroupNotifyDateStr");
+	LLSD substitution;
+	substitution["datetime"] = (S32) t;
+	LLStringUtil::format (dateStr, substitution);
+	return dateStr;
 }
 
-LLPanelGroupNotices::LLPanelGroupNotices(const std::string& name,
-									const LLUUID& group_id) :
-	LLPanelGroupTab(name,group_id),
+LLPanelGroupNotices::LLPanelGroupNotices(const LLUUID& group_id) :
+	LLPanelGroupTab(group_id),
 	mInventoryItem(NULL),
 	mInventoryOffer(NULL)
 {
@@ -214,7 +229,7 @@ LLPanelGroupNotices::~LLPanelGroupNotices()
 void* LLPanelGroupNotices::createTab(void* data)
 {
 	LLUUID* group_id = static_cast<LLUUID*>(data);
-	return new LLPanelGroupNotices("panel group notices", *group_id);
+	return new LLPanelGroupNotices(*group_id);
 }
 
 BOOL LLPanelGroupNotices::isVisibleByAgent(LLAgent* agentp)
@@ -229,17 +244,14 @@ BOOL LLPanelGroupNotices::postBuild()
 
 	mNoticesList = getChild<LLScrollListCtrl>("notice_list",recurse);
 	mNoticesList->setCommitOnSelectionChange(TRUE);
-	mNoticesList->setCommitCallback(onSelectNotice);
-	mNoticesList->setCallbackUserData(this);
+	mNoticesList->setCommitCallback(onSelectNotice, this);
 
 	mBtnNewMessage = getChild<LLButton>("create_new_notice",recurse);
-	mBtnNewMessage->setClickedCallback(onClickNewMessage);
-	mBtnNewMessage->setCallbackUserData(this);
+	mBtnNewMessage->setClickedCallback(onClickNewMessage, this);
 	mBtnNewMessage->setEnabled(gAgent.hasPowerInGroup(mGroupID, GP_NOTICES_SEND));
 
 	mBtnGetPastNotices = getChild<LLButton>("refresh_notices",recurse);
-	mBtnGetPastNotices->setClickedCallback(onClickRefreshNotices);
-	mBtnGetPastNotices->setCallbackUserData(this);
+	mBtnGetPastNotices->setClickedCallback(onClickRefreshNotices, this);
 
 	// Create
 	mCreateSubject = getChild<LLLineEditor>("create_subject",recurse);
@@ -253,12 +265,10 @@ BOOL LLPanelGroupNotices::postBuild()
 	mCreateInventoryIcon->setVisible(FALSE);
 
 	mBtnSendMessage = getChild<LLButton>("send_notice",recurse);
-	mBtnSendMessage->setClickedCallback(onClickSendMessage);
-	mBtnSendMessage->setCallbackUserData(this);
+	mBtnSendMessage->setClickedCallback(onClickSendMessage, this);
 
 	mBtnRemoveAttachment = getChild<LLButton>("remove_attachment",recurse);
-	mBtnRemoveAttachment->setClickedCallback(onClickRemoveAttachment);
-	mBtnRemoveAttachment->setCallbackUserData(this);
+	mBtnRemoveAttachment->setClickedCallback(onClickRemoveAttachment, this);
 	mBtnRemoveAttachment->setEnabled(FALSE);
 
 	// View
@@ -273,24 +283,16 @@ BOOL LLPanelGroupNotices::postBuild()
 	mViewInventoryIcon->setVisible(FALSE);
 
 	mBtnOpenAttachment = getChild<LLButton>("open_attachment",recurse);
-	mBtnOpenAttachment->setClickedCallback(onClickOpenAttachment);
-	mBtnOpenAttachment->setCallbackUserData(this);
+	mBtnOpenAttachment->setClickedCallback(onClickOpenAttachment, this);
 
 	mNoNoticesStr = getString("no_notices_text");
 
 	mPanelCreateNotice = getChild<LLPanel>("panel_create_new_notice",recurse);
 	mPanelViewNotice = getChild<LLPanel>("panel_view_past_notice",recurse);
 
-	// Must be in front of all other UI elements.
-	LLPanel* dtv = getChild<LLPanel>("drop_target",recurse);
-	LLGroupDropTarget* target = new LLGroupDropTarget("drop_target",
-											dtv->getRect(),
-											this, mGroupID);
-	target->setEnabled(TRUE);
-	target->setToolTip(dtv->getToolTip());
-
-	mPanelCreateNotice->addChild(target);
-	mPanelCreateNotice->removeChild(dtv, TRUE);
+	LLGroupDropTarget* target = getChild<LLGroupDropTarget> ("drop_target");
+	target->setPanel (this);
+	target->setGroup (mGroupID);
 
 	arrangeNoticeView(VIEW_PAST_NOTICE);
 
@@ -331,7 +333,7 @@ void LLPanelGroupNotices::setItem(LLPointer<LLInventoryItem> inv_item)
 										inv_item->getFlags(),
 										item_is_multi );
 
-	mCreateInventoryIcon->setImage(icon_name);
+	mCreateInventoryIcon->setValue(icon_name);
 	mCreateInventoryIcon->setVisible(TRUE);
 
 	std::stringstream ss;
@@ -466,7 +468,7 @@ void LLPanelGroupNotices::processNotices(LLMessageSystem* msg)
 		if (1 == count && id.isNull())
 		{
 			// Only one entry, the dummy entry.
-			mNoticesList->addCommentText(mNoNoticesStr);
+			mNoticesList->setCommentText(mNoNoticesStr);
 			mNoticesList->setEnabled(FALSE);
 			return;
 		}
@@ -554,7 +556,7 @@ void LLPanelGroupNotices::showNotice(const std::string& subject,
 												LLInventoryType::IT_TEXTURE,
 												0, FALSE);
 
-		mViewInventoryIcon->setImage(icon_name);
+		mViewInventoryIcon->setValue(icon_name);
 		mViewInventoryIcon->setVisible(TRUE);
 
 		std::stringstream ss;

@@ -33,8 +33,9 @@
 #ifndef LL_LLVIEWERPARTSOURCE_H
 #define LL_LLVIEWERPARTSOURCE_H
 
-#include "llmemory.h"
+#include "llrefcount.h"
 #include "llpartdata.h"
+#include "llpointer.h"
 #include "llquaternion.h"
 #include "v3math.h"
 

@@ -224,7 +224,7 @@ void agent_toggle_fly( EKeystate s )
 	// Only catch the edge
 	if (KEYSTATE_DOWN == s )
 	{
-		gAgent.toggleFlying();
+		LLAgent::toggleFlying();
 	}
 }
 

@@ -72,13 +72,7 @@ class LLColor4
 			return ret;
 		}
 	
-		void setValue(const LLSD& sd)
-		{
-			mV[0] = (F32) sd[0].asReal();
-			mV[1] = (F32) sd[1].asReal();
-			mV[2] = (F32) sd[2].asReal();
-			mV[3] = (F32) sd[3].asReal();
-		}
+		void setValue(const LLSD& sd);
 
 		void calcHSL(F32* hue, F32* saturation, F32* luminance) const;
 
@@ -249,7 +243,7 @@ inline LLColor4::LLColor4(void)
 
 inline LLColor4::LLColor4(const LLSD& sd)
 {
-	*this = sd;
+	this->setValue(sd);
 }
 
 inline LLColor4::LLColor4(F32 r, F32 g, F32 b)
@@ -641,10 +635,7 @@ void LLColor4::clamp()
 
 inline const LLColor4& LLColor4::operator=(const LLSD& sd)
 {
-	mV[0] = (F32) sd[0].asReal();
-	mV[1] = (F32) sd[1].asReal();
-	mV[2] = (F32) sd[2].asReal();
-	mV[3] = (F32) sd[3].asReal();
+	setValue(sd);
 
 	return *this;
 }

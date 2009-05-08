@@ -36,6 +36,7 @@
 #include "lluictrlfactory.h"
 #include "llbutton.h"
 #include "llscrolllistctrl.h"
+#include "llscrolllistitem.h"
 #include "llpanel.h"
 #include "llcombobox.h"
 #include "llviewertexteditor.h"
@@ -59,11 +60,12 @@ private:
 };
 
 LLNotificationChannelPanel::LLNotificationChannelPanel(const std::string& channel_name) 
-	: LLPanel(channel_name)
+	: LLPanel()
 {
 	mChannelPtr = LLNotifications::instance().getChannel(channel_name);
 	mChannelRejectsPtr = LLNotificationChannelPtr(
-												  LLNotificationChannel::buildChannel(channel_name + "rejects", mChannelPtr->getParentChannelName(), !boost::bind(mChannelPtr->getFilter(), _1)));
+		LLNotificationChannel::buildChannel(channel_name + "rejects", mChannelPtr->getParentChannelName(),
+											!boost::bind(mChannelPtr->getFilter(), _1)));
 	LLUICtrlFactory::instance().buildPanel(this, "panel_notifications_channel.xml");
 }
 
@@ -77,13 +79,11 @@ BOOL LLNotificationChannelPanel::postBuild()
 	mChannelRejectsPtr->connectChanged(boost::bind(&LLNotificationChannelPanel::update, this, _1, false));
 
 	LLScrollListCtrl* scroll = getChild<LLScrollListCtrl>("notifications_list");
-	scroll->setDoubleClickCallback(onClickNotification);
-	scroll->setCallbackUserData(this);
-
+	scroll->setDoubleClickCallback(onClickNotification, this);
+	scroll->setRect(LLRect( getRect().mLeft, getRect().mTop, getRect().mRight, 0));
 	scroll = getChild<LLScrollListCtrl>("notification_rejects_list");
-	scroll->setDoubleClickCallback(onClickNotificationReject);
-	scroll->setCallbackUserData(this);
-
+	scroll->setDoubleClickCallback(onClickNotificationReject, this);
+	scroll->setRect(LLRect( getRect().mLeft, getRect().mTop, getRect().mRight, 0));
 	return TRUE;
 }
 
@@ -161,6 +161,7 @@ bool LLNotificationChannelPanel::update(const LLSD& payload, bool passed_filter)
 // LLFloaterNotificationConsole
 //
 LLFloaterNotificationConsole::LLFloaterNotificationConsole(const LLSD& key)
+: LLFloater()
 {
 	LLUICtrlFactory::instance().buildFloater(this, "floater_notifications_console.xml");
 }
@@ -229,8 +230,10 @@ void LLFloaterNotificationConsole::removeChannel(const std::string& name)
 //static 
 void LLFloaterNotificationConsole::updateResizeLimits()
 {
+	static LLUICachedControl<S32> floater_header_size ("UIFloaterHeaderSize", 0);
+
 	LLLayoutStack& stack = getChildRef<LLLayoutStack>("notification_channels");
-	setResizeLimits(getMinWidth(), LLFLOATER_HEADER_SIZE + HEADER_PADDING + ((NOTIFICATION_PANEL_HEADER_HEIGHT + 3) * stack.getNumPanels()));
+	setResizeLimits(getMinWidth(), floater_header_size + HEADER_PADDING + ((NOTIFICATION_PANEL_HEADER_HEIGHT + 3) * stack.getNumPanels()));
 }
 
 void LLFloaterNotificationConsole::onClickAdd(void* user_data)
@@ -247,7 +250,9 @@ void LLFloaterNotificationConsole::onClickAdd(void* user_data)
 
 //=============== LLFloaterNotification ================
 
-LLFloaterNotification::LLFloaterNotification(LLNotification* note) : mNote(note)
+LLFloaterNotification::LLFloaterNotification(LLNotification* note) 
+:	LLFloater(),
+	mNote(note)
 {
 	LLUICtrlFactory::instance().buildFloater(this, "floater_notification.xml");
 }
@@ -265,8 +270,7 @@ BOOL LLFloaterNotification::postBuild()
 		return TRUE;
 	}
 
-	responses_combo->setCommitCallback(onCommitResponse);
-	responses_combo->setCallbackUserData(this);
+	responses_combo->setCommitCallback(onCommitResponse, this);
 
 	LLSD form_sd = form->asLLSD();
 

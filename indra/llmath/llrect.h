@@ -271,8 +271,8 @@ public:
 			<< " W " << rect.getWidth() << " H " << rect.getHeight() << " }";
 		return s;
 	}
-
-	bool operator==(const LLRectBase &b)
+	
+	bool operator==(const LLRectBase &b) const
 	{
 		return ((mLeft == b.mLeft) &&
 				(mTop == b.mTop) &&
@@ -280,7 +280,7 @@ public:
 				(mBottom == b.mBottom));
 	}
 
-	bool operator!=(const LLRectBase &b)
+	bool operator!=(const LLRectBase &b) const
 	{
 		return ((mLeft != b.mLeft) ||
 				(mTop != b.mTop) ||

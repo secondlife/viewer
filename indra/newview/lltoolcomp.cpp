@@ -34,6 +34,7 @@
 
 #include "lltoolcomp.h"
 
+#include "llfloaterreg.h"
 #include "llgl.h"
 #include "indra_constants.h"
 
@@ -290,7 +291,7 @@ BOOL LLToolCompTranslate::handleDoubleClick(S32 x, S32 y, MASK mask)
 	{
 		// You should already have an object selected from the mousedown.
 		// If so, show its properties
-		gFloaterTools->showPanel(LLFloaterTools::PANEL_CONTENTS);
+		LLFloaterReg::showInstance("build", "Content");
 		return TRUE;
 	}
 	// Nothing selected means the first mouse click was probably
@@ -407,8 +408,7 @@ BOOL LLToolCompScale::handleDoubleClick(S32 x, S32 y, MASK mask)
 	{
 		// You should already have an object selected from the mousedown.
 		// If so, show its properties
-		gFloaterTools->showPanel(LLFloaterTools::PANEL_CONTENTS);
-		//gBuildView->setPropertiesPanelOpen(TRUE);
+		LLFloaterReg::showInstance("build", "Content");
 		return TRUE;
 	}
 	else
@@ -605,8 +605,7 @@ BOOL LLToolCompRotate::handleDoubleClick(S32 x, S32 y, MASK mask)
 	{
 		// You should already have an object selected from the mousedown.
 		// If so, show its properties
-		gFloaterTools->showPanel(LLFloaterTools::PANEL_CONTENTS);
-		//gBuildView->setPropertiesPanelOpen(TRUE);
+		LLFloaterReg::showInstance("build", "Content");
 		return TRUE;
 	}
 	else

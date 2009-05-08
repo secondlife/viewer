@@ -41,13 +41,16 @@
 #include "message.h"
 
 #include "llagent.h"
-#include "llbutton.h"
+#include "llfloaterreg.h"
 #include "llfloatergroupinfo.h"
 #include "llfloaterworldmap.h"
 #include "llproductinforequest.h"
 #include "llscrolllistctrl.h"
 #include "llstatusbar.h"
 #include "lltextbox.h"
+#include "llscrolllistctrl.h"
+#include "llscrolllistitem.h"
+#include "llscrolllistcell.h"
 #include "lltrans.h"
 #include "lluiconstants.h"
 #include "llviewermessage.h"
@@ -78,13 +81,13 @@ void LLFloaterLandHoldings::show(void*)
 					  "");
 
 	// TODO: request updated L$ balance?
-	floater->open();		/* Flawfinder: ignore */
+	floater->openFloater();
 }
 
 
 // protected
 LLFloaterLandHoldings::LLFloaterLandHoldings()
-:	LLFloater(std::string("land holdings floater")),
+:	LLFloater(),
 	mActualArea(0),
 	mBillableArea(0),
 	mFirstPacketReceived(FALSE),
@@ -101,8 +104,7 @@ BOOL LLFloaterLandHoldings::postBuild()
 	childSetAction("Show on Map", onClickMap, this);
 
 	// Grant list
-	childSetDoubleClickCallback("grant list", onGrantList);
-	childSetUserData("grant list", this);
+	getChild<LLScrollListCtrl>("grant list")->setDoubleClickCallback(onGrantList, this);
 
 	LLCtrlListInterface *list = childGetListInterface("grant list");
 	if (!list) return TRUE;
@@ -295,11 +297,11 @@ void LLFloaterLandHoldings::buttonCore(S32 which)
 	{
 	case 0:
 		gAgent.teleportViaLocation(pos_global);
-		gFloaterWorldMap->trackLocation(pos_global);
+		LLFloaterWorldMap::getInstance()->trackLocation(pos_global);
 		break;
 	case 1:
-		gFloaterWorldMap->trackLocation(pos_global);
-		LLFloaterWorldMap::show(NULL, TRUE);
+		LLFloaterWorldMap::getInstance()->trackLocation(pos_global);
+		LLFloaterReg::showInstance("world_map", "center");
 		break;
 	default:
 		break;
@@ -311,7 +313,7 @@ void LLFloaterLandHoldings::onClickTeleport(void* data)
 {
 	LLFloaterLandHoldings* self = (LLFloaterLandHoldings*)data;
 	self->buttonCore(0);
-	self->close();
+	self->closeFloater();
 }
 
 

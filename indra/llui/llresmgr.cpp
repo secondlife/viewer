@@ -43,106 +43,8 @@
 
 LLResMgr::LLResMgr()
 {
-	U32 i;
-
-	// Init values for each locale.
-	// Note: This is only the most bare-bones version.  In the future, load these dynamically, on demand.
-
-	//////////////////////////////////////////////////////////////////////////////
-	// USA
-	// USA Fonts
-	for( i=0; i<LLFONT_COUNT; i++ )
-	{
-		mUSAFonts[i] = NULL;
-	}
-	mUSAFonts[ LLFONT_OCRA ]			= LLFontGL::getFontMonospace();
-	mUSAFonts[ LLFONT_SANSSERIF ]		= LLFontGL::getFontSansSerif();
-	mUSAFonts[ LLFONT_SANSSERIF_SMALL ]	= LLFontGL::getFontSansSerifSmall();
-	mUSAFonts[ LLFONT_SANSSERIF_BIG ]	= LLFontGL::getFontSansSerifBig();
-	mUSAFonts[ LLFONT_SMALL ]			= LLFontGL::getFontMonospace();
-/*
-	// USA Strings
-	for( i=0; i<LLSTR_COUNT; i++ )
-	{
-		mUSAStrings[i] = "";
-	}
-	mUSAStrings[ LLSTR_HELLO ]			= "hello";
-	mUSAStrings[ LLSTR_GOODBYE ]		= "goodbye";
-	mUSAStrings[ LLSTR_CHAT_LABEL ]		= "Chat";
-	mUSAStrings[ LLSTR_STATUS_LABEL ]	= "Properties";
-	mUSAStrings[ LLSTR_X ]				= "X";
-	mUSAStrings[ LLSTR_Y ]				= "Y";
-	mUSAStrings[ LLSTR_Z ]				= "Z";
-	mUSAStrings[ LLSTR_POSITION ]		= "Position (meters)";
-	mUSAStrings[ LLSTR_SCALE ]			= "Size (meters)";
-	mUSAStrings[ LLSTR_ROTATION ]		= "Rotation (degrees)";
-	mUSAStrings[ LLSTR_HAS_PHYSICS ]	= "Has Physics";
-	mUSAStrings[ LLSTR_SCRIPT ]			= "Script";
-	mUSAStrings[ LLSTR_HELP ]			= "Help";
-	mUSAStrings[ LLSTR_REMOVE ]			= "Remove";
-	mUSAStrings[ LLSTR_CLEAR ]			= "Clear";
-	mUSAStrings[ LLSTR_APPLY ]			= "Apply";
-	mUSAStrings[ LLSTR_CANCEL ]			= "Cancel";
-	mUSAStrings[ LLSTR_MATERIAL ]		= "Material";
-	mUSAStrings[ LLSTR_FACE ]			= "Face";
-	mUSAStrings[ LLSTR_TEXTURE ]		= "Texture";
-	mUSAStrings[ LLSTR_TEXTURE_SIZE ]	= "Repeats per Face";
-	mUSAStrings[ LLSTR_TEXTURE_OFFSET ]	= "Offset";
-	mUSAStrings[ LLSTR_TEXTURE_ROTATION ]	= "Rotation (degrees)";
-	mUSAStrings[ LLSTR_U ]				= "U";
-	mUSAStrings[ LLSTR_V ]				= "V";
-	mUSAStrings[ LLSTR_OWNERSHIP ]		= "Ownership";
-	mUSAStrings[ LLSTR_PUBLIC ]			= "Public";
-	mUSAStrings[ LLSTR_PRIVATE ]		= "Private";
-	mUSAStrings[ LLSTR_REVERT ]			= "Revert";
-	mUSAStrings[ LLSTR_INSERT_SAMPLE ]	= "Insert Sample";
-	mUSAStrings[ LLSTR_SET_TEXTURE ]	= "Set Texture";
-	mUSAStrings[ LLSTR_EDIT_SCRIPT ]	= "Edit Script...";
-	mUSAStrings[ LLSTR_MOUSELOOK_INSTRUCTIONS ] = "Press ESC to leave Mouselook.";
-	mUSAStrings[ LLSTR_EDIT_FACE_INSTRUCTIONS ] = "Click on face to select part.  Click and hold on a picture to look more like that.  Press ESC to leave Face Edit Mode.";
-	mUSAStrings[ LLSTR_CLOSE ]			= "Close";
-	mUSAStrings[ LLSTR_MOVE ]			= "Move";
-	mUSAStrings[ LLSTR_ROTATE ]			= "Rotate";
-	mUSAStrings[ LLSTR_RESIZE ]			= "Resize";
-	mUSAStrings[ LLSTR_PLACE_BOX ]		= "Place Box";
-	mUSAStrings[ LLSTR_PLACE_PRISM ]	= "Place Prism";
-	mUSAStrings[ LLSTR_PLACE_PYRAMID ]	= "Place Pyramid";
-	mUSAStrings[ LLSTR_PLACE_TETRAHEDRON ]	= "Place Tetrahedron";
-	mUSAStrings[ LLSTR_PLACE_CYLINDER ]	= "Place Cylinder";
-	mUSAStrings[ LLSTR_PLACE_HALF_CYLINDER ] = "Place Half-Cylinder";
-	mUSAStrings[ LLSTR_PLACE_CONE ]		= "Place Cone";
-	mUSAStrings[ LLSTR_PLACE_HALF_CONE ] = "Place Half-Cone";
-	mUSAStrings[ LLSTR_PLACE_SPHERE ]	= "Place Sphere";
-	mUSAStrings[ LLSTR_PLACE_HALF_SPHERE ] = "Place Half-Sphere";
-	mUSAStrings[ LLSTR_PLACE_BIRD ]		= "Place Bird";
-	mUSAStrings[ LLSTR_PLACE_SNAKE ]	= "Place Silly Snake";
-	mUSAStrings[ LLSTR_PLACE_ROCK ]		= "Place Rock";
-	mUSAStrings[ LLSTR_PLACE_TREE ]		= "Place Tree";
-	mUSAStrings[ LLSTR_PLACE_GRASS ]	= "Place Grass";
-	mUSAStrings[ LLSTR_MODIFY_LAND ]	= "Modify Land";
-*/
-	//////////////////////////////////////////////////////////////////////////////
-	// UK
-	// The Brits are a lot like us Americans, so initially assume we're the same and only code the exceptions.
-
-	// UK Fonts
-	for( i=0; i<LLFONT_COUNT; i++ )
-	{
-		mUKFonts[i] = mUSAFonts[i];
-	}
-/*
-	// UK Strings
-	for( i=0; i<LLSTR_COUNT; i++ )
-	{
-		mUKStrings[i] = mUSAStrings[i];
-	}
-	mUKStrings[ LLSTR_HELLO ]			= "hullo";
-	mUKStrings[ LLSTR_GOODBYE ]			= "cheerio";
-*/
-	//////////////////////////////////////////////////////////////////////////////
 	// Set default
 	setLocale( LLLOCALE_USA );
-
 }
 
 
@@ -151,9 +53,9 @@ void LLResMgr::setLocale( LLLOCALE_ID locale_id )
 	mLocale = locale_id;
 
 	//RN: for now, use normal 'C' locale for everything but specific UI input/output routines
-	switch( locale_id )
-	{
-	case LLLOCALE_USA: 
+//	switch( locale_id )
+//	{
+//	case LLLOCALE_USA: 
 //#if LL_WINDOWS
 //		// Windows doesn't use ISO country codes.
 //		llinfos << "Setting locale to " << setlocale( LC_ALL, "english-usa" ) << llendl;
@@ -161,11 +63,8 @@ void LLResMgr::setLocale( LLLOCALE_ID locale_id )
 //		// posix version should work everywhere else.
 //		llinfos << "Setting locale to " << setlocale( LC_ALL, "en_US" ) << llendl;
 //#endif
-
-//		mStrings	= mUSAStrings;
-		mFonts		= mUSAFonts;
-		break;
-	case LLLOCALE_UK:
+//		break;
+//	case LLLOCALE_UK:
 //#if LL_WINDOWS
 //		// Windows doesn't use ISO country codes.
 //		llinfos << "Setting locale to " << setlocale( LC_ALL, "english-uk" ) << llendl;
@@ -173,15 +72,12 @@ void LLResMgr::setLocale( LLLOCALE_ID locale_id )
 //		// posix version should work everywhere else.
 //		llinfos << "Setting locale to " << setlocale( LC_ALL, "en_GB" ) << llendl;
 //#endif
-
-//		mStrings	= mUKStrings;
-		mFonts		= mUKFonts;
-		break;
-	default:
-		llassert(0);
-		setLocale(LLLOCALE_USA);
-		break;
-	}
+//		break;
+//	default:
+//		llassert(0);
+//		setLocale(LLLOCALE_USA);
+//		break;
+//	}
 }
 
 char LLResMgr::getDecimalPoint() const					
@@ -416,27 +312,6 @@ void LLResMgr::getIntegerString( std::string& output, S32 input ) const
 		}
 		remaining_count /= 1000;
 	}
-}
-
-const std::string LLFONT_ID_NAMES[] =
-{
-	std::string("OCRA"),
-	std::string("SANSSERIF"),
-	std::string("SANSSERIF_SMALL"),
-	std::string("SANSSERIF_BIG"),
-	std::string("SMALL"),
-};
-
-const LLFontGL* LLResMgr::getRes( std::string font_id ) const
-{
-	for (S32 i=0; i<LLFONT_COUNT; ++i)
-	{
-		if (LLFONT_ID_NAMES[i] == font_id)
-		{
-			return getRes((LLFONT_ID)i);
-		}
-	}
-	return NULL;
 }
 
 #if LL_WINDOWS

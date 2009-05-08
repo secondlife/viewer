@@ -36,8 +36,9 @@
 #define LL_LLSDSERIALIZE_H
 
 #include <iosfwd>
+#include "llpointer.h"
+#include "llrefcount.h"
 #include "llsd.h"
-#include "llmemory.h"
 
 /** 
  * @class LLSDParser

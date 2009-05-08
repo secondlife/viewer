@@ -48,71 +48,31 @@ const F32 CAMERA_BUTTON_DELAY = 0.0f;
 // Member functions
 //
 
+
 LLFloaterCamera::LLFloaterCamera(const LLSD& val)
-:	LLFloater("camera floater") // uses "FloaterCameraRect3"
+:	LLFloater()
 {
 	setIsChrome(TRUE);
 	
 	// For now, only used for size and tooltip strings
 	const BOOL DONT_OPEN = FALSE;
-	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_camera.xml", NULL, DONT_OPEN);
+	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_camera.xml", DONT_OPEN);
 	
-	S32 top = getRect().getHeight();
-	S32 bottom = 0;
-	S32 left = 16;
-	
-	const S32 ROTATE_WIDTH = 64;
-	mRotate = new LLJoystickCameraRotate(std::string("cam rotate stick"), 
-										 LLRect( left, top, left + ROTATE_WIDTH, bottom ),
-										 std::string("cam_rotate_out.tga"),
-										 std::string("cam_rotate_in.tga") );
-	mRotate->setFollows(FOLLOWS_TOP | FOLLOWS_LEFT);
-	mRotate->setHeldDownDelay(CAMERA_BUTTON_DELAY);
-	mRotate->setToolTip( getString("rotate_tooltip") );
-	mRotate->setSoundFlags(MOUSE_DOWN | MOUSE_UP);
-	addChild(mRotate);
-	
-	left += ROTATE_WIDTH;
-	
-	const S32 ZOOM_WIDTH = 16;
-	mZoom = new LLJoystickCameraZoom( 
-									 std::string("zoom"),
-									 LLRect( left, top, left + ZOOM_WIDTH, bottom ),
-									 std::string("cam_zoom_out.tga"),
-									 std::string("cam_zoom_plus_in.tga"),
-									 std::string("cam_zoom_minus_in.tga"));
-	mZoom->setFollows(FOLLOWS_TOP | FOLLOWS_LEFT);
-	mZoom->setHeldDownDelay(CAMERA_BUTTON_DELAY);
-	mZoom->setToolTip( getString("zoom_tooltip") );
-	mZoom->setSoundFlags(MOUSE_DOWN | MOUSE_UP);
-	addChild(mZoom);
-	
-	left += ZOOM_WIDTH;
-	
-	const S32 TRACK_WIDTH = 64;
-	mTrack = new LLJoystickCameraTrack(std::string("cam track stick"), 
-									   LLRect( left, top, left + TRACK_WIDTH, bottom ),
-									   std::string("cam_tracking_out.tga"),
-									   std::string("cam_tracking_in.tga"));
-	mTrack->setFollows(FOLLOWS_TOP | FOLLOWS_LEFT);
-	mTrack->setHeldDownDelay(CAMERA_BUTTON_DELAY);
-	mTrack->setToolTip( getString("move_tooltip") );
-	mTrack->setSoundFlags(MOUSE_DOWN | MOUSE_UP);
-	addChild(mTrack);
+	mRotate = getChild<LLJoystickCameraRotate>("cam_rotate_stick");
+	mZoom = getChild<LLJoystickCameraZoom>("zoom");
+	mTrack = getChild<LLJoystickCameraTrack>("cam_track_stick");
 }
 
 // virtual
-void LLFloaterCamera::onOpen()
+void LLFloaterCamera::onOpen(const LLSD& key)
 {
-	LLFloater::onOpen();
-	
 	gSavedSettings.setBOOL("ShowCameraControls", TRUE);
 }
 
 // virtual
 void LLFloaterCamera::onClose(bool app_quitting)
 {
-	LLFloater::onClose(app_quitting);
+	destroy();
 	
 	if (!app_quitting)
 	{

@@ -47,6 +47,8 @@
 #include "lluuid.h"
 #include "llfloater.h"
 #include <map>
+#include <boost/function.hpp>
+#include <boost/signal.hpp>
 
 class LLUICtrl;
 class LLTextBox;
@@ -59,8 +61,10 @@ class LLFloaterGroupPicker : public LLFloater, public LLUIFactory<LLFloaterGroup
 	friend class LLUIFactory<LLFloaterGroupPicker>;
 public:
 	~LLFloaterGroupPicker();
-	void setSelectCallback( void (*callback)(LLUUID, void*), 
-							void* userdata);
+	
+	// Note: Don't return connection; use boost::bind + boost::signal::trackable to disconnect slots
+	typedef boost::signal<void (LLUUID id)> signal_t;	
+	void setSelectGroupCallback(const signal_t::slot_type& cb) { mGroupSelectSignal.connect(cb); }
 	void setPowersMask(U64 powers_mask);
 	BOOL postBuild();
 
@@ -77,8 +81,7 @@ protected:
 protected:
 	LLUUID mID;
 	U64 mPowersMask;
-	void (*mSelectCallback)(LLUUID id, void* userdata);
-	void* mCallbackUserdata;
+	signal_t mGroupSelectSignal;
 
 	typedef std::map<const LLUUID, LLFloaterGroupPicker*> instance_map_t;
 	static instance_map_t sInstances;

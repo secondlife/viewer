@@ -79,8 +79,8 @@ BOOL	LLPanelLandInfo::postBuild()
 //
 // Methods
 //
-LLPanelLandInfo::LLPanelLandInfo(const std::string& name)
-:	LLPanel(name),
+LLPanelLandInfo::LLPanelLandInfo()
+:	LLPanel(),
 	mCheckShowOwners(NULL)
 {
 	if (!sInstance)

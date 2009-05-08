@@ -171,6 +171,15 @@ char* ll_print_sd(const LLSD& sd)
 	return buffer;
 }
 
+char* ll_pretty_print_sd_ptr(const LLSD* sd)
+{
+	if (sd)
+	{
+		return ll_pretty_print_sd(*sd);
+	}
+	return NULL;
+}
+
 char* ll_pretty_print_sd(const LLSD& sd)
 {
 	const U32 bufferSize = 10 * 1024;

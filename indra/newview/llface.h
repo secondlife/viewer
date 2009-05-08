@@ -46,7 +46,6 @@
 #include "lldarrayptr.h"
 #include "llvertexbuffer.h"
 #include "llviewerimage.h"
-#include "llstat.h"
 #include "lldrawable.h"
 
 class LLFacePool;

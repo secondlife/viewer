@@ -44,9 +44,18 @@ class LLResizeHandle : public LLView
 public:
 	enum ECorner { LEFT_TOP, LEFT_BOTTOM, RIGHT_TOP, RIGHT_BOTTOM };
 
-	
-	LLResizeHandle(const std::string& name, const LLRect& rect, S32 min_width, S32 min_height, ECorner corner = RIGHT_BOTTOM );
+	struct Params : public LLInitParam::Block<Params, LLView::Params>
+	{
+		Mandatory<ECorner>	corner;
+		Optional<S32>		min_width;
+		Optional<S32>		min_height;
+		Params();
+	};
 
+protected:
+	LLResizeHandle(const LLResizeHandle::Params&);
+	friend class LLUICtrlFactory;
+public:
 	virtual void	draw();
 	virtual BOOL	handleHover(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask);

@@ -84,6 +84,7 @@ class ViewerManifest(LLManifest):
                         self.path("textures.xml")
                         self.end_prefix("*/textures")
                 self.path("*/xui/*/*.xml")
+                self.path("*/xui/*/widgets/*.xml")
                 self.path("*/*.xml")
                 
                 # Local HTML files (e.g. loading screen)

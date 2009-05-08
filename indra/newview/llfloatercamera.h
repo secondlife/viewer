@@ -49,7 +49,7 @@ private:
 	LLFloaterCamera(const LLSD& val);
 	~LLFloaterCamera() {};
 	
-	/*virtual*/ void onOpen();
+	/*virtual*/ void onOpen(const LLSD& key);
 	/*virtual*/ void onClose(bool app_quitting);
 	
 public:

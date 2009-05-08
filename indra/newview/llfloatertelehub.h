@@ -48,7 +48,7 @@ public:
 	static void show();
 
 	virtual void draw();
-
+	/*virtual*/	BOOL	postBuild();
 	static BOOL renderBeacons();
 	static void addBeacons();
 

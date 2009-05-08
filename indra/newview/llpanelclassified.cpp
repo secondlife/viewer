@@ -40,6 +40,7 @@
 
 #include "lldir.h"
 #include "lldispatcher.h"
+#include "llfloaterreg.h"
 #include "llparcel.h"
 #include "message.h"
 
@@ -54,7 +55,6 @@
 #include "lllineeditor.h"
 #include "llfloateravatarinfo.h"
 #include "llfloaterclassified.h"
-#include "lltabcontainervertical.h"
 #include "lltextbox.h"
 #include "llcombobox.h"
 #include "llviewertexteditor.h"
@@ -70,6 +70,7 @@
 #include "llviewerregion.h"
 #include "llviewerwindow.h"	// for window width, height
 #include "llappviewer.h"	// abortQuit()
+#include "lltrans.h"
 
 const S32 MINIMUM_PRICE_FOR_LISTING = 50;	// L$
 const S32 MATURE_UNDEFINED = -1;
@@ -151,7 +152,7 @@ LLClassifiedTeleportHandler gClassifiedTeleportHandler;
 */
 
 LLPanelClassified::LLPanelClassified(bool in_finder, bool from_search)
-:	LLPanel(std::string("Classified Panel")),
+:	LLPanel(),
 	mInFinder(in_finder),
 	mFromSearch(from_search),
 	mDirty(false),
@@ -231,44 +232,37 @@ void LLPanelClassified::reset()
 BOOL LLPanelClassified::postBuild()
 {
     mSnapshotCtrl = getChild<LLTextureCtrl>("snapshot_ctrl");
-	mSnapshotCtrl->setCommitCallback(onCommitAny);
-	mSnapshotCtrl->setCallbackUserData(this);
+	mSnapshotCtrl->setCommitCallback(onCommitAny, this);
 	mSnapshotSize = mSnapshotCtrl->getRect();
 
     mNameEditor = getChild<LLLineEditor>("given_name_editor");
 	mNameEditor->setMaxTextLength(DB_PARCEL_NAME_LEN);
 	mNameEditor->setCommitOnFocusLost(TRUE);
 	mNameEditor->setFocusReceivedCallback(focusReceived, this);
-	mNameEditor->setCommitCallback(onCommitAny);
-	mNameEditor->setCallbackUserData(this);
+	mNameEditor->setCommitCallback(onCommitAny, this);
 	mNameEditor->setPrevalidate( LLLineEditor::prevalidateASCII );
 
     mDescEditor = getChild<LLTextEditor>("desc_editor");
 	mDescEditor->setCommitOnFocusLost(TRUE);
 	mDescEditor->setFocusReceivedCallback(focusReceived, this);
-	mDescEditor->setCommitCallback(onCommitAny);
-	mDescEditor->setCallbackUserData(this);
+	mDescEditor->setCommitCallback(onCommitAny, this);
 	mDescEditor->setTabsToNextField(TRUE);
 
     mLocationEditor = getChild<LLLineEditor>("location_editor");
 
     mSetBtn = getChild<LLButton>( "set_location_btn");
-    mSetBtn->setClickedCallback(onClickSet);
-    mSetBtn->setCallbackUserData(this);
+    mSetBtn->setClickedCallback(onClickSet, this);
 
     mTeleportBtn = getChild<LLButton>( "classified_teleport_btn");
-    mTeleportBtn->setClickedCallback(onClickTeleport);
-    mTeleportBtn->setCallbackUserData(this);
+    mTeleportBtn->setClickedCallback(onClickTeleport, this);
 
     mMapBtn = getChild<LLButton>( "classified_map_btn");
-    mMapBtn->setClickedCallback(onClickMap);
-    mMapBtn->setCallbackUserData(this);
+    mMapBtn->setClickedCallback(onClickMap, this);
 
 	if(mInFinder)
 	{
 		mProfileBtn  = getChild<LLButton>( "classified_profile_btn");
-		mProfileBtn->setClickedCallback(onClickProfile);
-		mProfileBtn->setCallbackUserData(this);
+		mProfileBtn->setClickedCallback(onClickProfile, this);
 	}
 
 	mCategoryCombo = getChild<LLComboBox>( "classified_category_combo");
@@ -277,16 +271,14 @@ BOOL LLPanelClassified::postBuild()
 		iter != LLClassifiedInfo::sCategories.end();
 		iter++)
 	{
-		mCategoryCombo->add(iter->second, (void *)((intptr_t)iter->first), ADD_BOTTOM);
+		mCategoryCombo->add(LLTrans::getString(iter->second), (void *)((intptr_t)iter->first), ADD_BOTTOM);
 	}
 	mCategoryCombo->setCurrentByIndex(0);
-	mCategoryCombo->setCommitCallback(onCommitAny);
-	mCategoryCombo->setCallbackUserData(this);
+	mCategoryCombo->setCommitCallback(onCommitAny, this);
 
 	mMatureCombo = getChild<LLComboBox>( "classified_mature_check");
 	mMatureCombo->setCurrentByIndex(0);
-	mMatureCombo->setCommitCallback(onCommitAny);
-	mMatureCombo->setCallbackUserData(this);
+	mMatureCombo->setCommitCallback(onCommitAny, this);
 	if (gAgent.wantsPGOnly())
 	{
 		// Teens don't get to set mature flag. JC
@@ -297,13 +289,11 @@ BOOL LLPanelClassified::postBuild()
 	if (!mInFinder)
 	{
 		mAutoRenewCheck = getChild<LLCheckBoxCtrl>( "auto_renew_check");
-		mAutoRenewCheck->setCommitCallback(onCommitAny);
-		mAutoRenewCheck->setCallbackUserData(this);
+		mAutoRenewCheck->setCommitCallback(onCommitAny, this);
 	}
 
 	mUpdateBtn = getChild<LLButton>("classified_update_btn");
-    mUpdateBtn->setClickedCallback(onClickUpdate);
-    mUpdateBtn->setCallbackUserData(this);
+    mUpdateBtn->setClickedCallback(onClickUpdate, this);
 
 	if (!mInFinder)
 	{
@@ -360,7 +350,7 @@ bool LLPanelClassified::saveCallback(const LLSD& notification, const LLSD& respo
 				LLFloater* parent_floater = gFloaterView->getParentFloater(this);
 				if (parent_floater)
 				{
-					parent_floater->close();
+					parent_floater->closeFloater();
 				}
 			}
 			break;
@@ -455,10 +445,11 @@ void LLPanelClassified::setClickThrough(const LLUUID& classified_id,
 
 		if (self->mClickThroughText)
 		{
-			std::string msg = llformat("Clicks: %d teleport, %d map, %d profile",
-									self->mTeleportClicksNew + self->mTeleportClicksOld,
-									self->mMapClicksNew + self->mMapClicksOld,
-									self->mProfileClicksNew + self->mProfileClicksOld);
+			LLStringUtil::format_map_t args;
+			args["[TELEPORT]"] = llformat ("%d", self->mTeleportClicksNew + self->mTeleportClicksOld);
+			args["[MAP]"] = llformat ("%d", self->mMapClicksNew + self->mMapClicksOld);
+			args["[PROFILE]"] = llformat ("%d", self->mProfileClicksNew + self->mProfileClicksOld);
+			std::string msg = LLTrans::getString ("ClassifiedClicksTxt", args);
 			self->mClickThroughText->setText(msg);
 		}
 	}
@@ -623,7 +614,6 @@ void LLPanelClassified::processClassifiedInfoReply(LLMessageSystem *msg, void **
 	U32 date = 0;
 	msg->getU32Fast(_PREHASH_Data, _PREHASH_CreationDate, date);
 	time_t tim = date;
-	tm *now=localtime(&tim);
 
 	// future use
 	U32 expiration_date = 0;
@@ -674,9 +664,13 @@ void LLPanelClassified::processClassifiedInfoReply(LLMessageSystem *msg, void **
 			self->mAutoRenewCheck->set(auto_renew);
 		}
 
-		std::string datestr = llformat("%02d/%02d/%d", now->tm_mon+1, now->tm_mday, now->tm_year+1900);
+		std::string dateStr = self->getString("dateStr");
+		LLSD substitution;
+		substitution["datetime"] = (S32) tim;
+		LLStringUtil::format (dateStr, substitution);
+
 		LLStringUtil::format_map_t string_args;
-		string_args["[DATE]"] = datestr;
+		string_args["[DATE]"] = dateStr;
 		string_args["[AMT]"] = llformat("%d", price_for_listing);
 		self->childSetText("classified_info_text", self->getString("ad_placed_paid", string_args));
 
@@ -850,7 +844,7 @@ void LLPanelClassified::gotMature()
 	if (mPaidFor)
 	{
 		LLNotification::Params params("PublishClassified");
-		params.functor(boost::bind(&LLPanelClassified::confirmPublish, this, _1, _2));
+		params.functor.function(boost::bind(&LLPanelClassified::confirmPublish, this, _1, _2));
 		LLNotifications::instance().forceResponse(params, 0);
 	}
 	else
@@ -945,7 +939,7 @@ void LLPanelClassified::onClickTeleport(void* data)
     if (!self->mPosGlobal.isExactlyZero())
     {
         gAgent.teleportViaLocation(self->mPosGlobal);
-        gFloaterWorldMap->trackLocation(self->mPosGlobal);
+        LLFloaterWorldMap::getInstance()->trackLocation(self->mPosGlobal);
 
 		self->sendClassifiedClickMessage("teleport");
     }
@@ -956,8 +950,8 @@ void LLPanelClassified::onClickTeleport(void* data)
 void LLPanelClassified::onClickMap(void* data)
 {
 	LLPanelClassified* self = (LLPanelClassified*)data;
-	gFloaterWorldMap->trackLocation(self->mPosGlobal);
-	LLFloaterWorldMap::show(NULL, TRUE);
+	LLFloaterWorldMap::getInstance()->trackLocation(self->mPosGlobal);
+	LLFloaterReg::showInstance("world_map", "center");
 
 	self->sendClassifiedClickMessage("map");
 }
@@ -988,7 +982,7 @@ void LLPanelClassified::onClickSet(void* data)
 	self->mPosGlobal = gAgent.getPositionGlobal();
 
 	std::string location_text;
-	std::string regionName = "(will update after publish)";
+	std::string regionName = LLTrans::getString("ClassifiedUpdateAfterPublish");
 	LLViewerRegion* pRegion = gAgent.getRegion();
 	if (pRegion)
 	{
@@ -1069,7 +1063,7 @@ void LLPanelClassified::sendClassifiedClickMessage(const std::string& type)
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 LLFloaterPriceForListing::LLFloaterPriceForListing()
-:	LLFloater(std::string("PriceForListing")),
+:	LLFloater(),
 	mCallback(NULL),
 	mUserData(NULL)
 { }
@@ -1133,7 +1127,7 @@ void LLFloaterPriceForListing::buttonCore(S32 button, void* data)
 	{
 		std::string text = self->childGetText("price_edit");
 		self->mCallback(button, text, self->mUserData);
-		self->close();
+		self->closeFloater();
 	}
 }
 

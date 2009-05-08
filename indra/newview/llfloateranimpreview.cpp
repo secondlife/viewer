@@ -66,6 +66,7 @@
 #include "llvoavatar.h"
 #include "pipeline.h"
 #include "lluictrlfactory.h"
+#include "lltrans.h"
 
 S32 LLFloaterAnimPreview::sUploadAmount = 10;
 
@@ -82,6 +83,40 @@ const F32 MAX_CAMERA_ZOOM = 10.f;
 
 const F32 BASE_ANIM_TIME_OFFSET = 5.f;
 
+std::string STATUS[] =
+{
+  "E_ST_OK",
+  "E_ST_EOF",
+  "E_ST_NO_CONSTRAINT",
+  "E_ST_NO_FILE",
+"E_ST_NO_HIER",
+"E_ST_NO_JOINT",
+"E_ST_NO_NAME",
+"E_ST_NO_OFFSET",
+"E_ST_NO_CHANNELS",
+"E_ST_NO_ROTATION",
+"E_ST_NO_AXIS",
+"E_ST_NO_MOTION",
+"E_ST_NO_FRAMES",
+"E_ST_NO_FRAME_TIME",
+"E_ST_NO_POS",
+"E_ST_NO_ROT",
+"E_ST_NO_XLT_FILE",
+"E_ST_NO_XLT_HEADER",
+"E_ST_NO_XLT_NAME",
+"E_ST_NO_XLT_IGNORE",
+"E_ST_NO_XLT_RELATIVE",
+"E_ST_NO_XLT_OUTNAME",
+"E_ST_NO_XLT_MATRIX",
+"E_ST_NO_XLT_MERGECHILD",
+"E_ST_NO_XLT_MERGEPARENT",
+"E_ST_NO_XLT_PRIORITY",
+"E_ST_NO_XLT_LOOP",
+"E_ST_NO_XLT_EASEIN",
+"E_ST_NO_XLT_EASEOUT",
+"E_ST_NO_XLT_HAND",
+"E_ST_NO_XLT_EMOTE",
+};
 //-----------------------------------------------------------------------------
 // LLFloaterAnimPreview()
 //-----------------------------------------------------------------------------
@@ -131,9 +166,9 @@ void LLFloaterAnimPreview::setAnimCallbacks()
 	childSetCommitCallback("priority", onCommitPriority, this);
 	childSetCommitCallback("loop_check", onCommitLoop, this);
 	childSetCommitCallback("loop_in_point", onCommitLoopIn, this);
-	childSetValidate("loop_in_point", validateLoopIn);
+	childSetValidate("loop_in_point", boost::bind(&LLFloaterAnimPreview::validateLoopIn, this, _1));
 	childSetCommitCallback("loop_out_point", onCommitLoopOut, this);
-	childSetValidate("loop_out_point", validateLoopOut);
+	childSetValidate("loop_out_point", boost::bind(&LLFloaterAnimPreview::validateLoopOut, this, _1));
 
 	childSetCommitCallback("hand_pose_combo", onCommitHandPose, this);
 	
@@ -141,9 +176,9 @@ void LLFloaterAnimPreview::setAnimCallbacks()
 	childSetValue("emote_combo", "[None]");
 
 	childSetCommitCallback("ease_in_time", onCommitEaseIn, this);
-	childSetValidate("ease_in_time", validateEaseIn);
+	childSetValidate("ease_in_time", boost::bind(&LLFloaterAnimPreview::validateEaseIn, this, _1));
 	childSetCommitCallback("ease_out_time", onCommitEaseOut, this);
-	childSetValidate("ease_out_time", validateEaseOut);
+	childSetValidate("ease_out_time", boost::bind(&LLFloaterAnimPreview::validateEaseOut, this, _1));
 }
 
 //-----------------------------------------------------------------------------
@@ -151,7 +186,6 @@ void LLFloaterAnimPreview::setAnimCallbacks()
 //-----------------------------------------------------------------------------
 BOOL LLFloaterAnimPreview::postBuild()
 {
-	LLRect r;
 	LLKeyframeMotion* motionp = NULL;
 	LLBVHLoader* loaderp = NULL;
 
@@ -172,62 +206,13 @@ BOOL LLFloaterAnimPreview::postBuild()
 		PREVIEW_HPAD + PREF_BUTTON_HEIGHT + PREVIEW_HPAD);
 	mPreviewImageRect.set(0.f, 1.f, 1.f, 0.f);
 
-	S32 y = mPreviewRect.mTop + BTN_HEIGHT;
-	S32 btn_left = PREVIEW_HPAD;
-
-	r.set( btn_left, y, btn_left + 32, y - BTN_HEIGHT );
 	mPlayButton = getChild<LLButton>( "play_btn");
-	if (!mPlayButton)
-	{
-		mPlayButton = new LLButton(std::string("play_btn"), LLRect(0,0,0,0));
-	}
-	mPlayButton->setClickedCallback(onBtnPlay);
-	mPlayButton->setCallbackUserData(this);
-
-	mPlayButton->setImages(std::string("button_anim_play.tga"),
-						   std::string("button_anim_play_selected.tga"));
-	mPlayButton->setDisabledImages(LLStringUtil::null,LLStringUtil::null);
-
-	mPlayButton->setScaleImage(TRUE);
+	mPlayButton->setClickedCallback(onBtnPlay, this);
 
 	mStopButton = getChild<LLButton>( "stop_btn");
-	if (!mStopButton)
-	{
-		mStopButton = new LLButton(std::string("stop_btn"), LLRect(0,0,0,0));
-	}
-	mStopButton->setClickedCallback(onBtnStop);
-	mStopButton->setCallbackUserData(this);
-
-	mStopButton->setImages(std::string("button_anim_stop.tga"),
-						   std::string("button_anim_stop_selected.tga"));
-	mStopButton->setDisabledImages(LLStringUtil::null,LLStringUtil::null);
-
-	mStopButton->setScaleImage(TRUE);
-
-	r.set(r.mRight + PREVIEW_HPAD, y, getRect().getWidth() - PREVIEW_HPAD, y - BTN_HEIGHT);
-	//childSetCommitCallback("playback_slider", onSliderMove, this);
+	mStopButton->setClickedCallback(onBtnStop, this);
 
 	childHide("bad_animation_text");
-
-	//childSetCommitCallback("preview_base_anim", onCommitBaseAnim, this);
-	//childSetValue("preview_base_anim", "Standing");
-
-	//childSetCommitCallback("priority", onCommitPriority, this);
-	//childSetCommitCallback("loop_check", onCommitLoop, this);
-	//childSetCommitCallback("loop_in_point", onCommitLoopIn, this);
-	//childSetValidate("loop_in_point", validateLoopIn);
-	//childSetCommitCallback("loop_out_point", onCommitLoopOut, this);
-	//childSetValidate("loop_out_point", validateLoopOut);
-
-	//childSetCommitCallback("hand_pose_combo", onCommitHandPose, this);
-	
-	//childSetCommitCallback("emote_combo", onCommitEmote, this);
-	//childSetValue("emote_combo", "[None]");
-
-	//childSetCommitCallback("ease_in_time", onCommitEaseIn, this);
-	//childSetValidate("ease_in_time", validateEaseIn);
-	//childSetCommitCallback("ease_out_time", onCommitEaseOut, this);
-	//childSetValidate("ease_out_time", validateEaseOut);
 
 	std::string exten = gDirUtilp->getExtension(mFilename);
 	if (exten == "bvh")
@@ -254,7 +239,19 @@ BOOL LLFloaterAnimPreview::postBuild()
 			{
 				file_buffer[file_size] = '\0';
 				llinfos << "Loading BVH file " << mFilename << llendl;
-				loaderp = new LLBVHLoader(file_buffer);
+				ELoadStatus load_status = E_ST_OK;
+				S32 line_number = 0; 
+				loaderp = new LLBVHLoader(file_buffer, load_status, line_number);
+				std::string status = getString(STATUS[load_status]);
+				
+				if(load_status == E_ST_NO_XLT_FILE)
+				{
+					llwarns << "NOTE: No translation table found." << llendl;
+				}
+				else
+				{
+					llwarns << "ERROR: [line: " << line_number << "] " << status << llendl;
+				}
 			}
 
 			infile.close() ;
@@ -347,7 +344,7 @@ BOOL LLFloaterAnimPreview::postBuild()
 			else
 			{
 				LLUIString out_str = getString("failed_file_read");
-				out_str.setArg("[STATUS]", loaderp->getStatus()); // *TODO:Translate
+				out_str.setArg("[STATUS]", getString(STATUS[loaderp->getStatus()])); 
 				childSetValue("bad_animation_text", out_str.getString());
 			}
 		}
@@ -813,57 +810,53 @@ void LLFloaterAnimPreview::onCommitEaseOut(LLUICtrl* ctrl, void* data)
 //-----------------------------------------------------------------------------
 // validateEaseIn()
 //-----------------------------------------------------------------------------
-BOOL LLFloaterAnimPreview::validateEaseIn(LLUICtrl* spin, void* data)
+bool LLFloaterAnimPreview::validateEaseIn(const LLSD& data)
 {
-	LLFloaterAnimPreview* previewp = (LLFloaterAnimPreview*)data;	
-	if (!previewp->getEnabled())
-		return FALSE;
+	if (!getEnabled())
+		return false;
 
-	LLVOAvatar* avatarp = previewp->mAnimPreview->getDummyAvatar();
-	LLKeyframeMotion* motionp = (LLKeyframeMotion*)avatarp->findMotion(previewp->mMotionID);
+	LLVOAvatar* avatarp = mAnimPreview->getDummyAvatar();
+	LLKeyframeMotion* motionp = (LLKeyframeMotion*)avatarp->findMotion(mMotionID);
 	
 	if (!motionp->getLoop())
 	{
-		F32 new_ease_in = llclamp((F32)previewp->childGetValue("ease_in_time").asReal(), 0.f, motionp->getDuration() - motionp->getEaseOutDuration());
-		previewp->childSetValue("ease_in_time", LLSD(new_ease_in));
+		F32 new_ease_in = llclamp((F32)childGetValue("ease_in_time").asReal(), 0.f, motionp->getDuration() - motionp->getEaseOutDuration());
+		childSetValue("ease_in_time", LLSD(new_ease_in));
 	}
 	
-	return TRUE;
+	return true;
 }
 
 //-----------------------------------------------------------------------------
 // validateEaseOut()
 //-----------------------------------------------------------------------------
-BOOL LLFloaterAnimPreview::validateEaseOut(LLUICtrl* spin, void* data)
+bool LLFloaterAnimPreview::validateEaseOut(const LLSD& data)
 {
-	LLFloaterAnimPreview* previewp = (LLFloaterAnimPreview*)data;
+	if (!getEnabled())
+		return false;
 
-	if (!previewp->getEnabled())
-		return FALSE;
-
-	LLVOAvatar* avatarp = previewp->mAnimPreview->getDummyAvatar();
-	LLKeyframeMotion* motionp = (LLKeyframeMotion*)avatarp->findMotion(previewp->mMotionID);
+	LLVOAvatar* avatarp = mAnimPreview->getDummyAvatar();
+	LLKeyframeMotion* motionp = (LLKeyframeMotion*)avatarp->findMotion(mMotionID);
 	
 	if (!motionp->getLoop())
 	{
-		F32 new_ease_out = llclamp((F32)previewp->childGetValue("ease_out_time").asReal(), 0.f, motionp->getDuration() - motionp->getEaseInDuration());
-		previewp->childSetValue("ease_out_time", LLSD(new_ease_out));
+		F32 new_ease_out = llclamp((F32)childGetValue("ease_out_time").asReal(), 0.f, motionp->getDuration() - motionp->getEaseInDuration());
+		childSetValue("ease_out_time", LLSD(new_ease_out));
 	}
 
-	return TRUE;
+	return true;
 }
 
 //-----------------------------------------------------------------------------
 // validateLoopIn()
 //-----------------------------------------------------------------------------
-BOOL LLFloaterAnimPreview::validateLoopIn(LLUICtrl* ctrl, void* data)
+bool LLFloaterAnimPreview::validateLoopIn(const LLSD& data)
 {
-	LLFloaterAnimPreview* previewp = (LLFloaterAnimPreview*)data;
-	if (!previewp->getEnabled())
-		return FALSE;
+	if (!getEnabled())
+		return false;
 
-	F32 loop_in_value = (F32)previewp->childGetValue("loop_in_point").asReal();
-	F32 loop_out_value = (F32)previewp->childGetValue("loop_out_point").asReal();
+	F32 loop_in_value = (F32)childGetValue("loop_in_point").asReal();
+	F32 loop_out_value = (F32)childGetValue("loop_out_point").asReal();
 
 	if (loop_in_value < 0.f)
 	{
@@ -878,21 +871,20 @@ BOOL LLFloaterAnimPreview::validateLoopIn(LLUICtrl* ctrl, void* data)
 		loop_in_value = loop_out_value;
 	}
 
-	previewp->childSetValue("loop_in_point", LLSD(loop_in_value));
-	return TRUE;
+	childSetValue("loop_in_point", LLSD(loop_in_value));
+	return true;
 }
 
 //-----------------------------------------------------------------------------
 // validateLoopOut()
 //-----------------------------------------------------------------------------
-BOOL LLFloaterAnimPreview::validateLoopOut(LLUICtrl* spin, void* data)
+bool LLFloaterAnimPreview::validateLoopOut(const LLSD& data)
 {
-	LLFloaterAnimPreview* previewp = (LLFloaterAnimPreview*)data;
-	if (!previewp->getEnabled())
-		return FALSE;
+	if (!getEnabled())
+		return false;
 
-	F32 loop_out_value = (F32)previewp->childGetValue("loop_out_point").asReal();
-	F32 loop_in_value = (F32)previewp->childGetValue("loop_in_point").asReal();
+	F32 loop_out_value = (F32)childGetValue("loop_out_point").asReal();
+	F32 loop_in_value = (F32)childGetValue("loop_in_point").asReal();
 
 	if (loop_out_value < 0.f)
 	{
@@ -907,8 +899,8 @@ BOOL LLFloaterAnimPreview::validateLoopOut(LLUICtrl* spin, void* data)
 		loop_out_value = loop_in_value;
 	}
 
-	previewp->childSetValue("loop_out_point", LLSD(loop_out_value));
-	return TRUE;
+	childSetValue("loop_out_point", LLSD(loop_out_value));
+	return true;
 }
 
 
@@ -1018,7 +1010,7 @@ void LLFloaterAnimPreview::onBtnOK(void* userdata)
 		LLKeyframeDataCache::removeKeyframeData(floaterp->mMotionID);
 	}
 
-	floaterp->close(false);
+	floaterp->closeFloater(false);
 }
 
 //-----------------------------------------------------------------------------

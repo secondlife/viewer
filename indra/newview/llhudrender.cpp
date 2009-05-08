@@ -47,17 +47,19 @@
 void hud_render_utf8text(const std::string &str, const LLVector3 &pos_agent,
 					 const LLFontGL &font,
 					 const U8 style,
+					 const LLFontGL::ShadowType shadow,
 					 const F32 x_offset, const F32 y_offset,
 					 const LLColor4& color,
 					 const BOOL orthographic)
 {
 	LLWString wstr(utf8str_to_wstring(str));
-	hud_render_text(wstr, pos_agent, font, style, x_offset, y_offset, color, orthographic);
+	hud_render_text(wstr, pos_agent, font, style, shadow, x_offset, y_offset, color, orthographic);
 }
 
 void hud_render_text(const LLWString &wstr, const LLVector3 &pos_agent,
 					const LLFontGL &font,
 					const U8 style,
+					const LLFontGL::ShadowType shadow,
 					const F32 x_offset, const F32 y_offset,
 					const LLColor4& color,
 					const BOOL orthographic)
@@ -123,7 +125,7 @@ void hud_render_text(const LLWString &wstr, const LLVector3 &pos_agent,
 	//glScalef(right_scale, up_scale, 1.f);
 	F32 right_x;
 	
-	font.render(wstr, 0, 0, 0, color, LLFontGL::LEFT, LLFontGL::BASELINE, style, wstr.length(), 1000, &right_x);
+	font.render(wstr, 0, 0, 0, color, LLFontGL::LEFT, LLFontGL::BASELINE, style, shadow, wstr.length(), 1000, &right_x);
 	LLUI::popMatrix();
 	
 	glMatrixMode(GL_PROJECTION);

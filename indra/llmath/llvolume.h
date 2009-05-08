@@ -52,7 +52,7 @@ class LLVolume;
 #include "llquaternion.h"
 #include "llstrider.h"
 #include "v4coloru.h"
-#include "llmemory.h"
+#include "llrefcount.h"
 #include "llfile.h"
 
 //============================================================================

@@ -41,6 +41,7 @@
 #include "llsecondlifeurls.h"
 #include "llremoteparcelrequest.h"
 #include "llfloater.h"
+#include "llfloaterreg.h"
 
 #include "llagent.h"
 #include "llviewerwindow.h"
@@ -51,6 +52,7 @@
 #include "lltextbox.h"
 #include "llviewertexteditor.h"
 #include "lltexturectrl.h"
+#include "lltrans.h"
 #include "llworldmap.h"
 #include "llviewerregion.h"
 #include "lluictrlfactory.h"
@@ -62,7 +64,7 @@
 std::list<LLPanelPlace*> LLPanelPlace::sAllPanels;
 
 LLPanelPlace::LLPanelPlace()
-:	LLPanel(std::string("Places Panel")),
+:	LLPanel(),
 	mParcelID(),
 	mRequestedID(),
 	mRegionID(),
@@ -102,20 +104,16 @@ BOOL LLPanelPlace::postBuild()
     mLocationDisplay = getChild<LLTextBox>("location_editor");
 
 	mTeleportBtn = getChild<LLButton>( "teleport_btn");
-	mTeleportBtn->setClickedCallback(onClickTeleport);
-	mTeleportBtn->setCallbackUserData(this);
+	mTeleportBtn->setClickedCallback(onClickTeleport, this);
 
 	mMapBtn = getChild<LLButton>( "map_btn");
-	mMapBtn->setClickedCallback(onClickMap);
-	mMapBtn->setCallbackUserData(this);
+	mMapBtn->setClickedCallback(onClickMap, this);
 
 	//mLandmarkBtn = getChild<LLButton>( "landmark_btn");
-	//mLandmarkBtn->setClickedCallback(onClickLandmark);
-	//mLandmarkBtn->setCallbackUserData(this);
+	//mLandmarkBtn->setClickedCallback(onClickLandmark, this);
 
 	mAuctionBtn = getChild<LLButton>( "auction_btn");
-	mAuctionBtn->setClickedCallback(onClickAuction);
-	mAuctionBtn->setCallbackUserData(this);
+	mAuctionBtn->setClickedCallback(onClickAuction, this);
 
 	// Default to no auction button.  We'll show it if we get an auction id
 	mAuctionBtn->setVisible(FALSE);
@@ -128,8 +126,11 @@ BOOL LLPanelPlace::postBuild()
 
 void LLPanelPlace::displayItemInfo(const LLInventoryItem* pItem)
 {
-	mNameEditor->setText(pItem->getName());
-	mDescEditor->setText(pItem->getDescription());
+	if (pItem)
+	{
+		mNameEditor->setText(pItem->getName());
+		mDescEditor->setText(pItem->getDescription());
+	}
 }
 
 // Use this for search directory clicks, because we are totally
@@ -410,20 +411,20 @@ void LLPanelPlace::onClickTeleport(void* data)
 	LLFloater* parent_floaterp = dynamic_cast<LLFloater*>(parent_viewp);
 	if (parent_floaterp)
 	{
-		parent_floaterp->close();
+		parent_floaterp->closeFloater();
 	}
 	// LLFloater* parent_floaterp = (LLFloater*)self->getParent();
 	parent_viewp->setVisible(false);
 	if(self->mLandmarkAssetID.notNull())
 	{
 		gAgent.teleportViaLandmark(self->mLandmarkAssetID);
-		gFloaterWorldMap->trackLandmark(self->mLandmarkAssetID);
+		LLFloaterWorldMap::getInstance()->trackLandmark(self->mLandmarkAssetID);
 
 	}
 	else if (!self->mPosGlobal.isExactlyZero())
 	{
 		gAgent.teleportViaLocation(self->mPosGlobal);
-		gFloaterWorldMap->trackLocation(self->mPosGlobal);
+		LLFloaterWorldMap::getInstance()->trackLocation(self->mPosGlobal);
 	}
 }
 
@@ -433,8 +434,8 @@ void LLPanelPlace::onClickMap(void* data)
 	LLPanelPlace* self = (LLPanelPlace*)data;
 	if (!self->mPosGlobal.isExactlyZero())
 	{
-		gFloaterWorldMap->trackLocation(self->mPosGlobal);
-		LLFloaterWorldMap::show(NULL, TRUE);
+		LLFloaterWorldMap::getInstance()->trackLocation(self->mPosGlobal);
+		LLFloaterReg::showInstance("world_map", "center");
 	}
 }
 
@@ -453,12 +454,12 @@ void LLPanelPlace::onClickLandmark(void* data)
 void LLPanelPlace::onClickAuction(void* data)
 {
 	LLPanelPlace* self = (LLPanelPlace*)data;
-	LLSD payload;
-	payload["auction_id"] = self->mAuctionID;
+	LLSD args;
+	args["AUCTION_ID"] = self->mAuctionID;
 
-	LLNotifications::instance().add("GoToAuctionPage", LLSD(), payload, callbackAuctionWebPage);
+	LLNotifications::instance().add("GoToAuctionPage", args);
 }
-
+/*
 // static
 bool LLPanelPlace::callbackAuctionWebPage(const LLSD& notification, const LLSD& response)
 {
@@ -466,7 +467,7 @@ bool LLPanelPlace::callbackAuctionWebPage(const LLSD& notification, const LLSD& 
 	if (0 == option)
 	{
 		std::string url;
-		url = AUCTION_URL + llformat("%010d", response["auction_id"].asInteger());
+		url = LLNotifications::instance().getGlobalString("AUCTION_URL")  + llformat("%010d", response["auction_id"].asInteger());
 
 		llinfos << "Loading auction page " << url << llendl;
 
@@ -474,3 +475,5 @@ bool LLPanelPlace::callbackAuctionWebPage(const LLSD& notification, const LLSD& 
 	}
 	return false;
 }
+*/
+

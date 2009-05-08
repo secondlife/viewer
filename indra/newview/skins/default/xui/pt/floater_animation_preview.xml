@@ -14,127 +14,127 @@
 		Pose de Mão
 	</text>
 	<combo_box label="" name="hand_pose_combo" tool_tip="Controla o que as mãos fazem durante a animação">
-		<combo_item name="Spread">
+		<combo_box.item name="Spread">
 			Espreguiçar
-		</combo_item>
-		<combo_item name="Relaxed">
+		</combo_box.item>
+		<combo_box.item name="Relaxed">
 			Relaxado
-		</combo_item>
-		<combo_item name="PointBoth">
+		</combo_box.item>
+		<combo_box.item name="PointBoth">
 			Apontar Ambos
-		</combo_item>
-		<combo_item name="Fist">
+		</combo_box.item>
+		<combo_box.item name="Fist">
 			Punho
-		</combo_item>
-		<combo_item name="RelaxedLeft">
+		</combo_box.item>
+		<combo_box.item name="RelaxedLeft">
 			Relaxado para Esquerda
-		</combo_item>
-		<combo_item name="PointLeft">
+		</combo_box.item>
+		<combo_box.item name="PointLeft">
 			Apontar à Esquerda
-		</combo_item>
-		<combo_item name="FistLeft">
+		</combo_box.item>
+		<combo_box.item name="FistLeft">
 			Punho Esquerdo
-		</combo_item>
-		<combo_item name="RelaxedRight">
+		</combo_box.item>
+		<combo_box.item name="RelaxedRight">
 			Relaxado para Direita
-		</combo_item>
-		<combo_item name="PointRight">
+		</combo_box.item>
+		<combo_box.item name="PointRight">
 			Apontar à Direita
-		</combo_item>
-		<combo_item name="FistRight">
+		</combo_box.item>
+		<combo_box.item name="FistRight">
 			Punho Direito
-		</combo_item>
-		<combo_item name="SaluteRight">
+		</combo_box.item>
+		<combo_box.item name="SaluteRight">
 			Saudar à Direita
-		</combo_item>
-		<combo_item name="Typing">
+		</combo_box.item>
+		<combo_box.item name="Typing">
 			Digitando
-		</combo_item>
-		<combo_item name="PeaceRight">
+		</combo_box.item>
+		<combo_box.item name="PeaceRight">
 			Pacífico à Direita
-		</combo_item>
+		</combo_box.item>
 	</combo_box>
 	<text name="emote_label">
 		Expressão
 	</text>
 	<combo_box label="" name="emote_combo" tool_tip="Controla o que a face faz durante a animação.">
-		<combo_item name="[None]">
+		<combo_box.item name="[None]">
 			[None]
-		</combo_item>
-		<combo_item name="Aaaaah">
+		</combo_box.item>
+		<combo_box.item name="Aaaaah">
 			Aaaaah
-		</combo_item>
-		<combo_item name="Afraid">
+		</combo_box.item>
+		<combo_box.item name="Afraid">
 			Temeroso
-		</combo_item>
-		<combo_item name="Angry">
+		</combo_box.item>
+		<combo_box.item name="Angry">
 			Raivoso
-		</combo_item>
-		<combo_item name="BigSmile">
+		</combo_box.item>
+		<combo_box.item name="BigSmile">
 			Sorrisão
-		</combo_item>
-		<combo_item name="Bored">
+		</combo_box.item>
+		<combo_box.item name="Bored">
 			Entediado
-		</combo_item>
-		<combo_item name="Cry">
+		</combo_box.item>
+		<combo_box.item name="Cry">
 			Chorar
-		</combo_item>
-		<combo_item name="Disdain">
+		</combo_box.item>
+		<combo_box.item name="Disdain">
 			Desprezar
-		</combo_item>
-		<combo_item name="Embarrassed">
+		</combo_box.item>
+		<combo_box.item name="Embarrassed">
 			Envergonhado
-		</combo_item>
-		<combo_item name="Frown">
+		</combo_box.item>
+		<combo_box.item name="Frown">
 			Franzir a testa
-		</combo_item>
-		<combo_item name="Kiss">
+		</combo_box.item>
+		<combo_box.item name="Kiss">
 			Beijar
-		</combo_item>
-		<combo_item name="Laugh">
+		</combo_box.item>
+		<combo_box.item name="Laugh">
 			Rir
-		</combo_item>
-		<combo_item name="Plllppt">
+		</combo_box.item>
+		<combo_box.item name="Plllppt">
 			Plllppt
-		</combo_item>
-		<combo_item name="Repulsed">
+		</combo_box.item>
+		<combo_box.item name="Repulsed">
 			Enojado
-		</combo_item>
-		<combo_item name="Sad">
+		</combo_box.item>
+		<combo_box.item name="Sad">
 			Triste
-		</combo_item>
-		<combo_item name="Shrug">
+		</combo_box.item>
+		<combo_box.item name="Shrug">
 			Indiferença
-		</combo_item>
-		<combo_item name="Smile">
+		</combo_box.item>
+		<combo_box.item name="Smile">
 			Sorriso
-		</combo_item>
-		<combo_item name="Surprise">
+		</combo_box.item>
+		<combo_box.item name="Surprise">
 			Surpreso
-		</combo_item>
-		<combo_item name="Wink">
+		</combo_box.item>
+		<combo_box.item name="Wink">
 			Piscar
-		</combo_item>
-		<combo_item name="Worry">
+		</combo_box.item>
+		<combo_box.item name="Worry">
 			Preocupado
-		</combo_item>
+		</combo_box.item>
 	</combo_box>
 	<text name="preview_label">
 		Prever enquanto
 	</text>
 	<combo_box label="" name="preview_base_anim" tool_tip="Use isto para testar o comportamento de sua animação enquanto seu avatar executa ações comuns.">
-		<combo_item name="Standing">
+		<combo_box.item name="Standing">
 			Parado
-		</combo_item>
-		<combo_item name="Walking">
+		</combo_box.item>
+		<combo_box.item name="Walking">
 			Andando
-		</combo_item>
-		<combo_item name="Sitting">
+		</combo_box.item>
+		<combo_box.item name="Sitting">
 			Sentando
-		</combo_item>
-		<combo_item name="Flying">
+		</combo_box.item>
+		<combo_box.item name="Flying">
 			Voando
-		</combo_item>
+		</combo_box.item>
 	</combo_box>
 	<spinner label="Facilitar a entrada (sec)" name="ease_in_time" tool_tip="Quantidade de tempo (em segundos) para que as animações se mesclem."/>
 	<spinner label="Facilitar a saída (sec)" name="ease_out_time" tool_tip="Quantidade de tempo (em segundos) para que a animações se mesclem."/>

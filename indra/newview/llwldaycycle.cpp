@@ -35,8 +35,7 @@
 #include "llwldaycycle.h"
 #include "llsdserialize.h"
 #include "llwlparammanager.h"
-
-#include "llviewerwindow.h"
+#include "llnotifications.h"
 
 #include <map>
 

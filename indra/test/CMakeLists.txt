@@ -34,6 +34,7 @@ set(test_SOURCE_FILES
     llblowfish_tut.cpp
     llbuffer_tut.cpp
     lldate_tut.cpp
+    lldoubledispatch_tut.cpp
     llerror_tut.cpp
     llhost_tut.cpp
     llhttpdate_tut.cpp
@@ -64,6 +65,7 @@ set(test_SOURCE_FILES
     lltimestampcache_tut.cpp
     lltiming_tut.cpp
     lltranscode_tut.cpp
+    lltreeiterators_tut.cpp
     lltut.cpp
     lluri_tut.cpp
     lluuidhashmap_tut.cpp
@@ -104,7 +106,7 @@ endif (NOT DARWIN)
 set_source_files_properties(${test_HEADER_FILES}
                             PROPERTIES HEADER_FILE_ONLY TRUE)
 
-list(APPEND test_SOURC_FILES ${test_HEADER_FILES})
+list(APPEND test_SOURCE_FILES ${test_HEADER_FILES})
 
 add_executable(test ${test_SOURCE_FILES})
 
@@ -120,6 +122,8 @@ target_link_libraries(test
     ${APRICONV_LIBRARIES}
     ${PTHREAD_LIBRARY}
     ${WINDOWS_LIBRARIES}
+    ${BOOST_PROGRAM_OPTIONS_LIBRARY}
+    ${BOOST_REGEX_LIBRARY}
     ${DL_LIBRARY}
     )
 

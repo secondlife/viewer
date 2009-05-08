@@ -196,16 +196,18 @@ static struct ft_display_info ft_display_table[] =
 	{ LLFastTimer::FTM_RENDER_FONTS,		"   Fonts",			&LLColor4::pink1, 0 },
 	{ LLFastTimer::FTM_SWAP,				"  Swap",			&LLColor4::pink2, 0 },
 	{ LLFastTimer::FTM_CLIENT_COPY,			"  Client Copy",	&LLColor4::red1, 1},
+	{ LLFastTimer::FTM_SWAP,					"  Swap",			&LLColor4::pink2, 0 },
+	{ LLFastTimer::FTM_CLIENT_COPY,				"  Client Copy",	&LLColor4::red1, 1},
 
 #if 0 || !LL_RELEASE_FOR_DOWNLOAD
-	{ LLFastTimer::FTM_TEMP1,				" Temp1",			&LLColor4::red1, 0 },
-	{ LLFastTimer::FTM_TEMP2,				" Temp2",			&LLColor4::magenta1, 0 },
-	{ LLFastTimer::FTM_TEMP3,				" Temp3",			&LLColor4::red2, 0 },
-	{ LLFastTimer::FTM_TEMP4,				" Temp4",			&LLColor4::magenta2, 0 },
-	{ LLFastTimer::FTM_TEMP5,				" Temp5",			&LLColor4::red3, 0 },
-	{ LLFastTimer::FTM_TEMP6,				" Temp6",			&LLColor4::magenta3, 0 },
-	{ LLFastTimer::FTM_TEMP7,				" Temp7",			&LLColor4::red4, 0 },
-	{ LLFastTimer::FTM_TEMP8,				" Temp8",			&LLColor4::magenta4, 0 },
+	{ LLFastTimer::FTM_TEMP1,					" Temp1",			&LLColor4::red1, 0 },
+	{ LLFastTimer::FTM_TEMP2,					" Temp2",			&LLColor4::magenta1, 0 },
+	{ LLFastTimer::FTM_TEMP3,					" Temp3",			&LLColor4::red2, 0 },
+	{ LLFastTimer::FTM_TEMP4,					" Temp4",			&LLColor4::magenta2, 0 },
+	{ LLFastTimer::FTM_TEMP5,					" Temp5",			&LLColor4::red3, 0 },
+	{ LLFastTimer::FTM_TEMP6,					" Temp6",			&LLColor4::magenta3, 0 },
+	{ LLFastTimer::FTM_TEMP7,					" Temp7",			&LLColor4::red4, 0 },
+	{ LLFastTimer::FTM_TEMP8,					" Temp8",			&LLColor4::magenta4, 0 },
 #endif
 	
 	{ LLFastTimer::FTM_OTHER,				" Other",			&red0 }
@@ -215,9 +217,10 @@ static const int FTV_DISPLAY_NUM  = LL_ARRAY_SIZE(ft_display_table);
 
 S32 ft_display_idx[FTV_DISPLAY_NUM]; // line of table entry for display purposes (for collapse)
 
-LLFastTimerView::LLFastTimerView(const std::string& name, const LLRect& rect)
-	:	LLFloater(name, rect, std::string("Fast Timers"))
+LLFastTimerView::LLFastTimerView(const LLRect& rect)
+:	LLFloater()
 {
+	setRect(rect);
 	setVisible(FALSE);
 	mDisplayMode = 0;
 	mAvgCountTotal = 0;

@@ -82,12 +82,9 @@ class LLFloaterReporter
 :	public LLFloater
 {
 public:
-	LLFloaterReporter(const std::string& name, 
-					  const LLRect &rect, 
-					  const std::string& title, 
-					  EReportType = UNKNOWN_REPORT);
+	LLFloaterReporter(EReportType = UNKNOWN_REPORT);
 	/*virtual*/ ~LLFloaterReporter();
-
+	/*virtual*/ BOOL postBuild();
 	virtual void draw();
 
 	// Enables all buttons
@@ -107,7 +104,6 @@ public:
 	// returns a pointer to reporter of report_type
 	static LLFloaterReporter* getReporter(EReportType report_type);
 	static LLFloaterReporter* createNewAbuseReporter();
-	static LLFloaterReporter* createNewBugReporter();
 
 	// static
 	static void processRegionInfo(LLMessageSystem* msg);

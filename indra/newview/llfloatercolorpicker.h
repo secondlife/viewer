@@ -36,7 +36,7 @@
 #include <vector>
 
 #include "llfloater.h"
-#include "llmemory.h"
+#include "llpointer.h"
 #include "llcolorswatch.h"
 #include "llspinctrl.h"
 #include "lltextureentry.h"
@@ -61,7 +61,6 @@ class LLFloaterColorPicker
 		virtual BOOL handleMouseUp ( S32 x, S32 y, MASK mask );
 		virtual BOOL handleHover ( S32 x, S32 y, MASK mask );
 		virtual void onMouseCaptureLost();
-		virtual void onClose(bool app_quitting);
 
 		// implicit methods
 		void createUI ();
@@ -123,14 +122,11 @@ class LLFloaterColorPicker
 		// callbacks
 		static void onClickCancel ( void* data );
 		static void onClickSelect ( void* data );
-		static void onClickPipette ( void* data );
+			   void onClickPipette ( );
 		static void onTextCommit ( LLUICtrl* ctrl, void* data );
 		static void onImmediateCheck ( LLUICtrl* ctrl, void* data );
-		static void onColorSelect( const LLTextureEntry& te, void *data );
+			   void onColorSelect( const LLTextureEntry& te );
 	private:
-		// turns on or off text entry commit call backs
-		void enableTextCallbacks ( BOOL stateIn );
-
 		// draws color selection palette
 		void drawPalette ();
 

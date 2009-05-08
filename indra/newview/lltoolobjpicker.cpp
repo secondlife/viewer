@@ -131,7 +131,7 @@ BOOL LLToolObjPicker::handleHover(S32 x, S32 y, MASK mask)
 
 		cursor = UI_CURSOR_TOOLPICKOBJECT3;
 
-		gViewerWindow->getWindow()->setCursor(cursor);
+		gViewerWindow->setCursor(cursor);
 	}
 	return handled;
 }

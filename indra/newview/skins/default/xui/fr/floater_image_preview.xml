@@ -10,36 +10,36 @@
 		Prévisualiser comme :
 	</text>
 	<combo_box label="Habits" name="clothing_type_combo" left="126" >
-		<combo_item name="Image">
+		<combo_box.item name="Image">
 			Image
-		</combo_item>
-		<combo_item name="Hair">
+		</combo_box.item>
+		<combo_box.item name="Hair">
 			Cheveux
-		</combo_item>
-		<combo_item name="FemaleHead">
+		</combo_box.item>
+		<combo_box.item name="FemaleHead">
 			Tête de femme
-		</combo_item>
-		<combo_item name="FemaleUpperBody">
+		</combo_box.item>
+		<combo_box.item name="FemaleUpperBody">
 			Corps de femme (haut)
-		</combo_item>
-		<combo_item name="FemaleLowerBody">
+		</combo_box.item>
+		<combo_box.item name="FemaleLowerBody">
 			Corps de femme (bas)
-		</combo_item>
-		<combo_item name="MaleHead">
+		</combo_box.item>
+		<combo_box.item name="MaleHead">
 			Tête d&apos;homme
-		</combo_item>
-		<combo_item name="MaleUpperBody">
+		</combo_box.item>
+		<combo_box.item name="MaleUpperBody">
 			Corps d&apos;homme (haut)
-		</combo_item>
-		<combo_item name="MaleLowerBody">
+		</combo_box.item>
+		<combo_box.item name="MaleLowerBody">
 			Corps d&apos;homme (bas)
-		</combo_item>
-		<combo_item name="Skirt">
+		</combo_box.item>
+		<combo_box.item name="Skirt">
 			Jupe
-		</combo_item>
-		<combo_item name="SculptedPrim">
+		</combo_box.item>
+		<combo_box.item name="SculptedPrim">
 			Sculptie
-		</combo_item>
+		</combo_box.item>
 	</combo_box>
 	<text name="bad_image_text">
 		Impossible de lire l&apos;image.

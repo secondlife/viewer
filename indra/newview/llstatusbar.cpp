@@ -53,6 +53,7 @@
 #include "llmenugl.h"
 #include "llnotify.h"
 #include "llimview.h"
+#include "llsd.h"
 #include "lltextbox.h"
 #include "llui.h"
 #include "llviewerparceloverlay.h"
@@ -73,9 +74,10 @@
 #include "lltoolmgr.h"
 #include "llfocusmgr.h"
 #include "llappviewer.h"
-
+#include "lltrans.h"
 // library includes
 #include "imageids.h"
+#include "llfloaterreg.h"
 #include "llfontgl.h"
 #include "llrect.h"
 #include "llerror.h"
@@ -123,13 +125,15 @@ std::vector<std::string> LLStatusBar::sDays;
 std::vector<std::string> LLStatusBar::sMonths;
 const U32 LLStatusBar::MAX_DATE_STRING_LENGTH = 2000;
 
-LLStatusBar::LLStatusBar(const std::string& name, const LLRect& rect)
-:	LLPanel(name, LLRect(), FALSE),		// not mouse opaque
-mBalance(0),
-mHealth(100),
-mSquareMetersCredit(0),
-mSquareMetersCommitted(0)
+LLStatusBar::LLStatusBar(const LLRect& rect)
+:	LLPanel(),
+	mBalance(0),
+	mHealth(100),
+	mSquareMetersCredit(0),
+	mSquareMetersCommitted(0)
 {
+	setRect(rect);
+	
 	// status bar can possible overlay menus?
 	setMouseOpaque(FALSE);
 	setIsChrome(TRUE);
@@ -180,25 +184,28 @@ mSquareMetersCommitted(0)
 	S32 y = 0;
 	LLRect r;
 	r.set( x-SIM_STAT_WIDTH, y+MENU_BAR_HEIGHT-1, x, y+1);
-	mSGBandwidth = new LLStatGraph("BandwidthGraph", r);
-	mSGBandwidth->setFollows(FOLLOWS_BOTTOM | FOLLOWS_RIGHT);
+	LLStatGraph::Params sgp;
+	sgp.name("BandwidthGraph");
+	sgp.rect(r);
+	sgp.follows.flags(FOLLOWS_BOTTOM | FOLLOWS_RIGHT);
+	sgp.mouse_opaque(false);
+	mSGBandwidth = LLUICtrlFactory::create<LLStatGraph>(sgp);
 	mSGBandwidth->setStat(&LLViewerStats::getInstance()->mKBitStat);
-	std::string text = childGetText("bandwidth_tooltip") + " ";
-	LLUIString bandwidth_tooltip = text;	// get the text from XML until this widget is XML driven
-	mSGBandwidth->setLabel(bandwidth_tooltip.getString());
 	mSGBandwidth->setUnits("Kbps");
 	mSGBandwidth->setPrecision(0);
-	mSGBandwidth->setMouseOpaque(FALSE);
 	addChild(mSGBandwidth);
 	x -= SIM_STAT_WIDTH + 2;
 
 	r.set( x-SIM_STAT_WIDTH, y+MENU_BAR_HEIGHT-1, x, y+1);
-	mSGPacketLoss = new LLStatGraph("PacketLossPercent", r);
-	mSGPacketLoss->setFollows(FOLLOWS_BOTTOM | FOLLOWS_RIGHT);
+	//these don't seem to like being reused
+	LLStatGraph::Params pgp;
+	pgp.name("PacketLossPercent");
+	pgp.rect(r);
+	pgp.follows.flags(FOLLOWS_BOTTOM | FOLLOWS_RIGHT);
+	pgp.mouse_opaque(false);
+
+	mSGPacketLoss = LLUICtrlFactory::create<LLStatGraph>(pgp);
 	mSGPacketLoss->setStat(&LLViewerStats::getInstance()->mPacketsLostPercentStat);
-	text = childGetText("packet_loss_tooltip") + " ";
-	LLUIString packet_loss_tooltip = text;	// get the text from XML until this widget is XML driven
-	mSGPacketLoss->setLabel(packet_loss_tooltip.getString());
 	mSGPacketLoss->setUnits("%");
 	mSGPacketLoss->setMin(0.f);
 	mSGPacketLoss->setMax(5.f);
@@ -206,7 +213,6 @@ mSquareMetersCommitted(0)
 	mSGPacketLoss->setThreshold(1, 1.f);
 	mSGPacketLoss->setThreshold(2, 3.f);
 	mSGPacketLoss->setPrecision(1);
-	mSGPacketLoss->setMouseOpaque(FALSE);
 	mSGPacketLoss->mPerSec = FALSE;
 	addChild(mSGPacketLoss);
 
@@ -236,9 +242,10 @@ void LLStatusBar::draw()
 
 	if (isBackgroundVisible())
 	{
+		static LLUICachedControl<S32> drop_shadow_floater ("DropShadowFloater", 0);
+		static LLUICachedControl<LLColor4> color_drop_shadow ("ColorDropShadow");
 		gl_drop_shadow(0, getRect().getHeight(), getRect().getWidth(), 0, 
-			LLUI::sColorsGroup->getColor("ColorDropShadow"), 
-			LLUI::sConfigGroup->getS32("DropShadowFloater") );
+			color_drop_shadow, drop_shadow_floater );
 	}
 	LLPanel::draw();
 }
@@ -254,51 +261,22 @@ void LLStatusBar::refresh()
 	mSGBandwidth->setThreshold(0, bwtotal*0.75f);
 	mSGBandwidth->setThreshold(1, bwtotal);
 	mSGBandwidth->setThreshold(2, bwtotal);
-
-	// *TODO: Localize / translate time
-
+	
 	// Get current UTC time, adjusted for the user's clock
 	// being off.
 	time_t utc_time;
 	utc_time = time_corrected();
 
-	// There's only one internal tm buffer.
-	struct tm* internal_time;
+	std::string timeStr = getString("time");
+	LLSD substitution;
+	substitution["datetime"] = (S32) utc_time;
+	LLStringUtil::format (timeStr, substitution);
+	mTextTime->setText(timeStr);
 
-	// Convert to Pacific, based on server's opinion of whether
-	// it's daylight savings time there.
-	internal_time = utc_to_pacific_time(utc_time, gPacificDaylightTime);
-
-	S32 hour = internal_time->tm_hour;
-	S32 min  = internal_time->tm_min;
-
-	std::string am_pm = "AM";
-	if (hour > 11)
-	{
-		hour -= 12;
-		am_pm = "PM";
-	}
-
-	std::string tz = "PST";
-	if (gPacificDaylightTime)
-	{
-		tz = "PDT";
-	}
-	// Zero hour is 12 AM
-	if (hour == 0) hour = 12;
-	std::ostringstream t;
-	t << std::setfill(' ') << std::setw(2) << hour << ":" 
-		<< std::setfill('0') << std::setw(2) << min 
-		<< " " << am_pm << " " << tz;
-	mTextTime->setText(t.str());
-
-	// Year starts at 1900, set the tooltip to have the date
-	std::ostringstream date;
-	date	<< sDays[internal_time->tm_wday] << ", "
-		<< std::setfill('0') << std::setw(2) << internal_time->tm_mday << " "
-		<< sMonths[internal_time->tm_mon] << " "
-		<< internal_time->tm_year + 1900;
-	mTextTime->setToolTip(date.str());
+	// set the tooltip to have the date
+	std::string dtStr = getString("timeTooltip");
+	LLStringUtil::format (dtStr, substitution);
+	mTextTime->setToolTip (dtStr);
 
 	LLRect r;
 	const S32 MENU_RIGHT = gMenuBarView->getRightmostMenuEdge();
@@ -492,7 +470,6 @@ void LLStatusBar::refresh()
 		mRegionDetails.mTime = mTextTime->getText();
 		mRegionDetails.mBalance = mBalance;
 		mRegionDetails.mAccessString = region->getSimAccessString();
-		mRegionDetails.mPing = region->getNetDetailsForLCD();
 		if (parcel)
 		{
 			location_name = region->getName()
@@ -514,7 +491,7 @@ void LLStatusBar::refresh()
 			
 			if (parcel->isPublic())
 			{
-				mRegionDetails.mOwner = "Public";
+				mRegionDetails.mOwner = LLTrans::getString("Public");
 			}
 			else
 			{
@@ -526,7 +503,7 @@ void LLStatusBar::refresh()
 					}
 					else
 					{
-						mRegionDetails.mOwner = "Group Owned";
+						mRegionDetails.mOwner = LLTrans::getString("GroupOwned");
 					}
 				}
 				else
@@ -544,31 +521,31 @@ void LLStatusBar::refresh()
 						   region->getSimAccessString().c_str());
 			// keep these around for the LCD to use
 			mRegionDetails.mRegionName = region->getName();
-			mRegionDetails.mParcelName = "Unknown";
+			mRegionDetails.mParcelName = LLTrans::getString("Unknown");
 			
 			mRegionDetails.mX = pos_x;
 			mRegionDetails.mY = pos_y;
 			mRegionDetails.mZ = pos_z;
 			mRegionDetails.mArea = 0;
 			mRegionDetails.mForSale = FALSE;
-			mRegionDetails.mOwner = "Unknown";
+			mRegionDetails.mOwner = LLTrans::getString("Unknown");
 			mRegionDetails.mTraffic = 0.0f;
 		}
 	}
 	else
 	{
 		// no region
-		location_name = "(Unknown)";
+		location_name = LLTrans::getString("Unknown");
 		// keep these around for the LCD to use
-		mRegionDetails.mRegionName = "Unknown";
-		mRegionDetails.mParcelName = "Unknown";
-		mRegionDetails.mAccessString = "Unknown";
+		mRegionDetails.mRegionName = LLTrans::getString("Unknown");
+		mRegionDetails.mParcelName = LLTrans::getString("Unknown");
+		mRegionDetails.mAccessString = LLTrans::getString("Unknown");
 		mRegionDetails.mX = 0;
 		mRegionDetails.mY = 0;
 		mRegionDetails.mZ = 0;
 		mRegionDetails.mArea = 0;
 		mRegionDetails.mForSale = FALSE;
-		mRegionDetails.mOwner = "Unknown";
+		mRegionDetails.mOwner = LLTrans::getString("Unknown");
 		mRegionDetails.mTraffic = 0.0f;
 	}
 
@@ -920,7 +897,7 @@ void LLStatusBar::onClickSearch(void* data)
 {
 	LLStatusBar* self = (LLStatusBar*)data;
 	std::string search_text = self->childGetText("search_editor");
-	LLFloaterDirectory::showFindAll(search_text);
+	LLFloaterReg::showInstance("search", LLSD().insert("panel", "all").insert("id", LLSD(search_text)));
 }
 
 // static

@@ -44,7 +44,7 @@
 #include "v3math.h"
 #include "v4coloru.h"
 #include "llstrider.h"
-#include "llmemory.h"
+#include "llpointer.h"
 #include "llglheaders.h"
 
 class LLVertexBuffer;

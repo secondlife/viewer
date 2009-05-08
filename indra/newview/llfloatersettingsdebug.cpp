@@ -40,16 +40,15 @@
 #include "llcolorswatch.h"
 #include "llviewercontrol.h"
 
-LLFloaterSettingsDebug* LLFloaterSettingsDebug::sInstance = NULL;
 
-LLFloaterSettingsDebug::LLFloaterSettingsDebug() : LLFloater(std::string("Configuration Editor"))
+LLFloaterSettingsDebug::LLFloaterSettingsDebug(const LLSD& key) 
+:	LLFloater()
 {
+	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_settings_debug.xml");
 }
 
 LLFloaterSettingsDebug::~LLFloaterSettingsDebug()
-{
-	sInstance = NULL;
-}
+{}
 
 BOOL LLFloaterSettingsDebug::postBuild()
 {
@@ -70,27 +69,19 @@ BOOL LLFloaterSettingsDebug::postBuild()
 
 	gSavedSettings.applyToAll(&func);
 	gSavedPerAccountSettings.applyToAll(&func);
-	gColors.applyToAll(&func);
+	gSavedSkinSettings.applyToAll(&func);
 
 	settings_combo->sortByName();
-	settings_combo->setCommitCallback(onSettingSelect);
-	settings_combo->setCallbackUserData(this);
+	settings_combo->setCommitCallback(onSettingSelect, this);
 	settings_combo->updateSelection();
 
-	childSetCommitCallback("val_spinner_1", onCommitSettings);
-	childSetUserData("val_spinner_1", this);
-	childSetCommitCallback("val_spinner_2", onCommitSettings);
-	childSetUserData("val_spinner_2", this);
-	childSetCommitCallback("val_spinner_3", onCommitSettings);
-	childSetUserData("val_spinner_3", this);
-	childSetCommitCallback("val_spinner_4", onCommitSettings);
-	childSetUserData("val_spinner_4", this);
-	childSetCommitCallback("val_text", onCommitSettings);
-	childSetUserData("val_text", this);
-	childSetCommitCallback("boolean_combo", onCommitSettings);
-	childSetUserData("boolean_combo", this);
-	childSetCommitCallback("color_swatch", onCommitSettings);
-	childSetUserData("color_swatch", this);
+	childSetCommitCallback("val_spinner_1", onCommitSettings, this);
+	childSetCommitCallback("val_spinner_2", onCommitSettings, this);
+	childSetCommitCallback("val_spinner_3", onCommitSettings, this);
+	childSetCommitCallback("val_spinner_4", onCommitSettings, this);
+	childSetCommitCallback("val_text", onCommitSettings, this);
+	childSetCommitCallback("boolean_combo", onCommitSettings, this);
+	childSetCommitCallback("color_swatch", onCommitSettings, this);
 	childSetAction("default_btn", onClickDefault, this);
 	mComment = getChild<LLTextEditor>("comment_text");
 	return TRUE;
@@ -103,19 +94,6 @@ void LLFloaterSettingsDebug::draw()
 	updateControl(controlp);
 
 	LLFloater::draw();
-}
-
-//static
-void LLFloaterSettingsDebug::show(void*)
-{
-	if (sInstance == NULL)
-	{
-		sInstance = new LLFloaterSettingsDebug();
-
-		LLUICtrlFactory::getInstance()->buildFloater(sInstance, "floater_settings_debug.xml");
-	}
-
-	sInstance->open();		/* Flawfinder: ignore */
 }
 
 //static 
@@ -191,12 +169,6 @@ void LLFloaterSettingsDebug::onCommitSettings(LLUICtrl* ctrl, void* user_data)
 		//col3.mV[VGREEN] = (F32)floaterp->childGetValue("val_spinner_2").asReal();
 		//col3.mV[VBLUE] = (F32)floaterp->childGetValue("val_spinner_3").asReal();
 		//controlp->set(col3.getValue());
-		break;
-	  case TYPE_COL4U:
-		col3.setValue(floaterp->childGetValue("color_swatch"));
-		col4U.setVecScaleClamp(col3);
-		col4U.mV[VALPHA] = floaterp->childGetValue("val_spinner_4").asInteger();
-		controlp->set(col4U.getValue());
 		break;
 	  default:
 		break;
@@ -462,29 +434,6 @@ void LLFloaterSettingsDebug::updateControl(LLControlVariable* controlp)
 			clr.setValue(sd);
 			color_swatch->setVisible(TRUE);
 			color_swatch->setValue(sd);
-			break;
-		  }
-		  case TYPE_COL4U:
-		  {
-			LLColor4U clr;
-			clr.setValue(sd);
-			color_swatch->setVisible(TRUE);
-			if(LLColor4(clr) != LLColor4(color_swatch->getValue()))
-			{
-				color_swatch->set(LLColor4(clr), TRUE, FALSE);
-			}
-			spinner4->setVisible(TRUE);
-			spinner4->setLabel(std::string("Alpha"));
-			if(!spinner4->hasFocus())
-			{
-				spinner4->setPrecision(0);
-				spinner4->setValue(clr.mV[VALPHA]);
-			}
-
-			spinner4->setMinValue(0);
-			spinner4->setMaxValue(255);
-			spinner4->setIncrement(1.f);
-
 			break;
 		  }
 		  default:

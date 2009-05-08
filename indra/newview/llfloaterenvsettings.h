@@ -46,8 +46,8 @@ class LLFloaterEnvSettings : public LLFloater
 public:
 
 	LLFloaterEnvSettings();
-	virtual ~LLFloaterEnvSettings();
-	
+	/*virtual*/ ~LLFloaterEnvSettings();
+	/*virtual*/	BOOL	postBuild();	
 	/// initialize all the callbacks for the menu
 	void initCallbacks(void);
 

@@ -70,7 +70,7 @@ class LLMenuGL;
 class LLFolderViewItem;
 class LLFolderView;
 class LLInventoryModel;
-class LLScrollableContainerView;
+class LLScrollContainer;
 
 class LLFolderViewEventListener
 {
@@ -81,6 +81,7 @@ public:
 	virtual const LLUUID& getUUID() const = 0;
 	virtual time_t getCreationDate() const = 0;	// UTC seconds
 	virtual PermissionMask getPermissionMask() const = 0;
+	virtual LLAssetType::EType getPreferredType() const {return LLAssetType::AT_NONE;};
 	virtual LLUIImagePtr getIcon() const = 0;
 	virtual LLFontGL::StyleFlags getLabelStyle() const = 0;
 	virtual std::string getLabelSuffix() const = 0;
@@ -316,21 +317,39 @@ class LLFolderView;
 
 class LLFolderViewItem : public LLUICtrl
 {
+public:
+	static void initClass();
+	static void cleanupClass();
+	struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
+	{
+		Optional<LLUIImage*>					icon;
+		Optional<LLFolderView*>					root;
+		Optional<LLFolderViewEventListener*>	listener;
+
+		Optional<LLUIImage*>					folder_arrow_image;
+		Optional<LLUIImage*>					selection_image;
+
+		Optional<S32>							creation_date; //UTC seconds
+		Params()
+		:	folder_arrow_image("", LLUI::getUIImage("folder_arrow.tga")),
+			selection_image("", LLUI::getUIImage("rounded_square.tga"))
+		{
+			mouse_opaque(true);
+			follows.flags(FOLLOWS_LEFT|FOLLOWS_TOP|FOLLOWS_RIGHT);
+			tab_stop(false);
+		}
+	};
+
 protected:
+	friend class LLUICtrlFactory;
 	friend class LLFolderViewEventListener;
+
+	LLFolderViewItem(Params = LLFolderViewItem::Params());
 
 	static const LLFontGL*		sFont;
 	static const LLFontGL*		sSmallFont;
-	static LLColor4				sFgColor;
-	static LLColor4				sHighlightBgColor;
-	static LLColor4				sHighlightFgColor;
-	static LLColor4				sFilterBGColor;
-	static LLColor4				sFilterTextColor;
-	static LLColor4				sSuffixColor;
-	static LLColor4				sSearchStatusColor;
 	static LLUIImagePtr			sArrowImage;
 	static LLUIImagePtr			sBoxImage;
-
 	std::string					mLabel;
 	std::string					mSearchableLabel;
 	std::string					mType;
@@ -354,6 +373,8 @@ protected:
 	F32							mControlLabelRotation;
 	LLFolderView*				mRoot;
 	BOOL						mDragAndDropTarget;
+	LLUIImagePtr				mArrowImage;
+	LLUIImagePtr				mBoxImage;
 	BOOL                            mIsLoading;
 	LLTimer                         mTimeSinceRequestStart;
 	
@@ -376,17 +397,12 @@ protected:
 	virtual BOOL addFolder(LLFolderViewFolder*) { return FALSE; }
 
 public:
-	static void initClass();
-	static void cleanupClass();
-	
 	// This function is called when the folder view is dirty. It's
 	// implemented here but called by derived classes when folding the
 	// views.
 	void arrangeFromRoot();
 	void filterFromRoot( void );
 
-	// creation_date is in UTC seconds
-	LLFolderViewItem( const std::string& name, LLUIImagePtr icon, time_t creation_date, LLFolderView* root, LLFolderViewEventListener* listener );
 	virtual ~LLFolderViewItem( void );
 
 	// addToFolder() returns TRUE if it succeeds. FALSE otherwise
@@ -490,7 +506,7 @@ public:
 
 	virtual BOOL isOpen() { return FALSE; }
 
-	LLFolderView*	getRoot();
+	virtual LLFolderView*	getRoot();
 	BOOL			isDescendantOf( const LLFolderViewFolder* potential_ancestor );
 	S32				getIndentation() { return mIndentation; }
 
@@ -541,12 +557,16 @@ typedef bool (*sort_order_f)(LLFolderViewItem* a, LLFolderViewItem* b);
 
 class LLFolderViewFolder : public LLFolderViewItem
 {
+protected:
+	LLFolderViewFolder( const LLFolderViewItem::Params& );
+	friend class LLUICtrlFactory;
+
 public:
 	typedef enum e_trash
 	{
 		UNKNOWN, TRASH, NOT_TRASH
 	} ETrash;
-
+	
 protected:
 	typedef std::list<LLFolderViewItem*> items_t;
 	typedef std::list<LLFolderViewFolder*> folders_t;
@@ -574,9 +594,7 @@ public:
 		RECURSE_UP_DOWN
 	} ERecurseType;
 
-	LLFolderViewFolder( const std::string& name, LLUIImagePtr icon,
-						LLFolderView* root,
-						LLFolderViewEventListener* listener );
+
 	virtual ~LLFolderViewFolder( void );
 
 	virtual BOOL	potentiallyVisible();
@@ -724,24 +742,30 @@ class LLLineEditor;
 class LLFolderView : public LLFolderViewFolder, LLEditMenuHandler
 {
 public:
-	typedef void (*SelectCallback)(const std::deque<LLFolderViewItem*> &items, BOOL user_action, void* data);
-
-	static F32 sAutoOpenTime;
-
+	struct Params : public LLInitParam::Block<Params, LLFolderViewFolder::Params>
+	{
+		Mandatory<LLPanel*> parent_panel;
+		Optional<LLUUID>	task_id;
+	};
 	LLFolderView( const std::string& name, LLUIImagePtr root_folder_icon, const LLRect& rect, 
-					const LLUUID& source_id, LLView *parent_view );
+					const LLUUID& source_id, LLPanel *parent_view );
+	LLFolderView(const Params&);
 	virtual ~LLFolderView( void );
 
 	virtual BOOL canFocusChildren() const;
+
+	virtual LLFolderView*	getRoot() { return this; }
 
 	// FolderViews default to sort by name.  This will change that,
 	// and resort the items if necessary.
 	void setSortOrder(U32 order);
 	void checkTreeResortForModelChanged();
 	void setFilterPermMask(PermissionMask filter_perm_mask) { mFilter.setFilterPermissions(filter_perm_mask); }
-	void setSelectCallback(SelectCallback callback, void* user_data) { mSelectCallback = callback, mUserData = user_data; }
 	void setAllowMultiSelect(BOOL allow) { mAllowMultiSelect = allow; }
-
+	
+	typedef boost::signal<void (const std::deque<LLFolderViewItem*>& items, BOOL user_action)> signal_t;	
+	void setSelectCallback(const signal_t::slot_type& cb) { mSelectSignal.connect(cb); }
+	
 	LLInventoryFilter* getFilter() { return &mFilter; }
 	const std::string getFilterSubString(BOOL trim = FALSE);
 	U32 getFilterTypes() const { return mFilter.getFilterTypes(); }
@@ -852,7 +876,7 @@ public:
 
 	void scrollToShowSelection();
 	void scrollToShowItem(LLFolderViewItem* item);
-	void setScrollContainer( LLScrollableContainerView* parent ) { mScrollContainer = parent; }
+	void setScrollContainer( LLScrollContainer* parent ) { mScrollContainer = parent; }
 	LLRect getVisibleRect();
 
 	BOOL search(LLFolderViewItem* first_item, const std::string &search_string, BOOL backward);
@@ -873,20 +897,22 @@ public:
 	BOOL needsAutoRename() { return mNeedsAutoRename; }
 	void setNeedsAutoRename(BOOL val) { mNeedsAutoRename = val; }
 
+	void setCallbackRegistrar(LLUICtrl::CommitCallbackRegistry::ScopedRegistrar* registrar) { mCallbackRegistrar = registrar; }
+
 	BOOL getDebugFilters() { return mDebugFilters; }
 
 	// DEBUG only
 	void dumpSelectionInformation();
 
 protected:
-	LLScrollableContainerView* mScrollContainer;  // NULL if this is not a child of a scroll container.
+	LLScrollContainer* mScrollContainer;  // NULL if this is not a child of a scroll container.
 
-	static void commitRename( LLUICtrl* renamer, void* user_data );
-	static void onRenamerLost( LLUICtrl* renamer, void* user_data);
+	void commitRename( const LLSD& data );
+	static void onRenamerLost( LLFocusableElement* renamer, void* user_data);
 
 	void finishRenamingItem( void );
 	void closeRenamer( void );
-
+	
 protected:
 	LLHandle<LLView>					mPopupMenuHandle;
 	
@@ -921,13 +947,16 @@ protected:
 	LLFrameTimer					mMultiSelectionFadeTimer;
 	S32								mArrangeGeneration;
 
-	void*							mUserData;
-	SelectCallback					mSelectCallback;
+	signal_t						mSelectSignal;
 	S32								mSignalSelectCallback;
 	S32								mMinWidth;
 	std::map<LLUUID, LLFolderViewItem*> mItemMap;
 	BOOL							mDragAndDropThisFrame;
 
+	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar* mCallbackRegistrar;
+	
+public:
+	static F32 sAutoOpenTime;
 };
 
 bool sort_item_name(LLFolderViewItem* a, LLFolderViewItem* b);

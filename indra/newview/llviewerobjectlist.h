@@ -150,19 +150,8 @@ public:
 
 	U32	mCurBin; // Current bin we're working on...
 
-	//////////////////////
-	//
-	// Statistics data
-	//
-	//
-	LLStat mNumObjectsStat;
-	LLStat mNumActiveObjectsStat;
-	LLStat mNumNewObjectsStat;
-	LLStat mNumSizeCulledStat;
-	LLStat mNumVisCulledStat;
-
+	// Statistics data (see also LLViewerStats)
 	S32 mNumNewObjects;
-
 	S32 mNumSizeCulled;
 	S32 mNumVisCulled;
 

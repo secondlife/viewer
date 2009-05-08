@@ -60,7 +60,7 @@ public:
 	static void initClass();
 	static void cleanupClass();
 
-	LLWorldMapView(const std::string& name, const LLRect& rect );
+	LLWorldMapView();
 	virtual ~LLWorldMapView();
 
 	virtual void	reshape(S32 width, S32 height, BOOL called_from_parent = TRUE );

@@ -58,24 +58,26 @@
 LLFloaterOpenObject* LLFloaterOpenObject::sInstance = NULL;
 
 LLFloaterOpenObject::LLFloaterOpenObject()
-:	LLFloater(std::string("object_contents")),
+:	LLFloater(),
 	mPanelInventory(NULL),
 	mDirty(TRUE)
 {
-	LLCallbackMap::map_t factory_map;
-	factory_map["object_contents"] = LLCallbackMap(createPanelInventory, this);
-	LLUICtrlFactory::getInstance()->buildFloater(this,"floater_openobject.xml",&factory_map);
-
-	childSetAction("copy_to_inventory_button", onClickMoveToInventory, this);
-	childSetAction("copy_and_wear_button", onClickMoveAndWear, this);
-	childSetTextArg("object_name", "[DESC]", std::string("Object") ); // *Note: probably do not want to translate this
+	LLUICtrlFactory::getInstance()->buildFloater(this,"floater_openobject.xml");
 }
 
 LLFloaterOpenObject::~LLFloaterOpenObject()
 {
 	sInstance = NULL;
 }
-
+// virtual
+BOOL LLFloaterOpenObject::postBuild()
+{
+	childSetAction("copy_to_inventory_button", onClickMoveToInventory, this);
+	childSetAction("copy_and_wear_button", onClickMoveAndWear, this);
+	childSetTextArg("object_name", "[DESC]", std::string("Object") ); // *Note: probably do not want to translate this
+	mPanelInventory = getChild<LLPanelInventory>("object_contents");
+	return TRUE;
+}
 void LLFloaterOpenObject::refresh()
 {
 	mPanelInventory->refresh();
@@ -135,7 +137,7 @@ void LLFloaterOpenObject::show()
 		sInstance->center();
 	}
 
-	sInstance->open();		/* Flawfinder: ignore */
+	sInstance->openFloater();
 	sInstance->setFocus(TRUE);
 
 	sInstance->mObjectSelection = LLSelectMgr::getInstance()->getEditSelection();
@@ -215,7 +217,7 @@ void LLFloaterOpenObject::onClickMoveToInventory(void* data)
 {
 	LLFloaterOpenObject* self = (LLFloaterOpenObject*)data;
 	self->moveToInventory(false);
-	self->close();
+	self->closeFloater();
 }
 
 // static
@@ -223,13 +225,6 @@ void LLFloaterOpenObject::onClickMoveAndWear(void* data)
 {
 	LLFloaterOpenObject* self = (LLFloaterOpenObject*)data;
 	self->moveToInventory(true);
-	self->close();
+	self->closeFloater();
 }
 
-//static
-void* LLFloaterOpenObject::createPanelInventory(void* data)
-{
-	LLFloaterOpenObject* floater = (LLFloaterOpenObject*)data;
-	floater->mPanelInventory = new LLPanelInventory(std::string("Object Contents"), LLRect());
-	return floater->mPanelInventory;
-}

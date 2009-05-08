@@ -53,7 +53,7 @@ public:
 
 	LLFloaterWindLight();
 	virtual ~LLFloaterWindLight();
-	
+	/*virtual*/	BOOL	postBuild();	
 	/// initialize all
 	void initCallbacks(void);
 
@@ -104,7 +104,7 @@ public:
 	bool deleteAlertCallback(const LLSD& notification, const LLSD& response);
 
 	/// what to do when you change the preset name
-	static void onChangePresetName(LLUICtrl* ctrl, void* userData);
+	void onChangePresetName(LLUICtrl* ctrl);
 
 	/// when user hits the save preset button
 	static void onOpenDayCycle(void* userData);

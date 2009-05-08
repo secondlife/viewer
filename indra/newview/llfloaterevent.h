@@ -42,7 +42,7 @@ class LLPanelEvent;
 class LLFloaterEventInfo : public LLFloater
 {
 public:
-	LLFloaterEventInfo(const std::string& name, const U32 event_id );
+	LLFloaterEventInfo( const U32 event_id );
 	/*virtual*/ ~LLFloaterEventInfo();
 
 	void displayEventInfo(const U32 event_id);

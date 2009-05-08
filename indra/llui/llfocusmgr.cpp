@@ -220,24 +220,19 @@ void LLFocusMgr::setMouseCapture( LLMouseHandler* new_captor )
 	{
 		LLMouseHandler* old_captor = mMouseCaptor;
 		mMouseCaptor = new_captor;
-		/*
-		if (new_captor)
+		
+		if (LLView::sDebugMouseHandling)
 		{
-			if ( new_captor->getName() == "Stickto")
+			if (new_captor)
 			{
 				llinfos << "New mouse captor: " << new_captor->getName() << llendl;
 			}
 			else
 			{
-				llinfos << "New mouse captor: " << new_captor->getName() << llendl;
+				llinfos << "New mouse captor: NULL" << llendl;
 			}
 		}
-		else
-		{
-			llinfos << "New mouse captor: NULL" << llendl;
-		}
-		*/
-
+			
 		if( old_captor )
 		{
 			old_captor->onMouseCaptureLost();
@@ -295,7 +290,7 @@ void LLFocusMgr::setTopCtrl( LLUICtrl* new_top  )
 
 		if (old_top)
 		{
-			old_top->onLostTop();
+			old_top->onTopLost();
 		}
 	}
 }
@@ -328,7 +323,8 @@ F32 LLFocusMgr::getFocusFlashAmt() const
 
 LLColor4 LLFocusMgr::getFocusColor() const
 {
-	LLColor4 focus_color = lerp(LLUI::sColorsGroup->getColor( "FocusColor" ), LLColor4::white, getFocusFlashAmt());
+	static LLUICachedControl<LLColor4> focus_color_cached ("FocusColor", *(new LLColor4));
+	LLColor4 focus_color = lerp(focus_color_cached, LLColor4::white, getFocusFlashAmt());
 	// de-emphasize keyboard focus when app has lost focus (to avoid typing into wrong window problem)
 	if (!mAppHasFocus)
 	{

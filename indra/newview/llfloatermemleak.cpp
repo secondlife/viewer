@@ -49,8 +49,10 @@ U32 LLFloaterMemLeak::sTotalLeaked = 0 ;
 S32 LLFloaterMemLeak::sStatus = LLFloaterMemLeak::STOP ;
 BOOL LLFloaterMemLeak::sbAllocationFailed = FALSE ;
 
-LLFloaterMemLeak::LLFloaterMemLeak() : LLFloater("Memory Leaking Simulation Floater")
+LLFloaterMemLeak::LLFloaterMemLeak()
+	: LLFloater()
 {
+	setTitle("Memory Leaking Simulation Floater");
 }
 
 LLFloaterMemLeak::~LLFloaterMemLeak()
@@ -224,7 +226,7 @@ LLFloaterMemLeak* LLFloaterMemLeak::instance()
 	if (!sInstance)
 	{
 		sInstance = new LLFloaterMemLeak();
-		LLUICtrlFactory::getInstance()->buildFloater(sInstance, "floater_mem_leaking.xml", NULL, FALSE);
+		LLUICtrlFactory::getInstance()->buildFloater(sInstance, "floater_mem_leaking.xml", FALSE);
 
 		if(sInstance)
 		{
@@ -256,7 +258,7 @@ LLFloaterMemLeak* LLFloaterMemLeak::instance()
 
 void LLFloaterMemLeak::show(void*)
 {
-	instance()->open();
+	instance()->openFloater();
 }
 
 LLFloaterMemLeak* LLFloaterMemLeak::getInstance()

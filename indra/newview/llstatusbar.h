@@ -63,8 +63,7 @@ public:
 		mForSale(FALSE),
 		mOwner("Unknown"),
 		mTraffic(0),
-		mBalance(0),
-		mPing(0)
+		mBalance(0)
 	{
 	}
 	std::string mRegionName;
@@ -79,14 +78,13 @@ public:
 	F32		mTraffic;
 	S32		mBalance;
 	std::string mTime;
-	U32		mPing;
 };
 
 class LLStatusBar
 :	public LLPanel
 {
 public:
-	LLStatusBar(const std::string& name, const LLRect& rect );
+	LLStatusBar(const LLRect& rect );
 	/*virtual*/ ~LLStatusBar();
 	
 	/*virtual*/ void draw();

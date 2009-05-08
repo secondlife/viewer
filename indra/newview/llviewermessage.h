@@ -151,7 +151,7 @@ void send_group_notice(const LLUUID& group_id,
 					   const LLInventoryItem* item);
 
 void handle_lure(const LLUUID& invitee);
-void handle_lure(LLDynamicArray<LLUUID>& ids);
+void handle_lure(std::vector<LLUUID>& ids);
 
 // always from gAgent and 
 // routes through the gAgent's current simulator

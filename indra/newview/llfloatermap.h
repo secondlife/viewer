@@ -35,28 +35,42 @@
 
 #include "llfloater.h"
 
+class LLMenuGL;
 class LLNetMap;
+class LLTextBox;
 
-class LLFloaterMap :
-	public LLFloater,
-	public LLFloaterSingleton<LLFloaterMap>
+//
+// Classes
+//
+class LLFloaterMap : public LLFloater
 {
-	friend class LLUISingleton<LLFloaterMap, VisibilityPolicy<LLFloater> >;
 public:
+	LLFloaterMap(const LLSD& key);
 	virtual ~LLFloaterMap();
-
-	static void* createPanelMiniMap(void* data);
-
-	BOOL postBuild();
-
+	
+	/*virtual*/ BOOL 	postBuild();
+	/*virtual*/ BOOL	handleDoubleClick( S32 x, S32 y, MASK mask );
+	/*virtual*/ BOOL	handleRightMouseDown( S32 x, S32 y, MASK mask );
 	/*virtual*/ void	draw();
-	/*virtual*/ void	onOpen();
-	/*virtual*/ void	onClose(bool app_quitting);
-	/*virtual*/ BOOL	canClose();
-
+	
 private:
-	LLFloaterMap(const LLSD& key = LLSD());
-	LLNetMap*		mPanelMap;
+	void handleZoom(const LLSD& userdata);
+	void handleStopTracking (const LLSD& userdata);
+	void setDirectionPos( LLTextBox* text_box, F32 rotation );
+	
+	LLMenuGL*		mPopupMenu;
+
+	LLTextBox*		mTextBoxEast;
+	LLTextBox*		mTextBoxNorth;
+	LLTextBox*		mTextBoxWest;
+	LLTextBox*		mTextBoxSouth;
+
+	LLTextBox*		mTextBoxSouthEast;
+	LLTextBox*		mTextBoxNorthEast;
+	LLTextBox*		mTextBoxNorthWest;
+	LLTextBox*		mTextBoxSouthWest;
+	
+	LLNetMap*		mMap;
 };
 
 #endif  // LL_LLFLOATERMAP_H

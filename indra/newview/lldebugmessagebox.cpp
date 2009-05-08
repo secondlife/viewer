@@ -50,32 +50,69 @@
 std::map<std::string, LLDebugVarMessageBox*> LLDebugVarMessageBox::sInstances;
 
 LLDebugVarMessageBox::LLDebugVarMessageBox(const std::string& title, EDebugVarType var_type, void *var) : 
-	LLFloater(std::string("msg box"), LLRect(10,160,400,10), title),
+	LLFloater(),
 	mVarType(var_type), mVarData(var), mAnimate(FALSE)
 {
+	setRect(LLRect(10,160,400,10));
+	
+	LLSliderCtrl::Params slider_p;
+	slider_p.label(title);
+	slider_p.label_width(70);
+	slider_p.text_width(40);
+	slider_p.can_edit_text(true);
+	slider_p.show_text(true);
+
+	mSlider1 = NULL;
+	mSlider2 = NULL;
+	mSlider3 = NULL;
+
 	switch(var_type)
 	{
 	case VAR_TYPE_F32:
-	  mSlider1 = new LLSliderCtrl(std::string("slider 1"), LLRect(20,130,190,110), title, NULL, 70, 130, TRUE, TRUE, FALSE, NULL, NULL, *((F32*)var), -100.f, 100.f, 0.1f, LLStringUtil::null);
-		mSlider1->setPrecision(3);
+		slider_p.name("slider 1");
+		slider_p.rect(LLRect(20,130,190,110));
+		slider_p.initial_value(*((F32*)var));
+		slider_p.min_value(-100.f);
+		slider_p.max_value(100.f);
+		slider_p.increment(0.1f);
+		slider_p.decimal_digits(3);
+		mSlider1 = LLUICtrlFactory::create<LLSliderCtrl>(slider_p);
 		addChild(mSlider1);
-		mSlider2 = NULL;
-		mSlider3 = NULL;
 		break;
 	case VAR_TYPE_S32:
-		mSlider1 = new LLSliderCtrl(std::string("slider 1"), LLRect(20,100,190,80), title, NULL, 70, 130, TRUE, TRUE, FALSE, NULL, NULL, (F32)*((S32*)var), -255.f, 255.f, 1.f, LLStringUtil::null);
-		mSlider1->setPrecision(0);
+		slider_p.name("slider 1");
+		slider_p.rect(LLRect(20,100,190,80));
+		slider_p.initial_value((F32)*((S32*)var));
+		slider_p.min_value(-255.f);
+		slider_p.max_value(255.f);
+		slider_p.increment(1.f);
+		slider_p.decimal_digits(0);
+		mSlider1 = LLUICtrlFactory::create<LLSliderCtrl>(slider_p);
 		addChild(mSlider1);
-		mSlider2 = NULL;
-		mSlider3 = NULL;
 		break;
 	case VAR_TYPE_VEC3:
-		mSlider1 = new LLSliderCtrl(std::string("slider 1"), LLRect(20,130,190,110), std::string("x: "), NULL, 70, 130, TRUE, TRUE, FALSE, NULL, NULL, ((LLVector3*)var)->mV[VX], -100.f, 100.f, 0.1f, LLStringUtil::null);
-		mSlider1->setPrecision(3);
-		mSlider2 = new LLSliderCtrl(std::string("slider 2"), LLRect(20,100,190,80), std::string("y: "), NULL, 70, 130, TRUE, TRUE, FALSE, NULL, NULL, ((LLVector3*)var)->mV[VY], -100.f, 100.f, 0.1f, LLStringUtil::null);
-		mSlider2->setPrecision(3);
-		mSlider3 = new LLSliderCtrl(std::string("slider 3"), LLRect(20,70,190,50), std::string("z: "), NULL, 70, 130, TRUE, TRUE, FALSE, NULL, NULL, ((LLVector3*)var)->mV[VZ], -100.f, 100.f, 0.1f, LLStringUtil::null);
-		mSlider3->setPrecision(3);
+		slider_p.name("slider 1");
+		slider_p.label("x: ");
+		slider_p.rect(LLRect(20,130,190,110));
+		slider_p.initial_value(((LLVector3*)var)->mV[VX]);
+		slider_p.min_value(-100.f);
+		slider_p.max_value(100.f);
+		slider_p.increment(0.1f);
+		slider_p.decimal_digits(3);
+		mSlider1 = LLUICtrlFactory::create<LLSliderCtrl>(slider_p);
+
+		slider_p.name("slider 2");
+		slider_p.label("y: ");
+		slider_p.rect(LLRect(20,100,190,80));
+		slider_p.initial_value(((LLVector3*)var)->mV[VY]);
+		mSlider2 = LLUICtrlFactory::create<LLSliderCtrl>(slider_p);
+
+		slider_p.name("slider 3");
+		slider_p.label("z: ");
+		slider_p.rect(LLRect(20,70,190,50));
+		slider_p.initial_value(((LLVector3*)var)->mV[VZ]);
+		mSlider2 = LLUICtrlFactory::create<LLSliderCtrl>(slider_p);
+
 		addChild(mSlider1);
 		addChild(mSlider2);
 		addChild(mSlider3);
@@ -85,10 +122,18 @@ LLDebugVarMessageBox::LLDebugVarMessageBox(const std::string& title, EDebugVarTy
 		break;
 	}
 
-	mAnimateButton = new LLButton(std::string("Animate"), LLRect(20, 45, 180, 25), LLStringUtil::null, onAnimateClicked, this);
+	LLButton::Params p;
+	p.name(std::string("Animate"));
+	p.rect(LLRect(20, 45, 180, 25));
+	p.click_callback.function(boost::bind(&LLDebugVarMessageBox::onAnimateClicked, this, _2));
+	mAnimateButton = LLUICtrlFactory::create<LLButton>(p);
 	addChild(mAnimateButton);
 
-	mText = new LLTextBox(std::string("value"), LLRect(20,20,190,0));
+	LLTextBox::Params params;
+	params.name("value");
+	params.text(params.name);
+	params.rect(LLRect(20,20,190,0));
+	mText = LLUICtrlFactory::create<LLTextBox> (params);
 	addChild(mText);
 
 	//disable hitting enter closes dialog
@@ -112,8 +157,7 @@ void LLDebugVarMessageBox::show(const std::string& title, F32 *var, F32 max_valu
 	{
 		box->mSlider1->setValue(*var);
 	}
-	box->mSlider1->setCommitCallback(slider_changed);
-	box->mSlider1->setCallbackUserData(box);
+	box->mSlider1->setCommitCallback(boost::bind(&LLDebugVarMessageBox::sliderChanged, box, _2));
 #endif
 }
 
@@ -129,8 +173,7 @@ void LLDebugVarMessageBox::show(const std::string& title, S32 *var, S32 max_valu
 	{
 		box->mSlider1->setValue((F32)*var);
 	}
-	box->mSlider1->setCommitCallback(slider_changed);
-	box->mSlider1->setCallbackUserData(box);
+	box->mSlider1->setCommitCallback(boost::bind(&LLDebugVarMessageBox::sliderChanged, box, _2));
 #endif
 }
 
@@ -142,20 +185,17 @@ void LLDebugVarMessageBox::show(const std::string& title, LLVector3 *var, LLVect
 	box->mSlider1->setMaxValue(max_value.mV[VX]);
 	box->mSlider1->setMinValue(-max_value.mV[VX]);
 	box->mSlider1->setIncrement(increment.mV[VX]);
-	box->mSlider1->setCommitCallback(slider_changed);
-	box->mSlider1->setCallbackUserData(box);
+	box->mSlider1->setCommitCallback(boost::bind(&LLDebugVarMessageBox::sliderChanged, box, _2));
 
 	box->mSlider2->setMaxValue(max_value.mV[VX]);
 	box->mSlider2->setMinValue(-max_value.mV[VX]);
 	box->mSlider2->setIncrement(increment.mV[VX]);
-	box->mSlider2->setCommitCallback(slider_changed);
-	box->mSlider2->setCallbackUserData(box);
+	box->mSlider2->setCommitCallback(boost::bind(&LLDebugVarMessageBox::sliderChanged, box, _2));
 
 	box->mSlider3->setMaxValue(max_value.mV[VX]);
 	box->mSlider3->setMinValue(-max_value.mV[VX]);
 	box->mSlider3->setIncrement(increment.mV[VX]);
-	box->mSlider3->setCommitCallback(slider_changed);
-	box->mSlider3->setCallbackUserData(box);
+	box->mSlider3->setCommitCallback(boost::bind(&LLDebugVarMessageBox::sliderChanged, box, _2));
 #endif
 }
 
@@ -170,45 +210,44 @@ LLDebugVarMessageBox* LLDebugVarMessageBox::show(const std::string& title, EDebu
 		sInstances[title_string] = box;
 		gFloaterView->addChild(box);
 		box->reshape(200,150);
-		box->open();		 /*Flawfinder: ignore*/
+		box->openFloater();
 		box->mTitle = title_string;
 	}
 
 	return box;
 }
 
-void LLDebugVarMessageBox::slider_changed(LLUICtrl* ctrl, void* user_data)
+void LLDebugVarMessageBox::sliderChanged(const LLSD& data)
 {
-	LLDebugVarMessageBox *msg_box = (LLDebugVarMessageBox*)user_data;
-	if (!msg_box || !msg_box->mVarData) return;
+	if (!mVarData)
+		return;
 
-	switch(msg_box->mVarType)
+	switch(mVarType)
 	{
 	case VAR_TYPE_F32:
-		*((F32*)msg_box->mVarData) = (F32)msg_box->mSlider1->getValue().asReal();
+		*((F32*)mVarData) = (F32)mSlider1->getValue().asReal();
 		break;
 	case VAR_TYPE_S32:
-		*((S32*)msg_box->mVarData) = (S32)msg_box->mSlider1->getValue().asInteger();
+		*((S32*)mVarData) = (S32)mSlider1->getValue().asInteger();
 		break;
 	case VAR_TYPE_VEC3:
 	{
-		LLVector3* vec_p = (LLVector3*)msg_box->mVarData;
-		vec_p->setVec((F32)msg_box->mSlider1->getValue().asReal(), 
-			(F32)msg_box->mSlider2->getValue().asReal(), 
-			(F32)msg_box->mSlider3->getValue().asReal());
+		LLVector3* vec_p = (LLVector3*)mVarData;
+		vec_p->setVec((F32)mSlider1->getValue().asReal(), 
+			(F32)mSlider2->getValue().asReal(), 
+			(F32)mSlider3->getValue().asReal());
 		break;
 	}
 	default:
-		llwarns << "Unhandled var type " << msg_box->mVarType << llendl;
+		llwarns << "Unhandled var type " << mVarType << llendl;
 		break;
 	}
 }
 
-void LLDebugVarMessageBox::onAnimateClicked(void* user_data)
+void LLDebugVarMessageBox::onAnimateClicked(const LLSD& data)
 {
-	LLDebugVarMessageBox* msg_boxp = (LLDebugVarMessageBox*)user_data;
-	msg_boxp->mAnimate = !msg_boxp->mAnimate;
-	msg_boxp->mAnimateButton->setToggleState(msg_boxp->mAnimate);
+	mAnimate = !mAnimate;
+	mAnimateButton->setToggleState(mAnimate);
 }
 
 void LLDebugVarMessageBox::onClose(bool app_quitting)
@@ -245,16 +284,16 @@ void LLDebugVarMessageBox::draw()
 		{
 			F32 animated_val = clamp_rescale(fmodf((F32)LLFrameTimer::getElapsedSeconds() / 5.f, 1.f), 0.f, 1.f, 0.f, mSlider1->getMaxValue());
 			mSlider1->setValue(animated_val);
-			slider_changed(mSlider1, this);
+			sliderChanged(LLSD());
 			if (mSlider2)
 			{
 				mSlider2->setValue(animated_val);
-				slider_changed(mSlider2, this);
+				sliderChanged(LLSD());
 			}
 			if (mSlider3)
 			{
 				mSlider3->setValue(animated_val);
-				slider_changed(mSlider3, this);
+				sliderChanged(LLSD());
 			}
 		}
 	}

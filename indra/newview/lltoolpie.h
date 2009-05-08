@@ -73,13 +73,13 @@ public:
 
 
 private:
-	BOOL outsideSlop(S32 x, S32 y, S32 start_x, S32 start_y);
-	BOOL pickAndShowMenu(BOOL edit_menu);
-	BOOL useClickAction(BOOL always_show, MASK mask, LLViewerObject* object,
-						LLViewerObject* parent);
+	BOOL outsideSlop		(S32 x, S32 y, S32 start_x, S32 start_y);
+	BOOL pickLeftMouseDownCallback();
+	BOOL pickRightMouseUpCallback();
+	BOOL useClickAction		(MASK mask, LLViewerObject* object,LLViewerObject* parent);
 
+	void showVisualContextMenuEffect();
 private:
-	BOOL				mPieMouseButtonDown;
 	BOOL				mGrabMouseButtonDown;
 	BOOL				mMouseOutsideSlop;				// for this drag, has mouse moved outside slop region
 	LLPickInfo			mPick;

@@ -35,10 +35,6 @@
 
 #include "llfloater.h"
 
-#include "llmemory.h"
-#include "llimagegl.h"
-#include "llcharacter.h"
-
 
 class LLFloaterSnapshot : public LLFloater
 {
@@ -50,17 +46,16 @@ public:
 		SNAPSHOT_FORMAT_BMP
 	} ESnapshotFormat;
 
-	LLFloaterSnapshot();
+	LLFloaterSnapshot(const LLSD& key);
 	virtual ~LLFloaterSnapshot();
-
+    
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void draw();
+	/*virtual*/ void onOpen(const LLSD& key);
 	/*virtual*/ void onClose(bool app_quitting);
-
-	static void show(void*);
-	static void hide(void*);
+	
 	static void update();
-
+	
 	static S32  getUIWinHeightLong()  {return sUIWinHeightLong ;}
 	static S32  getUIWinHeightShort() {return sUIWinHeightShort ;}
 	static S32  getUIWinWidth()       {return sUIWinWidth ;}
@@ -69,7 +64,6 @@ private:
 	class Impl;
 	Impl& impl;
 
-	static LLFloaterSnapshot* sInstance;
 	static S32    sUIWinHeightLong ;
 	static S32    sUIWinHeightShort ;
 	static S32    sUIWinWidth ;
@@ -78,7 +72,16 @@ private:
 class LLSnapshotFloaterView : public LLFloaterView
 {
 public:
-	LLSnapshotFloaterView( const std::string& name, const LLRect& rect );
+	struct Params 
+	:	public LLInitParam::Block<Params, LLFloaterView::Params>
+	{
+	};
+
+protected:
+	LLSnapshotFloaterView (const Params& p);
+	friend class LLUICtrlFactory;
+
+public:
 	virtual ~LLSnapshotFloaterView();
 
 	/*virtual*/	BOOL handleKey(KEY key, MASK mask, BOOL called_from_parent);

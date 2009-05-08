@@ -54,7 +54,7 @@ class LLMessageSystem;
 class LLPanelPick : public LLPanel
 {
 public:
-    LLPanelPick(BOOL top_pick);
+    LLPanelPick();
     /*virtual*/ ~LLPanelPick();
 
 	void reset();
@@ -95,7 +95,6 @@ protected:
 	static void onCommitAny(LLUICtrl* ctrl, void* data);
 
 protected:
-	BOOL mTopPick;
     LLUUID mPickID;
 	LLUUID mCreatorID;
 	LLUUID mParcelID;

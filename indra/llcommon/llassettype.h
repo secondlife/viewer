@@ -131,6 +131,9 @@ public:
 		// simstate file
 		AT_SIMSTATE = 22,
 
+		// favorite items
+		AT_FAVORITE = 23,
+
 		// +*********************************************+
 		// |  TO ADD AN ELEMENT TO THIS ENUM:            |
 		// +*********************************************+
@@ -140,7 +143,7 @@ public:
 		// | 4. ADD TO LLAssetType::mAssetTypeHumanNames |
 		// +*********************************************+
 
-		AT_COUNT = 23,
+		AT_COUNT = 24,
 
 		AT_NONE = -1
 	};

@@ -97,6 +97,7 @@
 #include "llviewernetwork.h"
 #include "llvowlsky.h"
 #include "llmanip.h"
+#include "lltrans.h"
 
 //#define DEBUG_UPDATE_TYPE
 
@@ -2461,7 +2462,7 @@ void LLViewerObject::processTaskInv(LLMessageSystem* msg, void** user_data)
 		LLPointer<LLInventoryObject> obj;
 		obj = new LLInventoryObject(object->mID, LLUUID::null,
 									LLAssetType::AT_CATEGORY,
-									std::string("Contents"));
+									LLTrans::getString("ViewerObjectContents").c_str());
 		object->mInventory->push_front(obj);
 		object->doInventoryCallback();
 		delete ft;
@@ -2528,6 +2529,7 @@ void LLViewerObject::loadTaskInvFile(const std::string& filename)
 			{
 				LLPointer<LLInventoryObject> inv = new LLInventoryObject;
 				inv->importLegacyStream(ifs);
+				inv->rename(LLTrans::getString("ViewerObjectContents").c_str());
 				mInventory->push_front(inv);
 			}
 			else
@@ -2587,11 +2589,6 @@ void LLViewerObject::removeInventory(const LLUUID& item_id)
 	msg->sendReliable(mRegionp->getHost());
 	deleteInventoryItem(item_id);
 	++mInventorySerialNum;
-
-	// The viewer object should not refresh UI since this is a utility
-	// function. The UI functionality that called this method should
-	// refresh the views if necessary.
-	//gBuildView->refresh();
 }
 
 void LLViewerObject::updateInventory(

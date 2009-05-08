@@ -44,6 +44,7 @@
 #include "llcriticaldamp.h"
 #include "llfocusmgr.h"
 #include "llglheaders.h"
+#include "llmenugl.h"
 #include "llparcel.h"
 #include "llpermissions.h"
 #include "llregionhandle.h"
@@ -67,6 +68,7 @@
 #include "llface.h"
 #include "llfirstuse.h"
 #include "llfloater.h"
+#include "llfloaterreg.h"
 #include "llfloateractivespeakers.h"
 #include "llfloateravatarinfo.h"
 #include "llfloaterbuildoptions.h"
@@ -77,7 +79,6 @@
 #include "llfloatergroupinfo.h"
 #include "llfloatergroups.h"
 #include "llfloaterland.h"
-#include "llfloatermap.h"
 #include "llfloatermute.h"
 #include "llfloatersnapshot.h"
 #include "llfloatertools.h"
@@ -92,11 +93,13 @@
 #include "llmenugl.h"
 #include "llmorphview.h"
 #include "llmoveview.h"
+#include "llteleporthistory.h"
 #include "llnotify.h"
 #include "llquantize.h"
 #include "llsdutil.h"
 #include "llselectmgr.h"
 #include "llsky.h"
+#include "llslurl.h"
 #include "llrendersphere.h"
 #include "llstatusbar.h"
 #include "llstartup.h"
@@ -107,9 +110,7 @@
 #include "lltoolgrab.h"
 #include "lltoolmgr.h"
 #include "lltoolpie.h"
-#include "lltoolview.h"
 #include "llui.h"			// for make_ui_sound
-#include "llurldispatcher.h"
 #include "llviewercamera.h"
 #include "llviewerinventory.h"
 #include "llviewermenu.h"
@@ -134,6 +135,9 @@
 #include "llappviewer.h"
 #include "llviewerjoystick.h"
 #include "llfollowcam.h"
+#include "lltrans.h"
+
+#include "llnavigationbar.h" //to show/hide navigation bar when changing mouse look state
 
 using namespace LLVOAvatarDefines;
 
@@ -239,6 +243,20 @@ void LLAgentFriendObserver::changed(U32 mask)
 		gAgent.friendsChanged();
 	}
 }
+
+bool handleSlowMotionAnimation(const LLSD& newvalue)
+{
+	if (newvalue.asBoolean())
+	{
+		gAgent.getAvatarObject()->setAnimTimeFactor(0.2f);
+	}
+	else
+	{
+		gAgent.getAvatarObject()->setAnimTimeFactor(1.0f);
+	}
+	return true;
+}
+
 
 // ************************************************************
 // Enabled this definition to compile a 'hacked' viewer that
@@ -398,15 +416,14 @@ LLAgent::LLAgent() :
 	mTextureCacheQueryID(0),
 	mAppearanceSerialNum(0)
 {
-	U32 i;
-	for (i = 0; i < TOTAL_CONTROLS; i++)
+	for (U32 i = 0; i < TOTAL_CONTROLS; i++)
 	{
 		mControlsTakenCount[i] = 0;
 		mControlsTakenPassedOnCount[i] = 0;
 	}
 
 	mActiveCacheQueries = new S32[BAKED_NUM_INDICES];
-	for (i = 0; i < (U32)BAKED_NUM_INDICES; i++)
+	for (U32 i = 0; i < (U32)BAKED_NUM_INDICES; i++)
 	{
 		mActiveCacheQueries[i] = 0;
 	}
@@ -420,6 +437,9 @@ LLAgent::LLAgent() :
 //-----------------------------------------------------------------------------
 void LLAgent::init()
 {
+	gSavedSettings.declareBOOL("SlowMotionAnimation", FALSE, "Declared in code", FALSE);
+	gSavedSettings.getControl("SlowMotionAnimation")->getSignal()->connect(boost::bind(&handleSlowMotionAnimation, _2));
+	
 	mDrawDistance = gSavedSettings.getF32("RenderFarClip");
 
 	// *Note: this is where LLViewerCamera::getInstance() used to be constructed.
@@ -441,9 +461,10 @@ void LLAgent::init()
 	mCameraZoomFraction = 1.f;
 	mTrackFocusObject = gSavedSettings.getBOOL("TrackFocusObject");
 
-//	LLDebugVarMessageBox::show("Camera Lag", &CAMERA_FOCUS_HALF_LIFE, 0.5f, 0.01f);
-
-	mEffectColor = gSavedSettings.getColor4("EffectColor");
+	mEffectColor = gSavedSkinSettings.getColor4("EffectColor");
+	
+	gSavedSettings.getControl("PreferredMaturity")->getValidateSignal()->connect(boost::bind(&LLAgent::validateMaturity, this, _2));
+	gSavedSettings.getControl("PreferredMaturity")->getSignal()->connect(boost::bind(&LLAgent::handleMaturity, this, _2));
 	
 	mInitialized = TRUE;
 }
@@ -526,8 +547,8 @@ void LLAgent::resetView(BOOL reset_camera, BOOL change_camera)
 		{
 			LLViewerJoystick::getInstance()->moveAvatar(true);
 		}
-
-		gFloaterTools->close();
+		
+		LLFloaterReg::hideInstance("build");
 		
 		gViewerWindow->showCursor();
 
@@ -820,12 +841,24 @@ void LLAgent::setFlying(BOOL fly)
 //-----------------------------------------------------------------------------
 // toggleFlying()
 //-----------------------------------------------------------------------------
+// static
 void LLAgent::toggleFlying()
 {
-	BOOL fly = !(mControlFlags & AGENT_CONTROL_FLY);
+	BOOL fly = !(gAgent.mControlFlags & AGENT_CONTROL_FLY);
 
-	setFlying( fly );
-	resetView();
+	gAgent.setFlying( fly );
+	gAgent.resetView();
+}
+
+// static
+bool LLAgent::enableFlying()
+{
+	BOOL sitting = FALSE;
+	if (gAgent.getAvatarObject())
+	{
+		sitting = gAgent.getAvatarObject()->mIsSitting;
+	}
+	return !sitting;
 }
 
 
@@ -940,7 +973,7 @@ std::string LLAgent::getSLURL() const
 		S32 x = llround( (F32)fmod( agentPos.mdV[VX], (F64)REGION_WIDTH_METERS ) );
 		S32 y = llround( (F32)fmod( agentPos.mdV[VY], (F64)REGION_WIDTH_METERS ) );
 		S32 z = llround( (F32)agentPos.mdV[VZ] );
-		slurl = LLURLDispatcher::buildSLURL(regionp->getName(), x, y, z);
+		slurl = LLSLURL::buildSLURL(regionp->getName(), x, y, z);
 	}
 	return slurl;
 }
@@ -2118,8 +2151,7 @@ void LLAgent::setAFK()
 		gAwayTimer.start();
 		if (gAFKMenu)
 		{
-			//*TODO:Translate
-			gAFKMenu->setLabel(std::string("Set Not Away"));
+			gAFKMenu->setLabel(LLTrans::getString("AvatarSetNotAway"));
 		}
 	}
 }
@@ -2142,8 +2174,7 @@ void LLAgent::clearAFK()
 		clearControlFlags(AGENT_CONTROL_AWAY);
 		if (gAFKMenu)
 		{
-			//*TODO:Translate
-			gAFKMenu->setLabel(std::string("Set Away"));
+			gAFKMenu->setLabel(LLTrans::getString("AvatarSetAway"));
 		}
 	}
 }
@@ -2165,8 +2196,7 @@ void LLAgent::setBusy()
 	mIsBusy = TRUE;
 	if (gBusyMenu)
 	{
-		//*TODO:Translate
-		gBusyMenu->setLabel(std::string("Set Not Busy"));
+		gBusyMenu->setLabel(LLTrans::getString("AvatarSetNotBusy"));
 	}
 	LLFloaterMute::getInstance()->updateButtons();
 }
@@ -2180,8 +2210,7 @@ void LLAgent::clearBusy()
 	sendAnimationRequest(ANIM_AGENT_BUSY, ANIM_REQUEST_STOP);
 	if (gBusyMenu)
 	{
-		//*TODO:Translate
-		gBusyMenu->setLabel(std::string("Set Busy"));
+		gBusyMenu->setLabel(LLTrans::getString("AvatarSetBusy"));
 	}
 	LLFloaterMute::getInstance()->updateButtons();
 }
@@ -2808,13 +2837,6 @@ U8 LLAgent::getRenderState()
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 
-static const LLFloaterView::skip_list_t& get_skip_list()
-{
-	static LLFloaterView::skip_list_t skip_list;
-	skip_list.insert(LLFloaterMap::getInstance());
-	return skip_list;
-}
-
 //-----------------------------------------------------------------------------
 // endAnimationUpdateUI()
 //-----------------------------------------------------------------------------
@@ -2833,6 +2855,7 @@ void LLAgent::endAnimationUpdateUI()
 		gViewerWindow->showCursor();
 		// show menus
 		gMenuBarView->setVisible(TRUE);
+		LLNavigationBar::getInstance()->setVisible(TRUE);
 		gStatusBar->setVisibleForMouselook(true);
 
 		LLToolMgr::getInstance()->setCurrentToolset(gBasicToolset);
@@ -2840,10 +2863,17 @@ void LLAgent::endAnimationUpdateUI()
 		// Only pop if we have pushed...
 		if (TRUE == mViewsPushed)
 		{
+#if 0 // Use this once all floaters are registered
+			LLFloaterReg::restoreVisibleInstances();
+#else // Use this for now
+			LLFloaterView::skip_list_t skip_list;
+			skip_list.insert(LLFloaterReg::findInstance("mini_map"));
+			gFloaterView->popVisibleAll(skip_list);
+#endif
 			mViewsPushed = FALSE;
-			gFloaterView->popVisibleAll(get_skip_list());
 		}
-
+		
+		
 		gAgent.setLookAt(LOOKAT_TARGET_CLEAR);
 		if( gMorphView )
 		{
@@ -2885,13 +2915,6 @@ void LLAgent::endAnimationUpdateUI()
 
 		LLToolMgr::getInstance()->setCurrentToolset(gBasicToolset);
 
-		// HACK: If we're quitting, and we were in customize avatar, don't
-		// let the mini-map go visible again. JC
-        if (!LLAppViewer::instance()->quitRequested())
-		{
-			LLFloaterMap::getInstance()->popVisible();
-		}
-
 		if( gMorphView )
 		{
 			gMorphView->setVisible( FALSE );
@@ -2918,6 +2941,7 @@ void LLAgent::endAnimationUpdateUI()
 	{
 		// hide menus
 		gMenuBarView->setVisible(FALSE);
+		LLNavigationBar::getInstance()->setVisible(FALSE);
 		gStatusBar->setVisibleForMouselook(false);
 
 		// clear out camera lag effect
@@ -2929,15 +2953,24 @@ void LLAgent::endAnimationUpdateUI()
 		LLToolMgr::getInstance()->setCurrentToolset(gMouselookToolset);
 
 		mViewsPushed = TRUE;
+		
+		// hide all floaters except the mini map
 
-		gFloaterView->pushVisibleAll(FALSE, get_skip_list());
+#if 0 // Use this once all floaters are registered
+		std::set<std::string> exceptions;
+		exceptions.insert("mini_map");
+		LLFloaterReg::hideVisibleInstances(exceptions);
+#else // Use this for now
+		LLFloaterView::skip_list_t skip_list;
+		skip_list.insert(LLFloaterReg::findInstance("mini_map"));
+		gFloaterView->pushVisibleAll(FALSE, skip_list);
+#endif
 
 		if( gMorphView )
 		{
 			gMorphView->setVisible(FALSE);
 		}
 
-		gIMMgr->setFloaterOpen( FALSE );
 		gConsole->setVisible( TRUE );
 
 		if (mAvatarObject.notNull())
@@ -2985,15 +3018,6 @@ void LLAgent::endAnimationUpdateUI()
 	else if (mCameraMode == CAMERA_MODE_CUSTOMIZE_AVATAR)
 	{
 		LLToolMgr::getInstance()->setCurrentToolset(gFaceEditToolset);
-
-		LLFloaterMap::getInstance()->pushVisible(FALSE);
-		/*
-		LLView *view;
-		for (view = gFloaterView->getFirstChild(); view; view = gFloaterView->getNextChild())
-		{
-			view->pushVisible(FALSE);
-		}
-		*/
 
 		if( gMorphView )
 		{
@@ -4915,6 +4939,9 @@ int LLAgent::convertTextToMaturity(char text)
 
 bool LLAgent::sendMaturityPreferenceToServer(int preferredMaturity)
 {
+	if (!getRegion())
+		return false;
+	
 	// Update agent access preference on the server
 	std::string url = getRegion()->getCapability("UpdateAgentInformation");
 	if (!url.empty())
@@ -4974,6 +5001,17 @@ const LLAgentAccess& LLAgent::getAgentAccess()
 	return mAgentAccess;
 }
 
+bool LLAgent::validateMaturity(const LLSD& newvalue)
+{
+	return mAgentAccess.canSetMaturity(newvalue.asInteger());
+}
+
+void LLAgent::handleMaturity(const LLSD& newvalue)
+{
+	sendMaturityPreferenceToServer(newvalue.asInteger());
+}
+
+//----------------------------------------------------------------------------
 
 void LLAgent::buildFullname(std::string& name) const
 {
@@ -5137,8 +5175,14 @@ BOOL LLAgent::setUserGroupFlags(const LLUUID& group_id, BOOL accept_notices, BOO
 }
 
 // utility to build a location string
-void LLAgent::buildLocationString(std::string& str)
+BOOL LLAgent::buildLocationString(std::string& str, ELocationFormat fmt)
 {
+	LLViewerRegion* region = getRegion();
+	LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
+
+	if (!region || !parcel)
+		return FALSE;
+
 	const LLVector3& agent_pos_region = getPositionAgent();
 	S32 pos_x = S32(agent_pos_region.mV[VX]);
 	S32 pos_y = S32(agent_pos_region.mV[VY]);
@@ -5165,23 +5209,57 @@ void LLAgent::buildLocationString(std::string& str)
 	}
 
 	// create a defult name and description for the landmark
+	std::string parcel_name = LLViewerParcelMgr::getInstance()->getAgentParcelName();
+	std::string region_name = region->getName();
 	std::string buffer;
 	if( LLViewerParcelMgr::getInstance()->getAgentParcelName().empty() )
 	{
 		// the parcel doesn't have a name
-		buffer = llformat("%.32s (%d, %d, %d)",
-						  getRegion()->getName().c_str(),
-						  pos_x, pos_y, pos_z);
+		switch (fmt)
+		{
+		case LOCATION_FORMAT_LANDMARK:
+			buffer = llformat("%.32s (%d, %d, %d)",
+							  region_name.c_str(),
+							  pos_x, pos_y, pos_z);
+			break;
+		case LOCATION_FORMAT_NORMAL:
+		case LOCATION_FORMAT_FULL:
+			buffer = llformat("%s (%d, %d, %d)",
+							  region_name.c_str(),
+							  pos_x, pos_y, pos_z);
+			break;
+		}
 	}
 	else
 	{
 		// the parcel has a name, so include it in the landmark name
-		buffer = llformat("%.32s, %.32s (%d, %d, %d)",
-						  LLViewerParcelMgr::getInstance()->getAgentParcelName().c_str(),
-						  getRegion()->getName().c_str(),
-						  pos_x, pos_y, pos_z);
+		switch (fmt)
+		{
+		case LOCATION_FORMAT_LANDMARK:
+			buffer = llformat("%.32s, %.32s (%d, %d, %d)",
+							  parcel_name.c_str(),
+							  region_name.c_str(),
+							  pos_x, pos_y, pos_z);
+			break;
+		case LOCATION_FORMAT_NORMAL:
+			buffer = llformat("%s/%s (%d, %d, %d)",
+							  region_name.c_str(),
+							  parcel_name.c_str(),
+							  pos_x, pos_y, pos_z);
+			break;
+		case LOCATION_FORMAT_FULL:
+			std::string sim_access_string = region->getSimAccessString();
+			buffer = llformat("%s/%s (%d, %d, %d)%s%s",
+							  region_name.c_str(),
+							  parcel_name.c_str(),
+							  pos_x, pos_y, pos_z,
+							  sim_access_string.empty() ? "" : " - ",
+							  sim_access_string.c_str());
+			break;
+		}
 	}
 	str = buffer;
+	return TRUE;
 }
 
 LLQuaternion LLAgent::getHeadRotation()
@@ -5389,7 +5467,7 @@ void update_group_floaters(const LLUUID& group_id)
 	LLFloaterGroupInfo::refreshGroup(group_id);
 
 	// update avatar info
-	LLFloaterAvatarInfo* fa = LLFloaterAvatarInfo::getInstance(gAgent.getID());
+	LLFloaterAvatarInfo* fa = LLFloaterReg::findTypedInstance<LLFloaterAvatarInfo>("preview_avatar", LLSD(gAgent.getID()));
 	if(fa)
 	{
 		fa->resetGroupList();
@@ -5978,8 +6056,8 @@ bool LLAgent::teleportCore(bool is_local)
 	// process_teleport_location_reply
 
 	// close the map and find panels so we can see our destination
-	LLFloaterWorldMap::hide(NULL);
-	LLFloaterDirectory::hide(NULL);
+	LLFloaterReg::hideInstance("world_map");
+	LLFloaterReg::hideInstance("search");
 
 	// hide land floater too - it'll be out of date
 	LLFloaterLand::hideInstance();
@@ -6144,12 +6222,17 @@ void LLAgent::setTeleportState(ETeleportState state)
 	mTeleportState = state;
 	if (mTeleportState > TELEPORT_NONE && gSavedSettings.getBOOL("FreezeTime"))
 	{
-		LLFloaterSnapshot::hide(0);
+		LLFloaterReg::hideInstance("snapshot");
 	}
 	if (mTeleportState == TELEPORT_MOVING)
 	{
 		// We're outa here. Save "back" slurl.
 		mTeleportSourceSLURL = getSLURL();
+	}
+	else if(mTeleportState == TELEPORT_ARRIVING)
+	{
+		// Let the interested parties know we've teleported.
+		LLViewerParcelMgr::getInstance()->onTeleportFinished();
 	}
 }
 
@@ -7272,10 +7355,23 @@ void LLAgent::sendAgentSetAppearance()
 
 void LLAgent::sendAgentDataUpdateRequest()
 {
+	if(getID().isNull())
+		return; // not logged in
 	gMessageSystem->newMessageFast(_PREHASH_AgentDataUpdateRequest);
 	gMessageSystem->nextBlockFast(_PREHASH_AgentData);
-	gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-	gMessageSystem->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+	gMessageSystem->addUUIDFast(_PREHASH_AgentID, getID());
+	gMessageSystem->addUUIDFast(_PREHASH_SessionID, getSessionID());
+	sendReliableMessage();
+}
+
+void LLAgent::sendAgentUserInfoRequest()
+{
+	if(getID().isNull())
+		return; // not logged in
+	gMessageSystem->newMessageFast(_PREHASH_UserInfoRequest);
+	gMessageSystem->nextBlockFast(_PREHASH_AgentData);
+	gMessageSystem->addUUIDFast(_PREHASH_AgentID, getID());
+	gMessageSystem->addUUIDFast(_PREHASH_SessionID, getSessionID());
 	sendReliableMessage();
 }
 
@@ -7673,15 +7769,15 @@ void LLAgent::userRemoveAllClothes( void* userdata )
 	// We have to do this up front to avoid having to deal with the case of multiple wearables being dirty.
 	if( gFloaterCustomize )
 	{
-		gFloaterCustomize->askToSaveIfDirty( LLAgent::userRemoveAllClothesStep2, NULL );
+		gFloaterCustomize->askToSaveIfDirty( LLAgent::userRemoveAllClothesStep2 );
 	}
 	else
 	{
-		LLAgent::userRemoveAllClothesStep2( TRUE, NULL );
+		LLAgent::userRemoveAllClothesStep2( TRUE );
 	}
 }
 
-void LLAgent::userRemoveAllClothesStep2( BOOL proceed, void* userdata )
+void LLAgent::userRemoveAllClothesStep2( BOOL proceed )
 {
 	if( proceed )
 	{

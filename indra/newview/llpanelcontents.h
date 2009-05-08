@@ -46,7 +46,7 @@ class LLPanelContents : public LLPanel
 {
 public:
 	virtual	BOOL postBuild();
-	LLPanelContents(const std::string& name);
+	LLPanelContents();
 	virtual ~LLPanelContents();
 
 	void			refresh();

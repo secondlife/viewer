@@ -155,6 +155,8 @@ LLViewerParcelMgr::LLViewerParcelMgr()
 	{
 		mAgentParcelOverlay[i] = 0;
 	}
+
+	mTeleportInProgress = TRUE; // the initial parcel update is treated like teleport
 }
 
 
@@ -646,7 +648,7 @@ LLParcel *LLViewerParcelMgr::getAgentParcel() const
 }
 
 // Return whether the agent can build on the land they are on
-BOOL LLViewerParcelMgr::agentCanBuild() const
+bool LLViewerParcelMgr::agentCanBuild() const
 {
 	if (mAgentParcel)
 	{
@@ -938,7 +940,7 @@ void LLViewerParcelMgr::sendParcelGodForceOwner(const LLUUID& owner_id)
 	payload["parcel_local_id"] = mCurrentParcel->getLocalID();
 	payload["region_host"] = region->getHost().getIPandPort();
 	LLNotification::Params params("ForceOwnerAuctionWarning");
-	params.payload(payload).functor(callback_god_force_owner);
+	params.payload(payload).functor.function(callback_god_force_owner);
 
 	if(mCurrentParcel->getAuctionID())
 	{
@@ -1513,6 +1515,17 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 
 			LLViewerParcelMgr::getInstance()->writeAgentParcelFromBitmap(bitmap);
 			delete[] bitmap;
+
+			// Let interesting parties know about agent parcel change.
+			LLViewerParcelMgr* instance = LLViewerParcelMgr::getInstance();
+
+			instance->mAgentParcelChangedSignal();
+
+			if (instance->mTeleportInProgress)
+			{
+				instance->mTeleportInProgress = FALSE;
+				instance->mTeleportFinishedSignal();
+			}
 		}
 	}
 
@@ -2377,4 +2390,25 @@ LLViewerImage* LLViewerParcelMgr::getBlockedImage() const
 LLViewerImage* LLViewerParcelMgr::getPassImage() const
 {
 	return sPassImage;
+}
+
+boost::signals::connection LLViewerParcelMgr::setAgentParcelChangedCallback(parcel_changed_callback_t cb)
+{
+	return mAgentParcelChangedSignal.connect(cb);
+}
+
+boost::signals::connection LLViewerParcelMgr::setTeleportFinishedCallback(parcel_changed_callback_t cb)
+{
+	return mTeleportFinishedSignal.connect(cb);
+}
+
+/* Ok, we're notified that teleport has been finished.
+ * We should now propagate the notification via mTeleportFinishedSignal
+ * to all interested parties.
+ * However the agent parcel data has not been updated yet.
+ * Let's wait for the update and then emit the signal.
+ */
+void LLViewerParcelMgr::onTeleportFinished()
+{
+	mTeleportInProgress = TRUE;
 }

@@ -39,6 +39,7 @@
 #include "lldir.h"
 #include "llframetimer.h"
 #include "lltrans.h"
+#include "llwindow.h"	// beforeDialog()
 
 #if LL_SDL
 #include "llwindowsdl.h" // for some X/GTK utils to help with filepickers
@@ -818,6 +819,13 @@ BOOL LLFilePicker::getOpenFile(ELoadFilter filter)
 	reset();
 	
 	mNavOptions.optionFlags &= ~kNavAllowMultipleFiles;
+
+	if(filter == FFLOAD_ALL)	// allow application bundles etc. to be traversed; important for DEV-16869, but generally useful
+	{
+		// mNavOptions.optionFlags |= kNavAllowOpenPackages;
+		mNavOptions.optionFlags |= kNavSupportPackages;
+	}
+	
 	// Modal, so pause agent
 	send_agent_pause();
 	{

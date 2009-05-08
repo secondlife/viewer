@@ -42,6 +42,8 @@
 #include "llfloatergodtools.h"
 #include "llparcel.h"
 #include "llscrolllistctrl.h"
+#include "llscrolllistitem.h"
+#include "llscrolllistcell.h"
 #include "lllineeditor.h"
 #include "lltextbox.h"
 #include "lltracker.h"
@@ -71,7 +73,7 @@ void LLFloaterTopObjects::show()
 }
 
 LLFloaterTopObjects::LLFloaterTopObjects()
-:	LLFloater(std::string("top_objects")),
+:	LLFloater(),
 	mInitialized(FALSE),
 	mtotalScore(0.f)
 {
@@ -86,14 +88,11 @@ LLFloaterTopObjects::~LLFloaterTopObjects()
 // virtual
 BOOL LLFloaterTopObjects::postBuild()
 {
-	childSetCommitCallback("objects_list", onCommitObjectsList, this);
-	childSetDoubleClickCallback("objects_list", onDoubleClickObjectsList);
-	childSetFocus("objects_list");
 	LLScrollListCtrl *objects_list = getChild<LLScrollListCtrl>("objects_list");
-	if (objects_list)
-	{
-		objects_list->setCommitOnSelectionChange(TRUE);
-	}
+	childSetFocus("objects_list");
+	childSetCommitCallback("objects_list", onCommitObjectsList, this);
+	objects_list->setDoubleClickCallback(onDoubleClickObjectsList, this);
+	objects_list->setCommitOnSelectionChange(TRUE);
 
 	childSetAction("show_beacon_btn", onClickShowBeacon, this);
 	setDefaultBtn("show_beacon_btn");
@@ -114,16 +113,14 @@ BOOL LLFloaterTopObjects::postBuild()
 	if (line_editor)
 	{
 		line_editor->setCommitOnFocusLost(FALSE);
-		line_editor->setCommitCallback(onGetByOwnerName);
-		line_editor->setCallbackUserData(this);
+		line_editor->setCommitCallback(onGetByOwnerName, this);
 	}
 
 	line_editor = getChild<LLLineEditor>("object_name_editor");
 	if (line_editor)
 	{
 		line_editor->setCommitOnFocusLost(FALSE);
-		line_editor->setCommitCallback(onGetByObjectName);
-		line_editor->setCallbackUserData(this);
+		line_editor->setCommitCallback(onGetByObjectName, this);
 	}*/
 
 	mCurrentMode = STAT_REPORT_TOP_SCRIPTS;
@@ -234,7 +231,7 @@ void LLFloaterTopObjects::handleReply(LLMessageSystem *msg, void** data)
 
 	if (total_count == 0 && list->getItemCount() == 0)
 	{
-		list->addCommentText(getString("none_descriptor"));
+		list->setCommentText(getString("none_descriptor"));
 	}
 	else
 	{

@@ -33,11 +33,14 @@
 #ifndef LL_LLAPPVIEWER_H
 #define LL_LLAPPVIEWER_H
 
+#include "llcontrol.h"
+
 class LLTextureCache;
 class LLWorkerThread;
 class LLTextureFetch;
 class LLWatchdogTimeout;
 class LLCommandLineParser;
+
 
 class LLAppViewer : public LLApp
 {
@@ -96,8 +99,8 @@ public:
 	
 	bool getPurgeCache() const { return mPurgeCache; }
 	
-	const std::string& getSecondLifeTitle() const; // The Second Life title.
-	const std::string& getWindowTitle() const; // The window display name.
+	std::string getSecondLifeTitle() const; // The Second Life title.
+	std::string getWindowTitle() const; // The window display name.
 
     void forceDisconnect(const std::string& msg); // Force disconnection, with a message to the user.
     void badNetworkHandler(); // Cause a crash state due to bad network packet.
@@ -119,14 +122,13 @@ public:
     virtual void forceErrorSoftwareException();
     virtual void forceErrorDriverCrash();
 
-	// *NOTE: There are currently 3 settings files: 
-	// "Global", "PerAccount" and "CrashSettings"
 	// The list is found in app_settings/settings_files.xml
 	// but since they are used explicitly in code,
 	// the follow consts should also do the trick.
 	static const std::string sGlobalSettingsName; 
-	static const std::string sPerAccountSettingsName; 
-	static const std::string sCrashSettingsName; 
+
+	LLCachedControl<bool> mRandomizeFramerate; 
+	LLCachedControl<bool> mPeriodicSlowFrame; 
 
 	// Load settings from the location specified by loction_key.
 	// Key availale and rules for loading, are specified in 
@@ -136,6 +138,7 @@ public:
 
 	std::string getSettingsFilename(const std::string& location_key,
 					const std::string& file);
+	void loadColorSettings();
 
 	// For thread debugging. 
 	// llstartup needs to control init.

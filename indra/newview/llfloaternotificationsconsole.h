@@ -34,6 +34,7 @@
 #define LL_LLFLOATER_NOTIFICATIONS_CONSOLE_H
 
 #include "llfloater.h"
+#include "lllayoutstack.h"
 #include "llnotifications.h"
 
 class LLFloaterNotificationConsole : 

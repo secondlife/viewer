@@ -34,7 +34,7 @@
 
 #include "linden_common.h"
 #include "llkeyboardmacosx.h"
-#include "llwindow.h"
+#include "llwindowcallbacks.h"
 
 #include <Carbon/Carbon.h>
 

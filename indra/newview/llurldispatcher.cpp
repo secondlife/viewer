@@ -42,6 +42,7 @@
 #include "llfloaterworldmap.h"
 #include "llfloaterhtmlhelp.h"
 #include "llpanellogin.h"
+#include "llslurl.h"
 #include "llstartup.h"			// gStartupState
 #include "llurlsimstring.h"
 #include "llweb.h"
@@ -50,20 +51,9 @@
 // library includes
 #include "llsd.h"
 
-const std::string SLURL_SL_HELP_PREFIX		= "secondlife://app.";
-const std::string SLURL_SL_PREFIX			= "sl://";
-const std::string SLURL_SECONDLIFE_PREFIX	= "secondlife://";
-const std::string SLURL_SLURL_PREFIX		= "http://slurl.com/secondlife/";
-
-const std::string SLURL_APP_TOKEN = "app/";
-
 class LLURLDispatcherImpl
 {
 public:
-	static bool isSLURL(const std::string& url);
-
-	static bool isSLURLCommand(const std::string& url);
-
 	static bool dispatch(const std::string& url,
 						 LLWebBrowserCtrl* web,
 						 bool trusted_browser);
@@ -104,34 +94,8 @@ private:
 		// Called by LLWorldMap when a region name has been resolved to a
 		// location in-world, used by places-panel display.
 
-	static bool matchPrefix(const std::string& url, const std::string& prefix);
-	
-	static std::string stripProtocol(const std::string& url);
-
 	friend class LLTeleportHandler;
 };
-
-// static
-bool LLURLDispatcherImpl::isSLURL(const std::string& url)
-{
-	if (matchPrefix(url, SLURL_SL_HELP_PREFIX)) return true;
-	if (matchPrefix(url, SLURL_SL_PREFIX)) return true;
-	if (matchPrefix(url, SLURL_SECONDLIFE_PREFIX)) return true;
-	if (matchPrefix(url, SLURL_SLURL_PREFIX)) return true;
-	return false;
-}
-
-// static
-bool LLURLDispatcherImpl::isSLURLCommand(const std::string& url)
-{ 
-	if (matchPrefix(url, SLURL_SL_PREFIX + SLURL_APP_TOKEN)
-		|| matchPrefix(url, SLURL_SECONDLIFE_PREFIX + "/" + SLURL_APP_TOKEN)
-		|| matchPrefix(url, SLURL_SLURL_PREFIX + SLURL_APP_TOKEN) )
-	{
-		return true;
-	}
-	return false;
-}
 
 // static
 bool LLURLDispatcherImpl::dispatchCore(const std::string& url,
@@ -178,7 +142,7 @@ bool LLURLDispatcherImpl::dispatchRightClick(const std::string& url)
 bool LLURLDispatcherImpl::dispatchHelp(const std::string& url, bool right_mouse)
 {
 #if LL_LIBXUL_ENABLED
-	if (matchPrefix(url, SLURL_SL_HELP_PREFIX))
+	if (LLSLURL::isURLHelp(url))
 	{
 		gViewerHtmlHelp.show();
 		return true;
@@ -193,7 +157,7 @@ bool LLURLDispatcherImpl::dispatchApp(const std::string& url,
 									  LLWebBrowserCtrl* web,
 									  bool trusted_browser)
 {
-	if (!isSLURL(url))
+	if (!LLSLURL::isSLURL(url))
 	{
 		return false;
 	}
@@ -211,7 +175,7 @@ bool LLURLDispatcherImpl::dispatchApp(const std::string& url,
 // static
 bool LLURLDispatcherImpl::dispatchRegion(const std::string& url, bool right_mouse)
 {
-	if (!isSLURL(url))
+	if (!LLSLURL::isSLURL(url))
 	{
 		return false;
 	}
@@ -230,7 +194,7 @@ bool LLURLDispatcherImpl::dispatchRegion(const std::string& url, bool right_mous
 		return true;
 	}
 
-	std::string sim_string = stripProtocol(url);
+	std::string sim_string = LLSLURL::stripProtocol(url);
 	std::string region_name;
 	S32 x = 128;
 	S32 y = 128;
@@ -251,7 +215,7 @@ bool LLURLDispatcherImpl::dispatchRegion(const std::string& url, bool right_mous
 /*static*/
 void LLURLDispatcherImpl::regionNameCallback(U64 region_handle, const std::string& url, const LLUUID& snapshot_id, bool teleport)
 {
-	std::string sim_string = stripProtocol(url);
+	std::string sim_string = LLSLURL::stripProtocol(url);
 	std::string region_name;
 	S32 x = 128;
 	S32 y = 128;
@@ -289,7 +253,7 @@ void LLURLDispatcherImpl::regionNameCallback(U64 region_handle, const std::strin
 /* static */
 void LLURLDispatcherImpl::regionHandleCallback(U64 region_handle, const std::string& url, const LLUUID& snapshot_id, bool teleport)
 {
-	std::string sim_string = stripProtocol(url);
+	std::string sim_string = LLSLURL::stripProtocol(url);
 	std::string region_name;
 	S32 x = 128;
 	S32 y = 128;
@@ -316,10 +280,7 @@ void LLURLDispatcherImpl::regionHandleCallback(U64 region_handle, const std::str
 		LLVector3d global_pos = from_region_handle(region_handle);
 		global_pos += LLVector3d(local_pos);
 		gAgent.teleportViaLocation(global_pos);
-		if(gFloaterWorldMap)
-		{
-			gFloaterWorldMap->trackLocation(global_pos);
-		}
+		LLFloaterWorldMap::getInstance()->trackLocation(global_pos);
 	}
 	else
 	{
@@ -335,37 +296,6 @@ void LLURLDispatcherImpl::regionHandleCallback(U64 region_handle, const std::str
 		std::string locationString = llformat("%s %d, %d, %d", region_name.c_str(), x, y, z);
 		url_displayp->setLocationString(locationString);
 	}
-}
-
-// static
-bool LLURLDispatcherImpl::matchPrefix(const std::string& url, const std::string& prefix)
-{
-	std::string test_prefix = url.substr(0, prefix.length());
-	LLStringUtil::toLower(test_prefix);
-	return test_prefix == prefix;
-}
-
-// static
-std::string LLURLDispatcherImpl::stripProtocol(const std::string& url)
-{
-	std::string stripped = url;
-	if (matchPrefix(stripped, SLURL_SL_HELP_PREFIX))
-	{
-		stripped.erase(0, SLURL_SL_HELP_PREFIX.length());
-	}
-	else if (matchPrefix(stripped, SLURL_SL_PREFIX))
-	{
-		stripped.erase(0, SLURL_SL_PREFIX.length());
-	}
-	else if (matchPrefix(stripped, SLURL_SECONDLIFE_PREFIX))
-	{
-		stripped.erase(0, SLURL_SECONDLIFE_PREFIX.length());
-	}
-	else if (matchPrefix(stripped, SLURL_SLURL_PREFIX))
-	{
-		stripped.erase(0, SLURL_SLURL_PREFIX.length());
-	}
-	return stripped;
 }
 
 //---------------------------------------------------------------------------
@@ -390,7 +320,7 @@ public:
 		std::string region_name = LLURLSimString::unescapeRegionName(tokens[0]);
 
 		// build secondlife://De%20Haro/123/45/67 for use in callback
-		std::string url = SLURL_SECONDLIFE_PREFIX;
+		std::string url = LLSLURL::PREFIX_SECONDLIFE;
 		for (int i = 0; i < tokens.size(); ++i)
 		{
 			url += tokens[i].asString() + "/";
@@ -405,18 +335,6 @@ public:
 LLTeleportHandler gTeleportHandler;
 
 //---------------------------------------------------------------------------
-
-// static
-bool LLURLDispatcher::isSLURL(const std::string& url)
-{
-	return LLURLDispatcherImpl::isSLURL(url);
-}
-
-// static
-bool LLURLDispatcher::isSLURLCommand(const std::string& url)
-{
-	return LLURLDispatcherImpl::isSLURLCommand(url);
-}
 
 // static
 bool LLURLDispatcher::dispatch(const std::string& url,
@@ -444,13 +362,4 @@ bool LLURLDispatcher::dispatchFromTextEditor(const std::string& url)
 	const bool trusted_browser = true;
 	LLWebBrowserCtrl* web = NULL;
 	return LLURLDispatcherImpl::dispatch(url, web, trusted_browser);
-}
-
-// static
-std::string LLURLDispatcher::buildSLURL(const std::string& regionname,
-										S32 x, S32 y, S32 z)
-{
-	std::string slurl = SLURL_SLURL_PREFIX + regionname + llformat("/%d/%d/%d",x,y,z); 
-	slurl = LLWeb::escapeURL( slurl );
-	return slurl;
 }

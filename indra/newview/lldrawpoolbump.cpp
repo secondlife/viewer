@@ -127,9 +127,9 @@ void LLStandardBumpmap::restoreGL()
 	{
 		// *NOTE: This buffer size is hard coded into scanf() below.
 		char label[2048] = "";	/* Flawfinder: ignore */
-		char bump_file[2048] = "";	/* Flawfinder: ignore */
+		char bump_image_id[2048] = "";	/* Flawfinder: ignore */
 		fields_read = fscanf(	/* Flawfinder: ignore */
-			file, "\n%2047s %2047s", label, bump_file);
+			file, "\n%2047s %2047s", label, bump_image_id);
 		if( EOF == fields_read )
 		{
 			break;
@@ -140,10 +140,10 @@ void LLStandardBumpmap::restoreGL()
 			return;
 		}
 
-// 		llinfos << "Loading bumpmap: " << bump_file << " from viewerart" << llendl;
+// 		llinfos << "Loading bumpmap: " << bump_image_id << " from viewerart" << llendl;
 		gStandardBumpmapList[LLStandardBumpmap::sStandardBumpmapCount].mLabel = label;
 		gStandardBumpmapList[LLStandardBumpmap::sStandardBumpmapCount].mImage = 
-			gImageList.getImageFromFile(bump_file,
+			gImageList.getImage(LLUUID(bump_image_id),
 										TRUE, 
 										FALSE, 
 										0, 

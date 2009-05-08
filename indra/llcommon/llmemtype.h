@@ -41,7 +41,10 @@ class LLMemType;
 extern void* ll_allocate (size_t size);
 extern void ll_release (void *p);
 
-#define MEM_TRACK_MEM 0
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// WARNING: Never commit with MEM_TRACK_MEM == 1
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#define MEM_TRACK_MEM (0 && LL_WINDOWS)
 #define MEM_TRACK_TYPE (1 && MEM_TRACK_MEM)
 
 #if MEM_TRACK_TYPE

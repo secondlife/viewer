@@ -34,7 +34,7 @@
 #include "indra_constants.h"
 #include "llkeyboard.h"
 
-#include "llwindow.h"
+#include "llwindowcallbacks.h"
 
 
 //

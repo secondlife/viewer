@@ -553,7 +553,7 @@ void LLViewerMedia::buildMediaManagerData( LLMediaManagerData* init_data )
 	// Users can change skins while client is running, so make sure
 	// we pick up on changes.
 	gSavedSettings.getControl("SkinCurrent")->getSignal()->connect( 
-		boost::bind( LLViewerMediaImpl::handleSkinCurrentChanged, _1 ) );
+		boost::bind( LLViewerMediaImpl::handleSkinCurrentChanged, _2 ) );
 
 }
 

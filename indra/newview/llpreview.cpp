@@ -34,11 +34,13 @@
 #include "stdenums.h"
 
 #include "llpreview.h"
+
 #include "lllineeditor.h"
 #include "llinventory.h"
 #include "llinventorymodel.h"
 #include "llresmgr.h"
 #include "lltextbox.h"
+#include "llfloaterreg.h"
 #include "llfocusmgr.h"
 #include "lltooldraganddrop.h"
 #include "llradiogroup.h"
@@ -51,125 +53,68 @@
 #include "llselectmgr.h"
 #include "llinventoryview.h"
 #include "llviewerinventory.h"
+#include "llviewerwindow.h"
+#include "lltrans.h"
 
 // Constants
 
-// Globals and statics
-LLPreview::preview_multimap_t LLPreview::sPreviewsBySource;
-LLPreview::preview_map_t LLPreview::sInstances;
-std::map<LLUUID, LLHandle<LLFloater> > LLMultiPreview::sAutoOpenPreviewHandles;
-
-// Functions
-LLPreview::LLPreview(const std::string& name) :
-	LLFloater(name),
-	mCopyToInvBtn(NULL),
+LLPreview::LLPreview(const LLSD& key)
+:	LLFloater(key),
+	mItemUUID(key.asUUID()),
+	mCopyToInvBtn( NULL ),
 	mForceClose(FALSE),
 	mUserResized(FALSE),
 	mCloseAfterSave(FALSE),
 	mAssetStatus(PREVIEW_ASSET_UNLOADED),
-	mItem(NULL),
-	mDirty(TRUE)
-{
-	// don't add to instance list, since ItemID is null
-	mAuxItem = new LLInventoryItem; // (LLPointer is auto-deleted)
-	// don't necessarily steal focus on creation -- sometimes these guys pop up without user action
-	setAutoFocus(FALSE);
-	gInventory.addObserver(this);
-}
-
-LLPreview::LLPreview(const std::string& name, const LLRect& rect, const std::string& title, const LLUUID& item_uuid, const LLUUID& object_uuid, BOOL allow_resize, S32 min_width, S32 min_height, LLPointer<LLViewerInventoryItem> inv_item )
-:	LLFloater(name, rect, title, allow_resize, min_width, min_height ),
-	mItemUUID(item_uuid),
-	mSourceID(LLUUID::null),
-	mObjectUUID(object_uuid),
-	mCopyToInvBtn( NULL ),
-	mForceClose( FALSE ),
-	mUserResized(FALSE),
-	mCloseAfterSave(FALSE),
-	mAssetStatus(PREVIEW_ASSET_UNLOADED),
-	mItem(inv_item),
 	mDirty(TRUE)
 {
 	mAuxItem = new LLInventoryItem;
 	// don't necessarily steal focus on creation -- sometimes these guys pop up without user action
 	setAutoFocus(FALSE);
 
-	if (mItemUUID.notNull())
-	{
-		sInstances[mItemUUID] = this;
-	}
 	gInventory.addObserver(this);
+	
+	refreshFromItem();
+}
+
+BOOL LLPreview::postBuild()
+{
+	refreshFromItem();
+	return TRUE;
 }
 
 LLPreview::~LLPreview()
 {
 	gFocusMgr.releaseFocusIfNeeded( this ); // calls onCommit()
-
-	if (mItemUUID.notNull())
-	{
-		sInstances.erase( mItemUUID );
-	}
-
-	if (mSourceID.notNull())
-	{
-		preview_multimap_t::iterator found_it = sPreviewsBySource.find(mSourceID);
-		for (; found_it != sPreviewsBySource.end(); ++found_it)
-		{
-			if (found_it->second == getHandle())
-			{
-				sPreviewsBySource.erase(found_it);
-				break;
-			}
-		}
-	}
 	gInventory.removeObserver(this);
-}
-
-void LLPreview::setItemID(const LLUUID& item_id)
-{
-	if (mItemUUID.notNull())
-	{
-		sInstances.erase(mItemUUID);
-	}
-
-	mItemUUID = item_id;
-
-	if (mItemUUID.notNull())
-	{
-		sInstances[mItemUUID] = this;
-	}
 }
 
 void LLPreview::setObjectID(const LLUUID& object_id)
 {
 	mObjectUUID = object_id;
-}
-
-void LLPreview::setSourceID(const LLUUID& source_id)
-{
-	if (mSourceID.notNull())
+	if (getAssetStatus() == PREVIEW_ASSET_UNLOADED)
 	{
-		// erase old one
-		preview_multimap_t::iterator found_it = sPreviewsBySource.find(mSourceID);
-		for (; found_it != sPreviewsBySource.end(); ++found_it)
-		{
-			if (found_it->second == getHandle())
-			{
-				sPreviewsBySource.erase(found_it);
-				break;
-			}
-		}
+		loadAsset();
 	}
-	mSourceID = source_id;
-	sPreviewsBySource.insert(preview_multimap_t::value_type(mSourceID, getHandle()));
 }
 
-const LLViewerInventoryItem *LLPreview::getItem() const
+void LLPreview::setItem( LLInventoryItem* item )
 {
-	if(mItem)
-		return mItem;
-	const LLViewerInventoryItem *item = NULL;
-	if(mObjectUUID.isNull())
+	mItem = item;
+	if (mItem && getAssetStatus() == PREVIEW_ASSET_UNLOADED)
+	{
+		loadAsset();
+	}
+}
+
+const LLInventoryItem *LLPreview::getItem() const
+{
+	const LLInventoryItem *item = NULL;
+	if (mItem.notNull())
+	{
+		item = mItem;
+	}
+	else if (mObjectUUID.isNull())
 	{
 		// it's an inventory item, so get the item.
 		item = gInventory.getItem(mItemUUID);
@@ -180,7 +125,7 @@ const LLViewerInventoryItem *LLPreview::getItem() const
 		LLViewerObject* object = gObjectList.findObject(mObjectUUID);
 		if(object)
 		{
-			item = (LLViewerInventoryItem*)object->getInventoryObject(mItemUUID);
+			item = dynamic_cast<LLInventoryItem*>(object->getInventoryObject(mItemUUID));
 		}
 	}
 	return item;
@@ -189,7 +134,7 @@ const LLViewerInventoryItem *LLPreview::getItem() const
 // Sub-classes should override this function if they allow editing
 void LLPreview::onCommit()
 {
-	const LLViewerInventoryItem *item = getItem();
+	const LLViewerInventoryItem *item = dynamic_cast<const LLViewerInventoryItem*>(getItem());
 	if(item)
 	{
 		if (!item->isComplete())
@@ -255,17 +200,24 @@ void LLPreview::draw()
 	if (mDirty)
 	{
 		mDirty = FALSE;
-		const LLViewerInventoryItem *item = getItem();
-		if (item)
-		{
-			refreshFromItem(item);
-		}
+		refreshFromItem();
 	}
 }
 
-void LLPreview::refreshFromItem(const LLInventoryItem* item)
+void LLPreview::refreshFromItem()
 {
-	setTitle(llformat("%s: %s",getTitleName(),item->getName().c_str()));
+	const LLInventoryItem* item = getItem();
+	if (!item)
+	{
+		return;
+	}
+	if (hasString("Title"))
+	{
+		LLStringUtil::format_map_t args;
+		args["[NAME]"] = item->getName();
+		LLUIString title = getString("Title", args);
+		setTitle(title.getString());
+	}
 	childSetText("desc",item->getDescription());
 
 	BOOL can_agent_manipulate = item->getPermissions().allowModifyBy(gAgent.getID());
@@ -287,80 +239,32 @@ void LLPreview::onRadio(LLUICtrl*, void* userdata)
 }
 
 // static
-LLPreview* LLPreview::find(const LLUUID& item_uuid)
-{
-	LLPreview* instance = NULL;
-	preview_map_t::iterator found_it = LLPreview::sInstances.find(item_uuid);
-	if(found_it != LLPreview::sInstances.end())
-	{
-		instance = found_it->second;
-	}
-	return instance;
-}
-
-// static
-LLPreview* LLPreview::show( const LLUUID& item_uuid, BOOL take_focus )
-{
-	LLPreview* instance = LLPreview::find(item_uuid);
-	if(instance)
-	{
-		if (LLFloater::getFloaterHost() && LLFloater::getFloaterHost() != instance->getHost())
-		{
-			// this preview window is being opened in a new context
-			// needs to be rehosted
-			LLFloater::getFloaterHost()->addFloater(instance, TRUE);
-		}
-		instance->open();  /*Flawfinder: ignore*/
-		if (take_focus)
-		{
-			instance->setFocus(TRUE);
-		}
-	}
-
-	return instance;
-}
-
-// static
-bool LLPreview::save( const LLUUID& item_uuid, LLPointer<LLInventoryItem>* itemptr )
-{
-	bool res = false;
-	LLPreview* instance = LLPreview::find(item_uuid);
-	if(instance)
-	{
-		res = instance->saveItem(itemptr);
-	}
-	if (!res)
-	{
-		delete itemptr;
-	}
-	return res;
-}
-
-// static
 void LLPreview::hide(const LLUUID& item_uuid, BOOL no_saving /* = FALSE */ )
 {
-	preview_map_t::iterator found_it = LLPreview::sInstances.find(item_uuid);
-	if(found_it != LLPreview::sInstances.end())
+	LLFloater* floater = LLFloaterReg::findInstance("preview", LLSD(item_uuid));
+	if (!floater) floater = LLFloaterReg::findInstance("preview_avatar", LLSD(item_uuid));
+	
+	LLPreview* preview = dynamic_cast<LLPreview*>(floater);
+	if (preview)
 	{
-		LLPreview* instance = found_it->second;
-
 		if ( no_saving )
 		{
-			instance->mForceClose = TRUE;
+			preview->mForceClose = TRUE;
 		}
-
-		instance->close();
+		preview->closeFloater();
 	}
 }
 
 // static
-void LLPreview::rename(const LLUUID& item_uuid, const std::string& new_name)
+void LLPreview::dirty(const LLUUID& item_uuid)
 {
-	preview_map_t::iterator found_it = LLPreview::sInstances.find(item_uuid);
-	if(found_it != LLPreview::sInstances.end())
+	LLFloater* floater = LLFloaterReg::findInstance("preview", LLSD(item_uuid));
+	if (!floater) floater = LLFloaterReg::findInstance("preview_avatar", LLSD(item_uuid));
+	
+	LLPreview* preview = dynamic_cast<LLPreview*>(floater);
+	if(preview)
 	{
-		LLPreview* instance = found_it->second;
-		instance->setTitle( new_name );
+		preview->mDirty = TRUE;
 	}
 }
 
@@ -397,7 +301,7 @@ BOOL LLPreview::handleHover(S32 x, S32 y, MASK mask)
 	{
 		S32 screen_x;
 		S32 screen_y;
-		const LLViewerInventoryItem *item = getItem();
+		const LLInventoryItem *item = getItem();
 
 		localPointToScreen(x, y, &screen_x, &screen_y );
 		if(item
@@ -426,21 +330,13 @@ BOOL LLPreview::handleHover(S32 x, S32 y, MASK mask)
 	return LLFloater::handleHover(x,y,mask);
 }
 
-void LLPreview::open()	/*Flawfinder: ignore*/
+void LLPreview::onOpen(const LLSD& key)
 {
 	if (!getFloaterHost() && !getHost() && getAssetStatus() == PREVIEW_ASSET_UNLOADED)
 	{
 		loadAsset();
 	}
-	LLFloater::open();		/*Flawfinder: ignore*/
 }
-
-// virtual
-bool LLPreview::saveItem(LLPointer<LLInventoryItem>* itemptr)
-{
-	return false;
-}
-
 
 // static
 void LLPreview::onBtnCopyToInv(void* userdata)
@@ -468,14 +364,14 @@ void LLPreview::onBtnCopyToInv(void* userdata)
 				cb);
 		}
 	}
-	self->close();
+	self->closeFloater();
 }
 
 // static
 void LLPreview::onKeepBtn(void* data)
 {
 	LLPreview* self = (LLPreview*)data;
-	self->close();
+	self->closeFloater();
 }
 
 // static
@@ -483,11 +379,11 @@ void LLPreview::onDiscardBtn(void* data)
 {
 	LLPreview* self = (LLPreview*)data;
 
-	const LLViewerInventoryItem* item = self->getItem();
+	const LLInventoryItem* item = self->getItem();
 	if (!item) return;
 
 	self->mForceClose = TRUE;
-	self->close();
+	self->closeFloater();
 
 	// Delete the item entirely
 	/*
@@ -517,55 +413,60 @@ void LLPreview::onDiscardBtn(void* data)
 	}
 }
 
-//static
-LLPreview* LLPreview::getFirstPreviewForSource(const LLUUID& source_id)
+void LLPreview::handleReshape(const LLRect& new_rect, bool by_user)
 {
-	preview_multimap_t::iterator found_it = sPreviewsBySource.find(source_id);
-	if (found_it != sPreviewsBySource.end())
-	{
-		// just return first one
-		return (LLPreview*)found_it->second.get();
-	}
-	return NULL;
-}
-
-void LLPreview::userSetShape(const LLRect& new_rect)
-{
-	if(new_rect.getWidth() != getRect().getWidth() || new_rect.getHeight() != getRect().getHeight())
+	if(by_user 
+		&& (new_rect.getWidth() != getRect().getWidth() || new_rect.getHeight() != getRect().getHeight()))
 	{
 		userResized();
 	}
-	LLFloater::userSetShape(new_rect);
+	LLFloater::handleReshape(new_rect, by_user);
 }
 
 //
 // LLMultiPreview
 //
 
-LLMultiPreview::LLMultiPreview(const LLRect& rect) : LLMultiFloater(std::string("Preview"), rect)
+LLMultiPreview::LLMultiPreview()
+	: LLMultiFloater()
 {
+	// *TODO: There should be a .xml file for this
+	const LLRect& nextrect = LLFloaterReg::getFloaterRect("preview"); // place where the next preview should show up
+	if (nextrect.getWidth() > 0)
+	{
+		setRect(nextrect);
+	}
+	else
+	{
+		// start with a rect in the top-left corner ; will get resized
+		LLRect rect;
+		rect.setLeftTopAndSize(0, gViewerWindow->getWindowHeight(), 200, 200);
+		setRect(rect);
+	}
+	setTitle(LLTrans::getString("MultiPreviewTitle"));
+	buildTabContainer();
 	setCanResize(TRUE);
 }
 
-void LLMultiPreview::open()		/*Flawfinder: ignore*/
+void LLMultiPreview::onOpen(const LLSD& key)
 {
-	LLMultiFloater::open();		/*Flawfinder: ignore*/
 	LLPreview* frontmost_preview = (LLPreview*)mTabContainer->getCurrentPanel();
 	if (frontmost_preview && frontmost_preview->getAssetStatus() == LLPreview::PREVIEW_ASSET_UNLOADED)
 	{
 		frontmost_preview->loadAsset();
 	}
+	LLMultiFloater::onOpen(key);
 }
 
 
-void LLMultiPreview::userSetShape(const LLRect& new_rect)
+void LLMultiPreview::handleReshape(const LLRect& new_rect, bool by_user)
 {
 	if(new_rect.getWidth() != getRect().getWidth() || new_rect.getHeight() != getRect().getHeight())
 	{
 		LLPreview* frontmost_preview = (LLPreview*)mTabContainer->getCurrentPanel();
 		if (frontmost_preview) frontmost_preview->userResized();
 	}
-	LLFloater::userSetShape(new_rect);
+	LLFloater::handleReshape(new_rect, by_user);
 }
 
 
@@ -578,22 +479,3 @@ void LLMultiPreview::tabOpen(LLFloater* opened_floater, bool from_click)
 	}
 }
 
-//static 
-LLMultiPreview* LLMultiPreview::getAutoOpenInstance(const LLUUID& id)
-{
-	handle_map_t::iterator found_it = sAutoOpenPreviewHandles.find(id);
-	if (found_it != sAutoOpenPreviewHandles.end())
-	{
-		return (LLMultiPreview*)found_it->second.get();	
-	}
-	return NULL;
-}
-
-//static
-void LLMultiPreview::setAutoOpenInstance(LLMultiPreview* previewp, const LLUUID& id)
-{
-	if (previewp)
-	{
-		sAutoOpenPreviewHandles[id] = previewp->getHandle();
-	}
-}

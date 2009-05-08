@@ -37,15 +37,15 @@ parcelle :
 spécifique.
 	</text>
 	<combo_box name="sell_to" bottom_delta="-32">
-		<combo_item name="--selectone--">
+		<combo_box.item name="--selectone--">
 			-- Sélectionnez --
-		</combo_item>
-		<combo_item name="Anyone">
+		</combo_box.item>
+		<combo_box.item name="Anyone">
 			N&apos;importe qui
-		</combo_item>
-		<combo_item name="Specificuser:">
+		</combo_box.item>
+		<combo_box.item name="Specificuser:">
 			Acheteur spécifique :
-		</combo_item>
+		</combo_box.item>
 	</combo_box>
 	<button label="Sélectionner..." name="sell_to_select_agent" width="100"/>
 	<text name="sell_objects_label">

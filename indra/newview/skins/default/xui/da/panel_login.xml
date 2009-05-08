@@ -19,15 +19,15 @@
 		Start lokation:
 	</text>
 	<combo_box name="start_location_combo">
-		<combo_item name="MyHome">
+		<combo_box.item name="MyHome">
 			Hjem
-		</combo_item>
-		<combo_item name="MyLastLocation">
+		</combo_box.item>
+		<combo_box.item name="MyLastLocation">
 			Min sidste lokation
-		</combo_item>
-		<combo_item name="Typeregionname">
+		</combo_box.item>
+		<combo_box.item name="Typeregionname">
 			&lt;Skriv navn på region&gt;
-		</combo_item>
+		</combo_box.item>
 	</combo_box>
 	<check_box label="Husk password" name="remember_check" />
 	<button label="Log ind" label_selected="Log ind" name="connect_btn" />

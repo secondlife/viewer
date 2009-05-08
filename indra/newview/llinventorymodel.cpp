@@ -112,7 +112,8 @@ const char* NEW_CATEGORY_NAMES[LLAssetType::AT_COUNT] =
 	"Uncompressed Images",	// AT_IMAGE_JPEG
 	"Animations",		// AT_ANIMATION
 	"Gestures",			// AT_GESTURE
-	"New Folder"		// AT_SIMSTATE
+	"New Folder",		// AT_SIMSTATE
+	"My Favorites"		//AT_FAVORITE
 };
 
 struct InventoryIDPtrLess
@@ -389,7 +390,8 @@ LLUUID LLInventoryModel::createNewCategory(const LLUUID& parent_id,
 		name.assign(pname);
 	}
 	else if((preferred_type >= LLAssetType::AT_TEXTURE) &&
-			(preferred_type < LLAssetType::AT_SIMSTATE))
+			//why < LLAssetType::AT_SIMSTATE??? if preferred_type == LLAssetType::AT_SIMSTATE that will be handled above
+			(preferred_type < LLAssetType::AT_COUNT))
 	{
 		name.assign(NEW_CATEGORY_NAMES[preferred_type]);
 	}

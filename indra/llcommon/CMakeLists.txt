@@ -4,12 +4,18 @@ project(llcommon)
 
 include(00-Common)
 include(LLCommon)
+include(Boost)
 
 include_directories(
     ${EXPAT_INCLUDE_DIRS}
     ${LLCOMMON_INCLUDE_DIRS}
     ${ZLIB_INCLUDE_DIRS}
     )
+
+# add_executable(lltreeiterators lltreeiterators.cpp)
+# 
+# target_link_libraries(lltreeiterators
+#     ${LLCOMMON_LIBRARIES})
 
 set(llcommon_SOURCE_FILES
     llapp.cpp
@@ -44,6 +50,7 @@ set(llcommon_SOURCE_FILES
     llprocessor.cpp
     llqueuedthread.cpp
     llrand.cpp
+    llrefcount.cpp
     llrun.cpp
     llsd.cpp
     llsdserialize.cpp
@@ -98,6 +105,7 @@ set(llcommon_HEADER_FILES
     lldefs.h
     lldepthstack.h
     lldlinked.h
+    lldoubledispatch.h
     lldqueueptr.h
     llendianswizzle.h
     llenum.h
@@ -119,6 +127,7 @@ set(llcommon_HEADER_FILES
     llhttpstatuscodes.h
     llindexedqueue.h
     llindraconfigfile.h
+    llinstancetracker.h
     llkeythrottle.h
     lllinkedqueue.h
     llliveappconfig.h
@@ -134,20 +143,26 @@ set(llcommon_HEADER_FILES
     llmetrics.h
     llmortician.h
     llnametable.h
+    llpointer.h
     llpreprocessor.h
     llpriqueuemap.h
     llprocessor.h
     llptrskiplist.h
     llptrskipmap.h
+    llptrto.h
     llqueuedthread.h
     llrand.h
+    llrefcount.h
     llrun.h
+    llrefcount.h
+    llsafehandle.h
     llsd.h
     llsdserialize.h
     llsdserialize_xml.h
     llsdutil.h
     llsecondlifeurls.h
     llsimplehash.h
+    llsingleton.h
     llskiplist.h
     llskipmap.h
     llstack.h
@@ -161,6 +176,7 @@ set(llcommon_HEADER_FILES
     llsys.h
     llthread.h
     lltimer.h
+    lltreeiterators.h
     lluri.h
     lluuid.h
     lluuidhashmap.h
@@ -195,4 +211,6 @@ target_link_libraries(
     ${APR_LIBRARIES}
     ${EXPAT_LIBRARIES}
     ${ZLIB_LIBRARIES}
+    ${BOOST_PROGRAM_OPTIONS_LIBRARY}
+    ${BOOST_REGEX_LIBRARY}
     )

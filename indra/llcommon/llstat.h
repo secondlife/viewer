@@ -258,8 +258,15 @@ private:
 // ----------------------------------------------------------------------------
 class LLStat
 {
+private:
+	typedef std::multimap<std::string, LLStat*> stat_map_t;
+	static stat_map_t sStatList;
+
+	void init();
+
 public:
-	LLStat(const U32 num_bins = 32, BOOL use_frame_timer = FALSE);
+	LLStat(U32 num_bins = 32, BOOL use_frame_timer = FALSE);
+	LLStat(std::string name, U32 num_bins = 32, BOOL use_frame_timer = FALSE);
 	~LLStat();
 
 	void reset();
@@ -322,8 +329,22 @@ private:
 	F32 *mDT;
 	S32 mCurBin;
 	S32 mNextBin;
+	
+	std::string mName;
+
 	static LLTimer sTimer;
 	static LLFrameTimer sFrameTimer;
+	
+public:
+	static LLStat* getStat(const std::string& name)
+	{
+		// return the first stat that matches 'name'
+		stat_map_t::iterator iter = sStatList.find(name);
+		if (iter != sStatList.end())
+			return iter->second;
+		else
+			return NULL;
+	}
 };
-
+	
 #endif // LL_STAT_

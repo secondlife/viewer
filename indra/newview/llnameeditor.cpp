@@ -48,34 +48,16 @@ static LLRegisterWidget<LLNameEditor> r("name_editor");
 // statics
 std::set<LLNameEditor*> LLNameEditor::sInstances;
 
-LLNameEditor::LLNameEditor(const std::string& name, const LLRect& rect,
-		const LLUUID& name_id, 
-		BOOL is_group,
-		const LLFontGL* glfont,
-		S32 max_text_length,
-		void (*commit_callback)(LLUICtrl* caller, void* user_data),
-		void (*keystroke_callback)(LLLineEditor* caller, void* user_data),
-		void (*focus_lost_callback)(LLFocusableElement* caller, void* user_data),
-		void* userdata,
-		LLLinePrevalidateFunc prevalidate_func)
-:	LLLineEditor(name, rect, 
-				 std::string("(retrieving)"), 
-				 glfont, 
-				 max_text_length, 
-				 commit_callback, 
-				 keystroke_callback,
-				 focus_lost_callback,
-				 userdata,
-				 prevalidate_func),
-	mNameID(name_id)
+LLNameEditor::LLNameEditor(const LLNameEditor::Params& p)
+:	LLLineEditor(p)
 {
 	LLNameEditor::sInstances.insert(this);
-	if(!name_id.isNull())
+
+	if(!p.name_id().isNull())
 	{
-		setNameID(name_id, is_group);
+		setNameID(p.name_id, p.is_group);
 	}
 }
-
 
 LLNameEditor::~LLNameEditor()
 {
@@ -141,35 +123,3 @@ LLSD LLNameEditor::getValue() const
 	return LLSD(mNameID);
 }
 
-LLView* LLNameEditor::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory)
-{
-	std::string name("name_editor");
-	node->getAttributeString("name", name);
-
-	LLRect rect;
-	createRect(node, rect, parent, LLRect());
-
-	S32 max_text_length = 128;
-	node->getAttributeS32("max_length", max_text_length);
-
-	LLFontGL* font = LLView::selectFont(node);
-
-	LLUICtrlCallback commit_callback = NULL;
-
-	LLNameEditor* line_editor = new LLNameEditor(name,
-								rect, 
-								LLUUID::null, FALSE,
-								font,
-								max_text_length,
-								commit_callback);
-
-	std::string label;
-	if(node->getAttributeString("label", label))
-	{
-		line_editor->setLabel(label);
-	}
-	line_editor->setColorParameters(node);
-	line_editor->initFromXML(node, parent);
-	
-	return line_editor;
-}

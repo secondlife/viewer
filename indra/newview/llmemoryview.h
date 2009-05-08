@@ -38,7 +38,15 @@
 class LLMemoryView : public LLView
 {
 public:
-	LLMemoryView(const std::string& name, const LLRect& rect);
+	struct Params : public LLInitParam::Block<Params, LLView::Params>
+	{
+		Params()
+		{
+			mouse_opaque = true;
+			visible = false;
+		}
+	};
+	LLMemoryView(const LLMemoryView::Params&);
 	virtual ~LLMemoryView();
 
 	virtual BOOL handleMouseDown(S32 x, S32 y, MASK mask);

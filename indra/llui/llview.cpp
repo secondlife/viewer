@@ -56,17 +56,18 @@
 #include "lltexteditor.h"
 #include "lltextbox.h"
 
-//HACK: this allows you to instantiate LLView from xml with "<view/>" which we don't want
-static LLRegisterWidget<LLView> r("view");
-
 BOOL	LLView::sDebugRects = FALSE;
 BOOL	LLView::sDebugKeys = FALSE;
 S32		LLView::sDepth = 0;
 BOOL	LLView::sDebugMouseHandling = FALSE;
 std::string LLView::sMouseHandlerMessage;
-BOOL	LLView::sEditingUI = FALSE;
+//BOOL	LLView::sEditingUI = FALSE;
 BOOL	LLView::sForceReshape = FALSE;
-LLView*	LLView::sEditingUIView = NULL;
+//LLView*	LLView::sEditingUIView = NULL;
+std::set<LLView*> LLView::sPreviewHighlightedElements;
+BOOL LLView::sHighlightingDiffs = FALSE;
+LLView* LLView::sPreviewClickedElement = NULL;
+BOOL	LLView::sDrawPreviewHighlights = FALSE;
 S32		LLView::sLastLeftXML = S32_MIN;
 S32		LLView::sLastBottomXML = S32_MIN;
 
@@ -74,77 +75,76 @@ S32		LLView::sLastBottomXML = S32_MIN;
 BOOL LLView::sIsDrawing = FALSE;
 #endif
 
-LLView::LLView() :
+LLView::Params::Params()
+:	name("name", std::string("unnamed")),
+	enabled("enabled", true),
+	visible("visible", true),
+	mouse_opaque("mouse_opaque", true),
+	follows("follows"),
+	hover_cursor("hover_cursor", "UI_CURSOR_ARROW"),
+	use_bounding_rect("use_bounding_rect", false),
+	tab_group("tab_group", 0),
+	default_tab_group("default_tab_group"),
+	tool_tip("tool_tip"),
+	sound_flags("sound_flags", MOUSE_UP),
+	font("font", LLFontGL::getFontSansSerif()),
+	font_halign("halign"),
+	font_valign("valign"),
+	layout("layout"),
+	rect("rect"),
+	bottom_delta("bottom_delta", S32_MAX),
+	left_delta("left_delta", S32_MAX),
+	top_delta("top_delta"),
+	right_delta("right_delta"),
+	center_horiz("center_horiz", false),
+	center_vert("center_vert", false),
+	serializable("", false),
+	user_resize("user_resize"),
+	auto_resize("auto_resize"),
+	needs_translate("translate")
+{
+	addSynonym(rect, "");
+}
+
+LLView::LLView(const LLView::Params& p)
+:	mName(p.name),
 	mParentView(NULL),
 	mReshapeFlags(FOLLOWS_NONE),
-	mDefaultTabGroup(0),
-	mEnabled(TRUE),
-	mMouseOpaque(TRUE),
-	mSoundFlags(MOUSE_UP), // default to only make sound on mouse up
-	mSaveToXML(TRUE),
+	mSaveToXML(p.serializable),
 	mIsFocusRoot(FALSE),
-	mLastVisible(TRUE),
-	mUseBoundingRect(FALSE),
-	mVisible(TRUE),
+	mLastVisible(FALSE),
 	mNextInsertionOrdinal(0),
-	mHoverCursor(UI_CURSOR_ARROW)
+	mHoverCursor(getCursorFromString(p.hover_cursor)),
+	mEnabled(p.enabled),
+	mVisible(p.visible),
+	mMouseOpaque(p.mouse_opaque),
+	mSoundFlags(p.sound_flags),
+	mUseBoundingRect(p.use_bounding_rect),
+	mDefaultTabGroup(p.default_tab_group),
+	mLastTabGroup(0),
+	mToolTipMsg((LLStringExplicit)p.tool_tip())
 {
+	// create rect first, as this will supply initial follows flags
+	setShape(p.rect);
+	parseFollowsFlags(p);
 }
-
-LLView::LLView(const std::string& name, BOOL mouse_opaque) :
-	mParentView(NULL),
-	mName(name),
-	mReshapeFlags(FOLLOWS_NONE),
-	mDefaultTabGroup(0),
-	mEnabled(TRUE),
-	mMouseOpaque(mouse_opaque),
-	mSoundFlags(MOUSE_UP), // default to only make sound on mouse up
-	mSaveToXML(TRUE),
-	mIsFocusRoot(FALSE),
-	mLastVisible(TRUE),
-	mUseBoundingRect(FALSE),
-	mVisible(TRUE),
-	mNextInsertionOrdinal(0),
-	mHoverCursor(UI_CURSOR_ARROW)
-{
-}
-
-
-LLView::LLView(
-	const std::string& name, const LLRect& rect, BOOL mouse_opaque, U32 reshape) :
-	mParentView(NULL),
-	mName(name),
-	mRect(rect),
-	mBoundingRect(rect),
-	mReshapeFlags(reshape),
-	mDefaultTabGroup(0),
-	mEnabled(TRUE),
-	mMouseOpaque(mouse_opaque),
-	mSoundFlags(MOUSE_UP), // default to only make sound on mouse up
-	mSaveToXML(TRUE),
-	mIsFocusRoot(FALSE),
-	mLastVisible(TRUE),
-	mUseBoundingRect(FALSE),
-	mVisible(TRUE),
-	mNextInsertionOrdinal(0),
-	mHoverCursor(UI_CURSOR_ARROW)
-{
-}
-
 
 LLView::~LLView()
 {
 	//llinfos << "Deleting view " << mName << ":" << (void*) this << llendl;
 // 	llassert(LLView::sIsDrawing == FALSE);
+	
+//	llassert_always(sDepth == 0); // avoid deleting views while drawing! It can subtly break list iterators
+	
 	if( gFocusMgr.getKeyboardFocus() == this )
 	{
-		llwarns << "View holding keyboard focus deleted: " << getName() << ".  Keyboard focus removed." << llendl;
+		//llwarns << "View holding keyboard focus deleted: " << getName() << ".  Keyboard focus removed." << llendl;
 		gFocusMgr.removeKeyboardFocusWithoutCallback( this );
 	}
 
 	if( hasMouseCapture() )
 	{
-		llwarns << "View holding mouse capture deleted: " << getName() << ".  Mouse capture removed." << llendl;
+		//llwarns << "View holding mouse capture deleted: " << getName() << ".  Mouse capture removed." << llendl;
 		gFocusMgr.removeMouseCaptureWithoutCallback( this );
 	}
 
@@ -155,14 +155,6 @@ LLView::~LLView()
 		mParentView->removeChild(this);
 	}
 
-	dispatch_list_t::iterator itor;
-	for (itor = mDispatchList.begin(); itor != mDispatchList.end(); ++itor)
-	{
-		(*itor).second->clearDispatchers();
-	}
-
-	std::for_each(mFloaterControls.begin(), mFloaterControls.end(),
-				  DeletePairedPointer());
 	std::for_each(mDummyWidgets.begin(), mDummyWidgets.end(),
 				  DeletePairedPointer());
 }
@@ -185,7 +177,6 @@ BOOL LLView::isPanel() const
 	return FALSE;
 }
 
-// virtual
 void LLView::setToolTip(const LLStringExplicit& msg)
 {
 	mToolTipMsg = msg;
@@ -232,19 +223,31 @@ const std::string& LLView::getName() const
 
 void LLView::sendChildToFront(LLView* child)
 {
+// 	llassert_always(sDepth == 0); // Avoid re-ordering while drawing; it can cause subtle iterator bugs
 	if (child && child->getParent() == this) 
 	{
-		mChildList.remove( child );
-		mChildList.push_front(child);
+		// minor optimization, but more importantly,
+		//  won't temporarily create an empty list
+		if (child != mChildList.front())
+		{
+			mChildList.remove( child );
+			mChildList.push_front(child);
+		}
 	}
 }
 
 void LLView::sendChildToBack(LLView* child)
 {
+// 	llassert_always(sDepth == 0); // Avoid re-ordering while drawing; it can cause subtle iterator bugs
 	if (child && child->getParent() == this) 
 	{
-		mChildList.remove( child );
-		mChildList.push_back(child);
+		// minor optimization, but more importantly,
+		//  won't temporarily create an empty list
+		if (child != mChildList.back())
+		{
+			mChildList.remove( child );
+			mChildList.push_back(child);
+		}
 	}
 }
 
@@ -264,12 +267,46 @@ void LLView::moveChildToBackOfTabGroup(LLUICtrl* child)
 	}
 }
 
-void LLView::addChild(LLView* child, S32 tab_group)
+void LLView::addChildren(LLXMLNodePtr node, LLXMLNodePtr output_node)
 {
+	if (node.isNull()) return;
+
+	for (LLXMLNodePtr child_node = node->getFirstChild(); child_node.notNull(); child_node = child_node->getNextSibling())
+	{
+		LLXMLNodePtr outputChild;
+		if (output_node) 
+		{
+			outputChild = output_node->createChild("", FALSE);
+		}
+
+		if (!LLUICtrlFactory::getInstance()->createFromXML(child_node, this, LLStringUtil::null, outputChild))
+		{
+			std::string child_name = std::string(child_node->getName()->mString);
+			if (child_name.find(".") == std::string::npos)
+			{
+				llwarns << "Could not create widget named " << child_node->getName()->mString << llendl;
+			}
+		}
+
+		if (outputChild && !outputChild->mChildren && outputChild->mAttributes.empty() && outputChild->getValue().empty())
+		{
+			output_node->deleteChild(outputChild);
+		}
+	}
+}
+
+// virtual
+bool LLView::addChild(LLView* child, S32 tab_group)
+{
+	if (!child)
+	{
+		return false;
+	}
 	if (mParentView == child) 
 	{
 		llerrs << "Adding view " << child->getName() << " as child of itself" << llendl;
 	}
+
 	// remove from current parent
 	if (child->mParentView) 
 	{
@@ -282,55 +319,46 @@ void LLView::addChild(LLView* child, S32 tab_group)
 	// add to ctrl list if is LLUICtrl
 	if (child->isCtrl())
 	{
-		// controls are stored in reverse order from render order
-		addCtrlAtEnd((LLUICtrl*) child, tab_group);
+		LLUICtrl* ctrl = static_cast<LLUICtrl*>(child);
+		mCtrlOrder.insert(tab_order_pair_t(ctrl,
+							tab_order_t(tab_group, mNextInsertionOrdinal)));
+
+		mNextInsertionOrdinal++;
 	}
 
 	child->mParentView = this;
 	updateBoundingRect();
+	mLastTabGroup = tab_group;
+	return true;
 }
 
 
-void LLView::addChildAtEnd(LLView* child, S32 tab_group)
+bool LLView::addChildInBack(LLView* child, S32 tab_group)
 {
-	if (mParentView == child) 
+	if(addChild(child, tab_group))
 	{
-		llerrs << "Adding view " << child->getName() << " as child of itself" << llendl;
-	}
-	// remove from current parent
-	if (child->mParentView) 
-	{
-		child->mParentView->removeChild(child);
+		sendChildToBack(child);
+		return true;
 	}
 
-	// add to back of child list
-	mChildList.push_back(child);
-
-	// add to ctrl list if is LLUICtrl
-	if (child->isCtrl())
-	{
-		// controls are stored in reverse order from render order
-		addCtrl((LLUICtrl*) child, tab_group);
-	}
-	
-	child->mParentView = this;
-	updateBoundingRect();
+	return false;
 }
 
 // remove the specified child from the view, and set it's parent to NULL.
-void LLView::removeChild(LLView* child, BOOL deleteIt)
+void LLView::removeChild(LLView* child)
 {
+	//llassert_always(sDepth == 0); // Avoid re-ordering while drawing; it can cause subtle iterator bugs
 	if (child->mParentView == this) 
 	{
 		mChildList.remove( child );
 		child->mParentView = NULL;
 		if (child->isCtrl())
 		{
-			removeCtrl((LLUICtrl*)child);
-		}
-		if (deleteIt)
-		{
-			delete child;
+			child_tab_order_t::iterator found = mCtrlOrder.find(static_cast<LLUICtrl*>(child));
+			if(found != mCtrlOrder.end())
+			{
+				mCtrlOrder.erase(found);
+			}
 		}
 	}
 	else
@@ -338,28 +366,6 @@ void LLView::removeChild(LLView* child, BOOL deleteIt)
 		llerrs << "LLView::removeChild called with non-child" << llendl;
 	}
 	updateBoundingRect();
-}
-
-void LLView::addCtrlAtEnd(LLUICtrl* ctrl, S32 tab_group)
-{
-	mCtrlOrder.insert(tab_order_pair_t(ctrl,
-								tab_order_t(tab_group, mNextInsertionOrdinal++)));
-}
-
-void LLView::addCtrl( LLUICtrl* ctrl, S32 tab_group)
-{
-	// add to front of list by using negative ordinal, which monotonically increases
-	mCtrlOrder.insert(tab_order_pair_t(ctrl,
-								tab_order_t(tab_group, -1 * mNextInsertionOrdinal++)));
-}
-
-void LLView::removeCtrl(LLUICtrl* ctrl)
-{
-	child_tab_order_t::iterator found = mCtrlOrder.find(ctrl);
-	if(found != mCtrlOrder.end())
-	{
-		mCtrlOrder.erase(found);
-	}
 }
 
 LLView::ctrl_list_t LLView::getCtrlList() const
@@ -651,7 +657,7 @@ BOOL LLView::canSnapTo(const LLView* other_view)
 }
 
 // virtual
-void LLView::snappedTo(const LLView* snap_view)
+void LLView::setSnappedTo(const LLView* snap_view)
 {
 }
 
@@ -668,6 +674,17 @@ BOOL LLView::handleHover(S32 x, S32 y, MASK mask)
 
 	return handled;
 }
+
+void LLView::onMouseEnter(S32 x, S32 y, MASK mask)
+{
+	//llinfos << "Mouse entered " << getName() << llendl;
+}
+
+void LLView::onMouseLeave(S32 x, S32 y, MASK mask)
+{
+	//llinfos << "Mouse left " << getName() << llendl;
+}
+
 
 std::string LLView::getShowNamesToolTip()
 {
@@ -729,21 +746,12 @@ BOOL LLView::handleToolTip(S32 x, S32 y, std::string& msg, LLRect* sticky_rect_s
 
 	// get our own tooltip
 	tool_tip = mToolTipMsg.getString();
-	if (
-		LLUI::sShowXUINames 
+	
+	if (LLUI::sShowXUINames 
 		&& (tool_tip.find(".xml", 0) == std::string::npos) 
 		&& (mName.find("Drag", 0) == std::string::npos))
 	{
 		tool_tip = getShowNamesToolTip();
-	}
-
-	BOOL show_names_text_box = LLUI::sShowXUINames && dynamic_cast<LLTextBox*>(this) != NULL;
-
-	// don't allow any siblings to handle this event
-	// even if we don't have a tooltip
-	if (getMouseOpaque() || show_names_text_box)
-	{
-		handled = TRUE;
 	}
 
 	if(!tool_tip.empty())
@@ -757,7 +765,13 @@ BOOL LLView::handleToolTip(S32 x, S32 y, std::string& msg, LLRect* sticky_rect_s
 		localPointToScreen(
 			mRect.getWidth(), mRect.getHeight(),
 			&(sticky_rect_screen->mRight), &(sticky_rect_screen->mTop) );
-		
+	}
+	// don't allow any siblings to handle this event
+	// even if we don't have a tooltip
+	if (getMouseOpaque() || 
+		(!tool_tip.empty() && 
+		 (!LLUI::sShowXUINames || dynamic_cast<LLTextBox*>(this))))
+	{
 		handled = TRUE;
 	}
 
@@ -923,22 +937,22 @@ BOOL LLView::handleMouseDown(S32 x, S32 y, MASK mask)
 		handled_view = this;
 	}
 
-	// HACK If we're editing UI, select the leaf view that ate the click.
-	if (sEditingUI && handled_view)
-	{
-		// need to find leaf views, big hack
-		LLButton* buttonp = dynamic_cast<LLButton*>(handled_view);
-		LLLineEditor* line_editorp = dynamic_cast<LLLineEditor*>(handled_view);
-		LLTextEditor* text_editorp = dynamic_cast<LLTextEditor*>(handled_view);
-		LLTextBox* text_boxp = dynamic_cast<LLTextBox*>(handled_view);
-		if (buttonp
-			|| line_editorp
-			|| text_editorp
-			|| text_boxp)
-		{
-			sEditingUIView = handled_view;
-		}
-	}
+	//// HACK If we're editing UI, select the leaf view that ate the click.
+	//if (sEditingUI && handled_view)
+	//{
+	//	// need to find leaf views, big hack
+	//	LLButton* buttonp = dynamic_cast<LLButton*>(handled_view);
+	//	LLLineEditor* line_editorp = dynamic_cast<LLLineEditor*>(handled_view);
+	//	LLTextEditor* text_editorp = dynamic_cast<LLTextEditor*>(handled_view);
+	//	LLTextBox* text_boxp = dynamic_cast<LLTextBox*>(handled_view);
+	//	if (buttonp
+	//		|| line_editorp
+	//		|| text_editorp
+	//		|| text_boxp)
+	//	{
+	//		sEditingUIView = handled_view;
+	//	}
+	//}
 
 	return handled;
 }
@@ -1164,6 +1178,7 @@ LLView* LLView::childrenHandleRightMouseDown(S32 x, S32 y, MASK mask)
 				{
 					sMouseHandlerMessage = std::string("->") + viewp->mName + sMouseHandlerMessage;
 				}
+
 				handled_view = viewp;
 				break;
 			}
@@ -1326,55 +1341,58 @@ void LLView::draw()
 		}
 	}
 
-	LLRect rootRect = getRootView()->getRect();
-	LLRect screenRect;
-
-	// draw focused control on top of everything else
-	LLView* focus_view = gFocusMgr.getKeyboardFocus();
-	if (focus_view && focus_view->getParent() != this)
+	if (!mChildList.empty())
 	{
-		focus_view = NULL;
-	}
+		LLRect rootRect = getRootView()->getRect();
+		LLRect screenRect;
 
-	++sDepth;
-	for (child_list_reverse_iter_t child_iter = mChildList.rbegin(); child_iter != mChildList.rend(); ++child_iter)
-	{
-		LLView *viewp = *child_iter;
-
-		if (viewp->getVisible() && viewp != focus_view && viewp->getRect().isValid())
+		// draw focused control on top of everything else
+		LLView* focus_view = gFocusMgr.getKeyboardFocus();
+		if (focus_view && focus_view->getParent() != this)
 		{
-			// Only draw views that are within the root view
-			localRectToScreen(viewp->getRect(),&screenRect);
-			if ( rootRect.rectInRect(&screenRect) )
-			{
-				glMatrixMode(GL_MODELVIEW);
-				LLUI::pushMatrix();
-				{
-					LLUI::translate((F32)viewp->getRect().mLeft, (F32)viewp->getRect().mBottom, 0.f);
-					viewp->draw();
-				}
-				LLUI::popMatrix();
-			}
+			focus_view = NULL;
 		}
 
-	}
-	--sDepth;
+		++sDepth;
 
-	if (focus_view && focus_view->getVisible())
-	{
-		drawChild(focus_view);
+		for (child_list_reverse_iter_t child_iter = mChildList.rbegin(); child_iter != mChildList.rend();)  // ++child_iter)
+		{
+			child_list_reverse_iter_t child = child_iter++;
+			LLView *viewp = *child;
+
+			if (viewp->getVisible() && viewp != focus_view && viewp->getRect().isValid())
+			{
+				// Only draw views that are within the root view
+				localRectToScreen(viewp->getRect(),&screenRect);
+				if ( rootRect.rectInRect(&screenRect) )
+				{
+					glMatrixMode(GL_MODELVIEW);
+					LLUI::pushMatrix();
+					{
+						LLUI::translate((F32)viewp->getRect().mLeft, (F32)viewp->getRect().mBottom, 0.f);
+						viewp->draw();
+					}
+					LLUI::popMatrix();
+				}
+			}
+
+		}
+		--sDepth;
+
+		if (focus_view && focus_view->getVisible())
+		{
+			drawChild(focus_view);
+		}
 	}
 
-	// HACK
-	if (sEditingUI && this == sEditingUIView)
-	{
-		drawDebugRect();
-	}
+	gGL.getTexUnit(0)->disable();
 }
 
 //Draw a box for debugging.
 void LLView::drawDebugRect()
 {
+	std::set<LLView*>::iterator preview_iter = std::find(sPreviewHighlightedElements.begin(), sPreviewHighlightedElements.end(), this);	// figure out if it's a previewed element
+
 	LLUI::pushMatrix();
 	{
 		// drawing solids requires texturing be disabled
@@ -1389,9 +1407,21 @@ void LLView::drawDebugRect()
 
 		// draw red rectangle for the border
 		LLColor4 border_color(0.f, 0.f, 0.f, 1.f);
-		if (sEditingUI)
+		//if (sEditingUI)
+		//{
+		//	border_color.mV[0] = 1.f;
+		//}
+		if(preview_iter != sPreviewHighlightedElements.end())
 		{
-			border_color.mV[0] = 1.f;
+			if(LLView::sPreviewClickedElement && this == sPreviewClickedElement)
+			{
+				border_color = LLColor4::red;
+			}
+			else
+			{
+				static LLUICachedControl<LLColor4> scroll_highlighted_color ("ScrollHighlightedColor", *(new LLColor4));
+				border_color = scroll_highlighted_color;
+			}
 		}
 		else
 		{
@@ -1414,8 +1444,8 @@ void LLView::drawDebugRect()
 			gGL.vertex2i(0, debug_rect.getHeight() - 1);
 		gGL.end();
 
-		// Draw the name if it's not a leaf node
-		if (mChildList.size() && !sEditingUI)
+		// Draw the name if it's not a leaf node or not in editing or preview mode
+		if (mChildList.size() && preview_iter == sPreviewHighlightedElements.end())
 		{
 			//char temp[256];
 			S32 x, y;
@@ -1425,7 +1455,7 @@ void LLView::drawDebugRect()
 			std::string debug_text = llformat("%s (%d x %d)", getName().c_str(),
 										debug_rect.getWidth(), debug_rect.getHeight());
 			LLFontGL::getFontSansSerifSmall()->renderUTF8(debug_text, 0, (F32)x, (F32)y, border_color,
-												LLFontGL::HCENTER, LLFontGL::BASELINE, LLFontGL::NORMAL,
+												LLFontGL::HCENTER, LLFontGL::BASELINE, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
 												S32_MAX, S32_MAX, NULL, FALSE);
 		}
 	}
@@ -1581,12 +1611,25 @@ void LLView::updateBoundingRect()
 	}
 }
 
-LLRect LLView::getScreenRect() const
+LLRect LLView::calcScreenRect() const
 {
-	// *FIX: check for one-off error
 	LLRect screen_rect;
 	localPointToScreen(0, 0, &screen_rect.mLeft, &screen_rect.mBottom);
 	localPointToScreen(getRect().getWidth(), getRect().getHeight(), &screen_rect.mRight, &screen_rect.mTop);
+	return screen_rect;
+}
+
+LLRect LLView::calcScreenBoundingRect() const
+{
+	LLRect screen_rect;
+	// get bounding rect, if used
+	LLRect bounding_rect = mUseBoundingRect ? mBoundingRect : mRect;
+
+	// convert to local coordinates, as defined by mRect
+	bounding_rect.translate(-mRect.mLeft, -mRect.mBottom);
+
+	localPointToScreen(bounding_rect.mLeft, bounding_rect.mBottom, &screen_rect.mLeft, &screen_rect.mBottom);
+	localPointToScreen(bounding_rect.mRight, bounding_rect.mTop, &screen_rect.mRight, &screen_rect.mTop);
 	return screen_rect;
 }
 
@@ -1688,7 +1731,12 @@ LLView* LLView::getChildView(const std::string& name, BOOL recurse, BOOL create_
 
 	if (create_if_missing)
 	{
-		return createDummyWidget<LLView>(name);
+		LLView* view = getDummyWidget<LLView>(name);
+		if (!view)
+		{
+			 view = LLUICtrlFactory::createDummyWidget<LLView>(name);
+		}
+		return view;
 	}
 	return NULL;
 }
@@ -1777,12 +1825,32 @@ LLView* LLView::getRootView()
 	return view;
 }
 
-BOOL LLView::deleteViewByHandle(LLHandle<LLView> handle)
+LLView* LLView::findPrevSibling(LLView* child)
+{
+	child_list_t::iterator prev_it = std::find(mChildList.begin(), mChildList.end(), child);
+	if (prev_it != mChildList.end() && prev_it != mChildList.begin())
+	{
+		return *(--prev_it);
+	}
+	return NULL;
+}
+
+LLView* LLView::findNextSibling(LLView* child)
+{
+	child_list_t::iterator next_it = std::find(mChildList.begin(), mChildList.end(), child);
+	if (next_it != mChildList.end())
+	{
+		next_it++;
+	}
+
+	return (next_it != mChildList.end()) ? *next_it : NULL;
+}
+
+void LLView::deleteViewByHandle(LLHandle<LLView> handle)
 {
 	LLView* viewp = handle.get();
 
 	delete viewp;
-	return viewp != NULL;
 }
 
 
@@ -1943,132 +2011,6 @@ BOOL LLView::localRectToOtherView( const LLRect& local, LLRect* other, LLView* o
 	return FALSE;
 }
 
-// virtual
-LLXMLNodePtr LLView::getXML(bool save_children) const
-{
-	//FIXME: need to provide actual derived type tag, probably outside this method
-	LLXMLNodePtr node = new LLXMLNode("view", FALSE);
-
-	node->createChild("name", TRUE)->setStringValue(getName());
-	node->createChild("width", TRUE)->setIntValue(getRect().getWidth());
-	node->createChild("height", TRUE)->setIntValue(getRect().getHeight());
-
-	LLView* parent = getParent();
-	S32 left = getRect().mLeft;
-	S32 bottom = getRect().mBottom;
-	if (parent) bottom -= parent->getRect().getHeight();
-
-	node->createChild("left", TRUE)->setIntValue(left);
-	node->createChild("bottom", TRUE)->setIntValue(bottom);
-
-	U32 follows_flags = getFollows();
-	if (follows_flags)
-	{
-		std::stringstream buffer;
-		bool pipe = false;
-		if (followsLeft())
-		{
-			buffer << "left";
-			pipe = true;
-		}
-		if (followsTop())
-		{
-			if (pipe) buffer << "|";
-			buffer << "top";
-			pipe = true;
-		}
-		if (followsRight())
-		{
-			if (pipe) buffer << "|";
-			buffer << "right";
-			pipe = true;
-		}
-		if (followsBottom())
-		{
-			if (pipe) buffer << "|";
-			buffer << "bottom";
-		}
-		node->createChild("follows", TRUE)->setStringValue(buffer.str());
-	}
-	// Export all widgets as enabled and visible - code must disable.
-	node->createChild("mouse_opaque", TRUE)->setBoolValue(mMouseOpaque );
-	if (!mToolTipMsg.getString().empty())
-	{
-		node->createChild("tool_tip", TRUE)->setStringValue(mToolTipMsg.getString());
-	}
-	if (mSoundFlags != MOUSE_UP)
-	{
-		node->createChild("sound_flags", TRUE)->setIntValue((S32)mSoundFlags);
-	}
-
-	node->createChild("enabled", TRUE)->setBoolValue(getEnabled());
-
-	if (!mControlName.empty())
-	{
-		node->createChild("control_name", TRUE)->setStringValue(mControlName);
-	}
-	return node;
-}
-
-//static 
-LLView* LLView::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory)
-{
-	LLView* viewp = new LLView();
-	viewp->initFromXML(node, parent);
-	return viewp;
-}
-
-// static
-void LLView::addColorXML(LLXMLNodePtr node, const LLColor4& color,
-							const char* xml_name, const char* control_name)
-{
-	if (color != LLUI::sColorsGroup->getColor(ll_safe_string(control_name)))
-	{
-		node->createChild(xml_name, TRUE)->setFloatValue(4, color.mV);
-	}
-}
-
-//static 
-std::string LLView::escapeXML(const std::string& xml, std::string& indent)
-{
-	std::string ret = indent + "\"" + LLXMLNode::escapeXML(xml);
-
-	//replace every newline with a close quote, new line, indent, open quote
-	size_t index = ret.size()-1;
-	size_t fnd;
-	
-	while ((fnd = ret.rfind("\n", index)) != std::string::npos)
-	{
-		ret.replace(fnd, 1, "\"\n" + indent + "\"");
-		index = fnd-1;
-	}
-
-	//append close quote
-	ret.append("\"");
-	
-	return ret;	
-}
-
-// static
-LLWString LLView::escapeXML(const LLWString& xml)
-{
-	LLWString out;
-	for (LLWString::size_type i = 0; i < xml.size(); ++i)
-	{
-		llwchar c = xml[i];
-		switch(c)
-		{
-		case '"':	out.append(utf8string_to_wstring("&quot;"));	break;
-		case '\'':	out.append(utf8string_to_wstring("&apos;"));	break;
-		case '&':	out.append(utf8string_to_wstring("&amp;"));		break;
-		case '<':	out.append(utf8string_to_wstring("&lt;"));		break;
-		case '>':	out.append(utf8string_to_wstring("&gt;"));		break;
-		default:	out.push_back(c); break;
-		}
-	}
-	return out;
-}
-
 // static
 const LLCtrlQuery & LLView::getTabOrderQuery()
 {
@@ -2105,7 +2047,12 @@ const LLCtrlQuery & LLView::getFocusRootsQuery()
 }
 
 
-void	LLView::userSetShape(const LLRect& new_rect)
+void	LLView::setShape(const LLRect& new_rect, bool by_user)
+{
+	handleReshape(new_rect, by_user);
+}
+
+void LLView::handleReshape(const LLRect& new_rect, bool by_user)
 {
 	reshape(new_rect.getWidth(), new_rect.getHeight());
 	translate(new_rect.mLeft - getRect().mLeft, new_rect.mBottom - getRect().mBottom);
@@ -2353,306 +2300,52 @@ LLView*	LLView::findSnapEdge(S32& new_edge_val, const LLCoordGL& mouse_dir, ESna
 // Listener dispatch functions
 //-----------------------------------------------------------------------------
 
-void LLView::registerEventListener(std::string name, LLSimpleListener* function)
-{
-	mDispatchList.insert(std::pair<std::string, LLSimpleListener*>(name, function));
-}
-
-void LLView::deregisterEventListener(std::string name)
-{
-	dispatch_list_t::iterator itor = mDispatchList.find(name);
-	if (itor != mDispatchList.end())
-	{
-		mDispatchList.erase(itor);
-	}
-}
-
-std::string LLView::findEventListener(LLSimpleListener *listener) const
-{
-	dispatch_list_t::const_iterator itor;
-	for (itor = mDispatchList.begin(); itor != mDispatchList.end(); ++itor)
-	{
-		if (itor->second == listener)
-		{
-			return itor->first;
-		}
-	}
-	if (mParentView)
-	{
-		return mParentView->findEventListener(listener);
-	}
-	return LLStringUtil::null;
-}
-
-LLSimpleListener* LLView::getListenerByName(const std::string& callback_name)
-{
-	LLSimpleListener* callback = NULL;
-	dispatch_list_t::iterator itor = mDispatchList.find(callback_name);
-	if (itor != mDispatchList.end())
-	{
-		callback = itor->second;
-	}
-	else if (mParentView)
-	{
-		callback = mParentView->getListenerByName(callback_name);
-	}
-	return callback;
-}
 
 LLControlVariable *LLView::findControl(const std::string& name)
 {
-	control_map_t::iterator itor = mFloaterControls.find(name);
-	if (itor != mFloaterControls.end())
+	LLControlVariable* control;
+	control = LLUI::sSettingGroups["color"]->getControl(name);
+	if (control)
 	{
-		return itor->second;
+		return control;
 	}
-	if (mParentView)
-	{
-		return mParentView->findControl(name);
-	}
-	return LLUI::sConfigGroup->getControl(name);
+	
+	return LLUI::sSettingGroups["config"]->getControl(name);
 }
 
 const S32 FLOATER_H_MARGIN = 15;
 const S32 MIN_WIDGET_HEIGHT = 10;
 const S32 VPAD = 4;
 
-// static
-U32 LLView::createRect(LLXMLNodePtr node, LLRect &rect, LLView* parent_view, const LLRect &required_rect)
+void LLView::initFromParams(const LLView::Params& params)
 {
-	U32 follows = 0;
-	S32 x = rect.mLeft;
-	S32 y = rect.mBottom;
-	S32 w = rect.getWidth();
-	S32 h = rect.getHeight();
+	LLRect required_rect = getRequiredRect();
 
-	U32 last_x = 0;
-	U32 last_y = 0;
-	if (parent_view)
+	S32 width = llmax(getRect().getWidth(), required_rect.getWidth());
+	S32 height = llmax(getRect().getHeight(), required_rect.getHeight());
+
+	reshape(width, height);
+
+	// call virtual methods with most recent data
+	// use getters because these values might not come through parameter block
+	setEnabled(getEnabled());
+	setVisible(getVisible());
+
+	if (!params.name().empty())
 	{
-		last_y = parent_view->getRect().getHeight();
-		child_list_t::const_iterator itor = parent_view->getChildList()->begin();
-		if (itor != parent_view->getChildList()->end())
-		{
-			LLView *last_view = (*itor);
-			if (last_view->getSaveToXML())
-			{
-				last_x = last_view->getRect().mLeft;
-				last_y = last_view->getRect().mBottom;
-			}
-		}
+		setName(params.name());
 	}
 
-	std::string rect_control;
-	node->getAttributeString("rect_control", rect_control);
-	if (! rect_control.empty())
-	{
-		LLRect rect = LLUI::sConfigGroup->getRect(rect_control);
-		x = rect.mLeft;
-		y = rect.mBottom;
-		w = rect.getWidth();
-		h = rect.getHeight();
-	}
-	
-	if (node->hasAttribute("left"))
-	{
-		node->getAttributeS32("left", x);
-	}
-	if (node->hasAttribute("bottom"))
-	{
-		node->getAttributeS32("bottom", y);
-	}
-
-	// Make your width the width of the containing
-	// view if you don't specify a width.
-	if (parent_view)
-	{
-		if(w == 0)
-		{
-			w = llmax(required_rect.getWidth(), parent_view->getRect().getWidth() - (FLOATER_H_MARGIN) - x);
-		}
-
-		if(h == 0)
-		{
-			h = llmax(MIN_WIDGET_HEIGHT, required_rect.getHeight());
-		}
-	}
-
-	if (node->hasAttribute("width"))
-	{
-		node->getAttributeS32("width", w);
-	}
-	if (node->hasAttribute("height"))
-	{
-		node->getAttributeS32("height", h);
-	}
-
-	if (parent_view)
-	{
-		if (node->hasAttribute("left_delta"))
-		{
-			S32 left_delta = 0;
-			node->getAttributeS32("left_delta", left_delta);
-			x = last_x + left_delta;
-		}
-		else if (node->hasAttribute("left") && node->hasAttribute("right"))
-		{
-			// compute width based on left and right
-			S32 right = 0;
-			node->getAttributeS32("right", right);
-			if (right < 0)
-			{
-				right = parent_view->getRect().getWidth() + right;
-			}
-			w = right - x;
-		}
-		else if (node->hasAttribute("left"))
-		{
-			if (x < 0)
-			{
-				x = parent_view->getRect().getWidth() + x;
-				follows |= FOLLOWS_RIGHT;
-			}
-			else
-			{
-				follows |= FOLLOWS_LEFT;
-			}
-		}
-		else if (node->hasAttribute("width") && node->hasAttribute("right"))
-		{
-			S32 right = 0;
-			node->getAttributeS32("right", right);
-			if (right < 0)
-			{
-				right = parent_view->getRect().getWidth() + right;
-			}
-			x = right - w;
-		}
-		else
-		{
-			// left not specified, same as last
-			x = last_x;
-		}
-
-		if (node->hasAttribute("bottom_delta"))
-		{
-			S32 bottom_delta = 0;
-			node->getAttributeS32("bottom_delta", bottom_delta);
-			y = last_y + bottom_delta;
-		}
-		else if (node->hasAttribute("top"))
-		{
-			// compute height based on top
-			S32 top = 0;
-			node->getAttributeS32("top", top);
-			if (top < 0)
-			{
-				top = parent_view->getRect().getHeight() + top;
-			}
-			h = top - y;
-		}
-		else if (node->hasAttribute("bottom"))
-		{
-			if (y < 0)
-			{
-				y = parent_view->getRect().getHeight() + y;
-				follows |= FOLLOWS_TOP;
-			}
-			else
-			{
-				follows |= FOLLOWS_BOTTOM;
-			}
-		}
-		else
-		{
-			// if bottom not specified, generate automatically
-			if (last_y == 0)
-			{
-				// treat first child as "bottom"
-				y = parent_view->getRect().getHeight() - (h + VPAD);
-				follows |= FOLLOWS_TOP;
-			}
-			else
-			{
-				// treat subsequent children as "bottom_delta"
-				y = last_y - (h + VPAD);
-			}
-		}
-	}
-	else
-	{
-		x = llmax(x, 0);
-		y = llmax(y, 0);
-		follows = FOLLOWS_LEFT | FOLLOWS_TOP;
-	}
-	rect.setOriginAndSize(x, y, w, h);
-
-	return follows;
+	mLayout = params.layout();
 }
 
-void LLView::initFromXML(LLXMLNodePtr node, LLView* parent)
+void LLView::parseFollowsFlags(const LLView::Params& params)
 {
-	// create rect first, as this will supply initial follows flags
-	LLRect view_rect;
-	U32 follows_flags = createRect(node, view_rect, parent, getRequiredRect());
-	// call reshape in case there are any child elements that need to be layed out
-	reshape(view_rect.getWidth(), view_rect.getHeight());
-	setRect(view_rect);
-	setFollows(follows_flags);
-
-	parseFollowsFlags(node);
-
-	if (node->hasAttribute("control_name"))
+	if (params.follows.string.isProvided())
 	{
-		std::string control_name;
-		node->getAttributeString("control_name", control_name);
-		setControlName(control_name, NULL);
-	}
+		setFollows(FOLLOWS_NONE);
 
-	if (node->hasAttribute("tool_tip"))
-	{
-		std::string tool_tip_msg;
-		node->getAttributeString("tool_tip", tool_tip_msg);
-		setToolTip(tool_tip_msg);
-	}
-
-	if (node->hasAttribute("enabled"))
-	{
-		BOOL enabled;
-		node->getAttributeBOOL("enabled", enabled);
-		setEnabled(enabled);
-	}
-	
-	if (node->hasAttribute("visible"))
-	{
-		BOOL visible;
-		node->getAttributeBOOL("visible", visible);
-		setVisible(visible);
-	}
-
-	if (node->hasAttribute("hover_cursor"))
-	{
-		std::string cursor_string;
-		node->getAttributeString("hover_cursor", cursor_string);
-		mHoverCursor = getCursorFromString(cursor_string);
-	}
-	
-	node->getAttributeBOOL("use_bounding_rect", mUseBoundingRect);
-	node->getAttributeBOOL("mouse_opaque", mMouseOpaque);
-
-	node->getAttributeS32("default_tab_group", mDefaultTabGroup);
-	
-	reshape(view_rect.getWidth(), view_rect.getHeight());
-}
-
-void LLView::parseFollowsFlags(LLXMLNodePtr node)
-{
-	if (node->hasAttribute("follows"))
-	{
-		setFollowsNone();
-
-		std::string follows;
-		node->getAttributeString("follows", follows);
+		std::string follows = params.follows.string;
 
 		typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
 		boost::char_separator<char> sep("|");
@@ -2685,44 +2378,12 @@ void LLView::parseFollowsFlags(LLXMLNodePtr node)
 			++token_iter;
 		}
 	}
+	else if (params.follows.flags.isProvided())
+	{
+		setFollows(params.follows.flags);
+	}
 }
 
-// static
-LLFontGL* LLView::selectFont(LLXMLNodePtr node)
-{
-	std::string font_name, font_size, font_style;
-	U8 style = 0;
-	
-	if (node->hasAttribute("font"))
-	{
-		node->getAttributeString("font", font_name);
-	}
-	
-	if (node->hasAttribute("font_size"))
-	{
-		node->getAttributeString("font_size", font_size);
-	}
-
-	if (node->hasAttribute("font_style"))
-	{
-		node->getAttributeString("font_style", font_style);
-		style = LLFontGL::getStyleFromString(font_style);
-	}
-
-	if (node->hasAttribute("font-style"))
-	{
-		node->getAttributeString("font-style", font_style);
-		style = LLFontGL::getStyleFromString(font_style);
-	}
-
-	if (font_name.empty())
-		return NULL;
-
-	LLFontDescriptor desc(font_name, font_size, style);
-	LLFontGL* gl_font = LLFontGL::getFont(desc);
-
-	return gl_font;
-}
 
 // static
 LLFontGL::HAlign LLView::selectFontHAlign(LLXMLNodePtr node)
@@ -2738,175 +2399,216 @@ LLFontGL::HAlign LLView::selectFontHAlign(LLXMLNodePtr node)
 	return gl_hfont_align;
 }
 
-// static
-LLFontGL::VAlign LLView::selectFontVAlign(LLXMLNodePtr node)
+//static
+void LLView::setupParams(LLView::Params& p, LLView* parent)
 {
-	LLFontGL::VAlign gl_vfont_align = LLFontGL::BASELINE;
-
-	if (node->hasAttribute("valign"))
-	{
-		std::string vert_align_name;
-		node->getAttributeString("valign", vert_align_name);
-		gl_vfont_align = LLFontGL::vAlignFromName(vert_align_name);
-	}
-	return gl_vfont_align;
-}
-
-// static
-LLFontGL::StyleFlags LLView::selectFontStyle(LLXMLNodePtr node)
-{
-	LLFontGL::StyleFlags gl_font_style = LLFontGL::NORMAL;
-
-	if (node->hasAttribute("style"))
-	{
-		std::string style_flags_name;
-		node->getAttributeString("style", style_flags_name);
-
-		if (style_flags_name == "normal")
-		{
-			gl_font_style = LLFontGL::NORMAL;
-		}
-		else if (style_flags_name == "bold")
-		{
-			gl_font_style = LLFontGL::BOLD;
-		}
-		else if (style_flags_name == "italic")
-		{
-			gl_font_style = LLFontGL::ITALIC;
-		}
-		else if (style_flags_name == "underline")
-		{
-			gl_font_style = LLFontGL::UNDERLINE;
-		}
-		//else leave left
-	}
-	return gl_font_style;
-}
-
-bool LLView::setControlValue(const LLSD& value)
-{
-	std::string ctrlname = getControlName();
-	if (!ctrlname.empty())
-	{
-		LLUI::sConfigGroup->setValue(ctrlname, value);
-		return true;
-	}
-	return false;
-}
-
-//virtual
-void LLView::setControlName(const std::string& control_name, LLView *context)
-{
-	if (context == NULL)
-	{
-		context = this;
-	}
-
-	if (!mControlName.empty())
-	{
-		llwarns << "setControlName called twice on same control!" << llendl;
-		mControlConnection.disconnect(); // disconnect current signal
-		mControlName.clear();
-	}
+	const S32 VPAD = 4;
+	const S32 MIN_WIDGET_HEIGHT = 10;
 	
-	// Register new listener
-	if (!control_name.empty())
+	p.serializable(true);
+
+	// *NOTE: Do not inherit layout from parent until we re-export
+	// all nodes and make topleft the default. JC
+	//if (p.layout().empty() && parent) 
+	//	p.layout = parent->getLayout();
+
+	if (parent)
 	{
-		LLControlVariable *control = context->findControl(control_name);
-		if (control)
+		LLRect parent_rect = parent->getLocalRect();
+		// overwrite uninitialized rect params, using context
+		LLRect last_rect = parent->getLocalRect();
+
+		bool layout_topleft = (p.layout() == "topleft");
+		if (layout_topleft)
 		{
-			mControlName = control_name;
-			mControlConnection = control->getSignal()->connect(boost::bind(&controlListener, _1, getHandle(), std::string("value")));
-			setValue(control->getValue());
+			//invert top to bottom
+			if (p.rect.top.isProvided()) p.rect.top = parent_rect.getHeight() - p.rect.top;
+			if (p.rect.bottom.isProvided()) p.rect.bottom = parent_rect.getHeight() - p.rect.bottom;
 		}
-	}
-}
 
-// static
-bool LLView::controlListener(const LLSD& newvalue, LLHandle<LLView> handle, std::string type)
-{
-	LLView* view = handle.get();
-	if (view)
-	{
-		if (type == "value")
+		// convert negative or centered coordinates to parent relative values
+		// Note: some of this logic matches the logic in TypedParam<LLRect>::getValueFromBlock()
+
+		if (p.center_horiz)
 		{
-			view->setValue(newvalue);
-			return true;
+			if (p.rect.left.isProvided() && p.rect.right.isProvided())
+			{
+				S32 width = p.rect.right - p.rect.left;
+				width = llmax(width, 0);
+				S32 offset = parent_rect.getWidth()/2 - width/2;
+				p.rect.left = p.rect.left + offset;
+				p.rect.right = p.rect.right + offset;
+			}
+			else
+			{
+				p.rect.left = p.rect.left + parent_rect.getWidth()/2 - p.rect.width/2;
+			}
 		}
-		else if (type == "enabled")
+		else
 		{
-			view->setEnabled(newvalue.asBoolean());
-			return true;
+			if (p.rect.left < 0) p.rect.left = p.rect.left + parent_rect.getWidth();
+			if (p.rect.right < 0) p.rect.right = p.rect.right + parent_rect.getWidth();
 		}
-		else if (type == "visible")
+		if (p.center_vert)
 		{
-			view->setVisible(newvalue.asBoolean());
-			return true;
+			if (p.rect.bottom.isProvided() && p.rect.top.isProvided())
+			{
+				S32 height = p.rect.top - p.rect.bottom;
+				height = llmax(height, 0);
+				S32 offset = parent_rect.getHeight()/2 - height/2;
+				p.rect.bottom = p.rect.bottom + offset;
+				p.rect.top = p.rect.top + offset;
+			}
+			else
+			{
+				p.rect.bottom = p.rect.bottom + parent_rect.getHeight()/2 - p.rect.height/2;
+			}
 		}
-	}
-	return false;
-}
+		else
+		{
+			if (p.rect.bottom < 0) p.rect.bottom = p.rect.bottom + parent_rect.getHeight();
+			if (p.rect.top < 0) p.rect.top = p.rect.top + parent_rect.getHeight();
+		}
 
-void LLView::addBoolControl(const std::string& name, bool initial_value)
-{
-	mFloaterControls[name] = new LLControlVariable(name, TYPE_BOOLEAN, initial_value, std::string("Internal floater control"));
-}
 
-LLControlVariable *LLView::getControl(const std::string& name)
-{
-	control_map_t::iterator itor = mFloaterControls.find(name);
-	if (itor != mFloaterControls.end())
-	{
-		return itor->second;
-	}
-	return NULL;
-}
+		// DEPRECATE: automatically fall back to height of MIN_WIDGET_HEIGHT pixels
+		if (!p.rect.height.isProvided() && !p.rect.top.isProvided())
+		{
+			p.rect.height = MIN_WIDGET_HEIGHT;
+		}
 
-//virtual 
-void	LLView::setValue(const LLSD& value)
-{
-}
+		last_rect.translate(0, last_rect.getHeight());
 
-//virtual 
-LLSD	LLView::getValue() const 
-{
-	return LLSD();
-}
+		LLView::child_list_t::const_iterator itor = parent->getChildList()->begin();
+		for (;itor != parent->getChildList()->end(); ++itor)
+		{
+			LLView *last_view = (*itor);
+			if (last_view->getSaveToXML())
+			{
+				last_rect = last_view->getRect();
+				break;
+			}
+		}
 
-LLView* LLView::createWidget(LLXMLNodePtr xml_node) const
-{
-	// forward requests to ui ctrl factory
-	return LLUICtrlFactory::getInstance()->createCtrlWidget(NULL, xml_node);
-}
+		if (layout_topleft)
+		{
+			S32 left_delta = 0;
+			p.bottom_delta.setIfNotProvided(0, false);
 
-//
-// LLWidgetClassRegistry
-//
-
-LLWidgetClassRegistry::LLWidgetClassRegistry()
-{ 
-}
-
-void LLWidgetClassRegistry::registerCtrl(const std::string& tag, LLWidgetClassRegistry::factory_func_t function)
-{ 
-	std::string lower_case_tag = tag;
-	LLStringUtil::toLower(lower_case_tag);
+			// Invert the sense of bottom_delta for topleft layout
+			if (p.bottom_delta.isProvided())
+			{
+				p.bottom_delta = -p.bottom_delta;
+			}
+			else if (p.top_delta.isProvided()) 
+			{
+				p.bottom_delta = -(p.rect.height + p.top_delta);
+			}
+			else if (!p.left_delta.isProvided() && !p.right_delta.isProvided() && !p.top_delta.isProvided())
+			{
+				// set default position is just below last rect
+				p.bottom_delta.setIfNotProvided(-(p.rect.height + VPAD), false);
+			}
 	
-	mCreatorFunctions[lower_case_tag] = function;
-}
+			// *TODO: Add left_pad for padding off the last widget's right edge
+			// if (p.left_pad.isProvided())
+			//{
+			//	left_delta = p.left_pad + last_rect.getWidth();
+			//}
+			//else if ...
+			if (p.left_delta.isProvided())
+			{
+				left_delta = p.left_delta;
+			}
+			else if (p.right_delta.isProvided())
+			{
+				left_delta = -(p.right_delta + p.rect.width);
+			}
+			
+			last_rect.translate(left_delta, p.bottom_delta);				
+		}
+		else
+		{	
+			// set default position is just below last rect
+			p.bottom_delta.setIfNotProvided(-(p.rect.height + VPAD), false);
+			p.left_delta.setIfNotProvided(0, false);
+			last_rect.translate(p.left_delta, p.bottom_delta);
+		}
 
-BOOL LLWidgetClassRegistry::isTagRegistered(const std::string &tag)
-{ 
-	return mCreatorFunctions.find(tag) != mCreatorFunctions.end();
-}
+		// this handles case where *both* x and x_delta are provided
+		// ignore x in favor of default x + x_delta
+		if (p.bottom_delta.isProvided()) p.rect.bottom.set(0, false);
+		if (p.left_delta.isProvided()) p.rect.left.set(0, false);
 
-LLWidgetClassRegistry::factory_func_t LLWidgetClassRegistry::getCreatorFunc(const std::string& ctrl_type)
-{ 
-	factory_map_t::const_iterator found_it = mCreatorFunctions.find(ctrl_type);
-	if (found_it == mCreatorFunctions.end())
-	{
-		return NULL;
+		// selectively apply rectangle defaults, making sure that
+		// params are not flagged as having been "provided"
+		// as rect params are overconstrained and rely on provided flags
+		p.rect.left.setIfNotProvided(last_rect.mLeft, false);
+		p.rect.bottom.setIfNotProvided(last_rect.mBottom, false);
+		p.rect.top.setIfNotProvided(last_rect.mTop, false);
+		p.rect.right.setIfNotProvided(last_rect.mRight, false);
+		p.rect.width.setIfNotProvided(last_rect.getWidth(), false);
+		p.rect.height.setIfNotProvided(last_rect.getHeight(), false);
 	}
-	return found_it->second;
 }
 
+static S32 invert_vertical(S32 y, LLView* parent)
+{
+	if (y < 0)
+	{
+		// already based on top-left, just invert
+		return -y;
+	}
+	else if (parent)
+	{
+		// use parent to flip coordinate
+		S32 parent_height = parent->getRect().getHeight();
+		return parent_height - y;
+	}
+	else
+	{
+		llwarns << "Attempting to convert layout to top-left with no parent" << llendl;
+		return y;
+	}
+}
+
+//static
+void LLView::setupParamsForExport(Params& p, LLView* parent)
+{
+	// Don't convert if already top-left based
+	if (p.layout() == "topleft") 
+	{
+		return;
+	}
+
+	if (p.rect.top.isProvided())
+	{
+		p.rect.top = invert_vertical(p.rect.top, parent);
+	}
+	if (p.top_delta.isProvided())
+	{
+		p.top_delta = -p.top_delta;
+	}
+	if (p.rect.bottom.isProvided())
+	{
+		p.rect.bottom = invert_vertical(p.rect.bottom, parent);
+	}
+	if (p.bottom_delta.isProvided())
+	{
+		p.bottom_delta = -p.bottom_delta;
+	}
+	p.layout = "topleft";
+}
+
+LLView::tree_iterator_t LLView::beginTree() 
+{ 
+	return tree_iterator_t(this, 
+							boost::bind(boost::mem_fn(&LLView::beginChild), _1), 
+							boost::bind(boost::mem_fn(&LLView::endChild), _1)); 
+}
+
+LLView::tree_iterator_t LLView::endTree() 
+{ 
+	// an empty iterator is an "end" iterator
+	return tree_iterator_t();
+}

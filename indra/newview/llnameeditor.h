@@ -46,23 +46,17 @@ class LLNameEditor
 :	public LLLineEditor
 {
 public:
-	LLNameEditor(const std::string& name, const LLRect& rect,
-		const LLUUID& name_id = LLUUID::null,
-		BOOL is_group = FALSE,
-		const LLFontGL* glfont = NULL,
-		S32 max_text_length = 254,
-		void (*commit_callback)(LLUICtrl* caller, void* user_data) = NULL,
-		void (*keystroke_callback)(LLLineEditor* caller, void* user_data) = NULL,
-		void (*focus_lost_callback)(LLFocusableElement* caller, void* user_data) = NULL,
-		void* userdata = NULL,
-		LLLinePrevalidateFunc prevalidate_func = NULL);
-		// By default, follows top and left and is mouse-opaque.
-		// If no text, text = name.
-		// If no font, uses default system font.
+	struct Params : public LLInitParam::Block<Params, LLLineEditor::Params>
+	{
+		Optional<bool>		is_group;
+		Optional<LLUUID>	name_id;
+	};
 
+protected:
+	LLNameEditor(const Params&);
+	friend class LLUICtrlFactory;
+public:
 	virtual ~LLNameEditor();
-
-	static LLView* fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
 
 	void setNameID(const LLUUID& name_id, BOOL is_group);
 

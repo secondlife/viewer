@@ -38,16 +38,13 @@
 class LLPreviewSound : public LLPreview
 {
 public:
-	LLPreviewSound(const std::string& name, const LLRect& rect, const std::string& title,
-				   const LLUUID& item_uuid,
-				   const LLUUID& object_uuid = LLUUID::null);
+	LLPreviewSound(const LLSD& key);
 
 	static void playSound( void* userdata );
 	static void auditionSound( void* userdata );
 
 protected:
-	virtual const char *getTitleName() const { return "Sound"; }
-
+	/* virtual */ BOOL	postBuild();
 };
 
 #endif  // LL_LLPREVIEWSOUND_H

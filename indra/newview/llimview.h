@@ -33,9 +33,10 @@
 #ifndef LL_LLIMVIEW_H
 #define LL_LLIMVIEW_H
 
-#include "llfloater.h"
+#include "llmodaldialog.h"
 #include "llinstantmessage.h"
 #include "lluuid.h"
+#include "llmultifloater.h"
 
 class LLFloaterChatterBox;
 class LLUUID;
@@ -134,18 +135,11 @@ public:
 	// IM received that you haven't seen yet
 	BOOL getIMReceived() const;
 
-	void		setFloaterOpen(BOOL open);		/*Flawfinder: ignore*/
-	BOOL		getFloaterOpen();
-
-	LLFloaterChatterBox* getFloater();
-
 	// This method is used to go through all active sessions and
 	// disable all of them. This method is usally called when you are
 	// forced to log out or similar situations where you do not have a
 	// good connection.
 	void disconnectAllSessions();
-
-	static void	toggle(void*);
 
 	// This is a helper function to determine what kind of im session
 	// should be used for the given agent.
@@ -198,7 +192,7 @@ private:
 
 	void processIMTypingCore(const LLIMInfo* im_info, BOOL typing);
 
-	static void onInviteNameLookup(const LLUUID& id, const std::string& first, const std::string& last, BOOL is_group, void* userdata);
+	static void onInviteNameLookup(LLSD payload, const LLUUID& id, const std::string& first, const std::string& last, BOOL is_group);
 
 private:
 	std::set<LLHandle<LLFloater> > mFloaters;
@@ -221,6 +215,23 @@ public:
 	static std::map<std::string,std::string> sEventStringsMap;
 	static std::map<std::string,std::string> sErrorStringsMap;
 	static std::map<std::string,std::string> sForceCloseSessionMap;
+};
+
+class LLIncomingCallDialog : public LLModalDialog
+{
+public:
+	LLIncomingCallDialog(const LLSD& payload);
+
+	/*virtual*/ BOOL postBuild();
+
+	static void onAccept(void* user_data);
+	static void onReject(void* user_data);
+	static void onStartIM(void* user_data);
+
+private:
+	void processCallResponse(S32 response);
+
+	LLSD mPayload;
 };
 
 // Globals

@@ -40,8 +40,8 @@
 #include "llstring.h"
 #include "lldir.h"
 #include "llendianswizzle.h"
-#include "audioengine.h"
 #include "llassetstorage.h"
+#include "llrefcount.h"
 
 #include "vorbis/codec.h"
 #include "vorbis/vorbisfile.h"

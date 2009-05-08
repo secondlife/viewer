@@ -35,10 +35,30 @@
 
 #include "llweb.h"
 
-#include "llviewerwindow.h"
+// Library includes
+#include "llwindow.h"	// spawnWebBrowser()
 
+#include "llviewerwindow.h"
 #include "llviewercontrol.h"
 #include "llfloaterhtmlhelp.h"
+#include "llalertdialog.h"
+
+class URLLoader : public LLAlertDialog::URLLoader
+{
+	virtual void load(const std::string& url , bool force_open_externally)
+	{
+		if (force_open_externally)
+		{
+			LLWeb::loadURLExternal(url);
+		}
+		else
+		{
+			LLWeb::loadURL(url);
+		}
+	}
+};
+static URLLoader sAlertURLLoader;
+
 
 // static
 void LLWeb::initClass()
@@ -93,12 +113,3 @@ std::string LLWeb::escapeURL(const std::string& url)
 	}
 	return escaped_url;
 }
-
-// virtual
-void LLWeb::URLLoader::load(const std::string& url)
-{
-	loadURL(url);
-}
-
-// static
-LLWeb::URLLoader LLWeb::sAlertURLLoader;

@@ -46,14 +46,12 @@
 #include "llerror.h"
 #include "llkeyboard.h"
 #include "linked_lists.h"
+#include "llwindowcallbacks.h"
 
-//static instance for default callbacks
-LLWindowCallbacks	LLWindow::sDefaultCallbacks;
 
 //
-// LLWindowCallbacks
+// Globals
 //
-
 LLSplashScreen *gSplashScreenp = NULL;
 BOOL gDebugClicks = FALSE;
 BOOL gDebugWindowProc = FALSE;
@@ -66,158 +64,6 @@ const std::string gURLProtocolWhitelist[] = { "file:", "http:", "https:" };
 //	   since no protocol handler exists in registry for file:
 //     Important - these lists should match - protocol to handler
 const std::string gURLProtocolWhitelistHandler[] = { "http", "http", "https" };	
-
-BOOL LLWindowCallbacks::handleTranslatedKeyDown(const KEY key, const MASK mask, BOOL repeated)
-{
-	return FALSE;
-}
-
-
-BOOL LLWindowCallbacks::handleTranslatedKeyUp(const KEY key, const MASK mask)
-{
-	return FALSE;
-}
-
-void LLWindowCallbacks::handleScanKey(KEY key, BOOL key_down, BOOL key_up, BOOL key_level)
-{
-}
-
-BOOL LLWindowCallbacks::handleUnicodeChar(llwchar uni_char, MASK mask)
-{
-	return FALSE;
-}
-
-
-BOOL LLWindowCallbacks::handleMouseDown(LLWindow *window, const LLCoordGL pos, MASK mask)
-{
-	return FALSE;
-}
-
-BOOL LLWindowCallbacks::handleMouseUp(LLWindow *window, const LLCoordGL pos, MASK mask)
-{
-	return FALSE;
-}
-
-void LLWindowCallbacks::handleMouseLeave(LLWindow *window)
-{
-	return;
-}
-
-BOOL LLWindowCallbacks::handleCloseRequest(LLWindow *window)
-{
-	//allow the window to close
-	return TRUE;
-}
-
-void LLWindowCallbacks::handleQuit(LLWindow *window)
-{
-	if(LLWindowManager::destroyWindow(window) == FALSE)	
-	{
-		llerrs << "LLWindowCallbacks::handleQuit() : Couldn't destroy window" << llendl;
-	}
-}
-
-BOOL LLWindowCallbacks::handleRightMouseDown(LLWindow *window, const LLCoordGL pos, MASK mask)
-{
-	return FALSE;
-}
-
-BOOL LLWindowCallbacks::handleRightMouseUp(LLWindow *window, const LLCoordGL pos, MASK mask)
-{
-	return FALSE;
-}
-
-BOOL LLWindowCallbacks::handleMiddleMouseDown(LLWindow *window, const LLCoordGL pos, MASK mask)
-{
-	return FALSE;
-}
-
-BOOL LLWindowCallbacks::handleMiddleMouseUp(LLWindow *window, const LLCoordGL pos, MASK mask)
-{
-	return FALSE;
-}
-
-BOOL LLWindowCallbacks::handleActivate(LLWindow *window, BOOL activated)
-{
-	return FALSE;
-}
-
-BOOL LLWindowCallbacks::handleActivateApp(LLWindow *window, BOOL activating)
-{
-	return FALSE;
-}
-
-void LLWindowCallbacks::handleMouseMove(LLWindow *window, const LLCoordGL pos, MASK mask)
-{
-}
-
-void LLWindowCallbacks::handleScrollWheel(LLWindow *window, S32 clicks)
-{
-}
-
-void LLWindowCallbacks::handleResize(LLWindow *window, const S32 width, const S32 height)
-{
-}
-
-void LLWindowCallbacks::handleFocus(LLWindow *window)
-{
-}
-
-void LLWindowCallbacks::handleFocusLost(LLWindow *window)
-{
-}
-
-void LLWindowCallbacks::handleMenuSelect(LLWindow *window, const S32 menu_item)
-{
-}
-
-BOOL LLWindowCallbacks::handlePaint(LLWindow *window, const S32 x, const S32 y, 
-									const S32 width, const S32 height)
-{
-	return FALSE;
-}
-
-BOOL LLWindowCallbacks::handleDoubleClick(LLWindow *window, const LLCoordGL pos, MASK mask)
-{
-	return FALSE;
-}
-
-void LLWindowCallbacks::handleWindowBlock(LLWindow *window)
-{
-}
-
-void LLWindowCallbacks::handleWindowUnblock(LLWindow *window)
-{
-}
-
-void LLWindowCallbacks::handleDataCopy(LLWindow *window, S32 data_type, void *data)
-{
-}
-
-BOOL LLWindowCallbacks::handleTimerEvent(LLWindow *window)
-{
-	return FALSE;
-}
-
-BOOL LLWindowCallbacks::handleDeviceChange(LLWindow *window)
-{
-	return FALSE;
-}
-
-void LLWindowCallbacks::handlePingWatchdog(LLWindow *window, const char * msg)
-{
-
-}
-
-void LLWindowCallbacks::handlePauseWatchdog(LLWindow *window)
-{
-
-}
-
-void LLWindowCallbacks::handleResumeWatchdog(LLWindow *window)
-{
-
-}
 
 
 S32 OSMessageBox(const std::string& text, const std::string& caption, U32 type)
@@ -257,8 +103,8 @@ S32 OSMessageBox(const std::string& text, const std::string& caption, U32 type)
 // LLWindow
 //
 
-LLWindow::LLWindow(BOOL fullscreen, U32 flags)
-	: mCallbacks(&sDefaultCallbacks),
+LLWindow::LLWindow(LLWindowCallbacks* callbacks, BOOL fullscreen, U32 flags)
+	: mCallbacks(callbacks),
 	  mPostQuit(TRUE),
 	  mFullscreen(fullscreen),
 	  mFullscreenWidth(0),
@@ -275,9 +121,23 @@ LLWindow::LLWindow(BOOL fullscreen, U32 flags)
 	  mHideCursorPermanent(FALSE),
 	  mFlags(flags),
 	  mHighSurrogate(0)
+{ }
+
+LLWindow::~LLWindow()
+{ }
+
+//virtual
+BOOL LLWindow::isValid()
 {
+	return TRUE;
 }
-	
+
+//virtual
+BOOL LLWindow::canDelete()
+{
+	return TRUE;
+}
+
 // virtual
 void LLWindow::incBusyCount()
 {
@@ -293,13 +153,28 @@ void LLWindow::decBusyCount()
 	}
 }
 
-void LLWindow::setCallbacks(LLWindowCallbacks *callbacks)
+//virtual
+void LLWindow::resetBusyCount()
 {
-	mCallbacks = callbacks;
-	if (gKeyboard)
-	{
-		gKeyboard->setCallbacks(callbacks);
-	}
+	mBusyCount = 0;
+}
+
+//virtual
+S32 LLWindow::getBusyCount() const
+{
+	return mBusyCount;
+}
+
+//virtual
+ECursorType LLWindow::getCursor() const
+{
+	return mCurrentCursor;
+}
+
+//virtual
+BOOL LLWindow::dialogColorPicker(F32 *r, F32 *g, F32 *b)
+{
+	return FALSE;
 }
 
 void *LLWindow::getMediaWindow()
@@ -462,23 +337,7 @@ void LLSplashScreen::hide()
 static std::set<LLWindow*> sWindowList;
 
 LLWindow* LLWindowManager::createWindow(
-	const std::string& title,
-	const std::string& name,
-	LLCoordScreen upper_left,
-	LLCoordScreen size,
-	U32 flags,
-	BOOL fullscreen, 
-	BOOL clearBg,
-	BOOL disable_vsync,
-	BOOL use_gl,
-	BOOL ignore_pixel_depth)
-{
-	return createWindow(
-		title, name, upper_left.mX, upper_left.mY, size.mX, size.mY, flags, 
-		fullscreen, clearBg, disable_vsync, use_gl, ignore_pixel_depth);
-}
-
-LLWindow* LLWindowManager::createWindow(
+	LLWindowCallbacks* callbacks,
 	const std::string& title, const std::string& name, S32 x, S32 y, S32 width, S32 height, U32 flags,
 	BOOL fullscreen, 
 	BOOL clearBg,
@@ -492,26 +351,26 @@ LLWindow* LLWindowManager::createWindow(
 	if (use_gl)
 	{
 #if LL_MESA_HEADLESS
-		new_window = new LLWindowMesaHeadless(
+		new_window = new LLWindowMesaHeadless(callbacks,
 			title, name, x, y, width, height, flags, 
 			fullscreen, clearBg, disable_vsync, use_gl, ignore_pixel_depth);
 #elif LL_SDL
-		new_window = new LLWindowSDL(
+		new_window = new LLWindowSDL(callbacks,
 			title, x, y, width, height, flags, 
 			fullscreen, clearBg, disable_vsync, use_gl, ignore_pixel_depth, fsaa_samples);
 #elif LL_WINDOWS
-		new_window = new LLWindowWin32(
+		new_window = new LLWindowWin32(callbacks,
 			title, name, x, y, width, height, flags, 
 			fullscreen, clearBg, disable_vsync, use_gl, ignore_pixel_depth, fsaa_samples);
 #elif LL_DARWIN
-		new_window = new LLWindowMacOSX(
+		new_window = new LLWindowMacOSX(callbacks,
 			title, name, x, y, width, height, flags, 
 			fullscreen, clearBg, disable_vsync, use_gl, ignore_pixel_depth, fsaa_samples);
 #endif
 	}
 	else
 	{
-		new_window = new LLWindowHeadless(
+		new_window = new LLWindowHeadless(callbacks,
 			title, name, x, y, width, height, flags, 
 			fullscreen, clearBg, disable_vsync, use_gl, ignore_pixel_depth);
 	}

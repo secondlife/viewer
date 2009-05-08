@@ -77,7 +77,6 @@ const F32 AGENT_TYPING_TIMEOUT = 5.f;	// seconds
 LLChatBar *gChatBar = NULL;
 
 // legacy calllback glue
-void toggleChatHistory(void* user_data);
 void send_chat_from_viewer(const std::string& utf8_out_text, EChatType type, S32 channel);
 
 
@@ -97,7 +96,7 @@ private:
 //
 
 LLChatBar::LLChatBar() 
-:	LLPanel(LLStringUtil::null, LLRect(), BORDER_NO),
+:	LLPanel(),
 	mInputEditor(NULL),
 	mGestureLabelTimer(),
 	mLastSpecialChatChannel(0),
@@ -107,7 +106,7 @@ LLChatBar::LLChatBar()
 {
 	setIsChrome(TRUE);
 	
-	#if !LL_RELEASE_FOR_DOWNLOAD
+#if !LL_RELEASE_FOR_DOWNLOAD
 	childDisplayNotFound();
 #endif
 }
@@ -123,34 +122,23 @@ LLChatBar::~LLChatBar()
 
 BOOL LLChatBar::postBuild()
 {
-	childSetAction("History", toggleChatHistory, this);
-	childSetCommitCallback("Say", onClickSay, this);
+	getChild<LLUICtrl>("Say")->setCommitCallback(boost::bind(&LLChatBar::onClickSay, this, _1));
 
 	// attempt to bind to an existing combo box named gesture
-	setGestureCombo(getChild<LLComboBox>( "Gesture"));
-
-	LLButton * sayp = getChild<LLButton>("Say");
-	if(sayp)
-	{
-		setDefaultBtn(sayp);
-	}
+	setGestureCombo(getChild<LLComboBox>( "Gesture", TRUE, FALSE));
 
 	mInputEditor = getChild<LLLineEditor>("Chat Editor");
-	if (mInputEditor)
-	{
-		mInputEditor->setCallbackUserData(this);
-		mInputEditor->setKeystrokeCallback(&onInputEditorKeystroke);
-		mInputEditor->setFocusLostCallback(&onInputEditorFocusLost, this);
-		mInputEditor->setFocusReceivedCallback( &onInputEditorGainFocus, this );
-		mInputEditor->setCommitOnFocusLost( FALSE );
-		mInputEditor->setRevertOnEsc( FALSE );
-		mInputEditor->setIgnoreTab(TRUE);
-		mInputEditor->setPassDelete(TRUE);
-		mInputEditor->setReplaceNewlinesWithSpaces(FALSE);
+	mInputEditor->setKeystrokeCallback(&onInputEditorKeystroke, this);
+	mInputEditor->setFocusLostCallback(&onInputEditorFocusLost, this);
+	mInputEditor->setFocusReceivedCallback( &onInputEditorGainFocus, this );
+	mInputEditor->setCommitOnFocusLost( FALSE );
+	mInputEditor->setRevertOnEsc( FALSE );
+	mInputEditor->setIgnoreTab(TRUE);
+	mInputEditor->setPassDelete(TRUE);
+	mInputEditor->setReplaceNewlinesWithSpaces(FALSE);
 
-		mInputEditor->setMaxTextLength(1023);
-		mInputEditor->setEnableLineHistory(TRUE);
-	}
+	mInputEditor->setMaxTextLength(1023);
+	mInputEditor->setEnableLineHistory(TRUE);
 
 	mIsBuilt = TRUE;
 
@@ -209,10 +197,7 @@ void LLChatBar::refresh()
 		gAgent.stopTyping();
 	}
 
-	childSetValue("History", LLFloaterChat::instanceVisible(LLSD()));
-
 	childSetEnabled("Say", mInputEditor->getText().size() > 0);
-	childSetEnabled("Shout", mInputEditor->getText().size() > 0);
 
 }
 
@@ -311,8 +296,7 @@ void LLChatBar::setGestureCombo(LLComboBox* combo)
 	mGestureCombo = combo;
 	if (mGestureCombo)
 	{
-		mGestureCombo->setCommitCallback(onCommitGesture);
-		mGestureCombo->setCallbackUserData(this);
+		mGestureCombo->setCommitCallback(boost::bind(&LLChatBar::onCommitGesture, this, _1));
 
 		// now register observer since we have a place to put the results
 		mObserver = new LLChatBarGestureObserver(this);
@@ -553,20 +537,19 @@ void LLChatBar::onInputEditorGainFocus( LLFocusableElement* caller, void* userda
 	LLFloaterChat::setHistoryCursorAndScrollToEnd();
 }
 
-// static
-void LLChatBar::onClickSay( LLUICtrl* ctrl, void* userdata )
+void LLChatBar::onClickSay( LLUICtrl* ctrl )
 {
+	std::string cmd = ctrl->getValue().asString();
 	e_chat_type chat_type = CHAT_TYPE_NORMAL;
-	if (ctrl->getValue().asString() == "shout")
+	if (cmd == "shout")
 	{
 		chat_type = CHAT_TYPE_SHOUT;
 	}
-	else if (ctrl->getValue().asString() == "whisper")
+	else if (cmd == "whisper")
 	{
 		chat_type = CHAT_TYPE_WHISPER;
 	}
-	LLChatBar* self = (LLChatBar*) userdata;
-	self->sendChat(chat_type);
+	sendChat(chat_type);
 }
 
 void LLChatBar::sendChatFromViewer(const std::string &utf8text, EChatType type, BOOL animate)
@@ -641,11 +624,9 @@ void send_chat_from_viewer(const std::string& utf8_out_text, EChatType type, S32
 }
 
 
-// static
-void LLChatBar::onCommitGesture(LLUICtrl* ctrl, void* data)
+void LLChatBar::onCommitGesture(LLUICtrl* ctrl)
 {
-	LLChatBar* self = (LLChatBar*)data;
-	LLCtrlListInterface* gestures = self->mGestureCombo ? self->mGestureCombo->getListInterface() : NULL;
+	LLCtrlListInterface* gestures = mGestureCombo ? mGestureCombo->getListInterface() : NULL;
 	if (gestures)
 	{
 		S32 index = gestures->getFirstSelectedIndex();
@@ -665,22 +646,16 @@ void LLChatBar::onCommitGesture(LLUICtrl* ctrl, void* data)
 		if (!revised_text.empty())
 		{
 			// Don't play nodding animation
-			self->sendChatFromViewer(revised_text, CHAT_TYPE_NORMAL, FALSE);
+			sendChatFromViewer(revised_text, CHAT_TYPE_NORMAL, FALSE);
 		}
 	}
-	self->mGestureLabelTimer.start();
-	if (self->mGestureCombo != NULL)
+	mGestureLabelTimer.start();
+	if (mGestureCombo != NULL)
 	{
 		// free focus back to chat bar
-		self->mGestureCombo->setFocus(FALSE);
+		mGestureCombo->setFocus(FALSE);
 	}
 }
-
-void toggleChatHistory(void* user_data)
-{
-	LLFloaterChat::toggleInstance(LLSD());
-}
-
 
 class LLChatHandler : public LLCommandHandler
 {

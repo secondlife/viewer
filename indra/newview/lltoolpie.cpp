@@ -79,7 +79,6 @@ static ECursorType cursor_from_parcel_media(U8 click_action);
 
 LLToolPie::LLToolPie()
 :	LLTool(std::string("Select")),
-	mPieMouseButtonDown( FALSE ),
 	mGrabMouseButtonDown( FALSE ),
 	mMouseOutsideSlop( FALSE ),
 	mClickAction(0)
@@ -98,32 +97,35 @@ BOOL LLToolPie::handleMouseDown(S32 x, S32 y, MASK mask)
 void LLToolPie::leftMouseCallback(const LLPickInfo& pick_info)
 {
 	LLToolPie::getInstance()->mPick = pick_info;
-	LLToolPie::getInstance()->pickAndShowMenu(FALSE);
+	LLToolPie::getInstance()->pickLeftMouseDownCallback();
 }
 
 BOOL LLToolPie::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
-	// don't pick transparent so users can't "pay" transparent objects
-	gViewerWindow->pickAsync(x, y, mask, rightMouseCallback, FALSE, TRUE);
-	mPieMouseButtonDown = TRUE; 
-	// don't steal focus from UI
 	return FALSE;
+}
+
+BOOL LLToolPie::handleRightMouseUp(S32 x, S32 y, MASK mask)
+{
+	LLToolMgr::getInstance()->clearTransientTool();
+	gViewerWindow->pickAsync(x, y, mask, rightMouseCallback, FALSE, TRUE);
+	return LLTool::handleRightMouseUp(x, y, mask);
 }
 
 // static
 void LLToolPie::rightMouseCallback(const LLPickInfo& pick_info)
 {
 	LLToolPie::getInstance()->mPick = pick_info;
-	LLToolPie::getInstance()->pickAndShowMenu(TRUE);
+	LLToolPie::getInstance()->pickRightMouseUpCallback();
 }
 
 // True if you selected an object.
-BOOL LLToolPie::pickAndShowMenu(BOOL always_show)
+BOOL LLToolPie::pickLeftMouseDownCallback()
 {
 	S32 x = mPick.mMousePt.mX;
 	S32 y = mPick.mMousePt.mY;
 	MASK mask = mPick.mKeyMask;
-	if (!always_show && mPick.mPickType == LLPickInfo::PICK_PARCEL_WALL)
+	if (mPick.mPickType == LLPickInfo::PICK_PARCEL_WALL)
 	{
 		LLParcel* parcel = LLViewerParcelMgr::getInstance()->getCollisionParcel();
 		if (parcel)
@@ -164,7 +166,7 @@ BOOL LLToolPie::pickAndShowMenu(BOOL always_show)
 					 || (parent && parent->flagHandleTouch());
 
 	// If it's a left-click, and we have a special action, do it.
-	if (useClickAction(always_show, mask, object, parent))
+	if (useClickAction(mask, object, parent))
 	{
 		mClickAction = 0;
 		if (object && object->getClickAction()) 
@@ -240,8 +242,8 @@ BOOL LLToolPie::pickAndShowMenu(BOOL always_show)
 	// Switch to grab tool if physical or triggerable
 	if (object && 
 		!object->isAvatar() && 
-		((object->usePhysics() || (parent && !parent->isAvatar() && parent->usePhysics())) || touchable) && 
-		!always_show)
+		((object->usePhysics() || (parent && !parent->isAvatar() && parent->usePhysics())) || touchable) 
+		)
 	{
 		gGrabTransientTool = this;
 		LLToolMgr::getInstance()->getCurrentToolset()->selectTool( LLToolGrab::getInstance() );
@@ -256,8 +258,7 @@ BOOL LLToolPie::pickAndShowMenu(BOOL always_show)
 
 	// If left-click never selects or spawns a menu
 	// Eat the event.
-	if (!gSavedSettings.getBOOL("LeftClickShowMenu")
-		&& !always_show)
+	if (!gSavedSettings.getBOOL("LeftClickShowMenu"))
 	{
 		// mouse already released
 		if (!mGrabMouseButtonDown)
@@ -292,7 +293,7 @@ BOOL LLToolPie::pickAndShowMenu(BOOL always_show)
 		return LLTool::handleMouseDown(x, y, mask);
 	}
 
-	if (!always_show && gAgent.leftButtonGrabbed())
+	if (gAgent.leftButtonGrabbed())
 	{
 		// if the left button is grabbed, don't put up the pie menu
 		return LLTool::handleMouseDown(x, y, mask);
@@ -302,116 +303,15 @@ BOOL LLToolPie::pickAndShowMenu(BOOL always_show)
 	LLToolSelect::handleObjectSelection(mPick, FALSE, TRUE);
 
 	// Spawn pie menu
-	if (mPick.mPickType == LLPickInfo::PICK_LAND)
-	{
-		LLParcelSelectionHandle selection = LLViewerParcelMgr::getInstance()->selectParcelAt( mPick.mPosGlobal );
-		gMenuHolder->setParcelSelection(selection);
-		gPieLand->show(x, y, mPieMouseButtonDown);
-
-		// VEFFECT: ShowPie
-		LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_SPHERE, TRUE);
-		effectp->setPositionGlobal(mPick.mPosGlobal);
-		effectp->setColor(LLColor4U(gAgent.getEffectColor()));
-		effectp->setDuration(0.25f);
-	}
-	else if (mPick.mObjectID == gAgent.getID() )
-	{
-		if(!gPieSelf) 
-		{
-			//either at very early startup stage or at late quitting stage,
-			//this event is ignored.
-			return TRUE ;
-		}
-
-		gPieSelf->show(x, y, mPieMouseButtonDown);
-	}
-	else if (object)
-	{
-		gMenuHolder->setObjectSelection(LLSelectMgr::getInstance()->getSelection());
-
-		if (object->isAvatar() 
-			|| (object->isAttachment() && !object->isHUDAttachment() && !object->permYouOwner()))
-		{
-			// Find the attachment's avatar
-			while( object && object->isAttachment())
-			{
-				object = (LLViewerObject*)object->getParent();
-			}
-
-			// Object is an avatar, so check for mute by id.
-			LLVOAvatar* avatar = (LLVOAvatar*)object;
-			std::string name = avatar->getFullname();
-			if (LLMuteList::getInstance()->isMuted(avatar->getID(), name))
-			{
-				gMenuHolder->childSetText("Avatar Mute", std::string("Unmute")); // *TODO:Translate
-				//gMutePieMenu->setLabel("Unmute");
-			}
-			else
-			{
-				gMenuHolder->childSetText("Avatar Mute", std::string("Mute")); // *TODO:Translate
-				//gMutePieMenu->setLabel("Mute");
-			}
-
-			gPieAvatar->show(x, y, mPieMouseButtonDown);
-		}
-		else if (object->isAttachment())
-		{
-			gPieAttachment->show(x, y, mPieMouseButtonDown);
-		}
-		else
-		{
-			// BUG: What about chatting child objects?
-			std::string name;
-			LLSelectNode* node = LLSelectMgr::getInstance()->getSelection()->getFirstRootNode();
-			if (node)
-			{
-				name = node->mName;
-			}
-			if (LLMuteList::getInstance()->isMuted(object->getID(), name))
-			{
-				gMenuHolder->childSetText("Object Mute", std::string("Unmute")); // *TODO:Translate
-				//gMuteObjectPieMenu->setLabel("Unmute");
-			}
-			else
-			{
-				gMenuHolder->childSetText("Object Mute", std::string("Mute")); // *TODO:Translate
-				//gMuteObjectPieMenu->setLabel("Mute");
-			}
-			
-			gPieObject->show(x, y, mPieMouseButtonDown);
-
-			// VEFFECT: ShowPie object
-			// Don't show when you click on someone else, it freaks them
-			// out.
-			LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_SPHERE, TRUE);
-			effectp->setPositionGlobal(mPick.mPosGlobal);
-			effectp->setColor(LLColor4U(gAgent.getEffectColor()));
-			effectp->setDuration(0.25f);
-		}
-	}
-
-	if (always_show)
-	{
-		// ignore return value
-		LLTool::handleRightMouseDown(x, y, mask);
-	}
-	else
-	{
-		// ignore return value
-		LLTool::handleMouseDown(x, y, mask);
-	}
-
-	// We handled the event.
+	LLTool::handleRightMouseDown(x, y, mask);
 	return TRUE;
 }
 
-BOOL LLToolPie::useClickAction(BOOL always_show, 
-							   MASK mask, 
+BOOL LLToolPie::useClickAction(MASK mask, 
 							   LLViewerObject* object, 
 							   LLViewerObject* parent)
 {
-	return	!always_show
-			&& mask == MASK_NONE
+	return	mask == MASK_NONE
 			&& object
 			&& !object->isAttachment() 
 			&& LLPrimitive::isPrimitive(object->getPCode())
@@ -567,27 +467,27 @@ BOOL LLToolPie::handleHover(S32 x, S32 y, MASK mask)
 		parent = object->getRootEdit();
 	}
 
-	if (object && useClickAction(FALSE, mask, object, parent))
+	if (object && useClickAction(mask, object, parent))
 	{
 		ECursorType cursor = cursor_from_object(object);
-		gViewerWindow->getWindow()->setCursor(cursor);
+		gViewerWindow->setCursor(cursor);
 		lldebugst(LLERR_USER_INPUT) << "hover handled by LLToolPie (inactive)" << llendl;
 	}
 	else if ((object && !object->isAvatar() && object->usePhysics()) 
 			 || (parent && !parent->isAvatar() && parent->usePhysics()))
 	{
-		gViewerWindow->getWindow()->setCursor(UI_CURSOR_TOOLGRAB);
+		gViewerWindow->setCursor(UI_CURSOR_TOOLGRAB);
 		lldebugst(LLERR_USER_INPUT) << "hover handled by LLToolPie (inactive)" << llendl;
 	}
 	else if ( (object && object->flagHandleTouch()) 
 			  || (parent && parent->flagHandleTouch()))
 	{
-		gViewerWindow->getWindow()->setCursor(UI_CURSOR_HAND);
+		gViewerWindow->setCursor(UI_CURSOR_HAND);
 		lldebugst(LLERR_USER_INPUT) << "hover handled by LLToolPie (inactive)" << llendl;
 	}
 	else
 	{
-		gViewerWindow->getWindow()->setCursor(UI_CURSOR_ARROW);
+		gViewerWindow->setCursor(UI_CURSOR_ARROW);
 		lldebugst(LLERR_USER_INPUT) << "hover handled by LLToolPie (inactive)" << llendl;
 	}
 
@@ -610,7 +510,7 @@ BOOL LLToolPie::handleMouseUp(S32 x, S32 y, MASK mask)
 			// the world.  Keep the cursor an arrow, assuming that 
 			// after the user moves off the UI, they won't be on the
 			// same object anymore.
-			gViewerWindow->getWindow()->setCursor(UI_CURSOR_ARROW);
+			gViewerWindow->setCursor(UI_CURSOR_ARROW);
 			// Make sure the hover-picked object is ignored.
 			gHoverView->resetLastHoverObject();
 			break;
@@ -622,13 +522,6 @@ BOOL LLToolPie::handleMouseUp(S32 x, S32 y, MASK mask)
 	LLToolMgr::getInstance()->clearTransientTool();
 	gAgent.setLookAt(LOOKAT_TARGET_CONVERSATION, obj); // maybe look at object/person clicked on
 	return LLTool::handleMouseUp(x, y, mask);
-}
-
-BOOL LLToolPie::handleRightMouseUp(S32 x, S32 y, MASK mask)
-{
-	mPieMouseButtonDown = FALSE; 
-	LLToolMgr::getInstance()->clearTransientTool();
-	return LLTool::handleRightMouseUp(x, y, mask);
 }
 
 
@@ -831,4 +724,117 @@ static ECursorType cursor_from_parcel_media(U8 click_action)
 		default:
 			return UI_CURSOR_TOOLPLAY;
 	}
+}
+
+
+// True if you selected an object.
+BOOL LLToolPie::pickRightMouseUpCallback()
+{
+	S32 x = mPick.mMousePt.mX;
+	S32 y = mPick.mMousePt.mY;
+	MASK mask = mPick.mKeyMask;
+
+	if (mPick.mPickType != LLPickInfo::PICK_LAND)
+	{
+		LLViewerParcelMgr::getInstance()->deselectLand();
+	}
+
+	// didn't click in any UI object, so must have clicked in the world
+	LLViewerObject *object = mPick.getObject();
+	LLViewerObject *parent = NULL;
+	if(object)
+		parent = object->getRootEdit();
+	
+	// Can't ignore children here.
+	LLToolSelect::handleObjectSelection(mPick, FALSE, TRUE);
+
+	// Spawn pie menu
+	if (mPick.mPickType == LLPickInfo::PICK_LAND)
+	{
+		LLParcelSelectionHandle selection = LLViewerParcelMgr::getInstance()->selectParcelAt( mPick.mPosGlobal );
+		gMenuHolder->setParcelSelection(selection);
+		gPieLand->show(x, y);
+
+		showVisualContextMenuEffect();
+
+	}
+	else if (mPick.mObjectID == gAgent.getID() )
+	{
+		if(!gPieSelf) 
+		{
+			//either at very early startup stage or at late quitting stage,
+			//this event is ignored.
+			return TRUE ;
+		}
+
+		gPieSelf->show(x, y);
+	}
+	else if (object)
+	{
+		gMenuHolder->setObjectSelection(LLSelectMgr::getInstance()->getSelection());
+
+		if (object->isAvatar() 
+			|| (object->isAttachment() && !object->isHUDAttachment() && !object->permYouOwner()))
+		{
+			// Find the attachment's avatar
+			while( object && object->isAttachment())
+			{
+				object = (LLViewerObject*)object->getParent();
+			}
+
+			// Object is an avatar, so check for mute by id.
+			LLVOAvatar* avatar = (LLVOAvatar*)object;
+			std::string name = avatar->getFullname();
+			if (LLMuteList::getInstance()->isMuted(avatar->getID(), avatar->getFullname()))
+			{
+				gMenuHolder->childSetText("Avatar Mute", std::string("Unmute")); // *TODO:Translate
+			}
+			else
+			{
+				gMenuHolder->childSetText("Avatar Mute", std::string("Mute")); // *TODO:Translate
+			}
+
+			gPieAvatar->show(x, y);
+		}
+		else if (object->isAttachment())
+		{
+			gPieAttachment->show(x, y);
+		}
+		else
+		{
+			// BUG: What about chatting child objects?
+			std::string name;
+			LLSelectNode* node = LLSelectMgr::getInstance()->getSelection()->getFirstRootNode();
+			if (node)
+			{
+				name = node->mName;
+			}
+			if (LLMuteList::getInstance()->isMuted(object->getID(), name))
+			{
+				gMenuHolder->childSetText("Object Mute", std::string("Unmute")); // *TODO:Translate
+			}
+			else
+			{
+				gMenuHolder->childSetText("Object Mute", std::string("Mute")); // *TODO:Translate
+			}
+			
+			gPieObject->show(x, y);
+
+			showVisualContextMenuEffect();
+		}
+	}
+
+	LLTool::handleRightMouseUp(x, y, mask);
+	// We handled the event.
+	return TRUE;
+}
+
+void LLToolPie::showVisualContextMenuEffect()
+{
+		// VEFFECT: ShowPie
+		LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_SPHERE, TRUE);
+		effectp->setPositionGlobal(mPick.mPosGlobal);
+		effectp->setColor(LLColor4U(gAgent.getEffectColor()));
+		effectp->setDuration(0.25f);
+
 }

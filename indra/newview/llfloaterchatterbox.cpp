@@ -35,6 +35,7 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include "llfloaterreg.h"
 #include "llfloaterchatterbox.h"
 #include "lluictrlfactory.h"
 #include "llfloaterchat.h"
@@ -49,12 +50,11 @@
 //
 
 LLFloaterMyFriends::LLFloaterMyFriends(const LLSD& seed)
+	: LLFloater()
 {
 	mFactoryMap["friends_panel"] = LLCallbackMap(LLFloaterMyFriends::createFriendsPanel, NULL);
 	mFactoryMap["groups_panel"] = LLCallbackMap(LLFloaterMyFriends::createGroupsPanel, NULL);
-	// do not automatically open singleton floaters (as result of getInstance())
-	BOOL no_open = FALSE;
-	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_my_friends.xml", &getFactoryMap(), no_open);
+	//Called from floater reg: LLUICtrlFactory::getInstance()->buildFloater(this, "floater_my_friends.xml");
 }
 
 LLFloaterMyFriends::~LLFloaterMyFriends()
@@ -63,11 +63,20 @@ LLFloaterMyFriends::~LLFloaterMyFriends()
 
 BOOL LLFloaterMyFriends::postBuild()
 {
-	mTabs = getChild<LLTabContainer>("friends_and_groups");
-
 	return TRUE;
 }
 
+void LLFloaterMyFriends::onOpen(const LLSD& key)
+{
+	if (key.asString() == "friends")
+	{
+		childShowTab("friends_and_groups", "friends_panel");
+	}
+	else if (key.asString() == "groups")
+	{
+		childShowTab("friends_and_groups", "groups_panel");
+	}
+}
 
 void LLFloaterMyFriends::onClose(bool app_quitting)
 {
@@ -86,18 +95,34 @@ void* LLFloaterMyFriends::createGroupsPanel(void* data)
 	return new LLPanelGroups();
 }
 
+//static
+LLFloaterMyFriends* LLFloaterMyFriends::getInstance()
+{
+	LLFloater* inst = LLFloaterReg::getInstance("contacts", "friends") ;
+	return dynamic_cast<LLFloaterMyFriends*>(inst);
+}
+
 //
 // LLFloaterChatterBox
 //
-LLFloaterChatterBox::LLFloaterChatterBox(const LLSD& seed) :
-	mActiveVoiceFloater(NULL)
+LLFloaterChatterBox::LLFloaterChatterBox(const LLSD& seed)
+	:	LLMultiFloater(),
+		mActiveVoiceFloater(NULL)
 {
 	mAutoResize = FALSE;
 
-	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_chatterbox.xml", NULL, FALSE);
+	//Called from floater reg: LLUICtrlFactory::getInstance()->buildFloater(this, "floater_chatterbox.xml", FALSE);
+}
+
+LLFloaterChatterBox::~LLFloaterChatterBox()
+{
+}
+
+BOOL LLFloaterChatterBox::postBuild()
+{
 	if (gSavedSettings.getBOOL("ContactsTornOff"))
 	{
-		LLFloaterMyFriends* floater_contacts = LLFloaterMyFriends::getInstance(0);
+		LLFloaterMyFriends* floater_contacts = LLFloaterMyFriends::getInstance();
 		// add then remove to set up relationship for re-attach
 		addFloater(floater_contacts, FALSE);
 		removeFloater(floater_contacts);
@@ -106,7 +131,7 @@ LLFloaterChatterBox::LLFloaterChatterBox(const LLSD& seed) :
 	}
 	else
 	{
-		addFloater(LLFloaterMyFriends::getInstance(0), TRUE);
+		addFloater(LLFloaterMyFriends::getInstance(), TRUE);
 	}
 
 	if (gSavedSettings.getBOOL("ChatHistoryTornOff"))
@@ -120,13 +145,10 @@ LLFloaterChatterBox::LLFloaterChatterBox(const LLSD& seed) :
 	}
 	else
 	{
-		addFloater(LLFloaterChat::getInstance(LLSD()), FALSE);
+		addFloater(LLFloaterChat::getInstance(), FALSE);
 	}
 	mTabContainer->lockTabs();
-}
-
-LLFloaterChatterBox::~LLFloaterChatterBox()
-{
+	return TRUE;
 }
 
 BOOL LLFloaterChatterBox::handleKeyHere(KEY key, MASK mask)
@@ -139,13 +161,13 @@ BOOL LLFloaterChatterBox::handleKeyHere(KEY key, MASK mask)
 		{
 			if (floater->isCloseable())
 			{
-				floater->close();
+				floater->closeFloater();
 			}
 			else
 			{
 				// close chatterbox window if frontmost tab is reserved, non-closeable tab
 				// such as contacts or near me
-				close();
+				closeFloater();
 			}
 		}
 		return TRUE;
@@ -200,15 +222,27 @@ void LLFloaterChatterBox::draw()
 	LLMultiFloater::draw();
 }
 
-void LLFloaterChatterBox::onOpen()
+void LLFloaterChatterBox::onOpen(const LLSD& key)
 {
-	gSavedSettings.setBOOL("ShowCommunicate", TRUE);
+	//*TODO:Skinning show the session id associated with key
+	if (key.asString() == "local")
+	{
+		LLFloaterChat* chat = LLFloaterReg::findTypedInstance<LLFloaterChat>("chat");
+		chat->openFloater();
+	}
+	else if (key.isDefined())
+	{
+		LLFloaterIMPanel* impanel = gIMMgr->findFloaterBySession(key.asUUID());
+		if (impanel)
+		{
+			impanel->openFloater();
+		}
+	}
 }
 
 void LLFloaterChatterBox::onClose(bool app_quitting)
 {
 	setVisible(FALSE);
-	gSavedSettings.setBOOL("ShowCommunicate", FALSE);
 }
 
 void LLFloaterChatterBox::setMinimized(BOOL minimized)
@@ -244,7 +278,11 @@ void LLFloaterChatterBox::addFloater(LLFloater* floaterp,
 	S32 num_locked_tabs = mTabContainer->getNumLockedTabs();
 
 	// already here
-	if (floaterp->getHost() == this) return;
+	if (floaterp->getHost() == this)
+	{
+		openFloater(floaterp->getKey());
+		return;
+	}
 
 	// make sure my friends and chat history both locked when re-attaching chat history
 	if (floaterp->getName() == "chat floater")
@@ -281,6 +319,7 @@ void LLFloaterChatterBox::addFloater(LLFloater* floaterp,
 	else
 	{
 		LLMultiFloater::addFloater(floaterp, select_added_floater, insertion_point);
+		openFloater(floaterp->getKey());
 	}
 
 	// make sure active voice icon shows up for new tab
@@ -288,6 +327,13 @@ void LLFloaterChatterBox::addFloater(LLFloater* floaterp,
 	{
 		mTabContainer->setTabImage(floaterp, "active_voice_tab.tga");	
 	}
+}
+
+//static
+LLFloaterChatterBox* LLFloaterChatterBox::getInstance()
+{
+	LLFloater* inst = LLFloaterReg::getInstance("communicate", LLSD()) ;
+	return dynamic_cast<LLFloaterChatterBox*>(inst);
 }
 
 //static 
@@ -300,11 +346,11 @@ LLFloater* LLFloaterChatterBox::getCurrentVoiceFloater()
 	if (LLVoiceChannelProximal::getInstance() == LLVoiceChannel::getCurrentVoiceChannel())
 	{
 		// show near me tab if in proximal channel
-		return LLFloaterChat::getInstance(LLSD());
+		return LLFloaterChat::getInstance();
 	}
 	else
 	{
-		LLFloaterChatterBox* floater = LLFloaterChatterBox::getInstance(LLSD());
+		LLFloaterChatterBox* floater = LLFloaterChatterBox::getInstance();
 		// iterator over all IM tabs (skip friends and near me)
 		for (S32 i = 0; i < floater->getFloaterCount(); i++)
 		{

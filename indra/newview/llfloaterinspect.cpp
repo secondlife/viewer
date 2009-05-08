@@ -31,11 +31,15 @@
  */
 
 #include "llviewerprecompiledheaders.h"
-#include "llfloateravatarinfo.h"
+
 #include "llfloaterinspect.h"
+
+#include "llfloaterreg.h"
+#include "llfloateravatarinfo.h"
 #include "llfloatertools.h"
 #include "llcachename.h"
 #include "llscrolllistctrl.h"
+#include "llscrolllistitem.h"
 #include "llselectmgr.h"
 #include "lltoolcomp.h"
 #include "lltoolmgr.h"
@@ -45,17 +49,16 @@
 
 LLFloaterInspect* LLFloaterInspect::sInstance = NULL;
 
-LLFloaterInspect::LLFloaterInspect(void) :
-	LLFloater(std::string("Inspect Object")),
+LLFloaterInspect::LLFloaterInspect(void)
+  : LLFloater(),
 	mDirty(FALSE)
 {
-	sInstance = this;
 	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_inspect.xml");
 }
 
 LLFloaterInspect::~LLFloaterInspect(void)
 {
-	if(!gFloaterTools->getVisible())
+	if(!LLFloaterReg::instanceVisible("build"))
 	{
 		if(LLToolMgr::getInstance()->getBaseTool() == LLToolCompInspect::getInstance())
 		{
@@ -66,7 +69,7 @@ LLFloaterInspect::~LLFloaterInspect(void)
 	}
 	else
 	{
-		gFloaterTools->setFocus(TRUE);
+		LLFloaterReg::showInstance("build", LLSD(), TRUE);
 	}
 	sInstance = NULL;
 }
@@ -88,7 +91,7 @@ void LLFloaterInspect::show(void* ignored)
 		sInstance = new LLFloaterInspect;
 	}
 
-	sInstance->open();
+	sInstance->openFloater();
 	LLToolMgr::getInstance()->setTransientTool(LLToolCompInspect::getInstance());
 	LLSelectMgr::getInstance()->setForceSelection(forcesel);	// restore previouis value
 
@@ -156,7 +159,7 @@ BOOL LLFloaterInspect::postBuild()
 	mObjectList = getChild<LLScrollListCtrl>("object_list");
 	childSetAction("button owner",onClickOwnerProfile, this);
 	childSetAction("button creator",onClickCreatorProfile, this);
-	childSetCommitCallback("object_list", onSelectObject);
+	childSetCommitCallback("object_list", onSelectObject, NULL);
 	return TRUE;
 }
 
@@ -212,7 +215,6 @@ void LLFloaterInspect::refresh()
 	{
 		LLSelectNode* obj = *iter;
 		LLSD row;
-		char time[MAX_STRING];
 		std::string owner_name, creator_name;
 
 		if (obj->mCreationDate == 0)
@@ -221,8 +223,11 @@ void LLFloaterInspect::refresh()
 		}
 
 		time_t timestamp = (time_t) (obj->mCreationDate/1000000);
-		LLStringUtil::copy(time, ctime(&timestamp), MAX_STRING);
-		time[24] = '\0';
+		std::string timeStr = getString("timeStamp");
+		LLSD substitution;
+		substitution["datetime"] = (S32) timestamp;
+		LLStringUtil::format (timeStr, substitution);
+
 		gCacheName->getFullName(obj->mPermissions->getOwner(), owner_name);
 		gCacheName->getFullName(obj->mPermissions->getCreator(), creator_name);
 		row["id"] = obj->getObject()->getID();
@@ -246,7 +251,7 @@ void LLFloaterInspect::refresh()
 		row["columns"][2]["value"] = creator_name;
 		row["columns"][3]["column"] = "creation_date";
 		row["columns"][3]["type"] = "text";
-		row["columns"][3]["value"] = time;
+		row["columns"][3]["value"] = timeStr;
 		mObjectList->addElement(row, ADD_TOP);
 	}
 	if(selected_index > -1 && mObjectList->getItemIndex(selected_uuid) == selected_index)

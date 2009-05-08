@@ -39,18 +39,17 @@
 class LLPreviewAnim : public LLPreview
 {
 public:
-	LLPreviewAnim(const std::string& name, const LLRect& rect, const std::string& title,
-					const LLUUID& item_uuid,
-					const S32&    activate,
-					const LLUUID& object_uuid = LLUUID::null);
+	enum e_activation_type { NONE = 0, PLAY = 1, AUDITION = 2 };
+	LLPreviewAnim(const LLSD& key);
 
 	static void playAnim( void* userdata );
 	static void auditionAnim( void* userdata );
 	static void endAnimCallback( void *userdata );
-
+	/*virtual*/	BOOL postBuild();
+	void activate(e_activation_type type);
+	
 protected:
 	virtual void onClose(bool app_quitting);
-	virtual const char *getTitleName() const { return "Animation"; }
 	
 	LLAnimPauseRequest	mPauseRequest;
 	LLUUID		mItemID;

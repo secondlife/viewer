@@ -35,6 +35,7 @@
 #include "message.h"
 #include "lltooldraganddrop.h"
 
+#include "llfloaterreg.h"
 #include "llinstantmessage.h"
 #include "lldir.h"
 
@@ -1461,10 +1462,10 @@ void LLToolDragAndDrop::dropInventory(LLViewerObject* hit_obj,
 		}
 	}
 	hit_obj->updateInventory(new_item, TASK_INVENTORY_ITEM_KEY, true);
-	if (gFloaterTools->getVisible())
+	if (LLFloaterReg::instanceVisible("build"))
 	{
 		// *FIX: only show this if panel not expanded?
-		gFloaterTools->showPanel(LLFloaterTools::PANEL_CONTENTS);
+		LLFloaterReg::showInstance("build", "Content");
 	}
 
 	// VEFFECT: AddToInventory
@@ -2897,11 +2898,10 @@ LLInventoryObject* LLToolDragAndDrop::locateInventory(
 	}
 	else if(mSource == SOURCE_NOTECARD)
 	{
-		LLPreviewNotecard* card;
-		card = (LLPreviewNotecard*)LLPreview::find(mSourceID);
-		if(card)
+		LLPreviewNotecard* preview = LLFloaterReg::findTypedInstance<LLPreviewNotecard>("preview_notecard", mSourceID);
+		if(preview)
 		{
-			item = (LLViewerInventoryItem*)card->getDragItem();
+			item = (LLViewerInventoryItem*)preview->getDragItem();
 		}
 	}
 	if(item) return item;

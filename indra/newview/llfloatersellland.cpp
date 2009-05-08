@@ -88,7 +88,6 @@ private:
 
 public:
 	virtual BOOL postBuild();
-	virtual void onClose(bool app_quitting);
 	
 	static LLFloaterSellLandUI* soleInstance(bool createIfNeeded);
 
@@ -109,7 +108,7 @@ void LLFloaterSellLand::sellLand(
 	LLFloaterSellLandUI* ui = LLFloaterSellLandUI::soleInstance(true);
 	if (ui->setParcel(region, parcel))
 	{
-		ui->open();		/* Flawfinder: ignore */
+		ui->openFloater();
 	}
 }
 
@@ -139,7 +138,7 @@ LLFloaterSellLandUI* LLFloaterSellLandUI::soleInstance(bool createIfNeeded)
 }
 
 LLFloaterSellLandUI::LLFloaterSellLandUI()
-:	LLFloater(std::string("Sell Land")),
+:	LLFloater(),
 	mRegion(0)
 {
 }
@@ -159,7 +158,7 @@ void LLFloaterSellLandUI::SelectionObserver::changed()
 	{
 		if (LLViewerParcelMgr::getInstance()->selectionEmpty())
 		{
-			ui->close();
+			ui->closeFloater();
 		}
 		else {
 			ui->setParcel(
@@ -167,12 +166,6 @@ void LLFloaterSellLandUI::SelectionObserver::changed()
 				LLViewerParcelMgr::getInstance()->getParcelSelection());
 		}
 	}
-}
-
-void LLFloaterSellLandUI::onClose(bool app_quitting)
-{
-	LLFloater::onClose(app_quitting);
-	destroy();
 }
 
 BOOL LLFloaterSellLandUI::postBuild()
@@ -432,7 +425,7 @@ void LLFloaterSellLandUI::callbackAvatarPick(const std::vector<std::string>& nam
 void LLFloaterSellLandUI::doCancel(void *userdata)
 {
 	LLFloaterSellLandUI* self = (LLFloaterSellLandUI*)userdata;
-	self->close();
+	self->closeFloater();
 }
 
 // static
@@ -490,7 +483,7 @@ void LLFloaterSellLandUI::doSellLand(void *userdata)
 
 	LLNotification::Params params("ConfirmLandSaleChange");
 	params.substitutions(args)
-		.functor(boost::bind(&LLFloaterSellLandUI::onConfirmSale, self, _1, _2));
+		.functor.function(boost::bind(&LLFloaterSellLandUI::onConfirmSale, self, _1, _2));
 
 	if (sell_to_anyone)
 	{
@@ -556,6 +549,6 @@ bool LLFloaterSellLandUI::onConfirmSale(const LLSD& notification, const LLSD& re
 	// Send update to server
 	LLViewerParcelMgr::getInstance()->sendParcelPropertiesUpdate( parcel );
 
-	close();
+	closeFloater();
 	return false;
 }

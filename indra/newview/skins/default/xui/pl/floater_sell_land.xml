@@ -34,15 +34,15 @@
 		Wybierz sprzedaż dla kogokolwiek albo dla wybranego kupca.
 	</text>
 	<combo_box name="sell_to">
-		<combo_item name="--selectone--">
+		<combo_box.item name="--selectone--">
 			-- wybierz --
-		</combo_item>
-		<combo_item name="Anyone">
+		</combo_box.item>
+		<combo_box.item name="Anyone">
 			Ktokolwiek
-		</combo_item>
-		<combo_item name="Specificuser:">
+		</combo_box.item>
+		<combo_box.item name="Specificuser:">
 			Wybrany kupiec:
-		</combo_item>
+		</combo_box.item>
 	</combo_box>
 	<button label="Wybierz..." name="sell_to_select_agent" />
 	<text name="sell_objects_label">

@@ -36,7 +36,7 @@
 #include <map>
 
 #include "llvolume.h"
-#include "llmemory.h"
+#include "llpointer.h"
 #include "llthread.h"
 
 class LLVolumeParams;

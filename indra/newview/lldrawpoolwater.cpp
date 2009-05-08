@@ -45,7 +45,6 @@
 #include "lldrawable.h"
 #include "llface.h"
 #include "llsky.h"
-#include "llviewercamera.h" // to get OGL_TO_CFR_ROTATION
 #include "llviewerimagelist.h"
 #include "llviewerregion.h"
 #include "llvosky.h"

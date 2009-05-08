@@ -44,7 +44,7 @@
 class LLPanelGroupLandMoney : public LLPanelGroupTab
 {
 public:
-	LLPanelGroupLandMoney(const std::string& name, const LLUUID& group_id);
+	LLPanelGroupLandMoney(const LLUUID& group_id);
 	virtual ~LLPanelGroupLandMoney();
 	virtual BOOL postBuild();
 	virtual BOOL isVisibleByAgent(LLAgent* agentp);

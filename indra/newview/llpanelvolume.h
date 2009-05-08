@@ -35,7 +35,7 @@
 
 #include "v3math.h"
 #include "llpanel.h"
-#include "llmemory.h"
+#include "llpointer.h"
 #include "llvolume.h"
 
 class LLSpinCtrl;
@@ -51,7 +51,7 @@ class LLColorSwatchCtrl;
 class LLPanelVolume : public LLPanel
 {
 public:
-	LLPanelVolume(const std::string& name);
+	LLPanelVolume();
 	virtual ~LLPanelVolume();
 
 	virtual void	draw();
@@ -64,15 +64,15 @@ public:
 	void			sendIsLight();
 	void			sendIsFlexible();
 
-	static BOOL		precommitValidate(LLUICtrl* ctrl,void* userdata);
+	static bool		precommitValidate(const LLSD& data);
 	
 	static void 	onCommitIsLight(		LLUICtrl* ctrl, void* userdata);
 	static void 	onCommitLight(			LLUICtrl* ctrl, void* userdata);
 	static void 	onCommitIsFlexible(		LLUICtrl* ctrl, void* userdata);
 	static void 	onCommitFlexible(		LLUICtrl* ctrl, void* userdata);
 
-	static void		onLightCancelColor(LLUICtrl* ctrl, void* userdata);
-	static void		onLightSelectColor(LLUICtrl* ctrl, void* userdata);
+	void		onLightCancelColor(const LLSD& data);
+	void		onLightSelectColor(const LLSD& data);
 
 protected:
 	void			getState();

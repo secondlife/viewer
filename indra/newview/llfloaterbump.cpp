@@ -37,25 +37,19 @@
 
 #include "llscrolllistctrl.h"
 
+#include "llsd.h"
 #include "lluictrlfactory.h"
 #include "llviewermessage.h"
 #include "llappviewer.h"		// gPacificDaylightTime
-
-///----------------------------------------------------------------------------
-/// Local function declarations, constants, enums, and typedefs
-///----------------------------------------------------------------------------
-LLFloaterBump* LLFloaterBump::sInstance = NULL;
 
 ///----------------------------------------------------------------------------
 /// Class LLFloaterBump
 ///----------------------------------------------------------------------------
 
 // Default constructor
-LLFloaterBump::LLFloaterBump() 
+LLFloaterBump::LLFloaterBump(const LLSD& key) 
 :	LLFloater()
 {
-	sInstance = this;
-
 	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_bumps.xml");
 }
 
@@ -63,29 +57,19 @@ LLFloaterBump::LLFloaterBump()
 // Destroys the object
 LLFloaterBump::~LLFloaterBump()
 {
-	sInstance = NULL;
 }
 
-// static
-void LLFloaterBump::show(void *contents)
+// virtual
+void LLFloaterBump::onOpen(const LLSD& key)
 {
-	if (gNoRender)
-	{
+	LLScrollListCtrl* list = getChild<LLScrollListCtrl>("bump_list");
+	if (!list)
 		return;
-	}
-
-	if (!sInstance)
-	{
-		sInstance = new LLFloaterBump();
-	}
-	
-	LLScrollListCtrl* list = sInstance->getChild<LLScrollListCtrl>("bump_list");
-	if (!list) return;
 	list->deleteAllItems();
 
 	if (gMeanCollisionList.empty())
 	{
-		std::string none_detected = sInstance->getString("none_detected");
+		std::string none_detected = getString("none_detected");
 		LLSD row;
 		row["columns"][0]["value"] = none_detected;
 		row["columns"][0]["font"] = "SansSerifBold";
@@ -97,33 +81,23 @@ void LLFloaterBump::show(void *contents)
 			 iter != gMeanCollisionList.end(); ++iter)
 		{
 			LLMeanCollisionData *mcd = *iter;
-			LLFloaterBump::add(list, mcd);
+			add(list, mcd);
 		}
 	}
-	
-	sInstance->open();	/*Flawfinder: ignore*/
 }
 
 void LLFloaterBump::add(LLScrollListCtrl* list, LLMeanCollisionData* mcd)
 {
-	if (!sInstance)
-	{
-		new LLFloaterBump();
-	}
-	
 	if (mcd->mFirstName.empty() || list->getItemCount() >= 20)
 	{
 		return;
 	}
 
-	// There's only one internal tm buffer.
-	struct tm* timep;
-	
-	// Convert to Pacific, based on server's opinion of whether
-	// it's daylight savings time there.
-	timep = utc_to_pacific_time(mcd->mTime, gPacificDaylightTime);
-	
-	std::string time = llformat("[%d:%02d]", timep->tm_hour, timep->tm_min);
+	std::string timeStr = getString ("timeStr");
+	LLSD substitution;
+
+	substitution["datetime"] = (S32) mcd->mTime;
+	LLStringUtil::format (timeStr, substitution);
 
 	std::string action;
 	switch(mcd->mType)
@@ -150,8 +124,8 @@ void LLFloaterBump::add(LLScrollListCtrl* list, LLMeanCollisionData* mcd)
 	}
 
 	// All above action strings are in XML file
-	LLUIString text = sInstance->getString(action);
-	text.setArg("[TIME]", time);
+	LLUIString text = getString(action);
+	text.setArg("[TIME]", timeStr);
 	text.setArg("[FIRST]", mcd->mFirstName);
 	text.setArg("[LAST]", mcd->mLastName);
 

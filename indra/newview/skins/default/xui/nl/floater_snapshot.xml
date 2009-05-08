@@ -21,12 +21,8 @@
 	<button label="Verzenden" name="send_btn"/>
 	<button label="Opslaan (L$[AMOUNT])" name="upload_btn"/>
 	<flyout_button label="Opslaan" name="save_btn" tool_tip="Afbeelding in een bestand opslaan">
-		<flyout_button_item name="save_item">
-			Opslaan
-		</flyout_button_item>
-		<flyout_button_item name="saveas_item">
-			Opslaan als...
-		</flyout_button_item>
+		<flyout_button_item name="save_item" label="Opslaan"/>
+		<flyout_button_item name="saveas_item" label="Opslaan als..."/>
 	</flyout_button>
 	<button label="Annuleren" name="discard_btn"/>
 	<button label="Meer &gt;&gt;" name="more_btn" tool_tip="Geavanceerde opties"/>

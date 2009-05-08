@@ -63,6 +63,7 @@ static const char* INVENTORY_TYPE_NAMES[LLInventoryType::IT_COUNT] =
 	"wearable",
 	"animation",
 	"gesture",		// 20
+	"favorite"		//21
 };
 
 // This table is meant for decoding to human readable form. Put any
@@ -91,6 +92,7 @@ static const char* INVENTORY_TYPE_HUMAN_NAMES[LLInventoryType::IT_COUNT] =
 	"wearable",
 	"animation",
 	"gesture",		// 20
+	"favorite"		// 21
 };
 
 // Maps asset types to the default inventory type for that kind of asset.
@@ -120,6 +122,7 @@ DEFAULT_ASSET_FOR_INV_TYPE[LLAssetType::AT_COUNT] =
 	LLInventoryType::IT_NONE,			// AT_IMAGE_JPEG
 	LLInventoryType::IT_ANIMATION,		// AT_ANIMATION
 	LLInventoryType::IT_GESTURE,		// AT_GESTURE
+	LLInventoryType::IT_FAVORITE,		// AT_FAVORITE
 };
 
 static const int MAX_POSSIBLE_ASSET_TYPES = 2;
@@ -147,6 +150,7 @@ INVENTORY_TO_ASSET_TYPE[LLInventoryType::IT_COUNT][MAX_POSSIBLE_ASSET_TYPES] =
 	{ LLAssetType::AT_CLOTHING, LLAssetType::AT_BODYPART },	// IT_WEARABLE
 	{ LLAssetType::AT_ANIMATION, LLAssetType::AT_NONE },	// IT_ANIMATION
 	{ LLAssetType::AT_GESTURE, LLAssetType::AT_NONE },		// IT_GESTURE
+	{ LLAssetType::AT_FAVORITE, LLAssetType::AT_NONE },		// IT_FAVORITE
 };
 
 // static

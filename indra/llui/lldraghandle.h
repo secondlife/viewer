@@ -45,8 +45,24 @@ class LLTextBox;
 class LLDragHandle : public LLView
 {
 public:
-	LLDragHandle(const std::string& name, const LLRect& rect, const std::string& title );
-	virtual ~LLDragHandle() { setTitleBox(NULL); }
+	struct Params 
+	:	public LLInitParam::Block<Params, LLView::Params>
+	{
+		Optional<std::string> label;
+		Optional<LLUIColor> drag_highlight_color;
+		Optional<LLUIColor> drag_shadow_color;
+		
+		Params() 
+		:	drag_highlight_color("", LLUI::getCachedColorFunctor("DefaultHighlightLight")),
+			drag_shadow_color("", LLUI::getCachedColorFunctor("DefaultShadowDark"))
+		{
+			mouse_opaque(true);
+			follows.flags(FOLLOWS_ALL);
+		}
+	};
+	void initFromParams(const Params&);
+	
+	virtual ~LLDragHandle();
 
 	virtual void setValue(const LLSD& value);
 
@@ -64,18 +80,20 @@ public:
 	virtual BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
 
 protected:
-	LLTextBox*		getTitleBox() const { return mTitleBox; }
-	void			setTitleBox(LLTextBox*);
-
+	LLDragHandle(const Params&);
+	friend class LLUICtrlFactory;
+	
+protected:
+	LLTextBox*		mTitleBox;
+	
 private:
 	S32				mDragLastScreenX;
 	S32				mDragLastScreenY;
 	S32				mLastMouseScreenX;
 	S32				mLastMouseScreenY;
 	LLCoordGL		mLastMouseDir;
-	LLColor4		mDragHighlightColor;
-	LLColor4		mDragShadowColor;
-	LLTextBox*		mTitleBox;
+	LLUIColor		mDragHighlightColor;
+	LLUIColor		mDragShadowColor;
 	S32				mMaxTitleWidth;
 	BOOL			mForeground;
 
@@ -88,9 +106,10 @@ private:
 class LLDragHandleTop
 : public LLDragHandle
 {
+protected:
+	LLDragHandleTop(const Params& p) : LLDragHandle(p) {}
+	friend class LLUICtrlFactory;
 public:
-	LLDragHandleTop(const std::string& name, const LLRect& rect, const std::string& title );
-
 	virtual void	setTitle( const std::string& title );
 	virtual const std::string& getTitle() const;
 	virtual void	draw();
@@ -105,9 +124,10 @@ private:
 class LLDragHandleLeft
 : public LLDragHandle
 {
+protected:
+	LLDragHandleLeft(const Params& p) : LLDragHandle(p) {}
+	friend class LLUICtrlFactory;
 public:
-	LLDragHandleLeft(const std::string& name, const LLRect& rect, const std::string& title );
-
 	virtual void	setTitle( const std::string& title );
 	virtual const std::string& getTitle() const;
 	virtual void	draw();

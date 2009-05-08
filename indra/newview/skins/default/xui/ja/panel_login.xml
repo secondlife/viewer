@@ -15,15 +15,15 @@
 		ログイン位置：
 	</text>
 	<combo_box name="start_location_combo" left_delta="92" width="172">
-		<combo_item name="MyHome">
+		<combo_box.item name="MyHome">
 			自宅（ホーム）
-		</combo_item>
-		<combo_item name="MyLastLocation">
+		</combo_box.item>
+		<combo_box.item name="MyLastLocation">
 			最後にログアウトした場所
-		</combo_item>
-		<combo_item name="Typeregionname">
+		</combo_box.item>
+		<combo_box.item name="Typeregionname">
 			&lt; 地域の名前入力 &gt;
-		</combo_item>
+		</combo_box.item>
 	</combo_box>
 	<check_box label="パスワードを記憶" name="remember_check" left_delta="180"/>
 	<text name="full_screen_text">

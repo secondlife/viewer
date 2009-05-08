@@ -62,10 +62,9 @@ private:
 	static void onRangeAdjust(LLUICtrl* source, void* data);
 	static void onBtnClose(void* userdata);
 	static void onList(class LLUICtrl* ctrl, void* userdata);
-	static void onTabChanged(void* userdata, bool from_click);
+		   void onTabChanged();
 	
-		   void doCallingCardSelectionChange(const std::deque<class LLFolderViewItem*> &items, BOOL user_action, void* data);
-	static void onCallingCardSelectionChange(const std::deque<class LLFolderViewItem*> &items, BOOL user_action, void* data);
+		   void doCallingCardSelectionChange(const std::deque<class LLFolderViewItem*> &items, BOOL user_action);
 
 	void populateNearMe();
 	BOOL visibleItemsSelected() const; // Returns true if any items in the current tab are selected.

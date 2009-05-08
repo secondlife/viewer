@@ -46,10 +46,10 @@
 #include "lldrawpoolalpha.h"
 #include "llfeaturemanager.h"
 #include "llfirstuse.h"
-#include "llframestats.h"
 #include "llhudmanager.h"
 #include "llimagebmp.h"
 #include "llimagegl.h"
+#include "llmemory.h"
 #include "llselectmgr.h"
 #include "llsky.h"
 #include "llstartup.h"
@@ -58,6 +58,7 @@
 #include "lltooldraganddrop.h"
 #include "lltoolpie.h"
 #include "lltracker.h"
+#include "lltrans.h"
 #include "llui.h"
 #include "llviewercamera.h"
 #include "llviewerobjectlist.h"
@@ -199,7 +200,7 @@ void display_stats()
 	F32 mem_log_freq = gSavedSettings.getF32("MemoryLogFrequency");
 	if (mem_log_freq > 0.f && gRecentMemoryTime.getElapsedTimeF32() >= mem_log_freq)
 	{
-		gMemoryAllocated = getCurrentRSS();
+		gMemoryAllocated = LLMemory::getCurrentRSS();
 		U32 memory = (U32)(gMemoryAllocated / (1024*1024));
 		llinfos << llformat("MEMORY: %d MB", memory) << llendl;
 		gRecentMemoryTime.reset();
@@ -238,7 +239,6 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		// Clean up memory the pools may have allocated
 		if (rebuild)
 		{
-			gFrameStats.start(LLFrameStats::REBUILD);
 			gPipeline.rebuildPools();
 		}
 
@@ -299,7 +299,6 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 	//
 
 	LLAppViewer::instance()->pingMainloopTimeout("Display:TextureStats");
-	gFrameStats.start(LLFrameStats::UPDATE_TEX_STATS);
 	stop_glerror();
 
 	LLImageGL::updateStats(gFrameTimeSeconds);
@@ -369,7 +368,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		case LLAgent::TELEPORT_START_ARRIVAL:
 			// Transition to ARRIVING.  Viewer has received avatar update, etc., from destination simulator
 			gTeleportArrivalTimer.reset();
-			gViewerWindow->setProgressCancelButtonVisible(FALSE, std::string("Cancel")); //TODO: Translate
+				gViewerWindow->setProgressCancelButtonVisible(FALSE, LLTrans::getString("Cancel"));
 			gViewerWindow->setProgressPercent(75.f);
 			gAgent.setTeleportState( LLAgent::TELEPORT_ARRIVING );
 			gAgent.setTeleportMessage(
@@ -388,7 +387,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 					LLFirstUse::useTeleport();
 					gAgent.setTeleportState( LLAgent::TELEPORT_NONE );
 				}
-				gViewerWindow->setProgressCancelButtonVisible(FALSE, std::string("Cancel")); //TODO: Translate
+				gViewerWindow->setProgressCancelButtonVisible(FALSE, LLTrans::getString("Cancel"));
 				gViewerWindow->setProgressPercent(  arrival_fraction * 25.f + 75.f);
 				gViewerWindow->setProgressString(message);
 			}
@@ -527,13 +526,11 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		LLHUDObject::updateAll();
 		stop_glerror();
 		
-		gFrameStats.start(LLFrameStats::UPDATE_GEOM);
 		const F32 max_geom_update_time = 0.005f*10.f*gFrameIntervalSeconds; // 50 ms/second update time
 		gPipeline.createObjects(max_geom_update_time);
 		gPipeline.updateGeom(max_geom_update_time);
 		stop_glerror();
 		
-		gFrameStats.start(LLFrameStats::UPDATE_CULL);
 		S32 water_clip = 0;
 		if ((LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_ENVIRONMENT) > 1) &&
 			 gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_WATER))
@@ -664,7 +661,6 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		LLAppViewer::instance()->pingMainloopTimeout("Display:UpdateImages");
 		LLError::LLCallStacks::clear() ;
 		llpushcallstacks ;
-		gFrameStats.start(LLFrameStats::IMAGE_UPDATE);
 
 		{
 			LLFastTimer t(LLFastTimer::FTM_IMAGE_UPDATE);
@@ -689,7 +685,6 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		//
 		LLAppViewer::instance()->pingMainloopTimeout("Display:StateSort");
 		{
-			gFrameStats.start(LLFrameStats::STATE_SORT);
 			gPipeline.stateSort(*LLViewerCamera::getInstance(), result);
 			stop_glerror();
 				
@@ -700,7 +695,6 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 				// rebuildPools
 				//
 				//
-				gFrameStats.start(LLFrameStats::REBUILD);
 				gPipeline.rebuildPools();
 				stop_glerror();
 			}
@@ -736,7 +730,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		//		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_TRUE);
 		//		glLoadIdentity();
 
-		//		LLRect floater_rect = frontmost_floaterp->getScreenRect();
+		//		LLRect floater_rect = frontmost_floaterp->calcScreenRect();
 		//		// deflate by one pixel so rounding errors don't occlude outside of floater extents
 		//		floater_rect.stretch(-1);
 		//		LLRectf floater_3d_rect((F32)floater_rect.mLeft / (F32)gViewerWindow->getWindowWidth(), 
@@ -839,16 +833,15 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		LLAppViewer::instance()->pingMainloopTimeout("Display:RenderUI");
 		if (!for_snapshot)
 		{
-			gFrameStats.start(LLFrameStats::RENDER_UI);
+			LLFastTimer t(LLFastTimer::FTM_RENDER_UI);
 			render_ui();
 		}
 
 		LLSpatialGroup::sNoDelete = FALSE;
 	}
-	
+
 	LLAppViewer::instance()->pingMainloopTimeout("Display:FrameStats");
 	
-	gFrameStats.start(LLFrameStats::MISC_END);
 	stop_glerror();
 
 	if (LLPipeline::sRenderFrameTest)

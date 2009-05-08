@@ -34,7 +34,7 @@
 #define LL_LLPANELLOGIN_H
 
 #include "llpanel.h"
-#include "llmemory.h"			// LLPointer<>
+#include "llpointer.h"			// LLPointer<>
 #include "llwebbrowserctrl.h"	// LLWebBrowserCtrlObserver
 
 class LLUIImage;
@@ -72,7 +72,7 @@ public:
 	static BOOL isGridComboDirty();
 	static void getLocation(std::string &location);
 
-	static void close();
+	static void closePanel();
 
 	void setSiteIsAlive( bool alive );
 
@@ -84,7 +84,7 @@ public:
 private:
 	static void onClickConnect(void*);
 	static void onClickNewAccount(void*);
-	static bool newAccountAlertCallback(const LLSD& notification, const LLSD& response);
+//	static bool newAccountAlertCallback(const LLSD& notification, const LLSD& response);
 	static void onClickQuit(void*);
 	static void onClickVersion(void*);
 	virtual void onNavigateComplete( const EventType& eventIn );

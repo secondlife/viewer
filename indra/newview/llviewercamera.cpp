@@ -31,18 +31,12 @@
  */
 
 #include "llviewerprecompiledheaders.h"
+
 #include "llviewercamera.h"
 
-#include <iomanip> // for setprecision
-
-#include "llquaternion.h"
-
+// Viewer includes
 #include "llagent.h"
 #include "llviewercontrol.h"
-#include "lldrawable.h"
-#include "llface.h"
-#include "llgl.h"
-#include "llglheaders.h"
 #include "llviewerobjectlist.h"
 #include "llviewerregion.h"
 #include "llviewerwindow.h"
@@ -50,6 +44,17 @@
 #include "llworld.h"
 #include "lltoolmgr.h"
 #include "llviewerjoystick.h"
+
+// Linden library includes
+#include "lldrawable.h"
+#include "llface.h"
+#include "llgl.h"
+#include "llglheaders.h"
+#include "llquaternion.h"
+#include "llwindow.h"			// getPixelAspectRatio()
+
+// System includes
+#include <iomanip> // for setprecision
 
 //glu pick matrix implementation borrowed from Mesa3D
 glh::matrix4f gl_pick_matrix(GLfloat x, GLfloat y, GLfloat width, GLfloat height, GLint* viewport)
