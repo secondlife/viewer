@@ -19,7 +19,6 @@
 #include <map>
 #include <set>
 #include <vector>
-#include <list>
 #include <deque>
 #include <stdexcept>
 #include <boost/signals2.hpp>
@@ -28,13 +27,9 @@
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/utility.hpp>        // noncopyable
 #include <boost/optional/optional.hpp>
-#include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/visit_each.hpp>
 #include <boost/ref.hpp>            // reference_wrapper
 #include <boost/type_traits/is_pointer.hpp>
-#include <boost/utility/addressof.hpp>
-#include <boost/preprocessor/repetition/enum_params.hpp>
-#include <boost/preprocessor/iteration/local.hpp>
 #include <boost/function.hpp>
 #include <boost/static_assert.hpp>
 #include "llsd.h"
@@ -111,6 +106,9 @@ typedef LLStandardSignal::slot_type LLEventListener;
 /// Result of registering a listener, supports <tt>connected()</tt>,
 /// <tt>disconnect()</tt> and <tt>blocked()</tt>
 typedef boost::signals2::connection LLBoundListener;
+/// Storing an LLBoundListener in LLTempBoundListener will disconnect the
+/// referenced listener when the LLTempBoundListener instance is destroyed.
+typedef boost::signals2::scoped_connection LLTempBoundListener;
 
 /**
  * A common idiom for event-based code is to accept either a callable --
@@ -255,13 +253,61 @@ namespace LLEventDetail
 } // namespace LLEventDetail
 
 /*****************************************************************************
+*   LLEventTrackable
+*****************************************************************************/
+/**
+ * LLEventTrackable wraps boost::signals2::trackable, which resembles
+ * boost::trackable. Derive your listener class from LLEventTrackable instead,
+ * and use something like
+ * <tt>LLEventPump::listen(boost::bind(&YourTrackableSubclass::method,
+ * instance, _1))</tt>. This will implicitly disconnect when the object
+ * referenced by @c instance is destroyed.
+ *
+ * @note
+ * LLEventTrackable doesn't address a couple of cases:
+ * * Object destroyed during call
+ *   - You enter a slot call in thread A.
+ *   - Thread B destroys the object, which of course disconnects it from any
+ *     future slot calls.
+ *   - Thread A's call uses 'this', which now refers to a defunct object.
+ *     Undefined behavior results.
+ * * Call during destruction
+ *   - @c MySubclass is derived from LLEventTrackable.
+ *   - @c MySubclass registers one of its own methods using
+ *     <tt>LLEventPump::listen()</tt>.
+ *   - The @c MySubclass object begins destruction. <tt>~MySubclass()</tt>
+ *     runs, destroying state specific to the subclass. (For instance, a
+ *     <tt>Foo*</tt> data member is <tt>delete</tt>d but not zeroed.)
+ *   - The listening method will not be disconnected until
+ *     <tt>~LLEventTrackable()</tt> runs.
+ *   - Before we get there, another thread posts data to the @c LLEventPump
+ *     instance, calling the @c MySubclass method.
+ *   - The method in question relies on valid @c MySubclass state. (For
+ *     instance, it attempts to dereference the <tt>Foo*</tt> pointer that was
+ *     <tt>delete</tt>d but not zeroed.)
+ *   - Undefined behavior results.
+ * If you suspect you may encounter any such scenario, you're better off
+ * managing the lifespan of your object with <tt>boost::shared_ptr</tt>.
+ * Passing <tt>LLEventPump::listen()</tt> a <tt>boost::bind()</tt> expression
+ * involving a <tt>boost::weak_ptr<Foo></tt> is recognized specially, engaging
+ * thread-safe Boost.Signals2 machinery.
+ */
+typedef boost::signals2::trackable LLEventTrackable;
+
+/*****************************************************************************
 *   LLEventPump
 *****************************************************************************/
 /**
  * LLEventPump is the base class interface through which we access the
  * concrete subclasses LLEventStream and LLEventQueue.
+ *
+ * @NOTE
+ * LLEventPump derives from LLEventTrackable so that when you "chain"
+ * LLEventPump instances together, they will automatically disconnect on
+ * destruction. Please see LLEventTrackable documentation for situations in
+ * which this may be perilous across threads.
  */
-class LLEventPump: boost::noncopyable
+class LLEventPump: public LLEventTrackable
 {
 public:
     /**
@@ -364,10 +410,22 @@ public:
      * themselves. listen() can throw any ListenError; see ListenError
      * subclasses.
      *
-     * If (as is typical) you pass a <tt>boost::bind()</tt> expression,
-     * listen() will inspect the components of that expression. If a bound
-     * object matches any of several cases, the connection will automatically
-     * be disconnected when that object is destroyed.
+     * The listener name must be unique among active listeners for this
+     * LLEventPump, else you get DupListenerName. If you don't care to invent
+     * a name yourself, use inventName(). (I was tempted to recognize e.g. ""
+     * and internally generate a distinct name for that case. But that would
+     * handle badly the scenario in which you want to add, remove, re-add,
+     * etc. the same listener: each new listen() call would necessarily
+     * perform a new dependency sort. Assuming you specify the same
+     * after/before lists each time, using inventName() when you first
+     * instantiate your listener, then passing the same name on each listen()
+     * call, allows us to optimize away the second and subsequent dependency
+     * sorts.
+     *
+     * If (as is typical) you pass a <tt>boost::bind()</tt> expression as @a
+     * listener, listen() will inspect the components of that expression. If a
+     * bound object matches any of several cases, the connection will
+     * automatically be disconnected when that object is destroyed.
      *
      * * You bind a <tt>boost::weak_ptr</tt>.
      * * Binding a <tt>boost::shared_ptr</tt> that way would ensure that the
@@ -428,6 +486,9 @@ public:
     virtual void enable(bool enabled=true) { mEnabled = enabled; }
     /// query
     virtual bool enabled() const { return mEnabled; }
+
+    /// Generate a distinct name for a listener -- see listen()
+    static std::string inventName(const std::string& pfx="listener");
 
 private:
     friend class LLEventPumps;
@@ -503,47 +564,8 @@ private:
 };
 
 /*****************************************************************************
-*   LLEventTrackable and underpinnings
+*   Underpinnings
 *****************************************************************************/
-/**
- * LLEventTrackable wraps boost::signals2::trackable, which resembles
- * boost::trackable. Derive your listener class from LLEventTrackable instead,
- * and use something like
- * <tt>LLEventPump::listen(boost::bind(&YourTrackableSubclass::method,
- * instance, _1))</tt>. This will implicitly disconnect when the object
- * referenced by @c instance is destroyed.
- *
- * @note
- * LLEventTrackable doesn't address a couple of cases:
- * * Object destroyed during call
- *   - You enter a slot call in thread A.
- *   - Thread B destroys the object, which of course disconnects it from any
- *     future slot calls.
- *   - Thread A's call uses 'this', which now refers to a defunct object.
- *     Undefined behavior results.
- * * Call during destruction
- *   - @c MySubclass is derived from LLEventTrackable.
- *   - @c MySubclass registers one of its own methods using
- *     <tt>LLEventPump::listen()</tt>.
- *   - The @c MySubclass object begins destruction. <tt>~MySubclass()</tt>
- *     runs, destroying state specific to the subclass. (For instance, a
- *     <tt>Foo*</tt> data member is <tt>delete</tt>d but not zeroed.)
- *   - The listening method will not be disconnected until
- *     <tt>~LLEventTrackable()</tt> runs.
- *   - Before we get there, another thread posts data to the @c LLEventPump
- *     instance, calling the @c MySubclass method.
- *   - The method in question relies on valid @c MySubclass state. (For
- *     instance, it attempts to dereference the <tt>Foo*</tt> pointer that was
- *     <tt>delete</tt>d but not zeroed.)
- *   - Undefined behavior results.
- * If you suspect you may encounter any such scenario, you're better off
- * managing the lifespan of your object with <tt>boost::shared_ptr</tt>.
- * Passing <tt>LLEventPump::listen()</tt> a <tt>boost::bind()</tt> expression
- * involving a <tt>boost::weak_ptr<Foo></tt> is recognized specially, engaging
- * thread-safe Boost.Signals2 machinery.
- */
-typedef boost::signals2::trackable LLEventTrackable;
-
 /**
  * We originally provided a suite of overloaded
  * LLEventTrackable::listenTo(LLEventPump&, ...) methods that would call

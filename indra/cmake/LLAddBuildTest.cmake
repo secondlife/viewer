@@ -1,6 +1,7 @@
 # -*- cmake -*-
 
 INCLUDE(APR)
+INCLUDE(Pth)
 INCLUDE(LLMath)
 
 MACRO(ADD_BUILD_TEST_NO_COMMON name parent)
@@ -36,6 +37,7 @@ MACRO(ADD_BUILD_TEST name parent)
             ${APR_LIBRARIES}
             ${PTHREAD_LIBRARY}
             ${WINDOWS_LIBRARIES}
+            ${PTH_LIBRARIES}
             )
         SET(basic_source_files
             ${name}.cpp
@@ -89,10 +91,13 @@ MACRO(ADD_BUILD_TEST_INTERNAL name parent libraries source_files)
     GET_TARGET_PROPERTY(TEST_EXE ${name}_test LOCATION)
     SET(TEST_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${name}_test_ok.txt)
 
+    SET(run_needs ${name}_test)
+
     IF ("${wrapper}" STREQUAL "")
       SET(TEST_CMD ${TEST_EXE} --touch=${TEST_OUTPUT} --sourcedir=${CMAKE_CURRENT_SOURCE_DIR})
     ELSE ("${wrapper}" STREQUAL "")
       SET(TEST_CMD ${PYTHON_EXECUTABLE} ${wrapper} ${TEST_EXE} --touch=${TEST_OUTPUT} --sourcedir=${CMAKE_CURRENT_SOURCE_DIR})
+      SET(run_needs ${run_needs} ${wrapper})
     ENDIF ("${wrapper}" STREQUAL "")
 
     #MESSAGE(STATUS "ADD_BUILD_TEST_INTERNAL ${name} test_cmd  = ${TEST_CMD}")
@@ -107,7 +112,7 @@ MACRO(ADD_BUILD_TEST_INTERNAL name parent libraries source_files)
     ADD_CUSTOM_COMMAND(
         OUTPUT ${TEST_OUTPUT}
         COMMAND ${TEST_SCRIPT_CMD}
-        DEPENDS ${name}_test
+        DEPENDS ${run_needs}
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
         )
 

@@ -142,7 +142,6 @@
 #include "llfolderview.h"
 #include "lltoolbar.h"
 #include "llagentpilot.h"
-#include "llsrv.h"
 #include "llvovolume.h"
 #include "llflexibleobject.h" 
 #include "llvosurfacepatch.h"
@@ -203,9 +202,6 @@ F32 gSimFrames;
 BOOL gAllowTapTapHoldRun = TRUE;
 BOOL gShowObjectUpdates = FALSE;
 BOOL gUseQuickTime = TRUE;
-
-BOOL gAcceptTOS = FALSE;
-BOOL gAcceptCriticalMessage = FALSE;
 
 eLastExecEvent gLastExecEvent = LAST_EXEC_NORMAL;
 

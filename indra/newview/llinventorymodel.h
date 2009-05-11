@@ -314,10 +314,8 @@ public:
 
 	// methods to load up inventory skeleton & meat. These are used
 	// during authentication. return true if everything parsed.
-	typedef std::map<std::string, std::string> response_t;
-	typedef std::vector<response_t> options_t;
-	bool loadSkeleton(const options_t& options, const LLUUID& owner_id);
-	bool loadMeat(const options_t& options, const LLUUID& owner_id);
+	bool loadSkeleton(const LLSD& options, const LLUUID& owner_id);
+	bool loadMeat(const LLSD& options, const LLUUID& owner_id);
 
 	// This is a brute force method to rebuild the entire parent-child
 	// relations.

@@ -38,6 +38,7 @@
 #pragma warning (pop)
 #endif
 // other Linden headers
+#include "stringize.h"
 
 /*****************************************************************************
 *   queue_names: specify LLEventPump names that should be instantiated as
@@ -255,6 +256,12 @@ LLEventPump::~LLEventPump()
 
 // static data member
 const LLEventPump::NameList LLEventPump::empty;
+
+std::string LLEventPump::inventName(const std::string& pfx)
+{
+    static long suffix = 0;
+    return STRINGIZE(pfx << suffix++);
+}
 
 LLBoundListener LLEventPump::listen_impl(const std::string& name, const LLEventListener& listener,
                                          const NameList& after,

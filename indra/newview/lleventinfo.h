@@ -37,7 +37,6 @@
 
 #include "v3dmath.h"
 #include "lluuid.h"
-#include "lluserauth.h"
 
 class LLMessageSystem;
 
@@ -48,7 +47,7 @@ public:
 
 	void unpack(LLMessageSystem *msg);
 
-	static void loadCategories(LLUserAuth::options_t event_options);
+	static void loadCategories(const LLSD& options);
 
 public:
 	std::string mName;

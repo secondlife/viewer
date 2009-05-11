@@ -50,11 +50,7 @@ typedef enum {
 	STATE_LOGIN_SHOW,				// Show login screen
 	STATE_LOGIN_WAIT,				// Wait for user input at login screen
 	STATE_LOGIN_CLEANUP,			// Get rid of login screen and start login
-	STATE_UPDATE_CHECK,				// Wait for user at a dialog box (updates, term-of-service, etc)
 	STATE_LOGIN_AUTH_INIT,			// Start login to SL servers
-	STATE_LOGIN_AUTHENTICATE,		// Do authentication voodoo
-	STATE_LOGIN_NO_DATA_YET,		// Waiting for authentication replies to start
-	STATE_LOGIN_DOWNLOADING,		// Waiting for authentication replies to download
 	STATE_LOGIN_PROCESS_RESPONSE,	// Check authentication reply
 	STATE_WORLD_INIT,				// Start building the world
 	STATE_MULTIMEDIA_INIT,			// Init the rest of multimedia library
@@ -75,8 +71,6 @@ typedef enum {
 // exported symbols
 extern bool gAgentMovementCompleted;
 extern LLPointer<LLImageGL> gStartImageGL;
-extern std::string gInitialOutfit;
-extern std::string gInitialOutfitGender;	// "male" or "female"
 
 class LLStartUp
 {

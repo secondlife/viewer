@@ -36,6 +36,7 @@
 #include "llmodaldialog.h"
 #include "llassetstorage.h"
 #include "llwebbrowserctrl.h"
+#include <boost/function.hpp>
 
 class LLButton;
 class LLRadioGroup;
@@ -57,8 +58,12 @@ public:
 		TOS_CRITICAL_MESSAGE = 1
 	};
 
+	typedef boost::function<void(bool)> YesNoCallback;
+
 	// Asset_id is overwritten with LLUUID::null when agree is clicked.
-	static LLFloaterTOS* show(ETOSType type, const std::string & message);
+	static LLFloaterTOS* show(ETOSType type, 
+							  const std::string & message, 
+							  const YesNoCallback& callback);
 
 	BOOL postBuild();
 	
@@ -74,13 +79,16 @@ public:
 
 private:
 	// Asset_id is overwritten with LLUUID::null when agree is clicked.
-	LLFloaterTOS(ETOSType type, const std::string & message);
+	LLFloaterTOS(ETOSType type, 
+				 const std::string & message, 
+				 const YesNoCallback& callback);
 
 private:
 	ETOSType		mType;
 	std::string		mMessage;
 	int				mWebBrowserWindowId;
 	int				mLoadCompleteCount;
+	YesNoCallback	mCallback;
 
 	static LLFloaterTOS* sInstance;
 };

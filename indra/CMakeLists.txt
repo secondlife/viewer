@@ -64,6 +64,7 @@ add_custom_target(viewer)
 if (VIEWER)
   add_subdirectory(${LIBS_OPEN_PREFIX}llcrashlogger)
   add_subdirectory(${LIBS_OPEN_PREFIX}llui)
+  add_subdirectory(${LIBS_OPEN_PREFIX}viewer_components)
 
   if (LINUX)
     add_subdirectory(${VIEWER_PREFIX}linux_crash_logger)

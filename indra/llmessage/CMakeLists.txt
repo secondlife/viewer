@@ -22,6 +22,7 @@ include_directories(
 
 set(llmessage_SOURCE_FILES
     llares.cpp
+    llareslistener.cpp
     llassetstorage.cpp
     llblowfishcipher.cpp
     llbuffer.cpp
@@ -104,6 +105,7 @@ set(llmessage_HEADER_FILES
     CMakeLists.txt
 
     llares.h
+    llareslistener.h
     llassetstorage.h
     llblowfishcipher.h
     llbuffer.h
@@ -222,4 +224,5 @@ IF (NOT LINUX AND VIEWER)
     ADD_BUILD_TEST(lltemplatemessagedispatcher llmessage)
     # Don't make llmessage depend on llsdmessage_test because ADD_COMM_BUILD_TEST depends on llmessage!
     ADD_COMM_BUILD_TEST(llsdmessage "" "${CMAKE_CURRENT_SOURCE_DIR}/tests/test_llsdmessage_peer.py")
+    ADD_BUILD_TEST(llareslistener llmessage)
 ENDIF (NOT LINUX AND VIEWER)

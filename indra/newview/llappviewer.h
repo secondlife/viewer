@@ -258,10 +258,6 @@ extern LLSD gDebugInfo;
 extern BOOL	gAllowTapTapHoldRun;
 extern BOOL	gShowObjectUpdates;
 
-extern BOOL gAcceptTOS;
-extern BOOL gAcceptCriticalMessage;
-
-
 typedef enum 
 {
 	LAST_EXEC_NORMAL = 0,

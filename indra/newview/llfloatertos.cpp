@@ -36,8 +36,6 @@
 
 // viewer includes
 #include "llagent.h"
-#include "llappviewer.h"
-#include "llstartup.h"
 #include "llviewerstats.h"
 #include "llviewertexteditor.h"
 #include "llviewerwindow.h"
@@ -58,11 +56,13 @@
 LLFloaterTOS* LLFloaterTOS::sInstance = NULL;
 
 // static
-LLFloaterTOS* LLFloaterTOS::show(ETOSType type, const std::string & message)
+LLFloaterTOS* LLFloaterTOS::show(ETOSType type, 
+								 const std::string & message, 
+								 const YesNoCallback& callback)
 {
 	if( !LLFloaterTOS::sInstance )
 	{
-		LLFloaterTOS::sInstance = new LLFloaterTOS(type, message);
+		LLFloaterTOS::sInstance = new LLFloaterTOS(type, message, callback);
 	}
 
 	if (type == TOS_TOS)
@@ -78,12 +78,15 @@ LLFloaterTOS* LLFloaterTOS::show(ETOSType type, const std::string & message)
 }
 
 
-LLFloaterTOS::LLFloaterTOS(ETOSType type, const std::string & message)
+LLFloaterTOS::LLFloaterTOS(ETOSType type, 
+						   const std::string & message, 
+						   const YesNoCallback& callback)
 :	LLModalDialog( std::string(" "), 100, 100 ),
 	mType(type),
 	mMessage(message),
 	mWebBrowserWindowId( 0 ),
-	mLoadCompleteCount( 0 )
+	mLoadCompleteCount( 0 ),
+	mCallback(callback)
 {
 }
 
@@ -235,25 +238,12 @@ void LLFloaterTOS::onContinue( void* userdata )
 {
 	LLFloaterTOS* self = (LLFloaterTOS*) userdata;
 	llinfos << "User agrees with TOS." << llendl;
-	if (self->mType == TOS_TOS)
+
+	if(self->mCallback)
 	{
-		gAcceptTOS = TRUE;
-	}
-	else
-	{
-		gAcceptCriticalMessage = TRUE;
+		self->mCallback(true);
 	}
 
-	// Testing TOS dialog
-	#if ! LL_RELEASE_FOR_DOWNLOAD		
-	if ( LLStartUp::getStartupState() == STATE_LOGIN_WAIT )
-	{
-		LLStartUp::setStartupState( STATE_LOGIN_SHOW );
-	}
-	else 
-	#endif
-
-	LLStartUp::setStartupState( STATE_LOGIN_AUTH_INIT );			// Go back and finish authentication
 	self->closeFloater(); // destroys this object
 }
 
@@ -262,8 +252,12 @@ void LLFloaterTOS::onCancel( void* userdata )
 {
 	LLFloaterTOS* self = (LLFloaterTOS*) userdata;
 	llinfos << "User disagrees with TOS." << llendl;
-	LLNotifications::instance().add("MustAgreeToLogIn", LLSD(), LLSD(), login_alert_done);
-	LLStartUp::setStartupState( STATE_LOGIN_SHOW );
+
+	if(self->mCallback)
+	{
+		self->mCallback(false);
+	}
+
 	self->mLoadCompleteCount = 0;  // reset counter for next time we come to TOS
 	self->closeFloater(); // destroys this object
 }

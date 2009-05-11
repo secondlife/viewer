@@ -33,6 +33,8 @@ set(llcommon_SOURCE_FILES
     llerror.cpp
     llerrorthread.cpp
     llevent.cpp
+    lleventcoro.cpp
+    lleventfilter.cpp
     llevents.cpp
     llfasttimer.cpp
     llfile.cpp
@@ -118,6 +120,8 @@ set(llcommon_HEADER_FILES
     llerrorlegacy.h
     llerrorthread.h
     llevent.h
+    lleventcoro.h
+    lleventfilter.h
     llevents.h
     lleventemitter.h
     llextendedstatus.h
@@ -223,3 +227,5 @@ target_link_libraries(
     )
 
 ADD_BUILD_TEST(lllazy llcommon)
+ADD_BUILD_TEST(lleventfilter llcommon)
+ADD_BUILD_TEST(coroutine llcommon)

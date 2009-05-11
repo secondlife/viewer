@@ -177,7 +177,6 @@
 #include "lltrans.h"
 #include "lluictrlfactory.h"
 #include "lluploaddialog.h"
-#include "lluserauth.h"
 #include "lluuid.h"
 #include "llviewercamera.h"
 #include "llviewergenericmessage.h"

@@ -37,6 +37,7 @@ include(UI)
 include(UnixInstall)
 include(LLKDU)
 include(ViewerMiscLibs)
+include(LLLogin)
 
 if (WINDOWS)
     include(CopyWinLibs)
@@ -61,6 +62,7 @@ include_directories(
     ${LLXML_INCLUDE_DIRS}
     ${LSCRIPT_INCLUDE_DIRS}
     ${LSCRIPT_INCLUDE_DIRS}/lscript_compile
+    ${LLLOGIN_INCLUDE_DIRS}
     )
 
 set(viewer_SOURCE_FILES
@@ -231,6 +233,7 @@ set(viewer_SOURCE_FILES
     lllocationinputctrl.cpp
     lllogchat.cpp
     llloginhandler.cpp
+    lllogininstance.cpp
     llmanip.cpp
     llmaniprotate.cpp
     llmanipscale.cpp
@@ -315,7 +318,6 @@ set(viewer_SOURCE_FILES
     llslurl.cpp
     llspatialpartition.cpp
     llsprite.cpp
-    llsrv.cpp
     llstartup.cpp
     llstatusbar.cpp
     llstylemap.cpp
@@ -353,7 +355,6 @@ set(viewer_SOURCE_FILES
     llurlhistory.cpp
     llurlsimstring.cpp
     llurlwhitelist.cpp
-    lluserauth.cpp
     llvectorperfoptions.cpp
     llviewchildren.cpp
     llviewerassetstorage.cpp
@@ -432,6 +433,7 @@ set(viewer_SOURCE_FILES
     llworld.cpp
     llworldmap.cpp
     llworldmapview.cpp
+    llxmlrpclistener.cpp
     llxmlrpctransaction.cpp
     noise.cpp
     pipeline.cpp
@@ -627,6 +629,7 @@ set(viewer_HEADER_FILES
     lllocationinputctrl.h
     lllogchat.h
     llloginhandler.h
+    lllogininstance.h
     llmanip.h
     llmaniprotate.h
     llmanipscale.h
@@ -712,7 +715,6 @@ set(viewer_HEADER_FILES
     llslurl.h
     llspatialpartition.h
     llsprite.h
-    llsrv.h
     llstartup.h
     llstatusbar.h
     llstylemap.h
@@ -752,7 +754,6 @@ set(viewer_HEADER_FILES
     llurlhistory.h
     llurlsimstring.h
     llurlwhitelist.h
-    lluserauth.h
     llvectorperfoptions.h
     llviewchildren.h
     llviewerassetstorage.h
@@ -832,6 +833,7 @@ set(viewer_HEADER_FILES
     llworld.h
     llworldmap.h
     llworldmapview.h
+    llxmlrpclistener.h
     llxmlrpctransaction.h
     macmain.h
     noise.h
@@ -1266,6 +1268,7 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${WINDOWS_LIBRARIES}
     ${XMLRPCEPI_LIBRARIES}
     ${ELFIO_LIBRARIES}
+    ${LLLOGIN_LIBRARIES}
     )
 
 build_version(viewer)
@@ -1390,3 +1393,5 @@ endif (INSTALL)
 ADD_VIEWER_BUILD_TEST(llagentaccess viewer)
 ADD_VIEWER_COMM_BUILD_TEST(llcapabilitylistener viewer 
   ${CMAKE_CURRENT_SOURCE_DIR}/../llmessage/tests/test_llsdmessage_peer.py)
+ADD_VIEWER_COMM_BUILD_TEST(llxmlrpclistener viewer
+  ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_llxmlrpc_peer.py)
