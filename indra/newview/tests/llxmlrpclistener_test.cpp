@@ -26,7 +26,7 @@
 #include "llcontrol.h"
 #include "tests/wrapllerrs.h"
 
-LLControlGroup gSavedSettings;
+LLControlGroup gSavedSettings("Global");
 
 /*****************************************************************************
 *   TUT

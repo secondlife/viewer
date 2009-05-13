@@ -292,10 +292,9 @@ void LLLoginInstance::updateApp(bool mandatory, const std::string& auth_msg)
 {
 	// store off config state, as we might quit soon
 	gSavedSettings.saveToFile(gSavedSettings.getString("ClientSettingsFile"), TRUE);	
+	gSavedSkinSettings.saveToFile(gSavedSettings.getString("SkinningSettingsFile"), TRUE);
 
 	std::ostringstream message;
-
-	//*TODO:translate
 	std::string msg;
 	if (!auth_msg.empty())
 	{
@@ -409,6 +408,7 @@ bool LLLoginInstance::updateDialogCallback(const LLSD& notification, const LLSD&
 	query_map["userserver"] = LLViewerLogin::getInstance()->getGridLabel();
 	query_map["channel"] = gSavedSettings.getString("VersionChannelName");
 	// *TODO constantize this guy
+	// *NOTE: This URL is also used in win_setup/lldownloader.cpp
 	LLURI update_url = LLURI::buildHTTP("secondlife.com", 80, "update.php", query_map);
 	
 	if(LLAppViewer::sUpdaterInfo)
@@ -495,9 +495,7 @@ bool LLLoginInstance::updateDialogCallback(const LLSD& notification, const LLSD&
 	system(LLAppViewer::sUpdaterInfo->mUpdateExePath.c_str()); /* Flawfinder: ignore */
 
 #elif LL_LINUX || LL_SOLARIS
-	OSMessageBox("Automatic updating is not yet implemented for Linux.\n"
-		"Please download the latest version from www.secondlife.com.",
-		LLStringUtil::null, OSMB_OK);
+	OSMessageBox(LLTrans::getString("MBNoAutoUpdate"), LLStringUtil::null, OSMB_OK);
 #endif
 
 	// *REMOVE:Mani - Saving for reference...
@@ -520,13 +518,9 @@ std::string construct_start_string()
 						<< LLURLSimString::sInstance.mZ);
 		start = xml_escape_string(unescaped_start);
 	}
-	else if (gSavedSettings.getBOOL("LoginLastLocation"))
-	{
-		start = "last";
-	}
 	else
 	{
-		start = "home";
+		start = gSavedSettings.getString("LoginLocation");
 	}
 	return start;
 }

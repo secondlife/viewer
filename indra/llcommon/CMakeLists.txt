@@ -228,4 +228,4 @@ target_link_libraries(
 
 ADD_BUILD_TEST(lllazy llcommon)
 ADD_BUILD_TEST(lleventfilter llcommon)
-ADD_BUILD_TEST(coroutine llcommon)
+ADD_BUILD_TEST(lleventcoro llcommon)
