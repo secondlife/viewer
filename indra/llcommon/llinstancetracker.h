@@ -39,9 +39,9 @@
 #include "string_table.h"
 #include <boost/utility.hpp>
 
-// This mix-in class adds support for tracking all instances of the specificed class parameter T
+// This mix-in class adds support for tracking all instances of the specified class parameter T
 // The (optional) key associates a value of type KEY with a given instance of T, for quick lookup
-// If KEY is not provided, then instances are stored in a simple list
+// If KEY is not provided, then instances are stored in a simple set
 template<typename T, typename KEY = T*>
 class LLInstanceTracker : boost::noncopyable
 {
@@ -49,11 +49,11 @@ public:
 	typedef typename std::map<KEY, T*>::iterator instance_iter;
 	typedef typename std::map<KEY, T*>::const_iterator instance_const_iter;
 
-	static T* getInstance(const KEY& k) { instance_iter found = sInstances.find(k); return (found == sInstances.end()) ? NULL : found->second; }
+	static T* getInstance(const KEY& k) { instance_iter found = getMap().find(k); return (found == getMap().end()) ? NULL : found->second; }
 
-	static instance_iter beginInstances() { return sInstances.begin(); }
-	static instance_iter endInstances() { return sInstances.end(); }
-	static S32 instanceCount() { return sInstances.size(); }
+	static instance_iter beginInstances() { return getMap().begin(); }
+	static instance_iter endInstances() { return getMap().end(); }
+	static S32 instanceCount() { return getMap().size(); }
 protected:
 	LLInstanceTracker(KEY key) { add(key); }
 	virtual ~LLInstanceTracker() { remove(); }
@@ -64,14 +64,23 @@ private:
 	void add(KEY key) 
 	{ 
 		mKey = key; 
-		sInstances[key] = static_cast<T*>(this); 
+		getMap()[key] = static_cast<T*>(this); 
 	}
-	void remove() { sInstances.erase(mKey); }
+	void remove() { getMap().erase(mKey); }
+
+    static std::map<KEY, T*>& getMap()
+    {
+        if (! sInstances)
+        {
+            sInstances = new std::map<KEY, T*>;
+        }
+        return *sInstances;
+    }
 
 private:
 
 	KEY mKey;
-	static std::map<KEY, T*> sInstances;
+	static std::map<KEY, T*>* sInstances;
 };
 
 template<typename T>
@@ -81,20 +90,29 @@ public:
 	typedef typename std::set<T*>::iterator instance_iter;
 	typedef typename std::set<T*>::const_iterator instance_const_iter;
 
-	static instance_iter instancesBegin() { return sInstances.begin(); }
-	static instance_iter instancesEnd() { return sInstances.end(); }
-	static S32 instanceCount() { return sInstances.size(); }
+	static instance_iter instancesBegin() { return getSet().begin(); }
+	static instance_iter instancesEnd() { return getSet().end(); }
+	static S32 instanceCount() { return getSet().size(); }
 
 protected:
-	LLInstanceTracker() { sInstances.insert(static_cast<T*>(this)); }
-	virtual ~LLInstanceTracker() { sInstances.erase(static_cast<T*>(this)); }
+	LLInstanceTracker() { getSet().insert(static_cast<T*>(this)); }
+	virtual ~LLInstanceTracker() { getSet().erase(static_cast<T*>(this)); }
 
-	LLInstanceTracker(const LLInstanceTracker& other) { sInstances.insert(static_cast<T*>(this)); }
+	LLInstanceTracker(const LLInstanceTracker& other) { getSet().insert(static_cast<T*>(this)); }
 
-	static std::set<T*> sInstances;
+    static std::set<T*>& getSet()   // called after getReady() but before go()
+    {
+        if (! sInstances)
+        {
+            sInstances = new std::set<T*>;
+        }
+        return *sInstances;
+    }
+
+	static std::set<T*>* sInstances;
 };
 
-template <typename T, typename KEY> std::map<KEY, T*> LLInstanceTracker<T, KEY>::sInstances;
-template <typename T> std::set<T*> LLInstanceTracker<T, T*>::sInstances;
+template <typename T, typename KEY> std::map<KEY, T*>* LLInstanceTracker<T, KEY>::sInstances = NULL;
+template <typename T> std::set<T*>* LLInstanceTracker<T, T*>::sInstances = NULL;
 
 #endif
