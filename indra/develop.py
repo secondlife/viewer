@@ -389,7 +389,7 @@ class LinuxSetup(UnixSetup):
                     hosts, job_count = mk_distcc_hosts('station', 36)
                     os.putenv('DISTCC_HOSTS', hosts)
                 if hostname.startswith('eniac'):
-                    hosts, job_count = mk_distcc_hosts('eniac', 64)
+                    hosts, job_count = mk_distcc_hosts('eniac', 71)
                     os.putenv('DISTCC_HOSTS', hosts)
             opts.extend(['-j', str(job_count)])
 
