@@ -391,6 +391,8 @@ class LinuxSetup(UnixSetup):
                 if hostname.startswith('eniac'):
                     hosts, job_count = mk_distcc_hosts('eniac', 71)
                     os.putenv('DISTCC_HOSTS', hosts)
+            if job_count > 12:
+                job_count = 12;
             opts.extend(['-j', str(job_count)])
 
         if targets:
