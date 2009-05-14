@@ -133,7 +133,6 @@ void LLLogin::Impl::connect(const std::string& uri, const LLSD& credentials)
     mCoro.reset(new coroutine_type(boost::bind(&Impl::login_, this, _1, _2, _3)));
     // Run the coroutine until its first wait; at that point, return here.
     (*mCoro)(std::nothrow, uri, credentials);
-    std::cout << "Here I am\n";
 }
 
 void LLLogin::Impl::login_(coroutine_type::self& self,
