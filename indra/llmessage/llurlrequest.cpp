@@ -98,6 +98,26 @@ LLURLRequestDetail::~LLURLRequestDetail()
  * class LLURLRequest
  */
 
+// static
+std::string LLURLRequest::actionAsVerb(LLURLRequest::ERequestAction action)
+{
+	static const std::string VERBS[] =
+	{
+		"(invalid)",
+		"HEAD",
+		"GET",
+		"PUT",
+		"POST",
+		"DELETE",
+		"MOVE"
+	};
+	if(((S32)action <=0) || ((S32)action >= REQUEST_ACTION_COUNT))
+	{
+		return VERBS[0];
+	}
+	return VERBS[action];
+}
+
 LLURLRequest::LLURLRequest(LLURLRequest::ERequestAction action) :
 	mAction(action)
 {

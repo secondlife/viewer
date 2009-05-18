@@ -228,7 +228,25 @@ public:
 	
 	// True if this is the head of s.
 	static BOOL	isHead( const std::basic_string<T>& string, const T* s ); 
-	
+
+	/**
+	 * @brief Returns true if string starts with substr
+	 *
+	 * If etither string or substr are empty, this method returns false.
+	 */
+	static bool startsWith(
+		const std::basic_string<T>& string,
+		const std::basic_string<T>& substr);
+
+	/**
+	 * @brief Returns true if string ends in substr
+	 *
+	 * If etither string or substr are empty, this method returns false.
+	 */
+	static bool endsWith(
+		const std::basic_string<T>& string,
+		const std::basic_string<T>& substr);
+
 	static void	addCRLF(std::basic_string<T>& string);
 	static void	removeCRLF(std::basic_string<T>& string);
 
@@ -335,7 +353,7 @@ public:
  * This function works on bytes rather than glyphs, so this will
  * incorrectly truncate non-single byte strings.
  * Use utf8str_truncate() for utf8 strings
- * @return a copy of in string minus the trailing count characters.
+ * @return a copy of in string minus the trailing count bytes.
  */
 inline std::string chop_tail_copy(
 	const std::string& in,
@@ -1064,6 +1082,30 @@ BOOL LLStringUtilBase<T>::isHead( const std::basic_string<T>& string, const T* s
 		return (strncmp( s, string.c_str(), string.size() ) == 0);
 	}
 }
+
+// static
+template<class T> 
+bool LLStringUtilBase<T>::startsWith(
+	const std::basic_string<T>& string,
+	const std::basic_string<T>& substr)
+{
+	if(string.empty() || (substr.empty())) return false;
+	if(0 == string.find(substr)) return true;
+	return false;
+}
+
+// static
+template<class T> 
+bool LLStringUtilBase<T>::endsWith(
+	const std::basic_string<T>& string,
+	const std::basic_string<T>& substr)
+{
+	if(string.empty() || (substr.empty())) return false;
+	std::string::size_type idx = string.rfind(substr);
+	if(std::string::npos == idx) return false;
+	return (idx == (string.size() - substr.size()));
+}
+
 
 template<class T> 
 BOOL LLStringUtilBase<T>::convertToBOOL(const std::basic_string<T>& string, BOOL& value)

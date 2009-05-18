@@ -62,7 +62,7 @@ public:
     static std::string filename();
     
 protected:
-    /* virtual */ void loadFile();
+    /* virtual */ bool loadFile();
 
 public:
     void init(LLPerfStats* statsp);
@@ -94,12 +94,12 @@ LLStatsConfigFile& LLStatsConfigFile::instance()
 
 /* virtual */
 // Load and parse the stats configuration file
-void LLStatsConfigFile::loadFile()
+bool LLStatsConfigFile::loadFile()
 {
     if (!mStatsp)
     {
         llwarns << "Tries to load performance configure file without initializing LPerfStats" << llendl;
-        return;
+        return false;
     }
     mChanged = true;
     
@@ -113,7 +113,7 @@ void LLStatsConfigFile::loadFile()
             {
                 llinfos << "Performance statistics configuration file ill-formed, not recording statistics" << llendl;
                 mStatsp->setReportPerformanceDuration( 0.f );
-                return;
+                return false;
             }
         }
         else 
@@ -123,7 +123,7 @@ void LLStatsConfigFile::loadFile()
                 llinfos << "Performance statistics configuration file deleted, not recording statistics" << llendl;
                 mStatsp->setReportPerformanceDuration( 0.f );
             }
-            return;
+            return true;
         }
     }
 
@@ -159,6 +159,7 @@ void LLStatsConfigFile::loadFile()
     {
         llinfos << "Performance stats recording turned off" << llendl;
     }
+	return true;
 }
 
 

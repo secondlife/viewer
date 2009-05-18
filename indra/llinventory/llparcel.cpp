@@ -175,7 +175,7 @@ void LLParcel::init(const LLUUID &owner_id,
 	mSaleTimerExpires.stop();
 	mGraceExtension = 0;
 	//mExpireAction = STEA_REVERT;
-	mRecordTransaction = FALSE;
+	//mRecordTransaction = FALSE;
 
 	mAuctionID = 0;
 	mInEscrow = false;

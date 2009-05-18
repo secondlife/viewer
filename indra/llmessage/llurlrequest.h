@@ -81,6 +81,11 @@ public:
 		REQUEST_ACTION_COUNT
 	};
 
+	/**
+	 * @brief Turn the requst action into an http verb.
+	 */
+	static std::string actionAsVerb(ERequestAction action);
+
 	/** 
 	 * @brief Constructor.
 	 *

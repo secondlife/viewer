@@ -2720,7 +2720,7 @@ version 2.0
 // end viewer to simulator section
 
 {
-       ViewerStats Low 131 NotTrusted Zerocoded
+       ViewerStats Low 131 NotTrusted Zerocoded UDPDeprecated
        {
                AgentData                       Single
                {       AgentID                 LLUUID      }

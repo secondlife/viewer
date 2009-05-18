@@ -509,6 +509,22 @@ private:
 public:
 	// BOOL	decodeData(const U8 *buffer, const LLHost &host);
 
+	/**
+	gets binary data from the current message.
+	
+	@param blockname the name of the block in the message (from the message template)
+
+	@param varname 
+
+	@param datap
+	
+	@param size expected size - set to zero to get any amount of data up to max_size.
+	Make sure max_size is set in that case!
+
+	@param blocknum
+
+	@param max_size the max number of bytes to read
+	*/
 	void	getBinaryDataFast(const char *blockname, const char *varname, void *datap, S32 size, S32 blocknum = 0, S32 max_size = S32_MAX);
 	void	getBinaryData(const char *blockname, const char *varname, void *datap, S32 size, S32 blocknum = 0, S32 max_size = S32_MAX);
 	void	getBOOLFast(	const char *block, const char *var, BOOL &data, S32 blocknum = 0);

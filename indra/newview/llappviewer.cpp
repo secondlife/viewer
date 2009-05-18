@@ -523,6 +523,7 @@ LLAppViewer::LLAppViewer() :
 		llerrs << "Oh no! An instance of LLAppViewer already exists! LLAppViewer is sort of like a singleton." << llendl;
 	}
 
+	setupErrorHandling();
 	sInstance = this;
 }
 

@@ -89,7 +89,8 @@ LLCrashLogger::LLCrashLogger() :
 	mSentCrashLogs(false),
 	mCrashHost("")
 {
-
+	// Set up generic error handling
+	setupErrorHandling();
 }
 
 LLCrashLogger::~LLCrashLogger()

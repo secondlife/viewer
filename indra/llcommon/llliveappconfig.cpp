@@ -38,9 +38,12 @@
 #include "llsd.h"
 #include "llsdserialize.h"
 
-LLLiveAppConfig::LLLiveAppConfig(LLApp* app, const std::string& filename, F32 refresh_period)
-:	LLLiveFile(filename, refresh_period),
-	mApp(app)
+LLLiveAppConfig::LLLiveAppConfig(
+	const std::string& filename,
+	F32 refresh_period,
+	LLApp::OptionPriority priority) :
+	LLLiveFile(filename, refresh_period),
+	mPriority(priority)
 { }
 
 
@@ -48,7 +51,7 @@ LLLiveAppConfig::~LLLiveAppConfig()
 { }
 
 // virtual 
-void LLLiveAppConfig::loadFile()
+bool LLLiveAppConfig::loadFile()
 {
 	llinfos << "LLLiveAppConfig::loadFile(): reading from "
 		<< filename() << llendl;
@@ -59,12 +62,25 @@ void LLLiveAppConfig::loadFile()
         LLSDSerialize::fromXML(config, file);
 		if(!config.isMap())
 		{
-			llinfos << "LLDataserverConfig::loadFile(): not an map!"
+			llwarns << "Live app config not an map in " << filename()
 				<< " Ignoring the data." << llendl;
-			return;
+			return false;
 		}
 		file.close();
     }
-	mApp->setOptionData(
-		LLApp::PRIORITY_SPECIFIC_CONFIGURATION, config);
+	else
+	{
+		llinfos << "Live file " << filename() << " does not exit." << llendl;
+	}
+	// *NOTE: we do not handle the else case here because we would not
+	// have attempted to load the file unless LLLiveFile had
+	// determined there was a reason to load it. This only happens
+	// when either the file has been updated or it is either suddenly
+	// in existence or has passed out of existence. Therefore, we want
+	// to set the config to an empty config, and return that it
+	// changed.
+
+	LLApp* app = LLApp::instance();
+	if(app) app->setOptionData(mPriority, config);
+	return true;
 }

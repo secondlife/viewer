@@ -1,3 +1,32 @@
+"""\
+@file siesta.py
+@brief A tiny llsd based RESTful web services framework
+
+$LicenseInfo:firstyear=2008&license=mit$
+
+Copyright (c) 2008, Linden Research, Inc.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+$/LicenseInfo$
+"""
+
+from indra.base import config
 from indra.base import llsd
 from webob import exc
 import webob
@@ -37,11 +66,11 @@ def mime_type(content_type):
     return content_type.split(';', 1)[0].strip().lower()
     
 class BodyLLSD(object):
-    '''Give a webob Request or Response an llsd property.
+    '''Give a webob Request or Response an llsd based "content" property.
 
-    Getting the llsd property parses the body, and caches the result.
+    Getting the content property parses the body, and caches the result.
 
-    Setting the llsd property formats a payload, and the body property
+    Setting the content property formats a payload, and the body property
     is set.'''
 
     def _llsd__get(self):
@@ -80,7 +109,7 @@ class BodyLLSD(object):
         if hasattr(self, '_llsd'):
             del self._llsd
 
-    llsd = property(_llsd__get, _llsd__set, _llsd__del)
+    content = property(_llsd__get, _llsd__set, _llsd__del)
 
 
 class Response(webob.Response, BodyLLSD):
@@ -114,10 +143,10 @@ class Request(webob.Request, BodyLLSD):
 
     Sensible content type and accept headers are used by default.
 
-    Setting the llsd property also sets the body.  Getting the llsd
+    Setting the content property also sets the body. Getting the content
     property parses the body if necessary.
 
-    If you set the body property directly, the llsd property will be
+    If you set the body property directly, the content property will be
     deleted.'''
     
     default_content_type = 'application/llsd+xml'
@@ -149,11 +178,11 @@ class Request(webob.Request, BodyLLSD):
     body = property(webob.Request._body__get, _body__set,
                     webob.Request._body__del, webob.Request._body__get.__doc__)
 
-    def create_response(self, llsd=None, status='200 OK',
+    def create_response(self, content=None, status='200 OK',
                         conditional_response=webob.NoDefault):
         resp = self.ResponseClass(status=status, request=self,
                                   conditional_response=conditional_response)
-        resp.llsd = llsd
+        resp.content = content
         return resp
 
     def curl(self):
@@ -196,12 +225,18 @@ llsd_formatters = {
     'application/xml': llsd.format_xml,
     }
 
+formatter_qualities = (
+    ('application/llsd+xml', 1.0),
+    ('application/llsd+notation', 0.5),
+    ('application/llsd+binary', 0.4),
+    ('application/xml', 0.3),
+    ('application/json', 0.2),
+    )
 
 def formatter_for_mime_type(mime_type):
     '''Return a formatter that encodes to the given MIME type.
 
     The result is a pair of function and MIME type.'''
-
     try:
         return llsd_formatters[mime_type], mime_type
     except KeyError:
@@ -214,21 +249,19 @@ def formatter_for_request(req):
     '''Return a formatter that encodes to the preferred type of the client.
 
     The result is a pair of function and actual MIME type.'''
-
-    for ctype in req.accept.best_matches('application/llsd+xml'):
-        try:
-            return llsd_formatters[ctype], ctype
-        except KeyError:
-            pass
-    else:
+    ctype = req.accept.best_match(formatter_qualities)
+    try:
+        return llsd_formatters[ctype], ctype
+    except KeyError:
         raise exc.HTTPNotAcceptable().exception
 
 
 def wsgi_adapter(func, environ, start_response):
     '''Adapt a Siesta callable to act as a WSGI application.'''
-
+    # Process the request as appropriate.
     try:
         req = Request(environ)
+        #print req.urlvars
         resp = func(req, **req.urlvars)
         if not isinstance(resp, webob.Response):
             try:
@@ -281,7 +314,8 @@ def llsd_class(cls):
             allowed = [m for m in http11_methods
                        if hasattr(instance, 'handle_' + m.lower())]
             raise exc.HTTPMethodNotAllowed(
-                headers={'Allowed': ', '.join(allowed)}).exception
+                headers={'Allow': ', '.join(allowed)}).exception
+        #print "kwargs: ", kwargs
         return handler(req, **kwargs)
 
     def replacement(environ, start_response):
@@ -336,7 +370,7 @@ def curl(reqs):
 
 route_re = re.compile(r'''
     \{                 # exact character "{"
-    (\w+)              # variable name (restricted to a-z, 0-9, _)
+    (\w*)              # "config" or variable (restricted to a-z, 0-9, _)
     (?:([:~])([^}]+))? # optional :type or ~regex part
     \}                 # exact character "}"
     ''', re.VERBOSE)
@@ -344,27 +378,37 @@ route_re = re.compile(r'''
 predefined_regexps = {
     'uuid': r'[a-f0-9][a-f0-9-]{31,35}',
     'int': r'\d+',
+    'host': r'[a-z0-9][a-z0-9\-\.]*',
     }
 
 def compile_route(route):
     fp = StringIO()
     last_pos = 0
     for match in route_re.finditer(route):
+        #print "matches: ", match.groups()
         fp.write(re.escape(route[last_pos:match.start()]))
         var_name = match.group(1)
         sep = match.group(2)
         expr = match.group(3)
-        if expr:
-            if sep == ':':
-                expr = predefined_regexps[expr]
-            # otherwise, treat what follows '~' as a regexp
+        if var_name == 'config':
+            expr = re.escape(str(config.get(var_name)))
         else:
-            expr = '[^/]+'
-        expr = '(?P<%s>%s)' % (var_name, expr)
+            if expr:
+                if sep == ':':
+                    expr = predefined_regexps[expr]
+                # otherwise, treat what follows '~' as a regexp
+            else:
+                expr = '[^/]+'
+            if var_name != '':
+                expr = '(?P<%s>%s)' % (var_name, expr)
+            else:
+                expr = '(%s)' % (expr,)
         fp.write(expr)
         last_pos = match.end()
     fp.write(re.escape(route[last_pos:]))
-    return '^%s$' % fp.getvalue()
+    compiled_route = '^%s$' % fp.getvalue()
+    #print route, "->", compiled_route
+    return compiled_route
 
 class Router(object):
     '''WSGI routing class.  Parses a URL and hands off a request to
@@ -372,21 +416,43 @@ class Router(object):
     responds with a 404.'''
 
     def __init__(self):
-        self.routes = []
-        self.paths = []
+        self._new_routes = []
+        self._routes = []
+        self._paths = []
 
     def add(self, route, app, methods=None):
-        self.paths.append(route)
-        self.routes.append((re.compile(compile_route(route)), app,
-                            methods and dict.fromkeys(methods)))
+        self._new_routes.append((route, app, methods))
+
+    def _create_routes(self):
+        for route, app, methods in self._new_routes:
+            self._paths.append(route)
+            self._routes.append(
+                (re.compile(compile_route(route)),
+                 app,
+                 methods and dict.fromkeys(methods)))
+        self._new_routes = []
 
     def __call__(self, environ, start_response):
+        # load up the config from the config file. Only needs to be
+        # done once per interpreter. This is the entry point of all
+        # siesta applications, so this is where we trap it.
+        _conf = config.get_config()
+        if _conf is None:
+            import os.path
+            fname = os.path.join(
+                environ.get('ll.config_dir', '/local/linden/etc'),
+                'indra.xml')
+            config.load(fname)
+
+        # proceed with handling the request
+        self._create_routes()
         path_info = environ['PATH_INFO']
         request_method = environ['REQUEST_METHOD']
         allowed = []
-        for regex, app, methods in self.routes:
+        for regex, app, methods in self._routes:
             m = regex.match(path_info)
             if m:
+                #print "groupdict:",m.groupdict()
                 if not methods or request_method in methods:
                     environ['paste.urlvars'] = m.groupdict()
                     return app(environ, start_response)
@@ -396,7 +462,7 @@ class Router(object):
             allowed = dict.fromkeys(allows).keys()
             allowed.sort()
             resp = exc.HTTPMethodNotAllowed(
-                headers={'Allowed': ', '.join(allowed)})
+                headers={'Allow': ', '.join(allowed)})
         else:
             resp = exc.HTTPNotFound()
         return resp(environ, start_response)

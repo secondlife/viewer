@@ -72,8 +72,11 @@ BOOL_FALSE = ('0', '0.0', 'false', '')
 
 
 def format_datestr(v):
-    """ Formats a datetime object into the string format shared by xml and notation serializations."""
-    return v.isoformat() + 'Z'
+    """ Formats a datetime or date object into the string format shared by xml and notation serializations."""
+    if hasattr(v, 'microsecond'):
+        return v.isoformat() + 'Z'
+    else:
+        return v.strftime('%Y-%m-%dT%H:%M:%SZ')
 
 def parse_datestr(datestr):
     """Parses a datetime object from the string format shared by xml and notation serializations."""
@@ -183,6 +186,7 @@ class LLSDXMLFormatter(object):
             unicode : self.STRING,
             uri : self.URI,
             datetime.datetime : self.DATE,
+            datetime.date : self.DATE,
             list : self.ARRAY,
             tuple : self.ARRAY,
             types.GeneratorType : self.ARRAY,
@@ -347,6 +351,7 @@ class LLSDNotationFormatter(object):
             unicode : self.STRING,
             uri : self.URI,
             datetime.datetime : self.DATE,
+            datetime.date : self.DATE,
             list : self.ARRAY,
             tuple : self.ARRAY,
             types.GeneratorType : self.ARRAY,
@@ -924,12 +929,13 @@ def _format_binary_recurse(something):
                 (type(something), something))
 
 
-def parse_binary(something):
-    header = '<?llsd/binary?>\n'
-    if not something.startswith(header):
-        raise LLSDParseError('LLSD binary encoding header not found')
-    return LLSDBinaryParser().parse(something[len(header):])
-    
+def parse_binary(binary):
+    if binary.startswith('<?llsd/binary?>'):
+        just_binary = binary.split('\n', 1)[1]
+    else:
+        just_binary = binary
+    return LLSDBinaryParser().parse(just_binary)
+
 def parse_xml(something):
     try:
         return to_python(fromstring(something)[0])

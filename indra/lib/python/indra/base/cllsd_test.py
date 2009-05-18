@@ -10,7 +10,7 @@ values = (
     '&<>',
     u'\u81acj',
     llsd.uri('http://foo<'),
-    lluuid.LLUUID(),
+    lluuid.UUID(),
     llsd.LLSD(['thing']),
     1,
     myint(31337),
