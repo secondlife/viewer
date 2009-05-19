@@ -538,27 +538,35 @@ class WindowsSetup(PlatformSetup):
                 '-DROOT_PROJECT_NAME:STRING=%(project_name)s '
                 '%(opts)s "%(dir)s"' % args)
 
+    def get_HKLM_registry_value(self, key_str, value_str):
+        import _winreg
+        reg = _winreg.ConnectRegistry(None, _winreg.HKEY_LOCAL_MACHINE)
+        key = _winreg.OpenKey(reg, key_str)
+        value = _winreg.QueryValueEx(key, value_str)[0]
+        print 'Found: %s' % value
+        return value
+        
     def find_visual_studio(self, gen=None):
         if gen is None:
             gen = self._generator
         gen = gen.lower()
+        value_str = (r'EnvironmentDirectory')
+        key_str = (r'SOFTWARE\Microsoft\VisualStudio\%s\Setup\VS' %
+                   self.gens[gen]['ver'])
+        print ('Reading VS environment from HKEY_LOCAL_MACHINE\%s\%s' %
+               (key_str, value_str))
         try:
-            import _winreg
-            key_str = (r'SOFTWARE\Microsoft\VisualStudio\%s\Setup\VS' %
-                       self.gens[gen]['ver'])
-            value_str = (r'EnvironmentDirectory')
-            print ('Reading VS environment from HKEY_LOCAL_MACHINE\%s\%s' %
-                   (key_str, value_str))
-            print key_str
-
-            reg = _winreg.ConnectRegistry(None, _winreg.HKEY_LOCAL_MACHINE)
-            key = _winreg.OpenKey(reg, key_str)
-            value = _winreg.QueryValueEx(key, value_str)[0]
-            print 'Found: %s' % value
-            return value
+            return self.get_HKLM_registry_value(key_str, value_str)           
         except WindowsError, err:
+            key_str = (r'SOFTWARE\Wow6432Node\Microsoft\VisualStudio\%s\Setup\VS' %
+                       self.gens[gen]['ver'])
+
+        try:
+            return self.get_HKLM_registry_value(key_str, value_str)
+        except:
             print >> sys.stderr, "Didn't find ", self.gens[gen]['gen']
-            return ''
+            
+        return ''
 
     def get_build_cmd(self):
         if self.incredibuild:
