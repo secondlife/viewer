@@ -4911,6 +4911,12 @@ version 2.0
 		{	ActualArea		S32		}
 		{	Final			BOOL	}  // true if buyer should be in tier
 	}
+    {
+       RegionData Single  // included so region name shows up in transaction logs
+       {   RegionID   LLUUID }
+       {   GridX      U32    }
+       {   GridY      U32    }
+    }
 }
 
 // sim ->dataserver
