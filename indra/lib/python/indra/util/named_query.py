@@ -47,6 +47,7 @@ except NameError:
 from indra.base import llsd
 from indra.base import config
 
+DEBUG = False
 NQ_FILE_SUFFIX = None
 NQ_FILE_SUFFIX_LEN = None
 
