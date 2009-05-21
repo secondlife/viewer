@@ -385,7 +385,7 @@ class LinuxSetup(UnixSetup):
             distcc_dir = os.path.join(getcwd(), '.distcc')
             if not os.path.exists(distcc_dir):
                 os.mkdir(distcc_dir)
-            os.putenv('DISTCC_DIR', distcc_dir)
+            os.environ['DISTCC_DIR'] = distcc_dir
  
         if job_count is None:
             hosts, job_count = count_distcc_hosts()
@@ -393,10 +393,10 @@ class LinuxSetup(UnixSetup):
                 hostname = socket.gethostname()
                 if hostname.startswith('station'):
                     hosts, job_count = mk_distcc_hosts('station', 36, 2)
-                    os.putenv('DISTCC_HOSTS', hosts)
+                    os.environ['DISTCC_HOSTS'] = hosts
                 if hostname.startswith('eniac'):
                     hosts, job_count = mk_distcc_hosts('eniac', 71, 2)
-                    os.putenv('DISTCC_HOSTS', hosts)
+                    os.environ['DISTCC_HOSTS'] = hosts
             if job_count > 12:
                 job_count = 12;
             opts.extend(['-j', str(job_count)])
