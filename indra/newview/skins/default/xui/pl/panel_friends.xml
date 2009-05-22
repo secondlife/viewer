@@ -12,7 +12,7 @@
 		<column name="icon_visible_map"
 		     tool_tip="Ta osoba może zlokalizować Cię na mapie" />
 		<column name="icon_edit_mine"
-		     tool_tip="Ta osoba może edytować, usunąć lub wziąść Twoje obiekty" />
+		     tool_tip="Ta osoba może edytować, usunąć lub wziąć Twoje obiekty" />
 		<column name="icon_edit_theirs" tool_tip="Możesz edytować obiekty tej osoby" />
 	</scroll_list>
 	<button label="Czat/IM" name="im_btn" tool_tip="Rozpocznij sesję czatu/IM" />

@@ -2179,7 +2179,9 @@ void LLMenuGL::arrange( void )
 			{
 				if ((*item_iter)->getVisible())
 				{
-					if (!getTornOff() && width + (*item_iter)->getNominalWidth() > max_width - spillover_item_width)
+					if (!getTornOff() 
+						&& item_iter != mItems.begin() // Don't spillover the first item!
+						&& width + (*item_iter)->getNominalWidth() > max_width - spillover_item_width)
 					{
 						// no room for any more items
 						createSpilloverBranch();
@@ -2189,15 +2191,15 @@ void LLMenuGL::arrange( void )
 						{
 							LLMenuItemGL* itemp = (*spillover_iter);
 							removeChild(itemp);
-							mSpilloverMenu->append(itemp);
+							mSpilloverMenu->appendNoArrange(itemp); // *NOTE:Mani Favor addChild() in merge with skinning
 						}
+						mSpilloverMenu->arrange(); // *NOTE: Mani Remove line in merge with skinning/viewer2.0 branch
+						mSpilloverMenu->updateParent(LLMenuGL::sMenuContainer); // *NOTE: Mani Remove line in merge with skinning/viewer2.0 branch
 						mItems.erase(item_iter, mItems.end());
-						
 						mItems.push_back(mSpilloverBranch);
 						addChild(mSpilloverBranch);
 						height = llmax(height, mSpilloverBranch->getNominalHeight());
 						width += mSpilloverBranch->getNominalWidth();
-
 						break;
 					}
 					else
@@ -2216,7 +2218,9 @@ void LLMenuGL::arrange( void )
 			{
 				if ((*item_iter)->getVisible())
 				{
-					if (!getTornOff() && height + (*item_iter)->getNominalHeight() > max_height - spillover_item_height)
+					if (!getTornOff() 
+						&& item_iter != mItems.begin() // Don't spillover the first item!
+						&& height + (*item_iter)->getNominalHeight() > max_height - spillover_item_height)
 					{
 						// no room for any more items
 						createSpilloverBranch();
@@ -2226,14 +2230,15 @@ void LLMenuGL::arrange( void )
 						{
 							LLMenuItemGL* itemp = (*spillover_iter);
 							removeChild(itemp);
-							mSpilloverMenu->append(itemp);
+							mSpilloverMenu->appendNoArrange(itemp);  // *NOTE:Mani Favor addChild() in merge with skinning
 						}
+						mSpilloverMenu->arrange(); // *NOTE: Mani Remove line in merge with skinning/viewer2.0 branch
+						mSpilloverMenu->updateParent(LLMenuGL::sMenuContainer); // *NOTE: Mani Remove line in merge with skinning/viewer2.0 branch
 						mItems.erase(item_iter, mItems.end());
 						mItems.push_back(mSpilloverBranch);
 						addChild(mSpilloverBranch);
 						height += mSpilloverBranch->getNominalHeight();
 						width = llmax( width, mSpilloverBranch->getNominalWidth() );
-
 						break;
 					}
 					else
@@ -2475,6 +2480,15 @@ BOOL LLMenuGL::append( LLMenuItemGL* item )
 	mItems.push_back( item );
 	addChild( item );
 	arrange();
+	return TRUE;
+}
+
+// *NOTE:Mani - appendNoArrange() should be removed when merging to skinning/viewer2.0
+// Its added as a fix to a viewer 1.23 bug that has already been address by skinning work.
+BOOL LLMenuGL::appendNoArrange( LLMenuItemGL* item )
+{
+	mItems.push_back( item );
+	addChild( item );
 	return TRUE;
 }
 

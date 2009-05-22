@@ -4,7 +4,7 @@
 		<tearoff_menu label="~~~~~~~~~~~" name="~~~~~~~~~~~"/>
 		<menu label="アップロード" name="upload">
 			<menu_item_call label="画像 （L$[COST]）..." name="Upload Image"/>
-			<menu_item_call label="アニメーション （L$[COST]）..." name="Upload Sound"/>
+			<menu_item_call label="サウンド （L$[COST]）..." name="Upload Sound"/>
 			<menu_item_call label="アニメーション （L$[COST]）..." name="Upload Animation"/>
 			<menu_item_call label="一括 （ファイルにつきL$[COST]）..." name="Bulk Upload"/>
 			<menu_item_separator label="-----------" name="separator"/>
@@ -83,6 +83,7 @@
 		<menu_item_separator label="-----------" name="separator3"/>
 		<menu_item_check label="地域の統計情報" name="Statistics Bar"/>
 		<menu_item_check label="土地の境界線" name="Property Lines"/>
+		<menu_item_check label="立入禁止ライン" name="Banlines"/>
 		<menu_item_check label="土地オーナー" name="Land Owners"/>
 		<menu_item_separator label="-----------" name="separator4"/>
 		<menu label="ヒントのポップアップ" name="Hover Tips">
@@ -170,7 +171,6 @@
 		<menu_item_call label="選択範囲にズームイン" name="Zoom to Selection"/>
 		<menu_item_call label="オブジェクトを購入" name="Menu Object Take"/>
 		<menu_item_call label="コピーを取る" name="Take Copy"/>
-		<menu_item_call label="オブジェクトを持ち物に戻して保存" name="Save Object Back to My Inventory"/>
 		<menu_item_call label="オブジェクトをオブジェクト・コンテンツに戻して保存" name="Save Object Back to Object Contents"/>
 		<menu_item_separator label="-----------" name="separator6"/>
 		<menu_item_call label="スクリプト警告／エラー・ウィンドウを表示" name="Show Script Warning/Error Window"/>
@@ -188,7 +188,9 @@
 		<menu_item_separator label="-----------" name="separator"/>
 		<menu_item_call label="Linden公式ブログ..." name="Official Linden Blog..."/>
 		<menu_item_separator label="-----------" name="separator2"/>
-		<menu_item_call label="スクリプト・ポータル..." name="Scripting Portal..."/>
+		<menu_item_call label="スクリプト・ポータル..." name="Scripting Portal...">
+			<on_click name="ScriptingPortal_url" userdata="WebLaunchLSLWiki,http://wiki.secondlife.com/wiki/LSL_Portal/ja" />
+		</menu_item_call>
 		<menu_item_separator label="-----------" name="separator3"/>
 		<menu_item_call label="嫌がらせの報告..." name="Report Abuse..."/>
 		<menu_item_call label="衝突の記録..." name="Bumps, Pushes &amp;amp; Hits..."/>
@@ -196,9 +198,13 @@
 		<menu_item_separator label="-----------" name="separator7"/>
 		<menu label="バグの報告" name="Bug Reporting">
 			<menu_item_call label="パブリック問題トラッカー..." name="Public Issue Tracker..."/>
-			<menu_item_call label="パブリック問題トラッカー ヘルプ..." name="Publc Issue Tracker Help..."/>
+			<menu_item_call label="パブリック問題トラッカー ヘルプ..." name="Publc Issue Tracker Help...">
+				<on_click name="PublicIssueTrackerHelp_url" userdata="WebLaunchPublicIssueHelp,http://wiki.secondlife.com/wiki/Issue_tracker/ja" />
+			</menu_item_call>
 			<menu_item_separator label="-----------" name="separator7"/>
-			<menu_item_call label="バグの報告 101..." name="Bug Reporing 101..."/>
+			<menu_item_call label="バグの報告 101..." name="Bug Reporing 101...">
+				<on_click name="BugReporting101_url" userdata="WebLaunchBugReport101,http://wiki.secondlife.com/wiki/Bug_Reporting_101"/>
+			</menu_item_call>
 			<menu_item_call label="セキュリティ問題..." name="Security Issues...">
 				<on_click name="SecurityIssues_url" userdata="WebLaunchSecurityIssues,http://wiki.secondlife.com/wiki/Security_issues/ja"/>
 			</menu_item_call>

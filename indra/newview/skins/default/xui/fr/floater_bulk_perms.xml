@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floaterbulkperms" title="Changement des permissions relatives au contenu">
+<floater name="floaterbulkperms" title="Changement des droits relatifs au contenu">
 	<text name="applyto">
 		Types de contenu
 	</text>
@@ -15,6 +15,9 @@
 	<check_box label="Textures" name="check_texture"/>
 	<button label="Tout cocher" label_selected="Tout" name="check_all"/>
 	<button label="Tout décocher" label_selected="Aucun" name="check_none"/>
+	<text name="newperms">
+		Nouveaux droits
+	</text>
 	<check_box label="Partager avec le groupe" name="share_with_group"/>
 	<check_box label="Autoriser tout le monde à copier" name="everyone_copy"/>
 	<text name="NextOwnerLabel">
@@ -23,6 +26,7 @@
 	<check_box label="Modifier" name="next_owner_modify"/>
 	<check_box label="Copier" name="next_owner_copy"/>
 	<check_box label="Revendre/Donner" name="next_owner_transfer"/>
+	<button label="Aide" name="help"/>
 	<button label="Appliquer" name="apply"/>
 	<button label="Fermer" name="close"/>
 	<string name="nothing_to_modify_text">
@@ -32,9 +36,9 @@
 		Permissions paramétrées sur [NAME]
 	</string>
 	<string name="start_text">
-		Demande de changement des permissions lancée...
+		Demande de changement des droits lancée...
 	</string>
 	<string name="done_text">
-		Demande de changement des permissions finie.
+		Demande de changement des droits finie.
 	</string>
 </floater>

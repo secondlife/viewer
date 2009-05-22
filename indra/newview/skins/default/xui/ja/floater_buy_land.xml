@@ -6,6 +6,12 @@
 	<text name="region_name_text">
 		（不明）
 	</text>
+	<text name="region_type_label">
+		種類：
+	</text>
+	<text name="region_type_text">
+		（不明）
+	</text>
 	<text name="estate_name_label">
 		不動産：
 	</text>
@@ -22,10 +28,10 @@
 		この地域で購入した土地：
 	</text>
 	<text name="resellable_clause">
-		この地域で購入した土地は、再販が可能な場合とそうでない場合があります
+		再販できる場合とできない場合があります。
 	</text>
 	<text name="changeable_clause">
-		統合または再分割される可能性も、されない可能性もあります
+		統合または再分割できる場合とできない場合があります。
 	</text>
 	<text name="covenant_text">
 		不動産約款に同意してください：
@@ -162,7 +168,7 @@
 		この土地を買うと：
 	</string>
 	<string name="buying_for_group">
-		グループ用に土地を購入：
+		グループ用の土地を購入すると：
 	</string>
 	<string name="cannot_buy_now">
 		現在購入不可：
@@ -192,10 +198,10 @@
 		この区画は [AMOUNT] 平方メートルあります
 	</string>
 	<string name="premium_land">
-		この土地はプレミアムなので、 [AMOUNT] 平方メートル として請求されます
+		この土地は割り増し付です。 [AMOUNT] 平方メートルの料金がかかります。
 	</string>
 	<string name="discounted_land">
-		この土地は値下げされ、[AMOUNT]平方メートルとして請求されます
+		この土地はディスカウントされています。 [AMOUNT] 平方メートルの料金がかかります。
 	</string>
 	<string name="meters_supports_object">
 		[AMOUNT]平方メートルであれば、
@@ -210,13 +216,11 @@
 	</string>
 	<string name="info_price_string">
 		L$ [PRICE]
-L$[PRICE] （L$[PRICE_PER_SQM]/平方メートル）
+（L$ [PRICE_PER_SQM]/平方メートル）
 [SOLD_WITH_OBJECTS]
 	</string>
 	<string name="insufficient_land_credits">
-		この [GROUP] が区画の購入手続きを完了するには、 
-価格に見合うだけの寄付された土地の利用実績が
-必要です
+		この [GROUP] が区画の購入手続きを完了するには、 価格に見合うだけの寄付された土地の利用実績が必要です
 	</string>
 	<string name="have_enough_lindens">
 		あなたの所持する L$ [AMOUNT]で、この土地を購入できます

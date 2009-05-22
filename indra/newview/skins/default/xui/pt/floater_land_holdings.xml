@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="land holdings floater" title="Meu terreno">
 	<scroll_list name="parcel list">
-		<column label="Nome" name="name"/>
-		<column label="Localização" name="location"/>
+		<column label="Nome do Lote" name="name"/>
+		<column label="Região" name="location"/>
+		<column label="Tipo" name="type"/>
 		<column label="Área" name="area"/>
 	</scroll_list>
 	<button label="Teletransporte" label_selected="Teletransporte" name="Teleport" tool_tip="Teletransportar para o centro do terreno."/>

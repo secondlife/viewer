@@ -68,8 +68,12 @@ S32 LLTexLayerSetBuffer::sGLBumpByteCount = 0;
 //-----------------------------------------------------------------------------
 // LLBakedUploadData()
 //-----------------------------------------------------------------------------
-LLBakedUploadData::LLBakedUploadData( LLVOAvatar* avatar, LLTexLayerSetBuffer* layerset_buffer, const LLUUID & id ) : 
+LLBakedUploadData::LLBakedUploadData( LLVOAvatar* avatar,
+									  LLTexLayerSet* layerset, 
+									  LLTexLayerSetBuffer* layerset_buffer, 
+									  const LLUUID & id ) : 
 	mAvatar( avatar ),
+	mLayerSet( layerset ),
 	mLayerSetBuffer( layerset_buffer ),
 	mID(id)
 { 
@@ -485,7 +489,8 @@ void LLTexLayerSetBuffer::readBackAndUpload(U8* baked_bump_data)
 			if( valid )
 			{
 				// baked_upload_data is owned by the responder and deleted after the request completes
-				LLBakedUploadData* baked_upload_data = new LLBakedUploadData( gAgent.getAvatarObject(), this, asset_id );
+				LLBakedUploadData* baked_upload_data =
+					new LLBakedUploadData( gAgent.getAvatarObject(), this->mTexLayerSet, this, asset_id );
 				mUploadID = asset_id;
 				
 				// upload the image
@@ -547,40 +552,51 @@ void LLTexLayerSetBuffer::onTextureUploadComplete(const LLUUID& uuid, void* user
 		// Sanity check: only the user's avatar should be uploading textures.
 		if( baked_upload_data->mAvatar == avatar )
 		{
-			// Because the avatar is still valid, it's layerset buffers should be valid also.
-			LLTexLayerSetBuffer* layerset_buffer = baked_upload_data->mLayerSetBuffer;
-			layerset_buffer->mUploadPending = FALSE;
-			
-			if (layerset_buffer->mUploadID.isNull())
-			{
-				// The upload got canceled, we should be in the process of baking a new texture
-				// so request an upload with the new data
-				layerset_buffer->requestUpload();
-			}
-			else if( baked_upload_data->mID == layerset_buffer->mUploadID )
-			{
-				// This is the upload we're currently waiting for.
-				layerset_buffer->mUploadID.setNull();
+			// Composite may have changed since the pointer was stored - need to do some checking. 
+			LLTexLayerSetBuffer* prev_layerset_buffer = baked_upload_data->mLayerSetBuffer;
+			// Can't just call getComposite() because this will trigger creation if none exists.
+			LLTexLayerSetBuffer* curr_layerset_buffer =
+				baked_upload_data->mLayerSet->hasComposite()?baked_upload_data->mLayerSet->getComposite():NULL;
 
-				if( result >= 0 )
-				{
-					ETextureIndex baked_te = avatar->getBakedTE( layerset_buffer->mTexLayerSet );
-					U64 now = LLFrameTimer::getTotalTime();		// Record starting time
-					llinfos << "Baked texture upload took " << (S32)((now - baked_upload_data->mStartTime) / 1000) << " ms" << llendl;
-					avatar->setNewBakedTexture( baked_te, uuid );
-				}
-				else
-				{
-					llinfos << "Baked upload failed. Reason: " << result << llendl;
-					// *FIX: retry upload after n seconds, asset server could be busy
-				}
+			if (prev_layerset_buffer != curr_layerset_buffer)
+			{
+				llinfos << "Baked texture out of date, composite no longer valid, ignored" << llendl;
 			}
 			else
 			{
-				llinfos << "Received baked texture out of date, ignored." << llendl;
-			}
+				curr_layerset_buffer->mUploadPending = FALSE;
+			
+				if (curr_layerset_buffer->mUploadID.isNull())
+				{
+					// The upload got canceled, we should be in the process of baking a new texture
+					// so request an upload with the new data
+					curr_layerset_buffer->requestUpload();
+				}
+				else if( baked_upload_data->mID == curr_layerset_buffer->mUploadID )
+				{
+					// This is the upload we're currently waiting for.
+					curr_layerset_buffer->mUploadID.setNull();
 
-			avatar->dirtyMesh();
+					if( result >= 0 )
+					{
+						ETextureIndex baked_te = avatar->getBakedTE( curr_layerset_buffer->mTexLayerSet );
+						U64 now = LLFrameTimer::getTotalTime();		// Record starting time
+						llinfos << "Baked texture upload took " << (S32)((now - baked_upload_data->mStartTime) / 1000) << " ms" << llendl;
+						avatar->setNewBakedTexture( baked_te, uuid );
+					}
+					else
+					{
+						llinfos << "Baked upload failed. Reason: " << result << llendl;
+						// *FIX: retry upload after n seconds, asset server could be busy
+					}
+				}
+				else
+				{
+					llinfos << "Received baked texture out of date, ignored." << llendl;
+				}
+
+				avatar->dirtyMesh();
+			}
 		}
 	}
 	else

@@ -10,7 +10,7 @@
 		Kliknij na [BUTTON NAME] przycisk by zaakceptować/dołączyć do tej rozmowy.
 	</string>
 	<string name="muted_message">
-		Ten rezydent jest przez Ciebie wyciszony. Wysyłanie wiadomośći automatycznie wyłączy tryb wyciszenia.
+		Ten Rezydent jest przez Ciebie wyciszony. Wysyłanie wiadomości automatycznie wyłączy tryb wyciszenia.
 	</string>
 	<string name="generic_request_error">
 		Błąd. Spróbuj ponownie za kilka minut.

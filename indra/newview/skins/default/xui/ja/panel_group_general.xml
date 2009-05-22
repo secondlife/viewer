@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="一般" name="general_tab">
 	<string name="help_text">
-		[一般]タブには、このグループに関する
+		「一般」タブには、このグループに関する
 一般情報、オーナーと表示可能なメンバーのリスト 
-一般的な[グループ環境設定]、メンバーのオプションが含まれます。
+一般的な「グループ環境設定」、メンバーのオプションが含まれます。
 
 オプションの上でマウスカーソルを動かすと、ヘルプ情報を得られます。
 	</string>
@@ -49,7 +49,17 @@
 		<check_box label="会員募集" name="open_enrollement" tool_tip="招待状なしに自由にこのグループに加入することを許可するかどうかを指定します"/>
 		<check_box label="入会費：L$" name="check_enrollment_fee" tool_tip="このグループへの参加に入会費を必須とするかどうかを指定します"/>
 		<spinner name="spin_enrollment_fee" tool_tip="「入会費」がチェックされている場合、新規会員は入会時にここに指定された金額を支払う必要があります"/>
-
+		<combo_box name="group_mature_check" tool_tip="グループ情報がMature向けかどうかの設定をします。">
+			<combo_item name="select_mature">
+				- Matureの選択 -
+			</combo_item>
+			<combo_item name="mature">
+				Matureコンテンツ
+			</combo_item>
+			<combo_item name="pg">
+				PGコンテンツ
+			</combo_item>
+		</combo_box>
 		<panel name="title_container">
 			<text name="active_title_label">
 				私のアクティブ・タイトル
@@ -57,7 +67,7 @@
 			<combo_box name="active_title" tool_tip="このグループをアクティブ設定にした際アバターのネームタグに表示されるタイトルの設定"/>
 		</panel>
 		<check_box label="グループ通知を受信" name="receive_notices" tool_tip="グループからの通知を受信するかどうかを指定します。 このグループがスパム行為をしている場合は、このボックスのチェックを外してください"/>
-		<check_box label="ﾌﾟﾛﾌｨｰﾙにｸﾞﾙｰﾌﾟを表示" name="list_groups_in_profile" tool_tip="このグループをあなたのプロフィールに表示するかどうかを設定します"/>
+		<check_box label="プロフィールに表示" name="list_groups_in_profile" tool_tip="このグループをあなたのプロフィールに表示するかどうかを設定します"/>
 	</panel>
 	<string name="incomplete_member_data_str">
 		メンバー・データを検索

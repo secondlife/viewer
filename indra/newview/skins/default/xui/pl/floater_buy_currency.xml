@@ -10,7 +10,7 @@
 		Potrzebujesz wiecęj L$:
 	</text>
 	<text name="error_message">
-		Pojawienie się błedu.
+		Pojawienie się błędu.
 	</text>
 	<button label="Idź do strony internetowej" name="error_web" width="168"/>
 	<text name="contacting">
@@ -23,13 +23,13 @@
 		[NAME] [PRICE]L$
 	</text>
 	<text name="currency_action">
-		Kup L$
+		Kup
 	</text>
-	<line_editor name="currency_amt">
+	<line_editor name="currency_amt" left_delta="32">
 		1234
 	</line_editor>
 	<text name="currency_est">
-		za [USD]US$
+		L$ za [USD]US$
 	</text>
 	<text name="getting_data">
 		Otrzymywanie danych...
@@ -52,12 +52,12 @@
 	<text name="total_amount">
 		[AMT]L$
 	</text>
-	<text name="purchase_warning_repurchase">
-		Potwierdzając tę transkację zgadzasz się na zakup
-TYLKO waluty. Proszę spróbować wykonać
-operację jeszcze raz.
+	<text name="purchase_warning_repurchase" height="48" bottom_delta="-64" right="-10">
+		Dokonując potwierdzenia na podaną transakcję,
+wyrażasz zgodę jedynie na zakup waluty.
+Sprobuj wykonać operację ponownie.
 	</text>
-	<text name="purchase_warning_notenough">
+	<text name="purchase_warning_notenough" bottom_delta="16">
 		Nie zakupujesz wystarczającej ilości waluty.
 Proszę zwiększyć ilość.
 	</text>

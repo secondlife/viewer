@@ -8,7 +8,7 @@
 			<menu_item_call label="Animation ([COST] L$)..." name="Upload Animation"/>
 			<menu_item_call label="Lot ([COST] L$ par fichier)..." name="Bulk Upload"/>
 			<menu_item_separator label="-----------" name="separator"/>
-			<menu_item_call label="Définir les permissions par défaut..." name="perm prefs"/>
+			<menu_item_call label="Définir les droits par défaut..." name="perm prefs"/>
 		</menu>
 		<menu_item_separator label="-----------" name="separator"/>
 		<menu_item_call label="Fermer la fenêtre" name="Close Window"/>
@@ -83,6 +83,7 @@
 		<menu_item_separator label="-----------" name="separator3"/>
 		<menu_item_check label="Statistiques" name="Statistics Bar"/>
 		<menu_item_check label="Limites des parcelles" name="Property Lines"/>
+		<menu_item_check label="Barrières d&apos;interdiction d&apos;accès" name="Banlines"/>
 		<menu_item_check label="Propriétaires fonciers" name="Land Owners"/>
 		<menu_item_separator label="-----------" name="separator4"/>
 		<menu label="Infobulles" name="Hover Tips">
@@ -170,7 +171,6 @@
 		<menu_item_call label="Zoom sur la sélection" name="Zoom to Selection"/>
 		<menu_item_call label="Acheter l&apos;objet" name="Menu Object Take"/>
 		<menu_item_call label="Prendre une copie" name="Take Copy"/>
-		<menu_item_call label="Remplacer l&apos;objet dans mon inventaire" name="Save Object Back to My Inventory"/>
 		<menu_item_call label="Remplacer l&apos;objet dans le contenu de l&apos;objet" name="Save Object Back to Object Contents"/>
 		<menu_item_separator label="-----------" name="separator6"/>
 		<menu_item_call label="Afficher la fenêtre d&apos;alertes/erreurs de script" name="Show Script Warning/Error Window"/>
@@ -183,12 +183,14 @@
 		<menu_item_call label="Désactiver les scripts dans la sélection" name="Set Scripts to Not Running in Selection"/>
 	</menu>
 	<menu label="Aide" name="Help">
-		<menu_item_call label="Aide Second Life" name="Second Life Help"/>
+		<menu_item_call label="Aide de Second Life" name="Second Life Help"/>
 		<menu_item_call label="Didacticiel" name="Tutorial"/>
 		<menu_item_separator label="-----------" name="separator"/>
 		<menu_item_call label="Blog officiel..." name="Official Linden Blog..."/>
 		<menu_item_separator label="-----------" name="separator2"/>
-		<menu_item_call label="Aide sur le LSL..." name="Scripting Portal..."/>
+		<menu_item_call label="Aide sur le LSL..." name="Scripting Portal...">
+			<on_click name="ScriptingPortal_url" userdata="WebLaunchLSLWiki,http://wiki.secondlife.com/wiki/LSL_Portal/fr" />
+		</menu_item_call>
 		<menu_item_separator label="-----------" name="separator3"/>
 		<menu_item_call label="Signaler une infraction..." name="Report Abuse..."/>
 		<menu_item_call label="Collisions, coups et bousculades…" name="Bumps, Pushes &amp;amp; Hits..."/>
@@ -196,9 +198,13 @@
 		<menu_item_separator label="-----------" name="separator7"/>
 		<menu label="Signaler des bugs" name="Bug Reporting">
 			<menu_item_call label="Ouvrir un JIRA..." name="Public Issue Tracker..."/>
-			<menu_item_call label="Comment utiliser JIRA ?" name="Publc Issue Tracker Help..."/>
+			<menu_item_call label="Comment utiliser JIRA ?" name="Publc Issue Tracker Help...">
+				<on_click name="PublicIssueTrackerHelp_url" userdata="WebLaunchPublicIssueHelp,http://wiki.secondlife.com/wiki/Issue_tracker/fr" />
+			</menu_item_call>
 			<menu_item_separator label="-----------" name="separator7"/>
-			<menu_item_call label="Comment signaler des bugs ?" name="Bug Reporing 101..."/>
+			<menu_item_call label="Comment signaler des bugs ?" name="Bug Reporing 101...">
+				<on_click name="BugReporting101_url" userdata="WebLaunchBugReport101,http://wiki.secondlife.com/wiki/Bug_Reporting_101/fr"/>
+			</menu_item_call>
 			<menu_item_call label="Comment signaler un problème de sécurité ?" name="Security Issues...">
 				<on_click name="SecurityIssues_url" userdata="WebLaunchSecurityIssues,http://wiki.secondlife.com/wiki/Security_issues/fr"/>
 			</menu_item_call>

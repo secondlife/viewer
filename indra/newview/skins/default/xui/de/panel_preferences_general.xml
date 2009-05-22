@@ -33,10 +33,28 @@
 	</text>
 	<check_box label="Auflösungsunabhängigen Maßstab verwenden" name="ui_auto_scale"/>
 	<spinner label="Timeout für Abwesenheit:" name="afk_timeout_spinner"/>
-	<check_box label="Minikarte drehen" name="rotate_mini_map_checkbox"/>
 	<check_box label="L$ Eingänge und Ausgaben melden" name="notify_money_change_checkbox"/>
-	<check_box label="Standard-Farbauswahl verwenden" name="use_system_color_picker_checkbox" tool_tip="Standard-Farbauswahl des Systems anstelle des Second Life-eigenen verwenden."/>
-	<check_box label="Suchleiste in Menüleiste anzeigen" name="show_search_panel" tool_tip="Die eingebettete Suchleiste anzeigen."/>
+	<text name="maturity_desired_label" bottom="-312">
+		Einstufung:
+	</text>
+	<text name="maturity_desired_prompt" bottom="-312">
+		Ich möchte auf Inhalt mit folgender
+Alterseinstufung zugreifen:
+	</text>
+	<combo_box name="maturity_desired_combobox" bottom="-330" left="336">
+		<combo_item name="Desired_Adult">
+			PG, Mature und Adult
+		</combo_item>
+		<combo_item name="Desired_Mature">
+			PG und Mature
+		</combo_item>
+		<combo_item name="Desired_PG">
+			Nur PG
+		</combo_item>
+	</combo_box>
+	<text name="maturity_desired_textbox" bottom="-324" left="336">
+		Nur PG
+	</text>
 	<text name="start_location_textbox">
 		Startposition:
 	</text>
@@ -55,13 +73,13 @@
 	<text name="language_textbox">
 		Sprache:
 	</text>
-	<text name="language_textbox2">
+	<text left_delta="313" name="language_textbox2">
 		(Erfordert Neustart)
 	</text>
 	<string name="region_name_prompt">
 		&lt;Region eingeben&gt;
 	</string>
-	<combo_box name="crash_behavior_combobox">
+	<combo_box name="crash_behavior_combobox" width="166">
 		<combo_item name="Askbeforesending">
 			Vor dem Senden fragen
 		</combo_item>
@@ -72,7 +90,7 @@
 			Nie senden
 		</combo_item>
 	</combo_box>
-	<combo_box name="language_combobox">
+	<combo_box name="language_combobox" width="166">
 		<combo_item name="System Default Language">
 			Betriebssystem-Einstellung
 		</combo_item>
@@ -91,14 +109,29 @@
 		<combo_item name="French">
 			Français (Französisch) - Beta
 		</combo_item>
+		<combo_item name="Italian">
+			Italiano (Italienisch) - Beta
+		</combo_item>
 		<combo_item name="Hungarian">
 			Magyar (Ungarisch) - Beta
+		</combo_item>
+		<combo_item name="Dutch">
+			Nederlands (Niederländisch) - Beta
 		</combo_item>
 		<combo_item name="Polish">
 			Polski (Polnisch) - Beta
 		</combo_item>
 		<combo_item name="Portugese">
 			Português (Portugiesisch) - Beta
+		</combo_item>
+		<combo_item name="Russian">
+			Русский (Russian) - Beta
+		</combo_item>
+		<combo_item name="Turkish">
+			Türkçe (Türkisch) - Beta
+		</combo_item>
+		<combo_item name="Ukrainian">
+			Українська (Ukrainisch) - Beta
 		</combo_item>
 		<combo_item name="Chinese">
 			中文 (简体) (Chinesisch) - Beta

@@ -17,10 +17,10 @@
 	<texture_picker label="Podkoszulek" name="undershirt" />
 	<texture_picker label="Rękawiczki" name="gloves" />
 	<texture_picker label="Koszula" name="shirt" />
-	<texture_picker label="Wierznie Górne Ubranie" name="upper_jacket" />
+	<texture_picker label="Górna Część Kurtki" name="upper_jacket" />
 	<texture_picker label="Dolna Część Ciała" name="baked_lower_body" />
 	<texture_picker label="Tatuaż Dolnej Części Ciała" name="lower_bodypaint" />
-	<texture_picker label="Majtasy" name="underpants" />
+	<texture_picker label="Bielizna" name="underpants" />
 	<texture_picker label="Skarpety" name="socks" />
 	<texture_picker label="Buty" name="shoes" />
 	<texture_picker label="Spodnie" name="pants" />

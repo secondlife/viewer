@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater name="script ed float" title="Script : Nouveau script">
-	<button label="Redéfinir" label_selected="Redéfinir" name="Reset" width="100" left="390"/>
+	<button label="Réinitialiser" label_selected="Réinitialiser" name="Reset" width="100" left="390"/>
 	<check_box label="Exécution en cours" name="running" left="4"/>
 	<check_box label="Mono" name="mono" left="130"/>
 	<string name="not_allowed">

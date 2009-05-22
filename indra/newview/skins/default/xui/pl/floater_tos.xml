@@ -4,8 +4,8 @@
 	<button label="Anuluj" label_selected="Anuluj" name="Cancel" />
 	<check_box label="Zgadzam się na Warunki Serwisu (Terms of Service)" name="agree_chk" />
 	<text name="tos_heading">
-		Proszę dokładnie przeczytać następujące Warunki Serwisu (Terms of Service). Musisz zaakceptować
-umową żeby kontynuować logowanie do Second Life.
+		Proszę dokładnie przeczytać następujące Warunki Serwisu (Terms of Service). Musisz
+zaakceptować umową żeby kontynuować logowanie do Second Life.
 	</text>
 	<text_editor name="tos_text">
 		TOS_TEXT

@@ -121,7 +121,8 @@ LLCurrencyUIManager::Impl::Impl(LLPanel& dialog)
 	: mPanel(dialog),
 	mHidden(false),
 	mError(false),
-	mUserCurrencyBuy(1000), mUserEnteredCurrencyBuy(false),
+	mUserCurrencyBuy(2000), // note, this is a default, real value set in llfloaterbuycurrency.cpp
+	mUserEnteredCurrencyBuy(false),
 	mSiteCurrencyEstimated(false),
 	  mSiteCurrencyEstimatedCost(0),
 	mBought(false),

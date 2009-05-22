@@ -42,6 +42,11 @@
 #include <windows.h>
 #include <wininet.h>
 #include <stdio.h>
+#include <string>
+#include <iostream>
+#include <stdexcept>
+#include <sstream>
+#include <fstream>
 
 #define BUFSIZE 8192
 
@@ -52,13 +57,16 @@ WCHAR gProgress[256];
 char* gUpdateURL = NULL;
 
 #if _DEBUG
-FILE* logfile = 0;
+std::ofstream logfile;
+#define DEBUG(expr) logfile << expr << std::endl
+#else
+#define DEBUG(expr) /**/
 #endif
 
-char* wchars_to_utf8chars(WCHAR* in_chars)
+char* wchars_to_utf8chars(const WCHAR* in_chars)
 {
 	int tlen = 0;
-	WCHAR* twc = in_chars;
+	const WCHAR* twc = in_chars;
 	while (*twc++ != 0)
 	{
 		tlen++;
@@ -81,103 +89,128 @@ char* wchars_to_utf8chars(WCHAR* in_chars)
 	return res;
 }
 
-int WINAPI get_url_into_file(WCHAR *uri, char *path, int *cancelled)
+class Fetcher
+{
+public:
+    Fetcher(const std::wstring& uri)
+    {
+        // These actions are broken out as separate methods not because it
+        // makes the code clearer, but to avoid triggering AntiVir and
+        // McAfee-GW-Edition virus scanners (DEV-31680).
+        mInet = openInet();
+        mDownload = openUrl(uri);
+    }
+
+    ~Fetcher()
+    {
+        DEBUG("Calling InternetCloseHandle");
+        InternetCloseHandle(mDownload);
+        InternetCloseHandle(mInet);
+    }
+
+    unsigned long read(char* buffer, size_t bufflen) const;
+
+    DWORD getTotalBytes() const
+    {
+        DWORD totalBytes;
+        DWORD sizeof_total_bytes = sizeof(totalBytes);
+        HttpQueryInfo(mDownload, HTTP_QUERY_CONTENT_LENGTH | HTTP_QUERY_FLAG_NUMBER,
+                      &totalBytes, &sizeof_total_bytes, NULL);
+        return totalBytes;
+    }
+
+    struct InetError: public std::runtime_error
+    {
+        InetError(const std::string& what): std::runtime_error(what) {}
+    };
+
+private:
+    // We test results from a number of different MS functions with different
+    // return types -- but the common characteristic is that 0 (i.e. (! result))
+    // means an error of some kind.
+    template <typename RESULT>
+    static RESULT check(const std::string& desc, RESULT result)
+    {
+        if (result)
+        {
+            // success, show caller
+            return result;
+        }
+        DWORD err = GetLastError();
+        std::ostringstream out;
+        out << desc << " Failed: " << err;
+        DEBUG(out.str());
+        throw InetError(out.str());
+    }
+
+    HINTERNET openUrl(const std::wstring& uri) const;
+    HINTERNET openInet() const;
+
+    HINTERNET mInet, mDownload;
+};
+
+HINTERNET Fetcher::openInet() const
+{
+    DEBUG("Calling InternetOpen");
+    // Init wininet subsystem
+    return check("InternetOpen",
+                 InternetOpen(L"LindenUpdater", INTERNET_OPEN_TYPE_PRECONFIG, NULL, NULL, 0));
+}
+
+HINTERNET Fetcher::openUrl(const std::wstring& uri) const
+{
+    DEBUG("Calling InternetOpenUrl: " << wchars_to_utf8chars(uri.c_str()));
+    return check("InternetOpenUrl",
+                 InternetOpenUrl(mInet, uri.c_str(), NULL, 0, INTERNET_FLAG_NEED_FILE, NULL));
+}
+
+unsigned long Fetcher::read(char* buffer, size_t bufflen) const
+{
+    unsigned long bytes_read = 0;
+    DEBUG("Calling InternetReadFile");
+    check("InternetReadFile",
+          InternetReadFile(mDownload, buffer, bufflen, &bytes_read));
+    return bytes_read;
+}
+
+int WINAPI get_url_into_file(const std::wstring& uri, const std::string& path, int *cancelled)
 {
 	int success = FALSE;
 	*cancelled = FALSE;
 
-	HINTERNET hinet, hdownload;
-	char data[BUFSIZE];		/* Flawfinder: ignore */
-	unsigned long bytes_read;
+    DEBUG("Opening '" << path << "'");
 
-#if _DEBUG
-	fprintf(logfile,"Opening '%s'\n",path);
-	fflush(logfile);
-#endif	
-
-	FILE* fp = fopen(path, "wb");		/* Flawfinder: ignore */
+	FILE* fp = fopen(path.c_str(), "wb");		/* Flawfinder: ignore */
 
 	if (!fp)
 	{
-#if _DEBUG
-		fprintf(logfile,"Failed to open '%s'\n",path);
-		fflush(logfile);
-#endif	
-		return success;
-	}
-	
-#if _DEBUG
-	fprintf(logfile,"Calling InternetOpen\n");
-	fflush(logfile);
-#endif	
-	// Init wininet subsystem
-	hinet = InternetOpen(L"LindenUpdater", INTERNET_OPEN_TYPE_PRECONFIG, NULL, NULL, 0);
-	if (hinet == NULL)
-	{
+        DEBUG("Failed to open '" << path << "'");
 		return success;
 	}
 
-#if _DEBUG
-	fprintf(logfile,"Calling InternetOpenUrl: %s\n",wchars_to_utf8chars(uri));
-	fflush(logfile);
-#endif	
-	hdownload = InternetOpenUrl(hinet, uri, NULL, 0, INTERNET_FLAG_NEED_FILE, NULL);
-	if (hdownload == NULL)
-	{
-#if _DEBUG
-		DWORD err = GetLastError();
-		fprintf(logfile,"InternetOpenUrl Failed: %d\n",err);
-		fflush(logfile);
-#endif	
-		return success;
-	}
+    // Note, ctor can throw, since it uses check() function.
+    Fetcher fetcher(uri);
+    gTotalBytes = fetcher.getTotalBytes();
 
-	DWORD sizeof_total_bytes = sizeof(gTotalBytes);
-	HttpQueryInfo(hdownload, HTTP_QUERY_CONTENT_LENGTH | HTTP_QUERY_FLAG_NUMBER, &gTotalBytes, &sizeof_total_bytes, NULL);
-	
+/*==========================================================================*|
+    // nobody uses total_bytes?!? What's this doing here?
 	DWORD total_bytes = 0;
-	success = InternetQueryDataAvailable(hdownload, &total_bytes, 0, 0);
-	if (success == FALSE)
-	{
-#if _DEBUG
-		DWORD err = GetLastError();
-		fprintf(logfile,"InternetQueryDataAvailable Failed: %d bytes Err:%d\n",total_bytes,err);
-		fflush(logfile);
-#endif	
- 		return success;
-	}
+	success = check("InternetQueryDataAvailable",
+                    InternetQueryDataAvailable(hdownload, &total_bytes, 0, 0));
+|*==========================================================================*/
 
 	success = FALSE;
 	while(!success && !(*cancelled))
 	{
-		MSG msg;
+        char data[BUFSIZE];		/* Flawfinder: ignore */
+        unsigned long bytes_read = fetcher.read(data, sizeof(data));
 
-#if _DEBUG
-		fprintf(logfile,"Calling InternetReadFile\n");
-		fflush(logfile);
-#endif	
-		if (!InternetReadFile(hdownload, data, BUFSIZE, &bytes_read))
-		{
-#if _DEBUG
-			fprintf(logfile,"InternetReadFile Failed.\n");
-			fflush(logfile);
-#endif
-			// ...an error occurred
-			return FALSE;
-		}
-
-#if _DEBUG
 		if (!bytes_read)
 		{
-			fprintf(logfile,"InternetReadFile Read 0 bytes.\n");
-			fflush(logfile);
+            DEBUG("InternetReadFile Read " << bytes_read << " bytes.");
 		}
-#endif
 
-#if _DEBUG
-		fprintf(logfile,"Reading Data, bytes_read = %d\n",bytes_read);
-		fflush(logfile);
-#endif	
+        DEBUG("Reading Data, bytes_read = " << bytes_read);
 		
 		if (bytes_read == 0)
 		{
@@ -200,25 +233,17 @@ int WINAPI get_url_into_file(WCHAR *uri, char *path, int *cancelled)
 
 		}
 
-#if _DEBUG
-		fprintf(logfile,"Calling InvalidateRect\n");
-		fflush(logfile);
-#endif	
+        DEBUG("Calling InvalidateRect");
 		
 		// Mark the window as needing redraw (of the whole thing)
 		InvalidateRect(gWindow, NULL, TRUE);
 
 		// Do the redraw
-#if _DEBUG
-		fprintf(logfile,"Calling UpdateWindow\n");
-		fflush(logfile);
-#endif	
+        DEBUG("Calling UpdateWindow");
 		UpdateWindow(gWindow);
 
-#if _DEBUG
-		fprintf(logfile,"Calling PeekMessage\n");
-		fflush(logfile);
-#endif	
+        DEBUG("Calling PeekMessage");
+		MSG msg;
 		while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 		{
 			TranslateMessage(&msg);
@@ -232,15 +257,7 @@ int WINAPI get_url_into_file(WCHAR *uri, char *path, int *cancelled)
 		}
 	}
 
-#if _DEBUG
-	fprintf(logfile,"Calling InternetCloseHandle\n");
-	fclose(logfile);
-#endif
-	
 	fclose(fp);
-	InternetCloseHandle(hdownload);
-	InternetCloseHandle(hinet);
-
 	return success;
 }
 
@@ -306,9 +323,8 @@ WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nSho
 	char* argv[MAX_ARGS];		/* Flawfinder: ignore */
 
 #if _DEBUG
-	logfile = _wfopen(TEXT("updater.log"),TEXT("wt"));
-	fprintf(logfile,"Parsing command arguments\n");
-	fflush(logfile);
+	logfile.open("updater.log", std::ios_base::out);
+    DEBUG("Parsing command arguments");
 #endif
 	
 	char *token = NULL;
@@ -346,10 +362,7 @@ WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nSho
 	// Process command line arguments
 	//
 
-#if _DEBUG
-	fprintf(logfile,"Processing command arguments\n");
-	fflush(logfile);
-#endif
+    DEBUG("Processing command arguments");
 	
 	//
 	// Parse the command line arguments
@@ -358,7 +371,6 @@ WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nSho
 	
 	WNDCLASSEX wndclassex = { 0 };
 	//DEVMODE dev_mode = { 0 };
-	char update_exec_path[MAX_PATH];		/* Flawfinder: ignore */
 
 	const int WINDOW_WIDTH = 250;
 	const int WINDOW_HEIGHT = 100;
@@ -407,26 +419,34 @@ WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nSho
 	}
 
 	// Can't feed GetTempPath into GetTempFile directly
-	if (0 == GetTempPathA(MAX_PATH - 14, update_exec_path))
+	char temp_path[MAX_PATH];		/* Flawfinder: ignore */
+	if (0 == GetTempPathA(sizeof(temp_path), temp_path))
 	{
 		MessageBox(gWindow, L"Problem with GetTempPath()",
 			L"Error", MB_OK);
 		return 1;
 	}
-	strcat(update_exec_path, "Second_Life_Updater.exe");
+    std::string update_exec_path(temp_path);
+	update_exec_path.append("Second_Life_Updater.exe");
 
 	WCHAR update_uri[4096];
-	mbstowcs(update_uri, gUpdateURL, 4096);
+    mbstowcs(update_uri, gUpdateURL, sizeof(update_uri));
 
 	int success = 0;
 	int cancelled = 0;
 
 	// Actually do the download
-#if _DEBUG
-	fprintf(logfile,"Calling get_url_into_file\n");
-	fflush(logfile);
-#endif	
-	success = get_url_into_file(update_uri, update_exec_path, &cancelled);
+    try
+    {
+        DEBUG("Calling get_url_into_file");
+        success = get_url_into_file(update_uri, update_exec_path, &cancelled);
+    }
+    catch (const Fetcher::InetError& e)
+    {
+        (void)e;
+        success = FALSE;
+        DEBUG("Caught: " << e.what());
+    }
 
 	// WinInet can't tell us if we got a 404 or not.  Therefor, we check
 	// for the size of the downloaded file, and assume that our installer
@@ -466,10 +486,31 @@ WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nSho
 	//	L"Download Complete",
 	//	MB_OK);
 		
-	if (32 >= (int) ShellExecuteA(gWindow, "open", update_exec_path, NULL, 
+/*==========================================================================*|
+    // DEV-31680: ShellExecuteA() causes McAfee-GW-Edition and AntiVir
+    // scanners to flag this executable as a probable virus vector.
+    // Less than or equal to 32 means failure
+	if (32 >= (int) ShellExecuteA(gWindow, "open", update_exec_path.c_str(), NULL, 
 		"C:\\", SW_SHOWDEFAULT))
+|*==========================================================================*/
+    // from http://msdn.microsoft.com/en-us/library/ms682512(VS.85).aspx
+    STARTUPINFOA si;
+    PROCESS_INFORMATION pi;
+    ZeroMemory(&si, sizeof(si));
+    si.cb = sizeof(si);
+    ZeroMemory(&pi, sizeof(pi));
+
+    if (! CreateProcessA(update_exec_path.c_str(), // executable file
+                  NULL,                            // command line
+                  NULL,             // process cannot be inherited
+                  NULL,             // thread cannot be inherited
+                  FALSE,            // do not inherit existing handles
+                  0,                // process creation flags
+                  NULL,             // inherit parent's environment
+                  NULL,             // inherit parent's current dir
+                  &si,              // STARTUPINFO
+                  &pi))             // PROCESS_INFORMATION
 	{
-		// Less than or equal to 32 means failure
 		MessageBox(gWindow, L"Update failed.  Please try again later.", NULL, MB_OK);
 		return 1;
 	}

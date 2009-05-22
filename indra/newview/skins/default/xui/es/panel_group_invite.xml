@@ -3,9 +3,9 @@
 	<text name="help_text">
 		Puede seleccionar a varios residentes para 
 invitarles a su grupo. Para empezar, pulse
-&apos;Abrir el selector de personas&apos;.
+&apos;Abrir el selector de residentes&apos;.
 	</text>
-	<button label="Abrir el selector de personas" name="add_button" tool_tip=""/>
+	<button label="Abrir el selector de residentes" name="add_button" tool_tip=""/>
 	<name_list name="invitee_list" tool_tip="Para seleccionar a varios residentes, mantenga pulsada la tecla Ctrl y vaya pulsando sus nombres."/>
 	<button label="Eliminar de la lista a los seleccionados" name="remove_button" tool_tip="Elimina los residentes seleccionados de la lista de invitaciones."/>
 	<text name="role_text">

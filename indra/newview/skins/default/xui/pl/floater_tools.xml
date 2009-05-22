@@ -1,21 +1,17 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="toolbox floater" title="">
-	<!-- Main floater tabs -->
 	<button label="" label_selected="" name="button focus" tool_tip="Zbliżenie"/>
 	<button label="" label_selected="" name="button move" tool_tip="Przesunięcie"/>
 	<button label="" label_selected="" name="button edit" tool_tip="Edycja"/>
 	<button label="" label_selected="" name="button create" tool_tip="Stwórz"/>
 	<button label="" label_selected="" name="button land" tool_tip="Teren"/>
-	<!-- Focus panel -->
 	<check_box label="Zbliżenie" name="radio zoom"/>
 	<volume_slider name="slider zoom"/>
 	<check_box label="Obracanie (Ctrl)" name="radio orbit"/>
 	<check_box label="Przesunięcie (Ctrl-Shift)" name="radio pan"/>
-	<!-- Move panel -->
 	<check_box label="Przesuń" name="radio move"/>
 	<check_box label="Podnieś (Ctrl)" name="radio lift"/>
 	<check_box label="Obróć (Ctrl-Shift)" name="radio spin"/>
-	<!-- Edit panel -->
 	<check_box label="Pozycja" name="radio position"/>
 	<check_box label="Obróć (Ctrl)" name="radio rotate"/>
 	<check_box label="Rozciągnij (Ctrl-Shift)" name="radio stretch"/>
@@ -39,11 +35,9 @@
 	<check_box label="Rozciągnij Teksturę" name="checkbox stretch textures"/>
 	<check_box label="Użyj Siatki" name="checkbox snap to grid"/>
 	<button label="Opcje..." label_selected="Opcje..." name="Options..."/>
-	<!-- Help text -->
 	<text name="text status">
 		Przeciągnij żeby przenieść, shift-przeciągnij żeby skopiować
 	</text>
-	<!-- Create panel -->
 	<button label="" label_selected="" name="ToolCube" tool_tip="Sześcian"/>
 	<button label="" label_selected="" name="ToolPrism" tool_tip="Graniastosłup"/>
 	<button label="" label_selected="" name="ToolPyramid" tool_tip="Ostrosłup"/>
@@ -59,38 +53,34 @@
 	<button label="" label_selected="" name="ToolRing" tool_tip="Pierścień"/>
 	<button label="" label_selected="" name="ToolTree" tool_tip="Drzewo"/>
 	<button label="" label_selected="" name="ToolGrass" tool_tip="Trawa"/>
-	<check_box label="Pamiętaj Wybrane Narzędzia" name="checkbox sticky"/>
-	<check_box label="Kopiuj Selekcję" name="checkbox copy selection"/>
-	<check_box label="Kopia Środka" name="checkbox copy centers"/>
-	<check_box label="Kopia Obrotu" name="checkbox copy rotates"/>
-	<!-- Land panel -->
+	<check_box label="Trzymaj zaznaczone" name="checkbox sticky"/>
+	<check_box label="Kopiuj zaznaczone" name="checkbox copy selection"/>
+	<check_box label="Środek" name="checkbox copy centers"/>
+	<check_box label="Obróć" name="checkbox copy rotates"/>
 	<check_box label="Zaznaczanie" name="radio select land"/>
-	<check_box label="Niwelowanie" name="radio flatten"/>
+	<check_box label="Prostowanie" name="radio flatten"/>
 	<check_box label="Podnoszenie" name="radio raise"/>
 	<check_box label="Obniżanie" name="radio lower"/>
 	<check_box label="Wygładzanie" name="radio smooth"/>
-	<check_box label="Fałdowanie terenu" name="radio noise"/>
-	<check_box label="Cofnięcie modyfikacji" name="radio revert"/>
-	<combo_box name="combobox brush size">
-		<combo_item name="Small">
-			Małe
-		</combo_item>
-		<combo_item name="Medium">
-			Średnie
-		</combo_item>
-		<combo_item name="Large">
-			Duże
-		</combo_item>
-	</combo_box>
-	<volume_slider name="slider force"/>
-	<text length="1" name="Strength:" type="string">
-		Siła:
+	<check_box label="Fałdowanie" name="radio noise"/>
+	<check_box label="Cofnij modyfikację" name="radio revert"/>
+	<button label="Zastosuj" label_selected="Zastosuj" name="button apply to selection" tool_tip="Modyfikuj zaznaczony teren"/>
+	<text name="Bulldozer:">
+		Burzenie:
 	</text>
-	<button label="Zastosuj do selekcji" label_selected="Zastosuj do selekcji" name="button apply to selection" tool_tip="Modyfikuj zaznaczony teren"/>
-	<check_box label="Pokaż Właścicieli" name="checkbox show owners"/>
-	<button label="Więcej &gt;&gt;" name="button more" tool_tip="Zaawansowane Opcje"/>
-	<button label="&lt;&lt; Mniej" name="button less" tool_tip="Zaawansowane Opcje"/>
-	<!-- Sub-tabs -->
+	<text name="Dozer Size:">
+		Rozmiar
+	</text>
+	<text length="1" name="Strength:" type="string">
+		Siła
+	</text>
+	<volume_slider name="slider force"/>
+	<text name="obj_count">
+		Wybrane obiekty: [COUNT]
+	</text>
+	<text name="prim_count">
+		primy: [COUNT]
+	</text>
 	<tab_container name="Object Info Tabs">
 		<panel label="Ogólne" name="General">
 			<text name="Name:">
@@ -122,9 +112,6 @@
 				The Lindens
 			</text>
 			<button label="Ustaw..." label_selected="Ustaw..." name="button set group"/>
-			<text name="prim info">
-				1 obiekt, 1 element
-			</text>
 			<text name="Permissions:">
 				Prawa:
 			</text>
@@ -239,7 +226,6 @@
 				Sprzedaż Mieszana
 			</string>
 		</panel>
-		<!-- Object sub-tab -->
 		<panel label="Obiekt" name="Object">
 			<text name="select_single">
 				Wybierz tylko jeden element by edytować jego parametry
@@ -378,6 +364,9 @@
 			<text name="advanced_dimple">
 				Przesunięcie Promienia
 			</text>
+			<text name="advanced_slice">
+				Przetnij początek i koniec
+			</text>
 			<spinner label="B" name="Path Limit Begin"/>
 			<spinner label="E" name="Path Limit End"/>
 			<text name="text taper2">
@@ -417,7 +406,6 @@
 				</combo_item>
 			</combo_box>
 		</panel>
-		<!-- Features sub-tab -->
 		<panel label="Atrybuty" name="Features">
 			<text name="select_single">
 				Wybierz tylko jeden element by edytować jego cechę.
@@ -443,7 +431,6 @@
 			<spinner label="Promień" name="Light Radius"/>
 			<spinner label="Spadek" name="Light Falloff"/>
 		</panel>
-		<!-- Texture sub-tab -->
 		<panel label="Tekstura" name="Texture">
 			<texture_picker label="Tekstura" name="texture control" tool_tip="Kliknij by wybrać obraz"/>
 			<color_swatch label="Kolor" name="colorswatch" tool_tip="Kliknij by wybrać kolor"/>
@@ -528,7 +515,7 @@
 					Skamieliny
 				</combo_item>
 				<combo_item name="siding">
-					Sidingu
+					Brzegu
 				</combo_item>
 				<combo_item name="stonetile">
 					Płytki Kamiennej
@@ -577,22 +564,33 @@
 			<button label="Dopasuj" label_selected="Dopasuj" name="button align"/>
 		</panel>
 		<panel label="Treść" name="Contents">
-			<button label="Nowy Skrypt..." label_selected="Nowy Skrypt..." name="button new script"/>
+			<button label="Nowy Skrypt" label_selected="Nowy Skrypt..." name="button new script"/>
+			<button label="Prawa..." name="button permissions"/>
 		</panel>
 	</tab_container>
-	<!-- Land Info sub-tab -->
 	<panel name="land info panel">
+		<text name="label_parcel_info">
+			Informacje o Posiadłości
+		</text>
 		<text name="label_area_price">
 			Cena: L$[PRICE] za [AREA] m
 		</text>
 		<text name="label_area">
 			Obszar: [AREA] m
 		</text>
-		<button label="Kup..." label_selected="Kup..." name="button buy land"/>
-		<button label="Anuluj..." label_selected="Anuluj..." name="button abandon land"/>
+		<button label="O Posiadłości..." label_selected="O Posiadłości..." name="button about land"/>
+		<check_box label="Pokaż Właścicieli" name="checkbox show owners" tool_tip="Pokoloruj posiadłości zgodnie z przynależnością do właściciela"/>
+		<button label="?" label_selected="?" name="button show owners help" left_delta="120"/>
+		<text name="label_parcel_modify">
+			Modyfikuj Posiadłość
+		</text>
 		<button label="Podziel..." label_selected="Podziel..." name="button subdivide land"/>
 		<button label="Złącz..." label_selected="Złącz..." name="button join land"/>
-		<button label="O Posiadłości..." label_selected="O Posiadłości..." name="button about land"/>
+		<text name="label_parcel_trans">
+			Transakcje na posiadłości
+		</text>
+		<button label="Kup..." label_selected="Kup..." name="button buy land"/>
+		<button label="Anuluj..." label_selected="Anuluj..." name="button abandon land"/>
 	</panel>
 	<string name="status_rotate">
 		Przeciągaj kolorowe pierścienie żeby obracać obiekt
@@ -610,10 +608,10 @@
 		Kliknij i przeciągnij żeby zmienić widok
 	</string>
 	<string name="status_grab">
-		Opcje:
+		Przeciągnij by przesunąć, wybierz Ctrl by podnieść, wybierz Ctrl-Shift by obrócić
 	</string>
 	<string name="status_place">
-		Rodzaje obiektów:
+		Kliknij in-world by zacząć budować
 	</string>
 	<string name="status_selectland">
 		Edytowanie Terenu:

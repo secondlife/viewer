@@ -61,6 +61,7 @@ LLFloaterBulkPermission::LLFloaterBulkPermission(const LLSD& seed) : mDone(FALSE
 	mID.generate();
 	LLUICtrlFactory::getInstance()->buildFloater(this,"floater_bulk_perms.xml");
 	childSetEnabled("next_owner_transfer", gSavedSettings.getBOOL("BulkChangeNextOwnerCopy"));
+	childSetAction("help", onHelpBtn, this);
 	childSetAction("apply", onApplyBtn, this);
 	childSetAction("close", onCloseBtn, this);
 	childSetAction("check_all", onCheckAll, this);
@@ -147,6 +148,11 @@ void LLFloaterBulkPermission::onApplyBtn(void* user_data)
 {
 	LLFloaterBulkPermission* self = static_cast<LLFloaterBulkPermission*>(user_data);
 	self->doApply();
+}
+
+void LLFloaterBulkPermission::onHelpBtn(void* user_data)
+{
+	LLNotifications::instance().add("HelpBulkPermission");
 }
 
 void LLFloaterBulkPermission::onCloseBtn(void* user_data)

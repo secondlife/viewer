@@ -16,17 +16,17 @@
 	</text>
 	<button label="Afficher balise" name="show_beacon_btn"/>
 	<text name="obj_name_text">
-		Nom :
+		Objet :
 	</text>
 	<button label="Filtre" name="filter_object_btn"/>
 	<text name="owner_name_text">
-		Nom :
+		Propriétaire :
 	</text>
 	<button label="Filtre" name="filter_owner_btn"/>
 	<button label="Renvoyer" name="return_selected_btn"/>
-	<button label="Renvoyer tous" name="return_all_btn"/>
+	<button label="Tout renvoyer" name="return_all_btn"/>
 	<button label="Désactiver" name="disable_selected_btn"/>
-	<button label="Désactiver tous" name="disable_all_btn"/>
+	<button label="Tout désactiver" name="disable_all_btn"/>
 	<button label="Rafraîchir" name="refresh_btn"/>
 	<string name="top_scripts_title">
 		Scripts principaux
@@ -41,10 +41,10 @@
 		Heure Mono
 	</string>
 	<string name="top_colliders_title">
-		Objets souvent responsables de collision
+		Collisions les plus consommatrices
 	</string>
 	<string name="top_colliders_text">
-		[COUNT] objets souvent responsables de collisions
+		[COUNT] collisions les plus consommatrices
 	</string>
 	<string name="colliders_score_label">
 		Score

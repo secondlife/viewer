@@ -35,6 +35,26 @@
 	<check_box label="Utiliser une échelle indépendante de la résolution" name="ui_auto_scale"/>
 	<spinner label="Absent(e) après :" name="afk_timeout_spinner"/>
 	<check_box label="M&apos;avertir lorsque je dépense ou reçois des L$" name="notify_money_change_checkbox"/>
+	<text name="maturity_desired_label">
+		Catégorie de contenu :
+	</text>
+	<text name="maturity_desired_prompt">
+		Je veux accéder au contenu classé :
+	</text>
+	<combo_box name="maturity_desired_combobox" left="340">
+		<combo_item name="Desired_Adult">
+			PG, Mature et Adult
+		</combo_item>
+		<combo_item name="Desired_Mature">
+			PG et Mature
+		</combo_item>
+		<combo_item name="Desired_PG">
+			PG uniquement
+		</combo_item>
+	</combo_box>
+	<text name="maturity_desired_textbox" left="340">
+		PG uniquement
+	</text>
 	<text length="1" name="start_location_textbox" type="string">
 		Lieu de départ :
 	</text>
@@ -90,8 +110,14 @@ de sélection :
 		<combo_item name="French">
 			Français - Bêta
 		</combo_item>
+		<combo_item name="Italian">
+			Italiano (Italien) - Bêta
+		</combo_item>
 		<combo_item name="Hungarian">
 			Magyar (Hongrois) - Bêta
+		</combo_item>
+		<combo_item name="Dutch">
+			Nederlands (Néerlandais) - Bêta
 		</combo_item>
 		<combo_item name="Polish">
 			Polski (Polonais) - Bêta
@@ -101,6 +127,9 @@ de sélection :
 		</combo_item>
 		<combo_item name="Russian">
 			Русский (Russe) - Bêta
+		</combo_item>
+		<combo_item name="Turkish">
+			Türkçe (Turc) - Bêta
 		</combo_item>
 		<combo_item name="Ukrainian">
 			Українська (Ukrainien) - Bêta

@@ -4,43 +4,29 @@
 		<panel label="Objekte" name="objects_mapview"/>
 		<panel label="Terrain" name="terrain_mapview"/>
 	</tab_container>
-	<text font="SansSerifSmall" name="land_for_sale_label">
-		Land erhaeltlich
-	</text>
-	<text name="auction_label">
-		Auktion
-	</text>
 	<text name="you_label">
 		Sie
 	</text>
 	<text name="home_label">
 		Zuhause
 	</text>
-	<button label="Nach Hause" label_selected="Nach Hause" name="Go Home" tool_tip="Nach Hause teleportieren"/>
-	<text name="person_label">
-		Person
+	<text name="auction_label">
+		Auktion
 	</text>
-	<check_box label=" " name="people_chk"/>
-	<text name="infohub_label">
-		Infohub
-	</text>
-	<check_box label=" " name="infohub_chk"/>
-	<text name="telehub_label">
-		Telehub
-	</text>
-	<check_box label=" " name="telehubchk"/>
-	<text font="SansSerifSmall" name="land_for_sale_label2">
+	<text font="SansSerifSmall" name="land_for_sale_label">
 		Land erhaeltlich
 	</text>
-	<check_box label=" " name="land_for_sale_chk"/>
+	<button label="Nach Hause" label_selected="Nach Hause" name="Go Home" tool_tip="Nach Hause teleportieren"/>
+	<check_box label="Einwohner" name="people_chk"/>
+	<check_box label="Infohub" name="infohub_chk"/>
+	<check_box label="Telehub" name="telehubchk"/>
+	<check_box label="Land zu verkaufen" name="land_for_sale_chk"/>
 	<text name="events_label">
-		Events
+		Events:
 	</text>
-	<check_box label=" " name="event_chk"/>
-
-
-
-	<check_box label=" " name="event_mature_chk"/>
+	<check_box label="PG" name="event_chk"/>
+	<check_box label="Mature" name="event_mature_chk"/>
+	<check_box label="Adult" name="event_adult_chk"/>
 	<combo_box label="Online-Freunde" name="friend combo" tool_tip="Freund, der auf Karte angezeigt werden soll">
 		<combo_item name="none_selected">
 			Online-Freunde

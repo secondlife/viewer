@@ -12,7 +12,7 @@
 	<button label="Domyślna" label_selected="Domyślna" name="Default"/>
 	<button label="Żadna" label_selected="Żadna" name="None"/>
 	<button label="Pusta" label_selected="Pusta" name="Blank"/>
-	<check_box label="Show Folders" name="show_folders_check"/>
+	<check_box label="Pokaż Foldery" name="show_folders_check"/>
 	<search_editor label="Wpisz nazwę tutaj by wyszukać" name="inventory search editor"/>
 	<check_box label="Zastosuj od razu" name="apply_immediate_check"/>
 	<button label="" label_selected="" name="Pipette"/>

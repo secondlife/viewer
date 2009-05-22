@@ -52,6 +52,7 @@
 #include "llui.h"
 #include "llviewercamera.h"
 #include "llviewerwindow.h"
+#include "llviewerobjectlist.h"
 #include "llvoavatar.h"
 #include "pipeline.h"
 #include "lluictrlfactory.h"
@@ -110,7 +111,7 @@ BOOL LLFloaterImagePreview::postBuild()
 
 	childHide("bad_image_text");
 
-	if (mRawImagep.notNull())
+	if (mRawImagep.notNull() && gAgent.getRegion() != NULL)
 	{
 		mAvatarPreview = new LLImagePreviewAvatar(256, 256);
 		mAvatarPreview->setPreviewTarget("mPelvis", "mUpperBodyMesh0", mRawImagep, 2.f, FALSE);
@@ -612,7 +613,7 @@ LLImagePreviewAvatar::LLImagePreviewAvatar(S32 width, S32 height) : LLDynamicTex
 	mCameraPitch = 0.f;
 	mCameraZoom = 1.f;
 
-	mDummyAvatar = new LLVOAvatar(LLUUID::null, LL_PCODE_LEGACY_AVATAR, gAgent.getRegion());
+	mDummyAvatar = (LLVOAvatar*)gObjectList.createObjectViewer(LL_PCODE_LEGACY_AVATAR, gAgent.getRegion());
 	mDummyAvatar->createDrawable(&gPipeline);
 	mDummyAvatar->mIsDummy = TRUE;
 	mDummyAvatar->mSpecialRenderMode = 2;

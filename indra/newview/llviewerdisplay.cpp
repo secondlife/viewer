@@ -514,7 +514,12 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		{ //don't draw hud objects in this frame
 			gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_HUD);
 		}
-		
+
+		if (gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_HUD_PARTICLES))
+		{ //don't draw hud particles in this frame
+			gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_HUD_PARTICLES);
+		}
+
 		//upkeep gl name pools
 		LLGLNamePool::upkeepPools();
 		
@@ -884,16 +889,26 @@ void render_hud_attachments()
 		hud_cam.setOrigin(-1.f,0,0);
 		hud_cam.setAxes(LLVector3(1,0,0), LLVector3(0,1,0), LLVector3(0,0,1));
 		LLViewerCamera::updateFrustumPlanes(hud_cam, TRUE);
+
+		bool render_particles = gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_PARTICLES) && gSavedSettings.getBOOL("RenderHUDParticles");
 		
 		//only render hud objects
 		U32 mask = gPipeline.getRenderTypeMask();
+		// turn off everything
 		gPipeline.setRenderTypeMask(0);
-		if (!gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_HUD))
+		// turn on HUD
+		gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_HUD);
+		// turn on HUD particles
+		gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_HUD_PARTICLES);
+
+		// if particles are off, turn off hud-particles as well
+		if (!render_particles)
 		{
-			gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_HUD);
+			// turn back off HUD particles
+			gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_HUD_PARTICLES);
 		}
 
-		BOOL has_ui = gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI);
+		bool has_ui = gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI);
 		if (has_ui)
 		{
 			gPipeline.toggleRenderDebugFeature((void*) LLPipeline::RENDER_DEBUG_FEATURE_UI);

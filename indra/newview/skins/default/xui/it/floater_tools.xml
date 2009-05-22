@@ -17,7 +17,7 @@
 	<check_box label="Seleziona Texture" name="radio select face"/>
 	<check_box label="Modifica parti unite" name="checkbox edit linked parts"/>
 	<text name="text ruler mode">
-		Modalità  regolo di precisione:
+		Modalità regolo di precisione:
 	</text>
 	<combo_box name="combobox grid mode">
 		<combo_item name="World">
@@ -52,35 +52,33 @@
 	<button label="" label_selected="" name="ToolRing" tool_tip="Anello"/>
 	<button label="" label_selected="" name="ToolTree" tool_tip="Albero"/>
 	<button label="" label_selected="" name="ToolGrass" tool_tip="Erba"/>
-	<check_box label="Mantieni lo strumento selezionato" name="checkbox sticky"/>
+	<check_box label="Mantieni selezionato" name="checkbox sticky"/>
 	<check_box label="Copia la selezione" name="checkbox copy selection"/>
-	<check_box label="Centra la Copia" name="checkbox copy centers"/>
-	<check_box label="Ruota la Copia" name="checkbox copy rotates"/>
+	<check_box label="Centra" name="checkbox copy centers"/>
+	<check_box label="Ruota" name="checkbox copy rotates"/>
 	<check_box label="Seleziona il terreno" name="radio select land"/>
-	<check_box label="Appiattisci il terreno" name="radio flatten"/>
-	<check_box label="Alza il terreno" name="radio raise"/>
-	<check_box label="Abbassa il terreno" name="radio lower"/>
-	<check_box label="Uniforma il terreno" name="radio smooth"/>
-	<check_box label="Corruga il terreno" name="radio noise"/>
-	<check_box label="Ripristina il terreno" name="radio revert"/>
-	<combo_box name="combobox brush size">
-		<combo_item name="Small">
-			Piccolo
-		</combo_item>
-		<combo_item name="Medium">
-			Medio
-		</combo_item>
-		<combo_item name="Large">
-			Grande
-		</combo_item>
-	</combo_box>
-	<text name="Strength:">
-		Pressione:
+	<check_box label="Appiattisci" name="radio flatten"/>
+	<check_box label="Eleva" name="radio raise"/>
+	<check_box label="Abbassa" name="radio lower"/>
+	<check_box label="Uniforma" name="radio smooth"/>
+	<check_box label="Ondula" name="radio noise"/>
+	<check_box label="Ripristina" name="radio revert"/>
+	<button label="Applica" label_selected="Applica" name="button apply to selection" tool_tip="Modifica il terreno selezionato"/>
+	<text name="Bulldozer:">
+		Bulldozer:
 	</text>
-	<button label="Applica alla selezione" label_selected="Applica alla selezione" name="button apply to selection" tool_tip="Modifica il terreno selezionato"/>
-	<check_box label="Mostra i proprietari" name="checkbox show owners"/>
-	<button label="Espandi &gt;&gt;" name="button more" tool_tip="Opzioni avanzate"/>
-	<button label="&lt;&lt; Restringi" name="button less" tool_tip="Opzioni avanzate"/>
+	<text name="Dozer Size:">
+		Grandezza
+	</text>
+	<text name="Strength:">
+		Potenza
+	</text>
+	<text name="obj_count">
+		Oggetti selezionati: [COUNT]
+	</text>
+	<text name="prim_count">
+		primitive: [COUNT]
+	</text>
 	<tab_container name="Object Info Tabs">
 		<panel label="Generale" name="General">
 			<text name="Name:">
@@ -110,16 +108,13 @@
 				The Lindens
 			</text>
 			<button label="Imposta..." label_selected="Imposta..." name="button set group"/>
-			<text name="prim info">
-				1 Oggetto, 1 Prim
-			</text>
 			<text name="Permissions:">
 				Permessi:
 			</text>
 			<text name="perm_modify">
 				Puoi modificare questo oggetto.
 			</text>
-			<check_box label="Condividi con il gruppo" name="checkbox share with group" tool_tip="Permetti ai membri del gruppo di muovere, modificare, copiare e cancellare."/>
+			<check_box label="Condividi con il gruppo" name="checkbox share with group" tool_tip="Permetti a tutti i membri del gruppo di condividere ed utilizzare i tuoi permessi per questo oggetto. Devi cederlo al gruppo per abilitare le restrizioni di ruolo."/>
 			<string name="text deed continued">
 				Cedi al gruppo...
 			</string>
@@ -362,6 +357,9 @@
 			<text name="advanced_dimple">
 				Scava Inizio e Fine
 			</text>
+			<text name="advanced_slice">
+				Affetta Inizio e Fine
+			</text>
 			<spinner label="I" name="Path Limit Begin"/>
 			<spinner label="F" name="Path Limit End"/>
 			<text name="text taper2">
@@ -553,21 +551,33 @@
 			<button label="Allinea" label_selected="Allinea" name="button align"/>
 		</panel>
 		<panel label="Contenuto" name="Contents">
-			<button label="Nuovo script..." label_selected="Nuovo script..." name="button new script"/>
+			<button label="Nuovo Script" label_selected="Nuovo script..." name="button new script"/>
+			<button label="Permessi..." name="button permissions"/>
 		</panel>
 	</tab_container>
 	<panel name="land info panel">
+		<text name="label_parcel_info">
+			Informazioni sul terreno
+		</text>
 		<text name="label_area_price">
 			Prezzo: [PRICE] L$ per [AREA] mq.
 		</text>
 		<text name="label_area">
 			Area: [AREA] mq.
 		</text>
-		<button label="Acquista il terreno..." label_selected="Acquista il terreno..." name="button buy land"/>
-		<button label="Abbandona il terreno..." label_selected="Abbandona il terreno..." name="button abandon land"/>
+		<button label="Informazioni sul terreno..." label_selected="Informazioni sul terreno..." name="button about land"/>
+		<check_box label="Mostra i proprietari" name="checkbox show owners" tool_tip="Colora i terreni in base ai loro proprietari"/>
+		<button label="?" label_selected="?" name="button show owners help"/>
+		<text name="label_parcel_modify">
+			Modifica il terreno
+		</text>
 		<button label="Suddividi..." label_selected="Suddividi..." name="button subdivide land"/>
 		<button label="Unisci..." label_selected="Unisci..." name="button join land"/>
-		<button label="Informazioni sul terreno..." label_selected="Informazioni sul terreno..." name="button about land"/>
+		<text name="label_parcel_trans">
+			Transazioni del territorio
+		</text>
+		<button label="Acquista il terreno..." label_selected="Acquista il terreno..." name="button buy land"/>
+		<button label="Abbandona il terreno..." label_selected="Abbandona il terreno..." name="button abandon land"/>
 	</panel>
 	<string name="status_rotate">
 		Sposta le fasce colorate per ruotare l&apos;oggetto
@@ -585,10 +595,10 @@
 		Clicca e sposta per cambiare visuale
 	</string>
 	<string name="status_grab">
-		Trascina per spostare gli oggetti, Ctrl per sollevarli, Ctrl+maiuscolo per ruotarli
+		Trascina per muovere, Ctrl per alzare, Ctrl-Shift per ruotare
 	</string>
 	<string name="status_place">
-		Clicca intorno per creare, Maiuscolo+click per selezionare
+		Clicca inworld per costruire
 	</string>
 	<string name="status_selectland">
 		Clicca e trascina per selezionare il terreno

@@ -34,6 +34,26 @@
 	<check_box label="解像度独立スケールを使用" name="ui_auto_scale"/>
 	<spinner label="退席までの時間：" name="afk_timeout_spinner"/>
 	<check_box label="リンデン・ドル（L$）の支払い/受け取りを通知" name="notify_money_change_checkbox"/>
+	<text name="maturity_desired_label">
+		レーティング区分：
+	</text>
+	<text name="maturity_desired_prompt">
+		アクセスしたいコンテンツ：
+	</text>
+	<combo_box name="maturity_desired_combobox">
+		<combo_item name="Desired_Adult">
+			PG、Mature、 Adult
+		</combo_item>
+		<combo_item name="Desired_Mature">
+			PGとMature
+		</combo_item>
+		<combo_item name="Desired_PG">
+			PG限定
+		</combo_item>
+	</combo_box>
+	<text name="maturity_desired_textbox">
+		PG限定
+	</text>
 	<text length="1" name="start_location_textbox" type="string">
 		ログイン位置：
 	</text>
@@ -88,8 +108,14 @@
 		<combo_item length="1" name="French" type="string">
 			Français (フランス語) – ベータ
 		</combo_item>
+		<combo_item name="Italian">
+			Italiano （イタリア語） - ベータ
+		</combo_item>
 		<combo_item name="Hungarian">
 			Magyar (ハンガリー語) - ベータ
+		</combo_item>
+		<combo_item name="Dutch">
+			Nederlands （オランダ語） - ベータ
 		</combo_item>
 		<combo_item name="Polish">
 			Polski (ポーランド語) - ベータ
@@ -99,6 +125,9 @@
 		</combo_item>
 		<combo_item name="Russian">
 			Русский (ロシア語) - ベータ
+		</combo_item>
+		<combo_item name="Turkish">
+			Türkçe （トルコ語） - ベータ
 		</combo_item>
 		<combo_item name="Ukrainian">
 			Українська (ウクライナ語) - ベータ

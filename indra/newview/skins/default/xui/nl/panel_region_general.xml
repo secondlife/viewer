@@ -12,6 +12,12 @@
 	<text name="version_channel_text">
 		onbekend
 	</text>
+	<text name="region_type_lbl">
+		Type:
+	</text>
+	<text name="region_type">
+		onbekend
+	</text>
 	<check_box label="Blokkeer terreinbewerking" name="block_terraform_check"/>
 	<button label="?" name="terraform_help"/>
 	<check_box label="Blokkeer vliegen" name="block_fly_check"/>
@@ -31,12 +37,19 @@
 	<spinner label="Object bonus" name="object_bonus_spin"/>
 	<button label="?" name="object_bonus_help"/>
 	<text label="Volwassenheid" name="access_text">
-		Volwassenheid:
+		Inhoudscategorie:
 	</text>
-
-
-
-
+	<combo_box label="Mature" name="access_combo">
+		<combo_item name="Adult">
+			Adult
+		</combo_item>
+		<combo_item name="Mature">
+			Mature
+		</combo_item>
+		<combo_item name="PG">
+			PG
+		</combo_item>
+	</combo_box>
 	<button label="?" name="access_help"/>
 	<button label="Toepassen" name="apply_btn"/>
 	<button label="Teleport één gebruiker naar thuislocatie…" name="kick_btn"/>

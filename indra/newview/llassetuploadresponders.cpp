@@ -171,6 +171,9 @@ void LLAssetUploadResponder::uploadUpload(const LLSD& content)
 
 void LLAssetUploadResponder::uploadFailure(const LLSD& content)
 {
+	// remove the "Uploading..." message
+	LLUploadDialog::modalUploadFinished();
+	
 	std::string reason = content["state"];
 	// deal with L$ errors
 	if (reason == "insufficient funds")

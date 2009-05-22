@@ -103,7 +103,7 @@
 	<text type="string" length="1" name="AvatarRenderingText">
 		Prezentacja Awatarów:
 	</text>
-	<check_box label="Fałszywe Awatary" name="AvatarImpostors" />
+        <check_box label="Impostoryzacja Awatarowa" name="AvatarImpostors" />
 	<check_box label="Skinning" name="AvatarVertexProgram" />
 	<check_box label="Ubranie Awatarów" name="AvatarCloth" />
 	<text type="string" length="1" name="DrawDistanceMeterText1">

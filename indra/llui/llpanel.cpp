@@ -1085,11 +1085,15 @@ struct LLLayoutStack::LLEmbeddedPanel
 	{
 		if (mOrientation == HORIZONTAL)
 		{
-			return mVisibleAmt * clamp_rescale(mCollapseAmt, 0.f, 1.f, 1.f, (F32)mMinWidth / (F32)mPanel->getRect().getWidth());
+			F32 collapse_amt = 
+				clamp_rescale(mCollapseAmt, 0.f, 1.f, 1.f, (F32)mMinWidth / (F32)llmax(1, mPanel->getRect().getWidth()));
+			return mVisibleAmt * collapse_amt;
 		}
 		else
 		{
-			return mVisibleAmt * clamp_rescale(mCollapseAmt, 0.f, 1.f, 1.f, (F32)mMinHeight / (F32)mPanel->getRect().getHeight());
+			F32 collapse_amt = 
+				clamp_rescale(mCollapseAmt, 0.f, 1.f, 1.f, llmin(1.f, (F32)mMinHeight / (F32)llmax(1, mPanel->getRect().getHeight())));
+			return mVisibleAmt * collapse_amt;
 		}
 	}
 

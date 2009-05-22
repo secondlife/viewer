@@ -5,8 +5,8 @@
 		<check_box label="Objets scriptés" name="scripted"/>
 		<check_box label="Objets physiques" name="physical"/>
 		<check_box label="Sources sonores" name="sounds"/>
-		<check_box label="Sources des particules" name="particles"/>
-		<check_box label="Montrer les surbrillances" name="highlights"/>
+		<check_box label="Sources de particules" name="particles"/>
+		<check_box label="Mettre en surbrillance" name="highlights"/>
 		<check_box label="Montrer les balises" name="beacons"/>
 		<text name="beacon_width_label">
 			Largeur de la balise :

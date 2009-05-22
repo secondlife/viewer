@@ -18,7 +18,7 @@ Bewegen Sie die Maus über die Optionen, um weitere Informationen anzuzeigen.
 	<text name="prepend_founded_by">
 		Gegründet von
 	</text>
-	<text name="founder_name" left_delta="79">
+	<text left_delta="79" name="founder_name">
 		(wartet)
 	</text>
 	<text name="group_charter_label">
@@ -49,7 +49,17 @@ Bewegen Sie die Maus über die Optionen, um weitere Informationen anzuzeigen.
 		<check_box label="Registrierung offen" name="open_enrollement" tool_tip="Festlegen, ob der Gruppenbeitritt ohne Einladung zulässig ist."/>
 		<check_box label="Beitrittsgebühr: L$" name="check_enrollment_fee" tool_tip="Festlegen, ob Neumitglieder eine Beitrittsgebühr zahlen müssen." width="125"/>
 		<spinner name="spin_enrollment_fee" tool_tip="Wenn „Beitrittsgebühr“ aktiviert ist, müssen neue Mitglieder diesen Betrag zahlen."/>
-
+		<combo_box name="group_mature_check" tool_tip="Festlegen, ob die Informationen Ihrer Gruppe „Mature“ sind.">
+			<combo_item name="select_mature">
+				- Mature wählen -
+			</combo_item>
+			<combo_item name="mature">
+				Mature-Inhalt
+			</combo_item>
+			<combo_item name="pg">
+				PG-Inhalt
+			</combo_item>
+		</combo_box>
 		<panel name="title_container">
 			<text name="active_title_label">
 				Mein aktiver Titel

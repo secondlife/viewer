@@ -12,6 +12,12 @@
 	<text name="version_channel_text">
 		sconosciuta
 	</text>
+	<text name="region_type_lbl">
+		Tipo:
+	</text>
+	<text name="region_type">
+		sconosciuto
+	</text>
 	<check_box label="Proibisci la modifica del terreno" name="block_terraform_check"/>
 	<button label="?" name="terraform_help"/>
 	<check_box label="Impedisci il volo" name="block_fly_check"/>
@@ -31,9 +37,19 @@
 	<spinner label="Bonus di oggetti" name="object_bonus_spin"/>
 	<button label="?" name="object_bonus_help"/>
 	<text label="Maturità" name="access_text">
-		Maturità:
+		Categoria di accesso:
 	</text>
-
+	<combo_box label="Mature" name="access_combo">
+		<combo_item name="Adult">
+			Adult
+		</combo_item>
+		<combo_item name="Mature">
+			Mature
+		</combo_item>
+		<combo_item name="PG">
+			PG
+		</combo_item>
+	</combo_box>
 	<button label="?" name="access_help"/>
 	<button label="Applica" name="apply_btn"/>
 	<button label="Teletrasporta a casa un utente..." name="kick_btn"/>

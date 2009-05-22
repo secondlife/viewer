@@ -1,17 +1,45 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="avatarpicker" title="Einwohner auswählen">
-	<text name="instruct_search_resident_name" height="32" bottom="-56">
-Geben Sie einen Teil des Namens des
+	<tab_container name="ResidentChooserTabs">
+		<panel label="Suchen" name="SearchPanel">
+			<text name="InstructSearchResidentName">
+				Geben Sie einen Teil des Namens des
 Einwohners ein:
-	</text>
-	<button label="Suchen" label_selected="Suchen" name="Find" />
-	<scroll_list name="Names" height="138" bottom_delta="-144"/>
-	<text name="Or select their calling card:">
-		Oder wählen Sie eine Visitenkarte:
-	</text>
-	<button label="Auswählen" label_selected="Auswählen" name="Select" />
-	<button label="Schließen" label_selected="Schließen" name="Close" />
-	<text name="NotFound">
+			</text>
+			<line_editor bottom_delta="-36" name="Edit" />
+			<button label="Suchen" label_selected="Suchen" name="Find"/>
+			<scroll_list height="74" name="SearchResults" bottom_delta="-79"/>
+		</panel>
+		<panel label="Visitenkarten" name="CallingCardsPanel">
+			<text name="InstructSelectCallingCard">
+				Wählen Sie eine Visitenkarte:
+			</text>
+		</panel>
+		<panel label="In meiner Nähe" name="NearMePanel">
+			<text name="InstructSelectResident">
+				Einwohner in der Nähe
+auswählen:
+			</text>
+			<button font="SansSerifSmall" label="Liste aktualisieren" label_selected="Liste aktualisieren" name="Refresh" left_delta="10" width="105"/>
+			<slider label="Bereich" name="near_me_range" bottom_delta="-36"/>
+			<text name="meters">
+				Meter
+			</text>
+      <scroll_list bottom_delta="-169" height="159" name="NearMe"  />
+		</panel>
+	</tab_container>
+	<button label="Auswählen" label_selected="Auswählen" name="Select"/>
+	<button label="Abbrechen" label_selected="Abbrechen" name="Cancel"/>
+	<string name="not_found">
 		„[TEXT]“ nicht gefunden
-	</text>
+	</string>
+	<string name="no_one_near">
+		Niemand in der Nähe
+	</string>
+	<string name="no_results">
+		Keine Ergebnisse
+	</string>
+	<string name="searching">
+		Suchen...
+	</string>
 </floater>

@@ -17,7 +17,7 @@
 	<check_box label="Selecteer textuur" name="radio select face"/>
 	<check_box label="Bewerk gekoppelde onderdelen" name="checkbox edit linked parts"/>
 	<text name="text ruler mode">
-		Liniaal modus
+		Liniaal:
 	</text>
 	<combo_box name="combobox grid mode">
 		<combo_item name="World">
@@ -52,35 +52,33 @@
 	<button label="" label_selected="" name="ToolRing" tool_tip="Ring"/>
 	<button label="" label_selected="" name="ToolTree" tool_tip="Boom"/>
 	<button label="" label_selected="" name="ToolGrass" tool_tip="Gras"/>
-	<check_box label="Behoud geselecteerde gereedschap" name="checkbox sticky"/>
-	<check_box label="Kopieer selectie" name="checkbox copy selection"/>
-	<check_box label="Middelpunt kopie" name="checkbox copy centers"/>
-	<check_box label="Roteer kopie" name="checkbox copy rotates"/>
+	<check_box label="Behoud geselecteerd" name="checkbox sticky"/>
+	<check_box label="Kopiëer Selectie" name="checkbox copy selection"/>
+	<check_box label="Middelpunt" name="checkbox copy centers"/>
+	<check_box label="Roteer" name="checkbox copy rotates"/>
 	<check_box label="Selecteer land" name="radio select land"/>
-	<check_box label="Land vlakmaken" name="radio flatten"/>
-	<check_box label="Land verhogen" name="radio raise"/>
-	<check_box label="Land verlagen" name="radio lower"/>
-	<check_box label="Land egaliseren" name="radio smooth"/>
-	<check_box label="Land opruwen" name="radio noise"/>
-	<check_box label="Herstel land" name="radio revert"/>
-	<combo_box name="combobox brush size">
-		<combo_item name="Small">
-			Klein
-		</combo_item>
-		<combo_item name="Medium">
-			Medium
-		</combo_item>
-		<combo_item name="Large">
-			Groot
-		</combo_item>
-	</combo_box>
-	<text name="Strength:">
-		Sterkte:
+	<check_box label="Vlak maken" name="radio flatten"/>
+	<check_box label="Verhogen" name="radio raise"/>
+	<check_box label="Verlagen" name="radio lower"/>
+	<check_box label="Egaliseren" name="radio smooth"/>
+	<check_box label="Opruwen" name="radio noise"/>
+	<check_box label="Herstellen" name="radio revert"/>
+	<button label="Toepassen" label_selected="Toepassen" name="button apply to selection" tool_tip="Wijzig geselecteerd land"/>
+	<text name="Bulldozer:">
+		Bulldozer:
 	</text>
-	<button label="Toepassen op selectie" label_selected="Toepassen op selectie" name="button apply to selection" tool_tip="Wijzig geselecteerd land"/>
-	<check_box label="Toon eigenaren" name="checkbox show owners"/>
-	<button label="Meer &gt;&gt;" name="button more" tool_tip="Geavanceerde opties"/>
-	<button label="&lt;&lt; Minder" name="button less" tool_tip="Geavanceerde opties"/>
+	<text name="Dozer Size:">
+		Grootte
+	</text>
+	<text name="Strength:">
+		Sterkte
+	</text>
+	<text name="obj_count">
+		Geselecteerde objecten: [COUNT]
+	</text>
+	<text name="prim_count">
+		primitieven: [COUNT]
+	</text>
 	<tab_container name="Object Info Tabs">
 		<panel label="Algemeen" name="General">
 			<text name="Name:">
@@ -110,16 +108,13 @@
 				De Lindens
 			</text>
 			<button label="Instellen..." label_selected="Instellen..." name="button set group"/>
-			<text name="prim info">
-				1 Object, 1 Primitief
-			</text>
 			<text name="Permissions:">
 				Permissies:
 			</text>
 			<text name="perm_modify">
 				U kunt dit object wijzigen
 			</text>
-			<check_box label="Deel met groep" name="checkbox share with group" tool_tip="Groepsleden toestaan om te verplaatsen, wijzigen, kopiëren en verwijderen."/>
+			<check_box label="Deel met groep" name="checkbox share with group" tool_tip="Alle leden van de ingestelde groep toestaan om te delen en uw permissies voor dit object te gebruiken. U moet &apos;Overdragen&apos; om rolbeperkingen in te schakelen."/>
 			<string name="text deed continued">
 				Overdragen...
 			</string>
@@ -362,6 +357,9 @@
 			<text name="advanced_dimple">
 				Deuk begin en einde
 			</text>
+			<text name="advanced_slice">
+				Uitsnede Begin en Einde
+			</text>
 			<spinner label="B" name="Path Limit Begin"/>
 			<spinner label="E" name="Path Limit End"/>
 			<text name="text taper2">
@@ -552,21 +550,33 @@
 			<button label="Uitlijnen" label_selected="Uitlijnen" name="button align"/>
 		</panel>
 		<panel label="Inhoud" name="Contents">
-			<button label="Nieuw script..." label_selected="Nieuw script..." name="button new script"/>
+			<button label="Nieuw script" label_selected="Nieuw script..." name="button new script"/>
+			<button label="Permissies..." name="button permissions"/>
 		</panel>
 	</tab_container>
 	<panel name="land info panel">
+		<text name="label_parcel_info">
+			Perceel Informatie
+		</text>
 		<text name="label_area_price">
 			Prijs: L$[PRICE] voor [AREA] m2.
 		</text>
 		<text name="label_area">
 			Gebied: [AREA] m2.
 		</text>
-		<button label="Koop land..." label_selected="Koop land..." name="button buy land"/>
-		<button label="Land Afstaan..." label_selected="Land Afstaan..." name="button abandon land"/>
+		<button label="Over land..." label_selected="Over land..." name="button about land"/>
+		<check_box label="Toon Eigenaren" name="checkbox show owners" tool_tip="Kleur percelen op basis van hun eigendom"/>
+		<button label="?" label_selected="?" name="button show owners help"/>
+		<text name="label_parcel_modify">
+			Wijzig Perceel
+		</text>
 		<button label="Opdelen..." label_selected="Opdelen..." name="button subdivide land"/>
 		<button label="Samenvoegen..." label_selected="Samenvoegen..." name="button join land"/>
-		<button label="Over land..." label_selected="Over land..." name="button about land"/>
+		<text name="label_parcel_trans">
+			Landtransacties
+		</text>
+		<button label="Koop land..." label_selected="Koop land..." name="button buy land"/>
+		<button label="Land Afstaan..." label_selected="Land Afstaan..." name="button abandon land"/>
 	</panel>
 	<string name="status_rotate">
 		Sleep de gekleurde banden om het object te roteren
@@ -584,10 +594,10 @@
 		Klik en sleep om beeld te wijzigen
 	</string>
 	<string name="status_grab">
-		Sleep om objecten te verplaatsen, Ctrl om op te tillen, Ctrl-Shift om te draaien
+		Sleep om te verplaatsen, Ctrl om op te tillen, Ctrl-Shift om te roteren.
 	</string>
 	<string name="status_place">
-		Klik in de wereld om te creëren, shift-klik om te selecteren
+		Klik in-wereld om te bouwen
 	</string>
 	<string name="status_selectland">
 		Klik en sleep om land te selecteren

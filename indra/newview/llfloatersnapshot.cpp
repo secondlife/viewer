@@ -236,7 +236,7 @@ LLSnapshotLivePreview::LLSnapshotLivePreview (const LLRect& rect) :
 	mImageScaled[0] = FALSE;
 	mImageScaled[1] = FALSE;
 
-	mMaxImageSize = MAX_IMAGE_SIZE ;
+	mMaxImageSize = MAX_SNAPSHOT_IMAGE_SIZE ;
 	mKeepAspectRatio = gSavedSettings.getBOOL("KeepAspectForSnapshot") ;
 	mThumbnailUpdateLock = FALSE ;
 	mThumbnailUpToDate   = FALSE ;
@@ -255,13 +255,13 @@ LLSnapshotLivePreview::~LLSnapshotLivePreview()
 
 void LLSnapshotLivePreview::setMaxImageSize(S32 size) 
 {
-	if(size < MAX_IMAGE_SIZE)
+	if(size < MAX_SNAPSHOT_IMAGE_SIZE)
 	{
 		mMaxImageSize = size;
 	}
 	else
 	{
-		mMaxImageSize = MAX_IMAGE_SIZE ;
+		mMaxImageSize = MAX_SNAPSHOT_IMAGE_SIZE ;
 	}
 }
 

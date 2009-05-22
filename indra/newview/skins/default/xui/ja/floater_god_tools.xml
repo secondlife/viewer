@@ -143,7 +143,7 @@
 					オブジェクト＜パターン＞
 				</combo_item>
 				<combo_item name="rez&lt;asset_id&gt;">
-					rez &lt;asset_id&gt;
+					rez ＜asset_id＞
 				</combo_item>
 			</combo_box>
 			<text name="Parameter:">

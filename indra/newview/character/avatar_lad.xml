@@ -5615,13 +5615,31 @@
          </param>
       </layer>
 
-	  <layer
-       name="head_bodypaint">
-         <texture
-          local_texture="head_bodypaint" />
-      </layer>
+      <layer
+       name="highlight">
+                  <texture
+                    tga_file="head_highlights_alpha.tga"
+          file_is_mask="TRUE" />
 
-	  <layer
+
+         <param
+                    id="159"
+                    group="1"
+                    name="Shading"
+                    wearable="skin"
+                    value_min="0"
+          value_max="1">
+                        <param_color>
+                              <value
+                color="255, 255, 255, 0" />
+
+
+               <value
+                color="255, 255, 255, 64" />
+                        </param_color>
+                  </param>
+            </layer>	  
+      <layer
        name="rosyface">
          <texture
           tga_file="rosyface_alpha.tga"
@@ -5651,52 +5669,6 @@
       </layer>
 
 	  <layer
-       name="freckles"
-       fixed_color="120,47,20,128">
-         <param
-          id="165"
-          group="0"
-          wearable="skin"
-          edit_group="skin_facedetail"
-          edit_group_order="2"
-          name="Freckles"
-          label_min="Less"
-          label_max="More"
-          value_min="0"
-          value_max="1"
-          camera_distance=".3"
-          camera_elevation=".07">
-            <param_alpha
-             tga_file="freckles_alpha.tga"
-             skip_if_zero="true"
-             domain="0.5" />
-         </param>
-      </layer>
-
-      <layer
-       name="highlight">
-         <texture
-          tga_file="head_highlights_alpha.tga"
-          file_is_mask="TRUE" />
-
-         <param
-          id="159"
-          group="1"
-          name="Shading"
-          wearable="skin"
-          value_min="0"
-          value_max="1">
-            <param_color>
-               <value
-                color="255, 255, 255, 0" />
-
-               <value
-                color="255, 255, 255, 64" />
-            </param_color>
-         </param>
-      </layer>
-
-      <layer
        name="lips">
          <texture
           tga_file="lips_mask.tga"
@@ -5757,8 +5729,29 @@
              domain="0.3" />
          </param>
       </layer>-->
-
       <layer
+              name="freckles"
+       fixed_color="120,47,20,128">
+                  <param
+                    id="165"
+                    group="0"
+                    wearable="skin"
+                    edit_group="skin_facedetail"
+                    edit_group_order="2"
+                    name="Freckles"
+                    label_min="Less"
+                    label_max="More"
+                    value_min="0"
+                    value_max="1"
+                    camera_distance=".3"
+          camera_elevation=".07">
+                        <param_alpha
+                          tga_file="freckles_alpha.tga"
+                          skip_if_zero="true"
+             domain="0.5" />
+                  </param>
+            </layer>
+            <layer
        name="eyebrowsbump"
        render_pass="bump">
          <texture
@@ -6546,6 +6539,11 @@
          </param>
       </layer>
 
+   <layer
+       name="head_bodypaint">
+         <texture
+          local_texture="head_bodypaint" />
+      </layer>
    </layer_set>
 
 <!-- =========================================================== -->

@@ -5392,6 +5392,11 @@ void dialog_refresh_all()
 		gPieObject->arrange();
 	}
 
+	if( gPieAttachment->getVisible() )
+	{
+		gPieAttachment->arrange();
+	}
+
 	LLFloaterProperties::dirtyAll();
 	LLFloaterInspect::dirty();
 }

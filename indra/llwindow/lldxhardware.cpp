@@ -624,7 +624,37 @@ LLSD LLDXHardware::getDisplayInfo()
 		ret["DeviceName"] = device_name;
 		std::string device_driver=  get_string(device_containerp, L"szDriverVersion");
 		ret["DriverVersion"] = device_driver;
-	}
+        
+        // ATI has a slightly different version string
+        if(device_name.length() >= 4 && device_name.substr(0,4) == "ATI ")
+        {
+            // get the key
+            HKEY hKey;
+            const DWORD RV_SIZE = 100;
+            WCHAR release_version[RV_SIZE];
+
+            // Hard coded registry entry.  Using this since it's simpler for now.
+            // And using EnumDisplayDevices to get a registry key also requires
+            // a hard coded Query value.
+            if(ERROR_SUCCESS == RegOpenKey(HKEY_LOCAL_MACHINE, TEXT("SOFTWARE\\ATI Technologies\\CBT"), &hKey))
+            {
+                // get the value
+                DWORD dwType = REG_SZ;
+                DWORD dwSize = sizeof(WCHAR) * RV_SIZE;
+                if(ERROR_SUCCESS == RegQueryValueEx(hKey, TEXT("ReleaseVersion"), 
+                    NULL, &dwType, (LPBYTE)release_version, &dwSize))
+                {
+                    // print the value
+                    // windows doesn't guarantee to be null terminated
+                    release_version[RV_SIZE - 1] = NULL;
+                    ret["DriverVersion"] = utf16str_to_utf8str(release_version);
+
+                }
+                RegCloseKey(hKey);
+            }
+        }    
+    }
+
 LCleanup:
 	SAFE_RELEASE(file_containerp);
 	SAFE_RELEASE(driver_containerp);

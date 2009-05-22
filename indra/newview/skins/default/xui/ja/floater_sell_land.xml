@@ -1,20 +1,22 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="sell land" title="土地を販売" height="511" min_height="511" >
+<floater name="sell land" title="土地を販売" height="496" min_height="496" >
 	<text name="info_parcel_label">
 		区画：
 	</text>
-	<text name="info_parcel" left="62">
+	<text name="info_parcel">
 		区画名
 	</text>
 	<text name="info_size_label">
 		サイズ：
 	</text>
-	<text name="info_size" left="62">
+	<text name="info_size">
 		[AREA]平方メートル
 	</text>
-	<text name="info_action">
-		この区画を販売するには:
+	<text name="info_action" bottom_delta="-57">
+		この区画を販売す
+るには:
 	</text>
+	<icon bottom_delta="-86" name="step_price" />
 	<text name="price_label">
 		価格を設定：
 	</text>
@@ -65,6 +67,6 @@
 	<text name="nag_message_label">
 		注意：返品や交換はできません
 	</text>
-	<button label="売り地の設定" name="sell_btn"  bottom="-505"/>
+	<button label="販売を決定" name="sell_btn" bottom="-489"/>
 	<button label="取り消し" name="cancel_btn" />
 </floater>

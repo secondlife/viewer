@@ -16,7 +16,7 @@
 			<check_box label="Visible" name="check visible" tool_tip="Cochez pour rendre la région visible aux non-admins."  bottom_delta="-32"/>
 			<check_box label="Dégâts" name="check damage" tool_tip="Cochez pour activer les dégâts dans cette région."/>
 			<check_box label="Bloquer le suivi de trafic" name="block dwell" tool_tip="Cochez pour que la région ne comptabilise pas le trafic."/>
-			<check_box label="Bloquer le terraformage" name="block terraform" tool_tip="Cochez pour empêcher les personnes de terraformer leur terrain"/>
+			<check_box label="Interdire le terraformage" name="block terraform" tool_tip="Cochez pour empêcher les personnes de terraformer leur terrain"/>
 			<check_box label="Bac à sable" name="is sandbox" tool_tip="Basculer cette région en bac à sable."/>
 			<button label="Figer le terrain" label_selected="Figer le terrain" name="Bake Terrain" tool_tip="Enregistrer le terrain actuel comme terrain par défaut." width="118" />
 			<button label="Rétablir le terrain" label_selected="Rétablir le terrain" name="Revert Terrain" tool_tip="Remplacer le terrain actuel avec le terrain par défaut." width="118" />
@@ -60,17 +60,17 @@
 			</text>
 			<check_box label="Désactiver les &#10;scripts" name="disable scripts" tool_tip="Cochez pour désactiver tous les scripts dans cette région"/>
 			<check_box label="Désactiver les &#10;collisions" name="disable collisions" tool_tip="Cochez pour désactiver les collisions entre non-avatars dans cette région"/>
-			<check_box label="Désactiver les &#10;propriétés physiques" name="disable physics" tool_tip="Cochez pour désactiver toutes les propriétés physiques dans cette région"/>
+			<check_box label="Désactiver la &#10;physique" name="disable physics" tool_tip="Cochez pour désactiver tous les effets liés à la physique dans cette région"/>
 			<button label="Appliquer" label_selected="Appliquer" name="Apply" tool_tip="Cliquez ici pour appliquer les modifications effectuées ci-dessus."  bottom="-85"/>
 			<button label="Définir la cible" label_selected="Définir la cible" name="Set Target" tool_tip="Définir l&apos;avatar cible pour la suppression de l&apos;objet."/>
 			<text name="target_avatar_name">
 				(aucune cible)
 			</text>
-			<button label="Supprimer tous les objets scriptés de la cible sur les terrains des autres" label_selected="Supprimer tous les objets scriptés de la cible sur les terrains des autres" name="Delete Target&apos;s Scripted Objects On Others Land" tool_tip="Supprimer tous les objets scriptés appartenant à la cible sur les terrains ne lui appartenant pas. Les objets non reproductibles seront renvoyés."/>
-			<button label="Supprimer les objets scriptés de la cible sur *tous* les terrains" label_selected="Supprimer les objets scriptés de la cible sur *tous* les terrains" name="Delete Target&apos;s Scripted Objects On *Any* Land" tool_tip="Supprimer les objets scriptés appartenant à la cible dans cette région. Les objets non reproductibles seront renvoyés."/>
-			<button label="Supprimer *tous* les objets de la cible" label_selected="Supprimer *tous* les objets de la cible" name="Delete *ALL* Of Target&apos;s Objects" tool_tip="Supprimer tous les objets appartenant à la cible dans cette région. Les objets non reproductibles seront renvoyés."/>
-			<button width="300" label="Afficher les objets souvent responsables de collision" label_selected="Afficher les objets souvent responsables de collision" name="Get Top Colliders" tool_tip="Dresse une liste des objets avec les callbacks les plus fréquents. "/>
-			<button width="300" label="Afficher les scripts fréquemment utilisés" label_selected="Afficher les scripts fréquemment utilisés" name="Get Top Scripts" tool_tip="Dresse une liste des objets qui passent le plus de temps à exécuter des scripts."/>
+			<button label="Supprimer tous les objets scriptés de la cible sur les terrains des autres" label_selected="Supprimer tous les objets scriptés de la cible sur les terrains des autres" name="Delete Target&apos;s Scripted Objects On Others Land" tool_tip="Supprimer tous les objets scriptés appartenant à la cible sur les terrains ne lui appartenant pas. Les objets non copiables seront renvoyés."/>
+			<button label="Supprimer les objets scriptés de la cible sur *tous* les terrains" label_selected="Supprimer les objets scriptés de la cible sur *tous* les terrains" name="Delete Target&apos;s Scripted Objects On *Any* Land" tool_tip="Supprimer les objets scriptés appartenant à la cible dans cette région. Les objets non copiables seront renvoyés."/>
+			<button label="Supprimer *tous* les objets de la cible" label_selected="Supprimer *tous* les objets de la cible" name="Delete *ALL* Of Target&apos;s Objects" tool_tip="Supprimer tous les objets appartenant à la cible dans cette région. Les objets non copiables seront renvoyés."/>
+			<button width="300" label="Afficher les collisions les plus consommatrices" label_selected="Afficher les collisions les plus consommatrices" name="Get Top Colliders" tool_tip="Dresse une liste des objets avec les callbacks les plus fréquents. "/>
+			<button width="300" label="Afficher les objets scriptés les plus consommateurs" label_selected="Afficher les objets scriptés les plus consommateurs" name="Get Top Scripts" tool_tip="Dresse une liste des objets qui passent le plus de temps à exécuter des scripts."/>
 			<button width="300" label="Résumé des scripts" label_selected="Résumé des scripts" name="Scripts digest" tool_tip="Dresse une liste des scripts et de leurs occurrences."/>
 		</panel>
 		<panel label="Requête" name="request">

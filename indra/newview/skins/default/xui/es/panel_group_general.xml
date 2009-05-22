@@ -49,8 +49,17 @@ Ponga su ratón sobre las opciones para más información.
 		<check_box label="Inscripción libre" name="open_enrollement" tool_tip="Definir si se admiten al grupo nuevos miembros sin que sea preciso invitárseles."/>
 		<check_box label="Cuota de inscripción en L$" name="check_enrollment_fee" tool_tip="Define si se requiere una cuota para entrar al grupo."/>
 		<spinner name="spin_enrollment_fee" tool_tip="Cuando está marcado &apos;Cuota de inscripción&apos;, los miembros nuevos deben pagar esta cuota para entrar al grupo."/>
-
-
+		<combo_box name="group_mature_check" tool_tip="Establece si la información de su grupo es &apos;mature&apos;.">
+			<combo_item name="select_mature">
+				- Elegir Calificación -
+			</combo_item>
+			<combo_item name="mature">
+				Contenido &apos;Mature&apos;
+			</combo_item>
+			<combo_item name="pg">
+				Contenido &apos;PG&apos;
+			</combo_item>
+		</combo_box>
 		<panel name="title_container">
 			<text name="active_title_label">
 				Mi etiqueta activa

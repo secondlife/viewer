@@ -7,11 +7,11 @@
 		Opis:
 	</text>
 	<spinner label="Pierwszeństwo" name="priority"
-	     tool_tip="Kontroluj,które z animacji,które też używasz mogą zostać zdominowane przez tą animację" />
-	<check_box label="Loop" name="loop_check" tool_tip="Powtarzaj tę animację" />
-	<spinner label="In(%)" name="loop_in_point"
+	     tool_tip="Kontroluj,animacje,które mogą zostać zdominowane przez tą animację" />
+	<check_box label="Powtarzaj" name="loop_check" tool_tip="Powtarzaj tą animację" />
+	<spinner label="Od(%)" name="loop_in_point"
 	     tool_tip="Wybierz punkt, od którego chcesz zacząć powtarzać animację" />
-	<spinner label="Out(%)" name="loop_out_point"
+	<spinner label="Do(%)" name="loop_out_point"
 	     tool_tip="Wybierz punkt, od którego chcesz zakończyć powtarznie animacji" />
 	<text name="hand_label">
 		Pozycja Ręki
@@ -62,7 +62,7 @@
 		Ekspresja
 	</text>
 	<combo_box label="" name="emote_combo"
-	     tool_tip="Kontroluj co wykonuje twarz w czasie animacji">
+	     tool_tip="Kontroluj mimikę twarzy w czasie animacji">
 		<combo_item name="[None]">
 			[Żadne]
 		</combo_item>
@@ -73,7 +73,7 @@
 			Obawa
 		</combo_item>
 		<combo_item name="Angry">
-			Zlość
+			Złość
 		</combo_item>
 		<combo_item name="BigSmile">
 			Duży Uśmiech
@@ -82,7 +82,7 @@
 			Znudzenie
 		</combo_item>
 		<combo_item name="Cry">
-			Placz
+			Płacz
 		</combo_item>
 		<combo_item name="Disdain">
 			Wzgarda
@@ -125,21 +125,21 @@
 		</combo_item>
 	</combo_box>
 	<text name="preview_label">
-		Przeglądaj kiedy
+		Przeglądaj kiedy:
 	</text>
 	<combo_box label="" name="preview_base_anim"
 	     tool_tip="Przetestuj zachowanie animacji kiedy awatar wykonuje normalne czynności">
 		<combo_item name="Standing">
-			Stanie
+			Stoisz
 		</combo_item>
 		<combo_item name="Walking">
-			Chodzenie
+			Chodzisz
 		</combo_item>
 		<combo_item name="Sitting">
-			Siedzenie
+			Siedzisz
 		</combo_item>
 		<combo_item name="Flying">
-			Latanie
+			Latasz
 		</combo_item>
 	</combo_box>
 	<spinner label="Złagodzić w (sekund)" name="ease_in_time"
@@ -150,12 +150,12 @@
 	<button label="" name="stop_btn" tool_tip="Stop animation playback" />
 	<slider label="" name="playback_slider" />
 	<text name="bad_animation_text">
-		Niemożliwość odczytania pliku animacji do wyświetlenia/
-	
-	Sugerujemy pliki BVH eksportowane z pozycji.
+		Brak możliwości wczytania pliku animacji.
+
+Doradzamy eksport plików BVH z Poser 4.
 	</text>
 	<button label="Anuluj" name="cancel_btn" />
-	<button label="Upload (L$[AMOUNT])" name="ok_btn" />
+	<button label="Załaduj (L$[AMOUNT])" name="ok_btn" />
 	<string name="failed_to_initialize">
 		Inicjalizacja ruchu nie powiodła się.
 	</string>

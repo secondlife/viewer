@@ -8,6 +8,18 @@
 			<text length="1" name="Description:" type="string">
 				Descrição:
 			</text>
+			<text name="LandType">
+				Tipo:
+			</text>
+			<text name="LandTypeText">
+				Continente / Terra
+			</text>
+			<text name="ContentRating">
+				Classificação:
+			</text>
+			<text name="ContentRatingText">
+				Adult
+			</text>
 			<text length="1" name="Owner:" type="string">
 				Proprietário:
 			</text>
@@ -29,7 +41,7 @@
 				Não está à Venda.
 			</text>
 			<text length="1" name="For Sale: Price L$[PRICE]." type="string">
-				Preço: L$[PRICE].
+				Preço: L$[PRICE] (L$[PRICE_PER_SQM]/m²).
 			</text>
 			<button label="Vender Terra..." label_selected="Vender Terra..." name="Sell Land..."/>
 			<text length="1" name="For sale to" type="string">
@@ -39,7 +51,7 @@
 				À venda (Objetos incluídos).
 			</text>
 			<text length="1" name="Selling with no objects in parcel." type="string">
-				À venda (Objetos não Incluídos).
+				À venda (Objetos não incluídos).
 			</text>
 			<button label="Cancelar venda do terreno" label_selected="Cancelar venda do terreno" left="275" name="Cancel Land Sale" width="165"/>
 			<text length="1" name="Claimed:" type="string">
@@ -52,7 +64,7 @@
 				Área:
 			</text>
 			<text length="1" name="PriceText" type="string">
-				4048 m².
+				4048 m²
 			</text>
 			<text length="1" name="Traffic:" type="string">
 				Tráfego:
@@ -76,7 +88,7 @@
 				Área
 			</string>
 			<string name="area_size_text">
-				[AREA] m².
+				[AREA] m²
 			</string>
 			<string name="auction_id_text">
 				ID do Leilão: [ID]
@@ -108,36 +120,60 @@ Vá para o menu Mundo &gt; Sobre a Terra ou selecione outro lote para mostrar se
 			</string>
 		</panel>
 		<panel label="Corretor" name="land_covenant_panel">
-			<text length="1" name="covenant_timestamp_text" type="string">
-				Última Alteração: Qua, Dez 31 16:00:00 1969
-			</text>
-			<text length="1" name="region_name_lbl" type="string">
-				Região:
-			</text>
-			<text length="1" name="region_name_text" type="string">
-				leyla
+			<text name="estate_section_lbl">
+				Propriedade:
 			</text>
 			<text length="1" name="estate_name_lbl" type="string">
-				Propriedade:
+				Nome:
 			</text>
 			<text length="1" name="estate_name_text" type="string">
 				mainland
 			</text>
 			<text length="1" name="estate_owner_lbl" type="string">
-				Dono da Propriedade:
+				Dono:
 			</text>
 			<text length="1" name="estate_owner_text" type="string">
 				(nenhum)
 			</text>
-			<text length="1" name="resellable_clause" type="string">
-				Terra comprada nesta região não pode ser revendida.
-			</text>
-			<text length="1" name="changeable_clause" type="string">
-				Terra comrpada nesta região não poderá ser compartilhada ou sub-dividida.
-			</text>
 			<text_editor length="1" name="covenant_editor" type="string">
 				Não há corretor para esta Propriedade.
 			</text_editor>
+			<text length="1" name="covenant_timestamp_text" type="string">
+				Última Alteração: Qua, Dez 31 16:00:00 1969
+			</text>
+			<text name="region_section_lbl">
+				Região:
+			</text>
+			<text length="1" name="region_name_lbl" type="string">
+				Nome:
+			</text>
+			<text length="1" name="region_name_text" type="string">
+				leyla
+			</text>
+			<text name="region_landtype_lbl">
+				Tipo:
+			</text>
+			<text name="region_landtype_text">
+				Continente / Terra
+			</text>
+			<text name="region_maturity_lbl">
+				Classificação:
+			</text>
+			<text name="region_maturity_text">
+				Adult
+			</text>
+			<text name="resellable_lbl">
+				Revender:
+			</text>
+			<text length="1" name="resellable_clause" type="string">
+				Terra nesta região não pode ser revendida.
+			</text>
+			<text name="changeable_lbl">
+				Subdividir:
+			</text>
+			<text length="1" name="changeable_clause" type="string">
+				Terra nesta região não pode ser unida/sub-dividida.
+			</text>
 			<string name="can_resell">
 				Terra comprada nesta região pode ser revendida.
 			</string>
@@ -145,10 +181,12 @@ Vá para o menu Mundo &gt; Sobre a Terra ou selecione outro lote para mostrar se
 				Terra comprada nesta região não pode ser revendida.
 			</string>
 			<string name="can_change">
-				Terra comprada nesta região pode ser compartilhada ou sub-dividida.
+				Terra comprada nesta região pode ser compartilhada
+ou sub-dividida.
 			</string>
 			<string name="can_not_change">
-				Terra comprada nesta região não pode ser compartilhada ou sub-dividida.
+				Terra comprada nesta região não pode ser compartilhada
+ou sub-dividida.
 			</string>
 		</panel>
 		<panel label="Objetos" name="land_objects_panel">
@@ -210,14 +248,14 @@ Vá para o menu Mundo &gt; Sobre a Terra ou selecione outro lote para mostrar se
 				[COUNT]
 			</text>
 			<text left="4" length="1" name="Autoreturn" type="string" width="412">
-				Auto-retornar objetos dos outros residentes (minutos,0 para desligado):
+				Auto-retornar objetos dos outros residentes (minutos, 0 para desligado):
 			</text>
-			<line_editor name="clean other time" right="-6" width="36"/>
+			<line_editor name="clean other time" right="-10"/>
 			<text length="1" name="Object Owners:" type="string">
 				Donos dos Objetos:
 			</text>
-			<button label="Atualizar Lista" label_selected="Atualizar Lista" name="Refresh List"/>
-			<button label="Retornar objetos..." label_selected="Retornar objetos..." name="Return objects..."/>
+			<button label="Atualizar Lista" label_selected="Atualizar Lista" name="Refresh List" left="118"/>
+			<button label="Retornar objetos..." label_selected="Retornar objetos..." name="Return objects..." left="230"/>
 			<name_list name="owner list">
 				<column label="Tipo" name="type"/>
 				<column label="Nome" name="name"/>
@@ -232,17 +270,17 @@ Vá para o menu Mundo &gt; Sobre a Terra ou selecione outro lote para mostrar se
 			<check_box label="Editar Terreno" name="edit land check" tool_tip="Se ativado, qualquer um pode modificar a forma da sua terra. É melhor deixar esta opção desativada, uma vez que você sempre pode editar seu próprio terreno."/>
 			<check_box label="Criar Landmarks" name="check landmark"/>
 			<check_box label="Voar" name="check fly" tool_tip="Se ativado, os Residentes podem voar na sua terra. Se desativado, eles podem voar apenas para dentro e por cima de sua terra."/>
-			<text length="1" name="allow_label2" type="string">
+			<text length="1" name="allow_label2" type="string" left="172">
 				Criar Objetos:
 			</text>
 			<check_box label="Residentes" name="edit objects check"/>
 			<check_box label="Grupo" name="edit group objects check"/>
-			<text length="1" name="allow_label3" type="string">
+			<text length="1" name="allow_label3" type="string" left="172">
 				Entrada do Objeto:
 			</text>
 			<check_box label="Residentes" name="all object entry check"/>
 			<check_box label="Grupo" name="group object entry check"/>
-			<text length="1" name="allow_label4" type="string">
+			<text length="1" name="allow_label4" type="string" left="172">
 				Executar Scripts:
 			</text>
 			<check_box label="Residentes" name="check other scripts"/>
@@ -253,6 +291,57 @@ Vá para o menu Mundo &gt; Sobre a Terra ou selecione outro lote para mostrar se
 			<check_box label="Salvo (sem dano)" name="check safe" tool_tip="Se ativado, ajusta o terreno para Seguro, desabilitando combate com danos. Se não ativado, o combate com danos é habilitado."/>
 			<check_box label="Sem Empurrar" name="PushRestrictCheck" tool_tip="Evita scripts que empurram. A ativação dessa opção pode ser útil para prevenir comportamentos desordeiros na sua terra."/>
 			<check_box label="Mostra o Lugar na Busca (L$30/semana) sob" name="ShowDirectoryCheck" tool_tip="Permitir que as pessoas vejam este terreno nos resultados de busca"/>
+			<string name="search_enabled_tooltip">
+				Permitir que as pessoas vejam este lote nos resultados de busca
+			</string>
+			<string name="search_disabled_small_tooltip">
+				Esta opção está desabilitada porque a área deste lote tem 128 m² ou menos.
+Apenas lotes maiores podem ser listados na busca.
+			</string>
+			<string name="search_disabled_permissions_tooltip">
+				Esta opção está desabilitada porque você não pode modificar as opções deste lote.
+			</string>
+			<combo_box name="land category with adult">
+				<combo_item name="AnyCategory">
+					Qualquer Categoria
+				</combo_item>
+				<combo_item name="LindenLocation">
+					Local da Linden
+				</combo_item>
+				<combo_item name="Adult">
+					Adult
+				</combo_item>
+				<combo_item name="Arts&amp;Culture">
+					Artes &amp; Cultura
+				</combo_item>
+				<combo_item name="Business">
+					Negócios
+				</combo_item>
+				<combo_item name="Educational">
+					Educacional
+				</combo_item>
+				<combo_item name="Gaming">
+					Jogos
+				</combo_item>
+				<combo_item name="Hangout">
+					Moradia
+				</combo_item>
+				<combo_item name="NewcomerFriendly">
+					Amigável a  Novos Usuários
+				</combo_item>
+				<combo_item name="Parks&amp;Nature">
+					Parques &amp; Natureza
+				</combo_item>
+				<combo_item name="Residential">
+					Residencial
+				</combo_item>
+				<combo_item name="Shopping">
+					Shopping
+				</combo_item>
+				<combo_item name="Other">
+					Outros
+				</combo_item>
+			</combo_box>
 			<combo_box left="276" name="land category" width="146">
 				<combo_item name="AnyCategory">
 					Qualquer Categoria
@@ -260,7 +349,6 @@ Vá para o menu Mundo &gt; Sobre a Terra ou selecione outro lote para mostrar se
 				<combo_item name="LindenLocation">
 					Locação Linden
 				</combo_item>
-
 				<combo_item name="Arts&amp;Culture">
 					Artes e Cultura
 				</combo_item>
@@ -293,7 +381,19 @@ Vá para o menu Mundo &gt; Sobre a Terra ou selecione outro lote para mostrar se
 				</combo_item>
 			</combo_box>
 			<button label="?" label_selected="?" left="426" name="?"/>
-			<check_box name="MatureCheck" />
+			<check_box label="Conteúdo Mature" name="MatureCheck" tool_tip=""/>
+			<string name="mature_check_mature">
+				Conteúdo Mature
+			</string>
+			<string name="mature_check_adult">
+				Conteúdo Adult
+			</string>
+			<string name="mature_check_mature_tooltip">
+				A informação do seu lote ou seu conteúdo são considerados mature.
+			</string>
+			<string name="mature_check_adult_tooltip">
+				A informação do seu lote ou seu conteúdo são considerados adult.
+			</string>
 			<text length="1" name="Snapshot:" type="string">
 				Foto:
 			</text>
@@ -374,21 +474,14 @@ Mídia:
 			<text name="Sound:">
 				Som:
 			</text>
-			<check_box label="Restringir som espacial a este lote" left="97" name="check sound local"/>
+			<check_box label="Restringir gestos e sons de objetos a este lote" left="97" name="check sound local"/>
+			<button label="?" label_selected="?" name="?"/>
 			<text name="Voice settings:">
 				Voz:
 			</text>
-			<radio_group left="97" name="parcel_voice_channel" width="310">
-				<radio_item name="Estate">
-					Usar o canal espacial da Propriedade
-				</radio_item>
-				<radio_item name="Private">
-					Usar um canal especial privado
-				</radio_item>
-				<radio_item name="Disabled">
-					Desabilitar áudio espacial neste lote
-				</radio_item>
-			</radio_group>
+			<check_box left="97" label="Habilitar Voz" name="parcel_enable_voice_channel"/>
+			<check_box left="97" label="Habilitar Voz (definida pela Propriedade)" name="parcel_enable_voice_channel_is_estate_disabled"/>
+			<check_box left="117" label="Restringir Voz a este lote" name="parcel_enable_voice_channel_parcel"/>
 		</panel>
 		<panel label="Acesso" name="land_access_panel">
 			<text length="1" name="Limit access to this parcel to:" type="string">

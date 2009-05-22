@@ -3,10 +3,12 @@
 	<menu label="Arquivo" name="File">
 		<tearoff_menu label="~~~~~~~~~~~" name="~~~~~~~~~~~"/>
 		<menu label="Upload" name="upload">
-			<menu_item_call label="Upload de imagem (L$[COST])..." name="Upload Image"/>
-			<menu_item_call label="Upload de som(L$[COST])..." name="Upload Sound"/>
-			<menu_item_call label="Upload de animação (L$[COST])..." name="Upload Animation"/>
-			<menu_item_call label="Upload de Arquivo (L$[COST] por arquivo)..." name="Bulk Upload"/>
+			<menu_item_call label="Imagem (L$[COST])..." name="Upload Image"/>
+			<menu_item_call label="Som (L$[COST])..." name="Upload Sound"/>
+			<menu_item_call label="Animação (L$[COST])..." name="Upload Animation"/>
+			<menu_item_call label="Bulk (L$[COST] por arquivo)..." name="Bulk Upload"/>
+			<menu_item_separator label="-----------" name="separator"/>
+			<menu_item_call label="Definir Permissões Padrão..." name="perm prefs"/>
 		</menu>
 		<menu_item_separator label="-----------" name="separator"/>
 		<menu_item_call label="Fechar janela" name="Close Window"/>
@@ -72,7 +74,7 @@
 		<menu_item_check label="Comunicar" name="Instant Message"/>
 		<menu_item_check label="Inventário" name="Inventory"/>
 		<menu_item_check label="Falantes Ativos" name="Active Speakers"/>
-		<menu_item_check label="Lista de pessoas que não podem falar com você" name="Mute List"/>
+		<menu_item_check label="Lista de residentes e objetos silenciados" name="Mute List"/>
 		<menu_item_separator label="-----------" name="separator2"/>
 		<menu_item_check label="Controles de câmera" name="Camera Controls"/>
 		<menu_item_check label="Controles de movimento" name="Movement Controls"/>
@@ -81,6 +83,7 @@
 		<menu_item_separator label="-----------" name="separator3"/>
 		<menu_item_check label="Barra de estatísticas" name="Statistics Bar"/>
 		<menu_item_check label="Linhas de propriedades" name="Property Lines"/>
+		<menu_item_check label="Linhas de banimento" name="Banlines"/>
 		<menu_item_check label="Donos de terrenos" name="Land Owners"/>
 		<menu_item_separator label="-----------" name="separator4"/>
 		<menu label="Dicas" name="Hover Tips">
@@ -113,7 +116,7 @@
 		<menu_item_separator label="-----------" name="separator3"/>
 		<menu_item_call label="Deixar ausente" name="Set Away"/>
 		<menu_item_call label="Deixar Ocupado" name="Set Busy"/>
-		<menu_item_call label="Parar todas as animações" name="Stop All Animations"/>
+		<menu_item_call label="Parar Animação do Meu Avatar" name="Stop Animating My Avatar"/>
 		<menu_item_call label="Liberar teclas" name="Release Keys"/>
 		<menu_item_separator label="-----------" name="separator4"/>
 		<menu_item_call label="Histórico de conta..." name="Account History..."/>
@@ -164,7 +167,6 @@
 		<menu_item_call label="Zoom na Seleção" name="Zoom to Selection"/>
 		<menu_item_call label="Comprar objetos" name="Menu Object Take"/>
 		<menu_item_call label="Pegar cópia" name="Take Copy"/>
-		<menu_item_call label="Salvar objeto de volta ao meu inventário" name="Save Object Back to My Inventory"/>
 		<menu_item_call label="Salvar objeto de volta aos conteúdos do objeto" name="Save Object Back to Object Contents"/>
 		<menu_item_separator label="-----------" name="separator6"/>
 		<menu_item_call label="Mostrar scripts defeituosos/Erros de janela" name="Show Script Warning/Error Window"/>

@@ -4,42 +4,29 @@
 		<panel label="Objetos" name="objects_mapview"/>
 		<panel label="Terreno" name="terrain_mapview"/>
 	</tab_container>
-	<text name="land_for_sale_label">
-		Terreno en venta
-	</text>
-	<text name="auction_label">
-		Subasta
-	</text>
 	<text name="you_label">
 		Usted
 	</text>
 	<text name="home_label">
 		Base
 	</text>
-	<button label="Ir a la Base" label_selected="Ir a la Base" name="Go Home" tool_tip="Teleportar a su Base"/>
-	<text name="person_label">
-		Persona
+	<text name="auction_label">
+		Subasta
 	</text>
-	<check_box label=" " name="people_chk"/>
-	<text name="infohub_label">
-		Punto de Información
-	</text>
-	<check_box label=" " name="infohub_chk"/>
-	<text name="telehub_label">
-		Punto de Teleporte
-	</text>
-	<check_box label=" " name="telehubchk"/>
-	<text name="land_for_sale_label2">
+	<text name="land_for_sale_label">
 		Terreno en venta
 	</text>
-	<check_box label=" " name="land_for_sale_chk"/>
+	<button label="Ir a la Base" label_selected="Ir a la Base" name="Go Home" tool_tip="Teleportar a su Base"/>
+	<check_box label="Residente" name="people_chk"/>
+	<check_box label="Punto de Info" name="infohub_chk"/>
+	<check_box label="Punto de Teleporte" name="telehubchk"/>
+	<check_box label="Terreno en venta" name="land_for_sale_chk"/>
 	<text name="events_label">
-		Eventos
+		Eventos:
 	</text>
-	<check_box label=" " name="event_chk"/>
-
-
-	<check_box name="event_mature_chk"/>
+	<check_box label="&apos;PG&apos;" name="event_chk"/>
+	<check_box label="&apos;Mature&apos;" name="event_mature_chk"/>
+	<check_box label="&apos;Adult&apos;" name="event_adult_chk"/>
 	<combo_box label="Amigos conectados" name="friend combo" tool_tip="Amigo a mostrar en el mapa">
 		<combo_item name="none_selected">
 			Amigos conectados

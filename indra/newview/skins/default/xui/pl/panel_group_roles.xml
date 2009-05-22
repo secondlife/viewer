@@ -51,7 +51,7 @@ Przywilejem.
 				<column label="Kontrybucje" name="donated" />
 				<column label="Ostatnio w SL" name="online" />
 			</name_list>
-			<button label="Zaproś Nową Osobę..." name="member_invite" />
+			<button label="Zaproś Nową Osobę..." name="member_invite"/>
 			<button label="Usuń z Grupy" name="member_eject" />
 			<string name="help_text">
 				Możesz dodawać i usuwać Funkcje przypisane do Członków.
@@ -79,7 +79,7 @@ Możesz wybrać wielu Członków naciskając Ctrl i klikając na ich imionach.
 		<panel label="Przywileje" name="actions_sub_tab">
 			<button label="Szukaj" name="search_button" />
 			<button label="Wszystko" name="show_all_button" />
-			<scroll_list name="action_list" tool_tip="Select an Ability to view more details.">
+			<scroll_list name="action_list" tool_tip="Zaznacz aby zobaczyć więcej informacji.">
 				<column label="" name="icon" />
 				<column label="" name="action" />
 			</scroll_list>

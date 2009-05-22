@@ -3,10 +3,12 @@
 	<menu label="Archivo" name="File">
 		<tearoff_menu label="~~~~~~~~~~~" name="~~~~~~~~~~~"/>
 		<menu label="Subir" name="upload">
-			<menu_item_call label="Subir imagen ([COST] L$)..." name="Upload Image"/>
-			<menu_item_call label="Subir sonido ([COST] L$)..." name="Upload Sound"/>
-			<menu_item_call label="Subir animación ([COST] L$)..." name="Upload Animation"/>
-			<menu_item_call label="Subida masiva ([COST] L$ por archivo)..." name="Bulk Upload"/>
+			<menu_item_call label="Imagen ([COST] L$)..." name="Upload Image"/>
+			<menu_item_call label="Sonido ([COST] L$)..." name="Upload Sound"/>
+			<menu_item_call label="Animación ([COST] L$)..." name="Upload Animation"/>
+			<menu_item_call label="Masiva ([COST] L$ por archivo)..." name="Bulk Upload"/>
+			<menu_item_separator label="-----------" name="separator"/>
+			<menu_item_call label="Definir los permisos por defecto..." name="perm prefs"/>
 		</menu>
 		<menu_item_separator label="-----------" name="separator"/>
 		<menu_item_call label="Cerrar la ventana" name="Close Window"/>
@@ -81,6 +83,7 @@
 		<menu_item_separator label="-----------" name="separator3"/>
 		<menu_item_check label="Estadísticas" name="Statistics Bar"/>
 		<menu_item_check label="Límites de las parcelas" name="Property Lines"/>
+		<menu_item_check label="Líneas de prohibición" name="Banlines"/>
 		<menu_item_check label="Propietarios del terreno" name="Land Owners"/>
 		<menu_item_separator label="-----------" name="separator4"/>
 		<menu label="Información adicional" name="Hover Tips">
@@ -113,7 +116,7 @@
 		<menu_item_separator label="-----------" name="separator3"/>
 		<menu_item_call label="Pasar al estado ausente" name="Set Away"/>
 		<menu_item_call label="Pasar al estado ocupado" name="Set Busy"/>
-		<menu_item_call label="Parar todas las animaciones" name="Stop All Animations"/>
+		<menu_item_call label="Parar la animación de mi avatar" name="Stop Animating My Avatar"/>
 		<menu_item_call label="Recuperar las teclas" name="Release Keys"/>
 		<menu_item_separator label="-----------" name="separator4"/>
 		<menu_item_call label="Historial de mi cuenta..." name="Account History..."/>
@@ -164,7 +167,6 @@
 		<menu_item_call label="Zoom en lo seleccionado" name="Zoom to Selection"/>
 		<menu_item_call label="Comprar el objeto" name="Menu Object Take"/>
 		<menu_item_call label="Coger una copia" name="Take Copy"/>
-		<menu_item_call label="Devolver una copia del objeto a mi inventario" name="Save Object Back to My Inventory"/>
 		<menu_item_call label="Devolver una copia del objeto a los contenidos de donde salió" name="Save Object Back to Object Contents"/>
 		<menu_item_separator label="-----------" name="separator6"/>
 		<menu_item_call label="Ver en una ventana los errores o alertas de los scripts" name="Show Script Warning/Error Window"/>

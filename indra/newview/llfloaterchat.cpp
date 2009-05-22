@@ -398,7 +398,7 @@ void LLFloaterChat::addChat(const LLChat& chat,
 			size = INSTANT_MSG_SIZE;
 		}
 		// We display anything if it's not an IM. If it's an IM, check pref...
-		if	( !from_instant_message || gSavedSettings.getBOOL("IMInChatHistory") ) 
+		if	( !from_instant_message || gSavedSettings.getBOOL("IMInChatConsole") ) 
 		{
 			gConsole->addLine(chat.mText, size, text_color);
 		}
@@ -406,9 +406,6 @@ void LLFloaterChat::addChat(const LLChat& chat,
 
 	if(from_instant_message && gSavedPerAccountSettings.getBOOL("LogChatIM"))
 		log_chat_text(chat);
-	
-	if(from_instant_message && gSavedSettings.getBOOL("IMInChatHistory"))
-		addChatHistory(chat,false);
 
 	LLTextParser* highlight = LLTextParser::getInstance();
 	highlight->triggerAlerts(gAgent.getID(), gAgent.getPositionGlobal(), chat.mText, gViewerWindow->getWindow());

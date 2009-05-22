@@ -6,35 +6,37 @@
 	<string name="forgot_password_url">
 		http://secondlife.com/account/request.php
 	</string>
-	<text name="first_name_text">
+	<text name="first_name_text" left="20">
 		Nome:
 	</text>
-	<text name="last_name_text">
+	<line_editor left="20" name="first_name_edit" width="126" />
+	<text name="last_name_text" left="158">
 		Cognome:
 	</text>
+	<line_editor left="158" name="last_name_edit" width="126" />
 	<text name="password_text">
 		Password:
 	</text>
-	<text name="start_location_text">
-		Luogo di partenza:
+	<text name="start_location_text" left="20" width="105">
+		Punto di partenza:
 	</text>
-	<combo_box name="start_location_combo">
+	<combo_box name="start_location_combo" left_delta="105" width="160">
 		<combo_item name="MyHome">
 			Casa Mia
 		</combo_item>
 		<combo_item name="MyLastLocation">
-			Ultimo luogo dove sono stato
+			Ultimo luogo visitato
 		</combo_item>
 		<combo_item name="Typeregionname">
-			&lt;Scrivi la regione di partenza&gt;
+			&lt;Scrivi la regione&gt;
 		</combo_item>
 	</combo_box>
-	<check_box label="Ricorda password" name="remember_check"/>
+	<check_box label="Ricorda password" name="remember_check" left_delta="168"/>
 	<button label="Log In" label_selected="Log In" name="connect_btn"/>
 	<text name="create_new_account_text">
 		Registra un account
 	</text>
-	<text name="forgot_password_text">
+	<text name="forgot_password_text" left="-240" width="230">
 		Hai dimenticato il tuo nome o la password?
 	</text>
 	<text name="channel_text">

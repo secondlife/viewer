@@ -8,7 +8,7 @@
 			Ultimo posto visitato
 		</radio_item>
 	</radio_group>
-	<check_box label="Mostra il posto di partenza sulla schermata d&apos;inizio" name="show_location_checkbox"/>
+	<check_box label="Mostra il punto di partenza nella schermata d&apos;inizio" name="show_location_checkbox"/>
 	<combo_box name="fade_out_combobox" width="166">
 		<combo_item name="Never">
 			Mai
@@ -33,12 +33,30 @@
 	</text>
 	<check_box label="Usa ridimensionamento indipendente dalla risoluzione" name="ui_auto_scale"/>
 	<spinner label="Assente dopo:" name="afk_timeout_spinner"/>
-	<check_box label="Ruota la Mini-Mappa" name="rotate_mini_map_checkbox"/>
 	<check_box label="Avvisami quando spendo o ricevo Linden Dollars (L$)" name="notify_money_change_checkbox"/>
-	<check_box label="Usa la tavolozza di scelta colori di default del sistema" name="use_system_color_picker_checkbox" tool_tip="Usa la tavolozza di scelta colori di default del sistema, invece di quella integrata in Second Life."/>
-	<check_box label="Mostra il pannello di ricerca nella barra" name="show_search_panel" tool_tip="Visualizza il pannello di ricerca integrato."/>
+	<text name="maturity_desired_label" bottom="-312">
+		Categoria di accesso:
+	</text>
+	<text name="maturity_desired_prompt" bottom="-312">
+		Voglio accedere al
+contenuto di tipo:
+	</text>
+	<combo_box name="maturity_desired_combobox" bottom="-330" left="274">
+		<combo_item name="Desired_Adult">
+			PG, Mature e Adult
+		</combo_item>
+		<combo_item name="Desired_Mature">
+			PG e Mature
+		</combo_item>
+		<combo_item name="Desired_PG">
+			solo PG
+		</combo_item>
+	</combo_box>
+	<text name="maturity_desired_textbox" bottom="-324" left="274">
+		solo PG
+	</text>
 	<text name="start_location_textbox">
-		Punto di inizio:
+		Punto di partenza:
 	</text>
 	<text name="show_names_textbox">
 		Mostra Nomi:
@@ -55,8 +73,8 @@
 	<text name="language_textbox">
 		Lingua:
 	</text>
-	<text name="language_textbox2" left_delta="313">
-		(Richiede restart)
+	<text left_delta="313" name="language_textbox2">
+		(Richiede il riavvio)
 	</text>
 	<string name="region_name_prompt">
 		&lt;Scrivi il nome della regione&gt;
@@ -91,14 +109,29 @@
 		<combo_item name="French">
 			Français (Francese) - Beta
 		</combo_item>
+		<combo_item name="Italian">
+			Italiano - Beta
+		</combo_item>
 		<combo_item name="Hungarian">
 			Magyar (Ungherese) - Beta
+		</combo_item>
+		<combo_item name="Dutch">
+			Nederlands (Olandese) - Beta
 		</combo_item>
 		<combo_item name="Polish">
 			Polski (Polacco) - Beta
 		</combo_item>
 		<combo_item name="Portugese">
 			Portugués (Portoghese) - Beta
+		</combo_item>
+		<combo_item name="Russian">
+			Русский (Russo) - Beta
+		</combo_item>
+		<combo_item name="Turkish">
+			Türkçe (Turco) - Beta
+		</combo_item>
+		<combo_item name="Ukrainian">
+			Українська (Ukraino) - Beta
 		</combo_item>
 		<combo_item name="Chinese">
 			中文 (简体) (Cinese) - Beta

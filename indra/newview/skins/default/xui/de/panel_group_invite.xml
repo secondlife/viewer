@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel label="Mitglied einladen" name="invite_panel">
 	<text name="help_text">
-		Sie können mehrere Einwohner zu Ihrer
-Gruppe einladen. Klicken Sie auf
-„Personenauswahl öffnen“.
+		Sie können mehrere Einwohner in Ihre 
+Gruppe einladen. Klicken Sie hierzu
+auf „Einwohnerliste öffnen“.
 	</text>
-	<button label="Personenauswahl öffnen" name="add_button" tool_tip="" />
+	<button label="Einwohnerliste öffnen" name="add_button" tool_tip=""/>
 	<name_list name="invitee_list"
 	     tool_tip="Halten Sie zur Mehrfachauswahl die Strg-Taste gedrückt und klicken Sie auf die Einwohnernamen." />
 	<button label="Auswahl aus Liste löschen" name="remove_button"

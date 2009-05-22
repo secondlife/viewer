@@ -22,13 +22,13 @@
 	<text name="buy_action">
 		[NAME] L$ [PRICE]
 	</text>
-	<text name="currency_action">
+	<text name="currency_action" width="48">
 		Koop L$
 	</text>
-	<line_editor name="currency_amt">
+	<line_editor name="currency_amt" left_delta="53" width="75">
 		1234
 	</line_editor>
-	<text name="currency_est">
+	<text name="currency_est" left_delta="80">
 		voor ong. US$ [USD]
 	</text>
 	<text name="getting_data">
@@ -52,11 +52,13 @@
 	<text name="total_amount">
 		L$ [AMT]
 	</text>
-	<text name="purchase_warning_repurchase">
-		Het bevestigen van deze aankoop zal alleen de valuta kopen. U dient de bewerking opnieuw uit te voeren.
+	<text name="purchase_warning_repurchase" right="-8">
+		Het bevestigen van deze aankoop zal alleen de valuta
+kopen. U dient de bewerking opnieuw uit te voeren.
 	</text>
-	<text name="purchase_warning_notenough">
-		U koopt niet voldoende valuta. Verhoog de hoeveelheid die gekocht moet worden.
+	<text name="purchase_warning_notenough" right="-8">
+		U koopt niet voldoende valuta.
+Verhoog de hoeveelheid die gekocht moet worden.
 	</text>
 	<button label="Annuleren" name="cancel_btn"/>
 	<button label="Kopen" name="buy_btn"/>
