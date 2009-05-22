@@ -61,8 +61,6 @@
 #include "llmediamanager.h"
 
 
-extern LLCPUInfo gSysCPU;
-extern LLMemoryInfo gSysMemory;
 extern U32 gPacketsIn;
 
 static std::string get_viewer_release_notes_url();

@@ -38,7 +38,7 @@ extern S32 gTotalDAlloc;
 extern S32 gTotalDAUse;
 extern S32 gDACount;
 
-class LLMemory
+class LL_COMMON_API LLMemory
 {
 public:
 	static void initClass();

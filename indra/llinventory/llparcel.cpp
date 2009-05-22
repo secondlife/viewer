@@ -43,7 +43,7 @@
 #include "llsdutil.h"
 #include "lltransactiontypes.h"
 #include "lltransactionflags.h"
-#include "llsdutil.h"
+#include "llsdutil_math.h"
 #include "message.h"
 #include "u64.h"
 

@@ -32,9 +32,9 @@
  */
 
 #ifndef LLBASE64_H
-#define LLBASE64_h
+#define LLBASE64_H
 
-class LLBase64
+class LL_COMMON_API LLBase64
 {
 public:
 	static std::string encode(const U8* input, size_t input_size);

@@ -39,9 +39,9 @@
 #include "llsd.h"
 #include "reflective.h"
 
-class LLMetaClass;
-class LLReflective;
-class LLMetaProperty
+class LL_COMMON_API LLMetaClass;
+class LL_COMMON_API LLReflective;
+class LL_COMMON_API LLMetaProperty
 {
 public:
 	LLMetaProperty(const std::string& name, const LLMetaClass& object_class);

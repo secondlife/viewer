@@ -59,6 +59,7 @@
 //#include "llviewermenu.h"	// create_landmark()
 #include "llweb.h"
 #include "llsdutil.h"
+#include "llsdutil_math.h"
 
 //static
 std::list<LLPanelPlace*> LLPanelPlace::sAllPanels;

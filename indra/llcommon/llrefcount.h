@@ -37,9 +37,9 @@
 // see llthread.h for LLThreadSafeRefCount
 //----------------------------------------------------------------------------
 
-class LLRefCount
+class LL_COMMON_API LLRefCount
 {
-protected:
+private:
 	LLRefCount(const LLRefCount&); // not implemented
 private:
 	LLRefCount&operator=(const LLRefCount&); // not implemented

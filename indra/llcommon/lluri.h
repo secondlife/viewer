@@ -37,9 +37,9 @@
 
 #include <string>
 
-class LLSD;
-class LLUUID;
-class LLApp;
+class LL_COMMON_API LLSD;
+class LL_COMMON_API LLUUID;
+class LL_COMMON_API LLApp;
 
 /** 
  *
@@ -47,7 +47,7 @@ class LLApp;
  * See: http://www.ietf.org/rfc/rfc3986.txt
  *
  */
-class LLURI
+class LL_COMMON_API LLURI
 {
 public:
   LLURI();

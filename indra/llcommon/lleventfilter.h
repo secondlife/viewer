@@ -20,7 +20,7 @@
 /**
  * Generic base class
  */
-class LLEventFilter: public LLEventStream
+class LL_COMMON_API LLEventFilter: public LLEventStream
 {
 public:
     /// construct a standalone LLEventFilter
@@ -60,7 +60,7 @@ private:
  * @NOTE This is an abstract base class so that, for testing, we can use an
  * alternate "timer" that doesn't actually consume real time.
  */
-class LLEventTimeoutBase: public LLEventFilter
+class LL_COMMON_API LLEventTimeoutBase: public LLEventFilter
 {
 public:
     /// construct standalone
@@ -169,7 +169,7 @@ private:
 };
 
 /// Production implementation of LLEventTimoutBase
-class LLEventTimeout: public LLEventTimeoutBase
+class LL_COMMON_API LLEventTimeout: public LLEventTimeoutBase
 {
 public:
     LLEventTimeout();

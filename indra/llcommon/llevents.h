@@ -125,7 +125,7 @@ typedef boost::signals2::scoped_connection LLTempBoundListener;
  * LLListenerOrPumpName::Empty. Test for this condition beforehand using
  * either <tt>if (param)</tt> or <tt>if (! param)</tt>.
  */
-class LLListenerOrPumpName
+class LL_COMMON_API LLListenerOrPumpName
 {
 public:
     /// passing string name of LLEventPump
@@ -172,13 +172,13 @@ private:
 /*****************************************************************************
 *   LLEventPumps
 *****************************************************************************/
-class LLEventPump;
+class LL_COMMON_API LLEventPump;
 
 /**
  * LLEventPumps is a Singleton manager through which one typically accesses
  * this subsystem.
  */
-class LLEventPumps: public LLSingleton<LLEventPumps>
+class LL_COMMON_API LLEventPumps: public LLSingleton<LLEventPumps>
 {
     friend class LLSingleton<LLEventPumps>;
 public:
@@ -307,7 +307,7 @@ typedef boost::signals2::trackable LLEventTrackable;
  * destruction. Please see LLEventTrackable documentation for situations in
  * which this may be perilous across threads.
  */
-class LLEventPump: public LLEventTrackable
+class LL_COMMON_API LLEventPump: public LLEventTrackable
 {
 public:
     /**
@@ -528,7 +528,7 @@ protected:
  * LLEventStream is a thin wrapper around LLStandardSignal. Posting an
  * event immediately calls all registered listeners.
  */
-class LLEventStream: public LLEventPump
+class LL_COMMON_API LLEventStream: public LLEventPump
 {
 public:
     LLEventStream(const std::string& name, bool tweak=false): LLEventPump(name, tweak) {}
@@ -545,7 +545,7 @@ public:
  * LLEventQueue isa LLEventPump whose post() method defers calling registered
  * listeners until flush() is called.
  */
-class LLEventQueue: public LLEventPump
+class LL_COMMON_API LLEventQueue: public LLEventPump
 {
 public:
     LLEventQueue(const std::string& name, bool tweak=false): LLEventPump(name, tweak) {}

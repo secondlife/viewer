@@ -46,7 +46,7 @@
  *
  * The date class represents a point in time after epoch - 1970-01-01.
  */
-class LLDate
+class LL_COMMON_API LLDate
 {
 public:
 	/** 

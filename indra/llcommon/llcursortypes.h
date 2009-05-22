@@ -77,6 +77,6 @@ enum ECursorType {
 	UI_CURSOR_COUNT			// Number of elements in this enum (NOT a cursor)
 };
 
-ECursorType getCursorFromString(const std::string& cursor_string);
+LL_COMMON_API ECursorType getCursorFromString(const std::string& cursor_string);
 
 #endif // LL_LLCURSORTYPES_H

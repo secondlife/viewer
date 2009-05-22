@@ -106,7 +106,7 @@ namespace LLEventDetail
      * that's okay, since it won't collide with any listener name used by the
      * earlier coroutine since that earlier coroutine no longer exists.
      */
-    std::string listenerNameForCoro(const void* self);
+    LL_COMMON_API std::string listenerNameForCoro(const void* self);
 
     /**
      * Implement behavior described for postAndWait()'s @a replyPumpNamePath
@@ -126,7 +126,7 @@ namespace LLEventDetail
      * In the degenerate case in which @a path is an empty array, @a dest will
      * @em become @a value rather than @em containing it.
      */
-    void storeToLLSDPath(LLSD& dest, const LLSD& path, const LLSD& value);
+    LL_COMMON_API void storeToLLSDPath(LLSD& dest, const LLSD& path, const LLSD& value);
 } // namespace LLEventDetail
 
 /**
@@ -378,7 +378,7 @@ LLSD errorException(const LLEventWithID& result, const std::string& desc);
  * because it's not an error in event processing: rather, this exception
  * announces an event that bears error information (for some other API).
  */
-class LLErrorEvent: public std::runtime_error
+class LL_COMMON_API LLErrorEvent: public std::runtime_error
 {
 public:
     LLErrorEvent(const std::string& what, const LLSD& data):
@@ -397,7 +397,7 @@ private:
  * Like errorException(), save that this trips a fatal error using LL_ERRS
  * rather than throwing an exception.
  */
-LLSD errorLog(const LLEventWithID& result, const std::string& desc);
+LL_COMMON_API LLSD errorLog(const LLEventWithID& result, const std::string& desc);
 
 /**
  * Certain event APIs require the name of an LLEventPump on which they should
@@ -413,7 +413,7 @@ LLSD errorLog(const LLEventWithID& result, const std::string& desc);
  * 4. Call your LLEventTempStream's wait() method to wait for the reply.
  * 5. Let the LLCoroEventPump go out of scope.
  */
-class LLCoroEventPump
+class LL_COMMON_API LLCoroEventPump
 {
 public:
     LLCoroEventPump(const std::string& name="coro"):
@@ -458,7 +458,7 @@ private:
  * success response, the other for error response. Extend LLCoroEventPump
  * for the two-pump use case.
  */
-class LLCoroEventPumps
+class LL_COMMON_API LLCoroEventPumps
 {
 public:
     LLCoroEventPumps(const std::string& name="coro",

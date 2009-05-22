@@ -547,8 +547,6 @@ void LLGLManager::shutdownGL()
 // these are used to turn software blending on. They appear in the Debug/Avatar menu
 // presence of vertex skinning/blending or vertex programs will set these to FALSE by default.
 
-extern LLCPUInfo gSysCPU;
-
 void LLGLManager::initExtensions()
 {
 #if LL_MESA_HEADLESS

@@ -58,6 +58,7 @@
 #include "llparcelselection.h"
 #include "llresmgr.h"
 #include "llsdutil.h"
+#include "llsdutil_math.h"
 #include "llstatusbar.h"
 #include "llui.h"
 #include "llviewerimage.h"

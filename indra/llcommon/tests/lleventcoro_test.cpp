@@ -53,6 +53,9 @@
 #include <boost/coroutine/future.hpp>
 #include <boost/bind.hpp>
 #include <boost/range.hpp>
+
+#include "linden_common.h"
+
 #include <iostream>
 #include <string>
 

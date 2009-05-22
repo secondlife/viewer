@@ -44,6 +44,7 @@
 #include "v4math.h"
 #include "llquaternion.h"
 #include "llsdutil.h"
+#include "llsdutil_math.h"
 #include <set>
 #include <boost/range.hpp>
 

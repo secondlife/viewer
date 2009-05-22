@@ -30,6 +30,8 @@
  * $/LicenseInfo$
  */
 
+#include "linden_common.h"
+
 #include "llregionpresenceverifier.h"
 #include "llhttpclientinterface.h"
 #include <sstream>

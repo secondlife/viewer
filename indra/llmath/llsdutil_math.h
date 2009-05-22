@@ -1,11 +1,12 @@
 /** 
- * @file llbase32.h
- * @brief base32 encoding that returns a std::string
- * @author James Cook
+ * @file llsdutil_math.h
+ * @author Brad
+ * @date 2009-05-19
+ * @brief Utility classes, functions, etc, for using structured data with math classes.
  *
- * $LicenseInfo:firstyear=2007&license=viewergpl$
+ * $LicenseInfo:firstyear=2009&license=viewergpl$
  * 
- * Copyright (c) 2007-2009, Linden Research, Inc.
+ * Copyright (c) 2009-2009, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -31,13 +32,39 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLBASE32_H
-#define LLBASE32_H
+#ifndef LL_LLSDUTIL_MATH_H
+#define LL_LLSDUTIL_MATH_H
 
-class LL_COMMON_API LLBase32
-{
-public:
-	static std::string encode(const U8* input, size_t input_size);
-};
+class LL_COMMON_API LLSD;
 
-#endif
+// vector3
+class LLVector3;
+LLSD ll_sd_from_vector3(const LLVector3& vec);
+LLVector3 ll_vector3_from_sd(const LLSD& sd, S32 start_index = 0);
+
+// vector4
+class LLVector4;
+LLSD ll_sd_from_vector4(const LLVector4& vec);
+LLVector4 ll_vector4_from_sd(const LLSD& sd, S32 start_index = 0);
+
+// vector3d (double)
+class LLVector3d;
+LLSD ll_sd_from_vector3d(const LLVector3d& vec);
+LLVector3d ll_vector3d_from_sd(const LLSD& sd, S32 start_index = 0);
+
+// vector2
+class LLVector2;
+LLSD ll_sd_from_vector2(const LLVector2& vec);
+LLVector2 ll_vector2_from_sd(const LLSD& sd);
+
+// Quaternion
+class LLQuaternion;
+LLSD ll_sd_from_quaternion(const LLQuaternion& quat);
+LLQuaternion ll_quaternion_from_sd(const LLSD& sd);
+
+// color4
+class LLColor4;
+LLSD ll_sd_from_color4(const LLColor4& c);
+LLColor4 ll_color4_from_sd(const LLSD& sd);
+
+#endif // LL_LLSDUTIL_MATH_H

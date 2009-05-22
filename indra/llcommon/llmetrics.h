@@ -36,9 +36,9 @@
 #define LL_LLMETRICS_H
 
 class LLMetricsImpl;
-class LLSD;
+class LL_COMMON_API LLSD;
 
-class LLMetrics
+class LL_COMMON_API LLMetrics
 {
 public:
 	LLMetrics();

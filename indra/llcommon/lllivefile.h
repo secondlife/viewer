@@ -36,7 +36,7 @@
 const F32 configFileRefreshRate = 5.0; // seconds
 
 
-class LLLiveFile
+class LL_COMMON_API LLLiveFile
 {
 public:
 	LLLiveFile(const std::string &filename, const F32 refresh_period = 5.f);

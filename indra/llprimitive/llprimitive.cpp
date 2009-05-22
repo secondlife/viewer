@@ -43,7 +43,7 @@
 #include "llvolumemgr.h"
 #include "llstring.h"
 #include "lldatapacker.h"
-#include "llsdutil.h"
+#include "llsdutil_math.h"
 #include "llprimtexturelist.h"
 
 /**

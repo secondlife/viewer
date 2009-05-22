@@ -44,6 +44,7 @@
 #include "llgl.h"
 #include "llsecondlifeurls.h"
 
+#include "llappviewer.h"
 #include "llviewercontrol.h"
 #include "llworld.h"
 #include "lldrawpoolterrain.h"
@@ -58,11 +59,6 @@
 #include "lldxhardware.h"
 #endif
 
-//
-// externs
-//
-extern LLMemoryInfo gSysMemory;
-extern LLCPUInfo gSysCPU;
 
 #if LL_DARWIN
 const char FEATURE_TABLE_FILENAME[] = "featuretable_mac.txt";

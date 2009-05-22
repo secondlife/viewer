@@ -37,7 +37,7 @@
 
 #include "stdenums.h" 	// for EDragAndDropType
 
-class LLAssetType
+class LL_COMMON_API LLAssetType
 {
 public:
 	enum EType

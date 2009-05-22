@@ -129,9 +129,9 @@ namespace LLError
 		They are not intended for general use.
 	*/
 	
-	class CallSite;
+	class LL_COMMON_API CallSite;
 	
-	class Log
+	class LL_COMMON_API Log
 	{
 	public:
 		static bool shouldLog(CallSite&);
@@ -140,7 +140,7 @@ namespace LLError
 		static void flush(std::ostringstream*, const CallSite&);
 	};
 	
-	class CallSite
+	class LL_COMMON_API CallSite
 	{
 		// Represents a specific place in the code where a message is logged
 		// This is public because it is used by the macros below.  It is not
@@ -189,7 +189,7 @@ namespace LLError
 	//LLCallStacks is designed not to be thread-safe.
    //so try not to use it in multiple parallel threads at same time.
    //Used in a single thread at a time is fine.
-   class LLCallStacks
+   class LL_COMMON_API LLCallStacks
    {
    private:
        static char**  sBuffer ;
