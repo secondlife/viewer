@@ -129,6 +129,9 @@ LL_COMMON_API BOOL compare_llsd_with_template(
  */
 LL_COMMON_API std::string llsd_matches(const LLSD& prototype, const LLSD& data, const std::string& pfx="");
 
+/// Deep equality
+bool llsd_equals(const LLSD& lhs, const LLSD& rhs);
+
 // Simple function to copy data out of input & output iterators if
 // there is no need for casting.
 template<typename Input> LLSD llsd_copy_array(Input iter, Input end)

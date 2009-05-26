@@ -576,3 +576,95 @@ std::string llsd_matches(const LLSD& prototype, const LLSD& data, const std::str
     // bad LLSD doesn't define isConvertible(Type to, Type from).
     return match_types(prototype.type(), TypeVector(), data.type(), pfx);
 }
+
+bool llsd_equals(const LLSD& lhs, const LLSD& rhs)
+{
+    // We're comparing strict equality of LLSD representation rather than
+    // performing any conversions. So if the types aren't equal, the LLSD
+    // values aren't equal.
+    if (lhs.type() != rhs.type())
+    {
+        return false;
+    }
+
+    // Here we know both types are equal. Now compare values.
+    switch (lhs.type())
+    {
+    case LLSD::TypeUndefined:
+        // Both are TypeUndefined. There's nothing more to know.
+        return true;
+
+#define COMPARE_SCALAR(type)                                    \
+    case LLSD::Type##type:                                      \
+        /* LLSD::URI has operator!=() but not operator==() */   \
+        /* rely on the optimizer for all others */              \
+        return (! (lhs.as##type() != rhs.as##type()))
+
+    COMPARE_SCALAR(Boolean);
+    COMPARE_SCALAR(Integer);
+    // The usual caveats about comparing floating-point numbers apply. This is
+    // only useful when we expect identical bit representation for a given
+    // Real value, e.g. for integer-valued Reals.
+    COMPARE_SCALAR(Real);
+    COMPARE_SCALAR(String);
+    COMPARE_SCALAR(UUID);
+    COMPARE_SCALAR(Date);
+    COMPARE_SCALAR(URI);
+    COMPARE_SCALAR(Binary);
+
+#undef COMPARE_SCALAR
+
+    case LLSD::TypeArray:
+    {
+        LLSD::array_const_iterator
+            lai(lhs.beginArray()), laend(lhs.endArray()),
+            rai(rhs.beginArray()), raend(rhs.endArray());
+        // Compare array elements, walking the two arrays in parallel.
+        for ( ; lai != laend && rai != raend; ++lai, ++rai)
+        {
+            // If any one array element is unequal, the arrays are unequal.
+            if (! llsd_equals(*lai, *rai))
+                return false;
+        }
+        // Here we've reached the end of one or the other array. They're equal
+        // only if they're BOTH at end: that is, if they have equal length too.
+        return (lai == laend && rai == raend);
+    }
+
+    case LLSD::TypeMap:
+    {
+        // Build a set of all rhs keys.
+        std::set<LLSD::String> rhskeys;
+        for (LLSD::map_const_iterator rmi(rhs.beginMap()), rmend(rhs.endMap());
+             rmi != rmend; ++rmi)
+        {
+            rhskeys.insert(rmi->first);
+        }
+        // Now walk all the lhs keys.
+        for (LLSD::map_const_iterator lmi(lhs.beginMap()), lmend(lhs.endMap());
+             lmi != lmend; ++lmi)
+        {
+            // Try to erase this lhs key from the set of rhs keys. If rhs has
+            // no such key, the maps are unequal. erase(key) returns count of
+            // items erased.
+            if (rhskeys.erase(lmi->first) != 1)
+                return false;
+            // Both maps have the current key. Compare values.
+            if (! llsd_equals(lmi->second, rhs[lmi->first]))
+                return false;
+        }
+        // We've now established that all the lhs keys have equal values in
+        // both maps. The maps are equal unless rhs contains a superset of
+        // those keys.
+        return rhskeys.empty();
+    }
+
+    default:
+        // We expect that every possible type() value is specifically handled
+        // above. Failing to extend this switch to support a new LLSD type is
+        // an error that must be brought to the coder's attention.
+        LL_ERRS("llsd_equals") << "llsd_equals(" << lhs << ", " << rhs << "): "
+            "unknown type " << lhs.type() << LL_ENDL;
+        return false;               // pacify the compiler
+    }
+}

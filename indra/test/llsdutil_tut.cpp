@@ -45,6 +45,7 @@
 #include "llquaternion.h"
 #include "llsdutil.h"
 #include "llsdutil_math.h"
+#include "stringize.h"
 #include <set>
 #include <boost/range.hpp>
 
@@ -207,14 +208,16 @@ namespace tut
         map.insert("URI",       LLSD::URI());
         map.insert("Binary",    LLSD::Binary());
         map.insert("Map",       LLSD().insert("foo", LLSD()));
-        // array can't be constructed on the fly
+        // Only an empty array can be constructed on the fly
         LLSD array;
         array.append(LLSD());
         map.insert("Array",     array);
 
         // These iterators are declared outside our various for loops to avoid
         // fatal MSVC warning: "I used to be broken, but I'm all better now!"
-        LLSD::map_const_iterator mi(map.beginMap()), mend(map.endMap());
+        LLSD::map_const_iterator mi, mend(map.endMap());
+
+        /*-------------------------- llsd_matches --------------------------*/
 
         // empty prototype matches anything
         for (mi = map.beginMap(); mi != mend; ++mi)
@@ -337,5 +340,56 @@ namespace tut
             static const char* matches[] = { "Binary" };
             test_matches("Binary", map, boost::begin(matches), boost::end(matches));
         }
+
+        /*-------------------------- llsd_equals ---------------------------*/
+
+        // Cross-product of each LLSD type with every other
+        for (LLSD::map_const_iterator lmi(map.beginMap()), lmend(map.endMap());
+             lmi != lmend; ++lmi)
+        {
+            for (LLSD::map_const_iterator rmi(map.beginMap()), rmend(map.endMap());
+                 rmi != rmend; ++rmi)
+            {
+                // Name this test based on the map keys naming the types of
+                // interest, e.g "String::Integer".
+                // We expect the values (xmi->second) to be equal if and only
+                // if the type names (xmi->first) are equal.
+                ensure(STRINGIZE(lmi->first << "::" << rmi->first),
+                       bool(lmi->first == rmi->first) ==
+                       bool(llsd_equals(lmi->second, rmi->second)));
+            }
+        }
+
+        // Array cases
+        LLSD rarray;
+        rarray.append(1.0);
+        rarray.append(2);
+        rarray.append("3");
+        LLSD larray(rarray);
+        ensure("llsd_equals(equal arrays)", llsd_equals(larray, rarray));
+        rarray[2] = "4";
+        ensure("llsd_equals(different [2])", ! llsd_equals(larray, rarray));
+        rarray = larray;
+        rarray.append(LLSD::Date());
+        ensure("llsd_equals(longer right array)", ! llsd_equals(larray, rarray));
+        rarray = larray;
+        rarray.erase(2);
+        ensure("llsd_equals(shorter right array)", ! llsd_equals(larray, rarray));
+
+        // Map cases
+        LLSD rmap;
+        rmap["San Francisco"] = 65;
+        rmap["Phoenix"] = 92;
+        rmap["Boston"] = 77;
+        LLSD lmap(rmap);
+        ensure("llsd_equals(equal maps)", llsd_equals(lmap, rmap));
+        rmap["Boston"] = 80;
+        ensure("llsd_equals(different [\"Boston\"])", ! llsd_equals(lmap, rmap));
+        rmap = lmap;
+        rmap["Atlanta"] = 95;
+        ensure("llsd_equals(superset right map)", ! llsd_equals(lmap, rmap));
+        rmap = lmap;
+        lmap["Seattle"] = 72;
+        ensure("llsd_equals(superset left map)", ! llsd_equals(lmap, rmap));
     }
 }
