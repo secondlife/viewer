@@ -35,6 +35,7 @@
 #include <iostream>
 #include <set>
 #include "stdtypes.h"
+#include "llpreprocessor.h"
 
 const S32 UUID_BYTES = 16;
 const S32 UUID_WORDS = 4;
