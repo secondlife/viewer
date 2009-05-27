@@ -24,6 +24,7 @@
 #include "llares.h"
 #include "llerror.h"
 #include "llevents.h"
+#include "llsdutil.h"
 
 LLAresListener::LLAresListener(const std::string& pumpname, LLAres* llares):
     mAres(llares),
@@ -31,6 +32,8 @@ LLAresListener::LLAresListener(const std::string& pumpname, LLAres* llares):
                    obtain(pumpname).
                    listen("LLAresListener", boost::bind(&LLAresListener::process, this, _1)))
 {
+    // Insert an entry into our mDispatch map for every method we want to be
+    // able to invoke via this event API.
     mDispatch["rewriteURI"] = boost::bind(&LLAresListener::rewriteURI, this, _1);
 }
 
@@ -60,9 +63,13 @@ bool LLAresListener::process(const LLSD& command)
 class UriRewriteResponder: public LLAres::UriRewriteResponder
 {
 public:
-    /// Specify the event pump name on which to send the reply
-    UriRewriteResponder(const std::string& pumpname):
-        mPumpName(pumpname)
+    /**
+     * Specify the request, containing the event pump name on which to send
+     * the reply.
+     */
+    UriRewriteResponder(const LLSD& request):
+        mReqID(request),
+        mPumpName(request["reply"])
     {}
 
     /// Called by base class with results. This is called in both the
@@ -76,33 +83,27 @@ public:
         {
             result.append(*ui);
         }
+        // This call knows enough to avoid trying to insert a map key into an
+        // LLSD array. It's there so that if, for any reason, we ever decide
+        // to change the response from array to map, it will Just Start Working.
+        mReqID.stamp(result);
         LLEventPumps::instance().obtain(mPumpName).post(result);
     }
 
 private:
+    LLReqID mReqID;
     const std::string mPumpName;
 };
 
 void LLAresListener::rewriteURI(const LLSD& data)
 {
-    const std::string uri(data["uri"]);
-    const std::string reply(data["reply"]);
+    static LLSD required(LLSD().insert("uri", LLSD()).insert("reply", LLSD()));
     // Validate that the request is well-formed
-    if (uri.empty() || reply.empty())
+    std::string mismatch(llsd_matches(required, data));
+    if (! mismatch.empty())
     {
-        LL_ERRS("LLAresListener") << "rewriteURI request missing";
-        std::string separator;
-        if (uri.empty())
-        {
-            LL_CONT << " 'uri'";
-            separator = " and";
-        }
-        if (reply.empty())
-        {
-            LL_CONT << separator << " 'reply'";
-        }
-        LL_CONT << LL_ENDL;
+        LL_ERRS("LLAresListener") << "bad rewriteURI request: " << mismatch << LL_ENDL;
     }
     // Looks as though we have what we need; issue the request
-    mAres->rewriteURI(uri, new UriRewriteResponder(reply));
+    mAres->rewriteURI(data["uri"], new UriRewriteResponder(data));
 }

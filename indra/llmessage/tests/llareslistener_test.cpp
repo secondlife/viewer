@@ -149,7 +149,9 @@ namespace tut
         {
             threw = e.what();
         }
-        ensure_contains("LLAresListener bad op", threw, "missing 'uri' and 'reply'");
+        ensure_contains("LLAresListener bad req", threw, "missing");
+        ensure_contains("LLAresListener bad req", threw, "reply");
+        ensure_contains("LLAresListener bad req", threw, "uri");
     }
 
     template<> template<>
@@ -169,7 +171,9 @@ namespace tut
         {
             threw = e.what();
         }
-        ensure_contains("LLAresListener bad op", threw, "missing 'uri'");
+        ensure_contains("LLAresListener bad req", threw, "missing");
+        ensure_contains("LLAresListener bad req", threw, "uri");
+        ensure_does_not_contain("LLAresListener bad req", threw, "reply");
     }
 
     template<> template<>
@@ -189,6 +193,8 @@ namespace tut
         {
             threw = e.what();
         }
-        ensure_contains("LLAresListener bad op", threw, "missing 'reply'");
+        ensure_contains("LLAresListener bad req", threw, "missing");
+        ensure_contains("LLAresListener bad req", threw, "reply");
+        ensure_does_not_contain("LLAresListener bad req", threw, "uri");
     }
 }

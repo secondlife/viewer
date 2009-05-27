@@ -217,6 +217,7 @@ public:
     /// populate an XMLRPC_REQUEST and an associated LLXMLRPCTransaction. Send
     /// the request.
     Poller(const LLSD& command):
+        mReqID(command),
         mUri(command["uri"]),
         mMethod(command["method"]),
         mReplyPump(command["reply"])
@@ -325,7 +326,7 @@ public:
             curlcode = CURLcode(curlint);
         }
 
-        LLSD data;
+        LLSD data(mReqID.makeResponse());
         data["status"] = sStatusMapper.lookup(status);
         data["errorcode"] = sCURLcodeMapper.lookup(curlcode);
         data["error"] = "";
@@ -476,6 +477,7 @@ private:
         return responses;
     }
 
+    const LLReqID mReqID;
     const std::string mUri;
     const std::string mMethod;
     const std::string mReplyPump;

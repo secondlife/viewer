@@ -564,6 +564,87 @@ private:
 };
 
 /*****************************************************************************
+*   LLReqID
+*****************************************************************************/
+/**
+ * This class helps the implementer of a given event API to honor the
+ * ["reqid"] convention. By this convention, each event API stamps into its
+ * response LLSD a ["reqid"] key whose value echoes the ["reqid"] value, if
+ * any, from the corresponding request.
+ *
+ * This supports an (atypical, but occasionally necessary) use case in which
+ * two or more asynchronous requests are multiplexed onto the same ["reply"]
+ * LLEventPump. Since the response events could arrive in arbitrary order, the
+ * caller must be able to demux them. It does so by matching the ["reqid"]
+ * value in each response with the ["reqid"] value in the corresponding
+ * request.
+ *
+ * It is the caller's responsibility to ensure distinct ["reqid"] values for
+ * that case. Though LLSD::UUID is guaranteed to work, it might be overkill:
+ * the "namespace" of unique ["reqid"] values is simply the set of requests
+ * specifying the same ["reply"] LLEventPump name.
+ *
+ * Making a given event API echo the request's ["reqid"] into the response is
+ * nearly trivial. This helper is mostly for mnemonic purposes, to serve as a
+ * place to put these comments. We hope that each time a coder implements a
+ * new event API based on some existing one, s/he will say, "Huh, what's an
+ * LLReqID?" and look up this material.
+ *
+ * The hardest part about the convention is deciding where to store the
+ * ["reqid"] value. Ironically, LLReqID can't help with that: you must store
+ * an LLReqID instance in whatever storage will persist until the reply is
+ * sent. For example, if the request ultimately ends up using a Responder
+ * subclass, storing an LLReqID instance in the Responder works.
+ *
+ * @note
+ * The @em implementer of an event API must honor the ["reqid"] convention.
+ * However, the @em caller of an event API need only use it if s/he is sharing
+ * the same ["reply"] LLEventPump for two or more asynchronous event API
+ * requests.
+ *
+ * In most cases, it's far easier for the caller to instantiate a local
+ * LLEventStream and pass its name to the event API in question. Then it's
+ * perfectly reasonable not to set a ["reqid"] key in the request, ignoring
+ * the @c isUndefined() ["reqid"] value in the response.
+ */
+class LLReqID
+{
+public:
+    /**
+     * If you have the request in hand at the time you instantiate the
+     * LLReqID, pass that request to extract its ["reqid"].
+     */
+    LLReqID(const LLSD& request):
+        mReqid(request["reqid"])
+    {}
+    /// If you don't yet have the request, use setFrom() later.
+    LLReqID() {}
+
+    /// Extract and store the ["reqid"] value from an incoming request.
+    void setFrom(const LLSD& request)
+    {
+        mReqid = request["reqid"];
+    }
+
+    /// Set ["reqid"] key into a pending response LLSD object.
+    void stamp(LLSD& response) const;
+
+    /// Make a whole new response LLSD object with our ["reqid"].
+    LLSD makeResponse() const
+    {
+        LLSD response;
+        stamp(response);
+        return response;
+    }
+
+    /// Not really sure of a use case for this accessor...
+    LLSD getReqID() const { return mReqid; }
+
+private:
+    LLSD mReqid;
+};
+
+/*****************************************************************************
 *   Underpinnings
 *****************************************************************************/
 /**

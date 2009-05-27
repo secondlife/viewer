@@ -121,9 +121,11 @@ private:
          * (e.g. "POST") as @a message.
          */
         EventResponder(LLEventPumps& pumps,
+                       const LLSD& request,
                        const std::string& target, const std::string& message,
                        const std::string& replyPump, const std::string& errorPump):
             mPumps(pumps),
+            mReqID(request),
             mTarget(target),
             mMessage(message),
             mReplyPump(replyPump),
@@ -135,6 +137,7 @@ private:
     
     private:
         LLEventPumps& mPumps;
+        LLReqID mReqID;
         const std::string mTarget, mMessage, mReplyPump, mErrorPump;
     };
 
