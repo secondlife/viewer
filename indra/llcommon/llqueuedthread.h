@@ -148,8 +148,6 @@ protected:
 		}
 	};
 
-    template class LL_COMMON_API std::set<QueuedRequest*, queued_request_less>;
-
 
 	//------------------------------------------------------------------------
 	
