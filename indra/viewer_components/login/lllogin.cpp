@@ -138,10 +138,6 @@ void LLLogin::Impl::connect(const std::string& uri, const LLSD& credentials)
 void LLLogin::Impl::login_(coroutine_type::self& self,
                            const std::string& uri, const LLSD& credentials)
 {
-    // Mimicking previous behavior, every time the OldSchoolLogin state
-    // machine arrived in the Offline state, it would send a progress
-    // announcement.
-    sendProgressEvent("offline", mAuthResponse["responses"]);
     // Arriving in SRVRequest state
     LLEventStream replyPump("reply", true);
     // Should be an array of one or more uri strings.
