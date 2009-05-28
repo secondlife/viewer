@@ -1,8 +1,8 @@
 /**
- * @file   llviewerlogin_test.cpp
+ * @file   lllogin_test.cpp
  * @author Mark Palange
  * @date   2009-02-26
- * @brief  Tests of lllazy.h.
+ * @brief  Tests of lllogin.cpp.
  * 
  * $LicenseInfo:firstyear=2009&license=internal$
  * Copyright (c) 2009, Linden Research, Inc.
@@ -20,24 +20,29 @@
 // other Linden headers
 #include "llsd.h"
 #include "../../../test/lltut.h"
+//#define DEBUG_ON
+#include "../../../test/debug.h"
 #include "llevents.h"
+#include "stringize.h"
 
 /*****************************************************************************
-*   TUT
+*   Helper classes
 *****************************************************************************/
 // This is a listener to receive results from lllogin.
-class LoginListener
+class LoginListener: public LLEventTrackable
 {
 	std::string mName;
 	LLSD mLastEvent;
+    Debug mDebug;
 public:
 	LoginListener(const std::string& name) : 
-		mName(name)
+		mName(name),
+        mDebug(stringize(*this))
 	{}
 
 	bool call(const LLSD& event)
 	{
-		std::cout << "LoginListener called!: " << event << std::endl;
+		mDebug(STRINGIZE("LoginListener called!: " << event));
 		mLastEvent = event;
 		return false;
 	}
@@ -47,15 +52,21 @@ public:
         return pump.listen(mName, boost::bind(&LoginListener::call, this, _1));
 	}
 
-	const LLSD& lastEvent() { return mLastEvent; }
+	LLSD lastEvent() { return mLastEvent; }
+
+    friend std::ostream& operator<<(std::ostream& out, const LoginListener& listener)
+    {
+        return out << "LoginListener(" << listener.mName << ')';
+    }
 };
 
-class LLAresListener
+class LLAresListener: public LLEventTrackable
 {
 	std::string mName;
 	LLSD mEvent;
 	bool mImmediateResponse;
 	bool mMultipleURIResponse;
+    Debug mDebug;
 	
 public:
 	LLAresListener(const std::string& name, 
@@ -64,12 +75,13 @@ public:
 				   ) : 
 		mName(name),
 		mImmediateResponse(i),
-		mMultipleURIResponse(m)
+		mMultipleURIResponse(m),
+        mDebug(stringize(*this))
 	{}
 
 	bool handle_event(const LLSD& event)
 	{
-		std::cout << "LLAresListener called!: " << event << std::endl;
+		mDebug(STRINGIZE("LLAresListener called!: " << event));
 		mEvent = event;
 		if(mImmediateResponse)
 		{
@@ -96,14 +108,20 @@ public:
     {
         return pump.listen(mName, boost::bind(&LLAresListener::handle_event, this, _1));
 	}
+
+    friend std::ostream& operator<<(std::ostream& out, const LLAresListener& listener)
+    {
+        return out << "LLAresListener(" << listener.mName << ')';
+    }
 };
 
-class LLXMLRPCListener
+class LLXMLRPCListener: public LLEventTrackable
 {
 	std::string mName;
 	LLSD mEvent;
 	bool mImmediateResponse;
 	LLSD mResponse;
+    Debug mDebug;
 
 public:
 	LLXMLRPCListener(const std::string& name, 
@@ -112,7 +130,8 @@ public:
 					 ) : 
 		mName(name),
 		mImmediateResponse(i),
-		mResponse(response)
+		mResponse(response),
+        mDebug(stringize(*this))
 	{
 		if(mResponse.isUndefined())
 		{
@@ -131,7 +150,7 @@ public:
 
 	bool handle_event(const LLSD& event)
 	{
-		std::cout << "LLXMLRPCListener called!: " << event << std::endl;
+		mDebug(STRINGIZE("LLXMLRPCListener called!: " << event));
 		mEvent = event;
 		if(mImmediateResponse)
 		{
@@ -149,8 +168,16 @@ public:
     {
         return pump.listen(mName, boost::bind(&LLXMLRPCListener::handle_event, this, _1));
 	}
+
+    friend std::ostream& operator<<(std::ostream& out, const LLXMLRPCListener& listener)
+    {
+        return out << "LLXMLRPCListener(" << listener.mName << ')';
+    }
 };
 
+/*****************************************************************************
+*   TUT
+*****************************************************************************/
 namespace tut
 {
     struct llviewerlogin_data
@@ -168,6 +195,7 @@ namespace tut
     template<> template<>
     void llviewerlogin_object::test<1>()
     {
+        DEBUG;
 		// Testing login with immediate repsonses from Ares and XMLPRC
 		// The response from both requests will come before the post request exits.
 		// This tests an edge case of the login state handling.
@@ -201,6 +229,7 @@ namespace tut
     template<> template<>
     void llviewerlogin_object::test<2>()
     {
+        DEBUG;
 		// Tests a successful login in with delayed responses. 
 		// Also includes 'failure' that cause the login module
 		// To re-attempt connection, once from a basic failure
@@ -292,6 +321,7 @@ namespace tut
     template<> template<>
     void llviewerlogin_object::test<3>()
     {
+        DEBUG;
 		// Test completed response, that fails to login.
 		set_test_name("LLLogin valid response, failure (eg. bad credentials)");
 
@@ -338,6 +368,7 @@ namespace tut
     template<> template<>
     void llviewerlogin_object::test<4>()
     {
+        DEBUG;
 		// Test incomplete response, that end the attempt.
 		set_test_name("LLLogin valid response, failure (eg. bad credentials)");
 

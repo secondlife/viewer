@@ -65,55 +65,7 @@
 #include "tests/wrapllerrs.h"
 #include "stringize.h"
 #include "lleventcoro.h"
-
-/*****************************************************************************
-*   Debugging stuff
-*****************************************************************************/
-// This class is intended to illuminate entry to a given block, exit from the
-// same block and checkpoints along the way. It also provides a convenient
-// place to turn std::cout output on and off.
-class Debug
-{
-public:
-    Debug(const std::string& block):
-        mBlock(block)
-    {
-        (*this)("entry");
-    }
-
-    ~Debug()
-    {
-        (*this)("exit");
-    }
-
-    void operator()(const std::string& status)
-    {
-//      std::cout << mBlock << ' ' << status << std::endl;
-    }
-
-private:
-    const std::string mBlock;
-};
-
-// It's often convenient to use the name of the enclosing function as the name
-// of the Debug block.
-#define DEBUG Debug debug(__FUNCTION__)
-
-// These BEGIN/END macros are specifically for debugging output -- please
-// don't assume you must use such for coroutines in general! They only help to
-// make control flow (as well as exception exits) explicit.
-#define BEGIN                                   \
-{                                               \
-    DEBUG;                                      \
-    try
-
-#define END                                             \
-    catch (...)                                         \
-    {                                                   \
-/*      std::cout << "*** exceptional " << std::flush; */    \
-        throw;                                          \
-    }                                                   \
-}
+#include "../test/debug.h"
 
 /*****************************************************************************
 *   from the banana.cpp example program borrowed for test<1>()

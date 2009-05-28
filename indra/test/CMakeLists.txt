@@ -90,6 +90,7 @@ set(test_SOURCE_FILES
 set(test_HEADER_FILES
     CMakeLists.txt
 
+    debug.h
     llpipeutil.h
     llsdtraits.h
     lltut.h
