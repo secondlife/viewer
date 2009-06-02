@@ -63,7 +63,7 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     if (ARCH STREQUAL x86_64)
       set(WORD_SIZE 64)
     else (ARCH STREQUAL x86_64)
-      set(WORD_SIZE 64)
+      set(WORD_SIZE 32)
     endif (ARCH STREQUAL x86_64)
   endif (WORD_SIZE EQUAL 32)
 
