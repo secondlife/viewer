@@ -106,7 +106,14 @@ namespace LLEventDetail
      * that's okay, since it won't collide with any listener name used by the
      * earlier coroutine since that earlier coroutine no longer exists.
      */
-    LL_COMMON_API std::string listenerNameForCoro(const void* self);
+    template <typename COROUTINE_SELF>
+    std::string listenerNameForCoro(COROUTINE_SELF& self)
+    {
+        return listenerNameForCoroImpl(self.get_id());
+    }
+
+    /// Implementation for listenerNameForCoro()
+    LL_COMMON_API std::string listenerNameForCoroImpl(const void* self_id);
 
     /**
      * Implement behavior described for postAndWait()'s @a replyPumpNamePath
@@ -185,7 +192,7 @@ LLSD postAndWait(SELF& self, const LLSD& event, const LLEventPumpOrPumpName& req
     boost::coroutines::future<LLSD> future(self);
     // make a callback that will assign a value to the future, and listen on
     // the specified LLEventPump with that callback
-    std::string listenerName(LLEventDetail::listenerNameForCoro(&self));
+    std::string listenerName(LLEventDetail::listenerNameForCoro(self));
     LLTempBoundListener connection(
         replyPump.getPump().listen(listenerName,
                                    voidlistener(boost::coroutines::make_callback(future))));
@@ -307,7 +314,7 @@ LLEventWithID postAndWait2(SELF& self, const LLSD& event,
     boost::coroutines::future<LLEventWithID> future(self);
     // either callback will assign a value to this future; listen on
     // each specified LLEventPump with a callback
-    std::string name(LLEventDetail::listenerNameForCoro(&self));
+    std::string name(LLEventDetail::listenerNameForCoro(self));
     LLTempBoundListener connection0(
         replyPump0.getPump().listen(name + "a",
                                LLEventDetail::wfeoh(boost::coroutines::make_callback(future), 0)));

@@ -44,8 +44,8 @@
 #include "lllogin.h"
 
 #include <boost/bind.hpp>
-#include <boost/scoped_ptr.hpp>
 
+#include "llcoros.h"
 #include "llevents.h"
 #include "lleventfilter.h"
 #include "lleventcoro.h"
@@ -109,35 +109,25 @@ private:
 
     void login_(coroutine_type::self& self, const std::string& uri, const LLSD& credentials);
 
-    boost::scoped_ptr<coroutine_type> mCoro;
     LLEventStream mPump;
 	LLSD mAuthResponse, mValidAuthResponse;
 };
 
 void LLLogin::Impl::connect(const std::string& uri, const LLSD& credentials)
 {
-    // If there's a previous coroutine instance, and that instance is still
-    // active, destroying the instance will terminate the coroutine by
-    // throwing an exception, thus unwinding the stack and destroying all
-    // local objects. It should (!) all Just Work. Nonetheless, it would be
-    // strange, so make a note of it.
-    if (mCoro && *mCoro)
-    {
-        LL_WARNS("LLLogin") << "Previous login attempt interrupted by new request" << LL_ENDL;
-    }
-
-    // Construct a coroutine that will run our login_() method; placeholders
-    // forward the params from the (*mCoro)(etc.) call below. Using scoped_ptr
-    // ensures that if mCoro was already pointing to a previous instance, that
-    // old instance will be destroyed as noted above.
-    mCoro.reset(new coroutine_type(boost::bind(&Impl::login_, this, _1, _2, _3)));
-    // Run the coroutine until its first wait; at that point, return here.
-    (*mCoro)(std::nothrow, uri, credentials);
+    // Launch a coroutine with our login_() method; placeholders forward the
+    // params. Run the coroutine until its first wait; at that point, return
+    // here.
+    std::string coroname = 
+        LLCoros::instance().launch<coroutine_type>("LLLogin::Impl::login_",
+                                                   boost::bind(&Impl::login_, this, _1, _2, _3),
+                                                   uri, credentials);
 }
 
 void LLLogin::Impl::login_(coroutine_type::self& self,
                            const std::string& uri, const LLSD& credentials)
 {
+    LL_INFOS("LLLogin") << "Entering coroutine " << LLCoros::instance().getName(self) << LL_ENDL;
     // Arriving in SRVRequest state
     LLEventStream replyPump("reply", true);
     // Should be an array of one or more uri strings.
