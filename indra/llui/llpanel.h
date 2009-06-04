@@ -42,6 +42,7 @@
 #include "llviewborder.h"
 #include "lluistring.h"
 #include "v4color.h"
+#include "llevents.h"
 #include <list>
 #include <queue>
 
@@ -56,7 +57,7 @@ const BOOL BORDER_NO = FALSE;
  * With or without border,
  * Can contain LLUICtrls.
  */
-class LLPanel : public LLUICtrl, public boost::signals::trackable
+class LLPanel : public LLUICtrl, public LLEventTrackable
 {
 public:
 

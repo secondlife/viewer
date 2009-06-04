@@ -57,6 +57,8 @@
 #include "llviewerwindow.h"
 #include "llimview.h"
 
+using namespace LLOldEvents;
+
 // static
 std::map<const LLUUID, LLFloaterGroupPicker*> LLFloaterGroupPicker::sInstances;
 

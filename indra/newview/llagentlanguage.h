@@ -36,7 +36,7 @@
 #include "llmemory.h"	// LLSingleton<>
 #include "llevent.h"
 
-class LLAgentLanguage: public LLSingleton<LLAgentLanguage>, public LLSimpleListener
+class LLAgentLanguage: public LLSingleton<LLAgentLanguage>, public LLOldEvents::LLSimpleListener
 {
  public:
 	LLAgentLanguage();

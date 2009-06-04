@@ -433,7 +433,7 @@ namespace LLError
 		Settings()
 			:	printLocation(false),
 				defaultLevel(LLError::LEVEL_DEBUG),
-				crashFunction(NULL),
+				crashFunction(),
 				timeFunction(NULL),
 				fileRecorder(NULL),
 				fixedBufferRecorder(NULL),
@@ -601,11 +601,17 @@ namespace LLError
 		s.printLocation = print;
 	}
 
-	void setFatalFunction(FatalFunction f)
+	void setFatalFunction(const FatalFunction& f)
 	{
 		Settings& s = Settings::get();
 		s.crashFunction = f;
 	}
+
+    FatalFunction getFatalFunction()
+    {
+        Settings& s = Settings::get();
+        return s.crashFunction;
+    }
 
 	void setTimeFunction(TimeFunction f)
 	{

@@ -714,7 +714,7 @@ std::string LLNotification::getLabel() const
 // =========================================================
 // LLNotificationChannel implementation
 // ---
-void LLNotificationChannelBase::connectChanged(const LLStandardSignal::slot_type& slot)
+LLBoundListener LLNotificationChannelBase::connectChangedImpl(const LLEventListener& slot)
 {
 	// when someone wants to connect to a channel, we first throw them
 	// all of the notifications that are already in the channel
@@ -722,23 +722,23 @@ void LLNotificationChannelBase::connectChanged(const LLStandardSignal::slot_type
 	// only about new notifications
 	for (LLNotificationSet::iterator it = mItems.begin(); it != mItems.end(); ++it)
 	{
-		slot.get_slot_function()(LLSD().insert("sigtype", "load").insert("id", (*it)->id()));
+		slot(LLSD().insert("sigtype", "load").insert("id", (*it)->id()));
 	}
 	// and then connect the signal so that all future notifications will also be
 	// forwarded.
-	mChanged.connect(slot);
+	return mChanged.connect(slot);
 }
 
-void LLNotificationChannelBase::connectPassedFilter(const LLStandardSignal::slot_type& slot)
+LLBoundListener LLNotificationChannelBase::connectPassedFilterImpl(const LLEventListener& slot)
 {
 	// these two filters only fire for notifications added after the current one, because
 	// they don't participate in the hierarchy.
-	mPassedFilter.connect(slot);
+	return mPassedFilter.connect(slot);
 }
 
-void LLNotificationChannelBase::connectFailedFilter(const LLStandardSignal::slot_type& slot)
+LLBoundListener LLNotificationChannelBase::connectFailedFilterImpl(const LLEventListener& slot)
 {
-	mFailedFilter.connect(slot);
+	return mFailedFilter.connect(slot);
 }
 
 // external call, conforms to our standard signature
@@ -896,8 +896,7 @@ mParent(parent)
 	else
 	{
 		LLNotificationChannelPtr p = LLNotifications::instance().getChannel(parent);
-		LLStandardSignal::slot_type f = boost::bind(&LLNotificationChannelBase::updateItem, this, _1);
-		p->connectChanged(f);
+		p->connectChanged(boost::bind(&LLNotificationChannelBase::updateItem, this, _1));
 	}
 }
 
@@ -1093,11 +1092,11 @@ void LLNotifications::createDefaultChannels()
 
 	// connect action methods to these channels
 	LLNotifications::instance().getChannel("Expiration")->
-		connectChanged(boost::bind(&LLNotifications::expirationHandler, this, _1));
+        connectChanged(boost::bind(&LLNotifications::expirationHandler, this, _1));
 	LLNotifications::instance().getChannel("Unique")->
-		connectChanged(boost::bind(&LLNotifications::uniqueHandler, this, _1));
+        connectChanged(boost::bind(&LLNotifications::uniqueHandler, this, _1));
 	LLNotifications::instance().getChannel("Unique")->
-		connectFailedFilter(boost::bind(&LLNotifications::failedUniquenessTest, this, _1));
+        connectFailedFilter(boost::bind(&LLNotifications::failedUniquenessTest, this, _1));
 	LLNotifications::instance().getChannel("Ignore")->
 		connectFailedFilter(&handleIgnoredNotification);
 }

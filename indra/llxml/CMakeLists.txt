@@ -39,6 +39,5 @@ add_library (llxml ${llxml_SOURCE_FILES})
 # Sort by high-level to low-level
 target_link_libraries( llxml
     llmath
-    ${BOOST_SIGNALS_LIBRARY}
     ${EXPAT_LIBRARIES}
     )

@@ -46,7 +46,7 @@
 #include "lluuid.h"
 
 #include <boost/bind.hpp>	// for SkinFolder listener
-#include <boost/signal.hpp>
+#include <boost/signals2.hpp>
 
 
 // Implementation functions not exported into header file

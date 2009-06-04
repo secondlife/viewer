@@ -56,6 +56,8 @@
 #include "lltexteditor.h"
 #include "lltextbox.h"
 
+using namespace LLOldEvents;
+
 //HACK: this allows you to instantiate LLView from xml with "<view/>" which we don't want
 static LLRegisterWidget<LLView> r("view");
 

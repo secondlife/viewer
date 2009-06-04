@@ -109,31 +109,31 @@ private:
 	class LLScaleMap : public LLMemberListener<LLNetMap>
 	{
 	public:
-		/*virtual*/ bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata);
+		/*virtual*/ bool handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
 	};
 
 	class LLStopTracking : public LLMemberListener<LLNetMap>
 	{
 	public:
-		/*virtual*/ bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata);
+		/*virtual*/ bool handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
 	};
 
 	class LLEnableTracking : public LLMemberListener<LLNetMap>
 	{
 	public:
-		/*virtual*/ bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata);
+		/*virtual*/ bool handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
 	};
 
 	class LLShowAgentProfile : public LLMemberListener<LLNetMap>
 	{
 	public:
-		/*virtual*/ bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata);
+		/*virtual*/ bool handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
 	};
 
 	class LLEnableProfile : public LLMemberListener<LLNetMap>
 	{
 	public:
-		/*virtual*/ bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata);
+		/*virtual*/ bool handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
 	};
 };
 

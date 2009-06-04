@@ -441,11 +441,11 @@ public:
 	void localRectToScreen( const LLRect& local, LLRect* screen ) const;
 	
 	// Listener dispatching functions (Dispatcher deletes pointers to listeners on deregistration or destruction)
-	LLSimpleListener* getListenerByName(const std::string& callback_name);
-	void registerEventListener(std::string name, LLSimpleListener* function);
+    LLOldEvents::LLSimpleListener* getListenerByName(const std::string& callback_name);
+	void registerEventListener(std::string name, LLOldEvents::LLSimpleListener* function);
 	void deregisterEventListener(std::string name);
-	std::string findEventListener(LLSimpleListener *listener) const;
-	void addListenerToControl(LLEventDispatcher *observer, const std::string& name, LLSD filter, LLSD userdata);
+	std::string findEventListener(LLOldEvents::LLSimpleListener *listener) const;
+	void addListenerToControl(LLOldEvents::LLEventDispatcher *observer, const std::string& name, LLSD filter, LLSD userdata);
 
 	void addBoolControl(const std::string& name, bool initial_value);
 	LLControlVariable *getControl(const std::string& name);
@@ -651,7 +651,7 @@ private:
 
 	static LLWindow* sWindow;	// All root views must know about their window.
 
-	typedef std::map<std::string, LLPointer<LLSimpleListener> > dispatch_list_t;
+	typedef std::map<std::string, LLPointer<LLOldEvents::LLSimpleListener> > dispatch_list_t;
 	dispatch_list_t mDispatchList;
 
 	std::string		mControlName;
@@ -659,7 +659,7 @@ private:
 	typedef std::map<std::string, LLView*> dummy_widget_map_t;
 	mutable dummy_widget_map_t mDummyWidgets;
 
-	boost::signals::connection mControlConnection;
+	boost::signals2::connection mControlConnection;
 
 	ECursorType mHoverCursor;
 	

@@ -71,6 +71,8 @@
 // system libraries
 #include <boost/tokenizer.hpp>
 
+using namespace LLOldEvents;
+
 typedef LLMemberListener<LLView> view_listener_t;
 
 

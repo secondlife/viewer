@@ -224,7 +224,7 @@ private:
 // calls a user defined callback.
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-class LLMenuItemCallGL : public LLMenuItemGL, public LLObservable
+class LLMenuItemCallGL : public LLMenuItemGL, public LLOldEvents::LLObservable
 {
 public:
 	// normal constructor

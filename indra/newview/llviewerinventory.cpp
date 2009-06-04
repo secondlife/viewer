@@ -764,56 +764,39 @@ void move_inventory_item(
 	gAgent.sendReliableMessage();
 }
 
-class LLCopyInventoryFromNotecardResponder : public LLHTTPClient::Responder
-{
-public:
-	//If we get back a normal response, handle it here
-	virtual void result(const LLSD& content)
-	{
-		// What do we do here?
-		llinfos << "CopyInventoryFromNotecard request successful." << llendl;
-	}
-
-	//If we get back an error (not found, etc...), handle it here
-	virtual void error(U32 status, const std::string& reason)
-	{
-		llinfos << "LLCopyInventoryFromNotecardResponder::error "
-			<< status << ": " << reason << llendl;
-	}
-};
-
 void copy_inventory_from_notecard(const LLUUID& object_id, const LLUUID& notecard_inv_id, const LLInventoryItem *src, U32 callback_id)
 {
-	LLSD body;
 	LLViewerRegion* viewer_region = NULL;
-	if(object_id.notNull())
-	{
-		LLViewerObject* vo = gObjectList.findObject(object_id);
-		if(vo)
-		{
-			viewer_region = vo->getRegion();
-		}
+    LLViewerObject* vo = NULL;
+	if (object_id.notNull() && (vo = gObjectList.findObject(object_id)) != NULL)
+    {
+        viewer_region = vo->getRegion();
 	}
 
 	// Fallback to the agents region if for some reason the 
 	// object isn't found in the viewer.
-	if(!viewer_region)
+	if (! viewer_region)
 	{
 		viewer_region = gAgent.getRegion();
 	}
 
-	if(viewer_region)
+	if (! viewer_region)
 	{
-		std::string url = viewer_region->getCapability("CopyInventoryFromNotecard");
-		if (!url.empty())
-		{
-			body["notecard-id"] = notecard_inv_id;
-			body["object-id"] = object_id;
-			body["item-id"] = src->getUUID();
-			body["folder-id"] = gInventory.findCategoryUUIDForType(src->getType());
-			body["callback-id"] = (LLSD::Integer)callback_id;
+        LL_WARNS("copy_inventory_from_notecard") << "Can't find region from object_id "
+                                                 << object_id << " or gAgent"
+                                                 << LL_ENDL;
+        return;
+    }
 
-			LLHTTPClient::post(url, body, new LLCopyInventoryFromNotecardResponder());
-		}
-	}
+    LLSD request, body;
+    body["notecard-id"] = notecard_inv_id;
+    body["object-id"] = object_id;
+    body["item-id"] = src->getUUID();
+    body["folder-id"] = gInventory.findCategoryUUIDForType(src->getType());
+    body["callback-id"] = (LLSD::Integer)callback_id;
+
+    request["message"] = "CopyInventoryFromNotecard";
+    request["payload"] = body;
+
+    viewer_region->getCapAPI().post(request);
 }

@@ -67,6 +67,8 @@
 #include <set>
 #include <boost/tokenizer.hpp>
 
+using namespace LLOldEvents;
+
 // static
 LLMenuHolderGL *LLMenuGL::sMenuContainer = NULL;
 

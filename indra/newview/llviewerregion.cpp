@@ -65,6 +65,11 @@
 #include "llvoclouds.h"
 #include "llworld.h"
 #include "llspatialpartition.h"
+#include "stringize.h"
+
+#ifdef LL_WINDOWS
+	#pragma warning(disable:4355)
+#endif
 
 // Viewer object cache version, change if object update
 // format changes. JC
@@ -172,7 +177,18 @@ LLViewerRegion::LLViewerRegion(const U64 &handle,
 	mCacheEntriesCount(0),
 	mCacheID(),
 	mEventPoll(NULL),
-	mReleaseNotesRequested(FALSE)
+	mReleaseNotesRequested(FALSE),
+    // I'd prefer to set the LLCapabilityListener name to match the region
+    // name -- it's disappointing that's not available at construction time.
+    // We could instead store an LLCapabilityListener*, making
+    // setRegionNameAndZone() replace the instance. Would that pose
+    // consistency problems? Can we even request a capability before calling
+    // setRegionNameAndZone()?
+    // For testability -- the new Michael Feathers paradigm --
+    // LLCapabilityListener binds all the globals it expects to need at
+    // construction time.
+    mCapabilityListener(host.getString(), gMessageSystem, *this,
+                        gAgent.getID(), gAgent.getSessionID())
 {
 	mWidth = region_width_meters;
 	mOriginGlobal = from_region_handle(handle); 
@@ -223,7 +239,6 @@ LLViewerRegion::LLViewerRegion(const U64 &handle,
 	mObjectPartition.push_back(new LLBridgePartition());	//PARTITION_BRIDGE
 	mObjectPartition.push_back(new LLHUDParticlePartition());//PARTITION_HUD_PARTICLE
 	mObjectPartition.push_back(NULL);						//PARTITION_NONE
-	
 }
 
 
@@ -774,6 +789,15 @@ std::ostream& operator<<(std::ostream &s, const LLViewerRegion &region)
 	s << "{ ";
 	s << region.mHost;
 	s << " mOriginGlobal = " << region.getOriginGlobal()<< "\n";
+    std::string name(region.getName()), zone(region.getZoning());
+    if (! name.empty())
+    {
+        s << " mName         = " << name << '\n';
+    }
+    if (! zone.empty())
+    {
+        s << " mZoning       = " << zone << '\n';
+    }
 	s << "}";
 	return s;
 }
@@ -1517,4 +1541,9 @@ void LLViewerRegion::showReleaseNotes()
 
 	LLWeb::loadURL(url);
 	mReleaseNotesRequested = FALSE;
+}
+
+std::string LLViewerRegion::getDescription() const
+{
+    return stringize(*this);
 }

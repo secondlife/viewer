@@ -3,6 +3,7 @@
 project(llmessage)
 
 include(00-Common)
+include(LLAddBuildTest)
 include(LLCommon)
 include(LLMath)
 include(LLMessage)
@@ -63,6 +64,7 @@ set(llmessage_SOURCE_FILES
     llregionpresenceverifier.cpp
     llsdappservices.cpp
     llsdhttpserver.cpp
+    llsdmessage.cpp
     llsdmessagebuilder.cpp
     llsdmessagereader.cpp
     llsdrpcclient.cpp
@@ -156,6 +158,7 @@ set(llmessage_HEADER_FILES
     llregionpresenceverifier.h
     llsdappservices.h
     llsdhttpserver.h
+    llsdmessage.h
     llsdmessagebuilder.h
     llsdmessagereader.h
     llsdrpcclient.h
@@ -217,5 +220,6 @@ IF (NOT LINUX AND VIEWER)
     #ADD_BUILD_TEST(llhttpclientadapter llmessage)
     ADD_BUILD_TEST(lltrustedmessageservice llmessage)
     ADD_BUILD_TEST(lltemplatemessagedispatcher llmessage)
+    # Don't make llmessage depend on llsdmessage_test because ADD_COMM_BUILD_TEST depends on llmessage!
+    ADD_COMM_BUILD_TEST(llsdmessage "" "${CMAKE_CURRENT_SOURCE_DIR}/tests/test_llsdmessage_peer.py")
 ENDIF (NOT LINUX AND VIEWER)
-

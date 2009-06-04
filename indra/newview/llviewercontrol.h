@@ -84,7 +84,7 @@ class LLCachedControl
 {
     T mCachedValue;
     LLPointer<LLControlVariable> mControl;
-    boost::signals::connection mConnection;
+    boost::signals2::scoped_connection mConnection;
 
 public:
 	LLCachedControl(const std::string& name, 
@@ -109,17 +109,13 @@ public:
 		}
 
 		// Add a listener to the controls signal...
-		mControl->getSignal()->connect(
+		mConnection = mControl->getSignal()->connect(
 			boost::bind(&LLCachedControl<T>::handleValueChange, this, _1)
 			);
 	}
 
 	~LLCachedControl()
 	{
-		if(mConnection.connected())
-		{
-			mConnection.disconnect();
-		}
 	}
 
 	LLCachedControl& operator =(const T& newvalue)

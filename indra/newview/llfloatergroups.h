@@ -84,14 +84,14 @@ protected:
 	static instance_map_t sInstances;
 };
 
-class LLPanelGroups : public LLPanel, public LLSimpleListener
+class LLPanelGroups : public LLPanel, public LLOldEvents::LLSimpleListener
 {
 public:
 	LLPanelGroups();
 	virtual ~LLPanelGroups();
 
 	//LLEventListener
-	/*virtual*/ bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata);
+	/*virtual*/ bool handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
 	
 	// clear the group list, and get a fresh set of info.
 	void reset();
