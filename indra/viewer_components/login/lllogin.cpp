@@ -105,9 +105,12 @@ private:
         return response;
     }
 
-    typedef boost::coroutines::coroutine<void(const std::string&, const LLSD&)> coroutine_type;
+    typedef boost::coroutines::coroutine<void(std::string, LLSD)> coroutine_type;
 
-    void login_(coroutine_type::self& self, const std::string& uri, const LLSD& credentials);
+    // In a coroutine's top-level function args, do NOT NOT NOT accept
+    // references (const or otherwise) to anything but the self argument! Pass
+    // by value only!
+    void login_(coroutine_type::self& self, std::string uri, LLSD credentials);
 
     LLEventStream mPump;
 	LLSD mAuthResponse, mValidAuthResponse;
@@ -124,8 +127,7 @@ void LLLogin::Impl::connect(const std::string& uri, const LLSD& credentials)
                                                    uri, credentials);
 }
 
-void LLLogin::Impl::login_(coroutine_type::self& self,
-                           const std::string& uri, const LLSD& credentials)
+void LLLogin::Impl::login_(coroutine_type::self& self, std::string uri, LLSD credentials)
 {
     LL_INFOS("LLLogin") << "Entering coroutine " << LLCoros::instance().getName(self) << LL_ENDL;
     // Arriving in SRVRequest state
