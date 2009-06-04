@@ -105,12 +105,10 @@ private:
         return response;
     }
 
-    typedef boost::coroutines::coroutine<void(std::string, LLSD)> coroutine_type;
-
     // In a coroutine's top-level function args, do NOT NOT NOT accept
     // references (const or otherwise) to anything but the self argument! Pass
     // by value only!
-    void login_(coroutine_type::self& self, std::string uri, LLSD credentials);
+    void login_(LLCoros::self& self, std::string uri, LLSD credentials);
 
     LLEventStream mPump;
 	LLSD mAuthResponse, mValidAuthResponse;
@@ -121,11 +119,11 @@ void LLLogin::Impl::connect(const std::string& uri, const LLSD& credentials)
     // Launch a coroutine with our login_() method. Run the coroutine until
     // its first wait; at that point, return here.
     std::string coroname = 
-        LLCoros::instance().launch<coroutine_type>("LLLogin::Impl::login_",
-                                                   boost::bind(&Impl::login_, this, _1, uri, credentials));
+        LLCoros::instance().launch("LLLogin::Impl::login_",
+                                   boost::bind(&Impl::login_, this, _1, uri, credentials));
 }
 
-void LLLogin::Impl::login_(coroutine_type::self& self, std::string uri, LLSD credentials)
+void LLLogin::Impl::login_(LLCoros::self& self, std::string uri, LLSD credentials)
 {
     LL_INFOS("LLLogin") << "Entering coroutine " << LLCoros::instance().getName(self)
                         << " with uri '" << uri << "', credentials " << credentials << LL_ENDL;

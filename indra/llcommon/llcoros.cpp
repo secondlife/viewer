@@ -54,6 +54,15 @@ bool LLCoros::cleanup(const LLSD&)
     return false;
 }
 
+std::string LLCoros::launchImpl(const std::string& prefix, coro* newCoro)
+{
+    std::string name(generateDistinctName(prefix));
+    mCoros.insert(name, newCoro);
+    /* Run the coroutine until its first wait, then return here */
+    (*newCoro)(std::nothrow);
+    return name;
+}
+
 std::string LLCoros::generateDistinctName(const std::string& prefix) const
 {
     // Allowing empty name would make getName()'s not-found return ambiguous.
@@ -86,8 +95,8 @@ bool LLCoros::kill(const std::string& name)
         return false;
     }
     // Because this is a boost::ptr_map, erasing the map entry also destroys
-    // the referenced heap object, in this case an LLCoro. That will destroy
-    // the contained boost::coroutine object, which will terminate the coroutine.
+    // the referenced heap object, in this case the boost::coroutine object,
+    // which will terminate the coroutine.
     mCoros.erase(found);
     return true;
 }
@@ -98,7 +107,9 @@ std::string LLCoros::getNameByID(const void* self_id) const
     // passed to us comes.
     for (CoroMap::const_iterator mi(mCoros.begin()), mend(mCoros.end()); mi != mend; ++mi)
     {
-        if (mi->second->owns_self_id(self_id))
+        namespace coro_private = boost::coroutines::detail;
+        if (static_cast<void*>(coro_private::coroutine_accessor::get_impl(const_cast<coro&>(*mi->second)).get())
+            == self_id)
         {
             return mi->first;
         }

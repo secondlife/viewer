@@ -21,53 +21,16 @@
 #include <boost/preprocessor/iteration/local.hpp>
 #include <stdexcept>
 
-/// Base class for each coroutine
-struct LLCoroBase
-{
-    LLCoroBase() {}
-    virtual ~LLCoroBase() {}
-
-    virtual bool exited() const = 0;
-    template <typename COROUTINE_SELF>
-    bool owns_self(const COROUTINE_SELF& self) const
-    {
-        return owns_self_id(self.get_id());
-    }
-
-    virtual bool owns_self_id(const void* self_id) const = 0;
-};
-
-/// Template subclass to accommodate different boost::coroutine signatures
-template <typename COROUTINE>
-struct LLCoro: public LLCoroBase
-{
-    template <typename CALLABLE>
-    LLCoro(const CALLABLE& callable):
-        mCoro(callable)
-    {}
-
-    virtual bool exited() const { return mCoro.exited(); }
-
-    COROUTINE mCoro;
-
-    virtual bool owns_self_id(const void* self_id) const
-    {
-        namespace coro_private = boost::coroutines::detail;
-        return static_cast<void*>(coro_private::coroutine_accessor::get_impl(const_cast<COROUTINE&>(mCoro)).get())
-            == self_id;
-    }
-};
-
 /**
  * Registry of named Boost.Coroutine instances
  *
- * The Boost.Coroutine library supports the general case of a coroutine accepting
- * arbitrary parameters and yielding multiple (sets of) results. For such use
- * cases, it's natural for the invoking code to retain the coroutine instance:
- * the consumer repeatedly calls back into the coroutine until it yields its
- * next result.
+ * The Boost.Coroutine library supports the general case of a coroutine
+ * accepting arbitrary parameters and yielding multiple (sets of) results. For
+ * such use cases, it's natural for the invoking code to retain the coroutine
+ * instance: the consumer repeatedly calls into the coroutine, perhaps passing
+ * new parameter values, prompting it to yield its next result.
  *
- * Our typical coroutine usage is a bit different, though. For us, coroutines
+ * Our typical coroutine usage is different, though. For us, coroutines
  * provide an alternative to the @c Responder pattern. Our typical coroutine
  * has @c void return, invoked in fire-and-forget mode: the handler for some
  * user gesture launches the coroutine and promptly returns to the main loop.
@@ -98,7 +61,11 @@ struct LLCoro: public LLCoroBase
 class LLCoros: public LLSingleton<LLCoros>
 {
 public:
-    /*------------------------------ launch() ------------------------------*/
+    /// Canonical boost::coroutines::coroutine signature we use
+    typedef boost::coroutines::coroutine<void()> coro;
+    /// Canonical 'self' type
+    typedef coro::self self;
+
     /**
      * Create and start running a new coroutine with specified name. The name
      * string you pass is a suggestion; it will be tweaked for uniqueness. The
@@ -106,67 +73,43 @@ public:
      *
      * Usage looks like this, for (e.g.) two coroutine parameters:
      * @code
-     * typedef boost::coroutines::coroutine<void(const std::string&, const LLSD&)> coro_type;
-     * std::string name = LLCoros::instance().launch<coro_type>(
-     *    "mycoro", boost::bind(&MyClass::method, this, _1, _2, _3),
-     *    "somestring", LLSD(17));
+     * class MyClass
+     * {
+     * public:
+     *     ...
+     *     // Do NOT NOT NOT accept reference params other than 'self'!
+     *     // Pass by value only!
+     *     void myCoroutineMethod(LLCoros::self& self, std::string, LLSD);
+     *     ...
+     * };
+     * ...
+     * std::string name = LLCoros::instance().launch(
+     *    "mycoro", boost::bind(&MyClass::myCoroutineMethod, this, _1,
+     *                          "somestring", LLSD(17));
      * @endcode
      *
-     * In other words, you must specify:
+     * Your function/method must accept LLCoros::self& as its first parameter.
+     * It can accept any other parameters you want -- but ONLY BY VALUE!
+     * Other reference parameters are a BAD IDEA! You Have Been Warned. See
+     * DEV-32777 comments for an explanation.
      *
-     * * the desired <tt>boost::coroutines::coroutine</tt> type, to whose
-     *   signature the initial <tt>coro_type::self&</tt> parameter is
-     *   implicitly added
-     * * the suggested name string for the new coroutine instance
-     * * the callable to be run, e.g. <tt>boost::bind()</tt> expression for a
-     *   class method -- not forgetting to add _1 for the
-     *   <tt>coro_type::self&</tt> parameter
-     * * the actual parameters to be passed to that callable after the
-     *   implicit <tt>coro_type::self&</tt> parameter
+     * Pass a callable that accepts the single LLCoros::self& parameter. It
+     * may work to pass a free function whose only parameter is 'self'; for
+     * all other cases use boost::bind(). Of course, for a non-static class
+     * method, the first parameter must be the class instance. Use the
+     * placeholder _1 for the 'self' parameter. Any other parameters should be
+     * passed via the bind() expression.
      *
      * launch() tweaks the suggested name so it won't collide with any
      * existing coroutine instance, creates the coroutine instance, registers
      * it with the tweaked name and runs it until its first wait. At that
      * point it returns the tweaked name.
-     *
-     * Use of a typedef for the coroutine type is recommended, because you
-     * must restate it for the callable's first parameter.
-     *
-     * @note
-     * launch() only accepts const-reference parameters. Once we can assume
-     * C++0x features on every platform, we'll have so-called "perfect
-     * forwarding" and variadic templates and other such ponies, and can
-     * support an arbitrary number of truly arbitrary parameter types. But for
-     * now, we'll stick with const reference params. N.B. Passing a non-const
-     * reference to a local variable into a coroutine seems like a @em really
-     * bad idea: the local variable will be destroyed during the lifetime of
-     * the coroutine.
      */
-    // Use the preprocessor to generate launch() overloads accepting 0, 1,
-    // ..., BOOST_COROUTINE_ARG_MAX const ref params of arbitrary type.
-#define BOOST_PP_LOCAL_MACRO(n)                                         \
-    template <typename COROUTINE, typename CALLABLE                     \
-              BOOST_PP_COMMA_IF(n)                                      \
-              BOOST_PP_ENUM_PARAMS(n, typename T)>                      \
-    std::string launch(const std::string& prefix, const CALLABLE& callable \
-                       BOOST_PP_COMMA_IF(n)                             \
-                       BOOST_PP_ENUM_BINARY_PARAMS(n, const T, & p))    \
-    {                                                                   \
-        std::string name(generateDistinctName(prefix));                 \
-        LLCoro<COROUTINE>* ptr = new LLCoro<COROUTINE>(callable);       \
-        mCoros.insert(name, ptr);                                       \
-        /* Run the coroutine until its first wait, then return here */  \
-        ptr->mCoro(std::nothrow                                         \
-                   BOOST_PP_COMMA_IF(n)                                 \
-                   BOOST_PP_ENUM_PARAMS(n, p));                         \
-        return name;                                                    \
+    template <typename CALLABLE>
+    std::string launch(const std::string& prefix, const CALLABLE& callable)
+    {
+        return launchImpl(prefix, new coro(callable));
     }
-
-#define BOOST_PP_LOCAL_LIMITS (0, BOOST_COROUTINE_ARG_MAX)
-#include BOOST_PP_LOCAL_ITERATE()
-#undef BOOST_PP_LOCAL_MACRO
-#undef BOOST_PP_LOCAL_LIMITS
-    /*----------------------- end of launch() family -----------------------*/
 
     /**
      * Abort a running coroutine by name. Normally, when a coroutine either
@@ -195,10 +138,11 @@ public:
 private:
     friend class LLSingleton<LLCoros>;
     LLCoros();
+    std::string launchImpl(const std::string& prefix, coro* newCoro);
     std::string generateDistinctName(const std::string& prefix) const;
     bool cleanup(const LLSD&);
 
-    typedef boost::ptr_map<std::string, LLCoroBase> CoroMap;
+    typedef boost::ptr_map<std::string, coro> CoroMap;
     CoroMap mCoros;
 };
 
