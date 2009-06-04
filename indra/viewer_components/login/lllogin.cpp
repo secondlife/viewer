@@ -118,18 +118,17 @@ private:
 
 void LLLogin::Impl::connect(const std::string& uri, const LLSD& credentials)
 {
-    // Launch a coroutine with our login_() method; placeholders forward the
-    // params. Run the coroutine until its first wait; at that point, return
-    // here.
+    // Launch a coroutine with our login_() method. Run the coroutine until
+    // its first wait; at that point, return here.
     std::string coroname = 
         LLCoros::instance().launch<coroutine_type>("LLLogin::Impl::login_",
-                                                   boost::bind(&Impl::login_, this, _1, _2, _3),
-                                                   uri, credentials);
+                                                   boost::bind(&Impl::login_, this, _1, uri, credentials));
 }
 
 void LLLogin::Impl::login_(coroutine_type::self& self, std::string uri, LLSD credentials)
 {
-    LL_INFOS("LLLogin") << "Entering coroutine " << LLCoros::instance().getName(self) << LL_ENDL;
+    LL_INFOS("LLLogin") << "Entering coroutine " << LLCoros::instance().getName(self)
+                        << " with uri '" << uri << "', credentials " << credentials << LL_ENDL;
     // Arriving in SRVRequest state
     LLEventStream replyPump("reply", true);
     // Should be an array of one or more uri strings.
