@@ -22,6 +22,7 @@ include_directories(
 set(llcommon_SOURCE_FILES
     llapp.cpp
     llapr.cpp
+    llaprsockstream.cpp
     llassettype.cpp
     llbase32.cpp
     llbase64.cpp
@@ -94,6 +95,7 @@ set(llcommon_HEADER_FILES
     llagentconstants.h
     llapp.h
     llapr.h
+    llaprsockstream.h
     llassettype.h
     llassoclist.h
     llavatarconstants.h
@@ -236,6 +238,7 @@ target_link_libraries(
     ${BOOST_REGEX_LIBRARY}
     )
 
+ADD_BUILD_TEST(llaprsockstream llcommon)
 ADD_BUILD_TEST(lllazy llcommon)
 ADD_BUILD_TEST(lleventfilter llcommon)
 ADD_BUILD_TEST(lleventcoro llcommon)
