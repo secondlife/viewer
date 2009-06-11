@@ -22,13 +22,13 @@
 	<text name="buy_action">
 		[NAME] L$ [PRICE]
 	</text>
-	<text name="currency_action">
+	<text name="currency_action" width="60">
 		Comprar L$
 	</text>
-	<line_editor name="currency_amt">
+	<line_editor name="currency_amt" left_delta="65" width="70">
 		1234
 	</line_editor>
-	<text name="currency_est">
+	<text name="currency_est" left_delta="72">
 		por aproxim. US$ [USD]
 	</text>
 	<text name="getting_data">

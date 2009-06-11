@@ -699,6 +699,7 @@ private:
 		LLUUID			mLastTextureIndex;
 		LLTexLayerSet*	mTexLayerSet;
 		bool			mIsLoaded;
+		bool			mIsUsed;
 		LLVOAvatarDefines::ETextureIndex	mTextureIndex;
 		U32				mMaskTexName;
 		// Stores pointers to the joint meshes that this baked texture deals with

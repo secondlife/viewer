@@ -3,10 +3,12 @@
 	<menu label="Bestand" name="File">
 		<tearoff_menu label="~~~~~~~~~~~" name="~~~~~~~~~~~"/>
 		<menu label="Upload" name="upload">
-			<menu_item_call label="Upload afbeelding (L$[COST])..." name="Upload Image"/>
-			<menu_item_call label="Upload geluid (L$[COST])..." name="Upload Sound"/>
-			<menu_item_call label="Upload animatie (L$[COST])..." name="Upload Animation"/>
-			<menu_item_call label="Bulk Upload (L$[COST] per bestand)..." name="Bulk Upload"/>
+			<menu_item_call label="Afbeelding (L$[COST])..." name="Upload Image"/>
+			<menu_item_call label="Geluid (L$[COST])..." name="Upload Sound"/>
+			<menu_item_call label="Animatie (L$[COST])..." name="Upload Animation"/>
+			<menu_item_call label="Bulk (L$[COST] per bestand)..." name="Bulk Upload"/>
+			<menu_item_separator label="-----------" name="separator"/>
+			<menu_item_call label="Standaard permissies instellen..." name="perm prefs"/>
 		</menu>
 		<menu_item_separator label="-----------" name="separator"/>
 		<menu_item_call label="Sluit venster" name="Close Window"/>
@@ -81,6 +83,7 @@
 		<menu_item_separator label="-----------" name="separator3"/>
 		<menu_item_check label="Statistiekenbalk" name="Statistics Bar"/>
 		<menu_item_check label="Eigendomlijnen" name="Property Lines"/>
+		<menu_item_check label="Banlijnen" name="Banlines"/>
 		<menu_item_check label="Landeigenaren" name="Land Owners"/>
 		<menu_item_separator label="-----------" name="separator4"/>
 		<menu label="Tooltips" name="Hover Tips">
@@ -113,7 +116,7 @@
 		<menu_item_separator label="-----------" name="separator3"/>
 		<menu_item_call label="Afwezig instellen" name="Set Away"/>
 		<menu_item_call label="Niet-storen instellen" name="Set Busy"/>
-		<menu_item_call label="Stop alle animaties" name="Stop All Animations"/>
+		<menu_item_call label="Stop het animeren van mijn avatar" name="Stop Animating My Avatar"/>
 		<menu_item_call label="Toetsen vrijgeven" name="Release Keys"/>
 		<menu_item_separator label="-----------" name="separator4"/>
 		<menu_item_call label="Account geschiedenis..." name="Account History..."/>
@@ -164,7 +167,6 @@
 		<menu_item_call label="Zoom naar selectie" name="Zoom to Selection"/>
 		<menu_item_call label="Koop object" name="Menu Object Take"/>
 		<menu_item_call label="Neem kopie" name="Take Copy"/>
-		<menu_item_call label="Object terug opslaan in mijn inventaris" name="Save Object Back to My Inventory"/>
 		<menu_item_call label="Object terug opslaan in objectinhoud" name="Save Object Back to Object Contents"/>
 		<menu_item_separator label="-----------" name="separator6"/>
 		<menu_item_call label="Toon script waarschuwing/fout venster" name="Show Script Warning/Error Window"/>

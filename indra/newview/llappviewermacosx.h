@@ -55,6 +55,7 @@ protected:
 	virtual void handleSyncCrashTrace();
 
 	std::string generateSerialNumber();
+	virtual bool initLogging();
 	virtual bool initParseCommandLine(LLCommandLineParser& clp);
 };
 

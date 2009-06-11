@@ -47,7 +47,17 @@ Laat uw muis boven de opties zweven voor meer help.
 		<check_box label="Vrije toegang" name="open_enrollement" tool_tip="Stelt in of deze groep toestaat dat nieuwe leden lid kunnen worden zonder uitgenodigd te zijn."/>
 		<check_box label="Contributiebijdrage: L$" name="check_enrollment_fee" tool_tip="Stelt in of er een contributiebijdrage vereist is om lid te worden van de groep."/>
 		<spinner name="spin_enrollment_fee" tool_tip="Nieuwe leden moeten deze bijdrage betalen om deel te nemen aan de groep wanneer &quot;Contributie bijdrage&quot; is aangevinkt."/>
-
+		<combo_box name="group_mature_check" tool_tip="Stelt in of uw groepsinformatie als mature beschouwd wordt.">
+			<combo_item name="select_mature">
+				- Selecteer -
+			</combo_item>
+			<combo_item name="mature">
+				Mature inhoud
+			</combo_item>
+			<combo_item name="pg">
+				PG inhoud
+			</combo_item>
+		</combo_box>
 		<panel name="title_container">
 			<text name="active_title_label">
 				Mijn actieve titel

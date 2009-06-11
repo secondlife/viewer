@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <!-- This file contains strings that used to be hardcoded in the source.
-     It is only for those strings which don&apos;t belong in a floater.
+     It is only for those strings which do not belong in a floater.
      For example, the strings used in avatar chat bubbles, and strings 
      that are returned from one component and may appear in many places-->
 <strings>
@@ -95,7 +95,7 @@
 		Temporaire
 	</string>
 	<string name="TooltipFlagRightClickMenu">
-		(cliquez à droite pour le menu)
+		(cliquez-droit pour le menu)
 	</string>
 	<string name="TooltipFreeToCopy">
 		Copie autorisée
@@ -417,6 +417,30 @@
 	</string>
 	<string name="shout">
 		crie :
+	</string>
+	<string name="SIM_ACCESS_PG">
+		PG
+	</string>
+	<string name="SIM_ACCESS_MATURE">
+		Mature
+	</string>
+	<string name="SIM_ACCESS_ADULT">
+		Adult
+	</string>
+	<string name="SIM_ACCESS_DOWN">
+		Hors ligne
+	</string>
+	<string name="SIM_ACCESS_MIN">
+		Inconnu
+	</string>
+	<string name="land_type_unknown">
+		(inconnu)
+	</string>
+	<string name="covenant_never_modified">
+		Dernière modification : (jamais)
+	</string>
+	<string name="covenant_modified">
+		Dernière modification :
 	</string>
 	<string name="all_files">
 		Tous fichiers

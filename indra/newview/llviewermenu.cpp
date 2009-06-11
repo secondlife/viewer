@@ -212,6 +212,7 @@
 #include "llwlanimator.h"
 #include "llwlparammanager.h"
 #include "llwaterparammanager.h"
+#include "llfloaternotificationsconsole.h"
 
 #include "lltexlayer.h"
 
@@ -297,6 +298,8 @@ void handle_dump_group_info(void *);
 void handle_dump_capabilities_info(void *);
 void handle_dump_focus(void*);
 
+// Advanced->Consoles menu
+void handle_show_notifications_console(void*);
 void handle_region_dump_settings(void*);
 void handle_region_dump_temp_asset_data(void*);
 void handle_region_clear_temp_asset_data(void*);
@@ -746,7 +749,16 @@ void init_client_menu(LLMenuGL* menu)
 										(void*)gDebugView->mMemoryView,
 										  '0', MASK_CONTROL|MASK_SHIFT ) );
 #endif
+		
 		sub->appendSeparator();
+		
+		// Debugging view for unified notifications
+		sub->append(new LLMenuItemCallGL("Notifications Console...",
+						 &handle_show_notifications_console, NULL, NULL, '5', MASK_CONTROL|MASK_SHIFT ));
+		
+
+		sub->appendSeparator();
+
 		sub->append(new LLMenuItemCallGL("Region Info to Debug Console", 
 			&handle_region_dump_settings, NULL));
 		sub->append(new LLMenuItemCallGL("Group Info to Debug Console",
@@ -1023,7 +1035,8 @@ void init_debug_ui_menu(LLMenuGL* menu)
 	menu->appendSeparator();
 
 	menu->append(new LLMenuItemCallGL("Web Browser Test", &handle_web_browser_test));
-	menu->append(new LLMenuItemCallGL("Buy Currency Test", &handle_buy_currency_test));
+	// commented out until work is complete: DEV-32268
+	// menu->append(new LLMenuItemCallGL("Buy Currency Test", &handle_buy_currency_test));
 	menu->append(new LLMenuItemCallGL("Editable UI", &edit_ui));
 	menu->append(new LLMenuItemCallGL( "Dump SelectMgr", &dump_select_mgr));
 	menu->append(new LLMenuItemCallGL( "Dump Inventory", &dump_inventory));
@@ -1592,14 +1605,19 @@ class LLObjectEnableTouch : public view_listener_t
 
 		// Update label based on the node touch name if available.
 		LLSelectNode* node = LLSelectMgr::getInstance()->getSelection()->getFirstRootNode();
+
+		std::string touch_text;
 		if (node && node->mValid && !node->mTouchName.empty())
 		{
-			gMenuHolder->childSetText("Object Touch", node->mTouchName);
+			touch_text =  node->mTouchName;
 		}
 		else
 		{
-			gMenuHolder->childSetText("Object Touch", userdata["data"].asString());
+			touch_text = userdata["data"].asString();
 		}
+
+		gMenuHolder->childSetText("Object Touch", touch_text);
+		gMenuHolder->childSetText("Attachment Object Touch", touch_text);
 
 		return true;
 	}
@@ -2605,6 +2623,11 @@ void handle_region_dump_settings(void*)
 	}
 }
 
+void handle_show_notifications_console(void *)
+{
+	LLFloaterNotificationConsole::showInstance();
+}
+
 void handle_dump_group_info(void *)
 {
 	llinfos << "group   " << gAgent.mGroupName << llendl;
@@ -2865,7 +2888,9 @@ class LLEditEnableCustomizeAvatar : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		bool new_value = gAgent.areWearablesLoaded();
+		bool new_value = (gAgent.getAvatarObject() && 
+						  gAgent.getAvatarObject()->isFullyLoaded() &&
+						  gAgent.areWearablesLoaded());
 		gMenuHolder->findControl(userdata["control"].asString())->setValue(new_value);
 		return true;
 	}

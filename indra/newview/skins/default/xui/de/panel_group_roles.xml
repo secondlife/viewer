@@ -51,7 +51,7 @@ Mitglieder diese Fähigkeit haben.
 				<column label="Übertragene Landanteile" name="donated" width="156"/>
 				<column label="Letzte Anmeldung" name="online"/>
 			</name_list>
-			<button label="Neue Person einladen..." name="member_invite"/>
+			<button label="Neues Mitglied einladen..." name="member_invite"/>
 			<button label="Aus Gruppe werfen" name="member_eject"/>
 			<string name="help_text">
 				Sie können Mitgliedern Rollen zuweisen und entziehen.

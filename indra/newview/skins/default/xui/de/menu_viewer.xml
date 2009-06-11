@@ -2,10 +2,14 @@
 <menu_bar name="Main Menu">
 	<menu label="Datei" name="File">
 		<tearoff_menu label="~~~~~~~~~~~" name="~~~~~~~~~~~"/>
-		<menu_item_call label="Bild hochladen ([COST] L$)..." name="Upload Image"/>
-		<menu_item_call label="Sound hochladen ([COST] L$)..." name="Upload Sound"/>
-		<menu_item_call label="Animation hochladen ([COST] L$)..." name="Upload Animation"/>
-		<menu_item_call label="Mehrfach-Upload ([COST] L$ pro Datei)..." name="Bulk Upload"/>
+		<menu label="Hochladen" name="upload">
+			<menu_item_call label="Bild ([COST] L$)..." name="Upload Image"/>
+			<menu_item_call label="Sound ([COST] L$)..." name="Upload Sound"/>
+			<menu_item_call label="Animation ([COST] L$)..." name="Upload Animation"/>
+			<menu_item_call label="Mehrfach-Upload ([COST] L$ pro Datei)..." name="Bulk Upload"/>
+			<menu_item_separator label="-----------" name="separator"/>
+			<menu_item_call label="Standard-Berechtigungen einstellen..." name="perm prefs"/>
+		</menu>
 		<menu_item_separator label="-----------" name="separator"/>
 		<menu_item_call label="Fenster schließen" name="Close Window"/>
 		<menu_item_call label="Alle Fenster schließen" name="Close All Windows"/>
@@ -19,7 +23,7 @@
 	</menu>
 	<menu label="Bearbeiten" name="Edit">
 		<menu_item_call label="Rückgängig" name="Undo"/>
-		<menu_item_call label="Neu" name="Redo"/>
+		<menu_item_call label="Wiederherstellen" name="Redo"/>
 		<menu_item_separator label="-----------" name="separator"/>
 		<menu_item_call label="Ausschneiden" name="Cut"/>
 		<menu_item_call label="Kopieren" name="Copy"/>
@@ -68,7 +72,7 @@
 		<menu_item_check label="Symbolleiste" name="Toolbar"/>
 		<menu_item_check label="Lokaler Chat" name="Chat History"/>
 		<menu_item_check label="Unterhalten" name="Instant Message"/>
-		<menu_item_call label="Inventar" name="Inventory"/>
+		<menu_item_check label="Inventar" name="Inventory"/>
 		<menu_item_check label="Aktive Sprecher" name="Active Speakers"/>
 		<menu_item_check label="Stummschalten-Liste" name="Mute List"/>
 		<menu_item_separator label="-----------" name="separator2"/>
@@ -79,6 +83,7 @@
 		<menu_item_separator label="-----------" name="separator3"/>
 		<menu_item_check label="Statistikleiste" name="Statistics Bar"/>
 		<menu_item_check label="Grundstücksgrenzen" name="Property Lines"/>
+		<menu_item_check label="Absperrungen" name="Banlines"/>
 		<menu_item_check label="Landeigentümer" name="Land Owners"/>
 		<menu_item_separator label="-----------" name="separator4"/>
 		<menu label="Schwebe-Tipps" name="Hover Tips">
@@ -111,14 +116,14 @@
 		<menu_item_separator label="-----------" name="separator3"/>
 		<menu_item_call label="Als abwesend anzeigen" name="Set Away"/>
 		<menu_item_call label="Als beschäftigt anzeigen" name="Set Busy"/>
-		<menu_item_call label="Alle Animationen stoppen" name="Stop All Animations"/>
+		<menu_item_call label="Avatar nicht mehr animieren" name="Stop Animating My Avatar"/>
 		<menu_item_call label="Tasten freigeben" name="Release Keys"/>
 		<menu_item_separator label="-----------" name="separator4"/>
 		<menu_item_call label="Kontostatistik..." name="Account History...">
-			<on_click name="AccountHistory_url" userdata="WebLaunchAccountHistory,http://secondlife.com/account/transactions.php?lang=de" />
+			<on_click name="AccountHistory_url" userdata="WebLaunchAccountHistory,http://secondlife.com/account/transactions.php?lang=de"/>
 		</menu_item_call>
 		<menu_item_call label="Mein Konto verwalten..." name="Manage My Account...">
-			<on_click name="ManageMyAccount_url" userdata="WebLaunchJoinNow,http://secondlife.com/account/index.php?lang=de" />
+			<on_click name="ManageMyAccount_url" userdata="WebLaunchJoinNow,http://secondlife.com/account/index.php?lang=de"/>
 		</menu_item_call>
 		<menu_item_call label="L$ kaufen..." name="Buy and Sell L$..."/>
 		<menu_item_separator label="-----------" name="separator5"/>
@@ -166,7 +171,6 @@
 		<menu_item_call label="Auf Auswahl zoomen" name="Zoom to Selection"/>
 		<menu_item_call label="Objekt kaufen" name="Menu Object Take"/>
 		<menu_item_call label="Kopie nehmen/machen" name="Take Copy"/>
-		<menu_item_call label="Objekt wieder im Inventar speichern" name="Save Object Back to My Inventory"/>
 		<menu_item_call label="Objekt wieder in Objektinhalt speichern" name="Save Object Back to Object Contents"/>
 		<menu_item_separator label="-----------" name="separator6"/>
 		<menu_item_call label="Skriptwarnung/Fehlerfenster anzeigen" name="Show Script Warning/Error Window"/>
@@ -184,7 +188,9 @@
 		<menu_item_separator label="-----------" name="separator"/>
 		<menu_item_call label="Offizielles Linden-Blog..." name="Official Linden Blog..."/>
 		<menu_item_separator label="-----------" name="separator2"/>
-		<menu_item_call label="Scripting-Portal..." name="Scripting Portal..."/>
+		<menu_item_call label="Scripting-Portal..." name="Scripting Portal...">
+			<on_click name="ScriptingPortal_url" userdata="WebLaunchLSLWiki,http://wiki.secondlife.com/wiki/LSL_Portal/de" />
+		</menu_item_call>
 		<menu_item_separator label="-----------" name="separator3"/>
 		<menu_item_call label="Missbrauch melden..." name="Report Abuse..."/>
 		<menu_item_call label="Rempler, Stöße und Schläge..." name="Bumps, Pushes &amp;amp; Hits..."/>
@@ -192,14 +198,15 @@
 		<menu_item_separator label="-----------" name="separator7"/>
 		<menu label="Fehlermeldungen" name="Bug Reporting">
 			<menu_item_call label="Allgemeiner Probleme-Tracker..." name="Public Issue Tracker..."/>
-			<menu_item_call label="Hilfe zum Allgemeinen Probleme-Tracker..." name="Publc Issue Tracker Help..."/>
+			<menu_item_call label="Hilfe zum Allgemeinen Probleme-Tracker..." name="Publc Issue Tracker Help...">
+				<on_click name="PublicIssueTrackerHelp_url" userdata="WebLaunchPublicIssueHelp,http://wiki.secondlife.com/wiki/Issue_tracker/de" />
+			</menu_item_call>
 			<menu_item_separator label="-----------" name="separator7"/>
 			<menu_item_call label="Fehlermeldungs-1x1..." name="Bug Reporing 101...">
-				<on_click function="PromptShowURL" name="BugReporting101_url"
-				     userdata="WebLaunchBugReport101,http://wiki.secondlife.com/wiki/Bug_Reporting_101" />
+				<on_click name="BugReporting101_url" userdata="WebLaunchBugReport101,http://wiki.secondlife.com/wiki/Bug_Reporting_101/de"/>
 			</menu_item_call>
 			<menu_item_call label="Sicherheitsfragen..." name="Security Issues...">
-				<on_click name="SecurityIssues_url" userdata="WebLaunchSecurityIssues,http://wiki.secondlife.com/wiki/Security_issues/de" />
+				<on_click name="SecurityIssues_url" userdata="WebLaunchSecurityIssues,http://wiki.secondlife.com/wiki/Security_issues/de"/>
 			</menu_item_call>
 			<menu_item_call label="QA-Wiki..." name="QA Wiki..."/>
 			<menu_item_separator label="-----------" name="separator9"/>

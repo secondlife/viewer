@@ -772,7 +772,7 @@ BOOL LLViewerCamera::areVertsVisible(LLViewerObject* volumep, BOOL all_verts)
 // changes local camera and broadcasts change
 /* virtual */ void LLViewerCamera::setView(F32 vertical_fov_rads)
 {
-	F32 old_fov = LLViewerCamera::getInstance()->getDefaultFOV();
+	F32 old_fov = LLViewerCamera::getInstance()->getView();
 
 	// cap the FoV
 	vertical_fov_rads = llclamp(vertical_fov_rads, getMinView(), getMaxView());

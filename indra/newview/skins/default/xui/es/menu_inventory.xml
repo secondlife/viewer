@@ -55,6 +55,7 @@
 	<menu_item_call label="Activar" name="Activate"/>
 	<menu_item_call label="Desactivar" name="Deactivate"/>
 	<menu_item_call label="Quitarse" name="Detach From Yourself"/>
+	<menu_item_call label="Volver a la última posición" name="Restore to Last Position"/>
 	<menu_item_call label="Ponerse" name="Object Wear"/>
 	<menu label="Anexar a" name="Attach To"/>
 	<menu label="Anexar como HUD" name="Attach To HUD"/>

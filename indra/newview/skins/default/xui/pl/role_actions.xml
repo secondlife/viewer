@@ -53,11 +53,11 @@
 		<action description="Przypisywanie i kupowanie Posiadłości dla Grupy"
 		     longdescription="Przypisywanie i kupowanie Posiadłości dla Grupy. Dostęp poprzez O Posiadlości &gt; ustawienia Ogólne."
 		     name="land deed" />
-		<action description="Oddawanie Posiadłości do Linden Labs"
-		     longdescription="Oddawanie Posiadłości do Linden Labs. *UWAGA* Członek w Funcji z tym Przywilejem może porzucać Posiadlości Grupy poprzez O Posiadlości &gt; ustawienia Ogólne oddając Posiadłości za darmo do Linden Labs! Udzielaj tego Przywileju z rozwagą."
+		<action description="Oddawanie Posiadłości do Linden Lab"
+		     longdescription="Oddawanie Posiadłości do Linden Lab. *UWAGA* Członek w Funkcji z tym Przywilejem może porzucać Posiadlości Grupy poprzez O Posiadlości &gt; ustawienia Ogólne oddając Posiadłości za darmo do Linden Labs! Udzielaj tego Przywileju z rozwagą."
 		     name="land release" />
 		<action description="Sprzedaż Posiadłości"
-		     longdescription="Sprzedaż Posiadłości. *UWAGA* Członek w Funcji z tym Przywilejem może sprzedawać Posiadlości Grupy poprzez O Posiadlości &gt; ustawienia Ogólne! Udzielaj tego Przywileju z rozwagą."
+		     longdescription="Sprzedaż Posiadłości. *UWAGA* Członek w Funkcji z tym Przywilejem może sprzedawać Posiadlości Grupy poprzez O Posiadlości &gt; ustawienia Ogólne! Udzielaj tego Przywileju z rozwagą."
 		     name="land set sale info" />
 		<action description="Podział i Łączenie Posiadłości"
 		     longdescription="Podział i Łączenie Posiadłości. Dostęp poprzez wybranie gruntu prawym klawiszem myszki, &apos;Edycja Terenu&apos;, i przesuwanie myszką po gruncie wybierając obszar. Aby podzielić wybierz obszar i naciśnij &apos;Podziel...&apos;. Aby połączyć wybierz dwie albo więcej sąsiadujące Posiadłości i naciśnij &apos;Połącz...&apos;."
@@ -75,7 +75,7 @@
 		     longdescription="Zmiany nazwy Posiadłości, opisu i selekcja &apos;Widoczność w Wyszukiwarce&apos;. Dostęp poprzez O Posiadłości &gt; Opcje."
 		     name="land change identity" />
 		<action description="Wybór miejsca lądowania i ustawienia teleportacji (TP)"
-		     longdescription="Na Posiadłości Grupy Członek w Funcji z tym Przywilejem może wybrać miejsce gdzie teleportujące się osoby będą ladować oraz może ustalić dodatkowe parametry teleportacji (TP).  Dostęp poprzez O Posiadłości &gt; Opcje."
+		     longdescription="Na Posiadłości Grupy Członek w Funkcji z tym Przywilejem może wybrać miejsce gdzie teleportujące się osoby będą ladować oraz może ustalić dodatkowe parametry teleportacji (TP).  Dostęp poprzez O Posiadłości &gt; Opcje."
 		     name="land set landing point" />
 	</action_set>
 	<action_set
@@ -95,19 +95,19 @@
 	     description="Przywileje pozwalające Członkom na omijanie ograniczeń na Posiadłościach Grupy."
 	     name="Parcel Powers">
 		<action description="Pozwól na Edycję Terenu"
-		     longdescription="Członkowie w Funcji z tym Przywilejem mogą zawsze edytować teren na Posiadłościach Grupy."
+		     longdescription="Członkowie w Funkcji z tym Przywilejem mogą zawsze edytować teren na Posiadłościach Grupy."
 		     name="land allow edit land" />
 		<action description="Pozwól na Latanie"
-		     longdescription="Członkowie w Funcji z tym Przywilejem mogą zawsze latać na Posiadłościach Grupy."
+		     longdescription="Członkowie w Funkcji z tym Przywilejem mogą zawsze latać na Posiadłościach Grupy."
 		     name="land allow fly" />
 		<action description="Pozwól na Tworzenie Obiektów"
-		     longdescription="Członkowie w Funcji z tym Przywilejem mogą zawsze tworzyć obiekty na Posiadłościach Grupy."
+		     longdescription="Członkowie w Funkcji z tym Przywilejem mogą zawsze tworzyć obiekty na Posiadłościach Grupy."
 		     name="land allow create" />
 		<action description="Pozwól na Zapamiętywanie Miejsc (LM)"
-		     longdescription="Członkowie w Funcji z tym Przywilejem mogą zawsze zapamiętywać miejsca (LM) na Posiadłościach Grupy."
+		     longdescription="Członkowie w Funkcji z tym Przywilejem mogą zawsze zapamiętywać miejsca (LM) na Posiadłościach Grupy."
 		     name="land allow landmark" />
-		<action description="Pozwól na wybór Mijsca Startu na Posiadłościach Grupy"
-		     longdescription="Członkowie w Funcji z tym Przywilejem mogą zawsze wybrać Miejsce Startu na Posiadłościach Grupy.."
+		<action description="Pozwól na wybór Miejsca Startu na Posiadłościach Grupy"
+		     longdescription="Członkowie w Funkcji z tym Przywilejem mogą zawsze wybrać Miejsce Startu na Posiadłościach Grupy."
 		     name="land allow set home" />
 	</action_set>
 	<action_set
@@ -123,11 +123,11 @@
 		     longdescription="Selekcja opcji &apos;Wstęp Płatny...&apos; pod O Posiadłości &gt; Dostęp."
 		     name="land manage passes" />
 		<action description="Wyrzucanie i unieruchamianie Rezydentów na Posiadłościach"
-		     longdescription="Członkowie w Funcji z tym Przywilejem mogą wpływać na niepożadanych na Posiadłościach Grupy Rezydentów wybierając ich prawym klawiszem myszki i wybierając Więcej &gt; &apos;Wyrzuć...&apos; albo &apos;Unieruchom...&apos;."
+		     longdescription="Członkowie w Funkcji z tym Przywilejem mogą wpływać na niepożądanych na Posiadłościach Grupy Rezydentów wybierając ich prawym klawiszem myszki i wybierając Więcej &gt; &apos;Wyrzuć...&apos; albo &apos;Unieruchom...&apos;."
 		     name="land admin" />
 	</action_set>
 	<action_set
-	     description="Przywileje pozwalające na odsyłanie obiektów i przemiszczanie roślin z Linden Labs. Użyteczne przy porządkowaniu i przemieszczaniu roślinności. *UWAGA* Odsyłanie obiektów jest nieodwracalne."
+	     description="Przywileje pozwalające na odsyłanie obiektów i przemieszczanie roślin z Linden Lab. Użyteczne przy porządkowaniu i przemieszczaniu roślinności. *UWAGA* Odsyłanie obiektów jest nieodwracalne."
 	     name="Parcel Content">
 		<action description="Odsyłanie obiektów należących do Grupy"
 		     longdescription="Odsyłanie obiektów należących do Grupy pod O Posiadłości &gt; Obiekty."
@@ -138,8 +138,8 @@
 		<action description="Odsyłanie obiektów nie przypisanych do Grupy"
 		     longdescription="Odsyłanie obiektów nie przypisanych do Grupy pod O Posiadłości &gt; Obiekty."
 		     name="land return non group" />
-		<action description="Ogrodnictwo używając roślin z Linden Labs"
-		     longdescription="Ogrodnictwo pozwala na umiszczanie i przemiszczanie drzew, roślin i trawy z Linden Labs. Te obiekty znajdują się w Twojej Szafie pod Zbiór &gt; Obiekty, mogą też być stworzone używając przycisku Buduj."
+		<action description="Ogrodnictwo używając roślin z Linden Lab"
+		     longdescription="Ogrodnictwo pozwala na umieszczanie i przemieszczanie drzew, roślin i trawy z Linden Lab. Te obiekty znajdują się w Twojej Szafie pod Zbiór &gt; Obiekty, mogą też być stworzone używając przycisku Buduj."
 		     name="land gardening" />
 	</action_set>
 	<action_set
@@ -160,38 +160,38 @@
 	     description="Przywileje pozwalające na wybór opłat grupowych, otrzymywanie dochodu i ograniczanie dostępu do historii konta grupy."
 	     name="Accounting">
 		<action description="Opłaty grupowe i dochód grupowy"
-		     longdescription="Członkowie w Funcji z tym Przywilejem będą automatycznie wnosić opłaty grupowe i będą otrzymywać dochód grupowy. Tzn. będą codziennie otrzymywać część dochodu ze sprzedaży Posiadłości Grupy oraz będą partycypować w kosztach ogłoszeń itp."
+		     longdescription="Członkowie w Funkcji z tym Przywilejem będą automatycznie wnosić opłaty grupowe i będą otrzymywać dochód grupowy. Tzn. będą codziennie otrzymywać część dochodu ze sprzedaży Posiadłości Grupy oraz będą partycypować w kosztach ogłoszeń itp."
 		     name="accounting accountable" />
 	</action_set>
 	<action_set
 	     description="Przywileje pozwalające na wysyłanie, odbieranie i czytanie Notek Grupy."
 	     name="Notices">
 		<action description="Wysyłanie Notek"
-		     longdescription="Członkowie w Funcji z tym Przywilejem mogą wysyłać Notki pod O Grupie &gt; Notki."
+		     longdescription="Członkowie w Funkcji z tym Przywilejem mogą wysyłać Notki wybierając O Grupie &gt; Notek."
 		     name="notices send" />
 		<action description="Odbieranie Notek i dostęp do dawniejszych Notek"
-		     longdescription="Członkowie w Funcji z tym Przywilejem mogą odbierać nowe i czytać dawniejsze Notki pod O Grupie &gt; Notki."
+		     longdescription="Członkowie w Funkcji z tym Przywilejem mogą odbierać nowe i czytać dawniejsze Notki wybierając O Grupie &gt; Notki."
 		     name="notices receive" />
 	</action_set>
 	<action_set
 	     description="Przywileje pozwalające na zgłaszanie Propozycji, głosowanie nad Propozycjami i śledzenie historii głosowania."
 	     name="Proposals">
 		<action description="Zgłaszanie Propozycji"
-		     longdescription="Członkowie w Funcji z tym Przywilejem mogą zgłaszać Propozycje pod głosowanie pod O Grupie &gt; Propozycje."
+		     longdescription="Członkowie w Funkcji z tym Przywilejem mogą zgłaszać Propozycje do głosowania wybierając O Grupie &gt; Propozycje."
 		     name="proposal start" />
 		<action description="Głosowanie nad Propozycjami"
-		     longdescription="Członkowie w Funcji z tym Przywilejem mogą głosować nad Propozycjami pod O Grupie &gt; Propozycje."
+		     longdescription="Członkowie w Funkcji z tym Przywilejem mogą głosować nad Propozycjami zgłoszonymi do głosowania wybierając O Grupie &gt; Propozycje."
 		     name="proposal vote" />
 	</action_set>
 	<action_set description="Przywileje kontrolujące czat i rozmowy grupowe." name="Chat">
 		<action description="Dostęp do Czatu Grupowego"
-		     longdescription="Członkowie w Funcji z tym Przywilejem mogą uczestniczyć w czcie i rozmowach grupowych."
+		     longdescription="Członkowie w Funkcji z tym Przywilejem mogą uczestniczyć w czacie i rozmowach grupowych."
 		     name="join group chat" />
 		<action description="Dostęp do Rozmów Grupowych"
-		     longdescription="Członkowie w Funcji z tym Przywilejem mogą uczestniczyć w rozmowach grupowych. UWAGA: Dostęp do Czatu Grupowego jest wymagany dla rozmów grupowych."
+		     longdescription="Członkowie w Funkcji z tym Przywilejem mogą uczestniczyć w rozmowach grupowych. UWAGA: Dostęp do Czatu Grupowego jest wymagany dla rozmów grupowych."
 		     name="join voice chat" />
 		<action description="Moderator Czatu Grupowego"
-		     longdescription="Członkowie w Funcji z tym Przywilejem mogą kontrolować dostęp do czatu i rozmów grupowych."
+		     longdescription="Członkowie w Funkcji z tym Przywilejem mogą kontrolować dostęp do czatu i rozmów grupowych."
 		     name="moderate group chat" />
 	</action_set>
 </role_actions>

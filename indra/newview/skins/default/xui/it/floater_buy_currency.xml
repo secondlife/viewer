@@ -3,14 +3,14 @@
 	<text name="info_buying">
 		Acquistando valuta:
 	</text>
-	<text name="info_cannot_buy">
+	<text name="info_cannot_buy" left="5" right="-5">
 		Non è possibile comprare ora
 	</text>
-	<text name="info_need_more">
+	<text name="info_need_more" left="5" right="-5" font="SansSerifLarge">
 		Hai bisogno di acquistare ulteriore contante:
 	</text>
 	<text name="error_message">
-		Qualcosa non è andato a buon fine:
+		Qualcosa non è andato a buon fine.
 	</text>
 	<button label="Vai al sito web" name="error_web"/>
 	<text name="contacting">
@@ -23,13 +23,13 @@
 		[NAME] [PRICE]L$
 	</text>
 	<text name="currency_action">
-		Compra L$
+		Compra 
 	</text>
 	<line_editor name="currency_amt">
 		1234
 	</line_editor>
 	<text name="currency_est">
-		per circa [USD]US$
+		L$ per circa [USD]US$
 	</text>
 	<text name="getting_data">
 		Dati in ricezione...
@@ -52,11 +52,14 @@
 	<text name="total_amount">
 		[AMT]L$
 	</text>
-	<text name="purchase_warning_repurchase">
-		Confermando questa operazione si acquisterà solo la valuta. Per acquistare il bene, dovrai riprovare l&apos;operazione nuovamente.
+	<text name="purchase_warning_repurchase" height="48" bottom_delta="-64" right="-10">
+		Confermando questa operazione si acquisterà solo
+la valuta. Per acquistare il bene, dovrai riprovare
+l&apos;operazione nuovamente.
 	</text>
-	<text name="purchase_warning_notenough">
-		Non stai comprando abbastanza denaro. Devi aumentare l&apos;importo da acquistare.
+	<text name="purchase_warning_notenough" bottom_delta="16">
+		Non stai comprando abbastanza denaro.
+Devi aumentare l&apos;importo da acquistare.
 	</text>
 	<button label="Cancella" name="cancel_btn"/>
 	<button label="Acquista" name="buy_btn"/>

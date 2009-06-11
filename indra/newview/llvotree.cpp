@@ -329,6 +329,9 @@ U32 LLVOTree::processUpdateMessage(LLMessageSystem *mesgsys,
 	mBillboardRatio = sSpeciesTable[mSpecies]->mBillboardRatio;
 	mTrunkAspect = sSpeciesTable[mSpecies]->mTrunkAspect;
 	mBranchAspect = sSpeciesTable[mSpecies]->mBranchAspect;
+	
+	// position change not caused by us, etc.  make sure to rebuild.
+	gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_ALL);
 
 	return retval;
 }
@@ -396,6 +399,31 @@ BOOL LLVOTree::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 		else if (trunk_LOD != mTrunkLOD)
 		{
 			gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_ALL, FALSE);
+		}
+		else
+		{
+			// we're not animating but we may *still* need to
+			// regenerate the mesh if we moved, since position
+			// and rotation are baked into the mesh.
+			// *TODO: I don't know what's so special about trees
+			// that they don't get REBUILD_POSITION automatically
+			// at a higher level.
+			const LLVector3 &this_position = getPositionAgent();
+			if (this_position != mLastPosition)
+			{
+				gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_POSITION);
+				mLastPosition = this_position;
+			}
+			else
+			{
+				const LLQuaternion &this_rotation = getRotation();
+				
+				if (this_rotation != mLastRotation)
+				{
+					gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_POSITION);
+					mLastRotation = this_rotation;
+				}
+			}
 		}
 	}
 

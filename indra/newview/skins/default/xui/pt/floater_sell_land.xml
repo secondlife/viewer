@@ -10,11 +10,12 @@
 		Tamanho:
 	</text>
 	<text name="info_size">
-		[AREA] m².
+		[AREA] m²
 	</text>
-	<text name="info_action">
+	<text name="info_action" bottom_delta="-67">
 		Para vender este lote:
 	</text>
+	<icon bottom_delta="-66" name="step_price" />
 	<text name="price_label">
 		Defina um preço:
 	</text>
@@ -31,9 +32,10 @@
 		Vender esta terra para:
 	</text>
 	<text name="sell_to_text">
-		Escolha se venderá para qualquer um ou para um comprador em particular.
+		Escolha se venderá para qualquer um ou para um comprador em
+particular.
 	</text>
-	<combo_box name="sell_to">
+	<combo_box name="sell_to" bottom_delta="-32">
 		<combo_item name="--selectone--">
 			-- Selecione um --
 		</combo_item>
@@ -49,9 +51,10 @@
 		Vender os objetos com a terra?
 	</text>
 	<text name="sell_objects_text">
-		Os objetos tranferíveis do proprietário do terreno que estão neste lote irão mudar de propriedade.
+		Os objetos tranferíveis do proprietário do terreno que estão neste
+lote irão mudar de propriedade.
 	</text>
-	<radio_group name="sell_objects">
+	<radio_group name="sell_objects" bottom_delta="-58">
 		<radio_item name="no">
 			Não, manter a propriedade sobre os objetos
 		</radio_item>

@@ -6,6 +6,12 @@
 	<text name="region_name_text">
 		(sconosciuto)
 	</text>
+	<text name="region_type_label">
+		Tipo:
+	</text>
+	<text name="region_type_text">
+		(sconosciuto)
+	</text>
 	<text name="estate_name_label">
 		Proprietà:
 	</text>
@@ -22,7 +28,7 @@
 		Terra acquistata in questa regione:
 	</text>
 	<text name="resellable_clause">
-		La terra acquistata in questa regione può o non può essere rivenduta
+		Può o non può essere rivenduta.
 	</text>
 	<text name="changeable_clause">
 		Può o non può essere unita o suddivisa.
@@ -44,13 +50,15 @@
 		Grandezza:
 	</text>
 	<text name="info_size">
-		1024 sq. m.
+		1024 m²
 	</text>
 	<text name="info_price_label">
 		Prezzo:
 	</text>
 	<text name="info_price">
-		1500 L$, oggetti inclusi
+		1500 L$
+(1.1 L$/m²)
+venduta con gli oggetti
 	</text>
 	<text name="info_action">
 		Comprando questa terra:
@@ -80,8 +88,7 @@
 		Aumenta il tasso di pagamento mensile delle tasse d&apos;uso della terra a 40 US$/mese.
 	</text>
 	<text name="land_use_reason">
-		Possiedi 1.309 metri quadri di terra. 
-Questo appezzamento è di 512 metri quadri.
+		Possiedi 1309 m² di terra. Questa porzione è 512 m² di terra.
 	</text>
 	<text name="purchase_action">
 		Paga il residente Joe 4000 L$ per la terra
@@ -160,7 +167,7 @@ Prova a selezionare un&apos;area più piccola.
 		Comprando questa terra:
 	</string>
 	<string name="buying_for_group">
-		Comprando questa terra per il gruppo:
+		Comprare la terra per il gruppo farà:
 	</string>
 	<string name="cannot_buy_now">
 		Non puoi comprare ora:
@@ -184,7 +191,7 @@ Prova a selezionare un&apos;area più piccola.
 		Paga [AMOUNT] L$ a [SELLER] per questa terra
 	</string>
 	<string name="buy_for_US">
-		Compra [AMOUNT] L$ per appross. [AMOUNT2] US$,
+		Comprare [AMOUNT] L$ per circa [AMOUNT2] US$,
 	</string>
 	<string name="parcel_meters">
 		Questo terreno è di [AMOUNT] metri quadri.
@@ -201,6 +208,14 @@ supporta [AMOUNT2] oggetti
 	</string>
 	<string name="sold_with_objects">
 		venduta con oggetti
+	</string>
+	<string name="sold_without_objects">
+		Oggetti non inclusi
+	</string>
+	<string name="info_price_string">
+		[PRICE] L$ 
+([PRICE_PER_SQM] L$/m²)
+[SOLD_WITH_OBJECTS]
 	</string>
 	<string name="insufficient_land_credits">
 		Il gruppo [GROUP] avrà bisogno di contribuzioni anticipate, mediante crediti d&apos;uso terriero,

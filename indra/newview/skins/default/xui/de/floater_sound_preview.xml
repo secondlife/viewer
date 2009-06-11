@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="Name/Description" title="sound.wav">
+<floater name="Sound Preview" title="sound.wav">
 	<text name="name_label">
 		Name:
 	</text>
@@ -7,7 +7,7 @@
 		Beschreibung:
 	</text>
 	<button label="Abbrechen" label_selected="Abbrechen" name="cancel_btn" />
-	<button label="Hochladen (10 L$)" label_selected="Hochladen (10 L$)" name="ok_btn" />
+	<button label="Hochladen ([AMOUNT] L$)" label_selected="Hochladen ([AMOUNT] L$)" name="ok_btn" />
 	<text name="text">
 		Bitrate (kbit/s):
 	</text>

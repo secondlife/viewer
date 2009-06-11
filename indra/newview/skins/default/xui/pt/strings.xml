@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <!-- This file contains strings that used to be hardcoded in the source.
-     It is only for those strings which don&apos;t belong in a floater.
+     It is only for those strings which do not belong in a floater.
      For example, the strings used in avatar chat bubbles, and strings 
      that are returned from one component and may appear in many places-->
 <strings>
@@ -54,9 +54,6 @@
 	</string>
 	<string name="LoginDownloadingClothing">
 		Baixando roupas...
-	</string>
-	<string name="LoginFailedNoNetwork">
-		Erro de Rede: Não foi possível estabelecer uma conexão. Por favor, verifique sua conexão de rede.
 	</string>
 	<string name="AgentLostConnection">
 		Esta região pode estar passando por problemas. Por favor, verifique sua conexão com a internet.
@@ -183,6 +180,9 @@
 	</string>
 	<string name="AssetErrorCircuitGone">
 		Circuito caiu
+	</string>
+	<string name="AssetErrorPriceMismatch">
+		Visualizador e servidor não concordam no preço
 	</string>
 	<string name="AssetErrorUnknownStatus">
 		Status desconhecido
@@ -417,5 +417,70 @@
 	</string>
 	<string name="shout">
 		grita:
+	</string>
+	<string name="SIM_ACCESS_PG">
+		PG
+	</string>
+	<string name="SIM_ACCESS_MATURE">
+		Mature
+	</string>
+	<string name="SIM_ACCESS_ADULT">
+		Adult
+	</string>
+	<string name="SIM_ACCESS_DOWN">
+		Desconectado
+	</string>
+	<string name="SIM_ACCESS_MIN">
+		Desconhecido
+	</string>
+	<string name="land_type_unknown">
+		(desconhecido)
+	</string>
+	<string name="covenant_never_modified">Última modificação: (nunca)</string>
+	<string name="covenant_modified">Última modificação: </string>
+	<string name="all_files">
+		Todos os Arquivos
+	</string>
+	<string name="sound_files">
+		Sons
+	</string>
+	<string name="animation_files">
+		Animações
+	</string>
+	<string name="image_files">
+		Imagens
+	</string>
+	<string name="save_file_verb">
+		Salvar
+	</string>
+	<string name="load_file_verb">
+		Carregar
+	</string>
+	<string name="targa_image_files">
+		Imagens Targa
+	</string>
+	<string name="bitmap_image_files">
+		Imagens Bitmap
+	</string>
+	<string name="avi_movie_file">
+		Arquivo de filme AVI
+	</string>
+	<string name="xaf_animation_file">
+		Arquivo de Animação XAF
+	</string>
+	<string name="xml_file">
+		Arquivo XML
+	</string>
+	<string name="dot_raw_file">
+		Arquivo RAW
+	</string>
+	<string name="compressed_image_files">
+		Imagens Compactadas
+	</string>
+	<string name="load_files">
+		Carregar Arquivos
+	</string>
+	<string name="choose_the_directory">
+		Escolher Diretório
 	</string>
 </strings>

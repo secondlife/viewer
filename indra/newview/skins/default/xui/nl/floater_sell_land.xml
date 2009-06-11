@@ -10,16 +10,18 @@
 		Grootte:
 	</text>
 	<text name="info_size">
-		[AREA] m2
+		[AREA] m²
 	</text>
-	<text name="info_action">
-		Om dit perceel te verkopen:
+	<text height="28" name="info_action" bottom_delta="-57">
+		Om dit perceel te
+verkopen:
 	</text>
+	<icon bottom_delta="-86" name="step_price" />
 	<text name="price_label">
 		Stel een prijs in:
 	</text>
 	<text name="price_text">
-		Kies een geschikte prijs voor dit land
+		Kies een geschikte prijs voor dit land.
 	</text>
 	<text name="price_ld">
 		L$
@@ -49,9 +51,10 @@
 		Verkoop de objecten samen met het land?
 	</text>
 	<text name="sell_objects_text">
-		Overdraagbare objecten die eigendom zijn van de landeigenaar zullen van eigenaar veranderen.
+		Overdraagbare objecten die eigendom zijn van de landeigenaar
+zullen van eigenaar veranderen.
 	</text>
-	<radio_group name="sell_objects">
+	<radio_group name="sell_objects" bottom_delta="-58">
 		<radio_item name="no">
 			Nee, behoud het eigendom van objecten
 		</radio_item>

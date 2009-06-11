@@ -2,21 +2,16 @@
 <teleport_messages name="">
 	<message_set name="errors">
 		<message name="invalid_tport">
-			Bei der Bearbeitung Ihrer Teleport-Anfrage ist ein Problem aufgetreten. Sie müssen
-sich zum Teleportieren eventuell neu anmelden. Wenn Sie diese
-Nachricht weiterhin erhalten, konsultieren Sie bitte die Tech-Support-FAQ unter:
+			Bei der Bearbeitung Ihrer Teleport-Anfrage ist ein Problem aufgetreten. Sie müssen sich zum Teleportieren eventuell neu anmelden. Wenn Sie diese Nachricht weiterhin erhalten, konsultieren Sie bitte die Tech-Support-FAQ unter:
 www.secondlife.com/support
 		</message>
 		<message name="invalid_region_handoff">
-			Bei der Bearbeitung Ihres Regionswechsels ist ein Problem aufgetreten. Sie müssen
-sich zum Wechsel der Region eventuell neu anmelden. Wenn Sie diese
-Nachricht weiterhin erhalten, konsultieren Sie bitte die Tech-Support-FAQ unter:
-www.secondlife.com/support.
+			Bei der Bearbeitung Ihres Regionswechsels ist ein Problem aufgetreten. Sie müssen sich zum Wechsel der Region eventuell neu anmelden. Wenn Sie diese Nachricht weiterhin erhalten, konsultieren Sie bitte die Tech-Support-FAQ unter:
+www.secondlife.com/support
 		</message>
 		<message name="blocked_tport">
 			Teleportieren ist zurzeit leider nicht möglich. Versuchen Sie es später noch einmal.
-Wenn der Teleport dann immer noch nicht funktioniert, melden Sie
-sich bitte ab und wieder an.
+Wenn der Teleport dann immer noch nicht funktioniert, melden Sie sich bitte ab und wieder an.
 		</message>
 		<message name="nolandmark_tport">
 			Das System konnte das Landmarken-Ziel nicht finden.
@@ -29,27 +24,20 @@ Versuchen Sie es später noch einmal.
 			Sie haben leider keinen Zugang zu diesem Teleport-Ziel.
 		</message>
 		<message name="missing_attach_tport">
-			Ihre Anhänge sind noch nicht eingetroffen. Warten Sie kurz
-oder melden Sie sich ab und wieder an, bevor Sie einen neuen
-Teleport-Versuch unternehmen.
+			Ihre Anhänge sind noch nicht eingetroffen. Warten Sie kurz oder melden Sie sich ab und wieder an, bevor Sie einen neuen Teleport-Versuch unternehmen.
 		</message>
 		<message name="too_many_uploads_tport">
 			Die Asset-Warteschlange in dieser Region ist zurzeit überlastet.
-Ihre Teleport-Anfrage kann nicht sofort bearbeitet werden. Versuchen Sie es
-in einigen Minuten erneut oder besuchen Sie eine weniger überfüllte Region.
+Ihre Teleport-Anfrage kann nicht sofort bearbeitet werden. Versuchen Sie es in einigen Minuten erneut oder besuchen Sie eine weniger überfüllte Region.
 		</message>
 		<message name="expired_tport">
-			Das System konnte Ihre Teleport-Anfrage nicht
-rechtzeitig bearbeiten. Versuchen Sie es in einigen Minuten erneut.
+			Das System konnte Ihre Teleport-Anfrage nicht rechtzeitig bearbeiten. Versuchen Sie es in einigen Minuten erneut.
 		</message>
 		<message name="expired_region_handoff">
-			Das System konnte Ihre Anfrage zum Regionswechsel nicht
-rechtzeitig bearbeiten. Versuchen Sie es in einigen Minuten erneut.
+			Das System konnte Ihre Anfrage zum Regionswechsel nicht rechtzeitig bearbeiten. Versuchen Sie es in einigen Minuten erneut.
 		</message>
 		<message name="no_host">
-			Teleport-Ziel wurde nicht gefunden. Das Ziel ist
-entweder im Moment nicht verfügbar oder existiert nicht mehr. Versuchen Sie es
-in einigen Minuten erneut.
+			Teleport-Ziel wurde nicht gefunden. Das Ziel ist entweder im Moment nicht verfügbar oder existiert nicht mehr. Versuchen Sie es in einigen Minuten erneut.
 		</message>
 		<message name="no_inventory_host">
 			Das Inventarsystem ist zurzeit nicht verfügbar.

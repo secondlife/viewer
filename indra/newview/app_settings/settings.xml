@@ -4801,16 +4801,16 @@
         <real>1.0</real>
       </array>
     </map>
-    <key>IMInChatHistory</key>
+    <key>IMInChatConsole</key>
     <map>
       <key>Comment</key>
-      <string>Copy IM into chat history</string>
+      <string>Copy IM into background chat console</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>1</integer>
     </map>
     <key>IMShowTimestamps</key>
     <map>
@@ -6501,8 +6501,8 @@
       <key>Value</key>
       <array>
         <integer>0</integer>
-        <integer>550</integer>
-        <integer>500</integer>
+        <integer>586</integer>
+        <integer>576</integer>
         <integer>0</integer>
       </array>
     </map>
@@ -7376,6 +7376,17 @@
     <map>
       <key>Comment</key>
       <string>Display HUD attachments in snapshot</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>RenderHUDParticles</key>
+    <map>
+      <key>Comment</key>
+      <string>Display particle systems in HUD attachments (experimental)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -11629,7 +11640,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>1</integer>
+      <integer>0</integer>
     </map>
     <key>WaterEditPresets</key>
     <map>

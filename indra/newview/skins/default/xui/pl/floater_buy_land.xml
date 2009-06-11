@@ -1,10 +1,16 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="buy land" title="Buy Land">
 	<text name="region_name_label">
 		Region:
 	</text>
 	<text name="region_name_text">
 		(brak danych)
+	</text>
+	<text name="region_type_label">
+		Typ:
+	</text>
+	<text name="region_type_text">
+		(nieznany)
 	</text>
 	<text name="estate_name_label">
 		Majątek:
@@ -22,10 +28,10 @@
 		Posiadłości zakupione w tym Regionie:
 	</text>
 	<text name="resellable_clause">
-		Posiadłosci zakupione w tym Regionie mogą lub nie mogą być odsprzedane.
+		Posiadłość może lub nie może być odsprzedana.
 	</text>
 	<text name="changeable_clause">
-		mogą lub nie mogą być łaczone i dzielone.
+		Posiadłość może lub nie może być dzielona i łączona.
 	</text>
 	<text name="covenant_text">
 		Musisz zaakceptować Umowę z Majątku:
@@ -33,32 +39,34 @@
 	<text_editor name="covenant_editor">
 		Ładowanie...
 	</text_editor>
-	<check_box label="Zgadzam się na Powyższą Umowę." name="agree_covenant" />
+	<check_box label="Zgadzam się na Powyższą Umowę." name="agree_covenant"/>
 	<text name="info_parcel_label" width="60">
 		Posiadłość:
 	</text>
-	<text name="info_parcel" left_delta="62">
+	<text left_delta="62" name="info_parcel">
 		Scotopteryx 138,204
 	</text>
 	<text name="info_size_label">
 		Obszar:
 	</text>
-	<text name="info_size" left_delta="62">
-		1024 m.
+	<text left_delta="62" name="info_size">
+		1024 m²
 	</text>
 	<text name="info_price_label">
 		Cena:
 	</text>
-	<text name="info_price" left_delta="62">
-		1500 L$, obiekty wliczone
+	<text left_delta="62" name="info_price">
+		L$ 1500
+(L$ 1.1/m²)
+sprzedaż z obiektami
 	</text>
 	<text name="info_action">
 		Zakup tej Posiadłości spowoduje:
 	</text>
 	<text name="error_message">
-		Coś się nie zgadza.
+		Wystąpił błąd.
 	</text>
-	<button label="Idź na stronę www" name="error_web" />
+	<button label="Idź na stronę www" name="error_web"/>
 	<text name="account_action">
 		Zmianę Twojego konta na Premium.
 	</text>
@@ -80,14 +88,14 @@
 		Zwiększ opłatę za używanie Posiadłości do 40US$/miesiąc.
 	</text>
 	<text name="land_use_reason">
-		Twoje Posiadłości mają powierzchnię 1,309 metrów.
-Ta Posiadłość ma 512 metrów.
+		Jesteś właścicielem  1309 m² ziemi. 
+Posiadłość ta zawiera 512 m² ziemi.
 	</text>
 	<text name="purchase_action">
-		Zapłać Rezydentowi Jasiowi 4000L$ za Posiadłość
+		Pay Joe Resident L$ 4000 for the land
 	</text>
 	<text name="currency_reason">
-		Masz 2,100L$.
+		You have L$ 2,100.
 	</text>
 	<text name="currency_action">
 		Kup więcej L$
@@ -101,9 +109,9 @@ Ta Posiadłość ma 512 metrów.
 	<text name="currency_balance">
 		Masz 2,100L$.
 	</text>
-	<check_box label="Zabierz [AMOUNT] metrów donacji z Grupy." name="remove_contribution" />
-	<button label="Zakup" name="buy_btn" />
-	<button label="Anuluj" name="cancel_btn" />
+	<check_box label="Zabierz [AMOUNT] metrów donacji z Grupy." name="remove_contribution"/>
+	<button label="Zakup" name="buy_btn"/>
+	<button label="Anuluj" name="cancel_btn"/>
 	<string name="can_resell">
 		Może być odsprzedana.
 	</string>
@@ -160,7 +168,7 @@ Spróbuj wybrać inny obszar.
 		Zakup tej Posiadłości spowoduje:
 	</string>
 	<string name="buying_for_group">
-		Zakup Posiadłości dla Grupy:
+		Zakup ziemi dla grupy:
 	</string>
 	<string name="cannot_buy_now">
 		Nie możesz teraz kupić:
@@ -169,7 +177,7 @@ Spróbuj wybrać inny obszar.
 		Nie jest na sprzedaż:
 	</string>
 	<string name="none_needed">
-		wszystko w porządku
+		Poprawność danych.
 	</string>
 	<string name="must_upgrade">
 		Musisz mieć konto Premium żebyś mógł mieć Posiadłości.
@@ -178,29 +186,37 @@ Spróbuj wybrać inny obszar.
 		Twoje konto pozwala Ci mieć Posiadłości.
 	</string>
 	<string name="land_holdings">
-		Twoje Posiadłości mają [BUYER] metrów.
+		Jesteś właścicielem [BUYER] m² ziemi.
 	</string>
 	<string name="pay_to_for_land">
 		Zapłać [SELLER] [AMOUNT]L$ za Posiadłość
 	</string>
 	<string name="buy_for_US">
-		Kup [AMOUNT]L$ za około [AMOUNT2]US$ ,
+		Kup L$ [AMOUNT] za US$ [AMOUNT2],
 	</string>
 	<string name="parcel_meters">
-		Ta Posiadłość ma [AMOUNT] metrów.
+		Podana posiadłość to [AMOUNT] m² ziemi.
 	</string>
 	<string name="premium_land">
-		To jest wartościowa Posiadłość i kosztuje [AMOUNT] za metr.
+		Podana posiadłość jest w cenie premium adekwatnie jak za [AMOUNT] m².
 	</string>
 	<string name="discounted_land">
-		To jest przeceniona Posiadłość i kosztuje [AMOUNT] za metr.
+		Wybrana posiadłość jest w cenie zniżkowej adekwatnie jak za [AMOUNT] m².
 	</string>
 	<string name="meters_supports_object">
-		[AMOUNT] metrów
-pozwala na [AMOUNT2] obikty
+		[AMOUNT] m²
+wspiera [AMOUNT2] obiektów
 	</string>
 	<string name="sold_with_objects">
 		sprzedane z obiektami
+	</string>
+	<string name="sold_without_objects">
+		obiekty nie są zawarte w sprzedaży
+	</string>
+	<string name="info_price_string">
+		L$ [PRICE]
+(L$ [PRICE_PER_SQM]/m²)
+[SOLD_WITH_OBJECTS]
 	</string>
 	<string name="insufficient_land_credits">
 		Grupa [GROUP] musi mieć wystarczający kredyt na

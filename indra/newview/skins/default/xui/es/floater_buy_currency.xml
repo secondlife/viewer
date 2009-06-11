@@ -3,10 +3,10 @@
 	<text name="info_buying">
 		Comprando dinero:
 	</text>
-	<text name="info_cannot_buy">
+	<text name="info_cannot_buy" left="5" right="-5">
 		No puede comprar en este momento:
 	</text>
-	<text name="info_need_more">
+	<text name="info_need_more" left="5" right="-5">
 		Necesita más dinero:
 	</text>
 	<text name="error_message">
@@ -16,8 +16,8 @@
 	<text name="contacting">
 		Contactando con el LindeX...
 	</text>
-	<text name="buy_action_unknown">
-		Comprar L$ en el sistema LindeX de cambio de moneda
+	<text name="buy_action_unknown" right="-5">
+		Comprar L$ en el sistema LindeX de cambio
 	</text>
 	<text name="buy_action">
 		[NAME] [PRICE] L$
@@ -52,7 +52,7 @@
 	<text name="total_amount">
 		[AMT] L$
 	</text>
-	<text name="purchase_warning_repurchase">
+	<text name="purchase_warning_repurchase" right="-10">
 		Confirmando esta compra sólo compra la moneda.
 Tendrá que intentar de nuevo la operación.
 	</text>

@@ -1424,29 +1424,10 @@ void LLViewerWindow::initBase()
 
 	// Console
 	llassert( !gConsole );
-	LLRect console_rect = full_window;
-	console_rect.mTop    -= 24;
-
-	console_rect.mBottom += getChatConsoleBottomPad();
-
-	// TODO: Eliminate magic constants - please used named constants if changing this - don't be a programmer hater
-	console_rect.mLeft   += 24; //gSavedSettings.getS32("StatusBarButtonWidth") + gSavedSettings.getS32("StatusBarPad");
-
-	if (gSavedSettings.getBOOL("ChatFullWidth"))
-	{
-		console_rect.mRight -= 10;
-	}
-	else
-	{
-		// Make console rect somewhat narrow so having inventory open is
-		// less of a problem.
-		console_rect.mRight  = console_rect.mLeft + 2 * width / 3;
-	}
-
 	gConsole = new LLConsole(
 		"console",
 		gSavedSettings.getS32("ConsoleBufferSize"),
-		console_rect,
+		getChatConsoleRect(),
 		gSavedSettings.getS32("ChatFontSize"),
 		gSavedSettings.getF32("ChatPersistTime") );
 	gConsole->setFollows(FOLLOWS_LEFT | FOLLOWS_RIGHT | FOLLOWS_BOTTOM);
@@ -2205,12 +2186,12 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 		}
 	}
 
-	// Debugging view for unified notifications -- we need Ctrl+Shift+Alt to get it 
-	// since Ctrl+Shift maps to Nighttime under windlight.
+	// Debugging view for unified notifications: CTRL-SHIFT-5
+	// *FIXME: Having this special-cased right here (just so this can be invoked from the login screen) sucks.
 	if ((MASK_SHIFT & mask) 
-		&& (MASK_CONTROL & mask)
-		&& (MASK_ALT & mask)
-		&& ('N' == key || 'n' == key))
+	    && (!(MASK_ALT & mask))
+	    && (MASK_CONTROL & mask)
+	    && ('5' == key))
 	{
 		LLFloaterNotificationConsole::showInstance();
 		return TRUE;
@@ -2811,7 +2792,7 @@ BOOL LLViewerWindow::handlePerFrameHover()
 		}
 
 		// Always update console
-		LLRect console_rect = gConsole->getRect();
+		LLRect console_rect = getChatConsoleRect();
 		console_rect.mBottom = gHUDView->getRect().mBottom + getChatConsoleBottomPad();
 		gConsole->reshape(console_rect.getWidth(), console_rect.getHeight());
 		gConsole->setRect(console_rect);
@@ -4823,6 +4804,33 @@ S32 LLViewerWindow::getChatConsoleBottomPad()
 	return offset;
 }
 
+LLRect LLViewerWindow::getChatConsoleRect()
+{
+	LLRect full_window(0, getWindowHeight(), getWindowWidth(), 0);
+	LLRect console_rect = full_window;
+
+	const S32 CONSOLE_PADDING_TOP = 24;
+	const S32 CONSOLE_PADDING_LEFT = 24;
+	const S32 CONSOLE_PADDING_RIGHT = 10;
+
+	console_rect.mTop    -= CONSOLE_PADDING_TOP;
+	console_rect.mBottom += getChatConsoleBottomPad();
+
+	console_rect.mLeft   += CONSOLE_PADDING_LEFT; 
+
+	if (gSavedSettings.getBOOL("ChatFullWidth"))
+	{
+		console_rect.mRight -= CONSOLE_PADDING_RIGHT;
+	}
+	else
+	{
+		// Make console rect somewhat narrow so having inventory open is
+		// less of a problem.
+		console_rect.mRight  = console_rect.mLeft + 2 * getWindowWidth() / 3;
+	}
+
+	return console_rect;
+}
 //----------------------------------------------------------------------------
 
 

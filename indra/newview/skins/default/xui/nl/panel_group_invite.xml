@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Nodig een lid uit" name="invite_panel">
 	<text name="help_text">
-		U kunt meerdere inwoners uitnodigen voor uw groep. Klik &apos;Open persoonkiezer&apos; om te starten.
+		U kunt meerdere inwoners selecteren om voor uw groep uit te nodigen. Klik &apos;Open inwonerkiezer&apos; om te starten.
 	</text>
-	<button label="Open persoonkiezer" name="add_button" tool_tip=""/>
+	<button label="Open inwonerkiezer" name="add_button" tool_tip=""/>
 	<name_list name="invitee_list" tool_tip="Houd de Ctrl-toets vast en klik de namen van de inwoners om meerdere te selecteren."/>
 	<button label="Verwijder geselecteerden van lijst" name="remove_button" tool_tip="Verwijderd hierboven geselecteerde inwoners van de uitnodigingslijst."/>
 	<text name="role_text">

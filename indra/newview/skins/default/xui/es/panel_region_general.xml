@@ -12,6 +12,12 @@
 	<text name="version_channel_text">
 		desconocida
 	</text>
+	<text name="region_type_lbl">
+		Tipo:
+	</text>
+	<text name="region_type">
+		desconocido
+	</text>
 	<check_box label="No permitir modificar el terreno" name="block_terraform_check"/>
 	<button label="?" name="terraform_help"/>
 	<check_box label="Prohibir volar" name="block_fly_check"/>
@@ -33,10 +39,17 @@
 	<text label="Calificación" name="access_text">
 		Calificación:
 	</text>
-
-
-
-
+	<combo_box label="&apos;Mature&apos;" name="access_combo">
+		<combo_item name="Adult">
+			&apos;Adult&apos;
+		</combo_item>
+		<combo_item name="Mature">
+			&apos;Mature&apos;
+		</combo_item>
+		<combo_item name="PG">
+			&apos;PG&apos;
+		</combo_item>
+	</combo_box>
 	<button label="?" name="access_help"/>
 	<button label="Aplicar" name="apply_btn"/>
 	<button label="Teleportar a su Base a un usuario..." name="kick_btn"/>

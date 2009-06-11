@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<!-- This file contains strings that used to be hardcoded in the source.
+     It is only for those strings which do not belong in a floater.
+     For example, the strings used in avatar chat bubbles, and strings 
+     that are returned from one component and may appear in many places-->
 <strings>
-	<!-- Login -->
 	<string name="LoginInProgress">
 		Trwa logowanie. [APP_NAME] Proszę czekać.
 	</string>
@@ -38,7 +41,7 @@
 		Inicjalizacja QuickTime...
 	</string>
 	<string name="LoginQuicktimeNotFound">
-		QuickTime nie znaleźony - inicjalizacja przerwana.
+		QuickTime nie został znaleziony - inicjalizacja przerwana.
 	</string>
 	<string name="LoginQuicktimeOK">
 		QuickTime zainicjalizowany.
@@ -52,34 +55,24 @@
 	<string name="LoginDownloadingClothing">
 		Ładowanie ubrania...
 	</string>
-	<string name="LoginFailedNoNetwork">
-		Błąd sieci: Problemy z połączeniem, sprawdź podłączenie do sieci.
-	</string>
-	<!-- Disconnection -->
 	<string name="AgentLostConnection">
 		Ten region może mieć problemy. Sprawdź podłączenie do Internetu.
 	</string>
-	<!-- Tooltip, llhoverview.cpp -->
 	<string name="TooltipPerson">
 		Osoba
 	</string>
-	<!-- Object under mouse pointer is an avatar -->
 	<string name="TooltipNoName">
 		(brak nazwy)
 	</string>
-	<!-- No name on an object -->
 	<string name="TooltipOwner">
 		Właściciel:
 	</string>
-	<!-- Owner name follows -->
 	<string name="TooltipPublic">
 		Publiczny
 	</string>
-	<!-- Public permissions on an object -->
 	<string name="TooltipIsGroup">
 		(Grupa)
 	</string>
-	<!-- The name before this text is that of a group -->
 	<string name="TooltipFlagScript">
 		Skrypt
 	</string>
@@ -110,11 +103,9 @@
 	<string name="TooltipForSaleL$">
 		Na Sprzedaż: L$[AMOUNT]
 	</string>
-	<!-- L$ version -->
 	<string name="TooltipForSaleMsg">
 		Na Sprzedaż: [MESSAGE]
 	</string>
-	<!-- Message (RetrievingData) -->
 	<string name="TooltipFlagGroupBuild">
 		Budowanie Grupowe
 	</string>
@@ -127,7 +118,6 @@
 	<string name="TooltipFlagNotSafe">
 		Niebezpieczny Obszar
 	</string>
-	<!-- damage area -->
 	<string name="TooltipFlagNoFly">
 		Latanie Zabronione
 	</string>
@@ -143,35 +133,27 @@
 	<string name="TooltipMustSingleDrop">
 		Tylko pojedynczy obiekt może być tutaj przeciągnięty
 	</string>
-	<!-- Indicates that an avatar&apos;s name or other similar datum is being retrieved. General usage. -->
 	<string name="RetrievingData">
 		Odzyskiwanie danych...
 	</string>
 	<string name="ReleaseNotes">
 		O Tej Wersji
 	</string>
-	<!-- Indicates something is being loaded. Maybe should be merged with RetrievingData -->
 	<string name="LoadingData">
 		Ładowanie danych...
 	</string>
-	<!-- namecache -->
-	<!-- Avatar name: text shown for LLUUID::null -->
 	<string name="AvatarNameNobody">
 		(brak danych)
 	</string>
-	<!-- Avatar name: text shown while fetching name -->
 	<string name="AvatarNameWaiting">
 		(ładowanie)
 	</string>
-	<!-- Avatar name: text shown as an alternative to AvatarNameFetching, easter egg. -->
 	<string name="AvatarNameHippos">
-		(Twój avatar ulegnie samozniszczeniu za 5 sec. Pożegnaj się z SL!)
+		(hippos)
 	</string>
-	<!-- Group name: text shown for LLUUID::null -->
 	<string name="GroupNameNone">
 		(brak danych)
 	</string>
-	<!-- Asset errors. Used in llassetstorage.cpp, translation from error code to error message. -->
 	<string name="AssetErrorNone">
 		OK
 	</string>
@@ -199,10 +181,12 @@
 	<string name="AssetErrorCircuitGone">
 		Połączenie przerwane
 	</string>
+	<string name="AssetErrorPriceMismatch">
+		Brak zgodności pomiędzy serwerem i klientem na realizację podanej ceny.
+	</string>
 	<string name="AssetErrorUnknownStatus">
 		Status nieznany
 	</string>
-	<!-- llvoavatar. Displayed in the avatar&apos;s chat bubble -->
 	<string name="AvatarEditingApparance">
 		(Edycja Wyglądu)
 	</string>
@@ -215,7 +199,6 @@
 	<string name="AvatarMuted">
 		Wyciszony
 	</string>
-	<!-- animations -->
 	<string name="anim_express_afraid">
 		Strach
 	</string>
@@ -429,11 +412,75 @@
 	<string name="worldmap_offline">
 		Niedostępna
 	</string>
-	<!-- Chat -->
 	<string name="whisper">
 		szepcze:
 	</string>
 	<string name="shout">
 		krzyczy:
+	</string>
+	<string name="SIM_ACCESS_PG">
+		&apos;PG&apos;
+	</string>
+	<string name="SIM_ACCESS_MATURE">
+		&apos;Mature&apos;
+	</string>
+	<string name="SIM_ACCESS_ADULT">
+		&apos;Adult&apos;
+	</string>
+	<string name="SIM_ACCESS_DOWN">
+		Niedostępny
+	</string>
+	<string name="SIM_ACCESS_MIN">
+		Nieznany
+	</string>
+	<string name="land_type_unknown">
+		(nieznane)
+	</string>
+	<string name="covenant_never_modified">Ostatnia Modyfikacja: (nigdy)</string>
+	<string name="covenant_modified">Ostatnia Modyfikacja: </string>
+	<string name="all_files">
+		Wszystkie Pliki
+	</string>
+	<string name="sound_files">
+		Dźwięki
+	</string>
+	<string name="animation_files">
+		Animacje
+	</string>
+	<string name="image_files">
+		Obrazy
+	</string>
+	<string name="save_file_verb">
+		Zapisz
+	</string>
+	<string name="load_file_verb">
+		Załaduj
+	</string>
+	<string name="targa_image_files">
+		Obrazy Targa
+	</string>
+	<string name="bitmap_image_files">
+		Obrazy Bitmap
+	</string>
+	<string name="avi_movie_file">
+		Pliki filmowe AVI
+	</string>
+	<string name="xaf_animation_file">
+		Plik Animacji XAF
+	</string>
+	<string name="xml_file">
+		Plik XML
+	</string>
+	<string name="dot_raw_file">
+		Plik RAW
+	</string>
+	<string name="compressed_image_files">
+		Obrazy Skomprensowane
+	</string>
+	<string name="load_files">
+		Załaduj pliki
+	</string>
+	<string name="choose_the_directory">
+		Wybierz Katalog
 	</string>
 </strings>

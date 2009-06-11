@@ -1,534 +1,484 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floater customize" title="Aussehen">
 	<tab_container name="customize tab container">
-		<panel label="Körperteile" />
-		<panel label="Körperteile" name="body_parts_placeholder" />
+		<panel label="Körperteile" name="body_parts_placeholder"/>
 		<panel label="Form" name="Shape">
-			<button font="SansSerifSmall" label="Zurücksetzen" label_selected="Zurücksetzen"
-			     name="Revert" />
-			<button label="Körper" label_selected="Körper" name="Body" />
-			<button label="Kopf" label_selected="Kopf" name="Head" />
-			<button label="Augen" label_selected="Augen" name="Eyes" />
-			<button label="Ohren" label_selected="Ohren" name="Ears" />
-			<button label="Nase" label_selected="Nase" name="Nose" />
-			<button label="Mund" label_selected="Mund" name="Mouth" />
-			<button label="Kinn" label_selected="Kinn" name="Chin" />
-			<button label="Oberkörper" label_selected="Oberkörper" name="Torso" />
-			<button label="Beine" label_selected="Beine" name="Legs" />
+			<button font="SansSerifSmall" label="Zurücksetzen" label_selected="Zurücksetzen" name="Revert"/>
+			<button label="Körper" label_selected="Körper" name="Body"/>
+			<button label="Kopf" label_selected="Kopf" name="Head"/>
+			<button label="Augen" label_selected="Augen" name="Eyes"/>
+			<button label="Ohren" label_selected="Ohren" name="Ears"/>
+			<button label="Nase" label_selected="Nase" name="Nose"/>
+			<button label="Mund" label_selected="Mund" name="Mouth"/>
+			<button label="Kinn" label_selected="Kinn" name="Chin"/>
+			<button label="Oberkörper" label_selected="Oberkörper" name="Torso"/>
+			<button label="Beine" label_selected="Beine" name="Legs"/>
 			<radio_group name="sex radio">
-				<radio_item type="string" length="1" name="radio">
+				<radio_item length="1" name="radio" type="string">
 					Weiblich
 				</radio_item>
-				<radio_item type="string" length="1" name="radio2">
+				<radio_item length="1" name="radio2" type="string">
 					Männlich
 				</radio_item>
 			</radio_group>
-			<button label="Zufällig" label_selected="Zufällig" name="Randomize" />
-			<text type="string" length="1" name="title">
+			<text length="1" name="title" type="string">
 				[DESC]
 			</text>
-			<text type="string" length="1" name="title_no_modify">
+			<text length="1" name="title_no_modify" type="string">
 				[DESC]: bearbeiten nicht möglich
 			</text>
-			<text type="string" length="1" name="title_loading">
+			<text length="1" name="title_loading" type="string">
 				[DESC]: wird geladen...
 			</text>
-			<text type="string" length="1" name="title_not_worn">
+			<text length="1" name="title_not_worn" type="string">
 				[DESC]: nicht getragen
 			</text>
-			<text type="string" length="1" name="path">
+			<text length="1" name="path" type="string">
 				In [PATH]
 			</text>
-			<text type="string" length="1" name="not worn instructions">
+			<text length="1" name="not worn instructions" type="string">
 				Ziehen Sie eine Körperform aus dem Inventar auf Ihren Avatar,
 um sie zu tragen. Sie können auch eine neue Körperform erstellen
 und diese anziehen.
 			</text>
-			<text type="string" length="1" name="no modify instructions">
+			<text length="1" name="no modify instructions" type="string">
 				Sie sind nicht berechtigt, diese Kleidung zu bearbeiten.
 			</text>
-			<button label="Neue Form/Gestalt" label_selected="Neue Form/Gestalt" name="Create New" />
-			<button font="SansSerifSmall" label="Ausziehen" label_selected="Ausziehen" left="19"
-			     name="Take Off" />
-			<button font="SansSerifSmall" label="Speichern" label_selected="Speichern" left="107"
-			     name="Save" />
-			<button font="SansSerifSmall" label="Speichern unter" label_selected="Speichern unter"
-			     left="194" name="Save As" width="100" />
+			<text name="Item Action Label" right="100">
+				Form:
+			</text>
+			<button label="Neue Form/Gestalt" label_selected="Neue Form/Gestalt" name="Create New"/>
+			<button font="SansSerifSmall" label="Speichern" label_selected="Speichern" left="107" name="Save"/>
+			<button font="SansSerifSmall" label="Speichern unter..." label_selected="Speichern unter..." left="194" name="Save As" width="105"/>
 		</panel>
 		<panel label="Haut" name="Skin">
-			<button label="Hautfarbe" label_selected="Hautfarbe" left="2" name="Skin Color"
-			     width="92" />
-			<button label="Gesichtsdetails" label_selected="Gesichtsdetails" left="2"
-			     name="Face Detail" width="92" />
-			<button label="Make-Uup" label_selected="Make-Uup" left="2" name="Makeup" width="92" />
-			<button label="Körperdetails" label_selected="Körperdetails" left="2"
-			     name="Body Detail" width="92" />
-			<text type="string" length="1" name="title">
+			<button label="Hautfarbe" label_selected="Hautfarbe" left="2" name="Skin Color" width="92"/>
+			<button label="Gesichtsdetails" label_selected="Gesichtsdetails" left="2" name="Face Detail" width="92"/>
+			<button label="Make-Uup" label_selected="Make-Uup" left="2" name="Makeup" width="92"/>
+			<button label="Körperdetails" label_selected="Körperdetails" left="2" name="Body Detail" width="92"/>
+			<text length="1" name="title" type="string">
 				[DESC]
 			</text>
-			<text type="string" length="1" name="title_no_modify">
+			<text length="1" name="title_no_modify" type="string">
 				[DESC]: bearbeiten nicht möglich
 			</text>
-			<text type="string" length="1" name="title_loading">
+			<text length="1" name="title_loading" type="string">
 				[DESC]: wird geladen...
 			</text>
-			<text type="string" length="1" name="title_not_worn">
+			<text length="1" name="title_not_worn" type="string">
 				[DESC]: nicht getragen
 			</text>
-			<text type="string" length="1" name="path">
+			<text length="1" name="path" type="string">
 				In [PATH]
 			</text>
-			<text type="string" length="1" name="not worn instructions">
+			<text length="1" name="not worn instructions" type="string">
 				Ziehen Sie eine Haut aus dem Inventar auf Ihren Avatar,
 um sie zu tragen. Sie können auch eine neue Haut erstellen
 und diese anziehen.
 			</text>
-			<text type="string" length="1" name="no modify instructions">
+			<text length="1" name="no modify instructions" type="string">
 				Sie sind nicht berechtigt, diese Kleidung zu bearbeiten.
 			</text>
-			<texture_picker label="Kopftattoo" name="Head Tattoos"
-			     tool_tip="Klicken Sie hier, um ein Bild auszuwählen" />
-			<texture_picker label="Obere Tattoos" name="Upper Tattoos"
-			     tool_tip="Klicken Sie hier, um ein Bild auszuwählen" />
-			<texture_picker label="Untere Tattoos" name="Lower Tattoos"
-			     tool_tip="Klicken Sie hier, um ein Bild auszuwählen" />
-			<button label="Zufällig" label_selected="Zufällig" left="2" name="Randomize"
-			     width="92" />
-			<button label="Neue Haut" label_selected="Neue Haut" name="Create New" />
-			<button font="SansSerifSmall" label="Ausziehen" label_selected="Ausziehen" left="19"
-			     name="Take Off" />
-			<button font="SansSerifSmall" label="Speichern" label_selected="Speichern" left="107"
-			     name="Save" />
-			<button font="SansSerifSmall" label="Speichern unter" label_selected="Speichern unter"
-			     left="194" name="Save As" width="100" />
-			<button font="SansSerifSmall" label="Zurücksetzen" label_selected="Zurücksetzen"
-			     name="Revert" />
+			<text name="Item Action Label" right="100">
+				Haut:
+			</text>
+			<texture_picker label="Kopftattoo" name="Head Tattoos" tool_tip="Klicken Sie hier, um ein Bild auszuwählen"/>
+			<texture_picker label="Obere Tattoos" name="Upper Tattoos" tool_tip="Klicken Sie hier, um ein Bild auszuwählen"/>
+			<texture_picker label="Untere Tattoos" name="Lower Tattoos" tool_tip="Klicken Sie hier, um ein Bild auszuwählen"/>
+			<button label="Neue Haut" label_selected="Neue Haut" name="Create New"/>
+			<button font="SansSerifSmall" label="Speichern" label_selected="Speichern" left="107" name="Save"/>
+			<button font="SansSerifSmall" label="Speichern unter..." label_selected="Speichern unter..." left="194" name="Save As" width="105"/>
+			<button font="SansSerifSmall" label="Zurücksetzen" label_selected="Zurücksetzen" name="Revert"/>
 		</panel>
 		<panel label="Haar" name="Hair">
-			<button label="Farbe" label_selected="Farbe" name="Color" />
-			<button label="Stil" label_selected="Stil" name="Style" />
-			<button label="Augenbrauen" label_selected="Augenbrauen" name="Eyebrows" />
-			<button label="Gesichtshaar" label_selected="Gesichtshaar" name="Facial" />
-			<text type="string" length="1" name="title">
+			<button label="Farbe" label_selected="Farbe" name="Color"/>
+			<button label="Stil" label_selected="Stil" name="Style"/>
+			<button label="Augenbrauen" label_selected="Augenbrauen" name="Eyebrows"/>
+			<button label="Gesichtshaar" label_selected="Gesichtshaar" name="Facial"/>
+			<text length="1" name="title" type="string">
 				[DESC]
 			</text>
-			<text type="string" length="1" name="title_no_modify">
+			<text length="1" name="title_no_modify" type="string">
 				[DESC]: bearbeiten nicht möglich
 			</text>
-			<text type="string" length="1" name="title_loading">
+			<text length="1" name="title_loading" type="string">
 				[DESC]: wird geladen...
 			</text>
-			<text type="string" length="1" name="title_not_worn">
+			<text length="1" name="title_not_worn" type="string">
 				[DESC]: nicht getragen
 			</text>
-			<text type="string" length="1" name="path">
+			<text length="1" name="path" type="string">
 				In [PATH]
 			</text>
-			<text type="string" length="1" name="not worn instructions">
+			<text length="1" name="not worn instructions" type="string">
 				Ziehen Sie Haare aus dem Inventar auf Ihren Avatar,
 um sie zu tragen. Sie können auch neue Haare erstellen
 und diese anziehen.
 			</text>
-			<text type="string" length="1" name="no modify instructions">
+			<text length="1" name="no modify instructions" type="string">
 				Sie sind nicht berechtigt, diese Kleidung zu bearbeiten.
 			</text>
-			<texture_picker label="Textur" name="Texture"
-			     tool_tip="Klicken Sie hier, um ein Bild auszuwählen" />
-			<button label="Zufällig" label_selected="Zufällig" name="Randomize" />
-			<button label="Neue Haare" label_selected="Neue Haare" name="Create New" />
-			<button font="SansSerifSmall" label="Ausziehen" label_selected="Ausziehen" left="19"
-			     name="Take Off" />
-			<button font="SansSerifSmall" label="Speichern" label_selected="Speichern" left="107"
-			     name="Save" />
-			<button font="SansSerifSmall" label="Speichern unter" label_selected="Speichern unter"
-			     left="194" name="Save As" width="100" />
-			<button font="SansSerifSmall" label="Zurücksetzen" label_selected="Zurücksetzen"
-			     name="Revert" />
+			<text name="Item Action Label" right="100">
+				Haare:
+			</text>
+			<texture_picker label="Textur" name="Texture" tool_tip="Klicken Sie hier, um ein Bild auszuwählen"/>
+			<button label="Neue Haare" label_selected="Neue Haare" name="Create New"/>
+			<button font="SansSerifSmall" label="Speichern" label_selected="Speichern" left="107" name="Save"/>
+			<button font="SansSerifSmall" label="Speichern unter..." label_selected="Speichern unter..." left="194" name="Save As" width="105"/>
+			<button font="SansSerifSmall" label="Zurücksetzen" label_selected="Zurücksetzen" name="Revert"/>
 		</panel>
 		<panel label="Augen" name="Eyes">
-			<text type="string" length="1" name="title">
+			<text length="1" name="title" type="string">
 				[DESC]
 			</text>
-			<text type="string" length="1" name="title_no_modify">
+			<text length="1" name="title_no_modify" type="string">
 				[DESC]: bearbeiten nicht möglich
 			</text>
-			<text type="string" length="1" name="title_loading">
+			<text length="1" name="title_loading" type="string">
 				[DESC]: wird geladen...
 			</text>
-			<text type="string" length="1" name="title_not_worn">
+			<text length="1" name="title_not_worn" type="string">
 				[DESC]: nicht getragen
 			</text>
-			<text type="string" length="1" name="path">
+			<text length="1" name="path" type="string">
 				In [PATH]
 			</text>
-			<text type="string" length="1" name="not worn instructions">
+			<text length="1" name="not worn instructions" type="string">
 				Ziehen Sie Augen aus dem Inventar auf Ihren Avatar,
 um sie zu tragen. Sie können auch neue Augen erstellen
 und diese anziehen.
 			</text>
-			<text type="string" length="1" name="no modify instructions">
+			<text length="1" name="no modify instructions" type="string">
 				Sie sind nicht berechtigt, diese Kleidung zu bearbeiten.
 			</text>
-			<texture_picker label="Iris" name="Iris" tool_tip="Klicken Sie hier, um ein Bild auszuwählen" />
-			<button label="Zufällig" label_selected="Zufällig" name="Randomize" />
-			<button label="Neue Augen" label_selected="Neue Augen" name="Create New" />
-			<button font="SansSerifSmall" label="Ausziehen" label_selected="Ausziehen" left="19"
-			     name="Take Off" />
-			<button font="SansSerifSmall" label="Speichern" label_selected="Speichern" left="107"
-			     name="Save" />
-			<button font="SansSerifSmall" label="Speichern unter" label_selected="Speichern unter"
-			     left="194" name="Save As" width="100" />
-			<button font="SansSerifSmall" label="Zurücksetzen" label_selected="Zurücksetzen"
-			     name="Revert" />
+			<text name="Item Action Label" right="100">
+				Augen:
+			</text>
+			<texture_picker label="Iris" name="Iris" tool_tip="Klicken Sie hier, um ein Bild auszuwählen"/>
+			<button label="Neue Augen" label_selected="Neue Augen" name="Create New"/>
+			<button font="SansSerifSmall" label="Speichern" label_selected="Speichern" left="107" name="Save"/>
+			<button font="SansSerifSmall" label="Speichern unter..." label_selected="Speichern unter..." left="194" name="Save As" width="105"/>
+			<button font="SansSerifSmall" label="Zurücksetzen" label_selected="Zurücksetzen" name="Revert"/>
 		</panel>
-		<panel label="Kleidung" />
-		<panel label="Kleidung" name="clothes_placeholder" />
+		<panel label="Kleidung" name="clothes_placeholder"/>
 		<panel label="Hemd" name="Shirt">
-			<texture_picker label="Stoff" name="Fabric"
-			     tool_tip="Klicken Sie hier, um ein Bild auszuwählen" />
-			<color_swatch label="Farbe/Ton" name="Color/Tint"
-			     tool_tip="Klicken Sie hier, um die Farbauswahl zu öffnen" />
-			<button label="Neues Hemd" label_selected="Neues Hemd" name="Create New" />
-			<button font="SansSerifSmall" label="Ausziehen" label_selected="Ausziehen" left="19"
-			     name="Take Off" />
-			<button font="SansSerifSmall" label="Speichern" label_selected="Speichern" left="107"
-			     name="Save" />
-			<button font="SansSerifSmall" label="Speichern unter" label_selected="Speichern unter"
-			     left="194" name="Save As" width="100" />
-			<button font="SansSerifSmall" label="Zurücksetzen" label_selected="Zurücksetzen"
-			     name="Revert" />
-			<text type="string" length="1" name="title">
+			<texture_picker label="Stoff" name="Fabric" tool_tip="Klicken Sie hier, um ein Bild auszuwählen"/>
+			<color_swatch label="Farbe/Ton" name="Color/Tint" tool_tip="Klicken Sie hier, um die Farbauswahl zu öffnen"/>
+			<button label="Neues Hemd" label_selected="Neues Hemd" name="Create New"/>
+			<button font="SansSerifSmall" label="Ausziehen" label_selected="Ausziehen" name="Take Off"/>
+			<button font="SansSerifSmall" label="Speichern" label_selected="Speichern" left="107" name="Save"/>
+			<button font="SansSerifSmall" label="Speichern unter..." label_selected="Speichern unter..." left="194" name="Save As" width="105"/>
+			<button font="SansSerifSmall" label="Zurücksetzen" label_selected="Zurücksetzen" name="Revert"/>
+			<text length="1" name="title" type="string">
 				[DESC]
 			</text>
-			<text type="string" length="1" name="title_no_modify">
+			<text length="1" name="title_no_modify" type="string">
 				[DESC]: bearbeiten nicht möglich
 			</text>
-			<text type="string" length="1" name="title_loading">
+			<text length="1" name="title_loading" type="string">
 				[DESC]: wird geladen...
 			</text>
-			<text type="string" length="1" name="title_not_worn">
+			<text length="1" name="title_not_worn" type="string">
 				[DESC]: nicht getragen
 			</text>
-			<text type="string" length="1" name="path">
+			<text length="1" name="path" type="string">
 				In [PATH]
 			</text>
-			<text type="string" length="1" name="not worn instructions">
+			<text length="1" name="not worn instructions" type="string">
 				Ziehen Sie ein Hemd aus dem Inventar auf Ihren Avatar,
 um es zu tragen. Sie können auch ein neues Hemd erstellen
 und dieses anziehen.
 			</text>
-			<text type="string" length="1" name="no modify instructions">
+			<text length="1" name="no modify instructions" type="string">
 				Sie sind nicht berechtigt, diese Kleidung zu bearbeiten.
+			</text>
+			<text name="Item Action Label" right="100">
+				Hemd:
 			</text>
 		</panel>
 		<panel label="Hose" name="Pants">
-			<texture_picker label="Stoff" name="Fabric"
-			     tool_tip="Klicken Sie hier, um ein Bild auszuwählen" />
-			<color_swatch label="Farbe/Ton" name="Color/Tint"
-			     tool_tip="Klicken Sie hier, um die Farbauswahl zu öffnen" />
-			<button label="Neue Hose" label_selected="Neue Hose" name="Create New" />
-			<button font="SansSerifSmall" label="Ausziehen" label_selected="Ausziehen" left="19"
-			     name="Take Off" />
-			<button font="SansSerifSmall" label="Speichern" label_selected="Speichern" left="107"
-			     name="Save" />
-			<button font="SansSerifSmall" label="Speichern unter" label_selected="Speichern unter"
-			     left="194" name="Save As" width="100" />
-			<button font="SansSerifSmall" label="Zurücksetzen" label_selected="Zurücksetzen"
-			     name="Revert" />
-			<text type="string" length="1" name="title">
+			<texture_picker label="Stoff" name="Fabric" tool_tip="Klicken Sie hier, um ein Bild auszuwählen"/>
+			<color_swatch label="Farbe/Ton" name="Color/Tint" tool_tip="Klicken Sie hier, um die Farbauswahl zu öffnen"/>
+			<button label="Neue Hose" label_selected="Neue Hose" name="Create New"/>
+			<button font="SansSerifSmall" label="Ausziehen" label_selected="Ausziehen" name="Take Off"/>
+			<button font="SansSerifSmall" label="Speichern" label_selected="Speichern" left="107" name="Save"/>
+			<button font="SansSerifSmall" label="Speichern unter..." label_selected="Speichern unter..." left="194" name="Save As" width="105"/>
+			<button font="SansSerifSmall" label="Zurücksetzen" label_selected="Zurücksetzen" name="Revert"/>
+			<text length="1" name="title" type="string">
 				[DESC]
 			</text>
-			<text type="string" length="1" name="title_no_modify">
+			<text length="1" name="title_no_modify" type="string">
 				[DESC]: bearbeiten nicht möglich
 			</text>
-			<text type="string" length="1" name="title_loading">
+			<text length="1" name="title_loading" type="string">
 				[DESC]: wird geladen...
 			</text>
-			<text type="string" length="1" name="title_not_worn">
+			<text length="1" name="title_not_worn" type="string">
 				[DESC]: nicht getragen
 			</text>
-			<text type="string" length="1" name="path">
+			<text length="1" name="path" type="string">
 				In [PATH]
 			</text>
-			<text type="string" length="1" name="not worn instructions">
+			<text length="1" name="not worn instructions" type="string">
 				Ziehen Sie eine Hose aus dem Inventar auf Ihren Avatar,
 um sie zu tragen. Sie können auch eine neue Hose erstellen
 und diese anziehen.
 			</text>
-			<text type="string" length="1" name="no modify instructions">
+			<text length="1" name="no modify instructions" type="string">
 				Sie sind nicht berechtigt, diese Kleidung zu bearbeiten.
+			</text>
+			<text name="Item Action Label" right="100">
+				Hose:
 			</text>
 		</panel>
 		<panel label="Schuhe" name="Shoes">
-			<text type="string" length="1" name="title">
+			<text length="1" name="title" type="string">
 				[DESC]
 			</text>
-			<text type="string" length="1" name="title_no_modify">
+			<text length="1" name="title_no_modify" type="string">
 				[DESC]: bearbeiten nicht möglich
 			</text>
-			<text type="string" length="1" name="title_loading">
+			<text length="1" name="title_loading" type="string">
 				[DESC]: wird geladen...
 			</text>
-			<text type="string" length="1" name="title_not_worn">
+			<text length="1" name="title_not_worn" type="string">
 				[DESC]: nicht getragen
 			</text>
-			<text type="string" length="1" name="path">
+			<text length="1" name="path" type="string">
 				In [PATH]
 			</text>
-			<text type="string" length="1" name="not worn instructions">
+			<text length="1" name="not worn instructions" type="string">
 				Ziehen Sie Schuhe aus dem Inventar auf Ihren Avatar,
 um sie zu tragen. Sie können auch neue Schuhe erstellen
 und diese anziehen.
 			</text>
-			<text type="string" length="1" name="no modify instructions">
+			<text length="1" name="no modify instructions" type="string">
 				Sie sind nicht berechtigt, diese Kleidung zu bearbeiten.
 			</text>
-			<texture_picker label="Stoff" name="Fabric"
-			     tool_tip="Klicken Sie hier, um ein Bild auszuwählen" />
-			<color_swatch label="Farbe/Ton" name="Color/Tint"
-			     tool_tip="Klicken Sie hier, um die Farbauswahl zu öffnen" />
-			<button label="Neue Schuhe" label_selected="Neue Schuhe" name="Create New" />
-			<button font="SansSerifSmall" label="Ausziehen" label_selected="Ausziehen" left="19"
-			     name="Take Off" />
-			<button font="SansSerifSmall" label="Speichern" label_selected="Speichern" left="107"
-			     name="Save" />
-			<button font="SansSerifSmall" label="Speichern unter" label_selected="Speichern unter"
-			     left="194" name="Save As" width="100" />
-			<button font="SansSerifSmall" label="Zurücksetzen" label_selected="Zurücksetzen"
-			     name="Revert" />
+			<text name="Item Action Label" right="100">
+				Schuhe:
+			</text>
+			<texture_picker label="Stoff" name="Fabric" tool_tip="Klicken Sie hier, um ein Bild auszuwählen"/>
+			<color_swatch label="Farbe/Ton" name="Color/Tint" tool_tip="Klicken Sie hier, um die Farbauswahl zu öffnen"/>
+			<button label="Neue Schuhe" label_selected="Neue Schuhe" name="Create New"/>
+			<button font="SansSerifSmall" label="Ausziehen" label_selected="Ausziehen" name="Take Off"/>
+			<button font="SansSerifSmall" label="Speichern" label_selected="Speichern" left="107" name="Save"/>
+			<button font="SansSerifSmall" label="Speichern unter..." label_selected="Speichern unter..." left="194" name="Save As" width="105"/>
+			<button font="SansSerifSmall" label="Zurücksetzen" label_selected="Zurücksetzen" name="Revert"/>
 		</panel>
 		<panel label="Socken" name="Socks">
-			<text type="string" length="1" name="title">
+			<text length="1" name="title" type="string">
 				[DESC]
 			</text>
-			<text type="string" length="1" name="title_no_modify">
+			<text length="1" name="title_no_modify" type="string">
 				[DESC]: bearbeiten nicht möglich
 			</text>
-			<text type="string" length="1" name="title_loading">
+			<text length="1" name="title_loading" type="string">
 				[DESC]: wird geladen...
 			</text>
-			<text type="string" length="1" name="title_not_worn">
+			<text length="1" name="title_not_worn" type="string">
 				[DESC]: nicht getragen
 			</text>
-			<text type="string" length="1" name="path">
+			<text length="1" name="path" type="string">
 				In [PATH]
 			</text>
-			<text type="string" length="1" name="not worn instructions">
+			<text length="1" name="not worn instructions" type="string">
 				Ziehen Sie Socken aus dem Inventar auf Ihren Avatar,
 um sie zu tragen. Sie können auch neue Socken erstellen
 und diese anziehen.
 			</text>
-			<text type="string" length="1" name="no modify instructions">
+			<text length="1" name="no modify instructions" type="string">
 				Sie sind nicht berechtigt, diese Kleidung zu bearbeiten.
 			</text>
-			<texture_picker label="Stoff" name="Fabric"
-			     tool_tip="Klicken Sie hier, um ein Bild auszuwählen" />
-			<color_swatch label="Farbe/Ton" name="Color/Tint"
-			     tool_tip="Klicken Sie hier, um die Farbauswahl zu öffnen" />
-			<button label="Neue Socken" label_selected="Neue Socken" name="Create New" />
-			<button font="SansSerifSmall" label="Ausziehen" label_selected="Ausziehen" left="19"
-			     name="Take Off" />
-			<button font="SansSerifSmall" label="Speichern" label_selected="Speichern" left="107"
-			     name="Save" />
-			<button font="SansSerifSmall" label="Speichern unter" label_selected="Speichern unter"
-			     left="194" name="Save As" width="100" />
-			<button font="SansSerifSmall" label="Zurücksetzen" label_selected="Zurücksetzen"
-			     name="Revert" />
+			<text name="Item Action Label" right="100">
+				Socken:
+			</text>
+			<texture_picker label="Stoff" name="Fabric" tool_tip="Klicken Sie hier, um ein Bild auszuwählen"/>
+			<color_swatch label="Farbe/Ton" name="Color/Tint" tool_tip="Klicken Sie hier, um die Farbauswahl zu öffnen"/>
+			<button label="Neue Socken" label_selected="Neue Socken" name="Create New"/>
+			<button font="SansSerifSmall" label="Ausziehen" label_selected="Ausziehen" name="Take Off"/>
+			<button font="SansSerifSmall" label="Speichern" label_selected="Speichern" left="107" name="Save"/>
+			<button font="SansSerifSmall" label="Speichern unter..." label_selected="Speichern unter..." left="194" name="Save As" width="105"/>
+			<button font="SansSerifSmall" label="Zurücksetzen" label_selected="Zurücksetzen" name="Revert"/>
 		</panel>
 		<panel label="Jacke" name="Jacket">
-			<text type="string" length="1" name="title">
+			<text length="1" name="title" type="string">
 				[DESC]
 			</text>
-			<text type="string" length="1" name="title_no_modify">
+			<text length="1" name="title_no_modify" type="string">
 				[DESC]: bearbeiten nicht möglich
 			</text>
-			<text type="string" length="1" name="title_loading">
+			<text length="1" name="title_loading" type="string">
 				[DESC]: wird geladen...
 			</text>
-			<text type="string" length="1" name="title_not_worn">
+			<text length="1" name="title_not_worn" type="string">
 				[DESC]: nicht getragen
 			</text>
-			<text type="string" length="1" name="path">
+			<text length="1" name="path" type="string">
 				In [PATH]
 			</text>
-			<text type="string" length="1" name="not worn instructions">
+			<text length="1" name="not worn instructions" type="string">
 				Ziehen Sie eine Jacke aus dem Inventar auf Ihren Avatar,
 um sie zu tragen. Sie können auch eine neue Jacke erstellen
 und diese anziehen.
 			</text>
-			<text type="string" length="1" name="no modify instructions">
+			<text length="1" name="no modify instructions" type="string">
 				Sie sind nicht berechtigt, diese Kleidung zu bearbeiten.
 			</text>
-			<texture_picker label="Oberstoff" name="Upper Fabric"
-			     tool_tip="Klicken Sie hier, um ein Bild auszuwählen" />
-			<texture_picker label="Unterstoff" name="Lower Fabric"
-			     tool_tip="Klicken Sie hier, um ein Bild auszuwählen" />
-			<color_swatch label="Farbe/Ton" name="Color/Tint"
-			     tool_tip="Klicken Sie hier, um die Farbauswahl zu öffnen" />
-			<button label="Neue Jacke" label_selected="Neue Jacke" name="Create New" />
-			<button font="SansSerifSmall" label="Ausziehen" label_selected="Ausziehen" left="19"
-			     name="Take Off" />
-			<button font="SansSerifSmall" label="Speichern" label_selected="Speichern" left="107"
-			     name="Save" />
-			<button font="SansSerifSmall" label="Speichern unter" label_selected="Speichern unter"
-			     left="194" name="Save As" width="100" />
-			<button font="SansSerifSmall" label="Zurücksetzen" label_selected="Zurücksetzen"
-			     name="Revert" />
+			<text name="Item Action Label" right="100">
+				Jacke:
+			</text>
+			<texture_picker label="Oberstoff" name="Upper Fabric" tool_tip="Klicken Sie hier, um ein Bild auszuwählen"/>
+			<texture_picker label="Unterstoff" name="Lower Fabric" tool_tip="Klicken Sie hier, um ein Bild auszuwählen"/>
+			<color_swatch label="Farbe/Ton" name="Color/Tint" tool_tip="Klicken Sie hier, um die Farbauswahl zu öffnen"/>
+			<button label="Neue Jacke" label_selected="Neue Jacke" name="Create New"/>
+			<button font="SansSerifSmall" label="Ausziehen" label_selected="Ausziehen" name="Take Off"/>
+			<button font="SansSerifSmall" label="Speichern" label_selected="Speichern" left="107" name="Save"/>
+			<button font="SansSerifSmall" label="Speichern unter..." label_selected="Speichern unter..." left="194" name="Save As" width="105"/>
+			<button font="SansSerifSmall" label="Zurücksetzen" label_selected="Zurücksetzen" name="Revert"/>
 		</panel>
 		<panel label="Handschuhe" name="Gloves">
-			<text type="string" length="1" name="title">
+			<text length="1" name="title" type="string">
 				[DESC]
 			</text>
-			<text type="string" length="1" name="title_no_modify">
+			<text length="1" name="title_no_modify" type="string">
 				[DESC]: bearbeiten nicht möglich
 			</text>
-			<text type="string" length="1" name="title_loading">
+			<text length="1" name="title_loading" type="string">
 				[DESC]: wird geladen...
 			</text>
-			<text type="string" length="1" name="title_not_worn">
+			<text length="1" name="title_not_worn" type="string">
 				[DESC]: nicht getragen
 			</text>
-			<text type="string" length="1" name="path">
+			<text length="1" name="path" type="string">
 				In [PATH]
 			</text>
-			<text type="string" length="1" name="not worn instructions">
+			<text length="1" name="not worn instructions" type="string">
 				Ziehen Sie Handschuhe aus dem Inventar auf Ihren Avatar,
 um sie zu tragen. Sie können auch neue Handschuhe erstellen
 und diese anziehen.
 			</text>
-			<text type="string" length="1" name="no modify instructions">
+			<text length="1" name="no modify instructions" type="string">
 				Sie sind nicht berechtigt, diese Kleidung zu bearbeiten.
 			</text>
-			<texture_picker label="Stoff" name="Fabric"
-			     tool_tip="Klicken Sie hier, um ein Bild auszuwählen" />
-			<color_swatch label="Farbe/Ton" name="Color/Tint"
-			     tool_tip="Klicken Sie hier, um die Farbauswahl zu öffnen" />
-			<button label="Neue Handschuhe" label_selected="Neue Handschuhe" name="Create New" />
-			<button font="SansSerifSmall" label="Ausziehen" label_selected="Ausziehen" left="19"
-			     name="Take Off" />
-			<button font="SansSerifSmall" label="Speichern" label_selected="Speichern" left="107"
-			     name="Save" />
-			<button font="SansSerifSmall" label="Speichern unter" label_selected="Speichern unter"
-			     left="194" name="Save As" width="100" />
-			<button font="SansSerifSmall" label="Zurücksetzen" label_selected="Zurücksetzen"
-			     name="Revert" />
+			<text name="Item Action Label" right="100">
+				Handschuhe:
+			</text>
+			<texture_picker label="Stoff" name="Fabric" tool_tip="Klicken Sie hier, um ein Bild auszuwählen"/>
+			<color_swatch label="Farbe/Ton" name="Color/Tint" tool_tip="Klicken Sie hier, um die Farbauswahl zu öffnen"/>
+			<button label="Neue Handschuhe" label_selected="Neue Handschuhe" name="Create New"/>
+			<button font="SansSerifSmall" label="Ausziehen" label_selected="Ausziehen" name="Take Off"/>
+			<button font="SansSerifSmall" label="Speichern" label_selected="Speichern" left="107" name="Save"/>
+			<button font="SansSerifSmall" label="Speichern unter..." label_selected="Speichern unter..." left="194" name="Save As" width="105"/>
+			<button font="SansSerifSmall" label="Zurücksetzen" label_selected="Zurücksetzen" name="Revert"/>
 		</panel>
 		<panel label="Unterhemd" name="Undershirt">
-			<text type="string" length="1" name="title">
+			<text length="1" name="title" type="string">
 				[DESC]
 			</text>
-			<text type="string" length="1" name="title_no_modify">
+			<text length="1" name="title_no_modify" type="string">
 				[DESC]: bearbeiten nicht möglich
 			</text>
-			<text type="string" length="1" name="title_loading">
+			<text length="1" name="title_loading" type="string">
 				[DESC]: wird geladen...
 			</text>
-			<text type="string" length="1" name="title_not_worn">
+			<text length="1" name="title_not_worn" type="string">
 				[DESC]: nicht getragen
 			</text>
-			<text type="string" length="1" name="path">
+			<text length="1" name="path" type="string">
 				In [PATH]
 			</text>
-			<text type="string" length="1" name="not worn instructions">
+			<text length="1" name="not worn instructions" type="string">
 				Ziehen Sie ein Unterhemd aus dem Inventar auf Ihren Avatar,
 um es zu tragen. Sie können auch ein neues Unterhemd erstellen
 und dieses anziehen.
 			</text>
-			<text type="string" length="1" name="no modify instructions">
+			<text length="1" name="no modify instructions" type="string">
 				Sie sind nicht berechtigt, diese Kleidung zu bearbeiten.
 			</text>
-			<texture_picker label="Stoff" name="Fabric"
-			     tool_tip="Klicken Sie hier, um ein Bild auszuwählen" />
-			<color_swatch label="Farbe/Ton" name="Color/Tint"
-			     tool_tip="Klicken Sie hier, um die Farbauswahl zu öffnen" />
-			<button label="Neues Unterhemd" label_selected="Neues Unterhemd" name="Create New" />
-			<button font="SansSerifSmall" label="Ausziehen" label_selected="Ausziehen" left="19"
-			     name="Take Off" />
-			<button font="SansSerifSmall" label="Speichern" label_selected="Speichern" left="107"
-			     name="Save" />
-			<button font="SansSerifSmall" label="Speichern unter" label_selected="Speichern unter"
-			     left="194" name="Save As" width="100" />
-			<button font="SansSerifSmall" label="Zurücksetzen" label_selected="Zurücksetzen"
-			     name="Revert" />
+			<text name="Item Action Label" right="100">
+				Unterhemd:
+			</text>
+			<texture_picker label="Stoff" name="Fabric" tool_tip="Klicken Sie hier, um ein Bild auszuwählen"/>
+			<color_swatch label="Farbe/Ton" name="Color/Tint" tool_tip="Klicken Sie hier, um die Farbauswahl zu öffnen"/>
+			<button label="Neues Unterhemd" label_selected="Neues Unterhemd" name="Create New"/>
+			<button font="SansSerifSmall" label="Ausziehen" label_selected="Ausziehen" name="Take Off"/>
+			<button font="SansSerifSmall" label="Speichern" label_selected="Speichern" left="107" name="Save"/>
+			<button font="SansSerifSmall" label="Speichern unter..." label_selected="Speichern unter..." left="194" name="Save As" width="105"/>
+			<button font="SansSerifSmall" label="Zurücksetzen" label_selected="Zurücksetzen" name="Revert"/>
 		</panel>
 		<panel label="Unterhose" name="Underpants">
-			<text type="string" length="1" name="title">
+			<text length="1" name="title" type="string">
 				[DESC]
 			</text>
-			<text type="string" length="1" name="title_no_modify">
+			<text length="1" name="title_no_modify" type="string">
 				[DESC]: bearbeiten nicht möglich
 			</text>
-			<text type="string" length="1" name="title_loading">
+			<text length="1" name="title_loading" type="string">
 				[DESC]: wird geladen...
 			</text>
-			<text type="string" length="1" name="title_not_worn">
+			<text length="1" name="title_not_worn" type="string">
 				[DESC]: nicht getragen
 			</text>
-			<text type="string" length="1" name="path">
+			<text length="1" name="path" type="string">
 				In [PATH]
 			</text>
-			<text type="string" length="1" name="not worn instructions">
+			<text length="1" name="not worn instructions" type="string">
 				Ziehen Sie eine Unterhose aus dem Inventar auf Ihren Avatar,
 um sie zu tragen. Sie können auch eine neue Unterhose erstellen
 und diese anziehen.
 			</text>
-			<text type="string" length="1" name="no modify instructions">
+			<text length="1" name="no modify instructions" type="string">
 				Sie sind nicht berechtigt, diese Kleidung zu bearbeiten.
 			</text>
-			<texture_picker label="Stoff" name="Fabric"
-			     tool_tip="Klicken Sie hier, um ein Bild auszuwählen" />
-			<color_swatch label="Farbe/Ton" name="Color/Tint"
-			     tool_tip="Klicken Sie hier, um die Farbauswahl zu öffnen" />
-			<button label="Neue Unterhose" label_selected="Neue Unterhose" name="Create New" />
-			<button font="SansSerifSmall" label="Ausziehen" label_selected="Ausziehen" left="19"
-			     name="Take Off" />
-			<button font="SansSerifSmall" label="Speichern" label_selected="Speichern" left="107"
-			     name="Save" />
-			<button font="SansSerifSmall" label="Speichern unter" label_selected="Speichern unter"
-			     left="194" name="Save As" width="100" />
-			<button font="SansSerifSmall" label="Zurücksetzen" label_selected="Zurücksetzen"
-			     name="Revert" />
+			<text name="Item Action Label" right="100">
+				Unterhose:
+			</text>
+			<texture_picker label="Stoff" name="Fabric" tool_tip="Klicken Sie hier, um ein Bild auszuwählen"/>
+			<color_swatch label="Farbe/Ton" name="Color/Tint" tool_tip="Klicken Sie hier, um die Farbauswahl zu öffnen"/>
+			<button label="Neue Unterhose" label_selected="Neue Unterhose" name="Create New"/>
+			<button font="SansSerifSmall" label="Ausziehen" label_selected="Ausziehen" name="Take Off"/>
+			<button font="SansSerifSmall" label="Speichern" label_selected="Speichern" left="107" name="Save"/>
+			<button font="SansSerifSmall" label="Speichern unter..." label_selected="Speichern unter..." left="194" name="Save As" width="105"/>
+			<button font="SansSerifSmall" label="Zurücksetzen" label_selected="Zurücksetzen" name="Revert"/>
 		</panel>
 		<panel label="Rock" name="Skirt">
-			<text type="string" length="1" name="title">
+			<text length="1" name="title" type="string">
 				[DESC]
 			</text>
-			<text type="string" length="1" name="title_no_modify">
+			<text length="1" name="title_no_modify" type="string">
 				[DESC]: bearbeiten nicht möglich
 			</text>
-			<text type="string" length="1" name="title_loading">
+			<text length="1" name="title_loading" type="string">
 				[DESC]: wird geladen...
 			</text>
-			<text type="string" length="1" name="title_not_worn">
+			<text length="1" name="title_not_worn" type="string">
 				[DESC]: nicht getragen
 			</text>
-			<text type="string" length="1" name="path">
+			<text length="1" name="path" type="string">
 				In [PATH]
 			</text>
-			<text type="string" length="1" name="not worn instructions">
+			<text length="1" name="not worn instructions" type="string">
 				Ziehen Sie einen Rock aus dem Inventar auf Ihren Avatar,
 um ihn zu tragen. Sie können auch einen neuen Rock erstellen
 und diesen anziehen.
 			</text>
-			<text type="string" length="1" name="no modify instructions">
+			<text length="1" name="no modify instructions" type="string">
 				Sie sind nicht berechtigt, diese Kleidung zu bearbeiten.
 			</text>
-			<texture_picker label="Stoff" name="Fabric"
-			     tool_tip="Klicken Sie hier, um ein Bild auszuwählen" />
-			<color_swatch label="Farbe/Ton" name="Color/Tint"
-			     tool_tip="Klicken Sie hier, um die Farbauswahl zu öffnen" />
-			<button label="Neuer Rock" label_selected="Neuer Rock" name="Create New" />
-			<button font="SansSerifSmall" label="Ausziehen" label_selected="Ausziehen" left="19"
-			     name="Take Off" />
-			<button font="SansSerifSmall" label="Speichern" label_selected="Speichern" left="107"
-			     name="Save" />
-			<button font="SansSerifSmall" label="Speichern unter" label_selected="Speichern unter"
-			     left="194" name="Save As" width="100" />
-			<button font="SansSerifSmall" label="Zurücksetzen" label_selected="Zurücksetzen"
-			     name="Revert" />
+			<text name="Item Action Label" right="100">
+				Rock:
+			</text>
+			<texture_picker label="Stoff" name="Fabric" tool_tip="Klicken Sie hier, um ein Bild auszuwählen"/>
+			<color_swatch label="Farbe/Ton" name="Color/Tint" tool_tip="Klicken Sie hier, um die Farbauswahl zu öffnen"/>
+			<button label="Neuer Rock" label_selected="Neuer Rock" name="Create New"/>
+			<button font="SansSerifSmall" label="Ausziehen" label_selected="Ausziehen" name="Take Off"/>
+			<button font="SansSerifSmall" label="Speichern" label_selected="Speichern" left="107" name="Save"/>
+			<button font="SansSerifSmall" label="Speichern unter..." label_selected="Speichern unter..." left="194" name="Save As" width="105"/>
+			<button font="SansSerifSmall" label="Zurücksetzen" label_selected="Zurücksetzen" name="Revert"/>
 		</panel>
 	</tab_container>
-	<button label="Outfit erstellen" label_selected="Outfit erstellen" name="Make Outfit" />
-	<button label="Alles speichern" label_selected="Alles speichern" name="Save All" />
-	<button label="Schließen" label_selected="Schließen" name="Close" />
+	<button label="Abbrechen" label_selected="Abbrechen" name="Cancel"/>
+	<button label="OK" label_selected="OK" name="Ok"/>
+	<button label="Outfit erstellen..." label_selected="Outfit erstellen..." name="Make Outfit" width="115"/>
 </floater>

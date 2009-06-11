@@ -534,14 +534,22 @@ public:
 };
 
 // Used by LLTexLayerSetBuffer for a callback.
+
+// For DEV-DEV-31590, "Heap corruption and crash after outfit
+// changes", added the mLayerSet member.  The current
+// LLTexLayerSetBuffer can be found by querying mLayerSet->mComposite,
+// but we still store the original mLayerSetBuffer here so we can
+// detect when an upload is out of date.  This prevents a memory
+// stomp.  See LLTexLayerSetBuffer::onTextureUploadComplete() for usage.
 class LLBakedUploadData
 {
 public:
-	LLBakedUploadData( LLVOAvatar* avatar, LLTexLayerSetBuffer* layerset_buffer, const LLUUID & id);
+	LLBakedUploadData( LLVOAvatar* avatar, LLTexLayerSet* layerset, LLTexLayerSetBuffer* layerset_buffer, const LLUUID & id);
 	~LLBakedUploadData() {}
 
 	LLUUID					mID;
 	LLVOAvatar*				mAvatar;	 // just backlink, don't LLPointer 
+	LLTexLayerSet*			mLayerSet;
 	LLTexLayerSetBuffer*	mLayerSetBuffer;
 	LLUUID					mWearableAssets[WT_COUNT];
 	U64						mStartTime;		// Used to measure time baked texture upload requires

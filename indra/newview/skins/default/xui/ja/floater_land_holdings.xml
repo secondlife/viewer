@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="land holdings floater" title="自分の土地">
 	<scroll_list name="parcel list">
-		<column label="名前" name="name"/>
-		<column label="位置" name="location"/>
+		<column label="区画名" name="name"/>
+		<column label="地域（リージョン）" name="location"/>
+		<column label="種類" name="type"/>
 		<column label="面積" name="area"/>
 		<column label="" name="hidden"/>
 	</scroll_list>

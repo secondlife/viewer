@@ -3424,7 +3424,7 @@ void LLStartUp::multimediaInit()
 {
 	LL_DEBUGS("AppInit") << "Initializing Multimedia...." << LL_ENDL;
 	std::string msg = LLTrans::getString("LoginInitializingMultimedia");
-	set_startup_status(0.50f, msg.c_str(), gAgent.mMOTD.c_str());
+	set_startup_status(0.42f, msg.c_str(), gAgent.mMOTD.c_str());
 	display_startup();
 
 	LLViewerMedia::initClass();

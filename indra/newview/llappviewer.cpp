@@ -2042,8 +2042,18 @@ bool LLAppViewer::initConfiguration()
 void LLAppViewer::checkForCrash(void)
 {
     
-#if LL_SEND_CRASH_REPORTS
-    if (gLastExecEvent == LAST_EXEC_FROZE || gLastExecEvent == LAST_EXEC_OTHER_CRASH)
+#if 1 //*REMOVE:Mani LL_SEND_CRASH_REPORTS
+	//*NOTE:Mani The current state of the crash handler has the MacOSX
+	// sending all crash reports as freezes, in order to let 
+	// the MacOSX CrashRepoter generate stacks before spawning the 
+	// SL crash logger.
+	// The Linux and Windows clients generate their own stacks and
+	// spawn the SL crash logger immediately. This may change in the future. 
+#if LL_DARWIN
+	if(gLastExecEvent != LAST_EXEC_NORMAL)
+#else		
+	if (gLastExecEvent == LAST_EXEC_FROZE || gLastExecEvent == LAST_EXEC_OTHER_CRASH)
+#endif
     {
         llinfos << "Last execution froze, requesting to send crash report." << llendl;
         //
@@ -2285,7 +2295,7 @@ void LLAppViewer::handleViewerCrash()
 	llinfos << "Handle viewer crash entry." << llendl;
 
 	//print out recorded call stacks if there are any.
-	LLError::LLCallStacks::print() ;
+	LLError::LLCallStacks::print();
 
 	LLAppViewer* pApp = LLAppViewer::instance();
 	if (pApp->beingDebugged())
@@ -3727,6 +3737,35 @@ void LLAppViewer::disconnectViewer()
 		if (gFloaterView)
 		{
 			gFloaterView->restoreAll();
+		}
+
+
+		std::list<LLFloater*> floaters_to_close;
+		for(LLView::child_list_const_iter_t it = gFloaterView->getChildList()->begin();
+			it != gFloaterView->getChildList()->end();
+			++it)
+		{
+			// The following names are defined in the 
+			// floater_image_preview.xml
+			// floater_sound_preview.xml
+			// floater_animation_preview.xml
+			// files.
+			LLFloater* fl = static_cast<LLFloater*>(*it);
+			if(fl 
+				&& (fl->getName() == "Image Preview"
+				|| fl->getName() == "Sound Preview"
+				|| fl->getName() == "Animation Preview"
+				))
+			{
+				floaters_to_close.push_back(fl);
+			}
+		}
+		
+		while(!floaters_to_close.empty())
+		{
+			LLFloater* fl = floaters_to_close.front();
+			floaters_to_close.pop_front();
+			fl->close();
 		}
 	}
 

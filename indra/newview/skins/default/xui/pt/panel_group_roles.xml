@@ -50,7 +50,7 @@ Estes ajustes podem ser facilmente customizados para uma flexibilidade e organiz
 				<column label="Tarifa doada" name="donated"/>
 				<column label="Último login" name="online"/>
 			</name_list>
-			<button label="Convidar nova pessoa..." name="member_invite"/>
+			<button label="Convidar Novo Membro ..." name="member_invite"/>
 			<button label="Ejetar do Grupo" name="member_eject"/>
 			<string name="help_text">
 				Você pode adicionar ou remover as funções designadas aos membros. Selecione vários membros, segurando a tecla Ctrl e clicando em seus nomes.

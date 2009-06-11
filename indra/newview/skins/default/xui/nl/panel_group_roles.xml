@@ -49,7 +49,7 @@
 				<column label="Gedoneerde Tier" name="donated"/>
 				<column label="Laatste Login" name="online"/>
 			</name_list>
-			<button label="Uitnodigen Nieuwe Persoon..." name="member_invite"/>
+			<button label="Nieuw Lid Uitnodigen..." name="member_invite"/>
 			<button label="Uitwerpen uit de Groep" name="member_eject"/>
 			<string name="help_text">
 				U kunt Rollen aan Leden toewijzen of van Leden afnemen. Selecteer meerdere Leden door de Ctrl toets ingedrukt te houden en op hun namen te klikken.

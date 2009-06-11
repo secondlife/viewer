@@ -5246,6 +5246,7 @@ void process_script_dialog(LLMessageSystem* msg, void**)
 	S32 button_count = msg->getNumberOfBlocks("Buttons");
 	if (button_count > SCRIPT_DIALOG_MAX_BUTTONS)
 	{
+		llwarns << "Too many script dialog buttons - omitting some" << llendl;
 		button_count = SCRIPT_DIALOG_MAX_BUTTONS;
 	}
 
@@ -5454,7 +5455,15 @@ void process_covenant_reply(LLMessageSystem* msg, void**)
 	LLFloaterBuyLand::updateEstateName(estate_name);
 
 	// standard message, not from system
-	std::string last_modified = std::string("Last Modified ") + formatted_time((time_t)covenant_timestamp);
+	std::string last_modified;
+	if (covenant_timestamp == 0)
+	{
+		last_modified = LLTrans::getString("covenant_never_modified");
+	}
+	else
+	{
+		last_modified = LLTrans::getString("covenant_modified") + " " + formatted_time((time_t)covenant_timestamp);
+	}
 
 	LLPanelEstateCovenant::updateLastModified(last_modified);
 	LLPanelLandCovenant::updateLastModified(last_modified);

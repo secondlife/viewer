@@ -1,21 +1,20 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="land holdings floater" title="Mes terrains">
 	<scroll_list name="parcel list">
-		<column label="Nom" name="name" />
-		<column label="Emplacement" name="location" />
-		<column label="Surface" name="area" />
-		<column label="" name="hidden" />
+		<column label="Nom de la parcelle" name="name"/>
+		<column label="Région" name="location"/>
+		<column label="Type" name="type"/>
+		<column label="Surface" name="area"/>
+		<column label="" name="hidden"/>
 	</scroll_list>
-	<button label="Téléporter" label_selected="Téléporter" name="Teleport"
-	     tool_tip="Téléportez-vous au milieu de ce terrain." />
-	<button label="Voir sur la carte" label_selected="Voir sur la carte" name="Show on Map"
-	     tool_tip="Affichez ce terrain sur la carte du monde." />
+	<button label="Téléporter" label_selected="Téléporter" name="Teleport" tool_tip="Téléportez-vous au milieu de ce terrain."/>
+	<button label="Voir sur la carte" label_selected="Voir sur la carte" name="Show on Map" tool_tip="Affichez ce terrain sur la carte du monde."/>
 	<text name="contrib_label">
 		Vos contributions :
 	</text>
 	<scroll_list name="grant list">
-		<column label="Groupe" name="group" />
-		<column label="Surface" name="area" />
+		<column label="Groupe" name="group"/>
+		<column label="Surface" name="area"/>
 	</scroll_list>
 	<text name="allowed_label">
 		Surface de terrain autorisée avec votre compte :

@@ -1,15 +1,40 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="avatarpicker" title="Elegir a un residente">
-	<text name="instruct_search_resident_name">
-		Escriba parte del nombre del residente:
-	</text>
-	<button label="Encontrar" label_selected="Encontrar" name="Find"/>
-	<text name="Or select their calling card:">
-		O elija una tarjeta de visita:
-	</text>
-	<button label="Cerrar" label_selected="Cerrar" name="Close"/>
+	<tab_container name="ResidentChooserTabs">
+		<panel label="Buscar" name="SearchPanel">
+			<text name="InstructSearchResidentName">
+				Escriba parte del nombre del residente:
+			</text>
+			<button label="Buscar" label_selected="Buscar" name="Find"/>
+		</panel>
+		<panel label="Tarjetas de visita" name="CallingCardsPanel">
+			<text name="InstructSelectCallingCard">
+				Elija una tarjeta de visita:
+			</text>
+		</panel>
+		<panel label="Cercanos" name="NearMePanel">
+			<text name="InstructSelectResident">
+				Seleccionar un residente cercano:
+			</text>
+			<button label="Actualizar la lista" label_selected="Actualizar la lista" name="Refresh"/>
+			<slider label="Alcance" name="near_me_range"/>
+			<text name="meters">
+				Metros
+			</text>
+		</panel>
+	</tab_container>
 	<button label="Elegir" label_selected="Elegir" name="Select"/>
-	<string name="NotFound">
+	<button label="Cancelar" label_selected="Cancelar" name="Cancel"/>
+	<string name="not_found">
 		No se ha encontrado &apos;[TEXT]&apos;
+	</string>
+	<string name="no_one_near">
+		No hay nadie cerca
+	</string>
+	<string name="no_results">
+		Sin resultados
+	</string>
+	<string name="searching">
+		Buscando...
 	</string>
 </floater>

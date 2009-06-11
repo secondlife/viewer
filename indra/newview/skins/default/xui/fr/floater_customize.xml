@@ -1,14 +1,9 @@
-﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater customize" title="Apparence" width="563">
-	<tab_container name="customize tab container" tab_min_width="165" width="561">
-		<panel label="Parties du corps"/>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater customize" title="Apparence" width="548">
+	<tab_container name="customize tab container" tab_min_width="150" width="546">
 		<panel label="Parties du corps" name="body_parts_placeholder"/>
-		<panel label="Silhouette" left="169" name="Shape" width="389">
-			<button label="Créer une silhouette" label_selected="Créer une silhouette" name="Create New" width="140"/>
-			<button label="Enlever" label_selected="Enlever" left="12" name="Take Off" width="82"/>
-			<button label="Enregistrer" label_selected="Enregistrer" left="100" name="Save" width="82"/>
-			<button label="Enregistrer sous" label_selected="Enregistrer sous" left="188" name="Save As" width="105"/>
-			<button label="Rétablir" label_selected="Rétablir" left="299" name="Revert" width="82"/>
+		<panel label="Silhouette" left="154" name="Shape" width="389">
+			<button label="Rétablir" label_selected="Rétablir" left="305" name="Revert" width="82"/>
 			<button label="Corps" label_selected="Corps" name="Body"/>
 			<button label="Tête" label_selected="Tête" name="Head"/>
 			<button label="Yeux" label_selected="Yeux" name="Eyes"/>
@@ -18,7 +13,14 @@
 			<button label="Menton" label_selected="Menton" name="Chin"/>
 			<button label="Torse" label_selected="Torse" name="Torso"/>
 			<button label="Jambes" label_selected="Jambes" name="Legs"/>
-			<button label="Aléatoire" label_selected="Aléatoire" name="Randomize"/>
+			<radio_group name="sex radio">
+				<radio_item length="1" name="radio" type="string">
+					Femme
+				</radio_item>
+				<radio_item length="1" name="radio2" type="string">
+					Homme
+				</radio_item>
+			</radio_group>
 			<text length="1" name="title" type="string">
 				[DESC]
 			</text>
@@ -36,32 +38,24 @@
 			</text>
 			<text length="1" name="not worn instructions" type="string">
 				Pour changer de silhouette, faites-en glisser une à partir de votre
-inventaire jusqu&apos;à votre avatar. Vous pouvez aussi en créer une nouvelle et la porter.
-une nouvelle et de la porter.
+inventaire jusqu&apos;à votre avatar. Vous pouvez aussi en créer une nouvelle 
+et de la porter.
 			</text>
 			<text length="1" name="no modify instructions" type="string">
 				Vous n&apos;avez pas la permission de modifier cet objet.
 			</text>
-			<radio_group name="sex radio">
-				<radio_item length="1" name="radio" type="string">
-					Femme
-				</radio_item>
-				<radio_item length="1" name="radio2" type="string">
-					Homme
-				</radio_item>
-			</radio_group>
+			<text name="Item Action Label" right="92">
+				Silhouette :
+			</text>
+			<button label="Créer une silhouette" label_selected="Créer une silhouette" name="Create New"/>
+			<button label="Enregistrer" label_selected="Enregistrer" left="100" name="Save" width="82"/>
+			<button label="Enregistrer sous..." label_selected="Enregistrer sous..." left="188" name="Save As" width="111"/>
 		</panel>
 		<panel label="Peau" name="Skin">
-			<button label="Créer une peau" label_selected="Créer une peau" name="Create New"/>
-			<button label="Enlever" label_selected="Enlever" left="12" name="Take Off" width="82"/>
-			<button label="Enregistrer" label_selected="Enregistrer" left="100" name="Save" width="82"/>
-			<button label="Enregistrer sous" label_selected="Enregistrer sous" left="188" name="Save As" width="105"/>
-			<button label="Rétablir" label_selected="Rétablir" left="299" name="Revert" width="82"/>
 			<button label="Couleur" label_selected="Couleur" name="Skin Color" width="84"/>
 			<button label="Détails visage" label_selected="Détails visage" name="Face Detail" width="84"/>
 			<button label="Maquillage" label_selected="Maquillage" name="Makeup" width="84"/>
 			<button label="Détails corps" label_selected="Détails corps" name="Body Detail" width="84"/>
-			<button label="Aléatoire" label_selected="Aléatoire" name="Randomize" width="84"/>
 			<text length="1" name="title" type="string">
 				[DESC]
 			</text>
@@ -84,21 +78,22 @@ Vous pouvez aussi en créer une nouvelle et la porter.
 			<text length="1" name="no modify instructions" type="string">
 				Vous n&apos;avez pas la permission de modifier cet objet.
 			</text>
+			<text name="Item Action Label" right="92">
+				Peau :
+			</text>
 			<texture_picker label="Tatouages tête" name="Head Tattoos" tool_tip="Cliquez pour sélectionner une image" width="78"/>
 			<texture_picker label="Tatouages haut" name="Upper Tattoos" tool_tip="Cliquez pour sélectionner une image" width="78"/>
 			<texture_picker label="Tatouages bas" name="Lower Tattoos" tool_tip="Cliquez pour sélectionner une image" width="78"/>
+			<button label="Créer une peau" label_selected="Créer une peau" name="Create New"/>
+			<button label="Enregistrer" label_selected="Enregistrer" left="100" name="Save" width="82"/>
+			<button label="Enregistrer sous..." label_selected="Enregistrer sous..." left="188" name="Save As" width="111"/>
+			<button label="Rétablir" label_selected="Rétablir" left="305" name="Revert" width="82"/>
 		</panel>
 		<panel label="Cheveux" name="Hair">
-			<button label="Créer des cheveux" label_selected="Créer des cheveux" name="Create New"/>
-			<button label="Enlever" label_selected="Enlever" left="12" name="Take Off" width="82"/>
-			<button label="Enregistrer" label_selected="Enregistrer" left="100" name="Save" width="82"/>
-			<button label="Enregistrer sous" label_selected="Enregistrer sous" left="188" name="Save As" width="105"/>
-			<button label="Rétablir" label_selected="Rétablir" left="299" name="Revert" width="82"/>
 			<button label="Couleur" label_selected="Couleur" name="Color"/>
 			<button label="Style" label_selected="Style" name="Style"/>
 			<button label="Sourcils" label_selected="Sourcils" name="Eyebrows"/>
 			<button label="Pilosité" label_selected="Pilosité" name="Facial"/>
-			<button label="Aléatoire" label_selected="Aléatoire" name="Randomize"/>
 			<text length="1" name="title" type="string">
 				[DESC]
 			</text>
@@ -116,21 +111,22 @@ Vous pouvez aussi en créer une nouvelle et la porter.
 			</text>
 			<text length="1" name="not worn instructions" type="string">
 				Pour changer de chevelure, faites-en glisser une de votre inventaire
-jusqu&apos;à votre avatar. Vous pouvez aussi en créer une
-nouvelle et la porter.
+jusqu&apos;à votre avatar. Vous pouvez aussi en créer une nouvelle
+et la porter.
 			</text>
 			<text length="1" name="no modify instructions" type="string">
 				Vous n&apos;avez pas la permission de modifier cet objet.
 			</text>
+			<text name="Item Action Label" right="92">
+				Cheveux :
+			</text>
 			<texture_picker label="Texture" name="Texture" tool_tip="Cliquez pour sélectionner une image"/>
+			<button label="Créer des cheveux" label_selected="Créer des cheveux" name="Create New"/>
+			<button label="Enregistrer" label_selected="Enregistrer" left="100" name="Save" width="82"/>
+			<button label="Enregistrer sous..." label_selected="Enregistrer sous..." left="188" name="Save As" width="111"/>
+			<button label="Rétablir" label_selected="Rétablir" left="305" name="Revert" width="82"/>
 		</panel>
 		<panel label="Yeux" name="Eyes">
-			<button label="Créer des yeux" label_selected="Créer des yeux" name="Create New"/>
-			<button label="Enlever" label_selected="Enlever" left="12" name="Take Off" width="82"/>
-			<button label="Enregistrer" label_selected="Enregistrer" left="100" name="Save" width="82"/>
-			<button label="Enregistrer sous" label_selected="Enregistrer sous" left="188" name="Save As" width="105"/>
-			<button label="Rétablir" label_selected="Rétablir" left="299" name="Revert" width="82"/>
-			<button label="Aléatoire" label_selected="Aléatoire" name="Randomize"/>
 			<text length="1" name="title" type="string">
 				[DESC]
 			</text>
@@ -147,22 +143,30 @@ nouvelle et la porter.
 				Emplacement : [PATH]
 			</text>
 			<text length="1" name="not worn instructions" type="string">
-				Pour changer vos yeux, faites-les glisser de votre inventaire
-jusqu&apos;à votre avatar. Vous pouvez aussi en créer de nouveaux et les porter.
+				Pour changer vos yeux, faites-les glisser de votre inventaire jusqu&apos;à
+votre avatar. Vous pouvez aussi en créer de nouveaux et les porter.
 			</text>
 			<text length="1" name="no modify instructions" type="string">
 				Vous n&apos;avez pas la permission de modifier cet objet.
 			</text>
+			<text name="Item Action Label" right="92">
+				Yeux :
+			</text>
 			<texture_picker label="Iris" name="Iris" tool_tip="Cliquez pour sélectionner une image"/>
+			<button label="Créer des yeux" label_selected="Créer des yeux" name="Create New"/>
+			<button label="Enregistrer" label_selected="Enregistrer" left="100" name="Save" width="82"/>
+			<button label="Enregistrer sous..." label_selected="Enregistrer sous..." left="188" name="Save As" width="111"/>
+			<button label="Rétablir" label_selected="Rétablir" left="305" name="Revert" width="82"/>
 		</panel>
-		<panel label="Vêtements"/>
 		<panel label="Habits" name="clothes_placeholder"/>
 		<panel label="Chemise" name="Shirt">
+			<texture_picker label="Tissu" name="Fabric" tool_tip="Cliquez pour sélectionner une image" width="74"/>
+			<color_swatch label="Couleur/Teinte" name="Color/Tint" tool_tip="Cliquer pour ouvrir le sélecteur de couleurs" width="74"/>
 			<button label="Créer une chemise" label_selected="Créer une chemise" name="Create New"/>
 			<button label="Enlever" label_selected="Enlever" left="12" name="Take Off" width="82"/>
 			<button label="Enregistrer" label_selected="Enregistrer" left="100" name="Save" width="82"/>
-			<button label="Enregistrer sous" label_selected="Enregistrer sous" left="188" name="Save As" width="105"/>
-			<button label="Rétablir" label_selected="Rétablir" left="299" name="Revert" width="82"/>
+			<button label="Enregistrer sous..." label_selected="Enregistrer sous..." left="188" name="Save As" width="111"/>
+			<button label="Rétablir" label_selected="Rétablir" left="305" name="Revert" width="82"/>
 			<text length="1" name="title" type="string">
 				[DESC]
 			</text>
@@ -185,15 +189,18 @@ jusqu&apos;à votre avatar. Vous pouvez aussi en créer une nouvelle et la porte
 			<text length="1" name="no modify instructions" type="string">
 				Vous n&apos;avez pas la permission de modifier cet objet.
 			</text>
-			<color_swatch label="Couleur/Teinte" name="Color/Tint" tool_tip="Cliquer pour ouvrir le sélecteur de couleurs" width="74"/>
-			<texture_picker label="Tissu" name="Fabric" tool_tip="Cliquez pour sélectionner une image" width="74"/>
+			<text name="Item Action Label" right="92">
+				Chemise :
+			</text>
 		</panel>
 		<panel label="Pantalon" name="Pants">
+			<texture_picker label="Tissu" name="Fabric" tool_tip="Cliquez pour sélectionner une image" width="74"/>
+			<color_swatch label="Couleur/Teinte" name="Color/Tint" tool_tip="Cliquer pour ouvrir le sélecteur de couleurs" width="74"/>
 			<button label="Créer un pantalon" label_selected="Créer un pantalon" name="Create New"/>
 			<button label="Enlever" label_selected="Enlever" left="12" name="Take Off" width="82"/>
 			<button label="Enregistrer" label_selected="Enregistrer" left="100" name="Save" width="82"/>
-			<button label="Enregistrer sous" label_selected="Enregistrer sous" left="188" name="Save As" width="105"/>
-			<button label="Rétablir" label_selected="Rétablir" left="299" name="Revert" width="82"/>
+			<button label="Enregistrer sous..." label_selected="Enregistrer sous..." left="188" name="Save As" width="111"/>
+			<button label="Rétablir" label_selected="Rétablir" left="305" name="Revert" width="82"/>
 			<text length="1" name="title" type="string">
 				[DESC]
 			</text>
@@ -216,15 +223,11 @@ jusqu&apos;à votre avatar. Vous pouvez aussi en créer un nouveau et le porter.
 			<text length="1" name="no modify instructions" type="string">
 				Vous n&apos;avez pas la permission de modifier cet objet.
 			</text>
-			<color_swatch label="Couleur/Teinte" name="Color/Tint" tool_tip="Cliquer pour ouvrir le sélecteur de couleurs" width="74"/>
-			<texture_picker label="Tissu" name="Fabric" tool_tip="Cliquez pour sélectionner une image" width="74"/>
+			<text name="Item Action Label" right="92">
+				Pantalon :
+			</text>
 		</panel>
 		<panel label="Chaussures" name="Shoes">
-			<button label="Créer des chaussures" label_selected="Créer des chaussures" name="Create New" width="140"/>
-			<button label="Enlever" label_selected="Enlever" left="12" name="Take Off" width="82"/>
-			<button label="Enregistrer" label_selected="Enregistrer" left="100" name="Save" width="82"/>
-			<button label="Enregistrer sous" label_selected="Enregistrer sous" left="188" name="Save As" width="105"/>
-			<button label="Rétablir" label_selected="Rétablir" left="299" name="Revert" width="82"/>
 			<text length="1" name="title" type="string">
 				[DESC]
 			</text>
@@ -248,15 +251,18 @@ nouvelle paire et la porter.
 			<text length="1" name="no modify instructions" type="string">
 				Vous n&apos;avez pas la permission de modifier cet objet.
 			</text>
-			<color_swatch label="Couleur/Teinte" name="Color/Tint" tool_tip="Cliquer pour ouvrir le sélecteur de couleurs" width="74"/>
+			<text name="Item Action Label" right="92">
+				Chaussures :
+			</text>
 			<texture_picker label="Tissu" name="Fabric" tool_tip="Cliquez pour sélectionner une image" width="74"/>
-		</panel>
-		<panel label="Chaussettes" name="Socks">
-			<button label="Créer des chaussettes" label_selected="Créer des chaussettes" name="Create New" width="140"/>
+			<color_swatch label="Couleur/Teinte" name="Color/Tint" tool_tip="Cliquer pour ouvrir le sélecteur de couleurs" width="74"/>
+			<button label="Créer des chaussures" label_selected="Créer des chaussures" name="Create New" />
 			<button label="Enlever" label_selected="Enlever" left="12" name="Take Off" width="82"/>
 			<button label="Enregistrer" label_selected="Enregistrer" left="100" name="Save" width="82"/>
-			<button label="Enregistrer sous" label_selected="Enregistrer sous" left="188" name="Save As" width="105"/>
-			<button label="Rétablir" label_selected="Rétablir" left="299" name="Revert" width="82"/>
+			<button label="Enregistrer sous..." label_selected="Enregistrer sous..." left="188" name="Save As" width="111"/>
+			<button label="Rétablir" label_selected="Rétablir" left="305" name="Revert" width="82"/>
+		</panel>
+		<panel label="Chaussettes" name="Socks">
 			<text length="1" name="title" type="string">
 				[DESC]
 			</text>
@@ -280,15 +286,18 @@ nouvelle paire et la porter.
 			<text length="1" name="no modify instructions" type="string">
 				Vous n&apos;avez pas la permission de modifier cet objet.
 			</text>
-			<color_swatch label="Couleur/Teinte" name="Color/Tint" tool_tip="Cliquer pour ouvrir le sélecteur de couleurs" width="74"/>
+			<text name="Item Action Label" right="92">
+				Chaussettes :
+			</text>
 			<texture_picker label="Tissu" name="Fabric" tool_tip="Cliquez pour sélectionner une image" width="74"/>
-		</panel>
-		<panel label="Veste" name="Jacket">
-			<button label="Créer une veste" label_selected="Créer une veste" name="Create New"/>
+			<color_swatch label="Couleur/Teinte" name="Color/Tint" tool_tip="Cliquer pour ouvrir le sélecteur de couleurs" width="74"/>
+			<button label="Créer des chaussettes" label_selected="Créer des chaussettes" name="Create New"/>
 			<button label="Enlever" label_selected="Enlever" left="12" name="Take Off" width="82"/>
 			<button label="Enregistrer" label_selected="Enregistrer" left="100" name="Save" width="82"/>
-			<button label="Enregistrer sous" label_selected="Enregistrer sous" left="188" name="Save As" width="105"/>
-			<button label="Rétablir" label_selected="Rétablir" left="299" name="Revert" width="82"/>
+			<button label="Enregistrer sous..." label_selected="Enregistrer sous..." left="188" name="Save As" width="111"/>
+			<button label="Rétablir" label_selected="Rétablir" left="305" name="Revert" width="82"/>
+		</panel>
+		<panel label="Veste" name="Jacket">
 			<text length="1" name="title" type="string">
 				[DESC]
 			</text>
@@ -305,23 +314,25 @@ nouvelle paire et la porter.
 				Emplacement : [PATH]
 			</text>
 			<text length="1" name="not worn instructions" type="string">
-				Pour changer de veste, faites-en glisser une de votre inventaire
-jusqu&apos;à votre avatar. Vous pouvez aussi en créer une
-nouvelle et la porter.
+				Pour changer de veste, faites-en glisser une de votre inventaire jusqu&apos;à
+votre avatar. Vous pouvez aussi en créer une nouvelle et la porter.
 			</text>
 			<text length="1" name="no modify instructions" type="string">
 				Vous n&apos;avez pas la permission de modifier cet objet.
 			</text>
-			<color_swatch label="Couleur/Teinte" name="Color/Tint" tool_tip="Cliquer pour ouvrir le sélecteur de couleurs" width="81"/>
+			<text name="Item Action Label" right="92">
+				Veste :
+			</text>
 			<texture_picker label="Tissu (dessus)" name="Upper Fabric" tool_tip="Cliquez pour sélectionner une image" width="81"/>
 			<texture_picker label="Tissu (dessous)" name="Lower Fabric" tool_tip="Cliquez pour sélectionner une image" width="81"/>
-		</panel>
-		<panel label="Gants" name="Gloves">
-			<button label="Créer des gants" label_selected="Créer des gants" name="Create New"/>
+			<color_swatch label="Couleur/Teinte" name="Color/Tint" tool_tip="Cliquer pour ouvrir le sélecteur de couleurs" width="81"/>
+			<button label="Créer une veste" label_selected="Créer une veste" name="Create New"/>
 			<button label="Enlever" label_selected="Enlever" left="12" name="Take Off" width="82"/>
 			<button label="Enregistrer" label_selected="Enregistrer" left="100" name="Save" width="82"/>
-			<button label="Enregistrer sous" label_selected="Enregistrer sous" left="188" name="Save As" width="105"/>
-			<button label="Rétablir" label_selected="Rétablir" left="299" name="Revert" width="82"/>
+			<button label="Enregistrer sous..." label_selected="Enregistrer sous..." left="188" name="Save As" width="111"/>
+			<button label="Rétablir" label_selected="Rétablir" left="305" name="Revert" width="82"/>
+		</panel>
+		<panel label="Gants" name="Gloves">
 			<text length="1" name="title" type="string">
 				[DESC]
 			</text>
@@ -339,21 +350,23 @@ nouvelle et la porter.
 			</text>
 			<text length="1" name="not worn instructions" type="string">
 				Pour changer de gants, faites-en glisser une paire à partir de votre
-inventaire. Vous pouvez aussi en créer une nouvelle paire
-et la porter.
+inventaire. Vous pouvez aussi en créer une nouvelle paire et la porter.
 			</text>
 			<text length="1" name="no modify instructions" type="string">
 				Vous n&apos;avez pas la permission de modifier cet objet.
 			</text>
-			<color_swatch label="Couleur/Teinte" name="Color/Tint" tool_tip="Cliquer pour ouvrir le sélecteur de couleurs" width="74"/>
+			<text name="Item Action Label" right="92">
+				Gants :
+			</text>
 			<texture_picker label="Tissu" name="Fabric" tool_tip="Cliquez pour sélectionner une image" width="74"/>
-		</panel>
-		<panel label="Sous-vêtements (homme)" name="Undershirt">
-			<button label="Créer des sous-vêtements" label_selected="Créer des sous-vêtements" name="Create New" width="166"/>
+			<color_swatch label="Couleur/Teinte" name="Color/Tint" tool_tip="Cliquer pour ouvrir le sélecteur de couleurs" width="74"/>
+			<button label="Créer des gants" label_selected="Créer des gants" name="Create New"/>
 			<button label="Enlever" label_selected="Enlever" left="12" name="Take Off" width="82"/>
 			<button label="Enregistrer" label_selected="Enregistrer" left="100" name="Save" width="82"/>
-			<button label="Enregistrer sous" label_selected="Enregistrer sous" left="188" name="Save As" width="105"/>
-			<button label="Rétablir" label_selected="Rétablir" left="299" name="Revert" width="82"/>
+			<button label="Enregistrer sous..." label_selected="Enregistrer sous..." left="188" name="Save As" width="111"/>
+			<button label="Rétablir" label_selected="Rétablir" left="305" name="Revert" width="82"/>
+		</panel>
+		<panel label="Sous-vêtements (haut)" name="Undershirt">
 			<text length="1" name="title" type="string">
 				[DESC]
 			</text>
@@ -376,15 +389,19 @@ votre inventaire. Vous pouvez aussi en créer des nouveaux et les porter.
 			<text length="1" name="no modify instructions" type="string">
 				Vous n&apos;avez pas la permission de modifier cet objet.
 			</text>
-			<color_swatch label="Couleur/Teinte" name="Color/Tint" tool_tip="Cliquer pour ouvrir le sélecteur de couleurs" width="74"/>
+			<text name="Item Action Label" right="92" bottom="-470">
+				Sous-vêtements
+(haut) :
+			</text>
 			<texture_picker label="Tissu" name="Fabric" tool_tip="Cliquez pour sélectionner une image" width="74"/>
-		</panel>
-		<panel label="Sous-vêtements (femme)" name="Underpants">
-			<button label="Créer des sous-vêtements" label_selected="Créer des sous-vêtements" name="Create New" width="166"/>
+			<color_swatch label="Couleur/Teinte" name="Color/Tint" tool_tip="Cliquer pour ouvrir le sélecteur de couleurs" width="74"/>
+			<button label="Créer des sous-vêtements" label_selected="Créer des sous-vêtements" name="Create New"/>
 			<button label="Enlever" label_selected="Enlever" left="12" name="Take Off" width="82"/>
 			<button label="Enregistrer" label_selected="Enregistrer" left="100" name="Save" width="82"/>
-			<button label="Enregistrer sous" label_selected="Enregistrer sous" left="188" name="Save As" width="105"/>
-			<button label="Rétablir" label_selected="Rétablir" left="299" name="Revert" width="82"/>
+			<button label="Enregistrer sous..." label_selected="Enregistrer sous..." left="188" name="Save As" width="111"/>
+			<button label="Rétablir" label_selected="Rétablir" left="305" name="Revert" width="82"/>
+		</panel>
+		<panel label="Sous-vêtements (bas)" name="Underpants">
 			<text length="1" name="title" type="string">
 				[DESC]
 			</text>
@@ -407,15 +424,19 @@ votre inventaire. Vous pouvez aussi en créer des nouveaux et les porter.
 			<text length="1" name="no modify instructions" type="string">
 				Vous n&apos;avez pas la permission de modifier cet objet.
 			</text>
-			<color_swatch label="Couleur/Teinte" name="Color/Tint" tool_tip="Cliquer pour ouvrir le sélecteur de couleurs" width="74"/>
+			<text name="Item Action Label" right="92" bottom="-470">
+				Sous-vêtements
+(bas) :
+			</text>
 			<texture_picker label="Tissu" name="Fabric" tool_tip="Cliquez pour sélectionner une image" width="74"/>
+			<color_swatch label="Couleur/Teinte" name="Color/Tint" tool_tip="Cliquer pour ouvrir le sélecteur de couleurs" width="74"/>
+			<button label="Créer des sous-vêtements" label_selected="Créer des sous-vêtements" name="Create New"/>
+			<button label="Enlever" label_selected="Enlever" left="12" name="Take Off" width="82"/>
+			<button label="Enregistrer" label_selected="Enregistrer" left="100" name="Save" width="82"/>
+			<button label="Enregistrer sous..." label_selected="Enregistrer sous..." left="188" name="Save As" width="111"/>
+			<button label="Rétablir" label_selected="Rétablir" left="305" name="Revert" width="82"/>
 		</panel>
 		<panel label="Jupe" name="Skirt">
-			<button label="Créer une jupe" label_selected="Créer une jupe" name="Create New"/>
-			<button label="Enlever" label_selected="Enlever" left="12" name="Take Off" width="82"/>
-			<button label="Enregistrer" label_selected="Enregistrer" left="100" name="Save" width="82"/>
-			<button label="Enregistrer sous" label_selected="Enregistrer sous" left="188" name="Save As" width="105"/>
-			<button label="Rétablir" label_selected="Rétablir" left="299" name="Revert" width="82"/>
 			<text length="1" name="title" type="string">
 				[DESC]
 			</text>
@@ -438,12 +459,20 @@ Vous pouvez aussi en créer une nouvelle et la porter.
 			<text length="1" name="no modify instructions" type="string">
 				Vous n&apos;avez pas la permission de modifier cet objet.
 			</text>
-			<color_swatch label="Couleur/Teinte" name="Color/Tint" tool_tip="Cliquer pour ouvrir le sélecteur de couleurs" width="74"/>
+			<text name="Item Action Label" right="92">
+				Jupe :
+			</text>
 			<texture_picker label="Tissu" name="Fabric" tool_tip="Cliquez pour sélectionner une image" width="74"/>
+			<color_swatch label="Couleur/Teinte" name="Color/Tint" tool_tip="Cliquer pour ouvrir le sélecteur de couleurs" width="74"/>
+			<button label="Créer une jupe" label_selected="Créer une jupe" name="Create New"/>
+			<button label="Enlever" label_selected="Enlever" left="12" name="Take Off" width="82"/>
+			<button label="Enregistrer" label_selected="Enregistrer" left="100" name="Save" width="82"/>
+			<button label="Enregistrer sous..." label_selected="Enregistrer sous..." left="188" name="Save As" width="111"/>
+			<button label="Rétablir" label_selected="Rétablir" left="305" name="Revert" width="82"/>
 		</panel>
 	</tab_container>
-	<scroll_container left="266" name="panel_container"/>
-	<button label="Créer un ensemble" label_selected="Créer un ensemble" name="Make Outfit" right="-252" width="115"/>
-	<button label="Tout enregistrer" label_selected="Tout enregistrer" name="Save All" right="-131" width="115"/>
-	<button label="Fermer" label_selected="Fermer" name="Close" width="115"/>
+	<scroll_container left="251" name="panel_container"/>
+	<button label="Annuler" label_selected="Annuler" name="Cancel"/>
+	<button label="OK" label_selected="OK" name="Ok"/>
+	<button label="Créer un ensemble..." label_selected="Créer un ensemble..." name="Make Outfit" left="152" width="125"/>
 </floater>

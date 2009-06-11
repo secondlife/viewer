@@ -310,7 +310,7 @@ void LLNotificationForm::addElement(const std::string& type, const std::string& 
 	LLSD element;
 	element["type"] = type;
 	element["name"] = name;
-	element["label"] = name;
+	element["text"] = name;
 	element["value"] = value;
 	element["index"] = mFormData.size();
 	mFormData.append(element);
@@ -525,7 +525,12 @@ std::string LLNotification::getSelectedOptionName(const LLSD& response)
 void LLNotification::respond(const LLSD& response)
 {
 	mRespondedTo = true;
-	LLNotificationFunctorRegistry::instance().getFunctor(mResponseFunctorName)(asLLSD(), response);
+	// look up the functor
+	LLNotificationFunctorRegistry::ResponseFunctor functor = 
+		LLNotificationFunctorRegistry::instance().getFunctor(mResponseFunctorName);
+	// and then call it
+	functor(asLLSD(), response);
+	
 	if (mTemporaryResponder)
 	{
 		LLNotificationFunctorRegistry::instance().unregisterFunctor(mResponseFunctorName);

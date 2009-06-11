@@ -1,50 +1,81 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="約款" name="Covenant">
-	<text name="covenant_help_text">
-		約款情報に対する変更は、不動産内のすべての区画に示されます。
-	</text>
-	<text name="region_name_lbl">
-		地域：
-	</text>
-	<text name="region_name_text">
-		（不明）
-	</text>
-	<text name="estate_name_lbl">
+	<text font="SansSerifLarge" name="estate_section_lbl">
 		不動産：
 	</text>
+	<text name="estate_name_lbl">
+		名前：
+	</text>
 	<text name="estate_name_text">
-		（不明）
+		メインランド
 	</text>
-	<text name="covenent_instructions">
-		不動産約款を変更するには、ノートカードをドラッグ アンド ドロップしてください。
-	</text>
-	<button label="?" name="covenant_help" />
-	<button label="リセット" name="reset_covenant" />
 	<text name="estate_owner_lbl">
-		不動産所有者：
+		オーナー：
 	</text>
 	<text name="estate_owner_text">
-		（不明）
+		（無）
+	</text>
+	<text name="estate_cov_lbl">
+		約款：
+	</text>
+	<text name="covenant_timestamp_text">
+		最終更新日：1969年12月31日（水）16:00:00
+	</text>
+	<button label="?" name="covenant_help"/>
+	<text_editor bottom="-263" height="178" name="covenant_editor">
+		この不動産には約款がありません。
+	</text_editor>
+	<button label="リセット" name="reset_covenant"/>
+	<text name="covenant_help_text">
+		約款の変更は不動産全区画に適用となります。
+	</text>
+	<text name="covenant_instructions">
+		この不動産の約款の変更するには、
+ノートカードをドラッグ&amp;ドロップしてください。
+	</text>
+	<text bottom_delta="-34" font="SansSerifLarge" name="region_section_lbl">
+		地域：
+	</text>
+	<text name="region_name_lbl">
+		名前：
+	</text>
+	<text name="region_name_text">
+		leyla
+	</text>
+	<text name="region_landtype_lbl">
+		種類：
+	</text>
+	<text name="region_landtype_text">
+		メインランド/ホームステッド
+	</text>
+	<text name="region_maturity_lbl">
+		区分：
+	</text>
+	<text name="region_maturity_text">
+		Adult
+	</text>
+	<text name="resellable_lbl">
+		再販：
 	</text>
 	<text name="resellable_clause">
-		この地域で購入した土地は再販が可能な場合と不可能な場合があります。
+		この地域（リージョン）にある土地は再販できません。
+	</text>
+	<text name="changeable_lbl">
+		再分割：
 	</text>
 	<text name="changeable_clause">
-		この地域で購入した土地は統合／再分割が可能な場合と不可能な場合があります。
+		この地域（リージョン）にある土地は統合または分割ができません。
 	</text>
-	<text_editor name="covenant_editor">
-		ロード中．．．
-	</text_editor>
-	<text name="can_resell">
+	<string name="can_resell">
 		この地域で購入した土地は、再販できます。
-	</text>
-	<text name="can_not_resell">
+	</string>
+	<string name="can_not_resell">
 		この地域の購入地は再販できないことがあります。
-	</text>
-	<text name="can_change">
+	</string>
+	<string name="can_change">
 		この地域の購入地は統合または再分割できます。
-	</text>
-	<text name="can_not_change">
+	</string>
+	<string name="can_not_change">
 		この地域の購入地は統合／再分割できないことがあります。
-	</text>
+	</string>
 </panel>

@@ -59,7 +59,11 @@
 #include "llappviewer.h" 
 #include "llglheaders.h"
 #include "llmediamanager.h"
+#include "llwindow.h"
 
+#if LL_WINDOWS
+#include "lldxhardware.h"
+#endif
 
 extern LLCPUInfo gSysCPU;
 extern LLMemoryInfo gSysMemory;
@@ -192,6 +196,20 @@ LLFloaterAbout::LLFloaterAbout()
 	support.append("Graphics Card: ");
 	support.append( (const char*) glGetString(GL_RENDERER) );
 	support.append("\n");
+
+#if LL_WINDOWS
+    getWindow()->incBusyCount();
+    getWindow()->setCursor(UI_CURSOR_ARROW);
+    support.append("Windows Graphics Driver Version: ");
+    LLSD driver_info = gDXHardware.getDisplayInfo();
+    if (driver_info.has("DriverVersion"))
+    {
+        support.append(driver_info["DriverVersion"]);
+    }
+    support.append("\n");
+    getWindow()->decBusyCount();
+    getWindow()->setCursor(UI_CURSOR_ARROW);
+#endif
 
 	support.append("OpenGL Version: ");
 	support.append( (const char*) glGetString(GL_VERSION) );

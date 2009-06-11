@@ -21,7 +21,7 @@
 		{128.1, 128.1, 15.4}
 	</text>
 	<text name="select_object_label">
-		Kliknij na przycisk, a pózniej na obiekt:
+		Kliknij na przycisk, a później na obiekt:
 	</text>
 	<button label="" label_selected="" name="pick_btn" tool_tip="Wybór obiektu - wybierz obiekt, którego dotyczy raport"/>
 	<text name="object_name_label">
@@ -46,9 +46,9 @@
 		<combo_item name="Age__Adult_resident_on_Teen_Second_Life">
 			Wiek &gt; Dorosły Rezydent w Teen Second Life
 		</combo_item>
-		
-		
-		
+		<combo_item name="Age__Underage_resident_outside_of_Teen_Second_Life">
+			Wiek &gt; Nieletni Rezydent poza Teen Second Life
+		</combo_item>
 		<combo_item name="Assault__Combat_sandbox___unsafe_area">
 			Napaść &gt; Strefa Militarna / Niebezpieczny Obszar
 		</combo_item>
@@ -118,15 +118,15 @@
 		<combo_item name="Indecency__Broadly_offensive_content_or_conduct">
 			Nieprzyzwoitość &gt; Obraźliwa Treść lub Postępowanie
 		</combo_item>
-		
-		
-		
 		<combo_item name="Indecency__Inappropriate_avatar_name">
 			Nieprzyzwoitość &gt; Niestosowne Imię Awatara
 		</combo_item>
-		
-		
-		
+		<combo_item name="Indecency__Mature_content_in_PG_region">
+			Nieprzyzwoitość &gt; Obraźliwa treść i postępowanie w regionie &apos;PG&apos;
+		</combo_item>
+		<combo_item name="Indecency__Inappropriate_content_in_Mature_region">
+			Nieprzyzwoitość &gt; Obraźliwa treść i postępowanie w regionie &apos;Mature&apos;
+		</combo_item>
 		<combo_item name="Intellectual_property_infringement_Content_Removal">
 			Naruszenie Własności Intelektualnej &gt; Usunięcie Treści
 		</combo_item>

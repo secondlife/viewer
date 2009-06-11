@@ -55,6 +55,7 @@
 	<menu_item_call label="Activeren" name="Activate"/>
 	<menu_item_call label="Deactiveren" name="Deactivate"/>
 	<menu_item_call label="Losmaken van jezelf" name="Detach From Yourself"/>
+	<menu_item_call label="Herstellen naar laatste positie" name="Restore to Last Position"/>
 	<menu_item_call label="Dragen" name="Object Wear"/>
 	<menu label="Bevestigen aan" name="Attach To"/>
 	<menu label="Bevestigen aan HUD" name="Attach To HUD"/>

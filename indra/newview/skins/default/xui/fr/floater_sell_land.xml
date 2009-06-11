@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="sell land" title="Vendre terrain">
-	<text name="info_parcel_label" width="48">
+	<text name="info_parcel_label">
 		Parcelle :
 	</text>
-	<text name="info_parcel" left="66">
+	<text name="info_parcel">
 		PARCEL NAME
 	</text>
 	<text name="info_size_label">
 		Taille :
 	</text>
-	<text name="info_size"  left="66">
+	<text name="info_size">
 		[AREA] m²
 	</text>
 	<text name="info_action" bottom_delta="-60">
@@ -65,7 +65,7 @@ de propriétaire.
 	</radio_group>
 	<button label="Afficher les objets" name="show_objects" right="420" width="120"/>
 	<text name="nag_message_label" bottom_delta="-30">
-		Rappel : Toute vente est définitive.
+		Rappel : toute vente est définitive.
 	</text>
 	<button label="Mettre le terrain en vente" name="sell_btn" width="165"/>
 	<button label="Annuler" name="cancel_btn"/>

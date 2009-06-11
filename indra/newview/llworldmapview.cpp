@@ -305,8 +305,8 @@ void LLWorldMapView::draw()
 
 	const S32 width = getRect().getWidth();
 	const S32 height = getRect().getHeight();
-	const S32 half_width = width / 2;
-	const S32 half_height = height / 2;
+	const F32 half_width = F32(width) / 2.0f;
+	const F32 half_height = F32(height) / 2.0f;
 	LLVector3d camera_global = gAgent.getCameraPositionGlobal();
 
 	LLLocalClipRect clip(getLocalRect());
@@ -350,8 +350,8 @@ void LLWorldMapView::draw()
 
 		// Find x and y position relative to camera's center.
 		LLVector3d rel_region_pos = origin_global - camera_global;
-		S32 relative_x = lltrunc((rel_region_pos.mdV[0] / REGION_WIDTH_METERS) * gMapScale);
-		S32 relative_y = lltrunc((rel_region_pos.mdV[1] / REGION_WIDTH_METERS) * gMapScale);
+		F32 relative_x = (rel_region_pos.mdV[0] / REGION_WIDTH_METERS) * gMapScale;
+		F32 relative_y = (rel_region_pos.mdV[1] / REGION_WIDTH_METERS) * gMapScale;
 
 		F32 pix_width = gMapScale*(layer->LayerExtents.getWidth() + 1);
 		F32 pix_height = gMapScale*(layer->LayerExtents.getHeight() + 1);
@@ -456,8 +456,8 @@ void LLWorldMapView::draw()
 
 		// Find x and y position relative to camera's center.
 		LLVector3d rel_region_pos = origin_global - camera_global;
-		S32 relative_x = lltrunc((rel_region_pos.mdV[0] / REGION_WIDTH_METERS) * gMapScale);
-		S32 relative_y = lltrunc((rel_region_pos.mdV[1] / REGION_WIDTH_METERS) * gMapScale);
+		F32 relative_x = (rel_region_pos.mdV[0] / REGION_WIDTH_METERS) * gMapScale;
+		F32 relative_y = (rel_region_pos.mdV[1] / REGION_WIDTH_METERS) * gMapScale;
 
 		// When the view isn't panned, 0,0 = center of rectangle
 		F32 bottom =	sPanY + half_height + relative_y;

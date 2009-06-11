@@ -23,7 +23,7 @@
   <color_swatch label="System" name="system" />
   <color_swatch label="Błędy" name="script_error" />
   <color_swatch label="Obiekty" name="objects" />
-  <color_swatch label="Szef" name="owner" />
+  <color_swatch label="Właściciel" name="owner" />
   <color_swatch label="Chmurka" name="background" />
   <color_swatch label="Linki" name="links" />
   <text type="string" length="1" name="text_box8">
@@ -40,7 +40,7 @@
   <text type="string" length="1" name="text_box5">
 		(linii)
 	</text>
-  <slider label="Przezroczystość" name="console_opacity" />
+  <slider label="Przeźroczystość" name="console_opacity" />
   <check_box label="Używaj pełnej szerokość ekranu (restart wymagany)" name="chat_full_width_check" />
   <text type="string" length="1" name="text_box6">
 		Ustawienia Czatu:
@@ -53,5 +53,5 @@
 		Czat z Chmurkami:
 	</text>
   <check_box label="Pokazuj chmurki w czacie" name="bubble_text_chat" />
-  <slider label="Przezroczystość" name="bubble_chat_opacity" />
+  <slider label="Przeźroczystość" name="bubble_chat_opacity" />
 </panel>

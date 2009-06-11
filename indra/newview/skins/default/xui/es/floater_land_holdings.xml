@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="land holdings floater" title="Mi terreno">
 	<scroll_list name="parcel list">
-		<column label="Nombre" name="name"/>
-		<column label="Localización" name="location"/>
+		<column label="Nombre de la parcela" name="name"/>
+		<column label="Región" name="location"/>
+		<column label="Tipo" name="type"/>
 		<column label="Superficie" name="area"/>
 		<column label="" name="hidden"/>
 	</scroll_list>

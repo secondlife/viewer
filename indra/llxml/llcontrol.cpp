@@ -309,10 +309,13 @@ BOOL LLControlGroup::declareControl(const std::string& name, eControlType type, 
  	{
 		if (persist && existing_control->isType(type))
 		{
-			// Sometimes we need to declare a control *after* it has been loaded from a settings file.
-			LLSD cur_value = existing_control->getValue(); // get the current value
-			existing_control->setDefaultValue(initial_val); // set the default to the declared value
-			existing_control->setValue(cur_value); // now set to the loaded value
+			if (!existing_control->llsd_compare(existing_control->getDefault(), initial_val))
+			{
+				// Sometimes we need to declare a control *after* it has been loaded from a settings file.
+				LLSD cur_value = existing_control->getValue(); // get the current value
+				existing_control->setDefaultValue(initial_val); // set the default to the declared value
+				existing_control->setValue(cur_value); // now set to the loaded value
+			}
 		}
 		else
 		{
@@ -1059,10 +1062,10 @@ U32 LLControlGroup::loadFromFile(const std::string& filename, bool set_default_v
 	}
 
 	U32	validitems = 0;
-	bool persist = true;
 	bool hidefromsettingseditor = false;
 	for(LLSD::map_const_iterator itr = settings.beginMap(); itr != settings.endMap(); ++itr)
 	{
+		bool persist = true;
 		name = (*itr).first;
 		control_map = (*itr).second;
 		
@@ -1171,13 +1174,13 @@ static std::string get_warn_name(const std::string& name)
 
 void LLControlGroup::addWarning(const std::string& name)
 {
+	// Note: may get called more than once per warning
+	//  (e.g. if allready loaded from a settings file),
+	//  but that is OK, declareBOOL will handle it
 	std::string warnname = get_warn_name(name);
-	if(mNameTable.find(warnname) == mNameTable.end())
-	{
-		std::string comment = std::string("Enables ") + name + std::string(" warning dialog");
-		declareBOOL(warnname, TRUE, comment);
-		mWarnings.insert(warnname);
-	}
+	std::string comment = std::string("Enables ") + name + std::string(" warning dialog");
+	declareBOOL(warnname, TRUE, comment);
+	mWarnings.insert(warnname);
 }
 
 BOOL LLControlGroup::getWarning(const std::string& name)

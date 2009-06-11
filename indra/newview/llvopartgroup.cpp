@@ -365,7 +365,7 @@ LLParticlePartition::LLParticlePartition()
 LLHUDParticlePartition::LLHUDParticlePartition() :
 	LLParticlePartition()
 {
-	mDrawableType = LLPipeline::RENDER_TYPE_HUD;
+	mDrawableType = LLPipeline::RENDER_TYPE_HUD_PARTICLES;
 	mPartitionType = LLViewerRegion::PARTITION_HUD_PARTICLE;
 }
 
@@ -509,7 +509,7 @@ LLDrawable* LLVOHUDPartGroup::createDrawable(LLPipeline *pipeline)
 {
 	pipeline->allocDrawable(this);
 	mDrawable->setLit(FALSE);
-	mDrawable->setRenderType(LLPipeline::RENDER_TYPE_HUD);
+	mDrawable->setRenderType(LLPipeline::RENDER_TYPE_HUD_PARTICLES);
 	return mDrawable;
 }
 

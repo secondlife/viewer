@@ -14,6 +14,8 @@ Adam Marker
 	VWR-2755
 Agathos Frascati
 	CT-246
+	CT-317
+	CT-352
 Aimee Trescothick
 	VWR-1813
 	VWR-3321
@@ -109,6 +111,8 @@ Biancaluce Robbiani
 	CT-229
 	CT-230
 	CT-231
+	CT-321
+	CT-352
 Blakar Ogre
 	VWR-418
 	VWR-881
@@ -129,6 +133,9 @@ Bulli Schumann
 	CT-222
 	CT-223
 	CT-224
+	CT-319
+	CT-350
+	CT-352
 bushing Spatula
 	VWR-119
 	VWR-424
@@ -179,6 +186,9 @@ Eddy Stryker
 EponymousDylan Ra
 	VWR-1289
 	VWR-1465
+Eva Nowicka
+	CT-324
+	CT-352
 Farallon Greyskin
 	VWR-2036
 Feep Larsson
@@ -248,7 +258,12 @@ Hoze Menges
 	VWR-255
 Ian Kas
 	VWR-8780 (Russian localization)
-        [NO JIRA] (Ukranian localization)
+	[NO JIRA] (Ukranian localization)
+	CT-322
+	CT-325
+Irene Muni
+	CT-324
+	CT-352
 Iskar Ariantho
 	VWR-1223
 	VWR-11759
@@ -288,10 +303,15 @@ Lisa Lowe
 	CT-222
 	CT-223
 	CT-224
+	CT-319
 Lockhart Cordoso
 	VWR-108
 maciek marksman
 	CT-86
+Magnus Balczo
+	CT-138
+Malwina Dollinger
+	CT-138
 march Korda
 	SVC-1020
 Matthew Dowd
@@ -434,9 +454,12 @@ Pf Shan
 	CT-229
 	CT-230
 	CT-231
+	CT-321
 princess niven
 	VWR-5733
         CT-85
+	CT-320
+	CT-352
 Renault Clio
 	VWR-1976
 Ringo Tuxing
@@ -447,6 +470,7 @@ Ringo Tuxing
 	CT-229
 	CT-230
 	CT-231
+	CT-321
 Robin Cornelius
 	VWR-2488
 	VWR-9557
@@ -462,6 +486,7 @@ Salahzar Stenvaag
 	CT-229
 	CT-230
 	CT-231
+	CT-321
 Sammy Frederix
 	VWR-6186
 Scrippy Scofield
@@ -482,6 +507,7 @@ Sergen Davies
 	CT-229
 	CT-230
 	CT-231
+	CT-321
 SignpostMarv Martin
 	VWR-153
 	VWR-154
@@ -540,6 +566,8 @@ Thraxis Epsilon
 	VWR-383
 tiamat bingyi
 	CT-246
+TraductoresAnonimos Alter
+	CT-324
 Tue Torok
 	CT-68
 	CT-69
@@ -551,6 +579,7 @@ Vadim Bigbear
 	VWR-2681
 Vixen Heron
 	VWR-2710
+	CT-88
 Whoops Babii
 	VWR-631
 	VWR-1640

@@ -6,6 +6,12 @@
 	<text name="region_name_text">
 		(desconocida)
 	</text>
+	<text name="region_type_label">
+		Tipo:
+	</text>
+	<text name="region_type_text">
+		(desconocido)
+	</text>
 	<text name="estate_name_label">
 		Estado:
 	</text>
@@ -22,10 +28,10 @@
 		El terreno comprado en esta región:
 	</text>
 	<text name="resellable_clause">
-		El terreno comprado en esta región puede o no puede ser revendido.
+		Podrá o no revenderse.
 	</text>
 	<text name="changeable_clause">
-		puede o no puede ser unido o subdividido.
+		Podrá o no unirse o dividirse.
 	</text>
 	<text name="covenant_text">
 		Deve aceptar el Contrato del Estado:
@@ -50,7 +56,9 @@
 		Precio:
 	</text>
 	<text name="info_price">
-		1500 L$, objetos incluidos
+		1500 L$
+(1.1 L$/m²)
+incluyendo los objetos
 	</text>
 	<text name="info_action">
 		Al comprar este terreno:
@@ -80,8 +88,8 @@
 		Aumenta su cuota mensual por uso de terreno a 40 US$/mes.
 	</text>
 	<text name="land_use_reason">
-		Usted es propietario de 1.309 m² de terreno. 
-Esta parcela tiene 512 m² de terreno.
+		Usted posee 1309 m² de terreno. 
+Esta parcela mide 512 m².
 	</text>
 	<text name="purchase_action">
 		Pagar al residente Joe 4.000 L$ por el terreno
@@ -184,7 +192,7 @@ Inténtelo seleccionando un área más pequeña.
 		Pagar por este terreno [AMOUNT] L$ a [SELLER]
 	</string>
 	<string name="buy_for_US">
-		Comprar [AMOUNT] L$ por, aprox., [AMOUNT2] US$ ,
+		Comprar [AMOUNT] L$ por, aprox., [AMOUNT2] US$,
 	</string>
 	<string name="parcel_meters">
 		Esta parcela tiene [AMOUNT] m².
@@ -201,6 +209,14 @@ admite [AMOUNT2] objetos
 	</string>
 	<string name="sold_with_objects">
 		vendido con los objetos
+	</string>
+	<string name="sold_without_objects">
+		objetos no incluidos
+	</string>
+	<string name="info_price_string">
+		[PRICE] L$
+([PRICE_PER_SQM] L$/m²)
+[SOLD_WITH_OBJECTS]
 	</string>
 	<string name="insufficient_land_credits">
 		Antes de que se complete la compra, el grupo [GROUP] necesitará

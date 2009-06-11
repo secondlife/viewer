@@ -466,7 +466,8 @@ bool LLPanelPlace::callbackAuctionWebPage(const LLSD& notification, const LLSD& 
 	if (0 == option)
 	{
 		std::string url;
-		url = AUCTION_URL + llformat("%010d", response["auction_id"].asInteger());
+		S32 auction_id = notification["payload"]["auction_id"].asInteger();
+		url = AUCTION_URL + llformat("%010d", auction_id );
 
 		llinfos << "Loading auction page " << url << llendl;
 

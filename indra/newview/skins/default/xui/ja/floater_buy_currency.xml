@@ -12,7 +12,7 @@
 	<text name="error_message">
 		何か変です。
 	</text>
-	<button label="ウェブ・サイトに移動" name="error_web" />
+	<button label="ウェブ・サイトに移動" name="error_web" width="140"/>
 	<text name="contacting">
 		LindeXとコンタクト中…
 	</text>
@@ -31,7 +31,7 @@
 	<text name="currency_est">
 		約US$ [USD]
 	</text>
-	<text name="getting_data">
+	<text name="getting_data" left_delta="3">
 		データを取得しています...
 	</text>
 	<text name="balance_label">

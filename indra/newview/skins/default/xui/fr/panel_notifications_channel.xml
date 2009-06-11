@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="notifications_panel">
-	<layout_stack>
+	<layout_stack name="stack1">
 		<scroll_list name="notifications_list">
 			<column label="Nom" name="name"/>
 			<column label="Contenu" name="content"/>

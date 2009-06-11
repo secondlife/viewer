@@ -2,7 +2,7 @@
 <floater name="Post-Process Floater" title="Ustawienia Przetwarzania Końcowego">
 	<tab_container name="Post-Process Tabs">
 		<panel label="Kolor Filtru" name="wmiColorFilterPanel">
-			<check_box label="Enable" name="wmiColorFilterToggle" />
+			<check_box label="Udostępnij" name="wmiColorFilterToggle" />
 			<text type="string" length="1" name="wmiColorFilterBrightnessText">
 				Jasność
 			</text>

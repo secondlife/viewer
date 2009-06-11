@@ -2,21 +2,16 @@
 <teleport_messages name="">
 	<message_set name="errors">
 		<message name="invalid_tport">
-			Nous avons rencontré des problèmes en essayant de vous téléporter. Vous devrez peut-être
-vous reconnecter avant de pouvoir être téléporté. Si vous continuez
-à recevoir ce message, veuillez consulter notre FAQ technique à la page suivante :
+			Nous avons rencontré des problèmes en essayant de vous téléporter. Vous devrez peut-être vous reconnecter avant de pouvoir être téléporté. Si vous continuez à recevoir ce message, veuillez consulter le Support à la page suivante :
 www.secondlife.com/support
 		</message>
 		<message name="invalid_region_handoff">
-			Nous avons rencontré des problèmes en essayant de vous téléporter. Vous devrez peut-être
-vous reconnecter avant de pouvoir être téléporté. Si vous continuez
-à recevoir ce message, veuillez consulter notre FAQ technique à la page suivante :
-www.secondlife.com/support.
+			Nous avons rencontré des problèmes en essayant de vous téléporter. Vous devrez peut-être vous reconnecter avant de pouvoir être téléporté. Si vous continuez à recevoir ce message, veuillez consulter le Support à la page suivante :
+www.secondlife.com/support
 		</message>
 		<message name="blocked_tport">
 			Désolé, la téléportation est bloquée actuellement. Veuillez réessayer dans un moment.
-Si vous ne parvenez toujours pas à être téléporté, déconnectez-vous puis reconnectez-vous 
-pour résoudre le problème.
+Si vous ne parvenez toujours pas à être téléporté, déconnectez-vous puis reconnectez-vous pour résoudre le problème.
 		</message>
 		<message name="nolandmark_tport">
 			Désolé, le système n&apos;a pas réussi à localiser la destination de votre repère.
@@ -29,27 +24,19 @@ Veuillez réessayer dans un moment.
 			Désolé, vous n&apos;avez pas accès à cette destination.
 		</message>
 		<message name="missing_attach_tport">
-			Vos pieces-jointes ne sont pas encore arrivées. Attendez quelques
-secondes de plus ou déconnectez-vous puis reconnectez-vous avant d&apos;essayer
-de vous téléporter.
+			Vos pieces-jointes ne sont pas encore arrivées. Attendez quelques secondes de plus ou déconnectez-vous puis reconnectez-vous avant d&apos;essayer de vous téléporter.
 		</message>
 		<message name="too_many_uploads_tport">
-			Le trafic vers cette région est bouché en ce moment. Votre téléportation
-ne pourra pas avoir lieu immédiatement. Veuillez réessayer
-dans quelques minutes ou bien aller dans une zone moins fréquentée.
+			Le trafic vers cette région est bouché en ce moment. Votre téléportation ne pourra pas avoir lieu immédiatement. Veuillez réessayer dans quelques minutes ou bien aller dans une zone moins fréquentée.
 		</message>
 		<message name="expired_tport">
-			Désolé, votre demande de téléportation n&apos;a pas abouti
-assez rapidement. Veuillez réessayer dans quelques minutes.
+			Désolé, votre demande de téléportation n&apos;a pas abouti assez rapidement. Veuillez réessayer dans quelques minutes.
 		</message>
 		<message name="expired_region_handoff">
-			Désolé, votre demande pour passer dans une autre région n&apos;a pas abouti
-assez rapidement. Veuillez réessayer dans quelques minutes.
+			Désolé, votre demande pour passer dans une autre région n&apos;a pas abouti assez rapidement. Veuillez réessayer dans quelques minutes.
 		</message>
 		<message name="no_host">
-			Impossible de trouver la destination de la téléportation. Il est possible que cette destination soit
-temporairement indisponible ou qu&apos;elle n&apos;existe plus. Veuillez réessayer
-dans quelques minutes.
+			Impossible de trouver la destination de la téléportation. Il est possible que cette destination soit temporairement indisponible ou qu&apos;elle n&apos;existe plus. Veuillez réessayer dans quelques minutes.
 		</message>
 		<message name="no_inventory_host">
 			L&apos;inventaire est temporairement indisponible.
