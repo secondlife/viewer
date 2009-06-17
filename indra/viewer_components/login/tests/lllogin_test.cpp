@@ -9,6 +9,10 @@
  * $/LicenseInfo$
  */
 
+#if LL_WINDOWS
+#pragma warning (disable : 4355) // 'this' used in initializer list: yes, intentionally
+#endif
+
 // Precompiled header
 #include "linden_common.h"
 // associated header
