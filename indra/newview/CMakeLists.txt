@@ -11,7 +11,6 @@ include(ELFIO)
 include(FMOD)
 include(OPENAL)
 include(FindOpenGL)
-include(LLAddBuildTest)
 include(LLAudio)
 include(LLCharacter)
 include(LLCommon)
@@ -1393,6 +1392,19 @@ if (INSTALL)
   include(${CMAKE_CURRENT_SOURCE_DIR}/ViewerInstall.cmake)
 endif (INSTALL)
 
-ADD_VIEWER_BUILD_TEST(llagentaccess viewer)
-ADD_VIEWER_COMM_BUILD_TEST(llcapabilitylistener viewer 
-  ${CMAKE_CURRENT_SOURCE_DIR}/../llmessage/tests/test_llsdmessage_peer.py)
+include(LLAddBuildTest)
+SET(viewer_TEST_SOURCE_FILES
+  llagentaccess.cpp
+  # Not *actually* a unit test, it's an integration test.
+  # Because it won't work in the new unit test iface, i've commented out
+  # and notified Nat. Delete this when it's replaced!
+  # + poppy & brad 2009-06-05
+  # llcapabilitylistener.cpp
+  )
+set_source_files_properties(
+  ${viewer_TEST_SOURCE_FILES}
+  PROPERTIES
+    LL_TEST_ADDITIONAL_SOURCE_FILES llviewerprecompiledheaders.cpp
+  )
+LL_ADD_PROJECT_UNIT_TESTS(${VIEWER_BINARY_NAME} "${viewer_TEST_SOURCE_FILES}")
+

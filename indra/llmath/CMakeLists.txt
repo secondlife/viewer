@@ -79,3 +79,12 @@ set_source_files_properties(${llmath_HEADER_FILES}
 list(APPEND llmath_SOURCE_FILES ${llmath_HEADER_FILES})
 
 add_library (llmath ${llmath_SOURCE_FILES})
+
+
+include(LLAddBuildTest)
+SET(llmath_TEST_SOURCE_FILES
+  # WARNING: Please don't write tests against LLCommon or LLMath until this issue is resolved: https://jira.lindenlab.com/jira/browse/DEV-29456
+  # llvolume.cpp
+  )
+LL_ADD_PROJECT_UNIT_TESTS(llmath "${llmath_TEST_SOURCE_FILES}")
+

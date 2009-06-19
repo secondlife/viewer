@@ -3,7 +3,6 @@
 project(llcommon)
 
 include(00-Common)
-include(LLAddBuildTest)
 include(LLCommon)
 
 include_directories(
@@ -202,4 +201,10 @@ target_link_libraries(
     ${ZLIB_LIBRARIES}
     )
 
-ADD_BUILD_TEST(lllazy llcommon)
+include(LLAddBuildTest)
+SET(llcommon_TEST_SOURCE_FILES
+  # WARNING: Please don't write tests against LLCommon or LLMath until this issue is resolved: https://jira.lindenlab.com/jira/browse/DEV-29456
+  # lllazy.cpp
+  )
+LL_ADD_PROJECT_UNIT_TESTS(llcommon "${llcommon_TEST_SOURCE_FILES}")
+
