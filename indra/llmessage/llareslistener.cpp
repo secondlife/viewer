@@ -9,10 +9,6 @@
  * $/LicenseInfo$
  */
 
-#if LL_WINDOWS
-#pragma warning (disable : 4355) // 'this' used in initializer list: yes, intentionally
-#endif
-
 // Precompiled header
 #include "linden_common.h"
 // associated header
@@ -27,35 +23,13 @@
 #include "llsdutil.h"
 
 LLAresListener::LLAresListener(const std::string& pumpname, LLAres* llares):
-    mAres(llares),
-    mBoundListener(LLEventPumps::instance().
-                   obtain(pumpname).
-                   listen("LLAresListener", boost::bind(&LLAresListener::process, this, _1)))
+    LLDispatchListener(pumpname, "op"),
+    mAres(llares)
 {
-    // Insert an entry into our mDispatch map for every method we want to be
-    // able to invoke via this event API.
-    mDispatch["rewriteURI"] = boost::bind(&LLAresListener::rewriteURI, this, _1);
-}
-
-bool LLAresListener::process(const LLSD& command)
-{
-    const std::string op(command["op"]);
-    // Look up the requested operation.
-    DispatchMap::const_iterator found = mDispatch.find(op);
-    if (found == mDispatch.end())
-    {
-        // There's no feedback other than our own reply. If somebody asks
-        // for an operation that's not supported (perhaps because of a
-        // typo?), unless we holler loudly, the request will be silently
-        // ignored. Throwing a tantrum on such errors will hopefully make
-        // this product more robust.
-        LL_ERRS("LLAresListener") << "Unsupported request " << op << LL_ENDL;
-        return false;
-    }
-    // Having found the operation, call it.
-    found->second(command);
-    // Conventional LLEventPump listener return
-    return false;
+    // add() every method we want to be able to invoke via this event API.
+    // Optional third parameter validates expected LLSD request structure.
+    add("rewriteURI", &LLAresListener::rewriteURI,
+        LLSD().insert("uri", LLSD()).insert("reply", LLSD()));
 }
 
 /// This UriRewriteResponder subclass packages returned URIs as an LLSD
@@ -97,13 +71,5 @@ private:
 
 void LLAresListener::rewriteURI(const LLSD& data)
 {
-    static LLSD required(LLSD().insert("uri", LLSD()).insert("reply", LLSD()));
-    // Validate that the request is well-formed
-    std::string mismatch(llsd_matches(required, data));
-    if (! mismatch.empty())
-    {
-        LL_ERRS("LLAresListener") << "bad rewriteURI request: " << mismatch << LL_ENDL;
-    }
-    // Looks as though we have what we need; issue the request
     mAres->rewriteURI(data["uri"], new UriRewriteResponder(data));
 }

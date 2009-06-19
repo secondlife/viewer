@@ -130,7 +130,7 @@ namespace tut
         {
             threw = e.what();
         }
-        ensure_contains("LLAresListener bad op", threw, "Unsupported");
+        ensure_contains("LLAresListener bad op", threw, "bad");
     }
 
     template<> template<>

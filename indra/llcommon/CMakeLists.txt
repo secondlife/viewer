@@ -37,6 +37,7 @@ set(llcommon_SOURCE_FILES
     llerrorthread.cpp
     llevent.cpp
     lleventcoro.cpp
+    lleventdispatcher.cpp
     lleventfilter.cpp
     llevents.cpp
     llfasttimer.cpp
@@ -126,6 +127,7 @@ set(llcommon_HEADER_FILES
     llerrorthread.h
     llevent.h
     lleventcoro.h
+    lleventdispatcher.h
     lleventfilter.h
     llevents.h
     lleventemitter.h
