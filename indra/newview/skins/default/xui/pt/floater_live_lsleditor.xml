@@ -2,7 +2,7 @@
 <floater name="script ed float" title="Script: Novo Script">
 	<button label="Resetar" label_selected="Resetar" name="Reset"/>
 	<check_box label="Correndo" name="running"/>
-	<check_box label="Mono" name="mono"/>
+	<check_box label="Mono" name="mono" left="86"/>
 	<string name="not_allowed">
 		Você não tem permissão para visualizar este script.
 	</string>

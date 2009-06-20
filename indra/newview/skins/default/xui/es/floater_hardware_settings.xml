@@ -7,7 +7,7 @@
 	<text name="Antialiasing:">
 		Antialiasing:
 	</text>
-	<combo_box label="Antialiasing" name="fsaa">
+	<combo_box label="Antialiasing" name="fsaa" width="94">
 		<combo_item name="FSAADisabled">
 			Desactivado
 		</combo_item>
@@ -32,7 +32,7 @@
 		Activar VBO:
 	</text>
 	<check_box label="Activar OpenGL Vertex Buffer Objects" name="vbo" tool_tip="En hardware moderno, habilitar esta opción mejora el rendimiento. Pero en hardware antiguo, el habilitarlo hace que, frecuentemente, se obtenga una implementación pobre de VBO, lo que puede provocarle caídas."/>
-	<slider label="Memoria para texturas (MB):" name="GrapicsCardTextureMemory" tool_tip="Cantidad de memoria asignada a las texturas. Por defecto es la memoria de la tarjeta de vídeo. Reducir esta cantidad puede mejorar el rendimiento, pero también puede hacer que las texturas se vean borrosas."/>
+	<slider label_width="150" left="10" width="300" label="Memoria para texturas (MB):" name="GrapicsCardTextureMemory" tool_tip="Cantidad de memoria asignada a las texturas. Por defecto es la memoria de la tarjeta de vídeo. Reducir esta cantidad puede mejorar el rendimiento, pero también puede hacer que las texturas se vean borrosas."/>
 	<spinner label="Intensidad de la niebla:" name="fog"/>
 	<button label="OK" label_selected="OK" name="OK"/>
 </floater>

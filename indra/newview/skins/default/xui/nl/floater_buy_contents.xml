@@ -6,7 +6,7 @@
 	<text name="buy_text">
 		Koop voor L$[AMOUNT] van [NAME]?
 	</text>
-	<button label="Annuleren" label_selected="Annuleren" name="cancel_btn"/>
+	<button label="Annuleren" label_selected="Annuleren" name="cancel_btn" width="73"/>
 	<button label="Koop" label_selected="Koop" name="buy_btn"/>
 	<check_box label="Draag kleding nu" name="wear_check"/>
 	<string name="no_copy_text">

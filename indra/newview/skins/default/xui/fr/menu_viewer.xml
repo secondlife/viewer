@@ -169,7 +169,9 @@
 		<menu_item_separator label="-----------" name="separator4"/>
 		<menu_item_call label="Mise au point sur la sélection" name="Focus on Selection"/>
 		<menu_item_call label="Zoom sur la sélection" name="Zoom to Selection"/>
-		<menu_item_call label="Acheter l&apos;objet" name="Menu Object Take"/>
+		<menu_item_call label="Acheter l&apos;objet" name="Menu Object Take">
+			<on_enable userdata="Acheter,Prendre" name="EnableBuyOrTake"/>
+		</menu_item_call>
 		<menu_item_call label="Prendre une copie" name="Take Copy"/>
 		<menu_item_call label="Remplacer l&apos;objet dans le contenu de l&apos;objet" name="Save Object Back to Object Contents"/>
 		<menu_item_separator label="-----------" name="separator6"/>

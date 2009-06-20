@@ -108,8 +108,8 @@
 			BMP
 		</combo_item>
 	</combo_box>
-	<spinner label="Largura" name="snapshot_width"/>
-	<spinner label="Altura" name="snapshot_height"/>
+	<spinner label="Largura" name="snapshot_width" label_width="41" width="101"/>
+	<spinner label="Altura" name="snapshot_height" label_width="31" width="91" left="119"/>
 	<check_box label="Restringir proporções" name="keep_aspect_check"/>
 	<slider label="Qualidade da Imagem" name="image_quality_slider"/>
 	<text name="layer_type_label">
@@ -127,10 +127,10 @@
 		</combo_item>
 	</combo_box>
 	<check_box label="Mostrar interface na Foto" name="ui_check"/>
-	<check_box label="Mostrar Objetos HUD na Foto" name="hud_check"/>
-	<check_box label="Manter aberto após salvar" name="keep_open_check"/>
-	<check_box label="Quadro Congelado (prévia da tela inteira)" name="freeze_frame_check"/>
-	<check_box label="Auto-atualizar" name="auto_snapshot_check"/>
+	<check_box bottom_delta="-17" label="Mostrar Objetos HUD na Foto" name="hud_check"/>
+	<check_box bottom_delta="-17" label="Manter aberto após salvar" name="keep_open_check"/>
+	<check_box bottom_delta="-17" label="Quadro Congelado&#10; (prévia da tela inteira)" name="freeze_frame_check"/>
+	<check_box bottom_delta="-29" label="Auto-atualizar" name="auto_snapshot_check"/>
 	<string name="unknown">
 		desconhecido
 	</string>

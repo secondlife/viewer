@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Postcard" title="Foto por correo electrónico">
 	<text name="to_label">
-		Correo electrónico del destinatario:
+		Correo electrónico
+   del destinatario:
 	</text>
-	<text name="from_label">
-		Su correo electrónico:
+	<line_editor bottom_delta="-20" name="to_form" />
+	<text name="from_label" bottom_delta="-12">
+		Su correo
+   electrónico:
 	</text>
+	<line_editor bottom_delta="-20" name="from_form" />
 	<text name="name_label">
 		Su nombre:
 	</text>
@@ -13,14 +17,15 @@
 		Asunto:
 	</text>
 	<line_editor label="Escriba aquí el asunto." name="subject_form"/>
-	<text name="msg_label">
+	<text name="msg_label" bottom_delta="-18">
 		Mensaje:
 	</text>
 	<text_editor name="msg_form">
 		Escriba aquí el mensaje.
 	</text_editor>
-	<text name="fine_print">
-		Si su destinatario se registra en SL, usted conseguirá un bono de referido.
+	<text name="fine_print" bottom_delta="-21">
+		Si su destinatario se registra en Second Life,
+usted conseguirá un bono de referido.
 	</text>
 	<button label="Cancelar" name="cancel_btn"/>
 	<button label="Enviar" name="send_btn"/>

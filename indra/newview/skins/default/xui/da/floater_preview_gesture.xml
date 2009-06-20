@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="gesture_preview">
 	<string name="stop_txt">
 		Stop
@@ -15,27 +15,31 @@
 	<text name="trigger_label">
 		Udløser:
 	</text>
-	<text name="replace_text"
-	     tool_tip="Replace the trigger word(s) with these words. For example, trigger &apos;hello&apos; replace with &apos;howdy&apos; will turn the chat &apos;I wanted to say hello&apos; into &apos;I wanted to say howdy&apos; as well as playing the gesture!">
+	<text name="replace_text" tool_tip="Replace the trigger word(s) with these words. For example, trigger &apos;hello&apos; replace with &apos;howdy&apos; will turn the chat &apos;I wanted to say hello&apos; into &apos;I wanted to say howdy&apos; as well as playing the gesture!">
 		Erstat med:
 	</text>
-	<line_editor name="replace_editor"
-	     tool_tip="Replace the trigger word(s) with these words. For example, trigger &apos;hello&apos; replace with &apos;howdy&apos; will turn the chat &apos;I wanted to say hello&apos; into &apos;I wanted to say howdy&apos; as well as playing the gesture" />
+	<line_editor name="replace_editor" tool_tip="Replace the trigger word(s) with these words. For example, trigger &apos;hello&apos; replace with &apos;howdy&apos; will turn the chat &apos;I wanted to say hello&apos; into &apos;I wanted to say howdy&apos; as well as playing the gesture"/>
 	<text name="key_label">
 		Genvejstast:
 	</text>
-	<combo_box label="Ingen" name="modifier_combo" />
-	<combo_box label="Ingen" name="key_combo" />
+	<combo_box label="Ingen" name="modifier_combo" width="60"/>
+	<combo_box label="Ingen" name="key_combo" left_delta="70" width="60"/>
 	<text name="library_label">
 		Type:
 	</text>
 	<text name="steps_label">
 		Trin:
 	</text>
-	<button label="Tilføj &gt;&gt;" name="add_btn" />
-	<button label="Flyt op" name="up_btn" />
-	<button label="Flyt ned" name="down_btn" />
-	<button label="Fjern" name="delete_btn" />
+	<scroll_list name="library_list">
+		Animation
+Lyd
+Chat
+Vent
+	</scroll_list>
+	<button label="Tilføj &gt;&gt;" name="add_btn"/>
+	<button label="Flyt op" name="up_btn"/>
+	<button label="Flyt ned" name="down_btn"/>
+	<button label="Fjern" name="delete_btn"/>
 	<text name="help_label">
 		Alle trin vil ske samtidigt,
 medmindre du tilføjer vente trin.
@@ -48,9 +52,9 @@ medmindre du tilføjer vente trin.
 			Stop
 		</radio_item>
 	</radio_group>
-	<check_box label="Indtil animation er færdig" name="wait_anim_check" />
-	<check_box label="tid i sekunder" name="wait_time_check" />
-	<check_box label="Aktiv" name="active_check" />
-	<button label="Vis" name="preview_btn" />
-	<button label="Gem" name="save_btn" />
+	<check_box label="Indtil animation er færdig" name="wait_anim_check"/>
+	<check_box label="tid i sekunder" name="wait_time_check"/>
+	<check_box label="Aktiv" name="active_check" tool_tip="Aktive bevægelser kan blive aktiveret ved at skrive deress udløser tekst eller ved at trykke på genvejstaste. Bevægelser vil normalt være inaktive hvis der allerede findes en tilsvarende genvejstaste."/>
+	<button label="Vis" name="preview_btn"/>
+	<button label="Gem" name="save_btn"/>
 </floater>

@@ -111,18 +111,18 @@ rápido
 	<text name="DrawDistanceMeterText2">
 		m
 	</text>
-	<slider label="Distancia de desenho:" label_width="146" name="DrawDistance" width="255"/>
-	<slider label="Contador máx. de partículas:" label_width="146" name="MaxParticleCount" width="262"/>
-	<slider label="Qualidade de Pós-processamento:" label_width="146" name="RenderPostProcess" width="223"/>
+	<slider label="Distancia de desenho:" label_width="150" name="DrawDistance" width="255"/>
+	<slider label="Contador máx. de partículas:" label_width="150" name="MaxParticleCount" width="262"/>
+	<slider label="Qualidade de Pós-processamento:" label_width="178" name="RenderPostProcess" width="223"/>
 	<text name="MeshDetailText">
 		Detalhes de Malha:
 	</text>
-	<slider label="Objetos:" name="ObjectMeshDetail"/>
-	<slider label="Primitivas Flexiveis:" name="FlexibleMeshDetail"/>
-	<slider label="Árvores:" name="TreeMeshDetail"/>
-	<slider label="Avatares:" name="AvatarMeshDetail"/>
-	<slider label="Terreno:" name="TerrainMeshDetail"/>
-	<slider label="Céu:" name="SkyMeshDetail"/>
+	<slider label="  Objetos:" name="ObjectMeshDetail"/>
+	<slider label="  Primitivas Flexiveis:" name="FlexibleMeshDetail"/>
+	<slider label="  Árvores:" name="TreeMeshDetail"/>
+	<slider label="  Avatares:" name="AvatarMeshDetail"/>
+	<slider label="  Terreno:" name="TerrainMeshDetail"/>
+	<slider label="  Céu:" name="SkyMeshDetail"/>
 	<text name="PostProcessText">
 		Baixo
 	</text>
@@ -166,7 +166,7 @@ rápido
 			Alto
 		</radio_item>
 	</radio_group>
-	<button label="Configurações Recomendadas" name="Defaults"/>
+	<button label="Configurações Recomendadas" name="Defaults" width="190" left="110"/>
 	<button label="Opções de Hardware" label_selected="Opções de Hardware" name="GraphicsHardwareButton"/>
 	<string name="resolution_format">
 		[RES_X] x [RES_Y]

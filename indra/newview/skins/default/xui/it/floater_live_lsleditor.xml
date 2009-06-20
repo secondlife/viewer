@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="script ed float" title="Script: Nuovo script">
 	<button label="Ripristina" label_selected="Ripristina" name="Reset"/>
-	<check_box label="In esecuzione" name="running"/>
-	<check_box label="Mono" name="mono"/>
+	<check_box label="In esecuzione" name="running" left="4"/>
+	<check_box label="Mono" name="mono" left="106"/>
 	<string name="not_allowed">
 		Non sei autorizzato a visualizzare questo script.
 	</string>

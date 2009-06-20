@@ -399,7 +399,7 @@ public:
 	virtual void updateSpatialExtents();
 	virtual void updateBinRadius();
 	virtual void setVisible(LLCamera& camera_in, std::vector<LLDrawable*>* results = NULL, BOOL for_select = FALSE);
-	virtual void updateDistance(LLCamera& camera_in);
+	virtual void updateDistance(LLCamera& camera_in, bool force_update);
 	virtual void makeActive();
 	virtual void move(LLDrawable *drawablep, LLSpatialGroup *curp, BOOL immediate = FALSE);
 	virtual BOOL updateMove();

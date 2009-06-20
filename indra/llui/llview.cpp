@@ -743,23 +743,20 @@ BOOL LLView::handleToolTip(S32 x, S32 y, std::string& msg, LLRect* sticky_rect_s
 
 	// don't allow any siblings to handle this event
 	// even if we don't have a tooltip
-	if (getMouseOpaque() || show_names_text_box)
+	if (blockMouseEvent(x, y) || show_names_text_box)
 	{
-		handled = TRUE;
-	}
+		if(!tool_tip.empty())
+		{
+			msg = tool_tip;
 
-	if(!tool_tip.empty())
-	{
-		msg = tool_tip;
-
-		// Convert rect local to screen coordinates
-		localPointToScreen(
-			0, 0,
-			&(sticky_rect_screen->mLeft), &(sticky_rect_screen->mBottom) );
-		localPointToScreen(
-			mRect.getWidth(), mRect.getHeight(),
-			&(sticky_rect_screen->mRight), &(sticky_rect_screen->mTop) );
-		
+			// Convert rect local to screen coordinates
+			localPointToScreen(
+				0, 0,
+				&(sticky_rect_screen->mLeft), &(sticky_rect_screen->mBottom) );
+			localPointToScreen(
+				mRect.getWidth(), mRect.getHeight(),
+				&(sticky_rect_screen->mRight), &(sticky_rect_screen->mTop) );		
+		}
 		handled = TRUE;
 	}
 

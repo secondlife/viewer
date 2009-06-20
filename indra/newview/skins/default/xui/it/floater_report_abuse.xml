@@ -169,8 +169,9 @@
 		Dettagli:
 	</text>
 	<text name="bug_aviso">
-		Ti preghiamo di essere circostanziato riguardo data, luogo, natura
-dell&apos;abuso, testo rilevante di chat/IM, e, se possibile, indica l&apos;oggetto.
+		Ti preghiamo di essere circostanziato riguardo data,
+luogo, natura dell&apos;abuso, testo rilevante di chat/IM, e,
+se possibile, indica l&apos;oggetto.
 	</text>
 	<text name="incomplete_title">
 		Nota: Segnalazioni incomplete non saranno esaminate.

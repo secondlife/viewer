@@ -2617,7 +2617,7 @@ Odwiedź &apos;Help Island Public&apos; by powtórzyć szkolenie.
 	<notification name="ImproperPaymentStatus">
 		Nie posiadasz odpowiedniego statusu płatniczego by uzyskać dostęp do regionu.
 	</notification>
-	<notification name="MustGetAgeRgion">
+	<notification name="MustGetAgeRegion">
 		By odwiedzić ten region, Twoje konto musi zostać poddane weryfikacji wieku.
 	</notification>
 	<notification name="MustGetAgeParcel">

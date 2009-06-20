@@ -58,6 +58,7 @@ ajoutez des pauses.
 	</radio_group>
 	<check_box label="jusqu&apos;à la fin des animations" name="wait_anim_check" />
 	<check_box label="temps en secondes" name="wait_time_check" />
+	<line_editor left_delta="130" name="wait_time_editor" />
 	<check_box label="Actifs" name="active_check"
 	     tool_tip="Les gestes actifs peuvent être déclenchés en saisissant leur raccourci dans le chat ou en appuyant sur les raccourcis. Les gestes deviennent généralement inactifs lorsqu&apos;il y a un conflit entre les raccourcis." />
 	<button label="Prévisualiser" name="preview_btn" width="86" />

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Proprietà immobiliari" name="Estate">
 	<text name="estate_help_text">
-		I cambiamenti alle impostazioni in questa finestra avranno effetto su tutte
-le regioni della proprietà.
+		I cambiamenti alle impostazioni in questa finestra 
+avranno effetto su tutte le regioni della proprietà.
 	</text>
-	<text name="estate_text">
+	<text name="estate_text" width="140">
 		Proprietà immobiliari:
 	</text>
 	<text name="estate_name">
@@ -24,15 +24,15 @@ le regioni della proprietà.
 	<check_box label="Permetti accesso pubblico" name="externally_visible_check"/>
 	<button label="?" name="externally_visible_help"/>
 	<text name="Only Allow">
-		Limita l&apos;accesso a:
+		Limita l&apos;accesso a residenti...
 	</text>
-	<check_box label="residenti che hanno dato informazioni di pagamento" name="limit_payment" tool_tip="Blocca residenti non identificati."/>
+	<check_box label="che hanno dato info. di pagamento" name="limit_payment" tool_tip="Blocca residenti non identificati."/>
 	<check_box label="Adulti con età verificata" name="limit_age_verified" tool_tip="Blocca residenti che non hanno verificato la loro età. Per maggiori informazioni vai a support.secondlife.com."/>
 	<check_box label="Permetti la chat voice" name="voice_chat_check"/>
 	<button label="?" name="voice_chat_help"/>
 	<check_box label="Permetti teleport diretto" name="allow_direct_teleport"/>
 	<button label="?" name="allow_direct_teleport_help"/>
-	<text name="abuse_email_text">
+	<text name="abuse_email_text" width="230">
 		Indirizzo email per la denuncia di abuso:
 	</text>
 	<string name="email_unsupported">
@@ -40,8 +40,8 @@ le regioni della proprietà.
 	</string>
 	<button label="?" name="abuse_email_address_help"/>
 	<button label="Applica" name="apply_btn"/>
-	<button label="Espelli persona dalle proprietà..." name="kick_user_from_estate_btn"/>
-	<button label="Manda un messaggio ai residenti di tutte le tue proprietà..." name="message_estate_btn"/>
+	<button font="SansSerifSmall" label="Espelli persona dalle proprietà..." name="kick_user_from_estate_btn"/>
+	<button font="SansSerifSmall" label="Manda un messaggio di le proprietà..." name="message_estate_btn"/>
 	<text name="estate_manager_label">
 		Manager delle proprietà:
 	</text>

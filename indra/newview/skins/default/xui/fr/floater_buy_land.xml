@@ -36,6 +36,7 @@
 	<text name="covenant_text">
 		Vous devez accepter le règlement du domaine :
 	</text>
+	<text left="470" name="covenant_timestamp_text"/>
 	<text_editor name="covenant_editor">
 		Chargement...
 	</text_editor>

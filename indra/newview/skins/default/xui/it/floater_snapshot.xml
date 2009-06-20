@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Snapshot" title="Anteprima della fotografia">
+<floater name="Snapshot" title="Anteprima della fotografia" width="247">
 	<text name="type_label">
 		Destinazione della fotografia
 	</text>
-	<radio_group label="Tipo di fotografia" name="snapshot_type_radio">
+	<radio_group label="Tipo di fotografia" name="snapshot_type_radio" width="228">
 		<radio_item name="postcard">
 			Invia via email
 		</radio_item>
@@ -11,7 +11,7 @@
 			Salva nel tuo inventario ([AMOUNT] L$)
 		</radio_item>
 		<radio_item name="local">
-			Salva sul tuo pc
+			Salva sul tuo disco rigido
 		</radio_item>
 	</radio_group>
 	<text name="file_size_label">
@@ -20,7 +20,7 @@
 	<button label="Aggiorna la fotografia" name="new_snapshot_btn"/>
 	<button label="Invia" name="send_btn"/>
 	<button label="Salva ([AMOUNT] L$)" name="upload_btn"/>
-	<flyout_button label="Salva" name="save_btn" tool_tip="Salva l&apos;immagine come file">
+	<flyout_button label="Salva" name="save_btn" tool_tip="Salva l&apos;immagine come file" >
 		<flyout_button_item name="save_item">
 			Salva
 		</flyout_button_item>
@@ -108,14 +108,14 @@
 			BMP
 		</combo_item>
 	</combo_box>
-	<spinner label="Larghezza" name="snapshot_width"/>
-	<spinner label="Altezza" name="snapshot_height"/>
+	<spinner label="Larghezza" name="snapshot_width" label_width="58" width="116"/>
+	<spinner label="Altezza" name="snapshot_height" label_width="41" width="101" left="130"/>
 	<check_box label="Mantieni le proporzioni" name="keep_aspect_check"/>
 	<slider label="Qualità d&apos;immagine" name="image_quality_slider"/>
-	<text name="layer_type_label">
+	<text name="layer_type_label" width="55">
 		Fotografa:
 	</text>
-	<combo_box label="Layer dell&apos;immagine" name="layer_types">
+	<combo_box label="Layer dell&apos;immagine" name="layer_types" left="68" width="165">
 		<combo_item name="Colors">
 			Colori
 		</combo_item>
@@ -127,10 +127,10 @@
 		</combo_item>
 	</combo_box>
 	<check_box label="Mostra l&apos;interfaccia nella fotografia" name="ui_check"/>
-	<check_box label="Mostra i dispositivi indossati nella fotografia" name="hud_check"/>
-	<check_box label="Mantieni aperto dopo aver salvato" name="keep_open_check"/>
-	<check_box label="Blocca l&apos;anteprima (Anteprima a schermo intero)" name="freeze_frame_check"/>
-	<check_box label="Auto-Aggiorna" name="auto_snapshot_check"/>
+	<check_box bottom_delta="-17" label="Mostra i dispositivi indossati nella foto" name="hud_check"/>
+	<check_box bottom_delta="-17" label="Mantieni aperto dopo aver salvato" name="keep_open_check"/>
+	<check_box bottom_delta="-17" label="Blocca l&apos;anteprima &#10;(Anteprima a schermo intero)" name="freeze_frame_check"/>
+	<check_box bottom_delta="-29" label="Auto-Aggiorna" name="auto_snapshot_check"/>
 	<string name="unknown">
 		sconosciuto
 	</string>

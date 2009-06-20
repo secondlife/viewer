@@ -36,10 +36,11 @@
 	<text name="covenant_text">
 		U moet instemmen met het estate convenant:
 	</text>
+	<text left="470" name="covenant_timestamp_text"/>
 	<text_editor name="covenant_editor">
 		Laden...
 	</text_editor>
-	<check_box label="Ik ga akkoord met het hierboven beschreven convenant." name="agree_covenant"/>
+	<check_box label="Ik ga akkoord met het hierboven &#10;beschreven convenant." name="agree_covenant"/>
 	<text name="info_parcel_label">
 		Perceel:
 	</text>

@@ -7,7 +7,7 @@
 	<text type="string" length="1" name="Antialiasing:">
 		Antialiasing:
 	</text>
-	<combo_box label="Antialiasing" name="fsaa">
+	<combo_box label="Antialiasing" name="fsaa" width="100">
 		<combo_item name="FSAADisabled">
 			Slået fra
 		</combo_item>

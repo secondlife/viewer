@@ -170,7 +170,9 @@
 		Detalles:
 	</text>
 	<text name="bug_aviso">
-		Por favor, sea muy concreto sobre la fecha, la localización, la naturaleza de la infracción, el aportar textos relevantes del chat o los MI, y, si es posible, seleccione el objeto.
+		Por favor, sea muy concreto sobre la fecha, la localización,
+la naturaleza de la infracción, el aportar textos relevantes
+del chat o los MI, y, si es posible, seleccione el objeto.
 	</text>
 	<text name="incomplete_title">
 		Nota: las denuncias incompletas no se investigarán.

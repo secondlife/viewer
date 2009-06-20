@@ -197,6 +197,7 @@ Feep Larsson
 	VWR-4444
 Flemming Congrejo
 	CT-193
+	CT-318
 Fluf Fredriksson
 	VWR-3450
 Fremont Cunningham
@@ -350,6 +351,7 @@ Michelle2 Zenovka
 Mm Alder
 	VWR-3777
 	VWR-4794
+	VWR-13578
 Mr Greggan
 	VWR-445
 Nicholaz Beresford

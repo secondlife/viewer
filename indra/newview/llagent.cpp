@@ -1319,14 +1319,19 @@ LLQuaternion LLAgent::getQuat() const
 //-----------------------------------------------------------------------------
 LLVector3 LLAgent::calcFocusOffset(LLViewerObject *object, LLVector3 original_focus_point, S32 x, S32 y)
 {
-	// calculate offset based on view direction
-	BOOL is_avatar = object->isAvatar();
-	// since the animation system allows the avatars facing and position to deviate from its nominal LLViewerObject/LLDrawable transform
-	// calculate the focus-specific orientation for avatars based off the pelvis joint
-	// NOTE: pelvis no longer good candidate, removed.  DEV-30589
 	LLMatrix4 obj_matrix = object->getRenderMatrix();
 	LLQuaternion obj_rot = object->getRenderRotation();
 	LLVector3 obj_pos = object->getRenderPosition();
+
+	BOOL is_avatar = object->isAvatar();
+	// if is avatar - don't do any funk heuristics to position the focal point
+	// see DEV-30589
+	if (is_avatar)
+	{
+		return original_focus_point - obj_pos;
+	}
+
+	
 	LLQuaternion inv_obj_rot = ~obj_rot; // get inverse of rotation
 	LLVector3 object_extents = object->getScale();
 	// make sure they object extents are non-zero

@@ -2,13 +2,13 @@
 <panel label="Gráficos" name="Display panel">
 	<button label="?" name="GraphicsPreferencesHelpButton"/>
 	<check_box label="Abrir Second Life en una ventana" name="windowed mode"/>
-	<text_editor name="FullScreenInfo">
+	<text_editor name="FullScreenInfo" width="480">
 		Si no está marcado, el visor se mostrará en pantalla completa cuando inicie sesión.
 	</text_editor>
 	<text name="WindowSizeLabel">
 		Tamaño de la ventana:
 	</text>
-	<combo_box name="windowsize combo">
+	<combo_box left="124" name="windowsize combo">
 		<combo_item name="640x480">
 			640x480
 		</combo_item>
@@ -28,10 +28,11 @@
 	<text name="DisplayResLabel">
 		Resolución:
 	</text>
+	<combo_box left="124" name="fullscreen combo" />
 	<text name="AspectRatioLabel1" tool_tip="ancho / alto">
 		Proporción:
 	</text>
-	<combo_box name="aspect_ratio" tool_tip="ancho / alto">
+	<combo_box  left="124" name="aspect_ratio" tool_tip="ancho / alto">
 		<combo_item length="1" name="4:3(StandardCRT)" type="string">
 			4:3 (Standard CRT)
 		</combo_item>
@@ -45,14 +46,14 @@
 			16:9 (Widescreen)
 		</combo_item>
 	</combo_box>
-	<check_box label="Detectar automáticamente la proporción" name="aspect_auto_detect"/>
+	<check_box label="Detectar automáticamente &#10;la proporción" name="aspect_auto_detect" left="295" />
 	<text name="HigherText">
 		Calidad y
 	</text>
 	<text name="QualityText">
 		Rendimiento:
 	</text>
-	<text name="FasterText">
+	<text name="FasterText" left="95">
 		El más rápido
 	</text>
 	<text name="ShadersPrefText">
@@ -67,11 +68,11 @@
 	<text name="ShadersPrefText4">
 		Ultra
 	</text>
-	<text name="HigherText2">
+	<text name="HigherText2" left="325" >
 		Más alto
 	</text>
-	<text name="QualityText2">
-		Calidad
+	<text name="QualityText2" left="325" >
+		calidad
 	</text>
 	<check_box label="Personalizar" name="CustomSettings"/>
 	<text name="ShadersText">
@@ -112,16 +113,16 @@
 	</text>
 	<slider label="Distancia de dibujo:" name="DrawDistance"/>
 	<slider label="Núm. máx. de partículas:" name="MaxParticleCount"/>
-	<slider label="Calidad del procesamiento:" name="RenderPostProcess"/>
+	<slider label="Calidad del procesamiento:" name="RenderPostProcess" label_width="142"/>
 	<text name="MeshDetailText">
 		Detalle de la malla:
 	</text>
-	<slider label="Objetos:" name="ObjectMeshDetail"/>
-	<slider label="Prims flexibles:" name="FlexibleMeshDetail"/>
-	<slider label="Árboles:" name="TreeMeshDetail"/>
-	<slider label="Avatares:" name="AvatarMeshDetail"/>
-	<slider label="Terreno:" name="TerrainMeshDetail"/>
-	<slider label="Cielo:" name="SkyMeshDetail"/>
+	<slider label="  Objetos:" name="ObjectMeshDetail"/>
+	<slider label="  Prims flexibles:" name="FlexibleMeshDetail"/>
+	<slider label="  Árboles:" name="TreeMeshDetail"/>
+	<slider label="  Avatares:" name="AvatarMeshDetail"/>
+	<slider label="  Terreno:" name="TerrainMeshDetail"/>
+	<slider label="  Cielo:" name="SkyMeshDetail"/>
 	<text name="PostProcessText">
 		Baja
 	</text>
@@ -143,7 +144,7 @@
 	<text name="SkyMeshDetailText">
 		Bajo
 	</text>
-	<text name="LightingDetailText">
+	<text name="LightingDetailText" width="135">
 		Detalles de la iluminación:
 	</text>
 	<radio_group name="LightingDetailRadio">
@@ -155,9 +156,10 @@
 		</radio_item>
 	</radio_group>
 	<text name="TerrainDetailText">
-		Nivel de detalle del terreno:
+		Nivel de detalle del
+ terreno:
 	</text>
-	<radio_group name="TerrainDetailRadio">
+	<radio_group name="TerrainDetailRadio" left_delta="60">
 		<radio_item name="0">
 			Bajo
 		</radio_item>
@@ -165,8 +167,8 @@
 			Alto
 		</radio_item>
 	</radio_group>
-	<button label="Configuraciones recomendadas" name="Defaults"/>
-	<button label="Opciones del hardware" label_selected="Opciones del hardware" name="GraphicsHardwareButton"/>
+	<button label="Configuraciones recomendadas" name="Defaults" width="195" left="110"/>
+	<button label="Opciones del hardware" label_selected="Opciones del hardware" name="GraphicsHardwareButton" left="315"/>
 	<string name="resolution_format">
 		[RES_X] x [RES_Y]
 	</string>

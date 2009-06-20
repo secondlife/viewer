@@ -18,10 +18,10 @@
 	<text name="estate_name_text">
 		(sconosciuto)
 	</text>
-	<text name="estate_owner_label">
-		Proprietario della regione
+	<text name="estate_owner_label" width="120" right="575">
+		Proprietario della regione:
 	</text>
-	<text name="estate_owner_text">
+	<text name="estate_owner_text" left="580" width="155">
 		(sconosciuto)
 	</text>
 	<text name="resellable_changeable_label">
@@ -36,6 +36,7 @@
 	<text name="covenant_text">
 		Devi accettare il regolamento della regione:
 	</text>
+	<text left="470" name="covenant_timestamp_text"/>
 	<text_editor name="covenant_editor">
 		Attendi...
 	</text_editor>
@@ -96,10 +97,10 @@ venduta con gli oggetti
 	<text name="currency_reason">
 		Possiedi 2.100 L$.
 	</text>
-	<text name="currency_action">
+	<text name="currency_action" width="106">
 		Compra ulteriori L$
 	</text>
-	<line_editor name="currency_amt">
+	<line_editor name="currency_amt" left="174" width="80">
 		1000
 	</line_editor>
 	<text name="currency_est">

@@ -4804,13 +4804,24 @@
     <key>IMInChatConsole</key>
     <map>
       <key>Comment</key>
-      <string>Copy IM into background chat console</string>
+      <string>Copy IM into chat console</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>
+    </map>
+    <key>IMInChatHistory</key>
+    <map>
+      <key>Comment</key>
+      <string>Copy IM into chat history</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
     </map>
     <key>IMShowTimestamps</key>
     <map>
@@ -8777,7 +8788,7 @@
       <key>Comment</key>
       <string>Display XUI Names as Tooltips</string>
       <key>Persist</key>
-      <integer>1</integer>
+      <integer>0</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>

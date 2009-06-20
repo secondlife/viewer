@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="toolbox floater" title="">
+<floater name="toolbox floater" title="" short_title="制作">
 	<button label="" label_selected="" name="button focus" tool_tip="フォーカス"/>
 	<button label="" label_selected="" name="button move" tool_tip="動かす"/>
 	<button label="" label_selected="" name="button edit" tool_tip="編集"/>

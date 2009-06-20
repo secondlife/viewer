@@ -4,29 +4,29 @@
 		Laden…
 	</text>
 	<scroll_list name="objects_list">
-		<column label="Score" name="score"/>
-		<column label="Naam" name="name"/>
-		<column label="Eigenaar" name="owner"/>
-		<column label="Locatie" name="location"/>
-		<column label="Tijd" name="time"/>
-		<column label="Mono tijd" name="mono_time"/>
+		<column label="Score" name="score" width="84"/>
+		<column label="Naam" name="name" width="84"/>
+		<column label="Eigenaar" name="owner" width="84"/>
+		<column label="Locatie" name="location" width="84"/>
+		<column label="Tijd" name="time" width="84"/>
+		<column label="Mono tijd" name="mono_time" width="84"/>
 	</scroll_list>
-	<text name="id_text">
+	<text name="id_text" left="2">
 		Object ID:
 	</text>
 	<button label="Toon baken" name="show_beacon_btn"/>
-	<text name="obj_name_text">
+	<text name="obj_name_text" left="2">
 		Object naam:
 	</text>
 	<button label="Filter" name="filter_object_btn"/>
-	<text name="owner_name_text">
+	<text name="owner_name_text" left="2">
 		Eigenaar naam:
 	</text>
 	<button label="Filter" name="filter_owner_btn"/>
-	<button label="Geselecteerde retourneren" name="return_selected_btn"/>
-	<button label="Alles retourneren" name="return_all_btn"/>
-	<button label="Geselecteerde uitschakelen" name="disable_selected_btn"/>
-	<button label="Alles uitschakelen" name="disable_all_btn"/>
+	<button label="Geselecteerde retourneren" name="return_selected_btn" width="170"/>
+	<button label="Alles retourneren" name="return_all_btn" left="190"/>
+	<button label="Geselecteerde uitschakelen" name="disable_selected_btn" width="170"/>
+	<button label="Alles uitschakelen" name="disable_all_btn" left="190"/>
 	<button label="Verversen" name="refresh_btn"/>
 	<string name="top_scripts_title">
 		Top scripts

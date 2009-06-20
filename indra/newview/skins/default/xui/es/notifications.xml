@@ -189,7 +189,7 @@ No podrá removérseles de ese rol, sino que deberán renunciar a él por sí mi
 		<usetemplate name="okcancelbuttons" notext="No" yestext="Sí"/>
 	</notification>
 	<notification name="ClickPublishHelpLand">
-		Seleccionar &quot;Publicar en la web&quot;
+		Seleccionar &apos;Publicar en la web&apos;
 Marcando este ítem, se mostrará:
 - esta parcela en los resultados de la búsqueda
 - los objetos públicos de esta parcela
@@ -219,7 +219,7 @@ Marcando este ítem, se mostrará:
 		No puede hacer que esta parcela aparezca en la búsqueda, porque está situada en una región que lo prohíbe.
 	</notification>
 	<notification name="ClickPublishHelpAvatar">
-		Al seleccionar &quot;Mostrar en Buscar&quot; se mostrará:
+		Al seleccionar &apos;Mostrar en la búsqueda&apos; se mostrará:
 - mi perfil en los resultados de la búsqueda
 - un enlace a mi perfil en las páginas públicas de grupo
 	</notification>
@@ -928,7 +928,7 @@ Deberá reconfigurar el nombre y las opciones de la nueva parcela.
 El color de las parcelas indica el tipo de propietario.
 
 Verde = Su terreno
-Agua = Terreno de su&apos;s grupo&apos;s
+Agua = Terreno de sus grupos
 Rojo = Propiedad de otros
 Amarillo = En venta
 Morado = Para subasta
@@ -1196,13 +1196,13 @@ Por favor, selección sólo uno y reinténtelo.
 		No se han podido configurar las texturas de la región:
 La textura del terreno [TEXTURE_NUM] tiene una profundidad de bites inválida: [TEXTURE_BIT_DEPTH].
 
-Cambie la textura [TEXTURE_NUM] por una imagen de 24-bit y 512x512 o menor, y pulse de nuevo &quot;Aplicar&quot; .
+Cambie la textura [TEXTURE_NUM] por una imagen de 24-bit y 512x512 o menor, y pulse de nuevo &apos;Aplicar&apos; .
 	</notification>
 	<notification name="InvalidTerrainSize">
 		No se han podido configurar las texturas de la región:
 La textura del terreno [TEXTURE_NUM] es demasiado grande: [TEXTURE_SIZE_X]x[TEXTURE_SIZE_Y].
 
-Cambie la textura [TEXTURE_NUM] por una imagen de 24-bit y 512x512 o menor, y pulse de nuevo &quot;Aplicar&quot; .
+Cambie la textura [TEXTURE_NUM] por una imagen de 24-bit y 512x512 o menor, y pulse de nuevo &apos;Aplicar&apos; .
 	</notification>
 	<notification name="RawUploadStarted">
 		Ha empezado la subida. Dependiendo de la velocidad de su conexión, llevará unos dos minutos.
@@ -1537,7 +1537,7 @@ Por favor, compruebe que tiene instalado el último visor, y vaya a la Base de C
 		Usted no está autorizado en esa región por su nivel de calificación..
 
 Puede pulsar &apos;Cambiar preferencia&apos; para aumentar su nivel de calificación y poder entrar. Desde ese momento, podrá buscar y acceder a contenido [REGIONMATURITY]. Si más adelante quiere deshacer esta configuración, vaya a Editar &gt; Preferencias... &gt; General.
-	 <form>
+	 <form name="form">
       <button
        name="OK"
        text="Cambiar preferencia"/>
@@ -1545,7 +1545,7 @@ Puede pulsar &apos;Cambiar preferencia&apos; para aumentar su nivel de calificac
        default="true"
        name="Cancel"
        text="Cerrar"/>
-       <ignore text="Cuando la entrada a la región está bloqueada por la preferencia del nivel de calificación"/>
+       <ignore name="ignore" text="Cuando la entrada a la región está bloqueada por la preferencia del nivel de calificación"/>
     </form>
 	</notification>
 	<notification name="LandClaimAccessBlocked">
@@ -1735,7 +1735,7 @@ Cuando está activada, los residentes sólo pueden ser empujados por sí mismos 
 Por defecto: Off
 	</notification>
 	<notification label="Unir/Dividir parcelas" name="HelpParcelChanges">
-		Esta casilla determina si las parcelas que no son del propietario del estado pueden puede unirse o subdividirse.
+		Esta casilla determina si las parcelas que no son del propietario del estado pueden unirse o subdividirse.
 Si no se marca esta opción:
  * Sólo los propietarios o los administradores del estado pueden unir o dividir parcelas.
  * Sólo podrán unir o dividir las parcelas pertenecientes al propietario o a un grupo en el que tengan los poderes adecuados.
@@ -1860,7 +1860,7 @@ Por defecto: on
 		Esta casilla fija la posición del Sol en la posición del deslizable Fase, y detiene su movimiento.
 	</notification>
 	<notification label="Acceso público" name="HelpEstateExternallyVisible">
-		Esta casilla habilita a cualquier residente que esté en otro estado pueda entrar en éste sin tener que estar en una lista de acceso.
+		Esta casilla habilita que cualquier residente que esté en otro estado pueda entrar en éste sin tener que estar en una lista de acceso.
 
 Por defecto: on
 	</notification>
@@ -2162,7 +2162,7 @@ Núm. máx. de partículas: define el número máximo de partículas que podrá 
 
 Calidad del procesamiento: define la resolución con que se renderiza el brillo.
 
-Detalle de la malla: define la cantidad de dettales o número de triángulos usados para renderizar algunos objetos. Cuanto más alto sea el valor, más detalle, pero más tiempo para renderizar.
+Detalle de la malla: define la cantidad de detalles o número de triángulos usados para renderizar algunos objetos. Cuanto más alto sea el valor, más detalle, pero más tiempo para renderizar.
 
 Detalles de la iluminación: determina que tipo de luces quiere usted que se rendericen.
 
@@ -2195,30 +2195,30 @@ Nivel de detalle del terreno: marca con cuánto detalle quiere ver la textura de
 	<notification name="EnvSettingsHelpButton">
 		Estas configuraciones ajustan la forma en que usted ve el medio ambiente localmente, en su ordenador. Su tarjeta gráfica debe admitir shaders de la atmósfera (&apos;atmospheric shaders&apos;) para poder acceder a esta configuración.
 
-Ajuste el deslizable &quot;Duración de un día&quot; para cambiar localmente, en su visor, las etapas del día.
+Ajuste el deslizable &apos;Duración de un día&apos; para cambiar localmente, en su visor, las etapas del día.
 
-Ajuste el deslizable &quot;Nubosidad&quot; para controlar cuántas nubes cubren el cielo.
+Ajuste el deslizable &apos;Nubosidad&apos; para controlar cuántas nubes cubren el cielo.
 
-Pulse un color en el selector de &quot;Color del agua&quot; para cambiar el color de la misma.
+Pulse un color en el selector de &apos;Color del agua&apos; para cambiar el color de la misma.
 
-Ajuste el deslizable &quot;Claridad del agua&quot; para controlar el nivel de claridad del agua bajo la superficie.
+Ajuste el deslizable &apos;Claridad del agua&apos; para controlar el nivel de claridad del agua bajo la superficie.
 
-Pulse &quot;Usar el horario del estado&quot; para devolver los valores del día al tiempo actual de la región y seguir a partir de él.
+Pulse &apos;Usar el horario del estado&apos; para devolver los valores del día al tiempo actual de la región y seguir a partir de él.
 
-Pulse &quot;Cielo avanzado&quot; para abrir un editor con configuraciones avanzadas para el cielo.
+Pulse &apos;Cielo avanzado&apos; para abrir un editor con configuraciones avanzadas para el cielo.
 
-Pulse &quot;Agua avanzada&quot; para abrir un editor con configuraciones avanzadas para el agua.
+Pulse &apos;Agua avanzada&apos; para abrir un editor con configuraciones avanzadas para el agua.
 	</notification>
 	<notification name="HelpDayCycle">
 		El Editor del ciclo del día le permite controlar el cielo de Second Life durante el ciclo día/noche. Este es el ciclo que usa el deslizable Duración de un día del Editor del entorno.
 
-El Editor del ciclo del día trabaja configurando fotogramas clave (&apos;keyframes&apos;): nodos (representados por los puntos grises en la línea del tiempo) cada uno de los cuales tiene asociado un Cielo definido. Según progresa la Duración de un día, el WindLight realiza la &quot;animación&quot; del cielo interpolándose entre esos fotogramas clave.
+El Editor del ciclo del día trabaja configurando fotogramas clave (&apos;keyframes&apos;): nodos (representados por los puntos grises en la línea del tiempo) cada uno de los cuales tiene asociado un Cielo definido. Según progresa la Duración de un día, el WindLight realiza la &apos;animación&apos; del cielo interpolándose entre esos fotogramas clave.
 
 La flecha amarilla sobre la línea del tiempo representa lo que usted ve actualmente, basándose en la Duración de un día. Púlsela y muévela para ver cómo cambia la animación del día. Puede añadir o borrar fotogramas clave pulsando los botones Añadir un punto o Quitar un punto, situados a la derecha de la línea del tiempo.
 
-Puede establecer la posición en el tiempo de cualquier fotograma clave moviéndolo a lo largo de la línea del tiempo, o configurando manualmente su valor por su valor manualmente en el recuadro Configuración del fotograma clave. También en ese recuadro podrá asociar el fotograma clave a un modelo predefinido de WindLight.
+Puede establecer la posición en el tiempo de cualquier fotograma clave moviéndolo a lo largo de la línea del tiempo, o configurando manualmente su valor en el recuadro Configuración del fotograma clave. También en ese recuadro podrá asociar el fotograma clave a un modelo predefinido de WindLight.
 
-La Duración del ciclo establece la duración total de un &quot;día&quot;. Marcar un valor bajo (por ejemplo, 2 min.) hará que las 24 horas de su línea del tiempo se animen ¡en sólo dos minutos reales! Una vez que esté satisfecho con su ciclo de la línea del tiempo y los fotogramas clave, utilice los botones Probar y Parar para obtener una vista previa de los resultados. Recuerde que también puede mover la flecha amarilla de encima de la línea del tiempo para ver el ciclo de la animación. El botón Usar el horario del estado sincronizará su ciclo de duración de un día con el ciclo del estado.
+La Duración del ciclo establece la duración total de un &apos;día&apos;. Marcar un valor bajo (por ejemplo, 2 min.) hará que las 24 horas de su línea del tiempo se animen ¡en sólo dos minutos reales! Una vez que esté satisfecho con su ciclo de la línea del tiempo y los fotogramas clave, utilice los botones Probar y Parar para obtener una vista previa de los resultados. Recuerde que también puede mover la flecha amarilla de encima de la línea del tiempo para ver el ciclo de la animación. El botón Usar el horario del estado sincronizará su ciclo de duración de un día con el ciclo del estado.
 
 Cuando todo esté a su gusto, puede guardar esos datos y cargarlos luego usando los botones Guardar este tipo de día y Cargar un tipo de día. Note que, por el momento, sólo podemos permitir un ciclo de un día.
 	</notification>
@@ -2235,13 +2235,13 @@ Cuando todo esté a su gusto, puede guardar esos datos y cargarlos luego usando 
 		La Densidad de la bruma controla lo sombrío de la atmósfera, su neblina. Es eficaz para simular escenas con mucho humo o contaminantes, y también para simular niebla y llovizna.
 	</notification>
 	<notification name="HelpDensityMult">
-		La Densidad puede usarse para definir globalmente la &apos;pesadez&apos; de la atmósfera. Los ajustes bajos dan sensación de un &quot;aire limpio&quot;, y los altos de pesadez, de esmog.
+		La Densidad puede usarse para definir globalmente la &apos;pesadez&apos; de la atmósfera. Los ajustes bajos dan sensación de un &apos;aire limpio&apos;, y los altos de pesadez, de esmog.
 	</notification>
 	<notification name="HelpDistanceMult">
 		Ajusta a qué distancia se percibe el WindLight. El valor cero desactiva la influencia del WindLight en el terreno y los objetos. Los valores superiores a 1 simulan mayores distancias a las que afectan los efectos atmosféricos
 	</notification>
 	<notification name="HelpMaxAltitude">
-		La Altitud máx. ajusta hasta que altura el WindLight realiza sus cálculos para computar la iluminación atmosférica. En las últimas horas del día, es útil para ajustar la &quot;profundidad&quot; a la que aparece el Sol.
+		La Altitud máx. ajusta hasta que altura el WindLight realiza sus cálculos para computar la iluminación atmosférica. En las últimas horas del día, es útil para ajustar la &apos;profundidad&apos; a la que aparece el Sol.
 	</notification>
 	<notification name="HelpSunlightColor">
 		Ajusta en la escena la intensidad y el color de las luces directas.
@@ -2382,7 +2382,7 @@ Pero, vaya, diviértase si quiere.
 	</notification>
 	<notification name="AutoWearNewClothing">
 		¿Quiere vestirse automáticamente el ítem de ropa nueva que ha creado?
-		<usetemplate ignoretext="Vestirme automáticamente la ropa nueva" name="okcancelignore" notext="No" yestext="Sí"/>
+		<usetemplate ignoretext="Al vestirme automáticamente la ropa nueva" name="okcancelignore" notext="No" yestext="Sí"/>
 	</notification>
 	<notification name="NotAgeVerified">
 		Para acceder a esta parcela, se debe haber verificado su edad.
@@ -2390,7 +2390,7 @@ Pero, vaya, diviértase si quiere.
 
 [_URL]
 		<url name="url" option="0">
-			https://secondlife.com/account/verification.php
+			https://secondlife.com/account/verification.php?lang=es
 		</url>
 		<usetemplate ignoretext="Advertir de la falta de la verificación de edad" name="okcancelignore" notext="No" yestext="Sí"/>
 	</notification>
@@ -2663,7 +2663,7 @@ Vaya a la &apos;Help Island Public&apos; (&apos;Isla Pública de Ayuda&apos;) pa
 	<notification name="ImproperPaymentStatus">
 		No tiene el estado de pago adecuado para entrar a esta región.
 	</notification>
-	<notification name="MustGetAgeRgion">
+	<notification name="MustGetAgeRegion">
 		Debe haber verificado su edad para entrar a esta región.
 	</notification>
 	<notification name="MustGetAgeParcel">

@@ -24,7 +24,7 @@
 		Digite sua mensagem aqui.
 	</text_editor>
 	<text name="fine_print">
-		Se seu indicado entrar no SL, você receberá um bônus pela indicação.
+		Se seu indicado entrar no Second Life, você receberá um bônus pela indicação.
 	</text>
 	<button label="Cancelar" name="cancel_btn"/>
 	<button label="Enviar" name="send_btn"/>

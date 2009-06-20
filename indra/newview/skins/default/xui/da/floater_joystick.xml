@@ -1,19 +1,19 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Joystick" title="Joystick opsætning">
 	<check_box name="enable_joystick">
 		Aktiver Joystick:
 	</check_box>
-	<spinner label="X akse mapping" name="JoystickAxis1" />
-	<spinner label="Y akse mapping" name="JoystickAxis2" />
-	<spinner label="Z akse mapping" name="JoystickAxis0" />
-	<spinner label="Hældning mapping" name="JoystickAxis4" />
-	<spinner label="Drejning mapping" name="JoystickAxis5" />
-	<spinner label="Rulning mapping" name="JoystickAxis3" />
-	<spinner label="Zoom mapping" name="JoystickAxis6" />
-	<check_box label="Direkte zoom" name="ZoomDirect" />
-	<check_box label="3D Cursor" name="Cursor3D" />
-	<check_box label="Auto opret" name="AutoLeveling" />
-	<text type="string" length="1" name="Control Modes:">
+	<spinner label="X akse mapping" name="JoystickAxis1"/>
+	<spinner label="Y akse mapping" name="JoystickAxis2"/>
+	<spinner label="Z akse mapping" name="JoystickAxis0"/>
+	<spinner label="Hældning mapping" name="JoystickAxis4"/>
+	<spinner label="Drejning mapping" name="JoystickAxis5"/>
+	<spinner label="Rulning mapping" name="JoystickAxis3"/>
+	<spinner label="Zoom mapping" name="JoystickAxis6"/>
+	<check_box label="Direkte zoom" name="ZoomDirect"/>
+	<check_box label="3D Cursor" name="Cursor3D"/>
+	<check_box label="Auto opret" name="AutoLeveling"/>
+	<text length="1" name="Control Modes:" type="string">
 		Kontrollér:
 	</text>
 	<check_box name="JoystickAvatarEnabled">
@@ -64,18 +64,20 @@
 	<text name="Feathering">
 		Respons
 	</text>
-	<slider label="" name="AvatarFeathering" />
-	<slider label="" name="BuildFeathering" />
-	<slider label="" name="FlycamFeathering" />
+	<slider label="" name="AvatarFeathering"/>
+	<slider label="" name="BuildFeathering"/>
+	<slider label="" name="FlycamFeathering"/>
 	<text name="ZoomScale2">
 		Zoom følsomhed
 	</text>
-	<spinner label="" name="FlycamAxisScale6" />
+	<spinner label="" name="FlycamAxisScale6"/>
 	<text name="ZoomDeadZone">
 		Zoom min. udslag
 	</text>
-	<spinner label="" name="FlycamAxisDeadZone6" />
-	<button label="SpaceNavigator Defaults" name="SpaceNavigatorDefaults" />
+	<spinner label="" name="FlycamAxisDeadZone6"/>
+	<button label="SpaceNavigator Defaults" name="SpaceNavigatorDefaults"/>
+	<button label="OK" label_selected="OK" name="ok_btn"/>
+	<button label="Annullér" label_selected="Annullér" name="cancel_btn"/>
 	<string name="JoystickMonitor">
 		Joystick Overvågning
 	</string>

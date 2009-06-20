@@ -14,7 +14,7 @@
 	<text name="prepend_founded_by">
 		Fundado por:
 	</text>
-	<text name="founder_name">
+	<text name="founder_name" left_delta="74" >
 		(espera)
 	</text>
 	<text name="group_charter_label">
@@ -44,8 +44,8 @@
 		<check_box label="Mostre na busca" name="show_in_group_list" tool_tip="Deixe as pessoas verem este grupo nos resultados de busca."/>
 		<check_box label="Adesão aberta" name="open_enrollement" tool_tip="Definir se este grupo permite que novos membros entrem sem serem convidados"/>
 		<check_box label="Taxa de adesão: L$" name="check_enrollment_fee" tool_tip="Define se é necessária uma taxa de adesão para se unir ao grupo."/>
-		<spinner name="spin_enrollment_fee" tool_tip="Os novos membros devem pagar esta taxa para se unir ao grupo quando a Taxa de Adesão está marcada."/>
-		<combo_box name="group_mature_check" tool_tip="Define se a informação do seu grupo é considerada mature.">
+		<spinner width="60" left_delta="120"  name="spin_enrollment_fee" tool_tip="Os novos membros devem pagar esta taxa para se unir ao grupo quando a Taxa de Adesão está marcada."/>
+		<combo_box width="170" name="group_mature_check" tool_tip="Define se a informação do seu grupo é considerada mature.">
 			<combo_item name="select_mature">
 				- Selecionar Maturidade -
 			</combo_item>

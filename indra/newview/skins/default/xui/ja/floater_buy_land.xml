@@ -36,6 +36,7 @@
 	<text name="covenant_text">
 		不動産約款に同意してください：
 	</text>
+	<text left="470" name="covenant_timestamp_text"/>
 	<text_editor name="covenant_editor">
 		ロード中．．．
 	</text_editor>

@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Chat de texto" name="chat">
 	<text length="1" name="text_box" type="string">
-		Tamaño de la fuente del chat:
+		Tamaño de la fuente
+del chat:
 	</text>
 	<radio_group name="chat_font_size">
 		<radio_item name="radio">
@@ -35,7 +36,7 @@
 	</text>
 	<spinner label="Quitar el chat tras" name="fade_chat_time" label_width="95" width="145" />
 	<text length="1" name="text_box4" type="string" left="297" >
-		(s)
+		(seg.)
 	</text>
 	<text length="1" name="text_box5" type="string">
 		(# líneas)

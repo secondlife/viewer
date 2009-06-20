@@ -2,8 +2,8 @@
 <panel label="Grafica" name="Display panel">
 	<button label="?" name="GraphicsPreferencesHelpButton"/>
 	<check_box label="Esegui Second Life in una finestra" name="windowed mode"/>
-	<text_editor name="FullScreenInfo">
-		Se deselezionato, il viewer partirà a schermo intero all&apos;avvio.
+	<text_editor name="FullScreenInfo" width="480">
+		Se deselezionato, all&apos;avvio il programma partirà a schermo intero.
 	</text_editor>
 	<text name="WindowSizeLabel">
 		Dimensione della finestra:
@@ -68,7 +68,7 @@
 		Ultra
 	</text>
 	<text name="HigherText2">
-		più alto
+		Più alto
 	</text>
 	<text name="QualityText2">
 		Qualità
@@ -77,8 +77,8 @@
 	<text name="ShadersText">
 		Effetti grafici:
 	</text>
-	<check_box label="Bump Mapping (piccoli rilievi) e scintillii" name="BumpShiny"/>
-	<check_box label="Effetti grafici base" name="BasicShaders" tool_tip="Disabilite questa opzione può evitare che qualche scheda grafica vada in crash."/>
+	<check_box label="Piccoli rilievi e scintillii" name="BumpShiny"/>
+	<check_box label="Effetti grafici base" name="BasicShaders" tool_tip="Disabilitare questa opzione può evitare che qualche scheda grafica vada in crash."/>
 	<check_box label="Effetti grafici atmosferici" name="WindLightUseAtmosShaders"/>
 	<check_box label="Riflessi dell&apos;acqua" name="Reflections"/>
 	<text name="ReflectionDetailText">
@@ -110,18 +110,18 @@
 	<text name="DrawDistanceMeterText2">
 		m
 	</text>
-	<slider label="Distanza di disegno:" name="DrawDistance"/>
-	<slider label="Conteggio massimo particelle:" name="MaxParticleCount"/>
-	<slider label="Qualità in post-produzione:" name="RenderPostProcess"/>
+	<slider label="Distanza di disegno:" name="DrawDistance" label_width="158" width="255"/>
+	<slider label="Conteggio massimo particelle:" name="MaxParticleCount" label_width="158" width="262" />
+	<slider label="Qualità in post-produzione:" name="RenderPostProcess" label_width="158" width="223"/>
 	<text name="MeshDetailText">
 		Dettagli reticolo:
 	</text>
-	<slider label="Oggetti:" name="ObjectMeshDetail"/>
-	<slider label="Prims flessibili:" name="FlexibleMeshDetail"/>
-	<slider label="Alberi:" name="TreeMeshDetail"/>
-	<slider label="Avatar:" name="AvatarMeshDetail"/>
-	<slider label="Terreno:" name="TerrainMeshDetail"/>
-	<slider label="Cielo:" name="SkyMeshDetail"/>
+	<slider label="  Oggetti:" name="ObjectMeshDetail"/>
+	<slider label="  Prims flessibili:" name="FlexibleMeshDetail"/>
+	<slider label="  Alberi:" name="TreeMeshDetail"/>
+	<slider label="  Avatar:" name="AvatarMeshDetail"/>
+	<slider label="  Terreno:" name="TerrainMeshDetail"/>
+	<slider label="  Cielo:" name="SkyMeshDetail"/>
 	<text name="PostProcessText">
 		Basso
 	</text>
@@ -148,7 +148,7 @@
 	</text>
 	<radio_group name="LightingDetailRadio">
 		<radio_item name="SunMoon">
-			Sole e luna solamente
+			Solo il sole e la luna
 		</radio_item>
 		<radio_item name="LocalLights">
 			Luci locali

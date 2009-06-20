@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floater_report_abuse" title="Misbruik rapporteren">
 	<check_box label="Voeg schermafbeelding toe" name="screen_check"/>
-	<text name="reporter_title">
+	<text name="reporter_title" width="110">
 		Rapporteur:
 	</text>
-	<text name="reporter_field">
+	<text name="reporter_field" left_delta="70">
 		Loremipsum Dolorsitamut
 	</text>
 	<text name="sim_title">
 		Regio:
 	</text>
-	<text name="sim_field">
+	<text name="sim_field" left_delta="70">
 		Regionaam
 	</text>
 	<text name="pos_title">
 		Positie:
 	</text>
-	<text name="pos_field">
+	<text name="pos_field" left_delta="70">
 		{128.1, 128.1, 15.4}
 	</text>
 	<text name="select_object_label">
@@ -26,7 +26,7 @@
 	<text name="object_name_label">
 		Naam:
 	</text>
-	<text name="object_name">
+	<text name="object_name" width="120">
 		Consetetur Sadipscing
 	</text>
 	<text name="owner_name_label">
@@ -169,7 +169,9 @@
 		Details:
 	</text>
 	<text name="bug_aviso">
-		Wees alstublieft zo specifiek mogelijk m.b.t. datum, locatie, aard van het misbruik, relevante chat/IM tekst, en selecteer het object indien mogelijk.
+		Wees alstublieft zo specifiek mogelijk m.b.t. datum, locatie, 
+aard van het misbruik, relevante chat/IM tekst, en selecteer 
+het object indien mogelijk.
 	</text>
 	<text name="incomplete_title">
 		Let op: onvolledige rapporten zullen niet worden onderzocht.

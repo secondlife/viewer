@@ -36,6 +36,7 @@
 	<text name="covenant_text">
 		Sie müssen dem Grundstücksvertrag zustimmen:
 	</text>
+	<text left="470" name="covenant_timestamp_text"/>
 	<text_editor name="covenant_editor">
 		Wird geladen...
 	</text_editor>

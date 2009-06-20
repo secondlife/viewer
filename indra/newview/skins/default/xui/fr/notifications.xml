@@ -2595,7 +2595,7 @@ Pour répéter le didacticiel, veuillez aller sur Help Island Public.
 	<notification name="ImproperPaymentStatus">
 		Vous n&apos;avez pas le statut de paiement approprié pour pénétrer dans cette région.
 	</notification>
-	<notification name="MustGetAgeRgion">
+	<notification name="MustGetAgeRegion">
 		Pour pouvoir pénétrer dans cette région, vous devez avoir procédé à la vérification de votre âge.
 	</notification>
 	<notification name="MustGetAgeParcel">

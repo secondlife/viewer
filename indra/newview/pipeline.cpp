@@ -1945,7 +1945,8 @@ void LLPipeline::stateSort(LLSpatialBridge* bridge, LLCamera& camera)
 	LLMemType mt(LLMemType::MTYPE_PIPELINE);
 	if (!sSkipUpdate && bridge->getSpatialGroup()->changeLOD())
 	{
-		bridge->updateDistance(camera);
+		bool force_update = false;
+		bridge->updateDistance(camera, force_update);
 	}
 }
 
@@ -2006,11 +2007,13 @@ void LLPipeline::stateSort(LLDrawable* drawablep, LLCamera& camera)
 		{
 			if (!drawablep->isActive())
 			{
-				drawablep->updateDistance(camera);
+				bool force_update = false;
+				drawablep->updateDistance(camera, force_update);
 			}
 			else if (drawablep->isAvatar())
 			{
-				drawablep->updateDistance(camera); // calls vobj->updateLOD() which calls LLVOAvatar::updateVisibility()
+				bool force_update = false;
+				drawablep->updateDistance(camera, force_update); // calls vobj->updateLOD() which calls LLVOAvatar::updateVisibility()
 		}
 		}
 	}
@@ -2570,9 +2573,6 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 	stop_glerror();
 	
 	LLAppViewer::instance()->pingMainloopTimeout("Pipeline:RenderDrawPools");
-	
-		LLAppViewer::instance()->pingMainloopTimeout("Pipeline:RenderForSelect");
-		LLAppViewer::instance()->pingMainloopTimeout("Pipeline:RenderDeferred");
 	for (pool_set_t::iterator iter = mPools.begin(); iter != mPools.end(); ++iter)
 	{
 		LLDrawPool *poolp = *iter;
@@ -2584,6 +2584,7 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 
 	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_PICKING))
 	{
+		LLAppViewer::instance()->pingMainloopTimeout("Pipeline:RenderForSelect");
 		gObjectList.renderObjectsForSelect(camera, gViewerWindow->getVirtualWindowRect());
 	}
 	else
@@ -2747,6 +2748,7 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 
 void LLPipeline::renderGeomDeferred(LLCamera& camera)
 {
+	LLAppViewer::instance()->pingMainloopTimeout("Pipeline:RenderGeomDeferred");
 	LLFastTimer t(LLFastTimer::FTM_RENDER_GEOMETRY);
 
 	LLFastTimer t2(LLFastTimer::FTM_POOLS);

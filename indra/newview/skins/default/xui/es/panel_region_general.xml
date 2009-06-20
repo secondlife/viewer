@@ -30,11 +30,11 @@
 	<button label="?" name="land_resell_help"/>
 	<check_box label="Permitir unir/dividir el terreno" name="allow_parcel_changes_check"/>
 	<button label="?" name="parcel_changes_help"/>
-	<check_box label="Bloquear el mostrar el terreno en la búsqueda." name="block_parcel_search_check" tool_tip="Permitir que la gente vea esta región y sus parcelas en los resultados de la búsqueda."/>
+	<check_box label="Bloquear el mostrar el terreno en &#10;la búsqueda." name="block_parcel_search_check" tool_tip="Permitir que la gente vea esta región y sus parcelas en los resultados de la búsqueda."/>
 	<button label="?" name="parcel_search_help"/>
-	<spinner label="Nº máximo de avatares" name="agent_limit_spin"/>
+	<spinner label="Nº máximo de avatares" name="agent_limit_spin" label_width="120" width="180"/>
 	<button label="?" name="agent_limit_help"/>
-	<spinner label="Plus de objetos" name="object_bonus_spin"/>
+	<spinner label="Plus de objetos" name="object_bonus_spin" label_width="120" width="180"/>
 	<button label="?" name="object_bonus_help"/>
 	<text label="Calificación" name="access_text">
 		Calificación:
@@ -54,6 +54,6 @@
 	<button label="Aplicar" name="apply_btn"/>
 	<button label="Teleportar a su Base a un usuario..." name="kick_btn"/>
 	<button label="Teleportar a su Base a todos los usuarios..." name="kick_all_btn"/>
-	<button label="Enviar un mensaje a toda la región..." name="im_btn"/>
-	<button label="Administrar el Punto de Teleporte..." name="manage_telehub_btn"/>
+	<button label="Enviar un mensaje a toda la región..." name="im_btn" width="250" />
+	<button label="Administrar el Punto de Teleporte..." name="manage_telehub_btn" width="210"/>
 </panel>

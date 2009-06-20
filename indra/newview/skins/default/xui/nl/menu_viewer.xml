@@ -165,7 +165,9 @@
 		<menu_item_separator label="-----------" name="separator4"/>
 		<menu_item_call label="Focus op selectie" name="Focus on Selection"/>
 		<menu_item_call label="Zoom naar selectie" name="Zoom to Selection"/>
-		<menu_item_call label="Koop object" name="Menu Object Take"/>
+		<menu_item_call label="Koop object" name="Menu Object Take">
+			<on_enable userdata="Koop,Neem" name="EnableBuyOrTake"/>
+		</menu_item_call>
 		<menu_item_call label="Neem kopie" name="Take Copy"/>
 		<menu_item_call label="Object terug opslaan in objectinhoud" name="Save Object Back to Object Contents"/>
 		<menu_item_separator label="-----------" name="separator6"/>

@@ -1,25 +1,25 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="toolbox floater" title="">
+<floater name="toolbox floater" title="" short_title="Bouwen" width="288">
 	<button label="" label_selected="" name="button focus" tool_tip="Focus"/>
 	<button label="" label_selected="" name="button move" tool_tip="Verplaats"/>
 	<button label="" label_selected="" name="button edit" tool_tip="Bewerk"/>
 	<button label="" label_selected="" name="button create" tool_tip="Maak"/>
 	<button label="" label_selected="" name="button land" tool_tip="Land"/>
 	<check_box label="Zoom" name="radio zoom"/>
-	<check_box label="Draaien (Ctrl)" name="radio orbit"/>
+	<check_box label="Roteren (Ctrl)" name="radio orbit"/>
 	<check_box label="Verplaatsen (Ctrl-Shift)" name="radio pan"/>
 	<check_box label="Verplaatsen" name="radio move"/>
 	<check_box label="Optillen (Ctrl)" name="radio lift"/>
-	<check_box label="Draaien (Ctrl-Shift)" name="radio spin"/>
+	<check_box label="Roteren (Ctrl-Shift)" name="radio spin"/>
 	<check_box label="Positie" name="radio position"/>
-	<check_box label="Draaien (Ctrl)" name="radio rotate"/>
+	<check_box label="Roteren (Ctrl)" name="radio rotate"/>
 	<check_box label="Uitrekken (Ctrl-Shift)" name="radio stretch"/>
 	<check_box label="Selecteer textuur" name="radio select face"/>
 	<check_box label="Bewerk gekoppelde onderdelen" name="checkbox edit linked parts"/>
 	<text name="text ruler mode">
 		Liniaal:
 	</text>
-	<combo_box name="combobox grid mode">
+	<combo_box name="combobox grid mode" width="78" left_delta="38">
 		<combo_item name="World">
 			Wereld
 		</combo_item>
@@ -30,18 +30,18 @@
 			Referentie
 		</combo_item>
 	</combo_box>
-	<check_box label="Beide zijden uitrekken" name="checkbox uniform"/>
-	<check_box label="Texturen uitrekken" name="checkbox stretch textures"/>
-	<check_box label="Gebruik grid" name="checkbox snap to grid"/>
-	<button label="Opties..." label_selected="Opties..." name="Options..."/>
-	<text name="text status">
+	<check_box left="136" label="Beide zijden uitrekken" name="checkbox uniform"/>
+	<check_box left="136" label="Texturen uitrekken" name="checkbox stretch textures"/>
+	<check_box left="136" label="Gebruik grid" name="checkbox snap to grid"/>
+	<button label="Opties..." label_selected="Opties..." name="Options..." height="18" bottom_delta="-15"/>
+	<text name="text status" width="280">
 		Sleep om te verplaatsen, Shift-slepen om te kopiëren
 	</text>
 	<button label="" label_selected="" name="ToolCube" tool_tip="Kubus"/>
 	<button label="" label_selected="" name="ToolPrism" tool_tip="Prisma"/>
 	<button label="" label_selected="" name="ToolPyramid" tool_tip="Piramide"/>
 	<button label="" label_selected="" name="ToolTetrahedron" tool_tip="Tetrahedron"/>
-	<button label="" label_selected="" name="ToolCylinder" tool_tip="Cylinder"/>
+	<button label="" label_selected="" name="ToolCylinder" tool_tip="Cilinder"/>
 	<button label="" label_selected="" name="ToolHemiCylinder" tool_tip="Halve cilinder"/>
 	<button label="" label_selected="" name="ToolCone" tool_tip="Kegel"/>
 	<button label="" label_selected="" name="ToolHemiCone" tool_tip="Halve kegel"/>
@@ -73,13 +73,13 @@
 	<text name="Strength:">
 		Sterkte
 	</text>
-	<text name="obj_count">
+	<text name="obj_count" left="134">
 		Geselecteerde objecten: [COUNT]
 	</text>
-	<text name="prim_count">
+	<text name="prim_count" left="134">
 		primitieven: [COUNT]
 	</text>
-	<tab_container name="Object Info Tabs">
+	<tab_container name="Object Info Tabs" tab_max_width="62" tab_min_width="30" width="288">
 		<panel label="Algemeen" name="General">
 			<text name="Name:">
 				Naam:
@@ -95,7 +95,7 @@
 			</text>
 			<button label="Profiel..." label_selected="Profiel..." name="button creator profile"/>
 			<text name="Owner:">
-				Eigenaar
+				Eigenaar:
 			</text>
 			<text name="Owner Name">
 				Thrax Linden
@@ -112,7 +112,7 @@
 				Permissies:
 			</text>
 			<text name="perm_modify">
-				U kunt dit object wijzigen
+				U kunt dit object wijzigen.
 			</text>
 			<check_box label="Deel met groep" name="checkbox share with group" tool_tip="Alle leden van de ingestelde groep toestaan om te delen en uw permissies voor dit object te gebruiken. U moet &apos;Overdragen&apos; om rolbeperkingen in te schakelen."/>
 			<string name="text deed continued">
@@ -144,12 +144,12 @@
 				Volgende eigenaar kan:
 			</text>
 			<check_box label="Wijzigen" name="checkbox next owner can modify"/>
-			<check_box label="Kopiëren" name="checkbox next owner can copy"/>
-			<check_box label="Verkopen/weggeven" name="checkbox next owner can transfer"/>
+			<check_box label="Kopiëren" name="checkbox next owner can copy" left_delta="80"/>
+			<check_box label="Verkopen/weggeven" name="checkbox next owner can transfer" left_delta="67"/>
 			<text name="label click action">
 				Wanneer links-geklikt:
 			</text>
-			<combo_box name="clickaction">
+			<combo_box name="clickaction" width="178">
 				<combo_item name="Touch/grab(default)">
 					Aanraken/pakken (standaard)
 				</combo_item>
@@ -191,19 +191,19 @@
 				F:
 			</text>
 			<string name="text modify info 1">
-				U kunt dit object wijzigen
+				U kunt dit object wijzigen.
 			</string>
 			<string name="text modify info 2">
-				U kunt deze objecten wijzigen
+				U kunt deze objecten wijzigen.
 			</string>
 			<string name="text modify info 3">
-				U kunt dit object niet wijzigen
+				U kunt dit object niet wijzigen.
 			</string>
 			<string name="text modify info 4">
-				U kunt deze objecten niet wijzigen
+				U kunt deze objecten niet wijzigen.
 			</string>
 			<string name="text modify warning">
-				U moet het hele object selecteren om permissies in te stellen
+				U moet het hele object selecteren om permissies in te stellen.
 			</string>
 			<string name="Cost Default">
 				Prijs:           L$
@@ -358,7 +358,7 @@
 				Deuk begin en einde
 			</text>
 			<text name="advanced_slice">
-				Uitsnede Begin en Einde
+				Uitsnede begin en einde
 			</text>
 			<spinner label="B" name="Path Limit Begin"/>
 			<spinner label="E" name="Path Limit End"/>
@@ -370,7 +370,7 @@
 			<text name="text radius delta">
 				Straal
 			</text>
-			<text name="text revolutions">
+			<text name="text revolutions" width="84">
 				Omwentelingen
 			</text>
 			<texture_picker label="Sculpt textuur" name="sculpt texture control" tool_tip="Klik om een afbeelding te kiezen"/>
@@ -405,14 +405,14 @@
 				Bewerk objectkenmerken:
 			</text>
 			<check_box label="Flexibiliteit" name="Flexible1D Checkbox Ctrl" tool_tip="Staat toe dat objecten kunnen buigen om de Z-as. (alleen aan de client kant)"/>
-			<spinner label="Zachtheid" name="FlexNumSections"/>
-			<spinner label="Zwaartekracht" name="FlexGravity"/>
-			<spinner label="Slepen" name="FlexFriction"/>
-			<spinner label="Wind" name="FlexWind"/>
-			<spinner label="Spanning" name="FlexTension"/>
-			<spinner label="Kracht X" name="FlexForceX"/>
-			<spinner label="Kracht Y" name="FlexForceY"/>
-			<spinner label="Kracht Z" name="FlexForceZ"/>
+			<spinner label="Zachtheid" name="FlexNumSections" width="143" label_width="80"/>
+			<spinner label="Zwaartekracht" name="FlexGravity" width="143" label_width="80"/>
+			<spinner label="Slepen" name="FlexFriction" width="143" label_width="80"/>
+			<spinner label="Wind" name="FlexWind" width="143" label_width="80"/>
+			<spinner label="Spanning" name="FlexTension" width="143" label_width="80"/>
+			<spinner label="Kracht X" name="FlexForceX" width="143" label_width="80"/>
+			<spinner label="Kracht Y" name="FlexForceY" width="143" label_width="80"/>
+			<spinner label="Kracht Z" name="FlexForceZ" width="143" label_width="80"/>
 			<check_box label="Licht" name="Light Checkbox Ctrl" tool_tip="Zorgt dat het object licht uitstraalt"/>
 			<text name="label color">
 				Kleur
@@ -425,13 +425,13 @@
 		<panel label="Textuur" name="Texture">
 			<texture_picker label="Textuur" name="texture control" tool_tip="Klik om een afbeelding te kiezen"/>
 			<color_swatch label="Kleur" name="colorswatch" tool_tip="Klik om kleurkiezer to openen"/>
-			<text name="color trans">
+			<text name="color trans" width="100">
 				Transparantie %
 			</text>
 			<text name="glow label">
 				Gloed
 			</text>
-			<check_box label="Volledige helderheid" name="checkbox fullbright"/>
+			<check_box label="Volledige &#10;helderheid" name="checkbox fullbright" bottom_delta="-21"/>
 			<text name="tex gen">
 				Mapping
 			</text>
@@ -536,7 +536,7 @@
 				Herhalingen per zijde
 			</string>
 			<text name="rpt">
-				Herhalingen per meter
+				Herhalingen per m
 			</text>
 			<button label="Toepassen" label_selected="Toepassen" name="button apply"/>
 			<text name="tex offset">
@@ -545,13 +545,15 @@
 			<spinner label="Horizontaal (U)" name="TexOffsetU"/>
 			<spinner label="Verticaal (V)" name="TexOffsetV"/>
 			<text name="textbox autofix">
-				Mediatextuur uitlijnen (moet eerst laden)
+				Mediatextuur uitlijnen
+(moet eerst laden)
 			</text>
-			<button label="Uitlijnen" label_selected="Uitlijnen" name="button align"/>
+			<button label="Uitlijnen" label_selected="Uitlijnen" name="button align" left="155" />
 		</panel>
 		<panel label="Inhoud" name="Contents">
 			<button label="Nieuw script" label_selected="Nieuw script..." name="button new script"/>
 			<button label="Permissies..." name="button permissions"/>
+		<panel name="ContentsInventory" width="272" />
 		</panel>
 	</tab_container>
 	<panel name="land info panel">
@@ -559,14 +561,14 @@
 			Perceel Informatie
 		</text>
 		<text name="label_area_price">
-			Prijs: L$[PRICE] voor [AREA] m2.
+			Prijs: L$[PRICE] voor [AREA] m².
 		</text>
 		<text name="label_area">
-			Gebied: [AREA] m2.
+			Gebied: [AREA] m².
 		</text>
 		<button label="Over land..." label_selected="Over land..." name="button about land"/>
 		<check_box label="Toon Eigenaren" name="checkbox show owners" tool_tip="Kleur percelen op basis van hun eigendom"/>
-		<button label="?" label_selected="?" name="button show owners help"/>
+		<button label="?" label_selected="?" name="button show owners help" left_delta="105"/>
 		<text name="label_parcel_modify">
 			Wijzig Perceel
 		</text>

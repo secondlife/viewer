@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater customize" title="Uiterlijk" width="504">
-	<tab_container name="customize tab container" tab_min_width="106" width="502">
+<floater name="floater customize" title="Uiterlijk" width="551">
+	<tab_container name="customize tab container" tab_min_width="120" width="549">
 		<panel label="Lichaamsdelen" name="body_parts_placeholder"/>
-		<panel label="Postuur" name="Shape" left="112" width="389">
+		<panel label="Postuur" name="Shape" left="124" width="389">
 			<button label="Herstel" label_selected="Herstel" name="Revert"/>
 			<button label="Lichaam" label_selected="Lichaam" name="Body"/>
 			<button label="Hoofd" label_selected="Hoofd" name="Head"/>
@@ -51,10 +51,10 @@ te slepen. Ook kunt u zelf van begin af aan een nieuwe creëren en dragen.
 			<button label="Opslaan als..." label_selected="Opslaan als..." name="Save As"/>
 		</panel>
 		<panel label="Huid" name="Skin">
-			<button width="88" label="Huidskleur" label_selected="Huidskleur" name="Skin Color"/>
-			<button width="88" label="Gezichtsdetail" label_selected="Gezichtsdetail" name="Face Detail"/>
-			<button width="88" label="Make-up" label_selected="Make-up" name="Makeup"/>
-			<button width="88" label="Lichaam detail" label_selected="Lichaam detail" name="Body Detail"/>
+			<button width="104" label="Huidskleur" label_selected="Huidskleur" name="Skin Color"/>
+			<button width="104" label="Gezichtsdetail" label_selected="Gezichtsdetail" name="Face Detail"/>
+			<button width="104" label="Make-up" label_selected="Make-up" name="Makeup"/>
+			<button width="104" label="Lichaam detail" label_selected="Lichaam detail" name="Body Detail"/>
 			<text name="title">
 				[DESC]
 			</text>
@@ -80,9 +80,9 @@ slepen. Ook kunt u zelf van begin af aan een nieuwe creëren en dragen.
 			<text name="Item Action Label">
 				Huid:
 			</text>
-			<texture_picker width="88" label="Hoofd tatoeages" name="Head Tattoos" tool_tip="Klik om een afbeelding te kiezen"/>
-			<texture_picker width="88" label="Bovenste tatoeage" name="Upper Tattoos" tool_tip="Klik om een afbeelding te kiezen"/>
-			<texture_picker width="88" label="Onderste tatoeages" name="Lower Tattoos" tool_tip="Klik om een afbeelding te kiezen"/>
+			<texture_picker width="104" label="Hoofd tatoeages" name="Head Tattoos" tool_tip="Klik om een afbeelding te kiezen"/>
+			<texture_picker width="104" label="Bovenste tatoeage" name="Upper Tattoos" tool_tip="Klik om een afbeelding te kiezen"/>
+			<texture_picker width="104" label="Onderste tatoeages" name="Lower Tattoos" tool_tip="Klik om een afbeelding te kiezen"/>
 			<button label="Nieuwe huid maken" label_selected="Nieuwe huid maken" name="Create New"/>
 			<button label="Opslaan" label_selected="Opslaan" name="Save"/>
 			<button label="Opslaan als..." label_selected="Opslaan als..." name="Save As"/>
@@ -356,7 +356,7 @@ te slepen. Ook kunt u zelf van begin af aan nieuwe creëren en dragen.
 			</text>
 			<texture_picker label="Stof" name="Fabric" tool_tip="Klik om een afbeelding te kiezen"/>
 			<color_swatch label="Kleur/tint" name="Color/Tint" tool_tip="Klik om de kleurkiezer te openen"/>
-			<button label="Nieuwe handschoenen maken" label_selected="Nieuwe handschoenen maken" name="Create New" width="180"/>
+			<button label="Nieuwe handschoenen maken" label_selected="Nieuwe handschoenen maken" name="Create New" width="190"/>
 			<button label="Uitdoen" label_selected="Uitdoen" name="Take Off"/>
 			<button label="Opslaan" label_selected="Opslaan" name="Save"/>
 			<button label="Opslaan als..." label_selected="Opslaan als..." name="Save As"/>
@@ -466,7 +466,7 @@ slepen. Ook kunt u zelf van begin af aan een nieuwe creëren en dragen.
 			<button label="Herstel" label_selected="Herstel" name="Revert"/>
 		</panel>
 	</tab_container>
-	<scroll_container left="207" name="panel_container"/>
+	<scroll_container left="254" name="panel_container"/>
 	<button label="Annuleren" label_selected="Annuleren" name="Cancel"/>
 	<button label="OK" label_selected="OK" name="Ok"/>
 	<button label="Maak kleding..." label_selected="Maak kleding..." name="Make Outfit" left="110"/>

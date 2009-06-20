@@ -135,31 +135,6 @@ bool LLAppViewerMacOSX::init()
 	return LLAppViewer::init();
 }
 
-bool LLAppViewerMacOSX::initLogging()
-{
-	// Remove the crash stack log from previous executions.
-	// Since we've started logging a new instance of the app, we can assume 
-	// The old crash stack is invalid for the next crash report.
-	char path[MAX_PATH];		
-	FSRef folder;
-	if(FSFindFolder(kUserDomain, kLogsFolderType, false, &folder) == noErr)
-	{
-		// folder is an FSRef to ~/Library/Logs/
-		if(FSRefMakePath(&folder, (UInt8*)&path, sizeof(path)) == noErr)
-		{
-			std::string pathname = std::string(path) + std::string("/CrashReporter/");
-			std::string mask = "Second Life*";
-			std::string file_name;
-			while(gDirUtilp->getNextFileInDir(pathname, mask, file_name, false))
-			{
-				LLFile::remove(pathname + file_name);
-			}
-		}
-	}
-
-	return LLAppViewer::initLogging();
-}
-
 // MacOSX may add and addition command line arguement for the process serial number.
 // The option takes a form like '-psn_0_12345'. The following method should be able to recognize
 // and either ignore or return a pair of values for the option.
@@ -416,6 +391,28 @@ void LLAppViewerMacOSX::handleCrashReporting(bool reportFreeze)
 	{
 		_exit(1);
 	}
+	
+	// TODO:palmer REMOVE THIS VERY SOON.  THIS WILL NOT BE IN VIEWER 2.0
+	// Remove the crash stack log from previous executions.
+	// Since we've started logging a new instance of the app, we can assume 
+	// The old crash stack is invalid for the next crash report.
+	char path[MAX_PATH];		
+	FSRef folder;
+	if(FSFindFolder(kUserDomain, kLogsFolderType, false, &folder) == noErr)
+	{
+		// folder is an FSRef to ~/Library/Logs/
+		if(FSRefMakePath(&folder, (UInt8*)&path, sizeof(path)) == noErr)
+		{
+			std::string pathname = std::string(path) + std::string("/CrashReporter/");
+			std::string mask = "Second Life*";
+			std::string file_name;
+			while(gDirUtilp->getNextFileInDir(pathname, mask, file_name, false))
+			{
+				LLFile::remove(pathname + file_name);
+			}
+		}
+	}
+	
 }
 
 std::string LLAppViewerMacOSX::generateSerialNumber()

@@ -365,8 +365,8 @@ void output_statistics(void*)
 	llinfos << "Number of orphans: " << gObjectList.getOrphanCount() << llendl;
 	llinfos << "Number of dead objects: " << gObjectList.mNumDeadObjects << llendl;
 	llinfos << "Num images: " << gImageList.getNumImages() << llendl;
-	llinfos << "Texture usage: " << LLImageGL::sGlobalTextureMemory << llendl;
-	llinfos << "Texture working set: " << LLImageGL::sBoundTextureMemory << llendl;
+	llinfos << "Texture usage: " << LLImageGL::sGlobalTextureMemoryInBytes << llendl;
+	llinfos << "Texture working set: " << LLImageGL::sBoundTextureMemoryInBytes << llendl;
 	llinfos << "Raw usage: " << LLImageRaw::sGlobalRawMemory << llendl;
 	llinfos << "Formatted usage: " << LLImageFormatted::sGlobalFormattedMemory << llendl;
 	llinfos << "Zombie Viewer Objects: " << LLViewerObject::getNumZombieObjects() << llendl;

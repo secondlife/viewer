@@ -7,9 +7,10 @@
 		Descrição:
 	</text>
 	<text name="preview_label">
-		Prévia da Imagem como:
+		Prévia da
+imagem como:
 	</text>
-	<combo_box label="Tipo de Roupas" name="clothing_type_combo">
+	<combo_box label="Tipo de Roupas" name="clothing_type_combo" left="100" width="186">
 		<combo_item name="Image">
 			Imagem
 		</combo_item>

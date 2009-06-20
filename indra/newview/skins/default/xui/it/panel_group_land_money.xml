@@ -13,7 +13,7 @@
 	<string name="loading_txt">
 		Attendi...
 	</string>
-	<text name="group_land_heading">
+	<text name="group_land_heading" width="250">
 		Terra posseduta dal gruppo
 	</text>
 	<scroll_list name="group_parcel_list">
@@ -22,24 +22,24 @@
 		<column label="Tipo" name="type"/>
 		<column label="Area" name="area"/>
 	</scroll_list>
-	<button label="Mostra sulla mappa" label_selected="Mostra sulla mappa" name="map_button"/>
+	<button label="Mostra sulla mappa" label_selected="Mostra sulla mappa" name="map_button" left="282" width="130"/>
 	<text name="total_contributed_land_label">
 		Total Contribution:
 	</text>
 	<text name="total_contributed_land_value">
-		[AREA] metri quadri
+		[AREA] m²
 	</text>
 	<text name="total_land_in_use_label">
 		Terra totale in uso:
 	</text>
 	<text name="total_land_in_use_value">
-		[AREA] metri quadri
+		[AREA] m²
 	</text>
 	<text name="land_available_label">
 		Terra disponibile:
 	</text>
 	<text name="land_available_value">
-		[AREA] metri quadri
+		[AREA] m²
 	</text>
 	<text name="your_contribution_label">
 		Il tuo contributo:
@@ -48,10 +48,11 @@
 		Non è possibile impostare i tuoi contributi in terra.
 	</string>
 	<text name="your_contribution_max_value">
-		metri quadri ([AMOUNT] massimo)
+		m² ([AMOUNT] massimo)
 	</text>
 	<text name="group_over_limit_text">
-		I membri del gruppo devono contribuire con più crediti per mantenere la quantità  di terra in uso.
+		I membri del gruppo devono contribuire con più crediti per mantenere
+la quantità  di terra in uso.
 	</text>
 	<text name="group_money_heading">
 		L$ del gruppo
@@ -66,15 +67,15 @@
 			<text_editor name="group_money_details_text">
 				Calcolo...
 			</text_editor>
-			<button label="&lt; Precedente" label_selected="&lt; Precedente" name="earlier_details_button" tool_tip="Vai ai dettagli precedenti"/>
-			<button label="Successivo &gt;" label_selected="Successivo &gt;" name="later_details_button" tool_tip="Vai ai dettagli successivi"/>
+			<button width="90" label="&lt; Precedente" label_selected="&lt; Precedente" name="earlier_details_button" tool_tip="Vai ai dettagli precedenti"/>
+			<button left_delta="260" width="90" label="Successivo &gt;" label_selected="Successivo &gt;" name="later_details_button" tool_tip="Vai ai dettagli successivi"/>
 		</panel>
 		<panel label="Vendite" name="group_money_sales_tab">
 			<text_editor name="group_money_sales_text">
 				Calcolo...
 			</text_editor>
-			<button label="&lt; Precedente" label_selected="&lt; Precedente" name="earlier_sales_button" tool_tip="Vai ai dettagli precedenti"/>
-			<button label="Successivo &gt;" label_selected="Successivo &gt;" name="later_sales_button" tool_tip="Vai ai dettagli successivi"/>
+			<button width="90" label="&lt; Precedente" label_selected="&lt; Precedente" name="earlier_sales_button" tool_tip="Vai ai dettagli precedenti"/>
+			<button left_delta="260" width="90" label="Successivo &gt;" label_selected="Successivo &gt;" name="later_sales_button" tool_tip="Vai ai dettagli successivi"/>
 		</panel>
 	</tab_container>
 </panel>

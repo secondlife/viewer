@@ -54,8 +54,8 @@ LLGLuint LLImageGL::sCurrentBoundTextures[MAX_GL_TEXTURE_UNITS] = { 0 };
 
 U32 LLImageGL::sUniqueCount				= 0;
 U32 LLImageGL::sBindCount				= 0;
-S32 LLImageGL::sGlobalTextureMemory		= 0;
-S32 LLImageGL::sBoundTextureMemory		= 0;
+S32 LLImageGL::sGlobalTextureMemoryInBytes		= 0;
+S32 LLImageGL::sBoundTextureMemoryInBytes		= 0;
 S32 LLImageGL::sCurBoundTextureMemory	= 0;
 S32 LLImageGL::sCount					= 0;
 
@@ -174,7 +174,7 @@ S32 LLImageGL::dataFormatComponents(S32 dataformat)
 void LLImageGL::updateStats(F32 current_time)
 {
 	sLastFrameTime = current_time;
-	sBoundTextureMemory = sCurBoundTextureMemory;
+	sBoundTextureMemoryInBytes = sCurBoundTextureMemory;
 	sCurBoundTextureMemory = 0;
 }
 
@@ -1013,13 +1013,13 @@ BOOL LLImageGL::createGLTexture(S32 discard_level, const U8* data_in, BOOL data_
 
 	if (old_name != 0)
 	{
-		sGlobalTextureMemory -= mTextureMemory;
+		sGlobalTextureMemoryInBytes -= mTextureMemory;
 		LLImageGL::deleteTextures(1, &old_name);
 		stop_glerror();
 	}
 
 	mTextureMemory = getMipBytes(discard_level);
-	sGlobalTextureMemory += mTextureMemory;
+	sGlobalTextureMemoryInBytes += mTextureMemory;
 	setActive() ;
 
 	// mark this as bound at this point, so we don't throw it out immediately
@@ -1220,7 +1220,7 @@ void LLImageGL::destroyGLTexture()
 			}
 		}
 
-		sGlobalTextureMemory -= mTextureMemory;
+		sGlobalTextureMemoryInBytes -= mTextureMemory;
 		mTextureMemory = 0;
 
 		LLImageGL::deleteTextures(1, &mTexName);

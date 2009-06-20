@@ -384,10 +384,10 @@ private:
 
 void LLGLTexMemBar::draw()
 {
-	S32 bound_mem = (LLViewerImage::sBoundTextureMemory >> 20);
- 	S32 max_bound_mem = LLViewerImage::sMaxBoundTextureMem;
-	S32 total_mem = (LLViewerImage::sTotalTextureMemory >> 20);
-	S32 max_total_mem = LLViewerImage::sMaxTotalTextureMem;
+	S32 bound_mem = BYTES_TO_MEGA_BYTES(LLViewerImage::sBoundTextureMemoryInBytes);
+ 	S32 max_bound_mem = LLViewerImage::sMaxBoundTextureMemInMegaBytes;
+	S32 total_mem = BYTES_TO_MEGA_BYTES(LLViewerImage::sTotalTextureMemoryInBytes);
+	S32 max_total_mem = LLViewerImage::sMaxTotalTextureMemInMegaBytes;
 	F32 discard_bias = LLViewerImage::sDesiredDiscardBias;
 	S32 line_height = (S32)(LLFontGL::getFontMonospace()->getLineHeight() + .5f);
 	

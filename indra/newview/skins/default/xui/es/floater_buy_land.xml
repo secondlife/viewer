@@ -3,25 +3,25 @@
 	<text name="region_name_label">
 		Región:
 	</text>
-	<text name="region_name_text">
+	<text name="region_name_text" left="565">
 		(desconocida)
 	</text>
 	<text name="region_type_label">
 		Tipo:
 	</text>
-	<text name="region_type_text">
+	<text name="region_type_text" left="565">
 		(desconocido)
 	</text>
 	<text name="estate_name_label">
 		Estado:
 	</text>
-	<text name="estate_name_text">
+	<text name="estate_name_text" left="565">
 		(desconocido)
 	</text>
-	<text name="estate_owner_label">
+	<text name="estate_owner_label" width="115" right="565">
 		Propietario del estado:
 	</text>
-	<text name="estate_owner_text">
+	<text name="estate_owner_text" left="565" >
 		(desconocido)
 	</text>
 	<text name="resellable_changeable_label">
@@ -36,6 +36,7 @@
 	<text name="covenant_text">
 		Deve aceptar el Contrato del Estado:
 	</text>
+	<text left="470" name="covenant_timestamp_text"/>
 	<text_editor name="covenant_editor">
 		Cargando...
 	</text_editor>

@@ -1,4 +1,8 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<!-- This file contains strings that used to be hardcoded in the source.
+     It is only for those strings which do not belong in a floater.
+     For example, the strings used in avatar chat bubbles, and strings 
+     that are returned from one component and may appear in many places-->
 <strings>
 	<string name="LoginInProgress">
 		Logger p. [APP_NAME] kan virke laast.  Vent venligst.
@@ -51,11 +55,14 @@
 	<string name="LoginDownloadingClothing">
 		Henter tøj...
 	</string>
-	<string name="LoginFailedNoNetwork">
-		Netværks fejl: Kunne ikke oprette forbindelse, tjek venligst din netværksforbindelse.
-	</string>
 	<string name="AgentLostConnection">
 		Denne region kan have problemer. Tjek venligst din forbindelse til internettet.
+	</string>
+	<string name="TooltipPerson">
+		Person
+	</string>
+	<string name="TooltipNoName">
+		(intet navn)
 	</string>
 	<string name="TooltipOwner">
 		Ejer:
@@ -78,11 +85,17 @@
 	<string name="TooltipFlagL$">
 		L$
 	</string>
+	<string name="TooltipFlagDropInventory">
+		Drop beholdning
+	</string>
 	<string name="TooltipFlagPhantom">
 		Fantom
 	</string>
 	<string name="TooltipFlagTemporary">
 		Temporær
+	</string>
+	<string name="TooltipFlagRightClickMenu">
+		(Højre-klik for menu)
 	</string>
 	<string name="TooltipFreeToCopy">
 		Kan kopieres
@@ -167,6 +180,9 @@
 	</string>
 	<string name="AssetErrorCircuitGone">
 		Forbindelsen mistet
+	</string>
+	<string name="AssetErrorPriceMismatch">
+		Second Life klient og server er uenige om prisen
 	</string>
 	<string name="AssetErrorUnknownStatus">
 		Ukendt status
@@ -401,5 +417,70 @@
 	</string>
 	<string name="shout">
 		råber:
+	</string>
+	<string name="SIM_ACCESS_PG">
+		PG
+	</string>
+	<string name="SIM_ACCESS_MATURE">
+		Mature
+	</string>
+	<string name="SIM_ACCESS_ADULT">
+		Adult
+	</string>
+	<string name="SIM_ACCESS_DOWN">
+		logget af
+	</string>
+	<string name="SIM_ACCESS_MIN">
+		Ukendt
+	</string>
+	<string name="land_type_unknown">
+		(ukendt)
+	</string>
+	<string name="covenant_never_modified">Sidst ændret: (aldrig)</string>
+	<string name="covenant_modified">Sidst ændret: </string>
+	<string name="all_files">
+		Alle filer
+	</string>
+	<string name="sound_files">
+		Lyde
+	</string>
+	<string name="animation_files">
+		Animationer
+	</string>
+	<string name="image_files">
+		Billeder
+	</string>
+	<string name="save_file_verb">
+		Gem
+	</string>
+	<string name="load_file_verb">
+		Hent
+	</string>
+	<string name="targa_image_files">
+		Targa billeder
+	</string>
+	<string name="bitmap_image_files">
+		Bitmap billeder
+	</string>
+	<string name="avi_movie_file">
+		AVI film fil
+	</string>
+	<string name="xaf_animation_file">
+		XAF Anim Fil
+	</string>
+	<string name="xml_file">
+		XML Fil
+	</string>
+	<string name="dot_raw_file">
+		RAW Fil
+	</string>
+	<string name="compressed_image_files">
+		Komprimerede billeder
+	</string>
+	<string name="load_files">
+		Hent filer
+	</string>
+	<string name="choose_the_directory">
+		Vælg bibliotek
 	</string>
 </strings>

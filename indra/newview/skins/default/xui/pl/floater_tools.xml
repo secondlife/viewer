@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="toolbox floater" title="">
+<floater name="toolbox floater" title="" short_title="Buduj">
 	<button label="" label_selected="" name="button focus" tool_tip="Zbliżenie"/>
 	<button label="" label_selected="" name="button move" tool_tip="Przesunięcie"/>
 	<button label="" label_selected="" name="button edit" tool_tip="Edycja"/>
@@ -311,10 +311,10 @@
 				</combo_item>
 			</combo_box>
 			<text name="text cut">
-				Wykrój
+				Wykrój początek i koniec
 			</text>
-			<spinner label="B" name="cut begin"/>
-			<spinner label="E" name="cut end"/>
+			<spinner label="P" name="cut begin"/>
+			<spinner label="K" name="cut end"/>
 			<text name="text hollow">
 				Wydrążenie
 			</text>
@@ -343,8 +343,8 @@
 			<text name="text twist">
 				Skręcenie
 			</text>
-			<spinner label="B" name="Twist Begin"/>
-			<spinner label="E" name="Twist End"/>
+			<spinner label="P" name="Twist Begin"/>
+			<spinner label="K" name="Twist End"/>
 			<text name="scale_taper">
 				Zwężenie
 			</text>
@@ -367,8 +367,8 @@
 			<text name="advanced_slice">
 				Przetnij początek i koniec
 			</text>
-			<spinner label="B" name="Path Limit Begin"/>
-			<spinner label="E" name="Path Limit End"/>
+			<spinner label="P" name="Path Limit Begin"/>
+			<spinner label="K" name="Path Limit End"/>
 			<text name="text taper2">
 				Zwężenie
 			</text>
@@ -434,15 +434,15 @@
 		<panel label="Tekstura" name="Texture">
 			<texture_picker label="Tekstura" name="texture control" tool_tip="Kliknij by wybrać obraz"/>
 			<color_swatch label="Kolor" name="colorswatch" tool_tip="Kliknij by wybrać kolor"/>
-			<text name="color trans">
-				Przezroczystość %
+			<text name="color trans" left="170" width="99">
+				Przezroczystość%
 			</text>
-			<spinner name="ColorTrans"/>
-			<text name="glow label">
+			<spinner left="170" name="ColorTrans"/>
+			<text name="glow label" left="170">
 				Blask
 			</text>
-			<spinner name="glow"/>
-			<check_box label="Jaskrawość" name="checkbox fullbright"/>
+			<spinner left="170" name="glow"/>
+			<check_box label="Jaskrawość" name="checkbox fullbright" left="170"/>
 			<text name="tex gen">
 				Mapowanie
 			</text>
@@ -561,7 +561,7 @@
 				Dopasuj Teksturę Mediów
 (najpierw załaduj)
 			</text>
-			<button label="Dopasuj" label_selected="Dopasuj" name="button align"/>
+			<button label="Dopasuj" label_selected="Dopasuj" name="button align" left="160"/>
 		</panel>
 		<panel label="Treść" name="Contents">
 			<button label="Nowy Skrypt" label_selected="Nowy Skrypt..." name="button new script"/>

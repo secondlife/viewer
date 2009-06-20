@@ -22,14 +22,14 @@
 	<text name="buy_action">
 		[NAME] [PRICE] L$
 	</text>
-	<text name="currency_action">
-		Comprar L$
+	<text name="currency_action" width="50">
+		Comprar 
 	</text>
-	<line_editor name="currency_amt">
+	<line_editor name="currency_amt" width="65" left_delta="50">
 		1234
 	</line_editor>
-	<text name="currency_est">
-		por, aprox., [USD] US$
+	<text name="currency_est" width="138" left_delta="68">
+		L$  por, aprox., [USD] US$
 	</text>
 	<text name="getting_data">
 		Obteniendo los datos...
@@ -63,6 +63,6 @@ Aumente la cantidad a comprar.
 	<button label="Cancelar" name="cancel_btn"/>
 	<button label="Comprar" name="buy_btn"/>
 	<string name="buy_currency">
-		Comprar L$ [LINDENS] por, aprox., [USD] U$D
+		Compre [LINDENS] L$ por, aprox., [USD] US$
 	</string>
 </floater>

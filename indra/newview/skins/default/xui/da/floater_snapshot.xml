@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Snapshot" title="Se foto">
 	<text name="type_label">
 		Hvor skal foto hen?
@@ -17,13 +17,20 @@
 	<text name="file_size_label">
 		Fil størrelse: [SIZE] KB
 	</text>
-	<button label="Tag nyt foto" name="new_snapshot_btn" />
-	<button label="Send" name="send_btn" />
-	<button label="Gem (L$[AMOUNT])" name="upload_btn" />
-	<flyout_button label="Gem" name="save_btn"  />
-	<button label="Annullér" name="discard_btn" />
-	<button label="Mere &gt;&gt;" name="more_btn"  />
-	<button label="&lt;&lt; Mindre" name="less_btn"  />
+	<button label="Tag nyt foto" name="new_snapshot_btn"/>
+	<button label="Send" name="send_btn"/>
+	<button label="Gem (L$[AMOUNT])" name="upload_btn"/>
+	<flyout_button label="Gem" name="save_btn" tool_tip="Gem billede i på din computer">
+		<flyout_button_item name="save_item">
+			Gem
+		</flyout_button_item>
+		<flyout_button_item name="saveas_item">
+			Gem som...
+		</flyout_button_item>
+	</flyout_button>
+	<button label="Annullér" name="discard_btn"/>
+	<button label="Mere &gt;&gt;" name="more_btn" tool_tip="Avancerede valg"/>
+	<button label="&lt;&lt; Mindre" name="less_btn" tool_tip="Avancerede valg"/>
 	<text name="type_label2">
 		Størrelse
 	</text>
@@ -90,7 +97,7 @@
 			Manuelt
 		</combo_item>
 	</combo_box>
-	<combo_box label="Fil-format" name="local_format_combo">
+	<combo_box label="Fil-format" name="local_format_combo" width="76">
 		<combo_item name="PNG">
 			PNG
 		</combo_item>
@@ -101,10 +108,10 @@
 			BMP
 		</combo_item>
 	</combo_box>
-	<spinner label="Bredde" name="snapshot_width" />
-	<spinner label="Højde" name="snapshot_height" />
-	<check_box label="Fasthold proportioner" name="keep_aspect_check" />
-	<slider label="Billed-kvalitet" name="image_quality_slider" />
+	<spinner label="Bredde" name="snapshot_width" label_width="41" width="101"/>
+	<spinner label="Højde" name="snapshot_height" label_width="32" width="92" left="117"/>
+	<check_box label="Fasthold proportioner" name="keep_aspect_check"/>
+	<slider label="Billed-kvalitet" name="image_quality_slider"/>
 	<text name="layer_type_label">
 		Benyt:
 	</text>
@@ -119,9 +126,12 @@
 			Materinger
 		</combo_item>
 	</combo_box>
-	<check_box label="Vis brugerflade på foto" name="ui_check" />
-	<check_box label="Vis HUD objekter på foto" name="hud_check" />
-	<check_box label="Luk ikke vindue ved gemning" name="keep_open_check" />
-	<check_box label="Frys billede og vis" name="freeze_frame_check" />
-	<check_box label="Auto-opdater" name="auto_snapshot_check" />
+	<check_box label="Vis brugerflade på foto" name="ui_check"/>
+	<check_box label="Vis HUD objekter på foto" name="hud_check"/>
+	<check_box label="Luk ikke vindue ved gemning" name="keep_open_check"/>
+	<check_box label="Frys billede og vis" name="freeze_frame_check"/>
+	<check_box label="Auto-opdater" name="auto_snapshot_check"/>
+	<string name="unknown">
+		ukendt
+	</string>
 </floater>

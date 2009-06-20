@@ -119,8 +119,12 @@
 		<menu_item_call label="Parar Animação do Meu Avatar" name="Stop Animating My Avatar"/>
 		<menu_item_call label="Liberar teclas" name="Release Keys"/>
 		<menu_item_separator label="-----------" name="separator4"/>
-		<menu_item_call label="Histórico de conta..." name="Account History..."/>
-		<menu_item_call label="Gerenciar minha conta..." name="Manage My Account..."/>
+		<menu_item_call label="Histórico de conta..." name="Account History...">
+			<on_click name="AccountHistory_url" userdata="WebLaunchAccountHistory,http://secondlife.com/account/transactions.php?lang=pt"/>
+		</menu_item_call>
+		<menu_item_call label="Gerenciar minha conta..." name="Manage My Account...">
+			<on_click name="ManageMyAccount_url" userdata="WebLaunchJoinNow,http://secondlife.com/account/index.php?lang=pt"/>
+		</menu_item_call>
 		<menu_item_call label="Comprar L$..." name="Buy and Sell L$..."/>
 		<menu_item_separator label="-----------" name="separator5"/>
 		<menu_item_call label="Meu terreno..." name="My Land..."/>
@@ -165,7 +169,9 @@
 		<menu_item_separator label="-----------" name="separator4"/>
 		<menu_item_call label="Foco na seleção" name="Focus on Selection"/>
 		<menu_item_call label="Zoom na Seleção" name="Zoom to Selection"/>
-		<menu_item_call label="Comprar objetos" name="Menu Object Take"/>
+		<menu_item_call label="Comprar el objeto" name="Menu Object Take">
+			<on_enable userdata="Comprar,Pegar" name="EnableBuyOrTake"/>
+		</menu_item_call>
 		<menu_item_call label="Pegar cópia" name="Take Copy"/>
 		<menu_item_call label="Salvar objeto de volta aos conteúdos do objeto" name="Save Object Back to Object Contents"/>
 		<menu_item_separator label="-----------" name="separator6"/>

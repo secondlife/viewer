@@ -49,7 +49,7 @@ chat:
 	<check_box label="Chiudi la barra chat dopo aver premuto invio" name="close_chat_on_return_check"/>
 	<check_box label="Le frecce muovono comunque l&apos;avatar quando si sta scrivendo" name="arrow_keys_move_avatar_check"/>
 	<check_box label="Mostra orario nella chat principale" name="show_timestamps_check"/>
-	<check_box label="Simula la battitura tasti quando chatti" name="play_typing_animation"/>
+	<check_box label="Simula la battitura tasti quando scrivi" name="play_typing_animation"/>
 	<text name="text_box7">
 		Chat con vignette:
 	</text>

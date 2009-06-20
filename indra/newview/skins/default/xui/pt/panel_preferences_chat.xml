@@ -34,7 +34,7 @@ do Chat:
 	<text length="1" name="text_box3" type="string">
 		Console do Chat:
 	</text>
-	<spinner label="Ocultar Chat depois" label_width="112" name="fade_chat_time" width="162"/>
+	<spinner label="Ocultar Chat depois" label_width="108" name="fade_chat_time" width="160"/>
 	<text left="310" length="1" name="text_box4" type="string">
 		(segundos)
 	</text>

@@ -1150,6 +1150,21 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 BOOL LLFace::verify(const U32* indices_array) const
 {
 	BOOL ok = TRUE;
+
+	if( mVertexBuffer.isNull() )
+	{
+		if( mGeomCount )
+		{
+			// This happens before teleports as faces are torn down.
+			// Stop the crash in DEV-31893 with a null pointer check,
+			// but present this info.
+			// To clean up the log, the geometry could be cleared, or the
+			// face could otherwise be marked for no ::verify.
+			llinfos << "Face with no vertex buffer and " << mGeomCount << " mGeomCount" << llendl;
+		}
+		return TRUE;
+	}
+	
 	// First, check whether the face data fits within the pool's range.
 	if ((mGeomIndex + mGeomCount) > mVertexBuffer->getNumVerts())
 	{

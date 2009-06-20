@@ -174,7 +174,7 @@ Vuoi davvero dare i diritti di modifica ai residenti selezionati?
 Non si possono rimuovere membri da quel ruolo.
 I membri devono dimettersi volontariamente dal ruolo.
 Confermi l&apos;operazione?
-		<usetemplate ignoretext="Quando si aggiungono membri al ruolo di proprietario" name="okcancelignore" notext="No" yestext="Si"/>
+		<usetemplate ignoretext="Quando si aggiungono membri al ruolo di proprietario del gruppo." name="okcancelignore" notext="No" yestext="Si"/>
 	</notification>
 	<notification name="AssignDangerousActionWarning">
 		Stai per aggiungere il potere &apos;[ACTION_NAME]&apos; al ruolo &apos;[ROLE_NAME]&apos;.
@@ -195,7 +195,7 @@ Aggiungi questo potere a &apos;[ROLE_NAME]&apos;?
 		<usetemplate name="okcancelbuttons" notext="No" yestext="Si"/>
 	</notification>
 	<notification name="ClickPublishHelpLand">
-		Selezionare &quot;Pubblica in Ricerca&quot;
+		Selezionare &apos;Pubblica in Ricerca&apos;
 Marcando questo campo si mostrerà:
 - questo terreno nei risultati di ricerca
 - gli oggetti pubblici di questo terreno
@@ -225,7 +225,7 @@ Marcando questo campo si mostrerà:
 		Non puoi rendere questo terreno visibile nella ricerca perchè è in una regione che non lo consente.
 	</notification>
 	<notification name="ClickPublishHelpAvatar">
-		Scegliendo &quot;Mostra in Ricerca&quot; verrà mostrato:
+		Scegliendo &apos;Mostra in Ricerca&apos; verrà mostrato:
 - il mio profilo nei risultati della ricerca
 - un link al mio profilo nelle pagine pubbliche del gruppo
 	</notification>
@@ -383,7 +383,7 @@ Hai bisogno di un account per entrare in [SECOND_LIFE]. Ne vuoi creare uno adess
 Compila il tuo annuncio e clicca &apos;Pubblica...&apos; per aggiungerlo al database.
 Ti verrà chiesto un prezzo da pagare quando clicchi su Pubblica.
 Pagare un prezzo più alto fa sì che il tuo annuncio compaia più in alto nella lista, e che sia più facile da trovare quando la gente ricerca per parole chiavi.
-		<usetemplate ignoretext="Mentre si aggiunge un annuncio" name="okcancelignore" notext="Annulla" yestext="OK"/>
+		<usetemplate ignoretext="Quando si aggiunge una inserzione." name="okcancelignore" notext="Annulla" yestext="OK"/>
 	</notification>
 	<notification name="DeleteClassified">
 		Cancella annuncio &apos;[NAME]&apos;?
@@ -493,14 +493,14 @@ Vuoi visitare [_URL] per maggiori informazioni?
 		<url name="url" option="0">
 			http://secondlife.com/support/sysreqs.php?lang=it
 		</url>
-		<usetemplate ignoretext="Mentre sto individuando hardware non supportato" name="okcancelignore" notext="No" yestext="Si"/>
+		<usetemplate ignoretext="Quando sto individuando hardware non supportato." name="okcancelignore" notext="No" yestext="Si"/>
 	</notification>
 	<notification name="UnknownGPU">
 		Il tuo sistema contiene una scheda grafica che attualmente non supportiamo.
 Questo succede spesso con nuovi prodotti che non siamo riusciti a verificare. Probabilmente Second Life funzionerà correttamente ma forse dovrai modificare le impostazioni grafiche in modo appropriato.
 (Modifica &gt; Preferenze &gt; Grafica).
 		<form name="form">
-			<ignore name="ignore" text="Mentre stavo valutando una scheda grafica sconosciuta"/>
+			<ignore name="ignore" text="Quando sto valutando una scheda grafica sconosciuta"/>
 		</form>
 	</notification>
 	<notification name="DisplaySettingsNoShaders">
@@ -736,7 +736,7 @@ Spiacenti, ma non hai accesso nel luogo di destinazione richiesto.
 Gli oggetti da te indossati non sono ancoa arrivati. Attendi ancora qualche secondo o scollegati e ricollegati prima di provare a teleportarti.
   </notification>
   <notification name="too_many_uploads_tport">
-La gestione dati della regione è al momento occupata e la tua richiesta di teletrasporto non può essere soddisfatta entro breve tempo. Per favore prova di nuovo tra qualche minuto o spostati in un&apos;area meno affollata.
+Il server della regione è al momento occupato e la tua richiesta di teletrasporto non può essere soddisfatta entro breve tempo. Per favore prova di nuovo tra qualche minuto o spostati in un&apos;area meno affollata.
   </notification>
   <notification name="expired_tport">
 Spiacenti, il sistema non riesce a soddisfare la tua richiesta di teletrasporto entro un tempo ragionevole. Riprova tra qualche minuto.
@@ -1127,7 +1127,7 @@ Il tuo avatar è stato spostato in una regione vicina.
 		I tuoi vestiti stanno ancora scaricandosi.
 Puoi usare [SECOND_LIFE] normalmente e gli altri utenti ti vedranno correttamente.
 		<form name="form">
-			<ignore name="ignore" text="se gli abiti ci impiegano troppo tempo a scaricarsi"/>
+			<ignore name="ignore" text="Qualora gli abiti impieghino troppo tempo a caricarsi."/>
 		</form>
 	</notification>
 	<notification name="FirstRun">
@@ -1150,9 +1150,9 @@ Puoi controllare la tua connessione internet e riprovare fra qualche minuto, opp
 	<notification name="WelcomeChooseSex">
 		Il tuo avatar apparirà fra un attimo.
 
-Usa le frecce per camminare.
-Premi F1 in qualunque momento per aiuto o per apprendere altre cose su [SECOND_LIFE].
-Scegli l&apos;avatar maschile o femminile. Puoi sempre cambiare idea più tardi.
+Usa le frecce per muoverti.
+Premi F1 in qualunque momento per la guida o per apprendere altre cose di [SECOND_LIFE].
+Scegli un avatar maschile o femminile. Puoi sempre cambiare idea più tardi.
 		<usetemplate name="okcancelbuttons" notext="Femminile" yestext="Maschile"/>
 	</notification>
 	<notification name="NotEnoughCurrency">
@@ -1190,13 +1190,13 @@ Scegli solo un oggetto e riprova.
 		Impossibile impostare le texture della regione:
 La texture del terreno [TEXTURE_NUM] ha una profondità di bit pari a [TEXTURE_BIT_DEPTH] non corretta.
 
-Sostituisci la texture [TEXTURE_NUM] con una a 24-bit 512x512 o una immagine più piccola e quindi clicca nuovamente su &quot;Applica&quot;.
+Sostituisci la texture [TEXTURE_NUM] con una a 24-bit 512x512 o una immagine più piccola e quindi clicca nuovamente su &apos;Applica&apos;.
 	</notification>
 	<notification name="InvalidTerrainSize">
 		Impossibile impostare le texture di regione:
 La texture del terreno [TEXTURE_NUM] è troppo grande se a [TEXTURE_SIZE_X]x[TEXTURE_SIZE_Y].
 
-Sostituisci la texture [TEXTURE_NUM] con una a 24-bit 512x512 oppure con una immagine più piccola e quindi clicca di nuovo &quot;Applica&quot;.
+Sostituisci la texture [TEXTURE_NUM] con una a 24-bit 512x512 oppure con una immagine più piccola e quindi clicca di nuovo &apos;Applica&apos;.
 	</notification>
 	<notification name="RawUploadStarted">
 		Importazione iniziata. Può impiegare fino a due minuti, a seconda della velocità della tua connessione.
@@ -1285,53 +1285,53 @@ Vuoi avviarne lo scaricamento nella tua cartella applicazioni?
 	<notification name="DeedObjectToGroup">
 		La cessione di questo oggetto farà in modo che il gruppo:
 * Riceva i L$ pagati all&apos;oggetto
-		<usetemplate ignoretext="Quando cedi oggetti ai gruppi" name="okcancelignore" notext="Annulla" yestext="Cedi"/>
+		<usetemplate ignoretext="Quando cedi oggetti ai gruppi." name="okcancelignore" notext="Annulla" yestext="Cedi"/>
 	</notification>
 	<notification name="WebLaunchExternalTarget">
 		Apri il tuo browser web per vedere questo contenuto?
-		<usetemplate ignoretext="Quando apri il browser di sistema per vedere una pagina web" name="okcancelignore" notext="Annulla" yestext="OK"/>
+		<usetemplate ignoretext="Quando apri il browser di sistema per vedere una pagina web." name="okcancelignore" notext="Annulla" yestext="OK"/>
 	</notification>
 	<notification name="WebLaunchJoinNow">
 		Vuoi andare su www.secondlife.com per gestire il tuo account?
-		<usetemplate ignoretext="Quando lanci il browser web per gestire il tuo account" name="okcancelignore" notext="Annulla" yestext="OK"/>
+		<usetemplate ignoretext="Quando lanci il browser web per gestire il tuo account." name="okcancelignore" notext="Annulla" yestext="OK"/>
 	</notification>
 	<notification name="WebLaunchBugReport101">
 		Visita la Wiki di [SECOND_LIFE] per imparare a segnalare un bug correttamente.
-		<usetemplate ignoretext="Quando lanci il browser web per vedere la Wiki di segnalazione bug base" name="okcancelignore" notext="Annulla" yestext="OK"/>
+		<usetemplate ignoretext="Quando lanci il browser web per vedere come segnalare bug nella wiki." name="okcancelignore" notext="Annulla" yestext="OK"/>
 	</notification>
 	<notification name="WebLaunchSecurityIssues">
 		Visita la Wiki di [SECOND_LIFE] per i dettagli su come segnalare un problema di sicurezza.
-		<usetemplate ignoretext="Quando lanci il browser web per vedere la Wiki sui problemi di sicurezza" name="okcancelignore" notext="Annulla" yestext="OK"/>
+		<usetemplate ignoretext="Quando lanci il browser web per vedere la Wiki sui problemi di sicurezza." name="okcancelignore" notext="Annulla" yestext="OK"/>
 	</notification>
 	<notification name="WebLaunchQAWiki">
 		Visita il controllo di qualità Wiki [SECOND_LIFE].
-		<usetemplate ignoretext="Quando lanci il browser web per vedere il controllo di qualità Wiki" name="okcancelignore" notext="Annulla" yestext="OK"/>
+		<usetemplate ignoretext="Quando lanci il browser web per vedere il controllo di qualità Wiki." name="okcancelignore" notext="Annulla" yestext="OK"/>
 	</notification>
 	<notification name="WebLaunchPublicIssue">
 		Visita il registro pubblico dei problemi di [SECOND_LIFE], dove puoi segnalare bug ed altri problemi.
-		<usetemplate ignoretext="Quando lanci il browser web per vedere il registro pubblico dei problemi" name="okcancelignore" notext="Annulla" yestext="Vai alla pagina"/>
+		<usetemplate ignoretext="Quando lanci il browser web per vedere il registro pubblico dei problemi." name="okcancelignore" notext="Annulla" yestext="Vai alla pagina"/>
 	</notification>
 	<notification name="WebLaunchPublicIssueHelp">
 		Visita la Wiki di [SECOND_LIFE] per le informazioni su come usare il registro pubblico dei problemi.
-		<usetemplate ignoretext="Quando lanci il browser web per vedere la Wiki del registro pubblico dei problemi" name="okcancelignore" notext="Annulla" yestext="Vai alla pagina"/>
+		<usetemplate ignoretext="Quando lanci il browser web per vedere la Wiki del registro pubblico dei problemi." name="okcancelignore" notext="Annulla" yestext="Vai alla pagina"/>
 	</notification>
 	<notification name="WebLaunchSupportWiki">
 		Vai al blog ufficiale Linden, per le ultime notizie ed informazioni.
-		<usetemplate ignoretext="Quando lanci il browser web per vedere il blog" name="okcancelignore" notext="Annulla" yestext="OK"/>
+		<usetemplate ignoretext="Quando lanci il browser web per vedere il blog." name="okcancelignore" notext="Annulla" yestext="OK"/>
 	</notification>
 	<notification name="WebLaunchLSLGuide">
 		Vai alla guida dello scripting per l&apos;aiuto sullo scripting?
-		<usetemplate ignoretext="Quando lanci il browser web per vedere la guida dello scripting" name="okcancelignore" notext="Annulla" yestext="OK"/>
+		<usetemplate ignoretext="Quando lanci il browser web per vedere la guida dello scripting." name="okcancelignore" notext="Annulla" yestext="OK"/>
 	</notification>
 	<notification name="WebLaunchLSLWiki">
 		Vai al portale LSL per aiuto sullo scripting?
-		<usetemplate ignoretext="Quando lanci il browser web per vedere il portale LSL" name="okcancelignore" notext="Annulla" yestext="Vai alla pagina"/>
+		<usetemplate ignoretext="Quando lanci il browser web per vedere il portale LSL." name="okcancelignore" notext="Annulla" yestext="Vai alla pagina"/>
 	</notification>
 	<notification name="ReturnToOwner">
 		Confermi di voler restituire gli oggetti selezionati ai loro proprietari? Gli oggetti trasferibili ceduti al gruppo, verranno restituiti ai proprietari precedenti.
 
 *ATTENZIONE* Gli oggetti ceduti non trasferibili verranno cancellati!
-		<usetemplate ignoretext="Quando restituisci gli oggetti ai loro proprietari" name="okcancelignore" notext="Annulla" yestext="OK"/>
+		<usetemplate ignoretext="Quando restituisci gli oggetti ai loro proprietari." name="okcancelignore" notext="Annulla" yestext="OK"/>
 	</notification>
 	<notification name="GroupLeaveConfirmMember">
 		Sei attualmente un membro del gruppo [GROUP].
@@ -1369,7 +1369,7 @@ Vuoi cancellare quell&apos;elemento?
 	<notification name="BusyModeSet">
 		Impostata la modalità &apos;Occupato&apos;.
 La chat e i messaggi verranno nascosti. I messaggi IM riceveranno la risposta impostata per la modalità &apos;Occupato&apos;. Tutte le offerte di teleport verranno declinate. Tutte le offerte di inventario andranno nel cestino.
-		<usetemplate ignoretext="Quando si imposta la modalità occupato" name="okignore" yestext="OK"/>
+		<usetemplate ignoretext="Quando imposti la modalità &apos;occupato&apos;." name="okignore" yestext="OK"/>
 	</notification>
 	<notification name="JoinedTooManyGroupsMember">
 		Sei membro di troppi gruppi per poterti unire ad uno nuovo.
@@ -1442,7 +1442,7 @@ Per abbandonare un gruppo seleziona l&apos;opzione &apos;Gruppi..&apos; dal menu
 	</notification>
 	<notification name="TeleportFromLandmark">
 		Confermi di volerti teleportare?
-		<usetemplate ignoretext="Quando ti teleporti da un landmark nell&apos;inventario" name="okcancelignore" notext="Annulla" yestext="Teleportati"/>
+		<usetemplate ignoretext="Quando ti teleporti da un landmark dell&apos;inventario." name="okcancelignore" notext="Annulla" yestext="Teleportati"/>
 	</notification>
 	<notification label="Manda un messaggio a tutti nella tua proprietà" name="MessageEstate">
 		Scrivi un annuncio breve che verrà mandato a tutti quelli che sono in questo momento nella tua proprietà.
@@ -1526,7 +1526,7 @@ Vuoi andare alla Knowledge Base per ulteriori informazioni sulle categorie di ac
      name="okcancelignore"
      yestext="Vai alla Knowledge Base"
 	 notext="Chiudi"
-	 ignoretext="Quando l&apos;entrata nella regione è bloccata a causa delle categorie di accesso"/>
+	 ignoretext="Quando l&apos;entrata nella regione è bloccata a causa delle categorie di accesso."/>
 	</notification>
 	<notification name="RegionEntryAccessBlocked_Notify">
 		Non sei ammesso in questa regione a causa della tua categoria d&apos;accesso.
@@ -1543,7 +1543,7 @@ Puoi cliccare su &apos;Cambia le preferenze&apos; per aumentare subito le tue pr
        default="true"
        name="Cancel"
        text="Chiudi"/>
-       <ignore name="ignore" text="Quando l&apos;entrata nella regione è bloccata a causa delle preferenze sulle categorie di accesso"/>
+       <ignore name="ignore" text="Quando l&apos;entrata in una regione è bloccata a causa delle preferenze delle categorie di accesso."/>
     </form>
 	</notification>
 	<notification name="LandClaimAccessBlocked">
@@ -1565,7 +1565,7 @@ Vuoi andare alla Knowledge Base per maggiori informazioni sulle categorie di acc
      name="okcancelignore"
      yestext="Vai alla Knowledge Base"
 	 notext="Chiudi"
-	 ignoretext="Quando la presa di possesso della terra è bloccata a causa delle categorie di accesso"/>
+	 ignoretext="Quando l&apos;acquisizione della terra è bloccata a causa delle categorie di accesso."/>
 	</notification>
 	<notification name="LandClaimAccessBlocked_Notify">
 		Non puoi prendere possesso di questa terra a causa della tua categoria di accesso.
@@ -1578,7 +1578,7 @@ Puoi cliccare su &apos;Cambia le preferenze&apos; per aumentare subito le tue pr
      name="okcancelignore"
      yestext="Cambia le preferenze"
 	 notext="Chiudi"
-	 ignoretext="Quando la presa di possesso della terra è bloccata a causa delle preferenze sulle categorie di accesso"/>
+	 ignoretext="Quando l&apos;acquisizione della terra è bloccata a causa delle preferenze delle categorie di accesso."/>
 	</notification>
 	<notification name="LandBuyAccessBlocked">
 		Non puoi acquistare questo terreno a causa della tua categoria di accesso. Questo può essere dovuto ad una mancanza di informazioni valide che confermino la tua età.
@@ -1599,7 +1599,7 @@ Vuoi andare alla Knowledge Base per maggiori informazioni sulle categorie di acc
      name="okcancelignore"
      yestext="Vai alla Knowledge Base"
 	 notext="Chiudi"
-	 ignoretext="Quando un acquisto di terra è bloccato a causa delle categorie di accesso"/>
+	 ignoretext="Quando un acquisto di terra è bloccato a causa delle categorie di accesso."/>
 	</notification>
 	<notification name="LandBuyAccessBlocked_Notify">
 		Non puoi acquistare questa land a causa della tua categoria di accesso.
@@ -1612,7 +1612,7 @@ Puoi cliccare su &apos;Cambia le preferenze&apos; per aumentare subito le tue pr
      name="okcancelignore"
      yestext="Cambia le preferenze"
 	 notext="Chiudi"
-	 ignoretext="Quando un acquisto di terra è bloccato a causa delle preferenze sulle categorie di accesso"/>
+	 ignoretext="Quando un acquisto di terra è bloccato a causa delle preferenze sulle categorie di accesso."/>
 	</notification>
 	<notification name="TooManyPrimsSelected">
 		&quot;Hai selezionato troppi prims.  Seleziona [MAX_PRIM_COUNT] o meno prims e riprova.&quot;
@@ -1757,9 +1757,9 @@ Se questa opzione è selezionato i compratori possono rivendere i loro terreni i
 Impostazione base: Non consentire
 	</notification>
 	<notification label="Disabilita gli script" name="HelpRegionDisableScripts">
-		Se le prestazioni di una sim sono basse, probabilmente è colpa di uno script. Apri la &apos;barra delle statistiche&apos; (Ctrl-Shift-1). Controlla il FPS della fisica del simulatore.
-Se è più basso di 45, apri il pannello &quot;Tempi&quot; collocato ln fondo alla &apos;barra delle statistiche&apos; 
-Se il tempo per gli script è di 25 ms o più alto, clicca sul bottone &apos;individua script pesanti&apos;. Ti verrà dato il nome e l&apos;ubicazione degli script che probabilmente causano una cattiva prestazione.
+		Se le prestazioni di una sim sono basse, probabilmente è colpa di uno script. Apri la &apos;Barra delle statistiche&apos; (Ctrl-Shift-1). Controlla il FPS della fisica del simulatore.
+Se è più basso di 45, apri il pannello &apos;Time&apos; (Tempi) collocato ln fondo alla &apos;Barra delle statistiche&apos; 
+Se il tempo per gli script è di 25 ms o più alto, clicca sul bottone &apos;Visualizza l&apos;elenco degli script più pesanti...&apos;. Ti verrà dato il nome e l&apos;ubicazione degli script che probabilmente causano una cattiva prestazione.
 
 Selezionare la casella della disabilitazione script e, premendo il bottone applica, disabilitare temporaneamente tutti gli script in questa regione. Questo è necessario per poterti recare verso l&apos;ubicazione dello script definito nell&apos;elenco come &apos;script più pesante&apos;. Una volta arrivato all&apos;oggetto, studia lo script per capire se è quello che sta causando il problema. Potresti dover contattare il proprietario dello script oppure cancellare o restituire l&apos;oggetto.
 Disabilita la casella e quindi premere applica per riattivare gli script nella regione.
@@ -1768,10 +1768,10 @@ Impostazione base: spento
 	</notification>
 	<notification label="Disabilita le collisioni" name="HelpRegionDisableCollisions">
 		Quando le prestazioni della sim sono basse, può darsi che la colpa sia di oggetti fisici.
-Apri la &apos;barra delle statistiche&apos; (Ctrl-Shift-1).
+Apri la &apos;Barra delle statistiche&apos; (Ctrl-Shift-1).
 Controlla il FPS della fisica del simulatore.
-Se è più basso di 45, apri il pannello &quot;Tempi&quot; collocato in fondo alla &apos;barra delle statistiche&apos;.
-Se il tempo della sim (fisica) risulta 20 ms o più, clicca sul bottone &quot;mostra gli oggetti che collidono di più&quot;.
+Se è più basso di 45, apri il pannello &apos;Time&apos; (Tempi) collocato in fondo alla &apos;Barra delle statistiche&apos;.
+Se il tempo della sim (fisica) risulta 20 ms o più, clicca sul bottone &apos;mostra gli oggetti che collidono di più&apos;.
 Ti verranno dati il nome e l&apos;ubicazione degli oggetti fisici che possono causare una cattiva prestazione.
 
 Selezionare la casella disabilita collisioni e, premendo il bottone applica, disabilitare temporaneamente le collisioni oggetto-oggetto. Questo è necessario per poterti recare verso l&apos;ubicazione dell&apos;oggetto che sta collidendo eccessivamente.
@@ -1791,11 +1791,11 @@ Impostazione base: spento
 	</notification>
 	<notification label="Oggetti con maggiori collisioni" name="HelpRegionTopColliders">
 		Mostra una lista di oggetti che sperimentano la maggior quantità di potenziali collisioni oggetto-oggetto.  Questi oggetti possono abbassare le prestazioni.
-Seleziona Vista &gt; Barra Statistiche e guarda sotto Simulatore &gt; Tempi &gt; Tempo Sim (fisica) per controllare se un tempo di più di 20 ms è impiegato nella fisica.
+Seleziona Visualizza &gt; Barra della statistiche e guarda sotto Simulator (Simulatore) &gt; Time (Tempi) &gt; Physics Time (Tempo Sim fisica) per controllare se un tempo di più di 20 ms è impiegato nella fisica.
 	</notification>
 	<notification label="Script pesanti" name="HelpRegionTopScripts">
 		Mostra una lista degli oggetti che occupano la maggior parte del loro tempo eseguendo script LSL.  Questi oggetti possono abbassare le prestazioni.
-Seleziona Vista &gt; Barra statistiche e guarda sotto Simulatore &gt; Tempi &gt; Tempo Script per controllare se un tempo di più di 20 ms è impiegato per gli script.
+Seleziona Visualizza &gt; Barra della statistiche e guarda sotto Simulator (Simulatore) &gt; Time (Tempi) &gt; Script Time (Tempo Script) per controllare se un tempo di più di 20 ms è impiegato per gli script.
 	</notification>
 	<notification label="Fai ripartire la regione" name="HelpRegionRestart">
 		Fai ripartire i processi del server che gestisce questa regione dopo un avvertimento di due minuti.  Tutti i residenti nella regione verranno scollegati.
@@ -1898,7 +1898,7 @@ Impostazione base: spento
 
 Un regolamento può essere usato per comunicare regole, linee guida, informazioni culturali o semplicemente ciò che ti aspetti dal possibile compratore. Questo può includere impostazioni in zone, regolamenti architettonici, opzioni di pagamento o qualunque altra informazione che ritieni importante che il nuovo proprietario debba aver visto e accettato prima dell&apos;acquisto.
 
-Il compratore deve accettare il regolamento selezionando la casella appropriata per poter completare l&apos;acquisto. I regolamenti delle proprietà sono sempre visibili nella finestra &quot;Informazioni sul terreno&quot; in tutti gli appezzamenti in cui è stato impostato.
+Il compratore deve accettare il regolamento selezionando la casella appropriata per poter completare l&apos;acquisto. I regolamenti delle proprietà sono sempre visibili nella finestra &apos;Informazioni sul terreno&apos; in tutti gli appezzamenti in cui è stato impostato.
 	</notification>
 	<notification label="Impossibile comprare oggetti" name="BuyObjectOneOwner">
 		Impossibile comprare oggetti da proprietari diversi nello stesso momento.
@@ -1959,7 +1959,7 @@ Il contenuto verrà copiato nel tuo inventario.
 		<usetemplate name="okcancelbuttons" notext="Annulla" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmPurchase">
-		Questa transazione farà:
+		Questa transazione ti permetterà di:
 [ACTION]
 
 Confermi di voler procedere all&apos;acquisto?
@@ -1987,19 +1987,19 @@ Hai aggiornato l&apos;ubicazione di questo preferito ma gli altri dettagli conse
 Questi elementi verranno trasferiti nel tuo inventario, ma non copiati.
 
 Trasferisci gli elementi nell&apos;inventario?
-		<usetemplate ignoretext="Quando si trasferiscono, dagli oggetti all&apos;inventario, elementi non copiabili" name="okcancelignore" notext="Annulla" yestext="OK"/>
+		<usetemplate ignoretext="Quando si trasferiscono elementi non copiabili, dagli oggetti all&apos;inventario." name="okcancelignore" notext="Annulla" yestext="OK"/>
 	</notification>
 	<notification name="MoveInventoryFromScriptedObject">
 		Hai selezionato elementi dell&apos;inventario non copiabili.  Questi elementi verranno trasferiti nel tuo inventario, non verranno copiati.
 Dato che questo oggetto è scriptato, il trasferimento di questi elementi nel tuo inventario potrebbe causare un malfunzionamento degli script.
 
 Trasferisci gli elementi nell&apos;inventario?
-		<usetemplate ignoretext="Quando si trasferiscono oggetti scriptati non copiabili nell&apos;inventario" name="okcancelignore" notext="Annulla" yestext="OK"/>
+		<usetemplate ignoretext="Quando si trasferiscono oggetti scriptati non copiabili nell&apos;inventario." name="okcancelignore" notext="Annulla" yestext="OK"/>
 	</notification>
 	<notification name="ClickActionNotPayable">
 		Attenzione: L&apos;azione di pagamento automatico al click è stata impostata, ma funzionerà solo se aggiungi uno script con un evento money().
 		<form name="form">
-			<ignore name="ignore" text="Quando imposti il &quot;Pagamento&quot; di oggetti senza l&apos;evento money()"/>
+			<ignore name="ignore" text="Quando imposti il &apos;Pagamento&apos; di oggetti senza l&apos;evento money()"/>
 		</form>
 	</notification>
 	<notification name="OpenObjectCannotCopy">
@@ -2007,7 +2007,7 @@ Trasferisci gli elementi nell&apos;inventario?
 	</notification>
 	<notification name="WebLaunchAccountHistory">
 		Vai nel sito web di Second Life per vedere il tuo estratto conto?
-		<usetemplate ignoretext="Quando carichi la pagina web dell&apos;estratto conto" name="okcancelignore" notext="Annulla" yestext="Vai alla pagina"/>
+		<usetemplate ignoretext="Quando carichi la pagina web dell&apos;estratto conto." name="okcancelignore" notext="Annulla" yestext="Vai alla pagina"/>
 	</notification>
 	<notification name="ClickOpenF1Help">
 		Visita il sito di supporto di Second Life?
@@ -2104,7 +2104,7 @@ La Linden Lab
 		C&apos;è già un oggetto indossato in questo punto del corpo.
 Vuoi sostituirlo con l&apos;oggetto selezionato?
 		<form name="form">
-			<ignore name="ignore" save_option="true" text="Quando avviene la sostituzione di un oggetto indossato già esistente"/>
+			<ignore name="ignore" save_option="true" text="Quando avviene la sostituzione di un oggetto indossato già esistente."/>
 			<button name="Yes" text="OK"/>
 			<button name="No" text="Annulla"/>
 		</form>
@@ -2114,14 +2114,14 @@ Vuoi sostituirlo con l&apos;oggetto selezionato?
 
 Desideri abbandonare la modalità &apos;Occupato&apos; prima di completare questa transazione?
 		<form name="form">
-			<ignore name="ignore" save_option="true" text="Quando avviene il pagamento di una persona o oggetto in modalità &apos;Occupato&apos;"/>
+			<ignore name="ignore" save_option="true" text="Quando avviene il pagamento di una persona o di un oggetto in modalità &apos;Occupato&apos;."/>
 			<button name="Yes" text="OK"/>
 			<button name="No" text="Abbandona"/>
 		</form>
 	</notification>
 	<notification name="ConfirmEmptyTrash">
 		Confermi di volere permanentemente rimuovere il contenuto del tuo cartella Cestino?
-		<usetemplate ignoretext="Quando svuoti la cartella cestino del tuo inventario" name="okcancelignore" notext="Annulla" yestext="OK"/>
+		<usetemplate ignoretext="Quando svuoti la cartella cestino del tuo inventario." name="okcancelignore" notext="Annulla" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmClearBrowserCache">
 		Confermi di voler pulire la cache del tuo browser?
@@ -2137,7 +2137,7 @@ Desideri abbandonare la modalità &apos;Occupato&apos; prima di completare quest
 	</notification>
 	<notification name="ConfirmEmptyLostAndFound">
 		Confermi di volere rimuovere permanentemente il contenuto della tua cartalla Persi e ritrovati?
-		<usetemplate ignoretext="Quando cancelli la cartella persi e ritrovati del tuo inventario" name="okcancelignore" notext="No" yestext="Si"/>
+		<usetemplate ignoretext="Quando cancelli la cartella degli oggetti perduti e ritrovati del tuo inventario." name="okcancelignore" notext="No" yestext="Si"/>
 	</notification>
 	<notification name="CopySLURL">
 		Lo SLURL seguente è stato copiato nei tuoi appunti:
@@ -2145,7 +2145,7 @@ Desideri abbandonare la modalità &apos;Occupato&apos; prima di completare quest
 
 Lo puoi inserire in una pagina web per dare ad altri modo di accedere a questo posto o puoi provare a copiarla nella barra indirizzi del tuo browser web.
 		<form name="form">
-			<ignore name="ignore" text="Quando copi lo SLURL negli appunti"/>
+			<ignore name="ignore" text="Quando copi uno SLURL negli appunti."/>
 		</form>
 	</notification>
 	<notification name="GraphicsPreferencesHelp">
@@ -2196,30 +2196,30 @@ Dettaglio del terreno: Imposta la quantità di dettagli che vuoi vedere per le t
 	<notification name="EnvSettingsHelpButton">
 		Queste impostazioni modificano il modo in cui l&apos;ambiente viene visto localmente sul tuo computer.  La tua scheda grafica deve supportare gli effetti atmosferici per poter accedere a tutte le impostazioni.
 
-Modifica il cursore &quot;Ora del Giorno &quot; per cambiare la fase giornaliera locale sul client.
+Modifica il cursore &apos;Ora del Giorno&apos; per cambiare la fase giornaliera locale sul client.
 
-Modifica il cursore &quot;Intensità delle nuvole&quot; per controllare la quantità di nuvole che coprono il cielo.
+Modifica il cursore &apos;Intensità delle nuvole&apos; per controllare la quantità di nuvole che coprono il cielo.
 
-Scegli un colore nella tavolozza colori per il &quot;colore dell&apos;acqua&quot; per cambiare il colore dell&apos;acqua.
+Scegli un colore nella tavolozza colori per il &apos;colore dell&apos;acqua&apos; per cambiare il colore dell&apos;acqua.
 
-Modifica il cursore &quot;Nebbiosità dell&apos;acqua&quot; per controllare quanto densa è la nebbia sott&apos;acqua.
+Modifica il cursore &apos;Nebbiosità dell&apos;acqua&apos; per controllare quanto densa è la nebbia sott&apos;acqua.
 
-Clicca &quot;Usa l&apos;ora della proprietà&quot; per sincronizzare il tempo del giorno con l&apos;ora del giorno della regione e collegarle stabilmente.
+Clicca &apos;Usa l&apos;ora della proprietà&apos; per sincronizzare il tempo del giorno con l&apos;ora del giorno della regione e collegarle stabilmente.
 
-Clicca &quot;Cielo avanzato&quot; per visualizzare un editor con le impostazioni avanzate per il cielo.
+Clicca &apos;Cielo avanzato&apos; per visualizzare un editor con le impostazioni avanzate per il cielo.
 
-Clicca &quot;Acqua Avanzata&quot; per visualizzare un editor con le impostazini avanzate per l&apos;acqua.
+Clicca &apos;Acqua Avanzata&apos; per visualizzare un editor con le impostazini avanzate per l&apos;acqua.
 	</notification>
 	<notification name="HelpDayCycle">
 		L&apos;editor del Ciclo Giorno/Notte permette di controllare il cielo durante il ciclo giornaliero di Second Life. Questo è il ciclo che è usato dal cursore dell&apos;editor base dell&apos;ambiente.
 
-L&apos;editor del ciclo giorno/notte funziona impostando i fotogrammi chiave. Questi sono nodi (rappresentati da tacche grige sul grafico temporale) che hanno delle preregolazioni associate del cielo. Man mano che l&apos;ora del giorno procede, il cielo di WindLight&quot;si anima&quot; interpolando i valori fra questi fotogrammi chiave.
+L&apos;editor del ciclo giorno/notte funziona impostando i fotogrammi chiave. Questi sono nodi (rappresentati da tacche grige sul grafico temporale) che hanno delle preregolazioni associate del cielo. Man mano che l&apos;ora del giorno procede, il cielo di WindLight&apos;si anima&apos; interpolando i valori fra questi fotogrammi chiave.
 
 La freccia gialla sopra la linea del tempo rappresenta la tua vista corrente, basata sull&apos;ora del giorno. Cliccandola e spostandola vedrai come il giorno si animerebbe. Si può aggiungere o cancellare fotogrammi chiave cliccando sui tasti &apos;Aggiungi Fotogramma Chiave&apos; e &apos;Cancella Fotogramma Chiave&apos; alla destra della linea del tempo.
 
 Si possono impostare le posizioni temporali dei fotogrammi chiave spostandole lungo la linea del tempo o impostando il loro valore a mano nella finestra di impostazione dei fotogrammi chiave. All&apos;interno della finestra di impostazione si può associare il fotogramma chiave con le impostazioni corrispondenti di Wind Light.
 
-La durata del ciclo definisce la durata complessiva di un &quot;giorno&quot;. Impostando questo ad un valore basso (per esempio, 2 minuti) tutto il ciclo di 24 ore verrà completato in solo 2 minuti reali! Una volta soddisfatto dell tua linea del tempo e le impostazioni dei fotogrammi chiave, usa i bottoni Play e Stop per vederne in anteprima i risultati. Attenzione: si può sempre spostare la freccia gialla indicatrice del tempo sopra la linea del tempo per vedere il ciclo animarsi interattivamente. Scegliendo invece il pulsanto &apos;Usa il tempo della regione&apos; ci si sincronizza con il le durate del ciclo definite per questa regione.
+La durata del ciclo definisce la durata complessiva di un &apos;giorno&apos;. Impostando questo ad un valore basso (per esempio, 2 minuti) tutto il ciclo di 24 ore verrà completato in solo 2 minuti reali! Una volta soddisfatto dell tua linea del tempo e le impostazioni dei fotogrammi chiave, usa i bottoni Play e Stop per vederne in anteprima i risultati. Attenzione: si può sempre spostare la freccia gialla indicatrice del tempo sopra la linea del tempo per vedere il ciclo animarsi interattivamente. Scegliendo invece il pulsanto &apos;Usa il tempo della regione&apos; ci si sincronizza con il le durate del ciclo definite per questa regione.
 
 Una volta soddisfatto del ciclo giornaliero, puoi salvarlo o ricaricarlo con i bottoni &apos;Salva test del giorno&apos; e &apos;Carica il test del giorno&apos;. Attualmente è possibile definire un solo ciclo giorno/notte
 	</notification>
@@ -2239,7 +2239,7 @@ E&apos; utile per simulare scene con un livello alto di fumo e di inquinamento d
 E&apos; anche utile per simulare la nebbia e la foschia al mattino.
 	</notification>
 	<notification name="HelpDensityMult">
-		Il moltiplicatore di densità può essere usato per influenzare la densità atmosferica generale. Con valori bassi, crea la sensazione di &quot;aria sottile&quot;, con valori alti crea un effetto molto pesante, annebbiato.
+		Il moltiplicatore di densità può essere usato per influenzare la densità atmosferica generale. Con valori bassi, crea la sensazione di &apos;aria sottile&apos;, con valori alti crea un effetto molto pesante, annebbiato.
 	</notification>
 	<notification name="HelpDistanceMult">
 		Modifica la distanza percepita da WindLight.
@@ -2248,7 +2248,7 @@ Valori più grandi di 1 simulano distanze più grandi per effetti atmosferici pi
 	</notification>
 	<notification name="HelpMaxAltitude">
 		Altitudine Massima modifica i calcoli di altezza che fa WindLight quando calcola l&apos;illuminazione atmosferica.
-In periodi successivi del giorno, è utile per modificare quanto &quot;profondo&quot; appaia il tramonto.
+In periodi successivi del giorno, è utile per modificare quanto &apos;profondo&apos; appaia il tramonto.
 	</notification>
 	<notification name="HelpSunlightColor">
 		Modifica il colore e l&apos;intensità della luce diretta nella scena.
@@ -2257,8 +2257,8 @@ In periodi successivi del giorno, è utile per modificare quanto &quot;profondo&
 		Modifica il colore e l&apos;intensità della luce atmosferica ambientale nella scena.
 	</notification>
 	<notification name="HelpSunGlow">
-		Il cursore Dimensione controlla la dimensione del sole.
-Lo slider &quot;Focus&quot; controlla quanto è offuscato il sole sopra il cielo.
+		Il cursore Grandezza controlla la dimensione del sole.
+Il cursore Focus controlla quanto è offuscato il sole sopra il cielo.
 	</notification>
 	<notification name="HelpSceneGamma">
 		Modifica la distribuzione di luci e ombre nello schermo.
@@ -2392,7 +2392,7 @@ D (Densità) controlla quanto gonfie o spezzettate appaiono le nuvole.
 	</notification>
 	<notification name="AutoWearNewClothing">
 		Vuoi indossare automaticamente i vestiti che crei?
-		<usetemplate ignoretext="Indossa automaticamente i nuovi vestiti." name="okcancelignore" notext="No" yestext="Si"/>
+		<usetemplate ignoretext="Quando Indossi automaticamente nuovi vestiti." name="okcancelignore" notext="No" yestext="Si"/>
 	</notification>
 	<notification name="NotAgeVerified">
 		La tua età deve essere verificata per poter entrare in questo territorio.
@@ -2402,7 +2402,7 @@ Vuoi visitare il sito di Second Life per verificare la tua eta?
 		<url name="url" option="0">
 			https://secondlife.com/account/verification.php
 		</url>
-		<usetemplate ignoretext="Avviso per mancanza della verifica dell&apos;età" name="okcancelignore" notext="No" yestext="Si"/>
+		<usetemplate ignoretext="Quando hai un avviso per mancanza della verifica dell&apos;età." name="okcancelignore" notext="No" yestext="Si"/>
 	</notification>
 	<notification name="Cannot enter parcel: no payment info on file">
 		Questo terreno richiede che tu abbia registrato le tue informazioni di pagamento prima che tu possa accedervi.
@@ -2412,7 +2412,7 @@ Vuoi visitare il sito di Second Life per impostarle?
 		<url name="url" option="0">
 			https://secondlife.com/account/index.php?lang=it
 		</url>
-		<usetemplate ignoretext="Avviso per mancanza di informazioni di pagamento registrato" name="okcancelignore" notext="No" yestext="Si"/>
+		<usetemplate ignoretext="Quando hai un avviso per mancanza di informazioni di pagamento registrate." name="okcancelignore" notext="No" yestext="Si"/>
 	</notification>
 	<notification name="MissingString">
 		La stringa [STRING_NAME] non è presente in strings.xml
@@ -2673,7 +2673,7 @@ Vai alla &apos;Help Island Public&apos; per ripetere il tutorial.
 	<notification name="ImproperPaymentStatus">
 		Non hai una impostazioni di pagamento corrette per entrare in questa regione.
 	</notification>
-	<notification name="MustGetAgeRgion">
+	<notification name="MustGetAgeRegion">
 		Devi avere un&apos;età verificata per entrare in questa regione.
 	</notification>
 	<notification name="MustGetAgeParcel">

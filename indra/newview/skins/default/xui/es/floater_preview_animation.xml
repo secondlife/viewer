@@ -3,6 +3,6 @@
 	<text length="1" name="desc txt" type="string">
 		Descripción:
 	</text>
-	<button label="Ejecutarla en el mundo" label_selected="Parar" name="Anim play btn" tool_tip="Ejecutar esta animación de modo que puedan verla los demás."/>
-	<button label="Ejecutarla para usted" label_selected="Parar" name="Anim audition btn" tool_tip="Ejecutar esta animación de modo que sólo la vea usted."/>
+	<button left="12" width="142" label="Ejecutarla en el mundo" label_selected="Parar" name="Anim play btn" tool_tip="Ejecutar esta animación de modo que puedan verla los demás."/>
+	<button left="156" width="136" label="Ejecutarla para usted" label_selected="Parar" name="Anim audition btn" tool_tip="Ejecutar esta animación de modo que sólo la vea usted."/>
 </floater>

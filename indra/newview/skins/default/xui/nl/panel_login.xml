@@ -16,7 +16,7 @@
 		Wachtwoord:
 	</text>
 	<text name="start_location_text">
-		Start Locatie:
+		Startlocatie:
 	</text>
 	<combo_box name="start_location_combo">
 		<combo_item name="MyHome">

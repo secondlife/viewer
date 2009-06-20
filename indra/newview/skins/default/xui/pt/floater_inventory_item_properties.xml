@@ -49,7 +49,7 @@
 	</text>
 	<check_box label="Compartilhar com o grupo" name="CheckShareWithGroup"/>
 	<check_box label="Permitir qualquer um copiar" name="CheckEveryoneCopy"/>
-	<text name="NextOwnerLabel">
+	<text name="NextOwnerLabel" width="230">
 		Próximo dono pode:
 	</text>
 	<check_box label="Modificar" name="CheckNextOwnerModify"/>

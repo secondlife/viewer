@@ -406,6 +406,9 @@ void LLFloaterChat::addChat(const LLChat& chat,
 
 	if(from_instant_message && gSavedPerAccountSettings.getBOOL("LogChatIM"))
 		log_chat_text(chat);
+	
+	if(from_instant_message && gSavedSettings.getBOOL("IMInChatHistory")) 	 
+		addChatHistory(chat,false);
 
 	LLTextParser* highlight = LLTextParser::getInstance();
 	highlight->triggerAlerts(gAgent.getID(), gAgent.getPositionGlobal(), chat.mText, gViewerWindow->getWindow());

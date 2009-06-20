@@ -2053,7 +2053,7 @@ bool LLAppViewer::initConfiguration()
 void LLAppViewer::checkForCrash(void)
 {
     
-#if 1 //*REMOVE:Mani LL_SEND_CRASH_REPORTS
+#if LL_SEND_CRASH_REPORTS
 	//*NOTE:Mani The current state of the crash handler has the MacOSX
 	// sending all crash reports as freezes, in order to let 
 	// the MacOSX CrashRepoter generate stacks before spawning the 
@@ -2063,23 +2063,36 @@ void LLAppViewer::checkForCrash(void)
 #if LL_DARWIN
 	if(gLastExecEvent != LAST_EXEC_NORMAL)
 #else		
-	if (gLastExecEvent == LAST_EXEC_FROZE || gLastExecEvent == LAST_EXEC_OTHER_CRASH)
+	if (gLastExecEvent == LAST_EXEC_FROZE)
 #endif
     {
         llinfos << "Last execution froze, requesting to send crash report." << llendl;
         //
         // Pop up a freeze or crash warning dialog
         //
-        std::ostringstream msg;
-        msg << gSecondLife
-        << " appears to have frozen or crashed on the previous run.\n"
-        << "Would you like to send a crash report?";
-        std::string alert;
-        alert = gSecondLife;
-        alert += " Alert";
-        S32 choice = OSMessageBox(msg.str(),
+        S32 choice;
+        if(gCrashSettings.getS32(CRASH_BEHAVIOR_SETTING) == CRASH_BEHAVIOR_ASK)
+        {
+            std::ostringstream msg;
+            msg << gSecondLife
+            << " appears to have frozen or crashed on the previous run.\n"
+            << "Would you like to send a crash report?";
+            std::string alert;
+            alert = gSecondLife;
+            alert += " Alert";
+            choice = OSMessageBox(msg.str(),
                                   alert,
                                   OSMB_YESNO);
+        } 
+        else if(gCrashSettings.getS32(CRASH_BEHAVIOR_SETTING) == CRASH_BEHAVIOR_NEVER_SEND)
+        {
+            choice = OSBTN_NO;
+        }
+        else
+        {
+            choice = OSBTN_YES;
+        }
+
         if (OSBTN_YES == choice)
         {
             llinfos << "Sending crash report." << llendl;
@@ -2353,6 +2366,8 @@ void LLAppViewer::handleViewerCrash()
 	gDebugInfo["SessionLength"] = F32(LLFrameTimer::getElapsedSeconds());
 	gDebugInfo["StartupState"] = LLStartUp::getStartupStateString();
 	gDebugInfo["RAMInfo"]["Allocated"] = (LLSD::Integer) getCurrentRSS() >> 10;
+	gDebugInfo["FirstLogin"] = (LLSD::Boolean) gAgent.isFirstLogin();
+	gDebugInfo["FirstRunThisInstall"] = gSavedSettings.getBOOL("FirstRunThisInstall");
 
 	if(gLogoutInProgress)
 	{

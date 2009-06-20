@@ -94,9 +94,7 @@ cd "${RUN_PATH}"
 ./register_secondlifeprotocol.sh
 ## Before we mess with LD_LIBRARY_PATH, save the old one to restore for
 ##  subprocesses that care.
-if [ "${LD_LIBRARY_PATH+isset}" = "isset" ]; then
-    export SAVED_LD_LIBRARY_PATH="${LD_LIBRARY_PATH}"
-fi
+export SAVED_LD_LIBRARY_PATH="${LD_LIBRARY_PATH}"
 
 if [ -n "$LL_TCMALLOC" ]; then
     tcmalloc_libs='/usr/lib/libtcmalloc.so.0 /usr/lib/libstacktrace.so.0 /lib/libpthread.so.0'

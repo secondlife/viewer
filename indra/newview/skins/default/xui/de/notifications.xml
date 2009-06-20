@@ -2598,7 +2598,7 @@ Gehen Sie zu „Help Island Public“ und wiederholen sie das Tutorial.
 	<notification name="ImproperPaymentStatus">
 		Die für den Zutritt zu dieser Region erforderlichen Zahlungsinformationen liegen nicht vor.
 	</notification>
-	<notification name="MustGetAgeRgion">
+	<notification name="MustGetAgeRegion">
 		Sie müssen alterüberprüft sein, um diese Region betreten zu können.
 	</notification>
 	<notification name="MustGetAgeParcel">
