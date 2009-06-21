@@ -59,7 +59,10 @@ LLBottomTray::LLBottomTray()
 
 LLBottomTray::~LLBottomTray()
 {
-	LLIMMgr::getInstance()->removeSessionObserver(this);
+	if (!LLSingleton<LLIMMgr>::destroyed())
+	{
+		LLIMMgr::getInstance()->removeSessionObserver(this);
+	}
 }
 
 LLLineEditor* LLBottomTray::getChatBox()
