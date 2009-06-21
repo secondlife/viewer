@@ -154,9 +154,15 @@ struct LLCompareTypeID
 
 class LLWidgetTemplateRegistry 
 :	public LLRegistrySingleton<const std::type_info*, std::string, LLWidgetTemplateRegistry, LLCompareTypeID>
-{
+{};
 
-};
+// function used to create new default widgets via LLView::getChild<T>
+typedef LLView* (*dummy_widget_creator_func_t)(const std::string&);
+
+// used to register factory functions for default widget instances
+class LLDummyWidgetRegistry
+:	public LLRegistrySingleton<const std::type_info*, dummy_widget_creator_func_t, LLDummyWidgetRegistry, LLCompareTypeID>
+{};
 
 extern LLFastTimer::DeclareTimer FTM_WIDGET_SETUP;
 extern LLFastTimer::DeclareTimer FTM_WIDGET_CONSTRUCTION;
@@ -295,10 +301,16 @@ fail:
 		return widget;
 	}
 
-	template <class T> 
-	static T* createDummyWidget(const std::string& name) 
+	template<class T>
+	static T* getDefaultWidget(const std::string& name)
 	{
-		//#pragma message("Generating LLUICtrlFactory::createDummyWidget")
+		dummy_widget_creator_func_t* dummy_func = LLDummyWidgetRegistry::instance().getValue(&typeid(T));
+		return dynamic_cast<T*>((*dummy_func)(name));
+	}
+
+	template <class T> 
+	static LLView* createDefaultWidget(const std::string& name) 
+	{
 		typename T::Params params;
 		params.name(name);
 		
@@ -389,8 +401,10 @@ template<typename T, typename PARAM_BLOCK>
 LLWidgetRegistry<DERIVED>::Register<T, PARAM_BLOCK>::Register(const char* tag, LLWidgetCreatorFunc func)
 :	LLWidgetRegistry<DERIVED>::StaticRegistrar(tag, func.empty() ? (LLWidgetCreatorFunc)&LLUICtrlFactory::defaultBuilder<T, PARAM_BLOCK> : func)
 {
-	//FIXME: inventory_panel will register itself with LLPanel::Params but it does have its own params...:(
+	// associate parameter block type with template .xml file
 	LLWidgetTemplateRegistry::instance().defaultRegistrar().add(&typeid(PARAM_BLOCK), tag);
+	// associate widget type with factory function
+	LLDummyWidgetRegistry::instance().defaultRegistrar().add(&typeid(T), &LLUICtrlFactory::createDefaultWidget<T>);
 }
 
 

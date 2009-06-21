@@ -426,7 +426,9 @@ void LLLocationInputCtrl::rebuildLocationHistory(std::string filter)
 	LLLocationHistory* lh = LLLocationHistory::getInstance();
 	
 	if (filter.empty())
+	{
 		itemsp = &lh->getItems();
+	}
 	else
 	{
 		lh->getMatchingItems(filter, filtered_items);
@@ -435,7 +437,9 @@ void LLLocationInputCtrl::rebuildLocationHistory(std::string filter)
 	
 	removeall();
 	for (LLLocationHistory::location_list_t::const_reverse_iterator it = itemsp->rbegin(); it != itemsp->rend(); it++)
+	{
 		add(*it);
+	}
 }
 
 void LLLocationInputCtrl::focusTextEntry()

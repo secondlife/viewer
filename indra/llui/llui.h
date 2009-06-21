@@ -665,8 +665,8 @@ template <typename T> LLRegisterWith<LLDestroyClassList> LLDestroyClass<T>::sReg
 // useful parameter blocks
 struct TimeIntervalParam : public LLInitParam::Choice<TimeIntervalParam>
 {
-	Option<F32>		seconds;
-	Option<S32>		frames;
+	Alternative<F32>		seconds;
+	Alternative<S32>		frames;
 	TimeIntervalParam()
 	:	seconds("seconds"),
 		frames("frames")

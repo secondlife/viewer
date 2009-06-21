@@ -44,7 +44,7 @@ class LLPanelProfileView : public LLPanel
 	friend class LLUICtrlFactory;
 
 public:
-	LLPanelProfileView(const LLPanel::Params& p = defaultParams());
+	LLPanelProfileView();
 
 	~LLPanelProfileView(void);
 

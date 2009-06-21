@@ -48,8 +48,8 @@ class LLRadioCtrl : public LLCheckBoxCtrl
 public:
 	struct Params : public LLInitParam::Block<Params, LLCheckBoxCtrl::Params>
 	{
-		Deprecated length;
-		Deprecated type;
+		Ignored		length;
+		Ignored		type;
 
 		Params() 
 		:	length("length"),

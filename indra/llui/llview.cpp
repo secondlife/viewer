@@ -124,7 +124,7 @@ LLView::LLView(const LLView::Params& p)
 	mDefaultTabGroup(p.default_tab_group),
 	mLastTabGroup(0),
 	mToolTipMsg((LLStringExplicit)p.tool_tip()),
-	mDummyWidgets(NULL)
+	mDefaultWidgets(NULL)
 {
 	// create rect first, as this will supply initial follows flags
 	setShape(p.rect);
@@ -157,12 +157,12 @@ LLView::~LLView()
 		mParentView->removeChild(this);
 	}
 
-	if (mDummyWidgets)
+	if (mDefaultWidgets)
 	{
-		std::for_each(mDummyWidgets->begin(), mDummyWidgets->end(),
+		std::for_each(mDefaultWidgets->begin(), mDefaultWidgets->end(),
 					  DeletePairedPointer());
-		delete mDummyWidgets;
-		mDummyWidgets = NULL;
+		delete mDefaultWidgets;
+		mDefaultWidgets = NULL;
 	}
 }
 
@@ -1710,10 +1710,10 @@ LLView* LLView::getChildView(const std::string& name, BOOL recurse, BOOL create_
 
 	if (create_if_missing)
 	{
-		LLView* view = getDummyWidget<LLView>(name);
+		LLView* view = getDefaultWidget<LLView>(name);
 		if (!view)
 		{
-			 view = LLUICtrlFactory::createDummyWidget<LLView>(name);
+			 view = LLUICtrlFactory::createDefaultWidget<LLView>(name);
 		}
 		return view;
 	}
@@ -2750,11 +2750,11 @@ LLView::tree_iterator_t LLView::endTree()
 
 // only create maps on demand, as they incur heap allocation/deallocation cost
 // when a view is constructed/deconstructed
-LLView::dummy_widget_map_t& LLView::getDummyWidgetMap() const
+LLView::default_widget_map_t& LLView::getDefaultWidgetMap() const
 {
-	if (!mDummyWidgets)
+	if (!mDefaultWidgets)
 	{
-		mDummyWidgets = new dummy_widget_map_t();
+		mDefaultWidgets = new default_widget_map_t();
 	}
-	return *mDummyWidgets;
+	return *mDefaultWidgets;
 }

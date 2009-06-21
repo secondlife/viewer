@@ -75,7 +75,9 @@ LLFloaterAuction::LLFloaterAuction(const LLSD& key)
   : LLFloater(),
 	mParcelID(-1)
 {
-	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_auction.xml");
+//	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_auction.xml");
+	mCommitCallbackRegistrar.add("ClickSnapshot",	boost::bind(&LLFloaterAuction::onClickSnapshot, this));
+	mCommitCallbackRegistrar.add("ClickOK",		boost::bind(&LLFloaterAuction::onClickOK, this));
 }
 
 // Destroys the object
@@ -85,11 +87,6 @@ LLFloaterAuction::~LLFloaterAuction()
 
 BOOL LLFloaterAuction::postBuild()
 {
-	childSetValue("fence_check", LLSD( gSavedSettings.getBOOL("AuctionShowFence") ) );
-	getChild<LLUICtrl>("fence_check")->setCommitCallback(boost::bind(LLSavedSettingsGlue::setBOOL, _1, "AuctionShowFence"));
-
-	childSetAction("snapshot_btn", onClickSnapshot, this);
-	childSetAction("ok_btn", onClickOK, this);
 	return TRUE;
 }
 

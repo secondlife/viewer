@@ -60,7 +60,7 @@ public:
 
 		Optional<LLFontGL::ShadowType>	font_shadow;
 
-		Deprecated			drop_shadow_visible,
+		Ignored				drop_shadow_visible,
 							type,
 							length;
 

@@ -45,8 +45,8 @@ static std::string PANEL_PROFILE = "panel_profile";
 static std::string PANEL_PICKS = "panel_picks";
 static std::string PANEL_NOTES = "panel_notes";
 
-LLPanelProfileView::LLPanelProfileView(const LLPanel::Params& p)
-: LLPanel(p)
+LLPanelProfileView::LLPanelProfileView()
+: LLPanel()
 {
 }
 

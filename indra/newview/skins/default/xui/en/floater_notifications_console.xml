@@ -24,7 +24,10 @@
      left_pad="3"
      name="add_notification"
      top_delta="0"
-     width="50" />
+     width="50" >
+        <button.commit_callback
+         function="ClickAdd" />
+    </button>
     <layout_stack
      bottom="495"
      follows="left|right|top|bottom"

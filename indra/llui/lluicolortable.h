@@ -22,8 +22,8 @@ class LLUIColorTable : public LLSingleton<LLUIColorTable>
 public:
 	struct ColorParams : LLInitParam::Choice<ColorParams>
 	{
-		Option<LLColor4>    value;
-		Option<std::string> reference;
+		Alternative<LLColor4>    value;
+		Alternative<std::string> reference;
 
 		ColorParams();
 	};

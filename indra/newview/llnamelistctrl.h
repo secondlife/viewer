@@ -68,8 +68,8 @@ public:
 
 	struct NameColumn : public LLInitParam::Choice<NameColumn>
 	{
-		Option<S32>				column_index;
-		Option<std::string>		column_name;
+		Alternative<S32>				column_index;
+		Alternative<std::string>		column_name;
 		NameColumn()
 		:	column_name("name_column"),
 			column_index("name_column_index", 0)

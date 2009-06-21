@@ -111,6 +111,13 @@ void LLFocusableElement::setFocus(BOOL b)
 {
 }
 
+//static 
+const LLUICtrl::Params& LLUICtrl::getDefaultParams()
+{
+	return LLUICtrlFactory::getDefaultParams<LLUICtrl::Params>();
+}
+
+
 LLUICtrl::LLUICtrl(const LLUICtrl::Params& p, const LLViewModelPtr& viewmodel) 
 :	LLView(p),
 	mTentative(FALSE),

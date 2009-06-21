@@ -63,7 +63,7 @@ public:
 		Optional<KEY>			jump_key;
 		Optional<bool>			use_mac_ctrl;
 
-		Deprecated				rect,
+		Ignored					rect,
 								left,
 								top,
 								right,

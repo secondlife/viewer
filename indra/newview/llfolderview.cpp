@@ -82,7 +82,7 @@ const S32 ICON_WIDTH = 16;
 const S32 TEXT_PAD = 1;
 const S32 ARROW_SIZE = 12;
 const S32 RENAME_WIDTH_PAD = 4;
-const S32 RENAME_HEIGHT_PAD = 6;
+const S32 RENAME_HEIGHT_PAD = 2;
 const S32 AUTO_OPEN_STACK_DEPTH = 16;
 const S32 MIN_ITEM_WIDTH_VISIBLE = ICON_WIDTH + ICON_PAD + ARROW_SIZE + TEXT_PAD + /*first few characters*/ 40;
 const S32 MINIMUM_RENAMER_WIDTH = 80;
@@ -2560,7 +2560,7 @@ LLFolderView::LLFolderView(const Params& p)
 	LLMenuGL* menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_inventory.xml", gMenuHolder);
 	if (!menu)
 	{
-		menu = LLUICtrlFactory::createDummyWidget<LLMenuGL>("inventory_menu");
+		menu = LLUICtrlFactory::getDefaultWidget<LLMenuGL>("inventory_menu");
 	}
 	menu->setBackgroundColor(gSavedSkinSettings.getColor("MenuPopupBgColor"));
 	mPopupMenuHandle = menu->getHandle();
@@ -2771,6 +2771,9 @@ S32 LLFolderView::arrange( S32* unused_width, S32* unused_height, S32 filter_gen
 	{
 		reshape( llmax(min_width, total_width), running_height );
 	}
+
+	// move item renamer text field to item's new position
+	updateRenamerPosition();
 
 	mTargetHeight = (F32)target_height;
 	return llround(mTargetHeight);
@@ -3620,23 +3623,8 @@ void LLFolderView::startRenamingSelectedItem( void )
 	{
 		mRenameItem = item;
 
-		S32 x = ARROW_SIZE + TEXT_PAD + ICON_WIDTH + ICON_PAD - 1 + item->getIndentation();
-		S32 y = llfloor(item->getRect().getHeight()-sFont->getLineHeight()-2);
-		item->localPointToScreen( x, y, &x, &y );
-		screenPointToLocal( x, y, &x, &y );
-		mRenamer->setOrigin( x, y );
+		updateRenamerPosition();
 
-		S32 scroller_height = 0;
-		S32 scroller_width = gViewerWindow->getWindowWidth();
-		BOOL dummy_bool;
-		if (mScrollContainer)
-		{
-			mScrollContainer->calcVisibleSize( &scroller_width, &scroller_height, &dummy_bool, &dummy_bool);
-		}
-
-		S32 width = llmax(llmin(item->getRect().getWidth() - x, scroller_width - x - getRect().mLeft), MINIMUM_RENAMER_WIDTH);
-		S32 height = llfloor(sFont->getLineHeight() + RENAME_HEIGHT_PAD);
-		mRenamer->reshape( width, height, TRUE );
 
 		mRenamer->setText(item->getName());
 		mRenamer->selectAll();
@@ -4385,6 +4373,31 @@ void LLFolderView::dumpSelectionInformation()
 	}
 	llinfos << "****************************************" << llendl;
 }
+
+void LLFolderView::updateRenamerPosition()
+{
+	if(mRenameItem)
+	{
+		S32 x = ARROW_SIZE + TEXT_PAD + ICON_WIDTH + ICON_PAD - 1 + mRenameItem->getIndentation();
+		S32 y = llfloor(mRenameItem->getRect().getHeight()-sFont->getLineHeight()-2);
+		mRenameItem->localPointToScreen( x, y, &x, &y );
+		screenPointToLocal( x, y, &x, &y );
+		mRenamer->setOrigin( x, y );
+
+		S32 scroller_height = 0;
+		S32 scroller_width = gViewerWindow->getWindowWidth();
+		BOOL dummy_bool;
+		if (mScrollContainer)
+		{
+			mScrollContainer->calcVisibleSize( &scroller_width, &scroller_height, &dummy_bool, &dummy_bool);
+		}
+
+		S32 width = llmax(llmin(mRenameItem->getRect().getWidth() - x, scroller_width - x - getRect().mLeft), MINIMUM_RENAMER_WIDTH);
+		S32 height = llfloor(sFont->getLineHeight() + RENAME_HEIGHT_PAD);
+		mRenamer->reshape( width, height, TRUE );
+	}
+}
+
 
 ///----------------------------------------------------------------------------
 /// Local function definitions

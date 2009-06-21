@@ -52,9 +52,9 @@ public:
 
 	void updateControl(LLControlVariable* control);
 
-	static void onSettingSelect(LLUICtrl* ctrl, void* user_data);
-	static void onCommitSettings(LLUICtrl* ctrl, void* user_data);
-	static void onClickDefault(void* user_data);
+	void onSettingSelect(LLUICtrl* ctrl);
+	void onCommitSettings();
+	void onClickDefault();
 
 protected:
 	LLTextEditor* mComment;

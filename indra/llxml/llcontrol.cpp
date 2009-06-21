@@ -1176,7 +1176,7 @@ template<>
 LLVector3 convert_from_llsd<LLVector3>(const LLSD& sd, eControlType type, const std::string& control_name)
 {
 	if (type == TYPE_VEC3)
-		return sd;
+		return (LLVector3)sd;
 	else
 	{
 		CONTROL_ERRS << "Invalid LLVector3 value" << llendl;
@@ -1188,7 +1188,7 @@ template<>
 LLVector3d convert_from_llsd<LLVector3d>(const LLSD& sd, eControlType type, const std::string& control_name)
 {
 	if (type == TYPE_VEC3D)
-		return sd;
+		return (LLVector3d)sd;
 	else
 	{
 		CONTROL_ERRS << "Invalid LLVector3d value" << llendl;
@@ -1200,7 +1200,7 @@ template<>
 LLRect convert_from_llsd<LLRect>(const LLSD& sd, eControlType type, const std::string& control_name)
 {
 	if (type == TYPE_RECT)
-		return sd;
+		return LLRect(sd);
 	else
 	{
 		CONTROL_ERRS << "Invalid rect value" << llendl;

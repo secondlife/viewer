@@ -96,10 +96,10 @@ public:
 protected:
 	friend class LLUICtrlFactory;
 	// RN: for some reason you can't just use LLUICtrlFactory::getDefaultParams as a default argument in VC8
-	static const Params& defaultParams() { return LLUICtrlFactory::getDefaultParams<LLPanel::Params>(); }
+	static const LLPanel::Params& getDefaultParams();
 
 	// Panels can get constructed directly
-	LLPanel(const Params& params = defaultParams());
+	LLPanel(const LLPanel::Params& params = getDefaultParams());
 	
 public:
 // 	LLPanel(const std::string& name, const LLRect& rect = LLRect(), BOOL bordered = TRUE);
@@ -122,7 +122,7 @@ public:
 
 	// Border controls
 	void addBorder( LLViewBorder::Params p);
-	void addBorder() {  LLViewBorder::Params p; p.border_thickness(LLPANEL_BORDER_WIDTH); addBorder(p); }
+	void addBorder();
 	void			removeBorder();
 	BOOL			hasBorder() const { return mBorder != NULL; }
 	void			setBorderVisible( BOOL b );

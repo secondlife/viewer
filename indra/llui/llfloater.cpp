@@ -188,6 +188,13 @@ bool LLFloater::KeyCompare::equate(const LLSD& a, const LLSD& b)
 
 //************************************
 
+//static 
+const LLFloater::Params& LLFloater::getDefaultParams()
+{
+	return LLUICtrlFactory::getDefaultParams<LLFloater::Params>();
+}
+
+
 LLFloater::LLFloater(const LLSD& key, const LLFloater::Params& p)
 	:	LLPanel(),
 		mDragHandle(NULL),

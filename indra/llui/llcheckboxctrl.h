@@ -65,7 +65,7 @@ public:
 		Optional<LLTextBox::Params> label_text;
 		Optional<LLButton::Params> check_button;
 
-		Deprecated	radio_style;
+		Ignored					radio_style;
 
 		Params();
 	};

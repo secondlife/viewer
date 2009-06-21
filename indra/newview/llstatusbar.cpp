@@ -732,7 +732,7 @@ void LLStatusBar::onClickSearch(void* data)
 // static
 void LLStatusBar::onClickStatGraph(void* data)
 {
-	LLFloaterLagMeter::showInstance();
+	LLFloaterReg::showInstance("lagmeter");
 }
 
 BOOL can_afford_transaction(S32 cost)

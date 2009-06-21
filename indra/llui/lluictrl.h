@@ -87,7 +87,7 @@ public:
 	
 	struct CallbackParam : public LLInitParam::Block<CallbackParam>
 	{
-		Deprecated				name;
+		Ignored					name;
 
 		Optional<std::string>	function_name;
 		Optional<LLSD>			parameter;
@@ -116,8 +116,8 @@ public:
 	
 	struct EnableControls : public LLInitParam::Choice<EnableControls>
 	{
-		Option<std::string> enabled;
-		Option<std::string> disabled;
+		Alternative<std::string> enabled;
+		Alternative<std::string> disabled;
 		
 		EnableControls()
 		: enabled("enabled_control"),
@@ -126,8 +126,8 @@ public:
 	};	
 	struct ControlVisibility : public LLInitParam::Choice<ControlVisibility>
 	{
-		Option<std::string> visible;
-		Option<std::string> invisible;
+		Alternative<std::string> visible;
+		Alternative<std::string> invisible;
 
 		ControlVisibility()
 			: visible("make_visible_control"),
@@ -160,7 +160,8 @@ public:
 	void initFromParams(const Params& p);
 protected:
 	friend class LLUICtrlFactory;
-	LLUICtrl(const Params& p = LLUICtrl::Params(),
+	static const Params& getDefaultParams();
+	LLUICtrl(const Params& p = getDefaultParams(),
              const LLViewModelPtr& viewmodel=LLViewModelPtr(new LLViewModel));
 	
 	void initCommitCallback(const CommitCallbackParam& cb, commit_signal_t& sig);

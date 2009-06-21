@@ -64,17 +64,17 @@
              left_delta="0"
              name="Edit"
              top_pad="4"
-             width="132" />
+             width="50" />
             <button
              follows="top|right"
              height="20"
              label="Find"
              label_selected="Find"
              layout="topleft"
-             left_pad="30"
+             left_pad="5"
              name="Find"
              top_delta="-1"
-             width="95" />
+             width="62" />
             <scroll_list
              follows="left|top|right|bottom"
              height="90"
@@ -196,12 +196,12 @@
      top="324"
      width="95" />
     <button
-     follows="left|bottom"
+     follows="right|bottom"
      height="20"
      label="Cancel"
      label_selected="Cancel"
      layout="topleft"
-     left_pad="70"
+     right="-10" 
      name="Cancel"
      top_delta="0"
      width="95" />

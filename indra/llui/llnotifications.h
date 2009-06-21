@@ -299,8 +299,8 @@ public:
 
 		struct Functor : public LLInitParam::Choice<Functor>
 		{
-			Option<std::string>										name;
-			Option<LLNotificationFunctorRegistry::ResponseFunctor>	function;
+			Alternative<std::string>										name;
+			Alternative<LLNotificationFunctorRegistry::ResponseFunctor>	function;
 
 			Functor()
 			:	name("functor_name"),

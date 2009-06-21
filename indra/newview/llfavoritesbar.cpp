@@ -367,7 +367,7 @@ BOOL LLFavoritesBarCtrl::postBuild()
 	LLMenuGL* menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_favorites.xml", gMenuHolder);
 	if (!menu)
 	{
-		menu = LLUICtrlFactory::createDummyWidget<LLMenuGL>("inventory_menu");
+		menu = LLUICtrlFactory::getDefaultWidget<LLMenuGL>("inventory_menu");
 	}
 	menu->setBackgroundColor(gSavedSkinSettings.getColor("MenuPopupBgColor"));
 	mInventoryItemsPopupMenuHandle = menu->getHandle();

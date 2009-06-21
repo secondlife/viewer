@@ -51,7 +51,7 @@ private:
 	
 	/*virtual*/ void onOpen(const LLSD& key);
 	/*virtual*/ void onClose(bool app_quitting);
-	
+	/*virtual*/ BOOL postBuild();
 public:
 	LLJoystickCameraRotate* mRotate;
 	LLJoystickCameraZoom*	mZoom;

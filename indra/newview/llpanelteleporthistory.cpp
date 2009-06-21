@@ -92,15 +92,8 @@ void LLTeleportHistoryPanel::onShowOnMap()
 
 	S32 index = itemp->getColumn(LIST_INDEX)->getValue().asInteger();
 
-	const LLTeleportHistory::slurl_list_t& hist_items = mTeleportHistory->getItems();
-
-	LLVector3d global_pos = hist_items[index].mGlobalPos;
-	
-	if (!global_pos.isExactlyZero())
-	{
-		LLFloaterWorldMap::getInstance()->trackLocation(global_pos);
-		LLFloaterReg::showInstance("world_map", "center");
-	}
+	// teleport to existing item in history, so we don't add it again
+	mTeleportHistory->goToItem(index);
 }
 
 // virtual

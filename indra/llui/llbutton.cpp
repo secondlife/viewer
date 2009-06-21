@@ -146,7 +146,7 @@ LLButton::LLButton(const LLButton::Params& p)
 	mFadeWhenDisabled(FALSE)
 {
 	static LLUICachedControl<S32> llbutton_orig_h_pad ("UIButtonOrigHPad", 0);
-	static LLButton::Params default_params(LLUICtrlFactory::getDefaultParams<LLButton::Params>());
+	static Params default_params(LLUICtrlFactory::getDefaultParams<Params>());
 
 	//if we aren't a picture_style button set label as name if not provided
 	if (!p.picture_style.isProvided() || !p.picture_style)

@@ -278,7 +278,6 @@ set(viewer_SOURCE_FILES
     llpaneldirland.cpp
     llpaneldirpeople.cpp
     llpaneldirplaces.cpp
-    llpaneldisplay.cpp
     llpanelevent.cpp
     llpanelface.cpp
     llpanelgroup.cpp
@@ -694,7 +693,6 @@ set(viewer_HEADER_FILES
     llpaneldirland.h
     llpaneldirpeople.h
     llpaneldirplaces.h
-    llpaneldisplay.h
     llpanelevent.h
     llpanelface.h
     llpanelgroup.h

@@ -1715,7 +1715,7 @@ void LLAppViewer::loadColorSettings()
 			if(control->isType(TYPE_COL4))
 			{
 				LLUIColorTable::ColorParams color;
-				color.value = control->getValue();
+				color.value = (LLColor4)control->getValue();
 
 				LLUIColorTable::ColorEntryParams color_entry;
 				color_entry.name = name;

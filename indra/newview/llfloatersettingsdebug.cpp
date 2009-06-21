@@ -44,7 +44,11 @@
 LLFloaterSettingsDebug::LLFloaterSettingsDebug(const LLSD& key) 
 :	LLFloater(key)
 {
-	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_settings_debug.xml");
+	//LLUICtrlFactory::getInstance()->buildFloater(this, "floater_settings_debug.xml");
+	mCommitCallbackRegistrar.add("SettingSelect",	boost::bind(&LLFloaterSettingsDebug::onSettingSelect, this,_1));
+	mCommitCallbackRegistrar.add("CommitSettings",	boost::bind(&LLFloaterSettingsDebug::onCommitSettings, this));
+	mCommitCallbackRegistrar.add("ClickDefault",	boost::bind(&LLFloaterSettingsDebug::onClickDefault, this));
+
 }
 
 LLFloaterSettingsDebug::~LLFloaterSettingsDebug()
@@ -82,17 +86,7 @@ BOOL LLFloaterSettingsDebug::postBuild()
 	}
 
 	settings_combo->sortByName();
-	settings_combo->setCommitCallback(onSettingSelect, this);
 	settings_combo->updateSelection();
-
-	childSetCommitCallback("val_spinner_1", onCommitSettings, this);
-	childSetCommitCallback("val_spinner_2", onCommitSettings, this);
-	childSetCommitCallback("val_spinner_3", onCommitSettings, this);
-	childSetCommitCallback("val_spinner_4", onCommitSettings, this);
-	childSetCommitCallback("val_text", onCommitSettings, this);
-	childSetCommitCallback("boolean_combo", onCommitSettings, this);
-	childSetCommitCallback("color_swatch", onCommitSettings, this);
-	childSetAction("default_btn", onClickDefault, this);
 	mComment = getChild<LLTextEditor>("comment_text");
 	return TRUE;
 }
@@ -107,21 +101,17 @@ void LLFloaterSettingsDebug::draw()
 }
 
 //static 
-void LLFloaterSettingsDebug::onSettingSelect(LLUICtrl* ctrl, void* user_data)
+void LLFloaterSettingsDebug::onSettingSelect(LLUICtrl* ctrl)
 {
-	LLFloaterSettingsDebug* floaterp = (LLFloaterSettingsDebug*)user_data;
 	LLComboBox* combo_box = (LLComboBox*)ctrl;
 	LLControlVariable* controlp = (LLControlVariable*)combo_box->getCurrentUserdata();
 
-	floaterp->updateControl(controlp);
+	updateControl(controlp);
 }
 
-//static
-void LLFloaterSettingsDebug::onCommitSettings(LLUICtrl* ctrl, void* user_data)
+void LLFloaterSettingsDebug::onCommitSettings()
 {
-	LLFloaterSettingsDebug* floaterp = (LLFloaterSettingsDebug*)user_data;
-
-	LLComboBox* settings_combo = floaterp->getChild<LLComboBox>("settings_combo");
+	LLComboBox* settings_combo = getChild<LLComboBox>("settings_combo");
 	LLControlVariable* controlp = (LLControlVariable*)settings_combo->getCurrentUserdata();
 
 	LLVector3 vector;
@@ -135,46 +125,46 @@ void LLFloaterSettingsDebug::onCommitSettings(LLUICtrl* ctrl, void* user_data)
 	switch(controlp->type())
 	{		
 	  case TYPE_U32:
-		controlp->set(floaterp->childGetValue("val_spinner_1"));
+		controlp->set(childGetValue("val_spinner_1"));
 		break;
 	  case TYPE_S32:
-		controlp->set(floaterp->childGetValue("val_spinner_1"));
+		controlp->set(childGetValue("val_spinner_1"));
 		break;
 	  case TYPE_F32:
-		controlp->set(LLSD(floaterp->childGetValue("val_spinner_1").asReal()));
+		controlp->set(LLSD(childGetValue("val_spinner_1").asReal()));
 		break;
 	  case TYPE_BOOLEAN:
-		controlp->set(floaterp->childGetValue("boolean_combo"));
+		controlp->set(childGetValue("boolean_combo"));
 		break;
 	  case TYPE_STRING:
-		controlp->set(LLSD(floaterp->childGetValue("val_text").asString()));
+		controlp->set(LLSD(childGetValue("val_text").asString()));
 		break;
 	  case TYPE_VEC3:
-		vector.mV[VX] = (F32)floaterp->childGetValue("val_spinner_1").asReal();
-		vector.mV[VY] = (F32)floaterp->childGetValue("val_spinner_2").asReal();
-		vector.mV[VZ] = (F32)floaterp->childGetValue("val_spinner_3").asReal();
+		vector.mV[VX] = (F32)childGetValue("val_spinner_1").asReal();
+		vector.mV[VY] = (F32)childGetValue("val_spinner_2").asReal();
+		vector.mV[VZ] = (F32)childGetValue("val_spinner_3").asReal();
 		controlp->set(vector.getValue());
 		break;
 	  case TYPE_VEC3D:
-		vectord.mdV[VX] = floaterp->childGetValue("val_spinner_1").asReal();
-		vectord.mdV[VY] = floaterp->childGetValue("val_spinner_2").asReal();
-		vectord.mdV[VZ] = floaterp->childGetValue("val_spinner_3").asReal();
+		vectord.mdV[VX] = childGetValue("val_spinner_1").asReal();
+		vectord.mdV[VY] = childGetValue("val_spinner_2").asReal();
+		vectord.mdV[VZ] = childGetValue("val_spinner_3").asReal();
 		controlp->set(vectord.getValue());
 		break;
 	  case TYPE_RECT:
-		rect.mLeft = floaterp->childGetValue("val_spinner_1").asInteger();
-		rect.mRight = floaterp->childGetValue("val_spinner_2").asInteger();
-		rect.mBottom = floaterp->childGetValue("val_spinner_3").asInteger();
-		rect.mTop = floaterp->childGetValue("val_spinner_4").asInteger();
+		rect.mLeft = childGetValue("val_spinner_1").asInteger();
+		rect.mRight = childGetValue("val_spinner_2").asInteger();
+		rect.mBottom = childGetValue("val_spinner_3").asInteger();
+		rect.mTop = childGetValue("val_spinner_4").asInteger();
 		controlp->set(rect.getValue());
 		break;
 	  case TYPE_COL4:
-		col3.setValue(floaterp->childGetValue("color_swatch"));
-		col4 = LLColor4(col3, (F32)floaterp->childGetValue("val_spinner_4").asReal());
+		col3.setValue(childGetValue("val_color_swatch"));
+		col4 = LLColor4(col3, (F32)childGetValue("val_spinner_4").asReal());
 		controlp->set(col4.getValue());
 		break;
 	  case TYPE_COL3:
-		controlp->set(floaterp->childGetValue("color_swatch"));
+		controlp->set(childGetValue("val_color_swatch"));
 		//col3.mV[VRED] = (F32)floaterp->childGetValue("val_spinner_1").asC();
 		//col3.mV[VGREEN] = (F32)floaterp->childGetValue("val_spinner_2").asReal();
 		//col3.mV[VBLUE] = (F32)floaterp->childGetValue("val_spinner_3").asReal();
@@ -186,16 +176,15 @@ void LLFloaterSettingsDebug::onCommitSettings(LLUICtrl* ctrl, void* user_data)
 }
 
 // static
-void LLFloaterSettingsDebug::onClickDefault(void* user_data)
+void LLFloaterSettingsDebug::onClickDefault()
 {
-	LLFloaterSettingsDebug* floaterp = (LLFloaterSettingsDebug*)user_data;
-	LLComboBox* settings_combo = floaterp->getChild<LLComboBox>("settings_combo");
+	LLComboBox* settings_combo = getChild<LLComboBox>("settings_combo");
 	LLControlVariable* controlp = (LLControlVariable*)settings_combo->getCurrentUserdata();
 
 	if (controlp)
 	{
 		controlp->resetToDefault();
-		floaterp->updateControl(controlp);
+		updateControl(controlp);
 	}
 }
 
@@ -206,7 +195,7 @@ void LLFloaterSettingsDebug::updateControl(LLControlVariable* controlp)
 	LLSpinCtrl* spinner2 = getChild<LLSpinCtrl>("val_spinner_2");
 	LLSpinCtrl* spinner3 = getChild<LLSpinCtrl>("val_spinner_3");
 	LLSpinCtrl* spinner4 = getChild<LLSpinCtrl>("val_spinner_4");
-	LLColorSwatchCtrl* color_swatch = getChild<LLColorSwatchCtrl>("color_swatch");
+	LLColorSwatchCtrl* color_swatch = getChild<LLColorSwatchCtrl>("val_color_swatch");
 
 	if (!spinner1 || !spinner2 || !spinner3 || !spinner4 || !color_swatch)
 	{

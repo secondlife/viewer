@@ -39,20 +39,26 @@
 
 #include "llcompilequeue.h"
 #include "llfloaterabout.h"
+#include "llfloaterauction.h"
 #include "llfloateraddlandmark.h"
 #include "llfloateravatarinfo.h"
+#include "llfloaterbuildoptions.h"
+#include "llfloaterbump.h"
 #include "llfloaterchat.h"
 #include "llfloaterchatterbox.h"
 #include "llfloaterdirectory.h"
 #include "llfloaterjoystick.h"
-#include "llfloatervoicedevicesettings.h"
+#include "llfloaternotificationsconsole.h"
+#include "llfloaterlagmeter.h"
 #include "llfloatermap.h"
 #include "llfloatermemleak.h"
 #include "llfloatermute.h"
 #include "llfloaterpreference.h"
 #include "llfloatersnapshot.h"
+#include "llfloatersettingsdebug.h"
 #include "llfloatertools.h"
 #include "llfloateruipreview.h"
+#include "llfloatervoicedevicesettings.h"
 #include "llfloaterworldmap.h"
 #include "llinventoryview.h"
 #include "llnearbychathistory.h"
@@ -80,6 +86,13 @@ void LLViewerFloaterReg::registerFloaters()
 	LLFloaterReg::add("add_landmark", "floater_add_landmark.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterAddLandmark>);
 	LLFloaterReg::add("mute", "floater_mute.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterMute>);
 	
+	LLFloaterReg::add("auction", "floater_auction.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterAuction>);
+	LLFloaterReg::add("build_options", "floater_build_options.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterBuildOptions>);
+	LLFloaterReg::add("bumps", "floater_bumps.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterBump>);
+	LLFloaterReg::add("notifications_console", "floater_notifications_console.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterNotificationConsole>);
+	LLFloaterReg::add("settings_debug", "floater_settings_debug.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterSettingsDebug>);
+	LLFloaterReg::add("lagmeter", "floater_lagmeter.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterLagMeter>);
+
 	LLFloaterReg::add("ui_preview", "floater_ui_preview.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterUIPreview>);
 	LLFloaterReg::add("test_widgets", "floater_test_widgets.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloater>);
 	

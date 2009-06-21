@@ -1246,14 +1246,14 @@ const std::string LLScrollListCtrl::getSelectedItemLabel(S32 column) const
 // "StringUUID" interface: use this when you're creating a list that contains non-unique strings each of which
 // has an associated, unique UUID, and only one of which can be selected at a time.
 
-LLScrollListItem* LLScrollListCtrl::addStringUUIDItem(const std::string& item_text, const LLUUID& id, EAddPosition pos, BOOL enabled, S32 column_width)
+LLScrollListItem* LLScrollListCtrl::addStringUUIDItem(const std::string& item_text, const LLUUID& id, EAddPosition pos, BOOL enabled)
 {
 	if (getItemCount() < mMaxItemCount)
 	{
 		LLScrollListItem::Params item_p;
 		item_p.enabled(enabled);
 		item_p.value(id);
-		item_p.cells.add().value(item_text).width(column_width).type("text");
+		item_p.cells.add().value(item_text).type("text");
 
 		return addRow( item_p, pos );
 	}

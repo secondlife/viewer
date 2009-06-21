@@ -55,9 +55,9 @@ public:
 	/*virtual*/ void onOpen(const LLSD& key);
 	/*virtual*/ void draw();
 	
-private:
 	LLFloaterAuction(const LLSD& key);
 	~LLFloaterAuction();
+private:
 	void initialize();
 
 	static void onClickSnapshot(void* data);

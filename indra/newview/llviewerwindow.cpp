@@ -2131,7 +2131,8 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 	    && (MASK_CONTROL & mask)
 	    && ('5' == key))
 	{
-		LLFloaterNotificationConsole::showInstance();
+		//LLFloaterNotificationConsole::showInstance();
+		LLFloaterReg::showInstance("notifications_console");
 		return TRUE;
 	}
 
@@ -2428,51 +2429,59 @@ void LLViewerWindow::updateUI()
 		root_view = mRootView;
 	}
 
-	// walk UI tree in depth-first order
-	LLView::tree_iterator_t end_it;
-	for (LLView::tree_iterator_t it = root_view->beginTree();
-		it != end_it;
-		++it)
+	// aggregate visible views that contain mouse cursor in display order
+
+	// while the top_ctrl contains the mouse cursor, only it and its descendants will receive onMouseEnter events
+	if (top_ctrl && top_ctrl->calcScreenBoundingRect().pointInRect(x, y))
 	{
-		LLView* viewp = *it;
-		// calculating the screen rect involves traversing the parent, so this is less than optimal
-		if (!viewp->getVisible()
-			|| !viewp->calcScreenBoundingRect().pointInRect(x, y))
-		{
-			// skip this view and all of its children
-			it.skipDescendants();
-			continue;
-		}
-
-		// if this view is mouse opaque, nothing behind it should be in mouse_hover_set
-		if (viewp->getMouseOpaque())
-		{
-			// constrain further iteration to children of this widget
-			it = viewp->beginTree();
-		}
-
-		// we have a view that contains the mouse, add it to the set
-		mouse_hover_set.insert(viewp->getHandle());
-	}
-
-	// now do the same aggregation for the "top" ctrl, whose parent does not necessarily contain the mouse
-	if (top_ctrl)
-	{
+		// iterator over contents of top_ctrl, and throw into mouse_hover_set
 		for (LLView::tree_iterator_t it = top_ctrl->beginTree();
-			it != root_view->endTree();
+			it != top_ctrl->endTree();
 			++it)
 		{
 			LLView* viewp = *it;
-			if (!viewp->getVisible()
-				|| !viewp->calcScreenBoundingRect().pointInRect(x, y))
+			if (viewp->getVisible()
+				&& viewp->calcScreenBoundingRect().pointInRect(x, y))
+			{
+				// we have a view that contains the mouse, add it to the set
+				mouse_hover_set.insert(viewp->getHandle());
+			}
+			else
 			{
 				// skip this view and all of its children
 				it.skipDescendants();
-				continue;
 			}
+		}
+	}
+	else
+	{
+		// walk UI tree in depth-first order
+		LLView::tree_iterator_t end_it;
+		for (LLView::tree_iterator_t it = root_view->beginTree();
+			it != end_it;
+			++it)
+		{
+			LLView* viewp = *it;
+			// calculating the screen rect involves traversing the parent, so this is less than optimal
+			if (viewp->getVisible()
+				&& viewp->calcScreenBoundingRect().pointInRect(x, y))
+			{
 
-			// we have a view that contains the mouse, add it to the set
-			mouse_hover_set.insert(viewp->getHandle());
+				// if this view is mouse opaque, nothing behind it should be in mouse_hover_set
+				if (viewp->getMouseOpaque())
+				{
+					// constrain further iteration to children of this widget
+					it = viewp->beginTree();
+				}
+	
+				// we have a view that contains the mouse, add it to the set
+				mouse_hover_set.insert(viewp->getHandle());
+			}
+			else
+			{
+				// skip this view and all of its children
+				it.skipDescendants();
+			}
 		}
 	}
 
@@ -2898,11 +2907,25 @@ void LLViewerWindow::updateWorldViewRect()
 	if (!LLSideTray::instanceCreated()) return;
 
 	LLRect new_world_rect = mWindowRect;
+
+	// pull in right side of world view based on sidetray
 	LLSideTray* sidetray = LLSideTray::getInstance();
 	if (sidetray->getVisible())
 	{
 		new_world_rect.mRight -= llround((F32)sidetray->getTrayWidth() * mDisplayScale.mV[VX]);
 	}
+
+	// push top of world view below nav bar
+	if (LLNavigationBar::getInstance()->getVisible())
+	{
+		LLNavigationBar* barp = LLNavigationBar::getInstance();
+		LLRect nav_bar_rect;
+		if(barp->localRectToOtherView(barp->getLocalRect(), &nav_bar_rect, mRootView))
+		{
+			new_world_rect.mTop = llround((F32)LLNavigationBar::getInstance()->getRect().mBottom * mDisplayScale.mV[VY]);
+		}
+	}
+
 	if (mWorldViewRect != new_world_rect)
 	{
 		mWorldViewRect = new_world_rect;

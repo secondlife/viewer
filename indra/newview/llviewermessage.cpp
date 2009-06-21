@@ -4395,8 +4395,8 @@ void handle_show_mean_events(void *)
 	{
 		return;
 	}
-
-	LLFloaterBump::showInstance();
+	LLFloaterReg::showInstance("bumps");
+	//LLFloaterBump::showInstance();
 }
 
 void mean_name_callback(const LLUUID &id, const std::string& first, const std::string& last, BOOL always_false)

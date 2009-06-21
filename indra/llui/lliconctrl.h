@@ -55,7 +55,7 @@ public:
 	{
 		Optional<LLUIImage*>	image;
 		Optional<LLUIColor>		color;
-		Deprecated				scale_image;
+		Ignored					scale_image;
 		Params();
 	};
 protected:

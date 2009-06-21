@@ -58,6 +58,11 @@
 
 static LLDefaultWidgetRegistry::Register<LLPanel> r1("panel", &LLPanel::fromXML);
 
+const LLPanel::Params& LLPanel::getDefaultParams() 
+{ 
+	return LLUICtrlFactory::getDefaultParams<LLPanel::Params>(); 
+}
+
 LLPanel::Params::Params()
 :	has_border("border", false),
 	bg_opaque_color("bg_opaque_color"),
@@ -113,6 +118,14 @@ void LLPanel::addBorder(LLViewBorder::Params p)
 	mBorder = LLUICtrlFactory::create<LLViewBorder>(p);
 	addChild( mBorder );
 }
+
+void LLPanel::addBorder() 
+{  
+	LLViewBorder::Params p; 
+	p.border_thickness(LLPANEL_BORDER_WIDTH); 
+	addBorder(p); 
+}
+
 
 void LLPanel::removeBorder()
 {
@@ -885,10 +898,11 @@ LLView* LLPanel::getChildView(const std::string& name, BOOL recurse, BOOL create
 	}
 	if (!view && create_if_missing)
 	{
-		view = getDummyWidget<LLView>(name);
+		view = getDefaultWidget<LLView>(name);
 		if (!view)
 		{
-			view = LLUICtrlFactory::createDummyWidget<LLView>(name);
+			// create LLViews explicitly, as they are not registered widget types
+			view = LLUICtrlFactory::createDefaultWidget<LLView>(name);
 		}
 	}
 	return view;

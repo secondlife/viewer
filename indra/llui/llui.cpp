@@ -58,6 +58,10 @@
 #include "llmenugl.h"
 #include "llwindow.h"
 
+// for registration
+#include "llsearcheditor.h"
+#include "llflyoutbutton.h"
+
 // for XUIParse
 #include "llquaternion.h"
 #include <boost/tokenizer.hpp>
@@ -84,6 +88,10 @@ std::list<std::string> gUntranslated;
 /*static*/ std::stack<LLRect> LLScreenClipRect::sClipRectStack;
 
 /*static*/ std::vector<std::string> LLUI::sXUIPaths;
+
+// register searcheditor here
+static LLDefaultWidgetRegistry::Register<LLSearchEditor> register_search_editor("search_editor");
+static LLDefaultWidgetRegistry::Register<LLFlyoutButton> register_flyout_button("flyout_button");
 
 
 //

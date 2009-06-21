@@ -64,9 +64,9 @@ public:
 		Optional<void*>		userdata;
 		Optional<LLSD>		value;
 		
-		Deprecated			name; // use for localization tools
-		Deprecated			type; 
-		Deprecated			length; 
+		Ignored				name; // use for localization tools
+		Ignored				type; 
+		Ignored				length; 
 
 		Multiple<LLScrollListCell::Params> cells;
 

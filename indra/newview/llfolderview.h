@@ -915,6 +915,9 @@ public:
 	// DEBUG only
 	void dumpSelectionInformation();
 
+private:
+	void updateRenamerPosition();
+
 protected:
 	LLScrollContainer* mScrollContainer;  // NULL if this is not a child of a scroll container.
 

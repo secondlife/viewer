@@ -55,7 +55,7 @@ public:
 	void updateResizeLimits();
 
 private:
-	static void onClickAdd(void* user_data);
+	void onClickAdd();
 };
 
 

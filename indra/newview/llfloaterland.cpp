@@ -44,11 +44,11 @@
 #include "lluserauth.h"
 
 #include "llagent.h"
-#include "llfloateravatarpicker.h"
 #include "llbutton.h"
 #include "llcheckboxctrl.h"
-#include "llradiogroup.h"
 #include "llcombobox.h"
+#include "llfloaterreg.h"
+#include "llfloateravatarpicker.h"
 #include "llfloaterauction.h"
 #include "llfloatergroups.h"
 #include "llfloatergroupinfo.h"
@@ -889,7 +889,8 @@ void LLPanelLandGeneral::onClickStartAuction(void* data)
 		}
 		else
 		{
-			LLFloaterAuction::showInstance();
+			//LLFloaterAuction::showInstance();
+			LLFloaterReg::showInstance("auction");
 		}
 	}
 }

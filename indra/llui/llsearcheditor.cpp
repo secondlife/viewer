@@ -36,7 +36,7 @@
  
 #include "llsearcheditor.h"
 
-static LLDefaultWidgetRegistry::Register<LLSearchEditor> r2("search_editor");
+//static LLDefaultWidgetRegistry::Register<LLSearchEditor> r2("search_editor");
 
 LLSearchEditor::LLSearchEditor(const LLSearchEditor::Params& p)
 :	LLUICtrl(p)

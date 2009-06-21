@@ -121,6 +121,7 @@
 #include "llfloaterperms.h"
 #include "llfloaterpostprocess.h"
 #include "llfloaterpreference.h"
+#include "llfloaterreg.h"
 #include "llfloaterregioninfo.h"
 #include "llfloaterreporter.h"
 #include "llfloaterscriptdebug.h"
@@ -613,7 +614,8 @@ class LLAdvancedToggleConsole : public view_listener_t
 #endif
 		else if ("notifications" == console_type)
 		{
-			LLFloaterNotificationConsole::showInstance();
+			//LLFloaterNotificationConsole::showInstance();
+			LLFloaterReg::showInstance("notifications_console");
 		}
 		return true;
 	}
@@ -2145,7 +2147,8 @@ class LLAdvancedShowDebugSettings : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		LLFloaterSettingsDebug::showInstance(userdata);
+	//	LLFloaterSettingsDebug::showInstance(userdata);
+		LLFloaterReg::showInstance("settings_debug",userdata);
 		return true;
 	}
 };
@@ -5649,7 +5652,7 @@ class LLShowFloater : public view_listener_t
 		}
 		else if (floater_name == "grid options")
 		{
-			LLFloaterBuildOptions::showInstance();
+			LLFloaterReg::showInstance("build_options");
 		}
 		else if (floater_name == "script errors")
 		{
@@ -5673,12 +5676,13 @@ class LLShowFloater : public view_listener_t
 		{
 			if (!gNoRender)
 			{
-				LLFloaterBump::showInstance();
+				//LLFloaterBump::showInstance();
+				LLFloaterReg::showInstance("bumps");
 			}
 		}
 		else if (floater_name == "lag meter")
 		{
-			LLFloaterLagMeter::showInstance();
+			LLFloaterReg::showInstance("lagmeter");
 		}
 		else if (floater_name == "buy currency")
 		{

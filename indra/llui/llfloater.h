@@ -141,7 +141,10 @@ public:
 		}
 	};
 	
-	LLFloater(const LLSD& key = LLSD(), const LLFloater::Params& params = LLFloater::Params());
+	// use this to avoid creating your own default LLFloater::Param instance
+	static const Params& getDefaultParams();
+
+	LLFloater(const LLSD& key = LLSD(), const Params& params = getDefaultParams());
 
 	virtual ~LLFloater();
 

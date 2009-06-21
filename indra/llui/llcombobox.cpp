@@ -640,14 +640,16 @@ void LLComboBox::onButtonDown()
 {
 	if (!mList->getVisible())
 	{
+		// this might change selection, so do it first
+		prearrangeList();
+
+		// highlight the last selected item from the original selection before potentially selecting a new item
+		// as visual cue to original value of combo box
 		LLScrollListItem* last_selected_item = mList->getLastSelectedItem();
 		if (last_selected_item)
 		{
-			// highlight the original selection before potentially selecting a new item
 			mList->mouseOverHighlightNthItem(mList->getItemIndex(last_selected_item));
 		}
-
-		prearrangeList();
 
 		if (mList->getItemCount() != 0)
 		{

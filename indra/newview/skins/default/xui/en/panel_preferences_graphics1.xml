@@ -165,6 +165,9 @@
          enabled="true"
          label="16:9 (Widescreen)"
          value="1.7777777" />
+		 <combo_box.commit_callback
+         function="setControlFalse"
+		 parameter="FullScreenAutoDetectAspectRatio" />
     </combo_box>
     <check_box
 	 make_invisible_control="NotFullScreen"
@@ -336,7 +339,10 @@
      name="QualityPerformanceSelection"
      show_text="false"
      top_delta="-1"
-     width="150" />
+     width="150">
+	 <slider.commit_callback
+			function="Pref.QualityPerformance"/>
+	</slider>		
     <check_box
      control_name="RenderCustomSettings"
      height="16"

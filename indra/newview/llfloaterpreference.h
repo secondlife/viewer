@@ -43,12 +43,22 @@
 
 class LLPanelPreference;
 class LLPanelLCD;
-class LLPanelDisplay;
 class LLPanelDebug;
 class LLMessageSystem;
 class LLScrollListCtrl;
-
+class LLSliderCtrl;
 class LLSD;
+class LLTextBox;
+
+typedef enum
+	{
+		GS_LOW_GRAPHICS,
+		GS_MID_GRAPHICS,
+		GS_HIGH_GRAPHICS,
+		GS_ULTRA_GRAPHICS
+		
+	} EGraphicsSettings;
+
 
 // Floater to control preferences (display, audio, bandwidth, general.
 class LLFloaterPreference : public LLFloater
@@ -88,6 +98,8 @@ protected:
 	void setHardwareDefaults();
 	// callback for when client turns on shaders
 	void onVertexShaderEnable();
+	
+
 public:
 
 	void onClickSetCache();
@@ -106,11 +118,29 @@ public:
 	void enableHistory();
 	void onCommitLogging();
 	void setPersonalInfo(const std::string& visibility, bool im_via_email, const std::string& email);
+	void refreshEnabledState();
+	void disableUnavailableSettings();
+	void onCommitWindowedMode();
+	void refresh();	// Refresh enable/disable
+	// if the quality radio buttons are changed
+	void onChangeQuality(const LLSD& data);
+	
+	void updateSliderText(LLSliderCtrl* ctrl, LLTextBox* text_box);
+	void onUpdateSliderText(LLUICtrl* ctrl, const LLSD& name);
+	void onKeystrokeAspectRatio();
+//	void fractionFromDecimal(F32 decimal_val, S32& numerator, S32& denominator);
+//	bool extractWindowSizeFromString(const std::string& instr, U32 &width, U32 &height);
+
+	void onCommitAutoDetectAspect();
+	void applyResolution();
+	void applyWindowSize();
+
+	static void initWindowSizeControls(LLPanel* panelp);
 	
 	static void buildLists(void* data);
 	static void refreshSkin(void* data);
 	static void cleanupBadSetting();
-	
+	static F32 sAspectRatio;	
 private:
 	static std::string sSkin;
 	bool mGotPersonalInfo;

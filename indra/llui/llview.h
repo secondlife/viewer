@@ -143,8 +143,8 @@ class LLView : public LLMouseHandler, public LLMortician
 public:
 	struct Follows : public LLInitParam::Choice<Follows>
 	{
-		Option<std::string>	string;
-		Option<U32>			flags;
+		Alternative<std::string>	string;
+		Alternative<U32>			flags;
 
         Follows()
 		:   string(""),
@@ -190,7 +190,7 @@ public:
 
 		// these are nested attributes for LLLayoutPanel
 		//FIXME: get parent context involved in parsing traversal
-		Deprecated					user_resize,
+		Ignored						user_resize,
 									auto_resize,
 									needs_translate;
 
@@ -486,10 +486,10 @@ public:
 
 	virtual LLView* getChildView(const std::string& name, BOOL recurse = TRUE, BOOL create_if_missing = TRUE) const;
 
-	template <class T> T* getDummyWidget(const std::string& name) const
+	template <class T> T* getDefaultWidget(const std::string& name) const
 	{
-		dummy_widget_map_t::const_iterator found_it = getDummyWidgetMap().find(name);
-		if (found_it == getDummyWidgetMap().end())
+		default_widget_map_t::const_iterator found_it = getDefaultWidgetMap().find(name);
+		if (found_it == getDefaultWidgetMap().end())
 		{
 			return NULL;
 		}
@@ -592,11 +592,11 @@ private:
 
 	static LLWindow* sWindow;	// All root views must know about their window.
 
-	typedef std::map<std::string, LLView*> dummy_widget_map_t;
+	typedef std::map<std::string, LLView*> default_widget_map_t;
 	// allocate this map no demand, as it is rarely needed
-	mutable dummy_widget_map_t* mDummyWidgets;
+	mutable default_widget_map_t* mDefaultWidgets;
 
-	dummy_widget_map_t& getDummyWidgetMap() const;
+	default_widget_map_t& getDefaultWidgetMap() const;
 
 public:
 	static BOOL	sDebugRects;	// Draw debug rects behind everything.
@@ -640,10 +640,10 @@ template <class T> T* LLView::getChild(const std::string& name, BOOL recurse, BO
 		}
 		if (create_if_missing)
 		{
-			result = getDummyWidget<T>(name);
+			result = getDefaultWidget<T>(name);
 			if (!result)
 			{
-				result = LLUICtrlFactory::createDummyWidget<T>(name);
+				result = LLUICtrlFactory::getDefaultWidget<T>(name);
 
 				if (result)
 				{
@@ -655,7 +655,7 @@ template <class T> T* LLView::getChild(const std::string& name, BOOL recurse, BO
 					return NULL;
 				}
 
-				getDummyWidgetMap()[name] = result;
+				getDefaultWidgetMap()[name] = result;
 			}
 		}
 	}
