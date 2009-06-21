@@ -260,7 +260,7 @@ public:
 		// only log warnings to chat console
 		if (level == LLError::LEVEL_WARN)
 		{
-			LLFloaterChat* chat_floater = LLFloaterReg::getTypedInstance<LLFloaterChat>("chat");
+			LLFloaterChat* chat_floater = LLFloaterReg::findTypedInstance<LLFloaterChat>("chat");
 			if (chat_floater && gSavedSettings.getBOOL("WarningsAsChat"))
 			{
 				LLChat chat;
